@@ -1,85 +1,39 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay006.isp.belgacom.be ([195.238.6.172]:46400 "EHLO
-	mailrelay006.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755601Ab0GVVCb (ORCPT
+Received: from mailrelay008.isp.belgacom.be ([195.238.6.174]:3817 "EHLO
+	mailrelay008.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751809Ab0GZSqE (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 22 Jul 2010 17:02:31 -0400
-Date: Thu, 22 Jul 2010 23:02:29 +0200
+	Mon, 26 Jul 2010 14:46:04 -0400
+Date: Mon, 26 Jul 2010 20:46:02 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: H Hartley Sweeten <hartleys@visionengravers.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	"jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>
-Subject: Re: [PATCH] wdt_pci.c: move ids to pci_ids.h
-Message-ID: <20100722210229.GO11857@infomag.iguana.be>
-References: <0D753D10438DA54287A00B0270842697636F3238B3@AUSP01VMBX24.collaborationhost.net>
+To: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Cc: Viresh KUMAR <viresh.kumar@st.com>, armando.visconti@st.com,
+	shiraz.hashim@st.com, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH resend] Watchdog: Adding support for ARM Primecell
+	SP805 Watchdog
+Message-ID: <20100726184601.GS11857@infomag.iguana.be>
+References: <1275465783-14052-1-git-send-email-viresh.kumar@st.com> <4C11B711.70907@st.com> <20100611053049.GM3788@infomag.iguana.be> <4C285A72.7030303@st.com> <20100628162430.GN3788@infomag.iguana.be> <20100718193425.GD24707@n2100.arm.linux.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <0D753D10438DA54287A00B0270842697636F3238B3@AUSP01VMBX24.collaborationhost.net>
+In-Reply-To: <20100718193425.GD24707@n2100.arm.linux.org.uk>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi H Hartley,
+Hi All,
 
-Patch added to linux-2.6-watchdog-next .
+> > > Have you reviewed this patch or still need to look at it?
+> > 
+> > I'm chasing another bug and must admit I almost forgot about this one.
+> > So, yes, I still need to look at this one.
+> 
+> Any news on this - its still sitting in the patch system since May 31st...
+> What do I do about it?
+
+Patch looks OK. Will add it to my linux-2.6-watchdog-next tree this week.
 
 Kind regards,
 Wim.
 
-> Move the VENDOR/DEVICE ids to pci_ids.h.
-> 
-> Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
-> Cc: Wim Van Sebroeck <wim@iguana.be>
-> Cc: Jesse Barnes <jbarnes@virtuousgeek.org>
-> 
-> ---
-> 
-> diff --git a/drivers/watchdog/wdt_pci.c b/drivers/watchdog/wdt_pci.c
-> index 7b22e3c..6130c88 100644
-> --- a/drivers/watchdog/wdt_pci.c
-> +++ b/drivers/watchdog/wdt_pci.c
-> @@ -60,19 +60,6 @@
->  
->  #define PFX "wdt_pci: "
->  
-> -/*
-> - * Until Access I/O gets their application for a PCI vendor ID approved,
-> - * I don't think that it's appropriate to move these constants into the
-> - * regular pci_ids.h file. -- JPN 2000/01/18
-> - */
-> -
-> -#ifndef PCI_VENDOR_ID_ACCESSIO
-> -#define PCI_VENDOR_ID_ACCESSIO 0x494f
-> -#endif
-> -#ifndef PCI_DEVICE_ID_WDG_CSM
-> -#define PCI_DEVICE_ID_WDG_CSM 0x22c0
-> -#endif
-> -
->  /* We can only use 1 card due to the /dev/watchdog restriction */
->  static int dev_count;
->  
-> @@ -743,7 +730,7 @@ static void __devexit wdtpci_remove_one(struct pci_dev *pdev)
->  static struct pci_device_id wdtpci_pci_tbl[] = {
->  	{
->  		.vendor	   = PCI_VENDOR_ID_ACCESSIO,
-> -		.device	   = PCI_DEVICE_ID_WDG_CSM,
-> +		.device	   = PCI_DEVICE_ID_ACCESSIO_WDG_CSM,
->  		.subvendor = PCI_ANY_ID,
->  		.subdevice = PCI_ANY_ID,
->  	},
-> diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
-> index 9f688d2..e4551f0 100644
-> --- a/include/linux/pci_ids.h
-> +++ b/include/linux/pci_ids.h
-> @@ -2367,6 +2367,9 @@
->  #define PCI_VENDOR_ID_AKS		0x416c
->  #define PCI_DEVICE_ID_AKS_ALADDINCARD	0x0100
->  
-> +#define PCI_VENDOR_ID_ACCESSIO		0x494f
-> +#define PCI_DEVICE_ID_ACCESSIO_WDG_CSM	0x22c0
-> +
->  #define PCI_VENDOR_ID_S3		0x5333
->  #define PCI_DEVICE_ID_S3_TRIO		0x8811
->  #define PCI_DEVICE_ID_S3_868		0x8880
