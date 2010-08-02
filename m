@@ -1,35 +1,58 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay008.isp.belgacom.be ([195.238.6.174]:17006 "EHLO
-	mailrelay008.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751393Ab0HBK5H (ORCPT
+Received: from mailrelay003.isp.belgacom.be ([195.238.6.53]:18700 "EHLO
+	mailrelay003.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752969Ab0HBMh5 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 2 Aug 2010 06:57:07 -0400
-Date: Mon, 2 Aug 2010 12:57:04 +0200
+	Mon, 2 Aug 2010 08:37:57 -0400
+Date: Mon, 2 Aug 2010 14:37:55 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Viresh KUMAR <viresh.kumar@st.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Russell King - ARM Linux <linux@arm.linux.org.uk>,
-	armando.visconti@st.com, shiraz.hashim@st.com,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+To: David Daney <ddaney@caviumnetworks.com>, ralf@linux-mips.org
+Cc: linux-mips@linux-mips.org, linux-kernel@vger.kernel.org,
 	linux-watchdog@vger.kernel.org,
-	Linus Walleij <linus.ml.walleij@gmail.com>
-Subject: Re: [PATCH resend] Watchdog: Adding support for ARM Primecell
-	SP805 Watchdog
-Message-ID: <20100802105704.GT30740@infomag.iguana.be>
-References: <1275465783-14052-1-git-send-email-viresh.kumar@st.com> <4C11B711.70907@st.com> <20100611053049.GM3788@infomag.iguana.be> <4C285A72.7030303@st.com> <20100628162430.GN3788@infomag.iguana.be> <20100718193425.GD24707@n2100.arm.linux.org.uk> <20100726184601.GS11857@infomag.iguana.be> <4C4E5B1E.4040004@st.com>
+	Andrew Morton <akpm@linux-foundation.org>,
+	Russell King <rmk+kernel@arm.linux.org.uk>,
+	Tony Lindgren <tony@atomide.com>,
+	Marc Zyngier <maz@misterjones.org>,
+	Thierry Reding <thierry.reding@avionic-design.de>,
+	Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [PATCH] watchdog: Add watchdog driver for OCTEON SOCs (v2).
+Message-ID: <20100802123755.GV30740@infomag.iguana.be>
+References: <20100724035826.GA27516@merkur.ravnborg.org> <1279991765-23962-1-git-send-email-ddaney@caviumnetworks.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4C4E5B1E.4040004@st.com>
+In-Reply-To: <1279991765-23962-1-git-send-email-ddaney@caviumnetworks.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Viresh,
+Hi David, Ralf,
 
-> I will send V2 of this patch, which will include modification as suggested by
-> Linus walleij.
+> The OCTEON is a MIPS64 based SOC family with an on chip watchdog unit.
+> 
+> The driver is split into two source files one for the C code and one
+> for assembly.  Assembly is needed to handle the NMI and then print the
+> machine state before the reboot is triggered.
+> 
+> v2: Stylistic changes suggested by Sam Ravnborg.
 
-After the discussion about the division: will there be a V2 of this patch or will V1 remain?
+This v2 looks good. only small remark is:
+> +static struct notifier_block octeon_wdt_cpu_notifier = {
+> +	.notifier_call = octeon_wdt_cpu_callback
+> +};
+
+Add a comma after octeon_wdt_cpu_callback.
+
+> Signed-off-by: David Daney <ddaney@caviumnetworks.com>
+> Cc: Wim Van Sebroeck <wim@iguana.be>
+
+Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Russell King <rmk+kernel@arm.linux.org.uk>
+> Cc: Tony Lindgren <tony@atomide.com>
+> Cc: Marc Zyngier <maz@misterjones.org>
+> Cc: Thierry Reding <thierry.reding@avionic-design.de>
+> Cc: Sam Ravnborg <sam@ravnborg.org>
 
 Kind regards,
 Wim.
