@@ -1,38 +1,43 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from h5.dl5rb.org.uk ([81.2.74.5]:40598 "EHLO h5.dl5rb.org.uk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751825Ab0HBM5r (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 2 Aug 2010 08:57:47 -0400
-Date: Mon, 2 Aug 2010 13:57:08 +0100
-From: Ralf Baechle <ralf@linux-mips.org>
+Received: from eu1sys200aog117.obsmtp.com ([207.126.144.143]:49426 "EHLO
+	eu1sys200aog117.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753983Ab0HDGEs convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 4 Aug 2010 02:04:48 -0400
+From: viresh kumar <viresh.kumar@st.com>
 To: Wim Van Sebroeck <wim@iguana.be>
-Cc: David Daney <ddaney@caviumnetworks.com>, linux-mips@linux-mips.org,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Russell King <rmk+kernel@arm.linux.org.uk>,
-	Tony Lindgren <tony@atomide.com>,
-	Marc Zyngier <maz@misterjones.org>,
-	Thierry Reding <thierry.reding@avionic-design.de>,
-	Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [PATCH] watchdog: Add watchdog driver for OCTEON SOCs (v2).
-Message-ID: <20100802125708.GA5209@linux-mips.org>
-References: <20100724035826.GA27516@merkur.ravnborg.org>
- <1279991765-23962-1-git-send-email-ddaney@caviumnetworks.com>
- <20100802123755.GV30740@infomag.iguana.be>
+Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>,
+	Armando Visconti <armando.visconti@st.com>,
+	shiraz hashim <shiraz.hashim@st.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	Linus Walleij <linus.ml.walleij@gmail.com>
+Date: Wed, 4 Aug 2010 14:04:23 +0800
+Subject: RE: [PATCH resend] Watchdog: Adding support for ARM Primecell	SP805
+ Watchdog
+Message-ID: <F6259B467C2CCE44A8F3D92A9BFE1D3D166FD0EBE7@EAPEX1MAIL1.st.com>
+References: <1275465783-14052-1-git-send-email-viresh.kumar@st.com>
+ <4C11B711.70907@st.com> <20100611053049.GM3788@infomag.iguana.be>
+ <4C285A72.7030303@st.com> <20100628162430.GN3788@infomag.iguana.be>
+ <20100718193425.GD24707@n2100.arm.linux.org.uk>
+ <20100726184601.GS11857@infomag.iguana.be>
+ <4C4E5B1E.4040004@st.com>,<20100802105704.GT30740@infomag.iguana.be>
+In-Reply-To: <20100802105704.GT30740@infomag.iguana.be>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20100802123755.GV30740@infomag.iguana.be>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Aug 02, 2010 at 02:37:55PM +0200, Wim Van Sebroeck wrote:
+Hi Wim,
 
-> > Signed-off-by: David Daney <ddaney@caviumnetworks.com>
-> > Cc: Wim Van Sebroeck <wim@iguana.be>
-> 
-> Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
 
-Patch updated.  Thanks Wim!
+> After the discussion about the division: will there be a V2 of this patch or will V1 remain?
 
-  Ralf
+Yes, i will send V2 of this patch.
+There is one change, inclusion of slab.h.
+
+viresh.
