@@ -1,128 +1,51 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:16522 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753528Ab0HFPla (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 6 Aug 2010 11:41:30 -0400
-Received: from int-mx05.intmail.prod.int.phx2.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.18])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id o76FfREI017484
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <linux-watchdog@vger.kernel.org>; Fri, 6 Aug 2010 11:41:27 -0400
-Date: Fri, 6 Aug 2010 11:41:24 -0400
-From: Prarit Bhargava <prarit@redhat.com>
-To: linux-watchdog@vger.kernel.org, seth.heasley@intel.com,
-	john.villalo@intel.com, wim@iguana.be
-Cc: Prarit Bhargava <prarit@redhat.com>
-Message-Id: <20100806154124.14863.63659.sendpatchset@prarit.bos.redhat.com>
-Subject: [PATCH]: iTCO_wdt: Cleanup warning messages
+Received: from mailrelay007.isp.belgacom.be ([195.238.6.173]:63151 "EHLO
+	mailrelay007.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S964823Ab0HFV0u (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 6 Aug 2010 17:26:50 -0400
+Date: Fri, 6 Aug 2010 23:26:48 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: dann frazier <dannf@hp.com>
+Cc: linux-kernel@vger.kernel.org,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+	Thomas Mingarelli <thomas.mingarelli@hp.com>
+Subject: Re: [PATCH 00/15] hpwdt: make NMI code a config option (+ other
+	cleanup)
+Message-ID: <20100806212648.GA30843@infomag.iguana.be>
+References: <1280274663-9160-1-git-send-email-dannf@hp.com> <20100805214102.GA4288@infomag.iguana.be>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20100805214102.GA4288@infomag.iguana.be>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The current iTCO_wdt driver warnings are confusing.  Currently when the device
-driver returns an error the console contains:
+Hi Dan,
 
-iTCO_vendor_support: vendor-support=0
-iTCO_wdt: Intel TCO WatchDog Timer Driver v1.05
-iTCO_wdt: failed to reset NO_REBOOT flag, reboot disabled by hardware
-iTCO_wdt: No card detected
+> So overall: patches look good, but let's re-order the patches a bit (so that we first clean-up the driver and then add the NMI related changes (If we ever need to revert some things then we at least have a clean-driver before we start bisecting the NMI changes)).
+> And secondly: let's try to have the ifdef's out of the init and exit procedures.
+> 
+> If you can look at how we can get rid of the ifdef's in init and exit, then I will reorder the patches and change the 3 timer patches and put that allready in a git tree.
 
-After the patch,
+I reorganised the sequence of patches. I'll sent them to you for verification (and will put a copy in linux-watchdog mailing list).
 
-iTCO_vendor_support: vendor-support=0
-iTCO_wdt: Intel TCO WatchDog Timer Driver v1.05
-iTCO_wdt: failed to reset NO_REBOOT flag, device disabled by hardware/BIOS
+the patches now look like:
+watchdog: hpwdt (1/12): clean-up include-files.
+watchdog: hpwdt (2/12): Group options that affect watchdog behavior together
+watchdog: hpwdt (3/12): Group NMI sourcing specific items together
+watchdog: hpwdt (4/12): Despecificate driver from iLO2
+watchdog: hpwdt (5/12): Make x86 assembly ifdef guard more strict
+watchdog: hpwdt (6/12): Introduce SECS_TO_TICKS() macro
+watchdog: hpwdt (7/12): allow full range of timer values supported by hardware
+watchdog: hpwdt (8/12): implement WDIOC_GETTIMELEFT
+watchdog: hpwdt (9/12): hpwdt_pretimeout reorganization
+watchdog: hpwdt (10/12): Construct status message w/ kasprintf and emit it with dev_info
+watchdog: hpwdt (11/12): Use "decoding" instead of "sourcing"
+watchdog: hpwdt (12/12): Make NMI decoding a compile-time option
 
-Clean this up and use the word "device" to describe the device.
+(patch 12 can still be improved).
 
-Signed-off-by: Prarit Bhargava <prarit@redhat.com>
+Kind regards,
+Wim.
 
-diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
-index 69de871..e851a6c 100644
---- a/drivers/watchdog/iTCO_wdt.c
-+++ b/drivers/watchdog/iTCO_wdt.c
-@@ -374,7 +374,7 @@ static char expect_release;
- static struct {		/* this is private data for the iTCO_wdt device */
- 	/* TCO version/generation */
- 	unsigned int iTCO_version;
--	/* The cards ACPIBASE address (TCOBASE = ACPIBASE+0x60) */
-+	/* The device's ACPIBASE address (TCOBASE = ACPIBASE+0x60) */
- 	unsigned long ACPIBASE;
- 	/* NO_REBOOT flag is Memory-Mapped GCS register bit 5 (TCO version 2)*/
- 	unsigned long __iomem *gcs;
-@@ -467,7 +467,7 @@ static int iTCO_wdt_start(void)
- 	if (iTCO_wdt_unset_NO_REBOOT_bit()) {
- 		spin_unlock(&iTCO_wdt_private.io_lock);
- 		printk(KERN_ERR PFX "failed to reset NO_REBOOT flag, "
--					"reboot disabled by hardware\n");
-+		       "reboot disabled by hardware/BIOS\n");
- 		return -EIO;
- 	}
- 
-@@ -781,7 +781,8 @@ static int __devinit iTCO_wdt_init(struct pci_dev *pdev,
- 	base_address &= 0x0000ff80;
- 	if (base_address == 0x00000000) {
- 		/* Something's wrong here, ACPIBASE has to be set */
--		printk(KERN_ERR PFX "failed to get TCOBASE address\n");
-+		printk(KERN_ERR PFX "failed to get TCOBASE address, "
-+		       "device disabled by hardware/BIOS\n");
- 		pci_dev_put(pdev);
- 		return -ENODEV;
- 	}
-@@ -797,7 +798,8 @@ static int __devinit iTCO_wdt_init(struct pci_dev *pdev,
- 	if (iTCO_wdt_private.iTCO_version == 2) {
- 		pci_read_config_dword(pdev, 0xf0, &base_address);
- 		if ((base_address & 1) == 0) {
--			printk(KERN_ERR PFX "RCBA is disabled by hardware\n");
-+			printk(KERN_ERR PFX "RCBA is disabled by hardware"
-+			       "/BIOS, device disabled\n");
- 			ret = -ENODEV;
- 			goto out;
- 		}
-@@ -808,7 +810,7 @@ static int __devinit iTCO_wdt_init(struct pci_dev *pdev,
- 	/* Check chipset's NO_REBOOT bit */
- 	if (iTCO_wdt_unset_NO_REBOOT_bit() && iTCO_vendor_check_noreboot_on()) {
- 		printk(KERN_INFO PFX "unable to reset NO_REBOOT flag, "
--					"platform may have disabled it\n");
-+		       "device disabled by hardware/BIOS\n");
- 		ret = -ENODEV;	/* Cannot reset NO_REBOOT bit */
- 		goto out_unmap;
- 	}
-@@ -819,7 +821,8 @@ static int __devinit iTCO_wdt_init(struct pci_dev *pdev,
- 	/* The TCO logic uses the TCO_EN bit in the SMI_EN register */
- 	if (!request_region(SMI_EN, 4, "iTCO_wdt")) {
- 		printk(KERN_ERR PFX
--			"I/O address 0x%04lx already in use\n", SMI_EN);
-+		       "I/O address 0x%04lx already in use, "
-+		       "device disabled\n", SMI_EN);
- 		ret = -EIO;
- 		goto out_unmap;
- 	}
-@@ -831,8 +834,8 @@ static int __devinit iTCO_wdt_init(struct pci_dev *pdev,
- 	/* The TCO I/O registers reside in a 32-byte range pointed to
- 	   by the TCOBASE value */
- 	if (!request_region(TCOBASE, 0x20, "iTCO_wdt")) {
--		printk(KERN_ERR PFX "I/O address 0x%04lx already in use\n",
--			TCOBASE);
-+		printk(KERN_ERR PFX "I/O address 0x%04lx already in use "
-+		       "device disabled\n", TCOBASE);
- 		ret = -EIO;
- 		goto unreg_smi_en;
- 	}
-@@ -913,15 +916,14 @@ static int __devinit iTCO_wdt_probe(struct platform_device *dev)
- 	for_each_pci_dev(pdev) {
- 		ent = pci_match_id(iTCO_wdt_pci_tbl, pdev);
- 		if (ent) {
--			found++;
--			ret = iTCO_wdt_init(pdev, ent, dev);
--			if (!ret)
-+			found = 1;
-+			if (!iTCO_wdt_init(pdev, ent, dev))
- 				break;
- 		}
- 	}
- 
- 	if (!found)
--		printk(KERN_INFO PFX "No card detected\n");
-+		printk(KERN_INFO PFX "No device detected.\n");
- 
- 	return ret;
- }
