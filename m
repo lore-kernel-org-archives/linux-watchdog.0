@@ -1,80 +1,79 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay003.isp.belgacom.be ([195.238.6.53]:17848 "EHLO
-	mailrelay003.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751403Ab0HFVe0 (ORCPT
+Received: from mailrelay007.isp.belgacom.be ([195.238.6.173]:3844 "EHLO
+	mailrelay007.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751403Ab0HFVfD (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 6 Aug 2010 17:34:26 -0400
-Date: Fri, 6 Aug 2010 23:34:24 +0200
+	Fri, 6 Aug 2010 17:35:03 -0400
+Date: Fri, 6 Aug 2010 23:35:01 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
 To: dann frazier <dannf@hp.com>
 Cc: Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
 	Thomas Mingarelli <thomas.mingarelli@hp.com>
-Subject: watchdog: hpwdt (9/12): hpwdt_pretimeout reorganization
-Message-ID: <20100806213424.GH31433@infomag.iguana.be>
+Subject: watchdog: hpwdt (10/12): Construct status message w/ kasprintf and
+	emit it with dev_info
+Message-ID: <20100806213501.GI31433@infomag.iguana.be>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-commit 20b311bcad0950b3e0ec96dd68ce7de3f9fcd009
+commit b014df2245efe8abe6a9913dcd1ef2da683f67a0
 Author: dann frazier <dannf@hp.com>
-Date:   Tue Jul 27 17:50:49 2010 -0600
+Date:   Wed Jul 28 12:38:43 2010 -0600
 
-    watchdog: hpwdt (9/12): hpwdt_pretimeout reorganization
+    watchdog: hpwdt (10/12): Construct status message w/ kasprintf and emit it with dev_info
     
-    Reorganize this function to remove excess indentation and highlight
-    the single return code. (No functional change).
+    Constructing the string dynamically w/ kasprintf will make it easier to
+    ifdef-out parts of it. Also, this is for a device, so let's use dev_info.
     
     Signed-off-by: dann frazier <dannf@hp.com>
     Acked-by: Thomas Mingarelli <Thomas.Mingarelli@hp.com>
     Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
 
 diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-index 554526c..7ce7317 100644
+index 7ce7317..5bade2d 100644
 --- a/drivers/watchdog/hpwdt.c
 +++ b/drivers/watchdog/hpwdt.c
-@@ -465,24 +465,26 @@ static int hpwdt_pretimeout(struct notifier_block *nb, unsigned long ulReason,
- 	static int die_nmi_called;
+@@ -659,6 +659,7 @@ static int __devinit hpwdt_init_one(struct pci_dev *dev,
+ 					const struct pci_device_id *ent)
+ {
+ 	int retval;
++	char *buf;
  
- 	if (ulReason != DIE_NMI && ulReason != DIE_NMI_IPI)
--		return NOTIFY_OK;
--
--	if (hpwdt_nmi_sourcing) {
--		spin_lock_irqsave(&rom_lock, rom_pl);
--		if (!die_nmi_called)
--			asminline_call(&cmn_regs, cru_rom_addr);
--		die_nmi_called = 1;
--		spin_unlock_irqrestore(&rom_lock, rom_pl);
--		if (cmn_regs.u1.ral == 0) {
--			printk(KERN_WARNING "hpwdt: An NMI occurred, "
--				"but unable to determine source.\n");
--		} else {
--			if (allow_kdump)
--				hpwdt_stop();
--			panic("An NMI occurred, please see the Integrated "
--				"Management Log for details.\n");
--		}
-+		goto out;
-+
-+	if (!hpwdt_nmi_sourcing)
-+		goto out;
-+
-+	spin_lock_irqsave(&rom_lock, rom_pl);
-+	if (!die_nmi_called)
-+		asminline_call(&cmn_regs, cru_rom_addr);
-+	die_nmi_called = 1;
-+	spin_unlock_irqrestore(&rom_lock, rom_pl);
-+	if (cmn_regs.u1.ral == 0) {
-+		printk(KERN_WARNING "hpwdt: An NMI occurred, "
-+			"but unable to determine source.\n");
-+	} else {
-+		if (allow_kdump)
-+			hpwdt_stop();
-+		panic("An NMI occurred, please see the Integrated "
-+			"Management Log for details.\n");
+ 	/*
+ 	 * Check if we can do NMI sourcing or not
+@@ -742,14 +743,17 @@ static int __devinit hpwdt_init_one(struct pci_dev *dev,
+ 		goto error_misc_register;
  	}
-+out:
- 	return NOTIFY_OK;
+ 
+-	printk(KERN_INFO
+-		"hp Watchdog Timer Driver: %s"
+-		", timer margin: %d seconds (nowayout=%d)"
+-		", allow kernel dump: %s (default = 0/OFF)"
+-		", priority: %s (default = 0/LAST).\n",
+-		HPWDT_VERSION, soft_margin, nowayout,
+-		(allow_kdump == 0) ? "OFF" : "ON",
+-		(priority == 0) ? "LAST" : "FIRST");
++	buf = kasprintf(GFP_KERNEL, "hp Watchdog Timer Driver: %s"
++			", timer margin: %d seconds (nowayout=%d)"
++			", allow kernel dump: %s (default = 0/OFF)"
++			", priority: %s (default = 0/LAST)",
++			HPWDT_VERSION, soft_margin, nowayout,
++			(allow_kdump == 0) ? "OFF" : "ON",
++			(priority == 0) ? "LAST" : "FIRST");
++	if (!buf)
++		goto error_nomem;
++	dev_info(&dev->dev, "%s.\n", buf);
++	kfree(buf);
+ 
+ 	return 0;
+ 
+@@ -762,6 +766,7 @@ error_get_cru:
+ 	pci_iounmap(dev, pci_mem_addr);
+ error_pci_iomap:
+ 	pci_disable_device(dev);
++error_nomem:
+ 	return retval;
  }
  
