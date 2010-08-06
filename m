@@ -1,51 +1,70 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay007.isp.belgacom.be ([195.238.6.173]:63151 "EHLO
-	mailrelay007.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S964823Ab0HFV0u (ORCPT
+Received: from mailrelay006.isp.belgacom.be ([195.238.6.172]:41306 "EHLO
+	mailrelay006.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751403Ab0HFV2n (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 6 Aug 2010 17:26:50 -0400
-Date: Fri, 6 Aug 2010 23:26:48 +0200
+	Fri, 6 Aug 2010 17:28:43 -0400
+Date: Fri, 6 Aug 2010 23:28:41 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
 To: dann frazier <dannf@hp.com>
-Cc: linux-kernel@vger.kernel.org,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+Cc: Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
 	Thomas Mingarelli <thomas.mingarelli@hp.com>
-Subject: Re: [PATCH 00/15] hpwdt: make NMI code a config option (+ other
-	cleanup)
-Message-ID: <20100806212648.GA30843@infomag.iguana.be>
-References: <1280274663-9160-1-git-send-email-dannf@hp.com> <20100805214102.GA4288@infomag.iguana.be>
+Subject: watchdog: hpwdt (1/12): clean-up include-files.
+Message-ID: <20100806212841.GA31417@infomag.iguana.be>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20100805214102.GA4288@infomag.iguana.be>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Dan,
+commit c35f4e6b480d8df46a8f37420da6ed3758040fa2
+Author: dann frazier <dannf@hp.com>
+Date:   Tue Jul 27 17:50:50 2010 -0600
 
-> So overall: patches look good, but let's re-order the patches a bit (so that we first clean-up the driver and then add the NMI related changes (If we ever need to revert some things then we at least have a clean-driver before we start bisecting the NMI changes)).
-> And secondly: let's try to have the ifdef's out of the init and exit procedures.
-> 
-> If you can look at how we can get rid of the ifdef's in init and exit, then I will reorder the patches and change the 3 timer patches and put that allready in a git tree.
+    watchdog: hpwdt (1/12): clean-up include-files.
+    
+    * remove unnecessary includes
+    * We use a spinlock, but lacked the include
+    * We need bitops.h for test_and_set_bit/clear_bit
+    
+    Signed-off-by: dann frazier <dannf@hp.com>
+    Acked-by: Thomas Mingarelli <Thomas.Mingarelli@hp.com>
+    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
 
-I reorganised the sequence of patches. I'll sent them to you for verification (and will put a copy in linux-watchdog mailing list).
-
-the patches now look like:
-watchdog: hpwdt (1/12): clean-up include-files.
-watchdog: hpwdt (2/12): Group options that affect watchdog behavior together
-watchdog: hpwdt (3/12): Group NMI sourcing specific items together
-watchdog: hpwdt (4/12): Despecificate driver from iLO2
-watchdog: hpwdt (5/12): Make x86 assembly ifdef guard more strict
-watchdog: hpwdt (6/12): Introduce SECS_TO_TICKS() macro
-watchdog: hpwdt (7/12): allow full range of timer values supported by hardware
-watchdog: hpwdt (8/12): implement WDIOC_GETTIMELEFT
-watchdog: hpwdt (9/12): hpwdt_pretimeout reorganization
-watchdog: hpwdt (10/12): Construct status message w/ kasprintf and emit it with dev_info
-watchdog: hpwdt (11/12): Use "decoding" instead of "sourcing"
-watchdog: hpwdt (12/12): Make NMI decoding a compile-time option
-
-(patch 12 can still be improved).
-
-Kind regards,
-Wim.
-
+diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
+index fd312fc..183b7a4 100644
+--- a/drivers/watchdog/hpwdt.c
++++ b/drivers/watchdog/hpwdt.c
+@@ -16,30 +16,22 @@
+ #include <linux/device.h>
+ #include <linux/fs.h>
+ #include <linux/init.h>
+-#include <linux/interrupt.h>
+ #include <linux/io.h>
+-#include <linux/irq.h>
+ #include <linux/nmi.h>
++#include <linux/bitops.h>
+ #include <linux/kernel.h>
+ #include <linux/miscdevice.h>
+-#include <linux/mm.h>
+ #include <linux/module.h>
+ #include <linux/kdebug.h>
+ #include <linux/moduleparam.h>
+ #include <linux/notifier.h>
+ #include <linux/pci.h>
+ #include <linux/pci_ids.h>
+-#include <linux/reboot.h>
+-#include <linux/sched.h>
+-#include <linux/timer.h>
+ #include <linux/types.h>
+ #include <linux/uaccess.h>
+ #include <linux/watchdog.h>
+ #include <linux/dmi.h>
+-#include <linux/efi.h>
+-#include <linux/string.h>
+-#include <linux/bootmem.h>
+-#include <asm/desc.h>
++#include <linux/spinlock.h>
+ #include <asm/cacheflush.h>
+ 
+ #define PCI_BIOS32_SD_VALUE		0x5F32335F	/* "_32_" */
