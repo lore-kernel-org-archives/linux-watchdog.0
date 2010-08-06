@@ -1,97 +1,237 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay001.isp.belgacom.be ([195.238.6.51]:47915 "EHLO
-	mailrelay001.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751403Ab0HFVfw (ORCPT
+Received: from mailrelay009.isp.belgacom.be ([195.238.6.176]:53132 "EHLO
+	mailrelay009.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751403Ab0HFVjN (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 6 Aug 2010 17:35:52 -0400
-Date: Fri, 6 Aug 2010 23:35:51 +0200
+	Fri, 6 Aug 2010 17:39:13 -0400
+Date: Fri, 6 Aug 2010 23:39:10 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
 To: dann frazier <dannf@hp.com>
 Cc: Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
 	Thomas Mingarelli <thomas.mingarelli@hp.com>
-Subject: watchdog: hpwdt (11/12): Use "decoding" instead of "sourcing"
-Message-ID: <20100806213551.GJ31433@infomag.iguana.be>
+Subject: watchdog: hpwdt (12/12): Make NMI decoding a compile-time option
+Message-ID: <20100806213910.GK31433@infomag.iguana.be>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-commit d13a35b25f9de70c019d2db8d56f4cec89ca43fa
-Author: dann frazier <dannf@hp.com>
-Date:   Tue Jul 27 17:51:01 2010 -0600
 
-    watchdog: hpwdt (11/12): Use "decoding" instead of "sourcing"
+Author: dann frazier
+Email: dannf@hp.com
+Date: Tue, 27 Jul 2010 17:51:02 -0600
+
+    watchdog: hpwdt (12/12): Make NMI decoding a compile-time option
     
-    The term "decoding" more clearly explains what hpwdt is doing. It isn't
-    just finding the source of the interrupt, but rather aids in decoding what
-    the interrupt means.
+    hpwdt is quite functional without the NMI decoding feature.
+    This change lets users disable the NMI portion at compile-time
+    via the new HPWDT_NMI_DECODING config option.
     
     Signed-off-by: dann frazier <dannf@hp.com>
     Acked-by: Thomas Mingarelli <Thomas.Mingarelli@hp.com>
     Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
 
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index fc3d6b5..3d77697 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -578,12 +578,17 @@
+ 	depends on X86
+ 	help
+ 	  A software monitoring watchdog and NMI sourcing driver. This driver
+-	  will detect lockups and provide a stack trace. Also, when an NMI
+-	  occurs this driver will make the necessary BIOS calls to log
+-	  the cause of the NMI. This is a driver that will only load on a
+-	  HP ProLiant system with a minimum of iLO2 support.
+-	  To compile this driver as a module, choose M here: the
+-	  module will be called hpwdt.
++	  will detect lockups and provide a stack trace. This is a driver that
++	  will only load on a HP ProLiant system with a minimum of iLO2 support.
++	  To compile this driver as a module, choose M here: the module will be
++	  called hpwdt.
++
++config HPWDT_NMI_DECODING
++	bool "NMI decoding support for the HP ProLiant iLO2+ Hardware Watchdog Timer"
++	depends on HP_WATCHDOG
++	help
++	  When an NMI occurs this feature will make the necessary BIOS calls to
++	  log the cause of the NMI.
+ 
+ config SC1200_WDT
+ 	tristate "National Semiconductor PC87307/PC97307 (ala SC1200) Watchdog"
 diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-index 5bade2d..56bd7e5 100644
+index 00aea69..68f5e37 100644
 --- a/drivers/watchdog/hpwdt.c
 +++ b/drivers/watchdog/hpwdt.c
-@@ -126,7 +126,7 @@ struct cmn_registers {
- 	u32 reflags;
- }  __attribute__((packed));
+@@ -27,12 +27,14 @@
+ #include <linux/types.h>
+ #include <linux/uaccess.h>
+ #include <linux/watchdog.h>
++#ifdef CONFIG_HPWDT_NMI_DECODING
+ #include <linux/dmi.h>
+ #include <linux/spinlock.h>
+ #include <linux/nmi.h>
+ #include <linux/kdebug.h>
+ #include <linux/notifier.h>
+ #include <asm/cacheflush.h>
++#endif /* CONFIG_HPWDT_NMI_DECODING */
  
--static unsigned int hpwdt_nmi_sourcing;
-+static unsigned int hpwdt_nmi_decoding;
- static unsigned int allow_kdump;
- static unsigned int priority;		/* hpwdt at end of die_notify list */
- static DEFINE_SPINLOCK(rom_lock);
-@@ -467,7 +467,7 @@ static int hpwdt_pretimeout(struct notifier_block *nb, unsigned long ulReason,
- 	if (ulReason != DIE_NMI && ulReason != DIE_NMI_IPI)
- 		goto out;
+ #define HPWDT_VERSION			"1.1.1"
+ #define SECS_TO_TICKS(secs)		((secs) * 1000 / 128)
+@@ -57,6 +59,7 @@
+ };
+ MODULE_DEVICE_TABLE(pci, hpwdt_devices);
  
--	if (!hpwdt_nmi_sourcing)
-+	if (!hpwdt_nmi_decoding)
- 		goto out;
++#ifdef CONFIG_HPWDT_NMI_DECODING
+ #define PCI_BIOS32_SD_VALUE		0x5F32335F	/* "_32_" */
+ #define CRU_BIOS_SIGNATURE_VALUE	0x55524324
+ #define PCI_BIOS32_PARAGRAPH_LEN	16
+@@ -407,6 +410,7 @@
+ }
+ /* ------------------------------------------------------------------------- */
+ #endif /* CONFIG_X86_64 */
++#endif /* CONFIG_HPWDT_NMI_DECODING */
  
- 	spin_lock_irqsave(&rom_lock, rom_pl);
-@@ -634,23 +634,23 @@ static struct notifier_block die_notifier = {
+ /*
+  *	Watchdog operations
+@@ -455,6 +459,7 @@
+ 	return TICKS_TO_SECS(ioread16(hpwdt_timer_reg));
+ }
+ 
++#ifdef CONFIG_HPWDT_NMI_DECODING
+ /*
+  *	NMI Handler
+  */
+@@ -487,6 +492,7 @@
+ out:
+ 	return NOTIFY_OK;
+ }
++#endif /* CONFIG_HPWDT_NMI_DECODING */
+ 
+ /*
+  *	/dev/watchdog handling
+@@ -624,15 +630,18 @@
+ 	.fops = &hpwdt_fops,
+ };
+ 
++#ifdef CONFIG_HPWDT_NMI_DECODING
+ static struct notifier_block die_notifier = {
+ 	.notifier_call = hpwdt_pretimeout,
+ 	.priority = 0,
+ };
++#endif /* CONFIG_HPWDT_NMI_DECODING */
+ 
+ /*
+  *	Init & Exit
   */
  
++#ifdef CONFIG_HPWDT_NMI_DECODING
  #ifdef ARCH_HAS_NMI_WATCHDOG
--static void __devinit hpwdt_check_nmi_sourcing(struct pci_dev *dev)
-+static void __devinit hpwdt_check_nmi_decoding(struct pci_dev *dev)
+ static void __devinit hpwdt_check_nmi_decoding(struct pci_dev *dev)
  {
- 	/*
- 	 * If nmi_watchdog is turned off then we can turn on
--	 * our nmi sourcing capability.
-+	 * our nmi decoding capability.
- 	 */
- 	if (!nmi_watchdog_active())
--		hpwdt_nmi_sourcing = 1;
-+		hpwdt_nmi_decoding = 1;
- 	else
--		dev_warn(&dev->dev, "NMI sourcing is disabled. To enable this "
-+		dev_warn(&dev->dev, "NMI decoding is disabled. To enable this "
- 			"functionality you must reboot with nmi_watchdog=0 "
- 			"and load the hpwdt driver with priority=1.\n");
- }
- #else
--static void __devinit hpwdt_check_nmi_sourcing(struct pci_dev *dev)
-+static void __devinit hpwdt_check_nmi_decoding(struct pci_dev *dev)
- {
--	dev_warn(&dev->dev, "NMI sourcing is disabled. "
-+	dev_warn(&dev->dev, "NMI decoding is disabled. "
+@@ -653,13 +662,21 @@
+ 	dev_warn(&dev->dev, "NMI decoding is disabled. "
  		"Your kernel does not support a NMI Watchdog.\n");
  }
- #endif
-@@ -662,9 +662,9 @@ static int __devinit hpwdt_init_one(struct pci_dev *dev,
+-#endif
++#endif /* ARCH_HAS_NMI_WATCHDOG */
++#else /* !CONFIG_HPWDT_NMI_DECODING */
++static void __devinit hpwdt_check_nmi_decoding(struct pci_dev *dev)
++{
++}
++#endif /* CONFIG_HPWDT_NMI_DECODING */
+ 
+ static int __devinit hpwdt_init_one(struct pci_dev *dev,
+ 					const struct pci_device_id *ent)
+ {
+ 	int retval;
  	char *buf;
++#ifdef CONFIG_HPWDT_NMI_DECODING
++	char *tmp;
++#endif
  
  	/*
--	 * Check if we can do NMI sourcing or not
-+	 * Check if we can do NMI decoding or not
- 	 */
--	hpwdt_check_nmi_sourcing(dev);
-+	hpwdt_check_nmi_decoding(dev);
+ 	 * Check if we can do NMI decoding or not
+@@ -698,6 +715,7 @@
+ 	if (hpwdt_change_timer(soft_margin))
+ 		hpwdt_change_timer(DEFAULT_MARGIN);
  
++#ifdef CONFIG_HPWDT_NMI_DECODING
  	/*
- 	 * First let's find out if we are on an iLO2+ server. We will
+ 	 * We need to map the ROM to get the CRU service.
+ 	 * For 32 bit Operating Systems we need to go through the 32 Bit
+@@ -734,6 +752,7 @@
+ 			retval);
+ 		goto error_die_notifier;
+ 	}
++#endif
+ 
+ 	retval = misc_register(&hpwdt_miscdev);
+ 	if (retval < 0) {
+@@ -744,25 +763,35 @@
+ 	}
+ 
+ 	buf = kasprintf(GFP_KERNEL, "hp Watchdog Timer Driver: %s"
+-			", timer margin: %d seconds (nowayout=%d)"
++			", timer margin: %d seconds (nowayout=%d)",
++			HPWDT_VERSION, soft_margin, nowayout);
++	if (!buf)
++		goto error_nomem;
++#ifdef CONFIG_HPWDT_NMI_DECODING
++	tmp = buf;
++	buf = kasprintf(GFP_KERNEL, "%s"
+ 			", allow kernel dump: %s (default = 0/OFF)"
+ 			", priority: %s (default = 0/LAST)",
+-			HPWDT_VERSION, soft_margin, nowayout,
++			buf,
+ 			(allow_kdump == 0) ? "OFF" : "ON",
+ 			(priority == 0) ? "LAST" : "FIRST");
++	kfree(tmp);
+ 	if (!buf)
+ 		goto error_nomem;
++#endif
+ 	dev_info(&dev->dev, "%s.\n", buf);
+ 	kfree(buf);
+ 
+ 	return 0;
+ 
+ error_misc_register:
++#ifdef CONFIG_HPWDT_NMI_DECODING
+ 	unregister_die_notifier(&die_notifier);
+ error_die_notifier:
+ 	if (cru_rom_addr)
+ 		iounmap(cru_rom_addr);
+ error_get_cru:
++#endif
+ 	pci_iounmap(dev, pci_mem_addr);
+ error_pci_iomap:
+ 	pci_disable_device(dev);
+@@ -776,10 +805,12 @@
+ 		hpwdt_stop();
+ 
+ 	misc_deregister(&hpwdt_miscdev);
++#ifdef CONFIG_HPWDT_NMI_DECODING
+ 	unregister_die_notifier(&die_notifier);
+ 
+ 	if (cru_rom_addr)
+ 		iounmap(cru_rom_addr);
++#endif /* CONFIG_HPWDT_NMI_DECODING */
+ 	pci_iounmap(dev, pci_mem_addr);
+ 	pci_disable_device(dev);
+ }
+@@ -814,12 +845,14 @@
+ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+ 		__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+ 
++#ifdef CONFIG_HPWDT_NMI_DECODING
+ module_param(allow_kdump, int, 0);
+ MODULE_PARM_DESC(allow_kdump, "Start a kernel dump after NMI occurs");
+ 
+ module_param(priority, int, 0);
+ MODULE_PARM_DESC(priority, "The hpwdt driver handles NMIs first or last"
+ 		" (default = 0/Last)\n");
++#endif
+ 
+ module_init(hpwdt_init);
+ module_exit(hpwdt_cleanup);
