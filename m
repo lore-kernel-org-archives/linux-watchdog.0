@@ -1,53 +1,70 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ww0-f42.google.com ([74.125.82.42]:58605 "EHLO
-	mail-ww0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752114Ab0HRApa convert rfc822-to-8bit (ORCPT
+Received: from mail-px0-f174.google.com ([209.85.212.174]:46906 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750875Ab0HUJeN (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 17 Aug 2010 20:45:30 -0400
-MIME-Version: 1.0
-Date: Tue, 17 Aug 2010 17:45:28 -0700
-Message-ID: <AANLkTinmWzTBPEsicB-AWv9-=mA8HE2qqEoYqhbV39t8@mail.gmail.com>
-Subject: [PATCH] watchdog: Enable NXP LPC32XX support in Kconfig (resend)
-From: Kevin Wells <wellsk40@gmail.com>
-To: Wim Van Sebroeck <wim@iguana.be>,
-	Russell King <rmk+kernel@arm.linux.org.uk>,
-	Vitaly Wool <vitalywool@gmail.com>,
-	H Hartley Sweeten <hsweeten@visionengravers.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Sat, 21 Aug 2010 05:34:13 -0400
+Received: by pxi10 with SMTP id 10so1562881pxi.19
+        for <linux-watchdog@vger.kernel.org>; Sat, 21 Aug 2010 02:34:12 -0700 (PDT)
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: linux-watchdog@vger.kernel.org
+Cc: Akinobu Mita <akinobu.mita@gmail.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Andrew Sharp <andy.sharp@lsi.com>
+Subject: [PATCH] sb_wdog: release irq and reboot notifier in error path and module_exit()
+Date: Sat, 21 Aug 2010 18:27:50 +0900
+Message-Id: <1282382870-5820-1-git-send-email-akinobu.mita@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The NXP LPC32XX processor use the same watchdog as the Philips
-PNX4008 processor.
+irq and reboot notifier are acquired in module_init() but never released.
+They should be released correctly, otherwise reloading the module or error
+during module_init() will cause a problem.
 
-Signed-off-by: Kevin Wells <wellsk40@gmail.com>
-Tested-by: Wolfram Sang <w.sang@pengutronix.de>
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org
+Cc: Andrew Sharp <andy.sharp@lsi.com>
 ---
- drivers/watchdog/Kconfig |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/watchdog/sb_wdog.c |   12 +++++++++---
+ 1 files changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index b04b184..c442b2a 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -206,11 +206,11 @@ config OMAP_WATCHDOG
-         here to enable the OMAP1610/OMAP1710/OMAP2420/OMAP3430/OMAP4430
-watchdog timer.
+diff --git a/drivers/watchdog/sb_wdog.c b/drivers/watchdog/sb_wdog.c
+index 88c83aa..f31493e 100644
+--- a/drivers/watchdog/sb_wdog.c
++++ b/drivers/watchdog/sb_wdog.c
+@@ -305,7 +305,7 @@ static int __init sbwdog_init(void)
+ 	if (ret) {
+ 		printk(KERN_ERR "%s: failed to request irq 1 - %d\n",
+ 						ident.identity, ret);
+-		return ret;
++		goto out;
+ 	}
+ 
+ 	ret = misc_register(&sbwdog_miscdev);
+@@ -313,14 +313,20 @@ static int __init sbwdog_init(void)
+ 		printk(KERN_INFO "%s: timeout is %ld.%ld secs\n",
+ 				ident.identity,
+ 				timeout / 1000000, (timeout / 100000) % 10);
+-	} else
+-		free_irq(1, (void *)user_dog);
++		return 0;
++	}
++	free_irq(1, (void *)user_dog);
++out:
++	unregister_reboot_notifier(&sbwdog_notifier);
++
+ 	return ret;
+ }
+ 
+ static void __exit sbwdog_exit(void)
+ {
+ 	misc_deregister(&sbwdog_miscdev);
++	free_irq(1, (void *)user_dog);
++	unregister_reboot_notifier(&sbwdog_notifier);
+ }
+ 
+ module_init(sbwdog_init);
+-- 
+1.6.0.6
 
- config PNX4008_WATCHDOG
--       tristate "PNX4008 Watchdog"
--       depends on ARCH_PNX4008
-+       tristate "PNX4008 and LPC32XX Watchdog"
-+       depends on ARCH_PNX4008 || ARCH_LPC32XX
-       help
-         Say Y here if to include support for the watchdog timer
--         in the PNX4008 processor.
-+         in the PNX4008 or LPC32XX processors.
-         This driver can be built as a module by choosing M. The module
-         will be called pnx4008_wdt.
-
---
-1.7.1.1
