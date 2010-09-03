@@ -1,65 +1,39 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:38737 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754637Ab0HaXAd convert rfc822-to-8bit (ORCPT
+Received: from mailrelay007.isp.belgacom.be ([195.238.6.173]:16531 "EHLO
+	mailrelay007.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756560Ab0ICLUv (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 31 Aug 2010 19:00:33 -0400
-MIME-Version: 1.0
-In-Reply-To: <AANLkTinmWzTBPEsicB-AWv9-=mA8HE2qqEoYqhbV39t8@mail.gmail.com>
-References: <AANLkTinmWzTBPEsicB-AWv9-=mA8HE2qqEoYqhbV39t8@mail.gmail.com>
-Date: Tue, 31 Aug 2010 16:00:32 -0700
-Message-ID: <AANLkTimzMcydUF-8fK+L-Lkp3HMZ=8jLp+NdjrJuV+kx@mail.gmail.com>
-Subject: Re: [PATCH] watchdog: Enable NXP LPC32XX support in Kconfig (resend)
-From: Kevin Wells <wellsk40@gmail.com>
-To: Wim Van Sebroeck <wim@iguana.be>,
-	Russell King <rmk+kernel@arm.linux.org.uk>,
+	Fri, 3 Sep 2010 07:20:51 -0400
+Date: Fri, 3 Sep 2010 13:20:36 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Kevin Wells <wellsk40@gmail.com>
+Cc: Russell King <rmk+kernel@arm.linux.org.uk>,
 	Vitaly Wool <vitalywool@gmail.com>,
 	H Hartley Sweeten <hsweeten@visionengravers.com>,
 	Andrew Morton <akpm@linux-foundation.org>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	kevin.wells@nxp.com
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] watchdog: Enable NXP LPC32XX support in Kconfig
+	(resend)
+Message-ID: <20100903112036.GL354@infomag.iguana.be>
+References: <AANLkTinmWzTBPEsicB-AWv9-=mA8HE2qqEoYqhbV39t8@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <AANLkTinmWzTBPEsicB-AWv9-=mA8HE2qqEoYqhbV39t8@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
-
-It's been a few weeks on this one, can you please get this into the
-watchdog tree?
-
-thanks,
-Kevin
+Hi Kevin,
 
 > The NXP LPC32XX processor use the same watchdog as the Philips
 > PNX4008 processor.
->
+> 
 > Signed-off-by: Kevin Wells <wellsk40@gmail.com>
 > Tested-by: Wolfram Sang <w.sang@pengutronix.de>
-> ---
->  drivers/watchdog/Kconfig |    6 +++---
->  1 files changed, 3 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index b04b184..c442b2a 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -206,11 +206,11 @@ config OMAP_WATCHDOG
->          here to enable the OMAP1610/OMAP1710/OMAP2420/OMAP3430/OMAP4430
-> watchdog timer.
->
->  config PNX4008_WATCHDOG
-> -       tristate "PNX4008 Watchdog"
-> -       depends on ARCH_PNX4008
-> +       tristate "PNX4008 and LPC32XX Watchdog"
-> +       depends on ARCH_PNX4008 || ARCH_LPC32XX
->        help
->          Say Y here if to include support for the watchdog timer
-> -         in the PNX4008 processor.
-> +         in the PNX4008 or LPC32XX processors.
->          This driver can be built as a module by choosing M. The module
->          will be called pnx4008_wdt.
->
-> --
-> 1.7.1.1
->
+
+Will add this to linux-2.6-watchdog-next today.
+(PS: sorry for the delay, I was on holiday).
+
+Kind regards,
+Wim.
+
