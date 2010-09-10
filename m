@@ -1,51 +1,37 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:37568 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751558Ab0IIRGL (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 9 Sep 2010 13:06:11 -0400
-From: Seth Heasley <seth.heasley@intel.com>
-To: wim@iguana.be
-Subject: [PATCH 2.6.35.4] iTCO_wdt: TCO Watchdog patch for Intel Patsburg DeviceIDs
-Date: Thu, 9 Sep 2010 09:58:03 -0700
-Cc: linux-watchdog@vger.kernel.org, seth.heasley@intel.com
-References: <201001121704.44010.seth.heasley@intel.com>
-In-Reply-To: <201001121704.44010.seth.heasley@intel.com>
+Received: from mailrelay004.isp.belgacom.be ([195.238.6.170]:33435 "EHLO
+	mailrelay004.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754227Ab0IJJDD (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 10 Sep 2010 05:03:03 -0400
+Date: Fri, 10 Sep 2010 11:03:01 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Giel van Schijndel <me@mortis.eu>
+Cc: Lutz Ballaschke <vegan.grindcore@googlemail.com>,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] watchdog: add f71862fg support
+Message-ID: <20100910090301.GS354@infomag.iguana.be>
+References: <20100906132434.GA17730@kreios.titan> <20100907131837.GH6114@salidar.me.mortis.eu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <201009090958.03975.seth.heasley@intel.com>
+In-Reply-To: <20100907131837.GH6114@salidar.me.mortis.eu>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patch adds the Intel Patsburg (PCH) DeviceIDs for iTCO Watchdog.
- 
-Signed-off-by: Seth Heasley <seth.heasley@intel.com>
+Hi All,
 
---- linux-2.6.35.4/drivers/watchdog/iTCO_wdt.c.orig	2010-08-26 16:47:12.000000000 -0700
-+++ linux-2.6.35.4/drivers/watchdog/iTCO_wdt.c	2010-08-31 17:29:43.699146841 -0700
-@@ -146,6 +146,7 @@
- 	TCO_CPT29,	/* Cougar Point */
- 	TCO_CPT30,	/* Cougar Point */
- 	TCO_CPT31,	/* Cougar Point */
-+	TCO_PBG,	/* Patsburg */
- };
- 
- static struct {
-@@ -233,6 +234,7 @@
- 	{"Cougar Point", 2},
- 	{"Cougar Point", 2},
- 	{"Cougar Point", 2},
-+	{"Patsburg", 2},
- 	{NULL, 0}
- };
- 
-@@ -348,6 +350,7 @@
- 	{ ITCO_PCI_DEVICE(0x1c5d,				TCO_CPT29)},
- 	{ ITCO_PCI_DEVICE(0x1c5e,				TCO_CPT30)},
- 	{ ITCO_PCI_DEVICE(0x1c5f,				TCO_CPT31)},
-+	{ ITCO_PCI_DEVICE(0x1d40,				TCO_PBG)},
- 	{ 0, },			/* End of list */
- };
- MODULE_DEVICE_TABLE(pci, iTCO_wdt_pci_tbl);
+> Given that the F71862 has *two* pins assignable to the WDTRST# signal,
+> please document that fact, and the reason for choosing this one in the
+> code.
+> 
+> Perhaps it might even be desirable to insert a printk there.  This to
+> make the user aware of the fact that this driver might not work if the
+> pin configuration of their hardware doesn't match the assumption you
+> make about it in this code.
+
+I propose to Document it in the code and add a module-parameter so that it is selectable.
+
+Kind regards,
+Wim.
+
