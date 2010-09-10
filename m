@@ -1,37 +1,42 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay004.isp.belgacom.be ([195.238.6.170]:33435 "EHLO
-	mailrelay004.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754227Ab0IJJDD (ORCPT
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:55315 "EHLO
+	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754971Ab0IJXWS (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 10 Sep 2010 05:03:03 -0400
-Date: Fri, 10 Sep 2010 11:03:01 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Giel van Schijndel <me@mortis.eu>
-Cc: Lutz Ballaschke <vegan.grindcore@googlemail.com>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+	Fri, 10 Sep 2010 19:22:18 -0400
+Date: Sat, 11 Sep 2010 01:24:07 +0200
+From: Lutz Ballaschke <vegan.grindcore@googlemail.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: me@mortis.eu, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] watchdog: add f71862fg support
-Message-ID: <20100910090301.GS354@infomag.iguana.be>
-References: <20100906132434.GA17730@kreios.titan> <20100907131837.GH6114@salidar.me.mortis.eu>
+Message-ID: <20100910232407.GA13116@kreios.titan>
+References: <20100906132434.GA17730@kreios.titan> <20100907131837.GH6114@salidar.me.mortis.eu> <20100910090301.GS354@infomag.iguana.be>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20100907131837.GH6114@salidar.me.mortis.eu>
+In-Reply-To: <20100910090301.GS354@infomag.iguana.be>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi All,
-
-> Given that the F71862 has *two* pins assignable to the WDTRST# signal,
-> please document that fact, and the reason for choosing this one in the
-> code.
+On Fri, Sep 10, 2010 at 11:03:01AM +0200, Wim Van Sebroeck wrote:
 > 
-> Perhaps it might even be desirable to insert a printk there.  This to
-> make the user aware of the fact that this driver might not work if the
-> pin configuration of their hardware doesn't match the assumption you
-> make about it in this code.
+> > Given that the F71862 has *two* pins assignable to the WDTRST# signal,
+> > please document that fact, and the reason for choosing this one in the
+> > code.
+> > 
+> > Perhaps it might even be desirable to insert a printk there.  This to
+> > make the user aware of the fact that this driver might not work if the
+> > pin configuration of their hardware doesn't match the assumption you
+> > make about it in this code.
+> 
+> I propose to Document it in the code and add a module-parameter so that it is selectable.
+>
+I agree. I will post the patch again (missing parts will follow soon). 
+I placed printk in watchdog_start(). Since this means printk output 
+everytime /dev/watchdog is opened I'm not sure whether i like it there. 
+Maybe it fits better in f71808e_find(). But this would require
+additional if / else and stuff. 
 
-I propose to Document it in the code and add a module-parameter so that it is selectable.
-
-Kind regards,
-Wim.
-
+Regards,
+Lutz Ballaschke
