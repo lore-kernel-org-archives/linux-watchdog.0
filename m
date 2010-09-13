@@ -1,7 +1,7 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from devils.ext.ti.com ([198.47.26.153]:55545 "EHLO
+Received: from devils.ext.ti.com ([198.47.26.153]:55543 "EHLO
 	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753089Ab0IMPNt (ORCPT
+	with ESMTP id S1753015Ab0IMPNt (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
 	Mon, 13 Sep 2010 11:13:49 -0400
 From: "Varadarajan, Charulatha" <charu@ti.com>
@@ -9,125 +9,158 @@ To: tony@atomide.com, wim@iguana.be, linux-watchdog@vger.kernel.org
 Cc: khilman@deeprootsystems.com, paul@pwsan.com, b-cousson@ti.com,
 	rnayak@ti.com, p-basak2@ti.com, linux-omap@vger.kernel.org,
 	"Varadarajan, Charulatha" <charu@ti.com>
-Subject: [v4 5/6] OMAP2PLUS: WDT: use omap_device_build for device registration
-Date: Mon, 13 Sep 2010 20:43:28 +0530
-Message-Id: <1284390809-11519-6-git-send-email-charu@ti.com>
+Subject: [v4 6/6] OMAP: WDT: Use PM runtime APIs instead of clk FW APIs
+Date: Mon, 13 Sep 2010 20:43:29 +0530
+Message-Id: <1284390809-11519-7-git-send-email-charu@ti.com>
 In-Reply-To: <1284390809-11519-1-git-send-email-charu@ti.com>
 References: <1284390809-11519-1-git-send-email-charu@ti.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Use omap_device_build API instead of platform_device_register for
-watchdog timer device registration.
-
-For OMAP2PLUS chips, the device specific data defined in centralized
-hwmod database will be used.
+Call runtime pm APIs pm_runtime_put_sync() and pm_runtime_get_sync()
+for enabling/disabling the clocks, sysconfig settings instead of using
+clock FW APIs.
 
 Signed-off-by: Charulatha V <charu@ti.com>
 ---
- arch/arm/plat-omap/devices.c |   64 ++++++++++++++++++++++++++++-------------
- 1 files changed, 44 insertions(+), 20 deletions(-)
+ drivers/watchdog/omap_wdt.c |   57 ++++++++++++++++--------------------------
+ 1 files changed, 22 insertions(+), 35 deletions(-)
 
-diff --git a/arch/arm/plat-omap/devices.c b/arch/arm/plat-omap/devices.c
-index d1920be..6885f4f 100644
---- a/arch/arm/plat-omap/devices.c
-+++ b/arch/arm/plat-omap/devices.c
-@@ -15,6 +15,7 @@
+diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
+index 76b58ab..34bf435 100644
+--- a/drivers/watchdog/omap_wdt.c
++++ b/drivers/watchdog/omap_wdt.c
+@@ -38,11 +38,11 @@
+ #include <linux/err.h>
  #include <linux/platform_device.h>
+ #include <linux/moduleparam.h>
+-#include <linux/clk.h>
+ #include <linux/bitops.h>
  #include <linux/io.h>
+ #include <linux/uaccess.h>
  #include <linux/slab.h>
-+#include <linux/err.h>
- 
++#include <linux/pm_runtime.h>
  #include <mach/hardware.h>
- #include <asm/mach-types.h>
-@@ -28,6 +29,8 @@
- #include <plat/menelaus.h>
- #include <plat/mcbsp.h>
- #include <plat/omap44xx.h>
-+#include <plat/omap_hwmod.h>
-+#include <plat/omap_device.h>
+ #include <plat/prcm.h>
  
- /*-------------------------------------------------------------------------*/
+@@ -61,8 +61,6 @@ struct omap_wdt_dev {
+ 	void __iomem    *base;          /* physical */
+ 	struct device   *dev;
+ 	int             omap_wdt_users;
+-	struct clk      *ick;
+-	struct clk      *fck;
+ 	struct resource *mem;
+ 	struct miscdevice omap_wdt_miscdev;
+ };
+@@ -146,8 +144,7 @@ static int omap_wdt_open(struct inode *inode, struct file *file)
+ 	if (test_and_set_bit(1, (unsigned long *)&(wdev->omap_wdt_users)))
+ 		return -EBUSY;
  
-@@ -236,37 +239,58 @@ static inline void omap_init_uwire(void) {}
+-	clk_enable(wdev->ick);    /* Enable the interface clock */
+-	clk_enable(wdev->fck);    /* Enable the functional clock */
++	pm_runtime_get_sync(wdev->dev);
  
- #if	defined(CONFIG_OMAP_WATCHDOG) || defined(CONFIG_OMAP_WATCHDOG_MODULE)
+ 	/* initialize prescaler */
+ 	while (__raw_readl(base + OMAP_WATCHDOG_WPS) & 0x01)
+@@ -177,8 +174,7 @@ static int omap_wdt_release(struct inode *inode, struct file *file)
  
--static struct resource wdt_resources[] = {
-+struct omap_device_pm_latency omap2_wdt_latency[] = {
-+	[0] = {
-+		.deactivate_func = omap_device_idle_hwmods,
-+		.activate_func   = omap_device_enable_hwmods,
-+		.flags		 = OMAP_DEVICE_LATENCY_AUTO_ADJUST,
-+	},
-+};
-+
-+static void omap2_init_wdt(void)
+ 	omap_wdt_disable(wdev);
+ 
+-	clk_disable(wdev->ick);
+-	clk_disable(wdev->fck);
++	pm_runtime_put_sync(wdev->dev);
+ #else
+ 	printk(KERN_CRIT "omap_wdt: Unexpected close, not stopping!\n");
+ #endif
+@@ -260,6 +256,21 @@ static const struct file_operations omap_wdt_fops = {
+ 	.release = omap_wdt_release,
+ };
+ 
++static int wdt_runtime_suspend(struct device *dev)
 +{
-+	int id = -1;
-+	struct omap_device *od;
-+	struct omap_hwmod *oh;
-+	char *oh_name = "wd_timer2";
-+	char *name = "omap_wdt";
-+
-+	oh = omap_hwmod_lookup(oh_name);
-+	if (!oh) {
-+		pr_err("Could not look up %s\n", oh_name);
-+		return;
-+	}
-+
-+	od = omap_device_build(name, id, oh, NULL, 0,
-+				omap2_wdt_latency,
-+				ARRAY_SIZE(omap2_wdt_latency), 0);
-+	WARN(IS_ERR(od), "Cant build omap_device for %s:%s.\n",
-+				name, oh->name);
-+	return;
++	return 0;
 +}
 +
-+static struct resource omap1_wdt_resources[] = {
- 	{
-+		.start		= 0xfffeb000,
-+		.end		= 0xfffeb07F,
- 		.flags		= IORESOURCE_MEM,
- 	},
- };
- 
--static struct platform_device omap_wdt_device = {
-+static struct platform_device omap1_wdt_device = {
- 	.name	   = "omap_wdt",
- 	.id	     = -1,
--	.num_resources	= ARRAY_SIZE(wdt_resources),
--	.resource	= wdt_resources,
-+	.num_resources	= ARRAY_SIZE(omap1_wdt_resources),
-+	.resource	= omap1_wdt_resources,
- };
- 
- static void omap_init_wdt(void)
++static int wdt_runtime_resume(struct device *dev)
++{
++	return 0;
++}
++
++static const struct dev_pm_ops gpio_pm_ops = {
++	.runtime_suspend = wdt_runtime_suspend,
++	.runtime_resume	 = wdt_runtime_resume,
++};
++
+ static int __devinit omap_wdt_probe(struct platform_device *pdev)
  {
--	if (cpu_is_omap16xx())
--		wdt_resources[0].start = 0xfffeb000;
--	else if (cpu_is_omap2420())
--		wdt_resources[0].start = 0x48022000; /* WDT2 */
--	else if (cpu_is_omap2430())
--		wdt_resources[0].start = 0x49016000; /* WDT2 */
--	else if (cpu_is_omap343x())
--		wdt_resources[0].start = 0x48314000; /* WDT2 */
--	else if (cpu_is_omap44xx())
--		wdt_resources[0].start = 0x4a314000;
--	else
--		return;
+ 	struct resource *res, *mem;
+@@ -292,19 +303,7 @@ static int __devinit omap_wdt_probe(struct platform_device *pdev)
+ 
+ 	wdev->omap_wdt_users = 0;
+ 	wdev->mem = mem;
 -
--	wdt_resources[0].end = wdt_resources[0].start + 0x4f;
+-	wdev->ick = clk_get(&pdev->dev, "ick");
+-	if (IS_ERR(wdev->ick)) {
+-		ret = PTR_ERR(wdev->ick);
+-		wdev->ick = NULL;
+-		goto err_clk;
+-	}
+-	wdev->fck = clk_get(&pdev->dev, "fck");
+-	if (IS_ERR(wdev->fck)) {
+-		ret = PTR_ERR(wdev->fck);
+-		wdev->fck = NULL;
+-		goto err_clk;
+-	}
++	wdev->dev = &pdev->dev;
+ 
+ 	wdev->base = ioremap(res->start, resource_size(res));
+ 	if (!wdev->base) {
+@@ -314,8 +313,8 @@ static int __devinit omap_wdt_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, wdev);
+ 
+-	clk_enable(wdev->ick);
+-	clk_enable(wdev->fck);
++	pm_runtime_enable(wdev->dev);
++	pm_runtime_get_sync(wdev->dev);
+ 
+ 	omap_wdt_disable(wdev);
+ 	omap_wdt_adjust_timeout(timer_margin);
+@@ -333,11 +332,7 @@ static int __devinit omap_wdt_probe(struct platform_device *pdev)
+ 		__raw_readl(wdev->base + OMAP_WATCHDOG_REV) & 0xFF,
+ 		timer_margin);
+ 
+-	/* autogate OCP interface clock */
+-	__raw_writel(0x01, wdev->base + OMAP_WATCHDOG_SYS_CONFIG);
 -
--	(void) platform_device_register(&omap_wdt_device);
-+	if (cpu_class_is_omap2())
-+		omap2_init_wdt();
-+	else if (cpu_is_omap16xx())
-+		(void) platform_device_register(&omap1_wdt_device);
-+	return;
- }
- #else
- static inline void omap_init_wdt(void) {}
+-	clk_disable(wdev->ick);
+-	clk_disable(wdev->fck);
++	pm_runtime_put_sync(wdev->dev);
+ 
+ 	omap_wdt_dev = pdev;
+ 
+@@ -349,12 +344,6 @@ err_misc:
+ 
+ err_ioremap:
+ 	wdev->base = NULL;
+-
+-err_clk:
+-	if (wdev->ick)
+-		clk_put(wdev->ick);
+-	if (wdev->fck)
+-		clk_put(wdev->fck);
+ 	kfree(wdev);
+ 
+ err_kzalloc:
+@@ -386,8 +375,6 @@ static int __devexit omap_wdt_remove(struct platform_device *pdev)
+ 	release_mem_region(res->start, resource_size(res));
+ 	platform_set_drvdata(pdev, NULL);
+ 
+-	clk_put(wdev->ick);
+-	clk_put(wdev->fck);
+ 	iounmap(wdev->base);
+ 
+ 	kfree(wdev);
 -- 
 1.7.0.4
 
