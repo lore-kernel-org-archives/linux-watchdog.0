@@ -1,34 +1,37 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ew0-f46.google.com ([209.85.215.46]:45854 "EHLO
-	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754796Ab0IMTii (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 13 Sep 2010 15:38:38 -0400
-Subject: Re: [PATCHv2 0/3] watchdog: add f71862fg support
-From: Lutz Ballaschke <vegan.grindcore@googlemail.com>
-To: Giel van Schijndel <me@mortis.eu>
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20100912143037.GA29094@salidar.me.mortis.eu>
-References: <20100911001148.GB13116@kreios.titan>
-	 <20100912143037.GA29094@salidar.me.mortis.eu>
-Content-Type: text/plain
-Date: Mon, 13 Sep 2010 21:38:59 +0200
-Message-Id: <1284406739.11976.16.camel@holmbox.holm>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Received: from mail.perches.com ([173.55.12.10]:2011 "EHLO mail.perches.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752185Ab0INEYT (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 14 Sep 2010 00:24:19 -0400
+From: Joe Perches <joe@perches.com>
+To: linux-kernel@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+Subject: [PATCH next 13/16] drivers/watchdog: Use static const char * const where possible
+Date: Mon, 13 Sep 2010 21:23:59 -0700
+Message-Id: <5ef1550b16f1ae6cb2f60c8c8ecc7b1df6dc27b5.1284435710.git.joe@perches.com>
+In-Reply-To: <cover.1284435709.git.joe@perches.com>
+References: <cover.1284435709.git.joe@perches.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sun, Sep 12, 2010, at 16:30 +0200 Giel van Schijndel wrote:
+Signed-off-by: Joe Perches <joe@perches.com>
+---
+ drivers/watchdog/machzwd.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-> You might want to add the actual patches themselves
-
-I do. The plan was to submit them the following day. But then i urgently
-had to leave and will be out of town until next week. I'm sorry for the
-confusion. The patches will follow as soon as possible.
-
-With kind regards,
-
-Lutz Ballaschke
+diff --git a/drivers/watchdog/machzwd.c b/drivers/watchdog/machzwd.c
+index 2d118cf..edffe68 100644
+--- a/drivers/watchdog/machzwd.c
++++ b/drivers/watchdog/machzwd.c
+@@ -388,7 +388,7 @@ static struct notifier_block zf_notifier = {
+ 
+ static void __init zf_show_action(int act)
+ {
+-	char *str[] = { "RESET", "SMI", "NMI", "SCI" };
++	static const char * const str[] = { "RESET", "SMI", "NMI", "SCI" };
+ 
+ 	printk(KERN_INFO PFX ": Watchdog using action = %s\n", str[act]);
+ }
+-- 
+1.7.3.rc1
 
