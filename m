@@ -1,37 +1,79 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.perches.com ([173.55.12.10]:2011 "EHLO mail.perches.com"
+Received: from mail.perches.com ([173.55.12.10]:1972 "EHLO mail.perches.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752185Ab0INEYT (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 14 Sep 2010 00:24:19 -0400
+	id S1750743Ab0INEYK (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 14 Sep 2010 00:24:10 -0400
 From: Joe Perches <joe@perches.com>
 To: linux-kernel@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
-Subject: [PATCH next 13/16] drivers/watchdog: Use static const char * const where possible
-Date: Mon, 13 Sep 2010 21:23:59 -0700
-Message-Id: <5ef1550b16f1ae6cb2f60c8c8ecc7b1df6dc27b5.1284435710.git.joe@perches.com>
-In-Reply-To: <cover.1284435709.git.joe@perches.com>
-References: <cover.1284435709.git.joe@perches.com>
+Cc: linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org,
+	microblaze-uclinux@itee.uq.edu.au, kvm@vger.kernel.org,
+	dri-devel@lists.freedesktop.org, netdev@vger.kernel.org,
+	linux-wireless@vger.kernel.org, users@rt2x00.serialmonkey.com,
+	linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org,
+	linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org, alsa-devel@alsa-project.org
+Subject: [PATCH next 00/16] treewide: Use static const char * const where possible
+Date: Mon, 13 Sep 2010 21:23:46 -0700
+Message-Id: <cover.1284435709.git.joe@perches.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Signed-off-by: Joe Perches <joe@perches.com>
----
- drivers/watchdog/machzwd.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Convert the uses that should be const of
+	char *foo[] = {"bar", "baz"};
+to
+	const char * const foo[] = {"bar", "baz"};
+or
+	static const char * const foo[] = {"bar", "baz"};
 
-diff --git a/drivers/watchdog/machzwd.c b/drivers/watchdog/machzwd.c
-index 2d118cf..edffe68 100644
---- a/drivers/watchdog/machzwd.c
-+++ b/drivers/watchdog/machzwd.c
-@@ -388,7 +388,7 @@ static struct notifier_block zf_notifier = {
- 
- static void __init zf_show_action(int act)
- {
--	char *str[] = { "RESET", "SMI", "NMI", "SCI" };
-+	static const char * const str[] = { "RESET", "SMI", "NMI", "SCI" };
- 
- 	printk(KERN_INFO PFX ": Watchdog using action = %s\n", str[act]);
- }
+Joe Perches (16):
+  arch/alpha: Use static const char * const where possible
+  arch/ia64: Use static const char * const where possible
+  arch/microblaze: Use static const char * const where possible
+  arch/x86: Use static const char * const where possible
+  drivers/gpu: Use static const char * const where possible
+  drivers/isdn: Use static const char * const where possible
+  drivers/net: Use static const char * const where possible
+  drivers/net/pcmcia: Use static const char * const where possible
+  drivers/net/wireless: Use static const char * const where possible
+  drivers/scsi: Use static const char * const where possible
+  drivers/staging: Use static const char * const where possible
+  drivers/usb: Use static const char * const where possible
+  drivers/watchdog: Use static const char * const where possible
+  fs: Use static const char * const where possible
+  net/irda: Use static const char * const where possible
+  sound: Use static const char * const where possible
+
+ arch/alpha/kernel/err_ev6.c                  |   12 +++++---
+ arch/alpha/kernel/err_marvel.c               |   33 ++++++++++++------------
+ arch/alpha/kernel/err_titan.c                |   35 ++++++++++++++-----------
+ arch/alpha/kernel/osf_sys.c                  |    4 +-
+ arch/ia64/kernel/palinfo.c                   |    2 +-
+ arch/microblaze/kernel/heartbeat.c           |   10 +++---
+ arch/microblaze/kernel/timer.c               |   12 ++++----
+ arch/x86/kernel/smpboot.c                    |    2 +-
+ arch/x86/kvm/mmu.c                           |    2 +-
+ drivers/gpu/drm/ttm/ttm_page_alloc.c         |    4 ++-
+ drivers/isdn/pcbit/edss1.c                   |    2 +-
+ drivers/isdn/pcbit/edss1.h                   |    2 +-
+ drivers/net/3c515.c                          |    4 ++-
+ drivers/net/eth16i.c                         |    4 ++-
+ drivers/net/pcmcia/3c589_cs.c                |    2 +-
+ drivers/net/wireless/rt2x00/rt2x00debug.c    |    2 +-
+ drivers/scsi/bfa/rport.c                     |    4 ++-
+ drivers/scsi/pcmcia/nsp_debug.c              |    2 +-
+ drivers/scsi/qla2xxx/qla_nx.c                |    4 +-
+ drivers/scsi/qla4xxx/ql4_nx.c                |    2 +-
+ drivers/staging/ath6kl/os/linux/ar6000_drv.c |   14 +++++-----
+ drivers/staging/bcm/Debug.c                  |    5 ++-
+ drivers/usb/host/oxu210hp-hcd.c              |    2 +-
+ drivers/watchdog/machzwd.c                   |    2 +-
+ fs/binfmt_flat.c                             |    4 ++-
+ include/net/irda/irlan_event.h               |    2 +-
+ net/irda/irlan/irlan_event.c                 |    2 +-
+ sound/core/misc.c                            |    5 +---
+ sound/core/pcm_native.c                      |    2 +-
+ 29 files changed, 99 insertions(+), 83 deletions(-)
+
 -- 
 1.7.3.rc1
 
