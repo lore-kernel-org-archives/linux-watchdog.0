@@ -1,137 +1,111 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:43787 "EHLO bear.ext.ti.com"
+Received: from comal.ext.ti.com ([198.47.26.152]:52218 "EHLO comal.ext.ti.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750844Ab0IOF06 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 15 Sep 2010 01:26:58 -0400
+	id S1751666Ab0IOF07 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 15 Sep 2010 01:26:59 -0400
 From: "Varadarajan, Charulatha" <charu@ti.com>
 To: tony@atomide.com, wim@iguana.be, linux-watchdog@vger.kernel.org
 Cc: khilman@deeprootsystems.com, paul@pwsan.com, b-cousson@ti.com,
 	rnayak@ti.com, p-basak2@ti.com, linux-omap@vger.kernel.org,
 	"Varadarajan, Charulatha" <charu@ti.com>
-Subject: [PATCH v5 1/6] OMAP3: hwmod data: Add watchdog timer
-Date: Wed, 15 Sep 2010 10:56:38 +0530
-Message-Id: <1284528403-6494-2-git-send-email-charu@ti.com>
+Subject: [PATCH v5 3/6] OMAP2430: hwmod data: Add watchdog timer
+Date: Wed, 15 Sep 2010 10:56:40 +0530
+Message-Id: <1284528403-6494-4-git-send-email-charu@ti.com>
 In-Reply-To: <1284528403-6494-1-git-send-email-charu@ti.com>
 References: <1284528403-6494-1-git-send-email-charu@ti.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Add watchdog timer hwmod data for OMAP3 chip
+Add watchdog timer hwmod data for OMAP2430 chip
 
 Signed-off-by: Charulatha V <charu@ti.com>
 ---
- arch/arm/mach-omap2/omap_hwmod_3xxx_data.c |   61 ++++++++++++++++++++++++++++
- arch/arm/mach-omap2/prcm-common.h          |    4 ++
- 2 files changed, 65 insertions(+), 0 deletions(-)
+ arch/arm/mach-omap2/omap_hwmod_2430_data.c |   59 ++++++++++++++++++++++++++++
+ 1 files changed, 59 insertions(+), 0 deletions(-)
 
-diff --git a/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c b/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c
-index 5d8eb58..a9812a8 100644
---- a/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c
-+++ b/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c
-@@ -36,6 +36,7 @@ static struct omap_hwmod omap3xxx_iva_hwmod;
- static struct omap_hwmod omap3xxx_l3_main_hwmod;
- static struct omap_hwmod omap3xxx_l4_core_hwmod;
- static struct omap_hwmod omap3xxx_l4_per_hwmod;
-+static struct omap_hwmod omap3xxx_wd_timer2_hwmod;
+diff --git a/arch/arm/mach-omap2/omap_hwmod_2430_data.c b/arch/arm/mach-omap2/omap_hwmod_2430_data.c
+index 4526628..f74fca0 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_2430_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_2430_data.c
+@@ -33,6 +33,7 @@ static struct omap_hwmod omap2430_mpu_hwmod;
+ static struct omap_hwmod omap2430_iva_hwmod;
+ static struct omap_hwmod omap2430_l3_main_hwmod;
+ static struct omap_hwmod omap2430_l4_core_hwmod;
++static struct omap_hwmod omap2430_wd_timer2_hwmod;
  
  /* L3 -> L4_CORE interface */
- static struct omap_hwmod_ocp_if omap3xxx_l3_main__l4_core = {
-@@ -197,6 +198,65 @@ static struct omap_hwmod omap3xxx_iva_hwmod = {
- 	.omap_chip	= OMAP_CHIP_INIT(CHIP_IS_OMAP3430)
+ static struct omap_hwmod_ocp_if omap2430_l3_main__l4_core = {
+@@ -165,12 +166,70 @@ static struct omap_hwmod omap2430_iva_hwmod = {
+ 	.omap_chip	= OMAP_CHIP_INIT(CHIP_IS_OMAP2430)
  };
  
 +/* WDTIMER2 <- L4_WKUP interface */
-+static struct omap_hwmod_addr_space omap3xxx_wd_timer2_addrs[] = {
++static struct omap_hwmod_addr_space omap2430_wd_timer2_addrs[] = {
 +	{
-+		.pa_start	= 0x48314000,
-+		.pa_end		= 0x4831407f,
++		.pa_start	= 0x49016000,
++		.pa_end		= 0x4901607f,
 +		.flags		= ADDR_TYPE_RT
 +	},
 +};
 +
-+static struct omap_hwmod_ocp_if omap3xxx_l4_wkup__wd_timer2 = {
-+	.master		= &omap3xxx_l4_wkup_hwmod,
-+	.slave		= &omap3xxx_wd_timer2_hwmod,
-+	.clk		= "wdt2_ick",
-+	.addr		= omap3xxx_wd_timer2_addrs,
-+	.addr_cnt	= ARRAY_SIZE(omap3xxx_wd_timer2_addrs),
++static struct omap_hwmod_ocp_if omap2430_l4_wkup__wd_timer2 = {
++	.master		= &omap2430_l4_wkup_hwmod,
++	.slave		= &omap2430_wd_timer2_hwmod,
++	.clk		= "mpu_wdt_ick",
++	.addr		= omap2430_wd_timer2_addrs,
++	.addr_cnt	= ARRAY_SIZE(omap2430_wd_timer2_addrs),
 +	.user		= OCP_USER_MPU | OCP_USER_SDMA,
 +};
 +
 +/* WDTIMER common */
 +
-+static struct omap_hwmod_class_sysconfig omap3xxx_wd_timer_sysc = {
-+	.rev_offs	= 0x0000,
++static struct omap_hwmod_class_sysconfig omap2430_wd_timer_sysc = {
++	.rev_offs	= 0x0,
 +	.sysc_offs	= 0x0010,
 +	.syss_offs	= 0x0014,
-+	.sysc_flags	= (SYSC_HAS_SIDLEMODE | SYSC_HAS_EMUFREE |
-+			   SYSC_HAS_ENAWAKEUP | SYSC_HAS_SOFTRESET |
-+			   SYSC_HAS_AUTOIDLE | SYSC_HAS_CLOCKACTIVITY),
-+	.idlemodes	= (SIDLE_FORCE | SIDLE_NO | SIDLE_SMART),
++	.sysc_flags	= (SYSC_HAS_EMUFREE | SYSC_HAS_SOFTRESET |
++			   SYSC_HAS_AUTOIDLE),
 +	.sysc_fields    = &omap_hwmod_sysc_type1,
 +};
 +
-+static struct omap_hwmod_class omap3xxx_wd_timer_hwmod_class = {
++static struct omap_hwmod_class omap2430_wd_timer_hwmod_class = {
 +	.name = "wd_timer",
-+	.sysc = &omap3xxx_wd_timer_sysc,
++	.sysc = &omap2430_wd_timer_sysc,
 +};
 +
 +/* WDTIMER2 */
-+static struct omap_hwmod_ocp_if *omap3xxx_wd_timer2_slaves[] = {
-+	&omap3xxx_l4_wkup__wd_timer2,
++static struct omap_hwmod_ocp_if *omap2430_wd_timer2_slaves[] = {
++	&omap2430_l4_wkup__wd_timer2,
 +};
 +
-+static struct omap_hwmod omap3xxx_wd_timer2_hwmod = {
++static struct omap_hwmod omap2430_wd_timer2_hwmod = {
 +	.name		= "wd_timer2",
-+	.class		= &omap3xxx_wd_timer_hwmod_class,
-+	.main_clk	= "wdt2_fck",
++	.class		= &omap2430_wd_timer_hwmod_class,
++	.main_clk	= "mpu_wdt_fck",
 +	.prcm		= {
 +		.omap2 = {
 +			.prcm_reg_id = 1,
-+			.module_bit = OMAP3430_EN_WDT2_SHIFT,
++			.module_bit = OMAP24XX_EN_WDT2_SHIFT,
 +			.module_offs = WKUP_MOD,
 +			.idlest_reg_id = 1,
-+			.idlest_idle_bit = OMAP3430_EN_WDT2_SHIFT,
++			.idlest_idle_bit = OMAP24XX_EN_WDT2_SHIFT,
 +		},
 +	},
-+	.slaves		= omap3xxx_wd_timer2_slaves,
-+	.slaves_cnt	= ARRAY_SIZE(omap3xxx_wd_timer2_slaves),
-+	.omap_chip	= OMAP_CHIP_INIT(CHIP_IS_OMAP3430),
++	.slaves		= omap2430_wd_timer2_slaves,
++	.slaves_cnt	= ARRAY_SIZE(omap2430_wd_timer2_slaves),
++	.omap_chip	= OMAP_CHIP_INIT(CHIP_IS_OMAP2430),
 +};
 +
- static __initdata struct omap_hwmod *omap3xxx_hwmods[] = {
- 	&omap3xxx_l3_main_hwmod,
- 	&omap3xxx_l4_core_hwmod,
-@@ -204,6 +264,7 @@ static __initdata struct omap_hwmod *omap3xxx_hwmods[] = {
- 	&omap3xxx_l4_wkup_hwmod,
- 	&omap3xxx_mpu_hwmod,
- 	&omap3xxx_iva_hwmod,
-+	&omap3xxx_wd_timer2_hwmod,
+ static __initdata struct omap_hwmod *omap2430_hwmods[] = {
+ 	&omap2430_l3_main_hwmod,
+ 	&omap2430_l4_core_hwmod,
+ 	&omap2430_l4_wkup_hwmod,
+ 	&omap2430_mpu_hwmod,
+ 	&omap2430_iva_hwmod,
++	&omap2430_wd_timer2_hwmod,
  	NULL,
  };
  
-diff --git a/arch/arm/mach-omap2/prcm-common.h b/arch/arm/mach-omap2/prcm-common.h
-index 995b7ed..e190c64 100644
---- a/arch/arm/mach-omap2/prcm-common.h
-+++ b/arch/arm/mach-omap2/prcm-common.h
-@@ -237,6 +237,8 @@
- #define OMAP24XX_ST_USB_MASK				(1 << 0)
- 
- /* CM_FCLKEN_WKUP, CM_ICLKEN_WKUP, PM_WKEN_WKUP shared bits */
-+#define OMAP24XX_EN_WDT2_SHIFT				3
-+#define OMAP24XX_EN_WDT2_MASK				(1 << 3)
- #define OMAP24XX_EN_GPIOS_SHIFT				2
- #define OMAP24XX_EN_GPIOS_MASK				(1 << 2)
- #define OMAP24XX_EN_GPT1_SHIFT				0
-@@ -344,6 +346,8 @@
- #define OMAP3430_ST_D2D_MASK				(1 << 3)
- 
- /* CM_FCLKEN_WKUP, CM_ICLKEN_WKUP, PM_WKEN_WKUP shared bits */
-+#define OMAP3430_EN_WDT2_SHIFT				5
-+#define OMAP3430_EN_WDT2_MASK				(1 << 5)
- #define OMAP3430_EN_GPIO1_MASK				(1 << 3)
- #define OMAP3430_EN_GPIO1_SHIFT				3
- #define OMAP3430_EN_GPT12_MASK				(1 << 1)
 -- 
 1.7.0.4
 
