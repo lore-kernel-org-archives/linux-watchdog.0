@@ -1,45 +1,36 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mho-02-ewr.mailhop.org ([204.13.248.72]:57280 "EHLO
-	mho-02-ewr.mailhop.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753847Ab0IORzs (ORCPT
+Received: from mailrelay011.isp.belgacom.be ([195.238.6.178]:53710 "EHLO
+	mailrelay011.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754768Ab0IOSkb (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 15 Sep 2010 13:55:48 -0400
-Date: Wed, 15 Sep 2010 10:55:40 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Kevin Hilman <khilman@deeprootsystems.com>
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org, paul@pwsan.com,
-	b-cousson@ti.com, rnayak@ti.com, p-basak2@ti.com,
-	linux-omap@vger.kernel.org,
-	"Varadarajan, Charulatha" <charu@ti.com>
+	Wed, 15 Sep 2010 14:40:31 -0400
+Date: Wed, 15 Sep 2010 20:40:29 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: "Varadarajan, Charulatha" <charu@ti.com>
+Cc: tony@atomide.com, linux-watchdog@vger.kernel.org,
+	khilman@deeprootsystems.com, paul@pwsan.com, b-cousson@ti.com,
+	rnayak@ti.com, p-basak2@ti.com, linux-omap@vger.kernel.org
 Subject: Re: [PATCH v5 6/6] OMAP: WDT: Use PM runtime APIs instead of clk
- FW APIs
-Message-ID: <20100915175540.GD4174@atomide.com>
-References: <1284528403-6494-1-git-send-email-charu@ti.com>
- <1284528403-6494-7-git-send-email-charu@ti.com>
- <87fwxbgj55.fsf@deeprootsystems.com>
+	FW APIs
+Message-ID: <20100915184029.GW354@infomag.iguana.be>
+References: <1284528403-6494-1-git-send-email-charu@ti.com> <1284528403-6494-7-git-send-email-charu@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87fwxbgj55.fsf@deeprootsystems.com>
+In-Reply-To: <1284528403-6494-7-git-send-email-charu@ti.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-* Kevin Hilman <khilman@deeprootsystems.com> [100915 07:37]:
-> Hi Wim,
-> 
-> "Varadarajan, Charulatha" <charu@ti.com> writes:
-> 
-> > Call runtime pm APIs pm_runtime_put_sync() and pm_runtime_get_sync()
-> > for enabling/disabling the clocks, sysconfig settings instead of using
-> > clock FW APIs.
-> >
-> > Signed-off-by: Charulatha V <charu@ti.com>
-> 
-> With your ack, I'll be glad to merge this via the OMAP tree since it
-> depends on the rest of the series for the OMAP platform specific
-> changes.
+Hi All,
 
-Just checking.. The pm_runtime functions are implemented as
-clk_enable/disable functions for omap1, right?
+> Call runtime pm APIs pm_runtime_put_sync() and pm_runtime_get_sync()
+> for enabling/disabling the clocks, sysconfig settings instead of using
+> clock FW APIs.
+> 
+> Signed-off-by: Charulatha V <charu@ti.com>
 
-Tony
+This is all omap specific code. So if Kevin and Tony are fine with the code then tou gave my ACK also.
+
+Kind regards,
+WIm.
+
