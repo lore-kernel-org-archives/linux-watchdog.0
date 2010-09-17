@@ -1,187 +1,143 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from arroyo.ext.ti.com ([192.94.94.40]:40780 "EHLO arroyo.ext.ti.com"
+Received: from bear.ext.ti.com ([192.94.94.41]:39138 "EHLO bear.ext.ti.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750695Ab0IQOTW (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	id S1753779Ab0IQOTW (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
 	Fri, 17 Sep 2010 10:19:22 -0400
 From: "Varadarajan, Charulatha" <charu@ti.com>
 To: tony@atomide.com, wim@iguana.be, linux-watchdog@vger.kernel.org
 Cc: khilman@deeprootsystems.com, paul@pwsan.com, b-cousson@ti.com,
 	rnayak@ti.com, p-basak2@ti.com, linux-omap@vger.kernel.org,
-	Charulatha V <charu@ti.com>
-Subject: [PATCH v6 5/7] OMAP4: hwmod data: Add watchdog timer
-Date: Fri, 17 Sep 2010 19:48:54 +0530
-Message-Id: <1284733136-20952-6-git-send-email-charu@ti.com>
+	"Varadarajan, Charulatha" <charu@ti.com>
+Subject: [PATCH v6 7/7] OMAP: WDT: Use PM runtime APIs instead of clk FW APIs
+Date: Fri, 17 Sep 2010 19:48:56 +0530
+Message-Id: <1284733136-20952-8-git-send-email-charu@ti.com>
 In-Reply-To: <1284733136-20952-1-git-send-email-charu@ti.com>
 References: <1284733136-20952-1-git-send-email-charu@ti.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Benoit Cousson <b-cousson@ti.com>
+Call runtime pm APIs pm_runtime_put_sync() and pm_runtime_get_sync()
+for enabling/disabling the clocks, sysconfig settings instead of using
+clock FW APIs.
 
-Add watchdog timer hwmod data for OMAP4 chip
-
-Signed-off-by: Benoit Cousson <b-cousson@ti.com>
 Signed-off-by: Charulatha V <charu@ti.com>
 ---
-This patch is extracted from the below patch sent by Benoit
-https://patchwork.kernel.org/patch/117347/
+ drivers/watchdog/omap_wdt.c |   42 +++++++-----------------------------------
+ 1 files changed, 7 insertions(+), 35 deletions(-)
 
- arch/arm/mach-omap2/omap_hwmod_44xx_data.c |  135 ++++++++++++++++++++++++++++
- 1 files changed, 135 insertions(+), 0 deletions(-)
-
-diff --git a/arch/arm/mach-omap2/omap_hwmod_44xx_data.c b/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
-index e20b0ee..8660fea 100644
---- a/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
-+++ b/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
-@@ -452,6 +452,136 @@ static struct omap_hwmod omap44xx_mpu_hwmod = {
- 	.omap_chip	= OMAP_CHIP_INIT(CHIP_IS_OMAP4430),
+diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
+index 76b58ab..dbbc580 100644
+--- a/drivers/watchdog/omap_wdt.c
++++ b/drivers/watchdog/omap_wdt.c
+@@ -38,11 +38,11 @@
+ #include <linux/err.h>
+ #include <linux/platform_device.h>
+ #include <linux/moduleparam.h>
+-#include <linux/clk.h>
+ #include <linux/bitops.h>
+ #include <linux/io.h>
+ #include <linux/uaccess.h>
+ #include <linux/slab.h>
++#include <linux/pm_runtime.h>
+ #include <mach/hardware.h>
+ #include <plat/prcm.h>
+ 
+@@ -61,8 +61,6 @@ struct omap_wdt_dev {
+ 	void __iomem    *base;          /* physical */
+ 	struct device   *dev;
+ 	int             omap_wdt_users;
+-	struct clk      *ick;
+-	struct clk      *fck;
+ 	struct resource *mem;
+ 	struct miscdevice omap_wdt_miscdev;
  };
+@@ -146,8 +144,7 @@ static int omap_wdt_open(struct inode *inode, struct file *file)
+ 	if (test_and_set_bit(1, (unsigned long *)&(wdev->omap_wdt_users)))
+ 		return -EBUSY;
  
-+/*
-+ * 'wd_timer' class
-+ * 32-bit watchdog upward counter that generates a pulse on the reset pin on
-+ * overflow condition
-+ */
-+
-+static struct omap_hwmod_class_sysconfig omap44xx_wd_timer_sysc = {
-+	.rev_offs	= 0x0000,
-+	.sysc_offs	= 0x0010,
-+	.syss_offs	= 0x0014,
-+	.sysc_flags	= (SYSC_HAS_SIDLEMODE | SYSC_HAS_EMUFREE |
-+			   SYSC_HAS_SOFTRESET),
-+	.idlemodes	= (SIDLE_FORCE | SIDLE_NO | SIDLE_SMART),
-+	.sysc_fields	= &omap_hwmod_sysc_type1,
-+};
-+
-+static struct omap_hwmod_class omap44xx_wd_timer_hwmod_class = {
-+	.name = "wd_timer",
-+	.sysc = &omap44xx_wd_timer_sysc,
-+};
-+
-+/* wd_timer2 */
-+static struct omap_hwmod omap44xx_wd_timer2_hwmod;
-+static struct omap_hwmod_irq_info omap44xx_wd_timer2_irqs[] = {
-+	{ .irq = 80 + OMAP44XX_IRQ_GIC_START },
-+};
-+
-+static struct omap_hwmod_addr_space omap44xx_wd_timer2_addrs[] = {
-+	{
-+		.pa_start	= 0x4a314000,
-+		.pa_end		= 0x4a31407f,
-+		.flags		= ADDR_TYPE_RT
-+	},
-+};
-+
-+/* l4_wkup -> wd_timer2 */
-+static struct omap_hwmod_ocp_if omap44xx_l4_wkup__wd_timer2 = {
-+	.master		= &omap44xx_l4_wkup_hwmod,
-+	.slave		= &omap44xx_wd_timer2_hwmod,
-+	.clk		= "l4_wkup_clk_mux_ck",
-+	.addr		= omap44xx_wd_timer2_addrs,
-+	.addr_cnt	= ARRAY_SIZE(omap44xx_wd_timer2_addrs),
-+	.user		= OCP_USER_MPU | OCP_USER_SDMA,
-+};
-+
-+/* wd_timer2 slave ports */
-+static struct omap_hwmod_ocp_if *omap44xx_wd_timer2_slaves[] = {
-+	&omap44xx_l4_wkup__wd_timer2,
-+};
-+
-+static struct omap_hwmod omap44xx_wd_timer2_hwmod = {
-+	.name		= "wd_timer2",
-+	.class		= &omap44xx_wd_timer_hwmod_class,
-+	.mpu_irqs	= omap44xx_wd_timer2_irqs,
-+	.mpu_irqs_cnt	= ARRAY_SIZE(omap44xx_wd_timer2_irqs),
-+	.main_clk	= "wd_timer2_fck",
-+	.prcm = {
-+		.omap4 = {
-+			.clkctrl_reg = OMAP4430_CM_WKUP_WDT2_CLKCTRL,
-+		},
-+	},
-+	.slaves		= omap44xx_wd_timer2_slaves,
-+	.slaves_cnt	= ARRAY_SIZE(omap44xx_wd_timer2_slaves),
-+	.omap_chip	= OMAP_CHIP_INIT(CHIP_IS_OMAP4430),
-+};
-+
-+/* wd_timer3 */
-+static struct omap_hwmod omap44xx_wd_timer3_hwmod;
-+static struct omap_hwmod_irq_info omap44xx_wd_timer3_irqs[] = {
-+	{ .irq = 36 + OMAP44XX_IRQ_GIC_START },
-+};
-+
-+static struct omap_hwmod_addr_space omap44xx_wd_timer3_addrs[] = {
-+	{
-+		.pa_start	= 0x40130000,
-+		.pa_end		= 0x4013007f,
-+		.flags		= ADDR_TYPE_RT
-+	},
-+};
-+
-+/* l4_abe -> wd_timer3 */
-+static struct omap_hwmod_ocp_if omap44xx_l4_abe__wd_timer3 = {
-+	.master		= &omap44xx_l4_abe_hwmod,
-+	.slave		= &omap44xx_wd_timer3_hwmod,
-+	.clk		= "ocp_abe_iclk",
-+	.addr		= omap44xx_wd_timer3_addrs,
-+	.addr_cnt	= ARRAY_SIZE(omap44xx_wd_timer3_addrs),
-+	.user		= OCP_USER_MPU,
-+};
-+
-+/* l4_abe -> wd_timer3 (dma) */
-+static struct omap_hwmod_addr_space omap44xx_wd_timer3_dma_addrs[] = {
-+	{
-+		.pa_start	= 0x49030000,
-+		.pa_end		= 0x4903007f,
-+		.flags		= ADDR_TYPE_RT
-+	},
-+};
-+
-+static struct omap_hwmod_ocp_if omap44xx_l4_abe__wd_timer3_dma = {
-+	.master		= &omap44xx_l4_abe_hwmod,
-+	.slave		= &omap44xx_wd_timer3_hwmod,
-+	.clk		= "ocp_abe_iclk",
-+	.addr		= omap44xx_wd_timer3_dma_addrs,
-+	.addr_cnt	= ARRAY_SIZE(omap44xx_wd_timer3_dma_addrs),
-+	.user		= OCP_USER_SDMA,
-+};
-+
-+/* wd_timer3 slave ports */
-+static struct omap_hwmod_ocp_if *omap44xx_wd_timer3_slaves[] = {
-+	&omap44xx_l4_abe__wd_timer3,
-+	&omap44xx_l4_abe__wd_timer3_dma,
-+};
-+
-+static struct omap_hwmod omap44xx_wd_timer3_hwmod = {
-+	.name		= "wd_timer3",
-+	.class		= &omap44xx_wd_timer_hwmod_class,
-+	.mpu_irqs	= omap44xx_wd_timer3_irqs,
-+	.mpu_irqs_cnt	= ARRAY_SIZE(omap44xx_wd_timer3_irqs),
-+	.main_clk	= "wd_timer3_fck",
-+	.prcm = {
-+		.omap4 = {
-+			.clkctrl_reg = OMAP4430_CM1_ABE_WDT3_CLKCTRL,
-+		},
-+	},
-+	.slaves		= omap44xx_wd_timer3_slaves,
-+	.slaves_cnt	= ARRAY_SIZE(omap44xx_wd_timer3_slaves),
-+	.omap_chip	= OMAP_CHIP_INIT(CHIP_IS_OMAP4430),
-+};
-+
- static __initdata struct omap_hwmod *omap44xx_hwmods[] = {
- 	/* dmm class */
- 	&omap44xx_dmm_hwmod,
-@@ -472,6 +602,11 @@ static __initdata struct omap_hwmod *omap44xx_hwmods[] = {
+-	clk_enable(wdev->ick);    /* Enable the interface clock */
+-	clk_enable(wdev->fck);    /* Enable the functional clock */
++	pm_runtime_get_sync(wdev->dev);
  
- 	/* mpu class */
- 	&omap44xx_mpu_hwmod,
-+	/* wd_timer class */
-+	&omap44xx_wd_timer2_hwmod,
-+
-+	/* wd_timer3 not yet supported */
-+/*	&omap44xx_wd_timer3_hwmod, */
- 	NULL,
- };
+ 	/* initialize prescaler */
+ 	while (__raw_readl(base + OMAP_WATCHDOG_WPS) & 0x01)
+@@ -177,8 +174,7 @@ static int omap_wdt_release(struct inode *inode, struct file *file)
  
+ 	omap_wdt_disable(wdev);
+ 
+-	clk_disable(wdev->ick);
+-	clk_disable(wdev->fck);
++	pm_runtime_put_sync(wdev->dev);
+ #else
+ 	printk(KERN_CRIT "omap_wdt: Unexpected close, not stopping!\n");
+ #endif
+@@ -292,19 +288,7 @@ static int __devinit omap_wdt_probe(struct platform_device *pdev)
+ 
+ 	wdev->omap_wdt_users = 0;
+ 	wdev->mem = mem;
+-
+-	wdev->ick = clk_get(&pdev->dev, "ick");
+-	if (IS_ERR(wdev->ick)) {
+-		ret = PTR_ERR(wdev->ick);
+-		wdev->ick = NULL;
+-		goto err_clk;
+-	}
+-	wdev->fck = clk_get(&pdev->dev, "fck");
+-	if (IS_ERR(wdev->fck)) {
+-		ret = PTR_ERR(wdev->fck);
+-		wdev->fck = NULL;
+-		goto err_clk;
+-	}
++	wdev->dev = &pdev->dev;
+ 
+ 	wdev->base = ioremap(res->start, resource_size(res));
+ 	if (!wdev->base) {
+@@ -314,8 +298,8 @@ static int __devinit omap_wdt_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, wdev);
+ 
+-	clk_enable(wdev->ick);
+-	clk_enable(wdev->fck);
++	pm_runtime_enable(wdev->dev);
++	pm_runtime_get_sync(wdev->dev);
+ 
+ 	omap_wdt_disable(wdev);
+ 	omap_wdt_adjust_timeout(timer_margin);
+@@ -333,11 +317,7 @@ static int __devinit omap_wdt_probe(struct platform_device *pdev)
+ 		__raw_readl(wdev->base + OMAP_WATCHDOG_REV) & 0xFF,
+ 		timer_margin);
+ 
+-	/* autogate OCP interface clock */
+-	__raw_writel(0x01, wdev->base + OMAP_WATCHDOG_SYS_CONFIG);
+-
+-	clk_disable(wdev->ick);
+-	clk_disable(wdev->fck);
++	pm_runtime_put_sync(wdev->dev);
+ 
+ 	omap_wdt_dev = pdev;
+ 
+@@ -349,12 +329,6 @@ err_misc:
+ 
+ err_ioremap:
+ 	wdev->base = NULL;
+-
+-err_clk:
+-	if (wdev->ick)
+-		clk_put(wdev->ick);
+-	if (wdev->fck)
+-		clk_put(wdev->fck);
+ 	kfree(wdev);
+ 
+ err_kzalloc:
+@@ -386,8 +360,6 @@ static int __devexit omap_wdt_remove(struct platform_device *pdev)
+ 	release_mem_region(res->start, resource_size(res));
+ 	platform_set_drvdata(pdev, NULL);
+ 
+-	clk_put(wdev->ick);
+-	clk_put(wdev->fck);
+ 	iounmap(wdev->base);
+ 
+ 	kfree(wdev);
 -- 
 1.7.0.4
 
