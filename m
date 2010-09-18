@@ -1,13 +1,13 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:38283 "EHLO
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:56573 "EHLO
 	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751378Ab0IRRqX convert rfc822-to-8bit (ORCPT
+	with ESMTP id S1751887Ab0IRSWO convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 18 Sep 2010 13:46:23 -0400
-Received: by wyf22 with SMTP id 22so3241620wyf.19
-        for <linux-watchdog@vger.kernel.org>; Sat, 18 Sep 2010 10:46:22 -0700 (PDT)
+	Sat, 18 Sep 2010 14:22:14 -0400
+Received: by wyf22 with SMTP id 22so3254521wyf.19
+        for <linux-watchdog@vger.kernel.org>; Sat, 18 Sep 2010 11:22:12 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <5610599F537DD74A8D1F5CC946A75073034792F7@az33exm25.fsl.freescale.net>
+In-Reply-To: <5610599F537DD74A8D1F5CC946A75073034792F9@az33exm25.fsl.freescale.net>
 References: <1284764008-19469-1-git-send-email-timur@freescale.com>
 	<AANLkTikmfd=2N3GE1zpTqQ59583EEe1PDXggwHBUAj_5@mail.gmail.com>
 	<AANLkTinidrifo3ry7o=DPKF96f3o4+_2zt7rsn=Zvh9D@mail.gmail.com>
@@ -16,8 +16,10 @@ References: <1284764008-19469-1-git-send-email-timur@freescale.com>
 	<70810686-1EB6-4AD9-A89B-C2A8BA6AC30D@freescale.com>
 	<AANLkTi=sa1LJOnw4fK-fX23Egxm7NoJVNKB1vtc9Eg4q@mail.gmail.com>
 	<5610599F537DD74A8D1F5CC946A75073034792F7@az33exm25.fsl.freescale.net>
-Date: Sat, 18 Sep 2010 13:46:21 -0400
-Message-ID: <AANLkTimSewEEhbBoBb+fpPgY9EbE5bWsknPS7OkQgkcy@mail.gmail.com>
+	<AANLkTimSewEEhbBoBb+fpPgY9EbE5bWsknPS7OkQgkcy@mail.gmail.com>
+	<5610599F537DD74A8D1F5CC946A75073034792F9@az33exm25.fsl.freescale.net>
+Date: Sat, 18 Sep 2010 14:22:12 -0400
+Message-ID: <AANLkTi=RXjc=GZ+RRsKjL3qdYFayXOCX0s1SU5jojeXg@mail.gmail.com>
 Subject: Re: [PATCH 1/2] powerpc: export ppc_tb_freq so that modules can
  reference it
 From: Josh Boyer <jwboyer@gmail.com>
@@ -29,32 +31,45 @@ Content-Transfer-Encoding: 8BIT
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sat, Sep 18, 2010 at 1:36 PM, Tabi Timur-B04825 <B04825@freescale.com> wrote:
+On Sat, Sep 18, 2010 at 1:55 PM, Tabi Timur-B04825 <B04825@freescale.com> wrote:
 > Josh Boyer wrote:
->> It is not, in my opinion, about what is technically possible and what
->> isn't.  The kernel is licensed under the GPL.  This is a Linux kernel
->> only symbol.  One would be hard pressed to claim they have a driver
->> that wasn't written for Linux that happens to need that symbol.  As a
->> member of the Linux kernel community, I find it important to encourage
->> the contribution of code back to the kernel, and this is one way to
->> help that.  This isn't BSD.
+>> This is a new symbol being exported, not
+>> one that has been exported for years.
 >
-> Fine, but this goes back to my original question -- if this is how the
-> community feels, then why hasn't someone posted a patch that converts all
-> EXPORT_SYMBOL into EXPORT_SYMBOL_GPL?
+> Except that Ben says that I should change ppc_proc_freq from EXPORT_SYMBOL
+> to
+> EXPORT_SYMBOL_GPL as well.  In a sense, we're in a catch-22.  We have three
+> choices:
+>
+> 1. We *arbitrarily* change ppc_proc_freq from EXPORT_SYMBOL to
+> EXPORT_SYMBOL_GPL, so that the two symbols are exported the same way
+>
+> 2. We GPL-export only ppc_tb_freq and leave ppc_proc_freq as-is, but then it
+> looks dumb.
 
-Because of history in a lot of cases, and like all communities,
-opinions vary.  I did say this was my opinion, not a mandate of some
-sort.
+I dunno.  I don't think it looks dumb.  It could mean nothing more
+than we were paying closer attention this time.
 
-> Either we allow non-GPL drivers, or we don't.  If we don't, then we need to
-> eliminate EXPORT_SYMBOL once and for all.  Otherwise, the message is
-> hypocritical.
+> 3. We export ppc_tb_freq the same way we're exporting ppc_proc_freq,
+> providing the most options and maintaining consistency.
+>
+> I just don't see how options #1 or #2 are better than #3, and so far the
+> only
+> explanations I've heard are along the lines of "we just like it that way".
 
-I'd be all for it.  I don't think it is as black and white as that
-though, as nothing rarely is.  (we can't even get all the code to
-adhere to the < 80 column "rule" ).  I also don't think it is
-necessarily hypocritical.  This is a new symbol being exported, not
-one that has been exported for years.
+Now I think I've been a bit more detailed than that.  I at least
+explained why I prefer it that way.  If you disagree, that's fine but
+don't make me sound like some kind of petulant child.
+
+> Obviously, Linus thinks it's okay to allow some non-GPL modules, otherwise
+> he
+> would have long ago changed all EXPORT_SYMBOLs to EXPORT_SYMBOL_GPL.  I'm
+> just capitalizing on that mindset.
+
+Capitalizing?  The patch you posted that uses this symbol is for a GPL
+driver so you gain or lose nothing by having this symbol be
+EXPORT_SYMBOL_GPL.  Are you somehow advocating and getting some sort
+of gain by allowing non-GPL modules?  If so, I find that unfortunate.
+If not, then I guess I don't understand what you mean by capitalizing.
 
 josh
