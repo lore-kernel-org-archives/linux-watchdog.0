@@ -1,77 +1,76 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mho-01-ewr.mailhop.org ([204.13.248.71]:59372 "EHLO
-	mho-01-ewr.mailhop.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753697Ab0ITRQz (ORCPT
+Received: from tx2ehsobe003.messaging.microsoft.com ([65.55.88.13]:52061 "EHLO
+	TX2EHSOBE005.bigfish.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752371Ab0ITSvn (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 20 Sep 2010 13:16:55 -0400
-Date: Mon, 20 Sep 2010 10:16:53 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Kevin Hilman <khilman@deeprootsystems.com>
-Cc: "Varadarajan, Charulatha" <charu@ti.com>, wim@iguana.be,
-	linux-watchdog@vger.kernel.org, paul@pwsan.com, b-cousson@ti.com,
-	rnayak@ti.com, p-basak2@ti.com, linux-omap@vger.kernel.org
-Subject: Re: [PATCH v6 0/7] OMAP: WDT: Implement WDT in hwmod way
-Message-ID: <20100920171653.GE4611@atomide.com>
-References: <1284733136-20952-1-git-send-email-charu@ti.com>
- <20100917172215.GE29610@atomide.com>
- <87mxrguhhf.fsf@deeprootsystems.com>
+	Mon, 20 Sep 2010 14:51:43 -0400
+Received: from mail135-tx2 (localhost.localdomain [127.0.0.1])	by
+ mail135-tx2-R.bigfish.com (Postfix) with ESMTP id F1F565E8079	for
+ <linux-watchdog@vger.kernel.org>; Mon, 20 Sep 2010 18:51:40 +0000 (UTC)
+Received: from TX2EHSMHS009.bigfish.com (unknown [10.9.14.246])	by
+ mail135-tx2.bigfish.com (Postfix) with ESMTP id B540818C004C	for
+ <linux-watchdog@vger.kernel.org>; Mon, 20 Sep 2010 18:51:40 +0000 (UTC)
+Received: from az33smr02.freescale.net (az33smr02.freescale.net
+ [10.64.34.200])	by az33egw01.freescale.net (8.14.3/8.14.3) with ESMTP id
+ o8KIpcEN008038	for <linux-watchdog@vger.kernel.org>; Mon, 20 Sep 2010
+ 11:51:38 -0700 (MST)
+Received: from az33exm25.fsl.freescale.net (az33exm25.am.freescale.net
+ [10.64.32.16])	by az33smr02.freescale.net (8.13.1/8.13.0) with ESMTP id
+ o8KIpiAM026985	for <linux-watchdog@vger.kernel.org>; Mon, 20 Sep 2010
+ 13:51:44 -0500 (CDT)
+Date: Mon, 20 Sep 2010 13:51:36 -0500
+From: Scott Wood <scottwood@freescale.com>
+To: Josh Boyer <jwboyer@gmail.com>
+CC: Tabi Timur-B04825 <B04825@freescale.com>, linuxppc-dev@ozlabs.org,
+	Gala Kumar-B11780 <kumar.gala@freescale.com>,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 1/2] powerpc: export ppc_tb_freq so that modules can
+ reference it
+Message-ID: <20100920135136.04ceb772@udp111988uds.am.freescale.net>
+In-Reply-To: <AANLkTi=RXjc=GZ+RRsKjL3qdYFayXOCX0s1SU5jojeXg@mail.gmail.com>
+References: <1284764008-19469-1-git-send-email-timur@freescale.com>
+	<AANLkTikmfd=2N3GE1zpTqQ59583EEe1PDXggwHBUAj_5@mail.gmail.com>
+	<AANLkTinidrifo3ry7o=DPKF96f3o4+_2zt7rsn=Zvh9D@mail.gmail.com>
+	<1284779678.30449.108.camel@pasglop>
+	<AC849F1A-BC8A-4705-90E0-26991FAE6EED@freescale.com>
+	<70810686-1EB6-4AD9-A89B-C2A8BA6AC30D@freescale.com>
+	<AANLkTi=sa1LJOnw4fK-fX23Egxm7NoJVNKB1vtc9Eg4q@mail.gmail.com>
+	<5610599F537DD74A8D1F5CC946A75073034792F7@az33exm25.fsl.freescale.net>
+	<AANLkTimSewEEhbBoBb+fpPgY9EbE5bWsknPS7OkQgkcy@mail.gmail.com>
+	<5610599F537DD74A8D1F5CC946A75073034792F9@az33exm25.fsl.freescale.net>
+	<AANLkTi=RXjc=GZ+RRsKjL3qdYFayXOCX0s1SU5jojeXg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87mxrguhhf.fsf@deeprootsystems.com>
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-* Kevin Hilman <khilman@deeprootsystems.com> [100917 15:26]:
-> Tony Lindgren <tony@atomide.com> writes:
-> 
-> > * Varadarajan, Charulatha <charu@ti.com> [100917 07:11]:
-> >> Series of patches to port watchdog module to use hwmod APIs
-> >> for OMAP2PLUS chips and use runtime APIs for all OMAP chips.
-> >> For this hwmod database for OMAP2PLUS watchdog instances are
-> >> populated. This patch series also implements watchdog
-> >> module to use PM runtime APIs.
-> >> 
-> >> This patch series is created on "origin/pm-core" and is
-> >> tested on OMAP2430, OMAP44430, OMAP3430 SDP boards and zoom3 board.
-> >> Also verified that this patch series does not break the OMAP1 build.
-> >> 
-> >> This series is tested on OMAP4430 ES2 using the below series
-> >> http://www.spinics.net/lists/linux-omap/msg36023.html
-> >
-> > Can you please list the exact dependencies to other patches
-> > for the mainline kernel? Are they the same as for the
-> > omap serial driver just posted?
-> 
-> Hi Tony,
-> 
-> This series is based on my pm-core branch which is basically the the
-> stuff I have submitted upstream (my pm-next series, the runtime PM core)
-> and a collection of hwmod fixes that Paul/Benoit have lined up
-> for 2.6.37.
+On Sat, 18 Sep 2010 14:22:12 -0400
+Josh Boyer <jwboyer@gmail.com> wrote:
 
-OK thanks for the summary.
+> Capitalizing?  The patch you posted that uses this symbol is for a GPL
+> driver so you gain or lose nothing by having this symbol be
+> EXPORT_SYMBOL_GPL.  Are you somehow advocating and getting some sort
+> of gain by allowing non-GPL modules?  If so, I find that unfortunate.
+> If not, then I guess I don't understand what you mean by capitalizing.
 
-So let's get all the dependencies out of the way and pull them into linux-omap
-master branch for testing. Sounds like we should base this on Paul's core
-hwmod branch and your pm-next.
+One can dislike DRM (even a very weak form such as this) without having
+a particular desire to go outside the bounds of what it allows.
 
-Then for the runtime PM core, let's just keep merging them from Greg's
-queue into l-o master until they are merged to the mainline tree.
+I thought EXPORT_SYMBOL_GPL was originally meant to indicate the
+symbols whose use is likely to be indicitave of code that is, in some
+copyright-meaningful way, derived from GPL code?  I have a hard time
+seeing that being the case here.  If every symbol is made GPL-only,
+then that just gives the binary-only people[1] more incentive to
+circumvent the entire mechanism.  It loses its meaning.
 
-I assume that the runtime PM core patches are the ones at [1] below?
+Documentation/DocBook/kernel-hacking.tmpl says, "It implies that the
+function is considered an internal implementation issue, and not really
+an interface."
 
-> I will gladly queue these hwmod conversion patches in my tree if you
-> prefer since I am already managing all the dependencies.
+-Scott
 
-Yes, once we have dependencies queued up, then let's pull these
-in, at least for testing.
+[1] Plus anyone who might want to make a kernel module out of code
+which is open source, but not under a license the GPLv2 is compatible
+with.
 
-For merging some hwdmod drivers to mainline, do we have all the
-necessary acks from the driver maintainers?
-
-Regards,
-
-Tony
-
-[1] http://ftp.litnet.lt/pub/linux/kernel/people/gregkh/gregkh-2.6/gregkh-05-driver-core/
