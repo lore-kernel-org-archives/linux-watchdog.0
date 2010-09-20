@@ -1,47 +1,97 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from tx2ehsobe001.messaging.microsoft.com ([65.55.88.11]:4071 "EHLO
-	TX2EHSOBE001.bigfish.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753878Ab0ITTxO (ORCPT
+Received: from mail-px0-f174.google.com ([209.85.212.174]:49820 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754833Ab0ITUsx (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 20 Sep 2010 15:53:14 -0400
-Received: from mail117-tx2 (localhost.localdomain [127.0.0.1])	by
- mail117-tx2-R.bigfish.com (Postfix) with ESMTP id 811F012403AD	for
- <linux-watchdog@vger.kernel.org>; Mon, 20 Sep 2010 19:53:13 +0000 (UTC)
-Received: from TX2EHSMHS032.bigfish.com (unknown [10.9.14.242])	by
- mail117-tx2.bigfish.com (Postfix) with ESMTP id 3FA0B12E8051	for
- <linux-watchdog@vger.kernel.org>; Mon, 20 Sep 2010 19:53:13 +0000 (UTC)
-Received: from de01smr01.freescale.net (de01smr01.freescale.net [10.208.0.31])
-	by de01egw02.freescale.net (8.14.3/8.14.3) with ESMTP id o8KJr9N6004242	for
- <linux-watchdog@vger.kernel.org>; Mon, 20 Sep 2010 12:53:09 -0700 (MST)
-Received: from az33exm25.fsl.freescale.net (az33exm25.am.freescale.net
- [10.64.32.16])	by de01smr01.freescale.net (8.13.1/8.13.0) with ESMTP id
- o8KK7WcO014248	for <linux-watchdog@vger.kernel.org>; Mon, 20 Sep 2010
- 15:07:32 -0500 (CDT)
-Message-ID: <4C97BBA4.9090401@freescale.com>
-Date: Mon, 20 Sep 2010 14:53:08 -0500
-From: Timur Tabi <timur@freescale.com>
+	Mon, 20 Sep 2010 16:48:53 -0400
+From: Kevin Hilman <khilman@deeprootsystems.com>
+To: Tony Lindgren <tony@atomide.com>
+Cc: "Varadarajan\, Charulatha" <charu@ti.com>, wim@iguana.be,
+	linux-watchdog@vger.kernel.org, paul@pwsan.com, b-cousson@ti.com,
+	rnayak@ti.com, p-basak2@ti.com, linux-omap@vger.kernel.org
+Subject: Re: [PATCH v6 0/7] OMAP: WDT: Implement WDT in hwmod way
+References: <1284733136-20952-1-git-send-email-charu@ti.com>
+	<20100917172215.GE29610@atomide.com>
+	<87mxrguhhf.fsf@deeprootsystems.com>
+	<20100920171653.GE4611@atomide.com>
+Date: Mon, 20 Sep 2010 13:48:51 -0700
+In-Reply-To: <20100920171653.GE4611@atomide.com> (Tony Lindgren's message of
+	"Mon, 20 Sep 2010 10:16:53 -0700")
+Message-ID: <87sk14rvik.fsf@deeprootsystems.com>
 MIME-Version: 1.0
-To: Josh Boyer <jwboyer@linux.vnet.ibm.com>
-CC: Josh Boyer <jwboyer@gmail.com>, kumar.gala@freescale.com,
-	linux-watchdog@vger.kernel.org, linuxppc-dev@ozlabs.org
-Subject: Re: [PATCH 2/2] powerpc/watchdog: allow the e500 watchdog driver
- to be compiled as a module
-References: <1284764008-19469-1-git-send-email-timur@freescale.com> <1284764008-19469-2-git-send-email-timur@freescale.com> <AANLkTi=Ks7hkDq1g1SyHLf4Lf8tsew-KnvKOgyQxjcWQ@mail.gmail.com> <AANLkTimp-0zdw-fAaX8qCwHW0NMn--6RK0_USDGOSe47@mail.gmail.com> <20100920193016.GA3845@zod.rchland.ibm.com>
-In-Reply-To: <20100920193016.GA3845@zod.rchland.ibm.com>
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Josh Boyer wrote:
-> I guess I don't see what you mean.  It talks about e500 but it doesn't
-> say "Book-E" anywhere in that comment.  (Though I'm pretty sure that
-> comment does apply to 4xx.)
+Tony Lindgren <tony@atomide.com> writes:
 
-That was my point.  The comment says e500, but the code is also intended for
-4xx.
+> * Kevin Hilman <khilman@deeprootsystems.com> [100917 15:26]:
+>> Tony Lindgren <tony@atomide.com> writes:
+>> 
+>> > * Varadarajan, Charulatha <charu@ti.com> [100917 07:11]:
+>> >> Series of patches to port watchdog module to use hwmod APIs
+>> >> for OMAP2PLUS chips and use runtime APIs for all OMAP chips.
+>> >> For this hwmod database for OMAP2PLUS watchdog instances are
+>> >> populated. This patch series also implements watchdog
+>> >> module to use PM runtime APIs.
+>> >> 
+>> >> This patch series is created on "origin/pm-core" and is
+>> >> tested on OMAP2430, OMAP44430, OMAP3430 SDP boards and zoom3 board.
+>> >> Also verified that this patch series does not break the OMAP1 build.
+>> >> 
+>> >> This series is tested on OMAP4430 ES2 using the below series
+>> >> http://www.spinics.net/lists/linux-omap/msg36023.html
+>> >
+>> > Can you please list the exact dependencies to other patches
+>> > for the mainline kernel? Are they the same as for the
+>> > omap serial driver just posted?
+>> 
+>> Hi Tony,
+>> 
+>> This series is based on my pm-core branch which is basically the the
+>> stuff I have submitted upstream (my pm-next series, the runtime PM core)
+>> and a collection of hwmod fixes that Paul/Benoit have lined up
+>> for 2.6.37.
+>
+> OK thanks for the summary.
+>
+> So let's get all the dependencies out of the way and pull them into linux-omap
+> master branch for testing. Sounds like we should base this on Paul's core
+> hwmod branch and your pm-next.
 
--- 
-Timur Tabi
-Linux kernel developer at Freescale
+Yes, those two branches are required as the bare minimum.
 
+> Then for the runtime PM core, let's just keep merging them from Greg's
+> queue into l-o master until they are merged to the mainline tree.
+>
+> I assume that the runtime PM core patches are the ones at [1] below?
+
+I should've said runtime PM core for OMAP, by which I mean:
+
+   http://marc.info/?l=linux-omap&m=128459521813724&w=2
+
+That series has a dependency on only one of the patches from Greg's
+queue you mentioned. Specifically, the one from me:
+
+   driver core: platform_bus: allow runtime override of dev_pm_ops
+
+which I also have in my pm-backports branch.
+
+>> I will gladly queue these hwmod conversion patches in my tree if you
+>> prefer since I am already managing all the dependencies.
+>
+> Yes, once we have dependencies queued up, then let's pull these
+> in, at least for testing.
+>
+> For merging some hwdmod drivers to mainline, do we have all the
+> necessary acks from the driver maintainers?
+
+The only one that's currently ready is watchdog, and for that one I have
+an Ack from Wim to merge this via linux-omap.
+
+For the others that are close (UART, GPIO, i2c) I've asked that the next
+versions of those be posted to LAKML as well as the subsystem lists.
+>From there, I will ask the subsystem maintainers for an ack so we can
+merge them via linux-omap along with all the platform changes.
+
+Kevin
