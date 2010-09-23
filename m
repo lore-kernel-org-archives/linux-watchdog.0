@@ -1,49 +1,118 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from utopia.booyaka.com ([72.9.107.138]:48722 "EHLO
-	utopia.booyaka.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754994Ab0IVAfl (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 21 Sep 2010 20:35:41 -0400
-Date: Tue, 21 Sep 2010 18:35:40 -0600 (MDT)
-From: Paul Walmsley <paul@pwsan.com>
-To: Tony Lindgren <tony@atomide.com>
-cc: Kevin Hilman <khilman@deeprootsystems.com>,
-	"Varadarajan, Charulatha" <charu@ti.com>, wim@iguana.be,
-	linux-watchdog@vger.kernel.org, b-cousson@ti.com, rnayak@ti.com,
-	p-basak2@ti.com, linux-omap@vger.kernel.org
-Subject: Re: [PATCH v6 0/7] OMAP: WDT: Implement WDT in hwmod way
-In-Reply-To: <20100920205630.GJ4611@atomide.com>
-Message-ID: <alpine.DEB.2.00.1009211833150.4677@utopia.booyaka.com>
-References: <1284733136-20952-1-git-send-email-charu@ti.com> <20100917172215.GE29610@atomide.com> <87mxrguhhf.fsf@deeprootsystems.com> <20100920171653.GE4611@atomide.com> <87sk14rvik.fsf@deeprootsystems.com> <20100920205630.GJ4611@atomide.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from bear.ext.ti.com ([192.94.94.41]:57601 "EHLO bear.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753991Ab0IWOd2 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 23 Sep 2010 10:33:28 -0400
+From: "Varadarajan, Charulatha" <charu@ti.com>
+To: tony@atomide.com, wim@iguana.be, linux-omap@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Cc: khilman@deeprootsystems.com, paul@pwsan.com, b-cousson@ti.com,
+	rnayak@ti.com, p-basak2@ti.com,
+	"Varadarajan, Charulatha" <charu@ti.com>
+Subject: [PATCH v8 0/6] OMAP: WDT: Implement WDT in hwmod way
+Date: Thu, 23 Sep 2010 20:02:37 +0530
+Message-Id: <1285252363-3630-1-git-send-email-charu@ti.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, 20 Sep 2010, Tony Lindgren wrote:
+Series of patches to port watchdog module to use hwmod APIs
+for OMAP2PLUS chips and use runtime APIs for all OMAP chips.
+For this hwmod database for OMAP2PLUS watchdog instances are
+populated and implements watchdog module to use PM runtime APIs.
 
-> * Kevin Hilman <khilman@deeprootsystems.com> [100920 13:40]:
-> > Tony Lindgren <tony@atomide.com> writes:
-> > 
-> > > So let's get all the dependencies out of the way and pull them into linux-omap
-> > > master branch for testing. Sounds like we should base this on Paul's core
-> > > hwmod branch and your pm-next.
-> > 
-> > Yes, those two branches are required as the bare minimum.
+This patch series is generated on "origin/pm-core" which
+has Kevin's pm-next series, the runtime PM core patch series,
+and a collection of hwmod fixes that Paul/Benoit have lined up
+for 2.6.37.
 
-Just a quick note - the branch
+Tested on OMAP2430, OMAP4430 (ES1.0 & ES2.0), OMAP3430 SDP boards
+and zoom3 board. Also verified that this patch series does not
+break the OMAP1 build.
 
-git://git.pwsan.com/linux-2.6 hwmod_2.6.37
+This series is tested on OMAP4430 ES2 using the below series
+(dependency series for ES2.0 silicon)
+http://www.spinics.net/lists/linux-omap/msg36023.html
 
-contains the current set of hwmod core patches that I'd like to get 
-upstream for 2.6.37.  Will send a pull request tomorrow.
+Version History:
+---------------
+Version v8:
+*Enable wd_timer3 in the hwmod list
 
-I plan to have a few more branches for 2.6.37 with some SCM, SDRC, clock, 
-clockdomain, and powerdomain patches.  Will post those separately and also 
-assemble a composite 'for_2.6.37' branch with both the hwmod and the 
-clock/clockdomain/powerdomain/SCM/SDRC patches.
+Version v7:
+*Use EN_*SHIFT macros for module_bit and ST_*SHIFT macros for
+idlest_idle_bit in OMAP2&3 hwmod database
+(based on suggestions given by Paul for I2C hwmod series)
+*Remove new definitions of EN_*SHIFT macros as they already exist
+Some of the v7 links:
+https://patchwork.kernel.org/patch/197022/
 
-regards,
+Version v6:
+*Split omap_init_wdt() into separate omap_init_wdt functions
+under mach-omap1 and mach-omap2 and set them up with
+subsys_initcall
+*Include wd_timer3 database for OMAP4
+*In hwmod database follow naming convention "wd_timerX"
+Some of the v6 links:
+http://www.spinics.net/lists/linux-omap/msg36678.html
+https://patchwork.kernel.org/patch/188242/
+https://patchwork.kernel.org/patch/188222/
 
+Version v5:
+*Delete wdt_runtime_resume and wdt_runtime_suspend
+functions as the fix for the return values in the generic
+runtime PM calls has been queued for 2.6.37 (see below link)
+https://lists.linux-foundation.org/pipermail/linux-pm/2010-September/028466.html
+Some of the v5 links:
+https://patchwork.kernel.org/patch/181812/
+https://patchwork.kernel.org/patch/181782/
+https://patchwork.kernel.org/patch/181772/
+https://patchwork.kernel.org/patch/181792/
 
-- Paul
+Version v4:
+*Implement hwmod adapdation first and then PM runtime adaptation
+as two different patches in the series
+*Remove inclusion of omap_device.h in the driver file.
+Some of the v4 links:
+https://patchwork.kernel.org/patch/174672/
+https://patchwork.kernel.org/patch/174662/
+
+Version v3:
+*Fix Minor comments like renaming omap1 watchdog structures
+with an omap1_ prefix
+Some of the v3 links:
+https://patchwork.kernel.org/patch/119698/
+https://patchwork.kernel.org/patch/119696/ 
+
+Version v2:
+*Rebase to latest kernel
+Some of the v2 links:
+http://www.spinics.net/lists/linux-omap/msg34741.html
+http://www.spinics.net/lists/linux-omap/msg34673.html
+
+Version v1:
+*Initial series
+Some of the v1 links:
+http://www.spinics.net/lists/linux-omap/msg30628.html
+http://www.spinics.net/lists/linux-omap/msg30625.html
+
+Benoit Cousson (1):
+  OMAP4: hwmod data: Add watchdog timer
+
+Varadarajan, Charulatha (5):
+  OMAP3: hwmod data: Add watchdog timer
+  OMAP2420: hwmod data: Add watchdog timer
+  OMAP2430: hwmod data: Add watchdog timer
+  OMAP2PLUS: WDT: use omap_device_build for device registration
+  OMAP: WDT: Use PM runtime APIs instead of clk FW APIs
+
+ arch/arm/mach-omap1/devices.c              |   27 ++++++
+ arch/arm/mach-omap2/devices.c              |   39 ++++++++
+ arch/arm/mach-omap2/omap_hwmod_2420_data.c |   64 +++++++++++++
+ arch/arm/mach-omap2/omap_hwmod_2430_data.c |   64 +++++++++++++
+ arch/arm/mach-omap2/omap_hwmod_3xxx_data.c |   66 ++++++++++++++
+ arch/arm/mach-omap2/omap_hwmod_44xx_data.c |  135 ++++++++++++++++++++++++++++
+ arch/arm/plat-omap/devices.c               |   41 ---------
+ drivers/watchdog/omap_wdt.c                |   42 ++-------
+ 8 files changed, 402 insertions(+), 76 deletions(-)
+
