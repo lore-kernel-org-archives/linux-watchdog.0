@@ -1,78 +1,72 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from vps.mortis.eu ([79.99.135.181]:55890 "EHLO vps.mortis.eu"
+Received: from vps.mortis.eu ([79.99.135.181]:50542 "EHLO vps.mortis.eu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752666Ab0IZPEr (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 26 Sep 2010 11:04:47 -0400
-Date: Sun, 26 Sep 2010 17:04:43 +0200
+	id S1751697Ab0IZPL5 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Sun, 26 Sep 2010 11:11:57 -0400
+Date: Sun, 26 Sep 2010 17:11:55 +0200
 From: Giel van Schijndel <me@mortis.eu>
 To: Lutz Ballaschke <vegan.grindcore@googlemail.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+Cc: Wim van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: Re: [PATCHv3 1/3] watchdog: add f71862fg support
-Message-ID: <20100926150443.GA7185@salidar.me.mortis.eu>
-References: <20100926142535.GB2150@kreios.titan>
+Subject: Re: [PATCHv3 0/3] watchdog: add f71862fg support
+Message-ID: <20100926151155.GB7185@salidar.me.mortis.eu>
+References: <20100926140629.GA2150@kreios.titan>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bp/iNruPH9dso1Pn"
+	protocol="application/pgp-signature"; boundary="wq9mPyueHGvFACwf"
 Content-Disposition: inline
-In-Reply-To: <20100926142535.GB2150@kreios.titan>
+In-Reply-To: <20100926140629.GA2150@kreios.titan>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 
---bp/iNruPH9dso1Pn
+--wq9mPyueHGvFACwf
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Sep 26, 2010 at 04:25:35PM +0200, Lutz Ballaschke wrote:
-> Watchdog support for Fintek F71862fg Super-I/O added.
-> Two different hardware reset pins of the F71862fg chip can be configured=
+On Sun, Sep 26, 2010 at 04:06:29PM +0200, Lutz Ballaschke wrote:
+> Furthermore i was thinking about modifying the WDIOC_GETTIMELEFT
+> helper function since it simply returns the content of the WDT timer=20
+> register without regarding whether the driver runs in minute-mode or not
+> (thanks to Giel for pointing that out). This means if the driver is loade=
+d=20
+> with a timeout of >255 seconds (and switches to minute-mode) WDIOC_GETTIM=
+ELEFT
+> ioctl returns minutes instead of seconds and thus doesn't comply with=20
+> watchdog-api (e.g. ioctl returns 6(min) not 360(sec)). It might be=20
+> confusing if one loads the driver with a timeout of let's say 360 seconds=
 =20
-> by an additional module parameter.
->=20
-> Signed-off-by: Lutz Ballaschke <vegan.grindcore@googlemail.com>
-> ---
->=20
->  drivers/watchdog/f71808e_wdt.c |   44 ++++++++++++++++++++++++++++++++++=
-++++++
->  1 files changed, 44 insertions(+), 0 deletions(-)
->=20
->=20
-> diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wd=
-t.c
-> index 7e5c266..546cef6 100644
-> --- a/drivers/watchdog/f71808e_wdt.c
-> +++ b/drivers/watchdog/f71808e_wdt.c
-> @@ -282,6 +295,28 @@ exit_unlock:
->  	return err;
->  }
-> =20
-> +static int f71862fg_pin_configure(unsigned short ioaddr)
-> +{
-> +	/* When ioaddr is non-zero the calling function has to take care of
-> +	   mutex handling and superio preparation! */
-> +
+> and gets 6 minutes returned by ioctl. But imho it's not very accurate to
+> return a value of seconds if the wdt doesn't count in seconds. That might
+> be even more confusing. This inconsistency on the part of the hardware=20
+> maybe can't get satisfyingly compensated by the driver. So i'd prefer the=
+=20
+> most simple solution.
 
-Given that this basically documents how the function should be used
-(i.e. API documentation) you might want to put the comment block
-*before* the function's prototype.  You could use kernel-doc for it if
-you wish (Documentation/kernel-doc-nano-HOWTO.txt).
+IMO the worst option would be to just return minutes.  Returning
+'minutes * 60 =3D seconds' would be significantly less bad.  So if these
+are your options I'd suggest going with the lesser evil.
 
-This is just advice though, so:
+One other possible option could be returning '(minutes - 1) * 60 + 1'.
+That way bad timing decisions based on the (wrong) assumption, that
+there are still 60 seconds left until reset, can be averted.
 
-Signed-off-by: Giel van Schijndel <me@mortis.eu>
+I would however like Wim's opinion on this, as this affects the
+Watchdog API's usage.
 
 --=20
 Met vriendelijke groet,
 With kind regards,
 Giel van Schijndel
 --
-"There are two major products that come out of Berkeley: LSD and UNIX.
- We don't believe this to be a coincidence."
-  -- Jeremy S. Anderson
+"Good code is its own best documentation. As you're about to add a
+ comment, ask yourself, 'How can I improve the code so that this comment
+ isn't needed?' Improve the code and then document it to make it even
+ clearer."
+  -- Steve McConnell
 
---bp/iNruPH9dso1Pn
+--wq9mPyueHGvFACwf
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 Content-Disposition: inline
@@ -80,9 +74,9 @@ Content-Disposition: inline
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.10 (GNU/Linux)
 
-iEYEARECAAYFAkyfYQsACgkQZBYm/87l50JjtACgke2jhnOyUcNTgg2y/rEFAoEC
-oMYAoMYqUB7u7NSZj7EpzED+IwbVP1hu
-=l7mI
+iEYEARECAAYFAkyfYrsACgkQZBYm/87l50LZFQCgnMBoqeyXi+cjcQNN4KUJ7x5R
+K4IAnjPeoC34piN21zWBFYw/WtNtehE3
+=OvIT
 -----END PGP SIGNATURE-----
 
---bp/iNruPH9dso1Pn--
+--wq9mPyueHGvFACwf--
