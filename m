@@ -1,16 +1,16 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:53007 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755160Ab0IZOaw (ORCPT
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:42105 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932092Ab0IZOgb (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 26 Sep 2010 10:30:52 -0400
-Date: Sun, 26 Sep 2010 16:32:41 +0200
+	Sun, 26 Sep 2010 10:36:31 -0400
+Date: Sun, 26 Sep 2010 16:38:20 +0200
 From: Lutz Ballaschke <vegan.grindcore@googlemail.com>
 To: Giel van Schijndel <me@mortis.eu>
 Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCHv3 2/3] watchdog: add f71862fg support
-Message-ID: <20100926143241.GC2150@kreios.titan>
+Subject: [PATCHv3 3/3] watchdog: add f71862fg support
+Message-ID: <20100926143820.GD2150@kreios.titan>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -19,55 +19,51 @@ List-Id: linux-watchdog@vger.kernel.org
 
 from: Lutz Ballaschke <vegan.grindcore@googlemail.com>
 
-ioctl WDIOC_GETTIMELEFT and helper function added to watchdog driver 
-for common usage.
+Cleaned up and replaced some magic numbers by constants.
 
 Signed-off-by: Lutz Ballaschke <vegan.grindcore@googlemail.com>
 ---
 
- drivers/watchdog/f71808e_wdt.c |   24 ++++++++++++++++++++++++
- 1 files changed, 24 insertions(+), 0 deletions(-)
+ drivers/watchdog/f71808e_wdt.c |   10 ++++------
+ 1 files changed, 4 insertions(+), 6 deletions(-)
 
 
 diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
-index 546cef6..d070086 100644
+index d070086..c7b9ba7 100644
 --- a/drivers/watchdog/f71808e_wdt.c
 +++ b/drivers/watchdog/f71808e_wdt.c
-@@ -265,6 +265,24 @@ exit_unlock:
- 	return err;
- }
+@@ -57,8 +57,6 @@
+ #define SIO_F71882_ID		0x0541	/* Chipset ID */
+ #define SIO_F71889_ID		0x0723	/* Chipset ID */
  
-+static int watchdog_time_left(void)
-+{
-+	int ret = 0;
-+
-+	mutex_lock(&watchdog.lock);
-+	ret = superio_enter(watchdog.sioaddr);
-+	if (ret)
-+		goto exit_unlock;
-+
-+	superio_select(watchdog.sioaddr, SIO_F71808FG_LD_WDT);
-+	ret = superio_inb(watchdog.sioaddr, F71808FG_REG_WD_TIME);
-+	superio_exit(watchdog.sioaddr);
-+
-+exit_unlock:
-+	mutex_unlock(&watchdog.lock);
-+	return ret;
-+}
-+
- static int watchdog_keepalive(void)
- {
- 	int err = 0;
-@@ -590,6 +608,12 @@ static long watchdog_ioctl(struct file *file, unsigned int cmd,
- 	case WDIOC_GETTIMEOUT:
- 		return put_user(watchdog.timeout, uarg.i);
+-#define	F71882FG_REG_START		0x01
+-
+ #define F71808FG_REG_WDO_CONF		0xf0
+ #define F71808FG_REG_WDT_CONF		0xf5
+ #define F71808FG_REG_WD_TIME		0xf6
+@@ -83,7 +81,7 @@ module_param(force_id, ushort, 0);
+ MODULE_PARM_DESC(force_id, "Override the detected device ID");
  
-+	case WDIOC_GETTIMELEFT:
-+		status = watchdog_time_left();
-+		if (status < 0)
-+			return status;
-+		return put_user(status, uarg.i);
-+
- 	default:
- 		return -ENOTTY;
+ static const int max_timeout = WATCHDOG_MAX_TIMEOUT;
+-static int timeout = 60;	/* default timeout in seconds */
++static int timeout = WATCHDOG_TIMEOUT;	/* default timeout in seconds */
+ module_param(timeout, int, 0);
+ MODULE_PARM_DESC(timeout,
+ 	"Watchdog timeout in seconds. 1<= timeout <="
+@@ -352,13 +350,13 @@ static int watchdog_start(void)
+ 	switch (watchdog.type) {
+ 	case f71808fg:
+ 		/* Set pin 21 to GPIO23/WDTRST#, then to WDTRST# */
+-		superio_clear_bit(watchdog.sioaddr, 0x2a, 3);
+-		superio_clear_bit(watchdog.sioaddr, 0x2b, 3);
++		superio_clear_bit(watchdog.sioaddr, SIO_REG_MFUNCT2, 3);
++		superio_clear_bit(watchdog.sioaddr, SIO_REG_MFUNCT3, 3);
+ 		break;
  
+ 	case f71882fg:
+ 		/* Set pin 56 to WDTRST# */
+-		superio_set_bit(watchdog.sioaddr, 0x29, 1);
++		superio_set_bit(watchdog.sioaddr, SIO_REG_MFUNCT1, 1);
+ 		break;
+ 
+ 	case f71862fg:
