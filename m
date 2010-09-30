@@ -1,141 +1,103 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:62895 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750861Ab0I2BFj (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 28 Sep 2010 21:05:39 -0400
-From: Kevin Hilman <khilman@deeprootsystems.com>
-To: "Varadarajan\, Charulatha" <charu@ti.com>
-Cc: tony@atomide.com, wim@iguana.be, linux-omap@vger.kernel.org,
+Received: from comal.ext.ti.com ([198.47.26.152]:51458 "EHLO comal.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751041Ab0I3ILe (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 30 Sep 2010 04:11:34 -0400
+From: "Varadarajan, Charulatha" <charu@ti.com>
+To: tony@atomide.com, wim@iguana.be, linux-omap@vger.kernel.org,
 	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, paul@pwsan.com,
-	b-cousson@ti.com, rnayak@ti.com, p-basak2@ti.com
-Subject: Re: [PATCH v8 0/6] OMAP: WDT: Implement WDT in hwmod way
-References: <1285252363-3630-1-git-send-email-charu@ti.com>
-Date: Tue, 28 Sep 2010 18:05:36 -0700
-In-Reply-To: <1285252363-3630-1-git-send-email-charu@ti.com> (Charulatha
-	Varadarajan's message of "Thu, 23 Sep 2010 20:02:37 +0530")
-Message-ID: <877hi5740v.fsf@deeprootsystems.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	linux-arm-kernel@lists.infradead.org
+Cc: khilman@deeprootsystems.com, paul@pwsan.com, b-cousson@ti.com,
+	rnayak@ti.com, p-basak2@ti.com,
+	"Varadarajan, Charulatha" <charu@ti.com>
+Subject: [PATCH] OMAP2PLUS: WDT: Fix: Disable WDT after reset during init
+Date: Thu, 30 Sep 2010 13:41:10 +0530
+Message-Id: <1285834270-32766-1-git-send-email-charu@ti.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Charu,
+With OMAP2PLUS watchdog implemented in hwmod fw way, the
+module is reset during init.
 
-"Varadarajan, Charulatha" <charu@ti.com> writes:
+After a watchdog timer module reset, the WDTs are enabled. The
+default time for a system reset after a watchdog module reset
+is ~10s as per the default value of the WDT registers. Hence
+the system would be reset after 10s, if watchdog is not disabled
+within 10s.
 
-> Series of patches to port watchdog module to use hwmod APIs
-> for OMAP2PLUS chips and use runtime APIs for all OMAP chips.
-> For this hwmod database for OMAP2PLUS watchdog instances are
-> populated and implements watchdog module to use PM runtime APIs.
->
-> This patch series is generated on "origin/pm-core" which
-> has Kevin's pm-next series, the runtime PM core patch series,
-> and a collection of hwmod fixes that Paul/Benoit have lined up
-> for 2.6.37.
->
-> Tested on OMAP2430, OMAP4430 (ES1.0 & ES2.0), OMAP3430 SDP boards
-> and zoom3 board. Also verified that this patch series does not
-> break the OMAP1 build.
+This patch fixes the above issue by disabling the watchdog timer
+after reset during initialization of devices.
 
-I found a little snag with this series.  Try testing with
-omap2plus_defconfig and changing CONFIG_OMAP_WATCHDOG=n.
+Signed-off-by: Charulatha V <charu@ti.com>
+Reported-by: Kevin Hilman <khilman@deeprootsystems.com>
+---
+This patch is dependent on the below patch series (wdt hwmod) and
+is created on top of pm-core branch.
+http://www.spinics.net/lists/linux-omap/msg37043.html
 
-If CONFIG_OMAP_WATCHDOG is not enabled in the kernel config, the system
-will reboot soon after bootup.  One of the things the bootloader
-historically has done was disable the watchdog so a driver wasn't needed.
-With a reset of the IP triggered by the hwmod init, we lose this setting
-and the watchog is armed by default.
+ arch/arm/mach-omap2/devices.c |   44 +++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 44 insertions(+), 0 deletions(-)
 
-I think we need to handle this case when CONFIG_OMAP_WATCHDOG=n in the
-device init code by disabling the watchdog.
+diff --git a/arch/arm/mach-omap2/devices.c b/arch/arm/mach-omap2/devices.c
+index 8e2f0aa..9f44fc6 100644
+--- a/arch/arm/mach-omap2/devices.c
++++ b/arch/arm/mach-omap2/devices.c
+@@ -916,11 +916,55 @@ static inline void omap_init_vout(void) {}
+ 
+ /*-------------------------------------------------------------------------*/
+ 
++/*
++ * WDT mdoule is reset during init which enables the watchdog.
++ * Hence it is required to disable the watchdog after the WDT reset
++ * during init. Otherwise the system would reboot as per the default
++ * watchdog timer registers settings.
++ */
++#define OMAP_WDT_WPS	(0x34)
++#define OMAP_WDT_SPR	(0x48)
++
++static int omap2_disable_wdt(struct omap_hwmod *oh, void *user)
++{
++	void __iomem *base;
++
++	if (!oh)
++		pr_err("Could not look up wdtimer_hwmod\n");
++
++	base = oh->_mpu_rt_va;
++
++	/* Enable the clocks before accessing the WDT registers */
++	omap_hwmod_enable(oh);
++
++	/* sequence required to disable watchdog */
++	__raw_writel(0xAAAA, base + OMAP_WDT_SPR);	/* TIMER_MODE */
++	while (__raw_readl(base + OMAP_WDT_WPS) & 0x10)
++		cpu_relax();
++
++	__raw_writel(0x5555, base + OMAP_WDT_SPR);	/* TIMER_MODE */
++	while (__raw_readl(base + OMAP_WDT_WPS) & 0x10)
++		cpu_relax();
++
++	omap_hwmod_idle(oh);
++
++	return 0;
++}
++
++static void __init omap_disable_wdt(void)
++{
++	if (cpu_class_is_omap2())
++		omap_hwmod_for_each_by_class("wd_timer",
++						omap2_disable_wdt, NULL);
++	return;
++}
++
+ static int __init omap2_init_devices(void)
+ {
+ 	/* please keep these calls, and their implementations above,
+ 	 * in alphabetical order so they're easier to sort through.
+ 	 */
++	omap_disable_wdt();
+ 	omap_hsmmc_reset();
+ 	omap_init_camera();
+ 	omap_init_mbox();
+-- 
+1.7.0.4
 
-Kevin
-
-
-> This series is tested on OMAP4430 ES2 using the below series
-> (dependency series for ES2.0 silicon)
-> http://www.spinics.net/lists/linux-omap/msg36023.html
->
-> Version History:
-> ---------------
-> Version v8:
-> *Enable wd_timer3 in the hwmod list
->
-> Version v7:
-> *Use EN_*SHIFT macros for module_bit and ST_*SHIFT macros for
-> idlest_idle_bit in OMAP2&3 hwmod database
-> (based on suggestions given by Paul for I2C hwmod series)
-> *Remove new definitions of EN_*SHIFT macros as they already exist
-> Some of the v7 links:
-> https://patchwork.kernel.org/patch/197022/
->
-> Version v6:
-> *Split omap_init_wdt() into separate omap_init_wdt functions
-> under mach-omap1 and mach-omap2 and set them up with
-> subsys_initcall
-> *Include wd_timer3 database for OMAP4
-> *In hwmod database follow naming convention "wd_timerX"
-> Some of the v6 links:
-> http://www.spinics.net/lists/linux-omap/msg36678.html
-> https://patchwork.kernel.org/patch/188242/
-> https://patchwork.kernel.org/patch/188222/
->
-> Version v5:
-> *Delete wdt_runtime_resume and wdt_runtime_suspend
-> functions as the fix for the return values in the generic
-> runtime PM calls has been queued for 2.6.37 (see below link)
-> https://lists.linux-foundation.org/pipermail/linux-pm/2010-September/028466.html
-> Some of the v5 links:
-> https://patchwork.kernel.org/patch/181812/
-> https://patchwork.kernel.org/patch/181782/
-> https://patchwork.kernel.org/patch/181772/
-> https://patchwork.kernel.org/patch/181792/
->
-> Version v4:
-> *Implement hwmod adapdation first and then PM runtime adaptation
-> as two different patches in the series
-> *Remove inclusion of omap_device.h in the driver file.
-> Some of the v4 links:
-> https://patchwork.kernel.org/patch/174672/
-> https://patchwork.kernel.org/patch/174662/
->
-> Version v3:
-> *Fix Minor comments like renaming omap1 watchdog structures
-> with an omap1_ prefix
-> Some of the v3 links:
-> https://patchwork.kernel.org/patch/119698/
-> https://patchwork.kernel.org/patch/119696/ 
->
-> Version v2:
-> *Rebase to latest kernel
-> Some of the v2 links:
-> http://www.spinics.net/lists/linux-omap/msg34741.html
-> http://www.spinics.net/lists/linux-omap/msg34673.html
->
-> Version v1:
-> *Initial series
-> Some of the v1 links:
-> http://www.spinics.net/lists/linux-omap/msg30628.html
-> http://www.spinics.net/lists/linux-omap/msg30625.html
->
-> Benoit Cousson (1):
->   OMAP4: hwmod data: Add watchdog timer
->
-> Varadarajan, Charulatha (5):
->   OMAP3: hwmod data: Add watchdog timer
->   OMAP2420: hwmod data: Add watchdog timer
->   OMAP2430: hwmod data: Add watchdog timer
->   OMAP2PLUS: WDT: use omap_device_build for device registration
->   OMAP: WDT: Use PM runtime APIs instead of clk FW APIs
->
->  arch/arm/mach-omap1/devices.c              |   27 ++++++
->  arch/arm/mach-omap2/devices.c              |   39 ++++++++
->  arch/arm/mach-omap2/omap_hwmod_2420_data.c |   64 +++++++++++++
->  arch/arm/mach-omap2/omap_hwmod_2430_data.c |   64 +++++++++++++
->  arch/arm/mach-omap2/omap_hwmod_3xxx_data.c |   66 ++++++++++++++
->  arch/arm/mach-omap2/omap_hwmod_44xx_data.c |  135 ++++++++++++++++++++++++++++
->  arch/arm/plat-omap/devices.c               |   41 ---------
->  drivers/watchdog/omap_wdt.c                |   42 ++-------
->  8 files changed, 402 insertions(+), 76 deletions(-)
