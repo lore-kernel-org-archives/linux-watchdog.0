@@ -1,115 +1,49 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:35989 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756123Ab0I3N5v (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 30 Sep 2010 09:57:51 -0400
-From: Kevin Hilman <khilman@deeprootsystems.com>
-To: "Varadarajan\, Charulatha" <charu@ti.com>
-Cc: tony@atomide.com, wim@iguana.be, linux-omap@vger.kernel.org,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, paul@pwsan.com,
-	b-cousson@ti.com, rnayak@ti.com, p-basak2@ti.com
-Subject: Re: [PATCH] OMAP2PLUS: WDT: Fix: Disable WDT after reset during init
-References: <1285834270-32766-1-git-send-email-charu@ti.com>
-Date: Thu, 30 Sep 2010 06:57:47 -0700
-In-Reply-To: <1285834270-32766-1-git-send-email-charu@ti.com> (Charulatha
-	Varadarajan's message of "Thu, 30 Sep 2010 13:41:10 +0530")
-Message-ID: <87k4m3jpus.fsf@deeprootsystems.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from smtp.netsonic.fi ([194.29.192.26]:43681 "EHLO smtp.netsonic.fi"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756593Ab0I3Onx (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 30 Sep 2010 10:43:53 -0400
+From: Timo Juhani Lindfors <timo.lindfors@iki.fi>
+To: linux-watchdog@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	Timo Juhani Lindfors <timo.lindfors@iki.fi>
+Subject: [PATCH 1/2] watchdog: it8712f_wdt: Add comments for config/control register names
+Date: Thu, 30 Sep 2010 17:08:03 +0300
+Message-Id: <1285855684-8369-1-git-send-email-timo.lindfors@iki.fi>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-"Varadarajan, Charulatha" <charu@ti.com> writes:
+Signed-off-by: Timo Juhani Lindfors <timo.lindfors@iki.fi>
+---
+ drivers/watchdog/it8712f_wdt.c |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
 
-> With OMAP2PLUS watchdog implemented in hwmod fw way, the
-> module is reset during init.
+diff --git a/drivers/watchdog/it8712f_wdt.c b/drivers/watchdog/it8712f_wdt.c
+index f52c162..b08fae6 100644
+--- a/drivers/watchdog/it8712f_wdt.c
++++ b/drivers/watchdog/it8712f_wdt.c
+@@ -75,15 +75,15 @@ static unsigned short address;
+ #define WDT_CONFIG	0x72	/* WDT Register: Configuration */
+ #define WDT_TIMEOUT	0x73	/* WDT Register: Timeout Value */
+ 
+-#define WDT_RESET_GAME	0x10
+-#define WDT_RESET_KBD	0x20
+-#define WDT_RESET_MOUSE	0x40
+-#define WDT_RESET_CIR	0x80
++#define WDT_RESET_GAME	0x10	/* Reset timer on read or write to game port */
++#define WDT_RESET_KBD	0x20	/* Reset timer on keyboard interrupt */
++#define WDT_RESET_MOUSE	0x40	/* Reset timer on mouse interrupt */
++#define WDT_RESET_CIR	0x80	/* Reset timer on consumer IR interrupt */
+ 
+ #define WDT_UNIT_SEC	0x80	/* If 0 in MINUTES */
+ 
+-#define WDT_OUT_PWROK	0x10
+-#define WDT_OUT_KRST	0x40
++#define WDT_OUT_PWROK	0x10	/* Pulse PWROK on timeout */
++#define WDT_OUT_KRST	0x40	/* Pulse reset on timeout */
+ 
+ static int superio_inb(int reg)
+ {
+-- 
+1.7.1
 
-Please drop this sentence, as it's not directly related to hwmod, but
-related to hardware reset, and was previously masked by most bootloaders.
-
-> After a watchdog timer module reset, the WDTs are enabled. The
-> default time for a system reset after a watchdog module reset
-> is ~10s as per the default value of the WDT registers. Hence
-> the system would be reset after 10s, if watchdog is not disabled
-> within 10s.
->
-> This patch fixes the above issue by disabling the watchdog timer
-> after reset during initialization of devices.
-
-Should also describe what happends if/when the watchdog driver is
-loaded.  
-
-Kevin
-
-> Signed-off-by: Charulatha V <charu@ti.com>
-> Reported-by: Kevin Hilman <khilman@deeprootsystems.com>
-> ---
-> This patch is dependent on the below patch series (wdt hwmod) and
-> is created on top of pm-core branch.
-> http://www.spinics.net/lists/linux-omap/msg37043.html
->
->  arch/arm/mach-omap2/devices.c |   44 +++++++++++++++++++++++++++++++++++++++++
->  1 files changed, 44 insertions(+), 0 deletions(-)
->
-> diff --git a/arch/arm/mach-omap2/devices.c b/arch/arm/mach-omap2/devices.c
-> index 8e2f0aa..9f44fc6 100644
-> --- a/arch/arm/mach-omap2/devices.c
-> +++ b/arch/arm/mach-omap2/devices.c
-> @@ -916,11 +916,55 @@ static inline void omap_init_vout(void) {}
->  
->  /*-------------------------------------------------------------------------*/
->  
-> +/*
-> + * WDT mdoule is reset during init which enables the watchdog.
-> + * Hence it is required to disable the watchdog after the WDT reset
-> + * during init. Otherwise the system would reboot as per the default
-> + * watchdog timer registers settings.
-> + */
-> +#define OMAP_WDT_WPS	(0x34)
-> +#define OMAP_WDT_SPR	(0x48)
-> +
-> +static int omap2_disable_wdt(struct omap_hwmod *oh, void *user)
-> +{
-> +	void __iomem *base;
-> +
-> +	if (!oh)
-> +		pr_err("Could not look up wdtimer_hwmod\n");
-> +
-> +	base = oh->_mpu_rt_va;
-> +
-> +	/* Enable the clocks before accessing the WDT registers */
-> +	omap_hwmod_enable(oh);
-> +
-> +	/* sequence required to disable watchdog */
-> +	__raw_writel(0xAAAA, base + OMAP_WDT_SPR);	/* TIMER_MODE */
-> +	while (__raw_readl(base + OMAP_WDT_WPS) & 0x10)
-> +		cpu_relax();
-> +
-> +	__raw_writel(0x5555, base + OMAP_WDT_SPR);	/* TIMER_MODE */
-> +	while (__raw_readl(base + OMAP_WDT_WPS) & 0x10)
-> +		cpu_relax();
-> +
-> +	omap_hwmod_idle(oh);
-> +
-> +	return 0;
-> +}
-> +
-> +static void __init omap_disable_wdt(void)
-> +{
-> +	if (cpu_class_is_omap2())
-> +		omap_hwmod_for_each_by_class("wd_timer",
-> +						omap2_disable_wdt, NULL);
-> +	return;
-> +}
-> +
->  static int __init omap2_init_devices(void)
->  {
->  	/* please keep these calls, and their implementations above,
->  	 * in alphabetical order so they're easier to sort through.
->  	 */
-> +	omap_disable_wdt();
->  	omap_hsmmc_reset();
->  	omap_init_camera();
->  	omap_init_mbox();
