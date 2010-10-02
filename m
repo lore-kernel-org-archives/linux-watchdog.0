@@ -1,127 +1,60 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from arroyo.ext.ti.com ([192.94.94.40]:58265 "EHLO arroyo.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754086Ab0JBKhS (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 2 Oct 2010 06:37:18 -0400
-From: "Varadarajan, Charulatha" <charu@ti.com>
-To: tony@atomide.com, wim@iguana.be, linux-omap@vger.kernel.org,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Cc: khilman@deeprootsystems.com, paul@pwsan.com, b-cousson@ti.com,
-	rnayak@ti.com, santosh.shilimkar@ti.com, p-basak2@ti.com,
-	"Varadarajan, Charulatha" <charu@ti.com>
-Subject: [PATCH v2] OMAP2PLUS: WDT: Fix: Disable WDT after reset during init
-Date: Sat,  2 Oct 2010 16:06:11 +0530
-Message-Id: <1286015771-22041-1-git-send-email-charu@ti.com>
+Received: from mailrelay010.isp.belgacom.be ([195.238.6.177]:53745 "EHLO
+	mailrelay010.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753532Ab0JBMdL (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Sat, 2 Oct 2010 08:33:11 -0400
+Date: Sat, 2 Oct 2010 14:33:09 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Giel van Schijndel <me@mortis.eu>
+Cc: Lutz Ballaschke <vegan.grindcore@googlemail.com>,
+	Wim van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCHv3 0/3] watchdog: add f71862fg support
+Message-ID: <20101002123308.GG3823@infomag.iguana.be>
+References: <20100926140629.GA2150@kreios.titan> <20100926151155.GB7185@salidar.me.mortis.eu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20100926151155.GB7185@salidar.me.mortis.eu>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Inorder to avoid any assumptions from bootloader, the watchdog
-timer module is reset during init. This enables the watchdog
-timer.
+Hi all,
 
-Therefore, it is required to disable WDT after it is reset
-during init. Otherwise the system would reboot as per the default
-watchdog timer registers settings.
+> On Sun, Sep 26, 2010 at 04:06:29PM +0200, Lutz Ballaschke wrote:
+> > Furthermore i was thinking about modifying the WDIOC_GETTIMELEFT
+> > helper function since it simply returns the content of the WDT timer 
+> > register without regarding whether the driver runs in minute-mode or not
+> > (thanks to Giel for pointing that out). This means if the driver is loaded 
+> > with a timeout of >255 seconds (and switches to minute-mode) WDIOC_GETTIMELEFT
+> > ioctl returns minutes instead of seconds and thus doesn't comply with 
+> > watchdog-api (e.g. ioctl returns 6(min) not 360(sec)). It might be 
+> > confusing if one loads the driver with a timeout of let's say 360 seconds 
+> > and gets 6 minutes returned by ioctl. But imho it's not very accurate to
+> > return a value of seconds if the wdt doesn't count in seconds. That might
+> > be even more confusing. This inconsistency on the part of the hardware 
+> > maybe can't get satisfyingly compensated by the driver. So i'd prefer the 
+> > most simple solution.
+> 
+> IMO the worst option would be to just return minutes.  Returning
+> 'minutes * 60 = seconds' would be significantly less bad.  So if these
+> are your options I'd suggest going with the lesser evil.
+> 
+> One other possible option could be returning '(minutes - 1) * 60 + 1'.
+> That way bad timing decisions based on the (wrong) assumption, that
+> there are still 60 seconds left until reset, can be averted.
+> 
+> I would however like Wim's opinion on this, as this affects the
+> Watchdog API's usage.
 
-Later, when the watchdog driver is loaded, the watchdog timer settings
-is adjusted as per the default timer_margin set in the driver and the
-driver would supports the normal operations supported by OMAP watchdog
-timer.
+The return value should be the seconds before the watchdog will reboot.
+So value should be seconds, not minutes and is best the safest value
+(so (minutes - 1) * 60 + 1 in this case ).
+Secondly: the WDIOC_GETTIMELEFT should only be a DEBUGging ioctl.
+The reason I created it, is to check if certain drivers are working
+or not. We should not use it in normal operations imho.
 
-Link to related discussions:
-https://patchwork.kernel.org/patch/219072/
-
-Issue reported by Kevin can be found at:
-https://patchwork.kernel.org/patch/217262/
-
-Signed-off-by: Charulatha V <charu@ti.com>
-Reported-by: Kevin Hilman <khilman@deeprootsystems.com>
----
-This patch is dependent on the below patch series (wdt hwmod) and
-is created on top of pm-core branch. It also applies on pm-hwmods branch.
-http://www.spinics.net/lists/linux-omap/msg37043.html
-
- arch/arm/mach-omap2/devices.c |   59 +++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 59 insertions(+), 0 deletions(-)
-
-diff --git a/arch/arm/mach-omap2/devices.c b/arch/arm/mach-omap2/devices.c
-index 8e2f0aa..6eaec8d 100644
---- a/arch/arm/mach-omap2/devices.c
-+++ b/arch/arm/mach-omap2/devices.c
-@@ -916,11 +916,72 @@ static inline void omap_init_vout(void) {}
- 
- /*-------------------------------------------------------------------------*/
- 
-+/*
-+ * Inorder to avoid any assumptions from bootloader regarding WDT
-+ * settings, WDT module is reset during init. This enables the watchdog
-+ * timer. Hence it is required to disable the watchdog after the WDT reset
-+ * during init. Otherwise the system would reboot as per the default
-+ * watchdog timer registers settings.
-+ */
-+#define OMAP_WDT_WPS	(0x34)
-+#define OMAP_WDT_SPR	(0x48)
-+
-+static int omap2_disable_wdt(struct omap_hwmod *oh, void *unused)
-+{
-+	void __iomem *base;
-+	int ret;
-+
-+	if (!oh) {
-+		pr_err("%s: Could not look up wdtimer_hwmod\n", __func__);
-+		return -EINVAL;
-+	}
-+
-+	base = omap_hwmod_get_mpu_rt_va(oh);
-+	if (!base) {
-+		pr_err("%s: Could not get the base address for %s\n",
-+				oh->name, __func__);
-+		return -EINVAL;
-+	}
-+
-+	/* Enable the clocks before accessing the WDT registers */
-+	ret = omap_hwmod_enable(oh);
-+	if (ret) {
-+		pr_err("%s: Could not enable clocks for %s\n",
-+				oh->name, __func__);
-+		return ret;
-+	}
-+
-+	/* sequence required to disable watchdog */
-+	__raw_writel(0xAAAA, base + OMAP_WDT_SPR);
-+	while (__raw_readl(base + OMAP_WDT_WPS) & 0x10)
-+		cpu_relax();
-+
-+	__raw_writel(0x5555, base + OMAP_WDT_SPR);
-+	while (__raw_readl(base + OMAP_WDT_WPS) & 0x10)
-+		cpu_relax();
-+
-+	ret = omap_hwmod_idle(oh);
-+	if (ret)
-+		pr_err("%s: Could not disable clocks for %s\n",
-+				oh->name, __func__);
-+
-+	return ret;
-+}
-+
-+static void __init omap_disable_wdt(void)
-+{
-+	if (cpu_class_is_omap2())
-+		omap_hwmod_for_each_by_class("wd_timer",
-+						omap2_disable_wdt, NULL);
-+	return;
-+}
-+
- static int __init omap2_init_devices(void)
- {
- 	/* please keep these calls, and their implementations above,
- 	 * in alphabetical order so they're easier to sort through.
- 	 */
-+	omap_disable_wdt();
- 	omap_hsmmc_reset();
- 	omap_init_camera();
- 	omap_init_mbox();
--- 
-1.7.0.4
+Kind regards,
+Wim.
 
