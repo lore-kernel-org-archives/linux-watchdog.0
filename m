@@ -1,16 +1,16 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
 Received: from mail-ew0-f46.google.com ([209.85.215.46]:48568 "EHLO
 	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754309Ab0JDJpq (ORCPT
+	with ESMTP id S1754707Ab0JDJpv (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 4 Oct 2010 05:45:46 -0400
+	Mon, 4 Oct 2010 05:45:51 -0400
 From: vkuzmichev@mvista.com
 To: linux-arm-kernel@lists.infradead.org
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
 	linux@arm.linux.org.uk, Vitaly Kuzmichev <vkuzmichev@mvista.com>
-Subject: [PATCH 2/4] ARM: smp_twd: Fix typo in twd_timer_rate printout
-Date: Mon,  4 Oct 2010 13:45:38 +0400
-Message-Id: <1286185540-19569-3-git-send-email-vkuzmichev@mvista.com>
+Subject: [PATCH 4/4] ARM: mpcore_wdt: Fix timer mode setup
+Date: Mon,  4 Oct 2010 13:45:40 +0400
+Message-Id: <1286185540-19569-5-git-send-email-vkuzmichev@mvista.com>
 In-Reply-To: <1286185540-19569-1-git-send-email-vkuzmichev@mvista.com>
 References: <1286185540-19569-1-git-send-email-vkuzmichev@mvista.com>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -18,26 +18,67 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Vitaly Kuzmichev <vkuzmichev@mvista.com>
 
-To get hundredths of MHz the rate needs to be divided by 10'000.
+Allow watchdog to set its iterrupt as pending when it is configured
+for timer mode.
+Also add macros for all Watchdog Control Register flags.
 
 Signed-off-by: Vitaly Kuzmichev <vkuzmichev@mvista.com>
 ---
- arch/arm/kernel/smp_twd.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ arch/arm/include/asm/smp_twd.h |    6 ++++++
+ drivers/watchdog/mpcore_wdt.c  |   15 +++++++++++----
+ 2 files changed, 17 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/kernel/smp_twd.c b/arch/arm/kernel/smp_twd.c
-index 7bc1173..931b0e3 100644
---- a/arch/arm/kernel/smp_twd.c
-+++ b/arch/arm/kernel/smp_twd.c
-@@ -114,7 +114,7 @@ static void __cpuinit twd_calibrate_rate(void)
- 		twd_timer_rate = (0xFFFFFFFFU - count) * (HZ / 5);
+diff --git a/arch/arm/include/asm/smp_twd.h b/arch/arm/include/asm/smp_twd.h
+index c6328d8..324bf0a 100644
+--- a/arch/arm/include/asm/smp_twd.h
++++ b/arch/arm/include/asm/smp_twd.h
+@@ -18,6 +18,12 @@
+ #define TWD_TIMER_CONTROL_PERIODIC	(1 << 1)
+ #define TWD_TIMER_CONTROL_IT_ENABLE	(1 << 2)
  
- 		printk("%lu.%02luMHz.\n", twd_timer_rate / 1000000,
--			(twd_timer_rate / 100000) % 100);
-+			(twd_timer_rate / 10000) % 100);
++#define TWD_WDOG_CONTROL_ENABLE		(1 << 0)
++#define TWD_WDOG_CONTROL_PERIODIC	(1 << 1)
++#define TWD_WDOG_CONTROL_IT_ENABLE	(1 << 2)
++#define TWD_WDOG_CONTROL_TIMER_MODE	(0 << 3)
++#define TWD_WDOG_CONTROL_WATCHDOG_MODE	(1 << 3)
++
+ struct clock_event_device;
+ 
+ extern void __iomem *twd_base;
+diff --git a/drivers/watchdog/mpcore_wdt.c b/drivers/watchdog/mpcore_wdt.c
+index 6d3ac06..07d5a1c 100644
+--- a/drivers/watchdog/mpcore_wdt.c
++++ b/drivers/watchdog/mpcore_wdt.c
+@@ -123,18 +123,25 @@ static void mpcore_wdt_stop(struct mpcore_wdt *wdt)
+ 
+ static void mpcore_wdt_start(struct mpcore_wdt *wdt)
+ {
++	u32 mode;
++
+ 	dev_printk(KERN_INFO, wdt->dev, "enabling watchdog.\n");
+ 
+ 	/* This loads the count register but does NOT start the count yet */
+ 	mpcore_wdt_keepalive(wdt);
+ 
++	/* Setup watchdog - prescale=256, enable=1 */
++	mode = (255 << 8) | TWD_WDOG_CONTROL_ENABLE;
++
+ 	if (mpcore_noboot) {
+-		/* Enable watchdog - prescale=256, watchdog mode=0, enable=1 */
+-		writel(0x0000FF01, wdt->base + TWD_WDOG_CONTROL);
++		/* timer mode, send interrupt */
++		mode |=	TWD_WDOG_CONTROL_TIMER_MODE
++		     |  TWD_WDOG_CONTROL_IT_ENABLE;
+ 	} else {
+-		/* Enable watchdog - prescale=256, watchdog mode=1, enable=1 */
+-		writel(0x0000FF09, wdt->base + TWD_WDOG_CONTROL);
++		/* watchdog mode */
++		mode |=	TWD_WDOG_CONTROL_WATCHDOG_MODE;
  	}
++	writel(mode, wdt->base + TWD_WDOG_CONTROL);
+ }
  
- 	load = twd_timer_rate / HZ;
+ static int mpcore_wdt_set_heartbeat(int t)
 -- 
 1.7.2.2
 
