@@ -1,43 +1,43 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:59281 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754309Ab0JDJpm (ORCPT
+Received: from mail-ew0-f46.google.com ([209.85.215.46]:48568 "EHLO
+	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754309Ab0JDJpq (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 4 Oct 2010 05:45:42 -0400
+	Mon, 4 Oct 2010 05:45:46 -0400
 From: vkuzmichev@mvista.com
 To: linux-arm-kernel@lists.infradead.org
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
 	linux@arm.linux.org.uk, Vitaly Kuzmichev <vkuzmichev@mvista.com>
-Subject: [PATCH 0/4] ARM: smp_twd: mpcore_wdt: Fix MPCORE watchdog setup
-Date: Mon,  4 Oct 2010 13:45:36 +0400
-Message-Id: <1286185540-19569-1-git-send-email-vkuzmichev@mvista.com>
+Subject: [PATCH 2/4] ARM: smp_twd: Fix typo in twd_timer_rate printout
+Date: Mon,  4 Oct 2010 13:45:38 +0400
+Message-Id: <1286185540-19569-3-git-send-email-vkuzmichev@mvista.com>
+In-Reply-To: <1286185540-19569-1-git-send-email-vkuzmichev@mvista.com>
+References: <1286185540-19569-1-git-send-email-vkuzmichev@mvista.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 From: Vitaly Kuzmichev <vkuzmichev@mvista.com>
 
-The series of patches fixes various bugs in ARM MPCORE watchdog setup.
-They also introduce some changes in common SMP_TWD timer setup code.
-The PATCH 1/4 adds an exported function to obtain calibrated timer rate
-in mpcore_wdt. However, this solution might be unacceptable, so we may
-discuss another 2 variants:
- 1) use clock framework
-   This may require to fix all MPCORE boards clock implementations.
- 2) copy calibration loop to mpcore_wdt
-   However, this increases boot time.
+To get hundredths of MHz the rate needs to be divided by 10'000.
 
+Signed-off-by: Vitaly Kuzmichev <vkuzmichev@mvista.com>
+---
+ arch/arm/kernel/smp_twd.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Vitaly Kuzmichev (4):
-  ARM: smp_twd: mpcore_wdt: Fix watchdog counter loading
-  ARM: smp_twd: Fix typo in twd_timer_rate printout
-  ARM: mpcore_wdt: Fix WDIOC_SETOPTIONS handling
-  ARM: mpcore_wdt: Fix timer mode setup
-
- arch/arm/include/asm/smp_twd.h |    7 +++++++
- arch/arm/kernel/smp_twd.c      |    8 +++++++-
- drivers/watchdog/mpcore_wdt.c  |   29 +++++++++++++++++++++--------
- 3 files changed, 35 insertions(+), 9 deletions(-)
-
+diff --git a/arch/arm/kernel/smp_twd.c b/arch/arm/kernel/smp_twd.c
+index 7bc1173..931b0e3 100644
+--- a/arch/arm/kernel/smp_twd.c
++++ b/arch/arm/kernel/smp_twd.c
+@@ -114,7 +114,7 @@ static void __cpuinit twd_calibrate_rate(void)
+ 		twd_timer_rate = (0xFFFFFFFFU - count) * (HZ / 5);
+ 
+ 		printk("%lu.%02luMHz.\n", twd_timer_rate / 1000000,
+-			(twd_timer_rate / 100000) % 100);
++			(twd_timer_rate / 10000) % 100);
+ 	}
+ 
+ 	load = twd_timer_rate / HZ;
 -- 
 1.7.2.2
 
