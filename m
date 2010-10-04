@@ -1,60 +1,76 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay010.isp.belgacom.be ([195.238.6.177]:53745 "EHLO
-	mailrelay010.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753532Ab0JBMdL (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 2 Oct 2010 08:33:11 -0400
-Date: Sat, 2 Oct 2010 14:33:09 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Giel van Schijndel <me@mortis.eu>
-Cc: Lutz Ballaschke <vegan.grindcore@googlemail.com>,
-	Wim van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCHv3 0/3] watchdog: add f71862fg support
-Message-ID: <20101002123308.GG3823@infomag.iguana.be>
-References: <20100926140629.GA2150@kreios.titan> <20100926151155.GB7185@salidar.me.mortis.eu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20100926151155.GB7185@salidar.me.mortis.eu>
+Received: from vps.mortis.eu ([79.99.135.181]:42929 "EHLO vps.mortis.eu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753414Ab0JDIqP (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 4 Oct 2010 04:46:15 -0400
+From: Giel van Schijndel <me@mortis.eu>
+To: linux-kernel@vger.kernel.org
+Cc: Mike Hommey <mh@glandium.org>,
+	Debian Bug #597820 <597820@bugs.debian.org>,
+	Giel van Schijndel <me@mortis.eu>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Ralf Baechle <ralf@linux-mips.org>,
+	dann frazier <dannf@hp.com>, Tony Lindgren <tony@atomide.com>,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH] watchdog: f71808e_wdt: add support for the F71889FG
+Date: Mon,  4 Oct 2010 10:45:28 +0200
+Message-Id: <1286181928-4010-1-git-send-email-me@mortis.eu>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi all,
+Signed-off-by: Giel van Schijndel <me@mortis.eu>
+---
+ drivers/watchdog/Kconfig       |    4 ++--
+ drivers/watchdog/f71808e_wdt.c |   10 +++++++++-
+ 2 files changed, 11 insertions(+), 3 deletions(-)
 
-> On Sun, Sep 26, 2010 at 04:06:29PM +0200, Lutz Ballaschke wrote:
-> > Furthermore i was thinking about modifying the WDIOC_GETTIMELEFT
-> > helper function since it simply returns the content of the WDT timer 
-> > register without regarding whether the driver runs in minute-mode or not
-> > (thanks to Giel for pointing that out). This means if the driver is loaded 
-> > with a timeout of >255 seconds (and switches to minute-mode) WDIOC_GETTIMELEFT
-> > ioctl returns minutes instead of seconds and thus doesn't comply with 
-> > watchdog-api (e.g. ioctl returns 6(min) not 360(sec)). It might be 
-> > confusing if one loads the driver with a timeout of let's say 360 seconds 
-> > and gets 6 minutes returned by ioctl. But imho it's not very accurate to
-> > return a value of seconds if the wdt doesn't count in seconds. That might
-> > be even more confusing. This inconsistency on the part of the hardware 
-> > maybe can't get satisfyingly compensated by the driver. So i'd prefer the 
-> > most simple solution.
-> 
-> IMO the worst option would be to just return minutes.  Returning
-> 'minutes * 60 = seconds' would be significantly less bad.  So if these
-> are your options I'd suggest going with the lesser evil.
-> 
-> One other possible option could be returning '(minutes - 1) * 60 + 1'.
-> That way bad timing decisions based on the (wrong) assumption, that
-> there are still 60 seconds left until reset, can be averted.
-> 
-> I would however like Wim's opinion on this, as this affects the
-> Watchdog API's usage.
-
-The return value should be the seconds before the watchdog will reboot.
-So value should be seconds, not minutes and is best the safest value
-(so (minutes - 1) * 60 + 1 in this case ).
-Secondly: the WDIOC_GETTIMELEFT should only be a DEBUGging ioctl.
-The reason I created it, is to check if certain drivers are working
-or not. We should not use it in normal operations imho.
-
-Kind regards,
-Wim.
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 24efd8e..0fcbb87 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -409,11 +409,11 @@ config ALIM7101_WDT
+ 	  Most people will say N.
+ 
+ config F71808E_WDT
+-	tristate "Fintek F71808E and F71882FG Watchdog"
++	tristate "Fintek F71808E, F71882FG and F71889FG Watchdog"
+ 	depends on X86 && EXPERIMENTAL
+ 	help
+ 	  This is the driver for the hardware watchdog on the Fintek
+-	  F71808E and F71882FG Super I/O controllers.
++	  F71808E, F71882FG and F71889FG Super I/O controllers.
+ 
+ 	  You can compile this driver directly into the kernel, or use
+ 	  it as a module.  The module will be called f71808e_wdt.
+diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
+index 7e5c266..65e5796 100644
+--- a/drivers/watchdog/f71808e_wdt.c
++++ b/drivers/watchdog/f71808e_wdt.c
+@@ -308,6 +308,12 @@ static int watchdog_start(void)
+ 		superio_set_bit(watchdog.sioaddr, 0x29, 1);
+ 		break;
+ 
++	case f71889fg:
++		/* set pin 40 to WDTRST# */
++		superio_outb(watchdog.sioaddr, 0x2b,
++				superio_inb(watchdog.sioaddr, 0x2b) & 0xcf);
++		break;
++
+ 	default:
+ 		/*
+ 		 * 'default' label to shut up the compiler and catch
+@@ -708,8 +714,10 @@ static int __init f71808e_find(int sioaddr)
+ 	case SIO_F71882_ID:
+ 		watchdog.type = f71882fg;
+ 		break;
+-	case SIO_F71862_ID:
+ 	case SIO_F71889_ID:
++		watchdog.type = f71889fg;
++		break;
++	case SIO_F71862_ID:
+ 		/* These have a watchdog, though it isn't implemented (yet). */
+ 		err = -ENOSYS;
+ 		goto exit;
+-- 
+1.6.4.4
 
