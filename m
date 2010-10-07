@@ -1,59 +1,41 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mho-01-ewr.mailhop.org ([204.13.248.71]:53501 "EHLO
-	mho-01-ewr.mailhop.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751591Ab0JEWQl (ORCPT
+Received: from tx2ehsobe002.messaging.microsoft.com ([65.55.88.12]:35019 "EHLO
+	TX2EHSOBE003.bigfish.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751488Ab0JGF7x convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 5 Oct 2010 18:16:41 -0400
-Date: Tue, 5 Oct 2010 15:16:32 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Kevin Hilman <khilman@deeprootsystems.com>
-Cc: "Varadarajan, Charulatha" <charu@ti.com>, wim@iguana.be,
-	linux-omap@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, paul@pwsan.com,
-	b-cousson@ti.com, rnayak@ti.com, santosh.shilimkar@ti.com,
-	p-basak2@ti.com
-Subject: Re: [PATCH v2] OMAP2PLUS: WDT: Fix: Disable WDT after reset during
- init
-Message-ID: <20101005221631.GT3117@atomide.com>
-References: <1286015771-22041-1-git-send-email-charu@ti.com>
- <87fwwktx6r.fsf@deeprootsystems.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87fwwktx6r.fsf@deeprootsystems.com>
+	Thu, 7 Oct 2010 01:59:53 -0400
+Subject: Re: [PATCH 1/2] [v2] powerpc: export ppc_proc_freq and ppc_tb_freq as GPL symbols
+MIME-Version: 1.0 (Apple Message framework v1081)
+Content-Type: text/plain; charset="us-ascii"
+From: Kumar Gala <kumar.gala@freescale.com>
+In-Reply-To: <1284999822-24753-1-git-send-email-timur@freescale.com>
+Date: Thu, 7 Oct 2010 00:59:49 -0500
+CC: <benh@kernel.crashing.org>, <linuxppc-dev@ozlabs.org>,
+	<linux-watchdog@vger.kernel.org>, <jwboyer@gmail.com>
+Content-Transfer-Encoding: 8BIT
+Message-ID: <5B523788-3623-402C-A3A2-990F59ED4348@freescale.com>
+References: <1284999822-24753-1-git-send-email-timur@freescale.com>
+To: Timur Tabi <timur@freescale.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-* Kevin Hilman <khilman@deeprootsystems.com> [101005 09:26]:
-> "Varadarajan, Charulatha" <charu@ti.com> writes:
-> 
-> > Inorder to avoid any assumptions from bootloader, the watchdog
-> > timer module is reset during init. This enables the watchdog
-> > timer.
-> >
-> > Therefore, it is required to disable WDT after it is reset
-> > during init. Otherwise the system would reboot as per the default
-> > watchdog timer registers settings.
-> >
-> > Later, when the watchdog driver is loaded, the watchdog timer settings
-> > is adjusted as per the default timer_margin set in the driver and the
-> > driver would supports the normal operations supported by OMAP watchdog
-> > timer.
-> >
-> > Link to related discussions:
-> > https://patchwork.kernel.org/patch/219072/
-> >
-> > Issue reported by Kevin can be found at:
-> > https://patchwork.kernel.org/patch/217262/
-> >
-> > Signed-off-by: Charulatha V <charu@ti.com>
-> > Reported-by: Kevin Hilman <khilman@deeprootsystems.com>
-> 
-> Acked-by: Kevin Hilman <khilman@deeprootsystems.com>
-> 
-> Tony, this should queue up for .37 on top of my pm-hwmods branch.
-> It applies cleanly to current l-o master.
 
-OK, adding to omap-for-linus.
+On Sep 20, 2010, at 11:23 AM, Timur Tabi wrote:
 
-Tony
+> Export the global variable 'ppc_tb_freq', so that modules (like the Book-E
+> watchdog driver) can use it.  To maintain consistency, ppc_proc_freq is changed
+> to a GPL-only export.  This is okay, because any module that needs this symbol
+> should be an actual Linux driver, which must be GPL-licensed.
+> 
+> Signed-off-by: Timur Tabi <timur@freescale.com>
+> ---
+> 
+> This export is necessary for the Book-E watchdog driver to be compiled as a
+> module.
+> 
+> arch/powerpc/kernel/time.c |    3 ++-
+> 1 files changed, 2 insertions(+), 1 deletions(-)
+
+applied to next
+
+- k
