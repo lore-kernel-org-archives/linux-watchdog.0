@@ -1,40 +1,84 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from webhosting01.bon.m2soft.com ([195.38.20.32]:34459 "EHLO
-	webhosting01.bon.m2soft.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755593Ab0JIMWf (ORCPT
+Received: from tx2ehsobe001.messaging.microsoft.com ([65.55.88.11]:24685 "EHLO
+	TX2EHSOBE002.bigfish.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751151Ab0JMTTo (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 9 Oct 2010 08:22:35 -0400
-Date: Sat, 9 Oct 2010 14:19:46 +0200
-From: Nicolas Kaiser <nikai@nikai.net>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] watchdog/MachZ: fix debug macro
-Message-ID: <20101009141946.5fc4399f@absol.kitzblitz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 13 Oct 2010 15:19:44 -0400
+From: Timur Tabi <timur@freescale.com>
+To: <linuxppc-dev@ozlabs.org>, <kumar.gala@freescale.com>,
+	<linux-watchdog@vger.kernel.org>
+Subject: [PATCH] powerpc: change the Book-E watchdog driver default timeout into a Kconfig option
+Date: Wed, 13 Oct 2010 14:19:36 -0500
+Message-ID: <1286997576-4988-1-git-send-email-timur@freescale.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Fix debug macro line wrapping.
+The PowerPC Book-E watchdog driver (booke_wdt.c) defines a default timeout
+value in the code based on whether it's a Freescale Book-E part of not.
+Instead of having hard-coded values in the driver, make it a Kconfig option.
 
-Signed-off-by: Nicolas Kaiser <nikai@nikai.net>
+As newer chips gets faster, the current default values become less appropriate,
+since the timeout sometimes occurs before the kernel finishes booting.  Making
+the value a Kconfig option allows BSPs to configure a new value with requiring
+the wdt_period command-line parameter to be set.
+
+Signed-off-by: Timur Tabi <timur@freescale.com>
 ---
- drivers/watchdog/machzwd.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/watchdog/Kconfig     |   17 +++++++++++++++++
+ drivers/watchdog/booke_wdt.c |    8 +-------
+ 2 files changed, 18 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/watchdog/machzwd.c b/drivers/watchdog/machzwd.c
-index edffe68..9280350 100644
---- a/drivers/watchdog/machzwd.c
-+++ b/drivers/watchdog/machzwd.c
-@@ -143,7 +143,7 @@ static unsigned long next_heartbeat;
- #ifndef ZF_DEBUG
- #	define dprintk(format, args...)
- #else
--#	define dprintk(format, args...) printk(KERN_DEBUG PFX
-+#	define dprintk(format, args...) printk(KERN_DEBUG PFX \
- 				":%s:%d: " format, __func__, __LINE__ , ## args)
- #endif
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 3684144..2fdb45c 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -966,6 +966,23 @@ config BOOKE_WDT
+ 	  Please see Documentation/watchdog/watchdog-api.txt for
+ 	  more information.
  
++config BOOKE_WDT_DEFAULT_TIMEOUT
++	int "PowerPC Book-E Watchdog Timer Default Timeout"
++	depends on BOOKE_WDT
++	default 38 if FSL_BOOKE
++	range 0 63 if FSL_BOOKE
++	default 3 if !FSL_BOOKE
++	range 0 3 if !FSL_BOOKE
++	help
++	  Select the default watchdog timer period to be used by the PowerPC
++	  Book-E watchdog driver.  A watchdog "event" occurs when the bit
++	  position represented by this number transitions from zero to one.
++
++	  For Freescale Book-E processors, this is a number between 0 and 63.
++	  For other Book-E processors, this is a number between 0 and 3.
++
++	  The value can be overidden by the wdt_period command-line parameter.
++
+ # PPC64 Architecture
+ 
+ config WATCHDOG_RTAS
+diff --git a/drivers/watchdog/booke_wdt.c b/drivers/watchdog/booke_wdt.c
+index a989998..d11ffb0 100644
+--- a/drivers/watchdog/booke_wdt.c
++++ b/drivers/watchdog/booke_wdt.c
+@@ -33,14 +33,8 @@
+  * occur, and the final time the board will reset.
+  */
+ 
+-#ifdef	CONFIG_FSL_BOOKE
+-#define WDT_PERIOD_DEFAULT 38	/* Ex. wdt_period=28 bus=333Mhz,reset=~40sec */
+-#else
+-#define WDT_PERIOD_DEFAULT 3	/* Refer to the PPC40x and PPC4xx manuals */
+-#endif				/* for timing information */
+-
+ u32 booke_wdt_enabled;
+-u32 booke_wdt_period = WDT_PERIOD_DEFAULT;
++u32 booke_wdt_period = CONFIG_BOOKE_WDT_DEFAULT_TIMEOUT;
+ 
+ #ifdef	CONFIG_FSL_BOOKE
+ #define WDTP(x)		((((x)&0x3)<<30)|(((x)&0x3c)<<15))
 -- 
-1.7.2.2
+1.7.2.3
+
+
