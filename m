@@ -1,369 +1,314 @@
-From: Gabor Juhos <juhosg@openwrt.org>
-To: Ralf Baechle <ralf@linux-mips.org>
-Cc: linux-mips@linux-mips.org, kaloz@openwrt.org,
-        "Luis R. Rodriguez" <lrodriguez@atheros.com>,
-        Cliff Holden <Cliff.Holden@Atheros.com>,
-        Gabor Juhos <juhosg@openwrt.org>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        linux-watchdog@vger.kernel.org
-Subject: [PATCH 07/18] watchdog: add driver for the Atheros AR71XX/AR724X/AR913X SoCs
-Date: Tue, 23 Nov 2010 16:06:29 +0100
-Message-Id: <1290524800-21419-8-git-send-email-juhosg@openwrt.org>
-In-Reply-To: <1290524800-21419-1-git-send-email-juhosg@openwrt.org>
-References: <1290524800-21419-1-git-send-email-juhosg@openwrt.org>
-Return-Path: <juhosg@openwrt.org>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-Archive: <https://lore.kernel.org/linux-mips/>
-List-Post: <mailto:linux-mips@vger.kernel.org>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mailrelay002.isp.belgacom.be ([195.238.6.175]:52693 "EHLO
+	mailrelay002.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752954Ab0KCOHg (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 3 Nov 2010 10:07:36 -0400
+Date: Wed, 3 Nov 2010 15:07:28 +0100
+From: Philippe De Muyter <phdm@macqel.be>
+To: linux-watchdog@vger.kernel.org
+Cc: uclinux-dev@uclinux.org
+Subject: [PATCH] m68knommu,watchdog: Add MCF548x watchdog driver.
+Message-ID: <20101103140728.GA25556@frolo.macqel>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-This patch adds a driver for the built-in hardware watchdog device
-of the Atheros AR71XX/AR724X/AR913X SoCs.
 
-Signed-off-by: Gabor Juhos <juhosg@openwrt.org>
-Signed-off-by: Imre Kaloz <kaloz@openwrt.org>
-Cc: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org
+Signed-off-by: Philippe De Muyter <phdm@macqel.be>
 ---
+ arch/m68k/include/asm/m548xgpt.h |    2 +
+ drivers/watchdog/Kconfig         |    7 +-
+ drivers/watchdog/Makefile        |    3 +-
+ drivers/watchdog/m548x_wdt.c     |  227 ++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 236 insertions(+), 3 deletions(-)
+ create mode 100644 drivers/watchdog/m548x_wdt.c
 
-Changes since RFC: ---
-
- drivers/watchdog/Kconfig     |    8 +
- drivers/watchdog/Makefile    |    1 +
- drivers/watchdog/ath79_wdt.c |  293 ++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 302 insertions(+), 0 deletions(-)
- create mode 100644 drivers/watchdog/ath79_wdt.c
-
+diff --git a/arch/m68k/include/asm/m548xgpt.h b/arch/m68k/include/asm/m548xgpt.h
+index c8ef158..33b2eef 100644
+--- a/arch/m68k/include/asm/m548xgpt.h
++++ b/arch/m68k/include/asm/m548xgpt.h
+@@ -59,11 +59,13 @@
+ #define MCF_GPT_GMS_GPIO_INPUT     (0x00000000)
+ #define MCF_GPT_GMS_GPIO_OUTLO     (0x00000020)
+ #define MCF_GPT_GMS_GPIO_OUTHI     (0x00000030)
++#define MCF_GPT_GMS_GPIO_MASK      (0x00000030)
+ #define MCF_GPT_GMS_TMS_DISABLE    (0x00000000)
+ #define MCF_GPT_GMS_TMS_INCAPT     (0x00000001)
+ #define MCF_GPT_GMS_TMS_OUTCAPT    (0x00000002)
+ #define MCF_GPT_GMS_TMS_PWM        (0x00000003)
+ #define MCF_GPT_GMS_TMS_GPIO       (0x00000004)
++#define MCF_GPT_GMS_TMS_MASK       (0x00000007)
+ 
+ /* Bit definitions and macros for MCF_GPT_GCIR */
+ #define MCF_GPT_GCIR_CNT(x)        (((x)&0x0000FFFF)<<0)
 diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 4a29104..998eed3 100644
+index c356146..1a58eb3 100644
 --- a/drivers/watchdog/Kconfig
 +++ b/drivers/watchdog/Kconfig
-@@ -927,6 +927,14 @@ config BCM63XX_WDT
- 	  To compile this driver as a loadable module, choose M here.
- 	  The module will be called bcm63xx_wdt.
+@@ -828,7 +828,12 @@ config SBC_EPX_C3_WATCHDOG
  
-+config ATH79_WDT
-+	tristate "Atheros AR71XX/AR724X/AR913X hardware watchdog"
-+	depends on ATH79
-+	help
-+	  Hardware driver for the built-in watchdog timer on the Atheros
-+	  AR71XX/AR724X/AR913X SoCs.
-+
-+
- # PARISC Architecture
+ # M68K Architecture
  
- # POWERPC Architecture
+-# M68KNOMMU Architecture
++config M548x_WATCHDOG 
++ 	tristate "MCF548x watchdog support" 
++ 	depends on WATCHDOG 
++ 	help 
++ 	  To compile this driver as a module, choose M here: the 
++ 	  module will be called m548x_wdt.
+ 
+ # MIPS Architecture
+ 
 diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 4b0ef38..6d7af07 100644
+index 8374503..3d7b596 100644
 --- a/drivers/watchdog/Makefile
 +++ b/drivers/watchdog/Makefile
-@@ -117,6 +117,7 @@ obj-$(CONFIG_PNX833X_WDT) += pnx833x_wdt.o
- obj-$(CONFIG_SIBYTE_WDOG) += sb_wdog.o
- obj-$(CONFIG_AR7_WDT) += ar7_wdt.o
- obj-$(CONFIG_TXX9_WDT) += txx9wdt.o
-+obj-$(CONFIG_ATH79_WDT) += ath79_wdt.o
- obj-$(CONFIG_OCTEON_WDT) += octeon-wdt.o
- octeon-wdt-y := octeon-wdt-main.o octeon-wdt-nmi.o
+@@ -104,8 +104,7 @@ obj-$(CONFIG_SBC_EPX_C3_WATCHDOG) += sbc_epx_c3.o
+ # M32R Architecture
  
-diff --git a/drivers/watchdog/ath79_wdt.c b/drivers/watchdog/ath79_wdt.c
+ # M68K Architecture
+-
+-# M68KNOMMU Architecture
++obj-$(CONFIG_M548x_WATCHDOG) += m548x_wdt.o
+ 
+ # MIPS Architecture
+ obj-$(CONFIG_BCM47XX_WDT) += bcm47xx_wdt.o
+diff --git a/drivers/watchdog/m548x_wdt.c b/drivers/watchdog/m548x_wdt.c
 new file mode 100644
-index 0000000..f8e027b
+index 0000000..8983596
 --- /dev/null
-+++ b/drivers/watchdog/ath79_wdt.c
-@@ -0,0 +1,293 @@
++++ b/drivers/watchdog/m548x_wdt.c
+@@ -0,0 +1,227 @@
 +/*
-+ * Atheros AR71XX/AR724X/AR913X built-in hardware watchdog timer.
++ * drivers/watchdog/m548x_wdt.c
 + *
-+ * Copyright (C) 2008-2010 Gabor Juhos <juhosg@openwrt.org>
-+ * Copyright (C) 2008 Imre Kaloz <kaloz@openwrt.org>
++ * Watchdog driver for ColdFire MCF548x processors
++ * Copyright 2010 (c) Philippe De Muyter <phdm@macqel.be>
 + *
-+ * This driver was based on: drivers/watchdog/ixp4xx_wdt.c
-+ *	Author: Deepak Saxena <dsaxena@plexity.net>
-+ *	Copyright 2004 (c) MontaVista, Software, Inc.
++ * Adapted from the IXP4xx watchdog driver, which carries these notices:
 + *
-+ * which again was based on sa1100 driver,
-+ *	Copyright (C) 2000 Oleg Drokin <green@crimea.edu>
++ *  Author: Deepak Saxena <dsaxena@plexity.net>
 + *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published
-+ * by the Free Software Foundation.
++ *  Copyright 2004 (c) MontaVista, Software, Inc.
++ *  Based on sa1100 driver, Copyright (C) 2000 Oleg Drokin <green@crimea.edu>
 + *
++ * This file is licensed under  the terms of the GNU General Public
++ * License version 2. This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
 + */
 +
-+#include <linux/bitops.h>
-+#include <linux/errno.h>
-+#include <linux/fs.h>
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/miscdevice.h>
 +#include <linux/module.h>
 +#include <linux/moduleparam.h>
-+#include <linux/platform_device.h>
 +#include <linux/types.h>
-+#include <linux/reboot.h>
++#include <linux/kernel.h>
++#include <linux/fs.h>
++#include <linux/miscdevice.h>
 +#include <linux/watchdog.h>
++#include <linux/init.h>
++#include <linux/bitops.h>
++#include <linux/ioport.h>
 +
-+#include <asm/mach-ath79/ath79.h>
-+#include <asm/mach-ath79/ar71xx_regs.h>
++#include <asm/uaccess.h>
++#include <asm/coldfire.h>
++#include <asm/m548xsim.h>
++#include <asm/m548xgpt.h>
 +
-+#define DRIVER_NAME	"ath79-wdt"
-+#define DRIVER_DESC	"Atheros AR71XX/AR724X/AR913X hardware watchdog driver"
++static int nowayout;
++static unsigned int heartbeat = 30;	/* (secs) Default is 0.5 minute */
++static unsigned long wdt_status;
 +
-+#define WDT_TIMEOUT	15	/* seconds */
++#define	WDT_IN_USE		0
++#define	WDT_OK_TO_CLOSE		1
 +
-+#define WDOG_CTRL_LAST_RESET	BIT(31)
-+#define WDOG_CTRL_ACTION_MASK	3
-+#define WDOG_CTRL_ACTION_NONE	0	/* no action */
-+#define WDOG_CTRL_ACTION_GPI	1	/* general purpose interrupt */
-+#define WDOG_CTRL_ACTION_NMI	2	/* NMI */
-+#define WDOG_CTRL_ACTION_FCR	3	/* full chip reset */
-+
-+static int nowayout = WATCHDOG_NOWAYOUT;
-+
-+#ifdef CONFIG_WATCHDOG_NOWAYOUT
-+module_param(nowayout, int, 0);
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
-+			   "(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-+#endif
-+
-+static unsigned long wdt_flags;
-+
-+#define WDT_FLAGS_BUSY		0
-+#define WDT_FLAGS_EXPECT_CLOSE	1
-+
-+static int wdt_timeout = WDT_TIMEOUT;
-+static int boot_status;
-+static int max_timeout;
-+
-+static inline void ath79_wdt_keepalive(void)
++static void wdt_enable(void)
 +{
-+	ath79_reset_wr(AR71XX_RESET_REG_WDOG, ath79_ahb_freq * wdt_timeout);
++	unsigned int gms0;
++
++	/* preserve GPIO usage, if any */
++	gms0 = __raw_readl(MCF_MBAR + MCF_GPT_GMS0);
++	if (gms0 & MCF_GPT_GMS_TMS_GPIO)
++		gms0 &= (MCF_GPT_GMS_TMS_GPIO | MCF_GPT_GMS_GPIO_MASK | MCF_GPT_GMS_OD);
++	else
++		gms0 = MCF_GPT_GMS_TMS_GPIO | MCF_GPT_GMS_OD;
++	__raw_writel(gms0, MCF_MBAR + MCF_GPT_GMS0);
++	__raw_writel(MCF_GPT_GCIR_PRE(heartbeat*(MCF_BUSCLK/0xffff)) |
++				MCF_GPT_GCIR_CNT(0xffff), MCF_MBAR + MCF_GPT_GCIR0);
++	gms0 |= MCF_GPT_GMS_OCPW(0xA5) | MCF_GPT_GMS_WDEN | MCF_GPT_GMS_CE;
++	__raw_writel(gms0, MCF_MBAR + MCF_GPT_GMS0);
 +}
 +
-+static inline void ath79_wdt_enable(void)
++static void wdt_disable(void)
 +{
-+	ath79_wdt_keepalive();
-+	ath79_reset_wr(AR71XX_RESET_REG_WDOG_CTRL, WDOG_CTRL_ACTION_FCR);
++	unsigned int gms0;
++
++	/* disable watchdog */
++	gms0 = __raw_readl(MCF_MBAR + MCF_GPT_GMS0);
++	gms0 &= ~(MCF_GPT_GMS_WDEN | MCF_GPT_GMS_CE);
++	__raw_writel(gms0, MCF_MBAR + MCF_GPT_GMS0);
 +}
 +
-+static inline void ath79_wdt_disable(void)
++static void wdt_keepalive(void)
 +{
-+	ath79_reset_wr(AR71XX_RESET_REG_WDOG_CTRL, WDOG_CTRL_ACTION_NONE);
++	unsigned int gms0;
++
++	gms0 = __raw_readl(MCF_MBAR + MCF_GPT_GMS0);
++	gms0 |= MCF_GPT_GMS_OCPW(0xA5);
++	__raw_writel(gms0, MCF_MBAR + MCF_GPT_GMS0);
 +}
 +
-+static int ath79_wdt_set_timeout(int val)
++static int m548x_wdt_open(struct inode *inode, struct file *file)
 +{
-+	if (val < 1 || val > max_timeout)
-+		return -EINVAL;
-+
-+	wdt_timeout = val;
-+	ath79_wdt_keepalive();
-+
-+	return 0;
-+}
-+
-+static int ath79_wdt_open(struct inode *inode, struct file *file)
-+{
-+	if (test_and_set_bit(WDT_FLAGS_BUSY, &wdt_flags))
++	if (test_and_set_bit(WDT_IN_USE, &wdt_status))
 +		return -EBUSY;
 +
-+	clear_bit(WDT_FLAGS_EXPECT_CLOSE, &wdt_flags);
-+	ath79_wdt_enable();
-+
++	clear_bit(WDT_OK_TO_CLOSE, &wdt_status);
++	wdt_enable();
 +	return nonseekable_open(inode, file);
 +}
 +
-+static int ath79_wdt_release(struct inode *inode, struct file *file)
-+{
-+	if (test_bit(WDT_FLAGS_EXPECT_CLOSE, &wdt_flags))
-+		ath79_wdt_disable();
-+	else
-+		pr_crit(DRIVER_NAME ": device closed unexpectedly, "
-+			"watchdog timer will not stop!\n");
-+
-+	clear_bit(WDT_FLAGS_BUSY, &wdt_flags);
-+	clear_bit(WDT_FLAGS_EXPECT_CLOSE, &wdt_flags);
-+
-+	return 0;
-+}
-+
-+static ssize_t ath79_wdt_write(struct file *file, const char *data,
-+				size_t len, loff_t *ppos)
++static ssize_t m548x_wdt_write(struct file *file, const char *data, size_t len, loff_t *ppos)
 +{
 +	if (len) {
 +		if (!nowayout) {
 +			size_t i;
 +
-+			clear_bit(WDT_FLAGS_EXPECT_CLOSE, &wdt_flags);
++			clear_bit(WDT_OK_TO_CLOSE, &wdt_status);
 +
 +			for (i = 0; i != len; i++) {
 +				char c;
 +
 +				if (get_user(c, data + i))
 +					return -EFAULT;
-+
 +				if (c == 'V')
-+					set_bit(WDT_FLAGS_EXPECT_CLOSE,
-+						&wdt_flags);
++					set_bit(WDT_OK_TO_CLOSE, &wdt_status);
 +			}
 +		}
-+
-+		ath79_wdt_keepalive();
++		wdt_keepalive();
 +	}
-+
 +	return len;
 +}
 +
-+static const struct watchdog_info ath79_wdt_info = {
-+	.options		= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
-+				  WDIOF_MAGICCLOSE | WDIOF_CARDRESET,
-+	.firmware_version	= 0,
-+	.identity		= "ATH79 watchdog",
++static const struct watchdog_info ident = {
++	.options	= WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT |
++				WDIOF_KEEPALIVEPING,
++	.identity	= "Coldfire M548x Watchdog",
 +};
 +
-+static long ath79_wdt_ioctl(struct file *file, unsigned int cmd,
-+			    unsigned long arg)
++static long m548x_wdt_ioctl(struct file *file, unsigned int cmd,
++							 unsigned long arg)
 +{
-+	void __user *argp = (void __user *)arg;
-+	int __user *p = argp;
-+	int err;
-+	int t;
++	int ret = -ENOTTY;
++	int time;
 +
 +	switch (cmd) {
 +	case WDIOC_GETSUPPORT:
-+		err = copy_to_user(argp, &ath79_wdt_info,
-+				   sizeof(ath79_wdt_info)) ? -EFAULT : 0;
++		ret = copy_to_user((struct watchdog_info *)arg, &ident,
++				   sizeof(ident)) ? -EFAULT : 0;
 +		break;
 +
 +	case WDIOC_GETSTATUS:
-+		err = put_user(0, p);
++		ret = put_user(0, (int *)arg);
 +		break;
 +
 +	case WDIOC_GETBOOTSTATUS:
-+		err = put_user(boot_status, p);
++		ret = put_user(0, (int *)arg);
 +		break;
 +
 +	case WDIOC_KEEPALIVE:
-+		ath79_wdt_keepalive();
-+		err = 0;
++		wdt_keepalive();
++		ret = 0;
 +		break;
 +
 +	case WDIOC_SETTIMEOUT:
-+		err = get_user(t, p);
-+		if (err)
++		ret = get_user(time, (int *)arg);
++		if (ret)
 +			break;
 +
-+		err = ath79_wdt_set_timeout(t);
-+		if (err)
++		if (time <= 0 || time > 30) {
++			ret = -EINVAL;
 +			break;
++		}
 +
-+		/* fallthrough */
++		heartbeat = time;
++		wdt_enable();
++		/* Fall through */
++
 +	case WDIOC_GETTIMEOUT:
-+		err = put_user(wdt_timeout, p);
-+		break;
-+
-+	default:
-+		err = -ENOTTY;
++		ret = put_user(heartbeat, (int *)arg);
 +		break;
 +	}
-+
-+	return err;
++	return ret;
 +}
 +
-+static const struct file_operations ath79_wdt_fops = {
++static int m548x_wdt_release(struct inode *inode, struct file *file)
++{
++	if (test_bit(WDT_OK_TO_CLOSE, &wdt_status))
++		wdt_disable();
++	else
++		printk(KERN_CRIT "WATCHDOG: Device closed unexpectedly - "
++					"timer will not stop\n");
++	clear_bit(WDT_IN_USE, &wdt_status);
++	clear_bit(WDT_OK_TO_CLOSE, &wdt_status);
++
++	return 0;
++}
++
++
++static const struct file_operations m548x_wdt_fops = {
 +	.owner		= THIS_MODULE,
 +	.llseek		= no_llseek,
-+	.write		= ath79_wdt_write,
-+	.unlocked_ioctl	= ath79_wdt_ioctl,
-+	.open		= ath79_wdt_open,
-+	.release	= ath79_wdt_release,
++	.write		= m548x_wdt_write,
++	.unlocked_ioctl	= m548x_wdt_ioctl,
++	.open		= m548x_wdt_open,
++	.release	= m548x_wdt_release,
 +};
 +
-+static int ath79_wdt_notify_sys(struct notifier_block *this,
-+				unsigned long code, void *unused)
++static struct miscdevice m548x_wdt_miscdev = {
++	.minor		= WATCHDOG_MINOR,
++	.name		= "watchdog",
++	.fops		= &m548x_wdt_fops,
++};
++
++static int __init m548x_wdt_init(void)
 +{
-+	if (code == SYS_DOWN || code == SYS_HALT)
-+		ath79_wdt_disable();
-+
-+	return NOTIFY_DONE;
-+}
-+
-+static struct notifier_block ath79_wdt_notifier = {
-+	.notifier_call = ath79_wdt_notify_sys,
-+};
-+
-+static struct miscdevice ath79_wdt_miscdev = {
-+	.minor = WATCHDOG_MINOR,
-+	.name = "watchdog",
-+	.fops = &ath79_wdt_fops,
-+};
-+
-+static int __init ath79_wdt_probe(struct platform_device *pdev)
-+{
-+	u32 ctrl;
-+	int err;
-+
-+	max_timeout = (0xfffffffful / ath79_ahb_freq);
-+	wdt_timeout = (max_timeout < WDT_TIMEOUT) ? max_timeout : WDT_TIMEOUT;
-+
-+	ctrl = ath79_reset_rr(AR71XX_RESET_REG_WDOG_CTRL);
-+	boot_status = (ctrl & WDOG_CTRL_LAST_RESET) ? WDIOF_CARDRESET : 0;
-+
-+	err = register_reboot_notifier(&ath79_wdt_notifier);
-+	if (err) {
-+		dev_err(&pdev->dev,
-+			"unable to register reboot notifier, err=%d\n", err);
-+		goto err;
++#ifdef CONFIG_WATCHDOG_NOWAYOUT
++	nowayout = 1;
++#else
++	nowayout = 0;
++#endif
++	if (!request_mem_region(MCF_MBAR + MCF_GPT_GCIR0, 4, "Coldfire M548x Watchdog")) {
++		printk(KERN_WARNING "Coldfire M548x Watchdog : I/O region busy\n");
++		return -EBUSY;
 +	}
++	printk("ColdFire watchdog driver is loaded.\n");
 +
-+	err = misc_register(&ath79_wdt_miscdev);
-+	if (err) {
-+		dev_err(&pdev->dev,
-+			"unable to register misc device, err=%d\n", err);
-+		goto err_unregister;
-+	}
-+
-+	return 0;
-+
-+err_unregister:
-+	unregister_reboot_notifier(&ath79_wdt_notifier);
-+
-+err:
-+	return err;
++	return misc_register(&m548x_wdt_miscdev);
 +}
 +
-+static int __exit ath79_wdt_remove(struct platform_device *pdev)
++static void __exit m548x_wdt_exit(void)
 +{
-+	misc_deregister(&ath79_wdt_miscdev);
-+	return 0;
++	misc_deregister(&m548x_wdt_miscdev);
++	release_mem_region(MCF_MBAR + MCF_GPT_GCIR0, 4);
 +}
 +
-+static struct platform_driver ath79_wdt_driver = {
-+	.remove		= __exit_p(ath79_wdt_remove),
-+	.driver		= {
-+		.name	= DRIVER_NAME,
-+		.owner	= THIS_MODULE,
-+	},
-+};
++module_init(m548x_wdt_init);
++module_exit(m548x_wdt_exit);
 +
-+static int __init ath79_wdt_init(void)
-+{
-+	return platform_driver_probe(&ath79_wdt_driver, ath79_wdt_probe);
-+}
-+module_init(ath79_wdt_init);
++MODULE_AUTHOR("Philippe De Muyter <phdm@macqel.be>");
++MODULE_DESCRIPTION("Coldfire M548x Watchdog");
 +
-+static void __exit ath79_wdt_exit(void)
-+{
-+	platform_driver_unregister(&ath79_wdt_driver);
-+}
-+module_exit(ath79_wdt_exit);
++module_param(heartbeat, int, 0);
++MODULE_PARM_DESC(heartbeat, "Watchdog heartbeat in seconds (default 30s)");
 +
-+MODULE_DESCRIPTION(DRIVER_DESC);
-+MODULE_AUTHOR("Gabor Juhos <juhosg@openwrt.org");
-+MODULE_AUTHOR("Imre Kaloz <kaloz@openwrt.org");
-+MODULE_LICENSE("GPL v2");
-+MODULE_ALIAS("platform:" DRIVER_NAME);
++module_param(nowayout, int, 0);
++MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started");
++
++MODULE_LICENSE("GPL");
 +MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
++
 -- 
-1.7.2.1
+1.7.1
+
