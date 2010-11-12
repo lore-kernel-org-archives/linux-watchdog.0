@@ -1,78 +1,366 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from webmail-out2.one.com ([91.198.169.17]:58139 "EHLO
-	webmail-out2.b-one.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752618Ab0KKPOg convert rfc822-to-8bit (ORCPT
+Received: from phoenix3.szarvasnet.hu ([87.101.127.16]:53413 "EHLO
+	phoenix3.szarvasnet.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932893Ab0KLUl5 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 11 Nov 2010 10:14:36 -0500
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-MIME-Version: 1.0
-From: "=?iso-8859-1?Q?Benny=20L=F8nstrup=20Amm?==?iso-8859-1?Q?itzb=F8ll?="
-	<benny@ammitzboell-consult.dk>
-To: linux-watchdog@vger.kernel.org
-CC: wim@iguana.be
-Subject: [PATCH] Add watchdog support for W83627DHG chip
-Date: Thu, 11 Nov 2010 16:08:41 +0100
-Reply-To: benny@ammitzboell-consult.dk
-Message-Id: <20101111150841.A67A6C40C6062@bmail03.one.com>
+	Fri, 12 Nov 2010 15:41:57 -0500
+From: Gabor Juhos <juhosg@openwrt.org>
+To: Ralf Baechle <ralf@linux-mips.org>
+Cc: kaloz@openwrt.org, Gabor Juhos <juhosg@openwrt.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org
+Subject: [RFC 07/18] watchdog: add driver for the Atheros AR71XX/AR724X/AR913X SoCs
+Date: Fri, 12 Nov 2010 20:50:34 +0100
+Message-Id: <1289591445-28842-8-git-send-email-juhosg@openwrt.org>
+In-Reply-To: <1289591445-28842-1-git-send-email-juhosg@openwrt.org>
+References: <1289591445-28842-1-git-send-email-juhosg@openwrt.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The following adds watchdog support for the Winbond W83627DHG chip. I have tested it on a PQ7-M102XL (Intel Atom) board.
+This patch adds a driver for the built-in hardware watchdog device
+of the Atheros AR71XX/AR724X/AR913X SoCs.
 
-diff -u linux-2.6.36.orig/drivers/watchdog/Kconfig linux-2.6.36/drivers/watchdog/Kconfig
---- linux-2.6.36.orig/drivers/watchdog/Kconfig  2010-11-11 12:30:48.000000000 +0100
-+++ linux-2.6.36/drivers/watchdog/Kconfig       2010-11-11 12:32:01.000000000 +0100
-@@ -718,14 +718,15 @@
-          Most people will say N.
+Signed-off-by: Gabor Juhos <juhosg@openwrt.org>
+Signed-off-by: Imre Kaloz <kaloz@openwrt.org>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org
+---
+ drivers/watchdog/Kconfig     |    8 +
+ drivers/watchdog/Makefile    |    1 +
+ drivers/watchdog/ath79_wdt.c |  293 ++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 302 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/watchdog/ath79_wdt.c
+
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 4a29104..998eed3 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -927,6 +927,14 @@ config BCM63XX_WDT
+ 	  To compile this driver as a loadable module, choose M here.
+ 	  The module will be called bcm63xx_wdt.
  
- config W83627HF_WDT
--       tristate "W83627HF Watchdog Timer"
-+       tristate "W83627HF/W83627DHG Watchdog Timer"
-        depends on X86
-        ---help---
-          This is the driver for the hardware watchdog on the W83627HF chipset
-          as used in Advantech PC-9578 and Tyan S2721-533 motherboards
--         (and likely others).  This watchdog simply watches your kernel to
--         make sure it doesn't freeze, and if it does, it reboots your computer
--         after a certain amount of time.
-+         (and likely others). The driver also supports the W83627DHG chip.
-+         This watchdog simply watches your kernel to make sure it doesn't
-+         freeze, and if it does, it reboots your computer after a certain
-+         amount of time.
++config ATH79_WDT
++	tristate "Atheros AR71XX/AR724X/AR913X hardware watchdog"
++	depends on ATH79
++	help
++	  Hardware driver for the built-in watchdog timer on the Atheros
++	  AR71XX/AR724X/AR913X SoCs.
++
++
+ # PARISC Architecture
  
-          To compile this driver as a module, choose M here: the
-          module will be called w83627hf_wdt.
-Only in linux-2.6.36.orig/drivers/watchdog/: .#Kconfig
-Only in linux-2.6.36.orig/drivers/watchdog/: #Kconfig#
-diff -u linux-2.6.36.orig/drivers/watchdog/w83627hf_wdt.c linux-2.6.36/drivers/watchdog/w83627hf_wdt.c
---- linux-2.6.36.orig/drivers/watchdog/w83627hf_wdt.c   2010-11-11 12:30:48.000000000 +0100
-+++ linux-2.6.36/drivers/watchdog/w83627hf_wdt.c        2010-11-11 14:25:00.000000000 +0100
-@@ -42,7 +42,7 @@
+ # POWERPC Architecture
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 4b0ef38..6d7af07 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -117,6 +117,7 @@ obj-$(CONFIG_PNX833X_WDT) += pnx833x_wdt.o
+ obj-$(CONFIG_SIBYTE_WDOG) += sb_wdog.o
+ obj-$(CONFIG_AR7_WDT) += ar7_wdt.o
+ obj-$(CONFIG_TXX9_WDT) += txx9wdt.o
++obj-$(CONFIG_ATH79_WDT) += ath79_wdt.o
+ obj-$(CONFIG_OCTEON_WDT) += octeon-wdt.o
+ octeon-wdt-y := octeon-wdt-main.o octeon-wdt-nmi.o
  
- #include <asm/system.h>
- 
--#define WATCHDOG_NAME "w83627hf/thf/hg WDT"
-+#define WATCHDOG_NAME "w83627hf/thf/hg/dhg WDT"
- #define PFX WATCHDOG_NAME ": "
- #define WATCHDOG_TIMEOUT 60            /* 60 sec default timeout */
- 
-@@ -89,7 +89,7 @@
-                c = ((inb_p(WDT_EFDR) & 0xf7) | 0x04); /* select WDT0 */
-                outb_p(0x2b, WDT_EFER);
-                outb_p(c, WDT_EFDR);    /* set GPIO3 to WDT0 */
--       } else if (c == 0x88) { /* W83627EHF */
-+       } else if (c == 0x88 || c == 0xa0) {    /* W83627EHF / W83627DHG */
-                outb_p(0x2d, WDT_EFER); /* select GPIO5 */
-                c = inb_p(WDT_EFDR) & ~0x01; /* PIN77 -> WDT0# */
-                outb_p(0x2d, WDT_EFER);
-@@ -321,7 +321,7 @@
- {
-        int ret;
- 
--       printk(KERN_INFO "WDT driver for the Winbond(TM) W83627HF/THF/HG Super I/O chip initialising.\n");
-+       printk(KERN_INFO "WDT driver for the Winbond(TM) W83627HF/THF/HG/DHG Super I/O chip initialising.\n");
- 
-        if (wdt_set_heartbeat(timeout)) {
-                wdt_set_heartbeat(WATCHDOG_TIMEOUT);
+diff --git a/drivers/watchdog/ath79_wdt.c b/drivers/watchdog/ath79_wdt.c
+new file mode 100644
+index 0000000..f8e027b
+--- /dev/null
++++ b/drivers/watchdog/ath79_wdt.c
+@@ -0,0 +1,293 @@
++/*
++ * Atheros AR71XX/AR724X/AR913X built-in hardware watchdog timer.
++ *
++ * Copyright (C) 2008-2010 Gabor Juhos <juhosg@openwrt.org>
++ * Copyright (C) 2008 Imre Kaloz <kaloz@openwrt.org>
++ *
++ * This driver was based on: drivers/watchdog/ixp4xx_wdt.c
++ *	Author: Deepak Saxena <dsaxena@plexity.net>
++ *	Copyright 2004 (c) MontaVista, Software, Inc.
++ *
++ * which again was based on sa1100 driver,
++ *	Copyright (C) 2000 Oleg Drokin <green@crimea.edu>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published
++ * by the Free Software Foundation.
++ *
++ */
++
++#include <linux/bitops.h>
++#include <linux/errno.h>
++#include <linux/fs.h>
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/miscdevice.h>
++#include <linux/module.h>
++#include <linux/moduleparam.h>
++#include <linux/platform_device.h>
++#include <linux/types.h>
++#include <linux/reboot.h>
++#include <linux/watchdog.h>
++
++#include <asm/mach-ath79/ath79.h>
++#include <asm/mach-ath79/ar71xx_regs.h>
++
++#define DRIVER_NAME	"ath79-wdt"
++#define DRIVER_DESC	"Atheros AR71XX/AR724X/AR913X hardware watchdog driver"
++
++#define WDT_TIMEOUT	15	/* seconds */
++
++#define WDOG_CTRL_LAST_RESET	BIT(31)
++#define WDOG_CTRL_ACTION_MASK	3
++#define WDOG_CTRL_ACTION_NONE	0	/* no action */
++#define WDOG_CTRL_ACTION_GPI	1	/* general purpose interrupt */
++#define WDOG_CTRL_ACTION_NMI	2	/* NMI */
++#define WDOG_CTRL_ACTION_FCR	3	/* full chip reset */
++
++static int nowayout = WATCHDOG_NOWAYOUT;
++
++#ifdef CONFIG_WATCHDOG_NOWAYOUT
++module_param(nowayout, int, 0);
++MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
++			   "(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++#endif
++
++static unsigned long wdt_flags;
++
++#define WDT_FLAGS_BUSY		0
++#define WDT_FLAGS_EXPECT_CLOSE	1
++
++static int wdt_timeout = WDT_TIMEOUT;
++static int boot_status;
++static int max_timeout;
++
++static inline void ath79_wdt_keepalive(void)
++{
++	ath79_reset_wr(AR71XX_RESET_REG_WDOG, ath79_ahb_freq * wdt_timeout);
++}
++
++static inline void ath79_wdt_enable(void)
++{
++	ath79_wdt_keepalive();
++	ath79_reset_wr(AR71XX_RESET_REG_WDOG_CTRL, WDOG_CTRL_ACTION_FCR);
++}
++
++static inline void ath79_wdt_disable(void)
++{
++	ath79_reset_wr(AR71XX_RESET_REG_WDOG_CTRL, WDOG_CTRL_ACTION_NONE);
++}
++
++static int ath79_wdt_set_timeout(int val)
++{
++	if (val < 1 || val > max_timeout)
++		return -EINVAL;
++
++	wdt_timeout = val;
++	ath79_wdt_keepalive();
++
++	return 0;
++}
++
++static int ath79_wdt_open(struct inode *inode, struct file *file)
++{
++	if (test_and_set_bit(WDT_FLAGS_BUSY, &wdt_flags))
++		return -EBUSY;
++
++	clear_bit(WDT_FLAGS_EXPECT_CLOSE, &wdt_flags);
++	ath79_wdt_enable();
++
++	return nonseekable_open(inode, file);
++}
++
++static int ath79_wdt_release(struct inode *inode, struct file *file)
++{
++	if (test_bit(WDT_FLAGS_EXPECT_CLOSE, &wdt_flags))
++		ath79_wdt_disable();
++	else
++		pr_crit(DRIVER_NAME ": device closed unexpectedly, "
++			"watchdog timer will not stop!\n");
++
++	clear_bit(WDT_FLAGS_BUSY, &wdt_flags);
++	clear_bit(WDT_FLAGS_EXPECT_CLOSE, &wdt_flags);
++
++	return 0;
++}
++
++static ssize_t ath79_wdt_write(struct file *file, const char *data,
++				size_t len, loff_t *ppos)
++{
++	if (len) {
++		if (!nowayout) {
++			size_t i;
++
++			clear_bit(WDT_FLAGS_EXPECT_CLOSE, &wdt_flags);
++
++			for (i = 0; i != len; i++) {
++				char c;
++
++				if (get_user(c, data + i))
++					return -EFAULT;
++
++				if (c == 'V')
++					set_bit(WDT_FLAGS_EXPECT_CLOSE,
++						&wdt_flags);
++			}
++		}
++
++		ath79_wdt_keepalive();
++	}
++
++	return len;
++}
++
++static const struct watchdog_info ath79_wdt_info = {
++	.options		= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
++				  WDIOF_MAGICCLOSE | WDIOF_CARDRESET,
++	.firmware_version	= 0,
++	.identity		= "ATH79 watchdog",
++};
++
++static long ath79_wdt_ioctl(struct file *file, unsigned int cmd,
++			    unsigned long arg)
++{
++	void __user *argp = (void __user *)arg;
++	int __user *p = argp;
++	int err;
++	int t;
++
++	switch (cmd) {
++	case WDIOC_GETSUPPORT:
++		err = copy_to_user(argp, &ath79_wdt_info,
++				   sizeof(ath79_wdt_info)) ? -EFAULT : 0;
++		break;
++
++	case WDIOC_GETSTATUS:
++		err = put_user(0, p);
++		break;
++
++	case WDIOC_GETBOOTSTATUS:
++		err = put_user(boot_status, p);
++		break;
++
++	case WDIOC_KEEPALIVE:
++		ath79_wdt_keepalive();
++		err = 0;
++		break;
++
++	case WDIOC_SETTIMEOUT:
++		err = get_user(t, p);
++		if (err)
++			break;
++
++		err = ath79_wdt_set_timeout(t);
++		if (err)
++			break;
++
++		/* fallthrough */
++	case WDIOC_GETTIMEOUT:
++		err = put_user(wdt_timeout, p);
++		break;
++
++	default:
++		err = -ENOTTY;
++		break;
++	}
++
++	return err;
++}
++
++static const struct file_operations ath79_wdt_fops = {
++	.owner		= THIS_MODULE,
++	.llseek		= no_llseek,
++	.write		= ath79_wdt_write,
++	.unlocked_ioctl	= ath79_wdt_ioctl,
++	.open		= ath79_wdt_open,
++	.release	= ath79_wdt_release,
++};
++
++static int ath79_wdt_notify_sys(struct notifier_block *this,
++				unsigned long code, void *unused)
++{
++	if (code == SYS_DOWN || code == SYS_HALT)
++		ath79_wdt_disable();
++
++	return NOTIFY_DONE;
++}
++
++static struct notifier_block ath79_wdt_notifier = {
++	.notifier_call = ath79_wdt_notify_sys,
++};
++
++static struct miscdevice ath79_wdt_miscdev = {
++	.minor = WATCHDOG_MINOR,
++	.name = "watchdog",
++	.fops = &ath79_wdt_fops,
++};
++
++static int __init ath79_wdt_probe(struct platform_device *pdev)
++{
++	u32 ctrl;
++	int err;
++
++	max_timeout = (0xfffffffful / ath79_ahb_freq);
++	wdt_timeout = (max_timeout < WDT_TIMEOUT) ? max_timeout : WDT_TIMEOUT;
++
++	ctrl = ath79_reset_rr(AR71XX_RESET_REG_WDOG_CTRL);
++	boot_status = (ctrl & WDOG_CTRL_LAST_RESET) ? WDIOF_CARDRESET : 0;
++
++	err = register_reboot_notifier(&ath79_wdt_notifier);
++	if (err) {
++		dev_err(&pdev->dev,
++			"unable to register reboot notifier, err=%d\n", err);
++		goto err;
++	}
++
++	err = misc_register(&ath79_wdt_miscdev);
++	if (err) {
++		dev_err(&pdev->dev,
++			"unable to register misc device, err=%d\n", err);
++		goto err_unregister;
++	}
++
++	return 0;
++
++err_unregister:
++	unregister_reboot_notifier(&ath79_wdt_notifier);
++
++err:
++	return err;
++}
++
++static int __exit ath79_wdt_remove(struct platform_device *pdev)
++{
++	misc_deregister(&ath79_wdt_miscdev);
++	return 0;
++}
++
++static struct platform_driver ath79_wdt_driver = {
++	.remove		= __exit_p(ath79_wdt_remove),
++	.driver		= {
++		.name	= DRIVER_NAME,
++		.owner	= THIS_MODULE,
++	},
++};
++
++static int __init ath79_wdt_init(void)
++{
++	return platform_driver_probe(&ath79_wdt_driver, ath79_wdt_probe);
++}
++module_init(ath79_wdt_init);
++
++static void __exit ath79_wdt_exit(void)
++{
++	platform_driver_unregister(&ath79_wdt_driver);
++}
++module_exit(ath79_wdt_exit);
++
++MODULE_DESCRIPTION(DRIVER_DESC);
++MODULE_AUTHOR("Gabor Juhos <juhosg@openwrt.org");
++MODULE_AUTHOR("Imre Kaloz <kaloz@openwrt.org");
++MODULE_LICENSE("GPL v2");
++MODULE_ALIAS("platform:" DRIVER_NAME);
++MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
+-- 
+1.7.2.1
+
