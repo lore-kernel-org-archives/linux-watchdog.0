@@ -1,62 +1,50 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:43435 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S934924Ab0KQTYW (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 17 Nov 2010 14:24:22 -0500
-From: Seth Heasley <seth.heasley@intel.com>
-To: wim@iguana.be, linux-watchdog@vger.kernel.org,
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:36114 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751432Ab0KSTtu (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 19 Nov 2010 14:49:50 -0500
+Date: Fri, 19 Nov 2010 20:49:31 +0100
+From: Lutz Ballaschke <vegan.grindcore@googlemail.com>
+To: wim@iguana.be
+Cc: me@mortis.eu, linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.37-rc2] iTCO_wdt: TCO Watchdog patch for Intel Patsburg PCH
-Date: Wed, 17 Nov 2010 12:15:08 -0700
-Cc: seth.heasley@intel.com
+Subject: Re: [PATCHv3 0/3] watchdog: add f71862fg support
+Message-ID: <20101119194931.GA28587@kreios.titan>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <201011171115.08544.seth.heasley@intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patch adds an additional LPC Controller DeviceID for the Intel Patsburg PCH for TCO Watchdog.
+On Sat, Oct 02, 2010 at 14:33 +0200, Wim Van Sebroeck wrote:
 
-Signed-off-by: Seth Heasley <seth.heasley@intel.com>
+> On Sun, Sep 26, 2010 at 04:06:29PM +0200, Lutz Ballaschke wrote:
+> > > Furthermore i was thinking about modifying the WDIOC_GETTIMELEFT
+> ...
+> > and gets 6 minutes returned by ioctl. But imho it's not very accurate to
+> > > return a value of seconds if the wdt doesn't count in seconds. That might
+> > > be even more confusing. This inconsistency on the part of the hardware 
+> > > maybe can't get satisfyingly compensated by the driver. So i'd prefer the 
+> > > most simple solution.
+> ...
+> The return value should be the seconds before the watchdog will reboot.
+> So value should be seconds, not minutes and is best the safest value
+> (so (minutes - 1) * 60 + 1 in this case ).
+> Secondly: the WDIOC_GETTIMELEFT should only be a DEBUGging ioctl.
+> The reason I created it, is to check if certain drivers are working
+> or not. We should not use it in normal operations imho.
+> 
+I noticed the patches for f71862fg support in f71808e driver are still
+missing in the recent pull request. This might be due to the ioctl
+implementation 	(PATCHv3 2/3) mentioned above which wasn't clarified.
+Since i missed to reply at your remarks this was my fault. Now i hope
+the PATCHv3 1/3 and 3/3 to get through as they already were signed-off
+by the author of that driver. Since the patch in question isn't
+essential for driver operation i suggest to drop that issue.
+Sorry for the inconvenience.
 
---- linux-2.6.37-rc2/drivers/watchdog/iTCO_wdt.c.orig	2010-11-17 10:02:03.000000000 -0800
-+++ linux-2.6.37-rc2/drivers/watchdog/iTCO_wdt.c	2010-11-17 10:03:42.000000000 -0800
-@@ -32,6 +32,7 @@
-  *	document number 322169-001, 322170-003: 5 Series, 3400 Series (PCH)
-  *	document number 320066-003, 320257-008: EP80597 (IICH)
-  *	document number TBD                   : Cougar Point (CPT)
-+ *	document number TBD                   : Patsburg (PBG)
-  */
- 
- /*
-@@ -146,7 +147,8 @@
- 	TCO_CPT29,	/* Cougar Point */
- 	TCO_CPT30,	/* Cougar Point */
- 	TCO_CPT31,	/* Cougar Point */
--	TCO_PBG,	/* Patsburg */
-+	TCO_PBG1,	/* Patsburg */
-+	TCO_PBG2,	/* Patsburg */
- };
- 
- static struct {
-@@ -235,6 +237,7 @@
- 	{"Cougar Point", 2},
- 	{"Cougar Point", 2},
- 	{"Patsburg", 2},
-+	{"Patsburg", 2},
- 	{NULL, 0}
- };
- 
-@@ -350,7 +353,8 @@
- 	{ ITCO_PCI_DEVICE(0x1c5d,				TCO_CPT29)},
- 	{ ITCO_PCI_DEVICE(0x1c5e,				TCO_CPT30)},
- 	{ ITCO_PCI_DEVICE(0x1c5f,				TCO_CPT31)},
--	{ ITCO_PCI_DEVICE(0x1d40,				TCO_PBG)},
-+	{ ITCO_PCI_DEVICE(0x1d40,				TCO_PBG1)},
-+	{ ITCO_PCI_DEVICE(0x1d41,				TCO_PBG2)},
- 	{ 0, },			/* End of list */
- };
- MODULE_DEVICE_TABLE(pci, iTCO_wdt_pci_tbl);
+With kind regards,
+
+Lutz Ballaschke
+
