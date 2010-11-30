@@ -3,9 +3,11 @@ From: Jamie Iles <jamie@jamieiles.com>
 To: linux-kernel@vger.kernel.org
 Cc: Jamie Iles <jamie@jamieiles.com>, Wim Van Sebroeck <wim@iguana.be>,
         linux-watchdog@vger.kernel.org
-Subject: [PATCH] watchdog: add support for the Synopsys DesignWare WDT
-Date: Thu, 25 Nov 2010 16:09:29 +0000
-Message-Id: <1290701369-20317-1-git-send-email-jamie@jamieiles.com>
+Subject: [PATCHv2] watchdog: add support for the Synopsys DesignWare WDT
+Date: Tue, 30 Nov 2010 15:59:34 +0000
+Message-Id: <1291132774-4973-1-git-send-email-jamie@jamieiles.com>
+In-Reply-To: <1290701369-20317-1-git-send-email-jamie@jamieiles.com>
+References: <1290701369-20317-1-git-send-email-jamie@jamieiles.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -15,14 +17,19 @@ The Synopsys DesignWare watchdog is found in several ARM based systems
 and provides a choice of 16 timeout periods depending on the clock
 input. The watchdog cannot be disabled once started.
 
+v2:
+	- constify fops
+	- request_mem_region() before ioremap()
+	- disable clk if misc_register() fails
+
 Cc: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org
 Signed-off-by: Jamie Iles <jamie@jamieiles.com>
 ---
  drivers/watchdog/Kconfig  |    9 ++
  drivers/watchdog/Makefile |    1 +
- drivers/watchdog/dw_wdt.c |  290 +++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 300 insertions(+), 0 deletions(-)
+ drivers/watchdog/dw_wdt.c |  295 +++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 305 insertions(+), 0 deletions(-)
  create mode 100644 drivers/watchdog/dw_wdt.c
 
 diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
@@ -59,10 +66,10 @@ index 4b0ef38..3b3da4a 100644
  obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
 diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
 new file mode 100644
-index 0000000..180840a
+index 0000000..9a5bd08
 --- /dev/null
 +++ b/drivers/watchdog/dw_wdt.c
-@@ -0,0 +1,290 @@
+@@ -0,0 +1,295 @@
 +/*
 + * Copyright 2010 Picochip Ltd., Jamie Iles
 + * http://www.picochip.com
@@ -183,7 +190,7 @@ index 0000000..180840a
 +	return nonseekable_open(inode, filp);
 +}
 +
-+ssize_t dw_wdt_write(struct file * filp, const char __user *buf, size_t len,
++ssize_t dw_wdt_write(struct file *filp, const char __user *buf, size_t len,
 +		     loff_t *offset)
 +{
 +	dw_wdt_keepalive();
@@ -269,7 +276,7 @@ index 0000000..180840a
 +#define dw_wdt_resume	NULL
 +#endif /* CONFIG_PM */
 +
-+static struct file_operations wdt_fops = {
++static const struct file_operations wdt_fops = {
 +	.owner		= THIS_MODULE,
 +	.llseek		= no_llseek,
 +	.open		= dw_wdt_open,
@@ -292,6 +299,10 @@ index 0000000..180840a
 +	if (!mem)
 +		return -EINVAL;
 +
++	if (!devm_request_mem_region(&pdev->dev, mem->start, resource_size(mem),
++				     "iomem"))
++		return -ENOMEM;
++
 +	dw_wdt.regs = devm_ioremap(&pdev->dev, mem->start,
 +					     resource_size(mem));
 +	if (!dw_wdt.regs)
@@ -309,6 +320,7 @@ index 0000000..180840a
 +	return 0;
 +
 +register_failed:
++	clk_disable(dw_wdt.clk);
 +	clk_put(dw_wdt.clk);
 +
 +	return ret;
