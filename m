@@ -1,50 +1,135 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:36114 "EHLO
-	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751432Ab0KSTtu (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 19 Nov 2010 14:49:50 -0500
-Date: Fri, 19 Nov 2010 20:49:31 +0100
-From: Lutz Ballaschke <vegan.grindcore@googlemail.com>
-To: wim@iguana.be
-Cc: me@mortis.eu, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCHv3 0/3] watchdog: add f71862fg support
-Message-ID: <20101119194931.GA28587@kreios.titan>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Mon, 6 Dec 2010 20:19:30 +0100
+From: Giel van Schijndel <me@mortis.eu>
+To: Michel Arboi <michel@arboi.fr.eu.org>
+Cc: Hans de Goede <hdegoede@redhat.com>, Wim Van Sebroeck <wim@iguana.be>,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Fwd: Patch for Fintek F71869 watchdoh
+Message-ID: <20101206191930.GA3188@salidar.me.mortis.eu>
+References: <4CFCB76D.2060405@redhat.com>
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="jI8keyz6grp/JLjh"
+Content-Disposition: inline
+In-Reply-To: <4CFCB76D.2060405@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+List-ID: <linux-watchdog@vger.kernel.org>
+
+
+--jI8keyz6grp/JLjh
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-On Sat, Oct 02, 2010 at 14:33 +0200, Wim Van Sebroeck wrote:
+On Mon, Dec 06, 2010 at 11:14:05 +0100, Hans de Goede wrote:
+>> -------- Original Message --------
+>> Subject: Patch for Fintek F71869 watchdoh
+>> Date: Mon, 6 Dec 2010 00:40:43 +0100
+>> From: Michel Arboi <michel@arboi.fr.eu.org>
+>> Organization: Compilo ergo sum
+>> To: Hans de Goede <hdegoede@redhat.com>
+>>=20
+>> I'm not sure that you are the right person, but actually I do not know
+>> who I should contact. I saw that you were working on the support of
+>> the Fintek F71869 sensors.
 
-> On Sun, Sep 26, 2010 at 04:06:29PM +0200, Lutz Ballaschke wrote:
-> > > Furthermore i was thinking about modifying the WDIOC_GETTIMELEFT
-> ...
-> > and gets 6 minutes returned by ioctl. But imho it's not very accurate to
-> > > return a value of seconds if the wdt doesn't count in seconds. That might
-> > > be even more confusing. This inconsistency on the part of the hardware 
-> > > maybe can't get satisfyingly compensated by the driver. So i'd prefer the 
-> > > most simple solution.
-> ...
-> The return value should be the seconds before the watchdog will reboot.
-> So value should be seconds, not minutes and is best the safest value
-> (so (minutes - 1) * 60 + 1 in this case ).
-> Secondly: the WDIOC_GETTIMELEFT should only be a DEBUGging ioctl.
-> The reason I created it, is to check if certain drivers are working
-> or not. We should not use it in normal operations imho.
-> 
-I noticed the patches for f71862fg support in f71808e driver are still
-missing in the recent pull request. This might be due to the ioctl
-implementation 	(PATCHv3 2/3) mentioned above which wasn't clarified.
-Since i missed to reply at your remarks this was my fault. Now i hope
-the PATCHv3 1/3 and 3/3 to get through as they already were signed-off
-by the author of that driver. Since the patch in question isn't
-essential for driver operation i suggest to drop that issue.
-Sorry for the inconvenience.
+These are the e-mail addresses to send patches for that driver to:
+> ~/git/linux-2.6 $ scripts/get_maintainer.pl -f drivers/watchdog/f71808e_w=
+dt.c
+> Wim Van Sebroeck <wim@iguana.be>
+> Giel van Schijndel <me@mortis.eu>
+> linux-watchdog@vger.kernel.org
+> linux-kernel@vger.kernel.org
 
+>> I have a Jetway NC9C-550-LF mobo, I quickly hacked this to support the
+>> watchdog. It seems to work.
+>=20
+> Here is a patch send to me to add support for the F71869 to the Fintek
+> superio watchdog driver.
+>=20
+> Michel, I've forwarded you're patch to Giel, who is the author and
+> maintainer of the Fintek superio watchdog driver.
+
+> --- ./drivers/watchdog/f71808e_wdt.c	2010-10-20 22:30:22.000000000 +0200
+> +++ /tmp/f71808e_wdt.c	2010-12-05 01:19:48.819567802 +0100
+> @@ -52,6 +52,8 @@
+>  #define SIO_F71882_ID		0x0541	/* Chipset ID */
+>  #define SIO_F71889_ID		0x0723	/* Chipset ID */
+> =20
+> +#define SIO_F71869_ID		0x0814
+> +
+>  #define	F71882FG_REG_START		0x01
+> =20
+>  #define F71808FG_REG_WDO_CONF		0xf0
+
+Please insert that constant in the list of other Chipset ID's
+alphabetically sorted (to keep that list consistent).
+
+> @@ -98,7 +100,7 @@
+>  MODULE_PARM_DESC(start_withtimeout, "Start watchdog timer on module load=
+ with"
+>  	" given initial timeout. Zero (default) disables this feature.");
+> =20
+> -enum chips { f71808fg, f71858fg, f71862fg, f71882fg, f71889fg };
+> +enum chips { f71808fg, f71858fg, f71862fg, f71882fg, f71889fg, f71869 };
+> =20
+>  static const char *f71808e_names[] =3D {
+>  	"f71808fg",
+> @@ -106,6 +108,7 @@
+>  	"f71862fg",
+>  	"f71882fg",
+>  	"f71889fg",
+> +	"f71869",
+>  };
+> =20
+>  /* Super-I/O Function prototypes */
+> @@ -308,6 +311,10 @@
+>  		superio_set_bit(watchdog.sioaddr, 0x29, 1);
+>  		break;
+> =20
+> +	case f71869:
+> +		/* GPIO14 --> WDTRST# */
+> +		superio_clear_bit(watchdog.sioaddr, 0x29, 4);
+> +		break;
+>  	default:
+>  		/*
+>  		 * 'default' label to shut up the compiler and catch
+> @@ -708,6 +715,9 @@
+>  	case SIO_F71882_ID:
+>  		watchdog.type =3D f71882fg;
+>  		break;
+> +	case SIO_F71869_ID:
+> +		watchdog.type =3D f71869;
+> +		break;
+>  	case SIO_F71862_ID:
+>  	case SIO_F71889_ID:
+>  		/* These have a watchdog, though it isn't implemented (yet). */
+
+The rest of that patch looks fine.  So if you perform the above
+modification you'll get my Ack.
+
+--=20
+Met vriendelijke groet,
 With kind regards,
+Giel van Schijndel
+--
+"Measuring programming progress by lines of code is like measuring
+ aircraft building progress by weight."
+  -- Bill Gates
 
-Lutz Ballaschke
+--jI8keyz6grp/JLjh
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAkz9Nz8ACgkQZBYm/87l50LAEQCfYUSkJKamhphUDHUJSb0mATL7
+hP8An0Ym8U9CuA42hmj2yoJF1cTQYwCY
+=83HV
+-----END PGP SIGNATURE-----
+
+--jI8keyz6grp/JLjh--
