@@ -1,69 +1,42 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qy0-f181.google.com ([209.85.216.181]:55314 "EHLO
-	mail-qy0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752049Ab0LFVDB (ORCPT
+Received: from passoire.arboi.fr.eu.org ([81.57.108.63]:38591 "EHLO
+	passoire.arboi.fr.eu.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751425Ab0LFWmQ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 6 Dec 2010 16:03:01 -0500
-Received: by qyk12 with SMTP id 12so14926419qyk.19
-        for <linux-watchdog@vger.kernel.org>; Mon, 06 Dec 2010 13:03:00 -0800 (PST)
-Message-ID: <4CFD4F5F.8070108@mvista.com>
-Date: Mon, 06 Dec 2010 14:02:23 -0700
-From: Randy Vinson <rvinson@mvista.com>
-MIME-Version: 1.0
-To: "linuxppc-dev@ozlabs.org" <linuxppc-dev@ozlabs.org>,
-	linux-watchdog@vger.kernel.org,
-	Kumar Gala <kumar.gala@freescale.com>
-Subject: [PATCH] powerpc/watchdog: Propagate Book E WDT period changes to
- all cores
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 6 Dec 2010 17:42:16 -0500
+Date: Mon, 6 Dec 2010 23:42:13 +0100
+From: Michel Arboi <michel@arboi.fr.eu.org>
+To: Giel van Schijndel <me@mortis.eu>
+Cc: Hans de Goede <hdegoede@redhat.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Patch for Fintek F71869 watchdoh
+Message-ID: <20101206234213.4e3c6ae6@marmite>
+In-Reply-To: <20101206202155.GB3188@salidar.me.mortis.eu>
+References: <4CFCB76D.2060405@redhat.com>
+	<20101206191930.GA3188@salidar.me.mortis.eu>
+	<20101206205345.639f31bb@marmite>
+	<20101206202155.GB3188@salidar.me.mortis.eu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-When the watchdog period is changed, it needs to be propagated to all cores
-in addition to the core that performed the change.
+On Mon, 6 Dec 2010 21:21:55 +0100
+Giel van Schijndel <me@mortis.eu> wrote:
 
-Signed-off-by: Randy Vinson <rvinson@mvista.com>
----
- drivers/watchdog/booke_wdt.c |   19 +++++++++++++++++--
- 1 files changed, 17 insertions(+), 2 deletions(-)
+> That's intended behaviour and probably sufficient for testing.  Most
+> of the behaviour isn't chip-specific, only the initialisation and
+> configuration of the chip is specific to that chip AFAIK.
 
-diff --git a/drivers/watchdog/booke_wdt.c b/drivers/watchdog/booke_wdt.c
-index d11ffb0..c8ffa6c 100644
---- a/drivers/watchdog/booke_wdt.c
-+++ b/drivers/watchdog/booke_wdt.c
-@@ -85,6 +85,22 @@ static unsigned int sec_to_period(unsigned int secs)
- 	return 0;
- }
- 
-+static void __booke_wdt_set(void *data)
-+{
-+	u32 val;
-+
-+	val = mfspr(SPRN_TCR);
-+	val &= ~WDTP_MASK;
-+	val |= WDTP(booke_wdt_period);
-+
-+	mtspr(SPRN_TCR, val);
-+}
-+
-+static void booke_wdt_set(void)
-+{
-+	on_each_cpu(__booke_wdt_set, NULL, 0);
-+}
-+
- static void __booke_wdt_ping(void *data)
- {
- 	mtspr(SPRN_TSR, TSR_ENW|TSR_WIS);
-@@ -181,8 +197,7 @@ static long booke_wdt_ioctl(struct file *file,
- #else
- 		booke_wdt_period = tmp;
- #endif
--		mtspr(SPRN_TCR, (mfspr(SPRN_TCR) & ~WDTP_MASK) |
--						WDTP(booke_wdt_period));
-+		booke_wdt_set();
- 		return 0;
- 	case WDIOC_GETTIMEOUT:
- 		return put_user(booke_wdt_period, p);
--- 
-1.6.3.3.328.ge81f
+OK. Hans, if you need some tests for the sensors part, you can send me a
+patch and I'll try to help.
+[I suspect that the current Linux code works, sensors reports 62 °C /
+59 °C for the CPU]
+
+> PS You might want to include patches inline (i.e. as part of the
+> message text) as that's standard procedure for Linux MLs.  That
+> allows easy reviewing and commenting on patches.
+
+OK. In fact I did not know how to submit a kernel patch. 
