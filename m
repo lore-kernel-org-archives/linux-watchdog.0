@@ -1,113 +1,99 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from va3ehsobe001.messaging.microsoft.com ([216.32.180.11]:48884
-	"EHLO VA3EHSOBE001.bigfish.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753129Ab0LFTeL (ORCPT
+Received: from passoire.arboi.fr.eu.org ([81.57.108.63]:46583 "EHLO
+	passoire.arboi.fr.eu.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754237Ab0LFUCW (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 6 Dec 2010 14:34:11 -0500
-From: Fabio Estevam <fabio.estevam@freescale.com>
-To: <linux-arm-kernel@lists.infradead.org>
-CC: <kernel@pengutronix.de>, <u.kleine-koenig@pengutronix.de>,
-	<wim@iguana.be>, <linux-watchdog@vger.kernel.org>,
-	Fabio Estevam <fabio.estevam@freescale.com>
-Subject: [PATCH] watchdog: imx: use clk_get to acquire the watchdog clock
-Date: Mon, 6 Dec 2010 17:38:13 -0200
-Message-ID: <1291664293-28360-1-git-send-email-fabio.estevam@freescale.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+	Mon, 6 Dec 2010 15:02:22 -0500
+Date: Mon, 6 Dec 2010 20:53:45 +0100
+From: Michel Arboi <michel@arboi.fr.eu.org>
+To: Giel van Schijndel <me@mortis.eu>
+Cc: Hans de Goede <hdegoede@redhat.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Patch for Fintek F71869 watchdoh
+Message-ID: <20101206205345.639f31bb@marmite>
+In-Reply-To: <20101206191930.GA3188@salidar.me.mortis.eu>
+References: <4CFCB76D.2060405@redhat.com>
+	<20101206191930.GA3188@salidar.me.mortis.eu>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="MP_/Ttn1dpTChjZ1TbcgiWnpkAr"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Use clk_get to acquire the watchdog clock and also avoid hardcoding the clock name.
+--MP_/Ttn1dpTChjZ1TbcgiWnpkAr
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
----
- arch/arm/mach-imx/clock-imx21.c |    2 +-
- arch/arm/mach-imx/clock-imx25.c |    2 +-
- arch/arm/mach-imx/clock-imx27.c |    2 +-
- arch/arm/mach-mx3/clock-imx31.c |    2 +-
- arch/arm/mach-mx3/clock-imx35.c |    2 +-
- drivers/watchdog/imx2_wdt.c     |    2 +-
- 6 files changed, 6 insertions(+), 6 deletions(-)
+On Mon, 6 Dec 2010 20:19:30 +0100
+Giel van Schijndel <me@mortis.eu> wrote:
 
-diff --git a/arch/arm/mach-imx/clock-imx21.c b/arch/arm/mach-imx/clock-imx21.c
-index cf15ea5..c63a4f5 100644
---- a/arch/arm/mach-imx/clock-imx21.c
-+++ b/arch/arm/mach-imx/clock-imx21.c
-@@ -1185,7 +1185,7 @@ static struct clk_lookup lookups[] = {
- 	_REGISTER_CLOCK(NULL, "brom", brom_clk)
- 	_REGISTER_CLOCK(NULL, "emma", emma_clk[0])
- 	_REGISTER_CLOCK(NULL, "slcdc", slcdc_clk[0])
--	_REGISTER_CLOCK("imx-wdt.0", NULL, wdog_clk)
-+	_REGISTER_CLOCK("imx2-wdt.0", NULL, wdog_clk)
- 	_REGISTER_CLOCK(NULL, "gpio", gpio_clk)
- 	_REGISTER_CLOCK("imx-i2c.0", NULL, i2c_clk)
- 	_REGISTER_CLOCK("mxc-keypad", NULL, kpp_clk)
-diff --git a/arch/arm/mach-imx/clock-imx25.c b/arch/arm/mach-imx/clock-imx25.c
-index 9e4a557..2c98be8 100644
---- a/arch/arm/mach-imx/clock-imx25.c
-+++ b/arch/arm/mach-imx/clock-imx25.c
-@@ -296,7 +296,7 @@ static struct clk_lookup lookups[] = {
- 	_REGISTER_CLOCK("fec.0", NULL, fec_clk)
- 	_REGISTER_CLOCK("imxdi_rtc.0", NULL, dryice_clk)
- 	_REGISTER_CLOCK("imx-fb.0", NULL, lcdc_clk)
--	_REGISTER_CLOCK("imx-wdt.0", NULL, wdt_clk)
-+	_REGISTER_CLOCK("imx2-wdt.0", NULL, wdog_clk)
- 	_REGISTER_CLOCK("imx-ssi.0", NULL, ssi1_clk)
- 	_REGISTER_CLOCK("imx-ssi.1", NULL, ssi2_clk)
- 	_REGISTER_CLOCK("sdhci-esdhc-imx.0", NULL, esdhc1_clk)
-diff --git a/arch/arm/mach-imx/clock-imx27.c b/arch/arm/mach-imx/clock-imx27.c
-index 2202b88..f32f3b8 100644
---- a/arch/arm/mach-imx/clock-imx27.c
-+++ b/arch/arm/mach-imx/clock-imx27.c
-@@ -667,7 +667,7 @@ static struct clk_lookup lookups[] = {
- 	_REGISTER_CLOCK(NULL, "sahara2", sahara2_clk)
- 	_REGISTER_CLOCK(NULL, "ata", ata_clk)
- 	_REGISTER_CLOCK(NULL, "mstick", mstick_clk)
--	_REGISTER_CLOCK("imx-wdt.0", NULL, wdog_clk)
-+	_REGISTER_CLOCK("imx2-wdt.0", NULL, wdog_clk)
- 	_REGISTER_CLOCK(NULL, "gpio", gpio_clk)
- 	_REGISTER_CLOCK("imx-i2c.0", NULL, i2c1_clk)
- 	_REGISTER_CLOCK("imx-i2c.1", NULL, i2c2_clk)
-diff --git a/arch/arm/mach-mx3/clock-imx31.c b/arch/arm/mach-mx3/clock-imx31.c
-index 7cf6d29..4193cf5 100644
---- a/arch/arm/mach-mx3/clock-imx31.c
-+++ b/arch/arm/mach-mx3/clock-imx31.c
-@@ -530,7 +530,7 @@ static struct clk_lookup lookups[] = {
- 	_REGISTER_CLOCK("imx31-cspi.2", NULL, cspi3_clk)
- 	_REGISTER_CLOCK(NULL, "gpt", gpt_clk)
- 	_REGISTER_CLOCK(NULL, "pwm", pwm_clk)
--	_REGISTER_CLOCK("imx-wdt.0", NULL, wdog_clk)
-+	_REGISTER_CLOCK("imx2-wdt.0", NULL, wdog_clk)
- 	_REGISTER_CLOCK(NULL, "rtc", rtc_clk)
- 	_REGISTER_CLOCK(NULL, "epit", epit1_clk)
- 	_REGISTER_CLOCK(NULL, "epit", epit2_clk)
-diff --git a/arch/arm/mach-mx3/clock-imx35.c b/arch/arm/mach-mx3/clock-imx35.c
-index 61e4a31..22259d9 100644
---- a/arch/arm/mach-mx3/clock-imx35.c
-+++ b/arch/arm/mach-mx3/clock-imx35.c
-@@ -495,7 +495,7 @@ static struct clk_lookup lookups[] = {
- 	_REGISTER_CLOCK("mxc-ehci.2", "usb", usbotg_clk)
- 	_REGISTER_CLOCK("fsl-usb2-udc", "usb", usbotg_clk)
- 	_REGISTER_CLOCK("fsl-usb2-udc", "usb_ahb", usbahb_clk)
--	_REGISTER_CLOCK("imx-wdt.0", NULL, wdog_clk)
-+	_REGISTER_CLOCK("imx2-wdt.0", NULL, wdog_clk)
- 	_REGISTER_CLOCK(NULL, "max", max_clk)
- 	_REGISTER_CLOCK(NULL, "audmux", audmux_clk)
- 	_REGISTER_CLOCK(NULL, "csi", csi_clk)
-diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-index 2ee7dac..86f7cac 100644
---- a/drivers/watchdog/imx2_wdt.c
-+++ b/drivers/watchdog/imx2_wdt.c
-@@ -270,7 +270,7 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 	}
- 
--	imx2_wdt.clk = clk_get_sys("imx-wdt.0", NULL);
-+	imx2_wdt.clk = clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(imx2_wdt.clk)) {
- 		dev_err(&pdev->dev, "can't get Watchdog clock\n");
- 		return PTR_ERR(imx2_wdt.clk);
--- 
-1.6.0.4
+> Please insert that constant in the list of other Chipset ID's
+> alphabetically sorted (to keep that list consistent).
+
+Like this?
+
+> The rest of that patch looks fine.  So if you perform the above
+> modification you'll get my Ack.
+
+Please note that this was just a quick hack. My basic tests showed that
+the board did not reboot by itself, and it rebooted when I stopped the
+watchdog process.
+I downloaded the chip datasheet from Fintek's site but could not make
+much sense out of it. It is rather terse.
 
 
+--MP_/Ttn1dpTChjZ1TbcgiWnpkAr
+Content-Type: text/x-patch
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment; filename=f71808e_wdt.patch
+
+--- ./drivers/watchdog/f71808e_wdt.c	2010-10-20 22:30:22.000000000 +0200
++++ /tmp/f71808e_wdt.c	2010-12-06 20:48:00.257989527 +0100
+@@ -49,6 +49,7 @@
+ #define SIO_F71808_ID		0x0901  /* Chipset ID */
+ #define SIO_F71858_ID		0x0507  /* Chipset ID */
+ #define SIO_F71862_ID		0x0601	/* Chipset ID */
++#define SIO_F71869_ID		0x0814
+ #define SIO_F71882_ID		0x0541	/* Chipset ID */
+ #define SIO_F71889_ID		0x0723	/* Chipset ID */
+=20
+@@ -98,12 +99,13 @@
+ MODULE_PARM_DESC(start_withtimeout, "Start watchdog timer on module load w=
+ith"
+ 	" given initial timeout. Zero (default) disables this feature.");
+=20
+-enum chips { f71808fg, f71858fg, f71862fg, f71882fg, f71889fg };
++enum chips { f71808fg, f71858fg, f71862fg, f71869, f71882fg, f71889fg };
+=20
+ static const char *f71808e_names[] =3D {
+ 	"f71808fg",
+ 	"f71858fg",
+ 	"f71862fg",
++	"f71869",
+ 	"f71882fg",
+ 	"f71889fg",
+ };
+@@ -308,6 +310,10 @@
+ 		superio_set_bit(watchdog.sioaddr, 0x29, 1);
+ 		break;
+=20
++	case f71869:
++		/* GPIO14 --> WDTRST# */
++		superio_clear_bit(watchdog.sioaddr, 0x29, 4);
++		break;
+ 	default:
+ 		/*
+ 		 * 'default' label to shut up the compiler and catch
+@@ -708,6 +714,9 @@
+ 	case SIO_F71882_ID:
+ 		watchdog.type =3D f71882fg;
+ 		break;
++	case SIO_F71869_ID:
++		watchdog.type =3D f71869;
++		break;
+ 	case SIO_F71862_ID:
+ 	case SIO_F71889_ID:
+ 		/* These have a watchdog, though it isn't implemented (yet). */
+
+--MP_/Ttn1dpTChjZ1TbcgiWnpkAr--
