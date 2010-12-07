@@ -1,42 +1,127 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from passoire.arboi.fr.eu.org ([81.57.108.63]:38591 "EHLO
-	passoire.arboi.fr.eu.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751425Ab0LFWmQ convert rfc822-to-8bit (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:33835 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753681Ab0LGNKA (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 6 Dec 2010 17:42:16 -0500
-Date: Mon, 6 Dec 2010 23:42:13 +0100
-From: Michel Arboi <michel@arboi.fr.eu.org>
-To: Giel van Schijndel <me@mortis.eu>
-Cc: Hans de Goede <hdegoede@redhat.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Patch for Fintek F71869 watchdoh
-Message-ID: <20101206234213.4e3c6ae6@marmite>
-In-Reply-To: <20101206202155.GB3188@salidar.me.mortis.eu>
-References: <4CFCB76D.2060405@redhat.com>
-	<20101206191930.GA3188@salidar.me.mortis.eu>
-	<20101206205345.639f31bb@marmite>
-	<20101206202155.GB3188@salidar.me.mortis.eu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Tue, 7 Dec 2010 08:10:00 -0500
+Date: Tue, 7 Dec 2010 14:09:56 +0100
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
+To: Fabio Estevam <fabio.estevam@freescale.com>
+Cc: linux-arm-kernel@lists.infradead.org, kernel@pengutronix.de,
+	wim@iguana.be, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] watchdog: imx: use clk_get to acquire the watchdog
+	clock
+Message-ID: <20101207130956.GG21020@pengutronix.de>
+References: <1291664293-28360-1-git-send-email-fabio.estevam@freescale.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1291664293-28360-1-git-send-email-fabio.estevam@freescale.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, 6 Dec 2010 21:21:55 +0100
-Giel van Schijndel <me@mortis.eu> wrote:
+Hi Fabio,
 
-> That's intended behaviour and probably sufficient for testing.  Most
-> of the behaviour isn't chip-specific, only the initialisation and
-> configuration of the chip is specific to that chip AFAIK.
+On Mon, Dec 06, 2010 at 05:38:13PM -0200, Fabio Estevam wrote:
+> Use clk_get to acquire the watchdog clock and also avoid hardcoding the clock name.
+> 
+> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+> ---
+>  arch/arm/mach-imx/clock-imx21.c |    2 +-
+>  arch/arm/mach-imx/clock-imx25.c |    2 +-
+>  arch/arm/mach-imx/clock-imx27.c |    2 +-
+>  arch/arm/mach-mx3/clock-imx31.c |    2 +-
+>  arch/arm/mach-mx3/clock-imx35.c |    2 +-
+>  drivers/watchdog/imx2_wdt.c     |    2 +-
+>  6 files changed, 6 insertions(+), 6 deletions(-)
+> 
+> diff --git a/arch/arm/mach-imx/clock-imx21.c b/arch/arm/mach-imx/clock-imx21.c
+> index cf15ea5..c63a4f5 100644
+> --- a/arch/arm/mach-imx/clock-imx21.c
+> +++ b/arch/arm/mach-imx/clock-imx21.c
+> @@ -1185,7 +1185,7 @@ static struct clk_lookup lookups[] = {
+>  	_REGISTER_CLOCK(NULL, "brom", brom_clk)
+>  	_REGISTER_CLOCK(NULL, "emma", emma_clk[0])
+>  	_REGISTER_CLOCK(NULL, "slcdc", slcdc_clk[0])
+> -	_REGISTER_CLOCK("imx-wdt.0", NULL, wdog_clk)
+> +	_REGISTER_CLOCK("imx2-wdt.0", NULL, wdog_clk)
+>  	_REGISTER_CLOCK(NULL, "gpio", gpio_clk)
+>  	_REGISTER_CLOCK("imx-i2c.0", NULL, i2c_clk)
+>  	_REGISTER_CLOCK("mxc-keypad", NULL, kpp_clk)
+> diff --git a/arch/arm/mach-imx/clock-imx25.c b/arch/arm/mach-imx/clock-imx25.c
+> index 9e4a557..2c98be8 100644
+> --- a/arch/arm/mach-imx/clock-imx25.c
+> +++ b/arch/arm/mach-imx/clock-imx25.c
+> @@ -296,7 +296,7 @@ static struct clk_lookup lookups[] = {
+>  	_REGISTER_CLOCK("fec.0", NULL, fec_clk)
+>  	_REGISTER_CLOCK("imxdi_rtc.0", NULL, dryice_clk)
+>  	_REGISTER_CLOCK("imx-fb.0", NULL, lcdc_clk)
+> -	_REGISTER_CLOCK("imx-wdt.0", NULL, wdt_clk)
+> +	_REGISTER_CLOCK("imx2-wdt.0", NULL, wdog_clk)
+>  	_REGISTER_CLOCK("imx-ssi.0", NULL, ssi1_clk)
+>  	_REGISTER_CLOCK("imx-ssi.1", NULL, ssi2_clk)
+>  	_REGISTER_CLOCK("sdhci-esdhc-imx.0", NULL, esdhc1_clk)
+> diff --git a/arch/arm/mach-imx/clock-imx27.c b/arch/arm/mach-imx/clock-imx27.c
+> index 2202b88..f32f3b8 100644
+> --- a/arch/arm/mach-imx/clock-imx27.c
+> +++ b/arch/arm/mach-imx/clock-imx27.c
+> @@ -667,7 +667,7 @@ static struct clk_lookup lookups[] = {
+>  	_REGISTER_CLOCK(NULL, "sahara2", sahara2_clk)
+>  	_REGISTER_CLOCK(NULL, "ata", ata_clk)
+>  	_REGISTER_CLOCK(NULL, "mstick", mstick_clk)
+> -	_REGISTER_CLOCK("imx-wdt.0", NULL, wdog_clk)
+> +	_REGISTER_CLOCK("imx2-wdt.0", NULL, wdog_clk)
+>  	_REGISTER_CLOCK(NULL, "gpio", gpio_clk)
+>  	_REGISTER_CLOCK("imx-i2c.0", NULL, i2c1_clk)
+>  	_REGISTER_CLOCK("imx-i2c.1", NULL, i2c2_clk)
+> diff --git a/arch/arm/mach-mx3/clock-imx31.c b/arch/arm/mach-mx3/clock-imx31.c
+> index 7cf6d29..4193cf5 100644
+> --- a/arch/arm/mach-mx3/clock-imx31.c
+> +++ b/arch/arm/mach-mx3/clock-imx31.c
+> @@ -530,7 +530,7 @@ static struct clk_lookup lookups[] = {
+>  	_REGISTER_CLOCK("imx31-cspi.2", NULL, cspi3_clk)
+>  	_REGISTER_CLOCK(NULL, "gpt", gpt_clk)
+>  	_REGISTER_CLOCK(NULL, "pwm", pwm_clk)
+> -	_REGISTER_CLOCK("imx-wdt.0", NULL, wdog_clk)
+> +	_REGISTER_CLOCK("imx2-wdt.0", NULL, wdog_clk)
+>  	_REGISTER_CLOCK(NULL, "rtc", rtc_clk)
+>  	_REGISTER_CLOCK(NULL, "epit", epit1_clk)
+>  	_REGISTER_CLOCK(NULL, "epit", epit2_clk)
+> diff --git a/arch/arm/mach-mx3/clock-imx35.c b/arch/arm/mach-mx3/clock-imx35.c
+> index 61e4a31..22259d9 100644
+> --- a/arch/arm/mach-mx3/clock-imx35.c
+> +++ b/arch/arm/mach-mx3/clock-imx35.c
+> @@ -495,7 +495,7 @@ static struct clk_lookup lookups[] = {
+>  	_REGISTER_CLOCK("mxc-ehci.2", "usb", usbotg_clk)
+>  	_REGISTER_CLOCK("fsl-usb2-udc", "usb", usbotg_clk)
+>  	_REGISTER_CLOCK("fsl-usb2-udc", "usb_ahb", usbahb_clk)
+> -	_REGISTER_CLOCK("imx-wdt.0", NULL, wdog_clk)
+> +	_REGISTER_CLOCK("imx2-wdt.0", NULL, wdog_clk)
+>  	_REGISTER_CLOCK(NULL, "max", max_clk)
+>  	_REGISTER_CLOCK(NULL, "audmux", audmux_clk)
+>  	_REGISTER_CLOCK(NULL, "csi", csi_clk)
+> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+> index 2ee7dac..86f7cac 100644
+> --- a/drivers/watchdog/imx2_wdt.c
+> +++ b/drivers/watchdog/imx2_wdt.c
+> @@ -270,7 +270,7 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
+>  		return -ENOMEM;
+>  	}
+>  
+> -	imx2_wdt.clk = clk_get_sys("imx-wdt.0", NULL);
+> +	imx2_wdt.clk = clk_get(&pdev->dev, NULL);
+>  	if (IS_ERR(imx2_wdt.clk)) {
+>  		dev_err(&pdev->dev, "can't get Watchdog clock\n");
+>  		return PTR_ERR(imx2_wdt.clk);
+Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-OK. Hans, if you need some tests for the sensors part, you can send me a
-patch and I'll try to help.
-[I suspect that the current Linux code works, sensors reports 62 °C /
-59 °C for the CPU]
+Depending on the order you get the patches in feel free to keep my ack
+when adapting the mx51 clocks.
 
-> PS You might want to include patches inline (i.e. as part of the
-> message text) as that's standard procedure for Linux MLs.  That
-> allows easy reviewing and commenting on patches.
+Uwe
 
-OK. In fact I did not know how to submit a kernel patch. 
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
