@@ -1,44 +1,130 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-vw0-f46.google.com ([209.85.212.46]:48070 "EHLO
-	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752493Ab0LGQ1p (ORCPT
+Received: from am1ehsobe002.messaging.microsoft.com ([213.199.154.205]:27530
+	"EHLO AM1EHSOBE002.bigfish.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753235Ab0LGQL6 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 7 Dec 2010 11:27:45 -0500
-From: Namhyung Kim <namhyung@gmail.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/2] [WATCHDOG] fix compiler warning on ali_pci_tbl
-Date: Wed,  8 Dec 2010 01:27:35 +0900
-Message-Id: <1291739256-16380-1-git-send-email-namhyung@gmail.com>
+	Tue, 7 Dec 2010 11:11:58 -0500
+From: Fabio Estevam <fabio.estevam@freescale.com>
+To: <linux-arm-kernel@lists.infradead.org>
+CC: <kernel@pengutronix.de>, <u.kleine-koenig@pengutronix.de>,
+	<wim@iguana.be>, <linux-watchdog@vger.kernel.org>,
+	Fabio Estevam <fabio.estevam@freescale.com>
+Subject: [PATCH v2] watchdog: imx: use clk_get to acquire the watchdog clock
+Date: Tue, 7 Dec 2010 14:16:04 -0200
+Message-ID: <1291738564-10374-1-git-send-email-fabio.estevam@freescale.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Annotate ali_pci_tbl as '__used' to fix following warning:
+Use clk_get to acquire the watchdog clock and also avoid hardcoding the clock name.
 
-  CC      drivers/watchdog/alim1535_wdt.o
-drivers/watchdog/alim1535_wdt.c:304: warning: ‘ali_pci_tbl’ defined but not used
-
-Signed-off-by: Namhyung Kim <namhyung@gmail.com>
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
 ---
- drivers/watchdog/alim1535_wdt.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Changes since v1:
+- adapted the watchdog name in arch/arm/plat-mxc/system.c
 
-diff --git a/drivers/watchdog/alim1535_wdt.c b/drivers/watchdog/alim1535_wdt.c
-index 1e9caea..fa4d360 100644
---- a/drivers/watchdog/alim1535_wdt.c
-+++ b/drivers/watchdog/alim1535_wdt.c
-@@ -301,7 +301,7 @@ static int ali_notify_sys(struct notifier_block *this,
-  *	want to register another driver on the same PCI id.
-  */
+ arch/arm/mach-imx/clock-imx21.c |    2 +-
+ arch/arm/mach-imx/clock-imx25.c |    2 +-
+ arch/arm/mach-imx/clock-imx27.c |    2 +-
+ arch/arm/mach-mx3/clock-imx31.c |    2 +-
+ arch/arm/mach-mx3/clock-imx35.c |    2 +-
+ arch/arm/plat-mxc/system.c      |    2 +-
+ drivers/watchdog/imx2_wdt.c     |    2 +-
+ 7 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/arch/arm/mach-imx/clock-imx21.c b/arch/arm/mach-imx/clock-imx21.c
+index cf15ea5..c63a4f5 100644
+--- a/arch/arm/mach-imx/clock-imx21.c
++++ b/arch/arm/mach-imx/clock-imx21.c
+@@ -1185,7 +1185,7 @@ static struct clk_lookup lookups[] = {
+ 	_REGISTER_CLOCK(NULL, "brom", brom_clk)
+ 	_REGISTER_CLOCK(NULL, "emma", emma_clk[0])
+ 	_REGISTER_CLOCK(NULL, "slcdc", slcdc_clk[0])
+-	_REGISTER_CLOCK("imx-wdt.0", NULL, wdog_clk)
++	_REGISTER_CLOCK("imx2-wdt.0", NULL, wdog_clk)
+ 	_REGISTER_CLOCK(NULL, "gpio", gpio_clk)
+ 	_REGISTER_CLOCK("imx-i2c.0", NULL, i2c_clk)
+ 	_REGISTER_CLOCK("mxc-keypad", NULL, kpp_clk)
+diff --git a/arch/arm/mach-imx/clock-imx25.c b/arch/arm/mach-imx/clock-imx25.c
+index 9e4a557..2c98be8 100644
+--- a/arch/arm/mach-imx/clock-imx25.c
++++ b/arch/arm/mach-imx/clock-imx25.c
+@@ -296,7 +296,7 @@ static struct clk_lookup lookups[] = {
+ 	_REGISTER_CLOCK("fec.0", NULL, fec_clk)
+ 	_REGISTER_CLOCK("imxdi_rtc.0", NULL, dryice_clk)
+ 	_REGISTER_CLOCK("imx-fb.0", NULL, lcdc_clk)
+-	_REGISTER_CLOCK("imx-wdt.0", NULL, wdt_clk)
++	_REGISTER_CLOCK("imx2-wdt.0", NULL, wdog_clk)
+ 	_REGISTER_CLOCK("imx-ssi.0", NULL, ssi1_clk)
+ 	_REGISTER_CLOCK("imx-ssi.1", NULL, ssi2_clk)
+ 	_REGISTER_CLOCK("sdhci-esdhc-imx.0", NULL, esdhc1_clk)
+diff --git a/arch/arm/mach-imx/clock-imx27.c b/arch/arm/mach-imx/clock-imx27.c
+index 2202b88..f32f3b8 100644
+--- a/arch/arm/mach-imx/clock-imx27.c
++++ b/arch/arm/mach-imx/clock-imx27.c
+@@ -667,7 +667,7 @@ static struct clk_lookup lookups[] = {
+ 	_REGISTER_CLOCK(NULL, "sahara2", sahara2_clk)
+ 	_REGISTER_CLOCK(NULL, "ata", ata_clk)
+ 	_REGISTER_CLOCK(NULL, "mstick", mstick_clk)
+-	_REGISTER_CLOCK("imx-wdt.0", NULL, wdog_clk)
++	_REGISTER_CLOCK("imx2-wdt.0", NULL, wdog_clk)
+ 	_REGISTER_CLOCK(NULL, "gpio", gpio_clk)
+ 	_REGISTER_CLOCK("imx-i2c.0", NULL, i2c1_clk)
+ 	_REGISTER_CLOCK("imx-i2c.1", NULL, i2c2_clk)
+diff --git a/arch/arm/mach-mx3/clock-imx31.c b/arch/arm/mach-mx3/clock-imx31.c
+index 7cf6d29..4193cf5 100644
+--- a/arch/arm/mach-mx3/clock-imx31.c
++++ b/arch/arm/mach-mx3/clock-imx31.c
+@@ -530,7 +530,7 @@ static struct clk_lookup lookups[] = {
+ 	_REGISTER_CLOCK("imx31-cspi.2", NULL, cspi3_clk)
+ 	_REGISTER_CLOCK(NULL, "gpt", gpt_clk)
+ 	_REGISTER_CLOCK(NULL, "pwm", pwm_clk)
+-	_REGISTER_CLOCK("imx-wdt.0", NULL, wdog_clk)
++	_REGISTER_CLOCK("imx2-wdt.0", NULL, wdog_clk)
+ 	_REGISTER_CLOCK(NULL, "rtc", rtc_clk)
+ 	_REGISTER_CLOCK(NULL, "epit", epit1_clk)
+ 	_REGISTER_CLOCK(NULL, "epit", epit2_clk)
+diff --git a/arch/arm/mach-mx3/clock-imx35.c b/arch/arm/mach-mx3/clock-imx35.c
+index 61e4a31..22259d9 100644
+--- a/arch/arm/mach-mx3/clock-imx35.c
++++ b/arch/arm/mach-mx3/clock-imx35.c
+@@ -495,7 +495,7 @@ static struct clk_lookup lookups[] = {
+ 	_REGISTER_CLOCK("mxc-ehci.2", "usb", usbotg_clk)
+ 	_REGISTER_CLOCK("fsl-usb2-udc", "usb", usbotg_clk)
+ 	_REGISTER_CLOCK("fsl-usb2-udc", "usb_ahb", usbahb_clk)
+-	_REGISTER_CLOCK("imx-wdt.0", NULL, wdog_clk)
++	_REGISTER_CLOCK("imx2-wdt.0", NULL, wdog_clk)
+ 	_REGISTER_CLOCK(NULL, "max", max_clk)
+ 	_REGISTER_CLOCK(NULL, "audmux", audmux_clk)
+ 	_REGISTER_CLOCK(NULL, "csi", csi_clk)
+diff --git a/arch/arm/plat-mxc/system.c b/arch/arm/plat-mxc/system.c
+index c3972c5..3455fc0 100644
+--- a/arch/arm/plat-mxc/system.c
++++ b/arch/arm/plat-mxc/system.c
+@@ -55,7 +55,7 @@ void arch_reset(char mode, const char *cmd)
+ 	} else {
+ 		struct clk *clk;
  
--static struct pci_device_id ali_pci_tbl[] = {
-+static struct pci_device_id ali_pci_tbl[] __used = {
- 	{ PCI_VENDOR_ID_AL, 0x1533, PCI_ANY_ID, PCI_ANY_ID,},
- 	{ PCI_VENDOR_ID_AL, 0x1535, PCI_ANY_ID, PCI_ANY_ID,},
- 	{ 0, },
+-		clk = clk_get_sys("imx-wdt.0", NULL);
++		clk = clk_get_sys("imx2-wdt.0", NULL);
+ 		if (!IS_ERR(clk))
+ 			clk_enable(clk);
+ 		wcr_enable = (1 << 2);
+diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+index 2ee7dac..86f7cac 100644
+--- a/drivers/watchdog/imx2_wdt.c
++++ b/drivers/watchdog/imx2_wdt.c
+@@ -270,7 +270,7 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 	}
+ 
+-	imx2_wdt.clk = clk_get_sys("imx-wdt.0", NULL);
++	imx2_wdt.clk = clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(imx2_wdt.clk)) {
+ 		dev_err(&pdev->dev, "can't get Watchdog clock\n");
+ 		return PTR_ERR(imx2_wdt.clk);
 -- 
-1.7.0.4
+1.6.0.4
+
 
