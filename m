@@ -1,63 +1,133 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:55824 "EHLO
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:32818 "EHLO
 	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751412Ab0LGRAn (ORCPT
+	with ESMTP id S1753446Ab0LGPQO (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 7 Dec 2010 12:00:43 -0500
-Date: Tue, 7 Dec 2010 18:00:20 +0100
-From: Wolfram Sang <w.sang@pengutronix.de>
-To: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: Fabio Estevam <fabio.estevam@freescale.com>,
-	linux-arm-kernel@lists.infradead.org, kernel@pengutronix.de,
+	Tue, 7 Dec 2010 10:16:14 -0500
+Date: Tue, 7 Dec 2010 16:16:09 +0100
+From: Sascha Hauer <s.hauer@pengutronix.de>
+To: Fabio Estevam <fabio.estevam@freescale.com>
+Cc: linux-arm-kernel@lists.infradead.org, kernel@pengutronix.de,
 	u.kleine-koenig@pengutronix.de, wim@iguana.be,
 	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v2] watchdog: imx: use clk_get to acquire the watchdog
- clock
-Message-ID: <20101207170020.GC4134@pengutronix.de>
-References: <1291738564-10374-1-git-send-email-fabio.estevam@freescale.com>
- <20101207164905.GD6017@pengutronix.de>
+Subject: Re: [PATCH] watchdog: imx: use clk_get to acquire the watchdog
+	clock
+Message-ID: <20101207151609.GB6017@pengutronix.de>
+References: <1291664293-28360-1-git-send-email-fabio.estevam@freescale.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Y5rl02BVI9TCfPar"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20101207164905.GD6017@pengutronix.de>
+In-Reply-To: <1291664293-28360-1-git-send-email-fabio.estevam@freescale.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+Hi Fabio,
 
---Y5rl02BVI9TCfPar
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Mon, Dec 06, 2010 at 05:38:13PM -0200, Fabio Estevam wrote:
+> Use clk_get to acquire the watchdog clock and also avoid hardcoding the clock name.
 
-On Tue, Dec 07, 2010 at 05:49:05PM +0100, Sascha Hauer wrote:
+This breaks resetting i.MX boards, see arch/arm/plat-mxc/system.c. I
+guess this was the original reason why the driver uses clk_get_sys().
 
-> I should have seen this happen. This breaks i.MX1 reset which uses
-> imx-wdt.0.
->=20
-> The root cause of this problem is that we have two different watchdog
-> drivers with two different names but only one reset code for all i.MX.
-> We could register an additional watchdog clock for all i.MXs and use it
-> for the reset code.
+Sascha
 
-Actually, there is no wdt-driver for mx1 yet. They _could_ be merged,
-but the result will not be pretty.
+> 
+> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+> ---
+>  arch/arm/mach-imx/clock-imx21.c |    2 +-
+>  arch/arm/mach-imx/clock-imx25.c |    2 +-
+>  arch/arm/mach-imx/clock-imx27.c |    2 +-
+>  arch/arm/mach-mx3/clock-imx31.c |    2 +-
+>  arch/arm/mach-mx3/clock-imx35.c |    2 +-
+>  drivers/watchdog/imx2_wdt.c     |    2 +-
+>  6 files changed, 6 insertions(+), 6 deletions(-)
+> 
+> diff --git a/arch/arm/mach-imx/clock-imx21.c b/arch/arm/mach-imx/clock-imx21.c
+> index cf15ea5..c63a4f5 100644
+> --- a/arch/arm/mach-imx/clock-imx21.c
+> +++ b/arch/arm/mach-imx/clock-imx21.c
+> @@ -1185,7 +1185,7 @@ static struct clk_lookup lookups[] = {
+>  	_REGISTER_CLOCK(NULL, "brom", brom_clk)
+>  	_REGISTER_CLOCK(NULL, "emma", emma_clk[0])
+>  	_REGISTER_CLOCK(NULL, "slcdc", slcdc_clk[0])
+> -	_REGISTER_CLOCK("imx-wdt.0", NULL, wdog_clk)
+> +	_REGISTER_CLOCK("imx2-wdt.0", NULL, wdog_clk)
+>  	_REGISTER_CLOCK(NULL, "gpio", gpio_clk)
+>  	_REGISTER_CLOCK("imx-i2c.0", NULL, i2c_clk)
+>  	_REGISTER_CLOCK("mxc-keypad", NULL, kpp_clk)
+> diff --git a/arch/arm/mach-imx/clock-imx25.c b/arch/arm/mach-imx/clock-imx25.c
+> index 9e4a557..2c98be8 100644
+> --- a/arch/arm/mach-imx/clock-imx25.c
+> +++ b/arch/arm/mach-imx/clock-imx25.c
+> @@ -296,7 +296,7 @@ static struct clk_lookup lookups[] = {
+>  	_REGISTER_CLOCK("fec.0", NULL, fec_clk)
+>  	_REGISTER_CLOCK("imxdi_rtc.0", NULL, dryice_clk)
+>  	_REGISTER_CLOCK("imx-fb.0", NULL, lcdc_clk)
+> -	_REGISTER_CLOCK("imx-wdt.0", NULL, wdt_clk)
+> +	_REGISTER_CLOCK("imx2-wdt.0", NULL, wdog_clk)
+>  	_REGISTER_CLOCK("imx-ssi.0", NULL, ssi1_clk)
+>  	_REGISTER_CLOCK("imx-ssi.1", NULL, ssi2_clk)
+>  	_REGISTER_CLOCK("sdhci-esdhc-imx.0", NULL, esdhc1_clk)
+> diff --git a/arch/arm/mach-imx/clock-imx27.c b/arch/arm/mach-imx/clock-imx27.c
+> index 2202b88..f32f3b8 100644
+> --- a/arch/arm/mach-imx/clock-imx27.c
+> +++ b/arch/arm/mach-imx/clock-imx27.c
+> @@ -667,7 +667,7 @@ static struct clk_lookup lookups[] = {
+>  	_REGISTER_CLOCK(NULL, "sahara2", sahara2_clk)
+>  	_REGISTER_CLOCK(NULL, "ata", ata_clk)
+>  	_REGISTER_CLOCK(NULL, "mstick", mstick_clk)
+> -	_REGISTER_CLOCK("imx-wdt.0", NULL, wdog_clk)
+> +	_REGISTER_CLOCK("imx2-wdt.0", NULL, wdog_clk)
+>  	_REGISTER_CLOCK(NULL, "gpio", gpio_clk)
+>  	_REGISTER_CLOCK("imx-i2c.0", NULL, i2c1_clk)
+>  	_REGISTER_CLOCK("imx-i2c.1", NULL, i2c2_clk)
+> diff --git a/arch/arm/mach-mx3/clock-imx31.c b/arch/arm/mach-mx3/clock-imx31.c
+> index 7cf6d29..4193cf5 100644
+> --- a/arch/arm/mach-mx3/clock-imx31.c
+> +++ b/arch/arm/mach-mx3/clock-imx31.c
+> @@ -530,7 +530,7 @@ static struct clk_lookup lookups[] = {
+>  	_REGISTER_CLOCK("imx31-cspi.2", NULL, cspi3_clk)
+>  	_REGISTER_CLOCK(NULL, "gpt", gpt_clk)
+>  	_REGISTER_CLOCK(NULL, "pwm", pwm_clk)
+> -	_REGISTER_CLOCK("imx-wdt.0", NULL, wdog_clk)
+> +	_REGISTER_CLOCK("imx2-wdt.0", NULL, wdog_clk)
+>  	_REGISTER_CLOCK(NULL, "rtc", rtc_clk)
+>  	_REGISTER_CLOCK(NULL, "epit", epit1_clk)
+>  	_REGISTER_CLOCK(NULL, "epit", epit2_clk)
+> diff --git a/arch/arm/mach-mx3/clock-imx35.c b/arch/arm/mach-mx3/clock-imx35.c
+> index 61e4a31..22259d9 100644
+> --- a/arch/arm/mach-mx3/clock-imx35.c
+> +++ b/arch/arm/mach-mx3/clock-imx35.c
+> @@ -495,7 +495,7 @@ static struct clk_lookup lookups[] = {
+>  	_REGISTER_CLOCK("mxc-ehci.2", "usb", usbotg_clk)
+>  	_REGISTER_CLOCK("fsl-usb2-udc", "usb", usbotg_clk)
+>  	_REGISTER_CLOCK("fsl-usb2-udc", "usb_ahb", usbahb_clk)
+> -	_REGISTER_CLOCK("imx-wdt.0", NULL, wdog_clk)
+> +	_REGISTER_CLOCK("imx2-wdt.0", NULL, wdog_clk)
+>  	_REGISTER_CLOCK(NULL, "max", max_clk)
+>  	_REGISTER_CLOCK(NULL, "audmux", audmux_clk)
+>  	_REGISTER_CLOCK(NULL, "csi", csi_clk)
+> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+> index 2ee7dac..86f7cac 100644
+> --- a/drivers/watchdog/imx2_wdt.c
+> +++ b/drivers/watchdog/imx2_wdt.c
+> @@ -270,7 +270,7 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
+>  		return -ENOMEM;
+>  	}
+>  
+> -	imx2_wdt.clk = clk_get_sys("imx-wdt.0", NULL);
+> +	imx2_wdt.clk = clk_get(&pdev->dev, NULL);
+>  	if (IS_ERR(imx2_wdt.clk)) {
+>  		dev_err(&pdev->dev, "can't get Watchdog clock\n");
+>  		return PTR_ERR(imx2_wdt.clk);
+> -- 
+> 1.6.0.4
+> 
+> 
+> 
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
+-- 
+Pengutronix e.K.                           |                             |
 Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---Y5rl02BVI9TCfPar
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAkz+aCQACgkQD27XaX1/VRsrEACeIDr6tZ9TFw8sLghYBVTpwu7V
-uL4AnRPZtZh67ST+yrRZ/mfX6Eh9Q2rX
-=/mJ9
------END PGP SIGNATURE-----
-
---Y5rl02BVI9TCfPar--
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
