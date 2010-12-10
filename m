@@ -1,36 +1,35 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay012.isp.belgacom.be ([195.238.6.179]:12618 "EHLO
-	mailrelay012.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756169Ab0LJNSj (ORCPT
+Received: from mailrelay004.isp.belgacom.be ([195.238.6.170]:31497 "EHLO
+	mailrelay004.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753734Ab0LJNXT (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 10 Dec 2010 08:18:39 -0500
-Date: Fri, 10 Dec 2010 14:18:37 +0100
+	Fri, 10 Dec 2010 08:23:19 -0500
+Date: Fri, 10 Dec 2010 14:23:16 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Fabio Estevam <fabio.estevam@freescale.com>
-Cc: linux-arm-kernel@lists.infradead.org, kernel@pengutronix.de,
-	u.kleine-koenig@pengutronix.de, wim@iguana.be,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v2] watchdog: imx: use clk_get to acquire the watchdog
-	clock
-Message-ID: <20101210131837.GA3783@infomag.iguana.be>
-References: <1291738564-10374-1-git-send-email-fabio.estevam@freescale.com>
+To: Namhyung Kim <namhyung@gmail.com>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] [WATCHDOG] fix compiler warning on ali_pci_tbl
+Message-ID: <20101210132316.GB3783@infomag.iguana.be>
+References: <1291739256-16380-1-git-send-email-namhyung@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <1291738564-10374-1-git-send-email-fabio.estevam@freescale.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1291739256-16380-1-git-send-email-namhyung@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi All,
+Hi Kim,
 
-> Use clk_get to acquire the watchdog clock and also avoid hardcoding the clock name.
+> Annotate ali_pci_tbl as '__used' to fix following warning:
 > 
-> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+>   CC      drivers/watchdog/alim1535_wdt.o
+> drivers/watchdog/alim1535_wdt.c:304: warning: ‘ali_pci_tbl’ defined but not used
+> 
+> Signed-off-by: Namhyung Kim <namhyung@gmail.com>
 
-Acked-by: Wim Van Sebroeck <wim@iguana.be>
+Will be added to linux-2.6-watchdog-next.
 
-Since this looks more arch specific, can this go via the arm kernel tree?
-
-Thanks in advance,
+Kind regards,
 Wim.
 
