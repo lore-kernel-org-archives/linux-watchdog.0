@@ -1,35 +1,36 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay012.isp.belgacom.be ([195.238.6.179]:14431 "EHLO
-	mailrelay012.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754324Ab0LJNXx (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:42833 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752712Ab0LJNwx (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 10 Dec 2010 08:23:53 -0500
-Date: Fri, 10 Dec 2010 14:23:51 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Namhyung Kim <namhyung@gmail.com>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] [WATCHDOG] fix compiler warning on alim7101_pci_tbl
-Message-ID: <20101210132351.GC3783@infomag.iguana.be>
-References: <1291739256-16380-1-git-send-email-namhyung@gmail.com> <1291739256-16380-2-git-send-email-namhyung@gmail.com>
+	Fri, 10 Dec 2010 08:52:53 -0500
+Date: Fri, 10 Dec 2010 14:52:47 +0100
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
+To: Fabio Estevam <fabio.estevam@freescale.com>
+Cc: linux-arm-kernel@lists.infradead.org, kernel@pengutronix.de,
+	wim@iguana.be, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v2] watchdog: imx: use clk_get to acquire the watchdog
+	clock
+Message-ID: <20101210135246.GJ17441@pengutronix.de>
+References: <1291738564-10374-1-git-send-email-fabio.estevam@freescale.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <1291739256-16380-2-git-send-email-namhyung@gmail.com>
+In-Reply-To: <1291738564-10374-1-git-send-email-fabio.estevam@freescale.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Kim,
-
-> Annotate alim7101_pci_tbl as '__used' to fix following warning:
+On Tue, Dec 07, 2010 at 02:16:04PM -0200, Fabio Estevam wrote:
+> Use clk_get to acquire the watchdog clock and also avoid hardcoding the clock name.
 > 
->   CC      drivers/watchdog/alim7101_wdt.o
-> drivers/watchdog/alim7101_wdt.c:433: warning: â€˜alim7101_pci_tblâ€™ defined but not used
-> 
-> Signed-off-by: Namhyung Kim <namhyung@gmail.com>
+> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-Will be added to linux-2.6-watchdog-next.
+Best regards
+Uwe
 
-Kind regards,
-Wim.
-
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
