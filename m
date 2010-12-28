@@ -7,11 +7,11 @@ Cc: linux-mips@linux-mips.org, Imre Kaloz <kaloz@openwrt.org>,
         Gabor Juhos <juhosg@openwrt.org>,
         Wim Van Sebroeck <wim@iguana.be>,
         linux-watchdog@vger.kernel.org
-Subject: [PATCH v2 06/16] watchdog: add driver for the Atheros AR71XX/AR724X/AR913X SoCs
-Date: Wed, 22 Dec 2010 21:30:51 +0100
-Message-Id: <1293049861-28913-7-git-send-email-juhosg@openwrt.org>
-In-Reply-To: <1293049861-28913-1-git-send-email-juhosg@openwrt.org>
-References: <1293049861-28913-1-git-send-email-juhosg@openwrt.org>
+Subject: [PATCH v3 06/16] watchdog: add driver for the Atheros AR71XX/AR724X/AR913X SoCs
+Date: Tue, 28 Dec 2010 19:20:27 +0100
+Message-Id: <1293560437-7967-7-git-send-email-juhosg@openwrt.org>
+In-Reply-To: <1293560437-7967-1-git-send-email-juhosg@openwrt.org>
+References: <1293560437-7967-1-git-send-email-juhosg@openwrt.org>
 Return-Path: <juhosg@openwrt.org>
 Sender: linux-mips-bounce@linux-mips.org
 Errors-to: linux-mips-bounce@linux-mips.org
@@ -32,6 +32,8 @@ Changes since RFC: ---
 
 Changes since v1:
     - rebased against 2.6.37-rc7
+
+Changes since v2: ---
 
  drivers/watchdog/Kconfig     |    8 +
  drivers/watchdog/Makefile    |    1 +
