@@ -1,53 +1,66 @@
-From: Gabor Juhos <juhosg@openwrt.org>
-To: Ralf Baechle <ralf@linux-mips.org>
-Cc: linux-mips@linux-mips.org, Imre Kaloz <kaloz@openwrt.org>,
+Date: Thu, 30 Dec 2010 11:25:06 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Gabor Juhos <juhosg@openwrt.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org,
+        Imre Kaloz <kaloz@openwrt.org>,
         "Luis R. Rodriguez" <lrodriguez@atheros.com>,
         Cliff Holden <Cliff.Holden@Atheros.com>,
         Kathy Giori <Kathy.Giori@Atheros.com>,
-        Gabor Juhos <juhosg@openwrt.org>,
-        Wim Van Sebroeck <wim@iguana.be>,
         linux-watchdog@vger.kernel.org
-Subject: [PATCH v3 06/16] watchdog: add driver for the Atheros AR71XX/AR724X/AR913X SoCs
-Date: Tue, 28 Dec 2010 19:20:27 +0100
-Message-Id: <1293560437-7967-7-git-send-email-juhosg@openwrt.org>
-In-Reply-To: <1293560437-7967-1-git-send-email-juhosg@openwrt.org>
-References: <1293560437-7967-1-git-send-email-juhosg@openwrt.org>
-Return-Path: <juhosg@openwrt.org>
+Subject: Re: [PATCH v3 06/16] watchdog: add driver for the Atheros
+        AR71XX/AR724X/AR913X SoCs
+Message-ID: <20101230102506.GA6521@infomag.iguana.be>
+References: <1293560437-7967-1-git-send-email-juhosg@openwrt.org> <1293560437-7967-7-git-send-email-juhosg@openwrt.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1293560437-7967-7-git-send-email-juhosg@openwrt.org>
+Return-Path: <wim@iguana.be>
 Sender: linux-mips-bounce@linux-mips.org
 Errors-to: linux-mips-bounce@linux-mips.org
 List-Archive: <https://lore.kernel.org/linux-mips/>
 List-Post: <mailto:linux-mips@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-This patch adds a driver for the built-in hardware watchdog device
-of the Atheros AR71XX/AR724X/AR913X SoCs.
+Hi Gabor,
 
-Signed-off-by: Gabor Juhos <juhosg@openwrt.org>
-Signed-off-by: Imre Kaloz <kaloz@openwrt.org>
-Cc: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org
----
+> This patch adds a driver for the built-in hardware watchdog device
+> of the Atheros AR71XX/AR724X/AR913X SoCs.
+> 
+> Signed-off-by: Gabor Juhos <juhosg@openwrt.org>
+> Signed-off-by: Imre Kaloz <kaloz@openwrt.org>
+> Cc: Wim Van Sebroeck <wim@iguana.be>
+> Cc: linux-watchdog@vger.kernel.org
+> ---
+> 
+> Changes since RFC: ---
+> 
+> Changes since v1:
+>     - rebased against 2.6.37-rc7
+> 
+> Changes since v2: ---
 
-Changes since RFC: ---
+I adapted the code a little bit:
+Changes since v3:
+* remove #ifdef CONFIG_WATCHDOG_NOWAYOUT for nowayout module-parameter.
+* add ath79_wdt_keepalive when doing un unexpected close of /dev/watchdog (the close is considered as communication with /dev/watchdog)
+* replace reboot_notifier with a platform shutdown.
 
-Changes since v1:
-    - rebased against 2.6.37-rc7
+Attached the new patch. Can you test it?
 
-Changes since v2: ---
+PS: is there a reason why you don't add a module-parameter for wdt_timeout?
 
- drivers/watchdog/Kconfig     |    8 +
- drivers/watchdog/Makefile    |    1 +
- drivers/watchdog/ath79_wdt.c |  293 ++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 302 insertions(+), 0 deletions(-)
- create mode 100644 drivers/watchdog/ath79_wdt.c
+Kind regards,
+Wim.
 
+-----------------------------------------------------------------------------------------
 diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index a5ad77e..7833e44 100644
+index de99bf9..2ff135d 100644
 --- a/drivers/watchdog/Kconfig
 +++ b/drivers/watchdog/Kconfig
-@@ -930,6 +930,14 @@ config BCM63XX_WDT
- 	  To compile this driver as a loadable module, choose M here.
- 	  The module will be called bcm63xx_wdt.
+@@ -866,6 +866,13 @@ config SBC_EPX_C3_WATCHDOG
+ 
+ # MIPS Architecture
  
 +config ATH79_WDT
 +	tristate "Atheros AR71XX/AR724X/AR913X hardware watchdog"
@@ -56,28 +69,27 @@ index a5ad77e..7833e44 100644
 +	  Hardware driver for the built-in watchdog timer on the Atheros
 +	  AR71XX/AR724X/AR913X SoCs.
 +
-+
- # PARISC Architecture
- 
- # POWERPC Architecture
+ config BCM47XX_WDT
+ 	tristate "Broadcom BCM47xx Watchdog Timer"
+ 	depends on BCM47XX
 diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 4b0ef38..6d7af07 100644
+index cd77f54..9b6b33a 100644
 --- a/drivers/watchdog/Makefile
 +++ b/drivers/watchdog/Makefile
-@@ -117,6 +117,7 @@ obj-$(CONFIG_PNX833X_WDT) += pnx833x_wdt.o
- obj-$(CONFIG_SIBYTE_WDOG) += sb_wdog.o
- obj-$(CONFIG_AR7_WDT) += ar7_wdt.o
- obj-$(CONFIG_TXX9_WDT) += txx9wdt.o
-+obj-$(CONFIG_ATH79_WDT) += ath79_wdt.o
- obj-$(CONFIG_OCTEON_WDT) += octeon-wdt.o
- octeon-wdt-y := octeon-wdt-main.o octeon-wdt-nmi.o
+@@ -110,6 +110,7 @@ obj-$(CONFIG_SBC_EPX_C3_WATCHDOG) += sbc_epx_c3.o
+ # M68KNOMMU Architecture
  
+ # MIPS Architecture
++obj-$(CONFIG_ATH79_WDT) += ath79_wdt.o
+ obj-$(CONFIG_BCM47XX_WDT) += bcm47xx_wdt.o
+ obj-$(CONFIG_BCM63XX_WDT) += bcm63xx_wdt.o
+ obj-$(CONFIG_RC32434_WDT) += rc32434_wdt.o
 diff --git a/drivers/watchdog/ath79_wdt.c b/drivers/watchdog/ath79_wdt.c
 new file mode 100644
 index 0000000..f8e027b
 --- /dev/null
 +++ b/drivers/watchdog/ath79_wdt.c
-@@ -0,0 +1,293 @@
+@@ -0,0 +1,274 @@
 +/*
 + * Atheros AR71XX/AR724X/AR913X built-in hardware watchdog timer.
 + *
@@ -107,7 +119,6 @@ index 0000000..f8e027b
 +#include <linux/moduleparam.h>
 +#include <linux/platform_device.h>
 +#include <linux/types.h>
-+#include <linux/reboot.h>
 +#include <linux/watchdog.h>
 +
 +#include <asm/mach-ath79/ath79.h>
@@ -126,12 +137,9 @@ index 0000000..f8e027b
 +#define WDOG_CTRL_ACTION_FCR	3	/* full chip reset */
 +
 +static int nowayout = WATCHDOG_NOWAYOUT;
-+
-+#ifdef CONFIG_WATCHDOG_NOWAYOUT
 +module_param(nowayout, int, 0);
 +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
 +			   "(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-+#endif
 +
 +static unsigned long wdt_flags;
 +
@@ -184,9 +192,11 @@ index 0000000..f8e027b
 +{
 +	if (test_bit(WDT_FLAGS_EXPECT_CLOSE, &wdt_flags))
 +		ath79_wdt_disable();
-+	else
++	else {
 +		pr_crit(DRIVER_NAME ": device closed unexpectedly, "
 +			"watchdog timer will not stop!\n");
++		ath79_wdt_keepalive();
++	}
 +
 +	clear_bit(WDT_FLAGS_BUSY, &wdt_flags);
 +	clear_bit(WDT_FLAGS_EXPECT_CLOSE, &wdt_flags);
@@ -286,19 +296,6 @@ index 0000000..f8e027b
 +	.release	= ath79_wdt_release,
 +};
 +
-+static int ath79_wdt_notify_sys(struct notifier_block *this,
-+				unsigned long code, void *unused)
-+{
-+	if (code == SYS_DOWN || code == SYS_HALT)
-+		ath79_wdt_disable();
-+
-+	return NOTIFY_DONE;
-+}
-+
-+static struct notifier_block ath79_wdt_notifier = {
-+	.notifier_call = ath79_wdt_notify_sys,
-+};
-+
 +static struct miscdevice ath79_wdt_miscdev = {
 +	.minor = WATCHDOG_MINOR,
 +	.name = "watchdog",
@@ -316,24 +313,14 @@ index 0000000..f8e027b
 +	ctrl = ath79_reset_rr(AR71XX_RESET_REG_WDOG_CTRL);
 +	boot_status = (ctrl & WDOG_CTRL_LAST_RESET) ? WDIOF_CARDRESET : 0;
 +
-+	err = register_reboot_notifier(&ath79_wdt_notifier);
-+	if (err) {
-+		dev_err(&pdev->dev,
-+			"unable to register reboot notifier, err=%d\n", err);
-+		goto err;
-+	}
-+
 +	err = misc_register(&ath79_wdt_miscdev);
 +	if (err) {
 +		dev_err(&pdev->dev,
 +			"unable to register misc device, err=%d\n", err);
-+		goto err_unregister;
++		goto err;
 +	}
 +
 +	return 0;
-+
-+err_unregister:
-+	unregister_reboot_notifier(&ath79_wdt_notifier);
 +
 +err:
 +	return err;
@@ -345,8 +332,14 @@ index 0000000..f8e027b
 +	return 0;
 +}
 +
++static void ath97_wdt_shutdown(struct platform_device *pdev)
++{
++	ath79_wdt_disable();
++}
++
 +static struct platform_driver ath79_wdt_driver = {
 +	.remove		= __exit_p(ath79_wdt_remove),
++	.shutdown	= ath97_wdt_shutdown,
 +	.driver		= {
 +		.name	= DRIVER_NAME,
 +		.owner	= THIS_MODULE,
@@ -371,5 +364,3 @@ index 0000000..f8e027b
 +MODULE_LICENSE("GPL v2");
 +MODULE_ALIAS("platform:" DRIVER_NAME);
 +MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
--- 
-1.7.2.1
