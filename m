@@ -7,11 +7,11 @@ Cc: linux-mips@linux-mips.org, Imre Kaloz <kaloz@openwrt.org>,
         Gabor Juhos <juhosg@openwrt.org>,
         Wim Van Sebroeck <wim@iguana.be>,
         linux-watchdog@vger.kernel.org
-Subject: [PATCH v4 06/16] watchdog: add driver for the Atheros AR71XX/AR724X/AR913X SoCs
-Date: Sun,  2 Jan 2011 19:56:19 +0100
-Message-Id: <1293994589-6794-7-git-send-email-juhosg@openwrt.org>
-In-Reply-To: <1293994589-6794-1-git-send-email-juhosg@openwrt.org>
-References: <1293994589-6794-1-git-send-email-juhosg@openwrt.org>
+Subject: [PATCH v5 06/16] watchdog: add driver for the Atheros AR71XX/AR724X/AR913X SoCs
+Date: Tue,  4 Jan 2011 21:28:19 +0100
+Message-Id: <1294172909-1309-7-git-send-email-juhosg@openwrt.org>
+In-Reply-To: <1294172909-1309-1-git-send-email-juhosg@openwrt.org>
+References: <1294172909-1309-1-git-send-email-juhosg@openwrt.org>
 Return-Path: <juhosg@openwrt.org>
 Sender: linux-mips-bounce@linux-mips.org
 Errors-to: linux-mips-bounce@linux-mips.org
@@ -42,10 +42,16 @@ Changes since v3:
     - add timeout module-parameter
     - rebased against 2.6.37-rc8
 
+Changes since v4:
+    - use __dev{init,exit,exit_p}
+    - remove DRIVER_DESC definition and use its value directly in
+      the MODULE_DESCRIPTION() macro
+    - convert to use the clock API
+
  drivers/watchdog/Kconfig     |    7 +
  drivers/watchdog/Makefile    |    1 +
- drivers/watchdog/ath79_wdt.c |  283 ++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 291 insertions(+), 0 deletions(-)
+ drivers/watchdog/ath79_wdt.c |  305 ++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 313 insertions(+), 0 deletions(-)
  create mode 100644 drivers/watchdog/ath79_wdt.c
 
 diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
@@ -80,14 +86,14 @@ index 4b0ef38..01d9063 100644
  obj-$(CONFIG_RC32434_WDT) += rc32434_wdt.o
 diff --git a/drivers/watchdog/ath79_wdt.c b/drivers/watchdog/ath79_wdt.c
 new file mode 100644
-index 0000000..f28558c
+index 0000000..725c84b
 --- /dev/null
 +++ b/drivers/watchdog/ath79_wdt.c
-@@ -0,0 +1,283 @@
+@@ -0,0 +1,305 @@
 +/*
 + * Atheros AR71XX/AR724X/AR913X built-in hardware watchdog timer.
 + *
-+ * Copyright (C) 2008-2010 Gabor Juhos <juhosg@openwrt.org>
++ * Copyright (C) 2008-2011 Gabor Juhos <juhosg@openwrt.org>
 + * Copyright (C) 2008 Imre Kaloz <kaloz@openwrt.org>
 + *
 + * This driver was based on: drivers/watchdog/ixp4xx_wdt.c
@@ -114,12 +120,13 @@ index 0000000..f28558c
 +#include <linux/platform_device.h>
 +#include <linux/types.h>
 +#include <linux/watchdog.h>
++#include <linux/clk.h>
++#include <linux/err.h>
 +
 +#include <asm/mach-ath79/ath79.h>
 +#include <asm/mach-ath79/ar71xx_regs.h>
 +
 +#define DRIVER_NAME	"ath79-wdt"
-+#define DRIVER_DESC	"Atheros AR71XX/AR724X/AR913X hardware watchdog driver"
 +
 +#define WDT_TIMEOUT	15	/* seconds */
 +
@@ -145,12 +152,14 @@ index 0000000..f28558c
 +#define WDT_FLAGS_BUSY		0
 +#define WDT_FLAGS_EXPECT_CLOSE	1
 +
++static struct clk *wdt_clk;
++static unsigned long wdt_freq;
 +static int boot_status;
 +static int max_timeout;
 +
 +static inline void ath79_wdt_keepalive(void)
 +{
-+	ath79_reset_wr(AR71XX_RESET_REG_WDOG, ath79_ahb_freq * timeout);
++	ath79_reset_wr(AR71XX_RESET_REG_WDOG, wdt_freq * timeout);
 +}
 +
 +static inline void ath79_wdt_enable(void)
@@ -300,12 +309,26 @@ index 0000000..f28558c
 +	.fops = &ath79_wdt_fops,
 +};
 +
-+static int __init ath79_wdt_probe(struct platform_device *pdev)
++static int __devinit ath79_wdt_probe(struct platform_device *pdev)
 +{
 +	u32 ctrl;
 +	int err;
 +
-+	max_timeout = (0xfffffffful / ath79_ahb_freq);
++	wdt_clk = clk_get(&pdev->dev, "wdt");
++	if (IS_ERR(wdt_clk))
++		return PTR_ERR(wdt_clk);
++
++	err = clk_enable(wdt_clk);
++	if (err)
++		goto err_clk_put;
++
++	wdt_freq = clk_get_rate(wdt_clk);
++	if (!wdt_freq) {
++		err = -EINVAL;
++		goto err_clk_disable;
++	}
++
++	max_timeout = (0xfffffffful / wdt_freq);
 +	if (timeout < 1 || timeout > max_timeout) {
 +		timeout = max_timeout;
 +		dev_info(&pdev->dev,
@@ -320,18 +343,23 @@ index 0000000..f28558c
 +	if (err) {
 +		dev_err(&pdev->dev,
 +			"unable to register misc device, err=%d\n", err);
-+		goto err;
++		goto err_clk_disable;
 +	}
 +
 +	return 0;
 +
-+err:
++err_clk_disable:
++	clk_disable(wdt_clk);
++err_clk_put:
++	clk_put(wdt_clk);
 +	return err;
 +}
 +
-+static int __exit ath79_wdt_remove(struct platform_device *pdev)
++static int __devexit ath79_wdt_remove(struct platform_device *pdev)
 +{
 +	misc_deregister(&ath79_wdt_miscdev);
++	clk_disable(wdt_clk);
++	clk_put(wdt_clk);
 +	return 0;
 +}
 +
@@ -341,7 +369,7 @@ index 0000000..f28558c
 +}
 +
 +static struct platform_driver ath79_wdt_driver = {
-+	.remove		= __exit_p(ath79_wdt_remove),
++	.remove		= __devexit_p(ath79_wdt_remove),
 +	.shutdown	= ath97_wdt_shutdown,
 +	.driver		= {
 +		.name	= DRIVER_NAME,
@@ -361,7 +389,7 @@ index 0000000..f28558c
 +}
 +module_exit(ath79_wdt_exit);
 +
-+MODULE_DESCRIPTION(DRIVER_DESC);
++MODULE_DESCRIPTION("Atheros AR71XX/AR724X/AR913X hardware watchdog driver");
 +MODULE_AUTHOR("Gabor Juhos <juhosg@openwrt.org");
 +MODULE_AUTHOR("Imre Kaloz <kaloz@openwrt.org");
 +MODULE_LICENSE("GPL v2");
