@@ -1,308 +1,241 @@
-Date: Wed, 5 Jan 2011 23:49:10 +0000
-From: Jamie Iles <jamie@jamieiles.com>
-To: John Crispin <blogic@openwrt.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>,
-        Ralph Hempel <ralph.hempel@lantiq.com>,
-        Wim Van Sebroeck <wim@iguana.be>, linux-mips@linux-mips.org,
-        linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 05/10] MIPS: lantiq: add watchdog support
-Message-ID: <20110105234910.GD2112@gallagher>
-References: <1294257379-417-1-git-send-email-blogic@openwrt.org>
- <1294257379-417-6-git-send-email-blogic@openwrt.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1294257379-417-6-git-send-email-blogic@openwrt.org>
-Return-Path: <jamie@jamieiles.com>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-Archive: <https://lore.kernel.org/linux-mips/>
-List-Post: <mailto:linux-mips@vger.kernel.org>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from 59-124-160-117.HINET-IP.hinet.net ([59.124.160.117]:41912 "EHLO
+	ATCPCS06.andestech.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750897Ab1ADHtv (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 4 Jan 2011 02:49:51 -0500
+From: Macpaul Lin <macpaul@andestech.com>
+To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+Cc: Macpaul Lin <macpaul@andestech.com>
+Subject: [PATCH] watchdog/ftwdt010: Release Faraday ftwdt010 watchdog
+Date: Tue,  4 Jan 2011 15:34:54 +0800
+Message-Id: <1294126494-8119-1-git-send-email-macpaul@andestech.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hi John,
+Support Faraday ftwdt010 watchdog driver.
 
-A few nitpicks inline, but otherwise looks good to me.
+Signed-off-by: Macpaul Lin <macpaul@andestech.com>
+---
+ drivers/watchdog/Kconfig        |    6 ++
+ drivers/watchdog/Makefile       |    1 +
+ drivers/watchdog/ftwdt010_wdt.c |  178 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 185 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/watchdog/ftwdt010_wdt.c
 
-Jamie
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 3711b88..86deb80 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -55,6 +55,12 @@ config SOFT_WATCHDOG
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called softdog.
+ 
++config FTWDT010_WATCHDOG
++	tristate "FTWDT010_WATCHDOG"
++	help
++	  Support for Faraday ftwdt010 watchdog. When the watchdog triigers the
++	  system will be reset.
++
+ config WM831X_WATCHDOG
+ 	tristate "WM831x watchdog"
+ 	depends on MFD_WM831X
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 699199b..a3b9bee 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -142,6 +142,7 @@ obj-$(CONFIG_WATCHDOG_CP1XXX)		+= cpwd.o
+ # XTENSA Architecture
+ 
+ # Architecture Independant
++obj-$(CONFIG_FTWDT010_WATCHDOG) += ftwdt010_wdt.o
+ obj-$(CONFIG_WM831X_WATCHDOG) += wm831x_wdt.o
+ obj-$(CONFIG_WM8350_WATCHDOG) += wm8350_wdt.o
+ obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
+diff --git a/drivers/watchdog/ftwdt010_wdt.c b/drivers/watchdog/ftwdt010_wdt.c
+new file mode 100644
+index 0000000..41447d1
+--- /dev/null
++++ b/drivers/watchdog/ftwdt010_wdt.c
+@@ -0,0 +1,178 @@
++/*
++ *  Watchdog driver for the FTWDT010 Watch Dog Driver
++ *
++ *      (c) Copyright 2004 Faraday Technology Corp. (www.faraday-tech.com)
++ *      Based on sa1100_wdt.c by Oleg Drokin <green@crimea.edu>
++ *      Based on SoftDog driver by Alan Cox <alan@redhat.com>
++ *
++ *  This program is free software; you can redistribute it and/or
++ *  modify it under the terms of the GNU General Public License
++ *  as published by the Free Software Foundation; either version
++ *  2 of the License, or (at your option) any later version.
++ *
++ *      27/11/2004 Initial release
++ */
++#include <linux/module.h>
++#include <linux/fs.h>
++#include <linux/miscdevice.h>
++#include <linux/watchdog.h>
++#include <linux/smp_lock.h>
++#include <linux/delay.h>
++#include <asm/uaccess.h>
++
++#define DEBUG( str, ...)			\
++	do{					\
++		if( debug)			\
++		printk( str, ##__VA_ARGS__);	\
++	} while(0)
++
++#define wdcounter	(*( volatile unsigned long *)( WDT_FTWDT010_VA_BASE + 0x00))
++#define wdload		(*( volatile unsigned long *)( WDT_FTWDT010_VA_BASE + 0x04))
++#define wdrestart	(*( volatile unsigned long *)( WDT_FTWDT010_VA_BASE + 0x08))
++#define wdcr		(*( volatile unsigned long *)( WDT_FTWDT010_VA_BASE + 0x0C))
++#define wdstatus	(*( volatile unsigned long *)( WDT_FTWDT010_VA_BASE + 0x10))
++#define wdclear		(*( volatile unsigned long *)( WDT_FTWDT010_VA_BASE + 0x14))
++#define wdintrcter	(*( volatile unsigned long *)( WDT_FTWDT010_VA_BASE + 0x18))
++
++#define TIMER_MARGIN	60	/* (secs) Default is 1 minute */
++#define RESTART_MAGIC	0x5AB9
++#define PCLK		(AHB_CLK_IN / 2)
++
++static int debug = 0;
++static int timeout = TIMER_MARGIN;  /* in seconds */
++
++module_param(debug, int, 0);
++module_param(timeout, int, 0);
++
++static int ftwdt010_dog_open(struct inode *inode, struct file *file){
++
++#if 0
++	/* Allow only one person to hold it open */
++	if( test_and_set_bit( 1, &ftwdt010_wdt_users))
++		return -EBUSY;
++
++	ftwdt010_wdt_users = 1;
++#endif
++	DEBUG("Activating WDT..\n");
++
++	wdcr = 0;
++	wdload = PCLK * timeout;
++	wdrestart = RESTART_MAGIC;	/* Magic number */
++	wdcr = 0x03;			/* Enable WDT */
++
++	return 0;
++}
++
++static int ftwdt010_dog_release(struct inode *inode, struct file *file){
++
++#ifndef CONFIG_WATCHDOG_NOWAYOUT
++	/*
++	 *  Shut off the timer.
++	 *  Lock it in if it's a module and we defined ...NOWAYOUT
++	 */
++	wdcr = 0;
++	DEBUG( "Deactivating WDT..\n");
++#endif
++	return 0;
++}
++
++static ssize_t ftwdt010_dog_write(struct file *file, const char *data, size_t len, loff_t *ppos){
++
++	if(len){
++
++		wdrestart = RESTART_MAGIC;
++		return 1;
++	}
++
++	return 0;
++}
++
++static int ftwdt010_dog_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg){
++
++	static struct watchdog_info ident = {
++		.identity = "FTWDT010 watchdog",
++	};
++
++	int time = 0;
++	void __user *argp = (void __user *)arg;
++	int __user *p = argp;
++
++	switch( cmd){
++
++		case WDIOC_GETSUPPORT:
++			return copy_to_user(argp, &ident, sizeof( ident));
++
++		case WDIOC_GETSTATUS:
++			return put_user(0, p);
++
++		case WDIOC_GETBOOTSTATUS:
++			return put_user(wdstatus ? WDIOF_CARDRESET : 0, p);
++
++		case WDIOC_SETTIMEOUT:
++
++			if( get_user( time, p))
++				return 0;
++
++			if( time <= 0 || time > 255)
++
++				return -EINVAL;
++
++			timeout = time;
++			wdload = PCLK * timeout;
++			wdrestart = RESTART_MAGIC;
++
++			return put_user(timeout, p);
++
++		case WDIOC_GETTIMEOUT:
++			return put_user(timeout, p);
++
++		case WDIOC_KEEPALIVE:
++			wdrestart = RESTART_MAGIC;
++			return 0;
++
++		default:
++			return -ENOIOCTLCMD;
++
++	}
++}
++
++static struct file_operations ftwdt010_dog_fops = {
++
++	.owner		= THIS_MODULE,
++	.llseek		= no_llseek,
++	.write		= ftwdt010_dog_write,
++	.ioctl		= ftwdt010_dog_ioctl,
++	.open		= ftwdt010_dog_open,
++	.release	= ftwdt010_dog_release,
++};
++
++static struct miscdevice ftwdt010_dog_miscdev = {
++
++	WATCHDOG_MINOR,
++	"FTWDT010 watchdog",
++	&ftwdt010_dog_fops
++};
++
++static int __init ftwdt010_dog_init( void){
++
++	int ret;
++
++	ret = misc_register(&ftwdt010_dog_miscdev);
++
++	if( ret)
++		return ret;
++
++	DEBUG("FTWDT010 watchdog timer: timer timeout %d sec\n", timeout);
++
++	return 0;
++}
++
++static void __exit ftwdt010_dog_exit( void){
++
++	misc_deregister(&ftwdt010_dog_miscdev);
++}
++
++module_init(ftwdt010_dog_init);
++module_exit(ftwdt010_dog_exit);
++MODULE_AUTHOR("Faraday Corp.");
++MODULE_LICENSE("GPL");
+-- 
+1.7.3.2
 
-On Wed, Jan 05, 2011 at 08:56:14PM +0100, John Crispin wrote:
-> This patch adds the driver for the watchdog found inside the Lantiq SoC family.
-> 
-> Signed-off-by: John Crispin <blogic@openwrt.org>
-> Signed-off-by: Ralph Hempel <ralph.hempel@lantiq.com>
-> Cc: Wim Van Sebroeck <wim@iguana.be>
-> Cc: linux-mips@linux-mips.org
-> Cc: linux-watchdog@vger.kernel.org
-> ---
->  drivers/watchdog/Kconfig      |    6 +
->  drivers/watchdog/Makefile     |    1 +
->  drivers/watchdog/lantiq_wdt.c |  208 +++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 215 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/watchdog/lantiq_wdt.c
-[...]
-> diff --git a/drivers/watchdog/lantiq_wdt.c b/drivers/watchdog/lantiq_wdt.c
-> new file mode 100644
-> index 0000000..543bcf1
-> --- /dev/null
-> +++ b/drivers/watchdog/lantiq_wdt.c
-> @@ -0,0 +1,208 @@
-> +/*
-> + *  This program is free software; you can redistribute it and/or modify it
-> + *  under the terms of the GNU General Public License version 2 as published
-> + *  by the Free Software Foundation.
-> + *
-> + *  Copyright (C) 2010 John Crispin <blogic@openwrt.org>
-> + *  Based on EP93xx wdt driver
-> + */
-> +
-> +#include <linux/module.h>
-> +#include <linux/fs.h>
-> +#include <linux/miscdevice.h>
-> +#include <linux/miscdevice.h>
-
-Duplicated include of linux/miscdevice.h
-
-> +#include <linux/watchdog.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/uaccess.h>
-> +#include <linux/clk.h>
-> +
-> +#include <lantiq.h>
-> +
-> +#define LTQ_WDT_PW1			0x00BE0000
-> +#define LTQ_WDT_PW2			0x00DC0000
-> +
-> +#define LTQ_BIU_WDT_CR		0x3F0
-> +#define LTQ_BIU_WDT_SR		0x3F8
-
-It's not obvious to me what these defines actually mean. A couple of 
-short comments to describe what they are?
-> +
-> +#ifndef CONFIG_WATCHDOG_NOWAYOUT
-> +static int wdt_ok_to_close;
-> +#endif
-> +
-> +static int wdt_timeout = 30;
-> +static __iomem void *wdt_membase;
-
-I think this would normally be "static void __iomem" rather than "static 
-__iomem void". Also these could do with the ltq_ prefix for namespacing.
-
-> +static unsigned long io_region_clk;
-
-Better to name this io_region_clk_rate?
-
-> +
-> +static int
-> +ltq_wdt_enable(unsigned int timeout)
-> +{
-> +	ltq_w32(LTQ_WDT_PW1, wdt_membase + LTQ_BIU_WDT_CR);
-> +	ltq_w32(LTQ_WDT_PW2 |
-> +		(0x3 << 26) | /* PWL */
-> +		(0x3 << 24) | /* CLKDIV */
-> +		(0x1 << 31) | /* enable */
-> +		((timeout * (io_region_clk / 0x40000)) + 0x1000), /* reload */
-> +			wdt_membase + LTQ_BIU_WDT_CR);
-
-Perhaps a comment describing the how this value is calculated? What does 
-PWL mean and what are the significance of 0x40000 and 0x1000? Also, do 
-you need to check that the timeout won't overflow the bits for the 
-reload value?
-
-> +	return 0;
-> +}
-> +
-> +static void
-> +ltq_wdt_disable(void)
-> +{
-> +#ifndef CONFIG_WATCHDOG_NOWAYOUT
-> +	wdt_ok_to_close = 0;
-> +#endif
-> +	ltq_w32(LTQ_WDT_PW1, wdt_membase + LTQ_BIU_WDT_CR);
-> +	ltq_w32(LTQ_WDT_PW2, wdt_membase + LTQ_BIU_WDT_CR);
-> +}
-> +
-> +static ssize_t
-> +ltq_wdt_write(struct file *file, const char __user *data,
-> +		size_t len, loff_t *ppos)
-> +{
-> +	size_t i;
-> +	if (!len)
-> +		return 0;
-> +#ifndef CONFIG_WATCHDOG_NOWAYOUT
-> +	for (i = 0; i != len; i++) {
-> +		char c;
-> +		if (get_user(c, data + i))
-> +			return -EFAULT;
-> +		if (c == 'V')
-> +			wdt_ok_to_close = 1;
-> +	}
-> +#endif
-> +	ltq_wdt_enable(wdt_timeout);
-> +	return len;
-> +}
-> +
-> +static struct watchdog_info ident = {
-> +	.options = WDIOF_MAGICCLOSE,
-
-I think you can also add WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING.
-
-> +	.identity = "ltq_wdt",
-> +};
-> +
-> +static long
-> +ltq_wdt_ioctl(struct file *file,
-> +		unsigned int cmd, unsigned long arg)
-> +{
-> +	int ret = -ENOTTY;
-> +	switch (cmd) {
-> +	case WDIOC_GETSUPPORT:
-> +		ret = copy_to_user((struct watchdog_info __user *)arg, &ident,
-> +				sizeof(ident)) ? -EFAULT : 0;
-> +		break;
-> +
-> +	case WDIOC_GETTIMEOUT:
-> +		ret = put_user(wdt_timeout, (int __user *)arg);
-> +		break;
-> +
-> +	case WDIOC_SETTIMEOUT:
-> +		ret = get_user(wdt_timeout, (int __user *)arg);
-
-Should you reset the WDT with the new timeout here rather than waiting 
-for the next keepalive?
-
-> +		break;
-> +
-> +	case WDIOC_KEEPALIVE:
-> +		ltq_wdt_enable(wdt_timeout);
-> +		ret = 0;
-> +		break;
-> +	}
-> +	return ret;
-> +}
-> +
-> +static int
-> +ltq_wdt_open(struct inode *inode, struct file *file)
-> +{
-> +	ltq_wdt_enable(wdt_timeout);
-> +	return nonseekable_open(inode, file);
-> +}
-> +
-> +static int
-> +ltq_wdt_release(struct inode *inode, struct file *file)
-> +{
-> +#ifndef CONFIG_WATCHDOG_NOWAYOUT
-> +	if (wdt_ok_to_close)
-> +		ltq_wdt_disable();
-> +	else
-> +#endif
-> +		printk(KERN_ERR "ltq_wdt: watchdog closed without warning,"
-> +			" rebooting system\n");
-> +	return 0;
-> +}
-> +
-> +static const struct file_operations ltq_wdt_fops = {
-> +	.owner			= THIS_MODULE,
-> +	.write			= ltq_wdt_write,
-> +	.unlocked_ioctl	= ltq_wdt_ioctl,
-
-Align the .unlocked_ioctl assignment with the others?
-
-> +	.open			= ltq_wdt_open,
-> +	.release		= ltq_wdt_release,
-
-Add ".llseek = no_llseek"?
-
-> +};
-> +
-> +static struct miscdevice ltq_wdt_miscdev = {
-> +	.minor		= WATCHDOG_MINOR,
-> +	.name		= "watchdog",
-> +	.fops		= &ltq_wdt_fops,
-> +};
-> +
-> +static int
-> +ltq_wdt_probe(struct platform_device *pdev)
-> +{
-> +	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	struct clk *clk;
-> +	int ret = 0;
-> +	if (!res)
-> +		return -ENOENT;
-> +	res = request_mem_region(res->start, resource_size(res),
-> +		dev_name(&pdev->dev));
-> +	if (!res)
-> +		return -EBUSY;
-> +	wdt_membase = ioremap_nocache(res->start, resource_size(res));
-> +	if (!wdt_membase) {
-> +		ret = -ENOMEM;
-> +		goto err_release_mem_region;
-> +	}
-
-You can use devm_request_mem_region() and devm_ioremap_nocache() to 
-simplify the error handling and removal.
-
-> +	clk = clk_get(&pdev->dev, "io");
-
-Do you need a clk_enable() here too? Or a comment explaining it's always 
-enabled (if it is)?
-
-> +	io_region_clk = clk_get_rate(clk);;
-> +	ret = misc_register(&ltq_wdt_miscdev);
-> +	if (!ret)
-> +		return 0;
-> +
-> +	iounmap(wdt_membase);
-> +err_release_mem_region:
-> +	release_mem_region(res->start, resource_size(res));
-> +	return ret;
-> +}
-> +
-> +static int
-> +ltq_wdt_remove(struct platform_device *dev)
-> +{
-> +	ltq_wdt_disable();
-> +	misc_deregister(&ltq_wdt_miscdev);
-
-I think you need a clk_put() here too to balance the clk_get() in the 
-probe method so you'll need to keep a reference to the clk.
-
-> +	return 0;
-> +}
-> +
-> +static struct platform_driver ltq_wdt_driver = {
-> +	.probe = ltq_wdt_probe,
-> +	.remove = ltq_wdt_remove,
-> +	.driver = {
-> +		.name = "ltq_wdt",
-> +		.owner = THIS_MODULE,
-> +	},
-> +};
-> +
-> +static int __init
-> +init_ltq_wdt(void)
-> +{
-> +	return platform_driver_register(&ltq_wdt_driver);
-> +}
-> +
-> +static void __exit
-> +exit_ltq_wdt(void)
-> +{
-> +	platform_driver_unregister(&ltq_wdt_driver);
-> +}
-> +
-> +module_init(init_ltq_wdt);
-> +module_exit(exit_ltq_wdt);
-> +
-> +MODULE_AUTHOR("John Crispin <blogic@openwrt.org>");
-> +MODULE_DESCRIPTION("Lantiq Watchdog");
-> +MODULE_LICENSE("GPL");
-> +MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
-> -- 
-> 1.7.2.3
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
