@@ -1,89 +1,83 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay003.isp.belgacom.be ([195.238.6.53]:32920 "EHLO
-	mailrelay003.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752887Ab1AGIX6 (ORCPT
+Received: from mailrelay008.isp.belgacom.be ([195.238.6.174]:55999 "EHLO
+	mailrelay008.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752086Ab1AGI0G (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 7 Jan 2011 03:23:58 -0500
-Date: Fri, 7 Jan 2011 09:23:55 +0100
+	Fri, 7 Jan 2011 03:26:06 -0500
+Date: Fri, 7 Jan 2011 09:26:03 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
 To: Mike Waychison <mikew@google.com>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Priyanka Gupta <priyankag@google.com>
-Subject: Re: [PATCH 1/2] watchdog: Add support for sp5100 chipset TCO
-Message-ID: <20110107082355.GD3801@infomag.iguana.be>
-References: <1288054685-29107-1-git-send-email-mikew@google.com> <AANLkTik=eNbQoGaDLS_-8kZLFojK9P1Ge0QAEFc_cPtG@mail.gmail.com>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] watchdog: Add TCO support for nVidia chipsets
+Message-ID: <20110107082603.GE3801@infomag.iguana.be>
+References: <1288054685-29107-1-git-send-email-mikew@google.com> <1288054685-29107-2-git-send-email-mikew@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <AANLkTik=eNbQoGaDLS_-8kZLFojK9P1Ge0QAEFc_cPtG@mail.gmail.com>
+In-Reply-To: <1288054685-29107-2-git-send-email-mikew@google.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 Hi Mike,
 
-> Do you have any interest in picking these patches up?  I'd like to get
-> this hardware functionality mainlined as it would allow us to get
-> closer to testing upstream kernels on our hardware.
-
-I allready cleaned both drivers up, but I had to send the feedback still.
-Basically for both drivers, I did the following:
-* Change reboot_notifier by a platform shutdown
-* remove CONFIG_WATCHDOG_NOWAYOUT ifdef-ery (since that exists allready in watchdog.h)
-* return -ENOTTY as default ioctl err-code
-* make watchdog_info a static const struct
-* some small cleanups
-
-This gives below code. Could you please review it?
+this is the adapted code for the nvidia watchdog.
 
 Thanks in advance,
 Wim.
----------------------------------------------------------------
+------------------------------------------------------
 diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 8a3aa2f..28511b1 100644
+index abb9bd8..de99bf9 100644
 --- a/drivers/watchdog/Kconfig
 +++ b/drivers/watchdog/Kconfig
-@@ -418,6 +418,17 @@ config F71808E_WDT
- 	  You can compile this driver directly into the kernel, or use
- 	  it as a module.  The module will be called f71808e_wdt.
+@@ -642,6 +642,24 @@ config PC87413_WDT
  
-+config SP5100_TCO
-+	tristate "AMD/ATI SP5100 TCO Timer/Watchdog"
+ 	  Most people will say N.
+ 
++config NV_TCO
++	tristate "nVidia TCO Timer/Watchdog"
 +	depends on X86 && PCI
 +	---help---
-+	  Hardware watchdog driver for the AMD/ATI SP5100 chipset. The TCO
-+	  (Total Cost of Ownership) timer is a watchdog timer that will reboot
-+	  the machine after its expiration. The expiration time can be
-+	  configured with the "heartbeat" parameter.
++	  Hardware driver for the TCO timer built into the nVidia Hub family
++	  (such as the MCP51).  The TCO (Total Cost of Ownership) timer is a
++	  watchdog timer that will reboot the machine after its second
++	  expiration. The expiration time can be configured with the
++	  "heartbeat" parameter.
++
++	  On some motherboards the driver may fail to reset the chipset's
++	  NO_REBOOT flag which prevents the watchdog from rebooting the
++	  machine. If this is the case you will get a kernel message like
++	  "failed to reset NO_REBOOT flag, reboot disabled by hardware".
 +
 +	  To compile this driver as a module, choose M here: the
-+	  module will be called sp5100_tco.
- 
- config GEODE_WDT
- 	tristate "AMD Geode CS5535/CS5536 Watchdog"
++	  module will be called nv_tco.
++
+ config RDC321X_WDT
+ 	tristate "RDC R-321x SoC watchdog"
+ 	depends on X86_RDC321X
 diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 4b0ef38..12e6c1e 100644
+index 12e6c1e..cd77f54 100644
 --- a/drivers/watchdog/Makefile
 +++ b/drivers/watchdog/Makefile
-@@ -68,6 +68,7 @@ obj-$(CONFIG_ADVANTECH_WDT) += advantechwdt.o
- obj-$(CONFIG_ALIM1535_WDT) += alim1535_wdt.o
- obj-$(CONFIG_ALIM7101_WDT) += alim7101_wdt.o
- obj-$(CONFIG_F71808E_WDT) += f71808e_wdt.o
-+obj-$(CONFIG_SP5100_TCO) += sp5100_tco.o
- obj-$(CONFIG_GEODE_WDT) += geodewdt.o
- obj-$(CONFIG_SC520_WDT) += sc520_wdt.o
- obj-$(CONFIG_SBC_FITPC2_WATCHDOG) += sbc_fitpc2_wdt.o
-diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
+@@ -87,6 +87,7 @@ obj-$(CONFIG_HP_WATCHDOG) += hpwdt.o
+ obj-$(CONFIG_SC1200_WDT) += sc1200wdt.o
+ obj-$(CONFIG_SCx200_WDT) += scx200_wdt.o
+ obj-$(CONFIG_PC87413_WDT) += pc87413_wdt.o
++obj-$(CONFIG_NV_TCO) += nv_tco.o
+ obj-$(CONFIG_RDC321X_WDT) += rdc321x_wdt.o
+ obj-$(CONFIG_60XX_WDT) += sbc60xxwdt.o
+ obj-$(CONFIG_SBC8360_WDT) += sbc8360.o
+diff --git a/drivers/watchdog/nv_tco.c b/drivers/watchdog/nv_tco.c
 new file mode 100644
-index 0000000..33ebdf9
+index 0000000..c5b8ce4
 --- /dev/null
-+++ b/drivers/watchdog/sp5100_tco.c
-@@ -0,0 +1,480 @@
++++ b/drivers/watchdog/nv_tco.c
+@@ -0,0 +1,512 @@
 +/*
-+ *	sp5100_tco :	TCO timer driver for sp5100 chipsets
++ *	nv_tco 0.01:	TCO timer driver for NV chipsets
 + *
-+ *	(c) Copyright 2009 Google Inc., All Rights Reserved.
++ *	(c) Copyright 2005 Google Inc., All Rights Reserved.
 + *
-+ *	Based on i8xx_tco.c:
++ *	Based off i8xx_tco.c:
 + *	(c) Copyright 2000 kernel concepts <nils@kernelconcepts.de>, All Rights
 + *	Reserved.
 + *				http://www.kernelconcepts.de
@@ -93,7 +87,8 @@ index 0000000..33ebdf9
 + *	as published by the Free Software Foundation; either version
 + *	2 of the License, or (at your option) any later version.
 + *
-+ *	See AMD Publication 43009 "AMD SB700/710/750 Register Reference Guide"
++ *	TCO timer driver for NV chipsets
++ *	based on softdog.c by Alan Cox <alan@redhat.com>
 + */
 +
 +/*
@@ -109,36 +104,35 @@ index 0000000..33ebdf9
 +#include <linux/fs.h>
 +#include <linux/pci.h>
 +#include <linux/ioport.h>
++#include <linux/jiffies.h>
 +#include <linux/platform_device.h>
 +#include <linux/uaccess.h>
 +#include <linux/io.h>
 +
-+#include "sp5100_tco.h"
++#include "nv_tco.h"
 +
 +/* Module and version information */
 +#define TCO_VERSION "0.01"
-+#define TCO_MODULE_NAME "SP5100 TCO timer"
++#define TCO_MODULE_NAME "NV_TCO"
 +#define TCO_DRIVER_NAME   TCO_MODULE_NAME ", v" TCO_VERSION
 +#define PFX TCO_MODULE_NAME ": "
 +
 +/* internal variables */
-+static void __iomem *tcobase;
-+static unsigned int pm_iobase;
++static unsigned int tcobase;
 +static DEFINE_SPINLOCK(tco_lock);	/* Guards the hardware */
 +static unsigned long timer_alive;
 +static char tco_expect_close;
-+static struct pci_dev *sp5100_tco_pci;
++static struct pci_dev *tco_pci;
 +
 +/* the watchdog platform device */
-+static struct platform_device *sp5100_tco_platform_device;
++static struct platform_device *nv_tco_platform_device;
 +
 +/* module parameters */
-+
-+#define WATCHDOG_HEARTBEAT 60	/* 60 sec default heartbeat. */
++#define WATCHDOG_HEARTBEAT 30	/* 30 sec default heartbeat (2<heartbeat<39) */
 +static int heartbeat = WATCHDOG_HEARTBEAT;  /* in seconds */
 +module_param(heartbeat, int, 0);
-+MODULE_PARM_DESC(heartbeat, "Watchdog heartbeat in seconds. (default="
-+		 __MODULE_STRING(WATCHDOG_HEARTBEAT) ")");
++MODULE_PARM_DESC(heartbeat, "Watchdog heartbeat in seconds. (2<heartbeat<39, "
++			    "default=" __MODULE_STRING(WATCHDOG_HEARTBEAT) ")");
 +
 +static int nowayout = WATCHDOG_NOWAYOUT;
 +module_param(nowayout, int, 0);
@@ -148,15 +142,22 @@ index 0000000..33ebdf9
 +/*
 + * Some TCO specific functions
 + */
++static inline unsigned char seconds_to_ticks(int seconds)
++{
++	/* the internal timer is stored as ticks which decrement
++	 * every 0.6 seconds */
++	return (seconds * 10) / 6;
++}
++
 +static void tco_timer_start(void)
 +{
 +	u32 val;
 +	unsigned long flags;
 +
 +	spin_lock_irqsave(&tco_lock, flags);
-+	val = readl(SP5100_WDT_CONTROL(tcobase));
-+	val |= SP5100_WDT_START_STOP_BIT;
-+	writel(val, SP5100_WDT_CONTROL(tcobase));
++	val = inl(TCO_CNT(tcobase));
++	val &= ~TCO_CNT_TCOHALT;
++	outl(val, TCO_CNT(tcobase));
 +	spin_unlock_irqrestore(&tco_lock, flags);
 +}
 +
@@ -166,35 +167,55 @@ index 0000000..33ebdf9
 +	unsigned long flags;
 +
 +	spin_lock_irqsave(&tco_lock, flags);
-+	val = readl(SP5100_WDT_CONTROL(tcobase));
-+	val &= ~SP5100_WDT_START_STOP_BIT;
-+	writel(val, SP5100_WDT_CONTROL(tcobase));
++	val = inl(TCO_CNT(tcobase));
++	val |= TCO_CNT_TCOHALT;
++	outl(val, TCO_CNT(tcobase));
 +	spin_unlock_irqrestore(&tco_lock, flags);
 +}
 +
 +static void tco_timer_keepalive(void)
 +{
-+	u32 val;
 +	unsigned long flags;
 +
 +	spin_lock_irqsave(&tco_lock, flags);
-+	val = readl(SP5100_WDT_CONTROL(tcobase));
-+	val |= SP5100_WDT_TRIGGER_BIT;
-+	writel(val, SP5100_WDT_CONTROL(tcobase));
++	outb(0x01, TCO_RLD(tcobase));
 +	spin_unlock_irqrestore(&tco_lock, flags);
 +}
 +
 +static int tco_timer_set_heartbeat(int t)
 +{
++	int ret = 0;
++	unsigned char tmrval;
 +	unsigned long flags;
++	u8 val;
 +
-+	if (t < 0 || t > 0xffff)
++	/*
++	 * note seconds_to_ticks(t) > t, so if t > 0x3f, so is
++	 * tmrval=seconds_to_ticks(t).  Check that the count in seconds isn't
++	 * out of range on it's own (to avoid overflow in tmrval).
++	 */
++	if (t < 0 || t > 0x3f)
++		return -EINVAL;
++	tmrval = seconds_to_ticks(t);
++
++	/* "Values of 0h-3h are ignored and should not be attempted" */
++	if (tmrval > 0x3f || tmrval < 0x04)
 +		return -EINVAL;
 +
 +	/* Write new heartbeat to watchdog */
 +	spin_lock_irqsave(&tco_lock, flags);
-+	writel(t, SP5100_WDT_COUNT(tcobase));
++	val = inb(TCO_TMR(tcobase));
++	val &= 0xc0;
++	val |= tmrval;
++	outb(val, TCO_TMR(tcobase));
++	val = inb(TCO_TMR(tcobase));
++
++	if ((val & 0x3f) != tmrval)
++		ret = -EINVAL;
 +	spin_unlock_irqrestore(&tco_lock, flags);
++
++	if (ret)
++		return ret;
 +
 +	heartbeat = t;
 +	return 0;
@@ -204,26 +225,26 @@ index 0000000..33ebdf9
 + *	/dev/watchdog handling
 + */
 +
-+static int sp5100_tco_open(struct inode *inode, struct file *file)
++static int nv_tco_open(struct inode *inode, struct file *file)
 +{
 +	/* /dev/watchdog can only be opened once */
 +	if (test_and_set_bit(0, &timer_alive))
 +		return -EBUSY;
 +
 +	/* Reload and activate timer */
-+	tco_timer_start();
 +	tco_timer_keepalive();
++	tco_timer_start();
 +	return nonseekable_open(inode, file);
 +}
 +
-+static int sp5100_tco_release(struct inode *inode, struct file *file)
++static int nv_tco_release(struct inode *inode, struct file *file)
 +{
-+	/* Shut off the timer. */
++	/* Shut off the timer */
 +	if (tco_expect_close == 42) {
 +		tco_timer_stop();
 +	} else {
-+		printk(KERN_CRIT PFX
-+			"Unexpected close, not stopping watchdog!\n");
++		printk(KERN_CRIT PFX "Unexpected close, not stopping "
++		       "watchdog!\n");
 +		tco_timer_keepalive();
 +	}
 +	clear_bit(0, &timer_alive);
@@ -231,19 +252,23 @@ index 0000000..33ebdf9
 +	return 0;
 +}
 +
-+static ssize_t sp5100_tco_write(struct file *file, const char __user *data,
-+				size_t len, loff_t *ppos)
++static ssize_t nv_tco_write(struct file *file, const char __user *data,
++			    size_t len, loff_t *ppos)
 +{
 +	/* See if we got the magic character 'V' and reload the timer */
 +	if (len) {
 +		if (!nowayout) {
 +			size_t i;
 +
-+			/* note: just in case someone wrote the magic character
-+			 * five months ago... */
++			/*
++			 * note: just in case someone wrote the magic character
++			 * five months ago...
++			 */
 +			tco_expect_close = 0;
 +
-+			/* scan to see whether or not we got the magic character
++			/*
++			 * scan to see whether or not we got the magic
++			 * character
 +			 */
 +			for (i = 0; i != len; i++) {
 +				char c;
@@ -260,8 +285,8 @@ index 0000000..33ebdf9
 +	return len;
 +}
 +
-+static long sp5100_tco_ioctl(struct file *file, unsigned int cmd,
-+			     unsigned long arg)
++static long nv_tco_ioctl(struct file *file, unsigned int cmd,
++			 unsigned long arg)
 +{
 +	int new_options, retval = -EINVAL;
 +	int new_heartbeat;
@@ -277,8 +302,7 @@ index 0000000..33ebdf9
 +
 +	switch (cmd) {
 +	case WDIOC_GETSUPPORT:
-+		return copy_to_user(argp, &ident,
-+			sizeof(ident)) ? -EFAULT : 0;
++		return copy_to_user(argp, &ident, sizeof(ident)) ? -EFAULT : 0;
 +	case WDIOC_GETSTATUS:
 +	case WDIOC_GETBOOTSTATUS:
 +		return put_user(0, p);
@@ -290,8 +314,8 @@ index 0000000..33ebdf9
 +			retval = 0;
 +		}
 +		if (new_options & WDIOS_ENABLECARD) {
-+			tco_timer_start();
 +			tco_timer_keepalive();
++			tco_timer_start();
 +			retval = 0;
 +		}
 +		return retval;
@@ -313,22 +337,22 @@ index 0000000..33ebdf9
 +}
 +
 +/*
-+ * Kernel Interfaces
++ *	Kernel Interfaces
 + */
 +
-+static const struct file_operations sp5100_tco_fops = {
++static const struct file_operations nv_tco_fops = {
 +	.owner =		THIS_MODULE,
 +	.llseek =		no_llseek,
-+	.write =		sp5100_tco_write,
-+	.unlocked_ioctl =	sp5100_tco_ioctl,
-+	.open =			sp5100_tco_open,
-+	.release =		sp5100_tco_release,
++	.write =		nv_tco_write,
++	.unlocked_ioctl =	nv_tco_ioctl,
++	.open =			nv_tco_open,
++	.release =		nv_tco_release,
 +};
 +
-+static struct miscdevice sp5100_tco_miscdev = {
++static struct miscdevice nv_tco_miscdev = {
 +	.minor =	WATCHDOG_MINOR,
 +	.name =		"watchdog",
-+	.fops =		&sp5100_tco_fops,
++	.fops =		&nv_tco_fops,
 +};
 +
 +/*
@@ -336,123 +360,112 @@ index 0000000..33ebdf9
 + *
 + * This data only exists for exporting the supported
 + * PCI ids via MODULE_DEVICE_TABLE.  We do not actually
-+ * register a pci_driver, because someone else might
++ * register a pci_driver, because someone else might one day
 + * want to register another driver on the same PCI id.
 + */
-+static struct pci_device_id sp5100_tco_pci_tbl[] = {
-+	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_SBX00_SMBUS, PCI_ANY_ID,
-+	  PCI_ANY_ID, },
++static struct pci_device_id tco_pci_tbl[] = {
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_SMBUS,
++	  PCI_ANY_ID, PCI_ANY_ID, },
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_SMBUS,
++	  PCI_ANY_ID, PCI_ANY_ID, },
 +	{ 0, },			/* End of list */
 +};
-+MODULE_DEVICE_TABLE(pci, sp5100_tco_pci_tbl);
++MODULE_DEVICE_TABLE(pci, tco_pci_tbl);
 +
 +/*
-+ * Init & exit routines
++ *	Init & exit routines
 + */
 +
-+static unsigned char __devinit sp5100_tco_setupdevice(void)
++static unsigned char __init nv_tco_getdevice(void)
 +{
 +	struct pci_dev *dev = NULL;
 +	u32 val;
 +
-+	/* Match the PCI device */
++	/* Find the PCI device */
 +	for_each_pci_dev(dev) {
-+		if (pci_match_id(sp5100_tco_pci_tbl, dev) != NULL) {
-+			sp5100_tco_pci = dev;
++		if (pci_match_id(tco_pci_tbl, dev) != NULL) {
++			tco_pci = dev;
 +			break;
 +		}
 +	}
 +
-+	if (!sp5100_tco_pci)
++	if (!tco_pci)
 +		return 0;
 +
-+	/* Request the IO ports used by this driver */
-+	pm_iobase = SP5100_IO_PM_INDEX_REG;
-+	if (!request_region(pm_iobase, SP5100_PM_IOPORTS_SIZE, "SP5100 TCO")) {
-+		printk(KERN_ERR PFX "I/O address 0x%04x already in use\n",
-+			pm_iobase);
-+		goto exit;
-+	}
-+
-+	/* Find the watchdog base address. */
-+	outb(SP5100_PM_WATCHDOG_BASE3, SP5100_IO_PM_INDEX_REG);
-+	val = inb(SP5100_IO_PM_DATA_REG);
-+	outb(SP5100_PM_WATCHDOG_BASE2, SP5100_IO_PM_INDEX_REG);
-+	val = val << 8 | inb(SP5100_IO_PM_DATA_REG);
-+	outb(SP5100_PM_WATCHDOG_BASE1, SP5100_IO_PM_INDEX_REG);
-+	val = val << 8 | inb(SP5100_IO_PM_DATA_REG);
-+	outb(SP5100_PM_WATCHDOG_BASE0, SP5100_IO_PM_INDEX_REG);
-+	/* Low three bits of BASE0 are reserved. */
-+	val = val << 8 | (inb(SP5100_IO_PM_DATA_REG) & 0xf8);
-+
-+	tcobase = ioremap(val, SP5100_WDT_MEM_MAP_SIZE);
-+	if (tcobase == 0) {
++	/* Find the base io port */
++	pci_read_config_dword(tco_pci, 0x64, &val);
++	val &= 0xffff;
++	if (val == 0x0001 || val == 0x0000) {
++		/* Something is wrong here, bar isn't setup */
 +		printk(KERN_ERR PFX "failed to get tcobase address\n");
-+		goto unreg_region;
++		return 0;
 +	}
++	val &= 0xff00;
++	tcobase = val + 0x40;
 +
-+	/* Enable watchdog decode bit */
-+	pci_read_config_dword(sp5100_tco_pci,
-+			      SP5100_PCI_WATCHDOG_MISC_REG,
-+			      &val);
-+
-+	val |= SP5100_PCI_WATCHDOG_DECODE_EN;
-+
-+	pci_write_config_dword(sp5100_tco_pci,
-+			       SP5100_PCI_WATCHDOG_MISC_REG,
-+			       val);
-+
-+	/* Enable Watchdog timer and set the resolution to 1 sec. */
-+	outb(SP5100_PM_WATCHDOG_CONTROL, SP5100_IO_PM_INDEX_REG);
-+	val = inb(SP5100_IO_PM_DATA_REG);
-+	val |= SP5100_PM_WATCHDOG_SECOND_RES;
-+	val &= ~SP5100_PM_WATCHDOG_DISABLE;
-+	outb(val, SP5100_IO_PM_DATA_REG);
-+
-+	/* Check that the watchdog action is set to reset the system. */
-+	val = readl(SP5100_WDT_CONTROL(tcobase));
-+	val &= ~SP5100_PM_WATCHDOG_ACTION_RESET;
-+	writel(val, SP5100_WDT_CONTROL(tcobase));
++	if (!request_region(tcobase, 0x10, "NV TCO")) {
++		printk(KERN_ERR PFX "I/O address 0x%04x already in use\n",
++		       tcobase);
++		return 0;
++	}
 +
 +	/* Set a reasonable heartbeat before we stop the timer */
-+	tco_timer_set_heartbeat(heartbeat);
++	tco_timer_set_heartbeat(30);
 +
 +	/*
 +	 * Stop the TCO before we change anything so we don't race with
 +	 * a zeroed timer.
 +	 */
++	tco_timer_keepalive();
 +	tco_timer_stop();
 +
-+	/* Done */
-+	return 1;
++	/* Disable SMI caused by TCO */
++	if (!request_region(MCP51_SMI_EN(tcobase), 4, "NV TCO")) {
++		printk(KERN_ERR PFX "I/O address 0x%04x already in use\n",
++		       MCP51_SMI_EN(tcobase));
++		goto out;
++	}
++	val = inl(MCP51_SMI_EN(tcobase));
++	val &= ~MCP51_SMI_EN_TCO;
++	outl(val, MCP51_SMI_EN(tcobase));
++	val = inl(MCP51_SMI_EN(tcobase));
++	release_region(MCP51_SMI_EN(tcobase), 4);
++	if (val & MCP51_SMI_EN_TCO) {
++		printk(KERN_ERR PFX "Could not disable SMI caused by TCO\n");
++		goto out;
++	}
 +
-+	iounmap(tcobase);
-+unreg_region:
-+	release_region(pm_iobase, SP5100_PM_IOPORTS_SIZE);
-+exit:
++	/* Check chipset's NO_REBOOT bit */
++	pci_read_config_dword(tco_pci, MCP51_SMBUS_SETUP_B, &val);
++	val |= MCP51_SMBUS_SETUP_B_TCO_REBOOT;
++	pci_write_config_dword(tco_pci, MCP51_SMBUS_SETUP_B, val);
++	pci_read_config_dword(tco_pci, MCP51_SMBUS_SETUP_B, &val);
++	if (!(val & MCP51_SMBUS_SETUP_B_TCO_REBOOT)) {
++		printk(KERN_ERR PFX "failed to reset NO_REBOOT flag, reboot "
++		       "disabled by hardware\n");
++		goto out;
++	}
++
++	return 1;
++out:
++	release_region(tcobase, 0x10);
 +	return 0;
 +}
 +
-+static int __devinit sp5100_tco_init(struct platform_device *dev)
++static int __devinit nv_tco_init(struct platform_device *dev)
 +{
 +	int ret;
-+	u32 val;
 +
-+	/* Check whether or not the hardware watchdog is there. If found, then
-+	 * set it up.
-+	 */
-+	if (!sp5100_tco_setupdevice())
++	/* Check whether or not the hardware watchdog is there */
++	if (!nv_tco_getdevice())
 +		return -ENODEV;
 +
 +	/* Check to see if last reboot was due to watchdog timeout */
 +	printk(KERN_INFO PFX "Watchdog reboot %sdetected.\n",
-+	       readl(SP5100_WDT_CONTROL(tcobase)) & SP5100_PM_WATCHDOG_FIRED ?
-+		      "" : "not ");
++	       inl(TCO_STS(tcobase)) & TCO_STS_TCO2TO_STS ? "" : "not ");
 +
 +	/* Clear out the old status */
-+	val = readl(SP5100_WDT_CONTROL(tcobase));
-+	val &= ~SP5100_PM_WATCHDOG_FIRED;
-+	writel(val, SP5100_WDT_CONTROL(tcobase));
++	outl(TCO_STS_RESET, TCO_STS(tcobase));
 +
 +	/*
 +	 * Check that the heartbeat value is within it's range.
@@ -461,148 +474,183 @@ index 0000000..33ebdf9
 +	if (tco_timer_set_heartbeat(heartbeat)) {
 +		heartbeat = WATCHDOG_HEARTBEAT;
 +		tco_timer_set_heartbeat(heartbeat);
++		printk(KERN_INFO PFX "heartbeat value must be 2<heartbeat<39, "
++		       "using %d\n", heartbeat);
 +	}
 +
-+	ret = misc_register(&sp5100_tco_miscdev);
++	ret = misc_register(&nv_tco_miscdev);
 +	if (ret != 0) {
-+		printk(KERN_ERR PFX "cannot register miscdev on minor="
-+		       "%d (err=%d)\n",
-+		       WATCHDOG_MINOR, ret);
-+		goto exit;
++		printk(KERN_ERR PFX "cannot register miscdev on minor=%d "
++		       "(err=%d)\n", WATCHDOG_MINOR, ret);
++		goto unreg_region;
 +	}
 +
 +	clear_bit(0, &timer_alive);
 +
-+	printk(KERN_INFO PFX "initialized (0x%p). heartbeat=%d sec"
-+		" (nowayout=%d)\n",
-+		tcobase, heartbeat, nowayout);
++	tco_timer_stop();
++
++	printk(KERN_INFO PFX "initialized (0x%04x). heartbeat=%d sec "
++	       "(nowayout=%d)\n", tcobase, heartbeat, nowayout);
 +
 +	return 0;
 +
-+exit:
-+	iounmap(tcobase);
-+	release_region(pm_iobase, SP5100_PM_IOPORTS_SIZE);
++unreg_region:
++	release_region(tcobase, 0x10);
 +	return ret;
 +}
 +
-+static void __devexit sp5100_tco_cleanup(void)
++static void __devexit nv_tco_cleanup(void)
 +{
++	u32 val;
++
 +	/* Stop the timer before we leave */
 +	if (!nowayout)
 +		tco_timer_stop();
 +
++	/* Set the NO_REBOOT bit to prevent later reboots, just for sure */
++	pci_read_config_dword(tco_pci, MCP51_SMBUS_SETUP_B, &val);
++	val &= ~MCP51_SMBUS_SETUP_B_TCO_REBOOT;
++	pci_write_config_dword(tco_pci, MCP51_SMBUS_SETUP_B, val);
++	pci_read_config_dword(tco_pci, MCP51_SMBUS_SETUP_B, &val);
++	if (val & MCP51_SMBUS_SETUP_B_TCO_REBOOT) {
++		printk(KERN_CRIT PFX "Couldn't unset REBOOT bit.  Machine may "
++		       "soon reset\n");
++	}
++
 +	/* Deregister */
-+	misc_deregister(&sp5100_tco_miscdev);
-+	iounmap(tcobase);
-+	release_region(pm_iobase, SP5100_PM_IOPORTS_SIZE);
++	misc_deregister(&nv_tco_miscdev);
++	release_region(tcobase, 0x10);
 +}
 +
-+static int __devexit sp5100_tco_remove(struct platform_device *dev)
++static int __devexit nv_tco_remove(struct platform_device *dev)
 +{
 +	if (tcobase)
-+		sp5100_tco_cleanup();
++		nv_tco_cleanup();
++
 +	return 0;
 +}
 +
-+static void sp5100_tco_shutdown(struct platform_device *dev)
++static void nv_tco_shutdown(struct platform_device *dev)
 +{
 +	tco_timer_stop();
 +}
 +
-+static struct platform_driver sp5100_tco_driver = {
-+	.probe		= sp5100_tco_init,
-+	.remove		= __devexit_p(sp5100_tco_remove),
-+	.shutdown	= sp5100_tco_shutdown,
++static struct platform_driver nv_tco_driver = {
++	.probe		= nv_tco_init,
++	.remove		= __devexit_p(nv_tco_remove),
++	.shutdown	= nv_tco_shutdown,
 +	.driver		= {
 +		.owner	= THIS_MODULE,
 +		.name	= TCO_MODULE_NAME,
 +	},
 +};
 +
-+static int __init sp5100_tco_init_module(void)
++static int __init nv_tco_init_module(void)
 +{
 +	int err;
 +
-+	printk(KERN_INFO PFX "SP5100 TCO WatchDog Timer Driver v%s\n",
++	printk(KERN_INFO PFX "NV TCO WatchDog Timer Driver v%s\n",
 +	       TCO_VERSION);
 +
-+	err = platform_driver_register(&sp5100_tco_driver);
++	err = platform_driver_register(&nv_tco_driver);
 +	if (err)
 +		return err;
 +
-+	sp5100_tco_platform_device = platform_device_register_simple(
++	nv_tco_platform_device = platform_device_register_simple(
 +					TCO_MODULE_NAME, -1, NULL, 0);
-+	if (IS_ERR(sp5100_tco_platform_device)) {
-+		err = PTR_ERR(sp5100_tco_platform_device);
++	if (IS_ERR(nv_tco_platform_device)) {
++		err = PTR_ERR(nv_tco_platform_device);
 +		goto unreg_platform_driver;
 +	}
 +
 +	return 0;
 +
 +unreg_platform_driver:
-+	platform_driver_unregister(&sp5100_tco_driver);
++	platform_driver_unregister(&nv_tco_driver);
 +	return err;
 +}
 +
-+static void __exit sp5100_tco_cleanup_module(void)
++static void __exit nv_tco_cleanup_module(void)
 +{
-+	platform_device_unregister(sp5100_tco_platform_device);
-+	platform_driver_unregister(&sp5100_tco_driver);
-+	printk(KERN_INFO PFX "SP5100 TCO Watchdog Module Unloaded.\n");
++	platform_device_unregister(nv_tco_platform_device);
++	platform_driver_unregister(&nv_tco_driver);
++	printk(KERN_INFO PFX "NV TCO Watchdog Module Unloaded.\n");
 +}
 +
-+module_init(sp5100_tco_init_module);
-+module_exit(sp5100_tco_cleanup_module);
++module_init(nv_tco_init_module);
++module_exit(nv_tco_cleanup_module);
 +
-+MODULE_AUTHOR("Priyanka Gupta");
-+MODULE_DESCRIPTION("TCO timer driver for SP5100 chipset");
++MODULE_AUTHOR("Mike Waychison");
++MODULE_DESCRIPTION("TCO timer driver for NV chipsets");
 +MODULE_LICENSE("GPL");
 +MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
-diff --git a/drivers/watchdog/sp5100_tco.h b/drivers/watchdog/sp5100_tco.h
+diff --git a/drivers/watchdog/nv_tco.h b/drivers/watchdog/nv_tco.h
 new file mode 100644
-index 0000000..a5a16cc
+index 0000000..c2d1d04
 --- /dev/null
-+++ b/drivers/watchdog/sp5100_tco.h
-@@ -0,0 +1,41 @@
++++ b/drivers/watchdog/nv_tco.h
+@@ -0,0 +1,64 @@
 +/*
-+ *	sp5100_tco:	TCO timer driver for sp5100 chipsets.
++ *	nv_tco:	TCO timer driver for nVidia chipsets.
 + *
-+ *	(c) Copyright 2009 Google Inc., All Rights Reserved.
++ *	(c) Copyright 2005 Google Inc., All Rights Reserved.
 + *
-+ *	TCO timer driver for sp5100 chipsets
++ *	Supported Chipsets:
++ *		- MCP51/MCP55
++ *
++ *	(c) Copyright 2000 kernel concepts <nils@kernelconcepts.de>, All Rights
++ *	Reserved.
++ *				http://www.kernelconcepts.de
++ *
++ *	This program is free software; you can redistribute it and/or
++ *	modify it under the terms of the GNU General Public License
++ *	as published by the Free Software Foundation; either version
++ *	2 of the License, or (at your option) any later version.
++ *
++ *	Neither kernel concepts nor Nils Faerber admit liability nor provide
++ *	warranty for any of this software. This material is provided
++ *	"AS-IS" and at no charge.
++ *
++ *	(c) Copyright 2000	kernel concepts <nils@kernelconcepts.de>
++ *				developed for
++ *                              Jentro AG, Haar/Munich (Germany)
++ *
++ *	TCO timer driver for NV chipsets
++ *	based on softdog.c by Alan Cox <alan@redhat.com>
 + */
 +
 +/*
-+ * Some address definitions for the Watchdog
++ * Some address definitions for the TCO
 + */
 +
-+#define SP5100_WDT_MEM_MAP_SIZE		0x08
-+#define SP5100_WDT_CONTROL(base)	((base) + 0x00) /* Watchdog Control */
-+#define SP5100_WDT_COUNT(base)		((base) + 0x04) /* Watchdog Count */
++#define TCO_RLD(base)	((base) + 0x00)	/* TCO Timer Reload and Current Value */
++#define TCO_TMR(base)	((base) + 0x01)	/* TCO Timer Initial Value	*/
 +
-+#define SP5100_WDT_START_STOP_BIT	1
-+#define SP5100_WDT_TRIGGER_BIT		(1 << 7)
-+
-+#define SP5100_PCI_WATCHDOG_MISC_REG	0x41
-+#define SP5100_PCI_WATCHDOG_DECODE_EN	(1 << 3)
-+
-+#define SP5100_PM_IOPORTS_SIZE		0x02
-+
-+/* These two IO registers are hardcoded and there doesn't seem to be a way to
-+ * read them from a register.
++#define TCO_STS(base)	((base) + 0x04)	/* TCO Status Register		*/
++/*
++ * TCO Boot Status bit: set on TCO reset, reset by software or standby
++ * power-good (survives reboots), unfortunately this bit is never
++ * set.
 + */
-+#define SP5100_IO_PM_INDEX_REG		0xCD6
-+#define SP5100_IO_PM_DATA_REG		0xCD7
++#  define TCO_STS_BOOT_STS	(1 << 9)
++/*
++ * first and 2nd timeout status bits, these also survive a warm boot,
++ * and they work, so we use them.
++ */
++#  define TCO_STS_TCO_INT_STS	(1 << 1)
++#  define TCO_STS_TCO2TO_STS	(1 << 10)
++#  define TCO_STS_RESET		(TCO_STS_BOOT_STS | TCO_STS_TCO2TO_STS | \
++				 TCO_STS_TCO_INT_STS)
 +
-+#define SP5100_PM_WATCHDOG_CONTROL	0x69
-+#define SP5100_PM_WATCHDOG_BASE0	0x6C
-+#define SP5100_PM_WATCHDOG_BASE1	0x6D
-+#define SP5100_PM_WATCHDOG_BASE2	0x6E
-+#define SP5100_PM_WATCHDOG_BASE3	0x6F
++#define TCO_CNT(base)	((base) + 0x08)	/* TCO Control Register	*/
++#  define TCO_CNT_TCOHALT	(1 << 12)
 +
-+#define SP5100_PM_WATCHDOG_FIRED	(1 << 1)
-+#define SP5100_PM_WATCHDOG_ACTION_RESET	(1 << 2)
++#define MCP51_SMBUS_SETUP_B 0xe8
++#  define MCP51_SMBUS_SETUP_B_TCO_REBOOT (1 << 25)
 +
-+#define SP5100_PM_WATCHDOG_DISABLE	1
-+#define SP5100_PM_WATCHDOG_SECOND_RES	(3 << 1)
-
++/*
++ * The SMI_EN register is at the base io address + 0x04,
++ * while TCOBASE is + 0x40.
++ */
++#define MCP51_SMI_EN(base)	((base) - 0x40 + 0x04)
++#  define MCP51_SMI_EN_TCO	((1 << 4) | (1 << 5))
