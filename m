@@ -1,47 +1,62 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ww0-f42.google.com ([74.125.82.42]:36417 "EHLO
-	mail-ww0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752099Ab1AGSra (ORCPT
+Received: from smtp-out.google.com ([74.125.121.67]:44622 "EHLO
+	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754544Ab1AGWYT convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 7 Jan 2011 13:47:30 -0500
-Received: by wwi17 with SMTP id 17so736554wwi.1
-        for <linux-watchdog@vger.kernel.org>; Fri, 07 Jan 2011 10:47:29 -0800 (PST)
-Date: Fri, 7 Jan 2011 18:47:22 +0000
-From: Jamie Iles <jamie@jamieiles.com>
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Cc: Jamie Iles <jamie@jamieiles.com>,
-	viresh kumar <viresh.linux@gmail.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCHv3] watchdog: add support for the Synopsys DesignWare WDT
-Message-ID: <20110107184722.GI2844@pulham.picochip.com>
-References: <1294401797-24158-1-git-send-email-jamie@jamieiles.com>
- <AANLkTi=s4Wuj1YyALL7f1AK-MQjvPre8mvviLhw5TdPH@mail.gmail.com>
- <20110107165250.GU31708@n2100.arm.linux.org.uk>
- <20110107175613.GH2844@pulham.picochip.com>
- <20110107180924.GV31708@n2100.arm.linux.org.uk>
+	Fri, 7 Jan 2011 17:24:19 -0500
+Received: from hpaq2.eem.corp.google.com (hpaq2.eem.corp.google.com [172.25.149.2])
+	by smtp-out.google.com with ESMTP id p07MOIgP030397
+	for <linux-watchdog@vger.kernel.org>; Fri, 7 Jan 2011 14:24:18 -0800
+Received: from pxi1 (pxi1.prod.google.com [10.243.27.1])
+	by hpaq2.eem.corp.google.com with ESMTP id p07MOGVv005858
+	for <linux-watchdog@vger.kernel.org>; Fri, 7 Jan 2011 14:24:17 -0800
+Received: by pxi1 with SMTP id 1so4050726pxi.41
+        for <linux-watchdog@vger.kernel.org>; Fri, 07 Jan 2011 14:24:16 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20110107180924.GV31708@n2100.arm.linux.org.uk>
+In-Reply-To: <20110107082355.GD3801@infomag.iguana.be>
+References: <1288054685-29107-1-git-send-email-mikew@google.com>
+ <AANLkTik=eNbQoGaDLS_-8kZLFojK9P1Ge0QAEFc_cPtG@mail.gmail.com> <20110107082355.GD3801@infomag.iguana.be>
+From: Mike Waychison <mikew@google.com>
+Date: Fri, 7 Jan 2011 14:23:55 -0800
+Message-ID: <AANLkTin_xvms=Md_F0Uj0X=Exj61-bPALwABGFMX27bu@mail.gmail.com>
+Subject: Re: [PATCH 1/2] watchdog: Add support for sp5100 chipset TCO
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Priyanka Gupta <priyankag@google.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Jan 07, 2011 at 06:09:24PM +0000, Russell King - ARM Linux wrote:
-> Probably, though I don't think aaec2000 is maintained anymore (I think it
-> was a dump-and-run thing) so should probably be deleted from the kernel
-> tree.
-> 
-> netx - since December 2008, it's only received updates when other stuff
-> has changed (eg, on my clocksource sweep, or when I've noticed it no
-> longer building.)  So I think that's also a candidate for deletion
-> unless someone speaks up.
-> 
-> Wonder if anyone wants to volunteer to delete them... ;)
+On Fri, Jan 7, 2011 at 12:23 AM, Wim Van Sebroeck <wim@iguana.be> wrote:
+> Hi Mike,
+>
+>> Do you have any interest in picking these patches up?  I'd like to get
+>> this hardware functionality mainlined as it would allow us to get
+>> closer to testing upstream kernels on our hardware.
+>
+> I allready cleaned both drivers up, but I had to send the feedback still.
+> Basically for both drivers, I did the following:
+> * Change reboot_notifier by a platform shutdown
+> * remove CONFIG_WATCHDOG_NOWAYOUT ifdef-ery (since that exists allready in watchdog.h)
+> * return -ENOTTY as default ioctl err-code
+> * make watchdog_info a static const struct
+> * some small cleanups
+>
+> This gives below code. Could you please review it?
 
-I'm happy to do that for aaec2000, patch to follow.  I'm willing to do
-the same for netx too or would you like to give people chance to shout
-first?
+Hi Wim,
 
-Jamie
+Thanks for the quick response :)
+
+Both drivers look great.  I read over the changes, they look good.  I
+also applied them to 2.6.37 and tested them on our machines without
+any problems.
+
+The cleanups above seem fine to me.  What did you mean by "Change
+reboot_notifier by a platform shutdown" though?  I see that you
+removed the reboot_notifier, which is fine for our purposes.  Was this
+a suggestion to have this stuff get called from platform code if
+needed?  Am I missing something?
+
+Mike Waychison
