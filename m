@@ -1,62 +1,60 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([74.125.121.67]:44622 "EHLO
-	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754544Ab1AGWYT convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 7 Jan 2011 17:24:19 -0500
-Received: from hpaq2.eem.corp.google.com (hpaq2.eem.corp.google.com [172.25.149.2])
-	by smtp-out.google.com with ESMTP id p07MOIgP030397
-	for <linux-watchdog@vger.kernel.org>; Fri, 7 Jan 2011 14:24:18 -0800
-Received: from pxi1 (pxi1.prod.google.com [10.243.27.1])
-	by hpaq2.eem.corp.google.com with ESMTP id p07MOGVv005858
-	for <linux-watchdog@vger.kernel.org>; Fri, 7 Jan 2011 14:24:17 -0800
-Received: by pxi1 with SMTP id 1so4050726pxi.41
-        for <linux-watchdog@vger.kernel.org>; Fri, 07 Jan 2011 14:24:16 -0800 (PST)
+Received: from mga02.intel.com ([134.134.136.20]:29072 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752371Ab1AHBVJ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 7 Jan 2011 20:21:09 -0500
+From: Seth Heasley <seth.heasley@intel.com>
+To: wim@iguana.be, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org, seth.heasley@intel.com
+Subject: [PATCH 2.6.37] iTCO_wdt: TCO Watchdog patch for Intel DH89xxCC PCH
+Date: Fri, 7 Jan 2011 17:11:08 -0800
 MIME-Version: 1.0
-In-Reply-To: <20110107082355.GD3801@infomag.iguana.be>
-References: <1288054685-29107-1-git-send-email-mikew@google.com>
- <AANLkTik=eNbQoGaDLS_-8kZLFojK9P1Ge0QAEFc_cPtG@mail.gmail.com> <20110107082355.GD3801@infomag.iguana.be>
-From: Mike Waychison <mikew@google.com>
-Date: Fri, 7 Jan 2011 14:23:55 -0800
-Message-ID: <AANLkTin_xvms=Md_F0Uj0X=Exj61-bPALwABGFMX27bu@mail.gmail.com>
-Subject: Re: [PATCH 1/2] watchdog: Add support for sp5100 chipset TCO
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Priyanka Gupta <priyankag@google.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <201101071711.08302.seth.heasley@intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Jan 7, 2011 at 12:23 AM, Wim Van Sebroeck <wim@iguana.be> wrote:
-> Hi Mike,
->
->> Do you have any interest in picking these patches up?  I'd like to get
->> this hardware functionality mainlined as it would allow us to get
->> closer to testing upstream kernels on our hardware.
->
-> I allready cleaned both drivers up, but I had to send the feedback still.
-> Basically for both drivers, I did the following:
-> * Change reboot_notifier by a platform shutdown
-> * remove CONFIG_WATCHDOG_NOWAYOUT ifdef-ery (since that exists allready in watchdog.h)
-> * return -ENOTTY as default ioctl err-code
-> * make watchdog_info a static const struct
-> * some small cleanups
->
-> This gives below code. Could you please review it?
+This patch adds the DeviceIDs for TCO Watchdog on the Intel DH89xxCC PCH.
 
-Hi Wim,
+Signed-off-by: Seth Heasley <seth.heasley@intel.com>
 
-Thanks for the quick response :)
-
-Both drivers look great.  I read over the changes, they look good.  I
-also applied them to 2.6.37 and tested them on our machines without
-any problems.
-
-The cleanups above seem fine to me.  What did you mean by "Change
-reboot_notifier by a platform shutdown" though?  I see that you
-removed the reboot_notifier, which is fine for our purposes.  Was this
-a suggestion to have this stuff get called from platform code if
-needed?  Am I missing something?
-
-Mike Waychison
+--- linux-2.6.37/drivers/watchdog/iTCO_wdt.c.orig	2011-01-04 16:50:19.000000000 -0800
++++ linux-2.6.37/drivers/watchdog/iTCO_wdt.c	2011-01-07 10:57:09.000000000 -0800
+@@ -31,8 +31,9 @@
+  *	document number 319973-002, 319974-002: 82801J (ICH10)
+  *	document number 322169-001, 322170-003: 5 Series, 3400 Series (PCH)
+  *	document number 320066-003, 320257-008: EP80597 (IICH)
+- *	document number TBD                   : Cougar Point (CPT)
++ *	document number 324645-001, 324646-001: Cougar Point (CPT)
+  *	document number TBD                   : Patsburg (PBG)
++ *	document number TBD                   : DH89xxCC 
+  */
+ 
+ /*
+@@ -149,6 +150,7 @@
+ 	TCO_CPT31,	/* Cougar Point */
+ 	TCO_PBG1,	/* Patsburg */
+ 	TCO_PBG2,	/* Patsburg */
++	TCO_DH89XXCC,	/* DH89xxCC */
+ };
+ 
+ static struct {
+@@ -238,6 +240,7 @@
+ 	{"Cougar Point", 2},
+ 	{"Patsburg", 2},
+ 	{"Patsburg", 2},
++	{"DH89xxCC", 2},
+ 	{NULL, 0}
+ };
+ 
+@@ -355,6 +358,7 @@
+ 	{ ITCO_PCI_DEVICE(0x1c5f,				TCO_CPT31)},
+ 	{ ITCO_PCI_DEVICE(0x1d40,				TCO_PBG1)},
+ 	{ ITCO_PCI_DEVICE(0x1d41,				TCO_PBG2)},
++	{ ITCO_PCI_DEVICE(0x2310,				TCO_DH89XXCC)},
+ 	{ 0, },			/* End of list */
+ };
+ MODULE_DEVICE_TABLE(pci, iTCO_wdt_pci_tbl);
