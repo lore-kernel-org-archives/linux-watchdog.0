@@ -1,60 +1,37 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:29072 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752371Ab1AHBVJ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 7 Jan 2011 20:21:09 -0500
-From: Seth Heasley <seth.heasley@intel.com>
-To: wim@iguana.be, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org, seth.heasley@intel.com
-Subject: [PATCH 2.6.37] iTCO_wdt: TCO Watchdog patch for Intel DH89xxCC PCH
-Date: Fri, 7 Jan 2011 17:11:08 -0800
+Received: from mailrelay002.isp.belgacom.be ([195.238.6.175]:32946 "EHLO
+	mailrelay002.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751000Ab1AIJdV (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Sun, 9 Jan 2011 04:33:21 -0500
+Date: Sun, 9 Jan 2011 10:33:19 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Mike Waychison <mikew@google.com>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Priyanka Gupta <priyankag@google.com>
+Subject: Re: [PATCH 1/2] watchdog: Add support for sp5100 chipset TCO
+Message-ID: <20110109093319.GI3801@infomag.iguana.be>
+References: <1288054685-29107-1-git-send-email-mikew@google.com> <AANLkTik=eNbQoGaDLS_-8kZLFojK9P1Ge0QAEFc_cPtG@mail.gmail.com> <20110107082355.GD3801@infomag.iguana.be> <AANLkTin_xvms=Md_F0Uj0X=Exj61-bPALwABGFMX27bu@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <201101071711.08302.seth.heasley@intel.com>
+In-Reply-To: <AANLkTin_xvms=Md_F0Uj0X=Exj61-bPALwABGFMX27bu@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patch adds the DeviceIDs for TCO Watchdog on the Intel DH89xxCC PCH.
+Hi Mike,
 
-Signed-off-by: Seth Heasley <seth.heasley@intel.com>
+> The cleanups above seem fine to me.  What did you mean by "Change
+> reboot_notifier by a platform shutdown" though?  I see that you
+> removed the reboot_notifier, which is fine for our purposes.  Was this
+> a suggestion to have this stuff get called from platform code if
+> needed?  Am I missing something?
 
---- linux-2.6.37/drivers/watchdog/iTCO_wdt.c.orig	2011-01-04 16:50:19.000000000 -0800
-+++ linux-2.6.37/drivers/watchdog/iTCO_wdt.c	2011-01-07 10:57:09.000000000 -0800
-@@ -31,8 +31,9 @@
-  *	document number 319973-002, 319974-002: 82801J (ICH10)
-  *	document number 322169-001, 322170-003: 5 Series, 3400 Series (PCH)
-  *	document number 320066-003, 320257-008: EP80597 (IICH)
-- *	document number TBD                   : Cougar Point (CPT)
-+ *	document number 324645-001, 324646-001: Cougar Point (CPT)
-  *	document number TBD                   : Patsburg (PBG)
-+ *	document number TBD                   : DH89xxCC 
-  */
- 
- /*
-@@ -149,6 +150,7 @@
- 	TCO_CPT31,	/* Cougar Point */
- 	TCO_PBG1,	/* Patsburg */
- 	TCO_PBG2,	/* Patsburg */
-+	TCO_DH89XXCC,	/* DH89xxCC */
- };
- 
- static struct {
-@@ -238,6 +240,7 @@
- 	{"Cougar Point", 2},
- 	{"Patsburg", 2},
- 	{"Patsburg", 2},
-+	{"DH89xxCC", 2},
- 	{NULL, 0}
- };
- 
-@@ -355,6 +358,7 @@
- 	{ ITCO_PCI_DEVICE(0x1c5f,				TCO_CPT31)},
- 	{ ITCO_PCI_DEVICE(0x1d40,				TCO_PBG1)},
- 	{ ITCO_PCI_DEVICE(0x1d41,				TCO_PBG2)},
-+	{ ITCO_PCI_DEVICE(0x2310,				TCO_DH89XXCC)},
- 	{ 0, },			/* End of list */
- };
- MODULE_DEVICE_TABLE(pci, iTCO_wdt_pci_tbl);
+The platform_driver struct has a shutdown operation which does the same
+as the reboot_notifier. Since the code is smaller and since the binary is
+smaller we prefer to use the shutdown operation. So I removed the
+reboot_notifier and added the shutdown operation.
+
+Kind regards,
+Wim.
+
