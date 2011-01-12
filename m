@@ -1,143 +1,311 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:41670 "EHLO
-	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756390Ab1ALAGT (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:57659 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750754Ab1ALFQa convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 11 Jan 2011 19:06:19 -0500
-Date: Wed, 12 Jan 2011 01:06:12 +0100
-From: Lutz Ballaschke <vegan.grindcore@googlemail.com>
-To: me@mortis.eu
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCHv4] watchdog: f71808e_wdt: add support for the F71862FG
-Message-ID: <20110112000612.GA9517@kreios.titan>
+	Wed, 12 Jan 2011 00:16:30 -0500
+Received: by iyj18 with SMTP id 18so179002iyj.19
+        for <linux-watchdog@vger.kernel.org>; Tue, 11 Jan 2011 21:16:29 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+In-Reply-To: <1294675181-18273-1-git-send-email-jamie@jamieiles.com>
+References: <1294675181-18273-1-git-send-email-jamie@jamieiles.com>
+Date: Wed, 12 Jan 2011 10:46:28 +0530
+Message-ID: <AANLkTikbxyCSX5eKiwtZyW+gYToTD7Jcucst6su2fEjN@mail.gmail.com>
+Subject: Re: [PATCH] watchdog: add support for the Synopsys DesignWare WDT
+From: viresh kumar <viresh.linux@gmail.com>
+To: Jamie Iles <jamie@jamieiles.com>
+Cc: linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Wim Van Sebroeck <wim@iguana.be>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Signed-off-by: Lutz Ballaschke <vegan.grindcore@googlemail.com>
----
+Jamie,
 
- drivers/watchdog/Kconfig       |    4 +-
- drivers/watchdog/f71808e_wdt.c |   53 +++++++++++++++++++++++++++++++++++++--
- 2 files changed, 52 insertions(+), 5 deletions(-)
+Sorry for sending comments on V5 !!
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index a5ad77e..b259ff8 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -409,11 +409,11 @@ config ALIM7101_WDT
- 	  Most people will say N.
- 
- config F71808E_WDT
--	tristate "Fintek F71808E, F71882FG and F71889FG Watchdog"
-+	tristate "Fintek F71808E, F71862FG, F71882FG and F71889FG Watchdog"
- 	depends on X86 && EXPERIMENTAL
- 	help
- 	  This is the driver for the hardware watchdog on the Fintek
--	  F71808E, F71882FG and F71889FG Super I/O controllers.
-+	  F71808E, F71862FG, F71882FG and F71889FG Super I/O controllers.
- 
- 	  You can compile this driver directly into the kernel, or use
- 	  it as a module.  The module will be called f71808e_wdt.
-diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
-index 65e5796..afec8d8 100644
---- a/drivers/watchdog/f71808e_wdt.c
-+++ b/drivers/watchdog/f71808e_wdt.c
-@@ -42,6 +42,11 @@
- #define SIO_REG_DEVID		0x20	/* Device ID (2 bytes) */
- #define SIO_REG_DEVREV		0x22	/* Device revision */
- #define SIO_REG_MANID		0x23	/* Fintek ID (2 bytes) */
-+#define SIO_REG_ROM_ADDR_SEL	0x27	/* ROM address select */
-+#define SIO_REG_MFUNCT1		0x29	/* Multi function select 1 */
-+#define SIO_REG_MFUNCT2		0x2a	/* Multi function select 2 */
-+#define SIO_REG_MFUNCT3		0x2b	/* Multi function select 3 */
-+#define SIO_REG_MFUNCT4		0x2c	/* Multi function select 4 */
- #define SIO_REG_ENABLE		0x30	/* Logical device enable */
- #define SIO_REG_ADDR		0x60	/* Logical device address (2 bytes) */
- 
-@@ -70,6 +75,8 @@
- #define WATCHDOG_MAX_TIMEOUT	(60 * 255)
- #define WATCHDOG_PULSE_WIDTH	125	/* 125 ms, default pulse width for
- 					   watchdog signal */
-+#define WATCHDOG_F71862FG_PIN	63	/* default watchdog reset output
-+					   pin number 63 */
- 
- static unsigned short force_id;
- module_param(force_id, ushort, 0);
-@@ -89,6 +96,12 @@ MODULE_PARM_DESC(pulse_width,
- 	"Watchdog signal pulse width. 0(=level), 1 ms, 25 ms, 125 ms or 5000 ms"
- 			" (default=" __MODULE_STRING(WATCHDOG_PULSE_WIDTH) ")");
- 
-+static unsigned int f71862fg_pin = WATCHDOG_F71862FG_PIN;
-+module_param(f71862fg_pin, uint, 0);
-+MODULE_PARM_DESC(f71862fg_pin,
-+	"Watchdog f71862fg reset output pin configuration. Choose pin 56 or 63"
-+			" (default=" __MODULE_STRING(WATCHDOG_F71862FG_PIN)")");
-+
- static int nowayout = WATCHDOG_NOWAYOUT;
- module_param(nowayout, bool, 0444);
- MODULE_PARM_DESC(nowayout, "Disable watchdog shutdown on close");
-@@ -282,6 +295,34 @@ exit_unlock:
- 	return err;
- }
- 
-+/*
-+ *      f71862fg_pin_configure:
-+ *      @ioaddr: system I/O-port address to access superio
-+ *
-+ *      The F71862FG chip provides two different pins which can be used
-+ *      as watchdog reset output. Pin dependent configuration is done here.
-+ *      NOTE: When ioaddr is non-zero the calling function has to take care of
-+ *      mutex handling and superio preparation!
-+ */
-+static int f71862fg_pin_configure(unsigned short ioaddr)
-+{
-+	if (f71862fg_pin == 63) {
-+		if (ioaddr) {
-+			/* SPI must be disabled first to use this pin! */
-+			superio_clear_bit(ioaddr, SIO_REG_ROM_ADDR_SEL, 6);
-+			superio_set_bit(ioaddr, SIO_REG_MFUNCT3, 4);
-+		}
-+	} else if (f71862fg_pin == 56) {
-+		if (ioaddr)
-+			superio_set_bit(ioaddr, SIO_REG_MFUNCT1, 1);
-+	} else {
-+		printk(KERN_ERR DRVNAME ": Invalid argument f71862fg_pin=%d\n",
-+				f71862fg_pin);
-+		return -EINVAL;
-+	}
-+	return 0;
-+}
-+
- static int watchdog_start(void)
- {
- 	/* Make sure we don't die as soon as the watchdog is enabled below */
-@@ -303,6 +344,12 @@ static int watchdog_start(void)
- 		superio_clear_bit(watchdog.sioaddr, 0x2b, 3);
- 		break;
- 
-+	case f71862fg:
-+		err = f71862fg_pin_configure(watchdog.sioaddr);
-+		if (err)
-+			goto exit_superio;
-+		break;
-+
- 	case f71882fg:
- 		/* Set pin 56 to WDTRST# */
- 		superio_set_bit(watchdog.sioaddr, 0x29, 1);
-@@ -718,9 +765,9 @@ static int __init f71808e_find(int sioaddr)
- 		watchdog.type = f71889fg;
- 		break;
- 	case SIO_F71862_ID:
--		/* These have a watchdog, though it isn't implemented (yet). */
--		err = -ENOSYS;
--		goto exit;
-+		watchdog.type = f71862fg;
-+		err = f71862fg_pin_configure(0); /* validate module parameter */
-+		break;
- 	case SIO_F71858_ID:
- 		/* Confirmed (by datasheet) not to have a watchdog. */
- 		err = -ENODEV;
+I don't know why, but checkpatch used to give few errors which it is
+not giving now.
+Like:
+- Mixing spaces and tabs
+- Line over 80 columns.
+
+There are few places in this patch where i have seen these issues, but
+checkpatch doesn't
+report them at all.
+
+On Mon, Jan 10, 2011 at 9:29 PM, Jamie Iles <jamie@jamieiles.com> wrote:
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index 8a3aa2f..62c607a 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -331,6 +331,15 @@ config IMX2_WDT
+>          To compile this driver as a module, choose M here: the
+>          module will be called imx2_wdt.
+>
+> +config DW_WATCHDOG
+> +       tristate "Synopsys DesignWare watchdog"
+> +       depends on ARM
+
+Correct me if i am wrong, but can't this peripheral be used for any
+other architecture.
+We are adding it as a platform device and not amba device.
+Might be synopsys give some other interface here, other than AMBA.
+
+> +       help
+> +         Say Y here if to include support for the Synopsys DesignWare
+> +         watchdog timer found in many ARM chips.
+> +         To compile this driver as a module, choose M here: the
+> +         module will be called dw_wdt.
+> +
+>  # AVR32 Architecture
+>
+
+(...)
+
+> diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+> new file mode 100644
+> index 0000000..45fa1fb
+> --- /dev/null
+> +++ b/drivers/watchdog/dw_wdt.c
+> @@ -0,0 +1,405 @@
+> +/*
+> + * Copyright 2010-2011 Picochip Ltd., Jamie Iles
+> + * http://www.picochip.com
+> + *
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License
+> + * as published by the Free Software Foundation; either version
+> + * 2 of the License, or (at your option) any later version.
+> + *
+> + * This file implements a driver for the Synopsys DesignWare watchdog device
+> + * in the many ARM subsystems. The watchdog has 16 different timeout periods
+> + * and these are a function of the input clock frequency.
+> + *
+> + * The DesignWare watchdog cannot be stopped once it has been started so we
+> + * use a software timer to implement a ping that will keep the watchdog alive.
+> + * If we receive an expected close for the watchdog then we keep the timer
+> + * running, otherwise the timer is stopped and the watchdog will expire.
+> + */
+> +#define pr_fmt(fmt) "dw_wdt: " fmt
+> +
+> +#include <linux/bitops.h>
+> +#include <linux/clk.h>
+> +#include <linux/device.h>
+> +#include <linux/err.h>
+> +#include <linux/fs.h>
+> +#include <linux/io.h>
+> +#include <linux/kernel.h>
+> +#include <linux/miscdevice.h>
+> +#include <linux/module.h>
+> +#include <linux/moduleparam.h>
+> +#include <linux/pm.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/spinlock.h>
+> +#include <linux/timer.h>
+> +#include <linux/uaccess.h>
+> +#include <linux/watchdog.h>
+> +
+
+can remove this blank line.
+
+> +#include <linux/platform_data/dw_wdt.h>
+> +
+> +#define WDOG_CONTROL_REG_OFFSET             0x00
+> +#define WDOG_CONTROL_REG_WDT_EN_MASK       0x01
+> +#define WDOG_TIMEOUT_RANGE_REG_OFFSET       0x04
+> +#define WDOG_CURRENT_COUNT_REG_OFFSET       0x08
+> +#define WDOG_COUNTER_RESTART_REG_OFFSET     0x0c
+> +#define WDOG_COUNTER_RESTART_KICK_VALUE            0x76
+
+I don't know why, but i have seen a lot of comment that people give to
+align macro's.
+Use tabs instead of spaces between macro name and its value. Also keep
+them aligned.
+I am not sure if its absolutely necessary.
+
+(...)
+
+> +static int dw_wdt_set_top(unsigned top_s)
+> +{
+> +       int i, top_val = -1;
+
+We can assign top_val = DW_WDT_MAX_TOP, here and
+
+> +
+> +       /*
+> +        * Iterate over the timeout values until we find the closest match. We
+> +        * always look for >=.
+> +        */
+> +       for (i = 0; i <= DW_WDT_MAX_TOP; ++i)
+> +               if (dw_wdt_top_in_seconds(i) >= top_s) {
+> +                       top_val = i;
+> +                       break;
+> +               }
+> +
+> +       /*
+> +        * If we didn't find a suitable value, it must have been too large. Go
+> +        * with the biggest that we can.
+> +        */
+> +       if (top_val < 0)
+> +               top_val = DW_WDT_MAX_TOP;
+
+remove this check.
+
+> +
+> +       /* Set the new value in the watchdog. */
+> +       writel(top_val, dw_wdt.regs + WDOG_TIMEOUT_RANGE_REG_OFFSET);
+> +
+> +       dw_wdt_set_next_heartbeat();
+> +
+> +       return dw_wdt_top_in_seconds(top_val);
+> +}
+> +
+
+(...)
+
+> +static int __devinit dw_wdt_drv_probe(struct platform_device *pdev)
+> +{
+> +       int ret;
+> +       struct resource *mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +       struct dw_wdt_platform_data *pdata = pdev->dev.platform_data;
+> +
+> +       if (!mem)
+> +               return -EINVAL;
+> +
+> +       if (!devm_request_mem_region(&pdev->dev, mem->start, resource_size(mem),
+> +                                    "dw_wdt"))
+> +               return -ENOMEM;
+> +
+> +       dw_wdt.regs = devm_ioremap(&pdev->dev, mem->start,
+> +                                            resource_size(mem));
+
+this can come in single line.
+
+> +       if (!dw_wdt.regs)
+> +               return -ENOMEM;
+> +
+> +       dw_wdt.clk = clk_get(&pdev->dev, NULL);
+> +       if (IS_ERR(dw_wdt.clk))
+> +               return -ENODEV;
+
+shouldn't we use the error value returned from clk_get here instead of defining
+a new value -ENODEV?
+
+> +
+> +       ret = clk_enable(dw_wdt.clk);
+
+should we call this routine if clk is NULL? Probably we will get error here.
+But as we discussed earlier, we should support machines who don't support clk
+framework. So, shouldn't we check clk for NULL here and call this
+routine only if
+we have a valid clk pointer, otherwise continue instead of returning error.
+
+> +       if (ret)
+> +               goto out_put_clk;
+> +
+> +       /*
+> +        * The timeout period of the watchdog is derived from the input clock
+> +        * frequency.  For platforms that don't have a clk for the watchdog,
+> +        * they can specify the WDT clock rate through the clk_rate field of
+> +        * the struct dw_wdt_platform_data platform data.
+> +        */
+> +       if (pdata && pdata->clk_rate > 0)
+> +               dw_wdt.clk_rate = pdata->clk_rate;
+> +       else
+> +               dw_wdt.clk_rate = clk_get_rate(dw_wdt.clk);
+> +
+
+I know it doesn't make sense for a platform to have support for clk framework
+and pass rate through plat data.
+But this code will always take pdata->rate, if it is passed.
+Wouldn't it be better if we reverse the sequence.
+
+if (clk)
+ rate = clk_get_rate(...);
+else {
+ pdata = pdev->dev.platform_data;
+ if (pdata)
+  rate = pdata->rate;
+}
+
+and then following code
+
+> +       if (!dw_wdt.clk_rate) {
+> +               dev_err(&pdev->dev, "no clk rate defined for watchdog, cannot enable\n");
+> +               ret = -EINVAL;
+> +               goto out_disable_clk;
+> +       }
+> +
+> +       spin_lock_init(&dw_wdt.lock);
+> +
+> +       ret = misc_register(&dw_wdt_miscdev);
+> +       if (ret)
+> +               goto out_put_clk;
+
+shouldn't it be out_disable_clk??
+
+> +
+> +       dw_wdt_set_next_heartbeat();
+> +       setup_timer(&dw_wdt.timer, dw_wdt_ping, 0);
+> +       mod_timer(&dw_wdt.timer, jiffies + WDT_TIMEOUT);
+> +
+> +       return 0;
+> +
+> +out_disable_clk:
+> +       clk_disable(dw_wdt.clk);
+> +out_put_clk:
+> +       clk_put(dw_wdt.clk);
+> +
+> +       return ret;
+> +}
+> +
+> +static int __devexit dw_wdt_drv_remove(struct platform_device *pdev)
+> +{
+> +       misc_deregister(&dw_wdt_miscdev);
+> +
+> +       clk_disable(dw_wdt.clk);
+> +       clk_put(dw_wdt.clk);
+> +
+> +       return 0;
+> +}
+> +
+> +static struct platform_driver dw_wdt_driver = {
+> +       .probe          = dw_wdt_drv_probe,
+> +       .remove         = __devexit_p(dw_wdt_drv_remove),
+> +       .driver         = {
+> +               .name   = "dw_wdt",
+> +               .owner  = THIS_MODULE,
+> +#ifdef CONFIG_PM
+> +               .pm     = &dw_wdt_pm_ops,
+> +#endif /* CONFIG_PM */
+> +       },
+> +};
+> +
+> +static int __init dw_wdt_watchdog_init(void)
+> +{
+> +       return platform_driver_register(&dw_wdt_driver);
+> +}
+> +module_init(dw_wdt_watchdog_init);
+> +
+> +static void __exit dw_wdt_watchdog_exit(void)
+> +{
+> +       platform_driver_unregister(&dw_wdt_driver);
+> +}
+> +module_exit(dw_wdt_watchdog_exit);
+> +
+> +MODULE_AUTHOR("Jamie Iles");
+> +MODULE_DESCRIPTION("Synopsys DesignWare Watchdog Driver");
+> +MODULE_LICENSE("GPL");
+> +MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
+> diff --git a/include/linux/platform_data/dw_wdt.h b/include/linux/platform_data/dw_wdt.h
+> new file mode 100644
+> index 0000000..0af10ef
+> --- /dev/null
+> +++ b/include/linux/platform_data/dw_wdt.h
+
+It looks you have created a separate generic folder platform_data.
+But generally we put these files directly into existing folders.
+I am not quite sure if that's fine or we should avoid this.
