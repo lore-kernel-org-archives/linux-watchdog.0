@@ -1,89 +1,36 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from tx2ehsobe003.messaging.microsoft.com ([65.55.88.13]:34508 "EHLO
-	TX2EHSOBE005.bigfish.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752265Ab1AQV3w (ORCPT
+Received: from eddie.linux-mips.org ([78.24.191.182]:58268 "EHLO
+	cvs.linux-mips.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752638Ab1AQXgU (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 17 Jan 2011 16:29:52 -0500
-From: Timur Tabi <timur@freescale.com>
-To: <linuxppc-dev@ozlabs.org>, <wim@iguana.be>,
-	<linux-watchdog@vger.kernel.org>
-Subject: [PATCH] watchdog: booke_wdt: clean up status messages
-Date: Mon, 17 Jan 2011 15:29:40 -0600
-Message-ID: <1295299780-27338-1-git-send-email-timur@freescale.com>
+	Mon, 17 Jan 2011 18:36:20 -0500
+Received: from localhost.localdomain ([127.0.0.1]:53138 "EHLO h5.dl5rb.org.uk"
+        rhost-flags-OK-OK-OK-FAIL) by eddie.linux-mips.org with ESMTP
+        id S1491983Ab1AQX3L (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+        Tue, 18 Jan 2011 00:29:11 +0100
+Date: Tue, 18 Jan 2011 00:29:06 +0100
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Gabor Juhos <juhosg@openwrt.org>
+Cc: linux-mips@linux-mips.org, Imre Kaloz <kaloz@openwrt.org>,
+	"Luis R. Rodriguez" <lrodriguez@atheros.com>,
+	Cliff Holden <Cliff.Holden@atheros.com>,
+	Kathy Giori <Kathy.Giori@atheros.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v5 06/16] watchdog: add driver for the Atheros
+ AR71XX/AR724X/AR913X SoCs
+Message-ID: <20110117232906.GF12626@linux-mips.org>
+References: <1294172909-1309-1-git-send-email-juhosg@openwrt.org>
+ <1294172909-1309-7-git-send-email-juhosg@openwrt.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1294172909-1309-7-git-send-email-juhosg@openwrt.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Improve the status messages that are displayed during some operations of the
-PowerPC watchdog timer driver.  When the watchdog is enabled, the timeout is
-displayed as a number of seconds, instead of an obscure "period".  The "period"
-is the position of a bit in a 64-bit timer register.  The higher the value,
-the quicker the watchdog timeout occurs.  Some people chose a high "period"
-value for the timer and get confused as to why the board resets within a
-few seconds.
+Dropped as this one has already been merged via the watchdog tree.
 
-Messages displayed during open and close are now debug messages, so that they
-don't clutter the console by default.  Finally, printk() is replaced with the
-pr_xxx() equivalent.
+Thanks folks,
 
-Signed-off-by: Timur Tabi <timur@freescale.com>
----
- drivers/watchdog/booke_wdt.c |   17 ++++++++---------
- 1 files changed, 8 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/watchdog/booke_wdt.c b/drivers/watchdog/booke_wdt.c
-index 7e7ec9c..935d0dd 100644
---- a/drivers/watchdog/booke_wdt.c
-+++ b/drivers/watchdog/booke_wdt.c
-@@ -221,9 +221,8 @@ static int booke_wdt_open(struct inode *inode, struct file *file)
- 	if (booke_wdt_enabled == 0) {
- 		booke_wdt_enabled = 1;
- 		on_each_cpu(__booke_wdt_enable, NULL, 0);
--		printk(KERN_INFO
--		      "PowerPC Book-E Watchdog Timer Enabled (wdt_period=%d)\n",
--				booke_wdt_period);
-+		pr_debug("booke_wdt: watchdog enabled (timeout = %llu sec)\n",
-+			period_to_sec(booke_wdt_period));
- 	}
- 	spin_unlock(&booke_wdt_lock);
- 
-@@ -240,6 +239,7 @@ static int booke_wdt_release(struct inode *inode, struct file *file)
- 	 */
- 	on_each_cpu(__booke_wdt_disable, NULL, 0);
- 	booke_wdt_enabled = 0;
-+	pr_debug("booke_wdt: watchdog disabled\n",
- #endif
- 
- 	clear_bit(0, &wdt_is_active);
-@@ -271,21 +271,20 @@ static int __init booke_wdt_init(void)
- {
- 	int ret = 0;
- 
--	printk(KERN_INFO "PowerPC Book-E Watchdog Timer Loaded\n");
-+	pr_info("PowerPC Book-E Watchdog Timer Loaded\n");
- 	ident.firmware_version = cur_cpu_spec->pvr_value;
- 
- 	ret = misc_register(&booke_wdt_miscdev);
- 	if (ret) {
--		printk(KERN_CRIT "Cannot register miscdev on minor=%d: %d\n",
--				WATCHDOG_MINOR, ret);
-+		pr_err("booke_wdt: cannot register device (minor=%u, ret=%i)\n",
-+		       WATCHDOG_MINOR, ret);
- 		return ret;
- 	}
- 
- 	spin_lock(&booke_wdt_lock);
- 	if (booke_wdt_enabled == 1) {
--		printk(KERN_INFO
--		      "PowerPC Book-E Watchdog Timer Enabled (wdt_period=%d)\n",
--				booke_wdt_period);
-+		pr_info("booke_wdt: watchdog enabled (timeout = %llu sec)\n",
-+			period_to_sec(booke_wdt_period));
- 		on_each_cpu(__booke_wdt_enable, NULL, 0);
- 	}
- 	spin_unlock(&booke_wdt_lock);
--- 
-1.7.3.4
-
-
+  Ralf
