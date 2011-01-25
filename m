@@ -1,471 +1,779 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:58694 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751678Ab1AXMTV (ORCPT
+Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:53999 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753263Ab1AYOkZ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 24 Jan 2011 07:19:21 -0500
-Received: by wwa36 with SMTP id 36so4209536wwa.1
-        for <linux-watchdog@vger.kernel.org>; Mon, 24 Jan 2011 04:19:20 -0800 (PST)
-From: Jamie Iles <jamie@jamieiles.com>
-To: linux-watchdog@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org,
-	Jamie Iles <jamie@jamieiles.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: [PATCHv6] watchdog: add support for the Synopsys DesignWare WDT
-Date: Mon, 24 Jan 2011 12:19:12 +0000
-Message-Id: <1295871552-22254-1-git-send-email-jamie@jamieiles.com>
+	Tue, 25 Jan 2011 09:40:25 -0500
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [RESEND PATCH] Intel SCU Watchdog Timer Driver for Moorestown and
+ Medfield platforms.
+To: linux-watchdog@vger.kernel.org, wim@iguana.be
+Date: Tue, 25 Jan 2011 14:13:38 +0000
+Message-ID: <20110125141322.8904.29179.stgit@bob.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The Synopsys DesignWare watchdog is found in several ARM based systems
-and provides a choice of 16 timeout periods depending on the clock
-input.  The watchdog cannot be disabled once started.
+From: Donald Johnson <donald.k.johnson@intel.com>
 
-Cc: Wim Van Sebroeck <wim@iguana.be>
-Signed-off-by: Jamie Iles <jamie@jamieiles.com>
+This submission includes:
+  - Fix to intel_scu_write() to start watchdog timer the on the
+    first write, and refresh on subsequent writes.
+    This enables Open, write, write, ... usage model.
+  - Moves boot parameter checks from intel_scu_open() to
+    intel_scu_watchdog_init(), so driver init will fail if these
+    parameters are out of bounds.
+  - Adds check for whether process waiting in wait_event_interruptible()
+    received a signal while it was waiting.
+  - Other small error handling changes.
+
+Signed-off-by: Donald Johnson <donald.k.johnson@intel.com>
+[Fix a backwards check]
+Signed-off-by: Shuduo Sang <shuduo.sang@intel.com>
+[Printk and style clean + check loaded on a MID device]
+Signed-off-by: Alan Cox <alan@linux.intel.com>
 ---
 
-v6:
-	- add a Kconfig dependency on HAVE_CLK and don't allow rate to
-	  be set by platform data.
-v5:
-	- don't select CONFIG_WATCHDOG_NOWAYOUT, use a software
-	  heartbeat to keep the wdt alive if we allow close.
-v4:
-	- cleanups as suggested by Viresh Kumar and Wim
-	- provide a mechanism to handle NULL clks and allow
-	  platform_data to specify the clk_rate
-	- provide open-once protection
+ drivers/watchdog/Kconfig              |   10 +
+ drivers/watchdog/Makefile             |    1 
+ drivers/watchdog/intel_scu_watchdog.c |  620 +++++++++++++++++++++++++++++++++
+ drivers/watchdog/intel_scu_watchdog.h |   66 ++++
+ 4 files changed, 697 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/watchdog/intel_scu_watchdog.c
+ create mode 100644 drivers/watchdog/intel_scu_watchdog.h
 
-v3:
-	- convert pm to dev_pm_ops
-	- use devres for resource allocation
-
-v2:
-	- constify fops
-	- request_mem_region() before ioremap()
-	- disable clk if misc_register() fails
-
- drivers/watchdog/Kconfig  |    9 +
- drivers/watchdog/Makefile |    1 +
- drivers/watchdog/dw_wdt.c |  376 +++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 386 insertions(+), 0 deletions(-)
- create mode 100644 drivers/watchdog/dw_wdt.c
 
 diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index cbd37bb..f707536 100644
+index cbd37bb..3bc099f 100644
 --- a/drivers/watchdog/Kconfig
 +++ b/drivers/watchdog/Kconfig
-@@ -331,6 +331,15 @@ config IMX2_WDT
+@@ -533,6 +533,16 @@ config I6300ESB_WDT
  	  To compile this driver as a module, choose M here: the
- 	  module will be called imx2_wdt.
+ 	  module will be called i6300esb.
  
-+config DW_WATCHDOG
-+	tristate "Synopsys DesignWare watchdog"
-+	depends on ARM && HAVE_CLK
-+	help
-+	  Say Y here if to include support for the Synopsys DesignWare
-+	  watchdog timer found in many ARM chips.
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called dw_wdt.
++config INTEL_SCU_WATCHDOG
++	bool "Intel SCU Watchdog for Mobile Platforms"
++	depends on WATCHDOG
++	depends on INTEL_SCU_IPC
++	---help---
++	  Hardware driver for the watchdog time built into the Intel SCU
++	  for Intel Mobile Platforms.
 +
- # AVR32 Architecture
- 
- config AT32AP700X_WDT
++	  To compile this driver as a module, choose M here.
++
+ config ITCO_WDT
+ 	tristate "Intel TCO Timer/Watchdog"
+ 	depends on (X86 || IA64) && PCI
 diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index cd1e7fe..e2b5b10 100644
+index cd1e7fe..d7901fb 100644
 --- a/drivers/watchdog/Makefile
 +++ b/drivers/watchdog/Makefile
-@@ -49,6 +49,7 @@ obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
- obj-$(CONFIG_ADX_WATCHDOG) += adx_wdt.o
- obj-$(CONFIG_TS72XX_WATCHDOG) += ts72xx_wdt.o
- obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
-+obj-$(CONFIG_DW_WATCHDOG) += dw_wdt.o
+@@ -102,6 +102,7 @@ obj-$(CONFIG_W83877F_WDT) += w83877f_wdt.o
+ obj-$(CONFIG_W83977F_WDT) += w83977f_wdt.o
+ obj-$(CONFIG_MACHZ_WDT) += machzwd.o
+ obj-$(CONFIG_SBC_EPX_C3_WATCHDOG) += sbc_epx_c3.o
++obj-$(CONFIG_INTEL_SCU_WATCHDOG) += intel_scu_watchdog.o
  
- # AVR32 Architecture
- obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
-diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+ # M32R Architecture
+ 
+diff --git a/drivers/watchdog/intel_scu_watchdog.c b/drivers/watchdog/intel_scu_watchdog.c
 new file mode 100644
-index 0000000..f10f8c0
+index 0000000..e72704a
 --- /dev/null
-+++ b/drivers/watchdog/dw_wdt.c
-@@ -0,0 +1,376 @@
++++ b/drivers/watchdog/intel_scu_watchdog.c
+@@ -0,0 +1,620 @@
 +/*
-+ * Copyright 2010-2011 Picochip Ltd., Jamie Iles
-+ * http://www.picochip.com
++ *      Intel_SCU 0.2:  An Intel SCU IOH Based Watchdog Device
++ *			for Intel part #(s):
++ *				- AF82MP20 PCH
 + *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
++ *      Copyright (C) 2009-2010 Intel Corporation. All rights reserved.
 + *
-+ * This file implements a driver for the Synopsys DesignWare watchdog device
-+ * in the many ARM subsystems. The watchdog has 16 different timeout periods
-+ * and these are a function of the input clock frequency.
++ *      This program is free software; you can redistribute it and/or
++ *      modify it under the terms of version 2 of the GNU General
++ *      Public License as published by the Free Software Foundation.
 + *
-+ * The DesignWare watchdog cannot be stopped once it has been started so we
-+ * use a software timer to implement a ping that will keep the watchdog alive.
-+ * If we receive an expected close for the watchdog then we keep the timer
-+ * running, otherwise the timer is stopped and the watchdog will expire.
++ *      This program is distributed in the hope that it will be
++ *      useful, but WITHOUT ANY WARRANTY; without even the implied
++ *      warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
++ *      PURPOSE.  See the GNU General Public License for more details.
++ *      You should have received a copy of the GNU General Public
++ *      License along with this program; if not, write to the Free
++ *      Software Foundation, Inc., 59 Temple Place - Suite 330,
++ *      Boston, MA  02111-1307, USA.
++ *      The full GNU General Public License is included in this
++ *      distribution in the file called COPYING.
++ *
 + */
-+#define pr_fmt(fmt) "dw_wdt: " fmt
 +
-+#include <linux/bitops.h>
-+#include <linux/clk.h>
-+#include <linux/device.h>
-+#include <linux/err.h>
-+#include <linux/fs.h>
-+#include <linux/io.h>
-+#include <linux/kernel.h>
-+#include <linux/miscdevice.h>
++#include <linux/compiler.h>
 +#include <linux/module.h>
++#include <linux/kernel.h>
 +#include <linux/moduleparam.h>
-+#include <linux/pm.h>
-+#include <linux/platform_device.h>
-+#include <linux/spinlock.h>
-+#include <linux/timer.h>
-+#include <linux/uaccess.h>
++#include <linux/types.h>
++#include <linux/miscdevice.h>
 +#include <linux/watchdog.h>
++#include <linux/fs.h>
++#include <linux/notifier.h>
++#include <linux/reboot.h>
++#include <linux/init.h>
++#include <linux/jiffies.h>
++#include <linux/uaccess.h>
++#include <linux/slab.h>
++#include <linux/io.h>
++#include <linux/interrupt.h>
++#include <linux/delay.h>
++#include <linux/sched.h>
++#include <linux/signal.h>
++#include <linux/sfi.h>
++#include <linux/types.h>
++#include <asm/irq.h>
++#include <asm/atomic.h>
++#include <asm/intel_scu_ipc.h>
++#include <asm/apb_timer.h>
++#include <asm/mrst.h>
 +
-+#define WDOG_CONTROL_REG_OFFSET		    0x00
-+#define WDOG_CONTROL_REG_WDT_EN_MASK	    0x01
-+#define WDOG_TIMEOUT_RANGE_REG_OFFSET	    0x04
-+#define WDOG_CURRENT_COUNT_REG_OFFSET	    0x08
-+#define WDOG_COUNTER_RESTART_REG_OFFSET     0x0c
-+#define WDOG_COUNTER_RESTART_KICK_VALUE	    0x76
++#include "intel_scu_watchdog.h"
 +
-+/* The maximum TOP (timeout period) value that can be set in the watchdog. */
-+#define DW_WDT_MAX_TOP		15
++/* Bounds number of times we will retry loading time count */
++/* This retry is a work around for a silicon bug.	   */
++#define MAX_RETRY 16
 +
-+static int nowayout = WATCHDOG_NOWAYOUT;
-+module_param(nowayout, int, 0);
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
-+		 "(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++#define IPC_SET_WATCHDOG_TIMER	0xF8
 +
-+#define WDT_TIMEOUT		(HZ / 2)
++static DECLARE_WAIT_QUEUE_HEAD(read_wq);
 +
-+static struct {
-+	spinlock_t		lock;
-+	void __iomem		*regs;
-+	struct clk		*clk;
-+	unsigned long		in_use;
-+	unsigned long		next_heartbeat;
-+	struct timer_list	timer;
-+	int			expect_close;
-+} dw_wdt;
++/* The read function (intel_scu_read) waits for the warning_flag to */
++/* be set by the watchdog interrupt handler. */
++/* When warning_flag is set intel_scu_read wakes up the user level */
++/* process, which is responsible for refreshing the watchdog timer */
++static int warning_flag;
 +
-+static inline int dw_wdt_is_enabled(void)
++static int timer_margin = DEFAULT_SOFT_TO_HARD_MARGIN;
++module_param(timer_margin, int, 0);
++MODULE_PARM_DESC(timer_margin,
++		"Watchdog timer margin"
++		"Time between interrupt and resetting the system"
++		"The range is from 1 to 160"
++		"This is the time for all keep alives to arrive");
++
++static int timer_set = DEFAULT_TIME;
++module_param(timer_set, int, 0);
++MODULE_PARM_DESC(timer_set,
++		"Default Watchdog timer setting"
++		"Complete cycle time"
++		"The range is from 1 to 170"
++		"This is the time for all keep alives to arrive");
++
++/* After watchdog device is closed, check force_boot. If:
++ * force_boot == 0, then force boot on next watchdog interrupt after close,
++ * force_boot == 1, then force boot immediately when device is closed.
++ */
++static int force_boot;
++module_param(force_boot, int, 0);
++MODULE_PARM_DESC(force_boot,
++		"A value of 1 means that the driver will reboot"
++		"the system immediately if the /dev/watchdog device is closed"
++		"A value of 0 means that when /dev/watchdog device is closed"
++		"the watchdog timer will be refreshed for one more interval"
++		"of length: timer_set. At the end of this interval, the"
++		"watchdog timer will reset the system."
++		);
++
++/* there is only one device in the system now; this can be made into
++ * an array in the future if we have more than one device */
++
++static struct intel_scu_watchdog_dev watchdog_device;
++
++/* Forces restart, if force_reboot is set */
++static void watchdog_fire(void)
 +{
-+	return readl(dw_wdt.regs + WDOG_CONTROL_REG_OFFSET) &
-+		WDOG_CONTROL_REG_WDT_EN_MASK;
++	if (force_boot) {
++		printk(KERN_CRIT PFX "Initiating system reboot.\n");
++		emergency_restart();
++		printk(KERN_CRIT PFX "Reboot didn't ?????\n");
++	}
++
++	else {
++		printk(KERN_CRIT PFX "Immediate Reboot Disabled\n");
++		printk(KERN_CRIT PFX
++			"System will reset when watchdog timer times out!\n");
++	}
 +}
 +
-+static inline int dw_wdt_top_in_seconds(unsigned top)
++static int check_timer_margin(int new_margin)
 +{
-+	/*
-+	 * There are 16 possible timeout values in 0..15 where the number of
-+	 * cycles is 2 ^ (16 + i) and the watchdog counts down.
-+	 */
-+	return (1 << (16 + top)) / clk_get_rate(dw_wdt.clk);
++	if ((new_margin < MIN_TIME_CYCLE) ||
++	    (new_margin > MAX_TIME - timer_set)) {
++		pr_debug("Watchdog timer: value of new_margin %d is out of the range %d to %d\n",
++			  new_margin, MIN_TIME_CYCLE, MAX_TIME - timer_set);
++		return -EINVAL;
++	}
++	return 0;
 +}
 +
-+static int dw_wdt_get_top(void)
++/*
++ * IPC operations
++ */
++static int watchdog_set_ipc(int soft_threshold, int threshold)
 +{
-+	int top = readl(dw_wdt.regs + WDOG_TIMEOUT_RANGE_REG_OFFSET) & 0xF;
++	u32	*ipc_wbuf;
++	u8	 cbuf[16] = { '\0' };
++	int	 ipc_ret = 0;
 +
-+	return dw_wdt_top_in_seconds(top);
++	ipc_wbuf = (u32 *)&cbuf;
++	ipc_wbuf[0] = soft_threshold;
++	ipc_wbuf[1] = threshold;
++
++	ipc_ret = intel_scu_ipc_command(
++			IPC_SET_WATCHDOG_TIMER,
++			0,
++			ipc_wbuf,
++			2,
++			NULL,
++			0);
++
++	if (ipc_ret != 0)
++		pr_err("Error setting SCU watchdog timer: %x\n", ipc_ret);
++
++	return ipc_ret;
++};
++
++/*
++ *      Intel_SCU operations
++ */
++
++/* timer interrupt handler */
++static irqreturn_t watchdog_timer_interrupt(int irq, void *dev_id)
++{
++	int int_status;
++	int_status = ioread32(watchdog_device.timer_interrupt_status_addr);
++
++	pr_debug("Watchdog timer: irq, int_status: %x\n", int_status);
++
++	if (int_status != 0)
++		return IRQ_NONE;
++
++	/* has the timer been started? If not, then this is spurious */
++	if (watchdog_device.timer_started == 0) {
++		pr_debug("Watchdog timer: spurious interrupt received\n");
++		return IRQ_HANDLED;
++	}
++
++	/* wake up read to send data to user (reminder for keep alive */
++	warning_flag = 1;
++
++	/* temporarily disable the timer */
++	iowrite32(0x00000002, watchdog_device.timer_control_addr);
++
++	/* set the timer to the threshold */
++	iowrite32(watchdog_device.threshold,
++		  watchdog_device.timer_load_count_addr);
++
++	/* allow the timer to run */
++	iowrite32(0x00000003, watchdog_device.timer_control_addr);
++
++	wake_up_interruptible(&read_wq);
++
++	return IRQ_HANDLED;
 +}
 +
-+static inline void dw_wdt_set_next_heartbeat(void)
++static int intel_scu_keepalive(void)
 +{
-+	dw_wdt.next_heartbeat = jiffies + dw_wdt_get_top() * HZ;
++
++	/* read eoi register - clears interrupt */
++	ioread32(watchdog_device.timer_clear_interrupt_addr);
++
++	/* temporarily disable the timer */
++	iowrite32(0x00000002, watchdog_device.timer_control_addr);
++
++	/* set the timer to the soft_threshold */
++	iowrite32(watchdog_device.soft_threshold,
++		  watchdog_device.timer_load_count_addr);
++
++	/* allow the timer to run */
++	iowrite32(0x00000003, watchdog_device.timer_control_addr);
++
++	return 0;
 +}
 +
-+static int dw_wdt_set_top(unsigned top_s)
++static int intel_scu_stop(void)
 +{
-+	int i, top_val = DW_WDT_MAX_TOP;
++	iowrite32(0, watchdog_device.timer_control_addr);
++	return 0;
++}
 +
-+	/*
-+	 * Iterate over the timeout values until we find the closest match. We
-+	 * always look for >=.
-+	 */
-+	for (i = 0; i <= DW_WDT_MAX_TOP; ++i)
-+		if (dw_wdt_top_in_seconds(i) >= top_s) {
-+			top_val = i;
-+			break;
++static int intel_scu_set_heartbeat(u32 t)
++{
++	int			 ipc_ret;
++	int			 retry_count;
++	u32			 soft_value;
++	u32			 hw_pre_value;
++	u32			 hw_value;
++
++	watchdog_device.timer_set = t;
++	watchdog_device.threshold =
++		timer_margin * watchdog_device.timer_tbl_ptr->freq_hz;
++	watchdog_device.soft_threshold =
++		(watchdog_device.timer_set - timer_margin)
++		* watchdog_device.timer_tbl_ptr->freq_hz;
++
++	pr_debug("Watchdog timer: set_heartbeat: timer freq is %d\n",
++		watchdog_device.timer_tbl_ptr->freq_hz);
++	pr_debug("Watchdog timer: set_heartbeat: timer_set is %x (hex)\n",
++		watchdog_device.timer_set);
++	pr_debug("Watchdog timer: set_hearbeat: timer_margin is %x (hex)\n",
++		timer_margin);
++	pr_debug("Watchdog timer: set_heartbeat: threshold is %x (hex)\n",
++		watchdog_device.threshold);
++	pr_debug("Watchdog timer: set_heartbeat: soft_threshold is %x (hex)\n",
++		watchdog_device.soft_threshold);
++
++	/* Adjust thresholds by FREQ_ADJUSTMENT factor, to make the */
++	/* watchdog timing come out right. */
++	watchdog_device.threshold =
++		watchdog_device.threshold / FREQ_ADJUSTMENT;
++	watchdog_device.soft_threshold =
++		watchdog_device.soft_threshold / FREQ_ADJUSTMENT;
++
++	/* temporarily disable the timer */
++	iowrite32(0x00000002, watchdog_device.timer_control_addr);
++
++	/* send the threshold and soft_threshold via IPC to the processor */
++	ipc_ret = watchdog_set_ipc(watchdog_device.soft_threshold,
++				   watchdog_device.threshold);
++
++	if (ipc_ret != 0) {
++		/* Make sure the watchdog timer is stopped */
++		intel_scu_stop();
++		return ipc_ret;
++	}
++
++	/* Soft Threshold set loop. Early versions of silicon did */
++	/* not always set this count correctly.  This loop checks */
++	/* the value and retries if it was not set correctly.     */
++
++	retry_count = 0;
++	soft_value = watchdog_device.soft_threshold & 0xFFFF0000;
++	do {
++
++		/* Make sure timer is stopped */
++		intel_scu_stop();
++
++		if (MAX_RETRY < retry_count++) {
++			/* Unable to set timer value */
++			pr_err("Watchdog timer: Unable to set timer\n");
++			return -ENODEV;
 +		}
 +
-+	/* Set the new value in the watchdog. */
-+	writel(top_val, dw_wdt.regs + WDOG_TIMEOUT_RANGE_REG_OFFSET);
++		/* set the timer to the soft threshold */
++		iowrite32(watchdog_device.soft_threshold,
++			watchdog_device.timer_load_count_addr);
 +
-+	dw_wdt_set_next_heartbeat();
++		/* read count value before starting timer */
++		hw_pre_value = ioread32(watchdog_device.timer_load_count_addr);
++		hw_pre_value = hw_pre_value & 0xFFFF0000;
 +
-+	return dw_wdt_top_in_seconds(top_val);
++		/* Start the timer */
++		iowrite32(0x00000003, watchdog_device.timer_control_addr);
++
++		/* read the value the time loaded into its count reg */
++		hw_value = ioread32(watchdog_device.timer_load_count_addr);
++		hw_value = hw_value & 0xFFFF0000;
++
++
++	} while (soft_value != hw_value);
++
++	watchdog_device.timer_started = 1;
++
++	return 0;
 +}
 +
-+static void dw_wdt_keepalive(void)
-+{
-+	writel(WDOG_COUNTER_RESTART_KICK_VALUE, dw_wdt.regs +
-+	       WDOG_COUNTER_RESTART_REG_OFFSET);
-+}
++/*
++ * /dev/watchdog handling
++ */
 +
-+static void dw_wdt_ping(unsigned long data)
++static int intel_scu_open(struct inode *inode, struct file *file)
 +{
-+	if (time_before(jiffies, dw_wdt.next_heartbeat) ||
-+	    (!nowayout && !dw_wdt.in_use)) {
-+		dw_wdt_keepalive();
-+		mod_timer(&dw_wdt.timer, jiffies + WDT_TIMEOUT);
-+	} else
-+		pr_crit("keepalive missed, machine will reset\n");
-+}
 +
-+static int dw_wdt_open(struct inode *inode, struct file *filp)
-+{
-+	if (test_and_set_bit(0, &dw_wdt.in_use))
++	/* Set flag to indicate that watchdog device is open */
++	if (test_and_set_bit(0, &watchdog_device.driver_open))
 +		return -EBUSY;
 +
-+	/* Make sure we don't get unloaded. */
-+	__module_get(THIS_MODULE);
++	/* Check for reopen of driver. Reopens are not allowed */
++	if (watchdog_device.driver_closed)
++		return -EPERM;
 +
-+	spin_lock(&dw_wdt.lock);
-+	if (!dw_wdt_is_enabled()) {
-+		/*
-+		 * The watchdog is not currently enabled. Set the timeout to
-+		 * the maximum and then start it.
-+		 */
-+		dw_wdt_set_top(DW_WDT_MAX_TOP);
-+		writel(WDOG_CONTROL_REG_WDT_EN_MASK,
-+		       dw_wdt.regs + WDOG_CONTROL_REG_OFFSET);
-+	}
-+
-+	dw_wdt_set_next_heartbeat();
-+
-+	spin_unlock(&dw_wdt.lock);
-+
-+	return nonseekable_open(inode, filp);
++	return nonseekable_open(inode, file);
 +}
 +
-+ssize_t dw_wdt_write(struct file *filp, const char __user *buf, size_t len,
-+		     loff_t *offset)
++static int intel_scu_release(struct inode *inode, struct file *file)
 +{
-+	if (!len)
-+		return 0;
++	/*
++	 * This watchdog should not be closed, after the timer
++	 * is started with the WDIPC_SETTIMEOUT ioctl
++	 * If force_boot is set watchdog_fire() will cause an
++	 * immediate reset. If force_boot is not set, the watchdog
++	 * timer is refreshed for one more interval. At the end
++	 * of that interval, the watchdog timer will reset the system.
++	 */
 +
-+	if (!nowayout) {
-+		size_t i;
-+
-+		dw_wdt.expect_close = 0;
-+
-+		for (i = 0; i < len; ++i) {
-+			char c;
-+
-+			if (get_user(c, buf + i))
-+				return -EFAULT;
-+
-+			if (c == 'V') {
-+				dw_wdt.expect_close = 1;
-+				break;
-+			}
-+		}
++	if (!test_and_clear_bit(0, &watchdog_device.driver_open)) {
++		pr_debug("Watchdog timer: intel_scu_release, without open\n");
++		return -ENOTTY;
 +	}
 +
-+	dw_wdt_set_next_heartbeat();
-+	mod_timer(&dw_wdt.timer, jiffies + WDT_TIMEOUT);
++	if (!watchdog_device.timer_started) {
++		/* Just close, since timer has not been started */
++		pr_debug("Watchdog timer: closed, without starting timer\n");
++		return 0;
++	}
++
++	printk(KERN_CRIT PFX
++	       "Unexpected close of /dev/watchdog!\n");
++
++	/* Since the timer was started, prevent future reopens */
++	watchdog_device.driver_closed = 1;
++
++	/* Refresh the timer for one more interval */
++	intel_scu_keepalive();
++
++	/* Reboot system (if force_boot is set) */
++	watchdog_fire();
++
++	/* We should only reach this point if force_boot is not set */
++	return 0;
++}
++
++static ssize_t intel_scu_write(struct file *file,
++			      char const *data,
++			      size_t len,
++			      loff_t *ppos)
++{
++
++	if (watchdog_device.timer_started)
++		/* Watchdog already started, keep it alive */
++		intel_scu_keepalive();
++	else
++		/* Start watchdog with timer value set by init */
++		intel_scu_set_heartbeat(watchdog_device.timer_set);
 +
 +	return len;
 +}
 +
-+static u32 dw_wdt_time_left(void)
++static ssize_t intel_scu_read(struct file *file,
++			     char __user *user_data,
++			     size_t len,
++			     loff_t *user_ppos)
 +{
-+	return readl(dw_wdt.regs + WDOG_CURRENT_COUNT_REG_OFFSET) /
-+		clk_get_rate(dw_wdt.clk);
++	int result;
++	u8 buf = 0;
++
++	/* we wait for the next interrupt; if more than one */
++	/* interrupt has occurred since the last read, we */
++	/* dont care. The data is not critical. We will do */
++	/* a copy to user each time we get and interrupt */
++	/* It is up to the Watchdog daemon to be ready to */
++	/* do the read (which signifies that the driver is */
++	/* awaiting a keep alive and that a limited time */
++	/* is available for the keep alive before the system */
++	/* is rebooted by the timer */
++	if (wait_event_interruptible(read_wq, warning_flag != 0))
++		return -ERESTARTSYS;
++
++	warning_flag = 0;
++
++	/* Please note that the content of the data is irrelevent */
++	/* All that matters is that the read is available to the user */
++	result = copy_to_user(user_data, (void *)&buf, 1);
++
++	if (result != 0)
++		return -EFAULT;
++	else
++		return 1;
++
 +}
 +
-+static const struct watchdog_info dw_wdt_ident = {
-+	.options	= WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT |
-+			  WDIOF_MAGICCLOSE,
-+	.identity	= "Synopsys DesignWare Watchdog",
-+};
-+
-+static long dw_wdt_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
++static long intel_scu_ioctl(struct file *file,
++			   unsigned int cmd,
++			   unsigned long arg)
 +{
-+	unsigned long val;
-+	int timeout;
++	void __user *argp = (void __user *)arg;
++	u32 __user *p = argp;
++	u32 new_margin;
++
++
++	static const struct watchdog_info ident = {
++		.options =          WDIOF_SETTIMEOUT
++				    | WDIOF_KEEPALIVEPING,
++		.firmware_version = 0,  /* @todo Get from SCU via
++						 ipc_get_scu_fw_version()? */
++		.identity =         "Intel_SCU IOH Watchdog"  /* len < 32 */
++	};
 +
 +	switch (cmd) {
 +	case WDIOC_GETSUPPORT:
-+		return copy_to_user((struct watchdog_info *)arg, &dw_wdt_ident,
-+				    sizeof(dw_wdt_ident)) ? -EFAULT : 0;
-+
++		return copy_to_user(argp,
++				    &ident,
++				    sizeof(ident)) ? -EFAULT : 0;
 +	case WDIOC_GETSTATUS:
 +	case WDIOC_GETBOOTSTATUS:
-+		return put_user(0, (int *)arg);
-+
++		return put_user(0, p);
 +	case WDIOC_KEEPALIVE:
-+		dw_wdt_set_next_heartbeat();
++		intel_scu_keepalive();
++
 +		return 0;
-+
 +	case WDIOC_SETTIMEOUT:
-+		if (get_user(val, (int __user *)arg))
++		if (get_user(new_margin, p))
 +			return -EFAULT;
-+		timeout = dw_wdt_set_top(val);
-+		return put_user(timeout , (int __user *)arg);
 +
++		if (check_timer_margin(new_margin))
++			return -EINVAL;
++
++		if (intel_scu_set_heartbeat(new_margin))
++			return -EINVAL;
++		return 0;
 +	case WDIOC_GETTIMEOUT:
-+		return put_user(dw_wdt_get_top(), (int __user *)arg);
-+
-+	case WDIOC_GETTIMELEFT:
-+		/* Get the time left until expiry. */
-+		if (get_user(val, (int __user *)arg))
-+			return -EFAULT;
-+		return put_user(dw_wdt_time_left(), (int __user *)arg);
++		return put_user(watchdog_device.soft_threshold, p);
 +
 +	default:
 +		return -ENOTTY;
 +	}
 +}
 +
-+static int dw_wdt_release(struct inode *inode, struct file *filp)
++/*
++ *      Notifier for system down
++ */
++static int intel_scu_notify_sys(struct notifier_block *this,
++			       unsigned long code,
++			       void *another_unused)
 +{
-+	clear_bit(0, &dw_wdt.in_use);
-+
-+	if (!dw_wdt.expect_close) {
-+		del_timer(&dw_wdt.timer);
-+
-+		if (!nowayout)
-+			pr_crit("unexpected close, system will reboot soon\n");
-+		else
-+			pr_crit("watchdog cannot be disabled, system will reboot soon\n");
-+	}
-+
-+	dw_wdt.expect_close = 0;
-+
-+	return 0;
++	if (code == SYS_DOWN || code == SYS_HALT)
++		/* Turn off the watchdog timer. */
++		intel_scu_stop();
++	return NOTIFY_DONE;
 +}
 +
-+#ifdef CONFIG_PM
-+static int dw_wdt_suspend(struct device *dev)
-+{
-+	clk_disable(dw_wdt.clk);
-+
-+	return 0;
-+}
-+
-+static int dw_wdt_resume(struct device *dev)
-+{
-+	int err = clk_enable(dw_wdt.clk);
-+
-+	if (err)
-+		return err;
-+
-+	dw_wdt_keepalive();
-+
-+	return 0;
-+}
-+
-+static const struct dev_pm_ops dw_wdt_pm_ops = {
-+	.suspend	= dw_wdt_suspend,
-+	.resume		= dw_wdt_resume,
-+};
-+#endif /* CONFIG_PM */
-+
-+static const struct file_operations wdt_fops = {
-+	.owner		= THIS_MODULE,
-+	.llseek		= no_llseek,
-+	.open		= dw_wdt_open,
-+	.write		= dw_wdt_write,
-+	.unlocked_ioctl	= dw_wdt_ioctl,
-+	.release	= dw_wdt_release
++/*
++ *      Kernel Interfaces
++ */
++static const struct file_operations intel_scu_fops = {
++	.owner          = THIS_MODULE,
++	.llseek         = no_llseek,
++	.write          = intel_scu_write,
++	.read		= intel_scu_read,
++	.unlocked_ioctl = intel_scu_ioctl,
++	.open           = intel_scu_open,
++	.release        = intel_scu_release,
 +};
 +
-+static struct miscdevice dw_wdt_miscdev = {
-+	.fops		= &wdt_fops,
-+	.name		= "watchdog",
-+	.minor		= WATCHDOG_MINOR,
-+};
-+
-+static int __devinit dw_wdt_drv_probe(struct platform_device *pdev)
++static int __init intel_scu_watchdog_init(void)
 +{
 +	int ret;
-+	struct resource *mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	u32 __iomem *tmp_addr;
 +
-+	if (!mem)
++	/*
++	 * We don't really need to check this as the SFI timer get will fail
++	 * but if we do so we can exit with a clearer reason and no noise.
++	 *
++	 * If it isn't an intel MID device then it doesn't have this watchdog
++	 */
++	if (!mrst_identify_cpu())
++		return -ENODEV;
++
++	/* Check boot parameters to verify that their initial values */
++	/* are in range. */
++	/* Check value of timer_set boot parameter */
++	if ((timer_set < MIN_TIME_CYCLE) ||
++	    (timer_set > MAX_TIME - MIN_TIME_CYCLE)) {
++		pr_err("Watchdog timer: value of timer_set %x (hex) "
++		  "is out of range from %x to %x (hex)\n",
++		  timer_set, MIN_TIME_CYCLE, MAX_TIME - MIN_TIME_CYCLE);
++		return -EINVAL;
++	}
++
++	/* Check value of timer_margin boot parameter */
++	if (check_timer_margin(timer_margin))
 +		return -EINVAL;
 +
-+	if (!devm_request_mem_region(&pdev->dev, mem->start, resource_size(mem),
-+				     "dw_wdt"))
++	watchdog_device.timer_tbl_ptr = sfi_get_mtmr(sfi_mtimer_num-1);
++
++	if (watchdog_device.timer_tbl_ptr == NULL) {
++		pr_debug("Watchdog timer - Intel SCU watchdog: timer is not available\n");
++		return -ENODEV;
++	}
++	/* make sure the timer exists */
++	if (watchdog_device.timer_tbl_ptr->phys_addr == 0) {
++		pr_debug("Watchdog timer - Intel SCU watchdog - timer %d does not have valid physical memory\n",
++								sfi_mtimer_num);
++		return -ENODEV;
++	}
++
++	if (watchdog_device.timer_tbl_ptr->irq == 0) {
++		pr_debug("Watchdog timer: timer %d invalid irq\n",
++							sfi_mtimer_num);
++		return -ENODEV;
++	}
++
++	tmp_addr = ioremap_nocache(watchdog_device.timer_tbl_ptr->phys_addr,
++			20);
++
++	if (tmp_addr == NULL) {
++		pr_debug("Watchdog timer: timer unable to ioremap\n");
 +		return -ENOMEM;
++	}
 +
-+	dw_wdt.regs = devm_ioremap(&pdev->dev, mem->start, resource_size(mem));
-+	if (!dw_wdt.regs)
-+		return -ENOMEM;
++	watchdog_device.timer_load_count_addr = tmp_addr++;
++	watchdog_device.timer_current_value_addr = tmp_addr++;
++	watchdog_device.timer_control_addr = tmp_addr++;
++	watchdog_device.timer_clear_interrupt_addr = tmp_addr++;
++	watchdog_device.timer_interrupt_status_addr = tmp_addr++;
 +
-+	dw_wdt.clk = clk_get(&pdev->dev, NULL);
-+	if (IS_ERR(dw_wdt.clk))
-+		return PTR_ERR(dw_wdt.clk);
++	/* Set the default time values in device structure */
 +
-+	ret = clk_enable(dw_wdt.clk);
-+	if (ret)
-+		goto out_put_clk;
++	watchdog_device.timer_set = timer_set;
++	watchdog_device.threshold =
++		timer_margin * watchdog_device.timer_tbl_ptr->freq_hz;
++	watchdog_device.soft_threshold =
++		(watchdog_device.timer_set - timer_margin)
++		* watchdog_device.timer_tbl_ptr->freq_hz;
 +
-+	spin_lock_init(&dw_wdt.lock);
 +
-+	ret = misc_register(&dw_wdt_miscdev);
-+	if (ret)
-+		goto out_disable_clk;
++	watchdog_device.intel_scu_notifier.notifier_call =
++		intel_scu_notify_sys;
 +
-+	dw_wdt_set_next_heartbeat();
-+	setup_timer(&dw_wdt.timer, dw_wdt_ping, 0);
-+	mod_timer(&dw_wdt.timer, jiffies + WDT_TIMEOUT);
++	ret = register_reboot_notifier(&watchdog_device.intel_scu_notifier);
++	if (ret) {
++		pr_err("Watchdog timer: cannot register notifier %d)\n", ret);
++		goto register_reboot_error;
++	}
 +
++	watchdog_device.miscdev.minor = WATCHDOG_MINOR;
++	watchdog_device.miscdev.name = "watchdog";
++	watchdog_device.miscdev.fops = &intel_scu_fops;
++
++	ret = misc_register(&watchdog_device.miscdev);
++	if (ret) {
++		pr_err("Watchdog timer: cannot register miscdev %d err =%d\n",
++							WATCHDOG_MINOR, ret);
++		goto misc_register_error;
++	}
++
++	ret = request_irq((unsigned int)watchdog_device.timer_tbl_ptr->irq,
++		watchdog_timer_interrupt,
++		IRQF_SHARED, "watchdog",
++		&watchdog_device.timer_load_count_addr);
++	if (ret) {
++		pr_err("Watchdog timer: error requesting irq %d\n", ret);
++		goto request_irq_error;
++	}
++	/* Make sure timer is disabled before returning */
++	intel_scu_stop();
 +	return 0;
 +
-+out_disable_clk:
-+	clk_disable(dw_wdt.clk);
-+out_put_clk:
-+	clk_put(dw_wdt.clk);
++/* error cleanup */
 +
++request_irq_error:
++	misc_deregister(&watchdog_device.miscdev);
++misc_register_error:
++	unregister_reboot_notifier(&watchdog_device.intel_scu_notifier);
++register_reboot_error:
++	intel_scu_stop();
++	iounmap(watchdog_device.timer_load_count_addr);
 +	return ret;
 +}
 +
-+static int __devexit dw_wdt_drv_remove(struct platform_device *pdev)
++static void __exit intel_scu_watchdog_exit(void)
 +{
-+	misc_deregister(&dw_wdt_miscdev);
 +
-+	clk_disable(dw_wdt.clk);
-+	clk_put(dw_wdt.clk);
-+
-+	return 0;
++	misc_deregister(&watchdog_device.miscdev);
++	unregister_reboot_notifier(&watchdog_device.intel_scu_notifier);
++	/* disable the timer */
++	iowrite32(0x00000002, watchdog_device.timer_control_addr);
++	iounmap(watchdog_device.timer_load_count_addr);
 +}
 +
-+static struct platform_driver dw_wdt_driver = {
-+	.probe		= dw_wdt_drv_probe,
-+	.remove		= __devexit_p(dw_wdt_drv_remove),
-+	.driver		= {
-+		.name	= "dw_wdt",
-+		.owner	= THIS_MODULE,
-+#ifdef CONFIG_PM
-+		.pm	= &dw_wdt_pm_ops,
-+#endif /* CONFIG_PM */
-+	},
-+};
++late_initcall(intel_scu_watchdog_init);
++module_exit(intel_scu_watchdog_exit);
 +
-+static int __init dw_wdt_watchdog_init(void)
-+{
-+	return platform_driver_register(&dw_wdt_driver);
-+}
-+module_init(dw_wdt_watchdog_init);
-+
-+static void __exit dw_wdt_watchdog_exit(void)
-+{
-+	platform_driver_unregister(&dw_wdt_driver);
-+}
-+module_exit(dw_wdt_watchdog_exit);
-+
-+MODULE_AUTHOR("Jamie Iles");
-+MODULE_DESCRIPTION("Synopsys DesignWare Watchdog Driver");
++MODULE_AUTHOR("Intel Corporation");
++MODULE_DESCRIPTION("Intel SCU Watchdog Device Driver");
 +MODULE_LICENSE("GPL");
 +MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
--- 
-1.7.3.4
++MODULE_VERSION(WDT_VER);
++
+diff --git a/drivers/watchdog/intel_scu_watchdog.h b/drivers/watchdog/intel_scu_watchdog.h
+new file mode 100644
+index 0000000..d2b074a
+--- /dev/null
++++ b/drivers/watchdog/intel_scu_watchdog.h
+@@ -0,0 +1,66 @@
++/*
++ *      Intel_SCU 0.2:  An Intel SCU IOH Based Watchdog Device
++ *			for Intel part #(s):
++ *				- AF82MP20 PCH
++ *
++ *      Copyright (C) 2009-2010 Intel Corporation. All rights reserved.
++ *
++ *      This program is free software; you can redistribute it and/or
++ *      modify it under the terms of version 2 of the GNU General
++ *      Public License as published by the Free Software Foundation.
++ *
++ *      This program is distributed in the hope that it will be
++ *      useful, but WITHOUT ANY WARRANTY; without even the implied
++ *      warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
++ *      PURPOSE.  See the GNU General Public License for more details.
++ *      You should have received a copy of the GNU General Public
++ *      License along with this program; if not, write to the Free
++ *      Software Foundation, Inc., 59 Temple Place - Suite 330,
++ *      Boston, MA  02111-1307, USA.
++ *      The full GNU General Public License is included in this
++ *      distribution in the file called COPYING.
++ *
++ */
++
++#ifndef __INTEL_SCU_WATCHDOG_H
++#define __INTEL_SCU_WATCHDOG_H
++
++#define PFX "Intel_SCU: "
++#define WDT_VER "0.3"
++
++/* minimum time between interrupts */
++#define MIN_TIME_CYCLE 1
++
++/* Time from warning to reboot is 2 seconds */
++#define DEFAULT_SOFT_TO_HARD_MARGIN 2
++
++#define MAX_TIME 170
++
++#define DEFAULT_TIME 5
++
++#define MAX_SOFT_TO_HARD_MARGIN (MAX_TIME-MIN_TIME_CYCLE)
++
++/* Ajustment to clock tick frequency to make timing come out right */
++#define FREQ_ADJUSTMENT 8
++
++struct intel_scu_watchdog_dev {
++	ulong driver_open;
++	ulong driver_closed;
++	u32 timer_started;
++	u32 timer_set;
++	u32 threshold;
++	u32 soft_threshold;
++	u32 __iomem *timer_load_count_addr;
++	u32 __iomem *timer_current_value_addr;
++	u32 __iomem *timer_control_addr;
++	u32 __iomem *timer_clear_interrupt_addr;
++	u32 __iomem *timer_interrupt_status_addr;
++	struct sfi_timer_table_entry *timer_tbl_ptr;
++	struct notifier_block intel_scu_notifier;
++	struct miscdevice miscdev;
++};
++
++extern int sfi_mtimer_num;
++
++/* extern struct sfi_timer_table_entry *sfi_get_mtmr(int hint); */
++#endif /* __INTEL_SCU_WATCHDOG_H */
 
