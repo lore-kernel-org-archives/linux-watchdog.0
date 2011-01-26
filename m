@@ -1,68 +1,61 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay005.isp.belgacom.be ([195.238.6.171]:40919 "EHLO
-	mailrelay005.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753929Ab1AZVOB (ORCPT
+Received: from mailrelay008.isp.belgacom.be ([195.238.6.174]:19501 "EHLO
+	mailrelay008.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752802Ab1AZVT3 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 26 Jan 2011 16:14:01 -0500
-Date: Wed, 26 Jan 2011 22:13:59 +0100
+	Wed, 26 Jan 2011 16:19:29 -0500
+Date: Wed, 26 Jan 2011 22:19:24 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: dd diasemi <dd.diasemi@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCHv3 7/11] WDT: Watchdog timer module of DA9052 device
-	driver
-Message-ID: <20110126211359.GA3790@infomag.iguana.be>
-References: <AANLkTi=AvA-hOa=5vSoZLMQXsXHdWWieFmCCVx7-p+T4@mail.gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-watchdog@vger.kernel.org
+Subject: Re: [RESEND PATCH] Intel SCU Watchdog Timer Driver for Moorestown
+	and Medfield platforms.
+Message-ID: <20110126211924.GB3790@infomag.iguana.be>
+References: <20110125141322.8904.29179.stgit@bob.linux.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <AANLkTi=AvA-hOa=5vSoZLMQXsXHdWWieFmCCVx7-p+T4@mail.gmail.com>
+In-Reply-To: <20110125141322.8904.29179.stgit@bob.linux.org.uk>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
+Hi Alan,
 
-> +static long da9052_wdt_ioctl(struct file *file, unsigned int cmd,
-> +				unsigned long arg)
+> +static ssize_t intel_scu_read(struct file *file,
+> +			     char __user *user_data,
+> +			     size_t len,
+> +			     loff_t *user_ppos)
 > +{
-> +	struct da9052_wdt *wdt = get_wdt_da9052();
-> +	void __user *argp = (void __user *)arg;
-> +	int __user *p = argp;
-> +	unsigned char new_value;
+> +	int result;
+> +	u8 buf = 0;
 > +
-> +	switch (cmd) {
+> +	/* we wait for the next interrupt; if more than one */
+> +	/* interrupt has occurred since the last read, we */
+> +	/* dont care. The data is not critical. We will do */
+> +	/* a copy to user each time we get and interrupt */
+> +	/* It is up to the Watchdog daemon to be ready to */
+> +	/* do the read (which signifies that the driver is */
+> +	/* awaiting a keep alive and that a limited time */
+> +	/* is available for the keep alive before the system */
+> +	/* is rebooted by the timer */
+> +	if (wait_event_interruptible(read_wq, warning_flag != 0))
+> +		return -ERESTARTSYS;
 > +
-> +	case WDIOC_GETSUPPORT:
-> +		return copy_to_user(argp, &da9052_wdt_info,
-> +			sizeof(da9052_wdt_info)) ? -EFAULT : 0;
-> +	case WDIOC_GETSTATUS:
-> +	case WDIOC_GETBOOTSTATUS:
-> +		return put_user(0, p);
-> +	case WDIOC_SETOPTIONS:
-> +		if (get_user(new_value, p))
-> +			return -EFAULT;
-> +		if (new_value & DA9052_STROBING_FILTER_ENABLE)
-> +			da9052_sm_set_strobing_filter(wdt, ENABLE);
-> +		if (new_value & DA9052_STROBING_FILTER_DISABLE)
-> +			da9052_sm_set_strobing_filter(wdt, DISABLE);
-> +		if (new_value & DA9052_SET_STROBING_MODE_MANUAL)
-> +			da9052_sm_set_strobing_mode(DA9052_STROBE_MANUAL);
-> +		if (new_value & DA9052_SET_STROBING_MODE_AUTO)
-> +			da9052_sm_set_strobing_mode(DA9052_STROBE_AUTO);
-> +		return 0;
+> +	warning_flag = 0;
+> +
+> +	/* Please note that the content of the data is irrelevent */
+> +	/* All that matters is that the read is available to the user */
+> +	result = copy_to_user(user_data, (void *)&buf, 1);
+> +
+> +	if (result != 0)
+> +		return -EFAULT;
+> +	else
+> +		return 1;
+> +
+> +}
 
-The ioctl WDIOC_SETOPTIONS call is not in line with the watchdog API.
-the supported options are:
-#define	WDIOS_DISABLECARD	0x0001	/* Turn off the watchdog timer */
-#define	WDIOS_ENABLECARD	0x0002	/* Turn on the watchdog timer */
-#define	WDIOS_TEMPPANIC		0x0004	/* Kernel panic on temperature trip */
-
-Your options are:
-#define DA9052_STROBING_FILTER_ENABLE	0x0001
-#define DA9052_STROBING_FILTER_DISABLE	0x0002
-#define DA9052_SET_STROBING_MODE_MANUAL	0x0004
-#define DA9052_SET_STROBING_MODE_AUTO	0x0008
-
-Please explain what you want to do.
+Since we don't use the read operation for /dev/watchdog up till now:
+could you explain what the read function is supposed to do?
 
 Thanks in advance,
 Wim.
