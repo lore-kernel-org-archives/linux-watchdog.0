@@ -1,62 +1,476 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay008.isp.belgacom.be ([195.238.6.174]:19501 "EHLO
-	mailrelay008.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752802Ab1AZVT3 (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 26 Jan 2011 16:19:29 -0500
-Date: Wed, 26 Jan 2011 22:19:24 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-watchdog@vger.kernel.org
-Subject: Re: [RESEND PATCH] Intel SCU Watchdog Timer Driver for Moorestown
-	and Medfield platforms.
-Message-ID: <20110126211924.GB3790@infomag.iguana.be>
-References: <20110125141322.8904.29179.stgit@bob.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <4D41A088020000780002ED06@vpn.id2.novell.com>
+Date: Thu, 27 Jan 2011 15:42:48 +0000
+From: "Jan Beulich" <JBeulich@novell.com>
+To: <linux-watchdog@vger.kernel.org>
+Cc: "Ian Campbell" <ian.campbell@citrix.com>,
+	"Jeremy Fitzhardinge" <jeremy@goop.org>,
+	"xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>
+Subject: [PATCH, resend] Xen watchdog driver
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20110125141322.8904.29179.stgit@bob.linux.org.uk>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Alan,
+While the hypervisor change adding SCHEDOP_watchdog support included a
+daemon to make use of the new functionality, having a kernel driver
+for /dev/watchdog so that user space code doesn't need to distinguish
+non-Xen and Xen seems to be preferable.
 
-> +static ssize_t intel_scu_read(struct file *file,
-> +			     char __user *user_data,
-> +			     size_t len,
-> +			     loff_t *user_ppos)
-> +{
-> +	int result;
-> +	u8 buf = 0;
-> +
-> +	/* we wait for the next interrupt; if more than one */
-> +	/* interrupt has occurred since the last read, we */
-> +	/* dont care. The data is not critical. We will do */
-> +	/* a copy to user each time we get and interrupt */
-> +	/* It is up to the Watchdog daemon to be ready to */
-> +	/* do the read (which signifies that the driver is */
-> +	/* awaiting a keep alive and that a limited time */
-> +	/* is available for the keep alive before the system */
-> +	/* is rebooted by the timer */
-> +	if (wait_event_interruptible(read_wq, warning_flag != 0))
-> +		return -ERESTARTSYS;
-> +
-> +	warning_flag = 0;
-> +
-> +	/* Please note that the content of the data is irrelevent */
-> +	/* All that matters is that the read is available to the user */
-> +	result = copy_to_user(user_data, (void *)&buf, 1);
-> +
-> +	if (result != 0)
-> +		return -EFAULT;
-> +	else
-> +		return 1;
-> +
-> +}
+Signed-off-by: Jan Beulich <jbeulich@novell.com>
+Acked-by: Ian Campbell <ian.campbell@citrix.com> (on the Xen aspects of the patch)
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>
 
-Since we don't use the read operation for /dev/watchdog up till now:
-could you explain what the read function is supposed to do?
+---
+ drivers/watchdog/Kconfig      |   10 +
+ drivers/watchdog/Makefile     |    3 
+ drivers/watchdog/xen_wdt.c    |  359 ++++++++++++++++++++++++++++++++++++++++++
+ include/xen/interface/sched.h |   34 +++
+ 4 files changed, 406 insertions(+)
 
-Thanks in advance,
-Wim.
+--- 2.6.38-rc2/drivers/watchdog/Kconfig
++++ 2.6.38-rc2-xen-watchdog/drivers/watchdog/Kconfig
+@@ -1119,6 +1119,16 @@ config WATCHDOG_RIO
+ 
+ # XTENSA Architecture
+ 
++# Xen Architecture
++
++config XEN_WDT
++	tristate "Xen Watchdog support"
++	depends on XEN
++	help
++	  Say Y here to support the hypervisor watchdog capability provided
++	  by Xen 4.0 and newer.  The watchdog timeout period is normally one
++	  minute but can be changed with a boot-time parameter.
++
+ #
+ # ISA-based Watchdog Cards
+ #
+--- 2.6.38-rc2/drivers/watchdog/Makefile
++++ 2.6.38-rc2-xen-watchdog/drivers/watchdog/Makefile
+@@ -148,6 +148,9 @@ obj-$(CONFIG_WATCHDOG_CP1XXX)		+= cpwd.o
+ 
+ # XTENSA Architecture
+ 
++# Xen
++obj-$(CONFIG_XEN_WDT) += xen_wdt.o
++
+ # Architecture Independant
+ obj-$(CONFIG_WM831X_WATCHDOG) += wm831x_wdt.o
+ obj-$(CONFIG_WM8350_WATCHDOG) += wm8350_wdt.o
+--- 2.6.38-rc2/drivers/watchdog/xen_wdt.c
++++ 2.6.38-rc2-xen-watchdog/drivers/watchdog/xen_wdt.c
+@@ -0,0 +1,359 @@
++/*
++ *	Xen Watchdog Driver
++ *
++ *	(c) Copyright 2010 Novell, Inc.
++ *
++ *	This program is free software; you can redistribute it and/or
++ *	modify it under the terms of the GNU General Public License
++ *	as published by the Free Software Foundation; either version
++ *	2 of the License, or (at your option) any later version.
++ */
++
++#define DRV_NAME	"wdt"
++#define DRV_VERSION	"0.01"
++#define PFX		DRV_NAME ": "
++
++#include <linux/bug.h>
++#include <linux/errno.h>
++#include <linux/fs.h>
++#include <linux/hrtimer.h>
++#include <linux/kernel.h>
++#include <linux/ktime.h>
++#include <linux/init.h>
++#include <linux/miscdevice.h>
++#include <linux/module.h>
++#include <linux/moduleparam.h>
++#include <linux/platform_device.h>
++#include <linux/spinlock.h>
++#include <linux/uaccess.h>
++#include <linux/watchdog.h>
++#include <xen/xen.h>
++#include <asm/xen/hypercall.h>
++#include <xen/interface/sched.h>
++
++static struct platform_device *platform_device;
++static DEFINE_SPINLOCK(wdt_lock);
++static struct sched_watchdog wdt;
++static __kernel_time_t wdt_expires;
++static bool is_active, expect_release;
++
++#define WATCHDOG_TIMEOUT 60 /* in seconds */
++static unsigned int timeout = WATCHDOG_TIMEOUT;
++module_param(timeout, uint, S_IRUGO);
++MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds "
++	"(default=" __MODULE_STRING(WATCHDOG_TIMEOUT) ")");
++
++static bool nowayout = WATCHDOG_NOWAYOUT;
++module_param(nowayout, bool, S_IRUGO);
++MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
++	"(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++
++static inline __kernel_time_t set_timeout(void)
++{
++	wdt.timeout = timeout;
++	return ktime_to_timespec(ktime_get()).tv_sec + timeout;
++}
++
++static int xen_wdt_start(void)
++{
++	__kernel_time_t expires;
++	int err;
++
++	spin_lock(&wdt_lock);
++
++	expires = set_timeout();
++	if (!wdt.id)
++		err = HYPERVISOR_sched_op(SCHEDOP_watchdog, &wdt);
++	else
++		err = -EBUSY;
++	if (err > 0) {
++		wdt.id = err;
++		wdt_expires = expires;
++		err = 0;
++	} else
++		BUG_ON(!err);
++
++	spin_unlock(&wdt_lock);
++
++	return err;
++}
++
++static int xen_wdt_stop(void)
++{
++	int err = 0;
++
++	spin_lock(&wdt_lock);
++
++	wdt.timeout = 0;
++	if (wdt.id)
++		err = HYPERVISOR_sched_op(SCHEDOP_watchdog, &wdt);
++	if (!err)
++		wdt.id = 0;
++
++	spin_unlock(&wdt_lock);
++
++	return err;
++}
++
++static int xen_wdt_kick(void)
++{
++	__kernel_time_t expires;
++	int err;
++
++	spin_lock(&wdt_lock);
++
++	expires = set_timeout();
++	if (wdt.id)
++		err = HYPERVISOR_sched_op(SCHEDOP_watchdog, &wdt);
++	else
++		err = -ENXIO;
++	if (!err)
++		wdt_expires = expires;
++
++	spin_unlock(&wdt_lock);
++
++	return err;
++}
++
++static int xen_wdt_open(struct inode *inode, struct file *file)
++{
++	int err;
++
++	/* /dev/watchdog can only be opened once */
++	if (xchg(&is_active, true))
++		return -EBUSY;
++
++	err = xen_wdt_start();
++	if (err == -EBUSY)
++		err = xen_wdt_kick();
++	return err ?: nonseekable_open(inode, file);
++}
++
++static int xen_wdt_release(struct inode *inode, struct file *file)
++{
++	if (expect_release)
++		xen_wdt_stop();
++	else {
++		printk(KERN_CRIT PFX
++		       "unexpected close, not stopping watchdog!\n");
++		xen_wdt_kick();
++	}
++	is_active = false;
++	expect_release = false;
++	return 0;
++}
++
++static ssize_t xen_wdt_write(struct file *file, const char __user *data,
++			     size_t len, loff_t *ppos)
++{
++	/* See if we got the magic character 'V' and reload the timer */
++	if (len) {
++		if (!nowayout) {
++			size_t i;
++
++			/* in case it was set long ago */
++			expect_release = false;
++
++			/* scan to see whether or not we got the magic
++			   character */
++			for (i = 0; i != len; i++) {
++				char c;
++				if (get_user(c, data + i))
++					return -EFAULT;
++				if (c == 'V')
++					expect_release = true;
++			}
++		}
++
++		/* someone wrote to us, we should reload the timer */
++		xen_wdt_kick();
++	}
++	return len;
++}
++
++static long xen_wdt_ioctl(struct file *file, unsigned int cmd,
++			  unsigned long arg)
++{
++	int new_options, retval = -EINVAL;
++	int new_timeout;
++	int __user *argp = (void __user *)arg;
++	static const struct watchdog_info ident = {
++		.options =		WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
++		.firmware_version =	0,
++		.identity =		DRV_NAME,
++	};
++
++	switch (cmd) {
++	case WDIOC_GETSUPPORT:
++		return copy_to_user(argp, &ident, sizeof(ident)) ? -EFAULT : 0;
++
++	case WDIOC_GETSTATUS:
++	case WDIOC_GETBOOTSTATUS:
++		return put_user(0, argp);
++
++	case WDIOC_SETOPTIONS:
++		if (get_user(new_options, argp))
++			return -EFAULT;
++
++		if (new_options & WDIOS_DISABLECARD)
++			retval = xen_wdt_stop();
++		if (new_options & WDIOS_ENABLECARD) {
++			retval = xen_wdt_start();
++			if (retval == -EBUSY)
++				retval = xen_wdt_kick();
++		}
++		return retval;
++
++	case WDIOC_KEEPALIVE:
++		xen_wdt_kick();
++		return 0;
++
++	case WDIOC_SETTIMEOUT:
++		if (get_user(new_timeout, argp))
++			return -EFAULT;
++		if (!new_timeout)
++			return -EINVAL;
++		timeout = new_timeout;
++		xen_wdt_kick();
++		/* fall through */
++	case WDIOC_GETTIMEOUT:
++		return put_user(timeout, argp);
++
++	case WDIOC_GETTIMELEFT:
++		retval = wdt_expires - ktime_to_timespec(ktime_get()).tv_sec;
++		return put_user(retval, argp);
++	}
++
++	return -ENOTTY;
++}
++
++static const struct file_operations xen_wdt_fops = {
++	.owner =		THIS_MODULE,
++	.llseek =		no_llseek,
++	.write =		xen_wdt_write,
++	.unlocked_ioctl =	xen_wdt_ioctl,
++	.open =			xen_wdt_open,
++	.release =		xen_wdt_release,
++};
++
++static struct miscdevice xen_wdt_miscdev = {
++	.minor =	WATCHDOG_MINOR,
++	.name =		"watchdog",
++	.fops =		&xen_wdt_fops,
++};
++
++static int __devinit xen_wdt_probe(struct platform_device *dev)
++{
++	struct sched_watchdog wd = { .id = ~0 };
++	int ret = HYPERVISOR_sched_op(SCHEDOP_watchdog, &wd);
++
++	switch (ret) {
++	case -EINVAL:
++		if (!timeout) {
++			timeout = WATCHDOG_TIMEOUT;
++			printk(KERN_INFO PFX
++			       "timeout value invalid, using %d\n", timeout);
++		}
++
++		ret = misc_register(&xen_wdt_miscdev);
++		if (ret) {
++			printk(KERN_ERR PFX
++			       "cannot register miscdev on minor=%d (%d)\n",
++			       WATCHDOG_MINOR, ret);
++			break;
++		}
++
++		printk(KERN_INFO PFX
++		       "initialized (timeout=%ds, nowayout=%d)\n",
++		       timeout, nowayout);
++		break;
++
++	case -ENOSYS:
++		printk(KERN_INFO PFX "not supported\n");
++		ret = -ENODEV;
++		break;
++
++	default:
++		printk(KERN_INFO PFX "bogus return value %d\n", ret);
++		break;
++	}
++
++	return ret;
++}
++
++static int __devexit xen_wdt_remove(struct platform_device *dev)
++{
++	/* Stop the timer before we leave */
++	if (!nowayout)
++		xen_wdt_stop();
++
++	misc_deregister(&xen_wdt_miscdev);
++
++	return 0;
++}
++
++static void xen_wdt_shutdown(struct platform_device *dev)
++{
++	xen_wdt_stop();
++}
++
++static int xen_wdt_suspend(struct platform_device *dev, pm_message_t state)
++{
++	return xen_wdt_stop();
++}
++
++static int xen_wdt_resume(struct platform_device *dev)
++{
++	return xen_wdt_start();
++}
++
++static struct platform_driver xen_wdt_driver = {
++	.probe          = xen_wdt_probe,
++	.remove         = __devexit_p(xen_wdt_remove),
++	.shutdown       = xen_wdt_shutdown,
++	.suspend        = xen_wdt_suspend,
++	.resume         = xen_wdt_resume,
++	.driver         = {
++		.owner  = THIS_MODULE,
++		.name   = DRV_NAME,
++	},
++};
++
++static int __init xen_wdt_init_module(void)
++{
++	int err;
++
++	if (!xen_domain())
++		return -ENODEV;
++
++	printk(KERN_INFO PFX "Xen WatchDog Timer Driver v%s\n", DRV_VERSION);
++
++	err = platform_driver_register(&xen_wdt_driver);
++	if (err)
++		return err;
++
++	platform_device = platform_device_register_simple(DRV_NAME,
++								  -1, NULL, 0);
++	if (IS_ERR(platform_device)) {
++		err = PTR_ERR(platform_device);
++		platform_driver_unregister(&xen_wdt_driver);
++	}
++
++	return err;
++}
++
++static void __exit xen_wdt_cleanup_module(void)
++{
++	platform_device_unregister(platform_device);
++	platform_driver_unregister(&xen_wdt_driver);
++	printk(KERN_INFO PFX "module unloaded\n");
++}
++
++module_init(xen_wdt_init_module);
++module_exit(xen_wdt_cleanup_module);
++
++MODULE_AUTHOR("Jan Beulich <jbeulich@novell.com>");
++MODULE_DESCRIPTION("Xen WatchDog Timer Driver");
++MODULE_VERSION(DRV_VERSION);
++MODULE_LICENSE("GPL");
++MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
+--- 2.6.38-rc2/include/xen/interface/sched.h
++++ 2.6.38-rc2-xen-watchdog/include/xen/interface/sched.h
+@@ -65,6 +65,39 @@ struct sched_poll {
+ DEFINE_GUEST_HANDLE_STRUCT(sched_poll);
+ 
+ /*
++ * Declare a shutdown for another domain. The main use of this function is
++ * in interpreting shutdown requests and reasons for fully-virtualized
++ * domains.  A para-virtualized domain may use SCHEDOP_shutdown directly.
++ * @arg == pointer to sched_remote_shutdown structure.
++ */
++#define SCHEDOP_remote_shutdown        4
++struct sched_remote_shutdown {
++    domid_t domain_id;         /* Remote domain ID */
++    unsigned int reason;       /* SHUTDOWN_xxx reason */
++};
++
++/*
++ * Latch a shutdown code, so that when the domain later shuts down it
++ * reports this code to the control tools.
++ * @arg == as for SCHEDOP_shutdown.
++ */
++#define SCHEDOP_shutdown_code 5
++
++/*
++ * Setup, poke and destroy a domain watchdog timer.
++ * @arg == pointer to sched_watchdog structure.
++ * With id == 0, setup a domain watchdog timer to cause domain shutdown
++ *               after timeout, returns watchdog id.
++ * With id != 0 and timeout == 0, destroy domain watchdog timer.
++ * With id != 0 and timeout != 0, poke watchdog timer and set new timeout.
++ */
++#define SCHEDOP_watchdog    6
++struct sched_watchdog {
++    uint32_t id;                /* watchdog ID */
++    uint32_t timeout;           /* timeout */
++};
++
++/*
+  * Reason codes for SCHEDOP_shutdown. These may be interpreted by control
+  * software to determine the appropriate action. For the most part, Xen does
+  * not care about the shutdown code.
+@@ -73,5 +106,6 @@ DEFINE_GUEST_HANDLE_STRUCT(sched_poll);
+ #define SHUTDOWN_reboot     1  /* Clean up, kill, and then restart.          */
+ #define SHUTDOWN_suspend    2  /* Clean up, save suspend info, kill.         */
+ #define SHUTDOWN_crash      3  /* Tell controller we've crashed.             */
++#define SHUTDOWN_watchdog   4  /* Restart because watchdog time expired.     */
+ 
+ #endif /* __XEN_PUBLIC_SCHED_H__ */
+
 
