@@ -1,64 +1,71 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx4-phx2.redhat.com ([209.132.183.25]:33000 "EHLO
-	mx4-phx2.redhat.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752149Ab1BDWji (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 4 Feb 2011 17:39:38 -0500
-Date: Fri, 4 Feb 2011 17:38:59 -0500 (EST)
-From: Tony Camuso <tcamuso@redhat.com>
-To: wim@iguana.be, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: Don Zickus <dzickus@redhat.com>,
-	Thomas Mingarelli <thomas.mingarelli@hp.com>
-Message-ID: <897313439.248768.1296859139219.JavaMail.root@zmail07.collab.prod.int.phx2.redhat.com>
-Subject: [PATCH 1/1] drivers/watchdog: build hpwdt as module by default with
- NMI_DECODING enabled
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Received: from gate.crashing.org ([63.228.1.57]:40992 "EHLO gate.crashing.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754268Ab1BGBGa (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Sun, 6 Feb 2011 20:06:30 -0500
+Subject: Re: [PATCH] watchdog: booke_wdt: clean up status messages
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Timur Tabi <timur@freescale.com>
+Cc: linuxppc-dev@ozlabs.org, wim@iguana.be,
+	linux-watchdog@vger.kernel.org
+In-Reply-To: <1295299780-27338-1-git-send-email-timur@freescale.com>
+References: <1295299780-27338-1-git-send-email-timur@freescale.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 07 Feb 2011 12:06:12 +1100
+Message-ID: <1297040772.14982.25.camel@pasglop>
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-DESCRIPTION
-===========
-Builds the hpwdt driver as a module by default.
-If the hardware is present, the module will be loaded.
-Also, if hpwdt is loaded, it will decode NMIs by default.
+On Mon, 2011-01-17 at 15:29 -0600, Timur Tabi wrote:
+> Improve the status messages that are displayed during some operations of the
+> PowerPC watchdog timer driver.  When the watchdog is enabled, the timeout is
+> displayed as a number of seconds, instead of an obscure "period".  The "period"
+> is the position of a bit in a 64-bit timer register.  The higher the value,
+> the quicker the watchdog timeout occurs.  Some people chose a high "period"
+> value for the timer and get confused as to why the board resets within a
+> few seconds.
+> 
+> Messages displayed during open and close are now debug messages, so that they
+> don't clutter the console by default.  Finally, printk() is replaced with the
+> pr_xxx() equivalent.
 
-This has been made possible by he patches to hpwdt made by Dann Frazier
-as well as related patches submitted by Don Zickus.
+Minor nit bu
+>  
+> -	printk(KERN_INFO "PowerPC Book-E Watchdog Timer Loaded\n");
+> +	pr_info("PowerPC Book-E Watchdog Timer Loaded\n");
+>  	ident.firmware_version = cur_cpu_spec->pvr_value;
+>  
+>  	ret = misc_register(&booke_wdt_miscdev);
+>  	if (ret) {
+> -		printk(KERN_CRIT "Cannot register miscdev on minor=%d: %d\n",
+> -				WATCHDOG_MINOR, ret);
+> +		pr_err("booke_wdt: cannot register device (minor=%u, ret=%i)\n",
+> +		       WATCHDOG_MINOR, ret);
+>  		return ret;
+>  	}
+>  
+>  	spin_lock(&booke_wdt_lock);
+>  	if (booke_wdt_enabled == 1) {
+> -		printk(KERN_INFO
+> -		      "PowerPC Book-E Watchdog Timer Enabled (wdt_period=%d)\n",
+> -				booke_wdt_period);
+> +		pr_info("booke_wdt: watchdog enabled (timeout = %llu sec)\n",
+> +			period_to_sec(booke_wdt_period));
+>  		on_each_cpu(__booke_wdt_enable, NULL, 0);
+>  	}
 
-hpwdt only loads on hp ProLiant x86 32-bit and 64-bit platforms.
+If you're going to cleanup the messages, then I think displaying:
 
-TESTING
-=======
-Was tested for functionality and regression. Was built against i686,
-x86_64, ppc, ppc64, s390x, and noarch with no problems.
+PowerPC Book-E Watchdog Timer Loaded
+booke_wdt: watchdog enabled (timeout = xxx sec)
 
-DIFF STAT
-=========
- drivers/watchdog/Kconfig |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+Isn't very nice.
 
-	Signed-off-by: Tony Camuso <tcamuso@redhat.com>
+Lacks consistency ... you can prefix both lines the same way, or
+maybe better print only one line with all the necessary info.
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 7a8a813..df3ca2e 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -523,6 +523,7 @@ config IT87_WDT
- config HP_WATCHDOG
- 	tristate "HP Proliant iLO2+ Hardware Watchdog Timer"
- 	depends on X86
-+	default m
- 	help
- 	  A software monitoring watchdog and NMI sourcing driver. This driver
- 	  will detect lockups and provide a stack trace. This is a driver that
-@@ -533,6 +534,7 @@ config HP_WATCHDOG
- config HPWDT_NMI_DECODING
- 	bool "NMI decoding support for the HP ProLiant iLO2+ Hardware Watchdog Timer"
- 	depends on HP_WATCHDOG
-+	default y
- 	help
- 	  When an NMI occurs this feature will make the necessary BIOS calls to
- 	  log the cause of the NMI.
+Ben.
+
+
