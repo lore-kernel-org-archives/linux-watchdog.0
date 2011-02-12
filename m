@@ -1,477 +1,424 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:34476 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750848Ab1BKKuk convert rfc822-to-8bit (ORCPT
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:37047 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751801Ab1BLJme (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 11 Feb 2011 05:50:40 -0500
-Received: by iwn9 with SMTP id 9so2274942iwn.19
-        for <linux-watchdog@vger.kernel.org>; Fri, 11 Feb 2011 02:50:40 -0800 (PST)
+	Sat, 12 Feb 2011 04:42:34 -0500
+Date: Sat, 12 Feb 2011 02:42:29 -0700
+From: Grant Likely <grant.likely@secretlab.ca>
+To: Tobias Klauser <tklauser@distanz.ch>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	Jamie Iles <jamie@jamieiles.com>,
+	Walter Goossens <waltergoossens@home.nl>,
+	devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+	nios2-dev@sopc.et.ntust.edu.tw
+Subject: Re: [PATCH v3] watchdog: Add driver for Altera Watchdog Timer
+Message-ID: <20110212094229.GH17755@angua.secretlab.ca>
+References: <1297171322-32401-1-git-send-email-tklauser@distanz.ch>
+ <1297235952-20435-1-git-send-email-tklauser@distanz.ch>
 MIME-Version: 1.0
-In-Reply-To: <1295871552-22254-1-git-send-email-jamie@jamieiles.com>
-References: <1295871552-22254-1-git-send-email-jamie@jamieiles.com>
-Date: Fri, 11 Feb 2011 16:20:39 +0530
-Message-ID: <AANLkTinUvjsN1poh8Jc0cDMnO=cMcxqW99utheeJDnT0@mail.gmail.com>
-Subject: Re: [PATCHv6] watchdog: add support for the Synopsys DesignWare WDT
-From: viresh kumar <viresh.linux@gmail.com>
-To: Jamie Iles <jamie@jamieiles.com>
-Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	linux-arm-kernel@lists.infradead.org
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1297235952-20435-1-git-send-email-tklauser@distanz.ch>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Jan 24, 2011 at 5:49 PM, Jamie Iles <jamie@jamieiles.com> wrote:
-> The Synopsys DesignWare watchdog is found in several ARM based systems
-> and provides a choice of 16 timeout periods depending on the clock
-> input.  The watchdog cannot be disabled once started.
->
-> Cc: Wim Van Sebroeck <wim@iguana.be>
-> Signed-off-by: Jamie Iles <jamie@jamieiles.com>
+On Wed, Feb 09, 2011 at 08:19:12AM +0100, Tobias Klauser wrote:
+> This driver adds support for the Altera Timer in the Watchdog Timer
+> configuration. This component is usually found on SOPC (System on
+> Programmable Chip) for Altera FPGAs.
+> 
+> Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
+> Reviewed-by: Jamie Iles <jamie@jamieiles.com>
+
+Acked-by: Grant Likely <grant.likely@secretlab.ca> for the devicetree binding.
+
+g.
+
 > ---
->
-> v6:
->        - add a Kconfig dependency on HAVE_CLK and don't allow rate to
->          be set by platform data.
-> v5:
->        - don't select CONFIG_WATCHDOG_NOWAYOUT, use a software
->          heartbeat to keep the wdt alive if we allow close.
-> v4:
->        - cleanups as suggested by Viresh Kumar and Wim
->        - provide a mechanism to handle NULL clks and allow
->          platform_data to specify the clk_rate
->        - provide open-once protection
->
-> v3:
->        - convert pm to dev_pm_ops
->        - use devres for resource allocation
->
-> v2:
->        - constify fops
->        - request_mem_region() before ioremap()
->        - disable clk if misc_register() fails
->
->  drivers/watchdog/Kconfig  |    9 +
->  drivers/watchdog/Makefile |    1 +
->  drivers/watchdog/dw_wdt.c |  376 +++++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 386 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/watchdog/dw_wdt.c
->
+> Thanks a lot to Jamie Iles and Walter Goossens for their feedback on v2.
+> 
+> changes for v3:
+>  - Make altera_wdt_setup static void (as suggested by Jamie)
+>  - Use const __be32 * for devicetree properties (as suggested by Walter)
+> changes for v2:
+>  - Get driver properties from devicetree (and document them), thus the
+>    driver depends on OF
+>  - Do not select WATCHDOG_NOWAYOUT, but instead implement a software
+>    timer resetting the watchdog timer when the device is not open
+>  - Only support a single instance of the watchdog, so the private data
+>    can be kept in static data
+>  - Use devm_* functions in altera_wdt_probe to simplify cleanup and
+>    error handling
+>  - Remove empty altera_wdt_shutdown function
+>  - Add MODULE_LICENSE (GPL)
+> 
+> 
+>  .../devicetree/bindings/watchdog/altera_wdt.txt    |    7 +
+>  drivers/watchdog/Kconfig                           |    8 +
+>  drivers/watchdog/Makefile                          |    1 +
+>  drivers/watchdog/altera_wdt.c                      |  309 ++++++++++++++++++++
+>  4 files changed, 325 insertions(+), 0 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/altera_wdt.txt
+>  create mode 100644 drivers/watchdog/altera_wdt.c
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/altera_wdt.txt b/Documentation/devicetree/bindings/watchdog/altera_wdt.txt
+> new file mode 100644
+> index 0000000..16ac949
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/watchdog/altera_wdt.txt
+> @@ -0,0 +1,7 @@
+> +Altera Watchdog Timer
+> +
+> +Required properties:
+> +- compatible : should be "ALTR,wdt-1.0"
+> +- clock-frequency : frequency of the clock input
+> +- timeout : load value of the timer (number of clock ticks until watchdog
+> +            resets)
 > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index cbd37bb..f707536 100644
+> index bd6a33d..ebcafb0 100644
 > --- a/drivers/watchdog/Kconfig
 > +++ b/drivers/watchdog/Kconfig
-> @@ -331,6 +331,15 @@ config IMX2_WDT
->          To compile this driver as a module, choose M here: the
->          module will be called imx2_wdt.
->
-> +config DW_WATCHDOG
-> +       tristate "Synopsys DesignWare watchdog"
-> +       depends on ARM && HAVE_CLK
-> +       help
-> +         Say Y here if to include support for the Synopsys DesignWare
-> +         watchdog timer found in many ARM chips.
-> +         To compile this driver as a module, choose M here: the
-> +         module will be called dw_wdt.
+> @@ -69,6 +69,14 @@ config WM8350_WATCHDOG
+>  	  Support for the watchdog in the WM8350 AudioPlus PMIC.  When
+>  	  the watchdog triggers the system will be reset.
+>  
+> +config ALTERA_WDT
+> +	tristate "Altera Watchdog Timer"
+> +	depends on OF
+> +	help
+> +	  Support for the Altera Timer in the Watchdog Timer configuration. This
+> +	  component is found on SOPC (System on Programmable Chip) for Altera
+> +	  FPGAs.
 > +
->  # AVR32 Architecture
->
->  config AT32AP700X_WDT
+>  # ALPHA Architecture
+>  
+>  # ARM Architecture
 > diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index cd1e7fe..e2b5b10 100644
+> index fd9c8c0..48a2167 100644
 > --- a/drivers/watchdog/Makefile
 > +++ b/drivers/watchdog/Makefile
-> @@ -49,6 +49,7 @@ obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
->  obj-$(CONFIG_ADX_WATCHDOG) += adx_wdt.o
->  obj-$(CONFIG_TS72XX_WATCHDOG) += ts72xx_wdt.o
->  obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
-> +obj-$(CONFIG_DW_WATCHDOG) += dw_wdt.o
->
->  # AVR32 Architecture
->  obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
-> diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+> @@ -153,4 +153,5 @@ obj-$(CONFIG_WATCHDOG_CP1XXX)		+= cpwd.o
+>  obj-$(CONFIG_WM831X_WATCHDOG) += wm831x_wdt.o
+>  obj-$(CONFIG_WM8350_WATCHDOG) += wm8350_wdt.o
+>  obj-$(CONFIG_MAX63XX_WATCHDOG) += max63xx_wdt.o
+> +obj-$(CONFIG_ALTERA_WDT) += altera_wdt.o
+>  obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
+> diff --git a/drivers/watchdog/altera_wdt.c b/drivers/watchdog/altera_wdt.c
 > new file mode 100644
-> index 0000000..f10f8c0
+> index 0000000..2a7f14a
 > --- /dev/null
-> +++ b/drivers/watchdog/dw_wdt.c
-> @@ -0,0 +1,376 @@
+> +++ b/drivers/watchdog/altera_wdt.c
+> @@ -0,0 +1,309 @@
 > +/*
-> + * Copyright 2010-2011 Picochip Ltd., Jamie Iles
-> + * http://www.picochip.com
+> + * Driver for the Altera Watchdog Timer
 > + *
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License
-> + * as published by the Free Software Foundation; either version
-> + * 2 of the License, or (at your option) any later version.
+> + * Copyright (C) 2011 Tobias Klauser <tklauser@distanz.ch>
+> + * Copyright (C) 2005 Walter Goossens
 > + *
-> + * This file implements a driver for the Synopsys DesignWare watchdog device
-> + * in the many ARM subsystems. The watchdog has 16 different timeout periods
-> + * and these are a function of the input clock frequency.
+> + * Originally based on wdt.c which is
 > + *
-> + * The DesignWare watchdog cannot be stopped once it has been started so we
-> + * use a software timer to implement a ping that will keep the watchdog alive.
-> + * If we receive an expected close for the watchdog then we keep the timer
-> + * running, otherwise the timer is stopped and the watchdog will expire.
+> + * Copyright (C) 1995-1997 Alan Cox <alan@lxorguk.ukuu.org.uk>
+> + *
+> + * Software timeout heartbeat code based on pika_wdt.c which is
+> + *
+> + * Copyright (c) 2008 PIKA Technologies
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
 > + */
-> +#define pr_fmt(fmt) "dw_wdt: " fmt
 > +
-> +#include <linux/bitops.h>
-> +#include <linux/clk.h>
-> +#include <linux/device.h>
-> +#include <linux/err.h>
-> +#include <linux/fs.h>
-> +#include <linux/io.h>
+> +#include <linux/module.h>
 > +#include <linux/kernel.h>
 > +#include <linux/miscdevice.h>
-> +#include <linux/module.h>
-> +#include <linux/moduleparam.h>
-> +#include <linux/pm.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/spinlock.h>
-> +#include <linux/timer.h>
-> +#include <linux/uaccess.h>
 > +#include <linux/watchdog.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/fs.h>
+> +#include <linux/init.h>
+> +#include <linux/jiffies.h>
+> +#include <linux/timer.h>
+> +#include <linux/io.h>
+> +#include <linux/uaccess.h>
+> +#include <linux/of_platform.h>
 > +
-> +#define WDOG_CONTROL_REG_OFFSET                    0x00
-> +#define WDOG_CONTROL_REG_WDT_EN_MASK       0x01
-> +#define WDOG_TIMEOUT_RANGE_REG_OFFSET      0x04
-> +#define WDOG_CURRENT_COUNT_REG_OFFSET      0x08
-> +#define WDOG_COUNTER_RESTART_REG_OFFSET     0x0c
-> +#define WDOG_COUNTER_RESTART_KICK_VALUE            0x76
+> +#define WATCHDOG_NAME	"altera_wdt"
 > +
-> +/* The maximum TOP (timeout period) value that can be set in the watchdog. */
-> +#define DW_WDT_MAX_TOP         15
+> +/* Register offsets */
+> +#define ALTERA_WDT_STATUS	0x00
+> +#define ALTERA_WDT_CONTROL	0x04
+> +#define ALTERA_WDT_PERIODL	0x08
+> +#define ALTERA_WDT_PERIODH	0x0C
+> +
+> +#define ALTERA_WDT_RUN_BIT	0x04
+> +
+> +/* User land timeout */
+> +#define WDT_HEARTBEAT 15
+> +static int heartbeat = WDT_HEARTBEAT;
+> +module_param(heartbeat, int, 0);
+> +MODULE_PARM_DESC(heartbeat, "Watchdog heartbeats in seconds. "
+> +	"(default = " __MODULE_STRING(WDT_HEARTBEAT) ")");
 > +
 > +static int nowayout = WATCHDOG_NOWAYOUT;
 > +module_param(nowayout, int, 0);
 > +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
-> +                "(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-> +
-> +#define WDT_TIMEOUT            (HZ / 2)
+> +	"(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
 > +
 > +static struct {
-> +       spinlock_t              lock;
-> +       void __iomem            *regs;
-> +       struct clk              *clk;
-> +       unsigned long           in_use;
-> +       unsigned long           next_heartbeat;
-> +       struct timer_list       timer;
-> +       int                     expect_close;
-> +} dw_wdt;
+> +	void __iomem *base;
+> +	unsigned long wdt_timeout;	/* timeout of the hardware timer */
 > +
-> +static inline int dw_wdt_is_enabled(void)
+> +	unsigned long next_heartbeat;	/* the next_heartbeat for the timer */
+> +	unsigned long is_open;
+> +	char expect_close;
+> +	struct timer_list timer;	/* software timer that pings the watchdog */
+> +} altera_wdt_priv;
+> +
+> +/*
+> + * Start the watchdog. Once it has been started, it cannot be stopped anymore.
+> + */
+> +static void altera_wdt_setup(void)
 > +{
-> +       return readl(dw_wdt.regs + WDOG_CONTROL_REG_OFFSET) &
-> +               WDOG_CONTROL_REG_WDT_EN_MASK;
+> +	u32 control = readl(altera_wdt_priv.base + ALTERA_WDT_CONTROL);
+> +
+> +	writel(control | ALTERA_WDT_RUN_BIT, altera_wdt_priv.base + ALTERA_WDT_CONTROL);
 > +}
 > +
-> +static inline int dw_wdt_top_in_seconds(unsigned top)
+> +/*
+> + * Tickle the watchdog (reset the watchdog timer)
+> + */
+> +static void altera_wdt_reset(void)
 > +{
-> +       /*
-> +        * There are 16 possible timeout values in 0..15 where the number of
-> +        * cycles is 2 ^ (16 + i) and the watchdog counts down.
-> +        */
-> +       return (1 << (16 + top)) / clk_get_rate(dw_wdt.clk);
+> +	/* It doesn't matter what value we write */
+> +	writel(1, altera_wdt_priv.base + ALTERA_WDT_PERIODL);
 > +}
 > +
-> +static int dw_wdt_get_top(void)
+> +/*
+> + * Software timer tick
+> + */
+> +static void altera_wdt_ping(unsigned long data)
 > +{
-> +       int top = readl(dw_wdt.regs + WDOG_TIMEOUT_RANGE_REG_OFFSET) & 0xF;
-> +
-> +       return dw_wdt_top_in_seconds(top);
+> +	if (time_before(jiffies, altera_wdt_priv.next_heartbeat) ||
+> +			(!nowayout && !altera_wdt_priv.is_open)) {
+> +		altera_wdt_reset();
+> +		mod_timer(&altera_wdt_priv.timer, jiffies + altera_wdt_priv.wdt_timeout);
+> +	} else
+> +		pr_crit(WATCHDOG_NAME ": I will reset your machine!\n");
 > +}
 > +
-> +static inline void dw_wdt_set_next_heartbeat(void)
+> +static void altera_wdt_keepalive(void)
 > +{
-> +       dw_wdt.next_heartbeat = jiffies + dw_wdt_get_top() * HZ;
+> +	altera_wdt_priv.next_heartbeat = jiffies + heartbeat * HZ;
 > +}
 > +
-> +static int dw_wdt_set_top(unsigned top_s)
+> +static void altera_wdt_start(void)
 > +{
-> +       int i, top_val = DW_WDT_MAX_TOP;
-> +
-> +       /*
-> +        * Iterate over the timeout values until we find the closest match. We
-> +        * always look for >=.
-> +        */
-> +       for (i = 0; i <= DW_WDT_MAX_TOP; ++i)
-> +               if (dw_wdt_top_in_seconds(i) >= top_s) {
-> +                       top_val = i;
-> +                       break;
-> +               }
-> +
-> +       /* Set the new value in the watchdog. */
-> +       writel(top_val, dw_wdt.regs + WDOG_TIMEOUT_RANGE_REG_OFFSET);
-> +
-> +       dw_wdt_set_next_heartbeat();
-> +
-> +       return dw_wdt_top_in_seconds(top_val);
+> +	altera_wdt_keepalive();
+> +	mod_timer(&altera_wdt_priv.timer, jiffies + altera_wdt_priv.wdt_timeout);
 > +}
 > +
-> +static void dw_wdt_keepalive(void)
+> +static int altera_wdt_open(struct inode *inode, struct file *file)
 > +{
-> +       writel(WDOG_COUNTER_RESTART_KICK_VALUE, dw_wdt.regs +
-> +              WDOG_COUNTER_RESTART_REG_OFFSET);
+> +	/* /dev/watchdog can only be opened once */
+> +	if (test_and_set_bit(0, &altera_wdt_priv.is_open))
+> +		return -EBUSY;
+> +
+> +	altera_wdt_start();
+> +
+> +	return nonseekable_open(inode, file);
 > +}
 > +
-> +static void dw_wdt_ping(unsigned long data)
+> +static int altera_wdt_release(struct inode *inode, struct file *file)
 > +{
-> +       if (time_before(jiffies, dw_wdt.next_heartbeat) ||
-> +           (!nowayout && !dw_wdt.in_use)) {
-> +               dw_wdt_keepalive();
-> +               mod_timer(&dw_wdt.timer, jiffies + WDT_TIMEOUT);
-> +       } else
-> +               pr_crit("keepalive missed, machine will reset\n");
+> +	/* stop internal ping */
+> +	if (!altera_wdt_priv.expect_close)
+> +		del_timer(&altera_wdt_priv.timer);
+> +
+> +	clear_bit(0, &altera_wdt_priv.is_open);
+> +	altera_wdt_priv.expect_close = 0;
+> +
+> +	return 0;
 > +}
 > +
-> +static int dw_wdt_open(struct inode *inode, struct file *filp)
+> +static ssize_t altera_wdt_write(struct file *file, const char __user *data,
+> +		size_t len, loff_t *ppos)
 > +{
-> +       if (test_and_set_bit(0, &dw_wdt.in_use))
-> +               return -EBUSY;
+> +	if (!len)
+> +		return 0;
 > +
-> +       /* Make sure we don't get unloaded. */
-> +       __module_get(THIS_MODULE);
+> +	/* Scan for magic character */
+> +	if (!nowayout) {
+> +		size_t i;
 > +
-> +       spin_lock(&dw_wdt.lock);
-> +       if (!dw_wdt_is_enabled()) {
-> +               /*
-> +                * The watchdog is not currently enabled. Set the timeout to
-> +                * the maximum and then start it.
-> +                */
-> +               dw_wdt_set_top(DW_WDT_MAX_TOP);
-> +               writel(WDOG_CONTROL_REG_WDT_EN_MASK,
-> +                      dw_wdt.regs + WDOG_CONTROL_REG_OFFSET);
-> +       }
+> +		altera_wdt_priv.expect_close = 0;
 > +
-> +       dw_wdt_set_next_heartbeat();
+> +		for (i = 0; i < len; i++) {
+> +			char c;
+> +			if (get_user(c, data + i))
+> +				return -EFAULT;
+> +			if (c == 'V') {
+> +				altera_wdt_priv.expect_close = 42;
+> +				break;
+> +			}
+> +		}
+> +	}
 > +
-> +       spin_unlock(&dw_wdt.lock);
+> +	altera_wdt_keepalive();
 > +
-> +       return nonseekable_open(inode, filp);
+> +	return len;
 > +}
 > +
-> +ssize_t dw_wdt_write(struct file *filp, const char __user *buf, size_t len,
-> +                    loff_t *offset)
-> +{
-> +       if (!len)
-> +               return 0;
-> +
-> +       if (!nowayout) {
-> +               size_t i;
-> +
-> +               dw_wdt.expect_close = 0;
-> +
-> +               for (i = 0; i < len; ++i) {
-> +                       char c;
-> +
-> +                       if (get_user(c, buf + i))
-> +                               return -EFAULT;
-> +
-> +                       if (c == 'V') {
-> +                               dw_wdt.expect_close = 1;
-> +                               break;
-> +                       }
-> +               }
-> +       }
-> +
-> +       dw_wdt_set_next_heartbeat();
-> +       mod_timer(&dw_wdt.timer, jiffies + WDT_TIMEOUT);
-> +
-> +       return len;
-> +}
-> +
-> +static u32 dw_wdt_time_left(void)
-> +{
-> +       return readl(dw_wdt.regs + WDOG_CURRENT_COUNT_REG_OFFSET) /
-> +               clk_get_rate(dw_wdt.clk);
-> +}
-> +
-> +static const struct watchdog_info dw_wdt_ident = {
-> +       .options        = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT |
-> +                         WDIOF_MAGICCLOSE,
-> +       .identity       = "Synopsys DesignWare Watchdog",
+> +static const struct watchdog_info altera_wdt_info = {
+> +	.identity		= "Altera Watchdog",
+> +	.options		= WDIOF_SETTIMEOUT |
+> +				  WDIOF_KEEPALIVEPING |
+> +				  WDIOF_MAGICCLOSE,
+> +	.firmware_version	= 1,
 > +};
 > +
-> +static long dw_wdt_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+> +static long altera_wdt_ioctl(struct file *file, unsigned int cmd,
+> +		unsigned long arg)
 > +{
-> +       unsigned long val;
-> +       int timeout;
+> +	void __user *argp = (void __user *) arg;
+> +	int __user *p = argp;
+> +	int new_value;
 > +
-> +       switch (cmd) {
-> +       case WDIOC_GETSUPPORT:
-> +               return copy_to_user((struct watchdog_info *)arg, &dw_wdt_ident,
-> +                                   sizeof(dw_wdt_ident)) ? -EFAULT : 0;
+> +	switch (cmd) {
+> +	case WDIOC_GETSUPPORT:
+> +		return copy_to_user(argp, &altera_wdt_info, sizeof(altera_wdt_info));
 > +
-> +       case WDIOC_GETSTATUS:
-> +       case WDIOC_GETBOOTSTATUS:
-> +               return put_user(0, (int *)arg);
+> +	case WDIOC_GETSTATUS:
+> +	case WDIOC_GETBOOTSTATUS:
+> +		return put_user(0, p);
 > +
-> +       case WDIOC_KEEPALIVE:
-> +               dw_wdt_set_next_heartbeat();
-> +               return 0;
+> +	case WDIOC_KEEPALIVE:
+> +		altera_wdt_keepalive();
+> +		return 0;
 > +
-> +       case WDIOC_SETTIMEOUT:
-> +               if (get_user(val, (int __user *)arg))
-> +                       return -EFAULT;
-> +               timeout = dw_wdt_set_top(val);
-> +               return put_user(timeout , (int __user *)arg);
+> +	case WDIOC_SETTIMEOUT:
+> +		if (get_user(new_value, p))
+> +			return -EFAULT;
 > +
-> +       case WDIOC_GETTIMEOUT:
-> +               return put_user(dw_wdt_get_top(), (int __user *)arg);
+> +		heartbeat = new_value;
+> +		altera_wdt_keepalive();
 > +
-> +       case WDIOC_GETTIMELEFT:
-> +               /* Get the time left until expiry. */
-> +               if (get_user(val, (int __user *)arg))
-> +                       return -EFAULT;
-> +               return put_user(dw_wdt_time_left(), (int __user *)arg);
+> +		return put_user(new_value, p);  /* return current value */
 > +
-> +       default:
-> +               return -ENOTTY;
-> +       }
+> +	case WDIOC_GETTIMEOUT:
+> +		return put_user(heartbeat, p);
+> +
+> +	default:
+> +		return -ENOTTY;
+> +	}
 > +}
 > +
-> +static int dw_wdt_release(struct inode *inode, struct file *filp)
-> +{
-> +       clear_bit(0, &dw_wdt.in_use);
-> +
-> +       if (!dw_wdt.expect_close) {
-> +               del_timer(&dw_wdt.timer);
-> +
-> +               if (!nowayout)
-> +                       pr_crit("unexpected close, system will reboot soon\n");
-> +               else
-> +                       pr_crit("watchdog cannot be disabled, system will reboot soon\n");
-> +       }
-> +
-> +       dw_wdt.expect_close = 0;
-> +
-> +       return 0;
-> +}
-> +
-> +#ifdef CONFIG_PM
-> +static int dw_wdt_suspend(struct device *dev)
-> +{
-> +       clk_disable(dw_wdt.clk);
-> +
-> +       return 0;
-> +}
-> +
-> +static int dw_wdt_resume(struct device *dev)
-> +{
-> +       int err = clk_enable(dw_wdt.clk);
-> +
-> +       if (err)
-> +               return err;
-> +
-> +       dw_wdt_keepalive();
-> +
-> +       return 0;
-> +}
-> +
-> +static const struct dev_pm_ops dw_wdt_pm_ops = {
-> +       .suspend        = dw_wdt_suspend,
-> +       .resume         = dw_wdt_resume,
-> +};
-> +#endif /* CONFIG_PM */
-> +
-> +static const struct file_operations wdt_fops = {
-> +       .owner          = THIS_MODULE,
-> +       .llseek         = no_llseek,
-> +       .open           = dw_wdt_open,
-> +       .write          = dw_wdt_write,
-> +       .unlocked_ioctl = dw_wdt_ioctl,
-> +       .release        = dw_wdt_release
+> +static const struct file_operations altera_wdt_fops = {
+> +	.owner		= THIS_MODULE,
+> +	.llseek		= no_llseek,
+> +	.open		= altera_wdt_open,
+> +	.release	= altera_wdt_release,
+> +	.write		= altera_wdt_write,
+> +	.unlocked_ioctl	= altera_wdt_ioctl,
 > +};
 > +
-> +static struct miscdevice dw_wdt_miscdev = {
-> +       .fops           = &wdt_fops,
-> +       .name           = "watchdog",
-> +       .minor          = WATCHDOG_MINOR,
+> +static struct miscdevice altera_wdt_miscdev = {
+> +	.minor	= WATCHDOG_MINOR,
+> +	.name	= "watchdog",
+> +	.fops	= &altera_wdt_fops,
 > +};
 > +
-> +static int __devinit dw_wdt_drv_probe(struct platform_device *pdev)
+> +static int __devinit altera_wdt_probe(struct platform_device *pdev)
 > +{
-> +       int ret;
-> +       struct resource *mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	struct resource *res, *mem;
+> +	const __be32 *freq_prop, *timeout_prop;
+> +	unsigned long timeout;
+> +	int ret;
 > +
-> +       if (!mem)
-> +               return -EINVAL;
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	if (!res)
+> +		return -ENOENT;
 > +
-> +       if (!devm_request_mem_region(&pdev->dev, mem->start, resource_size(mem),
-> +                                    "dw_wdt"))
-> +               return -ENOMEM;
+> +	mem = devm_request_mem_region(&pdev->dev, res->start,
+> +				      resource_size(res), pdev->name);
+> +	if (!mem)
+> +		return -EBUSY;
 > +
-> +       dw_wdt.regs = devm_ioremap(&pdev->dev, mem->start, resource_size(mem));
-> +       if (!dw_wdt.regs)
-> +               return -ENOMEM;
+> +	altera_wdt_priv.base = devm_ioremap_nocache(&pdev->dev, mem->start,
+> +						    resource_size(mem));
+> +	if (!altera_wdt_priv.base)
+> +		return -ENOMEM;
 > +
-> +       dw_wdt.clk = clk_get(&pdev->dev, NULL);
-> +       if (IS_ERR(dw_wdt.clk))
-> +               return PTR_ERR(dw_wdt.clk);
+> +	freq_prop = of_get_property(pdev->dev.of_node, "clock-frequency", NULL);
+> +	if (!freq_prop)
+> +		return -ENODEV;
 > +
-> +       ret = clk_enable(dw_wdt.clk);
-> +       if (ret)
-> +               goto out_put_clk;
+> +	timeout_prop = of_get_property(pdev->dev.of_node, "timeout", NULL);
+> +	if (!timeout_prop)
+> +		return -ENODEV;
 > +
-> +       spin_lock_init(&dw_wdt.lock);
+> +	/* Add 1 as the timeout property actually holds the load value */
+> +	timeout = be32_to_cpup(timeout_prop) + 1;
+> +	/* Convert timeout to msecs */
+> +	timeout = timeout / (be32_to_cpup(freq_prop) / MSEC_PER_SEC);
+> +	/* Tickle the watchdog twice per timeout period */
+> +	altera_wdt_priv.wdt_timeout = msecs_to_jiffies(timeout / 2);
 > +
-> +       ret = misc_register(&dw_wdt_miscdev);
-> +       if (ret)
-> +               goto out_disable_clk;
+> +	ret = misc_register(&altera_wdt_miscdev);
+> +	if (ret)
+> +		return ret;
 > +
-> +       dw_wdt_set_next_heartbeat();
-> +       setup_timer(&dw_wdt.timer, dw_wdt_ping, 0);
-> +       mod_timer(&dw_wdt.timer, jiffies + WDT_TIMEOUT);
+> +	altera_wdt_setup();
+> +	altera_wdt_priv.next_heartbeat = jiffies + heartbeat * HZ;
+> +	setup_timer(&altera_wdt_priv.timer, altera_wdt_ping, 0);
+> +	mod_timer(&altera_wdt_priv.timer, jiffies + altera_wdt_priv.wdt_timeout);
 > +
-> +       return 0;
+> +	pr_info(WATCHDOG_NAME " enabled (heartbeat=%d sec, nowayout=%d)\n",
+> +		heartbeat, nowayout);
 > +
-> +out_disable_clk:
-> +       clk_disable(dw_wdt.clk);
-> +out_put_clk:
-> +       clk_put(dw_wdt.clk);
-> +
-> +       return ret;
+> +	return 0;
 > +}
 > +
-> +static int __devexit dw_wdt_drv_remove(struct platform_device *pdev)
+> +static int __devexit altera_wdt_remove(struct platform_device *pdev)
 > +{
-> +       misc_deregister(&dw_wdt_miscdev);
-> +
-> +       clk_disable(dw_wdt.clk);
-> +       clk_put(dw_wdt.clk);
-> +
-> +       return 0;
+> +	misc_deregister(&altera_wdt_miscdev);
+> +	return 0;
 > +}
 > +
-> +static struct platform_driver dw_wdt_driver = {
-> +       .probe          = dw_wdt_drv_probe,
-> +       .remove         = __devexit_p(dw_wdt_drv_remove),
-> +       .driver         = {
-> +               .name   = "dw_wdt",
-> +               .owner  = THIS_MODULE,
-> +#ifdef CONFIG_PM
-> +               .pm     = &dw_wdt_pm_ops,
-> +#endif /* CONFIG_PM */
-> +       },
+> +static struct of_device_id altera_wdt_match[] = {
+> +	{ .compatible = "altr,wdt-1.0", },
+> +	{},
+> +};
+> +MODULE_DEVICE_TABLE(of, altera_wdt_match);
+> +
+> +static struct platform_driver altera_wdt_driver = {
+> +	.probe		= altera_wdt_probe,
+> +	.remove		= __devexit_p(altera_wdt_remove),
+> +	.driver		= {
+> +		.owner		= THIS_MODULE,
+> +		.name		= WATCHDOG_NAME,
+> +		.of_match_table	= altera_wdt_match,
+> +	},
 > +};
 > +
-> +static int __init dw_wdt_watchdog_init(void)
+> +static int __init altera_wdt_init(void)
 > +{
-> +       return platform_driver_register(&dw_wdt_driver);
+> +	return platform_driver_register(&altera_wdt_driver);
 > +}
-> +module_init(dw_wdt_watchdog_init);
 > +
-> +static void __exit dw_wdt_watchdog_exit(void)
+> +static void __exit altera_wdt_exit(void)
 > +{
-> +       platform_driver_unregister(&dw_wdt_driver);
+> +	platform_driver_unregister(&altera_wdt_driver);
 > +}
-> +module_exit(dw_wdt_watchdog_exit);
 > +
-> +MODULE_AUTHOR("Jamie Iles");
-> +MODULE_DESCRIPTION("Synopsys DesignWare Watchdog Driver");
+> +module_init(altera_wdt_init);
+> +module_exit(altera_wdt_exit);
+> +
+> +MODULE_AUTHOR("Walter Goossens, Tobias Klauser <tklauser@distanz.ch>");
+> +MODULE_DESCRIPTION("Driver for Altera Watchdog Timer");
 > +MODULE_LICENSE("GPL");
 > +MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
-
-Sorry for being late!!!
-
-Acked-by: Viresh Kumar <viresh.kumar@st.com>
+> +MODULE_ALIAS("platform:" WATCHDOG_NAME);
+> -- 
+> 1.7.0.4
+> 
