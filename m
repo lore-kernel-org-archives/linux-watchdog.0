@@ -1,47 +1,80 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from rcsinet10.oracle.com ([148.87.113.121]:32542 "EHLO
-	rcsinet10.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750934Ab1BNUVw (ORCPT
-	<rfc822;<linux-watchdog@vger.kernel.org>>);
-	Mon, 14 Feb 2011 15:21:52 -0500
-Date: Mon, 14 Feb 2011 15:19:24 -0500
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	linux-watchdog@vger.kernel.org,
-	Jeremy Fitzhardinge <jeremy@goop.org>,
-	"xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>,
-	Ian Campbell <ian.campbell@citrix.com>,
-	Jan Beulich <JBeulich@novell.com>
-Subject: Re: [Xen-devel] [PATCH, resend] Xen watchdog driver
-Message-ID: <20110214201924.GA17726@dumpdata.com>
-References: <4D41A088020000780002ED06@vpn.id2.novell.com>
- <20110214145602.GA10300@dumpdata.com>
- <20110214200837.GB3790@infomag.iguana.be>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20110214200837.GB3790@infomag.iguana.be>
+Received: from LUNGE.MIT.EDU ([18.54.1.69]:48960 "EHLO lunge.queued.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756311Ab1BOWZl (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 15 Feb 2011 17:25:41 -0500
+From: Andres Salomon <dilinger@queued.net>
+To: Samuel Ortiz <sameo@linux.intel.com>
+Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>,
+	linux-kernel@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+	Florian Fainelli <florian@openwrt.org>,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH 8/9] rdc321x-southbridge: use mfd_data instead of driver_data
+Date: Tue, 15 Feb 2011 14:25:28 -0800
+Message-Id: <1297808729-21110-9-git-send-email-dilinger@queued.net>
+In-Reply-To: <1297808729-21110-1-git-send-email-dilinger@queued.net>
+References: <1297808729-21110-1-git-send-email-dilinger@queued.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Feb 14, 2011 at 09:08:37PM +0100, Wim Van Sebroeck wrote:
-> Hi All,
-> 
-> > On Thu, Jan 27, 2011 at 03:42:48PM +0000, Jan Beulich wrote:
-> > > While the hypervisor change adding SCHEDOP_watchdog support included a
-> > > daemon to make use of the new functionality, having a kernel driver
-> > > for /dev/watchdog so that user space code doesn't need to distinguish
-> > > non-Xen and Xen seems to be preferable.
-> > 
-> > Hey Andrew,
-> > I was wondering if you could help us out. Jan posted this patch
-> > way back in Sep, then again in Oct on the xen-watchdog mailing list
-> > with with no responses except Ian's Ack and my Reviewed-by. Would you
-> > be OK taking this patch under your wing or do you think I ought to
-> > send a git pull to Linus during the 2.6.39 merge window directly?
-> I
-> 'm completing review of 2 other drivers first.
-> Then I will review this one and add it to linux-2.5-watchdog-next for broader testing.
+Use mfd_data for passing information from mfd drivers to soc
+clients.  The mfd_cell's driver_data field is being phased out.
 
-Excellent. Thank you!
+Clients that were using driver_data now access .mfd_data
+via mfd_get_data().
+
+Signed-off-by: Andres Salomon <dilinger@queued.net>
+---
+ drivers/gpio/rdc321x-gpio.c       |    2 +-
+ drivers/mfd/rdc321x-southbridge.c |    4 ++--
+ drivers/watchdog/rdc321x_wdt.c    |    2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/gpio/rdc321x-gpio.c b/drivers/gpio/rdc321x-gpio.c
+index 897e057..5ecc9e1 100644
+--- a/drivers/gpio/rdc321x-gpio.c
++++ b/drivers/gpio/rdc321x-gpio.c
+@@ -135,7 +135,7 @@ static int __devinit rdc321x_gpio_probe(struct platform_device *pdev)
+ 	struct rdc321x_gpio *rdc321x_gpio_dev;
+ 	struct rdc321x_gpio_pdata *pdata;
+ 
+-	pdata = platform_get_drvdata(pdev);
++	pdata = mfd_get_data(pdev);
+ 	if (!pdata) {
+ 		dev_err(&pdev->dev, "no platform data supplied\n");
+ 		return -ENODEV;
+diff --git a/drivers/mfd/rdc321x-southbridge.c b/drivers/mfd/rdc321x-southbridge.c
+index 5092297..193c940 100644
+--- a/drivers/mfd/rdc321x-southbridge.c
++++ b/drivers/mfd/rdc321x-southbridge.c
+@@ -61,12 +61,12 @@ static struct mfd_cell rdc321x_sb_cells[] = {
+ 		.name		= "rdc321x-wdt",
+ 		.resources	= rdc321x_wdt_resource,
+ 		.num_resources	= ARRAY_SIZE(rdc321x_wdt_resource),
+-		.driver_data	= &rdc321x_wdt_pdata,
++		.mfd_data	= &rdc321x_wdt_pdata,
+ 	}, {
+ 		.name		= "rdc321x-gpio",
+ 		.resources	= rdc321x_gpio_resources,
+ 		.num_resources	= ARRAY_SIZE(rdc321x_gpio_resources),
+-		.driver_data	= &rdc321x_gpio_pdata,
++		.mfd_data	= &rdc321x_gpio_pdata,
+ 	},
+ };
+ 
+diff --git a/drivers/watchdog/rdc321x_wdt.c b/drivers/watchdog/rdc321x_wdt.c
+index 3939e53..9fd382d 100644
+--- a/drivers/watchdog/rdc321x_wdt.c
++++ b/drivers/watchdog/rdc321x_wdt.c
+@@ -231,7 +231,7 @@ static int __devinit rdc321x_wdt_probe(struct platform_device *pdev)
+ 	struct resource *r;
+ 	struct rdc321x_wdt_pdata *pdata;
+ 
+-	pdata = platform_get_drvdata(pdev);
++	pdata = mfd_get_data(pdev);
+ 	if (!pdata) {
+ 		dev_err(&pdev->dev, "no platform data supplied\n");
+ 		return -ENODEV;
+-- 
+1.7.2.3
+
