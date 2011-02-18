@@ -1,19 +1,19 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from LUNGE.MIT.EDU ([18.54.1.69]:48960 "EHLO lunge.queued.net"
+Received: from LUNGE.MIT.EDU ([18.54.1.69]:51909 "EHLO lunge.queued.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756311Ab1BOWZl (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 15 Feb 2011 17:25:41 -0500
+	id S1751630Ab1BRDIR (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 17 Feb 2011 22:08:17 -0500
 From: Andres Salomon <dilinger@queued.net>
 To: Samuel Ortiz <sameo@linux.intel.com>
 Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>,
 	linux-kernel@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
 	Florian Fainelli <florian@openwrt.org>,
 	linux-watchdog@vger.kernel.org
-Subject: [PATCH 8/9] rdc321x-southbridge: use mfd_data instead of driver_data
-Date: Tue, 15 Feb 2011 14:25:28 -0800
-Message-Id: <1297808729-21110-9-git-send-email-dilinger@queued.net>
-In-Reply-To: <1297808729-21110-1-git-send-email-dilinger@queued.net>
-References: <1297808729-21110-1-git-send-email-dilinger@queued.net>
+Subject: [PATCH 25/29] rdc321x-southbridge: use mfd_data instead of driver_data (v2)
+Date: Thu, 17 Feb 2011 19:07:32 -0800
+Message-Id: <1297998456-7615-26-git-send-email-dilinger@queued.net>
+In-Reply-To: <1297998456-7615-1-git-send-email-dilinger@queued.net>
+References: <1297998456-7615-1-git-send-email-dilinger@queued.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
@@ -23,18 +23,28 @@ clients.  The mfd_cell's driver_data field is being phased out.
 Clients that were using driver_data now access .mfd_data
 via mfd_get_data().
 
+v2: add some missing mfd/core.h includes
+
 Signed-off-by: Andres Salomon <dilinger@queued.net>
 ---
- drivers/gpio/rdc321x-gpio.c       |    2 +-
+ drivers/gpio/rdc321x-gpio.c       |    3 ++-
  drivers/mfd/rdc321x-southbridge.c |    4 ++--
- drivers/watchdog/rdc321x_wdt.c    |    2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/watchdog/rdc321x_wdt.c    |    3 ++-
+ 3 files changed, 6 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/gpio/rdc321x-gpio.c b/drivers/gpio/rdc321x-gpio.c
-index 897e057..5ecc9e1 100644
+index 897e057..a9bda88 100644
 --- a/drivers/gpio/rdc321x-gpio.c
 +++ b/drivers/gpio/rdc321x-gpio.c
-@@ -135,7 +135,7 @@ static int __devinit rdc321x_gpio_probe(struct platform_device *pdev)
+@@ -27,6 +27,7 @@
+ #include <linux/pci.h>
+ #include <linux/gpio.h>
+ #include <linux/mfd/rdc321x.h>
++#include <linux/mfd/core.h>
+ #include <linux/slab.h>
+ 
+ struct rdc321x_gpio {
+@@ -135,7 +136,7 @@ static int __devinit rdc321x_gpio_probe(struct platform_device *pdev)
  	struct rdc321x_gpio *rdc321x_gpio_dev;
  	struct rdc321x_gpio_pdata *pdata;
  
@@ -63,10 +73,18 @@ index 5092297..193c940 100644
  };
  
 diff --git a/drivers/watchdog/rdc321x_wdt.c b/drivers/watchdog/rdc321x_wdt.c
-index 3939e53..9fd382d 100644
+index 3939e53..d8e7250 100644
 --- a/drivers/watchdog/rdc321x_wdt.c
 +++ b/drivers/watchdog/rdc321x_wdt.c
-@@ -231,7 +231,7 @@ static int __devinit rdc321x_wdt_probe(struct platform_device *pdev)
+@@ -37,6 +37,7 @@
+ #include <linux/io.h>
+ #include <linux/uaccess.h>
+ #include <linux/mfd/rdc321x.h>
++#include <linux/mfd/core.h>
+ 
+ #define RDC_WDT_MASK	0x80000000 /* Mask */
+ #define RDC_WDT_EN	0x00800000 /* Enable bit */
+@@ -231,7 +232,7 @@ static int __devinit rdc321x_wdt_probe(struct platform_device *pdev)
  	struct resource *r;
  	struct rdc321x_wdt_pdata *pdata;
  
