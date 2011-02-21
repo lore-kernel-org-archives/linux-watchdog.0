@@ -1,29 +1,35 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailout-de.gmx.net ([213.165.64.23]:35513 "HELO
-	mailout-de.gmx.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751889Ab1BUSny convert rfc822-to-8bit (ORCPT
+Received: from mailrelay011.isp.belgacom.be ([195.238.6.178]:62654 "EHLO
+	mailrelay011.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754306Ab1BUTVv (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 21 Feb 2011 13:43:54 -0500
-From: Toralf =?utf-8?q?F=C3=B6rster?= <toralf.foerster@gmx.de>
-To: wim@iguana.be
-Subject: || versus |
-Date: Mon, 21 Feb 2011 19:43:41 +0100
+	Mon, 21 Feb 2011 14:21:51 -0500
+Date: Mon, 21 Feb 2011 20:21:49 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Toralf =?iso-8859-1?Q?F=F6rster?= <toralf.foerster@gmx.de>
 Cc: linux-watchdog@vger.kernel.org
+Subject: Re: && versus &
+Message-ID: <20110221192149.GF3790@infomag.iguana.be>
+References: <201102211936.44160.toralf.foerster@gmx.de>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <201102211943.41597.toralf.foerster@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <201102211936.44160.toralf.foerster@gmx.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-I found in drivers/watchdog/w83697ug_wdt.c:
+Hi Toralf,
 
- outb_p(c || 0x01, WDT_EFDR); /* set bit 0 to activate GPIO2 */
+> Im wondering about this line in drivers/watchdog/sch311x_wdt.c:
+> 
+> if (sch311x_sio_inb(sio_config_port, 0x30) && 0x01 == 0)
+> 
+> is this intended ?
 
--- 
-MfG/Kind regards
-Toralf Förster
+This is a typo/bug.
 
-pgp finger print: 7B1A 07F4 EC82 0F90 D4C2 8936 872A E508 7DB6 9DA3
+Patch created.
+
+Kind regards and thanks,
+Wim.
 
