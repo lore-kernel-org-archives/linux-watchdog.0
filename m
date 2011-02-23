@@ -1,67 +1,55 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([74.125.121.67]:11869 "EHLO
+Received: from smtp-out.google.com ([74.125.121.67]:17193 "EHLO
 	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755815Ab1BWWGu (ORCPT
+	with ESMTP id S1756084Ab1BWWTZ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 23 Feb 2011 17:06:50 -0500
-Received: from hpaq1.eem.corp.google.com (hpaq1.eem.corp.google.com [172.25.149.1])
-	by smtp-out.google.com with ESMTP id p1NM6m8Y031188
-	for <linux-watchdog@vger.kernel.org>; Wed, 23 Feb 2011 14:06:48 -0800
-Received: from gyh3 (gyh3.prod.google.com [10.243.50.195])
-	by hpaq1.eem.corp.google.com with ESMTP id p1NM5rc2001956
+	Wed, 23 Feb 2011 17:19:25 -0500
+Received: from kpbe20.cbf.corp.google.com (kpbe20.cbf.corp.google.com [172.25.105.84])
+	by smtp-out.google.com with ESMTP id p1NMJNe3016002
+	for <linux-watchdog@vger.kernel.org>; Wed, 23 Feb 2011 14:19:23 -0800
+Received: from gxk8 (gxk8.prod.google.com [10.202.11.8])
+	by kpbe20.cbf.corp.google.com with ESMTP id p1NMIidA004532
 	(version=TLSv1/SSLv3 cipher=RC4-SHA bits=128 verify=NOT)
-	for <linux-watchdog@vger.kernel.org>; Wed, 23 Feb 2011 14:06:47 -0800
-Received: by gyh3 with SMTP id 3so1319876gyh.36
-        for <linux-watchdog@vger.kernel.org>; Wed, 23 Feb 2011 14:06:47 -0800 (PST)
-Message-ID: <4D6584F2.1010109@google.com>
-Date: Wed, 23 Feb 2011 14:06:42 -0800
+	for <linux-watchdog@vger.kernel.org>; Wed, 23 Feb 2011 14:19:21 -0800
+Received: by gxk8 with SMTP id 8so1810929gxk.33
+        for <linux-watchdog@vger.kernel.org>; Wed, 23 Feb 2011 14:19:21 -0800 (PST)
+Message-ID: <4D6587E6.2080009@google.com>
+Date: Wed, 23 Feb 2011 14:19:18 -0800
 From: Mike Waychison <mikew@google.com>
 MIME-Version: 1.0
 To: Wim Van Sebroeck <wim@iguana.be>
 CC: LKML <linux-kernel@vger.kernel.org>,
 	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
 	Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [RFC] [PATCH 6/10] Generic Watchdog Timer Driver
-References: <20110223204350.GA7433@infomag.iguana.be>
-In-Reply-To: <20110223204350.GA7433@infomag.iguana.be>
+Subject: Re: [RFC] [PATCH 0/10] Generic Watchdog Timer Driver
+References: <20110223204108.GA6327@infomag.iguana.be>
+In-Reply-To: <20110223204108.GA6327@infomag.iguana.be>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/23/11 12:43, Wim Van Sebroeck wrote:
-> commit afe3de93859443b575407f39a2e655956c02e088
-> Author: Wim Van Sebroeck<wim@iguana.be>
-> Date:   Sun Jul 18 10:39:00 2010 +0000
+On 02/23/11 12:41, Wim Van Sebroeck wrote:
+> Hi All,
 >
->      watchdog: WatchDog Timer Driver Core - Part 6
+> To reduce copying the same code over and over in each watchdog device driver, Alan Cox and myself constructed a new framework/API that consolidates the common watchdog timer driver functions.
 >
->      Since we don't want that a driver module can be removed
->      while the watchdog timer is still active, we lock the
->      driver module (by incremeting the reference counter).
->      After a clean close of the watchdog driver we unlock the
->      driver module.
->      If /dev/watchdog is closed uncleanly (and the watchdog is
->      still active) then we do not unlock the driver module,
->      but keep it, so that next time /dev/watchdog get's opened
->      we can continue triggering the watchdog.
+> This framework/API consists of the following patches:
+> part  1: Introduction of the WatchDog Timer Driver Core
+> part  2: Add the basic ioctl functionality
+> part  3: Add the WDIOC_KEEPALIVE ioctl
+> part  4: Add the WDIOC_SETOPTIONS ioctl
+> part  5: Add the WDIOC_SETTIMEOUT and WDIOC_GETTIMEOUT ioctl
+> part  6: Add orphan control
+> part  7: Add the Magic Close feature
+> part  8: Add the nowayout feature
+> part  9: Add support for a miscdev parent device
+> part 10: Add support for extra ioctl calls
 >
->      Signed-off-by: Alan Cox<alan@lxorguk.ukuu.org.uk>
->      Signed-off-by: Wim Van Sebroeck<wim@iguana.be>
->
+> Note: I still need to add the minimum and maximum timeout parameters.
+> (That will become part 11).
 
-*snip*
+Overall, this looks really good IMO.  It goes a long way to setting the 
+stage for cleaning up the watchdog drivers themselves :)
 
-> diff --git a/drivers/watchdog/core/watchdog_core.c b/drivers/watchdog/core/watchdog_core.c
-> index 52bc520..d1a824e 100644
-> --- a/drivers/watchdog/core/watchdog_core.c
-> +++ b/drivers/watchdog/core/watchdog_core.c
-> @@ -60,6 +60,10 @@ int register_watchdogdevice(struct watchdog_device *wdd)
->   	if (wdd == NULL || wdd->info == NULL || wdd->ops == NULL)
->   		return -ENODATA;
->
-> +	/* Make sure that the owner of the watchdog operations exists */
-> +	if (wdd->ops->owner == NULL)
-> +		return -ENODATA;
-
-This check is invalid when the driver is built in.
+Reviewed-by: Mike Waychison <mikew@google.com>
