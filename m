@@ -1,30 +1,47 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay003.isp.belgacom.be ([195.238.6.53]:64284 "EHLO
-	mailrelay003.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751689Ab1BUTbE (ORCPT
+Received: from mailrelay012.isp.belgacom.be ([195.238.6.179]:38061 "EHLO
+	mailrelay012.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753388Ab1BWHzg (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 21 Feb 2011 14:31:04 -0500
-Date: Mon, 21 Feb 2011 20:31:02 +0100
+	Wed, 23 Feb 2011 02:55:36 -0500
+Date: Wed, 23 Feb 2011 08:55:34 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Toralf =?iso-8859-1?Q?F=F6rster?= <toralf.foerster@gmx.de>
-Cc: linux-watchdog@vger.kernel.org
-Subject: Re: || versus |
-Message-ID: <20110221193102.GG3790@infomag.iguana.be>
-References: <201102211943.41597.toralf.foerster@gmx.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Simon Braunschmidt <sb@emlix.com>, linux-kernel@vger.kernel.org,
+	linux-omap@vger.kernel.org, linux-watchdog@vger.kernel.org
+Subject: Re: Handling multiple watchdogs
+Message-ID: <20110223075534.GN3790@infomag.iguana.be>
+References: <4A672B97.1070704@emlix.com> <20090722171920.505ffc4b@lxorguk.ukuu.org.uk> <20090722185232.GK2155@infomag.iguana.be> <20110202111516.0154bb4a@lxorguk.ukuu.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <201102211943.41597.toralf.foerster@gmx.de>
+In-Reply-To: <20110202111516.0154bb4a@lxorguk.ukuu.org.uk>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Toralf,
+Hi Alan,
 
-> I found in drivers/watchdog/w83697ug_wdt.c:
+> > 1) make sure that we have the new watchdog core infrastructure going in for 2.6.32.
+> > This new core integrates the common code that we use over and over again. I once
+> > wrote code for it and then Alan had different ideas and thoughts and wrote his updated
+> > code. I reviewed that and I am changing some small bits so that we will have the new
 > 
->  outb_p(c || 0x01, WDT_EFDR); /* set bit 0 to activate GPIO2 */
+> What is the status of this ? I was thinking it had been a while but it
+> seems to be 18 months ago..
 
-Also patch created for this.
+I did that dev_* fix as we agreed on sunday.
+I will sent out the code (for additional comments) out tonight to linux-kernel and linux-watchdog mailing lists.
+Aiming to get it in for 2.6.39.
+
+Code can allready be looked at, at:
+http://git.kernel.org/?p=linux/kernel/git/wim/linux-2.6-watchdog-next.git;a=shortlog;h=refs/heads/generic-watchdog
+
+Open issues: get min adn max timeout in so that the generic code can check the boundarys.
+Need to think about MAGIC_CLOSE_FEATURE. There seem to be people that are surprised that if you do a cat /dev/watchdog that the system reboots. Whiwh is normal: it's an open with a close without the magic character. One solution I see is to add a module_param that can disable magic_close_feature. Default will be on though).
+
+And after that we can consider the read function that you proposed.
+
+And then we need to go for the sysfs interface so that we can support multiple watchdogs via sysfs.
 
 Kind regards,
 Wim.
