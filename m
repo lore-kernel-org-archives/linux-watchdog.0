@@ -1,113 +1,187 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([216.239.44.51]:32281 "EHLO
+Received: from smtp-out.google.com ([216.239.44.51]:45577 "EHLO
 	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753694Ab1BWVmB (ORCPT
+	with ESMTP id S932242Ab1BWV7Q (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 23 Feb 2011 16:42:01 -0500
-Received: from hpaq12.eem.corp.google.com (hpaq12.eem.corp.google.com [172.25.149.12])
-	by smtp-out.google.com with ESMTP id p1NLg0HX012540
-	for <linux-watchdog@vger.kernel.org>; Wed, 23 Feb 2011 13:42:00 -0800
-Received: from pxi7 (pxi7.prod.google.com [10.243.27.7])
-	by hpaq12.eem.corp.google.com with ESMTP id p1NLfO5g018642
+	Wed, 23 Feb 2011 16:59:16 -0500
+Received: from hpaq14.eem.corp.google.com (hpaq14.eem.corp.google.com [172.25.149.14])
+	by smtp-out.google.com with ESMTP id p1NLxEEb012081
+	for <linux-watchdog@vger.kernel.org>; Wed, 23 Feb 2011 13:59:15 -0800
+Received: from gxk3 (gxk3.prod.google.com [10.202.11.3])
+	by hpaq14.eem.corp.google.com with ESMTP id p1NLxCWD031089
 	(version=TLSv1/SSLv3 cipher=RC4-SHA bits=128 verify=NOT)
-	for <linux-watchdog@vger.kernel.org>; Wed, 23 Feb 2011 13:41:58 -0800
-Received: by pxi7 with SMTP id 7so892857pxi.30
-        for <linux-watchdog@vger.kernel.org>; Wed, 23 Feb 2011 13:41:58 -0800 (PST)
-Message-ID: <4D657F24.2000402@google.com>
-Date: Wed, 23 Feb 2011 13:41:56 -0800
+	for <linux-watchdog@vger.kernel.org>; Wed, 23 Feb 2011 13:59:13 -0800
+Received: by gxk3 with SMTP id 3so1420921gxk.12
+        for <linux-watchdog@vger.kernel.org>; Wed, 23 Feb 2011 13:59:12 -0800 (PST)
+Message-ID: <4D65832C.9020203@google.com>
+Date: Wed, 23 Feb 2011 13:59:08 -0800
 From: Mike Waychison <mikew@google.com>
 MIME-Version: 1.0
 To: Wim Van Sebroeck <wim@iguana.be>
 CC: LKML <linux-kernel@vger.kernel.org>,
 	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
 	Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [RFC] [PATCH 3/10] Generic Watchdog Timer Driver
-References: <20110223204253.GA7385@infomag.iguana.be>
-In-Reply-To: <20110223204253.GA7385@infomag.iguana.be>
+Subject: Re: [RFC] [PATCH 5/10] Generic Watchdog Timer Driver
+References: <20110223204330.GA7417@infomag.iguana.be>
+In-Reply-To: <20110223204330.GA7417@infomag.iguana.be>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/23/11 12:42, Wim Van Sebroeck wrote:
-> commit 87af8029a114af16d696047167d482624a1c9334
+On 02/23/11 12:43, Wim Van Sebroeck wrote:
+> commit 1959ea403c69af855f5cd13e5c9b33123d2137b2
 > Author: Wim Van Sebroeck<wim@iguana.be>
-> Date:   Fri Jun 18 09:03:14 2010 +0000
+> Date:   Fri Jun 18 09:45:49 2010 +0000
 >
->      watchdog: WatchDog Timer Driver Core - Part 3
+>      watchdog: WatchDog Timer Driver Core - Part 5
 >
->      This part add's the WDIOC_KEEPALIVE ioctl functionality to the
->      WatchDog Timer Driver Core framework. Please note that the
->      WDIOF_KEEPALIVEPING bit has to be set in the watchdog_info
->      options field.
+>      This part add's the WDIOC_SETTIMEOUT and WDIOC_GETTIMEOUT ioctl
+>      functionality to the WatchDog Timer Driver Core framework.
 >
 >      Signed-off-by: Alan Cox<alan@lxorguk.ukuu.org.uk>
 >      Signed-off-by: Wim Van Sebroeck<wim@iguana.be>
 >
 > diff --git a/Documentation/watchdog/src/watchdog-with-timer-example.c b/Documentation/watchdog/src/watchdog-with-timer-example.c
-> index ed7852a..d64cac6 100644
+> index 6a4af47..f1d4f217 100644
 > --- a/Documentation/watchdog/src/watchdog-with-timer-example.c
 > +++ b/Documentation/watchdog/src/watchdog-with-timer-example.c
-> @@ -117,6 +117,7 @@ static int wdt_stop(struct watchdog_device *wdd)
+> @@ -110,18 +110,27 @@ static int wdt_stop(struct watchdog_device *wdd)
+>   	return 0;
+>   }
+>
+> +static int wdt_set_timeout(struct watchdog_device *wdd, int new_timeout)
+> +{
+> +	if (new_timeout<  1)
+> +		return -EINVAL;
+> +	return 0;
+> +}
+> +
+>   /*
+>    * The watchdog kernel structures
 >    */
 >   static const struct watchdog_info wdt_info = {
 >   	.identity =	DRV_NAME,
-> +	.options =	WDIOF_KEEPALIVEPING,
+> -	.options =	WDIOF_KEEPALIVEPING,
+> +	.options =	WDIOF_SETTIMEOUT |
+> +			WDIOF_KEEPALIVEPING,
 >   };
 >
 >   static const struct watchdog_ops wdt_ops = {
+>   	.start =	wdt_start,
+>   	.stop =		wdt_stop,
+>   	.ping =		wdt_ping,
+> +	.set_timeout =	wdt_set_timeout,
+>   };
+>
+>   static struct watchdog_device wdt_dev = {
+> @@ -139,6 +148,9 @@ static int __devinit wdt_probe(struct platform_device *pdev)
+>
+>   	/* Register other stuff */
+>
+> +	/* Set watchdog_device parameters */
+> +	wdt_dev.timeout = timeout;
+> +
+>   	/* Register the watchdog timer device */
+>   	res = register_watchdogdevice(&wdt_dev);
+>   	if (res) {
 > diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
-> index 9418d4c..4a68e5e 100644
+> index 3de69e7..f15e8d4 100644
 > --- a/Documentation/watchdog/watchdog-kernel-api.txt
 > +++ b/Documentation/watchdog/watchdog-kernel-api.txt
-> @@ -96,6 +96,9 @@ they are supported. These optional routines/operations are:
->     the watchdog timer driver core does: to send a keepalive ping to the watchdog
->     timer hardware it will either use the ping operation (when available) or the
->     start operation (when the ping operation is not available).
-> +  (Note: the WDIOC_KEEPALIVE ioctl call will only be active when the
-> +  WDIOF_KEEPALIVEPING bit has been set in the option field on the watchdog's
-> +  info structure).
+> @@ -42,6 +42,7 @@ struct watchdog_device {
+>   	char *name;
+>   	const struct watchdog_info *info;
+>   	const struct watchdog_ops *ops;
+> +	int timeout;
+>   	int bootstatus;
+>   	long status;
+>   };
+> @@ -51,6 +52,7 @@ It contains following fields:
+>   * info: a pointer to a watchdog_info structure. This structure gives some
+>     additional information about the watchdog timer itself.
+>   * ops: a pointer to the list of watchdog operations that the watchdog supports.
+> +* timeout: the watchdog timer's timeout value (in seconds).
+>   * bootstatus: status of the device after booting (reported with watchdog
+>     WDIOF_* status bits).
+>   * status: this field contains a number of status bits that give extra
+> @@ -67,6 +69,7 @@ struct watchdog_ops {
+>   	/* optional operations */
+>   	int (*ping)(struct watchdog_device *);
+>   	int (*status)(struct watchdog_device *);
+> +	int (*set_timeout)(struct watchdog_device *, int);
+>   };
+>
+>   Some operations are mandatory and some are optional. The mandatory operations
+> @@ -102,6 +105,12 @@ they are supported. These optional routines/operations are:
+>     info structure).
 >   * status: this routine checks the status of the watchdog timer device. The
 >     status of the device is reported with watchdog WDIOF_* status flags/bits.
+> +* set_timeout: this routine checks and changes the timeout of the watchdog
+> +  timer device. It returns 0 on success and an errno code on failure. On success
+> +  the timeout value of the watchdog_device will be changed to the value that
+> +  was just used to re-program the watchdog timer device.
+> +  (Note: the WDIOF_SETTIMEOUT needs to be set in the options field of the
+> +  watchdog's info structure).
 >
+>   The status bits should (preferably) be set with the set_bit and clear_bit alike
+>   bit-operations. The status bit's that are defined are:
 > diff --git a/drivers/watchdog/core/watchdog_dev.c b/drivers/watchdog/core/watchdog_dev.c
-> index ad08a93..0d2ed1d 100644
+> index 2bf4f67..b80c6e6 100644
 > --- a/drivers/watchdog/core/watchdog_dev.c
 > +++ b/drivers/watchdog/core/watchdog_dev.c
-> @@ -151,6 +151,11 @@ static long watchdog_ioctl(struct file *file, unsigned int cmd,
->   		return put_user(val, p);
->   	case WDIOC_GETBOOTSTATUS:
->   		return put_user(wdd->bootstatus, p);
-> +	case WDIOC_KEEPALIVE:
-> +		if (!(wdd->info->options&  WDIOF_MAGICCLOSE))
-
-Is this meant to be WDIOF_KEEPALIVEPING ?
-
-
+> @@ -221,6 +221,26 @@ static long watchdog_ioctl(struct file *file, unsigned int cmd,
+>   			return -EOPNOTSUPP;
+>   		watchdog_ping(wdd);
+>   		return 0;
+> +	case WDIOC_SETTIMEOUT:
+> +		if ((wdd->ops->set_timeout == NULL) ||
+> +		    !(wdd->info->options&  WDIOF_SETTIMEOUT))
 > +			return -EOPNOTSUPP;
+> +		if (get_user(val, p))
+> +			return -EFAULT;
+
+Should we sanity check that val > 0 here?  I realize that the driver 
+would need to do it's own sanity checking, but a value of 0 or < 0 makes 
+no sense to the core itself.
+
+Maybe timeout is best expressed as u32 if this is the case.
+
+> +		err = wdd->ops->set_timeout(wdd, val);
+> +		if (err<  0)
+> +			return err;
+> +		wdd->timeout = val;
+> +		/* If the watchdog is active then we sent a keepalive ping
+> +		 * to make sure that the watchdog keep's running (and if
+> +		 * possible that it takes the new timeout) */
 > +		watchdog_ping(wdd);
-> +		return 0;
+> +		/* Fall */
+> +	case WDIOC_GETTIMEOUT:
+> +		/* timeout == 0 means that we don't know the timeout */
+> +		if (wdd->timeout)
+> +			return put_user(wdd->timeout, p);
+> +		return -EOPNOTSUPP;
 >   	default:
 >   		return -ENOTTY;
 >   	}
 > diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
-> index 4d00bf8..a41dca3 100644
+> index 736814f..e35f51f 100644
 > --- a/include/linux/watchdog.h
 > +++ b/include/linux/watchdog.h
-> @@ -69,12 +69,15 @@ struct watchdog_ops {
->   	int (*stop)(struct watchdog_device *);
+> @@ -70,6 +70,7 @@ struct watchdog_ops {
 >   	/* optional operations */
 >   	int (*ping)(struct watchdog_device *);
-> +	int (*status)(struct watchdog_device *);
+>   	int (*status)(struct watchdog_device *);
+> +	int (*set_timeout)(struct watchdog_device *, int);
 >   };
 >
 >   /* The structure that defines a watchdog device */
->   struct watchdog_device {
->   	char *name;
-> +	const struct watchdog_info *info;
+> @@ -78,6 +79,7 @@ struct watchdog_device {
+>   	const struct watchdog_info *info;
 >   	const struct watchdog_ops *ops;
-> +	int bootstatus;
+>   	int bootstatus;
+> +	int timeout;
 >   	long status;
+>   #define WDOG_ACTIVE		0	/* is the watchdog running/active */
 >   #define WDOG_DEV_OPEN		1	/* is the watchdog opened via
->   					 * /dev/watchdog */
 
