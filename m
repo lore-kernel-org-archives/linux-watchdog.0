@@ -1,55 +1,44 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([74.125.121.67]:17193 "EHLO
-	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756084Ab1BWWTZ (ORCPT
+Received: from webbox687.server-home.net ([195.149.74.151]:51366 "EHLO
+	webbox687.server-home.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755250Ab1BXIVF (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 23 Feb 2011 17:19:25 -0500
-Received: from kpbe20.cbf.corp.google.com (kpbe20.cbf.corp.google.com [172.25.105.84])
-	by smtp-out.google.com with ESMTP id p1NMJNe3016002
-	for <linux-watchdog@vger.kernel.org>; Wed, 23 Feb 2011 14:19:23 -0800
-Received: from gxk8 (gxk8.prod.google.com [10.202.11.8])
-	by kpbe20.cbf.corp.google.com with ESMTP id p1NMIidA004532
-	(version=TLSv1/SSLv3 cipher=RC4-SHA bits=128 verify=NOT)
-	for <linux-watchdog@vger.kernel.org>; Wed, 23 Feb 2011 14:19:21 -0800
-Received: by gxk8 with SMTP id 8so1810929gxk.33
-        for <linux-watchdog@vger.kernel.org>; Wed, 23 Feb 2011 14:19:21 -0800 (PST)
-Message-ID: <4D6587E6.2080009@google.com>
-Date: Wed, 23 Feb 2011 14:19:18 -0800
-From: Mike Waychison <mikew@google.com>
-MIME-Version: 1.0
+	Thu, 24 Feb 2011 03:21:05 -0500
+From: Alexander Stein <alexander.stein@systec-electronic.com>
 To: Wim Van Sebroeck <wim@iguana.be>
-CC: LKML <linux-kernel@vger.kernel.org>,
+Subject: Re: [RFC] [PATCH 5/10] Generic Watchdog Timer Driver
+Date: Thu, 24 Feb 2011 09:21:02 +0100
+Cc: LKML <linux-kernel@vger.kernel.org>,
 	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
 	Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [RFC] [PATCH 0/10] Generic Watchdog Timer Driver
-References: <20110223204108.GA6327@infomag.iguana.be>
-In-Reply-To: <20110223204108.GA6327@infomag.iguana.be>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <20110223204330.GA7417@infomag.iguana.be>
+In-Reply-To: <20110223204330.GA7417@infomag.iguana.be>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <201102240921.02967.alexander.stein@systec-electronic.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/23/11 12:41, Wim Van Sebroeck wrote:
-> Hi All,
->
-> To reduce copying the same code over and over in each watchdog device driver, Alan Cox and myself constructed a new framework/API that consolidates the common watchdog timer driver functions.
->
-> This framework/API consists of the following patches:
-> part  1: Introduction of the WatchDog Timer Driver Core
-> part  2: Add the basic ioctl functionality
-> part  3: Add the WDIOC_KEEPALIVE ioctl
-> part  4: Add the WDIOC_SETOPTIONS ioctl
-> part  5: Add the WDIOC_SETTIMEOUT and WDIOC_GETTIMEOUT ioctl
-> part  6: Add orphan control
-> part  7: Add the Magic Close feature
-> part  8: Add the nowayout feature
-> part  9: Add support for a miscdev parent device
-> part 10: Add support for extra ioctl calls
->
-> Note: I still need to add the minimum and maximum timeout parameters.
-> (That will become part 11).
+On Wednesday 23 February 2011, 21:43:30 Wim Van Sebroeck wrote:
+> commit 1959ea403c69af855f5cd13e5c9b33123d2137b2
+> Author: Wim Van Sebroeck <wim@iguana.be>
+> Date:   Fri Jun 18 09:45:49 2010 +0000
+> 
+>     watchdog: WatchDog Timer Driver Core - Part 5
+> 
+>     This part add's the WDIOC_SETTIMEOUT and WDIOC_GETTIMEOUT ioctl
+>     functionality to the WatchDog Timer Driver Core framework.
+> 
+>     Signed-off-by: Alan Cox <alan@lxorguk.ukuu.org.uk>
+>     Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+> 
+> [snip]
 
-Overall, this looks really good IMO.  It goes a long way to setting the 
-stage for cleaning up the watchdog drivers themselves :)
+Any specific reason you can only specify seconds as timeout? There is no way 
+to set a timeout of e.g. 500ms or 1500ms.
+You can change this by using using a struct timeval for setting a timeout. 
+What do you think?
 
-Reviewed-by: Mike Waychison <mikew@google.com>
+Alexander
