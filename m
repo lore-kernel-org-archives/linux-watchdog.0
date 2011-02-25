@@ -1,201 +1,42 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:40688 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753459Ab1BXMex (ORCPT
+Received: from mailrelay010.isp.belgacom.be ([195.238.6.177]:3886 "EHLO
+	mailrelay010.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932371Ab1BYJtf (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 24 Feb 2011 07:34:53 -0500
-Date: Thu, 24 Feb 2011 10:02:04 +0000
-From: Jamie Iles <jamie@jamieiles.com>
-To: Wim Van Sebroeck <wim@iguana.be>
+	Fri, 25 Feb 2011 04:49:35 -0500
+Date: Fri, 25 Feb 2011 10:49:28 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Mike Waychison <mikew@google.com>
 Cc: LKML <linux-kernel@vger.kernel.org>,
 	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
 	Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [RFC] [PATCH 6/10] Generic Watchdog Timer Driver
-Message-ID: <20110224100204.GC15118@pulham.picochip.com>
-References: <20110223204350.GA7433@infomag.iguana.be>
+Subject: Re: [RFC] [PATCH 3/10] Generic Watchdog Timer Driver
+Message-ID: <20110225094928.GQ3790@infomag.iguana.be>
+References: <20110223204253.GA7385@infomag.iguana.be> <4D657F24.2000402@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20110223204350.GA7433@infomag.iguana.be>
+In-Reply-To: <4D657F24.2000402@google.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Feb 23, 2011 at 09:43:51PM +0100, Wim Van Sebroeck wrote:
-> commit afe3de93859443b575407f39a2e655956c02e088
-> Author: Wim Van Sebroeck <wim@iguana.be>
-> Date:   Sun Jul 18 10:39:00 2010 +0000
-> 
->     watchdog: WatchDog Timer Driver Core - Part 6
->     
->     Since we don't want that a driver module can be removed
->     while the watchdog timer is still active, we lock the
->     driver module (by incremeting the reference counter).
->     After a clean close of the watchdog driver we unlock the
->     driver module.
->     If /dev/watchdog is closed uncleanly (and the watchdog is
->     still active) then we do not unlock the driver module,
->     but keep it, so that next time /dev/watchdog get's opened
->     we can continue triggering the watchdog.
+Hi Mike,
 
-Ahh, I was looking for too much in the earlier patches!  Apologies.
+>> diff --git a/drivers/watchdog/core/watchdog_dev.c b/drivers/watchdog/core/watchdog_dev.c
+>> index ad08a93..0d2ed1d 100644
+>> --- a/drivers/watchdog/core/watchdog_dev.c
+>> +++ b/drivers/watchdog/core/watchdog_dev.c
+>> @@ -151,6 +151,11 @@ static long watchdog_ioctl(struct file *file, unsigned int cmd,
+>>   		return put_user(val, p);
+>>   	case WDIOC_GETBOOTSTATUS:
+>>   		return put_user(wdd->bootstatus, p);
+>> +	case WDIOC_KEEPALIVE:
+>> +		if (!(wdd->info->options&  WDIOF_MAGICCLOSE))
+>
+> Is this meant to be WDIOF_KEEPALIVEPING ?
 
->     
->     Signed-off-by: Alan Cox <alan@lxorguk.ukuu.org.uk>
->     Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-> 
-> diff --git a/Documentation/watchdog/src/watchdog-with-timer-example.c b/Documentation/watchdog/src/watchdog-with-timer-example.c
-> index f1d4f217..604fd91 100644
-> --- a/Documentation/watchdog/src/watchdog-with-timer-example.c
-> +++ b/Documentation/watchdog/src/watchdog-with-timer-example.c
-> @@ -127,6 +127,7 @@ static const struct watchdog_info wdt_info = {
->  };
->  
->  static const struct watchdog_ops wdt_ops = {
-> +	.owner =	THIS_MODULE,
->  	.start =	wdt_start,
->  	.stop =		wdt_stop,
->  	.ping =		wdt_ping,
-> diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
-> index f15e8d4..472bfea 100644
-> --- a/Documentation/watchdog/watchdog-kernel-api.txt
-> +++ b/Documentation/watchdog/watchdog-kernel-api.txt
-> @@ -63,6 +63,7 @@ It contains following fields:
->  The list of watchdog operations is defined as:
->  
->  struct watchdog_ops {
-> +	struct module *owner;
->  	/* mandatory operations */
->  	int (*start)(struct watchdog_device *);
->  	int (*stop)(struct watchdog_device *);
-> @@ -72,6 +73,10 @@ struct watchdog_ops {
->  	int (*set_timeout)(struct watchdog_device *, int);
->  };
->  
-> +It is important that you first define the module owner of the watchdog timer
-> +driver's operations. This module owner will be used to lock the module when
-> +the watchdog is active. (You don't want to unload the module when you're
-> +watchdog timer device is still active).
->  Some operations are mandatory and some are optional. The mandatory operations
->  are:
->  * start: this is a pointer to the routine that starts the watchdog timer
-> @@ -121,3 +126,8 @@ bit-operations. The status bit's that are defined are:
->  * WDOG_DEV_OPEN: this status bit shows whether or not the watchdog device
->    was opened via /dev/watchdog.
->    (This bit should only be used by the WatchDog Timer Driver Core).
-> +* WDOG_ORPHAN: when /dev/watchdog was closed, but the watchdog is still active
-> +  then we don't unload the module. This bit is set when this situation occurs.
-> +  When re-opening /dev/watchdog before a reboot occurs, you can then still use
-> +  and ping the watchdog timer device.
-> +  (This bit should only be used by the WatchDog Timer Driver Core).
+Yes it is. Fixed this in my code.
 
-I don't fully understand why the module refcounting is done in the open 
-and release though.  If you moved it into the registration and 
-unregistration then doesn't that remove the need for WDOG_ORPHAN?
+Thanks,
+Wim.
 
-> diff --git a/drivers/watchdog/core/watchdog_core.c b/drivers/watchdog/core/watchdog_core.c
-> index 52bc520..d1a824e 100644
-> --- a/drivers/watchdog/core/watchdog_core.c
-> +++ b/drivers/watchdog/core/watchdog_core.c
-> @@ -60,6 +60,10 @@ int register_watchdogdevice(struct watchdog_device *wdd)
->  	if (wdd == NULL || wdd->info == NULL || wdd->ops == NULL)
->  		return -ENODATA;
->  
-> +	/* Make sure that the owner of the watchdog operations exists */
-> +	if (wdd->ops->owner == NULL)
-> +		return -ENODATA;
-
-Won't this be effectively NULL if the module is builtin?  It looks like 
-if it is builtin then THIS_MODULE would be defined as (struct module 
-*)0.
-
-> +
->  	/* Make sure that the mandatory operations are supported */
->  	if (wdd->ops->start == NULL || wdd->ops->stop == NULL)
->  		return -ENODATA;
-> diff --git a/drivers/watchdog/core/watchdog_dev.c b/drivers/watchdog/core/watchdog_dev.c
-> index b80c6e6..d3dfac2 100644
-> --- a/drivers/watchdog/core/watchdog_dev.c
-> +++ b/drivers/watchdog/core/watchdog_dev.c
-> @@ -259,7 +259,7 @@ static long watchdog_ioctl(struct file *file, unsigned int cmd,
->  
->  static int watchdog_open(struct inode *inode, struct file *file)
->  {
-> -	int err;
-> +	int err = -EBUSY;
->  
->  	trace("%p, %p", inode, file);
->  
-> @@ -267,14 +267,26 @@ static int watchdog_open(struct inode *inode, struct file *file)
->  	if (test_and_set_bit(WDOG_DEV_OPEN, &wdd->status))
->  		return -EBUSY;
-
-Couldn't wdd be potentially invalid if the module had been unloaded?
-
->  
-> +	/* if the /dev/watchdog device is open, we don't want the module
-> +	 * to be unloaded. */
-> +	if (!try_module_get(wdd->ops->owner))
-> +		goto out;
-
-Same here.
-
-> +
->  	/* start the watchdog */
->  	err = watchdog_start(wdd);
->  	if (err < 0)
-> -		goto out;
-> +		goto out_mod;
-> +
-> +	/* We leaked a reference to lock the module in on close
-> +	 * now we can reclaim it as we re-opened before triggering */
-> +	if (test_and_clear_bit(WDOG_ORPHAN, &wdd->status))
-> +		module_put(wdd->ops->owner);
->  
->  	/* dev/watchdog is a virtual (and thus non-seekable) filesystem */
->  	return nonseekable_open(inode, file);
->  
-> +out_mod:
-> +	module_put(wdd->ops->owner);
->  out:
->  	clear_bit(WDOG_DEV_OPEN, &wdd->status);
->  	return err;
-> @@ -296,8 +308,13 @@ static int watchdog_release(struct inode *inode, struct file *file)
->  
->  	/* stop the watchdog */
->  	err = watchdog_stop(wdd);
-> -	if (err < 0) {
-> +
-> +	/* If the watchdog stopped correctly we let the module unload again */
-> +	if (err == 0)
-> +		module_put(wdd->ops->owner);
-> +	else {	/* If not we deliberately leak a module reference */
->  		printk(KERN_CRIT "%s: not stopping watchdog!\n", wdd->name);
-> +		set_bit(WDOG_ORPHAN, &wdd->status);
->  		watchdog_ping(wdd);
->  	}
->  
-> diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
-> index e35f51f..ba08f38 100644
-> --- a/include/linux/watchdog.h
-> +++ b/include/linux/watchdog.h
-> @@ -64,6 +64,7 @@ struct watchdog_device;
->  
->  /* The watchdog-devices operations */
->  struct watchdog_ops {
-> +	struct module *owner;
->  	/* mandatory operations */
->  	int (*start)(struct watchdog_device *);
->  	int (*stop)(struct watchdog_device *);
-> @@ -84,6 +85,8 @@ struct watchdog_device {
->  #define WDOG_ACTIVE		0	/* is the watchdog running/active */
->  #define WDOG_DEV_OPEN		1	/* is the watchdog opened via
->  					 * /dev/watchdog */
-> +#define WDOG_ORPHAN		2	/* is the device module still loaded
-> +					 * after closing /dev/watchdog */
->  };
->  
->  /* drivers/watchdog/core/watchdog_core.c */
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
