@@ -1,11 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:38397 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754549Ab1CAOMg (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 1 Mar 2011 09:12:36 -0500
-Date: Tue, 1 Mar 2011 15:12:30 +0100 (CET)
-From: Jiri Kosina <jkosina@suse.cz>
-To: "Justin P. Mattock" <justinmattock@gmail.com>
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:42778 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752980Ab1CAPaX (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 1 Mar 2011 10:30:23 -0500
 Cc: linux-kernel@vger.kernel.org, Vinod Koul <vinod.koul@intel.com>,
 	Dan Williams <dan.j.williams@intel.com>,
 	Wim Van Sebroeck <wim@iguana.be>,
@@ -19,37 +17,55 @@ Cc: linux-kernel@vger.kernel.org, Vinod Koul <vinod.koul@intel.com>,
 	Andrew Morton <akpm@linux-foundation.org>,
 	KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>,
 	linux-mm@kvack.org, Hugh Dickins <hughd@google.com>
+Message-Id: <43A4FBC4-6A1C-4BD8-9F0C-23C0DBA2E35D@gmail.com>
+From: Justin Mattock <justinmattock@gmail.com>
+To: Jiri Kosina <jkosina@suse.cz>
+In-Reply-To: <alpine.LNX.2.00.1103011507120.32580@pobox.suse.cz>
+Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0 (Apple Message framework v936)
 Subject: Re: [PATCH 00/00]Remove one to many n's in a word.
-In-Reply-To: <1298781250-2718-17-git-send-email-justinmattock@gmail.com>
-Message-ID: <alpine.LNX.2.00.1103011507120.32580@pobox.suse.cz>
-References: <1298781250-2718-1-git-send-email-justinmattock@gmail.com> <1298781250-2718-17-git-send-email-justinmattock@gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Date: Tue, 1 Mar 2011 07:30:19 -0800
+References: <1298781250-2718-1-git-send-email-justinmattock@gmail.com> <1298781250-2718-17-git-send-email-justinmattock@gmail.com> <alpine.LNX.2.00.1103011507120.32580@pobox.suse.cz>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sat, 26 Feb 2011, Justin P. Mattock wrote:
 
-> The Patch below removes one to many "n's" in a word.. 
+On Mar 1, 2011, at 6:12 AM, Jiri Kosina wrote:
 
-Hi Justin,
+> On Sat, 26 Feb 2011, Justin P. Mattock wrote:
+>
+>> The Patch below removes one to many "n's" in a word..
+>
+> Hi Justin,
+>
+> I have applied all the patches from the series which were not  
+> present in
+> linux-next as of today (in a squashed-together form, no need to have
+> separated commits for such cosmetic changes).
+>
+> I'd suggest that, unless any subsystem maintainer explicitly states
+> otherwise, you submit all such similar changes justo to trivial@kernel.org
+> (and perhaps CC LKML). I propose this because:
+>
+> - I believe most maintainers don't care about these changes and  
+> don't need
+>  to be bothered
+> - it reduces annoying mail traffic (tens of mails because such
+>  nano-change)
+> - it reduces the trivial tree maintainership load, as I don't have  
+> to wait
+>  and cross-check which maintainer has applied which bits and which  
+> ones
+>  were not picked up
+>
+> -- 
+> Jiri Kosina
+> SUSE Labs, Novell Inc.
 
-I have applied all the patches from the series which were not present in 
-linux-next as of today (in a squashed-together form, no need to have 
-separated commits for such cosmetic changes).
 
-I'd suggest that, unless any subsystem maintainer explicitly states 
-otherwise, you submit all such similar changes justo to trivial@kernel.org 
-(and perhaps CC LKML). I propose this because:
+alright. makes sense.
+I have another set of fixes that I did, I'll send it out later today  
+or tomorrow to just trivial and lkml.
 
-- I believe most maintainers don't care about these changes and don't need 
-  to be bothered
-- it reduces annoying mail traffic (tens of mails because such 
-  nano-change)
-- it reduces the trivial tree maintainership load, as I don't have to wait 
-  and cross-check which maintainer has applied which bits and which ones 
-  were not picked up
-
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+Justin P. Mattock
