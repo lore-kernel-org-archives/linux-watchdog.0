@@ -1,71 +1,53 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:42778 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752980Ab1CAPaX (ORCPT
+Received: from devils.ext.ti.com ([198.47.26.153]:53410 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757361Ab1CAUsE (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 1 Mar 2011 10:30:23 -0500
-Cc: linux-kernel@vger.kernel.org, Vinod Koul <vinod.koul@intel.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org,
-	Greg Kroah-Hartman <gregkh@suse.de>,
-	Alan Stern <stern@rowland.harvard.edu>,
-	linux-usb@vger.kernel.org, Chris Mason <chris.mason@oracle.com>,
-	Eric Paris <eparis@redhat.com>,
-	John McCutchan <john@johnmccutchan.com>,
-	Robert Love <rlove@rlove.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>,
-	linux-mm@kvack.org, Hugh Dickins <hughd@google.com>
-Message-Id: <43A4FBC4-6A1C-4BD8-9F0C-23C0DBA2E35D@gmail.com>
-From: Justin Mattock <justinmattock@gmail.com>
-To: Jiri Kosina <jkosina@suse.cz>
-In-Reply-To: <alpine.LNX.2.00.1103011507120.32580@pobox.suse.cz>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Content-Transfer-Encoding: 7bit
-Mime-Version: 1.0 (Apple Message framework v936)
-Subject: Re: [PATCH 00/00]Remove one to many n's in a word.
-Date: Tue, 1 Mar 2011 07:30:19 -0800
-References: <1298781250-2718-1-git-send-email-justinmattock@gmail.com> <1298781250-2718-17-git-send-email-justinmattock@gmail.com> <alpine.LNX.2.00.1103011507120.32580@pobox.suse.cz>
+	Tue, 1 Mar 2011 15:48:04 -0500
+From: Keerthy <j-keerthy@ti.com>
+To: linux-watchdog@vger.kernel.org, wim@iguana.be
+Cc: linux-omap@vger.kernel.org, j-keerthy@ti.com
+Subject: [PATCH] watchdog: twl4030_wdt: Watchdog device registration issue fix
+Date: Wed,  2 Mar 2011 02:17:54 +0530
+Message-Id: <1299012474-4993-1-git-send-email-j-keerthy@ti.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+twl4030_wdt driver and omap_wdt driver are registering as misc_device name as
+"watchdog" and the same minor number WATCHDOG_MINOR( value = 130).
+There is a conflict since the name and minor were the same for
+both the misc_device registered by omap_wdt.c as well as twl4030_wdt.c
 
-On Mar 1, 2011, at 6:12 AM, Jiri Kosina wrote:
+The omap_wdt.c probe is getting called first. Hence it succeeds.
+twl4030_wdt.c always failed on the minor number comparison check.
+Now requesting for MISC_DYNAMIC_MINOR as the minor
+number for twl4030_watchdog and renamed the device name as
+"twl4030_watchdog".
 
-> On Sat, 26 Feb 2011, Justin P. Mattock wrote:
->
->> The Patch below removes one to many "n's" in a word..
->
-> Hi Justin,
->
-> I have applied all the patches from the series which were not  
-> present in
-> linux-next as of today (in a squashed-together form, no need to have
-> separated commits for such cosmetic changes).
->
-> I'd suggest that, unless any subsystem maintainer explicitly states
-> otherwise, you submit all such similar changes justo to trivial@kernel.org
-> (and perhaps CC LKML). I propose this because:
->
-> - I believe most maintainers don't care about these changes and  
-> don't need
->  to be bothered
-> - it reduces annoying mail traffic (tens of mails because such
->  nano-change)
-> - it reduces the trivial tree maintainership load, as I don't have  
-> to wait
->  and cross-check which maintainer has applied which bits and which  
-> ones
->  were not picked up
->
-> -- 
-> Jiri Kosina
-> SUSE Labs, Novell Inc.
+Tested for basic boot up on OMAP4 Blaze and OMAP3630 SDP. OMAP3630 SDP
+twl4030_wdt registration succeeds.2430SDP boot tested, watchdog registration
+without errors.
 
+Signed-off-by: Keerthy <j-keerthy@ti.com>
+---
+ drivers/watchdog/twl4030_wdt.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-alright. makes sense.
-I have another set of fixes that I did, I'll send it out later today  
-or tomorrow to just trivial and lkml.
+diff --git a/drivers/watchdog/twl4030_wdt.c b/drivers/watchdog/twl4030_wdt.c
+index b5045ca..89bf78d 100644
+--- a/drivers/watchdog/twl4030_wdt.c
++++ b/drivers/watchdog/twl4030_wdt.c
+@@ -183,8 +183,8 @@ static int __devinit twl4030_wdt_probe(struct platform_device *pdev)
+ 	wdt->timer_margin	= 30;
+ 	wdt->miscdev.parent	= &pdev->dev;
+ 	wdt->miscdev.fops	= &twl4030_wdt_fops;
+-	wdt->miscdev.minor	= WATCHDOG_MINOR;
+-	wdt->miscdev.name	= "watchdog";
++	wdt->miscdev.minor      = MISC_DYNAMIC_MINOR;
++	wdt->miscdev.name       = "twl4030_watchdog";
+ 
+ 	platform_set_drvdata(pdev, wdt);
+ 
+-- 
+1.7.0.4
 
-Justin P. Mattock
