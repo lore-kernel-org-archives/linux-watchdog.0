@@ -1,78 +1,308 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: "Mingarelli, Thomas" <Thomas.Mingarelli@hp.com>
-To: Axel Lin <axel.lin@gmail.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC: Wim Van Sebroeck <wim@iguana.be>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Date: Tue, 8 Mar 2011 14:56:50 +0000
-Subject: RE: [PATCH] watchdog: hpwdt: eliminate section mismatch warning
-Message-ID: <183C1D5A376DE343AA8F94FC2A1EC1497D734E5608@GVW1091EXB.americas.hpqcorp.net>
-References: <1299037784.16464.1.camel@mola>
-In-Reply-To: <1299037784.16464.1.camel@mola>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
+From: John Crispin <blogic@openwrt.org>
+To: Ralf Baechle <ralf@linux-mips.org>
+Cc: John Crispin <blogic@openwrt.org>,
+        Ralph Hempel <ralph.hempel@lantiq.com>,
+        Wim Van Sebroeck <wim@iguana.be>, linux-mips@linux-mips.org,
+        linux-watchdog@vger.kernel.org
+Subject: [PATCH V2 05/10] MIPS: lantiq: add watchdog support
+Date: Tue,  1 Mar 2011 17:13:21 +0100
+Message-Id: <1298996006-15960-6-git-send-email-blogic@openwrt.org>
+In-Reply-To: <1298996006-15960-1-git-send-email-blogic@openwrt.org>
+References: <1298996006-15960-1-git-send-email-blogic@openwrt.org>
+Return-Path: <blogic@openwrt.org>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-Archive: <https://lore.kernel.org/linux-mips/>
+List-Post: <mailto:linux-mips@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Wim:
+This patch adds the driver for the watchdog found inside the Lantiq SoC family.
 
+Changes in V2
+* add comments to explain register access
+* cleanup resource allocation
+* cleanup clock handling
+* whitespace fixes
 
-I ACK this patch.
-
-
-Thanks,
-Tom
-
------Original Message-----
-From: Axel Lin [mailto:axel.lin@gmail.com] 
-Sent: Tuesday, March 01, 2011 9:50 PM
-To: linux-kernel@vger.kernel.org
-Cc: Mingarelli, Thomas; Wim Van Sebroeck; linux-watchdog@vger.kernel.org
-Subject: [PATCH] watchdog: hpwdt: eliminate section mismatch warning
-
-hpwdt_init_nmi_decoding() is called in hpwdt_init_one error handling,
-thus remove the  __devexit annotation of hpwdt_exit_nmi_decoding().
-
-This patch fixes below warning:
-
-WARNING: drivers/watchdog/hpwdt.o(.devinit.text+0x36f): Section mismatch in reference from the function hpwdt_init_one() to the function .devexit.text:hpwdt_exit_nmi_decoding()
-The function __devinit hpwdt_init_one() references
-a function __devexit hpwdt_exit_nmi_decoding().
-This is often seen when error handling in the init function
-uses functionality in the exit path.
-The fix is often to remove the __devexit annotation of
-hpwdt_exit_nmi_decoding() so it may be used outside an exit section.
-
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
+Signed-off-by: John Crispin <blogic@openwrt.org>
+Signed-off-by: Ralph Hempel <ralph.hempel@lantiq.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-mips@linux-mips.org
+Cc: linux-watchdog@vger.kernel.org
 ---
- drivers/watchdog/hpwdt.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/watchdog/Kconfig      |    6 +
+ drivers/watchdog/Makefile     |    1 +
+ drivers/watchdog/lantiq_wdt.c |  233 +++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 240 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/watchdog/lantiq_wdt.c
 
-diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-index d54d4ba..8cb2685 100644
---- a/drivers/watchdog/hpwdt.c
-+++ b/drivers/watchdog/hpwdt.c
-@@ -710,7 +710,7 @@ static int __devinit hpwdt_init_nmi_decoding(struct pci_dev *dev)
- 	return 0;
- }
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 2e2400e..c64f8c3 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -972,6 +972,12 @@ config BCM63XX_WDT
+ 	  To compile this driver as a loadable module, choose M here.
+ 	  The module will be called bcm63xx_wdt.
  
--static void __devexit hpwdt_exit_nmi_decoding(void)
-+static void hpwdt_exit_nmi_decoding(void)
- {
- 	unregister_die_notifier(&die_notifier);
- 	if (cru_rom_addr)
-@@ -726,7 +726,7 @@ static int __devinit hpwdt_init_nmi_decoding(struct pci_dev *dev)
- 	return 0;
- }
++config LANTIQ_WDT
++	tristate "Lantiq SoC watchdog"
++	depends on LANTIQ
++	help
++	  Hardware driver for the Lantiq SoC Watchdog Timer.
++
+ # PARISC Architecture
  
--static void __devexit hpwdt_exit_nmi_decoding(void)
-+static void hpwdt_exit_nmi_decoding(void)
- {
- }
- #endif /* CONFIG_HPWDT_NMI_DECODING */
+ # POWERPC Architecture
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index dd77665..68299db 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -121,6 +121,7 @@ obj-$(CONFIG_AR7_WDT) += ar7_wdt.o
+ obj-$(CONFIG_TXX9_WDT) += txx9wdt.o
+ obj-$(CONFIG_OCTEON_WDT) += octeon-wdt.o
+ octeon-wdt-y := octeon-wdt-main.o octeon-wdt-nmi.o
++obj-$(CONFIG_LANTIQ_WDT) += lantiq_wdt.o
+ 
+ # PARISC Architecture
+ 
+diff --git a/drivers/watchdog/lantiq_wdt.c b/drivers/watchdog/lantiq_wdt.c
+new file mode 100644
+index 0000000..8515c1f
+--- /dev/null
++++ b/drivers/watchdog/lantiq_wdt.c
+@@ -0,0 +1,233 @@
++/*
++ *  This program is free software; you can redistribute it and/or modify it
++ *  under the terms of the GNU General Public License version 2 as published
++ *  by the Free Software Foundation.
++ *
++ *  Copyright (C) 2010 John Crispin <blogic@openwrt.org>
++ *  Based on EP93xx wdt driver
++ */
++
++#include <linux/module.h>
++#include <linux/fs.h>
++#include <linux/miscdevice.h>
++#include <linux/watchdog.h>
++#include <linux/platform_device.h>
++#include <linux/uaccess.h>
++#include <linux/clk.h>
++#include <linux/io.h>
++
++#include <lantiq.h>
++
++/* Section 3.4 of the datasheet
++   The password sequence protects the WDT control register from unintended
++   write actions, which might cause malfunction of the WDT.
++
++   essentially the following two magic passwords need to be written to allow
++   io access to the wdt core */
++#define LTQ_WDT_PW1		0x00BE0000
++#define LTQ_WDT_PW2		0x00DC0000
++
++#define LTQ_WDT_CR		0x03F0	/* watchdog control register */
++#define LTQ_WDT_SR		0x03F8	/* watchdog status register */
++
++#define LTQ_WDT_SR_EN		(0x1 << 31) /* enable bit */
++#define LTQ_WDT_SR_PWD		(0x3 << 26) /* turn on power */
++#define LTQ_WDT_SR_CLKDIV	(0x3 << 24) /* turn on clock and set */
++					    /* divider to 0x40000 */
++#define LTQ_WDT_DIVIDER		0x40000
++#define LTQ_MAX_TIMEOUT		((1 << 16) - 1)	/* the reload field is 16 bit */
++
++#ifndef CONFIG_WATCHDOG_NOWAYOUT
++static int ltq_wdt_ok_to_close;
++#endif
++
++static int ltq_wdt_timeout = 30;
++static __iomem void *ltq_wdt_membase;
++static unsigned long ltq_io_region_clk_rate;
++
++static int
++ltq_wdt_enable(unsigned int timeout)
++{
++	timeout = ((timeout * (ltq_io_region_clk_rate / LTQ_WDT_DIVIDER))
++		+ 0x1000);
++	if (timeout > LTQ_MAX_TIMEOUT)
++		timeout = LTQ_MAX_TIMEOUT;
++
++	/* write the first paswword magic */
++	ltq_w32(LTQ_WDT_PW1, ltq_wdt_membase + LTQ_WDT_CR);
++	/* write the second magic plus the configuration and new timeout */
++	ltq_w32(LTQ_WDT_SR_EN | LTQ_WDT_SR_PWD | LTQ_WDT_SR_CLKDIV |
++		LTQ_WDT_PW2 | timeout, ltq_wdt_membase + LTQ_WDT_CR);
++	return 0;
++}
++
++static void
++ltq_wdt_disable(void)
++{
++#ifndef CONFIG_WATCHDOG_NOWAYOUT
++	ltq_wdt_ok_to_close = 0;
++#endif
++	/* write the first paswword magic */
++	ltq_w32(LTQ_WDT_PW1, ltq_wdt_membase + LTQ_WDT_CR);
++	/* write the second paswword magic with no config
++	   this turns the watchdog off */
++	ltq_w32(LTQ_WDT_PW2, ltq_wdt_membase + LTQ_WDT_CR);
++}
++
++static ssize_t
++ltq_wdt_write(struct file *file, const char __user *data,
++		size_t len, loff_t *ppos)
++{
++	size_t i;
++	if (!len)
++		return 0;
++#ifndef CONFIG_WATCHDOG_NOWAYOUT
++	for (i = 0; i != len; i++) {
++		char c;
++		if (get_user(c, data + i))
++			return -EFAULT;
++		if (c == 'V')
++			ltq_wdt_ok_to_close = 1;
++	}
++#endif
++	ltq_wdt_enable(ltq_wdt_timeout);
++	return len;
++}
++
++static struct watchdog_info ident = {
++	.options = WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
++	.identity = "ltq_wdt",
++};
++
++static long
++ltq_wdt_ioctl(struct file *file,
++		unsigned int cmd, unsigned long arg)
++{
++	int ret = -ENOTTY;
++	switch (cmd) {
++	case WDIOC_GETSUPPORT:
++		ret = copy_to_user((struct watchdog_info __user *)arg, &ident,
++				sizeof(ident)) ? -EFAULT : 0;
++		break;
++
++	case WDIOC_GETTIMEOUT:
++		ret = put_user(ltq_wdt_timeout, (int __user *)arg);
++		break;
++
++	case WDIOC_SETTIMEOUT:
++		ret = get_user(ltq_wdt_timeout, (int __user *)arg);
++		if (!ret)
++			ltq_wdt_enable(ltq_wdt_timeout);
++		break;
++
++	case WDIOC_KEEPALIVE:
++		ltq_wdt_enable(ltq_wdt_timeout);
++		ret = 0;
++		break;
++	}
++	return ret;
++}
++
++static int
++ltq_wdt_open(struct inode *inode, struct file *file)
++{
++	ltq_wdt_enable(ltq_wdt_timeout);
++	return nonseekable_open(inode, file);
++}
++
++static int
++ltq_wdt_release(struct inode *inode, struct file *file)
++{
++#ifndef CONFIG_WATCHDOG_NOWAYOUT
++	if (ltq_wdt_ok_to_close)
++		ltq_wdt_disable();
++	else
++#endif
++		printk(KERN_ERR "ltq_wdt: watchdog closed without warning\n");
++	return 0;
++}
++
++static const struct file_operations ltq_wdt_fops = {
++	.owner		= THIS_MODULE,
++	.write		= ltq_wdt_write,
++	.unlocked_ioctl	= ltq_wdt_ioctl,
++	.open		= ltq_wdt_open,
++	.release	= ltq_wdt_release,
++	.llseek		= no_llseek,
++};
++
++static struct miscdevice ltq_wdt_miscdev = {
++	.minor	= WATCHDOG_MINOR,
++	.name	= "watchdog",
++	.fops	= &ltq_wdt_fops,
++};
++
++static int
++ltq_wdt_probe(struct platform_device *pdev)
++{
++	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	struct clk *clk;
++	int ret = 0;
++	if (!res) {
++		dev_err(&pdev->dev, "cannot obtain I/O memory region");
++		return -ENOENT;
++	}
++	res = devm_request_mem_region(&pdev->dev, res->start,
++		resource_size(res), dev_name(&pdev->dev));
++	if (!res) {
++		dev_err(&pdev->dev, "cannot request I/O memory region");
++		return -EBUSY;
++	}
++	ltq_wdt_membase = devm_ioremap_nocache(&pdev->dev, res->start,
++		resource_size(res));
++	if (!ltq_wdt_membase) {
++		dev_err(&pdev->dev, "cannot remap I/O memory region\n");
++		return -ENOMEM;
++	}
++	/* we do not need to enable the clock as it is always running */
++	clk = clk_get(&pdev->dev, "io");
++	ltq_io_region_clk_rate = clk_get_rate(clk);
++	clk_put(clk);
++	ret = misc_register(&ltq_wdt_miscdev);
++	if (ret)
++		return 0;
++
++	return ret;
++}
++
++static int
++ltq_wdt_remove(struct platform_device *dev)
++{
++	ltq_wdt_disable();
++	misc_deregister(&ltq_wdt_miscdev);
++	return 0;
++}
++
++static struct platform_driver ltq_wdt_driver = {
++	.probe = ltq_wdt_probe,
++	.remove = ltq_wdt_remove,
++	.driver = {
++		.name = "ltq_wdt",
++		.owner = THIS_MODULE,
++	},
++};
++
++static int __init
++init_ltq_wdt(void)
++{
++	return platform_driver_register(&ltq_wdt_driver);
++}
++
++static void __exit
++exit_ltq_wdt(void)
++{
++	platform_driver_unregister(&ltq_wdt_driver);
++}
++
++module_init(init_ltq_wdt);
++module_exit(exit_ltq_wdt);
++
++MODULE_AUTHOR("John Crispin <blogic@openwrt.org>");
++MODULE_DESCRIPTION("Lantiq Watchdog");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
 -- 
-1.7.2
+1.7.2.3
