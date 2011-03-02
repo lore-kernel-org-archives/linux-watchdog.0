@@ -1,65 +1,32 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qw0-f46.google.com ([209.85.216.46]:50686 "EHLO
-	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757860Ab1CBDpv (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 1 Mar 2011 22:45:51 -0500
-Subject: [PATCH] watchdog: hpwdt: eliminate section mismatch warning
-From: Axel Lin <axel.lin@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: Thomas Mingarelli <Thomas.Mingarelli@hp.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
+Received: from nbd.name ([46.4.11.11]:36212 "EHLO nbd.name"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751384Ab1CBPEA (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 2 Mar 2011 10:04:00 -0500
+Message-ID: <4D6E5CA9.5090201@openwrt.org>
+Date: Wed, 02 Mar 2011 16:05:13 +0100
+From: John Crispin <blogic@openwrt.org>
+MIME-Version: 1.0
+To: Ralf Baechle <ralf@linux-mips.org>
+CC: Sergei Shtylyov <sshtylyov@mvista.com>,
+	Ralph Hempel <ralph.hempel@lantiq.com>,
+	Wim Van Sebroeck <wim@iguana.be>, linux-mips@linux-mips.org,
 	linux-watchdog@vger.kernel.org
-Content-Type: text/plain
-Date: Wed, 02 Mar 2011 11:49:44 +0800
-Message-Id: <1299037784.16464.1.camel@mola>
-Mime-Version: 1.0
+Subject: Re: [PATCH V2 05/10] MIPS: lantiq: add watchdog support
+References: <1298996006-15960-1-git-send-email-blogic@openwrt.org> <1298996006-15960-6-git-send-email-blogic@openwrt.org> <4D6E286D.9050100@mvista.com> <20110302142933.GA18221@linux-mips.org>
+In-Reply-To: <20110302142933.GA18221@linux-mips.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-hpwdt_init_nmi_decoding() is called in hpwdt_init_one error handling,
-thus remove the  __devexit annotation of hpwdt_exit_nmi_decoding().
 
-This patch fixes below warning:
+Hi Ralf,
+> While nitpicking - there should be one space between include and < in
+> #include <blah.h>.
+>
+>   
+where did you see that ?
 
-WARNING: drivers/watchdog/hpwdt.o(.devinit.text+0x36f): Section mismatch in reference from the function hpwdt_init_one() to the function .devexit.text:hpwdt_exit_nmi_decoding()
-The function __devinit hpwdt_init_one() references
-a function __devexit hpwdt_exit_nmi_decoding().
-This is often seen when error handling in the init function
-uses functionality in the exit path.
-The fix is often to remove the __devexit annotation of
-hpwdt_exit_nmi_decoding() so it may be used outside an exit section.
-
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
----
- drivers/watchdog/hpwdt.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-index d54d4ba..8cb2685 100644
---- a/drivers/watchdog/hpwdt.c
-+++ b/drivers/watchdog/hpwdt.c
-@@ -710,7 +710,7 @@ static int __devinit hpwdt_init_nmi_decoding(struct pci_dev *dev)
- 	return 0;
- }
- 
--static void __devexit hpwdt_exit_nmi_decoding(void)
-+static void hpwdt_exit_nmi_decoding(void)
- {
- 	unregister_die_notifier(&die_notifier);
- 	if (cru_rom_addr)
-@@ -726,7 +726,7 @@ static int __devinit hpwdt_init_nmi_decoding(struct pci_dev *dev)
- 	return 0;
- }
- 
--static void __devexit hpwdt_exit_nmi_decoding(void)
-+static void hpwdt_exit_nmi_decoding(void)
- {
- }
- #endif /* CONFIG_HPWDT_NMI_DECODING */
--- 
-1.7.2
-
-
-
+thanks,
+John
