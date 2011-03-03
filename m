@@ -1,54 +1,39 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:57569 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751617Ab1CBRiJ (ORCPT
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:42209 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751731Ab1CCKPe (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 2 Mar 2011 12:38:09 -0500
-Received: by bwz15 with SMTP id 15so375142bwz.19
-        for <linux-watchdog@vger.kernel.org>; Wed, 02 Mar 2011 09:38:08 -0800 (PST)
-Message-ID: <4D6E8025.2030702@mvista.com>
-Date: Wed, 02 Mar 2011 20:36:37 +0300
-From: Sergei Shtylyov <sshtylyov@mvista.com>
-MIME-Version: 1.0
-To: Ralf Baechle <ralf@linux-mips.org>
-CC: John Crispin <blogic@openwrt.org>,
+	Thu, 3 Mar 2011 05:15:34 -0500
+Received: by wyg36 with SMTP id 36so880058wyg.19
+        for <linux-watchdog@vger.kernel.org>; Thu, 03 Mar 2011 02:15:33 -0800 (PST)
+Date: Thu, 3 Mar 2011 10:15:27 +0000
+From: Jamie Iles <jamie@jamieiles.com>
+To: Sergei Shtylyov <sshtylyov@mvista.com>
+Cc: John Crispin <blogic@openwrt.org>,
+	Ralf Baechle <ralf@linux-mips.org>,
 	Ralph Hempel <ralph.hempel@lantiq.com>,
 	Wim Van Sebroeck <wim@iguana.be>, linux-mips@linux-mips.org,
 	linux-watchdog@vger.kernel.org
 Subject: Re: [PATCH V2 05/10] MIPS: lantiq: add watchdog support
-References: <1298996006-15960-1-git-send-email-blogic@openwrt.org> <1298996006-15960-6-git-send-email-blogic@openwrt.org> <4D6E286D.9050100@mvista.com> <20110302142933.GA18221@linux-mips.org> <4D6E5CA9.5090201@openwrt.org> <20110302162730.GA23666@linux-mips.org>
-In-Reply-To: <20110302162730.GA23666@linux-mips.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20110303101527.GE2955@pulham.picochip.com>
+References: <1298996006-15960-1-git-send-email-blogic@openwrt.org>
+ <1298996006-15960-6-git-send-email-blogic@openwrt.org>
+ <4D6E286D.9050100@mvista.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4D6E286D.9050100@mvista.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello.
+On Wed, Mar 02, 2011 at 02:22:21PM +0300, Sergei Shtylyov wrote:
+> >+static int
+> >+ltq_wdt_remove(struct platform_device *dev)
+> 
+>    __exit?
 
-Ralf Baechle wrote:
+No, I think this should be __devexit and the probe function should be 
+__devinit.  When assigning the exit function to the platform_driver it 
+should be surrounded with __devexit_p().
 
->> Hi Ralf,
->>> While nitpicking - there should be one space between include and < in
->>> #include <blah.h>.
-
->> where did you see that ?
-
->> +#include<linux/module.h>
->> +#include<linux/fs.h>
->> +#include<linux/miscdevice.h>
->> +#include<linux/watchdog.h>
->> +#include<linux/platform_device.h>
->> +#include<linux/uaccess.h>
->> +#include<linux/clk.h>
->> +#include<linux/io.h>
->> +
->> +#include<lantiq.h>
-
-> But that only seems to have happened to the code quoted in Sergei's mail.
-
-    Stupid Thunderbird is to be blamed here. :-)
-
->   Ralf
-
-WBR, Sergei
-
+Jamie
