@@ -1,42 +1,49 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay008.isp.belgacom.be ([195.238.6.174]:51987 "EHLO
+Received: from mailrelay008.isp.belgacom.be ([195.238.6.174]:53895 "EHLO
 	mailrelay008.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752704Ab1CCKdj (ORCPT
+	by vger.kernel.org with ESMTP id S1751783Ab1CCKiT (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 3 Mar 2011 05:33:39 -0500
-Date: Thu, 3 Mar 2011 11:33:36 +0100
+	Thu, 3 Mar 2011 05:38:19 -0500
+Date: Thu, 3 Mar 2011 11:38:14 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Mike Waychison <mikew@google.com>
+To: Alexander Stein <alexander.stein@systec-electronic.com>
 Cc: LKML <linux-kernel@vger.kernel.org>,
 	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
 	Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [RFC] [PATCH 6/10] Generic Watchdog Timer Driver
-Message-ID: <20110303103336.GZ3790@infomag.iguana.be>
-References: <20110223204350.GA7433@infomag.iguana.be> <4D6584F2.1010109@google.com>
+Subject: Re: [RFC] [PATCH 5/10] Generic Watchdog Timer Driver
+Message-ID: <20110303103814.GA3790@infomag.iguana.be>
+References: <20110223204330.GA7417@infomag.iguana.be> <201102240921.02967.alexander.stein@systec-electronic.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4D6584F2.1010109@google.com>
+In-Reply-To: <201102240921.02967.alexander.stein@systec-electronic.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Mike,
+Hi Alexander,
 
->> diff --git a/drivers/watchdog/core/watchdog_core.c b/drivers/watchdog/core/watchdog_core.c
->> index 52bc520..d1a824e 100644
->> --- a/drivers/watchdog/core/watchdog_core.c
->> +++ b/drivers/watchdog/core/watchdog_core.c
->> @@ -60,6 +60,10 @@ int register_watchdogdevice(struct watchdog_device *wdd)
->>   	if (wdd == NULL || wdd->info == NULL || wdd->ops == NULL)
->>   		return -ENODATA;
->>
->> +	/* Make sure that the owner of the watchdog operations exists */
->> +	if (wdd->ops->owner == NULL)
->> +		return -ENODATA;
->
-> This check is invalid when the driver is built in.
+> On Wednesday 23 February 2011, 21:43:30 Wim Van Sebroeck wrote:
+> > commit 1959ea403c69af855f5cd13e5c9b33123d2137b2
+> > Author: Wim Van Sebroeck <wim@iguana.be>
+> > Date:   Fri Jun 18 09:45:49 2010 +0000
+> > 
+> >     watchdog: WatchDog Timer Driver Core - Part 5
+> > 
+> >     This part add's the WDIOC_SETTIMEOUT and WDIOC_GETTIMEOUT ioctl
+> >     functionality to the WatchDog Timer Driver Core framework.
+> > 
+> >     Signed-off-by: Alan Cox <alan@lxorguk.ukuu.org.uk>
+> >     Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+> > 
+> > [snip]
+> 
+> Any specific reason you can only specify seconds as timeout? There is no way 
+> to set a timeout of e.g. 500ms or 1500ms.
+> You can change this by using using a struct timeval for setting a timeout. 
+> What do you think?
 
-Will have a look at it. Thanks!
+1) The current ioctl call is like this in all drivers. So changing it would break things.
+2) Is there a real need for having 500ms or 1500ms? why would 1 or 2 seconds not be OK? (which are allready small timeouts for userspace anyway...)
 
 Kind regards,
 Wim.
