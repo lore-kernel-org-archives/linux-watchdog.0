@@ -1,33 +1,50 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:34022 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754019Ab1CCMxU (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:33188 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756243Ab1CCNbR (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 3 Mar 2011 07:53:20 -0500
-Date: Thu, 3 Mar 2011 12:53:19 +0000
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Alexander Stein <alexander.stein@systec-electronic.com>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [RFC] [PATCH 5/10] Generic Watchdog Timer Driver
-Message-ID: <20110303125317.GA23770@sirena.org.uk>
-References: <20110223204330.GA7417@infomag.iguana.be> <201102240921.02967.alexander.stein@systec-electronic.com> <20110303103814.GA3790@infomag.iguana.be>
+	Thu, 3 Mar 2011 08:31:17 -0500
+From: Sascha Hauer <s.hauer@pengutronix.de>
+To: linux-arm-kernel@lists.infradead.org
+Cc: Sascha Hauer <s.hauer@pengutronix.de>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH 5/6] watchdog i.MX: use IMX_HAVE_PLATFORM_IMX2_WDT to depend on
+Date: Thu,  3 Mar 2011 14:30:59 +0100
+Message-Id: <1299159060-9289-6-git-send-email-s.hauer@pengutronix.de>
+In-Reply-To: <1299159060-9289-1-git-send-email-s.hauer@pengutronix.de>
+References: <1299159060-9289-1-git-send-email-s.hauer@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20110303103814.GA3790@infomag.iguana.be>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Mar 03, 2011 at 11:38:14AM +0100, Wim Van Sebroeck wrote:
+The i.MX architecture provides IMX_HAVE_PLATFORM_* macros to signal
+that a selected SoC supports a certain hardware. Use them instead of
+depending on ARCH_* directly.
 
-Reflowed into 80 columns.
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org
+---
+ drivers/watchdog/Kconfig |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-> 2) Is there a real need for having 500ms or 1500ms? why would 1 or 2
-> seconds not be OK? (which are allready small timeouts for userspace
-> anyway...)
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 31649b7..2b095d3 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -321,7 +321,7 @@ config MAX63XX_WATCHDOG
+ 
+ config IMX2_WDT
+ 	tristate "IMX2+ Watchdog"
+-	depends on ARCH_MX2 || ARCH_MX25 || ARCH_MX3 || ARCH_MX5
++	depends on IMX_HAVE_PLATFORM_IMX2_WDT
+ 	help
+ 	  This is the driver for the hardware watchdog
+ 	  on the Freescale IMX2 and later processors.
+-- 
+1.7.2.3
 
-Yes, in embedded cases.  There it's much easier to have good control
-over userspace such that you can meet the scheduling requirements.
