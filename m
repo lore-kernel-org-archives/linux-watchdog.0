@@ -1,31 +1,33 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay012.isp.belgacom.be ([195.238.6.179]:20324 "EHLO
-	mailrelay012.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756218Ab1CCKZv (ORCPT
+Received: from mailrelay009.isp.belgacom.be ([195.238.6.176]:56274 "EHLO
+	mailrelay009.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751980Ab1CCK2z (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 3 Mar 2011 05:25:51 -0500
-Date: Thu, 3 Mar 2011 11:25:49 +0100
+	Thu, 3 Mar 2011 05:28:55 -0500
+Date: Thu, 3 Mar 2011 11:28:53 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Jiri Slaby <jslaby@suse.cz>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	jirislaby@gmail.com
-Subject: Re: [PATCH 1/1] WATCHDOG: sbc_fitpc2_wdt, fix crash on systems
-	without DMI_BOARD_NAME
-Message-ID: <20110303102549.GX3790@infomag.iguana.be>
-References: <1298884589-6880-1-git-send-email-jslaby@suse.cz>
+To: Axel Lin <axel.lin@gmail.com>
+Cc: linux-kernel@vger.kernel.org,
+	Thomas Mingarelli <Thomas.Mingarelli@hp.com>,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] watchdog: hpwdt: eliminate section mismatch warning
+Message-ID: <20110303102853.GY3790@infomag.iguana.be>
+References: <1299037784.16464.1.camel@mola>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1298884589-6880-1-git-send-email-jslaby@suse.cz>
+In-Reply-To: <1299037784.16464.1.camel@mola>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Jiri,
+Hi Axel,
 
-> Some systems don't provide DMI_BOARD_NAME in their DMI tables. Avoid
-> crash in such situations in fitpc2_wdt_init.
+> hpwdt_init_nmi_decoding() is called in hpwdt_init_one error handling,
+> thus remove the  __devexit annotation of hpwdt_exit_nmi_decoding().
 > 
-> The fix is to check if the dmi_get_system_info return value is NULL.
+> This patch fixes below warning:
+> 
+> WARNING: drivers/watchdog/hpwdt.o(.devinit.text+0x36f): Section mismatch in reference from the function hpwdt_init_one() to the function .devexit.text:hpwdt_exit_nmi_decoding()
 
 Added to linux-2.6-watchdog-next. Will sent it over to Linus for inclusion in the mainline kernel in a couple of days.
 
