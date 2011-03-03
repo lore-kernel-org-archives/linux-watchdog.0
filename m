@@ -1,35 +1,42 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay009.isp.belgacom.be ([195.238.6.176]:56274 "EHLO
-	mailrelay009.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751980Ab1CCK2z (ORCPT
+Received: from mailrelay008.isp.belgacom.be ([195.238.6.174]:51987 "EHLO
+	mailrelay008.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752704Ab1CCKdj (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 3 Mar 2011 05:28:55 -0500
-Date: Thu, 3 Mar 2011 11:28:53 +0100
+	Thu, 3 Mar 2011 05:33:39 -0500
+Date: Thu, 3 Mar 2011 11:33:36 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Axel Lin <axel.lin@gmail.com>
-Cc: linux-kernel@vger.kernel.org,
-	Thomas Mingarelli <Thomas.Mingarelli@hp.com>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: hpwdt: eliminate section mismatch warning
-Message-ID: <20110303102853.GY3790@infomag.iguana.be>
-References: <1299037784.16464.1.camel@mola>
+To: Mike Waychison <mikew@google.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [RFC] [PATCH 6/10] Generic Watchdog Timer Driver
+Message-ID: <20110303103336.GZ3790@infomag.iguana.be>
+References: <20110223204350.GA7433@infomag.iguana.be> <4D6584F2.1010109@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1299037784.16464.1.camel@mola>
+In-Reply-To: <4D6584F2.1010109@google.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Axel,
+Hi Mike,
 
-> hpwdt_init_nmi_decoding() is called in hpwdt_init_one error handling,
-> thus remove the  __devexit annotation of hpwdt_exit_nmi_decoding().
-> 
-> This patch fixes below warning:
-> 
-> WARNING: drivers/watchdog/hpwdt.o(.devinit.text+0x36f): Section mismatch in reference from the function hpwdt_init_one() to the function .devexit.text:hpwdt_exit_nmi_decoding()
+>> diff --git a/drivers/watchdog/core/watchdog_core.c b/drivers/watchdog/core/watchdog_core.c
+>> index 52bc520..d1a824e 100644
+>> --- a/drivers/watchdog/core/watchdog_core.c
+>> +++ b/drivers/watchdog/core/watchdog_core.c
+>> @@ -60,6 +60,10 @@ int register_watchdogdevice(struct watchdog_device *wdd)
+>>   	if (wdd == NULL || wdd->info == NULL || wdd->ops == NULL)
+>>   		return -ENODATA;
+>>
+>> +	/* Make sure that the owner of the watchdog operations exists */
+>> +	if (wdd->ops->owner == NULL)
+>> +		return -ENODATA;
+>
+> This check is invalid when the driver is built in.
 
-Added to linux-2.6-watchdog-next. Will sent it over to Linus for inclusion in the mainline kernel in a couple of days.
+Will have a look at it. Thanks!
 
 Kind regards,
 Wim.
