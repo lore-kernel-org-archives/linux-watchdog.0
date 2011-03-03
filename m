@@ -1,51 +1,44 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay002.isp.belgacom.be ([195.238.6.175]:56751 "EHLO
-	mailrelay002.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751786Ab1CCKoU (ORCPT
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:45926 "EHLO
+	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754587Ab1CCLW1 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 3 Mar 2011 05:44:20 -0500
-Date: Thu, 3 Mar 2011 11:44:18 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Jamie Iles <jamie@jamieiles.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [RFC] [PATCH 6/10] Generic Watchdog Timer Driver
-Message-ID: <20110303104418.GC3790@infomag.iguana.be>
-References: <20110223204350.GA7433@infomag.iguana.be> <20110224100204.GC15118@pulham.picochip.com>
+	Thu, 3 Mar 2011 06:22:27 -0500
+Received: by bwz15 with SMTP id 15so1040951bwz.19
+        for <linux-watchdog@vger.kernel.org>; Thu, 03 Mar 2011 03:22:26 -0800 (PST)
+Message-ID: <4D6F79A0.6050903@mvista.com>
+Date: Thu, 03 Mar 2011 14:21:04 +0300
+From: Sergei Shtylyov <sshtylyov@mvista.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20110224100204.GC15118@pulham.picochip.com>
+To: Jamie Iles <jamie@jamieiles.com>
+CC: John Crispin <blogic@openwrt.org>,
+	Ralf Baechle <ralf@linux-mips.org>,
+	Ralph Hempel <ralph.hempel@lantiq.com>,
+	Wim Van Sebroeck <wim@iguana.be>, linux-mips@linux-mips.org,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH V2 05/10] MIPS: lantiq: add watchdog support
+References: <1298996006-15960-1-git-send-email-blogic@openwrt.org> <1298996006-15960-6-git-send-email-blogic@openwrt.org> <4D6E286D.9050100@mvista.com> <20110303101527.GE2955@pulham.picochip.com>
+In-Reply-To: <20110303101527.GE2955@pulham.picochip.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Jamie,
+Hello.
 
-> I don't fully understand why the module refcounting is done in the open 
-> and release though.  If you moved it into the registration and 
-> unregistration then doesn't that remove the need for WDOG_ORPHAN?
+On 03-03-2011 13:15, Jamie Iles wrote:
 
-Hmm, nice suggestion. Will look into that.
+>>> +static int
+>>> +ltq_wdt_remove(struct platform_device *dev)
 
-> > diff --git a/drivers/watchdog/core/watchdog_core.c b/drivers/watchdog/core/watchdog_core.c
-> > index 52bc520..d1a824e 100644
-> > --- a/drivers/watchdog/core/watchdog_core.c
-> > +++ b/drivers/watchdog/core/watchdog_core.c
-> > @@ -60,6 +60,10 @@ int register_watchdogdevice(struct watchdog_device *wdd)
-> >  	if (wdd == NULL || wdd->info == NULL || wdd->ops == NULL)
-> >  		return -ENODATA;
-> >  
-> > +	/* Make sure that the owner of the watchdog operations exists */
-> > +	if (wdd->ops->owner == NULL)
-> > +		return -ENODATA;
-> 
-> Won't this be effectively NULL if the module is builtin?  It looks like 
-> if it is builtin then THIS_MODULE would be defined as (struct module 
-> *)0.
+>>     __exit?
 
-Same for this: I will look into this.
+> No, I think this should be __devexit and the probe function should be
+> __devinit.  When assigning the exit function to the platform_driver it
+> should be surrounded with __devexit_p().
 
-Thanks,
-Wim.
+    Why? Is WDT really a hotplug device?
 
+> Jamie
+
+WBR, Sergei
