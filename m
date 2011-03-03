@@ -1,44 +1,34 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:45926 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754587Ab1CCLW1 (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 3 Mar 2011 06:22:27 -0500
-Received: by bwz15 with SMTP id 15so1040951bwz.19
-        for <linux-watchdog@vger.kernel.org>; Thu, 03 Mar 2011 03:22:26 -0800 (PST)
-Message-ID: <4D6F79A0.6050903@mvista.com>
-Date: Thu, 03 Mar 2011 14:21:04 +0300
-From: Sergei Shtylyov <sshtylyov@mvista.com>
+Received: from nbd.name ([46.4.11.11]:39664 "EHLO nbd.name"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751919Ab1CCL5h (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 3 Mar 2011 06:57:37 -0500
+Message-ID: <4D6F827B.8040902@openwrt.org>
+Date: Thu, 03 Mar 2011 12:58:51 +0100
+From: John Crispin <blogic@openwrt.org>
 MIME-Version: 1.0
-To: Jamie Iles <jamie@jamieiles.com>
-CC: John Crispin <blogic@openwrt.org>,
-	Ralf Baechle <ralf@linux-mips.org>,
+To: Sergei Shtylyov <sshtylyov@mvista.com>
+CC: Ralf Baechle <ralf@linux-mips.org>,
 	Ralph Hempel <ralph.hempel@lantiq.com>,
 	Wim Van Sebroeck <wim@iguana.be>, linux-mips@linux-mips.org,
 	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH V2 05/10] MIPS: lantiq: add watchdog support
-References: <1298996006-15960-1-git-send-email-blogic@openwrt.org> <1298996006-15960-6-git-send-email-blogic@openwrt.org> <4D6E286D.9050100@mvista.com> <20110303101527.GE2955@pulham.picochip.com>
-In-Reply-To: <20110303101527.GE2955@pulham.picochip.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [PATCH V3 05/10] MIPS: lantiq: add watchdog support
+References: <1299146626-17428-1-git-send-email-blogic@openwrt.org> <1299146626-17428-6-git-send-email-blogic@openwrt.org> <4D6F7F1C.5040001@mvista.com>
+In-Reply-To: <4D6F7F1C.5040001@mvista.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello.
 
-On 03-03-2011 13:15, Jamie Iles wrote:
+>> +    /* write the first paswword magic */
+>                               ^
+>    You still didn't fix the typo here. :-)
+>
 
->>> +static int
->>> +ltq_wdt_remove(struct platform_device *dev)
+Hi,
 
->>     __exit?
+grml... changed it in the wrong folder :) i'll add it for the V4
 
-> No, I think this should be __devexit and the probe function should be
-> __devinit.  When assigning the exit function to the platform_driver it
-> should be surrounded with __devexit_p().
-
-    Why? Is WDT really a hotplug device?
-
-> Jamie
-
-WBR, Sergei
+thanks,
+John
