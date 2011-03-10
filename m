@@ -1,43 +1,52 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from utopia.booyaka.com ([72.9.107.138]:33911 "EHLO
-	utopia.booyaka.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753031Ab1CJOw4 (ORCPT
+Received: from mailrelay004.isp.belgacom.be ([195.238.6.170]:58582 "EHLO
+	mailrelay004.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751435Ab1CJVzG (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 10 Mar 2011 09:52:56 -0500
-Date: Thu, 10 Mar 2011 07:52:55 -0700 (MST)
-From: Paul Walmsley <paul@pwsan.com>
+	Thu, 10 Mar 2011 16:55:06 -0500
+Date: Thu, 10 Mar 2011 22:55:03 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
 To: Kalle Jokiniemi <kalle.jokiniemi@nokia.com>
-cc: linux-watchdog@vger.kernel.org, wim@iguana.be, khilman@ti.com,
+Cc: linux-watchdog@vger.kernel.org, khilman@ti.com,
 	linux-omap@vger.kernel.org, tony@atomide.com, jhnikula@gmail.com,
-	ilkka.koskinen@nokia.com, Benoit Cousson <b-cousson@ti.com>
-Subject: Re: [PATCH 2/2] OMAP3: wdtimer: Fix CORE idle transition
-In-Reply-To: <1299759058-26342-3-git-send-email-kalle.jokiniemi@nokia.com>
-Message-ID: <alpine.DEB.2.00.1103100752370.15132@utopia.booyaka.com>
-References: <1299759058-26342-1-git-send-email-kalle.jokiniemi@nokia.com> <1299759058-26342-3-git-send-email-kalle.jokiniemi@nokia.com>
+	ilkka.koskinen@nokia.com
+Subject: Re: [PATCH v2 0/2] OMAP3: wdtimer: Fix CORE idle
+Message-ID: <20110310215503.GC1751@infomag.iguana.be>
+References: <1299759058-26342-1-git-send-email-kalle.jokiniemi@nokia.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1299759058-26342-1-git-send-email-kalle.jokiniemi@nokia.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, 10 Mar 2011, Kalle Jokiniemi wrote:
+Hi All,
 
-> From: Paul Walmsley <paul@pwsan.com>
+> These patches fix the issue where the wdtimer blocks CORE idle
+> transitions on n900 (OMAP3). The root cause was that SMART idle
+> mode in wdtimer did not allow the CORE idle transition to happen.
 > 
-> The HW superwised smart idle for wdtimer in OMAP3 prevents
-> CORE power domain idle transitions. Disable it by swithing
-> to SW supervised transitions.
+> v2: updated commit message on patch 1/2, Cc'd Wim, and added
+> comments to code about possible HW bug in wdtimer2.
 > 
-> This could be a hardware bug in the OMAP3 wdtimer2 block.
+> Wim, please check patch number one and add your acked by.
 > 
-> Signed-off-by: Kalle Jokiniemi <kalle.jokiniemi@nokia.com>
-> Signed-off-by: Paul Walmsley <paul@pwsan.com>
-> Cc: Benoit Cousson <b-cousson@ti.com>
+> I propose that we push these upstream via linux-omap-pm,
+> as the patches deal with PM and need to be applied together
+> to get the desired functionality.
+> 
+> Paul Walmsley (2):
+>   Watchdog: omap_wdt: add fine grain runtime-pm
+>   OMAP3: wdtimer: Fix CORE idle transition
+> 
+>  arch/arm/mach-omap2/omap_hwmod_3xxx_data.c |    1 +
+>  drivers/watchdog/omap_wdt.c                |   25 +++++++++++++++++++++++--
+>  2 files changed, 24 insertions(+), 2 deletions(-)
 
-I've queued this one for 2.6.39, since it seems pretty clear that
-target smart-idle mode doesn't work with this IP block.
+Acked-by: Wim Van Sebroeck <wim@iguana.be>
 
-Probably we'll need to do the same thing for OMAP2420/2430, but I'm not   
-going to touch those right now, since we're so close to the merge window.
+linux-omap-pm is indeed the best tree for getting this upstream.
 
+Kind regards,
+Wim.
 
-- Paul
