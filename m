@@ -1,102 +1,110 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:44773 "EHLO
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:37242 "EHLO
 	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756842Ab1CRQjI convert rfc822-to-8bit (ORCPT
+	with ESMTP id S933145Ab1CWUaA (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 18 Mar 2011 12:39:08 -0400
-MIME-Version: 1.0
-In-Reply-To: <20110318131025.GA3786@dumpdata.com>
-References: <20110311222129.GA3168@dumpdata.com>
-	<alpine.DEB.2.00.1103161150010.3382@kaball-desktop>
-	<alpine.DEB.2.00.1103161442210.3382@kaball-desktop>
-	<4D80F992.10603@kernel.org>
-	<alpine.DEB.2.00.1103161757040.3382@kaball-desktop>
-	<4D812180.5030102@kernel.org>
-	<AANLkTimNva3c_-kGA+JLCPZgrKAbwqLKaN559cwTh7cq@mail.gmail.com>
-	<4D812919.30706@kernel.org>
-	<20110317022331.GA3528@dumpdata.com>
-	<4D817973.7000407@kernel.org>
-	<20110318131025.GA3786@dumpdata.com>
-Date: Fri, 18 Mar 2011 09:39:06 -0700
-Message-ID: <AANLkTinP0hGieOsgvPzm3f2LWWG0fUKGYMHGXxEGZ+Fi@mail.gmail.com>
-Subject: Re: [Xen-devel] [PATCH -v3] watchdog, SP5100: Check if firmware has
- set correct value in tcobase.
-From: Yinghai Lu <yinghai@kernel.org>
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Priyanka Gupta <priyankag@google.com>,
-	Jeremy Fitzhardinge <jeremy@goop.org>,
-	"xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>,
-	linux-watchdog@vger.kernel.org,
-	Stefano Stabellini <stefano.stabellini@eu.citrix.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Mike Waychison <mikew@google.com>,
+	Wed, 23 Mar 2011 16:30:00 -0400
+From: Florian Fainelli <florian@openwrt.org>
+To: Joe Perches <joe@perches.com>
+Subject: Re: [trivial PATCH 1/2] treewide: Fix iomap resource size miscalculations
+Date: Wed, 23 Mar 2011 21:29:52 +0100
+Cc: Jiri Kosina <trivial@kernel.org>,
+	Srinidhi Kasagar <srinidhi.kasagar@stericsson.com>,
+	Linus Walleij <linus.walleij@stericsson.com>,
+	David Brown <davidb@codeaurora.org>,
+	Daniel Walker <dwalker@fifo99.com>,
+	Bryan Huntsman <bryanh@codeaurora.org>,
 	Wim Van Sebroeck <wim@iguana.be>,
-	"H. Peter Anvin" <hpa@zytor.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Russell King <linux@arm.linux.org.uk>,
+	Ralf Baechle <ralf@linux-mips.org>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-mips@linux-mips.org, linux-arm-msm@vger.kernel.org,
+	linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org
+References: <cover.1300909445.git.joe@perches.com> <c4422b4a8ee132d3adac95fd86237c61b2f8b364.1300909446.git.joe@perches.com>
+In-Reply-To: <c4422b4a8ee132d3adac95fd86237c61b2f8b364.1300909446.git.joe@perches.com>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <201103232129.53053.florian@openwrt.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Mar 18, 2011 at 6:10 AM, Konrad Rzeszutek Wilk
-<konrad.wilk@oracle.com> wrote:
-> On Wed, Mar 16, 2011 at 08:01:07PM -0700, Yinghai Lu wrote:
->>
->> Stefano found SP5100 TCO watchdog driver using wrong address.
->>
->> [    9.148536] SP5100 TCO timer: SP5100 TCO WatchDog Timer Driver v0.01
->> [    9.148628] DEBUG __ioremap_caller WARNING address=b8fe00 size=8 valid=1 reserved=1
->>
->> and e820 said that range is RAM.
->>
->> We should check if we can use that reading out. BIOS could just program wrong address there.
->>
->> -v2: Mike pointed out one path need one release.
->> -v3: corrected logic checking with request_mem_region_exclusive()
->>      Found by Konrad.
->
-> Yinghai:
-> Not sure what you are using as a base, but I had to modify this patch
-> to go on top of 2.6.38. Here is the patch that applies cleanly:
+On Wednesday 23 March 2011 20:55:36 Joe Perches wrote:
+> Convert off-by-1 r->end - r->start to resource_size(r)
+> 
+> Signed-off-by: Joe Perches <joe@perches.com>
 
+Acked-by: Florian Fainelli <florian@openwrt.org>
+(for rb532 and bcm63xx_wdt)
 
-after
-
-commit 4562f53940432369df88e195ef8f9b642bdf7cd6
-Author: Wim Van Sebroeck <wim@iguana.be>
-Date:   Mon Feb 21 12:16:44 2011 +0000
-
-    watchdog: convert to DEFINE_PCI_DEVICE_TABLE
-
-    Convert static struct pci_device_id *[] to static
-DEFINE_PCI_DEVICE_TABLE tables.
-
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
-index 8083728..1bc4938 100644
---- a/drivers/watchdog/sp5100_tco.c
-+++ b/drivers/watchdog/sp5100_tco.c
-@@ -259,7 +259,7 @@ static struct miscdevice sp5100_tco_miscdev = {
-  * register a pci_driver, because someone else might
-  * want to register another driver on the same PCI id.
-  */
--static struct pci_device_id sp5100_tco_pci_tbl[] = {
-+static DEFINE_PCI_DEVICE_TABLE(sp5100_tco_pci_tbl) = {
-        { PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_SBX00_SMBUS, PCI_ANY_ID,
-          PCI_ANY_ID, },
-        { 0, },                 /* End of list */
-
-commit 15e28bf130081a574192fb934b832ac7d07739f7
-Author: Priyanka Gupta <priyankag@google.com>
-Date:   Mon Oct 25 17:58:04 2010 -0700
-
-    watchdog: Add support for sp5100 chipset TCO
-
-    This driver adds /dev/watchdog support for the AMD sp5100 aka
-SB7x0 chipsets.
-
-    It follows the same conventions found in other /dev/watchdog drivers.
-
-    Signed-off-by: Priyanka Gupta <priyankag@google.com>
-    Signed-off-by: Mike Waychison <mikew@google.com>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+> ---
+>  arch/arm/mach-ux500/mbox-db5500.c |    6 ++----
+>  arch/mips/rb532/gpio.c            |    2 +-
+>  drivers/video/msm/mddi.c          |    2 +-
+>  drivers/watchdog/bcm63xx_wdt.c    |    2 +-
+>  4 files changed, 5 insertions(+), 7 deletions(-)
+> 
+> diff --git a/arch/arm/mach-ux500/mbox-db5500.c
+> b/arch/arm/mach-ux500/mbox-db5500.c index a4ffb9f..2b2d51c 100644
+> --- a/arch/arm/mach-ux500/mbox-db5500.c
+> +++ b/arch/arm/mach-ux500/mbox-db5500.c
+> @@ -416,8 +416,7 @@ struct mbox *mbox_setup(u8 mbox_id, mbox_recv_cb_t
+> *mbox_cb, void *priv) dev_dbg(&(mbox->pdev->dev),
+>  		"Resource name: %s start: 0x%X, end: 0x%X\n",
+>  		resource->name, resource->start, resource->end);
+> -	mbox->virtbase_peer =
+> -		ioremap(resource->start, resource->end - resource->start);
+> +	mbox->virtbase_peer = ioremap(resource->start, resource_size(resource));
+>  	if (!mbox->virtbase_peer) {
+>  		dev_err(&(mbox->pdev->dev), "Unable to ioremap peer mbox\n");
+>  		mbox = NULL;
+> @@ -440,8 +439,7 @@ struct mbox *mbox_setup(u8 mbox_id, mbox_recv_cb_t
+> *mbox_cb, void *priv) dev_dbg(&(mbox->pdev->dev),
+>  		"Resource name: %s start: 0x%X, end: 0x%X\n",
+>  		resource->name, resource->start, resource->end);
+> -	mbox->virtbase_local =
+> -		ioremap(resource->start, resource->end - resource->start);
+> +	mbox->virtbase_local = ioremap(resource->start, resource_size(resource));
+>  	if (!mbox->virtbase_local) {
+>  		dev_err(&(mbox->pdev->dev), "Unable to ioremap local mbox\n");
+>  		mbox = NULL;
+> diff --git a/arch/mips/rb532/gpio.c b/arch/mips/rb532/gpio.c
+> index 37de05d..6c47dfe 100644
+> --- a/arch/mips/rb532/gpio.c
+> +++ b/arch/mips/rb532/gpio.c
+> @@ -185,7 +185,7 @@ int __init rb532_gpio_init(void)
+>  	struct resource *r;
+> 
+>  	r = rb532_gpio_reg0_res;
+> -	rb532_gpio_chip->regbase = ioremap_nocache(r->start, r->end - r->start);
+> +	rb532_gpio_chip->regbase = ioremap_nocache(r->start, resource_size(r));
+> 
+>  	if (!rb532_gpio_chip->regbase) {
+>  		printk(KERN_ERR "rb532: cannot remap GPIO register 0\n");
+> diff --git a/drivers/video/msm/mddi.c b/drivers/video/msm/mddi.c
+> index b66d86a..178b072 100644
+> --- a/drivers/video/msm/mddi.c
+> +++ b/drivers/video/msm/mddi.c
+> @@ -679,7 +679,7 @@ static int __devinit mddi_probe(struct platform_device
+> *pdev) printk(KERN_ERR "mddi: no associated mem resource!\n");
+>  		return -ENOMEM;
+>  	}
+> -	mddi->base = ioremap(resource->start, resource->end - resource->start);
+> +	mddi->base = ioremap(resource->start, resource_size(resource));
+>  	if (!mddi->base) {
+>  		printk(KERN_ERR "mddi: failed to remap base!\n");
+>  		ret = -EINVAL;
+> diff --git a/drivers/watchdog/bcm63xx_wdt.c
+> b/drivers/watchdog/bcm63xx_wdt.c index 3c5045a..5064e83 100644
+> --- a/drivers/watchdog/bcm63xx_wdt.c
+> +++ b/drivers/watchdog/bcm63xx_wdt.c
+> @@ -248,7 +248,7 @@ static int __devinit bcm63xx_wdt_probe(struct
+> platform_device *pdev) return -ENODEV;
+>  	}
+> 
+> -	bcm63xx_wdt_device.regs = ioremap_nocache(r->start, r->end - r->start);
+> +	bcm63xx_wdt_device.regs = ioremap_nocache(r->start, resource_size(r));
+>  	if (!bcm63xx_wdt_device.regs) {
+>  		dev_err(&pdev->dev, "failed to remap I/O resources\n");
+>  		return -ENXIO;
