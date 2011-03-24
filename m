@@ -1,33 +1,49 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.perches.com ([173.55.12.10]:4243 "EHLO mail.perches.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932713Ab1CWTzm (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 23 Mar 2011 15:55:42 -0400
-From: Joe Perches <joe@perches.com>
-To: Jiri Kosina <trivial@kernel.org>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-arm-msm@vger.kernel.org, linux-watchdog@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, linux-mips@linux-mips.org,
-	linux-fbdev@vger.kernel.org
-Subject: [PATCH 0/2] Fix resource size miscalculations
-Date: Wed, 23 Mar 2011 12:55:35 -0700
-Message-Id: <cover.1300909445.git.joe@perches.com>
+Received: from mailrelay009.isp.belgacom.be ([195.238.6.176]:54811 "EHLO
+	mailrelay009.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932228Ab1CXI3n (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 24 Mar 2011 04:29:43 -0400
+Date: Thu, 24 Mar 2011 09:29:40 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Joe Perches <joe@perches.com>
+Cc: Jiri Kosina <trivial@kernel.org>,
+	Srinidhi Kasagar <srinidhi.kasagar@stericsson.com>,
+	Linus Walleij <linus.walleij@stericsson.com>,
+	David Brown <davidb@codeaurora.org>,
+	Daniel Walker <dwalker@fifo99.com>,
+	Bryan Huntsman <bryanh@codeaurora.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Russell King <linux@arm.linux.org.uk>,
+	Ralf Baechle <ralf@linux-mips.org>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-mips@linux-mips.org, linux-arm-msm@vger.kernel.org,
+	linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org
+Subject: Re: [trivial PATCH 1/2] treewide: Fix iomap resource size
+	miscalculations
+Message-ID: <20110324082940.GB4968@infomag.iguana.be>
+References: <cover.1300909445.git.joe@perches.com> <c4422b4a8ee132d3adac95fd86237c61b2f8b364.1300909446.git.joe@perches.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c4422b4a8ee132d3adac95fd86237c61b2f8b364.1300909446.git.joe@perches.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Use resource_size a few places
+Hi Joe,
 
-Joe Perches (2):
-  trivial: treewide: Fix iomap resource size miscalculations
-  trivial: arm: mach-u300/gpio: Fix mem_region resource size miscalculations
+> Convert off-by-1 r->end - r->start to resource_size(r)
+> 
+> Signed-off-by: Joe Perches <joe@perches.com>
+> ---
+>  arch/arm/mach-ux500/mbox-db5500.c |    6 ++----
+>  arch/mips/rb532/gpio.c            |    2 +-
+>  drivers/video/msm/mddi.c          |    2 +-
+>  drivers/watchdog/bcm63xx_wdt.c    |    2 +-
+>  4 files changed, 5 insertions(+), 7 deletions(-)
 
- arch/arm/mach-u300/gpio.c         |    7 +++----
- arch/arm/mach-ux500/mbox-db5500.c |    6 ++----
- arch/mips/rb532/gpio.c            |    2 +-
- drivers/video/msm/mddi.c          |    2 +-
- drivers/watchdog/bcm63xx_wdt.c    |    2 +-
- 5 files changed, 8 insertions(+), 11 deletions(-)
+Acked-by: Wim Van Sebroeck <wim@iguana.be>
 
--- 
-1.7.4.2.g597a6.dirty
+Kind regards,
+Wim.
 
