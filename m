@@ -1,67 +1,54 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from na3sys009aog103.obsmtp.com ([74.125.149.71]:46182 "EHLO
-	na3sys009aog103.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752443Ab1C1LE4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 28 Mar 2011 07:04:56 -0400
+Received: from mailrelay007.isp.belgacom.be ([195.238.6.173]:23320 "EHLO
+	mailrelay007.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752543Ab1C1VH2 (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 28 Mar 2011 17:07:28 -0400
+Date: Mon, 28 Mar 2011 23:07:26 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: "J, KEERTHY" <j-keerthy@ti.com>
+Cc: linux-watchdog@vger.kernel.org, linux-omap@vger.kernel.org
+Subject: Re: [PATCH] watchdog: twl4030_wdt: Watchdog device registration
+	issue fix
+Message-ID: <20110328210726.GE3974@infomag.iguana.be>
+References: <1299012474-4993-1-git-send-email-j-keerthy@ti.com> <AANLkTinVtNtoAh_AnLxC3z2EHzLXdndj27SjR3LD5Z8d@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <1299012474-4993-1-git-send-email-j-keerthy@ti.com>
-References: <1299012474-4993-1-git-send-email-j-keerthy@ti.com>
-Date: Mon, 28 Mar 2011 16:34:53 +0530
-Message-ID: <AANLkTinVtNtoAh_AnLxC3z2EHzLXdndj27SjR3LD5Z8d@mail.gmail.com>
-Subject: Re: [PATCH] watchdog: twl4030_wdt: Watchdog device registration issue fix
-From: "J, KEERTHY" <j-keerthy@ti.com>
-To: linux-watchdog@vger.kernel.org, wim@iguana.be
-Cc: linux-omap@vger.kernel.org, j-keerthy@ti.com
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <AANLkTinVtNtoAh_AnLxC3z2EHzLXdndj27SjR3LD5Z8d@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello All,
+Hi All,
 
-Any comments on this patch?
+> Hello All,
+> 
+> Any comments on this patch?
+> 
+> Regards,
+> Keerthy
+> 
+> On Wed, Mar 2, 2011 at 2:17 AM, Keerthy <j-keerthy@ti.com> wrote:
+> > twl4030_wdt driver and omap_wdt driver are registering as misc_device name as
+> > "watchdog" and the same minor number WATCHDOG_MINOR( value = 130).
+> > There is a conflict since the name and minor were the same for
+> > both the misc_device registered by omap_wdt.c as well as twl4030_wdt.c
+> >
+> > The omap_wdt.c probe is getting called first. Hence it succeeds.
+> > twl4030_wdt.c always failed on the minor number comparison check.
+> > Now requesting for MISC_DYNAMIC_MINOR as the minor
+> > number for twl4030_watchdog and renamed the device name as
+> > "twl4030_watchdog".
+> >
+> > Tested for basic boot up on OMAP4 Blaze and OMAP3630 SDP. OMAP3630 SDP
+> > twl4030_wdt registration succeeds.2430SDP boot tested, watchdog registration
+> > without errors.
+> >
+> > Signed-off-by: Keerthy <j-keerthy@ti.com>
 
-Regards,
-Keerthy
+NAK. Reason: a watchdog daemon will only be using /dev/watchdog.
+The plan is to get the generic watchdog framework in, convert most of the drivers, extend teh generic watchdog framework with a sysfs interface so that we can support multiple watchdogs.
 
-On Wed, Mar 2, 2011 at 2:17 AM, Keerthy <j-keerthy@ti.com> wrote:
-> twl4030_wdt driver and omap_wdt driver are registering as misc_device name as
-> "watchdog" and the same minor number WATCHDOG_MINOR( value = 130).
-> There is a conflict since the name and minor were the same for
-> both the misc_device registered by omap_wdt.c as well as twl4030_wdt.c
->
-> The omap_wdt.c probe is getting called first. Hence it succeeds.
-> twl4030_wdt.c always failed on the minor number comparison check.
-> Now requesting for MISC_DYNAMIC_MINOR as the minor
-> number for twl4030_watchdog and renamed the device name as
-> "twl4030_watchdog".
->
-> Tested for basic boot up on OMAP4 Blaze and OMAP3630 SDP. OMAP3630 SDP
-> twl4030_wdt registration succeeds.2430SDP boot tested, watchdog registration
-> without errors.
->
-> Signed-off-by: Keerthy <j-keerthy@ti.com>
-> ---
->  drivers/watchdog/twl4030_wdt.c |    4 ++--
->  1 files changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/watchdog/twl4030_wdt.c b/drivers/watchdog/twl4030_wdt.c
-> index b5045ca..89bf78d 100644
-> --- a/drivers/watchdog/twl4030_wdt.c
-> +++ b/drivers/watchdog/twl4030_wdt.c
-> @@ -183,8 +183,8 @@ static int __devinit twl4030_wdt_probe(struct platform_device *pdev)
->        wdt->timer_margin       = 30;
->        wdt->miscdev.parent     = &pdev->dev;
->        wdt->miscdev.fops       = &twl4030_wdt_fops;
-> -       wdt->miscdev.minor      = WATCHDOG_MINOR;
-> -       wdt->miscdev.name       = "watchdog";
-> +       wdt->miscdev.minor      = MISC_DYNAMIC_MINOR;
-> +       wdt->miscdev.name       = "twl4030_watchdog";
->
->        platform_set_drvdata(pdev, wdt);
->
-> --
-> 1.7.0.4
->
->
+Kind regards,
+Wim.
+
