@@ -1,45 +1,67 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from rcsinet10.oracle.com ([148.87.113.121]:35630 "EHLO
-	rcsinet10.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755505Ab1CZBnP (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 25 Mar 2011 21:43:15 -0400
-Message-ID: <4D8D44A7.6060605@oracle.com>
-Date: Fri, 25 Mar 2011 18:43:03 -0700
-From: Randy Dunlap <randy.dunlap@oracle.com>
+Received: from na3sys009aog103.obsmtp.com ([74.125.149.71]:46182 "EHLO
+	na3sys009aog103.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752443Ab1C1LE4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 28 Mar 2011 07:04:56 -0400
 MIME-Version: 1.0
-To: Mike Waychison <mikew@google.com>
-CC: lkml <linux-kernel@vger.kernel.org>,
-	akpm <akpm@linux-foundation.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: fix nv_tco section mismatch
-References: <20110324133244.acffd99a.randy.dunlap@oracle.com> <AANLkTikLSVpw73r_g++_oRs=nTjYf5WmH=XNjjp8o5uo@mail.gmail.com>
-In-Reply-To: <AANLkTikLSVpw73r_g++_oRs=nTjYf5WmH=XNjjp8o5uo@mail.gmail.com>
+In-Reply-To: <1299012474-4993-1-git-send-email-j-keerthy@ti.com>
+References: <1299012474-4993-1-git-send-email-j-keerthy@ti.com>
+Date: Mon, 28 Mar 2011 16:34:53 +0530
+Message-ID: <AANLkTinVtNtoAh_AnLxC3z2EHzLXdndj27SjR3LD5Z8d@mail.gmail.com>
+Subject: Re: [PATCH] watchdog: twl4030_wdt: Watchdog device registration issue fix
+From: "J, KEERTHY" <j-keerthy@ti.com>
+To: linux-watchdog@vger.kernel.org, wim@iguana.be
+Cc: linux-omap@vger.kernel.org, j-keerthy@ti.com
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 03/25/11 16:42, Mike Waychison wrote:
-> On Thu, Mar 24, 2011 at 1:32 PM, Randy Dunlap <randy.dunlap@oracle.com> wrote:
->> From: Randy Dunlap <randy.dunlap@oracle.com>
->>
->> Fix section mismatch warning:
->> Mark the called nv_tco_getdevice() as __devinit, just like its caller.
-> 
-> This looks fine.
-> 
-> I can't seem to reproduce the warning on my end however, compiling
-> this as a built-in nor as a module.  How do I trigger a difference
-> between __init and __devinit?
+Hello All,
 
-I just used allmodconfig.  But why wouldn't you see a differnence between
-__init and __devinit?  They are defined differently in include/linux/init.h,
-but maybe on some $arch, those sections are treated differently?
+Any comments on this patch?
 
-I dunno.
+Regards,
+Keerthy
 
--- 
-~Randy
-*** Remember to use Documentation/SubmitChecklist when testing your code ***
+On Wed, Mar 2, 2011 at 2:17 AM, Keerthy <j-keerthy@ti.com> wrote:
+> twl4030_wdt driver and omap_wdt driver are registering as misc_device name as
+> "watchdog" and the same minor number WATCHDOG_MINOR( value = 130).
+> There is a conflict since the name and minor were the same for
+> both the misc_device registered by omap_wdt.c as well as twl4030_wdt.c
+>
+> The omap_wdt.c probe is getting called first. Hence it succeeds.
+> twl4030_wdt.c always failed on the minor number comparison check.
+> Now requesting for MISC_DYNAMIC_MINOR as the minor
+> number for twl4030_watchdog and renamed the device name as
+> "twl4030_watchdog".
+>
+> Tested for basic boot up on OMAP4 Blaze and OMAP3630 SDP. OMAP3630 SDP
+> twl4030_wdt registration succeeds.2430SDP boot tested, watchdog registration
+> without errors.
+>
+> Signed-off-by: Keerthy <j-keerthy@ti.com>
+> ---
+>  drivers/watchdog/twl4030_wdt.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/watchdog/twl4030_wdt.c b/drivers/watchdog/twl4030_wdt.c
+> index b5045ca..89bf78d 100644
+> --- a/drivers/watchdog/twl4030_wdt.c
+> +++ b/drivers/watchdog/twl4030_wdt.c
+> @@ -183,8 +183,8 @@ static int __devinit twl4030_wdt_probe(struct platform_device *pdev)
+>        wdt->timer_margin       = 30;
+>        wdt->miscdev.parent     = &pdev->dev;
+>        wdt->miscdev.fops       = &twl4030_wdt_fops;
+> -       wdt->miscdev.minor      = WATCHDOG_MINOR;
+> -       wdt->miscdev.name       = "watchdog";
+> +       wdt->miscdev.minor      = MISC_DYNAMIC_MINOR;
+> +       wdt->miscdev.name       = "twl4030_watchdog";
+>
+>        platform_set_drvdata(pdev, wdt);
+>
+> --
+> 1.7.0.4
+>
+>
