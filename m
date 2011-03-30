@@ -4,11 +4,11 @@ Cc: John Crispin <blogic@openwrt.org>,
         Ralph Hempel <ralph.hempel@lantiq.com>,
         Wim Van Sebroeck <wim@iguana.be>, linux-mips@linux-mips.org,
         linux-watchdog@vger.kernel.org
-Subject: [PATCH V4 05/10] MIPS: lantiq: add watchdog support
-Date: Mon, 28 Mar 2011 16:07:52 +0200
-Message-Id: <1301321277-6700-6-git-send-email-blogic@openwrt.org>
-In-Reply-To: <1301321277-6700-1-git-send-email-blogic@openwrt.org>
-References: <1301321277-6700-1-git-send-email-blogic@openwrt.org>
+Subject: [PATCH V5 05/10] MIPS: lantiq: add watchdog support
+Date: Wed, 30 Mar 2011 09:27:51 +0200
+Message-Id: <1301470076-17279-6-git-send-email-blogic@openwrt.org>
+In-Reply-To: <1301470076-17279-1-git-send-email-blogic@openwrt.org>
+References: <1301470076-17279-1-git-send-email-blogic@openwrt.org>
 Return-Path: <blogic@openwrt.org>
 Sender: linux-mips-bounce@linux-mips.org
 Errors-to: linux-mips-bounce@linux-mips.org
@@ -23,7 +23,9 @@ Signed-off-by: Ralph Hempel <ralph.hempel@lantiq.com>
 Cc: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-mips@linux-mips.org
 Cc: linux-watchdog@vger.kernel.org
+
 ---
+
 Changes in V2
 * add comments to explain register access
 * cleanup resource allocation
@@ -49,10 +51,10 @@ Changes in V4
  create mode 100644 drivers/watchdog/lantiq_wdt.c
 
 diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 2e2400e..c64f8c3 100644
+index b69d714..cee7738 100644
 --- a/drivers/watchdog/Kconfig
 +++ b/drivers/watchdog/Kconfig
-@@ -972,6 +972,12 @@ config BCM63XX_WDT
+@@ -990,6 +990,12 @@ config BCM63XX_WDT
  	  To compile this driver as a loadable module, choose M here.
  	  The module will be called bcm63xx_wdt.
  
@@ -66,10 +68,10 @@ index 2e2400e..c64f8c3 100644
  
  # POWERPC Architecture
 diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index dd77665..68299db 100644
+index d520bf9..0d84e48 100644
 --- a/drivers/watchdog/Makefile
 +++ b/drivers/watchdog/Makefile
-@@ -121,6 +121,7 @@ obj-$(CONFIG_AR7_WDT) += ar7_wdt.o
+@@ -123,6 +123,7 @@ obj-$(CONFIG_AR7_WDT) += ar7_wdt.o
  obj-$(CONFIG_TXX9_WDT) += txx9wdt.o
  obj-$(CONFIG_OCTEON_WDT) += octeon-wdt.o
  octeon-wdt-y := octeon-wdt-main.o octeon-wdt-nmi.o
