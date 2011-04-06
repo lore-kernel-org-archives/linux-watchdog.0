@@ -1,95 +1,66 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from zone0.gcu-squad.org ([212.85.147.21]:21280 "EHLO
-	services.gcu-squad.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750951Ab1DFHUY (ORCPT
+Received: from smtp-out.google.com ([74.125.121.67]:9968 "EHLO
+	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751371Ab1DFVNg (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 6 Apr 2011 03:20:24 -0400
-Date: Wed, 6 Apr 2011 09:19:15 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Guenter Roeck <guenter.roeck@ericsson.com>
-Cc: Natarajan Gurumoorthy <natg@google.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Mike Waychison <mikew@google.com>,
-	"lm-sensors@lm-sensors.org" <lm-sensors@lm-sensors.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH] Make all it87 drivers SMP safe.
-Message-ID: <20110406091915.59bd5ea3@endymion.delvare>
-In-Reply-To: <20110406030220.GB22535@ericsson.com>
-References: <1302038697-28985-1-git-send-email-natg@google.com>
-	<20110405223814.GA21350@ericsson.com>
-	<BANLkTimQDVYe53K-M173iQtmkHzKg6Djyg@mail.gmail.com>
-	<20110406000528.GB21350@ericsson.com>
-	<BANLkTi==zj3PoNuqf2=THaHzevvHHsuh=w@mail.gmail.com>
-	<20110406004312.GA21882@ericsson.com>
-	<BANLkTinSAOxNkjxMGewfPUc0-bjf9MesGA@mail.gmail.com>
-	<20110406030220.GB22535@ericsson.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Apr 2011 17:13:36 -0400
+From: Nat Gurumoorthy <natg@google.com>
+To: Jean Delvare <khali@linux-fr.org>,
+	Guenter Roeck <guenter.roeck@ericsson.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+Cc: Mike Waychison <mikew@google.com>, lm-sensors@lm-sensors.org,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	Nat Gurumoorthy <natg@google.com>
+Subject: [PATCH 0/3] Make all it87 drivers SMP safe.
+Date: Wed,  6 Apr 2011 14:12:20 -0700
+Message-Id: <1302124340-22338-1-git-send-email-natg@google.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, 5 Apr 2011 20:02:20 -0700, Guenter Roeck wrote:
-> On Tue, Apr 05, 2011 at 10:50:47PM -0400, Natarajan Gurumoorthy wrote:
-> > Guenter,
-> >       Thank you for spotting the fact the everything goes south if you
-> > disable "watchdog". I am working on a solution. Looks like the ideal
-> > place to store it87_io_lock.c will be drivers/misc and the IT87_LOCK
-> > config will be placed before the MISC_DEVICES entry in
-> > drivers/misc/Kconfig file. This will be similar to the
-> > SENSORS_LIS3LV02D entry in that Kconfig file.
-> > 
-> Almost, only afaik that is only used inside the misc directory, or at least
-> has some other components there. I don't really know how to handle this
-> situation correctly, except you could of course write a mfd driver to handle
-> the generic parts.
-> 
-> >       Now going back to the partitioning do I send this change out as
-> > a multi patch set consisting of 4 parts something as below:
-> > 
-> > patch 0 has a description
-> > 
-> > patch 1 has only the lock and related files
-> >         drivers/misc/Kconfig
-> >         drivers/misc/Makefile
-> >         include/linux/it87_lock.h
-> >         drivers/misc/it87_lock.c
-> > 
-> > patch 2 has drivers/watchdog changes
-> >         drivers/watchdog/Kconfig
-> >         drivers/watchdog/it8712f_wdt.c
-> >         drivers/watchdog/it87_wdt.c
-> > 
-> > patch 3 has drives/hwmon changes
-> >         drivers/hwmon/Kconfig
-> >         drivers/hwmon/it87.c
-> > 
-> Something like that. I have some doubts about using drivers/misc,
-> but I guess you'll get feedback on that after you submit the patch set.
+There are 3 different drivers that touch the it87 hardware registers.
+The 3 drivers have been written independently and access the it87 hardware
+registers assuming they are the only driver accessing it. This change
+attempts to serialize access to the hardware by defining a global spinlock
+it87_io_lock in a file it87_lock.c. This lock has to be acquired by each
+of the it87 drivers before it can access the hardware. We have defined
+a new Kconfig option IT87_LOCK. When it is selected it87_lock.c is compiled
+into the kernel thereby making the lock global and accessable to the it87
+drivers which are typically built as loadable modules. All the it87 drivers
+select IT87_LOCK to compile the lock into the kernel.
+The routines accessing the hardware are being called from module init,
+open, ioctl and module exit routines and hence it is sufficient to use
+calls to spin_lock and spin_unlock to acquire and release the locks. For
+the same reasons it87_wdt.c has extensive changes to remove calls to
+spin_lock_irqsave and spin_unlock_irqrestore. The lock is now acquired
+in superio_enter and released in superio_exit. This is now identical
+to the code in drivers/hwmon/it87.c and drivers/watchdog/it8712f_wdt.c.
+Added __acquire and __release annotations wherever needed.
 
-I would definitely prefer drivers/mfd over drivers/misc. The
-problematic we are trying to solve here is typically a multi-function
-device one.
+01 - Adds the relevant lock files.
+ drivers/watchdog/Kconfig
+ drivers/watchdog/Makefile
+ drivers/watchdog/it87_lock.c
+ include/linux/it87_lock.h
 
-This also raises concerns about the implementation. The shared spinlock
-looks like a band-aid solution to me. The initial problem is that all
-these drivers access I/O ports they did NOT reserve as they were
-supposed to do. If they did, the conflict would have been spotted much
-earlier.
+02 - Adds changes to watchdog drivers to use the new lock.
+ drivers/watchdog/it8712f_wdt.c
+ drivers/watchdog/it87_wdt.c
 
-I seem to recall that there has been work in the past on a new
-"superio" subsystem which would help centralize detection of and I/O
-access to all Super-I/O chips (bringing driver autoloading in almost
-all cases as a nice side benefit.) I never had the time to review it,
-but as I recall others had reviewed it so it may be in a suitable shape
-for upstream inclusion (after forward-porting - the code is getting
-old.)
+03 - Adds changes to hwmon driver to use the new lock.
+ drivers/hwmon/Kconfig
+ drivers/hwmon/it87.c
 
-http://www.google.com/search?q=site%3Alists.lm-sensors.org+superio+lock
 
-Don't get me wrong, the current situation is bad enough that a band-aid
-solution is welcome. But it doesn't seem good enough for the long run.
+ drivers/hwmon/Kconfig          |    1 +
+ drivers/hwmon/it87.c           |   14 ++++++++++++-
+ drivers/watchdog/Kconfig       |   12 +++++++++++
+ drivers/watchdog/Makefile      |    1 +
+ drivers/watchdog/it8712f_wdt.c |   10 ++++----
+ drivers/watchdog/it87_lock.c   |   27 +++++++++++++++++++++++++
+ drivers/watchdog/it87_wdt.c    |   42 ++++++---------------------------------
+ include/linux/it87_lock.h      |   28 ++++++++++++++++++++++++++
+ 8 files changed, 96 insertions(+), 41 deletions(-)
+ create mode 100644 drivers/watchdog/it87_lock.c
+ create mode 100644 include/linux/it87_lock.h
 
--- 
-Jean Delvare
+Signed-off-by: Nat Gurumoorthy <natg@google.com>
