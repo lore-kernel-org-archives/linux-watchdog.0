@@ -1,142 +1,135 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([216.239.44.51]:25167 "EHLO
-	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753622Ab1DFVNg (ORCPT
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:37763 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756334Ab1DFVfJ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 6 Apr 2011 17:13:36 -0400
-From: Nat Gurumoorthy <natg@google.com>
-To: Jean Delvare <khali@linux-fr.org>,
-	Guenter Roeck <guenter.roeck@ericsson.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Cc: Mike Waychison <mikew@google.com>, lm-sensors@lm-sensors.org,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	Nat Gurumoorthy <natg@google.com>
-Subject: [PATCH 1/3] Make all it87 drivers SMP safe.
-Date: Wed,  6 Apr 2011 14:12:54 -0700
-Message-Id: <1302124374-22381-1-git-send-email-natg@google.com>
+	Wed, 6 Apr 2011 17:35:09 -0400
+MIME-Version: 1.0
+In-Reply-To: <BANLkTimTfWrx-ezyerRTtZHrLdOOf2V19w@mail.gmail.com>
+References: <1302038697-28985-1-git-send-email-natg@google.com>
+	<20110405223814.GA21350@ericsson.com>
+	<BANLkTimQDVYe53K-M173iQtmkHzKg6Djyg@mail.gmail.com>
+	<20110406000528.GB21350@ericsson.com>
+	<BANLkTi==zj3PoNuqf2=THaHzevvHHsuh=w@mail.gmail.com>
+	<20110406004312.GA21882@ericsson.com>
+	<BANLkTinSAOxNkjxMGewfPUc0-bjf9MesGA@mail.gmail.com>
+	<20110406030220.GB22535@ericsson.com>
+	<BANLkTimTfWrx-ezyerRTtZHrLdOOf2V19w@mail.gmail.com>
+Date: Wed, 6 Apr 2011 17:35:07 -0400
+Message-ID: <BANLkTimeAh3pm=Z73hYPPfAJfu8J5=tPpw@mail.gmail.com>
+Subject: Re: [PATCH] Make all it87 drivers SMP safe.
+From: Paul Gortmaker <paul.gortmaker@windriver.com>
+To: Natarajan Gurumoorthy <natg@google.com>
+Cc: Guenter Roeck <guenter.roeck@ericsson.com>,
+	Jean Delvare <khali@linux-fr.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Mike Waychison <mikew@google.com>,
+	"lm-sensors@lm-sensors.org" <lm-sensors@lm-sensors.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-01 - Adds relevant lock files.
+On Wed, Apr 6, 2011 at 3:04 AM, Natarajan Gurumoorthy <natg@google.com> wrote:
+> Guenter,
+>      Thank you for your feedback. I found an easier way to deal with
+> the it87_lock.c file. I do not need to move it to the driver/misc
+> directory. The easier thing to do was to move the IT87_LOCK entry to
+> the beginning of the drivers/watchdog/Kconfig file. This moves the
+> entry before the "menuconfig WATCHDOG" entry. They use the exact same
+> trick in drivers/misc/Kconfig file. The very first lines of
+> drivers/watchdog/Kconfig file will look something like this:
 
-Signed-off-by: Nat Gurumoorthy <natg@google.com>
----
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 31649b7..562f345 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -2,6 +2,18 @@
- # Watchdog device configuration
- #
- 
-+# This has to come before the WATCHDOG menuconfig
-+# because it can be selected by drivers/hwmon/it87.c
-+config IT87_LOCK
-+	bool
-+	default n
-+	---help---
-+	  This defines the global lock needed by all IT87 drivers that
-+	  touch the Super I/0 chipset used on many motherboards. This
-+	  is needed to serialize access to the registers in SMP
-+	  systems. All it87 drivers will select this Kconfig option to compile
-+	  the lock into the kernel.
-+
- menuconfig WATCHDOG
- 	bool "Watchdog Timer Support"
- 	---help---
-@@ -565,6 +577,7 @@ config ITCO_VENDOR_SUPPORT
- config IT8712F_WDT
- 	tristate "IT8712F (Smart Guardian) Watchdog Timer"
- 	depends on X86
-+	select IT87_LOCK
- 	---help---
- 	  This is the driver for the built-in watchdog timer on the IT8712F
- 	  Super I/0 chipset used on many motherboards.
-@@ -578,6 +591,7 @@ config IT8712F_WDT
- config IT87_WDT
- 	tristate "IT87 Watchdog Timer"
- 	depends on X86 && EXPERIMENTAL
-+	select IT87_LOCK
- 	---help---
- 	  This is the driver for the hardware watchdog on the ITE IT8702,
- 	  IT8712, IT8716, IT8718, IT8720, IT8726, IT8712 Super I/O chips.
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 20e44c4..6895445 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -81,6 +81,7 @@ obj-$(CONFIG_ITCO_WDT) += iTCO_wdt.o
- ifeq ($(CONFIG_ITCO_VENDOR_SUPPORT),y)
- obj-$(CONFIG_ITCO_WDT) += iTCO_vendor_support.o
- endif
-+obj-$(CONFIG_IT87_LOCK) += it87_lock.o
- obj-$(CONFIG_IT8712F_WDT) += it8712f_wdt.o
- obj-$(CONFIG_IT87_WDT) += it87_wdt.o
- obj-$(CONFIG_HP_WATCHDOG) += hpwdt.o
-diff --git a/drivers/watchdog/it87_lock.c b/drivers/watchdog/it87_lock.c
-new file mode 100644
-index 0000000..06c0b49
---- /dev/null
-+++ b/drivers/watchdog/it87_lock.c
-@@ -0,0 +1,27 @@
-+/*
-+ *      IT87xxx super IO chipset access lock
-+ *
-+ *      Copyright (c) 2011 Nat Gurumoorthy <natg@google.com>
-+ *
-+ *      Based on info and code taken from:
-+ *
-+ *      drivers/char/watchdog/scx200_wdt.c
-+ *      drivers/hwmon/it87.c
-+ *      IT8712F EC-LPC I/O Preliminary Specification 0.8.2
-+ *      IT8712F EC-LPC I/O Preliminary Specification 0.9.3
-+ *
-+ *      This program is free software; you can redistribute it and/or
-+ *      modify it under the terms of the GNU General Public License as
-+ *      published by the Free Software Foundation; either version 2 of the
-+ *      License, or (at your option) any later version.
-+ *
-+ *      The author(s) of this software shall not be held liable for damages
-+ *      of any nature resulting due to the use of this software. This
-+ *      software is provided AS-IS with no warranties.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/spinlock.h>
-+
-+DEFINE_SPINLOCK(it87_io_lock);
-+EXPORT_SYMBOL(it87_io_lock);
-diff --git a/include/linux/it87_lock.h b/include/linux/it87_lock.h
-new file mode 100644
-index 0000000..ae91ce5
---- /dev/null
-+++ b/include/linux/it87_lock.h
-@@ -0,0 +1,28 @@
-+/*
-+ *      IT87xxx super IO chipset access lock
-+ *
-+ *      Copyright (c) 2011 Nat Gurumoorthy <natg@google.com>
-+ *
-+ *      Based on info and code taken from:
-+ *
-+ *      drivers/char/watchdog/scx200_wdt.c
-+ *      drivers/hwmon/it87.c
-+ *      IT8712F EC-LPC I/O Preliminary Specification 0.8.2
-+ *      IT8712F EC-LPC I/O Preliminary Specification 0.9.3
-+ *
-+ *      This program is free software; you can redistribute it and/or
-+ *      modify it under the terms of the GNU General Public License as
-+ *      published by the Free Software Foundation; either version 2 of the
-+ *      License, or (at your option) any later version.
-+ *
-+ *      The author(s) of this software shall not be held liable for damages
-+ *      of any nature resulting due to the use of this software. This
-+ *      software is provided AS-IS with no warranties.
-+ */
-+
-+#include <linux/spinlock.h>
-+
-+/*
-+ * Global lock used by all it87 drivers to serialize access to hardware.
-+ */
-+extern spinlock_t it87_io_lock;
----
+Is the Kconfig even warranted?  I mean, if there is a shared resource
+and it needs locking, then just apply the locking.   Where is the value
+in adding another Kconfig?
+
+Also the it87_lock.h file -- maybe you want to just call it it87.h -- then
+if someone in the future cleans up the drivers and makes some macros
+that can be shared across all the drivers, there is already a proper home
+for such macros.  No point painting yourself in a corner and making the
+file lock specific right from the beginning.
+
+Paul.
+
+>
+> #
+> # Watchdog device configuration
+> #
+>
+> # This one has to live outside of the WATCHDOG conditional,
+> # because it may be selected by drivers/hwmon/it87.c.
+> config IT87_LOCK
+>        bool
+>        default n
+>        ---help---
+>          This defines the global lock needed by all IT87 drivers that
+>          touch the Super I/0 chipset used on many motherboards. This
+>          is needed to serialize access to the registers in SMP
+>          systems. All it87 drivers will select this Kconfig option to compile
+>          the lock into the kernel.
+>
+> menuconfig WATCHDOG
+>        bool "Watchdog Timer Support"
+>        ---help---
+>          If you say Y here (and to one of the following options) and create a
+>
+> Regards
+> Nat
+>
+> On Tue, Apr 5, 2011 at 8:02 PM, Guenter Roeck
+> <guenter.roeck@ericsson.com> wrote:
+>> On Tue, Apr 05, 2011 at 10:50:47PM -0400, Natarajan Gurumoorthy wrote:
+>>> Guenter,
+>>>       Thank you for spotting the fact the everything goes south if you
+>>> disable "watchdog". I am working on a solution. Looks like the ideal
+>>> place to store it87_io_lock.c will be drivers/misc and the IT87_LOCK
+>>> config will be placed before the MISC_DEVICES entry in
+>>> drivers/misc/Kconfig file. This will be similar to the
+>>> SENSORS_LIS3LV02D entry in that Kconfig file.
+>>>
+>> Almost, only afaik that is only used inside the misc directory, or at least
+>> has some other components there. I don't really know how to handle this
+>> situation correctly, except you could of course write a mfd driver to handle
+>> the generic parts.
+>>
+>>>       Now going back to the partitioning do I send this change out as
+>>> a multi patch set consisting of 4 parts something as below:
+>>>
+>>> patch 0 has a description
+>>>
+>>> patch 1 has only the lock and related files
+>>>         drivers/misc/Kconfig
+>>>         drivers/misc/Makefile
+>>>         include/linux/it87_lock.h
+>>>         drivers/misc/it87_lock.c
+>>>
+>>> patch 2 has drivers/watchdog changes
+>>>         drivers/watchdog/Kconfig
+>>>         drivers/watchdog/it8712f_wdt.c
+>>>         drivers/watchdog/it87_wdt.c
+>>>
+>>> patch 3 has drives/hwmon changes
+>>>         drivers/hwmon/Kconfig
+>>>         drivers/hwmon/it87.c
+>>>
+>> Something like that. I have some doubts about using drivers/misc,
+>> but I guess you'll get feedback on that after you submit the patch set.
+>>
+>> Thanks,
+>> Guenter
+>>
+>
+>
+>
+> --
+> Regards
+> Nat Gurumoorthy AB6SJ
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
