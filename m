@@ -1,19 +1,20 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([74.125.121.67]:43419 "EHLO
-	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751202Ab1DFHEz convert rfc822-to-8bit (ORCPT
+Received: from zone0.gcu-squad.org ([212.85.147.21]:21280 "EHLO
+	services.gcu-squad.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750951Ab1DFHUY (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 6 Apr 2011 03:04:55 -0400
-Received: from hpaq6.eem.corp.google.com (hpaq6.eem.corp.google.com [172.25.149.6])
-	by smtp-out.google.com with ESMTP id p3674rxB016241
-	for <linux-watchdog@vger.kernel.org>; Wed, 6 Apr 2011 00:04:53 -0700
-Received: from iwn2 (iwn2.prod.google.com [10.241.68.66])
-	by hpaq6.eem.corp.google.com with ESMTP id p3674RoY014959
-	(version=TLSv1/SSLv3 cipher=RC4-SHA bits=128 verify=NOT)
-	for <linux-watchdog@vger.kernel.org>; Wed, 6 Apr 2011 00:04:52 -0700
-Received: by iwn2 with SMTP id 2so1230854iwn.26
-        for <linux-watchdog@vger.kernel.org>; Wed, 06 Apr 2011 00:04:52 -0700 (PDT)
-MIME-Version: 1.0
+	Wed, 6 Apr 2011 03:20:24 -0400
+Date: Wed, 6 Apr 2011 09:19:15 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Guenter Roeck <guenter.roeck@ericsson.com>
+Cc: Natarajan Gurumoorthy <natg@google.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Mike Waychison <mikew@google.com>,
+	"lm-sensors@lm-sensors.org" <lm-sensors@lm-sensors.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+Subject: Re: [PATCH] Make all it87 drivers SMP safe.
+Message-ID: <20110406091915.59bd5ea3@endymion.delvare>
 In-Reply-To: <20110406030220.GB22535@ericsson.com>
 References: <1302038697-28985-1-git-send-email-natg@google.com>
 	<20110405223814.GA21350@ericsson.com>
@@ -23,100 +24,72 @@ References: <1302038697-28985-1-git-send-email-natg@google.com>
 	<20110406004312.GA21882@ericsson.com>
 	<BANLkTinSAOxNkjxMGewfPUc0-bjf9MesGA@mail.gmail.com>
 	<20110406030220.GB22535@ericsson.com>
-Date: Wed, 6 Apr 2011 00:04:51 -0700
-Message-ID: <BANLkTimTfWrx-ezyerRTtZHrLdOOf2V19w@mail.gmail.com>
-Subject: Re: [PATCH] Make all it87 drivers SMP safe.
-From: Natarajan Gurumoorthy <natg@google.com>
-To: Guenter Roeck <guenter.roeck@ericsson.com>
-Cc: Jean Delvare <khali@linux-fr.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Mike Waychison <mikew@google.com>,
-	"lm-sensors@lm-sensors.org" <lm-sensors@lm-sensors.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Guenter,
-      Thank you for your feedback. I found an easier way to deal with
-the it87_lock.c file. I do not need to move it to the driver/misc
-directory. The easier thing to do was to move the IT87_LOCK entry to
-the beginning of the drivers/watchdog/Kconfig file. This moves the
-entry before the "menuconfig WATCHDOG" entry. They use the exact same
-trick in drivers/misc/Kconfig file. The very first lines of
-drivers/watchdog/Kconfig file will look something like this:
-
-#
-# Watchdog device configuration
-#
-
-# This one has to live outside of the WATCHDOG conditional,
-# because it may be selected by drivers/hwmon/it87.c.
-config IT87_LOCK
-	bool
-	default n
-	---help---
-	  This defines the global lock needed by all IT87 drivers that
-	  touch the Super I/0 chipset used on many motherboards. This
-	  is needed to serialize access to the registers in SMP
-	  systems. All it87 drivers will select this Kconfig option to compile
-	  the lock into the kernel.
-
-menuconfig WATCHDOG
-	bool "Watchdog Timer Support"
-	---help---
-	  If you say Y here (and to one of the following options) and create a
-
-Regards
-Nat
-
-On Tue, Apr 5, 2011 at 8:02 PM, Guenter Roeck
-<guenter.roeck@ericsson.com> wrote:
+On Tue, 5 Apr 2011 20:02:20 -0700, Guenter Roeck wrote:
 > On Tue, Apr 05, 2011 at 10:50:47PM -0400, Natarajan Gurumoorthy wrote:
->> Guenter,
->>       Thank you for spotting the fact the everything goes south if you
->> disable "watchdog". I am working on a solution. Looks like the ideal
->> place to store it87_io_lock.c will be drivers/misc and the IT87_LOCK
->> config will be placed before the MISC_DEVICES entry in
->> drivers/misc/Kconfig file. This will be similar to the
->> SENSORS_LIS3LV02D entry in that Kconfig file.
->>
+> > Guenter,
+> >       Thank you for spotting the fact the everything goes south if you
+> > disable "watchdog". I am working on a solution. Looks like the ideal
+> > place to store it87_io_lock.c will be drivers/misc and the IT87_LOCK
+> > config will be placed before the MISC_DEVICES entry in
+> > drivers/misc/Kconfig file. This will be similar to the
+> > SENSORS_LIS3LV02D entry in that Kconfig file.
+> > 
 > Almost, only afaik that is only used inside the misc directory, or at least
 > has some other components there. I don't really know how to handle this
 > situation correctly, except you could of course write a mfd driver to handle
 > the generic parts.
->
->>       Now going back to the partitioning do I send this change out as
->> a multi patch set consisting of 4 parts something as below:
->>
->> patch 0 has a description
->>
->> patch 1 has only the lock and related files
->>         drivers/misc/Kconfig
->>         drivers/misc/Makefile
->>         include/linux/it87_lock.h
->>         drivers/misc/it87_lock.c
->>
->> patch 2 has drivers/watchdog changes
->>         drivers/watchdog/Kconfig
->>         drivers/watchdog/it8712f_wdt.c
->>         drivers/watchdog/it87_wdt.c
->>
->> patch 3 has drives/hwmon changes
->>         drivers/hwmon/Kconfig
->>         drivers/hwmon/it87.c
->>
+> 
+> >       Now going back to the partitioning do I send this change out as
+> > a multi patch set consisting of 4 parts something as below:
+> > 
+> > patch 0 has a description
+> > 
+> > patch 1 has only the lock and related files
+> >         drivers/misc/Kconfig
+> >         drivers/misc/Makefile
+> >         include/linux/it87_lock.h
+> >         drivers/misc/it87_lock.c
+> > 
+> > patch 2 has drivers/watchdog changes
+> >         drivers/watchdog/Kconfig
+> >         drivers/watchdog/it8712f_wdt.c
+> >         drivers/watchdog/it87_wdt.c
+> > 
+> > patch 3 has drives/hwmon changes
+> >         drivers/hwmon/Kconfig
+> >         drivers/hwmon/it87.c
+> > 
 > Something like that. I have some doubts about using drivers/misc,
 > but I guess you'll get feedback on that after you submit the patch set.
->
-> Thanks,
-> Guenter
->
 
+I would definitely prefer drivers/mfd over drivers/misc. The
+problematic we are trying to solve here is typically a multi-function
+device one.
 
+This also raises concerns about the implementation. The shared spinlock
+looks like a band-aid solution to me. The initial problem is that all
+these drivers access I/O ports they did NOT reserve as they were
+supposed to do. If they did, the conflict would have been spotted much
+earlier.
+
+I seem to recall that there has been work in the past on a new
+"superio" subsystem which would help centralize detection of and I/O
+access to all Super-I/O chips (bringing driver autoloading in almost
+all cases as a nice side benefit.) I never had the time to review it,
+but as I recall others had reviewed it so it may be in a suitable shape
+for upstream inclusion (after forward-porting - the code is getting
+old.)
+
+http://www.google.com/search?q=site%3Alists.lm-sensors.org+superio+lock
+
+Don't get me wrong, the current situation is bad enough that a band-aid
+solution is welcome. But it doesn't seem good enough for the long run.
 
 -- 
-Regards
-Nat Gurumoorthy AB6SJ
+Jean Delvare
