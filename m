@@ -1,74 +1,115 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([216.239.44.51]:35178 "EHLO
-	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756816Ab1DFVpY convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 6 Apr 2011 17:45:24 -0400
-Received: from kpbe19.cbf.corp.google.com (kpbe19.cbf.corp.google.com [172.25.105.83])
-	by smtp-out.google.com with ESMTP id p36LjNA5032147
-	for <linux-watchdog@vger.kernel.org>; Wed, 6 Apr 2011 14:45:23 -0700
-Received: from yie12 (yie12.prod.google.com [10.243.66.12])
-	by kpbe19.cbf.corp.google.com with ESMTP id p36LiuW1014392
-	(version=TLSv1/SSLv3 cipher=RC4-SHA bits=128 verify=NOT)
-	for <linux-watchdog@vger.kernel.org>; Wed, 6 Apr 2011 14:45:22 -0700
-Received: by yie12 with SMTP id 12so860508yie.13
-        for <linux-watchdog@vger.kernel.org>; Wed, 06 Apr 2011 14:45:21 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <BANLkTimeAh3pm=Z73hYPPfAJfu8J5=tPpw@mail.gmail.com>
-References: <1302038697-28985-1-git-send-email-natg@google.com>
-	<20110405223814.GA21350@ericsson.com>
-	<BANLkTimQDVYe53K-M173iQtmkHzKg6Djyg@mail.gmail.com>
-	<20110406000528.GB21350@ericsson.com>
-	<BANLkTi==zj3PoNuqf2=THaHzevvHHsuh=w@mail.gmail.com>
-	<20110406004312.GA21882@ericsson.com>
-	<BANLkTinSAOxNkjxMGewfPUc0-bjf9MesGA@mail.gmail.com>
-	<20110406030220.GB22535@ericsson.com>
-	<BANLkTimTfWrx-ezyerRTtZHrLdOOf2V19w@mail.gmail.com>
-	<BANLkTimeAh3pm=Z73hYPPfAJfu8J5=tPpw@mail.gmail.com>
-Date: Wed, 6 Apr 2011 14:45:21 -0700
-Message-ID: <BANLkTinT1td=kovSFRu=j5-qwHJ7na6v0Q@mail.gmail.com>
-Subject: Re: [PATCH] Make all it87 drivers SMP safe.
-From: Natarajan Gurumoorthy <natg@google.com>
-To: Paul Gortmaker <paul.gortmaker@windriver.com>
-Cc: Guenter Roeck <guenter.roeck@ericsson.com>,
-	Jean Delvare <khali@linux-fr.org>,
+Received: from imr4.ericy.com ([198.24.6.8]:42691 "EHLO imr4.ericy.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757209Ab1DGAEM (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 6 Apr 2011 20:04:12 -0400
+Date: Wed, 6 Apr 2011 17:03:20 -0700
+From: Guenter Roeck <guenter.roeck@ericsson.com>
+To: Nat Gurumoorthy <natg@google.com>
+CC: Jean Delvare <khali@linux-fr.org>,
 	Wim Van Sebroeck <wim@iguana.be>,
 	Mike Waychison <mikew@google.com>,
 	"lm-sensors@lm-sensors.org" <lm-sensors@lm-sensors.org>,
 	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
 	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Subject: Re: [PATCH 3/3] Make all it87 drivers SMP safe.
+Message-ID: <20110407000320.GA28123@ericsson.com>
+References: <1302124396-22449-1-git-send-email-natg@google.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <1302124396-22449-1-git-send-email-natg@google.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Paul,
-     Comments are below.
+On Wed, Apr 06, 2011 at 05:13:16PM -0400, Nat Gurumoorthy wrote:
+> 03 - Adds changes to hwmon driver to use the new lock.
+> 
+> Signed-off-by: Nat Gurumoorthy <natg@google.com>
+> 
+Content looks ok, but two comments:
 
-On Wed, Apr 6, 2011 at 2:35 PM, Paul Gortmaker
-<paul.gortmaker@windriver.com> wrote:
-> On Wed, Apr 6, 2011 at 3:04 AM, Natarajan Gurumoorthy <natg@google.com> wrote:
->> Guenter,
->>      Thank you for your feedback. I found an easier way to deal with
->> the it87_lock.c file. I do not need to move it to the driver/misc
->> directory. The easier thing to do was to move the IT87_LOCK entry to
->> the beginning of the drivers/watchdog/Kconfig file. This moves the
->> entry before the "menuconfig WATCHDOG" entry. They use the exact same
->> trick in drivers/misc/Kconfig file. The very first lines of
->> drivers/watchdog/Kconfig file will look something like this:
->
-> Is the Kconfig even warranted?  I mean, if there is a shared resource
-> and it needs locking, then just apply the locking.   Where is the value
-> in adding another Kconfig?
->
-The reason we are forced to do this is that all the it87 drivers are
-usually modules. We need a global lock that is compiled into the
-kernel if one or more of these drivers are selected. If none of them
-are specified then the lock is not built into the kernel. The Kconfig
-entry that I have put is not human selectable. When any IT87 driver is
-selected it will select IT87_LOCK there by compiling the lock into the
-kernel.
+1) When sending a series of patches, send subsequent ones as reply to the first patch.
+   "git send-email" does this for you, as does quilt.
+2) The headline of each patch should describe what is done in that patch.
+   The description above doesn't mean anything without knowing the context.
 
--- 
-Regards
-Nat Gurumoorthy AB6SJ
+Also see Documentation/SubmittingPatches, item #2 and #15.
+
+Thanks,
+Guenter
+
+> diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
+> index 297bc9a..afe671a 100644
+> --- a/drivers/hwmon/Kconfig
+> +++ b/drivers/hwmon/Kconfig
+> @@ -436,6 +436,7 @@ config SENSORS_IBMPEX
+>  config SENSORS_IT87
+>  	tristate "ITE IT87xx and compatibles"
+>  	select HWMON_VID
+> +	select IT87_LOCK
+>  	help
+>  	  If you say yes here you get support for ITE IT8705F, IT8712F,
+>  	  IT8716F, IT8718F, IT8720F, IT8721F, IT8726F and IT8758E sensor
+> diff --git a/drivers/hwmon/it87.c b/drivers/hwmon/it87.c
+> index 316b648..bc32535 100644
+> --- a/drivers/hwmon/it87.c
+> +++ b/drivers/hwmon/it87.c
+> @@ -55,6 +55,8 @@
+>  #include <linux/dmi.h>
+>  #include <linux/acpi.h>
+>  #include <linux/io.h>
+> +#include <linux/spinlock.h>
+> +#include <linux/it87_lock.h>
+>  
+>  #define DRVNAME "it87"
+>  
+> @@ -110,7 +112,9 @@ superio_select(int ldn)
+>  
+>  static inline void
+>  superio_enter(void)
+> +__acquires(&it87_io_lock)
+>  {
+> +	spin_lock(&it87_io_lock);
+>  	outb(0x87, REG);
+>  	outb(0x01, REG);
+>  	outb(0x55, REG);
+> @@ -119,9 +123,11 @@ superio_enter(void)
+>  
+>  static inline void
+>  superio_exit(void)
+> +__releases(&it87_io_lock)
+>  {
+>  	outb(0x02, REG);
+>  	outb(0x02, VAL);
+> +	spin_unlock(&it87_io_lock);
+>  }
+>  
+>  /* Logical device 4 registers */
+> @@ -1899,8 +1905,12 @@ static int __devexit it87_remove(struct platform_device *pdev)
+>     would slow down the IT87 access and should not be necessary. */
+>  static int it87_read_value(struct it87_data *data, u8 reg)
+>  {
+> +	int ret;
+> +	spin_lock(&it87_io_lock);
+>  	outb_p(reg, data->addr + IT87_ADDR_REG_OFFSET);
+> -	return inb_p(data->addr + IT87_DATA_REG_OFFSET);
+> +	ret = inb_p(data->addr + IT87_DATA_REG_OFFSET);
+> +	spin_unlock(&it87_io_lock);
+> +	return ret;
+>  }
+>  
+>  /* Must be called with data->update_lock held, except during initialization.
+> @@ -1908,8 +1918,10 @@ static int it87_read_value(struct it87_data *data, u8 reg)
+>     would slow down the IT87 access and should not be necessary. */
+>  static void it87_write_value(struct it87_data *data, u8 reg, u8 value)
+>  {
+> +	spin_lock(&it87_io_lock);
+>  	outb_p(reg, data->addr + IT87_ADDR_REG_OFFSET);
+>  	outb_p(value, data->addr + IT87_DATA_REG_OFFSET);
+> +	spin_unlock(&it87_io_lock);
+>  }
+>  
+>  /* Return 1 if and only if the PWM interface is safe to use */
+> -- 
+> 
