@@ -1,71 +1,66 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay001.isp.belgacom.be ([195.238.6.51]:10124 "EHLO
-	mailrelay001.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756909Ab1DGUXN (ORCPT
+Received: from smtp-out.google.com ([216.239.44.51]:40158 "EHLO
+	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751712Ab1DGV07 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 7 Apr 2011 16:23:13 -0400
-Date: Thu, 7 Apr 2011 22:23:11 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Peter Korsgaard <jacmet@sunsite.dk>,
-	Grant Likely <grant.likely@secretlab.ca>
-Subject: [GIT PULL REQUEST] watchdog - v2.6.39-rc3
-Message-ID: <20110407202311.GA29717@infomag.iguana.be>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Thu, 7 Apr 2011 17:26:59 -0400
+From: Nat Gurumoorthy <natg@google.com>
+To: Jean Delvare <khali@linux-fr.org>,
+	Guenter Roeck <guenter.roeck@ericsson.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+Cc: Mike Waychison <mikew@google.com>, lm-sensors@lm-sensors.org,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	Nat Gurumoorthy <natg@google.com>
+Subject: [PATCH v2 0/3] Make all it87 drivers SMP safe.
+Date: Thu,  7 Apr 2011 14:26:00 -0700
+Message-Id: <1302211560-8052-1-git-send-email-natg@google.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Linus,
+There are 3 different drivers that touch the it87 hardware registers.
+The 3 drivers have been written independently and access the it87 hardware
+registers assuming they are the only driver accessing it. This change
+attempts to serialize access to the hardware by defining a global spinlock
+it87_io_lock in a file it87_lock.c. This lock has to be acquired by each
+of the it87 drivers before it can access the hardware. We have defined
+a new Kconfig option IT87_LOCK. When it is selected it87_lock.c is compiled
+into the kernel thereby making the lock global and accessable to the it87
+drivers which are typically built as loadable modules. All the it87 drivers
+select IT87_LOCK to compile the lock into the kernel.
+The routines accessing the hardware are being called from module init,
+open, ioctl and module exit routines and hence it is sufficient to use
+calls to spin_lock and spin_unlock to acquire and release the locks. For
+the same reasons it87_wdt.c has extensive changes to remove calls to
+spin_lock_irqsave and spin_unlock_irqrestore. The lock is now acquired
+in superio_enter and released in superio_exit. This is now identical
+to the code in drivers/hwmon/it87.c and drivers/watchdog/it8712f_wdt.c.
+Added __acquire and __release annotations wherever needed.
 
-Please pull from 'master' branch of
-	git://git.kernel.org/pub/scm/linux/kernel/git/wim/linux-2.6-watchdog.git
-or if master.kernel.org hasn't synced up yet:
-	master.kernel.org:/pub/scm/linux/kernel/git/wim/linux-2.6-watchdog.git
+01 - Adds the relevant lock files.
+ drivers/watchdog/Kconfig
+ drivers/watchdog/Makefile
+ drivers/watchdog/it87_lock.c
+ include/linux/it87_lock.h
 
-This will update the following files:
+02 - Adds changes to watchdog drivers to use the new lock.
+ drivers/watchdog/it8712f_wdt.c
+ drivers/watchdog/it87_wdt.c
 
- drivers/watchdog/mpc8xxx_wdt.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+03 - Adds changes to hwmon driver to use the new lock.
+ drivers/hwmon/Kconfig
+ drivers/hwmon/it87.c
 
-with these Changes:
 
-Author: Peter Korsgaard <jacmet@sunsite.dk>
-Date:   Wed Mar 30 15:48:22 2011 +0200
+ drivers/hwmon/Kconfig          |    1 +
+ drivers/hwmon/it87.c           |   14 ++++++++++++-
+ drivers/watchdog/Kconfig       |   12 +++++++++++
+ drivers/watchdog/Makefile      |    1 +
+ drivers/watchdog/it8712f_wdt.c |   10 ++++----
+ drivers/watchdog/it87_lock.c   |   27 +++++++++++++++++++++++++
+ drivers/watchdog/it87_wdt.c    |   42 ++++++---------------------------------
+ include/linux/it87_lock.h      |   28 ++++++++++++++++++++++++++
+ 8 files changed, 96 insertions(+), 41 deletions(-)
+ create mode 100644 drivers/watchdog/it87_lock.c
+ create mode 100644 include/linux/it87_lock.h
 
-    watchdog: mpc8xxx_wdt: fix build
-    
-    Since 1c48a5c93da6313 (dt: Eliminate of_platform_{,un}register_driver)
-    mpc8xxx_wdt no longer builds as it tries to refer to a 'match' variable
-    rather than ofdev->dev.of_match that it checks just before.
-    
-    Signed-off-by: Peter Korsgaard <jacmet@sunsite.dk>
-    Acked-by: Grant Likely <grant.likely@secretlab.ca>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-The Changes can also be looked at on:
-	http://www.kernel.org/git/?p=linux/kernel/git/wim/linux-2.6-watchdog.git;a=summary
-
-For completeness, I added the overal diff below.
-
-Greetings,
-Wim.
-
-================================================================================
-diff --git a/drivers/watchdog/mpc8xxx_wdt.c b/drivers/watchdog/mpc8xxx_wdt.c
-index 6709d72..528bceb 100644
---- a/drivers/watchdog/mpc8xxx_wdt.c
-+++ b/drivers/watchdog/mpc8xxx_wdt.c
-@@ -195,7 +195,7 @@ static int __devinit mpc8xxx_wdt_probe(struct platform_device *ofdev)
- 
- 	if (!ofdev->dev.of_match)
- 		return -EINVAL;
--	wdt_type = match->data;
-+	wdt_type = ofdev->dev.of_match->data;
- 
- 	if (!freq || freq == -1)
- 		return -EINVAL;
+Signed-off-by: Nat Gurumoorthy <natg@google.com>
