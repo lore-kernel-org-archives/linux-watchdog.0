@@ -1,39 +1,65 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:54286 "EHLO
-	www.etchedpixels.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750720Ab1DLLmC (ORCPT
+Received: from smtp-out.google.com ([216.239.44.51]:39498 "EHLO
+	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755899Ab1DLPqa convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 12 Apr 2011 07:42:02 -0400
-Date: Tue, 12 Apr 2011 12:41:55 +0100
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Nat Gurumoorthy <natg@google.com>
+	Tue, 12 Apr 2011 11:46:30 -0400
+Received: from hpaq1.eem.corp.google.com (hpaq1.eem.corp.google.com [172.25.149.1])
+	by smtp-out.google.com with ESMTP id p3CFkSP7002834
+	for <linux-watchdog@vger.kernel.org>; Tue, 12 Apr 2011 08:46:29 -0700
+Received: from ywa8 (ywa8.prod.google.com [10.192.1.8])
+	by hpaq1.eem.corp.google.com with ESMTP id p3CFjkOG018995
+	(version=TLSv1/SSLv3 cipher=RC4-SHA bits=128 verify=NOT)
+	for <linux-watchdog@vger.kernel.org>; Tue, 12 Apr 2011 08:46:27 -0700
+Received: by ywa8 with SMTP id 8so3344133ywa.37
+        for <linux-watchdog@vger.kernel.org>; Tue, 12 Apr 2011 08:46:27 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <20110412124155.36787390@lxorguk.ukuu.org.uk>
+References: <1302565858-23849-1-git-send-email-natg@google.com>
+	<1302565974-23906-1-git-send-email-natg@google.com>
+	<20110412124155.36787390@lxorguk.ukuu.org.uk>
+Date: Tue, 12 Apr 2011 08:46:26 -0700
+Message-ID: <BANLkTikFr+7duu71=yB2rVBKx1SBkmggqg@mail.gmail.com>
+Subject: Re: [PATCH v4 1/2] Use "request_muxed_region" in it87 watchdog drivers
+From: Natarajan Gurumoorthy <natg@google.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: Jean Delvare <khali@linux-fr.org>,
 	Guenter Roeck <guenter.roeck@ericsson.com>,
 	Wim Van Sebroeck <wim@iguana.be>,
 	Mike Waychison <mikew@google.com>, lm-sensors@lm-sensors.org,
 	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v4 1/2] Use "request_muxed_region" in it87 watchdog
- drivers
-Message-ID: <20110412124155.36787390@lxorguk.ukuu.org.uk>
-In-Reply-To: <1302565974-23906-1-git-send-email-natg@google.com>
-References: <1302565858-23849-1-git-send-email-natg@google.com>
-	<1302565974-23906-1-git-send-email-natg@google.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-> +	while (!request_muxed_region(REG, 2, NAME))
-> +		continue;
-> +
+Alan,
+      I looked at your code in kernel/resource.c and I agree the while
+is not needed. I guess every time it comes back from "schedule" your
+code loops back to reserve the region. I will test the code without
+the while and make the needed change.
 
-This shouldn't need the loop ? - is it only working with the loop
-present ?
+Regards
+Nat
+
+On Tue, Apr 12, 2011 at 4:41 AM, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>> +     while (!request_muxed_region(REG, 2, NAME))
+>> +             continue;
+>> +
+>
+> This shouldn't need the loop ? - is it only working with the loop
+> present ?
+>
+>
+> Otherwise this looks good - I'd just like to understand if the loop was
+> needed (indicating a bug has crept into the muxed alloc code somewhere
+> perhaps) or not
+>
+> Alan
+>
 
 
-Otherwise this looks good - I'd just like to understand if the loop was
-needed (indicating a bug has crept into the muxed alloc code somewhere
-perhaps) or not
 
-Alan
+-- 
+Regards
+Nat Gurumoorthy AB6SJ
