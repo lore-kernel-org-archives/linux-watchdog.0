@@ -1,54 +1,39 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([74.125.121.67]:11717 "EHLO
-	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756277Ab1DKXyA (ORCPT
+Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:54286 "EHLO
+	www.etchedpixels.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750720Ab1DLLmC (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 11 Apr 2011 19:54:00 -0400
-From: Nat Gurumoorthy <natg@google.com>
-To: Jean Delvare <khali@linux-fr.org>,
+	Tue, 12 Apr 2011 07:42:02 -0400
+Date: Tue, 12 Apr 2011 12:41:55 +0100
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Nat Gurumoorthy <natg@google.com>
+Cc: Jean Delvare <khali@linux-fr.org>,
 	Guenter Roeck <guenter.roeck@ericsson.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Cc: Mike Waychison <mikew@google.com>, lm-sensors@lm-sensors.org,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	Nat Gurumoorthy <natg@google.com>
-Subject: [PATCH v4 2/2] Use "request_muxed_region" in it87 hwmon drivers
-Date: Mon, 11 Apr 2011 16:53:22 -0700
-Message-Id: <1302566002-23962-1-git-send-email-natg@google.com>
-In-Reply-To: <1302565858-23849-1-git-send-email-natg@google.com>
+	Wim Van Sebroeck <wim@iguana.be>,
+	Mike Waychison <mikew@google.com>, lm-sensors@lm-sensors.org,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v4 1/2] Use "request_muxed_region" in it87 watchdog
+ drivers
+Message-ID: <20110412124155.36787390@lxorguk.ukuu.org.uk>
+In-Reply-To: <1302565974-23906-1-git-send-email-natg@google.com>
 References: <1302565858-23849-1-git-send-email-natg@google.com>
+	<1302565974-23906-1-git-send-email-natg@google.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-02 - Chages to hwmon it87 driver to use "request_muxed_region"
-Serialize access to the hardware by using "request_muxed_region" macro defined
-by Alan Cox. Call to this macro will hold off the requestor if the resource is
-currently busy.
+> +	while (!request_muxed_region(REG, 2, NAME))
+> +		continue;
+> +
 
-Signed-off-by: Nat Gurumoorthy <natg@google.com>
----
+This shouldn't need the loop ? - is it only working with the loop
+present ?
 
-diff --git a/drivers/hwmon/it87.c b/drivers/hwmon/it87.c
-index 316b648..1dc04d4 100644
---- a/drivers/hwmon/it87.c
-+++ b/drivers/hwmon/it87.c
-@@ -111,6 +111,9 @@ superio_select(int ldn)
- static inline void
- superio_enter(void)
- {
-+	while (!request_muxed_region(REG, 2, DRVNAME))
-+		continue;
-+
- 	outb(0x87, REG);
- 	outb(0x01, REG);
- 	outb(0x55, REG);
-@@ -122,6 +125,7 @@ superio_exit(void)
- {
- 	outb(0x02, REG);
- 	outb(0x02, VAL);
-+	release_region(REG, 2);
- }
- 
- /* Logical device 4 registers */
--- 
-1.7.3.1
 
+Otherwise this looks good - I'd just like to understand if the loop was
+needed (indicating a bug has crept into the muxed alloc code somewhere
+perhaps) or not
+
+Alan
