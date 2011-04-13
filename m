@@ -1,56 +1,70 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([216.239.44.51]:57005 "EHLO
-	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932144Ab1DLUuw (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 12 Apr 2011 16:50:52 -0400
-From: Nat Gurumoorthy <natg@google.com>
-To: Jean Delvare <khali@linux-fr.org>,
+Received: from mx1.redhat.com ([209.132.183.28]:51847 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752825Ab1DMGvd (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 13 Apr 2011 02:51:33 -0400
+Message-ID: <4DA547CD.60406@redhat.com>
+Date: Wed, 13 Apr 2011 08:50:53 +0200
+From: Hans de Goede <hdegoede@redhat.com>
+MIME-Version: 1.0
+To: Nat Gurumoorthy <natg@google.com>
+CC: Jean Delvare <khali@linux-fr.org>,
 	Guenter Roeck <guenter.roeck@ericsson.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Cc: Mike Waychison <mikew@google.com>, lm-sensors@lm-sensors.org,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	Nat Gurumoorthy <natg@google.com>
-Subject: [PATCH v5 2/2] Use "request_muxed_region" in it87 hwmon drivers
-Date: Tue, 12 Apr 2011 13:50:18 -0700
-Message-Id: <1302641418-30304-1-git-send-email-natg@google.com>
-In-Reply-To: <1302641290-30212-1-git-send-email-natg@google.com>
-References: <1302641290-30212-1-git-send-email-natg@google.com>
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org, lm-sensors@lm-sensors.org,
+	linux-kernel@vger.kernel.org, Mike Waychison <mikew@google.com>
+Subject: Re: [lm-sensors] [PATCH v5 1/2] Use "request_muxed_region" in it87
+ watchdog drivers
+References: <1302641290-30212-1-git-send-email-natg@google.com> <1302641387-30264-1-git-send-email-natg@google.com>
+In-Reply-To: <1302641387-30264-1-git-send-email-natg@google.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-02 - Chages to hwmon it87 driver to use "request_muxed_region"
-Serialize access to the hardware by using "request_muxed_region" macro defined
-by Alan Cox. Call to this macro will hold off the requestor if the resource is
-currently busy.
+Hi,
 
-Signed-off-by: Nat Gurumoorthy <natg@google.com>
----
+On 04/12/2011 10:49 PM, Nat Gurumoorthy wrote:
+> 01 - Changes to it87 watchdog driver to use "request_muxed_region"
+> Serialize access to the hardware by using "request_muxed_region" macro defined
+> by Alan Cox. Call to this macro will hold off the requestor if the resource is
+> currently busy.
+>
+> The use of the above macro makes it possible to get rid of
+> spinlocks in it8712f_wdt.c and it87_wdt.c watchdog drivers.
+> This also greatly simplifies the implementation of it87_wdt.c driver.
+>
+> Signed-off-by: Nat Gurumoorthy<natg@google.com>
+> ---
+>
+> diff --git a/drivers/watchdog/it8712f_wdt.c b/drivers/watchdog/it8712f_wdt.c
+> index 6143f52..51bfbc0 100644
+> --- a/drivers/watchdog/it8712f_wdt.c
+> +++ b/drivers/watchdog/it8712f_wdt.c
+> @@ -51,7 +51,6 @@ MODULE_PARM_DESC(nowayout, "Disable watchdog shutdown on close");
+>
+>   static unsigned long wdt_open;
+>   static unsigned expect_close;
+> -static spinlock_t io_lock;
+>   static unsigned char revision;
+>
+>   /* Dog Food address - We use the game port address */
+> @@ -123,7 +122,11 @@ static inline void superio_select(int ldn)
+>
+>   static inline void superio_enter(void)
+>   {
+> -	spin_lock(&io_lock);
+> +	/*
+> +	 * Reserve REG and REG + 1 for exclusive access.
+> +	 */
+> +	(void) request_muxed_region(REG, 2, NAME);
+> +
 
-diff --git a/drivers/hwmon/it87.c b/drivers/hwmon/it87.c
-index 316b648..3945569 100644
---- a/drivers/hwmon/it87.c
-+++ b/drivers/hwmon/it87.c
-@@ -111,6 +111,11 @@ superio_select(int ldn)
- static inline void
- superio_enter(void)
- {
-+	/*
-+	 * Reserve REG and REG + 1 for exclusive access.
-+	 */
-+	(void) request_muxed_region(REG, 2, DRVNAME);
-+
- 	outb(0x87, REG);
- 	outb(0x01, REG);
- 	outb(0x55, REG);
-@@ -122,6 +127,7 @@ superio_exit(void)
- {
- 	outb(0x02, REG);
- 	outb(0x02, VAL);
-+	release_region(REG, 2);
- }
- 
- /* Logical device 4 registers */
--- 
-1.7.3.1
+You shouldn't (void) this, there is a reason you get a warning
+otherwise! request_muxed_region can still fail if some other driver
+has done a none muxed request_region on the same region, and in that
+case you should not continue with accessing the io-ports.
 
+Regards,
+
+Hans
