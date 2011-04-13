@@ -1,75 +1,56 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([216.239.44.51]:22497 "EHLO
+Received: from smtp-out.google.com ([74.125.121.67]:40528 "EHLO
 	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757544Ab1DMIFg (ORCPT
+	with ESMTP id S1751155Ab1DMIPh convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 13 Apr 2011 04:05:36 -0400
-Received: from wpaz21.hot.corp.google.com (wpaz21.hot.corp.google.com [172.24.198.85])
-	by smtp-out.google.com with ESMTP id p3D85Y6M017921
-	for <linux-watchdog@vger.kernel.org>; Wed, 13 Apr 2011 01:05:34 -0700
-Received: from qwj9 (qwj9.prod.google.com [10.241.195.73])
-	by wpaz21.hot.corp.google.com with ESMTP id p3D85P5m001194
+	Wed, 13 Apr 2011 04:15:37 -0400
+Received: from kpbe18.cbf.corp.google.com (kpbe18.cbf.corp.google.com [172.25.105.82])
+	by smtp-out.google.com with ESMTP id p3D8FZ5o007020
+	for <linux-watchdog@vger.kernel.org>; Wed, 13 Apr 2011 01:15:36 -0700
+Received: from qyj19 (qyj19.prod.google.com [10.241.83.83])
+	by kpbe18.cbf.corp.google.com with ESMTP id p3D8FYEV010272
 	(version=TLSv1/SSLv3 cipher=RC4-SHA bits=128 verify=NOT)
-	for <linux-watchdog@vger.kernel.org>; Wed, 13 Apr 2011 01:05:33 -0700
-Received: by qwj9 with SMTP id 9so248066qwj.35
-        for <linux-watchdog@vger.kernel.org>; Wed, 13 Apr 2011 01:05:33 -0700 (PDT)
+	for <linux-watchdog@vger.kernel.org>; Wed, 13 Apr 2011 01:15:34 -0700
+Received: by qyj19 with SMTP id 19so2306870qyj.9
+        for <linux-watchdog@vger.kernel.org>; Wed, 13 Apr 2011 01:15:34 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <4DA547CD.60406@redhat.com>
+In-Reply-To: <20110413070259.GE4070@infomag.iguana.be>
 References: <1302641290-30212-1-git-send-email-natg@google.com>
 	<1302641387-30264-1-git-send-email-natg@google.com>
-	<4DA547CD.60406@redhat.com>
-Date: Wed, 13 Apr 2011 01:05:33 -0700
-Message-ID: <BANLkTikfuvvujTi6i2MUGOHgNLZCqcouJQ@mail.gmail.com>
-Subject: Re: [lm-sensors] [PATCH v5 1/2] Use "request_muxed_region" in it87
- watchdog drivers
+	<20110413070259.GE4070@infomag.iguana.be>
+Date: Wed, 13 Apr 2011 01:15:33 -0700
+Message-ID: <BANLkTimE4sNw1it8-te9Hk+earOVd6NeUg@mail.gmail.com>
+Subject: Re: [PATCH v5 1/2] Use "request_muxed_region" in it87 watchdog drivers
 From: Natarajan Gurumoorthy <natg@google.com>
-To: Hans de Goede <hdegoede@redhat.com>
+To: Wim Van Sebroeck <wim@iguana.be>
 Cc: Jean Delvare <khali@linux-fr.org>,
 	Guenter Roeck <guenter.roeck@ericsson.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org, lm-sensors@lm-sensors.org,
-	linux-kernel@vger.kernel.org, Mike Waychison <mikew@google.com>
+	Mike Waychison <mikew@google.com>, lm-sensors@lm-sensors.org,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hans,
-      Comments below
-
-On Tue, Apr 12, 2011 at 11:50 PM, Hans de Goede <hdegoede@redhat.com> wrote:
->
-> You shouldn't (void) this, there is a reason you get a warning
-> otherwise! request_muxed_region can still fail if some other driver
-> has done a none muxed request_region on the same region, and in that
-> case you should not continue with accessing the io-ports.
-There are 3 it87 drivers and they all have to do the exact same
-sequence to put the chip into a mode where they can modify its state.
-The sequences involve non atomic sequences that write locations 0x2e
-and 0x2f. When they are done they write a different sequence to these
-2 locations. The entry routine is superio_enter and exit is
-superio_exit. All the it87 drivers reserve these 2 locations before
-they start manipulating the chip. This macro will hold off requestors
-if the resource is busy because one of the other drivers is
-manipulating the chip. Once the  an it87 driver is done it calls
-superio_exit which will release the reservation on those 2 locations
-letting any other driver on the wait queue to now gain access two
-locations.
-
-Please read code in kernel/resource.c function "__request_region".
-"request_muxed_region" turns on IORESOURCE_MUXED bit and that means
-that only  way an it87 driver will get back from a call to
-"request_muxed_region" is when it gets hold of the region.
-
-The scenario you mention above can never happen.
+Wim,
+      Old habits die hard. I will get rid of it and ship out a new patch.
 
 Regards
 Nat
 
 
+On Wed, Apr 13, 2011 at 12:03 AM, Wim Van Sebroeck <wim@iguana.be> wrote:
+> Hi Nat,
 >
-> Regards,
+>> +     (void) request_muxed_region(REG, 2, NAME);
 >
-> Hans
+> Why do we need to typecast this? Can't we just use
+> +       request_muxed_region(REG, 2, NAME);
+>
+> Kind regards,
+> Wim.
+>
+>
 >
 
 
