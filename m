@@ -1,74 +1,45 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from zone0.gcu-squad.org ([212.85.147.21]:10158 "EHLO
-	services.gcu-squad.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757692Ab1DMIe3 (ORCPT
+Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:42782 "EHLO
+	www.etchedpixels.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1758010Ab1DMJ3z (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 13 Apr 2011 04:34:29 -0400
-Date: Wed, 13 Apr 2011 10:34:09 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Natarajan Gurumoorthy <natg@google.com>
-Cc: Hans de Goede <hdegoede@redhat.com>,
+	Wed, 13 Apr 2011 05:29:55 -0400
+Date: Wed, 13 Apr 2011 10:29:47 +0100
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Nat Gurumoorthy <natg@google.com>,
+	Jean Delvare <khali@linux-fr.org>,
 	Guenter Roeck <guenter.roeck@ericsson.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org, lm-sensors@lm-sensors.org,
-	linux-kernel@vger.kernel.org, Mike Waychison <mikew@google.com>
-Subject: Re: [lm-sensors] [PATCH v5 1/2] Use "request_muxed_region" in it87
-  watchdog drivers
-Message-ID: <20110413103409.47638b72@endymion.delvare>
-In-Reply-To: <BANLkTikfuvvujTi6i2MUGOHgNLZCqcouJQ@mail.gmail.com>
+	Mike Waychison <mikew@google.com>, lm-sensors@lm-sensors.org,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v5 1/2] Use "request_muxed_region" in it87 watchdog
+ drivers
+Message-ID: <20110413102947.3bf1cc88@lxorguk.ukuu.org.uk>
+In-Reply-To: <20110413070259.GE4070@infomag.iguana.be>
 References: <1302641290-30212-1-git-send-email-natg@google.com>
 	<1302641387-30264-1-git-send-email-natg@google.com>
-	<4DA547CD.60406@redhat.com>
-	<BANLkTikfuvvujTi6i2MUGOHgNLZCqcouJQ@mail.gmail.com>
+	<20110413070259.GE4070@infomag.iguana.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, 13 Apr 2011 01:05:33 -0700, Natarajan Gurumoorthy wrote:
-> Hans,
->       Comments below
+On Wed, 13 Apr 2011 09:03:00 +0200
+Wim Van Sebroeck <wim@iguana.be> wrote:
+
+> Hi Nat,
 > 
-> On Tue, Apr 12, 2011 at 11:50 PM, Hans de Goede <hdegoede@redhat.com> wrote:
-> >
-> > You shouldn't (void) this, there is a reason you get a warning
-> > otherwise! request_muxed_region can still fail if some other driver
-> > has done a none muxed request_region on the same region, and in that
-> > case you should not continue with accessing the io-ports.
-> There are 3 it87 drivers and they all have to do the exact same
-> sequence to put the chip into a mode where they can modify its state.
-> The sequences involve non atomic sequences that write locations 0x2e
-> and 0x2f. When they are done they write a different sequence to these
-> 2 locations. The entry routine is superio_enter and exit is
-> superio_exit. All the it87 drivers reserve these 2 locations before
-> they start manipulating the chip. This macro will hold off requestors
-> if the resource is busy because one of the other drivers is
-> manipulating the chip. Once the  an it87 driver is done it calls
-> superio_exit which will release the reservation on those 2 locations
-> letting any other driver on the wait queue to now gain access two
-> locations.
+> > +	(void) request_muxed_region(REG, 2, NAME);
 > 
-> Please read code in kernel/resource.c function "__request_region".
-> "request_muxed_region" turns on IORESOURCE_MUXED bit and that means
-> that only  way an it87 driver will get back from a call to
-> "request_muxed_region" is when it gets hold of the region.
-> 
-> The scenario you mention above can never happen.
+> Why do we need to typecast this? Can't we just use 
+> +	request_muxed_region(REG, 2, NAME);
 
-Let me be straight clear, as apparently you have difficulties
-understanding Hans's simple request:
+We really ought to use
 
-You do not get to (void) the return of request_muxed_region(), period.
-This is _not_ negotiable.
+	if ()
 
-What other it87 drivers currently in the tree do or don't do is totally
-irrelevant. There can be new it87 drivers added later, there can be
-out-of-tree it87 drivers (including old copies of in-tree ones), and
-there can be non-it87 drivers accessing the I/O ports (or at least
-attempting to.) So the scenario mentioned by Hans can very well happen,
-and you have to deal with it.
-
-Thanks,
--- 
-Jean Delvare
+in theory the request can fail if someone has hogged the resource and not
+muxed it. I'm not clear what the right thing to do in that case is -
+given it should never happen I guess log an error and bail out but that's
+a rather bigger change and perhaps should be a follow up patch ?
