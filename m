@@ -1,265 +1,60 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from the.earth.li ([46.43.34.31]:47307 "EHLO the.earth.li"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759402Ab1DNToN (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 14 Apr 2011 15:44:13 -0400
-Date: Thu, 14 Apr 2011 12:02:39 -0700
-From: Jonathan McDowell <noodles@earth.li>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] Cleanup pc87413 watchdog driver to use
- request_muxed_region for SuperIO area
-Message-ID: <20110414190238.GI4835@earth.li>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:33000 "EHLO
+	www.etchedpixels.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752066Ab1DNUlU (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 14 Apr 2011 16:41:20 -0400
+Date: Thu, 14 Apr 2011 21:41:16 +0100
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mike Waychison <mikew@google.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Nat Gurumoorthy <natg@google.com>,
+	Jean Delvare <khali@linux-fr.org>,
+	Guenter Roeck <guenter.roeck@ericsson.com>,
+	lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v5 1/2] Use "request_muxed_region" in it87 watchdog
+ drivers
+Message-ID: <20110414214116.159f702e@lxorguk.ukuu.org.uk>
+In-Reply-To: <BANLkTinR53LO7HWMWoquKY5D+Aprs2OEWw@mail.gmail.com>
+References: <1302641290-30212-1-git-send-email-natg@google.com>
+	<1302641387-30264-1-git-send-email-natg@google.com>
+	<20110413070259.GE4070@infomag.iguana.be>
+	<20110413102947.3bf1cc88@lxorguk.ukuu.org.uk>
+	<BANLkTinR53LO7HWMWoquKY5D+Aprs2OEWw@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Inspired by Nat Gurumoorthy's recent patches for cleaning up the it87
-drivers to use request_muxed_region for accessing the SuperIO area on
-these chips, and the fact I have a GPIO driver for the pc8741x basically
-ready for submission, here is a patch to cleanup the pc87413 watchdog
-driver to use request_muxed_region for accessing the SuperIO area.
+> request_muxed_region() is sorta gross:  it's essentially acting like a
+> lock, meant to be used for short periods of time, but it can fail if
+> someone else decides it should.
 
-It also pulls out the details about the SWC IO area on initial driver
-load, and properly does a request_region for that area - there's no
-requirement to touch the SuperIO area after doing the initial watchdog
-enable and IO base retrieval.
+Which is exactly how the hardware situation works. If some other driver
+comes along and is rude then the only safe thing to do is to moan a bit.
 
-While I have hardware with a pc87413 on it it is not wired in a way that
-allows the watchdog to reboot the machine, so I have not been able to
-fully test these changes - I have checked that the driver correctly
-initialises itself still and requests the SWC io region ok.
+> Would it make more sense to have drivers that need to use the current
+> request_muxed_region() be able to force a region into a mux-only state
+> at driver init?  That would lead to much less contorted code to handle
+> the off-chance that the request_muxed_region() fails.
 
-Signed-Off-By: Jonathan McDowell <noodles@earth.li>
+Send patches
 
--------
-diff --git a/drivers/watchdog/pc87413_wdt.c b/drivers/watchdog/pc87413_wdt.c
-index b7c1390..e78d899 100644
---- a/drivers/watchdog/pc87413_wdt.c
-+++ b/drivers/watchdog/pc87413_wdt.c
-@@ -56,6 +56,7 @@
- #define IO_DEFAULT	0x2E		/* Address used on Portwell Boards */
- 
- static int io = IO_DEFAULT;
-+static int swc_base_addr = -1;
- 
- static int timeout = DEFAULT_TIMEOUT;	/* timeout value */
- static unsigned long timer_enabled;	/* is the timer enabled? */
-@@ -116,9 +117,8 @@ static inline void pc87413_enable_swc(void)
- 
- /* Read SWC I/O base address */
- 
--static inline unsigned int pc87413_get_swc_base(void)
-+static void pc87413_get_swc_base_addr(void)
- {
--	unsigned int  swc_base_addr = 0;
- 	unsigned char addr_l, addr_h = 0;
- 
- 	/* Step 3: Read SWC I/O Base Address */
-@@ -136,12 +136,11 @@ static inline unsigned int pc87413_get_swc_base(void)
- 		"Read SWC I/O Base Address: low %d, high %d, res %d\n",
- 						addr_l, addr_h, swc_base_addr);
- #endif
--	return swc_base_addr;
- }
- 
- /* Select Bank 3 of SWC */
- 
--static inline void pc87413_swc_bank3(unsigned int swc_base_addr)
-+static inline void pc87413_swc_bank3(void)
- {
- 	/* Step 4: Select Bank3 of SWC */
- 	outb_p(inb(swc_base_addr + 0x0f) | 0x03, swc_base_addr + 0x0f);
-@@ -152,8 +151,7 @@ static inline void pc87413_swc_bank3(unsigned int swc_base_addr)
- 
- /* Set watchdog timeout to x minutes */
- 
--static inline void pc87413_programm_wdto(unsigned int swc_base_addr,
--					 char pc87413_time)
-+static inline void pc87413_programm_wdto(char pc87413_time)
- {
- 	/* Step 5: Programm WDTO, Twd. */
- 	outb_p(pc87413_time, swc_base_addr + WDTO);
-@@ -164,7 +162,7 @@ static inline void pc87413_programm_wdto(unsigned int swc_base_addr,
- 
- /* Enable WDEN */
- 
--static inline void pc87413_enable_wden(unsigned int swc_base_addr)
-+static inline void pc87413_enable_wden(void)
- {
- 	/* Step 6: Enable WDEN */
- 	outb_p(inb(swc_base_addr + WDCTL) | 0x01, swc_base_addr + WDCTL);
-@@ -174,7 +172,7 @@ static inline void pc87413_enable_wden(unsigned int swc_base_addr)
- }
- 
- /* Enable SW_WD_TREN */
--static inline void pc87413_enable_sw_wd_tren(unsigned int swc_base_addr)
-+static inline void pc87413_enable_sw_wd_tren(void)
- {
- 	/* Enable SW_WD_TREN */
- 	outb_p(inb(swc_base_addr + WDCFG) | 0x80, swc_base_addr + WDCFG);
-@@ -185,7 +183,7 @@ static inline void pc87413_enable_sw_wd_tren(unsigned int swc_base_addr)
- 
- /* Disable SW_WD_TREN */
- 
--static inline void pc87413_disable_sw_wd_tren(unsigned int swc_base_addr)
-+static inline void pc87413_disable_sw_wd_tren(void)
- {
- 	/* Disable SW_WD_TREN */
- 	outb_p(inb(swc_base_addr + WDCFG) & 0x7f, swc_base_addr + WDCFG);
-@@ -196,7 +194,7 @@ static inline void pc87413_disable_sw_wd_tren(unsigned int swc_base_addr)
- 
- /* Enable SW_WD_TRG */
- 
--static inline void pc87413_enable_sw_wd_trg(unsigned int swc_base_addr)
-+static inline void pc87413_enable_sw_wd_trg(void)
- {
- 	/* Enable SW_WD_TRG */
- 	outb_p(inb(swc_base_addr + WDCTL) | 0x80, swc_base_addr + WDCTL);
-@@ -207,7 +205,7 @@ static inline void pc87413_enable_sw_wd_trg(unsigned int swc_base_addr)
- 
- /* Disable SW_WD_TRG */
- 
--static inline void pc87413_disable_sw_wd_trg(unsigned int swc_base_addr)
-+static inline void pc87413_disable_sw_wd_trg(void)
- {
- 	/* Disable SW_WD_TRG */
- 	outb_p(inb(swc_base_addr + WDCTL) & 0x7f, swc_base_addr + WDCTL);
-@@ -222,18 +220,13 @@ static inline void pc87413_disable_sw_wd_trg(unsigned int swc_base_addr)
- 
- static void pc87413_enable(void)
- {
--	unsigned int swc_base_addr;
--
- 	spin_lock(&io_lock);
- 
--	pc87413_select_wdt_out();
--	pc87413_enable_swc();
--	swc_base_addr = pc87413_get_swc_base();
--	pc87413_swc_bank3(swc_base_addr);
--	pc87413_programm_wdto(swc_base_addr, timeout);
--	pc87413_enable_wden(swc_base_addr);
--	pc87413_enable_sw_wd_tren(swc_base_addr);
--	pc87413_enable_sw_wd_trg(swc_base_addr);
-+	pc87413_swc_bank3();
-+	pc87413_programm_wdto(timeout);
-+	pc87413_enable_wden();
-+	pc87413_enable_sw_wd_tren();
-+	pc87413_enable_sw_wd_trg();
- 
- 	spin_unlock(&io_lock);
- }
-@@ -242,17 +235,12 @@ static void pc87413_enable(void)
- 
- static void pc87413_disable(void)
- {
--	unsigned int swc_base_addr;
--
- 	spin_lock(&io_lock);
- 
--	pc87413_select_wdt_out();
--	pc87413_enable_swc();
--	swc_base_addr = pc87413_get_swc_base();
--	pc87413_swc_bank3(swc_base_addr);
--	pc87413_disable_sw_wd_tren(swc_base_addr);
--	pc87413_disable_sw_wd_trg(swc_base_addr);
--	pc87413_programm_wdto(swc_base_addr, 0);
-+	pc87413_swc_bank3();
-+	pc87413_disable_sw_wd_tren();
-+	pc87413_disable_sw_wd_trg();
-+	pc87413_programm_wdto(0);
- 
- 	spin_unlock(&io_lock);
- }
-@@ -261,20 +249,15 @@ static void pc87413_disable(void)
- 
- static void pc87413_refresh(void)
- {
--	unsigned int swc_base_addr;
--
- 	spin_lock(&io_lock);
- 
--	pc87413_select_wdt_out();
--	pc87413_enable_swc();
--	swc_base_addr = pc87413_get_swc_base();
--	pc87413_swc_bank3(swc_base_addr);
--	pc87413_disable_sw_wd_tren(swc_base_addr);
--	pc87413_disable_sw_wd_trg(swc_base_addr);
--	pc87413_programm_wdto(swc_base_addr, timeout);
--	pc87413_enable_wden(swc_base_addr);
--	pc87413_enable_sw_wd_tren(swc_base_addr);
--	pc87413_enable_sw_wd_trg(swc_base_addr);
-+	pc87413_swc_bank3();
-+	pc87413_disable_sw_wd_tren();
-+	pc87413_disable_sw_wd_trg();
-+	pc87413_programm_wdto(timeout);
-+	pc87413_enable_wden();
-+	pc87413_enable_sw_wd_tren();
-+	pc87413_enable_sw_wd_trg();
- 
- 	spin_unlock(&io_lock);
- }
-@@ -528,7 +511,8 @@ static int __init pc87413_init(void)
- 	printk(KERN_INFO PFX "Version " VERSION " at io 0x%X\n",
- 							WDT_INDEX_IO_PORT);
- 
--	/* request_region(io, 2, "pc87413"); */
-+	if (!request_muxed_region(io, 2, MODNAME))
-+		return -EBUSY;
- 
- 	ret = register_reboot_notifier(&pc87413_notifier);
- 	if (ret != 0) {
-@@ -541,12 +525,32 @@ static int __init pc87413_init(void)
- 		printk(KERN_ERR PFX
- 			"cannot register miscdev on minor=%d (err=%d)\n",
- 			WATCHDOG_MINOR, ret);
--		unregister_reboot_notifier(&pc87413_notifier);
--		return ret;
-+		goto reboot_unreg;
- 	}
- 	printk(KERN_INFO PFX "initialized. timeout=%d min \n", timeout);
-+
-+	pc87413_select_wdt_out();
-+	pc87413_enable_swc();
-+	pc87413_get_swc_base_addr();
-+
-+	if (!request_region(swc_base_addr, 0x20, MODNAME)) {
-+		printk(KERN_ERR PFX
-+			"cannot request SWC region at 0x%x\n", swc_base_addr);
-+		ret = -EBUSY;
-+		goto misc_unreg;
-+	}
-+
- 	pc87413_enable();
-+
-+	release_region(io, 2);
- 	return 0;
-+
-+misc_unreg:
-+	misc_deregister(&pc87413_miscdev);
-+reboot_unreg:
-+	unregister_reboot_notifier(&pc87413_notifier);
-+	release_region(io, 2);
-+	return ret;
- }
- 
- /**
-@@ -569,7 +573,7 @@ static void __exit pc87413_exit(void)
- 
- 	misc_deregister(&pc87413_miscdev);
- 	unregister_reboot_notifier(&pc87413_notifier);
--	/* release_region(io, 2); */
-+	release_region(swc_base_addr, 0x20);
- 
- 	printk(KERN_INFO MODNAME " watchdog component driver removed.\n");
- }
+> I realize the above example re-uses the 'request_muxed_region()' name,
+> but at least this would be much more consistent with how
+> request_region is used in other drivers.
 
--------
+I guess you'd need some kind of
 
-J.
+	r = add_muxed_resource()
+	removed_muxed_resource(r)
 
--- 
-"It only counts as a lie-in if you don't get dressed before tea time."
--- Steve Willison
+that inserted/removed them from the resource tree ?
+
+I think the basic resource tree code could be extended this way IFF
+someone does the work, if not the current code actually should work just
+fine.
+
+Alan
