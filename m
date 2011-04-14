@@ -1,60 +1,63 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:33000 "EHLO
-	www.etchedpixels.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752066Ab1DNUlU (ORCPT
+Received: from smtp-out.google.com ([74.125.121.67]:62819 "EHLO
+	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753061Ab1DNVhZ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 14 Apr 2011 16:41:20 -0400
-Date: Thu, 14 Apr 2011 21:41:16 +0100
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Mike Waychison <mikew@google.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Nat Gurumoorthy <natg@google.com>,
-	Jean Delvare <khali@linux-fr.org>,
+	Thu, 14 Apr 2011 17:37:25 -0400
+From: Nat Gurumoorthy <natg@google.com>
+To: Jean Delvare <khali@linux-fr.org>,
 	Guenter Roeck <guenter.roeck@ericsson.com>,
-	lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v5 1/2] Use "request_muxed_region" in it87 watchdog
- drivers
-Message-ID: <20110414214116.159f702e@lxorguk.ukuu.org.uk>
-In-Reply-To: <BANLkTinR53LO7HWMWoquKY5D+Aprs2OEWw@mail.gmail.com>
-References: <1302641290-30212-1-git-send-email-natg@google.com>
-	<1302641387-30264-1-git-send-email-natg@google.com>
-	<20110413070259.GE4070@infomag.iguana.be>
-	<20110413102947.3bf1cc88@lxorguk.ukuu.org.uk>
-	<BANLkTinR53LO7HWMWoquKY5D+Aprs2OEWw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wim Van Sebroeck <wim@iguana.be>
+Cc: Mike Waychison <mikew@google.com>, lm-sensors@lm-sensors.org,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	Nat Gurumoorthy <natg@google.com>
+Subject: [PATCH v6 0/2] Make all it87 drivers SMP safe
+Date: Thu, 14 Apr 2011 14:36:36 -0700
+Message-Id: <1302816996-6345-1-git-send-email-natg@google.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-> request_muxed_region() is sorta gross:  it's essentially acting like a
-> lock, meant to be used for short periods of time, but it can fail if
-> someone else decides it should.
+There are 3 different drivers that touch the it87 hardware registers.
+The 3 drivers have been written independently and access the it87 hardware
+registers assuming they are the only driver accessing it. This change
+attempts to serialize access to the hardware by using
+"request_muxed_region" macro defined by Alan Cox. Call to this macro
+will hold off the requestor if the resource is currently busy.
+The use of the above macro makes it possible to get rid of
+spinlocks in it8712f_wdt.c and it87_wdt.c watchdog drivers.
+This also greatly simplifies the implementation of it87_wdt.c driver.
 
-Which is exactly how the hardware situation works. If some other driver
-comes along and is rude then the only safe thing to do is to moan a bit.
+01 - Changes to it87 watchdog driver to use "request_muxed_region"
+ drivers/watchdog/it8712f_wdt.c
+ drivers/watchdog/it87_wdt.c
 
-> Would it make more sense to have drivers that need to use the current
-> request_muxed_region() be able to force a region into a mux-only state
-> at driver init?  That would lead to much less contorted code to handle
-> the off-chance that the request_muxed_region() fails.
+02 - Chages to hwmon it87 driver to use "request_muxed_region"
+ drivers/hwmon/it87.c
 
-Send patches
+ drivers/hwmon/it87.c           |   30 +++++++++++++-
+ drivers/watchdog/it8712f_wdt.c |   50 +++++++++++++++++++++---
+ drivers/watchdog/it87_wdt.c    |   80 +++++++++++++++++++++------------------
+ 3 files changed, 113 insertions(+), 47 deletions(-)
 
-> I realize the above example re-uses the 'request_muxed_region()' name,
-> but at least this would be much more consistent with how
-> request_region is used in other drivers.
+Signed-off-by: Nat Gurumoorthy <natg@google.com>
 
-I guess you'd need some kind of
+Patch History:
+v6:
+- Pay attention to value returned by request_muxed_region. The first call to
+  request_muxed_region will attempt 10 times to reserve the region before it
+  gives up. This will typically get called from the driver init routines. If this
+  succeeds then subsequent calls wait forever for the resource to be available.
 
-	r = add_muxed_resource()
-	removed_muxed_resource(r)
+v5:
+- Remove unnecessary while from superio_enter.
 
-that inserted/removed them from the resource tree ?
+v4:
+- Remove extra braces in superio_enter routines.
 
-I think the basic resource tree code could be extended this way IFF
-someone does the work, if not the current code actually should work just
-fine.
+v3:
+- Totally abandon the spinlock based approach and use "request_muxed_region" to
+  hold off requestors if the resource is busy.
 
-Alan
+v2:
+- More verbose patch headers. Add In-Reply-To: field.
+
