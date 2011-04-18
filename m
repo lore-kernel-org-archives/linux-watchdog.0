@@ -1,65 +1,76 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-vx0-f174.google.com ([209.85.220.174]:59110 "EHLO
-	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757019Ab1DOVG4 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 15 Apr 2011 17:06:56 -0400
-References: <1302816996-6345-1-git-send-email-natg@google.com>
-In-Reply-To: <1302816996-6345-1-git-send-email-natg@google.com>
-Mime-Version: 1.0 (Apple Message framework v1084)
-Content-Type: text/plain; charset=iso-8859-1
-Message-Id: <25810A23-EB28-4FBF-8CEB-487313F0E16E@wilsonet.com>
-Content-Transfer-Encoding: 8BIT
-Cc: Jean Delvare <khali@linux-fr.org>,
-	Guenter Roeck <guenter.roeck@ericsson.com>,
+Received: from mx1.redhat.com ([209.132.183.28]:57616 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752485Ab1DRHde (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 18 Apr 2011 03:33:34 -0400
+Message-ID: <4DABE938.6020400@redhat.com>
+Date: Mon, 18 Apr 2011 09:33:12 +0200
+From: Hans de Goede <hdegoede@redhat.com>
+MIME-Version: 1.0
+To: Natarajan Gurumoorthy <natg@google.com>
+CC: Guenter Roeck <guenter.roeck@ericsson.com>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"lm-sensors@lm-sensors.org" <lm-sensors@lm-sensors.org>,
 	Wim Van Sebroeck <wim@iguana.be>,
-	Mike Waychison <mikew@google.com>, lm-sensors@lm-sensors.org,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	=?iso-8859-1?Q?=22Juan_Jes=FAs_Garc=EDa_de_Soria=22?=
-	<skandalfo@gmail.com>
-From: Jarod Wilson <jarod@wilsonet.com>
-Subject: Re: [PATCH v6 0/2] Make all it87 drivers SMP safe
-Date: Fri, 15 Apr 2011 17:07:03 -0400
-To: Nat Gurumoorthy <natg@google.com>
+	Mike Waychison <mikew@google.com>
+Subject: Re: [lm-sensors] [PATCH v6 1/2] Use "request_muxed_region" in it87
+ watchdog drivers
+References: <1302816996-6345-1-git-send-email-natg@google.com>	<1302817069-6389-1-git-send-email-natg@google.com>	<1302821370.26780.585.camel@groeck-laptop>	<BANLkTin6M0R4d+HMovbRwqthSHowUEKFow@mail.gmail.com>	<20110415024005.GA21642@ericsson.com>	<BANLkTi=t+AgRU47DhKoGOJ2mTa6AVfaPVw@mail.gmail.com>	<20110415055852.GA21905@ericsson.com> <BANLkTi=464Q8z7GzDZw9Mb-j-L4O0bPRjg@mail.gmail.com>
+In-Reply-To: <BANLkTi=464Q8z7GzDZw9Mb-j-L4O0bPRjg@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Apr 14, 2011, at 5:36 PM, Nat Gurumoorthy wrote:
+Hi,
 
-> There are 3 different drivers that touch the it87 hardware registers.
-> The 3 drivers have been written independently and access the it87 hardware
-> registers assuming they are the only driver accessing it. This change
-> attempts to serialize access to the hardware by using
-> "request_muxed_region" macro defined by Alan Cox. Call to this macro
-> will hold off the requestor if the resource is currently busy.
-> The use of the above macro makes it possible to get rid of
-> spinlocks in it8712f_wdt.c and it87_wdt.c watchdog drivers.
-> This also greatly simplifies the implementation of it87_wdt.c driver.
-> 
-> 01 - Changes to it87 watchdog driver to use "request_muxed_region"
-> drivers/watchdog/it8712f_wdt.c
-> drivers/watchdog/it87_wdt.c
-> 
-> 02 - Chages to hwmon it87 driver to use "request_muxed_region"
-> drivers/hwmon/it87.c
-> 
-> drivers/hwmon/it87.c           |   30 +++++++++++++-
-> drivers/watchdog/it8712f_wdt.c |   50 +++++++++++++++++++++---
-> drivers/watchdog/it87_wdt.c    |   80 +++++++++++++++++++++------------------
-> 3 files changed, 113 insertions(+), 47 deletions(-)
+On 04/15/2011 10:46 AM, Natarajan Gurumoorthy wrote:
+> On Thu, Apr 14, 2011 at 10:58 PM, Guenter Roeck
+> <guenter.roeck@ericsson.com>  wrote:
+>> I have seen the list. I don't think you should fix everything in one go.
+>> First step might be to get the w83697hf and it87 to work together, then
+>> go from there.
+>>
+>> Is there a reason for loading (or trying to load) both the it87 and
+>> the w83697hf driver at the same time ? Those drivers are usually only
+>> loaded if the respective chip is known to exist. If there is no reason
+>> to try loading both drivers, a simple workaround would be to not do it.
+>>
+> Guenter,
+>        I agree the above should never happen. The only way the 2
+> drivers will be loaded at the same time is a misconfigured kernel
+> where these 2 drivers get built and the rc scripts end up loading them
+> too. If we are agreed that I suggest we make the superio_enter routine
+> be the following:
+>
+> static inline void
+> superio_enter(void)
+> {
+> 	/*
+> 	 * Reserve REG and REG + 1 for exclusive access.
+> 	 */
+> 	while (!request_muxed_region(REG, 2, WATCHDOG_NAME))
+> 		continue;
+>
 
-FYI,
+Natajaran,
 
-$ head -n 4 drivers/media/rc/ite-cir.c
-/*
- * Driver for ITE Tech Inc. IT8712F/IT8512 CIR
- *
- * Copyright (C) 2010 Juan Jesús García de Soria <skandalfo@gmail.com>
+Please stop being so stubborn. XXX people have told you not to put a
+while loop here, but simply to check for an error and propagate
+it (in all places where superio_enter gets called).
 
+Your bogus argument of the driver then failing to load when another
+non muxed superio driver loads is really far fetched. No system ever
+has 2 super io chips. So as long as all ite drivers use the muxed
+version all will be fine.
 
--- 
-Jarod Wilson
-jarod@wilsonet.com
+And if some unforeseen scenario happens where the request_muxed_region
+fails, we will get a bug report about a driver failing to load (*). Which
+is a lot better for the end user then being stuck in an endless loop.
 
+Regards,
 
+Hans
 
+*) And deal with that then.
