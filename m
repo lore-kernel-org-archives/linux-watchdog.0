@@ -1,150 +1,32 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:23111 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751173Ab1DTSEM (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 20 Apr 2011 14:04:12 -0400
-From: Seth Heasley <seth.heasley@intel.com>
-To: wim@iguana.be
-Subject: [PATCH 2.6.39-rc3] iTCO_wdt: TCO Watchdog patch for Intel Panther Point PCH
-Date: Wed, 20 Apr 2011 10:56:20 -0700
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	seth.heasley@intel.com
+Received: from mailrelay006.isp.belgacom.be ([195.238.6.172]:3038 "EHLO
+	mailrelay006.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754048Ab1DTTrj (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 20 Apr 2011 15:47:39 -0400
+Date: Wed, 20 Apr 2011 21:47:36 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Seth Heasley <seth.heasley@intel.com>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.39-rc3] iTCO_wdt: TCO Watchdog patch for Intel
+	Panther Point PCH
+Message-ID: <20110420194736.GN4070@infomag.iguana.be>
+References: <201104201056.20884.seth.heasley@intel.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <201104201056.20884.seth.heasley@intel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <201104201056.20884.seth.heasley@intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patch adds the TCO Watchdog DeviceIDs for the Intel Panther Point PCH.
+Hi Seth,
 
-Signed-off-by: Seth Heasley <seth.heasley@intel.com>
----
---- linux-2.6.39-rc3/drivers/watchdog/iTCO_wdt.c.orig	2011-04-11 17:21:51.000000000 -0700
-+++ linux-2.6.39-rc3/drivers/watchdog/iTCO_wdt.c	2011-03-29 16:03:34.000000000 -0700
-@@ -35,6 +35,7 @@
-  *	document number 324645-001, 324646-001: Cougar Point (CPT)
-  *	document number TBD                   : Patsburg (PBG)
-  *	document number TBD                   : DH89xxCC
-+ *	document number TBD                   : Panther Point
-  */
- 
- /*
-@@ -153,6 +154,38 @@
- 	TCO_PBG1,	/* Patsburg */
- 	TCO_PBG2,	/* Patsburg */
- 	TCO_DH89XXCC,	/* DH89xxCC */
-+	TCO_PPT0,	/* Panther Point */
-+	TCO_PPT1,	/* Panther Point */
-+	TCO_PPT2,	/* Panther Point */
-+	TCO_PPT3,	/* Panther Point */
-+	TCO_PPT4,	/* Panther Point */
-+	TCO_PPT5,	/* Panther Point */
-+	TCO_PPT6,	/* Panther Point */
-+	TCO_PPT7,	/* Panther Point */
-+	TCO_PPT8,	/* Panther Point */
-+	TCO_PPT9,	/* Panther Point */
-+	TCO_PPT10,	/* Panther Point */
-+	TCO_PPT11,	/* Panther Point */
-+	TCO_PPT12,	/* Panther Point */
-+	TCO_PPT13,	/* Panther Point */
-+	TCO_PPT14,	/* Panther Point */
-+	TCO_PPT15,	/* Panther Point */
-+	TCO_PPT16,	/* Panther Point */
-+	TCO_PPT17,	/* Panther Point */
-+	TCO_PPT18,	/* Panther Point */
-+	TCO_PPT19,	/* Panther Point */
-+	TCO_PPT20,	/* Panther Point */
-+	TCO_PPT21,	/* Panther Point */
-+	TCO_PPT22,	/* Panther Point */
-+	TCO_PPT23,	/* Panther Point */
-+	TCO_PPT24,	/* Panther Point */
-+	TCO_PPT25,	/* Panther Point */
-+	TCO_PPT26,	/* Panther Point */
-+	TCO_PPT27,	/* Panther Point */
-+	TCO_PPT28,	/* Panther Point */
-+	TCO_PPT29,	/* Panther Point */
-+	TCO_PPT30,	/* Panther Point */
-+	TCO_PPT31,	/* Panther Point */
- };
- 
- static struct {
-@@ -244,6 +277,38 @@
- 	{"Patsburg", 2},
- 	{"Patsburg", 2},
- 	{"DH89xxCC", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
- 	{NULL, 0}
- };
- 
-@@ -363,6 +428,38 @@
- 	{ ITCO_PCI_DEVICE(0x1d40,				TCO_PBG1)},
- 	{ ITCO_PCI_DEVICE(0x1d41,				TCO_PBG2)},
- 	{ ITCO_PCI_DEVICE(0x2310,				TCO_DH89XXCC)},
-+	{ ITCO_PCI_DEVICE(0x1e40,				TCO_PPT0)},
-+	{ ITCO_PCI_DEVICE(0x1e41,				TCO_PPT1)},
-+	{ ITCO_PCI_DEVICE(0x1e42,				TCO_PPT2)},
-+	{ ITCO_PCI_DEVICE(0x1e43,				TCO_PPT3)},
-+	{ ITCO_PCI_DEVICE(0x1e44,				TCO_PPT4)},
-+	{ ITCO_PCI_DEVICE(0x1e45,				TCO_PPT5)},
-+	{ ITCO_PCI_DEVICE(0x1e46,				TCO_PPT6)},
-+	{ ITCO_PCI_DEVICE(0x1e47,				TCO_PPT7)},
-+	{ ITCO_PCI_DEVICE(0x1e48,				TCO_PPT8)},
-+	{ ITCO_PCI_DEVICE(0x1e49,				TCO_PPT9)},
-+	{ ITCO_PCI_DEVICE(0x1e4a,				TCO_PPT10)},
-+	{ ITCO_PCI_DEVICE(0x1e4b,				TCO_PPT11)},
-+	{ ITCO_PCI_DEVICE(0x1e4c,				TCO_PPT12)},
-+	{ ITCO_PCI_DEVICE(0x1e4d,				TCO_PPT13)},
-+	{ ITCO_PCI_DEVICE(0x1e4e,				TCO_PPT14)},
-+	{ ITCO_PCI_DEVICE(0x1e4f,				TCO_PPT15)},
-+	{ ITCO_PCI_DEVICE(0x1e50,				TCO_PPT16)},
-+	{ ITCO_PCI_DEVICE(0x1e51,				TCO_PPT17)},
-+	{ ITCO_PCI_DEVICE(0x1e52,				TCO_PPT18)},
-+	{ ITCO_PCI_DEVICE(0x1e53,				TCO_PPT19)},
-+	{ ITCO_PCI_DEVICE(0x1e54,				TCO_PPT20)},
-+	{ ITCO_PCI_DEVICE(0x1e55,				TCO_PPT21)},
-+	{ ITCO_PCI_DEVICE(0x1e56,				TCO_PPT22)},
-+	{ ITCO_PCI_DEVICE(0x1e57,				TCO_PPT23)},
-+	{ ITCO_PCI_DEVICE(0x1e58,				TCO_PPT24)},
-+	{ ITCO_PCI_DEVICE(0x1e59,				TCO_PPT25)},
-+	{ ITCO_PCI_DEVICE(0x1e5a,				TCO_PPT26)},
-+	{ ITCO_PCI_DEVICE(0x1e5b,				TCO_PPT27)},
-+	{ ITCO_PCI_DEVICE(0x1e5c,				TCO_PPT28)},
-+	{ ITCO_PCI_DEVICE(0x1e5d,				TCO_PPT29)},
-+	{ ITCO_PCI_DEVICE(0x1e5e,				TCO_PPT30)},
-+	{ ITCO_PCI_DEVICE(0x1e5f,				TCO_PPT31)},
- 	{ 0, },			/* End of list */
- };
- MODULE_DEVICE_TABLE(pci, iTCO_wdt_pci_tbl);
+> This patch adds the TCO Watchdog DeviceIDs for the Intel Panther Point PCH.
+> 
+> Signed-off-by: Seth Heasley <seth.heasley@intel.com>
+
+Added this to linux-2.6-watchdog-next. Will get it upstream later this week.
+
+Kind regards,
+Wim.
+
