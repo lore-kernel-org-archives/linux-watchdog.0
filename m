@@ -1,183 +1,387 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay007.isp.belgacom.be ([195.238.6.173]:48139 "EHLO
-	mailrelay007.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755112Ab1DZMyz (ORCPT
+Received: from smtp-out.google.com ([216.239.44.51]:35189 "EHLO
+	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753280Ab1D0RtE convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 26 Apr 2011 08:54:55 -0400
-Date: Tue, 26 Apr 2011 14:54:53 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Seth Heasley <seth.heasley@intel.com>
-Subject: [GIT PULL REQUEST] watchdog - v2.6.39-rc4
-Message-ID: <20110426125452.GD17580@infomag.iguana.be>
+	Wed, 27 Apr 2011 13:49:04 -0400
+Received: from wpaz17.hot.corp.google.com (wpaz17.hot.corp.google.com [172.24.198.81])
+	by smtp-out.google.com with ESMTP id p3RHn3qE032553
+	for <linux-watchdog@vger.kernel.org>; Wed, 27 Apr 2011 10:49:03 -0700
+Received: from yxe1 (yxe1.prod.google.com [10.190.2.1])
+	by wpaz17.hot.corp.google.com with ESMTP id p3RHj0RS011515
+	(version=TLSv1/SSLv3 cipher=RC4-SHA bits=128 verify=NOT)
+	for <linux-watchdog@vger.kernel.org>; Wed, 27 Apr 2011 10:49:02 -0700
+Received: by yxe1 with SMTP id 1so581498yxe.25
+        for <linux-watchdog@vger.kernel.org>; Wed, 27 Apr 2011 10:49:02 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+In-Reply-To: <20110422044451.GB524@ericsson.com>
+References: <1303153127-11717-1-git-send-email-natg@google.com>
+	<1303153204-11784-1-git-send-email-natg@google.com>
+	<20110422044451.GB524@ericsson.com>
+Date: Wed, 27 Apr 2011 10:49:01 -0700
+Message-ID: <BANLkTikGGO76ToGaRJ0foSc-Yp6Fe4C97g@mail.gmail.com>
+Subject: Re: [PATCH v7 1/2] Use "request_muxed_region" in it87 watchdog drivers
+From: Natarajan Gurumoorthy <natg@google.com>
+To: Guenter Roeck <guenter.roeck@ericsson.com>
+Cc: Jean Delvare <khali@linux-fr.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Mike Waychison <mikew@google.com>,
+	"lm-sensors@lm-sensors.org" <lm-sensors@lm-sensors.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-Hi Linus,
+Guenter,
 
-Please pull from 'master' branch of
-	git://git.kernel.org/pub/scm/linux/kernel/git/wim/linux-2.6-watchdog.git
-or if master.kernel.org hasn't synced up yet:
-	master.kernel.org:/pub/scm/linux/kernel/git/wim/linux-2.6-watchdog.git
+On Thu, Apr 21, 2011 at 9:44 PM, Guenter Roeck
+<guenter.roeck@ericsson.com> wrote:
+> > =A0/**
+> > @@ -303,8 +308,6 @@ static void wdt_stop(void)
+> >
+> > =A0static int wdt_set_timeout(int t)
+> > =A0{
+> > - =A0 =A0 =A0 unsigned long flags;
+> > -
+> > =A0 =A0 =A0 =A0 if (t < 1 || t > max_units * 60)
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EINVAL;
+> >
+> > @@ -313,14 +316,14 @@ static int wdt_set_timeout(int t)
+> > =A0 =A0 =A0 =A0 else
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 timeout =3D t;
+> >
+> > - =A0 =A0 =A0 spin_lock_irqsave(&spinlock, flags);
+> > =A0 =A0 =A0 =A0 if (test_bit(WDTS_TIMER_RUN, &wdt_status)) {
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 superio_enter();
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (superio_enter())
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EBUSY;
+> > +
+> I don't think you can do that here. You are moving the lock,
+> meaning test_bit is no longer protected by the lock.
+>
+I am not sure I am in agreement with your here. If you look at other
+places in the original driver I see sections of code in "wdt_ioctl"
+that look as follows:
+	case WDIOC_SETOPTIONS:
+		if (get_user(new_options, uarg.i))
+			return -EFAULT;
 
-This will update the following files:
+		switch (new_options) {
+		case WDIOS_DISABLECARD:
+			if (test_bit(WDTS_TIMER_RUN, &wdt_status))
+				wdt_stop();
+			clear_bit(WDTS_TIMER_RUN, &wdt_status);
+			return 0;
 
- drivers/watchdog/iTCO_wdt.c |   97 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 97 insertions(+)
+		case WDIOS_ENABLECARD:
+			if (!test_and_set_bit(WDTS_TIMER_RUN, &wdt_status))
+				wdt_start();
+			return 0;
 
-with these Changes:
+		default:
+			return -EFAULT;
+		}
 
-Author: Seth Heasley <seth.heasley@intel.com>
-Date:   Wed Apr 20 10:56:20 2011 -0700
+They have run through manipulating the "WDTS_TIMER_RUN" bit in
+wdt_status without touching the spinlock. "wdt_stop" does acquire the
+spinlock before touching the hardware through superio_enter. It seems
+to me that the original writers of this driver were using the spinlock
+to isolate access to the hardware and we will be achieving the same by
+the use of "request_muxed_region" call from superio_enter.
 
-    watchdog: iTCO_wdt: TCO Watchdog patch for Intel Panther Point PCH
-    
-    This patch adds the TCO Watchdog DeviceIDs for the Intel Panther Point PCH.
-    
-    Signed-off-by: Seth Heasley <seth.heasley@intel.com>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+I am fixing the rest of the issues pointed out by you and am hoping to
+ship out a patch by the end of the week.
 
-The Changes can also be looked at on:
-	http://www.kernel.org/git/?p=linux/kernel/git/wim/linux-2.6-watchdog.git;a=summary
+Regards
+Nat
 
-For completeness, I added the overal diff below.
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 superio_select(GPIO);
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wdt_update_timeout();
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 superio_exit();
+> > =A0 =A0 =A0 =A0 }
+> > - =A0 =A0 =A0 spin_unlock_irqrestore(&spinlock, flags);
+> > =A0 =A0 =A0 =A0 return 0;
+> > =A0}
+> >
+> > @@ -339,12 +342,10 @@ static int wdt_set_timeout(int t)
+> >
+> > =A0static int wdt_get_status(int *status)
+> > =A0{
+> > - =A0 =A0 =A0 unsigned long flags;
+> > -
+> > =A0 =A0 =A0 =A0 *status =3D 0;
+> > =A0 =A0 =A0 =A0 if (testmode) {
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 spin_lock_irqsave(&spinlock, flags);
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 superio_enter();
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (superio_enter())
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EBUSY;
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 superio_select(GPIO);
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (superio_inb(WDTCTRL) & WDT_ZERO) =
+{
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 superio_outb(0x00, WD=
+TCTRL);
+> > @@ -353,7 +354,6 @@ static int wdt_get_status(int *status)
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> >
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 superio_exit();
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 spin_unlock_irqrestore(&spinlock, flags=
+);
+> > =A0 =A0 =A0 =A0 }
+> > =A0 =A0 =A0 =A0 if (test_and_clear_bit(WDTS_KEEPALIVE, &wdt_status))
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 *status |=3D WDIOF_KEEPALIVEPING;
+> > @@ -381,7 +381,12 @@ static int wdt_open(struct inode *inode, struct =
+file *file)
+> > =A0 =A0 =A0 =A0 if (!test_and_set_bit(WDTS_TIMER_RUN, &wdt_status)) {
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (nowayout && !test_and_set_bit(WDT=
+S_LOCKED, &wdt_status))
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 __module_get(THIS_MOD=
+ULE);
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 wdt_start();
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (wdt_start()) {
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 clear_bit(WDTS_LOCKED, =
+&wdt_status);
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 clear_bit(WDTS_TIMER_RU=
+N, &wdt_status);
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 clear_bit(WDTS_DEV_OPEN=
+, &wdt_status);
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EBUSY;
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> > =A0 =A0 =A0 =A0 }
+> > =A0 =A0 =A0 =A0 return nonseekable_open(inode, file);
+> > =A0}
+> > @@ -403,7 +408,15 @@ static int wdt_release(struct inode *inode, stru=
+ct file *file)
+> > =A0{
+> > =A0 =A0 =A0 =A0 if (test_bit(WDTS_TIMER_RUN, &wdt_status)) {
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (test_and_clear_bit(WDTS_EXPECTED,=
+ &wdt_status)) {
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wdt_stop();
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (wdt_stop()) {
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /*
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* St=
+op failed. Just keep the watchdog alive
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* an=
+d hope nothing bad happens.
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0*/
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 set_bit=
+(WDTS_EXPECTED, &wdt_status);
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wdt_kee=
+palive();
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return =
+-EBUSY;
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 clear_bit(WDTS_TIMER_=
+RUN, &wdt_status);
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 } else {
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wdt_keepalive();
+> > @@ -484,7 +497,8 @@ static long wdt_ioctl(struct file *file, unsigned=
+ int cmd, unsigned long arg)
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ &ident, sizeof(ident)) ? -EFAULT : 0;
+> >
+> > =A0 =A0 =A0 =A0 case WDIOC_GETSTATUS:
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 wdt_get_status(&status);
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (wdt_get_status(&status))
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EBUSY;
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return put_user(status, uarg.i);
+> >
+> > =A0 =A0 =A0 =A0 case WDIOC_GETBOOTSTATUS:
+> > @@ -501,13 +515,19 @@ static long wdt_ioctl(struct file *file, unsign=
+ed int cmd, unsigned long arg)
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 switch (new_options) {
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 case WDIOS_DISABLECARD:
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (test_bit(WDTS_TIM=
+ER_RUN, &wdt_status))
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wdt_sto=
+p();
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (wdt=
+_stop())
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 return -EBUSY;
+> > +
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 clear_bit(WDTS_TIMER_=
+RUN, &wdt_status);
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return 0;
+> >
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 case WDIOS_ENABLECARD:
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (!test_and_set_bit(W=
+DTS_TIMER_RUN, &wdt_status))
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wdt_sta=
+rt();
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (!test_and_set_bit(W=
+DTS_TIMER_RUN, &wdt_status)) {
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (wdt=
+_start()) {
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 clear_bit(WDTS_TIMER_RUN, &wdt_status);
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 return -EBUSY;
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return 0;
+> >
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 default:
+> > @@ -532,7 +552,8 @@ static int wdt_notify_sys(struct notifier_block *=
+this, unsigned long code,
+> > =A0 =A0 =A0 =A0 void *unused)
+> > =A0{
+> > =A0 =A0 =A0 =A0 if (code =3D=3D SYS_DOWN || code =3D=3D SYS_HALT)
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 wdt_stop();
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (wdt_stop())
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EBUSY;
+>
+> -EBUSY is not a valid return code here.
+>
+> > =A0 =A0 =A0 =A0 return NOTIFY_DONE;
+> > =A0}
+> >
+> > @@ -560,16 +581,15 @@ static int __init it87_wdt_init(void)
+> > =A0 =A0 =A0 =A0 int rc =3D 0;
+> > =A0 =A0 =A0 =A0 int try_gameport =3D !nogameport;
+> > =A0 =A0 =A0 =A0 u8 =A0chip_rev;
+> > - =A0 =A0 =A0 unsigned long flags;
+> >
+> > =A0 =A0 =A0 =A0 wdt_status =3D 0;
+> >
+> > - =A0 =A0 =A0 spin_lock_irqsave(&spinlock, flags);
+> > - =A0 =A0 =A0 superio_enter();
+> > + =A0 =A0 =A0 if (superio_enter())
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EBUSY;
+> > +
+> > =A0 =A0 =A0 =A0 chip_type =3D superio_inw(CHIPID);
+> > =A0 =A0 =A0 =A0 chip_rev =A0=3D superio_inb(CHIPREV) & 0x0f;
+> > =A0 =A0 =A0 =A0 superio_exit();
+> > - =A0 =A0 =A0 spin_unlock_irqrestore(&spinlock, flags);
+> >
+> > =A0 =A0 =A0 =A0 switch (chip_type) {
+> > =A0 =A0 =A0 =A0 case IT8702_ID:
+> > @@ -603,8 +623,8 @@ static int __init it87_wdt_init(void)
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -ENODEV;
+> > =A0 =A0 =A0 =A0 }
+> >
+> > - =A0 =A0 =A0 spin_lock_irqsave(&spinlock, flags);
+> > - =A0 =A0 =A0 superio_enter();
+> > + =A0 =A0 =A0 if (superio_enter())
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EBUSY;
+> >
+> > =A0 =A0 =A0 =A0 superio_select(GPIO);
+> > =A0 =A0 =A0 =A0 superio_outb(WDT_TOV1, WDTCFG);
+> > @@ -621,14 +641,12 @@ static int __init it87_wdt_init(void)
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 gpact =3D superio_inb(ACTREG);
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 superio_outb(0x01, ACTREG);
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 superio_exit();
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 spin_unlock_irqrestore(&spinlock, flags=
+);
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (request_region(base, 1, WATCHDOG_=
+NAME))
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 set_bit(WDTS_USE_GP, =
+&wdt_status);
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 else
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 rc =3D -EIO;
+> > =A0 =A0 =A0 =A0 } else {
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 superio_exit();
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 spin_unlock_irqrestore(&spinlock, flags=
+);
+> > =A0 =A0 =A0 =A0 }
+> >
+> > =A0 =A0 =A0 =A0 /* If we haven't Gameport support, try to get CIR sup=
+port */
+> > @@ -646,8 +664,8 @@ static int __init it87_wdt_init(void)
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err_out;
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 base =3D CIR_BASE;
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 spin_lock_irqsave(&spinlock, flags);
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 superio_enter();
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (superio_enter())
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EBUSY;
+> >
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 superio_select(CIR);
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 superio_outw(base, BASEREG);
+> > @@ -660,7 +678,6 @@ static int __init it87_wdt_init(void)
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> >
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 superio_exit();
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 spin_unlock_irqrestore(&spinlock, flags=
+);
+> > =A0 =A0 =A0 =A0 }
+> >
+> > =A0 =A0 =A0 =A0 if (timeout < 1 || timeout > max_units * 60) {
+> > @@ -711,21 +728,19 @@ err_out_reboot:
+> > =A0err_out_region:
+> > =A0 =A0 =A0 =A0 release_region(base, test_bit(WDTS_USE_GP, &wdt_statu=
+s) ? 1 : 8);
+> > =A0 =A0 =A0 =A0 if (!test_bit(WDTS_USE_GP, &wdt_status)) {
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 spin_lock_irqsave(&spinlock, flags);
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 superio_enter();
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (superio_enter())
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EBUSY;
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 superio_select(CIR);
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 superio_outb(ciract, ACTREG);
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 superio_exit();
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 spin_unlock_irqrestore(&spinlock, flags=
+);
+> > =A0 =A0 =A0 =A0 }
+> > =A0err_out:
+> > =A0 =A0 =A0 =A0 if (try_gameport) {
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 spin_lock_irqsave(&spinlock, flags);
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 superio_enter();
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (superio_enter())
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EBUSY;
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 superio_select(GAMEPORT);
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 superio_outb(gpact, ACTREG);
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 superio_exit();
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 spin_unlock_irqrestore(&spinlock, flags=
+);
+> > =A0 =A0 =A0 =A0 }
+> >
+> > =A0 =A0 =A0 =A0 return rc;
+> > @@ -733,11 +748,9 @@ err_out:
+> >
+> > =A0static void __exit it87_wdt_exit(void)
+> > =A0{
+> > - =A0 =A0 =A0 unsigned long flags;
+> > - =A0 =A0 =A0 int nolock;
+> > + =A0 =A0 =A0 if (superio_enter())
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return;
+>
+> Assumption is that you unregister the device. So even if superio_select=
+ fails,
+> you still have to execute the rest of the code.
+>
+> >
+> > - =A0 =A0 =A0 nolock =3D !spin_trylock_irqsave(&spinlock, flags);
+> > - =A0 =A0 =A0 superio_enter();
+> > =A0 =A0 =A0 =A0 superio_select(GPIO);
+> > =A0 =A0 =A0 =A0 superio_outb(0x00, WDTCTRL);
+> > =A0 =A0 =A0 =A0 superio_outb(0x00, WDTCFG);
+> > @@ -752,8 +765,6 @@ static void __exit it87_wdt_exit(void)
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 superio_outb(ciract, ACTREG);
+> > =A0 =A0 =A0 =A0 }
+> > =A0 =A0 =A0 =A0 superio_exit();
+> > - =A0 =A0 =A0 if (!nolock)
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 spin_unlock_irqrestore(&spinlock, flags=
+);
+> >
+> > =A0 =A0 =A0 =A0 misc_deregister(&wdt_miscdev);
+> > =A0 =A0 =A0 =A0 unregister_reboot_notifier(&wdt_notifier);
+> > --
+> > 1.7.3.1
+> >
+>
+> --
+> Guenter Roeck
+> Distinguished Engineer
+> PDU IP Systems
 
-Greetings,
-Wim.
 
-================================================================================
-diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
-index 35a0d12..5fd020d 100644
---- a/drivers/watchdog/iTCO_wdt.c
-+++ b/drivers/watchdog/iTCO_wdt.c
-@@ -35,6 +35,7 @@
-  *	document number 324645-001, 324646-001: Cougar Point (CPT)
-  *	document number TBD                   : Patsburg (PBG)
-  *	document number TBD                   : DH89xxCC
-+ *	document number TBD                   : Panther Point
-  */
- 
- /*
-@@ -153,6 +154,38 @@ enum iTCO_chipsets {
- 	TCO_PBG1,	/* Patsburg */
- 	TCO_PBG2,	/* Patsburg */
- 	TCO_DH89XXCC,	/* DH89xxCC */
-+	TCO_PPT0,	/* Panther Point */
-+	TCO_PPT1,	/* Panther Point */
-+	TCO_PPT2,	/* Panther Point */
-+	TCO_PPT3,	/* Panther Point */
-+	TCO_PPT4,	/* Panther Point */
-+	TCO_PPT5,	/* Panther Point */
-+	TCO_PPT6,	/* Panther Point */
-+	TCO_PPT7,	/* Panther Point */
-+	TCO_PPT8,	/* Panther Point */
-+	TCO_PPT9,	/* Panther Point */
-+	TCO_PPT10,	/* Panther Point */
-+	TCO_PPT11,	/* Panther Point */
-+	TCO_PPT12,	/* Panther Point */
-+	TCO_PPT13,	/* Panther Point */
-+	TCO_PPT14,	/* Panther Point */
-+	TCO_PPT15,	/* Panther Point */
-+	TCO_PPT16,	/* Panther Point */
-+	TCO_PPT17,	/* Panther Point */
-+	TCO_PPT18,	/* Panther Point */
-+	TCO_PPT19,	/* Panther Point */
-+	TCO_PPT20,	/* Panther Point */
-+	TCO_PPT21,	/* Panther Point */
-+	TCO_PPT22,	/* Panther Point */
-+	TCO_PPT23,	/* Panther Point */
-+	TCO_PPT24,	/* Panther Point */
-+	TCO_PPT25,	/* Panther Point */
-+	TCO_PPT26,	/* Panther Point */
-+	TCO_PPT27,	/* Panther Point */
-+	TCO_PPT28,	/* Panther Point */
-+	TCO_PPT29,	/* Panther Point */
-+	TCO_PPT30,	/* Panther Point */
-+	TCO_PPT31,	/* Panther Point */
- };
- 
- static struct {
-@@ -244,6 +277,38 @@ static struct {
- 	{"Patsburg", 2},
- 	{"Patsburg", 2},
- 	{"DH89xxCC", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
-+	{"Panther Point", 2},
- 	{NULL, 0}
- };
- 
-@@ -363,6 +428,38 @@ static DEFINE_PCI_DEVICE_TABLE(iTCO_wdt_pci_tbl) = {
- 	{ ITCO_PCI_DEVICE(0x1d40,				TCO_PBG1)},
- 	{ ITCO_PCI_DEVICE(0x1d41,				TCO_PBG2)},
- 	{ ITCO_PCI_DEVICE(0x2310,				TCO_DH89XXCC)},
-+	{ ITCO_PCI_DEVICE(0x1e40,				TCO_PPT0)},
-+	{ ITCO_PCI_DEVICE(0x1e41,				TCO_PPT1)},
-+	{ ITCO_PCI_DEVICE(0x1e42,				TCO_PPT2)},
-+	{ ITCO_PCI_DEVICE(0x1e43,				TCO_PPT3)},
-+	{ ITCO_PCI_DEVICE(0x1e44,				TCO_PPT4)},
-+	{ ITCO_PCI_DEVICE(0x1e45,				TCO_PPT5)},
-+	{ ITCO_PCI_DEVICE(0x1e46,				TCO_PPT6)},
-+	{ ITCO_PCI_DEVICE(0x1e47,				TCO_PPT7)},
-+	{ ITCO_PCI_DEVICE(0x1e48,				TCO_PPT8)},
-+	{ ITCO_PCI_DEVICE(0x1e49,				TCO_PPT9)},
-+	{ ITCO_PCI_DEVICE(0x1e4a,				TCO_PPT10)},
-+	{ ITCO_PCI_DEVICE(0x1e4b,				TCO_PPT11)},
-+	{ ITCO_PCI_DEVICE(0x1e4c,				TCO_PPT12)},
-+	{ ITCO_PCI_DEVICE(0x1e4d,				TCO_PPT13)},
-+	{ ITCO_PCI_DEVICE(0x1e4e,				TCO_PPT14)},
-+	{ ITCO_PCI_DEVICE(0x1e4f,				TCO_PPT15)},
-+	{ ITCO_PCI_DEVICE(0x1e50,				TCO_PPT16)},
-+	{ ITCO_PCI_DEVICE(0x1e51,				TCO_PPT17)},
-+	{ ITCO_PCI_DEVICE(0x1e52,				TCO_PPT18)},
-+	{ ITCO_PCI_DEVICE(0x1e53,				TCO_PPT19)},
-+	{ ITCO_PCI_DEVICE(0x1e54,				TCO_PPT20)},
-+	{ ITCO_PCI_DEVICE(0x1e55,				TCO_PPT21)},
-+	{ ITCO_PCI_DEVICE(0x1e56,				TCO_PPT22)},
-+	{ ITCO_PCI_DEVICE(0x1e57,				TCO_PPT23)},
-+	{ ITCO_PCI_DEVICE(0x1e58,				TCO_PPT24)},
-+	{ ITCO_PCI_DEVICE(0x1e59,				TCO_PPT25)},
-+	{ ITCO_PCI_DEVICE(0x1e5a,				TCO_PPT26)},
-+	{ ITCO_PCI_DEVICE(0x1e5b,				TCO_PPT27)},
-+	{ ITCO_PCI_DEVICE(0x1e5c,				TCO_PPT28)},
-+	{ ITCO_PCI_DEVICE(0x1e5d,				TCO_PPT29)},
-+	{ ITCO_PCI_DEVICE(0x1e5e,				TCO_PPT30)},
-+	{ ITCO_PCI_DEVICE(0x1e5f,				TCO_PPT31)},
- 	{ 0, },			/* End of list */
- };
- MODULE_DEVICE_TABLE(pci, iTCO_wdt_pci_tbl);
+
+--
+Regards
+Nat Gurumoorthy AB6SJ
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
