@@ -1,72 +1,51 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mhqmail.moxa.com ([59.124.42.180]:42480 "EHLO
-	mhqmail01.moxa.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751219Ab1ECFjm convert rfc822-to-8bit (ORCPT
+Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:47331 "EHLO
+	www.etchedpixels.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751406Ab1ECJgC (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 3 May 2011 01:39:42 -0400
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="big5"
-Subject: RE: [PATCH 1/2] watchdog: add support for MOXA V2100 watchdog driver
-Date: Tue, 3 May 2011 13:36:26 +0800
-Message-ID: <ECB3782BB8F03341905DD923270296115F7122@mhqms01.moxa.com>
-From: =?big5?B?SmltbXkgQ2hlbiAos6+lw7lGKQ==?= <jimmy.chen@moxa.com>
-To: =?big5?B?SmltbXkgQ2hlbiAos6+lw7lGKQ==?= <jimmy.chen@moxa.com>,
-	<linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
+	Tue, 3 May 2011 05:36:02 -0400
+Date: Tue, 3 May 2011 10:37:04 +0100
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jimmy Chen (=?big5?B?s6+lw7lG?=) <jimmy.chen@moxa.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
 	<wim@iguana.be>
+Subject: Re: [PATCH 2/2] watchdog: add support for MOXA V2100 watchdog
+ driver
+Message-ID: <20110503103704.69aba5b2@lxorguk.ukuu.org.uk>
+In-Reply-To: <ECB3782BB8F03341905DD923270296115F7124@mhqms01.moxa.com>
+References: <ECB3782BB8F03341905DD923270296115F7122@mhqms01.moxa.com>
+	<ECB3782BB8F03341905DD923270296115F7124@mhqms01.moxa.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-From: Jimmy Chen <jimmy.chen@moxa.com>
+> Add real function for watchdog driver
 
-Add selection and help in menu to support watchdog driver
+Looks a lot better
 
-Signed-off-by: Jimmy Chen <jimmy.chen@moxa.com>
----
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 1b0f98b..39a6c65 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -384,6 +384,18 @@ config ADVANTECH_WDT
- 	  feature. More information can be found at
- 	  <http://www.advantech.com.tw/products/>
-=20
-+config MOXA_WDT
-+	tristate "MOXA V2100 WATCHDOG driver"
-+	depends on X86
-+	default n
-+	help
-+	  If you say yes here you get support for the MOXA V2100 watchdog
-+	  driver.
-+
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called moxa_swtd. More information can be found at
-+	  <http://www.moxa.com>
-+
- config ALIM1535_WDT
- 	tristate "ALi M1535 PMU Watchdog Timer"
- 	depends on X86 && PCI
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 3f8608b..da1200e 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -65,6 +65,7 @@ obj-$(CONFIG_BFIN_WDT) +=3D bfin_wdt.o
- # X86 (i386 + ia64 + x86_64) Architecture
- obj-$(CONFIG_ACQUIRE_WDT) +=3D acquirewdt.o
- obj-$(CONFIG_ADVANTECH_WDT) +=3D advantechwdt.o
-+obj-$(CONFIG_MOXA_WDT)	+=3D moxa_wdt.o
- obj-$(CONFIG_ALIM1535_WDT) +=3D alim1535_wdt.o
- obj-$(CONFIG_ALIM7101_WDT) +=3D alim7101_wdt.o
- obj-$(CONFIG_F71808E_WDT) +=3D f71808e_wdt.o
---
-To unsubscribe from this list: send the line "unsubscribe=20
-linux-kernel" in the body of a message to majordomo@vger.kernel.org=20
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> +#define __KERNEL_SYSCALLS__
+> +
+
+You shouldn't need that define now
+
+
+> +	/* we suppose to check magic id in case wrong devices */
+> +	if (wdt_verify_vendor()) {
+> +		printk(KERN_ERR "hw device id not match!!\n");
+> +		ret = -ENODEV;
+> +		goto reqreg_err;
+> +	}
+
+This wants to happen after the request_region - if the region is busy
+then you know your device isn't present but that the addresses in
+question are currently in use so you shouldn't touch them
+
+We tend to use pr_err()/pr_debug() etc now rather than printk(KERN_ERR
+"Oops"); to be less long winded - but the code you have there isn't wrong
+in using printk().
+
+With the tests re-ordered this looks fairly sound to me
+
+Alan
