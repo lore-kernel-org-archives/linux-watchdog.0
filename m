@@ -1,272 +1,357 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from the.earth.li ([46.43.34.31]:46322 "EHLO the.earth.li"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752106Ab1D3SZN (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 30 Apr 2011 14:25:13 -0400
-Date: Sat, 30 Apr 2011 11:25:12 -0700
-From: Jonathan McDowell <noodles@earth.li>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Cleanup pc87413 watchdog driver to use
- request_muxed_region for SuperIO area
-Message-ID: <20110430182512.GK4835@earth.li>
-References: <20110414190238.GI4835@earth.li>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20110414190238.GI4835@earth.li>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+From: John Crispin <blogic@openwrt.org>
+To: Ralf Baechle <ralf@linux-mips.org>
+Cc: John Crispin <blogic@openwrt.org>,
+        Ralph Hempel <ralph.hempel@lantiq.com>,
+        Wim Van Sebroeck <wim@iguana.be>, linux-mips@linux-mips.org,
+        linux-watchdog@vger.kernel.org
+Subject: [PATCH V6] MIPS: lantiq: add watchdog support
+Date: Thu,  5 May 2011 23:00:23 +0200
+Message-Id: <1304629223-30537-1-git-send-email-blogic@openwrt.org>
+Return-Path: <blogic@openwrt.org>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-Archive: <https://lore.kernel.org/linux-mips/>
+List-Post: <mailto:linux-mips@vger.kernel.org>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-I haven't seen any response to the below. Did I send it to the correct
-places?
+This patch adds the driver for the watchdog found inside the Lantiq SoC family.
 
-On Thu, Apr 14, 2011 at 12:02:38PM -0700, Jonathan McDowell wrote:
-> Inspired by Nat Gurumoorthy's recent patches for cleaning up the it87
-> drivers to use request_muxed_region for accessing the SuperIO area on
-> these chips, and the fact I have a GPIO driver for the pc8741x basically
-> ready for submission, here is a patch to cleanup the pc87413 watchdog
-> driver to use request_muxed_region for accessing the SuperIO area.
-> 
-> It also pulls out the details about the SWC IO area on initial driver
-> load, and properly does a request_region for that area - there's no
-> requirement to touch the SuperIO area after doing the initial watchdog
-> enable and IO base retrieval.
-> 
-> While I have hardware with a pc87413 on it it is not wired in a way that
-> allows the watchdog to reboot the machine, so I have not been able to
-> fully test these changes - I have checked that the driver correctly
-> initialises itself still and requests the SWC io region ok.
-> 
-> Signed-Off-By: Jonathan McDowell <noodles@earth.li>
-> 
-> -------
-> diff --git a/drivers/watchdog/pc87413_wdt.c b/drivers/watchdog/pc87413_wdt.c
-> index b7c1390..e78d899 100644
-> --- a/drivers/watchdog/pc87413_wdt.c
-> +++ b/drivers/watchdog/pc87413_wdt.c
-> @@ -56,6 +56,7 @@
->  #define IO_DEFAULT	0x2E		/* Address used on Portwell Boards */
->  
->  static int io = IO_DEFAULT;
-> +static int swc_base_addr = -1;
->  
->  static int timeout = DEFAULT_TIMEOUT;	/* timeout value */
->  static unsigned long timer_enabled;	/* is the timer enabled? */
-> @@ -116,9 +117,8 @@ static inline void pc87413_enable_swc(void)
->  
->  /* Read SWC I/O base address */
->  
-> -static inline unsigned int pc87413_get_swc_base(void)
-> +static void pc87413_get_swc_base_addr(void)
->  {
-> -	unsigned int  swc_base_addr = 0;
->  	unsigned char addr_l, addr_h = 0;
->  
->  	/* Step 3: Read SWC I/O Base Address */
-> @@ -136,12 +136,11 @@ static inline unsigned int pc87413_get_swc_base(void)
->  		"Read SWC I/O Base Address: low %d, high %d, res %d\n",
->  						addr_l, addr_h, swc_base_addr);
->  #endif
-> -	return swc_base_addr;
->  }
->  
->  /* Select Bank 3 of SWC */
->  
-> -static inline void pc87413_swc_bank3(unsigned int swc_base_addr)
-> +static inline void pc87413_swc_bank3(void)
->  {
->  	/* Step 4: Select Bank3 of SWC */
->  	outb_p(inb(swc_base_addr + 0x0f) | 0x03, swc_base_addr + 0x0f);
-> @@ -152,8 +151,7 @@ static inline void pc87413_swc_bank3(unsigned int swc_base_addr)
->  
->  /* Set watchdog timeout to x minutes */
->  
-> -static inline void pc87413_programm_wdto(unsigned int swc_base_addr,
-> -					 char pc87413_time)
-> +static inline void pc87413_programm_wdto(char pc87413_time)
->  {
->  	/* Step 5: Programm WDTO, Twd. */
->  	outb_p(pc87413_time, swc_base_addr + WDTO);
-> @@ -164,7 +162,7 @@ static inline void pc87413_programm_wdto(unsigned int swc_base_addr,
->  
->  /* Enable WDEN */
->  
-> -static inline void pc87413_enable_wden(unsigned int swc_base_addr)
-> +static inline void pc87413_enable_wden(void)
->  {
->  	/* Step 6: Enable WDEN */
->  	outb_p(inb(swc_base_addr + WDCTL) | 0x01, swc_base_addr + WDCTL);
-> @@ -174,7 +172,7 @@ static inline void pc87413_enable_wden(unsigned int swc_base_addr)
->  }
->  
->  /* Enable SW_WD_TREN */
-> -static inline void pc87413_enable_sw_wd_tren(unsigned int swc_base_addr)
-> +static inline void pc87413_enable_sw_wd_tren(void)
->  {
->  	/* Enable SW_WD_TREN */
->  	outb_p(inb(swc_base_addr + WDCFG) | 0x80, swc_base_addr + WDCFG);
-> @@ -185,7 +183,7 @@ static inline void pc87413_enable_sw_wd_tren(unsigned int swc_base_addr)
->  
->  /* Disable SW_WD_TREN */
->  
-> -static inline void pc87413_disable_sw_wd_tren(unsigned int swc_base_addr)
-> +static inline void pc87413_disable_sw_wd_tren(void)
->  {
->  	/* Disable SW_WD_TREN */
->  	outb_p(inb(swc_base_addr + WDCFG) & 0x7f, swc_base_addr + WDCFG);
-> @@ -196,7 +194,7 @@ static inline void pc87413_disable_sw_wd_tren(unsigned int swc_base_addr)
->  
->  /* Enable SW_WD_TRG */
->  
-> -static inline void pc87413_enable_sw_wd_trg(unsigned int swc_base_addr)
-> +static inline void pc87413_enable_sw_wd_trg(void)
->  {
->  	/* Enable SW_WD_TRG */
->  	outb_p(inb(swc_base_addr + WDCTL) | 0x80, swc_base_addr + WDCTL);
-> @@ -207,7 +205,7 @@ static inline void pc87413_enable_sw_wd_trg(unsigned int swc_base_addr)
->  
->  /* Disable SW_WD_TRG */
->  
-> -static inline void pc87413_disable_sw_wd_trg(unsigned int swc_base_addr)
-> +static inline void pc87413_disable_sw_wd_trg(void)
->  {
->  	/* Disable SW_WD_TRG */
->  	outb_p(inb(swc_base_addr + WDCTL) & 0x7f, swc_base_addr + WDCTL);
-> @@ -222,18 +220,13 @@ static inline void pc87413_disable_sw_wd_trg(unsigned int swc_base_addr)
->  
->  static void pc87413_enable(void)
->  {
-> -	unsigned int swc_base_addr;
-> -
->  	spin_lock(&io_lock);
->  
-> -	pc87413_select_wdt_out();
-> -	pc87413_enable_swc();
-> -	swc_base_addr = pc87413_get_swc_base();
-> -	pc87413_swc_bank3(swc_base_addr);
-> -	pc87413_programm_wdto(swc_base_addr, timeout);
-> -	pc87413_enable_wden(swc_base_addr);
-> -	pc87413_enable_sw_wd_tren(swc_base_addr);
-> -	pc87413_enable_sw_wd_trg(swc_base_addr);
-> +	pc87413_swc_bank3();
-> +	pc87413_programm_wdto(timeout);
-> +	pc87413_enable_wden();
-> +	pc87413_enable_sw_wd_tren();
-> +	pc87413_enable_sw_wd_trg();
->  
->  	spin_unlock(&io_lock);
->  }
-> @@ -242,17 +235,12 @@ static void pc87413_enable(void)
->  
->  static void pc87413_disable(void)
->  {
-> -	unsigned int swc_base_addr;
-> -
->  	spin_lock(&io_lock);
->  
-> -	pc87413_select_wdt_out();
-> -	pc87413_enable_swc();
-> -	swc_base_addr = pc87413_get_swc_base();
-> -	pc87413_swc_bank3(swc_base_addr);
-> -	pc87413_disable_sw_wd_tren(swc_base_addr);
-> -	pc87413_disable_sw_wd_trg(swc_base_addr);
-> -	pc87413_programm_wdto(swc_base_addr, 0);
-> +	pc87413_swc_bank3();
-> +	pc87413_disable_sw_wd_tren();
-> +	pc87413_disable_sw_wd_trg();
-> +	pc87413_programm_wdto(0);
->  
->  	spin_unlock(&io_lock);
->  }
-> @@ -261,20 +249,15 @@ static void pc87413_disable(void)
->  
->  static void pc87413_refresh(void)
->  {
-> -	unsigned int swc_base_addr;
-> -
->  	spin_lock(&io_lock);
->  
-> -	pc87413_select_wdt_out();
-> -	pc87413_enable_swc();
-> -	swc_base_addr = pc87413_get_swc_base();
-> -	pc87413_swc_bank3(swc_base_addr);
-> -	pc87413_disable_sw_wd_tren(swc_base_addr);
-> -	pc87413_disable_sw_wd_trg(swc_base_addr);
-> -	pc87413_programm_wdto(swc_base_addr, timeout);
-> -	pc87413_enable_wden(swc_base_addr);
-> -	pc87413_enable_sw_wd_tren(swc_base_addr);
-> -	pc87413_enable_sw_wd_trg(swc_base_addr);
-> +	pc87413_swc_bank3();
-> +	pc87413_disable_sw_wd_tren();
-> +	pc87413_disable_sw_wd_trg();
-> +	pc87413_programm_wdto(timeout);
-> +	pc87413_enable_wden();
-> +	pc87413_enable_sw_wd_tren();
-> +	pc87413_enable_sw_wd_trg();
->  
->  	spin_unlock(&io_lock);
->  }
-> @@ -528,7 +511,8 @@ static int __init pc87413_init(void)
->  	printk(KERN_INFO PFX "Version " VERSION " at io 0x%X\n",
->  							WDT_INDEX_IO_PORT);
->  
-> -	/* request_region(io, 2, "pc87413"); */
-> +	if (!request_muxed_region(io, 2, MODNAME))
-> +		return -EBUSY;
->  
->  	ret = register_reboot_notifier(&pc87413_notifier);
->  	if (ret != 0) {
-> @@ -541,12 +525,32 @@ static int __init pc87413_init(void)
->  		printk(KERN_ERR PFX
->  			"cannot register miscdev on minor=%d (err=%d)\n",
->  			WATCHDOG_MINOR, ret);
-> -		unregister_reboot_notifier(&pc87413_notifier);
-> -		return ret;
-> +		goto reboot_unreg;
->  	}
->  	printk(KERN_INFO PFX "initialized. timeout=%d min \n", timeout);
-> +
-> +	pc87413_select_wdt_out();
-> +	pc87413_enable_swc();
-> +	pc87413_get_swc_base_addr();
-> +
-> +	if (!request_region(swc_base_addr, 0x20, MODNAME)) {
-> +		printk(KERN_ERR PFX
-> +			"cannot request SWC region at 0x%x\n", swc_base_addr);
-> +		ret = -EBUSY;
-> +		goto misc_unreg;
-> +	}
-> +
->  	pc87413_enable();
-> +
-> +	release_region(io, 2);
->  	return 0;
-> +
-> +misc_unreg:
-> +	misc_deregister(&pc87413_miscdev);
-> +reboot_unreg:
-> +	unregister_reboot_notifier(&pc87413_notifier);
-> +	release_region(io, 2);
-> +	return ret;
->  }
->  
->  /**
-> @@ -569,7 +573,7 @@ static void __exit pc87413_exit(void)
->  
->  	misc_deregister(&pc87413_miscdev);
->  	unregister_reboot_notifier(&pc87413_notifier);
-> -	/* release_region(io, 2); */
-> +	release_region(swc_base_addr, 0x20);
->  
->  	printk(KERN_INFO MODNAME " watchdog component driver removed.\n");
->  }
-> 
-> -------
+Signed-off-by: John Crispin <blogic@openwrt.org>
+Signed-off-by: Ralph Hempel <ralph.hempel@lantiq.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-mips@linux-mips.org
+Cc: linux-watchdog@vger.kernel.org
 
-J.
+---
 
+Changes in V2
+* add comments to explain register access
+* cleanup resource allocation
+* cleanup clock handling
+* whitespace fixes
+
+Changes in V3
+* whitespace
+* change __iomem void to void __iomem
+* typo fixes
+* comment style
+* fix exit path in init function
+
+Changes in V4
+* fixes register offsets (we use a smaller memory window)
+* typo in the comments
+* add __init to probe function
+
+Changes in V5
+* add support for WDIOC_GETBOOTSTATUS and WDIOC_GETSTATUS
+* remove ifdefs and add a module parameter for the nowayout feature
+* add a remove function
+* fix typos
+
+Changes in V6
+* WDIOC_SETTIMEOUT should return ltq_wdt_timeout aswell as applying it
+
+ drivers/watchdog/Kconfig      |    6 +
+ drivers/watchdog/Makefile     |    1 +
+ drivers/watchdog/lantiq_wdt.c |  261 +++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 268 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/watchdog/lantiq_wdt.c
+
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 1b0f98b..022f9eb 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -990,6 +990,12 @@ config BCM63XX_WDT
+ 	  To compile this driver as a loadable module, choose M here.
+ 	  The module will be called bcm63xx_wdt.
+ 
++config LANTIQ_WDT
++	tristate "Lantiq SoC watchdog"
++	depends on LANTIQ
++	help
++	  Hardware driver for the Lantiq SoC Watchdog Timer.
++
+ # PARISC Architecture
+ 
+ # POWERPC Architecture
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 3f8608b..ed26f70 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -123,6 +123,7 @@ obj-$(CONFIG_AR7_WDT) += ar7_wdt.o
+ obj-$(CONFIG_TXX9_WDT) += txx9wdt.o
+ obj-$(CONFIG_OCTEON_WDT) += octeon-wdt.o
+ octeon-wdt-y := octeon-wdt-main.o octeon-wdt-nmi.o
++obj-$(CONFIG_LANTIQ_WDT) += lantiq_wdt.o
+ 
+ # PARISC Architecture
+ 
+diff --git a/drivers/watchdog/lantiq_wdt.c b/drivers/watchdog/lantiq_wdt.c
+new file mode 100644
+index 0000000..ba1618f
+--- /dev/null
++++ b/drivers/watchdog/lantiq_wdt.c
+@@ -0,0 +1,261 @@
++/*
++ *  This program is free software; you can redistribute it and/or modify it
++ *  under the terms of the GNU General Public License version 2 as published
++ *  by the Free Software Foundation.
++ *
++ *  Copyright (C) 2010 John Crispin <blogic@openwrt.org>
++ *  Based on EP93xx wdt driver
++ */
++
++#include <linux/module.h>
++#include <linux/fs.h>
++#include <linux/miscdevice.h>
++#include <linux/watchdog.h>
++#include <linux/platform_device.h>
++#include <linux/uaccess.h>
++#include <linux/clk.h>
++#include <linux/io.h>
++
++#include <lantiq.h>
++
++/* Section 3.4 of the datasheet
++ * The password sequence protects the WDT control register from unintended
++ * write actions, which might cause malfunction of the WDT.
++ *
++ * essentially the following two magic passwords need to be written to allow
++ * IO access to the WDT core
++ */
++#define LTQ_WDT_PW1		0x00BE0000
++#define LTQ_WDT_PW2		0x00DC0000
++
++#define LTQ_WDT_CR		0x0	/* watchdog control register */
++#define LTQ_WDT_SR		0x8	/* watchdog status register */
++
++#define LTQ_WDT_SR_EN		(0x1 << 31)	/* enable bit */
++#define LTQ_WDT_SR_PWD		(0x3 << 26)	/* turn on power */
++#define LTQ_WDT_SR_CLKDIV	(0x3 << 24)	/* turn on clock and set */
++						/* divider to 0x40000 */
++#define LTQ_WDT_DIVIDER		0x40000
++#define LTQ_MAX_TIMEOUT		((1 << 16) - 1)	/* the reload field is 16 bit */
++
++static int nowayout = WATCHDOG_NOWAYOUT;
++
++static void __iomem *ltq_wdt_membase;
++static unsigned long ltq_io_region_clk_rate;
++
++static unsigned long ltq_wdt_bootstatus;
++static int ltq_wdt_timeout = 30;
++static int ltq_wdt_ok_to_close;
++static int ltq_wdt_in_use;
++
++static void
++ltq_wdt_enable(void)
++{
++	ltq_wdt_timeout = ltq_wdt_timeout *
++			(ltq_io_region_clk_rate / LTQ_WDT_DIVIDER) + 0x1000;
++	if (ltq_wdt_timeout > LTQ_MAX_TIMEOUT)
++		ltq_wdt_timeout = LTQ_MAX_TIMEOUT;
++
++	/* write the first password magic */
++	ltq_w32(LTQ_WDT_PW1, ltq_wdt_membase + LTQ_WDT_CR);
++	/* write the second magic plus the configuration and new timeout */
++	ltq_w32(LTQ_WDT_SR_EN | LTQ_WDT_SR_PWD | LTQ_WDT_SR_CLKDIV |
++		LTQ_WDT_PW2 | ltq_wdt_timeout, ltq_wdt_membase + LTQ_WDT_CR);
++}
++
++static void
++ltq_wdt_disable(void)
++{
++	/* write the first password magic */
++	ltq_w32(LTQ_WDT_PW1, ltq_wdt_membase + LTQ_WDT_CR);
++	/* write the second password magic with no config
++	 * this turns the watchdog off
++	 */
++	ltq_w32(LTQ_WDT_PW2, ltq_wdt_membase + LTQ_WDT_CR);
++}
++
++static ssize_t
++ltq_wdt_write(struct file *file, const char __user *data,
++		size_t len, loff_t *ppos)
++{
++	if (len) {
++		if (!nowayout) {
++			size_t i;
++
++			ltq_wdt_ok_to_close = 0;
++			for (i = 0; i != len; i++) {
++				char c;
++
++				if (get_user(c, data + i))
++					return -EFAULT;
++				if (c == 'V')
++					ltq_wdt_ok_to_close = 1;
++				else
++					ltq_wdt_ok_to_close = 0;
++			}
++		}
++		ltq_wdt_enable();
++	}
++
++	return len;
++}
++
++static struct watchdog_info ident = {
++	.options = WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
++			WDIOF_CARDRESET,
++	.identity = "ltq_wdt",
++};
++
++static long
++ltq_wdt_ioctl(struct file *file,
++		unsigned int cmd, unsigned long arg)
++{
++	int ret = -ENOTTY;
++
++	switch (cmd) {
++	case WDIOC_GETSUPPORT:
++		ret = copy_to_user((struct watchdog_info __user *)arg, &ident,
++				sizeof(ident)) ? -EFAULT : 0;
++		break;
++
++	case WDIOC_GETBOOTSTATUS:
++		ret = put_user(ltq_wdt_bootstatus, (int __user *)arg);
++		break;
++
++	case WDIOC_GETSTATUS:
++		ret = put_user(0, (int __user *)arg);
++		break;
++
++	case WDIOC_SETTIMEOUT:
++		ret = get_user(ltq_wdt_timeout, (int __user *)arg);
++		if (!ret)
++			ltq_wdt_enable();
++		/* intentional drop through */
++	case WDIOC_GETTIMEOUT:
++		ret = put_user(ltq_wdt_timeout, (int __user *)arg);
++		break;
++
++	case WDIOC_KEEPALIVE:
++		ltq_wdt_enable();
++		ret = 0;
++		break;
++	}
++	return ret;
++}
++
++static int
++ltq_wdt_open(struct inode *inode, struct file *file)
++{
++	if (ltq_wdt_in_use)
++		return -EBUSY;
++	ltq_wdt_in_use = 1;
++	ltq_wdt_enable();
++
++	return nonseekable_open(inode, file);
++}
++
++static int
++ltq_wdt_release(struct inode *inode, struct file *file)
++{
++	if (ltq_wdt_ok_to_close)
++		ltq_wdt_disable();
++	else
++		pr_err("ltq_wdt: watchdog closed without warning\n");
++	ltq_wdt_ok_to_close = 0;
++	ltq_wdt_in_use = 0;
++
++	return 0;
++}
++
++static const struct file_operations ltq_wdt_fops = {
++	.owner		= THIS_MODULE,
++	.write		= ltq_wdt_write,
++	.unlocked_ioctl	= ltq_wdt_ioctl,
++	.open		= ltq_wdt_open,
++	.release	= ltq_wdt_release,
++	.llseek		= no_llseek,
++};
++
++static struct miscdevice ltq_wdt_miscdev = {
++	.minor	= WATCHDOG_MINOR,
++	.name	= "watchdog",
++	.fops	= &ltq_wdt_fops,
++};
++
++static int __init
++ltq_wdt_probe(struct platform_device *pdev)
++{
++	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	struct clk *clk;
++
++	if (!res) {
++		dev_err(&pdev->dev, "cannot obtain I/O memory region");
++		return -ENOENT;
++	}
++	res = devm_request_mem_region(&pdev->dev, res->start,
++		resource_size(res), dev_name(&pdev->dev));
++	if (!res) {
++		dev_err(&pdev->dev, "cannot request I/O memory region");
++		return -EBUSY;
++	}
++	ltq_wdt_membase = devm_ioremap_nocache(&pdev->dev, res->start,
++		resource_size(res));
++	if (!ltq_wdt_membase) {
++		dev_err(&pdev->dev, "cannot remap I/O memory region\n");
++		return -ENOMEM;
++	}
++
++	/* we do not need to enable the clock as it is always running */
++	clk = clk_get(&pdev->dev, "io");
++	WARN_ON(!clk);
++	ltq_io_region_clk_rate = clk_get_rate(clk);
++	clk_put(clk);
++
++	if (ltq_reset_cause() == LTQ_RST_CAUSE_WDTRST)
++		ltq_wdt_bootstatus = WDIOF_CARDRESET;
++
++	return misc_register(&ltq_wdt_miscdev);
++}
++
++static int __devexit
++ltq_wdt_remove(struct platform_device *pdev)
++{
++	misc_deregister(&ltq_wdt_miscdev);
++
++	if (ltq_wdt_membase)
++		iounmap(ltq_wdt_membase);
++
++	return 0;
++}
++
++
++static struct platform_driver ltq_wdt_driver = {
++	.remove = __devexit_p(ltq_wdt_remove),
++	.driver = {
++		.name = "ltq_wdt",
++		.owner = THIS_MODULE,
++	},
++};
++
++static int __init
++init_ltq_wdt(void)
++{
++	return platform_driver_probe(&ltq_wdt_driver, ltq_wdt_probe);
++}
++
++static void __exit
++exit_ltq_wdt(void)
++{
++	return platform_driver_unregister(&ltq_wdt_driver);
++}
++
++module_init(init_ltq_wdt);
++module_exit(exit_ltq_wdt);
++
++module_param(nowayout, int, 0);
++MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started");
++
++MODULE_AUTHOR("John Crispin <blogic@openwrt.org>");
++MODULE_DESCRIPTION("Lantiq SoC Watchdog");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
 -- 
-/-\                             |  Do you believe in happy endings?
-|@/  Debian GNU/Linux Developer |
-\-                              |
+1.7.2.3
