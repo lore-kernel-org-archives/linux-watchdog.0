@@ -1,44 +1,52 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay001.isp.belgacom.be ([195.238.6.51]:44534 "EHLO
-	mailrelay001.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752540Ab1E0IXP (ORCPT
+Received: from mailrelay004.isp.belgacom.be ([195.238.6.170]:52454 "EHLO
+	mailrelay004.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1758313Ab1E0I0p (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 27 May 2011 04:23:15 -0400
-Date: Fri, 27 May 2011 10:23:09 +0200
+	Fri, 27 May 2011 04:26:45 -0400
+Date: Fri, 27 May 2011 10:26:40 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Tobias Klauser <tklauser@distanz.ch>
-Cc: linux-watchdog@vger.kernel.org,
-	Grant Likely <grant.likely@secretlab.ca>,
-	Jamie Iles <jamie@jamieiles.com>,
-	Walter Goossens <waltergoossens@home.nl>,
-	devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-	nios2-dev@sopc.et.ntust.edu.tw
-Subject: Re: [PATCH v3 RESEND] watchdog: Add driver for Altera Watchdog
-	Timer
-Message-ID: <20110527082309.GB16394@infomag.iguana.be>
-References: <1300461573-12268-1-git-send-email-tklauser@distanz.ch>
+To: vkuzmichev@mvista.com
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux@arm.linux.org.uk
+Subject: Re: [PATCH 0/4] ARM: smp_twd: mpcore_wdt: Fix MPCORE watchdog setup
+Message-ID: <20110527082640.GC16394@infomag.iguana.be>
+References: <1286185540-19569-1-git-send-email-vkuzmichev@mvista.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1300461573-12268-1-git-send-email-tklauser@distanz.ch>
+In-Reply-To: <1286185540-19569-1-git-send-email-vkuzmichev@mvista.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Tobias,
+Hi Vitaly,
 
-> This driver adds support for the Altera Timer in the Watchdog Timer
-> configuration. This component is usually found on SOPC (System on
-> Programmable Chip) for Altera FPGAs.
+> From: Vitaly Kuzmichev <vkuzmichev@mvista.com>
 > 
-> Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
-> Reviewed-by: Jamie Iles <jamie@jamieiles.com>
-> Acked-by: Grant Likely <grant.likely@secretlab.ca> (for the devicetree binding)
+> The series of patches fixes various bugs in ARM MPCORE watchdog setup.
+> They also introduce some changes in common SMP_TWD timer setup code.
+> The PATCH 1/4 adds an exported function to obtain calibrated timer rate
+> in mpcore_wdt. However, this solution might be unacceptable, so we may
+> discuss another 2 variants:
+>  1) use clock framework
+>    This may require to fix all MPCORE boards clock implementations.
+>  2) copy calibration loop to mpcore_wdt
+>    However, this increases boot time.
+> 
+> 
+> Vitaly Kuzmichev (4):
+>   ARM: smp_twd: mpcore_wdt: Fix watchdog counter loading
+>   ARM: smp_twd: Fix typo in twd_timer_rate printout
+>   ARM: mpcore_wdt: Fix WDIOC_SETOPTIONS handling
+>   ARM: mpcore_wdt: Fix timer mode setup
+> 
+>  arch/arm/include/asm/smp_twd.h |    7 +++++++
+>  arch/arm/kernel/smp_twd.c      |    8 +++++++-
+>  drivers/watchdog/mpcore_wdt.c  |   29 +++++++++++++++++++++--------
+>  3 files changed, 35 insertions(+), 9 deletions(-)
 
-Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-I presume this will go in together with the other nios2 architecture patches?
-
-I presume this will go in together with the other nios2 architecture patches?
+What's the status on this? I don't recall having seen any answers from ARM community.
 
 Kind regards,
 Wim.
