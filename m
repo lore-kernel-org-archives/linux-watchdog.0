@@ -1,36 +1,45 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:61794 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751479Ab1EZNi7 (ORCPT
+Received: from mailrelay001.isp.belgacom.be ([195.238.6.51]:44534 "EHLO
+	mailrelay001.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752540Ab1E0IXP (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 26 May 2011 09:38:59 -0400
-Received: by wwa36 with SMTP id 36so780669wwa.1
-        for <linux-watchdog@vger.kernel.org>; Thu, 26 May 2011 06:38:58 -0700 (PDT)
-Date: Thu, 26 May 2011 14:38:54 +0100
-From: Jamie Iles <jamie@jamieiles.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [PATCHv6] watchdog: add support for the Synopsys DesignWare WDT
-Message-ID: <20110526133854.GE2577@pulham.picochip.com>
-References: <1295871552-22254-1-git-send-email-jamie@jamieiles.com>
+	Fri, 27 May 2011 04:23:15 -0400
+Date: Fri, 27 May 2011 10:23:09 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Tobias Klauser <tklauser@distanz.ch>
+Cc: linux-watchdog@vger.kernel.org,
+	Grant Likely <grant.likely@secretlab.ca>,
+	Jamie Iles <jamie@jamieiles.com>,
+	Walter Goossens <waltergoossens@home.nl>,
+	devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+	nios2-dev@sopc.et.ntust.edu.tw
+Subject: Re: [PATCH v3 RESEND] watchdog: Add driver for Altera Watchdog
+	Timer
+Message-ID: <20110527082309.GB16394@infomag.iguana.be>
+References: <1300461573-12268-1-git-send-email-tklauser@distanz.ch>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1295871552-22254-1-git-send-email-jamie@jamieiles.com>
+In-Reply-To: <1300461573-12268-1-git-send-email-tklauser@distanz.ch>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Wim,
+Hi Tobias,
 
-On Mon, Jan 24, 2011 at 12:19:12PM +0000, Jamie Iles wrote:
-> The Synopsys DesignWare watchdog is found in several ARM based systems
-> and provides a choice of 16 timeout periods depending on the clock
-> input.  The watchdog cannot be disabled once started.
+> This driver adds support for the Altera Timer in the Watchdog Timer
+> configuration. This component is usually found on SOPC (System on
+> Programmable Chip) for Altera FPGAs.
 > 
-> Cc: Wim Van Sebroeck <wim@iguana.be>
-> Signed-off-by: Jamie Iles <jamie@jamieiles.com>
+> Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
+> Reviewed-by: Jamie Iles <jamie@jamieiles.com>
+> Acked-by: Grant Likely <grant.likely@secretlab.ca> (for the devicetree binding)
 
-Apologies for not chasing this sooner, is this driver OK to be applied?  
-This should apply cleanly onto 2.6.39.
+Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
 
-Jamie
+I presume this will go in together with the other nios2 architecture patches?
+
+I presume this will go in together with the other nios2 architecture patches?
+
+Kind regards,
+Wim.
+
