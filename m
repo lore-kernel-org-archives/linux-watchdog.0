@@ -1,17 +1,12 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:50127 "EHLO
-	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752224Ab1E0RYu (ORCPT
+Received: from mailrelay006.isp.belgacom.be ([195.238.6.172]:44290 "EHLO
+	mailrelay006.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756076Ab1EaILO (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 27 May 2011 13:24:50 -0400
-MIME-Version: 1.0
-In-Reply-To: <20110527134004.GA17282@infomag.iguana.be>
-References: <20110527134004.GA17282@infomag.iguana.be>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Fri, 27 May 2011 10:15:48 -0700
-Message-ID: <BANLkTinRhsbFSPD77u+5ae0iovt+0Rhgfg@mail.gmail.com>
-Subject: Re: Watchdog patches for v2.6.40-rc1
-To: Wim Van Sebroeck <wim@iguana.be>
+	Tue, 31 May 2011 04:11:14 -0400
+Date: Tue, 31 May 2011 10:11:11 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
 	Nat Gurumoorthy <natg@google.com>,
 	Jonathan McDowell <noodles@earth.li>,
@@ -19,17 +14,29 @@ Cc: Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
 	Jesper Juhl <jj@chaosbits.net>,
 	Andrew Morton <akpm@linux-foundation.org>,
 	LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: Watchdog patches for v2.6.40-rc1
+Message-ID: <20110531081111.GA23305@infomag.iguana.be>
+References: <20110527134004.GA17282@infomag.iguana.be> <BANLkTinRhsbFSPD77u+5ae0iovt+0Rhgfg@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BANLkTinRhsbFSPD77u+5ae0iovt+0Rhgfg@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, May 27, 2011 at 6:40 AM, Wim Van Sebroeck <wim@iguana.be> wrote:
->
-> These are the patches that I will sent Linus on monday:
+Hi All,
 
-If you send them on Monday (or, indeed, late Sunday), I won't be
-pulling them any more.
+> On Fri, May 27, 2011 at 6:40 AM, Wim Van Sebroeck <wim@iguana.be> wrote:
+> >
+> > These are the patches that I will sent Linus on monday:
+> 
+> If you send them on Monday (or, indeed, late Sunday), I won't be
+> pulling them any more.
+> 
+> There will always be a 41 (or 3.1 or whatever).
 
-There will always be a 41 (or 3.1 or whatever).
+I was not available in the weekend. Sorry about that. So we will go for 3.1 .
 
-                         Linus
+Kind regards,
+Wim.
+
