@@ -1,42 +1,47 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay006.isp.belgacom.be ([195.238.6.172]:44290 "EHLO
-	mailrelay006.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756076Ab1EaILO (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:45161 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751055Ab1EaNq6 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 31 May 2011 04:11:14 -0400
-Date: Tue, 31 May 2011 10:11:11 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Nat Gurumoorthy <natg@google.com>,
-	Jonathan McDowell <noodles@earth.li>,
-	Jamie Iles <jamie@jamieiles.com>,
-	Jesper Juhl <jj@chaosbits.net>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Watchdog patches for v2.6.40-rc1
-Message-ID: <20110531081111.GA23305@infomag.iguana.be>
-References: <20110527134004.GA17282@infomag.iguana.be> <BANLkTinRhsbFSPD77u+5ae0iovt+0Rhgfg@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BANLkTinRhsbFSPD77u+5ae0iovt+0Rhgfg@mail.gmail.com>
+	Tue, 31 May 2011 09:46:58 -0400
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org,
+	patches@opensource.wolfsonmicro.com, linux-kernel@vger.kernel.org,
+	Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: [PATCH] watchdog: Handle multiple wm831x watchdogs being registered
+Date: Tue, 31 May 2011 14:46:55 +0100
+Message-Id: <1306849615-27434-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi All,
+Due to the whole single instance based watchdog API we use static data
+for the wm831x watchdog which means that if the system tries to register
+a second one we end up trying to register the same miscdevice again,
+corrupting the miscdevice list. Work around this by checking for duplicate
+registrations until we get a watchdog core.
 
-> On Fri, May 27, 2011 at 6:40 AM, Wim Van Sebroeck <wim@iguana.be> wrote:
-> >
-> > These are the patches that I will sent Linus on monday:
-> 
-> If you send them on Monday (or, indeed, late Sunday), I won't be
-> pulling them any more.
-> 
-> There will always be a 41 (or 3.1 or whatever).
+Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+---
+ drivers/watchdog/wm831x_wdt.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
 
-I was not available in the weekend. Sorry about that. So we will go for 3.1 .
-
-Kind regards,
-Wim.
+diff --git a/drivers/watchdog/wm831x_wdt.c b/drivers/watchdog/wm831x_wdt.c
+index 8c4b2d5..871caea 100644
+--- a/drivers/watchdog/wm831x_wdt.c
++++ b/drivers/watchdog/wm831x_wdt.c
+@@ -320,6 +320,11 @@ static int __devinit wm831x_wdt_probe(struct platform_device *pdev)
+ 	struct wm831x_watchdog_pdata *pdata;
+ 	int reg, ret;
+ 
++	if (wm831x) {
++		dev_err(&pdev->dev, "wm831x watchdog already registered\n");
++		return -EBUSY;
++	}
++
+ 	wm831x = dev_get_drvdata(pdev->dev.parent);
+ 
+ 	ret = wm831x_reg_read(wm831x, WM831X_WATCHDOG);
+-- 
+1.7.5.1
 
