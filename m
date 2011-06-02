@@ -1,53 +1,52 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from 59-124-160-117.HINET-IP.hinet.net ([59.124.160.117]:45999 "EHLO
-	ATCPCS06.andestech.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755488Ab1FAHjq convert rfc822-to-8bit (ORCPT
+Received: from mtaext1.cujae.edu.cu ([200.55.139.24]:58976 "EHLO
+	mtaext1.cujae.edu.cu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758872Ab1FBMnn (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 1 Jun 2011 03:39:46 -0400
-Content-class: urn:content-classes:message
+	Thu, 2 Jun 2011 08:43:43 -0400
+Received: from newton.cujae.edu.cu (unknown [10.8.1.212])
+	by mtaext1.cujae.edu.cu (Postfix) with ESMTP id 79F7A3E023
+	for <linux-watchdog@vger.kernel.org>; Thu,  2 Jun 2011 08:33:33 -0400 (EDT)
+Received: from udio.cujae.edu.cu (udio.cujae.edu.cu [10.8.57.5])
+	by newton.cujae.edu.cu (Postfix) with ESMTP id DAD6F24068
+	for <linux-watchdog@vger.kernel.org>;
+	Thu,  2 Jun 2011 08:37:39 -0400 (EDT)
+Received: from [10.9.3.110] by udio.cujae.edu.cu (MDaemon PRO v10.1.2)
+	with ESMTP id md50000170715.msg
+	for <linux-watchdog@vger.kernel.org>; Thu, 02 Jun 2011 08:30:20 -0400
+Message-ID: <4DE78429.6070002@udio.cujae.edu.cu>
+Date: Thu, 02 Jun 2011 08:38:01 -0400
+From: Alejandro Cabrera <acabrera@udio.cujae.edu.cu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="big5"
-Subject: =?big5?B?pl7C0DogW1BBVENIXSB3YXRjaGRvZy9mdHdkdDAxMDogUmVsZWFzZSBGYXJhZA==?=
-	=?big5?B?YXkgZnR3ZHQwMTAgd2F0Y2hkb2c=?=
-Date: Wed, 1 Jun 2011 15:24:24 +0800
-Message-ID: <50FD90C65C53FB45BADEEBCD84FF07F203129A05@ATCPCS06.andestech.com>
-From: <macpaul@andestech.com>
-To: <wim@iguana.be>, <jamie@jamieiles.com>
-Cc: <linux-watchdog@vger.kernel.org>
+To: linux-watchdog@vger.kernel.org
+Subject: How to add a new wdt driver
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-HI Jamie=20
+Hi
+I had a watchdog timer driver for Xilinx watchdog ipcore and I want to 
+share it.
 
->=20
-> Hi Macpaul,
->=20
-> > Hi,
-> >=20
-> > A few minor comments inline. It's also worth running your=20
-> patch through=20
-> > scripts/checkpatch.pl as there are some useful warnings in there.
-> >=20
-> > Jamie
->=20
-> Can you sent us an updated patch before we continue reviewing?
->=20
-> Thanks in advance,
-> Wim.
+Do I have to make the patch using git ??
+Can I download only the files (from the git web interface) that I 
+modified (Kconfig, Makefile) and make the patch using diff utility ??
+I tested the patch against the 2.6.39-rc7 and it works fine...
 
-Sorry I have just finished a business trip about 3 weeks and is working o=
-n other affairs.
-I'll refine this driver later when I'm available to do this.
+Best regards and thanks in advance
+Alejandro
 
-Sorry for late reply your mail.
-Thanks.=20
 
-Best regards,
-Macpaul Lin
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+
+
+
+
+Participe en Universidad 2012, del 13 al 17 de febrero de 2012.
+Habana, Cuba: http://www.congresouniversidad.cu
+Consulte la enciclopedia colaborativa cubana. http://www.ecured.cu
+
+Participe en el Segundo Congreso Medio Ambiente Construido y 
+Desarrollo Sustentable (MACDES 2011) del 6 al 9 de diciembre de 2011, 
+Hotel Nacional, Habana, Cuba: http://macdes.cujae.edu.cu
