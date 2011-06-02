@@ -1,52 +1,46 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mtaext1.cujae.edu.cu ([200.55.139.24]:58976 "EHLO
-	mtaext1.cujae.edu.cu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758872Ab1FBMnn (ORCPT
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:65201 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933510Ab1FBMyV (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 2 Jun 2011 08:43:43 -0400
-Received: from newton.cujae.edu.cu (unknown [10.8.1.212])
-	by mtaext1.cujae.edu.cu (Postfix) with ESMTP id 79F7A3E023
-	for <linux-watchdog@vger.kernel.org>; Thu,  2 Jun 2011 08:33:33 -0400 (EDT)
-Received: from udio.cujae.edu.cu (udio.cujae.edu.cu [10.8.57.5])
-	by newton.cujae.edu.cu (Postfix) with ESMTP id DAD6F24068
-	for <linux-watchdog@vger.kernel.org>;
-	Thu,  2 Jun 2011 08:37:39 -0400 (EDT)
-Received: from [10.9.3.110] by udio.cujae.edu.cu (MDaemon PRO v10.1.2)
-	with ESMTP id md50000170715.msg
-	for <linux-watchdog@vger.kernel.org>; Thu, 02 Jun 2011 08:30:20 -0400
-Message-ID: <4DE78429.6070002@udio.cujae.edu.cu>
-Date: Thu, 02 Jun 2011 08:38:01 -0400
-From: Alejandro Cabrera <acabrera@udio.cujae.edu.cu>
+	Thu, 2 Jun 2011 08:54:21 -0400
+Received: by wya21 with SMTP id 21so574669wya.19
+        for <linux-watchdog@vger.kernel.org>; Thu, 02 Jun 2011 05:54:20 -0700 (PDT)
+From: Florian Fainelli <florian@openwrt.org>
+To: Wim Van Sebroeck <wim@iguana.be>, linux-mips@linux-mips.org,
+	linux-watchdog@vger.kernel.org,
+	Manuel Lauss <manuel.lauss@googlemail.com>
+Subject: [PATCH 1/3] WATCHDOG: mtx1-wdt: use dev_{err,info} instead of printk()
+Date: Thu, 2 Jun 2011 14:54:17 +0200
 MIME-Version: 1.0
-To: linux-watchdog@vger.kernel.org
-Subject: How to add a new wdt driver
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <201106021454.17652.florian@openwrt.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi
-I had a watchdog timer driver for Xilinx watchdog ipcore and I want to 
-share it.
 
-Do I have to make the patch using git ??
-Can I download only the files (from the git web interface) that I 
-modified (Kconfig, Makefile) and make the patch using diff utility ??
-I tested the patch against the 2.6.39-rc7 and it works fine...
+Signed-off-by: Florian Fainelli <florian@openwrt.org>
+---
+diff --git a/drivers/watchdog/mtx-1_wdt.c b/drivers/watchdog/mtx-1_wdt.c
+index 1479dc4..63df28c 100644
+--- a/drivers/watchdog/mtx-1_wdt.c
++++ b/drivers/watchdog/mtx-1_wdt.c
+@@ -224,11 +224,11 @@ static int __devinit mtx1_wdt_probe(struct platform_device *pdev)
+ 
+ 	ret = misc_register(&mtx1_wdt_misc);
+ 	if (ret < 0) {
+-		printk(KERN_ERR " mtx-1_wdt : failed to register\n");
++		dev_err(&pdev->dev, "failed to register\n");
+ 		return ret;
+ 	}
+ 	mtx1_wdt_start();
+-	printk(KERN_INFO "MTX-1 Watchdog driver\n");
++	dev_info(&pdev->dev, "MTX-1 Watchdog driver\n");
+ 	return 0;
+ }
+ 
+-- 
+1.7.4.1
 
-Best regards and thanks in advance
-Alejandro
-
-
-
-
-
-
-
-Participe en Universidad 2012, del 13 al 17 de febrero de 2012.
-Habana, Cuba: http://www.congresouniversidad.cu
-Consulte la enciclopedia colaborativa cubana. http://www.ecured.cu
-
-Participe en el Segundo Congreso Medio Ambiente Construido y 
-Desarrollo Sustentable (MACDES 2011) del 6 al 9 de diciembre de 2011, 
-Hotel Nacional, Habana, Cuba: http://macdes.cujae.edu.cu
