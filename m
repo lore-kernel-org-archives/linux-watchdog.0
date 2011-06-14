@@ -1,78 +1,50 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:43224 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750716Ab1FMJYj (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 13 Jun 2011 05:24:39 -0400
-Received: by wwa36 with SMTP id 36so4631919wwa.1
-        for <linux-watchdog@vger.kernel.org>; Mon, 13 Jun 2011 02:24:38 -0700 (PDT)
-Date: Mon, 13 Jun 2011 10:24:35 +0100
-From: Jamie Iles <jamie@jamieiles.com>
-To: Florian Fainelli <florian@openwrt.org>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-mips@linux-mips.org,
-	linux-watchdog@vger.kernel.org,
-	Manuel Lauss <manuel.lauss@googlemail.com>,
-	Jamie Iles <jamie@jamieiles.com>, stable@kernel.org
-Subject: Re: [PATCH 2/5 v2] WATCHDOG: mtx1-wdt: request gpio before using it
-Message-ID: <20110613092435.GC2472@pulham.picochip.com>
-References: <201106121856.17176.florian@openwrt.org>
+Received: from symlink.to.noone.org ([85.10.207.172]:53728 "EHLO sym.noone.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750864Ab1FNNyN (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 14 Jun 2011 09:54:13 -0400
+Date: Tue, 14 Jun 2011 15:48:59 +0200
+From: Tobias Klauser <tklauser@distanz.ch>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org,
+	Grant Likely <grant.likely@secretlab.ca>,
+	Jamie Iles <jamie@jamieiles.com>,
+	Walter Goossens <waltergoossens@home.nl>,
+	devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+	nios2-dev@sopc.et.ntust.edu.tw
+Subject: Re: [PATCH v3 RESEND] watchdog: Add driver for Altera Watchdog
+	Timer
+Message-ID: <20110614134859.GP20966@distanz.ch>
+References: <1300461573-12268-1-git-send-email-tklauser@distanz.ch> <20110527082309.GB16394@infomag.iguana.be>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <201106121856.17176.florian@openwrt.org>
+In-Reply-To: <20110527082309.GB16394@infomag.iguana.be>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sun, Jun 12, 2011 at 06:56:17PM +0200, Florian Fainelli wrote:
-> Otherwise, the gpiolib autorequest feature will produce a WARN_ON():
-> 
-> WARNING: at drivers/gpio/gpiolib.c:101 0x8020ec6c()
-> autorequest GPIO-215
-> [...]
-> 
-> CC:stable@kernel.org
-> Signed-off-by: Florian Fainelli <florian@openwrt.org>
-> ---
+Hi Wim
 
-One really minor nit inline but otherwise this series looks fine to me.
-
-Jamie
-
-> Changes since v1:
-> - use gpio_request_one()
-> - added missing gpio_free() in mtx1_wdt_remove
+On 2011-05-27 at 10:23:09 +0200, Wim Van Sebroeck <wim@iguana.be> wrote:
+> > This driver adds support for the Altera Timer in the Watchdog Timer
+> > configuration. This component is usually found on SOPC (System on
+> > Programmable Chip) for Altera FPGAs.
+> > 
+> > Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
+> > Reviewed-by: Jamie Iles <jamie@jamieiles.com>
+> > Acked-by: Grant Likely <grant.likely@secretlab.ca> (for the devicetree binding)
 > 
-> Stable: [2.6.39+]
+> Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
 > 
-> diff --git a/drivers/watchdog/mtx-1_wdt.c b/drivers/watchdog/mtx-1_wdt.c
-> index 63df28c..9b63642 100644
-> --- a/drivers/watchdog/mtx-1_wdt.c
-> +++ b/drivers/watchdog/mtx-1_wdt.c
-> @@ -214,6 +214,12 @@ static int __devinit mtx1_wdt_probe(struct platform_device *pdev)
->  	int ret;
->  
->  	mtx1_wdt_device.gpio = pdev->resource[0].start;
-> +	ret = gpio_request_one(mtx1_wdt_device.gpio,
-> +				GPIOF_OUT_INIT_HIGH,"mtx1-wdt");
+> I presume this will go in together with the other nios2 architecture patches?
 
-Missing an extra space after the comma.
+It will probably take some time until we get to the point where we're
+ready to submit nios2 arch patches. We started out with individual
+drivers to get used to the submission and review process. Most of them
+got taken by the respective subsystem maintainers.
 
-> +	if (ret < 0) {
-> +		dev_err(&pdev->dev, "failed to request gpio");
-> +		return ret;
-> +	}
->  
->  	spin_lock_init(&mtx1_wdt_device.lock);
->  	init_completion(&mtx1_wdt_device.stop);
-> @@ -239,6 +245,8 @@ static int __devexit mtx1_wdt_remove(struct platform_device *pdev)
->  		mtx1_wdt_device.queue = 0;
->  		wait_for_completion(&mtx1_wdt_device.stop);
->  	}
-> +
-> +	gpio_free(mtx1_wdt_device.gpio);
->  	misc_deregister(&mtx1_wdt_misc);
->  	return 0;
->  }
-> -- 
-> 1.7.4.1
-> 
+So if you want to take the driver through your tree, please go ahead.
+Otherwise I will resubmit it once we're ready to submit the nios2 arch.
+
+Cheers
+Tobias
