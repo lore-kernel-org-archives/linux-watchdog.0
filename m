@@ -1,69 +1,108 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:39911 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751335Ab1FOUSd (ORCPT
+Received: from webbox687.server-home.net ([195.149.74.151]:48362 "EHLO
+	webbox687.server-home.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750737Ab1FPLFz (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 15 Jun 2011 16:18:33 -0400
-Received: by bwz15 with SMTP id 15so771094bwz.19
-        for <linux-watchdog@vger.kernel.org>; Wed, 15 Jun 2011 13:18:32 -0700 (PDT)
-MIME-Version: 1.0
-Date: Wed, 15 Jun 2011 13:18:32 -0700
-Message-ID: <BANLkTimy_X3EmefqtLRNy_NswzekXVXj6A@mail.gmail.com>
-Subject: [MPCore Watchdog]: Add suspend/resume support.
-From: Peter Fordham <peter.fordham@gmail.com>
-To: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 16 Jun 2011 07:05:55 -0400
+From: Alexander Stein <alexander.stein@systec-electronic.com>
+To: linux-kernel@vger.kernel.org
+Cc: Samuel Ortiz <sameo@linux.intel.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org,
+	Alexander Stein <alexander.stein@systec-electronic.com>
+Subject: [PATCH 1/2] Add tunnelcreek watchdog to lpc_sch devices
+Date: Thu, 16 Jun 2011 13:05:49 +0200
+Message-Id: <1308222350-21634-1-git-send-email-alexander.stein@systec-electronic.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Add support for suspend and resume to the MPCore watchdog driver.
-
+Signed-off-by: Alexander Stein <alexander.stein@systec-electronic.com>
 ---
- drivers/watchdog/mpcore_wdt.c |   24 ++++++++++++++++++++++++
- 1 files changed, 24 insertions(+), 0 deletions(-)
+ drivers/mfd/lpc_sch.c |   49 ++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 48 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/watchdog/mpcore_wdt.c b/drivers/watchdog/mpcore_wdt.c
-index 2b4af22..5f63a74 100644
---- a/drivers/watchdog/mpcore_wdt.c
-+++ b/drivers/watchdog/mpcore_wdt.c
-@@ -407,12 +407,36 @@ static int __devexit mpcore_wdt_remove(struct
-platform_device *dev)
- 	return 0;
+diff --git a/drivers/mfd/lpc_sch.c b/drivers/mfd/lpc_sch.c
+index ea3f52c..ea1169b 100644
+--- a/drivers/mfd/lpc_sch.c
++++ b/drivers/mfd/lpc_sch.c
+@@ -37,6 +37,9 @@
+ #define GPIOBASE	0x44
+ #define GPIO_IO_SIZE	64
+ 
++#define WDTBASE		0x84
++#define WDT_IO_SIZE	64
++
+ static struct resource smbus_sch_resource = {
+ 		.flags = IORESOURCE_IO,
+ };
+@@ -59,6 +62,18 @@ static struct mfd_cell lpc_sch_cells[] = {
+ 	},
+ };
+ 
++static struct resource wdt_sch_resource = {
++		.flags = IORESOURCE_IO,
++};
++
++static struct mfd_cell tunnelcreek_cells[] = {
++	{
++		.name = "tunnelcreek_wdt",
++		.num_resources = 1,
++		.resources = &wdt_sch_resource,
++	},
++};
++
+ static struct pci_device_id lpc_sch_ids[] = {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SCH_LPC) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ITC_LPC) },
+@@ -72,6 +87,7 @@ static int __devinit lpc_sch_probe(struct pci_dev *dev,
+ 	unsigned int base_addr_cfg;
+ 	unsigned short base_addr;
+ 	int i;
++	int ret;
+ 
+ 	pci_read_config_dword(dev, SMBASE, &base_addr_cfg);
+ 	if (!(base_addr_cfg & (1 << 31))) {
+@@ -104,8 +120,39 @@ static int __devinit lpc_sch_probe(struct pci_dev *dev,
+ 	for (i=0; i < ARRAY_SIZE(lpc_sch_cells); i++)
+ 		lpc_sch_cells[i].id = id->device;
+ 
+-	return mfd_add_devices(&dev->dev, 0,
++	ret = mfd_add_devices(&dev->dev, 0,
+ 			lpc_sch_cells, ARRAY_SIZE(lpc_sch_cells), NULL, 0);
++	if (ret)
++		goto out_dev;
++
++	if (id->device == PCI_DEVICE_ID_INTEL_ITC_LPC) {
++		pci_read_config_dword(dev, WDTBASE, &base_addr_cfg);
++		if (!(base_addr_cfg & (1 << 31))) {
++			dev_err(&dev->dev, "Decode of the WDT I/O range disabled\n");
++			ret = -ENODEV;
++			goto out_dev;
++		}
++		base_addr = (unsigned short)base_addr_cfg;
++		if (base_addr == 0) {
++			dev_err(&dev->dev, "I/O space for WDT uninitialized\n");
++			ret = -ENODEV;
++			goto out_dev;
++		}
++
++		wdt_sch_resource.start = base_addr;
++		wdt_sch_resource.end = base_addr + WDT_IO_SIZE - 1;
++
++		for (i = 0; i < ARRAY_SIZE(tunnelcreek_cells); i++)
++			tunnelcreek_cells[i].id = id->device;
++
++		ret = mfd_add_devices(&dev->dev, 0, tunnelcreek_cells,
++			ARRAY_SIZE(tunnelcreek_cells), NULL, 0);
++	}
++
++	return ret;
++out_dev:
++	mfd_remove_devices(&dev->dev);
++	return ret;
  }
-
-+#ifdef CONFIG_PM
-+static int mpcore_wdt_suspend(struct platform_device *dev, pm_message_t msg)
-+{
-+        struct mpcore_wdt *wdt = platform_get_drvdata(dev);
-+        mpcore_wdt_stop(wdt);		/* Turn the WDT off */
-+        return 0;
-+}
-+
-+static int mpcore_wdt_resume(struct platform_device *dev)
-+{
-+        struct mpcore_wdt *wdt = platform_get_drvdata(dev);
-+        /* re-activate timer */
-+        if (test_bit(0, &wdt->timer_alive)) {
-+                mpcore_wdt_start(wdt);
-+        }
-+        return 0;
-+}
-+#else
-+#define mpcore_wdt_suspend    NULL
-+#define mpcore_wdt_resume     NULL
-+#endif
-+
- /* work with hotplug and coldplug */
- MODULE_ALIAS("platform:mpcore_wdt");
-
- static struct platform_driver mpcore_wdt_driver = {
- 	.probe		= mpcore_wdt_probe,
- 	.remove		= __devexit_p(mpcore_wdt_remove),
-+        .suspend        = mpcore_wdt_suspend,
-+        .resume         = mpcore_wdt_resume,
- 	.shutdown	= mpcore_wdt_shutdown,
- 	.driver		= {
- 		.owner	= THIS_MODULE,
+ 
+ static void __devexit lpc_sch_remove(struct pci_dev *dev)
 -- 
-1.7.0.4
+1.7.3.4
+
