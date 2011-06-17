@@ -1,53 +1,61 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay001.isp.belgacom.be ([195.238.6.51]:14133 "EHLO
-	mailrelay001.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1757298Ab1FQHUr (ORCPT
+Received: from lennier.cc.vt.edu ([198.82.162.213]:54526 "EHLO
+	lennier.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932437Ab1FQVBX (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 17 Jun 2011 03:20:47 -0400
-Date: Fri, 17 Jun 2011 09:20:45 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-arm-kernel@lists.infradead.org,
-	Jamie Iles <jamie@jamieiles.com>,
-	Peter Fordham <peter.fordham@gmail.com>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>
-Subject: Re: [MPCore Watchdog]: Convert from misc_dev to dynamic device
-	node.
-Message-ID: <20110617072045.GM23305@infomag.iguana.be>
-References: <BANLkTinaQpnVxwX5rB1jrabGX6ArvhhS7g@mail.gmail.com> <BANLkTinY8bM0PyLLcu6icEsWT=X=KVV3DQ@mail.gmail.com> <20110615190945.GA2518@pulham.picochip.com> <201106152136.23971.arnd@arndb.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <201106152136.23971.arnd@arndb.de>
+	Fri, 17 Jun 2011 17:01:23 -0400
+To: Alexander Stein <alexander.stein@systec-electronic.com>
+Cc: linux-kernel@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 2/2] Add watchdog driver for Intel TunnelCreek
+In-Reply-To: Your message of "Thu, 16 Jun 2011 13:05:50 +0200."
+             <1308222350-21634-2-git-send-email-alexander.stein@systec-electronic.com>
+From: Valdis.Kletnieks@vt.edu
+References: <1308222350-21634-1-git-send-email-alexander.stein@systec-electronic.com>
+            <1308222350-21634-2-git-send-email-alexander.stein@systec-electronic.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1308344475_3369P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 17 Jun 2011 17:01:15 -0400
+Message-ID: <36169.1308344475@turing-police.cc.vt.edu>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Arnd,
+--==_Exmh_1308344475_3369P
+Content-Type: text/plain; charset=us-ascii
 
-> On Wednesday 15 June 2011 21:09:45 Jamie Iles wrote:
-> > On Wed, Jun 15, 2011 at 11:57:12AM -0700, Peter Fordham wrote:
-> > > > I've added Wim (watchdog driver maintainer), but I would think that if
-> > > > this change is worth doing then it should be done for all drivers.
-> > > 
-> > > Agreed, but today this may be more work than I'm strictly interested in
-> > > doing. If we do decide it's the right thing then I'll look into converting the
-> > > other drivers later.
-> > 
-> > So I'm not fully aware of what particular problem this is solving, but 
-> > if it is needed for this driver then it should really be done for all of 
-> > them.  That's probably one for Wim to answer though.  Wim posted a 
-> > series for a generic watchdog framework a while back[1] but this still 
-> > made use of a misc device.
-> 
-> Let's first wait until the generic watchdog framework gets merged and
-> the drivers are converted. After that is in, we can discuss further changes.
-> 
-> I highly doubt that making an incompatible API change benefits anyone here,
-> but it certainly shouldn't be done for a single driver that is separate from
-> the framework.
+On Thu, 16 Jun 2011 13:05:50 +0200, Alexander Stein said:
+ 
+> +config INTEL_TUNNELCREEK_WATCHDOG
+> +	tristate "Intel TunnelCreek watchdog"
+> +	depends on WATCHDOG && PCI && X86
+> +	select MFD_CORE
+> +	select LPC_SCH
+> +	---help---
+> +	  Hardware driver for the watchdog timer built into the Intel
+> +	  Tunnel Creek processor.
 
-Agree for the full 100%.
+Please add part names here so we don't have to guess/remember what the now-retired
+code name for a processor was.  Just because the guy who wrote the driver knows what
+the development name was doesn't mean that the poor guy saying 'make oldconfig' knows
+whether this is a driver he cares about.
 
-Thanks,
-Wim.
+http://www.engadget.com/2010/09/15/intel-retires-tunnel-creek-codename-debuts-e600-series-atom-sys/
+
+
+--==_Exmh_1308344475_3369P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFN+8CbcC3lWbTT17ARAg5kAKD5cWwGqbg7uGRk/ySJYh3yrqvaIQCeNvEU
+ALbVxzfZpvWg/MgRLYR2x2g=
+=8rO4
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1308344475_3369P--
 
