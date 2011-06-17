@@ -1,61 +1,77 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay012.isp.belgacom.be ([195.238.6.179]:38129 "EHLO
-	mailrelay012.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751334Ab1FQHLU (ORCPT
+Received: from mailrelay005.isp.belgacom.be ([195.238.6.171]:63458 "EHLO
+	mailrelay005.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751334Ab1FQHOu (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 17 Jun 2011 03:11:20 -0400
-Date: Fri, 17 Jun 2011 09:11:18 +0200
+	Fri, 17 Jun 2011 03:14:50 -0400
+Date: Fri, 17 Jun 2011 09:14:39 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Andrea Galbusera <gizero@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [RFC] [PATCH 0/10] Generic Watchdog Timer Driver
-Message-ID: <20110617071118.GJ23305@infomag.iguana.be>
-References: <20110223204108.GA6327@infomag.iguana.be> <BANLkTimM+9__P4jpvuEL0zDFCyzPX=MrmA@mail.gmail.com>
+To: Jamie Iles <jamie@jamieiles.com>
+Cc: Peter Fordham <peter.fordham@gmail.com>,
+	linux-arm-kernel@lists.infradead.org,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>
+Subject: Re: [MPCore Watchdog]: Convert from misc_dev to dynamic device
+	node.
+Message-ID: <20110617071439.GK23305@infomag.iguana.be>
+References: <BANLkTinaQpnVxwX5rB1jrabGX6ArvhhS7g@mail.gmail.com> <20110614234858.GA15534@gallagher> <BANLkTik02nt4ttTTS-3u5R_ZH0W90FADJQ@mail.gmail.com> <20110615085820.GH3075@pulham.picochip.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <BANLkTimM+9__P4jpvuEL0zDFCyzPX=MrmA@mail.gmail.com>
+In-Reply-To: <20110615085820.GH3075@pulham.picochip.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 Content-Transfer-Encoding: quoted-printable
 
-Hi Andrea,
+Hi All,
 
-> On Wed, Feb 23, 2011 at 9:41 PM, Wim Van Sebroeck <wim@iguana.be> wrote=
-:
-> > To reduce copying the same code over and over in each watchdog device=
- driver, Alan Cox and myself constructed a new framework/API that consoli=
-dates the common watchdog timer driver functions.
-> >
-> > This framework/API consists of the following patches:
-> > part =A01: Introduction of the WatchDog Timer Driver Core
-> > part =A02: Add the basic ioctl functionality
-> > part =A03: Add the WDIOC_KEEPALIVE ioctl
-> > part =A04: Add the WDIOC_SETOPTIONS ioctl
-> > part =A05: Add the WDIOC_SETTIMEOUT and WDIOC_GETTIMEOUT ioctl
-> > part =A06: Add orphan control
-> > part =A07: Add the Magic Close feature
-> > part =A08: Add the nowayout feature
-> > part =A09: Add support for a miscdev parent device
-> > part 10: Add support for extra ioctl calls
+> On Tue, Jun 14, 2011 at 05:19:06PM -0700, Peter Fordham wrote:
+> > > On Tue, Jun 14, 2011 at 04:29:26PM -0700, Peter Fordham wrote:
+> > >> The current MPCore watchdog driver uses a misc_dev device node.
+> > >> This patch changes it to use dynamically allocated device numbers.
+> > >
+> > > I'm not sure that this is the correct thing to do. =A0All other wat=
+chdog devices
+> > > use a miscdevice with a major:minor of 10:130, is there a specific =
+reason
+> > > that this node needs to be dynamic?
+> >=20
+> > I was under the impressions that dynamic device nodes were the way of=
+ the
+> > future. Is that not the case?
 >=20
-> While looking for efforts to provide a generic driver for gpio driven
-> watchdog devices, like some simple hardware supervisors, I came into
-> this patchset RFC, which turned out to be very interesting to me.
-> Maybe I'm looking into the wrong places, but I could not find any
-> upstream commit after this RFC.
-> Since I don't see any real critic from commenters to the approach you
-> are suggesting, I'd like to know if there still is some
-> work-in-progress on this.
+> Well they are for new devices/subsystems but watchdog has an establishe=
+d=20
+> major:minor pair that all other devices use so you don't really have to=
+=20
+> worry about a namespace clash.
+>=20
+> > I'll add the relevant checks in other places as per your suggestions.
+>=20
+> I've added Wim (watchdog driver maintainer), but I would think that if=20
+> this change is worth doing then it should be done for all drivers.
+>=20
+> > > I believe the sysfs classes are pretty much
+> > > deprecated now in preference of a bus too.
+> >=20
+> > Can you give me some more info here? I thought the sysfs stuff was th=
+e
+> > new right way of doing stuff. The class stuff allows udev to automati=
+cally
+> > create the right device node.
+>=20
+> So here's one that I'm aware of https://lkml.org/lkml/2011/3/25/502.  S=
+o=20
+> there's nothing wrong with using sysfs and a bus, but certainly a bus i=
+s=20
+> preferred over a class.
 
-I was working on it yesterday and will finish testing today.
-So expect a new post this afternoon.
-
-I incorporated the comments I received. Orphan control will not be in (as
-long as the watchdog device is registered you can reopen it). And we will
-add the minimum and maximum timeout in an extra part.
+My opinion: we stick with the /dev/watchdog interface, we don't go for dy=
+namic
+device nodes but go for a sysfs interface. And this for all drivers and v=
+ia the
+new watchdog API. (updated version will be sent out today). Makes no sens=
+e
+to do this for every driver.
 
 Kind regards,
 Wim.
