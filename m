@@ -1,48 +1,43 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.17.8]:57867 "EHLO
+Received: from moutng.kundenserver.de ([212.227.17.10]:53041 "EHLO
 	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753447Ab1FSLZo (ORCPT
+	with ESMTP id S1753430Ab1FSL27 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 19 Jun 2011 07:25:44 -0400
+	Sun, 19 Jun 2011 07:28:59 -0400
 From: Arnd Bergmann <arnd@arndb.de>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH 7/10 v2] Generic Watchdog Timer Driver
-Date: Sun, 19 Jun 2011 13:25:17 +0200
+Subject: Re: [PATCH 9/10 v2] Generic Watchdog Timer Driver
+Date: Sun, 19 Jun 2011 13:28:40 +0200
 Cc: Wim Van Sebroeck <wim@iguana.be>,
 	LKML <linux-kernel@vger.kernel.org>,
 	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>
-References: <20110618172537.GH3441@infomag.iguana.be> <201106182107.45682.arnd@arndb.de> <20110619110328.39c0f5e1@lxorguk.ukuu.org.uk>
-In-Reply-To: <20110619110328.39c0f5e1@lxorguk.ukuu.org.uk>
+References: <20110618172727.GJ3441@infomag.iguana.be> <201106182117.49026.arnd@arndb.de> <20110619110141.1ac221f1@lxorguk.ukuu.org.uk>
+In-Reply-To: <20110619110141.1ac221f1@lxorguk.ukuu.org.uk>
 MIME-Version: 1.0
 Content-Type: Text/Plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <201106191325.17181.arnd@arndb.de>
+Message-Id: <201106191328.40602.arnd@arndb.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sunday 19 June 2011 12:03:28 Alan Cox wrote:
-> > >         /* Register the watchdog timer device */
-> > >         res = watchdog_register_device(&wdt_dev);
-> > 
-> > Why is this a feature of the individual drivers and not of the core?
+On Sunday 19 June 2011 12:01:41 Alan Cox wrote:
+> > Hmm, I'm not sure about this one. It does make the conversion
+> > of existing drivers easier but doesn't encourage doing a good
+> > job there.
 > 
-> It's a hardware dependant feature - some watchdogs cannot be stopped once
-> initialized.
+> It's not ultimately about conversion. A lot of watchdogs have interfaces
+> that are not quite generic, extra requirements and custom interfaces. The
+> ioctl interface is needed for that, not for conversions.
 
-Ah, I see. OTOH, 80 of the 107 watchdogs in the kernel do provide it as a
-module option, which indicates that there is some room for consolidation,
-even if it might not be appropriate for every one of them.
+It's probably fine to have additional custom interfaces in some watchdogs
+where needed, but do you think we also need to give drivers a way to
+override the common ones?
 
-> > Maybe it can be in both, so existing drivers don't need to change the user
-> > interface, but new drivers don't have to provide the option individually
-> > when you can simply set it for the base module.
-> 
-> Then you'd need an additional interface to specify which watchdog as soon
-> as we support multiple watchdogs.
-
-You can always have multiple ways of setting nowayout -- hardware requirements,
-global module option, local module option, and a new ioctl command -- but
-what is being used is then the logical OR of all of them.
+If a driver has a different interpretation of a common command, I would
+consider that a bug, not a driver specific extension. I would also
+like to see the proper extensions easily visible, so we can create
+new common interfaces in cases where multiple drivers have the same
+requirement.
 
 	Arnd
