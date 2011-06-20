@@ -1,65 +1,48 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from oproxy8-pub.bluehost.com ([69.89.22.20]:41341 "HELO
-	oproxy8-pub.bluehost.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1752772Ab1FTDoD (ORCPT
+Received: from webbox687.server-home.net ([195.149.74.151]:51084 "EHLO
+	webbox687.server-home.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751839Ab1FTIwk (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 19 Jun 2011 23:44:03 -0400
-Date: Sun, 19 Jun 2011 20:44:00 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH 1/10 v2] Generic Watchdog Timer Driver
-Message-Id: <20110619204400.d732e8aa.rdunlap@xenotime.net>
-In-Reply-To: <201106182058.14702.arnd@arndb.de>
-References: <20110618171946.GB3441@infomag.iguana.be>
-	<201106182058.14702.arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 20 Jun 2011 04:52:40 -0400
+From: Alexander Stein <alexander.stein@systec-electronic.com>
+To: Valdis.Kletnieks@vt.edu
+Subject: Re: [PATCH 2/2] Add watchdog driver for Intel TunnelCreek
+Date: Mon, 20 Jun 2011 10:51:48 +0200
+Cc: linux-kernel@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org
+References: <1308222350-21634-1-git-send-email-alexander.stein@systec-electronic.com> <1308222350-21634-2-git-send-email-alexander.stein@systec-electronic.com> <36169.1308344475@turing-police.cc.vt.edu>
+In-Reply-To: <36169.1308344475@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <201106201051.49055.alexander.stein@systec-electronic.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sat, 18 Jun 2011 20:58:14 +0200 Arnd Bergmann wrote:
-
-> On Saturday 18 June 2011 19:19:46 Wim Van Sebroeck wrote:
-> > watchdog: WatchDog Timer Driver Core - Part 1
-> > 
-> > The WatchDog Timer Driver Core is a framework
-> > that contains the common code for all watchdog-driver's.
-> > It also introduces a watchdog device structure and the
-> > operations that go with it.
-> > 
-> > This is the introduction of this framework. This part
-> > supports the minimal watchdog userspace API (or with
-> > other words: the functionality to use /dev/watchdog's
-> > open, release and write functionality as defined in
-> > the simplest watchdog API). Extra functionality will
-> > follow in the next set of patches.
-> > 
-> > Signed-off-by: Alan Cox <alan@lxorguk.ukuu.org.uk>
-> > Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+On Friday 17 June 2011 23:01:15 Valdis.Kletnieks@vt.edu wrote:
+> On Thu, 16 Jun 2011 13:05:50 +0200, Alexander Stein said:
+> > +config INTEL_TUNNELCREEK_WATCHDOG
+> > +	tristate "Intel TunnelCreek watchdog"
+> > +	depends on WATCHDOG && PCI && X86
+> > +	select MFD_CORE
+> > +	select LPC_SCH
+> > +	---help---
+> > +	  Hardware driver for the watchdog timer built into the Intel
+> > +	  Tunnel Creek processor.
 > 
-> Hi Wim,
+> Please add part names here so we don't have to guess/remember what the
+> now-retired code name for a processor was.  Just because the guy who wrote
+> the driver knows what the development name was doesn't mean that the poor
+> guy saying 'make oldconfig' knows whether this is a driver he cares about.
 > 
-> Great to see the series posted again, I'm looking forward to seeing
-> this included in 3.1.
-> 
-> I've got a few comments for stuff that can still be improved.
-> 
-> I noticed that your email subject lines are all the same, you should
-> probably see if you mail setup can be fixed to take the one-line
-> comment in each patch as the subject, and also to make all mails
-> replies to the [PATCH 0/10] email.
+> http://www.engadget.com/2010/09/15/intel-retires-tunnel-creek-codename-debu
+> ts-e600-series-atom-sys/
 
-It would also be good to include diffstat summaries with each patch.
+Thanks for the hint.
+Would you also recommend to rename the driver module name? Currently it is 
+intel_tunnelcreek_watchdog, so it may be called intel_e6xx_watchdog.
 
-This info in Documentation/ioctl/ioctl-number.txt does not change, correct?
-
-'W'	00-1F	linux/watchdog.h	conflict!
-
----
-~Randy
-*** Remember to use Documentation/SubmitChecklist when testing your code ***
+Regards,
+Alexander
