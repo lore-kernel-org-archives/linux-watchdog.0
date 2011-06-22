@@ -1,86 +1,51 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay004.isp.belgacom.be ([195.238.6.170]:50629 "EHLO
-	mailrelay004.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1758876Ab1FVUeF (ORCPT
+Received: from exprod7og101.obsmtp.com ([64.18.2.155]:33758 "EHLO
+	exprod7og101.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758541Ab1FVUzF (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 22 Jun 2011 16:34:05 -0400
-Date: Wed, 22 Jun 2011 22:34:03 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Jesper Juhl <jj@chaosbits.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Donald Johnson <donald.k.johnson@intel.com>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] Intel SCU Watchdog: Fix build failure and duplicate
-	include
-Message-ID: <20110622203403.GI26745@infomag.iguana.be>
-References: <20110607145407.GA12177@infomag.iguana.be> <20110607161712.46f18dff@lxorguk.ukuu.org.uk>
+	Wed, 22 Jun 2011 16:55:05 -0400
+Message-ID: <4E023455.8010606@genband.com>
+Date: Wed, 22 Jun 2011 12:28:37 -0600
+From: Chris Friesen <chris.friesen@genband.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20110607161712.46f18dff@lxorguk.ukuu.org.uk>
+To: Wim Van Sebroeck <wim@iguana.be>
+CC: LKML <linux-kernel@vger.kernel.org>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 1/10 v2] Generic Watchdog Timer Driver
+References: <20110618171946.GB3441@infomag.iguana.be>
+In-Reply-To: <20110618171946.GB3441@infomag.iguana.be>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Jesper,
+On 06/18/2011 11:19 AM, Wim Van Sebroeck wrote:
+> watchdog: WatchDog Timer Driver Core - Part 1
+>
+> The WatchDog Timer Driver Core is a framework
+> that contains the common code for all watchdog-driver's.
+> It also introduces a watchdog device structure and the
+> operations that go with it.
+>
+> This is the introduction of this framework. This part
+> supports the minimal watchdog userspace API (or with
+> other words: the functionality to use /dev/watchdog's
+> open, release and write functionality as defined in
+> the simplest watchdog API). Extra functionality will
+> follow in the next set of patches.
 
-> > diff --git a/drivers/watchdog/intel_scu_watchdog.h b/drivers/watchdog/intel_scu_watchdog.h
-> > index d2b074a..a9ca0d7 100644
-> > --- a/drivers/watchdog/intel_scu_watchdog.h
-> > +++ b/drivers/watchdog/intel_scu_watchdog.h
-> > @@ -62,5 +62,5 @@ struct intel_scu_watchdog_dev {
-> >  
-> >  extern int sfi_mtimer_num;
-> >  
-> > -/* extern struct sfi_timer_table_entry *sfi_get_mtmr(int hint); */
-> > +extern struct sfi_timer_table_entry *sfi_get_mtmr(int hint);
-> 
-> But this is wrong. It's defined in arch/x86/include/asm/apb_timer.h
-> 
-> Fix I think is too make INTEL_SCU_WATCHDOG also depend on X86_MRST
 
-Can you look at attached patch and see what works best? Either we use
-the X86_MRST dependancy or either we need the INTEL_SCU_IPC && APB_TIMER one.
+Have you thought about callback support for systems that support a 
+two-stage watchdog?  That way we could do something useful (preserve 
+system memory using kdump, for instance) rather than just getting 
+whacked by the hardware.
 
-Thanks in advance,
-Wim.
+Chris
 
-diff --git a/arch/x86/include/asm/apb_timer.h b/arch/x86/include/asm/apb_timer.h
-index 2fefa50..af60d8a 100644
---- a/arch/x86/include/asm/apb_timer.h
-+++ b/arch/x86/include/asm/apb_timer.h
-@@ -62,7 +62,7 @@ extern int sfi_mtimer_num;
- #else /* CONFIG_APB_TIMER */
- 
- static inline unsigned long apbt_quick_calibrate(void) {return 0; }
--static inline void apbt_time_init(void) {return 0; }
-+static inline void apbt_time_init(void) { }
- 
- #endif
- #endif /* ASM_X86_APBT_H */
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 022f9eb..f202707 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -535,8 +535,8 @@ config I6300ESB_WDT
- 
- config INTEL_SCU_WATCHDOG
- 	bool "Intel SCU Watchdog for Mobile Platforms"
--	depends on WATCHDOG
--	depends on INTEL_SCU_IPC
-+	depends on X86_MRST
-+	depends on INTEL_SCU_IPC && APB_TIMER
- 	---help---
- 	  Hardware driver for the watchdog time built into the Intel SCU
- 	  for Intel Mobile Platforms.
-diff --git a/drivers/watchdog/intel_scu_watchdog.c b/drivers/watchdog/intel_scu_watchdog.c
-index 919bdd1..ba43860 100644
---- a/drivers/watchdog/intel_scu_watchdog.c
-+++ b/drivers/watchdog/intel_scu_watchdog.c
-@@ -42,7 +42,6 @@
- #include <linux/sched.h>
- #include <linux/signal.h>
- #include <linux/sfi.h>
--#include <linux/types.h>
- #include <asm/irq.h>
- #include <asm/atomic.h>
- #include <asm/intel_scu_ipc.h>
+-- 
+Chris Friesen
+Software Developer
+GENBAND
+chris.friesen@genband.com
+www.genband.com
