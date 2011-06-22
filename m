@@ -1,48 +1,51 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay002.isp.belgacom.be ([195.238.6.175]:56415 "EHLO
-	mailrelay002.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932181Ab1FVUXU (ORCPT
+Received: from mailrelay011.isp.belgacom.be ([195.238.6.178]:8366 "EHLO
+	mailrelay011.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932180Ab1FVUZs (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 22 Jun 2011 16:23:20 -0400
-Date: Wed, 22 Jun 2011 22:23:18 +0200
+	Wed, 22 Jun 2011 16:25:48 -0400
+Date: Wed, 22 Jun 2011 22:25:46 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Alejandro Cabrera <acabrera@udio.cujae.edu.cu>
-Cc: linux-watchdog@vger.kernel.org
-Subject: Re: About internal heartbeat timer
-Message-ID: <20110622202318.GG26745@infomag.iguana.be>
-References: <4DFFB0BD.3050101@udio.cujae.edu.cu>
+To: Chris Friesen <chris.friesen@genband.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 1/10 v2] Generic Watchdog Timer Driver
+Message-ID: <20110622202546.GH26745@infomag.iguana.be>
+References: <20110618171946.GB3441@infomag.iguana.be> <4E023455.8010606@genband.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4DFFB0BD.3050101@udio.cujae.edu.cu>
+In-Reply-To: <4E023455.8010606@genband.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Alejandro,
+Hi Chris,
 
-> I have a doubt about the use of internal timer to reset the wdt when the  
-> watchdog device was closed from userspace and it doesn't support  
-> stopping the wdt.
-> I think, in my modest opinion, that if the watchdog device was closed at  
-> userspace it means that something is wrong at userspace and the system  
-> needs to be rebooted.
+>> watchdog: WatchDog Timer Driver Core - Part 1
+>>
+>> The WatchDog Timer Driver Core is a framework
+>> that contains the common code for all watchdog-driver's.
+>> It also introduces a watchdog device structure and the
+>> operations that go with it.
+>>
+>> This is the introduction of this framework. This part
+>> supports the minimal watchdog userspace API (or with
+>> other words: the functionality to use /dev/watchdog's
+>> open, release and write functionality as defined in
+>> the simplest watchdog API). Extra functionality will
+>> follow in the next set of patches.
+>
+>
+> Have you thought about callback support for systems that support a  
+> two-stage watchdog?  That way we could do something useful (preserve  
+> system memory using kdump, for instance) rather than just getting  
+> whacked by the hardware.
 
-No. the reason why magic_close was introduced in the past is because
-there was a need to be able to tell the driver that it could correctly stop.
-For instance for maintenance work, where the watchdog device should NOT reboot
-the system during the maintenance.
-So the reason why we sent that magic char is because we want to tell the driver
-that a watchdog daemon will stop working. In that case you do need that timer.
-
-> I think that  the internal timer can be useful in the following scenario:
-> If an user reboot the system, then the internal timer must ensure that  
-> the watchdog didn't reset the system during the reboot process and it  
-> send ticks to the wdt until the user/clean reboot process get finished.
-> Maybe a reboot notifier can be used to detect when the user reboot the  
-> system manually.
-
-If a system is rebooted then the watchdog device is also resetted.
-So until you start the watchdog, it will not be activated...
+No, goal was to first have an API that reduces the existing functionality
+that we copy over in each driver.
+But it's indeed a feauture where we should look at in the future.
+Question will be: how will we implement it.
 
 Kind regards,
 Wim.
