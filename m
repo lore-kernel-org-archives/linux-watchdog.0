@@ -1,45 +1,45 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ew0-f46.google.com ([209.85.215.46]:36554 "EHLO
-	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753450Ab1FVJB2 (ORCPT
+Received: from mailrelay003.isp.belgacom.be ([195.238.6.53]:16708 "EHLO
+	mailrelay003.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754242Ab1FVJ3e (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 22 Jun 2011 05:01:28 -0400
-Received: by ewy4 with SMTP id 4so167519ewy.19
-        for <linux-watchdog@vger.kernel.org>; Wed, 22 Jun 2011 02:01:27 -0700 (PDT)
-From: Florian Fainelli <florian@openwrt.org>
-To: Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [PATCH 1/5 v3] WATCHDOG: mtx1-wdt: use dev_{err,info} instead of printk()
-Date: Wed, 22 Jun 2011 11:05:40 +0200
-Cc: linux-mips@linux-mips.org, linux-watchdog@vger.kernel.org,
-	Manuel Lauss <manuel.lauss@googlemail.com>,
-	Jamie Iles <jamie@jamieiles.com>
-References: <201106151915.09729.florian@openwrt.org> <201106221024.20485.florian@openwrt.org> <20110622085809.GS23305@infomag.iguana.be>
-In-Reply-To: <20110622085809.GS23305@infomag.iguana.be>
+	Wed, 22 Jun 2011 05:29:34 -0400
+Date: Wed, 22 Jun 2011 11:05:20 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Thomas Abraham <thomas.abraham@linaro.org>,
+	Grant Likely <grant.likely@secretlab.ca>
+Cc: devicetree-discuss@lists.ozlabs.org, kgene.kim@samsung.com,
+	linaro-dev@lists.linaro.org, patches@linaro.org,
+	linux-samsung-soc@vger.kernel.org, ben-linux@fluff.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 3/6] watchdog: s3c2410: Add support for device tree
+	based probe
+Message-ID: <20110622090520.GT23305@infomag.iguana.be>
+References: <1308567752-13451-1-git-send-email-thomas.abraham@linaro.org> <1308567752-13451-4-git-send-email-thomas.abraham@linaro.org> <BANLkTikkxpOC6M1R0g=dGvDXvCkG6EOJhQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <201106221105.40343.florian@openwrt.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BANLkTikkxpOC6M1R0g=dGvDXvCkG6EOJhQ@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello Wim,
+Hi Thomas, Grant,
 
-On Wednesday 22 June 2011 10:58:09 Wim Van Sebroeck wrote:
-> Hi Florian,
+> On Mon, Jun 20, 2011 at 5:02 AM, Thomas Abraham
+> <thomas.abraham@linaro.org> wrote:
+> > This patch adds the of_match_table to enable s3c2410-wdt driver
+> > to be probed when watchdog device node is found in the device tree.
+> >
+> > Signed-off-by: Thomas Abraham <thomas.abraham@linaro.org>
 > 
-> > On Wednesday 15 June 2011 19:15:09 Florian Fainelli wrote:
-> > > Signed-off-by: Florian Fainelli <florian@openwrt.org>
-> > > ---
-> > > No changes in v1, v2 and v3
-> > 
-> > Wim, these are mostly fixes for the driver, do you prefer they get merged
-> > with the MIPS tree?
+> Acked-by: Grant Likely <grant.likely@secretlab.ca>
 > 
-> No, I had them in linux-2.6-watchdog-next since this weekend allready and
-> was planning to sent the fixes upstream. But I think I fotgot to e-mail
-> about it. :-(
+> You need to send this to Wim and the linux-watchdog mailing lists.  As
+> far as I'm concerned, it can be merged immediately.
 
-No problem, thanks for the heads up.
---
-Florian
+Yep, it looks OK. Please sent the patch so that it can be included.
+
+Kind regards,
+Wim.
+
