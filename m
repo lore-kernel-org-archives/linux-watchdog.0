@@ -1,65 +1,49 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay006.isp.belgacom.be ([195.238.6.172]:11903 "EHLO
-	mailrelay006.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1758244Ab1FVT4E (ORCPT
+Received: from mailrelay007.isp.belgacom.be ([195.238.6.173]:55814 "EHLO
+	mailrelay007.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1758551Ab1FVUAL (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 22 Jun 2011 15:56:04 -0400
-Date: Wed, 22 Jun 2011 21:56:02 +0200
+	Wed, 22 Jun 2011 16:00:11 -0400
+Date: Wed, 22 Jun 2011 22:00:09 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
 To: Arnd Bergmann <arnd@arndb.de>
 Cc: LKML <linux-kernel@vger.kernel.org>,
 	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
 	Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH 7/10 v2] Generic Watchdog Timer Driver
-Message-ID: <20110622195602.GB26745@infomag.iguana.be>
-References: <20110618172537.GH3441@infomag.iguana.be> <201106182107.45682.arnd@arndb.de>
+Subject: Re: [PATCH 8/10 v2] Generic Watchdog Timer Driver
+Message-ID: <20110622200009.GC26745@infomag.iguana.be>
+References: <20110618172637.GI3441@infomag.iguana.be> <201106182109.14520.arnd@arndb.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <201106182107.45682.arnd@arndb.de>
+In-Reply-To: <201106182109.14520.arnd@arndb.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 Hi Arnd,
 
-> On Saturday 18 June 2011 19:25:37 Wim Van Sebroeck wrote:
-> > diff -urN linux-2.6.38-generic-part6/Documentation/watchdog/src/watchdog-with-timer-example.c linux-2.6.38-generic-part7/Documentation/watchdog/src/watchdog-with-timer-example.c
-> > --- linux-2.6.38-generic-part6/Documentation/watchdog/src/watchdog-with-timer-example.c 2011-06-16 21:04:06.283940741 +0200
-> > +++ linux-2.6.38-generic-part7/Documentation/watchdog/src/watchdog-with-timer-example.c 2011-06-17 09:52:32.866632635 +0200
-> > @@ -45,6 +45,11 @@
-> >  MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds. "
-> >         "(default = " __MODULE_STRING(WDT_TIMEOUT) ")");
-> >  
-> > +static int nowayout = WATCHDOG_NOWAYOUT;
-> > +module_param(nowayout, int, 0);
-> > +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started. "
-> > +       "(default = " __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-> > +
-> >  static struct watchdog_device wdt_dev;
-> >  static void wdt_timer_tick(unsigned long data);
-> >  static DEFINE_TIMER(timer, wdt_timer_tick, 0, 0);
-> > @@ -152,6 +157,8 @@
-> >  
-> >         /* Set watchdog_device parameters */
-> >         wdt_dev.timeout = timeout;
-> > +       if (nowayout)
-> > +               set_bit(WDOG_NO_WAY_OUT, &wdt_dev.status);
-> >  
-> >         /* Register the watchdog timer device */
-> >         res = watchdog_register_device(&wdt_dev);
+> On Saturday 18 June 2011 19:26:37 Wim Van Sebroeck wrote:
+> > 
+> > watchdog: WatchDog Timer Driver Core - Part 8
+> >    
+> > Add support for a parent device so that it can
+> > be set as the parent of the misc_device.
+> > 
+> > Signed-off-by: Alan Cox <alan@lxorguk.ukuu.org.uk>
+> > Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
 > 
-> Why is this a feature of the individual drivers and not of the core?
+> Acked-by: Arnd Bergmann <arnd@arndb.de>
+> 
+> How about folding this patch into the first one? It hardly adds any code 
+> as much as it replaces some lines with others.
 
-Some drivers/devices will need it (like Alan allready explained), where
-others don't.
-
-> Maybe it can be in both, so existing drivers don't need to change the user
-> interface, but new drivers don't have to provide the option individually
-> when you can simply set it for the base module.
-
-the CONFIG_WATCHDOG_NOWAYOUT option in Kconfig allready stores the default
-behaviour for all your drivers. the module param is initialized with it
-during compilation ans allows to have it changed when you load the module.
+prefer to not do that for following reasons:
+1) I deliberately splitted the framework in a series of patches, so that people
+understand better what the differen developmentt steps have been historically
+and/or logically. By splitting it, I hope that people will understand better
+why the API is what it is.
+2) most watchdog drivers don't do this yet. So this teaches existing device
+driver writers also that this is a possible feature.
 
 Kind regards,
 Wim.
