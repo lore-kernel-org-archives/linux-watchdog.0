@@ -1,31 +1,50 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:41805 "EHLO
-	www.etchedpixels.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1757938Ab1FVWpF (ORCPT
+Received: from ironport2-out.teksavvy.com ([206.248.154.183]:36706 "EHLO
+	ironport2-out.pppoe.ca" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1759360Ab1FWONc (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 22 Jun 2011 18:45:05 -0400
-Date: Wed, 22 Jun 2011 23:47:19 +0100
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	Thu, 23 Jun 2011 10:13:32 -0400
+Message-ID: <4E034A09.6050107@teksavvy.com>
+Date: Thu, 23 Jun 2011 10:13:29 -0400
+From: Mark Lord <kernel@teksavvy.com>
+MIME-Version: 1.0
 To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Jesper Juhl <jj@chaosbits.net>,
-	Donald Johnson <donald.k.johnson@intel.com>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] Intel SCU Watchdog: Fix build failure and duplicate
- include
-Message-ID: <20110622234719.04c5291f@lxorguk.ukuu.org.uk>
-In-Reply-To: <20110622203403.GI26745@infomag.iguana.be>
-References: <20110607145407.GA12177@infomag.iguana.be>
-	<20110607161712.46f18dff@lxorguk.ukuu.org.uk>
-	<20110622203403.GI26745@infomag.iguana.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Arnd Bergmann <arnd@arndb.de>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>
+Subject: Re: [PATCH 7/10 v2] Generic Watchdog Timer Driver
+References: <20110618172537.GH3441@infomag.iguana.be> <201106182107.45682.arnd@arndb.de> <20110619110328.39c0f5e1@lxorguk.ukuu.org.uk> <201106191325.17181.arnd@arndb.de> <20110619151909.1403205d@lxorguk.ukuu.org.uk> <4DFE31DC.4080201@teksavvy.com> <20110622201346.GE26745@infomag.iguana.be>
+In-Reply-To: <20110622201346.GE26745@infomag.iguana.be>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-> Can you look at attached patch and see what works best? Either we use
-> the X86_MRST dependancy or either we need the INTEL_SCU_IPC && APB_TIMER one.
+On 11-06-22 04:13 PM, Wim Van Sebroeck wrote:
+> Hi Mark,
+> 
+>>>>> Then you'd need an additional interface to specify which watchdog as soon
+>>>>> as we support multiple watchdogs.
+>>>>
+>>>> You can always have multiple ways of setting nowayout -- hardware requirements,
+>>>> global module option, local module option, and a new ioctl command -- but
+>>>> what is being used is then the logical OR of all of them.
+>>>
+>>> An ioctl for it would make a lot of sense as watchdogs are often compiled
+>>> in so currently there isn't a good way to runtime set this.
+>>
+>> I wouldn't mind a kernel parameter to enable a hardware watchdog timer at boot.
+>> Currently, there's a window at startup where the watchdog is not enabled,
+>> and the system could lock up and die in there without it being triggered.
+> 
+> This is another tricky thing were developers will always discuss about.
+> What you don't want to happen is that the watchdog reboots your system when it does
+> an fsck at bootup (for instance because the system rebooted by the watchdog and left
+> the filesystem in a dirty state...).
+> 
+> So it's more complex if you look at the overal system...
 
-X86_MRST - its a property of the MID platform devices.
+Sure, but that's got little to do with wanting a kernel parameter to OPTIONALLY
+enable a hardware watchdog timer at boot.
 
-Alan
+Filesystem checks are a separate issue, easily worked around in practice.
