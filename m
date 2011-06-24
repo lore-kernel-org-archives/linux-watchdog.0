@@ -1,48 +1,45 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay010.isp.belgacom.be ([195.238.6.177]:37540 "EHLO
-	mailrelay010.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752015Ab1FXTlm (ORCPT
+Received: from mailrelay006.isp.belgacom.be ([195.238.6.172]:34994 "EHLO
+	mailrelay006.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752170Ab1FXTqV (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 24 Jun 2011 15:41:42 -0400
-Date: Fri, 24 Jun 2011 21:41:36 +0200
+	Fri, 24 Jun 2011 15:46:21 -0400
+Date: Fri, 24 Jun 2011 21:46:19 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
 To: Alejandro Cabrera <acabrera@udio.cujae.edu.cu>
 Cc: linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 7/10 v2] Generic Watchdog Timer Driver
-Message-ID: <20110624194136.GZ23305@infomag.iguana.be>
-References: <20110618172537.GH3441@infomag.iguana.be> <4E025DC8.9090202@udio.cujae.edu.cu>
+Subject: Re: About internal heartbeat timer
+Message-ID: <20110624194619.GA23305@infomag.iguana.be>
+References: <4DFFB0BD.3050101@udio.cujae.edu.cu> <20110622202318.GG26745@infomag.iguana.be> <4E025DC2.3050900@udio.cujae.edu.cu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4E025DC8.9090202@udio.cujae.edu.cu>
+In-Reply-To: <4E025DC2.3050900@udio.cujae.edu.cu>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 Hi Alejandro,
 
->>   static int watchdog_stop(struct watchdog_device *wddev)
->>   {
->> -	int err;
->> +	int err = -1;
->> +
->> +	if (test_bit(WDOG_NO_WAY_OUT,&wdd->status))
->> +		return err;
->>
+>>> I think that  the internal timer can be useful in the following scenario:
+>>> If an user reboot the system, then the internal timer must ensure that
+>>> the watchdog didn't reset the system during the reboot process and it
+>>> send ticks to the wdt until the user/clean reboot process get finished.
+>>> Maybe a reboot notifier can be used to detect when the user reboot the
+>>> system manually.
+>> If a system is rebooted then the watchdog device is also resetted.
+>> So until you start the watchdog, it will not be activated...
 >
-> If you return err at this point you never clean the bit WDOG_ACTIVE then  
-> the timer will keep resetting the wdt because the bit is still active.
+> Yes, but I'm thinking in the following case: if the system was  
+> restarting (clean reboot) and it take more than the watchdog timeout or  
+> the  timeleft was very small to do a clean reboot....then the wdt reset  
+> the system and maybe it can be corrupt it.
+> Maybe this case is weird and uncommon, but it has a chance to occur.
 
-If WDOG_ACTIVE is never cleared, then you will need to keep pinging the watchdog
-to not start the reboot. Even when you use the timer (with this code):
-        if (time_before(jiffies, next_heartbeat) ||
-           (!test_bit(WDOG_ACTIVE, &wdt_dev.status))) {
-
-if WDOG_ACTIVE is set then you fall down to: if (time_before(jiffies, next_heartbeat))
-which means that as long that the next_heartbeat time is not there we will keep pinging
-the watchdog device, but as soon as jiffies > next_heartbeat, the watchdog device will
-not be triggered anymore.
-
-But I see another possible problem here. Will do some special tests first.
+Don't forget that most watchdog drivers allready use a reboot_notifier or
+a platform shutdown method, to stop the watchdog before rebooting.
+And secondly, when watchdog devices are initialised the default behaviour
+is to stop the watchdog during initialisation (but it is allowed to have
+an option to manually change this behaviour so that the user can choose).
 
 Kind regards,
 Wim.
