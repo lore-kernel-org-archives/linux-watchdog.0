@@ -1,72 +1,62 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mtaext1.cujae.edu.cu ([200.55.139.24]:59367 "EHLO
-	mtaext1.cujae.edu.cu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752191Ab1FXUGH (ORCPT
+Received: from moutng.kundenserver.de ([212.227.17.9]:60795 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753300Ab1FXVOx (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 24 Jun 2011 16:06:07 -0400
-Received: from newton.cujae.edu.cu (mtaint1.cujae.edu.cu [10.8.1.212])
-	by mtaext1.cujae.edu.cu (Postfix) with ESMTP id 0C9603E049
-	for <linux-watchdog@vger.kernel.org>; Fri, 24 Jun 2011 15:57:31 -0400 (EDT)
-Received: from udio.cujae.edu.cu (udio.cujae.edu.cu [10.8.57.5])
-	by newton.cujae.edu.cu (Postfix) with ESMTP id 497A524068
-	for <linux-watchdog@vger.kernel.org>;
-	Fri, 24 Jun 2011 16:09:49 -0400 (EDT)
-Received: from [10.9.3.110] by udio.cujae.edu.cu (MDaemon PRO v10.1.2)
-	with ESMTP id md50000188023.msg
-	for <linux-watchdog@vger.kernel.org>; Fri, 24 Jun 2011 16:00:40 -0400
-Message-ID: <4E04EF51.6070604@udio.cujae.edu.cu>
-Date: Fri, 24 Jun 2011 16:10:57 -0400
-From: Alejandro Cabrera <acabrera@udio.cujae.edu.cu>
-MIME-Version: 1.0
-To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+	Fri, 24 Jun 2011 17:14:53 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Wim Van Sebroeck <wim@iguana.be>
 Subject: Re: [PATCH 7/10 v2] Generic Watchdog Timer Driver
-References: <20110618172537.GH3441@infomag.iguana.be>
-	<4E025DC8.9090202@udio.cujae.edu.cu>
-	<20110624194136.GZ23305@infomag.iguana.be>
-In-Reply-To: <20110624194136.GZ23305@infomag.iguana.be>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Date: Fri, 24 Jun 2011 23:14:36 +0200
+Cc: Mark Lord <kernel@teksavvy.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>
+References: <20110618172537.GH3441@infomag.iguana.be> <201106241655.03637.arnd@arndb.de> <20110624191756.GX23305@infomag.iguana.be>
+In-Reply-To: <20110624191756.GX23305@infomag.iguana.be>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <201106242314.37119.arnd@arndb.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Wim
+On Friday 24 June 2011, Wim Van Sebroeck wrote:
+> > > > This is another tricky thing were developers will always discuss about.
+> > > > What you don't want to happen is that the watchdog reboots your system when it does
+> > > > an fsck at bootup (for instance because the system rebooted by the watchdog and left
+> > > > the filesystem in a dirty state...).
+> > > > 
+> > > > So it's more complex if you look at the overal system...
+> > > 
+> > > Sure, but that's got little to do with wanting a kernel parameter to OPTIONALLY
+> > > enable a hardware watchdog timer at boot.
+> > > 
+> > > Filesystem checks are a separate issue, easily worked around in practice.
+> > 
+> > I agree, it's nice to give system integrators the option to enable the watchdog
+> > very early, the problems that Wim mentioned need to be solved in user space
+> > but are not a serious limitation.
+> 
+> I'm definitely not against it and I am sure that we all agree that this is a valid
+> option for some drivers (certainly in embedded environments). But for me it has to
+> stay an option.
 
->>>    static int watchdog_stop(struct watchdog_device *wddev)
->>>    {
->>> -	int err;
->>> +	int err = -1;
->>> +
->>> +	if (test_bit(WDOG_NO_WAY_OUT,&wdd->status))
->>> +		return err;
->>>
->> If you return err at this point you never clean the bit WDOG_ACTIVE then
->> the timer will keep resetting the wdt because the bit is still active.
-> If WDOG_ACTIVE is never cleared, then you will need to keep pinging the watchdog
-> to not start the reboot. Even when you use the timer (with this code):
->          if (time_before(jiffies, next_heartbeat) ||
->             (!test_bit(WDOG_ACTIVE,&wdt_dev.status))) {
->
-> if WDOG_ACTIVE is set then you fall down to: if (time_before(jiffies, next_heartbeat))
-> which means that as long that the next_heartbeat time is not there we will keep pinging
-> the watchdog device, but as soon as jiffies>  next_heartbeat, the watchdog device will
-> not be triggered anymore.
->
-> But I see another possible problem here. Will do some special tests first.
->
-Sorry, I didn't see the ! operator before test_bit, my mistake !! ;)
+I certainly wouldn't make it the default to enable watchdogs on boot, but having
+a generic command line argument in the core seems more appropriate to me than
+doing it in the drivers, which would require knowing which driver is responsible.
 
-best regards
-Alejandro
+> FYI: We allready have one driver that does this: w83697hf_wdt.c See commit
+> 6fd656012bb8d5c5a4570adc2e630668b0109cb0.
 
-PS: I send a patch some days ago (xilinx watchdog....)...and anyone 
-comment it :(. Should I send it again to the list ?
+This one is somewhat different because the watchdog is already enabled in
+this case on bootup, and the command line option tells the driver not
+to disable it if it's already on. I can also see why that may be useful,
+but an option to enable it independent of its current state would be more
+logical to other drivers that always come up disabled.
 
+Anyway, it's certainly not an important functionality to have, and getting
+your patches merged shouldn't wait for it.
 
-
-Participe en Universidad 2012, del 13 al 17 de febrero de 2012.
-Habana, Cuba: http://www.congresouniversidad.cu
-Consulte la enciclopedia colaborativa cubana. http://www.ecured.cu
-
-Participe en el Segundo Congreso Medio Ambiente Construido y 
-Desarrollo Sustentable (MACDES 2011) del 6 al 9 de diciembre de 2011, 
-Hotel Nacional, Habana, Cuba: http://macdes.cujae.edu.cu
+	Arnd
