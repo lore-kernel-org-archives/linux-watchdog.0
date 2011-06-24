@@ -1,127 +1,44 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.126.187]:55448 "EHLO
+Received: from moutng.kundenserver.de ([212.227.126.187]:55057 "EHLO
 	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753542Ab1FXN7j (ORCPT
+	with ESMTP id S1754057Ab1FXOzw (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 24 Jun 2011 09:59:39 -0400
+	Fri, 24 Jun 2011 10:55:52 -0400
 From: Arnd Bergmann <arnd@arndb.de>
-To: Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [PATCH 1/10 v2] Generic Watchdog Timer Driver
-Date: Fri, 24 Jun 2011 15:59:15 +0200
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <20110618171946.GB3441@infomag.iguana.be> <201106182058.14702.arnd@arndb.de> <20110622195024.GA26745@infomag.iguana.be>
-In-Reply-To: <20110622195024.GA26745@infomag.iguana.be>
+To: Mark Lord <kernel@teksavvy.com>
+Subject: Re: [PATCH 7/10 v2] Generic Watchdog Timer Driver
+Date: Fri, 24 Jun 2011 16:55:03 +0200
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>
+References: <20110618172537.GH3441@infomag.iguana.be> <20110622201346.GE26745@infomag.iguana.be> <4E034A09.6050107@teksavvy.com>
+In-Reply-To: <4E034A09.6050107@teksavvy.com>
 MIME-Version: 1.0
 Content-Type: Text/Plain;
-  charset="iso-8859-1"
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <201106241559.16416.arnd@arndb.de>
+Message-Id: <201106241655.03637.arnd@arndb.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wednesday 22 June 2011 21:50:24 Wim Van Sebroeck wrote:
-
-> > I'm pretty sure you don't need bitops.h or uaccess.h here, because all the
-> > code using those has moved into the core.
-> 
-> bitops will be used later on, but this can indeed be cleaned up.
-> 
-> > > +#include <linux/io.h>
+On Thursday 23 June 2011 16:13:29 Mark Lord wrote:
+> On 11-06-22 04:13 PM, Wim Van Sebroeck wrote:
 > > 
-> > This is also not needed here, although it will probably be needed in most
-> > real drivers.
-> 
-> Same.
-
-Nevermind then.
-
-> > > +#include <linux/platform_device.h>
-> > > +
-> > > +/* Hardware heartbeat in seconds */
-> > > +#define WDT_HW_HEARTBEAT 2
-> > > +
-> > > +/* Timer heartbeat (500ms) */
-> > > +#define WDT_HEARTBEAT	(HZ/2)	/* should be <= ((WDT_HW_HEARTBEAT*HZ)/2) */
-> > > +
-> > > +/* User land timeout */
-> > > +#define WDT_TIMEOUT 15
-> > > +static int timeout = WDT_TIMEOUT;
-> > > +module_param(timeout, int, 0);
-> > > +MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds. "
-> > > +	"(default = " __MODULE_STRING(WDT_TIMEOUT) ")");
+> > This is another tricky thing were developers will always discuss about.
+> > What you don't want to happen is that the watchdog reboots your system when it does
+> > an fsck at bootup (for instance because the system rebooted by the watchdog and left
+> > the filesystem in a dirty state...).
 > > 
-> > Should the module parameter really be part of each individual driver?
-> > It would be nice if that can be moved into the core as well.
+> > So it's more complex if you look at the overal system...
 > 
-> Yes, the module parameter is needed for each individual driver.
-> If we go for supporting multiple watchdog devices, then we will have to support
-> different timeout values. The timeout ranges also differ for different devices.
-
-Ok, but you'd still have to worry about a single driver supporting multiple
-distinct devices that each want a separate timeout, right?
-
-OTOH, we can still find a solution when it ever gets to the point of
-supporting multiple devices.
-
-> > > +static void wdt_timer_tick(unsigned long data);
-> > 
-> > I usually recommend reordering all functions so that you don't need any forward
-> > declarations, that makes the driver easier to read IMHO.
-> > 
-> > > +static DEFINE_TIMER(timer, wdt_timer_tick, 0, 0);
-> > > +					/* The timer that pings the watchdog */
+> Sure, but that's got little to do with wanting a kernel parameter to OPTIONALLY
+> enable a hardware watchdog timer at boot.
 > 
-> Yes, I also tend to do that but it's used in the DEFINE_TIMER(timer, wdt_timer_tick, 0, 0);
-> just under it. No clean way to do that better imho...
+> Filesystem checks are a separate issue, easily worked around in practice.
 
-Ah, right. I missed that. You could get rid of the forward declaration
-by dynamically initializing the timer struct, but that would be no
-better than what you have now.
-
-> > Is it common for watchdog these days to have both a kernel timer and
-> > a user space timer?
-> 
-> No, it is only common for watchdog devices that
-> 1) don't stop once started
-> 2) device that have very small (mostly < 1second) heartbeat values.
-> All other watchdog device timers don't need and use the kernel timer.
-
-Ok, I hadn't thought of these.
-
-> > If yes, that might be good to support in the core as well, instead of
-> > having to implement it in each driver.
-> > 
-> > If no, it might not be ideal to have in an example driver.
-> 
-> As said, it's an example for a common exception. You should not look at this
-> as a common example driver. I added it, because it's a common exception that
-> people understand less.
-
-ok.
-
-> > > +struct watchdog_device {
-> > > +	char *name;
-> > > +	const struct watchdog_ops *ops;
-> > > +	long status;
-> > > +};
-> > > +
-> > > +It contains following fields:
-> > > +* name: a pointer to the (preferably unique) name of the watchdog timer device.
-> > > +* ops: a pointer to the list of watchdog operations that the watchdog supports.
-> > > +* status: this field contains a number of status bits that give extra
-> > > +  information about the status of the device (Like: is the device opened via
-> > > +  the /dev/watchdog interface or not, ...)
-> > 
-> > I think this should really have a pointer to the struct device implementing the
-> > watchdog, so that a driver that gets called with a struct watchdog_device can
-> > find its own state from there. Alternatively, you could have struct device
-> > embedded in struct watchdog_device and register it as a child of the hardware
-> > device.
-> 
-> Would go for a pointer to private data then.
-
-Ok.
+I agree, it's nice to give system integrators the option to enable the watchdog
+very early, the problems that Wim mentioned need to be solved in user space
+but are not a serious limitation.
 
 	Arnd
