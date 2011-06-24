@@ -1,52 +1,36 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.126.186]:62233 "EHLO
+Received: from moutng.kundenserver.de ([212.227.126.171]:62353 "EHLO
 	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753919Ab1FXNld (ORCPT
+	with ESMTP id S1758391Ab1FXNuF (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 24 Jun 2011 09:41:33 -0400
+	Fri, 24 Jun 2011 09:50:05 -0400
 From: Arnd Bergmann <arnd@arndb.de>
-To: Prarit Bhargava <prarit@redhat.com>
-Subject: Re: [PATCH 00/35]: System Firmware and SMBIOS Support
-Date: Fri, 24 Jun 2011 15:40:57 +0200
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-	x86@kernel.org, linux-acpi@vger.kernel.org,
-	linux-ide@vger.kernel.org,
-	openipmi-developer@lists.sourceforge.net,
-	platform-driver-x86@vger.kernel.org, linux-crypto@vger.kernel.org,
-	dri-devel@lists.freedesktop.org, lm-sensors@lm-sensors.org,
-	linux-i2c@vger.kernel.org, linux-input@vger.kernel.org,
-	linux-media@vger.kernel.org, linux-mmc@vger.kernel.org,
-	netdev@vger.kernel.org, linux-pci@vger.kernel.org,
-	rtc-linux@googlegroups.com, evel@driverdev.osuosl.org,
-	linux-usb@vger.kernel.org,
-	device-drivers-devel@blackfin.uclinux.org,
-	linux-watchdog@vger.kernel.org, grant.likely@secretlab.ca,
-	dz@debian.org, rpurdie@rpsys.net, eric.piel@tremplin-utc.net,
-	abelay@mit.edu, johnpol@2ka.mipt.ru
-References: <20110623172206.27602.34306.sendpatchset@prarit.bos.redhat.com>
-In-Reply-To: <20110623172206.27602.34306.sendpatchset@prarit.bos.redhat.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: [PATCH 8/10 v2] Generic Watchdog Timer Driver
+Date: Fri, 24 Jun 2011 15:49:32 +0200
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <20110618172637.GI3441@infomag.iguana.be> <201106182109.14520.arnd@arndb.de> <20110622200009.GC26745@infomag.iguana.be>
+In-Reply-To: <20110622200009.GC26745@infomag.iguana.be>
 MIME-Version: 1.0
 Content-Type: Text/Plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <201106241540.57952.arnd@arndb.de>
+Message-Id: <201106241549.32601.arnd@arndb.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thursday 23 June 2011 19:22:06 Prarit Bhargava wrote:
-> This new patchset reworks the existing DMI code into two separate layers.  It is
-> based off of the feedback I received previously when discussing the SMBIOS
-> version patch on LKML.
+On Wednesday 22 June 2011 22:00:09 Wim Van Sebroeck wrote:
+> prefer to not do that for following reasons:
+> 1) I deliberately splitted the framework in a series of patches, so that people
+> understand better what the differen developmentt steps have been historically
+> and/or logically. By splitting it, I hope that people will understand better
+> why the API is what it is.
+> 2) most watchdog drivers don't do this yet. So this teaches existing device
+> driver writers also that this is a possible feature.
+> 
 
-Hi Prarit,
-
-No objections to the patches, but when you send out a series as long as
-this one, please ensure that all patches are sent as replies to the
-introductory mail. Also, do not repeat the one-line patch summary in the
-body of the email.
-
-When using "git send-email --thread --no-chain-reply", this works
-automatically. It will also let you put the Cc list into the
-patch description and work out where to send each patch.
+Ok, makes sense.
 
 	Arnd
