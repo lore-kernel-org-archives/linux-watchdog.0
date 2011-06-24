@@ -1,46 +1,72 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay006.isp.belgacom.be ([195.238.6.172]:34994 "EHLO
-	mailrelay006.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752170Ab1FXTqV (ORCPT
+Received: from mtaext1.cujae.edu.cu ([200.55.139.24]:59367 "EHLO
+	mtaext1.cujae.edu.cu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752191Ab1FXUGH (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 24 Jun 2011 15:46:21 -0400
-Date: Fri, 24 Jun 2011 21:46:19 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Alejandro Cabrera <acabrera@udio.cujae.edu.cu>
-Cc: linux-watchdog@vger.kernel.org
-Subject: Re: About internal heartbeat timer
-Message-ID: <20110624194619.GA23305@infomag.iguana.be>
-References: <4DFFB0BD.3050101@udio.cujae.edu.cu> <20110622202318.GG26745@infomag.iguana.be> <4E025DC2.3050900@udio.cujae.edu.cu>
+	Fri, 24 Jun 2011 16:06:07 -0400
+Received: from newton.cujae.edu.cu (mtaint1.cujae.edu.cu [10.8.1.212])
+	by mtaext1.cujae.edu.cu (Postfix) with ESMTP id 0C9603E049
+	for <linux-watchdog@vger.kernel.org>; Fri, 24 Jun 2011 15:57:31 -0400 (EDT)
+Received: from udio.cujae.edu.cu (udio.cujae.edu.cu [10.8.57.5])
+	by newton.cujae.edu.cu (Postfix) with ESMTP id 497A524068
+	for <linux-watchdog@vger.kernel.org>;
+	Fri, 24 Jun 2011 16:09:49 -0400 (EDT)
+Received: from [10.9.3.110] by udio.cujae.edu.cu (MDaemon PRO v10.1.2)
+	with ESMTP id md50000188023.msg
+	for <linux-watchdog@vger.kernel.org>; Fri, 24 Jun 2011 16:00:40 -0400
+Message-ID: <4E04EF51.6070604@udio.cujae.edu.cu>
+Date: Fri, 24 Jun 2011 16:10:57 -0400
+From: Alejandro Cabrera <acabrera@udio.cujae.edu.cu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4E025DC2.3050900@udio.cujae.edu.cu>
+To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 7/10 v2] Generic Watchdog Timer Driver
+References: <20110618172537.GH3441@infomag.iguana.be>
+	<4E025DC8.9090202@udio.cujae.edu.cu>
+	<20110624194136.GZ23305@infomag.iguana.be>
+In-Reply-To: <20110624194136.GZ23305@infomag.iguana.be>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Alejandro,
+Hi Wim
 
->>> I think that  the internal timer can be useful in the following scenario:
->>> If an user reboot the system, then the internal timer must ensure that
->>> the watchdog didn't reset the system during the reboot process and it
->>> send ticks to the wdt until the user/clean reboot process get finished.
->>> Maybe a reboot notifier can be used to detect when the user reboot the
->>> system manually.
->> If a system is rebooted then the watchdog device is also resetted.
->> So until you start the watchdog, it will not be activated...
+>>>    static int watchdog_stop(struct watchdog_device *wddev)
+>>>    {
+>>> -	int err;
+>>> +	int err = -1;
+>>> +
+>>> +	if (test_bit(WDOG_NO_WAY_OUT,&wdd->status))
+>>> +		return err;
+>>>
+>> If you return err at this point you never clean the bit WDOG_ACTIVE then
+>> the timer will keep resetting the wdt because the bit is still active.
+> If WDOG_ACTIVE is never cleared, then you will need to keep pinging the watchdog
+> to not start the reboot. Even when you use the timer (with this code):
+>          if (time_before(jiffies, next_heartbeat) ||
+>             (!test_bit(WDOG_ACTIVE,&wdt_dev.status))) {
 >
-> Yes, but I'm thinking in the following case: if the system was  
-> restarting (clean reboot) and it take more than the watchdog timeout or  
-> the  timeleft was very small to do a clean reboot....then the wdt reset  
-> the system and maybe it can be corrupt it.
-> Maybe this case is weird and uncommon, but it has a chance to occur.
+> if WDOG_ACTIVE is set then you fall down to: if (time_before(jiffies, next_heartbeat))
+> which means that as long that the next_heartbeat time is not there we will keep pinging
+> the watchdog device, but as soon as jiffies>  next_heartbeat, the watchdog device will
+> not be triggered anymore.
+>
+> But I see another possible problem here. Will do some special tests first.
+>
+Sorry, I didn't see the ! operator before test_bit, my mistake !! ;)
 
-Don't forget that most watchdog drivers allready use a reboot_notifier or
-a platform shutdown method, to stop the watchdog before rebooting.
-And secondly, when watchdog devices are initialised the default behaviour
-is to stop the watchdog during initialisation (but it is allowed to have
-an option to manually change this behaviour so that the user can choose).
+best regards
+Alejandro
 
-Kind regards,
-Wim.
+PS: I send a patch some days ago (xilinx watchdog....)...and anyone 
+comment it :(. Should I send it again to the list ?
 
+
+
+Participe en Universidad 2012, del 13 al 17 de febrero de 2012.
+Habana, Cuba: http://www.congresouniversidad.cu
+Consulte la enciclopedia colaborativa cubana. http://www.ecured.cu
+
+Participe en el Segundo Congreso Medio Ambiente Construido y 
+Desarrollo Sustentable (MACDES 2011) del 6 al 9 de diciembre de 2011, 
+Hotel Nacional, Habana, Cuba: http://macdes.cujae.edu.cu
