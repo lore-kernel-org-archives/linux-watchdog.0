@@ -1,36 +1,31 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.126.171]:62353 "EHLO
+Received: from moutng.kundenserver.de ([212.227.17.8]:53426 "EHLO
 	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758391Ab1FXNuF (ORCPT
+	with ESMTP id S1758624Ab1FXNvK (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 24 Jun 2011 09:50:05 -0400
+	Fri, 24 Jun 2011 09:51:10 -0400
 From: Arnd Bergmann <arnd@arndb.de>
 To: Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [PATCH 8/10 v2] Generic Watchdog Timer Driver
-Date: Fri, 24 Jun 2011 15:49:32 +0200
+Subject: Re: [PATCH 9/10 v2] Generic Watchdog Timer Driver
+Date: Fri, 24 Jun 2011 15:50:37 +0200
 Cc: LKML <linux-kernel@vger.kernel.org>,
 	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
 	Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <20110618172637.GI3441@infomag.iguana.be> <201106182109.14520.arnd@arndb.de> <20110622200009.GC26745@infomag.iguana.be>
-In-Reply-To: <20110622200009.GC26745@infomag.iguana.be>
+References: <20110618172727.GJ3441@infomag.iguana.be> <201106182117.49026.arnd@arndb.de> <20110622200513.GD26745@infomag.iguana.be>
+In-Reply-To: <20110622200513.GD26745@infomag.iguana.be>
 MIME-Version: 1.0
 Content-Type: Text/Plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <201106241549.32601.arnd@arndb.de>
+Message-Id: <201106241550.37356.arnd@arndb.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wednesday 22 June 2011 22:00:09 Wim Van Sebroeck wrote:
-> prefer to not do that for following reasons:
-> 1) I deliberately splitted the framework in a series of patches, so that people
-> understand better what the differen developmentt steps have been historically
-> and/or logically. By splitting it, I hope that people will understand better
-> why the API is what it is.
-> 2) most watchdog drivers don't do this yet. So this teaches existing device
-> driver writers also that this is a possible feature.
-> 
+On Wednesday 22 June 2011 22:05:14 Wim Van Sebroeck wrote:
+> That's why we also have a maintainer and a mailing list to review
+> patches... I can understand your concerns, but prefer the flexibility
+> and simpleness here.
 
-Ok, makes sense.
+Ok, fine with me then.
 
-	Arnd
+Acked-by: Arnd Bergmann <arnd@arndb.de>
