@@ -1,50 +1,52 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ironport2-out.teksavvy.com ([206.248.154.183]:36706 "EHLO
-	ironport2-out.pppoe.ca" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1759360Ab1FWONc (ORCPT
+Received: from moutng.kundenserver.de ([212.227.126.186]:62233 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753919Ab1FXNld (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 23 Jun 2011 10:13:32 -0400
-Message-ID: <4E034A09.6050107@teksavvy.com>
-Date: Thu, 23 Jun 2011 10:13:29 -0400
-From: Mark Lord <kernel@teksavvy.com>
+	Fri, 24 Jun 2011 09:41:33 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Prarit Bhargava <prarit@redhat.com>
+Subject: Re: [PATCH 00/35]: System Firmware and SMBIOS Support
+Date: Fri, 24 Jun 2011 15:40:57 +0200
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+	x86@kernel.org, linux-acpi@vger.kernel.org,
+	linux-ide@vger.kernel.org,
+	openipmi-developer@lists.sourceforge.net,
+	platform-driver-x86@vger.kernel.org, linux-crypto@vger.kernel.org,
+	dri-devel@lists.freedesktop.org, lm-sensors@lm-sensors.org,
+	linux-i2c@vger.kernel.org, linux-input@vger.kernel.org,
+	linux-media@vger.kernel.org, linux-mmc@vger.kernel.org,
+	netdev@vger.kernel.org, linux-pci@vger.kernel.org,
+	rtc-linux@googlegroups.com, evel@driverdev.osuosl.org,
+	linux-usb@vger.kernel.org,
+	device-drivers-devel@blackfin.uclinux.org,
+	linux-watchdog@vger.kernel.org, grant.likely@secretlab.ca,
+	dz@debian.org, rpurdie@rpsys.net, eric.piel@tremplin-utc.net,
+	abelay@mit.edu, johnpol@2ka.mipt.ru
+References: <20110623172206.27602.34306.sendpatchset@prarit.bos.redhat.com>
+In-Reply-To: <20110623172206.27602.34306.sendpatchset@prarit.bos.redhat.com>
 MIME-Version: 1.0
-To: Wim Van Sebroeck <wim@iguana.be>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Arnd Bergmann <arnd@arndb.de>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH 7/10 v2] Generic Watchdog Timer Driver
-References: <20110618172537.GH3441@infomag.iguana.be> <201106182107.45682.arnd@arndb.de> <20110619110328.39c0f5e1@lxorguk.ukuu.org.uk> <201106191325.17181.arnd@arndb.de> <20110619151909.1403205d@lxorguk.ukuu.org.uk> <4DFE31DC.4080201@teksavvy.com> <20110622201346.GE26745@infomag.iguana.be>
-In-Reply-To: <20110622201346.GE26745@infomag.iguana.be>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <201106241540.57952.arnd@arndb.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 11-06-22 04:13 PM, Wim Van Sebroeck wrote:
-> Hi Mark,
-> 
->>>>> Then you'd need an additional interface to specify which watchdog as soon
->>>>> as we support multiple watchdogs.
->>>>
->>>> You can always have multiple ways of setting nowayout -- hardware requirements,
->>>> global module option, local module option, and a new ioctl command -- but
->>>> what is being used is then the logical OR of all of them.
->>>
->>> An ioctl for it would make a lot of sense as watchdogs are often compiled
->>> in so currently there isn't a good way to runtime set this.
->>
->> I wouldn't mind a kernel parameter to enable a hardware watchdog timer at boot.
->> Currently, there's a window at startup where the watchdog is not enabled,
->> and the system could lock up and die in there without it being triggered.
-> 
-> This is another tricky thing were developers will always discuss about.
-> What you don't want to happen is that the watchdog reboots your system when it does
-> an fsck at bootup (for instance because the system rebooted by the watchdog and left
-> the filesystem in a dirty state...).
-> 
-> So it's more complex if you look at the overal system...
+On Thursday 23 June 2011 19:22:06 Prarit Bhargava wrote:
+> This new patchset reworks the existing DMI code into two separate layers.  It is
+> based off of the feedback I received previously when discussing the SMBIOS
+> version patch on LKML.
 
-Sure, but that's got little to do with wanting a kernel parameter to OPTIONALLY
-enable a hardware watchdog timer at boot.
+Hi Prarit,
 
-Filesystem checks are a separate issue, easily worked around in practice.
+No objections to the patches, but when you send out a series as long as
+this one, please ensure that all patches are sent as replies to the
+introductory mail. Also, do not repeat the one-line patch summary in the
+body of the email.
+
+When using "git send-email --thread --no-chain-reply", this works
+automatically. It will also let you put the Cc list into the
+patch description and work out where to send each patch.
+
+	Arnd
