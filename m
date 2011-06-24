@@ -1,63 +1,48 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay004.isp.belgacom.be ([195.238.6.170]:31678 "EHLO
-	mailrelay004.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754691Ab1FXT1o (ORCPT
+Received: from mailrelay010.isp.belgacom.be ([195.238.6.177]:37540 "EHLO
+	mailrelay010.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752015Ab1FXTlm (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 24 Jun 2011 15:27:44 -0400
-Date: Fri, 24 Jun 2011 21:27:42 +0200
+	Fri, 24 Jun 2011 15:41:42 -0400
+Date: Fri, 24 Jun 2011 21:41:36 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH 1/10 v2] Generic Watchdog Timer Driver
-Message-ID: <20110624192742.GY23305@infomag.iguana.be>
-References: <20110618171946.GB3441@infomag.iguana.be> <201106182058.14702.arnd@arndb.de> <20110622195024.GA26745@infomag.iguana.be> <201106241559.16416.arnd@arndb.de>
+To: Alejandro Cabrera <acabrera@udio.cujae.edu.cu>
+Cc: linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 7/10 v2] Generic Watchdog Timer Driver
+Message-ID: <20110624194136.GZ23305@infomag.iguana.be>
+References: <20110618172537.GH3441@infomag.iguana.be> <4E025DC8.9090202@udio.cujae.edu.cu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <201106241559.16416.arnd@arndb.de>
+In-Reply-To: <4E025DC8.9090202@udio.cujae.edu.cu>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Arnd,
+Hi Alejandro,
 
-> > > > +#include <linux/platform_device.h>
-> > > > +
-> > > > +/* Hardware heartbeat in seconds */
-> > > > +#define WDT_HW_HEARTBEAT 2
-> > > > +
-> > > > +/* Timer heartbeat (500ms) */
-> > > > +#define WDT_HEARTBEAT	(HZ/2)	/* should be <= ((WDT_HW_HEARTBEAT*HZ)/2) */
-> > > > +
-> > > > +/* User land timeout */
-> > > > +#define WDT_TIMEOUT 15
-> > > > +static int timeout = WDT_TIMEOUT;
-> > > > +module_param(timeout, int, 0);
-> > > > +MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds. "
-> > > > +	"(default = " __MODULE_STRING(WDT_TIMEOUT) ")");
-> > > 
-> > > Should the module parameter really be part of each individual driver?
-> > > It would be nice if that can be moved into the core as well.
-> > 
-> > Yes, the module parameter is needed for each individual driver.
-> > If we go for supporting multiple watchdog devices, then we will have to support
-> > different timeout values. The timeout ranges also differ for different devices.
-> 
-> Ok, but you'd still have to worry about a single driver supporting multiple
-> distinct devices that each want a separate timeout, right?
+>>   static int watchdog_stop(struct watchdog_device *wddev)
+>>   {
+>> -	int err;
+>> +	int err = -1;
+>> +
+>> +	if (test_bit(WDOG_NO_WAY_OUT,&wdd->status))
+>> +		return err;
+>>
+>
+> If you return err at this point you never clean the bit WDOG_ACTIVE then  
+> the timer will keep resetting the wdt because the bit is still active.
 
-If it's a single driver that supports different devices (say an SuperIO controller
-with several watchdog timers and different GPIO output's), then I still presume that
-the timeout range for these different devices will be the same. But I can indeed
-imagine that these timers will be used for monitoring different "processes" that
-will have different latency and timeout values.
+If WDOG_ACTIVE is never cleared, then you will need to keep pinging the watchdog
+to not start the reboot. Even when you use the timer (with this code):
+        if (time_before(jiffies, next_heartbeat) ||
+           (!test_bit(WDOG_ACTIVE, &wdt_dev.status))) {
 
-> OTOH, we can still find a solution when it ever gets to the point of
-> supporting multiple devices.
+if WDOG_ACTIVE is set then you fall down to: if (time_before(jiffies, next_heartbeat))
+which means that as long that the next_heartbeat time is not there we will keep pinging
+the watchdog device, but as soon as jiffies > next_heartbeat, the watchdog device will
+not be triggered anymore.
 
-Yep, if we support different watchdog devices, then we will need something
-to change the default value anyway (like the ioctl does now for a single instance).
+But I see another possible problem here. Will do some special tests first.
 
 Kind regards,
 Wim.
