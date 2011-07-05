@@ -1,76 +1,102 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:37501 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755887Ab1GEMF6 (ORCPT
+Received: from mail-fx0-f52.google.com ([209.85.161.52]:43824 "EHLO
+	mail-fx0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752653Ab1GETDR (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 5 Jul 2011 08:05:58 -0400
-From: Tommy Lin <tommy.lin.1101@gmail.com>
-To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	Anton Vorontsov <avorontsov@mvista.com>
-Cc: linux-kernel@vger.kernel.org, mac.lin@caviumnetworks.com,
-	Tommy Lin <tommy.lin@caviumnetworks.com>
-Subject: [PATCH 2/2] watchdog: mpcore_wdt Add reload value setting for CNS3xxx hardware
-Date: Tue,  5 Jul 2011 20:05:48 +0800
-Message-Id: <1309867548-7842-1-git-send-email-tommy.lin@caviumnetworks.com>
+	Tue, 5 Jul 2011 15:03:17 -0400
+From: Vitaly Kuzmichev <vkuzmichev@mvista.com>
+To: linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org,
+	Russell King <linux@arm.linux.org.uk>,
+	Marc Zyngier <marc.zyngier@arm.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+Cc: arm@kernel.org, linux-kernel@vger.kernel.org,
+	Arnd Bergmann <arnd@arndb.de>,
+	John Stultz <johnstul@us.ibm.com>,
+	Nicolas Pitre <nico@fluxnic.net>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Vitaly Kuzmichev <vkuzmichev@mvista.com>
+Subject: [PATCH V2 2/6] arm_smp_twd: mpcore_wdt: Fix watchdog counter loading
+Date: Tue,  5 Jul 2011 23:00:36 +0400
+Message-Id: <1309892440-3260-3-git-send-email-vkuzmichev@mvista.com>
+In-Reply-To: <1286185540-19569-1-git-send-email-vkuzmichev@mvista.com>
+References: <1286185540-19569-1-git-send-email-vkuzmichev@mvista.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Original MPcore watchdog setting about load register (offset 0x20) is different
-from CNS3xxx data sheet. The CNS3xxx data sheet says watchdog has following
-features:
-1. The Watchdog Counter Register (offset 0x24) is a down counter.
-2. The timer interval is calculated using following equation:
-   (PRESCALER_value+1) X (Load_value+1) X 2 / CPU CLK_frequency
-Thus the watchdog load register control in CNS3xxx way is add to MPcore watchdog
-source. The original control method is also kept if the CPU architecture is not
-CNS3xxx.
+Although the commit "98af057092f8f0dabe63c5df08adc2bbfbddb1d2
+ ARM: 6126/1: ARM mpcore_wdt: fix build failure and other fixes"
+resolved long standing mpcore_wdt driver build problems, it
+introduced an error in the relationship between the MPcore watchdog
+timer clock rate and mpcore_margin, "MPcore timer margin in seconds",
+such that watchdog timeouts are now arbitrary rather than the number
+of seconds specified by mpcore_margin.
 
-Signed-off-by: Tommy Lin <tommy.lin@caviumnetworks.com>
+This change restores mpcore_wdt_keepalive() to its equivalent
+implementation prior to commit 98af057 such that watchdog timeouts now
+occur as specified by mpcore_margin.
+
+The variable 'mpcore_timer_rate' which caused that build failure was
+replaced by 'twd_timer_rate'. Adding exported function to obtain
+'twd_timer_rate' value in mpcore_wdt driver.
+
+A build error will not occur because MPCORE_WATCHDOG needed to build
+'mpcore_wdt' depends on HAVE_ARM_TWD needed to build 'smp_twd'.
+
+Signed-off-by: Vitaly Kuzmichev <vkuzmichev@mvista.com>
 ---
- drivers/watchdog/mpcore_wdt.c |   12 ++++++++++++
- 1 files changed, 12 insertions(+), 0 deletions(-)
+ drivers/clocksource/arm_smp_twd.c |   13 +++++++++++++
+ drivers/watchdog/mpcore_wdt.c     |    6 +++---
+ 2 files changed, 16 insertions(+), 3 deletions(-)
 
+diff --git a/drivers/clocksource/arm_smp_twd.c b/drivers/clocksource/arm_smp_twd.c
+index 6acbdac..32f78ff 100644
+--- a/drivers/clocksource/arm_smp_twd.c
++++ b/drivers/clocksource/arm_smp_twd.c
+@@ -241,6 +241,19 @@ static void __cpuinit twd_setup(void *data)
+ 					0xf, 0xffffffff);
+ }
+ 
++/* Needed by mpcore_wdt */
++unsigned long twd_timer_get_rate(void)
++{
++	unsigned long rate;
++
++	if (!IS_ERR_OR_NULL(twd_clk))
++		rate = clk_get_rate(twd_clk);
++	else
++		rate = twd_timer_rate;
++	return rate;
++}
++EXPORT_SYMBOL(twd_timer_get_rate);
++
+ static void __cpuinit twd_teardown(void *data)
+ {
+ 	struct clock_event_device *clk = data;
 diff --git a/drivers/watchdog/mpcore_wdt.c b/drivers/watchdog/mpcore_wdt.c
-index 2b4af22..816e0c5 100644
+index f638206..7a3d6b2 100644
 --- a/drivers/watchdog/mpcore_wdt.c
 +++ b/drivers/watchdog/mpcore_wdt.c
-@@ -42,6 +42,9 @@ struct mpcore_wdt {
- 	int		irq;
- 	unsigned int	perturb;
- 	char		expect_close;
-+#ifdef CONFIG_ARCH_CNS3XXX
-+	unsigned long	reload_unit; /* ticks per second */
-+#endif
- };
+@@ -33,6 +33,8 @@
+ #include <linux/slab.h>
+ #include <linux/io.h>
  
- static struct platform_device *mpcore_wdt_dev;
-@@ -98,10 +101,14 @@ static void mpcore_wdt_keepalive(struct mpcore_wdt *wdt)
- 	unsigned long count;
++unsigned long twd_timer_get_rate(void);
++
+ #define TWD_WDOG_LOAD			0x20
+ #define TWD_WDOG_COUNTER		0x24
+ #define TWD_WDOG_CONTROL		0x28
+@@ -104,9 +106,7 @@ static void mpcore_wdt_keepalive(struct mpcore_wdt *wdt)
  
  	spin_lock(&wdt_lock);
-+#ifdef CONFIG_ARCH_CNS3XXX
-+	count = wdt->reload_unit * mpcore_margin;
-+#else
  	/* Assume prescale is set to 256 */
- 	count =  __raw_readl(wdt->base + TWD_WDOG_COUNTER);
- 	count = (0xFFFFFFFFU - count) * (HZ / 5);
- 	count = (count / 256) * mpcore_margin;
-+#endif
+-	count =  __raw_readl(wdt->base + TWD_WDOG_COUNTER);
+-	count = (0xFFFFFFFFU - count) * (HZ / 5);
+-	count = (count / 256) * mpcore_margin;
++	count = (twd_timer_get_rate() / 256) * mpcore_margin;
  
  	/* Reload the counter */
  	writel(count + wdt->perturb, wdt->base + TWD_WDOG_LOAD);
-@@ -375,6 +382,11 @@ static int __devinit mpcore_wdt_probe(struct platform_device *dev)
- 		goto err_irq;
- 	}
- 
-+#ifdef CONFIG_ARCH_CNS3XXX
-+	/* Assume prescale is set to 256 */
-+	wdt->reload_unit = cns3xxx_cpu_clock() * 1000000 / 256 / 2;
-+#endif
-+
- 	mpcore_wdt_stop(wdt);
- 	platform_set_drvdata(dev, wdt);
- 	mpcore_wdt_dev = dev;
 -- 
-1.7.6
+1.7.3.4
 
