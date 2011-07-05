@@ -1,73 +1,55 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-fx0-f52.google.com ([209.85.161.52]:47193 "EHLO
+Received: from mail-fx0-f52.google.com ([209.85.161.52]:43824 "EHLO
 	mail-fx0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751971Ab1GEOGF (ORCPT
+	with ESMTP id S1751124Ab1GETDN (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 5 Jul 2011 10:06:05 -0400
-Date: Tue, 5 Jul 2011 18:05:59 +0400
-From: Anton Vorontsov <cbouatmailru@gmail.com>
-To: Tommy Lin <tommy.lin.1101@gmail.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org, mac.lin@caviumnetworks.com,
-	Tommy Lin <tommy.lin@caviumnetworks.com>
-Subject: Re: [PATCH 2/2] watchdog: mpcore_wdt Add reload value setting for
- CNS3xxx hardware
-Message-ID: <20110705140559.GA15771@oksana.dev.rtsoft.ru>
-References: <1309867548-7842-1-git-send-email-tommy.lin@caviumnetworks.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <1309867548-7842-1-git-send-email-tommy.lin@caviumnetworks.com>
+	Tue, 5 Jul 2011 15:03:13 -0400
+From: Vitaly Kuzmichev <vkuzmichev@mvista.com>
+To: linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org,
+	Russell King <linux@arm.linux.org.uk>,
+	Marc Zyngier <marc.zyngier@arm.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+Cc: arm@kernel.org, linux-kernel@vger.kernel.org,
+	Arnd Bergmann <arnd@arndb.de>,
+	John Stultz <johnstul@us.ibm.com>,
+	Nicolas Pitre <nico@fluxnic.net>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Vitaly Kuzmichev <vkuzmichev@mvista.com>
+Subject: [PATCH V2 0/6] arm_smp_twd: mpcore_wdt: Fix MPCORE watchdog setup
+Date: Tue,  5 Jul 2011 23:00:34 +0400
+Message-Id: <1309892440-3260-1-git-send-email-vkuzmichev@mvista.com>
+In-Reply-To: <1286185540-19569-1-git-send-email-vkuzmichev@mvista.com>
+References: <1286185540-19569-1-git-send-email-vkuzmichev@mvista.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello,
+The series of patches fixes various bugs in ARM MPCORE watchdog setup.
+They also introduce some changes in common ARM_SMP_TWD timer setup code.
+The PATCH 2/6 adds an exported function to obtain twd timer rate in
+mpcore_wdt. However, this solution might be unacceptable, and the
+better is to copy calibration loop and clk_get_rate calling to mpcore_wdt.
 
-thanks for the patches.
+The series of patches is based on arm-platforms.git/local_timers_as_devices
+branch since it looks like that it is going to be merged into the mainline.
 
-On Tue, Jul 05, 2011 at 08:05:48PM +0800, Tommy Lin wrote:
-> Original MPcore watchdog setting about load register (offset 0x20) is different
-> from CNS3xxx data sheet. The CNS3xxx data sheet says watchdog has following
-> features:
-> 1. The Watchdog Counter Register (offset 0x24) is a down counter.
-> 2. The timer interval is calculated using following equation:
->    (PRESCALER_value+1) X (Load_value+1) X 2 / CPU CLK_frequency
-> Thus the watchdog load register control in CNS3xxx way is add to MPcore watchdog
-> source. The original control method is also kept if the CPU architecture is not
-> CNS3xxx.
-> 
-> Signed-off-by: Tommy Lin <tommy.lin@caviumnetworks.com>
-> ---
->  drivers/watchdog/mpcore_wdt.c |   12 ++++++++++++
->  1 files changed, 12 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/watchdog/mpcore_wdt.c b/drivers/watchdog/mpcore_wdt.c
-> index 2b4af22..816e0c5 100644
-> --- a/drivers/watchdog/mpcore_wdt.c
-> +++ b/drivers/watchdog/mpcore_wdt.c
-> @@ -42,6 +42,9 @@ struct mpcore_wdt {
->  	int		irq;
->  	unsigned int	perturb;
->  	char		expect_close;
-> +#ifdef CONFIG_ARCH_CNS3XXX
-> +	unsigned long	reload_unit; /* ticks per second */
-> +#endif
+V1 series was not discussed widely because I forgot to add all necessary
+maintainers in Cc.
 
-Nope, these #ifdefs are not acceptible. Kernel should support multi-arch
-images soon.
+Vitaly Kuzmichev (6):
+  arm_smp_twd: Fix typo in 'twd_timer_rate' printing
+  arm_smp_twd: mpcore_wdt: Fix watchdog counter loading
+  mpcore_wdt: Fix WDIOC_SETOPTIONS handling
+  mpcore_wdt: Fix timer mode setup
+  mpcore_wdt: Add cpufreq notifier to reload counter
+  mpcore_wdt: Move declarations in a separate header
 
-[...]
-> +#ifdef CONFIG_ARCH_CNS3XXX
-> +	/* Assume prescale is set to 256 */
-> +	wdt->reload_unit = cns3xxx_cpu_clock() * 1000000 / 256 / 2;
-> +#endif
-
-You probably want to pass reload_unit via platform_data, and also
-check (in runtime) that the watchdog is CNS3xxx. Or if reload_unit
-!= 0.
-
-Thanks,
+ drivers/clocksource/arm_smp_twd.c |   15 +++++++-
+ drivers/watchdog/mpcore_wdt.c     |   71 +++++++++++++++++++++++-------------
+ drivers/watchdog/mpcore_wdt.h     |   40 +++++++++++++++++++++
+ 3 files changed, 99 insertions(+), 27 deletions(-)
+ create mode 100644 drivers/watchdog/mpcore_wdt.h
 
 -- 
-Anton Vorontsov
-Email: cbouatmailru@gmail.com
+1.7.3.4
+
