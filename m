@@ -1,105 +1,58 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-fx0-f52.google.com ([209.85.161.52]:43824 "EHLO
-	mail-fx0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753251Ab1GETDZ (ORCPT
+Received: from lennier.cc.vt.edu ([198.82.162.213]:39972 "EHLO
+	lennier.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753426Ab1GEWZm (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 5 Jul 2011 15:03:25 -0400
-From: Vitaly Kuzmichev <vkuzmichev@mvista.com>
-To: linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org,
-	Russell King <linux@arm.linux.org.uk>,
-	Marc Zyngier <marc.zyngier@arm.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Cc: arm@kernel.org, linux-kernel@vger.kernel.org,
-	Arnd Bergmann <arnd@arndb.de>,
-	John Stultz <johnstul@us.ibm.com>,
-	Nicolas Pitre <nico@fluxnic.net>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Vitaly Kuzmichev <vkuzmichev@mvista.com>
-Subject: [PATCH V2 5/6] mpcore_wdt: Add cpufreq notifier to reload counter
-Date: Tue,  5 Jul 2011 23:00:39 +0400
-Message-Id: <1309892440-3260-6-git-send-email-vkuzmichev@mvista.com>
-In-Reply-To: <1286185540-19569-1-git-send-email-vkuzmichev@mvista.com>
-References: <1286185540-19569-1-git-send-email-vkuzmichev@mvista.com>
+	Tue, 5 Jul 2011 18:25:42 -0400
+To: Alexander Stein <alexander.stein@systec-electronic.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 2/2 v2] Add watchdog driver for Intel E6XX
+In-Reply-To: Your message of "Mon, 04 Jul 2011 15:29:08 +0200."
+             <1309786148-5138-2-git-send-email-alexander.stein@systec-electronic.com>
+From: Valdis.Kletnieks@vt.edu
+References: <20110701110002.GA9326@infomag.iguana.be>
+            <1309786148-5138-2-git-send-email-alexander.stein@systec-electronic.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1309904673_18528P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 05 Jul 2011 18:24:33 -0400
+Message-ID: <61870.1309904673@turing-police.cc.vt.edu>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-In the case if CPU frequency is changed when watchdog is working it begins to
-acount faster or slower. To avoid watchdog triggering before the margin time
-the watchdog counter needs to be reloaded.
+--==_Exmh_1309904673_18528P
+Content-Type: text/plain; charset=us-ascii
 
-Signed-off-by: Vitaly Kuzmichev <vkuzmichev@mvista.com>
----
- drivers/watchdog/mpcore_wdt.c |   31 ++++++++++++++++++++++++++++++-
- 1 files changed, 30 insertions(+), 1 deletions(-)
+On Mon, 04 Jul 2011 15:29:08 +0200, Alexander Stein said:
+> Signed-off-by: Alexander Stein <alexander.stein@systec-electronic.com>
 
-diff --git a/drivers/watchdog/mpcore_wdt.c b/drivers/watchdog/mpcore_wdt.c
-index 11c70df..38b9119 100644
---- a/drivers/watchdog/mpcore_wdt.c
-+++ b/drivers/watchdog/mpcore_wdt.c
-@@ -32,6 +32,7 @@
- #include <linux/uaccess.h>
- #include <linux/slab.h>
- #include <linux/io.h>
-+#include <linux/cpufreq.h>
- 
- unsigned long twd_timer_get_rate(void);
- 
-@@ -426,6 +427,25 @@ static int __devexit mpcore_wdt_remove(struct platform_device *dev)
- 	return 0;
- }
- 
-+static int mpcore_wdt_notify(struct notifier_block *nb,
-+				unsigned long state, void *data)
-+{
-+	struct mpcore_wdt *wdt = platform_get_drvdata(mpcore_wdt_dev);
-+	/*
-+	 * The mpcore_wdt counter register must be reloaded to account
-+	 * properly with the new frequency.
-+	 */
-+	if (mpcore_wdt_dev && wdt && (state == CPUFREQ_POSTCHANGE ||
-+					state == CPUFREQ_RESUMECHANGE))
-+		mpcore_wdt_keepalive(wdt);
-+
-+	return NOTIFY_OK;
-+}
-+
-+static struct notifier_block mpcore_wdt_nb = {
-+	.notifier_call = mpcore_wdt_notify,
-+};
-+
- /* work with hotplug and coldplug */
- MODULE_ALIAS("platform:mpcore_wdt");
- 
-@@ -444,6 +464,7 @@ static char banner[] __initdata = KERN_INFO "MPcore Watchdog Timer: 0.1. "
- 
- static int __init mpcore_wdt_init(void)
- {
-+	int ret = 0;
- 	/*
- 	 * Check that the margin value is within it's range;
- 	 * if not reset to the default
-@@ -456,11 +477,19 @@ static int __init mpcore_wdt_init(void)
- 
- 	printk(banner, mpcore_noboot, mpcore_margin, nowayout);
- 
--	return platform_driver_register(&mpcore_wdt_driver);
-+	ret = platform_driver_register(&mpcore_wdt_driver);
-+
-+	if (!ret)
-+		ret = cpufreq_register_notifier(&mpcore_wdt_nb,
-+						CPUFREQ_TRANSITION_NOTIFIER);
-+
-+	return ret;
- }
- 
- static void __exit mpcore_wdt_exit(void)
- {
-+	cpufreq_unregister_notifier(&mpcore_wdt_nb,
-+					CPUFREQ_TRANSITION_NOTIFIER);
- 	platform_driver_unregister(&mpcore_wdt_driver);
- }
- 
--- 
-1.7.3.4
+> +config IE6XX_WATCHDOG
+> +	tristate "Intel E6XX watchdog"
+> +	depends on WATCHDOG && PCI && X86
+> +	select MFD_CORE
+> +	select LPC_SCH
+> +	---help---
+> +	  Hardware driver for the watchdog timer built into the Intel
+> +	  E6XX (TunnelCreek) processor.
+
+That addresses my comment on the patchset, feel free to stick an Acked-By: or
+whatever is called for in there...
+
+
+--==_Exmh_1309904673_18528P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFOE48hcC3lWbTT17ARAum+AJ93gakw8kROiW4d06eXaVOut0ql6gCZAYgx
+ANj8C/UJXc3JQIRIdHQuCDM=
+=7vfM
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1309904673_18528P--
 
