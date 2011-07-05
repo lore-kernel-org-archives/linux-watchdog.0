@@ -1,58 +1,85 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from lennier.cc.vt.edu ([198.82.162.213]:39972 "EHLO
-	lennier.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753426Ab1GEWZm (ORCPT
+Received: from mail-fx0-f52.google.com ([209.85.161.52]:43824 "EHLO
+	mail-fx0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752978Ab1GETDW (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 5 Jul 2011 18:25:42 -0400
-To: Alexander Stein <alexander.stein@systec-electronic.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 2/2 v2] Add watchdog driver for Intel E6XX
-In-Reply-To: Your message of "Mon, 04 Jul 2011 15:29:08 +0200."
-             <1309786148-5138-2-git-send-email-alexander.stein@systec-electronic.com>
-From: Valdis.Kletnieks@vt.edu
-References: <20110701110002.GA9326@infomag.iguana.be>
-            <1309786148-5138-2-git-send-email-alexander.stein@systec-electronic.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1309904673_18528P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 05 Jul 2011 18:24:33 -0400
-Message-ID: <61870.1309904673@turing-police.cc.vt.edu>
+	Tue, 5 Jul 2011 15:03:22 -0400
+From: Vitaly Kuzmichev <vkuzmichev@mvista.com>
+To: linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org,
+	Russell King <linux@arm.linux.org.uk>,
+	Marc Zyngier <marc.zyngier@arm.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+Cc: arm@kernel.org, linux-kernel@vger.kernel.org,
+	Arnd Bergmann <arnd@arndb.de>,
+	John Stultz <johnstul@us.ibm.com>,
+	Nicolas Pitre <nico@fluxnic.net>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Vitaly Kuzmichev <vkuzmichev@mvista.com>
+Subject: [PATCH V2 4/6] mpcore_wdt: Fix timer mode setup
+Date: Tue,  5 Jul 2011 23:00:38 +0400
+Message-Id: <1309892440-3260-5-git-send-email-vkuzmichev@mvista.com>
+In-Reply-To: <1286185540-19569-1-git-send-email-vkuzmichev@mvista.com>
+References: <1286185540-19569-1-git-send-email-vkuzmichev@mvista.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
---==_Exmh_1309904673_18528P
-Content-Type: text/plain; charset=us-ascii
+Allow watchdog to set its iterrupt as pending when it is configured
+for timer mode (in other words, allow emitting interrupt).
+Also add macros for all Watchdog Control Register flags.
 
-On Mon, 04 Jul 2011 15:29:08 +0200, Alexander Stein said:
-> Signed-off-by: Alexander Stein <alexander.stein@systec-electronic.com>
+Signed-off-by: Vitaly Kuzmichev <vkuzmichev@mvista.com>
+---
+ drivers/watchdog/mpcore_wdt.c |   21 +++++++++++++++++----
+ 1 files changed, 17 insertions(+), 4 deletions(-)
 
-> +config IE6XX_WATCHDOG
-> +	tristate "Intel E6XX watchdog"
-> +	depends on WATCHDOG && PCI && X86
-> +	select MFD_CORE
-> +	select LPC_SCH
-> +	---help---
-> +	  Hardware driver for the watchdog timer built into the Intel
-> +	  E6XX (TunnelCreek) processor.
-
-That addresses my comment on the patchset, feel free to stick an Acked-By: or
-whatever is called for in there...
-
-
---==_Exmh_1309904673_18528P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFOE48hcC3lWbTT17ARAum+AJ93gakw8kROiW4d06eXaVOut0ql6gCZAYgx
-ANj8C/UJXc3JQIRIdHQuCDM=
-=7vfM
------END PGP SIGNATURE-----
-
---==_Exmh_1309904673_18528P--
+diff --git a/drivers/watchdog/mpcore_wdt.c b/drivers/watchdog/mpcore_wdt.c
+index b330a0a..11c70df 100644
+--- a/drivers/watchdog/mpcore_wdt.c
++++ b/drivers/watchdog/mpcore_wdt.c
+@@ -42,6 +42,12 @@ unsigned long twd_timer_get_rate(void);
+ #define TWD_WDOG_RESETSTAT		0x30
+ #define TWD_WDOG_DISABLE		0x34
+ 
++#define TWD_WDOG_CONTROL_ENABLE		(1 << 0)
++#define TWD_WDOG_CONTROL_PERIODIC	(1 << 1)
++#define TWD_WDOG_CONTROL_IT_ENABLE	(1 << 2)
++#define TWD_WDOG_CONTROL_TIMER_MODE	(0 << 3)
++#define TWD_WDOG_CONTROL_WATCHDOG_MODE	(1 << 3)
++
+ struct mpcore_wdt {
+ 	unsigned long	timer_alive;
+ 	struct device	*dev;
+@@ -125,18 +131,25 @@ static void mpcore_wdt_stop(struct mpcore_wdt *wdt)
+ 
+ static void mpcore_wdt_start(struct mpcore_wdt *wdt)
+ {
++	u32 mode;
++
+ 	dev_printk(KERN_INFO, wdt->dev, "enabling watchdog.\n");
+ 
+ 	/* This loads the count register but does NOT start the count yet */
+ 	mpcore_wdt_keepalive(wdt);
+ 
++	/* Setup watchdog - prescale=256, enable=1 */
++	mode = (255 << 8) | TWD_WDOG_CONTROL_ENABLE;
++
+ 	if (mpcore_noboot) {
+-		/* Enable watchdog - prescale=256, watchdog mode=0, enable=1 */
+-		writel(0x0000FF01, wdt->base + TWD_WDOG_CONTROL);
++		/* timer mode, send interrupt */
++		mode |=	TWD_WDOG_CONTROL_TIMER_MODE
++		     |  TWD_WDOG_CONTROL_IT_ENABLE;
+ 	} else {
+-		/* Enable watchdog - prescale=256, watchdog mode=1, enable=1 */
+-		writel(0x0000FF09, wdt->base + TWD_WDOG_CONTROL);
++		/* watchdog mode */
++		mode |=	TWD_WDOG_CONTROL_WATCHDOG_MODE;
+ 	}
++	writel(mode, wdt->base + TWD_WDOG_CONTROL);
+ }
+ 
+ static int mpcore_wdt_set_heartbeat(int t)
+-- 
+1.7.3.4
 
