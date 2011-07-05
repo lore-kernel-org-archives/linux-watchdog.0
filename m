@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
 Received: from mail-fx0-f52.google.com ([209.85.161.52]:43824 "EHLO
 	mail-fx0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751124Ab1GETDN (ORCPT
+	with ESMTP id S1751685Ab1GETDP (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 5 Jul 2011 15:03:13 -0400
+	Tue, 5 Jul 2011 15:03:15 -0400
 From: Vitaly Kuzmichev <vkuzmichev@mvista.com>
 To: linux-arm-kernel@lists.infradead.org,
 	linux-watchdog@vger.kernel.org,
@@ -16,40 +16,44 @@ Cc: arm@kernel.org, linux-kernel@vger.kernel.org,
 	Nicolas Pitre <nico@fluxnic.net>,
 	Thomas Gleixner <tglx@linutronix.de>,
 	Vitaly Kuzmichev <vkuzmichev@mvista.com>
-Subject: [PATCH V2 0/6] arm_smp_twd: mpcore_wdt: Fix MPCORE watchdog setup
-Date: Tue,  5 Jul 2011 23:00:34 +0400
-Message-Id: <1309892440-3260-1-git-send-email-vkuzmichev@mvista.com>
+Subject: [PATCH V2 1/6] arm_smp_twd: Fix typo in 'twd_timer_rate' printing
+Date: Tue,  5 Jul 2011 23:00:35 +0400
+Message-Id: <1309892440-3260-2-git-send-email-vkuzmichev@mvista.com>
 In-Reply-To: <1286185540-19569-1-git-send-email-vkuzmichev@mvista.com>
 References: <1286185540-19569-1-git-send-email-vkuzmichev@mvista.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The series of patches fixes various bugs in ARM MPCORE watchdog setup.
-They also introduce some changes in common ARM_SMP_TWD timer setup code.
-The PATCH 2/6 adds an exported function to obtain twd timer rate in
-mpcore_wdt. However, this solution might be unacceptable, and the
-better is to copy calibration loop and clk_get_rate calling to mpcore_wdt.
+To get hundredths of MHz the rate needs to be divided by 10'000.
+Here is an example:
+ twd_timer_rate = 123456789
+ Before:
+    twd_timer_rate / 1000000 = 123
+    (twd_timer_rate / 1000000) % 100 = 23
+    Result: 123.23MHz.
+ Now:
+    twd_timer_rate / 1000000 = 123
+    (twd_timer_rate / 10000) % 100 = 45
+    Result: 123.45MHz.
 
-The series of patches is based on arm-platforms.git/local_timers_as_devices
-branch since it looks like that it is going to be merged into the mainline.
+Signed-off-by: Vitaly Kuzmichev <vkuzmichev@mvista.com>
+---
+ drivers/clocksource/arm_smp_twd.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-V1 series was not discussed widely because I forgot to add all necessary
-maintainers in Cc.
-
-Vitaly Kuzmichev (6):
-  arm_smp_twd: Fix typo in 'twd_timer_rate' printing
-  arm_smp_twd: mpcore_wdt: Fix watchdog counter loading
-  mpcore_wdt: Fix WDIOC_SETOPTIONS handling
-  mpcore_wdt: Fix timer mode setup
-  mpcore_wdt: Add cpufreq notifier to reload counter
-  mpcore_wdt: Move declarations in a separate header
-
- drivers/clocksource/arm_smp_twd.c |   15 +++++++-
- drivers/watchdog/mpcore_wdt.c     |   71 +++++++++++++++++++++++-------------
- drivers/watchdog/mpcore_wdt.h     |   40 +++++++++++++++++++++
- 3 files changed, 99 insertions(+), 27 deletions(-)
- create mode 100644 drivers/watchdog/mpcore_wdt.h
-
+diff --git a/drivers/clocksource/arm_smp_twd.c b/drivers/clocksource/arm_smp_twd.c
+index 60c8022..6acbdac 100644
+--- a/drivers/clocksource/arm_smp_twd.c
++++ b/drivers/clocksource/arm_smp_twd.c
+@@ -176,7 +176,7 @@ static void __cpuinit twd_calibrate_rate(void)
+ 		twd_timer_rate = (0xFFFFFFFFU - count) * (HZ / 5);
+ 
+ 		printk("%lu.%02luMHz.\n", twd_timer_rate / 1000000,
+-			(twd_timer_rate / 1000000) % 100);
++			(twd_timer_rate / 10000) % 100);
+ 	}
+ }
+ 
 -- 
 1.7.3.4
 
