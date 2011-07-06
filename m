@@ -1,95 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Reply-To: <tommy.lin@caviumnetworks.com>
-From: Tommy Lin <tommy.lin.1101@gmail.com>
-To: "'Anton Vorontsov'" <cbouatmailru@gmail.com>,
-        "'Tommy Lin'" <tommy.lin.1101@gmail.com>
-Cc: "'Wim Van Sebroeck'" <wim@iguana.be>, <linux-watchdog@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        "Lin, Mac" <Mac.Lin@caviumnetworks.com>
-References: <1309867548-7842-1-git-send-email-tommy.lin@caviumnetworks.com> <20110705140559.GA15771@oksana.dev.rtsoft.ru>
-Subject: RE: [PATCH 2/2] watchdog: mpcore_wdt Add reload value setting for CNS3xxx hardware
-Date: Wed, 6 Jul 2011 18:05:37 +0800
-Message-ID: <281B1F8BAB4D4BDABE7568809A0AEC1A@starsemi.com>
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-In-Reply-To: <20110705140559.GA15771@oksana.dev.rtsoft.ru>
+	charset="big5"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH 2/2] watchdog: mpcore_wdt Add reload value setting for CNS3xxx hardware
+Date: Wed, 6 Jul 2011 07:54:49 -0700
+Message-ID: <6D7FCE1DF69D524D850E799960F2705811271D@caexch01.caveonetworks.com>
+References: <1309867548-7842-1-git-send-email-tommy.lin@caviumnetworks.com> <20110705140559.GA15771@oksana.dev.rtsoft.ru> <281B1F8BAB4D4BDABE7568809A0AEC1A@starsemi.com> <20110706111616.GA18967@oksana.dev.rtsoft.ru> <20110706112830.GA23184@oksana.dev.rtsoft.ru> <20110706114629.GA32659@oksana.dev.rtsoft.ru>
+From: "Lin, Tommy" <Tommy.Lin@caviumnetworks.com>
+To: "Anton Vorontsov" <cbouatmailru@gmail.com>
+Cc: "Tommy Lin" <tommy.lin.1101@gmail.com>, "Wim Van Sebroeck" <wim@iguana.be>,
+        <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        "Lin, Mac" <Mac.Lin@caviumnetworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi, I just found another patch that can solve the watchdog counter reload
-issue. Please ignore this patch, since it should not acceptable to use
-#ifdefs.
+I am thinking that mpcore_wdt should work even SMP is not turned on. Did the dependency 
+is neccesarry between mpcore_wdt and SMP? If CPU1 is turned off the mpcore_wdt worked
+well with CPU0 only.
 
-From	Vitaly Kuzmichev <vkuzmichev@mvista.com>
-Subject	[PATCH V2 2/6] arm_smp_twd: mpcore_wdt: Fix watchdog counter loading
-Date	Tue, 5 Jul 2011 23:00:36 +0400
+Best regards,
+Tommy
 
---
-Tommy Lin
+
 
 -----Original Message-----
-From: Anton Vorontsov [mailto:cbouatmailru@gmail.com] 
-Sent: Tuesday, July 05, 2011 10:06 PM
-To: Tommy Lin
-Cc: Wim Van Sebroeck; linux-watchdog@vger.kernel.org;
-linux-kernel@vger.kernel.org; mac.lin@caviumnetworks.com; Tommy Lin
-Subject: Re: [PATCH 2/2] watchdog: mpcore_wdt Add reload value setting for
-CNS3xxx hardware
-
-Hello,
-
-thanks for the patches.
-
-On Tue, Jul 05, 2011 at 08:05:48PM +0800, Tommy Lin wrote:
-> Original MPcore watchdog setting about load register (offset 0x20) is
-different
-> from CNS3xxx data sheet. The CNS3xxx data sheet says watchdog has
-following
-> features:
-> 1. The Watchdog Counter Register (offset 0x24) is a down counter.
-> 2. The timer interval is calculated using following equation:
->    (PRESCALER_value+1) X (Load_value+1) X 2 / CPU CLK_frequency
-> Thus the watchdog load register control in CNS3xxx way is add to MPcore
-watchdog
-> source. The original control method is also kept if the CPU architecture
-is not
-> CNS3xxx.
+From: Anton Vorontsov [mailto:cbouatmailru@gmail.com]
+Sent: 7/6/2011 [星期三] 7:46 下午
+To: Lin, Tommy
+Cc: 'Tommy Lin'; 'Wim Van Sebroeck'; linux-watchdog@vger.kernel.org; linux-kernel@vger.kernel.org; Lin, Mac
+Subject: Re: [PATCH 2/2] watchdog: mpcore_wdt Add reload value setting for CNS3xxx hardware
+ 
+On Wed, Jul 06, 2011 at 03:28:30PM +0400, Anton Vorontsov wrote:
+> On Wed, Jul 06, 2011 at 03:16:16PM +0400, Anton Vorontsov wrote:
+> > On Wed, Jul 06, 2011 at 06:05:37PM +0800, Tommy Lin wrote:
+> > > Hi, I just found another patch that can solve the watchdog counter reload
+> > > issue. Please ignore this patch, since it should not acceptable to use
+> > > #ifdefs.
+> > 
+> > OK, great. Do I understand correctly that without Vitaly's patch,
+> > your first patch is somewhat useless, as the watchdog will not work
+> > or will work incorrectly? So should I postpone merging patch 1/2
+> > until Vitaly's patch hit mainline?
 > 
-> Signed-off-by: Tommy Lin <tommy.lin@caviumnetworks.com>
-> ---
->  drivers/watchdog/mpcore_wdt.c |   12 ++++++++++++
->  1 files changed, 12 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/watchdog/mpcore_wdt.c b/drivers/watchdog/mpcore_wdt.c
-> index 2b4af22..816e0c5 100644
-> --- a/drivers/watchdog/mpcore_wdt.c
-> +++ b/drivers/watchdog/mpcore_wdt.c
-> @@ -42,6 +42,9 @@ struct mpcore_wdt {
->  	int		irq;
->  	unsigned int	perturb;
->  	char		expect_close;
-> +#ifdef CONFIG_ARCH_CNS3XXX
-> +	unsigned long	reload_unit; /* ticks per second */
-> +#endif
+> Oh, I see that the issue isn't major, so I'll just merge the first
+> patch.
 
-Nope, these #ifdefs are not acceptible. Kernel should support multi-arch
-images soon.
+Heh. Nope. It doesn't work without SMP:
 
-[...]
-> +#ifdef CONFIG_ARCH_CNS3XXX
-> +	/* Assume prescale is set to 256 */
-> +	wdt->reload_unit = cns3xxx_cpu_clock() * 1000000 / 256 / 2;
-> +#endif
+warning: (ARCH_CNS3XXX) selects HAVE_ARM_TWD which has unmet direct dependencies (SMP)
 
-You probably want to pass reload_unit via platform_data, and also
-check (in runtime) that the watchdog is CNS3xxx. Or if reload_unit
-!= 0.
-
-Thanks,
+And SMP support is not in the mainline, yet.
 
 -- 
 Anton Vorontsov
