@@ -1,39 +1,49 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.slb.deg.dub.stisp.net ([84.203.253.98]:10909 "HELO
-	mail1.slb.deg.dub.stisp.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1752434Ab1GGPyt (ORCPT
+Received: from mail-fx0-f52.google.com ([209.85.161.52]:45213 "EHLO
+	mail-fx0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752220Ab1GGQXU (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 7 Jul 2011 11:54:49 -0400
-Message-ID: <4E15D67B.2080405@draigBrady.com>
-Date: Thu, 07 Jul 2011 16:53:31 +0100
-From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
+	Thu, 7 Jul 2011 12:23:20 -0400
+Message-ID: <4E15DCE1.8010201@mvista.com>
+Date: Thu, 07 Jul 2011 20:20:49 +0400
+From: Vitaly Kuzmichev <vkuzmichev@mvista.com>
+Reply-To: vkuzmichev@mvista.com
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: Bjorn Helgaas <bhelgaas@google.com>,
+To: Russell King - ARM Linux <linux@arm.linux.org.uk>
+CC: linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
 	Wim Van Sebroeck <wim@iguana.be>,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 1/2] watchdog: iTCO_wdt: optionally leave watchdog enabled
- during restart
-References: <20110706160744.4002.94920.stgit@bhelgaas.mtv.corp.google.com>            <20110706160936.4002.1846.stgit@bhelgaas.mtv.corp.google.com> <12164.1310053141@turing-police.cc.vt.edu>
-In-Reply-To: <12164.1310053141@turing-police.cc.vt.edu>
+	Marc Zyngier <marc.zyngier@arm.com>,
+	Colin Cross <ccross@android.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH V3 1/4] ARM: smp_twd: Fix typo in 'twd_timer_rate' printing
+References: <1310041339-2348-1-git-send-email-vkuzmichev@mvista.com> <1310041396-2461-1-git-send-email-vkuzmichev@mvista.com> <20110707123907.GP8286@n2100.arm.linux.org.uk>
+In-Reply-To: <20110707123907.GP8286@n2100.arm.linux.org.uk>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 07/07/11 16:39, Valdis.Kletnieks@vt.edu wrote:
-> On Wed, 06 Jul 2011 10:09:36 MDT, Bjorn Helgaas said:
-> 
->> If we reboot via BIOS, BIOS should disable the watchdog itself, so this
->> shouldn't cause unintended resets, even if the user interrupts the boot.
-> 
-> Yes, but didn't Linus say something about BIOS code authors being
-> crack-addicted monkeys? :)
+Hi Russell,
 
-Yes as I said in a round about way in another mail,
-one can't depend on that at all.
-Some reset, some don't, some behave weirdly,
-iTCO is unusual as kernel resets early at boot, ...
+On 07/07/2011 04:39 PM, Russell King - ARM Linux wrote:
+> On Thu, Jul 07, 2011 at 04:23:13PM +0400, Vitaly Kuzmichev wrote:
+>> To get hundredths of MHz the rate needs to be divided by 10'000.
+>> Here is an example:
+>>  twd_timer_rate = 123456789
+>>  Before the patch:
+>>     twd_timer_rate / 1000000 = 123
+>>     (twd_timer_rate / 1000000) % 100 = 23
+>>     Result: 123.23MHz.
+>>  After being fixed:
+>>     twd_timer_rate / 1000000 = 123
+>>     (twd_timer_rate / 10000) % 100 = 45
+>>     Result: 123.45MHz.
+>>
+>> Signed-off-by: Vitaly Kuzmichev <vkuzmichev@mvista.com>
+> 
+> -> patch system please.
 
-If using this, one would have to set the timeout large enough,
-to encompass a full reboot
+Should I submit other patches into this system too?
+
+Thanks,
+Vitaly.
