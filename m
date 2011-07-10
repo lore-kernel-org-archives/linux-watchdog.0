@@ -1,32 +1,61 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from caramon.arm.linux.org.uk ([78.32.30.218]:33826 "EHLO
+Received: from caramon.arm.linux.org.uk ([78.32.30.218]:55838 "EHLO
 	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754628Ab1GJKm3 (ORCPT
+	with ESMTP id S1753360Ab1GJKrz (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 10 Jul 2011 06:42:29 -0400
-Date: Sun, 10 Jul 2011 11:42:15 +0100
+	Sun, 10 Jul 2011 06:47:55 -0400
+Date: Sun, 10 Jul 2011 11:47:40 +0100
 From: Russell King - ARM Linux <linux@arm.linux.org.uk>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: vkuzmichev@mvista.com, linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org,
+To: Vitaly Kuzmichev <vkuzmichev@mvista.com>
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+	Wim Van Sebroeck <wim@iguana.be>,
 	Marc Zyngier <marc.zyngier@arm.com>,
-	Wim Van Sebroeck <wim@iguana.be>, arm@kernel.org,
-	linux-kernel@vger.kernel.org, John Stultz <johnstul@us.ibm.com>,
-	Nicolas Pitre <nico@fluxnic.net>,
-	Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH V2 6/6] mpcore_wdt: Move declarations in a separate
-	header
-Message-ID: <20110710104215.GC4812@n2100.arm.linux.org.uk>
-References: <1286185540-19569-1-git-send-email-vkuzmichev@mvista.com> <201107061358.48496.arnd@arndb.de> <4E1456D9.8090003@mvista.com> <201107061448.49092.arnd@arndb.de>
+	Colin Cross <ccross@android.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH V3 1/4] ARM: smp_twd: Fix typo in 'twd_timer_rate'
+	printing
+Message-ID: <20110710104740.GD4812@n2100.arm.linux.org.uk>
+References: <1310041339-2348-1-git-send-email-vkuzmichev@mvista.com> <1310041396-2461-1-git-send-email-vkuzmichev@mvista.com> <20110707123907.GP8286@n2100.arm.linux.org.uk> <4E15DCE1.8010201@mvista.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <201107061448.49092.arnd@arndb.de>
+In-Reply-To: <4E15DCE1.8010201@mvista.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Jul 06, 2011 at 02:48:48PM +0200, Arnd Bergmann wrote:
-> An obvious choice would be arch/arm/include/asm/smp_twd.h.
+On Thu, Jul 07, 2011 at 08:20:49PM +0400, Vitaly Kuzmichev wrote:
+> Hi Russell,
+> 
+> On 07/07/2011 04:39 PM, Russell King - ARM Linux wrote:
+> > On Thu, Jul 07, 2011 at 04:23:13PM +0400, Vitaly Kuzmichev wrote:
+> >> To get hundredths of MHz the rate needs to be divided by 10'000.
+> >> Here is an example:
+> >>  twd_timer_rate = 123456789
+> >>  Before the patch:
+> >>     twd_timer_rate / 1000000 = 123
+> >>     (twd_timer_rate / 1000000) % 100 = 23
+> >>     Result: 123.23MHz.
+> >>  After being fixed:
+> >>     twd_timer_rate / 1000000 = 123
+> >>     (twd_timer_rate / 10000) % 100 = 45
+> >>     Result: 123.45MHz.
+> >>
+> >> Signed-off-by: Vitaly Kuzmichev <vkuzmichev@mvista.com>
+> > 
+> > -> patch system please.
+> 
+> Should I submit other patches into this system too?
 
-Not if its moving out of arch/arm, but that's a separate debate to be
-had.
+No, the other patches I've yet to look at, and I think there's issues
+still to be resolved.
+
+Eg, ISTR a patch to make smp_twd.c selectable on non-SMP platforms so
+that the mpcore watchdog can be used on non-SMP platforms.  While that
+fixes the build issues, functionally its broken.  I don't think that
+the mpcore watchdog should be asking the smp_twd code in any case for
+the clock rate.
+
+If we get the issue with knowing the TWD clock rate on ARMs development
+platforms sorted out, then we can provide a struct clk for it, which
+means everyone can finally move to using the clk API to get the mpcore
+watchdog/twd clock rate.
