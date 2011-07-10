@@ -1,49 +1,49 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-fx0-f52.google.com ([209.85.161.52]:45213 "EHLO
-	mail-fx0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752220Ab1GGQXU (ORCPT
+Received: from caramon.arm.linux.org.uk ([78.32.30.218]:51032 "EHLO
+	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752717Ab1GJKjq (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 7 Jul 2011 12:23:20 -0400
-Message-ID: <4E15DCE1.8010201@mvista.com>
-Date: Thu, 07 Jul 2011 20:20:49 +0400
-From: Vitaly Kuzmichev <vkuzmichev@mvista.com>
-Reply-To: vkuzmichev@mvista.com
-MIME-Version: 1.0
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>
-CC: linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-	Wim Van Sebroeck <wim@iguana.be>,
+	Sun, 10 Jul 2011 06:39:46 -0400
+Date: Sun, 10 Jul 2011 11:39:22 +0100
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+To: Catalin Marinas <catalin.marinas@arm.com>
+Cc: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Nicolas Pitre <nico@fluxnic.net>,
 	Marc Zyngier <marc.zyngier@arm.com>,
-	Colin Cross <ccross@android.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH V3 1/4] ARM: smp_twd: Fix typo in 'twd_timer_rate' printing
-References: <1310041339-2348-1-git-send-email-vkuzmichev@mvista.com> <1310041396-2461-1-git-send-email-vkuzmichev@mvista.com> <20110707123907.GP8286@n2100.arm.linux.org.uk>
-In-Reply-To: <20110707123907.GP8286@n2100.arm.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	John Stultz <johnstul@us.ibm.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	"arm@kernel.org" <arm@kernel.org>,
+	Vitaly Kuzmichev <vkuzmichev@mvista.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH V2 0/6] arm_smp_twd: mpcore_wdt: Fix MPCORE watchdog
+	setup
+Message-ID: <20110710103922.GB4812@n2100.arm.linux.org.uk>
+References: <1286185540-19569-1-git-send-email-vkuzmichev@mvista.com> <1309892440-3260-1-git-send-email-vkuzmichev@mvista.com> <4E14337F.1050101@arm.com> <20110706101456.GN8286@n2100.arm.linux.org.uk> <20110706110548.GA31936@1n450.cable.virginmedia.net> <20110706111603.GS8286@n2100.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20110706111603.GS8286@n2100.arm.linux.org.uk>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Russell,
-
-On 07/07/2011 04:39 PM, Russell King - ARM Linux wrote:
-> On Thu, Jul 07, 2011 at 04:23:13PM +0400, Vitaly Kuzmichev wrote:
->> To get hundredths of MHz the rate needs to be divided by 10'000.
->> Here is an example:
->>  twd_timer_rate = 123456789
->>  Before the patch:
->>     twd_timer_rate / 1000000 = 123
->>     (twd_timer_rate / 1000000) % 100 = 23
->>     Result: 123.23MHz.
->>  After being fixed:
->>     twd_timer_rate / 1000000 = 123
->>     (twd_timer_rate / 10000) % 100 = 45
->>     Result: 123.45MHz.
->>
->> Signed-off-by: Vitaly Kuzmichev <vkuzmichev@mvista.com>
+On Wed, Jul 06, 2011 at 12:16:03PM +0100, Russell King - ARM Linux wrote:
+> On Wed, Jul 06, 2011 at 12:05:48PM +0100, Catalin Marinas wrote:
+> > On Wed, Jul 06, 2011 at 11:14:56AM +0100, Russell King - ARM Linux wrote:
+> > > Do we know why the calibration was initially introduced?  FWIR, it came
+> > > from the SMP group in ARM, so I guess they had a reason for it rather
+> > > than copying x86.
+> > 
+> > I think it was introduced because the TWD frequency is half of the CPU
+> > frequency but the latter may not be known - boot monitor configuration
+> > could change it.
 > 
-> -> patch system please.
+> Okay, that implies we can't have a fixed frequency built into the kernel
+> then.  For such platforms like the ARM dev boards (realview + vexpress),
+> I expect we can read the CPU frequency from somewhere like one of the
+> ICST PLLs.
 
-Should I submit other patches into this system too?
-
-Thanks,
-Vitaly.
+So how do we do that?  I see this as a blocker on these patches.
