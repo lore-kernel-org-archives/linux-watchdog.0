@@ -1,43 +1,77 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay009.isp.belgacom.be ([195.238.6.176]:62244 "EHLO
-	mailrelay009.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751151Ab1GKOYl (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:53241 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755270Ab1GKVbu (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 11 Jul 2011 10:24:41 -0400
-Date: Mon, 11 Jul 2011 16:24:39 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH 11/11] watchdog: WatchDog Timer Driver Core - Remove llseek
-Message-ID: <1310392522-9949-11-git-send-email-wim@iguana.be>
+	Mon, 11 Jul 2011 17:31:50 -0400
+Date: Mon, 11 Jul 2011 23:31:45 +0200
+From: Wolfram Sang <w.sang@pengutronix.de>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH 0/11 v3] Generic Watchdog Timer Driver
+Message-ID: <20110711213145.GB5811@pengutronix.de>
+References: <20110711135056.GT29245@infomag.iguana.be>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7iMSBzlTiPOCCT2k"
 Content-Disposition: inline
-In-Reply-To: <1310392522-9949-1-git-send-email-wim@iguana.be>
+In-Reply-To: <20110711135056.GT29245@infomag.iguana.be>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-No need to set no_llseek any more since it's the default now.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
----
- drivers/watchdog/watchdog_dev.c |    1 -
- 1 files changed, 0 insertions(+), 1 deletions(-)
+--7iMSBzlTiPOCCT2k
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index f6aa4b5..30a1d36 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -338,7 +338,6 @@ static int watchdog_release(struct inode *inode, struct file *file)
- 
- static const struct file_operations watchdog_fops = {
- 	.owner		= THIS_MODULE,
--	.llseek		= no_llseek,
- 	.write		= watchdog_write,
- 	.unlocked_ioctl	= watchdog_ioctl,
- 	.open		= watchdog_open,
--- 
-1.7.6
 
+> Changes since V2:
+> * all "flags" are unsigned
+> * timeout values are also unsigned
+> * removed unnececessary debugging
+> * clean-up comments
+> * the core will be in drivers/watchdog/ and not in drivers/watchdog/core/
+
+Also (just in case someone started converting drivers):
+
+* some error-codes changed
+* .name has been removed from watchdog_device in favor of watchdog_info->id=
+entity
+
+I already started converting a few drivers and will post the patches as RFC
+tomorrow. In general, converting went quite well and despite a few comments
+(see later mails), I think this could go into 3.1, so that converted drivers
+can go into 3.2 together with (probably) a few updates to the framework. Th=
+ere
+is potential for a bit more consolidation, yet I think the basic stuff could
+go in now.
+
+Thanks to Wim and Alan for their work and CELF/LF for supporting the final
+steps :)
+
+Regards,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--7iMSBzlTiPOCCT2k
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAk4ba8EACgkQD27XaX1/VRulFwCfdxUpZIlxkvlHBSjg8APwAbTv
+GKYAoIgNGbiLLBdlwcpph/zV3dBwPZdf
+=1962
+-----END PGP SIGNATURE-----
+
+--7iMSBzlTiPOCCT2k--
