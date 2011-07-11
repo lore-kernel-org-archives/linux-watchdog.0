@@ -1,43 +1,38 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailhost.informatik.uni-hamburg.de ([134.100.9.70]:33555 "EHLO
-	mailhost.informatik.uni-hamburg.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1758327Ab1GKXDn (ORCPT
+Received: from cassiel.sirena.org.uk ([80.68.93.111]:33123 "EHLO
+	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752513Ab1GKXxI (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 11 Jul 2011 19:03:43 -0400
-Message-ID: <4E1B80ED.8010009@metafoo.de>
-Date: Tue, 12 Jul 2011 01:02:05 +0200
-From: Lars-Peter Clausen <lars@metafoo.de>
-MIME-Version: 1.0
-To: Wolfram Sang <w.sang@pengutronix.de>
-CC: Wim Van Sebroeck <wim@iguana.be>,
+	Mon, 11 Jul 2011 19:53:08 -0400
+Date: Tue, 12 Jul 2011 00:53:06 +0100
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+To: Lars-Peter Clausen <lars@metafoo.de>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
 	LKML <linux-kernel@vger.kernel.org>,
 	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
 	Alan Cox <alan@lxorguk.ukuu.org.uk>
 Subject: Re: [PATCH 01/11] watchdog: WatchDog Timer Driver Core - Add basic
- framework
-References: <20110711135056.GT29245@infomag.iguana.be> <1310392522-9949-1-git-send-email-wim@iguana.be> <20110711213224.GC5811@pengutronix.de>
-In-Reply-To: <20110711213224.GC5811@pengutronix.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	framework
+Message-ID: <20110711235306.GA5646@sirena.org.uk>
+References: <1310392522-9949-1-git-send-email-wim@iguana.be> <4E1B8089.90103@metafoo.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4E1B8089.90103@metafoo.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 07/11/2011 11:32 PM, Wolfram Sang wrote:
+On Tue, Jul 12, 2011 at 01:00:25AM +0200, Lars-Peter Clausen wrote:
+> On 07/11/2011 04:19 PM, Wim Van Sebroeck wrote:
 
->> +int watchdog_register_device(struct watchdog_device *wdd)
->> +{
->> +	int ret;
->> +
->> +	/* Make sure we have a valid watchdog_device structure */
->> +	if (wdd == NULL || wdd->info == NULL || wdd->ops == NULL)
->> +		return -EINVAL;
->> +
->> +	/* Make sure that the mandatory operations are supported */
->> +	if (wdd->ops->start == NULL || wdd->ops->stop == NULL)
->> +		return -EINVAL;
-> 
-> Check also for wdd->ops->owner? Should we mark it as mandatory?
-> 
+> > +	/* stop the watchdog */
+> > +	err = wdd->ops->stop(wdd);
+> Does it really make sense to allow stop() to fail? Will this ever happen, and
 
-If the driver is built-in owner will be NULL.
+Some hardware can't be stopped, sometimes depending on circumstance.
 
+> if yes do we gain anything by sending a additional ping?
+
+It would increase the chances that someone sees the error message, or
+that it gets written to disk or whatever (especially if the watchdog
+time is short).
