@@ -1,50 +1,42 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.126.187]:53939 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753855Ab1GLSoK (ORCPT
+Received: from mail1.slb.deg.dub.stisp.net ([84.203.253.98]:17860 "HELO
+	mail1.slb.deg.dub.stisp.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1755648Ab1GLViO (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 12 Jul 2011 14:44:10 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [PATCH 0/11 v3] Generic Watchdog Timer Driver
-Date: Tue, 12 Jul 2011 20:43:16 +0200
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Wolfram Sang <w.sang@pengutronix.de>
-References: <20110711135056.GT29245@infomag.iguana.be>
-In-Reply-To: <20110711135056.GT29245@infomag.iguana.be>
+	Tue, 12 Jul 2011 17:38:14 -0400
+Message-ID: <4E1CBE5E.5090404@draigBrady.com>
+Date: Tue, 12 Jul 2011 22:36:30 +0100
+From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <201107122043.16528.arnd@arndb.de>
+To: Bjorn Helgaas <bhelgaas@google.com>
+CC: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 0/2] [RFC] watchdog reboot timeout
+References: <20110706160744.4002.94920.stgit@bhelgaas.mtv.corp.google.com> <4E15B9FD.8080003@draigBrady.com> <CAErSpo5=TQm9SLM9dE2-Sm7ZLvaSXAZOorE1z9SK9kEh9CUbNQ@mail.gmail.com>
+In-Reply-To: <CAErSpo5=TQm9SLM9dE2-Sm7ZLvaSXAZOorE1z9SK9kEh9CUbNQ@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-On Monday 11 July 2011 15:50:56 Wim Van Sebroeck wrote:
-> To reduce copying the same code over and over in each watchdog device driver,
-> Alan Cox and myself constructed a new framework/API that consolidates the common watchdog timer driver functions.
-> I incorporated the changes/feedback that I received from the second post.
-> 
-> This framework/API consists of the following patches:
-> part  1: Introduction of the WatchDog Timer Driver Core
-> part  2: Add the basic ioctl functionality
-> part  3: Add the WDIOC_KEEPALIVE ioctl
-> part  4: Add the WDIOC_SETOPTIONS ioctl
-> part  5: Add the WDIOC_SETTIMEOUT and WDIOC_GETTIMEOUT ioctl
-> part  6: Add the Magic Close feature
-> part  7: Add the nowayout feature
-> part  8: Add support for a miscdev parent device
-> part  9: Add support for extra ioctl calls
-> part 10: Add the minimum and maximum timeout parameters.
-> part 11: Remove llseek
+On 12/07/11 17:25, Bjorn Helgaas wrote:
+> On Thu, Jul 7, 2011 at 7:51 AM, P=E1draig Brady <P@draigbrady.com> wrot=
+e:
+>> A related issue I noticed with iTCO_wdt is that something
+>> else in the kernel disables the iTCO watchdog (which my BIOS had start=
+ed).
+>> This is undesirable for obvious reasons.
+>=20
+> This sounds related to iTCO, but unrelated to my patch.  Right?
 
-Acked-by: Arnd Bergmann <arnd@arndb.de>, the whole series.
+Right, unrelated to your patch but it could affect you.
+As the kernel comes up it may reinit the iTCO, disabling
+the watchdog until the iTCO_wdt module is loaded and patted.
 
-As far as I can tell, all the issues I've raised the last time have been
-resolved, in a lot of cases by convincing me that your solution was
-ok to start with ;-)
-
-	Arnd
+cheers,
+P=E1draig.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
