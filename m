@@ -1,100 +1,100 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([74.125.121.67]:62457 "EHLO
+Received: from smtp-out.google.com ([216.239.44.51]:12649 "EHLO
 	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753829Ab1GLQZr convert rfc822-to-8bit (ORCPT
+	with ESMTP id S1754163Ab1GLRW4 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 12 Jul 2011 12:25:47 -0400
-Received: from wpaz37.hot.corp.google.com (wpaz37.hot.corp.google.com [172.24.198.101])
-	by smtp-out.google.com with ESMTP id p6CGPjY7001284
-	for <linux-watchdog@vger.kernel.org>; Tue, 12 Jul 2011 09:25:46 -0700
-Received: from gxk28 (gxk28.prod.google.com [10.202.11.28])
-	by wpaz37.hot.corp.google.com with ESMTP id p6CGNwjM030309
-	(version=TLSv1/SSLv3 cipher=RC4-SHA bits=128 verify=NOT)
-	for <linux-watchdog@vger.kernel.org>; Tue, 12 Jul 2011 09:25:44 -0700
-Received: by gxk28 with SMTP id 28so2491441gxk.41
-        for <linux-watchdog@vger.kernel.org>; Tue, 12 Jul 2011 09:25:44 -0700 (PDT)
+	Tue, 12 Jul 2011 13:22:56 -0400
+Received: from hpaq12.eem.corp.google.com (hpaq12.eem.corp.google.com [172.25.149.12])
+	by smtp-out.google.com with ESMTP id p6CHMsmX014094
+	for <linux-watchdog@vger.kernel.org>; Tue, 12 Jul 2011 10:22:55 -0700
+Received: from gyf2 (gyf2.prod.google.com [10.243.50.66])
+	by hpaq12.eem.corp.google.com with ESMTP id p6CHKxNl009705
+	(version=TLSv1/SSLv3 cipher=RC4-MD5 bits=128 verify=NOT)
+	for <linux-watchdog@vger.kernel.org>; Tue, 12 Jul 2011 10:22:53 -0700
+Received: by gyf2 with SMTP id 2so2413935gyf.4
+        for <linux-watchdog@vger.kernel.org>; Tue, 12 Jul 2011 10:22:53 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <4E15B9FD.8080003@draigBrady.com>
-References: <20110706160744.4002.94920.stgit@bhelgaas.mtv.corp.google.com> <4E15B9FD.8080003@draigBrady.com>
+In-Reply-To: <4E15D67B.2080405@draigBrady.com>
+References: <20110706160744.4002.94920.stgit@bhelgaas.mtv.corp.google.com>
+ <20110706160936.4002.1846.stgit@bhelgaas.mtv.corp.google.com>
+ <12164.1310053141@turing-police.cc.vt.edu> <4E15D67B.2080405@draigBrady.com>
 From: Bjorn Helgaas <bhelgaas@google.com>
-Date: Tue, 12 Jul 2011 10:25:24 -0600
-Message-ID: <CAErSpo5=TQm9SLM9dE2-Sm7ZLvaSXAZOorE1z9SK9kEh9CUbNQ@mail.gmail.com>
-Subject: Re: [PATCH 0/2] [RFC] watchdog reboot timeout
+Date: Tue, 12 Jul 2011 11:22:33 -0600
+Message-ID: <CAErSpo51_q9nB+eU8VFmz-LJf16KFeKxKR_TWRWDQ4P9gOnP6g@mail.gmail.com>
+Subject: Re: [PATCH 1/2] watchdog: iTCO_wdt: optionally leave watchdog enabled
+ during restart
 To: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigbrady.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org
+Cc: Valdis.Kletnieks@vt.edu, Wim Van Sebroeck <wim@iguana.be>,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jul 7, 2011 at 7:51 AM, P=E1draig Brady <P@draigbrady.com> wrote:
-> On 06/07/11 17:09, Bjorn Helgaas wrote:
->> I'm looking for comments on these patches. =A0I'm not really happy wit=
-h
->> them because they add basically identical code in each driver. =A0I al=
-so
->> don't like the fact that the parameter is not generic, so I have to kn=
-ow
->> which driver will be used on my machine.
->
-> Hmm, so this is protecting the window between watchdog_stop and machine=
-_reset.
+On Thu, Jul 7, 2011 at 9:53 AM, P=E1draig Brady <P@draigbrady.com> wrote:
+> On 07/07/11 16:39, Valdis.Kletnieks@vt.edu wrote:
+>> On Wed, 06 Jul 2011 10:09:36 MDT, Bjorn Helgaas said:
+>>
+>>> If we reboot via BIOS, BIOS should disable the watchdog itself, so th=
+is
+>>> shouldn't cause unintended resets, even if the user interrupts the bo=
+ot.
+>>
+>> Yes, but didn't Linus say something about BIOS code authors being
+>> crack-addicted monkeys? :)
 
-That's part of it, but I'm really interested in reboots using kexec,
-and in that case, there is no machine reset, and BIOS isn't involved
-at all.  If the kexec fails or the new kernel hangs for some reason,
-I'd like the watchdog to reset the machine.
+I shouldn't have written anything about what BIOS "should" do.  That's
+not very useful because, as you suggest, there is room for variation
+there.
 
-Currently, we call all the driver .shutdown methods() on the way down,
-and the watchdog shutdown methods turn off the watchdog, so we have no
-protection after that.
+The risk I was alluding to was this:
+  - User boots with "reboot_timeout=3DX"
+  - User reboots normally (non-kexec)
+  - BIOS does some reinitialization
+  - Machine doesn't autoboot, e.g., because user interrupted boot
+  - Watchdog resets machine -- this may be unexpected by the user
 
-> It would be nice to have this as generic code that did WDIOC_SETTIMEOUT
-> immediately after (or instead of) shutdown.
+On the machines I tested, the unexpected reset doesn't happen because
+the BIOS reinit includes disabling the watchdog.  But obviously, that
+depends on BIOS details, so there's no guarantee.
 
-Yes.  I'd prefer this to be more generic.  I've skimmed the new
-generic watchdog code a bit, hoping for a nice way to do this, but the
-actual .shutdown() method is still in each driver, so making it
-generic doesn't seem trivial.  So consider this a plea for future
-development.
+I should have just written something along the lines of:
 
-> Leaving a watchdog enabled across boot does have issues on some systems=
-.
-> It was OK for winboond based watchdogs I tested, but for some IBM
-> server systems, "weird stuff" happened if the watchdog was left enabled
-> across boot.
+  The reboot_timeout option is intended for kexec reboots, which do
+not involve BIOS.
+  In this case, the reboot_timeout covers the interval between shutdown o=
+f the
+  watchdog driver in the old kernel and startup of the driver in the new =
+kernel.
 
-Point taken: it's unwise to assume consistency across all BIOSes, so
-it was a mistake to write the last paragraph ("If we reboot via BIOS,
-BIOS should disable the watchdog ...").
+  For normal reboots (via the BIOS), the behavior depends on the BIOS
+implementation.
+  Some BIOSes disable the watchdog timer, so the reboot_timeout only cove=
+rs the
+  interval until the BIOS disable.  Others leave the timer running, so
+the reboot_timeout
+  may cause a reset if the machine doesn't autoboot, e.g., if the user
+interrupts the boot.
 
-My reboot_timeout is disabled by default and is only enabled if the
-user specifies the module option.  I don't think it's possible to
-enable something like this by default, because in general we don't
-know anything about the new kernel.  It may not have a watchdog driver
-at all.
+I think the *option* of using a reboot_timeout is still useful,
+especially in clusters of unattended machines where it's expensive to
+deal with boot failures.
 
-But in many cases, we *do* know the machine doesn't do "weird stuff,"
-the new kernel has a driver, and we can bound the expected boot time.
-In those cases, I think this option provides useful protection.
+> Yes as I said in a round about way in another mail,
+> one can't depend on that at all.
+> Some reset, some don't, some behave weirdly,
+> iTCO is unusual as kernel resets early at boot, ...
 
-> Just to mention the other watchdog boot scenario I often use
-> (which does _not_ protect your window above), which is to enable the
-> watchdog in the BIOS. =A0This is more general protection for the
-> boot _up_ process.
+You mentioned an unexplained iTCO reset in your other mail.  That
+sounds like a kernel or iTCO_wdt bug, but I think it's unrelated to
+this patch.
 
-Yes, that makes good sense.  In my case, I'm interested in kexec, so
-the BIOS isn't involved, so enabling it in the BIOS wouldn't help.
+> If using this, one would have to set the timeout large enough,
+> to encompass a full reboot
 
-> A related issue I noticed with iTCO_wdt is that something
-> else in the kernel disables the iTCO watchdog (which my BIOS had starte=
-d).
-> This is undesirable for obvious reasons.
-
-This sounds related to iTCO, but unrelated to my patch.  Right?
-
-Thanks a lot for your comments!
+Right.  In the case of iTCO, I think the range is up to about 10
+minutes, which is enough in my case (things like fsck may take longer,
+but that's OK as long as the watchdog driver is built in statically).
 
 Bjorn
 --
