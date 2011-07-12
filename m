@@ -1,38 +1,32 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:33123 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752513Ab1GKXxI (ORCPT
+Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:41201 "EHLO
+	www.etchedpixels.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752188Ab1GLJV0 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 11 Jul 2011 19:53:08 -0400
-Date: Tue, 12 Jul 2011 00:53:06 +0100
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+	Tue, 12 Jul 2011 05:21:26 -0400
+Date: Tue, 12 Jul 2011 10:24:10 +0100
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 To: Lars-Peter Clausen <lars@metafoo.de>
 Cc: Wim Van Sebroeck <wim@iguana.be>,
 	LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>
 Subject: Re: [PATCH 01/11] watchdog: WatchDog Timer Driver Core - Add basic
-	framework
-Message-ID: <20110711235306.GA5646@sirena.org.uk>
-References: <1310392522-9949-1-git-send-email-wim@iguana.be> <4E1B8089.90103@metafoo.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+ framework
+Message-ID: <20110712102410.2ba3834f@lxorguk.ukuu.org.uk>
 In-Reply-To: <4E1B8089.90103@metafoo.de>
+References: <1310392522-9949-1-git-send-email-wim@iguana.be>
+	<4E1B8089.90103@metafoo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-
-On Tue, Jul 12, 2011 at 01:00:25AM +0200, Lars-Peter Clausen wrote:
-> On 07/11/2011 04:19 PM, Wim Van Sebroeck wrote:
 
 > > +	/* stop the watchdog */
 > > +	err = wdd->ops->stop(wdd);
 > Does it really make sense to allow stop() to fail? Will this ever happen, and
-
-Some hardware can't be stopped, sometimes depending on circumstance.
-
 > if yes do we gain anything by sending a additional ping?
 
-It would increase the chances that someone sees the error message, or
-that it gets written to disk or whatever (especially if the watchdog
-time is short).
+It gives user space more time to react - or would do if the err was
+propogated.
+
