@@ -1,42 +1,63 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.slb.deg.dub.stisp.net ([84.203.253.98]:17860 "HELO
-	mail1.slb.deg.dub.stisp.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1755648Ab1GLViO (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:55514 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750808Ab1GMUZA (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 12 Jul 2011 17:38:14 -0400
-Message-ID: <4E1CBE5E.5090404@draigBrady.com>
-Date: Tue, 12 Jul 2011 22:36:30 +0100
-From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
-MIME-Version: 1.0
-To: Bjorn Helgaas <bhelgaas@google.com>
-CC: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 0/2] [RFC] watchdog reboot timeout
-References: <20110706160744.4002.94920.stgit@bhelgaas.mtv.corp.google.com> <4E15B9FD.8080003@draigBrady.com> <CAErSpo5=TQm9SLM9dE2-Sm7ZLvaSXAZOorE1z9SK9kEh9CUbNQ@mail.gmail.com>
-In-Reply-To: <CAErSpo5=TQm9SLM9dE2-Sm7ZLvaSXAZOorE1z9SK9kEh9CUbNQ@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 13 Jul 2011 16:25:00 -0400
+From: Wolfram Sang <w.sang@pengutronix.de>
+To: linux-watchdog@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	wim@iguana.be, tim.bird@am.sony.com,
+	Wolfram Sang <w.sang@pengutronix.de>
+Subject: [RFC 0/6] watchdog drivers converted to the new framework
+Date: Wed, 13 Jul 2011 22:26:00 +0200
+Message-Id: <1310588766-16638-1-git-send-email-w.sang@pengutronix.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-On 12/07/11 17:25, Bjorn Helgaas wrote:
-> On Thu, Jul 7, 2011 at 7:51 AM, P=E1draig Brady <P@draigbrady.com> wrot=
-e:
->> A related issue I noticed with iTCO_wdt is that something
->> else in the kernel disables the iTCO watchdog (which my BIOS had start=
-ed).
->> This is undesirable for obvious reasons.
->=20
-> This sounds related to iTCO, but unrelated to my patch.  Right?
+As promised, here is a RFC with two examples demonstrating how watchdog drivers
+can be converted to use the new watchdog framework (using the current version
+Wim posted two days ago). There is also conversion guide put to the
+documentation folder. Being RFC, all this is not final yet, but presentable, I
+hope.
 
-Right, unrelated to your patch but it could affect you.
-As the kernel comes up it may reinit the iTCO, disabling
-the watchdog until the iTCO_wdt module is loaded and patted.
+Although there are a few more consolidation options left, there is already a
+gain of ~100 lines per driver. Promising, but there are a few issues to be
+sorted out, too, yet nothing which can be dealt with.
 
-cheers,
-P=E1draig.
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I have two other drivers in the making (stmp3xxx and imx2), but they need some
+more preparation; the first one needs some internal cleanups (like a lot of
+watchdog drivers); the latter one needs an addition to the framework
+(installing a timer for non-stoppable devices). I will also prepare a new
+driver (mx1) to show how small new drivers can be now :) The aim for all these
+driver conversions is inclusion in Linux 3.2. I still hope we can get the basic
+framework into Linux 3.1.
+
+Many thanks to CELF/LF for supporting this work and to Wim and Alan for making
+the framework!
+
+Looking forward to comments,
+
+   Wolfram
+
+They are also available in the git repository at:
+  git://git.pengutronix.de/git/wsa/linux-2.6.git generic-watchdog-with-drivers
+
+Wolfram Sang (6):
+  Documentation: watchdog: add guide how to convert drivers to new framework
+  watchdog: s3c2410: convert to use the watchdog framework
+  watchdog: pnx4008: cleanup resource handling using managed devices
+  watchdog: pnx4008: don't use __raw_-accessors
+  watchdog: pnx4008: convert driver to use the watchdog framework
+  watchdog: pnx4008: WIP refactor disabling device
+
+ .../watchdog/convert_drivers_to_kernel_api.txt     |  195 ++++++++++++++++
+ drivers/watchdog/Kconfig                           |    2 +
+ drivers/watchdog/pnx4008_wdt.c                     |  246 +++++++-------------
+ drivers/watchdog/s3c2410_wdt.c                     |  176 +++-----------
+ 4 files changed, 313 insertions(+), 306 deletions(-)
+ create mode 100644 Documentation/watchdog/convert_drivers_to_kernel_api.txt
+
+-- 
+1.7.2.5
+
