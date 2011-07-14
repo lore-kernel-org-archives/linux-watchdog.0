@@ -1,90 +1,63 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:55528 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751494Ab1GMUZC (ORCPT
+Received: from mailrelay002.isp.belgacom.be ([195.238.6.175]:21577 "EHLO
+	mailrelay002.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754200Ab1GNK3b (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 13 Jul 2011 16:25:02 -0400
-From: Wolfram Sang <w.sang@pengutronix.de>
-To: linux-watchdog@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	wim@iguana.be, tim.bird@am.sony.com,
-	Wolfram Sang <w.sang@pengutronix.de>
-Subject: [RFC 6/6] WIP watchdog: pnx4008: refactor disabling device
-Date: Wed, 13 Jul 2011 22:26:06 +0200
-Message-Id: <1310588766-16638-7-git-send-email-w.sang@pengutronix.de>
-In-Reply-To: <1310588766-16638-1-git-send-email-w.sang@pengutronix.de>
-References: <1310588766-16638-1-git-send-email-w.sang@pengutronix.de>
+	Thu, 14 Jul 2011 06:29:31 -0400
+Date: Thu, 14 Jul 2011 12:29:28 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: ashishj3 <ashish.jangam@kpitcummins.com>
+Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	Dajun <dajun.chen@diasemi.com>, linaro-dev@lists.linaro.org
+Subject: Re: [PATCH 07/11] Watchdog: DA9052 watchdog support v1
+Message-ID: <20110714102928.GL3834@infomag.iguana.be>
+References: <1309872103.960.79.camel@L-0532.kpit.com> <1310630232.284.16.camel@L-0532.kpit.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1310630232.284.16.camel@L-0532.kpit.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-wdt_disable and clk_disable must always be used in combination in stop()
-to match the initialization in start(), so group them together. Also,
-fix disabling clock in remove, which should have been done before.
+Hi Ashish, Dajun,
 
-Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
----
- drivers/watchdog/pnx4008_wdt.c |   23 +++++++++--------------
- 1 files changed, 9 insertions(+), 14 deletions(-)
+> > This driver adds support for the watchdog functionality provided by the Dialog
+> > Semiconductor DA9052 PMIC chip.
+> > 
+> > Signed-off-by: David Dajun Chen <dchen@diasemi.com>
+> > Signed-off-by: Ashish Jangam <ashish.jangam@kpitcummins.com>
+> > ---
+> If there are no comments then can you ACK this patch?
 
-diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
-index 1ccb49a..9f049d7 100644
---- a/drivers/watchdog/pnx4008_wdt.c
-+++ b/drivers/watchdog/pnx4008_wdt.c
-@@ -111,19 +111,11 @@ static int pnx4008_wdt_ping(struct watchdog_device *wdd)
- 	return 0;
- }
- 
--static void wdt_disable(void)
--{
--	spin_lock(&io_lock);
--
--	writel(0, WDTIM_CTRL(wdt_base));	/*stop counter */
--
--	spin_unlock(&io_lock);
--}
--
- static int pnx4008_wdt_start(struct watchdog_device *wdd)
- {
- 	int ret;
- 
-+	//FIXME: better in an open-callback?
- 	ret = clk_enable(wdt_clk);
- 	if (ret)
- 		return ret;
-@@ -135,7 +127,11 @@ static int pnx4008_wdt_start(struct watchdog_device *wdd)
- 
- static int pnx4008_wdt_stop(struct watchdog_device *wdd)
- {
--	wdt_disable();
-+	spin_lock(&io_lock);
-+	writel(0, WDTIM_CTRL(wdt_base));
-+	spin_unlock(&io_lock);
-+
-+	//FIXME: better in a close-callback?
- 	clk_disable(wdt_clk);
- 
- 	return 0;
-@@ -216,8 +212,8 @@ static int __devinit pnx4008_wdt_probe(struct platform_device *pdev)
- 		goto disable_clk;
- 	}
- 
--	wdt_disable();		/*disable for now */
--	clk_disable(wdt_clk);
-+	/* disable watchdog and its clock until opened */
-+	pnx4008_wdt_stop(&pnx4008_wdd);
- 
- 	dev_info(&pdev->dev, "PNX4008 Watchdog Timer: heartbeat %d sec\n",
- 			heartbeat);
-@@ -235,8 +231,7 @@ static int __devinit pnx4008_wdt_probe(struct platform_device *pdev)
- static int __devexit pnx4008_wdt_remove(struct platform_device *pdev)
- {
- 	watchdog_unregister_device(&pnx4008_wdd);
--
--	clk_disable(wdt_clk);
-+	/* clk has been disabled on close. If not, we'll reboot anyhow */
- 	clk_put(wdt_clk);
- 
- 	return 0;
--- 
-1.7.2.5
+I remain with my comment of Wed 26 Jan 2011:
+> The ioctl WDIOC_SETOPTIONS call is not in line with the watchdog API.
+> the supported options are:
+> #define WDIOS_DISABLECARD       0x0001  /* Turn off the watchdog timer */
+> #define WDIOS_ENABLECARD        0x0002  /* Turn on the watchdog timer */
+> #define WDIOS_TEMPPANIC         0x0004  /* Kernel panic on temperature trip */
+> Your options are:
+> #define DA9052_STROBING_FILTER_ENABLE   0x0001
+> #define DA9052_STROBING_FILTER_DISABLE  0x0002
+> #define DA9052_SET_STROBING_MODE_MANUAL 0x0004
+> #define DA9052_SET_STROBING_MODE_AUTO   0x0008
+> 
+> Please explain what you want to do.
+
+FYI: this is how the code looks now:
++       case WDIOC_SETOPTIONS:
++               if (get_user(new_value, p))
++                       return -EFAULT;
++               if (new_value == DA9052_ENABLE || new_value == DA9052_DISABLE)
++                       da9052_sm_set_strobing_filter(wdt, new_value);
++               else
++                       wdt->pwdt->sm_strobe_mode_flag = new_value;
++               return 0;
+
+Since the code is still not in line with the watchdog API and since I did not get
+an answer yet on what you (or Dajun) want to do, there is definitely NO ACK yet.
+If there is a good reasoning behind your needs, we might conclude that this is indeed
+worthwhile and extend the API in a proper way. But as it is now, it's not correct.
+
+Kind regards,
+Wim.
 
