@@ -1,63 +1,33 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay002.isp.belgacom.be ([195.238.6.175]:21577 "EHLO
-	mailrelay002.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754200Ab1GNK3b (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:43375 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754340Ab1GNKxL (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 14 Jul 2011 06:29:31 -0400
-Date: Thu, 14 Jul 2011 12:29:28 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: ashishj3 <ashish.jangam@kpitcummins.com>
-Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	Dajun <dajun.chen@diasemi.com>, linaro-dev@lists.linaro.org
-Subject: Re: [PATCH 07/11] Watchdog: DA9052 watchdog support v1
-Message-ID: <20110714102928.GL3834@infomag.iguana.be>
-References: <1309872103.960.79.camel@L-0532.kpit.com> <1310630232.284.16.camel@L-0532.kpit.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1310630232.284.16.camel@L-0532.kpit.com>
+	Thu, 14 Jul 2011 06:53:11 -0400
+From: Wolfram Sang <w.sang@pengutronix.de>
+To: linux-watchdog@vger.kernel.org
+Cc: Wolfram Sang <w.sang@pengutronix.de>
+Subject: [PATCH 0/3] watchdog: remove empty pms
+Date: Thu, 14 Jul 2011 12:53:00 +0200
+Message-Id: <1310640783-16543-1-git-send-email-w.sang@pengutronix.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Ashish, Dajun,
+While checking what watchdog drivers usually do in suspend/resume to
+spot common behaviour for the watchdog framework, I found these drivers
+which do nothing but add some cruft. Remove it, it is superfluous. New
+approaches should probably be done with pm_ops anyway.
 
-> > This driver adds support for the watchdog functionality provided by the Dialog
-> > Semiconductor DA9052 PMIC chip.
-> > 
-> > Signed-off-by: David Dajun Chen <dchen@diasemi.com>
-> > Signed-off-by: Ashish Jangam <ashish.jangam@kpitcummins.com>
-> > ---
-> If there are no comments then can you ACK this patch?
+Wolfram Sang (3):
+  watchdog: at91: remove empty pm-functions
+  watchdog: iTCO: remove empty pm-functions
+  watchdog: sch311x: remove empty pm-functions
 
-I remain with my comment of Wed 26 Jan 2011:
-> The ioctl WDIOC_SETOPTIONS call is not in line with the watchdog API.
-> the supported options are:
-> #define WDIOS_DISABLECARD       0x0001  /* Turn off the watchdog timer */
-> #define WDIOS_ENABLECARD        0x0002  /* Turn on the watchdog timer */
-> #define WDIOS_TEMPPANIC         0x0004  /* Kernel panic on temperature trip */
-> Your options are:
-> #define DA9052_STROBING_FILTER_ENABLE   0x0001
-> #define DA9052_STROBING_FILTER_DISABLE  0x0002
-> #define DA9052_SET_STROBING_MODE_MANUAL 0x0004
-> #define DA9052_SET_STROBING_MODE_AUTO   0x0008
-> 
-> Please explain what you want to do.
+ drivers/watchdog/at91sam9_wdt.c |   19 -------------------
+ drivers/watchdog/iTCO_wdt.c     |    5 -----
+ drivers/watchdog/sch311x_wdt.c  |    5 -----
+ 3 files changed, 0 insertions(+), 29 deletions(-)
 
-FYI: this is how the code looks now:
-+       case WDIOC_SETOPTIONS:
-+               if (get_user(new_value, p))
-+                       return -EFAULT;
-+               if (new_value == DA9052_ENABLE || new_value == DA9052_DISABLE)
-+                       da9052_sm_set_strobing_filter(wdt, new_value);
-+               else
-+                       wdt->pwdt->sm_strobe_mode_flag = new_value;
-+               return 0;
-
-Since the code is still not in line with the watchdog API and since I did not get
-an answer yet on what you (or Dajun) want to do, there is definitely NO ACK yet.
-If there is a good reasoning behind your needs, we might conclude that this is indeed
-worthwhile and extend the API in a proper way. But as it is now, it's not correct.
-
-Kind regards,
-Wim.
+-- 
+1.7.5.4
 
