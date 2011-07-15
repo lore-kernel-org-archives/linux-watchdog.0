@@ -1,57 +1,64 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from dsl-67-204-24-19.acanac.net ([67.204.24.19]:33251 "EHLO
-	mail.ellipticsemi.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751869Ab1GOPE1 (ORCPT
+Received: from mail.elliptictech.com ([209.217.122.41]:40484 "EHLO
+	mail.ellipticsemi.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750939Ab1GOP2R (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 15 Jul 2011 11:04:27 -0400
+	Fri, 15 Jul 2011 11:28:17 -0400
 From: Nick Bowler <nbowler@elliptictech.com>
 To: linux-arm-kernel@lists.infradead.org,
 	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Russell King <linux@arm.linux.org.uk>,
 	Wim Van Sebroeck <wim@iguana.be>
-Subject: [PATCH 2/3] watchdog: sp805: Don't write 0 to the load value register.
-Date: Fri, 15 Jul 2011 11:04:01 -0400
-Message-Id: <1310742242-14647-3-git-send-email-nbowler@elliptictech.com>
+Subject: [PATCH 1/3] ARM: vexpress: Add clock definition for the SP805.
+Date: Fri, 15 Jul 2011 11:04:00 -0400
+Message-Id: <1310742242-14647-2-git-send-email-nbowler@elliptictech.com>
 In-Reply-To: <1310742242-14647-1-git-send-email-nbowler@elliptictech.com>
 References: <1310742242-14647-1-git-send-email-nbowler@elliptictech.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-At least on the Versatile Express' V2M, calling wdt_disable followed by
-wdt_enable, for instance by running the following sequence:
+It seems that an entry for the SP805 watchdog in the table of clocks was
+missing.  This results in the sp805_wdt driver rejecting the device with
+the following errors:
 
-  echo V > /dev/watchdog; echo V > /dev/watchdog
+  sp805-wdt mb:wdt: Clock not found
+  sp805-wdt mb:wdt: Probe Failed!!!
+  sp805-wdt: probe of mb:wdt failed with error -2
 
-results in an immediate reset.  The wdt_disable function writes 0 to the
-load register; while the watchdog interrupts are disabled at this point,
-this special value is defined to trigger an interrupt immediately.  It
-appears that in this instance, the reset happens when the interrupts
-are subsequently enabled by wdt_enable.
-
-Putting in a short delay after writing a new load value in wdt_enable
-solves the issue, but it seems cleaner to simply never write 0 to the
-load register at all: according to the hardware docs, writing 0 to the
-control register suffices to stop the counter, and the write of 0 to
-the load register is questionable anyway since this register resets to
-0xffffffff.
+While not obviously stated in the hardware docs, the onboard SP810's
+"REFCLK" is connected to a 32.768KHz crystal, and this drives the
+watchdog.  Add a struct clk and corresponding lookup entry for it.
 
 Signed-off-by: Nick Bowler <nbowler@elliptictech.com>
 ---
- drivers/watchdog/sp805_wdt.c |    1 -
- 1 files changed, 0 insertions(+), 1 deletions(-)
+ arch/arm/mach-vexpress/v2m.c |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
-index 0d80e08..c1e099a 100644
---- a/drivers/watchdog/sp805_wdt.c
-+++ b/drivers/watchdog/sp805_wdt.c
-@@ -144,7 +144,6 @@ static void wdt_disable(void)
+diff --git a/arch/arm/mach-vexpress/v2m.c b/arch/arm/mach-vexpress/v2m.c
+index 9e6b93b..d0d267a 100644
+--- a/arch/arm/mach-vexpress/v2m.c
++++ b/arch/arm/mach-vexpress/v2m.c
+@@ -318,6 +318,10 @@ static struct clk v2m_sp804_clk = {
+ 	.rate	= 1000000,
+ };
  
- 	writel(UNLOCK, wdt->base + WDTLOCK);
- 	writel(0, wdt->base + WDTCONTROL);
--	writel(0, wdt->base + WDTLOAD);
- 	writel(LOCK, wdt->base + WDTLOCK);
++static struct clk v2m_ref_clk = {
++	.rate   = 32768,
++};
++
+ static struct clk dummy_apb_pclk;
  
- 	spin_unlock(&wdt->lock);
+ static struct clk_lookup v2m_lookups[] = {
+@@ -348,6 +352,9 @@ static struct clk_lookup v2m_lookups[] = {
+ 	}, {	/* CLCD */
+ 		.dev_id		= "mb:clcd",
+ 		.clk		= &osc1_clk,
++	}, {	/* SP805 WDT */
++		.dev_id		= "mb:wdt",
++		.clk		= &v2m_ref_clk,
+ 	}, {	/* SP804 timers */
+ 		.dev_id		= "sp804",
+ 		.con_id		= "v2m-timer0",
 -- 
 1.7.3.4
 
