@@ -1,39 +1,75 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay009.isp.belgacom.be ([195.238.6.176]:39855 "EHLO
-	mailrelay009.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751501Ab1GOU75 (ORCPT
+Received: from mailrelay005.isp.belgacom.be ([195.238.6.171]:35227 "EHLO
+	mailrelay005.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750758Ab1GPGJh (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 15 Jul 2011 16:59:57 -0400
-Date: Fri, 15 Jul 2011 22:59:54 +0200
+	Sat, 16 Jul 2011 02:09:37 -0400
+Date: Sat, 16 Jul 2011 08:09:34 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Nick Bowler <nbowler@elliptictech.com>
-Cc: linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Russell King <linux@arm.linux.org.uk>
-Subject: Re: [PATCH 0/3] SP805 updates for Versatile Express
-Message-ID: <20110715205954.GR3834@infomag.iguana.be>
-References: <1310742242-14647-1-git-send-email-nbowler@elliptictech.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Olaf Hering <olaf@aepfle.de>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>
+Subject: [GIT PULL REQUEST] watchdog - v3.0-rc7 - Fixes
+Message-ID: <20110716060934.GS3834@infomag.iguana.be>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1310742242-14647-1-git-send-email-nbowler@elliptictech.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Nick,
+Hi Linus,
 
-> Here are some updates to get the SP805 watchdog working on the ARM
-> Versatile Express.  The first two patches fix observed issues; the
-> third fixes a potential (but not observed) issue with asynchronous
-> posted writes.
-> 
-> All three patches are independent and should be applicable in any
-> order, with some fuzz on the third.
+Please pull from 'master' branch of
+	git://git.kernel.org/pub/scm/linux/kernel/git/wim/linux-2.6-watchdog.git
+or if master.kernel.org hasn't synced up yet:
+	master.kernel.org:/pub/scm/linux/kernel/git/wim/linux-2.6-watchdog.git
 
-looks good at first glance.
+This will update the following files:
 
-Russel: what's your opinion?
+ drivers/watchdog/Kconfig |    1 -
+ 1 file changed, 1 deletion(-)
 
-Kind regards,
+with these Changes:
+
+Author: Olaf Hering <olaf@aepfle.de>
+Date:   Fri Jul 15 23:23:33 2011 +0200
+
+    watchdog: fix hpwdt Kconfig regression in 3.0-rc
+    
+    Remove Kconfig regression caused by commit
+    a4616153deae053b29a2b7dd9ec4b2a225accfc5 "watchdog: hpwdt: build hpwdt as
+    module by default with NMI_DECODING enabled"
+    
+    With the above change applied, hpwdt will be enabled unconditionally by just
+    entering the Watchdog subscreen in menuconfig. Since this driver is not
+    essential to boot any box it should remain disabled until it gets manually
+    enabled, just like all other drivers.
+    
+    Signed-off-by: Olaf Hering <olaf@aepfle.de>
+    Cc: Tony Camuso <tcamuso@redhat.com>
+    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+    Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+
+The Changes can also be looked at on:
+	http://www.kernel.org/git/?p=linux/kernel/git/wim/linux-2.6-watchdog.git;a=summary
+
+For completeness, I added the overal diff below.
+
+Greetings,
 Wim.
 
+================================================================================
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 9536d38..c57419b 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -600,7 +600,6 @@ config IT87_WDT
+ config HP_WATCHDOG
+ 	tristate "HP ProLiant iLO2+ Hardware Watchdog Timer"
+ 	depends on X86
+-	default m
+ 	help
+ 	  A software monitoring watchdog and NMI sourcing driver. This driver
+ 	  will detect lockups and provide a stack trace. This is a driver that
