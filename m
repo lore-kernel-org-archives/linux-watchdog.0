@@ -1,96 +1,80 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay004.isp.belgacom.be ([195.238.6.170]:14911 "EHLO
-	mailrelay004.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755722Ab1GQPFx (ORCPT
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:59582 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751736Ab1GRDDa (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 17 Jul 2011 11:05:53 -0400
-Date: Sun, 17 Jul 2011 17:05:50 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Olaf Hering <olaf@aepfle.de>,
-	Randy Dunlap <rdunlap@xenotime.net>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>
-Subject: Re: [GIT PULL REQUEST] watchdog - v3.0-rc7 - Fixes
-Message-ID: <20110717150550.GA10330@infomag.iguana.be>
-References: <20110716060934.GS3834@infomag.iguana.be>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20110716060934.GS3834@infomag.iguana.be>
+	Sun, 17 Jul 2011 23:03:30 -0400
+Received: by iwn6 with SMTP id 6so2722182iwn.19
+        for <linux-watchdog@vger.kernel.org>; Sun, 17 Jul 2011 20:03:29 -0700 (PDT)
+From: Shawn Guo <shawn.guo@linaro.org>
+To: linux-watchdog@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org,
+	devicetree-discuss@lists.ozlabs.org, patches@linaro.org,
+	Shawn Guo <shawn.guo@linaro.org>,
+	Grant Likely <grant.likely@secretlab.ca>,
+	Wolfram Sang <w.sang@pengutronix.de>,
+	Wim Van Sebroeck <wim@iguana.be>
+Subject: [PATCH] watchdog: imx2_wdt: add device tree probe support
+Date: Mon, 18 Jul 2011 11:15:21 +0800
+Message-Id: <1310958921-18083-1-git-send-email-shawn.guo@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Linus,
+It adds device tree probe support for imx2_wdt driver.
 
-Please pull from 'master' branch of
-	git://git.kernel.org/pub/scm/linux/kernel/git/wim/linux-2.6-watchdog.git
-or if master.kernel.org hasn't synced up yet:
-	master.kernel.org:/pub/scm/linux/kernel/git/wim/linux-2.6-watchdog.git
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+Cc: Grant Likely <grant.likely@secretlab.ca>
+Cc: Wolfram Sang <w.sang@pengutronix.de>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+---
+ .../devicetree/bindings/watchdog/fsl-imx-wdt.txt   |   14 ++++++++++++++
+ drivers/watchdog/imx2_wdt.c                        |    6 ++++++
+ 2 files changed, 20 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
 
-This will update the following files:
-
- drivers/watchdog/Kconfig |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-with these Changes:
-
-Author: Randy Dunlap <rdunlap@xenotime.net>
-Date:   Sat Jul 16 12:25:49 2011 -0700
-
-    watchdog: hpwdt depends on PCI
-    
-    hpwdt is a PCI driver so it should depend on PCI.
-    Fixes these build errors:
-    
-    drivers/watchdog/hpwdt.c:762: error: implicit declaration of function 'pci_iomap'
-    drivers/watchdog/hpwdt.c:762: warning: assignment makes pointer from integer without a cast
-    drivers/watchdog/hpwdt.c:797: error: implicit declaration of function 'pci_iounmap'
-    
-    Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-    Cc: Thomas Mingarelli <thomas.mingarelli@hp.com>
-
-Author: Olaf Hering <olaf@aepfle.de>
-Date:   Fri Jul 15 23:23:33 2011 +0200
-
-    watchdog: fix hpwdt Kconfig regression in 3.0-rc
-    
-    Remove Kconfig regression caused by commit
-    a4616153deae053b29a2b7dd9ec4b2a225accfc5 "watchdog: hpwdt: build hpwdt as
-    module by default with NMI_DECODING enabled"
-    
-    With the above change applied, hpwdt will be enabled unconditionally by just
-    entering the Watchdog subscreen in menuconfig. Since this driver is not
-    essential to boot any box it should remain disabled until it gets manually
-    enabled, just like all other drivers.
-    
-    Signed-off-by: Olaf Hering <olaf@aepfle.de>
-    Cc: Tony Camuso <tcamuso@redhat.com>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-    Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-
-The Changes can also be looked at on:
-	http://www.kernel.org/git/?p=linux/kernel/git/wim/linux-2.6-watchdog.git;a=summary
-
-For completeness, I added the overal diff below.
-
-Greetings,
-Wim.
-
-================================================================================
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 9536d38..21d816e 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -599,8 +599,7 @@ config IT87_WDT
+diff --git a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+new file mode 100644
+index 0000000..2144af1
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+@@ -0,0 +1,14 @@
++* Freescale i.MX Watchdog Timer (WDT) Controller
++
++Required properties:
++- compatible : Should be "fsl,<soc>-wdt"
++- reg : Should contain WDT registers location and length
++- interrupts : Should contain WDT interrupt
++
++Examples:
++
++wdt@73f98000 {
++	compatible = "fsl,imx51-wdt", "fsl,imx21-wdt";
++	reg = <0x73f98000 0x4000>;
++	interrupts = <58>;
++};
+diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+index 86f7cac..b8ef2c6 100644
+--- a/drivers/watchdog/imx2_wdt.c
++++ b/drivers/watchdog/imx2_wdt.c
+@@ -329,12 +329,18 @@ static void imx2_wdt_shutdown(struct platform_device *pdev)
+ 	}
+ }
  
- config HP_WATCHDOG
- 	tristate "HP ProLiant iLO2+ Hardware Watchdog Timer"
--	depends on X86
--	default m
-+	depends on X86 && PCI
- 	help
- 	  A software monitoring watchdog and NMI sourcing driver. This driver
- 	  will detect lockups and provide a stack trace. This is a driver that
++static const struct of_device_id imx2_wdt_dt_ids[] = {
++	{ .compatible = "fsl,imx21-wdt", },
++	{ /* sentinel */ }
++};
++
+ static struct platform_driver imx2_wdt_driver = {
+ 	.remove		= __exit_p(imx2_wdt_remove),
+ 	.shutdown	= imx2_wdt_shutdown,
+ 	.driver		= {
+ 		.name	= DRIVER_NAME,
+ 		.owner	= THIS_MODULE,
++		.of_match_table = imx2_wdt_dt_ids,
+ 	},
+ };
+ 
+-- 
+1.7.4.1
+
