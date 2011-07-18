@@ -1,80 +1,77 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:59582 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751736Ab1GRDDa (ORCPT
+Received: from caramon.arm.linux.org.uk ([78.32.30.218]:44021 "EHLO
+	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755182Ab1GRJo1 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 17 Jul 2011 23:03:30 -0400
-Received: by iwn6 with SMTP id 6so2722182iwn.19
-        for <linux-watchdog@vger.kernel.org>; Sun, 17 Jul 2011 20:03:29 -0700 (PDT)
-From: Shawn Guo <shawn.guo@linaro.org>
-To: linux-watchdog@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org,
-	devicetree-discuss@lists.ozlabs.org, patches@linaro.org,
-	Shawn Guo <shawn.guo@linaro.org>,
-	Grant Likely <grant.likely@secretlab.ca>,
-	Wolfram Sang <w.sang@pengutronix.de>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: [PATCH] watchdog: imx2_wdt: add device tree probe support
-Date: Mon, 18 Jul 2011 11:15:21 +0800
-Message-Id: <1310958921-18083-1-git-send-email-shawn.guo@linaro.org>
+	Mon, 18 Jul 2011 05:44:27 -0400
+Date: Mon, 18 Jul 2011 10:44:09 +0100
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Nick Bowler <nbowler@elliptictech.com>,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] SP805 updates for Versatile Express
+Message-ID: <20110718094409.GQ23270@n2100.arm.linux.org.uk>
+References: <1310742242-14647-1-git-send-email-nbowler@elliptictech.com> <20110715205954.GR3834@infomag.iguana.be>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20110715205954.GR3834@infomag.iguana.be>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-It adds device tree probe support for imx2_wdt driver.
+On Fri, Jul 15, 2011 at 10:59:54PM +0200, Wim Van Sebroeck wrote:
+> Hi Nick,
+> 
+> > Here are some updates to get the SP805 watchdog working on the ARM
+> > Versatile Express.  The first two patches fix observed issues; the
+> > third fixes a potential (but not observed) issue with asynchronous
+> > posted writes.
+> > 
+> > All three patches are independent and should be applicable in any
+> > order, with some fuzz on the third.
+> 
+> looks good at first glance.
+> 
+> Russel: what's your opinion?
 
-Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
-Cc: Grant Likely <grant.likely@secretlab.ca>
-Cc: Wolfram Sang <w.sang@pengutronix.de>
-Cc: Wim Van Sebroeck <wim@iguana.be>
----
- .../devicetree/bindings/watchdog/fsl-imx-wdt.txt   |   14 ++++++++++++++
- drivers/watchdog/imx2_wdt.c                        |    6 ++++++
- 2 files changed, 20 insertions(+), 0 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+Win,
 
-diff --git a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
-new file mode 100644
-index 0000000..2144af1
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
-@@ -0,0 +1,14 @@
-+* Freescale i.MX Watchdog Timer (WDT) Controller
-+
-+Required properties:
-+- compatible : Should be "fsl,<soc>-wdt"
-+- reg : Should contain WDT registers location and length
-+- interrupts : Should contain WDT interrupt
-+
-+Examples:
-+
-+wdt@73f98000 {
-+	compatible = "fsl,imx51-wdt", "fsl,imx21-wdt";
-+	reg = <0x73f98000 0x4000>;
-+	interrupts = <58>;
-+};
-diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-index 86f7cac..b8ef2c6 100644
---- a/drivers/watchdog/imx2_wdt.c
-+++ b/drivers/watchdog/imx2_wdt.c
-@@ -329,12 +329,18 @@ static void imx2_wdt_shutdown(struct platform_device *pdev)
- 	}
- }
- 
-+static const struct of_device_id imx2_wdt_dt_ids[] = {
-+	{ .compatible = "fsl,imx21-wdt", },
-+	{ /* sentinel */ }
-+};
-+
- static struct platform_driver imx2_wdt_driver = {
- 	.remove		= __exit_p(imx2_wdt_remove),
- 	.shutdown	= imx2_wdt_shutdown,
- 	.driver		= {
- 		.name	= DRIVER_NAME,
- 		.owner	= THIS_MODULE,
-+		.of_match_table = imx2_wdt_dt_ids,
- 	},
- };
- 
--- 
-1.7.4.1
+This series looks fine.  However, looking through the driver, there's
+a few oddities:
 
+static u32 wdt_timeleft(void)
+{
+        u64 load, rate;
+
+        rate = clk_get_rate(wdt->clk);
+
+        spin_lock(&wdt->lock);
+        load = readl(wdt->base + WDTVALUE);
+
+        /*If the interrupt is inactive then time left is WDTValue + WDTLoad. */
+        if (!(readl(wdt->base + WDTRIS) & INT_MASK))
+                load += wdt->load_val + 1;
+        spin_unlock(&wdt->lock);
+
+        return div_u64(load, rate);
+}
+
+clk_get_rate returns an unsigned long, not a u64.  There's no point
+expanding it to a 64-bit int for div_u64 - rate might as well be
+declared as an unsigned long.
+
+Same goes for wdt_setload, and there stuff like "div_u64(rate, 2)"
+can become normal maths rather than the special 64-bit stuff.
+
+Then there's:
+
+        if (!request_mem_region(adev->res.start, resource_size(&adev->res),
+                                "sp805_wdt")) {
+                dev_warn(&adev->dev, "Failed to get memory region resource\n");
+                ret = -ENOENT;
+                goto err;
+        }
+
+Is amba_request_regions()/amba_release_regions() not good enough to
+handle requesting/releasing these regions?
