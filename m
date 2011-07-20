@@ -1,43 +1,54 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from dsl-67-204-24-19.acanac.net ([67.204.24.19]:50742 "EHLO
-	mail.ellipticsemi.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750803Ab1GSNPS (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 19 Jul 2011 09:15:18 -0400
-Date: Tue, 19 Jul 2011 09:15:08 -0400
-From: Nick Bowler <nbowler@elliptictech.com>
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/3] SP805 updates for Versatile Express
-Message-ID: <20110719131508.GA30207@elliptictech.com>
-References: <1310742242-14647-1-git-send-email-nbowler@elliptictech.com>
- <20110715205954.GR3834@infomag.iguana.be>
- <20110718094409.GQ23270@n2100.arm.linux.org.uk>
+Received: from mail.sysgo.com ([195.145.229.155]:46091 "EHLO mail.sysgo.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751103Ab1GTNLx (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 20 Jul 2011 09:11:53 -0400
+Message-ID: <4E26D22B.1040702@sysgo.com>
+Date: Wed, 20 Jul 2011 15:03:39 +0200
+From: David Engraf <david.engraf@sysgo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20110718094409.GQ23270@n2100.arm.linux.org.uk>
+To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-sh@vger.kernel.org,
+	Paul Mundt <lethal@linux-sh.org>
+Subject: [PATCH] shwdt: fix usage of mod_timer
+Content-Type: multipart/mixed;
+ boundary="------------020705060108020003000904"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 2011-07-18 10:44 +0100, Russell King - ARM Linux wrote:
-> On Fri, Jul 15, 2011 at 10:59:54PM +0200, Wim Van Sebroeck wrote:
-> > looks good at first glance.
-> > 
-> > Russel: what's your opinion?
-> 
-> Win,
-> 
-> This series looks fine.  However, looking through the driver, there's
-> a few oddities:
+This is a multi-part message in MIME format.
+--------------020705060108020003000904
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Indeed, there are likely several other ways in which this driver can be
-improved.  My goal was to get it working on our board first. :)
+This patch fixes the usage of mod_timer and makes the driver usable. 
+mod_timer must be called with an absolute timeout in jiffies, the old 
+implementation used a relative timeout thus the hardware watchdog was 
+never triggered.
 
-So if this series is fine, I'll submit #1 (the V2M patch) to Russel's
-patch tracker.  I suppose #2 and #3 should go through the watchdog tree?
+Signed-off-by: David Engraf <david.engraf@sysgo.com>
 
-Thanks,
--- 
-Nick Bowler, Elliptic Technologies (http://www.elliptictech.com/)
+
+
+--------------020705060108020003000904
+Content-Type: text/x-diff;
+ name="shwdt.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="shwdt.patch"
+
+diff --git a/drivers/watchdog/shwdt.c b/drivers/watchdog/shwdt.c
+index db84f23..a267dc0 100644
+--- a/drivers/watchdog/shwdt.c
++++ b/drivers/watchdog/shwdt.c
+@@ -64,7 +64,7 @@
+  * misses its deadline, the kernel timer will allow the WDT to overflow.
+  */
+ static int clock_division_ratio = WTCSR_CKS_4096;
+-#define next_ping_period(cks)	msecs_to_jiffies(cks - 4)
++#define next_ping_period(cks)	(jiffies + msecs_to_jiffies(cks - 4))
+ 
+ static const struct watchdog_info sh_wdt_info;
+ static struct platform_device *sh_wdt_dev;
+
+--------------020705060108020003000904--
