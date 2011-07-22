@@ -1,38 +1,37 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay007.isp.belgacom.be ([195.238.6.173]:20585 "EHLO
-	mailrelay007.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754674Ab1GVSc7 (ORCPT
+Received: from mailrelay002.isp.belgacom.be ([195.238.6.175]:38972 "EHLO
+	mailrelay002.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754695Ab1GVSeu (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 22 Jul 2011 14:32:59 -0400
-Date: Fri, 22 Jul 2011 20:32:57 +0200
+	Fri, 22 Jul 2011 14:34:50 -0400
+Date: Fri, 22 Jul 2011 20:34:46 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Paul Mundt <lethal@linux-sh.org>
-Cc: David Engraf <david.engraf@sysgo.com>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-sh@vger.kernel.org
-Subject: Re: [PATCH] shwdt: fix usage of mod_timer
-Message-ID: <20110722183257.GF31767@infomag.iguana.be>
-References: <4E26D22B.1040702@sysgo.com> <20110721075353.GC27831@linux-sh.org>
+To: Shawn Guo <shawn.guo@linaro.org>
+Cc: linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	devicetree-discuss@lists.ozlabs.org, patches@linaro.org,
+	Grant Likely <grant.likely@secretlab.ca>,
+	Wolfram Sang <w.sang@pengutronix.de>
+Subject: Re: [PATCH] watchdog: imx2_wdt: add device tree probe support
+Message-ID: <20110722183446.GG31767@infomag.iguana.be>
+References: <1310958921-18083-1-git-send-email-shawn.guo@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20110721075353.GC27831@linux-sh.org>
+In-Reply-To: <1310958921-18083-1-git-send-email-shawn.guo@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Paul,
+Hi Shawn,
 
-> On Wed, Jul 20, 2011 at 03:03:39PM +0200, David Engraf wrote:
-> > This patch fixes the usage of mod_timer and makes the driver usable. 
-> > mod_timer must be called with an absolute timeout in jiffies, the old 
-> > implementation used a relative timeout thus the hardware watchdog was 
-> > never triggered.
-> > 
-> > Signed-off-by: David Engraf <david.engraf@sysgo.com>
-> > 
-> Applied, thanks.
+> It adds device tree probe support for imx2_wdt driver.
+> 
+> Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+> Cc: Grant Likely <grant.likely@secretlab.ca>
+> Cc: Wolfram Sang <w.sang@pengutronix.de>
+> Cc: Wim Van Sebroeck <wim@iguana.be>
 
-So this patch will go via your tree then.
+Patch added to linux-2.6-watchdog-next.
 
 Kind regards,
 Wim.
