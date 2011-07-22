@@ -1,66 +1,65 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay009.isp.belgacom.be ([195.238.6.176]:63782 "EHLO
-	mailrelay009.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754859Ab1GVTSt (ORCPT
+Received: from mailrelay003.isp.belgacom.be ([195.238.6.53]:22945 "EHLO
+	mailrelay003.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755167Ab1GVTY1 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 22 Jul 2011 15:18:49 -0400
-Date: Fri, 22 Jul 2011 21:18:47 +0200
+	Fri, 22 Jul 2011 15:24:27 -0400
+Date: Fri, 22 Jul 2011 21:24:25 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
 To: Wolfram Sang <w.sang@pengutronix.de>
 Cc: LKML <linux-kernel@vger.kernel.org>,
 	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH 0/11 v3] Generic Watchdog Timer Driver
-Message-ID: <20110722191847.GI31767@infomag.iguana.be>
-References: <20110711135056.GT29245@infomag.iguana.be> <20110711213145.GB5811@pengutronix.de>
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 01/11] watchdog: WatchDog Timer Driver Core - Add basic
+	framework
+Message-ID: <20110722192425.GJ31767@infomag.iguana.be>
+References: <20110711135056.GT29245@infomag.iguana.be> <1310392522-9949-1-git-send-email-wim@iguana.be> <20110711213224.GC5811@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20110711213145.GB5811@pengutronix.de>
+In-Reply-To: <20110711213224.GC5811@pengutronix.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 Hi Wolfram,
 
-> > Changes since V2:
-> > * all "flags" are unsigned
-> > * timeout values are also unsigned
-> > * removed unnececessary debugging
-> > * clean-up comments
-> > * the core will be in drivers/watchdog/ and not in drivers/watchdog/core/
+> > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> > index 372bc64..edb0f1b 100644
+> > --- a/drivers/watchdog/Kconfig
+> > +++ b/drivers/watchdog/Kconfig
+> > @@ -28,6 +28,17 @@ menuconfig WATCHDOG
+> >  
+> >  if WATCHDOG
+> >  
+> > +config WATCHDOG_CORE
+> > +	tristate "WatchDog Timer Driver Core"
 > 
-> Also (just in case someone started converting drivers):
+> What about the idea of making this bool and let it always be compiled as soon
+> as WATCHDOG is selected?
+
+This should indeed have been bool. For this merge window it will stay as WATCHDOG_CORE.
+In a futue release WATCHDOG_CORE will disappear and the watchdog core will be dependant
+on CONFIG_WATCHDOG. Goal is that we only have 1 lower-level API and that all other drivers
+use that.
+
+> > +int watchdog_register_device(struct watchdog_device *wdd)
+> > +{
+> > +	int ret;
+> > +
+> > +	/* Make sure we have a valid watchdog_device structure */
+> > +	if (wdd == NULL || wdd->info == NULL || wdd->ops == NULL)
+> > +		return -EINVAL;
+> > +
+> > +	/* Make sure that the mandatory operations are supported */
+> > +	if (wdd->ops->start == NULL || wdd->ops->stop == NULL)
+> > +		return -EINVAL;
 > 
-> * some error-codes changed
-> * .name has been removed from watchdog_device in favor of watchdog_info->identity
+> Check also for wdd->ops->owner? Should we mark it as mandatory?
 
-Yup, I forgot these. Thanks.
+No, see other comments also (if built-in owner is NULL).
 
-Status update: I incorporated your comments and Lars-Peter Clausen's comments and
-created V4.  The changes since V3 are:
-* removed overdocumentation
-* removed MODULE_SUPPORTED_DEVICE and +MODULE_ALIAS_MISCDEV
-* removed return -ENOTTY after switch (cmd) because we have the default allready
-* s/sent/send/
-* I'd suggest to swap the logic here (branch taken on error)
-* no_llseek removal squashed into patch 1
-* provide getter/setter methods for driver specific data so that we can easily do the conversion towards the device driver model
-* removed parent because this would change when we will start using the device driver model
-
-
-> I already started converting a few drivers and will post the patches as RFC
-> tomorrow. In general, converting went quite well and despite a few comments
-> (see later mails), I think this could go into 3.1, so that converted drivers
-> can go into 3.2 together with (probably) a few updates to the framework. There
-> is potential for a bit more consolidation, yet I think the basic stuff could
-> go in now.
-> 
-> Thanks to Wim and Alan for their work and CELF/LF for supporting the final
-> steps :)
-
-And for your assistance and the feedback from others also.
+All other comments have been incorporated.
+It's allready in the linux-2.6-watchdog-next tree. Will try to sent out the new series as soon as possible.
 
 Kind regards,
 Wim.
