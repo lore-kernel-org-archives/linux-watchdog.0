@@ -1,29 +1,41 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from linux-sh.org ([111.68.239.195]:59579 "EHLO linux-sh.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752388Ab1GUHyF (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 21 Jul 2011 03:54:05 -0400
-Date: Thu, 21 Jul 2011 16:53:53 +0900
-From: Paul Mundt <lethal@linux-sh.org>
-To: David Engraf <david.engraf@sysgo.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-sh@vger.kernel.org
-Subject: Re: [PATCH] shwdt: fix usage of mod_timer
-Message-ID: <20110721075353.GC27831@linux-sh.org>
-References: <4E26D22B.1040702@sysgo.com>
-Mime-Version: 1.0
+Received: from mailrelay007.isp.belgacom.be ([195.238.6.173]:43635 "EHLO
+	mailrelay007.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753830Ab1GVRrS (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 22 Jul 2011 13:47:18 -0400
+Date: Fri, 22 Jul 2011 19:47:09 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Alejandro Cabrera <acabrera@udio.cujae.edu.cu>
+Cc: linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] Add Xilinx watchdog timer driver
+Message-ID: <20110722174709.GA31767@infomag.iguana.be>
+References: <201106022213.11201.acabrera@udio.cujae.edu.cu>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4E26D22B.1040702@sysgo.com>
+In-Reply-To: <201106022213.11201.acabrera@udio.cujae.edu.cu>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Jul 20, 2011 at 03:03:39PM +0200, David Engraf wrote:
-> This patch fixes the usage of mod_timer and makes the driver usable. 
-> mod_timer must be called with an absolute timeout in jiffies, the old 
-> implementation used a relative timeout thus the hardware watchdog was 
-> never triggered.
+Hi Alejandro,
+
+> Watchdog timer device driver for Xilinx xps_timebase_wdt compatible ip cores.
+> It takes watchdog timer configuration from device tree and it needs that its
+> parent has defined the property "clock-frecuency".
+> It is compatible with watchdog timer kernel API, so user apps like watchdogd
+> may talk with it.
 > 
-> Signed-off-by: David Engraf <david.engraf@sysgo.com>
-> 
-Applied, thanks.
+> Signed-off-by: Alejandro Cabrera <aldaya@gmail.com>
+> ---
+>  drivers/watchdog/Kconfig         |   14 ++
+>  drivers/watchdog/Makefile        |    3 +
+>  drivers/watchdog/of_xilinx_wdt.c |  433 ++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 450 nsertions(+), 0 deletions(-)
+>  create mode 100644 drivers/watchdog/of_xilinx_wdt.c
+
+Added to linux-2.6-watchdog-next. (Made 1 small change: misc_deregister should be called before iounmap en release_region).
+
+Kind regards,
+Wim.
+
