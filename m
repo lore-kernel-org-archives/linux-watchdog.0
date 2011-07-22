@@ -1,44 +1,46 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay008.isp.belgacom.be ([195.238.6.174]:5420 "EHLO
-	mailrelay008.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751123Ab1GVSvU (ORCPT
+Received: from mail.elliptictech.com ([209.217.122.41]:46258 "EHLO
+	mail.ellipticsemi.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753504Ab1GVTCM (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 22 Jul 2011 14:51:20 -0400
-Date: Fri, 22 Jul 2011 20:51:18 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Alexander Stein <alexander.stein@systec-electronic.com>
-Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 2/2 v2] Add watchdog driver for Intel E6XX
-Message-ID: <20110722185118.GH31767@infomag.iguana.be>
-References: <20110701110002.GA9326@infomag.iguana.be> <1309786148-5138-2-git-send-email-alexander.stein@systec-electronic.com>
+	Fri, 22 Jul 2011 15:02:12 -0400
+Date: Fri, 22 Jul 2011 15:01:50 -0400
+From: Nick Bowler <nbowler@elliptictech.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] SP805 updates for Versatile Express
+Message-ID: <20110722190150.GA24621@elliptictech.com>
+References: <1310742242-14647-1-git-send-email-nbowler@elliptictech.com>
+ <20110715205954.GR3834@infomag.iguana.be>
+ <20110718094409.GQ23270@n2100.arm.linux.org.uk>
+ <20110719131508.GA30207@elliptictech.com>
+ <20110722183146.GE31767@infomag.iguana.be>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1309786148-5138-2-git-send-email-alexander.stein@systec-electronic.com>
+In-Reply-To: <20110722183146.GE31767@infomag.iguana.be>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Alexander,
-
-> Signed-off-by: Alexander Stein <alexander.stein@systec-electronic.com>
-> ---
-> Changes in v2:
-> * Changed subject to use E6XX instead of tunnelcreek
-> * Changed driver name to ie6xx_wdt
+On 2011-07-22 20:31 +0200, Wim Van Sebroeck wrote:
+> Hi Nick, Russel,
+> > Indeed, there are likely several other ways in which this driver can be
+> > improved.  My goal was to get it working on our board first. :)
 > 
->  drivers/watchdog/Kconfig     |   12 ++
->  drivers/watchdog/Makefile    |    1 +
->  drivers/watchdog/ie6xx_wtd.c |  446 ++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 459 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/watchdog/ie6xx_wtd.c
+> Feel free to continue improving the driver like Russel suggested. :-)
 
-2 remarks:
-1) please fix the lines that are over 80 characters. (please use scripts/checkpatch.pl)
-2) on opening /dev/watchdog your watchdog should start working. Now you have to open the device
-and write to it before it starts. That's not what the watchdog API says...
+I'll see what I can do :)
 
-Kind regards,
-Wim.
+> > So if this series is fine, I'll submit #1 (the V2M patch) to Russel's
+> > patch tracker.  I suppose #2 and #3 should go through the watchdog tree?
+> 
+> I added patch 2 and 3 to linux-2.6-watchdog-next. You can send #1 to 
+> Russel's patch tracker.
 
+OK, great.  I sent #1 to Russell's patch tracker a couple days ago.
+
+Thanks,
+-- 
+Nick Bowler, Elliptic Technologies (http://www.elliptictech.com/)
