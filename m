@@ -1,46 +1,38 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay010.isp.belgacom.be ([195.238.6.177]:45969 "EHLO
-	mailrelay010.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754674Ab1GVSbs (ORCPT
+Received: from mailrelay007.isp.belgacom.be ([195.238.6.173]:20585 "EHLO
+	mailrelay007.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754674Ab1GVSc7 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 22 Jul 2011 14:31:48 -0400
-Date: Fri, 22 Jul 2011 20:31:46 +0200
+	Fri, 22 Jul 2011 14:32:59 -0400
+Date: Fri, 22 Jul 2011 20:32:57 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Nick Bowler <nbowler@elliptictech.com>
-Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/3] SP805 updates for Versatile Express
-Message-ID: <20110722183146.GE31767@infomag.iguana.be>
-References: <1310742242-14647-1-git-send-email-nbowler@elliptictech.com> <20110715205954.GR3834@infomag.iguana.be> <20110718094409.GQ23270@n2100.arm.linux.org.uk> <20110719131508.GA30207@elliptictech.com>
+To: Paul Mundt <lethal@linux-sh.org>
+Cc: David Engraf <david.engraf@sysgo.com>,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-sh@vger.kernel.org
+Subject: Re: [PATCH] shwdt: fix usage of mod_timer
+Message-ID: <20110722183257.GF31767@infomag.iguana.be>
+References: <4E26D22B.1040702@sysgo.com> <20110721075353.GC27831@linux-sh.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20110719131508.GA30207@elliptictech.com>
+In-Reply-To: <20110721075353.GC27831@linux-sh.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Nick, Russel,
+Hi Paul,
 
-> > > looks good at first glance.
-> > > 
-> > > Russel: what's your opinion?
+> On Wed, Jul 20, 2011 at 03:03:39PM +0200, David Engraf wrote:
+> > This patch fixes the usage of mod_timer and makes the driver usable. 
+> > mod_timer must be called with an absolute timeout in jiffies, the old 
+> > implementation used a relative timeout thus the hardware watchdog was 
+> > never triggered.
 > > 
-> > Win,
+> > Signed-off-by: David Engraf <david.engraf@sysgo.com>
 > > 
-> > This series looks fine.  However, looking through the driver, there's
-> > a few oddities:
-> 
-> Indeed, there are likely several other ways in which this driver can be
-> improved.  My goal was to get it working on our board first. :)
+> Applied, thanks.
 
-Feel free to continue improving the driver like Russel suggested. :-)
-
-> So if this series is fine, I'll submit #1 (the V2M patch) to Russel's
-> patch tracker.  I suppose #2 and #3 should go through the watchdog tree?
-
-I added patch 2 and 3 to linux-2.6-watchdog-next. You can send #1 to 
-Russel's patch tracker.
+So this patch will go via your tree then.
 
 Kind regards,
 Wim.
