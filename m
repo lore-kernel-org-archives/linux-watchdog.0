@@ -1,40 +1,41 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay007.isp.belgacom.be ([195.238.6.173]:43635 "EHLO
-	mailrelay007.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753830Ab1GVRrS (ORCPT
+Received: from mailrelay004.isp.belgacom.be ([195.238.6.170]:15636 "EHLO
+	mailrelay004.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753830Ab1GVRyR (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 22 Jul 2011 13:47:18 -0400
-Date: Fri, 22 Jul 2011 19:47:09 +0200
+	Fri, 22 Jul 2011 13:54:17 -0400
+Date: Fri, 22 Jul 2011 19:54:06 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Alejandro Cabrera <acabrera@udio.cujae.edu.cu>
+To: Wolfram Sang <w.sang@pengutronix.de>
 Cc: linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] Add Xilinx watchdog timer driver
-Message-ID: <20110722174709.GA31767@infomag.iguana.be>
-References: <201106022213.11201.acabrera@udio.cujae.edu.cu>
+Subject: Re: [PATCH 0/3] watchdog: remove empty pms
+Message-ID: <20110722175406.GB31767@infomag.iguana.be>
+References: <1310640783-16543-1-git-send-email-w.sang@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <201106022213.11201.acabrera@udio.cujae.edu.cu>
+In-Reply-To: <1310640783-16543-1-git-send-email-w.sang@pengutronix.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Alejandro,
+Hi Wolfram,
 
-> Watchdog timer device driver for Xilinx xps_timebase_wdt compatible ip cores.
-> It takes watchdog timer configuration from device tree and it needs that its
-> parent has defined the property "clock-frecuency".
-> It is compatible with watchdog timer kernel API, so user apps like watchdogd
-> may talk with it.
+> While checking what watchdog drivers usually do in suspend/resume to
+> spot common behaviour for the watchdog framework, I found these drivers
+> which do nothing but add some cruft. Remove it, it is superfluous. New
+> approaches should probably be done with pm_ops anyway.
 > 
-> Signed-off-by: Alejandro Cabrera <aldaya@gmail.com>
-> ---
->  drivers/watchdog/Kconfig         |   14 ++
->  drivers/watchdog/Makefile        |    3 +
->  drivers/watchdog/of_xilinx_wdt.c |  433 ++++++++++++++++++++++++++++++++++++++
->  3 files changed, 450 nsertions(+), 0 deletions(-)
->  create mode 100644 drivers/watchdog/of_xilinx_wdt.c
+> Wolfram Sang (3):
+>   watchdog: at91: remove empty pm-functions
+>   watchdog: iTCO: remove empty pm-functions
+>   watchdog: sch311x: remove empty pm-functions
+> 
+>  drivers/watchdog/at91sam9_wdt.c |   19 -------------------
+>  drivers/watchdog/iTCO_wdt.c     |    5 -----
+>  drivers/watchdog/sch311x_wdt.c  |    5 -----
+>  3 files changed, 0 insertions(+), 29 deletions(-)
 
-Added to linux-2.6-watchdog-next. (Made 1 small change: misc_deregister should be called before iounmap en release_region).
+All 3 patches added as a single patch into linux-2.6-watchdog-next.
 
 Kind regards,
 Wim.
