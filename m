@@ -1,51 +1,37 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay002.isp.belgacom.be ([195.238.6.175]:40285 "EHLO
-	mailrelay002.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753830Ab1GVRzo (ORCPT
+Received: from mailrelay008.isp.belgacom.be ([195.238.6.174]:59555 "EHLO
+	mailrelay008.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754573Ab1GVS2K (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 22 Jul 2011 13:55:44 -0400
-Date: Fri, 22 Jul 2011 19:55:39 +0200
+	Fri, 22 Jul 2011 14:28:10 -0400
+Date: Fri, 22 Jul 2011 20:28:08 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: H Hartley Sweeten <hartleys@visionengravers.com>
-Cc: Wolfram Sang <w.sang@pengutronix.de>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-	"tim.bird@am.sony.com" <tim.bird@am.sony.com>
-Subject: Re: [RFC 0/6] watchdog drivers converted to the new framework
-Message-ID: <20110722175539.GC31767@infomag.iguana.be>
-References: <1310588766-16638-1-git-send-email-w.sang@pengutronix.de> <ADE657CA350FB648AAC2C43247A983F001F383E05B65@AUSP01VMBX24.collaborationhost.net> <20110714182734.GA31082@pengutronix.de> <ADE657CA350FB648AAC2C43247A983F001F383E05BCD@AUSP01VMBX24.collaborationhost.net> <20110714200053.GC31082@pengutronix.de> <ADE657CA350FB648AAC2C43247A983F001F383E05C4A@AUSP01VMBX24.collaborationhost.net>
+To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Cc: linux-arm-kernel@lists.infradead.org,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 7/7] at91sam9/wdt: move register header to drivers
+Message-ID: <20110722182808.GD31767@infomag.iguana.be>
+References: <1310687525-22486-1-git-send-email-plagnioj@jcrosoft.com> <1310687525-22486-7-git-send-email-plagnioj@jcrosoft.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ADE657CA350FB648AAC2C43247A983F001F383E05C4A@AUSP01VMBX24.collaborationhost.net>
+In-Reply-To: <1310687525-22486-7-git-send-email-plagnioj@jcrosoft.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Hartley,
+Hi Jean-Christophe,
 
-> >>>> I would also like to convert this driver into a proper platform_driver using
-> >>>> ioremap'ed addresses instead of the static mappings.  Converting the driver
-> >>>> to the new watchdog framework would make this a bit cleaner.
-> >>>
-> >>> Try managed devices (devm_* and friends) for an extra cleanup bonus.
-> >> 
-> >> Already done, just waiting for the framework... ;-)
-> >
-> > Nice :) Did you use my conversion-guide as a reference? Any comments if so?
-> 
-> Sorry, I didn't.  I just worked it out from the framework core and looking
-> at your examples.
-> 
-> When I found the framework patches on lkml I couldn't get them into a state
-> to apply to my tree.  I ended up manually applying all the pieces so I skipped
-> the Documentation stuff to save some time.
-> 
-> The conversion is pretty straight forward after examining the watchdog
-> framework files.
+> Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+> Cc: Nicolas Ferre <nicolas.ferre@atmel.com>
+> Cc: linux-watchdog@vger.kernel.org
+> ---
+>  drivers/watchdog/at91sam9_wdt.c                    |    2 +-
+>  .../at91_wdt.h => drivers/watchdog/at91sam9_wdt.h  |    2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+>  rename arch/arm/mach-at91/include/mach/at91_wdt.h => drivers/watchdog/at91sam9_wdt.h (96%)
 
-Maybe you could allready post your patches to the linux watchdog mailing list.
+Added this patch to the linux-2.6-watchdog-next tree.
 
 Kind regards,
 Wim.
