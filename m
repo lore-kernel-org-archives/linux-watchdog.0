@@ -1,160 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Prarit Bhargava <prarit@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: Prarit Bhargava <prarit@redhat.com>, linux-watchdog@vger.kernel.org
-Subject: [PATCH 30/34] drivers/watchdog changes for SMBIOS and System Firmware
-Date: Mon, 18 Jul 2011 09:08:44 -0400
-Message-Id: <1310994528-26276-31-git-send-email-prarit@redhat.com>
-In-Reply-To: <1310994528-26276-1-git-send-email-prarit@redhat.com>
-References: <1310994528-26276-1-git-send-email-prarit@redhat.com>
+From: Ashish Jangam <Ashish.Jangam@kpitcummins.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        Dajun <dajun.chen@diasemi.com>,
+        "linaro-dev@lists.linaro.org" <linaro-dev@lists.linaro.org>
+Date: Mon, 25 Jul 2011 17:07:34 +0530
+Subject: RE: [PATCH 07/11] Watchdog: DA9052 watchdog support v1
+Message-ID: <E2CAE7F7B064EA49B5CE7EE9A4BB167D18F7404D65@KCINPUNHJCMS01.kpit.com>
+References: <1309872103.960.79.camel@L-0532.kpit.com>
+	 <1310630232.284.16.camel@L-0532.kpit.com>
+ <20110714102928.GL3834@infomag.iguana.be>
+In-Reply-To: <20110714102928.GL3834@infomag.iguana.be>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-As part of the new SMBIOS and System Firmware code:
 
-- Replace old dmi* structures and functions with new sysfw* and smbios*
-structures and functions in individual drivers
-- cleanup sysfw_id lookup tables
+> -----Original Message-----
+> From: Wim Van Sebroeck [mailto:wim@iguana.be]
+> Sent: Thursday, July 14, 2011 3:59 PM
+> To: Ashish Jangam
+> Cc: linux-kernel@vger.kernel.org; linux-watchdog@vger.kernel.org; Dajun;
+> linaro-dev@lists.linaro.org
+> Subject: Re: [PATCH 07/11] Watchdog: DA9052 watchdog support v1
+> 
+> Hi Ashish, Dajun,
+> 
+> > > This driver adds support for the watchdog functionality provided by the
+> Dialog
+> > > Semiconductor DA9052 PMIC chip.
+> > >
+> > > Signed-off-by: David Dajun Chen <dchen@diasemi.com>
+> > > Signed-off-by: Ashish Jangam <ashish.jangam@kpitcummins.com>
+> > > ---
+> > If there are no comments then can you ACK this patch?
+> 
+> I remain with my comment of Wed 26 Jan 2011:
+> > The ioctl WDIOC_SETOPTIONS call is not in line with the watchdog API.
+> > the supported options are:
+> > #define WDIOS_DISABLECARD       0x0001  /* Turn off the watchdog timer */
+> > #define WDIOS_ENABLECARD        0x0002  /* Turn on the watchdog timer */
+> > #define WDIOS_TEMPPANIC         0x0004  /* Kernel panic on temperature trip
+> */
+> > Your options are:
+> > #define DA9052_STROBING_FILTER_ENABLE   0x0001
+> > #define DA9052_STROBING_FILTER_DISABLE  0x0002
+> > #define DA9052_SET_STROBING_MODE_MANUAL 0x0004
+> > #define DA9052_SET_STROBING_MODE_AUTO   0x0008
+> >
+> > Please explain what you want to do.
+> 
+> FYI: this is how the code looks now:
+> +       case WDIOC_SETOPTIONS:
+> +               if (get_user(new_value, p))
+> +                       return -EFAULT;
+> +               if (new_value == DA9052_ENABLE || new_value == DA9052_DISABLE)
+> +                       da9052_sm_set_strobing_filter(wdt, new_value);
+> +               else
+> +                       wdt->pwdt->sm_strobe_mode_flag = new_value;
+> +               return 0;
+> 
+> Since the code is still not in line with the watchdog API and since I did not
+> get
+> an answer yet on what you (or Dajun) want to do, there is definitely NO ACK
+> yet.
+> If there is a good reasoning behind your needs, we might conclude that this is
+> indeed
+> worthwhile and extend the API in a proper way. But as it is now, it's not
+> correct.
+If strobe filter is "Enable" (set/reset thru ioctl) then only a new wdt time window is set 
+else if strobe filter is "Disable", new wdt time window is set to a min value or wdt is
+disabled depending upon condition.
+If the logic is complex then I will simplify it.
+> 
+> Kind regards,
+> Wim.
+> 
 
-Cc: linux-watchdog@vger.kernel.org
-Signed-off-by: Prarit Bhargava <prarit@redhat.com>
----
- drivers/watchdog/hpwdt.c          |   16 +++++++++-------
- drivers/watchdog/ibmasr.c         |    9 +++------
- drivers/watchdog/sbc_fitpc2_wdt.c |   22 +++++++++++++++-------
- 3 files changed, 27 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-index 8cb2685..8849eac 100644
---- a/drivers/watchdog/hpwdt.c
-+++ b/drivers/watchdog/hpwdt.c
-@@ -28,7 +28,7 @@
- #include <linux/uaccess.h>
- #include <linux/watchdog.h>
- #ifdef CONFIG_HPWDT_NMI_DECODING
--#include <linux/dmi.h>
-+#include <linux/smbios.h>
- #include <linux/spinlock.h>
- #include <linux/nmi.h>
- #include <linux/kdebug.h>
-@@ -374,19 +374,19 @@ asm(".text                      \n\t"
-     ".previous");
- 
- /*
-- *	dmi_find_cru
-+ *	smbios_find_cru
-  *
-  *	Routine Description:
-- *	This function checks whether or not a SMBIOS/DMI record is
-+ *	This function checks whether or not a SMBIOS/SMBIOS record is
-  *	the 64bit CRU info or not
-  */
--static void __devinit dmi_find_cru(const struct dmi_header *dm, void *dummy)
-+static int __devinit smbios_find_cru(const union smbios_struct *ss, void *dummy)
- {
- 	struct smbios_cru64_info *smbios_cru64_ptr;
- 	unsigned long cru_physical_address;
- 
--	if (dm->type == SMBIOS_CRU64_INFORMATION) {
--		smbios_cru64_ptr = (struct smbios_cru64_info *) dm;
-+	if (ss->header.type == SMBIOS_CRU64_INFORMATION) {
-+		smbios_cru64_ptr = (struct smbios_cru64_info *) &ss;
- 		if (smbios_cru64_ptr->signature == CRU_BIOS_SIGNATURE_VALUE) {
- 			cru_physical_address =
- 				smbios_cru64_ptr->physical_address +
-@@ -395,15 +395,17 @@ static void __devinit dmi_find_cru(const struct dmi_header *dm, void *dummy)
- 				smbios_cru64_ptr->double_length);
- 			set_memory_x((unsigned long)cru_rom_addr & PAGE_MASK,
- 				smbios_cru64_ptr->double_length >> PAGE_SHIFT);
-+			return SMBIOS_WALK_STOP;
- 		}
- 	}
-+	return SMBIOS_WALK_CONTINUE;
- }
- 
- static int __devinit detect_cru_service(void)
- {
- 	cru_rom_addr = NULL;
- 
--	dmi_walk(dmi_find_cru, NULL);
-+	smbios_walk(smbios_find_cru, NULL);
- 
- 	/* if cru_rom_addr has been set then we found a CRU service */
- 	return ((cru_rom_addr != NULL) ? 0 : -ENODEV);
-diff --git a/drivers/watchdog/ibmasr.c b/drivers/watchdog/ibmasr.c
-index 195e0f7..b8cc126 100644
---- a/drivers/watchdog/ibmasr.c
-+++ b/drivers/watchdog/ibmasr.c
-@@ -17,7 +17,7 @@
- #include <linux/timer.h>
- #include <linux/miscdevice.h>
- #include <linux/watchdog.h>
--#include <linux/dmi.h>
-+#include <linux/smbios.h>
- #include <linux/io.h>
- #include <linux/uaccess.h>
- 
-@@ -376,12 +376,9 @@ static int __init ibmasr_init(void)
- 	struct ibmasr_id *id;
- 	int rc;
- 
--	for (id = ibmasr_id_table; id->desc; id++) {
--		if (dmi_find_device(DMI_DEV_TYPE_OTHER, id->desc, NULL)) {
-+	for (id = ibmasr_id_table; id->desc; id++)
-+		if (smbios_is_onboard_device(id->desc, 0))
- 			asr_type = id->type;
--			break;
--		}
--	}
- 
- 	if (!asr_type)
- 		return -ENODEV;
-diff --git a/drivers/watchdog/sbc_fitpc2_wdt.c b/drivers/watchdog/sbc_fitpc2_wdt.c
-index d5d3994..0419e01 100644
---- a/drivers/watchdog/sbc_fitpc2_wdt.c
-+++ b/drivers/watchdog/sbc_fitpc2_wdt.c
-@@ -21,7 +21,7 @@
- #include <linux/fs.h>
- #include <linux/init.h>
- #include <linux/moduleparam.h>
--#include <linux/dmi.h>
-+#include <linux/sysfw.h>
- #include <linux/io.h>
- #include <linux/uaccess.h>
- 
-@@ -198,17 +198,25 @@ static struct miscdevice fitpc2_wdt_miscdev = {
- 	.fops		= &fitpc2_wdt_fops,
- };
- 
-+static struct sysfw_id __initdata fitpc2_device_table[] = {
-+	{
-+		.ident = "SBC-FITPC2 Watchdog",
-+		.matches = {
-+			SYSFW_MATCH(SYSFW_BOARD_NAME, "SBC-FITPC2"),
-+		},
-+	},
-+	{}
-+};
-+
- static int __init fitpc2_wdt_init(void)
- {
- 	int err;
--	const char *brd_name;
-+	const struct sysfw_id *id;
- 
--	brd_name = dmi_get_system_info(DMI_BOARD_NAME);
--
--	if (!brd_name || !strstr(brd_name, "SBC-FITPC2"))
-+	id = sysfw_callback(fitpc2_device_table);
-+	if (!id)
- 		return -ENODEV;
--
--	pr_info("%s found\n", brd_name);
-+	pr_info("%s found\n", id->ident);
- 
- 	if (!request_region(COMMAND_PORT, 1, WATCHDOG_NAME)) {
- 		pr_err("I/O address 0x%04x already in use\n", COMMAND_PORT);
--- 
-1.6.5.2
+
+ÿôèº{.nÇ+‰·Ÿ®‰­†+%ŠËÿ±éİ¶¥Šwÿº{.nÇ+‰·¥Š{±şG«éÿŠ{ayº
+Ê‡Ú™ë,j­¢f£¢·hšïêÿ‘êçz_è®(­éšŠİ¢j"ú¶m§ÿÿ¾«şG«éÿ¢¸?™¨è­Ú&£ø§~á¶iO•æ¬z·švØ^¶m§ÿÿÃ
+ÿ¶ìÿ¢¸?–I¥
