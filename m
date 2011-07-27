@@ -1,40 +1,57 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay006.isp.belgacom.be ([195.238.6.172]:22822 "EHLO
-	mailrelay006.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753158Ab1G0TkA (ORCPT
+Received: from mailrelay004.isp.belgacom.be ([195.238.6.170]:2324 "EHLO
+	mailrelay004.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754220Ab1G0UPj (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 27 Jul 2011 15:40:00 -0400
-Date: Wed, 27 Jul 2011 21:39:58 +0200
+	Wed, 27 Jul 2011 16:15:39 -0400
+Date: Wed, 27 Jul 2011 22:15:37 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Randy Dunlap <rdunlap@xenotime.net>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>,
-	Thomas Mingarelli <thomas.mingarelli@hp.com>,
-	linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: linux-next: Tree for July 27 (watchdog/hpwdt)
-Message-ID: <20110727193958.GA4227@infomag.iguana.be>
-References: <20110727141151.d31e3da6a8d21a255473293c@canb.auug.org.au> <20110727094112.89ab9901.rdunlap@xenotime.net>
+To: LKML <linux-kernel@vger.kernel.org>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>
+Cc: Wolfram Sang <w.sang@pengutronix.de>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 0/9 v4] Generic Watchdog Timer Driver
+Message-ID: <20110727201537.GA13819@infomag.iguana.be>
+References: <20110711135056.GT29245@infomag.iguana.be> <20110711213145.GB5811@pengutronix.de> <20110722191847.GI31767@infomag.iguana.be> <20110722193857.GU3834@infomag.iguana.be>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20110727094112.89ab9901.rdunlap@xenotime.net>
+In-Reply-To: <20110722193857.GU3834@infomag.iguana.be>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Randy,
+Hi All,
 
-> > Just in case anyone needs reminding:  Please do not add anything destined
-> > for v3.2 into linux-next included trees until after v3.1-rc1.
+To reduce copying the same code over and over in each watchdog device driver, Alan Cox and myself constructed a new framework/API that consolidates the common
+watchdog timer driver functions. The changes from the third post have been incorporated.
 
-This is still v3.1 stuff. It basically adds an extra SMBIOS lookup (dmi_walk) to see
-if there is a new iLO system.
+The code is ready to be sent upstream, but just to be sure I sent out this last version anyway.
 
-> When CONFIG_HPWDT_NMI_DECODING is not enabled:
-> 
-> drivers/watchdog/hpwdt.c:833: error: 'allow_kdump' undeclared (first use in this function)
-> drivers/watchdog/hpwdt.c:833: error: 'priority' undeclared (first use in this function)
+This framework/API consists of the following patches:
+part 1: Introduction of the WatchDog Timer Driver Core
+part 2: Add the basic ioctl functionality
+part 3: Add the WDIOC_KEEPALIVE ioctl
+part 4: Add the WDIOC_SETOPTIONS ioctl
+part 5: Add the WDIOC_SETTIMEOUT and WDIOC_GETTIMEOUT ioctl
+part 6: Add the Magic Close feature
+part 7: Add the nowayout feature
+part 8: Add support for extra ioctl calls
+part 9: Add the minimum and maximum timeout parameters.
 
-I fixed the patch. (The last 2 parts of the diff should not have been there...)
+The code is added to linux-2.6-watchdog-next since this weekend.
+
+Changes since V3:
+* removed overdocumentation
+* removed MODULE_SUPPORTED_DEVICE and MODULE_ALIAS_MISCDEV
+* removed return -ENOTTY after switch (cmd) because we have the default allready
+* s/sent/send/
+* I'd suggest to swap the logic here (branch taken on error)
+* no_llseek removal squashed into patch 1
+* provide getter/setter methods for driver specific data so that we can easily do the conversion towards the device driver model
+* removed parent because this would change when we will start using the device driver model
+* Changed CONFIG_WATCHDOG_CORE from tristate to bool
+* Added Docbook documentation for include/linux/watchdog.h
 
 Kind regards,
 Wim.
