@@ -1,43 +1,67 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from exprod7og108.obsmtp.com ([64.18.2.169]:58178 "EHLO
-	exprod7og108.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752234Ab1G1SPg (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 28 Jul 2011 14:15:36 -0400
-Message-ID: <4E319781.9000405@genband.com>
-Date: Thu, 28 Jul 2011 11:08:17 -0600
-From: Chris Friesen <chris.friesen@genband.com>
-MIME-Version: 1.0
-To: Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RFC: generic support for two-stage watchdogs?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from mail.perches.com ([173.55.12.10]:4354 "EHLO mail.perches.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755923Ab1G1V3z (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 28 Jul 2011 17:29:55 -0400
+Subject: Re: [PATCH 1/9] watchdog: WatchDog Timer Driver Core - Add basic
+ framework
+From: Joe Perches <joe@perches.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Wolfram Sang <w.sang@pengutronix.de>
+In-Reply-To: <1311797800-2706-1-git-send-email-wim@iguana.be>
+References: <20110727201537.GA13819@infomag.iguana.be>
+	 <1311797800-2706-1-git-send-email-wim@iguana.be>
+Content-Type: text/plain; charset="UTF-8"
+Date: Thu, 28 Jul 2011 14:29:53 -0700
+Message-ID: <1311888593.10042.36.camel@Joe-Laptop>
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On Wed, 2011-07-27 at 20:16 +0000, Wim Van Sebroeck wrote:
+> The WatchDog Timer Driver Core is a framework
+> that contains the common code for all watchdog-driver's.
+> It also introduces a watchdog device structure and the
+> operations that go with it.
+> 
+> This is the introduction of this framework. This part
+> supports the minimal watchdog userspace API (or with
+> other words: the functionality to use /dev/watchdog's
+> open, release and write functionality as defined in
+> the simplest watchdog API). Extra functionality will
+> follow in the next set of patches.
 
-When using kdump to store crash recovery information, it is frustrating 
-when the watchdog timer fires and reboots the system under our feet.
+Perhaps add some logging helpers to the .h?
 
-Many hardware watchdogs support a two-stage operation where the initial 
-stage expires and sends an NMI or other interrupt to the CPU.  Only once 
-the second stage fires does it actually reboot the hardware.
+#define wdd_emerg(wd, fmt, ...)					\
+	pr_emerg("%s: " fmt, (wd)->info->identity, ##__VA_ARGS__)
+#define wdd_crit(wd, fmt, ...)					\
+	pr_crit("%s: " fmt, (wd)->info->identity, ##__VA_ARGS__)
+#define wdd_alert(wd, fmt, ...)					\
+	pr_alert("%s: " fmt, (wd)->info->identity, ##__VA_ARGS__)
+#define wdd_err(wd, fmt, ...)					\
+	pr_err("%s: " fmt, (wd)->info->identity, ##__VA_ARGS__)
+#define wdd_notice(wd, fmt, ...)				\
+	pr_notice("%s: " fmt, (wd)->info->identity, ##__VA_ARGS__)
+#define wdd_warn(wd, fmt, ...)					\
+	pr_warn("%s: " fmt, (wd)->info->identity, ##__VA_ARGS__)
+#define wdd_info(wd, fmt, ...)					\
+	pr_info("%s: " fmt, (wd)->info->identity, ##__VA_ARGS__)
+#define wdd_dbg(wd, fmt, ...)					\
+	pr_debug("%s: " fmt, (wd)->info->identity, ##__VA_ARGS__)
 
-Has anyone considered adding support for this sort of hardware to the 
-/dev/watchdog API?  It seems like it would make sense to reset the 
-watchdog timeout to some suitable period and trigger kdump.  This would 
-let us preserve the crash information.
+> +	err = misc_register(&watchdog_miscdev);
+> +	if (err != 0) {
+> +		pr_err("%s: cannot register miscdev on minor=%d (err=%d).\n",
+> +			watchdog->info->identity, WATCHDOG_MINOR, err);
 
-If the system is really fubared then the second stage will fire and 
-reboot the machine.
+		wdd_err(watchdog, "cannot register watchdog on minor %d, err: %d\n",
+			WATCHDOG_MINOR, err);
 
-Chris
+etc...
 
--- 
-Chris Friesen
-Software Developer
-GENBAND
-chris.friesen@genband.com
-www.genband.com
