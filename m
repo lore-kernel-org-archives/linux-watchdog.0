@@ -1,21 +1,21 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail132.messagelabs.com ([216.82.242.115]:60819 "EHLO
+Received: from mail132.messagelabs.com ([216.82.242.115]:37108 "EHLO
 	mail132.messagelabs.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754627Ab1HBQz5 convert rfc822-to-8bit (ORCPT
+	with ESMTP id S1754627Ab1HBRCf convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 2 Aug 2011 12:55:57 -0400
+	Tue, 2 Aug 2011 13:02:35 -0400
 From: H Hartley Sweeten <hartleys@visionengravers.com>
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Wim Van Sebroeck <wim@iguana.be>
 CC: Linux Kernel <linux-kernel@vger.kernel.org>,
 	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"wim@iguana.be" <wim@iguana.be>
-Date: Tue, 2 Aug 2011 11:55:36 -0500
+	Mika Westerberg <mika.westerberg@linux.intel.com>
+Date: Tue, 2 Aug 2011 12:02:11 -0500
 Subject: RE: [RFC PATCH] watchdog: ep93xx: Use the WatchDog Timer Driver
- Core.
-Message-ID: <ADE657CA350FB648AAC2C43247A983F001F3882B8535@AUSP01VMBX24.collaborationhost.net>
+	Core.
+Message-ID: <ADE657CA350FB648AAC2C43247A983F001F3882B8541@AUSP01VMBX24.collaborationhost.net>
 References: <201108011357.24745.hartleys@visionengravers.com>
- <20110802091640.GF13218@intel.com>
-In-Reply-To: <20110802091640.GF13218@intel.com>
+ <20110802095729.GO4227@infomag.iguana.be>
+In-Reply-To: <20110802095729.GO4227@infomag.iguana.be>
 Content-Language: en-US
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
@@ -23,226 +23,12 @@ Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 Content-Transfer-Encoding: quoted-printable
 
-On Tuesday, August 02, 2011 2:17 AM, Mika Westerberg wrote:
-> On Mon, Aug 01, 2011 at 01:57:24PM -0700, H Hartley Sweeten wrote:
->> Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
->> Cc: Wim Van Sebroeck <wim@iguana.be> (maintainer:WATCHDOG DEVICE D...)
->
-> Nice. I'll try to test the patch later today.
->
-> I have few minor comments, see below.
->
->>=20
->> ---
->>=20
->> diff --git a/drivers/watchdog/ep93xx_wdt.c b/drivers/watchdog/ep93xx_w=
-dt.c
->> index 726b7df..bb97351 100644
->> --- a/drivers/watchdog/ep93xx_wdt.c
->> +++ b/drivers/watchdog/ep93xx_wdt.c
->> @@ -24,11 +24,9 @@
->>   */
->> =20
->>  #include <linux/module.h>
->> -#include <linux/fs.h>
->>  #include <linux/miscdevice.h>
->
-> Is the above header still needed?
+On Tuesday, August 02, 2011 2:58 AM, Wim Van Sebroeck wrote:
+> Hi H Hartley,
 
-I think so due to the MODULE_ALIAS_MISCDEV() at the end of the file.  But=
-,
-I'm not sure if that is really needed... Wim?
+Hello!
 
->>  #include <linux/watchdog.h>
->>  #include <linux/timer.h>
->> -#include <linux/uaccess.h>
->>  #include <linux/io.h>
->>  #include <mach/hardware.h>
->> =20
->> @@ -39,15 +37,17 @@
->>  #define WDT_TIMEOUT 30
->> =20
->>  static int nowayout =3D WATCHDOG_NOWAYOUT;
->> +module_param(nowayout, int, 0);
->> +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started")=
-;
->> +
->>  static int timeout =3D WDT_TIMEOUT;
->> +module_param(timeout, int, 0);
->> +MODULE_PARM_DESC(timeout,
->> +	"Watchdog timeout in seconds. (1<=3Dtimeout<=3D3600, default=3D"
->> +				__MODULE_STRING(WDT_TIMEOUT) ")");
->> =20
->>  static struct timer_list timer;
->>  static unsigned long next_heartbeat;
->> -static unsigned long wdt_status;
->> -static unsigned long boot_status;
->> -
->> -#define WDT_IN_USE		0
->> -#define WDT_OK_TO_CLOSE		1
->> =20
->>  #define EP93XX_WDT_REG(x)	(EP93XX_WATCHDOG_BASE + (x))
->>  #define EP93XX_WDT_WATCHDOG	EP93XX_WDT_REG(0x00)
->> @@ -71,130 +71,46 @@ static inline void wdt_ping(void)
->>  	__raw_writew(0x5555, EP93XX_WDT_WATCHDOG);
->>  }
->> =20
->> -static void wdt_startup(void)
->> +static int void ep93xx_wdt_start(struct watchdog_device *wdd)
->              ^^^^
-> extra 'void' above
-
-Argh... I need more sleep... I guess that's what happens when your first
-child is born...
-
-Fixed.
-
->>  {
->> -	next_heartbeat =3D jiffies + (timeout * HZ);
->> +	next_heartbeat =3D jiffies + (wdd->timeout * HZ);
->> =20
->>  	wdt_enable();
->>  	mod_timer(&timer, jiffies + WDT_INTERVAL);
->> +	return 0;
->>  }
->> =20
->> -static void wdt_shutdown(void)
->> +static int ep93xx_wdt_stop(struct watchdog_device *wdd)
->>  {
->>  	del_timer_sync(&timer);
->>  	wdt_disable();
->> +	return 0;
->>  }
->> =20
->> -static void wdt_keepalive(void)
->> +static int ep93xx_wdt_keepalive(struct watchdog_device *wdd)
->>  {
->>  	/* user land ping */
->> -	next_heartbeat =3D jiffies + (timeout * HZ);
->> -}
->> -
->> -static int ep93xx_wdt_open(struct inode *inode, struct file *file)
->> -{
->> -	if (test_and_set_bit(WDT_IN_USE, &wdt_status))
->> -		return -EBUSY;
->> -
->> -	clear_bit(WDT_OK_TO_CLOSE, &wdt_status);
->> -
->> -	wdt_startup();
->> -
->> -	return nonseekable_open(inode, file);
->> -}
->> -
->> -static ssize_t
->> -ep93xx_wdt_write(struct file *file, const char __user *data, size_t l=
-en,
->> -		 loff_t *ppos)
->> -{
->> -	if (len) {
->> -		if (!nowayout) {
->> -			size_t i;
->> -
->> -			clear_bit(WDT_OK_TO_CLOSE, &wdt_status);
->> -
->> -			for (i =3D 0; i !=3D len; i++) {
->> -				char c;
->> -
->> -				if (get_user(c, data + i))
->> -					return -EFAULT;
->> -
->> -				if (c =3D=3D 'V')
->> -					set_bit(WDT_OK_TO_CLOSE, &wdt_status);
->> -				else
->> -					clear_bit(WDT_OK_TO_CLOSE, &wdt_status);
->> -			}
->> -		}
->> -		wdt_keepalive();
->> -	}
->> -
->> -	return len;
->> +	next_heartbeat =3D jiffies + (wdd->timeout * HZ);
->> +	return 0;
->>  }
->> =20
->> -static const struct watchdog_info ident =3D {
->> -	.options =3D WDIOF_CARDRESET | WDIOF_MAGICCLOSE,
->> -	.identity =3D "EP93xx Watchdog",
->> +static const struct watchdog_info ep93xx_wdt_ident =3D {
->> +	.options	=3D WDIOF_CARDRESET | WDIOF_MAGICCLOSE,
->> +	.identity	=3D "EP93xx Watchdog",
->>  };
->> =20
->> -static long ep93xx_wdt_ioctl(struct file *file,
->> -					unsigned int cmd, unsigned long arg)
->> -{
->> -	int ret =3D -ENOTTY;
->> -
->> -	switch (cmd) {
->> -	case WDIOC_GETSUPPORT:
->> -		ret =3D copy_to_user((struct watchdog_info __user *)arg, &ident,
->> -				sizeof(ident)) ? -EFAULT : 0;
->> -		break;
->> -
->> -	case WDIOC_GETSTATUS:
->> -		ret =3D put_user(0, (int __user *)arg);
->> -		break;
->> -
->> -	case WDIOC_GETBOOTSTATUS:
->> -		ret =3D put_user(boot_status, (int __user *)arg);
->> -		break;
->> -
->> -	case WDIOC_KEEPALIVE:
->> -		wdt_keepalive();
->> -		ret =3D 0;
->> -		break;
->> -
->> -	case WDIOC_GETTIMEOUT:
->> -		/* actually, it is 0.250 seconds.... */
->> -		ret =3D put_user(1, (int __user *)arg);
->> -		break;
->> -	}
->> -	return ret;
->> -}
->> -
->> -static int ep93xx_wdt_release(struct inode *inode, struct file *file)
->> -{
->> -	if (test_bit(WDT_OK_TO_CLOSE, &wdt_status))
->> -		wdt_shutdown();
->> -	else
->> -		printk(KERN_CRIT PFX
->> -			"Device closed unexpectedly - timer will not stop\n");
->> -
->> -	clear_bit(WDT_IN_USE, &wdt_status);
->> -	clear_bit(WDT_OK_TO_CLOSE, &wdt_status);
->> -
->> -	return 0;
->> -}
->> -
->> -static const struct file_operations ep93xx_wdt_fops =3D {
->> +static const struct watchdog_ops ep93xx_wdt_ops =3D {
->>  	.owner		=3D THIS_MODULE,
->> -	.write		=3D ep93xx_wdt_write,
->> -	.unlocked_ioctl	=3D ep93xx_wdt_ioctl,
->> -	.open		=3D ep93xx_wdt_open,
->> -	.release	=3D ep93xx_wdt_release,
->> -	.llseek		=3D no_llseek,
->> +	.start		=3D ep93xx_wdt_start,
->> +	.stop		=3D ep93xx_wdt_stop,
->> +	.ping		=3D ep93xx_wdt_keepalive,
->>  };
->> =20
->> -static struct miscdevice ep93xx_wdt_miscdev =3D {
->> -	.minor		=3D WATCHDOG_MINOR,
->> -	.name		=3D "watchdog",
->> -	.fops		=3D &ep93xx_wdt_fops,
->> +static struct watchdog_device ep93xx_wdd =3D {
->> +	.info		=3D &ep93xx_wdt_ident,
->> +	.ops		=3D &ep93xx_wdt_ops,
->> +	.min_timeout	=3D 1,
->> +	.max_timeout	=3D 3600,
->>  };
->> =20
->>  static void ep93xx_timer_ping(unsigned long data)
+> [...]
 >> @@ -210,43 +126,31 @@ static int __init ep93xx_wdt_init(void)
 >>  {
 >>  	int err;
@@ -250,15 +36,6 @@ en,
 >> -	err =3D misc_register(&ep93xx_wdt_miscdev);
 >> +	ep93xx_wdd.bootstatus =3D readl(EP93XX_WDT_WATCHDOG);
 >> +	ep93xx_wdd.timeout =3D timeout;
->
-> Should you check that the given timeout is in valid range here, like it=
- is
-> done in the original driver?
-
-I thought the core would handle that.  If not maybe it should validate th=
-e
-timeout based on the min/max values.  Wim?
-
 >> +
 >> +	err =3D watchdog_register_device(&ep93xx_wdd);
 >> +	if (err)
@@ -266,56 +43,28 @@ timeout based on the min/max values.  Wim?
 >> =20
 >> -	boot_status =3D __raw_readl(EP93XX_WDT_WATCHDOG) & 0x01 ? 1 : 0;
 >> +	setup_timer(&timer, ep93xx_timer_ping, 1);
->> =20
->>  	printk(KERN_INFO PFX "EP93XX watchdog, driver version "
->>  		WDT_VERSION "%s\n",
->> -		(__raw_readl(EP93XX_WDT_WATCHDOG) & 0x08)
->> +		(ep93xx_wdd.bootstatus & 0x08)
->>  		? " (nCS1 disable detected)" : "");
->> =20
->> -	if (timeout < 1 || timeout > 3600) {
->> -		timeout =3D WDT_TIMEOUT;
->> -		printk(KERN_INFO PFX
->> -			"timeout value must be 1<=3Dx<=3D3600, using %d\n",
->> -			timeout);
->> -	}
->> -
->> -	setup_timer(&timer, ep93xx_timer_ping, 1);
->> -	return err;
->> +	return 0;
->>  }
->> +module_init(ep93xx_wdt_init);
->> =20
->>  static void __exit ep93xx_wdt_exit(void)
->>  {
->> -	wdt_shutdown();
->> -	misc_deregister(&ep93xx_wdt_miscdev);
->> +	wdt_shutdown(&ep93xx_wdd);
 >
-> ep93xx_wdt_stop(&ep93xx_wdd);
+> Shouldn't the bootstatus setting be:
+> ep93xx_wdd.bootstatus =3D readl(EP93XX_WDT_WATCHDOG) & 0x01 ? 1 : 0;
+> (or something similar with the WDIOF_OVERHEAT, ... flags).
 
-Oops.. You are correct.  Fixed.
+The ep93xx watchdog status register doesn't line up nicely with the stand=
+ard
+WDIOF_* flags.  The register has these bits defined:
 
->> +	watchdog_unregister_device(&ep93xx_wdd);
->>  }
->> -
->> -module_init(ep93xx_wdt_init);
->>  module_exit(ep93xx_wdt_exit);
->> =20
->> -module_param(nowayout, int, 0);
->> -MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started")=
-;
->> -
->> -module_param(timeout, int, 0);
->> -MODULE_PARM_DESC(timeout,
->> -	"Watchdog timeout in seconds. (1<=3Dtimeout<=3D3600, default=3D"
->> -				__MODULE_STRING(WDT_TIMEOUT) ")");
->> -
->>  MODULE_AUTHOR("Ray Lehtiniemi <rayl@mail.com>,"
->>  		"Alessandro Zummo <a.zummo@towertech.it>");
->>  MODULE_DESCRIPTION("EP93xx Watchdog");
+PLSDN		6	Pulse Disable Not
+OVRID		5	Software Override of HWDIS
+SWDIS		4	Software Watchdog Disable
+HWDIS		3	Hardware Watchdog Disable
+URST		2	User Reset Detected
+3KRST		1	Three-Key Reset Detected
+WD		0	Watchdog Reset Detected
 
-Thanks for the feedback.  I'll post an updated patch later.
+The original bootstatus setting just checked for the WD bit.  I would lik=
+e
+to pass the full status register so that userspace can figure out what ca=
+used
+the reset.  Is this an inappropriate abuse of WDIOC_GETBOOTSTATUS?
 
 Regards,
 Hartley--
