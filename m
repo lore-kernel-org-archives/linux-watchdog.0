@@ -1,73 +1,51 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay012.isp.belgacom.be ([195.238.6.179]:42599 "EHLO
-	mailrelay012.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752135Ab1HCKHS (ORCPT
+Received: from mail160.messagelabs.com ([216.82.253.99]:7795 "EHLO
+	mail160.messagelabs.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755063Ab1HCQXV convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 3 Aug 2011 06:07:18 -0400
-Date: Wed, 3 Aug 2011 12:07:16 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: H Hartley Sweeten <hartleys@visionengravers.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [RFC PATCH] watchdog: ep93xx: Use the WatchDog Timer Driver
-	Core.
-Message-ID: <20110803100716.GS4227@infomag.iguana.be>
-References: <201108011357.24745.hartleys@visionengravers.com> <20110802095729.GO4227@infomag.iguana.be> <ADE657CA350FB648AAC2C43247A983F001F3882B8541@AUSP01VMBX24.collaborationhost.net>
+	Wed, 3 Aug 2011 12:23:21 -0400
+From: H Hartley Sweeten <hartleys@visionengravers.com>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"wim@iguana.be" <wim@iguana.be>
+Date: Wed, 3 Aug 2011 11:22:57 -0500
+Subject: RE: [RFC PATCH] watchdog: ep93xx: Use the WatchDog Timer Driver
+ Core.
+Message-ID: <ADE657CA350FB648AAC2C43247A983F001F3882B8876@AUSP01VMBX24.collaborationhost.net>
+References: <201108011357.24745.hartleys@visionengravers.com>
+ <20110802091640.GF13218@intel.com>
+ <ADE657CA350FB648AAC2C43247A983F001F3882B8535@AUSP01VMBX24.collaborationhost.net>
+ <20110803081559.GI13218@intel.com>
+In-Reply-To: <20110803081559.GI13218@intel.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ADE657CA350FB648AAC2C43247A983F001F3882B8541@AUSP01VMBX24.collaborationhost.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-Hi H Hartley,
+On Wednesday, August 03, 2011 1:16 AM, Mika Westerberg wrote:
+> On Tue, Aug 02, 2011 at 11:55:36AM -0500, H Hartley Sweeten wrote:
+>>>> -static const struct watchdog_info ident =3D {
+>>>> -	.options =3D WDIOF_CARDRESET | WDIOF_MAGICCLOSE,
+>>>> -	.identity =3D "EP93xx Watchdog",
+>>>> +static const struct watchdog_info ep93xx_wdt_ident =3D {
+>>>> +	.options	=3D WDIOF_CARDRESET | WDIOF_MAGICCLOSE,
+>>>> +	.identity	=3D "EP93xx Watchdog",
+>>>>  };
+>
+> One more thing I noticed: you should add WDIOF_KEEPALIVEPING to the opt=
+ions
+> field. Otherwise it doesn't support ioctl(..., WDIOC_KEEPALIVE) which w=
+as
+> supported in the original driver.
 
-> > [...]
-> >> @@ -210,43 +126,31 @@ static int __init ep93xx_wdt_init(void)
-> >>  {
-> >>  	int err;
-> >>  
-> >> -	err = misc_register(&ep93xx_wdt_miscdev);
-> >> +	ep93xx_wdd.bootstatus = readl(EP93XX_WDT_WATCHDOG);
-> >> +	ep93xx_wdd.timeout = timeout;
-> >> +
-> >> +	err = watchdog_register_device(&ep93xx_wdd);
-> >> +	if (err)
-> >> +		return err;
-> >>  
-> >> -	boot_status = __raw_readl(EP93XX_WDT_WATCHDOG) & 0x01 ? 1 : 0;
-> >> +	setup_timer(&timer, ep93xx_timer_ping, 1);
-> >
-> > Shouldn't the bootstatus setting be:
-> > ep93xx_wdd.bootstatus = readl(EP93XX_WDT_WATCHDOG) & 0x01 ? 1 : 0;
-> > (or something similar with the WDIOF_OVERHEAT, ... flags).
-> 
-> The ep93xx watchdog status register doesn't line up nicely with the standard
-> WDIOF_* flags.  The register has these bits defined:
-> 
-> PLSDN		6	Pulse Disable Not
-> OVRID		5	Software Override of HWDIS
-> SWDIS		4	Software Watchdog Disable
-> HWDIS		3	Hardware Watchdog Disable
-> URST		2	User Reset Detected
-> 3KRST		1	Three-Key Reset Detected
-> WD		0	Watchdog Reset Detected
+I noticed that yesterday.  I'll fix it and repost the patch shortly.
 
-Hmm, it would be nice to have this info also in the driver. Certainly at least a define for the WD bit.
-Secondly: what it is doing now is allready incorrect: The WD bit is returned as bit 0 of the bootstatus value.
-This is actually: WDIOF_OVERHEAT (Reset due to CPU overheat) instead of
-WDIOF_CARDRESET (0x0020 Card previously reset the CPU)...
-
-> The original bootstatus setting just checked for the WD bit.  I would like
-> to pass the full status register so that userspace can figure out what caused
-> the reset.  Is this an inappropriate abuse of WDIOC_GETBOOTSTATUS?
-
-It's indeed an inappropriate abuse of WDIOC_GETBOOTSTATUS.
-The WDIOC_GETBOOTSTATUS should return a result for all watchdog drivers.
-The result is based on the WDIOF_* flags
-This however does not mean that we can add flags. The 'User Reset detected' looks to me as something that can be usefull in embedded environments. We need to think about this and see what would be usefull in general.
-
-Kind regards,
-Wim.
-
+Thanks,
+Hartley--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
