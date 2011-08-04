@@ -1,86 +1,68 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail160.messagelabs.com ([216.82.253.99]:41206 "EHLO
-	mail160.messagelabs.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752501Ab1HDS3O convert rfc822-to-8bit (ORCPT
+Received: from mailrelay003.isp.belgacom.be ([195.238.6.53]:58030 "EHLO
+	mailrelay003.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753621Ab1HDUEl (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 4 Aug 2011 14:29:14 -0400
-From: H Hartley Sweeten <hartleys@visionengravers.com>
-To: Mika Westerberg <mika.westerberg@iki.fi>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+	Thu, 4 Aug 2011 16:04:41 -0400
+Date: Thu, 4 Aug 2011 22:04:39 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: H Hartley Sweeten <hartleys@visionengravers.com>
+Cc: Mika Westerberg <mika.westerberg@iki.fi>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
 	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"wim@iguana.be" <wim@iguana.be>,
 	"mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>
-Date: Thu, 4 Aug 2011 13:29:00 -0500
-Subject: RE: [RFC PATCH v2] watchdog: ep93xx: Use the WatchDog Timer Driver
- Core.
-Message-ID: <ADE657CA350FB648AAC2C43247A983F001F3882B8C44@AUSP01VMBX24.collaborationhost.net>
-References: <201108031021.26620.hartleys@visionengravers.com>
- <20110804181244.GA2445@mwesterb-mobl.ger.corp.intel.com>
-In-Reply-To: <20110804181244.GA2445@mwesterb-mobl.ger.corp.intel.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
+Subject: Re: [RFC PATCH v2] watchdog: ep93xx: Use the WatchDog Timer Driver
+	Core.
+Message-ID: <20110804200439.GU4227@infomag.iguana.be>
+References: <201108031021.26620.hartleys@visionengravers.com> <20110804181244.GA2445@mwesterb-mobl.ger.corp.intel.com> <ADE657CA350FB648AAC2C43247A983F001F3882B8C44@AUSP01VMBX24.collaborationhost.net>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ADE657CA350FB648AAC2C43247A983F001F3882B8C44@AUSP01VMBX24.collaborationhost.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-On Thursday, August 04, 2011 11:13 AM, Mika Westerberg wrote:
-> On Wed, Aug 03, 2011 at 10:21:26AM -0700, H Hartley Sweeten wrote:
->> Convert the ep93xx watchdog driver to using the WatchDog Timer Driver =
-Core.
->>=20
->> Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
->> Cc: Wim Van Sebroeck <wim@iguana.be>
->> Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
->
-> Tested-by: Mika Westerberg <mika.westerberg@iki.fi>
+Hi All,
 
-Thanks!
+> > BTW, now that the driver uses watchdog core should we also select
+> > WATCHDOG_CORE in the Kconfig? If it is not enabled we get:
+> >
+> > drivers/built-in.o: In function `ep93xx_wdt_init':
+> > clkdev.c:(.init.text+0x2bd8): undefined reference to
+> > `watchdog_register_device'
+> > make: *** [.tmp_vmlinux1] Error 1
+> 
+> Of course.
+> 
+> I wasn't sure how Wim wanted to handle this.  I see two ways of doing it
+> in the Kconfig.
+> 
+> 1) Each driver config option has a select WATCHDOG_CORE if it is required.
+> 
+>    Pro: all the watchdog drivers (that are available) are displayed
+>    Con: each driver needs to add the select if needed
+>    Side-effect: the WATCHDOG_CORE option could (should) be a hidden option
+> 
+> 2) Separate the watchdog drivers into groups that need the WATCHDOG_CORE
+>    and those that don't then put a if WATCHDOG_CORE/endif around the ones
+>    that need it.
+> 
+>    Pro: keeps the Kconfig clean
+>    Con: the drivers that use WATCHDOG_CORE are not displayed unless the
+>         option is selected
+>    Con: defconfigs probably will need to be updated to select WATCHDOG_CORE
+> 
+> Wim, do you have any opinion on this?
 
->
-> BTW, now that the driver uses watchdog core should we also select
-> WATCHDOG_CORE in the Kconfig? If it is not enabled we get:
->
-> drivers/built-in.o: In function `ep93xx_wdt_init':
-> clkdev.c:(.init.text+0x2bd8): undefined reference to
-> `watchdog_register_device'
-> make: *** [.tmp_vmlinux1] Error 1
+I allready discussed this with Wolfram a few weeks ago. Since we don't want
+defconfigs to change, the best option is to:
+1) use 'select WATCHDOG_CORE' during conversion of the drivers.
+2) remove CONFIG_WATCHDOG_CORE and replace it by CONFIG_WATCHDOG in a later
+   stage so that the core API becomes the user-space layer for all watchdog
+   device drivers.This so that we can support multiple watchdogs in the
+   future and to make sure that we keep having a consistent user-space
+   interface.
 
-Of course.
+Kind regards,
+Wim.
 
-I wasn't sure how Wim wanted to handle this.  I see two ways of doing it
-in the Kconfig.
-
-1) Each driver config option has a select WATCHDOG_CORE if it is required=
-.
-
-   Pro: all the watchdog drivers (that are available) are displayed
-   Con: each driver needs to add the select if needed
-   Side-effect: the WATCHDOG_CORE option could (should) be a hidden optio=
-n
-
-2) Separate the watchdog drivers into groups that need the WATCHDOG_CORE
-   and those that don't then put a if WATCHDOG_CORE/endif around the ones
-   that need it.
-
-   Pro: keeps the Kconfig clean
-   Con: the drivers that use WATCHDOG_CORE are not displayed unless the
-        option is selected
-   Con: defconfigs probably will need to be updated to select WATCHDOG_CO=
-RE
-
-Wim, do you have any opinion on this?
-
-> Other than that, you can also add my
->
-> Reviewed-by: Mika Westerberg <mika.westerberg@iki.fi>
->
-> if you like.
-
-Thanks,
-Hartley
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
