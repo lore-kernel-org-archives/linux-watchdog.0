@@ -1,89 +1,86 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay002.isp.belgacom.be ([195.238.6.175]:21681 "EHLO
-	mailrelay002.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754604Ab1HDUZg (ORCPT
+Received: from mail127.messagelabs.com ([216.82.250.115]:12164 "EHLO
+	mail127.messagelabs.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753382Ab1HDUyC convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 4 Aug 2011 16:25:36 -0400
-Date: Thu, 4 Aug 2011 22:25:33 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Lars-Peter Clausen <lars@metafoo.de>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH 01/11] watchdog: WatchDog Timer Driver Core - Add basic
-	framework
-Message-ID: <20110804202533.GV4227@infomag.iguana.be>
-References: <1310392522-9949-1-git-send-email-wim@iguana.be> <4E1B8089.90103@metafoo.de> <20110722193211.GL31767@infomag.iguana.be> <4E2B987E.6070107@metafoo.de> <20110727202450.GB4227@infomag.iguana.be> <4E327C50.2010103@metafoo.de>
+	Thu, 4 Aug 2011 16:54:02 -0400
+From: H Hartley Sweeten <hartleys@visionengravers.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+CC: Mika Westerberg <mika.westerberg@iki.fi>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>
+Date: Thu, 4 Aug 2011 15:53:08 -0500
+Subject: RE: [RFC PATCH v2] watchdog: ep93xx: Use the WatchDog Timer Driver
+	Core.
+Message-ID: <ADE657CA350FB648AAC2C43247A983F001F3882B8D1F@AUSP01VMBX24.collaborationhost.net>
+References: <201108031021.26620.hartleys@visionengravers.com>
+ <20110804181244.GA2445@mwesterb-mobl.ger.corp.intel.com>
+ <ADE657CA350FB648AAC2C43247A983F001F3882B8C44@AUSP01VMBX24.collaborationhost.net>
+ <20110804200439.GU4227@infomag.iguana.be>
+In-Reply-To: <20110804200439.GU4227@infomag.iguana.be>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4E327C50.2010103@metafoo.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-Hi Lars,
+On Thursday, August 04, 2011 1:05 PM, Wim Van Sebroeck wrote:
+>>> BTW, now that the driver uses watchdog core should we also select
+>>> WATCHDOG_CORE in the Kconfig? If it is not enabled we get:
+>>>
+>>> drivers/built-in.o: In function `ep93xx_wdt_init':
+>>> clkdev.c:(.init.text+0x2bd8): undefined reference to
+>>> `watchdog_register_device'
+>>> make: *** [.tmp_vmlinux1] Error 1
+>>=20
+>> Of course.
+>>=20
+>> I wasn't sure how Wim wanted to handle this.  I see two ways of doing =
+it
+>> in the Kconfig.
+>>=20
+>> 1) Each driver config option has a select WATCHDOG_CORE if it is requi=
+red.
+>>=20
+>>    Pro: all the watchdog drivers (that are available) are displayed
+>>    Con: each driver needs to add the select if needed
+>>    Side-effect: the WATCHDOG_CORE option could (should) be a hidden op=
+tion
+>>=20
+>> 2) Separate the watchdog drivers into groups that need the WATCHDOG_CO=
+RE
+>>    and those that don't then put a if WATCHDOG_CORE/endif around the o=
+nes
+>>    that need it.
+>>=20
+>>    Pro: keeps the Kconfig clean
+>>    Con: the drivers that use WATCHDOG_CORE are not displayed unless th=
+e
+>>         option is selected
+>>    Con: defconfigs probably will need to be updated to select WATCHDOG=
+_CORE
+>>=20
+>> Wim, do you have any opinion on this?
+>
+> I allready discussed this with Wolfram a few weeks ago. Since we don't =
+want
+> defconfigs to change, the best option is to:
+> 1) use 'select WATCHDOG_CORE' during conversion of the drivers.
+> 2) remove CONFIG_WATCHDOG_CORE and replace it by CONFIG_WATCHDOG in a l=
+ater
+>    stage so that the core API becomes the user-space layer for all watc=
+hdog
+>    device drivers.This so that we can support multiple watchdogs in the
+>    future and to make sure that we keep having a consistent user-space
+>    interface.
 
-> >>>>> +int watchdog_dev_unregister(struct watchdog_device *watchdog)
-> >>>>> +{
-> >>>>> +	/* Check that a watchdog device was registered in the past */
-> >>>>> +	if (!test_bit(0, &watchdog_dev_busy) || !wdd)
-> >>>>> +		return -ENODEV;
-> >>>>> +
-> >>>>> +	/* We can only unregister the watchdog device that was registered */
-> >>>>> +	if (watchdog != wdd) {
-> >>>>> +		pr_err("%s: watchdog was not registered as /dev/watchdog.\n",
-> >>>>> +			watchdog->info->identity);
-> >>>>> +		return -ENODEV;
-> >>>>> +	}
-> >>>>> +
-> >>>>> +	/* Unregister the miscdevice */
-> >>>>> +	misc_deregister(&watchdog_miscdev);
-> >>>>> +	wdd = NULL;
-> >>>>> +	clear_bit(0, &watchdog_dev_busy);
-> >>>>> +	return 0;
-> >>>>> +}
-> >>>>
-> >>>> What happens if the watchdog gets unregistered if the device is still opened?
-> >>>> Even though if you'd check wdd for not being NULL in the file callbacks there
-> >>>> is still a chance for races if the devices is unregistered at the same time as
-> >>>> the callback is running. You'd either need a big lock to protect from having a
-> >>>> file callback and unregister running concurrently or add ref-counting to the
-> >>>> watchdog_device, the later best done by embedding a struct device and using the
-> >>>> device driver model.
-> >>>
-> >>> You cannot unload the watchdog-drivers module if /dev/watchdog is still open.
-> >>> So if the watchdog_unregister function is in the exit function of the module
-> >>> then we are safe. But I think you have a point if that is not the case.
-> >>> Solution would be to return an error when the watchdog_unregister_device routine
-> >>> is called and the WDOG_DEV_OPEN bit is set. Will create an extra patch for that.
-> >>>
-> >>
-> >> The problem is, that this doesn't fit nicely into the linux device driver
-> >> model, because it doesn't allow the removal of a device to fail. So you'll
-> >> still end of with undefined behavior.
-> > 
-> > It's not an issue now. But we will indeed have to tackle it, when we start using
-> > the device driver model.
-> > 
-> 
-> Well, the framework itself might not be using the device driver model yet, but
-> drivers using the framework do. For example for a driver using a platform
-> device there would be no correct solution for handling an error from
-> watchdog_unregister in the drivers remove callback.
+OK.  I'll repost the ep93xx conversion and include the Kconfig change.
 
-That is correct. we have nothing for handling the error. So I didn't introduce
-a fix for it neither. What I wanted to tell was:
-* a driver now registers a miscdevice in its init function and deregisters it
-during the exit function. You cannot unload the module as long as the miscdevice
-for the watchdog is open.
-* a driver that uses the core will register the watchdog device during init and
-will only unregister it during exit. Because we prevent the driver of being
-unloaded (via try_module_get and module_put), you cannot unload the module as
-long as /dev/watchdog is open. So the unregister will not take place.
-
-So in it's current form, we still have no issue.
-
-Kind regards,
-Wim.
-
-
+Thanks!
+Hartley--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
