@@ -1,80 +1,37 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail131.messagelabs.com ([216.82.242.99]:3297 "EHLO
-	mail131.messagelabs.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755744Ab1HCWjN (ORCPT
+Received: from mailrelay009.isp.belgacom.be ([195.238.6.176]:5215 "EHLO
+	mailrelay009.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753869Ab1HDSHm (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 3 Aug 2011 18:39:13 -0400
-From: H Hartley Sweeten <hartleys@visionengravers.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] watchdog: WatchDog Timer Driver Core - use passed watchdog_device
-Date: Wed, 3 Aug 2011 15:38:20 -0700
-CC: <linux-watchdog@vger.kernel.org>, <wim@iguana.be>
+	Thu, 4 Aug 2011 14:07:42 -0400
+Date: Thu, 4 Aug 2011 20:07:39 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: H Hartley Sweeten <hartleys@visionengravers.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] watchdog: WatchDog Timer Driver Core - use passed
+	watchdog_device
+Message-ID: <20110804180739.GT4227@infomag.iguana.be>
+References: <201108031538.21137.hartleys@visionengravers.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-ID: <201108031538.21137.hartleys@visionengravers.com>
+In-Reply-To: <201108031538.21137.hartleys@visionengravers.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Use the passed watchdog_device instead of the static global variable when
-testing and setting the status in watchdog_ping, watchdog_start, and
-watchdog_stop.  Note that the callers of these functions are actually
-passing the static global variable.
+Hi H Hartley,
 
-Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>
+> Use the passed watchdog_device instead of the static global variable when
+> testing and setting the status in watchdog_ping, watchdog_start, and
+> watchdog_stop.  Note that the callers of these functions are actually
+> passing the static global variable.
+> 
+> Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
+> Cc: Wim Van Sebroeck <wim@iguana.be>
 
----
+This will be added. We will need this when we go to the sysfs part of the core anyway.
 
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index d33520d..1199da0f 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -59,7 +59,7 @@ static struct watchdog_device *wdd;
- 
- static int watchdog_ping(struct watchdog_device *wddev)
- {
--	if (test_bit(WDOG_ACTIVE, &wdd->status)) {
-+	if (test_bit(WDOG_ACTIVE, &wddev->status)) {
- 		if (wddev->ops->ping)
- 			return wddev->ops->ping(wddev);  /* ping the watchdog */
- 		else
-@@ -81,12 +81,12 @@ static int watchdog_start(struct watchdog_device *wddev)
- {
- 	int err;
- 
--	if (!test_bit(WDOG_ACTIVE, &wdd->status)) {
-+	if (!test_bit(WDOG_ACTIVE, &wddev->status)) {
- 		err = wddev->ops->start(wddev);
- 		if (err < 0)
- 			return err;
- 
--		set_bit(WDOG_ACTIVE, &wdd->status);
-+		set_bit(WDOG_ACTIVE, &wddev->status);
- 	}
- 	return 0;
- }
-@@ -105,18 +105,18 @@ static int watchdog_stop(struct watchdog_device *wddev)
- {
- 	int err = -EBUSY;
- 
--	if (test_bit(WDOG_NO_WAY_OUT, &wdd->status)) {
-+	if (test_bit(WDOG_NO_WAY_OUT, &wddev->status)) {
- 		pr_info("%s: nowayout prevents watchdog to be stopped!\n",
--							wdd->info->identity);
-+							wddev->info->identity);
- 		return err;
- 	}
- 
--	if (test_bit(WDOG_ACTIVE, &wdd->status)) {
-+	if (test_bit(WDOG_ACTIVE, &wddev->status)) {
- 		err = wddev->ops->stop(wddev);
- 		if (err < 0)
- 			return err;
- 
--		clear_bit(WDOG_ACTIVE, &wdd->status);
-+		clear_bit(WDOG_ACTIVE, &wddev->status);
- 	}
- 	return 0;
- }
+Kind regards,
+Wim.
+
