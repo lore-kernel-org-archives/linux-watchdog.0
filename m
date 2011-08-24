@@ -1,58 +1,56 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ew0-f46.google.com ([209.85.215.46]:34835 "EHLO
-	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751090Ab1G3PBX (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 30 Jul 2011 11:01:23 -0400
-From: Mart Gerrits <mart1987@gmail.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Mart Gerrits <mart1987@gmail.com>
-Subject: [PATCH 1/1] watchdog: Fix POST failure on ASUS P5N32-E SLI and similar boards
-Date: Sat, 30 Jul 2011 16:59:12 +0200
-Message-Id: <1312037952-3646-1-git-send-email-mart1987@gmail.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+From: John Crispin <blogic@openwrt.org>
+To: Ralf Baechle <ralf@linux-mips.org>
+Cc: John Crispin <blogic@openwrt.org>,
+        Thomas Langer <thomas.langer@lantiq.com>,
+        linux-watchdog@vger.kernel.org, linux-mips@linux-mips.org
+Subject: [PATCH 3/8] MIPS: lantiq: fix watchdogs timeout handling
+Date: Wed, 24 Aug 2011 10:31:39 +0200
+Message-Id: <1314174704-15549-4-git-send-email-blogic@openwrt.org>
+In-Reply-To: <1314174704-15549-1-git-send-email-blogic@openwrt.org>
+References: <1314174704-15549-1-git-send-email-blogic@openwrt.org>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+Return-Path: <linux-mips-bounce@linux-mips.org>
+List-Archive: <https://lore.kernel.org/linux-mips/>
+List-Post: <mailto:linux-mips@vger.kernel.org>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-At present the module does not unset the NO_REBOOT bit upon shutdown, this
-causes the BIOS to fail the POST once and reset. During the next boot it
-displays the following error message:
+The enable function was using the global timeout variable for local operations.
+This resulted in the value of the global variable being corrupted, thus
+breaking the code.
 
-***** Warning: System BOOT Fail *****
-Your system last boot fail or POST interrupted.
-Please enter setup to load default and reboot again.
-Press F1 to continue, DEL to enter SETUP
-
-With this patch the NO_REBOOT flag will be unset on shutdown and thus stop
-this failure from occurring.
-
-Tested on 'ASUS P5N32-E SLI with BIOS revision 1801' and
-          'ASUS P5N32-E SLI PLUS with BIOS revision 1502'.
-
-Signed-off-by: Mart Gerrits <mart1987@gmail.com>
+Signed-off-by: John Crispin <blogic@openwrt.org>
+Signed-off-by: Thomas Langer <thomas.langer@lantiq.com>
+Cc: linux-watchdog@vger.kernel.org
+Cc: linux-mips@linux-mips.org
 ---
- drivers/watchdog/nv_tco.c |    8 ++++++++
- 1 files changed, 8 insertions(+), 0 deletions(-)
+ drivers/watchdog/lantiq_wdt.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/watchdog/nv_tco.c b/drivers/watchdog/nv_tco.c
-index afa78a5..09de584 100644
---- a/drivers/watchdog/nv_tco.c
-+++ b/drivers/watchdog/nv_tco.c
-@@ -458,7 +458,15 @@ static int __devexit nv_tco_remove(struct platform_device *dev)
-
- static void nv_tco_shutdown(struct platform_device *dev)
+diff --git a/drivers/watchdog/lantiq_wdt.c b/drivers/watchdog/lantiq_wdt.c
+index 7d82ada..102aed0 100644
+--- a/drivers/watchdog/lantiq_wdt.c
++++ b/drivers/watchdog/lantiq_wdt.c
+@@ -51,16 +51,16 @@ static int ltq_wdt_ok_to_close;
+ static void
+ ltq_wdt_enable(void)
  {
-+	u32 val;
-+
- 	tco_timer_stop();
-+
-+	/* Some BIOSes fail the POST (once) if the NO_REBOOT flag is not
-+	* unset during shutdown. */
-+	pci_read_config_dword(tco_pci, MCP51_SMBUS_SETUP_B, &val);
-+	val &= ~MCP51_SMBUS_SETUP_B_TCO_REBOOT;
-+	pci_write_config_dword(tco_pci, MCP51_SMBUS_SETUP_B, val);
+-	ltq_wdt_timeout = ltq_wdt_timeout *
++	unsigned long int timeout = ltq_wdt_timeout *
+ 			(ltq_io_region_clk_rate / LTQ_WDT_DIVIDER) + 0x1000;
+-	if (ltq_wdt_timeout > LTQ_MAX_TIMEOUT)
+-		ltq_wdt_timeout = LTQ_MAX_TIMEOUT;
++	if (timeout > LTQ_MAX_TIMEOUT)
++		timeout = LTQ_MAX_TIMEOUT;
+ 
+ 	/* write the first password magic */
+ 	ltq_w32(LTQ_WDT_PW1, ltq_wdt_membase + LTQ_WDT_CR);
+ 	/* write the second magic plus the configuration and new timeout */
+ 	ltq_w32(LTQ_WDT_SR_EN | LTQ_WDT_SR_PWD | LTQ_WDT_SR_CLKDIV |
+-		LTQ_WDT_PW2 | ltq_wdt_timeout, ltq_wdt_membase + LTQ_WDT_CR);
++		LTQ_WDT_PW2 | timeout, ltq_wdt_membase + LTQ_WDT_CR);
  }
-
- static struct platform_driver nv_tco_driver = {
---
-1.7.6
+ 
+ static void
+-- 
+1.7.2.3
