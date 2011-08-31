@@ -1,51 +1,49 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
 Received: from mga14.intel.com ([143.182.124.37]:5192 "EHLO mga14.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756297Ab1HaNo1 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 31 Aug 2011 09:44:27 -0400
+	id S1756330Ab1HaNoa (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 31 Aug 2011 09:44:30 -0400
 From: Oren Weil <oren.jer.weil@intel.com>
 To: gregkh@suse.de
 Cc: devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org,
 	linux-watchdog@vger.kernel.org, alan@linux.intel.com,
 	wim@iguana.be, tomas.winkler@intel.com,
 	Oren Weil <oren.jer.weil@intel.com>
-Subject: [PATCH 10/12] staging: mei: removing wd module parameters
-Date: Wed, 31 Aug 2011 16:42:46 +0300
-Message-Id: <1314798168-15613-11-git-send-email-oren.jer.weil@intel.com>
+Subject: [PATCH 11/12] staging: mei: adding mei_wd_stop function comment
+Date: Wed, 31 Aug 2011 16:42:47 +0300
+Message-Id: <1314798168-15613-12-git-send-email-oren.jer.weil@intel.com>
 In-Reply-To: <1314798168-15613-1-git-send-email-oren.jer.weil@intel.com>
 References: <1314798168-15613-1-git-send-email-oren.jer.weil@intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-wd module parameter is not needed now that driver is using watchdog core.
-
 Signed-off-by: Oren Weil <oren.jer.weil@intel.com>
 Acked-by: Tomas Winkler <tomas.winkler@intel.com>
 ---
- drivers/staging/mei/wd.c |   10 ----------
- 1 files changed, 0 insertions(+), 10 deletions(-)
+ drivers/staging/mei/wd.c |   10 ++++++++++
+ 1 files changed, 10 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/staging/mei/wd.c b/drivers/staging/mei/wd.c
-index d1f49d3..6e132cd 100644
+index 6e132cd..3ca6d08 100644
 --- a/drivers/staging/mei/wd.c
 +++ b/drivers/staging/mei/wd.c
-@@ -26,16 +26,6 @@
- #include "interface.h"
- #include "mei.h"
+@@ -120,6 +120,16 @@ int mei_wd_send(struct mei_device *dev)
+ 	return -EIO;
+ }
  
--/*
-- * MEI Watchdog Module Parameters
-- */
--static u16 watchdog_timeout = AMT_WD_DEFAULT_TIMEOUT;
--module_param(watchdog_timeout, ushort, 0);
--MODULE_PARM_DESC(watchdog_timeout,
--		"Intel(R) AMT Watchdog timeout value in seconds. (default="
--					__MODULE_STRING(AMT_WD_DEFAULT_TIMEOUT)
--					", disable=0)");
--
- static const u8 mei_start_wd_params[] = { 0x02, 0x12, 0x13, 0x10 };
- static const u8 mei_stop_wd_params[] = { 0x02, 0x02, 0x14, 0x10 };
- 
++/**
++ * mei_wd_stop - sends watchdog stop message to fw.
++ *
++ * @dev: the device structure
++ * @preserve: indicate if to keep the timeout value
++ *
++ * returns 0 if success,
++ *	-EIO when message send fails
++ *	-EINVAL when invalid message is to be sent
++ */
+ int mei_wd_stop(struct mei_device *dev, bool preserve)
+ {
+ 	int ret;
 -- 
 1.7.4.1
 
