@@ -1,38 +1,37 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from pequod.mess.org ([188.220.58.213]:38296 "EHLO pequod.mess.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753418Ab1HWVjY (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 23 Aug 2011 17:39:24 -0400
-Date: Tue, 23 Aug 2011 22:30:09 +0100
-From: Sean Young <sean@mess.org>
-To: Wim van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org
-Subject: [PATCH] Remove unnecessary cast.
-Message-ID: <20110823213009.GA23418@pequod.mess.org>
+Received: from mailrelay003.isp.belgacom.be ([195.238.6.53]:42631 "EHLO
+	mailrelay003.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754098Ab1HaHCU (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 31 Aug 2011 03:02:20 -0400
+Date: Wed, 31 Aug 2011 09:02:02 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: ashishj3 <ashish.jangam@kpitcummins.com>
+Cc: linux-kernel@vger.kernel.org,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+	Dajun <dajun.chen@diasemi.com>,
+	Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH v2 07/11] Watchdog: DA9052 watchdog support
+Message-ID: <20110831070201.GB11844@infomag.iguana.be>
+References: <1314772701.3220.20.camel@L-0761.kpit.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <1314772701.3220.20.camel@L-0761.kpit.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Signed-off-by: Sean Young <sean@mess.org>
----
- drivers/watchdog/sc520_wdt.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Hi Ashish,
 
-diff --git a/drivers/watchdog/sc520_wdt.c b/drivers/watchdog/sc520_wdt.c
-index 52b63f2..b284040 100644
---- a/drivers/watchdog/sc520_wdt.c
-+++ b/drivers/watchdog/sc520_wdt.c
-@@ -398,7 +398,7 @@ static int __init sc520_wdt_init(void)
- 							WATCHDOG_TIMEOUT);
- 	}
- 
--	wdtmrctl = ioremap((unsigned long)(MMCR_BASE + OFFS_WDTMRCTL), 2);
-+	wdtmrctl = ioremap(MMCR_BASE + OFFS_WDTMRCTL, 2);
- 	if (!wdtmrctl) {
- 		printk(KERN_ERR PFX "Unable to remap memory\n");
- 		rc = -ENOMEM;
--- 
-1.7.6
+> This driver adds support for the watchdog functionality provided by the Dialog
+> Semiconductor DA9052 PMIC chip.
+> 
+> Signed-off-by: David Dajun Chen <dchen@diasemi.com>
+> Signed-off-by: Ashish Jangam <ashish.jangam@kpitcummins.com>
+
+Just back from holiday (so apologies for the delay).
+I am reviewing your driver. Will let you know something later today.
+
+Kind regards,
+Wim.
 
