@@ -1,117 +1,179 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
 Received: from mga14.intel.com ([143.182.124.37]:5192 "EHLO mga14.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755985Ab1HaNoA (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 31 Aug 2011 09:44:00 -0400
+	id S1755985Ab1HaNoG (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 31 Aug 2011 09:44:06 -0400
 From: Oren Weil <oren.jer.weil@intel.com>
 To: gregkh@suse.de
 Cc: devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org,
 	linux-watchdog@vger.kernel.org, alan@linux.intel.com,
 	wim@iguana.be, tomas.winkler@intel.com,
 	Oren Weil <oren.jer.weil@intel.com>
-Subject: [PATCH 01/12] staging: mei: removing dependency between WD and AMTHI init function.
-Date: Wed, 31 Aug 2011 16:42:37 +0300
-Message-Id: <1314798168-15613-2-git-send-email-oren.jer.weil@intel.com>
+Subject: [PATCH 03/12] staging: mei: registering the MEI driver with the kernel watchdog core interface
+Date: Wed, 31 Aug 2011 16:42:39 +0300
+Message-Id: <1314798168-15613-4-git-send-email-oren.jer.weil@intel.com>
 In-Reply-To: <1314798168-15613-1-git-send-email-oren.jer.weil@intel.com>
 References: <1314798168-15613-1-git-send-email-oren.jer.weil@intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-AMTHI need to be initialized after WD Client was initialized, moving the AMTHI outside
-of the WD initialization function.
-in order to remove the coupling between the initialization of those clients.
-
-AMTHI is getting initialized (getting connected to the FW feature/client) in two ways:
- 1) if mei driver fails to send connect message to watchdog client (WD initialization), then
-    immediately the AMTHI client getting initialized right after the watchdog initialization function.
- 2) if Watchdog client success to send connect message to watchdog client, then only after
-    the driver is getting the connect response message the AMTHI client is getting initialized
+Adding kernel watchdog interface (/dev/watchdog) to the MEI Driver to support AMT Watchdog feature.
+This patch and the following one will replace MEI Driver self management of the AMT watchdog
+with the standard kernel watchdog interface.
 
 Signed-off-by: Oren Weil <oren.jer.weil@intel.com>
 Acked-by: Tomas Winkler <tomas.winkler@intel.com>
 ---
- drivers/staging/mei/init.c      |    8 +++++++-
- drivers/staging/mei/interface.h |    2 +-
- drivers/staging/mei/wd.c        |   16 ++++++++++++----
- 3 files changed, 20 insertions(+), 6 deletions(-)
+ drivers/staging/mei/init.c      |    1 +
+ drivers/staging/mei/interface.h |    4 +++-
+ drivers/staging/mei/interrupt.c |   12 ++++++++++++
+ drivers/staging/mei/main.c      |    4 ++++
+ drivers/staging/mei/mei_dev.h   |    9 +++++++++
+ drivers/staging/mei/wd.c        |   20 ++++++++++++++++++--
+ 6 files changed, 47 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/staging/mei/init.c b/drivers/staging/mei/init.c
-index 0fa8216..69a57e7 100644
+index 69a57e7..cb0ebbe 100644
 --- a/drivers/staging/mei/init.c
 +++ b/drivers/staging/mei/init.c
-@@ -521,7 +521,13 @@ void mei_host_client_properties(struct mei_device *dev)
- 	bitmap_set(dev->host_clients_map, 0, 3);
- 	dev->mei_state = MEI_ENABLED;
+@@ -133,6 +133,7 @@ struct mei_device *mei_device_init(struct pci_dev *pdev)
+ 	init_waitqueue_head(&dev->wait_stop_wd);
+ 	dev->mei_state = MEI_INITIALIZING;
+ 	dev->iamthif_state = MEI_IAMTHIF_IDLE;
++	dev->wd_interface_reg = false;
  
--	mei_wd_host_init(dev);
-+	/* if wd initialization fails, initialization the AMTHI client,
-+	 * otherwise the AMTHI client will be initialized after the WD client connect response
-+	 * will be received
-+	 */
-+	if (mei_wd_host_init(dev))
-+		mei_host_init_iamthif(dev);
-+
- 	return;
- }
  
+ 	mei_io_list_init(&dev->read_list);
 diff --git a/drivers/staging/mei/interface.h b/drivers/staging/mei/interface.h
-index d0bf5cf..7bcf096 100644
+index 7bcf096..2b5a22c 100644
 --- a/drivers/staging/mei/interface.h
 +++ b/drivers/staging/mei/interface.h
-@@ -48,7 +48,7 @@ int mei_flow_ctrl_creds(struct mei_device *dev, struct mei_cl *cl);
+@@ -23,7 +23,9 @@
+ #include "mei_dev.h"
  
- int mei_wd_send(struct mei_device *dev);
- int mei_wd_stop(struct mei_device *dev, bool preserve);
--void mei_wd_host_init(struct mei_device *dev);
-+bool mei_wd_host_init(struct mei_device *dev);
- void mei_wd_start_setup(struct mei_device *dev);
  
- int mei_flow_ctrl_reduce(struct mei_device *dev, struct mei_cl *cl);
+-#define AMT_WD_VALUE 120	/* seconds */
++#define AMT_WD_DEFAULT_TIMEOUT 120	/* seconds */
++#define AMT_WD_MIN_TIMEOUT 120	/* seconds */
++#define AMT_WD_MAX_TIMEOUT 65535	/* seconds */
+ 
+ #define MEI_WATCHDOG_DATA_SIZE         16
+ #define MEI_START_WD_DATA_SIZE         20
+diff --git a/drivers/staging/mei/interrupt.c b/drivers/staging/mei/interrupt.c
+index ca1e0c9..958a7e2 100644
+--- a/drivers/staging/mei/interrupt.c
++++ b/drivers/staging/mei/interrupt.c
+@@ -396,6 +396,18 @@ static void mei_client_connect_response(struct mei_device *dev,
+ 		dev->wd_due_counter = (dev->wd_timeout) ? 1 : 0;
+ 
+ 		dev_dbg(&dev->pdev->dev, "successfully connected to WD client.\n");
++
++		/* Registering watchdog interface device once we got connection
++		   to the WD Client
++		*/
++		if (watchdog_register_device(&amt_wd_dev)) {
++			printk(KERN_ERR "mei: unable to register watchdog device.\n");
++			dev->wd_interface_reg = false;
++		} else {
++			dev_dbg(&dev->pdev->dev, "successfully register watchdog interface.\n");
++			dev->wd_interface_reg = true;
++		}
++
+ 		mei_host_init_iamthif(dev);
+ 		return;
+ 	}
+diff --git a/drivers/staging/mei/main.c b/drivers/staging/mei/main.c
+index 8d76785..37f07da 100644
+--- a/drivers/staging/mei/main.c
++++ b/drivers/staging/mei/main.c
+@@ -241,6 +241,10 @@ static void __devexit mei_remove(struct pci_dev *pdev)
+ 		mei_disconnect_host_client(dev, &dev->wd_cl);
+ 	}
+ 
++	/* Unregistering watchdog device */
++	if (dev->wd_interface_reg)
++		watchdog_unregister_device(&amt_wd_dev);
++
+ 	/* remove entry if already in list */
+ 	dev_dbg(&pdev->dev, "list del iamthif and wd file list.\n");
+ 	mei_remove_client_from_file_list(dev, dev->wd_cl.host_client_id);
+diff --git a/drivers/staging/mei/mei_dev.h b/drivers/staging/mei/mei_dev.h
+index 2e11077..d434afc 100644
+--- a/drivers/staging/mei/mei_dev.h
++++ b/drivers/staging/mei/mei_dev.h
+@@ -18,6 +18,7 @@
+ #define _MEI_DEV_H_
+ 
+ #include <linux/types.h>
++#include <linux/watchdog.h>
+ #include "mei.h"
+ #include "hw.h"
+ 
+@@ -37,6 +38,12 @@
+ #define MEI_WD_STATE_INDEPENDENCE_MSG_SENT       (1 << 0)
+ 
+ /*
++ * AMT Watchdog Device
++ */
++#define INTEL_AMT_WATCHDOG_ID "INTCAMT"
++extern struct watchdog_device amt_wd_dev;
++
++/*
+  * AMTHI Client UUID
+  */
+ extern const uuid_le mei_amthi_guid;
+@@ -258,6 +265,8 @@ struct mei_device {
+ 	bool iamthif_flow_control_pending;
+ 	bool iamthif_ioctl;
+ 	bool iamthif_canceled;
++
++	bool wd_interface_reg;
+ };
+ 
+ 
 diff --git a/drivers/staging/mei/wd.c b/drivers/staging/mei/wd.c
-index 42f04ef..721487d 100644
+index 721487d..d9e41a7 100644
 --- a/drivers/staging/mei/wd.c
 +++ b/drivers/staging/mei/wd.c
-@@ -63,8 +63,10 @@ void mei_wd_start_setup(struct mei_device *dev)
-  *
-  * @dev: the device structure
+@@ -19,6 +19,7 @@
+ #include <linux/device.h>
+ #include <linux/pci.h>
+ #include <linux/sched.h>
++#include <linux/watchdog.h>
+ 
+ #include "mei_dev.h"
+ #include "hw.h"
+@@ -26,13 +27,28 @@
+ #include "mei.h"
+ 
+ /*
++ * Watchdog Device structs
++ */
++const struct watchdog_info wd_info = {
++		.identity = INTEL_AMT_WATCHDOG_ID,
++};
++
++struct watchdog_device amt_wd_dev = {
++		.info = &wd_info,
++		.timeout = AMT_WD_DEFAULT_TIMEOUT,
++		.min_timeout = AMT_WD_MIN_TIMEOUT,
++		.max_timeout = AMT_WD_MAX_TIMEOUT,
++};
++
++
++/*
+  * MEI Watchdog Module Parameters
   */
--void mei_wd_host_init(struct mei_device *dev)
-+bool mei_wd_host_init(struct mei_device *dev)
- {
-+	bool ret = false;
-+
- 	mei_cl_init(&dev->wd_cl, dev);
+-static u16 watchdog_timeout = AMT_WD_VALUE;
++static u16 watchdog_timeout = AMT_WD_DEFAULT_TIMEOUT;
+ module_param(watchdog_timeout, ushort, 0);
+ MODULE_PARM_DESC(watchdog_timeout,
+ 		"Intel(R) AMT Watchdog timeout value in seconds. (default="
+-					__MODULE_STRING(AMT_WD_VALUE)
++					__MODULE_STRING(AMT_WD_DEFAULT_TIMEOUT)
+ 					", disable=0)");
  
- 	/* look for WD client and connect to it */
-@@ -83,19 +85,25 @@ void mei_wd_host_init(struct mei_device *dev)
- 				dev_dbg(&dev->pdev->dev, "Failed to connect to WD client\n");
- 				dev->wd_cl.state = MEI_FILE_DISCONNECTED;
- 				dev->wd_cl.host_client_id = 0;
--				mei_host_init_iamthif(dev) ;
-+				ret = false;
-+				goto end;
- 			} else {
- 				dev->wd_cl.timer_count = CONNECT_TIMEOUT;
- 			}
- 		} else {
- 			dev_dbg(&dev->pdev->dev, "Failed to find WD client\n");
--			mei_host_init_iamthif(dev) ;
-+			ret = false;
-+			goto end;
- 		}
- 	} else {
- 		dev->wd_bypass = true;
- 		dev_dbg(&dev->pdev->dev, "WD requested to be disabled\n");
--		mei_host_init_iamthif(dev) ;
-+		ret = false;
-+		goto end;
- 	}
-+
-+end:
-+	return ret;
- }
- 
- /**
+ static const u8 mei_start_wd_params[] = { 0x02, 0x12, 0x13, 0x10 };
 -- 
 1.7.4.1
 
