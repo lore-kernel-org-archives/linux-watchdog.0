@@ -1,50 +1,76 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga14.intel.com ([143.182.124.37]:5192 "EHLO mga14.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756050Ab1HaNoD (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 31 Aug 2011 09:44:03 -0400
-From: Oren Weil <oren.jer.weil@intel.com>
-To: gregkh@suse.de
-Cc: devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, alan@linux.intel.com,
-	wim@iguana.be, tomas.winkler@intel.com,
-	Oren Weil <oren.jer.weil@intel.com>
-Subject: [PATCH 02/12] staging: mei: fix register access function comments
-Date: Wed, 31 Aug 2011 16:42:38 +0300
-Message-Id: <1314798168-15613-3-git-send-email-oren.jer.weil@intel.com>
-In-Reply-To: <1314798168-15613-1-git-send-email-oren.jer.weil@intel.com>
+Received: from mail-qy0-f174.google.com ([209.85.216.174]:40195 "EHLO
+	mail-qy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932117Ab1HaQyu (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 31 Aug 2011 12:54:50 -0400
+Date: Wed, 31 Aug 2011 19:52:24 +0300
+From: Dan Carpenter <error27@gmail.com>
+To: Oren Weil <oren.jer.weil@intel.com>
+Cc: gregkh@suse.de, devel@driverdev.osuosl.org,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	tomas.winkler@intel.com, alan@linux.intel.com
+Subject: Re: [PATCH 05/12] staging: mei: adding watchdog ping
+Message-ID: <20110831165224.GF3705@shale.localdomain>
 References: <1314798168-15613-1-git-send-email-oren.jer.weil@intel.com>
+ <1314798168-15613-6-git-send-email-oren.jer.weil@intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1314798168-15613-6-git-send-email-oren.jer.weil@intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Signed-off-by: Oren Weil <oren.jer.weil@intel.com>
-Acked-by: Tomas Winkler <tomas.winkler@intel.com>
----
- drivers/staging/mei/mei_dev.h |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+On Wed, Aug 31, 2011 at 04:42:41PM +0300, Oren Weil wrote:
+> +static int mei_wd_ops_ping(struct watchdog_device *wd_dev)
+> +{
+> +	int ret = 0;
+> +	struct mei_device *dev;
+> +	dev = pci_get_drvdata(mei_device);
+> +
+> +	if (!dev)
+> +		return -ENODEV;
+> +
+> +	mutex_lock(&dev->device_lock);
+> +
+> +	if (dev->wd_cl.state != MEI_FILE_CONNECTED) {
+> +		dev_dbg(&dev->pdev->dev, "wd is not connected.\n");
+> +		ret = -ENODEV;
+> +		goto end;
+> +	}
+> +
+> +	/* Check if we can send the ping to HW*/
+> +	if (dev->mei_host_buffer_is_empty &&
+> +		mei_flow_ctrl_creds(dev, &dev->wd_cl) > 0) {
+> +			dev->mei_host_buffer_is_empty = false;
+        ^^^^^^^^^^^^^^^^
 
-diff --git a/drivers/staging/mei/mei_dev.h b/drivers/staging/mei/mei_dev.h
-index d7bc10c..2e11077 100644
---- a/drivers/staging/mei/mei_dev.h
-+++ b/drivers/staging/mei/mei_dev.h
-@@ -356,7 +356,7 @@ int mei_find_me_client_index(const struct mei_device *dev, uuid_le cuuid);
-  * @dev: the device structure
-  * @offset: offset from which to read the data
-  *
-- * returns the byte read.
-+ * returns register value (u32)
-  */
- static inline u32 mei_reg_read(struct mei_device *dev, unsigned long offset)
- {
-@@ -368,7 +368,7 @@ static inline u32 mei_reg_read(struct mei_device *dev, unsigned long offset)
-  *
-  * @dev: the device structure
-  * @offset: offset from which to write the data
-- * @value: the byte to write
-+ * @value: register value to write (u32)
-  */
- static inline void mei_reg_write(struct mei_device *dev,
- 				unsigned long offset, u32 value)
--- 
-1.7.4.1
+This is a two tab indent.  Don't do that.
+
+regards,
+dan carpenter
+
+> +			dev_dbg(&dev->pdev->dev, "sending watchdog ping\n");
+> +
+> +			if (mei_wd_send(dev)) {
+> +				dev_dbg(&dev->pdev->dev, "wd send failed.\n");
+> +				ret = -EIO;
+> +				goto end;
+> +			}
+> +
+> +			if (mei_flow_ctrl_reduce(dev, &dev->wd_cl)) {
+> +				dev_dbg(&dev->pdev->dev, "mei_flow_ctrl_reduce() failed.\n");
+> +				ret = -EIO;
+> +				goto end;
+> +			}
+> +
+> +		} else {
+> +			dev->wd_pending = true;
+> +		}
+> +
+> +end:
+> +	mutex_unlock(&dev->device_lock);
+> +	return ret;
+> +}
+
 
