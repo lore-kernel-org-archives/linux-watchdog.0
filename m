@@ -1,37 +1,54 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay003.isp.belgacom.be ([195.238.6.53]:42631 "EHLO
-	mailrelay003.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754098Ab1HaHCU (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 31 Aug 2011 03:02:20 -0400
-Date: Wed, 31 Aug 2011 09:02:02 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: ashishj3 <ashish.jangam@kpitcummins.com>
-Cc: linux-kernel@vger.kernel.org,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Dajun <dajun.chen@diasemi.com>,
-	Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH v2 07/11] Watchdog: DA9052 watchdog support
-Message-ID: <20110831070201.GB11844@infomag.iguana.be>
-References: <1314772701.3220.20.camel@L-0761.kpit.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1314772701.3220.20.camel@L-0761.kpit.com>
+Received: from mga14.intel.com ([143.182.124.37]:5192 "EHLO mga14.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755985Ab1HaNn6 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 31 Aug 2011 09:43:58 -0400
+From: Oren Weil <oren.jer.weil@intel.com>
+To: gregkh@suse.de
+Cc: devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, alan@linux.intel.com,
+	wim@iguana.be, tomas.winkler@intel.com,
+	Oren Weil <oren.jer.weil@intel.com>
+Subject: [PATCH 00/12] staging: mei: adding new watchdog core support
+Date: Wed, 31 Aug 2011 16:42:36 +0300
+Message-Id: <1314798168-15613-1-git-send-email-oren.jer.weil@intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Ashish,
+In this patches set we are adding the new watchdog core to the mei driver.
+Until now the mei driver manage by itself the Intel(R) Active Management Technology 
+(Intel(R) AMT) watchdog, the driver send the heartbeat by a 
+internal timer and the internal was defined by module parameter.
 
-> This driver adds support for the watchdog functionality provided by the Dialog
-> Semiconductor DA9052 PMIC chip.
-> 
-> Signed-off-by: David Dajun Chen <dchen@diasemi.com>
-> Signed-off-by: Ashish Jangam <ashish.jangam@kpitcummins.com>
+for more information about the Intel(R) AMT watchdog read
+drivers/staging/mei/mei.txt
 
-Just back from holiday (so apologies for the delay).
-I am reviewing your driver. Will let you know something later today.
+Oren Weil (12):
+  staging: mei: removing dependency between WD and AMTHI init function.
+  staging: mei: fix register access function comments
+  staging: mei: registering the MEI driver with the kernel watchdog
+    core interface
+  staging: mei: adding watchdog ops
+  staging: mei: adding watchdog ping
+  staging: mei: adding set_timeout watchdog function
+  staging: mei: renaming delayed work field and function to a
+    meaningful name.
+  staging: mei: resuming timer regardless of the watchdog timeout
+    value.
+  stagign: mei: client init code cleanup
+  staging: mei: removing wd module parameters
+  staging: mei: adding mei_wd_stop function comment
+  staging: mei: adding watchdog core dependency to kconfig
 
-Kind regards,
-Wim.
+ drivers/staging/mei/Kconfig     |    2 +-
+ drivers/staging/mei/init.c      |    9 ++-
+ drivers/staging/mei/interface.h |    8 +-
+ drivers/staging/mei/interrupt.c |   45 +++-----
+ drivers/staging/mei/main.c      |   19 ++--
+ drivers/staging/mei/mei_dev.h   |   22 +++-
+ drivers/staging/mei/wd.c        |  241 ++++++++++++++++++++++++++++++++------
+ 7 files changed, 260 insertions(+), 86 deletions(-)
+
+-- 
+1.7.4.1
 
