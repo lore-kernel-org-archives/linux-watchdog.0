@@ -1,206 +1,144 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 20 Sep 2011 16:19:44 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-        Andi Kleen <ak@linux.intel.com>, John Crispin <blogic@openwrt.org>,
-        Naga Chumbalkar <nagananda.chumbalkar@hp.com>,
-        Hartley Sweeten <hsweeten@visionengravers.com>
-Subject: [GIT PULL REQUEST] watchdog - v3.1 - Fixes
-Message-ID: <20110920141944.GU11844@infomag.iguana.be>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mga02.intel.com ([134.134.136.20]:21838 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757426Ab1IAOKN (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 1 Sep 2011 10:10:13 -0400
+From: Oren Weil <oren.jer.weil@intel.com>
+To: gregkh@suse.de
+Cc: devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, alan@linux.intel.com,
+	wim@iguana.be, tomas.winkler@intel.com,
+	Oren Weil <oren.jer.weil@intel.com>
+Subject: [PATCH 05/12 v2] staging: mei: adding watchdog ping
+Date: Thu,  1 Sep 2011 17:08:57 +0300
+Message-Id: <1314886137-18822-1-git-send-email-oren.jer.weil@intel.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hi Linus,
+adding watchdog ping to send ping/heartbeat to the the AMT watchdog client.
+in addition removing the heartbeat sending from the driver timers function.
 
-Please do a 
-	git pull git://www.linux-watchdog.org/linux-watchdog.git master
+Version 2 - Removed two tab indent
 
-This will update the following files:
+Signed-off-by: Oren Weil <oren.jer.weil@intel.com>
+Acked-by: Tomas Winkler <tomas.winkler@intel.com>
+---
+ drivers/staging/mei/interrupt.c |   27 -------------------
+ drivers/staging/mei/wd.c        |   54 +++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 54 insertions(+), 27 deletions(-)
 
- hpwdt.c        |    9 +++++----
- lantiq_wdt.c   |    8 ++++----
- sbc_epx_c3.c   |    2 +-
- watchdog_dev.c |   14 +++++++-------
- 4 files changed, 17 insertions(+), 16 deletions(-)
-
-with these Changes:
-
-Author: Andi Kleen <ak@linux.intel.com>
-Date:   Thu Sep 15 13:09:51 2011 -0700
-
-    watchdog: Initconst section fixes for watchdog
-    
-    Signed-off-by: Andi Kleen <ak@linux.intel.com>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-Author: John Crispin <blogic@openwrt.org>
-Date:   Wed Aug 24 10:31:39 2011 +0200
-
-    watchdog: lantiq: fix watchdogs timeout handling
-    
-    The enable function was using the global timeout variable for local operations.
-    This resulted in the value of the global variable being corrupted, thus
-    breaking the code.
-    
-    Signed-off-by: John Crispin <blogic@openwrt.org>
-    Signed-off-by: Thomas Langer <thomas.langer@lantiq.com>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-    Cc: linux-watchdog@vger.kernel.org
-    Cc: linux-mips@linux-mips.org
-
-Author: Naga Chumbalkar <nagananda.chumbalkar@hp.com>
-Date:   Tue Aug 9 22:27:26 2011 +0000
-
-    watchdog: hpwdt: prevent multiple "NMI occurred" messages
-    
-    On platforms with no iCRU support don't print two, (possibly conflicting),
-    "NMI occurred" messages when the firmware is unable to source the NMI.
-    
-    Please note that one of the enhancements to the v1.3.0 hpwdt driver is to panic and allow
-    KDUMP to succeed even on NMIs that are unknown to the platform firmware.
-    
-    Signed-off-by: Naga Chumbalkar <nagananda.chumbalkar@hp.com>
-    Reviewed-by: Thomas Mingarelli <thomas.mingarelli@hp.com>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-Author: H Hartley Sweeten <hsweeten@visionengravers.com>
-Date:   Wed Aug 3 15:38:20 2011 -0700
-
-    watchdog: WatchDog Timer Driver Core - use passed watchdog_device
-    
-    Use the passed watchdog_device instead of the static global variable when
-    testing and setting the status in watchdog_ping, watchdog_start, and
-    watchdog_stop.  Note that the callers of these functions are actually
-    passing the static global variable.
-    
-    Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-For completeness, I added the overal diff below.
-
-Greetings,
-Wim.
-
-================================================================================
-diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-index 410fba4..809cbda 100644
---- a/drivers/watchdog/hpwdt.c
-+++ b/drivers/watchdog/hpwdt.c
-@@ -494,15 +494,16 @@ static int hpwdt_pretimeout(struct notifier_block *nb, unsigned long ulReason,
- 		asminline_call(&cmn_regs, cru_rom_addr);
- 	die_nmi_called = 1;
- 	spin_unlock_irqrestore(&rom_lock, rom_pl);
-+
-+	if (allow_kdump)
-+		hpwdt_stop();
-+
- 	if (!is_icru) {
- 		if (cmn_regs.u1.ral == 0) {
--			printk(KERN_WARNING "hpwdt: An NMI occurred, "
-+			panic("An NMI occurred, "
- 				"but unable to determine source.\n");
+diff --git a/drivers/staging/mei/interrupt.c b/drivers/staging/mei/interrupt.c
+index 958a7e2..62b8001 100644
+--- a/drivers/staging/mei/interrupt.c
++++ b/drivers/staging/mei/interrupt.c
+@@ -1430,33 +1430,6 @@ void mei_wd_timer(struct work_struct *work)
  		}
  	}
+ 
+-	if (dev->wd_cl.state != MEI_FILE_CONNECTED)
+-		goto out;
 -
--	if (allow_kdump)
--		hpwdt_stop();
- 	panic("An NMI occurred, please see the Integrated "
- 		"Management Log for details.\n");
- 
-diff --git a/drivers/watchdog/lantiq_wdt.c b/drivers/watchdog/lantiq_wdt.c
-index 7d82ada..102aed0 100644
---- a/drivers/watchdog/lantiq_wdt.c
-+++ b/drivers/watchdog/lantiq_wdt.c
-@@ -51,16 +51,16 @@ static int ltq_wdt_ok_to_close;
- static void
- ltq_wdt_enable(void)
- {
--	ltq_wdt_timeout = ltq_wdt_timeout *
-+	unsigned long int timeout = ltq_wdt_timeout *
- 			(ltq_io_region_clk_rate / LTQ_WDT_DIVIDER) + 0x1000;
--	if (ltq_wdt_timeout > LTQ_MAX_TIMEOUT)
--		ltq_wdt_timeout = LTQ_MAX_TIMEOUT;
-+	if (timeout > LTQ_MAX_TIMEOUT)
-+		timeout = LTQ_MAX_TIMEOUT;
- 
- 	/* write the first password magic */
- 	ltq_w32(LTQ_WDT_PW1, ltq_wdt_membase + LTQ_WDT_CR);
- 	/* write the second magic plus the configuration and new timeout */
- 	ltq_w32(LTQ_WDT_SR_EN | LTQ_WDT_SR_PWD | LTQ_WDT_SR_CLKDIV |
--		LTQ_WDT_PW2 | ltq_wdt_timeout, ltq_wdt_membase + LTQ_WDT_CR);
-+		LTQ_WDT_PW2 | timeout, ltq_wdt_membase + LTQ_WDT_CR);
+-	/* Watchdog */
+-	if (dev->wd_due_counter && !dev->wd_bypass) {
+-		if (--dev->wd_due_counter == 0) {
+-			if (dev->mei_host_buffer_is_empty &&
+-			    mei_flow_ctrl_creds(dev, &dev->wd_cl) > 0) {
+-				dev->mei_host_buffer_is_empty = false;
+-				dev_dbg(&dev->pdev->dev, "send watchdog.\n");
+-
+-				if (mei_wd_send(dev))
+-					dev_dbg(&dev->pdev->dev, "wd send failed.\n");
+-				else
+-					if (mei_flow_ctrl_reduce(dev, &dev->wd_cl))
+-						goto out;
+-
+-				if (dev->wd_timeout)
+-					dev->wd_due_counter = 2;
+-				else
+-					dev->wd_due_counter = 0;
+-
+-			} else
+-				dev->wd_pending = true;
+-
+-		}
+-	}
+ 	if (dev->iamthif_stall_timer) {
+ 		if (--dev->iamthif_stall_timer == 0) {
+ 			dev_dbg(&dev->pdev->dev, "reseting because of hang to amthi.\n");
+diff --git a/drivers/staging/mei/wd.c b/drivers/staging/mei/wd.c
+index fb2bd3d..9338394 100644
+--- a/drivers/staging/mei/wd.c
++++ b/drivers/staging/mei/wd.c
+@@ -255,15 +255,69 @@ static int mei_wd_ops_stop(struct watchdog_device *wd_dev)
  }
  
- static void
-diff --git a/drivers/watchdog/sbc_epx_c3.c b/drivers/watchdog/sbc_epx_c3.c
-index 3066a51..eaca366 100644
---- a/drivers/watchdog/sbc_epx_c3.c
-+++ b/drivers/watchdog/sbc_epx_c3.c
-@@ -173,7 +173,7 @@ static struct notifier_block epx_c3_notifier = {
- 	.notifier_call = epx_c3_notify_sys,
+ /*
++ * mei_wd_ops_ping - wd ping command from the watchdog core.
++ *
++ * @wd_dev - watchdog device struct
++ *
++ * returns 0 if success, negative errno code for failure
++ */
++static int mei_wd_ops_ping(struct watchdog_device *wd_dev)
++{
++	int ret = 0;
++	struct mei_device *dev;
++	dev = pci_get_drvdata(mei_device);
++
++	if (!dev)
++		return -ENODEV;
++
++	mutex_lock(&dev->device_lock);
++
++	if (dev->wd_cl.state != MEI_FILE_CONNECTED) {
++		dev_dbg(&dev->pdev->dev, "wd is not connected.\n");
++		ret = -ENODEV;
++		goto end;
++	}
++
++	/* Check if we can send the ping to HW*/
++	if (dev->mei_host_buffer_is_empty &&
++		mei_flow_ctrl_creds(dev, &dev->wd_cl) > 0) {
++
++		dev->mei_host_buffer_is_empty = false;
++		dev_dbg(&dev->pdev->dev, "sending watchdog ping\n");
++
++		if (mei_wd_send(dev)) {
++			dev_dbg(&dev->pdev->dev, "wd send failed.\n");
++			ret = -EIO;
++			goto end;
++		}
++
++		if (mei_flow_ctrl_reduce(dev, &dev->wd_cl)) {
++			dev_dbg(&dev->pdev->dev, "mei_flow_ctrl_reduce() failed.\n");
++			ret = -EIO;
++			goto end;
++		}
++
++	} else {
++		dev->wd_pending = true;
++	}
++
++end:
++	mutex_unlock(&dev->device_lock);
++	return ret;
++}
++
++/*
+  * Watchdog Device structs
+  */
+ const struct watchdog_ops wd_ops = {
+ 		.owner = THIS_MODULE,
+ 		.start = mei_wd_ops_start,
+ 		.stop = mei_wd_ops_stop,
++		.ping = mei_wd_ops_ping,
+ };
+ const struct watchdog_info wd_info = {
+ 		.identity = INTEL_AMT_WATCHDOG_ID,
++		.options = WDIOF_KEEPALIVEPING,
  };
  
--static const char banner[] __initdata = KERN_INFO PFX
-+static const char banner[] __initconst = KERN_INFO PFX
- 	"Hardware Watchdog Timer for Winsystems EPX-C3 SBC: 0.1\n";
- 
- static int __init watchdog_init(void)
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index d33520d..1199da0 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -59,7 +59,7 @@ static struct watchdog_device *wdd;
- 
- static int watchdog_ping(struct watchdog_device *wddev)
- {
--	if (test_bit(WDOG_ACTIVE, &wdd->status)) {
-+	if (test_bit(WDOG_ACTIVE, &wddev->status)) {
- 		if (wddev->ops->ping)
- 			return wddev->ops->ping(wddev);  /* ping the watchdog */
- 		else
-@@ -81,12 +81,12 @@ static int watchdog_start(struct watchdog_device *wddev)
- {
- 	int err;
- 
--	if (!test_bit(WDOG_ACTIVE, &wdd->status)) {
-+	if (!test_bit(WDOG_ACTIVE, &wddev->status)) {
- 		err = wddev->ops->start(wddev);
- 		if (err < 0)
- 			return err;
- 
--		set_bit(WDOG_ACTIVE, &wdd->status);
-+		set_bit(WDOG_ACTIVE, &wddev->status);
- 	}
- 	return 0;
- }
-@@ -105,18 +105,18 @@ static int watchdog_stop(struct watchdog_device *wddev)
- {
- 	int err = -EBUSY;
- 
--	if (test_bit(WDOG_NO_WAY_OUT, &wdd->status)) {
-+	if (test_bit(WDOG_NO_WAY_OUT, &wddev->status)) {
- 		pr_info("%s: nowayout prevents watchdog to be stopped!\n",
--							wdd->info->identity);
-+							wddev->info->identity);
- 		return err;
- 	}
- 
--	if (test_bit(WDOG_ACTIVE, &wdd->status)) {
-+	if (test_bit(WDOG_ACTIVE, &wddev->status)) {
- 		err = wddev->ops->stop(wddev);
- 		if (err < 0)
- 			return err;
- 
--		clear_bit(WDOG_ACTIVE, &wdd->status);
-+		clear_bit(WDOG_ACTIVE, &wddev->status);
- 	}
- 	return 0;
- }
+ struct watchdog_device amt_wd_dev = {
+-- 
+1.7.4.1
+
