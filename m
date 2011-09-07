@@ -1,117 +1,51 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:39453 "EHLO mga01.intel.com"
+Received: from mga01.intel.com ([192.55.52.88]:6183 "EHLO mga01.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755232Ab1IGGEu (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 7 Sep 2011 02:04:50 -0400
+	id S1755555Ab1IGGFO (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 7 Sep 2011 02:05:14 -0400
 From: Oren Weil <oren.jer.weil@intel.com>
 To: gregkh@suse.de
 Cc: devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org,
 	linux-watchdog@vger.kernel.org, alan@linux.intel.com,
 	wim@iguana.be, tomas.winkler@intel.com,
 	Oren Weil <oren.jer.weil@intel.com>
-Subject: [PATCH 01/12 v2] staging: mei: removing dependency between WD and AMTHI init function.
-Date: Wed,  7 Sep 2011 09:03:07 +0300
-Message-Id: <1315375398-29529-2-git-send-email-oren.jer.weil@intel.com>
+Subject: [PATCH 10/12 v2] staging: mei: removing wd module parameters
+Date: Wed,  7 Sep 2011 09:03:16 +0300
+Message-Id: <1315375398-29529-11-git-send-email-oren.jer.weil@intel.com>
 In-Reply-To: <1315375398-29529-1-git-send-email-oren.jer.weil@intel.com>
 References: <1315375398-29529-1-git-send-email-oren.jer.weil@intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-AMTHI need to be initialized after WD Client was initialized, moving the AMTHI outside
-of the WD initialization function.
-in order to remove the coupling between the initialization of those clients.
-
-AMTHI is getting initialized (getting connected to the FW feature/client) in two ways:
- 1) if mei driver fails to send connect message to watchdog client (WD initialization), then
-    immediately the AMTHI client getting initialized right after the watchdog initialization function.
- 2) if Watchdog client success to send connect message to watchdog client, then only after
-    the driver is getting the connect response message the AMTHI client is getting initialized
+wd module parameter is not needed now that driver is using watchdog core.
 
 Signed-off-by: Oren Weil <oren.jer.weil@intel.com>
 Acked-by: Tomas Winkler <tomas.winkler@intel.com>
 ---
- drivers/staging/mei/init.c      |    8 +++++++-
- drivers/staging/mei/interface.h |    2 +-
- drivers/staging/mei/wd.c        |   16 ++++++++++++----
- 3 files changed, 20 insertions(+), 6 deletions(-)
+ drivers/staging/mei/wd.c |   10 ----------
+ 1 files changed, 0 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/staging/mei/init.c b/drivers/staging/mei/init.c
-index 0fa8216..69a57e7 100644
---- a/drivers/staging/mei/init.c
-+++ b/drivers/staging/mei/init.c
-@@ -521,7 +521,13 @@ void mei_host_client_properties(struct mei_device *dev)
- 	bitmap_set(dev->host_clients_map, 0, 3);
- 	dev->mei_state = MEI_ENABLED;
- 
--	mei_wd_host_init(dev);
-+	/* if wd initialization fails, initialization the AMTHI client,
-+	 * otherwise the AMTHI client will be initialized after the WD client connect response
-+	 * will be received
-+	 */
-+	if (mei_wd_host_init(dev))
-+		mei_host_init_iamthif(dev);
-+
- 	return;
- }
- 
-diff --git a/drivers/staging/mei/interface.h b/drivers/staging/mei/interface.h
-index d0bf5cf..7bcf096 100644
---- a/drivers/staging/mei/interface.h
-+++ b/drivers/staging/mei/interface.h
-@@ -48,7 +48,7 @@ int mei_flow_ctrl_creds(struct mei_device *dev, struct mei_cl *cl);
- 
- int mei_wd_send(struct mei_device *dev);
- int mei_wd_stop(struct mei_device *dev, bool preserve);
--void mei_wd_host_init(struct mei_device *dev);
-+bool mei_wd_host_init(struct mei_device *dev);
- void mei_wd_start_setup(struct mei_device *dev);
- 
- int mei_flow_ctrl_reduce(struct mei_device *dev, struct mei_cl *cl);
 diff --git a/drivers/staging/mei/wd.c b/drivers/staging/mei/wd.c
-index 42f04ef..721487d 100644
+index fd67952..b56b1cc 100644
 --- a/drivers/staging/mei/wd.c
 +++ b/drivers/staging/mei/wd.c
-@@ -63,8 +63,10 @@ void mei_wd_start_setup(struct mei_device *dev)
-  *
-  * @dev: the device structure
-  */
--void mei_wd_host_init(struct mei_device *dev)
-+bool mei_wd_host_init(struct mei_device *dev)
- {
-+	bool ret = false;
-+
- 	mei_cl_init(&dev->wd_cl, dev);
+@@ -26,16 +26,6 @@
+ #include "interface.h"
+ #include "mei.h"
  
- 	/* look for WD client and connect to it */
-@@ -83,19 +85,25 @@ void mei_wd_host_init(struct mei_device *dev)
- 				dev_dbg(&dev->pdev->dev, "Failed to connect to WD client\n");
- 				dev->wd_cl.state = MEI_FILE_DISCONNECTED;
- 				dev->wd_cl.host_client_id = 0;
--				mei_host_init_iamthif(dev) ;
-+				ret = false;
-+				goto end;
- 			} else {
- 				dev->wd_cl.timer_count = CONNECT_TIMEOUT;
- 			}
- 		} else {
- 			dev_dbg(&dev->pdev->dev, "Failed to find WD client\n");
--			mei_host_init_iamthif(dev) ;
-+			ret = false;
-+			goto end;
- 		}
- 	} else {
- 		dev->wd_bypass = true;
- 		dev_dbg(&dev->pdev->dev, "WD requested to be disabled\n");
--		mei_host_init_iamthif(dev) ;
-+		ret = false;
-+		goto end;
- 	}
-+
-+end:
-+	return ret;
- }
+-/*
+- * MEI Watchdog Module Parameters
+- */
+-static u16 watchdog_timeout = AMT_WD_DEFAULT_TIMEOUT;
+-module_param(watchdog_timeout, ushort, 0);
+-MODULE_PARM_DESC(watchdog_timeout,
+-		"Intel(R) AMT Watchdog timeout value in seconds. (default="
+-					__MODULE_STRING(AMT_WD_DEFAULT_TIMEOUT)
+-					", disable=0)");
+-
+ static const u8 mei_start_wd_params[] = { 0x02, 0x12, 0x13, 0x10 };
+ static const u8 mei_stop_wd_params[] = { 0x02, 0x02, 0x14, 0x10 };
  
- /**
 -- 
 1.7.4.1
 
