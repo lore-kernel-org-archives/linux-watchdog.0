@@ -1,36 +1,56 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from out4.smtp.messagingengine.com ([66.111.4.28]:42642 "EHLO
-	out4.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755411Ab1IFXyP (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 6 Sep 2011 19:54:15 -0400
-Date: Tue, 6 Sep 2011 16:52:10 -0700
-From: Greg KH <greg@kroah.com>
-To: Oren Weil <oren.jer.weil@intel.com>
-Cc: gregkh@suse.de, devel@driverdev.osuosl.org,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	alan@linux.intel.com, wim@iguana.be, tomas.winkler@intel.com
-Subject: Re: [PATCH 05/12 v2] staging: mei: adding watchdog ping
-Message-ID: <20110906235210.GB26281@kroah.com>
-References: <1314886137-18822-1-git-send-email-oren.jer.weil@intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1314886137-18822-1-git-send-email-oren.jer.weil@intel.com>
+Received: from mga01.intel.com ([192.55.52.88]:39453 "EHLO mga01.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754594Ab1IGGEr (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 7 Sep 2011 02:04:47 -0400
+From: Oren Weil <oren.jer.weil@intel.com>
+To: gregkh@suse.de
+Cc: devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, alan@linux.intel.com,
+	wim@iguana.be, tomas.winkler@intel.com,
+	Oren Weil <oren.jer.weil@intel.com>
+Subject: [PATCH 00/12 v2] staging: mei: adding new watchdog core support
+Date: Wed,  7 Sep 2011 09:03:06 +0300
+Message-Id: <1315375398-29529-1-git-send-email-oren.jer.weil@intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Sep 01, 2011 at 05:08:57PM +0300, Oren Weil wrote:
-> adding watchdog ping to send ping/heartbeat to the the AMT watchdog client.
-> in addition removing the heartbeat sending from the driver timers function.
-> 
-> Version 2 - Removed two tab indent
+In this patches set we are adding the new watchdog core to the mei driver.
+Until now the mei driver manage by itself the Intel(R) Active Management Technology 
+(Intel(R) AMT) watchdog, the driver send the heartbeat by a 
+internal timer and the internal was defined by module parameter.
 
-Oh great, now I notice this one.
+for more information about the Intel(R) AMT watchdog read
+drivers/staging/mei/mei.txt
 
-Sorry, can you resend the whole series with this one included again,
-I've purged your older series already.
+Version 2 - Removed two tab indent in patch 05
 
-thanks,
+Oren Weil (12):
+  staging: mei: removing dependency between WD and AMTHI init function.
+  staging: mei: fix register access function comments
+  staging: mei: registering the MEI driver with the kernel watchdog
+    core interface
+  staging: mei: adding watchdog ops
+  staging: mei: adding watchdog ping
+  staging: mei: adding set_timeout watchdog function
+  staging: mei: renaming delayed work field and function to a
+    meaningful name.
+  staging: mei: resuming timer regardless of the watchdog timeout
+    value.
+  stagign: mei: client init code cleanup
+  staging: mei: removing wd module parameters
+  staging: mei: adding mei_wd_stop function comment
+  staging: mei: adding watchdog core dependency to kconfig
 
-greg k-h
+ drivers/staging/mei/Kconfig     |    2 +-
+ drivers/staging/mei/init.c      |    9 ++-
+ drivers/staging/mei/interface.h |    8 +-
+ drivers/staging/mei/interrupt.c |   45 +++-----
+ drivers/staging/mei/main.c      |   19 ++--
+ drivers/staging/mei/mei_dev.h   |   22 +++-
+ drivers/staging/mei/wd.c        |  242 +++++++++++++++++++++++++++++++++------
+ 7 files changed, 261 insertions(+), 86 deletions(-)
+
+-- 
+1.7.4.1
+
