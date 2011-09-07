@@ -1,56 +1,50 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
 Received: from mga01.intel.com ([192.55.52.88]:39453 "EHLO mga01.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754594Ab1IGGEr (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 7 Sep 2011 02:04:47 -0400
+	id S1755484Ab1IGGEx (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 7 Sep 2011 02:04:53 -0400
 From: Oren Weil <oren.jer.weil@intel.com>
 To: gregkh@suse.de
 Cc: devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org,
 	linux-watchdog@vger.kernel.org, alan@linux.intel.com,
 	wim@iguana.be, tomas.winkler@intel.com,
 	Oren Weil <oren.jer.weil@intel.com>
-Subject: [PATCH 00/12 v2] staging: mei: adding new watchdog core support
-Date: Wed,  7 Sep 2011 09:03:06 +0300
-Message-Id: <1315375398-29529-1-git-send-email-oren.jer.weil@intel.com>
+Subject: [PATCH 02/12 v2] staging: mei: fix register access function comments
+Date: Wed,  7 Sep 2011 09:03:08 +0300
+Message-Id: <1315375398-29529-3-git-send-email-oren.jer.weil@intel.com>
+In-Reply-To: <1315375398-29529-1-git-send-email-oren.jer.weil@intel.com>
+References: <1315375398-29529-1-git-send-email-oren.jer.weil@intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-In this patches set we are adding the new watchdog core to the mei driver.
-Until now the mei driver manage by itself the Intel(R) Active Management Technology 
-(Intel(R) AMT) watchdog, the driver send the heartbeat by a 
-internal timer and the internal was defined by module parameter.
+Signed-off-by: Oren Weil <oren.jer.weil@intel.com>
+Acked-by: Tomas Winkler <tomas.winkler@intel.com>
+---
+ drivers/staging/mei/mei_dev.h |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-for more information about the Intel(R) AMT watchdog read
-drivers/staging/mei/mei.txt
-
-Version 2 - Removed two tab indent in patch 05
-
-Oren Weil (12):
-  staging: mei: removing dependency between WD and AMTHI init function.
-  staging: mei: fix register access function comments
-  staging: mei: registering the MEI driver with the kernel watchdog
-    core interface
-  staging: mei: adding watchdog ops
-  staging: mei: adding watchdog ping
-  staging: mei: adding set_timeout watchdog function
-  staging: mei: renaming delayed work field and function to a
-    meaningful name.
-  staging: mei: resuming timer regardless of the watchdog timeout
-    value.
-  stagign: mei: client init code cleanup
-  staging: mei: removing wd module parameters
-  staging: mei: adding mei_wd_stop function comment
-  staging: mei: adding watchdog core dependency to kconfig
-
- drivers/staging/mei/Kconfig     |    2 +-
- drivers/staging/mei/init.c      |    9 ++-
- drivers/staging/mei/interface.h |    8 +-
- drivers/staging/mei/interrupt.c |   45 +++-----
- drivers/staging/mei/main.c      |   19 ++--
- drivers/staging/mei/mei_dev.h   |   22 +++-
- drivers/staging/mei/wd.c        |  242 +++++++++++++++++++++++++++++++++------
- 7 files changed, 261 insertions(+), 86 deletions(-)
-
+diff --git a/drivers/staging/mei/mei_dev.h b/drivers/staging/mei/mei_dev.h
+index d7bc10c..2e11077 100644
+--- a/drivers/staging/mei/mei_dev.h
++++ b/drivers/staging/mei/mei_dev.h
+@@ -356,7 +356,7 @@ int mei_find_me_client_index(const struct mei_device *dev, uuid_le cuuid);
+  * @dev: the device structure
+  * @offset: offset from which to read the data
+  *
+- * returns the byte read.
++ * returns register value (u32)
+  */
+ static inline u32 mei_reg_read(struct mei_device *dev, unsigned long offset)
+ {
+@@ -368,7 +368,7 @@ static inline u32 mei_reg_read(struct mei_device *dev, unsigned long offset)
+  *
+  * @dev: the device structure
+  * @offset: offset from which to write the data
+- * @value: the byte to write
++ * @value: register value to write (u32)
+  */
+ static inline void mei_reg_write(struct mei_device *dev,
+ 				unsigned long offset, u32 value)
 -- 
 1.7.4.1
 
