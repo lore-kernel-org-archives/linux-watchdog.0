@@ -1,84 +1,45 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
 Received: from mga01.intel.com ([192.55.52.88]:6183 "EHLO mga01.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755550Ab1IGGFM (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 7 Sep 2011 02:05:12 -0400
+	id S1755566Ab1IGGFU (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 7 Sep 2011 02:05:20 -0400
 From: Oren Weil <oren.jer.weil@intel.com>
 To: gregkh@suse.de
 Cc: devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org,
 	linux-watchdog@vger.kernel.org, alan@linux.intel.com,
 	wim@iguana.be, tomas.winkler@intel.com,
 	Oren Weil <oren.jer.weil@intel.com>
-Subject: [PATCH 09/12 v2] stagign: mei: client init code cleanup
-Date: Wed,  7 Sep 2011 09:03:15 +0300
-Message-Id: <1315375398-29529-10-git-send-email-oren.jer.weil@intel.com>
+Subject: [PATCH 11/12 v2] staging: mei: adding mei_wd_stop function comment
+Date: Wed,  7 Sep 2011 09:03:18 +0300
+Message-Id: <1315375398-29529-13-git-send-email-oren.jer.weil@intel.com>
 In-Reply-To: <1315375398-29529-1-git-send-email-oren.jer.weil@intel.com>
 References: <1315375398-29529-1-git-send-email-oren.jer.weil@intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-starting removing the dependency from the module parameters.
-setting the default timeout on init so don't need to check if it is bigger
-then zero.
+>From 0d425f09d49b13b0dd8282e946bc87947a20a4a3 Mon Sep 17 00:00:00 2001
+From: Oren Weil <oren.jer.weil@intel.com>
+Date: Wed, 17 Aug 2011 13:22:12 +0300
+Subject: [PATCH 12/12 v2] staging: mei: adding watchdog core dependency to kconfig
 
 Signed-off-by: Oren Weil <oren.jer.weil@intel.com>
 Acked-by: Tomas Winkler <tomas.winkler@intel.com>
 ---
- drivers/staging/mei/wd.c |   33 +++++++++++++--------------------
- 1 files changed, 13 insertions(+), 20 deletions(-)
+ drivers/staging/mei/Kconfig |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/staging/mei/wd.c b/drivers/staging/mei/wd.c
-index 68c177b..fd67952 100644
---- a/drivers/staging/mei/wd.c
-+++ b/drivers/staging/mei/wd.c
-@@ -72,32 +72,25 @@ bool mei_wd_host_init(struct mei_device *dev)
- 
- 	/* look for WD client and connect to it */
- 	dev->wd_cl.state = MEI_FILE_DISCONNECTED;
--	dev->wd_timeout = watchdog_timeout;
--
--	if (dev->wd_timeout > 0) {
--		/* find ME WD client */
--		mei_find_me_client_update_filext(dev, &dev->wd_cl,
--					&mei_wd_guid, MEI_WD_HOST_CLIENT_ID);
--
--		dev_dbg(&dev->pdev->dev, "check wd_cl\n");
--		if (MEI_FILE_CONNECTING == dev->wd_cl.state) {
--			if (!mei_connect(dev, &dev->wd_cl)) {
--				dev_dbg(&dev->pdev->dev, "Failed to connect to WD client\n");
--				dev->wd_cl.state = MEI_FILE_DISCONNECTED;
--				dev->wd_cl.host_client_id = 0;
--				ret = false;
--				goto end;
--			} else {
--				dev->wd_cl.timer_count = CONNECT_TIMEOUT;
--			}
--		} else {
--			dev_dbg(&dev->pdev->dev, "Failed to find WD client\n");
-+	dev->wd_timeout = AMT_WD_DEFAULT_TIMEOUT;
-+
-+	/* find ME WD client */
-+	mei_find_me_client_update_filext(dev, &dev->wd_cl,
-+				&mei_wd_guid, MEI_WD_HOST_CLIENT_ID);
-+
-+	dev_dbg(&dev->pdev->dev, "check wd_cl\n");
-+	if (MEI_FILE_CONNECTING == dev->wd_cl.state) {
-+		if (!mei_connect(dev, &dev->wd_cl)) {
-+			dev_dbg(&dev->pdev->dev, "Failed to connect to WD client\n");
-+			dev->wd_cl.state = MEI_FILE_DISCONNECTED;
-+			dev->wd_cl.host_client_id = 0;
- 			ret = false;
- 			goto end;
-+		} else {
-+			dev->wd_cl.timer_count = CONNECT_TIMEOUT;
- 		}
- 	} else {
--		dev->wd_bypass = true;
--		dev_dbg(&dev->pdev->dev, "WD requested to be disabled\n");
-+		dev_dbg(&dev->pdev->dev, "Failed to find WD client\n");
- 		ret = false;
- 		goto end;
- 	}
+diff --git a/drivers/staging/mei/Kconfig b/drivers/staging/mei/Kconfig
+index 3f3f170..47d78a7 100644
+--- a/drivers/staging/mei/Kconfig
++++ b/drivers/staging/mei/Kconfig
+@@ -1,6 +1,6 @@
+ config INTEL_MEI
+ 	tristate "Intel Management Engine Interface (Intel MEI)"
+-	depends on X86 && PCI && EXPERIMENTAL
++	depends on X86 && PCI && EXPERIMENTAL && WATCHDOG_CORE
+ 	help
+ 	  The Intel Management Engine (Intel ME) provides Manageability,
+ 	  Security and Media services for system containing Intel chipsets.
 -- 
 1.7.4.1
 
