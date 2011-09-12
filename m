@@ -1,33 +1,77 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pz0-f42.google.com ([209.85.210.42]:39022 "EHLO
-	mail-pz0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754627Ab1IKVhF (ORCPT
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:57845 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751478Ab1ILFKj (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 11 Sep 2011 17:37:05 -0400
+	Mon, 12 Sep 2011 01:10:39 -0400
 MIME-Version: 1.0
-In-Reply-To: <1315383059-3673-59-git-send-email-yong.zhang0@gmail.com>
-References: <1315383059-3673-1-git-send-email-yong.zhang0@gmail.com>
-	<1315383059-3673-59-git-send-email-yong.zhang0@gmail.com>
-Date: Sun, 11 Sep 2011 23:37:04 +0200
-Message-ID: <CACRpkdbh-pzPwAr1w=16gYo0vOuMqkfU29Ravfc_M5osWZdx7Q@mail.gmail.com>
-Subject: Re: [PATCH 58/62] watchdog: irq: Remove IRQF_DISABLED
-From: Linus Walleij <linus.walleij@linaro.org>
-To: Yong Zhang <yong.zhang0@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	Wim Van Sebroeck <wim@iguana.be>, tglx@linutronix.de,
-	mingo@elte.hu, linux-arm-kernel@lists.infradead.org,
-	Linus Walleij <linus.walleij@stericsson.com>
+From: Greg Lee <glee@swspec.com>
+Date: Mon, 12 Sep 2011 01:10:17 -0400
+Message-ID: <CADB-PD0N+tEC0H_iKzvV4Ms2snAJ3-+Lnk7tNF5=egAHdVuARQ@mail.gmail.com>
+Subject: [PATCH] Add WDIOC_GETTIMELEFT ioctl support to w83627 watchdog driver
+To: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Sep 7, 2011 at 10:10 AM, Yong Zhang <yong.zhang0@gmail.com> wrote:
+Add WDIOC_GETTIMELEFT ioctl allowing you to check how much time is left
+on the watchdog counter before a reset occurs.
 
-> This flag is a NOOP and can be removed now.
->
-> Signed-off-by: Yong Zhang <yong.zhang0@gmail.com>
+Signed-off-by: Greg Lee <glee [at] swspec.com>
 
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+---
+--- linux-3.1-rc5.orig/drivers/watchdog/w83627hf_wdt.c
++++ linux-3.1-rc5.mine/drivers/watchdog/w83627hf_wdt.c
+@@ -176,6 +176,23 @@ static int wdt_set_heartbeat(int t)
+        return 0;
+ }
 
-Thanks,
-Linus Walleij
++static int wdt_get_time_left(void){
++       int timeleft;
++
++       spin_lock(&io_lock);
++
++       w83627hf_select_wd_register();
++
++       outb_p(0xF6, WDT_EFER);    /* Select CRF6 */
++       timeleft = inb_p(WDT_EFDR); /* Read Timeout counter to CRF6 */
++
++       w83627hf_unselect_wd_register();
++
++       spin_unlock(&io_lock);
++
++       return timeleft;
++}
++
+ static ssize_t wdt_write(struct file *file, const char __user *buf,
+                                                size_t count, loff_t *ppos)
+ {
+@@ -202,7 +219,7 @@ static long wdt_ioctl(struct file *file,
+ {
+        void __user *argp = (void __user *)arg;
+        int __user *p = argp;
+-       int new_timeout;
++       int timeval;
+        static const struct watchdog_info ident = {
+                .options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT |
+                                                        WDIOF_MAGICCLOSE,
+@@ -238,14 +255,17 @@ static long wdt_ioctl(struct file *file,
+                wdt_ping();
+                break;
+        case WDIOC_SETTIMEOUT:
+-               if (get_user(new_timeout, p))
++               if (get_user(timeval, p))
+                        return -EFAULT;
+-               if (wdt_set_heartbeat(new_timeout))
++               if (wdt_set_heartbeat(timeval))
+                        return -EINVAL;
+                wdt_ping();
+                /* Fall */
+        case WDIOC_GETTIMEOUT:
+                return put_user(timeout, p);
++       case WDIOC_GETTIMELEFT:
++               timeval = wdt_get_time_left();
++               return put_user(timeval, p);
+        default:
+                return -ENOTTY;
+        }
