@@ -1,76 +1,105 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from imr3.ericy.com ([198.24.6.13]:51366 "EHLO imr3.ericy.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753661Ab1ILStr (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 12 Sep 2011 14:49:47 -0400
-Subject: Re: [lm-sensors] [PATCH 5/5] hwmon/sch5636: Add support for the
- integrated watchdog
-From: Guenter Roeck <guenter.roeck@ericsson.com>
-Reply-To: guenter.roeck@ericsson.com
-To: Jean Delvare <khali@linux-fr.org>
-CC: Hans de Goede <hdegoede@redhat.com>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Thilo Cestonaro <thilo.cestonaro@ts.fujitsu.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	LM Sensors <lm-sensors@lm-sensors.org>
-In-Reply-To: <20110912200302.28dbfdfd@endymion.delvare>
-References: <1315821420-16205-1-git-send-email-hdegoede@redhat.com>
-	 <1315821420-16205-6-git-send-email-hdegoede@redhat.com>
-	 <1315848826.2455.193.camel@groeck-laptop>
-	 <20110912200302.28dbfdfd@endymion.delvare>
-Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 12 Sep 2011 11:48:34 -0700
-Message-ID: <1315853314.2455.207.camel@groeck-laptop>
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:35682 "EHLO
+	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752044Ab1IMA3I (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 12 Sep 2011 20:29:08 -0400
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+From: Greg Lee <glee@swspec.com>
+Date: Mon, 12 Sep 2011 20:28:46 -0400
+Message-ID: <CADB-PD3bJEHPTa8RXP-RjHZHsFXyFUVosOPh7kUgUEWOQDr3qA@mail.gmail.com>
+Subject: [PATCH v2] Add WDIOC_GETTIMELEFT ioctl support to w83627 watchdog driver
+To: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	P@draigbrady.com
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, 2011-09-12 at 14:03 -0400, Jean Delvare wrote:
-> On Mon, 12 Sep 2011 10:33:46 -0700, Guenter Roeck wrote:
-> > On Mon, 2011-09-12 at 05:57 -0400, Hans de Goede wrote:
-> > > Add support for the watchdog integrated into the (Fujitsu Theseus version of)
-> > > the sch5636 superio hwmon part. Using the new watchdog timer core.
-> > > 
-> > > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> > > ---
-> > >  drivers/hwmon/sch5636.c |  233 ++++++++++++++++++++++++++++++++++++++++++++++-
-> > >  1 files changed, 231 insertions(+), 2 deletions(-)
-> > > 
-> > [ resent to proper thread ]
-> > 
-> > Given that this is no longer a pure hwmon driver, it may make sense to
-> > split it into separate mfd/hwmon/watchdog drivers. But on the other side
-> > I notice that other drivers in the hwmon directory implement watchdog
-> > functionality as well. Bad precedent :(.
-> 
-> IIRC the first driver doing this was one of the FSC drivers and this was
-> before the MFD framework was created. It was simply never migrated, and
-> other drivers followed the trend.
-> 
-> > Wonder what happens with those watchdogs if HWMON is disabled.
-> 
-> Then the watchdog feature isn't available. The idea as I understand it
-> is that hardware monitoring is the main feature of these chips and
-> watchdog is only an add-on, so we don't expect the user to want the
-> watchdog feature without the hardware monitoring feature.
-> 
-> > Not really sure if we should let this happen, or start being more
-> > restrictive and enforce cleaner code. Jean, any thoughts/comments ?
-> 
-> I have no objection to merging the code as is, as you found out it's not
-> doing anything other drivers haven't already.
-> 
-> If anybody cares, that person can clean up one or more drivers, later.
-> That being said, at least for I2C devices, I don't mind leaving things
-> as they are, as doing things "better" means more complex code for very
-> little benefit. For Super-I/O chips which are multifunction by nature,
-> the MFD framework is certainly the right way to go.
-> 
-Makes sense.
+Add WDIOC_GETTIMELEFT ioctl allowing you to check how much time is left
+on the watchdog counter before a reset occurs.  A few additional
+naming clean-ups
+requested by Padraig Brady as well.
 
-Thanks,
-Guenter
+Signed-off-by: Greg Lee <glee [at] swspec.com>
+---
+--- linux-3.1-rc5.orig/drivers/watchdog/w83627hf_wdt.c
++++ linux-3.1-rc5.mine/drivers/watchdog/w83627hf_wdt.c
+@@ -142,7 +142,7 @@ static void w83627hf_init(void)
+ 	w83627hf_unselect_wd_register();
+ }
 
+-static void wdt_ctrl(int timeout)
++static void wdt_set_time(int timeout)
+ {
+ 	spin_lock(&io_lock);
 
+@@ -158,13 +158,13 @@ static void wdt_ctrl(int timeout)
+
+ static int wdt_ping(void)
+ {
+-	wdt_ctrl(timeout);
++	wdt_set_time(timeout);
+ 	return 0;
+ }
+
+ static int wdt_disable(void)
+ {
+-	wdt_ctrl(0);
++	wdt_set_time(0);
+ 	return 0;
+ }
+
+@@ -176,6 +176,24 @@ static int wdt_set_heartbeat(int t)
+ 	return 0;
+ }
+
++static int wdt_get_time(void)
++{
++	int timeleft;
++
++	spin_lock(&io_lock);
++
++	w83627hf_select_wd_register();
++
++	outb_p(0xF6, WDT_EFER);    /* Select CRF6 */
++	timeleft = inb_p(WDT_EFDR); /* Read Timeout counter to CRF6 */
++
++	w83627hf_unselect_wd_register();
++
++	spin_unlock(&io_lock);
++
++	return timeleft;
++}
++
+ static ssize_t wdt_write(struct file *file, const char __user *buf,
+ 						size_t count, loff_t *ppos)
+ {
+@@ -202,7 +220,7 @@ static long wdt_ioctl(struct file *file,
+ {
+ 	void __user *argp = (void __user *)arg;
+ 	int __user *p = argp;
+-	int new_timeout;
++	int timeval;
+ 	static const struct watchdog_info ident = {
+ 		.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT |
+ 							WDIOF_MAGICCLOSE,
+@@ -238,14 +256,17 @@ static long wdt_ioctl(struct file *file,
+ 		wdt_ping();
+ 		break;
+ 	case WDIOC_SETTIMEOUT:
+-		if (get_user(new_timeout, p))
++		if (get_user(timeval, p))
+ 			return -EFAULT;
+-		if (wdt_set_heartbeat(new_timeout))
++		if (wdt_set_heartbeat(timeval))
+ 			return -EINVAL;
+ 		wdt_ping();
+ 		/* Fall */
+ 	case WDIOC_GETTIMEOUT:
+ 		return put_user(timeout, p);
++	case WDIOC_GETTIMELEFT:
++		timeval = wdt_get_time();
++		return put_user(timeval, p);
+ 	default:
+ 		return -ENOTTY;
+ 	}
