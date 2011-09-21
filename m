@@ -1,146 +1,98 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wy0-f180.google.com ([74.125.82.180]:63946 "EHLO
-	mail-wy0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753871Ab1IUJgS (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:48777 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753705Ab1IUNZr (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 21 Sep 2011 05:36:18 -0400
-From: Yong Zhang <yong.zhang0@gmail.com>
-To: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: tglx@linutronix.de, yong.zhang0@gmail.com,
-	Linus Walleij <linus.walleij@stericsson.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org
-Subject: [PATCH 51/57] watchdog: irq: Remove IRQF_DISABLED
-Date: Wed, 21 Sep 2011 17:28:52 +0800
-Message-Id: <1316597339-29861-52-git-send-email-yong.zhang0@gmail.com>
-In-Reply-To: <1316597339-29861-1-git-send-email-yong.zhang0@gmail.com>
-References: <1316597339-29861-1-git-send-email-yong.zhang0@gmail.com>
+	Wed, 21 Sep 2011 09:25:47 -0400
+Date: Wed, 21 Sep 2011 15:25:43 +0200
+From: Wolfram Sang <w.sang@pengutronix.de>
+To: Fabio Estevam <fabio.estevam@freescale.com>
+Cc: linux-watchdog@vger.kernel.org, kernel@pengutronix.de,
+	wim@iguana.be
+Subject: Re: [PATCH 1/2] watchdog: imx2_wdt: Do not clear IMX2_WDT_WCR_WDE
+Message-ID: <20110921132543.GJ1966@pengutronix.de>
+References: <1316456640-32650-1-git-send-email-fabio.estevam@freescale.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="I/5syFLg1Ed7r+1G"
+Content-Disposition: inline
+In-Reply-To: <1316456640-32650-1-git-send-email-fabio.estevam@freescale.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Since commit [c58543c8: genirq: Run irq handlers with interrupts disabled],
-We run all interrupt handlers with interrupts disabled
-and we even check and yell when an interrupt handler
-returns with interrupts enabled (see commit [b738a50a:
-genirq: Warn when handler enables interrupts]).
 
-So now this flag is a NOOP and can be removed.
+--I/5syFLg1Ed7r+1G
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Yong Zhang <yong.zhang0@gmail.com>
-Acked-by: Wolfram Sang <w.sang@pengutronix.de>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
----
- drivers/watchdog/coh901327_wdt.c   |    2 +-
- drivers/watchdog/eurotechwdt.c     |    2 +-
- drivers/watchdog/mpcore_wdt.c      |    3 +--
- drivers/watchdog/octeon-wdt-main.c |    2 +-
- drivers/watchdog/sb_wdog.c         |    4 ++--
- drivers/watchdog/wdt.c             |    2 +-
- drivers/watchdog/wdt_pci.c         |    2 +-
- 7 files changed, 8 insertions(+), 9 deletions(-)
+On Mon, Sep 19, 2011 at 03:23:59PM -0300, Fabio Estevam wrote:
+> i.MX reference manual states that software can only write "1" into the WD=
+E bit.
 
-diff --git a/drivers/watchdog/coh901327_wdt.c b/drivers/watchdog/coh901327_wdt.c
-index 9291506..03f449a 100644
---- a/drivers/watchdog/coh901327_wdt.c
-+++ b/drivers/watchdog/coh901327_wdt.c
-@@ -429,7 +429,7 @@ static int __init coh901327_probe(struct platform_device *pdev)
- 	writew(U300_WDOG_SR_RESET_STATUS_RESET, virtbase + U300_WDOG_SR);
- 
- 	irq = platform_get_irq(pdev, 0);
--	if (request_irq(irq, coh901327_interrupt, IRQF_DISABLED,
-+	if (request_irq(irq, coh901327_interrupt, 0,
- 			DRV_NAME " Bark", pdev)) {
- 		ret = -EIO;
- 		goto out_no_irq;
-diff --git a/drivers/watchdog/eurotechwdt.c b/drivers/watchdog/eurotechwdt.c
-index f1d1da6..41018d4 100644
---- a/drivers/watchdog/eurotechwdt.c
-+++ b/drivers/watchdog/eurotechwdt.c
-@@ -427,7 +427,7 @@ static int __init eurwdt_init(void)
- {
- 	int ret;
- 
--	ret = request_irq(irq, eurwdt_interrupt, IRQF_DISABLED, "eurwdt", NULL);
-+	ret = request_irq(irq, eurwdt_interrupt, 0, "eurwdt", NULL);
- 	if (ret) {
- 		printk(KERN_ERR "eurwdt: IRQ %d is not free.\n", irq);
- 		goto out;
-diff --git a/drivers/watchdog/mpcore_wdt.c b/drivers/watchdog/mpcore_wdt.c
-index 4dc3102..82ccd36 100644
---- a/drivers/watchdog/mpcore_wdt.c
-+++ b/drivers/watchdog/mpcore_wdt.c
-@@ -367,8 +367,7 @@ static int __devinit mpcore_wdt_probe(struct platform_device *dev)
- 		goto err_misc;
- 	}
- 
--	ret = request_irq(wdt->irq, mpcore_wdt_fire, IRQF_DISABLED,
--							"mpcore_wdt", wdt);
-+	ret = request_irq(wdt->irq, mpcore_wdt_fire, 0, "mpcore_wdt", wdt);
- 	if (ret) {
- 		dev_printk(KERN_ERR, wdt->dev,
- 			"cannot register IRQ%d for watchdog\n", wdt->irq);
-diff --git a/drivers/watchdog/octeon-wdt-main.c b/drivers/watchdog/octeon-wdt-main.c
-index 945ee83..6019087 100644
---- a/drivers/watchdog/octeon-wdt-main.c
-+++ b/drivers/watchdog/octeon-wdt-main.c
-@@ -402,7 +402,7 @@ static void octeon_wdt_setup_interrupt(int cpu)
- 	irq = OCTEON_IRQ_WDOG0 + core;
- 
- 	if (request_irq(irq, octeon_wdt_poke_irq,
--			IRQF_DISABLED, "octeon_wdt", octeon_wdt_poke_irq))
-+			0, "octeon_wdt", octeon_wdt_poke_irq))
- 		panic("octeon_wdt: Couldn't obtain irq %d", irq);
- 
- 	cpumask_set_cpu(cpu, &irq_enabled_cpus);
-diff --git a/drivers/watchdog/sb_wdog.c b/drivers/watchdog/sb_wdog.c
-index f31493e..b01a30e 100644
---- a/drivers/watchdog/sb_wdog.c
-+++ b/drivers/watchdog/sb_wdog.c
-@@ -300,7 +300,7 @@ static int __init sbwdog_init(void)
- 	 * get the resources
- 	 */
- 
--	ret = request_irq(1, sbwdog_interrupt, IRQF_DISABLED | IRQF_SHARED,
-+	ret = request_irq(1, sbwdog_interrupt, IRQF_SHARED,
- 		ident.identity, (void *)user_dog);
- 	if (ret) {
- 		printk(KERN_ERR "%s: failed to request irq 1 - %d\n",
-@@ -350,7 +350,7 @@ void platform_wd_setup(void)
- {
- 	int ret;
- 
--	ret = request_irq(1, sbwdog_interrupt, IRQF_DISABLED | IRQF_SHARED,
-+	ret = request_irq(1, sbwdog_interrupt, IRQF_SHARED,
- 		"Kernel Watchdog", IOADDR(A_SCD_WDOG_CFG_0));
- 	if (ret) {
- 		printk(KERN_CRIT
-diff --git a/drivers/watchdog/wdt.c b/drivers/watchdog/wdt.c
-index bb03e15..d2ef002 100644
---- a/drivers/watchdog/wdt.c
-+++ b/drivers/watchdog/wdt.c
-@@ -612,7 +612,7 @@ static int __init wdt_init(void)
- 		goto out;
- 	}
- 
--	ret = request_irq(irq, wdt_interrupt, IRQF_DISABLED, "wdt501p", NULL);
-+	ret = request_irq(irq, wdt_interrupt, 0, "wdt501p", NULL);
- 	if (ret) {
- 		printk(KERN_ERR "wdt: IRQ %d is not free.\n", irq);
- 		goto outreg;
-diff --git a/drivers/watchdog/wdt_pci.c b/drivers/watchdog/wdt_pci.c
-index 172dad6..e0fc3baa 100644
---- a/drivers/watchdog/wdt_pci.c
-+++ b/drivers/watchdog/wdt_pci.c
-@@ -643,7 +643,7 @@ static int __devinit wdtpci_init_one(struct pci_dev *dev,
- 	irq = dev->irq;
- 	io = pci_resource_start(dev, 2);
- 
--	if (request_irq(irq, wdtpci_interrupt, IRQF_DISABLED | IRQF_SHARED,
-+	if (request_irq(irq, wdtpci_interrupt, IRQF_SHARED,
- 			 "wdt_pci", &wdtpci_miscdev)) {
- 		printk(KERN_ERR PFX "IRQ %d is not free\n", irq);
- 		goto out_reg;
--- 
-1.7.4.1
+But it also says "Note: This bit can be set/reset in debug mode
+(exception)."
 
+> Remove the line that sets 0 to this bit and while at it remove an unneede=
+d extra=20
+> write to register WCR.
+
+The MX31 manual says in 37.5.3.1:
+
+"The Watchdog Control Register (WCR) field WT[7:0] must have a time-out
+value written to it before the Watchdog can be enabled. The WDOG is
+enabled by setting the Watchdog Enable (WDE) bit in the WCR."
+
+I seem to recall that on some imx that two-folded write was indeed
+necessary.
+
+I'd say better safe than sorry and keep things as they are?
+
+>=20
+> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+> ---
+>  drivers/watchdog/imx2_wdt.c |    5 +----
+>  1 files changed, 1 insertions(+), 4 deletions(-)
+>=20
+> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+> index b8ef2c6..19df82d 100644
+> --- a/drivers/watchdog/imx2_wdt.c
+> +++ b/drivers/watchdog/imx2_wdt.c
+> @@ -89,13 +89,10 @@ static inline void imx2_wdt_setup(void)
+>  	val &=3D ~IMX2_WDT_WCR_WT;
+>  	/* Generate reset if WDOG times out */
+>  	val &=3D ~IMX2_WDT_WCR_WRE;
+> -	/* Keep Watchdog Disabled */
+> -	val &=3D ~IMX2_WDT_WCR_WDE;
+> +
+>  	/* Set the watchdog's Time-Out value */
+>  	val |=3D WDOG_SEC_TO_COUNT(imx2_wdt.timeout);
+> =20
+> -	__raw_writew(val, imx2_wdt.base + IMX2_WDT_WCR);
+> -
+>  	/* enable the watchdog */
+>  	val |=3D IMX2_WDT_WCR_WDE;
+>  	__raw_writew(val, imx2_wdt.base + IMX2_WDT_WCR);
+> --=20
+> 1.6.0.4
+>=20
+>=20
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--I/5syFLg1Ed7r+1G
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAk555dcACgkQD27XaX1/VRvQtACdE3K5WLARh2hwAySV7HYuIKo4
+MF4AoKgmf1+iTAGKI4/greLiM/hSbroC
+=K4b8
+-----END PGP SIGNATURE-----
+
+--I/5syFLg1Ed7r+1G--
