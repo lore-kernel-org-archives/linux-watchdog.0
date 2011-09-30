@@ -1,113 +1,95 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([74.125.121.67]:55717 "EHLO
-	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751165Ab1I1T3g (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:41420 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755149Ab1I3R0z (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 28 Sep 2011 15:29:36 -0400
-Date: Wed, 28 Sep 2011 12:28:49 -0700
-From: Andrew Morton <akpm@google.com>
-To: Wolfram Sang <w.sang@pengutronix.de>
+	Fri, 30 Sep 2011 13:26:55 -0400
+Date: Fri, 30 Sep 2011 19:26:52 +0200
+From: Wolfram Sang <w.sang@pengutronix.de>
+To: Andrew Morton <akpm@google.com>
 Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
 	Alessandro Zummo <alessandro.zummo@towertech.it>,
 	rtc-linux@googlegroups.com,
 	Andrew Morton <akpm@linux-foundation.org>
 Subject: Re: [PATCH 1/4] rtc: stmp3xxx: add wdt-accessor function
-Message-Id: <20110928122849.42f903a2.akpm@google.com>
-In-Reply-To: <1317212997-26668-2-git-send-email-w.sang@pengutronix.de>
+Message-ID: <20110930172652.GA13242@pengutronix.de>
 References: <1317212997-26668-1-git-send-email-w.sang@pengutronix.de>
-	<1317212997-26668-2-git-send-email-w.sang@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+ <1317212997-26668-2-git-send-email-w.sang@pengutronix.de>
+ <20110928122849.42f903a2.akpm@google.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="HcAYCG3uE/tztfnV"
+Content-Disposition: inline
+In-Reply-To: <20110928122849.42f903a2.akpm@google.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, 28 Sep 2011 14:29:54 +0200
-Wolfram Sang <w.sang@pengutronix.de> wrote:
 
-> This RTC also includes a watchdog timer. Provide an accessor function
-> for it to be picked up by a watchdog driver. Also register the
-> platform_device here to get proper boot-time dependencies.
-> 
-> ...
->
-> Andrew, Wim: Alessandro was not around in the last weeks, so I'd suggest this
-> patch goes via the watchdog-tree together with the rest of this series if it
-> passes the review of the watchdog-list? All changes here are in preparation for
-> the watchdog driver and do not affect the general RTC. Is that okay?
+--HcAYCG3uE/tztfnV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-OK by me.  Be careful about the Kconfig setup when doing
-cross-subsystem dependencies like this.  Otherwise you get sad emails
-from Randy when his build breaks.
+Hi Andrew,
 
->
-> ...
->
->  struct stmp3xxx_rtc_data {
->  	struct rtc_device *rtc;
->  	void __iomem *io;
->  	int irq_alarm;
->  };
->  
-> +#ifdef CONFIG_STMP3XXX_RTC_WATCHDOG
+> > Andrew, Wim: Alessandro was not around in the last weeks, so I'd sugges=
+t this
+> > patch goes via the watchdog-tree together with the rest of this series =
+if it
+> > passes the review of the watchdog-list? All changes here are in prepara=
+tion for
+> > the watchdog driver and do not affect the general RTC. Is that okay?
+>=20
+> OK by me.  Be careful about the Kconfig setup when doing
+> cross-subsystem dependencies like this.  Otherwise you get sad emails
+> from Randy when his build breaks.
 
-Should it be
+Yes, the watchdog driver depends on the RTC.
 
-#if defined(CONFIG_STMP3XXX_RTC_WATCHDOG) || defined(CONFIG_STMP3XXX_RTC_WATCHDOG_MODULE)
+> > +	.name =3D "stmp3xxx_rtc_wdt",
+> > +	.id =3D -1,
+> > +};
+> > +
+> > +void stmp3xxx_wdt_setup(struct device *dev, u32 timeout)
+>=20
+> I'd suggest documenting `timeout' at least.  Why would one want to set
+> it to zero and what effect does that have?  What are its units?
 
-?
+See below.
 
-> +struct platform_device stmp3xxx_wdt_pdev = {
+> The patch adds a global symbol but fails to declare that symbol in a
+> header file.  This is always wrong.
 
-static?
+I admit the aproach was quite wrong. I exported the function but wanted the
+watchdog driver to be the only user (and so the parameters of the function =
+were
+quite specific to the watchdog driver). Thus, I kind of tried to hide its
+interface for other users. I will try to come up with something better,
+probably passing the function via the platform_device created at runtime. I
+also played with sharing resources, yet that would require a top-level driv=
+er
+managing the resources and two sub-level drivers (RTC and watchdog) which f=
+eels
+unneccessary complex to me.
 
-> +	.name = "stmp3xxx_rtc_wdt",
-> +	.id = -1,
-> +};
-> +
-> +void stmp3xxx_wdt_setup(struct device *dev, u32 timeout)
+Thanks,
 
-I'd suggest documenting `timeout' at least.  Why would one want to set
-it to zero and what effect does that have?  What are its units?
+   Wolfram
 
-> +{
-> +	struct platform_device *pdev = to_platform_device(dev);
-> +	struct stmp3xxx_rtc_data *rtc_data = platform_get_drvdata(pdev);
-> +	void __iomem *base;
-> +
-> +	if (timeout) {
-> +		writel(timeout, rtc_data->io + STMP3XXX_RTC_WATCHDOG);
-> +		base = rtc_data->io + MXS_SET_ADDR;
-> +	} else {
-> +		base = rtc_data->io + MXS_CLR_ADDR;
-> +	}
-> +	writel(STMP3XXX_RTC_CTRL_WATCHDOGEN, base + STMP3XXX_RTC_CTRL);
-> +	writel(STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER,
-> +		base + STMP3XXX_RTC_PERSISTENT1);
-> +}
-> +EXPORT_SYMBOL_GPL(stmp3xxx_wdt_setup);
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
-The patch adds a global symbol but fails to declare that symbol in a
-header file.  This is always wrong.
+--HcAYCG3uE/tztfnV
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-> +static void stmp3xxx_wdt_register(struct device *dev)
-> +{
-> +	stmp3xxx_wdt_pdev.dev.parent = dev;
-> +	platform_device_register(&stmp3xxx_wdt_pdev);
-> +}
-> +#else
-> +static void stmp3xxx_wdt_register(struct device *dev)
-> +{
-> +}
-> +#endif /* CONFIG_STMP3XXX_RTC_WATCHDOG */
-> +
->  static void stmp3xxx_wait_time(struct stmp3xxx_rtc_data *rtc_data)
->  {
->  	/*
-> @@ -231,6 +274,7 @@ static int stmp3xxx_rtc_probe(struct platform_device *pdev)
->  		goto out_irq_alarm;
->  	}
->  
-> +	stmp3xxx_wdt_register(&pdev->dev);
->  	return 0;
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
 
+iEYEARECAAYFAk6F+9wACgkQD27XaX1/VRtWdACeLII23pnInQjWufBEZwk4ZWDg
+DXkAn3zptUg/Cy9lWjKkZSevzQeag5rw
+=MlfH
+-----END PGP SIGNATURE-----
+
+--HcAYCG3uE/tztfnV--
