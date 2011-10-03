@@ -1,95 +1,57 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:41420 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755149Ab1I3R0z (ORCPT
+Received: from eu1sys200aog112.obsmtp.com ([207.126.144.133]:51624 "EHLO
+	eu1sys200aog112.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751443Ab1JCIxW (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 30 Sep 2011 13:26:55 -0400
-Date: Fri, 30 Sep 2011 19:26:52 +0200
-From: Wolfram Sang <w.sang@pengutronix.de>
-To: Andrew Morton <akpm@google.com>
-Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	Alessandro Zummo <alessandro.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
-	Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH 1/4] rtc: stmp3xxx: add wdt-accessor function
-Message-ID: <20110930172652.GA13242@pengutronix.de>
-References: <1317212997-26668-1-git-send-email-w.sang@pengutronix.de>
- <1317212997-26668-2-git-send-email-w.sang@pengutronix.de>
- <20110928122849.42f903a2.akpm@google.com>
+	Mon, 3 Oct 2011 04:53:22 -0400
+From: Linus Walleij <linus.walleij@stericsson.com>
+To: Wim Van Sebroeck <wim@iguana.be>, <linux-watchdog@vger.kernel.org>
+Cc: Lee Jones <lee.jones@linaro.org>,
+	<linux-arm-kernel@lists.infradead.org>,
+	Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH] [WATCHDOG] move coh901327 state holders
+Date: Mon, 3 Oct 2011 10:52:58 +0200
+Message-ID: <1317631978-22818-1-git-send-email-linus.walleij@stericsson.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HcAYCG3uE/tztfnV"
-Content-Disposition: inline
-In-Reply-To: <20110928122849.42f903a2.akpm@google.com>
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+From: Linus Walleij <linus.walleij@linaro.org>
 
---HcAYCG3uE/tztfnV
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The state holders used in the PM path of the drivers report as
+unused variables when compiling without CONFIG_PM so let's
+move them inside CONFIG_PM.
 
-Hi Andrew,
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ drivers/watchdog/coh901327_wdt.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
 
-> > Andrew, Wim: Alessandro was not around in the last weeks, so I'd sugges=
-t this
-> > patch goes via the watchdog-tree together with the rest of this series =
-if it
-> > passes the review of the watchdog-list? All changes here are in prepara=
-tion for
-> > the watchdog driver and do not affect the general RTC. Is that okay?
->=20
-> OK by me.  Be careful about the Kconfig setup when doing
-> cross-subsystem dependencies like this.  Otherwise you get sad emails
-> from Randy when his build breaks.
+diff --git a/drivers/watchdog/coh901327_wdt.c b/drivers/watchdog/coh901327_wdt.c
+index 9291506..20b2fb9 100644
+--- a/drivers/watchdog/coh901327_wdt.c
++++ b/drivers/watchdog/coh901327_wdt.c
+@@ -76,8 +76,6 @@ static int irq;
+ static void __iomem *virtbase;
+ static unsigned long coh901327_users;
+ static unsigned long boot_status;
+-static u16 wdogenablestore;
+-static u16 irqmaskstore;
+ static struct device *parent;
+ 
+ /*
+@@ -461,6 +459,10 @@ out:
+ }
+ 
+ #ifdef CONFIG_PM
++
++static u16 wdogenablestore;
++static u16 irqmaskstore;
++
+ static int coh901327_suspend(struct platform_device *pdev, pm_message_t state)
+ {
+ 	irqmaskstore = readw(virtbase + U300_WDOG_IMR) & 0x0001U;
+-- 
+1.7.3.2
 
-Yes, the watchdog driver depends on the RTC.
-
-> > +	.name =3D "stmp3xxx_rtc_wdt",
-> > +	.id =3D -1,
-> > +};
-> > +
-> > +void stmp3xxx_wdt_setup(struct device *dev, u32 timeout)
->=20
-> I'd suggest documenting `timeout' at least.  Why would one want to set
-> it to zero and what effect does that have?  What are its units?
-
-See below.
-
-> The patch adds a global symbol but fails to declare that symbol in a
-> header file.  This is always wrong.
-
-I admit the aproach was quite wrong. I exported the function but wanted the
-watchdog driver to be the only user (and so the parameters of the function =
-were
-quite specific to the watchdog driver). Thus, I kind of tried to hide its
-interface for other users. I will try to come up with something better,
-probably passing the function via the platform_device created at runtime. I
-also played with sharing resources, yet that would require a top-level driv=
-er
-managing the resources and two sub-level drivers (RTC and watchdog) which f=
-eels
-unneccessary complex to me.
-
-Thanks,
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---HcAYCG3uE/tztfnV
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAk6F+9wACgkQD27XaX1/VRtWdACeLII23pnInQjWufBEZwk4ZWDg
-DXkAn3zptUg/Cy9lWjKkZSevzQeag5rw
-=MlfH
------END PGP SIGNATURE-----
-
---HcAYCG3uE/tztfnV--
