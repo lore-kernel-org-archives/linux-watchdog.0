@@ -1,80 +1,95 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:57104 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934221Ab1JEMUJ (ORCPT
+Received: from mail-ww0-f44.google.com ([74.125.82.44]:54187 "EHLO
+	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934499Ab1JEQF3 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 5 Oct 2011 08:20:09 -0400
-Message-ID: <4E8C4B74.5040200@suse.cz>
-Date: Wed, 05 Oct 2011 14:20:04 +0200
-From: Jiri Slaby <jslaby@suse.cz>
-MIME-Version: 1.0
-To: wim@iguana.be
-CC: linux-watchdog@vger.kernel.org,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: WATCHDOG: 28d41f53f broke temperature sensors
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 7bit
+	Wed, 5 Oct 2011 12:05:29 -0400
+From: Dave Martin <dave.martin@linaro.org>
+To: linux-arm-kernel@lists.infradead.org
+Cc: patches@linaro.org,
+	=?UTF-8?q?Pawe=C5=82=20Moll?= <Pawel.Moll@arm.com>,
+	Alan Cox <alan@linux.intel.com>,
+	Alessandro Rubini <rubini@unipv.it>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	alsa-devel@alsa-project.org, Chris Ball <cjb@laptop.org>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Grant Likely <grant.likely@secretlab.ca>,
+	Jaroslav Kysela <perex@perex.cz>, Julia Lawall <julia@diku.dk>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	linux-fbdev@vger.kernel.org, linux-input@vger.kernel.org,
+	linux-mmc@vger.kernel.org, linux-serial@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, Paul Mundt <lethal@linux-sh.org>,
+	rtc-linux@googlegroups.com, Russell King <linux@arm.linux.org.uk>,
+	spi-devel-general@lists.sourceforge.net,
+	Takashi Iwai <tiwai@suse.de>,
+	Vinod Koul <vinod.koul@intel.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+Subject: [PATCH 00/16] ARM: amba: Enable module alias autogeneration for AMBA drivers
+Date: Wed,  5 Oct 2011 17:04:51 +0100
+Message-Id: <1317830707-17517-1-git-send-email-dave.martin@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
+There's no special reason why AMBA device drivers should not be
+auto-loadable via udev, but udev currently has no way to map AMBA
+device IDs to drivers.
 
-commit 28d41f53f05c51d4f445129de325b1072ee25b8b
-Author: Wim Van Sebroeck <wim@iguana.be>
-Date:   Wed Nov 19 22:25:53 2008 +0000
+As part of the effort to help enable the building of multiple
+ARM platforms into a single kernel image in the future, it's desirable
+to be able to build any non-critical platform-specific drivers as
+modules.
 
-    [WATCHDOG] iTCO_wdt: add PCI ID's for ICH9 & ICH10 chipsets
+A straightforward solution is to use modaliases to allow udev to
+identify the correct driver module to load.
 
-breaks temperature sensor of CPU on an ICH10 chipset. After the module
-is loaded, it is just stuck with one value.
+This series enables the general infrastructure for modalias generation
+to work for AMBA devices, and enables it in the affected drivers.
 
-All is working unless this is performed in iTCO_wdt_init:
-        /* Bit 13: TCO_EN -> 0 = Disables TCO logic generating an SMI# */
-        val32 = inl(SMI_EN);
-        val32 &= 0xffffdfff;    /* Turn off SMI clearing watchdog */
-        outl(val32, SMI_EN);
+Briefly tested on Versatile Express, including aaci, mmci and amba-clcd
+(which appears to have the most interesting modalias match pattern).
+For me, the appropiate modules now get loaded at udev trigger time.
 
+Any comments and feedback are welcome.
 
+Dave Martin (16):
+  ARM: amba: Move definition of struct amba_id to mod_devicetable.h
+  ARM: amba: Auto-generate AMBA driver module aliases during modpost
+  hwrng: nomadik: Enable module alias autogeneration for AMBA drivers
+  dmaengine: pl08x: Enable module alias autogeneration for AMBA drivers
+  dmaengine: pl330: Enable module alias autogeneration for AMBA drivers
+  gpio: pl061: Enable module alias autogeneration for AMBA drivers
+  input: ambakmi: Enable module alias autogeneration for AMBA drivers
+  mmc: mmci: Enable module alias autogeneration for AMBA drivers
+  rtc: pl030: Enable module alias autogeneration for AMBA drivers
+  rtc: pl031: Enable module alias autogeneration for AMBA drivers
+  spi: pl022: Enable module alias autogeneration for AMBA drivers
+  serial: pl010: Enable module alias autogeneration for AMBA drivers
+  serial: pl011: Enable module alias autogeneration for AMBA drivers
+  fbdev: amba: Enable module alias autogeneration for AMBA drivers
+  watchdog: sp805: Enable module alias autogeneration for AMBA drivers
+  sound: aaci: Enable module alias autogeneration for AMBA drivers
 
-The LPC device in question:
-00:1f.0 ISA bridge [0601]: Intel Corporation 82801JIR (ICH10R) LPC
-Interface Controller [8086:3a16]
-	Subsystem: Intel Corporation Device [8086:3a18]
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR- FastB2B- DisINTx-
-	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR- INTx-
-	Latency: 0
-	Capabilities: [e0] Vendor Specific Information <?>
-	Kernel modules: iTCO_wdt
-00: 86 80 16 3a 07 00 10 02 00 00 01 06 00 00 80 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 86 80 18 3a
-30: 00 00 00 00 e0 00 00 00 00 00 00 00 00 00 00 00
-40: 01 10 00 00 80 00 00 00 81 11 00 00 10 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 85 8a 8b 87 d0 00 00 00 80 80 80 80 f8 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 10 00 0f 3c 00 00 00 00 01 08 fc 00 b1 02 fc 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: a0 06 00 00 08 02 80 00 13 1c 0a 00 00 03 00 c0
-b0: 00 00 f0 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 33 22 11 00 67 45 00 00 cf ff 00 00 00 00 00 00
-e0: 09 00 0c 10 01 00 c4 02 64 02 00 00 00 00 00 00
-f0: 01 c0 d1 fe 00 00 00 00 86 0f 00 00 00 00 00 00
+ drivers/amba/bus.c                   |    9 ++++-
+ drivers/char/hw_random/nomadik-rng.c |    2 +
+ drivers/dma/amba-pl08x.c             |    2 +
+ drivers/dma/pl330.c                  |    2 +
+ drivers/gpio/gpio-pl061.c            |    2 +
+ drivers/input/serio/ambakmi.c        |    2 +
+ drivers/mmc/host/mmci.c              |    2 +
+ drivers/rtc/rtc-pl030.c              |    2 +
+ drivers/rtc/rtc-pl031.c              |    2 +
+ drivers/spi/spi-pl022.c              |    2 +
+ drivers/tty/serial/amba-pl010.c      |    2 +
+ drivers/tty/serial/amba-pl011.c      |    2 +
+ drivers/video/amba-clcd.c            |    2 +
+ drivers/watchdog/sp805_wdt.c         |    2 +
+ include/linux/amba/bus.h             |    7 +---
+ include/linux/mod_devicetable.h      |   18 ++++++++
+ scripts/mod/file2alias.c             |   72 ++++++++++++++++++++++++++++++++++
+ sound/arm/aaci.c                     |    2 +
+ 18 files changed, 127 insertions(+), 7 deletions(-)
 
-
-
-This happened after switch from 2.6.27 to 2.6.32. I tried also the TCO
-wdt module from upstream on 2.6.32 with no change. Now I'm going to test
-a 3.1-rc kernel. But I don't think it will change anything...
-
-Also I don't know the code and don't know much how these things work.
-I've just investigated the reason. So if you need some more info, let me
-know.
-
-thanks,
 -- 
-js
-suse labs
+1.7.4.1
+
