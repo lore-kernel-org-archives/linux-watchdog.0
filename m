@@ -1,145 +1,52 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:61756 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754059Ab1JVKSS (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 22 Oct 2011 06:18:18 -0400
-From: Yong Zhang <yong.zhang0@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: tglx@linutronix.de, Linus Walleij <linus.walleij@stericsson.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org
-Subject: [PATCH 45/49] watchdog: irq: Remove IRQF_DISABLED
-Date: Sat, 22 Oct 2011 17:56:57 +0800
-Message-Id: <1319277421-9203-46-git-send-email-yong.zhang0@gmail.com>
-In-Reply-To: <1319277421-9203-1-git-send-email-yong.zhang0@gmail.com>
-References: <1319277421-9203-1-git-send-email-yong.zhang0@gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:52158 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753304Ab1J0Uad (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 27 Oct 2011 16:30:33 -0400
+Date: Thu, 27 Oct 2011 16:30:29 -0400
+From: Don Zickus <dzickus@redhat.com>
+To: linux-watchdog@vger.kernel.org
+Cc: kexec@lists.infradead.org, vgoyal@redhat.com, amwang@redhat.com
+Subject: watchdogs and kdump
+Message-ID: <20111027203029.GR3452@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Since commit [e58aa3d2: genirq: Run irq handlers with interrupts disabled],
-We run all interrupt handlers with interrupts disabled
-and we even check and yell when an interrupt handler
-returns with interrupts enabled (see commit [b738a50a:
-genirq: Warn when handler enables interrupts]).
+Hi,
 
-So now this flag is a NOOP and can be removed.
+I was assisting a customer the other day debugging a kdump[1] problem, when we
+noticed the real problem was the hardware watchdog was firing and
+rebooting the box.
 
-Signed-off-by: Yong Zhang <yong.zhang0@gmail.com>
-Acked-by: Wolfram Sang <w.sang@pengutronix.de>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
----
- drivers/watchdog/coh901327_wdt.c   |    2 +-
- drivers/watchdog/eurotechwdt.c     |    2 +-
- drivers/watchdog/mpcore_wdt.c      |    3 +--
- drivers/watchdog/octeon-wdt-main.c |    2 +-
- drivers/watchdog/sb_wdog.c         |    4 ++--
- drivers/watchdog/wdt.c             |    2 +-
- drivers/watchdog/wdt_pci.c         |    2 +-
- 7 files changed, 8 insertions(+), 9 deletions(-)
+Of course, this can be inconvienant if the panic happens right before the
+watchdog is supposed to be kicked, leading to a spontaneous reboot before
+the second kernel finishes booting and loading the watchdog module.
 
-diff --git a/drivers/watchdog/coh901327_wdt.c b/drivers/watchdog/coh901327_wdt.c
-index 9291506..03f449a 100644
---- a/drivers/watchdog/coh901327_wdt.c
-+++ b/drivers/watchdog/coh901327_wdt.c
-@@ -429,7 +429,7 @@ static int __init coh901327_probe(struct platform_device *pdev)
- 	writew(U300_WDOG_SR_RESET_STATUS_RESET, virtbase + U300_WDOG_SR);
- 
- 	irq = platform_get_irq(pdev, 0);
--	if (request_irq(irq, coh901327_interrupt, IRQF_DISABLED,
-+	if (request_irq(irq, coh901327_interrupt, 0,
- 			DRV_NAME " Bark", pdev)) {
- 		ret = -EIO;
- 		goto out_no_irq;
-diff --git a/drivers/watchdog/eurotechwdt.c b/drivers/watchdog/eurotechwdt.c
-index f1d1da6..41018d4 100644
---- a/drivers/watchdog/eurotechwdt.c
-+++ b/drivers/watchdog/eurotechwdt.c
-@@ -427,7 +427,7 @@ static int __init eurwdt_init(void)
- {
- 	int ret;
- 
--	ret = request_irq(irq, eurwdt_interrupt, IRQF_DISABLED, "eurwdt", NULL);
-+	ret = request_irq(irq, eurwdt_interrupt, 0, "eurwdt", NULL);
- 	if (ret) {
- 		printk(KERN_ERR "eurwdt: IRQ %d is not free.\n", irq);
- 		goto out;
-diff --git a/drivers/watchdog/mpcore_wdt.c b/drivers/watchdog/mpcore_wdt.c
-index 4dc3102..82ccd36 100644
---- a/drivers/watchdog/mpcore_wdt.c
-+++ b/drivers/watchdog/mpcore_wdt.c
-@@ -367,8 +367,7 @@ static int __devinit mpcore_wdt_probe(struct platform_device *dev)
- 		goto err_misc;
- 	}
- 
--	ret = request_irq(wdt->irq, mpcore_wdt_fire, IRQF_DISABLED,
--							"mpcore_wdt", wdt);
-+	ret = request_irq(wdt->irq, mpcore_wdt_fire, 0, "mpcore_wdt", wdt);
- 	if (ret) {
- 		dev_printk(KERN_ERR, wdt->dev,
- 			"cannot register IRQ%d for watchdog\n", wdt->irq);
-diff --git a/drivers/watchdog/octeon-wdt-main.c b/drivers/watchdog/octeon-wdt-main.c
-index 945ee83..6019087 100644
---- a/drivers/watchdog/octeon-wdt-main.c
-+++ b/drivers/watchdog/octeon-wdt-main.c
-@@ -402,7 +402,7 @@ static void octeon_wdt_setup_interrupt(int cpu)
- 	irq = OCTEON_IRQ_WDOG0 + core;
- 
- 	if (request_irq(irq, octeon_wdt_poke_irq,
--			IRQF_DISABLED, "octeon_wdt", octeon_wdt_poke_irq))
-+			0, "octeon_wdt", octeon_wdt_poke_irq))
- 		panic("octeon_wdt: Couldn't obtain irq %d", irq);
- 
- 	cpumask_set_cpu(cpu, &irq_enabled_cpus);
-diff --git a/drivers/watchdog/sb_wdog.c b/drivers/watchdog/sb_wdog.c
-index f31493e..b01a30e 100644
---- a/drivers/watchdog/sb_wdog.c
-+++ b/drivers/watchdog/sb_wdog.c
-@@ -300,7 +300,7 @@ static int __init sbwdog_init(void)
- 	 * get the resources
- 	 */
- 
--	ret = request_irq(1, sbwdog_interrupt, IRQF_DISABLED | IRQF_SHARED,
-+	ret = request_irq(1, sbwdog_interrupt, IRQF_SHARED,
- 		ident.identity, (void *)user_dog);
- 	if (ret) {
- 		printk(KERN_ERR "%s: failed to request irq 1 - %d\n",
-@@ -350,7 +350,7 @@ void platform_wd_setup(void)
- {
- 	int ret;
- 
--	ret = request_irq(1, sbwdog_interrupt, IRQF_DISABLED | IRQF_SHARED,
-+	ret = request_irq(1, sbwdog_interrupt, IRQF_SHARED,
- 		"Kernel Watchdog", IOADDR(A_SCD_WDOG_CFG_0));
- 	if (ret) {
- 		printk(KERN_CRIT
-diff --git a/drivers/watchdog/wdt.c b/drivers/watchdog/wdt.c
-index bb03e15..d2ef002 100644
---- a/drivers/watchdog/wdt.c
-+++ b/drivers/watchdog/wdt.c
-@@ -612,7 +612,7 @@ static int __init wdt_init(void)
- 		goto out;
- 	}
- 
--	ret = request_irq(irq, wdt_interrupt, IRQF_DISABLED, "wdt501p", NULL);
-+	ret = request_irq(irq, wdt_interrupt, 0, "wdt501p", NULL);
- 	if (ret) {
- 		printk(KERN_ERR "wdt: IRQ %d is not free.\n", irq);
- 		goto outreg;
-diff --git a/drivers/watchdog/wdt_pci.c b/drivers/watchdog/wdt_pci.c
-index 172dad6..e0fc3ba 100644
---- a/drivers/watchdog/wdt_pci.c
-+++ b/drivers/watchdog/wdt_pci.c
-@@ -643,7 +643,7 @@ static int __devinit wdtpci_init_one(struct pci_dev *dev,
- 	irq = dev->irq;
- 	io = pci_resource_start(dev, 2);
- 
--	if (request_irq(irq, wdtpci_interrupt, IRQF_DISABLED | IRQF_SHARED,
-+	if (request_irq(irq, wdtpci_interrupt, IRQF_SHARED,
- 			 "wdt_pci", &wdtpci_miscdev)) {
- 		printk(KERN_ERR PFX "IRQ %d is not free\n", irq);
- 		goto out_reg;
--- 
-1.7.1
+I was trying to think of a way to solve this and thought, one way to
+minimize the problem is to kick the watchdog before we jump into the kdump
+kernel.  Another way is to disable the watchdog entirely, but that doesn't
+work on all hardware I believe.
+
+Anyway, I was posting on the watchdog mailing list to see if anyone had any
+ideas that might help.  And if my above idea to kick the watchdog before
+jumping into the kdump kernel seems ok, then an api would need to be
+developed.
+
+I am willing to do any coding and testing necessary, but before I did, I
+wanted help to get a direction to go in first.
+
+Thoughts?
+
+Cheers,
+Don
+
+[1] - I am ignorantly assuming everyone knows what kdump is.  Kdumping is
+the ability to jump into a previously loaded kernel in the case of a
+panic.  This kdump (second) kernel would run in reserved memory, copy the
+first kernel's memory to a file and save it to a pre-determined location.
+There is no system reboot in between the first and second kernel, so no
+chance for the watchdog to disarm itself.
 
