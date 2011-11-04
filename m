@@ -1,35 +1,49 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from out5.smtp.messagingengine.com ([66.111.4.29]:52371 "EHLO
-	out5.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753215Ab1KBVOK (ORCPT
+Received: from rcsinet15.oracle.com ([148.87.113.117]:29944 "EHLO
+	rcsinet15.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751093Ab1KDSpR (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 2 Nov 2011 17:14:10 -0400
-Date: Wed, 2 Nov 2011 14:10:41 -0700
-From: Greg KH <greg@kroah.com>
-To: Florian Fainelli <florian@openwrt.org>
-Cc: Wim Van Sebroeck <wim@iguana.be>, Greg KH <gregkh@suse.de>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH -stable] watchdog: mtx1-wdt: fix build failure
-Message-ID: <20111102211041.GE9949@kroah.com>
-References: <201110171947.44673.florian@openwrt.org>
+	Fri, 4 Nov 2011 14:45:17 -0400
+Date: Fri, 4 Nov 2011 21:44:58 +0300
+From: Dan Carpenter <dan.carpenter@oracle.com>
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: linux-watchdog@vger.kernel.org
+Subject: re: watchdog: Convert wm831x driver to watchdog core
+Message-ID: <20111104184458.GA6650@elgon.mountain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <201110171947.44673.florian@openwrt.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Oct 17, 2011 at 07:47:44PM +0200, Florian Fainelli wrote:
-> Commit 6d86a0ee (watchdog: mtx1-wdt: request gpio before using it) was
-> backported from upstream. The patch is using a gpiolib call which is only
-> available in kernel 2.6.34+. Fix build by using the "old" gpiolib API
-> instead.
-> 
-> CC: stable@kernel.org
-> Signed-off-by: Florian Fainelli <florian@openwrt.org>
-> ---
-> This patch is applicable from 2.6.32+ to 2.6.33+ included.
+Hi Mark,
 
-Thanks, now applied.
+Smatch complains about 21cef54c0b1 "watchdog: Convert wm831x driver
+to watchdog core"
 
-greg k-h
+drivers/watchdog/wm831x_wdt.c +159 wm831x_wdt_set_timeout(17)
+	error: buffer overflow 'wm831x_wdt_cfgs' 7 <= 7
+
+   142  static int wm831x_wdt_set_timeout(struct watchdog_device *wdt_dev,
+   143                                    unsigned int timeout)
+   144  {
+   145          struct wm831x_wdt_drvdata *driver_data = watchdog_get_drvdata(wdt_dev);
+   146          struct wm831x *wm831x = driver_data->wm831x;
+   147          int ret, i;
+   148  
+   149          for (i = 0; i < ARRAY_SIZE(wm831x_wdt_cfgs); i++)
+   150                  if (wm831x_wdt_cfgs[i].time == timeout)
+   151                          break;
+   152          if (i == ARRAY_SIZE(wm831x_wdt_cfgs))
+   153                  ret = -EINVAL;
+                        ^^^^^^^^^^^^^^
+
+We overwrite this return value on the next line.  I don't know the
+code well enough to say if the intent was to return directly or to
+unlock first and then return.
+
+   154  
+   155          ret = wm831x_reg_unlock(wm831x);
+
+regards,
+dan carpenter
