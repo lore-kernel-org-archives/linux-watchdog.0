@@ -1,49 +1,48 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from rcsinet15.oracle.com ([148.87.113.117]:29944 "EHLO
-	rcsinet15.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751093Ab1KDSpR (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 4 Nov 2011 14:45:17 -0400
-Date: Fri, 4 Nov 2011 21:44:58 +0300
-From: Dan Carpenter <dan.carpenter@oracle.com>
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: linux-watchdog@vger.kernel.org
-Subject: re: watchdog: Convert wm831x driver to watchdog core
-Message-ID: <20111104184458.GA6650@elgon.mountain>
+Received: from db3ehsobe005.messaging.microsoft.com ([213.199.154.143]:32178
+	"EHLO DB3EHSOBE005.bigfish.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753660Ab1KIQ6x convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 9 Nov 2011 11:58:53 -0500
+Message-ID: <4EBAB12A.2030107@freescale.com>
+Date: Wed, 9 Nov 2011 14:58:18 -0200
+From: Fabio Estevam <fabio.estevam@freescale.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+To: Wolfram Sang <w.sang@pengutronix.de>
+CC: <linux-watchdog@vger.kernel.org>, <kernel@pengutronix.de>,
+	<wim@iguana.be>
+Subject: Re: [PATCH 2/2] watchdog: imx2_wdt: Disable watchdog during low-power
+ modes
+References: <1316456640-32650-1-git-send-email-fabio.estevam@freescale.com> <1316456640-32650-2-git-send-email-fabio.estevam@freescale.com> <20110921132710.GK1966@pengutronix.de>
+In-Reply-To: <20110921132710.GK1966@pengutronix.de>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-Hi Mark,
+Wolfram,
 
-Smatch complains about 21cef54c0b1 "watchdog: Convert wm831x driver
-to watchdog core"
+On 9/21/2011 10:27 AM, Wolfram Sang wrote:
+> On Mon, Sep 19, 2011 at 03:24:00PM -0300, Fabio Estevam wrote:
+>> Activate WDZST so that the watchdog timer does not count during low po=
+wer modes.
+>=20
+> Should be a user-selectable option IMHO. Changing the default behaviour
+> may cause regressions.
 
-drivers/watchdog/wm831x_wdt.c +159 wm831x_wdt_set_timeout(17)
-	error: buffer overflow 'wm831x_wdt_cfgs' 7 <= 7
+I can=C2=B4t visualize a real system usage where the watchdog needs to be=
+ active in low power mode.
 
-   142  static int wm831x_wdt_set_timeout(struct watchdog_device *wdt_dev,
-   143                                    unsigned int timeout)
-   144  {
-   145          struct wm831x_wdt_drvdata *driver_data = watchdog_get_drvdata(wdt_dev);
-   146          struct wm831x *wm831x = driver_data->wm831x;
-   147          int ret, i;
-   148  
-   149          for (i = 0; i < ARRAY_SIZE(wm831x_wdt_cfgs); i++)
-   150                  if (wm831x_wdt_cfgs[i].time == timeout)
-   151                          break;
-   152          if (i == ARRAY_SIZE(wm831x_wdt_cfgs))
-   153                  ret = -EINVAL;
-                        ^^^^^^^^^^^^^^
+Which regressions exactly are you concerned about? Which platforms?
 
-We overwrite this return value on the next line.  I don't know the
-code well enough to say if the intent was to return directly or to
-unlock first and then return.
+Regards,
 
-   154  
-   155          ret = wm831x_reg_unlock(wm831x);
+Fabio Estevam
 
-regards,
-dan carpenter
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
