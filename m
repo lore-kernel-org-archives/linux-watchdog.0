@@ -1,234 +1,505 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from 5.mo2.mail-out.ovh.net ([87.98.181.248]:54049 "EHLO
-	mo2.mail-out.ovh.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751550Ab1KRSNf (ORCPT
+Received: from mailrelay006.isp.belgacom.be ([195.238.6.172]:37336 "EHLO
+	mailrelay006.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753572Ab1KUP66 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 18 Nov 2011 13:13:35 -0500
-Received: from mail636.ha.ovh.net (b6.ovh.net [213.186.33.56])
-	by mo2.mail-out.ovh.net (Postfix) with SMTP id 63644DCB7DE
-	for <linux-watchdog@vger.kernel.org>; Fri, 18 Nov 2011 19:19:47 +0100 (CET)
-Date: Fri, 18 Nov 2011 19:13:29 +0100
-From: Marc Vertes <marc.vertes@sigfox.com>
-To: linux-watchdog@vger.kernel.org
-Subject: [PATCH] watchdog: add a new driver for VIA chipsets
-Message-ID: <4ec6a049.MG+UJhcvJN8PqQqP%marc.vertes@sigfox.com>
+	Mon, 21 Nov 2011 10:58:58 -0500
+Date: Mon, 21 Nov 2011 16:55:44 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>
+Subject: [GIT PULL REQUEST] watchdog - v3.1-rc2 - Fixes and removal
+Message-ID: <20111121155544.GI23376@infomag.iguana.be>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Add a new driver for the hardware watchdog timer on VIA chipsets.
-Tested on a Artigo A1100, VX855 chipset.
+Hi Linus,
 
-Signed-off-by: Marc Vertes <marc.vertes@sigfox.com>
----
+Please pull from 'master' branch of
+	git://www.linux-watchdog.org/linux-watchdog.git
+
+This will update the following files:
+
+ b/drivers/watchdog/Kconfig       |    7 
+ b/drivers/watchdog/Makefile      |    1 
+ b/drivers/watchdog/s3c2410_wdt.c |    4 
+ b/drivers/watchdog/wm831x_wdt.c  |    2 
+ drivers/watchdog/adx_wdt.c       |  355 ---------------------------------------
+ 5 files changed, 3 insertions(+), 366 deletions(-)
+
+with these Changes:
+
+commit 20403e845f9988446c5b48024ff4d0c3a5929f7d
+Author: Dmitry Artamonow <mad_soft@inbox.ru>
+Date:   Wed Nov 16 12:46:13 2011 +0400
+
+    watchdog: fix initialisation printout in s3c2410_wdt
+    
+    Looks like a typo creeped in, and driver prints
+    s3c2410-wdt s3c2410-wdt: watchdog active, reset abled, irq abled
+    
+    instead of
+    s3c2410-wdt s3c2410-wdt: watchdog active, reset enabled, irq enabled
+    
+    Also it may completely disinform about irq status, as it prints
+    "irq enabled" when S3C2410_WTCON_INTEN is in fact 0.
+    
+    Fix it.
+    
+    Signed-off-by: Dmitry Artamonow <mad_soft@inbox.ru>
+    Tested-by: Thomas Abraham <thomas.abraham@linaro.org>
+    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+
+commit f9849100851b28c8ad83e86d68d5110497a4e9d6
+Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Date:   Wed Nov 16 11:52:12 2011 +0000
+
+    watchdog: Don't overwrite error value in wm831x_wdt_set_timeout()
+    
+    Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+    Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+
+commit 943ef2ec4f5f14940ea391d25bf93eb99eb2ff2a
+Author: Wim Van Sebroeck <wim@iguana.be>
+Date:   Tue Nov 15 11:45:16 2011 +0100
+
+    watchdog: adx_wdt.c: remove driver
+    
+    Remove the driver (that was added in v2.6.32) since the architecture
+    has never been merged into mainline.
+    
+    Reported-by: Paul Bolle <pebolle@tiscali.nl>
+    Acked-by: Thierry Reding <thierry.reding@avionic-design.de>
+    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+
+For completeness, I added the overal diff below.
+
+Greetings,
+Wim.
+
+================================================================================
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 6285867..79fd606 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -314,13 +314,6 @@ config NUC900_WATCHDOG
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called nuc900_wdt.
  
- Kconfig   |   13 ++++
- Makefile  |    1 
- via_wdt.c |  168 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 182 insertions(+)
+-config ADX_WATCHDOG
+-	tristate "Avionic Design Xanthos watchdog"
+-	depends on ARCH_PXA_ADX
+-	help
+-	  Say Y here if you want support for the watchdog timer on Avionic
+-	  Design Xanthos boards.
+-
+ config TS72XX_WATCHDOG
+ 	tristate "TS-72XX SBC Watchdog"
+ 	depends on MACH_TS72XX
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 55bd574..fe893e9 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -51,7 +51,6 @@ obj-$(CONFIG_ORION_WATCHDOG) += orion_wdt.o
+ obj-$(CONFIG_COH901327_WATCHDOG) += coh901327_wdt.o
+ obj-$(CONFIG_STMP3XXX_WATCHDOG) += stmp3xxx_wdt.o
+ obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
+-obj-$(CONFIG_ADX_WATCHDOG) += adx_wdt.o
+ obj-$(CONFIG_TS72XX_WATCHDOG) += ts72xx_wdt.o
+ obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
  
---- linux-3.2-rc2/drivers/watchdog/Makefile.orig	2011-11-15 18:02:59.000000000 +0100
-+++ linux-3.2-rc2/drivers/watchdog/Makefile	2011-11-18 18:13:36.594534635 +0100
-@@ -100,6 +100,7 @@ obj-$(CONFIG_SBC7240_WDT) += sbc7240_wdt
- obj-$(CONFIG_CPU5_WDT) += cpu5wdt.o
- obj-$(CONFIG_SMSC_SCH311X_WDT) += sch311x_wdt.o
- obj-$(CONFIG_SMSC37B787_WDT) += smsc37b787_wdt.o
-+obj-$(CONFIG_VIA_WDT) += via_wdt.o
- obj-$(CONFIG_W83627HF_WDT) += w83627hf_wdt.o
- obj-$(CONFIG_W83697HF_WDT) += w83697hf_wdt.o
- obj-$(CONFIG_W83697UG_WDT) += w83697ug_wdt.o
---- linux-3.2-rc2/drivers/watchdog/via_wdt.c.orig	2011-11-18 18:14:45.358174874 +0100
-+++ linux-3.2-rc2/drivers/watchdog/via_wdt.c	2011-11-18 18:13:36.595534599 +0100
-@@ -0,0 +1,168 @@
-+/*
-+ * VIA Chipset Watchdog Driver
-+ *
-+ * Copyright (C) 2011 Sigfox
-+ * License terms: GNU General Public License (GPL) version 2
-+ * Author: Marc Vertes <marc.vertes@sigfox.com>
-+ * Based on a preliminary version from Harald Velte <HaraldWelte@viatech.com>
-+ */
-+#include <linux/device.h>
-+#include <linux/fs.h>
-+#include <linux/io.h>
-+#include <linux/miscdevice.h>
-+#include <linux/module.h>
-+#include <linux/pci.h>
-+#include <linux/uaccess.h>
-+#include <linux/watchdog.h>
-+
-+#define VIA_WDT_MB_OFFSET	0xe8	/* memory base offset */
-+#define VIA_WDT_TRIGGER		0x80	/* start a new countdown */
-+#define VIA_WDT_FIRED		0x02	/* set if last restart was caused
-+					   by expired watchdog timer */
-+
-+static void *wdt_mem;			/* watchdog memory region address */
-+static unsigned long open_lock;
-+
-+static unsigned int wdt_ping(void)
-+{
-+	unsigned int res = readl(wdt_mem);	/* get status bits */
-+	writel(res | VIA_WDT_TRIGGER, wdt_mem);
-+	return res;
-+}
-+
-+static ssize_t wdt_write(struct file *file, const char __user *buf,
-+			 size_t count, loff_t *ppos)
-+{
-+	if (count <= 0)
-+		return 0;
-+	wdt_ping();
-+	return 1;
-+}
-+
-+static long wdt_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-+{
-+	int ret;
-+	static struct watchdog_info ident = {
-+		.options	= WDIOF_CARDRESET,
-+		.identity	= "VIA Southbridge WDT",
-+	};
-+
-+	switch (cmd) {
-+	case WDIOC_GETSUPPORT:
-+		ret = copy_to_user((struct watchdog_info *)arg, &ident,
-+				   sizeof(ident)) ? -EFAULT : 0;
-+		break;
-+	case WDIOC_GETSTATUS:
-+		ret = put_user(0, (int __user *)arg);
-+		break;
-+	case WDIOC_GETBOOTSTATUS:
-+		if (wdt_ping() & VIA_WDT_FIRED)
-+			ret = put_user(WDIOF_CARDRESET, (int __user *)arg);
-+		else
-+			ret = put_user(0, (int __user *)arg);
-+		break;
-+	case WDIOC_KEEPALIVE:
-+		wdt_ping();
-+		ret = 0;
-+		break;
-+	default:
-+		ret = -ENOTTY;
-+	}
-+	return ret;
-+}
-+
-+static int wdt_open(struct inode *inode, struct file *file)
-+{
-+	if (test_and_set_bit(0, &open_lock))
-+		return -EBUSY;
-+	return nonseekable_open(inode, file);
-+}
-+
-+static int wdt_release(struct inode *inode, struct file *file)
-+{
-+	clear_bit(0, &open_lock);
-+	return 0;
-+}
-+
-+static const struct file_operations wdt_fops = {
-+	.owner		= THIS_MODULE,
-+	.llseek		= no_llseek,
-+	.open		= wdt_open,
-+	.release	= wdt_release,
-+	.unlocked_ioctl	= wdt_ioctl,
-+	.write		= wdt_write,
-+};
-+
-+static struct miscdevice wdt_miscdev = {
-+	.minor	= WATCHDOG_MINOR,
-+	.name	= "watchdog",
-+	.fops	= &wdt_fops,
-+};
-+
-+static int __devinit wdt_probe(struct pci_dev *pdev,
-+			       const struct pci_device_id *ent)
-+{
-+	unsigned int mmio = 0;
-+
-+	if (pci_enable_device(pdev)) {
-+		dev_err(&pdev->dev, "cannot enable PCI device\n");
-+		return -ENODEV;
-+	}
-+	pci_read_config_dword(pdev, VIA_WDT_MB_OFFSET, &mmio);
-+	dev_info(&pdev->dev, "VIA Chipset watchdog MMIO: %x\n", mmio);
-+	if (mmio == 0) {
-+		dev_err(&pdev->dev, "watchdog timer is not enabled in BIOS\n");
-+		return -ENODEV;
-+	}
-+	wdt_mem = ioremap(mmio, 8);
-+	if (wdt_mem == NULL) {
-+		dev_err(&pdev->dev, "cannot remap VIA wdt mmio registers\n");
-+		return -ENODEV;
-+	}
-+	if (misc_register(&wdt_miscdev)) {
-+		dev_err(&pdev->dev, "cannot register misc device\n");
-+		iounmap(wdt_mem);
-+		return -EIO;
-+	}
-+	return 0;
-+}
-+
-+static void __devexit wdt_remove(struct pci_dev *dev)
-+{
-+	misc_deregister(&wdt_miscdev);
-+	iounmap(wdt_mem);
-+}
-+
-+DEFINE_PCI_DEVICE_TABLE(wdt_pci_table) = {
-+	{ PCI_DEVICE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_CX700) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_VX800) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_VX855) },
-+	{ 0 }
-+};
-+
-+static struct pci_driver wdt_driver = {
-+	.name		= "via_wdt",
-+	.id_table	= wdt_pci_table,
-+	.probe		= wdt_probe,
-+	.remove		= __devexit_p(wdt_remove),
-+};
-+
-+static int __init wdt_init(void)
-+{
-+	if (pci_register_driver(&wdt_driver) || wdt_mem == NULL)
-+		return -ENODEV;
-+	return 0;
-+}
-+
-+static void __exit wdt_exit(void)
-+{
-+	pci_unregister_driver(&wdt_driver);
-+}
-+
-+module_init(wdt_init);
-+module_exit(wdt_exit);
-+
-+MODULE_AUTHOR("Marc Vertes");
-+MODULE_DESCRIPTION("Driver for watchdog timer on VIA chipset");
-+MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
-+MODULE_LICENSE("GPL");
---- linux-3.2-rc2/drivers/watchdog/Kconfig.orig	2011-11-15 18:02:59.000000000 +0100
-+++ linux-3.2-rc2/drivers/watchdog/Kconfig	2011-11-18 18:13:36.595534599 +0100
-@@ -779,6 +779,19 @@ config SMSC37B787_WDT
+diff --git a/drivers/watchdog/adx_wdt.c b/drivers/watchdog/adx_wdt.c
+deleted file mode 100644
+index af6e6b1..0000000
+--- a/drivers/watchdog/adx_wdt.c
++++ /dev/null
+@@ -1,355 +0,0 @@
+-/*
+- * Copyright (C) 2008-2009 Avionic Design GmbH
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 2 as
+- * published by the Free Software Foundation.
+- */
+-
+-#include <linux/fs.h>
+-#include <linux/gfp.h>
+-#include <linux/io.h>
+-#include <linux/miscdevice.h>
+-#include <linux/module.h>
+-#include <linux/platform_device.h>
+-#include <linux/types.h>
+-#include <linux/uaccess.h>
+-#include <linux/watchdog.h>
+-
+-#define WATCHDOG_NAME "adx-wdt"
+-
+-/* register offsets */
+-#define	ADX_WDT_CONTROL		0x00
+-#define	ADX_WDT_CONTROL_ENABLE	(1 << 0)
+-#define	ADX_WDT_CONTROL_nRESET	(1 << 1)
+-#define	ADX_WDT_TIMEOUT		0x08
+-
+-static struct platform_device *adx_wdt_dev;
+-static unsigned long driver_open;
+-
+-#define	WDT_STATE_STOP	0
+-#define	WDT_STATE_START	1
+-
+-struct adx_wdt {
+-	void __iomem *base;
+-	unsigned long timeout;
+-	unsigned int state;
+-	unsigned int wake;
+-	spinlock_t lock;
+-};
+-
+-static const struct watchdog_info adx_wdt_info = {
+-	.identity = "Avionic Design Xanthos Watchdog",
+-	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
+-};
+-
+-static void adx_wdt_start_locked(struct adx_wdt *wdt)
+-{
+-	u32 ctrl;
+-
+-	ctrl = readl(wdt->base + ADX_WDT_CONTROL);
+-	ctrl |= ADX_WDT_CONTROL_ENABLE;
+-	writel(ctrl, wdt->base + ADX_WDT_CONTROL);
+-	wdt->state = WDT_STATE_START;
+-}
+-
+-static void adx_wdt_start(struct adx_wdt *wdt)
+-{
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&wdt->lock, flags);
+-	adx_wdt_start_locked(wdt);
+-	spin_unlock_irqrestore(&wdt->lock, flags);
+-}
+-
+-static void adx_wdt_stop_locked(struct adx_wdt *wdt)
+-{
+-	u32 ctrl;
+-
+-	ctrl = readl(wdt->base + ADX_WDT_CONTROL);
+-	ctrl &= ~ADX_WDT_CONTROL_ENABLE;
+-	writel(ctrl, wdt->base + ADX_WDT_CONTROL);
+-	wdt->state = WDT_STATE_STOP;
+-}
+-
+-static void adx_wdt_stop(struct adx_wdt *wdt)
+-{
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&wdt->lock, flags);
+-	adx_wdt_stop_locked(wdt);
+-	spin_unlock_irqrestore(&wdt->lock, flags);
+-}
+-
+-static void adx_wdt_set_timeout(struct adx_wdt *wdt, unsigned long seconds)
+-{
+-	unsigned long timeout = seconds * 1000;
+-	unsigned long flags;
+-	unsigned int state;
+-
+-	spin_lock_irqsave(&wdt->lock, flags);
+-	state = wdt->state;
+-	adx_wdt_stop_locked(wdt);
+-	writel(timeout, wdt->base + ADX_WDT_TIMEOUT);
+-
+-	if (state == WDT_STATE_START)
+-		adx_wdt_start_locked(wdt);
+-
+-	wdt->timeout = timeout;
+-	spin_unlock_irqrestore(&wdt->lock, flags);
+-}
+-
+-static void adx_wdt_get_timeout(struct adx_wdt *wdt, unsigned long *seconds)
+-{
+-	*seconds = wdt->timeout / 1000;
+-}
+-
+-static void adx_wdt_keepalive(struct adx_wdt *wdt)
+-{
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&wdt->lock, flags);
+-	writel(wdt->timeout, wdt->base + ADX_WDT_TIMEOUT);
+-	spin_unlock_irqrestore(&wdt->lock, flags);
+-}
+-
+-static int adx_wdt_open(struct inode *inode, struct file *file)
+-{
+-	struct adx_wdt *wdt = platform_get_drvdata(adx_wdt_dev);
+-
+-	if (test_and_set_bit(0, &driver_open))
+-		return -EBUSY;
+-
+-	file->private_data = wdt;
+-	adx_wdt_set_timeout(wdt, 30);
+-	adx_wdt_start(wdt);
+-
+-	return nonseekable_open(inode, file);
+-}
+-
+-static int adx_wdt_release(struct inode *inode, struct file *file)
+-{
+-	struct adx_wdt *wdt = file->private_data;
+-
+-	adx_wdt_stop(wdt);
+-	clear_bit(0, &driver_open);
+-
+-	return 0;
+-}
+-
+-static long adx_wdt_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+-{
+-	struct adx_wdt *wdt = file->private_data;
+-	void __user *argp = (void __user *)arg;
+-	unsigned long __user *p = argp;
+-	unsigned long seconds = 0;
+-	unsigned int options;
+-	long ret = -EINVAL;
+-
+-	switch (cmd) {
+-	case WDIOC_GETSUPPORT:
+-		if (copy_to_user(argp, &adx_wdt_info, sizeof(adx_wdt_info)))
+-			return -EFAULT;
+-		else
+-			return 0;
+-
+-	case WDIOC_GETSTATUS:
+-	case WDIOC_GETBOOTSTATUS:
+-		return put_user(0, p);
+-
+-	case WDIOC_KEEPALIVE:
+-		adx_wdt_keepalive(wdt);
+-		return 0;
+-
+-	case WDIOC_SETTIMEOUT:
+-		if (get_user(seconds, p))
+-			return -EFAULT;
+-
+-		adx_wdt_set_timeout(wdt, seconds);
+-
+-		/* fallthrough */
+-	case WDIOC_GETTIMEOUT:
+-		adx_wdt_get_timeout(wdt, &seconds);
+-		return put_user(seconds, p);
+-
+-	case WDIOC_SETOPTIONS:
+-		if (copy_from_user(&options, argp, sizeof(options)))
+-			return -EFAULT;
+-
+-		if (options & WDIOS_DISABLECARD) {
+-			adx_wdt_stop(wdt);
+-			ret = 0;
+-		}
+-
+-		if (options & WDIOS_ENABLECARD) {
+-			adx_wdt_start(wdt);
+-			ret = 0;
+-		}
+-
+-		return ret;
+-
+-	default:
+-		break;
+-	}
+-
+-	return -ENOTTY;
+-}
+-
+-static ssize_t adx_wdt_write(struct file *file, const char __user *data,
+-		size_t len, loff_t *ppos)
+-{
+-	struct adx_wdt *wdt = file->private_data;
+-
+-	if (len)
+-		adx_wdt_keepalive(wdt);
+-
+-	return len;
+-}
+-
+-static const struct file_operations adx_wdt_fops = {
+-	.owner = THIS_MODULE,
+-	.llseek = no_llseek,
+-	.open = adx_wdt_open,
+-	.release = adx_wdt_release,
+-	.unlocked_ioctl = adx_wdt_ioctl,
+-	.write = adx_wdt_write,
+-};
+-
+-static struct miscdevice adx_wdt_miscdev = {
+-	.minor = WATCHDOG_MINOR,
+-	.name = "watchdog",
+-	.fops = &adx_wdt_fops,
+-};
+-
+-static int __devinit adx_wdt_probe(struct platform_device *pdev)
+-{
+-	struct resource *res;
+-	struct adx_wdt *wdt;
+-	int ret = 0;
+-	u32 ctrl;
+-
+-	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+-	if (!wdt) {
+-		dev_err(&pdev->dev, "cannot allocate WDT structure\n");
+-		return -ENOMEM;
+-	}
+-
+-	spin_lock_init(&wdt->lock);
+-
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!res) {
+-		dev_err(&pdev->dev, "cannot obtain I/O memory region\n");
+-		return -ENXIO;
+-	}
+-
+-	res = devm_request_mem_region(&pdev->dev, res->start,
+-			resource_size(res), res->name);
+-	if (!res) {
+-		dev_err(&pdev->dev, "cannot request I/O memory region\n");
+-		return -ENXIO;
+-	}
+-
+-	wdt->base = devm_ioremap_nocache(&pdev->dev, res->start,
+-			resource_size(res));
+-	if (!wdt->base) {
+-		dev_err(&pdev->dev, "cannot remap I/O memory region\n");
+-		return -ENXIO;
+-	}
+-
+-	/* disable watchdog and reboot on timeout */
+-	ctrl = readl(wdt->base + ADX_WDT_CONTROL);
+-	ctrl &= ~ADX_WDT_CONTROL_ENABLE;
+-	ctrl &= ~ADX_WDT_CONTROL_nRESET;
+-	writel(ctrl, wdt->base + ADX_WDT_CONTROL);
+-
+-	platform_set_drvdata(pdev, wdt);
+-	adx_wdt_dev = pdev;
+-
+-	ret = misc_register(&adx_wdt_miscdev);
+-	if (ret) {
+-		dev_err(&pdev->dev, "cannot register miscdev on minor %d "
+-				"(err=%d)\n", WATCHDOG_MINOR, ret);
+-		return ret;
+-	}
+-
+-	return 0;
+-}
+-
+-static int __devexit adx_wdt_remove(struct platform_device *pdev)
+-{
+-	struct adx_wdt *wdt = platform_get_drvdata(pdev);
+-
+-	misc_deregister(&adx_wdt_miscdev);
+-	adx_wdt_stop(wdt);
+-	platform_set_drvdata(pdev, NULL);
+-
+-	return 0;
+-}
+-
+-static void adx_wdt_shutdown(struct platform_device *pdev)
+-{
+-	struct adx_wdt *wdt = platform_get_drvdata(pdev);
+-	adx_wdt_stop(wdt);
+-}
+-
+-#ifdef CONFIG_PM
+-static int adx_wdt_suspend(struct device *dev)
+-{
+-	struct platform_device *pdev = to_platform_device(dev);
+-	struct adx_wdt *wdt = platform_get_drvdata(pdev);
+-
+-	wdt->wake = (wdt->state == WDT_STATE_START) ? 1 : 0;
+-	adx_wdt_stop(wdt);
+-
+-	return 0;
+-}
+-
+-static int adx_wdt_resume(struct device *dev)
+-{
+-	struct platform_device *pdev = to_platform_device(dev);
+-	struct adx_wdt *wdt = platform_get_drvdata(pdev);
+-
+-	if (wdt->wake)
+-		adx_wdt_start(wdt);
+-
+-	return 0;
+-}
+-
+-static const struct dev_pm_ops adx_wdt_pm_ops = {
+-	.suspend = adx_wdt_suspend,
+-	.resume = adx_wdt_resume,
+-};
+-
+-#  define ADX_WDT_PM_OPS	(&adx_wdt_pm_ops)
+-#else
+-#  define ADX_WDT_PM_OPS	NULL
+-#endif
+-
+-static struct platform_driver adx_wdt_driver = {
+-	.probe = adx_wdt_probe,
+-	.remove = __devexit_p(adx_wdt_remove),
+-	.shutdown = adx_wdt_shutdown,
+-	.driver = {
+-		.name = WATCHDOG_NAME,
+-		.owner = THIS_MODULE,
+-		.pm = ADX_WDT_PM_OPS,
+-	},
+-};
+-
+-static int __init adx_wdt_init(void)
+-{
+-	return platform_driver_register(&adx_wdt_driver);
+-}
+-
+-static void __exit adx_wdt_exit(void)
+-{
+-	platform_driver_unregister(&adx_wdt_driver);
+-}
+-
+-module_init(adx_wdt_init);
+-module_exit(adx_wdt_exit);
+-
+-MODULE_DESCRIPTION("Avionic Design Xanthos Watchdog Driver");
+-MODULE_LICENSE("GPL v2");
+-MODULE_AUTHOR("Thierry Reding <thierry.reding@avionic-design.de>");
+-MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
+diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+index 5de7e4f..a79e384 100644
+--- a/drivers/watchdog/s3c2410_wdt.c
++++ b/drivers/watchdog/s3c2410_wdt.c
+@@ -401,8 +401,8 @@ static int __devinit s3c2410wdt_probe(struct platform_device *pdev)
  
- 	  Most people will say N.
+ 	dev_info(dev, "watchdog %sactive, reset %sabled, irq %sabled\n",
+ 		 (wtcon & S3C2410_WTCON_ENABLE) ?  "" : "in",
+-		 (wtcon & S3C2410_WTCON_RSTEN) ? "" : "dis",
+-		 (wtcon & S3C2410_WTCON_INTEN) ? "" : "en");
++		 (wtcon & S3C2410_WTCON_RSTEN) ? "en" : "dis",
++		 (wtcon & S3C2410_WTCON_INTEN) ? "en" : "dis");
  
-+config VIA_WDT
-+	tristate "VIA Watchdog Timer"
-+	depends on X86
-+	---help---
-+	This is the driver for the hardware watchdog timer on VIA
-+	southbridge chipset CX700, VX800, VX855. Watchdog setup
-+	in BIOS is required.
-+
-+	To compile this driver as a module, choose M here; the module
-+	will be called via_wdt.
-+
-+	Most people will say N.
-+
- config W83627HF_WDT
- 	tristate "W83627HF/W83627DHG Watchdog Timer"
- 	depends on X86
+ 	return 0;
+ 
+diff --git a/drivers/watchdog/wm831x_wdt.c b/drivers/watchdog/wm831x_wdt.c
+index 7be3855..e789a47 100644
+--- a/drivers/watchdog/wm831x_wdt.c
++++ b/drivers/watchdog/wm831x_wdt.c
+@@ -150,7 +150,7 @@ static int wm831x_wdt_set_timeout(struct watchdog_device *wdt_dev,
+ 		if (wm831x_wdt_cfgs[i].time == timeout)
+ 			break;
+ 	if (i == ARRAY_SIZE(wm831x_wdt_cfgs))
+-		ret = -EINVAL;
++		return -EINVAL;
+ 
+ 	ret = wm831x_reg_unlock(wm831x);
+ 	if (ret == 0) {
