@@ -1,107 +1,64 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:39635 "EHLO
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:39728 "EHLO
 	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751595Ab1KVLdE (ORCPT
+	with ESMTP id S1753936Ab1KVMIC (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 22 Nov 2011 06:33:04 -0500
+	Tue, 22 Nov 2011 07:08:02 -0500
+Date: Tue, 22 Nov 2011 12:07:56 +0000
 From: Dave Martin <dave.martin@linaro.org>
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Cc: patches@linaro.org, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Alan Cox <alan@linux.intel.com>,
-	Alessandro Rubini <rubini@unipv.it>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	alsa-devel@alsa-project.org, Chris Ball <cjb@laptop.org>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Grant Likely <grant.likely@secretlab.ca>,
-	Jaroslav Kysela <perex@perex.cz>,
-	Jassi Brar <jassisinghbrar@gmail.com>,
-	Julia Lawall <julia@diku.dk>,
-	Linus Walleij <linus.walleij@linaro.org>,
+To: Alessandro Rubini <rubini@unipv.it>
+Cc: linux@arm.linux.org.uk, patches@linaro.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	alan@linux.intel.com, a.zummo@towertech.it,
+	alsa-devel@alsa-project.org, cjb@laptop.org,
+	dan.j.williams@intel.com, dmitry.torokhov@gmail.com,
+	grant.likely@secretlab.ca, perex@perex.cz,
+	jassisinghbrar@gmail.com, julia@diku.dk, linus.walleij@linaro.org,
 	linux-fbdev@vger.kernel.org, linux-input@vger.kernel.org,
 	linux-mmc@vger.kernel.org, linux-serial@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, Paul Mundt <lethal@linux-sh.org>,
-	=?UTF-8?q?Pawe=C5=82=20Moll?= <Pawel.Moll@arm.com>,
-	rtc-linux@googlegroups.com,
-	spi-devel-general@lists.sourceforge.net,
-	Takashi Iwai <tiwai@suse.de>,
-	Vinod Koul <vinod.koul@intel.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: [GIT PULL] ARM: amba: Enable module alias autogeneration for AMBA drivers
-Date: Tue, 22 Nov 2011 11:32:53 +0000
-Message-Id: <1321961573-4562-1-git-send-email-dave.martin@linaro.org>
+	linux-watchdog@vger.kernel.org, lethal@linux-sh.org,
+	Pawel.Moll@arm.com, rtc-linux@googlegroups.com,
+	spi-devel-general@lists.sourceforge.net, tiwai@suse.de,
+	vinod.koul@intel.com, wim@iguana.be
+Subject: Re: [GIT PULL] ARM: amba: Enable module alias autogeneration for
+ AMBA drivers
+Message-ID: <20111122120756.GF2066@localhost.localdomain>
+References: <1321961573-4562-1-git-send-email-dave.martin@linaro.org>
+ <20111122115632.GA5165@mail.gnudd.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20111122115632.GA5165@mail.gnudd.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Russell,
+On Tue, Nov 22, 2011 at 12:56:32PM +0100, Alessandro Rubini wrote:
+> > I have Acks on some of the driver patches and no comments on the
+> > rest.  I've been circulating these for some time, so if you're
+> > happy to pull those driver patches via your tree, please go ahead.
+> 
+> Sure I have no problem with the nomadik-rng.c, (so please have my
+> Acked-by: -- sorry for not noting it earlier) but I think this
 
-This series enables the general infrastructure for modalias
-generation to work for AMBA devices, and enables it in the affected
-drivers.
+thanks
 
-Since there are several patches here, I though it better to send a
-pull request.
+> file2alias thing needs a serious rework to split each bus in a
+> different file, using ELF sections like we do elsewhere.
+> 
+> I posted a patch last week but I got no comment at all. Maybe this
+> is the time to ask for comments? I can rebase and repost if needed.
+> 
+>   lkml.org/lkml/2011/11/4/125 (0/2: description of the work)
+>   lkml.org/lkml/2011/11/4/126 (1/2: turn the if plethora to table lookup)
+>   lkml.org/lkml/2011/11/4/127 (2/2: partial split to type-specific files).
 
-The first two patches (subject lines "ARM: amba: ...") are the core
-patches; the remainder of the patches are the driver changes --
-each is trivial and simply adds a MODULE_DEVICE_ALIAS() entry.
+Splitting this up doesn't look like a silly idea -- I thought it was
+unfortunate to have to patch a core file just to add a bus type.
 
-I have Acks on some of the driver patches and no comments on the
-rest.  I've been circulating these for some time, so if you're
-happy to pull those driver patches via your tree, please go ahead.
-
-Otherwise, let me know and I can continue trying to push the driver
-patches via other routes.
+I guess the question is how many new buses we get over time.  If they
+only get added gradually, people might not be too concerned.  Of course,
+this is one of those maintenance issues which can only get worse as time
+goes on.
 
 Cheers
 ---Dave
-
-The following changes since commit cfcfc9eca2bcbd26a8e206baeb005b055dbf8e37:
-
-  Linux 3.2-rc2 (2011-11-15 15:02:59 -0200)
-
-are available in the git repository at:
-  git://git.linaro.org/people/dmart/linux-2.6-arm.git arm/amba-modalias+for-rmk
-
-Dave Martin (16):
-      ARM: amba: Move definition of struct amba_id to mod_devicetable.h
-      ARM: amba: Auto-generate AMBA driver module aliases during modpost
-      hwrng: nomadik: Enable module alias autogeneration for AMBA drivers
-      dmaengine: pl08x: Enable module alias autogeneration for AMBA drivers
-      dmaengine: pl330: Enable module alias autogeneration for AMBA drivers
-      gpio: pl061: Enable module alias autogeneration for AMBA drivers
-      input: ambakmi: Enable module alias autogeneration for AMBA drivers
-      mmc: mmci: Enable module alias autogeneration for AMBA drivers
-      rtc: pl030: Enable module alias autogeneration for AMBA drivers
-      rtc: pl031: Enable module alias autogeneration for AMBA drivers
-      spi: pl022: Enable module alias autogeneration for AMBA drivers
-      serial: pl010: Enable module alias autogeneration for AMBA drivers
-      serial: pl011: Enable module alias autogeneration for AMBA drivers
-      fbdev: amba: Enable module alias autogeneration for AMBA drivers
-      watchdog: sp805: Enable module alias autogeneration for AMBA drivers
-      sound: aaci: Enable module alias autogeneration for AMBA drivers
-
- drivers/amba/bus.c                   |    4 ++
- drivers/char/hw_random/nomadik-rng.c |    2 +
- drivers/dma/amba-pl08x.c             |    2 +
- drivers/dma/pl330.c                  |    2 +
- drivers/gpio/gpio-pl061.c            |    2 +
- drivers/input/serio/ambakmi.c        |    2 +
- drivers/mmc/host/mmci.c              |    2 +
- drivers/rtc/rtc-pl030.c              |    2 +
- drivers/rtc/rtc-pl031.c              |    2 +
- drivers/spi/spi-pl022.c              |    2 +
- drivers/tty/serial/amba-pl010.c      |    2 +
- drivers/tty/serial/amba-pl011.c      |    2 +
- drivers/video/amba-clcd.c            |    2 +
- drivers/watchdog/sp805_wdt.c         |    2 +
- include/linux/amba/bus.h             |    7 +---
- include/linux/mod_devicetable.h      |   18 ++++++++
- scripts/mod/file2alias.c             |   72 ++++++++++++++++++++++++++++++++++
- sound/arm/aaci.c                     |    2 +
- 18 files changed, 123 insertions(+), 6 deletions(-)
-
-
-
-
