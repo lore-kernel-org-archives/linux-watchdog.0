@@ -1,62 +1,107 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:60114 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758271Ab1KVLWS (ORCPT
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:39635 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751595Ab1KVLdE (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 22 Nov 2011 06:22:18 -0500
-Date: Tue, 22 Nov 2011 12:22:12 +0100
-From: Wolfram Sang <w.sang@pengutronix.de>
-To: Marc Vertes <marc.vertes@sigfox.com>
-Cc: wim@iguana.be, Sebroeck@vger.kernel.org, Van@vger.kernel.org,
-	Wim@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org, HaraldWelte@viatech.com,
-	Welte@vger.kernel.org, Harald@vger.kernel.org
-Subject: Re: [PATCH RFC] watchdog: add a new driver for VIA chipsets
-Message-ID: <20111122112212.GD2734@pengutronix.de>
-References: <4ecb84b9.48rmEWqC3D6x18iE%marc.vertes@sigfox.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PHCdUe6m4AxPMzOu"
-Content-Disposition: inline
-In-Reply-To: <4ecb84b9.48rmEWqC3D6x18iE%marc.vertes@sigfox.com>
+	Tue, 22 Nov 2011 06:33:04 -0500
+From: Dave Martin <dave.martin@linaro.org>
+To: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Cc: patches@linaro.org, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Alan Cox <alan@linux.intel.com>,
+	Alessandro Rubini <rubini@unipv.it>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	alsa-devel@alsa-project.org, Chris Ball <cjb@laptop.org>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Grant Likely <grant.likely@secretlab.ca>,
+	Jaroslav Kysela <perex@perex.cz>,
+	Jassi Brar <jassisinghbrar@gmail.com>,
+	Julia Lawall <julia@diku.dk>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	linux-fbdev@vger.kernel.org, linux-input@vger.kernel.org,
+	linux-mmc@vger.kernel.org, linux-serial@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, Paul Mundt <lethal@linux-sh.org>,
+	=?UTF-8?q?Pawe=C5=82=20Moll?= <Pawel.Moll@arm.com>,
+	rtc-linux@googlegroups.com,
+	spi-devel-general@lists.sourceforge.net,
+	Takashi Iwai <tiwai@suse.de>,
+	Vinod Koul <vinod.koul@intel.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+Subject: [GIT PULL] ARM: amba: Enable module alias autogeneration for AMBA drivers
+Date: Tue, 22 Nov 2011 11:32:53 +0000
+Message-Id: <1321961573-4562-1-git-send-email-dave.martin@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+Hi Russell,
 
---PHCdUe6m4AxPMzOu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This series enables the general infrastructure for modalias
+generation to work for AMBA devices, and enables it in the affected
+drivers.
 
-On Tue, Nov 22, 2011 at 12:17:13PM +0100, Marc Vertes wrote:
-> Add a new driver for the hardware watchdog timer on VIA chipsets.
-> Tested on a Artigo A1100, VX855 chipset.
->=20
-> Signed-off-by: Marc Vertes <marc.vertes@sigfox.com>
+Since there are several patches here, I though it better to send a
+pull request.
 
-New watchdog drivers should use the framework. Have a look at
-Documentation/watchdog/convert_drivers_to_kernel_api.txt for a guide. It
-is mainly removing code, though.
+The first two patches (subject lines "ARM: amba: ...") are the core
+patches; the remainder of the patches are the driver changes --
+each is trivial and simply adds a MODULE_DEVICE_ALIAS() entry.
 
-Thanks,
+I have Acks on some of the driver patches and no comments on the
+rest.  I've been circulating these for some time, so if you're
+happy to pull those driver patches via your tree, please go ahead.
 
-   Wolfram
+Otherwise, let me know and I can continue trying to push the driver
+patches via other routes.
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Cheers
+---Dave
 
---PHCdUe6m4AxPMzOu
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+The following changes since commit cfcfc9eca2bcbd26a8e206baeb005b055dbf8e37:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
+  Linux 3.2-rc2 (2011-11-15 15:02:59 -0200)
 
-iEYEARECAAYFAk7LheQACgkQD27XaX1/VRutYACdEU7AXPGKVZ9fV6SaT2B010iK
-LhAAoMBk4btczZxmA/0iXTLQQwqq0Jqt
-=bziw
------END PGP SIGNATURE-----
+are available in the git repository at:
+  git://git.linaro.org/people/dmart/linux-2.6-arm.git arm/amba-modalias+for-rmk
 
---PHCdUe6m4AxPMzOu--
+Dave Martin (16):
+      ARM: amba: Move definition of struct amba_id to mod_devicetable.h
+      ARM: amba: Auto-generate AMBA driver module aliases during modpost
+      hwrng: nomadik: Enable module alias autogeneration for AMBA drivers
+      dmaengine: pl08x: Enable module alias autogeneration for AMBA drivers
+      dmaengine: pl330: Enable module alias autogeneration for AMBA drivers
+      gpio: pl061: Enable module alias autogeneration for AMBA drivers
+      input: ambakmi: Enable module alias autogeneration for AMBA drivers
+      mmc: mmci: Enable module alias autogeneration for AMBA drivers
+      rtc: pl030: Enable module alias autogeneration for AMBA drivers
+      rtc: pl031: Enable module alias autogeneration for AMBA drivers
+      spi: pl022: Enable module alias autogeneration for AMBA drivers
+      serial: pl010: Enable module alias autogeneration for AMBA drivers
+      serial: pl011: Enable module alias autogeneration for AMBA drivers
+      fbdev: amba: Enable module alias autogeneration for AMBA drivers
+      watchdog: sp805: Enable module alias autogeneration for AMBA drivers
+      sound: aaci: Enable module alias autogeneration for AMBA drivers
+
+ drivers/amba/bus.c                   |    4 ++
+ drivers/char/hw_random/nomadik-rng.c |    2 +
+ drivers/dma/amba-pl08x.c             |    2 +
+ drivers/dma/pl330.c                  |    2 +
+ drivers/gpio/gpio-pl061.c            |    2 +
+ drivers/input/serio/ambakmi.c        |    2 +
+ drivers/mmc/host/mmci.c              |    2 +
+ drivers/rtc/rtc-pl030.c              |    2 +
+ drivers/rtc/rtc-pl031.c              |    2 +
+ drivers/spi/spi-pl022.c              |    2 +
+ drivers/tty/serial/amba-pl010.c      |    2 +
+ drivers/tty/serial/amba-pl011.c      |    2 +
+ drivers/video/amba-clcd.c            |    2 +
+ drivers/watchdog/sp805_wdt.c         |    2 +
+ include/linux/amba/bus.h             |    7 +---
+ include/linux/mod_devicetable.h      |   18 ++++++++
+ scripts/mod/file2alias.c             |   72 ++++++++++++++++++++++++++++++++++
+ sound/arm/aaci.c                     |    2 +
+ 18 files changed, 123 insertions(+), 6 deletions(-)
+
+
+
+
