@@ -1,65 +1,54 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:48990 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753048Ab1KVM5K convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 22 Nov 2011 07:57:10 -0500
+Received: from mail2.gnudd.com ([213.203.150.91]:63629 "EHLO mail.gnudd.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754076Ab1KVPV0 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 22 Nov 2011 10:21:26 -0500
+Date: Tue, 22 Nov 2011 16:19:42 +0100
+From: Alessandro Rubini <rubini@unipv.it>
+To: dave.martin@linaro.org
+Cc: linux@arm.linux.org.uk, patches@linaro.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	alan@linux.intel.com, a.zummo@towertech.it,
+	alsa-devel@alsa-project.org, cjb@laptop.org,
+	dan.j.williams@intel.com, dmitry.torokhov@gmail.com,
+	grant.likely@secretlab.ca, perex@perex.cz,
+	jassisinghbrar@gmail.com, julia@diku.dk, linus.walleij@linaro.org,
+	linux-fbdev@vger.kernel.org, linux-input@vger.kernel.org,
+	linux-mmc@vger.kernel.org, linux-serial@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, lethal@linux-sh.org,
+	Pawel.Moll@arm.com, rtc-linux@googlegroups.com,
+	spi-devel-general@lists.sourceforge.net, tiwai@suse.de,
+	vinod.koul@intel.com, wim@iguana.be
+Subject: Re: [GIT PULL] ARM: amba: Enable module alias autogeneration for
+ AMBA drivers
+Message-ID: <20111122151942.GA24821@mail.gnudd.com>
 MIME-Version: 1.0
-In-Reply-To: <20111122112212.GD2734@pengutronix.de>
-References: <4ecb84b9.48rmEWqC3D6x18iE%marc.vertes@sigfox.com> <20111122112212.GD2734@pengutronix.de>
-From: Rahul Bedarkar <rpal143@gmail.com>
-Date: Tue, 22 Nov 2011 18:26:44 +0530
-Message-ID: <CA+NV+VkBXzjDWLigLyuXaHyRfvwt5d=NBczbFYt0qYnZKHn+AA@mail.gmail.com>
-Subject: Re: [PATCH RFC] watchdog: add a new driver for VIA chipsets
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: Marc Vertes <marc.vertes@sigfox.com>, wim@iguana.be,
-	Sebroeck@vger.kernel.org, Van@vger.kernel.org, Wim@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	HaraldWelte@viatech.com, Welte@vger.kernel.org,
-	Harald@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20111122120756.GF2066@localhost.localdomain>
+References: <20111122120756.GF2066@localhost.localdomain>
+  <1321961573-4562-1-git-send-email-dave.martin@linaro.org>
+  <20111122115632.GA5165@mail.gnudd.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Nov 22, 2011 at 4:52 PM, Wolfram Sang <w.sang@pengutronix.de> wro=
-te:
-> On Tue, Nov 22, 2011 at 12:17:13PM +0100, Marc Vertes wrote:
->> Add a new driver for the hardware watchdog timer on VIA chipsets.
->> Tested on a Artigo A1100, VX855 chipset.
->>
->> Signed-off-by: Marc Vertes <marc.vertes@sigfox.com>
+>>   lkml.org/lkml/2011/11/4/125 (0/2: description of the work)
+>>   lkml.org/lkml/2011/11/4/126 (1/2: turn the if plethora to table lookup)
+>>   lkml.org/lkml/2011/11/4/127 (2/2: partial split to type-specific files).
+> 
+> Splitting this up doesn't look like a silly idea -- I thought it was
+> unfortunate to have to patch a core file just to add a bus type.
 >
-> New watchdog drivers should use the framework. Have a look at
-> Documentation/watchdog/convert_drivers_to_kernel_api.txt for a guide. I=
-t
-> is mainly removing code, though.
-I will take care of this.
+> I guess the question is how many new buses we get over time.
 
-Thanks,
-Rahul Bedarkar
->
-> Thanks,
->
-> =A0 Wolfram
->
-> --
-> Pengutronix e.K. =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 | =
-Wolfram Sang =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0|
-> Industrial Linux Solutions =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 | http://www=
-.pengutronix.de/ =A0|
->
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.4.10 (GNU/Linux)
->
-> iEYEARECAAYFAk7LheQACgkQD27XaX1/VRutYACdEU7AXPGKVZ9fV6SaT2B010iK
-> LhAAoMBk4btczZxmA/0iXTLQQwqq0Jqt
-> =3Dbziw
-> -----END PGP SIGNATURE-----
->
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Well, CERN will have 2 in a short time. And I'm sure the bus concept
+is so good that a number of them exists as external patches. Being
+forced to patch a core file is not good, with conflicts that accumulate
+over time.
+
+I'd better be able to drop in my own file and add a kconfig-aware line
+in Makefile.  I think the implementation is straightforward. Who should
+I send it to?
+
+thanks
+/alessandro
