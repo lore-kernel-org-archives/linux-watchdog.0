@@ -1,216 +1,58 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mo2.mail-out.ovh.net ([178.32.228.2]:44448 "EHLO
-	mo2.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752754Ab1KVTFs (ORCPT
+Received: from out2.smtp.messagingengine.com ([66.111.4.26]:40097 "EHLO
+	out2.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755056Ab1KVTXO (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 22 Nov 2011 14:05:48 -0500
-Received: from mail636.ha.ovh.net (b6.ovh.net [213.186.33.56])
-	by mo2.mail-out.ovh.net (Postfix) with SMTP id E42BEDCA08B
-	for <linux-watchdog@vger.kernel.org>; Tue, 22 Nov 2011 20:01:46 +0100 (CET)
-Date: Tue, 22 Nov 2011 19:55:13 +0100
-From: Marc Vertes <marc.vertes@sigfox.com>
-To: w.sang@pengutronix.de
-Cc: Wim@vger.kernel.org, wim@iguana.be, Welte@vger.kernel.org,
-	Van@vger.kernel.org, Sebroeck@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	HaraldWelte@viatech.com, Harald@vger.kernel.org
-Subject: Re: [PATCH RFC] watchdog: add a new driver for VIA chipsets
-Message-ID: <4ecbf011.dZASXe6D5kH4Uxve%marc.vertes@sigfox.com>
-References: <4ecb84b9.48rmEWqC3D6x18iE%marc.vertes@sigfox.com>
- <20111122112212.GD2734@pengutronix.de>
- <4ecbd66c.8a87vIwdu0Z+quuZ%marc.vertes@sigfox.com>
- <20111122173029.GA14349@pengutronix.de>
- <4ecbe56d.0B7WEVDKkK1s88MJ%marc.vertes@sigfox.com>
-In-Reply-To: <4ecbe56d.0B7WEVDKkK1s88MJ%marc.vertes@sigfox.com>
+	Tue, 22 Nov 2011 14:23:14 -0500
+Received: from compute6.internal (compute6.nyi.mail.srv.osa [10.202.2.46])
+	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id 6C03120A70
+	for <linux-watchdog@vger.kernel.org>; Tue, 22 Nov 2011 14:23:13 -0500 (EST)
+Date: Tue, 22 Nov 2011 11:20:30 -0800
+From: Greg KH <greg@kroah.com>
+To: Alessandro Rubini <rubini@unipv.it>
+Cc: dave.martin@linaro.org, linux@arm.linux.org.uk, patches@linaro.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	alan@linux.intel.com, a.zummo@towertech.it,
+	alsa-devel@alsa-project.org, cjb@laptop.org,
+	dan.j.williams@intel.com, dmitry.torokhov@gmail.com,
+	grant.likely@secretlab.ca, perex@perex.cz,
+	jassisinghbrar@gmail.com, julia@diku.dk, linus.walleij@linaro.org,
+	linux-fbdev@vger.kernel.org, linux-input@vger.kernel.org,
+	linux-mmc@vger.kernel.org, linux-serial@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, lethal@linux-sh.org,
+	Pawel.Moll@arm.com, rtc-linux@googlegroups.com,
+	spi-devel-general@lists.sourceforge.net, tiwai@suse.de,
+	vinod.koul@intel.com, wim@iguana.be
+Subject: Re: [GIT PULL] ARM: amba: Enable module alias autogeneration for
+ AMBA drivers
+Message-ID: <20111122192030.GA4930@kroah.com>
+References: <1321961573-4562-1-git-send-email-dave.martin@linaro.org>
+ <20111122115632.GA5165@mail.gnudd.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20111122115632.GA5165@mail.gnudd.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Marc Vertes <marc.vertes@sigfox.com> wrote:
+On Tue, Nov 22, 2011 at 12:56:32PM +0100, Alessandro Rubini wrote:
+> > I have Acks on some of the driver patches and no comments on the
+> > rest.  I've been circulating these for some time, so if you're
+> > happy to pull those driver patches via your tree, please go ahead.
+> 
+> Sure I have no problem with the nomadik-rng.c, (so please have my
+> Acked-by: -- sorry for not noting it earlier) but I think this
+> file2alias thing needs a serious rework to split each bus in a
+> different file, using ELF sections like we do elsewhere.
+> 
+> I posted a patch last week but I got no comment at all. Maybe this
+> is the time to ask for comments? I can rebase and repost if needed.
+> 
+>   lkml.org/lkml/2011/11/4/125 (0/2: description of the work)
+>   lkml.org/lkml/2011/11/4/126 (1/2: turn the if plethora to table lookup)
+>   lkml.org/lkml/2011/11/4/127 (2/2: partial split to type-specific files).
 
-> Thanks for your comments, I'm preparing an update.
+Ah, I missed that, yes, this would be a good thing to have, we've been
+wanting it for _years_.
 
-Here:
----
-Add a new driver for the hardware watchdog timer on VIA chipsets.
-This driver uses the new watchdog framework.
-Tested on a Artigo A1100, VX855 chipset.
-
-Signed-off-by: Marc Vertes <marc.vertes@sigfox.com>
----
-
- Kconfig   |   14 ++++++
- Makefile  |    1 
- via_wdt.c |  132 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 147 insertions(+)
-
---- linux-3.2-rc2/drivers/watchdog/Makefile.orig	2011-11-15 18:02:59.000000000 +0100
-+++ linux-3.2-rc2/drivers/watchdog/Makefile	2011-11-18 18:13:36.594534635 +0100
-@@ -100,6 +100,7 @@ obj-$(CONFIG_SBC7240_WDT) += sbc7240_wdt
- obj-$(CONFIG_CPU5_WDT) += cpu5wdt.o
- obj-$(CONFIG_SMSC_SCH311X_WDT) += sch311x_wdt.o
- obj-$(CONFIG_SMSC37B787_WDT) += smsc37b787_wdt.o
-+obj-$(CONFIG_VIA_WDT) += via_wdt.o
- obj-$(CONFIG_W83627HF_WDT) += w83627hf_wdt.o
- obj-$(CONFIG_W83697HF_WDT) += w83697hf_wdt.o
- obj-$(CONFIG_W83697UG_WDT) += w83697ug_wdt.o
---- linux-3.2-rc2/drivers/watchdog/via_wdt.c.orig	2011-11-18 18:14:45.358174874 +0100
-+++ linux-3.2-rc2/drivers/watchdog/via_wdt.c	2011-11-22 19:42:06.219529719 +0100
-@@ -0,0 +1,132 @@
-+/*
-+ * VIA Chipset Watchdog Driver
-+ *
-+ * Copyright (C) 2011 Sigfox
-+ * License terms: GNU General Public License (GPL) version 2
-+ * Author: Marc Vertes <marc.vertes@sigfox.com>
-+ * Based on a preliminary version from Harald Welte <HaraldWelte@viatech.com>
-+ *
-+ * The only way to activate the watchdog timer or to set its period is
-+ * through BIOS setup.
-+ */
-+#include <linux/device.h>
-+#include <linux/io.h>
-+#include <linux/module.h>
-+#include <linux/pci.h>
-+#include <linux/watchdog.h>
-+
-+#define VIA_WDT_MB_OFFSET	0xe8	/* memory base offset */
-+#define VIA_WDT_TRIGGER		0x80	/* start a new countdown */
-+#define VIA_WDT_FIRED		0x02	/* set if last restart was caused
-+					   by expired watchdog timer */
-+
-+static int wdt_start(struct watchdog_device *wdev)
-+{
-+	/* Nothing to do. The watchdog can only be started by the BIOS. */
-+	return 0;
-+}
-+
-+static int wdt_stop(struct watchdog_device *wdev)
-+{
-+	/* Nothing to do. The watchdog can not be stopped. */
-+	return 0;
-+}
-+
-+static int wdt_ping(struct watchdog_device *wdev)
-+{
-+	void __iomem *wdt_mem = watchdog_get_drvdata(wdev);
-+	unsigned int res = readl(wdt_mem);	/* get status bits */
-+
-+	writel(res | VIA_WDT_TRIGGER, wdt_mem);
-+	return 0;
-+}
-+
-+static struct watchdog_info wdt_info = {
-+	.identity = "VIA watchdog",
-+	.options  =  WDIOF_CARDRESET,
-+};
-+
-+static struct watchdog_ops wdt_ops = {
-+	.owner = THIS_MODULE,
-+	.start = wdt_start,
-+	.stop  = wdt_stop,
-+	.ping  = wdt_ping,
-+};
-+
-+static struct watchdog_device wdt_dev = {
-+	.info = &wdt_info,
-+	.ops  = &wdt_ops,
-+};
-+
-+static int __devinit wdt_probe(struct pci_dev *pdev,
-+			       const struct pci_device_id *ent)
-+{
-+	unsigned int mmio = 0;
-+	void __iomem *wdt_mem;
-+	int ret;
-+
-+	if (pci_enable_device(pdev)) {
-+		dev_err(&pdev->dev, "cannot enable PCI device\n");
-+		return -ENODEV;
-+	}
-+	pci_read_config_dword(pdev, VIA_WDT_MB_OFFSET, &mmio);
-+	if (mmio) {
-+		dev_info(&pdev->dev, "VIA Chipset watchdog MMIO: %x\n", mmio);
-+	} else {
-+		dev_err(&pdev->dev, "watchdog timer is not enabled in BIOS\n");
-+		return -ENODEV;
-+	}
-+	wdt_mem = ioremap(mmio, 8);
-+	if (wdt_mem == NULL) {
-+		dev_err(&pdev->dev, "cannot remap VIA wdt MMIO registers\n");
-+		return -ENODEV;
-+	}
-+	ret = watchdog_register_device(&wdt_dev);
-+	if (ret) {
-+		iounmap(wdt_mem);
-+		return ret;
-+	}
-+	watchdog_set_drvdata(&wdt_dev, wdt_mem);
-+	if (readl(wdt_mem) & VIA_WDT_FIRED)
-+		wdt_dev.bootstatus |= WDIOF_CARDRESET;
-+	return 0;
-+}
-+
-+static void __devexit wdt_remove(struct pci_dev *dev)
-+{
-+	void __iomem *wdt_mem = watchdog_get_drvdata(&wdt_dev);
-+
-+	watchdog_unregister_device(&wdt_dev);
-+	iounmap(wdt_mem);
-+}
-+
-+DEFINE_PCI_DEVICE_TABLE(wdt_pci_table) = {
-+	{ PCI_DEVICE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_CX700) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_VX800) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_VX855) },
-+	{ 0 }
-+};
-+
-+static struct pci_driver wdt_driver = {
-+	.name		= "via_wdt",
-+	.id_table	= wdt_pci_table,
-+	.probe		= wdt_probe,
-+	.remove		= __devexit_p(wdt_remove),
-+};
-+
-+static int __init wdt_init(void)
-+{
-+	return pci_register_driver(&wdt_driver);
-+}
-+
-+static void __exit wdt_exit(void)
-+{
-+	pci_unregister_driver(&wdt_driver);
-+}
-+
-+module_init(wdt_init);
-+module_exit(wdt_exit);
-+
-+MODULE_AUTHOR("Marc Vertes");
-+MODULE_DESCRIPTION("Driver for watchdog timer on VIA chipset");
-+MODULE_LICENSE("GPL");
---- linux-3.2-rc2/drivers/watchdog/Kconfig.orig	2011-11-15 18:02:59.000000000 +0100
-+++ linux-3.2-rc2/drivers/watchdog/Kconfig	2011-11-22 16:39:38.175325620 +0100
-@@ -779,6 +779,20 @@ config SMSC37B787_WDT
- 
- 	  Most people will say N.
- 
-+config VIA_WDT
-+	tristate "VIA Watchdog Timer"
-+	depends on X86
-+	select WATCHDOG_CORE
-+	---help---
-+	This is the driver for the hardware watchdog timer on VIA
-+	southbridge chipset CX700, VX800, VX855. Watchdog setup
-+	in BIOS is required.
-+
-+	To compile this driver as a module, choose M here; the module
-+	will be called via_wdt.
-+
-+	Most people will say N.
-+
- config W83627HF_WDT
- 	tristate "W83627HF/W83627DHG Watchdog Timer"
- 	depends on X86
+greg k-h
