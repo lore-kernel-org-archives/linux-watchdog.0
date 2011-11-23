@@ -1,76 +1,49 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:46828 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750711Ab1KWKt3 (ORCPT
+Received: from 7.mo2.mail-out.ovh.net ([188.165.48.182]:36643 "EHLO
+	mo2.mail-out.ovh.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753261Ab1KWLnp (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 23 Nov 2011 05:49:29 -0500
-Date: Wed, 23 Nov 2011 11:49:26 +0100
-From: Wolfram Sang <w.sang@pengutronix.de>
-To: Marc Vertes <marc.vertes@sigfox.com>
-Cc: broonie@opensource.wolfsonmicro.com, wim@iguana.be,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	HaraldWelte@viatech.com
+	Wed, 23 Nov 2011 06:43:45 -0500
+Received: from mail621.ha.ovh.net (b9.ovh.net [213.186.33.59])
+	by mo2.mail-out.ovh.net (Postfix) with SMTP id 477A5DCC2E9
+	for <linux-watchdog@vger.kernel.org>; Wed, 23 Nov 2011 12:50:06 +0100 (CET)
+Date: Wed, 23 Nov 2011 12:43:41 +0100
+From: Marc Vertes <marc.vertes@sigfox.com>
+To: w.sang@pengutronix.de
+Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org, HaraldWelte@viatech.com,
+	broonie@opensource.wolfsonmicro.com
 Subject: Re: [PATCH RFC] watchdog: add a new driver for VIA chipsets
-Message-ID: <20111123104926.GB4063@pengutronix.de>
+Message-ID: <4eccdc6d.wleutgRbV7hZJdby%marc.vertes@sigfox.com>
 References: <4ecb84b9.48rmEWqC3D6x18iE%marc.vertes@sigfox.com>
  <20111122112212.GD2734@pengutronix.de>
  <4ecbd66c.8a87vIwdu0Z+quuZ%marc.vertes@sigfox.com>
  <20111122173227.GK6624@sirena.org.uk>
  <20111122184051.GA30941@pengutronix.de>
  <4eccc3f0.iApQ//mCzaN3UsrB%marc.vertes@sigfox.com>
+ <20111123104926.GB4063@pengutronix.de>
+In-Reply-To: <20111123104926.GB4063@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="NMuMz9nt05w80d4+"
-Content-Disposition: inline
-In-Reply-To: <4eccc3f0.iApQ//mCzaN3UsrB%marc.vertes@sigfox.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+Wolfram Sang <w.sang@pengutronix.de> wrote:
 
---NMuMz9nt05w80d4+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-(BTW I removed a few duplicates from the CC list)
-
-> A question regarding "nowayout", in the case of this VIA chipset where
-> a watchdog can not be stopped once started from BIOS. I think I should
-> set unconditionally WDOG_NO_WAY_OUT in status, shouldn't I ?
->=20
-> I also do not think it is correct to implement a timer and ping
-> proactively in case of magicclose because 1) it complicates a bit the
-> code, 2) there is no way to know the timeout value, and it set very low
-> in the BIOS (1 s).
-
-Yup, I'd accept the reason that you can't know the timeout value and
-then setting NO_WAY_OUT unconditionally looks like the thing to do here.
-
-@Wim: Would you accept drivers which can only ping a watchdog but
-neither start/stop it?
-
-@Marc: If he does, would you be interested in updating the watchdog-core
-so that no start()/stop() will also be accepted if there is a ping()?
+> (BTW I removed a few duplicates from the CC list)
+Yes, thanks.
+>
+> @Wim: Would you accept drivers which can only ping a watchdog but
+> neither start/stop it?
+>
+> @Marc: If he does, would you be interested in updating the watchdog-core
+> so that no start()/stop() will also be accepted if there is a ping()?
+>
+Yes, it looks reasonable to me. Watchdogs settable by BIOS only and not
+cancelable (as VIA) are simple hard watchdogs for which ping() is the
+only necessary operation. I'm preparing a new update.
 
 Regards,
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---NMuMz9nt05w80d4+
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAk7Mz7YACgkQD27XaX1/VRutaACgvxMdwqxhzIB7ZPQzIwvLYkhr
-H9cAoL5CGyOLeCfuw8eUmzXyFj6VQB/c
-=PgJa
------END PGP SIGNATURE-----
-
---NMuMz9nt05w80d4+--
+--
+Marc
