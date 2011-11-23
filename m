@@ -1,45 +1,54 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:45135 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751896Ab1KWOhj (ORCPT
+Received: from 7.mo2.mail-out.ovh.net ([188.165.48.182]:35163 "EHLO
+	mo2.mail-out.ovh.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753832Ab1KWOq5 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 23 Nov 2011 09:37:39 -0500
-Date: Wed, 23 Nov 2011 14:37:37 +0000
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-To: Marc Vertes <marc.vertes@sigfox.com>
-Cc: mad_soft@inbox.ru, wim@iguana.be, w.sang@pengutronix.de,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	HaraldWelte@viatech.com
+	Wed, 23 Nov 2011 09:46:57 -0500
+Received: from mail621.ha.ovh.net (b9.ovh.net [213.186.33.59])
+	by mo2.mail-out.ovh.net (Postfix) with SMTP id 3B1BFDCBE02
+	for <linux-watchdog@vger.kernel.org>; Wed, 23 Nov 2011 15:53:19 +0100 (CET)
+Date: Wed, 23 Nov 2011 15:46:53 +0100
+From: Marc Vertes <marc.vertes@sigfox.com>
+To: wim@iguana.be, broonie@opensource.wolfsonmicro.com
+Cc: w.sang@pengutronix.de, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org, HaraldWelte@viatech.com
 Subject: Re: [PATCH RFC] watchdog: add a new driver for VIA chipsets
-Message-ID: <20111123143737.GD20272@opensource.wolfsonmicro.com>
+Message-ID: <4ecd075d.2YyTTCA13zxwZmwT%marc.vertes@sigfox.com>
 References: <4ecb84b9.48rmEWqC3D6x18iE%marc.vertes@sigfox.com>
  <20111122112212.GD2734@pengutronix.de>
  <4ecbd66c.8a87vIwdu0Z+quuZ%marc.vertes@sigfox.com>
- <20111122173029.GA14349@pengutronix.de>
- <4ecbe56d.0B7WEVDKkK1s88MJ%marc.vertes@sigfox.com>
- <4ecbf011.dZASXe6D5kH4Uxve%marc.vertes@sigfox.com>
- <20111123121051.GA18320@rainbow>
- <4eccff3f.MbLR7E9v8jus19P8%marc.vertes@sigfox.com>
+ <20111122173227.GK6624@sirena.org.uk>
+ <20111122184051.GA30941@pengutronix.de>
+ <4eccc3f0.iApQ//mCzaN3UsrB%marc.vertes@sigfox.com>
+ <20111123104926.GB4063@pengutronix.de>
+ <20111123121329.GM23376@infomag.iguana.be>
+ <20111123122018.GA12227@opensource.wolfsonmicro.com>
+ <20111123124037.GN23376@infomag.iguana.be>
+In-Reply-To: <20111123124037.GN23376@infomag.iguana.be>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4eccff3f.MbLR7E9v8jus19P8%marc.vertes@sigfox.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Nov 23, 2011 at 03:12:15PM +0100, Marc Vertes wrote:
+Wim Van Sebroeck <wim@iguana.be> wrote:
 
-> Of course I read the datasheet of the VX855 southbridge prior to
-> write this driver. And the VX800 one, the CX700 one. Unfortunately,
-> the instructions to start, stop, get and set counters simply
-> do not work. The doc is false and/or incomplete. Harald
-> already implemented a full version of this driver back in 2009
-> (http://git.gnumonks.org/cgi-bin/gitweb.cgi?p=linux-2.6-via.git;a=shortlog;     h=refs/heads/via-wdt),
-> but not working. Questions to VIA remain unanswered.
+> Hi Marc,
+>
+> Coming back to now: if the driver incorporates the timer (like all other
+> devices that can be started but not stopped once started do), then the start
+> and stop functions are not empty.
+> The timer (with the example that I prepared as part of the generic code) is
+> not so difficult and will be a good solution for the time being. (Unless
+> Dmitry Artamonow's comment about the fact that the watchdog could perhaps
+> be started and stopped is correct... This should be investigated first imho).
+>
+The watchdog can not be started and stopped from the driver. This is
+what I investigated first and found impossible (and explains why this
+driver is still missing).
 
-The documentation may actually be accurate - for security/robustness
-reasons it's not uncommon for watchdog hardware to have restrictions on
-when it can be programmed.  It may be that there's something like that
-going on which locks out reprogramming of the block by the time the OS
-is up and running, or there may be additional steps required to go into
-a secure mode that VIA don't want to disclose.
+I do not fully understand yet what has to be done with the timer.
+
+Regards,
+--
+Marc
