@@ -1,54 +1,74 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from 7.mo2.mail-out.ovh.net ([188.165.48.182]:35163 "EHLO
-	mo2.mail-out.ovh.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753832Ab1KWOq5 (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:53934 "EHLO
+	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756248Ab1KWPWn (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 23 Nov 2011 09:46:57 -0500
-Received: from mail621.ha.ovh.net (b9.ovh.net [213.186.33.59])
-	by mo2.mail-out.ovh.net (Postfix) with SMTP id 3B1BFDCBE02
-	for <linux-watchdog@vger.kernel.org>; Wed, 23 Nov 2011 15:53:19 +0100 (CET)
-Date: Wed, 23 Nov 2011 15:46:53 +0100
-From: Marc Vertes <marc.vertes@sigfox.com>
-To: wim@iguana.be, broonie@opensource.wolfsonmicro.com
-Cc: w.sang@pengutronix.de, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org, HaraldWelte@viatech.com
-Subject: Re: [PATCH RFC] watchdog: add a new driver for VIA chipsets
-Message-ID: <4ecd075d.2YyTTCA13zxwZmwT%marc.vertes@sigfox.com>
-References: <4ecb84b9.48rmEWqC3D6x18iE%marc.vertes@sigfox.com>
- <20111122112212.GD2734@pengutronix.de>
- <4ecbd66c.8a87vIwdu0Z+quuZ%marc.vertes@sigfox.com>
- <20111122173227.GK6624@sirena.org.uk>
- <20111122184051.GA30941@pengutronix.de>
- <4eccc3f0.iApQ//mCzaN3UsrB%marc.vertes@sigfox.com>
- <20111123104926.GB4063@pengutronix.de>
- <20111123121329.GM23376@infomag.iguana.be>
- <20111123122018.GA12227@opensource.wolfsonmicro.com>
- <20111123124037.GN23376@infomag.iguana.be>
-In-Reply-To: <20111123124037.GN23376@infomag.iguana.be>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Nov 2011 10:22:43 -0500
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	patches@opensource.wolfsonmicro.com,
+	Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: [PATCH] watchdog: Convert Wolfson drivers to module_platform_driver
+Date: Wed, 23 Nov 2011 15:22:36 +0000
+Message-Id: <1322061756-29942-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Wim Van Sebroeck <wim@iguana.be> wrote:
+Factors out some boilerplate code.
 
-> Hi Marc,
->
-> Coming back to now: if the driver incorporates the timer (like all other
-> devices that can be started but not stopped once started do), then the start
-> and stop functions are not empty.
-> The timer (with the example that I prepared as part of the generic code) is
-> not so difficult and will be a good solution for the time being. (Unless
-> Dmitry Artamonow's comment about the fact that the watchdog could perhaps
-> be started and stopped is correct... This should be investigated first imho).
->
-The watchdog can not be started and stopped from the driver. This is
-what I investigated first and found impossible (and explains why this
-driver is still missing).
+Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+---
+ drivers/watchdog/wm831x_wdt.c |   12 +-----------
+ drivers/watchdog/wm8350_wdt.c |   12 +-----------
+ 2 files changed, 2 insertions(+), 22 deletions(-)
 
-I do not fully understand yet what has to be done with the timer.
+diff --git a/drivers/watchdog/wm831x_wdt.c b/drivers/watchdog/wm831x_wdt.c
+index e789a47..beb3ad2 100644
+--- a/drivers/watchdog/wm831x_wdt.c
++++ b/drivers/watchdog/wm831x_wdt.c
+@@ -320,17 +320,7 @@ static struct platform_driver wm831x_wdt_driver = {
+ 	},
+ };
+ 
+-static int __init wm831x_wdt_init(void)
+-{
+-	return platform_driver_register(&wm831x_wdt_driver);
+-}
+-module_init(wm831x_wdt_init);
+-
+-static void __exit wm831x_wdt_exit(void)
+-{
+-	platform_driver_unregister(&wm831x_wdt_driver);
+-}
+-module_exit(wm831x_wdt_exit);
++module_platform_driver(wm831x_wdt_driver);
+ 
+ MODULE_AUTHOR("Mark Brown");
+ MODULE_DESCRIPTION("WM831x Watchdog");
+diff --git a/drivers/watchdog/wm8350_wdt.c b/drivers/watchdog/wm8350_wdt.c
+index b68d928..909c786 100644
+--- a/drivers/watchdog/wm8350_wdt.c
++++ b/drivers/watchdog/wm8350_wdt.c
+@@ -311,17 +311,7 @@ static struct platform_driver wm8350_wdt_driver = {
+ 	},
+ };
+ 
+-static int __init wm8350_wdt_init(void)
+-{
+-	return platform_driver_register(&wm8350_wdt_driver);
+-}
+-module_init(wm8350_wdt_init);
+-
+-static void __exit wm8350_wdt_exit(void)
+-{
+-	platform_driver_unregister(&wm8350_wdt_driver);
+-}
+-module_exit(wm8350_wdt_exit);
++module_platform_driver(wm8350_wdt_driver);
+ 
+ MODULE_AUTHOR("Mark Brown");
+ MODULE_DESCRIPTION("WM8350 Watchdog");
+-- 
+1.7.7.3
 
-Regards,
---
-Marc
