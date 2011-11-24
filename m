@@ -1,50 +1,63 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from 8.mo2.mail-out.ovh.net ([188.165.52.147]:55310 "EHLO
+Received: from 6.mo2.mail-out.ovh.net ([87.98.165.38]:44059 "EHLO
 	mo2.mail-out.ovh.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753517Ab1KXQrY (ORCPT
+	with ESMTP id S1753714Ab1KXTWK (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 24 Nov 2011 11:47:24 -0500
+	Thu, 24 Nov 2011 14:22:10 -0500
 Received: from mail95.ha.ovh.net (b9.ovh.net [213.186.33.59])
-	by mo2.mail-out.ovh.net (Postfix) with SMTP id D5491DCD65C
-	for <linux-watchdog@vger.kernel.org>; Thu, 24 Nov 2011 17:53:47 +0100 (CET)
-Date: Thu, 24 Nov 2011 17:47:19 +0100
+	by mo2.mail-out.ovh.net (Postfix) with SMTP id C5FE1DCD7AC
+	for <linux-watchdog@vger.kernel.org>; Thu, 24 Nov 2011 20:28:33 +0100 (CET)
+Date: Thu, 24 Nov 2011 20:22:06 +0100
 From: Marc Vertes <marc.vertes@sigfox.com>
-To: wim@iguana.be
-Cc: w.sang@pengutronix.de, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org, HaraldWelte@viatech.com,
+To: wim@iguana.be, HaraldWelte@viatech.com
+Cc: w.sang@pengutronix.de, mad_soft@inbox.ru,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
 	broonie@opensource.wolfsonmicro.com
 Subject: Re: [PATCH RFC] watchdog: add a new driver for VIA chipsets
-Message-ID: <4ece7517.LRNwqXodeJ5rvC27%marc.vertes@sigfox.com>
-References: <4eccc3f0.iApQ//mCzaN3UsrB%marc.vertes@sigfox.com>
- <20111123104926.GB4063@pengutronix.de>
- <20111123121329.GM23376@infomag.iguana.be>
- <20111123122018.GA12227@opensource.wolfsonmicro.com>
- <20111123124037.GN23376@infomag.iguana.be>
- <4ecd075d.2YyTTCA13zxwZmwT%marc.vertes@sigfox.com>
- <20111123214614.GQ23376@infomag.iguana.be>
- <4ece231e./LkW+9i4Wmz+9zzn%marc.vertes@sigfox.com>
- <20111124134247.GS23376@infomag.iguana.be>
- <4ece57c9.2i1u841q3U3s+xD7%marc.vertes@sigfox.com>
- <20111124154847.GT23376@infomag.iguana.be>
-In-Reply-To: <20111124154847.GT23376@infomag.iguana.be>
+Message-ID: <4ece995e.x4p0mK5XK7QoXS86%marc.vertes@sigfox.com>
+References: <4ecb84b9.48rmEWqC3D6x18iE%marc.vertes@sigfox.com>
+ <20111122112212.GD2734@pengutronix.de>
+ <4ecbd66c.8a87vIwdu0Z+quuZ%marc.vertes@sigfox.com>
+ <20111122173029.GA14349@pengutronix.de>
+ <4ecbe56d.0B7WEVDKkK1s88MJ%marc.vertes@sigfox.com>
+ <4ecbf011.dZASXe6D5kH4Uxve%marc.vertes@sigfox.com>
+ <20111123121051.GA18320@rainbow>
+ <20111123182209.GF5315@prithivi.gnumonks.org>
+ <20111123214115.GO23376@infomag.iguana.be>
+In-Reply-To: <20111123214115.GO23376@infomag.iguana.be>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Wim,
+Wim Van Sebroeck <wim@iguana.be> wrote:
 
-> Hope this is clearer now.
+> Hi Harald,
 >
-Yes. All is clear now. Thanks. I was confusing WDT_HEARTBEAT and WDT_TIMEOUT.
-I fully agree with the way the timer is implemented.
-
-> I think we should change the default timeout value to 60 seconds instead of 15.
+> > Unfortunately it simply doesn't work.  When I originally implemented a
+> > via_wdt driver some years ago, I couldn't start the watchdog no matter
+> > how hard I tried.  My inquiries into VIA at that point didn't provide
+> > any response either.  In fact, I even feared that nobody might ever have
+> > used that watchdog hardware before ;)
+> > 
+> > I can ask again, but I'm not sure if it will be any different at that
+> > time..
 >
-Agree on that too.
+> Could you please ask again? It could indeed be that they lock registers.
+> (It could be something similar to some of the superIO chipsets that can
+> enable/disable (lock/unlock) access to registers).
+>
+> The BIOS can at least start the hardware, so the hardware does work :-)
+>
+Hey, I just discovered that enabling Plug&Play in the BIOS is the key!
 
-Thanks for your patience.
-Kind regards,
+It unlocks watchdog control registers and opens access to counters and
+all the stuff. Sometimes lateral thinking helps :-)
+
+So the driver will be able to normally support all features as documented
+in the datasheet. I plan an update tomorrow.
+
+Regards,
 --
 Marc
