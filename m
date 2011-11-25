@@ -1,292 +1,354 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:37102 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752576Ab1KYJWQ (ORCPT
+Received: from 14.mo3.mail-out.ovh.net ([188.165.43.98]:44648 "EHLO
+	mo3.mail-out.ovh.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751695Ab1KYUJ7 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 25 Nov 2011 04:22:16 -0500
-Message-ID: <1322212922.7565.1.camel@phoenix>
-Subject: [PATCH] watchdog: Use DEFINE_SPINLOCK() for static spinlocks
-From: Axel Lin <axel.lin@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: Nicolas Thill <nico@openwrt.org>,
-	Heiko Ronsdorf <hero@ihg.uni-duisburg.de>,
-	Rodolfo Giometti <giometti@ascensit.com>,
-	Andrey Panin <pazke@donpac.ru>,
-	Guido Guenther <agx@sigxcpu.org>,
-	Curt E Bruns <curt.e.bruns@intel.com>,
-	Deepak Saxena <dsaxena@plexity.net>,
-	Andrew Victor <linux@maxim.org.za>,
-	"George G. Davis" <gdavis@mvista.com>,
-	Sylver Bruneau <sylver.bruneau@googlemail.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org
-Date: Fri, 25 Nov 2011 17:22:02 +0800
-Content-Type: text/plain; charset="UTF-8"
+	Fri, 25 Nov 2011 15:09:59 -0500
+Received: from mail176.ha.ovh.net (b9.ovh.net [213.186.33.59])
+	by mo3.mail-out.ovh.net (Postfix) with SMTP id CBA661000B3E
+	for <linux-watchdog@vger.kernel.org>; Fri, 25 Nov 2011 21:09:11 +0100 (CET)
+Date: Fri, 25 Nov 2011 21:02:39 +0100
+From: Marc Vertes <marc.vertes@sigfox.com>
+To: wim@iguana.be
+Cc: w.sang@pengutronix.de, mad_soft@inbox.ru,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	HaraldWelte@viatech.com, broonie@opensource.wolfsonmicro.com
+Subject: Re: [PATCH RFC] watchdog: add a new driver for VIA chipsets
+Message-ID: <4ecff45f.MS8APch2oPniG3N+%marc.vertes@sigfox.com>
+References: <4ecb84b9.48rmEWqC3D6x18iE%marc.vertes@sigfox.com>
+ <20111122112212.GD2734@pengutronix.de>
+ <4ecbd66c.8a87vIwdu0Z+quuZ%marc.vertes@sigfox.com>
+ <20111122173029.GA14349@pengutronix.de>
+ <4ecbe56d.0B7WEVDKkK1s88MJ%marc.vertes@sigfox.com>
+ <4ecbf011.dZASXe6D5kH4Uxve%marc.vertes@sigfox.com>
+ <20111123121051.GA18320@rainbow>
+ <20111123182209.GF5315@prithivi.gnumonks.org>
+ <20111123214115.GO23376@infomag.iguana.be>
+ <4ece995e.x4p0mK5XK7QoXS86%marc.vertes@sigfox.com>
+ <20111124193429.GU23376@infomag.iguana.be>
+In-Reply-To: <20111124193429.GU23376@infomag.iguana.be>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Mime-Version: 1.0
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Rather than just defining static spinlock_t variables and then
-initializing them later in init functions, simply define them with
-DEFINE_SPINLOCK() and remove the calls to spin_lock_init().
+Add a new driver for the hardware watchdog timer on VIA chipsets.
+This driver uses the new watchdog framework.
+Remember to switch on PnP in BIOS.
+Tested on a Artigo A1100, VX855 chipset.
 
-Cc: Nicolas Thill <nico@openwrt.org>
-Cc: Heiko Ronsdorf <hero@ihg.uni-duisburg.de>
-Cc: Rodolfo Giometti <giometti@ascensit.com>
-Cc: Andrey Panin <pazke@donpac.ru>
-Cc: Guido Guenther <agx@sigxcpu.org>
-Cc: Curt E Bruns <curt.e.bruns@intel.com>
-Cc: Deepak Saxena <dsaxena@plexity.net>
-Cc: Andrew Victor <linux@maxim.org.za>
-Cc: George G. Davis <gdavis@mvista.com>
-Cc: Sylver Bruneau <sylver.bruneau@googlemail.com>
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
+Signed-off-by: Marc Vertes <marc.vertes@sigfox.com>
+
 ---
- drivers/watchdog/ar7_wdt.c     |    4 +---
- drivers/watchdog/cpu5wdt.c     |    3 +--
- drivers/watchdog/eurotechwdt.c |    4 +---
- drivers/watchdog/ibmasr.c      |    4 +---
- drivers/watchdog/indydog.c     |    4 +---
- drivers/watchdog/iop_wdt.c     |    5 +----
- drivers/watchdog/ixp2000_wdt.c |    3 +--
- drivers/watchdog/ixp4xx_wdt.c  |    1 -
- drivers/watchdog/ks8695_wdt.c  |    3 +--
- drivers/watchdog/omap_wdt.c    |    3 +--
- drivers/watchdog/orion_wdt.c   |    3 +--
- 11 files changed, 10 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/watchdog/ar7_wdt.c b/drivers/watchdog/ar7_wdt.c
-index b292217..b9564c5 100644
---- a/drivers/watchdog/ar7_wdt.c
-+++ b/drivers/watchdog/ar7_wdt.c
-@@ -70,8 +70,8 @@ struct ar7_wdt {
- };
- 
- static unsigned long wdt_is_open;
--static spinlock_t wdt_lock;
- static unsigned expect_close;
-+static DEFINE_SPINLOCK(wdt_lock);
- 
- /* XXX currently fixed, allows max margin ~68.72 secs */
- #define prescale_value 0xffff
-@@ -280,8 +280,6 @@ static int __devinit ar7_wdt_probe(struct platform_device *pdev)
- {
- 	int rc;
- 
--	spin_lock_init(&wdt_lock);
--
- 	ar7_regs_wdt =
- 		platform_get_resource_byname(pdev, IORESOURCE_MEM, "regs");
- 	if (!ar7_regs_wdt) {
-diff --git a/drivers/watchdog/cpu5wdt.c b/drivers/watchdog/cpu5wdt.c
-index edd3475..251c863 100644
---- a/drivers/watchdog/cpu5wdt.c
-+++ b/drivers/watchdog/cpu5wdt.c
-@@ -39,7 +39,7 @@
- static int verbose;
- static int port = 0x91;
- static int ticks = 10000;
--static spinlock_t cpu5wdt_lock;
-+static DEFINE_SPINLOCK(cpu5wdt_lock);
- 
- #define PFX			"cpu5wdt: "
- 
-@@ -223,7 +223,6 @@ static int __devinit cpu5wdt_init(void)
- 				"port=0x%x, verbose=%i\n", port, verbose);
- 
- 	init_completion(&cpu5wdt_device.stop);
--	spin_lock_init(&cpu5wdt_lock);
- 	cpu5wdt_device.queue = 0;
- 	setup_timer(&cpu5wdt_device.timer, cpu5wdt_trigger, 0);
- 	cpu5wdt_device.default_ticks = ticks;
-diff --git a/drivers/watchdog/eurotechwdt.c b/drivers/watchdog/eurotechwdt.c
-index 41018d4..3946c51 100644
---- a/drivers/watchdog/eurotechwdt.c
-+++ b/drivers/watchdog/eurotechwdt.c
-@@ -64,7 +64,7 @@
- static unsigned long eurwdt_is_open;
- static int eurwdt_timeout;
- static char eur_expect_close;
--static spinlock_t eurwdt_lock;
-+static DEFINE_SPINLOCK(eurwdt_lock);
- 
- /*
-  * You must set these - there is no sane way to probe for this board.
-@@ -446,8 +446,6 @@ static int __init eurwdt_init(void)
- 		goto outreg;
- 	}
- 
--	spin_lock_init(&eurwdt_lock);
--
- 	ret = misc_register(&eurwdt_miscdev);
- 	if (ret) {
- 		printk(KERN_ERR "eurwdt: can't misc_register on minor=%d\n",
-diff --git a/drivers/watchdog/ibmasr.c b/drivers/watchdog/ibmasr.c
-index 195e0f7..c7481ad 100644
---- a/drivers/watchdog/ibmasr.c
-+++ b/drivers/watchdog/ibmasr.c
-@@ -68,7 +68,7 @@ static char asr_expect_close;
- static unsigned int asr_type, asr_base, asr_length;
- static unsigned int asr_read_addr, asr_write_addr;
- static unsigned char asr_toggle_mask, asr_disable_mask;
--static spinlock_t asr_lock;
-+static DEFINE_SPINLOCK(asr_lock);
- 
- static void __asr_toggle(void)
- {
-@@ -386,8 +386,6 @@ static int __init ibmasr_init(void)
- 	if (!asr_type)
- 		return -ENODEV;
- 
--	spin_lock_init(&asr_lock);
--
- 	rc = asr_get_base_address();
- 	if (rc)
- 		return rc;
-diff --git a/drivers/watchdog/indydog.c b/drivers/watchdog/indydog.c
-index 1cc5609..1475e09 100644
---- a/drivers/watchdog/indydog.c
-+++ b/drivers/watchdog/indydog.c
-@@ -28,7 +28,7 @@
- 
- #define PFX "indydog: "
- static unsigned long indydog_alive;
--static spinlock_t indydog_lock;
-+static DEFINE_SPINLOCK(indydog_lock);
- 
- #define WATCHDOG_TIMEOUT 30		/* 30 sec default timeout */
- 
-@@ -185,8 +185,6 @@ static int __init watchdog_init(void)
- {
- 	int ret;
- 
--	spin_lock_init(&indydog_lock);
--
- 	ret = register_reboot_notifier(&indydog_notifier);
- 	if (ret) {
- 		printk(KERN_ERR PFX
-diff --git a/drivers/watchdog/iop_wdt.c b/drivers/watchdog/iop_wdt.c
-index aef9478..82fa7a9 100644
---- a/drivers/watchdog/iop_wdt.c
-+++ b/drivers/watchdog/iop_wdt.c
-@@ -37,7 +37,7 @@
- static int nowayout = WATCHDOG_NOWAYOUT;
- static unsigned long wdt_status;
- static unsigned long boot_status;
--static spinlock_t wdt_lock;
-+static DEFINE_SPINLOCK(wdt_lock);
- 
- #define WDT_IN_USE		0
- #define WDT_OK_TO_CLOSE		1
-@@ -226,9 +226,6 @@ static int __init iop_wdt_init(void)
- {
- 	int ret;
- 
--	spin_lock_init(&wdt_lock);
--
--
- 	/* check if the reset was caused by the watchdog timer */
- 	boot_status = (read_rcsr() & IOP_RCSR_WDT) ? WDIOF_CARDRESET : 0;
- 
-diff --git a/drivers/watchdog/ixp2000_wdt.c b/drivers/watchdog/ixp2000_wdt.c
-index e86952a..084f71aa 100644
---- a/drivers/watchdog/ixp2000_wdt.c
-+++ b/drivers/watchdog/ixp2000_wdt.c
-@@ -32,7 +32,7 @@
- static int nowayout = WATCHDOG_NOWAYOUT;
- static unsigned int heartbeat = 60;	/* (secs) Default is 1 minute */
- static unsigned long wdt_status;
--static spinlock_t wdt_lock;
-+static DEFINE_SPINLOCK(wdt_lock);
- 
- #define	WDT_IN_USE		0
- #define	WDT_OK_TO_CLOSE		1
-@@ -189,7 +189,6 @@ static int __init ixp2000_wdt_init(void)
- 		return -EIO;
- 	}
- 	wdt_tick_rate = (*IXP2000_T1_CLD * HZ) / 256;
--	spin_lock_init(&wdt_lock);
- 	return misc_register(&ixp2000_wdt_miscdev);
- }
- 
-diff --git a/drivers/watchdog/ixp4xx_wdt.c b/drivers/watchdog/ixp4xx_wdt.c
-index e02c0ec..4fc2e9a 100644
---- a/drivers/watchdog/ixp4xx_wdt.c
-+++ b/drivers/watchdog/ixp4xx_wdt.c
-@@ -181,7 +181,6 @@ static int __init ixp4xx_wdt_init(void)
- 
- 		return -ENODEV;
- 	}
--	spin_lock_init(&wdt_lock);
- 	boot_status = (*IXP4XX_OSST & IXP4XX_OSST_TIMER_WARM_RESET) ?
- 			WDIOF_CARDRESET : 0;
- 	ret = misc_register(&ixp4xx_wdt_miscdev);
-diff --git a/drivers/watchdog/ks8695_wdt.c b/drivers/watchdog/ks8695_wdt.c
-index 8114719..51757a5 100644
---- a/drivers/watchdog/ks8695_wdt.c
-+++ b/drivers/watchdog/ks8695_wdt.c
-@@ -42,7 +42,7 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
- 
- 
- static unsigned long ks8695wdt_busy;
--static spinlock_t ks8695_lock;
-+static DEFINE_SPINLOCK(ks8695_lock);
- 
- /* ......................................................................... */
- 
-@@ -288,7 +288,6 @@ static struct platform_driver ks8695wdt_driver = {
- 
- static int __init ks8695_wdt_init(void)
- {
--	spin_lock_init(&ks8695_lock);
- 	/* Check that the heartbeat value is within range;
- 	   if not reset to the default */
- 	if (ks8695_wdt_settimeout(wdt_time)) {
-diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
-index 2b4acb8..cd269b4 100644
---- a/drivers/watchdog/omap_wdt.c
-+++ b/drivers/watchdog/omap_wdt.c
-@@ -55,7 +55,7 @@ module_param(timer_margin, uint, 0);
- MODULE_PARM_DESC(timer_margin, "initial watchdog timeout (in seconds)");
- 
- static unsigned int wdt_trgr_pattern = 0x1234;
--static spinlock_t wdt_lock;
-+static DEFINE_SPINLOCK(wdt_lock);
- 
- struct omap_wdt_dev {
- 	void __iomem    *base;          /* physical */
-@@ -439,7 +439,6 @@ static struct platform_driver omap_wdt_driver = {
- 
- static int __init omap_wdt_init(void)
- {
--	spin_lock_init(&wdt_lock);
- 	return platform_driver_register(&omap_wdt_driver);
- }
- 
-diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
-index 2d9fb96..66bd97f 100644
---- a/drivers/watchdog/orion_wdt.c
-+++ b/drivers/watchdog/orion_wdt.c
-@@ -41,7 +41,7 @@ static int heartbeat = -1;		/* module parameter (seconds) */
- static unsigned int wdt_max_duration;	/* (seconds) */
- static unsigned int wdt_tclk;
- static unsigned long wdt_status;
--static spinlock_t wdt_lock;
-+static DEFINE_SPINLOCK(wdt_lock);
- 
- static void orion_wdt_ping(void)
- {
-@@ -296,7 +296,6 @@ static struct platform_driver orion_wdt_driver = {
- 
- static int __init orion_wdt_init(void)
- {
--	spin_lock_init(&wdt_lock);
- 	return platform_driver_register(&orion_wdt_driver);
- }
- 
--- 
-1.7.5.4
+ Kconfig   |   14 +++
+ Makefile  |    1 
+ via_wdt.c |  268 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 283 insertions(+)
 
-
-
+--- linux-3.2-rc3/drivers/watchdog/Makefile.orig	2011-11-24 05:20:28.000000000 +0100
++++ linux-3.2-rc3/drivers/watchdog/Makefile	2011-11-25 20:41:58.098297812 +0100
+@@ -99,6 +99,7 @@ obj-$(CONFIG_SBC7240_WDT) += sbc7240_wdt
+ obj-$(CONFIG_CPU5_WDT) += cpu5wdt.o
+ obj-$(CONFIG_SMSC_SCH311X_WDT) += sch311x_wdt.o
+ obj-$(CONFIG_SMSC37B787_WDT) += smsc37b787_wdt.o
++obj-$(CONFIG_VIA_WDT) += via_wdt.o
+ obj-$(CONFIG_W83627HF_WDT) += w83627hf_wdt.o
+ obj-$(CONFIG_W83697HF_WDT) += w83697hf_wdt.o
+ obj-$(CONFIG_W83697UG_WDT) += w83697ug_wdt.o
+--- linux-3.2-rc3/drivers/watchdog/via_wdt.c.orig	2011-11-25 20:35:19.219272614 +0100
++++ linux-3.2-rc3/drivers/watchdog/via_wdt.c	2011-11-25 20:35:53.128104742 +0100
+@@ -0,0 +1,268 @@
++/*
++ * VIA Chipset Watchdog Driver
++ *
++ * Copyright (C) 2011 Sigfox
++ * License terms: GNU General Public License (GPL) version 2
++ * Author: Marc Vertes <marc.vertes@sigfox.com>
++ * Based on a preliminary version from Harald Welte <HaraldWelte@viatech.com>
++ * Timer code by Wim Van Sebroeck <wim@iguana.be>
++ *
++ * Caveat: PnP must be enabled in BIOS to allow full access to watchdog
++ * control registers. If not, the watchdog must be configured in BIOS manually.
++ */
++#include <linux/device.h>
++#include <linux/io.h>
++#include <linux/jiffies.h>
++#include <linux/module.h>
++#include <linux/pci.h>
++#include <linux/timer.h>
++#include <linux/watchdog.h>
++
++/* Configuration registers relative to the pci device */
++#define VIA_WDT_MMIO_BASE	0xe8	/* MMIO region base address */
++#define VIA_WDT_CONF		0xec	/* watchdog enable state */
++
++/* Relevant bits for the VIA_WDT_CONF register */
++#define VIA_WDT_CONF_ENABLE	0x01	/* 1: enable watchdog */
++#define VIA_WDT_CONF_MMIO	0x02	/* 1: enable watchdog MMIO */
++
++/*
++ * The MMIO region contains the watchog control register and the
++ * hardware timer counter.
++ */
++#define VIA_WDT_MMIO_LEN	8	/* MMIO region length in bytes */
++#define VIA_WDT_CTL		0	/* MMIO addr+0: state/control reg. */
++#define VIA_WDT_COUNT		4	/* MMIO addr+4: timer counter reg. */
++
++/* Bits for the VIA_WDT_CTL register */
++#define VIA_WDT_RUNNING		0x01	/* 0: stop, 1: running */
++#define VIA_WDT_FIRED		0x02	/* 1: restarted by expired watchdog */
++#define VIA_WDT_PWROFF		0x04	/* 0: reset, 1: poweroff */
++#define VIA_WDT_DISABLED	0x08	/* 1: timer is disabled */
++#define VIA_WDT_TRIGGER		0x80	/* 1: start a new countdown */
++
++/* Hardware heartbeat in seconds */
++#define WDT_HW_HEARTBEAT 1
++
++/* Timer heartbeat (500ms) */
++#define WDT_HEARTBEAT	(HZ/2)	/* should be <= ((WDT_HW_HEARTBEAT*HZ)/2) */
++
++/* User space timeout in seconds */
++#define WDT_TIMEOUT_MAX	1023	/* approx. 17 min. */
++#define WDT_TIMEOUT	60
++static int timeout = WDT_TIMEOUT;
++module_param(timeout, int, 0);
++MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds, between 1 and 1023 "
++	"(default = " __MODULE_STRING(WDT_TIMEOUT) ")");
++
++static int nowayout = WATCHDOG_NOWAYOUT;
++module_param(nowayout, int, 0);
++MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
++	"(default = " __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++
++static struct watchdog_device wdt_dev;
++static struct resource wdt_res;
++static void __iomem *wdt_mem;
++static unsigned int mmio;
++static void wdt_timer_tick(unsigned long data);
++static DEFINE_TIMER(timer, wdt_timer_tick, 0, 0);
++					/* The timer that pings the watchdog */
++static unsigned long next_heartbeat;	/* the next_heartbeat for the timer */
++
++static inline void wdt_reset(void)
++{
++	unsigned int ctl = readl(wdt_mem);
++
++	writel(ctl | VIA_WDT_TRIGGER, wdt_mem);
++}
++
++/*
++ * Timer tick: the timer will make sure that the watchdog timer hardware
++ * is being reset in time. The conditions to do this are:
++ *  1) the watchog timer has been started and /dev/watchdog is open
++ *     and there is still time left before userspace should send the
++ *     next heartbeat/ping. (note: the internal heartbeat is much smaller
++ *     then the external/userspace heartbeat).
++ *  2) the watchdog timer has been stopped by userspace.
++ */
++static void wdt_timer_tick(unsigned long data)
++{
++	if (time_before(jiffies, next_heartbeat) ||
++	   (!test_bit(WDOG_ACTIVE, &wdt_dev.status))) {
++		wdt_reset();
++		mod_timer(&timer, jiffies + WDT_HEARTBEAT);
++	} else
++		pr_crit("I will reboot your machine !\n");
++}
++
++static int wdt_ping(struct watchdog_device *wdd)
++{
++	/* calculate when the next userspace timeout will be */
++	next_heartbeat = jiffies + timeout * HZ;
++	return 0;
++}
++
++static int wdt_start(struct watchdog_device *wdd)
++{
++	unsigned int ctl = readl(wdt_mem);
++
++	writel(timeout, wdt_mem + VIA_WDT_COUNT);
++	writel(ctl | VIA_WDT_RUNNING | VIA_WDT_TRIGGER, wdt_mem);
++	wdt_ping(wdd);
++	mod_timer(&timer, jiffies + WDT_HEARTBEAT);
++	return 0;
++}
++
++static int wdt_stop(struct watchdog_device *wdd)
++{
++	unsigned int ctl = readl(wdt_mem);
++
++	writel(ctl & ~VIA_WDT_RUNNING, wdt_mem);
++	return 0;
++}
++
++static int wdt_set_timeout(struct watchdog_device *wdd,
++			   unsigned int new_timeout)
++{
++	if (new_timeout < 1 || new_timeout > WDT_TIMEOUT_MAX)
++		return -EINVAL;
++	writel(new_timeout, wdt_mem + VIA_WDT_COUNT);
++	timeout = new_timeout;
++	return 0;
++}
++
++static const struct watchdog_info wdt_info = {
++	.identity =	"VIA watchdog",
++	.options =	WDIOF_CARDRESET |
++			WDIOF_SETTIMEOUT |
++			WDIOF_MAGICCLOSE |
++			WDIOF_KEEPALIVEPING,
++};
++
++static const struct watchdog_ops wdt_ops = {
++	.owner =	THIS_MODULE,
++	.start =	wdt_start,
++	.stop =		wdt_stop,
++	.ping =		wdt_ping,
++	.set_timeout =	wdt_set_timeout,
++};
++
++static struct watchdog_device wdt_dev = {
++	.info =		&wdt_info,
++	.ops =		&wdt_ops,
++};
++
++static int __devinit wdt_probe(struct pci_dev *pdev,
++			       const struct pci_device_id *ent)
++{
++	unsigned char conf;
++	int ret = -ENODEV;
++
++	if (pci_enable_device(pdev)) {
++		dev_err(&pdev->dev, "cannot enable PCI device\n");
++		return -ENODEV;
++	}
++
++	/*
++	 * Allocate a MMIO region which contains watchdog control register
++	 * and counter, then configure the watchdog to use this region.
++	 * This is possible only if PnP is properly enabled in BIOS.
++	 * If not, the watchdog must be configured in BIOS manually.
++	 */
++	if (allocate_resource(&iomem_resource, &wdt_res, VIA_WDT_MMIO_LEN,
++			      0xf0000000, 0xffffff00, 0xff, NULL, NULL)) {
++		dev_err(&pdev->dev, "MMIO allocation failed\n");
++		goto err_out_disable_device;
++	}
++
++	pci_write_config_dword(pdev, VIA_WDT_MMIO_BASE, wdt_res.start);
++	pci_read_config_byte(pdev, VIA_WDT_CONF, &conf);
++	conf |= VIA_WDT_CONF_ENABLE | VIA_WDT_CONF_MMIO;
++	pci_write_config_byte(pdev, VIA_WDT_CONF, conf);
++
++	pci_read_config_dword(pdev, VIA_WDT_MMIO_BASE, &mmio);
++	if (mmio) {
++		dev_info(&pdev->dev, "VIA Chipset watchdog MMIO: %x\n", mmio);
++	} else {
++		dev_err(&pdev->dev, "MMIO setting failed. Check BIOS.\n");
++		goto err_out_resource;
++	}
++
++	if (!request_mem_region(mmio, VIA_WDT_MMIO_LEN, "via_wdt")) {
++		dev_err(&pdev->dev, "MMIO region busy\n");
++		goto err_out_resource;
++	}
++
++	wdt_mem = ioremap(mmio, VIA_WDT_MMIO_LEN);
++	if (wdt_mem == NULL) {
++		dev_err(&pdev->dev, "cannot remap VIA wdt MMIO registers\n");
++		goto err_out_release;
++	}
++
++	wdt_dev.timeout = timeout;
++	if (nowayout)
++		set_bit(WDOG_NO_WAY_OUT, &wdt_dev.status);
++
++	if (readl(wdt_mem) & VIA_WDT_FIRED)
++		wdt_dev.bootstatus |= WDIOF_CARDRESET;
++
++	ret = watchdog_register_device(&wdt_dev);
++	if (ret)
++		goto err_out_iounmap;
++
++	/* start triggering, in case of watchdog already enabled by BIOS */
++	mod_timer(&timer, jiffies + WDT_HEARTBEAT);
++	return 0;
++
++err_out_iounmap:
++	iounmap(wdt_mem);
++err_out_release:
++	release_mem_region(mmio, VIA_WDT_MMIO_LEN);
++err_out_resource:
++	release_resource(&wdt_res);
++err_out_disable_device:
++	pci_disable_device(pdev);
++	return ret;
++}
++
++static void __devexit wdt_remove(struct pci_dev *pdev)
++{
++	watchdog_unregister_device(&wdt_dev);
++	del_timer(&timer);
++	iounmap(wdt_mem);
++	release_mem_region(mmio, VIA_WDT_MMIO_LEN);
++	release_resource(&wdt_res);
++	pci_disable_device(pdev);
++}
++
++DEFINE_PCI_DEVICE_TABLE(wdt_pci_table) = {
++	{ PCI_DEVICE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_CX700) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_VX800) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_VX855) },
++	{ 0 }
++};
++
++static struct pci_driver wdt_driver = {
++	.name		= "via_wdt",
++	.id_table	= wdt_pci_table,
++	.probe		= wdt_probe,
++	.remove		= __devexit_p(wdt_remove),
++};
++
++static int __init wdt_init(void)
++{
++	if (timeout < 1 || timeout > WDT_TIMEOUT_MAX)
++		timeout = WDT_TIMEOUT;
++	return pci_register_driver(&wdt_driver);
++}
++
++static void __exit wdt_exit(void)
++{
++	pci_unregister_driver(&wdt_driver);
++}
++
++module_init(wdt_init);
++module_exit(wdt_exit);
++
++MODULE_AUTHOR("Marc Vertes");
++MODULE_DESCRIPTION("Driver for watchdog timer on VIA chipset");
++MODULE_LICENSE("GPL");
+--- linux-3.2-rc3/drivers/watchdog/Kconfig.orig	2011-11-24 05:20:28.000000000 +0100
++++ linux-3.2-rc3/drivers/watchdog/Kconfig	2011-11-25 20:42:46.826056558 +0100
+@@ -772,6 +772,20 @@ config SMSC37B787_WDT
+ 
+ 	  Most people will say N.
+ 
++config VIA_WDT
++	tristate "VIA Watchdog Timer"
++	depends on X86
++	select WATCHDOG_CORE
++	---help---
++	This is the driver for the hardware watchdog timer on VIA
++	southbridge chipset CX700, VX800, VX855. Watchdog setup
++	in BIOS is required.
++
++	To compile this driver as a module, choose M here; the module
++	will be called via_wdt.
++
++	Most people will say N.
++
+ config W83627HF_WDT
+ 	tristate "W83627HF/W83627DHG Watchdog Timer"
+ 	depends on X86
