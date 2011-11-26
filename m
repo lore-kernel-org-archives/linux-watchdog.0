@@ -1,43 +1,69 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from 12.mo1.mail-out.ovh.net ([87.98.162.229]:51131 "EHLO
-	mo1.mail-out.ovh.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752626Ab1KYXzH (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:46320 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752968Ab1KZK31 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 25 Nov 2011 18:55:07 -0500
-Received: from mail625.ha.ovh.net (b9.ovh.net [213.186.33.59])
-	by mo1.mail-out.ovh.net (Postfix) with SMTP id A0D831008F5D
-	for <linux-watchdog@vger.kernel.org>; Sat, 26 Nov 2011 00:44:32 +0100 (CET)
-Date: Sat, 26 Nov 2011 00:38:01 +0100
-From: Marc Vertes <marc.vertes@sigfox.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	Sat, 26 Nov 2011 05:29:27 -0500
+Date: Sat, 26 Nov 2011 11:29:15 +0100
+From: Wolfram Sang <w.sang@pengutronix.de>
+To: Marc Vertes <marc.vertes@sigfox.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
 	Dimitry Andric <dimitry.andric@tomtom.com>,
 	Ben Dooks <ben@simtec.co.uk>
-Subject: [PATCH] watchdog: fix nowayout setting in s3c2410_wdt
-Message-ID: <4ed026d9.TvJLr8ihQ2VtvqPD%marc.vertes@sigfox.com>
+Subject: Re: [PATCH] watchdog: fix nowayout setting in s3c2410_wdt
+Message-ID: <20111126102915.GA7517@pengutronix.de>
+References: <4ed026d9.TvJLr8ihQ2VtvqPD%marc.vertes@sigfox.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="fdj2RfSjLxBAspz7"
+Content-Disposition: inline
+In-Reply-To: <4ed026d9.TvJLr8ihQ2VtvqPD%marc.vertes@sigfox.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Set nowayout flag in probe function, otherwise option is useless.
 
-Signed-off-by: Marc Vertes <marc.vertes@sigfox.com>
----
+--fdj2RfSjLxBAspz7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- s3c2410_wdt.c |    3 +++
- 1 file changed, 3 insertions(+)
+On Sat, Nov 26, 2011 at 12:38:01AM +0100, Marc Vertes wrote:
+> Set nowayout flag in probe function, otherwise option is useless.
+>=20
+> Signed-off-by: Marc Vertes <marc.vertes@sigfox.com>
 
---- linux-3.2-rc3/drivers/watchdog/s3c2410_wdt.c.orig	2011-11-24 05:20:28.000000000 +0100
-+++ linux-3.2-rc3/drivers/watchdog/s3c2410_wdt.c	2011-11-26 00:08:58.985896169 +0100
-@@ -395,6 +395,9 @@ static int __devinit s3c2410wdt_probe(st
- 		s3c2410wdt_stop(&s3c2410_wdd);
- 	}
- 
-+	if (nowayout)
-+		set_bit(WDOG_NO_WAY_OUT, &s3c2410_wdd.status);
-+
- 	/* print out a statement of readiness */
- 
- 	wtcon = readl(wdt_base + S3C2410_WTCON);
+Similar as
+
+http://www.spinics.net/lists/linux-watchdog/msg00704.html
+
+which depends on
+
+http://www.spinics.net/lists/linux-watchdog/msg00703.html
+
+which has the advantage that it can be used for static initialization.
+
+@Wim: are you fine with that old series BTW? If so, I will resend and try to
+get the RTC-ack from Andrew.
+
+Thanks,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--fdj2RfSjLxBAspz7
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAk7Qv3sACgkQD27XaX1/VRuJnQCgxd38tD7eogZ+5boKo7cUGIVr
+O4sAnjVDRbktchLhMkkAdfrhPI41nIBN
+=FRP9
+-----END PGP SIGNATURE-----
+
+--fdj2RfSjLxBAspz7--
