@@ -1,62 +1,105 @@
-From: Gabor Juhos <juhosg@openwrt.org>
-To: Ralf Baechle <ralf@linux-mips.org>
-Cc: linux-mips@linux-mips.org,
-        "Luis R. Rodriguez" <mcgrof@qca.qualcomm.com>,
-        mcgrof@infradead.org, Gabor Juhos <juhosg@openwrt.org>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        linux-watchdog@vger.kernel.org
-Subject: [PATCH 16/16] watchdog: ath79_wdt: flush register writes
-Date: Fri, 23 Dec 2011 19:25:42 +0100
-Message-Id: <1324664742-3648-17-git-send-email-juhosg@openwrt.org>
-In-Reply-To: <1324664742-3648-1-git-send-email-juhosg@openwrt.org>
-References: <1324664742-3648-1-git-send-email-juhosg@openwrt.org>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-Return-Path: <linux-mips-bounce@linux-mips.org>
-List-Archive: <https://lore.kernel.org/linux-mips/>
-List-Post: <mailto:linux-mips@vger.kernel.org>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mailout4.samsung.com ([203.254.224.34]:16996 "EHLO
+	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753253Ab1LAHaH convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 1 Dec 2011 02:30:07 -0500
+From: Kukjin Kim <kgene.kim@samsung.com>
+To: 'Thomas Abraham' <thomas.abraham@linaro.org>,
+	'Dmitry Artamonow' <mad_soft@inbox.ru>
+Cc: 'Wim Van Sebroeck' <wim@iguana.be>, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	'Ben Dooks' <ben-linux@fluff.org>,
+	linux-watchdog@vger.kernel.org
+References: <1321433173-17757-1-git-send-email-mad_soft@inbox.ru>
+ <CAJuYYwTv3d9Wg8TDBEkc0r3BweUiLdqVwGdMU4iKpK0B+EM=GA@mail.gmail.com>
+In-reply-to: <CAJuYYwTv3d9Wg8TDBEkc0r3BweUiLdqVwGdMU4iKpK0B+EM=GA@mail.gmail.com>
+Subject: RE: [PATCH] watchdog: fix initialisation printout in s3c2410_wdt
+Date: Thu, 01 Dec 2011 16:29:46 +0900
+Message-id: <045d01ccaffb$00710240$015306c0$%kim@samsung.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-language: ko
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-The watchdog register writes required to have a flush
-in order to commit the values to the register. Without
-the flush, the driver not function correctly on AR934X
-SoCs.
+Thomas Abraham wrote:
+>=20
+> On 16 November 2011 14:16, Dmitry Artamonow <mad_soft@inbox.ru> wrote:
+> > Looks like a typo creeped in, and driver prints
+> > s3c2410-wdt s3c2410-wdt: watchdog active, reset abled, irq abled
+> >
+> > instead of
+> > s3c2410-wdt s3c2410-wdt: watchdog active, reset enabled, irq enabled
+> >
+> > Also it may completely disinform about irq status, as it prints
+> > "irq enabled" when S3C2410_WTCON_INTEN is in fact 0.
+> >
+> > Fix it.
+> >
+> > Signed-off-by: Dmitry Artamonow <mad_soft@inbox.ru>
+> > ---
+> >
+> > It seems to be here for a long time, but I don't think it's
+> > important enough for cc-ing stable.
+> >
+> > Also I haven't tested it, as I don't have a hardware, but it's
+> > rather trivial (and yes, I checked with datasheet that 1 in
+> > S3C2410_WTCON_*EN bits really means 'enabled')
+> >
+>=20
+> Tested on Exynos4210 based Origen board. This patch fixed in incorrect
+> "irq enabled" message at bootup. Thanks for this fix.
+>=20
+> Tested-by: Thomas Abraham <thomas.abraham@linaro.org>
+>=20
 
-Signed-off-by: Gabor Juhos <juhosg@openwrt.org>
-Acked-by: Luis R. Rodriguez <mcgrof@qca.qualcomm.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org
----
- drivers/watchdog/ath79_wdt.c |    6 ++++++
- 1 files changed, 6 insertions(+), 0 deletions(-)
+Acked-by: Kukjin Kim <kgene.kim@samsung.com>
 
-diff --git a/drivers/watchdog/ath79_wdt.c b/drivers/watchdog/ath79_wdt.c
-index 725c84b..9db8083 100644
---- a/drivers/watchdog/ath79_wdt.c
-+++ b/drivers/watchdog/ath79_wdt.c
-@@ -68,17 +68,23 @@ static int max_timeout;
- static inline void ath79_wdt_keepalive(void)
- {
- 	ath79_reset_wr(AR71XX_RESET_REG_WDOG, wdt_freq * timeout);
-+	/* flush write */
-+	ath79_reset_rr(AR71XX_RESET_REG_WDOG);
- }
- 
- static inline void ath79_wdt_enable(void)
- {
- 	ath79_wdt_keepalive();
- 	ath79_reset_wr(AR71XX_RESET_REG_WDOG_CTRL, WDOG_CTRL_ACTION_FCR);
-+	/* flush write */
-+	ath79_reset_rr(AR71XX_RESET_REG_WDOG_CTRL);
- }
- 
- static inline void ath79_wdt_disable(void)
- {
- 	ath79_reset_wr(AR71XX_RESET_REG_WDOG_CTRL, WDOG_CTRL_ACTION_NONE);
-+	/* flush write */
-+	ath79_reset_rr(AR71XX_RESET_REG_WDOG_CTRL);
- }
- 
- static int ath79_wdt_set_timeout(int val)
--- 
-1.7.2.1
+Hi Wim,
+Please pick this up in your tree and if any problem, let me know.
+
+Thanks.
+
+Best regards,
+Kgene.
+--
+Kukjin Kim <kgene.kim@samsung.com>, Senior Engineer,
+SW Solution Development Team, Samsung Electronics Co., Ltd.
+
+
+> > =A0drivers/watchdog/s3c2410_wdt.c | =A0 =A04 ++--
+> > =A01 files changed, 2 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/drivers/watchdog/s3c2410_wdt.c
+> b/drivers/watchdog/s3c2410_wdt.c
+> > index 5de7e4f..a79e384 100644
+> > --- a/drivers/watchdog/s3c2410_wdt.c
+> > +++ b/drivers/watchdog/s3c2410_wdt.c
+> > @@ -401,8 +401,8 @@ static int __devinit s3c2410wdt_probe(struct
+> platform_device *pdev)
+> >
+> > =A0 =A0 =A0 =A0dev_info(dev, "watchdog %sactive, reset %sabled, irq %=
+sabled\n",
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 (wtcon & S3C2410_WTCON_ENABLE) ? =A0"=
+" : "in",
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0(wtcon & S3C2410_WTCON_RSTEN) ? "" :=
+ "dis",
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0(wtcon & S3C2410_WTCON_INTEN) ? "" :=
+ "en");
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0(wtcon & S3C2410_WTCON_RSTEN) ? "en"=
+ : "dis",
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0(wtcon & S3C2410_WTCON_INTEN) ? "en"=
+ : "dis");
+> >
+> > =A0 =A0 =A0 =A0return 0;
+> >
+> > --
+> > 1.7.5.1.300.gc565c
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
