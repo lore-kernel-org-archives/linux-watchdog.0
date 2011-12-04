@@ -1,56 +1,71 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.9]:45108 "EHLO
+Received: from mail-out.m-online.net ([212.18.0.10]:39481 "EHLO
 	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754592Ab1LDQeW (ORCPT
+	with ESMTP id S1752861Ab1LDRIN (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 4 Dec 2011 11:34:22 -0500
+	Sun, 4 Dec 2011 12:08:13 -0500
 To: Wolfram Sang <w.sang@pengutronix.de>
-cc: Heiko Schocher <hs@denx.de>, Vitaly Bordug <vbordug@ru.mvista.com>,
+cc: Heiko Schocher <hs@denx.de>, linux-watchdog@vger.kernel.org,
 	devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org
+	Stefan Roese <sr@denx.de>
 From: Wolfgang Denk <wd@denx.de>
-Subject: Re: [PATCH] drivers, char: add U-Boot bootcount driver
+Subject: Re: [PATCH] RFC, watchdog: add generic wdt driver API
 MIME-Version: 1.0
 Content-type: text/plain; charset=UTF-8
-In-reply-to: <20111204114741.GA5788@pengutronix.de>
-References: <1322991921-21096-1-git-send-email-hs@denx.de> <20111204114741.GA5788@pengutronix.de>
-Date: Sun, 04 Dec 2011 17:34:17 +0100
-Message-Id: <20111204163417.1AD6625EA22@gemini.denx.de>
+In-reply-to: <20111204125928.GB5788@pengutronix.de>
+References: <1322992423-21683-1-git-send-email-hs@denx.de> <20111204125928.GB5788@pengutronix.de>
+Date: Sun, 04 Dec 2011 18:08:10 +0100
+Message-Id: <20111204170810.8370625EA22@gemini.denx.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 Content-Transfer-Encoding: quoted-printable
 
 Dear Wolfram,
 
-in message <20111204114741.GA5788@pengutronix.de> you wrote:
+In message <20111204125928.GB5788@pengutronix.de> you wrote:
 >=20
-> >       Description: OSDL CGL specifies that carrier grade Linux
-> >       shall provide support for detecting a repeating reboot cycle
-> > 	due to recurring failures. This detection should happen in
-> > 	user space before system services are started.
->
-> So, technically, a flag would be enough, not necessarily a counter? Alt=
-hough a
-> counter probably has more advantages...
+> > This patch is a port from Linux 2.4 and thought as an RFC, so comment=
+s
+> > are greately appreciated. First question is, has this watchdog driver
+> > API a chance to go in mainline? If so, what is the direction to
+> > go to push it ...
+>=20
+> I don't see this flying. We finally have a watchdog framework in the ke=
+rnel
+> which covers the long existing API used by existing drivers. If I under=
+stood it
+> right, this additional API needs new drivers for all the watchdogs? Als=
+o, I
+> didn't fully get what you are missing from the combination of the curre=
+nt API
+> and additional userspace-handling? (check [1] for one example, not real=
+ly
 
-The real-life applications we have seen so far all required a counter.
-They all required to switch to a recovery mode or other alternative
-boot sequence after N failed boot attempts, with N > 1 in all cases.
+Watchdog support is somethign that usually comes into play for
+security-critical devices.  Doing this stuff in user space may or may
+not be sufficient; for example, we've seen requirements where all
+related code must be running from ROM (including all other kernel
+code).
 
-> >                   reg =3D <0x23060 0x20>;
->
-> I assume that non-volatile memory would qualify as a boot-counter, so t=
-hose
-> could be tied to I2C busses etc? reg would not fit then.
+Also, the implementation submitted by Heiko allows for easy watchdog
+control for kernel tasks.  I don;t see a good way to do this through
+user space.
 
-Actually all kind of non-volatile storage can be used - it depends
-on specific hardware roperties.  Some SoCs have registers that are
-guaranteed not to change theier value during a reset; on other systems
-we have storage or NVRAM in RTCs or similar, or we can use SRAM, or
-I2C or SPI attached EEPROM, or even storage on SDCard, USB or other
-storage devices.
+But as Heikow wrote; this is a RFC patch, and the main purpose is to
+try to find out if it has a chance to go into mainline - several
+earlier attempts (which go back as far as 2002 - see for example [1],
+[2]) all failed with similar arguments like yours: "It's too complex,
+we already have watchdog support, nobody needs this". Funny enough
+that we have a number of customers who consider the existing wdt
+support unsufficient for their use cases.  We've been using it on all
+kinds on PPC systems, and now on ARM as well.
 
-This binding covers the memory type only.
+We will not fight for inclusion of this driver, we just wat to know if
+it's worth investing efforts to get it accepted or if this is a lost
+case.
+
+[1] http://osdir.com/ml/linux.ports.ppc.embedded/2003-12/msg00188.html
+[2] http://thread.gmane.org/gmane.linux.kernel/884598
 
 Best regards,
 
@@ -60,8 +75,9 @@ Wolfgang Denk
 DENX Software Engineering GmbH,     MD: Wolfgang Denk & Detlev Zundel
 HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 Phone: (+49)-8142-66989-10 Fax: (+49)-8142-66989-80 Email: wd@denx.de
-"There is nothing new under the sun, but there are lots of old things
-we don't know yet."                                  - Ambrose Bierce
+Gew=C3=B6hnlich glaubt der Mensch,  wenn er nur Worte h=C3=B6rt,  es m=C3=
+=BCsse sich
+dabei doch auch was denken lassen.                 -- Goethe, Faust I
 --
 To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
  in
