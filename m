@@ -1,57 +1,39 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.17.10]:50301 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752098Ab1LEHnd (ORCPT
+Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:46690 "EHLO
+	earthlight.etchedpixels.co.uk" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932132Ab1LEMZO (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 5 Dec 2011 02:43:33 -0500
-Date: Mon, 5 Dec 2011 08:43:05 +0100
-From: Thierry Reding <thierry.reding@avionic-design.de>
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: Heiko Schocher <hs@denx.de>, Wolfgang Denk <wd@denx.de>,
-	Vitaly Bordug <vbordug@ru.mvista.com>,
+	Mon, 5 Dec 2011 07:25:14 -0500
+Date: Mon, 5 Dec 2011 12:26:49 +0000
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Wolfgang Denk <wd@denx.de>
+Cc: Wolfram Sang <w.sang@pengutronix.de>, Heiko Schocher <hs@denx.de>,
+	linux-watchdog@vger.kernel.org,
 	devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] drivers, char: add U-Boot bootcount driver
-Message-ID: <20111205074305.GA7806@avionic-0098.mockup.avionic-design.de>
-References: <1322991921-21096-1-git-send-email-hs@denx.de>
- <20111204114741.GA5788@pengutronix.de>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="EVF5PPMfhYS0aIcm"
-Content-Disposition: inline
-In-Reply-To: <20111204114741.GA5788@pengutronix.de>
+	Stefan Roese <sr@denx.de>
+Subject: Re: [PATCH] RFC, watchdog: add generic wdt driver API
+Message-ID: <20111205122649.6fc6aed2@lxorguk.ukuu.org.uk>
+In-Reply-To: <20111204170810.8370625EA22@gemini.denx.de>
+References: <1322992423-21683-1-git-send-email-hs@denx.de>
+	<20111204125928.GB5788@pengutronix.de>
+	<20111204170810.8370625EA22@gemini.denx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+> that we have a number of customers who consider the existing wdt
+> support unsufficient for their use cases.  We've been using it on all
+> kinds on PPC systems, and now on ARM as well.
+> 
+> We will not fight for inclusion of this driver, we just wat to know if
+> it's worth investing efforts to get it accepted or if this is a lost
+> case.
 
---EVF5PPMfhYS0aIcm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I think it would be better to start from the needed feature list than the
+implementation of an old and wildly different pile of code. Then discuss
+adding those features that are relevant to the current framework - which
+ought to be relatively easy now each watchdog is a set of methods.
 
-* Wolfram Sang wrote:
-> On Sun, Dec 04, 2011 at 10:45:21AM +0100, Heiko Schocher wrote:
-[...]
-> >                   reg =3D <0x23060 0x20>;
->=20
-> I assume that non-volatile memory would qualify as a boot-counter, so tho=
-se
-> could be tied to I2C busses etc? reg would not fit then.
-
-This is not really on-topic, but in the device-tree the "reg" property is
-used to encode an I2C device's slave address.
-
-Thierry
-
---EVF5PPMfhYS0aIcm
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAk7cdgkACgkQZ+BJyKLjJp+5QwCfeX4ZaVA2ok1ZGKMt/jDI2X6E
-fGMAoK5wU19BDYES7zSJ7/iBMfzg6VXD
-=FRhB
------END PGP SIGNATURE-----
-
---EVF5PPMfhYS0aIcm--
+Alan
