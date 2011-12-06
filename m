@@ -1,65 +1,94 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:58183 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755113Ab1LETzr (ORCPT
+Received: from rcsinet15.oracle.com ([148.87.113.117]:48733 "EHLO
+	rcsinet15.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932738Ab1LFANs (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 5 Dec 2011 14:55:47 -0500
-MIME-Version: 1.0
-Date: Mon, 5 Dec 2011 11:55:45 -0800
-Message-ID: <CAK3+h2zaZ3J4F4_rx6LGM0f_iY7ao8rU9nCt3EpZXDRGrqm3hQ@mail.gmail.com>
-Subject: Seeking Linux watchdog design advice to trouble shoot mystory silent
- reboot issue
-From: Vincent Li <vincent.mc.li@gmail.com>
-To: linux-watchdog@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 5 Dec 2011 19:13:48 -0500
+From: Maxim Uvarov <maxim.uvarov@oracle.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-watchdog@vger.kernel.org, wim@iguana.be,
+	Maxim Uvarov <maxim.uvarov@oracle.com>
+Subject: [PATCH] hpwd watchdog mark page writable
+Date: Mon,  5 Dec 2011 16:11:44 -0800
+Message-Id: <1323130304-32165-1-git-send-email-maxim.uvarov@oracle.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
+Mark hpwdt watchdog pages writable to prevent failing:
 
-we have  a complex system with a large number of processes running
-simutanously. If any of the processes gets into a faulty state and
-hangs or consumes more than its fair share of the system resources,
-the other processes may not get a chance to run, and the whole system
-can hang, interrupting the system functionality and user traffic.
+BUG: unable to handle kernel paging request at c00f0000
+ IP: [<c00f0000>] 0xc00effff
+ *pdpt = 0000000000b7c001 *pde = 0000000000cf5067 *pte = 80000000000f0163
+ Oops: 0011 [#1] SMP
+ Modules linked in: hpwdt(+)(U) ipmi_si(U) ipmi_msghandler(U) serio_raw(U)
+ pcspkr(U) k8temp(U) ext4(U) mbcache(U) jbd2(U) hpsa(U) cciss(U) lpfc(U)
+ qla2xxx(U) scsi_transport_fc(U) scsi_tgt(U) radeon(U) ttm(U)
+ drm_kms_helper(U) drm(U) hwmon(U) i2c_algo_bit(U) i2c_core(U) dm_mod(U)
+ .
+ Pid: 741, comm: modprobe Not tainted 2.6.39-100.0.15.el6uek.i686 #1 HP
+ ProLiant BL685c G1
+ EIP: 0060:[<c00f0000>] EFLAGS: 00010286 CPU: 1
+ EIP is at 0xc00f0000
+ EAX: 55524324 EBX: 00000000 ECX: 00000000 EDX: 00000000
+ ESI: 00000000 EDI: 00000000 EBP: e892fda0 ESP: e892fd70
+  DS: 007b ES: 007b FS: 00d8 GS: 00e0 SS: 0068
+ Process modprobe (pid: 741, ti=e892e000 task=e96d0da0 task.ti=e892e000)
+ Stack:
+  f902b020 00000060 0000007b 00000286 ffffffed c00f0000 e892fda0 e892fda0
+  c00f0000 00000001 00000000 c00f0000 e892fdc4 f902b500 f902c0e0 c00f0000
+  e892fdc4 c0439b6f c00ffee0 c0100000 c00f0000 e892fdf0 f902b627 ea276860
+ Call Trace:
+  [<f902b020>] ? asminline_call+0x20/0x50 [hpwdt]
+  [<f902b500>] cru_detect+0x43/0xf6 [hpwdt]
+  [<c0439b6f>] ? ioremap_nocache+0x1f/0x30
+  [<f902b627>] hpwdt_init_nmi_decoding+0x74/0x16b [hpwdt]
+  [<c085f469>] ? printk+0x1d/0x24
+  [<f902b7f4>] hpwdt_init_one+0xd6/0x162 [hpwdt]
+  [<c06d8475>] ? pm_runtime_enable+0x45/0x70
+  [<c06149c7>] local_pci_probe+0x47/0xb0
+  [<c0615978>] pci_device_probe+0x68/0x90
+  [<c06d0aee>] really_probe+0x5e/0x210
+  [<c06d9808>] ? pm_runtime_barrier+0x48/0xb0
+  [<c06d0ce3>] driver_probe_device+0x43/0xa0
+  [<c061494e>] ? pci_match_device+0x9e/0xb0
+  [<c06d0dc1>] __driver_attach+0x81/0x90
+  [<c06d0020>] bus_for_each_dev+0x50/0x70
+  [<c06d08fe>] driver_attach+0x1e/0x20
+  [<c06d0d40>] ? driver_probe_device+0xa0/0xa0
+  [<c06d0397>] bus_add_driver+0x197/0x270
+  [<c06157f0>] ? pci_dev_put+0x20/0x20
+  [<c06d13ea>] driver_register+0x6a/0x130
+  [<c0615ba5>] __pci_register_driver+0x45/0xb0
+  [<f902e017>] hpwdt_init+0x17/0x19 [hpwdt]
+  [<c0403035>] do_one_initcall+0x35/0x170
+  [<f902e000>] ? 0xf902dfff
+  [<c0491ac5>] sys_init_module+0x75/0x1c0
+  [<c04ac8a6>] ? audit_syscall_exit+0x216/0x240
+  [<c0868f9f>] sysenter_do_call+0x12/0x28
+ Code: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+  90 80 fc d8 75 0d e9 03 07 00 00 b8 04 00 00 02 05 00 00 9c
+ EIP: [<c00f0000>] 0xc00f0000 SS:ESP 0068:e892fd70
+ CR2: 00000000c00f0000
 
-In order to prevent the system from hanging, We uses a host watchdog
-mechanism to make sure the system can detect and get out of a hanging
-state with a host reboot. This feature is implemented with the
-hardware watchdog counter. The counter is initialized to a fixed
-number, and counts down automatically unless it is reset by a special
-user space software process, say watchdog. When watchdog gets a chance
-to run, it touches the hardware watchdog counter. If the system gets
-too busy, and the watchdog process does not get a chance to run before
-the hardware watchdog counter reaches 0, the host is rebooted in an
-attempt to recover from the hanging system.
+Signed-off-by: Maxim Uvarov <maxim.uvarov@oracle.com>
+---
+ drivers/watchdog/hpwdt.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-Recently, there have been a number of cases in which the  units
-silently rebooted without much information logged in the system log.
-In most silent reboot cases, the unit was rebooted because of a host
-hardware watchdog reboot, and because of the nature of the host
-watchdog reboots, not much information about the current states of the
-system is preseved or logged before the hardware reboot takes effect.
-After the reboot, it is hard to analyze the real cause of the system
-being hang.
+diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
+index 3774c9b..fe50812 100644
+--- a/drivers/watchdog/hpwdt.c
++++ b/drivers/watchdog/hpwdt.c
+@@ -335,6 +335,8 @@ static int __devinit detect_cru_service(void)
+ 	if (p == NULL)
+ 		return -ENOMEM;
+ 
++	set_memory_x((unsigned long)p & PAGE_MASK, ROM_SIZE >> PAGE_SHIFT);
++
+ 	for (q = p; q < p + ROM_SIZE; q += 16) {
+ 		rc = bios32_present(q);
+ 		if (!rc)
+-- 
+1.7.4.1
 
-we have been thinking moving the user space watchdog process to kernel
-and invoke some kernel  function like dump_stack to show the hanging
-process stack trace before hardware reset. we have tried
-drivers/watchdog/softdog.c as prove of this idea, but  we are unable
-to get the hanging process stack trace. we also tried to use kdump in
-kernel, but we are unable to run kdump  in  kernel for some other
-technical reason.
-
-CPU and memory control group features are not considered at this stage
-because it is too invasive to change in our custom kernel.
-
-could you share  your experience on this kind of issue, we really
-would like to be able to find out which faulty process caused the CPU
-to deschedue user space watchdog process and dump the stack trace of
-that faulty process.
-
-Thank you in advance!
-
-Vincent
