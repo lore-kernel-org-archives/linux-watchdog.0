@@ -1,60 +1,91 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:54931 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751141Ab1LFQSX (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:55690 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753427Ab1LFVvC (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 6 Dec 2011 11:18:23 -0500
-Date: Tue, 6 Dec 2011 16:18:15 +0000
-From: Dave Martin <dave.martin@linaro.org>
-To: Alessandro Rubini <rubini@unipv.it>
-Cc: linux@arm.linux.org.uk, patches@linaro.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	alan@linux.intel.com, a.zummo@towertech.it,
-	alsa-devel@alsa-project.org, cjb@laptop.org,
-	dan.j.williams@intel.com, dmitry.torokhov@gmail.com,
-	grant.likely@secretlab.ca, perex@perex.cz,
-	jassisinghbrar@gmail.com, julia@diku.dk, linus.walleij@linaro.org,
-	linux-fbdev@vger.kernel.org, linux-input@vger.kernel.org,
-	linux-mmc@vger.kernel.org, linux-serial@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, lethal@linux-sh.org,
-	Pawel.Moll@arm.com, rtc-linux@googlegroups.com,
-	spi-devel-general@lists.sourceforge.net, tiwai@suse.de,
-	vinod.koul@intel.com, wim@iguana.be
-Subject: Re: [GIT PULL] ARM: amba: Enable module alias autogeneration for
- AMBA drivers
-Message-ID: <20111206161815.GD13769@linaro.org>
-References: <20111206151541.GA13774@linaro.org>
- <1321961573-4562-1-git-send-email-dave.martin@linaro.org>
- <20111206155911.GA11902@mail.gnudd.com>
+	Tue, 6 Dec 2011 16:51:02 -0500
+Date: Tue, 6 Dec 2011 22:50:56 +0100
+From: Wolfram Sang <w.sang@pengutronix.de>
+To: Heiko Schocher <hs@denx.de>
+Cc: Wolfgang Denk <wd@denx.de>, Vitaly Bordug <vbordug@ru.mvista.com>,
+	devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] drivers, char: add U-Boot bootcount driver
+Message-ID: <20111206215056.GD14154@pengutronix.de>
+References: <1322991921-21096-1-git-send-email-hs@denx.de>
+ <20111204114741.GA5788@pengutronix.de>
+ <4EDCD7B2.5030409@denx.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="IDYEmSnFhs3mNXr+"
 Content-Disposition: inline
-In-Reply-To: <20111206155911.GA11902@mail.gnudd.com>
+In-Reply-To: <4EDCD7B2.5030409@denx.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Dec 06, 2011 at 04:59:11PM +0100, Alessandro Rubini wrote:
-> > ... it looks like Alessandro's proposed change to tidy up scripts/mod/
-> > ile2alias.c may get merged soon
-> 
-> No, I don't think it will happen. Rusty disagrees, and his own
-> suggestion is in the queue. I'm waiting a while to understand
-> what is happening.
-> 
-> Anyways, I think it's better for me to wait for amba to come in, and
-> work on scripts/mod later on. After all, it's meant to ease adding new
-> buses later, not to make it more difficult for already scheduled ones.
 
-OK -- thanks for the clarification.
+--IDYEmSnFhs3mNXr+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+Hi Heiko,
 
-Russell, it sounds like you shouldn't get a merge conflict with the
-original version of the series after all.
+> >> This driver provides read/write access to the U-Boot bootcounter
+> >> through PROC FS and/or sysFS file.
+> >=20
+> > Why ProcFS? Why ProcFS and/or SysFS? Which has priority? Why not /dev?
+>=20
+> I drop the ProcFS support for v2.
 
-For reference, the original pull request is here:
+Don't bother. This approach starts from the wrong side.
 
-http://lists.infradead.org/pipermail/linux-arm-kernel/2011-November/073619.html
+>=20
+> >> The bootcountregister gets configured via DTS.
+> >> for example on the enbw_cmc board:
+> >>
+> >> bootcount@0x23060 {
+> >>                   compatible =3D "uboot,bootcount";
+> >=20
+> > No. I assume you are not the vendor of what is at 0x23060, the actual d=
+evice.
+> > Only the device must be encoded in the compatible-entry which then impl=
+ies the
+> > bootcount functionality. Also, keep in mind that your solution should be
+> > generic for bootloaders.
+>=20
+> So I should call it compatible =3D "generic, bootcount" ?
 
+Nope, you should give it the name of the device. Remember that 'compatible'=
+ is
+no 1:1 replacement for platform_driver-binding. Check
+http://devicetree.org/Device_Tree_Usage, especially the sections about the
+compatible-property.
 
-Cheers
----Dave
+bootcount itself is not a device. It is a feature of certain devices. And t=
+hat
+needs to be implemented; possibly generic enough that it can work for regis=
+ter
+based, i2c based, and so forth, accesses.
+
+Regards,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--IDYEmSnFhs3mNXr+
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEUEARECAAYFAk7ejkAACgkQD27XaX1/VRsK8gCgsBZlpGkToxR4W/TNp7j9yOmo
+8TEAmNpVaf1A7KManfT9jWcx10Ntn/M=
+=k/HJ
+-----END PGP SIGNATURE-----
+
+--IDYEmSnFhs3mNXr+--
