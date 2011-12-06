@@ -1,11 +1,12 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail2.gnudd.com ([213.203.150.91]:63618 "EHLO mail.gnudd.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750715Ab1LFQBR (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 6 Dec 2011 11:01:17 -0500
-Date: Tue, 6 Dec 2011 16:59:11 +0100
-From: Alessandro Rubini <rubini@unipv.it>
-To: dave.martin@linaro.org
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:54931 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751141Ab1LFQSX (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 6 Dec 2011 11:18:23 -0500
+Date: Tue, 6 Dec 2011 16:18:15 +0000
+From: Dave Martin <dave.martin@linaro.org>
+To: Alessandro Rubini <rubini@unipv.it>
 Cc: linux@arm.linux.org.uk, patches@linaro.org,
 	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
 	alan@linux.intel.com, a.zummo@towertech.it,
@@ -21,25 +22,39 @@ Cc: linux@arm.linux.org.uk, patches@linaro.org,
 	vinod.koul@intel.com, wim@iguana.be
 Subject: Re: [GIT PULL] ARM: amba: Enable module alias autogeneration for
  AMBA drivers
-Message-ID: <20111206155911.GA11902@mail.gnudd.com>
+Message-ID: <20111206161815.GD13769@linaro.org>
+References: <20111206151541.GA13774@linaro.org>
+ <1321961573-4562-1-git-send-email-dave.martin@linaro.org>
+ <20111206155911.GA11902@mail.gnudd.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20111206151541.GA13774@linaro.org>
-References: <20111206151541.GA13774@linaro.org>
-  <1321961573-4562-1-git-send-email-dave.martin@linaro.org>
+In-Reply-To: <20111206155911.GA11902@mail.gnudd.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-> ... it looks like Alessandro's proposed change to tidy up scripts/mod/
-> ile2alias.c may get merged soon
+On Tue, Dec 06, 2011 at 04:59:11PM +0100, Alessandro Rubini wrote:
+> > ... it looks like Alessandro's proposed change to tidy up scripts/mod/
+> > ile2alias.c may get merged soon
+> 
+> No, I don't think it will happen. Rusty disagrees, and his own
+> suggestion is in the queue. I'm waiting a while to understand
+> what is happening.
+> 
+> Anyways, I think it's better for me to wait for amba to come in, and
+> work on scripts/mod later on. After all, it's meant to ease adding new
+> buses later, not to make it more difficult for already scheduled ones.
 
-No, I don't think it will happen. Rusty disagrees, and his own
-suggestion is in the queue. I'm waiting a while to understand
-what is happening.
+OK -- thanks for the clarification.
 
-Anyways, I think it's better for me to wait for amba to come in, and
-work on scripts/mod later on. After all, it's meant to ease adding new
-buses later, not to make it more difficult for already scheduled ones.
 
-/alessandro
+Russell, it sounds like you shouldn't get a merge conflict with the
+original version of the series after all.
+
+For reference, the original pull request is here:
+
+http://lists.infradead.org/pipermail/linux-arm-kernel/2011-November/073619.html
+
+
+Cheers
+---Dave
