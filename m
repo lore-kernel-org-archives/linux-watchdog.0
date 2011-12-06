@@ -1,95 +1,115 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from rcsinet15.oracle.com ([148.87.113.117]:47396 "EHLO
-	rcsinet15.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932706Ab1LFA1k (ORCPT
+Received: from mail-ee0-f46.google.com ([74.125.83.46]:61979 "EHLO
+	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752660Ab1LFPPy (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 5 Dec 2011 19:27:40 -0500
-From: Maxim Uvarov <maxim.uvarov@oracle.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-watchdog@vger.kernel.org, wim@iguana.be,
-	Maxim Uvarov <maxim.uvarov@oracle.com>
-Subject: [PATCH] hpwd watchdog mark page executable
-Date: Mon,  5 Dec 2011 16:25:39 -0800
-Message-Id: <1323131139-32451-2-git-send-email-maxim.uvarov@oracle.com>
-In-Reply-To: <1323131139-32451-1-git-send-email-maxim.uvarov@oracle.com>
-References: <1323131139-32451-1-git-send-email-maxim.uvarov@oracle.com>
+	Tue, 6 Dec 2011 10:15:54 -0500
+Date: Tue, 6 Dec 2011 15:15:41 +0000
+From: Dave Martin <dave.martin@linaro.org>
+To: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Cc: patches@linaro.org, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Alan Cox <alan@linux.intel.com>,
+	Alessandro Rubini <rubini@unipv.it>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	alsa-devel@alsa-project.org, Chris Ball <cjb@laptop.org>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Grant Likely <grant.likely@secretlab.ca>,
+	Jaroslav Kysela <perex@perex.cz>,
+	Jassi Brar <jassisinghbrar@gmail.com>,
+	Julia Lawall <julia@diku.dk>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	linux-fbdev@vger.kernel.org, linux-input@vger.kernel.org,
+	linux-mmc@vger.kernel.org, linux-serial@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, Paul Mundt <lethal@linux-sh.org>,
+	=?utf-8?B?UGF3ZcWC?= Moll <Pawel.Moll@arm.com>,
+	rtc-linux@googlegroups.com,
+	spi-devel-general@lists.sourceforge.net,
+	Takashi Iwai <tiwai@suse.de>,
+	Vinod Koul <vinod.koul@intel.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+Subject: [GIT PULL] ARM: amba: Enable module alias autogeneration for AMBA
+ drivers
+Message-ID: <20111206151541.GA13774@linaro.org>
+References: <1321961573-4562-1-git-send-email-dave.martin@linaro.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1321961573-4562-1-git-send-email-dave.martin@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Mark hpwdt watchdog pages executable to prevent failing:
-BUG: unable to handle kernel paging request at c00f0000
- IP: [<c00f0000>] 0xc00effff
- *pdpt = 0000000000b7c001 *pde = 0000000000cf5067 *pte = 80000000000f0163
- Oops: 0011 [#1] SMP
- Modules linked in: hpwdt(+)(U) ipmi_si(U) ipmi_msghandler(U) serio_raw(U)
- pcspkr(U) k8temp(U) ext4(U) mbcache(U) jbd2(U) hpsa(U) cciss(U) lpfc(U)
- qla2xxx(U) scsi_transport_fc(U) scsi_tgt(U) radeon(U) ttm(U)
- drm_kms_helper(U) drm(U) hwmon(U) i2c_algo_bit(U) i2c_core(U) dm_mod(U)
- .
- Pid: 741, comm: modprobe Not tainted 2.6.39-100.0.15.el6uek.i686 #1 HP
- ProLiant BL685c G1
- EIP: 0060:[<c00f0000>] EFLAGS: 00010286 CPU: 1
- EIP is at 0xc00f0000
- EAX: 55524324 EBX: 00000000 ECX: 00000000 EDX: 00000000
- ESI: 00000000 EDI: 00000000 EBP: e892fda0 ESP: e892fd70
-  DS: 007b ES: 007b FS: 00d8 GS: 00e0 SS: 0068
- Process modprobe (pid: 741, ti=e892e000 task=e96d0da0 task.ti=e892e000)
- Stack:
-  f902b020 00000060 0000007b 00000286 ffffffed c00f0000 e892fda0 e892fda0
-  c00f0000 00000001 00000000 c00f0000 e892fdc4 f902b500 f902c0e0 c00f0000
-  e892fdc4 c0439b6f c00ffee0 c0100000 c00f0000 e892fdf0 f902b627 ea276860
- Call Trace:
-  [<f902b020>] ? asminline_call+0x20/0x50 [hpwdt]
-  [<f902b500>] cru_detect+0x43/0xf6 [hpwdt]
-  [<c0439b6f>] ? ioremap_nocache+0x1f/0x30
-  [<f902b627>] hpwdt_init_nmi_decoding+0x74/0x16b [hpwdt]
-  [<c085f469>] ? printk+0x1d/0x24
-  [<f902b7f4>] hpwdt_init_one+0xd6/0x162 [hpwdt]
-  [<c06d8475>] ? pm_runtime_enable+0x45/0x70
-  [<c06149c7>] local_pci_probe+0x47/0xb0
-  [<c0615978>] pci_device_probe+0x68/0x90
-  [<c06d0aee>] really_probe+0x5e/0x210
-  [<c06d9808>] ? pm_runtime_barrier+0x48/0xb0
-  [<c06d0ce3>] driver_probe_device+0x43/0xa0
-  [<c061494e>] ? pci_match_device+0x9e/0xb0
-  [<c06d0dc1>] __driver_attach+0x81/0x90
-  [<c06d0020>] bus_for_each_dev+0x50/0x70
-  [<c06d08fe>] driver_attach+0x1e/0x20
-  [<c06d0d40>] ? driver_probe_device+0xa0/0xa0
-  [<c06d0397>] bus_add_driver+0x197/0x270
-  [<c06157f0>] ? pci_dev_put+0x20/0x20
-  [<c06d13ea>] driver_register+0x6a/0x130
-  [<c0615ba5>] __pci_register_driver+0x45/0xb0
-  [<f902e017>] hpwdt_init+0x17/0x19 [hpwdt]
-  [<c0403035>] do_one_initcall+0x35/0x170
-  [<f902e000>] ? 0xf902dfff
-  [<c0491ac5>] sys_init_module+0x75/0x1c0
-  [<c04ac8a6>] ? audit_syscall_exit+0x216/0x240
-  [<c0868f9f>] sysenter_do_call+0x12/0x28
- Code: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
- ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-  90 80 fc d8 75 0d e9 03 07 00 00 b8 04 00 00 02 05 00 00 9c
- EIP: [<c00f0000>] 0xc00f0000 SS:ESP 0068:e892fd70
- CR2: 00000000c00f0000
+Hi Russell,
 
-Signed-off-by: Maxim Uvarov <maxim.uvarov@oracle.com>
----
- drivers/watchdog/hpwdt.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+Further to my previous pull request:
 
-diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-index 3774c9b..fe50812 100644
---- a/drivers/watchdog/hpwdt.c
-+++ b/drivers/watchdog/hpwdt.c
-@@ -335,6 +335,8 @@ static int __devinit detect_cru_service(void)
- 	if (p == NULL)
- 		return -ENOMEM;
- 
-+	set_memory_x((unsigned long)p & PAGE_MASK, ROM_SIZE >> PAGE_SHIFT);
-+
- 	for (q = p; q < p + ROM_SIZE; q += 16) {
- 		rc = bios32_present(q);
- 		if (!rc)
--- 
-1.7.4.1
+> The following changes since commit cfcfc9eca2bcbd26a8e206baeb005b055dbf8e37:
+> 
+>   Linux 3.2-rc2 (2011-11-15 15:02:59 -0200)
+> 
+> are available in the git repository at:
+>   git://git.linaro.org/people/dmart/linux-2.6-arm.git arm/amba-modalias+for-rmk
+> 
+> Dave Martin (16):
+>       ARM: amba: Move definition of struct amba_id to mod_devicetable.h
+>       ARM: amba: Auto-generate AMBA driver module aliases during modpost
+[...]
 
+... it looks like Alessandro's proposed change to tidy up scripts/mod/
+ile2alias.c may get merged soon -- if that happens, you will get a
+conflict with the second patch of the series referenced by the previous
+pull request.  Fixing it up is straightforward -- if you prefer to
+resolve the conflict yourself, that's fine by me.  Alternatively, you
+can pull the following modified series instead.
+
+The only difference is in the second patch
+("ARM: amba: Auto-generate AMBA driver module aliases during modpost").
+
+Cheers
+---Dave
+
+The following changes since commit 114339d31aa813995461866c659bbf07e1cf2267:
+
+  modpost: use table-lookup to build module aliases (2011-12-02 15:18:08 +0000)
+
+are available in the git repository at:
+  git://git.linaro.org/people/dmart/linux-2.6-arm.git arm/amba-modalias+alessandro-modalias-v2+for-rmk
+
+Dave Martin (16):
+      ARM: amba: Move definition of struct amba_id to mod_devicetable.h
+      ARM: amba: Auto-generate AMBA driver module aliases during modpost
+      hwrng: nomadik: Enable module alias autogeneration for AMBA drivers
+      dmaengine: pl08x: Enable module alias autogeneration for AMBA drivers
+      dmaengine: pl330: Enable module alias autogeneration for AMBA drivers
+      gpio: pl061: Enable module alias autogeneration for AMBA drivers
+      input: ambakmi: Enable module alias autogeneration for AMBA drivers
+      mmc: mmci: Enable module alias autogeneration for AMBA drivers
+      rtc: pl030: Enable module alias autogeneration for AMBA drivers
+      rtc: pl031: Enable module alias autogeneration for AMBA drivers
+      spi: pl022: Enable module alias autogeneration for AMBA drivers
+      serial: pl010: Enable module alias autogeneration for AMBA drivers
+      serial: pl011: Enable module alias autogeneration for AMBA drivers
+      fbdev: amba: Enable module alias autogeneration for AMBA drivers
+      watchdog: sp805: Enable module alias autogeneration for AMBA drivers
+      sound: aaci: Enable module alias autogeneration for AMBA drivers
+
+ drivers/amba/bus.c                   |    4 ++
+ drivers/char/hw_random/nomadik-rng.c |    2 +
+ drivers/dma/amba-pl08x.c             |    2 +
+ drivers/dma/pl330.c                  |    2 +
+ drivers/gpio/gpio-pl061.c            |    2 +
+ drivers/input/serio/ambakmi.c        |    2 +
+ drivers/mmc/host/mmci.c              |    2 +
+ drivers/rtc/rtc-pl030.c              |    2 +
+ drivers/rtc/rtc-pl031.c              |    2 +
+ drivers/spi/spi-pl022.c              |    2 +
+ drivers/tty/serial/amba-pl010.c      |    2 +
+ drivers/tty/serial/amba-pl011.c      |    2 +
+ drivers/video/amba-clcd.c            |    2 +
+ drivers/watchdog/sp805_wdt.c         |    2 +
+ include/linux/amba/bus.h             |    7 +---
+ include/linux/mod_devicetable.h      |   18 +++++++++
+ scripts/mod/file2alias.c             |   71 +++++++++++++++++++++++++++++++++-
+ sound/arm/aaci.c                     |    2 +
+ 18 files changed, 121 insertions(+), 7 deletions(-)
