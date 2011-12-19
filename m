@@ -1,66 +1,53 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:57166 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752096Ab1LQWub convert rfc822-to-8bit (ORCPT
+Received: from mail-we0-f174.google.com ([74.125.82.174]:37807 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752924Ab1LSNYR (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 17 Dec 2011 17:50:31 -0500
+	Mon, 19 Dec 2011 08:24:17 -0500
+Date: Mon, 19 Dec 2011 13:24:09 +0000
+From: Dave Martin <dave.martin@linaro.org>
+To: Alessandro Rubini <rubini@unipv.it>
+Cc: linux@arm.linux.org.uk, patches@linaro.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	alan@linux.intel.com, a.zummo@towertech.it,
+	alsa-devel@alsa-project.org, cjb@laptop.org,
+	dan.j.williams@intel.com, dmitry.torokhov@gmail.com,
+	grant.likely@secretlab.ca, perex@perex.cz,
+	jassisinghbrar@gmail.com, julia@diku.dk, linus.walleij@linaro.org,
+	linux-fbdev@vger.kernel.org, linux-input@vger.kernel.org,
+	linux-mmc@vger.kernel.org, linux-serial@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, lethal@linux-sh.org,
+	Pawel.Moll@arm.com, rtc-linux@googlegroups.com,
+	spi-devel-general@lists.sourceforge.net, tiwai@suse.de,
+	vinod.koul@intel.com, wim@iguana.be
+Subject: Re: [GIT PULL] ARM: amba: Enable module alias autogeneration for
+ AMBA drivers
+Message-ID: <20111219132409.GB2031@linaro.org>
+References: <20111206151541.GA13774@linaro.org>
+ <1321961573-4562-1-git-send-email-dave.martin@linaro.org>
+ <20111206155911.GA11902@mail.gnudd.com>
+ <20111206161815.GD13769@linaro.org>
 MIME-Version: 1.0
-In-Reply-To: <CACRpkdbcLYoVEN6HJjw=Wq=5e77LJjnSQmwMD4K+UM4h+jDhBg@mail.gmail.com>
-References: <CAK3+h2zaZ3J4F4_rx6LGM0f_iY7ao8rU9nCt3EpZXDRGrqm3hQ@mail.gmail.com>
-	<CACRpkdbcLYoVEN6HJjw=Wq=5e77LJjnSQmwMD4K+UM4h+jDhBg@mail.gmail.com>
-Date: Sat, 17 Dec 2011 14:50:29 -0800
-Message-ID: <CAK3+h2zexM0J=f4Ten33RWs2W0V64itY9XFdc1HqA=tk0CaM+w@mail.gmail.com>
-Subject: Re: Seeking Linux watchdog design advice to trouble shoot mystory
- silent reboot issue
-From: Vincent Li <vincent.mc.li@gmail.com>
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20111206161815.GD13769@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, Dec 14, 2011 at 2:11 PM, Linus Walleij <linus.walleij@linaro.org>=
- wrote:
-> On Mon, Dec 5, 2011 at 8:55 PM, Vincent Li <vincent.mc.li@gmail.com> wr=
-ote:
->
->> we have =A0a complex system with a large number of processes running
->> simutanously. If any of the processes gets into a faulty state and
->> hangs or consumes more than its fair share of the system resources,
->> the other processes may not get a chance to run, and the whole system
->> can hang, interrupting the system functionality and user traffic.
->
-> Have you tried using RLIMITs?
->
-> Last time I used something like this from each process:
->
-> #include <sys/time.h>
-> #include <sys/resource.h>
->
-> struct rlimit rl;
-> int ret;
->
-> // No process run more than 5 seconds
-> rl.rlim_cur =3D rl.rlim_max =3D 5;
-> ret =3D setrlimit(RLIMIT_CPU, &rl);
-> // No realtime process run more than 1 second
-> rl.rlim_cur =3D rl.rlim_max =3D 1000000;
-> ret =3D setrlimit(RLIMIT_RTTIME, &rl);
->
-> The latter is good if you have real-time processes.
->
-> There are also RLIMITs for memory consumption.
->
-> Consult:
-> http://kernel.org/doc/man-pages/online/pages/man2/getrlimit.2.html
->
+Hi Russell,
 
-thank you for the link, I will look into it.
+This one isn't urgent, but I'm not seeing the amba modalias patches
+anywhere yet.  Did you have any outstanding concerns which need to be
+resolved?
 
-Vincent
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+If you can suggest when/if these are likely to merge that would be great.
+
+Since Alessandro is now expecting to have to rebase on top of the amba
+additions anyway, we shouldn't need to worry about conflicting with his
+patches.
+
+Of course, if you've already merged these somewhere, then there's no
+problem.
+
+Cheers
+---Dave
