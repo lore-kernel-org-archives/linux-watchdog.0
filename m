@@ -1,53 +1,47 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:37807 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752924Ab1LSNYR (ORCPT
+Received: from mx.scalarmail.ca ([98.158.95.75]:3642 "EHLO
+	ironport-01.sms.scalar.ca" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751713Ab1LSQcZ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 19 Dec 2011 08:24:17 -0500
-Date: Mon, 19 Dec 2011 13:24:09 +0000
-From: Dave Martin <dave.martin@linaro.org>
-To: Alessandro Rubini <rubini@unipv.it>
-Cc: linux@arm.linux.org.uk, patches@linaro.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	alan@linux.intel.com, a.zummo@towertech.it,
-	alsa-devel@alsa-project.org, cjb@laptop.org,
-	dan.j.williams@intel.com, dmitry.torokhov@gmail.com,
-	grant.likely@secretlab.ca, perex@perex.cz,
-	jassisinghbrar@gmail.com, julia@diku.dk, linus.walleij@linaro.org,
-	linux-fbdev@vger.kernel.org, linux-input@vger.kernel.org,
-	linux-mmc@vger.kernel.org, linux-serial@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, lethal@linux-sh.org,
-	Pawel.Moll@arm.com, rtc-linux@googlegroups.com,
-	spi-devel-general@lists.sourceforge.net, tiwai@suse.de,
-	vinod.koul@intel.com, wim@iguana.be
-Subject: Re: [GIT PULL] ARM: amba: Enable module alias autogeneration for
- AMBA drivers
-Message-ID: <20111219132409.GB2031@linaro.org>
-References: <20111206151541.GA13774@linaro.org>
- <1321961573-4562-1-git-send-email-dave.martin@linaro.org>
- <20111206155911.GA11902@mail.gnudd.com>
- <20111206161815.GD13769@linaro.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20111206161815.GD13769@linaro.org>
+	Mon, 19 Dec 2011 11:32:25 -0500
+From: Nick Bowler <nbowler@elliptictech.com>
+To: linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Subject: [PATCH] watchdog: sp805: Fix section mismatch in ID table.
+Date: Mon, 19 Dec 2011 11:22:36 -0500
+Message-Id: <1324311756-15815-1-git-send-email-nbowler@elliptictech.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Russell,
+The AMBA ID table is marked as __initdata, yet it is referenced by the
+driver struct which is not.  This causes a (somewhat unhelpful) section
+mismatch warning:
 
-This one isn't urgent, but I'm not seeing the amba modalias patches
-anywhere yet.  Did you have any outstanding concerns which need to be
-resolved?
+  WARNING: drivers/watchdog/sp805_wdt.o(.data+0x4c): Section mismatch in
+           reference from the variable sp805_wdt_driver to the (unknown
+           reference) .init.data:(unknown)
 
-If you can suggest when/if these are likely to merge that would be great.
+Fix this by removing the annotation.
 
-Since Alessandro is now expecting to have to rebase on top of the amba
-additions anyway, we shouldn't need to worry about conflicting with his
-patches.
+Signed-off-by: Nick Bowler <nbowler@elliptictech.com>
+---
+ drivers/watchdog/sp805_wdt.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Of course, if you've already merged these somewhere, then there's no
-problem.
+diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
+index cc2cfbe..bfaf9bb 100644
+--- a/drivers/watchdog/sp805_wdt.c
++++ b/drivers/watchdog/sp805_wdt.c
+@@ -351,7 +351,7 @@ static int __devexit sp805_wdt_remove(struct amba_device *adev)
+ 	return 0;
+ }
+ 
+-static struct amba_id sp805_wdt_ids[] __initdata = {
++static struct amba_id sp805_wdt_ids[] = {
+ 	{
+ 		.id	= 0x00141805,
+ 		.mask	= 0x00ffffff,
+-- 
+1.7.3.4
 
-Cheers
----Dave
+
