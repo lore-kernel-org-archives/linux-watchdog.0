@@ -1,40 +1,52 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay003.isp.belgacom.be ([195.238.6.53]:4578 "EHLO
-	mailrelay003.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750947Ab1LTHt1 (ORCPT
+Received: from mail.linuxfoundation.org ([140.211.169.12]:44165 "EHLO
+	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753651Ab1LUAvA (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 20 Dec 2011 02:49:27 -0500
-Date: Tue, 20 Dec 2011 08:49:24 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Josh Cartwright <joshc@linux.com>
-Cc: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: Re: oops during modprobe (3.2.0-rc6+)
-Message-ID: <20111220074924.GG23376@infomag.iguana.be>
-References: <20111217213645.GQ12099@charite.de> <20111220023550.GB9308@joshcartwright.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20111220023550.GB9308@joshcartwright.net>
+	Tue, 20 Dec 2011 19:51:00 -0500
+Date: Tue, 20 Dec 2011 16:50:59 -0800
+From: Andrew Morton <akpm@linux-foundation.org>
+To: Maxim Uvarov <maxim.uvarov@oracle.com>
+Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	wim@iguana.be
+Subject: Re: [PATCH] hpwd watchdog mark page executable
+Message-Id: <20111220165059.4e79a416.akpm@linux-foundation.org>
+In-Reply-To: <1323131139-32451-2-git-send-email-maxim.uvarov@oracle.com>
+References: <1323131139-32451-1-git-send-email-maxim.uvarov@oracle.com>
+	<1323131139-32451-2-git-send-email-maxim.uvarov@oracle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi All,
+On Mon,  5 Dec 2011 16:25:39 -0800
+Maxim Uvarov <maxim.uvarov@oracle.com> wrote:
 
-> (CC'ing linux-watchdog)
-> 
-> On Sat, Dec 17, 2011 at 10:36:45PM +0100, Ralf Hildebrandt wrote:
-> > Todya I pulled 3.2.0-rc6+ from git and built it for my machine. After
-> > booting I found this in dmesg:
-> > 
-> > ...
-> > [    6.322632] bnx2: Broadcom NetXtreme II Gigabit Ethernet Driver bnx2 v2.1.11 (July 20, 2011)
-> > [    6.324608] hpwdt 0000:01:04.0: PCI INT A -> GSI 21 (level, low) -> IRQ 21
-> > [    6.324680] hpwdt: New timer passed in is 30 seconds.
-> > [    6.324725] kernel tried to execute NX-protected page - exploit attempt? (uid: 0)
+> Mark hpwdt watchdog pages executable to prevent failing:
+> BUG: unable to handle kernel paging request at c00f0000
+>  IP: [<c00f0000>] 0xc00effff
+>  *pdpt = 0000000000b7c001 *pde = 0000000000cf5067 *pte = 80000000000f0163
+>  Oops: 0011 [#1] SMP
+>
+> ...
+>
+> --- a/drivers/watchdog/hpwdt.c
+> +++ b/drivers/watchdog/hpwdt.c
+> @@ -335,6 +335,8 @@ static int __devinit detect_cru_service(void)
+>  	if (p == NULL)
+>  		return -ENOMEM;
+>  
+> +	set_memory_x((unsigned long)p & PAGE_MASK, ROM_SIZE >> PAGE_SHIFT);
+> +
+>  	for (q = p; q < p + ROM_SIZE; q += 16) {
+>  		rc = bios32_present(q);
+>  		if (!rc)
 
-Thomas has created a fix for this. It will be added to the linux-next branch of the linux-watchdog tree today.
+Odd.  Either nobody else is using this driver, or there's something
+special about your setup.  Are you able to explain this?  
 
-Kind regards,
-wim.
+Also, do you believe that this fix should be backported into earlier
+stable kernels and if so, why?
 
+Thanks.
