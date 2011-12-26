@@ -1,43 +1,61 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from caramon.arm.linux.org.uk ([78.32.30.218]:41816 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753741Ab1LVSwN (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 22 Dec 2011 13:52:13 -0500
-Date: Thu, 22 Dec 2011 18:50:59 +0000
-From: Russell King - ARM Linux <linux@arm.linux.org.uk>
-To: Dave Martin <dave.martin@linaro.org>
-Cc: Alessandro Rubini <rubini@unipv.it>, patches@linaro.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	alan@linux.intel.com, a.zummo@towertech.it,
-	alsa-devel@alsa-project.org, cjb@laptop.org,
-	dan.j.williams@intel.com, dmitry.torokhov@gmail.com,
-	grant.likely@secretlab.ca, perex@perex.cz,
-	jassisinghbrar@gmail.com, julia@diku.dk, linus.walleij@linaro.org,
-	linux-fbdev@vger.kernel.org, linux-input@vger.kernel.org,
-	linux-mmc@vger.kernel.org, linux-serial@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, lethal@linux-sh.org,
-	Pawel.Moll@arm.com, rtc-linux@googlegroups.com,
-	spi-devel-general@lists.sourceforge.net, tiwai@suse.de,
-	vinod.koul@intel.com, wim@iguana.be
-Subject: Re: [GIT PULL] ARM: amba: Enable module alias autogeneration for
-	AMBA drivers
-Message-ID: <20111222185059.GA3551@n2100.arm.linux.org.uk>
-References: <20111206151541.GA13774@linaro.org> <1321961573-4562-1-git-send-email-dave.martin@linaro.org> <20111206155911.GA11902@mail.gnudd.com> <20111206161815.GD13769@linaro.org> <20111219132409.GB2031@linaro.org> <20111219213942.GM14542@n2100.arm.linux.org.uk> <20111222112125.GA2573@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20111222112125.GA2573@localhost>
+Received: from mgw2.diku.dk ([130.225.96.92]:55207 "EHLO mgw2.diku.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751345Ab1LZSHQ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 26 Dec 2011 13:07:16 -0500
+From: Julia Lawall <julia@diku.dk>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: kernel-janitors@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 1/2] drivers/watchdog/lantiq_wdt.c: drop iounmap for devm_ allocated data
+Date: Mon, 26 Dec 2011 18:38:00 +0100
+Message-Id: <1324921081-13161-1-git-send-email-julia@diku.dk>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Dec 22, 2011 at 11:21:25AM +0000, Dave Martin wrote:
-> On Mon, Dec 19, 2011 at 09:39:42PM +0000, Russell King - ARM Linux wrote:
-> > I have pulled it, I just haven't merged it in anywhere yet.
-> 
-> OK, great -- thanks.
-> 
-> I wasn't too familiar with the procedure, so I just wanted
-> to be sure that I hadn't done things wrong.
+From: Julia Lawall <julia@diku.dk>
 
-FYI, I'll be pushing out an update to my tree Friday evening.
+Data allocated with devm_ioremap or devm_ioremap_nocache should not be
+freed using iounmap, because doing so causes a dangling pointer, and a
+subsequent double free.
+
+The semantic match that finds this problem is as follows:
+(http://coccinelle.lip6.fr/)
+
+// <smpl>
+@r@
+expression x;
+@@
+(
+ x = devm_ioremap(...)
+|
+ x = devm_ioremap_nocache(...)
+)
+
+@@
+expression r.x;
+@@
+* iounmap(x)
+// </smpl>
+
+Signed-off-by: Julia Lawall <julia@diku.dk>
+
+---
+ drivers/watchdog/lantiq_wdt.c |    3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/drivers/watchdog/lantiq_wdt.c b/drivers/watchdog/lantiq_wdt.c
+index 102aed0..d3a63be 100644
+--- a/drivers/watchdog/lantiq_wdt.c
++++ b/drivers/watchdog/lantiq_wdt.c
+@@ -222,9 +222,6 @@ ltq_wdt_remove(struct platform_device *pdev)
+ {
+ 	misc_deregister(&ltq_wdt_miscdev);
+ 
+-	if (ltq_wdt_membase)
+-		iounmap(ltq_wdt_membase);
+-
+ 	return 0;
+ }
+ 
+
