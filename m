@@ -1,35 +1,60 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay004.isp.belgacom.be ([195.238.6.170]:28405 "EHLO
-	mailrelay004.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753832Ab1L1R5x (ORCPT
+Received: from mail-ww0-f44.google.com ([74.125.82.44]:59988 "EHLO
+	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754171Ab1L3BfN convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 28 Dec 2011 12:57:53 -0500
-Date: Wed, 28 Dec 2011 18:57:51 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Randy Dunlap <rdunlap@xenotime.net>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>,
-	linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-	Marc Vertes <marc.vertes@sigfox.com>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: linux-next: Tree for Dec 28 (via_wdt)
-Message-ID: <20111228175751.GA14460@infomag.iguana.be>
-References: <20111228201806.d6de27fa2dbd9e3a3b7a2603@canb.auug.org.au> <4EFB5BF2.3020600@xenotime.net>
+	Thu, 29 Dec 2011 20:35:13 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4EFB5BF2.3020600@xenotime.net>
+In-Reply-To: <20111227194444.GV23376@infomag.iguana.be>
+References: <20111227194444.GV23376@infomag.iguana.be>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Thu, 29 Dec 2011 17:34:49 -0800
+Message-ID: <CA+55aFzk_3VqxbOaAphbVacmi1fBFqxA-nSYLpXDztbihJ3U5Q@mail.gmail.com>
+Subject: Re: [GIT PULL REQUEST] watchdog - v3.1-rc7 - Fixes
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+	Mingarelli@infomag.iguana.be, Thomas <Thomas.Mingarelli@hp.com>,
+	Nick Bowler <nbowler@elliptictech.com>,
+	Linus Walleij <linus.walleij@linaro.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-Hi Randi,
+On Tue, Dec 27, 2011 at 11:44 AM, Wim Van Sebroeck <wim@iguana.be> wrote:
+> Hi Linus,
+>
+> Please pull from 'master' branch of
+> =A0 =A0 =A0 =A0git://www.linux-watchdog.org/linux-watchdog.git
+>
+> This will update the following files:
 
-> via_wdt needs a MODULE_LICENSE():
-> 
-> WARNING: modpost: missing MODULE_LICENSE() in drivers/watchdog/via_wdt.o
-> see include/linux/module.h for more information
+You have done something absolutely horrible with that git repository.
 
-Fixed.
+The default HEAD does not actually point to the master branch, so the
+thing you asked me to pull
+("git://www.linux-watchdog.org/linux-watchdog.git" without any branch
+name) does not actually result in what you claimed it would result in.
 
-Thanks,
-Wim.
+It looks like HEAD points to "linux-next".
 
+Sure, the above is technically a valid git repository, but (a) it's
+crazy and (b) if you really want to do that, then you had better
+actually mention the branch explicitly in the pull line too, ie
+
+  Please pull ..
+
+     git://www.linux-watchdog.org/linux-watchdog.git master
+
+so that when I cut-and-paste, I actually get the right branch.
+
+As it is, it's just horribly confusing.
+
+                     Linus
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
