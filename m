@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Masanari Iida <standby24x7@gmail.com>
-To: linux-watchdog@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, trivial@kernel.org, standby24x7@gmail.com
-Subject: [PATCH] [trivial] watchdog: Fix typo "unexpectdly"
-Date: Fri, 20 Jan 2012 23:56:19 +0900
-Message-Id: <1327071379-2881-1-git-send-email-standby24x7@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bear.ext.ti.com ([192.94.94.41]:46160 "EHLO bear.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754848Ab2ADOPf (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 4 Jan 2012 09:15:35 -0500
+From: Shubhrajyoti D <shubhrajyoti@ti.com>
+To: <linux-watchdog@vger.kernel.org>
+CC: <linux-kernel@vger.kernel.org>,
+	Shubhrajyoti D <shubhrajyoti@ti.com>
+Subject: [PATCH RFC] OMAP : watchdog : fix the WDIOC_GETBOOTSTATUS ioctl if not implemented.
+Date: Wed, 4 Jan 2012 19:45:28 +0530
+Message-ID: <1325686528-26997-1-git-send-email-shubhrajyoti@ti.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Correct typo "unexpectdly" to "unexpectedly" in pnx4008_wdt.c
-and stmp3xxx_wdt.c
+WDIOC_GETBOOTSTATUS ioctl is imlemented for cpu_is_omap16xx and cpu_is_omap24xx
+cpus only. For other cpus it falls through to WDIOC_KEEPALIVE.
+This patch prevents the fall through.
 
-Signed-off-by: Masanari Iida<standby24x7@gmail.com>
-to: linux-watchdog@vger.kernel.org
-cc: linux-kernel@vger.kernel.org
-cc: trivial@kernel.org
+Cc :  sricharan <r.sricharan@ti.com>
+Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
 ---
- drivers/watchdog/pnx4008_wdt.c  |    2 +-
- drivers/watchdog/stmp3xxx_wdt.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+Untested!
 
-diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
-index bd143c9..8e210aa 100644
---- a/drivers/watchdog/pnx4008_wdt.c
-+++ b/drivers/watchdog/pnx4008_wdt.c
-@@ -226,7 +226,7 @@ static long pnx4008_wdt_ioctl(struct file *file, unsigned int cmd,
- static int pnx4008_wdt_release(struct inode *inode, struct file *file)
- {
- 	if (!test_bit(WDT_OK_TO_CLOSE, &wdt_status))
--		printk(KERN_WARNING "WATCHDOG: Device closed unexpectdly\n");
-+		printk(KERN_WARNING "WATCHDOG: Device closed unexpectedly\n");
- 
- 	wdt_disable();
- 	clk_disable(wdt_clk);
-diff --git a/drivers/watchdog/stmp3xxx_wdt.c b/drivers/watchdog/stmp3xxx_wdt.c
-index 4c2a4e8..e37d811 100644
---- a/drivers/watchdog/stmp3xxx_wdt.c
-+++ b/drivers/watchdog/stmp3xxx_wdt.c
-@@ -174,7 +174,7 @@ static int stmp3xxx_wdt_release(struct inode *inode, struct file *file)
- 	if (!nowayout) {
- 		if (!test_bit(WDT_OK_TO_CLOSE, &wdt_status)) {
- 			wdt_ping();
--			pr_debug("%s: Device closed unexpectdly\n", __func__);
-+			pr_debug("%s: Device closed unexpectedly\n", __func__);
- 			ret = -EINVAL;
- 		} else {
- 			wdt_disable();
+ drivers/watchdog/omap_wdt.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
+index 2b4acb8..971179d 100644
+--- a/drivers/watchdog/omap_wdt.c
++++ b/drivers/watchdog/omap_wdt.c
+@@ -232,6 +232,7 @@ static long omap_wdt_ioctl(struct file *file, unsigned int cmd,
+ 		if (cpu_is_omap24xx())
+ 			return put_user(omap_prcm_get_reset_sources(),
+ 					(int __user *)arg);
++		return 0;
+ 	case WDIOC_KEEPALIVE:
+ 		pm_runtime_get_sync(wdev->dev);
+ 		spin_lock(&wdt_lock);
 -- 
-1.7.6.5
+1.7.1
+
