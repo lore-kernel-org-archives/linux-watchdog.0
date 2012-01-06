@@ -1,44 +1,34 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:46160 "EHLO bear.ext.ti.com"
+Received: from mstier.de ([85.214.73.195]:46927 "EHLO mstier.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754848Ab2ADOPf (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 4 Jan 2012 09:15:35 -0500
-From: Shubhrajyoti D <shubhrajyoti@ti.com>
-To: <linux-watchdog@vger.kernel.org>
-CC: <linux-kernel@vger.kernel.org>,
-	Shubhrajyoti D <shubhrajyoti@ti.com>
-Subject: [PATCH RFC] OMAP : watchdog : fix the WDIOC_GETBOOTSTATUS ioctl if not implemented.
-Date: Wed, 4 Jan 2012 19:45:28 +0530
-Message-ID: <1325686528-26997-1-git-send-email-shubhrajyoti@ti.com>
+	id S1755282Ab2AFTrs (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 6 Jan 2012 14:47:48 -0500
+Message-ID: <4F074DD5.70309@mstier.de>
+Date: Fri, 06 Jan 2012 20:39:01 +0100
+From: "mark" <mark-dhxman8p@mstier.de>
 MIME-Version: 1.0
-Content-Type: text/plain
+To: linux-watchdog@vger.kernel.org
+Subject: IT87 WDT: Chip IT8720 revision 8, watchdog reset not working
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-WDIOC_GETBOOTSTATUS ioctl is imlemented for cpu_is_omap16xx and cpu_is_omap24xx
-cpus only. For other cpus it falls through to WDIOC_KEEPALIVE.
-This patch prevents the fall through.
+Does someone know about that issue?
 
-Cc :  sricharan <r.sricharan@ti.com>
-Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
----
-Untested!
+See:
 
- drivers/watchdog/omap_wdt.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+https://bugzilla.redhat.com/show_bug.cgi?id=554148
 
-diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
-index 2b4acb8..971179d 100644
---- a/drivers/watchdog/omap_wdt.c
-+++ b/drivers/watchdog/omap_wdt.c
-@@ -232,6 +232,7 @@ static long omap_wdt_ioctl(struct file *file, unsigned int cmd,
- 		if (cpu_is_omap24xx())
- 			return put_user(omap_prcm_get_reset_sources(),
- 					(int __user *)arg);
-+		return 0;
- 	case WDIOC_KEEPALIVE:
- 		pm_runtime_get_sync(wdev->dev);
- 		spin_lock(&wdt_lock);
--- 
-1.7.1
+I have the same problem. The watchdog package from debian/ubuntu touches
+/dev/watchdog every second (according to strace by writing a 0-byte), 
+but the computer still restarts after one minute.
 
+ > dmesg:
+ > IT87 WDT: Chip IT8720 revision 8 initialized. timeout=60 sec (nowayout=0
+ > testmode=0 exclusive=1 nogameport=0)
+
+Tell me if I can be of any help to fix that issue.
+
+Best regards,
+Mark
