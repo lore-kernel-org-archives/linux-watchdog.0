@@ -1,38 +1,40 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from oproxy5-pub.bluehost.com ([67.222.38.55]:37215 "HELO
-	oproxy5-pub.bluehost.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1759239Ab2AGBuW (ORCPT
+Received: from mailrelay010.isp.belgacom.be ([195.238.6.177]:63425 "EHLO
+	mailrelay010.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751006Ab2AGKUh (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 6 Jan 2012 20:50:22 -0500
-Message-ID: <4F07B291.4040608@xenotime.net>
-Date: Fri, 06 Jan 2012 18:48:49 -0800
-From: Randy Dunlap <rdunlap@xenotime.net>
-MIME-Version: 1.0
-To: Wim Van Sebroeck <wim@iguana.be>
-CC: Stephen Rothwell <sfr@canb.auug.org.au>,
+	Sat, 7 Jan 2012 05:20:37 -0500
+Date: Sat, 7 Jan 2012 11:20:34 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Randy Dunlap <rdunlap@xenotime.net>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>,
 	linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
 	Marc Vertes <marc.vertes@sigfox.com>,
 	linux-watchdog@vger.kernel.org
 Subject: Re: linux-next: Tree for Dec 28 (via_wdt)
-References: <20111228201806.d6de27fa2dbd9e3a3b7a2603@canb.auug.org.au> <4EFB5BF2.3020600@xenotime.net> <20111228175751.GA14460@infomag.iguana.be>
-In-Reply-To: <20111228175751.GA14460@infomag.iguana.be>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Message-ID: <20120107102034.GI23376@infomag.iguana.be>
+References: <20111228201806.d6de27fa2dbd9e3a3b7a2603@canb.auug.org.au> <4EFB5BF2.3020600@xenotime.net> <20111228175751.GA14460@infomag.iguana.be> <4F07B291.4040608@xenotime.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4F07B291.4040608@xenotime.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 12/28/2011 09:57 AM, Wim Van Sebroeck wrote:
-> Hi Randi,
-> 
->> via_wdt needs a MODULE_LICENSE():
->>
->> WARNING: modpost: missing MODULE_LICENSE() in drivers/watchdog/via_wdt.o
->> see include/linux/module.h for more information
-> 
-> Fixed.
+Hi Randy,
 
-Not yet in linux-next ??
+> >> via_wdt needs a MODULE_LICENSE():
+> >>
+> >> WARNING: modpost: missing MODULE_LICENSE() in drivers/watchdog/via_wdt.o
+> >> see include/linux/module.h for more information
+> > 
+> > Fixed.
+> 
+> Not yet in linux-next ??
 
--- 
-~Randy
-*** Remember to use Documentation/SubmitChecklist when testing your code ***
+I noticed it yesterday afternoon also. So I "re-fixed" (and double-checked) it yesterday in the afternoon.
+So will be in linux-next with the next pull.
+
+Kind regards,
+Wim.
+
