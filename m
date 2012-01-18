@@ -1,30 +1,45 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:49168 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752073Ab2AQTvM (ORCPT
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:64988 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754351Ab2ARCpc (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 17 Jan 2012 14:51:12 -0500
-Date: Tue, 17 Jan 2012 19:51:09 +0000
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-To: Ashish Jangam <ashish.jangam@kpitcummins.com>
-Cc: linux-kernel@vger.kernel.org, Dajun <dajun.chen@diasemi.com>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	lm-sensors@lm-sensors.org, sameo@linux.intel.com
-Subject: Re: [PATCH 00/07] DA9052 patch series
-Message-ID: <20120117195108.GA31854@sirena.org.uk>
-References: <1326806748.3542.338.camel@dhruva>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1326806748.3542.338.camel@dhruva>
+	Tue, 17 Jan 2012 21:45:32 -0500
+Message-ID: <1326854720.11831.1.camel@phoenix>
+Subject: [PATCH 1/2] watchdog: Staticise nuc900_wdt
+From: Axel Lin <axel.lin@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Wan ZongShun <mcuos.com@gmail.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org
+Date: Wed, 18 Jan 2012 10:45:20 +0800
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Jan 17, 2012 at 06:55:48PM +0530, Ashish Jangam wrote:
-> The following patch series adds support for the features of Dialog Semiconductor
-> DA9052/53 PMICs.
+It is only used in this driver, so no need to make the symbol global.
 
-*Please* try to fix the problems you've got with the patch submission
-process.  These patches don't all seem to have arrived on the list,
-aren't threaded together and those that have arrived are randomly
-ordered.
+Signed-off-by: Axel Lin <axel.lin@gmail.com>
+---
+ drivers/watchdog/nuc900_wdt.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/watchdog/nuc900_wdt.c b/drivers/watchdog/nuc900_wdt.c
+index 50359ba..2cce856 100644
+--- a/drivers/watchdog/nuc900_wdt.c
++++ b/drivers/watchdog/nuc900_wdt.c
+@@ -72,7 +72,7 @@ struct nuc900_wdt {
+ };
+ 
+ static unsigned long nuc900wdt_busy;
+-struct nuc900_wdt *nuc900_wdt;
++static struct nuc900_wdt *nuc900_wdt;
+ 
+ static inline void nuc900_wdt_keepalive(void)
+ {
+-- 
+1.7.5.4
+
+
+
