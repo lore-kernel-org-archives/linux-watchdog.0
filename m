@@ -1,47 +1,52 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:60357 "EHLO
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:58551 "EHLO
 	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754351Ab2ARCrA (ORCPT
+	with ESMTP id S1751370Ab2ARLZM (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 17 Jan 2012 21:47:00 -0500
-Message-ID: <1326854812.11831.3.camel@phoenix>
-Subject: [PATCH 2/2] watchdog: Return proper error in nuc900wdt_probe if
- misc_register fails
+	Wed, 18 Jan 2012 06:25:12 -0500
+Message-ID: <1326885901.2984.1.camel@phoenix>
+Subject: [PATCH 1/2] watchdog: wm8350_wdt: Fix handling
+ WDIOS_DISABLECARD/WDIOS_ENABLECARD options
 From: Axel Lin <axel.lin@gmail.com>
 To: linux-kernel@vger.kernel.org
-Cc: Wan ZongShun <mcuos.com@gmail.com>,
+Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>,
 	Wim Van Sebroeck <wim@iguana.be>,
 	linux-watchdog@vger.kernel.org
-Date: Wed, 18 Jan 2012 10:46:52 +0800
-In-Reply-To: <1326854720.11831.1.camel@phoenix>
-References: <1326854720.11831.1.camel@phoenix>
+Date: Wed, 18 Jan 2012 19:25:01 +0800
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Mime-Version: 1.0
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Return proper error instead of 0 if misc_register fails
+While receiving WDIOS_DISABLECARD option for WDIOC_SETOPTIONS command,
+call wm8350_wdt_stop() to disable watchdog.
+Call wm8350_wdt_start() while receiving WDIOS_ENABLECARD option.
+
+Current code has reverse behavior.
 
 Signed-off-by: Axel Lin <axel.lin@gmail.com>
 ---
- drivers/watchdog/nuc900_wdt.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+ drivers/watchdog/wm8350_wdt.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/nuc900_wdt.c b/drivers/watchdog/nuc900_wdt.c
-index 2cce856..529085b 100644
---- a/drivers/watchdog/nuc900_wdt.c
-+++ b/drivers/watchdog/nuc900_wdt.c
-@@ -287,7 +287,8 @@ static int __devinit nuc900wdt_probe(struct platform_device *pdev)
+diff --git a/drivers/watchdog/wm8350_wdt.c b/drivers/watchdog/wm8350_wdt.c
+index 909c786..5d7113c 100644
+--- a/drivers/watchdog/wm8350_wdt.c
++++ b/drivers/watchdog/wm8350_wdt.c
+@@ -212,10 +212,10 @@ static long wm8350_wdt_ioctl(struct file *file, unsigned int cmd,
  
- 	setup_timer(&nuc900_wdt->timer, nuc900_wdt_timer_ping, 0);
+ 		/* Setting both simultaneously means at least one must fail */
+ 		if (options == WDIOS_DISABLECARD)
+-			ret = wm8350_wdt_start(wm8350);
++			ret = wm8350_wdt_stop(wm8350);
  
--	if (misc_register(&nuc900wdt_miscdev)) {
-+	ret = misc_register(&nuc900wdt_miscdev);
-+	if (ret) {
- 		dev_err(&pdev->dev, "err register miscdev on minor=%d (%d)\n",
- 			WATCHDOG_MINOR, ret);
- 		goto err_clk;
+ 		if (options == WDIOS_ENABLECARD)
+-			ret = wm8350_wdt_stop(wm8350);
++			ret = wm8350_wdt_start(wm8350);
+ 		break;
+ 	}
+ 
 -- 
 1.7.5.4
 
