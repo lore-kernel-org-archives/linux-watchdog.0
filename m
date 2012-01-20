@@ -1,44 +1,52 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:40585 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751260Ab1L3UNC (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 30 Dec 2011 15:13:02 -0500
-MIME-Version: 1.0
-In-Reply-To: <20111230094733.GY23376@infomag.iguana.be>
-References: <20111227194444.GV23376@infomag.iguana.be> <CA+55aFzk_3VqxbOaAphbVacmi1fBFqxA-nSYLpXDztbihJ3U5Q@mail.gmail.com>
- <20111230094733.GY23376@infomag.iguana.be>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Fri, 30 Dec 2011 12:12:40 -0800
-Message-ID: <CA+55aFw3DJXs1Y74M0bGqC90t3Lgo+e37=XqCseuuswMg5ZCwg@mail.gmail.com>
-Subject: Re: [GIT PULL REQUEST] watchdog - v3.1-rc7 - Fixes
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Mingarelli@infomag.iguana.be, Thomas <Thomas.Mingarelli@hp.com>,
-	Nick Bowler <nbowler@elliptictech.com>,
-	Linus Walleij <linus.walleij@linaro.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Masanari Iida <standby24x7@gmail.com>
+To: linux-watchdog@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, trivial@kernel.org, standby24x7@gmail.com
+Subject: [PATCH] [trivial] watchdog: Fix typo "unexpectdly"
+Date: Fri, 20 Jan 2012 23:56:19 +0900
+Message-Id: <1327071379-2881-1-git-send-email-standby24x7@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Fri, Dec 30, 2011 at 1:47 AM, Wim Van Sebroeck <wim@iguana.be> wrote:
->
-> I'll make sure that you get future requests in this format.
+Correct typo "unexpectdly" to "unexpectedly" in pnx4008_wdt.c
+and stmp3xxx_wdt.c
 
-So if HEAD points to master now, I actually do prefer the version that
-doesn't even mention it so that the merge commit message doesn't
-contain noise that doesn't actually tell you anything remotely
-interesting.
+Signed-off-by: Masanari Iida<standby24x7@gmail.com>
+to: linux-watchdog@vger.kernel.org
+cc: linux-kernel@vger.kernel.org
+cc: trivial@kernel.org
+---
+ drivers/watchdog/pnx4008_wdt.c  |    2 +-
+ drivers/watchdog/stmp3xxx_wdt.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-Of course, I should in fact just make git not even say that whole
-"branch 'master'" thing if it's the default HEAD, and then it wouldn't
-matter.
-
-It's only if you do something odd and make HEAD point to a non-master
-branch in a public repository (switching branches in a bare repository
-is certainly possible, but why would you do that?) that the explicit
-"master" suddenly becomes relevant.
-
-                   Linus
+diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
+index bd143c9..8e210aa 100644
+--- a/drivers/watchdog/pnx4008_wdt.c
++++ b/drivers/watchdog/pnx4008_wdt.c
+@@ -226,7 +226,7 @@ static long pnx4008_wdt_ioctl(struct file *file, unsigned int cmd,
+ static int pnx4008_wdt_release(struct inode *inode, struct file *file)
+ {
+ 	if (!test_bit(WDT_OK_TO_CLOSE, &wdt_status))
+-		printk(KERN_WARNING "WATCHDOG: Device closed unexpectdly\n");
++		printk(KERN_WARNING "WATCHDOG: Device closed unexpectedly\n");
+ 
+ 	wdt_disable();
+ 	clk_disable(wdt_clk);
+diff --git a/drivers/watchdog/stmp3xxx_wdt.c b/drivers/watchdog/stmp3xxx_wdt.c
+index 4c2a4e8..e37d811 100644
+--- a/drivers/watchdog/stmp3xxx_wdt.c
++++ b/drivers/watchdog/stmp3xxx_wdt.c
+@@ -174,7 +174,7 @@ static int stmp3xxx_wdt_release(struct inode *inode, struct file *file)
+ 	if (!nowayout) {
+ 		if (!test_bit(WDT_OK_TO_CLOSE, &wdt_status)) {
+ 			wdt_ping();
+-			pr_debug("%s: Device closed unexpectdly\n", __func__);
++			pr_debug("%s: Device closed unexpectedly\n", __func__);
+ 			ret = -EINVAL;
+ 		} else {
+ 			wdt_disable();
+-- 
+1.7.6.5
