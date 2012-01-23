@@ -1,39 +1,44 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from devils.ext.ti.com ([198.47.26.153]:51545 "EHLO
-	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752202Ab2AWLNU (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
+Received: from arroyo.ext.ti.com ([192.94.94.40]:60344 "EHLO arroyo.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752499Ab2AWLNU (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
 	Mon, 23 Jan 2012 06:13:20 -0500
 From: Shubhrajyoti D <shubhrajyoti@ti.com>
 To: <linux-watchdog@vger.kernel.org>
 CC: <linux-omap@vger.kernel.org>,
 	<linux-arm-kernel@lists.infradead.org>,
 	Shubhrajyoti D <shubhrajyoti@ti.com>
-Subject: [PATCH RFC 0/2] watchdog  boot status
-Date: Mon, 23 Jan 2012 16:43:06 +0530
-Message-ID: <1327317188-14782-1-git-send-email-shubhrajyoti@ti.com>
+Subject: [PATCH RFC 1/2] watchdog : omap_wdt : Implement WDIOC_GETBOOTSTATUS for omap3+
+Date: Mon, 23 Jan 2012 16:43:07 +0530
+Message-ID: <1327317188-14782-2-git-send-email-shubhrajyoti@ti.com>
+In-Reply-To: <1327317188-14782-1-git-send-email-shubhrajyoti@ti.com>
+References: <1327317188-14782-1-git-send-email-shubhrajyoti@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patch series does the following
-Patch 1:
-Fixes the omap_prcm_get_reset_sources() for omap3/4
+This patch intends to implement the WDIOC_GETBOOTSTATUS ioctl
+for the omap3 and omap4.
 
-Patch 2:
-Extends the WDIOC_GETBOOTSTATUS to support omap3/4.
+Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
+---
+ drivers/watchdog/omap_wdt.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Tested on omap3sdp and omap4sdp.
-
-Rajendra Nayak (1):
-  ARM: omap: Fix omap_prcm_get_reset_sources() for omap3/4
-
-Shubhrajyoti D (1):
-  watchdog : omap_wdt : Implement WDIOC_GETBOOTSTATUS for omap3+
-
- arch/arm/mach-omap2/prcm.c    |   13 ++++++++-----
- arch/arm/mach-omap2/prm44xx.h |    3 ---
- drivers/watchdog/omap_wdt.c   |    2 +-
- 3 files changed, 9 insertions(+), 9 deletions(-)
+diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
+index 4b33e3f..5395a4c 100644
+--- a/drivers/watchdog/omap_wdt.c
++++ b/drivers/watchdog/omap_wdt.c
+@@ -229,7 +229,7 @@ static long omap_wdt_ioctl(struct file *file, unsigned int cmd,
+ 		if (cpu_is_omap16xx())
+ 			return put_user(__raw_readw(ARM_SYSST),
+ 					(int __user *)arg);
+-		if (cpu_is_omap24xx())
++		if (cpu_is_omap24xx() || cpu_is_omap34xx() || cpu_is_omap44xx())
+ 			return put_user(omap_prcm_get_reset_sources(),
+ 					(int __user *)arg);
+ 		return put_user(0, (int __user *)arg);
+-- 
+1.7.1
 
