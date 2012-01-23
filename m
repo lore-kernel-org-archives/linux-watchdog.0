@@ -1,168 +1,216 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:52197 "EHLO
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:52200 "EHLO
 	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753647Ab2AWTfY (ORCPT
+	with ESMTP id S1753912Ab2AWTfY (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
 	Mon, 23 Jan 2012 14:35:24 -0500
 From: Wolfram Sang <w.sang@pengutronix.de>
 To: linux-watchdog@vger.kernel.org
 Cc: rtc-linux@googlegroups.com, Wim Van Sebroeck <wim@iguana.be>,
 	Andrew Morton <akpm@linux-foundation.org>,
-	Wolfram Sang <w.sang@pengutronix.de>,
-	Alessandro Zummo <alessandro.zummo@towertech.it>
-Subject: [PATCH 1/3] rtc: stmp3xxx: add wdt-accessor function
-Date: Mon, 23 Jan 2012 20:33:03 +0100
-Message-Id: <1327347185-620-2-git-send-email-w.sang@pengutronix.de>
+	Wolfram Sang <w.sang@pengutronix.de>
+Subject: [PATCH 2/3] watchdog: add new driver for STMP3xxx and i.MX23/28
+Date: Mon, 23 Jan 2012 20:33:04 +0100
+Message-Id: <1327347185-620-3-git-send-email-w.sang@pengutronix.de>
 In-Reply-To: <1327347185-620-1-git-send-email-w.sang@pengutronix.de>
 References: <1327347185-620-1-git-send-email-w.sang@pengutronix.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This RTC also includes a watchdog timer. Provide an accessor function
-for it to be picked up by a watchdog driver. Also register the
-platform_device here to get the boot-time dependencies right.
+Replace the existing STMP3xxx driver because it has enough drawbacks
+that a rewrite is apropriate. The new driver is designed to use the
+watchdog framework which makes it a lot smaller. It now uses an exported
+function from the RTC driver to set up its registers (the old driver
+silently reused the hopefully already remapped RTC registers). Also,
+this driver is mach independent, while the old one still depends on a
+removed mach.
 
 Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
-Cc: Alessandro Zummo <alessandro.zummo@towertech.it>
-Cc: Andrew Morton <akpm@linux-foundation.org>
 ---
- drivers/rtc/rtc-stmp3xxx.c       |   64 ++++++++++++++++++++++++++++++++++++++
- include/linux/stmp3xxx_rtc_wdt.h |   15 +++++++++
- 2 files changed, 79 insertions(+), 0 deletions(-)
- create mode 100644 include/linux/stmp3xxx_rtc_wdt.h
+ drivers/watchdog/Kconfig            |   10 +++
+ drivers/watchdog/Makefile           |    1 +
+ drivers/watchdog/stmp3xxx_rtc_wdt.c |  139 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 150 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/watchdog/stmp3xxx_rtc_wdt.c
 
-diff --git a/drivers/rtc/rtc-stmp3xxx.c b/drivers/rtc/rtc-stmp3xxx.c
-index 1028786..2cf8858 100644
---- a/drivers/rtc/rtc-stmp3xxx.c
-+++ b/drivers/rtc/rtc-stmp3xxx.c
-@@ -25,8 +25,10 @@
- #include <linux/interrupt.h>
- #include <linux/rtc.h>
- #include <linux/slab.h>
-+#include <linux/stmp3xxx_rtc_wdt.h>
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 877b107..2c89da6 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -305,6 +305,16 @@ config STMP3XXX_WATCHDOG
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called stmp3xxx_wdt.
  
- #include <mach/common.h>
-+#include <mach/mxs.h>
- 
- #define STMP3XXX_RTC_CTRL			0x0
- #define STMP3XXX_RTC_CTRL_SET			0x4
-@@ -34,6 +36,7 @@
- #define STMP3XXX_RTC_CTRL_ALARM_IRQ_EN		0x00000001
- #define STMP3XXX_RTC_CTRL_ONEMSEC_IRQ_EN	0x00000002
- #define STMP3XXX_RTC_CTRL_ALARM_IRQ		0x00000004
-+#define STMP3XXX_RTC_CTRL_WATCHDOGEN		0x00000010
- 
- #define STMP3XXX_RTC_STAT			0x10
- #define STMP3XXX_RTC_STAT_STALE_SHIFT		16
-@@ -43,6 +46,8 @@
- 
- #define STMP3XXX_RTC_ALARM			0x40
- 
-+#define STMP3XXX_RTC_WATCHDOG			0x50
++config STMP3XXX_RTC_WATCHDOG
++	tristate "Freescale STMP3XXX & i.MX23/28 watchdog"
++	depends on RTC_DRV_STMP
++	select WATCHDOG_CORE
++	help
++	  Say Y here to include support for the watchdog timer inside
++	  the RTC for the STMP37XX/378X or i.MX23/28 SoC.
++	  To compile this driver as a module, choose M here: the
++	  module will be called stmp3xxx_rtc_wdt.
 +
- #define STMP3XXX_RTC_PERSISTENT0		0x60
- #define STMP3XXX_RTC_PERSISTENT0_SET		0x64
- #define STMP3XXX_RTC_PERSISTENT0_CLR		0x68
-@@ -50,12 +55,70 @@
- #define STMP3XXX_RTC_PERSISTENT0_ALARM_EN	0x00000004
- #define STMP3XXX_RTC_PERSISTENT0_ALARM_WAKE	0x00000080
- 
-+#define STMP3XXX_RTC_PERSISTENT1		0x70
-+/* missing bitmask in headers */
-+#define STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER	0x80000000
-+
- struct stmp3xxx_rtc_data {
- 	struct rtc_device *rtc;
- 	void __iomem *io;
- 	int irq_alarm;
- };
- 
-+#if defined(CONFIG_STMP3XXX_RTC_WATCHDOG) || defined(CONFIG_STMP3XXX_RTC_WATCHDOG_MODULE)
-+/**
-+ * stmp3xxx_wdt_set_timeout - configure the watchdog inside the STMP3xxx RTC
-+ * @dev: the parent device of the watchdog (= the RTC)
-+ * @timeout: the desired value for the timeout register of the watchdog.
-+ *           0 disables the watchdog
-+ *
-+ * The watchdog needs one register and two bits which are in the RTC domain.
-+ * To handle the resource conflict, the RTC driver will create another
-+ * platform_device for the watchdog driver as a child of the RTC device.
-+ * The watchdog driver is passed the below accessor function via platform_data
-+ * to configure the watchdog. Locking is not needed because accessing SET/CLR
-+ * registers is atomic.
-+ */
-+
-+void stmp3xxx_wdt_set_timeout(struct device *dev, u32 timeout)
-+{
-+	struct stmp3xxx_rtc_data *rtc_data = dev_get_drvdata(dev);
-+	void __iomem *base;
-+
-+	if (timeout) {
-+		writel(timeout, rtc_data->io + STMP3XXX_RTC_WATCHDOG);
-+		base = rtc_data->io + MXS_SET_ADDR;
-+	} else {
-+		base = rtc_data->io + MXS_CLR_ADDR;
-+	}
-+	writel(STMP3XXX_RTC_CTRL_WATCHDOGEN, base + STMP3XXX_RTC_CTRL);
-+	writel(STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER,
-+		base + STMP3XXX_RTC_PERSISTENT1);
-+}
-+
-+static struct stmp3xxx_wdt_pdata wdt_pdata = {
-+	.wdt_set_timeout = stmp3xxx_wdt_set_timeout,
-+};
-+
-+static struct platform_device stmp3xxx_wdt_pdev = {
-+	.name = "stmp3xxx_rtc_wdt",
-+	.dev = {
-+		.platform_data = &wdt_pdata,
-+	},
-+};
-+
-+static void stmp3xxx_wdt_register(struct platform_device *rtc_pdev)
-+{
-+	stmp3xxx_wdt_pdev.dev.parent = &rtc_pdev->dev;
-+	stmp3xxx_wdt_pdev.id = rtc_pdev->id;
-+	platform_device_register(&stmp3xxx_wdt_pdev);
-+}
-+#else
-+static void stmp3xxx_wdt_register(struct device *dev)
-+{
-+}
-+#endif /* CONFIG_STMP3XXX_RTC_WATCHDOG */
-+
- static void stmp3xxx_wait_time(struct stmp3xxx_rtc_data *rtc_data)
- {
- 	/*
-@@ -231,6 +294,7 @@ static int stmp3xxx_rtc_probe(struct platform_device *pdev)
- 		goto out_irq_alarm;
- 	}
- 
-+	stmp3xxx_wdt_register(pdev);
- 	return 0;
- 
- out_irq_alarm:
-diff --git a/include/linux/stmp3xxx_rtc_wdt.h b/include/linux/stmp3xxx_rtc_wdt.h
+ config NUC900_WATCHDOG
+ 	tristate "Nuvoton NUC900 watchdog"
+ 	depends on ARCH_W90X900
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index e8f479a..acaccd0 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -50,6 +50,7 @@ obj-$(CONFIG_DAVINCI_WATCHDOG) += davinci_wdt.o
+ obj-$(CONFIG_ORION_WATCHDOG) += orion_wdt.o
+ obj-$(CONFIG_COH901327_WATCHDOG) += coh901327_wdt.o
+ obj-$(CONFIG_STMP3XXX_WATCHDOG) += stmp3xxx_wdt.o
++obj-$(CONFIG_STMP3XXX_RTC_WATCHDOG) += stmp3xxx_rtc_wdt.o
+ obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
+ obj-$(CONFIG_TS72XX_WATCHDOG) += ts72xx_wdt.o
+ obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
+diff --git a/drivers/watchdog/stmp3xxx_rtc_wdt.c b/drivers/watchdog/stmp3xxx_rtc_wdt.c
 new file mode 100644
-index 0000000..1dd12c9
+index 0000000..4351055
 --- /dev/null
-+++ b/include/linux/stmp3xxx_rtc_wdt.h
-@@ -0,0 +1,15 @@
++++ b/drivers/watchdog/stmp3xxx_rtc_wdt.c
+@@ -0,0 +1,139 @@
 +/*
-+ * stmp3xxx_rtc_wdt.h
++ * Watchdog driver for the RTC based watchdog in STMP3xxx and i.MX23/28
 + *
-+ * Copyright (C) 2011 Wolfram Sang, Pengutronix e.K.
++ * Author: Wolfram Sang <w.sang@pengutronix.de>
 + *
-+ * This file is released under the GPLv2.
++ * Copyright (C) 2011 Pengutronix e.K.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
 + */
-+#ifndef __LINUX_STMP3XXX_RTC_WDT_H
-+#define __LINUX_STMP3XXX_RTC_WDT_H
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/miscdevice.h>
++#include <linux/watchdog.h>
++#include <linux/platform_device.h>
++#include <linux/stmp3xxx_rtc_wdt.h>
 +
-+struct stmp3xxx_wdt_pdata {
-+	void (*wdt_set_timeout)(struct device *dev, u32 timeout);
++#define WDOG_TICK_RATE 1000 /* 1 kHz clock */
++#define STMP3XXX_DEFAULT_TIMEOUT 60
++#define STMP3XXX_MAX_TIMEOUT (UINT_MAX / WDOG_TICK_RATE)
++
++static int timeout = STMP3XXX_DEFAULT_TIMEOUT;
++module_param(timeout, uint, 0);
++MODULE_PARM_DESC(timeout, "Watchdog timeout period in seconds from 1 to "
++		 __MODULE_STRING(STMP3XXX_MAX_TIMEOUT) ", default "
++		 __MODULE_STRING(STMP3XXX_DEFAULT_TIMEOUT));
++
++static int wdt_start(struct watchdog_device *wdd)
++{
++	struct device *dev = watchdog_get_drvdata(wdd);
++	struct stmp3xxx_wdt_pdata *pdata = dev->platform_data;
++
++	pdata->wdt_set_timeout(dev->parent, wdd->timeout * WDOG_TICK_RATE);
++	return 0;
++}
++
++static int wdt_stop(struct watchdog_device *wdd)
++{
++	struct device *dev = watchdog_get_drvdata(wdd);
++	struct stmp3xxx_wdt_pdata *pdata = dev->platform_data;
++
++	pdata->wdt_set_timeout(dev->parent, 0);
++	return 0;
++}
++
++static int wdt_set_timeout(struct watchdog_device *wdd, unsigned new_timeout)
++{
++	struct device *dev = watchdog_get_drvdata(wdd);
++	struct stmp3xxx_wdt_pdata *pdata = dev->platform_data;
++
++	pdata->wdt_set_timeout(dev->parent, new_timeout * WDOG_TICK_RATE);
++	return 0;
++}
++
++static const struct watchdog_info stmp3xxx_wdt_ident = {
++	.options = WDIOF_MAGICCLOSE | WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
++	.identity = "STMP3XXX RTC Watchdog",
 +};
 +
-+#endif /* __LINUX_STMP3XXX_RTC_WDT_H */
++static const struct watchdog_ops stmp3xxx_wdt_ops = {
++	.owner = THIS_MODULE,
++	.start = wdt_start,
++	.stop = wdt_stop,
++	.set_timeout = wdt_set_timeout,
++};
++
++static struct watchdog_device stmp3xxx_wdd = {
++	.info = &stmp3xxx_wdt_ident,
++	.ops = &stmp3xxx_wdt_ops,
++	.min_timeout = 1,
++	.max_timeout = STMP3XXX_MAX_TIMEOUT,
++	.status = WATCHDOG_NOWAYOUT_INIT_STATUS,
++};
++
++static int __devinit stmp3xxx_wdt_probe(struct platform_device *pdev)
++{
++	int ret;
++
++	watchdog_set_drvdata(&stmp3xxx_wdd, &pdev->dev);
++
++	stmp3xxx_wdd.timeout = clamp_t(unsigned, timeout, 1, STMP3XXX_MAX_TIMEOUT);
++
++	ret = watchdog_register_device(&stmp3xxx_wdd);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "cannot register watchdog device\n");
++		return ret;
++	}
++
++	dev_info(&pdev->dev, "initialized watchdog with timeout %ds\n", timeout);
++	return 0;
++}
++
++static int __devexit stmp3xxx_wdt_remove(struct platform_device *pdev)
++{
++	watchdog_unregister_device(&stmp3xxx_wdd);
++	return 0;
++}
++
++#ifdef CONFIG_PM
++static int stmp3xxx_wdt_suspend(struct device *dev)
++{
++	if (stmp3xxx_wdd.status & WDOG_ACTIVE)
++		wdt_stop(&stmp3xxx_wdd);
++
++	return 0;
++}
++
++static int stmp3xxx_wdt_resume(struct device *dev)
++{
++	if (stmp3xxx_wdd.status & WDOG_ACTIVE)
++		wdt_start(&stmp3xxx_wdd);
++
++	return 0;
++}
++
++static const struct dev_pm_ops stmp3xxx_wdt_pm_ops = {
++	.suspend	= stmp3xxx_wdt_suspend,
++	.resume		= stmp3xxx_wdt_resume,
++};
++#endif
++
++static struct platform_driver stmp3xxx_wdt_driver = {
++	.driver = {
++		.name = "stmp3xxx_rtc_wdt",
++#ifdef CONFIG_PM
++		.pm	= &stmp3xxx_wdt_pm_ops,
++#endif
++	},
++	.probe = stmp3xxx_wdt_probe,
++	.remove = __devexit_p(stmp3xxx_wdt_remove),
++};
++module_platform_driver(stmp3xxx_wdt_driver);
++
++MODULE_DESCRIPTION("STMP3XXX RTC Watchdog Driver");
++MODULE_LICENSE("GPL v2");
++MODULE_AUTHOR("Wolfram Sang <w.sang@pengutronix.de>");
++MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
 -- 
 1.7.2.5
 
