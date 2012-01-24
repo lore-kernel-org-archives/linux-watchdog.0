@@ -1,39 +1,83 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from na3sys009aog124.obsmtp.com ([74.125.149.151]:47358 "EHLO
-	na3sys009aog124.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755627Ab2AXJtw (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:55317 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755531Ab2AXTrM (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 24 Jan 2012 04:49:52 -0500
-Message-ID: <4F1E7EBA.3090006@ti.com>
-Date: Tue, 24 Jan 2012 15:19:46 +0530
-From: Shubhrajyoti <shubhrajyoti@ti.com>
+	Tue, 24 Jan 2012 14:47:12 -0500
+Date: Tue, 24 Jan 2012 20:47:03 +0100
+From: Wolfram Sang <w.sang@pengutronix.de>
+To: Axel Lin <axel.lin@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v2] watchdog: Convert jz4740_wdt driver to watchdog core
+Message-ID: <20120124194703.GC8502@pengutronix.de>
+References: <1327371705.11828.2.camel@phoenix>
 MIME-Version: 1.0
-To: Wolfram Sang <w.sang@pengutronix.de>
-CC: "Bedia, Vaibhav" <vaibhav.bedia@ti.com>,
-	Shubhrajyoti Datta <omaplinuxkernel@gmail.com>,
-	"linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH RFC 1/2] watchdog : omap_wdt : Implement WDIOC_GETBOOTSTATUS
- for omap3+
-References: <1327317188-14782-1-git-send-email-shubhrajyoti@ti.com> <1327317188-14782-2-git-send-email-shubhrajyoti@ti.com> <B5906170F1614E41A8A28DE3B8D12143317901B9@DBDE01.ent.ti.com> <CAM=Q2ctL_Z5P6=NwAWBHD2bR=xqHMCF15g6v0Ap=hJMPdgXwyQ@mail.gmail.com> <B5906170F1614E41A8A28DE3B8D12143317902D6@DBDE01.ent.ti.com> <20120124093318.GA2609@pengutronix.de>
-In-Reply-To: <20120124093318.GA2609@pengutronix.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="xo44VMWPx7vlQ2+2"
+Content-Disposition: inline
+In-Reply-To: <1327371705.11828.2.camel@phoenix>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tuesday 24 January 2012 03:03 PM, Wolfram Sang wrote:
->> Just returning the register content does not help much and looking at other
->> implementations, like Blackfin, I am guessing this IOCTL is supposed to give
->> a yes/no sort of result.
-> It needs to return WDIOF_* flags as defined in include/linux/watchdog.h.
-> Check also Documentation/watchdog/watchdog-api.txt for further info.
-> Yes, not all drivers follow this style, sadly.
-Yes I agree.
-> Regards,
->
->    Wolfram
->
 
+--xo44VMWPx7vlQ2+2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+
+On Tue, Jan 24, 2012 at 10:21:45AM +0800, Axel Lin wrote:
+> This patch converts jz4740_wdt driver to use watchdog core APIs.
+> Also use devm_* APIs to save a few error handling code.
+>=20
+> Signed-off-by: Axel Lin <axel.lin@gmail.com>
+> Acked-by: Paul Cercueil <paul@crapouillou.net>
+> ---
+> v2: Address all the comments by Wolfram.
+>     - Remove unneeded header file inclusion
+>     - Drop 'heartbeat' usage in jz4740_wdt_set_heartbeat and jz4740_wdt_s=
+tart
+>     - Init wdt_dev->timeout in probe using the global 'heartbeat'
+>     - Remove unneeded pointer check for drvdata->mem
+
+The code still has those:
+
+ 41 #define WDT_IN_USE        0
+ 42 #define WDT_OK_TO_CLOSE   1
+
+> +struct jz4740_wdt_drvdata {
+> +	struct watchdog_device wdt;
+> +	void __iomem *base;
+> +	struct resource	*mem;
+
+mem can go, too.
+
+> +	struct clk *rtc_clk;
+> +};
+
+Rest looks fine.
+
+Thanks,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--xo44VMWPx7vlQ2+2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAk8fCrcACgkQD27XaX1/VRvYGACgij32UDkM+OW5tf+sPhESpP9D
+VZoAn3iIarvnoijnk/qORrzm9O2aIRbc
+=Tibm
+-----END PGP SIGNATURE-----
+
+--xo44VMWPx7vlQ2+2--
