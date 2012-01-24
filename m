@@ -1,83 +1,42 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:55317 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755531Ab2AXTrM (ORCPT
+Received: from oproxy8-pub.bluehost.com ([69.89.22.20]:48539 "HELO
+	oproxy8-pub.bluehost.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1756543Ab2AXVJx (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 24 Jan 2012 14:47:12 -0500
-Date: Tue, 24 Jan 2012 20:47:03 +0100
-From: Wolfram Sang <w.sang@pengutronix.de>
-To: Axel Lin <axel.lin@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v2] watchdog: Convert jz4740_wdt driver to watchdog core
-Message-ID: <20120124194703.GC8502@pengutronix.de>
-References: <1327371705.11828.2.camel@phoenix>
+	Tue, 24 Jan 2012 16:09:53 -0500
+Message-ID: <4F1F2BC9.1040109@xenotime.net>
+Date: Tue, 24 Jan 2012 14:08:09 -0800
+From: Randy Dunlap <rdunlap@xenotime.net>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="xo44VMWPx7vlQ2+2"
-Content-Disposition: inline
-In-Reply-To: <1327371705.11828.2.camel@phoenix>
+To: Wim Van Sebroeck <wim@iguana.be>
+CC: LKML <linux-kernel@vger.kernel.org>,
+	linux-watchdog@vger.kernel.org,
+	Wolfram Sang <w.sang@pengutronix.de>
+Subject: Re: [PATCH RESEND] watchdog: documentation: remove index-file
+References: <1327346258-28697-1-git-send-email-w.sang@pengutronix.de> <20120124090933.GA23784@infomag.iguana.be>
+In-Reply-To: <20120124090933.GA23784@infomag.iguana.be>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On 01/24/2012 01:09 AM, Wim Van Sebroeck wrote:
+> Hi all,
+> 
+>> The 00-index file in the watchdog directory is, like many others,
+>> outdated (conversion-howto is missing) and doesn't contain worthwhile
+>> additional information. As it seems to be a maintenance burden without
+>> much gain, simply remove it.
+> 
+> I would like to know what other kernel developers think about removing
+> 00-INDEX files from the Documentation Directory.
 
---xo44VMWPx7vlQ2+2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Some of the 00-INDEX files add more info/value than others do.
+I don't think that we are ready to remove all of them, but if one
+of them isn't particularly useful, it can go away.  We don't need to
+have one in every sub-directory.
 
 
-On Tue, Jan 24, 2012 at 10:21:45AM +0800, Axel Lin wrote:
-> This patch converts jz4740_wdt driver to use watchdog core APIs.
-> Also use devm_* APIs to save a few error handling code.
->=20
-> Signed-off-by: Axel Lin <axel.lin@gmail.com>
-> Acked-by: Paul Cercueil <paul@crapouillou.net>
-> ---
-> v2: Address all the comments by Wolfram.
->     - Remove unneeded header file inclusion
->     - Drop 'heartbeat' usage in jz4740_wdt_set_heartbeat and jz4740_wdt_s=
-tart
->     - Init wdt_dev->timeout in probe using the global 'heartbeat'
->     - Remove unneeded pointer check for drvdata->mem
-
-The code still has those:
-
- 41 #define WDT_IN_USE        0
- 42 #define WDT_OK_TO_CLOSE   1
-
-> +struct jz4740_wdt_drvdata {
-> +	struct watchdog_device wdt;
-> +	void __iomem *base;
-> +	struct resource	*mem;
-
-mem can go, too.
-
-> +	struct clk *rtc_clk;
-> +};
-
-Rest looks fine.
-
-Thanks,
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---xo44VMWPx7vlQ2+2
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAk8fCrcACgkQD27XaX1/VRvYGACgij32UDkM+OW5tf+sPhESpP9D
-VZoAn3iIarvnoijnk/qORrzm9O2aIRbc
-=Tibm
------END PGP SIGNATURE-----
-
---xo44VMWPx7vlQ2+2--
+-- 
+~Randy
+*** Remember to use Documentation/SubmitChecklist when testing your code ***
