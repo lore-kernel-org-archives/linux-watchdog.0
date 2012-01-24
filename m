@@ -1,34 +1,69 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay002.isp.belgacom.be ([195.238.6.175]:13041 "EHLO
-	mailrelay002.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755210Ab2AXJJg (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:50075 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754642Ab2AXJd0 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 24 Jan 2012 04:09:36 -0500
-Date: Tue, 24 Jan 2012 10:09:33 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: linux-watchdog@vger.kernel.org,
-	Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: [PATCH RESEND] watchdog: documentation: remove index-file
-Message-ID: <20120124090933.GA23784@infomag.iguana.be>
-References: <1327346258-28697-1-git-send-email-w.sang@pengutronix.de>
+	Tue, 24 Jan 2012 04:33:26 -0500
+Date: Tue, 24 Jan 2012 10:33:18 +0100
+From: Wolfram Sang <w.sang@pengutronix.de>
+To: "Bedia, Vaibhav" <vaibhav.bedia@ti.com>
+Cc: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>,
+	"linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>,
+	"Datta, Shubhrajyoti" <shubhrajyoti@ti.com>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+Subject: Re: [PATCH RFC 1/2] watchdog : omap_wdt : Implement
+ WDIOC_GETBOOTSTATUS for omap3+
+Message-ID: <20120124093318.GA2609@pengutronix.de>
+References: <1327317188-14782-1-git-send-email-shubhrajyoti@ti.com>
+ <1327317188-14782-2-git-send-email-shubhrajyoti@ti.com>
+ <B5906170F1614E41A8A28DE3B8D12143317901B9@DBDE01.ent.ti.com>
+ <CAM=Q2ctL_Z5P6=NwAWBHD2bR=xqHMCF15g6v0Ap=hJMPdgXwyQ@mail.gmail.com>
+ <B5906170F1614E41A8A28DE3B8D12143317902D6@DBDE01.ent.ti.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
 Content-Disposition: inline
-In-Reply-To: <1327346258-28697-1-git-send-email-w.sang@pengutronix.de>
+In-Reply-To: <B5906170F1614E41A8A28DE3B8D12143317902D6@DBDE01.ent.ti.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi all,
 
-> The 00-index file in the watchdog directory is, like many others,
-> outdated (conversion-howto is missing) and doesn't contain worthwhile
-> additional information. As it seems to be a maintenance burden without
-> much gain, simply remove it.
+--Qxx1br4bt0+wmkIi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I would like to know what other kernel developers think about removing
-00-INDEX files from the Documentation Directory.
+> Just returning the register content does not help much and looking at oth=
+er
+> implementations, like Blackfin, I am guessing this IOCTL is supposed to g=
+ive
+> a yes/no sort of result.
 
-Kind regards,
-Wim.
+It needs to return WDIOF_* flags as defined in include/linux/watchdog.h.
+Check also Documentation/watchdog/watchdog-api.txt for further info.
+Yes, not all drivers follow this style, sadly.
 
+Regards,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--Qxx1br4bt0+wmkIi
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAk8eet4ACgkQD27XaX1/VRvemQCfdyCWZpduV2MQDzuGG5EzjvDo
+niAAnigt6+3lL3UGKmLUTrEvbahfjJj8
+=SE2R
+-----END PGP SIGNATURE-----
+
+--Qxx1br4bt0+wmkIi--
