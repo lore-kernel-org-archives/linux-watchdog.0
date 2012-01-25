@@ -1,107 +1,42 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.linuxfoundation.org ([140.211.169.12]:41332 "EHLO
+Received: from mail.linuxfoundation.org ([140.211.169.12]:41345 "EHLO
 	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755138Ab2AYBAA (ORCPT
+	with ESMTP id S1755138Ab2AYBC1 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 24 Jan 2012 20:00:00 -0500
-Date: Tue, 24 Jan 2012 16:59:58 -0800
+	Tue, 24 Jan 2012 20:02:27 -0500
+Date: Tue, 24 Jan 2012 17:02:26 -0800
 From: Andrew Morton <akpm@linux-foundation.org>
 To: Wolfram Sang <w.sang@pengutronix.de>
 Cc: linux-watchdog@vger.kernel.org, rtc-linux@googlegroups.com,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Alessandro Zummo <alessandro.zummo@towertech.it>
-Subject: Re: [PATCH 1/3] rtc: stmp3xxx: add wdt-accessor function
-Message-Id: <20120124165958.2091fa94.akpm@linux-foundation.org>
-In-Reply-To: <1327347185-620-2-git-send-email-w.sang@pengutronix.de>
+	Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: [PATCH RESEND 0/3] watchdog: new driver for STMP3xxx/MX23/MX28
+Message-Id: <20120124170226.fa6386a1.akpm@linux-foundation.org>
+In-Reply-To: <1327347185-620-1-git-send-email-w.sang@pengutronix.de>
 References: <1327347185-620-1-git-send-email-w.sang@pengutronix.de>
-	<1327347185-620-2-git-send-email-w.sang@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, 23 Jan 2012 20:33:03 +0100
+On Mon, 23 Jan 2012 20:33:02 +0100
 Wolfram Sang <w.sang@pengutronix.de> wrote:
 
-> This RTC also includes a watchdog timer. Provide an accessor function
-> for it to be picked up by a watchdog driver. Also register the
-> platform_device here to get the boot-time dependencies right.
-> 
->
-> ...
->
->  struct stmp3xxx_rtc_data {
->  	struct rtc_device *rtc;
->  	void __iomem *io;
->  	int irq_alarm;
->  };
->  
-> +#if defined(CONFIG_STMP3XXX_RTC_WATCHDOG) || defined(CONFIG_STMP3XXX_RTC_WATCHDOG_MODULE)
+> The first patch adds an accessor routine to the RTC-driver which can hopefully
+> go via the watchdog-tree as well (asking for Andrew's ack here).  The second
+> patch adds the new driver, the third removes the old one.
 
-You can use IS_ENABLED() here.
+I had a few little issues.
 
-> +/**
-> + * stmp3xxx_wdt_set_timeout - configure the watchdog inside the STMP3xxx RTC
-> + * @dev: the parent device of the watchdog (= the RTC)
-> + * @timeout: the desired value for the timeout register of the watchdog.
-> + *           0 disables the watchdog
-> + *
-> + * The watchdog needs one register and two bits which are in the RTC domain.
-> + * To handle the resource conflict, the RTC driver will create another
-> + * platform_device for the watchdog driver as a child of the RTC device.
-> + * The watchdog driver is passed the below accessor function via platform_data
-> + * to configure the watchdog. Locking is not needed because accessing SET/CLR
-> + * registers is atomic.
-> + */
-> +
-> +void stmp3xxx_wdt_set_timeout(struct device *dev, u32 timeout)
-> +{
-> +	struct stmp3xxx_rtc_data *rtc_data = dev_get_drvdata(dev);
-> +	void __iomem *base;
-> +
-> +	if (timeout) {
-> +		writel(timeout, rtc_data->io + STMP3XXX_RTC_WATCHDOG);
-> +		base = rtc_data->io + MXS_SET_ADDR;
-> +	} else {
-> +		base = rtc_data->io + MXS_CLR_ADDR;
-> +	}
-> +	writel(STMP3XXX_RTC_CTRL_WATCHDOGEN, base + STMP3XXX_RTC_CTRL);
-> +	writel(STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER,
-> +		base + STMP3XXX_RTC_PERSISTENT1);
-> +}
+> After missing the last merge window, I really hope we can get it into 3.4. The
+> old driver was broken (= not compilable) anyhow, so there cannot be any
+> regression.  Tested on a MX28EVK.
 
-This wants EXPORT_SYMBOL(), surely?
+Well, people out could still be using the old driver after applying
+local fixups.
 
-Which points suspicious fingers at your testing ;) Please test all
-combinations of y, n and m on both config symbols.
+How compatible is the new driver with the old one?  Same module
+parameters?  Will it just transparently work?  IOW, if people out there
+are using the old driver now, how much will this sudden removal impact
+them?
 
-> +static struct stmp3xxx_wdt_pdata wdt_pdata = {
-> +	.wdt_set_timeout = stmp3xxx_wdt_set_timeout,
-> +};
-> +
-> +static struct platform_device stmp3xxx_wdt_pdev = {
-> +	.name = "stmp3xxx_rtc_wdt",
-> +	.dev = {
-> +		.platform_data = &wdt_pdata,
-> +	},
-> +};
-> +
-> +static void stmp3xxx_wdt_register(struct platform_device *rtc_pdev)
-> +{
-> +	stmp3xxx_wdt_pdev.dev.parent = &rtc_pdev->dev;
-> +	stmp3xxx_wdt_pdev.id = rtc_pdev->id;
-> +	platform_device_register(&stmp3xxx_wdt_pdev);
-> +}
-> +#else
-> +static void stmp3xxx_wdt_register(struct device *dev)
-> +{
-> +}
-
-This stub is unfortunate.  If
-!IS_ENABLED(CONFIG_STMP3XXX_RTC_WATCHDOG), the user still must load
-this module just to get a silly empty function.  If the
-stmp3xxx_wdt_register() stub were made static inline in a header file,
-the user won't need to compile or load this module at all.  There may
-be other (initialisation?) reasons why the user must still load this
-module?
