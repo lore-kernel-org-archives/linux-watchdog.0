@@ -1,68 +1,76 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:56767 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753573Ab2A1WTw (ORCPT
+Received: from b.relay.invitel.net ([62.77.203.4]:41852 "EHLO
+	b.relay.invitel.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752651Ab2A3MmP (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 28 Jan 2012 17:19:52 -0500
-Date: Sat, 28 Jan 2012 23:19:45 +0100
-From: Wolfram Sang <w.sang@pengutronix.de>
-To: Axel Lin <axel.lin@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Wim Van Sebroeck <wim@iguana.be>,
+	Mon, 30 Jan 2012 07:42:15 -0500
+Date: Mon, 30 Jan 2012 13:35:45 +0100
+From: Heiko Schocher <hs@denx.de>
+Subject: Re: [PATCH] drivers, char: add U-Boot bootcount driver
+In-reply-to: <4EDEA3BF.6020507@gmail.com>
+To: Rob Herring <robherring2@gmail.com>
+Cc: Wolfram Sang <w.sang@pengutronix.de>, Wolfgang Denk <wd@denx.de>,
+	devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+	Vitaly Bordug <vbordug@ru.mvista.com>,
 	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v3] watchdog: Convert jz4740_wdt driver to watchdog core
-Message-ID: <20120128221945.GA26708@pengutronix.de>
-References: <1327572645.25187.2.camel@phoenix>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="M9NhX3UHpAaciwkO"
-Content-Disposition: inline
-In-Reply-To: <1327572645.25187.2.camel@phoenix>
+Reply-to: hs@denx.de
+Message-id: <4F268EA1.3090907@denx.de>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+References: <1322991921-21096-1-git-send-email-hs@denx.de>
+ <20111204114741.GA5788@pengutronix.de> <4EDCD7B2.5030409@denx.de>
+ <20111206215056.GD14154@pengutronix.de>
+ <20111206215609.5D1FF1A32820@gemini.denx.de>
+ <20111206220620.GF14154@pengutronix.de> <4EDEA3BF.6020507@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+Hello Rob,
 
---M9NhX3UHpAaciwkO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sorry for the late reply ...
 
-On Thu, Jan 26, 2012 at 06:10:45PM +0800, Axel Lin wrote:
-> This patch converts jz4740_wdt driver to use watchdog core APIs.
-> Also use devm_* APIs to save a few error handling code.
->=20
-> Signed-off-by: Axel Lin <axel.lin@gmail.com>
-> Acked-by: Paul Cercueil <paul@crapouillou.net>
-> ---
-> v3: - Remove unused define for WDT_IN_USE and WDT_OK_TO_CLOSE
->     - Remove mem from struct jz4740_wdt_drvdata
->=20
-> v2: Address all the comments by Wolfram.
->     - Remove unneed header file inclusion
->     - Drop 'heartbeat' usage in jz4740_wdt_set_heartbeat and jz4740_wdt_s=
-tart
->     - Init wdt_dev->timeout in probe using the global 'heartbeat'
->     - Remove unneed pointer check for drvdata->mem
+Rob Herring wrote:
+> On 12/06/2011 04:06 PM, Wolfram Sang wrote:
+>>>> bootcount itself is not a device. It is a feature of certain devices. And that
+>>>> needs to be implemented; possibly generic enough that it can work for register
+>>>> based, i2c based, and so forth, accesses.
+>>> If "boot counter" is not a good name for such a device, then what name
+>>> would you suggest?
+>> None.
+>>
+>>> Or do you think a counter (which can be implemented in a number of
+>>> different ways, depending on hardware specifics) is not a device?
+>> Yes.
+>>
+>>> What would be such a device, then?
+>> "maxim,ds1338"
+>>
+>> Please have a look at the devicetree.org-wiki-page I just mentioned:
+>>
+>> http://devicetree.org/Device_Tree_Usage
+>>
+> 
+> Perhaps fs/pstore would be a good choice for the user space interface
+> (defining a new file bootcount). This can support any arbitrary backing
+> device although pretty much only ACPI is implemented.
 
-Reviewed-by: Wolfram Sang <w.sang@pengutronix.de>
+I tried to use fs/pstore for the bootcount feature, and I can mount
+and read the bootcount value from the file, I created. But I could not
+write to that file ... I only see the callback from
+include/linux/pstore.h
 
-Thanks!
+struct pstore_info {
+[...]
+        int             (*write)(enum pstore_type_id type,
+                        enum kmsg_dump_reason reason, u64 *id,
+                        unsigned int part, size_t size, struct pstore_info *psi);
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+called, if I reboot ... do I miss something? Or is it not possible
+to write to the files created through fs/pstore?
 
---M9NhX3UHpAaciwkO
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAk8kdIEACgkQD27XaX1/VRuEywCgqTkg+NLKNHHQr91+CewzPc2M
-e5sAmwVGPCFxOnwifMcMZgcfurdyWS/e
-=8cNi
------END PGP SIGNATURE-----
-
---M9NhX3UHpAaciwkO--
+bye,
+Heiko
+-- 
+DENX Software Engineering GmbH,     MD: Wolfgang Denk & Detlev Zundel
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
