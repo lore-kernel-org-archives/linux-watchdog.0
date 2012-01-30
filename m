@@ -1,76 +1,178 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from b.relay.invitel.net ([62.77.203.4]:41852 "EHLO
-	b.relay.invitel.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752651Ab2A3MmP (ORCPT
+Received: from mailrelay008.isp.belgacom.be ([195.238.6.174]:26584 "EHLO
+	mailrelay008.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753489Ab2A3TBJ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 30 Jan 2012 07:42:15 -0500
-Date: Mon, 30 Jan 2012 13:35:45 +0100
-From: Heiko Schocher <hs@denx.de>
-Subject: Re: [PATCH] drivers, char: add U-Boot bootcount driver
-In-reply-to: <4EDEA3BF.6020507@gmail.com>
-To: Rob Herring <robherring2@gmail.com>
-Cc: Wolfram Sang <w.sang@pengutronix.de>, Wolfgang Denk <wd@denx.de>,
-	devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-	Vitaly Bordug <vbordug@ru.mvista.com>,
-	linux-watchdog@vger.kernel.org
-Reply-to: hs@denx.de
-Message-id: <4F268EA1.3090907@denx.de>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-References: <1322991921-21096-1-git-send-email-hs@denx.de>
- <20111204114741.GA5788@pengutronix.de> <4EDCD7B2.5030409@denx.de>
- <20111206215056.GD14154@pengutronix.de>
- <20111206215609.5D1FF1A32820@gemini.denx.de>
- <20111206220620.GF14154@pengutronix.de> <4EDEA3BF.6020507@gmail.com>
+	Mon, 30 Jan 2012 14:01:09 -0500
+Date: Mon, 30 Jan 2012 20:01:07 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: myungjoo.ham@gmail.com
+Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>,
+	linux-watchdog@vger.kernel.org, Kukjin Kim <kgene.kim@samsung.com>,
+	kyungmin.park@samsung.com, linux-samsung-soc@vger.kernel.org,
+	Ben Dooks <ben-linux@fluff.org>,
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH] watchdog: fix error in probe() of s3c2410_wdt (reset
+	at booting)
+Message-ID: <20120130190106.GA29850@infomag.iguana.be>
+References: <1326431663-4638-1-git-send-email-myungjoo.ham@samsung.com> <20120113111117.GT1068@n2100.arm.linux.org.uk> <20120113214555.GA19495@infomag.iguana.be> <CAJ0PZbSpL0-LNHfU7TTM06tPi1B4VgCp=oyPA06qAjp8PoPT2w@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAJ0PZbSpL0-LNHfU7TTM06tPi1B4VgCp=oyPA06qAjp8PoPT2w@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello Rob,
+Hi,
 
-Sorry for the late reply ...
-
-Rob Herring wrote:
-> On 12/06/2011 04:06 PM, Wolfram Sang wrote:
->>>> bootcount itself is not a device. It is a feature of certain devices. And that
->>>> needs to be implemented; possibly generic enough that it can work for register
->>>> based, i2c based, and so forth, accesses.
->>> If "boot counter" is not a good name for such a device, then what name
->>> would you suggest?
->> None.
->>
->>> Or do you think a counter (which can be implemented in a number of
->>> different ways, depending on hardware specifics) is not a device?
->> Yes.
->>
->>> What would be such a device, then?
->> "maxim,ds1338"
->>
->> Please have a look at the devicetree.org-wiki-page I just mentioned:
->>
->> http://devicetree.org/Device_Tree_Usage
->>
+> Yes, if we set wdt_count value properly before request_irq, it's fine.
 > 
-> Perhaps fs/pstore would be a good choice for the user space interface
-> (defining a new file bootcount). This can support any arbitrary backing
-> device although pretty much only ACPI is implemented.
+> Anyway, as registering the device (watchdog_register_device()) may be
+> done after request_irq without any problem, moving request_irq right
+> before it, not after it should be fine.
 
-I tried to use fs/pstore for the bootcount feature, and I can mount
-and read the bootcount value from the file, I created. But I could not
-write to that file ... I only see the callback from
-include/linux/pstore.h
+So what that be attached patch then? Could you also test this patch?
 
-struct pstore_info {
-[...]
-        int             (*write)(enum pstore_type_id type,
-                        enum kmsg_dump_reason reason, u64 *id,
-                        unsigned int part, size_t size, struct pstore_info *psi);
-
-called, if I reboot ... do I miss something? Or is it not possible
-to write to the files created through fs/pstore?
-
-bye,
-Heiko
--- 
-DENX Software Engineering GmbH,     MD: Wolfgang Denk & Detlev Zundel
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+Kind regards,
+Wim.
+---
+diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+index 4bc3744..404172f 100644
+--- a/drivers/watchdog/s3c2410_wdt.c
++++ b/drivers/watchdog/s3c2410_wdt.c
+@@ -312,18 +312,26 @@ static int __devinit s3c2410wdt_probe(struct platform_device *pdev)
+ 	dev = &pdev->dev;
+ 	wdt_dev = &pdev->dev;
+ 
+-	/* get the memory region for the watchdog timer */
+-
+ 	wdt_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	if (wdt_mem == NULL) {
+ 		dev_err(dev, "no memory resource specified\n");
+ 		return -ENOENT;
+ 	}
+ 
++	wdt_irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
++	if (wdt_irq == NULL) {
++		dev_err(dev, "no irq resource specified\n");
++		ret = -ENOENT;
++		goto err;
++	}
++
++	/* get the memory region for the watchdog timer */
++
+ 	size = resource_size(wdt_mem);
+ 	if (!request_mem_region(wdt_mem->start, size, pdev->name)) {
+ 		dev_err(dev, "failed to get memory region\n");
+-		return -EBUSY;
++		ret = -EBUSY;
++		goto err;
+ 	}
+ 
+ 	wdt_base = ioremap(wdt_mem->start, size);
+@@ -335,29 +343,17 @@ static int __devinit s3c2410wdt_probe(struct platform_device *pdev)
+ 
+ 	DBG("probe: mapped wdt_base=%p\n", wdt_base);
+ 
+-	wdt_irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+-	if (wdt_irq == NULL) {
+-		dev_err(dev, "no irq resource specified\n");
+-		ret = -ENOENT;
+-		goto err_map;
+-	}
+-
+-	ret = request_irq(wdt_irq->start, s3c2410wdt_irq, 0, pdev->name, pdev);
+-	if (ret != 0) {
+-		dev_err(dev, "failed to install irq (%d)\n", ret);
+-		goto err_map;
+-	}
+-
+ 	wdt_clock = clk_get(&pdev->dev, "watchdog");
+ 	if (IS_ERR(wdt_clock)) {
+ 		dev_err(dev, "failed to find watchdog clock source\n");
+ 		ret = PTR_ERR(wdt_clock);
+-		goto err_irq;
++		goto err_map;
+ 	}
+ 
+ 	clk_enable(wdt_clock);
+ 
+-	if (s3c2410wdt_cpufreq_register() < 0) {
++	ret = s3c2410wdt_cpufreq_register();
++	if (ret < 0) {
+ 		printk(KERN_ERR PFX "failed to register cpufreq\n");
+ 		goto err_clk;
+ 	}
+@@ -378,12 +374,18 @@ static int __devinit s3c2410wdt_probe(struct platform_device *pdev)
+ 							"cannot start\n");
+ 	}
+ 
++	ret = request_irq(wdt_irq->start, s3c2410wdt_irq, 0, pdev->name, pdev);
++	if (ret != 0) {
++		dev_err(dev, "failed to install irq (%d)\n", ret);
++		goto err_cpufreq;
++	}
++
+ 	watchdog_set_nowayout(&s3c2410_wdd, nowayout);
+ 
+ 	ret = watchdog_register_device(&s3c2410_wdd);
+ 	if (ret) {
+ 		dev_err(dev, "cannot register watchdog (%d)\n", ret);
+-		goto err_cpufreq;
++		goto err_irq;
+ 	}
+ 
+ 	if (tmr_atboot && started == 0) {
+@@ -408,23 +410,26 @@ static int __devinit s3c2410wdt_probe(struct platform_device *pdev)
+ 
+ 	return 0;
+ 
++ err_irq:
++	free_irq(wdt_irq->start, pdev);
++
+  err_cpufreq:
+ 	s3c2410wdt_cpufreq_deregister();
+ 
+  err_clk:
+ 	clk_disable(wdt_clock);
+ 	clk_put(wdt_clock);
+-
+- err_irq:
+-	free_irq(wdt_irq->start, pdev);
++	wdt_clock = NULL;
+ 
+  err_map:
+ 	iounmap(wdt_base);
+ 
+  err_req:
+ 	release_mem_region(wdt_mem->start, size);
+-	wdt_mem = NULL;
+ 
++ err:
++	wdt_irq = NULL;
++	wdt_mem = NULL;
+ 	return ret;
+ }
+ 
+@@ -432,18 +437,18 @@ static int __devexit s3c2410wdt_remove(struct platform_device *dev)
+ {
+ 	watchdog_unregister_device(&s3c2410_wdd);
+ 
++	free_irq(wdt_irq->start, dev);
++
+ 	s3c2410wdt_cpufreq_deregister();
+ 
+ 	clk_disable(wdt_clock);
+ 	clk_put(wdt_clock);
+ 	wdt_clock = NULL;
+ 
+-	free_irq(wdt_irq->start, dev);
+-	wdt_irq = NULL;
+-
+ 	iounmap(wdt_base);
+ 
+ 	release_mem_region(wdt_mem->start, resource_size(wdt_mem));
++	wdt_irq = NULL;
+ 	wdt_mem = NULL;
+ 	return 0;
+ }
