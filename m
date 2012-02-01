@@ -1,7 +1,7 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:55343 "EHLO
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:55344 "EHLO
 	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755596Ab2BAN1E (ORCPT
+	with ESMTP id S1755617Ab2BAN1E (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
 	Wed, 1 Feb 2012 08:27:04 -0500
 From: Sascha Hauer <s.hauer@pengutronix.de>
@@ -10,65 +10,65 @@ Cc: Samuel Ortiz <sameo@linux.intel.com>,
 	Jean Delvare <khali@linux-fr.org>, linux-i2c@vger.kernel.org,
 	linux-watchdog@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>,
 	kernel@pengutronix.de, Sascha Hauer <s.hauer@pengutronix.de>
-Subject: [PATCH 2/3] i2c: Add Congatec CGEB I2C driver
-Date: Wed,  1 Feb 2012 14:26:32 +0100
-Message-Id: <1328102793-4313-3-git-send-email-s.hauer@pengutronix.de>
+Subject: [PATCH 3/3] watchdog: Add Congatec CGEB watchdog driver
+Date: Wed,  1 Feb 2012 14:26:33 +0100
+Message-Id: <1328102793-4313-4-git-send-email-s.hauer@pengutronix.de>
 In-Reply-To: <1328102793-4313-1-git-send-email-s.hauer@pengutronix.de>
 References: <1328102793-4313-1-git-send-email-s.hauer@pengutronix.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This driver provides a I2C bus driver for the CGEB interface
-found on some Congatec x86 modules. No devices are registered
-on the bus, the user has to do this via the i2c device /sys
-interface.
+This driver provides support for the CGEB watchdog found on some
+Congatec x86 modules.
 
 Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
 ---
- drivers/i2c/busses/Kconfig             |    7 +
- drivers/i2c/busses/Makefile            |    1 +
- drivers/i2c/busses/i2c-congatec-cgeb.c |  206 ++++++++++++++++++++++++++++++++
- 3 files changed, 214 insertions(+), 0 deletions(-)
- create mode 100644 drivers/i2c/busses/i2c-congatec-cgeb.c
+ drivers/watchdog/Kconfig                  |    9 ++
+ drivers/watchdog/Makefile                 |    1 +
+ drivers/watchdog/congatec_cgeb_watchdog.c |  181 +++++++++++++++++++++++++++++
+ 3 files changed, 191 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/watchdog/congatec_cgeb_watchdog.c
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index a3afac4..cc8eb22 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -696,6 +696,13 @@ config I2C_EG20T
- 	  ML7213/ML7223 is companion chip for Intel Atom E6xx series.
- 	  ML7213/ML7223 is completely compatible for Intel EG20T PCH.
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 79fd606..a1f35a5 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -880,6 +880,15 @@ config SBC_EPX_C3_WATCHDOG
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called sbc_epx_c3.
  
-+config I2C_CONGATEC_CGEB
-+	tristate "Congatec CGEB I2C driver"
-+	depends on MFD_CONGATEC_CGEB
-+	help
-+	  This driver provides support for the I2C busses accssable via
-+	  the Congatec CGEB interface found on Congatec boards.
++config CONGATEC_CGEB_WATCHDOG
++	tristate "Congatec CGEB watchdog"
++	---help---
++	  This driver provides support for the watchdogs found on Congatec
++	  modules with the CGEB BIOS interface.
 +
- comment "External I2C/SMBus adapter drivers"
++	  To compile this driver as a module, choose M here: the
++	  module will be called congatec_cgeb_wdt.
++
+ # M32R Architecture
  
- config I2C_DIOLAN_U2C
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index fba6da6..4aab659 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -69,6 +69,7 @@ obj-$(CONFIG_I2C_VERSATILE)	+= i2c-versatile.o
- obj-$(CONFIG_I2C_OCTEON)	+= i2c-octeon.o
- obj-$(CONFIG_I2C_XILINX)	+= i2c-xiic.o
- obj-$(CONFIG_I2C_EG20T)         += i2c-eg20t.o
-+obj-$(CONFIG_I2C_CONGATEC_CGEB)	+= i2c-congatec-cgeb.o
+ # M68K Architecture
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index fe893e9..d0b2f1d 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -107,6 +107,7 @@ obj-$(CONFIG_W83977F_WDT) += w83977f_wdt.o
+ obj-$(CONFIG_MACHZ_WDT) += machzwd.o
+ obj-$(CONFIG_SBC_EPX_C3_WATCHDOG) += sbc_epx_c3.o
+ obj-$(CONFIG_INTEL_SCU_WATCHDOG) += intel_scu_watchdog.o
++obj-$(CONFIG_CONGATEC_CGEB_WATCHDOG) += congatec_cgeb_watchdog.o
  
- # External I2C/SMBus adapter drivers
- obj-$(CONFIG_I2C_DIOLAN_U2C)	+= i2c-diolan-u2c.o
-diff --git a/drivers/i2c/busses/i2c-congatec-cgeb.c b/drivers/i2c/busses/i2c-congatec-cgeb.c
+ # M32R Architecture
+ 
+diff --git a/drivers/watchdog/congatec_cgeb_watchdog.c b/drivers/watchdog/congatec_cgeb_watchdog.c
 new file mode 100644
-index 0000000..a387662
+index 0000000..a4be745
 --- /dev/null
-+++ b/drivers/i2c/busses/i2c-congatec-cgeb.c
-@@ -0,0 +1,206 @@
++++ b/drivers/watchdog/congatec_cgeb_watchdog.c
+@@ -0,0 +1,181 @@
 +/*
-+ * CGEB i2c driver
++ * CGEB watchdog driver
 + *
 + * (c) 2011 Sascha Hauer, Pengutronix
 + *
@@ -83,195 +83,170 @@ index 0000000..a387662
 + */
 +#include <linux/module.h>
 +#include <linux/platform_device.h>
-+#include <linux/slab.h>
-+#include <linux/i2c.h>
++#include <linux/watchdog.h>
 +#include <linux/mfd/congatec-cgeb.h>
 +
-+#define CG_I2C_FLAG_START   0x00080	/* send START condition */
-+#define CG_I2C_FLAG_STOP    0x00040	/* send STOP condition */
-+#define CG_I2C_FLAG_ALL_ACK 0x08000	/* send ACK on all read bytes */
-+#define CG_I2C_FLAG_ALL_NAK 0x04000	/* send NAK on all read bytes */
++#define CGOS_WDOG_MODE_REBOOT_PC    0
++#define CGOS_WDOG_MODE_RESTART_OS   1
++#define CGOS_WDOG_MODE_STAGED    0x80
 +
-+struct cgeb_i2c_priv {
-+	struct cgeb_board_data		*board;
-+	struct i2c_adapter	adapter;
++#define CGOS_WDOG_OPMODE_DISABLED      0
++#define CGOS_WDOG_OPMODE_ONETIME_TRIG  1
++#define CGOS_WDOG_OPMODE_SINGLE_EVENT  2
++#define CGOS_WDOG_OPMODE_EVENT_REPEAT  3
++
++#define CGOS_WDOG_EVENT_INT 0	/* NMI/IRQ */
++#define CGOS_WDOG_EVENT_SCI 1	/* SMI/SCI */
++#define CGOS_WDOG_EVENT_RST 2	/* system reset */
++#define CGOS_WDOG_EVENT_BTN 3	/* power button */
++
++#define CGOS_WDOG_EVENT_MAX_STAGES 3
++
++struct cgeb_watchdog_stage {
++	unsigned long timeout;
++	unsigned long event;
++};
++
++struct cgeb_watchdog_config {
++	unsigned long size;
++	unsigned long timeout; /* not used in staged mode */
++	unsigned long delay;
++	unsigned long mode;
++	/* optional parameters for staged watchdog */
++	unsigned long op_mode;
++	unsigned long stage_count;
++	struct cgeb_watchdog_stage stages[CGOS_WDOG_EVENT_MAX_STAGES];
++};
++
++struct cgeb_watchdog_priv {
++	struct cgeb_board_data	*board;
++	struct watchdog_device	wdd;
++	unsigned int		timeout_s;
 +	int unit;
 +};
 +
-+static u32 cgeb_i2c_func(struct i2c_adapter *adapter)
-+{
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-+}
++static struct watchdog_info cgeb_wdd_info = {
++	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
++	.firmware_version = 0,
++	.identity = "cgeb watchdog",
++};
 +
-+static int cgeb_i2c_set_speed(struct cgeb_i2c_priv *priv, int speed)
++static unsigned int watchdog_set_config(struct cgeb_watchdog_priv *priv,
++		unsigned int timeout_s)
 +{
++	struct cgeb_board_data *board = priv->board;
++	struct cgeb_watchdog_config wdi;
 +	struct cgeb_function_parameters fps;
 +
++	memset(&wdi, 0, sizeof(wdi));
 +	memset(&fps, 0, sizeof(fps));
 +
 +	fps.unit = priv->unit;
-+	fps.pars[0] = speed;
++	fps.iptr = &wdi;
 +
-+	return cgeb_call(priv->board, &fps, CgebI2CSetFrequency);
++	wdi.timeout = timeout_s * 1000;
++	wdi.delay = 0;
++	wdi.size = sizeof(wdi);
++	wdi.mode = CGOS_WDOG_MODE_REBOOT_PC;
++
++	return cgeb_call(board, &fps, CgebWDogSetConfig);
 +}
 +
-+static int cgeb_i2c_xfer(struct i2c_adapter *adapter,
-+		struct i2c_msg *msgs, int num)
++static int cgeb_watchdog_start(struct watchdog_device *wdd)
 +{
-+	struct cgeb_function_parameters fps;
-+	int i, ret;
-+	unsigned long flags = CG_I2C_FLAG_START;
-+	struct cgeb_i2c_priv *priv = i2c_get_adapdata(adapter);
-+	unsigned long rdlen, wrlen;
-+	unsigned char *rdbuf, *wrbuf, *raw_wrbuf;
-+	unsigned short lmax = 0;
++	struct cgeb_watchdog_priv *priv = watchdog_get_drvdata(wdd);
 +
-+	/*
-+	 * With cgeb the I2C address is part of the write data
-+	 * buffer, so allocate a buffer with the length of the
-+	 * longest write buffer + 1
-+	 */
-+	for (i = 0; i < num; i++)
-+		if (!(msgs[i].flags & I2C_M_RD))
-+			lmax = max(lmax, msgs[i].len);
-+
-+	raw_wrbuf = kmalloc(lmax + 1, GFP_KERNEL);
-+	if (!raw_wrbuf)
-+		return -ENOMEM;
-+
-+	for (i = 0; i < num; i++) {
-+
-+		if (msgs[i].flags & I2C_M_RD) {
-+			rdbuf = msgs[i].buf;
-+			rdlen = msgs[i].len;
-+			wrbuf = NULL;
-+			wrlen = 0;
-+		} else {
-+			rdbuf = NULL;
-+			rdlen = 0;
-+			wrbuf = msgs[i].buf;
-+			wrlen = msgs[i].len;
-+		}
-+
-+		raw_wrbuf[0] = msgs[i].addr << 1;
-+		if (wrlen)
-+			memcpy(&raw_wrbuf[1], wrbuf, wrlen);
-+
-+		if (msgs[i].flags & I2C_M_RD)
-+			raw_wrbuf[0] |= 1;
-+
-+		if (i == num - 1)
-+			flags |= CG_I2C_FLAG_STOP;
-+
-+		dev_dbg(&adapter->dev,
-+				"%s: rd: %p/%ld wr: %p/%ld flags: 0x%08lx %s\n",
-+				__func__, rdbuf, rdlen, raw_wrbuf, wrlen + 1,
-+				flags,
-+				msgs[i].flags & I2C_M_RD ? "READ" : "WRITE");
-+
-+		memset(&fps, 0, sizeof(fps));
-+
-+		fps.unit = priv->unit;
-+		fps.pars[0] = wrlen + 1;
-+		fps.pars[1] = rdlen;
-+		fps.pars[2] = flags;
-+		fps.iptr = raw_wrbuf;
-+		fps.optr = rdbuf;
-+
-+		ret = cgeb_call(priv->board, &fps, CgebI2CTransfer);
-+		if (ret) {
-+			ret = -EREMOTEIO;
-+			goto out;
-+		}
-+	}
-+
-+	ret = num;
-+
-+out:
-+	kfree(raw_wrbuf);
-+
-+	return ret;
-+
++	return watchdog_set_config(priv, priv->timeout_s);
 +}
 +
-+static struct i2c_algorithm cgeb_i2c_algo = {
-+	.master_xfer	= cgeb_i2c_xfer,
-+	.functionality	= cgeb_i2c_func,
++static int cgeb_watchdog_stop(struct watchdog_device *wdd)
++{
++	struct cgeb_watchdog_priv *priv = watchdog_get_drvdata(wdd);
++
++	return watchdog_set_config(priv, 0);
++}
++
++static int cgeb_watchdog_set_timeout(struct watchdog_device *wdd,
++		unsigned int timeout_s)
++{
++	struct cgeb_watchdog_priv *priv = watchdog_get_drvdata(wdd);
++
++	if (!timeout_s)
++		return -EINVAL;
++
++	priv->timeout_s = timeout_s;
++
++	return 0;
++}
++
++struct watchdog_ops cgeb_watchdog_ops = {
++	.start = cgeb_watchdog_start,
++	.stop = cgeb_watchdog_stop,
++	.set_timeout = cgeb_watchdog_set_timeout,
 +};
 +
-+static int __devinit cgeb_i2c_probe(struct platform_device *pdev)
++static int __devinit cgeb_watchdog_probe(struct platform_device *pdev)
 +{
-+	struct cgeb_i2c_priv *priv;
++	struct cgeb_watchdog_priv *priv;
 +	struct cgeb_pdata *pdata = pdev->dev.platform_data;
 +	int ret;
++
++	dev_info(&pdev->dev, "registering\n");
 +
 +	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
 +	if (!priv)
 +		return -ENOMEM;
 +
-+	strcpy(priv->adapter.name, pdev->name);
-+	priv->adapter.owner		= THIS_MODULE;
-+	priv->adapter.algo		= &cgeb_i2c_algo;
-+	priv->adapter.dev.parent	= &pdev->dev;
-+	priv->unit = pdata->unit;
++	priv->wdd.ops = &cgeb_watchdog_ops;
++	priv->wdd.info = &cgeb_wdd_info;
++	priv->wdd.min_timeout = 1;
++	priv->wdd.max_timeout = 3600;
 +	priv->board = pdata->board;
-+	i2c_set_adapdata(&priv->adapter, priv);
++	priv->unit = pdata->unit;
 +
++	watchdog_set_drvdata(&priv->wdd, priv);
 +	platform_set_drvdata(pdev, priv);
 +
-+	ret = cgeb_i2c_set_speed(priv, 400000);
++	ret = watchdog_register_device(&priv->wdd);
 +	if (ret)
-+		/*
-+		 * not a critical error, we can continue with the default speed.
-+		 */
-+		dev_warn(&pdev->dev, "Could not set speed to 400KHz\n");
-+
-+	ret = i2c_add_adapter(&priv->adapter);
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "registration failed\n");
 +		return ret;
-+	}
-+
-+	dev_info(&pdev->dev, "registered\n");
-+
-+	return 0;
-+};
-+
-+static int __devexit cgeb_i2c_remove(struct platform_device *pdev)
-+{
-+	struct cgeb_i2c_priv *priv = platform_get_drvdata(pdev);
-+
-+	i2c_del_adapter(&priv->adapter);
-+
-+	platform_set_drvdata(pdev, NULL);
 +
 +	return 0;
 +}
 +
-+static struct platform_driver cgeb_i2c_driver = {
-+	.probe		= cgeb_i2c_probe,
-+	.remove		= __exit_p(cgeb_i2c_remove),
++static int __devexit cgeb_watchdog_remove(struct platform_device *pdev)
++{
++	struct cgeb_watchdog_priv *priv = platform_get_drvdata(pdev);
++
++	watchdog_unregister_device(&priv->wdd);
++
++	return 0;
++}
++
++static struct platform_driver cgeb_watchdog_driver = {
++	.probe		= cgeb_watchdog_probe,
++	.remove		= __exit_p(cgeb_watchdog_remove),
 +	.driver	= {
-+		.name	= "cgeb-i2c",
++		.name	= "cgeb-watchdog",
 +		.owner	= THIS_MODULE,
 +	},
 +};
 +
-+static int __init cgeb_i2c_driver_init(void)
++static int __init cgeb_watchdog_driver_init(void)
 +{
-+	return platform_driver_register(&cgeb_i2c_driver);
++	return platform_driver_register(&cgeb_watchdog_driver);
 +}
 +
-+static void __exit cgeb_i2c_driver_exit(void)
++static void __exit cgeb_watchdog_driver_exit(void)
 +{
-+	platform_driver_unregister(&cgeb_i2c_driver);
++	platform_driver_unregister(&cgeb_watchdog_driver);
 +}
 +
-+module_init(cgeb_i2c_driver_init);
-+module_exit(cgeb_i2c_driver_exit);
++module_init(cgeb_watchdog_driver_init);
++module_exit(cgeb_watchdog_driver_exit);
 +
 +MODULE_AUTHOR("Sascha Hauer <s.hauer@pengutronix.de>");
-+MODULE_DESCRIPTION("cgeb i2c driver");
++MODULE_DESCRIPTION("cgeb watchdog driver");
 +MODULE_LICENSE("GPL");
 -- 
 1.7.2.5
