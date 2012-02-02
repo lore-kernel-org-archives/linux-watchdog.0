@@ -1,95 +1,143 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:52126 "EHLO
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:52123 "EHLO
 	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757083Ab2BBRwK (ORCPT
+	with ESMTP id S1757081Ab2BBRwK (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
 	Thu, 2 Feb 2012 12:52:10 -0500
 From: Wolfram Sang <w.sang@pengutronix.de>
 To: linux-watchdog@vger.kernel.org
 Cc: Wim Van Sebroeck <wim@iguana.be>, Roland Stigge <stigge@antcom.de>,
 	Wolfram Sang <w.sang@pengutronix.de>
-Subject: [PATCH 3/4] watchdog: dev: don't enforce set_timeout()
-Date: Thu,  2 Feb 2012 18:48:10 +0100
-Message-Id: <1328204891-32551-4-git-send-email-w.sang@pengutronix.de>
+Subject: [PATCH 1/4] watchdog: pnx4008: cleanup resource handling using managed devices
+Date: Thu,  2 Feb 2012 18:48:08 +0100
+Message-Id: <1328204891-32551-2-git-send-email-w.sang@pengutronix.de>
 In-Reply-To: <1328204891-32551-1-git-send-email-w.sang@pengutronix.de>
 References: <1328204891-32551-1-git-send-email-w.sang@pengutronix.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Some watchdogs rewrite the timer on every ping, so they don't need a specific
-set_timeout callback. Allow the callback to be empty for such devices.
+The resource handling in this driver was flaky: IO_ADDRESS instead of
+ioremap (and no unmapping), an unneeded static resource, no central exit
+path for error cases. Fix this by converting the driver to use managed
+resources. Also use dev_*-messages instead of printk while we are here.
 
 Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
 ---
- .../watchdog/convert_drivers_to_kernel_api.txt     |   10 ++++++----
- Documentation/watchdog/watchdog-kernel-api.txt     |    4 +++-
- drivers/watchdog/watchdog_dev.c                    |   11 ++++++-----
- 3 files changed, 15 insertions(+), 10 deletions(-)
+ drivers/watchdog/pnx4008_wdt.c |   74 ++++++++++++++-------------------------
+ 1 files changed, 27 insertions(+), 47 deletions(-)
 
-diff --git a/Documentation/watchdog/convert_drivers_to_kernel_api.txt b/Documentation/watchdog/convert_drivers_to_kernel_api.txt
-index be8119b..25647a3 100644
---- a/Documentation/watchdog/convert_drivers_to_kernel_api.txt
-+++ b/Documentation/watchdog/convert_drivers_to_kernel_api.txt
-@@ -51,10 +51,12 @@ Here is a overview of the functions and probably needed actions:
- 		set
+diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
+index 8e210aa..322a392 100644
+--- a/drivers/watchdog/pnx4008_wdt.c
++++ b/drivers/watchdog/pnx4008_wdt.c
+@@ -89,7 +89,6 @@ static unsigned long wdt_status;
  
- 	WDIOC_SETTIMEOUT:
--		Options in watchdog_info need to have WDIOF_SETTIMEOUT set
--		and a set_timeout-callback has to be defined. The core will also
--		do limit-checking, if min_timeout and max_timeout in the watchdog
--		device are set. All is optional.
-+		Options in watchdog_info need to have WDIOF_SETTIMEOUT set. The core
-+		will also do limit-checking, if min_timeout and max_timeout in the
-+		watchdog device are set. By default, the timeout variable of the
-+		watchdog device will simply get updated. Additionally, a
-+		set_timeout-callback can be defined if further actions are needed
-+		(e.g. hardware setup, more advanced checks). All is optional.
+ static unsigned long boot_status;
  
- 	WDIOC_GETTIMEOUT:
- 		No preparations needed
-diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
-index 4b93c28..dcf1cfe 100644
---- a/Documentation/watchdog/watchdog-kernel-api.txt
-+++ b/Documentation/watchdog/watchdog-kernel-api.txt
-@@ -121,7 +121,9 @@ they are supported. These optional routines/operations are:
-   value of the watchdog_device will be changed to the value that was just used
-   to re-program the watchdog timer device.
-   (Note: the WDIOF_SETTIMEOUT needs to be set in the options field of the
--  watchdog's info structure).
-+  watchdog's info structure. If it is set, and no set_timeout function is
-+  provided, only the update of the timeout value will happen. This is enough
-+  if the ping of the watchdog will rewrite the timer anyway.)
- * ioctl: if this routine is present then it will be called first before we do
-   our own internal ioctl call handling. This routine should return -ENOIOCTLCMD
-   if a command is not supported. The parameters that are passed to the ioctl
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 1199da0..ec224b4 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -215,17 +215,18 @@ static long watchdog_ioctl(struct file *file, unsigned int cmd,
- 		watchdog_ping(wdd);
- 		return 0;
- 	case WDIOC_SETTIMEOUT:
--		if ((wdd->ops->set_timeout == NULL) ||
--		    !(wdd->info->options & WDIOF_SETTIMEOUT))
-+		if (!(wdd->info->options & WDIOF_SETTIMEOUT))
- 			return -EOPNOTSUPP;
- 		if (get_user(val, p))
- 			return -EFAULT;
- 		if ((wdd->max_timeout != 0) &&
- 		    (val < wdd->min_timeout || val > wdd->max_timeout))
- 				return -EINVAL;
--		err = wdd->ops->set_timeout(wdd, val);
--		if (err < 0)
--			return err;
-+		if (wdd->ops->set_timeout) {
-+			err = wdd->ops->set_timeout(wdd, val);
-+			if (err < 0)
-+				return err;
-+		}
- 		wdd->timeout = val;
- 		/* If the watchdog is active then we send a keepalive ping
- 		 * to make sure that the watchdog keep's running (and if
+-static struct resource	*wdt_mem;
+ static void __iomem	*wdt_base;
+ struct clk		*wdt_clk;
+ 
+@@ -253,61 +252,46 @@ static struct miscdevice pnx4008_wdt_miscdev = {
+ 
+ static int __devinit pnx4008_wdt_probe(struct platform_device *pdev)
+ {
+-	int ret = 0, size;
++	struct resource *r;
++	int ret = 0;
+ 
+ 	if (heartbeat < 1 || heartbeat > MAX_HEARTBEAT)
+ 		heartbeat = DEFAULT_HEARTBEAT;
+ 
+-	printk(KERN_INFO MODULE_NAME
+-		"PNX4008 Watchdog Timer: heartbeat %d sec\n", heartbeat);
+-
+-	wdt_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (wdt_mem == NULL) {
+-		printk(KERN_INFO MODULE_NAME
+-			"failed to get memory region resouce\n");
+-		return -ENOENT;
+-	}
+-
+-	size = resource_size(wdt_mem);
+-
+-	if (!request_mem_region(wdt_mem->start, size, pdev->name)) {
+-		printk(KERN_INFO MODULE_NAME "failed to get memory region\n");
+-		return -ENOENT;
+-	}
+-	wdt_base = (void __iomem *)IO_ADDRESS(wdt_mem->start);
++	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	wdt_base = devm_request_and_ioremap(&pdev->dev, r);
++	if (!wdt_base)
++		return -EADDRINUSE;
+ 
+ 	wdt_clk = clk_get(&pdev->dev, NULL);
+-	if (IS_ERR(wdt_clk)) {
+-		ret = PTR_ERR(wdt_clk);
+-		release_mem_region(wdt_mem->start, size);
+-		wdt_mem = NULL;
+-		goto out;
+-	}
++	if (IS_ERR(wdt_clk))
++		return PTR_ERR(wdt_clk);
+ 
+ 	ret = clk_enable(wdt_clk);
+-	if (ret) {
+-		release_mem_region(wdt_mem->start, size);
+-		wdt_mem = NULL;
+-		clk_put(wdt_clk);
+-		goto out;
+-	}
++	if (ret)
++		goto put_clk;
+ 
+ 	ret = misc_register(&pnx4008_wdt_miscdev);
+ 	if (ret < 0) {
+-		printk(KERN_ERR MODULE_NAME "cannot register misc device\n");
+-		release_mem_region(wdt_mem->start, size);
+-		wdt_mem = NULL;
+-		clk_disable(wdt_clk);
+-		clk_put(wdt_clk);
+-	} else {
+-		boot_status = (__raw_readl(WDTIM_RES(wdt_base)) & WDOG_RESET) ?
+-		    WDIOF_CARDRESET : 0;
+-		wdt_disable();		/*disable for now */
+-		clk_disable(wdt_clk);
+-		set_bit(WDT_DEVICE_INITED, &wdt_status);
++		dev_err(&pdev->dev, "cannot register misc device\n");
++		goto disable_clk;
+ 	}
+ 
+-out:
++	boot_status = (__raw_readl(WDTIM_RES(wdt_base)) &
++		WDOG_RESET) ? WDIOF_CARDRESET : 0;
++	wdt_disable();		/*disable for now */
++	clk_disable(wdt_clk);
++	set_bit(WDT_DEVICE_INITED, &wdt_status);
++
++	dev_info(&pdev->dev, "PNX4008 Watchdog Timer: heartbeat %d sec\n",
++			heartbeat);
++
++	return 0;
++
++ disable_clk:
++	clk_disable(wdt_clk);
++ put_clk:
++	clk_put(wdt_clk);
+ 	return ret;
+ }
+ 
+@@ -318,10 +302,6 @@ static int __devexit pnx4008_wdt_remove(struct platform_device *pdev)
+ 	clk_disable(wdt_clk);
+ 	clk_put(wdt_clk);
+ 
+-	if (wdt_mem) {
+-		release_mem_region(wdt_mem->start, resource_size(wdt_mem));
+-		wdt_mem = NULL;
+-	}
+ 	return 0;
+ }
+ 
 -- 
 1.7.8.3
 
