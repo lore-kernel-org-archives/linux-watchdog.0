@@ -1,56 +1,86 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:32900 "EHLO
-	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751979Ab2BFK7J (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 6 Feb 2012 05:59:09 -0500
+Received: from am1ehsobe003.messaging.microsoft.com ([213.199.154.206]:26500
+	"EHLO AM1EHSOBE005.bigfish.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1755008Ab2BFMnY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 6 Feb 2012 07:43:24 -0500
+Subject: [PATCH 00/07] DA9052 patch series
+From: Ashish Jangam <ashish.jangam@kpitcummins.com>
+To: <linux-kernel@vger.kernel.org>
+CC: Dajun <dajun.chen@diasemi.com>,
+	Mark Brown <broonie@opensource.wolfsonmicro.com>,
+	<linux-watchdog@vger.kernel.org>, <lm-sensors@lm-sensors.org>,
+	<sameo@linux.intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 6 Feb 2012 18:05:55 +0530
+Message-ID: <1328531755.30549.67.camel@dhruva>
 MIME-Version: 1.0
-In-Reply-To: <1328102793-4313-1-git-send-email-s.hauer@pengutronix.de>
-References: <1328102793-4313-1-git-send-email-s.hauer@pengutronix.de>
-From: Christian Gmeiner <christian.gmeiner@gmail.com>
-Date: Mon, 6 Feb 2012 11:58:48 +0100
-Message-ID: <CAH9NwWfWVeOaNH6KRXK==sbLb3kR2eJz2+c9+k7zyAFgzwF+Vw@mail.gmail.com>
-Subject: Re: [RESEND] Congatec CGEB base, i2c and watchdog driver support
-To: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: linux-kernel@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>,
-	Jean Delvare <khali@linux-fr.org>, linux-i2c@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>,
-	kernel@pengutronix.de
-Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-Hi Sascha,
+=EF=BB=BF=EF=BB=BFThe following patch series adds support for the various=
+ features of
+Dialog Semiconductor DA9052/53 PMICs.
 
-2012/2/1 Sascha Hauer <s.hauer@pengutronix.de>:
-> This is a resend of the series I posted in january, only difference
-> is that this time I have included the i2c and watchdog lists. To
-> minimize dependencies I suggest pushing this via the mfd tree, given
-> I get acks on the I2C and watchdog part.
->
-> The following series adds support for the Congatec CGEB interface
-> found on some Congatec x86 boards. The CGEB interface is a BIOS
-> interface which provides access to onboard peripherals like I2C
-> busses and watchdogs. It works by mapping BIOS code and searching
-> for magic values which specify the entry points to the CGEB call.
-> The CGEB call is an API provided by the BIOS which provides access
-> to the functions in an ioctl like fashion.
->
-> For more information about the CGEB API have a look at:
->
-> http://www.congatec.com/single_news+M5d58c9cd155.html
->
-> This document only describes the C API, unfortunately not the
-> underlying BIOS interface.
->
-> Comments very appreciated.
->
+The DA9052/53 PMICs support many functionalities like GPIOs, regulators,
+power-supply, touchscreen, rtc, backlight, etc. So these patches are
+applicable to different sub-systems of the kernel separately.
 
-I am looking forward to see your work in mainline soon. I have here
-some boards from
-Congatec and I will review and test your patches during this week.
+This patch series adds support for ADC functionality in MFD, HWMON,
+LEDS, Backlight, Watchdog, RTC and TSI. Support for rest of the devices
+will be added later.
+
+The HWMON patch depends on the patch for ADC functionality in MFD
+module.
+
+Ashish Jangam (7):
+	[MFD]: Incremental ADC support. HWMON patch also depends on this
+	[HWMON]: HWMON driver for DA9052/53 PMICs.
+	[LEDS]: Support for DA9052/53 LEDS.
+	[Backlight]: Support for DA9052/53 white LED / backlight.
+	[Watchdog]: Watchdog driver for DA9052/53 PMICs.
+	[RTC]: RTC driver for DA9052/53 PMICs.
+	[TSI]: Support for Touch screen interface for DA9052/53 PMICs.
+
+ Documentation/hwmon/da9052                     |   59 ++++
+ Documentation/watchdog/watchdog-parameters.txt |    5 +
+ drivers/hwmon/Kconfig                          |   10 +
+ drivers/hwmon/Makefile                         |    1 +
+ drivers/hwmon/da9052-hwmon.c                   |  343
++++++++++++++++++++++++
+ drivers/input/touchscreen/Kconfig              |    7 +
+ drivers/input/touchscreen/Makefile             |    1 +
+ drivers/input/touchscreen/da9052_tsi.c         |  353
+++++++++++++++++++++++++
+ drivers/leds/Kconfig                           |    8 +
+ drivers/leds/Makefile                          |    1 +
+ drivers/leds/leds-da9052.c                     |  214 ++++++++++++++
+ drivers/mfd/da9052-core.c                      |  134 +++++++++
+ drivers/rtc/Kconfig                            |    7 +
+ drivers/rtc/Makefile                           |    1 +
+ drivers/rtc/rtc-da9052.c                       |  293
+++++++++++++++++++++
+ drivers/video/backlight/Kconfig                |    6 +
+ drivers/video/backlight/Makefile               |    1 +
+ drivers/video/backlight/da9052_bl.c            |  187 +++++++++++++
+ drivers/watchdog/Kconfig                       |    6 +
+ drivers/watchdog/Makefile                      |    1 +
+ drivers/watchdog/da9052_wdt.c                  |  333
+++++++++++++++++++++++
+ include/linux/mfd/da9052/da9052.h              |   17 ++
+ 22 files changed, 1988 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/hwmon/da9052
+ create mode 100644 drivers/hwmon/da9052-hwmon.c
+ create mode 100644 drivers/input/touchscreen/da9052_tsi.c
+ create mode 100644 drivers/leds/leds-da9052.c
+ create mode 100644 drivers/rtc/rtc-da9052.c
+ create mode 100644 drivers/video/backlight/da9052_bl.c
+ create mode 100644 drivers/watchdog/da9052_wdt.c
 
 
-Greets
 --
-Christian Gmeiner, MSc
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
