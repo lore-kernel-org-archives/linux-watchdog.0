@@ -1,66 +1,56 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:54264 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756086Ab2BBUXj (ORCPT
+Received: from mail-tul01m020-f174.google.com ([209.85.214.174]:32900 "EHLO
+	mail-tul01m020-f174.google.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751979Ab2BFK7J (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 2 Feb 2012 15:23:39 -0500
-Date: Thu, 2 Feb 2012 21:23:38 +0100
-From: Wolfram Sang <w.sang@pengutronix.de>
-To: Roland Stigge <stigge@antcom.de>
-Cc: linux-watchdog@vger.kernel.org, wim@iguana.be
-Subject: Re: [PATCH 0/4] pnx4008: convert to watchdog framework
-Message-ID: <20120202202338.GA14490@pengutronix.de>
-References: <1328204891-32551-1-git-send-email-w.sang@pengutronix.de>
- <4F2AEBC5.9060308@antcom.de>
+	Mon, 6 Feb 2012 05:59:09 -0500
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="nFreZHaLTZJo0R7j"
-Content-Disposition: inline
-In-Reply-To: <4F2AEBC5.9060308@antcom.de>
+In-Reply-To: <1328102793-4313-1-git-send-email-s.hauer@pengutronix.de>
+References: <1328102793-4313-1-git-send-email-s.hauer@pengutronix.de>
+From: Christian Gmeiner <christian.gmeiner@gmail.com>
+Date: Mon, 6 Feb 2012 11:58:48 +0100
+Message-ID: <CAH9NwWfWVeOaNH6KRXK==sbLb3kR2eJz2+c9+k7zyAFgzwF+Vw@mail.gmail.com>
+Subject: Re: [RESEND] Congatec CGEB base, i2c and watchdog driver support
+To: Sascha Hauer <s.hauer@pengutronix.de>
+Cc: linux-kernel@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>,
+	Jean Delvare <khali@linux-fr.org>, linux-i2c@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>,
+	kernel@pengutronix.de
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+Hi Sascha,
 
---nFreZHaLTZJo0R7j
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+2012/2/1 Sascha Hauer <s.hauer@pengutronix.de>:
+> This is a resend of the series I posted in january, only difference
+> is that this time I have included the i2c and watchdog lists. To
+> minimize dependencies I suggest pushing this via the mfd tree, given
+> I get acks on the I2C and watchdog part.
+>
+> The following series adds support for the Congatec CGEB interface
+> found on some Congatec x86 boards. The CGEB interface is a BIOS
+> interface which provides access to onboard peripherals like I2C
+> busses and watchdogs. It works by mapping BIOS code and searching
+> for magic values which specify the entry points to the CGEB call.
+> The CGEB call is an API provided by the BIOS which provides access
+> to the functions in an ioctl like fashion.
+>
+> For more information about the CGEB API have a look at:
+>
+> http://www.congatec.com/single_news+M5d58c9cd155.html
+>
+> This document only describes the C API, unfortunately not the
+> underlying BIOS interface.
+>
+> Comments very appreciated.
+>
 
-On Thu, Feb 02, 2012 at 09:02:13PM +0100, Roland Stigge wrote:
-> On 02/02/2012 06:48 PM, Wolfram Sang wrote:
-> > Patch 3/4 is of special interest, because it extends the core to allow =
-to set
-> > timeouts without having a dedicated callback. Since the core automatica=
-lly sets
-> > 'timeout' in the watchdog device (and does limit checking, too), there =
-is
-> > nothing else left to do for this device since it uses that value every =
-time in
-> > start/ping.
-> >=20
-> > Please review and consider for inclusion. Roland, if you'd like to test=
- them,
-> > too, please do and donate "Tested-by" tags. Thanks!
->=20
-> Works for me: Applies cleanly, compiles, boots, watchdog barks
-> (rebooting appropriately when using /dev/watchdog).
+I am looking forward to see your work in mainline soon. I have here
+some boards from
+Congatec and I will review and test your patches during this week.
 
-Great, thanks!
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---nFreZHaLTZJo0R7j
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAk8q8MoACgkQD27XaX1/VRsZGgCgls7F3FMTIgIbnSaKP81R8NGr
-J7EAn3SdJiRktvgWhZQRFif0rljzBZrV
-=o7+N
------END PGP SIGNATURE-----
-
---nFreZHaLTZJo0R7j--
+Greets
+--
+Christian Gmeiner, MSc
