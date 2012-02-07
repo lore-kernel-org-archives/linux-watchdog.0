@@ -1,95 +1,158 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:37295 "EHLO
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:50755 "EHLO
 	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753609Ab2BGKKW (ORCPT
+	with ESMTP id S1755117Ab2BGPJD (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 7 Feb 2012 05:10:22 -0500
-Date: Tue, 7 Feb 2012 11:10:16 +0100
+	Tue, 7 Feb 2012 10:09:03 -0500
+Date: Tue, 7 Feb 2012 16:08:56 +0100
 From: Wolfram Sang <w.sang@pengutronix.de>
 To: Sascha Hauer <s.hauer@pengutronix.de>
 Cc: linux-kernel@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>,
 	Jean Delvare <khali@linux-fr.org>, linux-i2c@vger.kernel.org,
 	linux-watchdog@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>,
 	kernel@pengutronix.de
-Subject: Re: [PATCH 2/3] i2c: Add Congatec CGEB I2C driver
-Message-ID: <20120207101016.GB2539@pengutronix.de>
+Subject: Re: [PATCH 3/3] watchdog: Add Congatec CGEB watchdog driver
+Message-ID: <20120207150856.GI2539@pengutronix.de>
 References: <1328102793-4313-1-git-send-email-s.hauer@pengutronix.de>
- <1328102793-4313-3-git-send-email-s.hauer@pengutronix.de>
+ <1328102793-4313-4-git-send-email-s.hauer@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZoaI/ZTpAVc4A5k6"
+	protocol="application/pgp-signature"; boundary="vs0rQTeTompTJjtd"
 Content-Disposition: inline
-In-Reply-To: <1328102793-4313-3-git-send-email-s.hauer@pengutronix.de>
+In-Reply-To: <1328102793-4313-4-git-send-email-s.hauer@pengutronix.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 
---ZoaI/ZTpAVc4A5k6
+--vs0rQTeTompTJjtd
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hi Sascha,
 
-> +config I2C_CONGATEC_CGEB
-> +	tristate "Congatec CGEB I2C driver"
-> +	depends on MFD_CONGATEC_CGEB
-> +	help
-> +	  This driver provides support for the I2C busses accssable via
-> +	  the Congatec CGEB interface found on Congatec boards.
+> +struct cgeb_watchdog_stage {
+> +	unsigned long timeout;
+> +	unsigned long event;
+> +};
+> +
+> +struct cgeb_watchdog_config {
+> +	unsigned long size;
+> +	unsigned long timeout; /* not used in staged mode */
+> +	unsigned long delay;
+> +	unsigned long mode;
+> +	/* optional parameters for staged watchdog */
+> +	unsigned long op_mode;
+> +	unsigned long stage_count;
+> +	struct cgeb_watchdog_stage stages[CGOS_WDOG_EVENT_MAX_STAGES];
+> +};
 > +
 
-Please keep the sorting (eg20t is wrong and will be fixed).
+There is some unused stuff in here.
 
-> +		ret =3D cgeb_call(priv->board, &fps, CgebI2CTransfer);
-> +		if (ret) {
-> +			ret =3D -EREMOTEIO;
-> +			goto out;
-> +		}
+> +struct cgeb_watchdog_priv {
+> +	struct cgeb_board_data	*board;
+> +	struct watchdog_device	wdd;
+> +	unsigned int		timeout_s;
 
--EREMOTEIO is not present in Documentation/i2c/fault-codes. Please use
-one from that file.
+Is wdd->timeout not sufficent?
 
-> +	ret =3D cgeb_i2c_set_speed(priv, 400000);
+> +	int unit;
+> +};
+> +
+> +static int cgeb_watchdog_set_timeout(struct watchdog_device *wdd,
+> +		unsigned int timeout_s)
+> +{
+> +	struct cgeb_watchdog_priv *priv =3D watchdog_get_drvdata(wdd);
+> +
+> +	if (!timeout_s)
+> +		return -EINVAL;
+
+Is this possible? You have min_timeout =3D 1.
+
+> +static int __devinit cgeb_watchdog_probe(struct platform_device *pdev)
+> +{
+> +	struct cgeb_watchdog_priv *priv;
+> +	struct cgeb_pdata *pdata =3D pdev->dev.platform_data;
+> +	int ret;
+> +
+> +	dev_info(&pdev->dev, "registering\n");
+
+"registered" on success would be more useful?
+
+> +
+> +	priv =3D devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+> +	if (!priv)
+> +		return -ENOMEM;
+> +
+> +	priv->wdd.ops =3D &cgeb_watchdog_ops;
+> +	priv->wdd.info =3D &cgeb_wdd_info;
+> +	priv->wdd.min_timeout =3D 1;
+> +	priv->wdd.max_timeout =3D 3600;
+> +	priv->board =3D pdata->board;
+> +	priv->unit =3D pdata->unit;
+> +
+> +	watchdog_set_drvdata(&priv->wdd, priv);
+> +	platform_set_drvdata(pdev, priv);
+> +
+> +	ret =3D watchdog_register_device(&priv->wdd);
 > +	if (ret)
-> +		/*
-> +		 * not a critical error, we can continue with the default speed.
-> +		 */
-> +		dev_warn(&pdev->dev, "Could not set speed to 400KHz\n");
+> +		return ret;
+> +
+> +	return 0;
 
-Is it possible to make this configurable? Not all I2C devices support
-400KHz, 100KHz is OK.
+return watchdog_register_device();
 
-> +static struct platform_driver cgeb_i2c_driver =3D {
-> +	.probe		=3D cgeb_i2c_probe,
-> +	.remove		=3D __exit_p(cgeb_i2c_remove),
-
-__devexit_p()
-
-> +static int __init cgeb_i2c_driver_init(void)
-> +{
-> +	return platform_driver_register(&cgeb_i2c_driver);
 > +}
 > +
-> +static void __exit cgeb_i2c_driver_exit(void)
+> +static int __devexit cgeb_watchdog_remove(struct platform_device *pdev)
 > +{
-> +	platform_driver_unregister(&cgeb_i2c_driver);
+> +	struct cgeb_watchdog_priv *priv =3D platform_get_drvdata(pdev);
+> +
+> +	watchdog_unregister_device(&priv->wdd);
+> +
+> +	return 0;
 > +}
 > +
-> +module_init(cgeb_i2c_driver_init);
-> +module_exit(cgeb_i2c_driver_exit);
+> +static struct platform_driver cgeb_watchdog_driver =3D {
+> +	.probe		=3D cgeb_watchdog_probe,
+> +	.remove		=3D __exit_p(cgeb_watchdog_remove),
 
-module_platform_driver();
+__devexit_p
 
-Regards,
+> +	.driver	=3D {
+> +		.name	=3D "cgeb-watchdog",
+> +		.owner	=3D THIS_MODULE,
+> +	},
+> +};
+> +
+> +static int __init cgeb_watchdog_driver_init(void)
+> +{
+> +	return platform_driver_register(&cgeb_watchdog_driver);
+> +}
+> +
+> +static void __exit cgeb_watchdog_driver_exit(void)
+> +{
+> +	platform_driver_unregister(&cgeb_watchdog_driver);
+> +}
+> +
+> +module_init(cgeb_watchdog_driver_init);
+> +module_exit(cgeb_watchdog_driver_exit);
 
-   Wolfram
+module_platform_driver()
+
+> +
+> +MODULE_AUTHOR("Sascha Hauer <s.hauer@pengutronix.de>");
+> +MODULE_DESCRIPTION("cgeb watchdog driver");
+> +MODULE_LICENSE("GPL");
+
+GPL v2 according to header
 
 --=20
 Pengutronix e.K.                           | Wolfram Sang                |
 Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
---ZoaI/ZTpAVc4A5k6
+--vs0rQTeTompTJjtd
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 Content-Disposition: inline
@@ -97,9 +160,9 @@ Content-Disposition: inline
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.10 (GNU/Linux)
 
-iEYEARECAAYFAk8w+IgACgkQD27XaX1/VRseFgCfb9GA9+cmUwNKK4A634tNVzAg
-+ZoAniKTp9LQ1MorQSaZjR7/t6jzm/L2
-=WMNh
+iEYEARECAAYFAk8xPogACgkQD27XaX1/VRsXQQCdF4OJxzpAYjWiHv3RcocNX7JT
+rsMAoKeAUDGaUTyqbj7D9WlbxFs46y69
+=1vAS
 -----END PGP SIGNATURE-----
 
---ZoaI/ZTpAVc4A5k6--
+--vs0rQTeTompTJjtd--
