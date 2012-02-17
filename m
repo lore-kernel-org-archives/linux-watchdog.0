@@ -1,58 +1,42 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from skyrme.org ([193.175.80.135]:34226 "EHLO skyrme.org"
+Received: from nbd.name ([46.4.11.11]:55753 "EHLO nbd.name"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752481Ab2BPOdc (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 16 Feb 2012 09:33:32 -0500
-Received: from p5b306fcd.dip.t-dialin.net ([91.48.111.205] helo=curry.scara.com)
-	by skyrme.org with esmtpsa (TLS-1.0:DHE_RSA_AES_256_CBC_SHA1:32)
-	(Exim 4.63)
-	(envelope-from <oskar@scara.com>)
-	id 1Ry290-0003A5-9R
-	for linux-watchdog@vger.kernel.org; Thu, 16 Feb 2012 14:17:10 +0000
-Date: 16 Feb 2012 14:17:07 +0000
-Message-ID: <20120216141707.GA8647@curry>
-From: "Oskar Schirmer" <oskar@scara.com>
-To: "Wolfram Sang" <w.sang@pengutronix.de>
-Cc: "Oskar Schirmer" <oskar@scara.com>, wim@iguana.be,
-	s.hauer@pengutronix.de, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: make imx2_wdt report boot status correctly
-References: <1329394665-7238-1-git-send-email-oskar@scara.com> <20120216133510.GA2541@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20120216133510.GA2541@pengutronix.de>
+	id S1751323Ab2BQQsq (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 17 Feb 2012 11:48:46 -0500
+Message-ID: <4F3E84AA.9080204@openwrt.org>
+Date: Fri, 17 Feb 2012 17:47:38 +0100
+From: John Crispin <blogic@openwrt.org>
+MIME-Version: 1.0
+To: Sergei Shtylyov <sshtylyov@mvista.com>
+CC: Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 9/9] WDT: MIPS: lantiq: convert watchdog driver to clkdev
+ api
+References: <1329474800-20979-1-git-send-email-blogic@openwrt.org> <1329474800-20979-10-git-send-email-blogic@openwrt.org> <4F3E9129.9040704@mvista.com>
+In-Reply-To: <4F3E9129.9040704@mvista.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Wolfram,
 
-On Thu, Feb 16, 2012 at 14:35:10 +0100, Wolfram Sang wrote:
-> besides this minor thing (which may be just personal taste)...
-> 
-> > +	case WDIOC_GETBOOTSTATUS:
-> > +		val = __raw_readw(imx2_wdt.base + IMX2_WDT_WRSR);
-> > +		new_value = 0;
-> > +		if (val & IMX2_WDT_WRSR_TOUT)
-> > +			new_value = WDIOF_CARDRESET;
-> 
-> I'd go for this to save some lines:
-> 		new_value = val & IMX2_WDT_WRSR_TOUT ? WDIOF_CARDRESET : 0;
+Hi Sergei,
+> ( The comment doesn't match the essence of patch. )
 
-A good alternative for sure.
+> Again, you're doing something different.
+>
 
-Seen from the perspective of code compactness ("save some lines"),
-one could try to be consequent here, and save the "val" variable
-altogether, ending up with some "new_value = __raw_readw ... & ... ? ... : 0;"
-But eventually there might be code readability issues, so it's
-a good idea to keep the balance.
+sorry
 
-An argument for the original, longer version might be it is easier
-to extend, when more flags need to be handled, like
-"else if (val & ...) new_value = ...", while nested conditional
-expressions would most likely become quite complex soon.
+>    Why not clk_get(&pdev->dev, NULL)?
+>
+> WBR, Sergei
+>
+>
 
-Actually, my personal taste doesn't show a preference for
-one version or the other, so I'm ok with Your proposal, too.
+clk_get_sys uses the clkdev lookup table, which is added by this series.
+it makes the clock code consistent throughout the lantiq related files.
+we use clk connections other places, which we cannot reference with
+clk_get that easily
 
-  Oskar
+John
