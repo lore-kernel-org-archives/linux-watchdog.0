@@ -1,42 +1,40 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from nbd.name ([46.4.11.11]:55753 "EHLO nbd.name"
+Received: from mga11.intel.com ([192.55.52.93]:8939 "EHLO mga11.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751323Ab2BQQsq (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 17 Feb 2012 11:48:46 -0500
-Message-ID: <4F3E84AA.9080204@openwrt.org>
-Date: Fri, 17 Feb 2012 17:47:38 +0100
-From: John Crispin <blogic@openwrt.org>
+	id S1753058Ab2BTQcR (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 20 Feb 2012 11:32:17 -0500
+Date: Mon, 20 Feb 2012 17:39:27 +0100
+From: Samuel Ortiz <sameo@linux.intel.com>
+To: Sascha Hauer <s.hauer@pengutronix.de>
+Cc: linux-kernel@vger.kernel.org, Jean Delvare <khali@linux-fr.org>,
+	linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	Ben Dooks <ben-linux@fluff.org>, kernel@pengutronix.de
+Subject: Re: [PATCH 1/3] mfd: Add basic support for the Congatec CGEB BIOS
+ interface
+Message-ID: <20120220163927.GY5387@sortiz-mobl>
+References: <1328102793-4313-1-git-send-email-s.hauer@pengutronix.de>
+ <1328102793-4313-2-git-send-email-s.hauer@pengutronix.de>
 MIME-Version: 1.0
-To: Sergei Shtylyov <sshtylyov@mvista.com>
-CC: Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 9/9] WDT: MIPS: lantiq: convert watchdog driver to clkdev
- api
-References: <1329474800-20979-1-git-send-email-blogic@openwrt.org> <1329474800-20979-10-git-send-email-blogic@openwrt.org> <4F3E9129.9040704@mvista.com>
-In-Reply-To: <4F3E9129.9040704@mvista.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1328102793-4313-2-git-send-email-s.hauer@pengutronix.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+Hi Sascha,
 
-Hi Sergei,
-> ( The comment doesn't match the essence of patch. )
+On Wed, Feb 01, 2012 at 02:26:31PM +0100, Sascha Hauer wrote:
+> The Congatec CGEB is a BIOS interface found on some Congatec x86
+> modules. It provides access to on board peripherals like I2C busses
+> and watchdogs. This driver contains the basic support for accessing
+> the CGEB interface and registers the child devices.
+After looking at the code, I'm not entirely sure this one belongs to
+drivers/mfd/. Have you thought about putting it under arch/x86/platform/ ?
+There are similar examples there, like uv or olpc.
 
-> Again, you're doing something different.
->
+Cheers,
+Samuel.
 
-sorry
-
->    Why not clk_get(&pdev->dev, NULL)?
->
-> WBR, Sergei
->
->
-
-clk_get_sys uses the clkdev lookup table, which is added by this series.
-it makes the clock code consistent throughout the lantiq related files.
-we use clk connections other places, which we cannot reference with
-clk_get that easily
-
-John
+-- 
+Intel Open Source Technology Centre
+http://oss.intel.com/
