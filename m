@@ -1,16 +1,12 @@
-Message-ID: <4F3E9129.9040704@mvista.com>
-Date: Fri, 17 Feb 2012 20:40:57 +0300
-From: Sergei Shtylyov <sshtylyov@mvista.com>
-MIME-Version: 1.0
-To: John Crispin <blogic@openwrt.org>
-CC: Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org,
+From: John Crispin <blogic@openwrt.org>
+To: Ralf Baechle <ralf@linux-mips.org>
+Cc: linux-mips@linux-mips.org, John Crispin <blogic@openwrt.org>,
         linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 9/9] WDT: MIPS: lantiq: convert watchdog driver to clkdev
- api
-References: <1329474800-20979-1-git-send-email-blogic@openwrt.org> <1329474800-20979-10-git-send-email-blogic@openwrt.org>
-In-Reply-To: <1329474800-20979-10-git-send-email-blogic@openwrt.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH V2 3/3] WDT: MIPS: lantiq: use module_platform_driver inside lantiq watchdog driver
+Date: Thu, 23 Feb 2012 17:03:44 +0100
+Message-Id: <1330013024-13622-3-git-send-email-blogic@openwrt.org>
+In-Reply-To: <1330013024-13622-1-git-send-email-blogic@openwrt.org>
+References: <1330013024-13622-1-git-send-email-blogic@openwrt.org>
 Sender: linux-mips-bounce@linux-mips.org
 Errors-to: linux-mips-bounce@linux-mips.org
 Return-Path: <linux-mips-bounce@linux-mips.org>
@@ -18,33 +14,57 @@ List-Archive: <https://lore.kernel.org/linux-mips/>
 List-Post: <mailto:linux-mips@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hello.
+Reduce boilerplate code by converting driver to module_platform_driver.
 
-On 02/17/2012 01:33 PM, John Crispin wrote:
+Signed-off-by: John Crispin <blogic@openwrt.org>
+Cc: linux-watchdog@vger.kernel.org
+---
+ drivers/watchdog/lantiq_wdt.c |   19 +++----------------
+ 1 files changed, 3 insertions(+), 16 deletions(-)
 
-> Update from old pmu_{dis,en}able() to ckldev api.
-
-   Again, you're doing something different.
-
-> Signed-off-by: John Crispin<blogic@openwrt.org>
-> Cc: linux-watchdog@vger.kernel.org
-> ---
-> This patch should go via MIPS with the rest of the series.
->
->   drivers/watchdog/lantiq_wdt.c |    2 +-
->   1 files changed, 1 insertions(+), 1 deletions(-)
->
-> diff --git a/drivers/watchdog/lantiq_wdt.c b/drivers/watchdog/lantiq_wdt.c
-> index 9c8b10c..05646b8 100644
-> --- a/drivers/watchdog/lantiq_wdt.c
-> +++ b/drivers/watchdog/lantiq_wdt.c
-> @@ -206,7 +206,7 @@ ltq_wdt_probe(struct platform_device *pdev)
->   	}
->
->   	/* we do not need to enable the clock as it is always running */
-> -	clk = clk_get(&pdev->dev, "io");
-> +	clk = clk_get_sys("io", NULL);
-
-    Why not clk_get(&pdev->dev, NULL)?
-
-WBR, Sergei
+diff --git a/drivers/watchdog/lantiq_wdt.c b/drivers/watchdog/lantiq_wdt.c
+index fa4866b..70127b3 100644
+--- a/drivers/watchdog/lantiq_wdt.c
++++ b/drivers/watchdog/lantiq_wdt.c
+@@ -182,7 +182,7 @@ static struct miscdevice ltq_wdt_miscdev = {
+ 	.fops	= &ltq_wdt_fops,
+ };
+ 
+-static int __init
++static int __devinit
+ ltq_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+@@ -227,6 +227,7 @@ ltq_wdt_remove(struct platform_device *pdev)
+ 
+ 
+ static struct platform_driver ltq_wdt_driver = {
++	.probe = ltq_wdt_probe,
+ 	.remove = __devexit_p(ltq_wdt_remove),
+ 	.driver = {
+ 		.name = "ltq_wdt",
+@@ -234,21 +235,7 @@ static struct platform_driver ltq_wdt_driver = {
+ 	},
+ };
+ 
+-static int __init
+-init_ltq_wdt(void)
+-{
+-	return platform_driver_probe(&ltq_wdt_driver, ltq_wdt_probe);
+-}
+-
+-static void __exit
+-exit_ltq_wdt(void)
+-{
+-	return platform_driver_unregister(&ltq_wdt_driver);
+-}
+-
+-module_init(init_ltq_wdt);
+-module_exit(exit_ltq_wdt);
+-
++module_platform_driver(ltq_wdt_driver);
+ module_param(nowayout, int, 0);
+ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started");
+ 
+-- 
+1.7.7.1
