@@ -1,14 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:58562 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756290Ab2CER4G convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 5 Mar 2012 12:56:06 -0500
-Message-ID: <1330970118.11248.256.camel@twins>
-Subject: Re: [PATCH v2 x86 1/2]  fix page faults by nmiaction in nmi if
- kmemcheck is enabled
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Don Zickus <dzickus@redhat.com>
+Received: from mx1.redhat.com ([209.132.183.28]:21366 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754111Ab2CEVq3 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 5 Mar 2012 16:46:29 -0500
+Date: Mon, 5 Mar 2012 16:45:45 -0500
+From: Don Zickus <dzickus@redhat.com>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
 Cc: Li Zhong <zhong@linux.vnet.ibm.com>,
 	LKML <linux-kernel@vger.kernel.org>, tglx@linutronix.de,
 	mingo@redhat.com, hpa@zytor.com, x86@kernel.org, paulus@samba.org,
@@ -19,34 +16,58 @@ Cc: Li Zhong <zhong@linux.vnet.ibm.com>,
 	oprofile-list@lists.sf.net, linux-acpi@vger.kernel.org,
 	openipmi-developer@lists.sourceforge.net,
 	linux-watchdog@vger.kernel.org
-Date: Mon, 05 Mar 2012 18:55:18 +0100
-In-Reply-To: <20120305155434.GT3083@redhat.com>
+Subject: Re: [PATCH v2 x86 1/2]  fix page faults by nmiaction in nmi if
+ kmemcheck is enabled
+Message-ID: <20120305214545.GH3083@redhat.com>
 References: <1329717665.3448.28.camel@ThinkPad-T61>
-	 <1329735648.2293.307.camel@twins> <1329788560.3448.45.camel@ThinkPad-T61>
-	 <1329819437.2293.382.camel@twins> <1329990828.19165.36.camel@ThinkPad-T61>
-	 <1330340324.11248.60.camel@twins> <1330941917.24353.63.camel@ThinkPad-T61>
-	 <20120305155434.GT3083@redhat.com>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Mime-Version: 1.0
+ <1329735648.2293.307.camel@twins>
+ <1329788560.3448.45.camel@ThinkPad-T61>
+ <1329819437.2293.382.camel@twins>
+ <1329990828.19165.36.camel@ThinkPad-T61>
+ <1330340324.11248.60.camel@twins>
+ <1330941917.24353.63.camel@ThinkPad-T61>
+ <1330969747.11248.250.camel@twins>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1330969747.11248.250.camel@twins>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, 2012-03-05 at 10:54 -0500, Don Zickus wrote:
-> This is one way of doing this.  I was trying to avoid this when I rewrote the
-> nmi handlers, because everyone kept screwing up the structs.  I thought it
-> would be safer to have callers pass in data based on an api instead.
+On Mon, Mar 05, 2012 at 06:49:07PM +0100, Peter Zijlstra wrote:
+> On Mon, 2012-03-05 at 18:05 +0800, Li Zhong wrote:
+> > +static struct nmiaction arch_trigger_all_cpu_bt_nmiaction = {
+> > +       .handler        = arch_trigger_all_cpu_backtrace_handler,
+> > +       .name           = "arch_bt",
+> > +};
+> > +
+> >  static int __init register_trigger_all_cpu_backtrace(void)
+> >  {
+> > -       register_nmi_handler(NMI_LOCAL, arch_trigger_all_cpu_backtrace_handler,
+> > -                               0, "arch_bt");
+> > +       register_nmi_handler(NMI_LOCAL, &arch_trigger_all_cpu_bt_nmiaction);
+> >         return 0;
+> >  } 
+> 
+> If you look at things like cpu_notifier() you can shorten this still:
+> 
+> #define nmi_notifier(t, fn, n)				\
+> do {							\
+> 	static struct nmiaction fn##_na = {		\
+> 		.handler = (fn),			\
+> 		.name = (n),				\
+> 	};						\
+> 	register_nmi_handler((t), &fn##_na);		\
+> } while (0)
+> 
+> The whole thing then becomes:
+> 
+>   nmi_notifier(NMI_LOCAL, arch_trigger_all_cpu_backtrace_handler, "arch_bt");
 
-Apparently kmemcheck marks pages as non-present and does magic in the
-fault handler. Having the action thing allocated meant kmemcheck also
-marks that thing as non-present in the page-tables, the list iteration
-from NMI context would then fault and things would go funny.
+Hi Li,
 
-There's two ways out, help kmemcheck with a new annotation (which of
-course starts with checking if there isn't already such a thing).
+I would be open to this suggestion.  If you want to modify the patch for
+this approach.
 
-Or this one, avoid the action things from being allocated, this
-side-steps kmemcheck and avoids the problem thusly.
-
-Sadly this patch doesn't at all mention the first possibility and why
-that isn't a feasible approach. A well...
+Cheers,
+Don
