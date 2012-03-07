@@ -1,7 +1,7 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from eu1sys200aog118.obsmtp.com ([207.126.144.145]:45616 "EHLO
-	eu1sys200aog118.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753459Ab2CGK3V (ORCPT
+Received: from eu1sys200aog115.obsmtp.com ([207.126.144.139]:44735 "EHLO
+	eu1sys200aog115.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753205Ab2CGK3V (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
 	Wed, 7 Mar 2012 05:29:21 -0500
 From: Viresh Kumar <viresh.kumar@st.com>
@@ -10,9 +10,9 @@ Cc: <linux-watchdog@vger.kernel.org>, <spear-devel@list.st.com>,
 	<viresh.linux@gmail.com>, <linux-arm-kernel@lists.infradead.org>,
 	<srinidhi.kasagar@stericsson.com>, <linus.walleij@stericsson.com>,
 	<alan@lxorguk.ukuu.org.uk>, Viresh Kumar <viresh.kumar@st.com>
-Subject: [PATCH 07/15] watchdog/mpcore_wdt: Use devm routines
-Date: Wed, 7 Mar 2012 15:57:48 +0530
-Message-ID: <8d5d4f4d36452bdf1005700c4376798e25f59adf.1331115752.git.viresh.kumar@st.com>
+Subject: [PATCH 08/15] watchdog/mpcore_wdt: handle module param mpcore_margin in probe
+Date: Wed, 7 Mar 2012 15:57:49 +0530
+Message-ID: <1a4d3c2c9d58e5cc0d3770fd57d0d870cfd681c4.1331115752.git.viresh.kumar@st.com>
 In-Reply-To: <cover.1331115751.git.viresh.kumar@st.com>
 References: <cover.1331115751.git.viresh.kumar@st.com>
 MIME-Version: 1.0
@@ -20,107 +20,73 @@ Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-mpcore_wdt driver currently uses normal kzalloc, request_irq, ioremap, etc
-routines. This patch replaces these routines with devm_kzalloc and
-devm_request_mem_region etc, so that we don't need to handle freeing of
-resources for error cases and module removal routine.
+Currently mpcore_margin is handled in mpcore_wdt_init routine, which will be
+called even if we don't have added any device for watchdog. Probably this is not
+we want.
+
+This patch moves this code into probe routine, so that it only gets hit once we
+add device for this driver.
 
 Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
 ---
- drivers/watchdog/mpcore_wdt.c |   50 ++++++++++++----------------------------
- 1 files changed, 15 insertions(+), 35 deletions(-)
+ drivers/watchdog/mpcore_wdt.c |   30 +++++++++++++++---------------
+ 1 files changed, 15 insertions(+), 15 deletions(-)
 
 diff --git a/drivers/watchdog/mpcore_wdt.c b/drivers/watchdog/mpcore_wdt.c
-index db379f7..209c81d 100644
+index 209c81d..9c58c63 100644
 --- a/drivers/watchdog/mpcore_wdt.c
 +++ b/drivers/watchdog/mpcore_wdt.c
-@@ -317,34 +317,28 @@ static int __devinit mpcore_wdt_probe(struct platform_device *pdev)
- 		return -ENODEV;
+@@ -306,6 +306,9 @@ static struct miscdevice mpcore_wdt_miscdev = {
+ 	.fops		= &mpcore_wdt_fops,
+ };
  
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	if (!res) {
--		ret = -ENODEV;
--		goto err_out;
--	}
-+	if (!res)
-+		return -ENODEV;
- 
--	wdt = kzalloc(sizeof(struct mpcore_wdt), GFP_KERNEL);
--	if (!wdt) {
--		ret = -ENOMEM;
--		goto err_out;
--	}
-+	wdt = devm_kzalloc(&pdev->dev, sizeof(struct mpcore_wdt), GFP_KERNEL);
-+	if (!wdt)
-+		return -ENOMEM;
- 
- 	wdt->dev = &pdev->dev;
- 	wdt->irq = platform_get_irq(pdev, 0);
--	if (wdt->irq < 0) {
--		ret = -ENXIO;
--		goto err_free;
--	}
--	wdt->base = ioremap(res->start, resource_size(res));
--	if (!wdt->base) {
--		ret = -ENOMEM;
--		goto err_free;
--	}
-+	if (wdt->irq < 0)
-+		return -ENXIO;
- 
--	ret = request_irq(wdt->irq, mpcore_wdt_fire, 0, "mpcore_wdt", wdt);
-+	wdt->base = devm_ioremap(wdt->dev, res->start, resource_size(res));
-+	if (!wdt->base)
-+		return -ENOMEM;
++static char banner[] __initdata = KERN_INFO "MPcore Watchdog Timer: 0.1. "
++		"mpcore_noboot=%d mpcore_margin=%d sec (nowayout= %d)\n";
 +
-+	ret = devm_request_irq(wdt->dev, wdt->irq, mpcore_wdt_fire, 0,
-+			"mpcore_wdt", wdt);
- 	if (ret) {
- 		dev_printk(KERN_ERR, wdt->dev,
- 			"cannot register IRQ%d for watchdog\n", wdt->irq);
--		goto err_irq;
-+		return ret;
- 	}
- 
- 	mpcore_wdt_miscdev.parent = &pdev->dev;
-@@ -353,7 +347,7 @@ static int __devinit mpcore_wdt_probe(struct platform_device *pdev)
- 		dev_printk(KERN_ERR, wdt->dev,
- 			"cannot register miscdev on minor=%d (err=%d)\n",
- 							WATCHDOG_MINOR, ret);
--		goto err_misc;
-+		return ret;
- 	}
- 
- 	mpcore_wdt_stop(wdt);
-@@ -361,30 +355,16 @@ static int __devinit mpcore_wdt_probe(struct platform_device *pdev)
- 	mpcore_wdt_pdev = pdev;
- 
- 	return 0;
--
--err_misc:
--	free_irq(wdt->irq, wdt);
--err_irq:
--	iounmap(wdt->base);
--err_free:
--	kfree(wdt);
--err_out:
--	return ret;
- }
- 
- static int __devexit mpcore_wdt_remove(struct platform_device *pdev)
+ static int __devinit mpcore_wdt_probe(struct platform_device *pdev)
  {
--	struct mpcore_wdt *wdt = platform_get_drvdata(pdev);
+ 	struct mpcore_wdt *wdt;
+@@ -341,6 +344,18 @@ static int __devinit mpcore_wdt_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
++	/*
++	 * Check that the margin value is within it's range;
++	 * if not reset to the default
++	 */
++	if (mpcore_wdt_set_heartbeat(mpcore_margin)) {
++		mpcore_wdt_set_heartbeat(TIMER_MARGIN);
++		printk(KERN_INFO "mpcore_margin value must be 0 < mpcore_margin < 65536, using %d\n",
++			TIMER_MARGIN);
++	}
++
++	printk(banner, mpcore_noboot, mpcore_margin, nowayout);
++
+ 	mpcore_wdt_miscdev.parent = &pdev->dev;
+ 	ret = misc_register(&mpcore_wdt_miscdev);
+ 	if (ret) {
+@@ -406,23 +421,8 @@ static struct platform_driver mpcore_wdt_driver = {
+ 	},
+ };
+ 
+-static char banner[] __initdata = KERN_INFO "MPcore Watchdog Timer: 0.1. "
+-		"mpcore_noboot=%d mpcore_margin=%d sec (nowayout= %d)\n";
 -
- 	platform_set_drvdata(pdev, NULL);
- 
- 	misc_deregister(&mpcore_wdt_miscdev);
- 
- 	mpcore_wdt_pdev = NULL;
- 
--	free_irq(wdt->irq, wdt);
--	iounmap(wdt->base);
--	kfree(wdt);
- 	return 0;
+ static int __init mpcore_wdt_init(void)
+ {
+-	/*
+-	 * Check that the margin value is within it's range;
+-	 * if not reset to the default
+-	 */
+-	if (mpcore_wdt_set_heartbeat(mpcore_margin)) {
+-		mpcore_wdt_set_heartbeat(TIMER_MARGIN);
+-		printk(KERN_INFO "mpcore_margin value must be 0 < mpcore_margin < 65536, using %d\n",
+-			TIMER_MARGIN);
+-	}
+-
+-	printk(banner, mpcore_noboot, mpcore_margin, nowayout);
+-
+ 	return platform_driver_register(&mpcore_wdt_driver);
  }
  
 -- 
