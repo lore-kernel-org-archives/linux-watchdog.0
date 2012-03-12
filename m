@@ -1,102 +1,98 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from e28smtp09.in.ibm.com ([122.248.162.9]:40457 "EHLO
-	e28smtp09.in.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751727Ab2CIJxS (ORCPT
+Received: from eu1sys200aog107.obsmtp.com ([207.126.144.123]:46827 "EHLO
+	eu1sys200aog107.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750763Ab2CLEXO (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 9 Mar 2012 04:53:18 -0500
-Received: from /spool/local
-	by e28smtp09.in.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-	for <linux-watchdog@vger.kernel.org> from <zhong@linux.vnet.ibm.com>;
-	Fri, 9 Mar 2012 15:23:13 +0530
-Message-ID: <1331286756.13274.26.camel@ThinkPad-T420>
-Subject: Re: [PATCH v3 x86 1/2] fix page faults by nmiaction in nmi if
- kmemcheck is enabled
-From: Li Zhong <zhong@linux.vnet.ibm.com>
-To: Vegard Nossum <vegard.nossum@gmail.com>
-Cc: Don Zickus <dzickus@redhat.com>,
-	Peter Zijlstra <a.p.zijlstra@chello.nl>,
-	LKML <linux-kernel@vger.kernel.org>, tglx@linutronix.de,
-	mingo@redhat.com, hpa@zytor.com, x86@kernel.org, paulus@samba.org,
-	mingo@elte.hu, acme@ghostprotocols.net, tony.luck@intel.com,
-	bp@amd64.org, robert.richter@amd.com, lenb@kernel.org,
-	minyard@acm.org, wim@iguana.be, linux-edac@vger.kernel.org,
-	oprofile-list@lists.sf.net, linux-acpi@vger.kernel.org,
-	openipmi-developer@lists.sourceforge.net,
-	linux-watchdog@vger.kernel.org,
-	Pekka Enberg <penberg@cs.helsinki.fi>
-Date: Fri, 09 Mar 2012 04:52:36 -0500
-In-Reply-To: <CAOMGZ=ECe+p10H4RMjcJnfa254_JGPg+BzmVuLvpZb1-Tzn4Xg@mail.gmail.com>
-References: <1329717665.3448.28.camel@ThinkPad-T61>
-	 <1329735648.2293.307.camel@twins>	<1329788560.3448.45.camel@ThinkPad-T61>
-	 <1329819437.2293.382.camel@twins>	<1329990828.19165.36.camel@ThinkPad-T61>
-	 <1330340324.11248.60.camel@twins>	<1330941917.24353.63.camel@ThinkPad-T61>
-	 <1330969747.11248.250.camel@twins>	<20120305214545.GH3083@redhat.com>
-	 <1331028583.15778.3.camel@ThinkPad-T61>
-	 <CAOMGZ=ECe+p10H4RMjcJnfa254_JGPg+BzmVuLvpZb1-Tzn4Xg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Mime-Version: 1.0
+	Mon, 12 Mar 2012 00:23:14 -0400
+From: Viresh Kumar <viresh.kumar@st.com>
+To: <wim@iguana.be>
+Cc: <linux-watchdog@vger.kernel.org>, <spear-devel@list.st.com>,
+	<viresh.linux@gmail.com>, <linux-arm-kernel@lists.infradead.org>,
+	<srinidhi.kasagar@stericsson.com>, <linus.walleij@stericsson.com>,
+	<alan@lxorguk.ukuu.org.uk>, <w.sang@pengutronix.de>,
+	<sshtylyov@mvista.com>, Viresh Kumar <viresh.kumar@st.com>
+Subject: [PATCH V2 01/22] watchdog: Add is_wdt_active() routine
+Date: Mon, 12 Mar 2012 09:51:56 +0530
+Message-ID: <a80728acba22a17994a2ae795a10a8796d4b6d72.1331524811.git.viresh.kumar@st.com>
+In-Reply-To: <cover.1331524811.git.viresh.kumar@st.com>
+References: <cover.1331524811.git.viresh.kumar@st.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, 2012-03-06 at 11:27 +0100, Vegard Nossum wrote:
-> On 6 March 2012 11:09, Li Zhong <zhong@linux.vnet.ibm.com> wrote:
-> > This patch tries to fix the problem of page fault exception caused by
-> > accessing nmiaction structure in nmi if kmemcheck is enabled.
-> >
-> > If kmemcheck is enabled, the memory allocated through slab are in pages
-> > that are marked non-present, so that some checks could be done in the
-> > page fault handling code ( e.g. whether the memory is read before
-> > written to ).
-> > As nmiaction is allocated in this way, so it resides in a non-present
-> > page. Then there is a page fault while the nmi code accessing the
-> > nmiaction structure, which would then cause a warning by
-> > WARN_ON_ONCE(in_nmi()) in kmemcheck_fault(), called by do_page_fault().
-> >
-> > v2: as Peter suggested, changed the nmiaction to use static storage.
-> >
-> > v3: as Peter suggested, use macro to shorten the codes. Also keep the
-> > original usage of register_nmi_handler, so users of this call doesn't
-> > need change.
-> >
-> > Signed-off-by: Li Zhong <zhong@linux.vnet.ibm.com>
-> 
-> Looks like you've solved this now. Thanks.
+Some watchdog may need to check if watchdog is ACTIVE or not, for example in
+their suspend/resume hooks.
 
-There is still one place [2/2] not solved ... and I guess it might need
-the way you suggested below.
+This patch adds this routine and changes the core drivers to use it.
 
-> 
-> For the record, another way to prevent the page fault from happening
-> in the first place is to set up a new slab cache with the flag
-> SLAB_NOTRACK. This is different from the GFP_NOTRACK flag which, as
-> you noted, doesn't prevent page faults, just inhibits
-> checking/warnings for those memory areas.
-> 
-> It's a bit of a hassle, I admit. Maybe we could create an additional,
-> separate set of slab caches (using SLAB_NOTRACK) and a new GFP flag
-> which selects this set of caches instead. This would allow anything
-> that takes a gfp_t to allocate memory that is guaranteed not to page
-> fault when using kmemcheck. Pekka, any thoughts?
-> 
+Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
+---
+ drivers/watchdog/via_wdt.c      |    2 +-
+ drivers/watchdog/watchdog_dev.c |    6 +++---
+ include/linux/watchdog.h        |    5 +++++
+ 3 files changed, 9 insertions(+), 4 deletions(-)
 
-I'm not sure whether I understand it correctly? 
-  If CONFIG_KMEMCHECK is enabled, create another two sets of
-malloc_sizes caches, one for cs_cachep, one for cs_dmacachep, both with
-SLAB_NOTRACK flag. 
-
-  Create a new GFP flag, like __GFP_NO_PF for those places where page
-fault is not allowed, and return memory from the caches created above.
-This new GFP flag is set to 0 if CONFIG_KMEMCHECK is not enabled. 
-
-I think there shouldn't be many such cases, so most of these caches
-wouldn't actually be used ...
-
-Thanks,
-Zhong
-
-> 
-> Vegard
-> 
-
+diff --git a/drivers/watchdog/via_wdt.c b/drivers/watchdog/via_wdt.c
+index 8f07dd4..62fed64 100644
+--- a/drivers/watchdog/via_wdt.c
++++ b/drivers/watchdog/via_wdt.c
+@@ -88,7 +88,7 @@ static inline void wdt_reset(void)
+ static void wdt_timer_tick(unsigned long data)
+ {
+ 	if (time_before(jiffies, next_heartbeat) ||
+-	   (!test_bit(WDOG_ACTIVE, &wdt_dev.status))) {
++	   (!is_wdd_active(&wdt_dev))) {
+ 		wdt_reset();
+ 		mod_timer(&timer, jiffies + WDT_HEARTBEAT);
+ 	} else
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 1199da0f..9668253 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -59,7 +59,7 @@ static struct watchdog_device *wdd;
+ 
+ static int watchdog_ping(struct watchdog_device *wddev)
+ {
+-	if (test_bit(WDOG_ACTIVE, &wddev->status)) {
++	if (is_wdd_active(wddev)) {
+ 		if (wddev->ops->ping)
+ 			return wddev->ops->ping(wddev);  /* ping the watchdog */
+ 		else
+@@ -81,7 +81,7 @@ static int watchdog_start(struct watchdog_device *wddev)
+ {
+ 	int err;
+ 
+-	if (!test_bit(WDOG_ACTIVE, &wddev->status)) {
++	if (!is_wdd_active(wddev)) {
+ 		err = wddev->ops->start(wddev);
+ 		if (err < 0)
+ 			return err;
+@@ -111,7 +111,7 @@ static int watchdog_stop(struct watchdog_device *wddev)
+ 		return err;
+ 	}
+ 
+-	if (test_bit(WDOG_ACTIVE, &wddev->status)) {
++	if (is_wdd_active(wddev)) {
+ 		err = wddev->ops->stop(wddev);
+ 		if (err < 0)
+ 			return err;
+diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+index 43ba5b3..4fc57b2 100644
+--- a/include/linux/watchdog.h
++++ b/include/linux/watchdog.h
+@@ -118,6 +118,11 @@ struct watchdog_device {
+ #define WDOG_NO_WAY_OUT		3	/* Is 'nowayout' feature set ? */
+ };
+ 
++static inline bool is_wdd_active(struct watchdog_device *wdd)
++{
++	return test_bit(WDOG_ACTIVE, &wdd->status);
++}
++
+ #ifdef CONFIG_WATCHDOG_NOWAYOUT
+ #define WATCHDOG_NOWAYOUT		1
+ #define WATCHDOG_NOWAYOUT_INIT_STATUS	(1 << WDOG_NO_WAY_OUT)
+-- 
+1.7.8.110.g4cb5d
 
