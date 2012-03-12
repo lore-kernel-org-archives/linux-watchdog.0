@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from eu1sys200aog111.obsmtp.com ([207.126.144.131]:42912 "EHLO
-	eu1sys200aog111.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751877Ab2CLEYQ (ORCPT
+Received: from eu1sys200aog119.obsmtp.com ([207.126.144.147]:57116 "EHLO
+	eu1sys200aog119.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752003Ab2CLEYR (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 12 Mar 2012 00:24:16 -0400
+	Mon, 12 Mar 2012 00:24:17 -0400
 From: Viresh Kumar <viresh.kumar@st.com>
 To: <wim@iguana.be>
 Cc: <linux-watchdog@vger.kernel.org>, <spear-devel@list.st.com>,
@@ -11,9 +11,9 @@ Cc: <linux-watchdog@vger.kernel.org>, <spear-devel@list.st.com>,
 	<srinidhi.kasagar@stericsson.com>, <linus.walleij@stericsson.com>,
 	<alan@lxorguk.ukuu.org.uk>, <w.sang@pengutronix.de>,
 	<sshtylyov@mvista.com>, Viresh Kumar <viresh.kumar@st.com>
-Subject: [PATCH V2 19/22] watchdog/sp805: replace readl/writel with lighter _relaxed variants
-Date: Mon, 12 Mar 2012 09:52:14 +0530
-Message-ID: <5a279730768f9532101283ccea2990cb691824ff.1331524811.git.viresh.kumar@st.com>
+Subject: [PATCH V2 20/22] watchdog/sp805: Use devm routines
+Date: Mon, 12 Mar 2012 09:52:15 +0530
+Message-ID: <5b951b210d14db05858e7fccb4d184df9a56a719.1331524811.git.viresh.kumar@st.com>
 In-Reply-To: <cover.1331524811.git.viresh.kumar@st.com>
 References: <cover.1331524811.git.viresh.kumar@st.com>
 MIME-Version: 1.0
@@ -21,70 +21,92 @@ Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-readl/writel versions for ARM contain memory barrier instruction for
-synchronizing DMA buffers.  These are not required at least on this
-module.  So use lighter _relaxed variants.
+sp805 driver currently uses normal kzalloc, ioremap, etc routines. This patch
+replaces these routines with devm_kzalloc and devm_request_mem_region etc, so
+that we don't need to handle freeing of resources for error cases and module
+removal routine.
 
 Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
 ---
- drivers/watchdog/sp805_wdt.c |   24 ++++++++++++------------
- 1 files changed, 12 insertions(+), 12 deletions(-)
+ drivers/watchdog/sp805_wdt.c |   35 +++++++++++++----------------------
+ 1 files changed, 13 insertions(+), 22 deletions(-)
 
 diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
-index 7af1386..1291960 100644
+index 1291960..859d8b0 100644
 --- a/drivers/watchdog/sp805_wdt.c
 +++ b/drivers/watchdog/sp805_wdt.c
-@@ -113,10 +113,10 @@ static u32 wdt_timeleft(void)
- 	rate = clk_get_rate(wdt->clk);
- 
- 	spin_lock(&wdt->lock);
--	load = readl(wdt->base + WDTVALUE);
-+	load = readl_relaxed(wdt->base + WDTVALUE);
- 
- 	/*If the interrupt is inactive then time left is WDTValue + WDTLoad. */
--	if (!(readl(wdt->base + WDTRIS) & INT_MASK))
-+	if (!(readl_relaxed(wdt->base + WDTRIS) & INT_MASK))
- 		load += wdt->load_val + 1;
- 	spin_unlock(&wdt->lock);
- 
-@@ -128,14 +128,14 @@ static void wdt_enable(void)
+@@ -285,32 +285,33 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
  {
- 	spin_lock(&wdt->lock);
+ 	int ret = 0;
  
--	writel(UNLOCK, wdt->base + WDTLOCK);
--	writel(wdt->load_val, wdt->base + WDTLOAD);
--	writel(INT_MASK, wdt->base + WDTINTCLR);
--	writel(INT_ENABLE | RESET_ENABLE, wdt->base + WDTCONTROL);
--	writel(LOCK, wdt->base + WDTLOCK);
-+	writel_relaxed(UNLOCK, wdt->base + WDTLOCK);
-+	writel_relaxed(wdt->load_val, wdt->base + WDTLOAD);
-+	writel_relaxed(INT_MASK, wdt->base + WDTINTCLR);
-+	writel_relaxed(INT_ENABLE | RESET_ENABLE, wdt->base + WDTCONTROL);
-+	writel_relaxed(LOCK, wdt->base + WDTLOCK);
+-	if (!request_mem_region(adev->res.start, resource_size(&adev->res),
+-				"sp805_wdt")) {
++	if (!devm_request_mem_region(&adev->dev, adev->res.start,
++				resource_size(&adev->res), "sp805_wdt")) {
+ 		dev_warn(&adev->dev, "Failed to get memory region resource\n");
+ 		ret = -ENOENT;
+ 		goto err;
+ 	}
  
- 	/* Flush posted writes. */
--	readl(wdt->base + WDTLOCK);
-+	readl_relaxed(wdt->base + WDTLOCK);
- 	spin_unlock(&wdt->lock);
- }
+-	wdt = kzalloc(sizeof(*wdt), GFP_KERNEL);
++	wdt = devm_kzalloc(&adev->dev, sizeof(*wdt), GFP_KERNEL);
+ 	if (!wdt) {
+ 		dev_warn(&adev->dev, "Kzalloc failed\n");
+ 		ret = -ENOMEM;
+-		goto err_kzalloc;
++		goto err;
++	}
++
++	wdt->base = devm_ioremap(&adev->dev, adev->res.start,
++			resource_size(&adev->res));
++	if (!wdt->base) {
++		ret = -ENOMEM;
++		dev_warn(&adev->dev, "ioremap fail\n");
++		goto err;
+ 	}
  
-@@ -144,12 +144,12 @@ static void wdt_disable(void)
+ 	wdt->clk = clk_get(&adev->dev, NULL);
+ 	if (IS_ERR(wdt->clk)) {
+ 		dev_warn(&adev->dev, "Clock not found\n");
+ 		ret = PTR_ERR(wdt->clk);
+-		goto err_clk_get;
+-	}
+-
+-	wdt->base = ioremap(adev->res.start, resource_size(&adev->res));
+-	if (!wdt->base) {
+-		ret = -ENOMEM;
+-		dev_warn(&adev->dev, "ioremap fail\n");
+-		goto err_ioremap;
++		goto err;
+ 	}
+ 
+ 	wdt->adev = adev;
+@@ -327,14 +328,7 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
+ 	return 0;
+ 
+ err_misc_register:
+-	iounmap(wdt->base);
+-err_ioremap:
+ 	clk_put(wdt->clk);
+-err_clk_get:
+-	kfree(wdt);
+-	wdt = NULL;
+-err_kzalloc:
+-	release_mem_region(adev->res.start, resource_size(&adev->res));
+ err:
+ 	dev_err(&adev->dev, "Probe Failed!!!\n");
+ 	return ret;
+@@ -343,10 +337,7 @@ err:
+ static int __devexit sp805_wdt_remove(struct amba_device *adev)
  {
- 	spin_lock(&wdt->lock);
+ 	misc_deregister(&sp805_wdt_miscdev);
+-	iounmap(wdt->base);
+ 	clk_put(wdt->clk);
+-	kfree(wdt);
+-	release_mem_region(adev->res.start, resource_size(&adev->res));
  
--	writel(UNLOCK, wdt->base + WDTLOCK);
--	writel(0, wdt->base + WDTCONTROL);
--	writel(LOCK, wdt->base + WDTLOCK);
-+	writel_relaxed(UNLOCK, wdt->base + WDTLOCK);
-+	writel_relaxed(0, wdt->base + WDTCONTROL);
-+	writel_relaxed(LOCK, wdt->base + WDTLOCK);
- 
- 	/* Flush posted writes. */
--	readl(wdt->base + WDTLOCK);
-+	readl_relaxed(wdt->base + WDTLOCK);
- 	spin_unlock(&wdt->lock);
+ 	return 0;
  }
- 
 -- 
 1.7.8.110.g4cb5d
 
