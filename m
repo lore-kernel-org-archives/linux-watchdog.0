@@ -1,424 +1,343 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from db3ehsobe001.messaging.microsoft.com ([213.199.154.139]:25808
-	"EHLO db3outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752284Ab2CMMhM (ORCPT
+Received: from mail131.messagelabs.com ([216.82.242.99]:8912 "EHLO
+	mail131.messagelabs.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1761254Ab2CNRc0 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 13 Mar 2012 08:37:12 -0400
-Subject: Re: [PATCH 05/07] Watchdog: DA9052/53 watchdog support v1
-From: Ashish Jangam <ashish.jangam@kpitcummins.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-CC: <linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
-	David Dajun Chen <dajun.chen@diasemi.com>,
-	<linaro-dev@lists.linaro.org>, <sameo@linux.intel.com>
-In-Reply-To: <1328532486.30549.82.camel@dhruva>
-References: <1328532486.30549.82.camel@dhruva>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 13 Mar 2012 17:57:04 +0530
-Message-ID: <1331641624.7058.2.camel@dhruva>
+	Wed, 14 Mar 2012 13:32:26 -0400
+From: H Hartley Sweeten <hartleys@visionengravers.com>
+To: <linux-watchdog@vger.kernel.org>
+Subject: watchdog: Convert ep93xx driver to watchdog core
+Date: Wed, 14 Mar 2012 10:31:50 -0700
+CC: <wim@iguana.be>, <rmallon@gmail.com>, <mika.westerberg@iki.fi>,
+	<hsweeten@visionengravers.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-ID: <201203141031.50746.hartleys@visionengravers.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Any update on below patch?
-On Mon, 2012-02-06 at 18:18 +0530, Ashish Jangam wrote:
-> This driver adds support for the watchdog functionality provided by the
-> Dialog Semiconductor DA9052/53 PMIC chip.
-> 
-> This patch is functionally tested on Samsung SMDKV6410.
-> 
-> Signed-off-by: David Dajun Chen <dchen@diasemi.com>
-> Signed-off-by: Ashish Jangam <ashish.jangam@kpitcummins.com>
-> ---
->  Documentation/watchdog/watchdog-parameters.txt |    5 +
->  drivers/watchdog/Kconfig                       |    6 +
->  drivers/watchdog/Makefile                      |    1 +
->  drivers/watchdog/da9052_wdt.c                  |  333 ++++++++++++++++++++++++
->  4 files changed, 345 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/watchdog/da9052_wdt.c
-> diff --git a/Documentation/watchdog/watchdog-parameters.txt b/Documentation/watchdog/watchdog-parameters.txt
-> index 17ddd82..04fddba 100644
-> --- a/Documentation/watchdog/watchdog-parameters.txt
-> +++ b/Documentation/watchdog/watchdog-parameters.txt
-> @@ -78,6 +78,11 @@ wd0_timeout: Default watchdog0 timeout in 1/10secs
->  wd1_timeout: Default watchdog1 timeout in 1/10secs
->  wd2_timeout: Default watchdog2 timeout in 1/10secs
->  -------------------------------------------------
-> +da9052wdt:
-> +timeout: Watchdog timeout in seconds. 2<= timeout <=131, default=2.048s
-> +nowayout: Watchdog cannot be stopped once started
-> +	(default=kernel config parameter)
-> +-------------------------------------------------
->  davinci_wdt:
->  heartbeat: Watchdog heartbeat period in seconds from 1 to 600, default 60
->  -------------------------------------------------
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 877b107..3fb9633 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -63,6 +63,12 @@ config SOFT_WATCHDOG
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called softdog.
->  
-> +config DA9052_WATCHDOG
-> +	tristate "Dialog DA9052/DA9053 Watchdog"
-> +	depends on PMIC_DA9052
-> +	help
-> +	  Support for the watchdog in the DA9052-BC and DA9053-AA/Bx PMICs.
-> +
->  config WM831X_WATCHDOG
->  	tristate "WM831x watchdog"
->  	depends on MFD_WM831X
-> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index e8f479a..0ecbe5a 100644
-> --- a/drivers/watchdog/Makefile
-> +++ b/drivers/watchdog/Makefile
-> @@ -166,4 +166,5 @@ obj-$(CONFIG_XEN_WDT) += xen_wdt.o
->  obj-$(CONFIG_WM831X_WATCHDOG) += wm831x_wdt.o
->  obj-$(CONFIG_WM8350_WATCHDOG) += wm8350_wdt.o
->  obj-$(CONFIG_MAX63XX_WATCHDOG) += max63xx_wdt.o
-> +obj-$(CONFIG_DA9052_WATCHDOG) += da9052_wdt.o
->  obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
-> diff --git a/drivers/watchdog/da9052_wdt.c b/drivers/watchdog/da9052_wdt.c
-> new file mode 100644
-> index 0000000..b08091e
-> --- /dev/null
-> +++ b/drivers/watchdog/da9052_wdt.c
-> @@ -0,0 +1,333 @@
-> +/*
-> + * System monitoring driver for DA9052 PMICs.
-> + *
-> + * Copyright(c) 2012 Dialog Semiconductor Ltd.
-> + *
-> + * Author: Dajun Chen <dchen@diasemi.com>
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-> + *
-> + */
-> +
-> +#include <linux/miscdevice.h>
-> +#include <linux/module.h>
-> +#include <linux/delay.h>
-> +#include <linux/fs.h>
-> +#include <linux/uaccess.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/time.h>
-> +#include <linux/watchdog.h>
-> +#include <linux/types.h>
-> +#include <linux/kernel.h>
-> +
-> +#include <linux/mfd/da9052/reg.h>
-> +#include <linux/mfd/da9052/da9052.h>
-> +
-> +static int nowayout = WATCHDOG_NOWAYOUT;
-> +static int wdt_state = WDIOS_DISABLECARD;
-> +static struct miscdevice da9052_wdt_miscdev;
-> +static unsigned long da9052_wdt_users;
-> +static int da9052_wdt_expect_close;
-> +struct da9052 *da9052;
-> +static DEFINE_MUTEX(wdt_mutex);
-> +
-> +static struct {
-> +	u8 reg_val;
-> +	int time;  /* Seconds */
-> +} da9052_wdt_maps[] = {
-> +	{ 1, 2 },
-> +	{ 2, 4 },
-> +	{ 3, 8 },
-> +	{ 4, 16 },
-> +	{ 5, 32 },
-> +	{ 5, 33 },  /* Actual time  32.768s so included both 32s and 33s */
-> +	{ 6, 65 },
-> +	{ 6, 66 },  /* Actual time 65.536s so include both, 65s and 66s */
-> +	{ 7, 131 },
-> +};
-> +
-> +static int da9052_wdt_set_timeout(struct da9052 *da9052, unsigned char timeout)
-> +{
-> +	int ret;
-> +
-> +	/* Disable the Watchdog timer for 150us before changing the
-> +	*  time out value
-> +	*/
-> +	ret = da9052_reg_update(da9052, DA9052_CONTROL_D_REG,
-> +				DA9052_CONTROLD_TWDSCALE, 0);
-> +	if (ret < 0) {
-> +		dev_err(da9052->dev, "Failed to disable watchdog bit, %d\n",
-> +			ret);
-> +		return ret;
-> +	}
-> +
-> +	mutex_lock(&wdt_mutex);
-> +	wdt_state = (timeout == 0) ? WDIOS_DISABLECARD : WDIOS_ENABLECARD;
-> +	mutex_unlock(&wdt_mutex);
-> +
-> +	if (timeout) {
-> +		udelay(150);
-> +
-> +		/* Set the desired timeout */
-> +		ret = da9052_reg_update(da9052, DA9052_CONTROL_D_REG,
-> +					DA9052_CONTROLD_TWDSCALE, timeout);
-> +		if (ret < 0) {
-> +			dev_err(da9052->dev,
-> +				"Failed to update timescale bit, %d\n", ret);
-> +			return ret;
-> +		}
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int da9052_wdt_start(struct da9052 *da9052)
-> +{
-> +	int ret = 0;
-> +
-> +
-> +	if (wdt_state == WDIOS_DISABLECARD) {
-> +		/* Default 2.048s */
-> +		ret = da9052_wdt_set_timeout(da9052, 1);
-> +		if (ret <= 0)
-> +			goto err;
-> +
-> +		mutex_lock(&wdt_mutex);
-> +		wdt_state = WDIOS_ENABLECARD;
-> +		mutex_unlock(&wdt_mutex);
-> +	}
-> +
-> +err:
-> +	return ret;
-> +}
-> +
-> +static int da9052_wdt_stop(struct da9052 *da9052)
-> +{
-> +	int ret = 0;
-> +
-> +	mutex_lock(&wdt_mutex);
-> +
-> +	if (wdt_state == WDIOS_ENABLECARD) {
-> +		ret = da9052_reg_update(da9052, DA9052_CONTROL_D_REG,
-> +					DA9052_CONTROLD_TWDSCALE, 0);
-> +		if (ret < 0) {
-> +			dev_err(da9052->dev,
-> +				"Failed to disable watchdog bit strobe bit, %d\n",
-> +				ret);
-> +			goto err;
-> +		}
-> +
-> +		wdt_state = WDIOS_DISABLECARD;
-> +	}
-> +
-> +err:
-> +	mutex_unlock(&wdt_mutex);
-> +	return ret;
-> +}
-> +
-> +static void da9052_wdt_strobe(struct da9052 *da9052)
-> +{
-> +	int ret;
-> +
-> +	if (wdt_state == WDIOS_ENABLECARD) {
-> +		ret = da9052_reg_update(da9052, DA9052_CONTROL_D_REG,
-> +					DA9052_CONTROLD_WATCHDOG, 1 << 7);
-> +		if (ret < 0) {
-> +			dev_err(da9052->dev,
-> +				"Failed to update watchdog strobe bit, %d\n",
-> +				ret);
-> +			return;
-> +		}
-> +	}
-> +}
-> +
-> +static int da9052_wdt_open(struct inode *inode, struct file *file)
-> +{
-> +	int ret;
-> +
-> +	if (test_and_set_bit(0, &da9052_wdt_users))
-> +		return -EBUSY;
-> +
-> +	ret = da9052_wdt_start(da9052);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	return nonseekable_open(inode, file);
-> +}
-> +
-> +static int da9052_wdt_release(struct inode *inode, struct file *file)
-> +{
-> +	int ret = 0;
-> +
-> +	if (da9052_wdt_expect_close == 42)
-> +		ret = da9052_wdt_stop(da9052);
-> +	else
-> +		da9052_wdt_strobe(da9052);
-> +
-> +	da9052_wdt_expect_close = 0;
-> +	clear_bit(0, &da9052_wdt_users);
-> +
-> +	return ret;
-> +}
-> +
-> +static struct watchdog_info da9052_wdt_info = {
-> +	.options	= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-> +	.identity	= "DA9052 Watchdog",
-> +};
-> +
-> +static long da9052_wdt_ioctl(struct file *file, uint cmd, unsigned long arg)
-> +{
-> +	void __user *argp = (void __user *)arg;
-> +	int ret = 0, timeout, i, __user *p = argp;
-> +
-> +	switch (cmd) {
-> +	case WDIOC_GETSUPPORT:
-> +		ret = copy_to_user(argp, &da9052_wdt_info,
-> +				   sizeof(da9052_wdt_info)) ? -EFAULT : 0;
-> +		break;
-> +	case WDIOC_GETSTATUS:
-> +	case WDIOC_GETBOOTSTATUS:
-> +		ret = put_user(0, p);
-> +		break;
-> +	case WDIOC_SETOPTIONS:
-> +	{
-> +		int options;
-> +		ret = get_user(options, p);
-> +		if (ret)
-> +			break;
-> +
-> +		if (options == WDIOS_ENABLECARD)
-> +			ret = da9052_wdt_start(da9052);
-> +
-> +		if (options == WDIOS_DISABLECARD)
-> +			ret = da9052_wdt_stop(da9052);
-> +
-> +		break;
-> +	}
-> +	case WDIOC_KEEPALIVE:
-> +		da9052_wdt_strobe(da9052);
-> +		break;
-> +	case WDIOC_SETTIMEOUT:
-> +		ret = get_user(timeout, p);
-> +		if (ret)
-> +			break;
-> +
-> +		for (i = 0; i < ARRAY_SIZE(da9052_wdt_maps); i++)
-> +			if (da9052_wdt_maps[i].time == timeout)
-> +				break;
-> +		if (i == ARRAY_SIZE(da9052_wdt_maps))
-> +			ret = -EINVAL;
-> +		else
-> +			ret = da9052_wdt_set_timeout(da9052,
-> +						    da9052_wdt_maps[i].reg_val);
-> +
-> +		break;
-> +	case WDIOC_GETTIMEOUT:
-> +		ret = da9052_reg_read(da9052, DA9052_CONTROL_D_REG);
-> +		if (ret < 0)
-> +			break;
-> +
-> +		ret &= DA9052_CONTROLD_TWDSCALE;
-> +		for (i = 0; i < ARRAY_SIZE(da9052_wdt_maps); i++)
-> +			if (da9052_wdt_maps[i].reg_val == ret)
-> +				break;
-> +		if (i == ARRAY_SIZE(da9052_wdt_maps))
-> +			ret = -EINVAL;
-> +		else
-> +			ret = put_user(da9052_wdt_maps[i].time, p);
-> +
-> +		break;
-> +	default:
-> +		return -ENOTTY;
-> +	}
-> +
-> +	return ret;
-> +}
-> +
-> +static ssize_t da9052_wdt_write(struct file *file,
-> +				const char __user *data, size_t count,
-> +				loff_t *ppos)
-> +{
-> +	size_t i;
-> +
-> +	/* Check the magic character 'V' and reload the timer */
-> +	if (count) {
-> +		if (!nowayout) {
-> +			da9052_wdt_expect_close = 0;
-> +
-> +			/* scan for magic character */
-> +			for (i = 0; i != count; i++) {
-> +				char c;
-> +				if (get_user(c, data + i))
-> +					return -EFAULT;
-> +				if (c == 'V')
-> +					da9052_wdt_expect_close = 42;
-> +			}
-> +		/* someone wrote to us, we should reload the timer */
-> +		da9052_wdt_strobe(da9052);
-> +		}
-> +	}
-> +	return count;
-> +}
-> +
-> +static const struct file_operations da9052_wdt_fops = {
-> +	.owner		= THIS_MODULE,
-> +	.llseek		= no_llseek,
-> +	.unlocked_ioctl	= da9052_wdt_ioctl,
-> +	.write		= da9052_wdt_write,
-> +	.open		= da9052_wdt_open,
-> +	.release	= da9052_wdt_release,
-> +};
-> +
-> +static struct miscdevice da9052_wdt_miscdev = {
-> +	.minor		= WATCHDOG_MINOR,
-> +	.name		= "da9052-wdt",
-> +	.fops		= &da9052_wdt_fops,
-> +};
-> +
-> +static int __devinit da9052_wdt_probe(struct platform_device *pdev)
-> +{
-> +	int ret;
-> +
-> +	da9052 = dev_get_drvdata(pdev->dev.parent);
-> +
-> +	ret = da9052_reg_update(da9052, DA9052_CONTROL_D_REG,
-> +				DA9052_CONTROLD_TWDSCALE, 0);
-> +	if (ret < 0) {
-> +		dev_err(&pdev->dev, "Failed to disable watchdog bits, %d\n",
-> +			ret);
-> +		return ret;
-> +	}
-> +
-> +	da9052_wdt_miscdev.parent = &pdev->dev;
-> +
-> +	ret = misc_register(&da9052_wdt_miscdev);
-> +
-> +	return ret;
-> +}
-> +
-> +static int __devexit da9052_wdt_remove(struct platform_device *dev)
-> +{
-> +	misc_deregister(&da9052_wdt_miscdev);
-> +
-> +	return 0;
-> +}
-> +
-> +static struct platform_driver da9052_wdt_driver = {
-> +	.probe = da9052_wdt_probe,
-> +	.remove = __devexit_p(da9052_wdt_remove),
-> +	.driver = {
-> +		.name	= "da9052-watchdog",
-> +		.owner	= THIS_MODULE,
-> +	},
-> +};
-> +
-> +module_platform_driver(da9052_wdt_driver);
-> +
-> +MODULE_AUTHOR("David Dajun Chen <dchen@diasemi.com>");
-> +MODULE_DESCRIPTION("DA9052 SM Device Driver");
-> +MODULE_LICENSE("GPL");
-> +MODULE_ALIAS("platform:da9052-wdt");
-> 
-> 
+Convert the ep93xx_wdt driver to the watchdog framework API.
+
+Also, use the dev_<fmt> functions instead of pr_<fmt> for logging.
+
+Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: Ryan Mallon <rmallon@gmail.com>
+Cc: Mika Westerberg <mika.westerberg@iki.fi>
+
+---
 
 
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index ee27f57..5ea4685 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -217,6 +217,7 @@ config MPCORE_WATCHDOG
+ config EP93XX_WATCHDOG
+ 	tristate "EP93xx Watchdog"
+ 	depends on ARCH_EP93XX
++	select WATCHDOG_CORE
+ 	help
+ 	  Say Y here if to include support for the watchdog timer
+ 	  embedded in the Cirrus Logic EP93xx family of devices.
+diff --git a/drivers/watchdog/ep93xx_wdt.c b/drivers/watchdog/ep93xx_wdt.c
+index bd01bde..414ce8f 100644
+--- a/drivers/watchdog/ep93xx_wdt.c
++++ b/drivers/watchdog/ep93xx_wdt.c
+@@ -8,6 +8,9 @@
+  * Authors: Ray Lehtiniemi <rayl@mail.com>,
+  *	Alessandro Zummo <a.zummo@towertech.it>
+  *
++ * Copyright (c) 2012 H Hartley Sweeten <hsweeten@visionengravers.com>
++ *	Convert to a platform device and use the watchdog framework API
++ *
+  * This file is licensed under the terms of the GNU General Public
+  * License version 2. This program is licensed "as is" without any
+  * warranty of any kind, whether express or implied.
+@@ -23,33 +26,31 @@
+  *	- Add a few missing ioctls
+  */
+ 
+-#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+-
+ #include <linux/platform_device.h>
+ #include <linux/module.h>
+-#include <linux/fs.h>
+ #include <linux/miscdevice.h>
+ #include <linux/watchdog.h>
+ #include <linux/timer.h>
+-#include <linux/uaccess.h>
+ #include <linux/io.h>
+ 
+-#define WDT_VERSION	"0.3"
++#define WDT_VERSION	"0.4"
+ 
+ /* default timeout (secs) */
+ #define WDT_TIMEOUT 30
+ 
+ static bool nowayout = WATCHDOG_NOWAYOUT;
++module_param(nowayout, bool, 0);
++MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started");
++
+ static int timeout = WDT_TIMEOUT;
++module_param(timeout, int, 0);
++MODULE_PARM_DESC(timeout,
++	"Watchdog timeout in seconds. (1<=timeout<=3600, default="
++				__MODULE_STRING(WDT_TIMEOUT) ")");
+ 
+ static void __iomem *mmio_base;
+ static struct timer_list timer;
+ static unsigned long next_heartbeat;
+-static unsigned long wdt_status;
+-static unsigned long boot_status;
+-
+-#define WDT_IN_USE		0
+-#define WDT_OK_TO_CLOSE		1
+ 
+ #define EP93XX_WATCHDOG		0x00
+ #define EP93XX_WDSTATUS		0x04
+@@ -57,155 +58,60 @@ static unsigned long boot_status;
+ /* reset the wdt every ~200ms */
+ #define WDT_INTERVAL (HZ/5)
+ 
+-static void wdt_enable(void)
++static void ep93xx_wdt_timer_ping(unsigned long data)
+ {
+-	writel(0xaaaa, mmio_base + EP93XX_WATCHDOG);
+-}
+-
+-static void wdt_disable(void)
+-{
+-	writel(0xaa55, mmio_base + EP93XX_WATCHDOG);
+-}
++	if (time_before(jiffies, next_heartbeat))
++		writel(0x5555, mmio_base + EP93XX_WATCHDOG);
+ 
+-static inline void wdt_ping(void)
+-{
+-	writel(0x5555, mmio_base + EP93XX_WATCHDOG);
++	/* Re-set the timer interval */
++	mod_timer(&timer, jiffies + WDT_INTERVAL);
+ }
+ 
+-static void wdt_startup(void)
++static int ep93xx_wdt_start(struct watchdog_device *wdd)
+ {
+ 	next_heartbeat = jiffies + (timeout * HZ);
+ 
+-	wdt_enable();
++	writel(0xaaaa, mmio_base + EP93XX_WATCHDOG);
+ 	mod_timer(&timer, jiffies + WDT_INTERVAL);
++
++	return 0;
+ }
+ 
+-static void wdt_shutdown(void)
++static int ep93xx_wdt_stop(struct watchdog_device *wdd)
+ {
+ 	del_timer_sync(&timer);
+-	wdt_disable();
++	writel(0xaa55, mmio_base + EP93XX_WATCHDOG);
++
++	return 0;
+ }
+ 
+-static void wdt_keepalive(void)
++static int ep93xx_wdt_keepalive(struct watchdog_device *wdd)
+ {
+ 	/* user land ping */
+ 	next_heartbeat = jiffies + (timeout * HZ);
+-}
+-
+-static int ep93xx_wdt_open(struct inode *inode, struct file *file)
+-{
+-	if (test_and_set_bit(WDT_IN_USE, &wdt_status))
+-		return -EBUSY;
+-
+-	clear_bit(WDT_OK_TO_CLOSE, &wdt_status);
+-
+-	wdt_startup();
+-
+-	return nonseekable_open(inode, file);
+-}
+-
+-static ssize_t
+-ep93xx_wdt_write(struct file *file, const char __user *data, size_t len,
+-		 loff_t *ppos)
+-{
+-	if (len) {
+-		if (!nowayout) {
+-			size_t i;
+-
+-			clear_bit(WDT_OK_TO_CLOSE, &wdt_status);
+-
+-			for (i = 0; i != len; i++) {
+-				char c;
+ 
+-				if (get_user(c, data + i))
+-					return -EFAULT;
+-
+-				if (c == 'V')
+-					set_bit(WDT_OK_TO_CLOSE, &wdt_status);
+-				else
+-					clear_bit(WDT_OK_TO_CLOSE, &wdt_status);
+-			}
+-		}
+-		wdt_keepalive();
+-	}
+-
+-	return len;
++	return 0;
+ }
+ 
+-static const struct watchdog_info ident = {
+-	.options = WDIOF_CARDRESET | WDIOF_MAGICCLOSE,
+-	.identity = "EP93xx Watchdog",
++static const struct watchdog_info ep93xx_wdt_ident = {
++	.options	= WDIOF_CARDRESET |
++			  WDIOF_MAGICCLOSE |
++			  WDIOF_KEEPALIVEPING,
++	.identity	= "EP93xx Watchdog",
+ };
+ 
+-static long ep93xx_wdt_ioctl(struct file *file,
+-					unsigned int cmd, unsigned long arg)
+-{
+-	int ret = -ENOTTY;
+-
+-	switch (cmd) {
+-	case WDIOC_GETSUPPORT:
+-		ret = copy_to_user((struct watchdog_info __user *)arg, &ident,
+-				sizeof(ident)) ? -EFAULT : 0;
+-		break;
+-
+-	case WDIOC_GETSTATUS:
+-		ret = put_user(0, (int __user *)arg);
+-		break;
+-
+-	case WDIOC_GETBOOTSTATUS:
+-		ret = put_user(boot_status, (int __user *)arg);
+-		break;
+-
+-	case WDIOC_KEEPALIVE:
+-		wdt_keepalive();
+-		ret = 0;
+-		break;
+-
+-	case WDIOC_GETTIMEOUT:
+-		/* actually, it is 0.250 seconds.... */
+-		ret = put_user(1, (int __user *)arg);
+-		break;
+-	}
+-	return ret;
+-}
+-
+-static int ep93xx_wdt_release(struct inode *inode, struct file *file)
+-{
+-	if (test_bit(WDT_OK_TO_CLOSE, &wdt_status))
+-		wdt_shutdown();
+-	else
+-		pr_crit("Device closed unexpectedly - timer will not stop\n");
+-
+-	clear_bit(WDT_IN_USE, &wdt_status);
+-	clear_bit(WDT_OK_TO_CLOSE, &wdt_status);
+-
+-	return 0;
+-}
+-
+-static const struct file_operations ep93xx_wdt_fops = {
++static struct watchdog_ops ep93xx_wdt_ops = {
+ 	.owner		= THIS_MODULE,
+-	.write		= ep93xx_wdt_write,
+-	.unlocked_ioctl	= ep93xx_wdt_ioctl,
+-	.open		= ep93xx_wdt_open,
+-	.release	= ep93xx_wdt_release,
+-	.llseek		= no_llseek,
++	.start		= ep93xx_wdt_start,
++	.stop		= ep93xx_wdt_stop,
++	.ping		= ep93xx_wdt_keepalive,
+ };
+ 
+-static struct miscdevice ep93xx_wdt_miscdev = {
+-	.minor		= WATCHDOG_MINOR,
+-	.name		= "watchdog",
+-	.fops		= &ep93xx_wdt_fops,
++static struct watchdog_device ep93xx_wdt_wdd = {
++	.info		= &ep93xx_wdt_ident,
++	.ops		= &ep93xx_wdt_ops,
+ };
+ 
+-static void ep93xx_timer_ping(unsigned long data)
+-{
+-	if (time_before(jiffies, next_heartbeat))
+-		wdt_ping();
+-
+-	/* Re-set the timer interval */
+-	mod_timer(&timer, jiffies + WDT_INTERVAL);
+-}
+-
+ static int __devinit ep93xx_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct resource *res;
+@@ -226,26 +132,32 @@ static int __devinit ep93xx_wdt_probe(struct platform_device *pdev)
+ 
+ 	if (timeout < 1 || timeout > 3600) {
+ 		timeout = WDT_TIMEOUT;
+-		pr_info("timeout value must be 1<=x<=3600, using %d\n",
++		dev_warn(&pdev->dev,
++			"timeout value must be 1<=x<=3600, using %d\n",
+ 			timeout);
+ 	}
+ 
+ 	val = readl(mmio_base + EP93XX_WATCHDOG);
+-	boot_status = val & 0x01 ? 1 : 0;
++	ep93xx_wdt_wdd.bootstatus = (val & 0x01) ? WDIOF_CARDRESET : 0;
+ 
+-	setup_timer(&timer, ep93xx_timer_ping, 1);
++	watchdog_set_nowayout(&ep93xx_wdt_wdd, nowayout);
+ 
+-	err = misc_register(&ep93xx_wdt_miscdev);
++	setup_timer(&timer, ep93xx_wdt_timer_ping, 1);
+ 
+-	pr_info("EP93XX watchdog, driver version " WDT_VERSION "%s\n",
++	err = watchdog_register_device(&ep93xx_wdt_wdd);
++	if (err)
++		return err;
++
++	dev_info(&pdev->dev,
++		"EP93XX watchdog, driver version " WDT_VERSION "%s\n",
+ 		(val & 0x08) ? " (nCS1 disable detected)" : "");
+-	return err;
++
++	return 0;
+ }
+ 
+ static int __devexit ep93xx_wdt_remove(struct platform_device *pdev)
+ {
+-	wdt_shutdown();
+-	misc_deregister(&ep93xx_wdt_miscdev);
++	watchdog_unregister_device(&ep93xx_wdt_wdd);
+ 	return 0;
+ }
+ 
+@@ -260,16 +172,9 @@ static struct platform_driver ep93xx_wdt_driver = {
+ 
+ module_platform_driver(ep93xx_wdt_driver);
+ 
+-module_param(nowayout, bool, 0);
+-MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started");
+-
+-module_param(timeout, int, 0);
+-MODULE_PARM_DESC(timeout,
+-	"Watchdog timeout in seconds. (1<=timeout<=3600, default="
+-				__MODULE_STRING(WDT_TIMEOUT) ")");
+-
+ MODULE_AUTHOR("Ray Lehtiniemi <rayl@mail.com>,"
+-		"Alessandro Zummo <a.zummo@towertech.it>");
++		"Alessandro Zummo <a.zummo@towertech.it>,"
++		"H Hartley Sweeten <hsweeten@visionengravers.com>");
+ MODULE_DESCRIPTION("EP93xx Watchdog");
+ MODULE_LICENSE("GPL");
+ MODULE_VERSION(WDT_VERSION);
