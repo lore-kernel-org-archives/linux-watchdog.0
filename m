@@ -1,146 +1,64 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:37024 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755156Ab2CNSkg (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 14 Mar 2012 14:40:36 -0400
-Date: Wed, 14 Mar 2012 19:40:33 +0100
-From: Wolfram Sang <w.sang@pengutronix.de>
+Received: from mx1.redhat.com ([209.132.183.28]:26136 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756802Ab2COL6H (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 15 Mar 2012 07:58:07 -0400
+From: Hans de Goede <hdegoede@redhat.com>
 To: linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@iguana.be>, Roland Stigge <stigge@antcom.de>
-Subject: Re: [PATCH 3/4] watchdog: dev: don't enforce set_timeout()
-Message-ID: <20120314184033.GA20092@pengutronix.de>
-References: <1328204891-32551-1-git-send-email-w.sang@pengutronix.de>
- <1328204891-32551-4-git-send-email-w.sang@pengutronix.de>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qMm9M+Fa2AknHoGS"
-Content-Disposition: inline
-In-Reply-To: <1328204891-32551-4-git-send-email-w.sang@pengutronix.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	LM Sensors <lm-sensors@lm-sensors.org>,
+	Thilo Cestonaro <thilo.cestonaro@ts.fujitsu.com>
+Subject: Watchdog timer core enhancements
+Date: Thu, 15 Mar 2012 12:59:14 +0100
+Message-Id: <1331812757-3491-1-git-send-email-hdegoede@redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+Hi,
 
---qMm9M+Fa2AknHoGS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Short selfintro for the watchdog people: I'm a FOSS developer / enthusiast
+for close to 15 years now. I've written Linux kernel drivers for a ton
+of webcams and various hwmon IC's.
 
-On Thu, Feb 02, 2012 at 06:48:10PM +0100, Wolfram Sang wrote:
-> Some watchdogs rewrite the timer on every ping, so they don't need a spec=
-ific
-> set_timeout callback. Allow the callback to be empty for such devices.
->=20
-> Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
+Three of the hwmon drivers I maintain are IC's which also include a watchdog
+part in their hwmon solution.
 
-Wim, I saw that the first two patches are in linux-next, but not this and t=
-he
-following one? Any remarks?
+This is a resend of a series of watchdog_dev patches which I initially send
+on Sep 12 2011:
+http://lists.lm-sensors.org/pipermail/lm-sensors/2011-September/033707.html
+And which unfortunately has seen 0 reviews / feedback since then.
 
-Thanks,
+This resend is re-based on top of v3.3-rc7
 
-   Wolfram
+Currently the hwmon drivers I maintain are implementing the watchdog API
+all by themselves, I would very much like to switch them over to
+watchdog_dev to remove a lot of code duplication, but there currently
+are 2 things stopping me from moving them over:
 
+1) The driver core only works for 1 watchdog, but both my fschmd and my sch5636
+test systems also have an iTCO watchdog and that tends to load first. Thus when
+writing the fschmd watchdog code I made it support loading either on the
+default watchdog minor, or on one of the additional reserved watchdog minors
+(212-215). The first patch in this series adds support for this to the
+watchdog timer driver core (which was quite straightforward to add).
 
-> ---
->  .../watchdog/convert_drivers_to_kernel_api.txt     |   10 ++++++----
->  Documentation/watchdog/watchdog-kernel-api.txt     |    4 +++-
->  drivers/watchdog/watchdog_dev.c                    |   11 ++++++-----
->  3 files changed, 15 insertions(+), 10 deletions(-)
->=20
-> diff --git a/Documentation/watchdog/convert_drivers_to_kernel_api.txt b/D=
-ocumentation/watchdog/convert_drivers_to_kernel_api.txt
-> index be8119b..25647a3 100644
-> --- a/Documentation/watchdog/convert_drivers_to_kernel_api.txt
-> +++ b/Documentation/watchdog/convert_drivers_to_kernel_api.txt
-> @@ -51,10 +51,12 @@ Here is a overview of the functions and probably need=
-ed actions:
->  		set
-> =20
->  	WDIOC_SETTIMEOUT:
-> -		Options in watchdog_info need to have WDIOF_SETTIMEOUT set
-> -		and a set_timeout-callback has to be defined. The core will also
-> -		do limit-checking, if min_timeout and max_timeout in the watchdog
-> -		device are set. All is optional.
-> +		Options in watchdog_info need to have WDIOF_SETTIMEOUT set. The core
-> +		will also do limit-checking, if min_timeout and max_timeout in the
-> +		watchdog device are set. By default, the timeout variable of the
-> +		watchdog device will simply get updated. Additionally, a
-> +		set_timeout-callback can be defined if further actions are needed
-> +		(e.g. hardware setup, more advanced checks). All is optional.
-> =20
->  	WDIOC_GETTIMEOUT:
->  		No preparations needed
-> diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentati=
-on/watchdog/watchdog-kernel-api.txt
-> index 4b93c28..dcf1cfe 100644
-> --- a/Documentation/watchdog/watchdog-kernel-api.txt
-> +++ b/Documentation/watchdog/watchdog-kernel-api.txt
-> @@ -121,7 +121,9 @@ they are supported. These optional routines/operation=
-s are:
->    value of the watchdog_device will be changed to the value that was jus=
-t used
->    to re-program the watchdog timer device.
->    (Note: the WDIOF_SETTIMEOUT needs to be set in the options field of the
-> -  watchdog's info structure).
-> +  watchdog's info structure. If it is set, and no set_timeout function is
-> +  provided, only the update of the timeout value will happen. This is en=
-ough
-> +  if the ping of the watchdog will rewrite the timer anyway.)
->  * ioctl: if this routine is present then it will be called first before =
-we do
->    our own internal ioctl call handling. This routine should return -ENOI=
-OCTLCMD
->    if a command is not supported. The parameters that are passed to the i=
-octl
-> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_=
-dev.c
-> index 1199da0..ec224b4 100644
-> --- a/drivers/watchdog/watchdog_dev.c
-> +++ b/drivers/watchdog/watchdog_dev.c
-> @@ -215,17 +215,18 @@ static long watchdog_ioctl(struct file *file, unsig=
-ned int cmd,
->  		watchdog_ping(wdd);
->  		return 0;
->  	case WDIOC_SETTIMEOUT:
-> -		if ((wdd->ops->set_timeout =3D=3D NULL) ||
-> -		    !(wdd->info->options & WDIOF_SETTIMEOUT))
-> +		if (!(wdd->info->options & WDIOF_SETTIMEOUT))
->  			return -EOPNOTSUPP;
->  		if (get_user(val, p))
->  			return -EFAULT;
->  		if ((wdd->max_timeout !=3D 0) &&
->  		    (val < wdd->min_timeout || val > wdd->max_timeout))
->  				return -EINVAL;
-> -		err =3D wdd->ops->set_timeout(wdd, val);
-> -		if (err < 0)
-> -			return err;
-> +		if (wdd->ops->set_timeout) {
-> +			err =3D wdd->ops->set_timeout(wdd, val);
-> +			if (err < 0)
-> +				return err;
-> +		}
->  		wdd->timeout =3D val;
->  		/* If the watchdog is active then we send a keepalive ping
->  		 * to make sure that the watchdog keep's running (and if
-> --=20
-> 1.7.8.3
->=20
+2) Most Linux drivers use dynamically allocated memory for the driver data,
+which gets allocated on calling the probe function and released on driver
+unbind. This means that merely locking the module containing the driver as long
+as /dev/watchdog is open is not sufficient, since the driver can still be
+unbound. The second patch in this series fixes this.
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Note that the 2nd issue is also hit by the recently posted:
+"[PATCH V2 00/22] watchdog: ARM watchdogs: sp805 & mpcore updates & fixes"
+patch series which convert the mpcore_wdt driver to watchdog_dev, doing
+an unbind between the platform driver and the platform dev there from sysfs
+while an app holds the /dev/watchdog file open will make file->private_data
+for that file handle point to freed memory!
 
---qMm9M+Fa2AknHoGS
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Once this series is upstream I'll also write a patches to convert all my
+hwmon IC with watchdog watchdog driver parts to watchdog_dev.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
+Regards,
 
-iEYEARECAAYFAk9g5iEACgkQD27XaX1/VRuBlQCeMPSNNt0SdOAW5FWURDV4xdXF
-Tg0An3F5nMg7HMZ0Z9Kfb9rR+psYVNtE
-=6QmW
------END PGP SIGNATURE-----
-
---qMm9M+Fa2AknHoGS--
+Hans
