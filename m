@@ -1,50 +1,44 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:38128 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:38138 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932304Ab2COVSb (ORCPT
+	with ESMTP id S1753173Ab2COVZg (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 15 Mar 2012 17:18:31 -0400
-Date: Thu, 15 Mar 2012 22:18:30 +0100
+	Thu, 15 Mar 2012 17:25:36 -0400
+Date: Thu, 15 Mar 2012 22:25:34 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: linux-watchdog@vger.kernel.org, Roland Stigge <stigge@antcom.de>
-Subject: Re: [PATCH 3/4] watchdog: dev: don't enforce set_timeout()
-Message-ID: <20120315211830.GF10698@spo001.leaseweb.com>
-References: <1328204891-32551-1-git-send-email-w.sang@pengutronix.de> <1328204891-32551-4-git-send-email-w.sang@pengutronix.de> <20120314184033.GA20092@pengutronix.de>
+To: Ashish Jangam <ashish.jangam@kpitcummins.com>
+Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	David Dajun Chen <dajun.chen@diasemi.com>,
+	linaro-dev@lists.linaro.org, sameo@linux.intel.com
+Subject: Re: [PATCH 05/07] Watchdog: DA9052/53 watchdog support v1
+Message-ID: <20120315212534.GG10698@spo001.leaseweb.com>
+References: <1328532486.30549.82.camel@dhruva> <1331641624.7058.2.camel@dhruva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20120314184033.GA20092@pengutronix.de>
+In-Reply-To: <1331641624.7058.2.camel@dhruva>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Wolfram,
+Hi Ashish,
 
-> On Thu, Feb 02, 2012 at 06:48:10PM +0100, Wolfram Sang wrote:
-> > Some watchdogs rewrite the timer on every ping, so they don't need a specific
-> > set_timeout callback. Allow the callback to be empty for such devices.
+> Any update on below patch?
+> On Mon, 2012-02-06 at 18:18 +0530, Ashish Jangam wrote:
+> > This driver adds support for the watchdog functionality provided by the
+> > Dialog Semiconductor DA9052/53 PMIC chip.
 > > 
-> > Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
-> 
-> Wim, I saw that the first two patches are in linux-next, but not this and the
-> following one? Any remarks?
+> > This patch is functionally tested on Samsung SMDKV6410.
+> > 
+> > Signed-off-by: David Dajun Chen <dchen@diasemi.com>
+> > Signed-off-by: Ashish Jangam <ashish.jangam@kpitcummins.com>
+> > ---
+> >  Documentation/watchdog/watchdog-parameters.txt |    5 +
+> >  drivers/watchdog/Kconfig                       |    6 +
+> >  drivers/watchdog/Makefile                      |    1 +
+> >  drivers/watchdog/da9052_wdt.c                  |  333 ++++++++++++++++++++++++
+> >  4 files changed, 345 insertions(+), 0 deletions(-)
 
-first 2 patches are in indeed, but the 4th one (with some adoptions because I left
-3 out) is also in. I have to look at patch 3 again, but I gave priority to Hans his
-patch nr 4: watchdog_dev: Let the driver update the timeout field on set_timeout
-success. Some device indeed don't have a 1 second resolution. That's why it should
-be the drivers responsibility to update the code.
-
-But on the other hand, you also are right to say that a lot of drivers just will do:
-
-static int wdt_set_timeout(struct watchdog_device *wdd, unsigned timeout)
-{
-	wdd->timeout = timeout;
-	retun 0;
-}
-
-For this we can add a helper or adjust the watchdog code to do this as default.
-I have to check out what the best solution is.
+What's the difference with the version of Fri, 5 Aug 2011 19:21:51 +0530 ?
 
 Kind regards,
 Wim.
