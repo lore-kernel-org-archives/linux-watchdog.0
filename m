@@ -1,8 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:22859 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:41112 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758774Ab2COL6H (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 15 Mar 2012 07:58:07 -0400
+	id S1758774Ab2COL6M (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 15 Mar 2012 07:58:12 -0400
 From: Hans de Goede <hdegoede@redhat.com>
 To: linux-watchdog@vger.kernel.org
 Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
@@ -10,110 +10,245 @@ Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
 	LM Sensors <lm-sensors@lm-sensors.org>,
 	Thilo Cestonaro <thilo.cestonaro@ts.fujitsu.com>,
 	Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 3/3] watchdog_dev: Let the driver update the timeout field on set_timeout success
-Date: Thu, 15 Mar 2012 12:59:17 +0100
-Message-Id: <1331812757-3491-4-git-send-email-hdegoede@redhat.com>
+Subject: [PATCH 1/3] watchdog_dev: Add support for having more then 1 watchdog
+Date: Thu, 15 Mar 2012 12:59:15 +0100
+Message-Id: <1331812757-3491-2-git-send-email-hdegoede@redhat.com>
 In-Reply-To: <1331812757-3491-1-git-send-email-hdegoede@redhat.com>
 References: <1331812757-3491-1-git-send-email-hdegoede@redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-When a set_timeout operation succeeds this does not necessarily mean that
-the exact timeout requested has been achieved, because the watchdog does not
-necessarily have a 1 second resolution. So rather then have the core set
-the timeout member of the watchdog_device struct to the exact requested
-value, instead the driver should set it to the actually achieved timeout value.
+I know that having more then one watchdog is not really usefull, but some
+systems ship with more then one watchdog, so why not make all of them
+available to the user. Maybe he wants to use a certain one because it
+has additional features / a better resolution ... ?
+
+Also having this support in watchdog_dev makes developing watchdog drivers
+for watchdog hardware which happens to often be found on systems with
+multiple watchdogs a lot easier.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- Documentation/watchdog/watchdog-kernel-api.txt |    7 ++++---
- drivers/staging/mei/wd.c                       |    1 +
- drivers/watchdog/s3c2410_wdt.c                 |    2 ++
- drivers/watchdog/via_wdt.c                     |    1 +
- drivers/watchdog/watchdog_dev.c                |    2 --
- drivers/watchdog/wm831x_wdt.c                  |    1 +
- 6 files changed, 9 insertions(+), 5 deletions(-)
+ drivers/watchdog/watchdog_dev.c |  137 +++++++++++++++++++++++++++------------
+ 1 file changed, 96 insertions(+), 41 deletions(-)
 
-diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
-index b43c40c..e7a7de1 100644
---- a/Documentation/watchdog/watchdog-kernel-api.txt
-+++ b/Documentation/watchdog/watchdog-kernel-api.txt
-@@ -136,9 +136,10 @@ they are supported. These optional routines/operations are:
-   status of the device is reported with watchdog WDIOF_* status flags/bits.
- * set_timeout: this routine checks and changes the timeout of the watchdog
-   timer device. It returns 0 on success, -EINVAL for "parameter out of range"
--  and -EIO for "could not write value to the watchdog". On success the timeout
--  value of the watchdog_device will be changed to the value that was just used
--  to re-program the watchdog timer device.
-+  and -EIO for "could not write value to the watchdog". On success this
-+  routine should set the timeout value of the watchdog_device to the
-+  achieved timeout value (which may be different from the requested one
-+  because the watchdog does not necessarily has a 1 second resolution).
-   (Note: the WDIOF_SETTIMEOUT needs to be set in the options field of the
-   watchdog's info structure).
- * ioctl: if this routine is present then it will be called first before we do
-diff --git a/drivers/staging/mei/wd.c b/drivers/staging/mei/wd.c
-index 8094941..9503c32 100644
---- a/drivers/staging/mei/wd.c
-+++ b/drivers/staging/mei/wd.c
-@@ -326,6 +326,7 @@ static int mei_wd_ops_set_timeout(struct watchdog_device *wd_dev, unsigned int t
- 
- 	dev->wd_timeout = timeout;
- 	mei_wd_set_start_timeout(dev, dev->wd_timeout);
-+	wd_dev->timeout = dev->wd_timeout;
- 
- 	mutex_unlock(&dev->device_lock);
- 
-diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
-index 404172f..6ea79b0 100644
---- a/drivers/watchdog/s3c2410_wdt.c
-+++ b/drivers/watchdog/s3c2410_wdt.c
-@@ -200,6 +200,8 @@ static int s3c2410wdt_set_heartbeat(struct watchdog_device *wdd, unsigned timeou
- 	writel(count, wdt_base + S3C2410_WTDAT);
- 	writel(wtcon, wdt_base + S3C2410_WTCON);
- 
-+	wdd->timeout = (count * divisor) / freq;
-+
- 	return 0;
- }
- 
-diff --git a/drivers/watchdog/via_wdt.c b/drivers/watchdog/via_wdt.c
-index 8f07dd4..47afe5b 100644
---- a/drivers/watchdog/via_wdt.c
-+++ b/drivers/watchdog/via_wdt.c
-@@ -126,6 +126,7 @@ static int wdt_set_timeout(struct watchdog_device *wdd,
- {
- 	writel(new_timeout, wdt_mem + VIA_WDT_COUNT);
- 	timeout = new_timeout;
-+	wdd->timeout = timeout;
- 	return 0;
- }
- 
 diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 15dc3df..c8a594e 100644
+index 1199da0..6483327 100644
 --- a/drivers/watchdog/watchdog_dev.c
 +++ b/drivers/watchdog/watchdog_dev.c
-@@ -265,8 +265,6 @@ static int watchdog_set_timeout(struct watchdog_device *wddev,
+@@ -42,10 +42,49 @@
+ #include <linux/init.h>		/* For __init/__exit/... */
+ #include <linux/uaccess.h>	/* For copy_to_user/put_user/... */
+ 
+-/* make sure we only register one /dev/watchdog device */
+-static unsigned long watchdog_dev_busy;
+-/* the watchdog device behind /dev/watchdog */
+-static struct watchdog_device *wdd;
++#define MAX_WATCHDOGS 5
++
++static int watchdog_open(struct inode *inode, struct file *file);
++static int watchdog_release(struct inode *inode, struct file *file);
++static ssize_t watchdog_write(struct file *file, const char __user *data,
++						size_t len, loff_t *ppos);
++static long watchdog_ioctl(struct file *file, unsigned int cmd,
++						unsigned long arg);
++
++/* the watchdog devices behind /dev/watchdog* */
++static DEFINE_MUTEX(wdd_list_mutex);
++static struct watchdog_device *wdd_list[MAX_WATCHDOGS];
++
++static const struct file_operations watchdog_fops = {
++	.owner		= THIS_MODULE,
++	.write		= watchdog_write,
++	.unlocked_ioctl	= watchdog_ioctl,
++	.open		= watchdog_open,
++	.release	= watchdog_release,
++};
++
++static struct miscdevice watchdog_miscdev[MAX_WATCHDOGS] = { {
++	.minor		= WATCHDOG_MINOR,
++	.name		= "watchdog",
++	.fops		= &watchdog_fops,
++}, {
++	.minor		= 212,
++	.name		= "watchdog1",
++	.fops		= &watchdog_fops,
++}, {
++	.minor		= 213,
++	.name		= "watchdog2",
++	.fops		= &watchdog_fops,
++}, {
++	.minor		= 214,
++	.name		= "watchdog3",
++	.fops		= &watchdog_fops,
++}, {
++	.minor		= 215,
++	.name		= "watchdog4",
++	.fops		= &watchdog_fops,
++} };
++
+ 
+ /*
+  *	watchdog_ping: ping the watchdog.
+@@ -136,6 +175,7 @@ static int watchdog_stop(struct watchdog_device *wddev)
+ static ssize_t watchdog_write(struct file *file, const char __user *data,
+ 						size_t len, loff_t *ppos)
+ {
++	struct watchdog_device *wdd = file->private_data;
+ 	size_t i;
+ 	char c;
+ 
+@@ -175,6 +215,7 @@ static ssize_t watchdog_write(struct file *file, const char __user *data,
+ static long watchdog_ioctl(struct file *file, unsigned int cmd,
+ 							unsigned long arg)
+ {
++	struct watchdog_device *wdd = file->private_data;
+ 	void __user *argp = (void __user *)arg;
+ 	int __user *p = argp;
+ 	unsigned int val;
+@@ -254,7 +295,15 @@ static long watchdog_ioctl(struct file *file, unsigned int cmd,
+ 
+ static int watchdog_open(struct inode *inode, struct file *file)
+ {
+-	int err = -EBUSY;
++	int idx, err = -EBUSY;
++	struct watchdog_device *wdd = NULL;
++
++	/* Find our watchdog_device */
++	for (idx = 0; idx < MAX_WATCHDOGS; idx++)
++		if (watchdog_miscdev[idx].minor == iminor(inode)) {
++			wdd = wdd_list[idx];
++			break;
++		}
+ 
+ 	/* the watchdog is single open! */
+ 	if (test_and_set_bit(WDOG_DEV_OPEN, &wdd->status))
+@@ -271,6 +320,8 @@ static int watchdog_open(struct inode *inode, struct file *file)
+ 	if (err < 0)
+ 		goto out_mod;
+ 
++	file->private_data = wdd;
++
+ 	/* dev/watchdog is a virtual (and thus non-seekable) filesystem */
+ 	return nonseekable_open(inode, file);
+ 
+@@ -293,6 +344,7 @@ out:
+ 
+ static int watchdog_release(struct inode *inode, struct file *file)
+ {
++	struct watchdog_device *wdd = file->private_data;
+ 	int err = -EBUSY;
+ 
+ 	/*
+@@ -319,20 +371,6 @@ static int watchdog_release(struct inode *inode, struct file *file)
+ 	return 0;
+ }
+ 
+-static const struct file_operations watchdog_fops = {
+-	.owner		= THIS_MODULE,
+-	.write		= watchdog_write,
+-	.unlocked_ioctl	= watchdog_ioctl,
+-	.open		= watchdog_open,
+-	.release	= watchdog_release,
+-};
+-
+-static struct miscdevice watchdog_miscdev = {
+-	.minor		= WATCHDOG_MINOR,
+-	.name		= "watchdog",
+-	.fops		= &watchdog_fops,
+-};
+-
+ /*
+  *	watchdog_dev_register:
+  *	@watchdog: watchdog device
+@@ -343,28 +381,44 @@ static struct miscdevice watchdog_miscdev = {
+ 
+ int watchdog_dev_register(struct watchdog_device *watchdog)
+ {
+-	int err;
++	int idx, err;
+ 
+-	/* Only one device can register for /dev/watchdog */
+-	if (test_and_set_bit(0, &watchdog_dev_busy)) {
+-		pr_err("only one watchdog can use /dev/watchdog.\n");
+-		return -EBUSY;
++	/*
++	 * Note ideally we would just walk our wdd_list here and stop at the
++	 * first place which holds a NULL, but that assumes all watchdog
++	 * drivers use the watchdog_core, which is not true, hence the retry.
++	 * Once all drivers are converted, the check for EBUSY and goto retry
++	 * can be eliminated (and the while converted to a standard for loop).
++	 */
++	idx = 0;
++retry:
++	mutex_lock(&wdd_list_mutex);
++	while (idx < MAX_WATCHDOGS) {
++		if (wdd_list[idx] == NULL) {
++			wdd_list[idx] = watchdog;
++			break;
++		}
++		idx++;
+ 	}
++	mutex_unlock(&wdd_list_mutex);
+ 
+-	wdd = watchdog;
++	if (idx == MAX_WATCHDOGS) {
++		pr_err("maximum number of watchdogs exceeded.\n");
++		return -EBUSY;
++	}
+ 
+-	err = misc_register(&watchdog_miscdev);
++	err = misc_register(&watchdog_miscdev[idx]);
+ 	if (err != 0) {
++		wdd_list[idx] = NULL;
++		if (err == -EBUSY) {
++			idx++; /* Try again with the next watchdog minor */
++			goto retry;
++		}
+ 		pr_err("%s: cannot register miscdev on minor=%d (err=%d).\n",
+-			watchdog->info->identity, WATCHDOG_MINOR, err);
+-		goto out;
++			watchdog->info->identity, watchdog_miscdev[idx].minor,
++			err);
  	}
  
- 	ret = wddev->ops->set_timeout(wddev, timeout);
--	if (ret == 0)
--		wddev->timeout = timeout;
- leave:
- 	mutex_unlock(&wddev->lock);
- 	return ret;
-diff --git a/drivers/watchdog/wm831x_wdt.c b/drivers/watchdog/wm831x_wdt.c
-index 263c883..8664ff1 100644
---- a/drivers/watchdog/wm831x_wdt.c
-+++ b/drivers/watchdog/wm831x_wdt.c
-@@ -157,6 +157,7 @@ static int wm831x_wdt_set_timeout(struct watchdog_device *wdt_dev,
- 		ret = wm831x_set_bits(wm831x, WM831X_WATCHDOG,
- 				      WM831X_WDOG_TO_MASK,
- 				      wm831x_wdt_cfgs[i].val);
-+		wdt_dev->timeout = timeout;
- 		wm831x_reg_lock(wm831x);
- 	} else {
- 		dev_err(wm831x->dev, "Failed to unlock security key: %d\n",
+-	return 0;
+-
+-out:
+-	wdd = NULL;
+-	clear_bit(0, &watchdog_dev_busy);
+ 	return err;
+ }
+ 
+@@ -377,19 +431,20 @@ out:
+ 
+ int watchdog_dev_unregister(struct watchdog_device *watchdog)
+ {
+-	/* Check that a watchdog device was registered in the past */
+-	if (!test_bit(0, &watchdog_dev_busy) || !wdd)
+-		return -ENODEV;
++	int idx;
++
++	/* No need to lock */
++	for (idx = 0; idx < MAX_WATCHDOGS; idx++)
++		if (wdd_list[idx] == watchdog)
++			break;
+ 
+-	/* We can only unregister the watchdog device that was registered */
+-	if (watchdog != wdd) {
++	if (idx == MAX_WATCHDOGS) {
+ 		pr_err("%s: watchdog was not registered as /dev/watchdog.\n",
+ 			watchdog->info->identity);
+ 		return -ENODEV;
+ 	}
+ 
+-	misc_deregister(&watchdog_miscdev);
+-	wdd = NULL;
+-	clear_bit(0, &watchdog_dev_busy);
++	misc_deregister(&watchdog_miscdev[idx]);
++	wdd_list[idx] = NULL;
+ 	return 0;
+ }
 -- 
 1.7.9.3
 
