@@ -1,45 +1,52 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:38138 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:38150 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753173Ab2COVZg (ORCPT
+	with ESMTP id S1754114Ab2COV1J (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 15 Mar 2012 17:25:36 -0400
-Date: Thu, 15 Mar 2012 22:25:34 +0100
+	Thu, 15 Mar 2012 17:27:09 -0400
+Date: Thu, 15 Mar 2012 22:27:05 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Ashish Jangam <ashish.jangam@kpitcummins.com>
-Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	David Dajun Chen <dajun.chen@diasemi.com>,
-	linaro-dev@lists.linaro.org, sameo@linux.intel.com
-Subject: Re: [PATCH 05/07] Watchdog: DA9052/53 watchdog support v1
-Message-ID: <20120315212534.GG10698@spo001.leaseweb.com>
-References: <1328532486.30549.82.camel@dhruva> <1331641624.7058.2.camel@dhruva>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Wolfram Sang <w.sang@pengutronix.de>,
+	Linus Walleij <linus.walleij@stericsson.com>,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Viresh Kumar <viresh.kumar@st.com>
+Subject: Re: [PATCH] watchdog/coh901327: convert to use watchdog core
+Message-ID: <20120315212705.GH10698@spo001.leaseweb.com>
+References: <1331131929-22383-1-git-send-email-linus.walleij@stericsson.com> <20120307164240.GA1130@pengutronix.de> <CACRpkdaE5HASdF27db7EfnSoaUF8mA5bWoKUhaAzSegdBKsKFQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1331641624.7058.2.camel@dhruva>
+In-Reply-To: <CACRpkdaE5HASdF27db7EfnSoaUF8mA5bWoKUhaAzSegdBKsKFQ@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-Hi Ashish,
+Hi Linus,
 
-> Any update on below patch?
-> On Mon, 2012-02-06 at 18:18 +0530, Ashish Jangam wrote:
-> > This driver adds support for the watchdog functionality provided by the
-> > Dialog Semiconductor DA9052/53 PMIC chip.
-> > 
-> > This patch is functionally tested on Samsung SMDKV6410.
-> > 
-> > Signed-off-by: David Dajun Chen <dchen@diasemi.com>
-> > Signed-off-by: Ashish Jangam <ashish.jangam@kpitcummins.com>
-> > ---
-> >  Documentation/watchdog/watchdog-parameters.txt |    5 +
-> >  drivers/watchdog/Kconfig                       |    6 +
-> >  drivers/watchdog/Makefile                      |    1 +
-> >  drivers/watchdog/da9052_wdt.c                  |  333 ++++++++++++++++++++++++
-> >  4 files changed, 345 insertions(+), 0 deletions(-)
+> On Wed, Mar 7, 2012 at 5:42 PM, Wolfram Sang <w.sang@pengutronix.de> wr=
+ote:
+>=20
+> >> =A0 =A0 =A0 case WDIOC_GETTIMELEFT:
+> >> =A0 =A0 =A0 =A0 =A0 =A0 =A0 clk_enable(clk);
+> >> =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* Read repeatedly until the value is st=
+able! */
+> >
+> > I was wondering if it pays to put this IOCTL to watchdog_dev and add =
+another
+> > callback to watchdog_ops? I'd think so. Wim, Linus, what do you think=
+?
+>=20
+> OK with me, shall I hack a patch?
 
-What's the difference with the version of Fri, 5 Aug 2011 19:21:51 +0530 ?
+I think Viresh did something allready.
 
 Kind regards,
 Wim.
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
