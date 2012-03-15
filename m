@@ -1,64 +1,119 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:26136 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:22859 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756802Ab2COL6H (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	id S1758774Ab2COL6H (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
 	Thu, 15 Mar 2012 07:58:07 -0400
 From: Hans de Goede <hdegoede@redhat.com>
 To: linux-watchdog@vger.kernel.org
 Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
 	Wim Van Sebroeck <wim@iguana.be>,
 	LM Sensors <lm-sensors@lm-sensors.org>,
-	Thilo Cestonaro <thilo.cestonaro@ts.fujitsu.com>
-Subject: Watchdog timer core enhancements
-Date: Thu, 15 Mar 2012 12:59:14 +0100
-Message-Id: <1331812757-3491-1-git-send-email-hdegoede@redhat.com>
+	Thilo Cestonaro <thilo.cestonaro@ts.fujitsu.com>,
+	Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 3/3] watchdog_dev: Let the driver update the timeout field on set_timeout success
+Date: Thu, 15 Mar 2012 12:59:17 +0100
+Message-Id: <1331812757-3491-4-git-send-email-hdegoede@redhat.com>
+In-Reply-To: <1331812757-3491-1-git-send-email-hdegoede@redhat.com>
+References: <1331812757-3491-1-git-send-email-hdegoede@redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
+When a set_timeout operation succeeds this does not necessarily mean that
+the exact timeout requested has been achieved, because the watchdog does not
+necessarily have a 1 second resolution. So rather then have the core set
+the timeout member of the watchdog_device struct to the exact requested
+value, instead the driver should set it to the actually achieved timeout value.
 
-Short selfintro for the watchdog people: I'm a FOSS developer / enthusiast
-for close to 15 years now. I've written Linux kernel drivers for a ton
-of webcams and various hwmon IC's.
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ Documentation/watchdog/watchdog-kernel-api.txt |    7 ++++---
+ drivers/staging/mei/wd.c                       |    1 +
+ drivers/watchdog/s3c2410_wdt.c                 |    2 ++
+ drivers/watchdog/via_wdt.c                     |    1 +
+ drivers/watchdog/watchdog_dev.c                |    2 --
+ drivers/watchdog/wm831x_wdt.c                  |    1 +
+ 6 files changed, 9 insertions(+), 5 deletions(-)
 
-Three of the hwmon drivers I maintain are IC's which also include a watchdog
-part in their hwmon solution.
+diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
+index b43c40c..e7a7de1 100644
+--- a/Documentation/watchdog/watchdog-kernel-api.txt
++++ b/Documentation/watchdog/watchdog-kernel-api.txt
+@@ -136,9 +136,10 @@ they are supported. These optional routines/operations are:
+   status of the device is reported with watchdog WDIOF_* status flags/bits.
+ * set_timeout: this routine checks and changes the timeout of the watchdog
+   timer device. It returns 0 on success, -EINVAL for "parameter out of range"
+-  and -EIO for "could not write value to the watchdog". On success the timeout
+-  value of the watchdog_device will be changed to the value that was just used
+-  to re-program the watchdog timer device.
++  and -EIO for "could not write value to the watchdog". On success this
++  routine should set the timeout value of the watchdog_device to the
++  achieved timeout value (which may be different from the requested one
++  because the watchdog does not necessarily has a 1 second resolution).
+   (Note: the WDIOF_SETTIMEOUT needs to be set in the options field of the
+   watchdog's info structure).
+ * ioctl: if this routine is present then it will be called first before we do
+diff --git a/drivers/staging/mei/wd.c b/drivers/staging/mei/wd.c
+index 8094941..9503c32 100644
+--- a/drivers/staging/mei/wd.c
++++ b/drivers/staging/mei/wd.c
+@@ -326,6 +326,7 @@ static int mei_wd_ops_set_timeout(struct watchdog_device *wd_dev, unsigned int t
+ 
+ 	dev->wd_timeout = timeout;
+ 	mei_wd_set_start_timeout(dev, dev->wd_timeout);
++	wd_dev->timeout = dev->wd_timeout;
+ 
+ 	mutex_unlock(&dev->device_lock);
+ 
+diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+index 404172f..6ea79b0 100644
+--- a/drivers/watchdog/s3c2410_wdt.c
++++ b/drivers/watchdog/s3c2410_wdt.c
+@@ -200,6 +200,8 @@ static int s3c2410wdt_set_heartbeat(struct watchdog_device *wdd, unsigned timeou
+ 	writel(count, wdt_base + S3C2410_WTDAT);
+ 	writel(wtcon, wdt_base + S3C2410_WTCON);
+ 
++	wdd->timeout = (count * divisor) / freq;
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/watchdog/via_wdt.c b/drivers/watchdog/via_wdt.c
+index 8f07dd4..47afe5b 100644
+--- a/drivers/watchdog/via_wdt.c
++++ b/drivers/watchdog/via_wdt.c
+@@ -126,6 +126,7 @@ static int wdt_set_timeout(struct watchdog_device *wdd,
+ {
+ 	writel(new_timeout, wdt_mem + VIA_WDT_COUNT);
+ 	timeout = new_timeout;
++	wdd->timeout = timeout;
+ 	return 0;
+ }
+ 
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 15dc3df..c8a594e 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -265,8 +265,6 @@ static int watchdog_set_timeout(struct watchdog_device *wddev,
+ 	}
+ 
+ 	ret = wddev->ops->set_timeout(wddev, timeout);
+-	if (ret == 0)
+-		wddev->timeout = timeout;
+ leave:
+ 	mutex_unlock(&wddev->lock);
+ 	return ret;
+diff --git a/drivers/watchdog/wm831x_wdt.c b/drivers/watchdog/wm831x_wdt.c
+index 263c883..8664ff1 100644
+--- a/drivers/watchdog/wm831x_wdt.c
++++ b/drivers/watchdog/wm831x_wdt.c
+@@ -157,6 +157,7 @@ static int wm831x_wdt_set_timeout(struct watchdog_device *wdt_dev,
+ 		ret = wm831x_set_bits(wm831x, WM831X_WATCHDOG,
+ 				      WM831X_WDOG_TO_MASK,
+ 				      wm831x_wdt_cfgs[i].val);
++		wdt_dev->timeout = timeout;
+ 		wm831x_reg_lock(wm831x);
+ 	} else {
+ 		dev_err(wm831x->dev, "Failed to unlock security key: %d\n",
+-- 
+1.7.9.3
 
-This is a resend of a series of watchdog_dev patches which I initially send
-on Sep 12 2011:
-http://lists.lm-sensors.org/pipermail/lm-sensors/2011-September/033707.html
-And which unfortunately has seen 0 reviews / feedback since then.
-
-This resend is re-based on top of v3.3-rc7
-
-Currently the hwmon drivers I maintain are implementing the watchdog API
-all by themselves, I would very much like to switch them over to
-watchdog_dev to remove a lot of code duplication, but there currently
-are 2 things stopping me from moving them over:
-
-1) The driver core only works for 1 watchdog, but both my fschmd and my sch5636
-test systems also have an iTCO watchdog and that tends to load first. Thus when
-writing the fschmd watchdog code I made it support loading either on the
-default watchdog minor, or on one of the additional reserved watchdog minors
-(212-215). The first patch in this series adds support for this to the
-watchdog timer driver core (which was quite straightforward to add).
-
-2) Most Linux drivers use dynamically allocated memory for the driver data,
-which gets allocated on calling the probe function and released on driver
-unbind. This means that merely locking the module containing the driver as long
-as /dev/watchdog is open is not sufficient, since the driver can still be
-unbound. The second patch in this series fixes this.
-
-Note that the 2nd issue is also hit by the recently posted:
-"[PATCH V2 00/22] watchdog: ARM watchdogs: sp805 & mpcore updates & fixes"
-patch series which convert the mpcore_wdt driver to watchdog_dev, doing
-an unbind between the platform driver and the platform dev there from sysfs
-while an app holds the /dev/watchdog file open will make file->private_data
-for that file handle point to freed memory!
-
-Once this series is upstream I'll also write a patches to convert all my
-hwmon IC with watchdog watchdog driver parts to watchdog_dev.
-
-Regards,
-
-Hans
