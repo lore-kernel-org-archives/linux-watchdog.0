@@ -1,72 +1,71 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail3.vodafone.ie ([213.233.128.45]:13968 "EHLO
-	mail3.vodafone.ie" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759976Ab2COMtW (ORCPT
+Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:41502 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1761747Ab2CONKL (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 15 Mar 2012 08:49:22 -0400
-Message-ID: <4F61E312.90209@draigBrady.com>
-Date: Thu, 15 Mar 2012 12:39:46 +0000
-From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
-MIME-Version: 1.0
+	Thu, 15 Mar 2012 09:10:11 -0400
+Date: Thu, 15 Mar 2012 13:11:31 +0000
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 To: Hans de Goede <hdegoede@redhat.com>
-CC: linux-watchdog@vger.kernel.org,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Wim Van Sebroeck <wim@iguana.be>,
+Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
 	LM Sensors <lm-sensors@lm-sensors.org>,
 	Thilo Cestonaro <thilo.cestonaro@ts.fujitsu.com>
-Subject: Re: Watchdog timer core enhancements
+Subject: Re: [PATCH 1/3] watchdog_dev: Add support for having more then 1
+ watchdog
+Message-ID: <20120315131131.1096f8c8@pyramind.ukuu.org.uk>
+In-Reply-To: <1331812757-3491-2-git-send-email-hdegoede@redhat.com>
 References: <1331812757-3491-1-git-send-email-hdegoede@redhat.com>
-In-Reply-To: <1331812757-3491-1-git-send-email-hdegoede@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	<1331812757-3491-2-git-send-email-hdegoede@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-On 03/15/2012 11:59 AM, Hans de Goede wrote:
-> Hi,
->=20
-> Short selfintro for the watchdog people: I'm a FOSS developer / enthusi=
-ast
-> for close to 15 years now. I've written Linux kernel drivers for a ton
-> of webcams and various hwmon IC's.
->=20
-> Three of the hwmon drivers I maintain are IC's which also include a wat=
-chdog
-> part in their hwmon solution.
->=20
-> This is a resend of a series of watchdog_dev patches which I initially =
-send
-> on Sep 12 2011:
-> http://lists.lm-sensors.org/pipermail/lm-sensors/2011-September/033707.=
-html
-> And which unfortunately has seen 0 reviews / feedback since then.
->=20
-> This resend is re-based on top of v3.3-rc7
->=20
-> Currently the hwmon drivers I maintain are implementing the watchdog AP=
-I
-> all by themselves, I would very much like to switch them over to
-> watchdog_dev to remove a lot of code duplication, but there currently
-> are 2 things stopping me from moving them over:
->=20
-> 1) The driver core only works for 1 watchdog, but both my fschmd and my=
- sch5636
-> test systems also have an iTCO watchdog and that tends to load first. T=
-hus when
-> writing the fschmd watchdog code I made it support loading either on th=
-e
-> default watchdog minor, or on one of the additional reserved watchdog m=
-inors
-> (212-215). The first patch in this series adds support for this to the
-> watchdog timer driver core (which was quite straightforward to add).
+> Also having this support in watchdog_dev makes developing watchdog drivers
+> for watchdog hardware which happens to often be found on systems with
+> multiple watchdogs a lot easier.
 
-I noticed Alan Cox recently proposed multiple watchdog device support
-https://lkml.org/lkml/2012/2/28/473
+See the patches I posted. I (biased as ever ;)) think they way I've done
+it is better, but its also produced no feedback so I'll resend them again
+shortly if others also need them.
 
-cheers,
-P=E1draig.
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+For x86 we need them as some systems can have both a TCO timer and a
+management engine timer.
+
+
+> +static struct miscdevice watchdog_miscdev[MAX_WATCHDOGS] = { {
+> +	.minor		= WATCHDOG_MINOR,
+> +	.name		= "watchdog",
+> +	.fops		= &watchdog_fops,
+> +}, {
+
+The way I did it was to support a legacy /dev/watchdog and a proper range
+of watchdogs on their own dynamic major.
+
+> +	.minor		= 212,
+> +	.name		= "watchdog1",
+
+Also for submitted patches please don't go taking minor numbers from
+miscdev which are statically allocating them without properly registering
+them first...
+
+
+> +	/* Find our watchdog_device */
+> +	for (idx = 0; idx < MAX_WATCHDOGS; idx++)
+> +		if (watchdog_miscdev[idx].minor == iminor(inode)) {
+> +			wdd = wdd_list[idx];
+> +			break;
+> +		}
+
+Locking model ?
+
+
+> +	/* No need to lock */
+> +	for (idx = 0; idx < MAX_WATCHDOGS; idx++)
+> +		if (wdd_list[idx] == watchdog)
+> +			break;
+
+What about a parallel open ?
+
+Alan
