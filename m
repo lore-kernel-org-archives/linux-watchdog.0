@@ -1,52 +1,65 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:38150 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754114Ab2COV1J (ORCPT
+Received: from haggis.pcug.org.au ([203.10.76.10]:44786 "EHLO
+	members.tip.net.au" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755240Ab2COWGb (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 15 Mar 2012 17:27:09 -0400
-Date: Thu, 15 Mar 2012 22:27:05 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Wolfram Sang <w.sang@pengutronix.de>,
-	Linus Walleij <linus.walleij@stericsson.com>,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Viresh Kumar <viresh.kumar@st.com>
-Subject: Re: [PATCH] watchdog/coh901327: convert to use watchdog core
-Message-ID: <20120315212705.GH10698@spo001.leaseweb.com>
-References: <1331131929-22383-1-git-send-email-linus.walleij@stericsson.com> <20120307164240.GA1130@pengutronix.de> <CACRpkdaE5HASdF27db7EfnSoaUF8mA5bWoKUhaAzSegdBKsKFQ@mail.gmail.com>
+	Thu, 15 Mar 2012 18:06:31 -0400
+Date: Fri, 16 Mar 2012 09:06:18 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-next@vger.kernel.org,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+	Linus <torvalds@linux-foundation.org>,
+	Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: Change of the linux-watchdog-next tree location
+Message-Id: <20120316090618.6918db3e7073cc8c87818300@canb.auug.org.au>
+In-Reply-To: <20120315203004.GA4824@infomag>
+References: <20111025185229.GY11844@infomag.iguana.be>
+	<20120315203004.GA4824@infomag>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <CACRpkdaE5HASdF27db7EfnSoaUF8mA5bWoKUhaAzSegdBKsKFQ@mail.gmail.com>
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA256";
+ boundary="Signature=_Fri__16_Mar_2012_09_06_18_+1100_C2R9+FS35fqKnbuK"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+
+--Signature=_Fri__16_Mar_2012_09_06_18_+1100_C2R9+FS35fqKnbuK
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi Linus,
+Hi Win,
 
-> On Wed, Mar 7, 2012 at 5:42 PM, Wolfram Sang <w.sang@pengutronix.de> wr=
-ote:
->=20
-> >> =A0 =A0 =A0 case WDIOC_GETTIMELEFT:
-> >> =A0 =A0 =A0 =A0 =A0 =A0 =A0 clk_enable(clk);
-> >> =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* Read repeatedly until the value is st=
-able! */
-> >
-> > I was wondering if it pays to put this IOCTL to watchdog_dev and add =
-another
-> > callback to watchdog_ops? I'd think so. Wim, Linus, what do you think=
-?
->=20
-> OK with me, shall I hack a patch?
+On Thu, 15 Mar 2012 21:32:36 +0100 Wim Van Sebroeck <wim@iguana.be> wrote:
+>
+> Could you change the location of the linux-watchdog-next tree to the foll=
+owing tree and branch:
+> git://www.linux-watchdog.org/linux-watchdog-next.git master
 
-I think Viresh did something allready.
+Done.
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
 
-Kind regards,
-Wim.
+--Signature=_Fri__16_Mar_2012_09_06_18_+1100_C2R9+FS35fqKnbuK
+Content-Type: application/pgp-signature
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBCAAGBQJPYmfaAAoJEECxmPOUX5FE5qEP/2l2rm3c0HXloeKWEtU3lbP9
+U6k95xOYycKECE2t5Er0XMC98f/Ew/f8IeDwWkWx4tkFn1GJKwk4ELGCMxBcK+l+
+palhzgh9f1x3gM+Thy7AFTkqjhGf3KP7yRcQGU6yyTEwbzc5tSwif+5xCEa4GWoU
+XU+GxxGVo4MyuL2xnx7cPTR2HfFmFqqto9+iKud1JW/TcbGH60Us+M/kxkgdbBCK
+5DigBiZRiyyVNmUj8KBOFPclabKl0LP4uvJGNxRvnLm9z34iWEh89NCBNKXl4C+B
+8K3N70Tqk57sbf5YkbJlOjnGKj7f3i3kel9kw2YoTfZv65a1LNDVxVbMFd9Ga03V
+/qACaKu+gxupqbpfKLFbEL36eZcVffzWwSt+EZKGNvJLmFGvaTxBhwzHY4f04WMd
+IkvdswpR5czKLPEO9thpdmAXXLI+xBdWSShnMyvPXS/UIGr6u0MF6lSEOXiglM76
+SzdG85LZ/CAYz9s2N8h16NTJNrxkej9I0osljVxaA7eWOemmpSjXN3BNx2gCDwNt
+rlnPmSiaIsqo0pbRKn5zsAsPKrIZJ3dbCFTH0Vl4dxuRnBwnv3jKNob9SXrAVC35
+2x4q+3HdHDYN1ki6eCvAnhfIMpDV8RmAG/YSqv734is2HkSGsTfZC1CpFhbGORIq
+6jS7f6Vj+vmYfHqw7Dy1
+=tgiO
+-----END PGP SIGNATURE-----
+
+--Signature=_Fri__16_Mar_2012_09_06_18_+1100_C2R9+FS35fqKnbuK--
