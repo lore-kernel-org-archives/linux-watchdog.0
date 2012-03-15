@@ -1,70 +1,38 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:42565 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932396Ab2COPhG (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:38071 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1161381Ab2COUUF (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 15 Mar 2012 11:37:06 -0400
-Date: Thu, 15 Mar 2012 15:38:33 +0000
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	LM Sensors <lm-sensors@lm-sensors.org>,
-	Thilo Cestonaro <thilo.cestonaro@ts.fujitsu.com>,
-	=?ISO-8859-1?B?UOFkcmFpZw==?= Brady <P@draigBrady.com>
-Subject: Re: [PATCH 1/3] watchdog_dev: Add support for having more then 1
- watchdog
-Message-ID: <20120315153833.40bd2f16@pyramind.ukuu.org.uk>
-In-Reply-To: <4F61FA18.70104@redhat.com>
-References: <1331812757-3491-1-git-send-email-hdegoede@redhat.com>
-	<1331812757-3491-2-git-send-email-hdegoede@redhat.com>
-	<20120315131131.1096f8c8@pyramind.ukuu.org.uk>
-	<4F61FA18.70104@redhat.com>
+	Thu, 15 Mar 2012 16:20:05 -0400
+Date: Thu, 15 Mar 2012 21:20:02 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Wolfram Sang <w.sang@pengutronix.de>
+Cc: linux-watchdog@vger.kernel.org
+Subject: Re: visible git-tree?
+Message-ID: <20120315202002.GA28772@spo001.leaseweb.com>
+References: <20120207151526.GK2539@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20120207151526.GK2539@pengutronix.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-> +static unsigned long dog_mask; /* Watcodgs that are in use */
-> 
-> Please fix (spelling) the comment after dog_mask.
+Hi Wolfram,
 
-Oops
+> it is currently difficult to follow which patches you picked up because
+> there is no git-tree visible. Do you plan with kernel.org or
+> linux-watchdog.org? Or do you need a public git-server (we could provide
+> one).
 
-> +               err = misc_register(&watchdog_miscdev);
-> +               if (err == 0)
-> +                       old_wdd = watchdog;
-> +               else {
-> +                       pr_err("%s: cannot register miscdev on minor=%d (err=%d
-> +                               watchdog->info->identity, WATCHDOG_MINOR, err);
-> +                       pr_err("%s: probably a legacy watchdog module is presen
-> +                               watchdog->info->identity);
-> +                       watchdog_release_id(watchdog);
-> +                       err = watchdog_assign_id(watchdog, 1);
-> +                       if (err < 0)
-> +                               return err;
-> +               }
-> +       }
-> 
-> You may want to check for err == -EBUSY in the fallback instead of assuming
-> the problem is a legacy watchdog driver
+To overcome this issue I installed gitweb onto www.linux-watchdog.org.
+The homepage of www.linux-watchdog.org now contains the link to the
+linux-watchdog and linux-watchdog-next git tree. I might add a
+linux-watchdog-development in the near future.
 
-Yes that is probably wise
+The shorcut for gitweb is: http://www.linux-watchdog.org/cgi-bin/gitweb.cgi .
+I also created the alias: http://www.linux-watchdog.org/git .
 
-> +       err = watchdog_add_device(watchdog);
-> +       }
-> 
-> You do this even for watchdog0 / for the watchdog we've also registered as
-> misc_dev. I guess this is intentional and you want the watchdog to be
-> available as both misc,130 as well as as MAJOR(dog_devt),0 ?
+Kind regards,
+Wim.
 
-Yes - so that it appears in the watchdog class in sysfs for example.
-
-> Other then these few remarks it looks fine. If you can resend it
-> with my remarks addressed I'll add a Reviewed-By.
-
-Ok I'll sort those next week.
-
-Thanks
-
-Alan
