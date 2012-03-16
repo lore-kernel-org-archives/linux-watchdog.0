@@ -1,270 +1,140 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:56559 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1031128Ab2CPDyD (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 15 Mar 2012 23:54:03 -0400
-Message-ID: <1331870033.13760.2.camel@phoenix>
-Subject: [PATCH RFT] watchdog: Convert txx9wdt driver to watchdog framework
-From: Axel Lin <axel.lin@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
-	Ralf Baechle <ralf@linux-mips.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org
-Date: Fri, 16 Mar 2012 11:53:53 +0800
-Content-Type: text/plain; charset="UTF-8"
+Received: from mx1.redhat.com ([209.132.183.28]:27851 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1032330Ab2CPHmT (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 16 Mar 2012 03:42:19 -0400
+Message-ID: <4F62EF20.8060607@redhat.com>
+Date: Fri, 16 Mar 2012 08:43:28 +0100
+From: Hans de Goede <hdegoede@redhat.com>
+MIME-Version: 1.0
+To: Wim Van Sebroeck <wim@iguana.be>
+CC: linux-watchdog@vger.kernel.org,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	LM Sensors <lm-sensors@lm-sensors.org>,
+	Thilo Cestonaro <thilo.cestonaro@ts.fujitsu.com>
+Subject: Re: Watchdog timer core enhancements
+References: <1331812757-3491-1-git-send-email-hdegoede@redhat.com> <20120315211323.GE10698@spo001.leaseweb.com>
+In-Reply-To: <20120315211323.GE10698@spo001.leaseweb.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Mime-Version: 1.0
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patch converts txx9wdt driver to watchdog framework.
-Also use devm_* APIs to save a few error handling code.
+Hi,
 
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
----
- drivers/watchdog/txx9wdt.c |  155 +++++++++++---------------------------------
- 1 files changed, 37 insertions(+), 118 deletions(-)
+On 03/15/2012 10:13 PM, Wim Van Sebroeck wrote:
+> Hi Hans,
+>
+>> Short selfintro for the watchdog people: I'm a FOSS developer / enthusiast
+>> for close to 15 years now. I've written Linux kernel drivers for a ton
+>> of webcams and various hwmon IC's.
+>
+> Let me also give a short intro about myself: As a hobby I maintain the
+> linux-watchdog drivers since years now. I'm not paid by anyone to do that and
+> I'm doing this in my spare time. Apart from that I have a wive and 2 children
+> that also need attention. In real life I'm a freelancer (doing mostly network
+> and telecoms stuff) and that's how I try to survive.
 
-diff --git a/drivers/watchdog/txx9wdt.c b/drivers/watchdog/txx9wdt.c
-index d02804c..53f1b17 100644
---- a/drivers/watchdog/txx9wdt.c
-+++ b/drivers/watchdog/txx9wdt.c
-@@ -15,9 +15,7 @@
- #include <linux/types.h>
- #include <linux/miscdevice.h>
- #include <linux/watchdog.h>
--#include <linux/fs.h>
- #include <linux/init.h>
--#include <linux/uaccess.h>
- #include <linux/platform_device.h>
- #include <linux/clk.h>
- #include <linux/err.h>
-@@ -43,20 +41,19 @@ MODULE_PARM_DESC(nowayout,
- #define WD_TIMER_CLK	(clk_get_rate(txx9_imclk) / (2 << WD_TIMER_CCD))
- #define WD_MAX_TIMEOUT	((0xffffffff >> (32 - TXX9_TIMER_BITS)) / WD_TIMER_CLK)
- 
--static unsigned long txx9wdt_alive;
--static int expect_close;
- static struct txx9_tmr_reg __iomem *txx9wdt_reg;
- static struct clk *txx9_imclk;
- static DEFINE_SPINLOCK(txx9_lock);
- 
--static void txx9wdt_ping(void)
-+static int txx9wdt_ping(struct watchdog_device *wdt_dev)
- {
- 	spin_lock(&txx9_lock);
- 	__raw_writel(TXx9_TMWTMR_TWIE | TXx9_TMWTMR_TWC, &txx9wdt_reg->wtmr);
- 	spin_unlock(&txx9_lock);
-+	return 0;
- }
- 
--static void txx9wdt_start(void)
-+static int txx9wdt_start(struct watchdog_device *wdt_dev)
- {
- 	spin_lock(&txx9_lock);
- 	__raw_writel(WD_TIMER_CLK * timeout, &txx9wdt_reg->cpra);
-@@ -66,120 +63,44 @@ static void txx9wdt_start(void)
- 		     &txx9wdt_reg->tcr);
- 	__raw_writel(TXx9_TMWTMR_TWIE | TXx9_TMWTMR_TWC, &txx9wdt_reg->wtmr);
- 	spin_unlock(&txx9_lock);
-+	return 0;
- }
- 
--static void txx9wdt_stop(void)
-+static int txx9wdt_stop(struct watchdog_device *wdt_dev)
- {
- 	spin_lock(&txx9_lock);
- 	__raw_writel(TXx9_TMWTMR_WDIS, &txx9wdt_reg->wtmr);
- 	__raw_writel(__raw_readl(&txx9wdt_reg->tcr) & ~TXx9_TMTCR_TCE,
- 		     &txx9wdt_reg->tcr);
- 	spin_unlock(&txx9_lock);
--}
--
--static int txx9wdt_open(struct inode *inode, struct file *file)
--{
--	if (test_and_set_bit(0, &txx9wdt_alive))
--		return -EBUSY;
--
--	if (__raw_readl(&txx9wdt_reg->tcr) & TXx9_TMTCR_TCE) {
--		clear_bit(0, &txx9wdt_alive);
--		return -EBUSY;
--	}
--
--	if (nowayout)
--		__module_get(THIS_MODULE);
--
--	txx9wdt_start();
--	return nonseekable_open(inode, file);
--}
--
--static int txx9wdt_release(struct inode *inode, struct file *file)
--{
--	if (expect_close)
--		txx9wdt_stop();
--	else {
--		pr_crit("Unexpected close, not stopping watchdog!\n");
--		txx9wdt_ping();
--	}
--	clear_bit(0, &txx9wdt_alive);
--	expect_close = 0;
- 	return 0;
- }
- 
--static ssize_t txx9wdt_write(struct file *file, const char __user *data,
--			     size_t len, loff_t *ppos)
-+static int txx9wdt_set_timeout(struct watchdog_device *wdt_dev,
-+			       unsigned int new_timeout)
- {
--	if (len) {
--		if (!nowayout) {
--			size_t i;
--
--			expect_close = 0;
--			for (i = 0; i != len; i++) {
--				char c;
--				if (get_user(c, data + i))
--					return -EFAULT;
--				if (c == 'V')
--					expect_close = 1;
--			}
--		}
--		txx9wdt_ping();
--	}
--	return len;
-+	timeout = new_timeout;
-+	txx9wdt_stop(wdt_dev);
-+	txx9wdt_start(wdt_dev);
-+	return 0;
- }
- 
--static long txx9wdt_ioctl(struct file *file, unsigned int cmd,
--							unsigned long arg)
--{
--	void __user *argp = (void __user *)arg;
--	int __user *p = argp;
--	int new_timeout;
--	static const struct watchdog_info ident = {
--		.options =		WDIOF_SETTIMEOUT |
--					WDIOF_KEEPALIVEPING |
--					WDIOF_MAGICCLOSE,
--		.firmware_version =	0,
--		.identity =		"Hardware Watchdog for TXx9",
--	};
--
--	switch (cmd) {
--	case WDIOC_GETSUPPORT:
--		return copy_to_user(argp, &ident, sizeof(ident)) ? -EFAULT : 0;
--	case WDIOC_GETSTATUS:
--	case WDIOC_GETBOOTSTATUS:
--		return put_user(0, p);
--	case WDIOC_KEEPALIVE:
--		txx9wdt_ping();
--		return 0;
--	case WDIOC_SETTIMEOUT:
--		if (get_user(new_timeout, p))
--			return -EFAULT;
--		if (new_timeout < 1 || new_timeout > WD_MAX_TIMEOUT)
--			return -EINVAL;
--		timeout = new_timeout;
--		txx9wdt_stop();
--		txx9wdt_start();
--		/* Fall */
--	case WDIOC_GETTIMEOUT:
--		return put_user(timeout, p);
--	default:
--		return -ENOTTY;
--	}
--}
-+static const struct watchdog_info txx9wdt_info = {
-+	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
-+	.identity = "Hardware Watchdog for TXx9",
-+};
- 
--static const struct file_operations txx9wdt_fops = {
--	.owner		=	THIS_MODULE,
--	.llseek		=	no_llseek,
--	.write		=	txx9wdt_write,
--	.unlocked_ioctl =	txx9wdt_ioctl,
--	.open		=	txx9wdt_open,
--	.release	=	txx9wdt_release,
-+static const struct watchdog_ops txx9wdt_ops = {
-+	.owner = THIS_MODULE,
-+	.start = txx9wdt_start,
-+	.stop = txx9wdt_stop,
-+	.ping = txx9wdt_ping,
-+	.set_timeout = txx9wdt_set_timeout,
- };
- 
--static struct miscdevice txx9wdt_miscdev = {
--	.minor	=	WATCHDOG_MINOR,
--	.name	=	"watchdog",
--	.fops	=	&txx9wdt_fops,
-+static struct watchdog_device txx9wdt = {
-+	.info = &txx9wdt_info,
-+	.ops = &txx9wdt_ops,
- };
- 
- static int __init txx9wdt_probe(struct platform_device *dev)
-@@ -201,26 +122,24 @@ static int __init txx9wdt_probe(struct platform_device *dev)
- 	}
- 
- 	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
--	if (!res)
--		goto exit_busy;
--	if (!devm_request_mem_region(&dev->dev, res->start, resource_size(res),
--				     "txx9wdt"))
--		goto exit_busy;
--	txx9wdt_reg = devm_ioremap(&dev->dev, res->start, resource_size(res));
--	if (!txx9wdt_reg)
--		goto exit_busy;
--
--	ret = misc_register(&txx9wdt_miscdev);
--	if (ret) {
-+	txx9wdt_reg = devm_request_and_ioremap(&dev->dev, res);
-+	if (!txx9wdt_reg) {
-+		ret = -EBUSY;
- 		goto exit;
- 	}
- 
-+	txx9wdt.min_timeout = 1;
-+	txx9wdt.max_timeout = WD_MAX_TIMEOUT;
-+	watchdog_set_nowayout(&txx9wdt, nowayout);
-+
-+	ret = watchdog_register_device(&txx9wdt);
-+	if (ret)
-+		goto exit;
-+
- 	pr_info("Hardware Watchdog Timer: timeout=%d sec (max %ld) (nowayout= %d)\n",
- 		timeout, WD_MAX_TIMEOUT, nowayout);
- 
- 	return 0;
--exit_busy:
--	ret = -EBUSY;
- exit:
- 	if (txx9_imclk) {
- 		clk_disable(txx9_imclk);
-@@ -231,7 +150,7 @@ exit:
- 
- static int __exit txx9wdt_remove(struct platform_device *dev)
- {
--	misc_deregister(&txx9wdt_miscdev);
-+	watchdog_unregister_device(&txx9wdt);
- 	clk_disable(txx9_imclk);
- 	clk_put(txx9_imclk);
- 	return 0;
-@@ -239,7 +158,7 @@ static int __exit txx9wdt_remove(struct platform_device *dev)
- 
- static void txx9wdt_shutdown(struct platform_device *dev)
- {
--	txx9wdt_stop();
-+	txx9wdt_stop(&txx9wdt);
- }
- 
- static struct platform_driver txx9wdt_driver = {
--- 
-1.7.5.4
+I completely understand, my intend of the resend was not to complain, merely to
+hopefully get some attention for it. FWIW despite my email address my kernel
+contributions are mostly a hobby too.
+
+> If you then add the fact that on the 12th of February an upgrade of my home
+> system made sure that I lost a big part of my e-mail :-( and made sure that
+> I didn't had outgoing and local mail anymore :-( then you understand probably
+> why I have been struggling the last month... FYI: the last week I have been
+> busy working on my backlog of patches for the watchdog trees, before doing
+> anything else (like responding to e-mails).
+
+Sorry to hear that, and I'm glad to see that you're back in business wrt you
+email.
+
+>> This is a resend of a series of watchdog_dev patches which I initially send
+>> on Sep 12 2011:
+>> http://lists.lm-sensors.org/pipermail/lm-sensors/2011-September/033707.html
+>> And which unfortunately has seen 0 reviews / feedback since then.
+>
+> I have been looking at these 5 patches last week. This is what I think of them:
+> patch 1: Use wddev function parameter instead of wdd global ->
+> 	was allready sent out by someone else also and thus has been incorporated
+> patch 2: watchdog_dev: Add support for having more then 1 watchdog ->
+> 	I am sure that we all agree that we need support for multiple watchdogs.
+> 	But I am not convinced we have the right approach for it yet.
+> 	I saw that you started looking at Alan's Code also.
+> 	Please continue the discussion about this.
+
+I've reviewed Alan's patch and I agree that his approach is better, as soon as
+he resends his patch with some (small) remarks from the review addressed. I'll
+add my Reviewed-by.
+
+> 	The support for multiple watchdogs is not for this merge window, but for
+> 	the one after that.
+
+Ok.
+
+> patch 3: watchdog_dev: Add support for dynamically allocated watchdog_device structs ->
+> 	Have to look in more detail on that patch, but I think this is a good thing to add.
+> 	I'm trying to get that one still in before the merge window opens (together
+> 	with the ep93xx_wdt conversion and the sp805 and mpcore patches from Viresh
+> 	(but no promisses here))
+
+As I already said in my previous mail, please note that Viresh's patches for
+mpcore run into the same issue I'm running into. To clarify the problem a bit,
+it could be reproduced on a (hypothetical) mpcore arm system by:
+
+Have an app open /dev/watchdog and keep that app running.
+
+Then do the following as root:
+cd /sys/bus/platform/drivers/mpcore_wdt
+ls
+
+You should see the name of the watchdog platform dev here
+(as a symlink), something among the lines of: mpcore_wdt.XXXX
+
+Now you can unbind the platform driver from the platform dev
+doing the following:
+cd /sys/bus/platform/drivers/mpcore_wdt
+echo mpcore_wdt.XXXX > unbind
+ls
+
+With the ls the symlink should be gone. And /dev/watchdog
+too, as the mpcore_wdt_remove function has now run! This
+also means that the mpcore_wdt struct, which contains the
+watchdog_device struct has been free-ed.
+
+But the app which opened /dev/watchdog still has an open
+fd to it, and when calls are made on that, watchdog_dev.c
+will try to use file->private_data which now points
+to free-ed memory!
+
+I admit that triggering this is not easy and not something which
+will happen accidentally, but still I believe this is something which
+we ought to fix.
+
+> patch 4: watchdog_dev: Let the driver update the timeout field on set_timeout success ->
+> 	This patch is in linux-watchdog-next since yesterday (and it was in my testing tree for a week).
+> 	It's in linux-next since this morning together with fixes for the drivers that allready use the watchdog-api.
+
+Great, thanks.
 
 
+> patch 5: hwmon/sch5636: Add support for the integrated watchdog ->
+> 	Depends off-course on patch 2.
 
+It depends more on patch 3 then on 2. it will still work without patch 2,
+but to test (and use it on some systems) I would need to blacklist the iTCO
+module.
+
+Also I've recently received information on how the watchdog in the sch5627
+works, And it turns out to be exactly the same (*). So please drop this one
+from your queue I'm working on a new version where most of the code is
+shared between the sch5627 and sch5636 drivers (there already is a
+sch56xx-common file used by both).
+
+*) But it needs the BIOS to setup / poke some motherboard specific things,
+so it only works on boards with BIOS support for the wd
+
+
+Thanks & Regards,
+
+Hans
