@@ -1,140 +1,110 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:27851 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1032330Ab2CPHmT (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 16 Mar 2012 03:42:19 -0400
-Message-ID: <4F62EF20.8060607@redhat.com>
-Date: Fri, 16 Mar 2012 08:43:28 +0100
-From: Hans de Goede <hdegoede@redhat.com>
+Received: from eu1sys200aog102.obsmtp.com ([207.126.144.113]:40163 "EHLO
+	eu1sys200aog102.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S965440Ab2CPIOX (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 16 Mar 2012 04:14:23 -0400
+From: Linus Walleij <linus.walleij@stericsson.com>
+To: Wim Van Sebroeck <wim@iguana.be>, <linux-watchdog@vger.kernel.org>
+Cc: <linux-arm-kernel@lists.infradead.org>,
+	Viresh Kumar <viresh.kumar@st.com>,
+	Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 1/2] watchdog: Add support for WDIOC_GETTIMELEFT IOCTL in watchdog core
+Date: Fri, 16 Mar 2012 09:14:00 +0100
+Message-ID: <1331885640-21661-1-git-send-email-linus.walleij@stericsson.com>
 MIME-Version: 1.0
-To: Wim Van Sebroeck <wim@iguana.be>
-CC: linux-watchdog@vger.kernel.org,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	LM Sensors <lm-sensors@lm-sensors.org>,
-	Thilo Cestonaro <thilo.cestonaro@ts.fujitsu.com>
-Subject: Re: Watchdog timer core enhancements
-References: <1331812757-3491-1-git-send-email-hdegoede@redhat.com> <20120315211323.GE10698@spo001.leaseweb.com>
-In-Reply-To: <20120315211323.GE10698@spo001.leaseweb.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
+From: Viresh Kumar <viresh.kumar@st.com>
 
-On 03/15/2012 10:13 PM, Wim Van Sebroeck wrote:
-> Hi Hans,
->
->> Short selfintro for the watchdog people: I'm a FOSS developer / enthusiast
->> for close to 15 years now. I've written Linux kernel drivers for a ton
->> of webcams and various hwmon IC's.
->
-> Let me also give a short intro about myself: As a hobby I maintain the
-> linux-watchdog drivers since years now. I'm not paid by anyone to do that and
-> I'm doing this in my spare time. Apart from that I have a wive and 2 children
-> that also need attention. In real life I'm a freelancer (doing mostly network
-> and telecoms stuff) and that's how I try to survive.
+This patch adds support for WDIOC_GETTIMELEFT IOCTL in watchdog core. So, there
+is another function pointer added to struct watchdog_ops, which can be passed by
+drivers to support this IOCTL.
 
-I completely understand, my intend of the resend was not to complain, merely to
-hopefully get some attention for it. FWIW despite my email address my kernel
-contributions are mostly a hobby too.
+Related documentation is updated too.
 
-> If you then add the fact that on the 12th of February an upgrade of my home
-> system made sure that I lost a big part of my e-mail :-( and made sure that
-> I didn't had outgoing and local mail anymore :-( then you understand probably
-> why I have been struggling the last month... FYI: the last week I have been
-> busy working on my backlog of patches for the watchdog trees, before doing
-> anything else (like responding to e-mails).
+Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ .../watchdog/convert_drivers_to_kernel_api.txt     |    4 ++++
+ Documentation/watchdog/watchdog-kernel-api.txt     |    2 ++
+ drivers/watchdog/watchdog_dev.c                    |    5 +++++
+ include/linux/watchdog.h                           |    2 ++
+ 4 files changed, 13 insertions(+)
 
-Sorry to hear that, and I'm glad to see that you're back in business wrt you
-email.
+diff --git a/Documentation/watchdog/convert_drivers_to_kernel_api.txt b/Documentation/watchdog/convert_drivers_to_kernel_api.txt
+index be8119b..271b885 100644
+--- a/Documentation/watchdog/convert_drivers_to_kernel_api.txt
++++ b/Documentation/watchdog/convert_drivers_to_kernel_api.txt
+@@ -59,6 +59,10 @@ Here is a overview of the functions and probably needed actions:
+ 	WDIOC_GETTIMEOUT:
+ 		No preparations needed
+ 
++	WDIOC_GETTIMELEFT:
++		It needs get_timeleft() callback to be defined. Otherwise it
++		will return EOPNOTSUPP
++
+   Other IOCTLs can be served using the ioctl-callback. Note that this is mainly
+   intended for porting old drivers; new drivers should not invent private IOCTLs.
+   Private IOCTLs are processed first. When the callback returns with
+diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
+index 4b93c28..e4c4d1c 100644
+--- a/Documentation/watchdog/watchdog-kernel-api.txt
++++ b/Documentation/watchdog/watchdog-kernel-api.txt
+@@ -77,6 +77,7 @@ struct watchdog_ops {
+ 	int (*ping)(struct watchdog_device *);
+ 	unsigned int (*status)(struct watchdog_device *);
+ 	int (*set_timeout)(struct watchdog_device *, unsigned int);
++	unsigned int (*get_timeleft)(struct watchdog_device *);
+ 	long (*ioctl)(struct watchdog_device *, unsigned int, unsigned long);
+ };
+ 
+@@ -122,6 +123,7 @@ they are supported. These optional routines/operations are:
+   to re-program the watchdog timer device.
+   (Note: the WDIOF_SETTIMEOUT needs to be set in the options field of the
+   watchdog's info structure).
++* get_timeleft: this routines returns the time left for reset.
+ * ioctl: if this routine is present then it will be called first before we do
+   our own internal ioctl call handling. This routine should return -ENOIOCTLCMD
+   if a command is not supported. The parameters that are passed to the ioctl
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 1199da0..fa64fb8 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -237,6 +237,11 @@ static long watchdog_ioctl(struct file *file, unsigned int cmd,
+ 		if (wdd->timeout == 0)
+ 			return -EOPNOTSUPP;
+ 		return put_user(wdd->timeout, p);
++	case WDIOC_GETTIMELEFT:
++		if (!wdd->ops->get_timeleft)
++			return -EOPNOTSUPP;
++
++		return put_user(wdd->ops->get_timeleft(wdd), p);
+ 	default:
+ 		return -ENOTTY;
+ 	}
+diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+index 43ba5b3..58bc9a1 100644
+--- a/include/linux/watchdog.h
++++ b/include/linux/watchdog.h
+@@ -66,6 +66,7 @@ struct watchdog_device;
+  * @ping:	The routine that sends a keepalive ping to the watchdog device.
+  * @status:	The routine that shows the status of the watchdog device.
+  * @set_timeout:The routine for setting the watchdog devices timeout value.
++ * @get_timeleft:The routine for getting the watchdog device's timeleft value.
+  * @ioctl:	The routines that handles extra ioctl calls.
+  *
+  * The watchdog_ops structure contains a list of low-level operations
+@@ -82,6 +83,7 @@ struct watchdog_ops {
+ 	int (*ping)(struct watchdog_device *);
+ 	unsigned int (*status)(struct watchdog_device *);
+ 	int (*set_timeout)(struct watchdog_device *, unsigned int);
++	unsigned int (*get_timeleft)(struct watchdog_device *);
+ 	long (*ioctl)(struct watchdog_device *, unsigned int, unsigned long);
+ };
+ 
+-- 
+1.7.9.2
 
->> This is a resend of a series of watchdog_dev patches which I initially send
->> on Sep 12 2011:
->> http://lists.lm-sensors.org/pipermail/lm-sensors/2011-September/033707.html
->> And which unfortunately has seen 0 reviews / feedback since then.
->
-> I have been looking at these 5 patches last week. This is what I think of them:
-> patch 1: Use wddev function parameter instead of wdd global ->
-> 	was allready sent out by someone else also and thus has been incorporated
-> patch 2: watchdog_dev: Add support for having more then 1 watchdog ->
-> 	I am sure that we all agree that we need support for multiple watchdogs.
-> 	But I am not convinced we have the right approach for it yet.
-> 	I saw that you started looking at Alan's Code also.
-> 	Please continue the discussion about this.
-
-I've reviewed Alan's patch and I agree that his approach is better, as soon as
-he resends his patch with some (small) remarks from the review addressed. I'll
-add my Reviewed-by.
-
-> 	The support for multiple watchdogs is not for this merge window, but for
-> 	the one after that.
-
-Ok.
-
-> patch 3: watchdog_dev: Add support for dynamically allocated watchdog_device structs ->
-> 	Have to look in more detail on that patch, but I think this is a good thing to add.
-> 	I'm trying to get that one still in before the merge window opens (together
-> 	with the ep93xx_wdt conversion and the sp805 and mpcore patches from Viresh
-> 	(but no promisses here))
-
-As I already said in my previous mail, please note that Viresh's patches for
-mpcore run into the same issue I'm running into. To clarify the problem a bit,
-it could be reproduced on a (hypothetical) mpcore arm system by:
-
-Have an app open /dev/watchdog and keep that app running.
-
-Then do the following as root:
-cd /sys/bus/platform/drivers/mpcore_wdt
-ls
-
-You should see the name of the watchdog platform dev here
-(as a symlink), something among the lines of: mpcore_wdt.XXXX
-
-Now you can unbind the platform driver from the platform dev
-doing the following:
-cd /sys/bus/platform/drivers/mpcore_wdt
-echo mpcore_wdt.XXXX > unbind
-ls
-
-With the ls the symlink should be gone. And /dev/watchdog
-too, as the mpcore_wdt_remove function has now run! This
-also means that the mpcore_wdt struct, which contains the
-watchdog_device struct has been free-ed.
-
-But the app which opened /dev/watchdog still has an open
-fd to it, and when calls are made on that, watchdog_dev.c
-will try to use file->private_data which now points
-to free-ed memory!
-
-I admit that triggering this is not easy and not something which
-will happen accidentally, but still I believe this is something which
-we ought to fix.
-
-> patch 4: watchdog_dev: Let the driver update the timeout field on set_timeout success ->
-> 	This patch is in linux-watchdog-next since yesterday (and it was in my testing tree for a week).
-> 	It's in linux-next since this morning together with fixes for the drivers that allready use the watchdog-api.
-
-Great, thanks.
-
-
-> patch 5: hwmon/sch5636: Add support for the integrated watchdog ->
-> 	Depends off-course on patch 2.
-
-It depends more on patch 3 then on 2. it will still work without patch 2,
-but to test (and use it on some systems) I would need to blacklist the iTCO
-module.
-
-Also I've recently received information on how the watchdog in the sch5627
-works, And it turns out to be exactly the same (*). So please drop this one
-from your queue I'm working on a new version where most of the code is
-shared between the sch5627 and sch5636 drivers (there already is a
-sch56xx-common file used by both).
-
-*) But it needs the BIOS to setup / poke some motherboard specific things,
-so it only works on boards with BIOS support for the wd
-
-
-Thanks & Regards,
-
-Hans
