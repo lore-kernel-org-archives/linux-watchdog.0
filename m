@@ -1,363 +1,301 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 1 Mar 2012 20:10:06 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-        Dmitry Artamonow <mad_soft@inbox.ru>,
-        Masanari Iida <standby24x7@gmail.com>,
-        MyungJoo Ham <myungjoo.ham@samsung.com>,
-        Maxim Uvarov <maxim.uvarov@oracle.com>, Mingarelli@spo001.leaseweb.com,
-        Thomas <Thomas.Mingarelli@hp.com>
-Subject: [GIT PULL REQUEST] watchdog - v3.3-rc5 Fixes
-Message-ID: <20120301191006.GA28692@spo001.leaseweb.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+From: "Tc, Jenny" <jenny.tc@intel.com>
+To: Ashish Jangam <ashish.jangam@kpitcummins.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC: Dajun <dajun.chen@diasemi.com>,
+        Mark Brown <broonie@opensource.wolfsonmicro.com>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "lm-sensors@lm-sensors.org" <lm-sensors@lm-sensors.org>,
+        "sameo@linux.intel.com" <sameo@linux.intel.com>
+Subject: RE: [PATCH 01/02] MFD: add ADC support to DA9052/53 MFD  core v3
+Date: Sat, 17 Mar 2012 20:58:04 +0000
+Message-ID: <20ADAB092842284E95860F279283C5640C92DF@BGSMSX101.gar.corp.intel.com>
+References: <1331978656.7058.73.camel@dhruva>
+In-Reply-To: <1331978656.7058.73.camel@dhruva>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Linus,
+Hi,
 
-Please pull from 'master' branch of
-	git://www.linux-watchdog.org/linux-watchdog.git
 
-This will update the following files:
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
+> owner@vger.kernel.org] On Behalf Of Ashish Jangam
+> Sent: Saturday, March 17, 2012 3:34 PM
+> To: linux-kernel@vger.kernel.org
+> Cc: Dajun; Mark Brown; linux-watchdog@vger.kernel.org; lm-sensors@lm-
+> sensors.org; sameo@linux.intel.com
+> Subject: [PATCH 01/02] MFD: add ADC support to DA9052/53 MFD core v3
+> 
+> This patch add ADC support for DA9052/53 MFD core so that its dependent
+> components like Battery & HWMON can read required values from ADC
+> channel.
+> 
+> This patch is functionally tested on Samsung SMDKV6410.
+> 
+> Signed-off-by: David Dajun Chen <dchen@diasemi.com>
+> Signed-off-by: Ashish Jangam <ashish.jangam@kpitcummins.com>
+> ---
+> Changes since v2
+> - Replace wait_for_completion_timeout with wait_for_completion Changes
+> since v1
+>  - Move global variable in to struct da9052
+>  - Pass da9052 pointer instead of NULL in request_threaded_irq call
+> ---
+>  drivers/mfd/da9052-core.c         |  136
+> +++++++++++++++++++++++++++++++++++++
+>  include/linux/mfd/da9052/da9052.h |   20 ++++++
+>  2 files changed, 156 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/mfd/da9052-core.c b/drivers/mfd/da9052-core.c index
+> 7ff313f..bfac307 100644
+> --- a/drivers/mfd/da9052-core.c
+> +++ b/drivers/mfd/da9052-core.c
+> @@ -318,6 +318,130 @@ static bool da9052_reg_volatile(struct device *dev,
+> unsigned int reg)
+>  	}
+>  }
+> 
+> +/*
+> + * TBAT look-up table is computed from the R90 reg (8 bit register)
+> + * reading as below. The battery temperature is in milliCentigrade
+> + * TBAT = (1/(t1+1/298) - 273) * 1000 mC
+> + * where t1 = (1/B)* ln(( ADCval * 2.5)/(R25*ITBAT*255))
+> + * Default values are R25 = 10e3, B = 3380, ITBAT = 50e-6
+> + * Example:
+> + * R25=10E3, B=3380, ITBAT=50e-6, ADCVAL=62d calculates
+> + * TBAT = 20015 mili degrees Centrigrade
+> + *
+> +*/
+> +static const int32_t tbat_lookup[255] = {
+> +	183258, 144221, 124334, 111336, 101826, 94397, 88343, 83257,
+> +	78889, 75071, 71688, 68656, 65914, 63414, 61120, 59001,
+> +	570366, 55204, 53490, 51881, 50364, 48931, 47574, 46285,
+> +	45059, 43889, 42772, 41703, 40678, 39694, 38748, 37838,
+> +	36961, 36115, 35297, 34507, 33743, 33002, 32284, 31588,
+> +	30911, 30254, 29615, 28994, 28389, 27799, 27225, 26664,
+> +	26117, 25584, 25062, 24553, 24054, 23567, 23091, 22624,
+> +	22167, 21719, 21281, 20851, 20429, 20015, 19610, 19211,
+> +	18820, 18436, 18058, 17688, 17323, 16965, 16612, 16266,
+> +	15925, 15589, 15259, 14933, 14613, 14298, 13987, 13681,
+> +	13379, 13082, 12788, 12499, 12214, 11933, 11655, 11382,
+> +	11112, 10845, 10582, 10322, 10066, 9812, 9562, 9315,
+> +	9071, 8830, 8591, 8356, 8123, 7893, 7665, 7440,
+> +	7218, 6998, 6780, 6565, 6352, 6141, 5933, 5726,
+> +	5522, 5320, 5120, 4922, 4726, 4532, 4340, 4149,
+> +	3961, 3774, 3589, 3406, 3225, 3045, 2867, 2690,
+> +	2516, 2342, 2170, 2000, 1831, 1664, 1498, 1334,
+> +	1171, 1009, 849, 690, 532, 376, 221, 67,
+> +	-84, -236, -386, -535, -683, -830, -975, -1119,
+> +	-1263, -1405, -1546, -1686, -1825, -1964, -2101, -2237,
+> +	-2372, -2506, -2639, -2771, -2902, -3033, -3162, -3291,
+> +	-3418, -3545, -3671, -3796, -3920, -4044, -4166, -4288,
+> +	-4409, -4529, -4649, -4767, -4885, -5002, -5119, -5235,
+> +	-5349, -5464, -5577, -5690, -5802, -5913, -6024, -6134,
+> +	-6244, -6352, -6461, -6568, -6675, -6781, -6887, -6992,
+> +	-7096, -7200, -7303, -7406, -7508, -7609, -7710, -7810,
+> +	-7910, -8009, -8108, -8206, -8304, -8401, -8497, -8593,
+> +	-8689, -8784, -8878, -8972, -9066, -9159, -9251, -9343,
+> +	-9435, -9526, -9617, -9707, -9796, -9886, -9975, -10063,
+> +	-10151, -10238, -10325, -10412, -10839, -10923, -11007, -11090,
+> +	-11173, -11256, -11338, -11420, -11501, -11583, -11663, -11744,
+> +	-11823, -11903, -11982
+> +};
+> +
+> +static const u8 chan_mux[DA9052_ADC_VBBAT + 1] = {
+> +	[DA9052_ADC_VDDOUT]	=
+> DA9052_ADC_MAN_MUXSEL_VDDOUT,
+> +	[DA9052_ADC_ICH]	= DA9052_ADC_MAN_MUXSEL_ICH,
+> +	[DA9052_ADC_TBAT]	= DA9052_ADC_MAN_MUXSEL_TBAT,
+> +	[DA9052_ADC_VBAT]	= DA9052_ADC_MAN_MUXSEL_VBAT,
+> +	[DA9052_ADC_IN4]	= DA9052_ADC_MAN_MUXSEL_AD4,
+> +	[DA9052_ADC_IN5]	= DA9052_ADC_MAN_MUXSEL_AD5,
+> +	[DA9052_ADC_IN6]	= DA9052_ADC_MAN_MUXSEL_AD6,
+> +	[DA9052_ADC_VBBAT]	= DA9052_ADC_MAN_MUXSEL_VBBAT
+> +};
+> +
+> +int da9052_adc_manual_read(struct da9052 *da9052, unsigned char
+> +channel) {
+> +	int ret;
+> +	unsigned short calc_data;
+> +	unsigned short data;
+> +	unsigned char mux_sel;
+> +
+> +	if (channel > DA9052_ADC_VBBAT)
+> +		return -EINVAL;
+> +
+> +	mutex_lock(&da9052->auxadc_lock);
+> +
+> +	/* Channel gets activated on enabling the Conversion bit */
+> +	mux_sel = chan_mux[channel] | DA9052_ADC_MAN_MAN_CONV;
+> +
+> +	ret = da9052_reg_write(da9052, DA9052_ADC_MAN_REG, mux_sel);
+> +	if (ret < 0)
+> +		goto err;
+> +
+> +	/* Wait for an interrupt */
+> +	wait_for_completion(&da9052->done);
 
- MAINTAINERS                    |    2 -
- drivers/watchdog/Kconfig       |    2 -
- drivers/watchdog/booke_wdt.c   |    6 +++-
- drivers/watchdog/hpwdt.c       |    5 ++-
- drivers/watchdog/pnx4008_wdt.c |    2 -
- drivers/watchdog/s3c2410_wdt.c |   57 ++++++++++++++++++++++-------------------
- 6 files changed, 42 insertions(+), 32 deletions(-)
+I would prefer to have wait_for_completion_timeout here. What if interrupt is not triggered at all?
 
-with these Changes:
+> +
+> +	ret = da9052_reg_read(da9052, DA9052_ADC_RES_H_REG);
+> +	if (ret < 0)
+> +		goto err;
+> +
+> +	calc_data = (unsigned short)ret;
+> +	data = calc_data << 2;
+> +
+> +	ret = da9052_reg_read(da9052, DA9052_ADC_RES_L_REG);
+> +	if (ret < 0)
+> +		goto err;
+> +
+> +	calc_data = (unsigned short)(ret & DA9052_ADC_RES_LSB);
+> +	data |= calc_data;
+> +
+> +	ret = data;
+> +
+> +err:
+> +	mutex_unlock(&da9052->auxadc_lock);
+> +	return ret;
+> +}
+> +EXPORT_SYMBOL_GPL(da9052_adc_manual_read);
+> +
+> +static irqreturn_t da9052_auxadc_irq(int irq, void *irq_data) {
+> +	struct da9052 *da9052 = irq_data;
+> +
+> +	complete(&da9052->done);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +int da9052_adc_read_temp(struct da9052 *da9052) {
+> +	int tbat;
+> +
+> +	tbat = da9052_reg_read(da9052, DA9052_TBAT_RES_REG);
+> +
+> +	if (tbat < 0)
+> +		return tbat;
+ 
+Shouldn't be if (tbat <=0)?. Next line will fail if tbat=0.
 
-commit 741b9c7da1abf2f96f69d232fbeef5aff1371be3
-Author: Dmitry Artamonow <mad_soft@inbox.ru>
-Date:   Thu Jan 26 23:24:30 2012 +0400
+> +
+> +	/* ARRAY_SIZE check is not needed since TBAT is a 8-bit register */
+> +	return tbat_lookup[tbat - 1];
+> +}
+> +EXPORT_SYMBOL_GPL(da9052_adc_read_temp);
+> +
+>  static struct resource da9052_rtc_resource = {
+>  	.name = "ALM",
+>  	.start = DA9052_IRQ_ALARM,
+> @@ -646,6 +770,10 @@ int __devinit da9052_device_init(struct da9052
+> *da9052, u8 chip_id)
+>  	struct irq_desc *desc;
+>  	int ret;
+> 
+> +	mutex_init(&da9052->io_lock);
+> +	mutex_init(&da9052->auxadc_lock);
+> +	init_completion(&da9052->done);
+> +
+>  	if (pdata && pdata->init != NULL)
+>  		pdata->init(da9052);
+> 
+> @@ -666,6 +794,12 @@ int __devinit da9052_device_init(struct da9052
+> *da9052, u8 chip_id)
+>  	desc = irq_to_desc(da9052->chip_irq);
+>  	da9052->irq_base = regmap_irq_chip_get_base(desc->action-
+> >dev_id);
+> 
+> +	ret = request_threaded_irq(DA9052_IRQ_ADC_EOM, NULL,
+> da9052_auxadc_irq,
+> +				   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+> +				   "adc irq", da9052);
+> +	if (ret != 0)
+> +		dev_err(da9052->dev, "DA9052 ADC IRQ failed ret=%d\n",
+> ret);
+> +
+>  	ret = mfd_add_devices(da9052->dev, -1, da9052_subdev_info,
+>  			      ARRAY_SIZE(da9052_subdev_info), NULL, 0);
+>  	if (ret)
+> @@ -674,6 +808,7 @@ int __devinit da9052_device_init(struct da9052
+> *da9052, u8 chip_id)
+>  	return 0;
+> 
+>  err:
+> +	free_irq(DA9052_IRQ_ADC_EOM, da9052);
+>  	mfd_remove_devices(da9052->dev);
+>  regmap_err:
+>  	return ret;
+> @@ -681,6 +816,7 @@ regmap_err:
+> 
+>  void da9052_device_exit(struct da9052 *da9052)  {
+> +	free_irq(DA9052_IRQ_ADC_EOM, da9052);
 
-    watchdog: fix GETTIMEOUT ioctl in booke_wdt
-    
-    Commit dcfb748422 ([WATCHDOG] fix book E watchdog to take
-    WDIOC_SETTIMEOUT arg in seconds) fixed SETTIMEOUT ioctl
-    to use seconds as a parameter instead of some hardware-specific
-    "period", but missed to apply similar changes to GETTIMEOUT,
-    so it still returns "period" value. Let's fix it!
-    Also, while at it, make SETTIMEOUT ioctl return real timeout
-    value as it should do according to the documentation.
-    
-    Signed-off-by: Dmitry Artamonow <mad_soft@inbox.ru>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+What if request_threaded_irq is failed?
 
-commit f599aaf00f6b5b35ea6af9e428eab8f894752efd
-Author: Wim Van Sebroeck <wim@iguana.be>
-Date:   Tue Feb 28 17:11:05 2012 +0100
-
-    watchdog: update maintainers git entry
-    
-    The git repository for watchdog device drivers moved.
-    
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-commit 7ec0f040cf0b161a6068ad4797fff0bd63e83e4f
-Author: Masanari Iida <standby24x7@gmail.com>
-Date:   Sat Feb 11 00:40:56 2012 +0900
-
-    watchdog: Fix typo in pnx4008_wdt.c
-    
-    Correct spelling "resouce" to "resource" in
-    drivers/watchdog/pnx4008_wdt.c
-    
-    Signed-off-by: Masanari Iida <standby24x7@gmail.com>
-    Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-commit e1d1d68aae86c43d94e0c25ce27ea0050fceea01
-Author: Masanari Iida <standby24x7@gmail.com>
-Date:   Sat Feb 11 00:42:16 2012 +0900
-
-    watchdog: Fix typo in Kconfig
-    
-    Correct spelling "overidden" to "overridden" in
-    drivers/watchdog/Kconfig
-    
-    Signed-off-by: Masanari Iida <standby24x7@gmail.com>
-    Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-commit 78d3e00bb0bcfb11596b14f5d5472922b4c7e429
-Author: MyungJoo Ham <myungjoo.ham@samsung.com>
-Date:   Fri Jan 13 14:14:23 2012 +0900
-
-    watchdog: fix error in probe() of s3c2410_wdt (reset at booting)
-    
-    Probe function of s3c2410 watchdog calls request_irq before initializing
-    required value (wdt_count). This incurs resetting watchdog counter value
-    and watchdog-reboot during booting up.
-    
-    This patch addresses such an issue by calling request_irq later.
-    
-    Error handling in probe function and calling oder in remove function are
-    also revised accordingly.
-    
-    Reported-by: Chanwoo Park <cw00.choi@samsung.com>
-    Signed-off-by: MyungJoo Ham <myungjoo.ham@samsung.com>
-    Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-commit 97d2a10d5804d585ab0b58efbd710948401b886a
-Author: Maxim Uvarov <maxim.uvarov@oracle.com>
-Date:   Sun Jan 15 20:02:50 2012 -0800
-
-    watchdog: hpwdt: clean up set_memory_x call for 32 bit
-    
-    1. address has to be page aligned.
-    2. set_memory_x uses page size argument, not size.
-    Bug causes with following commit:
-    	commit da28179b4e90dda56912ee825c7eaa62fc103797
-    	Author: Mingarelli, Thomas <Thomas.Mingarelli@hp.com>
-    	Date:   Mon Nov 7 10:59:00 2011 +0100
-    
-         watchdog: hpwdt: Changes to handle NX secure bit in 32bit path
-    
-        commit e67d668e147c3b4fec638c9e0ace04319f5ceccd upstream.
-    
-        This patch makes use of the set_memory_x() kernel API in order
-        to make necessary BIOS calls to source NMIs.
-    
-    Signed-off-by: Maxim Uvarov <maxim.uvarov@oracle.com>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-    Cc: stable <stable@vger.kernel.org>
-
-For completeness, I added the overal diff below.
-
-Greetings,
-Wim.
-
-================================================================================
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 0a96e80..4e41d52 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -7271,7 +7271,7 @@ WATCHDOG DEVICE DRIVERS
- M:	Wim Van Sebroeck <wim@iguana.be>
- L:	linux-watchdog@vger.kernel.org
- W:	http://www.linux-watchdog.org/
--T:	git git://git.kernel.org/pub/scm/linux/kernel/git/wim/linux-2.6-watchdog.git
-+T:	git git://www.linux-watchdog.org/linux-watchdog.git
- S:	Maintained
- F:	Documentation/watchdog/
- F:	drivers/watchdog/
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 877b107..df9e8f0 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -1098,7 +1098,7 @@ config BOOKE_WDT_DEFAULT_TIMEOUT
- 	  For Freescale Book-E processors, this is a number between 0 and 63.
- 	  For other Book-E processors, this is a number between 0 and 3.
- 
--	  The value can be overidden by the wdt_period command-line parameter.
-+	  The value can be overridden by the wdt_period command-line parameter.
- 
- # PPC64 Architecture
- 
-diff --git a/drivers/watchdog/booke_wdt.c b/drivers/watchdog/booke_wdt.c
-index 337265b..7c0fdfc 100644
---- a/drivers/watchdog/booke_wdt.c
-+++ b/drivers/watchdog/booke_wdt.c
-@@ -198,9 +198,13 @@ static long booke_wdt_ioctl(struct file *file,
- 		booke_wdt_period = tmp;
- #endif
- 		booke_wdt_set();
--		return 0;
-+		/* Fall */
- 	case WDIOC_GETTIMEOUT:
-+#ifdef	CONFIG_FSL_BOOKE
-+		return put_user(period_to_sec(booke_wdt_period), p);
-+#else
- 		return put_user(booke_wdt_period, p);
-+#endif
- 	default:
- 		return -ENOTTY;
- 	}
-diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-index 8464ea1..3c166d3 100644
---- a/drivers/watchdog/hpwdt.c
-+++ b/drivers/watchdog/hpwdt.c
-@@ -231,7 +231,7 @@ static int __devinit cru_detect(unsigned long map_entry,
- 
- 	cmn_regs.u1.reax = CRU_BIOS_SIGNATURE_VALUE;
- 
--	set_memory_x((unsigned long)bios32_entrypoint, (2 * PAGE_SIZE));
-+	set_memory_x((unsigned long)bios32_map, 2);
- 	asminline_call(&cmn_regs, bios32_entrypoint);
- 
- 	if (cmn_regs.u1.ral != 0) {
-@@ -250,7 +250,8 @@ static int __devinit cru_detect(unsigned long map_entry,
- 			cru_rom_addr =
- 				ioremap(cru_physical_address, cru_length);
- 			if (cru_rom_addr) {
--				set_memory_x((unsigned long)cru_rom_addr, cru_length);
-+				set_memory_x((unsigned long)cru_rom_addr & PAGE_MASK,
-+					(cru_length + PAGE_SIZE - 1) >> PAGE_SHIFT);
- 				retval = 0;
- 			}
- 		}
-diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
-index 8e210aa..dfae030 100644
---- a/drivers/watchdog/pnx4008_wdt.c
-+++ b/drivers/watchdog/pnx4008_wdt.c
-@@ -264,7 +264,7 @@ static int __devinit pnx4008_wdt_probe(struct platform_device *pdev)
- 	wdt_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	if (wdt_mem == NULL) {
- 		printk(KERN_INFO MODULE_NAME
--			"failed to get memory region resouce\n");
-+			"failed to get memory region resource\n");
- 		return -ENOENT;
- 	}
- 
-diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
-index 4bc3744..404172f 100644
---- a/drivers/watchdog/s3c2410_wdt.c
-+++ b/drivers/watchdog/s3c2410_wdt.c
-@@ -312,18 +312,26 @@ static int __devinit s3c2410wdt_probe(struct platform_device *pdev)
- 	dev = &pdev->dev;
- 	wdt_dev = &pdev->dev;
- 
--	/* get the memory region for the watchdog timer */
--
- 	wdt_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	if (wdt_mem == NULL) {
- 		dev_err(dev, "no memory resource specified\n");
- 		return -ENOENT;
- 	}
- 
-+	wdt_irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
-+	if (wdt_irq == NULL) {
-+		dev_err(dev, "no irq resource specified\n");
-+		ret = -ENOENT;
-+		goto err;
-+	}
-+
-+	/* get the memory region for the watchdog timer */
-+
- 	size = resource_size(wdt_mem);
- 	if (!request_mem_region(wdt_mem->start, size, pdev->name)) {
- 		dev_err(dev, "failed to get memory region\n");
--		return -EBUSY;
-+		ret = -EBUSY;
-+		goto err;
- 	}
- 
- 	wdt_base = ioremap(wdt_mem->start, size);
-@@ -335,29 +343,17 @@ static int __devinit s3c2410wdt_probe(struct platform_device *pdev)
- 
- 	DBG("probe: mapped wdt_base=%p\n", wdt_base);
- 
--	wdt_irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
--	if (wdt_irq == NULL) {
--		dev_err(dev, "no irq resource specified\n");
--		ret = -ENOENT;
--		goto err_map;
--	}
--
--	ret = request_irq(wdt_irq->start, s3c2410wdt_irq, 0, pdev->name, pdev);
--	if (ret != 0) {
--		dev_err(dev, "failed to install irq (%d)\n", ret);
--		goto err_map;
--	}
--
- 	wdt_clock = clk_get(&pdev->dev, "watchdog");
- 	if (IS_ERR(wdt_clock)) {
- 		dev_err(dev, "failed to find watchdog clock source\n");
- 		ret = PTR_ERR(wdt_clock);
--		goto err_irq;
-+		goto err_map;
- 	}
- 
- 	clk_enable(wdt_clock);
- 
--	if (s3c2410wdt_cpufreq_register() < 0) {
-+	ret = s3c2410wdt_cpufreq_register();
-+	if (ret < 0) {
- 		printk(KERN_ERR PFX "failed to register cpufreq\n");
- 		goto err_clk;
- 	}
-@@ -378,12 +374,18 @@ static int __devinit s3c2410wdt_probe(struct platform_device *pdev)
- 							"cannot start\n");
- 	}
- 
-+	ret = request_irq(wdt_irq->start, s3c2410wdt_irq, 0, pdev->name, pdev);
-+	if (ret != 0) {
-+		dev_err(dev, "failed to install irq (%d)\n", ret);
-+		goto err_cpufreq;
-+	}
-+
- 	watchdog_set_nowayout(&s3c2410_wdd, nowayout);
- 
- 	ret = watchdog_register_device(&s3c2410_wdd);
- 	if (ret) {
- 		dev_err(dev, "cannot register watchdog (%d)\n", ret);
--		goto err_cpufreq;
-+		goto err_irq;
- 	}
- 
- 	if (tmr_atboot && started == 0) {
-@@ -408,23 +410,26 @@ static int __devinit s3c2410wdt_probe(struct platform_device *pdev)
- 
- 	return 0;
- 
-+ err_irq:
-+	free_irq(wdt_irq->start, pdev);
-+
-  err_cpufreq:
- 	s3c2410wdt_cpufreq_deregister();
- 
-  err_clk:
- 	clk_disable(wdt_clock);
- 	clk_put(wdt_clock);
--
-- err_irq:
--	free_irq(wdt_irq->start, pdev);
-+	wdt_clock = NULL;
- 
-  err_map:
- 	iounmap(wdt_base);
- 
-  err_req:
- 	release_mem_region(wdt_mem->start, size);
--	wdt_mem = NULL;
- 
-+ err:
-+	wdt_irq = NULL;
-+	wdt_mem = NULL;
- 	return ret;
- }
- 
-@@ -432,18 +437,18 @@ static int __devexit s3c2410wdt_remove(struct platform_device *dev)
- {
- 	watchdog_unregister_device(&s3c2410_wdd);
- 
-+	free_irq(wdt_irq->start, dev);
-+
- 	s3c2410wdt_cpufreq_deregister();
- 
- 	clk_disable(wdt_clock);
- 	clk_put(wdt_clock);
- 	wdt_clock = NULL;
- 
--	free_irq(wdt_irq->start, dev);
--	wdt_irq = NULL;
--
- 	iounmap(wdt_base);
- 
- 	release_mem_region(wdt_mem->start, resource_size(wdt_mem));
-+	wdt_irq = NULL;
- 	wdt_mem = NULL;
- 	return 0;
- }
+>  	regmap_del_irq_chip(da9052->chip_irq,
+>  			    irq_get_irq_data(da9052->irq_base)->chip_data);
+>  	mfd_remove_devices(da9052->dev);
+> diff --git a/include/linux/mfd/da9052/da9052.h
+> b/include/linux/mfd/da9052/da9052.h
+> index 7ffbd6e..5dd26a7 100644
+> --- a/include/linux/mfd/da9052/da9052.h
+> +++ b/include/linux/mfd/da9052/da9052.h
+> @@ -33,6 +33,18 @@
+> 
+>  #include <linux/mfd/da9052/reg.h>
+> 
+> +/* HWMON Channel Definations */
+> +#define DA9052_ADC_VDDOUT	0
+> +#define DA9052_ADC_ICH		1
+> +#define DA9052_ADC_TBAT	2
+> +#define DA9052_ADC_VBAT	3
+> +#define DA9052_ADC_IN4		4
+> +#define DA9052_ADC_IN5		5
+> +#define DA9052_ADC_IN6		6
+> +#define DA9052_ADC_TSI		7
+> +#define DA9052_ADC_TJUNC	8
+> +#define DA9052_ADC_VBBAT	9
+> +
+>  #define DA9052_IRQ_DCIN	0
+>  #define DA9052_IRQ_VBUS	1
+>  #define DA9052_IRQ_DCINREM	2
+> @@ -76,8 +88,12 @@ enum da9052_chip_id {  struct da9052_pdata;
+> 
+>  struct da9052 {
+> +	struct mutex io_lock;
+> +	struct mutex auxadc_lock;
+> +
+>  	struct device *dev;
+>  	struct regmap *regmap;
+> +	struct completion done;
+> 
+>  	int irq_base;
+>  	u8 chip_id;
+> @@ -85,6 +101,10 @@ struct da9052 {
+>  	int chip_irq;
+>  };
+> 
+> +/* ADC API */
+> +int da9052_adc_manual_read(struct da9052 *da9052, unsigned char
+> +channel); int da9052_adc_read_temp(struct da9052 *da9052);
+> +
+>  /* Device I/O API */
+>  static inline int da9052_reg_read(struct da9052 *da9052, unsigned char reg)
+> {
+> 
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in the
+> body of a message to majordomo@vger.kernel.org More majordomo info at
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+ˇÙË∫{.n«+â∑üÆâ≠Ü+%äÀˇ±È›∂•äwˇ∫{.n«+â∑•ä{±˛G´ùÈˇä{ay∫
+ á⁄ôÎ,j≠¢f£¢∑höèÔÅÍˇëÍÁz_ËÆ(≠Èöéä›¢j"ù˙∂mßˇˇæ´˛G´ùÈˇ¢∏?ô®Ë≠⁄&£¯ß~è·∂iOïÊ¨z∑övÿ^∂mßˇˇ√
+ˇ∂Ïˇ¢∏?ñI•
