@@ -1,53 +1,38 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:57749 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752005Ab2CPLIp (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 16 Mar 2012 07:08:45 -0400
-Date: Fri, 16 Mar 2012 12:08:43 +0100
-From: Wolfram Sang <w.sang@pengutronix.de>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org
-Subject: Re: visible git-tree?
-Message-ID: <20120316110843.GA2705@pengutronix.de>
-References: <20120207151526.GK2539@pengutronix.de>
- <20120315202002.GA28772@spo001.leaseweb.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZGiS0Q5IWpPtfppv"
-Content-Disposition: inline
-In-Reply-To: <20120315202002.GA28772@spo001.leaseweb.com>
+Received: from mx1.redhat.com ([209.132.183.28]:11033 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754168Ab2CQJjE (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Sat, 17 Mar 2012 05:39:04 -0400
+From: Hans de Goede <hdegoede@redhat.com>
+To: LM Sensors <lm-sensors@lm-sensors.org>
+Cc: linux-watchdog@vger.kernel.org,
+	Thilo Cestonaro <thilo.cestonaro@ts.fujitsu.com>
+Subject: [PATCH 0/1] hwmon/sch56xx: Add support for the integrated watchdog
+Date: Sat, 17 Mar 2012 10:40:28 +0100
+Message-Id: <1331977229-1370-1-git-send-email-hdegoede@redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+Hi All,
 
---ZGiS0Q5IWpPtfppv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The single patch in this series adds support for the watchdog integrated into
+the SMSC SCH5627 and SCH5636 superio-s. Since the watchdog is part of the
+hwmon logical device and thus shares ioports with it, the watchdog driver is
+integrated into the existing hwmon drivers for these.
 
+As such I think it is best if this patch gets merged through the hwmon tree.
 
-> To overcome this issue I installed gitweb onto www.linux-watchdog.org.
+Note that this version of the watchdog support for sch56xx superio-s
+implements the watchdog chardev interface itself, rather then relying on
+the recently added watchdog core / watchdog_dev. The code for this was
+lifted (almosy) 1 on 1 from the fschmd which has a watchdog driver integrated
+in a similar fashion.
 
-Noticed already, happy \o/
+This is done because currently some needed functionality is missing from
+watchdog_dev, as soon as this functionality is added (which is being discussed
+on the linux-watchdog mailinglist), I'll convert this driver over to using
+watchdog_dev.
 
-Thanks!
+Regards,
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---ZGiS0Q5IWpPtfppv
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAk9jHzsACgkQD27XaX1/VRsaLACeLShNlWhLSHYYIKGAXTjj12ve
-n7IAn3i57JFYPiJq2OjsuvH+HtiD2rzk
-=7bbr
------END PGP SIGNATURE-----
-
---ZGiS0Q5IWpPtfppv--
+Hans
