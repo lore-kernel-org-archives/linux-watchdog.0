@@ -1,14 +1,14 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:41946 "EHLO
+Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:41949 "EHLO
 	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754035Ab2CUPKs (ORCPT
+	with ESMTP id S1754035Ab2CUPLC (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 21 Mar 2012 11:10:48 -0400
+	Wed, 21 Mar 2012 11:11:02 -0400
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH 3/4] watchdog: create all the proper device files
+Subject: [PATCH 4/4] watchdog: use dev_ functions
 To: linux-watchdog@vger.kernel.org, hdegoede@redhat.com, wim@iguana.be
-Date: Wed, 21 Mar 2012 15:25:21 +0000
-Message-ID: <20120321152517.20045.82208.stgit@bob.linux.org.uk>
+Date: Wed, 21 Mar 2012 15:25:36 +0000
+Message-ID: <20120321152532.20045.87765.stgit@bob.linux.org.uk>
 In-Reply-To: <20120321152418.20045.35525.stgit@bob.linux.org.uk>
 References: <20120321152418.20045.35525.stgit@bob.linux.org.uk>
 MIME-Version: 1.0
@@ -19,101 +19,37 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Alan Cox <alan@linux.intel.com>
 
+While they are registered all our watchdogs now have a valid device object
+so we can in turn use that to report problems nicely.
+
 Signed-off-by: Alan Cox <alan@linux.intel.com>
 ---
 
- drivers/watchdog/watchdog_dev.c |   29 ++++++++++++++++++++++++-----
- include/linux/watchdog.h        |    5 ++++-
- 2 files changed, 28 insertions(+), 6 deletions(-)
+ drivers/watchdog/watchdog_dev.c |    5 ++---
+ 1 files changed, 2 insertions(+), 3 deletions(-)
 
 
 diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 40c557b..abefa56 100644
+index abefa56..902a3af 100644
 --- a/drivers/watchdog/watchdog_dev.c
 +++ b/drivers/watchdog/watchdog_dev.c
-@@ -42,6 +42,8 @@
- #include <linux/init.h>		/* For __init/__exit/... */
- #include <linux/uaccess.h>	/* For copy_to_user/put_user/... */
+@@ -110,8 +110,7 @@ static int watchdog_stop(struct watchdog_device *wddev)
+ 	int err = -EBUSY;
  
-+static struct class *watchdog_class;	/* So we have someone to create
-+					   our devices */
- static dev_t dog_devt;		/* Watchdog device range */
- static unsigned long dog_mask;	/* Watchodgs that are in use */
- /* the watchdog device behind /dev/watchdog */
-@@ -429,13 +431,21 @@ static int watchdog_add_device(struct watchdog_device *watchdog)
- 	watchdog->devt = MKDEV(MAJOR(dog_devt), watchdog->id);
- 	watchdog->cdev.owner = watchdog->ops->owner;
- 	cdev_init(&watchdog->cdev, &watchdog_multi_fops);
--
- 	/* Add the device */
- 	err  = cdev_add(&watchdog->cdev, watchdog->devt, 1);
--	if (err)
-+	if (err) {
- 		pr_err("watchdog%d unable to add device %d:%d\n",
- 			watchdog->id,  MAJOR(dog_devt), watchdog->id);
--	return err;
-+		return err;
-+	}
-+	watchdog->dev = device_create(watchdog_class, watchdog->busdev,
-+					MKDEV(MAJOR(dog_devt), watchdog->id),
-+					NULL, "watchdog%d", watchdog->id);
-+	if (IS_ERR(watchdog->dev)) {
-+		cdev_del(&watchdog->cdev);
-+		return PTR_ERR(watchdog->dev);
-+	}
-+	return 0;
- }
+ 	if (test_bit(WDOG_NO_WAY_OUT, &wddev->status)) {
+-		pr_info("%s: nowayout prevents watchdog to be stopped!\n",
+-							wddev->info->identity);
++		dev_info(wddev->dev, "nowayout prevents watchdog being stopped!\n");
+ 		return err;
+ 	}
  
- /**
-@@ -447,6 +457,7 @@ static int watchdog_add_device(struct watchdog_device *watchdog)
- static void watchdog_del_device(struct watchdog_device *watchdog)
- {
- 	cdev_del(&watchdog->cdev);
-+	device_destroy(watchdog_class, MKDEV(MAJOR(dog_devt), watchdog->id));
- }	
+@@ -348,7 +347,7 @@ static int watchdog_release(struct inode *inode, struct file *file)
  
- /**
-@@ -517,9 +528,16 @@ int watchdog_dev_unregister(struct watchdog_device *watchdog)
- int __init watchdog_init(void)
- {
- 	int err = alloc_chrdev_region(&dog_devt, 0, DOG_MAX, "watchdog");
--	if (err < 0)
-+	if (err < 0) {
- 		pr_err("watchdog: unable to allocate char dev region\n");
--	return err;
-+		return err;
-+	}
-+	watchdog_class = class_create(THIS_MODULE, "watchdog");
-+	if (IS_ERR(watchdog_class)) {
-+		unregister_chrdev_region(dog_devt, DOG_MAX);
-+		return PTR_ERR(watchdog_class);
-+	}
-+	return 0;
- }
+ 	/* If the watchdog was not stopped, send a keepalive ping */
+ 	if (err < 0) {
+-		pr_crit("%s: watchdog did not stop!\n", wdd->info->identity);
++		dev_crit(wdd->dev, "watchdog did not stop!\n");
+ 		watchdog_ping(wdd);
+ 	}
  
- /**
-@@ -530,6 +548,7 @@ int __init watchdog_init(void)
- void __exit watchdog_exit(void)
- {
- 	unregister_chrdev_region(dog_devt, DOG_MAX);
-+	class_destroy(watchdog_class);
- }
- 
- module_init(watchdog_init);
-diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
-index fdd5dbb..b7a3359 100644
---- a/include/linux/watchdog.h
-+++ b/include/linux/watchdog.h
-@@ -108,7 +108,10 @@ struct watchdog_ops {
-  */
- struct watchdog_device {
- 	struct cdev cdev;		/* Character device */
--	dev_t devt;			/* Our device */
-+	struct device *dev;		/* Device for our node */
-+	struct device *busdev;		/* Parent bus device (set by caller
-+							if used) */
-+	dev_t devt;			/* Our device devt */
- 	int id;				/* Watchdog id */
- 
- 	const struct watchdog_info *info;
 
