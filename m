@@ -1,47 +1,42 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:56436 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756011Ab2CVSJQ (ORCPT
+Received: from mail-lpp01m010-f46.google.com ([209.85.215.46]:58115 "EHLO
+	mail-lpp01m010-f46.google.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752705Ab2CXOcJ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 22 Mar 2012 14:09:16 -0400
-Received: by obbeh20 with SMTP id eh20so1675301obb.19
-        for <linux-watchdog@vger.kernel.org>; Thu, 22 Mar 2012 11:09:15 -0700 (PDT)
+	Sat, 24 Mar 2012 10:32:09 -0400
 MIME-Version: 1.0
-In-Reply-To: <20120322144950.GU10698@spo001.leaseweb.com>
-References: <1331131929-22383-1-git-send-email-linus.walleij@stericsson.com>
-	<20120307164240.GA1130@pengutronix.de>
-	<CACRpkdaE5HASdF27db7EfnSoaUF8mA5bWoKUhaAzSegdBKsKFQ@mail.gmail.com>
-	<20120315212705.GH10698@spo001.leaseweb.com>
-	<CACRpkdZ9tD8XQ3tOwTHMa3jOhivkwW7YZO0WZgG7r5BYDNktCQ@mail.gmail.com>
-	<20120322144950.GU10698@spo001.leaseweb.com>
-Date: Thu, 22 Mar 2012 19:09:15 +0100
-Message-ID: <CACRpkdZ9iWVYSfnW4mRxvG8JxauV+ypjHbo25MCEp2HUzwqHyA@mail.gmail.com>
-Subject: Re: [PATCH] watchdog/coh901327: convert to use watchdog core
-From: Linus Walleij <linus.walleij@linaro.org>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Wolfram Sang <w.sang@pengutronix.de>,
-	Linus Walleij <linus.walleij@stericsson.com>,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Viresh Kumar <viresh.kumar@st.com>
+Date: Sat, 24 Mar 2012 10:32:07 -0400
+Message-ID: <CAP=VYLr4MfkBpgg-QeMRw9oDswtrySBEb6ZUKa8_CLOHh+pF2A@mail.gmail.com>
+Subject: Commit "watchdog: coh901327_wdt.c: fix timeout" breaks linux-next
+From: Paul Gortmaker <paul.gortmaker@windriver.com>
+To: wim@iguana.be, linus.walleij@stericsson.com
+Cc: linux-watchdog@vger.kernel.org, linux-next@vger.kernel.org
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Mar 22, 2012 at 3:49 PM, Wim Van Sebroeck <wim@iguana.be> wrote:
+Hi Wim,
 
-> I added it. Only issue left is that you don't set the timeout value properly.
-> This will result in faulty values for the WDIOC_GETTIMEOUT iotcl.
-> Furthermore margin should be unsigned int. And there is also no check to see
-> if margin is a valid parameter after it is loaded as a module.
->
-> Could you test attached patch?
+Can you please re-check this commit?  It has two instances of
+the typo "timout" and one of them is causing a build failure
+in linux-next.
 
-I cannot test it right now because I'm out of reach for the hardware,
-but it looks good to me so:
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Thanks,
+Paul.
+--
 
-If I find any problems later I can surely fix them.
+drivers/watchdog/coh901327_wdt.c:358:15: error: 'struct
+watchdog_device' has no member named 'timout'
 
-Yours,
-Linus Walleij
+http://kisskb.ellerman.id.au/kisskb/buildresult/5940810/
+
+commit 884f1a12c8b39721452f0dfedf1f82de3d696cf1
+Author: Wim Van Sebroeck <wim@iguana.be>
+Date:   Thu Mar 22 20:42:16 2012 +0100
+
+    watchdog: coh901327_wdt.c: fix timeout
+
+    Set the timeout value properly so that we don't get faulty values
+    for the WDIOC_GETTIMEOUT iotcl. 'margin' should be an unsigned int.
+    Also add a check to see if margin is a valid parameter after it is
+    loaded as a module.
