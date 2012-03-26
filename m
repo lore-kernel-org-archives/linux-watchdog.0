@@ -1,56 +1,50 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:43670 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752145Ab2CZF2l (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:45086 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753663Ab2CZGgn (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 26 Mar 2012 01:28:41 -0400
-Message-ID: <1332739713.15735.1.camel@phoenix>
-Subject: [PATCH] watchdog: Make TXX9_WDT select WATCHDOG_CORE
-From: Axel Lin <axel.lin@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
-	Ralf Baechle <ralf@linux-mips.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org
-Date: Mon, 26 Mar 2012 13:28:33 +0800
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Mime-Version: 1.0
+	Mon, 26 Mar 2012 02:36:43 -0400
+From: Wolfram Sang <w.sang@pengutronix.de>
+To: linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Linus Walleij <linus.walleij@stericsson.com>,
+	Wolfram Sang <w.sang@pengutronix.de>
+Subject: [PATCH] watchdog: coh901327: fix build failure due to typo
+Date: Mon, 26 Mar 2012 08:36:33 +0200
+Message-Id: <1332743793-12822-1-git-send-email-w.sang@pengutronix.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This is required after converting to watchdog core API.
-
-Fix below build errors:
-  LD      .tmp_vmlinux1
-drivers/built-in.o: In function `txx9wdt_probe':
-txx9wdt.c:(.init.text+0x3530): undefined reference to `watchdog_register_device'
-drivers/built-in.o: In function `txx9wdt_remove':
-txx9wdt.c:(.exit.text+0x158): undefined reference to `watchdog_unregister_device'
-make: *** [.tmp_vmlinux1] Error 1
-
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
+Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
 ---
-I have this change in my source tree but forgot to add it when
-generating the patch converting txx9_wdt to watchdog framework.
 
- drivers/watchdog/Kconfig |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+Linus: at least you could have build tested... ;)
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index f5b1ec6..3709624 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -1003,6 +1003,7 @@ config AR7_WDT
- config TXX9_WDT
- 	tristate "Toshiba TXx9 Watchdog Timer"
- 	depends on CPU_TX39XX || CPU_TX49XX
-+	select WATCHDOG_CORE
- 	help
- 	  Hardware driver for the built-in watchdog timer on TXx9 MIPS SoCs.
+ drivers/watchdog/coh901327_wdt.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/watchdog/coh901327_wdt.c b/drivers/watchdog/coh901327_wdt.c
+index 3175767..6876430 100644
+--- a/drivers/watchdog/coh901327_wdt.c
++++ b/drivers/watchdog/coh901327_wdt.c
+@@ -250,7 +250,7 @@ static struct watchdog_device coh901327_wdt = {
+ 	.info = &coh901327_ident,
+ 	.ops = &coh901327_ops,
+ 	/*
+-	 * Max timout is 327 since the 10ms
++	 * Max timeout is 327 since the 10ms
+ 	 * timeout register is max
+ 	 * 0x7FFF = 327670ms ~= 327s.
+ 	 */
+@@ -355,7 +355,7 @@ static int __init coh901327_probe(struct platform_device *pdev)
  
+ 	if (margin < 1 || margin > 327)
+ 		margin = 60;
+-	coh901327_wdt.timout = margin;
++	coh901327_wdt.timeout = margin;
+ 
+ 	ret = watchdog_register_device(&coh901327_wdt);
+ 	if (ret == 0)
 -- 
-1.7.5.4
-
-
+1.7.2.5
 
