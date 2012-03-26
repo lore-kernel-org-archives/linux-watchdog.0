@@ -1,37 +1,53 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from eu1sys200aog118.obsmtp.com ([207.126.144.145]:54254 "EHLO
-	eu1sys200aog118.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756865Ab2CZHMG (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:47310 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1755035Ab2CZI1V (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 26 Mar 2012 03:12:06 -0400
-Message-ID: <4F701179.8090605@stericsson.com>
-Date: Mon, 26 Mar 2012 08:49:29 +0200
-From: Linus Walleij <linus.walleij@stericsson.com>
-MIME-Version: 1.0
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [PATCH] watchdog: coh901327: fix build failure due to typo
-References: <1332743793-12822-1-git-send-email-w.sang@pengutronix.de>
-In-Reply-To: <1332743793-12822-1-git-send-email-w.sang@pengutronix.de>
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Mar 2012 04:27:21 -0400
+Date: Mon, 26 Mar 2012 10:27:17 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Paul Gortmaker <paul.gortmaker@windriver.com>
+Cc: linus.walleij@stericsson.com, linux-watchdog@vger.kernel.org,
+	linux-next@vger.kernel.org
+Subject: Re: Commit "watchdog: coh901327_wdt.c: fix timeout" breaks linux-next
+Message-ID: <20120326082717.GX10698@spo001.leaseweb.com>
+References: <CAP=VYLr4MfkBpgg-QeMRw9oDswtrySBEb6ZUKa8_CLOHh+pF2A@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAP=VYLr4MfkBpgg-QeMRw9oDswtrySBEb6ZUKa8_CLOHh+pF2A@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 03/26/2012 08:36 AM, Wolfram Sang wrote:
-> Signed-off-by: Wolfram Sang<w.sang@pengutronix.de>
-> ---
->
-> Linus: at least you could have build tested... ;)
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Hi Paul,
 
-I would if I had time, that's why I just Acked-by: Wim's patch
-instead of Tested-by: it... actually I would have tested it if
-I hadn't been ill and stranded at home in bed with the
-smallish laptop only.
+Will fix it.
 
-Who cares, it's mostly me using that system anyway.
+Kind regards,
+wim.
 
-Thanks!
-Linus Walleij
+> Hi Wim,
+> 
+> Can you please re-check this commit?  It has two instances of
+> the typo "timout" and one of them is causing a build failure
+> in linux-next.
+> 
+> Thanks,
+> Paul.
+> --
+> 
+> drivers/watchdog/coh901327_wdt.c:358:15: error: 'struct
+> watchdog_device' has no member named 'timout'
+> 
+> http://kisskb.ellerman.id.au/kisskb/buildresult/5940810/
+> 
+> commit 884f1a12c8b39721452f0dfedf1f82de3d696cf1
+> Author: Wim Van Sebroeck <wim@iguana.be>
+> Date:   Thu Mar 22 20:42:16 2012 +0100
+> 
+>     watchdog: coh901327_wdt.c: fix timeout
+> 
+>     Set the timeout value properly so that we don't get faulty values
+>     for the WDIOC_GETTIMEOUT iotcl. 'margin' should be an unsigned int.
+>     Also add a check to see if margin is a valid parameter after it is
+>     loaded as a module.
