@@ -1,39 +1,30 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:47498 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932684Ab2CZOnM (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:64740 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756468Ab2CZKXP (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 26 Mar 2012 10:43:12 -0400
-Date: Mon, 26 Mar 2012 16:43:08 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Axel Lin <axel.lin@gmail.com>
-Cc: Wolfram Sang <w.sang@pengutronix.de>, linux-kernel@vger.kernel.org,
-	Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
-	Ralf Baechle <ralf@linux-mips.org>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: Make TXX9_WDT select WATCHDOG_CORE
-Message-ID: <20120326144308.GA9602@spo001.leaseweb.com>
-References: <1332739713.15735.1.camel@phoenix> <20120326063956.GB24023@pengutronix.de> <CAF+7xW=TRcW_2AFtDHBP4Dw3QBf0_mvecMO3g+Hqsk1xV8UC9Q@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAF+7xW=TRcW_2AFtDHBP4Dw3QBf0_mvecMO3g+Hqsk1xV8UC9Q@mail.gmail.com>
+	Mon, 26 Mar 2012 06:23:15 -0400
+Received: by pbcun15 with SMTP id un15so5825043pbc.19
+        for <linux-watchdog@vger.kernel.org>; Mon, 26 Mar 2012 03:23:14 -0700 (PDT)
+MIME-Version: 1.0
+Date: Mon, 26 Mar 2012 15:53:14 +0530
+Message-ID: <CAHgx9OeuaSB9Xm6ruPE_m4HOn=E3zHzvxX_Y-NgzURjqs=9JWQ@mail.gmail.com>
+Subject: DesignWare Watchdog Code
+From: Tushar K <tushark.kernel@gmail.com>
+To: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Axel,
+Hi,
 
-> > Acked-by: Wolfram Sang <w.sang@pengutronix.de>
-> >
-> > Can we simply fold this into the original patch?
-> Wim already applied the original patch.
-> I found this build error while compiling with today's linux-next.
-> So I think this need to be a separate patch.
+I am going through the DW Watchdog code in linux kernel 3.3 (dw_wdt.c)
+file. I could not see any interrupt handling in this file. Am I
+missing something?
+Please tell me how interrupt is getting handled in this case? Also how
+to add this device into the Linux kernel? (I tried to check few BSPs
+but could not find which is using this IP.) I wanted to look at the
+other SoC BSP to see how that's been used for reference.
 
-I folded this into the original patch.
-
-Can you test what is in linux-watchdog-next now?
-
-Thanks,
-Wim.
-
+Thanks & Regards,
+Tushar
