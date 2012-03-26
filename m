@@ -1,63 +1,66 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:41108 "EHLO
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:41117 "EHLO
 	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753848Ab2CZGh5 (ORCPT
+	with ESMTP id S1753977Ab2CZGkE (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 26 Mar 2012 02:37:57 -0400
-Date: Mon, 26 Mar 2012 08:37:48 +0200
+	Mon, 26 Mar 2012 02:40:04 -0400
+Date: Mon, 26 Mar 2012 08:39:56 +0200
 From: Wolfram Sang <w.sang@pengutronix.de>
 To: Axel Lin <axel.lin@gmail.com>
 Cc: linux-kernel@vger.kernel.org, Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
 	Ralf Baechle <ralf@linux-mips.org>,
 	Wim Van Sebroeck <wim@iguana.be>,
 	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: Fix build error in txx9wdt.c
-Message-ID: <20120326063748.GA24023@pengutronix.de>
-References: <1332738134.10660.1.camel@phoenix>
+Subject: Re: [PATCH] watchdog: Make TXX9_WDT select WATCHDOG_CORE
+Message-ID: <20120326063956.GB24023@pengutronix.de>
+References: <1332739713.15735.1.camel@phoenix>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="nFreZHaLTZJo0R7j"
+	protocol="application/pgp-signature"; boundary="8GpibOaaTibBMecb"
 Content-Disposition: inline
-In-Reply-To: <1332738134.10660.1.camel@phoenix>
+In-Reply-To: <1332739713.15735.1.camel@phoenix>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 
---nFreZHaLTZJo0R7j
-Content-Type: text/plain; charset=utf-8
+--8GpibOaaTibBMecb
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Mar 26, 2012 at 01:02:14PM +0800, Axel Lin wrote:
-> we need to get clk_get_rate(txx9_imclk) before using WD_MAX_TIMEOUT.
+On Mon, Mar 26, 2012 at 01:28:33PM +0800, Axel Lin wrote:
+> This is required after converting to watchdog core API.
 >=20
-> This patch fixes below build errors:
->   CC      drivers/watchdog/txx9wdt.o
-> drivers/watchdog/txx9wdt.c:104: error: initializer element is not constant
-> drivers/watchdog/txx9wdt.c:104: error: (near initialization for =E2=80=98=
-txx9wdt.max_timeout=E2=80=99)
-> make[2]: *** [drivers/watchdog/txx9wdt.o] Error 1
-> make[1]: *** [drivers/watchdog] Error 2
-> make: *** [drivers] Error 2
+> Fix below build errors:
+>   LD      .tmp_vmlinux1
+> drivers/built-in.o: In function `txx9wdt_probe':
+> txx9wdt.c:(.init.text+0x3530): undefined reference to `watchdog_register_=
+device'
+> drivers/built-in.o: In function `txx9wdt_remove':
+> txx9wdt.c:(.exit.text+0x158): undefined reference to `watchdog_unregister=
+_device'
+> make: *** [.tmp_vmlinux1] Error 1
 >=20
 > Signed-off-by: Axel Lin <axel.lin@gmail.com>
 
 Acked-by: Wolfram Sang <w.sang@pengutronix.de>
 
+Can we simply fold this into the original patch?
+
 --=20
 Pengutronix e.K.                           | Wolfram Sang                |
 Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
---nFreZHaLTZJo0R7j
+--8GpibOaaTibBMecb
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iEYEARECAAYFAk9wDrwACgkQD27XaX1/VRvn3QCfSqSPwwJPED639BA233+CQDz+
-UlIAn2mJjQn0tzM5hO8wdKzyz6zFIZs3
-=kDVw
+iEYEARECAAYFAk9wDzwACgkQD27XaX1/VRvE5QCeKVJ0uyOCVqX/grcGYumNx/Gr
+bI0An2xLF7DyLRkKJAx2W+7QPhlLHKn5
+=FQmU
 -----END PGP SIGNATURE-----
 
---nFreZHaLTZJo0R7j--
+--8GpibOaaTibBMecb--
