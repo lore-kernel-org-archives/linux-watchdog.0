@@ -1,33 +1,37 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:62561 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753311Ab2CZGnA (ORCPT
+Received: from eu1sys200aog118.obsmtp.com ([207.126.144.145]:54254 "EHLO
+	eu1sys200aog118.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756865Ab2CZHMG (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 26 Mar 2012 02:43:00 -0400
+	Mon, 26 Mar 2012 03:12:06 -0400
+Message-ID: <4F701179.8090605@stericsson.com>
+Date: Mon, 26 Mar 2012 08:49:29 +0200
+From: Linus Walleij <linus.walleij@stericsson.com>
 MIME-Version: 1.0
-Reply-To: axel.lin@gmail.com
-In-Reply-To: <20120326063956.GB24023@pengutronix.de>
-References: <1332739713.15735.1.camel@phoenix> <20120326063956.GB24023@pengutronix.de>
-From: Axel Lin <axel.lin@gmail.com>
-Date: Mon, 26 Mar 2012 14:42:39 +0800
-Message-ID: <CAF+7xW=TRcW_2AFtDHBP4Dw3QBf0_mvecMO3g+Hqsk1xV8UC9Q@mail.gmail.com>
-Subject: Re: [PATCH] watchdog: Make TXX9_WDT select WATCHDOG_CORE
 To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: linux-kernel@vger.kernel.org, Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
-	Ralf Baechle <ralf@linux-mips.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+Cc: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: [PATCH] watchdog: coh901327: fix build failure due to typo
+References: <1332743793-12822-1-git-send-email-w.sang@pengutronix.de>
+In-Reply-To: <1332743793-12822-1-git-send-email-w.sang@pengutronix.de>
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On 03/26/2012 08:36 AM, Wolfram Sang wrote:
+> Signed-off-by: Wolfram Sang<w.sang@pengutronix.de>
+> ---
 >
-> Acked-by: Wolfram Sang <w.sang@pengutronix.de>
->
-> Can we simply fold this into the original patch?
-Wim already applied the original patch.
-I found this build error while compiling with today's linux-next.
-So I think this need to be a separate patch.
+> Linus: at least you could have build tested... ;)
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
 
-Regards,
-Axel
+I would if I had time, that's why I just Acked-by: Wim's patch
+instead of Tested-by: it... actually I would have tested it if
+I hadn't been ill and stranded at home in bed with the
+smallish laptop only.
+
+Who cares, it's mostly me using that system anyway.
+
+Thanks!
+Linus Walleij
