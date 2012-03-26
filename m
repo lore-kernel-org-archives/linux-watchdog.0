@@ -1,71 +1,56 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:51089 "EHLO
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:43670 "EHLO
 	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751589Ab2CZFCX (ORCPT
+	with ESMTP id S1752145Ab2CZF2l (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 26 Mar 2012 01:02:23 -0400
-Message-ID: <1332738134.10660.1.camel@phoenix>
-Subject: [PATCH] watchdog: Fix build error in txx9wdt.c
+	Mon, 26 Mar 2012 01:28:41 -0400
+Message-ID: <1332739713.15735.1.camel@phoenix>
+Subject: [PATCH] watchdog: Make TXX9_WDT select WATCHDOG_CORE
 From: Axel Lin <axel.lin@gmail.com>
 To: linux-kernel@vger.kernel.org
 Cc: Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
 	Ralf Baechle <ralf@linux-mips.org>,
 	Wim Van Sebroeck <wim@iguana.be>,
 	linux-watchdog@vger.kernel.org
-Date: Mon, 26 Mar 2012 13:02:14 +0800
+Date: Mon, 26 Mar 2012 13:28:33 +0800
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Mime-Version: 1.0
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-we need to get clk_get_rate(txx9_imclk) before using WD_MAX_TIMEOUT.
+This is required after converting to watchdog core API.
 
-This patch fixes below build errors:
-  CC      drivers/watchdog/txx9wdt.o
-drivers/watchdog/txx9wdt.c:104: error: initializer element is not constan=
-t
-drivers/watchdog/txx9wdt.c:104: error: (near initialization for =E2=80=98=
-txx9wdt.max_timeout=E2=80=99)
-make[2]: *** [drivers/watchdog/txx9wdt.o] Error 1
-make[1]: *** [drivers/watchdog] Error 2
-make: *** [drivers] Error 2
+Fix below build errors:
+  LD      .tmp_vmlinux1
+drivers/built-in.o: In function `txx9wdt_probe':
+txx9wdt.c:(.init.text+0x3530): undefined reference to `watchdog_register_device'
+drivers/built-in.o: In function `txx9wdt_remove':
+txx9wdt.c:(.exit.text+0x158): undefined reference to `watchdog_unregister_device'
+make: *** [.tmp_vmlinux1] Error 1
 
 Signed-off-by: Axel Lin <axel.lin@gmail.com>
 ---
- drivers/watchdog/txx9wdt.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+I have this change in my source tree but forgot to add it when
+generating the patch converting txx9_wdt to watchdog framework.
 
-diff --git a/drivers/watchdog/txx9wdt.c b/drivers/watchdog/txx9wdt.c
-index f9afe2f..98e1637 100644
---- a/drivers/watchdog/txx9wdt.c
-+++ b/drivers/watchdog/txx9wdt.c
-@@ -100,8 +100,6 @@ static const struct watchdog_ops txx9wdt_ops =3D {
- static struct watchdog_device txx9wdt =3D {
- 	.info =3D &txx9wdt_info,
- 	.ops =3D &txx9wdt_ops,
--	.min_timeout =3D 1,
--	.max_timeout =3D WD_MAX_TIMEOUT,
- };
-=20
- static int __init txx9wdt_probe(struct platform_device *dev)
-@@ -132,6 +130,8 @@ static int __init txx9wdt_probe(struct platform_devic=
-e *dev)
- 	if (timeout < 1 || timeout > WD_MAX_TIMEOUT)
- 		timeout =3D TIMER_MARGIN;
- 	txx9wdt.timeout =3D timeout;
-+	txx9wdt.min_timeout =3D 1;
-+	txx9wdt.max_timeout =3D WD_MAX_TIMEOUT;
- 	watchdog_set_nowayout(&txx9wdt, nowayout);
-=20
- 	ret =3D watchdog_register_device(&txx9wdt);
---=20
+ drivers/watchdog/Kconfig |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index f5b1ec6..3709624 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1003,6 +1003,7 @@ config AR7_WDT
+ config TXX9_WDT
+ 	tristate "Toshiba TXx9 Watchdog Timer"
+ 	depends on CPU_TX39XX || CPU_TX49XX
++	select WATCHDOG_CORE
+ 	help
+ 	  Hardware driver for the built-in watchdog timer on TXx9 MIPS SoCs.
+ 
+-- 
 1.7.5.4
 
 
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
