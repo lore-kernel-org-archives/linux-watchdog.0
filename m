@@ -1,77 +1,39 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mho-01-ewr.mailhop.org ([204.13.248.71]:64017 "EHLO
-	mho-01-ewr.mailhop.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932438Ab2CZOMi (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:47498 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932684Ab2CZOnM (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 26 Mar 2012 10:12:38 -0400
-Date: Mon, 26 Mar 2012 10:12:33 -0400
-From: Jason Cooper <jason@lakedaemon.net>
+	Mon, 26 Mar 2012 10:43:12 -0400
+Date: Mon, 26 Mar 2012 16:43:08 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
 To: Axel Lin <axel.lin@gmail.com>
-Cc: linux-kernel@vger.kernel.org,
-	Sylver Bruneau <sylver.bruneau@googlemail.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org,
-	Nicolas Pitre <nicolas.pitre@linaro.org>,
-	Andrew Lunn <andrew@lunn.ch>, Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH RFT v2] watchdog: Convert orion_wdt driver to watchdog
- core
-Message-ID: <20120326141233.GR2484@titan.lakedaemon.net>
-References: <1332761395.20711.1.camel@phoenix>
-MIME-Version: 1.0
+Cc: Wolfram Sang <w.sang@pengutronix.de>, linux-kernel@vger.kernel.org,
+	Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
+	Ralf Baechle <ralf@linux-mips.org>,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] watchdog: Make TXX9_WDT select WATCHDOG_CORE
+Message-ID: <20120326144308.GA9602@spo001.leaseweb.com>
+References: <1332739713.15735.1.camel@phoenix> <20120326063956.GB24023@pengutronix.de> <CAF+7xW=TRcW_2AFtDHBP4Dw3QBf0_mvecMO3g+Hqsk1xV8UC9Q@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1332761395.20711.1.camel@phoenix>
+In-Reply-To: <CAF+7xW=TRcW_2AFtDHBP4Dw3QBf0_mvecMO3g+Hqsk1xV8UC9Q@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Mar 26, 2012 at 07:29:55PM +0800, Axel Lin wrote:
-> Convert the orion_wdt driver to the watchdog framework API.
-> 
+Hi Axel,
 
-Hi Axel, thanks for the patch.
+> > Acked-by: Wolfram Sang <w.sang@pengutronix.de>
+> >
+> > Can we simply fold this into the original patch?
+> Wim already applied the original patch.
+> I found this build error while compiling with today's linux-next.
+> So I think this need to be a separate patch.
 
-> Signed-off-by: Axel Lin <axel.lin@gmail.com>
-> ---
-> v2: v1 does not apply to current tree. so I re-generate this patch.
->  drivers/watchdog/Kconfig     |    1 +
->  drivers/watchdog/orion_wdt.c |  198 ++++++++++--------------------------------
->  2 files changed, 48 insertions(+), 151 deletions(-)
-> 
-...
-> diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
-> index 788aa15..8ba7d76 100644
-> --- a/drivers/watchdog/orion_wdt.c
-> +++ b/drivers/watchdog/orion_wdt.c
-...
-> @@ -31,7 +30,7 @@
->   * Watchdog timer block registers.
->   */
->  #define TIMER_CTRL		0x0000
-> -#define  WDT_EN			0x0010
-> +#define WDT_EN			0x0010
+I folded this into the original patch.
 
-nit, whitespace change.
+Can you test what is in linux-watchdog-next now?
 
-...
->  static int __devinit orion_wdt_probe(struct platform_device *pdev)
-> @@ -241,26 +146,28 @@ static int __devinit orion_wdt_probe(struct platform_device *pdev)
->  	struct resource *res;
->  	int ret;
->  
-> -	if (pdata) {
-> -		wdt_tclk = pdata->tclk;
-> -	} else {
-> +	if (!pdata) {
->  		pr_err("misses platform data\n");
->  		return -ENODEV;
->  	}
+Thanks,
+Wim.
 
-Platform data is changing soon with devicetree support (and converting
-to common clock).  Please don't change this if you don't need to.
-
-Also, I'll include Andrew Lunn in the CC.  He's doing the conversion of
-orion over to common clock, which affects this driver.
-
-hth,
-
-Jason.
