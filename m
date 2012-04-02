@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.work-microwave.de ([62.245.205.51]:29656 "EHLO
+Received: from mail.work-microwave.de ([62.245.205.51]:33759 "EHLO
 	work-microwave.de" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751212Ab2DBSeV (ORCPT
+	with ESMTP id S1754341Ab2DBSfA (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 2 Apr 2012 14:34:21 -0400
+	Mon, 2 Apr 2012 14:35:00 -0400
 From: Roland Stigge <stigge@antcom.de>
 To: arm@kernel.org, linux-arm-kernel@lists.infradead.org,
 	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
@@ -12,74 +12,69 @@ To: arm@kernel.org, linux-arm-kernel@lists.infradead.org,
 	rtc-linux@googlegroups.com, a.zummo@towertech.it,
 	linux-watchdog@vger.kernel.org, wim@iguana.be, jonsmirl@gmail.com
 Cc: Roland Stigge <stigge@antcom.de>
-Subject: [PATCH v2 1/8] iio: Add device tree support to LPC32xx ADC
-Date: Mon,  2 Apr 2012 20:33:00 +0200
-Message-Id: <1333391587-26290-2-git-send-email-stigge@antcom.de>
-In-Reply-To: <1333391587-26290-1-git-send-email-stigge@antcom.de>
-References: <1333391587-26290-1-git-send-email-stigge@antcom.de>
+Subject: [PATCH v2 0/8]: arm: lpc32xx: Device tree support
+Date: Mon,  2 Apr 2012 20:32:59 +0200
+Message-Id: <1333391587-26290-1-git-send-email-stigge@antcom.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patch adds device tree support to the LPC32xx's ADC.
+This is the first series of patches to introduce device tree support for the
+LPC32xx SoC. This series includes patches for the various subsystems to support
+device tree to be used later by the machine's initialization.
+
+The patches apply to various subsystems:
+
+ * staging/iio/adc (1)
+ * rtc (1)
+ * net (1)
+ * wdt (1)
+ * i2c (4)
+ * arm-soc (i2c related in the former, to be merged via i2c, as suggested by
+	    Arnd Bergmann)
+
+Based on v3.4-rc1
+
+You can also pull from
+
+  git://git.antcom.de/linux-2.6 lpc32xx/dt
+
+I'm CC'ing the various subsystem maintainers and lists who can each see what's
+going on and please pick their respective subsystem's changes. - Thanks!
+
+Changes since patch v1:
+ * Reorganized the changes for i2c (#5-8), fixes bisecting
+ * Fixed device tree Documentation
+ * Init .of_match_table via of_match_ptr() instead of #ifdef
+
+Thanks to Arnd Bergmenn for reviewing!
 
 Signed-off-by: Roland Stigge <stigge@antcom.de>
 
----
+--
 
- Applies to v3.4-rc1
+Roland Stigge (8):
+ iio: Add device tree support to LPC32xx ADC
+ rtc: Add device tree support for LPC32xx
+ net: Add device tree support to LPC32xx
+ wdt: Device tree support for pnx4008-wdt
+ i2c-pnx.c: Fix suspend
+ i2c-pnx.c: Use resources in platforms
+ i2c-pnx.c: Remove duplicated i2c.h
+ i2c: Add device tree support to i2c-pnx.c
 
- Documentation/devicetree/bindings/staging/iio/adc/lpc32xx-adc.txt |   16 ++++++++++
- drivers/staging/iio/adc/lpc32xx_adc.c                             |   10 ++++++
- 2 files changed, 26 insertions(+)
-
---- /dev/null
-+++ linux-2.6/Documentation/devicetree/bindings/staging/iio/adc/lpc32xx-adc.txt
-@@ -0,0 +1,16 @@
-+* NXP LPC32xx SoC ADC controller
-+
-+Required properties:
-+- compatible: must be "nxp,lpc32xx-adc"
-+- reg: physical base address of the controller and length of memory mapped
-+  region.
-+- interrupts: The ADC interrupt
-+
-+Example:
-+
-+	adc@40048000 {
-+		compatible = "nxp,lpc32xx-adc";
-+		reg = <0x40048000 0x1000>;
-+		interrupt-parent = <&mic>;
-+		interrupts = <39 0>;
-+	};
---- linux-2.6.orig/drivers/staging/iio/adc/lpc32xx_adc.c
-+++ linux-2.6/drivers/staging/iio/adc/lpc32xx_adc.c
-@@ -30,6 +30,7 @@
- #include <linux/clk.h>
- #include <linux/err.h>
- #include <linux/completion.h>
-+#include <linux/of.h>
- 
- #include "../iio.h"
- #include "../sysfs.h"
-@@ -221,12 +222,21 @@ static int __devexit lpc32xx_adc_remove(
- 	return 0;
- }
- 
-+#ifdef CONFIG_OF
-+static const struct of_device_id lpc32xx_adc_match[] = {
-+	{ .compatible = "nxp,lpc32xx-adc" },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, lpc32xx_adc_match);
-+#endif
-+
- static struct platform_driver lpc32xx_adc_driver = {
- 	.probe		= lpc32xx_adc_probe,
- 	.remove		= __devexit_p(lpc32xx_adc_remove),
- 	.driver		= {
- 		.name	= MOD_NAME,
- 		.owner	= THIS_MODULE,
-+		.of_match_table = of_match_ptr(lpc32xx_adc_match),
- 	},
- };
- 
+ Documentation/devicetree/bindings/i2c/pnx.txt                     |   40 ++
+ Documentation/devicetree/bindings/net/lpc-eth.txt                 |   24 +
+ Documentation/devicetree/bindings/rtc/lpc32xx-rtc.txt             |   15 
+ Documentation/devicetree/bindings/staging/iio/adc/lpc32xx-adc.txt |   16 
+ Documentation/devicetree/bindings/watchdog/pnx4008-wdt.txt        |   13 
+ arch/arm/mach-lpc32xx/common.c                                    |   75 ++--
+ arch/arm/mach-lpc32xx/include/mach/i2c.h                          |   63 ---
+ arch/arm/mach-pnx4008/i2c.c                                       |   70 ++--
+ arch/arm/mach-pnx4008/include/mach/i2c.h                          |   64 ---
+ drivers/i2c/busses/i2c-pnx.c                                      |  161 +++++++---
+ drivers/net/ethernet/nxp/lpc_eth.c                                |   77 ++--
+ drivers/rtc/rtc-lpc32xx.c                                         |   12 
+ drivers/staging/iio/adc/lpc32xx_adc.c                             |   10 
+ drivers/watchdog/pnx4008_wdt.c                                    |   10 
+ include/linux/i2c-pnx.h                                           |   10 
+ 15 files changed, 394 insertions(+), 266 deletions(-)
