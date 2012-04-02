@@ -1,63 +1,85 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from antcom.de ([188.40.178.216]:49629 "EHLO chuck.antcom.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751553Ab2DBOCU (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 2 Apr 2012 10:02:20 -0400
-Message-ID: <4F79B169.5010909@antcom.de>
-Date: Mon, 02 Apr 2012 16:02:17 +0200
+Received: from mail.work-microwave.de ([62.245.205.51]:29656 "EHLO
+	work-microwave.de" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751212Ab2DBSeV (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 2 Apr 2012 14:34:21 -0400
 From: Roland Stigge <stigge@antcom.de>
-MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: arm@kernel.org, linux-arm-kernel@lists.infradead.org,
+To: arm@kernel.org, linux-arm-kernel@lists.infradead.org,
 	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
 	w.sang@pengutronix.de, srinivas.bakki@nxp.com, kevin.wells@nxp.com,
 	gregkh@linuxfoundation.org, netdev@vger.kernel.org,
 	rtc-linux@googlegroups.com, a.zummo@towertech.it,
-	linux-watchdog@vger.kernel.org, wim@iguana.be
-Subject: Re: [PATCH 0/7]: arm: lpc32xx: Device tree support
-References: <1333371364-21347-1-git-send-email-stigge@antcom.de> <201204021345.04512.arnd@arndb.de>
-In-Reply-To: <201204021345.04512.arnd@arndb.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	linux-watchdog@vger.kernel.org, wim@iguana.be, jonsmirl@gmail.com
+Cc: Roland Stigge <stigge@antcom.de>
+Subject: [PATCH v2 1/8] iio: Add device tree support to LPC32xx ADC
+Date: Mon,  2 Apr 2012 20:33:00 +0200
+Message-Id: <1333391587-26290-2-git-send-email-stigge@antcom.de>
+In-Reply-To: <1333391587-26290-1-git-send-email-stigge@antcom.de>
+References: <1333391587-26290-1-git-send-email-stigge@antcom.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Arnd,
+This patch adds device tree support to the LPC32xx's ADC.
 
-On 04/02/2012 03:45 PM, Arnd Bergmann wrote:
->> Signed-off-by: Roland Stigge <stigge@antcom.de>
->
-> Looks good overall.
+Signed-off-by: Roland Stigge <stigge@antcom.de>
 
-Thanks for your mails, I'm just integrating your suggestions.
+---
 
-> I notice that you are missing the bindings for irq and gpio, which
-> tend to be
-> quite important. Do you have another tree that has all the lpc32xx
-> specific
-> parts or are these still under heavy development?
+ Applies to v3.4-rc1
 
-Yes, still under development. GPIO is subject to an open minor issue
-(will post an RFC later), and irq is part of the main mach-lpc32xx dt
-switch - I have DT-irq already working, but I need to OF'ize lcd and usb
-to complete.
+ Documentation/devicetree/bindings/staging/iio/adc/lpc32xx-adc.txt |   16 ++++++++++
+ drivers/staging/iio/adc/lpc32xx_adc.c                             |   10 ++++++
+ 2 files changed, 26 insertions(+)
 
-> Do you plan to add DT support in parallel to the ATAGS based board you
-> already have, or do you plan to move everything over quickly?
-
-For the LPC32xx specific things, including arch/arm/mach-lpc32xx, I will
-switch over to DT quickly, eliminating phy3250.c by replacing with a
-respective dts file.
-
-The other subsystems changes (pnx*) can and should be dual DT/non-DT to
-support other platforms and users who still use it in a non-DT way.
-
-> In the latter case, it might be helpful to get Acks from the subsystem
-> maintainers and merge everything through arm-soc.
-
-Yes, sounds reasonable regarding the LPC32xx specific bits like wdt and
-adc. Is there sth. I can do about it?
-
-Thanks all,
-
-Roland
+--- /dev/null
++++ linux-2.6/Documentation/devicetree/bindings/staging/iio/adc/lpc32xx-adc.txt
+@@ -0,0 +1,16 @@
++* NXP LPC32xx SoC ADC controller
++
++Required properties:
++- compatible: must be "nxp,lpc32xx-adc"
++- reg: physical base address of the controller and length of memory mapped
++  region.
++- interrupts: The ADC interrupt
++
++Example:
++
++	adc@40048000 {
++		compatible = "nxp,lpc32xx-adc";
++		reg = <0x40048000 0x1000>;
++		interrupt-parent = <&mic>;
++		interrupts = <39 0>;
++	};
+--- linux-2.6.orig/drivers/staging/iio/adc/lpc32xx_adc.c
++++ linux-2.6/drivers/staging/iio/adc/lpc32xx_adc.c
+@@ -30,6 +30,7 @@
+ #include <linux/clk.h>
+ #include <linux/err.h>
+ #include <linux/completion.h>
++#include <linux/of.h>
+ 
+ #include "../iio.h"
+ #include "../sysfs.h"
+@@ -221,12 +222,21 @@ static int __devexit lpc32xx_adc_remove(
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id lpc32xx_adc_match[] = {
++	{ .compatible = "nxp,lpc32xx-adc" },
++	{},
++};
++MODULE_DEVICE_TABLE(of, lpc32xx_adc_match);
++#endif
++
+ static struct platform_driver lpc32xx_adc_driver = {
+ 	.probe		= lpc32xx_adc_probe,
+ 	.remove		= __devexit_p(lpc32xx_adc_remove),
+ 	.driver		= {
+ 		.name	= MOD_NAME,
+ 		.owner	= THIS_MODULE,
++		.of_match_table = of_match_ptr(lpc32xx_adc_match),
+ 	},
+ };
+ 
