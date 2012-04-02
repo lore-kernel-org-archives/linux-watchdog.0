@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
 Received: from mail.work-microwave.de ([62.245.205.51]:55547 "EHLO
 	work-microwave.de" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751755Ab2DBNJu (ORCPT
+	with ESMTP id S1751755Ab2DBNKU (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 2 Apr 2012 09:09:50 -0400
+	Mon, 2 Apr 2012 09:10:20 -0400
 From: Roland Stigge <stigge@antcom.de>
 To: arm@kernel.org, linux-arm-kernel@lists.infradead.org,
 	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
@@ -12,74 +12,74 @@ To: arm@kernel.org, linux-arm-kernel@lists.infradead.org,
 	rtc-linux@googlegroups.com, a.zummo@towertech.it,
 	linux-watchdog@vger.kernel.org, wim@iguana.be
 Cc: Roland Stigge <stigge@antcom.de>
-Subject: [PATCH 1/7] iio: Add device tree support to LPC32xx ADC
-Date: Mon,  2 Apr 2012 14:55:58 +0200
-Message-Id: <1333371364-21347-2-git-send-email-stigge@antcom.de>
+Subject: [PATCH 2/7] rtc: Add device tree support for LPC32xx
+Date: Mon,  2 Apr 2012 14:55:59 +0200
+Message-Id: <1333371364-21347-3-git-send-email-stigge@antcom.de>
 In-Reply-To: <1333371364-21347-1-git-send-email-stigge@antcom.de>
 References: <1333371364-21347-1-git-send-email-stigge@antcom.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patch adds device tree support to the LPC32xx's ADC.
+This patch adds device tree support for rtc-lpc32xx.c
 
 Signed-off-by: Roland Stigge <stigge@antcom.de>
 
 ---
-
  Applies to v3.4-rc1
 
- Documentation/devicetree/bindings/staging/iio/adc/lpc32xx-adc.txt |   16 ++++++++++
- drivers/staging/iio/adc/lpc32xx_adc.c                             |   10 ++++++
- 2 files changed, 26 insertions(+)
+ Documentation/devicetree/bindings/rtc/lpc32xx-rtc.txt |   15 +++++++++++++++
+ drivers/rtc/rtc-lpc32xx.c                             |   12 +++++++++++-
+ 2 files changed, 26 insertions(+), 1 deletion(-)
 
 --- /dev/null
-+++ linux-2.6/Documentation/devicetree/bindings/staging/iio/adc/lpc32xx-adc.txt
-@@ -0,0 +1,16 @@
-+* NXP LPC32xx SoC ADC controller
++++ linux-2.6/Documentation/devicetree/bindings/rtc/lpc32xx-rtc.txt
+@@ -0,0 +1,15 @@
++* NXP LPC32xx SoC Real Time Clock controller
 +
 +Required properties:
-+- compatible: must be "nxp,lpc32xx-adc"
++- compatible: must be "nxp,lpc32xx-rtc"
 +- reg: physical base address of the controller and length of memory mapped
 +  region.
-+- interrupts: The ADC interrupt
++- interrupts: The RTC interrupt
 +
 +Example:
 +
-+	adc@40048000 {
-+		compatible = "nxp,lpc32xx-adc";
-+		reg = <0x40048000 0x1000>;
-+		interrupt-parent = <&mic>;
-+		interrupts = <39 0>;
++	rtc@40024000 {
++		compatible = "nxp,lpc32xx-rtc";
++		reg = <0x40024000 0x1000>;
++		interrupts = <52 0>;
 +	};
---- linux-2.6.orig/drivers/staging/iio/adc/lpc32xx_adc.c
-+++ linux-2.6/drivers/staging/iio/adc/lpc32xx_adc.c
-@@ -30,6 +30,7 @@
- #include <linux/clk.h>
- #include <linux/err.h>
- #include <linux/completion.h>
+--- linux-2.6.orig/drivers/rtc/rtc-lpc32xx.c
++++ linux-2.6/drivers/rtc/rtc-lpc32xx.c
+@@ -19,6 +19,7 @@
+ #include <linux/rtc.h>
+ #include <linux/slab.h>
+ #include <linux/io.h>
 +#include <linux/of.h>
  
- #include "../iio.h"
- #include "../sysfs.h"
-@@ -221,12 +222,21 @@ static int __devexit lpc32xx_adc_remove(
- 	return 0;
- }
+ /*
+  * Clock and Power control register offsets
+@@ -386,13 +387,22 @@ static const struct dev_pm_ops lpc32xx_r
+ #define LPC32XX_RTC_PM_OPS NULL
+ #endif
  
 +#ifdef CONFIG_OF
-+static const struct of_device_id lpc32xx_adc_match[] = {
-+	{ .compatible = "nxp,lpc32xx-adc" },
-+	{},
++static const struct of_device_id lpc32xx_rtc_match[] = {
++	{ .compatible = "nxp,lpc32xx-rtc" },
++	{ }
 +};
-+MODULE_DEVICE_TABLE(of, lpc32xx_adc_match);
++MODULE_DEVICE_TABLE(of, lpc32xx_rtc_match);
 +#endif
 +
- static struct platform_driver lpc32xx_adc_driver = {
- 	.probe		= lpc32xx_adc_probe,
- 	.remove		= __devexit_p(lpc32xx_adc_remove),
- 	.driver		= {
- 		.name	= MOD_NAME,
+ static struct platform_driver lpc32xx_rtc_driver = {
+ 	.probe		= lpc32xx_rtc_probe,
+ 	.remove		= __devexit_p(lpc32xx_rtc_remove),
+ 	.driver = {
+ 		.name	= RTC_NAME,
  		.owner	= THIS_MODULE,
-+		.of_match_table = of_match_ptr(lpc32xx_adc_match),
+-		.pm	= LPC32XX_RTC_PM_OPS
++		.pm	= LPC32XX_RTC_PM_OPS,
++		.of_match_table = of_match_ptr(lpc32xx_rtc_match),
  	},
  };
  
