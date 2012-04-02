@@ -1,61 +1,54 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:61444 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750897Ab2DAKCv convert rfc822-to-8bit (ORCPT
+Received: from moutng.kundenserver.de ([212.227.17.10]:64656 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751277Ab2DBNHW (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 1 Apr 2012 06:02:51 -0400
+	Mon, 2 Apr 2012 09:07:22 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Roland Stigge <stigge@antcom.de>
+Subject: Re: [PATCH 4/7] arm: mach-pnx4008: Adjust i2c.c to updated i2c-pnx.c
+Date: Mon, 2 Apr 2012 13:07:15 +0000
+Cc: arm@kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+	w.sang@pengutronix.de, srinivas.bakki@nxp.com, kevin.wells@nxp.com,
+	gregkh@linuxfoundation.org, netdev@vger.kernel.org,
+	rtc-linux@googlegroups.com, a.zummo@towertech.it,
+	linux-watchdog@vger.kernel.org, wim@iguana.be
+References: <1333371364-21347-1-git-send-email-stigge@antcom.de> <1333371364-21347-5-git-send-email-stigge@antcom.de>
+In-Reply-To: <1333371364-21347-5-git-send-email-stigge@antcom.de>
 MIME-Version: 1.0
-Reply-To: axel.lin@gmail.com
-In-Reply-To: <20120331011432.GG7274@titan.lakedaemon.net>
-References: <1332804040.5294.2.camel@phoenix> <20120331011432.GG7274@titan.lakedaemon.net>
-From: Axel Lin <axel.lin@gmail.com>
-Date: Sun, 1 Apr 2012 18:02:30 +0800
-Message-ID: <CAF+7xWkuZ6q1TbWpdvwK57wGBwd_naVZsvtj0UackWWFcam7qw@mail.gmail.com>
-Subject: Re: [PATCH RFT v3] watchdog: Convert orion_wdt driver to watchdog core
-To: Jason Cooper <jason@lakedaemon.net>
-Cc: linux-kernel@vger.kernel.org,
-	Sylver Bruneau <sylver.bruneau@googlemail.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org,
-	Nicolas Pitre <nicolas.pitre@linaro.org>,
-	Andrew Lunn <andrew@lunn.ch>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <201204021307.16072.arnd@arndb.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-2012/3/31 Jason Cooper <jason@lakedaemon.net>:
-> On Tue, Mar 27, 2012 at 07:20:40AM +0800, Axel Lin wrote:
->> Convert orion_wdt driver to use watchdog framework API.
->>
->> Signed-off-by: Axel Lin <axel.lin@gmail.com>
->> ---
->> Hi Jason, Andrew,
->> I don't have this hardware handy.
->> I'd appreciate if you can review and test this patch.
->
-> Axel,
->
-> Sorry for the delay, been a busy week. =A0I'm getting the following err=
-or:
->
-> drivers/watchdog/orion_wdt.c:133:2: error: unknown field 'get_timeleft'
-> specified in initializer
-> drivers/watchdog/orion_wdt.c:133:2: warning: initialization from
-> incompatible pointer type
->
-> What tag did you base this off of? =A0Are there any dependencies not in
-> mainline?
-I generate the patch base on linux-next tree.
-I just checked Linus' tree and this patch is appliable to Linus' tree.
-The required commit[1] is alread merged to Linus' tree now.
-Can you check it again?
-Thanks.
+On Monday 02 April 2012, Roland Stigge wrote:
+> The i2c bus driver i2c-pnx.c (used by mach-pnx4008 and mach-lpc32xx) was
+> updated to support device tree. In this process, the struct i2c_pnx_data was
+> eliminated. Therefore, the platform data of pnx4008 is adjusted with this patch
+> to use default resources for mem and irq. DT support for pnx4008 is still not
+> available, but i2c-pnx.c now supports both DT and non-DT.
+> 
+> arch/arm/mach-pnx4008/include/mach/i2c.h can safely be removed now since its
+> contents is integrated in the updated i2c-pnx.c driver and was duplicated
+> between platforms pnx4008 and lpc32xx.
+> 
+> Signed-off-by: Roland Stigge <stigge@antcom.de>
 
-[1] http://www.linux-watchdog.org/cgi-bin/gitweb.cgi?p=3Dlinux-watchdog.g=
-it;a=3Dcommitdiff;h=3Dfd7b673c92731fc6c0b1e999adfd87b6762ee797
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Hi Roland,
+
+The i2c changes look ok, but the order breaks bisection through the series.
+
+Since the changes in pnx4008 are fairly localized, I would suggest merging
+all three patches through the i2c tree and reorganizing the changes so
+that each change is atomic. I would suggest an order like:
+
+1. fix suspend
+2. move contents of mach/i2c.h from pnx4008 and lpc32xx to i2c driver
+3. change driver and platform device definitions to use resources instead
+   of platform data
+4. add support for device tree based probing
+
+	Arnd
