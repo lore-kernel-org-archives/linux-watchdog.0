@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.work-microwave.de ([62.245.205.51]:48476 "EHLO
+Received: from mail.work-microwave.de ([62.245.205.51]:42326 "EHLO
 	work-microwave.de" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751653Ab2DDIgI (ORCPT
+	with ESMTP id S1755763Ab2DDIgU (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 4 Apr 2012 04:36:08 -0400
+	Wed, 4 Apr 2012 04:36:20 -0400
 From: Roland Stigge <stigge@antcom.de>
 To: arm@kernel.org, linux-arm-kernel@lists.infradead.org,
 	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
@@ -12,76 +12,67 @@ To: arm@kernel.org, linux-arm-kernel@lists.infradead.org,
 	rtc-linux@googlegroups.com, a.zummo@towertech.it,
 	linux-watchdog@vger.kernel.org, wim@iguana.be, jonsmirl@gmail.com
 Cc: Roland Stigge <stigge@antcom.de>
-Subject: [PATCH v3 2/8] rtc: Add device tree support for LPC32xx
-Date: Wed,  4 Apr 2012 10:34:34 +0200
-Message-Id: <1333528480-17134-3-git-send-email-stigge@antcom.de>
-In-Reply-To: <1333528480-17134-1-git-send-email-stigge@antcom.de>
-References: <1333528480-17134-1-git-send-email-stigge@antcom.de>
+Subject: [PATCH v3 0/8] arm: lpc32xx: Device tree support
+Date: Wed,  4 Apr 2012 10:34:32 +0200
+Message-Id: <1333528480-17134-1-git-send-email-stigge@antcom.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patch adds device tree support for rtc-lpc32xx.c
+This is the first series of patches to introduce device tree support for the
+LPC32xx SoC. This series includes patches for the various subsystems to support
+device tree to be used later by the machine's initialization.
+
+The patches apply to various subsystems:
+
+ * staging/iio/adc (1)
+ * rtc (1)
+ * net (1)
+ * wdt (1)
+ * i2c (4)
+ * arm-soc (i2c related in the former, to be merged via i2c, as suggested by
+	    Arnd Bergmann)
+
+Based on v3.4-rc1
+
+You can also pull from
+
+  git://git.antcom.de/linux-2.6 lpc32xx/dt
+
+I'm CC'ing the various subsystem maintainers and lists who can each see what's
+going on and please pick their respective subsystem's changes. - Thanks!
+
+Changes since patch v2:
+ * net: Use of_property_read_bool()
+ * net: Fixed breakage with non-DT board (iram and mii options)
 
 Signed-off-by: Roland Stigge <stigge@antcom.de>
 Reviewed-by: Arnd Bergmann <arnd@arndb.de>
 
----
+--
 
- Applies to v3.4-rc1
+Roland Stigge (8):
+ iio: Add device tree support to LPC32xx ADC
+ rtc: Add device tree support for LPC32xx
+ net: Add device tree support to LPC32xx
+ wdt: Device tree support for pnx4008-wdt
+ i2c-pnx.c: Fix suspend
+ i2c-pnx.c: Use resources in platforms
+ i2c-pnx.c: Remove duplicated i2c.h
+ i2c: Add device tree support to i2c-pnx.c
 
- Documentation/devicetree/bindings/rtc/lpc32xx-rtc.txt |   15 +++++++++++++++
- drivers/rtc/rtc-lpc32xx.c                             |   12 +++++++++++-
- 2 files changed, 26 insertions(+), 1 deletion(-)
-
---- /dev/null
-+++ linux-2.6/Documentation/devicetree/bindings/rtc/lpc32xx-rtc.txt
-@@ -0,0 +1,15 @@
-+* NXP LPC32xx SoC Real Time Clock controller
-+
-+Required properties:
-+- compatible: must be "nxp,lpc32xx-rtc"
-+- reg: physical base address of the controller and length of memory mapped
-+  region.
-+- interrupts: The RTC interrupt
-+
-+Example:
-+
-+	rtc@40024000 {
-+		compatible = "nxp,lpc32xx-rtc";
-+		reg = <0x40024000 0x1000>;
-+		interrupts = <52 0>;
-+	};
---- linux-2.6.orig/drivers/rtc/rtc-lpc32xx.c
-+++ linux-2.6/drivers/rtc/rtc-lpc32xx.c
-@@ -19,6 +19,7 @@
- #include <linux/rtc.h>
- #include <linux/slab.h>
- #include <linux/io.h>
-+#include <linux/of.h>
- 
- /*
-  * Clock and Power control register offsets
-@@ -386,13 +387,22 @@ static const struct dev_pm_ops lpc32xx_r
- #define LPC32XX_RTC_PM_OPS NULL
- #endif
- 
-+#ifdef CONFIG_OF
-+static const struct of_device_id lpc32xx_rtc_match[] = {
-+	{ .compatible = "nxp,lpc32xx-rtc" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, lpc32xx_rtc_match);
-+#endif
-+
- static struct platform_driver lpc32xx_rtc_driver = {
- 	.probe		= lpc32xx_rtc_probe,
- 	.remove		= __devexit_p(lpc32xx_rtc_remove),
- 	.driver = {
- 		.name	= RTC_NAME,
- 		.owner	= THIS_MODULE,
--		.pm	= LPC32XX_RTC_PM_OPS
-+		.pm	= LPC32XX_RTC_PM_OPS,
-+		.of_match_table = of_match_ptr(lpc32xx_rtc_match),
- 	},
- };
- 
+ Documentation/devicetree/bindings/i2c/pnx.txt                     |   40 ++
+ Documentation/devicetree/bindings/net/lpc-eth.txt                 |   24 +
+ Documentation/devicetree/bindings/rtc/lpc32xx-rtc.txt             |   15 
+ Documentation/devicetree/bindings/staging/iio/adc/lpc32xx-adc.txt |   16 
+ Documentation/devicetree/bindings/watchdog/pnx4008-wdt.txt        |   13 
+ arch/arm/mach-lpc32xx/common.c                                    |   75 ++--
+ arch/arm/mach-lpc32xx/include/mach/i2c.h                          |   63 ---
+ arch/arm/mach-pnx4008/i2c.c                                       |   64 ++-
+ arch/arm/mach-pnx4008/include/mach/i2c.h                          |   64 ---
+ drivers/i2c/busses/i2c-pnx.c                                      |  164 +++++++---
+ drivers/net/ethernet/nxp/lpc_eth.c                                |   73 ++--
+ drivers/rtc/rtc-lpc32xx.c                                         |   12 
+ drivers/staging/iio/adc/lpc32xx_adc.c                             |   10 
+ drivers/watchdog/pnx4008_wdt.c                                    |   10 
+ include/linux/i2c-pnx.h                                           |   10 
+ 15 files changed, 512 insertions(+), 268 deletions(-)
