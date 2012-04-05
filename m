@@ -1,40 +1,75 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from shards.monkeyblade.net ([198.137.202.13]:43257 "EHLO
-	shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754737Ab2DDIqH (ORCPT
+Received: from mho-02-ewr.mailhop.org ([204.13.248.72]:25014 "EHLO
+	mho-02-ewr.mailhop.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756263Ab2DEWcf convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 4 Apr 2012 04:46:07 -0400
-Date: Wed, 04 Apr 2012 04:39:52 -0400 (EDT)
-Message-Id: <20120404.043952.1333187975072018080.davem@davemloft.net>
-To: stigge@antcom.de
-Cc: arm@kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-	w.sang@pengutronix.de, srinivas.bakki@nxp.com, kevin.wells@nxp.com,
-	gregkh@linuxfoundation.org, netdev@vger.kernel.org,
-	rtc-linux@googlegroups.com, a.zummo@towertech.it,
-	linux-watchdog@vger.kernel.org, wim@iguana.be, jonsmirl@gmail.com
-Subject: Re: [PATCH v3 3/8] net: Add device tree support to LPC32xx
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1333528480-17134-4-git-send-email-stigge@antcom.de>
-References: <1333528480-17134-1-git-send-email-stigge@antcom.de>
-	<1333528480-17134-4-git-send-email-stigge@antcom.de>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Apr 2012 18:32:35 -0400
+Date: Thu, 5 Apr 2012 18:32:31 -0400
+From: Jason Cooper <jason@lakedaemon.net>
+To: Axel Lin <axel.lin@gmail.com>
+Cc: linux-kernel@vger.kernel.org,
+	Sylver Bruneau <sylver.bruneau@googlemail.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org,
+	Nicolas Pitre <nicolas.pitre@linaro.org>,
+	Andrew Lunn <andrew@lunn.ch>
+Subject: Re: [PATCH RFT v3] watchdog: Convert orion_wdt driver to watchdog
+ core
+Message-ID: <20120405223231.GK817@titan.lakedaemon.net>
+References: <1332804040.5294.2.camel@phoenix>
+ <20120331011432.GG7274@titan.lakedaemon.net>
+ <CAF+7xWkuZ6q1TbWpdvwK57wGBwd_naVZsvtj0UackWWFcam7qw@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <CAF+7xWkuZ6q1TbWpdvwK57wGBwd_naVZsvtj0UackWWFcam7qw@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-From: Roland Stigge <stigge@antcom.de>
-Date: Wed,  4 Apr 2012 10:34:35 +0200
+On Sun, Apr 01, 2012 at 06:02:30PM +0800, Axel Lin wrote:
+> 2012/3/31 Jason Cooper <jason@lakedaemon.net>:
+> > On Tue, Mar 27, 2012 at 07:20:40AM +0800, Axel Lin wrote:
+> >> Convert orion_wdt driver to use watchdog framework API.
+> >>
+> >> Signed-off-by: Axel Lin <axel.lin@gmail.com>
+> >> ---
+> >> Hi Jason, Andrew,
+> >> I don't have this hardware handy.
+> >> I'd appreciate if you can review and test this patch.
+> >
+> > Axel,
+> >
+> > Sorry for the delay, been a busy week. =A0I'm getting the following e=
+rror:
+> >
+> > drivers/watchdog/orion_wdt.c:133:2: error: unknown field 'get_timelef=
+t'
+> > specified in initializer
+> > drivers/watchdog/orion_wdt.c:133:2: warning: initialization from
+> > incompatible pointer type
+> >
+> > What tag did you base this off of? =A0Are there any dependencies not =
+in
+> > mainline?
+> I generate the patch base on linux-next tree.
+> I just checked Linus' tree and this patch is appliable to Linus' tree.
+> The required commit[1] is alread merged to Linus' tree now.
+> Can you check it again?
+> Thanks.
 
-> This patch adds device tree support for lpc_eth.c.
-> 
-> The runtime option for MII/RMII is solved via the "phy-mode" property, SRAM
-> ("IRAM") usage for DMA can be chosen via "use-iram".
-> 
-> Signed-off-by: Roland Stigge <stigge@antcom.de>
-> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Ah, much better.  I rebased it against v3.4-rc1 now that it's out.
+Compiles without problems.  I'll test this weekend most likely.  I don't
+have my watchdog code in front of me atm.
 
-Feel free to merge this in via one of the ARM trees.
+thx,
 
-Acked-by: David S. Miller <davem@davemloft.net>
+Jason.
+
+> [1] http://www.linux-watchdog.org/cgi-bin/gitweb.cgi?p=3Dlinux-watchdog=
+.git;a=3Dcommitdiff;h=3Dfd7b673c92731fc6c0b1e999adfd87b6762ee797
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
