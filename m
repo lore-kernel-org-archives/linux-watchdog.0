@@ -1,41 +1,52 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:60290 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750994Ab2DHL6M (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 8 Apr 2012 07:58:12 -0400
-From: Michael Olbrich <m.olbrich@pengutronix.de>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Michael Olbrich <m.olbrich@pengutronix.de>
-Subject: [PATCH] watchdog: i6300esb: don't depend on X86
-Date: Sun,  8 Apr 2012 13:56:06 +0200
-Message-Id: <1333886166-27858-1-git-send-email-m.olbrich@pengutronix.de>
+Received: from mx1.redhat.com ([209.132.183.28]:45176 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751701Ab2DINCc (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 9 Apr 2012 09:02:32 -0400
+Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id q39D2VbK032319
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <linux-watchdog@vger.kernel.org>; Mon, 9 Apr 2012 09:02:31 -0400
+Received: from shalem.localdomain (vpn1-7-241.ams2.redhat.com [10.36.7.241])
+	by int-mx12.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id q39D2UFU030192
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-CAMELLIA256-SHA bits=256 verify=NO)
+	for <linux-watchdog@vger.kernel.org>; Mon, 9 Apr 2012 09:02:31 -0400
+Message-ID: <4F82DE6C.3070803@redhat.com>
+Date: Mon, 09 Apr 2012 15:04:44 +0200
+From: Hans de Goede <hdegoede@redhat.com>
+MIME-Version: 1.0
+To: linux-watchdog@vger.kernel.org
+Subject: watchdog_dev is not smp safe?!
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-i6300esb is on of the watchdogs QEMU can emulate. It is also available
-when emulating ARM. The driver works without problems and is quite
-useful to test userspace dealing with /dev/watchdog.
+Hi,
 
-Signed-off-by: Michael Olbrich <m.olbrich@pengutronix.de>
----
- drivers/watchdog/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+While working on converting my sch56xx watchdog driver to watchdog_dev,
+I noticed that watchdog_dev.c does not do any locking.
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 3709624..6ea25f9 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -543,7 +543,7 @@ config WAFER_WDT
- 
- config I6300ESB_WDT
- 	tristate "Intel 6300ESB Timer/Watchdog"
--	depends on X86 && PCI
-+	depends on PCI
- 	---help---
- 	  Hardware driver for the watchdog timer built into the Intel
- 	  6300ESB controller hub.
--- 
-1.7.9.5
+At a first look this may seem ok, since only 1 open is allowed, but
+a process with /dev/watchdog open could use threads or fork and
+that way still make multiple write / ioctl calls at the same time.
 
+This causes 2 potential problems:
+1) watchdog_start / open do an unlocked test_n_set / test_n_clear,
+    if these 2 race, the watchdog could be stopped while the active
+    bit indicates it is running or visa versa.
+
+2) Most watchdog_dev drivers probably assume that only one
+    watchdog-op will get called at a time, this is not necessary
+    true atm
+
+
+Notice that 2. is fixed by my "watchdog_dev: Add support for dynamically
+allocated watchdog_device structs" patch which is still pending review.
+
+Changing that patch to also fix 1. is quite easy. But before I put
+more work into that patch I would first like some feedback on it ...
+
+Regards,
+
+Hans
