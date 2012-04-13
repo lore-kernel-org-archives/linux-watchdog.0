@@ -1,52 +1,53 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from eu1sys200aog115.obsmtp.com ([207.126.144.139]:60127 "EHLO
-	eu1sys200aog115.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752915Ab2DJJhr (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 10 Apr 2012 05:37:47 -0400
-Message-ID: <4F83FEE0.8020709@st.com>
-Date: Tue, 10 Apr 2012 15:05:28 +0530
-From: Viresh Kumar <viresh.kumar@st.com>
+Received: from mx1.redhat.com ([209.132.183.28]:64695 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932424Ab2DMI4J (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 13 Apr 2012 04:56:09 -0400
+Message-ID: <4F87EAA4.3090900@redhat.com>
+Date: Fri, 13 Apr 2012 10:58:12 +0200
+From: Hans de Goede <hdegoede@redhat.com>
 MIME-Version: 1.0
-To: "wim@iguana.be" <wim@iguana.be>
-Cc: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	spear-devel <spear-devel@list.st.com>,
-	"viresh.linux@gmail.com" <viresh.linux@gmail.com>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-	Srinidhi KASAGAR <srinidhi.kasagar@stericsson.com>,
-	Linus WALLEIJ <linus.walleij@stericsson.com>,
-	"alan@lxorguk.ukuu.org.uk" <alan@lxorguk.ukuu.org.uk>,
-	"w.sang@pengutronix.de" <w.sang@pengutronix.de>,
-	"sshtylyov@mvista.com" <sshtylyov@mvista.com>
-Subject: Re: [PATCH V2 00/22] watchdog: ARM watchdogs: sp805 & mpcore updates
- & fixes
-References: <cover.1331524811.git.viresh.kumar@st.com>
-In-Reply-To: <cover.1331524811.git.viresh.kumar@st.com>
-Content-Type: text/plain; charset="ISO-8859-1"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-watchdog@vger.kernel.org, wim@iguana.be
+Subject: Re: [PATCH 2/4] watchdog: Add a flag to indicate the watchdog doesn't
+ reboot things
+References: <20120321152418.20045.35525.stgit@bob.linux.org.uk> <20120321152503.20045.41514.stgit@bob.linux.org.uk>
+In-Reply-To: <20120321152503.20045.41514.stgit@bob.linux.org.uk>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 3/12/2012 9:51 AM, Viresh KUMAR wrote:
-> Hello,
-> 
-> This patchset contains fixes and updates for ARM watchdog drivers sp805 and
-> mpcore.
-> 
-> Changes since V1:
-> - Included patches for sp805 driver.
-> - Removed: wdt->clk = NULL from mpcore driver, and use IS_ERR() to check if
->   clock is supported or not.
-> - Adapted to watchdog core for both the drivers.
-> - two patches for watchdog core added
-> - add patch to use __raw_readl{writel} instead of readl{writel}
-> - taken care of few more review comments.
-> 
+Looks good, ack.
 
-Hi Wim,
+Acked-by: Hans de Goede <hdegoede@redhat.com>
 
-Have you applied patches left in this patchset for linux-next?
-
---
-viresh
+On 03/21/2012 04:25 PM, Alan Cox wrote:
+> From: Alan Cox<alan@linux.intel.com>
+>
+> Some watchdogs merely trigger external alarms and controls. In a managed
+> environment this is very useful but we want drivers to be able to figure
+> out which is which now multiple dogs can be loaded. Thus add an ALARMONLY
+> feature flag.
+>
+> Signed-off-by: Alan Cox<alan@linux.intel.com>
+> ---
+>
+>   include/linux/watchdog.h |    2 ++
+>   1 files changed, 2 insertions(+), 0 deletions(-)
+>
+>
+> diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+> index 0d5c3af..fdd5dbb 100644
+> --- a/include/linux/watchdog.h
+> +++ b/include/linux/watchdog.h
+> @@ -45,6 +45,8 @@ struct watchdog_info {
+>   #define	WDIOF_SETTIMEOUT	0x0080  /* Set timeout (in seconds) */
+>   #define	WDIOF_MAGICCLOSE	0x0100	/* Supports magic close char */
+>   #define	WDIOF_PRETIMEOUT	0x0200  /* Pretimeout (in seconds), get/set */
+> +#define WDIOF_ALARMONLY		0x0400	/* Watchdog triggers a management or
+> +					   other external alarm not a reboot */
+>   #define	WDIOF_KEEPALIVEPING	0x8000	/* Keep alive ping reply */
+>
+>   #define	WDIOS_DISABLECARD	0x0001	/* Turn off the watchdog timer */
+>
