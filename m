@@ -1,112 +1,88 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from aldebaran.gro-tsen.net ([88.191.60.176]:36367 "EHLO
-	aldebaran.gro-tsen.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751310Ab2DOUG5 (ORCPT
+Received: from mail-ob0-f174.google.com ([209.85.214.174]:45023 "EHLO
+	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754631Ab2DPTvZ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 15 Apr 2012 16:06:57 -0400
-Date: Sun, 15 Apr 2012 21:57:42 +0200
-From: David Madore <david+ml@madore.org>
-To: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: [PATCH] iTCO_wdt: restore watchdog state and timeout after resume
-Message-ID: <20120415195741.GA25635@aldebaran.gro-tsen.net>
-References: <20120415163130.GA12802@aldebaran.gro-tsen.net>
+	Mon, 16 Apr 2012 15:51:25 -0400
+Received: by obbta14 with SMTP id ta14so4049960obb.19
+        for <linux-watchdog@vger.kernel.org>; Mon, 16 Apr 2012 12:51:25 -0700 (PDT)
+Message-ID: <4F8C7839.6060104@flameeyes.eu>
+Date: Mon, 16 Apr 2012 12:51:21 -0700
+From: =?UTF-8?B?RGllZ28gRWxpbyBQZXR0ZW7Dsg==?= <flameeyes@flameeyes.eu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20120415163130.GA12802@aldebaran.gro-tsen.net>
+To: Grant Likely <grant.likely@secretlab.ca>,
+	guillaume ligneul <guillaume.ligneul@oselis.com>,
+	Linus Walleij <linus.walleij@stericsson.com>,
+	Guenter Roeck <guenter.roeck@ericsson.com>,
+	Jean Delvare <khali@linux-fr.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Denis Turischev <denis@compulab.co.il>
+CC: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
+Subject: [RFC] IT87xx GPIO and other drivers
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-The iTCO_wdt watchdog state and timeout (heartbeat) need to be
-restored after resume.  Use pm_ops to do this.
+Hi all, sorry if I'm mailing lots of you at once, but I'm afraid I got
+my hands on a can of worms right now...
 
-Signed-off-by: David A. Madore <david+linux@madore.org>
+As some of you remember I've been working on a driver for supporting the
+GPIO functions of the IT8728F Super I/O chip, as well as making the WDT
+driver to work on this chip.
 
----
+After trying to make a bit of sense of it all, I'm concerned that the
+only _correct_ way to handle this would be to ahve a set of drivers that
+work together, rather than a number of drivers that all do their own
+part. Currently we have:
 
---- old/drivers/watchdog/iTCO_wdt.c	2012-04-13 18:42:02.000000000 +0200
-+++ new/drivers/watchdog/iTCO_wdt.c	2012-04-15 20:43:39.609718697 +0200
-@@ -56,6 +56,7 @@
- #include <linux/kernel.h>		/* For printk/panic/... */
- #include <linux/miscdevice.h>		/* For MODULE_ALIAS_MISCDEV
- 							(WATCHDOG_MINOR) */
-+#include <linux/pm.h>			/* For struct dev_pm_ops */
- #include <linux/watchdog.h>		/* For the watchdog specific items */
- #include <linux/init.h>			/* For __init/__exit/... */
- #include <linux/fs.h>			/* For file operations */
-@@ -400,6 +401,8 @@ static struct {		/* this is private data
- 	spinlock_t io_lock;
- 	/* the PCI-device */
- 	struct pci_dev *pdev;
-+	/* whether the timer is started */
-+	char is_started;
- } iTCO_wdt_private;
- 
- /* the watchdog platform device */
-@@ -506,6 +509,7 @@ static int iTCO_wdt_start(void)
- 	val &= 0xf7ff;
- 	outw(val, TCO1_CNT);
- 	val = inw(TCO1_CNT);
-+	iTCO_wdt_private.is_started = 1;
- 	spin_unlock(&iTCO_wdt_private.io_lock);
- 
- 	if (val & 0x0800)
-@@ -530,6 +534,8 @@ static int iTCO_wdt_stop(void)
- 	/* Set the NO_REBOOT bit to prevent later reboots, just for sure */
- 	iTCO_wdt_set_NO_REBOOT_bit();
- 
-+	iTCO_wdt_private.is_started = 0;
-+
- 	spin_unlock(&iTCO_wdt_private.io_lock);
- 
- 	if ((val & 0x0800) == 0)
-@@ -965,6 +971,35 @@ static void iTCO_wdt_shutdown(struct pla
- 	iTCO_wdt_stop();
- }
- 
-+#ifdef CONFIG_PM
-+static int iTCO_wdt_suspend(struct device *dev)
-+{
-+	char save_is_started = iTCO_wdt_private.is_started;
-+	iTCO_wdt_stop();
-+	iTCO_wdt_private.is_started = save_is_started;
-+	return 0;
-+}
-+
-+static int iTCO_wdt_resume(struct device *dev)
-+{
-+	iTCO_wdt_set_heartbeat(heartbeat);
-+	iTCO_wdt_keepalive();
-+	if (iTCO_wdt_private.is_started) {
-+		printk(KERN_INFO PFX "Watchdog restarted after resume.\n");
-+		iTCO_wdt_start();
-+	} else {
-+		printk(KERN_INFO PFX "Watchdog stopped after resume.\n");
-+		iTCO_wdt_stop();
-+	}
-+	return 0;
-+}
-+
-+static const struct dev_pm_ops iTCO_wdt_pm_ops = {
-+	.suspend        = iTCO_wdt_suspend,
-+	.resume         = iTCO_wdt_resume,
-+};
-+#endif /* CONFIG_PM */
-+
- static struct platform_driver iTCO_wdt_driver = {
- 	.probe          = iTCO_wdt_probe,
- 	.remove         = __devexit_p(iTCO_wdt_remove),
-@@ -972,6 +1007,9 @@ static struct platform_driver iTCO_wdt_d
- 	.driver         = {
- 		.owner  = THIS_MODULE,
- 		.name   = DRV_NAME,
-+#ifdef CONFIG_PM
-+		.pm     = &iTCO_wdt_pm_ops,
-+#endif /* CONFIG_PM */
- 	},
- };
- 
+ - hwmon/it87 which supports most it87xx chips;
+ - it87_wdt for most it87xx chips (including it8712);
+ - it8712f_wdt which supports the "Smart Guardian" watchdog;
+ - gpio_it8761e for that single IT87xx gpio;
+ - my gpio_it87 driver that works with it8728f and should work with
+it8761e (for what I can tell from the other driver), and Guillaume has
+code for IT8712 as well (which variant?).
 
--- 
-     David A. Madore
-   ( http://www.madore.org/~david/ )
+What issues are there with this situation?
+
+All these drivers use to some extent the Super I/O addresses (0x2e/0x2f)
+to read and write to its registers, including detection code which is
+replicated for each of them. The functions to read and write superio
+registers is also duplicate.
+
+Only some of these drivers (namely gpio-it8761e for what I can tell)
+support checking both 0x2e/0x2f and 0x4e/0x4f, which is an alternative
+addressing for the superio register handling.
+
+The GPIO pins on most of the it87xx chips are also multi-function, and
+_should not_ be user-visible, but for some of them it might make sense
+to (for instance it should be possible to drive some of the LEDs on
+it8728f-based motherboards by replacing the functions of some PINs to GPI=
+O).
+
+For what I can tell, it should probably be a good idea to have something
+along these lines, but I'm _not_ a driver expert:
+
+ - mfd-it87xx: a platform driver, which probes the superio to check it
+to be an it87xx chip, and then reserve resources for the other drivers;
+ - hwmon/it87: no longer probes autonomously for which chip it is, and
+where it is;
+ - it87_wdt: ibidem;
+ - it8712_wdt: no clue about it, but I guess the same;
+ - gpio-it87: ibidem again;
+ - pinctrl-it87: abstracts support for the various pin-choice registers;
+ - led-it87: possibly to drive the power/network/hdd leds, akin to what
+happens with some laptops, and embedded systems.
+
+Does a plan like this make sense? Denis have you still access to an
+it8761e board?
+
+--=20
+Diego Elio Petten=C3=B2 =E2=80=94 Flameeyes
+flameeyes@flameeyes.eu =E2=80=94 http://blog.flameeyes.eu/
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
