@@ -1,20 +1,17 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:36964 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752656Ab2DQGrS convert rfc822-to-8bit (ORCPT
+Received: from mail-gx0-f174.google.com ([209.85.161.174]:57459 "EHLO
+	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753884Ab2DQOvU (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 17 Apr 2012 02:47:18 -0400
-Received: by yhmm54 with SMTP id m54so2881001yhm.19
-        for <linux-watchdog@vger.kernel.org>; Mon, 16 Apr 2012 23:47:18 -0700 (PDT)
+	Tue, 17 Apr 2012 10:51:20 -0400
+Received: by gghe5 with SMTP id e5so3092277ggh.19
+        for <linux-watchdog@vger.kernel.org>; Tue, 17 Apr 2012 07:51:20 -0700 (PDT)
+Message-ID: <4F8D8365.3020002@flameeyes.eu>
+Date: Tue, 17 Apr 2012 07:51:17 -0700
+From: =?UTF-8?B?RGllZ28gRWxpbyBQZXR0ZW7Dsg==?= <flameeyes@flameeyes.eu>
 MIME-Version: 1.0
-In-Reply-To: <4F8C7839.6060104@flameeyes.eu>
-References: <4F8C7839.6060104@flameeyes.eu>
-Date: Tue, 17 Apr 2012 08:47:17 +0200
-Message-ID: <CACRpkdaOSSA8PuTSQ4utp9JHKbBiz+iWfuPn=2WyojZxsR5a3A@mail.gmail.com>
-Subject: Re: [RFC] IT87xx GPIO and other drivers
-From: Linus Walleij <linus.walleij@linaro.org>
-To: =?ISO-8859-1?Q?Diego_Elio_Petten=F2?= <flameeyes@flameeyes.eu>
-Cc: Grant Likely <grant.likely@secretlab.ca>,
+To: Linus Walleij <linus.walleij@linaro.org>
+CC: Grant Likely <grant.likely@secretlab.ca>,
 	guillaume ligneul <guillaume.ligneul@oselis.com>,
 	Linus Walleij <linus.walleij@stericsson.com>,
 	Guenter Roeck <guenter.roeck@ericsson.com>,
@@ -22,53 +19,42 @@ Cc: Grant Likely <grant.likely@secretlab.ca>,
 	Wim Van Sebroeck <wim@iguana.be>,
 	Denis Turischev <denis@compulab.co.il>,
 	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [RFC] IT87xx GPIO and other drivers
+References: <4F8C7839.6060104@flameeyes.eu> <CACRpkdaOSSA8PuTSQ4utp9JHKbBiz+iWfuPn=2WyojZxsR5a3A@mail.gmail.com>
+In-Reply-To: <CACRpkdaOSSA8PuTSQ4utp9JHKbBiz+iWfuPn=2WyojZxsR5a3A@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Apr 16, 2012 at 9:51 PM, Diego Elio Petten=F2
-<flameeyes@flameeyes.eu> wrote:
+Il 16/04/2012 23:47, Linus Walleij ha scritto:
+> I would suggest merging gpio-it87 and pinctrl-it87 into one driver
+> in drivers/pinctrl-it87.c. I don't know for sure however, since it depe=
+nds
+> on hardware: usually these is a tight dependence between GPIO and
+> pinctrl (IIRC this was the case with SuperIO), and then it often makes
+> a lot of sense to create a composite driver, in order to just have one
+> state container (cookie) to pass around in the functions, and to remap
+> a register range only once.
 
-> The GPIO pins on most of the it87xx chips are also multi-function, and
-> _should not_ be user-visible, but for some of them it might make sense
-> to (for instance it should be possible to drive some of the LEDs on
-> it8728f-based motherboards by replacing the functions of some PINs to G=
-PIO).
->
-> For what I can tell, it should probably be a good idea to have somethin=
-g
-> along these lines, but I'm _not_ a driver expert:
->
-> =A0- mfd-it87xx: a platform driver, which probes the superio to check i=
-t
-> to be an it87xx chip, and then reserve resources for the other drivers;
-> =A0- hwmon/it87: no longer probes autonomously for which chip it is, an=
-d
-> where it is;
-> =A0- it87_wdt: ibidem;
-> =A0- it8712_wdt: no clue about it, but I guess the same;
-> =A0- gpio-it87: ibidem again;
-> =A0- pinctrl-it87: abstracts support for the various pin-choice registe=
-rs;
-> =A0- led-it87: possibly to drive the power/network/hdd leds, akin to wh=
-at
-> happens with some laptops, and embedded systems.
+So you mean having the MFD actually handle most of the work, and that's
+it? If I did read the source correctly, that might actually work well,
+as hwmon/it87 is only using the SuperIO for detection (which MFD can
+take care of), while the others would be using the same functions to
+read/write to the SuperIO registers.
 
-I would suggest merging gpio-it87 and pinctrl-it87 into one driver
-in drivers/pinctrl-it87.c. I don't know for sure however, since it depend=
-s
-on hardware: usually these is a tight dependence between GPIO and
-pinctrl (IIRC this was the case with SuperIO), and then it often makes
-a lot of sense to create a composite driver, in order to just have one
-state container (cookie) to pass around in the functions, and to remap
-a register range only once.
+Does that mean that when the user enables the MFD, they get gpio,
+pinctrl and watchdog at once, or should it still have multiple Kconfig
+entries which select it?
 
-The concept is explained in my pinctrl talk on a high level:
-http://www.df.lth.se/~triad/papers/pincontrol.pdf
+> The concept is explained in my pinctrl talk on a high level:
+> http://www.df.lth.se/~triad/papers/pincontrol.pdf
 
-Yours,
-Linus Walleij
+Okay will read through it, thanks!
+
+--=20
+Diego Elio Petten=C3=B2 =E2=80=94 Flameeyes
+flameeyes@flameeyes.eu =E2=80=94 http://blog.flameeyes.eu/
 --
 To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
  in
