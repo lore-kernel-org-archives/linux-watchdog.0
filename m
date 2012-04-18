@@ -1,10 +1,10 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:52318 "EHLO
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:52564 "EHLO
 	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752564Ab2DRR7E (ORCPT
+	with ESMTP id S1753067Ab2DRSE2 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 18 Apr 2012 13:59:04 -0400
-Date: Wed, 18 Apr 2012 19:57:59 +0200
+	Wed, 18 Apr 2012 14:04:28 -0400
+Date: Wed, 18 Apr 2012 20:03:59 +0200
 From: Wolfram Sang <w.sang@pengutronix.de>
 To: Roland Stigge <stigge@antcom.de>
 Cc: arm@kernel.org, linux-arm-kernel@lists.infradead.org,
@@ -12,55 +12,50 @@ Cc: arm@kernel.org, linux-arm-kernel@lists.infradead.org,
 	srinivas.bakki@nxp.com, kevin.wells@nxp.com,
 	gregkh@linuxfoundation.org, netdev@vger.kernel.org,
 	rtc-linux@googlegroups.com, a.zummo@towertech.it,
-	linux-watchdog@vger.kernel.org, wim@iguana.be, jonsmirl@gmail.com,
-	stable@vger.kernel.org
-Subject: Re: [PATCH v3 5/8] i2c-pnx.c: Fix suspend
-Message-ID: <20120418175759.GA2548@pengutronix.de>
+	linux-watchdog@vger.kernel.org, wim@iguana.be, jonsmirl@gmail.com
+Subject: Re: [PATCH v3 6/8] i2c-pnx.c: Use resources in platforms
+Message-ID: <20120418180359.GB2548@pengutronix.de>
 References: <1333528480-17134-1-git-send-email-stigge@antcom.de>
- <1333528480-17134-6-git-send-email-stigge@antcom.de>
+ <1333528480-17134-7-git-send-email-stigge@antcom.de>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="pf9I7BMVVzbSWLtt"
+	protocol="application/pgp-signature"; boundary="+g7M9IMkV8truYOl"
 Content-Disposition: inline
-In-Reply-To: <1333528480-17134-6-git-send-email-stigge@antcom.de>
+In-Reply-To: <1333528480-17134-7-git-send-email-stigge@antcom.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 
---pf9I7BMVVzbSWLtt
+--+g7M9IMkV8truYOl
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 04, 2012 at 10:34:37AM +0200, Roland Stigge wrote:
-> In the driver's suspend function, clk_enable() was used instead of
-> clk_disable(). This is corrected with this patch.
+On Wed, Apr 04, 2012 at 10:34:38AM +0200, Roland Stigge wrote:
+> As a precondition for device tree conversion, the platforms using i2c-pnx=
+=2Ec are
+> converted to using mem and irq resources instead of platform data.
 >=20
 > Signed-off-by: Roland Stigge <stigge@antcom.de>
 > Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-> CC: stable@vger.kernel.org
 
-Picked up for 3.4, reworded the message header to "i2c: pnx: Disable
-clk in suspend" since "fix suspend" was too generic.
-
-Thanks,
-
-   Wolfram
+I trust you and Arnd on the mach stuff. i2c looked okay, devm_*
+could have been used, but well... Applied to next.
 
 --=20
 Pengutronix e.K.                           | Wolfram Sang                |
 Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
---pf9I7BMVVzbSWLtt
+--+g7M9IMkV8truYOl
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iEYEARECAAYFAk+PAKYACgkQD27XaX1/VRsj4ACgiUS75cGf7WchOPKqs45Qt3FO
-qp8AoLRRAJSMxmDd+MA5CdNa8su5WzMG
-=ErG9
+iEYEARECAAYFAk+PAg8ACgkQD27XaX1/VRvoMgCfd+T7qO4MGaF99MvrZSRydpYZ
+xI0AoJlE66rU3M6dhbWGUNKevBhGxKm5
+=sbrQ
 -----END PGP SIGNATURE-----
 
---pf9I7BMVVzbSWLtt--
+--+g7M9IMkV8truYOl--
