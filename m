@@ -1,313 +1,66 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from am1ehsobe004.messaging.microsoft.com ([213.199.154.207]:48012
-	"EHLO am1outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752941Ab2DRMsR (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:52318 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752564Ab2DRR7E (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 18 Apr 2012 08:48:17 -0400
-Subject: [PATCH] Watchdog: DA9052/53 PMIC watchdog support v3
-From: Ashish Jangam <ashish.jangam@kpitcummins.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	Anthony Olech <Anthony.Olech@diasemi.com>,
-	<sameo@linux.intel.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 18 Apr 2012 18:14:26 +0530
-Message-ID: <1334753066.8143.44.camel@dhruva>
+	Wed, 18 Apr 2012 13:59:04 -0400
+Date: Wed, 18 Apr 2012 19:57:59 +0200
+From: Wolfram Sang <w.sang@pengutronix.de>
+To: Roland Stigge <stigge@antcom.de>
+Cc: arm@kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+	srinivas.bakki@nxp.com, kevin.wells@nxp.com,
+	gregkh@linuxfoundation.org, netdev@vger.kernel.org,
+	rtc-linux@googlegroups.com, a.zummo@towertech.it,
+	linux-watchdog@vger.kernel.org, wim@iguana.be, jonsmirl@gmail.com,
+	stable@vger.kernel.org
+Subject: Re: [PATCH v3 5/8] i2c-pnx.c: Fix suspend
+Message-ID: <20120418175759.GA2548@pengutronix.de>
+References: <1333528480-17134-1-git-send-email-stigge@antcom.de>
+ <1333528480-17134-6-git-send-email-stigge@antcom.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="pf9I7BMVVzbSWLtt"
+Content-Disposition: inline
+In-Reply-To: <1333528480-17134-6-git-send-email-stigge@antcom.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This driver adds support for the watchdog functionality provided by the Dialog
-Semiconductor DA9052 PMIC chip.
 
-Signed-off-by: Anthony Olech <Anthony.Olech@diasemi.com>
-Signed-off-by: Ashish Jangam <ashish.jangam@kpitcummins.com>
----
-Changes since V3:
-- Add new watchdog framework
-Changes since V2:
-- Code restructured for simplicty.
-- Add watchdog documentation.
-- Remove Auto strobing feature.
-- Remove strobe filtering flag.
----
- Documentation/watchdog/watchdog-parameters.txt |    3 +
- drivers/watchdog/Kconfig                       |    7 +
- drivers/watchdog/Makefile                      |    1 +
- drivers/watchdog/da9052_wdt.c                  |  223 ++++++++++++++++++++++++
- 4 files changed, 234 insertions(+), 0 deletions(-)
+--pf9I7BMVVzbSWLtt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/Documentation/watchdog/watchdog-parameters.txt b/Documentation/watchdog/watchdog-parameters.txt
-index 17ddd82..b1a65eb 100644
---- a/Documentation/watchdog/watchdog-parameters.txt
-+++ b/Documentation/watchdog/watchdog-parameters.txt
-@@ -78,6 +78,9 @@ wd0_timeout: Default watchdog0 timeout in 1/10secs
- wd1_timeout: Default watchdog1 timeout in 1/10secs
- wd2_timeout: Default watchdog2 timeout in 1/10secs
- -------------------------------------------------
-+da9052_wdt:
-+timeout: Watchdog timeout in seconds. 2<= timeout <=131, default=4.096s
-+-------------------------------------------------
- davinci_wdt:
- heartbeat: Watchdog heartbeat period in seconds from 1 to 600, default 60
- -------------------------------------------------
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index eeea76f..ece08cf 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -64,6 +64,13 @@ config SOFT_WATCHDOG
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called softdog.
- 
-+config DA9052_WATCHDOG
-+	tristate "Dialog DA9052 Watchdog"
-+	depends on PMIC_DA9052
-+	select WATCHDOG_CORE
-+	help
-+	  Support for the watchdog in the DA9052 PMIC.
-+
- config WM831X_WATCHDOG
- 	tristate "WM831x watchdog"
- 	depends on MFD_WM831X
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index e8f479a..b3032e9 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -167,3 +167,4 @@ obj-$(CONFIG_WM831X_WATCHDOG) += wm831x_wdt.o
- obj-$(CONFIG_WM8350_WATCHDOG) += wm8350_wdt.o
- obj-$(CONFIG_MAX63XX_WATCHDOG) += max63xx_wdt.o
- obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
-+obj-$(CONFIG_DA9052_WATCHDOG) += da9052_wdt.o
-diff --git a/drivers/watchdog/da9052_wdt.c b/drivers/watchdog/da9052_wdt.c
-new file mode 100644
-index 0000000..ca7f907
---- /dev/null
-+++ b/drivers/watchdog/da9052_wdt.c
-@@ -0,0 +1,223 @@
-+/*
-+ * System monitoring driver for DA9052 PMICs.
-+ *
-+ * Copyright(c) 2012 Dialog Semiconductor Ltd.
-+ *
-+ * Author: Dajun Chen <dchen@diasemi.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/delay.h>
-+#include <linux/uaccess.h>
-+#include <linux/platform_device.h>
-+#include <linux/time.h>
-+#include <linux/watchdog.h>
-+#include <linux/types.h>
-+#include <linux/kernel.h>
-+
-+#include <linux/mfd/da9052/reg.h>
-+#include <linux/mfd/da9052/da9052.h>
-+
-+#define DA9052_DEF_TIMEOUT	4
-+
-+struct da9052_wdt_drvdata {
-+	struct watchdog_device wdt;
-+	struct da9052 *da9052;
-+	struct mutex lock;
-+};
-+
-+static const struct {
-+	u8 reg_val;
-+	int time;  /* Seconds */
-+} da9052_wdt_maps[] = {
-+	{ 1, 2 },
-+	{ 2, 4 },
-+	{ 3, 8 },
-+	{ 4, 16 },
-+	{ 5, 32 },
-+	{ 5, 33 },  /* Actual time  32.768s so included both 32s and 33s */
-+	{ 6, 65 },
-+	{ 6, 66 },  /* Actual time 65.536s so include both, 65s and 66s */
-+	{ 7, 131 },
-+};
-+
-+static int da9052_wdt_set_timeout(struct watchdog_device *wdt_dev,
-+				  unsigned int timeout)
-+{
-+	struct da9052_wdt_drvdata *driver_data = watchdog_get_drvdata(wdt_dev);
-+	struct da9052 *da9052 = driver_data->da9052;
-+	int ret, i;
-+
-+	/* Disable the Watchdog timer before setting
-+	 * new time out.
-+	 */
-+	ret = da9052_reg_update(da9052, DA9052_CONTROL_D_REG,
-+				DA9052_CONTROLD_TWDSCALE, 0);
-+	if (ret < 0) {
-+		dev_err(da9052->dev, "Failed to disable watchdog bit, %d\n",
-+			ret);
-+		return ret;
-+	}
-+	if (timeout) {
-+		/* To change the timeout, da9052 needs to
-+		 * be disabled for at least 150 us.
-+		 */
-+		udelay(150);
-+
-+		/* Set the desired timeout */
-+		for (i = 0; i < ARRAY_SIZE(da9052_wdt_maps); i++)
-+			if (da9052_wdt_maps[i].time == timeout)
-+				break;
-+
-+		if (i == ARRAY_SIZE(da9052_wdt_maps))
-+			ret = -EINVAL;
-+		else
-+			ret = da9052_reg_update(da9052, DA9052_CONTROL_D_REG,
-+						DA9052_CONTROLD_TWDSCALE,
-+						da9052_wdt_maps[i].reg_val);
-+		if (ret < 0) {
-+			dev_err(da9052->dev,
-+				"Failed to update timescale bit, %d\n", ret);
-+			return ret;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static int da9052_wdt_start(struct watchdog_device *wdt_dev)
-+{
-+	struct da9052_wdt_drvdata *driver_data = watchdog_get_drvdata(wdt_dev);
-+	int ret = 0;
-+
-+	mutex_lock(&driver_data->lock);
-+	ret = da9052_wdt_set_timeout(wdt_dev, DA9052_DEF_TIMEOUT);
-+	mutex_unlock(&driver_data->lock);
-+
-+	return ret;
-+}
-+
-+static int da9052_wdt_stop(struct watchdog_device *wdt_dev)
-+{
-+	struct da9052_wdt_drvdata *driver_data = watchdog_get_drvdata(wdt_dev);
-+	struct da9052 *da9052 = driver_data->da9052;
-+	int ret = 0;
-+
-+	mutex_lock(&driver_data->lock);
-+	ret = da9052_reg_update(da9052, DA9052_CONTROL_D_REG,
-+				DA9052_CONTROLD_TWDSCALE, 0);
-+	mutex_unlock(&driver_data->lock);
-+
-+	return ret;
-+}
-+
-+static int da9052_wdt_ping(struct watchdog_device *wdt_dev)
-+{
-+	struct da9052_wdt_drvdata *driver_data = watchdog_get_drvdata(wdt_dev);
-+	struct da9052 *da9052 = driver_data->da9052;
-+	int ret;
-+
-+	mutex_lock(&driver_data->lock);
-+	/* Reset the watchdog timer */
-+	ret = da9052_reg_update(da9052, DA9052_CONTROL_D_REG,
-+				DA9052_CONTROLD_WATCHDOG, 1 << 7);
-+	if (ret < 0)
-+		goto err_strobe;
-+
-+	/* FIXME: Reset the watchdog core, in general PMIC
-+	 * is supposed to do this
-+	 */
-+	ret = da9052_reg_update(da9052, DA9052_CONTROL_D_REG,
-+				DA9052_CONTROLD_WATCHDOG, 0 << 7);
-+err_strobe:
-+	mutex_unlock(&driver_data->lock);
-+	return ret;
-+}
-+
-+static struct watchdog_info da9052_wdt_info = {
-+	.options	= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-+	.identity	= "DA9052 Watchdog",
-+};
-+
-+static const struct watchdog_ops da9052_wdt_ops = {
-+	.owner = THIS_MODULE,
-+	.start = da9052_wdt_start,
-+	.stop = da9052_wdt_stop,
-+	.ping = da9052_wdt_ping,
-+	.set_timeout = da9052_wdt_set_timeout,
-+};
-+
-+
-+static int __devinit da9052_wdt_probe(struct platform_device *pdev)
-+{
-+	struct da9052 *da9052 = dev_get_drvdata(pdev->dev.parent);
-+	struct da9052_wdt_drvdata *driver_data;
-+	struct watchdog_device *da9052_wdt;
-+	int ret;
-+
-+	driver_data = devm_kzalloc(&pdev->dev, sizeof(*driver_data),
-+				   GFP_KERNEL);
-+	if (!driver_data) {
-+		dev_err(da9052->dev, "Unable to alloacate watchdog device\n");
-+		ret = -ENOMEM;
-+		goto err;
-+	}
-+	mutex_init(&driver_data->lock);
-+	driver_data->da9052 = da9052;
-+
-+	da9052_wdt = &driver_data->wdt;
-+
-+	da9052_wdt->info = &da9052_wdt_info;
-+	da9052_wdt->ops = &da9052_wdt_ops;
-+	watchdog_set_drvdata(da9052_wdt, driver_data);
-+
-+	ret = da9052_reg_update(da9052, DA9052_CONTROL_D_REG,
-+				DA9052_CONTROLD_TWDSCALE, 0);
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "Failed to disable watchdog bits, %d\n",
-+			ret);
-+		goto err;
-+	}
-+
-+	ret = watchdog_register_device(&driver_data->wdt);
-+	if (ret != 0) {
-+		dev_err(da9052->dev, "watchdog_register_device() failed: %d\n",
-+			ret);
-+		goto err;
-+	}
-+
-+	dev_set_drvdata(&pdev->dev, driver_data);
-+err:
-+	return ret;
-+}
-+
-+static int __devexit da9052_wdt_remove(struct platform_device *pdev)
-+{
-+	struct da9052_wdt_drvdata *driver_data = dev_get_drvdata(&pdev->dev);
-+
-+	watchdog_unregister_device(&driver_data->wdt);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver da9052_wdt_driver = {
-+	.probe = da9052_wdt_probe,
-+	.remove = __devexit_p(da9052_wdt_remove),
-+	.driver = {
-+		.name	= "da9052-watchdog",
-+	},
-+};
-+
-+module_platform_driver(da9052_wdt_driver);
-+
-+MODULE_AUTHOR("Anthony Olech <Anthony.Olech@diasemi.com>");
-+MODULE_DESCRIPTION("DA9052 SM Device Driver");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:da9052-wdt");
-+
+On Wed, Apr 04, 2012 at 10:34:37AM +0200, Roland Stigge wrote:
+> In the driver's suspend function, clk_enable() was used instead of
+> clk_disable(). This is corrected with this patch.
+>=20
+> Signed-off-by: Roland Stigge <stigge@antcom.de>
+> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+> CC: stable@vger.kernel.org
 
+Picked up for 3.4, reworded the message header to "i2c: pnx: Disable
+clk in suspend" since "fix suspend" was too generic.
 
+Thanks,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--pf9I7BMVVzbSWLtt
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAk+PAKYACgkQD27XaX1/VRsj4ACgiUS75cGf7WchOPKqs45Qt3FO
+qp8AoLRRAJSMxmDd+MA5CdNa8su5WzMG
+=ErG9
+-----END PGP SIGNATURE-----
+
+--pf9I7BMVVzbSWLtt--
