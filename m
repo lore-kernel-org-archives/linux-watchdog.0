@@ -1,82 +1,45 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.work-microwave.de ([62.245.205.51]:30330 "EHLO
-	work-microwave.de" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751211Ab2DTTzm (ORCPT
+Received: from mail160.messagelabs.com ([216.82.253.99]:43493 "EHLO
+	mail160.messagelabs.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751087Ab2DTU2o (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 20 Apr 2012 15:55:42 -0400
-From: Roland Stigge <stigge@antcom.de>
-To: wim@iguana.be, grant.likely@secretlab.ca, rob.herring@calxeda.com,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	arm@kernel.org, linux-arm-kernel@lists.infradead.org,
-	sshtylyov@mvista.com
-Cc: Roland Stigge <stigge@antcom.de>
-Subject: [PATCH v4] wdt: Device tree support for pnx4008-wdt
-Date: Fri, 20 Apr 2012 21:55:29 +0200
-Message-Id: <1334951729-1388-1-git-send-email-stigge@antcom.de>
+	Fri, 20 Apr 2012 16:28:44 -0400
+From: H Hartley Sweeten <hartleys@visionengravers.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] watchdog_dev: include private header to pickup global symbol prototypes
+Date: Fri, 20 Apr 2012 13:28:24 -0700
+CC: <linux-watchdog@vger.kernel.org>, <wim@iguana.be>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-ID: <201204201328.25057.hartleys@visionengravers.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patch adds device tree support to pnx4008-wdt.c
+Include the private watchdog_dev.h header to pickup the prototypes for the
+watchdog_dev_register/unregister functions.
 
-Signed-off-by: Roland Stigge <stigge@antcom.de>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+This quiets the following sparse warnings:
+
+warning: symbol 'watchdog_dev_register' was not declared. Should it be static?
+warning: symbol 'watchdog_dev_unregister' was not declared. Should it be static?
+
+Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>
 
 ---
 
-Applies to v3.4-rc3
-
-Changes since v3:
-* Fixed typo in patch description
-
-Thanks to Sergei Shtylyov for reviewing!
-
- Documentation/devicetree/bindings/watchdog/pnx4008-wdt.txt |   13 +++++++++++++
- drivers/watchdog/pnx4008_wdt.c                             |   10 ++++++++++
- 2 files changed, 23 insertions(+)
-
---- /dev/null
-+++ linux-2.6/Documentation/devicetree/bindings/watchdog/pnx4008-wdt.txt
-@@ -0,0 +1,13 @@
-+* NXP PNX watchdog timer
-+
-+Required properties:
-+- compatible: must be "nxp,pnx4008-wdt"
-+- reg: physical base address of the controller and length of memory mapped
-+  region.
-+
-+Example:
-+
-+	watchdog@4003C000 {
-+		compatible = "nxp,pnx4008-wdt";
-+		reg = <0x4003C000 0x1000>;
-+	};
---- linux-2.6.orig/drivers/watchdog/pnx4008_wdt.c
-+++ linux-2.6/drivers/watchdog/pnx4008_wdt.c
-@@ -32,6 +32,7 @@
- #include <linux/io.h>
- #include <linux/slab.h>
- #include <linux/err.h>
-+#include <linux/of.h>
- #include <mach/hardware.h>
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 8558da9..6c18a58 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -42,6 +42,8 @@
+ #include <linux/init.h>		/* For __init/__exit/... */
+ #include <linux/uaccess.h>	/* For copy_to_user/put_user/... */
  
- /* WatchDog Timer - Chapter 23 Page 207 */
-@@ -201,10 +202,19 @@ static int __devexit pnx4008_wdt_remove(
- 	return 0;
- }
- 
-+#ifdef CONFIG_OF
-+static const struct of_device_id pnx4008_wdt_match[] = {
-+	{ .compatible = "nxp,pnx4008-wdt" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, pnx4008_wdt_match);
-+#endif
++#include "watchdog_dev.h"
 +
- static struct platform_driver platform_wdt_driver = {
- 	.driver = {
- 		.name = "pnx4008-watchdog",
- 		.owner	= THIS_MODULE,
-+		.of_match_table = of_match_ptr(pnx4008_wdt_match),
- 	},
- 	.probe = pnx4008_wdt_probe,
- 	.remove = __devexit_p(pnx4008_wdt_remove),
+ /* make sure we only register one /dev/watchdog device */
+ static unsigned long watchdog_dev_busy;
+ /* the watchdog device behind /dev/watchdog */
