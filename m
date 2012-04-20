@@ -1,121 +1,93 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:60216 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751839Ab2DRSJq (ORCPT
+Received: from mail-pz0-f52.google.com ([209.85.210.52]:52576 "EHLO
+	mail-pz0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756948Ab2DTOmz (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 18 Apr 2012 14:09:46 -0400
-Date: Wed, 18 Apr 2012 20:09:17 +0200
-From: Wolfram Sang <w.sang@pengutronix.de>
-To: Roland Stigge <stigge@antcom.de>
-Cc: arm@kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-	srinivas.bakki@nxp.com, kevin.wells@nxp.com,
-	gregkh@linuxfoundation.org, netdev@vger.kernel.org,
-	rtc-linux@googlegroups.com, a.zummo@towertech.it,
-	linux-watchdog@vger.kernel.org, wim@iguana.be, jonsmirl@gmail.com,
-	devicetree-discuss@ozlabs.org
-Subject: Re: [PATCH v3 8/8] i2c: Add device tree support to i2c-pnx.c
-Message-ID: <20120418180917.GD2548@pengutronix.de>
-References: <1333528480-17134-1-git-send-email-stigge@antcom.de>
- <1333528480-17134-9-git-send-email-stigge@antcom.de>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="WChQLJJJfbwij+9x"
-Content-Disposition: inline
-In-Reply-To: <1333528480-17134-9-git-send-email-stigge@antcom.de>
+	Fri, 20 Apr 2012 10:42:55 -0400
+Received: by dake40 with SMTP id e40so13110212dak.11
+        for <linux-watchdog@vger.kernel.org>; Fri, 20 Apr 2012 07:42:55 -0700 (PDT)
+From: Viresh Kumar <viresh.linux@gmail.com>
+To: wim@iguana.be
+Cc: spear-devel@list.st.com, viresh.linux@gmail.com,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Viresh Kumar <viresh.kumar@st.com>
+Subject: [PATCH] watchdog: mpcore: Add DT bindings for ARM mpcore watchdog
+Date: Fri, 20 Apr 2012 20:12:32 +0530
+Message-Id: <18a4584c24041ceb8a1972dd5ee70cf7c59fed21.1334932839.git.viresh.kumar@st.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+This patch adds Device tree bindings for ARM Mpcore watchdog. It also updates
+documentation for bindings.
 
---WChQLJJJfbwij+9x
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
+---
+ .../bindings/watchdog/arm-mpcore-wdt.txt           |   19 +++++++++++++++++++
+ drivers/watchdog/mpcore_wdt.c                      |   10 ++++++++++
+ 2 files changed, 29 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/arm-mpcore-wdt.txt
 
-On Wed, Apr 04, 2012 at 10:34:40AM +0200, Roland Stigge wrote:
-> This patch adds device tree support to the pnx-i2c driver by using platfo=
-rm
-> resources for memory region and irq and removing dependency on mach inclu=
-des.
->=20
-> The following platforms are affected:
->=20
-> * PNX
-> * LPC31xx (WIP)
-> * LPC32xx
->=20
-> The patch is based on a patch by Jon Smirl, working on lpc31xx integration
->=20
-> Signed-off-by: Roland Stigge <stigge@antcom.de>
-> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+diff --git a/Documentation/devicetree/bindings/watchdog/arm-mpcore-wdt.txt b/Documentation/devicetree/bindings/watchdog/arm-mpcore-wdt.txt
+new file mode 100644
+index 0000000..27a71aa
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/arm-mpcore-wdt.txt
+@@ -0,0 +1,19 @@
++* ARM MPCORE WATCHDOG
++
++Required properties:
++- compatible : "arm,mpcore-wdt"
++- reg : Address range of the wdt registers
++
++Optional Properties:
++- interrupt-parent: Should be the phandle for the interrupt controller
++  that services interrupts for this device
++- interrupt: Should contain the wdt interrupt number
++
++Example:
++
++	wdt@ec800620 {
++		compatible = "arm,mpcore-wdt";
++		reg = <0xec800620 0x1000>;
++		interrupt-parent = <&gic>;
++		interrupts = <1 14 0x301>;
++	};
+diff --git a/drivers/watchdog/mpcore_wdt.c b/drivers/watchdog/mpcore_wdt.c
+index 7c00455..f82625f 100644
+--- a/drivers/watchdog/mpcore_wdt.c
++++ b/drivers/watchdog/mpcore_wdt.c
+@@ -27,6 +27,7 @@
+ #include <linux/io.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
++#include <linux/of.h>
+ #include <linux/platform_device.h>
+ #include <linux/pm.h>
+ #include <linux/reboot.h>
+@@ -402,6 +403,14 @@ static SIMPLE_DEV_PM_OPS(mpcore_wdt_dev_pm_ops, mpcore_wdt_suspend,
+ /* work with hotplug and coldplug */
+ MODULE_ALIAS("platform:mpcore_wdt");
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id mpcore_wdt_id_table[] = {
++	{ .compatible = "arm,mpcore-wdt" },
++	{}
++};
++MODULE_DEVICE_TABLE(of, mpcore_wdt_id_table);
++#endif
++
+ static struct platform_driver mpcore_wdt_driver = {
+ 	.probe		= mpcore_wdt_probe,
+ 	.remove		= __devexit_p(mpcore_wdt_remove),
+@@ -410,6 +419,7 @@ static struct platform_driver mpcore_wdt_driver = {
+ 		.owner	= THIS_MODULE,
+ 		.name	= "mpcore_wdt",
+ 		.pm	= &mpcore_wdt_dev_pm_ops,
++		.of_match_table = of_match_ptr(mpcore_wdt_id_table),
+ 	},
+ };
+ 
+-- 
+1.7.9
 
-I added devicetree-discuss to the (quite long) CC list. I am not sure
-about all of the bindings.
-
->=20
-> ---
->=20
->  Applies to v3.4-rc1
->=20
->  Documentation/devicetree/bindings/i2c/pnx.txt |   40 ++++++++++++++++
->  drivers/i2c/busses/i2c-pnx.c                  |   65 +++++++++++++++++++=
--------
->  include/linux/i2c-pnx.h                       |    1=20
->  3 files changed, 89 insertions(+), 17 deletions(-)
->=20
-> --- /dev/null
-> +++ linux-2.6/Documentation/devicetree/bindings/i2c/pnx.txt
-> @@ -0,0 +1,40 @@
-> +* NXP PNX I2C Controller
-> +
-> +Required properties:
-> +
-> + - reg: Offset and length of the register set for the device
-> + - compatible: should be "nxp,pnx-i2c"
-> + - interrupts: configure one interrupt line
-> + - #address-cells: always 1 (for i2c addresses)
-> + - #size-cells: always 0
-> +
-> +Optional properties:
-> +
-> + - interrupt-parent: the phandle for the interrupt controller that
-> +   services interrupts for this device.
-
-That one is not optional, or? You always need it but in most cases it
-gets inherited as I understand.
-
-> + - clock-frequency: desired I2C bus clock frequency in Hz, Default: 1000=
-00 Hz
-> + - pnx,timeout: I2C bus timeout in milliseconds, Default: 10 ms
-
-To devicetree-folks: Can we argue this is a hardware property of the
-bus? Then we could introduce a generic "timeout" property? I see, there
-is already "fsl,timeout", and it won't make sense to have that per
-vendor?
-
-> + - slave-addr: Address used by the controller, Hardware default: 110
-
-I'd prefer the hex value here, I2C addresses are mostly specified in
-hex.
-
-Regards,
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---WChQLJJJfbwij+9x
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAk+PA00ACgkQD27XaX1/VRt/8QCgjlrbuHKQdptRbdHsIJm58tb8
-GwUAnjN9z15pvmRNOqQFiJh9BRuaGGCm
-=CaWN
------END PGP SIGNATURE-----
-
---WChQLJJJfbwij+9x--
