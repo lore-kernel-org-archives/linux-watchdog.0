@@ -1,93 +1,81 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pz0-f52.google.com ([209.85.210.52]:52576 "EHLO
-	mail-pz0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756948Ab2DTOmz (ORCPT
+Received: from mail.work-microwave.de ([62.245.205.51]:57300 "EHLO
+	work-microwave.de" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932077Ab2DTOqo (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 20 Apr 2012 10:42:55 -0400
-Received: by dake40 with SMTP id e40so13110212dak.11
-        for <linux-watchdog@vger.kernel.org>; Fri, 20 Apr 2012 07:42:55 -0700 (PDT)
-From: Viresh Kumar <viresh.linux@gmail.com>
-To: wim@iguana.be
-Cc: spear-devel@list.st.com, viresh.linux@gmail.com,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Viresh Kumar <viresh.kumar@st.com>
-Subject: [PATCH] watchdog: mpcore: Add DT bindings for ARM mpcore watchdog
-Date: Fri, 20 Apr 2012 20:12:32 +0530
-Message-Id: <18a4584c24041ceb8a1972dd5ee70cf7c59fed21.1334932839.git.viresh.kumar@st.com>
+	Fri, 20 Apr 2012 10:46:44 -0400
+From: Roland Stigge <stigge@antcom.de>
+To: wim@iguana.be, grant.likely@secretlab.ca, rob.herring@calxeda.com,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	arm@kernel.org, linux-arm-kernel@lists.infradead.org
+Cc: Roland Stigge <stigge@antcom.de>
+Subject: [PATCH RESEND v3] wdt: Device tree support for pnx4008-wdt
+Date: Fri, 20 Apr 2012 16:46:23 +0200
+Message-Id: <1334933184-19418-1-git-send-email-stigge@antcom.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patch adds Device tree bindings for ARM Mpcore watchdog. It also updates
-documentation for bindings.
+This patch adds watchdog support to pnx4008-wdt.c
 
-Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
+Signed-off-by: Roland Stigge <stigge@antcom.de>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+
 ---
- .../bindings/watchdog/arm-mpcore-wdt.txt           |   19 +++++++++++++++++++
- drivers/watchdog/mpcore_wdt.c                      |   10 ++++++++++
- 2 files changed, 29 insertions(+), 0 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/watchdog/arm-mpcore-wdt.txt
 
-diff --git a/Documentation/devicetree/bindings/watchdog/arm-mpcore-wdt.txt b/Documentation/devicetree/bindings/watchdog/arm-mpcore-wdt.txt
-new file mode 100644
-index 0000000..27a71aa
+Applies to v3.4-rc3
+
+NOTE: I separated out this patch from the first patch series of the LPC32xx
+device tree conversion because most of those patches are already applied to
+-next and are basically unrelated. The LPC32xx devicetree conversion builds
+upon this patch.
+
+ Documentation/devicetree/bindings/watchdog/pnx4008-wdt.txt |   13 +++++++++++++
+ drivers/watchdog/pnx4008_wdt.c                             |   10 ++++++++++
+ 2 files changed, 23 insertions(+)
+
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/arm-mpcore-wdt.txt
-@@ -0,0 +1,19 @@
-+* ARM MPCORE WATCHDOG
++++ linux-2.6/Documentation/devicetree/bindings/watchdog/pnx4008-wdt.txt
+@@ -0,0 +1,13 @@
++* NXP PNX watchdog timer
 +
 +Required properties:
-+- compatible : "arm,mpcore-wdt"
-+- reg : Address range of the wdt registers
-+
-+Optional Properties:
-+- interrupt-parent: Should be the phandle for the interrupt controller
-+  that services interrupts for this device
-+- interrupt: Should contain the wdt interrupt number
++- compatible: must be "nxp,pnx4008-wdt"
++- reg: physical base address of the controller and length of memory mapped
++  region.
 +
 +Example:
 +
-+	wdt@ec800620 {
-+		compatible = "arm,mpcore-wdt";
-+		reg = <0xec800620 0x1000>;
-+		interrupt-parent = <&gic>;
-+		interrupts = <1 14 0x301>;
++	watchdog@4003C000 {
++		compatible = "nxp,pnx4008-wdt";
++		reg = <0x4003C000 0x1000>;
 +	};
-diff --git a/drivers/watchdog/mpcore_wdt.c b/drivers/watchdog/mpcore_wdt.c
-index 7c00455..f82625f 100644
---- a/drivers/watchdog/mpcore_wdt.c
-+++ b/drivers/watchdog/mpcore_wdt.c
-@@ -27,6 +27,7 @@
+--- linux-2.6.orig/drivers/watchdog/pnx4008_wdt.c
++++ linux-2.6/drivers/watchdog/pnx4008_wdt.c
+@@ -32,6 +32,7 @@
  #include <linux/io.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
+ #include <linux/slab.h>
+ #include <linux/err.h>
 +#include <linux/of.h>
- #include <linux/platform_device.h>
- #include <linux/pm.h>
- #include <linux/reboot.h>
-@@ -402,6 +403,14 @@ static SIMPLE_DEV_PM_OPS(mpcore_wdt_dev_pm_ops, mpcore_wdt_suspend,
- /* work with hotplug and coldplug */
- MODULE_ALIAS("platform:mpcore_wdt");
+ #include <mach/hardware.h>
+ 
+ /* WatchDog Timer - Chapter 23 Page 207 */
+@@ -201,10 +202,19 @@ static int __devexit pnx4008_wdt_remove(
+ 	return 0;
+ }
  
 +#ifdef CONFIG_OF
-+static const struct of_device_id mpcore_wdt_id_table[] = {
-+	{ .compatible = "arm,mpcore-wdt" },
-+	{}
++static const struct of_device_id pnx4008_wdt_match[] = {
++	{ .compatible = "nxp,pnx4008-wdt" },
++	{ }
 +};
-+MODULE_DEVICE_TABLE(of, mpcore_wdt_id_table);
++MODULE_DEVICE_TABLE(of, pnx4008_wdt_match);
 +#endif
 +
- static struct platform_driver mpcore_wdt_driver = {
- 	.probe		= mpcore_wdt_probe,
- 	.remove		= __devexit_p(mpcore_wdt_remove),
-@@ -410,6 +419,7 @@ static struct platform_driver mpcore_wdt_driver = {
+ static struct platform_driver platform_wdt_driver = {
+ 	.driver = {
+ 		.name = "pnx4008-watchdog",
  		.owner	= THIS_MODULE,
- 		.name	= "mpcore_wdt",
- 		.pm	= &mpcore_wdt_dev_pm_ops,
-+		.of_match_table = of_match_ptr(mpcore_wdt_id_table),
++		.of_match_table = of_match_ptr(pnx4008_wdt_match),
  	},
- };
- 
--- 
-1.7.9
-
+ 	.probe = pnx4008_wdt_probe,
+ 	.remove = __devexit_p(pnx4008_wdt_remove),
