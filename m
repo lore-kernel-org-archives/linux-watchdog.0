@@ -1,107 +1,50 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from service87.mimecast.com ([91.220.42.44]:41865 "EHLO
-	service87.mimecast.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755632Ab2DXJ1l convert rfc822-to-8bit (ORCPT
+Received: from eu1sys200aog111.obsmtp.com ([207.126.144.131]:40257 "EHLO
+	eu1sys200aog111.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756636Ab2DXK1F (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 24 Apr 2012 05:27:41 -0400
-Message-ID: <4F9671D8.4080308@arm.com>
-Date: Tue, 24 Apr 2012 10:26:48 +0100
-From: Marc Zyngier <marc.zyngier@arm.com>
+	Tue, 24 Apr 2012 06:27:05 -0400
+Message-ID: <4F967F85.1030907@st.com>
+Date: Tue, 24 Apr 2012 15:55:09 +0530
+From: Viresh Kumar <viresh.kumar@st.com>
 MIME-Version: 1.0
-To: Viresh Kumar <viresh.kumar@st.com>
-CC: "wim@iguana.be" <wim@iguana.be>,
-	"spear-devel@list.st.com" <spear-devel@list.st.com>,
-	"viresh.linux@gmail.com" <viresh.linux@gmail.com>,
+To: Marc Zyngier <marc.zyngier@arm.com>
+Cc: viresh kumar <viresh.linux@gmail.com>,
+	"wim@iguana.be" <wim@iguana.be>,
+	spear-devel <spear-devel@list.st.com>,
 	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
 	"linux-arm-kernel@lists.infradead.org"
 	<linux-arm-kernel@lists.infradead.org>,
 	Pawel Moll <Pawel.Moll@arm.com>
-Subject: Re: [PATCH V3 2/2] watchdog: mpcore: Add DT probing support for ARM
- mpcore watchdog
-References: <31b0b89e21e6a234cb904761a1d0e5106405da82.1335246446.git.viresh.kumar@st.com> <27dea103ccf6da5b7376c837d9a95dc7a9ed3be3.1335246446.git.viresh.kumar@st.com>
-In-Reply-To: <27dea103ccf6da5b7376c837d9a95dc7a9ed3be3.1335246446.git.viresh.kumar@st.com>
-Content-Type: text/plain; charset=WINDOWS-1252
+Subject: Re: [PATCH V2] watchdog: mpcore: Add DT probing support for ARM mpcore
+ watchdog
+References: <18a4584c24041ceb8a1972dd5ee70cf7c59fed21.1334932839.git.viresh.kumar@st.com> <7dbd64f72527cf92af0ec38f45275d71207d5ec5.1335008301.git.viresh.kumar@st.com> <4F9514AA.10403@arm.com> <CAOh2x=kroSi8MZBhYVOhrDm08q1B9LS_9P7NPAfHC01-MHaOCQ@mail.gmail.com> <4F9547E3.4000709@arm.com> <CAOh2x=kQvjP5SYfJsTXkZyNe3UsS-=pXUBKoQ=SsMUNcPGjzuA@mail.gmail.com> <4F9573B8.9050607@arm.com> <CAOh2x=n5Zm9MR5twDY-CUA-ppE9ADXrg25XCT5RKM++v6=tcpA@mail.gmail.com> <4F957A0C.7060607@arm.com> <CAOh2x=kyJ3tG3go0TQ2LXLOKDf0m9=uz1=KC7asMS0FSxtx9uA@mail.gmail.com> <4F957F62.5090605@arm.com> <CAOh2x=n4JdZdZoofHpr+9G254ZL_kxyWEHHRr5W4PB4GgjeHsQ@mail.gmail.com> <4F9582AF.6040501@arm.com>
+In-Reply-To: <4F9582AF.6040501@arm.com>
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-On 24/04/12 06:50, Viresh Kumar wrote:
-> This patch adds Device tree probing support for ARM Mpcore watchdog. It=
-s binding
-> were already documented in Documentation/devicetree/bindings/arm/twd.tx=
-t.
->=20
-> Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
-> ---
-> V2->V3:
-> - Nothing. Just resend it.
+On 4/23/2012 9:56 PM, Marc Zyngier wrote:
+>> > Looking at your confidence, i am starting to feel, i am wrong here ;)
+> Well, having written the code that ensures request_irq() fails when
+> passed a PPI, I'd be very worried if the above started to be working... 
 
-I'm sorry, but I really have to ask: What is the point of adding DT
-support to this driver when it is obvious that it is already broken?
+And yes. I was wrong. 
 
-As mentioned yesterday, interrupt request doesn't use the right API,
-which makes it very unlikely that the probe function will succeed.
+WARNING: at /home/vireshk/work/spear/kernel/linux-2.6/kernel/irq/manage.c:1368 request_threaded_irq+0x128/0x148()
+Modules linked in:
+Backtrace: 
+[<c000c200>] (dump_backtrace+0x0/0x10c) from [<c0249814>] (dump_stack+0x18/0x1c)
+ r6:00000558 r5:c005cb34 r4:00000000
+[<c02497fc>] (dump_stack+0x0/0x1c) from [<c00157d4>] (warn_slowpath_common+0x54/0x6c)
+[<c0015780>] (warn_slowpath_common+0x0/0x6c) from [<c0015810>] (warn_slowpath_null+0x24/0x28)
+ r8:0000001e r7:c01f69c4 r6:00000000 r5:c033b840 r4:ee21770c
+[<c00157ec>] (warn_slowpath_null+0x0/0x28) from [<c005cb34>] (request_threaded_irq+0x128/0x148)
+[<c005ca0c>] (request_threaded_irq+0x0/0x148) from [<c005e95c>] (devm_request_threaded_irq+0x5c/0x94)
+[<c005e900>] (devm_request_threaded_irq+0x0/0x94) from [<c02460b8>] (mpcore_wdt_probe+0x88/0x2d4)
+[<c0246030>] (mpcore_wdt_probe+0x0/0x2d4) from [<c0180548>] (platform_drv_probe+0x20/0x24)
+ r7:00000000 r6:ee101c08 r5:c03601e4 r4:c038abf4
 
-Furthermore, I cannot see anything in this driver that ensures the
-userspace ioctl() will end-up kicking the watchdog on the right CPU.
-
-So if you really care about this driver, please have a look at the above
-issues. Otherwise this is only pointless churn.
-
-Thanks,
-
-	M.
-
->  drivers/watchdog/mpcore_wdt.c |   12 ++++++++++++
->  1 files changed, 12 insertions(+), 0 deletions(-)
->=20
-> diff --git a/drivers/watchdog/mpcore_wdt.c b/drivers/watchdog/mpcore_wd=
-t.c
-> index 13197c7..3690af3 100644
-> --- a/drivers/watchdog/mpcore_wdt.c
-> +++ b/drivers/watchdog/mpcore_wdt.c
-> @@ -27,6 +27,7 @@
->  #include <linux/io.h>
->  #include <linux/module.h>
->  #include <linux/moduleparam.h>
-> +#include <linux/of.h>
->  #include <linux/platform_device.h>
->  #include <linux/pm.h>
->  #include <linux/reboot.h>
-> @@ -424,6 +425,16 @@ static SIMPLE_DEV_PM_OPS(mpcore_wdt_dev_pm_ops, mp=
-core_wdt_suspend,
->  /* work with hotplug and coldplug */
->  MODULE_ALIAS("platform:mpcore_wdt");
-> =20
-> +#ifdef CONFIG_OF
-> +static const struct of_device_id mpcore_wdt_id_table[] =3D {
-> +	{ .compatible =3D "arm,cortex-a9-twd-wdt" },
-> +	{ .compatible =3D "arm,cortex-a5-twd-wdt" },
-> +	{ .compatible =3D "arm,arm11mp-twd-wdt" },
-> +	{}
-> +};
-> +MODULE_DEVICE_TABLE(of, mpcore_wdt_id_table);
-> +#endif
-> +
->  static struct platform_driver mpcore_wdt_driver =3D {
->  	.probe		=3D mpcore_wdt_probe,
->  	.remove		=3D __devexit_p(mpcore_wdt_remove),
-> @@ -432,6 +443,7 @@ static struct platform_driver mpcore_wdt_driver =3D=
- {
->  		.owner	=3D THIS_MODULE,
->  		.name	=3D "mpcore_wdt",
->  		.pm	=3D &mpcore_wdt_dev_pm_ops,
-> +		.of_match_table =3D of_match_ptr(mpcore_wdt_id_table),
->  	},
->  };
-> =20
-
-
---=20
-Jazz is not dead. It just smells funny...
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+viresh
