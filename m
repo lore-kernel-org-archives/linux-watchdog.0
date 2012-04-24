@@ -1,47 +1,30 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:36510 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:36520 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1757146Ab2DXTeU (ORCPT
+	with ESMTP id S1757146Ab2DXTf2 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 24 Apr 2012 15:34:20 -0400
-Date: Tue, 24 Apr 2012 21:34:17 +0200
+	Tue, 24 Apr 2012 15:35:28 -0400
+Date: Tue, 24 Apr 2012 21:35:24 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Viresh Kumar <viresh.kumar@st.com>
-Cc: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	spear-devel <spear-devel@list.st.com>,
-	"viresh.linux@gmail.com" <viresh.linux@gmail.com>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-	Srinidhi KASAGAR <srinidhi.kasagar@stericsson.com>,
-	Linus WALLEIJ <linus.walleij@stericsson.com>,
-	"alan@lxorguk.ukuu.org.uk" <alan@lxorguk.ukuu.org.uk>,
-	"w.sang@pengutronix.de" <w.sang@pengutronix.de>,
-	"sshtylyov@mvista.com" <sshtylyov@mvista.com>
-Subject: Re: [PATCH V2 17/22] watchdog/mpcore_wdt: use correct clk_rate to program timeout
-Message-ID: <20120424193416.GG6553@spo001.leaseweb.com>
-References: <cover.1331524811.git.viresh.kumar@st.com> <4d69b903be5a62ee88aa1017d5dcbf94bbe0dc8e.1331524811.git.viresh.kumar@st.com> <4F96837F.8030702@st.com>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 2/4] watchdog: Add a flag to indicate the watchdog doesn't reboot things
+Message-ID: <20120424193524.GH6553@spo001.leaseweb.com>
+References: <20120321152418.20045.35525.stgit@bob.linux.org.uk> <20120321152503.20045.41514.stgit@bob.linux.org.uk> <4F87EAA4.3090900@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4F96837F.8030702@st.com>
+In-Reply-To: <4F87EAA4.3090900@redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Viresh,
+Hi All,
 
-> On 3/12/2012 9:52 AM, Viresh KUMAR wrote:
-> > Currently, mpcore wdt driver doesn't use exact clk_rate to program timeout in
-> > hardware. This patch provides two ways of doing so:
-> > 	- either use clk_get_rate() if clk_get passes
-> > 	- use clk_rate passed via module param
-> > 
-> > Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
+> Looks good, ack.
 > 
-> Wim,
-> 
-> Will these go in v3.5?
+> Acked-by: Hans de Goede <hdegoede@redhat.com>
 
-Busy at the moment, but yes this should go in with the following merge window.
+Will have a look at Alan's and Hans patches next week.
 
 Kind regards,
 Wim.
