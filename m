@@ -1,79 +1,82 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:40471 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1756534Ab2DZMoH (ORCPT
+Received: from mail.work-microwave.de ([62.245.205.51]:48904 "EHLO
+	work-microwave.de" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1758792Ab2DZTqX (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 26 Apr 2012 08:44:07 -0400
-Date: Thu, 26 Apr 2012 14:44:02 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Thomas Mingarelli <Thomas.Mingarelli@hp.com>
-Subject: [GIT PULL REQUEST] watchdog - v3.4-rc4 Fixes
-Message-ID: <20120426124402.GJ6553@spo001.leaseweb.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Thu, 26 Apr 2012 15:46:23 -0400
+From: Roland Stigge <stigge@antcom.de>
+To: wim@iguana.be, grant.likely@secretlab.ca, rob.herring@calxeda.com,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	arm@kernel.org, linux-arm-kernel@lists.infradead.org,
+	sshtylyov@mvista.com
+Cc: Roland Stigge <stigge@antcom.de>
+Subject: [PATCH RESEND v4] wdt: Device tree support for pnx4008-wdt
+Date: Thu, 26 Apr 2012 21:46:08 +0200
+Message-Id: <1335469568-3250-1-git-send-email-stigge@antcom.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Linus,
+This patch adds device tree support to pnx4008-wdt.c
 
-Please pull from 'master' branch of
-	git://www.linux-watchdog.org/linux-watchdog.git
+Signed-off-by: Roland Stigge <stigge@antcom.de>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
 
-It will fix the size when reading or writing to WD Timer port 0x72 in the
-hpwdt driver.
+---
 
-This will update the following files:
+Applies to v3.4-rc4
 
- hpwdt.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+Changes since v3:
+* Fixed typo in patch description
 
-with these Changes:
+Thanks to Sergei Shtylyov for reviewing!
 
-commit d08c9a33b4aa6665b0ee3c4d1b57715fa0eae2a2
-Author: Mingarelli, Thomas <Thomas.Mingarelli@hp.com>
-Date:   Tue Apr 3 05:37:01 2012 +0000
+ Documentation/devicetree/bindings/watchdog/pnx4008-wdt.txt |   13 +++++++++++++
+ drivers/watchdog/pnx4008_wdt.c                             |   10 ++++++++++
+ 2 files changed, 23 insertions(+)
 
-    hpwdt: Only BYTE reads/writes to WD Timer port 0x72
-    
-    This patch is to correct the use of the iLO port 0x72 usage.
-    The port 0x72 is a byte size write/read and hpwdt is currently
-    writing a WORD.
-    
-    Signed-off by: Thomas Mingarelli <thomas.mingarelli@hp.com>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-For completeness, I added the overal diff below.
-
-Greetings,
-Wim.
-
-================================================================================
-diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-index cbc7cee..9f13b89 100644
---- a/drivers/watchdog/hpwdt.c
-+++ b/drivers/watchdog/hpwdt.c
-@@ -435,16 +435,16 @@ static void hpwdt_start(void)
- {
- 	reload = SECS_TO_TICKS(soft_margin);
- 	iowrite16(reload, hpwdt_timer_reg);
--	iowrite16(0x85, hpwdt_timer_con);
-+	iowrite8(0x85, hpwdt_timer_con);
+--- /dev/null
++++ linux-2.6/Documentation/devicetree/bindings/watchdog/pnx4008-wdt.txt
+@@ -0,0 +1,13 @@
++* NXP PNX watchdog timer
++
++Required properties:
++- compatible: must be "nxp,pnx4008-wdt"
++- reg: physical base address of the controller and length of memory mapped
++  region.
++
++Example:
++
++	watchdog@4003C000 {
++		compatible = "nxp,pnx4008-wdt";
++		reg = <0x4003C000 0x1000>;
++	};
+--- linux-2.6.orig/drivers/watchdog/pnx4008_wdt.c
++++ linux-2.6/drivers/watchdog/pnx4008_wdt.c
+@@ -32,6 +32,7 @@
+ #include <linux/io.h>
+ #include <linux/slab.h>
+ #include <linux/err.h>
++#include <linux/of.h>
+ #include <mach/hardware.h>
+ 
+ /* WatchDog Timer - Chapter 23 Page 207 */
+@@ -201,10 +202,19 @@ static int __devexit pnx4008_wdt_remove(
+ 	return 0;
  }
  
- static void hpwdt_stop(void)
- {
- 	unsigned long data;
- 
--	data = ioread16(hpwdt_timer_con);
-+	data = ioread8(hpwdt_timer_con);
- 	data &= 0xFE;
--	iowrite16(data, hpwdt_timer_con);
-+	iowrite8(data, hpwdt_timer_con);
- }
- 
- static void hpwdt_ping(void)
++#ifdef CONFIG_OF
++static const struct of_device_id pnx4008_wdt_match[] = {
++	{ .compatible = "nxp,pnx4008-wdt" },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, pnx4008_wdt_match);
++#endif
++
+ static struct platform_driver platform_wdt_driver = {
+ 	.driver = {
+ 		.name = "pnx4008-watchdog",
+ 		.owner	= THIS_MODULE,
++		.of_match_table = of_match_ptr(pnx4008_wdt_match),
+ 	},
+ 	.probe = pnx4008_wdt_probe,
+ 	.remove = __devexit_p(pnx4008_wdt_remove),
