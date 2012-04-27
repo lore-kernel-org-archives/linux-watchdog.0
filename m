@@ -1,82 +1,121 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.work-microwave.de ([62.245.205.51]:48904 "EHLO
-	work-microwave.de" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1758792Ab2DZTqX (ORCPT
+Received: from mail6.hostpark.net ([212.243.197.36]:42350 "EHLO
+	mail6.hostpark.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752632Ab2D0IGF (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 26 Apr 2012 15:46:23 -0400
-From: Roland Stigge <stigge@antcom.de>
-To: wim@iguana.be, grant.likely@secretlab.ca, rob.herring@calxeda.com,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	arm@kernel.org, linux-arm-kernel@lists.infradead.org,
-	sshtylyov@mvista.com
-Cc: Roland Stigge <stigge@antcom.de>
-Subject: [PATCH RESEND v4] wdt: Device tree support for pnx4008-wdt
-Date: Thu, 26 Apr 2012 21:46:08 +0200
-Message-Id: <1335469568-3250-1-git-send-email-stigge@antcom.de>
+	Fri, 27 Apr 2012 04:06:05 -0400
+Message-ID: <4F9A511D.8020104@elsoft.ch>
+Date: Fri, 27 Apr 2012 09:56:13 +0200
+From: =?UTF-8?B?IkRhdmlkIE3DvGxsZXIgKEVMU09GVCBBRyki?=
+	<d.mueller@elsoft.ch>
+MIME-Version: 1.0
+To: linux-watchdog@vger.kernel.org
+CC: wim@iguana.be
+Subject: Bug in sch311x_wdt Linux driver
+Content-Type: multipart/mixed;
+ boundary="------------010208070901010308030701"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patch adds device tree support to pnx4008-wdt.c
+This is a multi-part message in MIME format.
+--------------010208070901010308030701
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Roland Stigge <stigge@antcom.de>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Hello
 
----
+I think there is a bug in the Linux driver for the SCH311x watchdog.
 
-Applies to v3.4-rc4
+The SCH311x chip contains 2 watchdogs. One is the watchdog programmable
+by the runtime register at address 0x65-0x68, the other is the watchdog
+inside the power on reset generator. This second watchdog has a fixed
+timeout value of ~1.6 seconds and is configurable only by the RESGEN
+register.
 
-Changes since v3:
-* Fixed typo in patch description
+The BIOS normally takes care of the RESGEN watchdog and disables it (at
+least) before the OS is booted.
 
-Thanks to Sergei Shtylyov for reviewing!
+Unfortunately the sch311x_wdt driver clears bit 0 of the RESGEN register
+which has the effect that at the latest 1.6 seconds later, a POR is
+triggered.
 
- Documentation/devicetree/bindings/watchdog/pnx4008-wdt.txt |   13 +++++++++++++
- drivers/watchdog/pnx4008_wdt.c                             |   10 ++++++++++
- 2 files changed, 23 insertions(+)
 
---- /dev/null
-+++ linux-2.6/Documentation/devicetree/bindings/watchdog/pnx4008-wdt.txt
-@@ -0,0 +1,13 @@
-+* NXP PNX watchdog timer
-+
-+Required properties:
-+- compatible: must be "nxp,pnx4008-wdt"
-+- reg: physical base address of the controller and length of memory mapped
-+  region.
-+
-+Example:
-+
-+	watchdog@4003C000 {
-+		compatible = "nxp,pnx4008-wdt";
-+		reg = <0x4003C000 0x1000>;
-+	};
---- linux-2.6.orig/drivers/watchdog/pnx4008_wdt.c
-+++ linux-2.6/drivers/watchdog/pnx4008_wdt.c
-@@ -32,6 +32,7 @@
- #include <linux/io.h>
- #include <linux/slab.h>
- #include <linux/err.h>
-+#include <linux/of.h>
- #include <mach/hardware.h>
- 
- /* WatchDog Timer - Chapter 23 Page 207 */
-@@ -201,10 +202,19 @@ static int __devexit pnx4008_wdt_remove(
- 	return 0;
- }
- 
-+#ifdef CONFIG_OF
-+static const struct of_device_id pnx4008_wdt_match[] = {
-+	{ .compatible = "nxp,pnx4008-wdt" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, pnx4008_wdt_match);
-+#endif
-+
- static struct platform_driver platform_wdt_driver = {
- 	.driver = {
- 		.name = "pnx4008-watchdog",
- 		.owner	= THIS_MODULE,
-+		.of_match_table = of_match_ptr(pnx4008_wdt_match),
- 	},
- 	.probe = pnx4008_wdt_probe,
- 	.remove = __devexit_p(pnx4008_wdt_remove),
+The attached patch fixes this problem by completely removing any
+reference to the RESGEN watchdog from the sch311x_wdt driver.
+
+
+Dave
+
+
+--------------010208070901010308030701
+Content-Type: text/plain; charset=UTF-8;
+ name="sch311x_wdt.c.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="sch311x_wdt.c.patch"
+
+U2lnbmVkLW9mZi1ieTogRGF2ZSBNdWVsbGVyIDxkLm11ZWxsZXJAZWxzb2Z0LmNoPgoKLS0t
+IGEvZHJpdmVycy93YXRjaGRvZy9zY2gzMTF4X3dkdC5jCTIwMTEtMTEtMDIgMTc6MjE6MjIu
+OTU1ODYxMTAyICswMTAwCisrKyBiL2RyaXZlcnMvd2F0Y2hkb2cvc2NoMzExeF93ZHQuYwky
+MDEyLTA0LTExIDE2OjE0OjIxLjYyMjI5NTU3OCArMDIwMApAQCAtNDAsNyArNDAsNiBAQAog
+I2RlZmluZSBQRlgJCURSVl9OQU1FICI6ICIKCiAvKiBSdW50aW1lIHJlZ2lzdGVycyAqLwot
+I2RlZmluZSBSRVNHRU4JCQkweDFkCiAjZGVmaW5lIEdQNjAJCQkweDQ3CiAjZGVmaW5lIFdE
+VF9USU1FX09VVAkJMHg2NQogI2RlZmluZSBXRFRfVkFMCQkJMHg2NgpAQCAtNjgsMTAgKzY3
+LDYgQEAKIG1vZHVsZV9wYXJhbShmb3JjZV9pZCwgdXNob3J0LCAwKTsKIE1PRFVMRV9QQVJN
+X0RFU0MoZm9yY2VfaWQsICJPdmVycmlkZSB0aGUgZGV0ZWN0ZWQgZGV2aWNlIElEIik7Cgot
+c3RhdGljIHVuc2lnbmVkIHNob3J0IHRoZXJtX3RyaXA7Ci1tb2R1bGVfcGFyYW0odGhlcm1f
+dHJpcCwgdXNob3J0LCAwKTsKLU1PRFVMRV9QQVJNX0RFU0ModGhlcm1fdHJpcCwgIlNob3Vs
+ZCBhIFRoZXJtVHJpcCB0cmlnZ2VyIHRoZSByZXNldCBnZW5lcmF0b3IiKTsKLQogI2RlZmlu
+ZSBXQVRDSERPR19USU1FT1VUIDYwCQkvKiA2MCBzZWMgZGVmYXVsdCB0aW1lb3V0ICovCiBz
+dGF0aWMgaW50IHRpbWVvdXQgPSBXQVRDSERPR19USU1FT1VUOwkvKiBpbiBzZWNvbmRzICov
+CiBtb2R1bGVfcGFyYW0odGltZW91dCwgaW50LCAwKTsKQEAgLTM1OCwyNiArMzUzLDE3IEBA
+CiBzdGF0aWMgaW50IF9fZGV2aW5pdCBzY2gzMTF4X3dkdF9wcm9iZShzdHJ1Y3QgcGxhdGZv
+cm1fZGV2aWNlICpwZGV2KQogewogCXN0cnVjdCBkZXZpY2UgKmRldiA9ICZwZGV2LT5kZXY7
+Ci0JdW5zaWduZWQgY2hhciB2YWw7CiAJaW50IGVycjsKCiAJc3Bpbl9sb2NrX2luaXQoJnNj
+aDMxMXhfd2R0X2RhdGEuaW9fbG9jayk7CgotCWlmICghcmVxdWVzdF9yZWdpb24oc2NoMzEx
+eF93ZHRfZGF0YS5ydW50aW1lX3JlZyArIFJFU0dFTiwgMSwKLQkJCQkJCQkJRFJWX05BTUUp
+KSB7Ci0JCWRldl9lcnIoZGV2LCAiRmFpbGVkIHRvIHJlcXVlc3QgcmVnaW9uIDB4JTA0eC0w
+eCUwNHguXG4iLAotCQkJc2NoMzExeF93ZHRfZGF0YS5ydW50aW1lX3JlZyArIFJFU0dFTiwK
+LQkJCXNjaDMxMXhfd2R0X2RhdGEucnVudGltZV9yZWcgKyBSRVNHRU4pOwotCQllcnIgPSAt
+RUJVU1k7Ci0JCWdvdG8gZXhpdDsKLQl9CgogCWlmICghcmVxdWVzdF9yZWdpb24oc2NoMzEx
+eF93ZHRfZGF0YS5ydW50aW1lX3JlZyArIEdQNjAsIDEsIERSVl9OQU1FKSkgewogCQlkZXZf
+ZXJyKGRldiwgIkZhaWxlZCB0byByZXF1ZXN0IHJlZ2lvbiAweCUwNHgtMHglMDR4LlxuIiwK
+IAkJCXNjaDMxMXhfd2R0X2RhdGEucnVudGltZV9yZWcgKyBHUDYwLAogCQkJc2NoMzExeF93
+ZHRfZGF0YS5ydW50aW1lX3JlZyArIEdQNjApOwogCQllcnIgPSAtRUJVU1k7Ci0JCWdvdG8g
+ZXhpdF9yZWxlYXNlX3JlZ2lvbjsKKwkJZ290byBleGl0OwogCX0KCiAJaWYgKCFyZXF1ZXN0
+X3JlZ2lvbihzY2gzMTF4X3dkdF9kYXRhLnJ1bnRpbWVfcmVnICsgV0RUX1RJTUVfT1VULCA0
+LApAQCAtMzg2LDcgKzM3Miw3IEBACiAJCQlzY2gzMTF4X3dkdF9kYXRhLnJ1bnRpbWVfcmVn
+ICsgV0RUX1RJTUVfT1VULAogCQkJc2NoMzExeF93ZHRfZGF0YS5ydW50aW1lX3JlZyArIFdE
+VF9DVFJMKTsKIAkJZXJyID0gLUVCVVNZOwotCQlnb3RvIGV4aXRfcmVsZWFzZV9yZWdpb24y
+OworCQlnb3RvIGV4aXRfcmVsZWFzZV9yZWdpb247CiAJfQoKIAkvKiBNYWtlIHN1cmUgdGhh
+dCB0aGUgd2F0Y2hkb2cgaXMgbm90IHJ1bm5pbmcgKi8KQEAgLTQxNCwyNCArNDAwLDEzIEBA
+CiAJLyogR2V0IHN0YXR1cyBhdCBib290ICovCiAJc2NoMzExeF93ZHRfZ2V0X3N0YXR1cygm
+c2NoMzExeF93ZHRfZGF0YS5ib290X3N0YXR1cyk7CgotCS8qIGVuYWJsZSB3YXRjaGRvZyAq
+LwotCS8qIC0tIFJlc2V0IEdlbmVyYXRvciAtLQotCSAqIEJpdCAwICAgRW5hYmxlIFdhdGNo
+ZG9nIFRpbWVyIEdlbmVyYXRpb246IDAqID0gRW5hYmxlZCwgMSA9IERpc2FibGVkCi0JICog
+Qml0IDEgICBUaGVybXRyaXAgU291cmNlIFNlbGVjdDogTyogPSBObyBTb3VyY2UsIDEgPSBT
+b3VyY2UKLQkgKiBCaXQgMiAgIFdEVDJfQ1RMOiBXRFQgaW5wdXQgYml0Ci0JICogQml0IDMt
+NyBSZXNlcnZlZAotCSAqLwotCW91dGIoMCwgc2NoMzExeF93ZHRfZGF0YS5ydW50aW1lX3Jl
+ZyArIFJFU0dFTik7Ci0JdmFsID0gdGhlcm1fdHJpcCA/IDB4MDYgOiAweDA0OwotCW91dGIo
+dmFsLCBzY2gzMTF4X3dkdF9kYXRhLnJ1bnRpbWVfcmVnICsgUkVTR0VOKTsKLQogCXNjaDMx
+MXhfd2R0X21pc2NkZXYucGFyZW50ID0gZGV2OwoKIAllcnIgPSBtaXNjX3JlZ2lzdGVyKCZz
+Y2gzMTF4X3dkdF9taXNjZGV2KTsKIAlpZiAoZXJyICE9IDApIHsKIAkJZGV2X2VycihkZXYs
+ICJjYW5ub3QgcmVnaXN0ZXIgbWlzY2RldiBvbiBtaW5vcj0lZCAoZXJyPSVkKVxuIiwKIAkJ
+CQkJCQlXQVRDSERPR19NSU5PUiwgZXJyKTsKLQkJZ290byBleGl0X3JlbGVhc2VfcmVnaW9u
+MzsKKwkJZ290byBleGl0X3JlbGVhc2VfcmVnaW9uMjsKIAl9CgogCWRldl9pbmZvKGRldiwK
+QEAgLTQ0MCwxMiArNDE1LDEwIEBACgogCXJldHVybiAwOwoKLWV4aXRfcmVsZWFzZV9yZWdp
+b24zOgotCXJlbGVhc2VfcmVnaW9uKHNjaDMxMXhfd2R0X2RhdGEucnVudGltZV9yZWcgKyBX
+RFRfVElNRV9PVVQsIDQpOwogZXhpdF9yZWxlYXNlX3JlZ2lvbjI6Ci0JcmVsZWFzZV9yZWdp
+b24oc2NoMzExeF93ZHRfZGF0YS5ydW50aW1lX3JlZyArIEdQNjAsIDEpOworCXJlbGVhc2Vf
+cmVnaW9uKHNjaDMxMXhfd2R0X2RhdGEucnVudGltZV9yZWcgKyBXRFRfVElNRV9PVVQsIDQp
+OwogZXhpdF9yZWxlYXNlX3JlZ2lvbjoKLQlyZWxlYXNlX3JlZ2lvbihzY2gzMTF4X3dkdF9k
+YXRhLnJ1bnRpbWVfcmVnICsgUkVTR0VOLCAxKTsKKwlyZWxlYXNlX3JlZ2lvbihzY2gzMTF4
+X3dkdF9kYXRhLnJ1bnRpbWVfcmVnICsgR1A2MCwgMSk7CiAJc2NoMzExeF93ZHRfZGF0YS5y
+dW50aW1lX3JlZyA9IDA7CiBleGl0OgogCXJldHVybiBlcnI7CkBAIC00NjEsNyArNDM0LDYg
+QEAKIAltaXNjX2RlcmVnaXN0ZXIoJnNjaDMxMXhfd2R0X21pc2NkZXYpOwogCXJlbGVhc2Vf
+cmVnaW9uKHNjaDMxMXhfd2R0X2RhdGEucnVudGltZV9yZWcgKyBXRFRfVElNRV9PVVQsIDQp
+OwogCXJlbGVhc2VfcmVnaW9uKHNjaDMxMXhfd2R0X2RhdGEucnVudGltZV9yZWcgKyBHUDYw
+LCAxKTsKLQlyZWxlYXNlX3JlZ2lvbihzY2gzMTF4X3dkdF9kYXRhLnJ1bnRpbWVfcmVnICsg
+UkVTR0VOLCAxKTsKIAlzY2gzMTF4X3dkdF9kYXRhLnJ1bnRpbWVfcmVnID0gMDsKIAlyZXR1
+cm4gMDsKIH0K
+--------------010208070901010308030701--
