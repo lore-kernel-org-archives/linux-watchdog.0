@@ -1,121 +1,317 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail6.hostpark.net ([212.243.197.36]:42350 "EHLO
-	mail6.hostpark.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752632Ab2D0IGF (ORCPT
+Received: from va3ehsobe010.messaging.microsoft.com ([216.32.180.30]:32480
+	"EHLO va3outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1757374Ab2D0Mtm (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 27 Apr 2012 04:06:05 -0400
-Message-ID: <4F9A511D.8020104@elsoft.ch>
-Date: Fri, 27 Apr 2012 09:56:13 +0200
-From: =?UTF-8?B?IkRhdmlkIE3DvGxsZXIgKEVMU09GVCBBRyki?=
-	<d.mueller@elsoft.ch>
+	Fri, 27 Apr 2012 08:49:42 -0400
+Subject: Re: [PATCH] Watchdog: DA9052/53 PMIC watchdog support v3
+From: Ashish Jangam <ashish.jangam@kpitcummins.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	Anthony Olech <Anthony.Olech@diasemi.com>,
+	<sameo@linux.intel.com>
+In-Reply-To: <1334753066.8143.44.camel@dhruva>
+References: <1334753066.8143.44.camel@dhruva>
+Content-Type: text/plain; charset="UTF-8"
+Date: Fri, 27 Apr 2012 18:16:26 +0530
+Message-ID: <1335530786.3313.0.camel@dhruva>
 MIME-Version: 1.0
-To: linux-watchdog@vger.kernel.org
-CC: wim@iguana.be
-Subject: Bug in sch311x_wdt Linux driver
-Content-Type: multipart/mixed;
- boundary="------------010208070901010308030701"
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010208070901010308030701
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+If there are no comments then can this patch get ACK'ed?
+On Wed, 2012-04-18 at 18:14 +0530, Ashish Jangam wrote:
+> This driver adds support for the watchdog functionality provided by the Dialog
+> Semiconductor DA9052 PMIC chip.
+> 
+> Signed-off-by: Anthony Olech <Anthony.Olech@diasemi.com>
+> Signed-off-by: Ashish Jangam <ashish.jangam@kpitcummins.com>
+> ---
+> Changes since V3:
+> - Add new watchdog framework
+> Changes since V2:
+> - Code restructured for simplicty.
+> - Add watchdog documentation.
+> - Remove Auto strobing feature.
+> - Remove strobe filtering flag.
+> ---
+>  Documentation/watchdog/watchdog-parameters.txt |    3 +
+>  drivers/watchdog/Kconfig                       |    7 +
+>  drivers/watchdog/Makefile                      |    1 +
+>  drivers/watchdog/da9052_wdt.c                  |  223 ++++++++++++++++++++++++
+>  4 files changed, 234 insertions(+), 0 deletions(-)
+> 
+> diff --git a/Documentation/watchdog/watchdog-parameters.txt b/Documentation/watchdog/watchdog-parameters.txt
+> index 17ddd82..b1a65eb 100644
+> --- a/Documentation/watchdog/watchdog-parameters.txt
+> +++ b/Documentation/watchdog/watchdog-parameters.txt
+> @@ -78,6 +78,9 @@ wd0_timeout: Default watchdog0 timeout in 1/10secs
+>  wd1_timeout: Default watchdog1 timeout in 1/10secs
+>  wd2_timeout: Default watchdog2 timeout in 1/10secs
+>  -------------------------------------------------
+> +da9052_wdt:
+> +timeout: Watchdog timeout in seconds. 2<= timeout <=131, default=4.096s
+> +-------------------------------------------------
+>  davinci_wdt:
+>  heartbeat: Watchdog heartbeat period in seconds from 1 to 600, default 60
+>  -------------------------------------------------
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index eeea76f..ece08cf 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -64,6 +64,13 @@ config SOFT_WATCHDOG
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called softdog.
+>  
+> +config DA9052_WATCHDOG
+> +	tristate "Dialog DA9052 Watchdog"
+> +	depends on PMIC_DA9052
+> +	select WATCHDOG_CORE
+> +	help
+> +	  Support for the watchdog in the DA9052 PMIC.
+> +
+>  config WM831X_WATCHDOG
+>  	tristate "WM831x watchdog"
+>  	depends on MFD_WM831X
+> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> index e8f479a..b3032e9 100644
+> --- a/drivers/watchdog/Makefile
+> +++ b/drivers/watchdog/Makefile
+> @@ -167,3 +167,4 @@ obj-$(CONFIG_WM831X_WATCHDOG) += wm831x_wdt.o
+>  obj-$(CONFIG_WM8350_WATCHDOG) += wm8350_wdt.o
+>  obj-$(CONFIG_MAX63XX_WATCHDOG) += max63xx_wdt.o
+>  obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
+> +obj-$(CONFIG_DA9052_WATCHDOG) += da9052_wdt.o
+> diff --git a/drivers/watchdog/da9052_wdt.c b/drivers/watchdog/da9052_wdt.c
+> new file mode 100644
+> index 0000000..ca7f907
+> --- /dev/null
+> +++ b/drivers/watchdog/da9052_wdt.c
+> @@ -0,0 +1,223 @@
+> +/*
+> + * System monitoring driver for DA9052 PMICs.
+> + *
+> + * Copyright(c) 2012 Dialog Semiconductor Ltd.
+> + *
+> + * Author: Dajun Chen <dchen@diasemi.com>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/delay.h>
+> +#include <linux/uaccess.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/time.h>
+> +#include <linux/watchdog.h>
+> +#include <linux/types.h>
+> +#include <linux/kernel.h>
+> +
+> +#include <linux/mfd/da9052/reg.h>
+> +#include <linux/mfd/da9052/da9052.h>
+> +
+> +#define DA9052_DEF_TIMEOUT	4
+> +
+> +struct da9052_wdt_drvdata {
+> +	struct watchdog_device wdt;
+> +	struct da9052 *da9052;
+> +	struct mutex lock;
+> +};
+> +
+> +static const struct {
+> +	u8 reg_val;
+> +	int time;  /* Seconds */
+> +} da9052_wdt_maps[] = {
+> +	{ 1, 2 },
+> +	{ 2, 4 },
+> +	{ 3, 8 },
+> +	{ 4, 16 },
+> +	{ 5, 32 },
+> +	{ 5, 33 },  /* Actual time  32.768s so included both 32s and 33s */
+> +	{ 6, 65 },
+> +	{ 6, 66 },  /* Actual time 65.536s so include both, 65s and 66s */
+> +	{ 7, 131 },
+> +};
+> +
+> +static int da9052_wdt_set_timeout(struct watchdog_device *wdt_dev,
+> +				  unsigned int timeout)
+> +{
+> +	struct da9052_wdt_drvdata *driver_data = watchdog_get_drvdata(wdt_dev);
+> +	struct da9052 *da9052 = driver_data->da9052;
+> +	int ret, i;
+> +
+> +	/* Disable the Watchdog timer before setting
+> +	 * new time out.
+> +	 */
+> +	ret = da9052_reg_update(da9052, DA9052_CONTROL_D_REG,
+> +				DA9052_CONTROLD_TWDSCALE, 0);
+> +	if (ret < 0) {
+> +		dev_err(da9052->dev, "Failed to disable watchdog bit, %d\n",
+> +			ret);
+> +		return ret;
+> +	}
+> +	if (timeout) {
+> +		/* To change the timeout, da9052 needs to
+> +		 * be disabled for at least 150 us.
+> +		 */
+> +		udelay(150);
+> +
+> +		/* Set the desired timeout */
+> +		for (i = 0; i < ARRAY_SIZE(da9052_wdt_maps); i++)
+> +			if (da9052_wdt_maps[i].time == timeout)
+> +				break;
+> +
+> +		if (i == ARRAY_SIZE(da9052_wdt_maps))
+> +			ret = -EINVAL;
+> +		else
+> +			ret = da9052_reg_update(da9052, DA9052_CONTROL_D_REG,
+> +						DA9052_CONTROLD_TWDSCALE,
+> +						da9052_wdt_maps[i].reg_val);
+> +		if (ret < 0) {
+> +			dev_err(da9052->dev,
+> +				"Failed to update timescale bit, %d\n", ret);
+> +			return ret;
+> +		}
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int da9052_wdt_start(struct watchdog_device *wdt_dev)
+> +{
+> +	struct da9052_wdt_drvdata *driver_data = watchdog_get_drvdata(wdt_dev);
+> +	int ret = 0;
+> +
+> +	mutex_lock(&driver_data->lock);
+> +	ret = da9052_wdt_set_timeout(wdt_dev, DA9052_DEF_TIMEOUT);
+> +	mutex_unlock(&driver_data->lock);
+> +
+> +	return ret;
+> +}
+> +
+> +static int da9052_wdt_stop(struct watchdog_device *wdt_dev)
+> +{
+> +	struct da9052_wdt_drvdata *driver_data = watchdog_get_drvdata(wdt_dev);
+> +	struct da9052 *da9052 = driver_data->da9052;
+> +	int ret = 0;
+> +
+> +	mutex_lock(&driver_data->lock);
+> +	ret = da9052_reg_update(da9052, DA9052_CONTROL_D_REG,
+> +				DA9052_CONTROLD_TWDSCALE, 0);
+> +	mutex_unlock(&driver_data->lock);
+> +
+> +	return ret;
+> +}
+> +
+> +static int da9052_wdt_ping(struct watchdog_device *wdt_dev)
+> +{
+> +	struct da9052_wdt_drvdata *driver_data = watchdog_get_drvdata(wdt_dev);
+> +	struct da9052 *da9052 = driver_data->da9052;
+> +	int ret;
+> +
+> +	mutex_lock(&driver_data->lock);
+> +	/* Reset the watchdog timer */
+> +	ret = da9052_reg_update(da9052, DA9052_CONTROL_D_REG,
+> +				DA9052_CONTROLD_WATCHDOG, 1 << 7);
+> +	if (ret < 0)
+> +		goto err_strobe;
+> +
+> +	/* FIXME: Reset the watchdog core, in general PMIC
+> +	 * is supposed to do this
+> +	 */
+> +	ret = da9052_reg_update(da9052, DA9052_CONTROL_D_REG,
+> +				DA9052_CONTROLD_WATCHDOG, 0 << 7);
+> +err_strobe:
+> +	mutex_unlock(&driver_data->lock);
+> +	return ret;
+> +}
+> +
+> +static struct watchdog_info da9052_wdt_info = {
+> +	.options	= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
+> +	.identity	= "DA9052 Watchdog",
+> +};
+> +
+> +static const struct watchdog_ops da9052_wdt_ops = {
+> +	.owner = THIS_MODULE,
+> +	.start = da9052_wdt_start,
+> +	.stop = da9052_wdt_stop,
+> +	.ping = da9052_wdt_ping,
+> +	.set_timeout = da9052_wdt_set_timeout,
+> +};
+> +
+> +
+> +static int __devinit da9052_wdt_probe(struct platform_device *pdev)
+> +{
+> +	struct da9052 *da9052 = dev_get_drvdata(pdev->dev.parent);
+> +	struct da9052_wdt_drvdata *driver_data;
+> +	struct watchdog_device *da9052_wdt;
+> +	int ret;
+> +
+> +	driver_data = devm_kzalloc(&pdev->dev, sizeof(*driver_data),
+> +				   GFP_KERNEL);
+> +	if (!driver_data) {
+> +		dev_err(da9052->dev, "Unable to alloacate watchdog device\n");
+> +		ret = -ENOMEM;
+> +		goto err;
+> +	}
+> +	mutex_init(&driver_data->lock);
+> +	driver_data->da9052 = da9052;
+> +
+> +	da9052_wdt = &driver_data->wdt;
+> +
+> +	da9052_wdt->info = &da9052_wdt_info;
+> +	da9052_wdt->ops = &da9052_wdt_ops;
+> +	watchdog_set_drvdata(da9052_wdt, driver_data);
+> +
+> +	ret = da9052_reg_update(da9052, DA9052_CONTROL_D_REG,
+> +				DA9052_CONTROLD_TWDSCALE, 0);
+> +	if (ret < 0) {
+> +		dev_err(&pdev->dev, "Failed to disable watchdog bits, %d\n",
+> +			ret);
+> +		goto err;
+> +	}
+> +
+> +	ret = watchdog_register_device(&driver_data->wdt);
+> +	if (ret != 0) {
+> +		dev_err(da9052->dev, "watchdog_register_device() failed: %d\n",
+> +			ret);
+> +		goto err;
+> +	}
+> +
+> +	dev_set_drvdata(&pdev->dev, driver_data);
+> +err:
+> +	return ret;
+> +}
+> +
+> +static int __devexit da9052_wdt_remove(struct platform_device *pdev)
+> +{
+> +	struct da9052_wdt_drvdata *driver_data = dev_get_drvdata(&pdev->dev);
+> +
+> +	watchdog_unregister_device(&driver_data->wdt);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver da9052_wdt_driver = {
+> +	.probe = da9052_wdt_probe,
+> +	.remove = __devexit_p(da9052_wdt_remove),
+> +	.driver = {
+> +		.name	= "da9052-watchdog",
+> +	},
+> +};
+> +
+> +module_platform_driver(da9052_wdt_driver);
+> +
+> +MODULE_AUTHOR("Anthony Olech <Anthony.Olech@diasemi.com>");
+> +MODULE_DESCRIPTION("DA9052 SM Device Driver");
+> +MODULE_LICENSE("GPL");
+> +MODULE_ALIAS("platform:da9052-wdt");
+> +
 
-Hello
 
-I think there is a bug in the Linux driver for the SCH311x watchdog.
-
-The SCH311x chip contains 2 watchdogs. One is the watchdog programmable
-by the runtime register at address 0x65-0x68, the other is the watchdog
-inside the power on reset generator. This second watchdog has a fixed
-timeout value of ~1.6 seconds and is configurable only by the RESGEN
-register.
-
-The BIOS normally takes care of the RESGEN watchdog and disables it (at
-least) before the OS is booted.
-
-Unfortunately the sch311x_wdt driver clears bit 0 of the RESGEN register
-which has the effect that at the latest 1.6 seconds later, a POR is
-triggered.
-
-
-The attached patch fixes this problem by completely removing any
-reference to the RESGEN watchdog from the sch311x_wdt driver.
-
-
-Dave
-
-
---------------010208070901010308030701
-Content-Type: text/plain; charset=UTF-8;
- name="sch311x_wdt.c.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="sch311x_wdt.c.patch"
-
-U2lnbmVkLW9mZi1ieTogRGF2ZSBNdWVsbGVyIDxkLm11ZWxsZXJAZWxzb2Z0LmNoPgoKLS0t
-IGEvZHJpdmVycy93YXRjaGRvZy9zY2gzMTF4X3dkdC5jCTIwMTEtMTEtMDIgMTc6MjE6MjIu
-OTU1ODYxMTAyICswMTAwCisrKyBiL2RyaXZlcnMvd2F0Y2hkb2cvc2NoMzExeF93ZHQuYwky
-MDEyLTA0LTExIDE2OjE0OjIxLjYyMjI5NTU3OCArMDIwMApAQCAtNDAsNyArNDAsNiBAQAog
-I2RlZmluZSBQRlgJCURSVl9OQU1FICI6ICIKCiAvKiBSdW50aW1lIHJlZ2lzdGVycyAqLwot
-I2RlZmluZSBSRVNHRU4JCQkweDFkCiAjZGVmaW5lIEdQNjAJCQkweDQ3CiAjZGVmaW5lIFdE
-VF9USU1FX09VVAkJMHg2NQogI2RlZmluZSBXRFRfVkFMCQkJMHg2NgpAQCAtNjgsMTAgKzY3
-LDYgQEAKIG1vZHVsZV9wYXJhbShmb3JjZV9pZCwgdXNob3J0LCAwKTsKIE1PRFVMRV9QQVJN
-X0RFU0MoZm9yY2VfaWQsICJPdmVycmlkZSB0aGUgZGV0ZWN0ZWQgZGV2aWNlIElEIik7Cgot
-c3RhdGljIHVuc2lnbmVkIHNob3J0IHRoZXJtX3RyaXA7Ci1tb2R1bGVfcGFyYW0odGhlcm1f
-dHJpcCwgdXNob3J0LCAwKTsKLU1PRFVMRV9QQVJNX0RFU0ModGhlcm1fdHJpcCwgIlNob3Vs
-ZCBhIFRoZXJtVHJpcCB0cmlnZ2VyIHRoZSByZXNldCBnZW5lcmF0b3IiKTsKLQogI2RlZmlu
-ZSBXQVRDSERPR19USU1FT1VUIDYwCQkvKiA2MCBzZWMgZGVmYXVsdCB0aW1lb3V0ICovCiBz
-dGF0aWMgaW50IHRpbWVvdXQgPSBXQVRDSERPR19USU1FT1VUOwkvKiBpbiBzZWNvbmRzICov
-CiBtb2R1bGVfcGFyYW0odGltZW91dCwgaW50LCAwKTsKQEAgLTM1OCwyNiArMzUzLDE3IEBA
-CiBzdGF0aWMgaW50IF9fZGV2aW5pdCBzY2gzMTF4X3dkdF9wcm9iZShzdHJ1Y3QgcGxhdGZv
-cm1fZGV2aWNlICpwZGV2KQogewogCXN0cnVjdCBkZXZpY2UgKmRldiA9ICZwZGV2LT5kZXY7
-Ci0JdW5zaWduZWQgY2hhciB2YWw7CiAJaW50IGVycjsKCiAJc3Bpbl9sb2NrX2luaXQoJnNj
-aDMxMXhfd2R0X2RhdGEuaW9fbG9jayk7CgotCWlmICghcmVxdWVzdF9yZWdpb24oc2NoMzEx
-eF93ZHRfZGF0YS5ydW50aW1lX3JlZyArIFJFU0dFTiwgMSwKLQkJCQkJCQkJRFJWX05BTUUp
-KSB7Ci0JCWRldl9lcnIoZGV2LCAiRmFpbGVkIHRvIHJlcXVlc3QgcmVnaW9uIDB4JTA0eC0w
-eCUwNHguXG4iLAotCQkJc2NoMzExeF93ZHRfZGF0YS5ydW50aW1lX3JlZyArIFJFU0dFTiwK
-LQkJCXNjaDMxMXhfd2R0X2RhdGEucnVudGltZV9yZWcgKyBSRVNHRU4pOwotCQllcnIgPSAt
-RUJVU1k7Ci0JCWdvdG8gZXhpdDsKLQl9CgogCWlmICghcmVxdWVzdF9yZWdpb24oc2NoMzEx
-eF93ZHRfZGF0YS5ydW50aW1lX3JlZyArIEdQNjAsIDEsIERSVl9OQU1FKSkgewogCQlkZXZf
-ZXJyKGRldiwgIkZhaWxlZCB0byByZXF1ZXN0IHJlZ2lvbiAweCUwNHgtMHglMDR4LlxuIiwK
-IAkJCXNjaDMxMXhfd2R0X2RhdGEucnVudGltZV9yZWcgKyBHUDYwLAogCQkJc2NoMzExeF93
-ZHRfZGF0YS5ydW50aW1lX3JlZyArIEdQNjApOwogCQllcnIgPSAtRUJVU1k7Ci0JCWdvdG8g
-ZXhpdF9yZWxlYXNlX3JlZ2lvbjsKKwkJZ290byBleGl0OwogCX0KCiAJaWYgKCFyZXF1ZXN0
-X3JlZ2lvbihzY2gzMTF4X3dkdF9kYXRhLnJ1bnRpbWVfcmVnICsgV0RUX1RJTUVfT1VULCA0
-LApAQCAtMzg2LDcgKzM3Miw3IEBACiAJCQlzY2gzMTF4X3dkdF9kYXRhLnJ1bnRpbWVfcmVn
-ICsgV0RUX1RJTUVfT1VULAogCQkJc2NoMzExeF93ZHRfZGF0YS5ydW50aW1lX3JlZyArIFdE
-VF9DVFJMKTsKIAkJZXJyID0gLUVCVVNZOwotCQlnb3RvIGV4aXRfcmVsZWFzZV9yZWdpb24y
-OworCQlnb3RvIGV4aXRfcmVsZWFzZV9yZWdpb247CiAJfQoKIAkvKiBNYWtlIHN1cmUgdGhh
-dCB0aGUgd2F0Y2hkb2cgaXMgbm90IHJ1bm5pbmcgKi8KQEAgLTQxNCwyNCArNDAwLDEzIEBA
-CiAJLyogR2V0IHN0YXR1cyBhdCBib290ICovCiAJc2NoMzExeF93ZHRfZ2V0X3N0YXR1cygm
-c2NoMzExeF93ZHRfZGF0YS5ib290X3N0YXR1cyk7CgotCS8qIGVuYWJsZSB3YXRjaGRvZyAq
-LwotCS8qIC0tIFJlc2V0IEdlbmVyYXRvciAtLQotCSAqIEJpdCAwICAgRW5hYmxlIFdhdGNo
-ZG9nIFRpbWVyIEdlbmVyYXRpb246IDAqID0gRW5hYmxlZCwgMSA9IERpc2FibGVkCi0JICog
-Qml0IDEgICBUaGVybXRyaXAgU291cmNlIFNlbGVjdDogTyogPSBObyBTb3VyY2UsIDEgPSBT
-b3VyY2UKLQkgKiBCaXQgMiAgIFdEVDJfQ1RMOiBXRFQgaW5wdXQgYml0Ci0JICogQml0IDMt
-NyBSZXNlcnZlZAotCSAqLwotCW91dGIoMCwgc2NoMzExeF93ZHRfZGF0YS5ydW50aW1lX3Jl
-ZyArIFJFU0dFTik7Ci0JdmFsID0gdGhlcm1fdHJpcCA/IDB4MDYgOiAweDA0OwotCW91dGIo
-dmFsLCBzY2gzMTF4X3dkdF9kYXRhLnJ1bnRpbWVfcmVnICsgUkVTR0VOKTsKLQogCXNjaDMx
-MXhfd2R0X21pc2NkZXYucGFyZW50ID0gZGV2OwoKIAllcnIgPSBtaXNjX3JlZ2lzdGVyKCZz
-Y2gzMTF4X3dkdF9taXNjZGV2KTsKIAlpZiAoZXJyICE9IDApIHsKIAkJZGV2X2VycihkZXYs
-ICJjYW5ub3QgcmVnaXN0ZXIgbWlzY2RldiBvbiBtaW5vcj0lZCAoZXJyPSVkKVxuIiwKIAkJ
-CQkJCQlXQVRDSERPR19NSU5PUiwgZXJyKTsKLQkJZ290byBleGl0X3JlbGVhc2VfcmVnaW9u
-MzsKKwkJZ290byBleGl0X3JlbGVhc2VfcmVnaW9uMjsKIAl9CgogCWRldl9pbmZvKGRldiwK
-QEAgLTQ0MCwxMiArNDE1LDEwIEBACgogCXJldHVybiAwOwoKLWV4aXRfcmVsZWFzZV9yZWdp
-b24zOgotCXJlbGVhc2VfcmVnaW9uKHNjaDMxMXhfd2R0X2RhdGEucnVudGltZV9yZWcgKyBX
-RFRfVElNRV9PVVQsIDQpOwogZXhpdF9yZWxlYXNlX3JlZ2lvbjI6Ci0JcmVsZWFzZV9yZWdp
-b24oc2NoMzExeF93ZHRfZGF0YS5ydW50aW1lX3JlZyArIEdQNjAsIDEpOworCXJlbGVhc2Vf
-cmVnaW9uKHNjaDMxMXhfd2R0X2RhdGEucnVudGltZV9yZWcgKyBXRFRfVElNRV9PVVQsIDQp
-OwogZXhpdF9yZWxlYXNlX3JlZ2lvbjoKLQlyZWxlYXNlX3JlZ2lvbihzY2gzMTF4X3dkdF9k
-YXRhLnJ1bnRpbWVfcmVnICsgUkVTR0VOLCAxKTsKKwlyZWxlYXNlX3JlZ2lvbihzY2gzMTF4
-X3dkdF9kYXRhLnJ1bnRpbWVfcmVnICsgR1A2MCwgMSk7CiAJc2NoMzExeF93ZHRfZGF0YS5y
-dW50aW1lX3JlZyA9IDA7CiBleGl0OgogCXJldHVybiBlcnI7CkBAIC00NjEsNyArNDM0LDYg
-QEAKIAltaXNjX2RlcmVnaXN0ZXIoJnNjaDMxMXhfd2R0X21pc2NkZXYpOwogCXJlbGVhc2Vf
-cmVnaW9uKHNjaDMxMXhfd2R0X2RhdGEucnVudGltZV9yZWcgKyBXRFRfVElNRV9PVVQsIDQp
-OwogCXJlbGVhc2VfcmVnaW9uKHNjaDMxMXhfd2R0X2RhdGEucnVudGltZV9yZWcgKyBHUDYw
-LCAxKTsKLQlyZWxlYXNlX3JlZ2lvbihzY2gzMTF4X3dkdF9kYXRhLnJ1bnRpbWVfcmVnICsg
-UkVTR0VOLCAxKTsKIAlzY2gzMTF4X3dkdF9kYXRhLnJ1bnRpbWVfcmVnID0gMDsKIAlyZXR1
-cm4gMDsKIH0K
---------------010208070901010308030701--
