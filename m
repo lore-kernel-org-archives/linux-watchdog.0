@@ -1,48 +1,77 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:43359 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1759691Ab2D0OvH (ORCPT
+Received: from tx2ehsobe005.messaging.microsoft.com ([65.55.88.15]:52322 "EHLO
+	tx2outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751375Ab2D3Gni (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 27 Apr 2012 10:51:07 -0400
-Date: Fri, 27 Apr 2012 16:50:56 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Roland Stigge <stigge@antcom.de>
-Cc: grant.likely@secretlab.ca, rob.herring@calxeda.com,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	arm@kernel.org, linux-arm-kernel@lists.infradead.org,
-	sshtylyov@mvista.com
-Subject: Re: [PATCH v4] wdt: Device tree support for pnx4008-wdt
-Message-ID: <20120427145056.GA17375@spo001.leaseweb.com>
-References: <1334951729-1388-1-git-send-email-stigge@antcom.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1334951729-1388-1-git-send-email-stigge@antcom.de>
+	Mon, 30 Apr 2012 02:43:38 -0400
+Subject: [PATCH] Watchdog: Fix for settimeout issue
+From: Ashish Jangam <ashish.jangam@kpitcummins.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	Anthony Olech <Anthony.Olech@diasemi.com>,
+	<sameo@linux.intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 30 Apr 2012 12:10:31 +0530
+Message-ID: <1335768031.9546.20.camel@dhruva>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Roland,
+Some devices have a fixed minimum elapse time and a ping before this
+elapse time causes error condition. This patch fix this issue in the
+settimeout operation.
+---
+ drivers/watchdog/watchdog_dev.c |    7 ++++++-
+ include/linux/watchdog.h        |    3 +++
+ 2 files changed, 9 insertions(+), 1 deletions(-)
 
-> This patch adds device tree support to pnx4008-wdt.c
-> 
-> Signed-off-by: Roland Stigge <stigge@antcom.de>
-> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-> 
-> ---
-> 
-> Applies to v3.4-rc3
-> 
-> Changes since v3:
-> * Fixed typo in patch description
-> 
-> Thanks to Sergei Shtylyov for reviewing!
-> 
->  Documentation/devicetree/bindings/watchdog/pnx4008-wdt.txt |   13 +++++++++++++
->  drivers/watchdog/pnx4008_wdt.c                             |   10 ++++++++++
->  2 files changed, 23 insertions(+)
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 8558da9..fb6076c 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -41,6 +41,7 @@
+ #include <linux/miscdevice.h>	/* For handling misc devices */
+ #include <linux/init.h>		/* For __init/__exit/... */
+ #include <linux/uaccess.h>	/* For copy_to_user/put_user/... */
++#include <linux/delay.h>	/* For delay (like mdelay) */
+ 
+ /* make sure we only register one /dev/watchdog device */
+ static unsigned long watchdog_dev_busy;
+@@ -228,7 +229,11 @@ static long watchdog_ioctl(struct file *file, unsigned int cmd,
+ 			return err;
+ 		/* If the watchdog is active then we send a keepalive ping
+ 		 * to make sure that the watchdog keep's running (and if
+-		 * possible that it takes the new timeout) */
++		 * possible that it takes the new timeout) Also we care
++		 * for watchdog which needs min elapse time before a ping.
++		 */
++		if (wdd->min_elapse_time)
++			mdelay(wdd->min_elapse_time);
+ 		watchdog_ping(wdd);
+ 		/* Fall */
+ 	case WDIOC_GETTIMEOUT:
+diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+index ac40716..37d25b8 100644
+--- a/include/linux/watchdog.h
++++ b/include/linux/watchdog.h
+@@ -95,6 +95,8 @@ struct watchdog_ops {
+  * @timeout:	The watchdog devices timeout value.
+  * @min_timeout:The watchdog devices minimum timeout value.
+  * @max_timeout:The watchdog devices maximum timeout value.
++ * @min_elapse_time: The watchdog devices minimum elapse time before
++ *		the ping.
+  * @driver-data:Pointer to the drivers private data.
+  * @status:	Field that contains the devices internal status bits.
+  *
+@@ -111,6 +113,7 @@ struct watchdog_device {
+ 	unsigned int timeout;
+ 	unsigned int min_timeout;
+ 	unsigned int max_timeout;
++	unsigned int min_elapse_time;
+ 	void *driver_data;
+ 	unsigned long status;
+ /* Bit numbers for status flags */
 
-Will be added into the linux-watchdog git trees.
-
-Kind regards,
-Wim.
 
