@@ -1,63 +1,71 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailout4.samsung.com ([203.254.224.34]:24560 "EHLO
-	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752684Ab2ECBAj (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:55313 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750782Ab2ECEs4 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 2 May 2012 21:00:39 -0400
-Received: from epcpsbge4.samsung.com (mailout4.samsung.com [203.254.224.34])
- by mailout4.samsung.com
- (Oracle Communications Messaging Server 7u4-24.01(7.0.4.24.0) 64bit (built Nov
- 17 2011)) with ESMTP id <0M3F001089GXP540@mailout4.samsung.com> for
- linux-watchdog@vger.kernel.org; Thu, 03 May 2012 10:00:38 +0900 (KST)
-Date: Thu, 03 May 2012 01:00:38 +0000 (GMT)
-From: MyungJoo Ham <myungjoo.ham@samsung.com>
-Subject: Re: [PATCH] watchdog: s3c2410-wdt: Use of_match_ptr().
-To: Wim Van Sebroeck <wim@iguana.be>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	=?euc-kr?Q?=C1=A4=C0=E7=C8=C6?= <jh80.chung@samsung.com>,
+	Thu, 3 May 2012 00:48:56 -0400
+Date: Thu, 3 May 2012 06:48:54 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: MyungJoo Ham <myungjoo.ham@samsung.com>
+Cc: Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+	=?utf-8?B?7KCV7J6s7ZuI?= <jh80.chung@samsung.com>,
 	BANAJIT GOSWAMI <banajit.g@samsung.com>,
 	Ben Dooks <ben-linux@fluff.org>, Ben Dooks <ben@simtec.co.uk>,
 	Wolfram Sang <w.sang@pengutronix.de>
-Reply-to: myungjoo.ham@samsung.com
-MIME-version: 1.0
-Content-transfer-encoding: base64
-Content-type: text/plain; charset=euc-kr
-MIME-version: 1.0
-Message-id: <4198193.124741336006837837.JavaMail.weblogic@epml09>
+Subject: Re: [PATCH] watchdog: s3c2410-wdt: Use of_match_ptr().
+Message-ID: <20120503044854.GI3074@spo001.leaseweb.com>
+References: <4198193.124741336006837837.JavaMail.weblogic@epml09>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <4198193.124741336006837837.JavaMail.weblogic@epml09>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-DQo+IFVzZSBvZl9tYXRjaF9wdHIgZGVmaW5pdGlvbiBmb3IgdGhlIG9mX21hdGNoX3RhYmxlLg0K
-PiANCj4gU2lnbmVkLW9mZi1ieTogV2ltIFZhbiBTZWJyb2VjayA8d2ltQGlndWFuYS5iZT4NCj4g
-DQo+IC0tLQ0KPiANCj4gQ2FuIHNvbWVvbmUgY29tcGlsZSB0ZXN0IHRoaXM/DQo+IA0KPiBUaGFu
-a3MsDQo+IFdpbS4NCg0KDQpJIGdldCB0aGlzIGVycm9yLiBZb3UgcHJvYmFibHkgbmVlZCB0byBh
-ZGQgI2luY2x1ZGUuDQoNCnNjcmlwdHMva2NvbmZpZy9jb25mIC0tc2lsZW50b2xkY29uZmlnIEtj
-b25maWcNCiAgQ0hLICAgICBpbmNsdWRlL2xpbnV4L3ZlcnNpb24uaA0KICBDSEsgICAgIGluY2x1
-ZGUvZ2VuZXJhdGVkL3V0c3JlbGVhc2UuaA0KbWFrZVsxXTogYGluY2x1ZGUvZ2VuZXJhdGVkL21h
-Y2gtdHlwZXMuaCcgaXMgdXAgdG8gZGF0ZS4NCiAgQ0FMTCAgICBzY3JpcHRzL2NoZWNrc3lzY2Fs
-bHMuc2gNCiAgQ0hLICAgICBpbmNsdWRlL2dlbmVyYXRlZC9jb21waWxlLmgNCiAgQ0MgICAgICBk
-cml2ZXJzL3dhdGNoZG9nL3dhdGNoZG9nX2NvcmUubw0KICBDQyAgICAgIGRyaXZlcnMvd2F0Y2hk
-b2cvd2F0Y2hkb2dfZGV2Lm8NCiAgQ0MgICAgICBkcml2ZXJzL3dhdGNoZG9nL3MzYzI0MTBfd2R0
-Lm8NCiAgTEQgICAgICBkcml2ZXJzL3dhdGNoZG9nL3dhdGNoZG9nLm8NCmRyaXZlcnMvd2F0Y2hk
-b2cvczNjMjQxMF93ZHQuYzo1MTc6MzogZXJyb3I6IGltcGxpY2l0IGRlY2xhcmF0aW9uIG9mIGZ1
-bmN0aW9uIKGub2ZfbWF0Y2hfcHRyoa8NCmRyaXZlcnMvd2F0Y2hkb2cvczNjMjQxMF93ZHQuYzo1
-MTc6MzQ6IGVycm9yOiChrnMzYzI0MTBfd2R0X21hdGNooa8gdW5kZWNsYXJlZCBoZXJlIChub3Qg
-aW4gYSBmdW5jdGlvbikNCm1ha2VbMl06ICoqKiBbZHJpdmVycy93YXRjaGRvZy9zM2MyNDEwX3dk
-dC5vXSBFcnJvciAxDQptYWtlWzJdOiAqKiogV2FpdGluZyBmb3IgdW5maW5pc2hlZCBqb2JzLi4u
-Lg0KbWFrZVsxXTogKioqIFtkcml2ZXJzL3dhdGNoZG9nXSBFcnJvciAyDQptYWtlOiAqKiogW2Ry
-aXZlcnNdIEVycm9yIDINCg0KPiANCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvd2F0Y2hkb2cvczNj
-MjQxMF93ZHQuYyBiL2RyaXZlcnMvd2F0Y2hkb2cvczNjMjQxMF93ZHQuYw0KPiBpbmRleCAwNGU1
-YTZkLi42ODZjOGZjIDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJzL3dhdGNoZG9nL3MzYzI0MTBfd2R0
-LmMNCj4gKysrIGIvZHJpdmVycy93YXRjaGRvZy9zM2MyNDEwX3dkdC5jDQo+IEBAIC01MDMsOCAr
-NTAzLDYgQEAgc3RhdGljIGNvbnN0IHN0cnVjdCBvZl9kZXZpY2VfaWQgczNjMjQxMF93ZHRfbWF0
-Y2hbXSA9IHsNCj4gIAl7fSwNCj4gIH07DQo+ICBNT0RVTEVfREVWSUNFX1RBQkxFKG9mLCBzM2My
-NDEwX3dkdF9tYXRjaCk7DQo+IC0jZWxzZQ0KPiAtI2RlZmluZSBzM2MyNDEwX3dkdF9tYXRjaCBO
-VUxMDQo+ICAjZW5kaWYNCj4gIA0KPiAgc3RhdGljIHN0cnVjdCBwbGF0Zm9ybV9kcml2ZXIgczNj
-MjQxMHdkdF9kcml2ZXIgPSB7DQo+IEBAIC01MTYsNyArNTE0LDcgQEAgc3RhdGljIHN0cnVjdCBw
-bGF0Zm9ybV9kcml2ZXIgczNjMjQxMHdkdF9kcml2ZXIgPSB7DQo+ICAJLmRyaXZlcgkJPSB7DQo+
-ICAJCS5vd25lcgk9IFRISVNfTU9EVUxFLA0KPiAgCQkubmFtZQk9ICJzM2MyNDEwLXdkdCIsDQo+
-IC0JCS5vZl9tYXRjaF90YWJsZQk9IHMzYzI0MTBfd2R0X21hdGNoLA0KPiArCQkub2ZfbWF0Y2hf
-dGFibGUJPSBvZl9tYXRjaF9wdHIoczNjMjQxMF93ZHRfbWF0Y2gpLA0KPiAgCX0sDQo+ICB9Ow0K
-PiAgDQo+IA0KPiANCj4gDQo+ICAgICAgICANCj4gICANCj4gICAgICAgICAgDQo+IA0K
+Hi,
 
+>=20
+> > Use of_match_ptr definition for the of_match_table.
+> >=20
+> > Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+> >=20
+> > ---
+> >=20
+> > Can someone compile test this?
+> >=20
+> > Thanks,
+> > Wim.
+>=20
+>=20
+> I get this error. You probably need to add #include.
+>=20
+> scripts/kconfig/conf --silentoldconfig Kconfig
+>   CHK     include/linux/version.h
+>   CHK     include/generated/utsrelease.h
+> make[1]: `include/generated/mach-types.h' is up to date.
+>   CALL    scripts/checksyscalls.sh
+>   CHK     include/generated/compile.h
+>   CC      drivers/watchdog/watchdog_core.o
+>   CC      drivers/watchdog/watchdog_dev.o
+>   CC      drivers/watchdog/s3c2410_wdt.o
+>   LD      drivers/watchdog/watchdog.o
+> drivers/watchdog/s3c2410_wdt.c:517:3: error: implicit declaration of fu=
+nction =E2=80=98of_match_ptr=E2=80=99
+> drivers/watchdog/s3c2410_wdt.c:517:34: error: =E2=80=98s3c2410_wdt_matc=
+h=E2=80=99 undeclared here (not in a function)
+> make[2]: *** [drivers/watchdog/s3c2410_wdt.o] Error 1
+> make[2]: *** Waiting for unfinished jobs....
+> make[1]: *** [drivers/watchdog] Error 2
+> make: *** [drivers] Error 2
 
+Can you try with: #include <linux/of.h> ?
+
+Thanks,
+Wim.
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
