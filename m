@@ -1,44 +1,106 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:27044 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753105Ab2EGG6w (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 7 May 2012 02:58:52 -0400
-Message-ID: <4FA77278.5030705@redhat.com>
-Date: Mon, 07 May 2012 08:58:00 +0200
-From: Hans de Goede <hdegoede@redhat.com>
+Received: from ch1ehsobe006.messaging.microsoft.com ([216.32.181.186]:29444
+	"EHLO ch1outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751713Ab2EHGWZ (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 8 May 2012 02:22:25 -0400
+From: Shaohui Xie <Shaohui.Xie@freescale.com>
+To: <linux-watchdog@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>
+CC: Shaohui Xie <Shaohui.Xie@freescale.com>
+Subject: [PATCH 1/2] powerpc/watchdog: move booke watchdog param related code to prom.c
+Date: Tue, 8 May 2012 14:07:11 +0800
+Message-ID: <1336457231-32513-1-git-send-email-Shaohui.Xie@freescale.com>
 MIME-Version: 1.0
-To: Wim Van Sebroeck <wim@iguana.be>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-watchdog@vger.kernel.org,
-	LM Sensors <lm-sensors@lm-sensors.org>,
-	Thilo Cestonaro <thilo.cestonaro@ts.fujitsu.com>,
-	=?ISO-8859-1?Q?P=E1dra?= =?ISO-8859-1?Q?ig_Brady?=
-	<P@draigBrady.com>
-Subject: Re: [PATCH 1/3] watchdog_dev: Add support for having more then 1
- watchdog
-References: <1331812757-3491-1-git-send-email-hdegoede@redhat.com> <1331812757-3491-2-git-send-email-hdegoede@redhat.com> <20120315131131.1096f8c8@pyramind.ukuu.org.uk> <4F61FA18.70104@redhat.com> <20120315153833.40bd2f16@pyramind.ukuu.org.uk> <20120504123434.GR3074@spo001.leaseweb.com>
-In-Reply-To: <20120504123434.GR3074@spo001.leaseweb.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
+Currently, BOOKE watchdog code for checking "wdt" and "wdt_period" is
+in setup_32.c, it cannot be used in 64-bit, so move it to a common place
+prom.c, which will be shared by 32-bit and 64-bit.
 
-On 05/04/2012 02:34 PM, Wim Van Sebroeck wrote:
-> Hi Alan,
->
->>> You do this even for watchdog0 / for the watchdog we've also registered as
->>> misc_dev. I guess this is intentional and you want the watchdog to be
->>> available as both misc,130 as well as as MAJOR(dog_devt),0 ?
->>
->> Yes - so that it appears in the watchdog class in sysfs for example.
->
-> What happens if one program opens the miscdevice and another program opens the MAJOR(dog_devt),0 device?
-> I presume that the WDOG_DEV_OPEN status bit will prohibit the opening of the second device in that case...
+Also, replace the simple_strtoul with kstrtol.
 
-Correct.
+Signed-off-by: Shaohui Xie <Shaohui.Xie@freescale.com>
+---
+ arch/powerpc/kernel/prom.c     |   27 +++++++++++++++++++++++++++
+ arch/powerpc/kernel/setup_32.c |   24 ------------------------
+ 2 files changed, 27 insertions(+), 24 deletions(-)
 
-Regards,
+diff --git a/arch/powerpc/kernel/prom.c b/arch/powerpc/kernel/prom.c
+index f191bf0..49e1bdf 100644
+--- a/arch/powerpc/kernel/prom.c
++++ b/arch/powerpc/kernel/prom.c
+@@ -84,6 +84,33 @@ static int __init early_parse_mem(char *p)
+ }
+ early_param("mem", early_parse_mem);
+ 
++#ifdef CONFIG_BOOKE_WDT
++extern u32 booke_wdt_enabled;
++extern u32 booke_wdt_period;
++
++/* Checks wdt=x and wdt_period=xx command-line option */
++notrace int __init early_parse_wdt(char *p)
++{
++	if (p && strncmp(p, "0", 1) != 0)
++		booke_wdt_enabled = 1;
++
++	return 0;
++}
++early_param("wdt", early_parse_wdt);
++
++int __init early_parse_wdt_period(char *p)
++{
++	unsigned long ret;
++	if (p) {
++		if (!kstrtol(p, 0, &ret))
++			booke_wdt_period = ret;
++	}
++
++	return 0;
++}
++early_param("wdt_period", early_parse_wdt_period);
++#endif	/* CONFIG_BOOKE_WDT */
++
+ /*
+  * overlaps_initrd - check for overlap with page aligned extension of
+  * initrd.
+diff --git a/arch/powerpc/kernel/setup_32.c b/arch/powerpc/kernel/setup_32.c
+index ec8a53f..a8f54ec 100644
+--- a/arch/powerpc/kernel/setup_32.c
++++ b/arch/powerpc/kernel/setup_32.c
+@@ -149,30 +149,6 @@ notrace void __init machine_init(u64 dt_ptr)
+ 		ppc_md.progress("id mach(): done", 0x200);
+ }
+ 
+-#ifdef CONFIG_BOOKE_WDT
+-extern u32 booke_wdt_enabled;
+-extern u32 booke_wdt_period;
+-
+-/* Checks wdt=x and wdt_period=xx command-line option */
+-notrace int __init early_parse_wdt(char *p)
+-{
+-	if (p && strncmp(p, "0", 1) != 0)
+-	       booke_wdt_enabled = 1;
+-
+-	return 0;
+-}
+-early_param("wdt", early_parse_wdt);
+-
+-int __init early_parse_wdt_period (char *p)
+-{
+-	if (p)
+-		booke_wdt_period = simple_strtoul(p, NULL, 0);
+-
+-	return 0;
+-}
+-early_param("wdt_period", early_parse_wdt_period);
+-#endif	/* CONFIG_BOOKE_WDT */
+-
+ /* Checks "l2cr=xxxx" command-line option */
+ int __init ppc_setup_l2cr(char *str)
+ {
+-- 
+1.6.4
 
-Hans
+
