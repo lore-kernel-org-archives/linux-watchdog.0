@@ -1,78 +1,40 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ch1ehsobe002.messaging.microsoft.com ([216.32.181.182]:56972
-	"EHLO ch1outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752863Ab2EIDqw convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 8 May 2012 23:46:52 -0400
-From: Bhushan Bharat-R65777 <R65777@freescale.com>
-To: Xie Shaohui-B21989 <B21989@freescale.com>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>
-Subject: RE: [PATCH 1/2] powerpc/watchdog: move booke watchdog param related
- code to prom.c
-Date: Wed, 9 May 2012 03:46:46 +0000
-Message-ID: <6A3DF150A5B70D4F9B66A25E3F7C888D03CF8714@039-SN2MPN1-023.039d.mgd.msft.net>
-References: <1336457231-32513-1-git-send-email-Shaohui.Xie@freescale.com>
- <6A3DF150A5B70D4F9B66A25E3F7C888D03CF692C@039-SN2MPN1-023.039d.mgd.msft.net>
- <ED492CCEAF882048BC2237DE806547C90B2EB2@039-SN2MPN1-013.039d.mgd.msft.net>
- <6A3DF150A5B70D4F9B66A25E3F7C888D03CF86B7@039-SN2MPN1-023.039d.mgd.msft.net>
- <ED492CCEAF882048BC2237DE806547C90B2EF0@039-SN2MPN1-013.039d.mgd.msft.net>
-In-Reply-To: <ED492CCEAF882048BC2237DE806547C90B2EF0@039-SN2MPN1-013.039d.mgd.msft.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
+Received: from mail-ob0-f174.google.com ([209.85.214.174]:44270 "EHLO
+	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752843Ab2EJMxb convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 10 May 2012 08:53:31 -0400
 MIME-Version: 1.0
+Reply-To: axel.lin@gmail.com
+In-Reply-To: <20120405223231.GK817@titan.lakedaemon.net>
+References: <1332804040.5294.2.camel@phoenix> <20120331011432.GG7274@titan.lakedaemon.net>
+ <CAF+7xWkuZ6q1TbWpdvwK57wGBwd_naVZsvtj0UackWWFcam7qw@mail.gmail.com> <20120405223231.GK817@titan.lakedaemon.net>
+From: Axel Lin <axel.lin@gmail.com>
+Date: Thu, 10 May 2012 20:53:10 +0800
+Message-ID: <CAF+7xW=Z9kya92w6FxZri8miXQMSZYWMBwdSW47jpkQY+6YZ6A@mail.gmail.com>
+Subject: Re: [PATCH RFT v3] watchdog: Convert orion_wdt driver to watchdog core
+To: Jason Cooper <jason@lakedaemon.net>
+Cc: linux-kernel@vger.kernel.org,
+	Sylver Bruneau <sylver.bruneau@googlemail.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org,
+	Nicolas Pitre <nicolas.pitre@linaro.org>,
+	Andrew Lunn <andrew@lunn.ch>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 Content-Transfer-Encoding: quoted-printable
 
-> >> >> .org] On Behalf Of Shaohui Xie
-> >> >> Sent: Tuesday, May 08, 2012 11:37 AM
-> >> >> To: linux-watchdog@vger.kernel.org; linuxppc-dev@lists.ozlabs.org
-> >> >> Cc: Xie Shaohui-B21989
-> >> >> Subject: [PATCH 1/2] powerpc/watchdog: move booke watchdog param
-> >> >> related code to prom.c
-> >> >>
-> >> >> Currently, BOOKE watchdog code for checking "wdt" and "wdt_period=
-"
-> >> >> is in setup_32.c, it cannot be used in 64-bit, so move it to a
-> >> >> common place prom.c, which will be shared by 32-bit and 64-bit.
-> >> >>
-> >> >> Also, replace the simple_strtoul with kstrtol.
-> >> >>
-> >> >> Signed-off-by: Shaohui Xie <Shaohui.Xie@freescale.com>
-> >> >> ---
-> >> >>  arch/powerpc/kernel/prom.c     |   27 ++++++++++++++++++++++++++=
-+
-> >> >>  arch/powerpc/kernel/setup_32.c |   24 ------------------------
-> >> >>  2 files changed, 27 insertions(+), 24 deletions(-)
-> >> >
-> >> >Is not setup-common.c is better place to move this?
-> >>
-> >> Move out from setup_32.c does not mean it have to go into
-> >> setup-common.c, I need better reason to do this.
-> >>
-> >
-> >What I think that setup_32.c is for 32 bit, setup_64.c is for 64 bit
-> >and setup-common.c is for both.
-> >
-> >I am not saying that you move this to setup-common.c. I am asking why
-> >you have not used setup-common.c ? I am ok even with prom.c.
-> >
-> [Xie Shaohui] I'm not a fan of prom.c, I did this because I see same ki=
-nd of
-> early parameters checking is did in this file only, so I thought maybe =
-I should
-> put them together. And seems setup-common.c is not the place to do comm=
-and line
-> checking (I'm not sure about this).
->=20
+> Ah, much better. =A0I rebased it against v3.4-rc1 now that it's out.
+> Compiles without problems. =A0I'll test this weekend most likely. =A0I =
+don't
+> have my watchdog code in front of me atm.
+>
+Hi Jason,
+Does this patch work for you?
 
-Ok, so you are also not sure.
-Let us see what other guys things of this.
-
-Thanks
--Bharat
-
+Thanks,
+Axel
 --
 To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
  in
