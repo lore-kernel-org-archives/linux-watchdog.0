@@ -1,44 +1,47 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:49061 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753418Ab2EKQgZ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 11 May 2012 12:36:25 -0400
-Message-ID: <4FAD40EE.90707@redhat.com>
-Date: Fri, 11 May 2012 18:40:14 +0200
-From: Hans de Goede <hdegoede@redhat.com>
+Received: from oproxy5-pub.bluehost.com ([67.222.38.55]:47131 "HELO
+	oproxy5-pub.bluehost.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1755445Ab2EKXhI (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 11 May 2012 19:37:08 -0400
+Message-ID: <4FADA2B2.8070302@xenotime.net>
+Date: Fri, 11 May 2012 16:37:22 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
 MIME-Version: 1.0
-To: Wim Van Sebroeck <wim@iguana.be>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 1/4] watchdog: Add multiple device support
-References: <20120321152418.20045.35525.stgit@bob.linux.org.uk> <20120504123815.GS3074@spo001.leaseweb.com> <20120510192023.GA31117@spo001.leaseweb.com> <4FACC4C1.9040104@redhat.com> <20120511160218.GE3074@spo001.leaseweb.com>
-In-Reply-To: <20120511160218.GE3074@spo001.leaseweb.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+CC: linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH -next] via_wdt: depends on PCI
+References: <20120511162738.1d65b6efe099a54841be6313@canb.auug.org.au>
+In-Reply-To: <20120511162738.1d65b6efe099a54841be6313@canb.auug.org.au>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-On 05/11/2012 06:02 PM, Wim Van Sebroeck wrote:
-> Hi Hans,
->
->>> +		if (id != 0)
->>> +			return ret;
->>
->>
->> I believe the check above should be:
->> 		if (id != 0 || ret != -EBUSY)
->> 			return ret;
->>
->> IOW we should not retry the registration if it failed for another reason
->> then the id already being taken by a legacy driver.
->
-> Than for readibility we should say:
-> 		if (!(id == 0&&  ret == -EBUSY))
-> 			return ret
+via_wdt is a PCI driver so it should depend on PCI so that
+it will not cause build errors.
 
-ACK.
+drivers/watchdog/via_wdt.c:256:1: warning: data definition has no type or storage class
+drivers/watchdog/via_wdt.c:256:1: warning: type defaults to 'int' in declaration of 'module_pci_driver'
+drivers/watchdog/via_wdt.c:256:1: warning: parameter names (without types) in function declaration
 
-Regards,
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ drivers/watchdog/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Hans
+--- linux-next-20120511.orig/drivers/watchdog/Kconfig
++++ linux-next-20120511/drivers/watchdog/Kconfig
+@@ -788,7 +788,7 @@ config SMSC37B787_WDT
+ 
+ config VIA_WDT
+ 	tristate "VIA Watchdog Timer"
+-	depends on X86
++	depends on X86 && PCI
+ 	select WATCHDOG_CORE
+ 	---help---
+ 	This is the driver for the hardware watchdog timer on VIA
