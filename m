@@ -1,51 +1,48 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:48390 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:25281 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932109Ab2EKJ6V (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 11 May 2012 05:58:21 -0400
-Message-ID: <4FACE2B7.1010503@redhat.com>
-Date: Fri, 11 May 2012 11:58:15 +0200
+	id S1757787Ab2EKKAe (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 11 May 2012 06:00:34 -0400
 From: Hans de Goede <hdegoede@redhat.com>
-MIME-Version: 1.0
-To: Wim Van Sebroeck <wim@iguana.be>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 1/4] watchdog: Add multiple device support
-References: <20120321152418.20045.35525.stgit@bob.linux.org.uk> <20120504123815.GS3074@spo001.leaseweb.com> <20120510192023.GA31117@spo001.leaseweb.com>
-In-Reply-To: <20120510192023.GA31117@spo001.leaseweb.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux-watchdog@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Alan Cox <alan@linux.intel.com>,
+	Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 1/9] watchdog: Add a flag to indicate the watchdog doesn't reboot things
+Date: Fri, 11 May 2012 12:00:19 +0200
+Message-Id: <1336730427-1664-2-git-send-email-hdegoede@redhat.com>
+In-Reply-To: <1336730427-1664-1-git-send-email-hdegoede@redhat.com>
+References: <1336730427-1664-1-git-send-email-hdegoede@redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
+From: Alan Cox <alan@linux.intel.com>
 
-On 05/10/2012 09:20 PM, Wim Van Sebroeck wrote:
-> Hi Alan, Hans,
->
->>> We keep the old /dev/watchdog interface file for the first watchdog via
->>> miscdev. This is basically a cut and paste of the relevant interface code
->>> from the rtc driver layer tweaked for watchdog.
->>>
->>> Revised to fix problems noted by Hans de Goede
->>>
->>> Signed-off-by: Alan Cox<alan@linux.intel.com>
->>
->> I'm ok with the principle. Need some more thoughts about the code (meaning: that the ID assignment should imho be in the watchdog_core.c file).
->>
->> I do have one question though: why did you use your own assign_id routines and not ida_simple_get/ida_simple_remove for instance?
->
-> I re-tweaked it to fit the clean split between core and dev related stuff. I also used ida instead of the watchdog_assign/release_id code.
-> For the rest it's basically the code that Alan produced with some minor changes (and also with the comments that Hans made).
->
-> See attached the diff (I will need to add the kernel-api documentation update still).
-> Please comment and test.
+Some watchdogs merely trigger external alarms and controls. In a managed
+environment this is very useful but we want drivers to be able to figure
+out which is which now multiple dogs can be loaded. Thus add an ALARMONLY
+feature flag.
 
-I've rebased Alan's other patches (they needed some adjustments) and my own patches on top
-and run the results through several tests. Everything looks good.
+Signed-off-by: Alan Cox <alan@linux.intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ include/linux/watchdog.h |    2 ++
+ 1 file changed, 2 insertions(+)
 
-I'll resend the rebased patches (both Alan's other patches and mine), right after this
-mail. I've also thrown in the missing documentation update.
+diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+index 1397cbc..eee8ac4 100644
+--- a/include/linux/watchdog.h
++++ b/include/linux/watchdog.h
+@@ -45,6 +45,8 @@ struct watchdog_info {
+ #define	WDIOF_SETTIMEOUT	0x0080  /* Set timeout (in seconds) */
+ #define	WDIOF_MAGICCLOSE	0x0100	/* Supports magic close char */
+ #define	WDIOF_PRETIMEOUT	0x0200  /* Pretimeout (in seconds), get/set */
++#define WDIOF_ALARMONLY		0x0400	/* Watchdog triggers a management or
++					   other external alarm not a reboot */
+ #define	WDIOF_KEEPALIVEPING	0x8000	/* Keep alive ping reply */
+ 
+ #define	WDIOS_DISABLECARD	0x0001	/* Turn off the watchdog timer */
+-- 
+1.7.10
 
-Regards,
-
-Hans
