@@ -1,68 +1,58 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:35571 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752365Ab2EMMUf convert rfc822-to-8bit (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:35891 "EHLO
+	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752790Ab2EMWoE (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 13 May 2012 08:20:35 -0400
-Received: by weyu7 with SMTP id u7so1237437wey.19
-        for <linux-watchdog@vger.kernel.org>; Sun, 13 May 2012 05:20:34 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <1336730427-1664-4-git-send-email-hdegoede@redhat.com>
-References: <1336730427-1664-1-git-send-email-hdegoede@redhat.com>
-	<1336730427-1664-4-git-send-email-hdegoede@redhat.com>
-Date: Sun, 13 May 2012 15:20:34 +0300
-Message-ID: <CA+i0qc6FEdFomBn6_HDGsXYiVQa0gtbELpkjNK6dqy5aoaoytA@mail.gmail.com>
-Subject: Re: [PATCH 3/9] watchdog-kernel-api.txt: Document new watchdog_dev fields
-From: Tomas Winkler <tomasw@gmail.com>
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: linux-watchdog@vger.kernel.org,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Wim Van Sebroeck <wim@iguana.be>
-Content-Type: text/plain; charset=UTF-8
+	Sun, 13 May 2012 18:44:04 -0400
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: patches@opensource.wolfsonmicro.com,
+	linux-watchdog@vger.kernel.org,
+	Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: [PATCH] watchdog: wm831x: Convert to gpio_request_one()
+Date: Sun, 13 May 2012 23:42:55 +0100
+Message-Id: <1336948975-5937-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, May 11, 2012 at 1:00 PM, Hans de Goede <hdegoede@redhat.com> wrot=
-e:
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
-> =C2=A0Documentation/watchdog/watchdog-kernel-api.txt | =C2=A0 11 ++++++=
-++++-
-> =C2=A01 file changed, 10 insertions(+), 1 deletion(-)
->
-> diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documenta=
-tion/watchdog/watchdog-kernel-api.txt
-> index 227f6cd..03aa948 100644
-> --- a/Documentation/watchdog/watchdog-kernel-api.txt
-> +++ b/Documentation/watchdog/watchdog-kernel-api.txt
-> @@ -1,6 +1,6 @@
-> =C2=A0The Linux WatchDog Timer Driver Core kernel API.
-> =C2=A0=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> -Last reviewed: 16-Mar-2012
-> +Last reviewed: 11-May-2012
->
-> =C2=A0Wim Van Sebroeck <wim@iguana.be>
->
-> @@ -46,6 +46,10 @@ struct watchdog_device {
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0unsigned int min_timeout;
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0unsigned int max_timeout;
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0void *driver_data;
-> + =C2=A0 =C2=A0 =C2=A0 int id;
-> + =C2=A0 =C2=A0 =C2=A0 struct cdev cdev;
-> + =C2=A0 =C2=A0 =C2=A0 struct device *dev;
-> + =C2=A0 =C2=A0 =C2=A0 struct device *busdev;
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0unsigned long status;
-> =C2=A0};
+Use the more modern API.
 
-I would split this patch into two according the original patches that
-add the code to not complicate a possible rollback of an patch.
+Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+---
+ drivers/watchdog/wm831x_wdt.c |   13 +++----------
+ 1 file changed, 3 insertions(+), 10 deletions(-)
 
-Thanks
-Tomas
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/watchdog/wm831x_wdt.c b/drivers/watchdog/wm831x_wdt.c
+index b1815c5..87d66d2 100644
+--- a/drivers/watchdog/wm831x_wdt.c
++++ b/drivers/watchdog/wm831x_wdt.c
+@@ -247,8 +247,9 @@ static int __devinit wm831x_wdt_probe(struct platform_device *pdev)
+ 		reg |= pdata->software << WM831X_WDOG_RST_SRC_SHIFT;
+ 
+ 		if (pdata->update_gpio) {
+-			ret = gpio_request(pdata->update_gpio,
+-					   "Watchdog update");
++			ret = gpio_request_one(pdata->update_gpio,
++					       GPIOF_DIR_OUT | GPIOF_INIT_LOW,
++					       "Watchdog update");
+ 			if (ret < 0) {
+ 				dev_err(wm831x->dev,
+ 					"Failed to request update GPIO: %d\n",
+@@ -256,14 +257,6 @@ static int __devinit wm831x_wdt_probe(struct platform_device *pdev)
+ 				goto err;
+ 			}
+ 
+-			ret = gpio_direction_output(pdata->update_gpio, 0);
+-			if (ret != 0) {
+-				dev_err(wm831x->dev,
+-					"gpio_direction_output returned: %d\n",
+-					ret);
+-				goto err_gpio;
+-			}
+-
+ 			driver_data->update_gpio = pdata->update_gpio;
+ 
+ 			/* Make sure the watchdog takes hardware updates */
+-- 
+1.7.10
+
