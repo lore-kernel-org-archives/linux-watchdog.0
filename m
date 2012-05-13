@@ -1,47 +1,86 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from oproxy5-pub.bluehost.com ([67.222.38.55]:47131 "HELO
-	oproxy5-pub.bluehost.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1755445Ab2EKXhI (ORCPT
+Received: from mail-we0-f174.google.com ([74.125.82.174]:43784 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751421Ab2EMMPj convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 11 May 2012 19:37:08 -0400
-Message-ID: <4FADA2B2.8070302@xenotime.net>
-Date: Fri, 11 May 2012 16:37:22 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
+	Sun, 13 May 2012 08:15:39 -0400
+Received: by weyu7 with SMTP id u7so1235842wey.19
+        for <linux-watchdog@vger.kernel.org>; Sun, 13 May 2012 05:15:38 -0700 (PDT)
 MIME-Version: 1.0
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-CC: linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
+In-Reply-To: <4FAD40EE.90707@redhat.com>
+References: <20120321152418.20045.35525.stgit@bob.linux.org.uk>
+	<20120504123815.GS3074@spo001.leaseweb.com>
+	<20120510192023.GA31117@spo001.leaseweb.com>
+	<4FACC4C1.9040104@redhat.com>
+	<20120511160218.GE3074@spo001.leaseweb.com>
+	<4FAD40EE.90707@redhat.com>
+Date: Sun, 13 May 2012 15:15:37 +0300
+Message-ID: <CA+i0qc4RnDaUbzBk0RexG1o36H2kBmabetkEiW2ADEkCYgWyRw@mail.gmail.com>
+Subject: Re: [PATCH 1/4] watchdog: Add multiple device support
+From: Tomas Winkler <tomasw@gmail.com>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
 	linux-watchdog@vger.kernel.org
-Subject: [PATCH -next] via_wdt: depends on PCI
-References: <20120511162738.1d65b6efe099a54841be6313@canb.auug.org.au>
-In-Reply-To: <20120511162738.1d65b6efe099a54841be6313@canb.auug.org.au>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+On Fri, May 11, 2012 at 7:40 PM, Hans de Goede <hdegoede@redhat.com> wrot=
+e:
+>
+> Hi,
+>
+>
+> On 05/11/2012 06:02 PM, Wim Van Sebroeck wrote:
+>>
+>> Hi Hans,
+>>
+>>>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (id !=3D 0)
+>>>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 return ret;
+>>>
+>>>
+>>>
+>>> I believe the check above should be:
+>>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0if (id !=3D 0 =
+|| ret !=3D -EBUSY)
+>>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0return ret;
+>>>
+>>> IOW we should not retry the registration if it failed for another rea=
+son
+>>> then the id already being taken by a legacy driver.
+>>
+>>
+>> Than for readibility we should say:
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0if (!(id =3D=3D=
+ 0&& =C2=A0ret =3D=3D -EBUSY))
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
+=C2=A0 =C2=A0return ret
+>
+>
+> ACK.
+>
+> Regards,
+>
+> Hans
++ if (imajor(inode) =3D=3D MISC_MAJOR)
++               wdd =3D old_wdd;
++       else wdd =3D container_of(inode->i_cdev, struct watchdog_device, =
+cdev);
 
-via_wdt is a PCI driver so it should depend on PCI so that
-it will not cause build errors.
+You should break the line after 'else'
 
-drivers/watchdog/via_wdt.c:256:1: warning: data definition has no type or storage class
-drivers/watchdog/via_wdt.c:256:1: warning: type defaults to 'int' in declaration of 'module_pci_driver'
-drivers/watchdog/via_wdt.c:256:1: warning: parameter names (without types) in function declaration
++       else
++          wdd =3D container_of(inode->i_cdev, struct watchdog_device, cd=
+ev);
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- drivers/watchdog/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- linux-next-20120511.orig/drivers/watchdog/Kconfig
-+++ linux-next-20120511/drivers/watchdog/Kconfig
-@@ -788,7 +788,7 @@ config SMSC37B787_WDT
- 
- config VIA_WDT
- 	tristate "VIA Watchdog Timer"
--	depends on X86
-+	depends on X86 && PCI
- 	select WATCHDOG_CORE
- 	---help---
- 	This is the driver for the hardware watchdog timer on VIA
+Thanks
+Tomas
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
