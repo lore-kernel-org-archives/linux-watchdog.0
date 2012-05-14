@@ -1,43 +1,42 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:58018 "EHLO mga11.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756706Ab2ENOBC convert rfc822-to-8bit (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:41463 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1756700Ab2ENOBn (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 14 May 2012 10:01:02 -0400
-From: "Winkler, Tomas" <tomas.winkler@intel.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-CC: "hdegoede@redhat.com" <hdegoede@redhat.com>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	Mon, 14 May 2012 10:01:43 -0400
+Date: Mon, 14 May 2012 16:01:38 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Tomas Winkler <tomas.winkler@intel.com>
+Cc: hdegoede@redhat.com, linux-watchdog@vger.kernel.org,
 	Alan Cox <alan@linux.intel.com>
-Subject: RE: [PATCH 1/2 V3] watchdog: Add multiple device support
-Date: Mon, 14 May 2012 14:00:50 +0000
-Message-ID: <5B8DA87D05A7694D9FA63FD143655C1B10236D@HASMSX103.ger.corp.intel.com>
+Subject: Re: [PATCH 1/2 V3] watchdog: Add multiple device support
+Message-ID: <20120514140138.GN3074@spo001.leaseweb.com>
 References: <1337002196-32569-1-git-send-email-tomas.winkler@intel.com>
- <20120514135209.GM3074@spo001.leaseweb.com>
-In-Reply-To: <20120514135209.GM3074@spo001.leaseweb.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1337002196-32569-1-git-send-email-tomas.winkler@intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-> changes
-> >        with the comments that Hans made.
-> > V3: (by Tomas)
-> >     1. Fix compilation error caused by missing include to
-> > watchdog_dev.h
->=20
-> Is allready in linux-watchdog-next (see commit
-> 1761f6851b23e1cd61705c4c053decabb14f9092)
+Hi Tomas,
 
-Hmm  didn't know that -next exists till now... I'll have a look.
-Thanks
-Tomas=20
+>  	ret = watchdog_dev_register(wdd);
+>  	if (ret) {
+> -		pr_err("error registering /dev/watchdog (err=%d)\n", ret);
+> -		return ret;
+> +		ida_simple_remove(&watchdog_ida, id);
+> +		if (!(id == 0 || ret == -EBUSY))
+> +			return ret;
+> +
+> +		/* Retry in case a legacy watchdog module exists */
 
+Nope, this should stay
+if (!(id == 0 && ret == -EBUSY))
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+because we will only retry, if we have the possibility that another legacy watchdog is allready there:
+i.e. when the id == 0 and when we have a -EBUSY as a return code.A
+
+Kind regards,
+Wim.
+
