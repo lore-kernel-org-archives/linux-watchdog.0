@@ -1,130 +1,50 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:26018 "EHLO mga11.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755747Ab2ENNaE (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 14 May 2012 09:30:04 -0400
-From: Tomas Winkler <tomas.winkler@intel.com>
-To: hdegoede@redhat.com, wim@iguana.be
-Cc: linux-watchdog@vger.kernel.org, Alan Cox <alan@linux.intel.com>
-Subject: [PATCH 2/2 V3] watchdog: create all the proper device files
-Date: Mon, 14 May 2012 16:29:56 +0300
-Message-Id: <1337002196-32569-2-git-send-email-tomas.winkler@intel.com>
-In-Reply-To: <1337002196-32569-1-git-send-email-tomas.winkler@intel.com>
+Received: from ns1.pc-advies.be ([83.149.101.17]:41455 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1756757Ab2ENNwM (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 14 May 2012 09:52:12 -0400
+Date: Mon, 14 May 2012 15:52:09 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Tomas Winkler <tomas.winkler@intel.com>
+Cc: hdegoede@redhat.com, linux-watchdog@vger.kernel.org,
+	Alan Cox <alan@linux.intel.com>
+Subject: Re: [PATCH 1/2 V3] watchdog: Add multiple device support
+Message-ID: <20120514135209.GM3074@spo001.leaseweb.com>
 References: <1337002196-32569-1-git-send-email-tomas.winkler@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1337002196-32569-1-git-send-email-tomas.winkler@intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Alan Cox <alan@linux.intel.com>
+Hi Tomas,
 
-Signed-off-by: Alan Cox <alan@linux.intel.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
-V2,V3: Rebase
+> From: Alan Cox <alan@linux.intel.com>
+> 
+> We keep the old /dev/watchdog interface file for the first watchdog via
+> miscdev. This is basically a cut and paste of the relevant interface code
+> from the rtc driver layer tweaked for watchdog.
+> 
+> Signed-off-by: Alan Cox <alan@linux.intel.com>
+> Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+> Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+> ---
+> V2 (by Wim):
+>     1. Clean split between core and dev related stuff. 
+>     2. Use ida instead of the watchdog_assign/release_id code.
+>     3. Rest it's basically the code that Alan produced with some minor changes
+>        with the comments that Hans made.
+> V3: (by Tomas) 
+>     1. Fix compilation error caused by missing include to watchdog_dev.h
 
- drivers/watchdog/watchdog_dev.c |   38 ++++++++++++++++++++++++++++++++------
- include/linux/watchdog.h        |    4 ++++
- 2 files changed, 36 insertions(+), 6 deletions(-)
+Is allready in linux-watchdog-next (see commit 1761f6851b23e1cd61705c4c053decabb14f9092)
 
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 4ce3b78..0b6a774 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -47,6 +47,8 @@
- static struct watchdog_device *old_wdd;
- /* the dev_t structure to store the dynamically allocated watchdog devices */
- static dev_t watchdog_devt;
-+/* the class for the dynamically allocated watchdog devices */
-+static struct class *watchdog_class;
- 
- /*
-  *	watchdog_ping: ping the watchdog.
-@@ -386,10 +388,22 @@ int watchdog_dev_register(struct watchdog_device *watchdog)
- 	if (err) {
- 		pr_err("watchdog%d unable to add device %d:%d\n",
- 			watchdog->id,  MAJOR(watchdog_devt), watchdog->id);
--		if (watchdog->id == 0) {
--			misc_deregister(&watchdog_miscdev);
--			old_wdd = NULL;
--		}
-+		goto error;
-+	}
-+	watchdog->dev = device_create(watchdog_class, watchdog->busdev, devno,
-+					NULL, "watchdog%d", watchdog->id);
-+	if (IS_ERR(watchdog->dev)) {
-+		cdev_del(&watchdog->cdev);
-+		err = PTR_ERR(watchdog->dev);
-+		goto error;
-+	}
-+
-+	return 0;
-+
-+error:
-+	if (watchdog->id == 0) {
-+		misc_deregister(&watchdog_miscdev);
-+		old_wdd = NULL;
- 	}
- 	return err;
- }
-@@ -404,6 +418,10 @@ int watchdog_dev_register(struct watchdog_device *watchdog)
- int watchdog_dev_unregister(struct watchdog_device *watchdog)
- {
- 	cdev_del(&watchdog->cdev);
-+	device_destroy(watchdog_class,
-+		       MKDEV(MAJOR(watchdog_devt), watchdog->id));
-+	watchdog->dev = NULL;
-+
- 	if (watchdog->id == 0) {
- 		misc_deregister(&watchdog_miscdev);
- 		old_wdd = NULL;
-@@ -420,9 +438,16 @@ int watchdog_dev_unregister(struct watchdog_device *watchdog)
- static int __init watchdog_init(void)
- {
- 	int err = alloc_chrdev_region(&watchdog_devt, 0, MAX_DOGS, "watchdog");
--	if (err < 0)
-+	if (err < 0) {
- 		pr_err("watchdog: unable to allocate char dev region\n");
--	return err;
-+		return err;
-+	}
-+	watchdog_class = class_create(THIS_MODULE, "watchdog");
-+	if (IS_ERR(watchdog_class)) {
-+		unregister_chrdev_region(watchdog_devt, MAX_DOGS);
-+		return PTR_ERR(watchdog_class);
-+	}
-+	return 0;
- }
- 
- /*
-@@ -434,6 +459,7 @@ static int __init watchdog_init(void)
- static void __exit watchdog_exit(void)
- {
- 	unregister_chrdev_region(watchdog_devt, MAX_DOGS);
-+	class_destroy(watchdog_class);
- }
- 
- module_init(watchdog_init);
-diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
-index 1397cbc..522aa61 100644
---- a/include/linux/watchdog.h
-+++ b/include/linux/watchdog.h
-@@ -100,6 +100,8 @@ struct watchdog_ops {
-  * @driver-data:Pointer to the drivers private data.
-  * @id:		The watchdog's ID.
-  * @cdev:	The watchdog's Character device.
-+ * @dev:	The device for our node
-+ * @busdev:	Parent bus device
-  * @status:	Field that contains the devices internal status bits.
-  *
-  * The watchdog_device structure contains all information about a
-@@ -118,6 +120,8 @@ struct watchdog_device {
- 	void *driver_data;
- 	int id;
- 	struct cdev cdev;
-+	struct device *dev;
-+	struct device *busdev;
- 	unsigned long status;
- /* Bit numbers for status flags */
- #define WDOG_ACTIVE		0	/* Is the watchdog running/active */
--- 
-1.7.4.4
+>     2. Add documentation changes to be part of this patch
+>     3. Make init and exit module functions static (fixes sparse error)
+>     4. Fix minor checkpatch.pl complains
+
+Kind regards,
+Wim.
 
