@@ -1,38 +1,40 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:38804 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754641Ab2ENJDp (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:41396 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1756045Ab2ENNO7 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 14 May 2012 05:03:45 -0400
-From: Devendra Naga <devendra.aaru@gmail.com>
-To: Wim Van Sebroeck <wim@iguana.be>, Rob Landley <rob@landley.net>,
-	linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org
-Cc: Devendra Naga <devendra.aaru@gmail.com>
-Subject: [PATCH] Documentation/watchdog: Fix a small typo
-Date: Mon, 14 May 2012 14:33:37 +0530
-Message-Id: <1336986218-28301-1-git-send-email-devendra.aaru@gmail.com>
+	Mon, 14 May 2012 09:14:59 -0400
+Date: Mon, 14 May 2012 15:14:54 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Randy Dunlap <rdunlap@xenotime.net>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>,
+	linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH -next] via_wdt: depends on PCI
+Message-ID: <20120514131454.GG3074@spo001.leaseweb.com>
+References: <20120511162738.1d65b6efe099a54841be6313@canb.auug.org.au> <4FADA2B2.8070302@xenotime.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4FADA2B2.8070302@xenotime.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+Hello Rancy,
 
-Signed-off-by: Devendra Naga <devendra.aaru@gmail.com>
----
- Documentation/watchdog/watchdog-kernel-api.txt |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> From: Randy Dunlap <rdunlap@xenotime.net>
+> 
+> via_wdt is a PCI driver so it should depend on PCI so that
+> it will not cause build errors.
+> 
+> drivers/watchdog/via_wdt.c:256:1: warning: data definition has no type or storage class
+> drivers/watchdog/via_wdt.c:256:1: warning: type defaults to 'int' in declaration of 'module_pci_driver'
+> drivers/watchdog/via_wdt.c:256:1: warning: parameter names (without types) in function declaration
+> 
+> Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
 
-diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
-index 227f6cd..25fe430 100644
---- a/Documentation/watchdog/watchdog-kernel-api.txt
-+++ b/Documentation/watchdog/watchdog-kernel-api.txt
-@@ -59,7 +59,7 @@ It contains following fields:
- * bootstatus: status of the device after booting (reported with watchdog
-   WDIOF_* status bits).
- * driver_data: a pointer to the drivers private data of a watchdog device.
--  This data should only be accessed via the watchdog_set_drvadata and
-+  This data should only be accessed via the watchdog_set_drvdata and
-   watchdog_get_drvdata routines.
- * status: this field contains a number of status bits that give extra
-   information about the status of the device (Like: is the watchdog timer
--- 
-1.7.9.5
+Fix added.
+
+Thanks,
+Wim.
 
