@@ -1,56 +1,51 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:50259 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756421Ab2ENOI6 convert rfc822-to-8bit (ORCPT
+Received: from mail-qc0-f174.google.com ([209.85.216.174]:64983 "EHLO
+	mail-qc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757146Ab2ENRaD convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 14 May 2012 10:08:58 -0400
-From: "Winkler, Tomas" <tomas.winkler@intel.com>
+	Mon, 14 May 2012 13:30:03 -0400
+Received: by qcro28 with SMTP id o28so3531820qcr.19
+        for <linux-watchdog@vger.kernel.org>; Mon, 14 May 2012 10:30:03 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <5B8DA87D05A7694D9FA63FD143655C1B10236D@HASMSX103.ger.corp.intel.com>
+References: <1337002196-32569-1-git-send-email-tomas.winkler@intel.com>
+	<20120514135209.GM3074@spo001.leaseweb.com>
+	<5B8DA87D05A7694D9FA63FD143655C1B10236D@HASMSX103.ger.corp.intel.com>
+Date: Mon, 14 May 2012 20:30:02 +0300
+Message-ID: <CA+i0qc6d_X6f2iPq9_CFPYs0Gt3rYwmC4-x2zS8ykeddXBavHQ@mail.gmail.com>
+Subject: Re: [PATCH 1/2 V3] watchdog: Add multiple device support
+From: Tomas Winkler <tomas.winkler@intel.com>
 To: Wim Van Sebroeck <wim@iguana.be>
-CC: "hdegoede@redhat.com" <hdegoede@redhat.com>,
+Cc: "hdegoede@redhat.com" <hdegoede@redhat.com>,
 	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
 	Alan Cox <alan@linux.intel.com>
-Subject: RE: [PATCH 1/2 V3] watchdog: Add multiple device support
-Date: Mon, 14 May 2012 14:07:31 +0000
-Message-ID: <5B8DA87D05A7694D9FA63FD143655C1B102384@HASMSX103.ger.corp.intel.com>
-References: <1337002196-32569-1-git-send-email-tomas.winkler@intel.com>
- <20120514140138.GN3074@spo001.leaseweb.com>
-In-Reply-To: <20120514140138.GN3074@spo001.leaseweb.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 Content-Transfer-Encoding: quoted-printable
 
+On Mon, May 14, 2012 at 5:00 PM, Winkler, Tomas <tomas.winkler@intel.com>=
+ wrote:
+>> changes
+>> > =C2=A0 =C2=A0 =C2=A0 =C2=A0with the comments that Hans made.
+>> > V3: (by Tomas)
+>> > =C2=A0 =C2=A0 1. Fix compilation error caused by missing include to
+>> > watchdog_dev.h
+>>
+>> Is allready in linux-watchdog-next (see commit
+>> 1761f6851b23e1cd61705c4c053decabb14f9092)
+>
+> Hmm =C2=A0didn't know that -next exists till now... I'll have a look.
+> Thanks
+> Tomas
 
+I see you've add my changes into the patch and  rebased that tree,
+usually  this is not preferable strategy for public git tree as it
+creates conflicts.
+Should we expect the -next tree to be rebased from time to time?
 
-> Hi Tomas,
->=20
-> >  	ret =3D watchdog_dev_register(wdd);
-> >  	if (ret) {
-> > -		pr_err("error registering /dev/watchdog (err=3D%d)\n", ret);
-> > -		return ret;
-> > +		ida_simple_remove(&watchdog_ida, id);
-> > +		if (!(id =3D=3D 0 || ret =3D=3D -EBUSY))
-> > +			return ret;
-> > +
-> > +		/* Retry in case a legacy watchdog module exists */
->=20
-> Nope, this should stay
-> if (!(id =3D=3D 0 && ret =3D=3D -EBUSY))
->=20
-> because we will only retry, if we have the possibility that another leg=
-acy
-> watchdog is allready there:
-> i.e. when the id =3D=3D 0 and when we have a -EBUSY as a return code.A
-
-You are right... I've wrote the statement (id =3D=3D 0 || ret =3D=3D -EBU=
-SY)  and then saw the that readability=20
-comment  and forgot to change the II into && as well.
 Thanks
 Tomas
-
-
 --
 To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
  in
