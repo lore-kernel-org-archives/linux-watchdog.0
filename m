@@ -1,63 +1,63 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from oproxy8-pub.bluehost.com ([69.89.22.20]:37738 "HELO
-	oproxy8-pub.bluehost.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S932126Ab2ENUPJ (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:42472 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1756770Ab2EOHS7 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 14 May 2012 16:15:09 -0400
-Message-ID: <4FB167D8.9000905@xenotime.net>
-Date: Mon, 14 May 2012 13:15:20 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-MIME-Version: 1.0
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-CC: linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org
-Subject: [PATCH -next] wdt: fix iTCO printk format warnings
-References: <20120514200357.e7448e4ca061c8efe3d4757d@canb.auug.org.au>
-In-Reply-To: <20120514200357.e7448e4ca061c8efe3d4757d@canb.auug.org.au>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 15 May 2012 03:18:59 -0400
+Date: Tue, 15 May 2012 08:55:59 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Marcos Souza <marcos.souza.org@gmail.com>
+Cc: Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>
+Subject: Re: Error in register iTCO_wdt
+Message-ID: <20120515065559.GO3074@spo001.leaseweb.com>
+References: <CAH0vN5+4ZOJiZitwFt_Y7ARCiuko96ZfOQ9jX6vnbxngKx20eQ@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAH0vN5+4ZOJiZitwFt_Y7ARCiuko96ZfOQ9jX6vnbxngKx20eQ@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+Hi Marcos,
 
-Fix printk format warnings:
+> Hi Wim!
+> 
+> I'm sending this email because I've seem a strange error messages
+> about iTCO_wdt in the boot:
+> 
+> [   15.503489] iTCO_vendor_support: vendor-support=0
+> [   15.512447] iTCO_wdt: Intel TCO WatchDog Timer Driver v1.07
+> [   15.513535] iTCO_wdt: Found a ICH7 or ICH7R TCO device (Version=2,
+> TCOBASE=0x0460)
+> [   15.513548] iTCO_wdt: cannot register miscdev on minor=130 (err=-16)
+> [   15.513774] iTCO_wdt: probe of iTCO_wdt failed with error -16
+> 
+> I don't know exactly how many time this warning appers, but I'm here
+> to report this!
 
-drivers/watchdog/iTCO_wdt.c:577:3: warning: format '%04llx' expects type 'long long unsigned int', but argument 2 has type 'resource_size_t'
-drivers/watchdog/iTCO_wdt.c:594:3: warning: format '%04llx' expects type 'long long unsigned int', but argument 2 has type 'resource_size_t'
-drivers/watchdog/iTCO_wdt.c:600:2: warning: format '%04llx' expects type 'long long unsigned int', but argument 4 has type 'resource_size_t'
+This is because you either have no /dev/watchdog file (major 10 minor 130)
+or because another watchdog device is allready loaded.
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-Cc:	Wim Van Sebroeck <wim@iguana.be>
----
- drivers/watchdog/iTCO_wdt.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+> So, while finding what can be these warning, I saw a document writted
+> by Wolfram talking about rework watchdog device drivers with watchdog
+> framework. So, iTCO_wdt is outdated and needs these changes.
+> 
+> I'm doing some work(I'm not a kernel hacker yet, but I'm trying to be
+> =D), and based in the Wolfram's documentation, and your documentation
+> about watchdog kernel api, I have some changes.
+> 
+> The full diff is attached. This diff cause a lot of build errors, but,
+> do you think I'm in the right direction? If you agree with the
+> direction that this is going, I will continue to change this.
+> 
+> As I have this device, and I can test my changes, I believe this is a
+> nice work to learn more about the kernel.
+> 
+> I will be very happy if I could, with you help, rework this driver.
 
---- linux-next-20120514.orig/drivers/watchdog/iTCO_wdt.c
-+++ linux-next-20120514/drivers/watchdog/iTCO_wdt.c
-@@ -575,7 +575,7 @@ static int __devinit iTCO_wdt_probe(stru
- 	if (!request_region(iTCO_wdt_private.smi_res->start,
- 			resource_size(iTCO_wdt_private.smi_res), dev->name)) {
- 		pr_err("I/O address 0x%04llx already in use, device disabled\n",
--		       SMI_EN);
-+		       (u64)SMI_EN);
- 		ret = -EBUSY;
- 		goto unmap_gcs;
- 	}
-@@ -592,13 +592,13 @@ static int __devinit iTCO_wdt_probe(stru
- 	if (!request_region(iTCO_wdt_private.tco_res->start,
- 			resource_size(iTCO_wdt_private.tco_res), dev->name)) {
- 		pr_err("I/O address 0x%04llx already in use, device disabled\n",
--		       TCOBASE);
-+		       (u64)TCOBASE);
- 		ret = -EBUSY;
- 		goto unreg_smi;
- 	}
- 
- 	pr_info("Found a %s TCO device (Version=%d, TCOBASE=0x%04llx)\n",
--		ich_info->name, ich_info->iTCO_version, TCOBASE);
-+		ich_info->name, ich_info->iTCO_version, (u64)TCOBASE);
- 
- 	/* Clear out the (probably old) status */
- 	outw(0x0008, TCO1_STS);	/* Clear the Time Out Status bit */
+I allready have a reworked/converted driver, but there are some other
+dependancies to fix first. So no need to put time in doing a conversion
+on iTCO_wdt.c
+
+Kind regards,
+Wim.
