@@ -1,16 +1,16 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:41905 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754398Ab2EQJg7 (ORCPT
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:62168 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758531Ab2EQJhz (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 17 May 2012 05:36:59 -0400
+	Thu, 17 May 2012 05:37:55 -0400
 From: Devendra Naga <devendra.aaru@gmail.com>
-To: Rob Landley <rob@landley.net>,
+To: Wim Van Sebroeck <wim@iguana.be>, Rob Landley <rob@landley.net>,
 	Devendra Naga <devendra.aaru@gmail.com>,
 	linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org
 Subject: [PATCH] Documentation/watchdog: Fix the file descriptor leak when no cmdline arg given
-Date: Thu, 17 May 2012 15:06:51 +0530
-Message-Id: <1337247411-28082-1-git-send-email-devendra.aaru@gmail.com>
+Date: Thu, 17 May 2012 15:07:48 +0530
+Message-Id: <1337247468-28125-1-git-send-email-devendra.aaru@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
