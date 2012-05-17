@@ -1,65 +1,54 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:62168 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758531Ab2EQJhz (ORCPT
+Received: from mail-qc0-f174.google.com ([209.85.216.174]:58504 "EHLO
+	mail-qc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965781Ab2EQLac convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 17 May 2012 05:37:55 -0400
-From: Devendra Naga <devendra.aaru@gmail.com>
-To: Wim Van Sebroeck <wim@iguana.be>, Rob Landley <rob@landley.net>,
-	Devendra Naga <devendra.aaru@gmail.com>,
-	linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org
-Subject: [PATCH] Documentation/watchdog: Fix the file descriptor leak when no cmdline arg given
-Date: Thu, 17 May 2012 15:07:48 +0530
-Message-Id: <1337247468-28125-1-git-send-email-devendra.aaru@gmail.com>
+	Thu, 17 May 2012 07:30:32 -0400
+Received: by qcro28 with SMTP id o28so1120365qcr.19
+        for <linux-watchdog@vger.kernel.org>; Thu, 17 May 2012 04:30:32 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <20120517071906.GU3074@spo001.leaseweb.com>
+References: <1337002196-32569-1-git-send-email-tomas.winkler@intel.com>
+	<20120514135209.GM3074@spo001.leaseweb.com>
+	<5B8DA87D05A7694D9FA63FD143655C1B10236D@HASMSX103.ger.corp.intel.com>
+	<CA+i0qc6d_X6f2iPq9_CFPYs0Gt3rYwmC4-x2zS8ykeddXBavHQ@mail.gmail.com>
+	<20120517071906.GU3074@spo001.leaseweb.com>
+Date: Thu, 17 May 2012 14:30:31 +0300
+Message-ID: <CA+i0qc7CjyMi6GSs8aaJH-=6bWAM6JMHngTz7n02ODVcGp-p5g@mail.gmail.com>
+Subject: Re: [PATCH 1/2 V3] watchdog: Add multiple device support
+From: Tomas Winkler <tomas.winkler@intel.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: "hdegoede@redhat.com" <hdegoede@redhat.com>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	Alan Cox <alan@linux.intel.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-we start a infinite loop when user gives ./watchdog-test, and when user
-ctrl + c's the program, we just exit immeadiately with out closing the
-filedescriptor of the watchdog device. a signal handler is used to
-do the job of closing the filedescriptor and exiting the program.
+On Thu, May 17, 2012 at 10:19 AM, Wim Van Sebroeck <wim@iguana.be> wrote:
+>
+> Hi Tomas,
+>
+> > I see you've add my changes into the patch and =C2=A0rebased that tre=
+e,
+> > usually =C2=A0this is not preferable strategy for public git tree as =
+it
+> > creates conflicts.
+> > Should we expect the -next tree to be rebased from time to time?
+>
+> I try to avoid rebasing, but it's sometimes better to change new patche=
+s
+> (although sometimes it's better not to). So Yes a rebase is possible in
+> linux-watchdog-next. (Which is according to the rules of linux-next).
+>
+Thanks for clarification.
+BTW the patch is gone again from the tree.
 
-Signed-off-by: Devendra Naga <devendra.aaru@gmail.com>
----
- Documentation/watchdog/src/watchdog-test.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
-
-diff --git a/Documentation/watchdog/src/watchdog-test.c b/Documentation/watchdog/src/watchdog-test.c
-index 23084f2..73ff5cc 100644
---- a/Documentation/watchdog/src/watchdog-test.c
-+++ b/Documentation/watchdog/src/watchdog-test.c
-@@ -7,6 +7,7 @@
- #include <string.h>
- #include <unistd.h>
- #include <fcntl.h>
-+#include <signal.h>
- #include <sys/ioctl.h>
- #include <linux/types.h>
- #include <linux/watchdog.h>
-@@ -29,6 +30,14 @@ static void keep_alive(void)
-  * The main program.  Run the program with "-d" to disable the card,
-  * or "-e" to enable the card.
-  */
-+
-+void term(int sig)
-+{
-+    close(fd);
-+    fprintf(stderr, "Stopping watchdog ticks...\n");
-+    exit(0);
-+}
-+
- int main(int argc, char *argv[])
- {
-     int flags;
-@@ -65,6 +74,8 @@ int main(int argc, char *argv[])
- 	fflush(stderr);
-     }
- 
-+    signal(SIGINT, term);
-+
-     while(1) {
- 	keep_alive();
- 	sleep(1);
--- 
-1.7.9.5
-
+Thanks
+Tomas
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
