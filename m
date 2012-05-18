@@ -1,52 +1,43 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:41003 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761074Ab2EQOdQ convert rfc822-to-8bit (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:46662 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1761613Ab2ERIch (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 17 May 2012 10:33:16 -0400
-MIME-Version: 1.0
-In-Reply-To: <4FB50780.3020904@landley.net>
-References: <1337247411-28082-1-git-send-email-devendra.aaru@gmail.com>
-	<4FB50780.3020904@landley.net>
-Date: Thu, 17 May 2012 20:03:14 +0530
-Message-ID: <CAHdPZaMNZDBxTS5utRhNcT-PzL0wOKx8hQGBRc8cPReLTcRP8Q@mail.gmail.com>
-Subject: Re: [PATCH] Documentation/watchdog: Fix the file descriptor leak when
- no cmdline arg given
-From: "devendra.aaru" <devendra.aaru@gmail.com>
-To: Rob Landley <rob@landley.net>
-Cc: linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 18 May 2012 04:32:37 -0400
+Date: Fri, 18 May 2012 10:32:34 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: linux-next@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Aaron Sierra <asierra@xes-inc.com>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Randy Dunlap <rdunlap@xenotime.net>,
+	linux-watchdog@vger.kernel.org
+Subject: Re: linux-next: manual merge of the watchdog tree with the mfd tree
+Message-ID: <20120518083234.GW3074@spo001.leaseweb.com>
+References: <20120518152348.1e5070cdc16cfdf00682546d@canb.auug.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20120518152348.1e5070cdc16cfdf00682546d@canb.auug.org.au>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, May 17, 2012 at 7:43 PM, Rob Landley <rob@landley.net> wrote:
-> On 05/17/2012 04:36 AM, Devendra Naga wrote:
->> we start a infinite loop when user gives ./watchdog-test, and when use=
-r
->> ctrl + c's the program, we just exit immeadiately with out closing the
->> filedescriptor of the watchdog device. a signal handler is used to
->> do the job of closing the filedescriptor and exiting the program.
->
-> Doesn't exiting a process close all its filehandles already?
+Hi Stephen,
 
-I think kernel will take care of releasing process resources. i am not
-so sure of it.
-but running valgrind --track-fds=3Dyes ./a.out as root shows a descriptor=
- leak.
+> Today's linux-next merge of the watchdog tree got a conflict in
+> drivers/watchdog/iTCO_wdt.c between commit 887c8ec7219f ("watchdog:
+> Convert iTCO_wdt driver to mfd model") from the  tree and commit
+> c3614aa19d3e ("watchdog: iTCO_wdt.c: fix printk format warnings") from
+> the watchdog tree.
+> 
+> I fixed it up (see below) and can carry the fix as necessary.
 
-BTW, there is another miss, if the user is non-root we still leak a
-file descriptor.
->
-> Rob
-> --
-> GNU/Linux isn't: Linux=3DGPLv2, GNU=3DGPLv3+, they can't share code.
-> Either it's "mere aggregation", or a license violation. =A0Pick one.
+Thanks for fixing this up.
 
-Thanks,
-Devendra.
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+But I'm a bit surprised: I wasn't Cc'ed about this patch to Convert
+the iTCO_wdt driver to the mfd model...
+
+Kind regards,
+Wim.
+
