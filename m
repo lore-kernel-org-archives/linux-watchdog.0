@@ -1,39 +1,79 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:53069 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751570Ab2EVVSg (ORCPT
+Received: from haggis.pcug.org.au ([203.10.76.10]:58424 "EHLO
+	members.tip.net.au" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932074Ab2EVWqo (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 22 May 2012 17:18:36 -0400
-Date: Tue, 22 May 2012 23:18:32 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Tomas Winkler <tomas.winkler@intel.com>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	Alan Cox <alan@linux.intel.com>
-Subject: Re: [PATCH 1/2 V3] watchdog: Add multiple device support
-Message-ID: <20120522211832.GG3074@spo001.leaseweb.com>
-References: <1337002196-32569-1-git-send-email-tomas.winkler@intel.com> <20120514135209.GM3074@spo001.leaseweb.com> <5B8DA87D05A7694D9FA63FD143655C1B10236D@HASMSX103.ger.corp.intel.com> <CA+i0qc6d_X6f2iPq9_CFPYs0Gt3rYwmC4-x2zS8ykeddXBavHQ@mail.gmail.com> <20120517071906.GU3074@spo001.leaseweb.com> <CA+i0qc7CjyMi6GSs8aaJH-=6bWAM6JMHngTz7n02ODVcGp-p5g@mail.gmail.com> <20120521202145.GA3074@spo001.leaseweb.com> <4FBB5E0B.7050602@redhat.com> <20120522164124.GF3074@spo001.leaseweb.com> <4FBBC428.4010400@redhat.com>
+	Tue, 22 May 2012 18:46:44 -0400
+Date: Wed, 23 May 2012 08:46:39 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Guenter Roeck <guenter@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-next@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Aaron Sierra <asierra@xes-inc.com>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Randy Dunlap <rdunlap@xenotime.net>,
+	linux-watchdog@vger.kernel.org, Jean Delvare <khali@linux-fr.org>
+Subject: Re: linux-next: manual merge of the watchdog tree with the mfd tree
+Message-Id: <20120523084639.bbc57455a6527c9cb983fb2d@canb.auug.org.au>
+In-Reply-To: <6.2.5.6.2.20120522153050.0284ee38@roeck-us.net>
+References: <20120518152348.1e5070cdc16cfdf00682546d@canb.auug.org.au>
+	<20120518083234.GW3074@spo001.leaseweb.com>
+	<6.2.5.6.2.20120518181141.028c8090@roeck-us.net>
+	<20120522163559.GD3074@spo001.leaseweb.com>
+	<6.2.5.6.2.20120522153050.0284ee38@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4FBBC428.4010400@redhat.com>
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA256";
+ boundary="Signature=_Wed__23_May_2012_08_46_39_+1000_4Myc+6Vdin_Vg/d9"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Hans,
+--Signature=_Wed__23_May_2012_08_46_39_+1000_4Myc+6Vdin_Vg/d9
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> >I will split your "watchdog_dev: Add support for dynamically allocated
-> >watchdog_device structs" patch into 3 patches:
-> >1) rewriting of wrappers (and I will add some extra code to it for
-> >the get_timeleft ioctl).
-> >2) locking
-> >3) ref+unref+unregistered.
-> 
-> Sounds good! Assuming you manage to finish this tonight, I'll review
-> and test first thing tomorrow morning.
+Hi guys,
 
-They are there.
+On Tue, 22 May 2012 15:37:04 -0700 Guenter Roeck <guenter@roeck-us.net> wro=
+te:
+>
+> >I don't think we have a clear standard yet, but I'm fine with either=20
+> >one of them.
+>=20
+> Me too, though %04lx and typecast to long should really be sufficient.
+>=20
+> I'd guess the change was made because resource_size_t is sometimes a long
+> and sometimes a long long, depending on the platform. I hit that=20
+> problem a couple of times myself.
 
-Kind regards,
-Wim.
+Exactly.  Since resource_size_t can be either 32 bit or 64 bit on 32 bit
+platforms, you must print it as %llx and cast it to u64 always to
+prevent these warnings.  If you cast it to (unsigned) long you could
+possibly truncate the value.
 
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+
+--Signature=_Wed__23_May_2012_08_46_39_+1000_4Myc+6Vdin_Vg/d9
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBCAAGBQJPvBdPAAoJEECxmPOUX5FESgoP/1PSMgkC4kj2PiU2JDVuNwq9
+jEap/xPlLSk1C2R0F0UPrELjOkxE1M1eQda2Q51ym6dDhZ91THQEU1dQxhu3lsGN
+dCcNX2Ndc66hfQiM7hpOKl3qtappwXoUNsXbSzFa52puZWRxFCXLMm3L4sBrThz8
+vxZKYP3UojTsN5XEca0D9Avoeupc2Gb/aJkp1mUxCYNMLcHtKmJX/UXTTGT9FXMf
+EoUby6GOjgZXBvqI0k7HjeC+EGzZ0LtjC3QJ1snMBw10Nrlfv8q19Z1h1S+yQNmR
+JCxI8xTHuZjnSmbYCgdBVVqoRASXcy1Qj1fZRcuOlEs3nzQZ8gwit/+pLi/g4ucX
+OcuQnH7J6aXRUnyx+ZLx75zQ9sEyNMmYTUIQ5fEH6KDkvXcyZokejhs9mSxuqoed
+643kMU5IDjgNmhL8QdgTeKEPYXdOjXyCS3Er1RzrPW0dfAX3pQRNVr1LthveSVjk
+wVUmN8WNSJXD6Rxo+FhGaI5yyCgKOKLO+pLdeh+XycC3gNo3ChHcASLdxrH4UuQq
+8v8XPjFnwBa32ZjBgp9cnpArTARwn1QEMM99SlFBcqr5huumLtquVADkV9JfsiFs
+/x3A0Bu4UeN/NS9M6FwDsyFOlcWvBu3FYGORTTQQY4gOOwtPmlnZEqF9CxaRIL7f
+pnLs4PvM0GKoPhS9jsk4
+=yoln
+-----END PGP SIGNATURE-----
+
+--Signature=_Wed__23_May_2012_08_46_39_+1000_4Myc+6Vdin_Vg/d9--
