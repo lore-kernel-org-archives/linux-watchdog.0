@@ -1,41 +1,35 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:54099 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:54185 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1760207Ab2EWQ4K (ORCPT
+	with ESMTP id S1756356Ab2EWSgY (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 23 May 2012 12:56:10 -0400
-Date: Wed, 23 May 2012 18:56:09 +0200
+	Wed, 23 May 2012 14:36:24 -0400
+Date: Wed, 23 May 2012 20:36:23 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
 To: Ashish Jangam <ashish.jangam@kpitcummins.com>
 Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
 	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	Anthony Olech <Anthony.Olech@diasemi.com>
-Subject: Re: Watchdog settimeout causes an error condition
-Message-ID: <20120523165609.GM3074@spo001.leaseweb.com>
-References: <1335168639.11826.7.camel@dhruva>
+	Anthony Olech <Anthony.Olech@diasemi.com>,
+	sameo@linux.intel.com
+Subject: Re: [PATCH] Watchdog: Fix for settimeout issue
+Message-ID: <20120523183623.GN3074@spo001.leaseweb.com>
+References: <1335768031.9546.20.camel@dhruva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1335168639.11826.7.camel@dhruva>
+In-Reply-To: <1335768031.9546.20.camel@dhruva>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 Hi Ashish,
 
-> The new watchdog framework of settimeout causes an error condition for
-> the DA9052/53 PMIC since watchdog ping gets called upon applying the new
-> watchdog window and in the DA9052/53 PMIC we have a minimum time for the
-> watchdog window called TWDMIN. A write to the watchdog before this
-> elapsed time - TWDMIN - cause an error.
-> 
-> Can this be get fixed in the new framework?
+> Some devices have a fixed minimum elapse time and a ping before this
+> elapse time causes error condition. This patch fix this issue in the
+> settimeout operation.
 
-Imho this should not be fixed in the framework but in your driver.
-Even if we would change the framework, it will always be possible that
-userspace will do a set-timeout and ping directly after each other.
-
-What I would do is make sure that your driver makes sure that you can't write
-before this TWDMIN window has passed.
+Won't add this patch. The driver needs to take care of the mdelay.
+PS: for da9052_wdt: start (=set_timeout) + ping will also give you
+the same problem.
 
 Kind regards,
 Wim.
