@@ -1,17 +1,17 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from am1ehsobe002.messaging.microsoft.com ([213.199.154.205]:41378
-	"EHLO am1outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755202Ab2EXKfK (ORCPT
+Received: from db3ehsobe002.messaging.microsoft.com ([213.199.154.140]:58886
+	"EHLO db3outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752480Ab2EXNCz (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 24 May 2012 06:35:10 -0400
-Subject: [PATCH] Watchdog: DA9052/53 PMIC watchdog support v4
+	Thu, 24 May 2012 09:02:55 -0400
+Subject: [PATCH] Watchdog: DA9052/53 PMIC watchdog support v5
 From: Ashish Jangam <ashish.jangam@kpitcummins.com>
 To: Wim Van Sebroeck <wim@iguana.be>
 CC: Anthony Olech <Anthony.Olech@diasemi.com>,
 	<linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 24 May 2012 16:02:52 +0530
-Message-ID: <1337855572.19955.9.camel@dhruva>
+Date: Thu, 24 May 2012 18:31:14 +0530
+Message-ID: <1337864474.20377.3.camel@dhruva>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -25,7 +25,11 @@ Tested on samsung smdkv6410 and i.mx53 QS boards.
 Signed-off-by: Anthony Olech <Anthony.Olech@diasemi.com>
 Signed-off-by: Ashish Jangam <ashish.jangam@kpitcummins.com>
 ---
-Changed since V4:
+Changes since V5:
+- Supports reg and unref ops
+- Remove unrequired locks as core takes of it
+- Uses wdt->timeout
+Changes since V4:
 - Fix for the minimum time watchdog window TWDMIN
 Changes since V3:
 - Add new watchdog framework
@@ -36,10 +40,10 @@ Changes since V2:
 - Remove strobe filtering flag.
 ---
  Documentation/watchdog/watchdog-parameters.txt |    5 +
- drivers/watchdog/Kconfig                       |   12 ++
+ drivers/watchdog/Kconfig                       |   12 +
  drivers/watchdog/Makefile                      |    1 +
- drivers/watchdog/da9052_wdt.c                  |  240 ++++++++++++++++++++++++
- 4 files changed, 258 insertions(+), 0 deletions(-)
+ drivers/watchdog/da9052_wdt.c                  |  256 ++++++++++++++++++++++++
+ 4 files changed, 274 insertions(+), 0 deletions(-)
  create mode 100644 drivers/watchdog/da9052_wdt.c
 
 diff --git a/Documentation/watchdog/watchdog-parameters.txt b/Documentation/watchdog/watchdog-parameters.txt
@@ -93,10 +97,10 @@ index 442bfbe..67b9f68 100644
  obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
 diff --git a/drivers/watchdog/da9052_wdt.c b/drivers/watchdog/da9052_wdt.c
 new file mode 100644
-index 0000000..0e2dde1
+index 0000000..b4df794
 --- /dev/null
 +++ b/drivers/watchdog/da9052_wdt.c
-@@ -0,0 +1,240 @@
+@@ -0,0 +1,256 @@
 +/*
 + * System monitoring driver for DA9052 PMICs.
 + *
@@ -128,10 +132,11 @@ index 0000000..0e2dde1
 +#define DA9052_DEF_TIMEOUT	4
 +#define DA9052_TWDMIN		256
 +
-+struct da9052_wdt_drvdata {
++struct da9052_wdt_data {
 +	struct watchdog_device wdt;
 +	struct da9052 *da9052;
 +	struct mutex lock;
++	struct kref kref;
 +	unsigned long jpast;
 +};
 +
@@ -150,14 +155,24 @@ index 0000000..0e2dde1
 +	{ 7, 131 },
 +};
 +
++
++static void da9052_wdt_release_resources(struct kref *r)
++{
++	struct da9052_wdt_data *driver_data =
++		container_of(r, struct da9052_wdt_data, kref);
++
++	kfree(driver_data);
++}
++
 +static int da9052_wdt_set_timeout(struct watchdog_device *wdt_dev,
 +				  unsigned int timeout)
 +{
-+	struct da9052_wdt_drvdata *driver_data = watchdog_get_drvdata(wdt_dev);
++	struct da9052_wdt_data *driver_data = watchdog_get_drvdata(wdt_dev);
 +	struct da9052 *da9052 = driver_data->da9052;
 +	int ret, i;
 +
-+	/* Disable the Watchdog timer before setting
++	/*
++	 * Disable the Watchdog timer before setting
 +	 * new time out.
 +	 */
 +	ret = da9052_reg_update(da9052, DA9052_CONTROL_D_REG,
@@ -168,7 +183,8 @@ index 0000000..0e2dde1
 +		return ret;
 +	}
 +	if (timeout) {
-+		/* To change the timeout, da9052 needs to
++		/*
++		 *  To change the timeout, da9052 needs to
 +		 * be disabled for at least 150 us.
 +		 */
 +		udelay(150);
@@ -190,48 +206,48 @@ index 0000000..0e2dde1
 +			return ret;
 +		}
 +
++		wdt_dev->timeout = timeout;
 +		driver_data->jpast = jiffies;
 +	}
 +
 +	return 0;
 +}
 +
++static void da9052_wdt_ref(struct watchdog_device *wdt_dev)
++{
++	struct da9052_wdt_data *driver_data = watchdog_get_drvdata(wdt_dev);
++
++	kref_get(&driver_data->kref);
++}
++
++static void da9052_wdt_unref(struct watchdog_device *wdt_dev)
++{
++	struct da9052_wdt_data *driver_data = watchdog_get_drvdata(wdt_dev);
++
++	kref_put(&driver_data->kref, da9052_wdt_release_resources);
++}
++
 +static int da9052_wdt_start(struct watchdog_device *wdt_dev)
 +{
-+	struct da9052_wdt_drvdata *driver_data = watchdog_get_drvdata(wdt_dev);
-+	int ret = 0;
-+
-+	mutex_lock(&driver_data->lock);
-+	ret = da9052_wdt_set_timeout(wdt_dev, DA9052_DEF_TIMEOUT);
-+	mutex_unlock(&driver_data->lock);
-+
-+	return ret;
++	return da9052_wdt_set_timeout(wdt_dev, wdt_dev->timeout);
 +}
 +
 +static int da9052_wdt_stop(struct watchdog_device *wdt_dev)
 +{
-+	struct da9052_wdt_drvdata *driver_data = watchdog_get_drvdata(wdt_dev);
-+	struct da9052 *da9052 = driver_data->da9052;
-+	int ret = 0;
-+
-+	mutex_lock(&driver_data->lock);
-+	ret = da9052_reg_update(da9052, DA9052_CONTROL_D_REG,
-+				DA9052_CONTROLD_TWDSCALE, 0);
-+	mutex_unlock(&driver_data->lock);
-+
-+	return ret;
++	return da9052_wdt_set_timeout(wdt_dev, 0);
 +}
 +
 +static int da9052_wdt_ping(struct watchdog_device *wdt_dev)
 +{
-+	struct da9052_wdt_drvdata *driver_data = watchdog_get_drvdata(wdt_dev);
++	struct da9052_wdt_data *driver_data = watchdog_get_drvdata(wdt_dev);
 +	struct da9052 *da9052 = driver_data->da9052;
 +	unsigned long msec, jnow = jiffies;
 +	int ret;
 +
 +	mutex_lock(&driver_data->lock);
 +
-+	/* We have a minimum time for watchdog window called TWDMIN. A write
++	/*
++	 *  We have a minimum time for watchdog window called TWDMIN. A write
 +	 * to the watchdog before this elapsed time should cause an error.
 +	 */
 +	msec = (jnow - driver_data->jpast) * 1000/HZ;
@@ -244,7 +260,8 @@ index 0000000..0e2dde1
 +	if (ret < 0)
 +		goto err_strobe;
 +
-+	/* FIXME: Reset the watchdog core, in general PMIC
++	/*
++	 * FIXME: Reset the watchdog core, in general PMIC
 +	 * is supposed to do this
 +	 */
 +	ret = da9052_reg_update(da9052, DA9052_CONTROL_D_REG,
@@ -265,13 +282,15 @@ index 0000000..0e2dde1
 +	.stop = da9052_wdt_stop,
 +	.ping = da9052_wdt_ping,
 +	.set_timeout = da9052_wdt_set_timeout,
++	.ref = da9052_wdt_ref,
++	.unref = da9052_wdt_unref,
 +};
 +
 +
 +static int __devinit da9052_wdt_probe(struct platform_device *pdev)
 +{
 +	struct da9052 *da9052 = dev_get_drvdata(pdev->dev.parent);
-+	struct da9052_wdt_drvdata *driver_data;
++	struct da9052_wdt_data *driver_data;
 +	struct watchdog_device *da9052_wdt;
 +	int ret;
 +
@@ -282,16 +301,16 @@ index 0000000..0e2dde1
 +		ret = -ENOMEM;
 +		goto err;
 +	}
-+	mutex_init(&driver_data->lock);
 +	driver_data->da9052 = da9052;
 +
 +	da9052_wdt = &driver_data->wdt;
 +
++	da9052_wdt->timeout = DA9052_DEF_TIMEOUT;
 +	da9052_wdt->info = &da9052_wdt_info;
 +	da9052_wdt->ops = &da9052_wdt_ops;
-+	/* watchdog min timeout is fixed for 256ms */
-+	da9052_wdt->min_elapse_time = 256;
 +	watchdog_set_drvdata(da9052_wdt, driver_data);
++
++	kref_init(&driver_data->kref);
 +
 +	ret = da9052_reg_update(da9052, DA9052_CONTROL_D_REG,
 +				DA9052_CONTROLD_TWDSCALE, 0);
@@ -315,9 +334,10 @@ index 0000000..0e2dde1
 +
 +static int __devexit da9052_wdt_remove(struct platform_device *pdev)
 +{
-+	struct da9052_wdt_drvdata *driver_data = dev_get_drvdata(&pdev->dev);
++	struct da9052_wdt_data *driver_data = dev_get_drvdata(&pdev->dev);
 +
 +	watchdog_unregister_device(&driver_data->wdt);
++	kref_put(&driver_data->kref, da9052_wdt_release_resources);
 +
 +	return 0;
 +}
@@ -335,7 +355,7 @@ index 0000000..0e2dde1
 +MODULE_AUTHOR("Anthony Olech <Anthony.Olech@diasemi.com>");
 +MODULE_DESCRIPTION("DA9052 SM Device Driver");
 +MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:da9052-wdt");
++MODULE_ALIAS("platform:da9052-watchdog");
 +
 -- 
 1.7.5.4
