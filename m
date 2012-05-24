@@ -1,72 +1,50 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:51001 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:62566 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758909Ab2EXUHt (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 24 May 2012 16:07:49 -0400
-Message-ID: <4FBE9517.4010402@redhat.com>
-Date: Thu, 24 May 2012 22:07:51 +0200
+	id S933815Ab2EXUTU (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 24 May 2012 16:19:20 -0400
 From: Hans de Goede <hdegoede@redhat.com>
-MIME-Version: 1.0
-To: Wim Van Sebroeck <wim@iguana.be>
-CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Subject: Fwd: [lm-sensors] [patch] watchdog: sch56xx-common: set correct bits
- in register()
-References: <20120524155802.GB11037@elgon.mountain>
-In-Reply-To: <20120524155802.GB11037@elgon.mountain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	LM Sensors <lm-sensors@lm-sensors.org>,
+	linux-next@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH] hwmon/sch56xx: Depend on watchdog for watchdog core functions
+Date: Thu, 24 May 2012 22:18:58 +0200
+Message-Id: <1337890738-26533-1-git-send-email-hdegoede@redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
+Since the watchdog code in sch56xx-common now uses the watchdog core, the
+Kconfig entires for the sch5627 and sch5636 should depend on WATCHDOG
+being set.
 
-Thanks for the patch! Since the rest of the watchdog related
-sch56xx-common patches, which introduce this problem in the first
-place, are going into 3.5 through the watchdog tree, this patch
-should probably go in through that tree too -> forwarding this
-to linux-watchdog.
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/hwmon/Kconfig |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Also:
-Acked-by: Hans de Goede <hdegoede@redhat.com>
+diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
+index 8deedc1..3d16d66 100644
+--- a/drivers/hwmon/Kconfig
++++ b/drivers/hwmon/Kconfig
+@@ -1036,7 +1036,7 @@ config SENSORS_SCH56XX_COMMON
+ 
+ config SENSORS_SCH5627
+ 	tristate "SMSC SCH5627"
+-	depends on !PPC
++	depends on !PPC && WATCHDOG
+ 	select SENSORS_SCH56XX_COMMON
+ 	help
+ 	  If you say yes here you get support for the hardware monitoring
+@@ -1048,7 +1048,7 @@ config SENSORS_SCH5627
+ 
+ config SENSORS_SCH5636
+ 	tristate "SMSC SCH5636"
+-	depends on !PPC
++	depends on !PPC && WATCHDOG
+ 	select SENSORS_SCH56XX_COMMON
+ 	help
+ 	  SMSC SCH5636 Super I/O chips include an embedded microcontroller for
+-- 
+1.7.10
 
-Regards,
-
-Hans
-
-
-
-
--------- Original Message --------
-Subject: [lm-sensors] [patch] watchdog: sch56xx-common: set correct bits in register()
-Date: Thu, 24 May 2012 18:58:02 +0300
-From: Dan Carpenter <dan.carpenter@oracle.com>
-To: Jean Delvare <khali@linux-fr.org>
-CC: lm-sensors@lm-sensors.org, kernel-janitors@vger.kernel.org
-
-WDOG_NO_WAY_OUT (3) and WDOG_ACTIVE (0) are the bit numbers, not a mask.
-So "data->wddev.status |= WDOG_ACTIVE;" was intended to set bit zero but
-it is a no-op.
-
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-
-diff --git a/drivers/hwmon/sch56xx-common.c b/drivers/hwmon/sch56xx-common.c
-index 839087c..4380f5d 100644
---- a/drivers/hwmon/sch56xx-common.c
-+++ b/drivers/hwmon/sch56xx-common.c
-@@ -464,9 +464,9 @@ struct sch56xx_watchdog_data *sch56xx_watchdog_register(struct device *parent,
-  	data->wddev.min_timeout = 1;
-  	data->wddev.max_timeout = 255 * 60;
-  	if (nowayout)
--		data->wddev.status |= WDOG_NO_WAY_OUT;
-+		set_bit(WDOG_NO_WAY_OUT, &data->wddev.status);
-  	if (output_enable & SCH56XX_WDOG_OUTPUT_ENABLE)
--		data->wddev.status |= WDOG_ACTIVE;
-+		set_bit(WDOG_ACTIVE, &data->wddev.status);
-
-  	/* Since the watchdog uses a downcounter there is no register to read
-  	   the BIOS set timeout from (if any was set at all) ->
-
-_______________________________________________
-lm-sensors mailing list
-lm-sensors@lm-sensors.org
-http://lists.lm-sensors.org/mailman/listinfo/lm-sensors
