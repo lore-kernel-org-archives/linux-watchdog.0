@@ -1,47 +1,47 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.windriver.com ([147.11.146.13]:44714 "EHLO
-	mail1.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752927Ab2EYJ4f (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 25 May 2012 05:56:35 -0400
-From: <jgq516@gmail.com>
-To: <linux@arm.linux.org.uk>, <b-cousson@ti.com>,
-	<rob.herring@calxeda.com>, <grant.likely@secretlab.ca>,
-	<rnayak@ti.com>, <tony@atomide.com>, <wim@iguana.be>
-CC: <linux-arm-kernel@lists.infradead.org>,
-	<linux-kernel@vger.kernel.org>, <linux-omap@vger.kernel.org>,
-	<devicetree-discuss@lists.ozlabs.org>,
-	<linux-watchdog@vger.kernel.org>
-Subject: [PATCH 0/3] omap3/omap4: add device tree support for wdt
-Date: Fri, 25 May 2012 18:42:29 +0800
-Message-ID: <1337942552-28218-1-git-send-email-jgq516@gmail.com>
+Received: from imr4.ericy.com ([198.24.6.9]:38168 "EHLO imr4.ericy.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754075Ab2E2QN5 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 29 May 2012 12:13:57 -0400
+Message-ID: <1338307894.478.68.camel@groeck-laptop>
+Subject: Re: [lm-sensors] [PATCH] hwmon/sch56xx: Depend on watchdog for
+ watchdog core functions
+From: Guenter Roeck <guenter.roeck@ericsson.com>
+Reply-To: guenter.roeck@ericsson.com
+To: Wim Van Sebroeck <wim@iguana.be>
+CC: Hans de Goede <hdegoede@redhat.com>,
+	"linux-next@vger.kernel.org" <linux-next@vger.kernel.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	LM Sensors <lm-sensors@lm-sensors.org>
+Date: Tue, 29 May 2012 09:11:34 -0700
+In-Reply-To: <20120524205426.GW3074@spo001.leaseweb.com>
+References: <1337890738-26533-1-git-send-email-hdegoede@redhat.com>
+	 <20120524205426.GW3074@spo001.leaseweb.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Xiao Jiang <jgq516@gmail.com>
+On Thu, 2012-05-24 at 16:54 -0400, Wim Van Sebroeck wrote:
+> Hi Hans,
+> 
+> > Since the watchdog code in sch56xx-common now uses the watchdog core, the
+> > Kconfig entires for the sch5627 and sch5636 should depend on WATCHDOG
+> > being set.
+> > 
+> > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> 
+> I added also the "select WATCHDOG_CORE" lines for both drivers.
+> In linux-watchdog-next now.
+> 
+Hi Wim,
 
-This series can be applied to dt branch of linux-omap tree.
+looks like Hans' patches are all in your tree, so I assume I don't have
+to take anything through my hwmon tree. Please let me know if I got that
+wrong.
 
-Since omap24xx series has different wdt base addr (omap2420: 0x48022000 and
-omap2430: 0x49016000) per commit 2817142f31bfbf26c216bf4f9192540c81b2d071, so
-I don't add wdt node in omap2.dtsi just like omap3 and omap4, maybe different
-dts files are needed for omap2420 and omap2430.
+Thanks,
+Guenter
 
-Tested with omap4430 blaze board.
-
-Xiao Jiang (3):
-  arm/dts: add wdt node for omap3 and omap4
-  OMAP: wdt: add device tree support
-  watchdog: omap_wdt: add device tree support
-
- arch/arm/boot/dts/omap3.dtsi  |    5 +++++
- arch/arm/boot/dts/omap4.dtsi  |    5 +++++
- arch/arm/mach-omap2/devices.c |    2 +-
- drivers/watchdog/omap_wdt.c   |    8 ++++++++
- 4 files changed, 19 insertions(+), 1 deletions(-)
-
--- 
-1.7.3
 
