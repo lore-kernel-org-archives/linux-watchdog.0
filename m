@@ -1,10 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from arroyo.ext.ti.com ([192.94.94.40]:38822 "EHLO arroyo.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754226Ab2E2Rrg (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 29 May 2012 13:47:36 -0400
-Message-ID: <4FC50BA2.4070404@ti.com>
-Date: Tue, 29 May 2012 12:47:14 -0500
+Received: from devils.ext.ti.com ([198.47.26.153]:38739 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754545Ab2E2Rwb (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 29 May 2012 13:52:31 -0400
+Message-ID: <4FC50CCD.7090404@ti.com>
+Date: Tue, 29 May 2012 12:52:13 -0500
 From: Jon Hunter <jon-hunter@ti.com>
 MIME-Version: 1.0
 To: <jgq516@gmail.com>
@@ -15,44 +16,70 @@ CC: <linux@arm.linux.org.uk>, <b-cousson@ti.com>,
 	<linux-omap@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
 	<linux-arm-kernel@lists.infradead.org>,
 	<linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH 0/3] omap3/omap4: add device tree support for wdt
-References: <1337942552-28218-1-git-send-email-jgq516@gmail.com>
-In-Reply-To: <1337942552-28218-1-git-send-email-jgq516@gmail.com>
+Subject: Re: [PATCH 1/3] arm/dts: add wdt node for omap3 and omap4
+References: <1337942552-28218-1-git-send-email-jgq516@gmail.com> <1337942552-28218-2-git-send-email-jgq516@gmail.com>
+In-Reply-To: <1337942552-28218-2-git-send-email-jgq516@gmail.com>
 Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Xiao Jiang,
 
 On 05/25/2012 05:42 AM, jgq516@gmail.com wrote:
 > From: Xiao Jiang <jgq516@gmail.com>
 > 
-> This series can be applied to dt branch of linux-omap tree.
+> Add wdt node to support dt.
+> 
+> Signed-off-by: Xiao Jiang <jgq516@gmail.com>
+> ---
+>  arch/arm/boot/dts/omap3.dtsi |    5 +++++
+>  arch/arm/boot/dts/omap4.dtsi |    5 +++++
+>  2 files changed, 10 insertions(+), 0 deletions(-)
+> 
+> diff --git a/arch/arm/boot/dts/omap3.dtsi b/arch/arm/boot/dts/omap3.dtsi
+> index 99474fa..039df5c 100644
+> --- a/arch/arm/boot/dts/omap3.dtsi
+> +++ b/arch/arm/boot/dts/omap3.dtsi
+> @@ -215,5 +215,10 @@
+>  			compatible = "ti,omap3-hsmmc";
+>  			ti,hwmods = "mmc3";
+>  		};
+> +
+> +		wdt: wdt@48314000{
 
-Thanks for sending this!
+Minor comment, may be call this wdt2 as this is watchdog timer 2. Also
+ass a space between the address and the "{".
 
-> Since omap24xx series has different wdt base addr (omap2420: 0x48022000 and
-> omap2430: 0x49016000) per commit 2817142f31bfbf26c216bf4f9192540c81b2d071, so
-> I don't add wdt node in omap2.dtsi just like omap3 and omap4, maybe different
-> dts files are needed for omap2420 and omap2430.
+> +			compatible = "ti,omap3-wdt";
+> +			ti,hwmods = "wd_timer2";
+> +		};
+>  	};
+>  };
+> diff --git a/arch/arm/boot/dts/omap4.dtsi b/arch/arm/boot/dts/omap4.dtsi
+> index 359c497..d01403d 100644
+> --- a/arch/arm/boot/dts/omap4.dtsi
+> +++ b/arch/arm/boot/dts/omap4.dtsi
+> @@ -272,5 +272,10 @@
+>  			ti,hwmods = "mmc5";
+>  			ti,needs-special-reset;
+>  		};
+> +
+> +		wdt: wdt@4a314000{
 
-Good point. I am wondering if we can simple drop the address from the
-wdt2 node for omap2. It is not really being used. May be Benoit can comment.
+Same as above.
+
+> +			compatible = "ti,omap4-wdt";
+> +			ti,hwmods = "wd_timer2";
+> +		};
+>  	};
+>  };
+
+Also we should add some documentation to describe the binding. Here it
+is very simple, but nonetheless we should have something as we have for
+gpio [1].
 
 Cheers
 Jon
 
-> Tested with omap4430 blaze board.
-> 
-> Xiao Jiang (3):
->   arm/dts: add wdt node for omap3 and omap4
->   OMAP: wdt: add device tree support
->   watchdog: omap_wdt: add device tree support
-> 
->  arch/arm/boot/dts/omap3.dtsi  |    5 +++++
->  arch/arm/boot/dts/omap4.dtsi  |    5 +++++
->  arch/arm/mach-omap2/devices.c |    2 +-
->  drivers/watchdog/omap_wdt.c   |    8 ++++++++
->  4 files changed, 19 insertions(+), 1 deletions(-)
-> 
+[1]
+http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blob;f=Documentation/devicetree/bindings/gpio/gpio-omap.txt;h=bff51a2fee1eae7d387b40ea913e04782554bf68;hb=HEAD
