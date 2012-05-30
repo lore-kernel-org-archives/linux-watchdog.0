@@ -1,92 +1,43 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-vc0-f174.google.com ([209.85.220.174]:51108 "EHLO
-	mail-vc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755975Ab2E3JWd (ORCPT
+Received: from mail-vb0-f46.google.com ([209.85.212.46]:45448 "EHLO
+	mail-vb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932381Ab2E3JjK (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 30 May 2012 05:22:33 -0400
-Message-ID: <4FC5F309.9080604@gmail.com>
-Date: Wed, 30 May 2012 18:14:33 +0800
+	Wed, 30 May 2012 05:39:10 -0400
+Message-ID: <4FC5F6EE.1020905@gmail.com>
+Date: Wed, 30 May 2012 18:31:10 +0800
 From: Xiao Jiang <jgq516@gmail.com>
 MIME-Version: 1.0
-To: Jon Hunter <jon-hunter@ti.com>
-CC: linux@arm.linux.org.uk, b-cousson@ti.com, rob.herring@calxeda.com,
-	grant.likely@secretlab.ca, rnayak@ti.com, tony@atomide.com,
-	wim@iguana.be, devicetree-discuss@lists.ozlabs.org,
-	linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 0/3] omap3/omap4: add device tree support for wdt
-References: <1337942552-28218-1-git-send-email-jgq516@gmail.com> <4FC50BA2.4070404@ti.com>
-In-Reply-To: <4FC50BA2.4070404@ti.com>
+To: Xiao Jiang <jgq516@gmail.com>
+CC: "Cousson, Benoit" <b-cousson@ti.com>, linux@arm.linux.org.uk,
+	linux-watchdog@vger.kernel.org, tony@atomide.com,
+	devicetree-discuss@lists.ozlabs.org, rnayak@ti.com,
+	linux-kernel@vger.kernel.org, rob.herring@calxeda.com,
+	grant.likely@secretlab.ca, wim@iguana.be,
+	Jon Hunter <jon-hunter@ti.com>, linux-omap@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH 3/3] watchdog: omap_wdt: add device tree support
+References: <1337942552-28218-1-git-send-email-jgq516@gmail.com> <1337942552-28218-4-git-send-email-jgq516@gmail.com> <4FC51008.1050004@ti.com> <4FC59171.8040009@gmail.com> <4FC5D21F.2030702@ti.com> <4FC5F2FA.4050606@gmail.com>
+In-Reply-To: <4FC5F2FA.4050606@gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Jon Hunter wrote:
-> Hi Xiao Jiang,
->
-> On 05/25/2012 05:42 AM, jgq516@gmail.com wrote:
->   
->> From: Xiao Jiang <jgq516@gmail.com>
->>
->> This series can be applied to dt branch of linux-omap tree.
->>     
->
-> Thanks for sending this!
->
->   
->> Since omap24xx series has different wdt base addr (omap2420: 0x48022000 and
->> omap2430: 0x49016000) per commit 2817142f31bfbf26c216bf4f9192540c81b2d071, so
->> I don't add wdt node in omap2.dtsi just like omap3 and omap4, maybe different
->> dts files are needed for omap2420 and omap2430.
->>     
->
-> Good point. I am wondering if we can simple drop the address from the
-> wdt2 node for omap2. It is not really being used. May be Benoit can comment.
->
->   
-Hmm, I think the address doesn't need anymore since the related hw_mod 
-has the right addr as follows.
 
-static struct omap_hwmod_addr_space omap2420_wd_timer2_addrs[] = {
-        {  
-                .pa_start       = 0x48022000,
-                .pa_end         = 0x4802207f,
-                .flags          = ADDR_TYPE_RT
-        }, 
-        { }
-};
-
-static struct omap_hwmod_addr_space omap2430_wd_timer2_addrs[] = {
-        {  
-                .pa_start       = 0x49016000,
-                .pa_end         = 0x4901607f,
-                .flags          = ADDR_TYPE_RT
-        }, 
-        { }
-};
-
-static struct omap_hwmod_addr_space omap3xxx_wd_timer2_addrs[] = {
-        {   
-                .pa_start       = 0x48314000,
-                .pa_end         = 0x4831407f,
-                .flags          = ADDR_TYPE_RT
-        },  
-        { } 
-};
-
-static struct omap_hwmod_addr_space omap44xx_wd_timer2_addrs[] = {
-        {   
-                .pa_start       = 0x4a313000,
-                .pa_end         = 0x4a31407f,
-                .flags          = ADDR_TYPE_RT
-        },  
-        { } 
-};
+>> If there is no difference between the OMAP3 and the OMAP4 WDT IP, 
+>> just add one entry "ti,omap3-wdt". And then in the OMAP4 DTS you will 
+>> just put : compatible = "ti,omap3-wdt"; or compatible =  
+>> "ti,omap4-wdt", "ti,omap3-wdt";
+>> I'm still a little bit confused about the real need for the 
+>> "ti,omap4-wdt: entry, but it seems to be the way to do it in PPC.
+> I believe OMAP2, OMAP3 and OMAP4 share the same IP, so how about use 
+> "ti, omap2-wdt"? and other dts files
+> put compatible like "ti,omap4-wdt", "ti,omap2-wdt" and "ti,omap4-wdt", 
+> "ti,omap2-wdt".
+>
+Typo, should be "ti,omap3-wdt", "ti,omap2-wdt" and "ti,omap4-wdt", 
+"ti,omap2-wdt".
 
 Regards,
 Xiao
-> Cheers
-> Jon
-
