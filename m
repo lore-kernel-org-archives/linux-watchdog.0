@@ -1,61 +1,56 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:55305 "EHLO mx1.redhat.com"
+Received: from comal.ext.ti.com ([198.47.26.152]:53493 "EHLO comal.ext.ti.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758759Ab2FANi0 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 1 Jun 2012 09:38:26 -0400
-Message-ID: <4FC8C5B3.2060108@redhat.com>
-Date: Fri, 01 Jun 2012 15:37:55 +0200
-From: Hans de Goede <hdegoede@redhat.com>
+	id S1758754Ab2FANzI (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 1 Jun 2012 09:55:08 -0400
+Message-ID: <4FC8C9A6.1040206@ti.com>
+Date: Fri, 1 Jun 2012 08:54:46 -0500
+From: Jon Hunter <jon-hunter@ti.com>
 MIME-Version: 1.0
-To: guenter.roeck@ericsson.com
-CC: Wim Van Sebroeck <wim@iguana.be>,
-	"linux-next@vger.kernel.org" <linux-next@vger.kernel.org>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	LM Sensors <lm-sensors@lm-sensors.org>
-Subject: Re: [lm-sensors] [PATCH] hwmon/sch56xx: Depend on watchdog for watchdog
- core functions
-References: <1337890738-26533-1-git-send-email-hdegoede@redhat.com>  <20120524205426.GW3074@spo001.leaseweb.com> <1338307894.478.68.camel@groeck-laptop>
-In-Reply-To: <1338307894.478.68.camel@groeck-laptop>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: <jgq516@gmail.com>
+CC: <grant.likely@secretlab.ca>, <rob.herring@calxeda.com>,
+	<rob@landley.net>, <linux@arm.linux.org.uk>, <b-cousson@ti.com>,
+	<rnayak@ti.com>, <tony@atomide.com>, <wim@iguana.be>,
+	<devicetree-discuss@lists.ozlabs.org>, <linux-doc@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>,
+	<linux-arm-kernel@lists.infradead.org>,
+	<linux-omap@vger.kernel.org>, <linux-watchdog@vger.kernel.org>
+Subject: Re: [PATCHv2 0/3] omap3 and omap4: add device tree support for wdt
+References: <1338525856-4359-1-git-send-email-jgq516@gmail.com>
+In-Reply-To: <1338525856-4359-1-git-send-email-jgq516@gmail.com>
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
 
-On 05/29/2012 06:11 PM, Guenter Roeck wrote:
-> On Thu, 2012-05-24 at 16:54 -0400, Wim Van Sebroeck wrote:
->> Hi Hans,
->>
->>> Since the watchdog code in sch56xx-common now uses the watchdog core, the
->>> Kconfig entires for the sch5627 and sch5636 should depend on WATCHDOG
->>> being set.
->>>
->>> Signed-off-by: Hans de Goede<hdegoede@redhat.com>
->>
->> I added also the "select WATCHDOG_CORE" lines for both drivers.
->> In linux-watchdog-next now.
->>
-> Hi Wim,
->
-> looks like Hans' patches are all in your tree, so I assume I don't have
-> to take anything through my hwmon tree. Please let me know if I got that
-> wrong.
+On 05/31/2012 11:44 PM, jgq516@gmail.com wrote:
+> From: Xiao Jiang <jgq516@gmail.com>
+> 
+> Changes compared to previous version:
+> - created document for omap wdt
+> - some modifications per the comments from Benoit and Jon
+> 
+> This series is based on latest Linus'tree, and also can be applied to dt branch
+> of linux-omap tree. Tested with omap4430 blaze board and am37xx board.
+> 
+> Xiao Jiang (3):
+>   arm/dts: add wdt node for omap3 and omap4
+>   OMAP: avoid build wdt platform device if with dt support
+>   watchdog: omap_wdt: add device tree support
+> 
+>  .../devicetree/bindings/watchdog/omap-wdt.txt      |   14 ++++++++++++++
+>  arch/arm/boot/dts/omap3.dtsi                       |    5 +++++
+>  arch/arm/boot/dts/omap4.dtsi                       |    5 +++++
+>  arch/arm/mach-omap2/devices.c                      |    2 +-
+>  drivers/watchdog/omap_wdt.c                        |    7 +++++++
+>  5 files changed, 32 insertions(+), 1 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/omap-wdt.txt
 
-Right, the sch56xx watchdog code conversion to the watchcore depended on
-some pending watchdag core changes, so it seemed sensible to get them all
-in though Wim's tree. Sorry if that caused any confusion.
+Thanks! Looks good to me.
 
-Now that we've a common watchdog core, I would also like to convert the
-fschmd watchdog code to it (one of these days). Which raises the question
-through which tree should that conversion go in. fschmd is primarily a hwmon
-driver, but the changes will only touch the watchdog part...
+Reviewed-by: Jon Hunter <jon-hunter@ti.com>
 
-I guess it would be best to get the conversion in to Wim's tree, even though
-that slightly increases the chance of conflicts. The fschmd driver does not see
-a lot of churn, and I think Wim is a better reviewer for watchdog related
-patches :)
+Cheers
+Jon
 
-Thanks & Regards,
-
-Hans
