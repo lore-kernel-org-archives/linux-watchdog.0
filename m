@@ -1,46 +1,47 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:43108 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751329Ab2FFK3Y (ORCPT
+Received: from relay.parallels.com ([195.214.232.42]:59377 "EHLO
+	relay.parallels.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932574Ab2FHKJP (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 6 Jun 2012 06:29:24 -0400
-Date: Wed, 6 Jun 2012 12:29:21 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Guenter Roeck <guenter.roeck@ericsson.com>
-Cc: Jean Delvare <khali@linux-fr.org>,
-	Hans de Goede <hdegoede@redhat.com>,
-	"linux-next@vger.kernel.org" <linux-next@vger.kernel.org>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	LM Sensors <lm-sensors@lm-sensors.org>
-Subject: Re: [lm-sensors] [PATCH] hwmon/sch56xx: Depend on watchdog for watchdog core functions
-Message-ID: <20120606102921.GF3074@spo001.leaseweb.com>
-References: <1337890738-26533-1-git-send-email-hdegoede@redhat.com> <20120524205426.GW3074@spo001.leaseweb.com> <1338307894.478.68.camel@groeck-laptop> <4FC8C5B3.2060108@redhat.com> <20120601160657.3b93393c@endymion.delvare> <20120601152504.GA25384@ericsson.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20120601152504.GA25384@ericsson.com>
+	Fri, 8 Jun 2012 06:09:15 -0400
+From: Tony Zelenoff <antonz@parallels.com>
+To: <linux-watchdog@vger.kernel.org>
+CC: <wim@iguana.be>, <antonz@parallels.com>
+Subject: [PATCH] iTCO_wdt: remove unnecessary includes
+Date: Fri, 8 Jun 2012 14:09:14 +0400
+Message-ID: <1339150154-25247-2-git-send-email-antonz@parallels.com>
+In-Reply-To: <1339150154-25247-1-git-send-email-antonz@parallels.com>
+References: <1339150154-25247-1-git-send-email-antonz@parallels.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi All,
+After switching to new kernel interface, those
+includes are not needed anymore.
 
-> > > Now that we've a common watchdog core, I would also like to convert the
-> > > fschmd watchdog code to it (one of these days). Which raises the question
-> > > through which tree should that conversion go in. fschmd is primarily a hwmon
-> > > driver, but the changes will only touch the watchdog part...
-> > > 
-> > > I guess it would be best to get the conversion in to Wim's tree, even though
-> > > that slightly increases the chance of conflicts. The fschmd driver does not see
-> > > a lot of churn, and I think Wim is a better reviewer for watchdog related
-> > > patches :)
-> > 
-> > Chances of conflicts are so thin, I vote for getting it through Wim's
-> > watchdog tree.
-> >
-> Ok with me.
+Signed-off-by: Tony Zelenoff <antonz@parallels.com>
+---
+ drivers/watchdog/iTCO_wdt.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
 
-And also OK for me.
-
-Kind regards,
-Wim.
+diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
+index 14e48d9..8cfa574 100644
+--- a/drivers/watchdog/iTCO_wdt.c
++++ b/drivers/watchdog/iTCO_wdt.c
+@@ -59,12 +59,10 @@
+ 							(WATCHDOG_MINOR) */
+ #include <linux/watchdog.h>		/* For the watchdog specific items */
+ #include <linux/init.h>			/* For __init/__exit/... */
+-#include <linux/fs.h>			/* For file operations */
+ #include <linux/platform_device.h>	/* For platform_driver framework */
+ #include <linux/pci.h>			/* For pci functions */
+ #include <linux/ioport.h>		/* For io-port access */
+ #include <linux/spinlock.h>		/* For spin_lock/spin_unlock/... */
+-#include <linux/uaccess.h>		/* For copy_to_user/put_user/... */
+ #include <linux/io.h>			/* For inb/outb/... */
+ #include <linux/mfd/core.h>
+ #include <linux/mfd/lpc_ich.h>
+-- 
+1.7.1
 
