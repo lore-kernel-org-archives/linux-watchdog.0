@@ -1,131 +1,63 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:48721 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759538Ab2FHUmE (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 8 Jun 2012 16:42:04 -0400
-Message-ID: <4FD263A6.4020800@redhat.com>
-Date: Fri, 08 Jun 2012 22:42:14 +0200
-From: Hans de Goede <hdegoede@redhat.com>
+Received: from lon1-post-3.mail.demon.net ([195.173.77.150]:51026 "EHLO
+	lon1-post-3.mail.demon.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751756Ab2FIPTV (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Sat, 9 Jun 2012 11:19:21 -0400
+Date: Sat, 9 Jun 2012 15:39:46 +0100 (BST)
+From: Mark Fortescue <mark@mtfhpc.demon.co.uk>
+To: linux-watchdog@vger.kernel.org, lm-sensors@lm-sensors.org
+Subject: Driver: Super IO Chip access Locking issue
+Message-ID: <Pine.LNX.4.61.1206091443230.9142@mtfhpc.demon.co.uk>
 MIME-Version: 1.0
-To: Tony Zelenoff <antonz@parallels.com>
-CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"wim@iguana.be" <wim@iguana.be>
-Subject: Re: [RFC 0/3] watchdog: do not allow reboot without CAP_SYS_BOOT
- set
-References: <1339160997-160581-1-git-send-email-antonz@parallels.com> <4FD20BF4.7010607@redhat.com> <4FD2166E.7040604@parallels.com>
-In-Reply-To: <4FD2166E.7040604@parallels.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-Hi,
+Hi All,
 
-On 06/08/2012 05:12 PM, Tony Zelenoff wrote:
-> 8/06/12 6:28 PM, Hans de Goede =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
->> Hi,
->>
->> On 06/08/2012 03:09 PM, Tony Zelenoff wrote:
->>> The CAP_SYS_BOOT capability required to reboot hardware node. But wat=
-chdog
->>> writers are not checked for this capability. So, the process may rebo=
-ot
->>> hardware node even if it has no any capabilities to do it.
->>
->> Hmm, I can imagine people explicitly doing a chown on /dev/watchdog, t=
-o allow
->> some non root running, critical from a service availability pov, proce=
-ss to
->> open it and ping it.
->>
->> The suggest change would mean for most standard linux distributions, t=
-hat
->> a process opening /dev/watchdog now must run as root, even if the righ=
-ts
->> of /dev/watchdog allow a process to open it.
-> Hmm. I've missed it ) The patches may be modified to skip capabilities =
-check
-> when watchdog opened from non root user.
+I have recently noticed a flaw in the design of linux drivers for SuperIO 
+chips.
 
-That makes no sense, if you add a capability check you should *always*
-check that capability.
+I have a dual core board with two SuperIO chips.
 
->
->
->> Also since you add the check on open, not on specific syscalls you are
->> adding extra security checks to the open path. Now users are trained w=
-hen
->> open() fails with -EPERM to check
->> 1: Standard unix file rights
->> 2: For selinux denials
->>
->> Adding a third way to make open() fail with -EPERM is not going to mak=
-e
->> sysadmins very happy, esp. since this will not have any special loggin=
-g
->> to make the cause clear (unlike selinux).
-> Add log message is not problem too. The EPERM error got from other plac=
-es,
-> where this capability checked. May be you can suggest better error code=
-?
->
+Winbond W83627DFG: watchdog/w83627hf_wdt, hwmon/w83627ehf
+Fintek F81216:
 
-The error code is fine, if we are going to add a capability check
-logging if things fail on it is probably a very good idea.
+The existing driver for the currently supported SuperIO chip is split 
+into two kernel modules each with its own private IO lock.
 
->> Moreover, since you add the check to open, what does it buy us over
->> normal file-permissions? We already have a perfectly fine way to limit
->> access to the watchdog device, namely standard unix file permissions,
->> needing to fiddle with both file permissions and capabilities to allow
->> a non root process to open /dev/watchdog is not making things easier,
->> while at the same time not adding any value, since no extra granularit=
-y
->> wrt security is gained.
-> Hm, so for what capabilities were created if standard permissions are g=
-ood enough?
+If I continue this model and implement drivers to use the Fintek F81216 
+watchdog and the Winbond W83627DFG GPIO then I end up with more private IO 
+locks and more potential to get a clash when two or more drivers are 
+trying to access the same ports at the same time.
 
-Because a lot of actions require a process to have root rights, and the w=
-hole
-idea of capabilities is to allow a process to do something like
-say build raw network packets (ie ping) without requiring full root, ie
-normally ping will be:
--rwsr-xr-x. 1 root root 40912 Jan 25 20:52 /usr/bin/ping
+What is needed for SuperIO chips is a common way of locking the port 
+resource while the SuperIO chip is being accessed. A single common io_lock 
+would be the first and simplest approach. This is at least safe unlike the 
+current situation.
 
-However with capabilities ping will be:
-[hans@shalem ~]$ ls -l /usr/bin/ping
--rwxr-xr-x. 1 root root 40912 Jan 25 20:52 /usr/bin/ping
-[hans@shalem ~]$ getcap /usr/bin/ping
-/usr/bin/ping =3D cap_net_raw+ep
+A better and longer term solution would be to update all the affected 
+drivers to use the existing recource allocation system for the SuperIO 
+ports (usually 0x2E/2F and 0x4E/4F) to reserve the port while it is in 
+use.
 
-So if as a normal user you now run ping, the ping process does not get
-elevated to the full privileges of root (note it is not suid root),
-the only privilege elevation it gets is gaining the CAP_NET_RAW
-capability.
+If this is considered too slow/complex and/or too much work then an 
+alternative SuperIO port locking system may be need that dynamically 
+provides locks for a specified SuperIO port address. A driver for a 
+SuperIO chip would request a lock for the desired port address during 
+initialisation and free it up on exit. If scanning for a SuperIO chip, 
+the port lock would be requested and then freed for each port scanned, 
+untill the IO chip is located. This would involve minimal changes 
+to the existing drivers without single treading access to SuperIO chips on 
+different ports.
 
- > Reason of this patchset is to guard one more way to reboot hardware no=
-de in same manner as it does in other places, because now root process wi=
-thout this capability set can write something to watchdog device and afte=
-r some timeout the hardware reboots. May be my way is wrong, but this loo=
-ks like a small security hole when non authorized process do things that =
-it should not be able to do.
+If any of you think that this needs a wider ordiance, please forward to 
+the appropriate mailing lists.
 
-I can see where you're coming from, but having a process run as root,
-but with some capabilites removed, is not how capabilities are normally
-used. The whole idea is not to run the process as root as all, and instea=
-d
-only give it the capabilities it needs. Also note that even with stripped
-capabilities running as root pretty much means full system access anyways=
-,
-ie a program as root can do the following without needing any special
-capabilities (AFAIK): create a copy of /bin/sh (the copy will be owned by
-root), make it suid (this is allowed since the file is owned by the same
-uid as the process setting the suid bit), execute it -> full root.
+Please CC me on any followups.
 
-Regards,
+Regards
+ 	Mark Fortescue.
 
-Hans
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+mark @ mtfhpc . demon . co . uk
