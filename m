@@ -1,65 +1,61 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from pinky.dpeople.ca ([208.93.239.195]:35758 "EHLO pinky.dpeople.ca"
+Received: from vps.mortis.eu ([79.99.135.181]:51512 "EHLO vps.mortis.eu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751939Ab2FKF0E (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 11 Jun 2012 01:26:04 -0400
-Date: Mon, 11 Jun 2012 01:07:58 -0400 (EDT)
-From: Justin Wheeler <jwheeler@datademons.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Giel van Schijndel <me@mortis.eu>
-Subject: Patch for f71808e_wdt.c.
-Message-ID: <alpine.DEB.2.00.1206110101290.1027@newbox.vps>
+	id S1751144Ab2FKG3u (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 11 Jun 2012 02:29:50 -0400
+Date: Mon, 11 Jun 2012 08:20:41 +0200
+From: Giel van Schijndel <me@mortis.eu>
+To: Justin Wheeler <jwheeler@datademons.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: Patch for f71808e_wdt.c.
+Message-ID: <20120611062041.GD11604@salidar.me.mortis.eu>
+References: <alpine.DEB.2.00.1206110101290.1027@newbox.vps>
 MIME-Version: 1.0
-Content-Type: MULTIPART/Mixed; BOUNDARY="0-1616516744-1339352620=:1027"
-Content-ID: <alpine.DEB.2.00.1206110101300.1027@newbox.vps>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="HWvPVVuAAfuRc6SZ"
+Content-Disposition: inline
+In-Reply-To: <alpine.DEB.2.00.1206110101290.1027@newbox.vps>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
 
---0-1616516744-1339352620=:1027
-Content-Type: TEXT/PLAIN; format=flowed; charset=US-ASCII
-Content-ID: <alpine.DEB.2.00.1206110101301.1027@newbox.vps>
+--HWvPVVuAAfuRc6SZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi,
+On Mon, Jun 11, 2012 at 01:07:58 -0400, Justin Wheeler wrote:
+> I have a Jetway JNF99 motherboard, featuring the F71869 SuperIO chip, but=
+ its
+> watchdog chipset ID appears to be 1007 (as opposed to 0814).  Some testing
+> confirmed it behaves the exact same as 0814.  The short attached patch ad=
+ds
+> that chipset ID to the module's ID list so that the Fintek watchdog drive=
+r can
+> correctly identify and access it.
 
-I have a Jetway JNF99 motherboard, featuring the F71869 SuperIO chip, but its
-watchdog chipset ID appears to be 1007 (as opposed to 0814).  Some testing
-confirmed it behaves the exact same as 0814.  The short attached patch adds
-that chipset ID to the module's ID list so that the Fintek watchdog driver can
-correctly identify and access it.
+Acked-by: Giel van Schijndel <me@mortis.eu>
 
-Justin
---0-1616516744-1339352620=:1027
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=f71869a.patch
-Content-Transfer-Encoding: BASE64
-Content-ID: <alpine.DEB.2.00.1206101423390.1027@newbox.vps>
-Content-Description: 
-Content-Disposition: attachment; filename=f71869a.patch
+--=20
+Met vriendelijke groet,
+With kind regards,
+Giel van Schijndel
+--
+"If debugging is the process of removing software bugs, then programming
+ must be the process of putting them in."
+  -- Edsger Dijkstra
 
-LS0tIGxpbnV4LTMuMi4xMi1nZW50b28ub3JpZy9kcml2ZXJzL3dhdGNoZG9n
-L2Y3MTgwOGVfd2R0LmMJMjAxMi0wNi0xMSAwOTo0ODozNS45NDAwMDEwNzYg
-LTA0MDANCisrKyBsaW51eC0zLjIuMTItZ2VudG9vL2RyaXZlcnMvd2F0Y2hk
-b2cvZjcxODA4ZV93ZHQuYwkyMDEyLTA2LTExIDA5OjQ4OjM1Ljk0MDAwMTA3
-NiAtMDQwMA0KQEAgLTU0LDYgKzU0LDcgQEANCiAjZGVmaW5lIFNJT19GNzE4
-NThfSUQJCTB4MDUwNwkvKiBDaGlwc2V0IElEICovDQogI2RlZmluZSBTSU9f
-RjcxODYyX0lECQkweDA2MDEJLyogQ2hpcHNldCBJRCAqLw0KICNkZWZpbmUg
-U0lPX0Y3MTg2OV9JRAkJMHgwODE0CS8qIENoaXBzZXQgSUQgKi8NCisjZGVm
-aW5lIFNJT19GNzE4NjlBX0lECQkweDEwMDcJLyogQ2hpcHNldCBJRCAqLw0K
-ICNkZWZpbmUgU0lPX0Y3MTg4Ml9JRAkJMHgwNTQxCS8qIENoaXBzZXQgSUQg
-Ki8NCiAjZGVmaW5lIFNJT19GNzE4ODlfSUQJCTB4MDcyMwkvKiBDaGlwc2V0
-IElEICovDQogDQpAQCAtMTk0LDcgKzE5NSw3IEBADQogCQlyZXR1cm4gLUVC
-VVNZOw0KIAl9DQogDQotCS8qIGFjY29yZGluZyB0byB0aGUgZGF0YXNoZWV0
-IHRoZSBrZXkgbXVzdCBiZSBzZW5kIHR3aWNlISAqLw0KKwkvKiBhY2NvcmRp
-bmcgdG8gdGhlIGRhdGFzaGVldCB0aGUga2V5IG11c3QgYmUgc2VudCB0d2lj
-ZSEgKi8NCiAJb3V0YihTSU9fVU5MT0NLX0tFWSwgYmFzZSk7DQogCW91dGIo
-U0lPX1VOTE9DS19LRVksIGJhc2UpOw0KIA0KQEAgLTc2MSw2ICs3NjIsNyBA
-QA0KIAkJZXJyID0gZjcxODYyZmdfcGluX2NvbmZpZ3VyZSgwKTsgLyogdmFs
-aWRhdGUgbW9kdWxlIHBhcmFtZXRlciAqLw0KIAkJYnJlYWs7DQogCWNhc2Ug
-U0lPX0Y3MTg2OV9JRDoNCisJY2FzZSBTSU9fRjcxODY5QV9JRDoNCiAJCXdh
-dGNoZG9nLnR5cGUgPSBmNzE4Njk7DQogCQlicmVhazsNCiAJY2FzZSBTSU9f
-RjcxODgyX0lEOg0K
+--HWvPVVuAAfuRc6SZ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
---0-1616516744-1339352620=:1027--
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAk/VjjcACgkQZBYm/87l50K9CACfe1rUbnhJ81eGXl/tugta4dPS
+iSAAn2h/Z7tOkXCLUJbOFmTk21zIt4R+
+=0ecz
+-----END PGP SIGNATURE-----
+
+--HWvPVVuAAfuRc6SZ--
