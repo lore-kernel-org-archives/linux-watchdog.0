@@ -1,61 +1,65 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from vps.mortis.eu ([79.99.135.181]:51512 "EHLO vps.mortis.eu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751144Ab2FKG3u (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 11 Jun 2012 02:29:50 -0400
-Date: Mon, 11 Jun 2012 08:20:41 +0200
-From: Giel van Schijndel <me@mortis.eu>
-To: Justin Wheeler <jwheeler@datademons.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: Patch for f71808e_wdt.c.
-Message-ID: <20120611062041.GD11604@salidar.me.mortis.eu>
-References: <alpine.DEB.2.00.1206110101290.1027@newbox.vps>
+Received: from eu1sys200aog117.obsmtp.com ([207.126.144.143]:36890 "EHLO
+	eu1sys200aog117.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751437Ab2FLRT1 (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 12 Jun 2012 13:19:27 -0400
+From: Linus Walleij <linus.walleij@stericsson.com>
+To: Wim Van Sebroeck <wim@iguana.be>, <linux-watchdog@vger.kernel.org>
+Cc: <linux-arm-kernel@lists.infradead.org>,
+	Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH] watchdog: coh901327_wdt: use clk_prepare/unprepare
+Date: Tue, 12 Jun 2012 19:19:01 +0200
+Message-ID: <1339521541-30183-1-git-send-email-linus.walleij@stericsson.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HWvPVVuAAfuRc6SZ"
-Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.00.1206110101290.1027@newbox.vps>
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+From: Linus Walleij <linus.walleij@linaro.org>
 
---HWvPVVuAAfuRc6SZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Make sure we prepare/unprepare the COH901327 watchdog timer
+as is required by the clk API especially if you use common
+clock.
 
-On Mon, Jun 11, 2012 at 01:07:58 -0400, Justin Wheeler wrote:
-> I have a Jetway JNF99 motherboard, featuring the F71869 SuperIO chip, but=
- its
-> watchdog chipset ID appears to be 1007 (as opposed to 0814).  Some testing
-> confirmed it behaves the exact same as 0814.  The short attached patch ad=
-ds
-> that chipset ID to the module's ID list so that the Fintek watchdog drive=
-r can
-> correctly identify and access it.
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ drivers/watchdog/coh901327_wdt.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-Acked-by: Giel van Schijndel <me@mortis.eu>
+diff --git a/drivers/watchdog/coh901327_wdt.c b/drivers/watchdog/coh901327_wdt.c
+index 6876430..cb5da5c 100644
+--- a/drivers/watchdog/coh901327_wdt.c
++++ b/drivers/watchdog/coh901327_wdt.c
+@@ -263,6 +263,7 @@ static int __exit coh901327_remove(struct platform_device *pdev)
+ 	watchdog_unregister_device(&coh901327_wdt);
+ 	coh901327_disable();
+ 	free_irq(irq, pdev);
++	clk_unprepare(clk);
+ 	clk_put(clk);
+ 	iounmap(virtbase);
+ 	release_mem_region(phybase, physize);
+@@ -300,9 +301,9 @@ static int __init coh901327_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "could not get clock\n");
+ 		goto out_no_clk;
+ 	}
+-	ret = clk_enable(clk);
++	ret = clk_prepare_enable(clk);
+ 	if (ret) {
+-		dev_err(&pdev->dev, "could not enable clock\n");
++		dev_err(&pdev->dev, "could not prepare and enable clock\n");
+ 		goto out_no_clk_enable;
+ 	}
+ 
+@@ -369,7 +370,7 @@ static int __init coh901327_probe(struct platform_device *pdev)
+ out_no_wdog:
+ 	free_irq(irq, pdev);
+ out_no_irq:
+-	clk_disable(clk);
++	clk_disable_unprepare(clk);
+ out_no_clk_enable:
+ 	clk_put(clk);
+ out_no_clk:
+-- 
+1.7.9.2
 
---=20
-Met vriendelijke groet,
-With kind regards,
-Giel van Schijndel
---
-"If debugging is the process of removing software bugs, then programming
- must be the process of putting them in."
-  -- Edsger Dijkstra
-
---HWvPVVuAAfuRc6SZ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAk/VjjcACgkQZBYm/87l50K9CACfe1rUbnhJ81eGXl/tugta4dPS
-iSAAn2h/Z7tOkXCLUJbOFmTk21zIt4R+
-=0ecz
------END PGP SIGNATURE-----
-
---HWvPVVuAAfuRc6SZ--
