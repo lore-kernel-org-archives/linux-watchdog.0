@@ -1,65 +1,68 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from eu1sys200aog117.obsmtp.com ([207.126.144.143]:36890 "EHLO
-	eu1sys200aog117.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751437Ab2FLRT1 (ORCPT
+Received: from mail-ob0-f174.google.com ([209.85.214.174]:59683 "EHLO
+	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751540Ab2FMJGN convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 12 Jun 2012 13:19:27 -0400
-From: Linus Walleij <linus.walleij@stericsson.com>
-To: Wim Van Sebroeck <wim@iguana.be>, <linux-watchdog@vger.kernel.org>
-Cc: <linux-arm-kernel@lists.infradead.org>,
-	Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH] watchdog: coh901327_wdt: use clk_prepare/unprepare
-Date: Tue, 12 Jun 2012 19:19:01 +0200
-Message-ID: <1339521541-30183-1-git-send-email-linus.walleij@stericsson.com>
+	Wed, 13 Jun 2012 05:06:13 -0400
+Received: by obbtb18 with SMTP id tb18so578195obb.19
+        for <linux-watchdog@vger.kernel.org>; Wed, 13 Jun 2012 02:06:12 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <4F8E4C4C.5030702@st.com>
+References: <cover.1331524811.git.viresh.kumar@st.com>
+	<4F83FEE0.8020709@st.com>
+	<4F8E4C4C.5030702@st.com>
+Date: Wed, 13 Jun 2012 10:06:12 +0100
+Message-ID: <CAOh2x=kFZ8KemoqyczBqObwk=+qx0XL_FMQ-qwJvWK++631K_g@mail.gmail.com>
+Subject: Re: [PATCH V2 00/22] watchdog: ARM watchdogs: sp805 & mpcore updates
+ & fixes
+From: viresh kumar <viresh.linux@gmail.com>
+To: "wim@iguana.be" <wim@iguana.be>
+Cc: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	spear-devel <spear-devel@list.st.com>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>,
+	Srinidhi KASAGAR <srinidhi.kasagar@stericsson.com>,
+	Linus WALLEIJ <linus.walleij@stericsson.com>,
+	"alan@lxorguk.ukuu.org.uk" <alan@lxorguk.ukuu.org.uk>,
+	"w.sang@pengutronix.de" <w.sang@pengutronix.de>,
+	"sshtylyov@mvista.com" <sshtylyov@mvista.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-From: Linus Walleij <linus.walleij@linaro.org>
+Hi Wim,
 
-Make sure we prepare/unprepare the COH901327 watchdog timer
-as is required by the clk API especially if you use common
-clock.
+On Wed, Apr 18, 2012 at 6:08 AM, Viresh Kumar <viresh.kumar@st.com> wrote=
+:
+> On 4/10/2012 3:05 PM, Viresh KUMAR wrote:
+>> On 3/12/2012 9:51 AM, Viresh KUMAR wrote:
+>>> Hello,
+>>>
+>>> This patchset contains fixes and updates for ARM watchdog drivers sp8=
+05 and
+>>> mpcore.
+>>>
+>>> Changes since V1:
+>>> - Included patches for sp805 driver.
+>>> - Removed: wdt->clk =3D NULL from mpcore driver, and use IS_ERR() to =
+check if
+>>> =A0 clock is supported or not.
+>>> - Adapted to watchdog core for both the drivers.
+>>> - two patches for watchdog core added
+>>> - add patch to use __raw_readl{writel} instead of readl{writel}
+>>> - taken care of few more review comments.
+>>>
+>>
+>> Hi Wim,
+>>
+>> Have you applied patches left in this patchset for linux-next?
+>
+> Ping!!
 
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
----
- drivers/watchdog/coh901327_wdt.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/watchdog/coh901327_wdt.c b/drivers/watchdog/coh901327_wdt.c
-index 6876430..cb5da5c 100644
---- a/drivers/watchdog/coh901327_wdt.c
-+++ b/drivers/watchdog/coh901327_wdt.c
-@@ -263,6 +263,7 @@ static int __exit coh901327_remove(struct platform_device *pdev)
- 	watchdog_unregister_device(&coh901327_wdt);
- 	coh901327_disable();
- 	free_irq(irq, pdev);
-+	clk_unprepare(clk);
- 	clk_put(clk);
- 	iounmap(virtbase);
- 	release_mem_region(phybase, physize);
-@@ -300,9 +301,9 @@ static int __init coh901327_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev, "could not get clock\n");
- 		goto out_no_clk;
- 	}
--	ret = clk_enable(clk);
-+	ret = clk_prepare_enable(clk);
- 	if (ret) {
--		dev_err(&pdev->dev, "could not enable clock\n");
-+		dev_err(&pdev->dev, "could not prepare and enable clock\n");
- 		goto out_no_clk_enable;
- 	}
- 
-@@ -369,7 +370,7 @@ static int __init coh901327_probe(struct platform_device *pdev)
- out_no_wdog:
- 	free_irq(irq, pdev);
- out_no_irq:
--	clk_disable(clk);
-+	clk_disable_unprepare(clk);
- out_no_clk_enable:
- 	clk_put(clk);
- out_no_clk:
--- 
-1.7.9.2
-
+You planned to push them in v-3.5. Isn't it?
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
