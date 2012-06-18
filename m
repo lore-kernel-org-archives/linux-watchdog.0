@@ -1,39 +1,100 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from londo.lunn.ch ([80.238.139.98]:48434 "EHLO londo.lunn.ch"
+Received: from londo.lunn.ch ([80.238.139.98]:48451 "EHLO londo.lunn.ch"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751111Ab2FROBH (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 18 Jun 2012 10:01:07 -0400
-Date: Mon, 18 Jun 2012 16:01:01 +0200
+	id S1750828Ab2FROPT (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 18 Jun 2012 10:15:19 -0400
 From: Andrew Lunn <andrew@lunn.ch>
-To: Axel Lin <axel.lin@gmail.com>
-Cc: linux-kernel@vger.kernel.org,
-	Sylver Bruneau <sylver.bruneau@googlemail.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
+To: Jason Cooper <jason@lakedaemon.net>
+Cc: sylver.bruneau@googlemail.com, axel.lin@gmail.com,
 	linux-watchdog@vger.kernel.org,
-	Jason Cooper <jason@lakedaemon.net>,
-	Andrew Lunn <andrew@lunn.ch>, Jamie Lentin <jm@lentin.co.uk>,
-	Mike Turquette <mturquette@linaro.org>
-Subject: Re: [PATCH RFT] watchdog: Convert orion_wdt driver to watchdog core
-Message-ID: <20120618140101.GP4799@lunn.ch>
-References: <1339744964.20824.5.camel@phoenix>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1339744964.20824.5.camel@phoenix>
+	linux ARM <linux-arm-kernel@lists.infradead.org>,
+	Andrew Lunn <andrew@lunn.ch>, stable <stable@vger.kernel.org>
+Subject: [PATCH] ARM: Orion: Fix Virtual/Physical mixup with watchdog
+Date: Mon, 18 Jun 2012 16:15:06 +0200
+Message-Id: <1340028906-19262-1-git-send-email-andrew@lunn.ch>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Jun 15, 2012 at 03:22:44PM +0800, Axel Lin wrote:
-> Convert the orion_wdt driver to the watchdog framework API.
-> 
-> Signed-off-by: Axel Lin <axel.lin@gmail.com>
+The orion watchdog is expecting to be passed the physcial address of
+the hardware, and will ioremap() it to give a virtual address it will
+use as the base address for the hardware. However, when creating the
+platform resource record, a virtual address was being used.
 
-Hi Axel
+Add the necassary #define's so we can pass the physical address as
+expected.
 
-Tested-by: Andrew Lunn <andrew@lunn.ch>
+Tested on Kirkwood and Orion5x.
 
-Note that both kirkwood and Orion5x watchdogs are currently broken.  I
-will post a fix for that next. Once fixed, your changes to use the
-framework API work O.K. for me.
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Andrew Lunn <andrew@lunn.ch>
+---
+ arch/arm/mach-kirkwood/include/mach/bridge-regs.h |    1 +
+ arch/arm/mach-kirkwood/include/mach/kirkwood.h    |    1 +
+ arch/arm/mach-orion5x/include/mach/bridge-regs.h  |    2 +-
+ arch/arm/mach-orion5x/include/mach/orion5x.h      |    1 +
+ arch/arm/plat-orion/common.c                      |    2 +-
+ 5 files changed, 5 insertions(+), 2 deletions(-)
 
-	  Andrew
+diff --git a/arch/arm/mach-kirkwood/include/mach/bridge-regs.h b/arch/arm/mach-kirkwood/include/mach/bridge-regs.h
+index 3eee37a..a115142 100644
+--- a/arch/arm/mach-kirkwood/include/mach/bridge-regs.h
++++ b/arch/arm/mach-kirkwood/include/mach/bridge-regs.h
+@@ -38,6 +38,7 @@
+ #define IRQ_MASK_HIGH_OFF	0x0014
+ 
+ #define TIMER_VIRT_BASE		(BRIDGE_VIRT_BASE | 0x0300)
++#define TIMER_PHYS_BASE		(BRIDGE_PHYS_BASE | 0x0300)
+ 
+ #define L2_CONFIG_REG		(BRIDGE_VIRT_BASE | 0x0128)
+ #define L2_WRITETHROUGH		0x00000010
+diff --git a/arch/arm/mach-kirkwood/include/mach/kirkwood.h b/arch/arm/mach-kirkwood/include/mach/kirkwood.h
+index fede3d5..c5b6851 100644
+--- a/arch/arm/mach-kirkwood/include/mach/kirkwood.h
++++ b/arch/arm/mach-kirkwood/include/mach/kirkwood.h
+@@ -80,6 +80,7 @@
+ #define  UART1_VIRT_BASE	(DEV_BUS_VIRT_BASE | 0x2100)
+ 
+ #define BRIDGE_VIRT_BASE	(KIRKWOOD_REGS_VIRT_BASE | 0x20000)
++#define BRIDGE_PHYS_BASE	(KIRKWOOD_REGS_PHYS_BASE | 0x20000)
+ 
+ #define CRYPTO_PHYS_BASE	(KIRKWOOD_REGS_PHYS_BASE | 0x30000)
+ 
+diff --git a/arch/arm/mach-orion5x/include/mach/bridge-regs.h b/arch/arm/mach-orion5x/include/mach/bridge-regs.h
+index 96484bc..11a3c1e 100644
+--- a/arch/arm/mach-orion5x/include/mach/bridge-regs.h
++++ b/arch/arm/mach-orion5x/include/mach/bridge-regs.h
+@@ -35,5 +35,5 @@
+ #define MAIN_IRQ_MASK		(ORION5X_BRIDGE_VIRT_BASE | 0x204)
+ 
+ #define TIMER_VIRT_BASE		(ORION5X_BRIDGE_VIRT_BASE | 0x300)
+-
++#define TIMER_PHYS_BASE		(ORION5X_BRIDGE_PHYS_BASE | 0x300)
+ #endif
+diff --git a/arch/arm/mach-orion5x/include/mach/orion5x.h b/arch/arm/mach-orion5x/include/mach/orion5x.h
+index 2745f5d..683e085 100644
+--- a/arch/arm/mach-orion5x/include/mach/orion5x.h
++++ b/arch/arm/mach-orion5x/include/mach/orion5x.h
+@@ -82,6 +82,7 @@
+ #define  UART1_VIRT_BASE		(ORION5X_DEV_BUS_VIRT_BASE | 0x2100)
+ 
+ #define ORION5X_BRIDGE_VIRT_BASE	(ORION5X_REGS_VIRT_BASE | 0x20000)
++#define ORION5X_BRIDGE_PHYS_BASE	(ORION5X_REGS_PHYS_BASE | 0x20000)
+ 
+ #define ORION5X_PCI_VIRT_BASE		(ORION5X_REGS_VIRT_BASE | 0x30000)
+ 
+diff --git a/arch/arm/plat-orion/common.c b/arch/arm/plat-orion/common.c
+index 61fd837..c179378 100644
+--- a/arch/arm/plat-orion/common.c
++++ b/arch/arm/plat-orion/common.c
+@@ -582,7 +582,7 @@ void __init orion_spi_1_init(unsigned long mapbase)
+  * Watchdog
+  ****************************************************************************/
+ static struct resource orion_wdt_resource =
+-		DEFINE_RES_MEM(TIMER_VIRT_BASE, 0x28);
++		DEFINE_RES_MEM(TIMER_PHYS_BASE, 0x28);
+ 
+ static struct platform_device orion_wdt_device = {
+ 	.name		= "orion_wdt",
+-- 
+1.7.10
+
