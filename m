@@ -1,33 +1,34 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:42744 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:42750 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1755324Ab2FZSy3 (ORCPT
+	with ESMTP id S1755229Ab2FZS73 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 26 Jun 2012 14:54:29 -0400
-Date: Tue, 26 Jun 2012 20:54:28 +0200
+	Tue, 26 Jun 2012 14:59:29 -0400
+Date: Tue, 26 Jun 2012 20:59:28 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Justin Wheeler <jwheeler@datademons.com>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Giel van Schijndel <me@mortis.eu>
-Subject: Re: Patch for f71808e_wdt.c.
-Message-ID: <20120626185428.GF735@spo001.leaseweb.com>
-References: <alpine.DEB.2.00.1206110101290.1027@newbox.vps>
+To: Linus Walleij <linus.walleij@stericsson.com>
+Cc: linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH] watchdog: coh901327_wdt: use clk_prepare/unprepare
+Message-ID: <20120626185928.GG735@spo001.leaseweb.com>
+References: <1339521541-30183-1-git-send-email-linus.walleij@stericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.00.1206110101290.1027@newbox.vps>
+In-Reply-To: <1339521541-30183-1-git-send-email-linus.walleij@stericsson.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Justin,
+Hi Linus,
 
-> I have a Jetway JNF99 motherboard, featuring the F71869 SuperIO chip, but 
-> its
-> watchdog chipset ID appears to be 1007 (as opposed to 0814).  Some testing
-> confirmed it behaves the exact same as 0814.  The short attached patch adds
-> that chipset ID to the module's ID list so that the Fintek watchdog driver 
-> can
-> correctly identify and access it.
+> From: Linus Walleij <linus.walleij@linaro.org>
+> 
+> Make sure we prepare/unprepare the COH901327 watchdog timer
+> as is required by the clk API especially if you use common
+> clock.
+> 
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 
 Added to linux-watchdog-next.
 
