@@ -1,39 +1,47 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:42781 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751489Ab2FZTLL (ORCPT
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:49062 "EHLO
+	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751553Ab2F0HE7 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 26 Jun 2012 15:11:11 -0400
-Date: Tue, 26 Jun 2012 21:11:05 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Jan Beulich <JBeulich@suse.com>
-Cc: sameo@linux.intel.com, linux@roeck-us.net,
-	linux-watchdog@vger.kernel.org, asierra@xes-inc.com
-Subject: Re: [PATCH] iTCO_wdt: add platform driver module alias
-Message-ID: <20120626191105.GJ735@spo001.leaseweb.com>
-References: <4FE4AE2C020000780008B78A@nat28.tlf.novell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4FE4AE2C020000780008B78A@nat28.tlf.novell.com>
+	Wed, 27 Jun 2012 03:04:59 -0400
+Received: by bkcji2 with SMTP id ji2so630158bkc.19
+        for <linux-watchdog@vger.kernel.org>; Wed, 27 Jun 2012 00:04:58 -0700 (PDT)
+Message-ID: <4FEAB096.30103@monstr.eu>
+Date: Wed, 27 Jun 2012 09:04:54 +0200
+From: Michal Simek <monstr@monstr.eu>
+Reply-To: monstr@monstr.eu
+MIME-Version: 1.0
+To: Wim Van Sebroeck <wim@iguana.be>
+CC: linux-watchdog@vger.kernel.org,
+	devicetree-discuss@lists.ozlabs.org,
+	Grant Likely <grant.likely@secretlab.ca>,
+	Rob Herring <rob.herring@calxeda.com>,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] watchdog: xilinx: Read clock frequency directly from
+ DT node
+References: <1340261140-10166-1-git-send-email-monstr@monstr.eu> <20120626191023.GI735@spo001.leaseweb.com>
+In-Reply-To: <20120626191023.GI735@spo001.leaseweb.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Jan
+On 06/26/2012 09:10 PM, Wim Van Sebroeck wrote:
+> Hi Michal,
+>
+>> Do not use clock-frequency property from parent node.
+>> Use it from watchdog node.
+>>
+>> Signed-off-by: Michal Simek<monstr@monstr.eu>
+>
+> Added to linux-watchdog-next.
 
-> The recent conversion of iTCO_wdt resulted in the driver no longer
-> getting loaded automatically, since it no longer has a
-> MODULE_DEVICE_TABLE() included. As the lpc_ich driver now creates a
-> platform device, auto-loading can easily be done by having a respective
-> module alias in place.
-> 
-> Signed-off-by: Jan Beulich <jbeulich@suse.com>
-> Cc: Aaron Sierra <asierra@xes-inc.com>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: Samuel Ortiz <sameo@linux.intel.com>
+Thanks,
+Michal
 
-Added to linux-watchdog-next.
 
-Kind regards,
-Wim.
-
+-- 
+Michal Simek, Ing. (M.Eng)
+w: www.monstr.eu p: +42-0-721842854
+Maintainer of Linux kernel 2.6 Microblaze Linux - http://www.monstr.eu/fdt/
+Microblaze U-BOOT custodian
