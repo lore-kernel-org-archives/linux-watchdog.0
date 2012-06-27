@@ -1,47 +1,110 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:49062 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751553Ab2F0HE7 (ORCPT
+Received: from mho-02-ewr.mailhop.org ([204.13.248.72]:58342 "EHLO
+	mho-02-ewr.mailhop.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757738Ab2F0S3U (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 27 Jun 2012 03:04:59 -0400
-Received: by bkcji2 with SMTP id ji2so630158bkc.19
-        for <linux-watchdog@vger.kernel.org>; Wed, 27 Jun 2012 00:04:58 -0700 (PDT)
-Message-ID: <4FEAB096.30103@monstr.eu>
-Date: Wed, 27 Jun 2012 09:04:54 +0200
-From: Michal Simek <monstr@monstr.eu>
-Reply-To: monstr@monstr.eu
+	Wed, 27 Jun 2012 14:29:20 -0400
+Date: Wed, 27 Jun 2012 14:28:47 -0400
+From: Jason Cooper <jason@lakedaemon.net>
+To: Andrew Lunn <andrew@lunn.ch>
+Cc: sylver.bruneau@googlemail.com, axel.lin@gmail.com,
+	linux-watchdog@vger.kernel.org,
+	linux ARM <linux-arm-kernel@lists.infradead.org>,
+	stable <stable@vger.kernel.org>
+Subject: Re: [PATCH] ARM: Orion: Fix Virtual/Physical mixup with watchdog
+Message-ID: <20120627182847.GD3112@titan.lakedaemon.net>
+References: <1340028906-19262-1-git-send-email-andrew@lunn.ch>
 MIME-Version: 1.0
-To: Wim Van Sebroeck <wim@iguana.be>
-CC: linux-watchdog@vger.kernel.org,
-	devicetree-discuss@lists.ozlabs.org,
-	Grant Likely <grant.likely@secretlab.ca>,
-	Rob Herring <rob.herring@calxeda.com>,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: xilinx: Read clock frequency directly from
- DT node
-References: <1340261140-10166-1-git-send-email-monstr@monstr.eu> <20120626191023.GI735@spo001.leaseweb.com>
-In-Reply-To: <20120626191023.GI735@spo001.leaseweb.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1340028906-19262-1-git-send-email-andrew@lunn.ch>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 06/26/2012 09:10 PM, Wim Van Sebroeck wrote:
-> Hi Michal,
->
->> Do not use clock-frequency property from parent node.
->> Use it from watchdog node.
->>
->> Signed-off-by: Michal Simek<monstr@monstr.eu>
->
-> Added to linux-watchdog-next.
+On Mon, Jun 18, 2012 at 04:15:06PM +0200, Andrew Lunn wrote:
+> The orion watchdog is expecting to be passed the physcial address of
+> the hardware, and will ioremap() it to give a virtual address it will
+> use as the base address for the hardware. However, when creating the
+> platform resource record, a virtual address was being used.
+> 
+> Add the necassary #define's so we can pass the physical address as
+> expected.
+> 
+> Tested on Kirkwood and Orion5x.
+> 
+> Cc: stable <stable@vger.kernel.org>
+> Signed-off-by: Andrew Lunn <andrew@lunn.ch>
 
-Thanks,
-Michal
+Acked-by: Jason Cooper <jason@lakedaemon.net>
 
-
--- 
-Michal Simek, Ing. (M.Eng)
-w: www.monstr.eu p: +42-0-721842854
-Maintainer of Linux kernel 2.6 Microblaze Linux - http://www.monstr.eu/fdt/
-Microblaze U-BOOT custodian
+> ---
+>  arch/arm/mach-kirkwood/include/mach/bridge-regs.h |    1 +
+>  arch/arm/mach-kirkwood/include/mach/kirkwood.h    |    1 +
+>  arch/arm/mach-orion5x/include/mach/bridge-regs.h  |    2 +-
+>  arch/arm/mach-orion5x/include/mach/orion5x.h      |    1 +
+>  arch/arm/plat-orion/common.c                      |    2 +-
+>  5 files changed, 5 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/arm/mach-kirkwood/include/mach/bridge-regs.h b/arch/arm/mach-kirkwood/include/mach/bridge-regs.h
+> index 3eee37a..a115142 100644
+> --- a/arch/arm/mach-kirkwood/include/mach/bridge-regs.h
+> +++ b/arch/arm/mach-kirkwood/include/mach/bridge-regs.h
+> @@ -38,6 +38,7 @@
+>  #define IRQ_MASK_HIGH_OFF	0x0014
+>  
+>  #define TIMER_VIRT_BASE		(BRIDGE_VIRT_BASE | 0x0300)
+> +#define TIMER_PHYS_BASE		(BRIDGE_PHYS_BASE | 0x0300)
+>  
+>  #define L2_CONFIG_REG		(BRIDGE_VIRT_BASE | 0x0128)
+>  #define L2_WRITETHROUGH		0x00000010
+> diff --git a/arch/arm/mach-kirkwood/include/mach/kirkwood.h b/arch/arm/mach-kirkwood/include/mach/kirkwood.h
+> index fede3d5..c5b6851 100644
+> --- a/arch/arm/mach-kirkwood/include/mach/kirkwood.h
+> +++ b/arch/arm/mach-kirkwood/include/mach/kirkwood.h
+> @@ -80,6 +80,7 @@
+>  #define  UART1_VIRT_BASE	(DEV_BUS_VIRT_BASE | 0x2100)
+>  
+>  #define BRIDGE_VIRT_BASE	(KIRKWOOD_REGS_VIRT_BASE | 0x20000)
+> +#define BRIDGE_PHYS_BASE	(KIRKWOOD_REGS_PHYS_BASE | 0x20000)
+>  
+>  #define CRYPTO_PHYS_BASE	(KIRKWOOD_REGS_PHYS_BASE | 0x30000)
+>  
+> diff --git a/arch/arm/mach-orion5x/include/mach/bridge-regs.h b/arch/arm/mach-orion5x/include/mach/bridge-regs.h
+> index 96484bc..11a3c1e 100644
+> --- a/arch/arm/mach-orion5x/include/mach/bridge-regs.h
+> +++ b/arch/arm/mach-orion5x/include/mach/bridge-regs.h
+> @@ -35,5 +35,5 @@
+>  #define MAIN_IRQ_MASK		(ORION5X_BRIDGE_VIRT_BASE | 0x204)
+>  
+>  #define TIMER_VIRT_BASE		(ORION5X_BRIDGE_VIRT_BASE | 0x300)
+> -
+> +#define TIMER_PHYS_BASE		(ORION5X_BRIDGE_PHYS_BASE | 0x300)
+>  #endif
+> diff --git a/arch/arm/mach-orion5x/include/mach/orion5x.h b/arch/arm/mach-orion5x/include/mach/orion5x.h
+> index 2745f5d..683e085 100644
+> --- a/arch/arm/mach-orion5x/include/mach/orion5x.h
+> +++ b/arch/arm/mach-orion5x/include/mach/orion5x.h
+> @@ -82,6 +82,7 @@
+>  #define  UART1_VIRT_BASE		(ORION5X_DEV_BUS_VIRT_BASE | 0x2100)
+>  
+>  #define ORION5X_BRIDGE_VIRT_BASE	(ORION5X_REGS_VIRT_BASE | 0x20000)
+> +#define ORION5X_BRIDGE_PHYS_BASE	(ORION5X_REGS_PHYS_BASE | 0x20000)
+>  
+>  #define ORION5X_PCI_VIRT_BASE		(ORION5X_REGS_VIRT_BASE | 0x30000)
+>  
+> diff --git a/arch/arm/plat-orion/common.c b/arch/arm/plat-orion/common.c
+> index 61fd837..c179378 100644
+> --- a/arch/arm/plat-orion/common.c
+> +++ b/arch/arm/plat-orion/common.c
+> @@ -582,7 +582,7 @@ void __init orion_spi_1_init(unsigned long mapbase)
+>   * Watchdog
+>   ****************************************************************************/
+>  static struct resource orion_wdt_resource =
+> -		DEFINE_RES_MEM(TIMER_VIRT_BASE, 0x28);
+> +		DEFINE_RES_MEM(TIMER_PHYS_BASE, 0x28);
+>  
+>  static struct platform_device orion_wdt_device = {
+>  	.name		= "orion_wdt",
+> -- 
+> 1.7.10
+> 
