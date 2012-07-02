@@ -1,43 +1,32 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <500D8DE3.20104@xenotime.net>
-Date: Mon, 23 Jul 2012 10:46:11 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-MIME-Version: 1.0
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-CC: linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-        Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH -next] watchdog: fix watchdog-test.c build warning
-References: <20120723164036.52bc93caafcd165fc16f0284@canb.auug.org.au>
-In-Reply-To: <20120723164036.52bc93caafcd165fc16f0284@canb.auug.org.au>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from ns1.pc-advies.be ([83.149.101.17]:50256 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1755847Ab2GBStR (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 2 Jul 2012 14:49:17 -0400
+Date: Mon, 2 Jul 2012 20:49:13 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Florian Fainelli <florian@openwrt.org>
+Cc: linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] watchdog: bcm63xx_wdt: fix driver section mismatch
+Message-ID: <20120702184913.GR735@spo001.leaseweb.com>
+References: <1340961284-25887-1-git-send-email-florian@openwrt.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1340961284-25887-1-git-send-email-florian@openwrt.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+Hi Florian,
 
-Fix compiler warning by making the function static:
+> bcm63xx_wdt was used as a platform_driver but was not suffixed with
+> _driver, thus causing section mismatches, fix that.
+> 
+> Signed-off-by: Florian Fainelli <florian@openwrt.org>
 
-Documentation/watchdog/src/watchdog-test.c:34:6: warning: no previous prototype for 'term'
+Added to linux-watchdog-next.
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-Cc:	Wim Van Sebroeck <wim@iguana.be>
-Cc:	linux-watchdog@vger.kernel.org
----
- Documentation/watchdog/src/watchdog-test.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Kind regards,
+Wim.
 
---- linux-next-20120723.orig/Documentation/watchdog/src/watchdog-test.c
-+++ linux-next-20120723/Documentation/watchdog/src/watchdog-test.c
-@@ -31,7 +31,7 @@ static void keep_alive(void)
-  * or "-e" to enable the card.
-  */
- 
--void term(int sig)
-+static void term(int sig)
- {
-     close(fd);
-     fprintf(stderr, "Stopping watchdog ticks...\n");
