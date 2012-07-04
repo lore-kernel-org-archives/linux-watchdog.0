@@ -1,67 +1,51 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from na3sys009aog122.obsmtp.com ([74.125.149.147]:51071 "EHLO
-	na3sys009aog122.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754274Ab2GDQCn (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:60822 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750986Ab2GDQc2 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 4 Jul 2012 12:02:43 -0400
-Received: by qcad10 with SMTP id d10so3075235qca.6
-        for <linux-watchdog@vger.kernel.org>; Wed, 04 Jul 2012 09:02:42 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <CAMQu2gwUgPewy98L+yF5bcdrqXRLZftb3utLNg5HV1jBscGpTQ@mail.gmail.com>
-References: <1339996996-3257-1-git-send-email-lokeshvutla@ti.com> <CAMQu2gwUgPewy98L+yF5bcdrqXRLZftb3utLNg5HV1jBscGpTQ@mail.gmail.com>
-From: "Shilimkar, Santosh" <santosh.shilimkar@ti.com>
-Date: Wed, 4 Jul 2012 21:32:21 +0530
-Message-ID: <CAMQu2gy9pe-t9ik+v01Zz3oN6eRZ27+pxom+ECy4491Fvah=SA@mail.gmail.com>
-Subject: Re: [PATCH] Watchdog: OMAP: Fix the runtime pm code to avoid module
- getting stuck intransition state.
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-arm-kernel@lists.infradead.org,
-	linux-omap <linux-omap@vger.kernel.org>,
-	Lokesh Vutla <lokeshvutla@ti.com>,
-	linux-watchdog@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 4 Jul 2012 12:32:28 -0400
+Received: by pbbrp8 with SMTP id rp8so11261380pbb.19
+        for <linux-watchdog@vger.kernel.org>; Wed, 04 Jul 2012 09:32:28 -0700 (PDT)
+From: Gerard Snitselaar <dev@snitselaar.org>
+To: wim@iguana.be
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] watchdog/ie6xx_wdt: section mismatch in ie6xx_wdt_probe()
+Date: Wed,  4 Jul 2012 09:32:11 -0700
+Message-Id: <1341419531-8031-1-git-send-email-dev@snitselaar.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Wim,
+ie6xx_wdt_probe() calls ie6xx_wdt_debugfs_exit() as part of
+it's error cleanup path, and ie6xx_wdt_debugfs_exit() is
+currently annotated __devexit.
 
-On Mon, Jun 18, 2012 at 11:11 AM, Shilimkar, Santosh
-<santosh.shilimkar@ti.com> wrote:
-> (You should cc linux-omap too.  CC'ing linux-omap)
->
-> On Mon, Jun 18, 2012 at 10:53 AM, Lokesh Vutla <lokeshvutla@ti.com> wrote:
->> OMAP watchdong driver is adapted to runtime PM like a general device
->> driver but it is not appropriate. It is causing couple of functional
->> issues.
->>
->> 1. On OMAP4 SYSCLK can't be gated, because of issue with WDTIMER2 module,
->> which constantly stays in "in transition" state. Value of register
->> CM_WKUP_WDTIMER2_CLKCTRL is always 0x00010000 in this case.
->> Issue occurs immediately after first idle, when hwmod framework tries
->> to disable WDTIMER2 functional clock - "wd_timer2_fck". After this
->> module falls to "in transition" state, and SYSCLK gating is blocked.
->>
->> 2. Due to runtime PM, watchdog timer may be completely disabled.
->> In current code base watchdog timer is not disabled only because of
->> issue 1. Otherwise state of WDTIMER2 module will be "Disabled", and there
->> will be no interrupts from omap_wdt. In other words watchdog will not
->> work at all.
->>
->> Watchdong is a special IP and it should not be disabled otherwise
->> purpose of it itself is defeated. Watchdog functional clock should
->> never be disabled. This patch updates the runtime PM handling in
->> driver so that runtime PM is limited only during probe/shutdown
->> and suspend/resume.
->>
->> The patch fixes issue 1 and 2
->>
->> Signed-off-by: Lokesh Vutla <lokeshvutla@ti.com>
->> Acked-by: Santosh Shilimkar <santosh.shilimkar@ti.com>
->> Cc: Wim Van Sebroeck <wim@iguana.be>
->> ---
+Signed-off-by: Gerard Snitselaar <dev@snitselaar.org>
+---
+ drivers/watchdog/ie6xx_wdt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Any comments on this patch ? If not, can you please
-queue this up for the 3.5-rc?
+diff --git a/drivers/watchdog/ie6xx_wdt.c b/drivers/watchdog/ie6xx_wdt.c
+index 5f0d776..8f541b9 100644
+--- a/drivers/watchdog/ie6xx_wdt.c
++++ b/drivers/watchdog/ie6xx_wdt.c
+@@ -232,7 +232,7 @@ static void __devinit ie6xx_wdt_debugfs_init(void)
+ 		S_IFREG | S_IRUGO, NULL, NULL, &ie6xx_wdt_dbg_operations);
+ }
+ 
+-static void __devexit ie6xx_wdt_debugfs_exit(void)
++static void ie6xx_wdt_debugfs_exit(void)
+ {
+ 	debugfs_remove(ie6xx_wdt_data.debugfs);
+ }
+@@ -242,7 +242,7 @@ static void __devinit ie6xx_wdt_debugfs_init(void)
+ {
+ }
+ 
+-static void __devexit ie6xx_wdt_debugfs_exit(void)
++static void ie6xx_wdt_debugfs_exit(void)
+ {
+ }
+ #endif
+-- 
+1.7.11.rc0.55.gb2478aa
 
-Regards
-Santosh
