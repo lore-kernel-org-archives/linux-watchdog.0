@@ -1,132 +1,95 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.windriver.com ([147.11.1.11]:65309 "EHLO
-	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752900Ab2GEPDW (ORCPT
+Received: from na3sys009aog126.obsmtp.com ([74.125.149.155]:60881 "EHLO
+	na3sys009aog126.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751374Ab2GFHts (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 5 Jul 2012 11:03:22 -0400
-Message-ID: <4FF5ACA9.3090903@windriver.com>
-Date: Thu, 5 Jul 2012 23:03:05 +0800
-From: "zumeng.chen" <zchen@windriver.com>
+	Fri, 6 Jul 2012 03:49:48 -0400
+Received: by qadb33 with SMTP id b33so334720qad.16
+        for <linux-watchdog@vger.kernel.org>; Fri, 06 Jul 2012 00:49:47 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <B5906170F1614E41A8A28DE3B8D121433EAF87AB@DBDE01.ent.ti.com>
+References: <1339996996-3257-1-git-send-email-lokeshvutla@ti.com> <B5906170F1614E41A8A28DE3B8D121433EAF87AB@DBDE01.ent.ti.com>
+From: "Shilimkar, Santosh" <santosh.shilimkar@ti.com>
+Date: Fri, 6 Jul 2012 12:51:03 +0530
+Message-ID: <CAMQu2gwDdonnvFuDpy06aRA2O4Sj1Jh+pEWAGQV3az6BHQKf4w@mail.gmail.com>
+Subject: Re: [PATCH] Watchdog: OMAP: Fix the runtime pm code to avoid module
+ getting stuck intransition state.
 To: "Bedia, Vaibhav" <vaibhav.bedia@ti.com>
-CC: Zumeng Chen <zumeng.chen@windriver.com>,
-	"hubhrajyoti@ti.com" <hubhrajyoti@ti.com>,
-	"wim@iguana.be" <wim@iguana.be>,
-	"linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+Cc: "Vutla, Lokesh" <lokeshvutla@ti.com>,
 	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>
-Subject: Re: [PATCH 1/1] Watchdog: OMAP3: fix wrong boot status from wdt reboot
-References: <1341417241-11563-1-git-send-email-zumeng.chen@windriver.com> <B5906170F1614E41A8A28DE3B8D121433EAF8359@DBDE01.ent.ti.com>
-In-Reply-To: <B5906170F1614E41A8A28DE3B8D121433EAF8359@DBDE01.ent.ti.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
+	<linux-arm-kernel@lists.infradead.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-omap <linux-omap@vger.kernel.org>,
+	linux-watchdog <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-On 2012=E5=B9=B407=E6=9C=8805=E6=97=A5 21:05, Bedia, Vaibhav wrote:
-> Hello,
+(+ linux-omap, linux-watchdog)
+
+Vaibhav,
+
+On Thu, Jul 5, 2012 at 8:06 PM, Bedia, Vaibhav <vaibhav.bedia@ti.com> wrote:
+> Hi,
 >
-> On Wed, Jul 04, 2012 at 21:24:01, Zumeng Chen wrote:
->> Does the following fix make sense?
+> On Mon, Jun 18, 2012 at 10:53:16, Vutla, Lokesh wrote:
+>> OMAP watchdong driver is adapted to runtime PM like a general device
+>> driver but it is not appropriate. It is causing couple of functional
+>> issues.
 >>
->> WDIOC_GETBOOTSTATUS always return 0 even if the machine
->> comes from omap-wdt reboot. Because WKUP_MOD is not right
->> for OMAP3, so give the right addr 0xA00 of PRM_RSTST for
->> get_reset_sources, which inputs the signal from omap-wdt
->> reboot, and return 1 when coming from omap-wdt reboot for
->> WDIOC_GETBOOTSTATUS.
->>
->> Signed-off-by: Zumeng Chen<zumeng.chen@windriver.com>
->> ---
->>   arch/arm/mach-omap2/prcm.c  |    4 +++-
->>   drivers/watchdog/omap_wdt.c |    3 +++
->>   drivers/watchdog/omap_wdt.h |    3 +++
->>   3 files changed, 9 insertions(+), 1 deletions(-)
->>
->> diff --git a/arch/arm/mach-omap2/prcm.c b/arch/arm/mach-omap2/prcm.c
->> index 480f40a..43f3feb 100644
->> --- a/arch/arm/mach-omap2/prcm.c
->> +++ b/arch/arm/mach-omap2/prcm.c
->> @@ -49,8 +49,10 @@ void __iomem *prcm_mpu_base;
->>   u32 omap_prcm_get_reset_sources(void)
->>   {
->>   	/* XXX This presumably needs modification for 34XX */
->> -	if (cpu_is_omap24xx() || cpu_is_omap34xx())
->> +	if (cpu_is_omap24xx())
->>   		return omap2_prm_read_mod_reg(WKUP_MOD, OMAP2_RM_RSTST)&  0x7f;
->> +	if (cpu_is_omap34xx())
->> +		return omap2_prm_read_mod_reg(0xA00, OMAP2_RM_RSTST)&  0x7f;
->>   	if (cpu_is_omap44xx())
->>   		return omap2_prm_read_mod_reg(WKUP_MOD, OMAP4_RM_RSTST)&  0x7f;
-> Instead of adding more cpu_is_* checks maybe you could switch to a
-> function pointers based approach here?
-I don't see any more checks VS before like ( cpu_is_omap24xx() ||=20
-cpu_is_omap34xx())
-
-Actually what we want is just to read a register with different offset
-responding to the different SOC.
->>
->> diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
->> index 8285d65..ea57078 100644
->> --- a/drivers/watchdog/omap_wdt.c
->> +++ b/drivers/watchdog/omap_wdt.c
->> @@ -234,6 +234,9 @@ static long omap_wdt_ioctl(struct file *file, unsi=
-gned int cmd,
->>   		if (cpu_is_omap24xx())
->>   			return put_user(omap_prcm_get_reset_sources(),
->>   					(int __user *)arg);
->> +		if (cpu_is_omap34xx())
->> +			return put_user(omap_prcm_get_reset_sources()&  0x10>>
->> +				OMAP3_PRM_RSTST_BIT, (int __user *)arg);
->>   		return put_user(0, (int __user *)arg);
-> Usage of PRCM bit masks in the driver looks wrong. Why not
-Maybe the not proper definition causes "looks wrong".
-It should be MPU_WD_RST_BIT, so you see, it is about
-watchdog bit.
-
-Anyway, I'll try to send V2 patch with Hubhrajyoti's and your
-comments
-
-Regards,
-Zumeng
-> introduce an API like omap_prcm_check_reset_reason() which
-> returns true or false based on the reset reason being checked?
 >
-> In case of WDT, the driver can then pass the right flag to
-> userspace.
+> A few questions based on the description given in the commit message.
 >
-> Regards,
-> Vaibhav B.
+>> 1. On OMAP4 SYSCLK can't be gated, because of issue with WDTIMER2 module,
+>> which constantly stays in "in transition" state. Value of register
+>> CM_WKUP_WDTIMER2_CLKCTRL is always 0x00010000 in this case.
+>> Issue occurs immediately after first idle, when hwmod framework tries
+>> to disable WDTIMER2 functional clock - "wd_timer2_fck". After this
+>> module falls to "in transition" state, and SYSCLK gating is blocked.
+>>
 >
->>   	case WDIOC_KEEPALIVE:
->>   		pm_runtime_get_sync(wdev->dev);
->> diff --git a/drivers/watchdog/omap_wdt.h b/drivers/watchdog/omap_wdt.h
->> index 09b774c..d8d5daa 100644
->> --- a/drivers/watchdog/omap_wdt.h
->> +++ b/drivers/watchdog/omap_wdt.h
->> @@ -40,6 +40,9 @@
->>   #define OMAP_WATCHDOG_WPS		(0x34)
->>   #define OMAP_WATCHDOG_SPR		(0x48)
->>
->> +/* PRM_RSTST MPU_WD_RST bit */
->> +#define OMAP3_PRM_RSTST_BIT		4
->> +
->>   /* Using the prescaler, the OMAP watchdog could go for many
->>    * months before firing.  These limits work without scaling,
->>    * with the 60 second default assumed by most tools and docs.
->> --=20
->> 1.7.5.4
->>
->>
->> _______________________________________________
->> linux-arm-kernel mailing list
->> linux-arm-kernel@lists.infradead.org
->> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
->>
+> From what I know, a value of 0x00010000 for timers (WDT or DMTIMERs)
+> indicates that the iclk is gated but the fclk is running. In fact,
+> if the IP supports swakeup mechanism this is the value expected in the
+> *_CLKCTRL registers of the timers for the swakeup to work.
+>
+Nope. That case will be 0x00020000
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Read 0x1: Module is performing transition: wakeup, or
+sleep, or sleep abortion
+Read 0x2: Module is in idle mode (only INTRCONN part).
+It is functional if using separate functional clock
+Read 0x3: Module is disabled and cannot be accessed
+
+> Sounds like on OMAP4 the WDT needs to be stopped first and then the
+> PRCM idle request sent otherwise SYSCLK gating will be blocked.
+>
+Any module stuck in-transition will get the clock-domain from idle.
+
+>> 2. Due to runtime PM, watchdog timer may be completely disabled.
+>> In current code base watchdog timer is not disabled only because of
+>> issue 1. Otherwise state of WDTIMER2 module will be "Disabled", and there
+>> will be no interrupts from omap_wdt. In other words watchdog will not
+>> work at all.
+>
+> But the current driver doesn't make use of any interrupts, right?
+>
+How is the interrupt related. You enable that when you enable WDT
+petting using delay_interrupt()
+
+> If the WDT was never started, runtime PM handling for the WDT should be
+> able to get the IP to a "disabled" state. Is the issue over here due
+> to the WDT counter incrementing and still the PRCM idle request being
+> sent for disabling it? If so, perhaps a better solution would be have
+> a custom runtime PM handling for WDT which checks if the counter
+> is incrementing or not. If it is not incrementing then it can just
+> go ahead and disable the clocks. However, if the counter is incrementing
+> then the runtime PM activities on the driver should be forbidden till
+> an entry to a low power state where SYSCLK needs to be gated is required.
+>
+If you look at the test case mentioned, the watchdong is started. Your
+first observation is not as per the hardware behavior, so other points
+becomes not relevant.
+
+Regards
+Santosh
