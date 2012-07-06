@@ -1,73 +1,115 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mho-01-ewr.mailhop.org ([204.13.248.71]:23023 "EHLO
-	mho-01-ewr.mailhop.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753003Ab2GFJ3O (ORCPT
+Received: from devils.ext.ti.com ([198.47.26.153]:58884 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750883Ab2GFM3S convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 6 Jul 2012 05:29:14 -0400
-Date: Fri, 6 Jul 2012 01:28:01 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: jgq516@gmail.com, Wim Van Sebroeck <wim@iguana.be>
-Cc: grant.likely@secretlab.ca, rob.herring@calxeda.com,
-	rob@landley.net, linux@arm.linux.org.uk, b-cousson@ti.com,
-	rnayak@ti.com, wim@iguana.be, jon-hunter@ti.com,
-	devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-omap@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCHv2 3/3] watchdog: omap_wdt: add device tree support
-Message-ID: <20120706082801.GO1122@atomide.com>
-References: <1338525856-4359-1-git-send-email-jgq516@gmail.com>
- <1338525856-4359-4-git-send-email-jgq516@gmail.com>
+	Fri, 6 Jul 2012 08:29:18 -0400
+From: "Bedia, Vaibhav" <vaibhav.bedia@ti.com>
+To: "Shilimkar, Santosh" <santosh.shilimkar@ti.com>
+CC: "Vutla, Lokesh" <lokeshvutla@ti.com>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-omap <linux-omap@vger.kernel.org>,
+	linux-watchdog <linux-watchdog@vger.kernel.org>
+Subject: RE: [PATCH] Watchdog: OMAP: Fix the runtime pm code to avoid module
+ getting stuck intransition state.
+Date: Fri, 6 Jul 2012 12:29:03 +0000
+Message-ID: <B5906170F1614E41A8A28DE3B8D121433EAFA5B7@DBDE01.ent.ti.com>
+References: <1339996996-3257-1-git-send-email-lokeshvutla@ti.com>
+ <B5906170F1614E41A8A28DE3B8D121433EAF87AB@DBDE01.ent.ti.com>
+ <CAMQu2gwDdonnvFuDpy06aRA2O4Sj1Jh+pEWAGQV3az6BHQKf4w@mail.gmail.com>
+In-Reply-To: <CAMQu2gwDdonnvFuDpy06aRA2O4Sj1Jh+pEWAGQV3az6BHQKf4w@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1338525856-4359-4-git-send-email-jgq516@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-Hi Wim,
+Hi Santosh,
 
-* jgq516@gmail.com <jgq516@gmail.com> [120531 20:56]:
-> From: Xiao Jiang <jgq516@gmail.com>
-> 
-> Add device table for omap_wdt to support dt.
+On Fri, Jul 06, 2012 at 12:51:03, Shilimkar, Santosh wrote:
+[...]
+> >
+> > A few questions based on the description given in the commit message.
+> >
+> >> 1. On OMAP4 SYSCLK can't be gated, because of issue with WDTIMER2 mo=
+dule,
+> >> which constantly stays in "in transition" state. Value of register
+> >> CM_WKUP_WDTIMER2_CLKCTRL is always 0x00010000 in this case.
+> >> Issue occurs immediately after first idle, when hwmod framework trie=
+s
+> >> to disable WDTIMER2 functional clock - "wd_timer2_fck". After this
+> >> module falls to "in transition" state, and SYSCLK gating is blocked.
+> >>
+> >
+> > From what I know, a value of 0x00010000 for timers (WDT or DMTIMERs)
+> > indicates that the iclk is gated but the fclk is running. In fact,
+> > if the IP supports swakeup mechanism this is the value expected in th=
+e
+> > *_CLKCTRL registers of the timers for the swakeup to work.
+> >
+> Nope. That case will be 0x00020000
+>=20
+> Read 0x1: Module is performing transition: wakeup, or
+> sleep, or sleep abortion
+> Read 0x2: Module is in idle mode (only INTRCONN part).
+> It is functional if using separate functional clock
+> Read 0x3: Module is disabled and cannot be accessed
+>=20
 
-Care to ack this patch in the series?
+What you mentioned is obviously correct :)
+I somehow recall seeing something else but mostly likely I am wrong here.
+
+> > Sounds like on OMAP4 the WDT needs to be stopped first and then the
+> > PRCM idle request sent otherwise SYSCLK gating will be blocked.
+> >
+> Any module stuck in-transition will get the clock-domain from idle.
+>=20
+
+Yes agreed.
+
+> >> 2. Due to runtime PM, watchdog timer may be completely disabled.
+> >> In current code base watchdog timer is not disabled only because of
+> >> issue 1. Otherwise state of WDTIMER2 module will be "Disabled", and =
+there
+> >> will be no interrupts from omap_wdt. In other words watchdog will no=
+t
+> >> work at all.
+> >
+> > But the current driver doesn't make use of any interrupts, right?
+> >
+> How is the interrupt related. You enable that when you enable WDT
+> petting using delay_interrupt()
+>=20
+
+Even I don't understand the interrupt part here.
+
+> > If the WDT was never started, runtime PM handling for the WDT should =
+be
+> > able to get the IP to a "disabled" state. Is the issue over here due
+> > to the WDT counter incrementing and still the PRCM idle request being
+> > sent for disabling it? If so, perhaps a better solution would be have
+> > a custom runtime PM handling for WDT which checks if the counter
+> > is incrementing or not. If it is not incrementing then it can just
+> > go ahead and disable the clocks. However, if the counter is increment=
+ing
+> > then the runtime PM activities on the driver should be forbidden till
+> > an entry to a low power state where SYSCLK needs to be gated is requi=
+red.
+> >
+> If you look at the test case mentioned, the watchdong is started. Your
+> first observation is not as per the hardware behavior, so other points
+> becomes not relevant.
+>=20
+
+Ok. I'll double-check my observations on AM335x on Monday.
 
 Regards,
-
-Tony
-
-> 
-> Signed-off-by: Xiao Jiang <jgq516@gmail.com>
-> ---
->  drivers/watchdog/omap_wdt.c |    7 +++++++
->  1 files changed, 7 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
-> index 8285d65..02ebfd5 100644
-> --- a/drivers/watchdog/omap_wdt.c
-> +++ b/drivers/watchdog/omap_wdt.c
-> @@ -430,6 +430,12 @@ static int omap_wdt_resume(struct platform_device *pdev)
->  #define	omap_wdt_resume		NULL
->  #endif
->  
-> +static const struct of_device_id omap_wdt_of_match[] = {
-> +	{ .compatible = "ti,omap3-wdt", },
-> +	{},
-> +};
-> +MODULE_DEVICE_TABLE(of, omap_wdt_of_match);
-> +
->  static struct platform_driver omap_wdt_driver = {
->  	.probe		= omap_wdt_probe,
->  	.remove		= __devexit_p(omap_wdt_remove),
-> @@ -439,6 +445,7 @@ static struct platform_driver omap_wdt_driver = {
->  	.driver		= {
->  		.owner	= THIS_MODULE,
->  		.name	= "omap_wdt",
-> +		.of_match_table = omap_wdt_of_match,
->  	},
->  };
->  
-> -- 
-> 1.7.3
-> 
+Vaibhav B.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
