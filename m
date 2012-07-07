@@ -1,115 +1,42 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from devils.ext.ti.com ([198.47.26.153]:58884 "EHLO
-	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750883Ab2GFM3S convert rfc822-to-8bit (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:54781 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751095Ab2GGMHV (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 6 Jul 2012 08:29:18 -0400
-From: "Bedia, Vaibhav" <vaibhav.bedia@ti.com>
-To: "Shilimkar, Santosh" <santosh.shilimkar@ti.com>
-CC: "Vutla, Lokesh" <lokeshvutla@ti.com>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-omap <linux-omap@vger.kernel.org>,
-	linux-watchdog <linux-watchdog@vger.kernel.org>
-Subject: RE: [PATCH] Watchdog: OMAP: Fix the runtime pm code to avoid module
- getting stuck intransition state.
-Date: Fri, 6 Jul 2012 12:29:03 +0000
-Message-ID: <B5906170F1614E41A8A28DE3B8D121433EAFA5B7@DBDE01.ent.ti.com>
-References: <1339996996-3257-1-git-send-email-lokeshvutla@ti.com>
- <B5906170F1614E41A8A28DE3B8D121433EAF87AB@DBDE01.ent.ti.com>
- <CAMQu2gwDdonnvFuDpy06aRA2O4Sj1Jh+pEWAGQV3az6BHQKf4w@mail.gmail.com>
-In-Reply-To: <CAMQu2gwDdonnvFuDpy06aRA2O4Sj1Jh+pEWAGQV3az6BHQKf4w@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
+	Sat, 7 Jul 2012 08:07:21 -0400
+Date: Sat, 7 Jul 2012 14:07:09 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Tony Lindgren <tony@atomide.com>
+Cc: jgq516@gmail.com, grant.likely@secretlab.ca,
+	rob.herring@calxeda.com, rob@landley.net, linux@arm.linux.org.uk,
+	b-cousson@ti.com, rnayak@ti.com, jon-hunter@ti.com,
+	devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-omap@vger.kernel.org, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCHv2 3/3] watchdog: omap_wdt: add device tree support
+Message-ID: <20120707120709.GW735@spo001.leaseweb.com>
+References: <1338525856-4359-1-git-send-email-jgq516@gmail.com> <1338525856-4359-4-git-send-email-jgq516@gmail.com> <20120706082801.GO1122@atomide.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20120706082801.GO1122@atomide.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-Hi Santosh,
+Hi Tony,
 
-On Fri, Jul 06, 2012 at 12:51:03, Shilimkar, Santosh wrote:
-[...]
-> >
-> > A few questions based on the description given in the commit message.
-> >
-> >> 1. On OMAP4 SYSCLK can't be gated, because of issue with WDTIMER2 mo=
-dule,
-> >> which constantly stays in "in transition" state. Value of register
-> >> CM_WKUP_WDTIMER2_CLKCTRL is always 0x00010000 in this case.
-> >> Issue occurs immediately after first idle, when hwmod framework trie=
-s
-> >> to disable WDTIMER2 functional clock - "wd_timer2_fck". After this
-> >> module falls to "in transition" state, and SYSCLK gating is blocked.
-> >>
-> >
-> > From what I know, a value of 0x00010000 for timers (WDT or DMTIMERs)
-> > indicates that the iclk is gated but the fclk is running. In fact,
-> > if the IP supports swakeup mechanism this is the value expected in th=
-e
-> > *_CLKCTRL registers of the timers for the swakeup to work.
-> >
-> Nope. That case will be 0x00020000
->=20
-> Read 0x1: Module is performing transition: wakeup, or
-> sleep, or sleep abortion
-> Read 0x2: Module is in idle mode (only INTRCONN part).
-> It is functional if using separate functional clock
-> Read 0x3: Module is disabled and cannot be accessed
->=20
+> Hi Wim,
+> 
+> * jgq516@gmail.com <jgq516@gmail.com> [120531 20:56]:
+> > From: Xiao Jiang <jgq516@gmail.com>
+> > 
+> > Add device table for omap_wdt to support dt.
+> 
+> Care to ack this patch in the series?
 
-What you mentioned is obviously correct :)
-I somehow recall seeing something else but mostly likely I am wrong here.
+Yep.
+Acked-by: Wim Van Sebroeck <wim@iguana.be>
 
-> > Sounds like on OMAP4 the WDT needs to be stopped first and then the
-> > PRCM idle request sent otherwise SYSCLK gating will be blocked.
-> >
-> Any module stuck in-transition will get the clock-domain from idle.
->=20
+Kind regards,
+Wim.
 
-Yes agreed.
-
-> >> 2. Due to runtime PM, watchdog timer may be completely disabled.
-> >> In current code base watchdog timer is not disabled only because of
-> >> issue 1. Otherwise state of WDTIMER2 module will be "Disabled", and =
-there
-> >> will be no interrupts from omap_wdt. In other words watchdog will no=
-t
-> >> work at all.
-> >
-> > But the current driver doesn't make use of any interrupts, right?
-> >
-> How is the interrupt related. You enable that when you enable WDT
-> petting using delay_interrupt()
->=20
-
-Even I don't understand the interrupt part here.
-
-> > If the WDT was never started, runtime PM handling for the WDT should =
-be
-> > able to get the IP to a "disabled" state. Is the issue over here due
-> > to the WDT counter incrementing and still the PRCM idle request being
-> > sent for disabling it? If so, perhaps a better solution would be have
-> > a custom runtime PM handling for WDT which checks if the counter
-> > is incrementing or not. If it is not incrementing then it can just
-> > go ahead and disable the clocks. However, if the counter is increment=
-ing
-> > then the runtime PM activities on the driver should be forbidden till
-> > an entry to a low power state where SYSCLK needs to be gated is requi=
-red.
-> >
-> If you look at the test case mentioned, the watchdong is started. Your
-> first observation is not as per the hardware behavior, so other points
-> becomes not relevant.
->=20
-
-Ok. I'll double-check my observations on AM335x on Monday.
-
-Regards,
-Vaibhav B.
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
