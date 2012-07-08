@@ -1,33 +1,50 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:55399 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750798Ab2GHMK1 (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:34623 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751148Ab2GHQXy (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 8 Jul 2012 08:10:27 -0400
-Date: Sun, 8 Jul 2012 14:10:25 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Gerard Snitselaar <dev@snitselaar.org>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog/ie6xx_wdt: section mismatch in ie6xx_wdt_probe()
-Message-ID: <20120708121025.GC735@spo001.leaseweb.com>
-References: <1341419531-8031-1-git-send-email-dev@snitselaar.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1341419531-8031-1-git-send-email-dev@snitselaar.org>
+	Sun, 8 Jul 2012 12:23:54 -0400
+From: Devendra Naga <devendra.aaru@gmail.com>
+To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: Devendra Naga <devendra.aaru@gmail.com>
+Subject: [PATCH] geodewdt: do a little cleanup at probe
+Date: Sun,  8 Jul 2012 21:53:45 +0530
+Message-Id: <1341764625-2728-1-git-send-email-devendra.aaru@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Gerard,
+at probe with out ret var, simple return misc_register was sufficient.
 
-> ie6xx_wdt_probe() calls ie6xx_wdt_debugfs_exit() as part of
-> it's error cleanup path, and ie6xx_wdt_debugfs_exit() is
-> currently annotated __devexit.
-> 
-> Signed-off-by: Gerard Snitselaar <dev@snitselaar.org>
+Signed-off-by: Devendra Naga <devendra.aaru@gmail.com>
+---
+ drivers/watchdog/geodewdt.c |    6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-Added to linux-watchdog-next.
-
-Kind regards,
-Wim.
+diff --git a/drivers/watchdog/geodewdt.c b/drivers/watchdog/geodewdt.c
+index dc563b6..df825b5 100644
+--- a/drivers/watchdog/geodewdt.c
++++ b/drivers/watchdog/geodewdt.c
+@@ -217,8 +217,6 @@ static struct miscdevice geodewdt_miscdev = {
+ 
+ static int __devinit geodewdt_probe(struct platform_device *dev)
+ {
+-	int ret;
+-
+ 	wdt_timer = cs5535_mfgpt_alloc_timer(MFGPT_TIMER_ANY, MFGPT_DOMAIN_WORKING);
+ 	if (!wdt_timer) {
+ 		pr_err("No timers were available\n");
+@@ -238,9 +236,7 @@ static int __devinit geodewdt_probe(struct platform_device *dev)
+ 	cs5535_mfgpt_write(wdt_timer, MFGPT_REG_CMP2,
+ 		timeout * GEODEWDT_HZ);
+ 
+-	ret = misc_register(&geodewdt_miscdev);
+-
+-	return ret;
++	return misc_register(&geodewdt_miscdev);
+ }
+ 
+ static int __devexit geodewdt_remove(struct platform_device *dev)
+-- 
+1.7.9.5
 
