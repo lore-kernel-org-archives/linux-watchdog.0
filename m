@@ -1,74 +1,62 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mho-01-ewr.mailhop.org ([204.13.248.71]:22203 "EHLO
-	mho-01-ewr.mailhop.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751121Ab2GII7q (ORCPT
+Received: from na3sys009aog132.obsmtp.com ([74.125.149.250]:54609 "EHLO
+	na3sys009aog132.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752400Ab2GIQke (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 9 Jul 2012 04:59:46 -0400
-Date: Mon, 9 Jul 2012 01:59:44 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: "Mohammed, Afzal" <afzal@ti.com>
-Cc: "Cousson, Benoit" <b-cousson@ti.com>,
-	"linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-	"devicetree-discuss@lists.ozlabs.org"
-	<devicetree-discuss@lists.ozlabs.org>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"grant.likely@secretlab.ca" <grant.likely@secretlab.ca>
-Subject: Re: [PATCH] arm/dts: am33xx wdt node
-Message-ID: <20120709085944.GC1122@atomide.com>
-References: <1341405037-16391-1-git-send-email-afzal@ti.com>
- <C8443D0743D26F4388EA172BF4E2A7A93E9A2FE9@DBDE01.ent.ti.com>
+	Mon, 9 Jul 2012 12:40:34 -0400
+Received: by ggmi1 with SMTP id i1so14058989ggm.30
+        for <linux-watchdog@vger.kernel.org>; Mon, 09 Jul 2012 09:40:32 -0700 (PDT)
+From: Kevin Hilman <khilman@ti.com>
+To: Zumeng Chen <zumeng.chen@windriver.com>
+Cc: <shubhrajyoti@ti.com>, <wim@iguana.be>,
+	<linux-watchdog@vger.kernel.org>, <linux-omap@vger.kernel.org>,
+	<linux-arm-kernel@lists.infradead.org>, <tony@atomide.com>,
+	<paul.gortmaker@windriver.com>
+Subject: Re: [PATCH 3/3] Watchdog: Omap: get the bootstatus for OMAP2Plus
+References: <1341808779-25532-1-git-send-email-zumeng.chen@windriver.com>
+	<1341808779-25532-4-git-send-email-zumeng.chen@windriver.com>
+Date: Mon, 09 Jul 2012 09:40:28 -0700
+In-Reply-To: <1341808779-25532-4-git-send-email-zumeng.chen@windriver.com>
+	(Zumeng Chen's message of "Mon, 9 Jul 2012 12:39:39 +0800")
+Message-ID: <87ipdwx4zn.fsf@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <C8443D0743D26F4388EA172BF4E2A7A93E9A2FE9@DBDE01.ent.ti.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-* Mohammed, Afzal <afzal@ti.com> [120704 06:44]:
-> + Grant and device tree, watchdog lists
-> 
-> On Wed, Jul 04, 2012 at 18:00:37, Mohammed, Afzal wrote:
-> > Add am33xx wdt node.
-> > 
-> > Signed-off-by: Afzal Mohammed <afzal@ti.com>
-> > ---
-> > 
-> > Hi,
-> > 
-> > This was tested on AM335X EVM. This depends on,
-> > http://www.mail-archive.com/linux-omap@vger.kernel.org/msg69424.html
+Zumeng Chen <zumeng.chen@windriver.com> writes:
 
-Thanks I'll apply this into omap devel-dt branch now that we have
-an ack from Wim on the wdt changes.
+> The offset of WKUP_MOD is not right for the PRM_RSTST of OMAP3. So here
+> put the right one to match to the actual physical addr 0x48307258, which
+> defined in PRCM Registers section.
+>
+> And there is a MPU_WD_RST bit in PRM_RSTST(0x48307258) holding the signal
+> from omap-wdt reboot, so that we can return WDIOF_CARDRESET if the board
+> wakes up from omap-wdt reboot for WDIOC_GETBOOTSTATUS ioctl.
+>
+> Signed-off-by: Zumeng Chen <zumeng.chen@windriver.com>
+> ---
+>  arch/arm/mach-omap2/prcm.c |    5 ++++-
+>  1 files changed, 4 insertions(+), 1 deletions(-)
+>
+> diff --git a/arch/arm/mach-omap2/prcm.c b/arch/arm/mach-omap2/prcm.c
+> index 480f40a..4dcc706 100644
+> --- a/arch/arm/mach-omap2/prcm.c
+> +++ b/arch/arm/mach-omap2/prcm.c
+> @@ -49,8 +49,11 @@ void __iomem *prcm_mpu_base;
+>  u32 omap_prcm_get_reset_sources(void)
+>  {
+>  	/* XXX This presumably needs modification for 34XX */
 
-Tony
+While you're fixing this for OMAP3, you can remove this comment as well.
 
-> > Regards
-> > Afzal
-> > 
-> > 
-> >  arch/arm/boot/dts/am33xx.dtsi | 5 +++++
-> >  1 file changed, 5 insertions(+)
-> > 
-> > diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
-> > index f46e353..08b2a5b 100644
-> > --- a/arch/arm/boot/dts/am33xx.dtsi
-> > +++ b/arch/arm/boot/dts/am33xx.dtsi
-> > @@ -185,5 +185,10 @@
-> >  			compatible = "ti,omap3-hsmmc";
-> >  			ti,hwmods = "mmc3";
-> >  		};
-> > +
-> > +		wdt2: wdt@44e35000 {
-> > +			compatible = "ti,omap3-wdt";
-> > +			ti,hwmods = "wd_timer2";
-> > +		};
-> >  	};
-> >  };
-> > -- 
-> > 1.7.11.1
-> > 
-> > 
-> 
+> -	if (cpu_is_omap24xx() || cpu_is_omap34xx())
+> +	if (cpu_is_omap24xx())
+>  		return omap2_prm_read_mod_reg(WKUP_MOD, OMAP2_RM_RSTST) & 0x7f;
+> +	if (cpu_is_omap34xx())
+> +		return omap2_prm_read_mod_reg(OMAP3430_GR_MOD, OMAP2_RM_RSTST) &
+> +		       0x7f;
+>  	if (cpu_is_omap44xx())
+>  		return omap2_prm_read_mod_reg(WKUP_MOD, OMAP4_RM_RSTST) & 0x7f;
+
+Kevin
