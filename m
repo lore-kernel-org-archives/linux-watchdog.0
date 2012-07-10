@@ -1,42 +1,38 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from gate.crashing.org ([63.228.1.57]:46106 "EHLO gate.crashing.org"
+Received: from gate.crashing.org ([63.228.1.57]:55268 "EHLO gate.crashing.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752195Ab2GJLlk (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 10 Jul 2012 07:41:40 -0400
+	id S1752679Ab2GJMYL (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 10 Jul 2012 08:24:11 -0400
 Subject: Re: [PATCH 2/2][v2] powerpc/watchdog: replace CONFIG_FSL_BOOKE with CONFIG_PPC_FSL_BOOK3E
 Mime-Version: 1.0 (Apple Message framework v1278)
 Content-Type: text/plain; charset=us-ascii
 From: Kumar Gala <galak@kernel.crashing.org>
-In-Reply-To: <AFA5C641-783C-4B61-ACCF-6A776BF75B24@kernel.crashing.org>
-Date: Tue, 10 Jul 2012 06:41:32 -0500
-Cc: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>
+In-Reply-To: <1336714420-2394-1-git-send-email-Shaohui.Xie@freescale.com>
+Date: Tue, 10 Jul 2012 07:24:01 -0500
+Cc: <linux-watchdog@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>
 Content-Transfer-Encoding: 7bit
-Message-Id: <20BD2018-DAEA-4FBD-AC79-B5C1FC10DE92@kernel.crashing.org>
-References: <1336714420-2394-1-git-send-email-Shaohui.Xie@freescale.com> <ED492CCEAF882048BC2237DE806547C9079802C6@039-SN2MPN1-013.039d.mgd.msft.net> <AFA5C641-783C-4B61-ACCF-6A776BF75B24@kernel.crashing.org>
-To: Xie Shaohui-B21989 <B21989@freescale.com>
+Message-Id: <811A0EE0-6D65-4903-83E6-3F13E35889A3@kernel.crashing.org>
+References: <1336714420-2394-1-git-send-email-Shaohui.Xie@freescale.com>
+To: Shaohui Xie <Shaohui.Xie@freescale.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 
-On Jul 10, 2012, at 6:40 AM, Kumar Gala wrote:
+On May 11, 2012, at 12:33 AM, Shaohui Xie wrote:
 
+> CONFIG_FSL_BOOKE is only defined in 32-bit, CONFIG_PPC_FSL_BOOK3E is
+> defined in both 32-bit and 64-bit, so use CONFIG_PPC_FSL_BOOK3E to make
+> driver work in 32-bit & 64-bit.
 > 
-> On Jul 10, 2012, at 5:22 AM, Xie Shaohui-B21989 wrote:
+> Signed-off-by: Shaohui Xie <Shaohui.Xie@freescale.com>
+> ---
+> changes for v2:
+> use PPC_FSL_BOOK3E instead of FSL_SOC_BOOKE.
 > 
->> Hi, All,
->> 
->> Is there any concern for this patch, it's been a long time.
->> Thanks!
->> 
->> 
->> Best Regards, 
->> Shaohui Xie 
-> 
-> As commented, we should use PPC_FSL_BOOK3E, not CONFIG_PPC_FSL_BOOK3E.
-> 
-> - k
+> drivers/watchdog/Kconfig     |    8 ++++----
+> drivers/watchdog/booke_wdt.c |    4 ++--
+> 2 files changed, 6 insertions(+), 6 deletions(-)
 
-Sorry, was looking at the older version of this patch.
+applied to next
 
 - k
