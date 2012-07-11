@@ -1,146 +1,109 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.windriver.com ([147.11.1.11]:56013 "EHLO
-	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752523Ab2GKIKl (ORCPT
+Received: from co1ehsobe001.messaging.microsoft.com ([216.32.180.184]:40260
+	"EHLO co1outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1757120Ab2GKKcT (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 11 Jul 2012 04:10:41 -0400
-Message-ID: <4FFD34E4.7060505@windriver.com>
-Date: Wed, 11 Jul 2012 16:10:12 +0800
-From: Zumeng Chen <zumeng.chen@windriver.com>
+	Wed, 11 Jul 2012 06:32:19 -0400
+From: Shaohui Xie <Shaohui.Xie@freescale.com>
+To: <linux-watchdog@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>
+CC: Shaohui Xie <Shaohui.Xie@freescale.com>
+Subject: [PATCH][v2] powerpc/watchdog: move booke watchdog param related code to setup-common.c
+Date: Wed, 11 Jul 2012 17:56:08 +0800
+Message-ID: <1342000568-5605-1-git-send-email-Shaohui.Xie@freescale.com>
 MIME-Version: 1.0
-To: <shubhrajyoti@ti.com>, <hvaibhav@ti.com>, <wim@iguana.be>,
-	"Hilman, Kevin" <khilman@ti.com>
-CC: <linux-watchdog@vger.kernel.org>, <linux-omap@vger.kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>,
-	<paul.gortmaker@windriver.com>, <tony@atomide.com>
-Subject: Re: [PATCH v2 RESEND 0/3] Watchdog: OMAP: bootstatus fix for omap3
- and changes for the current watchdog framework
-References: <1341819328-3514-1-git-send-email-zumeng.chen@windriver.com> <4FFBACE4.80901@windriver.com>
-In-Reply-To: <4FFBACE4.80901@windriver.com>
-Content-Type: text/plain; charset="GB2312"
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-The same case works well on am335xevm but with a new patch in
-mach-omap2/prcm.c
+Currently, BOOKE watchdog code for checking "wdt" and "wdt_period" is
+in setup_32.c, it cannot be used in 64-bit, so move it to a common place
+setup-common.c, which will be shared by 32-bit and 64-bit.
 
-I'll send it later.
+Also, replace the simple_strtoul with kstrtol.
 
-root@ti-omap3:~# uname -a
-Linux ti-omap3 3.4.3-00635-g82d1d26-dirty #32 Wed Jul 11 16:02:12 CST
-2012 armv7l GNU/Linux
-root@ti-omap3:~# dmesg|grep WDT
-[ 1.921173] omap_wdt: OMAP WDTimer Rev 0x01: Initial timeout 0sec
-status=3D 0x1
-root@ti-omap3:~# ./a.out -i 20; for i in `seq 1 20`; do echo $i ; sleep
-1;done
-Set watchdog interval to 20
-Current watchdog interval is 20
-Last boot is caused by : Watchdog
-Use:
-<w> to kick through writing over device file
-<i> to kick through IOCTL
-<x> to exit the program
-x
+Signed-off-by: Shaohui Xie <Shaohui.Xie@freescale.com>
+---
+changes for v2:
+use setup-common.c instead of prom.c
 
-1
-2
-[snip]
-U-Boot SPL 2011.09 (Feb 09 2012 - 15:38:59)
-Texas Instruments Revision detection unimplemented
+ arch/powerpc/kernel/setup-common.c |   27 +++++++++++++++++++++++++++
+ arch/powerpc/kernel/setup_32.c     |   24 ------------------------
+ 2 files changed, 27 insertions(+), 24 deletions(-)
+
+diff --git a/arch/powerpc/kernel/setup-common.c b/arch/powerpc/kernel/setup-common.c
+index afd4f05..bdc499c 100644
+--- a/arch/powerpc/kernel/setup-common.c
++++ b/arch/powerpc/kernel/setup-common.c
+@@ -720,6 +720,33 @@ static int powerpc_debugfs_init(void)
+ arch_initcall(powerpc_debugfs_init);
+ #endif
+ 
++#ifdef CONFIG_BOOKE_WDT
++extern u32 booke_wdt_enabled;
++extern u32 booke_wdt_period;
++
++/* Checks wdt=x and wdt_period=xx command-line option */
++notrace int __init early_parse_wdt(char *p)
++{
++	if (p && strncmp(p, "0", 1) != 0)
++		booke_wdt_enabled = 1;
++
++	return 0;
++}
++early_param("wdt", early_parse_wdt);
++
++int __init early_parse_wdt_period(char *p)
++{
++	unsigned long ret;
++	if (p) {
++		if (!kstrtol(p, 0, &ret))
++			booke_wdt_period = ret;
++	}
++
++	return 0;
++}
++early_param("wdt_period", early_parse_wdt_period);
++#endif	/* CONFIG_BOOKE_WDT */
++
+ void ppc_printk_progress(char *s, unsigned short hex)
+ {
+ 	pr_info("%s\n", s);
+diff --git a/arch/powerpc/kernel/setup_32.c b/arch/powerpc/kernel/setup_32.c
+index ec8a53f..a8f54ec 100644
+--- a/arch/powerpc/kernel/setup_32.c
++++ b/arch/powerpc/kernel/setup_32.c
+@@ -149,30 +149,6 @@ notrace void __init machine_init(u64 dt_ptr)
+ 		ppc_md.progress("id mach(): done", 0x200);
+ }
+ 
+-#ifdef CONFIG_BOOKE_WDT
+-extern u32 booke_wdt_enabled;
+-extern u32 booke_wdt_period;
+-
+-/* Checks wdt=x and wdt_period=xx command-line option */
+-notrace int __init early_parse_wdt(char *p)
+-{
+-	if (p && strncmp(p, "0", 1) != 0)
+-	       booke_wdt_enabled = 1;
+-
+-	return 0;
+-}
+-early_param("wdt", early_parse_wdt);
+-
+-int __init early_parse_wdt_period (char *p)
+-{
+-	if (p)
+-		booke_wdt_period = simple_strtoul(p, NULL, 0);
+-
+-	return 0;
+-}
+-early_param("wdt_period", early_parse_wdt_period);
+-#endif	/* CONFIG_BOOKE_WDT */
+-
+ /* Checks "l2cr=xxxx" command-line option */
+ int __init ppc_setup_l2cr(char *str)
+ {
+-- 
+1.6.4
 
 
-U-Boot 2011.09 (Feb 09 2012 - 15:11:31)
-
-I2C: ready
-DRAM: 256 MiB
-WARNING: Caches not enabled
-Found a daughter card connected
-NAND: HW ECC Hamming Code selected
-256 MiB
-MMC: OMAP SD/MMC: 0
-Net: cpsw
-Hit any key to stop autoboot: 0
-U-Boot#
-
-Regards,
-Zumeng
-
-=D3=DA 2012=C4=EA07=D4=C210=C8=D5 12:17, Zumeng Chen =D0=B4=B5=C0:
-> =D3=DA 2012=C4=EA07=D4=C209=C8=D5 15:35, Zumeng Chen =D0=B4=B5=C0:
->> Hello,
->>
->> The following patches based on the 3.5-rc6 from Wim, which
->> focus on:
->>
->> 1 ) bootstatus fix for omap3,
->>
->> 2 ) omap-wdt framework update cater for the current framework
->>     as Shubhrajyoti comments mentioned.
-> I compiled a test case from the following website,
-> http://www.lpclinux.com/Blogs/Testing_LPC313x_Linux_Watchdog_Driver
->
-> It works well.
->
-> root@ti-omap3:/tmp# ./a.out -h
-> Usage: ./a.out [options]
-> -h --help Display this usage information.
-> -d --dev <device_file> Use <device_file> as watchdog device file.
-> The default device file is '/dev/watchdog'
-> -i --interval <interval> Change the watchdog interval time
-> root@ti-omap3:/tmp# ./a.out -i 40;
-> Set watchdog interval to 40
-> Current watchdog interval is 40
-> Last boot is caused by : Watchdog
-> Use:
-> <w> to kick through writing over device file
-> <i> to kick through IOCTL
-> <x> to exit the program
-> x
-> Goodbye !
-> watchdog: Omap Watchdog: nowayout prevents watchdog to be stopped!
-> watchdog: Omap Watchdog: watchdog did not stop!
-> root@ti-omap3:/tmp# for i in `seq 1 30`; do echo $i; sleep 1;done
-> 1
-> 2
->
-> [snip]
->
-> I built NOWAYOUT in driver, so it doesn't stop, still going until the
-> following
-> information:
->
-> Texas Instruments X-Loader 1.42
-> Starting OS Bootloader...
-> No OOB scheme defined for oobsize 0
-> OneNAND: 0 kB
-> 256 MiB
->
-> Regards,
-> Zumeng
->> Regards,
->>
->> Zumeng Chen (3):
->>   Watchdog: Omap: Changes for the new watchdog framework
->>   Watchdog: Omap: select watchdog core for framework change
->>   Watchdog: Omap: get the bootstatus for OMAP2Plus
->>
->>  arch/arm/mach-omap2/prcm.c  |    5 +-
->>  drivers/watchdog/Kconfig    |    1 +
->>  drivers/watchdog/omap_wdt.c |  342 ++++++++++++++++------------------=
----------
->>  drivers/watchdog/omap_wdt.h |    5 +
->>  4 files changed, 133 insertions(+), 220 deletions(-)
->>
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
-n
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
