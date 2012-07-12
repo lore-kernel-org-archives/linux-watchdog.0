@@ -1,40 +1,56 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from gate.crashing.org ([63.228.1.57]:53183 "EHLO gate.crashing.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753901Ab2GKM5i (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 11 Jul 2012 08:57:38 -0400
-Subject: Re: [PATCH][v2] powerpc/watchdog: move booke watchdog param related code to setup-common.c
-Mime-Version: 1.0 (Apple Message framework v1278)
-Content-Type: text/plain; charset=us-ascii
-From: Kumar Gala <galak@kernel.crashing.org>
-In-Reply-To: <1342000568-5605-1-git-send-email-Shaohui.Xie@freescale.com>
-Date: Wed, 11 Jul 2012 07:57:30 -0500
-Cc: <linux-watchdog@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>
-Content-Transfer-Encoding: 7bit
-Message-Id: <60904FE9-978C-494A-8C9F-B4318B4FB46D@kernel.crashing.org>
-References: <1342000568-5605-1-git-send-email-Shaohui.Xie@freescale.com>
-To: Shaohui Xie <Shaohui.Xie@freescale.com>
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:53094 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752621Ab2GLLsF (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 12 Jul 2012 07:48:05 -0400
+Received: by yenl2 with SMTP id l2so2275655yen.19
+        for <linux-watchdog@vger.kernel.org>; Thu, 12 Jul 2012 04:48:03 -0700 (PDT)
+From: Sachin Kamat <sachin.kamat@linaro.org>
+To: linux-watchdog@vger.kernel.org
+Cc: wim@iguana.be, ben-linux@fluff.org, sachin.kamat@linaro.org,
+	patches@linaro.org
+Subject: [PATCH] watchdog: s3c2410_wdt: Use module_platform_driver()
+Date: Thu, 12 Jul 2012 17:17:40 +0530
+Message-Id: <1342093660-19735-1-git-send-email-sachin.kamat@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+module_platform_driver() replaces module_init() and module_exit()
+and makes the code simpler.
 
-On Jul 11, 2012, at 4:56 AM, Shaohui Xie wrote:
+Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+---
+ drivers/watchdog/s3c2410_wdt.c |   16 +---------------
+ 1 files changed, 1 insertions(+), 15 deletions(-)
 
-> Currently, BOOKE watchdog code for checking "wdt" and "wdt_period" is
-> in setup_32.c, it cannot be used in 64-bit, so move it to a common place
-> setup-common.c, which will be shared by 32-bit and 64-bit.
-> 
-> Also, replace the simple_strtoul with kstrtol.
-> 
-> Signed-off-by: Shaohui Xie <Shaohui.Xie@freescale.com>
-> ---
-> changes for v2:
-> use setup-common.c instead of prom.c
-> 
-> arch/powerpc/kernel/setup-common.c |   27 +++++++++++++++++++++++++++
-> arch/powerpc/kernel/setup_32.c     |   24 ------------------------
-> 2 files changed, 27 insertions(+), 24 deletions(-)
+diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+index 200ece5..9245b4d 100644
+--- a/drivers/watchdog/s3c2410_wdt.c
++++ b/drivers/watchdog/s3c2410_wdt.c
+@@ -519,21 +519,7 @@ static struct platform_driver s3c2410wdt_driver = {
+ 	},
+ };
+ 
+-
+-static int __init watchdog_init(void)
+-{
+-	pr_info("S3C2410 Watchdog Timer, (c) 2004 Simtec Electronics\n");
+-
+-	return platform_driver_register(&s3c2410wdt_driver);
+-}
+-
+-static void __exit watchdog_exit(void)
+-{
+-	platform_driver_unregister(&s3c2410wdt_driver);
+-}
+-
+-module_init(watchdog_init);
+-module_exit(watchdog_exit);
++module_platform_driver(s3c2410wdt_driver);
+ 
+ MODULE_AUTHOR("Ben Dooks <ben@simtec.co.uk>, "
+ 	      "Dimitry Andric <dimitry.andric@tomtom.com>");
+-- 
+1.7.4.1
 
-applied to next
-
-- k
