@@ -1,56 +1,55 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:53094 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752621Ab2GLLsF (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:58708 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932285Ab2GLRll (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 12 Jul 2012 07:48:05 -0400
-Received: by yenl2 with SMTP id l2so2275655yen.19
-        for <linux-watchdog@vger.kernel.org>; Thu, 12 Jul 2012 04:48:03 -0700 (PDT)
-From: Sachin Kamat <sachin.kamat@linaro.org>
-To: linux-watchdog@vger.kernel.org
-Cc: wim@iguana.be, ben-linux@fluff.org, sachin.kamat@linaro.org,
-	patches@linaro.org
-Subject: [PATCH] watchdog: s3c2410_wdt: Use module_platform_driver()
-Date: Thu, 12 Jul 2012 17:17:40 +0530
-Message-Id: <1342093660-19735-1-git-send-email-sachin.kamat@linaro.org>
+	Thu, 12 Jul 2012 13:41:41 -0400
+Date: Thu, 12 Jul 2012 19:40:57 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Axel Lin <axel.lin@gmail.com>
+Cc: linux-kernel@vger.kernel.org,
+	Sylver Bruneau <sylver.bruneau@googlemail.com>,
+	linux-watchdog@vger.kernel.org,
+	Jason Cooper <jason@lakedaemon.net>,
+	Jamie Lentin <jm@lentin.co.uk>, AndrewLunn <andrew@lunn.ch>,
+	Mike Turquette <mturquette@linaro.org>
+Subject: Re: [PATCH RFT] watchdog: Convert orion_wdt driver to watchdog core
+Message-ID: <20120712174057.GG735@spo001.leaseweb.com>
+References: <1339744964.20824.5.camel@phoenix> <20120618140101.GP4799@lunn.ch> <1341984796.4158.2.camel@phoenix>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <1341984796.4158.2.camel@phoenix>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-module_platform_driver() replaces module_init() and module_exit()
-and makes the code simpler.
+Hi Axel,
 
-Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
----
- drivers/watchdog/s3c2410_wdt.c |   16 +---------------
- 1 files changed, 1 insertions(+), 15 deletions(-)
+> =E6=96=BC =E4=B8=80=EF=BC=8C2012-06-18 =E6=96=BC 16:01 +0200=EF=BC=8CAn=
+drew Lunn =E6=8F=90=E5=88=B0=EF=BC=9A
+> > On Fri, Jun 15, 2012 at 03:22:44PM +0800, Axel Lin wrote:
+> > > Convert the orion_wdt driver to the watchdog framework API.
+> > >=20
+> > > Signed-off-by: Axel Lin <axel.lin@gmail.com>
+> >=20
+> > Hi Axel
+> >=20
+> > Tested-by: Andrew Lunn <andrew@lunn.ch>
+>=20
+> Hi Wim,
+> This patch has been tested by Andrew Lunn.
+> I notice you have not (yet) picked up this patch.
+> Any comments?
 
-diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
-index 200ece5..9245b4d 100644
---- a/drivers/watchdog/s3c2410_wdt.c
-+++ b/drivers/watchdog/s3c2410_wdt.c
-@@ -519,21 +519,7 @@ static struct platform_driver s3c2410wdt_driver = {
- 	},
- };
- 
--
--static int __init watchdog_init(void)
--{
--	pr_info("S3C2410 Watchdog Timer, (c) 2004 Simtec Electronics\n");
--
--	return platform_driver_register(&s3c2410wdt_driver);
--}
--
--static void __exit watchdog_exit(void)
--{
--	platform_driver_unregister(&s3c2410wdt_driver);
--}
--
--module_init(watchdog_init);
--module_exit(watchdog_exit);
-+module_platform_driver(s3c2410wdt_driver);
- 
- MODULE_AUTHOR("Ben Dooks <ben@simtec.co.uk>, "
- 	      "Dimitry Andric <dimitry.andric@tomtom.com>");
--- 
-1.7.4.1
+Added into linux-watchdog-next (after removing the addition of a double #=
+include <linux/watchdog.h> line).
 
+Kind regards,
+Wim.
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
