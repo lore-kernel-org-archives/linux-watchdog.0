@@ -1,58 +1,57 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.windriver.com ([147.11.1.11]:61758 "EHLO
-	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751123Ab2GOHTv (ORCPT
+Received: from mail1.windriver.com ([147.11.146.13]:61365 "EHLO
+	mail1.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751060Ab2GOHol (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 15 Jul 2012 03:19:51 -0400
+	Sun, 15 Jul 2012 03:44:41 -0400
 From: Zumeng Chen <zumeng.chen@windriver.com>
 To: <khilman@ti.com>, <shubhrajyoti@ti.com>,
 	<linux-watchdog@vger.kernel.org>, <hvaibhav@ti.com>
 CC: <wim@iguana.be>, <linux-omap@vger.kernel.org>, <tony@atomide.com>,
-	<paul.gortmaker@windriver.com>
-Subject: [PATCH v3 3/3] Watchdog: Omap: get the bootstatus for OMAP34xx
-Date: Sun, 15 Jul 2012 15:19:32 +0800
-Message-ID: <1342336772-29020-4-git-send-email-zumeng.chen@windriver.com>
-In-Reply-To: <1342336772-29020-1-git-send-email-zumeng.chen@windriver.com>
-References: <1342336772-29020-1-git-send-email-zumeng.chen@windriver.com>
+	<paul.gortmaker@windriver.com>,
+	<linux-arm-kernel@lists.infradead.org>
+Subject: [PATCH RESEND V3 0/3] Watchdog: OMAP3: bootstatus fix and changes for the current watchdog framework
+Date: Sun, 15 Jul 2012 15:44:03 +0800
+Message-ID: <1342338246-29101-1-git-send-email-zumeng.chen@windriver.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The offset of WKUP_MOD is not right for the PRM_RSTST of OMAP3. So here
-put the right one to match to the actual physical addr 0x48307258, which
-defined in PRCM Registers section named as Global_Reg_PRM.
+Hello,
 
-And there is a MPU_WD_RST bit in PRM_RSTST(0x48307258) holding the signal
-from omap-wdt reboot, so that we can return WDIOF_CARDRESET if the board
-wakes up from omap-wdt reboot for WDIOC_GETBOOTSTATUS ioctl.
+The following patches based on the 3.5-rc6 from Wim, which
+focus on:
 
-Signed-off-by: Zumeng Chen <zumeng.chen@windriver.com>
----
- arch/arm/mach-omap2/prcm.c |    9 +++++++--
- 1 files changed, 7 insertions(+), 2 deletions(-)
+1. bootstatus fix for omap3,
 
-diff --git a/arch/arm/mach-omap2/prcm.c b/arch/arm/mach-omap2/prcm.c
-index 480f40a..3ca8aa7 100644
---- a/arch/arm/mach-omap2/prcm.c
-+++ b/arch/arm/mach-omap2/prcm.c
-@@ -48,9 +48,14 @@ void __iomem *prcm_mpu_base;
- 
- u32 omap_prcm_get_reset_sources(void)
- {
--	/* XXX This presumably needs modification for 34XX */
--	if (cpu_is_omap24xx() || cpu_is_omap34xx())
-+	if (cpu_is_omap24xx())
- 		return omap2_prm_read_mod_reg(WKUP_MOD, OMAP2_RM_RSTST) & 0x7f;
-+
-+	/* XXX This presumably needs modification for AM33XX when ready. */
-+	if (cpu_is_omap34xx())
-+		return omap2_prm_read_mod_reg(OMAP3430_GR_MOD, OMAP2_RM_RSTST) &
-+		       0x7f;
-+
- 	if (cpu_is_omap44xx())
- 		return omap2_prm_read_mod_reg(WKUP_MOD, OMAP4_RM_RSTST) & 0x7f;
- 
+2. omap-wdt framework update cater for the current framework
+   as Shubhrajyoti comments mentioned.
+
+V3 changes:
+
+1. New comments updated as Kevin mentioned in the third patch;
+2. 3530evm works well,
+   AM33xx seems work well with the following changes:
+	+   if (cpu_is_am335x())
+	+       return omap2_prm_read_mod_reg(AM33XX_PRM_DEVICE_MOD,
+	+           AM33XX_PRM_RSTST_OFFSET) & 0x7f;
+   But since some definitions not ready for am33xx, so I don't
+   give the patch, if they have been updated, feel free to take these. 
+
+Regards,
+
+Zumeng Chen (3):
+  Watchdog: Omap: Changes for the new watchdog framework
+  Watchdog: Omap: select watchdog core for framework change
+  Watchdog: Omap: get the bootstatus for OMAP34xx
+
+ arch/arm/mach-omap2/prcm.c  |    9 +-
+ drivers/watchdog/Kconfig    |    1 +
+ drivers/watchdog/omap_wdt.c |  342 ++++++++++++++++---------------------------
+ drivers/watchdog/omap_wdt.h |    5 +
+ 4 files changed, 136 insertions(+), 221 deletions(-)
+
 -- 
 1.7.5.4
 
