@@ -1,33 +1,56 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:58714 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1161455Ab2GLRnJ (ORCPT
+Received: from mail.windriver.com ([147.11.1.11]:61752 "EHLO
+	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751123Ab2GOHTo (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 12 Jul 2012 13:43:09 -0400
-Date: Thu, 12 Jul 2012 19:43:07 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Sachin Kamat <sachin.kamat@linaro.org>
-Cc: linux-watchdog@vger.kernel.org, ben-linux@fluff.org,
-	patches@linaro.org
-Subject: Re: [PATCH] watchdog: s3c2410_wdt: Use module_platform_driver()
-Message-ID: <20120712174307.GH735@spo001.leaseweb.com>
-References: <1342093660-19735-1-git-send-email-sachin.kamat@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1342093660-19735-1-git-send-email-sachin.kamat@linaro.org>
+	Sun, 15 Jul 2012 03:19:44 -0400
+From: Zumeng Chen <zumeng.chen@windriver.com>
+To: <khilman@ti.com>, <shubhrajyoti@ti.com>,
+	<linux-watchdog@vger.kernel.org>, <hvaibhav@ti.com>
+CC: <wim@iguana.be>, <linux-omap@vger.kernel.org>, <tony@atomide.com>,
+	<paul.gortmaker@windriver.com>
+Subject: [PATCH V3 0/3] Watchdog: OMAP3: bootstatus fix and changes for the current watchdog framework
+Date: Sun, 15 Jul 2012 15:19:29 +0800
+Message-ID: <1342336772-29020-1-git-send-email-zumeng.chen@windriver.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Sachin,
+Hello,
 
-> module_platform_driver() replaces module_init() and module_exit()
-> and makes the code simpler.
-> 
-> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+The following patches based on the 3.5-rc6 from Wim, which
+focus on:
 
-Added to linux-watchdog-next.
+1. bootstatus fix for omap3,
 
-Kind regards,
-Wim.
+2. omap-wdt framework update cater for the current framework
+   as Shubhrajyoti comments mentioned.
+
+V3 changes:
+
+1. New comments updated as Kevin mentioned in the third patch;
+2. 3530evm works well,
+   AM33xx seems work well with the following changes:
+	+   if (cpu_is_am335x())
+	+       return omap2_prm_read_mod_reg(AM33XX_PRM_DEVICE_MOD,
+	+           AM33XX_PRM_RSTST_OFFSET) & 0x7f;
+   But since some definitions not ready for am33xx, so I don't
+   give the patch, if they have been updated, feel free to take these. 
+
+Regards,
+
+Zumeng Chen (3):
+  Watchdog: Omap: Changes for the new watchdog framework
+  Watchdog: Omap: select watchdog core for framework change
+  Watchdog: Omap: get the bootstatus for OMAP34xx
+
+ arch/arm/mach-omap2/prcm.c  |    9 +-
+ drivers/watchdog/Kconfig    |    1 +
+ drivers/watchdog/omap_wdt.c |  342 ++++++++++++++++---------------------------
+ drivers/watchdog/omap_wdt.h |    5 +
+ 4 files changed, 136 insertions(+), 221 deletions(-)
+
+-- 
+1.7.5.4
 
