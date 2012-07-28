@@ -1,51 +1,41 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qc0-f174.google.com ([209.85.216.174]:47433 "EHLO
-	mail-qc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753164Ab2G0D5g (ORCPT
+Received: from mail-ob0-f174.google.com ([209.85.214.174]:55118 "EHLO
+	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752322Ab2G1Tfr (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 26 Jul 2012 23:57:36 -0400
-Received: by qcro28 with SMTP id o28so1652672qcr.19
-        for <linux-watchdog@vger.kernel.org>; Thu, 26 Jul 2012 20:57:35 -0700 (PDT)
+	Sat, 28 Jul 2012 15:35:47 -0400
+Received: by obbuo13 with SMTP id uo13so6268487obb.19
+        for <linux-watchdog@vger.kernel.org>; Sat, 28 Jul 2012 12:35:46 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1343361129-8802-1-git-send-email-dev@snitselaar.org>
-References: <1343361129-8802-1-git-send-email-dev@snitselaar.org>
-Date: Thu, 26 Jul 2012 20:57:35 -0700
-Message-ID: <CA+30oubMM0AVqH2PP+3mDcwjPMR9OXxUTdBcE5bRNCv8C6TPfw@mail.gmail.com>
-Subject: Re: [PATCH] watchdog: watchdog-test: make term() static
-From: Jerry Snitselaar <dev@snitselaar.org>
-To: linux-kernel@vger.kernel.org
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org
+In-Reply-To: <1341264782-19098-1-git-send-email-festevam@gmail.com>
+References: <1341264782-19098-1-git-send-email-festevam@gmail.com>
+Date: Sat, 28 Jul 2012 16:35:46 -0300
+Message-ID: <CAOMZO5DiV8io9v2v=6L9zpEY1M+Df3UZGYmSdTofq0FoxVe14Q@mail.gmail.com>
+Subject: Re: [PATCH] watchdog: imx2_wdt: Select the driver via ARCH_MXC
+From: Fabio Estevam <festevam@gmail.com>
+To: wim@iguana.be
+Cc: shawn.guo@linaro.org, kernel@pengutronix.de,
+	linux-watchdog@vger.kernel.org,
+	Fabio Estevam <fabio.estevam@freescale.com>
 Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Jul 26, 2012 at 8:52 PM, Jerry Snitselaar <dev@snitselaar.org> wrote:
-> In 3.5 warning during build 'no previous prototype for term'. Since it
-> is only used in watchdog-test.c make term() static.
+On Mon, Jul 2, 2012 at 6:33 PM, Fabio Estevam <festevam@gmail.com> wrote:
+> From: Fabio Estevam <fabio.estevam@freescale.com>
 >
-> Signed-off-by: Jerry Snitselaar <dev@snitselaar.org>
-> ---
->  Documentation/watchdog/src/watchdog-test.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> With device tree support in place, we should not use IMX_HAVE_PLATFORM_IMX2_WDT
+> as a dependency for selecting the imx2_wdt driver.
 >
-> diff --git a/Documentation/watchdog/src/watchdog-test.c b/Documentation/watchdog/src/watchdog-test.c
-> index 73ff5cc..3da8229 100644
-> --- a/Documentation/watchdog/src/watchdog-test.c
-> +++ b/Documentation/watchdog/src/watchdog-test.c
-> @@ -31,7 +31,7 @@ static void keep_alive(void)
->   * or "-e" to enable the card.
->   */
+> Use ARCH_MXC symbol instead, so that the driver can be even selected by a device-tree
+> only SoC, such as i.MX6.
 >
-> -void term(int sig)
-> +static void term(int sig)
->  {
->      close(fd);
->      fprintf(stderr, "Stopping watchdog ticks...\n");
-> --
-> 1.7.12.rc0
->
+> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
 
-Disregard this patch. I didn't see Randy's patch when I did a search
-in my email.
+Sascha/Shawn,
 
-Jerry
+Any comments?
+
+Regards,
+
+Fabio Estevam
