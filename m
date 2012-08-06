@@ -1,66 +1,50 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from gate.crashing.org ([63.228.1.57]:49042 "EHLO gate.crashing.org"
+Received: from mx1.redhat.com ([209.132.183.28]:58000 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756228Ab2HFQOI (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 6 Aug 2012 12:14:08 -0400
-Subject: Re: [PATCH 1/1] booke/wdt: fix incorrect WDIOC_GETSUPPORT return path
-Mime-Version: 1.0 (Apple Message framework v1278)
+	id S1752170Ab2HFQZK (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 6 Aug 2012 12:25:10 -0400
+Date: Mon, 6 Aug 2012 12:25:03 -0400
+From: David Teigland <teigland@redhat.com>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: wim@iguana.be, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] watchdog: new option to skip ping in close
+Message-ID: <20120806162503.GA21740@redhat.com>
+References: <20120803174027.GB15192@redhat.com>
+ <501CE688.8070509@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-From: Kumar Gala <galak@kernel.crashing.org>
-In-Reply-To: <501F35C2.6090005@windriver.com>
-Date: Mon, 6 Aug 2012 11:13:55 -0500
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	"linuxppc-dev@ozlabs.org list" <linuxppc-dev@ozlabs.org>,
-	linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-Message-Id: <39951099-55A1-401C-BCA3-5D3E8F731651@kernel.crashing.org>
-References: <1343636122-23273-1-git-send-email-tiejun.chen@windriver.com> <501F35C2.6090005@windriver.com>
-To: "tiejun.chen" <tiejun.chen@windriver.com>,
-	Timur Tabi <timur@freescale.com>
+Content-Disposition: inline
+In-Reply-To: <501CE688.8070509@redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-
-On Aug 5, 2012, at 10:10 PM, tiejun.chen wrote:
-
-> On 07/30/2012 04:15 PM, Tiejun Chen wrote:
->> We miss that correct WDIOC_GETSUPPORT return path when perform
->> copy_to_user() properly.
+On Sat, Aug 04, 2012 at 11:08:24AM +0200, Hans de Goede wrote:
+> Why on earth are you putting that if block there and not simply putting
+> the command in the switch-case where it belongs? If you were afraid watchdog_ioctl_op
+> could cause issues, then maybe you should have studied the code?
 > 
-> Any comments?
+> That would have thought you that it will always return -ENOIOCTLCMD for commands it
+> does not know how to handle, so it won't interfere with adding new standard commands.
 > 
-> Thanks
-> Tiejun
+> Adding this if block there is completely unnecessary and quite ugly IMHO.
 
-Adding Timur, as he's touched watchdog last.
+It is ugly, but it's also necessary for a couple reasons that you may have
+missed at first glance.  First, this ioctl is addressing behavior that
+exists in the common framework layer, not in individual drivers, so it
+doesn't make too much sense to pass down to the drivers.
 
-- k
+That being said, we could do so if ENOIOCTLCMD worked as you suggest, but
+it doesn't quite.  Drivers with an ioctl op will return ENOTTY, in which
+case the switch statement would work, but drivers with no ioctl op (e.g.
+softdog) cause watchdog_ioctl_op to return ENOIOCTLCMD, causing the switch
+statement to be skipped.
 
->> Signed-off-by: Tiejun Chen <tiejun.chen@windriver.com>
->> ---
->> drivers/watchdog/booke_wdt.c |    7 ++++---
->> 1 files changed, 4 insertions(+), 3 deletions(-)
->> 
->> diff --git a/drivers/watchdog/booke_wdt.c b/drivers/watchdog/booke_wdt.c
->> index 3fe82d0..2be7f29 100644
->> --- a/drivers/watchdog/booke_wdt.c
->> +++ b/drivers/watchdog/booke_wdt.c
->> @@ -162,12 +162,13 @@ static long booke_wdt_ioctl(struct file *file,
->> 				unsigned int cmd, unsigned long arg)
->> {
->> 	u32 tmp = 0;
->> -	u32 __user *p = (u32 __user *)arg;
->> +	void __user *argp = (u32 __user *)arg;
->> +	u32 __user *p = argp;
->> 
->> 	switch (cmd) {
->> 	case WDIOC_GETSUPPORT:
->> -		if (copy_to_user((void *)arg, &ident, sizeof(ident)))
->> -			return -EFAULT;
->> +		return copy_to_user(argp, &ident,
->> +				sizeof(ident)) ? -EFAULT : 0;
->> 	case WDIOC_GETSTATUS:
->> 		return put_user(0, p);
->> 	case WDIOC_GETBOOTSTATUS:
->> 
+In the end, we need WDIOC_NOCLOSEPING to be processed by the core,
+independent of what drivers do, since as I explained this is targeting the
+behavior of the core framework, not the drivers.
+
+For those reasons, I placed the code where it is, but I would be satisfied
+with a different approach that also works.
+
+Dave
 
