@@ -1,50 +1,55 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:58000 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752170Ab2HFQZK (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 6 Aug 2012 12:25:10 -0400
-Date: Mon, 6 Aug 2012 12:25:03 -0400
-From: David Teigland <teigland@redhat.com>
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: new option to skip ping in close
-Message-ID: <20120806162503.GA21740@redhat.com>
-References: <20120803174027.GB15192@redhat.com>
- <501CE688.8070509@redhat.com>
+Received: from [213.199.154.205] ([213.199.154.205]:40794 "EHLO
+	am1outboundpool.messaging.microsoft.com" rhost-flags-FAIL-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S1757061Ab2HFX2e convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 6 Aug 2012 19:28:34 -0400
+From: Tabi Timur-B04825 <B04825@freescale.com>
+To: Tiejun Chen <tiejun.chen@windriver.com>
+CC: "benh@kernel.crashing.org" <benh@kernel.crashing.org>,
+	"galak@kernel.crashing.org" <galak@kernel.crashing.org>,
+	"linuxppc-dev@ozlabs.org" <linuxppc-dev@ozlabs.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+Subject: Re: [PATCH 1/1] booke/wdt: fix incorrect WDIOC_GETSUPPORT return
+ path
+Date: Mon, 6 Aug 2012 23:27:18 +0000
+Message-ID: <CAOZdJXWftkUSw57-Qbe9JFP9NwodkHprKr6_1xi6ZzzLN8A4wA@mail.gmail.com>
+References: <1343636122-23273-1-git-send-email-tiejun.chen@windriver.com>
+In-Reply-To: <1343636122-23273-1-git-send-email-tiejun.chen@windriver.com>
+Content-Language: en-US
+Content-Type: text/plain; charset=US-ASCII
+Content-ID: <73B6686F3E30E942812D5875B7D5542C@mgd.freescale.com>
+Content-Transfer-Encoding: 7BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <501CE688.8070509@redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sat, Aug 04, 2012 at 11:08:24AM +0200, Hans de Goede wrote:
-> Why on earth are you putting that if block there and not simply putting
-> the command in the switch-case where it belongs? If you were afraid watchdog_ioctl_op
-> could cause issues, then maybe you should have studied the code?
-> 
-> That would have thought you that it will always return -ENOIOCTLCMD for commands it
-> does not know how to handle, so it won't interfere with adding new standard commands.
-> 
-> Adding this if block there is completely unnecessary and quite ugly IMHO.
+On Mon, Jul 30, 2012 at 3:15 AM, Tiejun Chen <tiejun.chen@windriver.com> wrote:
+> We miss that correct WDIOC_GETSUPPORT return path when perform
+> copy_to_user() properly.
 
-It is ugly, but it's also necessary for a couple reasons that you may have
-missed at first glance.  First, this ioctl is addressing behavior that
-exists in the common framework layer, not in individual drivers, so it
-doesn't make too much sense to pass down to the drivers.
+Thanks for catching this.  I'm amazed that this driver still has bugs like this.
 
-That being said, we could do so if ENOIOCTLCMD worked as you suggest, but
-it doesn't quite.  Drivers with an ioctl op will return ENOTTY, in which
-case the switch statement would work, but drivers with no ioctl op (e.g.
-softdog) cause watchdog_ioctl_op to return ENOIOCTLCMD, causing the switch
-statement to be skipped.
+> diff --git a/drivers/watchdog/booke_wdt.c b/drivers/watchdog/booke_wdt.c
+> index 3fe82d0..2be7f29 100644
+> --- a/drivers/watchdog/booke_wdt.c
+> +++ b/drivers/watchdog/booke_wdt.c
+> @@ -162,12 +162,13 @@ static long booke_wdt_ioctl(struct file *file,
+>                                 unsigned int cmd, unsigned long arg)
+>  {
+>         u32 tmp = 0;
+> -       u32 __user *p = (u32 __user *)arg;
+> +       void __user *argp = (u32 __user *)arg;
+> +       u32 __user *p = argp;
 
-In the end, we need WDIOC_NOCLOSEPING to be processed by the core,
-independent of what drivers do, since as I explained this is targeting the
-behavior of the core framework, not the drivers.
+You don't need to create 'argp'.  The existing 'p' variable will work
+in the copy_to_user() call.
 
-For those reasons, I placed the code where it is, but I would be satisfied
-with a different approach that also works.
+> +               return copy_to_user(argp, &ident,
+> +                               sizeof(ident)) ? -EFAULT : 0;
 
-Dave
+This can fit in one line, especially if you use 'p' instead of 'argp'.
 
+-- 
+Timur Tabi
+Linux kernel developer at Freescale
