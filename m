@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from [213.199.154.205] ([213.199.154.205]:40794 "EHLO
-	am1outboundpool.messaging.microsoft.com" rhost-flags-FAIL-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S1757061Ab2HFX2e convert rfc822-to-8bit
+Received: from ch1ehsobe006.messaging.microsoft.com ([216.32.181.186]:47273
+	"EHLO ch1outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755636Ab2HFXgY convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 6 Aug 2012 19:28:34 -0400
+	Mon, 6 Aug 2012 19:36:24 -0400
 From: Tabi Timur-B04825 <B04825@freescale.com>
 To: Tiejun Chen <tiejun.chen@windriver.com>
 CC: "benh@kernel.crashing.org" <benh@kernel.crashing.org>,
@@ -12,43 +12,45 @@ CC: "benh@kernel.crashing.org" <benh@kernel.crashing.org>,
 	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
 Subject: Re: [PATCH 1/1] booke/wdt: fix incorrect WDIOC_GETSUPPORT return
  path
-Date: Mon, 6 Aug 2012 23:27:18 +0000
-Message-ID: <CAOZdJXWftkUSw57-Qbe9JFP9NwodkHprKr6_1xi6ZzzLN8A4wA@mail.gmail.com>
+Date: Mon, 6 Aug 2012 23:36:20 +0000
+Message-ID: <CAOZdJXWYyc_=iikFwSLy4gX7Grag=jxvWhYrP4Y9U3QZcwieBw@mail.gmail.com>
 References: <1343636122-23273-1-git-send-email-tiejun.chen@windriver.com>
-In-Reply-To: <1343636122-23273-1-git-send-email-tiejun.chen@windriver.com>
+	<CAOZdJXWftkUSw57-Qbe9JFP9NwodkHprKr6_1xi6ZzzLN8A4wA@mail.gmail.com>
+In-Reply-To: <CAOZdJXWftkUSw57-Qbe9JFP9NwodkHprKr6_1xi6ZzzLN8A4wA@mail.gmail.com>
 Content-Language: en-US
 Content-Type: text/plain; charset=US-ASCII
-Content-ID: <73B6686F3E30E942812D5875B7D5542C@mgd.freescale.com>
+Content-ID: <9B1A30991CA01C4688104B34177AD9CF@mgd.freescale.com>
 Content-Transfer-Encoding: 7BIT
 MIME-Version: 1.0
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Jul 30, 2012 at 3:15 AM, Tiejun Chen <tiejun.chen@windriver.com> wrote:
-> We miss that correct WDIOC_GETSUPPORT return path when perform
-> copy_to_user() properly.
+On Mon, Aug 6, 2012 at 2:12 PM, Tabi Timur-B04825 <b04825@freescale.com> wrote:
+> On Mon, Jul 30, 2012 at 3:15 AM, Tiejun Chen <tiejun.chen@windriver.com> wrote:
+>> We miss that correct WDIOC_GETSUPPORT return path when perform
+>> copy_to_user() properly.
+>
+> Thanks for catching this.  I'm amazed that this driver still has bugs like this.
 
-Thanks for catching this.  I'm amazed that this driver still has bugs like this.
+While you're at it, I found a few related bugs.  Can you fix these, also?
 
-> diff --git a/drivers/watchdog/booke_wdt.c b/drivers/watchdog/booke_wdt.c
-> index 3fe82d0..2be7f29 100644
-> --- a/drivers/watchdog/booke_wdt.c
-> +++ b/drivers/watchdog/booke_wdt.c
-> @@ -162,12 +162,13 @@ static long booke_wdt_ioctl(struct file *file,
->                                 unsigned int cmd, unsigned long arg)
->  {
->         u32 tmp = 0;
-> -       u32 __user *p = (u32 __user *)arg;
-> +       void __user *argp = (u32 __user *)arg;
-> +       u32 __user *p = argp;
+1.	case WDIOC_SETOPTIONS:
+		if (get_user(tmp, p))
+			return -EINVAL;
 
-You don't need to create 'argp'.  The existing 'p' variable will work
-in the copy_to_user() call.
+This should return -EFAULT.
 
-> +               return copy_to_user(argp, &ident,
-> +                               sizeof(ident)) ? -EFAULT : 0;
+2. 	case WDIOC_GETBOOTSTATUS:
+		/* XXX: something is clearing TSR */
+		tmp = mfspr(SPRN_TSR) & TSR_WRS(3);
+		/* returns CARDRESET if last reset was caused by the WDT */
+		return (tmp ? WDIOF_CARDRESET : 0);
 
-This can fit in one line, especially if you use 'p' instead of 'argp'.
+This should use put_user() to return the value, instead of returning
+it as a return code.
+
+You can title the new patch something like, "booke/wdt: some ioctls do
+not return values properly"
 
 -- 
 Timur Tabi
