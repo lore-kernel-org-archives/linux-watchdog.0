@@ -1,85 +1,121 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:44659 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030774Ab2HHVLe (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 8 Aug 2012 17:11:34 -0400
-Date: Wed, 8 Aug 2012 17:11:28 -0400
-From: David Teigland <teigland@redhat.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Hans de Goede <hdegoede@redhat.com>, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: new option to skip ping in close
-Message-ID: <20120808211128.GA22801@redhat.com>
-References: <20120803174027.GB15192@redhat.com>
- <501CE688.8070509@redhat.com>
- <20120806162503.GA21740@redhat.com>
- <20120808202218.GA27604@spo001.leaseweb.com>
+Received: from one-mail.aptivate.org ([87.106.150.205]:33386 "EHLO
+	one-mail.aptivate.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755186Ab2HJWUc (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 10 Aug 2012 18:20:32 -0400
+Received: from [197.220.23.213] (helo=lap-x201)
+	by one-mail.aptivate.org with esmtpsa (TLSv1:AES256-SHA:256)
+	(Exim 4.72)
+	(envelope-from <chris+linux@aptivate.org>)
+	id 1Szx60-0002U5-Pg
+	for linux-watchdog@vger.kernel.org; Fri, 10 Aug 2012 22:50:17 +0100
+Date: Fri, 10 Aug 2012 23:50:12 +0200 (CAT)
+From: Chris Wilson <chris+linux@aptivate.org>
+To: linux-watchdog@vger.kernel.org
+Subject: [PATCH] ie6xx_wdt: store and show whether system was rebooted by
+ watchdog
+Message-ID: <alpine.DEB.2.02.1208102347210.5281@lap-x201>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20120808202218.GA27604@spo001.leaseweb.com>
+Content-Type: TEXT/PLAIN; format=flowed; charset=US-ASCII
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Aug 08, 2012 at 10:22:18PM +0200, Wim Van Sebroeck wrote:
-> > That being said, we could do so if ENOIOCTLCMD worked as you suggest, but
-> > it doesn't quite.  Drivers with an ioctl op will return ENOTTY, in which
-> > case the switch statement would work, but drivers with no ioctl op (e.g.
-> > softdog) cause watchdog_ioctl_op to return ENOIOCTLCMD, causing the switch
-> > statement to be skipped.
-> 
-> at this moment all drivers that are allready converted to the general watchdog
-> infrastructure/API don't need and thus don't have an ioctl operation in place.
-> They all use the common code. Before we added the WDIOC_GETTIMELEFT to the
-> framework, I had the converted iTCO_wdt driver using an ioctl operations call
-> that used the ENOIOCTLCMD without any issue.
+The watchdog has a persistent bit which is set when it resets the host, 
+and can be reset by the host. The driver previously ignored this bit. It 
+was called WDT_TOUT by the driver, but WDT_TIMEOUT in the datasheet, so 
+I've renamed it for clarity.
 
-Yeah, that's what confused me.  I mistakenly thought the ioctl methods I
-saw in the drivers were called by watchdog_dev, when in fact they are just
-unconverted.  There's no point in adding the new ioctl to unconverted
-drivers.
+If this bit is set when the driver is probed, I store it in the 
+watchdog_device bootstatus field, which can be read by 
+ioctl("/dev/watchdog", WDIOC_GETBOOTSTATUS). If debugfs is enabled, the 
+recorded value is also printed in the debugfs file 
+(/sys/kernel/debug/ie6xx_wdt). I used this to verify that that the bit is 
+not set when the system booted normally, but is set when it was rebooted 
+by the watchdog.
 
-> I'm going to be honoust: I don't understand the use case. I have the impression
-> that you want to solve High Availability issues with watchdog resets...
+Signed-off-by: Chris Wilson <chris+github@qwirx.com>
+---
+  drivers/watchdog/ie6xx_wdt.c |   26 +++++++++++++++++++-------
+  1 files changed, 19 insertions(+), 7 deletions(-)
 
-Yes. I'm using the watchdog as an alternative to i/o fencing in a shared
-storage cluster.
+diff --git a/drivers/watchdog/ie6xx_wdt.c b/drivers/watchdog/ie6xx_wdt.c
+index 8f541b9..16afe49 100644
+--- a/drivers/watchdog/ie6xx_wdt.c
++++ b/drivers/watchdog/ie6xx_wdt.c
+@@ -42,7 +42,7 @@
+  #define RR0	0x0c
+  #define RR1	0x0d
+  #define WDT_RELOAD	0x01
+-#define WDT_TOUT	0x02
++#define WDT_TIMEOUT	0x02
 
-> And that's like replacing a car with a new car when you are out of gasoline...
+  #define WDTCR	0x10
+  #define WDT_PRE_SEL	0x04
+@@ -137,7 +137,7 @@ static int ie6xx_wdt_set_timeout(struct watchdog_device *wdd, unsigned int t)
+  	outl(preload, ie6xx_wdt_data.sch_wdtba + PV2);
 
-I guess you mean that reseting a machine sounds severe.  It's not if you
-consider the context of i/o fencing where you often use a power switch to
-turn off a machine to fence it.
+  	ie6xx_wdt_unlock_registers();
+-	outb(WDT_RELOAD | WDT_TOUT, ie6xx_wdt_data.sch_wdtba + RR1);
++	outb(WDT_RELOAD, ie6xx_wdt_data.sch_wdtba + RR1);
 
-> So, I need to think more about this and I wonder if other people have the same
-> issue as you have with the extra ping.
+  	spin_unlock(&ie6xx_wdt_data.unlock_sequence);
 
-People who *want* the watchdog to fire given certain conditions and also
-want the most predictability about it, would probably appreciate no ping
-generated by the kernel in close, but only generated themselves by ioctl.
+@@ -208,8 +208,8 @@ static int ie6xx_wdt_dbg_show(struct seq_file *s, void *unused)
+  		inl(ie6xx_wdt_data.sch_wdtba + DCR));
+  	seq_printf(s, "WDTLR = 0x%08x\n",
+  		inw(ie6xx_wdt_data.sch_wdtba + WDTLR));
+-
+-	seq_printf(s, "\n");
++	seq_printf(s, "Rebooted = %s\n",
++		ie6xx_wdt_dev.bootstatus & WDIOF_CARDRESET ? "Yes" : "No");
+  	return 0;
+  }
 
-There are a couple ways I can work around this at the moment, but neither
-is very nice.  First, I can add an extra 60 seconds to my timeout
-calculations in order to account for a ping that the kernel generates if
-my daemon is killed just before the watchdog was about to fire.
+@@ -250,12 +250,14 @@ static void ie6xx_wdt_debugfs_exit(void)
+  static int __devinit ie6xx_wdt_probe(struct platform_device *pdev)
+  {
+  	struct resource *res;
+-	u8 wdtlr;
++	u8 wdtlr, rr1;
+  	int ret;
 
-Second, the approach I'm using now, is to pre-emptively close the device
-specifically to use the close to generate what might be the final ping
-that I actually want.  I then re-open the device if it turns out that it
-wasn't in fact the final one I needed.  So, I use close and re-open to
-issue some of the keepalives instead of ioctl.  This adds complexity.  (In
-the pathological case, you end up doing repeated open&close of the device
-to generate all your pings, instead of ioctl!)
+  	res = platform_get_resource(pdev, IORESOURCE_IO, 0);
+-	if (!res)
++	if (!res) {
++		dev_err(&pdev->dev, "failed to get resources\n");
+  		return -ENODEV;
++	}
 
-> The code for the complete system would be translated as a module or kernel parameter
-> and not as an extra ioctl.
-> If it would be needed for specific drivers then we need a more generic approach
-> that will also let us tweak other items in the future so that we don't need an ioctl
-> for every change of behaviour.
+  	if (!request_region(res->start, resource_size(res), pdev->name)) {
+  		dev_err(&pdev->dev, "Watchdog region 0x%llx already in use!\n",
+@@ -266,6 +268,15 @@ static int __devinit ie6xx_wdt_probe(struct platform_device *pdev)
+  	ie6xx_wdt_data.sch_wdtba = res->start;
+  	dev_dbg(&pdev->dev, "WDT = 0x%X\n", ie6xx_wdt_data.sch_wdtba);
 
-I would need it in the general case, for the complete system.  But, I
-would also need to be able to detect if the behavior was enabled or not on
-a given system.
++	rr1 = inb(ie6xx_wdt_data.sch_wdtba + RR1);
++	if (rr1 & WDT_TIMEOUT) {
++		dev_warn(&pdev->dev, "Previous reboot was caused by the card\n");
++		ie6xx_wdt_dev.bootstatus |= WDIOF_CARDRESET;
++		// reset the flag
++		ie6xx_wdt_unlock_registers();
++		outb(rr1 & ~WDT_TIMEOUT, ie6xx_wdt_data.sch_wdtba + RR1);
++	}
++
+  	ie6xx_wdt_dev.timeout = timeout;
+  	watchdog_set_nowayout(&ie6xx_wdt_dev, nowayout);
 
-Thanks,
-Dave
+@@ -280,8 +291,9 @@ static int __devinit ie6xx_wdt_probe(struct platform_device *pdev)
+
+  	ret = watchdog_register_device(&ie6xx_wdt_dev);
+  	if (ret) {
++		printk(KERN_INFO "ie6xx_wdt_probe: can't register device\n");
+  		dev_err(&pdev->dev,
+-			"Watchdog timer: cannot register device (err =%d)\n",
++			"Watchdog timer: cannot register device (err=%d)\n",
+  									ret);
+  		goto misc_register_error;
+  	}
+-- 
+1.7.5.4
 
