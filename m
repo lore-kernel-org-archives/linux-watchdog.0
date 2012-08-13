@@ -1,249 +1,135 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.gw90.de ([188.40.100.199]:56425 "EHLO mail.gw90.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752040Ab2HLODy (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 12 Aug 2012 10:03:54 -0400
-Message-ID: <1344780214.4275.14.camel@mattotaupa>
-Subject: Re: [PATCH] sp5100_tco: Add SB8x0 chipset support
-From: Paul Menzel <paulepanter@users.sourceforge.net>
-To: Takahisa Tanaka <mc74hc00@gmail.com>
-Cc: linux-watchdog@vger.kernel.org, wim@iguana.be, stable@kernel.org,
-	post+kernel@ralfj.de, linux-kernel@vger.kernel.org
-Date: Sun, 12 Aug 2012 16:03:34 +0200
-In-Reply-To: <1344772669-2872-1-git-send-email-mc74hc00@gmail.com>
-References: <1344772669-2872-1-git-send-email-mc74hc00@gmail.com>
-Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature";
-	boundary="=-Xv/a4n6PnvouBlM6mhJj"
-Mime-Version: 1.0
+Received: from one-mail.aptivate.org ([87.106.150.205]:41145 "EHLO
+	one-mail.aptivate.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752241Ab2HMNUf (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 13 Aug 2012 09:20:35 -0400
+From: Chris Wilson <chris+github@qwirx.com>
+To: linux-watchdog@vger.kernel.org
+Cc: Chris Wilson <chris+github@qwirx.com>
+Subject: [PATCH 3/4] ie6xx_wdt: store and show whether system was rebooted by watchdog.
+Date: Mon, 13 Aug 2012 14:27:10 +0200
+Message-Id: <1344860831-23792-1-git-send-email-chris+github@qwirx.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+The watchdog has a persistent bit which is set when it resets the host,
+and can be reset by the host. The driver previously ignored this bit.
+It was called WDT_TOUT by the driver, but WDT_TIMEOUT in the datasheet,
+so I've renamed it for clarity.
 
---=-Xv/a4n6PnvouBlM6mhJj
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+If this bit is set when the driver is probed, I store it in the
+watchdog_device bootstatus field, which can be read by
+ioctl("/dev/watchdog", WDIOC_GETBOOTSTATUS). If debugfs is enabled,
+the recorded value is also printed in the debugfs file
+(/sys/kernel/debug/ie6xx_wdt). I used this to verify that that the
+bit is not set when the system booted normally, but is set when it
+was rebooted by the watchdog.
 
-Am Sonntag, den 12.08.2012, 20:57 +0900 schrieb Takahisa Tanaka:
-> The current sp5100_tco driver only supports SP5100/SB7x0 chipset, doesn't
-> support SB8x0 chipset, because current sp5100_tco driver doesn't know tha=
-t the
-> offset address for watchdog timer was changed from SB8x0 chipset.
->=20
-> The offset address of SP5100 and SB7x0 chipsets are as follows, quote fro=
-m the
-> AMD SB700/710/750 Register Reference Guide(Page 164) and the AMD SP5100
-> Register Reference Guide(Page 166).
->=20
->   WatchDogTimerControl 69h
->   WatchDogTimerBase0   6Ch
->   WatchDogTimerBase1   6Dh
->   WatchDogTimerBase2   6Eh
->   WatchDogTimerBase3   6Fh
->=20
-> In contrast, the offset address of SB8x0 chipset is as follows, quote fro=
-m
-> AMD SB800-Series Southbridges Register Reference Guide(Page 147).
->=20
->   WatchDogTimerEn      48h
->   WatchDogTimerConfig  4Ch
->=20
-> So, In the case of SB8x0 chipset, sp5100_tco reads meaningless MMIO
-> address(for example, 0xbafe00) from wrong offset address, and the followi=
-ng
-> message is logged.
->=20
->    SP5100 TCO timer: mmio address 0xbafe00 already in use
->=20
-> With this patch, sp5100_tco driver supports SB8x0 chipset, and can avoid
-> iomem resource conflict. The processing of this patch is as follows.
->=20
->  Step 1) Attempt to get the watchdog base address from indirect I/O(0xCD6
->          and 0xCD7).
->   - Go to the step 7 if obtained address hasn't conflicted with other
->     resource. But, currently, the address(0xfec000f0) conflicts with the
->     IOAPIC MMIO address, and the following message is logged.
->=20
->        SP5100 TCO timer: mmio address 0xfec000f0 already in use
->=20
->     0xfec000f0 is recommended by AMD BIOS Developer's Guide. So, go to th=
-e
->     next step.
->=20
->  Step 2) Attempt to get the SBResource_MMIO base address from AcpiMmioEN(=
-for
->          SB8x0,  PM_Reg:24h) or SBResource_MMIO(SP5100/SB7x0, PCI_Reg:9Ch=
-)
->          register.
->   - Go to the step 7 if these register has enabled by BIOS, and obtained
->     address hasn't conflicted with other resource.
->   - If above condition isn't true, go to the next step.
->=20
->  Step 3) Attempt to get the free MMIO address from allocate_resource().
->   - Go to the step 7 if these register has enabled by BIOS, and obtained
->     address hasn't conflicted with other resource.
->   - Driver initialization has failed if obtained address has conflicted
->     with other resource, and no 'force_addr' parameter is specified.
->=20
->  Step 4) Use the specified address If 'force_addr' parameter is specified=
-.
->   - allocate_resource() function may fail, when the PCI bridge device occ=
-upies
->     iomem resource from 0xf0000000 to 0xffffffff. To handle such a case,
->     I added 'force_addr' parameter to sp5100_tco driver. With 'force_addr=
-'
->     parameter, sp5100_tco driver directly can assign MMIO address for wat=
-chdog
->     timer from free iomem region. Note that It's dangerous to specify wro=
-ng
->     address in the 'force_addr' parameter.
->=20
->       Example of force_addr parameter use
->         # cat /proc/iomem
->         ...snip...
->         fec00000-fec003ff : IOAPIC 0
->                                       <--- free MMIO region
->         fec10000-fec1001f : pnp 00:0b
->         fec20000-fec203ff : IOAPIC 1
->         ...snip...
->         # cat /etc/modprobe.d/sp5100_tco.conf
->         options sp5100_tco force_addr=3D0xfec00800
->         # modprobe sp5100_tco
->         # cat /proc/iomem
->         ...snip...
->         fec00000-fec003ff : IOAPIC 0
->         fec00800-fec00807 : SP5100 TCO  <--- watchdog timer MMIO address
->         fec10000-fec1001f : pnp 00:0b
->         fec20000-fec203ff : IOAPIC 1
->         ...snip...
->         #
->=20
->   - Driver initialization has failed if specified address has conflicted
->     with other resource.
->=20
->  Step 5) Disable the watchdog timer
->   - To rewrite the watchdog timer register of the chipset, absolutely
->     guarantee that the watchdog timer is disabled.
->=20
->  Step 6) Re-program the watchdog timer MMIO address to chipset.
->   - Re-program the obtained MMIO address in Step 3 or Step 4 to chipset v=
-ia
->     indirect I/O(0xCD6 and 0xCD7).
->=20
->  Step 7) Enable and setup the watchdog timer
->=20
-> This patch has worked fine on my test environment(ASUS M4A89GTD-PRO/USB3 =
-and
-> DL165G7). therefore I believe that it's no problem to re-program the MMIO
-> address for watchdog timer to chipset during disabled watchdog. However,
-> I'm not sure about it, because I don't know much about chipset programmin=
-g.
->=20
-> So, any comments will be welcome.
->=20
-> Tested-by: Paul Menzel <paulepanter@users.sourceforge.net>
+Please ignore the previous version of this patch, which was not sent
+using git send-email, and did not reset the WDT_TIMEOUT bit properly
+after the module was initialized.
 
-ASRock A780FullHD <http://www.asrock.com/mb/overview.asp?model=3Da780fullhd=
->
+Signed-off-by: Chris Wilson <chris+github@qwirx.com>
+---
+ drivers/watchdog/ie6xx_wdt.c |   30 +++++++++++++++++++++---------
+ 1 files changed, 21 insertions(+), 9 deletions(-)
 
-> CC: stable@kernel.org
-
-I am sorry. This should have been <stable@vger.kernel.org>.
-
-> Signed-off-by: Takahisa Tanaka <mc74hc00@gmail.com>
-
-After review from the maintainers, please also add
-
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=3D43176
-
-when sending `PATCH v2` (`--subject-prefix` [1]).
-
-[1] http://wireless.kernel.org/en/developers/Documentation/git-guide#Annota=
-ting_new_revision
-
-> ---
->  drivers/watchdog/sp5100_tco.c | 291 ++++++++++++++++++++++++++++++++++++=
-------
->  drivers/watchdog/sp5100_tco.h |  46 +++++--
->  2 files changed, 286 insertions(+), 51 deletions(-)
->=20
-> diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.=
-c
-> index ae5e82c..36e917f 100644
-> --- a/drivers/watchdog/sp5100_tco.c
-> +++ b/drivers/watchdog/sp5100_tco.c
-> @@ -13,7 +13,9 @@
->   *	as published by the Free Software Foundation; either version
->   *	2 of the License, or (at your option) any later version.
->   *
-> - *	See AMD Publication 43009 "AMD SB700/710/750 Register Reference Guide=
-"
-> + *	See AMD Publication 43009 "AMD SB700/710/750 Register Reference Guide=
-",
-> + *	    AMD Publication 45482 "AMD SB800-Series Sourthbridges Register
-
-Sou*thbridges
-
-> + *	                                                      Reference Guide=
-"
->   */
-> =20
->  /*
-> @@ -38,18 +40,23 @@
->  #include "sp5100_tco.h"
-> =20
->  /* Module and version information */
-> -#define TCO_VERSION "0.01"
-> +#define TCO_VERSION "0.03"
->  #define TCO_MODULE_NAME "SP5100 TCO timer"
->  #define TCO_DRIVER_NAME   TCO_MODULE_NAME ", v" TCO_VERSION
-> =20
->  /* internal variables */
->  static u32 tcobase_phys;
-> +static u32 resbase_phys;
->  static void __iomem *tcobase;
->  static unsigned int pm_iobase;
->  static DEFINE_SPINLOCK(tco_lock);	/* Guards the hardware */
->  static unsigned long timer_alive;
->  static char tco_expect_close;
->  static struct pci_dev *sp5100_tco_pci;
-> +static struct resource wdt_res =3D {
-> +	.name =3D "Watchdog Timer",
-> +	.flags =3D IORESOURCE_MEM,
-> +};
-> =20
->  /* the watchdog platform device */
->  static struct platform_device *sp5100_tco_platform_device;
-> @@ -67,6 +74,12 @@ module_param(nowayout, bool, 0);
->  MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started"
->  		" (default=3D" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-> =20
-> +static unsigned int force_addr;
-> +module_param(force_addr, uint, 0);
-> +MODULE_PARM_DESC(force_addr, "Force the use of specified MMIO address, "
-> +		"default is disabled. DON'T USE THIS PARAMETER ONLY "
-> +		"IF YOU REALLY KNOW WHAT YOU ARE DOING");
-
-ONLY USE THIS PARAMETER IF YOU REALLY KNOW WHAT YOU ARE DOING!
-
-[=E2=80=A6]
-
-
-Thanks,
-
-Paul
-
---=-Xv/a4n6PnvouBlM6mhJj
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEABECAAYFAlAnt7YACgkQPX1aK2wOHVj8WQCfbdE3bKxl6Hj0VAMJPBDvsBX4
-LpUAnidJeGLh5q7HofuENEC5mIhza0XZ
-=sCpy
------END PGP SIGNATURE-----
-
---=-Xv/a4n6PnvouBlM6mhJj--
+diff --git a/drivers/watchdog/ie6xx_wdt.c b/drivers/watchdog/ie6xx_wdt.c
+index 8f541b9..6b7b520 100644
+--- a/drivers/watchdog/ie6xx_wdt.c
++++ b/drivers/watchdog/ie6xx_wdt.c
+@@ -42,7 +42,7 @@
+ #define RR0	0x0c
+ #define RR1	0x0d
+ #define WDT_RELOAD	0x01
+-#define WDT_TOUT	0x02
++#define WDT_TIMEOUT	0x02
+ 
+ #define WDTCR	0x10
+ #define WDT_PRE_SEL	0x04
+@@ -103,7 +103,7 @@ static int ie6xx_wdt_ping(struct watchdog_device *wdd)
+ {
+ 	spin_lock(&ie6xx_wdt_data.unlock_sequence);
+ 	ie6xx_wdt_unlock_registers();
+-	outb(WDT_RELOAD, ie6xx_wdt_data.sch_wdtba + RR1);
++	outb(WDT_RELOAD | WDT_TIMEOUT, ie6xx_wdt_data.sch_wdtba + RR1);
+ 	spin_unlock(&ie6xx_wdt_data.unlock_sequence);
+ 	return 0;
+ }
+@@ -137,7 +137,7 @@ static int ie6xx_wdt_set_timeout(struct watchdog_device *wdd, unsigned int t)
+ 	outl(preload, ie6xx_wdt_data.sch_wdtba + PV2);
+ 
+ 	ie6xx_wdt_unlock_registers();
+-	outb(WDT_RELOAD | WDT_TOUT, ie6xx_wdt_data.sch_wdtba + RR1);
++	outb(WDT_RELOAD, ie6xx_wdt_data.sch_wdtba + RR1);
+ 
+ 	spin_unlock(&ie6xx_wdt_data.unlock_sequence);
+ 
+@@ -160,7 +160,7 @@ static int ie6xx_wdt_start(struct watchdog_device *wdd)
+ static int ie6xx_wdt_stop(struct watchdog_device *wdd)
+ {
+ 	if (inb(ie6xx_wdt_data.sch_wdtba + WDTLR) & WDT_LOCK)
+-		return -1;
++		return -EACCES; // close not allowed?!
+ 
+ 	/* Disable the watchdog timer */
+ 	spin_lock(&ie6xx_wdt_data.unlock_sequence);
+@@ -208,8 +208,8 @@ static int ie6xx_wdt_dbg_show(struct seq_file *s, void *unused)
+ 		inl(ie6xx_wdt_data.sch_wdtba + DCR));
+ 	seq_printf(s, "WDTLR = 0x%08x\n",
+ 		inw(ie6xx_wdt_data.sch_wdtba + WDTLR));
+-
+-	seq_printf(s, "\n");
++	seq_printf(s, "Rebooted = %s\n",
++		ie6xx_wdt_dev.bootstatus & WDIOF_CARDRESET ? "Yes" : "No");
+ 	return 0;
+ }
+ 
+@@ -250,12 +250,14 @@ static void ie6xx_wdt_debugfs_exit(void)
+ static int __devinit ie6xx_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct resource *res;
+-	u8 wdtlr;
++	u8 wdtlr, rr1;
+ 	int ret;
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_IO, 0);
+-	if (!res)
++	if (!res) {
++		dev_err(&pdev->dev, "failed to get resources\n");
+ 		return -ENODEV;
++	}
+ 
+ 	if (!request_region(res->start, resource_size(res), pdev->name)) {
+ 		dev_err(&pdev->dev, "Watchdog region 0x%llx already in use!\n",
+@@ -266,6 +268,15 @@ static int __devinit ie6xx_wdt_probe(struct platform_device *pdev)
+ 	ie6xx_wdt_data.sch_wdtba = res->start;
+ 	dev_dbg(&pdev->dev, "WDT = 0x%X\n", ie6xx_wdt_data.sch_wdtba);
+ 
++	rr1 = inb(ie6xx_wdt_data.sch_wdtba + RR1);
++	if (rr1 & WDT_TIMEOUT) {
++		dev_warn(&pdev->dev, "Previous reboot was caused by the card\n");
++		ie6xx_wdt_dev.bootstatus |= WDIOF_CARDRESET;
++		// reset the flag
++		ie6xx_wdt_unlock_registers();
++		outb(WDT_TIMEOUT, ie6xx_wdt_data.sch_wdtba + RR1);
++	}
++
+ 	ie6xx_wdt_dev.timeout = timeout;
+ 	watchdog_set_nowayout(&ie6xx_wdt_dev, nowayout);
+ 
+@@ -280,8 +291,9 @@ static int __devinit ie6xx_wdt_probe(struct platform_device *pdev)
+ 
+ 	ret = watchdog_register_device(&ie6xx_wdt_dev);
+ 	if (ret) {
++		printk(KERN_INFO "ie6xx_wdt_probe: can't register device\n");
+ 		dev_err(&pdev->dev,
+-			"Watchdog timer: cannot register device (err =%d)\n",
++			"Watchdog timer: cannot register device (err=%d)\n",
+ 									ret);
+ 		goto misc_register_error;
+ 	}
+-- 
+1.7.5.4
 
