@@ -1,135 +1,103 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from one-mail.aptivate.org ([87.106.150.205]:41145 "EHLO
+Received: from one-mail.aptivate.org ([87.106.150.205]:41149 "EHLO
 	one-mail.aptivate.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752241Ab2HMNUf (ORCPT
+	with ESMTP id S1752301Ab2HMNUo (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 13 Aug 2012 09:20:35 -0400
+	Mon, 13 Aug 2012 09:20:44 -0400
 From: Chris Wilson <chris+github@qwirx.com>
 To: linux-watchdog@vger.kernel.org
 Cc: Chris Wilson <chris+github@qwirx.com>
-Subject: [PATCH 3/4] ie6xx_wdt: store and show whether system was rebooted by watchdog.
-Date: Mon, 13 Aug 2012 14:27:10 +0200
-Message-Id: <1344860831-23792-1-git-send-email-chris+github@qwirx.com>
+Subject: [PATCH 4/4] ie6xx_wdt: Pin lpc_sch while watchdog is open to avoid panic on removal.
+Date: Mon, 13 Aug 2012 14:27:11 +0200
+Message-Id: <1344860831-23792-2-git-send-email-chris+github@qwirx.com>
+In-Reply-To: <1344860831-23792-1-git-send-email-chris+github@qwirx.com>
+References: <1344860831-23792-1-git-send-email-chris+github@qwirx.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The watchdog has a persistent bit which is set when it resets the host,
-and can be reset by the host. The driver previously ignored this bit.
-It was called WDT_TOUT by the driver, but WDT_TIMEOUT in the datasheet,
-so I've renamed it for clarity.
+If somebody removes that driver, it will unregister the platform device
+which will set watchdog_dev.c:wdd to NULL, which will cause a kernel panic
+the next time the watchdog daemon accesses /dev/watchdog. You can easily
+reproduce the panic by doing just that.
 
-If this bit is set when the driver is probed, I store it in the
-watchdog_device bootstatus field, which can be read by
-ioctl("/dev/watchdog", WDIOC_GETBOOTSTATUS). If debugfs is enabled,
-the recorded value is also printed in the debugfs file
-(/sys/kernel/debug/ie6xx_wdt). I used this to verify that that the
-bit is not set when the system booted normally, but is set when it
-was rebooted by the watchdog.
-
-Please ignore the previous version of this patch, which was not sent
-using git send-email, and did not reset the WDT_TIMEOUT bit properly
-after the module was initialized.
+Therefore we shouldn't be allowed to remove lpc_sch while the watchdog
+is in use, so this patch keeps it pinned.
 
 Signed-off-by: Chris Wilson <chris+github@qwirx.com>
 ---
- drivers/watchdog/ie6xx_wdt.c |   30 +++++++++++++++++++++---------
- 1 files changed, 21 insertions(+), 9 deletions(-)
+ drivers/watchdog/ie6xx_wdt.c |   23 ++++++++++++++++++++++-
+ 1 files changed, 22 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/watchdog/ie6xx_wdt.c b/drivers/watchdog/ie6xx_wdt.c
-index 8f541b9..6b7b520 100644
+index 6b7b520..6d95120 100644
 --- a/drivers/watchdog/ie6xx_wdt.c
 +++ b/drivers/watchdog/ie6xx_wdt.c
-@@ -42,7 +42,7 @@
- #define RR0	0x0c
- #define RR1	0x0d
- #define WDT_RELOAD	0x01
--#define WDT_TOUT	0x02
-+#define WDT_TIMEOUT	0x02
+@@ -83,6 +83,7 @@ MODULE_PARM_DESC(resetmode,
+ static struct {
+ 	unsigned short sch_wdtba;
+ 	struct spinlock unlock_sequence;
++	struct platform_device *pdev;
+ #ifdef CONFIG_DEBUG_FS
+ 	struct dentry *debugfs;
+ #endif
+@@ -147,6 +148,15 @@ static int ie6xx_wdt_set_timeout(struct watchdog_device *wdd, unsigned int t)
  
- #define WDTCR	0x10
- #define WDT_PRE_SEL	0x04
-@@ -103,7 +103,7 @@ static int ie6xx_wdt_ping(struct watchdog_device *wdd)
+ static int ie6xx_wdt_start(struct watchdog_device *wdd)
  {
- 	spin_lock(&ie6xx_wdt_data.unlock_sequence);
- 	ie6xx_wdt_unlock_registers();
--	outb(WDT_RELOAD, ie6xx_wdt_data.sch_wdtba + RR1);
-+	outb(WDT_RELOAD | WDT_TIMEOUT, ie6xx_wdt_data.sch_wdtba + RR1);
++	/* watchdog_dev.c has pinned this module, but nobody pinned lpc_sch.
++	If it's unloaded while the device is open, the device will be
++	unregistered, watchdog_dev will set its wdd to NULL and the next file
++	operation will panic. So we'd better pin lpc_sch, or more accurately,
++	whoever created the parent (pci_device) of the platform_device that
++	we're using, because it wasn't us! */
++	if (!try_module_get(ie6xx_wdt_data.pdev->dev.parent->driver->owner))
++		return -ESHUTDOWN; // driver is unloading
++
+ 	ie6xx_wdt_set_timeout(wdd, wdd->timeout);
+ 
+ 	/* Enable the watchdog timer */
+@@ -167,6 +177,8 @@ static int ie6xx_wdt_stop(struct watchdog_device *wdd)
+ 	outb(0, ie6xx_wdt_data.sch_wdtba + WDTLR);
  	spin_unlock(&ie6xx_wdt_data.unlock_sequence);
- 	return 0;
- }
-@@ -137,7 +137,7 @@ static int ie6xx_wdt_set_timeout(struct watchdog_device *wdd, unsigned int t)
- 	outl(preload, ie6xx_wdt_data.sch_wdtba + PV2);
  
- 	ie6xx_wdt_unlock_registers();
--	outb(WDT_RELOAD | WDT_TOUT, ie6xx_wdt_data.sch_wdtba + RR1);
-+	outb(WDT_RELOAD, ie6xx_wdt_data.sch_wdtba + RR1);
- 
- 	spin_unlock(&ie6xx_wdt_data.unlock_sequence);
- 
-@@ -160,7 +160,7 @@ static int ie6xx_wdt_start(struct watchdog_device *wdd)
- static int ie6xx_wdt_stop(struct watchdog_device *wdd)
- {
- 	if (inb(ie6xx_wdt_data.sch_wdtba + WDTLR) & WDT_LOCK)
--		return -1;
-+		return -EACCES; // close not allowed?!
- 
- 	/* Disable the watchdog timer */
- 	spin_lock(&ie6xx_wdt_data.unlock_sequence);
-@@ -208,8 +208,8 @@ static int ie6xx_wdt_dbg_show(struct seq_file *s, void *unused)
- 		inl(ie6xx_wdt_data.sch_wdtba + DCR));
- 	seq_printf(s, "WDTLR = 0x%08x\n",
- 		inw(ie6xx_wdt_data.sch_wdtba + WDTLR));
--
--	seq_printf(s, "\n");
-+	seq_printf(s, "Rebooted = %s\n",
-+		ie6xx_wdt_dev.bootstatus & WDIOF_CARDRESET ? "Yes" : "No");
++	module_put(ie6xx_wdt_data.pdev->dev.parent->driver->owner);
++
  	return 0;
  }
  
-@@ -250,12 +250,14 @@ static void ie6xx_wdt_debugfs_exit(void)
- static int __devinit ie6xx_wdt_probe(struct platform_device *pdev)
- {
- 	struct resource *res;
--	u8 wdtlr;
-+	u8 wdtlr, rr1;
- 	int ret;
+@@ -277,8 +289,15 @@ static int __devinit ie6xx_wdt_probe(struct platform_device *pdev)
+ 		outb(WDT_TIMEOUT, ie6xx_wdt_data.sch_wdtba + RR1);
+ 	}
  
- 	res = platform_get_resource(pdev, IORESOURCE_IO, 0);
--	if (!res)
-+	if (!res) {
-+		dev_err(&pdev->dev, "failed to get resources\n");
- 		return -ENODEV;
-+	}
- 
- 	if (!request_region(res->start, resource_size(res), pdev->name)) {
- 		dev_err(&pdev->dev, "Watchdog region 0x%llx already in use!\n",
-@@ -266,6 +268,15 @@ static int __devinit ie6xx_wdt_probe(struct platform_device *pdev)
- 	ie6xx_wdt_data.sch_wdtba = res->start;
- 	dev_dbg(&pdev->dev, "WDT = 0x%X\n", ie6xx_wdt_data.sch_wdtba);
- 
-+	rr1 = inb(ie6xx_wdt_data.sch_wdtba + RR1);
-+	if (rr1 & WDT_TIMEOUT) {
-+		dev_warn(&pdev->dev, "Previous reboot was caused by the card\n");
-+		ie6xx_wdt_dev.bootstatus |= WDIOF_CARDRESET;
-+		// reset the flag
-+		ie6xx_wdt_unlock_registers();
-+		outb(WDT_TIMEOUT, ie6xx_wdt_data.sch_wdtba + RR1);
-+	}
++	// Need to remember our platform_device so we can pin its owner
++	// while the watchdog is open.
++	ie6xx_wdt_data.pdev = pdev;
++	dev_info(&pdev->dev, "pdev owner: %s\n", pdev->dev.driver->owner->name);
 +
  	ie6xx_wdt_dev.timeout = timeout;
- 	watchdog_set_nowayout(&ie6xx_wdt_dev, nowayout);
+-	watchdog_set_nowayout(&ie6xx_wdt_dev, nowayout);
++	// watchdog_set_nowayout(&ie6xx_wdt_dev, nowayout);
++	if (nowayout)
++		set_bit(WDOG_NO_WAY_OUT, &ie6xx_wdt_dev.status);
  
-@@ -280,8 +291,9 @@ static int __devinit ie6xx_wdt_probe(struct platform_device *pdev)
+ 	spin_lock_init(&ie6xx_wdt_data.unlock_sequence);
  
- 	ret = watchdog_register_device(&ie6xx_wdt_dev);
- 	if (ret) {
-+		printk(KERN_INFO "ie6xx_wdt_probe: can't register device\n");
- 		dev_err(&pdev->dev,
--			"Watchdog timer: cannot register device (err =%d)\n",
-+			"Watchdog timer: cannot register device (err=%d)\n",
- 									ret);
- 		goto misc_register_error;
- 	}
+@@ -304,6 +323,7 @@ misc_register_error:
+ 	ie6xx_wdt_debugfs_exit();
+ 	release_region(res->start, resource_size(res));
+ 	ie6xx_wdt_data.sch_wdtba = 0;
++	ie6xx_wdt_data.pdev = NULL;
+ 	return ret;
+ }
+ 
+@@ -317,6 +337,7 @@ static int __devexit ie6xx_wdt_remove(struct platform_device *pdev)
+ 	ie6xx_wdt_debugfs_exit();
+ 	release_region(res->start, resource_size(res));
+ 	ie6xx_wdt_data.sch_wdtba = 0;
++	ie6xx_wdt_data.pdev = NULL;
+ 
+ 	return 0;
+ }
 -- 
 1.7.5.4
 
