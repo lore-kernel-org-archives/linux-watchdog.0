@@ -1,103 +1,56 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from one-mail.aptivate.org ([87.106.150.205]:41149 "EHLO
-	one-mail.aptivate.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752301Ab2HMNUo (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 13 Aug 2012 09:20:44 -0400
-From: Chris Wilson <chris+github@qwirx.com>
-To: linux-watchdog@vger.kernel.org
-Cc: Chris Wilson <chris+github@qwirx.com>
-Subject: [PATCH 4/4] ie6xx_wdt: Pin lpc_sch while watchdog is open to avoid panic on removal.
-Date: Mon, 13 Aug 2012 14:27:11 +0200
-Message-Id: <1344860831-23792-2-git-send-email-chris+github@qwirx.com>
-In-Reply-To: <1344860831-23792-1-git-send-email-chris+github@qwirx.com>
-References: <1344860831-23792-1-git-send-email-chris+github@qwirx.com>
+Received: from arrakis.dune.hu ([78.24.191.176]:54930 "EHLO arrakis.dune.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751663Ab2HNNne (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 14 Aug 2012 09:43:34 -0400
+From: Gabor Juhos <juhosg@openwrt.org>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org, Gabor Juhos <juhosg@openwrt.org>
+Subject: [PATCH] watchdog: ath79_wdt: convert to use module_platform_driver
+Date: Tue, 14 Aug 2012 15:35:19 +0200
+Message-Id: <1344951319-13821-1-git-send-email-juhosg@openwrt.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-If somebody removes that driver, it will unregister the platform device
-which will set watchdog_dev.c:wdd to NULL, which will cause a kernel panic
-the next time the watchdog daemon accesses /dev/watchdog. You can easily
-reproduce the panic by doing just that.
+This makes the code a bit smaller by getting rid of
+some boilerplate code.
 
-Therefore we shouldn't be allowed to remove lpc_sch while the watchdog
-is in use, so this patch keeps it pinned.
-
-Signed-off-by: Chris Wilson <chris+github@qwirx.com>
+Signed-off-by: Gabor Juhos <juhosg@openwrt.org>
 ---
- drivers/watchdog/ie6xx_wdt.c |   23 ++++++++++++++++++++++-
- 1 files changed, 22 insertions(+), 1 deletions(-)
+ drivers/watchdog/ath79_wdt.c |   13 ++-----------
+ 1 file changed, 2 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/watchdog/ie6xx_wdt.c b/drivers/watchdog/ie6xx_wdt.c
-index 6b7b520..6d95120 100644
---- a/drivers/watchdog/ie6xx_wdt.c
-+++ b/drivers/watchdog/ie6xx_wdt.c
-@@ -83,6 +83,7 @@ MODULE_PARM_DESC(resetmode,
- static struct {
- 	unsigned short sch_wdtba;
- 	struct spinlock unlock_sequence;
-+	struct platform_device *pdev;
- #ifdef CONFIG_DEBUG_FS
- 	struct dentry *debugfs;
- #endif
-@@ -147,6 +148,15 @@ static int ie6xx_wdt_set_timeout(struct watchdog_device *wdd, unsigned int t)
- 
- static int ie6xx_wdt_start(struct watchdog_device *wdd)
- {
-+	/* watchdog_dev.c has pinned this module, but nobody pinned lpc_sch.
-+	If it's unloaded while the device is open, the device will be
-+	unregistered, watchdog_dev will set its wdd to NULL and the next file
-+	operation will panic. So we'd better pin lpc_sch, or more accurately,
-+	whoever created the parent (pci_device) of the platform_device that
-+	we're using, because it wasn't us! */
-+	if (!try_module_get(ie6xx_wdt_data.pdev->dev.parent->driver->owner))
-+		return -ESHUTDOWN; // driver is unloading
-+
- 	ie6xx_wdt_set_timeout(wdd, wdd->timeout);
- 
- 	/* Enable the watchdog timer */
-@@ -167,6 +177,8 @@ static int ie6xx_wdt_stop(struct watchdog_device *wdd)
- 	outb(0, ie6xx_wdt_data.sch_wdtba + WDTLR);
- 	spin_unlock(&ie6xx_wdt_data.unlock_sequence);
- 
-+	module_put(ie6xx_wdt_data.pdev->dev.parent->driver->owner);
-+
- 	return 0;
+diff --git a/drivers/watchdog/ath79_wdt.c b/drivers/watchdog/ath79_wdt.c
+index 1f9371f..79cc407 100644
+--- a/drivers/watchdog/ath79_wdt.c
++++ b/drivers/watchdog/ath79_wdt.c
+@@ -284,6 +284,7 @@ static void ath97_wdt_shutdown(struct platform_device *pdev)
  }
  
-@@ -277,8 +289,15 @@ static int __devinit ie6xx_wdt_probe(struct platform_device *pdev)
- 		outb(WDT_TIMEOUT, ie6xx_wdt_data.sch_wdtba + RR1);
- 	}
+ static struct platform_driver ath79_wdt_driver = {
++	.probe		= ath79_wdt_probe,
+ 	.remove		= __devexit_p(ath79_wdt_remove),
+ 	.shutdown	= ath97_wdt_shutdown,
+ 	.driver		= {
+@@ -292,17 +293,7 @@ static struct platform_driver ath79_wdt_driver = {
+ 	},
+ };
  
-+	// Need to remember our platform_device so we can pin its owner
-+	// while the watchdog is open.
-+	ie6xx_wdt_data.pdev = pdev;
-+	dev_info(&pdev->dev, "pdev owner: %s\n", pdev->dev.driver->owner->name);
-+
- 	ie6xx_wdt_dev.timeout = timeout;
--	watchdog_set_nowayout(&ie6xx_wdt_dev, nowayout);
-+	// watchdog_set_nowayout(&ie6xx_wdt_dev, nowayout);
-+	if (nowayout)
-+		set_bit(WDOG_NO_WAY_OUT, &ie6xx_wdt_dev.status);
+-static int __init ath79_wdt_init(void)
+-{
+-	return platform_driver_probe(&ath79_wdt_driver, ath79_wdt_probe);
+-}
+-module_init(ath79_wdt_init);
+-
+-static void __exit ath79_wdt_exit(void)
+-{
+-	platform_driver_unregister(&ath79_wdt_driver);
+-}
+-module_exit(ath79_wdt_exit);
++module_platform_driver(ath79_wdt_driver);
  
- 	spin_lock_init(&ie6xx_wdt_data.unlock_sequence);
- 
-@@ -304,6 +323,7 @@ misc_register_error:
- 	ie6xx_wdt_debugfs_exit();
- 	release_region(res->start, resource_size(res));
- 	ie6xx_wdt_data.sch_wdtba = 0;
-+	ie6xx_wdt_data.pdev = NULL;
- 	return ret;
- }
- 
-@@ -317,6 +337,7 @@ static int __devexit ie6xx_wdt_remove(struct platform_device *pdev)
- 	ie6xx_wdt_debugfs_exit();
- 	release_region(res->start, resource_size(res));
- 	ie6xx_wdt_data.sch_wdtba = 0;
-+	ie6xx_wdt_data.pdev = NULL;
- 
- 	return 0;
- }
+ MODULE_DESCRIPTION("Atheros AR71XX/AR724X/AR913X hardware watchdog driver");
+ MODULE_AUTHOR("Gabor Juhos <juhosg@openwrt.org");
 -- 
-1.7.5.4
+1.7.10
 
