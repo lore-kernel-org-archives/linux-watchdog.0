@@ -1,111 +1,111 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:14514 "EHLO mga11.intel.com"
+Received: from mga09.intel.com ([134.134.136.24]:65056 "EHLO mga09.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752474Ab2HPQkR (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 16 Aug 2012 12:40:17 -0400
+	id S932212Ab2HQGya (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 17 Aug 2012 02:54:30 -0400
 From: Tomas Winkler <tomas.winkler@intel.com>
 To: gregkh@linuxfoundation.org
 Cc: arnd@arndb.de, alan@linux.intel.com, linux-kernel@vger.kernel.org,
 	linux-watchdog@vger.kernel.org,
 	Tomas Winkler <tomas.winkler@intel.com>
-Subject: [char-misc-next 4/4] mei: wd: use watchdog_set/get_drvdata for passing mei_device
-Date: Thu, 16 Aug 2012 19:39:44 +0300
-Message-Id: <1345135184-23915-5-git-send-email-tomas.winkler@intel.com>
-In-Reply-To: <1345135184-23915-1-git-send-email-tomas.winkler@intel.com>
-References: <1345135184-23915-1-git-send-email-tomas.winkler@intel.com>
+Subject: [char-misc-next] mei: rename struct pci_dev *mei_device to mei_pdev
+Date: Fri, 17 Aug 2012 09:54:23 +0300
+Message-Id: <1345186463-30927-1-git-send-email-tomas.winkler@intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-use watchdog_set/get_drvdata for passing mei_device
-to watchdog_ops handlers instead of using global mei_device
+1. rename mei_device variable to mei_pdev to remove
+confusion with type 'struct mei_device'
+2. mei_pdev no longer need to be gloabal so make it static
+ and remove the declaration from the header file
 
 Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-
 ---
- drivers/misc/mei/wd.c |   29 ++++++++++++++++-------------
- 1 files changed, 16 insertions(+), 13 deletions(-)
+ drivers/misc/mei/main.c    |   17 ++++++++---------
+ drivers/misc/mei/mei_dev.h |    5 -----
+ 2 files changed, 8 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/misc/mei/wd.c b/drivers/misc/mei/wd.c
-index 0824166..d96c537 100644
---- a/drivers/misc/mei/wd.c
-+++ b/drivers/misc/mei/wd.c
-@@ -194,7 +194,7 @@ static int mei_wd_ops_start(struct watchdog_device *wd_dev)
- 	int err = -ENODEV;
- 	struct mei_device *dev;
+diff --git a/drivers/misc/mei/main.c b/drivers/misc/mei/main.c
+index d792f3c..e477e6f 100644
+--- a/drivers/misc/mei/main.c
++++ b/drivers/misc/mei/main.c
+@@ -41,9 +41,8 @@
+ #include <linux/mei.h>
+ #include "interface.h"
+ 
+-/* The device pointer */
+-/* Currently this driver works as long as there is only a single AMT device. */
+-struct pci_dev *mei_device;
++/* AMT device is a singleton on the platform */
++static struct pci_dev *mei_pdev;
+ 
+ /* mei_pci_tbl - PCI Device ID Table */
+ static DEFINE_PCI_DEVICE_TABLE(mei_pci_tbl) = {
+@@ -218,10 +217,10 @@ static int mei_open(struct inode *inode, struct file *file)
+ 	int err;
+ 
+ 	err = -ENODEV;
+-	if (!mei_device)
++	if (!mei_pdev)
+ 		goto out;
  
 -	dev = pci_get_drvdata(mei_device);
-+	dev = watchdog_get_drvdata(wd_dev);
++	dev = pci_get_drvdata(mei_pdev);
  	if (!dev)
- 		return -ENODEV;
+ 		goto out;
  
-@@ -231,8 +231,8 @@ end_unlock:
- static int mei_wd_ops_stop(struct watchdog_device *wd_dev)
- {
- 	struct mei_device *dev;
--	dev = pci_get_drvdata(mei_device);
- 
-+	dev = watchdog_get_drvdata(wd_dev);
- 	if (!dev)
- 		return -ENODEV;
- 
-@@ -254,8 +254,8 @@ static int mei_wd_ops_ping(struct watchdog_device *wd_dev)
- {
- 	int ret = 0;
- 	struct mei_device *dev;
--	dev = pci_get_drvdata(mei_device);
- 
-+	dev = watchdog_get_drvdata(wd_dev);
- 	if (!dev)
- 		return -ENODEV;
- 
-@@ -309,8 +309,8 @@ end:
- static int mei_wd_ops_set_timeout(struct watchdog_device *wd_dev, unsigned int timeout)
- {
- 	struct mei_device *dev;
--	dev = pci_get_drvdata(mei_device);
- 
-+	dev = watchdog_get_drvdata(wd_dev);
- 	if (!dev)
- 		return -ENODEV;
- 
-@@ -355,25 +355,28 @@ static struct watchdog_device amt_wd_dev = {
- };
- 
- 
--void  mei_watchdog_register(struct mei_device *dev)
-+void mei_watchdog_register(struct mei_device *dev)
- {
--	dev_dbg(&dev->pdev->dev, "dev->wd_timeout =%d.\n", dev->wd_timeout);
--
- 	if (watchdog_register_device(&amt_wd_dev)) {
- 		dev_err(&dev->pdev->dev,
- 			"wd: unable to register watchdog device.\n");
- 		dev->wd_interface_reg = false;
--	} else {
--		dev_dbg(&dev->pdev->dev,
--			"wd: successfully register watchdog interface.\n");
--		dev->wd_interface_reg = true;
-+		return;
+@@ -946,7 +945,7 @@ static int __devinit mei_probe(struct pci_dev *pdev,
+ 		goto end;
  	}
-+
-+	dev_dbg(&dev->pdev->dev,
-+		"wd: successfully register watchdog interface.\n");
-+	dev->wd_interface_reg = true;
-+	watchdog_set_drvdata(&amt_wd_dev, dev);
- }
  
- void mei_watchdog_unregister(struct mei_device *dev)
+-	if (mei_device) {
++	if (mei_pdev) {
+ 		err = -EEXIST;
+ 		goto end;
+ 	}
+@@ -1007,7 +1006,7 @@ static int __devinit mei_probe(struct pci_dev *pdev,
+ 	if (err)
+ 		goto release_irq;
+ 
+-	mei_device = pdev;
++	mei_pdev = pdev;
+ 	pci_set_drvdata(pdev, dev);
+ 
+ 
+@@ -1052,7 +1051,7 @@ static void __devexit mei_remove(struct pci_dev *pdev)
  {
--	if (dev->wd_interface_reg)
--		watchdog_unregister_device(&amt_wd_dev);
-+	if (!dev->wd_interface_reg)
-+		return;
-+
-+	watchdog_set_drvdata(&amt_wd_dev, NULL);
-+	watchdog_unregister_device(&amt_wd_dev);
- 	dev->wd_interface_reg = false;
- }
+ 	struct mei_device *dev;
  
+-	if (mei_device != pdev)
++	if (mei_pdev != pdev)
+ 		return;
+ 
+ 	dev = pci_get_drvdata(pdev);
+@@ -1065,7 +1064,7 @@ static void __devexit mei_remove(struct pci_dev *pdev)
+ 
+ 	mei_wd_stop(dev);
+ 
+-	mei_device = NULL;
++	mei_pdev = NULL;
+ 
+ 	if (dev->iamthif_cl.state == MEI_FILE_CONNECTED) {
+ 		dev->iamthif_cl.state = MEI_FILE_DISCONNECTING;
+diff --git a/drivers/misc/mei/mei_dev.h b/drivers/misc/mei/mei_dev.h
+index c8660c0..ad6c9d5 100644
+--- a/drivers/misc/mei/mei_dev.h
++++ b/drivers/misc/mei/mei_dev.h
+@@ -39,11 +39,6 @@
+ 
+ #define MEI_RD_MSG_BUF_SIZE           (128 * sizeof(u32))
+ 
+-/*
+- * MEI PCI Device object
+- */
+-extern struct pci_dev *mei_device;
+-
+ 
+ /*
+  * AMTHI Client UUID
 -- 
 1.7.4.4
 
