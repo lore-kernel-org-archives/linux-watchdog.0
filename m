@@ -1,52 +1,33 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-vb0-f46.google.com ([209.85.212.46]:61107 "EHLO
-	mail-vb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754282Ab2HQLXY (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 17 Aug 2012 07:23:24 -0400
-Received: by vbbff1 with SMTP id ff1so3109401vbb.19
-        for <linux-watchdog@vger.kernel.org>; Fri, 17 Aug 2012 04:23:24 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <1344332652-9455-1-git-send-email-sachin.kamat@linaro.org>
-References: <1344332652-9455-1-git-send-email-sachin.kamat@linaro.org>
-Date: Fri, 17 Aug 2012 16:53:23 +0530
-Message-ID: <CAK9yfHzSVxP6RA3i2N7-X+9wh4c38Q7aGZb7SSCvM1i+jn40XA@mail.gmail.com>
-Subject: Re: [PATCH] watchdog: da9052: Remove duplicate inclusion of delay.h
-From: Sachin Kamat <sachin.kamat@linaro.org>
-To: linux-watchdog@vger.kernel.org
-Cc: wim@iguana.be, sachin.kamat@linaro.org, patches@linaro.org
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from gate.crashing.org ([63.228.1.57]:58075 "EHLO gate.crashing.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756515Ab2HQOHh (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 17 Aug 2012 10:07:37 -0400
+Subject: Re: [v2 PATCH 1/1] booke/wdt: some ioctls do not return values properly
+Mime-Version: 1.0 (Apple Message framework v1278)
+Content-Type: text/plain; charset=us-ascii
+From: Kumar Gala <galak@kernel.crashing.org>
+In-Reply-To: <1344304780-13555-1-git-send-email-tiejun.chen@windriver.com>
+Date: Fri, 17 Aug 2012 09:07:38 -0500
+Cc: <B04825@freescale.com>, <linuxppc-dev@ozlabs.org>,
+	<linux-watchdog@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+Message-Id: <4EB00FE4-6A50-47DB-8BAB-3437489DC489@kernel.crashing.org>
+References: <1344304780-13555-1-git-send-email-tiejun.chen@windriver.com>
+To: Tiejun Chen <tiejun.chen@windriver.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-ping...
 
-On 7 August 2012 15:14, Sachin Kamat <sachin.kamat@linaro.org> wrote:
-> delay.h header file was included twice.
->
-> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+On Aug 6, 2012, at 8:59 PM, Tiejun Chen wrote:
+
+> Fix some booke wdt ioctls return value error.
+> 
+> Signed-off-by: Tiejun Chen <tiejun.chen@windriver.com>
 > ---
->  drivers/watchdog/da9052_wdt.c |    1 -
->  1 files changed, 0 insertions(+), 1 deletions(-)
->
-> diff --git a/drivers/watchdog/da9052_wdt.c b/drivers/watchdog/da9052_wdt.c
-> index 3f75129..f7abbae 100644
-> --- a/drivers/watchdog/da9052_wdt.c
-> +++ b/drivers/watchdog/da9052_wdt.c
-> @@ -21,7 +21,6 @@
->  #include <linux/types.h>
->  #include <linux/kernel.h>
->  #include <linux/jiffies.h>
-> -#include <linux/delay.h>
->
->  #include <linux/mfd/da9052/reg.h>
->  #include <linux/mfd/da9052/da9052.h>
-> --
-> 1.7.4.1
->
+> drivers/watchdog/booke_wdt.c |    7 +++----
+> 1 files changed, 3 insertions(+), 4 deletions(-)
 
+applied to merge
 
-
--- 
-With warm regards,
-Sachin
+- k
