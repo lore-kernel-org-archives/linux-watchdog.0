@@ -1,111 +1,52 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:65056 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932212Ab2HQGya (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 17 Aug 2012 02:54:30 -0400
-From: Tomas Winkler <tomas.winkler@intel.com>
-To: gregkh@linuxfoundation.org
-Cc: arnd@arndb.de, alan@linux.intel.com, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org,
-	Tomas Winkler <tomas.winkler@intel.com>
-Subject: [char-misc-next] mei: rename struct pci_dev *mei_device to mei_pdev
-Date: Fri, 17 Aug 2012 09:54:23 +0300
-Message-Id: <1345186463-30927-1-git-send-email-tomas.winkler@intel.com>
+Received: from mail-vb0-f46.google.com ([209.85.212.46]:61107 "EHLO
+	mail-vb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754282Ab2HQLXY (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 17 Aug 2012 07:23:24 -0400
+Received: by vbbff1 with SMTP id ff1so3109401vbb.19
+        for <linux-watchdog@vger.kernel.org>; Fri, 17 Aug 2012 04:23:24 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <1344332652-9455-1-git-send-email-sachin.kamat@linaro.org>
+References: <1344332652-9455-1-git-send-email-sachin.kamat@linaro.org>
+Date: Fri, 17 Aug 2012 16:53:23 +0530
+Message-ID: <CAK9yfHzSVxP6RA3i2N7-X+9wh4c38Q7aGZb7SSCvM1i+jn40XA@mail.gmail.com>
+Subject: Re: [PATCH] watchdog: da9052: Remove duplicate inclusion of delay.h
+From: Sachin Kamat <sachin.kamat@linaro.org>
+To: linux-watchdog@vger.kernel.org
+Cc: wim@iguana.be, sachin.kamat@linaro.org, patches@linaro.org
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-1. rename mei_device variable to mei_pdev to remove
-confusion with type 'struct mei_device'
-2. mei_pdev no longer need to be gloabal so make it static
- and remove the declaration from the header file
+ping...
 
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
----
- drivers/misc/mei/main.c    |   17 ++++++++---------
- drivers/misc/mei/mei_dev.h |    5 -----
- 2 files changed, 8 insertions(+), 14 deletions(-)
+On 7 August 2012 15:14, Sachin Kamat <sachin.kamat@linaro.org> wrote:
+> delay.h header file was included twice.
+>
+> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+> ---
+>  drivers/watchdog/da9052_wdt.c |    1 -
+>  1 files changed, 0 insertions(+), 1 deletions(-)
+>
+> diff --git a/drivers/watchdog/da9052_wdt.c b/drivers/watchdog/da9052_wdt.c
+> index 3f75129..f7abbae 100644
+> --- a/drivers/watchdog/da9052_wdt.c
+> +++ b/drivers/watchdog/da9052_wdt.c
+> @@ -21,7 +21,6 @@
+>  #include <linux/types.h>
+>  #include <linux/kernel.h>
+>  #include <linux/jiffies.h>
+> -#include <linux/delay.h>
+>
+>  #include <linux/mfd/da9052/reg.h>
+>  #include <linux/mfd/da9052/da9052.h>
+> --
+> 1.7.4.1
+>
 
-diff --git a/drivers/misc/mei/main.c b/drivers/misc/mei/main.c
-index d792f3c..e477e6f 100644
---- a/drivers/misc/mei/main.c
-+++ b/drivers/misc/mei/main.c
-@@ -41,9 +41,8 @@
- #include <linux/mei.h>
- #include "interface.h"
- 
--/* The device pointer */
--/* Currently this driver works as long as there is only a single AMT device. */
--struct pci_dev *mei_device;
-+/* AMT device is a singleton on the platform */
-+static struct pci_dev *mei_pdev;
- 
- /* mei_pci_tbl - PCI Device ID Table */
- static DEFINE_PCI_DEVICE_TABLE(mei_pci_tbl) = {
-@@ -218,10 +217,10 @@ static int mei_open(struct inode *inode, struct file *file)
- 	int err;
- 
- 	err = -ENODEV;
--	if (!mei_device)
-+	if (!mei_pdev)
- 		goto out;
- 
--	dev = pci_get_drvdata(mei_device);
-+	dev = pci_get_drvdata(mei_pdev);
- 	if (!dev)
- 		goto out;
- 
-@@ -946,7 +945,7 @@ static int __devinit mei_probe(struct pci_dev *pdev,
- 		goto end;
- 	}
- 
--	if (mei_device) {
-+	if (mei_pdev) {
- 		err = -EEXIST;
- 		goto end;
- 	}
-@@ -1007,7 +1006,7 @@ static int __devinit mei_probe(struct pci_dev *pdev,
- 	if (err)
- 		goto release_irq;
- 
--	mei_device = pdev;
-+	mei_pdev = pdev;
- 	pci_set_drvdata(pdev, dev);
- 
- 
-@@ -1052,7 +1051,7 @@ static void __devexit mei_remove(struct pci_dev *pdev)
- {
- 	struct mei_device *dev;
- 
--	if (mei_device != pdev)
-+	if (mei_pdev != pdev)
- 		return;
- 
- 	dev = pci_get_drvdata(pdev);
-@@ -1065,7 +1064,7 @@ static void __devexit mei_remove(struct pci_dev *pdev)
- 
- 	mei_wd_stop(dev);
- 
--	mei_device = NULL;
-+	mei_pdev = NULL;
- 
- 	if (dev->iamthif_cl.state == MEI_FILE_CONNECTED) {
- 		dev->iamthif_cl.state = MEI_FILE_DISCONNECTING;
-diff --git a/drivers/misc/mei/mei_dev.h b/drivers/misc/mei/mei_dev.h
-index c8660c0..ad6c9d5 100644
---- a/drivers/misc/mei/mei_dev.h
-+++ b/drivers/misc/mei/mei_dev.h
-@@ -39,11 +39,6 @@
- 
- #define MEI_RD_MSG_BUF_SIZE           (128 * sizeof(u32))
- 
--/*
-- * MEI PCI Device object
-- */
--extern struct pci_dev *mei_device;
--
- 
- /*
-  * AMTHI Client UUID
+
+
 -- 
-1.7.4.4
-
+With warm regards,
+Sachin
