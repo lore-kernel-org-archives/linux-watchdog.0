@@ -1,72 +1,84 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:36454 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755987Ab2HYSbS (ORCPT
+Received: from mail4-relais-sop.national.inria.fr ([192.134.164.105]:39077
+	"EHLO mail4-relais-sop.national.inria.fr" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753839Ab2HZQBT (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 25 Aug 2012 14:31:18 -0400
-Date: Sat, 25 Aug 2012 11:31:14 -0700
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-To: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
-Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
-	lm-sensors@lm-sensors.org, linux-input@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, linux-leds@vger.kernel.org,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Liam Girdwood <lrg@ti.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Jean Delvare <khali@linux-fr.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ashish Jangam <ashish.jangam@kpitcummins.com>,
-	Andrew Jones <drjones@redhat.com>,
-	Donggeun Kim <dg77.kim@samsung.com>,
-	Philippe =?iso-8859-1?Q?R=E9tornaz?= <philippe.retornaz@epfl.ch>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Bryan Wu <bryan.wu@canonical.com>,
-	"Richard Purdie <rpurdie@rpsys.net> Anthony Olech"
-	<anthony.olech@diasemi.com>
-Subject: Re: [PATCH 1/8] mfd: Add Dialog DA906x core driver.
-Message-ID: <20120825183113.GE6520@opensource.wolfsonmicro.com>
-References: <201208241445@sw-eng-lt-dc-vm2>
- <201208241450@sw-eng-lt-dc-vm2>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <201208241450@sw-eng-lt-dc-vm2>
+	Sun, 26 Aug 2012 12:01:19 -0400
+From: Julia Lawall <Julia.Lawall@lip6.fr>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: kernel-janitors@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 10/13] drivers/watchdog/sp805_wdt.c: use clk_prepare_enable and clk_disable_unprepare
+Date: Sun, 26 Aug 2012 18:01:02 +0200
+Message-Id: <1345996865-32082-11-git-send-email-Julia.Lawall@lip6.fr>
+In-Reply-To: <1345996865-32082-1-git-send-email-Julia.Lawall@lip6.fr>
+References: <1345996865-32082-1-git-send-email-Julia.Lawall@lip6.fr>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Aug 24, 2012 at 02:50:00PM +0100, Krystian Garbaciak wrote:
+From: Julia Lawall <Julia.Lawall@lip6.fr>
 
-> This is MFD module providing access to registers and interrupts of DA906x
-> series PMIC. It is used by other functional modules, registered as MFD cells.
-> Driver uses regmap with paging to access extended register list. Register map
-> is divided into two pages, where the second page is used during initialisation.
+Clk_prepare_enable and clk_disable_unprepare combine clk_prepare and
+clk_enable, and clk_disable and clk_unprepare.  They make the code more
+concise, and ensure that clk_unprepare is called when clk_enable fails.
 
-Your selection of people to CC here appears both large and random...
+A simplified version of the semantic patch that introduces calls to these
+functions is as follows: (http://coccinelle.lip6.fr/)
 
-> +inline unsigned int da906x_to_range_reg(u16 reg)
-> +{
-> +	return reg + DA906X_MAPPING_BASE;
-> +}
+// <smpl>
+@@
+expression e;
+@@
 
-I've no real idea what this stuff is all about, it at least needs some
-comments somewhere.  The fact that you're just adding a constant offset
-to all registers is at best odd.
+- clk_prepare(e);
+- clk_enable(e);
++ clk_prepare_enable(e);
 
-> +	if (pdata->flags & DA906X_FLG_NO_CACHE)
-> +		config = &da906x_no_cache_regmap_config;
+@@
+expression e;
+@@
 
-No, why would anyone ever want this and why would this not apply to all
-other drivers?
+- clk_disable(e);
+- clk_unprepare(e);
++ clk_disable_unprepare(e);
+// </smpl>
 
-> +static const struct i2c_device_id da906x_i2c_id[] = {
-> +	{"da906x", PMIC_DA9063},
-> +	{},
-> +};
-> +MODULE_DEVICE_TABLE(i2c, da906x_i2c_id);
+Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
 
-List the actual devices here.
+---
+ drivers/watchdog/sp805_wdt.c |   11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
-> +#define DA906X_IRQ_BASE_OFFSET	0
+diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
+index e4841c3..cabb040 100644
+--- a/drivers/watchdog/sp805_wdt.c
++++ b/drivers/watchdog/sp805_wdt.c
+@@ -130,16 +130,10 @@ static int wdt_config(struct watchdog_device *wdd, bool ping)
+ 	int ret;
+ 
+ 	if (!ping) {
+-		ret = clk_prepare(wdt->clk);
+-		if (ret) {
+-			dev_err(&wdt->adev->dev, "clock prepare fail");
+-			return ret;
+-		}
+ 
+-		ret = clk_enable(wdt->clk);
++		ret = clk_prepare_enable(wdt->clk);
+ 		if (ret) {
+ 			dev_err(&wdt->adev->dev, "clock enable fail");
+-			clk_unprepare(wdt->clk);
+ 			return ret;
+ 		}
+ 	}
+@@ -190,8 +184,7 @@ static int wdt_disable(struct watchdog_device *wdd)
+ 	readl_relaxed(wdt->base + WDTLOCK);
+ 	spin_unlock(&wdt->lock);
+ 
+-	clk_disable(wdt->clk);
+-	clk_unprepare(wdt->clk);
++	clk_disable_unprepare(wdt->clk);
+ 
+ 	return 0;
+ }
 
-Hrm?
