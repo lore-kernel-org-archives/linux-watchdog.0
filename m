@@ -1,49 +1,64 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.windriver.com ([147.11.146.13]:64508 "EHLO
-	mail1.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752789Ab2G3IUU (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 30 Jul 2012 04:20:20 -0400
-From: Tiejun Chen <tiejun.chen@windriver.com>
-To: <benh@kernel.crashing.org>, <galak@kernel.crashing.org>
-CC: <linuxppc-dev@ozlabs.org>, <linux-watchdog@vger.kernel.org>
-Subject: [PATCH 1/1] booke/wdt: fix incorrect WDIOC_GETSUPPORT return path
-Date: Mon, 30 Jul 2012 16:15:22 +0800
-Message-ID: <1343636122-23273-1-git-send-email-tiejun.chen@windriver.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: "Mingarelli, Thomas" <Thomas.Mingarelli@hp.com>
+To: "Kani, Toshimitsu" <toshi.kani@hp.com>, "wim@iguana.be" <wim@iguana.be>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH] hpwdt: Fix kdump issue in hpwdt
+Date: Mon, 27 Aug 2012 18:59:27 +0000
+Message-ID: <9774516974AF5F4C8A2C3C69CD34123323352FF9@G1W3651.americas.hpqcorp.net>
+References: <1346093544-12007-1-git-send-email-toshi.kani@hp.com>
+In-Reply-To: <1346093544-12007-1-git-send-email-toshi.kani@hp.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-We miss that correct WDIOC_GETSUPPORT return path when perform
-copy_to_user() properly.
+Wim:
 
-Signed-off-by: Tiejun Chen <tiejun.chen@windriver.com>
+I acknowledge and accept this patch.
+
+
+Thanks,
+Tom
+
+-----Original Message-----
+From: Kani, Toshimitsu 
+Sent: Monday, August 27, 2012 1:52 PM
+To: wim@iguana.be; linux-watchdog@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org; Mingarelli, Thomas; Kani, Toshimitsu; stable@vger.kernel.org
+Subject: [PATCH] hpwdt: Fix kdump issue in hpwdt
+
+kdump can be interrupted by watchdog timer when the timer is left
+activated on the crash kernel. Changed the hpwdt driver to disable
+watchdog timer at boot-time. This assures that watchdog timer is
+disabled until /dev/watchdog is opened, and prevents watchdog timer
+to be left running on the crash kernel.
+
+Signed-off-by: Toshi Kani <toshi.kani@hp.com>
+Tested-by: Lisa Mitchell <lisa.mitchell@hp.com>
+Cc: stable@vger.kernel.org 
 ---
- drivers/watchdog/booke_wdt.c |    7 ++++---
- 1 files changed, 4 insertions(+), 3 deletions(-)
+ drivers/watchdog/hpwdt.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/watchdog/booke_wdt.c b/drivers/watchdog/booke_wdt.c
-index 3fe82d0..2be7f29 100644
---- a/drivers/watchdog/booke_wdt.c
-+++ b/drivers/watchdog/booke_wdt.c
-@@ -162,12 +162,13 @@ static long booke_wdt_ioctl(struct file *file,
- 				unsigned int cmd, unsigned long arg)
- {
- 	u32 tmp = 0;
--	u32 __user *p = (u32 __user *)arg;
-+	void __user *argp = (u32 __user *)arg;
-+	u32 __user *p = argp;
+diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
+index 1eff743..ae60406 100644
+--- a/drivers/watchdog/hpwdt.c
++++ b/drivers/watchdog/hpwdt.c
+@@ -814,6 +814,9 @@ static int __devinit hpwdt_init_one(struct pci_dev *dev,
+ 	hpwdt_timer_reg = pci_mem_addr + 0x70;
+ 	hpwdt_timer_con = pci_mem_addr + 0x72;
  
- 	switch (cmd) {
- 	case WDIOC_GETSUPPORT:
--		if (copy_to_user((void *)arg, &ident, sizeof(ident)))
--			return -EFAULT;
-+		return copy_to_user(argp, &ident,
-+				sizeof(ident)) ? -EFAULT : 0;
- 	case WDIOC_GETSTATUS:
- 		return put_user(0, p);
- 	case WDIOC_GETBOOTSTATUS:
++	/* Make sure that timer is disabled until /dev/watchdog is opened */
++	hpwdt_stop();
++
+ 	/* Make sure that we have a valid soft_margin */
+ 	if (hpwdt_change_timer(soft_margin))
+ 		hpwdt_change_timer(DEFAULT_MARGIN);
 -- 
-1.5.6
-
+1.7.7.6
