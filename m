@@ -1,34 +1,46 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:43287 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750885Ab2H0EEK (ORCPT
+Received: from g1t0029.austin.hp.com ([15.216.28.36]:41698 "EHLO
+	g1t0029.austin.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750971Ab2H0S6H (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 27 Aug 2012 00:04:10 -0400
-MIME-Version: 1.0
-In-Reply-To: <1345996865-32082-11-git-send-email-Julia.Lawall@lip6.fr>
-References: <1345996865-32082-1-git-send-email-Julia.Lawall@lip6.fr>
-	<1345996865-32082-11-git-send-email-Julia.Lawall@lip6.fr>
-Date: Mon, 27 Aug 2012 09:34:09 +0530
-Message-ID: <CAOh2x=mMkCR8+Y_sPW8pRcS6fi8k=u_VpEWA0NYiUWqHrLJjCQ@mail.gmail.com>
-Subject: Re: [PATCH 10/13] drivers/watchdog/sp805_wdt.c: use
- clk_prepare_enable and clk_disable_unprepare
-From: viresh kumar <viresh.kumar@linaro.org>
-To: Julia Lawall <Julia.Lawall@lip6.fr>
-Cc: Wim Van Sebroeck <wim@iguana.be>, kernel-janitors@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	spear-devel <spear-devel@list.st.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 27 Aug 2012 14:58:07 -0400
+From: Toshi Kani <toshi.kani@hp.com>
+To: wim@iguana.be, linux-watchdog@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, thomas.mingarelli@hp.com,
+	Toshi Kani <toshi.kani@hp.com>, stable@vger.kernel.org
+Subject: [PATCH] hpwdt: Fix kdump issue in hpwdt
+Date: Mon, 27 Aug 2012 12:52:24 -0600
+Message-Id: <1346093544-12007-1-git-send-email-toshi.kani@hp.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sun, Aug 26, 2012 at 9:31 PM, Julia Lawall <Julia.Lawall@lip6.fr> wrote:
-> From: Julia Lawall <Julia.Lawall@lip6.fr>
->
-> Clk_prepare_enable and clk_disable_unprepare combine clk_prepare and
-> clk_enable, and clk_disable and clk_unprepare.  They make the code more
-> concise, and ensure that clk_unprepare is called when clk_enable fails.
->
-> A simplified version of the semantic patch that introduces calls to these
-> functions is as follows: (http://coccinelle.lip6.fr/)
+kdump can be interrupted by watchdog timer when the timer is left
+activated on the crash kernel. Changed the hpwdt driver to disable
+watchdog timer at boot-time. This assures that watchdog timer is
+disabled until /dev/watchdog is opened, and prevents watchdog timer
+to be left running on the crash kernel.
 
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Toshi Kani <toshi.kani@hp.com>
+Tested-by: Lisa Mitchell <lisa.mitchell@hp.com>
+Cc: stable@vger.kernel.org 
+---
+ drivers/watchdog/hpwdt.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
+index 1eff743..ae60406 100644
+--- a/drivers/watchdog/hpwdt.c
++++ b/drivers/watchdog/hpwdt.c
+@@ -814,6 +814,9 @@ static int __devinit hpwdt_init_one(struct pci_dev *dev,
+ 	hpwdt_timer_reg = pci_mem_addr + 0x70;
+ 	hpwdt_timer_con = pci_mem_addr + 0x72;
+ 
++	/* Make sure that timer is disabled until /dev/watchdog is opened */
++	hpwdt_stop();
++
+ 	/* Make sure that we have a valid soft_margin */
+ 	if (hpwdt_change_timer(soft_margin))
+ 		hpwdt_change_timer(DEFAULT_MARGIN);
+-- 
+1.7.7.6
+
