@@ -1,55 +1,263 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from gate.in-addr.de ([212.8.193.158]:45299 "EHLO mx.in-addr.de"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752403Ab2H0Tib (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 27 Aug 2012 15:38:31 -0400
-Date: Mon, 27 Aug 2012 21:22:27 +0200
-From: Lars Marowsky-Bree <lmb@suse.com>
-To: Toshi Kani <toshi.kani@hp.com>, wim@iguana.be,
-	linux-watchdog@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, thomas.mingarelli@hp.com,
-	stable@vger.kernel.org
-Subject: Re: [PATCH] hpwdt: Fix kdump issue in hpwdt
-Message-ID: <20120827192227.GJ18709@suse.de>
-References: <1346093544-12007-1-git-send-email-toshi.kani@hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <1346093544-12007-1-git-send-email-toshi.kani@hp.com>
+Received: from filtteri2.pp.htv.fi ([213.243.153.185]:36634 "EHLO
+	filtteri2.pp.htv.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753056Ab2H1Vnc (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 28 Aug 2012 17:43:32 -0400
+From: Aaro Koskinen <aaro.koskinen@iki.fi>
+To: linux-omap@vger.kernel.org
+Cc: linux-watchdog@vger.kernel.org
+Subject: [RFC PATCH 3/5] watchdog: introduce retu_wdt driver
+Date: Wed, 29 Aug 2012 00:34:25 +0300
+Message-Id: <1346189667-32330-4-git-send-email-aaro.koskinen@iki.fi>
+In-Reply-To: <1346189667-32330-1-git-send-email-aaro.koskinen@iki.fi>
+References: <1346189667-32330-1-git-send-email-aaro.koskinen@iki.fi>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-On 2012-08-27T12:52:24, Toshi Kani <toshi.kani@hp.com> wrote:
+Introduce Retu watchdog driver.
 
-> kdump can be interrupted by watchdog timer when the timer is left
-> activated on the crash kernel. Changed the hpwdt driver to disable
-> watchdog timer at boot-time. This assures that watchdog timer is
-> disabled until /dev/watchdog is opened, and prevents watchdog timer
-> to be left running on the crash kernel.
+Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+Cc: linux-watchdog@vger.kernel.org
+---
+ drivers/watchdog/Kconfig    |   12 +++
+ drivers/watchdog/Makefile   |    1 +
+ drivers/watchdog/retu_wdt.c |  191 +++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 204 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/watchdog/retu_wdt.c
 
-How does this protect against the system hanging again in the crash
-kernel, or possibly hardware caches to flush more data to shared
-storage?
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 53d7571..0526c7a 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -352,6 +352,18 @@ config IMX2_WDT
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called imx2_wdt.
+ 
++config RETU_WATCHDOG
++	tristate "Retu watchdog"
++	depends on MFD_RETU
++	select WATCHDOG_CORE
++	help
++	  Retu watchdog driver for Nokia Internet Tablets (700, N800,
++	  N810). At least on N800 the watchdog cannot be disabled, so
++	  this driver is essential and you should enable it.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called retu_wdt.
++
+ # AVR32 Architecture
+ 
+ config AT32AP700X_WDT
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 572b39b..d2f1c0c 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -52,6 +52,7 @@ obj-$(CONFIG_STMP3XXX_WATCHDOG) += stmp3xxx_wdt.o
+ obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
+ obj-$(CONFIG_TS72XX_WATCHDOG) += ts72xx_wdt.o
+ obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
++obj-$(CONFIG_RETU_WATCHDOG) += retu_wdt.o
+ 
+ # AVR32 Architecture
+ obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
+diff --git a/drivers/watchdog/retu_wdt.c b/drivers/watchdog/retu_wdt.c
+new file mode 100644
+index 0000000..4a3ae00
+--- /dev/null
++++ b/drivers/watchdog/retu_wdt.c
+@@ -0,0 +1,191 @@
++/*
++ * Retu watchdog driver
++ *
++ * Copyright (C) 2004, 2005 Nokia Corporation
++ *
++ * Based on code written by Amit Kucheria and Michael Buesch. Rewritten
++ * to use Retu MFD driver and new watchdog core by Aaro Koskinen.
++ *
++ * This file is subject to the terms and conditions of the GNU General
++ * Public License. See the file "COPYING" in the main directory of this
++ * archive for more details.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++#include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/errno.h>
++#include <linux/device.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/mfd/retu.h>
++#include <linux/watchdog.h>
++#include <linux/platform_device.h>
++
++/* Watchdog timer values in seconds */
++#define RETU_WDT_MAX_TIMER	63
++
++/* Registers */
++#define RETU_REG_WATCHDOG	0x17
++
++struct retu_wdt_dev {
++	struct retu_dev		*rdev;
++	struct device		*dev;
++	struct delayed_work	ping_work;
++};
++
++/*
++ * Since Retu watchdog cannot be disabled in hardware, we must kick it
++ * with a timer until userspace watchdog software takes over. If
++ * CONFIG_WATCHDOG_NOWAYOUT is set, we never start the feeding.
++ */
++static void retu_wdt_ping_enable(struct retu_wdt_dev *wdev)
++{
++	retu_write(wdev->rdev, RETU_REG_WATCHDOG, RETU_WDT_MAX_TIMER);
++	schedule_delayed_work(&wdev->ping_work,
++			round_jiffies_relative(RETU_WDT_MAX_TIMER * HZ / 2));
++}
++
++static void retu_wdt_ping_disable(struct retu_wdt_dev *wdev)
++{
++	retu_write(wdev->rdev, RETU_REG_WATCHDOG, RETU_WDT_MAX_TIMER);
++	cancel_delayed_work_sync(&wdev->ping_work);
++}
++
++static void retu_wdt_ping_work(struct work_struct *work)
++{
++	struct retu_wdt_dev *wdev = container_of(to_delayed_work(work),
++						struct retu_wdt_dev, ping_work);
++	retu_wdt_ping_enable(wdev);
++}
++
++static int retu_wdt_start(struct watchdog_device *wdog)
++{
++	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
++
++	retu_wdt_ping_disable(wdev);
++
++	return retu_write(wdev->rdev, RETU_REG_WATCHDOG, wdog->timeout);
++}
++
++static int retu_wdt_stop(struct watchdog_device *wdog)
++{
++	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
++
++	retu_wdt_ping_enable(wdev);
++
++	return 0;
++}
++
++static int retu_wdt_ping(struct watchdog_device *wdog)
++{
++	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
++
++	return retu_write(wdev->rdev, RETU_REG_WATCHDOG, wdog->timeout);
++}
++
++static int retu_wdt_set_timeout(struct watchdog_device *wdog,
++				unsigned int timeout)
++{
++	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
++
++	wdog->timeout = timeout;
++	return retu_write(wdev->rdev, RETU_REG_WATCHDOG, wdog->timeout);
++}
++
++static const struct watchdog_info retu_wdt_info = {
++	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
++	.identity = "Retu watchdog",
++};
++
++static const struct watchdog_ops retu_wdt_ops = {
++	.owner		= THIS_MODULE,
++	.start		= retu_wdt_start,
++	.stop		= retu_wdt_stop,
++	.ping		= retu_wdt_ping,
++	.set_timeout	= retu_wdt_set_timeout,
++};
++
++static int __devinit retu_wdt_probe(struct platform_device *pdev)
++{
++	struct retu_dev *rdev = dev_get_drvdata(pdev->dev.parent);
++	bool nowayout = WATCHDOG_NOWAYOUT;
++	struct watchdog_device *retu_wdt;
++	struct retu_wdt_dev *wdev;
++	int ret;
++
++	retu_wdt = kzalloc(sizeof(*retu_wdt), GFP_KERNEL);
++	if (!retu_wdt)
++		return -ENOMEM;
++
++	wdev = kzalloc(sizeof(*wdev), GFP_KERNEL);
++	if (!wdev) {
++		ret = -ENOMEM;
++		goto error_mem;
++	}
++
++	retu_wdt->info		= &retu_wdt_info;
++	retu_wdt->ops		= &retu_wdt_ops;
++	retu_wdt->timeout	= RETU_WDT_MAX_TIMER;
++	retu_wdt->min_timeout	= 0;
++	retu_wdt->max_timeout	= RETU_WDT_MAX_TIMER;
++
++	watchdog_set_drvdata(retu_wdt, wdev);
++	watchdog_set_nowayout(retu_wdt, nowayout);
++
++	wdev->rdev		= rdev;
++	wdev->dev		= &pdev->dev;
++
++	INIT_DELAYED_WORK(&wdev->ping_work, retu_wdt_ping_work);
++
++	ret = watchdog_register_device(retu_wdt);
++	if (ret < 0)
++		goto error_reg;
++
++	if (nowayout)
++		retu_wdt_ping(retu_wdt);
++	else
++		retu_wdt_ping_enable(wdev);
++
++	platform_set_drvdata(pdev, retu_wdt);
++
++	return 0;
++
++error_reg:
++	kfree(wdev);
++error_mem:
++	kfree(retu_wdt);
++	return ret;
++}
++
++static int __devexit retu_wdt_remove(struct platform_device *pdev)
++{
++	struct watchdog_device *wdog = platform_get_drvdata(pdev);
++	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
++
++	watchdog_unregister_device(wdog);
++	cancel_delayed_work_sync(&wdev->ping_work);
++	kfree(wdev);
++	kfree(wdog);
++
++	return 0;
++}
++
++static struct platform_driver retu_wdt_driver = {
++	.probe		= retu_wdt_probe,
++	.remove		= __devexit_p(retu_wdt_remove),
++	.driver		= {
++		.name	= "retu-wdt",
++	},
++};
++module_platform_driver(retu_wdt_driver);
++
++MODULE_ALIAS("platform:retu-wdt");
++MODULE_DESCRIPTION("Retu watchdog");
++MODULE_AUTHOR("Amit Kucheria");
++MODULE_AUTHOR("Aaro Koskinen <aaro.koskinen@iki.fi>");
++MODULE_LICENSE("GPL");
+-- 
+1.7.2.5
 
-(I'm asking from the perspective of the hpwdt being used as a fencing
-mechanism in a cluster setting.)
-
-Or is the argument that it's "very unlikely" that a system in such a
-state would not make it far enough into the crash kernel?
-
-
-Regards,
-    Lars
-
---=20
-Architect Storage/HA
-SUSE LINUX Products GmbH, GF: Jeff Hawn, Jennifer Guild, Felix Imend=F6rf=
-fer, HRB 21284 (AG N=FCrnberg)
-"Experience is the name everyone gives to their mistakes." -- Oscar Wilde
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
