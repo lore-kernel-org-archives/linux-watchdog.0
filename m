@@ -1,93 +1,28 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:58306 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753764Ab2H2PTL (ORCPT
+Received: from mho-04-ewr.mailhop.org ([204.13.248.74]:37595 "EHLO
+	mho-02-ewr.mailhop.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753846Ab2H3BRo (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 29 Aug 2012 11:19:11 -0400
-Date: Wed, 29 Aug 2012 17:19:09 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Randy Dunlap <rdunlap@xenotime.net>,
-	Sachin Kamat <sachin.kamat@linaro.org>
-Subject: [GIT PULL REQUEST] watchdog - v3.6-rc3 Fixes
-Message-ID: <20120829151909.GU27604@spo001.leaseweb.com>
-Mime-Version: 1.0
+	Wed, 29 Aug 2012 21:17:44 -0400
+Date: Wed, 29 Aug 2012 16:38:16 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: Aaro Koskinen <aaro.koskinen@iki.fi>
+Cc: linux-omap@vger.kernel.org, linux-watchdog@vger.kernel.org
+Subject: Re: [RFC PATCH 3/5] watchdog: introduce retu_wdt driver
+Message-ID: <20120829233816.GI1303@atomide.com>
+References: <1346189667-32330-1-git-send-email-aaro.koskinen@iki.fi>
+ <1346189667-32330-4-git-send-email-aaro.koskinen@iki.fi>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <1346189667-32330-4-git-send-email-aaro.koskinen@iki.fi>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Linus,
+* Aaro Koskinen <aaro.koskinen@iki.fi> [120828 14:35]:
+> Introduce Retu watchdog driver.
+> 
+> Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+> Cc: linux-watchdog@vger.kernel.org
 
-Please pull from 'master' branch of
-	git://www.linux-watchdog.org/linux-watchdog.git
-
-It will fix a warning for watchdog-test.c and it will remove a duplicate
-inlude of delay.h
-
-This will update the following files:
-
- Documentation/watchdog/src/watchdog-test.c |    2 +-
- drivers/watchdog/da9052_wdt.c              |    1 -
- 2 files changed, 1 insertion(+), 2 deletions(-)
-
-with these Changes:
-
-commit 3e5531caffcc07b67452c4a8170ffb4c2bd1c9b7
-Author: Sachin Kamat <sachin.kamat@linaro.org>
-Date:   Tue Aug 7 15:14:12 2012 +0530
-
-    watchdog: da9052: Remove duplicate inclusion of delay.h
-    
-    delay.h header file was included twice.
-    
-    Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-commit 4b1c2f41c2dda158bb7a3dded70775a76b581995
-Author: Randy Dunlap <rdunlap@xenotime.net>
-Date:   Mon Jul 23 10:46:11 2012 -0700
-
-    watchdog: fix watchdog-test.c build warning
-    
-    Fix compiler warning by making the function static:
-    
-    Documentation/watchdog/src/watchdog-test.c:34:6: warning: no previous prototype for 'term'
-    
-    Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-For completeness, I added the overal diff below.
-
-Greetings,
-Wim.
-
-================================================================================
-diff --git a/Documentation/watchdog/src/watchdog-test.c b/Documentation/watchdog/src/watchdog-test.c
-index 73ff5cc..3da8229 100644
---- a/Documentation/watchdog/src/watchdog-test.c
-+++ b/Documentation/watchdog/src/watchdog-test.c
-@@ -31,7 +31,7 @@ static void keep_alive(void)
-  * or "-e" to enable the card.
-  */
- 
--void term(int sig)
-+static void term(int sig)
- {
-     close(fd);
-     fprintf(stderr, "Stopping watchdog ticks...\n");
-diff --git a/drivers/watchdog/da9052_wdt.c b/drivers/watchdog/da9052_wdt.c
-index 3f75129..f7abbae 100644
---- a/drivers/watchdog/da9052_wdt.c
-+++ b/drivers/watchdog/da9052_wdt.c
-@@ -21,7 +21,6 @@
- #include <linux/types.h>
- #include <linux/kernel.h>
- #include <linux/jiffies.h>
--#include <linux/delay.h>
- 
- #include <linux/mfd/da9052/reg.h>
- #include <linux/mfd/da9052/da9052.h>
+Acked-by: Tony Lindgren <tony@atomide.com>
