@@ -1,132 +1,93 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay1.diasemi.com ([82.210.246.133]:40479 "EHLO
-	mailrelay1.diasemi.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753084Ab2H2OtZ (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:58306 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753764Ab2H2PTL (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 29 Aug 2012 10:49:25 -0400
-From: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-CC: <linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>,
-	<lm-sensors@lm-sensors.org>, <linux-input@vger.kernel.org>,
-	<linux-watchdog@vger.kernel.org>, <linux-leds@vger.kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Liam Girdwood <lrg@ti.com>,
-	Mark Brown <broonie@opensource.wolfsonmicro.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Jean Delvare <khali@linux-fr.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ashish Jangam <ashish.jangam@kpitcummins.com>,
-	Andrew Jones <drjones@redhat.com>,
-	Donggeun Kim <dg77.kim@samsung.com>,
-	Philippe =?iso-8859-1?Q?R=E9tornaz?= <philippe.retornaz@epfl.ch>,
-	"Wim Van Sebroeck" <wim@iguana.be>,
-	Bryan Wu <bryan.wu@canonical.com>,
-	Richard Purdie <rpurdie@rpsys.net>,
-	Anthony Olech <anthony.olech@diasemi.com>
-Subject: Re: [RFC PATCH 2/8] regulator: Add Dialog DA906x voltage regulators support.
-Message-ID: <201208291550@sw-eng-lt-dc-vm2>
-References: <201208241450@sw-eng-lt-dc-vm2>
-	<201208241455@sw-eng-lt-dc-vm2>
-	<20120825151020.GB6520@opensource.wolfsonmicro.com>
-In-Reply-To: <20120825151020.GB6520@opensource.wolfsonmicro.com>
-Date: Wed, 29 Aug 2012 15:50:00 +0100
+	Wed, 29 Aug 2012 11:19:11 -0400
+Date: Wed, 29 Aug 2012 17:19:09 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+	Randy Dunlap <rdunlap@xenotime.net>,
+	Sachin Kamat <sachin.kamat@linaro.org>
+Subject: [GIT PULL REQUEST] watchdog - v3.6-rc3 Fixes
+Message-ID: <20120829151909.GU27604@spo001.leaseweb.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-> > +static int da906x_set_voltage(struct regulator_dev *rdev,
-> > +				int min_uV, int max_uV, unsigned *selector)
-> > +{
-> > +	struct da906x_regulator *regl = rdev_get_drvdata(rdev);
-> > +	const struct field *fvol = &regl->info->voltage;
-> > +	int ret;
-> > +	unsigned val;
-> > +
-> > +	val = regulator_map_voltage_linear(rdev, min_uV, max_uV);
-> > +	if (val < 0)
-> > +		return -EINVAL;
-> > +
-> > +	val = (val + fvol->offset) << fvol->shift;
-> > +	ret = da906x_reg_update(regl->hw, fvol->addr, fvol->mask, val);
-> > +	if (ret >= 0)
-> > +		*selector = val;
-> > +
-> > +	return ret;
-> > +}
-> 
-> This is just set_voltage_sel_regmap().
+Hi Linus,
 
-Because, for some regulators, this is required: val += fvol->offset,
-I was only able to reduce it to the following form.
+Please pull from 'master' branch of
+	git://www.linux-watchdog.org/linux-watchdog.git
 
-+static int da9063_set_voltage(struct regulator_dev *rdev,
-+			      int min_uV, int max_uV, unsigned *selector)
-+{
-+	struct da9063_regulator *regl = rdev_get_drvdata(rdev);
-+	const struct field *fvol = &regl->info->voltage;
-+	int ret;
-+	unsigned val;
-+
-+	val = regulator_map_voltage_linear(rdev, min_uV, max_uV);
-+	if (val < 0)
-+		return -EINVAL;
-+
-+	val += fvol->offset;
-+
-+	ret = regulator_set_voltage_sel_regmap(rdev, val);
-+	if (ret >= 0)
-+		*selector = val;
-+
-+	return ret;
-+}
+It will fix a warning for watchdog-test.c and it will remove a duplicate
+inlude of delay.h
 
-> > +static int da906x_enable(struct regulator_dev *rdev)
-> > +{
-> > +	struct da906x_regulator *regl = rdev_get_drvdata(rdev);
-> > +	int ret;
-> > +
-> > +	if (regl->info->suspend.mask) {
-> > +		/* Make sure to exit from suspend mode on enable */
-> > +		ret = da906x_reg_clear_bits(regl->hw, regl->info->suspend.addr,
-> > +					    regl->info->suspend.mask);
-> > +		if (ret < 0)
-> > +			return ret;
-> > +
-> > +		/* BUCKs need mode update after wake-up from suspend state. */
-> > +		ret = da906x_update_mode_internal(regl, SYS_STATE_NORMAL);
-> > +		if (ret < 0)
-> > +			return ret;
-> > +	}
-> > +
-> > +	return regulator_enable_regmap(rdev);
-> 
-> If suspend_mask is optional the regulators using it should just use the
-> standard operation.
+This will update the following files:
 
-I guess, you meant here to call regulator_enable_regmap() directly for
-regulators NOT using suspend.mask. Then, I will do it.
+ Documentation/watchdog/src/watchdog-test.c |    2 +-
+ drivers/watchdog/da9052_wdt.c              |    1 -
+ 2 files changed, 1 insertion(+), 2 deletions(-)
 
-> > +/* Regulator event handlers */
-> > +irqreturn_t da906x_ldo_lim_event(int irq, void *data)
-> 
-> By "event handler" you mean "interrupt"
+with these Changes:
 
-Yes. I think, I will update the comment line.
+commit 3e5531caffcc07b67452c4a8170ffb4c2bd1c9b7
+Author: Sachin Kamat <sachin.kamat@linaro.org>
+Date:   Tue Aug 7 15:14:12 2012 +0530
 
-> > +	bits = da906x_reg_read(hw, DA906X_REG_STATUS_D);
-> > +	if (bits < 0)
-> > +		return IRQ_HANDLED;
-> 
-> If you fail to detect an interrupt you report that you handled one...?
+    watchdog: da9052: Remove duplicate inclusion of delay.h
+    
+    delay.h header file was included twice.
+    
+    Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
 
-For me there is no sensible return value for this case.
-However, I consider changing the reaction on read failure by reporting event
-for all regulators, that might cause this interrupt:
-+	bits = da9063_reg_read(hw, DA9063_REG_STATUS_D);
-+	if (bits < 0)
-+		bits = ~0;
+commit 4b1c2f41c2dda158bb7a3dded70775a76b581995
+Author: Randy Dunlap <rdunlap@xenotime.net>
+Date:   Mon Jul 23 10:46:11 2012 -0700
 
-I will update the driver according to your remaining comments.
+    watchdog: fix watchdog-test.c build warning
+    
+    Fix compiler warning by making the function static:
+    
+    Documentation/watchdog/src/watchdog-test.c:34:6: warning: no previous prototype for 'term'
+    
+    Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
 
-Thank you for your comments,
-Krystian
+For completeness, I added the overal diff below.
 
+Greetings,
+Wim.
+
+================================================================================
+diff --git a/Documentation/watchdog/src/watchdog-test.c b/Documentation/watchdog/src/watchdog-test.c
+index 73ff5cc..3da8229 100644
+--- a/Documentation/watchdog/src/watchdog-test.c
++++ b/Documentation/watchdog/src/watchdog-test.c
+@@ -31,7 +31,7 @@ static void keep_alive(void)
+  * or "-e" to enable the card.
+  */
+ 
+-void term(int sig)
++static void term(int sig)
+ {
+     close(fd);
+     fprintf(stderr, "Stopping watchdog ticks...\n");
+diff --git a/drivers/watchdog/da9052_wdt.c b/drivers/watchdog/da9052_wdt.c
+index 3f75129..f7abbae 100644
+--- a/drivers/watchdog/da9052_wdt.c
++++ b/drivers/watchdog/da9052_wdt.c
+@@ -21,7 +21,6 @@
+ #include <linux/types.h>
+ #include <linux/kernel.h>
+ #include <linux/jiffies.h>
+-#include <linux/delay.h>
+ 
+ #include <linux/mfd/da9052/reg.h>
+ #include <linux/mfd/da9052/da9052.h>
