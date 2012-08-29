@@ -1,11 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailrelay1.diasemi.com ([82.210.246.133]:2437 "EHLO
+Received: from mailrelay1.diasemi.com ([82.210.246.133]:40479 "EHLO
 	mailrelay1.diasemi.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753714Ab2H2Ncx (ORCPT
+	with ESMTP id S1753084Ab2H2OtZ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 29 Aug 2012 09:32:53 -0400
+	Wed, 29 Aug 2012 10:49:25 -0400
 From: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
-To: Guenter Roeck <linux@roeck-us.net>
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
 CC: <linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>,
 	<lm-sensors@lm-sensors.org>, <linux-input@vger.kernel.org>,
 	<linux-watchdog@vger.kernel.org>, <linux-leds@vger.kernel.org>,
@@ -23,69 +23,109 @@ CC: <linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>,
 	Bryan Wu <bryan.wu@canonical.com>,
 	Richard Purdie <rpurdie@rpsys.net>,
 	Anthony Olech <anthony.olech@diasemi.com>
-Subject: Re: [PATCH] regulator: Fix bug in regulator_mode_to_status() core function.
-References: <201208241500@sw-eng-lt-dc-vm2>
-	<201208241505@sw-eng-lt-dc-vm2>
-	<20120824184505.GA7275@roeck-us.net>
-In-Reply-To: <20120824184505.GA7275@roeck-us.net>
-Message-ID: <201208291425@sw-eng-lt-dc-vm2>
-Date: Wed, 29 Aug 2012 14:25:00 +0100
+Subject: Re: [RFC PATCH 2/8] regulator: Add Dialog DA906x voltage regulators support.
+Message-ID: <201208291550@sw-eng-lt-dc-vm2>
+References: <201208241450@sw-eng-lt-dc-vm2>
+	<201208241455@sw-eng-lt-dc-vm2>
+	<20120825151020.GB6520@opensource.wolfsonmicro.com>
+In-Reply-To: <20120825151020.GB6520@opensource.wolfsonmicro.com>
+Date: Wed, 29 Aug 2012 15:50:00 +0100
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-> +static const struct i_table vsys_tbl[] = {
-> > +	ILINE(0, DA906X_ADC_MAX, 2500, 5500)
-> > +};
+> > +static int da906x_set_voltage(struct regulator_dev *rdev,
+> > +				int min_uV, int max_uV, unsigned *selector)
+> > +{
+> > +	struct da906x_regulator *regl = rdev_get_drvdata(rdev);
+> > +	const struct field *fvol = &regl->info->voltage;
+> > +	int ret;
+> > +	unsigned val;
 > > +
-> > +static const struct i_table adcin_tbl[] = {
-> > +	ILINE(0, DA906X_ADC_MAX, 0, 2500)
-> > +};
+> > +	val = regulator_map_voltage_linear(rdev, min_uV, max_uV);
+> > +	if (val < 0)
+> > +		return -EINVAL;
 > > +
-> > +static const struct i_table tjunc_tbl[] = {
-> > +	ILINE(0, DA906X_ADC_MAX, 333, -86)
-> > +};
+> > +	val = (val + fvol->offset) << fvol->shift;
+> > +	ret = da906x_reg_update(regl->hw, fvol->addr, fvol->mask, val);
+> > +	if (ret >= 0)
+> > +		*selector = val;
 > > +
-> > +static const struct i_table vbbat_tbl[] = {
-> > +	ILINE(0, DA906X_ADC_MAX, 0, 5000)
-> > +};
+> > +	return ret;
+> > +}
 > 
-> Since the first parameter to ILINE is always 0, it is not needed. This means
-> that x0 in itable is also always 0 and thus not needed.
-> 
-> > +
-> > +static const struct channel_info da906x_channels[] = {
-> > +	[DA906X_VSYS]	= { "VSYS",
-> > +			    vsys_tbl, ARRAY_SIZE(vsys_tbl) - 1,
-> > +			    DA906X_REG_VSYS_RES },
-> > +	[DA906X_ADCIN1]	= { "ADCIN1",
-> > +			    adcin_tbl,	ARRAY_SIZE(adcin_tbl) - 1,
-> > +			    DA906X_REG_ADCIN1_RES },
-> > +	[DA906X_ADCIN2]	= { "ADCIN2",
-> > +			    adcin_tbl,	ARRAY_SIZE(adcin_tbl) - 1,
-> > +			    DA906X_REG_ADCIN2_RES },
-> > +	[DA906X_ADCIN3]	= { "ADCIN3",
-> > +			    adcin_tbl,	ARRAY_SIZE(adcin_tbl) - 1,
-> > +			    DA906X_REG_ADCIN3_RES },
-> > +	[DA906X_TJUNC]	= { "TJUNC",
-> > +			    tjunc_tbl,	ARRAY_SIZE(tjunc_tbl) - 1 },
-> > +	[DA906X_VBBAT]	= { "VBBAT",
-> > +			    vbbat_tbl,	ARRAY_SIZE(vbbat_tbl) - 1}
-> 
-> 	s/1}/1 }/
-> 
-> > +};
-> 
-> You lost me here a bit (I am missing something ?).
-> 
-> Seems to be each table has exactly one entry. Since the table size is 1,
-> ARRAY_SIZE(vbbat_tbl) - 1 is 0, and ...
+> This is just set_voltage_sel_regmap().
 
-An initial idea was to make the interpolation of the channel values using more
-ILINE segments. Eventually, it ended up with one linear segment for every
-channel, so it makes sense to reduce the code as you propose.
+Because, for some regulators, this is required: val += fvol->offset,
+I was only able to reduce it to the following form.
 
-As suggested, driver name will be changed from "da906x" to "da9063".
-I will adapt proposed changes and fixes.
++static int da9063_set_voltage(struct regulator_dev *rdev,
++			      int min_uV, int max_uV, unsigned *selector)
++{
++	struct da9063_regulator *regl = rdev_get_drvdata(rdev);
++	const struct field *fvol = &regl->info->voltage;
++	int ret;
++	unsigned val;
++
++	val = regulator_map_voltage_linear(rdev, min_uV, max_uV);
++	if (val < 0)
++		return -EINVAL;
++
++	val += fvol->offset;
++
++	ret = regulator_set_voltage_sel_regmap(rdev, val);
++	if (ret >= 0)
++		*selector = val;
++
++	return ret;
++}
+
+> > +static int da906x_enable(struct regulator_dev *rdev)
+> > +{
+> > +	struct da906x_regulator *regl = rdev_get_drvdata(rdev);
+> > +	int ret;
+> > +
+> > +	if (regl->info->suspend.mask) {
+> > +		/* Make sure to exit from suspend mode on enable */
+> > +		ret = da906x_reg_clear_bits(regl->hw, regl->info->suspend.addr,
+> > +					    regl->info->suspend.mask);
+> > +		if (ret < 0)
+> > +			return ret;
+> > +
+> > +		/* BUCKs need mode update after wake-up from suspend state. */
+> > +		ret = da906x_update_mode_internal(regl, SYS_STATE_NORMAL);
+> > +		if (ret < 0)
+> > +			return ret;
+> > +	}
+> > +
+> > +	return regulator_enable_regmap(rdev);
+> 
+> If suspend_mask is optional the regulators using it should just use the
+> standard operation.
+
+I guess, you meant here to call regulator_enable_regmap() directly for
+regulators NOT using suspend.mask. Then, I will do it.
+
+> > +/* Regulator event handlers */
+> > +irqreturn_t da906x_ldo_lim_event(int irq, void *data)
+> 
+> By "event handler" you mean "interrupt"
+
+Yes. I think, I will update the comment line.
+
+> > +	bits = da906x_reg_read(hw, DA906X_REG_STATUS_D);
+> > +	if (bits < 0)
+> > +		return IRQ_HANDLED;
+> 
+> If you fail to detect an interrupt you report that you handled one...?
+
+For me there is no sensible return value for this case.
+However, I consider changing the reaction on read failure by reporting event
+for all regulators, that might cause this interrupt:
++	bits = da9063_reg_read(hw, DA9063_REG_STATUS_D);
++	if (bits < 0)
++		bits = ~0;
+
+I will update the driver according to your remaining comments.
 
 Thank you for your comments,
 Krystian
