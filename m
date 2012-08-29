@@ -1,152 +1,92 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from one-mail.aptivate.org ([87.106.150.205]:51359 "EHLO
-	one-mail.aptivate.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753636Ab2H2NdR (ORCPT
+Received: from mailrelay1.diasemi.com ([82.210.246.133]:2437 "EHLO
+	mailrelay1.diasemi.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753714Ab2H2Ncx (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 29 Aug 2012 09:33:17 -0400
-Date: Wed, 29 Aug 2012 14:32:58 +0100 (BST)
-From: Chris Wilson <chris@qwirx.com>
-To: Chris Wilson <chris+github@qwirx.com>
-cc: linux-watchdog@vger.kernel.org, chris+github@aptivate.org
-Subject: Re: [PATCH 3/4] ie6xx_wdt: store and show whether system was rebooted
- by watchdog.
-In-Reply-To: <1344860831-23792-1-git-send-email-chris+github@qwirx.com>
-Message-ID: <alpine.DEB.2.02.1208291432380.12396@lap-x201>
-References: <1344860831-23792-1-git-send-email-chris+github@qwirx.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 29 Aug 2012 09:32:53 -0400
+From: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
+To: Guenter Roeck <linux@roeck-us.net>
+CC: <linux-kernel@vger.kernel.org>, <rtc-linux@googlegroups.com>,
+	<lm-sensors@lm-sensors.org>, <linux-input@vger.kernel.org>,
+	<linux-watchdog@vger.kernel.org>, <linux-leds@vger.kernel.org>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Liam Girdwood <lrg@ti.com>,
+	Mark Brown <broonie@opensource.wolfsonmicro.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Jean Delvare <khali@linux-fr.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Ashish Jangam <ashish.jangam@kpitcummins.com>,
+	Andrew Jones <drjones@redhat.com>,
+	Donggeun Kim <dg77.kim@samsung.com>,
+	Philippe =?iso-8859-1?Q?R=E9tornaz?= <philippe.retornaz@epfl.ch>,
+	"Wim Van Sebroeck" <wim@iguana.be>,
+	Bryan Wu <bryan.wu@canonical.com>,
+	Richard Purdie <rpurdie@rpsys.net>,
+	Anthony Olech <anthony.olech@diasemi.com>
+Subject: Re: [PATCH] regulator: Fix bug in regulator_mode_to_status() core function.
+References: <201208241500@sw-eng-lt-dc-vm2>
+	<201208241505@sw-eng-lt-dc-vm2>
+	<20120824184505.GA7275@roeck-us.net>
+In-Reply-To: <20120824184505.GA7275@roeck-us.net>
+Message-ID: <201208291425@sw-eng-lt-dc-vm2>
+Date: Wed, 29 Aug 2012 14:25:00 +0100
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Dear sirs,
+> +static const struct i_table vsys_tbl[] = {
+> > +	ILINE(0, DA906X_ADC_MAX, 2500, 5500)
+> > +};
+> > +
+> > +static const struct i_table adcin_tbl[] = {
+> > +	ILINE(0, DA906X_ADC_MAX, 0, 2500)
+> > +};
+> > +
+> > +static const struct i_table tjunc_tbl[] = {
+> > +	ILINE(0, DA906X_ADC_MAX, 333, -86)
+> > +};
+> > +
+> > +static const struct i_table vbbat_tbl[] = {
+> > +	ILINE(0, DA906X_ADC_MAX, 0, 5000)
+> > +};
+> 
+> Since the first parameter to ILINE is always 0, it is not needed. This means
+> that x0 in itable is also always 0 and thus not needed.
+> 
+> > +
+> > +static const struct channel_info da906x_channels[] = {
+> > +	[DA906X_VSYS]	= { "VSYS",
+> > +			    vsys_tbl, ARRAY_SIZE(vsys_tbl) - 1,
+> > +			    DA906X_REG_VSYS_RES },
+> > +	[DA906X_ADCIN1]	= { "ADCIN1",
+> > +			    adcin_tbl,	ARRAY_SIZE(adcin_tbl) - 1,
+> > +			    DA906X_REG_ADCIN1_RES },
+> > +	[DA906X_ADCIN2]	= { "ADCIN2",
+> > +			    adcin_tbl,	ARRAY_SIZE(adcin_tbl) - 1,
+> > +			    DA906X_REG_ADCIN2_RES },
+> > +	[DA906X_ADCIN3]	= { "ADCIN3",
+> > +			    adcin_tbl,	ARRAY_SIZE(adcin_tbl) - 1,
+> > +			    DA906X_REG_ADCIN3_RES },
+> > +	[DA906X_TJUNC]	= { "TJUNC",
+> > +			    tjunc_tbl,	ARRAY_SIZE(tjunc_tbl) - 1 },
+> > +	[DA906X_VBBAT]	= { "VBBAT",
+> > +			    vbbat_tbl,	ARRAY_SIZE(vbbat_tbl) - 1}
+> 
+> 	s/1}/1 }/
+> 
+> > +};
+> 
+> You lost me here a bit (I am missing something ?).
+> 
+> Seems to be each table has exactly one entry. Since the table size is 1,
+> ARRAY_SIZE(vbbat_tbl) - 1 is 0, and ...
 
-Do you have any feedback on either of my patches?
+An initial idea was to make the interpolation of the channel values using more
+ILINE segments. Eventually, it ended up with one linear segment for every
+channel, so it makes sense to reduce the code as you propose.
 
-Cheers, Chris.
+As suggested, driver name will be changed from "da906x" to "da9063".
+I will adapt proposed changes and fixes.
 
-On Mon, 13 Aug 2012, Chris Wilson wrote:
+Thank you for your comments,
+Krystian
 
-> The watchdog has a persistent bit which is set when it resets the host,
-> and can be reset by the host. The driver previously ignored this bit.
-> It was called WDT_TOUT by the driver, but WDT_TIMEOUT in the datasheet,
-> so I've renamed it for clarity.
->
-> If this bit is set when the driver is probed, I store it in the
-> watchdog_device bootstatus field, which can be read by
-> ioctl("/dev/watchdog", WDIOC_GETBOOTSTATUS). If debugfs is enabled,
-> the recorded value is also printed in the debugfs file
-> (/sys/kernel/debug/ie6xx_wdt). I used this to verify that that the
-> bit is not set when the system booted normally, but is set when it
-> was rebooted by the watchdog.
->
-> Please ignore the previous version of this patch, which was not sent
-> using git send-email, and did not reset the WDT_TIMEOUT bit properly
-> after the module was initialized.
->
-> Signed-off-by: Chris Wilson <chris+github@qwirx.com>
-> ---
-> drivers/watchdog/ie6xx_wdt.c |   30 +++++++++++++++++++++---------
-> 1 files changed, 21 insertions(+), 9 deletions(-)
->
-> diff --git a/drivers/watchdog/ie6xx_wdt.c b/drivers/watchdog/ie6xx_wdt.c
-> index 8f541b9..6b7b520 100644
-> --- a/drivers/watchdog/ie6xx_wdt.c
-> +++ b/drivers/watchdog/ie6xx_wdt.c
-> @@ -42,7 +42,7 @@
-> #define RR0	0x0c
-> #define RR1	0x0d
-> #define WDT_RELOAD	0x01
-> -#define WDT_TOUT	0x02
-> +#define WDT_TIMEOUT	0x02
->
-> #define WDTCR	0x10
-> #define WDT_PRE_SEL	0x04
-> @@ -103,7 +103,7 @@ static int ie6xx_wdt_ping(struct watchdog_device *wdd)
-> {
-> 	spin_lock(&ie6xx_wdt_data.unlock_sequence);
-> 	ie6xx_wdt_unlock_registers();
-> -	outb(WDT_RELOAD, ie6xx_wdt_data.sch_wdtba + RR1);
-> +	outb(WDT_RELOAD | WDT_TIMEOUT, ie6xx_wdt_data.sch_wdtba + RR1);
-> 	spin_unlock(&ie6xx_wdt_data.unlock_sequence);
-> 	return 0;
-> }
-> @@ -137,7 +137,7 @@ static int ie6xx_wdt_set_timeout(struct watchdog_device *wdd, unsigned int t)
-> 	outl(preload, ie6xx_wdt_data.sch_wdtba + PV2);
->
-> 	ie6xx_wdt_unlock_registers();
-> -	outb(WDT_RELOAD | WDT_TOUT, ie6xx_wdt_data.sch_wdtba + RR1);
-> +	outb(WDT_RELOAD, ie6xx_wdt_data.sch_wdtba + RR1);
->
-> 	spin_unlock(&ie6xx_wdt_data.unlock_sequence);
->
-> @@ -160,7 +160,7 @@ static int ie6xx_wdt_start(struct watchdog_device *wdd)
-> static int ie6xx_wdt_stop(struct watchdog_device *wdd)
-> {
-> 	if (inb(ie6xx_wdt_data.sch_wdtba + WDTLR) & WDT_LOCK)
-> -		return -1;
-> +		return -EACCES; // close not allowed?!
->
-> 	/* Disable the watchdog timer */
-> 	spin_lock(&ie6xx_wdt_data.unlock_sequence);
-> @@ -208,8 +208,8 @@ static int ie6xx_wdt_dbg_show(struct seq_file *s, void *unused)
-> 		inl(ie6xx_wdt_data.sch_wdtba + DCR));
-> 	seq_printf(s, "WDTLR = 0x%08x\n",
-> 		inw(ie6xx_wdt_data.sch_wdtba + WDTLR));
-> -
-> -	seq_printf(s, "\n");
-> +	seq_printf(s, "Rebooted = %s\n",
-> +		ie6xx_wdt_dev.bootstatus & WDIOF_CARDRESET ? "Yes" : "No");
-> 	return 0;
-> }
->
-> @@ -250,12 +250,14 @@ static void ie6xx_wdt_debugfs_exit(void)
-> static int __devinit ie6xx_wdt_probe(struct platform_device *pdev)
-> {
-> 	struct resource *res;
-> -	u8 wdtlr;
-> +	u8 wdtlr, rr1;
-> 	int ret;
->
-> 	res = platform_get_resource(pdev, IORESOURCE_IO, 0);
-> -	if (!res)
-> +	if (!res) {
-> +		dev_err(&pdev->dev, "failed to get resources\n");
-> 		return -ENODEV;
-> +	}
->
-> 	if (!request_region(res->start, resource_size(res), pdev->name)) {
-> 		dev_err(&pdev->dev, "Watchdog region 0x%llx already in use!\n",
-> @@ -266,6 +268,15 @@ static int __devinit ie6xx_wdt_probe(struct platform_device *pdev)
-> 	ie6xx_wdt_data.sch_wdtba = res->start;
-> 	dev_dbg(&pdev->dev, "WDT = 0x%X\n", ie6xx_wdt_data.sch_wdtba);
->
-> +	rr1 = inb(ie6xx_wdt_data.sch_wdtba + RR1);
-> +	if (rr1 & WDT_TIMEOUT) {
-> +		dev_warn(&pdev->dev, "Previous reboot was caused by the card\n");
-> +		ie6xx_wdt_dev.bootstatus |= WDIOF_CARDRESET;
-> +		// reset the flag
-> +		ie6xx_wdt_unlock_registers();
-> +		outb(WDT_TIMEOUT, ie6xx_wdt_data.sch_wdtba + RR1);
-> +	}
-> +
-> 	ie6xx_wdt_dev.timeout = timeout;
-> 	watchdog_set_nowayout(&ie6xx_wdt_dev, nowayout);
->
-> @@ -280,8 +291,9 @@ static int __devinit ie6xx_wdt_probe(struct platform_device *pdev)
->
-> 	ret = watchdog_register_device(&ie6xx_wdt_dev);
-> 	if (ret) {
-> +		printk(KERN_INFO "ie6xx_wdt_probe: can't register device\n");
-> 		dev_err(&pdev->dev,
-> -			"Watchdog timer: cannot register device (err =%d)\n",
-> +			"Watchdog timer: cannot register device (err=%d)\n",
-> 									ret);
-> 		goto misc_register_error;
-> 	}
->
-
--- 
-_____ __     _
-\  __/ / ,__(_)_  | Chris Wilson <chris+sig@qwirx.com> Cambs UK |
-/ (_/ ,\/ _/ /_ \ | Security/C/C++/Java/Ruby/Perl/SQL Developer |
-\__/_/_/_//_/___/ | We are GNU : free your mind & your software |
