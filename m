@@ -1,28 +1,59 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mho-04-ewr.mailhop.org ([204.13.248.74]:37595 "EHLO
-	mho-02-ewr.mailhop.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753846Ab2H3BRo (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:58834 "EHLO
+	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751088Ab2H3Rrm (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 29 Aug 2012 21:17:44 -0400
-Date: Wed, 29 Aug 2012 16:38:16 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Aaro Koskinen <aaro.koskinen@iki.fi>
-Cc: linux-omap@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: Re: [RFC PATCH 3/5] watchdog: introduce retu_wdt driver
-Message-ID: <20120829233816.GI1303@atomide.com>
-References: <1346189667-32330-1-git-send-email-aaro.koskinen@iki.fi>
- <1346189667-32330-4-git-send-email-aaro.koskinen@iki.fi>
+	Thu, 30 Aug 2012 13:47:42 -0400
+Date: Thu, 30 Aug 2012 10:47:38 -0700
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+To: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
+Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
+	lm-sensors@lm-sensors.org, linux-input@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, linux-leds@vger.kernel.org,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Liam Girdwood <lrg@ti.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Jean Delvare <khali@linux-fr.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Ashish Jangam <ashish.jangam@kpitcummins.com>,
+	Andrew Jones <drjones@redhat.com>,
+	Donggeun Kim <dg77.kim@samsung.com>,
+	Philippe =?iso-8859-1?Q?R=E9tornaz?= <philippe.retornaz@epfl.ch>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Bryan Wu <bryan.wu@canonical.com>,
+	Richard Purdie <rpurdie@rpsys.net>,
+	Anthony Olech <anthony.olech@diasemi.com>
+Subject: Re: [RFC PATCH 2/8] regulator: Add Dialog DA906x voltage regulators
+ support.
+Message-ID: <20120830174738.GH4356@opensource.wolfsonmicro.com>
+References: <201208241450@sw-eng-lt-dc-vm2>
+ <201208241455@sw-eng-lt-dc-vm2>
+ <20120825151020.GB6520@opensource.wolfsonmicro.com>
+ <201208291550@sw-eng-lt-dc-vm2>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1346189667-32330-4-git-send-email-aaro.koskinen@iki.fi>
+In-Reply-To: <201208291550@sw-eng-lt-dc-vm2>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-* Aaro Koskinen <aaro.koskinen@iki.fi> [120828 14:35]:
-> Introduce Retu watchdog driver.
-> 
-> Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
-> Cc: linux-watchdog@vger.kernel.org
+On Wed, Aug 29, 2012 at 03:50:00PM +0100, Krystian Garbaciak wrote:
 
-Acked-by: Tony Lindgren <tony@atomide.com>
+> Because, for some regulators, this is required: val += fvol->offset,
+> I was only able to reduce it to the following form.
+
+What on earth makes you say this?  The above is obviously linear.
+
+Besides, you're missing several points here.  One is that you should be
+using the framework features, another is that you should be implementing
+_sel.
+
+> > > +	bits = da906x_reg_read(hw, DA906X_REG_STATUS_D);
+> > > +	if (bits < 0)
+> > > +		return IRQ_HANDLED;
+
+> > If you fail to detect an interrupt you report that you handled one...?
+
+> For me there is no sensible return value for this case.
+
+IRQ_NONE.
