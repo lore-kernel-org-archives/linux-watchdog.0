@@ -1,12 +1,12 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:32808 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755309Ab2IAA17 (ORCPT
+Received: from mho-04-ewr.mailhop.org ([204.13.248.74]:25427 "EHLO
+	mho-02-ewr.mailhop.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1755352Ab2IACHA (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 31 Aug 2012 20:27:59 -0400
-Date: Fri, 31 Aug 2012 17:27:54 -0700
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-To: Tony Lindgren <tony@atomide.com>
+	Fri, 31 Aug 2012 22:07:00 -0400
+Date: Fri, 31 Aug 2012 19:06:54 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
 Cc: linux-arm-kernel@lists.infradead.org, alsa-devel@alsa-project.org,
 	linux-watchdog@vger.kernel.org,
 	Peter Ujfalusi <peter.ujfalusi@ti.com>,
@@ -15,21 +15,28 @@ Cc: linux-arm-kernel@lists.infradead.org, alsa-devel@alsa-project.org,
 	Jarkko Nikula <jarkko.nikula@bitmer.com>
 Subject: Re: [PATCH 2/4] ARM: OMAP: Split plat/hardware.h, introduce local
  hardware.h and soc.h for omap2+
-Message-ID: <20120901002753.GA21451@opensource.wolfsonmicro.com>
+Message-ID: <20120901020654.GT1303@atomide.com>
 References: <20120901002534.23715.28654.stgit@muffinssi.local>
  <20120901002622.23715.68557.stgit@muffinssi.local>
+ <20120901002753.GA21451@opensource.wolfsonmicro.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20120901002622.23715.68557.stgit@muffinssi.local>
+In-Reply-To: <20120901002753.GA21451@opensource.wolfsonmicro.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Aug 31, 2012 at 05:26:22PM -0700, Tony Lindgren wrote:
-> As the plat and mach includes need to disappear for single zImage work,
-> we need to remove plat/hardware.h.
+* Mark Brown <broonie@opensource.wolfsonmicro.com> [120831 17:28]:
+> On Fri, Aug 31, 2012 at 05:26:22PM -0700, Tony Lindgren wrote:
+> > As the plat and mach includes need to disappear for single zImage work,
+> > we need to remove plat/hardware.h.
+> 
+> Acked-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+> 
+> There's a topic/omap branch in ASoC which you can pull in to help reduce
+> conflicts, or I could merge this there if that's sensible.
 
-Acked-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Thanks. Did not see it yet at git://opensource.wolfsonmicro.com/linux-2.6-asoc,
+maybe it's not yet pushed out?
 
-There's a topic/omap branch in ASoC which you can pull in to help reduce
-conflicts, or I could merge this there if that's sensible.
+Tony
