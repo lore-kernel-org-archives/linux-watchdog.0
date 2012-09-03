@@ -1,63 +1,257 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:55804 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754365Ab2HaRRA (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 31 Aug 2012 13:17:00 -0400
-Date: Fri, 31 Aug 2012 10:16:56 -0700
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-To: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
-Cc: linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com,
-	lm-sensors@lm-sensors.org, linux-input@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, linux-leds@vger.kernel.org,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Liam Girdwood <lrg@ti.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Jean Delvare <khali@linux-fr.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ashish Jangam <ashish.jangam@kpitcummins.com>,
-	Andrew Jones <drjones@redhat.com>,
-	Donggeun Kim <dg77.kim@samsung.com>,
-	Philippe =?iso-8859-1?Q?R=E9tornaz?= <philippe.retornaz@epfl.ch>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Bryan Wu <bryan.wu@canonical.com>,
-	Richard Purdie <rpurdie@rpsys.net>,
-	Anthony Olech <anthony.olech@diasemi.com>
-Subject: Re: [PATCH 1/8] mfd: Add Dialog DA906x core driver.
-Message-ID: <20120831171655.GC25575@opensource.wolfsonmicro.com>
-References: <201208241445@sw-eng-lt-dc-vm2>
- <201208241450@sw-eng-lt-dc-vm2>
- <20120825183113.GE6520@opensource.wolfsonmicro.com>
- <201208311220@sw-eng-lt-dc-vm2>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <201208311220@sw-eng-lt-dc-vm2>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Aaro Koskinen <aaro.koskinen@iki.fi>
+To: linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-watchdog@vger.kernel.org
+Subject: [PATCH 3/4] watchdog: introduce retu_wdt driver
+Date: Mon,  3 Sep 2012 23:23:24 +0300
+Message-Id: <1346703805-31598-4-git-send-email-aaro.koskinen@iki.fi>
+In-Reply-To: <1346703805-31598-1-git-send-email-aaro.koskinen@iki.fi>
+References: <1346703805-31598-1-git-send-email-aaro.koskinen@iki.fi>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Fri, Aug 31, 2012 at 12:20:00PM +0100, Krystian Garbaciak wrote:
-> > On Fri, Aug 24, 2012 at 02:50:00PM +0100, Krystian Garbaciak wrote:
+Introduce Retu watchdog driver.
 
-> > Your selection of people to CC here appears both large and random...
+Cc: linux-watchdog@vger.kernel.org
+Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+---
+ drivers/watchdog/Kconfig    |   12 +++
+ drivers/watchdog/Makefile   |    1 +
+ drivers/watchdog/retu_wdt.c |  188 +++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 201 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/watchdog/retu_wdt.c
 
-> I've added any maintainer for my modules from maintainer list.
-
-You don't need to CC every single persojn on every single patch, and
-quite a few of these people are clearly not active in development.
-
-> > > +inline unsigned int da906x_to_range_reg(u16 reg)
-> > > +{
-> > > +	return reg + DA906X_MAPPING_BASE;
-> > > +}
-
-> > I've no real idea what this stuff is all about, it at least needs some
-> > comments somewhere.  The fact that you're just adding a constant offset
-> > to all registers is at best odd.
-
-> I will comment it precisely for next version:
-
-This still makes very little sense - this function appears to be
-accomplishing very little.  You're adding a constant offset to every
-single register address that gets used.  Why are we doing this
-dynamically at runtime?
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 53d7571..0526c7a 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -352,6 +352,18 @@ config IMX2_WDT
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called imx2_wdt.
+ 
++config RETU_WATCHDOG
++	tristate "Retu watchdog"
++	depends on MFD_RETU
++	select WATCHDOG_CORE
++	help
++	  Retu watchdog driver for Nokia Internet Tablets (700, N800,
++	  N810). At least on N800 the watchdog cannot be disabled, so
++	  this driver is essential and you should enable it.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called retu_wdt.
++
+ # AVR32 Architecture
+ 
+ config AT32AP700X_WDT
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 572b39b..d2f1c0c 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -52,6 +52,7 @@ obj-$(CONFIG_STMP3XXX_WATCHDOG) += stmp3xxx_wdt.o
+ obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
+ obj-$(CONFIG_TS72XX_WATCHDOG) += ts72xx_wdt.o
+ obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
++obj-$(CONFIG_RETU_WATCHDOG) += retu_wdt.o
+ 
+ # AVR32 Architecture
+ obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
+diff --git a/drivers/watchdog/retu_wdt.c b/drivers/watchdog/retu_wdt.c
+new file mode 100644
+index 0000000..da9750a
+--- /dev/null
++++ b/drivers/watchdog/retu_wdt.c
+@@ -0,0 +1,188 @@
++/*
++ * Retu watchdog driver
++ *
++ * Copyright (C) 2004, 2005 Nokia Corporation
++ *
++ * Based on code written by Amit Kucheria and Michael Buesch. Rewritten
++ * to use Retu MFD driver and new watchdog core by Aaro Koskinen.
++ *
++ * This file is subject to the terms and conditions of the GNU General
++ * Public License. See the file "COPYING" in the main directory of this
++ * archive for more details.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++#include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/errno.h>
++#include <linux/device.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/mfd/retu.h>
++#include <linux/watchdog.h>
++#include <linux/platform_device.h>
++
++/* Watchdog timer values in seconds */
++#define RETU_WDT_MAX_TIMER	63
++
++struct retu_wdt_dev {
++	struct retu_dev		*rdev;
++	struct device		*dev;
++	struct delayed_work	ping_work;
++};
++
++/*
++ * Since Retu watchdog cannot be disabled in hardware, we must kick it
++ * with a timer until userspace watchdog software takes over. If
++ * CONFIG_WATCHDOG_NOWAYOUT is set, we never start the feeding.
++ */
++static void retu_wdt_ping_enable(struct retu_wdt_dev *wdev)
++{
++	retu_write(wdev->rdev, RETU_REG_WATCHDOG, RETU_WDT_MAX_TIMER);
++	schedule_delayed_work(&wdev->ping_work,
++			round_jiffies_relative(RETU_WDT_MAX_TIMER * HZ / 2));
++}
++
++static void retu_wdt_ping_disable(struct retu_wdt_dev *wdev)
++{
++	retu_write(wdev->rdev, RETU_REG_WATCHDOG, RETU_WDT_MAX_TIMER);
++	cancel_delayed_work_sync(&wdev->ping_work);
++}
++
++static void retu_wdt_ping_work(struct work_struct *work)
++{
++	struct retu_wdt_dev *wdev = container_of(to_delayed_work(work),
++						struct retu_wdt_dev, ping_work);
++	retu_wdt_ping_enable(wdev);
++}
++
++static int retu_wdt_start(struct watchdog_device *wdog)
++{
++	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
++
++	retu_wdt_ping_disable(wdev);
++
++	return retu_write(wdev->rdev, RETU_REG_WATCHDOG, wdog->timeout);
++}
++
++static int retu_wdt_stop(struct watchdog_device *wdog)
++{
++	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
++
++	retu_wdt_ping_enable(wdev);
++
++	return 0;
++}
++
++static int retu_wdt_ping(struct watchdog_device *wdog)
++{
++	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
++
++	return retu_write(wdev->rdev, RETU_REG_WATCHDOG, wdog->timeout);
++}
++
++static int retu_wdt_set_timeout(struct watchdog_device *wdog,
++				unsigned int timeout)
++{
++	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
++
++	wdog->timeout = timeout;
++	return retu_write(wdev->rdev, RETU_REG_WATCHDOG, wdog->timeout);
++}
++
++static const struct watchdog_info retu_wdt_info = {
++	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
++	.identity = "Retu watchdog",
++};
++
++static const struct watchdog_ops retu_wdt_ops = {
++	.owner		= THIS_MODULE,
++	.start		= retu_wdt_start,
++	.stop		= retu_wdt_stop,
++	.ping		= retu_wdt_ping,
++	.set_timeout	= retu_wdt_set_timeout,
++};
++
++static int __devinit retu_wdt_probe(struct platform_device *pdev)
++{
++	struct retu_dev *rdev = dev_get_drvdata(pdev->dev.parent);
++	bool nowayout = WATCHDOG_NOWAYOUT;
++	struct watchdog_device *retu_wdt;
++	struct retu_wdt_dev *wdev;
++	int ret;
++
++	retu_wdt = kzalloc(sizeof(*retu_wdt), GFP_KERNEL);
++	if (!retu_wdt)
++		return -ENOMEM;
++
++	wdev = kzalloc(sizeof(*wdev), GFP_KERNEL);
++	if (!wdev) {
++		ret = -ENOMEM;
++		goto error_mem;
++	}
++
++	retu_wdt->info		= &retu_wdt_info;
++	retu_wdt->ops		= &retu_wdt_ops;
++	retu_wdt->timeout	= RETU_WDT_MAX_TIMER;
++	retu_wdt->min_timeout	= 0;
++	retu_wdt->max_timeout	= RETU_WDT_MAX_TIMER;
++
++	watchdog_set_drvdata(retu_wdt, wdev);
++	watchdog_set_nowayout(retu_wdt, nowayout);
++
++	wdev->rdev		= rdev;
++	wdev->dev		= &pdev->dev;
++
++	INIT_DELAYED_WORK(&wdev->ping_work, retu_wdt_ping_work);
++
++	ret = watchdog_register_device(retu_wdt);
++	if (ret < 0)
++		goto error_reg;
++
++	if (nowayout)
++		retu_wdt_ping(retu_wdt);
++	else
++		retu_wdt_ping_enable(wdev);
++
++	platform_set_drvdata(pdev, retu_wdt);
++
++	return 0;
++
++error_reg:
++	kfree(wdev);
++error_mem:
++	kfree(retu_wdt);
++	return ret;
++}
++
++static int __devexit retu_wdt_remove(struct platform_device *pdev)
++{
++	struct watchdog_device *wdog = platform_get_drvdata(pdev);
++	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
++
++	watchdog_unregister_device(wdog);
++	cancel_delayed_work_sync(&wdev->ping_work);
++	kfree(wdev);
++	kfree(wdog);
++
++	return 0;
++}
++
++static struct platform_driver retu_wdt_driver = {
++	.probe		= retu_wdt_probe,
++	.remove		= __devexit_p(retu_wdt_remove),
++	.driver		= {
++		.name	= "retu-wdt",
++	},
++};
++module_platform_driver(retu_wdt_driver);
++
++MODULE_ALIAS("platform:retu-wdt");
++MODULE_DESCRIPTION("Retu watchdog");
++MODULE_AUTHOR("Amit Kucheria");
++MODULE_AUTHOR("Aaro Koskinen <aaro.koskinen@iki.fi>");
++MODULE_LICENSE("GPL");
+-- 
+1.7.2.5
