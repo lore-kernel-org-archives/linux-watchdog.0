@@ -1,41 +1,43 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:33736 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751223Ab2IFHDx (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 6 Sep 2012 03:03:53 -0400
-Date: Thu, 6 Sep 2012 15:03:46 +0800
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-To: Tony Lindgren <tony@atomide.com>
-Cc: linux-arm-kernel@lists.infradead.org, alsa-devel@alsa-project.org,
-	linux-watchdog@vger.kernel.org,
-	Peter Ujfalusi <peter.ujfalusi@ti.com>,
-	Wim Van Sebroeck <wim@iguana.be>, linux-omap@vger.kernel.org,
-	Liam Girdwood <lrg@ti.com>,
-	Jarkko Nikula <jarkko.nikula@bitmer.com>
-Subject: Re: [PATCH 2/4] ARM: OMAP: Split plat/hardware.h, introduce local
- hardware.h and soc.h for omap2+
-Message-ID: <20120906070344.GB22330@opensource.wolfsonmicro.com>
-References: <20120901002534.23715.28654.stgit@muffinssi.local>
- <20120901002622.23715.68557.stgit@muffinssi.local>
- <20120901002753.GA21451@opensource.wolfsonmicro.com>
- <20120901020654.GT1303@atomide.com>
+Received: from bitmer.com ([213.157.87.50]:46224 "EHLO bitmer.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753315Ab2IGNtW (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 7 Sep 2012 09:49:22 -0400
+Date: Fri, 7 Sep 2012 16:31:07 +0300
+From: Jarkko Nikula <jarkko.nikula@bitmer.com>
+To: Aaro Koskinen <aaro.koskinen@iki.fi>
+Cc: linux-watchdog@vger.kernel.org, linux-omap@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] watchdog: omap_wdt: convert to new watchdog core
+Message-ID: <20120907133107.GA14585@bitmer.com>
+References: <1346769684-25543-1-git-send-email-aaro.koskinen@iki.fi>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20120901020654.GT1303@atomide.com>
+In-Reply-To: <1346769684-25543-1-git-send-email-aaro.koskinen@iki.fi>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Aug 31, 2012 at 07:06:54PM -0700, Tony Lindgren wrote:
-> * Mark Brown <broonie@opensource.wolfsonmicro.com> [120831 17:28]:
+Hi
 
-> > There's a topic/omap branch in ASoC which you can pull in to help reduce
-> > conflicts, or I could merge this there if that's sensible.
+On Tue, Sep 04, 2012 at 05:41:24PM +0300, Aaro Koskinen wrote:
+> Convert omap_wdt to new watchdog core. On OMAP boards, there are usually
+> multiple watchdogs. Since the new watchdog core supports multiple
+> watchdogs, all watchdog drivers used on OMAP should be converted.
+> 
+> The legacy watchdog device node is still created, so this should not
+> break existing users.
+> 
+> Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+> ---
+>  drivers/watchdog/Kconfig    |    1 +
+>  drivers/watchdog/omap_wdt.c |  268 ++++++++++++++++++-------------------------
+>  2 files changed, 115 insertions(+), 154 deletions(-)
+> 
+Am I missing some extra patch but this causes a crash on top of v3.6-rc4
+commit eeea3ac?
 
-> Thanks. Did not see it yet at git://opensource.wolfsonmicro.com/linux-2.6-asoc,
-> maybe it's not yet pushed out?
+Crash happens in omap_wdt.c:99 on Nokia N9.
 
-Nobody said to apply it in ASoC and it was part of a series.  If people
-want me to apply it directly to the OMAP branch please let me know (a
-resend would help...).
+-- 
+Jarkko
