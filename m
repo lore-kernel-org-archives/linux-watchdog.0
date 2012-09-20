@@ -1,107 +1,68 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:44628 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751633Ab2ITIOb (ORCPT
+Received: from mail-ob0-f174.google.com ([209.85.214.174]:64200 "EHLO
+	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752295Ab2ITKEv (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 20 Sep 2012 04:14:31 -0400
-Date: Thu, 20 Sep 2012 10:14:29 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Wei Yongjun <yongjun_wei@trendmicro.com.cn>,
-	Toshi Kani <toshi.kani@hp.com>
-Subject: [GIT PULL REQUEST] watchdog - v3.6-rc5 Fixes
-Message-ID: <20120920081429.GC16482@spo001.leaseweb.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Thu, 20 Sep 2012 06:04:51 -0400
+Received: by obbuo13 with SMTP id uo13so1271443obb.19
+        for <linux-watchdog@vger.kernel.org>; Thu, 20 Sep 2012 03:04:51 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <20120920052834.GD17667@game.jcrosoft.org>
+References: <1348055861-7857-1-git-send-email-fabio.porcedda@gmail.com>
+ <1348055861-7857-2-git-send-email-fabio.porcedda@gmail.com> <20120920052834.GD17667@game.jcrosoft.org>
+From: Fabio Porcedda <fabio.porcedda@gmail.com>
+Date: Thu, 20 Sep 2012 12:04:31 +0200
+Message-ID: <CAHkwnC92eMRs+FhzLG8_Y0JhKL8yVKVPhN2TSu7wTSRK6OSGuA@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] watchdog: at91sam9_wdt: add device tree support
+To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	devicetree-discuss@lists.ozlabs.org,
+	Russell King <linux@arm.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Linus,
+On Thu, Sep 20, 2012 at 7:28 AM, Jean-Christophe PLAGNIOL-VILLARD
+<plagnioj@jcrosoft.com> wrote:
+> On 13:57 Wed 19 Sep     , Fabio Porcedda wrote:
+>> Tested on an at91sam9260 board (evk-pro3)
+>>
+>> Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
+>> ---
+>>  Documentation/devicetree/bindings/watchdog/atmel-wdt.txt | 15 +++++++++++++++
+>>  drivers/watchdog/at91sam9_wdt.c                          | 11 +++++++++++
+>>  2 files changed, 26 insertions(+)
+>>  create mode 100644 Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+>>
+>> diff --git a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+>> new file mode 100644
+>> index 0000000..fca76fd
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+>> @@ -0,0 +1,15 @@
+>> +* Atmel Watchdog Timers
+>> +
+>> +** at91sam9-wdt
+>> +
+>> +Required properties:
+>> +- compatible: must be "atmel,at91sam9-wdt"
+> atmel,at91sam9260-watchdog
+>> +- reg: physical base address of the controller and length of memory mapped
+>> +  region.
+>> +
+>> +Example:
+>> +
+>> +     watchdog@fffffd40 {
+>> +             compatible = "atmel,at91sam9-wdt";
+>> +             reg = <0xfffffd40 0x10>;
+>> +     };
+>
+> you need to be able to specify the timeout too via DT
 
-Please pull from 'master' branch of
-	git://www.linux-watchdog.org/linux-watchdog.git
+Ok, i will send an updated patch.
 
-It will fix a kdump issue in hpwdt and a possible NULL dereference.
-
-This will update the following files:
-
- hpwdt.c         |    3 +++
- watchdog_core.c |    3 ++-
- 2 files changed, 5 insertions(+), 1 deletion(-)
-
-with these Changes:
-
-commit b232a70a1735c004f9ee6fdf363def527b9234b6
-Author: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
-Date:   Mon Sep 10 12:41:15 2012 +0800
-
-    watchdog: move the dereference below the NULL test
-    
-    The dereference should be moved below the NULL test.
-    
-    spatch with a semantic match is used to found this.
-    (http://coccinelle.lip6.fr/)
-    
-    Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-commit 308b135e4fcc00c80c07e0e04e7afa8edf78583c
-Author: Toshi Kani <toshi.kani@hp.com>
-Date:   Mon Aug 27 12:52:24 2012 -0600
-
-    hpwdt: Fix kdump issue in hpwdt
-    
-    kdump can be interrupted by watchdog timer when the timer is left
-    activated on the crash kernel. Changed the hpwdt driver to disable
-    watchdog timer at boot-time. This assures that watchdog timer is
-    disabled until /dev/watchdog is opened, and prevents watchdog timer
-    to be left running on the crash kernel.
-    
-    Signed-off-by: Toshi Kani <toshi.kani@hp.com>
-    Tested-by: Lisa Mitchell <lisa.mitchell@hp.com>
-    Signed-off-by: Thomas Mingarelli <Thomas.Mingarelli@hp.com>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-    Cc: stable <stable@vger.kernel.org>
-
-For completeness, I added the overal diff below.
-
-Greetings,
-Wim.
-
-================================================================================
-diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-index 1eff743..ae60406 100644
---- a/drivers/watchdog/hpwdt.c
-+++ b/drivers/watchdog/hpwdt.c
-@@ -814,6 +814,9 @@ static int __devinit hpwdt_init_one(struct pci_dev *dev,
- 	hpwdt_timer_reg = pci_mem_addr + 0x70;
- 	hpwdt_timer_con = pci_mem_addr + 0x72;
- 
-+	/* Make sure that timer is disabled until /dev/watchdog is opened */
-+	hpwdt_stop();
-+
- 	/* Make sure that we have a valid soft_margin */
- 	if (hpwdt_change_timer(soft_margin))
- 		hpwdt_change_timer(DEFAULT_MARGIN);
-diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-index 6aa46a9..3796434 100644
---- a/drivers/watchdog/watchdog_core.c
-+++ b/drivers/watchdog/watchdog_core.c
-@@ -128,11 +128,12 @@ EXPORT_SYMBOL_GPL(watchdog_register_device);
- void watchdog_unregister_device(struct watchdog_device *wdd)
- {
- 	int ret;
--	int devno = wdd->cdev.dev;
-+	int devno;
- 
- 	if (wdd == NULL)
- 		return;
- 
-+	devno = wdd->cdev.dev;
- 	ret = watchdog_dev_unregister(wdd);
- 	if (ret)
- 		pr_err("error unregistering /dev/watchdog (err=%d)\n", ret);
+Thanks for the review
+-- 
+Fabio Porcedda
