@@ -1,66 +1,40 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:40356 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751439Ab2ITHxA (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:44609 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751333Ab2ITIAT (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 20 Sep 2012 03:53:00 -0400
-Received: by obbuo13 with SMTP id uo13so1191907obb.19
-        for <linux-watchdog@vger.kernel.org>; Thu, 20 Sep 2012 00:52:59 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20120920052928.GE17667@game.jcrosoft.org>
-References: <1348055861-7857-1-git-send-email-fabio.porcedda@gmail.com>
- <1348055861-7857-3-git-send-email-fabio.porcedda@gmail.com> <20120920052928.GE17667@game.jcrosoft.org>
-From: Fabio Porcedda <fabio.porcedda@gmail.com>
-Date: Thu, 20 Sep 2012 09:52:39 +0200
-Message-ID: <CAHkwnC9jqUmb+AGCnxV9QeSv=5JjS4+AWnutkm6TZPJJRcxGAA@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] ARM: at91: add at91sam9_wdt driver to at91sam9260
-To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	devicetree-discuss@lists.ozlabs.org,
-	Russell King <linux@arm.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 20 Sep 2012 04:00:19 -0400
+Date: Thu, 20 Sep 2012 10:00:09 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Shawn Guo <shawn.guo@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Javier Martin <javier.martin@vista-silicon.com>,
+	Rob Herring <rob.herring@calxeda.com>,
+	Arnd Bergmann <arnd@arndb.de>, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v2 18/34] watchdog: imx2_wdt: remove unneeded mach/hardware.h inclusion
+Message-ID: <20120920080009.GB16482@spo001.leaseweb.com>
+References: <1348123547-31082-1-git-send-email-shawn.guo@linaro.org> <1348123547-31082-19-git-send-email-shawn.guo@linaro.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1348123547-31082-19-git-send-email-shawn.guo@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Jean-Christophe,
+Hi,
 
-On Thu, Sep 20, 2012 at 7:29 AM, Jean-Christophe PLAGNIOL-VILLARD
-<plagnioj@jcrosoft.com> wrote:
-> On 13:57 Wed 19 Sep     , Fabio Porcedda wrote:
->> Tested on an at91sam9260 board (evk-pro3)
->>
->> Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
->> ---
->>  arch/arm/boot/dts/at91sam9260.dtsi | 6 ++++++
->>  1 file changed, 6 insertions(+)
->>
->> diff --git a/arch/arm/boot/dts/at91sam9260.dtsi b/arch/arm/boot/dts/at91sam9260.dtsi
->> index 66389c1..680b1c8 100644
->> --- a/arch/arm/boot/dts/at91sam9260.dtsi
->> +++ b/arch/arm/boot/dts/at91sam9260.dtsi
->> @@ -233,6 +233,12 @@
->>                                       trigger-external;
->>                               };
->>                       };
->> +
->> +                     watchdog@fffffd40 {
-> disable dy default
+> The inclusion of mach/hardware.h is not used by the driver at all.
+> Remove it.
+> 
+> Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+> Acked-by: Sascha Hauer <s.hauer@pengutronix.de>
+> Acked-by: Arnd Bergmann <arnd@arndb.de>
+> Cc: Wim Van Sebroeck <wim@iguana.be>
+> Cc: linux-watchdog@vger.kernel.org
 
-All the others watchdog drivers in arch/arm/boot/dts/* are enabled by default.
-IMHO the watchdog driver it's like the "rtstc" and "shdwc" driver,
-they are safe to be enabled by default.
-I'm missing something?
+Acked-by: Wim Van Sebroeck <wim@iguana.be>
 
->> +                             compatible = "atmel,at91sam9-wdt";
->> +                             reg = <0xfffffd40 0x10>;
->> +                     };
->> +
->
-> Best Regards,
-> J.
+Kind regards,
+Wim.
 
-Thanks for the review
--- 
-Fabio Porcedda
