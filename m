@@ -1,74 +1,66 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.126.187]:53915 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752944Ab2ITHjl (ORCPT
+Received: from mail-ob0-f174.google.com ([209.85.214.174]:40356 "EHLO
+	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751439Ab2ITHxA (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 20 Sep 2012 03:39:41 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Shawn Guo <shawn.guo@linaro.org>
-Subject: Re: [PATCH v2 00/34] i.MX multi-platform support
-Date: Thu, 20 Sep 2012 07:39:34 +0000
-Cc: linux-arm-kernel@lists.infradead.org,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Javier Martin <javier.martin@vista-silicon.com>,
-	Rob Herring <rob.herring@calxeda.com>,
-	Mark Brown <broonie@opensource.wolfsonmicro.com>,
-	alsa-devel@alsa-project.org,
-	Florian Tobias Schandinat <FlorianSchandinat@gmx.de>,
-	linux-fbdev@vger.kernel.org, Chris Ball <cjb@laptop.org>,
-	linux-mmc@vger.kernel.org,
-	Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-	linux-media@vger.kernel.org,
-	Andrew Morton <akpm@linux-foundation.org>,
-	rtc-linux@googlegroups.com,
-	Artem Bityutskiy <artem.bityutskiy@linux.intel.com>,
-	linux-mtd@lists.infradead.org,
-	Wolfram Sang <w.sang@pengutronix.de>,
-	linux-i2c@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org,
-	"Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-	linux-usb@vger.kernel.org, Vinod Koul <vinod.koul@linux.intel.com>,
-	Paulius Zaleckas <paulius.zaleckas@teltonika.lt>
-References: <1348123547-31082-1-git-send-email-shawn.guo@linaro.org>
-In-Reply-To: <1348123547-31082-1-git-send-email-shawn.guo@linaro.org>
+	Thu, 20 Sep 2012 03:53:00 -0400
+Received: by obbuo13 with SMTP id uo13so1191907obb.19
+        for <linux-watchdog@vger.kernel.org>; Thu, 20 Sep 2012 00:52:59 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <201209200739.34899.arnd@arndb.de>
+In-Reply-To: <20120920052928.GE17667@game.jcrosoft.org>
+References: <1348055861-7857-1-git-send-email-fabio.porcedda@gmail.com>
+ <1348055861-7857-3-git-send-email-fabio.porcedda@gmail.com> <20120920052928.GE17667@game.jcrosoft.org>
+From: Fabio Porcedda <fabio.porcedda@gmail.com>
+Date: Thu, 20 Sep 2012 09:52:39 +0200
+Message-ID: <CAHkwnC9jqUmb+AGCnxV9QeSv=5JjS4+AWnutkm6TZPJJRcxGAA@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] ARM: at91: add at91sam9_wdt driver to at91sam9260
+To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	devicetree-discuss@lists.ozlabs.org,
+	Russell King <linux@arm.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thursday 20 September 2012, Shawn Guo wrote:
-> 
-> Here is the second post, which should have addressed the comments that
-> reviewers put on v1.
-> 
-> It's available on branch below.
-> 
->   git://git.linaro.org/people/shawnguo/linux-2.6.git imx/multi-platform-v2
-> 
-> And it's based on the following branches.
-> 
->   calxeda/multi-plat
->   arm-soc/multiplatform/platform-data
->   arm-soc/multiplatform/smp_ops
->   arm-soc/imx/cleanup
->   arm-soc/imx/dt
->   sound/for-3.7
-> 
-> Subsystem maintainers,
-> 
-> I plan to send the whole series for 3.7 via arm-soc tree.  Please let
-> me know if you have problem with that.  Thanks.
+Hi Jean-Christophe,
 
-The first five branches are scheduled to go through the arm-soc tree, so
-I'm fine with that. For the sound/for-3.7 branch, I'd like to know when
-to expect that hitting mainline. If it always gets in very early during the
-merge window, it's probably ok to put the imx/multi-platform patches into
-the same branch as the other ones in arm-soc and wait for the sound stuff
-to hit mainline first, otherwise I'd suggest we start a second
-next/multiplatform-2 branch for imx and send the first part early on
-but then wait with the second batch before sound gets in.
+On Thu, Sep 20, 2012 at 7:29 AM, Jean-Christophe PLAGNIOL-VILLARD
+<plagnioj@jcrosoft.com> wrote:
+> On 13:57 Wed 19 Sep     , Fabio Porcedda wrote:
+>> Tested on an at91sam9260 board (evk-pro3)
+>>
+>> Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
+>> ---
+>>  arch/arm/boot/dts/at91sam9260.dtsi | 6 ++++++
+>>  1 file changed, 6 insertions(+)
+>>
+>> diff --git a/arch/arm/boot/dts/at91sam9260.dtsi b/arch/arm/boot/dts/at91sam9260.dtsi
+>> index 66389c1..680b1c8 100644
+>> --- a/arch/arm/boot/dts/at91sam9260.dtsi
+>> +++ b/arch/arm/boot/dts/at91sam9260.dtsi
+>> @@ -233,6 +233,12 @@
+>>                                       trigger-external;
+>>                               };
+>>                       };
+>> +
+>> +                     watchdog@fffffd40 {
+> disable dy default
 
-	Arnd
+All the others watchdog drivers in arch/arm/boot/dts/* are enabled by default.
+IMHO the watchdog driver it's like the "rtstc" and "shdwc" driver,
+they are safe to be enabled by default.
+I'm missing something?
+
+>> +                             compatible = "atmel,at91sam9-wdt";
+>> +                             reg = <0xfffffd40 0x10>;
+>> +                     };
+>> +
+>
+> Best Regards,
+> J.
+
+Thanks for the review
+-- 
+Fabio Porcedda
