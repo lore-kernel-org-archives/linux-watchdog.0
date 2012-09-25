@@ -1,11 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:51975 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754009Ab2IYKZM (ORCPT
+Received: from mail-ee0-f46.google.com ([74.125.83.46]:38086 "EHLO
+	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754009Ab2IYKZO (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 25 Sep 2012 06:25:12 -0400
-Received: by eaac11 with SMTP id c11so2156432eaa.19
-        for <linux-watchdog@vger.kernel.org>; Tue, 25 Sep 2012 03:25:11 -0700 (PDT)
+	Tue, 25 Sep 2012 06:25:14 -0400
+Received: by mail-ee0-f46.google.com with SMTP id b15so689335eek.19
+        for <linux-watchdog@vger.kernel.org>; Tue, 25 Sep 2012 03:25:13 -0700 (PDT)
 From: Fabio Porcedda <fabio.porcedda@gmail.com>
 To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
@@ -13,106 +13,92 @@ To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
 	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
 	Andrew Victor <linux@maxim.org.za>
 Cc: devicetree-discuss@lists.ozlabs.org
-Subject: [PATCH v4 1/2] watchdog: at91sam9_wdt: add device tree support
-Date: Tue, 25 Sep 2012 12:25:03 +0200
-Message-Id: <1348568704-28304-2-git-send-email-fabio.porcedda@gmail.com>
+Subject: [PATCH v4 2/2] ARM: at91: add at91sam9_wdt driver to at91sam926x, at91sam9g45
+Date: Tue, 25 Sep 2012 12:25:04 +0200
+Message-Id: <1348568704-28304-3-git-send-email-fabio.porcedda@gmail.com>
 In-Reply-To: <1348568704-28304-1-git-send-email-fabio.porcedda@gmail.com>
 References: <1348568704-28304-1-git-send-email-fabio.porcedda@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Tested on an at91sam9260 board (evk-pro3)
+Enable the driver for the evk-pro3 board.
+
+Tested on an at91sam9260 board (evk-pro3).
 
 Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
 ---
- .../devicetree/bindings/watchdog/atmel-wdt.txt      | 19 +++++++++++++++++++
- drivers/watchdog/at91sam9_wdt.c                     | 21 +++++++++++++++++++++
- 2 files changed, 40 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+ arch/arm/boot/dts/at91sam9260.dtsi | 6 ++++++
+ arch/arm/boot/dts/at91sam9263.dtsi | 6 ++++++
+ arch/arm/boot/dts/at91sam9g45.dtsi | 6 ++++++
+ arch/arm/boot/dts/evk-pro3.dts     | 4 ++++
+ 4 files changed, 22 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
-new file mode 100644
-index 0000000..5947929
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
-@@ -0,0 +1,19 @@
-+* Atmel Watchdog Timers
+diff --git a/arch/arm/boot/dts/at91sam9260.dtsi b/arch/arm/boot/dts/at91sam9260.dtsi
+index 7c95f76..7612193 100644
+--- a/arch/arm/boot/dts/at91sam9260.dtsi
++++ b/arch/arm/boot/dts/at91sam9260.dtsi
+@@ -236,6 +236,12 @@
+ 					trigger-external;
+ 				};
+ 			};
 +
-+** at91sam9-wdt
-+
-+Required properties:
-+- compatible: must be "atmel,at91sam9260-wdt".
-+- reg: physical base address of the controller and length of memory mapped
-+  region.
-+
-+Optional properties:
-+- heartbeat: contains the watchdog heartbeats in seconds.
-+
-+Example:
-+
-+	watchdog@fffffd40 {
-+		compatible = "atmel,at91sam9260-wdt";
-+		reg = <0xfffffd40 0x10>;
-+		heartbeat = <10>;
-+	};
-diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
-index 05e1be8..84658d7 100644
---- a/drivers/watchdog/at91sam9_wdt.c
-+++ b/drivers/watchdog/at91sam9_wdt.c
-@@ -32,6 +32,7 @@
- #include <linux/timer.h>
- #include <linux/bitops.h>
- #include <linux/uaccess.h>
-+#include <linux/of.h>
++			watchdog@fffffd40 {
++				compatible = "atmel,at91sam9260-wdt";
++				reg = <0xfffffd40 0x10>;
++				status = "disabled";
++			};
+ 		};
  
- #include "at91sam9_wdt.h"
- 
-@@ -254,6 +255,14 @@ static struct miscdevice at91wdt_miscdev = {
- 	.fops		= &at91wdt_fops,
- };
- 
-+static inline void __init at91wdt_probe_dt(struct device_node *node)
-+{
-+	if (!node)
-+		return;
+ 		nand0: nand@40000000 {
+diff --git a/arch/arm/boot/dts/at91sam9263.dtsi b/arch/arm/boot/dts/at91sam9263.dtsi
+index 195019b..d822240 100644
+--- a/arch/arm/boot/dts/at91sam9263.dtsi
++++ b/arch/arm/boot/dts/at91sam9263.dtsi
+@@ -185,6 +185,12 @@
+ 				interrupts = <24 4 2>;
+ 				status = "disabled";
+ 			};
 +
-+	of_property_read_u32(node, "heartbeat", &heartbeat);
-+}
-+
- static int __init at91wdt_probe(struct platform_device *pdev)
- {
- 	struct resource	*r;
-@@ -272,6 +281,8 @@ static int __init at91wdt_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 	}
++			watchdog@fffffd40 {
++				compatible = "atmel,at91sam9260-wdt";
++				reg = <0xfffffd40 0x10>;
++				status = "disabled";
++			};
+ 		};
  
-+	at91wdt_probe_dt(pdev->dev.of_node);
+ 		nand0: nand@40000000 {
+diff --git a/arch/arm/boot/dts/at91sam9g45.dtsi b/arch/arm/boot/dts/at91sam9g45.dtsi
+index 63751b1..df998ab 100644
+--- a/arch/arm/boot/dts/at91sam9g45.dtsi
++++ b/arch/arm/boot/dts/at91sam9g45.dtsi
+@@ -242,6 +242,12 @@
+ 					trigger-value = <0x6>;
+ 				};
+ 			};
 +
- 	/* Set watchdog */
- 	res = at91_wdt_settimeout(ms_to_ticks(WDT_HW_TIMEOUT * 1000));
- 	if (res)
-@@ -302,11 +313,21 @@ static int __exit at91wdt_remove(struct platform_device *pdev)
- 	return res;
- }
++			watchdog@fffffd40 {
++				compatible = "atmel,at91sam9260-wdt";
++				reg = <0xfffffd40 0x10>;
++				status = "disabled";
++			};
+ 		};
  
-+#if defined(CONFIG_OF)
-+static const struct of_device_id at91_wdt_dt_ids[] = {
-+	{ .compatible = "atmel,at91sam9260-wdt" },
-+	{ /* sentinel */ }
-+};
+ 		nand0: nand@40000000 {
+diff --git a/arch/arm/boot/dts/evk-pro3.dts b/arch/arm/boot/dts/evk-pro3.dts
+index b7354e6..ce959ee 100644
+--- a/arch/arm/boot/dts/evk-pro3.dts
++++ b/arch/arm/boot/dts/evk-pro3.dts
+@@ -26,6 +26,10 @@
+ 				atmel,vbus-gpio = <&pioC 5 0>;
+ 				status = "okay";
+ 			};
 +
-+MODULE_DEVICE_TABLE(of, at91_wdt_dt_ids);
-+#endif
-+
- static struct platform_driver at91wdt_driver = {
- 	.remove		= __exit_p(at91wdt_remove),
- 	.driver		= {
- 		.name	= "at91_wdt",
- 		.owner	= THIS_MODULE,
-+		.of_match_table = of_match_ptr(at91_wdt_dt_ids),
- 	},
- };
++			watchdog@fffffd40 {
++				status = "okay";
++			};
+ 		};
  
+ 		usb0: ohci@00500000 {
 -- 
 1.7.11.3
 
