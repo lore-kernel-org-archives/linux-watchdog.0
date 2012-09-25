@@ -1,81 +1,54 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from eusmtp01.atmel.com ([212.144.249.242]:39612 "EHLO
-	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754568Ab2IYKAb (ORCPT
+Received: from mail-ee0-f46.google.com ([74.125.83.46]:38086 "EHLO
+	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754009Ab2IYKZJ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 25 Sep 2012 06:00:31 -0400
-Message-ID: <506180BE.6000603@atmel.com>
-Date: Tue, 25 Sep 2012 12:00:30 +0200
-From: Nicolas Ferre <nicolas.ferre@atmel.com>
-MIME-Version: 1.0
-To: Fabio Porcedda <fabio.porcedda@gmail.com>,
-	<devicetree-discuss@lists.ozlabs.org>
-CC: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	<linux-watchdog@vger.kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>,
+	Tue, 25 Sep 2012 06:25:09 -0400
+Received: by eekb15 with SMTP id b15so689335eek.19
+        for <linux-watchdog@vger.kernel.org>; Tue, 25 Sep 2012 03:25:08 -0700 (PDT)
+From: Fabio Porcedda <fabio.porcedda@gmail.com>
+To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
 	Andrew Victor <linux@maxim.org.za>
-Subject: Re: [PATCH v3 1/2] watchdog: at91sam9_wdt: add device tree support
-References: <1348558114-31750-1-git-send-email-fabio.porcedda@gmail.com> <1348558114-31750-2-git-send-email-fabio.porcedda@gmail.com> <20120925081057.GH17667@game.jcrosoft.org> <CAHkwnC_=i7mEv99xU6HcFpEfC6eeumcZDWrBq2_qdv=rDf3E1g@mail.gmail.com>
-In-Reply-To: <CAHkwnC_=i7mEv99xU6HcFpEfC6eeumcZDWrBq2_qdv=rDf3E1g@mail.gmail.com>
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Cc: devicetree-discuss@lists.ozlabs.org
+Subject: [PATCH v4 0/2] watchdog: at91sam9_wdt: add device tree support
+Date: Tue, 25 Sep 2012 12:25:02 +0200
+Message-Id: <1348568704-28304-1-git-send-email-fabio.porcedda@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 09/25/2012 11:45 AM, Fabio Porcedda :
-> On Tue, Sep 25, 2012 at 10:10 AM, Jean-Christophe PLAGNIOL-VILLARD
-> <plagnioj@jcrosoft.com> wrote:
->> On 09:28 Tue 25 Sep     , Fabio Porcedda wrote:
->>> Tested on an at91sam9260 board (evk-pro3)
->>>
->>> Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
->>> ---
->>>  .../devicetree/bindings/watchdog/atmel-wdt.txt      | 19 +++++++++++++++++++
->>>  drivers/watchdog/at91sam9_wdt.c                     | 21 +++++++++++++++++++++
->>>  2 files changed, 40 insertions(+)
->>>  create mode 100644 Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
->>>
->>> diff --git a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
->>> new file mode 100644
->>> index 0000000..724fad1
->>> --- /dev/null
->>> +++ b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
->>> @@ -0,0 +1,19 @@
->>> +* Atmel Watchdog Timers
->>> +
->>> +** at91sam9-wdt
->>> +
->>> +Required properties:
->>> +- compatible: must be "atmel,at91sam9-wdt".
->>> +- reg: physical base address of the controller and length of memory mapped
->>> +  region.
->>> +
->>> +Optional properties:
->>> +- heartbeat: contains the watchdog heartbeats in seconds.
->>> +
->>> +Example:
->>> +
->>> +     watchdog@fffffd40 {
->>> +             compatible = "atmel,at91sam9-wdt";
->> for the secind time atmel,at91sam9260-watchdog
-> 
-> Ok, i will fix this.
-> 
->> you need to put the first soc that use it in the compatible
->>> +             reg = <0xfffffd40 0x10>;
->>> +             heartbeat = <10>;
->> need put second in the property name so need to read the doc
-> 
-> I didn't found any example about a property with "second" in the name.
-> Which It's best "heartbeat-seconds", "heartbeat-sec" or "heartbeat-s" ?
+Hi all,
 
-I think that, as it is indicated in the documentation, we should not
-worry too much about that... but "heartbeat" and "heartbeat-s" is ok
-with me.
+This set of patches is for adding device tree support to the
+at91sam_wdt driver.
 
-Maybe people @ devicetree-discuss have an advice for this?
+I've tested it on an at91sam9260 board (evk-pro3).
 
-Bye,
+Changes:
+v4:
+ - use "atmel,at91sam9260-wdt" as compatible
+v3:
+ - add heartbeat option
+ - default disabled for all the soc, enable only for evk-pro3 board
+ - add at91sam9263 and at91sam9g45 soc
+v2:
+ - add missing to and cc addresses
+
+Fabio Porcedda (2):
+  watchdog: at91sam9_wdt: add device tree support
+  ARM: at91: add at91sam9_wdt driver to at91sam926x, at91sam9g45
+
+ .../devicetree/bindings/watchdog/atmel-wdt.txt      | 19 +++++++++++++++++++
+ arch/arm/boot/dts/at91sam9260.dtsi                  |  6 ++++++
+ arch/arm/boot/dts/at91sam9263.dtsi                  |  6 ++++++
+ arch/arm/boot/dts/at91sam9g45.dtsi                  |  6 ++++++
+ arch/arm/boot/dts/evk-pro3.dts                      |  4 ++++
+ drivers/watchdog/at91sam9_wdt.c                     | 21 +++++++++++++++++++++
+ 6 files changed, 62 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+
 -- 
-Nicolas Ferre
+1.7.11.3
+
