@@ -1,46 +1,54 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp165.iad.emailsrvr.com ([207.97.245.165]:60267 "EHLO
-	smtp165.iad.emailsrvr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751033Ab2I0LtA (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 27 Sep 2012 07:49:00 -0400
-Message-ID: <50643D2A.7020402@jollamobile.com>
-Date: Thu, 27 Sep 2012 14:48:58 +0300
-From: Jarkko Nikula <jarkko.nikula@jollamobile.com>
-MIME-Version: 1.0
-To: Jarkko Nikula <jarkko.nikula@jollamobile.com>
-CC: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	linux-omap@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>
-Subject: Re: [PATCH_v2] watchdog: Convert twl4030_wdt to watchdog core
-References: <20120910215946.GB26184@blackmetal.musicnaut.iki.fi> <1347343270-16881-1-git-send-email-jarkko.nikula@jollamobile.com>
-In-Reply-To: <1347343270-16881-1-git-send-email-jarkko.nikula@jollamobile.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Received: from skyrme.org ([193.175.80.135]:43030 "EHLO skyrme.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751838Ab2I0Npi (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 27 Sep 2012 09:45:38 -0400
+Received: from p4ff1b7aa.dip.t-dialin.net ([79.241.183.170] helo=curry.scara.com)
+	by skyrme.org with esmtpsa (TLS-1.0:DHE_RSA_AES_256_CBC_SHA1:32)
+	(Exim 4.63)
+	(envelope-from <oskar@scara.com>)
+	id 1THDpY-0007rU-Qc
+	for linux-watchdog@vger.kernel.org; Thu, 27 Sep 2012 13:08:41 +0000
+Date: 27 Sep 2012 13:08:37 +0000
+Message-ID: <20120927130837.GA22448@curry>
+From: "Oskar Schirmer" <oskar@scara.com>
+To: "Wim Van Sebroeck" <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	" Wolfram Sang" <w.sang@pengutronix.de>,
+	" Sascha Hauer" <kernel@pengutronix.de>,
+	" Andrew Morton" <akpm@linux-foundation.org>,
+	" Johannes Weiner" <hannes@cmpxchg.org>,
+	" Oskar Schirmer" <oskar@scara.com>
+Subject: Re: [PATCH v3] watchdog/imx2+: add support for pretimeout interrupt functionality
+References: <1347357652-23601-1-git-send-email-oskar@scara.com> <1348155444-24321-1-git-send-email-oskar@scara.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1348155444-24321-1-git-send-email-oskar@scara.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi
+Hi Wim,
 
-On 09/11/2012 09:01 AM, Jarkko Nikula wrote:
-> Convert the twl4030_wdt watchdog driver to watchdog core.
->
-> While at there use devm_kzalloc and set the default timeout in order to be
-> able test this driver with a simple shell script.
->
-> Signed-off-by: Jarkko Nikula<jarkko.nikula@jollamobile.com>
-> Tested-by: Aaro Koskinen<aaro.koskinen@iki.fi>
-> ---
-> v2:
-> - select WATCHDOG_CORE in Kconfig was accidentally put to to OMAP_WATCHDOG
->    instead of TWL4030_WATCHDOG. Thanks to Aaro Koskinen<aaro.koskinen@iki.fi>
->    for noticing.
-> - Added Aaro's Tested-by
-> ---
->   drivers/watchdog/Kconfig       |    1 +
->   drivers/watchdog/twl4030_wdt.c |  183 ++++++++--------------------------------
->   2 files changed, 35 insertions(+), 149 deletions(-)
->
-Gentle ping if this got lost and if I need to repost, fix, etc.
+unless there is another issue with this patch,
+could You give an ack now?
 
--- 
-Jarkko
+thanks,
+  Oskar
+
+On Thu, Sep 20, 2012 at 15:37:24 +0000, Oskar Schirmer wrote:
+> This watchdog device provides pretimeout facilities:
+> Set some timeout value and get informed about imminent
+> watchdog activity thru interrupt.
+> 
+> Allow user to wait for this asynchronous event thru poll(2),
+> and to clear it implicitely upon dog appeasement.
+> 
+> There is only one precedent in current kernel that implements
+> watchdog pretimeout, ipmi_watchdog. It provides pretimeout
+> event thru poll, and requires a read(2) call to clear it.
+> 
+> However, as write(2) does calm the dog and so wind up the
+> timer anyway, it is obvious to let poll(2) state writability
+> where pretimeout has passed.
+[...]
