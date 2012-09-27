@@ -1,11 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
 Received: from mail-bk0-f46.google.com ([209.85.214.46]:63899 "EHLO
 	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751420Ab2I0Pkn (ORCPT
+	with ESMTP id S1751420Ab2I0Pkp (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 27 Sep 2012 11:40:43 -0400
+	Thu, 27 Sep 2012 11:40:45 -0400
 Received: by mail-bk0-f46.google.com with SMTP id jk13so2046818bkc.19
-        for <linux-watchdog@vger.kernel.org>; Thu, 27 Sep 2012 08:40:42 -0700 (PDT)
+        for <linux-watchdog@vger.kernel.org>; Thu, 27 Sep 2012 08:40:44 -0700 (PDT)
 From: Fabio Porcedda <fabio.porcedda@gmail.com>
 To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
@@ -13,74 +13,36 @@ To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
 	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
 	Andrew Victor <linux@maxim.org.za>
 Cc: devicetree-discuss@lists.ozlabs.org
-Subject: [PATCH v5 2/3] ARM: at91/dts: add at91sam9_wdt driver to at91sam926x, at91sam9g45
-Date: Thu, 27 Sep 2012 17:40:31 +0200
-Message-Id: <1348760432-12284-3-git-send-email-fabio.porcedda@gmail.com>
+Subject: [PATCH v5 3/3] ARM: at91/dts: evk-pro3: enable watchdog
+Date: Thu, 27 Sep 2012 17:40:32 +0200
+Message-Id: <1348760432-12284-4-git-send-email-fabio.porcedda@gmail.com>
 In-Reply-To: <1348760432-12284-1-git-send-email-fabio.porcedda@gmail.com>
 References: <1348760432-12284-1-git-send-email-fabio.porcedda@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Tested on an at91sam9260 board (evk-pro3).
+Tested on evk-pro3.
 
 Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
 ---
- arch/arm/boot/dts/at91sam9260.dtsi | 6 ++++++
- arch/arm/boot/dts/at91sam9263.dtsi | 6 ++++++
- arch/arm/boot/dts/at91sam9g45.dtsi | 6 ++++++
- 3 files changed, 18 insertions(+)
+ arch/arm/boot/dts/evk-pro3.dts | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/arm/boot/dts/at91sam9260.dtsi b/arch/arm/boot/dts/at91sam9260.dtsi
-index 7c95f76..7612193 100644
---- a/arch/arm/boot/dts/at91sam9260.dtsi
-+++ b/arch/arm/boot/dts/at91sam9260.dtsi
-@@ -236,6 +236,12 @@
- 					trigger-external;
- 				};
+diff --git a/arch/arm/boot/dts/evk-pro3.dts b/arch/arm/boot/dts/evk-pro3.dts
+index b7354e6..ce959ee 100644
+--- a/arch/arm/boot/dts/evk-pro3.dts
++++ b/arch/arm/boot/dts/evk-pro3.dts
+@@ -26,6 +26,10 @@
+ 				atmel,vbus-gpio = <&pioC 5 0>;
+ 				status = "okay";
  			};
 +
 +			watchdog@fffffd40 {
-+				compatible = "atmel,at91sam9260-wdt";
-+				reg = <0xfffffd40 0x10>;
-+				status = "disabled";
++				status = "okay";
 +			};
  		};
  
- 		nand0: nand@40000000 {
-diff --git a/arch/arm/boot/dts/at91sam9263.dtsi b/arch/arm/boot/dts/at91sam9263.dtsi
-index 195019b..d822240 100644
---- a/arch/arm/boot/dts/at91sam9263.dtsi
-+++ b/arch/arm/boot/dts/at91sam9263.dtsi
-@@ -185,6 +185,12 @@
- 				interrupts = <24 4 2>;
- 				status = "disabled";
- 			};
-+
-+			watchdog@fffffd40 {
-+				compatible = "atmel,at91sam9260-wdt";
-+				reg = <0xfffffd40 0x10>;
-+				status = "disabled";
-+			};
- 		};
- 
- 		nand0: nand@40000000 {
-diff --git a/arch/arm/boot/dts/at91sam9g45.dtsi b/arch/arm/boot/dts/at91sam9g45.dtsi
-index 63751b1..df998ab 100644
---- a/arch/arm/boot/dts/at91sam9g45.dtsi
-+++ b/arch/arm/boot/dts/at91sam9g45.dtsi
-@@ -242,6 +242,12 @@
- 					trigger-value = <0x6>;
- 				};
- 			};
-+
-+			watchdog@fffffd40 {
-+				compatible = "atmel,at91sam9260-wdt";
-+				reg = <0xfffffd40 0x10>;
-+				status = "disabled";
-+			};
- 		};
- 
- 		nand0: nand@40000000 {
+ 		usb0: ohci@00500000 {
 -- 
 1.7.11.3
 
