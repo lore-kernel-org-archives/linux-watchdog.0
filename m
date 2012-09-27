@@ -1,49 +1,58 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:37867 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753163Ab2I0PAW (ORCPT
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:63899 "EHLO
+	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750919Ab2I0Pkj (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 27 Sep 2012 11:00:22 -0400
-Received: by obbuo13 with SMTP id uo13so1845341obb.19
-        for <linux-watchdog@vger.kernel.org>; Thu, 27 Sep 2012 08:00:21 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20120927055021.GO17667@game.jcrosoft.org>
-References: <1348568704-28304-1-git-send-email-fabio.porcedda@gmail.com>
- <1348568704-28304-3-git-send-email-fabio.porcedda@gmail.com> <20120927055021.GO17667@game.jcrosoft.org>
+	Thu, 27 Sep 2012 11:40:39 -0400
+Received: by bkcjk13 with SMTP id jk13so2046818bkc.19
+        for <linux-watchdog@vger.kernel.org>; Thu, 27 Sep 2012 08:40:38 -0700 (PDT)
 From: Fabio Porcedda <fabio.porcedda@gmail.com>
-Date: Thu, 27 Sep 2012 17:00:01 +0200
-Message-ID: <CAHkwnC-76qUZaKHA7O5rdMDCAbDB52b9UL9hKWWiTBFQHpUS0g@mail.gmail.com>
-Subject: Re: [PATCH v4 2/2] ARM: at91: add at91sam9_wdt driver to at91sam926x, at91sam9g45
-To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
 	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Andrew Victor <linux@maxim.org.za>,
-	devicetree-discuss@lists.ozlabs.org
-Content-Type: text/plain; charset=ISO-8859-1
+	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
+	Andrew Victor <linux@maxim.org.za>
+Cc: devicetree-discuss@lists.ozlabs.org
+Subject: [PATCH v5 0/3] watchdog: at91sam9_wdt: add device tree support
+Date: Thu, 27 Sep 2012 17:40:29 +0200
+Message-Id: <1348760432-12284-1-git-send-email-fabio.porcedda@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Sep 27, 2012 at 7:50 AM, Jean-Christophe PLAGNIOL-VILLARD
-<plagnioj@jcrosoft.com> wrote:
-> On 12:25 Tue 25 Sep     , Fabio Porcedda wrote:
->> Enable the driver for the evk-pro3 board.
->>
->> Tested on an at91sam9260 board (evk-pro3).
->>
->> Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
->> ---
->>  arch/arm/boot/dts/at91sam9260.dtsi | 6 ++++++
->>  arch/arm/boot/dts/at91sam9263.dtsi | 6 ++++++
->>  arch/arm/boot/dts/at91sam9g45.dtsi | 6 ++++++
->>  arch/arm/boot/dts/evk-pro3.dts     | 4 ++++
-> split board and soc
 
-Ok, i will send an updated patch.
+Hi all,
 
-> Best Regards,
-> J.
+This set of patches is for adding device tree support to the
+at91sam9_wdt driver.
 
-Best regards
+I've tested it on an at91sam9260 board (evk-pro3).
+
+Changes:
+v5:
+ - split dts commit in two, one for socs and one for boards.
+v4:
+ - use "atmel,at91sam9260-wdt" as compatible
+v3:
+ - add heartbeat option
+ - default disabled for all the soc, enable only for evk-pro3 board
+ - add at91sam9263 and at91sam9g45 soc
+v2:
+ - add missing to and cc addresses
+
+Fabio Porcedda (3):
+  watchdog: at91sam9_wdt: add device tree support
+  ARM: at91/dts: add at91sam9_wdt driver to at91sam926x, at91sam9g45
+  ARM: at91/dts: evk-pro3: enable watchdog
+
+ .../devicetree/bindings/watchdog/atmel-wdt.txt      | 19 +++++++++++++++++++
+ arch/arm/boot/dts/at91sam9260.dtsi                  |  6 ++++++
+ arch/arm/boot/dts/at91sam9263.dtsi                  |  6 ++++++
+ arch/arm/boot/dts/at91sam9g45.dtsi                  |  6 ++++++
+ arch/arm/boot/dts/evk-pro3.dts                      |  4 ++++
+ drivers/watchdog/at91sam9_wdt.c                     | 21 +++++++++++++++++++++
+ 6 files changed, 62 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+
 -- 
-Fabio Porcedda
+1.7.11.3
+
