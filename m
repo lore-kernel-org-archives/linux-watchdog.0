@@ -1,54 +1,39 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:49590 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:49841 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754082Ab2I0VYp (ORCPT
+	with ESMTP id S1751085Ab2I1I3u (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 27 Sep 2012 17:24:45 -0400
-Date: Thu, 27 Sep 2012 23:24:44 +0200
+	Fri, 28 Sep 2012 04:29:50 -0400
+Date: Fri, 28 Sep 2012 10:29:47 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Oskar Schirmer <oskar@scara.com>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Wolfram Sang <w.sang@pengutronix.de>,
-	Sascha Hauer <kernel@pengutronix.de>,
+To: "Karicheri, Muralidharan" <m-karicheri2@ti.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>,
 	Andrew Morton <akpm@linux-foundation.org>,
-	Johannes Weiner <hannes@cmpxchg.org>
-Subject: Re: [PATCH v3] watchdog/imx2+: add support for pretimeout interrupt functionality
-Message-ID: <20120927212444.GK16482@spo001.leaseweb.com>
-References: <1347357652-23601-1-git-send-email-oskar@scara.com> <1348155444-24321-1-git-send-email-oskar@scara.com> <20120927130837.GA22448@curry>
+	LKML <linux-kernel@vger.kernel.org>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+	Wei Yongjun <yongjun_wei@trendmicro.com.cn>,
+	Toshi Kani <toshi.kani@hp.com>
+Subject: Re: [GIT PULL REQUEST] watchdog - v3.6-rc5 Fixes
+Message-ID: <20120928082947.GL16482@spo001.leaseweb.com>
+References: <20120920081429.GC16482@spo001.leaseweb.com> <3E54258959B69E4282D79E01AB1F32B7041DB389@DFLE12.ent.ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20120927130837.GA22448@curry>
+In-Reply-To: <3E54258959B69E4282D79E01AB1F32B7041DB389@DFLE12.ent.ti.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Oskar,
+Hi Murali,
 
-> unless there is another issue with this patch,
-> could You give an ack now?
+> Wim,
 > 
-> thanks,
->   Oskar
+> Could you take the watchdog davinci patch as well?  http://www.mail-archive.com/davinci-linux-open-source@linux.davincidsp.com/msg23630.html
 > 
-> On Thu, Sep 20, 2012 at 15:37:24 +0000, Oskar Schirmer wrote:
-> > This watchdog device provides pretimeout facilities:
-> > Set some timeout value and get informed about imminent
-> > watchdog activity thru interrupt.
-> > 
-> > Allow user to wait for this asynchronous event thru poll(2),
-> > and to clear it implicitely upon dog appeasement.
-> > 
-> > There is only one precedent in current kernel that implements
-> > watchdog pretimeout, ipmi_watchdog. It provides pretimeout
-> > event thru poll, and requires a read(2) call to clear it.
-> > 
-> > However, as write(2) does calm the dog and so wind up the
-> > timer anyway, it is obvious to let poll(2) state writability
-> > where pretimeout has passed.
-> [...]
+> I have tried 2 times to send the patch to the linux-watchdog list, but the server is rejecting it for some reason. The second time I tried registering my email id to the list and re-sent, but no success.
+> 
+> Murali
 
-No, I'm not givinbg this an ACK nor a NAK at this moment.
-I will review best options after the next merge window.
+It's in linux-watchdog-next since yesterday-evening.
 
 Kind regards,
 Wim.
