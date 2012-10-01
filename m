@@ -1,248 +1,71 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Aaro Koskinen <aaro.koskinen@iki.fi>
-To: linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Aaro Koskinen <aaro.koskinen@iki.fi>, linux-watchdog@vger.kernel.org
-Subject: [PATCH v2 3/4] watchdog: introduce retu_wdt driver
-Date: Wed, 31 Oct 2012 20:03:45 +0200
-Message-Id: <1351706626-32186-4-git-send-email-aaro.koskinen@iki.fi>
-In-Reply-To: <1351706626-32186-1-git-send-email-aaro.koskinen@iki.fi>
-References: <1351706626-32186-1-git-send-email-aaro.koskinen@iki.fi>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:56154 "EHLO
+	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751145Ab2JAMYr (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 1 Oct 2012 08:24:47 -0400
+Received: by bkcjk13 with SMTP id jk13so4894647bkc.19
+        for <linux-watchdog@vger.kernel.org>; Mon, 01 Oct 2012 05:24:46 -0700 (PDT)
+From: Fabio Porcedda <fabio.porcedda@gmail.com>
+To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
+	Andrew Victor <linux@maxim.org.za>,
+	Jason Cooper <jason@lakedaemon.net>,
+	Andrew Lunn <andrew@lunn.ch>
+Cc: devicetree-discuss@lists.ozlabs.org
+Subject: [PATCH v6 0/5] watchdog: orion_wdt & at91sam9_wdt: improve dt support
+Date: Mon,  1 Oct 2012 14:24:36 +0200
+Message-Id: <1349094281-28889-1-git-send-email-fabio.porcedda@gmail.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Introduce Retu watchdog driver.
+Hi all,
 
-Cc: linux-watchdog@vger.kernel.org
-Acked-by: Felipe Balbi <balbi@ti.com>
-Acked-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
----
- drivers/watchdog/Kconfig    |   12 +++
- drivers/watchdog/Makefile   |    1 +
- drivers/watchdog/retu_wdt.c |  178 +++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 191 insertions(+), 0 deletions(-)
- create mode 100644 drivers/watchdog/retu_wdt.c
+This set of patches is for adding device tree support to the
+at91sam9_wdt driver and to add the new timeout property to
+the watchdog core.
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index ad1bb93..c3a836d 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -352,6 +352,18 @@ config IMX2_WDT
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called imx2_wdt.
- 
-+config RETU_WATCHDOG
-+	tristate "Retu watchdog"
-+	depends on MFD_RETU
-+	select WATCHDOG_CORE
-+	help
-+	  Retu watchdog driver for Nokia Internet Tablets (700, N800,
-+	  N810). At least on N800 the watchdog cannot be disabled, so
-+	  this driver is essential and you should enable it.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called retu_wdt.
-+
- # AVR32 Architecture
- 
- config AT32AP700X_WDT
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 572b39b..d2f1c0c 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -52,6 +52,7 @@ obj-$(CONFIG_STMP3XXX_WATCHDOG) += stmp3xxx_wdt.o
- obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
- obj-$(CONFIG_TS72XX_WATCHDOG) += ts72xx_wdt.o
- obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
-+obj-$(CONFIG_RETU_WATCHDOG) += retu_wdt.o
- 
- # AVR32 Architecture
- obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
-diff --git a/drivers/watchdog/retu_wdt.c b/drivers/watchdog/retu_wdt.c
-new file mode 100644
-index 0000000..aeb0f39
---- /dev/null
-+++ b/drivers/watchdog/retu_wdt.c
-@@ -0,0 +1,178 @@
-+/*
-+ * Retu watchdog driver
-+ *
-+ * Copyright (C) 2004, 2005 Nokia Corporation
-+ *
-+ * Based on code written by Amit Kucheria and Michael Buesch.
-+ * Rewritten by Aaro Koskinen.
-+ *
-+ * This file is subject to the terms and conditions of the GNU General
-+ * Public License. See the file "COPYING" in the main directory of this
-+ * archive for more details.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-+ * GNU General Public License for more details.
-+ */
-+
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <linux/errno.h>
-+#include <linux/device.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/mfd/retu.h>
-+#include <linux/watchdog.h>
-+#include <linux/platform_device.h>
-+
-+/* Watchdog timer values in seconds */
-+#define RETU_WDT_MAX_TIMER	63
-+
-+struct retu_wdt_dev {
-+	struct retu_dev		*rdev;
-+	struct device		*dev;
-+	struct delayed_work	ping_work;
-+};
-+
-+/*
-+ * Since Retu watchdog cannot be disabled in hardware, we must kick it
-+ * with a timer until userspace watchdog software takes over. If
-+ * CONFIG_WATCHDOG_NOWAYOUT is set, we never start the feeding.
-+ */
-+static void retu_wdt_ping_enable(struct retu_wdt_dev *wdev)
-+{
-+	retu_write(wdev->rdev, RETU_REG_WATCHDOG, RETU_WDT_MAX_TIMER);
-+	schedule_delayed_work(&wdev->ping_work,
-+			round_jiffies_relative(RETU_WDT_MAX_TIMER * HZ / 2));
-+}
-+
-+static void retu_wdt_ping_disable(struct retu_wdt_dev *wdev)
-+{
-+	retu_write(wdev->rdev, RETU_REG_WATCHDOG, RETU_WDT_MAX_TIMER);
-+	cancel_delayed_work_sync(&wdev->ping_work);
-+}
-+
-+static void retu_wdt_ping_work(struct work_struct *work)
-+{
-+	struct retu_wdt_dev *wdev = container_of(to_delayed_work(work),
-+						struct retu_wdt_dev, ping_work);
-+	retu_wdt_ping_enable(wdev);
-+}
-+
-+static int retu_wdt_start(struct watchdog_device *wdog)
-+{
-+	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
-+
-+	retu_wdt_ping_disable(wdev);
-+
-+	return retu_write(wdev->rdev, RETU_REG_WATCHDOG, wdog->timeout);
-+}
-+
-+static int retu_wdt_stop(struct watchdog_device *wdog)
-+{
-+	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
-+
-+	retu_wdt_ping_enable(wdev);
-+
-+	return 0;
-+}
-+
-+static int retu_wdt_ping(struct watchdog_device *wdog)
-+{
-+	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
-+
-+	return retu_write(wdev->rdev, RETU_REG_WATCHDOG, wdog->timeout);
-+}
-+
-+static int retu_wdt_set_timeout(struct watchdog_device *wdog,
-+				unsigned int timeout)
-+{
-+	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
-+
-+	wdog->timeout = timeout;
-+	return retu_write(wdev->rdev, RETU_REG_WATCHDOG, wdog->timeout);
-+}
-+
-+static const struct watchdog_info retu_wdt_info = {
-+	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-+	.identity = "Retu watchdog",
-+};
-+
-+static const struct watchdog_ops retu_wdt_ops = {
-+	.owner		= THIS_MODULE,
-+	.start		= retu_wdt_start,
-+	.stop		= retu_wdt_stop,
-+	.ping		= retu_wdt_ping,
-+	.set_timeout	= retu_wdt_set_timeout,
-+};
-+
-+static int __devinit retu_wdt_probe(struct platform_device *pdev)
-+{
-+	struct retu_dev *rdev = dev_get_drvdata(pdev->dev.parent);
-+	bool nowayout = WATCHDOG_NOWAYOUT;
-+	struct watchdog_device *retu_wdt;
-+	struct retu_wdt_dev *wdev;
-+	int ret;
-+
-+	retu_wdt = devm_kzalloc(&pdev->dev, sizeof(*retu_wdt), GFP_KERNEL);
-+	if (!retu_wdt)
-+		return -ENOMEM;
-+
-+	wdev = devm_kzalloc(&pdev->dev, sizeof(*wdev), GFP_KERNEL);
-+	if (!wdev)
-+		return -ENOMEM;
-+
-+	retu_wdt->info		= &retu_wdt_info;
-+	retu_wdt->ops		= &retu_wdt_ops;
-+	retu_wdt->timeout	= RETU_WDT_MAX_TIMER;
-+	retu_wdt->min_timeout	= 0;
-+	retu_wdt->max_timeout	= RETU_WDT_MAX_TIMER;
-+
-+	watchdog_set_drvdata(retu_wdt, wdev);
-+	watchdog_set_nowayout(retu_wdt, nowayout);
-+
-+	wdev->rdev		= rdev;
-+	wdev->dev		= &pdev->dev;
-+
-+	INIT_DELAYED_WORK(&wdev->ping_work, retu_wdt_ping_work);
-+
-+	ret = watchdog_register_device(retu_wdt);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (nowayout)
-+		retu_wdt_ping(retu_wdt);
-+	else
-+		retu_wdt_ping_enable(wdev);
-+
-+	platform_set_drvdata(pdev, retu_wdt);
-+
-+	return 0;
-+}
-+
-+static int __devexit retu_wdt_remove(struct platform_device *pdev)
-+{
-+	struct watchdog_device *wdog = platform_get_drvdata(pdev);
-+	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
-+
-+	watchdog_unregister_device(wdog);
-+	cancel_delayed_work_sync(&wdev->ping_work);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver retu_wdt_driver = {
-+	.probe		= retu_wdt_probe,
-+	.remove		= __devexit_p(retu_wdt_remove),
-+	.driver		= {
-+		.name	= "retu-wdt",
-+	},
-+};
-+module_platform_driver(retu_wdt_driver);
-+
-+MODULE_ALIAS("platform:retu-wdt");
-+MODULE_DESCRIPTION("Retu watchdog");
-+MODULE_AUTHOR("Amit Kucheria");
-+MODULE_AUTHOR("Aaro Koskinen <aaro.koskinen@iki.fi>");
-+MODULE_LICENSE("GPL");
+I've tested the at91sam9_wdt modifications on an at91sam9260 board (evk-pro3).
+
+Changes:
+v6:
+ - add watchdog core proprty timeout binding
+ - add as example to the orion_wdt driver the new timeout binding
+v5:
+ - split dts commit in two, one for socs and one for boards.
+v4:
+ - use "atmel,at91sam9260-wdt" as compatible
+v3:
+ - add heartbeat option
+ - default disabled for all the soc, enable only for evk-pro3 board
+ - add at91sam9263 and at91sam9g45 soc
+v2:
+ - add missing to and cc addresses
+
+
+
+Fabio Porcedda (5):
+  watchdog: core: dt: add support for the timeout device tree property
+  watchdog: orion_wdt: dt: add the timeout property binding
+  watchdog: at91sam9_wdt: add device tree support
+  ARM: at91/dts: add at91sam9_wdt driver to at91sam926x, at91sam9g45
+  ARM: at91/dts: evk-pro3: enable watchdog
+
+ .../devicetree/bindings/watchdog/atmel-wdt.txt      | 19 +++++++++++++++++++
+ .../devicetree/bindings/watchdog/marvel.txt         |  5 +++++
+ Documentation/watchdog/watchdog-kernel-api.txt      |  3 +++
+ arch/arm/boot/dts/at91sam9260.dtsi                  |  6 ++++++
+ arch/arm/boot/dts/at91sam9263.dtsi                  |  6 ++++++
+ arch/arm/boot/dts/at91sam9g45.dtsi                  |  6 ++++++
+ arch/arm/boot/dts/evk-pro3.dts                      |  4 ++++
+ drivers/watchdog/at91sam9_wdt.c                     | 21 +++++++++++++++++++++
+ drivers/watchdog/orion_wdt.c                        |  2 +-
+ include/linux/watchdog.h                            | 11 +++++++++++
+ 10 files changed, 82 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+
 -- 
-1.7.2.5
+1.7.11.3
+
