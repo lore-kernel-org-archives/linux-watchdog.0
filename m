@@ -1,11 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
 Received: from mail-bk0-f46.google.com ([209.85.214.46]:56154 "EHLO
 	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751968Ab2JAMYv (ORCPT
+	with ESMTP id S1751968Ab2JAMYx (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 1 Oct 2012 08:24:51 -0400
+	Mon, 1 Oct 2012 08:24:53 -0400
 Received: by mail-bk0-f46.google.com with SMTP id jk13so4894647bkc.19
-        for <linux-watchdog@vger.kernel.org>; Mon, 01 Oct 2012 05:24:50 -0700 (PDT)
+        for <linux-watchdog@vger.kernel.org>; Mon, 01 Oct 2012 05:24:53 -0700 (PDT)
 From: Fabio Porcedda <fabio.porcedda@gmail.com>
 To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
@@ -15,62 +15,106 @@ To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
 	Jason Cooper <jason@lakedaemon.net>,
 	Andrew Lunn <andrew@lunn.ch>
 Cc: devicetree-discuss@lists.ozlabs.org
-Subject: [PATCH v6 2/5] watchdog: orion_wdt: dt: add the timeout property binding
-Date: Mon,  1 Oct 2012 14:24:38 +0200
-Message-Id: <1349094281-28889-3-git-send-email-fabio.porcedda@gmail.com>
+Subject: [PATCH v6 3/5] watchdog: at91sam9_wdt: add device tree support
+Date: Mon,  1 Oct 2012 14:24:39 +0200
+Message-Id: <1349094281-28889-4-git-send-email-fabio.porcedda@gmail.com>
 In-Reply-To: <1349094281-28889-1-git-send-email-fabio.porcedda@gmail.com>
 References: <1349094281-28889-1-git-send-email-fabio.porcedda@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The binding is provided by the watchdog core.
+Tested on an at91sam9260 board (evk-pro3)
 
 Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
 ---
- Documentation/devicetree/bindings/watchdog/marvel.txt | 5 +++++
- drivers/watchdog/orion_wdt.c                          | 2 +-
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ .../devicetree/bindings/watchdog/atmel-wdt.txt      | 19 +++++++++++++++++++
+ drivers/watchdog/at91sam9_wdt.c                     | 21 +++++++++++++++++++++
+ 2 files changed, 40 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
 
-diff --git a/Documentation/devicetree/bindings/watchdog/marvel.txt b/Documentation/devicetree/bindings/watchdog/marvel.txt
-index 0b2503a..66c2b8c 100644
---- a/Documentation/devicetree/bindings/watchdog/marvel.txt
-+++ b/Documentation/devicetree/bindings/watchdog/marvel.txt
-@@ -5,10 +5,15 @@ Required Properties:
- - Compatibility : "marvell,orion-wdt"
- - reg		: Address of the timer registers
- 
+diff --git a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+new file mode 100644
+index 0000000..65c1755
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+@@ -0,0 +1,19 @@
++* Atmel Watchdog Timers
++
++** at91sam9-wdt
++
++Required properties:
++- compatible: must be "atmel,at91sam9260-wdt".
++- reg: physical base address of the controller and length of memory mapped
++  region.
++
 +Optional properties:
++- timeout: contains the watchdog timeout in seconds.
 +
-+- timeout	: Contains the watchdog timeout in seconds
++Example:
 +
- Example:
- 
- 	wdt@20300 {
- 		compatible = "marvell,orion-wdt";
- 		reg = <0x20300 0x28>;
++	watchdog@fffffd40 {
++		compatible = "atmel,at91sam9260-wdt";
++		reg = <0xfffffd40 0x10>;
 +		timeout = <10>;
- 		status = "okay";
- 	};
-diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
-index c20f96b..3dc7481 100644
---- a/drivers/watchdog/orion_wdt.c
-+++ b/drivers/watchdog/orion_wdt.c
-@@ -24,7 +24,6 @@
- #include <linux/spinlock.h>
- #include <linux/clk.h>
- #include <linux/err.h>
--#include <linux/of.h>
- #include <mach/bridge-regs.h>
++	};
+diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
+index 05e1be8..c9e6bfa 100644
+--- a/drivers/watchdog/at91sam9_wdt.c
++++ b/drivers/watchdog/at91sam9_wdt.c
+@@ -32,6 +32,7 @@
+ #include <linux/timer.h>
+ #include <linux/bitops.h>
+ #include <linux/uaccess.h>
++#include <linux/of.h>
  
- /*
-@@ -168,6 +167,7 @@ static int __devinit orion_wdt_probe(struct platform_device *pdev)
- 	orion_wdt.timeout = heartbeat;
- 	orion_wdt.min_timeout = 1;
- 	orion_wdt.max_timeout = wdt_max_duration;
-+	watchdog_probe_dt(&orion_wdt, pdev->dev.of_node);
+ #include "at91sam9_wdt.h"
  
- 	watchdog_set_nowayout(&orion_wdt, nowayout);
- 	ret = watchdog_register_device(&orion_wdt);
+@@ -254,6 +255,14 @@ static struct miscdevice at91wdt_miscdev = {
+ 	.fops		= &at91wdt_fops,
+ };
+ 
++static inline void __init at91wdt_probe_dt(struct device_node *node)
++{
++	if (!node)
++		return;
++
++	of_property_read_u32(node, "timeout", &heartbeat);
++}
++
+ static int __init at91wdt_probe(struct platform_device *pdev)
+ {
+ 	struct resource	*r;
+@@ -272,6 +281,8 @@ static int __init at91wdt_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 	}
+ 
++	at91wdt_probe_dt(pdev->dev.of_node);
++
+ 	/* Set watchdog */
+ 	res = at91_wdt_settimeout(ms_to_ticks(WDT_HW_TIMEOUT * 1000));
+ 	if (res)
+@@ -302,11 +313,21 @@ static int __exit at91wdt_remove(struct platform_device *pdev)
+ 	return res;
+ }
+ 
++#if defined(CONFIG_OF)
++static const struct of_device_id at91_wdt_dt_ids[] = {
++	{ .compatible = "atmel,at91sam9260-wdt" },
++	{ /* sentinel */ }
++};
++
++MODULE_DEVICE_TABLE(of, at91_wdt_dt_ids);
++#endif
++
+ static struct platform_driver at91wdt_driver = {
+ 	.remove		= __exit_p(at91wdt_remove),
+ 	.driver		= {
+ 		.name	= "at91_wdt",
+ 		.owner	= THIS_MODULE,
++		.of_match_table = of_match_ptr(at91_wdt_dt_ids),
+ 	},
+ };
+ 
 -- 
 1.7.11.3
 
