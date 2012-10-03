@@ -1,60 +1,71 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:62317 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754655Ab2JBWfb (ORCPT
+Received: from mail-ob0-f174.google.com ([209.85.214.174]:64544 "EHLO
+	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755343Ab2JCOKd (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 2 Oct 2012 18:35:31 -0400
-Received: by padhz1 with SMTP id hz1so5679517pad.19
-        for <linux-watchdog@vger.kernel.org>; Tue, 02 Oct 2012 15:35:30 -0700 (PDT)
-From: Thomas Abraham <thomas.abraham@linaro.org>
-To: linux-watchdog@vger.kernel.org
-Cc: linux-samsung-soc@vger.kernel.org, wim@iguana.be,
-	kgene.kim@samsung.com, ben-linux@fluff.org
-Subject: [PATCH] watchdog: s3c2410_wdt: use clk_prepare_enable and clk_disable_unprepare
-Date: Wed,  3 Oct 2012 07:32:40 +0900
-Message-Id: <1349217160-2517-1-git-send-email-thomas.abraham@linaro.org>
+	Wed, 3 Oct 2012 10:10:33 -0400
+Received: by obbuo13 with SMTP id uo13so7295518obb.19
+        for <linux-watchdog@vger.kernel.org>; Wed, 03 Oct 2012 07:10:33 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <20121002200753.GA12565@lunn.ch>
+References: <20121002200753.GA12565@lunn.ch>
+From: Fabio Porcedda <fabio.porcedda@gmail.com>
+Date: Wed, 3 Oct 2012 16:10:12 +0200
+Message-ID: <CAHkwnC9a4wEko=dTpbkGXSqC0-zbjSy2AsfQPb6CnXZcEEPKzg@mail.gmail.com>
+Subject: Re: [PATCH v7 1/3] watchdog: at91sam9_wdt: add device tree
+To: Andrew Lunn <andrew@lunn.ch>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
+	Andrew Victor <linux@maxim.org.za>,
+	devicetree-discuss@lists.ozlabs.org
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Convert clk_enable/clk_disable to clk_prepare_enable/clk_disable_unprepare
-calls as required by common clock framework.
+On Tue, Oct 2, 2012 at 10:07 PM, Andrew Lunn <andrew@lunn.ch> wrote:
+>> Date: Tue,  2 Oct 2012 18:01:00 +0200
+>> From: Fabio Porcedda <fabio.porcedda@gmail.com>
+>> To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+>>         linux-arm-kernel@lists.infradead.org, Nicolas Ferre
+>>         <nicolas.ferre@atmel.com>, Jean-Christophe PLAGNIOL-VILLARD
+>>         <plagnioj@jcrosoft.com>, Andrew Victor <linux@maxim.org.za>
+>> Cc: devicetree-discuss@lists.ozlabs.org
+>> Subject: [PATCH v7 1/3] watchdog: at91sam9_wdt: add device tree
+>>         support
+>> Message-ID:
+>>         <1349193662-23482-2-git-send-email-fabio.porcedda@gmail.com>
+>>
+>> Tested on an at91sam9260 board (evk-pro3)
+>>
+>> Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
+>> +++ b/drivers/watchdog/at91sam9_wdt.c
+>> @@ -32,6 +32,7 @@
+>>  #include <linux/timer.h>
+>>  #include <linux/bitops.h>
+>>  #include <linux/uaccess.h>
+>> +#include <linux/of.h>
+>>
+>>  #include "at91sam9_wdt.h"
+>>
+>> > @@ -302,11 +303,21 @@ static int __exit at91wdt_remove(struct platform_device *pdev)
+>>         return res;
+>>  }
+>>
+>> +#if defined(CONFIG_OF)
+>> +static const struct of_device_id at91_wdt_dt_ids[] = {
+>> +       { .compatible = "atmel,at91sam9260-wdt" },
+>> +       { /* sentinel */ }
+>> +};
+>
+> Hi Fabio
+>
+> You are missing __devinitdata.
 
-Signed-off-by: Thomas Abraham <thomas.abraham@linaro.org>
----
- drivers/watchdog/s3c2410_wdt.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+Thank you, Andrew.
+I'll add __initconst, because it's const and use platform_driver_probe.
 
-diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
-index 9245b4d..3cdaaff 100644
---- a/drivers/watchdog/s3c2410_wdt.c
-+++ b/drivers/watchdog/s3c2410_wdt.c
-@@ -354,7 +354,7 @@ static int __devinit s3c2410wdt_probe(struct platform_device *pdev)
- 		goto err_map;
- 	}
- 
--	clk_enable(wdt_clock);
-+	clk_prepare_enable(wdt_clock);
- 
- 	ret = s3c2410wdt_cpufreq_register();
- 	if (ret < 0) {
-@@ -421,7 +421,7 @@ static int __devinit s3c2410wdt_probe(struct platform_device *pdev)
- 	s3c2410wdt_cpufreq_deregister();
- 
-  err_clk:
--	clk_disable(wdt_clock);
-+	clk_disable_unprepare(wdt_clock);
- 	clk_put(wdt_clock);
- 	wdt_clock = NULL;
- 
-@@ -445,7 +445,7 @@ static int __devexit s3c2410wdt_remove(struct platform_device *dev)
- 
- 	s3c2410wdt_cpufreq_deregister();
- 
--	clk_disable(wdt_clock);
-+	clk_disable_unprepare(wdt_clock);
- 	clk_put(wdt_clock);
- 	wdt_clock = NULL;
- 
+Best regards
 -- 
-1.7.4.1
-
+Fabio Porcedda
