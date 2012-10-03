@@ -1,71 +1,66 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:64544 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755343Ab2JCOKd (ORCPT
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:63241 "EHLO
+	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932383Ab2JCPsL (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 3 Oct 2012 10:10:33 -0400
-Received: by obbuo13 with SMTP id uo13so7295518obb.19
-        for <linux-watchdog@vger.kernel.org>; Wed, 03 Oct 2012 07:10:33 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20121002200753.GA12565@lunn.ch>
-References: <20121002200753.GA12565@lunn.ch>
+	Wed, 3 Oct 2012 11:48:11 -0400
+Received: by bkcjk13 with SMTP id jk13so6224691bkc.19
+        for <linux-watchdog@vger.kernel.org>; Wed, 03 Oct 2012 08:48:10 -0700 (PDT)
 From: Fabio Porcedda <fabio.porcedda@gmail.com>
-Date: Wed, 3 Oct 2012 16:10:12 +0200
-Message-ID: <CAHkwnC9a4wEko=dTpbkGXSqC0-zbjSy2AsfQPb6CnXZcEEPKzg@mail.gmail.com>
-Subject: Re: [PATCH v7 1/3] watchdog: at91sam9_wdt: add device tree
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
 	Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
-	Andrew Victor <linux@maxim.org.za>,
-	devicetree-discuss@lists.ozlabs.org
-Content-Type: text/plain; charset=ISO-8859-1
+	Andrew Victor <linux@maxim.org.za>
+Cc: devicetree-discuss@lists.ozlabs.org, Andrew Lunn <andrew@lunn.ch>
+Subject: [PATCH v8 0/3] watchdog: at91sam9_wdt: add device tree support
+Date: Wed,  3 Oct 2012 17:48:03 +0200
+Message-Id: <1349279286-11261-1-git-send-email-fabio.porcedda@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Oct 2, 2012 at 10:07 PM, Andrew Lunn <andrew@lunn.ch> wrote:
->> Date: Tue,  2 Oct 2012 18:01:00 +0200
->> From: Fabio Porcedda <fabio.porcedda@gmail.com>
->> To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
->>         linux-arm-kernel@lists.infradead.org, Nicolas Ferre
->>         <nicolas.ferre@atmel.com>, Jean-Christophe PLAGNIOL-VILLARD
->>         <plagnioj@jcrosoft.com>, Andrew Victor <linux@maxim.org.za>
->> Cc: devicetree-discuss@lists.ozlabs.org
->> Subject: [PATCH v7 1/3] watchdog: at91sam9_wdt: add device tree
->>         support
->> Message-ID:
->>         <1349193662-23482-2-git-send-email-fabio.porcedda@gmail.com>
->>
->> Tested on an at91sam9260 board (evk-pro3)
->>
->> Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
->> +++ b/drivers/watchdog/at91sam9_wdt.c
->> @@ -32,6 +32,7 @@
->>  #include <linux/timer.h>
->>  #include <linux/bitops.h>
->>  #include <linux/uaccess.h>
->> +#include <linux/of.h>
->>
->>  #include "at91sam9_wdt.h"
->>
->> > @@ -302,11 +303,21 @@ static int __exit at91wdt_remove(struct platform_device *pdev)
->>         return res;
->>  }
->>
->> +#if defined(CONFIG_OF)
->> +static const struct of_device_id at91_wdt_dt_ids[] = {
->> +       { .compatible = "atmel,at91sam9260-wdt" },
->> +       { /* sentinel */ }
->> +};
->
-> Hi Fabio
->
-> You are missing __devinitdata.
+Hi all,
 
-Thank you, Andrew.
-I'll add __initconst, because it's const and use platform_driver_probe.
+This patchset is for adding device tree support to the
+at91sam9_wdt driver.
 
-Best regards
+Another patchset will follow to add the new "timeout" binding to the
+watchdog framework and to all the relevant drivers.
+
+Changes:
+v8:
+ - add __initconst to at91_wdt_dt_ids
+v7:
+ - split the patchset
+ - remove timeout binding
+v6:
+ - add watchdog core proprty timeout binding
+ - add as example to the orion_wdt driver the new timeout binding
+v5:
+ - split dts commit in two, one for socs and one for boards.
+v4:
+ - use "atmel,at91sam9260-wdt" as compatible
+v3:
+ - add heartbeat option
+ - default disabled for all the soc, enable only for evk-pro3 board
+ - add at91sam9263 and at91sam9g45 soc
+v2:
+ - add missing to and cc addresses
+
+Fabio Porcedda (3):
+  watchdog: at91sam9_wdt: add device tree support
+  ARM: at91/dts: add at91sam9_wdt driver to at91sam926x, at91sam9g45
+  ARM: at91/dts: evk-pro3: enable watchdog
+
+ Documentation/devicetree/bindings/watchdog/atmel-wdt.txt | 15 +++++++++++++++
+ arch/arm/boot/dts/at91sam9260.dtsi                       |  6 ++++++
+ arch/arm/boot/dts/at91sam9263.dtsi                       |  6 ++++++
+ arch/arm/boot/dts/at91sam9g45.dtsi                       |  6 ++++++
+ arch/arm/boot/dts/evk-pro3.dts                           |  4 ++++
+ drivers/watchdog/at91sam9_wdt.c                          | 11 +++++++++++
+ 6 files changed, 48 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+
 -- 
-Fabio Porcedda
+1.7.11.3
+
