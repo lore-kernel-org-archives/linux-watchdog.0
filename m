@@ -1,94 +1,82 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oa0-f46.google.com ([209.85.219.46]:35346 "EHLO
-	mail-oa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932193Ab2JEMG7 (ORCPT
+Received: from mail-ee0-f46.google.com ([74.125.83.46]:46214 "EHLO
+	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752363Ab2JIMEQ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 5 Oct 2012 08:06:59 -0400
-Received: by mail-oa0-f46.google.com with SMTP id h16so1610482oag.19
-        for <linux-watchdog@vger.kernel.org>; Fri, 05 Oct 2012 05:06:58 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20121005111642.GA12462@game.jcrosoft.org>
-References: <1349432169-13006-1-git-send-email-fabio.porcedda@gmail.com>
- <1349432169-13006-2-git-send-email-fabio.porcedda@gmail.com> <20121005111642.GA12462@game.jcrosoft.org>
+	Tue, 9 Oct 2012 08:04:16 -0400
+Received: by mail-ee0-f46.google.com with SMTP id b15so3446960eek.19
+        for <linux-watchdog@vger.kernel.org>; Tue, 09 Oct 2012 05:04:15 -0700 (PDT)
 From: Fabio Porcedda <fabio.porcedda@gmail.com>
-Date: Fri, 5 Oct 2012 14:06:38 +0200
-Message-ID: <CAHkwnC8cZ26Z8jXx4LU3wBbGn2FC3-rjn+m861G3_Ue58yqfjw@mail.gmail.com>
-Subject: Re: [RFC PATCH v3 1/4] watchdog: core: dt: add support for the
- timeout-sec dt property
-To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
 	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
 	Andrew Victor <linux@maxim.org.za>,
 	Jason Cooper <jason@lakedaemon.net>,
-	Andrew Lunn <andrew@lunn.ch>,
-	devicetree-discuss@lists.ozlabs.org
-Content-Type: text/plain; charset=ISO-8859-1
+	Andrew Lunn <andrew@lunn.ch>, Ben Dooks <ben-linux@fluff.org>,
+	Kukjin Kim <kgene.kim@samsung.com>
+Cc: devicetree-discuss@lists.ozlabs.org
+Subject: [PATCH v4 0/8] watchdog: dt: add support for the timeout-sec dt property
+Date: Tue,  9 Oct 2012 14:04:03 +0200
+Message-Id: <1349784251-28261-1-git-send-email-fabio.porcedda@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Oct 5, 2012 at 1:16 PM, Jean-Christophe PLAGNIOL-VILLARD
-<plagnioj@jcrosoft.com> wrote:
-> On 12:16 Fri 05 Oct     , Fabio Porcedda wrote:
->> Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
->> ---
->>  Documentation/watchdog/watchdog-kernel-api.txt |  4 ++++
->>  drivers/watchdog/watchdog_core.c               | 27 ++++++++++++++++++++++++++
->>  include/linux/watchdog.h                       |  4 ++++
->>  3 files changed, 35 insertions(+)
->>
->> diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
->> index 086638f..2208db7 100644
->> --- a/Documentation/watchdog/watchdog-kernel-api.txt
->> +++ b/Documentation/watchdog/watchdog-kernel-api.txt
->> @@ -212,3 +212,7 @@ driver specific data to and a pointer to the data itself.
->>  The watchdog_get_drvdata function allows you to retrieve driver specific data.
->>  The argument of this function is the watchdog device where you want to retrieve
->>  data from. The function returns the pointer to the driver specific data.
->> +
->> +The watchdog_init_timeout function allows you to initialize the timeout field
->> +using the module timeout parameter or retrieving the timeout-sec property from
->> +the device tree.
->> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
->> index 3796434..646be48 100644
->> --- a/drivers/watchdog/watchdog_core.c
->> +++ b/drivers/watchdog/watchdog_core.c
->> @@ -143,6 +143,33 @@ void watchdog_unregister_device(struct watchdog_device *wdd)
->>  }
->>  EXPORT_SYMBOL_GPL(watchdog_unregister_device);
->>
->> +/**
->> + * watchdog_init_timeout() - initialize the timeout field
->> + * @parm_timeout: timeout module parameter, it takes precedence over the
->> + *                timeout-sec property.
->> + * @node: Retrieve the timeout-sec property only if the parm_timeout
->> + *        is out of bounds.
->> + */
->> +void watchdog_init_timeout(struct watchdog_device *wdd,
->> +                        unsigned int parm_timeout, struct device_node *node)
->> +{
->> +     unsigned int t = 0;
->> +
->> +     if ((parm_timeout >= wdd->min_timeout) &&
->> +         (parm_timeout <= wdd->max_timeout)) {
->> +             wdd->timeout = parm_timeout;
->> +             return;
->> +     }
->> +
->> +     if (!node)
->> +             return;
->> +
->> +     of_property_read_u32(node, "timeout-sec", &t);
-> why I bother to comment
-> *make this of generic* this is not watchdog specific other driver can use it
+Hi all,
+this patchset add the timeout-sec property to the watchdog core,
+to the at91sam9_wdt driver and on all framework enabled watchdog driver
+with dt support.
+This patchset depends on the patchset already sent:
+"[PATCH v8 0/3] watchdog: at91sam9_wdt: add device tree support"
 
-You mean to add the function in of.h and use that function inside
-watchdog_init_timeout or to
-use the of_* function instead of the watchdog_init_timeout function?
+The at91sam9_wdt is tested on evk-pr3,
+the other drivers are compile tested only.
 
-Do you like the use of watchdog_init_timeout function inside the
-at91sam9_wdt driver?
 
-Best regards
+changes:
+v4:
+  - add of_get_timeout_sec
+  - add s3c2410_wdt driver
+  - split driver patch
+  - fixed watchdog_init_timeout handling of min_timeout and max_timeout
+v3:
+  - rename watchdog_probe_dt_timeout ->  watchdog_init_timeout
+  - move the watchdog_init_timeout function from inline to watchdog_core.c
+  - add timeout parameter handling code to watchdog_init_timeout
+  - add timeout-sec property to the pnx4008-wdt driver
+  - add two small commit for fixup and cleanup
+v2:
+  - change "timeout" to "timeout-sec" as asked by Jean-Christophe
+  - at91sam9_wdt: use the new helper function
+  - at91sam9_wdt: add bounds checking
+  - watchdog.h: add bounds checking
+
+
+Fabio Porcedda (8):
+  dt: add helper inline for retrieving timeout-sec property
+  watchdog: core: dt: add support for the timeout-sec dt property
+  watchdog: orion_wdt: add timeout-sec property binding
+  watchdog: pnx4008: add timeout-sec property binding
+  watchdog: s3c2410_wdt: add timeout-sec property binding
+  watchdog: at91sam9_wdt: add timeout-sec property binding
+  watchdog: orion_wdt: move the min_timeout initialization
+  watchdog: WatchDog Timer Driver Core - fix comment
+
+ .../devicetree/bindings/watchdog/atmel-wdt.txt     |  4 +++
+ .../devicetree/bindings/watchdog/marvel.txt        |  5 +++
+ .../devicetree/bindings/watchdog/pnx4008-wdt.txt   |  4 +++
+ .../devicetree/bindings/watchdog/samsung-wdt.txt   |  3 ++
+ Documentation/watchdog/watchdog-kernel-api.txt     | 10 ++++++
+ drivers/watchdog/Kconfig                           |  1 +
+ drivers/watchdog/at91sam9_wdt.c                    | 16 ++++++++--
+ drivers/watchdog/orion_wdt.c                       | 10 +++---
+ drivers/watchdog/pnx4008_wdt.c                     |  7 ++--
+ drivers/watchdog/s3c2410_wdt.c                     |  6 ++--
+ drivers/watchdog/watchdog_core.c                   | 37 ++++++++++++++++++++++
+ include/linux/of.h                                 | 11 +++++++
+ include/linux/watchdog.h                           |  5 ++-
+ 13 files changed, 103 insertions(+), 16 deletions(-)
+
 -- 
-Fabio Porcedda
+1.7.11.3
+
