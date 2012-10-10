@@ -1,48 +1,88 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from filtteri2.pp.htv.fi ([213.243.153.185]:48271 "EHLO
-	filtteri2.pp.htv.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757036Ab2JJUXp (ORCPT
+Received: from filtteri5.pp.htv.fi ([213.243.153.188]:50973 "EHLO
+	filtteri5.pp.htv.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757114Ab2JJUXp (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
 	Wed, 10 Oct 2012 16:23:45 -0400
 From: Aaro Koskinen <aaro.koskinen@iki.fi>
 To: wim@iguana.be, linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org
 Cc: Aaro Koskinen <aaro.koskinen@iki.fi>
-Subject: [PATCH v3 5/6] watchdog: omap_wdt: delete redundant platform_set_drvdata() calls
-Date: Wed, 10 Oct 2012 23:23:36 +0300
-Message-Id: <1349900617-7035-6-git-send-email-aaro.koskinen@iki.fi>
+Subject: [PATCH v3 2/6] watchdog: omap_wdt: convert kzalloc() to devm_kzalloc()
+Date: Wed, 10 Oct 2012 23:23:33 +0300
+Message-Id: <1349900617-7035-3-git-send-email-aaro.koskinen@iki.fi>
 In-Reply-To: <1349900617-7035-1-git-send-email-aaro.koskinen@iki.fi>
 References: <1349900617-7035-1-git-send-email-aaro.koskinen@iki.fi>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-It's not needed to manually reset the driver data.
+Use devm_kzalloc() to simplify the code.
 
 Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
 ---
- drivers/watchdog/omap_wdt.c |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
+ drivers/watchdog/omap_wdt.c |   23 ++++++-----------------
+ 1 files changed, 6 insertions(+), 17 deletions(-)
 
 diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
-index 7e8d3e0..af1e72e 100644
+index d28ad5e..d6722db 100644
 --- a/drivers/watchdog/omap_wdt.c
 +++ b/drivers/watchdog/omap_wdt.c
-@@ -280,7 +280,6 @@ static int __devinit omap_wdt_probe(struct platform_device *pdev)
+@@ -208,24 +208,20 @@ static int __devinit omap_wdt_probe(struct platform_device *pdev)
+ 	struct omap_wdt_dev *wdev;
+ 	int ret;
  
- err_misc:
- 	pm_runtime_disable(wdev->dev);
--	platform_set_drvdata(pdev, NULL);
+-	omap_wdt = kzalloc(sizeof(*omap_wdt), GFP_KERNEL);
++	omap_wdt = devm_kzalloc(&pdev->dev, sizeof(*omap_wdt), GFP_KERNEL);
+ 	if (!omap_wdt)
+ 		return -ENOMEM;
  
+ 	/* reserve static register mappings */
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!res) {
+-		ret = -ENOENT;
+-		goto err_get_resource;
+-	}
++	if (!res)
++		return -ENOENT;
+ 
+ 	mem = request_mem_region(res->start, resource_size(res), pdev->name);
+-	if (!mem) {
+-		ret = -EBUSY;
+-		goto err_busy;
+-	}
++	if (!mem)
++		return -EBUSY;
+ 
+-	wdev = kzalloc(sizeof(struct omap_wdt_dev), GFP_KERNEL);
++	wdev = devm_kzalloc(&pdev->dev, sizeof(*wdev), GFP_KERNEL);
+ 	if (!wdev) {
+ 		ret = -ENOMEM;
+ 		goto err_kzalloc;
+@@ -292,14 +288,10 @@ err_misc:
+ 
+ err_ioremap:
+ 	wdev->base = NULL;
+-	kfree(wdev);
+ 
+ err_kzalloc:
+ 	release_mem_region(res->start, resource_size(res));
+ 
+-err_busy:
+-err_get_resource:
+-	kfree(omap_wdt);
  	return ret;
  }
-@@ -306,7 +305,6 @@ static int __devexit omap_wdt_remove(struct platform_device *pdev)
  
- 	pm_runtime_disable(wdev->dev);
- 	watchdog_unregister_device(wdog);
--	platform_set_drvdata(pdev, NULL);
+@@ -329,9 +321,6 @@ static int __devexit omap_wdt_remove(struct platform_device *pdev)
  
+ 	iounmap(wdev->base);
+ 
+-	kfree(wdev);
+-	kfree(wdog);
+-
  	return 0;
  }
+ 
 -- 
 1.7.2.5
 
