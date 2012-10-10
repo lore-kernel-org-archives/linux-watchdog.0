@@ -1,70 +1,63 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:55502 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932084Ab2JJO3y (ORCPT
+Received: from filtteri2.pp.htv.fi ([213.243.153.185]:48268 "EHLO
+	filtteri2.pp.htv.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755558Ab2JJUXp (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 10 Oct 2012 10:29:54 -0400
-Received: by mail-ob0-f174.google.com with SMTP id uo13so524900obb.19
-        for <linux-watchdog@vger.kernel.org>; Wed, 10 Oct 2012 07:29:53 -0700 (PDT)
-Message-ID: <5075865C.3010606@gmail.com>
-Date: Wed, 10 Oct 2012 09:29:48 -0500
-From: Rob Herring <robherring2@gmail.com>
-MIME-Version: 1.0
-To: Fabio Porcedda <fabio.porcedda@gmail.com>
-CC: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
-	Andrew Victor <linux@maxim.org.za>,
-	Jason Cooper <jason@lakedaemon.net>,
-	Andrew Lunn <andrew@lunn.ch>, Ben Dooks <ben-linux@fluff.org>,
-	Kukjin Kim <kgene.kim@samsung.com>,
-	devicetree-discuss@lists.ozlabs.org,
-	Rob Herring <rob.herring@calxeda.com>
-Subject: Re: [PATCH v4 1/8] dt: add helper inline for retrieving timeout-sec
- property
-References: <1349784251-28261-1-git-send-email-fabio.porcedda@gmail.com> <1349784251-28261-2-git-send-email-fabio.porcedda@gmail.com>
-In-Reply-To: <1349784251-28261-2-git-send-email-fabio.porcedda@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Oct 2012 16:23:45 -0400
+From: Aaro Koskinen <aaro.koskinen@iki.fi>
+To: wim@iguana.be, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>
+Subject: [PATCH v3 0/6] watchdog: omap_wdt: convert to new watchdog core
+Date: Wed, 10 Oct 2012 23:23:31 +0300
+Message-Id: <1349900617-7035-1-git-send-email-aaro.koskinen@iki.fi>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 10/09/2012 07:04 AM, Fabio Porcedda wrote:
-> The first user of this function is the watchdog framework.
+Hello,
 
-Who is the 2nd user because I don't see any others. I don't see this
-being a widely used property.
+This is a third version of the patch to convert omap_wdt to new watchdog
+core. On OMAP boards, there are usually multiple watchdogs. Since the new
+watchdog core supports multiple watchdogs, all watchdog drivers used on
+OMAP should be converted. This is especially important on devices like
+Nokia N9 or N800 where multiple watchdogs are present and watchdog HW
+cannot be disabled on devices available to consumers/hobbyists.
 
-Rob
+I have also done additional cleanups to utilize devres. They are separate
+patches to make reviewing easier.
 
-> 
-> Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
-> Cc: Grant Likely <grant.likely@secretlab.ca>
-> Cc: Rob Herring <rob.herring@calxeda.com>
-> ---
->  include/linux/of.h | 11 +++++++++++
->  1 file changed, 11 insertions(+)
-> 
-> diff --git a/include/linux/of.h b/include/linux/of.h
-> index 72843b7..5870818 100644
-> --- a/include/linux/of.h
-> +++ b/include/linux/of.h
-> @@ -470,4 +470,15 @@ static inline int of_property_read_u32(const struct device_node *np,
->  	return of_property_read_u32_array(np, propname, out_value, 1);
->  }
->  
-> +/**
-> + * of_get_timeout_sec() - Helper to read the timeout_sec property
-> + * @np:		device node from which the property value is to be read.
-> + * @timeout:	adress of the output value
-> + */
-> +static inline int of_get_timeout_sec(const struct device_node *np,
-> +				     u32 *timeout)
-> +{
-> +	return of_property_read_u32(np, "timeout-sec", timeout);
-> +}
-> +
->  #endif /* _LINUX_OF_H */
-> 
+Please review and consider applying/queueing these patches, perhaps
+maybe for 3.8. Thanks.
+
+Tested on top of current mainline
+(2474542f64432398f503373f53bdf620491bcfa8) on Nokia N950.
+
+Patch set history:
+
+	v3: Patch 1 rebased on top of current mainline. Added received
+	Tested by -tags. Added patches 2..6.
+
+	v2 (https://lkml.org/lkml/2012/9/8/134): Fix a bug in the
+	first version of the patch: __omap_wdt_disable() in probe was
+	mistakenly moved outside PM runtime calls. This caused a crash
+	as device was probably accessed with some clocks off. Thanks to
+	Jarkko Nikula <jarkko.nikula@bitmer.com> for reporting this.
+
+	v1 (https://lkml.org/lkml/2012/9/4/217): The initial version.
+
+Aaro Koskinen (6):
+  watchdog: omap_wdt: convert to new watchdog core
+  watchdog: omap_wdt: convert kzalloc() to devm_kzalloc()
+  watchdog: omap_wdt: convert request_mem_region() to
+    devm_request_mem_region()
+  watchdog: omap_wdt: convert ioremap() to devm_ioremap()
+  watchdog: omap_wdt: delete redundant platform_set_drvdata() calls
+  watchdog: omap_wdt: eliminate goto
+
+ drivers/watchdog/Kconfig    |    1 +
+ drivers/watchdog/omap_wdt.c |  329 +++++++++++++++++--------------------------
+ 2 files changed, 131 insertions(+), 199 deletions(-)
+
+-- 
+1.7.2.5
 
