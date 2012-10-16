@@ -1,298 +1,113 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from va3ehsobe002.messaging.microsoft.com ([216.32.180.12]:52442
-	"EHLO va3outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932181Ab2JLJTd (ORCPT
+Received: from utopia.booyaka.com ([74.50.51.50]:42863 "EHLO
+	utopia.booyaka.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755533Ab2JPBe3 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 12 Oct 2012 05:19:33 -0400
-Subject: [Patch v2 6/7] Watchdog: DA9055 Watchdog driver
-From: Ashish Jangam <ashish.jangam@kpitcummins.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-CC: Samuel Ortiz <sameo@linux.intel.com>,
-	<linux-watchdog@vger.kernel.org>,
-	David Dajun Chen <dchen@diasemi.com>,
-	<linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Date: Fri, 12 Oct 2012 15:00:03 +0530
-Message-ID: <1350034203.11527.19.camel@dhruva>
+	Mon, 15 Oct 2012 21:34:29 -0400
+Subject: [PATCH 6/7] watchdog: OMAP: use standard GETBOOTSTATUS interface;
+ use platform_data fn ptr
+To: linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+From: Paul Walmsley <paul@pwsan.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+Date: Mon, 15 Oct 2012 19:32:53 -0600
+Message-ID: <20121016013233.21844.1279.stgit@dusk.lan>
+In-Reply-To: <20121016012448.21844.92339.stgit@dusk.lan>
+References: <20121016012448.21844.92339.stgit@dusk.lan>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This is the Watchdog patch for the DA9055 PMIC. This patch has got dependency on
-the DA9055 MFD core.
+Previously the OMAP watchdog driver used a non-standard way to report
+the chip reset source via the GETBOOTSTATUS ioctl.  This patch
+converts the driver to use the standard WDIOF_* flags for this
+purpose.
 
-This patch is functionally tested on SMDK6410
+This patch may break existing userspace code that uses the existing
+non-standard data format returned by the OMAP watchdog driver's
+GETBOOTSTATUS ioctl.  To fetch detailed reset source information,
+userspace code will need to retrieve it directly from the CGRM or PRM
+drivers when those are completed.
 
-Signed-off-by: David Dajun Chen <dchen@diasemi.com>
-Signed-off-by: Ashish Jangam <ashish.jangam@kpitcummins.com>
+Previously, to fetch the reset source, the driver either read a
+register outside the watchdog IP block (OMAP1), or called a function
+exported directly from arch/arm/mach-omap2.  Both approaches are
+broken.  This patch also converts the driver to use a platform_data
+function pointer.  This approach is temporary, and is due to the lack
+of drivers for the OMAP16xx+ Clock Generation and Reset Management IP
+block and the OMAP2+ Power and Reset Management IP block.  Once
+drivers are available for those IP blocks, the watchdog driver can be
+converted to call exported drivers from those functions directly.
+At that point, the platform_data function pointer can be removed.
+
+In the short term, this patch is needed to allow the PRM code to be
+removed from arch/arm/mach-omap2 (it is being moved to a driver).
+
+Signed-off-by: Paul Walmsley <paul@pwsan.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>
 ---
-changes since version v2:
-- remove duplicate includes
-- use of module_platform_driver macro
----
- drivers/watchdog/Kconfig      |   10 ++
- drivers/watchdog/Makefile     |    1 +
- drivers/watchdog/da9055_wdt.c |  216 +++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 227 insertions(+), 0 deletions(-)
- create mode 100644 drivers/watchdog/da9055_wdt.c
+ drivers/watchdog/omap_wdt.c |   26 ++++++++++++--------------
+ 1 file changed, 12 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 53d7571..eb51bf2 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -76,6 +76,16 @@ config DA9052_WATCHDOG
-           Alternatively say M to compile the driver as a module,
-           which will be called da9052_wdt.
+diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
+index f5db18db..5d33bc0 100644
+--- a/drivers/watchdog/omap_wdt.c
++++ b/drivers/watchdog/omap_wdt.c
+@@ -46,8 +46,8 @@
+ #include <linux/slab.h>
+ #include <linux/pm_runtime.h>
+ #include <mach/hardware.h>
+-#include <plat/cpu.h>
+-#include <plat/prcm.h>
++
++#include <linux/platform_data/omap-wd-timer.h>
  
-+config DA9055_WATCHDOG
-+	tristate "Dialog Semiconductor DA9055 Watchdog"
-+	depends on MFD_DA9055
-+	help
-+	  If you say yes here you get support for watchdog on the Dialog
-+	  Semiconductor DA9055 PMIC.
-+
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called da9055_wdt.
-+
- config WM831X_WATCHDOG
- 	tristate "WM831x watchdog"
- 	depends on MFD_WM831X
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 572b39b..97bbdb3 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -164,6 +164,7 @@ obj-$(CONFIG_XEN_WDT) += xen_wdt.o
+ #include "omap_wdt.h"
  
- # Architecture Independent
- obj-$(CONFIG_DA9052_WATCHDOG) += da9052_wdt.o
-+obj-$(CONFIG_DA9055_WATCHDOG) += da9055_wdt.o
- obj-$(CONFIG_WM831X_WATCHDOG) += wm831x_wdt.o
- obj-$(CONFIG_WM8350_WATCHDOG) += wm8350_wdt.o
- obj-$(CONFIG_MAX63XX_WATCHDOG) += max63xx_wdt.o
-diff --git a/drivers/watchdog/da9055_wdt.c b/drivers/watchdog/da9055_wdt.c
-new file mode 100644
-index 0000000..493f7b5
---- /dev/null
-+++ b/drivers/watchdog/da9055_wdt.c
-@@ -0,0 +1,216 @@
-+/*
-+ * System monitoring driver for DA9055 PMICs.
-+ *
-+ * Copyright(c) 2012 Dialog Semiconductor Ltd.
-+ *
-+ * Author: David Dajun Chen <dchen@diasemi.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/types.h>
-+#include <linux/kernel.h>
-+#include <linux/slab.h>
-+#include <linux/platform_device.h>
-+#include <linux/watchdog.h>
-+#include <linux/delay.h>
-+
-+#include <linux/mfd/da9055/core.h>
-+#include <linux/mfd/da9055/reg.h>
-+
-+static bool nowayout = WATCHDOG_NOWAYOUT;
-+module_param(nowayout, bool, 0);
-+MODULE_PARM_DESC(nowayout,
-+		 "Watchdog cannot be stopped once started (default="
-+		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-+
-+#define DA9055_DEF_TIMEOUT	4
-+#define DA9055_TWDMIN		256
-+
-+struct da9055_wdt_data {
-+	struct watchdog_device wdt;
-+	struct da9055 *da9055;
-+	struct kref kref;
-+};
-+
-+static const struct {
-+	u8 reg_val;
-+	int user_time;  /* In seconds */
-+} da9055_wdt_maps[] = {
-+	{ 0, 0 },
-+	{ 1, 2 },
-+	{ 2, 4 },
-+	{ 3, 8 },
-+	{ 4, 16 },
-+	{ 5, 32 },
-+	{ 5, 33 },  /* Actual time  32.768s so included both 32s and 33s */
-+	{ 6, 65 },
-+	{ 6, 66 },  /* Actual time 65.536s so include both, 65s and 66s */
-+	{ 7, 131 },
-+};
-+
-+static int da9055_wdt_set_timeout(struct watchdog_device *wdt_dev,
-+				  unsigned int timeout)
-+{
-+	struct da9055_wdt_data *driver_data = watchdog_get_drvdata(wdt_dev);
-+	struct da9055 *da9055 = driver_data->da9055;
-+	int ret, i;
-+
-+	for (i = 0; i < ARRAY_SIZE(da9055_wdt_maps); i++)
-+		if (da9055_wdt_maps[i].user_time == timeout)
-+			break;
-+
-+	if (i == ARRAY_SIZE(da9055_wdt_maps))
-+		ret = -EINVAL;
-+	else
-+		ret = da9055_reg_update(da9055, DA9055_REG_CONTROL_B,
-+					DA9055_TWDSCALE_MASK,
-+					da9055_wdt_maps[i].reg_val <<
-+					DA9055_TWDSCALE_SHIFT);
-+	if (ret < 0)
-+		dev_err(da9055->dev,
-+			"Failed to update timescale bit, %d\n", ret);
-+
-+	wdt_dev->timeout = timeout;
-+
-+	return ret;
-+}
-+
-+static int da9055_wdt_ping(struct watchdog_device *wdt_dev)
-+{
-+	struct da9055_wdt_data *driver_data = watchdog_get_drvdata(wdt_dev);
-+	struct da9055 *da9055 = driver_data->da9055;
-+	int ret;
-+
-+	/*
-+	 * We have a minimum time for watchdog window called TWDMIN. A write
-+	 * to the watchdog before this elapsed time will cause an error.
-+	 */
-+	mdelay(DA9055_TWDMIN);
-+
-+	/* Reset the watchdog timer */
-+	ret = da9055_reg_update(da9055, DA9055_REG_CONTROL_E,
-+				DA9055_WATCHDOG_MASK, 1);
-+
-+	return ret;
-+}
-+
-+static void da9055_wdt_release_resources(struct kref *r)
-+{
-+	struct da9055_wdt_data *driver_data =
-+		container_of(r, struct da9055_wdt_data, kref);
-+
-+	kfree(driver_data);
-+}
-+
-+static void da9055_wdt_ref(struct watchdog_device *wdt_dev)
-+{
-+	struct da9055_wdt_data *driver_data = watchdog_get_drvdata(wdt_dev);
-+
-+	kref_get(&driver_data->kref);
-+}
-+
-+static void da9055_wdt_unref(struct watchdog_device *wdt_dev)
-+{
-+	struct da9055_wdt_data *driver_data = watchdog_get_drvdata(wdt_dev);
-+
-+	kref_put(&driver_data->kref, da9055_wdt_release_resources);
-+}
-+
-+static int da9055_wdt_start(struct watchdog_device *wdt_dev)
-+{
-+	return da9055_wdt_set_timeout(wdt_dev, wdt_dev->timeout);
-+}
-+
-+static int da9055_wdt_stop(struct watchdog_device *wdt_dev)
-+{
-+	return da9055_wdt_set_timeout(wdt_dev, 0);
-+}
-+
-+static struct watchdog_info da9055_wdt_info = {
-+	.options	= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-+	.identity	= "DA9055 Watchdog",
-+};
-+
-+static const struct watchdog_ops da9055_wdt_ops = {
-+	.owner = THIS_MODULE,
-+	.start = da9055_wdt_start,
-+	.stop = da9055_wdt_stop,
-+	.ping = da9055_wdt_ping,
-+	.set_timeout = da9055_wdt_set_timeout,
-+	.ref = da9055_wdt_ref,
-+	.unref = da9055_wdt_unref,
-+};
-+
-+static int __devinit da9055_wdt_probe(struct platform_device *pdev)
-+{
-+	struct da9055 *da9055 = dev_get_drvdata(pdev->dev.parent);
-+	struct da9055_wdt_data *driver_data;
-+	struct watchdog_device *da9055_wdt;
-+	int ret;
-+
-+	driver_data = devm_kzalloc(&pdev->dev, sizeof(*driver_data),
-+				   GFP_KERNEL);
-+	if (!driver_data) {
-+		dev_err(da9055->dev, "Failed to allocate watchdog device\n");
-+		return -ENOMEM;
-+	}
-+
-+	driver_data->da9055 = da9055;
-+
-+	da9055_wdt = &driver_data->wdt;
-+
-+	da9055_wdt->timeout = DA9055_DEF_TIMEOUT;
-+	da9055_wdt->info = &da9055_wdt_info;
-+	da9055_wdt->ops = &da9055_wdt_ops;
-+	watchdog_set_nowayout(da9055_wdt, nowayout);
-+	watchdog_set_drvdata(da9055_wdt, driver_data);
-+
-+	kref_init(&driver_data->kref);
-+
-+	ret = da9055_wdt_stop(da9055_wdt);
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "Failed to stop watchdog, %d\n", ret);
-+		goto err;
-+	}
-+
-+	dev_set_drvdata(&pdev->dev, driver_data);
-+
-+	ret = watchdog_register_device(&driver_data->wdt);
-+	if (ret != 0)
-+		dev_err(da9055->dev, "watchdog_register_device() failed: %d\n",
-+			ret);
-+
-+err:
-+	return ret;
-+}
-+
-+static int __devexit da9055_wdt_remove(struct platform_device *pdev)
-+{
-+	struct da9055_wdt_data *driver_data = dev_get_drvdata(&pdev->dev);
-+
-+	watchdog_unregister_device(&driver_data->wdt);
-+	kref_put(&driver_data->kref, da9055_wdt_release_resources);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver da9055_wdt_driver = {
-+	.probe = da9055_wdt_probe,
-+	.remove = __devexit_p(da9055_wdt_remove),
-+	.driver = {
-+		.name	= "da9055-watchdog",
-+	},
-+};
-+
-+module_platform_driver(da9055_wdt_driver);
-+
-+MODULE_AUTHOR("David Dajun Chen <dchen@diasemi.com>");
-+MODULE_DESCRIPTION("DA9055 watchdog");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:da9055-watchdog");
--- 
-1.7.0.4
+@@ -202,8 +202,10 @@ static ssize_t omap_wdt_write(struct file *file, const char __user *data,
+ static long omap_wdt_ioctl(struct file *file, unsigned int cmd,
+ 						unsigned long arg)
+ {
++	struct omap_wd_timer_platform_data *pdata;
+ 	struct omap_wdt_dev *wdev;
+-	int new_margin;
++	u32 rs;
++	int new_margin, bs;
+ 	static const struct watchdog_info ident = {
+ 		.identity = "OMAP Watchdog",
+ 		.options = WDIOF_SETTIMEOUT,
+@@ -211,6 +213,7 @@ static long omap_wdt_ioctl(struct file *file, unsigned int cmd,
+ 	};
+ 
+ 	wdev = file->private_data;
++	pdata = wdev->dev->platform_data;
+ 
+ 	switch (cmd) {
+ 	case WDIOC_GETSUPPORT:
+@@ -219,17 +222,12 @@ static long omap_wdt_ioctl(struct file *file, unsigned int cmd,
+ 	case WDIOC_GETSTATUS:
+ 		return put_user(0, (int __user *)arg);
+ 	case WDIOC_GETBOOTSTATUS:
+-#ifdef CONFIG_ARCH_OMAP1
+-		if (cpu_is_omap16xx())
+-			return put_user(__raw_readw(ARM_SYSST),
+-					(int __user *)arg);
+-#endif
+-#ifdef CONFIG_ARCH_OMAP2PLUS
+-		if (cpu_is_omap24xx())
+-			return put_user(omap_prcm_get_reset_sources(),
+-					(int __user *)arg);
+-#endif
+-		return put_user(0, (int __user *)arg);
++		if (!pdata->read_reset_sources)
++			return put_user(0, (int __user *)arg);
++		rs = pdata->read_reset_sources();
++		bs = (rs & (1 << OMAP_MPU_WD_RST_SRC_ID_SHIFT)) ?
++			WDIOF_CARDRESET : 0;
++		return put_user(bs, (int __user *)arg);
+ 	case WDIOC_KEEPALIVE:
+ 		spin_lock(&wdt_lock);
+ 		omap_wdt_ping(wdev);
 
 
