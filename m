@@ -1,63 +1,84 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from filtteri2.pp.htv.fi ([213.243.153.185]:37240 "EHLO
-	filtteri2.pp.htv.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1946215Ab2JYPTf (ORCPT
+Received: from filtteri1.pp.htv.fi ([213.243.153.184]:56984 "EHLO
+	filtteri1.pp.htv.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1946211Ab2JYPTf (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
 	Thu, 25 Oct 2012 11:19:35 -0400
 From: Aaro Koskinen <aaro.koskinen@iki.fi>
 To: wim@iguana.be, linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
 Cc: Aaro Koskinen <aaro.koskinen@iki.fi>
-Subject: [RESEND PATCH v3 4/6] watchdog: omap_wdt: convert ioremap() to devm_ioremap()
-Date: Thu, 25 Oct 2012 18:19:10 +0300
-Message-Id: <1351178352-3989-5-git-send-email-aaro.koskinen@iki.fi>
+Subject: [RESEND PATCH v3 2/6] watchdog: omap_wdt: convert kzalloc() to devm_kzalloc()
+Date: Thu, 25 Oct 2012 18:19:08 +0300
+Message-Id: <1351178352-3989-3-git-send-email-aaro.koskinen@iki.fi>
 In-Reply-To: <1351178352-3989-1-git-send-email-aaro.koskinen@iki.fi>
 References: <1351178352-3989-1-git-send-email-aaro.koskinen@iki.fi>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Use devm_ioremap() to simplify the code.
+Use devm_kzalloc() to simplify the code.
 
 Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
 ---
- drivers/watchdog/omap_wdt.c |   14 +++-----------
- 1 files changed, 3 insertions(+), 11 deletions(-)
+ drivers/watchdog/omap_wdt.c |   23 ++++++-----------------
+ 1 files changed, 6 insertions(+), 17 deletions(-)
 
 diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
-index 45019b0..7e8d3e0 100644
+index d28ad5e..d6722db 100644
 --- a/drivers/watchdog/omap_wdt.c
 +++ b/drivers/watchdog/omap_wdt.c
-@@ -255,11 +255,9 @@ static int __devinit omap_wdt_probe(struct platform_device *pdev)
- 	wdev->wdt_trgr_pattern	= 0x1234;
- 	mutex_init(&wdev->lock);
+@@ -208,24 +208,20 @@ static int __devinit omap_wdt_probe(struct platform_device *pdev)
+ 	struct omap_wdt_dev *wdev;
+ 	int ret;
  
--	wdev->base = ioremap(res->start, resource_size(res));
--	if (!wdev->base) {
--		ret = -ENOMEM;
--		goto err_ioremap;
+-	omap_wdt = kzalloc(sizeof(*omap_wdt), GFP_KERNEL);
++	omap_wdt = devm_kzalloc(&pdev->dev, sizeof(*omap_wdt), GFP_KERNEL);
+ 	if (!omap_wdt)
+ 		return -ENOMEM;
+ 
+ 	/* reserve static register mappings */
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!res) {
+-		ret = -ENOENT;
+-		goto err_get_resource;
 -	}
-+	wdev->base = devm_ioremap(&pdev->dev, res->start, resource_size(res));
-+	if (!wdev->base)
-+		return -ENOMEM;
++	if (!res)
++		return -ENOENT;
  
- 	platform_set_drvdata(pdev, omap_wdt);
+ 	mem = request_mem_region(res->start, resource_size(res), pdev->name);
+-	if (!mem) {
+-		ret = -EBUSY;
+-		goto err_busy;
+-	}
++	if (!mem)
++		return -EBUSY;
  
-@@ -283,10 +281,6 @@ static int __devinit omap_wdt_probe(struct platform_device *pdev)
- err_misc:
- 	pm_runtime_disable(wdev->dev);
- 	platform_set_drvdata(pdev, NULL);
--	iounmap(wdev->base);
--
--err_ioremap:
--	wdev->base = NULL;
+-	wdev = kzalloc(sizeof(struct omap_wdt_dev), GFP_KERNEL);
++	wdev = devm_kzalloc(&pdev->dev, sizeof(*wdev), GFP_KERNEL);
+ 	if (!wdev) {
+ 		ret = -ENOMEM;
+ 		goto err_kzalloc;
+@@ -292,14 +288,10 @@ err_misc:
  
+ err_ioremap:
+ 	wdev->base = NULL;
+-	kfree(wdev);
+ 
+ err_kzalloc:
+ 	release_mem_region(res->start, resource_size(res));
+ 
+-err_busy:
+-err_get_resource:
+-	kfree(omap_wdt);
  	return ret;
  }
-@@ -314,8 +308,6 @@ static int __devexit omap_wdt_remove(struct platform_device *pdev)
- 	watchdog_unregister_device(wdog);
- 	platform_set_drvdata(pdev, NULL);
  
--	iounmap(wdev->base);
+@@ -329,9 +321,6 @@ static int __devexit omap_wdt_remove(struct platform_device *pdev)
+ 
+ 	iounmap(wdev->base);
+ 
+-	kfree(wdev);
+-	kfree(wdog);
 -
  	return 0;
  }
