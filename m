@@ -1,48 +1,57 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from filtteri6.pp.htv.fi ([213.243.153.189]:57900 "EHLO
-	filtteri6.pp.htv.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1946216Ab2JYPTg (ORCPT
+Received: from filtteri2.pp.htv.fi ([213.243.153.185]:37244 "EHLO
+	filtteri2.pp.htv.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1946214Ab2JYPTf (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 25 Oct 2012 11:19:36 -0400
+	Thu, 25 Oct 2012 11:19:35 -0400
 From: Aaro Koskinen <aaro.koskinen@iki.fi>
 To: wim@iguana.be, linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
 Cc: Aaro Koskinen <aaro.koskinen@iki.fi>
-Subject: [RESEND PATCH v3 5/6] watchdog: omap_wdt: delete redundant platform_set_drvdata() calls
-Date: Thu, 25 Oct 2012 18:19:11 +0300
-Message-Id: <1351178352-3989-6-git-send-email-aaro.koskinen@iki.fi>
+Subject: [RESEND PATCH v3 6/6] watchdog: omap_wdt: eliminate goto
+Date: Thu, 25 Oct 2012 18:19:12 +0300
+Message-Id: <1351178352-3989-7-git-send-email-aaro.koskinen@iki.fi>
 In-Reply-To: <1351178352-3989-1-git-send-email-aaro.koskinen@iki.fi>
 References: <1351178352-3989-1-git-send-email-aaro.koskinen@iki.fi>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-It's not needed to manually reset the driver data.
+Eliminate a goto to simplify the code.
 
 Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
 ---
- drivers/watchdog/omap_wdt.c |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
+ drivers/watchdog/omap_wdt.c |   11 ++++-------
+ 1 files changed, 4 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
-index 7e8d3e0..af1e72e 100644
+index af1e72e..bee43a9 100644
 --- a/drivers/watchdog/omap_wdt.c
 +++ b/drivers/watchdog/omap_wdt.c
-@@ -280,7 +280,6 @@ static int __devinit omap_wdt_probe(struct platform_device *pdev)
+@@ -267,8 +267,10 @@ static int __devinit omap_wdt_probe(struct platform_device *pdev)
+ 	__omap_wdt_disable(wdev);
  
- err_misc:
- 	pm_runtime_disable(wdev->dev);
--	platform_set_drvdata(pdev, NULL);
+ 	ret = watchdog_register_device(omap_wdt);
+-	if (ret)
+-		goto err_misc;
++	if (ret) {
++		pm_runtime_disable(wdev->dev);
++		return ret;
++	}
  
- 	return ret;
- }
-@@ -306,7 +305,6 @@ static int __devexit omap_wdt_remove(struct platform_device *pdev)
- 
- 	pm_runtime_disable(wdev->dev);
- 	watchdog_unregister_device(wdog);
--	platform_set_drvdata(pdev, NULL);
+ 	pr_info("OMAP Watchdog Timer Rev 0x%02x: initial timeout %d sec\n",
+ 		__raw_readl(wdev->base + OMAP_WATCHDOG_REV) & 0xFF,
+@@ -277,11 +279,6 @@ static int __devinit omap_wdt_probe(struct platform_device *pdev)
+ 	pm_runtime_put_sync(wdev->dev);
  
  	return 0;
+-
+-err_misc:
+-	pm_runtime_disable(wdev->dev);
+-
+-	return ret;
  }
+ 
+ static void omap_wdt_shutdown(struct platform_device *pdev)
 -- 
 1.7.2.5
 
