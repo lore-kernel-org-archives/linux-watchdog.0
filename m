@@ -1,86 +1,106 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from perches-mx.perches.com ([206.117.179.246]:35890 "EHLO
+Received: from perches-mx.perches.com ([206.117.179.246]:60575 "EHLO
 	labridge.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751058Ab2J1IKh (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 28 Oct 2012 04:10:37 -0400
+	id S1750821Ab2J1IGw (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Sun, 28 Oct 2012 04:06:52 -0400
 From: Joe Perches <joe@perches.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 15/16] watchdog: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
-Date: Sun, 28 Oct 2012 01:05:53 -0700
-Message-Id: <e77e06add16c9cb82fd359b68f63d7b9f4597ed3.1351411048.git.joe@perches.com>
-In-Reply-To: <cover.1351411047.git.joe@perches.com>
-References: <cover.1351411047.git.joe@perches.com>
+To: linux-ide@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	dri-devel@lists.freedesktop.org, netdev@vger.kernel.org,
+	linux-wireless@vger.kernel.org, linux-pci@vger.kernel.org,
+	linux-pcmcia@lists.infradead.org, linux-scsi@vger.kernel.org,
+	devel@open-fcoe.org, virtualization@lists.linux-foundation.org,
+	linux-watchdog@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+	linux-usb@vger.kernel.org, alsa-devel@alsa-project.org
+Subject: [PATCH 00/16] treewide: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
+Date: Sun, 28 Oct 2012 01:05:38 -0700
+Message-Id: <cover.1351411047.git.joe@perches.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-dev_<level> calls take less code than dev_printk(KERN_<LEVEL>
-and reducing object size is good.
+dev_<level> create smaller objects than dev_printk(KERN_<LEVEL>.
+Convert non-debug calls to this form.
 
-Signed-off-by: Joe Perches <joe@perches.com>
----
- drivers/watchdog/mpcore_wdt.c |   19 +++++++++----------
- 1 files changed, 9 insertions(+), 10 deletions(-)
+Joe Perches (16):
+  tile: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
+  ata: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
+  drivers: base: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
+  block: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
+  pcmcia: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
+  dma: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
+  gpu: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
+  i2c: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
+  wireless: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
+  ethernet: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
+  pci: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
+  scsi: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
+  usb: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
+  tile: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
+  watchdog: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
+  tile: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
 
-diff --git a/drivers/watchdog/mpcore_wdt.c b/drivers/watchdog/mpcore_wdt.c
-index 7c741dc..24388c2 100644
---- a/drivers/watchdog/mpcore_wdt.c
-+++ b/drivers/watchdog/mpcore_wdt.c
-@@ -80,8 +80,7 @@ static irqreturn_t mpcore_wdt_fire(int irq, void *arg)
- 
- 	/* Check it really was our interrupt */
- 	if (readl(wdt->base + TWD_WDOG_INTSTAT)) {
--		dev_printk(KERN_CRIT, wdt->dev,
--					"Triggered - Reboot ignored.\n");
-+		dev_crit(wdt->dev, "Triggered - Reboot ignored\n");
- 		/* Clear the interrupt on the watchdog */
- 		writel(1, wdt->base + TWD_WDOG_INTSTAT);
- 		return IRQ_HANDLED;
-@@ -123,7 +122,7 @@ static void mpcore_wdt_stop(struct mpcore_wdt *wdt)
- 
- static void mpcore_wdt_start(struct mpcore_wdt *wdt)
- {
--	dev_printk(KERN_INFO, wdt->dev, "enabling watchdog.\n");
-+	dev_info(wdt->dev, "enabling watchdog\n");
- 
- 	/* This loads the count register but does NOT start the count yet */
- 	mpcore_wdt_keepalive(wdt);
-@@ -180,8 +179,8 @@ static int mpcore_wdt_release(struct inode *inode, struct file *file)
- 	if (wdt->expect_close == 42)
- 		mpcore_wdt_stop(wdt);
- 	else {
--		dev_printk(KERN_CRIT, wdt->dev,
--				"unexpected close, not stopping watchdog!\n");
-+		dev_crit(wdt->dev,
-+			 "unexpected close, not stopping watchdog!\n");
- 		mpcore_wdt_keepalive(wdt);
- 	}
- 	clear_bit(0, &wdt->timer_alive);
-@@ -351,9 +350,9 @@ static int __devinit mpcore_wdt_probe(struct platform_device *pdev)
- 		ret = devm_request_irq(wdt->dev, wdt->irq, mpcore_wdt_fire, 0,
- 				"mpcore_wdt", wdt);
- 		if (ret) {
--			dev_printk(KERN_ERR, wdt->dev,
--					"cannot register IRQ%d for watchdog\n",
--					wdt->irq);
-+			dev_err(wdt->dev,
-+				"cannot register IRQ%d for watchdog\n",
-+				wdt->irq);
- 			return ret;
- 		}
- 	}
-@@ -365,9 +364,9 @@ static int __devinit mpcore_wdt_probe(struct platform_device *pdev)
- 	mpcore_wdt_miscdev.parent = &pdev->dev;
- 	ret = misc_register(&mpcore_wdt_miscdev);
- 	if (ret) {
--		dev_printk(KERN_ERR, wdt->dev,
-+		dev_err(wdt->dev,
- 			"cannot register miscdev on minor=%d (err=%d)\n",
--							WATCHDOG_MINOR, ret);
-+			WATCHDOG_MINOR, ret);
- 		return ret;
- 	}
- 
+ arch/tile/kernel/pci_gx.c                   |   15 ++---
+ drivers/ata/pata_cmd64x.c                   |    6 +-
+ drivers/base/attribute_container.c          |    2 +-
+ drivers/base/devres.c                       |    4 +-
+ drivers/block/umem.c                        |   97 ++++++++++++--------------
+ drivers/char/pcmcia/cm4040_cs.c             |    5 +-
+ drivers/dma/at_hdmac_regs.h                 |    8 +-
+ drivers/dma/iop-adma.c                      |   45 ++++++------
+ drivers/dma/mv_xor.c                        |   62 ++++++++----------
+ drivers/gpu/drm/gma500/cdv_intel_crt.c      |    3 +-
+ drivers/gpu/drm/gma500/cdv_intel_lvds.c     |    7 +-
+ drivers/gpu/drm/gma500/psb_intel_lvds.c     |    7 +-
+ drivers/gpu/drm/i915/intel_opregion.c       |    8 +-
+ drivers/i2c/busses/i2c-piix4.c              |    5 +-
+ drivers/net/ethernet/chelsio/cxgb3/common.h |    7 +-
+ drivers/net/ethernet/marvell/pxa168_eth.c   |    7 +-
+ drivers/net/wireless/at76c50x-usb.c         |   85 +++++++++++------------
+ drivers/net/wireless/iwlegacy/common.h      |    5 +-
+ drivers/net/wireless/iwlwifi/pcie/trans.c   |   28 +++-----
+ drivers/pci/irq.c                           |   10 ++--
+ drivers/pci/pci-stub.c                      |    2 +-
+ drivers/pci/pcie/aspm.c                     |    7 +--
+ drivers/pcmcia/cistpl.c                     |   10 +--
+ drivers/pcmcia/cs.c                         |   28 +++-----
+ drivers/pcmcia/ds.c                         |   38 +++++------
+ drivers/pcmcia/pcmcia_cis.c                 |    4 +-
+ drivers/pcmcia/pcmcia_resource.c            |   11 +--
+ drivers/pcmcia/rsrc_nonstatic.c             |   24 +++----
+ drivers/pcmcia/ti113x.h                     |   80 +++++++++++------------
+ drivers/pcmcia/yenta_socket.c               |   61 ++++++++---------
+ drivers/scsi/53c700.c                       |    2 +-
+ drivers/scsi/aic7xxx/aic79xx_osm_pci.c      |    4 +-
+ drivers/scsi/aic7xxx/aic7xxx_osm_pci.c      |    4 +-
+ drivers/scsi/aic94xx/aic94xx_tmf.c          |    4 +-
+ drivers/scsi/bfa/bfad.c                     |   32 ++++-----
+ drivers/scsi/fcoe/fcoe_sysfs.c              |    3 +-
+ drivers/scsi/lasi700.c                      |    2 +-
+ drivers/scsi/libsas/sas_task.c              |    9 +--
+ drivers/scsi/lpfc/lpfc_attr.c               |    8 +-
+ drivers/scsi/lpfc/lpfc_debugfs.h            |    6 +-
+ drivers/scsi/lpfc/lpfc_hbadisc.c            |    4 +-
+ drivers/scsi/lpfc/lpfc_init.c               |   45 ++++++-------
+ drivers/scsi/mpt2sas/mpt2sas_transport.c    |   91 ++++++++++++-------------
+ drivers/scsi/mvsas/mv_64xx.c                |    2 +-
+ drivers/scsi/mvsas/mv_chips.h               |    8 +-
+ drivers/scsi/mvsas/mv_init.c                |   14 ++--
+ drivers/scsi/mvsas/mv_sas.c                 |    9 +--
+ drivers/scsi/pm8001/pm8001_init.c           |   10 +--
+ drivers/scsi/pm8001/pm8001_sas.c            |    4 +-
+ drivers/scsi/raid_class.c                   |    8 +-
+ drivers/scsi/scsi_scan.c                    |    3 +-
+ drivers/scsi/scsi_transport_fc.c            |   31 ++++-----
+ drivers/scsi/scsi_transport_sas.c           |    7 +-
+ drivers/scsi/sni_53c710.c                   |    2 +-
+ drivers/scsi/zalon.c                        |    4 +-
+ drivers/usb/core/hub.c                      |    2 +-
+ drivers/virtio/virtio_balloon.c             |    7 +-
+ drivers/watchdog/mpcore_wdt.c               |   19 +++---
+ sound/pci/asihpi/hpidspcd.c                 |   22 +++----
+ sound/pci/asihpi/hpioctl.c                  |   17 ++---
+ 60 files changed, 485 insertions(+), 579 deletions(-)
+
 -- 
 1.7.8.112.g3fd21
 
