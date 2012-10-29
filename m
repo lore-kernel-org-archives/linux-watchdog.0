@@ -1,58 +1,52 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from perches-mx.perches.com ([206.117.179.246]:50697 "EHLO
-	labridge.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751551Ab2J1M01 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 28 Oct 2012 08:26:27 -0400
-Message-ID: <1351426335.2008.6.camel@joe-AO722>
-Subject: Re: [PATCH 00/16] treewide: Convert dev_printk(KERN_<LEVEL> to
- dev_<level>(
-From: Joe Perches <joe@perches.com>
-To: Sergei Shtylyov <sshtylyov@mvista.com>
-Cc: linux-ide@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	dri-devel@lists.freedesktop.org, netdev@vger.kernel.org,
-	linux-wireless@vger.kernel.org, linux-pci@vger.kernel.org,
-	linux-pcmcia@lists.infradead.org, linux-scsi@vger.kernel.org,
-	devel@open-fcoe.org, virtualization@lists.linux-foundation.org,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-i2c@vger.kernel.org, linux-usb@vger.kernel.org,
-	alsa-devel@alsa-project.org
-In-Reply-To: <508D0ECA.8040008@mvista.com>
-References: <cover.1351411047.git.joe@perches.com>
-	 <508D0ECA.8040008@mvista.com>
-Content-Type: text/plain; charset="ISO-8859-1"
-Date: Sun, 28 Oct 2012 05:12:15 -0700
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Received: from mail-we0-f174.google.com ([74.125.82.174]:58359 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758294Ab2J2KLh (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 29 Oct 2012 06:11:37 -0400
+From: Raffaele Recalcati <lamiaposta71@gmail.com>
+To: linux-omap@vger.kernel.org, wim@iguana.be,
+	linux-watchdog@vger.kernel.org
+Cc: Raffaele Recalcati <lamiaposta71@gmail.com>
+Subject: [PATCH] watchdog: omap_wdt: removed disabling in the probe
+Date: Mon, 29 Oct 2012 12:11:27 +0100
+Message-Id: <1351509087-6606-1-git-send-email-lamiaposta71@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sun, 2012-10-28 at 14:54 +0400, Sergei Shtylyov wrote:
-> Hello.
+In NOWAYOUT case it is better to have watchdog always enabled at boot,
+in order not to leave the system in undefined state in case of userspace
+failure.
 
-Hi Sergei.
+Signed-off-by: Raffaele Recalcati <lamiaposta71@gmail.com>
+---
+Tested using http://arago-project.org/git/projects/linux-omap3.git
+v2.6.37_OMAPPSP_04.02.00.07 commit.
 
-> On 28-10-2012 12:05, Joe Perches wrote:
-> 
-> > dev_<level> create smaller objects than dev_printk(KERN_<LEVEL>.
-> > Convert non-debug calls to this form.
-> 
-> > Joe Perches (16):
-> >    tile: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
-> [...]
-> >    tile: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
-> [...]
-> >    tile: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
-> 
->     Hm, somehow this patch is repeated thrice?
+ drivers/watchdog/omap_wdt.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-Nope, I forgot to edit the 0000 file after I edited
-patches locally when I noticed I forgot to update
-the subject lines.  Patches are corrected, 0000 not.
-
-I don't think it's a bit deal, I could repost just the 0000
-if you want though.
-
-cheers, Joe
-
-
+diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
+index 27ab8db..181b939 100644
+--- a/drivers/watchdog/omap_wdt.c
++++ b/drivers/watchdog/omap_wdt.c
+@@ -304,8 +304,16 @@ static int __devinit omap_wdt_probe(struct platform_device *pdev)
+ 	pm_runtime_enable(wdev->dev);
+ 	pm_runtime_get_sync(wdev->dev);
+ 
++#ifndef CONFIG_WATCHDOG_NOWAYOUT
+ 	omap_wdt_disable(wdev);
+ 	omap_wdt_adjust_timeout(timer_margin);
++#else
++	omap_wdt_adjust_timeout(timer_margin);
++	omap_wdt_disable(wdev);
++	omap_wdt_set_timeout(wdev);
++	omap_wdt_enable(wdev);
++	omap_wdt_ping(wdev);
++#endif
+ 
+ 	wdev->omap_wdt_miscdev.parent = &pdev->dev;
+ 	wdev->omap_wdt_miscdev.minor = WATCHDOG_MINOR;
+-- 
+1.7.9.5
 
