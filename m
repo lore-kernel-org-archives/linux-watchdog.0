@@ -1,52 +1,53 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:58359 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758294Ab2J2KLh (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:48742 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758546Ab2J2VMT (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 29 Oct 2012 06:11:37 -0400
-From: Raffaele Recalcati <lamiaposta71@gmail.com>
-To: linux-omap@vger.kernel.org, wim@iguana.be,
-	linux-watchdog@vger.kernel.org
-Cc: Raffaele Recalcati <lamiaposta71@gmail.com>
-Subject: [PATCH] watchdog: omap_wdt: removed disabling in the probe
-Date: Mon, 29 Oct 2012 12:11:27 +0100
-Message-Id: <1351509087-6606-1-git-send-email-lamiaposta71@gmail.com>
+	Mon, 29 Oct 2012 17:12:19 -0400
+Date: Mon, 29 Oct 2012 22:12:13 +0100
+From: Sascha Hauer <s.hauer@pengutronix.de>
+To: Roland Stigge <stigge@antcom.de>
+Cc: wim@iguana.be, grant.likely@secretlab.ca,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	kernel@pengutronix.de, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH] watchdog: Support imx watchdog on SOC_IMX53
+Message-ID: <20121029211213.GY1641@pengutronix.de>
+References: <1351164513-27999-1-git-send-email-stigge@antcom.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1351164513-27999-1-git-send-email-stigge@antcom.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-In NOWAYOUT case it is better to have watchdog always enabled at boot,
-in order not to leave the system in undefined state in case of userspace
-failure.
+On Thu, Oct 25, 2012 at 01:28:33PM +0200, Roland Stigge wrote:
+> This patch fixes watchdog support after devicetree switch for imx53
+> 
+> Signed-off-by: Roland Stigge <stigge@antcom.de>
 
-Signed-off-by: Raffaele Recalcati <lamiaposta71@gmail.com>
----
-Tested using http://arago-project.org/git/projects/linux-omap3.git
-v2.6.37_OMAPPSP_04.02.00.07 commit.
+Applied, thanks
 
- drivers/watchdog/omap_wdt.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+Sascha
 
-diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
-index 27ab8db..181b939 100644
---- a/drivers/watchdog/omap_wdt.c
-+++ b/drivers/watchdog/omap_wdt.c
-@@ -304,8 +304,16 @@ static int __devinit omap_wdt_probe(struct platform_device *pdev)
- 	pm_runtime_enable(wdev->dev);
- 	pm_runtime_get_sync(wdev->dev);
- 
-+#ifndef CONFIG_WATCHDOG_NOWAYOUT
- 	omap_wdt_disable(wdev);
- 	omap_wdt_adjust_timeout(timer_margin);
-+#else
-+	omap_wdt_adjust_timeout(timer_margin);
-+	omap_wdt_disable(wdev);
-+	omap_wdt_set_timeout(wdev);
-+	omap_wdt_enable(wdev);
-+	omap_wdt_ping(wdev);
-+#endif
- 
- 	wdev->omap_wdt_miscdev.parent = &pdev->dev;
- 	wdev->omap_wdt_miscdev.minor = WATCHDOG_MINOR;
+> 
+> ---
+>  arch/arm/mach-imx/Kconfig |    1 +
+>  1 file changed, 1 insertion(+)
+> 
+> --- linux-2.6.orig/arch/arm/mach-imx/Kconfig
+> +++ linux-2.6/arch/arm/mach-imx/Kconfig
+> @@ -739,6 +739,7 @@ config	SOC_IMX53
+>  	select ARCH_MX5
+>  	select ARCH_MX53
+>  	select HAVE_CAN_FLEXCAN if CAN
+> +	select IMX_HAVE_PLATFORM_IMX2_WDT
+>  	select PINCTRL
+>  	select PINCTRL_IMX53
+>  	select SOC_IMX5
+> 
+
 -- 
-1.7.9.5
-
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
