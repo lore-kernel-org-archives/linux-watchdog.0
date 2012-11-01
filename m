@@ -1,306 +1,248 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:54558 "EHLO bear.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752792Ab2J3FHl (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 30 Oct 2012 01:07:41 -0400
-Message-ID: <508F6092.9000709@ti.com>
-Date: Tue, 30 Oct 2012 10:37:30 +0530
-From: Lokesh Vutla <lokeshvutla@ti.com>
-MIME-Version: 1.0
-To: Raffaele Recalcati <lamiaposta71@gmail.com>
-CC: <linux-omap@vger.kernel.org>, <wim@iguana.be>,
-	<linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH] watchdog: omap_wdt: removed disabling in the probe
-References: <1351509087-6606-1-git-send-email-lamiaposta71@gmail.com>
-In-Reply-To: <1351509087-6606-1-git-send-email-lamiaposta71@gmail.com>
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Aaro Koskinen <aaro.koskinen@iki.fi>
+To: linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>, linux-watchdog@vger.kernel.org
+Subject: [PATCH v3 3/4] watchdog: introduce retu_wdt driver
+Date: Thu,  1 Nov 2012 23:39:19 +0200
+Message-Id: <1351805960-7612-4-git-send-email-aaro.koskinen@iki.fi>
+In-Reply-To: <1351805960-7612-1-git-send-email-aaro.koskinen@iki.fi>
+References: <1351805960-7612-1-git-send-email-aaro.koskinen@iki.fi>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Raffaele,
+Introduce Retu watchdog driver.
 
-On Monday 29 October 2012 04:41 PM, Raffaele Recalcati wrote:
-> In NOWAYOUT case it is better to have watchdog always enabled at boot,
-> in order not to leave the system in undefined state in case of userspace
-> failure.
->
-> Signed-off-by: Raffaele Recalcati <lamiaposta71@gmail.com>
-> ---
-> Tested using http://arago-project.org/git/projects/linux-omap3.git
-> v2.6.37_OMAPPSP_04.02.00.07 commit.
->
->   drivers/watchdog/omap_wdt.c |    8 ++++++++
->   1 file changed, 8 insertions(+)
->
-> diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
-> index 27ab8db..181b939 100644
-> --- a/drivers/watchdog/omap_wdt.c
-> +++ b/drivers/watchdog/omap_wdt.c
-> @@ -304,8 +304,16 @@ static int __devinit omap_wdt_probe(struct platform_device *pdev)
->   	pm_runtime_enable(wdev->dev);
->   	pm_runtime_get_sync(wdev->dev);
->
-> +#ifndef CONFIG_WATCHDOG_NOWAYOUT
->   	omap_wdt_disable(wdev);
->   	omap_wdt_adjust_timeout(timer_margin);
-> +#else
-> +	omap_wdt_adjust_timeout(timer_margin);
-> +	omap_wdt_disable(wdev);
-> +	omap_wdt_set_timeout(wdev);
-> +	omap_wdt_enable(wdev);
-> +	omap_wdt_ping(wdev);
-IMHO this is not the correct procedure to start the watchdog.
-The sequence to start watchdog is something similar in omap_wdt_open()
-the steps are:
-1) Increment omap_wdt_users
-2) Set prescalar value
-3) Enable prescalar value
-4) Load timer counter value
-5) Enable watchdog timer.
-
-In your case you are missing first 3 steps.
-
-After starting the watchdog, there should be some daemon
-which pets the watchdog before timeout, if not it will reset the board.
-This is also missing in your case.
-( This daemon can be achieved by enabling delay interrupt and period)
-
-And there is a pm_runtime_put_sync after you enable your watchdog.
-Because of which you get the following warning
-omap_hwmod: wd_timer2: _wait_target_disable failed
-
-Below is the patch which might meet your aims.
-Please comment on the patch.
-
-Here I enabled delay interrupt and delay period
-for petting watchdog before timeout.
-watchdog is enabled for all the cases(not only for NOWAYOUT)
-
-
-
-Signed-off-by: Lokesh Vutla <lokeshvutla@ti.com>
+Cc: linux-watchdog@vger.kernel.org
+Acked-by: Felipe Balbi <balbi@ti.com>
+Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
 ---
-  drivers/watchdog/omap_wdt.c | 82 
-++++++++++++++++++++++++++++++++++++++++-----
-  drivers/watchdog/omap_wdt.h |  4 +++
-  2 files changed, 78 insertions(+), 8 deletions(-)
+ drivers/watchdog/Kconfig    |   12 +++
+ drivers/watchdog/Makefile   |    1 +
+ drivers/watchdog/retu_wdt.c |  178 +++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 191 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/watchdog/retu_wdt.c
 
-diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
-index f5db18db..38e36c1 100644
---- a/drivers/watchdog/omap_wdt.c
-+++ b/drivers/watchdog/omap_wdt.c
-@@ -45,6 +45,7 @@
-  #include <linux/uaccess.h>
-  #include <linux/slab.h>
-  #include <linux/pm_runtime.h>
-+#include <linux/interrupt.h>
-  #include <mach/hardware.h>
-  #include <plat/cpu.h>
-  #include <plat/prcm.h>
-@@ -57,6 +58,10 @@ static unsigned timer_margin;
-  module_param(timer_margin, uint, 0);
-  MODULE_PARM_DESC(timer_margin, "initial watchdog timeout (in seconds)");
-
-+static int kernelpet = 1;
-+module_param(kernelpet, int, 0);
-+MODULE_PARM_DESC(kernelpet, "pet watchdog in kernel via irq");
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index ad1bb93..c3a836d 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -352,6 +352,18 @@ config IMX2_WDT
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called imx2_wdt.
+ 
++config RETU_WATCHDOG
++	tristate "Retu watchdog"
++	depends on MFD_RETU
++	select WATCHDOG_CORE
++	help
++	  Retu watchdog driver for Nokia Internet Tablets (700, N800,
++	  N810). At least on N800 the watchdog cannot be disabled, so
++	  this driver is essential and you should enable it.
 +
-  static unsigned int wdt_trgr_pattern = 0x1234;
-  static DEFINE_SPINLOCK(wdt_lock);
-
-@@ -66,6 +71,7 @@ struct omap_wdt_dev {
-  	int             omap_wdt_users;
-  	struct resource *mem;
-  	struct miscdevice omap_wdt_miscdev;
-+	int irq;
-  };
-
-  static void omap_wdt_ping(struct omap_wdt_dev *wdev)
-@@ -125,6 +131,7 @@ static void omap_wdt_adjust_timeout(unsigned 
-new_timeout)
-  static void omap_wdt_set_timeout(struct omap_wdt_dev *wdev)
-  {
-  	u32 pre_margin = GET_WLDR_VAL(timer_margin);
-+	u32 delay_period = GET_WLDR_VAL(timer_margin / 2);
-  	void __iomem *base = wdev->base;
-
-  	/* just count up at 32 KHz */
-@@ -134,14 +141,29 @@ static void omap_wdt_set_timeout(struct 
-omap_wdt_dev *wdev)
-  	__raw_writel(pre_margin, base + OMAP_WATCHDOG_LDR);
-  	while (__raw_readl(base + OMAP_WATCHDOG_WPS) & 0x04)
-  		cpu_relax();
++	  To compile this driver as a module, choose M here: the
++	  module will be called retu_wdt.
 +
-+	/* Set delay interrupt to half the watchdog interval. */
-+	while (__raw_readl(base + OMAP_WATCHDOG_WPS) & 1 << 5)
-+		cpu_relax();
-+	__raw_writel(delay_period, base + OMAP_WATCHDOG_WDLY);
-  }
-
--/*
-- *	Allow only one task to hold it open
-- */
--static int omap_wdt_open(struct inode *inode, struct file *file)
-+static irqreturn_t omap_wdt_interrupt(int irq, void *dev_id)
+ # AVR32 Architecture
+ 
+ config AT32AP700X_WDT
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 572b39b..d2f1c0c 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -52,6 +52,7 @@ obj-$(CONFIG_STMP3XXX_WATCHDOG) += stmp3xxx_wdt.o
+ obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
+ obj-$(CONFIG_TS72XX_WATCHDOG) += ts72xx_wdt.o
+ obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
++obj-$(CONFIG_RETU_WATCHDOG) += retu_wdt.o
+ 
+ # AVR32 Architecture
+ obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
+diff --git a/drivers/watchdog/retu_wdt.c b/drivers/watchdog/retu_wdt.c
+new file mode 100644
+index 0000000..aeb0f39
+--- /dev/null
++++ b/drivers/watchdog/retu_wdt.c
+@@ -0,0 +1,178 @@
++/*
++ * Retu watchdog driver
++ *
++ * Copyright (C) 2004, 2005 Nokia Corporation
++ *
++ * Based on code written by Amit Kucheria and Michael Buesch.
++ * Rewritten by Aaro Koskinen.
++ *
++ * This file is subject to the terms and conditions of the GNU General
++ * Public License. See the file "COPYING" in the main directory of this
++ * archive for more details.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++#include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/errno.h>
++#include <linux/device.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/mfd/retu.h>
++#include <linux/watchdog.h>
++#include <linux/platform_device.h>
++
++/* Watchdog timer values in seconds */
++#define RETU_WDT_MAX_TIMER	63
++
++struct retu_wdt_dev {
++	struct retu_dev		*rdev;
++	struct device		*dev;
++	struct delayed_work	ping_work;
++};
++
++/*
++ * Since Retu watchdog cannot be disabled in hardware, we must kick it
++ * with a timer until userspace watchdog software takes over. If
++ * CONFIG_WATCHDOG_NOWAYOUT is set, we never start the feeding.
++ */
++static void retu_wdt_ping_enable(struct retu_wdt_dev *wdev)
 +{
-+	struct omap_wdt_dev *wdev = dev_id;
-+	void __iomem *base = wdev->base;
-+	u32 i;
-+
-+	i = __raw_readl(base + OMAP_WATCHDOG_WIRQSTAT);
-+	__raw_writel(i, base + OMAP_WATCHDOG_WIRQSTAT);
-+
-+	omap_wdt_ping(wdev);
-+
-+	return IRQ_HANDLED;
++	retu_write(wdev->rdev, RETU_REG_WATCHDOG, RETU_WDT_MAX_TIMER);
++	schedule_delayed_work(&wdev->ping_work,
++			round_jiffies_relative(RETU_WDT_MAX_TIMER * HZ / 2));
 +}
 +
-+static int omap_wdt_setup(struct omap_wdt_dev *wdev)
-  {
--	struct omap_wdt_dev *wdev = platform_get_drvdata(omap_wdt_dev);
-  	void __iomem *base = wdev->base;
-
-  	if (test_and_set_bit(1, (unsigned long *)&(wdev->omap_wdt_users)))
-@@ -157,12 +179,31 @@ static int omap_wdt_open(struct inode *inode, 
-struct file *file)
-  	while (__raw_readl(base + OMAP_WATCHDOG_WPS) & 0x01)
-  		cpu_relax();
-
--	file->private_data = (void *) wdev;
--
-  	omap_wdt_set_timeout(wdev);
-  	omap_wdt_ping(wdev); /* trigger loading of new timeout value */
++static void retu_wdt_ping_disable(struct retu_wdt_dev *wdev)
++{
++	retu_write(wdev->rdev, RETU_REG_WATCHDOG, RETU_WDT_MAX_TIMER);
++	cancel_delayed_work_sync(&wdev->ping_work);
++}
 +
-+	/* Enable delay interrupt */
-+	if (kernelpet && wdev->irq)
-+		__raw_writel(0x2, base + OMAP_WATCHDOG_WIRQENSET);
++static void retu_wdt_ping_work(struct work_struct *work)
++{
++	struct retu_wdt_dev *wdev = container_of(to_delayed_work(work),
++						struct retu_wdt_dev, ping_work);
++	retu_wdt_ping_enable(wdev);
++}
 +
-  	omap_wdt_enable(wdev);
-
++static int retu_wdt_start(struct watchdog_device *wdog)
++{
++	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
++
++	retu_wdt_ping_disable(wdev);
++
++	return retu_write(wdev->rdev, RETU_REG_WATCHDOG, wdog->timeout);
++}
++
++static int retu_wdt_stop(struct watchdog_device *wdog)
++{
++	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
++
++	retu_wdt_ping_enable(wdev);
++
 +	return 0;
 +}
-+/*
-+ *	Allow only one task to hold it open
-+ */
-+static int omap_wdt_open(struct inode *inode, struct file *file)
++
++static int retu_wdt_ping(struct watchdog_device *wdog)
 +{
-+	struct omap_wdt_dev *wdev = platform_get_drvdata(omap_wdt_dev);
++	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
++
++	return retu_write(wdev->rdev, RETU_REG_WATCHDOG, wdog->timeout);
++}
++
++static int retu_wdt_set_timeout(struct watchdog_device *wdog,
++				unsigned int timeout)
++{
++	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
++
++	wdog->timeout = timeout;
++	return retu_write(wdev->rdev, RETU_REG_WATCHDOG, wdog->timeout);
++}
++
++static const struct watchdog_info retu_wdt_info = {
++	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
++	.identity = "Retu watchdog",
++};
++
++static const struct watchdog_ops retu_wdt_ops = {
++	.owner		= THIS_MODULE,
++	.start		= retu_wdt_start,
++	.stop		= retu_wdt_stop,
++	.ping		= retu_wdt_ping,
++	.set_timeout	= retu_wdt_set_timeout,
++};
++
++static int __devinit retu_wdt_probe(struct platform_device *pdev)
++{
++	struct retu_dev *rdev = dev_get_drvdata(pdev->dev.parent);
++	bool nowayout = WATCHDOG_NOWAYOUT;
++	struct watchdog_device *retu_wdt;
++	struct retu_wdt_dev *wdev;
 +	int ret;
 +
-+	ret = omap_wdt_setup(wdev);
++	retu_wdt = devm_kzalloc(&pdev->dev, sizeof(*retu_wdt), GFP_KERNEL);
++	if (!retu_wdt)
++		return -ENOMEM;
 +
-+	if (ret)
++	wdev = devm_kzalloc(&pdev->dev, sizeof(*wdev), GFP_KERNEL);
++	if (!wdev)
++		return -ENOMEM;
++
++	retu_wdt->info		= &retu_wdt_info;
++	retu_wdt->ops		= &retu_wdt_ops;
++	retu_wdt->timeout	= RETU_WDT_MAX_TIMER;
++	retu_wdt->min_timeout	= 0;
++	retu_wdt->max_timeout	= RETU_WDT_MAX_TIMER;
++
++	watchdog_set_drvdata(retu_wdt, wdev);
++	watchdog_set_nowayout(retu_wdt, nowayout);
++
++	wdev->rdev		= rdev;
++	wdev->dev		= &pdev->dev;
++
++	INIT_DELAYED_WORK(&wdev->ping_work, retu_wdt_ping_work);
++
++	ret = watchdog_register_device(retu_wdt);
++	if (ret < 0)
 +		return ret;
 +
-+	file->private_data = (void *)wdev;
-  	return nonseekable_open(inode, file);
-  }
-
-@@ -176,6 +217,10 @@ static int omap_wdt_release(struct inode *inode, 
-struct file *file)
-  #ifndef CONFIG_WATCHDOG_NOWAYOUT
-  	omap_wdt_disable(wdev);
-
-+	/* Disable delay interrupt */
-+	if (kernelpet && wdev->irq)
-+		__raw_writel(0x2, base + OMAP_WATCHDOG_WIRQENCLR);
++	if (nowayout)
++		retu_wdt_ping(retu_wdt);
++	else
++		retu_wdt_ping_enable(wdev);
 +
-  	pm_runtime_put_sync(wdev->dev);
-  #else
-  	pr_crit("Unexpected close, not stopping!\n");
-@@ -266,7 +311,7 @@ static const struct file_operations omap_wdt_fops = {
-
-  static int __devinit omap_wdt_probe(struct platform_device *pdev)
-  {
--	struct resource *res, *mem;
-+	struct resource *res, *mem, *res_irq;
-  	struct omap_wdt_dev *wdev;
-  	int ret;
-
-@@ -288,6 +333,8 @@ static int __devinit omap_wdt_probe(struct 
-platform_device *pdev)
-  		goto err_busy;
-  	}
-
-+	res_irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
++	platform_set_drvdata(pdev, retu_wdt);
 +
-  	wdev = kzalloc(sizeof(struct omap_wdt_dev), GFP_KERNEL);
-  	if (!wdev) {
-  		ret = -ENOMEM;
-@@ -304,6 +351,16 @@ static int __devinit omap_wdt_probe(struct 
-platform_device *pdev)
-  		goto err_ioremap;
-  	}
-
-+	if (res_irq) {
-+		ret = request_irq(res_irq->start, omap_wdt_interrupt, 0,
-+				  dev_name(&pdev->dev), wdev);
++	return 0;
++}
 +
-+		if (ret)
-+			goto err_irq;
++static int __devexit retu_wdt_remove(struct platform_device *pdev)
++{
++	struct watchdog_device *wdog = platform_get_drvdata(pdev);
++	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
 +
-+		wdev->irq = res_irq->start;
-+	}
++	watchdog_unregister_device(wdog);
++	cancel_delayed_work_sync(&wdev->ping_work);
 +
-  	platform_set_drvdata(pdev, wdev);
-
-  	pm_runtime_enable(wdev->dev);
-@@ -329,11 +386,17 @@ static int __devinit omap_wdt_probe(struct 
-platform_device *pdev)
-
-  	omap_wdt_dev = pdev;
-
-+	if (kernelpet && wdev->irq)
-+		return  omap_wdt_setup(wdev);
++	return 0;
++}
 +
-  	return 0;
-
-  err_misc:
-  	pm_runtime_disable(wdev->dev);
-  	platform_set_drvdata(pdev, NULL);
-+	if (wdev->irq)
-+		free_irq(wdev->irq, wdev);
-+err_irq:
-  	iounmap(wdev->base);
-
-  err_ioremap:
-@@ -372,6 +435,9 @@ static int __devexit omap_wdt_remove(struct 
-platform_device *pdev)
-  	release_mem_region(res->start, resource_size(res));
-  	platform_set_drvdata(pdev, NULL);
-
-+	if (wdev->irq)
-+		free_irq(wdev->irq, wdev);
++static struct platform_driver retu_wdt_driver = {
++	.probe		= retu_wdt_probe,
++	.remove		= __devexit_p(retu_wdt_remove),
++	.driver		= {
++		.name	= "retu-wdt",
++	},
++};
++module_platform_driver(retu_wdt_driver);
 +
-  	iounmap(wdev->base);
-
-  	kfree(wdev);
-diff --git a/drivers/watchdog/omap_wdt.h b/drivers/watchdog/omap_wdt.h
-index 09b774c..c9980d3 100644
---- a/drivers/watchdog/omap_wdt.h
-+++ b/drivers/watchdog/omap_wdt.h
-@@ -38,7 +38,11 @@
-  #define OMAP_WATCHDOG_LDR		(0x2c)
-  #define OMAP_WATCHDOG_TGR		(0x30)
-  #define OMAP_WATCHDOG_WPS		(0x34)
-+#define OMAP_WATCHDOG_WDLY		(0x44)
-  #define OMAP_WATCHDOG_SPR		(0x48)
-+#define OMAP_WATCHDOG_WIRQSTAT		(0x58)
-+#define OMAP_WATCHDOG_WIRQENSET		(0x5c)
-+#define OMAP_WATCHDOG_WIRQENCLR		(0x60)
-
-  /* Using the prescaler, the OMAP watchdog could go for many
-   * months before firing.  These limits work without scaling,
---
-
-
-Thanks
-Lokesh
-
-> +#endif
->
->   	wdev->omap_wdt_miscdev.parent = &pdev->dev;
->   	wdev->omap_wdt_miscdev.minor = WATCHDOG_MINOR;
->
-
++MODULE_ALIAS("platform:retu-wdt");
++MODULE_DESCRIPTION("Retu watchdog");
++MODULE_AUTHOR("Amit Kucheria");
++MODULE_AUTHOR("Aaro Koskinen <aaro.koskinen@iki.fi>");
++MODULE_LICENSE("GPL");
+-- 
+1.7.2.5
