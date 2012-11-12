@@ -1,11 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
 Received: from mail-bk0-f46.google.com ([209.85.214.46]:47467 "EHLO
 	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751998Ab2KLIhd (ORCPT
+	with ESMTP id S1752002Ab2KLIhf (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 12 Nov 2012 03:37:33 -0500
+	Mon, 12 Nov 2012 03:37:35 -0500
 Received: by mail-bk0-f46.google.com with SMTP id jk13so2210724bkc.19
-        for <linux-watchdog@vger.kernel.org>; Mon, 12 Nov 2012 00:37:33 -0800 (PST)
+        for <linux-watchdog@vger.kernel.org>; Mon, 12 Nov 2012 00:37:35 -0800 (PST)
 From: Fabio Porcedda <fabio.porcedda@gmail.com>
 To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
@@ -13,78 +13,74 @@ To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
 	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
 	Andrew Victor <linux@maxim.org.za>
 Cc: devicetree-discuss@lists.ozlabs.org
-Subject: [PATCH v9 RESEND 1/3] watchdog: at91sam9_wdt: add device tree support
-Date: Mon, 12 Nov 2012 09:37:25 +0100
-Message-Id: <1352709447-8306-2-git-send-email-fabio.porcedda@gmail.com>
+Subject: [PATCH v9 RESEND 2/3] ARM: at91/dts: add at91sam9_wdt driver to at91sam926x, at91sam9g45
+Date: Mon, 12 Nov 2012 09:37:26 +0100
+Message-Id: <1352709447-8306-3-git-send-email-fabio.porcedda@gmail.com>
 In-Reply-To: <1352709447-8306-1-git-send-email-fabio.porcedda@gmail.com>
 References: <1352709447-8306-1-git-send-email-fabio.porcedda@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Tested on an at91sam9260 board (evk-pro3)
+Tested on an at91sam9260 board (evk-pro3).
 
 Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
 ---
- Documentation/devicetree/bindings/watchdog/atmel-wdt.txt | 15 +++++++++++++++
- drivers/watchdog/at91sam9_wdt.c                          | 11 +++++++++++
- 2 files changed, 26 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+ arch/arm/boot/dts/at91sam9260.dtsi | 6 ++++++
+ arch/arm/boot/dts/at91sam9263.dtsi | 6 ++++++
+ arch/arm/boot/dts/at91sam9g45.dtsi | 6 ++++++
+ 3 files changed, 18 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
-new file mode 100644
-index 0000000..2957ebb
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
-@@ -0,0 +1,15 @@
-+* Atmel Watchdog Timers
+diff --git a/arch/arm/boot/dts/at91sam9260.dtsi b/arch/arm/boot/dts/at91sam9260.dtsi
+index d410581..bfb5bb6 100644
+--- a/arch/arm/boot/dts/at91sam9260.dtsi
++++ b/arch/arm/boot/dts/at91sam9260.dtsi
+@@ -246,6 +246,12 @@
+ 					trigger-external;
+ 				};
+ 			};
 +
-+** at91sam9-wdt
-+
-+Required properties:
-+- compatible: must be "atmel,at91sam9260-wdt".
-+- reg: physical base address of the controller and length of memory mapped
-+  region.
-+
-+Example:
-+
-+	watchdog@fffffd40 {
-+		compatible = "atmel,at91sam9260-wdt";
-+		reg = <0xfffffd40 0x10>;
-+	};
-diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
-index 05e1be8..dc42e44 100644
---- a/drivers/watchdog/at91sam9_wdt.c
-+++ b/drivers/watchdog/at91sam9_wdt.c
-@@ -32,6 +32,7 @@
- #include <linux/timer.h>
- #include <linux/bitops.h>
- #include <linux/uaccess.h>
-+#include <linux/of.h>
++			watchdog@fffffd40 {
++				compatible = "atmel,at91sam9260-wdt";
++				reg = <0xfffffd40 0x10>;
++				status = "disabled";
++			};
+ 		};
  
- #include "at91sam9_wdt.h"
- 
-@@ -302,11 +303,21 @@ static int __exit at91wdt_remove(struct platform_device *pdev)
- 	return res;
- }
- 
-+#if defined(CONFIG_OF)
-+static const struct of_device_id at91_wdt_dt_ids[] __initconst = {
-+	{ .compatible = "atmel,at91sam9260-wdt" },
-+	{ /* sentinel */ }
-+};
+ 		nand0: nand@40000000 {
+diff --git a/arch/arm/boot/dts/at91sam9263.dtsi b/arch/arm/boot/dts/at91sam9263.dtsi
+index 3e6e5c1..ff54612 100644
+--- a/arch/arm/boot/dts/at91sam9263.dtsi
++++ b/arch/arm/boot/dts/at91sam9263.dtsi
+@@ -195,6 +195,12 @@
+ 				#size-cells = <0>;
+ 				status = "disabled";
+ 			};
 +
-+MODULE_DEVICE_TABLE(of, at91_wdt_dt_ids);
-+#endif
-+
- static struct platform_driver at91wdt_driver = {
- 	.remove		= __exit_p(at91wdt_remove),
- 	.driver		= {
- 		.name	= "at91_wdt",
- 		.owner	= THIS_MODULE,
-+		.of_match_table = of_match_ptr(at91_wdt_dt_ids),
- 	},
- };
++			watchdog@fffffd40 {
++				compatible = "atmel,at91sam9260-wdt";
++				reg = <0xfffffd40 0x10>;
++				status = "disabled";
++			};
+ 		};
  
+ 		nand0: nand@40000000 {
+diff --git a/arch/arm/boot/dts/at91sam9g45.dtsi b/arch/arm/boot/dts/at91sam9g45.dtsi
+index 3add030..a98c00a 100644
+--- a/arch/arm/boot/dts/at91sam9g45.dtsi
++++ b/arch/arm/boot/dts/at91sam9g45.dtsi
+@@ -262,6 +262,12 @@
+ 					trigger-value = <0x6>;
+ 				};
+ 			};
++
++			watchdog@fffffd40 {
++				compatible = "atmel,at91sam9260-wdt";
++				reg = <0xfffffd40 0x10>;
++				status = "disabled";
++			};
+ 		};
+ 
+ 		nand0: nand@40000000 {
 -- 
 1.8.0
 
