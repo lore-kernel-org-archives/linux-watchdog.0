@@ -1,68 +1,49 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from filtteri6.pp.htv.fi ([213.243.153.189]:52734 "EHLO
-	filtteri6.pp.htv.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752085Ab2KLSrS (ORCPT
+Received: from filtteri2.pp.htv.fi ([213.243.153.185]:46256 "EHLO
+	filtteri2.pp.htv.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751576Ab2KLSrR (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 12 Nov 2012 13:47:18 -0500
+	Mon, 12 Nov 2012 13:47:17 -0500
 From: Aaro Koskinen <aaro.koskinen@iki.fi>
 To: wim@iguana.be, linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
 Cc: Aaro Koskinen <aaro.koskinen@iki.fi>
-Subject: [RESEND PATCH v3 4/6] watchdog: omap_wdt: convert ioremap() to devm_ioremap()
-Date: Mon, 12 Nov 2012 20:47:03 +0200
-Message-Id: <1352746025-1669-5-git-send-email-aaro.koskinen@iki.fi>
+Subject: [RESEND PATCH v3 5/6] watchdog: omap_wdt: delete redundant platform_set_drvdata() calls
+Date: Mon, 12 Nov 2012 20:47:04 +0200
+Message-Id: <1352746025-1669-6-git-send-email-aaro.koskinen@iki.fi>
 In-Reply-To: <1352746025-1669-1-git-send-email-aaro.koskinen@iki.fi>
 References: <1352746025-1669-1-git-send-email-aaro.koskinen@iki.fi>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Use devm_ioremap() to simplify the code.
+It's not needed to manually reset the driver data.
 
 Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
 Cc: Wim Van Sebroeck <wim@iguana.be>
 ---
- drivers/watchdog/omap_wdt.c |   14 +++-----------
- 1 files changed, 3 insertions(+), 11 deletions(-)
+ drivers/watchdog/omap_wdt.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
-index 45019b0..7e8d3e0 100644
+index 7e8d3e0..af1e72e 100644
 --- a/drivers/watchdog/omap_wdt.c
 +++ b/drivers/watchdog/omap_wdt.c
-@@ -255,11 +255,9 @@ static int __devinit omap_wdt_probe(struct platform_device *pdev)
- 	wdev->wdt_trgr_pattern	= 0x1234;
- 	mutex_init(&wdev->lock);
+@@ -280,7 +280,6 @@ static int __devinit omap_wdt_probe(struct platform_device *pdev)
  
--	wdev->base = ioremap(res->start, resource_size(res));
--	if (!wdev->base) {
--		ret = -ENOMEM;
--		goto err_ioremap;
--	}
-+	wdev->base = devm_ioremap(&pdev->dev, res->start, resource_size(res));
-+	if (!wdev->base)
-+		return -ENOMEM;
- 
- 	platform_set_drvdata(pdev, omap_wdt);
- 
-@@ -283,10 +281,6 @@ static int __devinit omap_wdt_probe(struct platform_device *pdev)
  err_misc:
  	pm_runtime_disable(wdev->dev);
- 	platform_set_drvdata(pdev, NULL);
--	iounmap(wdev->base);
--
--err_ioremap:
--	wdev->base = NULL;
+-	platform_set_drvdata(pdev, NULL);
  
  	return ret;
  }
-@@ -314,8 +308,6 @@ static int __devexit omap_wdt_remove(struct platform_device *pdev)
- 	watchdog_unregister_device(wdog);
- 	platform_set_drvdata(pdev, NULL);
+@@ -306,7 +305,6 @@ static int __devexit omap_wdt_remove(struct platform_device *pdev)
  
--	iounmap(wdev->base);
--
+ 	pm_runtime_disable(wdev->dev);
+ 	watchdog_unregister_device(wdog);
+-	platform_set_drvdata(pdev, NULL);
+ 
  	return 0;
  }
- 
 -- 
 1.7.2.5
 
