@@ -1,46 +1,43 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mho-03-ewr.mailhop.org ([204.13.248.66]:56064 "EHLO
-	mho-01-ewr.mailhop.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752198Ab2KLWrI (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 12 Nov 2012 17:47:08 -0500
-Date: Mon, 12 Nov 2012 14:47:03 -0800
-From: Tony Lindgren <tony@atomide.com>
-To: Aaro Koskinen <aaro.koskinen@iki.fi>
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
-Subject: Re: [RESEND PATCH v3 1/6] watchdog: omap_wdt: convert to new
- watchdog core
-Message-ID: <20121112224703.GT6801@atomide.com>
-References: <1352746025-1669-1-git-send-email-aaro.koskinen@iki.fi>
- <1352746025-1669-2-git-send-email-aaro.koskinen@iki.fi>
+Received: from bear.ext.ti.com ([192.94.94.41]:34707 "EHLO bear.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751709Ab2KMJk1 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 13 Nov 2012 04:40:27 -0500
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+CC: <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<linux-omap@vger.kernel.org>
+Subject: [PATCH] wdt: twl4030: Change TWL4030_MODULE_PM_RECEIVER to TWL_MODULE_PM_RECEIVER
+Date: Tue, 13 Nov 2012 10:40:22 +0100
+Message-ID: <1352799622-22280-1-git-send-email-peter.ujfalusi@ti.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1352746025-1669-2-git-send-email-aaro.koskinen@iki.fi>
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-* Aaro Koskinen <aaro.koskinen@iki.fi> [121112 10:49]:
-> Convert omap_wdt to new watchdog core. On OMAP boards, there are usually
-> multiple watchdogs. Since the new watchdog core supports multiple
-> watchdogs, all watchdog drivers used on OMAP should be converted.
-> 
-> The legacy watchdog device node is still created, so this should not
-> break existing users.
-> 
-> Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
-> Tested-by: Jarkko Nikula <jarkko.nikula@jollamobile.com>
-> Tested-by: Lokesh Vutla <lokeshvutla@ti.com>
-> Cc: Wim Van Sebroeck <wim@iguana.be>
+To facilitate upcoming cleanup in twl stack.
+No functional changes.
 
-Wim, looks like these will cause merge conflicts with what we
-have already queued in omap-for-v3.8/cleanup-prcm as patch
-"watchdog: OMAP: use standard GETBOOTSTATUS interface; use
-platform_data fn ptr" along with other ARM multiplatform
-related clean up. If these look ackable to you, I can queue
-these that's OK to you.
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+---
+ drivers/watchdog/twl4030_wdt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Regards,
+diff --git a/drivers/watchdog/twl4030_wdt.c b/drivers/watchdog/twl4030_wdt.c
+index 249f113..0501638 100644
+--- a/drivers/watchdog/twl4030_wdt.c
++++ b/drivers/watchdog/twl4030_wdt.c
+@@ -49,8 +49,8 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
+ 
+ static int twl4030_wdt_write(unsigned char val)
+ {
+-	return twl_i2c_write_u8(TWL4030_MODULE_PM_RECEIVER, val,
+-					TWL4030_WATCHDOG_CFG_REG_OFFS);
++	return twl_i2c_write_u8(TWL_MODULE_PM_RECEIVER, val,
++				TWL4030_WATCHDOG_CFG_REG_OFFS);
+ }
+ 
+ static int twl4030_wdt_enable(struct twl4030_wdt *wdt)
+-- 
+1.8.0
 
-Tony
