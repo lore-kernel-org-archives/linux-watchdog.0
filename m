@@ -1,62 +1,40 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from newsmtp5.atmel.com ([204.2.163.5]:34153 "EHLO
+Received: from newsmtp5.atmel.com ([204.2.163.5]:20231 "EHLO
 	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756323Ab2KNHTq (ORCPT
+	with ESMTP id S1755353Ab2KNHTs (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 14 Nov 2012 02:19:46 -0500
+	Wed, 14 Nov 2012 02:19:48 -0500
 From: Wenyou Yang <wenyou.yang@atmel.com>
 To: linux-arm-kernel@lists.infradead.org
 Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org, nicolas.ferre@atmel.com,
 	plagnioj@jcrosoft.com, wenyou.yang@atmel.com, JM.Lin@atmel.com
-Subject: [PATCH 08/11] watchdog/at91sam9_wdt: use module_platform_driver()
-Date: Wed, 14 Nov 2012 15:16:06 +0800
-Message-Id: <1352877369-19740-9-git-send-email-wenyou.yang@atmel.com>
+Subject: [PATCH 07/11] watchdog/at91sam9_wdt: add nowayout helpers to Watchdog Timer Driver Kernel API
+Date: Wed, 14 Nov 2012 15:16:05 +0800
+Message-Id: <1352877369-19740-8-git-send-email-wenyou.yang@atmel.com>
 In-Reply-To: <1352877369-19740-1-git-send-email-wenyou.yang@atmel.com>
 References: <1352877369-19740-1-git-send-email-wenyou.yang@atmel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Using module_platform_driver() replaces module_init() and module_exit()
-and makes the code simpler.
-
 Signed-off-by: Wenyou Yang <wenyou.yang@atmel.com>
 ---
- drivers/watchdog/at91sam9_wdt.c |   14 ++------------
- 1 file changed, 2 insertions(+), 12 deletions(-)
+ drivers/watchdog/at91sam9_wdt.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
-index 187e33f..e7ce9ea 100644
+index d764f36..187e33f 100644
 --- a/drivers/watchdog/at91sam9_wdt.c
 +++ b/drivers/watchdog/at91sam9_wdt.c
-@@ -252,6 +252,7 @@ static int __exit at91wdt_remove(struct platform_device *pdev)
- }
+@@ -225,6 +225,8 @@ static int __init at91wdt_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
  
- static struct platform_driver at91wdt_driver = {
-+	.probe		= at91wdt_probe,
- 	.remove		= __exit_p(at91wdt_remove),
- 	.driver		= {
- 		.name	= "at91_wdt",
-@@ -259,18 +260,7 @@ static struct platform_driver at91wdt_driver = {
- 	},
- };
- 
--static int __init at91sam_wdt_init(void)
--{
--	return platform_driver_probe(&at91wdt_driver, at91wdt_probe);
--}
--
--static void __exit at91sam_wdt_exit(void)
--{
--	platform_driver_unregister(&at91wdt_driver);
--}
--
--module_init(at91sam_wdt_init);
--module_exit(at91sam_wdt_exit);
-+module_platform_driver(at91wdt_driver);
- 
- MODULE_AUTHOR("Renaud CERRATO <r.cerrato@til-technologies.fr>");
- MODULE_DESCRIPTION("Watchdog driver for Atmel AT91SAM9x processors");
++	watchdog_set_nowayout(&at91_wddev, nowayout);
++
+ 	ret = watchdog_register_device(&at91_wddev);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "cannot register watchdog (%d)\n", ret);
 -- 
 1.7.9.5
 
