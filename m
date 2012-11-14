@@ -1,43 +1,64 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:34707 "EHLO bear.ext.ti.com"
+Received: from newsmtp5.atmel.com ([204.2.163.5]:9387 "EHLO sjogate2.atmel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751709Ab2KMJk1 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 13 Nov 2012 04:40:27 -0500
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-CC: <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<linux-omap@vger.kernel.org>
-Subject: [PATCH] wdt: twl4030: Change TWL4030_MODULE_PM_RECEIVER to TWL_MODULE_PM_RECEIVER
-Date: Tue, 13 Nov 2012 10:40:22 +0100
-Message-ID: <1352799622-22280-1-git-send-email-peter.ujfalusi@ti.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+	id S1750869Ab2KNHTc (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 14 Nov 2012 02:19:32 -0500
+From: Wenyou Yang <wenyou.yang@atmel.com>
+To: linux-arm-kernel@lists.infradead.org
+Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org, nicolas.ferre@atmel.com,
+	plagnioj@jcrosoft.com, wenyou.yang@atmel.com, JM.Lin@atmel.com
+Subject: [PATCH 00/11] watchdog/at91sam9_wdt: use watchdog framework, support DT 
+Date: Wed, 14 Nov 2012 15:15:58 +0800
+Message-Id: <1352877369-19740-1-git-send-email-wenyou.yang@atmel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-To facilitate upcoming cleanup in twl stack.
-No functional changes.
+Hi, All
 
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
----
- drivers/watchdog/twl4030_wdt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+The patch series is intended to convert to use the watchdog framework,
+and add support to device tree.
+It has been tested on sam9m10g45ek, sam9g20ek, sam9263ek and sam9g25ek.
 
-diff --git a/drivers/watchdog/twl4030_wdt.c b/drivers/watchdog/twl4030_wdt.c
-index 249f113..0501638 100644
---- a/drivers/watchdog/twl4030_wdt.c
-+++ b/drivers/watchdog/twl4030_wdt.c
-@@ -49,8 +49,8 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
- 
- static int twl4030_wdt_write(unsigned char val)
- {
--	return twl_i2c_write_u8(TWL4030_MODULE_PM_RECEIVER, val,
--					TWL4030_WATCHDOG_CFG_REG_OFFS);
-+	return twl_i2c_write_u8(TWL_MODULE_PM_RECEIVER, val,
-+				TWL4030_WATCHDOG_CFG_REG_OFFS);
- }
- 
- static int twl4030_wdt_enable(struct twl4030_wdt *wdt)
+It is based on v3.7-rc5.
+
+Best Regards
+Wenyou Yang
+
+Wenyou Yang (11):
+  watchdog/at91sam9_wdt: remove the file_operations struct
+  watchdog/at91sam9_wdt: change the at91wdt_private struct to the
+    at91wdt_drvdata struct
+  watchdog/at91sam9_wdt: change the wdt_read and wdt_write macro to the
+    inline function
+  watchdog/at91sam9_wdt: change "at91_wdt_settimeout" function name to
+    "at91wdt_enable"
+  watchdog/at91sam9_wdt: add to use the watchdog framework
+  watchdog/at91sam9_wdt: change the timer function name
+  watchdog/at91sam9_wdt: add nowayout helpers to Watchdog Timer Driver
+    Kernel API
+  watchdog/at91sam9_wdt: use module_platform_driver()
+  watchdog/at91sam9_wdt: add support to device tree
+  watchdog/at91sam9_wdt: using dev_info replaces pr_info, dev_crit
+    repalces pr_crit
+  ARM: dts: add the watchdog nodes for atmel SoC
+
+ .../devicetree/bindings/watchdog/atmel-wdt.txt     |   14 +
+ arch/arm/boot/dts/at91sam9260.dtsi                 |    6 +
+ arch/arm/boot/dts/at91sam9263.dtsi                 |    6 +
+ arch/arm/boot/dts/at91sam9263ek.dts                |    4 +
+ arch/arm/boot/dts/at91sam9g20ek_common.dtsi        |    4 +
+ arch/arm/boot/dts/at91sam9g25ek.dts                |    4 +
+ arch/arm/boot/dts/at91sam9g45.dtsi                 |    5 +
+ arch/arm/boot/dts/at91sam9m10g45ek.dts             |    4 +
+ arch/arm/boot/dts/at91sam9n12.dtsi                 |    6 +
+ arch/arm/boot/dts/at91sam9n12ek.dts                |    4 +
+ arch/arm/boot/dts/at91sam9x5.dtsi                  |    6 +
+ drivers/watchdog/Kconfig                           |    1 +
+ drivers/watchdog/at91sam9_wdt.c                    |  294 ++++++++------------
+ 13 files changed, 185 insertions(+), 173 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+
 -- 
-1.8.0
+1.7.9.5
 
