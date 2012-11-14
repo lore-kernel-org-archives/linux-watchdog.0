@@ -1,64 +1,97 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from newsmtp5.atmel.com ([204.2.163.5]:9387 "EHLO sjogate2.atmel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750869Ab2KNHTc (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 14 Nov 2012 02:19:32 -0500
+Received: from newsmtp5.atmel.com ([204.2.163.5]:15316 "EHLO
+	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752332Ab2KNHTm (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 14 Nov 2012 02:19:42 -0500
 From: Wenyou Yang <wenyou.yang@atmel.com>
 To: linux-arm-kernel@lists.infradead.org
 Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org, nicolas.ferre@atmel.com,
 	plagnioj@jcrosoft.com, wenyou.yang@atmel.com, JM.Lin@atmel.com
-Subject: [PATCH 00/11] watchdog/at91sam9_wdt: use watchdog framework, support DT 
-Date: Wed, 14 Nov 2012 15:15:58 +0800
-Message-Id: <1352877369-19740-1-git-send-email-wenyou.yang@atmel.com>
+Subject: [PATCH 04/11] watchdog/at91sam9_wdt: change "at91_wdt_settimeout" function name to "at91wdt_enable"
+Date: Wed, 14 Nov 2012 15:16:02 +0800
+Message-Id: <1352877369-19740-5-git-send-email-wenyou.yang@atmel.com>
+In-Reply-To: <1352877369-19740-1-git-send-email-wenyou.yang@atmel.com>
+References: <1352877369-19740-1-git-send-email-wenyou.yang@atmel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi, All
+Change the "at91_wdt_settimeout" function name to "at91wdt_enable" for more reasonable,
+and also set the drvdata->enabled value.
 
-The patch series is intended to convert to use the watchdog framework,
-and add support to device tree.
-It has been tested on sam9m10g45ek, sam9g20ek, sam9263ek and sam9g25ek.
+Signed-off-by: Wenyou Yang <wenyou.yang@atmel.com>
+---
+ drivers/watchdog/at91sam9_wdt.c |   28 +++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
 
-It is based on v3.7-rc5.
-
-Best Regards
-Wenyou Yang
-
-Wenyou Yang (11):
-  watchdog/at91sam9_wdt: remove the file_operations struct
-  watchdog/at91sam9_wdt: change the at91wdt_private struct to the
-    at91wdt_drvdata struct
-  watchdog/at91sam9_wdt: change the wdt_read and wdt_write macro to the
-    inline function
-  watchdog/at91sam9_wdt: change "at91_wdt_settimeout" function name to
-    "at91wdt_enable"
-  watchdog/at91sam9_wdt: add to use the watchdog framework
-  watchdog/at91sam9_wdt: change the timer function name
-  watchdog/at91sam9_wdt: add nowayout helpers to Watchdog Timer Driver
-    Kernel API
-  watchdog/at91sam9_wdt: use module_platform_driver()
-  watchdog/at91sam9_wdt: add support to device tree
-  watchdog/at91sam9_wdt: using dev_info replaces pr_info, dev_crit
-    repalces pr_crit
-  ARM: dts: add the watchdog nodes for atmel SoC
-
- .../devicetree/bindings/watchdog/atmel-wdt.txt     |   14 +
- arch/arm/boot/dts/at91sam9260.dtsi                 |    6 +
- arch/arm/boot/dts/at91sam9263.dtsi                 |    6 +
- arch/arm/boot/dts/at91sam9263ek.dts                |    4 +
- arch/arm/boot/dts/at91sam9g20ek_common.dtsi        |    4 +
- arch/arm/boot/dts/at91sam9g25ek.dts                |    4 +
- arch/arm/boot/dts/at91sam9g45.dtsi                 |    5 +
- arch/arm/boot/dts/at91sam9m10g45ek.dts             |    4 +
- arch/arm/boot/dts/at91sam9n12.dtsi                 |    6 +
- arch/arm/boot/dts/at91sam9n12ek.dts                |    4 +
- arch/arm/boot/dts/at91sam9x5.dtsi                  |    6 +
- drivers/watchdog/Kconfig                           |    1 +
- drivers/watchdog/at91sam9_wdt.c                    |  294 ++++++++------------
- 13 files changed, 185 insertions(+), 173 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
-
+diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
+index 98e7d5a..e2d6111 100644
+--- a/drivers/watchdog/at91sam9_wdt.c
++++ b/drivers/watchdog/at91sam9_wdt.c
+@@ -13,6 +13,9 @@
+  * The Watchdog Timer Mode Register can be only written to once. If the
+  * timeout need to be set from Linux, be sure that the bootstrap or the
+  * bootloader doesn't write to this register.
++ * The Watchdog Timer default is running with maximum counter value
++ * (WDV=0xfff) at reset, i.e., at power-up. It MUST be either disabled
++ * or be reprogrammed within the maxinum margin(16s).
+  */
+ 
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+@@ -105,20 +108,20 @@ static void at91_ping(unsigned long data)
+ 		pr_crit("I will reset your machine !\n");
+ }
+ 
+-/*
+- * Set the watchdog time interval in 1/256Hz (write-once)
+- * Counter is 12 bit.
+- */
+-static int at91_wdt_settimeout(struct watchdog_device *wddev,
+-					unsigned int timeout)
++static int at91wdt_enable(struct watchdog_device *wddev, unsigned int timeout)
+ {
+ 	struct at91wdt_drvdata *driver_data = watchdog_get_drvdata(wddev);
+ 	unsigned int reg;
+ 	unsigned int mr;
+ 
+-	/* Check if disabled */
++	/* Check if the watchdog is disabled,
++	 * if disabled, the reason is the bootstrap or the bootloader has
++	 * written the Watchdog Timer Mode Register to disable the
++	 * watchdog timer
++	 */
+ 	mr = wdt_read(driver_data, AT91_WDT_MR);
+ 	if (mr & AT91_WDT_WDDIS) {
++		driver_data->enabled = false;
+ 		pr_err("sorry, watchdog is disabled\n");
+ 		return -EIO;
+ 	}
+@@ -136,6 +139,8 @@ static int at91_wdt_settimeout(struct watchdog_device *wddev,
+ 		| (timeout & AT91_WDT_WDV);  /* timer value */
+ 	wdt_write(driver_data, AT91_WDT_MR, reg);
+ 
++	driver_data->enabled = true;
++
+ 	return 0;
+ }
+ 
+@@ -169,10 +174,11 @@ static int __init at91wdt_probe(struct platform_device *pdev)
+ 
+ 	watchdog_set_drvdata(&at91_wddev, driver_data);
+ 
+-	/* Set watchdog */
+-	res = at91_wdt_settimeout(ms_to_ticks(WDT_HW_TIMEOUT * 1000));
+-	if (res)
+-		return res;
++	res = at91wdt_enable(&at91_wddev);
++	if (res) {
++		dev_err(&pdev->dev, "cannot enable watchdog (%d)\n", ret);
++		return ret;
++	}
+ 
+ 	driver_data->next_heartbeat = jiffies + heartbeat * HZ;
+ 	setup_timer(&driver_data->timer, at91_ping, 0);
 -- 
 1.7.9.5
 
