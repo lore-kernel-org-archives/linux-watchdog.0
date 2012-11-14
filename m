@@ -1,49 +1,62 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from newsmtp5.atmel.com ([204.2.163.5]:18838 "EHLO
+Received: from newsmtp5.atmel.com ([204.2.163.5]:34153 "EHLO
 	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756450Ab2KNHUB (ORCPT
+	with ESMTP id S1756323Ab2KNHTq (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 14 Nov 2012 02:20:01 -0500
+	Wed, 14 Nov 2012 02:19:46 -0500
 From: Wenyou Yang <wenyou.yang@atmel.com>
 To: linux-arm-kernel@lists.infradead.org
 Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org, nicolas.ferre@atmel.com,
 	plagnioj@jcrosoft.com, wenyou.yang@atmel.com, JM.Lin@atmel.com
-Subject: [PATCH 10/11] watchdog/at91sam9_wdt: using dev_info replaces pr_info, dev_crit repalces pr_crit
-Date: Wed, 14 Nov 2012 15:16:08 +0800
-Message-Id: <1352877369-19740-11-git-send-email-wenyou.yang@atmel.com>
+Subject: [PATCH 08/11] watchdog/at91sam9_wdt: use module_platform_driver()
+Date: Wed, 14 Nov 2012 15:16:06 +0800
+Message-Id: <1352877369-19740-9-git-send-email-wenyou.yang@atmel.com>
 In-Reply-To: <1352877369-19740-1-git-send-email-wenyou.yang@atmel.com>
 References: <1352877369-19740-1-git-send-email-wenyou.yang@atmel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+Using module_platform_driver() replaces module_init() and module_exit()
+and makes the code simpler.
+
 Signed-off-by: Wenyou Yang <wenyou.yang@atmel.com>
 ---
- drivers/watchdog/at91sam9_wdt.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/watchdog/at91sam9_wdt.c |   14 ++------------
+ 1 file changed, 2 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
-index cba5c5d..bd74f40 100644
+index 187e33f..e7ce9ea 100644
 --- a/drivers/watchdog/at91sam9_wdt.c
 +++ b/drivers/watchdog/at91sam9_wdt.c
-@@ -106,7 +106,7 @@ static void at91wdt_timer_tick(unsigned long data)
- 		if (!watchdog_is_open(wddev))
- 			driver_data->next_heartbeat = jiffies + heartbeat * HZ;
- 	} else
--		pr_crit("I will reset your machine !\n");
-+		dev_crit(wddev->dev, "I will reset your machine !\n");
+@@ -252,6 +252,7 @@ static int __exit at91wdt_remove(struct platform_device *pdev)
  }
  
- static int at91wdt_enable(struct watchdog_device *wddev, unsigned int timeout)
-@@ -239,7 +239,7 @@ static int __init at91wdt_probe(struct platform_device *pdev)
- 					(unsigned long)&at91_wddev);
- 	mod_timer(&driver_data->timer, jiffies + WDT_TIMEOUT);
+ static struct platform_driver at91wdt_driver = {
++	.probe		= at91wdt_probe,
+ 	.remove		= __exit_p(at91wdt_remove),
+ 	.driver		= {
+ 		.name	= "at91_wdt",
+@@ -259,18 +260,7 @@ static struct platform_driver at91wdt_driver = {
+ 	},
+ };
  
--	pr_info("enabled (heartbeat=%d sec, nowayout=%d)\n",
-+	dev_info(&pdev->dev, "enabled (heartbeat=%d sec, nowayout=%d)\n",
- 		heartbeat, nowayout);
+-static int __init at91sam_wdt_init(void)
+-{
+-	return platform_driver_probe(&at91wdt_driver, at91wdt_probe);
+-}
+-
+-static void __exit at91sam_wdt_exit(void)
+-{
+-	platform_driver_unregister(&at91wdt_driver);
+-}
+-
+-module_init(at91sam_wdt_init);
+-module_exit(at91sam_wdt_exit);
++module_platform_driver(at91wdt_driver);
  
- 	return 0;
+ MODULE_AUTHOR("Renaud CERRATO <r.cerrato@til-technologies.fr>");
+ MODULE_DESCRIPTION("Watchdog driver for Atmel AT91SAM9x processors");
 -- 
 1.7.9.5
 
