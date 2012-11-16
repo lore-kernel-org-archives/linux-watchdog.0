@@ -1,237 +1,109 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from 19.mo3.mail-out.ovh.net ([178.32.98.231]:43347 "EHLO
-	mo3.mail-out.ovh.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752212Ab2KPOUe (ORCPT
+Received: from eusmtp01.atmel.com ([212.144.249.243]:10607 "EHLO
+	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751799Ab2KPO4S (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 16 Nov 2012 09:20:34 -0500
-Received: from mail617.ha.ovh.net (b9.ovh.net [213.186.33.59])
-	by mo3.mail-out.ovh.net (Postfix) with SMTP id 6071AFF93EC
-	for <linux-watchdog@vger.kernel.org>; Fri, 16 Nov 2012 15:07:15 +0100 (CET)
-Date: Fri, 16 Nov 2012 14:54:27 +0100
-From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
-To: Wenyou Yang <wenyou.yang@atmel.com>
-Cc: linux-arm-kernel@lists.infradead.org, wim@iguana.be,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	nicolas.ferre@atmel.com, JM.Lin@atmel.com
-Subject: Re: [PATCH 01/11] watchdog/at91sam9_wdt: remove the
- file_operations struct
-Message-ID: <20121116135427.GJ4398@game.jcrosoft.org>
-References: <1352877369-19740-1-git-send-email-wenyou.yang@atmel.com>
- <1352877369-19740-2-git-send-email-wenyou.yang@atmel.com>
+	Fri, 16 Nov 2012 09:56:18 -0500
+Message-ID: <50A6540F.9070308@atmel.com>
+Date: Fri, 16 Nov 2012 15:56:15 +0100
+From: Nicolas Ferre <nicolas.ferre@atmel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1352877369-19740-2-git-send-email-wenyou.yang@atmel.com>
+To: Fabio Porcedda <fabio.porcedda@gmail.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+CC: <linux-watchdog@vger.kernel.org>,
+	<linux-arm-kernel@lists.infradead.org>,
+	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
+	Andrew Victor <linux@maxim.org.za>,
+	<devicetree-discuss@lists.ozlabs.org>,
+	"Yang, Wenyou" <Wenyou.Yang@atmel.com>,
+	LIN Junmin <JM.Lin@atmel.com>,
+	"Jean-Christophe PLAGNIOL-VILLARD" <plagnioj@jcrosoft.com>
+Subject: Re: [PATCH v9 RESEND 1/3] watchdog: at91sam9_wdt: add device tree
+ support
+References: <1352709447-8306-1-git-send-email-fabio.porcedda@gmail.com> <1352709447-8306-2-git-send-email-fabio.porcedda@gmail.com>
+In-Reply-To: <1352709447-8306-2-git-send-email-fabio.porcedda@gmail.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 15:15 Wed 14 Nov     , Wenyou Yang wrote:
-> Remove the file_operations struct and miscdevice struct for future
-> add to use the watchdog framework.
-NACK
-
-you break the watchdog support
-
-you must not break the kernel suport except if it's impossible to do otherwise
-here it is no the case
-
-Best Regards,
-J.
+On 11/12/2012 09:37 AM, Fabio Porcedda :
+> Tested on an at91sam9260 board (evk-pro3)
 > 
-> Signed-off-by: Wenyou Yang <wenyou.yang@atmel.com>
+> Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
+
+Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
+(and to the whole patch series actually)
+
+Wim, can you tell me if it is possible to merge this part through
+arm-soc git tree with the rest of material for AT91? If yes, I would
+need your Acked-by...
+
+Thanks, best regards,
+
 > ---
->  drivers/watchdog/at91sam9_wdt.c |  131 ---------------------------------------
->  1 file changed, 131 deletions(-)
+>  Documentation/devicetree/bindings/watchdog/atmel-wdt.txt | 15 +++++++++++++++
+>  drivers/watchdog/at91sam9_wdt.c                          | 11 +++++++++++
+>  2 files changed, 26 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
 > 
+> diff --git a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+> new file mode 100644
+> index 0000000..2957ebb
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+> @@ -0,0 +1,15 @@
+> +* Atmel Watchdog Timers
+> +
+> +** at91sam9-wdt
+> +
+> +Required properties:
+> +- compatible: must be "atmel,at91sam9260-wdt".
+> +- reg: physical base address of the controller and length of memory mapped
+> +  region.
+> +
+> +Example:
+> +
+> +	watchdog@fffffd40 {
+> +		compatible = "atmel,at91sam9260-wdt";
+> +		reg = <0xfffffd40 0x10>;
+> +	};
 > diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
-> index 05e1be8..549c256 100644
+> index 05e1be8..dc42e44 100644
 > --- a/drivers/watchdog/at91sam9_wdt.c
 > +++ b/drivers/watchdog/at91sam9_wdt.c
-> @@ -18,11 +18,9 @@
->  #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
->  
->  #include <linux/errno.h>
-> -#include <linux/fs.h>
->  #include <linux/init.h>
->  #include <linux/io.h>
->  #include <linux/kernel.h>
-> -#include <linux/miscdevice.h>
->  #include <linux/module.h>
->  #include <linux/moduleparam.h>
->  #include <linux/platform_device.h>
-> @@ -31,7 +29,6 @@
->  #include <linux/jiffies.h>
+> @@ -32,6 +32,7 @@
 >  #include <linux/timer.h>
 >  #include <linux/bitops.h>
-> -#include <linux/uaccess.h>
+>  #include <linux/uaccess.h>
+> +#include <linux/of.h>
 >  
 >  #include "at91sam9_wdt.h"
 >  
-> @@ -102,35 +99,6 @@ static void at91_ping(unsigned long data)
->  }
->  
->  /*
-> - * Watchdog device is opened, and watchdog starts running.
-> - */
-> -static int at91_wdt_open(struct inode *inode, struct file *file)
-> -{
-> -	if (test_and_set_bit(0, &at91wdt_private.open))
-> -		return -EBUSY;
-> -
-> -	at91wdt_private.next_heartbeat = jiffies + heartbeat * HZ;
-> -	mod_timer(&at91wdt_private.timer, jiffies + WDT_TIMEOUT);
-> -
-> -	return nonseekable_open(inode, file);
-> -}
-> -
-> -/*
-> - * Close the watchdog device.
-> - */
-> -static int at91_wdt_close(struct inode *inode, struct file *file)
-> -{
-> -	clear_bit(0, &at91wdt_private.open);
-> -
-> -	/* stop internal ping */
-> -	if (!at91wdt_private.expect_close)
-> -		del_timer(&at91wdt_private.timer);
-> -
-> -	at91wdt_private.expect_close = 0;
-> -	return 0;
-> -}
-> -
-> -/*
->   * Set the watchdog time interval in 1/256Hz (write-once)
->   * Counter is 12 bit.
->   */
-> @@ -168,101 +136,11 @@ static const struct watchdog_info at91_wdt_info = {
->  						WDIOF_MAGICCLOSE,
->  };
->  
-> -/*
-> - * Handle commands from user-space.
-> - */
-> -static long at91_wdt_ioctl(struct file *file,
-> -		unsigned int cmd, unsigned long arg)
-> -{
-> -	void __user *argp = (void __user *)arg;
-> -	int __user *p = argp;
-> -	int new_value;
-> -
-> -	switch (cmd) {
-> -	case WDIOC_GETSUPPORT:
-> -		return copy_to_user(argp, &at91_wdt_info,
-> -				    sizeof(at91_wdt_info)) ? -EFAULT : 0;
-> -
-> -	case WDIOC_GETSTATUS:
-> -	case WDIOC_GETBOOTSTATUS:
-> -		return put_user(0, p);
-> -
-> -	case WDIOC_KEEPALIVE:
-> -		at91wdt_private.next_heartbeat = jiffies + heartbeat * HZ;
-> -		return 0;
-> -
-> -	case WDIOC_SETTIMEOUT:
-> -		if (get_user(new_value, p))
-> -			return -EFAULT;
-> -
-> -		heartbeat = new_value;
-> -		at91wdt_private.next_heartbeat = jiffies + heartbeat * HZ;
-> -
-> -		return put_user(new_value, p);  /* return current value */
-> -
-> -	case WDIOC_GETTIMEOUT:
-> -		return put_user(heartbeat, p);
-> -	}
-> -	return -ENOTTY;
-> -}
-> -
-> -/*
-> - * Pat the watchdog whenever device is written to.
-> - */
-> -static ssize_t at91_wdt_write(struct file *file, const char *data, size_t len,
-> -								loff_t *ppos)
-> -{
-> -	if (!len)
-> -		return 0;
-> -
-> -	/* Scan for magic character */
-> -	if (!nowayout) {
-> -		size_t i;
-> -
-> -		at91wdt_private.expect_close = 0;
-> -
-> -		for (i = 0; i < len; i++) {
-> -			char c;
-> -			if (get_user(c, data + i))
-> -				return -EFAULT;
-> -			if (c == 'V') {
-> -				at91wdt_private.expect_close = 42;
-> -				break;
-> -			}
-> -		}
-> -	}
-> -
-> -	at91wdt_private.next_heartbeat = jiffies + heartbeat * HZ;
-> -
-> -	return len;
-> -}
-> -
-> -/* ......................................................................... */
-> -
-> -static const struct file_operations at91wdt_fops = {
-> -	.owner			= THIS_MODULE,
-> -	.llseek			= no_llseek,
-> -	.unlocked_ioctl	= at91_wdt_ioctl,
-> -	.open			= at91_wdt_open,
-> -	.release		= at91_wdt_close,
-> -	.write			= at91_wdt_write,
-> -};
-> -
-> -static struct miscdevice at91wdt_miscdev = {
-> -	.minor		= WATCHDOG_MINOR,
-> -	.name		= "watchdog",
-> -	.fops		= &at91wdt_fops,
-> -};
-> -
->  static int __init at91wdt_probe(struct platform_device *pdev)
->  {
->  	struct resource	*r;
->  	int res;
->  
-> -	if (at91wdt_miscdev.parent)
-> -		return -EBUSY;
-> -	at91wdt_miscdev.parent = &pdev->dev;
-> -
->  	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->  	if (!r)
->  		return -ENODEV;
-> @@ -277,10 +155,6 @@ static int __init at91wdt_probe(struct platform_device *pdev)
->  	if (res)
->  		return res;
->  
-> -	res = misc_register(&at91wdt_miscdev);
-> -	if (res)
-> -		return res;
-> -
->  	at91wdt_private.next_heartbeat = jiffies + heartbeat * HZ;
->  	setup_timer(&at91wdt_private.timer, at91_ping, 0);
->  	mod_timer(&at91wdt_private.timer, jiffies + WDT_TIMEOUT);
-> @@ -295,10 +169,6 @@ static int __exit at91wdt_remove(struct platform_device *pdev)
->  {
->  	int res;
->  
-> -	res = misc_deregister(&at91wdt_miscdev);
-> -	if (!res)
-> -		at91wdt_miscdev.parent = NULL;
-> -
+> @@ -302,11 +303,21 @@ static int __exit at91wdt_remove(struct platform_device *pdev)
 >  	return res;
 >  }
 >  
-> @@ -326,4 +196,3 @@ module_exit(at91sam_wdt_exit);
->  MODULE_AUTHOR("Renaud CERRATO <r.cerrato@til-technologies.fr>");
->  MODULE_DESCRIPTION("Watchdog driver for Atmel AT91SAM9x processors");
->  MODULE_LICENSE("GPL");
-> -MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
-> -- 
-> 1.7.9.5
+> +#if defined(CONFIG_OF)
+> +static const struct of_device_id at91_wdt_dt_ids[] __initconst = {
+> +	{ .compatible = "atmel,at91sam9260-wdt" },
+> +	{ /* sentinel */ }
+> +};
+> +
+> +MODULE_DEVICE_TABLE(of, at91_wdt_dt_ids);
+> +#endif
+> +
+>  static struct platform_driver at91wdt_driver = {
+>  	.remove		= __exit_p(at91wdt_remove),
+>  	.driver		= {
+>  		.name	= "at91_wdt",
+>  		.owner	= THIS_MODULE,
+> +		.of_match_table = of_match_ptr(at91_wdt_dt_ids),
+>  	},
+>  };
+>  
 > 
+
+
+-- 
+Nicolas Ferre
