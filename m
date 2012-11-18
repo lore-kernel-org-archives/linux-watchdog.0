@@ -3,11 +3,11 @@ From: Aaro Koskinen <aaro.koskinen@iki.fi>
 To: linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Aaro Koskinen <aaro.koskinen@iki.fi>, linux-watchdog@vger.kernel.org,
         Wim Van Sebroeck <wim@iguana.be>
-Subject: [RESEND PATCH v3 3/4] watchdog: introduce retu_wdt driver
-Date: Mon, 12 Nov 2012 21:08:44 +0200
-Message-Id: <1352747326-2195-4-git-send-email-aaro.koskinen@iki.fi>
-In-Reply-To: <1352747326-2195-1-git-send-email-aaro.koskinen@iki.fi>
-References: <1352747326-2195-1-git-send-email-aaro.koskinen@iki.fi>
+Subject: [PATCH v4 3/4] watchdog: introduce retu_wdt driver
+Date: Sun, 18 Nov 2012 18:36:21 +0200
+Message-Id: <1353256582-12166-4-git-send-email-aaro.koskinen@iki.fi>
+In-Reply-To: <1353256582-12166-1-git-send-email-aaro.koskinen@iki.fi>
+References: <1353256582-12166-1-git-send-email-aaro.koskinen@iki.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -24,7 +24,7 @@ Cc: Wim Van Sebroeck <wim@iguana.be>
  drivers/watchdog/Kconfig    |   12 +++
  drivers/watchdog/Makefile   |    1 +
  drivers/watchdog/retu_wdt.c |  178 +++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 191 insertions(+), 0 deletions(-)
+ 3 files changed, 191 insertions(+)
  create mode 100644 drivers/watchdog/retu_wdt.c
 
 diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
@@ -247,4 +247,4 @@ index 0000000..aeb0f39
 +MODULE_AUTHOR("Aaro Koskinen <aaro.koskinen@iki.fi>");
 +MODULE_LICENSE("GPL");
 -- 
-1.7.2.5
+1.7.10.4
