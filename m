@@ -1,11 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:56452 "EHLO
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:56709 "EHLO
 	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751778Ab2KSOKx (ORCPT
+	with ESMTP id S1751902Ab2KSOKx (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
 	Mon, 19 Nov 2012 09:10:53 -0500
-Received: by mail-bk0-f46.google.com with SMTP id q16so1930259bkw.19
-        for <linux-watchdog@vger.kernel.org>; Mon, 19 Nov 2012 06:10:48 -0800 (PST)
+Received: by mail-bk0-f46.google.com with SMTP id q16so1930292bkw.19
+        for <linux-watchdog@vger.kernel.org>; Mon, 19 Nov 2012 06:10:51 -0800 (PST)
 From: Fabio Porcedda <fabio.porcedda@gmail.com>
 To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
@@ -15,71 +15,46 @@ To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
 	Jason Cooper <jason@lakedaemon.net>,
 	Andrew Lunn <andrew@lunn.ch>, Ben Dooks <ben-linux@fluff.org>,
 	Kukjin Kim <kgene.kim@samsung.com>
-Cc: devicetree-discuss@lists.ozlabs.org
-Subject: [PATCH v5 0/8] watchdog: dt: add support for the timeout-sec dt property
-Date: Mon, 19 Nov 2012 15:10:35 +0100
-Message-Id: <1353334243-16703-1-git-send-email-fabio.porcedda@gmail.com>
+Cc: devicetree-discuss@lists.ozlabs.org,
+	Grant Likely <grant.likely@secretlab.ca>,
+	Rob Herring <rob.herring@calxeda.com>
+Subject: [PATCH v5 1/8] dt: add helper inline for retrieving timeout-sec property
+Date: Mon, 19 Nov 2012 15:10:36 +0100
+Message-Id: <1353334243-16703-2-git-send-email-fabio.porcedda@gmail.com>
+In-Reply-To: <1353334243-16703-1-git-send-email-fabio.porcedda@gmail.com>
+References: <1353334243-16703-1-git-send-email-fabio.porcedda@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+The first user of this function is the watchdog framework.
 
-Hi all,
-this patchset add the timeout-sec property to the watchdog core,
-to the at91sam9_wdt driver and on all framework enabled watchdog driver
-with dt support.
-This patchset depends on the patchset already sent:
-"[PATCH v9 0/3 RESEND] watchdog: at91sam9_wdt: add device tree support"
+Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
+Cc: Grant Likely <grant.likely@secretlab.ca>
+Cc: Rob Herring <rob.herring@calxeda.com>
+---
+ include/linux/of.h | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-The at91sam9_wdt is tested on evk-pr3,
-the other drivers are compile tested only.
-
-changes:
-v5:
-  - fix codestyle for compilance ti checkpatch.pl about
-    "ERROR: do not initialise statics to 0 or NULL"
-    for s3c2410_wdt.c:56 and at91sam9_wdt.c:63
-v4:
-  - add of_get_timeout_sec
-  - add s3c2410_wdt driver
-  - split driver patch
-  - fixed watchdog_init_timeout handling of min_timeout and max_timeout
-v3:
-  - rename watchdog_probe_dt_timeout ->  watchdog_init_timeout
-  - move the watchdog_init_timeout function from inline to watchdog_core.c
-  - add timeout parameter handling code to watchdog_init_timeout
-  - add timeout-sec property to the pnx4008-wdt driver
-  - add two small commit for fixup and cleanup
-v2:
-  - change "timeout" to "timeout-sec" as asked by Jean-Christophe
-  - at91sam9_wdt: use the new helper function
-  - at91sam9_wdt: add bounds checking
-  - watchdog.h: add bounds checking
-
-Fabio Porcedda (8):
-  dt: add helper inline for retrieving timeout-sec property
-  watchdog: core: dt: add support for the timeout-sec dt property
-  watchdog: orion_wdt: add timeout-sec property binding
-  watchdog: pnx4008: add timeout-sec property binding
-  watchdog: s3c2410_wdt: add timeout-sec property binding
-  watchdog: at91sam9_wdt: add timeout-sec property binding
-  watchdog: orion_wdt: move the min_timeout initialization
-  watchdog: WatchDog Timer Driver Core - fix comment
-
- .../devicetree/bindings/watchdog/atmel-wdt.txt     |  4 +++
- .../devicetree/bindings/watchdog/marvel.txt        |  5 +++
- .../devicetree/bindings/watchdog/pnx4008-wdt.txt   |  4 +++
- .../devicetree/bindings/watchdog/samsung-wdt.txt   |  3 ++
- Documentation/watchdog/watchdog-kernel-api.txt     | 10 ++++++
- drivers/watchdog/Kconfig                           |  1 +
- drivers/watchdog/at91sam9_wdt.c                    | 16 ++++++++--
- drivers/watchdog/orion_wdt.c                       | 10 +++---
- drivers/watchdog/pnx4008_wdt.c                     |  7 ++--
- drivers/watchdog/s3c2410_wdt.c                     |  6 ++--
- drivers/watchdog/watchdog_core.c                   | 37 ++++++++++++++++++++++
- include/linux/of.h                                 | 11 +++++++
- include/linux/watchdog.h                           |  5 ++-
- 13 files changed, 103 insertions(+), 16 deletions(-)
-
+diff --git a/include/linux/of.h b/include/linux/of.h
+index b4e50d5..d60fde9 100644
+--- a/include/linux/of.h
++++ b/include/linux/of.h
+@@ -477,4 +477,15 @@ static inline int of_property_read_u32(const struct device_node *np,
+ 	return of_property_read_u32_array(np, propname, out_value, 1);
+ }
+ 
++/**
++ * of_get_timeout_sec() - Helper to read the timeout_sec property
++ * @np:		device node from which the property value is to be read.
++ * @timeout:	adress of the output value
++ */
++static inline int of_get_timeout_sec(const struct device_node *np,
++				     u32 *timeout)
++{
++	return of_property_read_u32(np, "timeout-sec", timeout);
++}
++
+ #endif /* _LINUX_OF_H */
 -- 
 1.8.0
 
