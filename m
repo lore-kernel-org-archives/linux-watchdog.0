@@ -1,62 +1,135 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:40388 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751379Ab2KTGw4 (ORCPT
+Received: from mail-oa0-f46.google.com ([209.85.219.46]:34243 "EHLO
+	mail-oa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751937Ab2KTMvH convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 20 Nov 2012 01:52:56 -0500
-Date: Tue, 20 Nov 2012 15:52:37 +0900
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-To: Bill Pemberton <wfp5p@virginia.edu>
-Cc: gregkh@linuxfoundation.org, Kukjin Kim <kgene.kim@samsung.com>,
-	linux-watchdog@vger.kernel.org, Wan ZongShun <mcuos.com@gmail.com>,
-	patches@opensource.wolfsonmicro.com,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-samsung-soc@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>,
-	uclinux-dist-devel@blackfin.uclinux.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 435/493] watchdog: remove use of __devexit
-Message-ID: <20121120065235.GT10560@opensource.wolfsonmicro.com>
-References: <1353349642-3677-1-git-send-email-wfp5p@virginia.edu>
- <1353349642-3677-435-git-send-email-wfp5p@virginia.edu>
+	Tue, 20 Nov 2012 07:51:07 -0500
+Received: by mail-oa0-f46.google.com with SMTP id h16so5841484oag.19
+        for <linux-watchdog@vger.kernel.org>; Tue, 20 Nov 2012 04:51:07 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/FJxnyttrH06HRq2"
-Content-Disposition: inline
-In-Reply-To: <1353349642-3677-435-git-send-email-wfp5p@virginia.edu>
+In-Reply-To: <20121119160643.GI22106@titan.lakedaemon.net>
+References: <1353334243-16703-1-git-send-email-fabio.porcedda@gmail.com>
+ <1353334243-16703-4-git-send-email-fabio.porcedda@gmail.com> <20121119160643.GI22106@titan.lakedaemon.net>
+From: Fabio Porcedda <fabio.porcedda@gmail.com>
+Date: Tue, 20 Nov 2012 13:50:46 +0100
+Message-ID: <CAHkwnC-2MXtNODnqjOvFuHt7ToqvMqeDjnqdGyGfMacKBWzoLw@mail.gmail.com>
+Subject: Re: [PATCH v5 3/8] watchdog: orion_wdt: add timeout-sec property binding
+To: Jason Cooper <jason@lakedaemon.net>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
+	Andrew Victor <linux@maxim.org.za>,
+	Andrew Lunn <andrew@lunn.ch>, Ben Dooks <ben-linux@fluff.org>,
+	Kukjin Kim <kgene.kim@samsung.com>,
+	devicetree-discuss@lists.ozlabs.org
+Content-Type: text/plain; charset=windows-1252
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
+On Mon, Nov 19, 2012 at 5:06 PM, Jason Cooper <jason@lakedaemon.net> wrot=
+e:
+> On Mon, Nov 19, 2012 at 03:10:38PM +0100, Fabio Porcedda wrote:
+>> Only compile tested.
+>>
+>> Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
+>> Cc: Jason Cooper <jason@lakedaemon.net>
+>> Cc: Andrew Lunn <andrew@lunn.ch>
+>> ---
+>>  Documentation/devicetree/bindings/watchdog/marvel.txt | 5 +++++
+>>  drivers/watchdog/orion_wdt.c                          | 8 +++-----
+>>  2 files changed, 8 insertions(+), 5 deletions(-)
+>>
+>> diff --git a/Documentation/devicetree/bindings/watchdog/marvel.txt b/D=
+ocumentation/devicetree/bindings/watchdog/marvel.txt
+>> index 0b2503a..5dc8d30 100644
+>> --- a/Documentation/devicetree/bindings/watchdog/marvel.txt
+>> +++ b/Documentation/devicetree/bindings/watchdog/marvel.txt
+>> @@ -5,10 +5,15 @@ Required Properties:
+>>  - Compatibility : "marvell,orion-wdt"
+>>  - reg                : Address of the timer registers
+>>
+>> +Optional properties:
+>> +
+>> +- timeout-sec        : Contains the watchdog timeout in seconds
+>> +
+>>  Example:
+>>
+>>       wdt@20300 {
+>>               compatible =3D "marvell,orion-wdt";
+>>               reg =3D <0x20300 0x28>;
+>> +             timeout-sec =3D <10>;
+>>               status =3D "okay";
+>>       };
+>> diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt=
+.c
+>> index c20f96b..446a3e9 100644
+>> --- a/drivers/watchdog/orion_wdt.c
+>> +++ b/drivers/watchdog/orion_wdt.c
+>> @@ -162,12 +162,10 @@ static int __devinit orion_wdt_probe(struct plat=
+form_device *pdev)
+>>
+>>       wdt_max_duration =3D WDT_MAX_CYCLE_COUNT / wdt_tclk;
+>>
+>> -     if ((heartbeat < 1) || (heartbeat > wdt_max_duration))
+>> -             heartbeat =3D wdt_max_duration;
+>> -
+>> -     orion_wdt.timeout =3D heartbeat;
+>>       orion_wdt.min_timeout =3D 1;
+>> +     orion_wdt.timeout =3D wdt_max_duration;
+>>       orion_wdt.max_timeout =3D wdt_max_duration;
+>> +     watchdog_init_timeout(&orion_wdt, heartbeat, pdev->dev.of_node);
+>
+> Hi Fabio,
+>
+> There are many boards using pdata, !CONFIG_OF.  Have you compile-tested
+> this without CONFIG_OF?
 
---/FJxnyttrH06HRq2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hi Jason,
 
-On Mon, Nov 19, 2012 at 01:26:24PM -0500, Bill Pemberton wrote:
-> CONFIG_HOTPLUG is going away as an option so __devexit is no
-> longer needed.
+I've tested with and without the CONFIG_OF define.
 
-Acked-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+The first time I=92ve used the kirkwood_defconfig without modifications,
+the second time I=92ve enabled only the CONFIG_MACH_SHEEVAPLUG and
+disabled USE_OF.
 
---/FJxnyttrH06HRq2
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+In both cases the orion_wdt driver compile without any warning.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
+Thanks for the review.
 
-iQIcBAEBAgAGBQJQqyimAAoJELSic+t+oim97xEP/1Uowg9GikpkBTQZ+wIXHwtz
-oxsUSyXp5IQzo0yjJfSAftnTdyKH94FPhkv0SqF4pkLPOQrq/gHXcQYCvSBVVAjN
-RTFUHKfi/8mY1p7hPemBMbkRq3Z04OKXjN+HU4i2cq52/GGRb2mS2k8dPBYcxYVP
-luT696Lq/rmU8fhOh0oW4JB541r6+p0iCEAvjnNdA3D406ETUH47wZ31q1dx8TIA
-uidD5LSHNtxUfgrck0FzeaInMMl8XtFCb7pJFd8oyW+wz1ndmuEtfmnOJNWkRTY+
-RNohLbEjQN2tzYZ3ckFK+GFIfs2oVu/ZD43qXut5h3vC5ZQV3zJYFLYH8EbPEEBi
-TJ6hrAnMctfpYrHrz4jNluyqIhrgqSXbvw7ArSnOqF9EvpRWQoK+HP9yJkzE2ZwA
-sl/NXLvLhLNXo05ez7ypJ0dxXjWhGAKvO2FIGei7FEiRrzoq/QIjZLpa6pINbUVh
-7OlSLqDGduTjNdjk3xVfdxyYjJYwQyjgj19nrg5CBt8trgtKq28No1EtQ3jtmxn4
-ffa2mOgSanszikuvPzUXENeIh/rII6fwUqhF9ncf0aB70HkkXA8kr8lyL2Bd8mjy
-6wFN5NQVe9tIOVmfuD3c/9A7Y+7HcT3V69RUlGz8j+jcQWuH33Bw+bIKI0rFf18t
-LFg8LSNpVCW8p2P6ZBUY
-=4Xco
------END PGP SIGNATURE-----
+Best regards
 
---/FJxnyttrH06HRq2--
+> thx,
+>
+> Jason.
+>
+>>
+>>       watchdog_set_nowayout(&orion_wdt, nowayout);
+>>       ret =3D watchdog_register_device(&orion_wdt);
+>> @@ -177,7 +175,7 @@ static int __devinit orion_wdt_probe(struct platfo=
+rm_device *pdev)
+>>       }
+>>
+>>       pr_info("Initial timeout %d sec%s\n",
+>> -             heartbeat, nowayout ? ", nowayout" : "");
+>> +             orion_wdt.timeout, nowayout ? ", nowayout" : "");
+>>       return 0;
+>>  }
+>>
+>> --
+>> 1.8.0
+>>
+>>
+>> _______________________________________________
+>> linux-arm-kernel mailing list
+>> linux-arm-kernel@lists.infradead.org
+>> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+--
+Fabio Porcedda
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
