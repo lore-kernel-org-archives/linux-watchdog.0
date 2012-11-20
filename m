@@ -1,133 +1,73 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from eusmtp01.atmel.com ([212.144.249.243]:20279 "EHLO
-	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752234Ab2KTNBG (ORCPT
+Received: from mail-ob0-f174.google.com ([209.85.214.174]:62341 "EHLO
+	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751803Ab2KTRJX (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 20 Nov 2012 08:01:06 -0500
-Message-ID: <50AB7F0F.1090005@atmel.com>
-Date: Tue, 20 Nov 2012 14:01:03 +0100
-From: Nicolas Ferre <nicolas.ferre@atmel.com>
+	Tue, 20 Nov 2012 12:09:23 -0500
+Received: by mail-ob0-f174.google.com with SMTP id wc20so6136905obb.19
+        for <linux-watchdog@vger.kernel.org>; Tue, 20 Nov 2012 09:09:22 -0800 (PST)
+Message-ID: <50ABB93F.5070109@gmail.com>
+Date: Tue, 20 Nov 2012 11:09:19 -0600
+From: Rob Herring <robherring2@gmail.com>
 MIME-Version: 1.0
 To: Fabio Porcedda <fabio.porcedda@gmail.com>
-CC: Wim Van Sebroeck <wim@iguana.be>, <linux-watchdog@vger.kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>,
+CC: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
 	Andrew Victor <linux@maxim.org.za>,
 	Jason Cooper <jason@lakedaemon.net>,
 	Andrew Lunn <andrew@lunn.ch>, Ben Dooks <ben-linux@fluff.org>,
 	Kukjin Kim <kgene.kim@samsung.com>,
-	<devicetree-discuss@lists.ozlabs.org>
-Subject: Re: [PATCH v5 6/8] watchdog: at91sam9_wdt: add timeout-sec property
- binding
-References: <1353334243-16703-1-git-send-email-fabio.porcedda@gmail.com> <1353334243-16703-7-git-send-email-fabio.porcedda@gmail.com>
-In-Reply-To: <1353334243-16703-7-git-send-email-fabio.porcedda@gmail.com>
-Content-Type: text/plain; charset="ISO-8859-1"
+	devicetree-discuss@lists.ozlabs.org,
+	Rob Herring <rob.herring@calxeda.com>,
+	Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [PATCH v5 1/8] dt: add helper inline for retrieving timeout-sec
+ property
+References: <1353334243-16703-1-git-send-email-fabio.porcedda@gmail.com> <1353334243-16703-2-git-send-email-fabio.porcedda@gmail.com>
+In-Reply-To: <1353334243-16703-2-git-send-email-fabio.porcedda@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 11/19/2012 03:10 PM, Fabio Porcedda :
-> Tested on at91sam9260 board (evk-pro3).
-> 
+On 11/19/2012 08:10 AM, Fabio Porcedda wrote:
+> The first user of this function is the watchdog framework.
+
+I still have issues with this. In addition to questionable usefulness
+outside the watchdog framework, I'm not even sure this is right for
+watchdog framework. Watchdog timeout is not a description of h/w, but
+user configuration. I think the existing mechanisms of module param or
+kernel cmdline is the right way to handle this.
+
+Rob
+
 > Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
-> Cc: Andrew Victor <linux@maxim.org.za>
-> Cc: Nicolas Ferre <nicolas.ferre@atmel.com>
-
-Seems good:
-Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
-
-> Cc: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+> Cc: Grant Likely <grant.likely@secretlab.ca>
+> Cc: Rob Herring <rob.herring@calxeda.com>
 > ---
->  Documentation/devicetree/bindings/watchdog/atmel-wdt.txt |  4 ++++
->  drivers/watchdog/Kconfig                                 |  1 +
->  drivers/watchdog/at91sam9_wdt.c                          | 16 +++++++++++++---
->  3 files changed, 18 insertions(+), 3 deletions(-)
+>  include/linux/of.h | 11 +++++++++++
+>  1 file changed, 11 insertions(+)
 > 
-> diff --git a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
-> index 2957ebb..fcdd48f 100644
-> --- a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
-> +++ b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
-> @@ -7,9 +7,13 @@ Required properties:
->  - reg: physical base address of the controller and length of memory mapped
->    region.
->  
-> +Optional properties:
-> +- timeout-sec: contains the watchdog timeout in seconds.
-> +
->  Example:
->  
->  	watchdog@fffffd40 {
->  		compatible = "atmel,at91sam9260-wdt";
->  		reg = <0xfffffd40 0x10>;
-> +		timeout-sec = <10>;
->  	};
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index ad1bb93..dda695f 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -114,6 +114,7 @@ config AT91RM9200_WATCHDOG
->  config AT91SAM9X_WATCHDOG
->  	tristate "AT91SAM9X / AT91CAP9 watchdog"
->  	depends on ARCH_AT91 && !ARCH_AT91RM9200
-> +	select WATCHDOG_CORE
->  	help
->  	  Watchdog timer embedded into AT91SAM9X and AT91CAP9 chips. This will
->  	  reboot your system when the timeout is reached.
-> diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
-> index dc42e44..d864dc4 100644
-> --- a/drivers/watchdog/at91sam9_wdt.c
-> +++ b/drivers/watchdog/at91sam9_wdt.c
-> @@ -57,8 +57,10 @@
->  #define WDT_TIMEOUT	(HZ/2)
->  
->  /* User land timeout */
-> +#define MIN_HEARTBEAT 1
-> +#define MAX_HEARTBEAT 16
->  #define WDT_HEARTBEAT 15
-> -static int heartbeat = WDT_HEARTBEAT;
-> +static int heartbeat;
->  module_param(heartbeat, int, 0);
->  MODULE_PARM_DESC(heartbeat, "Watchdog heartbeats in seconds. "
->  	"(default = " __MODULE_STRING(WDT_HEARTBEAT) ")");
-> @@ -255,6 +257,12 @@ static struct miscdevice at91wdt_miscdev = {
->  	.fops		= &at91wdt_fops,
->  };
->  
-> +static struct watchdog_device at91wdt_wdd __initdata = {
-> +	.timeout = WDT_HEARTBEAT,
-> +	.min_timeout = MIN_HEARTBEAT,
-> +	.max_timeout = MAX_HEARTBEAT,
-> +};
-> +
->  static int __init at91wdt_probe(struct platform_device *pdev)
->  {
->  	struct resource	*r;
-> @@ -273,6 +281,8 @@ static int __init at91wdt_probe(struct platform_device *pdev)
->  		return -ENOMEM;
->  	}
->  
-> +	watchdog_init_timeout(&at91wdt_wdd, heartbeat, pdev->dev.of_node);
-> +
->  	/* Set watchdog */
->  	res = at91_wdt_settimeout(ms_to_ticks(WDT_HW_TIMEOUT * 1000));
->  	if (res)
-> @@ -282,12 +292,12 @@ static int __init at91wdt_probe(struct platform_device *pdev)
->  	if (res)
->  		return res;
->  
-> -	at91wdt_private.next_heartbeat = jiffies + heartbeat * HZ;
-> +	at91wdt_private.next_heartbeat = jiffies + at91wdt_wdd.timeout * HZ;
->  	setup_timer(&at91wdt_private.timer, at91_ping, 0);
->  	mod_timer(&at91wdt_private.timer, jiffies + WDT_TIMEOUT);
->  
->  	pr_info("enabled (heartbeat=%d sec, nowayout=%d)\n",
-> -		heartbeat, nowayout);
-> +		at91wdt_wdd.timeout, nowayout);
->  
->  	return 0;
+> diff --git a/include/linux/of.h b/include/linux/of.h
+> index b4e50d5..d60fde9 100644
+> --- a/include/linux/of.h
+> +++ b/include/linux/of.h
+> @@ -477,4 +477,15 @@ static inline int of_property_read_u32(const struct device_node *np,
+>  	return of_property_read_u32_array(np, propname, out_value, 1);
 >  }
+>  
+> +/**
+> + * of_get_timeout_sec() - Helper to read the timeout_sec property
+> + * @np:		device node from which the property value is to be read.
+> + * @timeout:	adress of the output value
+> + */
+> +static inline int of_get_timeout_sec(const struct device_node *np,
+> +				     u32 *timeout)
+> +{
+> +	return of_property_read_u32(np, "timeout-sec", timeout);
+> +}
+> +
+>  #endif /* _LINUX_OF_H */
 > 
 
-
--- 
-Nicolas Ferre
