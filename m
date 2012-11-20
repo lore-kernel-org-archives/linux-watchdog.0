@@ -1,76 +1,133 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mho-03-ewr.mailhop.org ([204.13.248.66]:15401 "EHLO
-	mho-01-ewr.mailhop.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751883Ab2KTM7k (ORCPT
+Received: from eusmtp01.atmel.com ([212.144.249.243]:20279 "EHLO
+	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752234Ab2KTNBG (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 20 Nov 2012 07:59:40 -0500
-Date: Tue, 20 Nov 2012 07:59:16 -0500
-From: Jason Cooper <jason@lakedaemon.net>
+	Tue, 20 Nov 2012 08:01:06 -0500
+Message-ID: <50AB7F0F.1090005@atmel.com>
+Date: Tue, 20 Nov 2012 14:01:03 +0100
+From: Nicolas Ferre <nicolas.ferre@atmel.com>
+MIME-Version: 1.0
 To: Fabio Porcedda <fabio.porcedda@gmail.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
+CC: Wim Van Sebroeck <wim@iguana.be>, <linux-watchdog@vger.kernel.org>,
+	<linux-arm-kernel@lists.infradead.org>,
 	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
 	Andrew Victor <linux@maxim.org.za>,
+	Jason Cooper <jason@lakedaemon.net>,
 	Andrew Lunn <andrew@lunn.ch>, Ben Dooks <ben-linux@fluff.org>,
 	Kukjin Kim <kgene.kim@samsung.com>,
-	devicetree-discuss@lists.ozlabs.org
-Subject: Re: [PATCH v5 7/8] watchdog: orion_wdt: move the min_timeout
- initialization
-Message-ID: <20121120125916.GV22106@titan.lakedaemon.net>
-References: <1353334243-16703-1-git-send-email-fabio.porcedda@gmail.com>
- <1353334243-16703-8-git-send-email-fabio.porcedda@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1353334243-16703-8-git-send-email-fabio.porcedda@gmail.com>
+	<devicetree-discuss@lists.ozlabs.org>
+Subject: Re: [PATCH v5 6/8] watchdog: at91sam9_wdt: add timeout-sec property
+ binding
+References: <1353334243-16703-1-git-send-email-fabio.porcedda@gmail.com> <1353334243-16703-7-git-send-email-fabio.porcedda@gmail.com>
+In-Reply-To: <1353334243-16703-7-git-send-email-fabio.porcedda@gmail.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Nov 19, 2012 at 03:10:42PM +0100, Fabio Porcedda wrote:
-> Move the min_timeout initialization inside the orion_wdt definition.
-> 
-> Only compile tested.
+On 11/19/2012 03:10 PM, Fabio Porcedda :
+> Tested on at91sam9260 board (evk-pro3).
 > 
 > Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
-> Cc: Jason Cooper <jason@lakedaemon.net>
-> Cc: Andrew Lunn <andrew@lunn.ch>
+> Cc: Andrew Victor <linux@maxim.org.za>
+> Cc: Nicolas Ferre <nicolas.ferre@atmel.com>
 
-Acked-by: Jason Cooper <jason@lakedaemon.net>
+Seems good:
+Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
 
-thx,
-
-Jason.
-
+> Cc: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
 > ---
->  drivers/watchdog/orion_wdt.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  Documentation/devicetree/bindings/watchdog/atmel-wdt.txt |  4 ++++
+>  drivers/watchdog/Kconfig                                 |  1 +
+>  drivers/watchdog/at91sam9_wdt.c                          | 16 +++++++++++++---
+>  3 files changed, 18 insertions(+), 3 deletions(-)
 > 
-> diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
-> index 446a3e9..3b4e228 100644
-> --- a/drivers/watchdog/orion_wdt.c
-> +++ b/drivers/watchdog/orion_wdt.c
-> @@ -140,6 +140,7 @@ static const struct watchdog_ops orion_wdt_ops = {
->  static struct watchdog_device orion_wdt = {
->  	.info = &orion_wdt_info,
->  	.ops = &orion_wdt_ops,
-> +	.min_timeout = 1,
+> diff --git a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+> index 2957ebb..fcdd48f 100644
+> --- a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+> +++ b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+> @@ -7,9 +7,13 @@ Required properties:
+>  - reg: physical base address of the controller and length of memory mapped
+>    region.
+>  
+> +Optional properties:
+> +- timeout-sec: contains the watchdog timeout in seconds.
+> +
+>  Example:
+>  
+>  	watchdog@fffffd40 {
+>  		compatible = "atmel,at91sam9260-wdt";
+>  		reg = <0xfffffd40 0x10>;
+> +		timeout-sec = <10>;
+>  	};
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index ad1bb93..dda695f 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -114,6 +114,7 @@ config AT91RM9200_WATCHDOG
+>  config AT91SAM9X_WATCHDOG
+>  	tristate "AT91SAM9X / AT91CAP9 watchdog"
+>  	depends on ARCH_AT91 && !ARCH_AT91RM9200
+> +	select WATCHDOG_CORE
+>  	help
+>  	  Watchdog timer embedded into AT91SAM9X and AT91CAP9 chips. This will
+>  	  reboot your system when the timeout is reached.
+> diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
+> index dc42e44..d864dc4 100644
+> --- a/drivers/watchdog/at91sam9_wdt.c
+> +++ b/drivers/watchdog/at91sam9_wdt.c
+> @@ -57,8 +57,10 @@
+>  #define WDT_TIMEOUT	(HZ/2)
+>  
+>  /* User land timeout */
+> +#define MIN_HEARTBEAT 1
+> +#define MAX_HEARTBEAT 16
+>  #define WDT_HEARTBEAT 15
+> -static int heartbeat = WDT_HEARTBEAT;
+> +static int heartbeat;
+>  module_param(heartbeat, int, 0);
+>  MODULE_PARM_DESC(heartbeat, "Watchdog heartbeats in seconds. "
+>  	"(default = " __MODULE_STRING(WDT_HEARTBEAT) ")");
+> @@ -255,6 +257,12 @@ static struct miscdevice at91wdt_miscdev = {
+>  	.fops		= &at91wdt_fops,
 >  };
 >  
->  static int __devinit orion_wdt_probe(struct platform_device *pdev)
-> @@ -162,7 +163,6 @@ static int __devinit orion_wdt_probe(struct platform_device *pdev)
+> +static struct watchdog_device at91wdt_wdd __initdata = {
+> +	.timeout = WDT_HEARTBEAT,
+> +	.min_timeout = MIN_HEARTBEAT,
+> +	.max_timeout = MAX_HEARTBEAT,
+> +};
+> +
+>  static int __init at91wdt_probe(struct platform_device *pdev)
+>  {
+>  	struct resource	*r;
+> @@ -273,6 +281,8 @@ static int __init at91wdt_probe(struct platform_device *pdev)
+>  		return -ENOMEM;
+>  	}
 >  
->  	wdt_max_duration = WDT_MAX_CYCLE_COUNT / wdt_tclk;
+> +	watchdog_init_timeout(&at91wdt_wdd, heartbeat, pdev->dev.of_node);
+> +
+>  	/* Set watchdog */
+>  	res = at91_wdt_settimeout(ms_to_ticks(WDT_HW_TIMEOUT * 1000));
+>  	if (res)
+> @@ -282,12 +292,12 @@ static int __init at91wdt_probe(struct platform_device *pdev)
+>  	if (res)
+>  		return res;
 >  
-> -	orion_wdt.min_timeout = 1;
->  	orion_wdt.timeout = wdt_max_duration;
->  	orion_wdt.max_timeout = wdt_max_duration;
->  	watchdog_init_timeout(&orion_wdt, heartbeat, pdev->dev.of_node);
-> -- 
-> 1.8.0
+> -	at91wdt_private.next_heartbeat = jiffies + heartbeat * HZ;
+> +	at91wdt_private.next_heartbeat = jiffies + at91wdt_wdd.timeout * HZ;
+>  	setup_timer(&at91wdt_private.timer, at91_ping, 0);
+>  	mod_timer(&at91wdt_private.timer, jiffies + WDT_TIMEOUT);
+>  
+>  	pr_info("enabled (heartbeat=%d sec, nowayout=%d)\n",
+> -		heartbeat, nowayout);
+> +		at91wdt_wdd.timeout, nowayout);
+>  
+>  	return 0;
+>  }
 > 
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+
+-- 
+Nicolas Ferre
