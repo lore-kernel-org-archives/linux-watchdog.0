@@ -1,10 +1,10 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:39032 "EHLO
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:40388 "EHLO
 	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750952Ab2KTGnO (ORCPT
+	by vger.kernel.org with ESMTP id S1751379Ab2KTGw4 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 20 Nov 2012 01:43:14 -0500
-Date: Tue, 20 Nov 2012 15:42:59 +0900
+	Tue, 20 Nov 2012 01:52:56 -0500
+Date: Tue, 20 Nov 2012 15:52:37 +0900
 From: Mark Brown <broonie@opensource.wolfsonmicro.com>
 To: Bill Pemberton <wfp5p@virginia.edu>
 Cc: gregkh@linuxfoundation.org, Kukjin Kim <kgene.kim@samsung.com>,
@@ -14,49 +14,49 @@ Cc: gregkh@linuxfoundation.org, Kukjin Kim <kgene.kim@samsung.com>,
 	linux-samsung-soc@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>,
 	uclinux-dist-devel@blackfin.uclinux.org,
 	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 152/493] watchdog: remove use of __devinit
-Message-ID: <20121120064257.GK10560@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH 435/493] watchdog: remove use of __devexit
+Message-ID: <20121120065235.GT10560@opensource.wolfsonmicro.com>
 References: <1353349642-3677-1-git-send-email-wfp5p@virginia.edu>
- <1353349642-3677-152-git-send-email-wfp5p@virginia.edu>
+ <1353349642-3677-435-git-send-email-wfp5p@virginia.edu>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LQ77YLfPrO/qF/pM"
+	protocol="application/pgp-signature"; boundary="/FJxnyttrH06HRq2"
 Content-Disposition: inline
-In-Reply-To: <1353349642-3677-152-git-send-email-wfp5p@virginia.edu>
+In-Reply-To: <1353349642-3677-435-git-send-email-wfp5p@virginia.edu>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 
---LQ77YLfPrO/qF/pM
+--/FJxnyttrH06HRq2
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Mon, Nov 19, 2012 at 01:21:41PM -0500, Bill Pemberton wrote:
-> CONFIG_HOTPLUG is going away as an option so __devinit is no longer
-> needed.
+On Mon, Nov 19, 2012 at 01:26:24PM -0500, Bill Pemberton wrote:
+> CONFIG_HOTPLUG is going away as an option so __devexit is no
+> longer needed.
 
 Acked-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
 
---LQ77YLfPrO/qF/pM
+--/FJxnyttrH06HRq2
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJQqyZkAAoJELSic+t+oim9k7UP/1YWBSxpr2VX71bYDhChNbA/
-Tj3Ov+tIHnOCW9PavIGFpv/MCjq3K0E75B3g3zNIQF7emhhtUjnGLsGFozM9RnAN
-XRxQimb4GK9Su4/hgFWbyCq3L/Ym4QRl2RH5MY+5uc0xZGpKps2ps0idbFvSp32z
-XgayvlyUygIpzKVvAgpaBWjOOag+0ITZgHwTe39B0mHcaoj5rffnRSUNCoEYfB0B
-L8E1lrkuueqAUgAf2+BA1wTnIDA88uOkaxnS0qW8bapOGbhDiYWTtP7xTlpwmDkk
-indqKa0ZFvXYXzgQwGkS7OHTieHvFaH+x8T7GjTIIyf9txViHSZNEo9xxctrlDYu
-JaygggoESD5nDuCF6gSTN64HDZbzdUPCaLtjoGsAz1INkN1ZTPoqF7CNpsxiIGjK
-jVXJynkbb9DxEY+2clthJ0FvzB5IlzIklefpHvBzR5PS48wvq54A0VcSxtoAalDW
-VkkJEVOzAMbkuKU7/zr3ijjSkihM+7SSu5JTYbhoct0tl3dwDeteyWIvoXmA7lWY
-0eodJkRuTxIxtFARnOizhdCeaQ2w2JVo15lT7ObONOLBFzmvor/Lg/wBHUjV9ew4
-1P6l5VRxthfpSmIcEGtE6Fmp8pr2N50RyhkgCLdEtmEupCI98TpMNeXdZSp21x4R
-ulKrtJE5Zqf3szTAkE5R
-=hBLv
+iQIcBAEBAgAGBQJQqyimAAoJELSic+t+oim97xEP/1Uowg9GikpkBTQZ+wIXHwtz
+oxsUSyXp5IQzo0yjJfSAftnTdyKH94FPhkv0SqF4pkLPOQrq/gHXcQYCvSBVVAjN
+RTFUHKfi/8mY1p7hPemBMbkRq3Z04OKXjN+HU4i2cq52/GGRb2mS2k8dPBYcxYVP
+luT696Lq/rmU8fhOh0oW4JB541r6+p0iCEAvjnNdA3D406ETUH47wZ31q1dx8TIA
+uidD5LSHNtxUfgrck0FzeaInMMl8XtFCb7pJFd8oyW+wz1ndmuEtfmnOJNWkRTY+
+RNohLbEjQN2tzYZ3ckFK+GFIfs2oVu/ZD43qXut5h3vC5ZQV3zJYFLYH8EbPEEBi
+TJ6hrAnMctfpYrHrz4jNluyqIhrgqSXbvw7ArSnOqF9EvpRWQoK+HP9yJkzE2ZwA
+sl/NXLvLhLNXo05ez7ypJ0dxXjWhGAKvO2FIGei7FEiRrzoq/QIjZLpa6pINbUVh
+7OlSLqDGduTjNdjk3xVfdxyYjJYwQyjgj19nrg5CBt8trgtKq28No1EtQ3jtmxn4
+ffa2mOgSanszikuvPzUXENeIh/rII6fwUqhF9ncf0aB70HkkXA8kr8lyL2Bd8mjy
+6wFN5NQVe9tIOVmfuD3c/9A7Y+7HcT3V69RUlGz8j+jcQWuH33Bw+bIKI0rFf18t
+LFg8LSNpVCW8p2P6ZBUY
+=4Xco
 -----END PGP SIGNATURE-----
 
---LQ77YLfPrO/qF/pM--
+--/FJxnyttrH06HRq2--
