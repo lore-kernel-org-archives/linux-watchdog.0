@@ -1,91 +1,48 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:61356 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754617Ab2KUKx1 (ORCPT
+Received: from mho-04-ewr.mailhop.org ([204.13.248.74]:63544 "EHLO
+	mho-02-ewr.mailhop.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753414Ab2KURmZ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 21 Nov 2012 05:53:27 -0500
-Received: by mail-ob0-f174.google.com with SMTP id wc20so6882119obb.19
-        for <linux-watchdog@vger.kernel.org>; Wed, 21 Nov 2012 02:53:26 -0800 (PST)
+	Wed, 21 Nov 2012 12:42:25 -0500
+Subject: [PATCH 1/5] watchdog: OMAP: fixup for ARM multiplatform support
+To: linux-arm-kernel@lists.infradead.org
+From: Tony Lindgren <tony@atomide.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-omap@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+Date: Wed, 21 Nov 2012 09:42:22 -0800
+Message-ID: <20121121174222.25576.65258.stgit@muffinssi.local>
+In-Reply-To: <20121121174201.25576.61961.stgit@muffinssi.local>
+References: <20121121174201.25576.61961.stgit@muffinssi.local>
 MIME-Version: 1.0
-In-Reply-To: <50ABB93F.5070109@gmail.com>
-References: <1353334243-16703-1-git-send-email-fabio.porcedda@gmail.com>
- <1353334243-16703-2-git-send-email-fabio.porcedda@gmail.com> <50ABB93F.5070109@gmail.com>
-From: Fabio Porcedda <fabio.porcedda@gmail.com>
-Date: Wed, 21 Nov 2012 11:53:06 +0100
-Message-ID: <CAHkwnC98qT8k5TaW8Sw2F1KbwfoHhq7J-8_oJjpWp7h3rzs7Aw@mail.gmail.com>
-Subject: Re: [PATCH v5 1/8] dt: add helper inline for retrieving timeout-sec property
-To: Rob Herring <robherring2@gmail.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
-	Andrew Victor <linux@maxim.org.za>,
-	Jason Cooper <jason@lakedaemon.net>,
-	Andrew Lunn <andrew@lunn.ch>, Ben Dooks <ben-linux@fluff.org>,
-	Kukjin Kim <kgene.kim@samsung.com>,
-	devicetree-discuss@lists.ozlabs.org,
-	Rob Herring <rob.herring@calxeda.com>,
-	Grant Likely <grant.likely@secretlab.ca>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Nov 20, 2012 at 6:09 PM, Rob Herring <robherring2@gmail.com> wrote:
-> On 11/19/2012 08:10 AM, Fabio Porcedda wrote:
->> The first user of this function is the watchdog framework.
->
-> I still have issues with this. In addition to questionable usefulness
-> outside the watchdog framework, I'm not even sure this is right for
-> watchdog framework. Watchdog timeout is not a description of h/w, but
-> user configuration. I think the existing mechanisms of module param or
-> kernel cmdline is the right way to handle this.
+Recent changes to the omap_wdt.c removed the dependencies to
+the core omap code, but forgot to remove mach/hardware.h.
 
-Hi Rob,
-thanks for the review.
+We cannot include any plat headers with multiplatform
+support enabled.
 
-If it's fine I will send a v6 version without the of_get_timeout_sec function,
-I hope it's fine for Jean-Christophe too, he asked me to add that function.
+cc: Wim Van Sebroeck <wim@iguana.be>
+cc: linux-watchdog@vger.kernel.org
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ drivers/watchdog/omap_wdt.c |    2 --
+ 1 file changed, 2 deletions(-)
 
-About the right way to handle this parameter,
-obviously I was thinking that was a good idea to add this binding,
-Even some maintainers have suggested that was a good idea.
+diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
+index 477a1d4..e5e7069 100644
+--- a/drivers/watchdog/omap_wdt.c
++++ b/drivers/watchdog/omap_wdt.c
+@@ -45,8 +45,6 @@
+ #include <linux/uaccess.h>
+ #include <linux/slab.h>
+ #include <linux/pm_runtime.h>
+-#include <mach/hardware.h>
+-
+ #include <linux/platform_data/omap-wd-timer.h>
+ 
+ #include "omap_wdt.h"
 
-Regards
-
->
-> Rob
->
->> Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
->> Cc: Grant Likely <grant.likely@secretlab.ca>
->> Cc: Rob Herring <rob.herring@calxeda.com>
->> ---
->>  include/linux/of.h | 11 +++++++++++
->>  1 file changed, 11 insertions(+)
->>
->> diff --git a/include/linux/of.h b/include/linux/of.h
->> index b4e50d5..d60fde9 100644
->> --- a/include/linux/of.h
->> +++ b/include/linux/of.h
->> @@ -477,4 +477,15 @@ static inline int of_property_read_u32(const struct device_node *np,
->>       return of_property_read_u32_array(np, propname, out_value, 1);
->>  }
->>
->> +/**
->> + * of_get_timeout_sec() - Helper to read the timeout_sec property
->> + * @np:              device node from which the property value is to be read.
->> + * @timeout: adress of the output value
->> + */
->> +static inline int of_get_timeout_sec(const struct device_node *np,
->> +                                  u32 *timeout)
->> +{
->> +     return of_property_read_u32(np, "timeout-sec", timeout);
->> +}
->> +
->>  #endif /* _LINUX_OF_H */
->>
->
-
---
-Fabio Porcedda
-Software Developer - R&D Cagliari
-Telit Communications S.p.A.
