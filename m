@@ -1,87 +1,48 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:47112 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753564Ab2KVSeb (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:52069 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755454Ab2KVSpt (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 22 Nov 2012 13:34:31 -0500
-Received: by mail-bk0-f46.google.com with SMTP id q16so3583659bkw.19
-        for <linux-watchdog@vger.kernel.org>; Thu, 22 Nov 2012 10:34:29 -0800 (PST)
-From: Fabio Porcedda <fabio.porcedda@gmail.com>
-To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
-	Andrew Victor <linux@maxim.org.za>,
-	Jason Cooper <jason@lakedaemon.net>,
-	Andrew Lunn <andrew@lunn.ch>, Ben Dooks <ben-linux@fluff.org>,
-	Kukjin Kim <kgene.kim@samsung.com>
-Cc: devicetree-discuss@lists.ozlabs.org
-Subject: [PATCH v6 2/7] watchdog: orion_wdt: add timeout-sec property binding
-Date: Thu, 22 Nov 2012 13:51:51 +0100
-Message-Id: <1353588716-28917-3-git-send-email-fabio.porcedda@gmail.com>
-In-Reply-To: <1353588716-28917-1-git-send-email-fabio.porcedda@gmail.com>
-References: <1353588716-28917-1-git-send-email-fabio.porcedda@gmail.com>
+	Thu, 22 Nov 2012 13:45:49 -0500
+Received: by mail-pb0-f46.google.com with SMTP id wy7so6031325pbc.19
+        for <linux-watchdog@vger.kernel.org>; Thu, 22 Nov 2012 10:45:49 -0800 (PST)
+From: Tushar Behera <tushar.behera@linaro.org>
+To: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
+Cc: wim@iguana.be, patches@linaro.org, Anthony.Olech@diasemi.com
+Subject: [PATCH] watchdog: da9052: Fix invalid free of devm_ allocated data
+Date: Thu, 22 Nov 2012 10:13:04 +0530
+Message-Id: <1353559384-26570-1-git-send-email-tushar.behera@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Only compile tested.
+It is not required to free devm_ allocated data. Since kref_put
+needs a valid release function, da9052_wdt_release_resources()
+is not deleted.
 
-Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
-Cc: Andrew Lunn <andrew@lunn.ch>
-Acked-by: Jason Cooper <jason@lakedaemon.net>
+Fixes following warning.
+drivers/watchdog/da9052_wdt.c:59:1-6: WARNING: invalid free of
+devm_ allocated data
+
+Signed-off-by: Tushar Behera <tushar.behera@linaro.org>
 ---
- Documentation/devicetree/bindings/watchdog/marvel.txt | 5 +++++
- drivers/watchdog/orion_wdt.c                          | 8 +++-----
- 2 files changed, 8 insertions(+), 5 deletions(-)
+ drivers/watchdog/da9052_wdt.c |    4 ----
+ 1 files changed, 0 insertions(+), 4 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/marvel.txt b/Documentation/devicetree/bindings/watchdog/marvel.txt
-index 0b2503a..5dc8d30 100644
---- a/Documentation/devicetree/bindings/watchdog/marvel.txt
-+++ b/Documentation/devicetree/bindings/watchdog/marvel.txt
-@@ -5,10 +5,15 @@ Required Properties:
- - Compatibility : "marvell,orion-wdt"
- - reg		: Address of the timer registers
+diff --git a/drivers/watchdog/da9052_wdt.c b/drivers/watchdog/da9052_wdt.c
+index f7abbae..20071de 100644
+--- a/drivers/watchdog/da9052_wdt.c
++++ b/drivers/watchdog/da9052_wdt.c
+@@ -53,10 +53,6 @@ static const struct {
  
-+Optional properties:
-+
-+- timeout-sec	: Contains the watchdog timeout in seconds
-+
- Example:
- 
- 	wdt@20300 {
- 		compatible = "marvell,orion-wdt";
- 		reg = <0x20300 0x28>;
-+		timeout-sec = <10>;
- 		status = "okay";
- 	};
-diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
-index c20f96b..446a3e9 100644
---- a/drivers/watchdog/orion_wdt.c
-+++ b/drivers/watchdog/orion_wdt.c
-@@ -162,12 +162,10 @@ static int __devinit orion_wdt_probe(struct platform_device *pdev)
- 
- 	wdt_max_duration = WDT_MAX_CYCLE_COUNT / wdt_tclk;
- 
--	if ((heartbeat < 1) || (heartbeat > wdt_max_duration))
--		heartbeat = wdt_max_duration;
+ static void da9052_wdt_release_resources(struct kref *r)
+ {
+-	struct da9052_wdt_data *driver_data =
+-		container_of(r, struct da9052_wdt_data, kref);
 -
--	orion_wdt.timeout = heartbeat;
- 	orion_wdt.min_timeout = 1;
-+	orion_wdt.timeout = wdt_max_duration;
- 	orion_wdt.max_timeout = wdt_max_duration;
-+	watchdog_init_timeout(&orion_wdt, heartbeat, pdev->dev.of_node);
- 
- 	watchdog_set_nowayout(&orion_wdt, nowayout);
- 	ret = watchdog_register_device(&orion_wdt);
-@@ -177,7 +175,7 @@ static int __devinit orion_wdt_probe(struct platform_device *pdev)
- 	}
- 
- 	pr_info("Initial timeout %d sec%s\n",
--		heartbeat, nowayout ? ", nowayout" : "");
-+		orion_wdt.timeout, nowayout ? ", nowayout" : "");
- 	return 0;
+-	kfree(driver_data);
  }
  
+ static int da9052_wdt_set_timeout(struct watchdog_device *wdt_dev,
 -- 
-1.8.0
+1.7.4.1
 
