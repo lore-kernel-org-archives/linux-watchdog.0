@@ -1,60 +1,60 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:42413 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754446Ab2KVSiP (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 22 Nov 2012 13:38:15 -0500
-Received: by mail-bk0-f46.google.com with SMTP id q16so3584965bkw.19
-        for <linux-watchdog@vger.kernel.org>; Thu, 22 Nov 2012 10:38:14 -0800 (PST)
-From: Fabio Porcedda <fabio.porcedda@gmail.com>
-To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
-	Andrew Victor <linux@maxim.org.za>,
-	Jason Cooper <jason@lakedaemon.net>,
-	Andrew Lunn <andrew@lunn.ch>, Ben Dooks <ben-linux@fluff.org>,
-	Kukjin Kim <kgene.kim@samsung.com>
-Cc: devicetree-discuss@lists.ozlabs.org
-Subject: [PATCH v6 6/7] watchdog: orion_wdt: move the min_timeout initialization
-Date: Thu, 22 Nov 2012 13:51:55 +0100
-Message-Id: <1353588716-28917-7-git-send-email-fabio.porcedda@gmail.com>
-In-Reply-To: <1353588716-28917-1-git-send-email-fabio.porcedda@gmail.com>
-References: <1353588716-28917-1-git-send-email-fabio.porcedda@gmail.com>
+Received: from server19320154104.serverpool.info ([193.201.54.104]:36717 "EHLO
+	hauke-m.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752541Ab2KXWdH (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Sat, 24 Nov 2012 17:33:07 -0500
+From: Hauke Mehrtens <hauke@hauke-m.de>
+To: linville@tuxdriver.com
+Cc: linux-wireless@vger.kernel.org, wim@iguana.be,
+	linux-watchdog@vger.kernel.org, castet.matthieu@free.fr,
+	biblbroks@sezampro.rs, m@bues.ch, zajec5@gmail.com,
+	linux-mips@linux-mips.org, Hauke Mehrtens <hauke@hauke-m.de>
+Subject: [PATCH 13/15] ssb: extif: add check for max value in watchdog
+Date: Sat, 24 Nov 2012 23:24:13 +0100
+Message-Id: <1353795855-22236-14-git-send-email-hauke@hauke-m.de>
+In-Reply-To: <1353795855-22236-1-git-send-email-hauke@hauke-m.de>
+References: <1353795855-22236-1-git-send-email-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Move the min_timeout initialization inside the orion_wdt definition.
+Prevent the watchdog register ion the extif core to be set to a too
+high value.
 
-Only compile tested.
-
-Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
-Cc: Andrew Lunn <andrew@lunn.ch>
-Acked-by: Jason Cooper <jason@lakedaemon.net>
+Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
 ---
- drivers/watchdog/orion_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/ssb/driver_extif.c           |    5 +++--
+ include/linux/ssb/ssb_driver_extif.h |    1 +
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
-index 446a3e9..3b4e228 100644
---- a/drivers/watchdog/orion_wdt.c
-+++ b/drivers/watchdog/orion_wdt.c
-@@ -140,6 +140,7 @@ static const struct watchdog_ops orion_wdt_ops = {
- static struct watchdog_device orion_wdt = {
- 	.info = &orion_wdt_info,
- 	.ops = &orion_wdt_ops,
-+	.min_timeout = 1,
- };
+diff --git a/drivers/ssb/driver_extif.c b/drivers/ssb/driver_extif.c
+index dc47f30..0aa4c2a 100644
+--- a/drivers/ssb/driver_extif.c
++++ b/drivers/ssb/driver_extif.c
+@@ -112,9 +112,10 @@ void ssb_extif_get_clockcontrol(struct ssb_extif *extif,
+ 	*m = extif_read32(extif, SSB_EXTIF_CLOCK_SB);
+ }
  
- static int __devinit orion_wdt_probe(struct platform_device *pdev)
-@@ -162,7 +163,6 @@ static int __devinit orion_wdt_probe(struct platform_device *pdev)
+-void ssb_extif_watchdog_timer_set(struct ssb_extif *extif,
+-				  u32 ticks)
++void ssb_extif_watchdog_timer_set(struct ssb_extif *extif, u32 ticks)
+ {
++	if (ticks > SSB_EXTIF_WATCHDOG_MAX_TIMER)
++		ticks = SSB_EXTIF_WATCHDOG_MAX_TIMER;
+ 	extif_write32(extif, SSB_EXTIF_WATCHDOG, ticks);
+ }
  
- 	wdt_max_duration = WDT_MAX_CYCLE_COUNT / wdt_tclk;
+diff --git a/include/linux/ssb/ssb_driver_extif.h b/include/linux/ssb/ssb_driver_extif.h
+index 91161f0..34072f5 100644
+--- a/include/linux/ssb/ssb_driver_extif.h
++++ b/include/linux/ssb/ssb_driver_extif.h
+@@ -152,6 +152,7 @@
+ /* watchdog */
+ #define SSB_EXTIF_WATCHDOG_CLK		48000000	/* Hz */
  
--	orion_wdt.min_timeout = 1;
- 	orion_wdt.timeout = wdt_max_duration;
- 	orion_wdt.max_timeout = wdt_max_duration;
- 	watchdog_init_timeout(&orion_wdt, heartbeat, pdev->dev.of_node);
++#define SSB_EXTIF_WATCHDOG_MAX_TIMER	((1 << 28) - 1)
+ 
+ 
+ #ifdef CONFIG_SSB_DRIVER_EXTIF
 -- 
-1.8.0
+1.7.10.4
 
