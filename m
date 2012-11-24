@@ -1,7 +1,7 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from server19320154104.serverpool.info ([193.201.54.104]:36732 "EHLO
+Received: from server19320154104.serverpool.info ([193.201.54.104]:36736 "EHLO
 	hauke-m.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752387Ab2KXWdJ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	id S1752650Ab2KXWdJ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
 	Sat, 24 Nov 2012 17:33:09 -0500
 From: Hauke Mehrtens <hauke@hauke-m.de>
 To: linville@tuxdriver.com
@@ -9,285 +9,105 @@ Cc: linux-wireless@vger.kernel.org, wim@iguana.be,
 	linux-watchdog@vger.kernel.org, castet.matthieu@free.fr,
 	biblbroks@sezampro.rs, m@bues.ch, zajec5@gmail.com,
 	linux-mips@linux-mips.org, Hauke Mehrtens <hauke@hauke-m.de>
-Subject: [PATCH 01/15] watchdog: bcm47xx_wdt.c: convert to watchdog core api
-Date: Sat, 24 Nov 2012 23:24:01 +0100
-Message-Id: <1353795855-22236-2-git-send-email-hauke@hauke-m.de>
+Subject: [PATCH 10/15] ssb: get alp clock from devices with PMU
+Date: Sat, 24 Nov 2012 23:24:10 +0100
+Message-Id: <1353795855-22236-11-git-send-email-hauke@hauke-m.de>
 In-Reply-To: <1353795855-22236-1-git-send-email-hauke@hauke-m.de>
 References: <1353795855-22236-1-git-send-email-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Convert the bcm47xx_wdt.c driver to the new watchdog core api.
+When there is a PMU in the device get the alp clock from that part and
+do not assume 20000000.
 
 Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
 ---
- drivers/watchdog/Kconfig       |    1 +
- drivers/watchdog/bcm47xx_wdt.c |  153 ++++++----------------------------------
- 2 files changed, 24 insertions(+), 130 deletions(-)
+ drivers/ssb/driver_chipcommon.c     |   14 +++++++++-----
+ drivers/ssb/driver_chipcommon_pmu.c |   27 +++++++++++++++++++++++++++
+ drivers/ssb/ssb_private.h           |    1 +
+ 3 files changed, 37 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index ad1bb93..9f21356 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -959,6 +959,7 @@ config ATH79_WDT
- config BCM47XX_WDT
- 	tristate "Broadcom BCM47xx Watchdog Timer"
- 	depends on BCM47XX
-+	select WATCHDOG_CORE
- 	help
- 	  Hardware driver for the Broadcom BCM47xx Watchdog Timer.
- 
-diff --git a/drivers/watchdog/bcm47xx_wdt.c b/drivers/watchdog/bcm47xx_wdt.c
-index bc0e91e..a527175 100644
---- a/drivers/watchdog/bcm47xx_wdt.c
-+++ b/drivers/watchdog/bcm47xx_wdt.c
-@@ -14,15 +14,12 @@
- 
- #include <linux/bitops.h>
- #include <linux/errno.h>
--#include <linux/fs.h>
- #include <linux/init.h>
- #include <linux/kernel.h>
--#include <linux/miscdevice.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
- #include <linux/reboot.h>
- #include <linux/types.h>
--#include <linux/uaccess.h>
- #include <linux/watchdog.h>
- #include <linux/timer.h>
- #include <linux/jiffies.h>
-@@ -41,15 +38,11 @@ module_param(wdt_time, int, 0);
- MODULE_PARM_DESC(wdt_time, "Watchdog time in seconds. (default="
- 				__MODULE_STRING(WDT_DEFAULT_TIME) ")");
- 
--#ifdef CONFIG_WATCHDOG_NOWAYOUT
- module_param(nowayout, bool, 0);
- MODULE_PARM_DESC(nowayout,
- 		"Watchdog cannot be stopped once started (default="
- 				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
--#endif
- 
--static unsigned long bcm47xx_wdt_busy;
--static char expect_release;
- static struct timer_list wdt_timer;
- static atomic_t ticks;
- 
-@@ -97,29 +90,31 @@ static void bcm47xx_timer_tick(unsigned long unused)
- 	}
+diff --git a/drivers/ssb/driver_chipcommon.c b/drivers/ssb/driver_chipcommon.c
+index e9d2ca1..7789f42 100644
+--- a/drivers/ssb/driver_chipcommon.c
++++ b/drivers/ssb/driver_chipcommon.c
+@@ -280,6 +280,14 @@ static void calc_fast_powerup_delay(struct ssb_chipcommon *cc)
+ 	cc->fast_pwrup_delay = tmp;
  }
  
--static inline void bcm47xx_wdt_pet(void)
-+static int bcm47xx_wdt_keepalive(struct watchdog_device *wdd)
- {
- 	atomic_set(&ticks, wdt_time);
++static u32 ssb_chipco_alp_clock(struct ssb_chipcommon *cc)
++{
++	if (cc->capabilities & SSB_CHIPCO_CAP_PMU)
++		return ssb_pmu_get_alp_clock(cc);
 +
-+	return 0;
- }
- 
--static void bcm47xx_wdt_start(void)
-+static int bcm47xx_wdt_start(struct watchdog_device *wdd)
- {
- 	bcm47xx_wdt_pet();
- 	bcm47xx_timer_tick(0);
++	return 20000000;
++}
 +
-+	return 0;
- }
- 
--static void bcm47xx_wdt_pause(void)
-+static int bcm47xx_wdt_stop(struct watchdog_device *wdd)
+ void ssb_chipcommon_init(struct ssb_chipcommon *cc)
  {
- 	del_timer_sync(&wdt_timer);
- 	bcm47xx_wdt_hw_stop();
--}
- 
--static void bcm47xx_wdt_stop(void)
--{
--	bcm47xx_wdt_pause();
-+	return 0;
- }
- 
--static int bcm47xx_wdt_settimeout(int new_time)
-+static int bcm47xx_wdt_set_timeout(struct watchdog_device *wdd,
-+				   unsigned int new_time)
- {
- 	if ((new_time <= 0) || (new_time > WDT_MAX_TIME))
- 		return -EINVAL;
-@@ -128,51 +123,6 @@ static int bcm47xx_wdt_settimeout(int new_time)
- 	return 0;
- }
- 
--static int bcm47xx_wdt_open(struct inode *inode, struct file *file)
--{
--	if (test_and_set_bit(0, &bcm47xx_wdt_busy))
--		return -EBUSY;
--
--	bcm47xx_wdt_start();
--	return nonseekable_open(inode, file);
--}
--
--static int bcm47xx_wdt_release(struct inode *inode, struct file *file)
--{
--	if (expect_release == 42) {
--		bcm47xx_wdt_stop();
--	} else {
--		pr_crit("Unexpected close, not stopping watchdog!\n");
--		bcm47xx_wdt_start();
--	}
--
--	clear_bit(0, &bcm47xx_wdt_busy);
--	expect_release = 0;
--	return 0;
--}
--
--static ssize_t bcm47xx_wdt_write(struct file *file, const char __user *data,
--				size_t len, loff_t *ppos)
--{
--	if (len) {
--		if (!nowayout) {
--			size_t i;
--
--			expect_release = 0;
--
--			for (i = 0; i != len; i++) {
--				char c;
--				if (get_user(c, data + i))
--					return -EFAULT;
--				if (c == 'V')
--					expect_release = 42;
+ 	if (!cc->dev)
+@@ -474,11 +482,7 @@ int ssb_chipco_serial_init(struct ssb_chipcommon *cc,
+ 				       | SSB_CHIPCO_CORECTL_UARTCLK0);
+ 		} else if ((ccrev >= 11) && (ccrev != 15)) {
+ 			/* Fixed ALP clock */
+-			baud_base = 20000000;
+-			if (cc->capabilities & SSB_CHIPCO_CAP_PMU) {
+-				/* FIXME: baud_base is different for devices with a PMU */
+-				SSB_WARN_ON(1);
 -			}
--		}
--		bcm47xx_wdt_pet();
--	}
--	return len;
--}
--
- static const struct watchdog_info bcm47xx_wdt_info = {
- 	.identity	= DRV_NAME,
- 	.options	= WDIOF_SETTIMEOUT |
-@@ -180,80 +130,25 @@ static const struct watchdog_info bcm47xx_wdt_info = {
- 				WDIOF_MAGICCLOSE,
- };
++			baud_base = ssb_chipco_alp_clock(cc);
+ 			div = 1;
+ 			if (ccrev >= 21) {
+ 				/* Turn off UART clock before switching clocksource. */
+diff --git a/drivers/ssb/driver_chipcommon_pmu.c b/drivers/ssb/driver_chipcommon_pmu.c
+index d7d5804..a43415a 100644
+--- a/drivers/ssb/driver_chipcommon_pmu.c
++++ b/drivers/ssb/driver_chipcommon_pmu.c
+@@ -618,6 +618,33 @@ void ssb_pmu_set_ldo_paref(struct ssb_chipcommon *cc, bool on)
+ EXPORT_SYMBOL(ssb_pmu_set_ldo_voltage);
+ EXPORT_SYMBOL(ssb_pmu_set_ldo_paref);
  
--static long bcm47xx_wdt_ioctl(struct file *file,
--					unsigned int cmd, unsigned long arg)
--{
--	void __user *argp = (void __user *)arg;
--	int __user *p = argp;
--	int new_value, retval = -EINVAL;
--
--	switch (cmd) {
--	case WDIOC_GETSUPPORT:
--		return copy_to_user(argp, &bcm47xx_wdt_info,
--				sizeof(bcm47xx_wdt_info)) ? -EFAULT : 0;
--
--	case WDIOC_GETSTATUS:
--	case WDIOC_GETBOOTSTATUS:
--		return put_user(0, p);
--
--	case WDIOC_SETOPTIONS:
--		if (get_user(new_value, p))
--			return -EFAULT;
--
--		if (new_value & WDIOS_DISABLECARD) {
--			bcm47xx_wdt_stop();
--			retval = 0;
--		}
--
--		if (new_value & WDIOS_ENABLECARD) {
--			bcm47xx_wdt_start();
--			retval = 0;
--		}
--
--		return retval;
--
--	case WDIOC_KEEPALIVE:
--		bcm47xx_wdt_pet();
--		return 0;
--
--	case WDIOC_SETTIMEOUT:
--		if (get_user(new_value, p))
--			return -EFAULT;
--
--		if (bcm47xx_wdt_settimeout(new_value))
--			return -EINVAL;
--
--		bcm47xx_wdt_pet();
--
--	case WDIOC_GETTIMEOUT:
--		return put_user(wdt_time, p);
--
--	default:
--		return -ENOTTY;
--	}
--}
--
- static int bcm47xx_wdt_notify_sys(struct notifier_block *this,
--	unsigned long code, void *unused)
-+				  unsigned long code, void *unused)
++static u32 ssb_pmu_get_alp_clock_clk0(struct ssb_chipcommon *cc)
++{
++	u32 crystalfreq;
++	const struct pmu0_plltab_entry *e = NULL;
++
++	crystalfreq = chipco_read32(cc, SSB_CHIPCO_PMU_CTL) &
++		      SSB_CHIPCO_PMU_CTL_XTALFREQ >> SSB_CHIPCO_PMU_CTL_XTALFREQ_SHIFT;
++	e = pmu0_plltab_find_entry(crystalfreq);
++	BUG_ON(!e);
++	return e->freq * 1000;
++}
++
++u32 ssb_pmu_get_alp_clock(struct ssb_chipcommon *cc)
++{
++	struct ssb_bus *bus = cc->dev->bus;
++
++	switch (bus->chip_id) {
++	case 0x5354:
++		ssb_pmu_get_alp_clock_clk0(cc);
++	default:
++		ssb_printk(KERN_ERR PFX
++			   "ERROR: PMU alp clock unknown for device %04X\n",
++			   bus->chip_id);
++		return 0;
++	}
++}
++
+ u32 ssb_pmu_get_cpu_clock(struct ssb_chipcommon *cc)
  {
- 	if (code == SYS_DOWN || code == SYS_HALT)
- 		bcm47xx_wdt_stop();
- 	return NOTIFY_DONE;
- }
+ 	struct ssb_bus *bus = cc->dev->bus;
+diff --git a/drivers/ssb/ssb_private.h b/drivers/ssb/ssb_private.h
+index a305550..98b2915 100644
+--- a/drivers/ssb/ssb_private.h
++++ b/drivers/ssb/ssb_private.h
+@@ -210,5 +210,6 @@ static inline void b43_pci_ssb_bridge_exit(void)
+ /* driver_chipcommon_pmu.c */
+ extern u32 ssb_pmu_get_cpu_clock(struct ssb_chipcommon *cc);
+ extern u32 ssb_pmu_get_controlclock(struct ssb_chipcommon *cc);
++extern u32 ssb_pmu_get_alp_clock(struct ssb_chipcommon *cc);
  
--static const struct file_operations bcm47xx_wdt_fops = {
-+static struct watchdog_ops bcm47xx_wdt_ops = {
- 	.owner		= THIS_MODULE,
--	.llseek		= no_llseek,
--	.unlocked_ioctl	= bcm47xx_wdt_ioctl,
--	.open		= bcm47xx_wdt_open,
--	.release	= bcm47xx_wdt_release,
--	.write		= bcm47xx_wdt_write,
-+	.start		= bcm47xx_wdt_start,
-+	.stop		= bcm47xx_wdt_stop,
-+	.ping		= bcm47xx_wdt_keepalive,
-+	.set_timeout	= bcm47xx_wdt_set_timeout,
- };
- 
--static struct miscdevice bcm47xx_wdt_miscdev = {
--	.minor		= WATCHDOG_MINOR,
--	.name		= "watchdog",
--	.fops		= &bcm47xx_wdt_fops,
-+static struct watchdog_device bcm47xx_wdt_wdd = {
-+	.info		= &bcm47xx_wdt_info,
-+	.ops		= &bcm47xx_wdt_ops,
- };
- 
- static struct notifier_block bcm47xx_wdt_notifier = {
-@@ -274,12 +169,13 @@ static int __init bcm47xx_wdt_init(void)
- 		pr_info("wdt_time value must be 0 < wdt_time < %d, using %d\n",
- 			(WDT_MAX_TIME + 1), wdt_time);
- 	}
-+	watchdog_set_nowayout(&bcm47xx_wdt_wdd, nowayout);
- 
- 	ret = register_reboot_notifier(&bcm47xx_wdt_notifier);
- 	if (ret)
- 		return ret;
- 
--	ret = misc_register(&bcm47xx_wdt_miscdev);
-+	ret = watchdog_register_device(&bcm47xx_wdt_wdd);
- 	if (ret) {
- 		unregister_reboot_notifier(&bcm47xx_wdt_notifier);
- 		return ret;
-@@ -292,10 +188,8 @@ static int __init bcm47xx_wdt_init(void)
- 
- static void __exit bcm47xx_wdt_exit(void)
- {
--	if (!nowayout)
--		bcm47xx_wdt_stop();
--
--	misc_deregister(&bcm47xx_wdt_miscdev);
-+	watchdog_stop(&bcm47xx_wdt_wdd);
-+	watchdog_unregister_device(&bcm47xx_wdt_wdd);
- 
- 	unregister_reboot_notifier(&bcm47xx_wdt_notifier);
- }
-@@ -306,4 +200,3 @@ module_exit(bcm47xx_wdt_exit);
- MODULE_AUTHOR("Aleksandar Radovanovic");
- MODULE_DESCRIPTION("Watchdog driver for Broadcom BCM47xx");
- MODULE_LICENSE("GPL");
--MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
+ #endif /* LINUX_SSB_PRIVATE_H_ */
 -- 
 1.7.10.4
 
