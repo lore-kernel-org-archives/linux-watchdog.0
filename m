@@ -1,7 +1,7 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from server19320154104.serverpool.info ([193.201.54.104]:36734 "EHLO
+Received: from server19320154104.serverpool.info ([193.201.54.104]:36738 "EHLO
 	hauke-m.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752616Ab2KXWdJ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	id S1752619Ab2KXWdJ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
 	Sat, 24 Nov 2012 17:33:09 -0500
 From: Hauke Mehrtens <hauke@hauke-m.de>
 To: linville@tuxdriver.com
@@ -9,150 +9,127 @@ Cc: linux-wireless@vger.kernel.org, wim@iguana.be,
 	linux-watchdog@vger.kernel.org, castet.matthieu@free.fr,
 	biblbroks@sezampro.rs, m@bues.ch, zajec5@gmail.com,
 	linux-mips@linux-mips.org, Hauke Mehrtens <hauke@hauke-m.de>
-Subject: [PATCH 05/15] watchdog: bcm47xx_wdt.c: add hard timer
-Date: Sat, 24 Nov 2012 23:24:05 +0100
-Message-Id: <1353795855-22236-6-git-send-email-hauke@hauke-m.de>
+Subject: [PATCH 09/15] bcma: register watchdog driver
+Date: Sat, 24 Nov 2012 23:24:09 +0100
+Message-Id: <1353795855-22236-10-git-send-email-hauke@hauke-m.de>
 In-Reply-To: <1353795855-22236-1-git-send-email-hauke@hauke-m.de>
 References: <1353795855-22236-1-git-send-email-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The more recent devices have a watchdog timer which could be configured
-for over 2 hours and not just 2 seconds like the first generation
-devices. For those devices do not use the extra software timer, but
-directly program the time into the register. This will automatically be
-used if the timer supports more than a minute.
+Register the watchdog driver to the system if this is a SoC. Using the
+watchdog on a non SoC device, like a PCIe card, it will make the PCIe
+card die when the timeout expired, but starting it again is not
+supported.
 
 Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
 ---
- drivers/watchdog/bcm47xx_wdt.c |   69 ++++++++++++++++++++++++++++++++++++----
- include/linux/bcm47xx_wdt.h    |    1 +
- 2 files changed, 64 insertions(+), 6 deletions(-)
+ drivers/bcma/bcma_private.h                 |    2 ++
+ drivers/bcma/driver_chipcommon.c            |   22 ++++++++++++++++++++++
+ drivers/bcma/main.c                         |    8 ++++++++
+ include/linux/bcma/bcma_driver_chipcommon.h |    3 +++
+ 4 files changed, 35 insertions(+)
 
-diff --git a/drivers/watchdog/bcm47xx_wdt.c b/drivers/watchdog/bcm47xx_wdt.c
-index b6a8c49..c77f5ca 100644
---- a/drivers/watchdog/bcm47xx_wdt.c
-+++ b/drivers/watchdog/bcm47xx_wdt.c
-@@ -31,6 +31,7 @@
+diff --git a/drivers/bcma/bcma_private.h b/drivers/bcma/bcma_private.h
+index 169fc58..bcb830e 100644
+--- a/drivers/bcma/bcma_private.h
++++ b/drivers/bcma/bcma_private.h
+@@ -84,6 +84,8 @@ extern void __exit bcma_host_pci_exit(void);
+ /* driver_pci.c */
+ u32 bcma_pcie_read(struct bcma_drv_pci *pc, u32 address);
  
- #define WDT_DEFAULT_TIME	30	/* seconds */
- #define WDT_SOFTTIMER_MAX	3600	/* seconds */
-+#define WDT_SOFTTIMER_THRESHOLD	60	/* seconds */
++extern int bcma_chipco_watchdog_register(struct bcma_drv_cc *cc);
++
+ #ifdef CONFIG_BCMA_DRIVER_PCI_HOSTMODE
+ bool __devinit bcma_core_pci_is_in_hostmode(struct bcma_drv_pci *pc);
+ void __devinit bcma_core_pci_hostmode_init(struct bcma_drv_pci *pc);
+diff --git a/drivers/bcma/driver_chipcommon.c b/drivers/bcma/driver_chipcommon.c
+index 1172226..d017f25 100644
+--- a/drivers/bcma/driver_chipcommon.c
++++ b/drivers/bcma/driver_chipcommon.c
+@@ -12,6 +12,7 @@
+ #include "bcma_private.h"
+ #include <linux/bcm47xx_wdt.h>
+ #include <linux/export.h>
++#include <linux/platform_device.h>
+ #include <linux/bcma/bcma.h>
  
- static int timeout = WDT_DEFAULT_TIME;
- static bool nowayout = WATCHDOG_NOWAYOUT;
-@@ -49,6 +50,53 @@ static inline struct bcm47xx_wdt *bcm47xx_wdt_get(struct watchdog_device *wdd)
- 	return container_of(wdd, struct bcm47xx_wdt, wdd);
+ static inline u32 bcma_cc_write32_masked(struct bcma_drv_cc *cc, u16 offset,
+@@ -87,6 +88,27 @@ static int bcma_chipco_watchdog_ticks_per_ms(struct bcma_drv_cc *cc)
+ 	}
  }
  
-+static int bcm47xx_wdt_hard_keepalive(struct watchdog_device *wdd)
++int bcma_chipco_watchdog_register(struct bcma_drv_cc *cc)
 +{
-+	struct bcm47xx_wdt *wdt = bcm47xx_wdt_get(wdd);
++	struct bcm47xx_wdt wdt = {};
++	struct platform_device *pdev;
 +
-+	wdt->timer_set_ms(wdt, wdd->timeout * 1000);
++	wdt.driver_data = cc;
++	wdt.timer_set = bcma_chipco_watchdog_timer_set_wdt;
++	wdt.timer_set_ms = bcma_chipco_watchdog_timer_set_ms_wdt;
++	wdt.max_timer_ms = bcma_chipco_watchdog_get_max_timer(cc) / cc->ticks_per_ms;
++
++	pdev = platform_device_register_data(NULL, "bcm47xx-wdt",
++					     cc->core->bus->num, &wdt,
++					     sizeof(wdt));
++	if (IS_ERR(pdev))
++		return PTR_ERR(pdev);
++
++	cc->watchdog = pdev;
 +
 +	return 0;
 +}
 +
-+static int bcm47xx_wdt_hard_start(struct watchdog_device *wdd)
-+{
-+	return 0;
-+}
-+
-+static int bcm47xx_wdt_hard_stop(struct watchdog_device *wdd)
-+{
-+	struct bcm47xx_wdt *wdt = bcm47xx_wdt_get(wdd);
-+
-+	wdt->timer_set(wdt, 0);
-+
-+	return 0;
-+}
-+
-+static int bcm47xx_wdt_hard_set_timeout(struct watchdog_device *wdd,
-+					unsigned int new_time)
-+{
-+	struct bcm47xx_wdt *wdt = bcm47xx_wdt_get(wdd);
-+	u32 max_timer = wdt->max_timer_ms;
-+
-+	if (new_time < 1 || new_time > max_timer / 1000) {
-+		pr_warn("timeout value must be 1<=x<=%d, using %d\n",
-+			max_timer / 1000, new_time);
-+		return -EINVAL;
+ void bcma_core_chipcommon_early_init(struct bcma_drv_cc *cc)
+ {
+ 	if (cc->early_setup_done)
+diff --git a/drivers/bcma/main.c b/drivers/bcma/main.c
+index a971889..debd4f1 100644
+--- a/drivers/bcma/main.c
++++ b/drivers/bcma/main.c
+@@ -165,6 +165,12 @@ static int bcma_register_cores(struct bcma_bus *bus)
+ 	}
+ #endif
+ 
++	if (bus->hosttype == BCMA_HOSTTYPE_SOC) {
++		err = bcma_chipco_watchdog_register(&bus->drv_cc);
++		if (err)
++			bcma_err(bus, "Error registering watchdog driver\n");
 +	}
 +
-+	wdd->timeout = new_time;
-+	return 0;
-+}
-+
-+static struct watchdog_ops bcm47xx_wdt_hard_ops = {
-+	.owner		= THIS_MODULE,
-+	.start		= bcm47xx_wdt_hard_start,
-+	.stop		= bcm47xx_wdt_hard_stop,
-+	.ping		= bcm47xx_wdt_hard_keepalive,
-+	.set_timeout	= bcm47xx_wdt_hard_set_timeout,
-+};
-+
- static void bcm47xx_wdt_soft_timer_tick(unsigned long data)
- {
- 	struct bcm47xx_wdt *wdt = (struct bcm47xx_wdt *)data;
-@@ -133,15 +181,22 @@ static struct watchdog_ops bcm47xx_wdt_soft_ops = {
- static int __devinit bcm47xx_wdt_probe(struct platform_device *pdev)
- {
- 	int ret;
-+	bool soft;
- 	struct bcm47xx_wdt *wdt = dev_get_platdata(&pdev->dev);
- 
- 	if (!wdt)
- 		return -ENXIO;
- 
--	setup_timer(&wdt->soft_timer, bcm47xx_wdt_soft_timer_tick,
--		    (long unsigned int)wdt);
-+	soft = wdt->max_timer_ms < WDT_SOFTTIMER_THRESHOLD * 1000;
-+
-+	if (soft) {
-+		wdt->wdd.ops = &bcm47xx_wdt_soft_ops;
-+		setup_timer(&wdt->soft_timer, bcm47xx_wdt_soft_timer_tick,
-+			    (long unsigned int)wdt);
-+	} else {
-+		wdt->wdd.ops = &bcm47xx_wdt_hard_ops;
-+	}
- 
--	wdt->wdd.ops = &bcm47xx_wdt_soft_ops;
- 	wdt->wdd.info = &bcm47xx_wdt_info;
- 	wdt->wdd.timeout = WDT_DEFAULT_TIME;
- 	ret = wdt->wdd.ops->set_timeout(&wdt->wdd, timeout);
-@@ -159,14 +214,16 @@ static int __devinit bcm47xx_wdt_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto err_notifier;
- 
--	pr_info("BCM47xx Watchdog Timer enabled (%d seconds%s)\n",
--		timeout, nowayout ? ", nowayout" : "");
-+	dev_info(&pdev->dev, "BCM47xx Watchdog Timer enabled (%d seconds%s%s)\n",
-+		timeout, nowayout ? ", nowayout" : "",
-+		soft ? ", Software Timer" : "");
  	return 0;
- 
- err_notifier:
- 	unregister_reboot_notifier(&wdt->notifier);
- err_timer:
--	del_timer_sync(&wdt->soft_timer);
-+	if (soft)
-+		del_timer_sync(&wdt->soft_timer);
- 
- 	return ret;
  }
-diff --git a/include/linux/bcm47xx_wdt.h b/include/linux/bcm47xx_wdt.h
-index b94ac0e..b708786 100644
---- a/include/linux/bcm47xx_wdt.h
-+++ b/include/linux/bcm47xx_wdt.h
-@@ -10,6 +10,7 @@
- struct bcm47xx_wdt {
- 	u32 (*timer_set)(struct bcm47xx_wdt *, u32);
- 	u32 (*timer_set_ms)(struct bcm47xx_wdt *, u32);
-+	u32 max_timer_ms;
  
- 	void *driver_data;
+@@ -177,6 +183,8 @@ static void bcma_unregister_cores(struct bcma_bus *bus)
+ 		if (core->dev_registered)
+ 			device_unregister(&core->dev);
+ 	}
++	if (bus->hosttype == BCMA_HOSTTYPE_SOC)
++		platform_device_unregister(bus->drv_cc.watchdog);
+ }
  
+ int __devinit bcma_bus_register(struct bcma_bus *bus)
+diff --git a/include/linux/bcma/bcma_driver_chipcommon.h b/include/linux/bcma/bcma_driver_chipcommon.h
+index 2f9b014..e513591 100644
+--- a/include/linux/bcma/bcma_driver_chipcommon.h
++++ b/include/linux/bcma/bcma_driver_chipcommon.h
+@@ -1,6 +1,8 @@
+ #ifndef LINUX_BCMA_DRIVER_CC_H_
+ #define LINUX_BCMA_DRIVER_CC_H_
+ 
++#include <linux/platform_device.h>
++
+ /** ChipCommon core registers. **/
+ #define BCMA_CC_ID			0x0000
+ #define  BCMA_CC_ID_ID			0x0000FFFF
+@@ -571,6 +573,7 @@ struct bcma_drv_cc {
+ 	struct bcma_serial_port serial_ports[4];
+ #endif /* CONFIG_BCMA_DRIVER_MIPS */
+ 	u32 ticks_per_ms;
++	struct platform_device *watchdog;
+ };
+ 
+ /* Register access */
 -- 
 1.7.10.4
 
