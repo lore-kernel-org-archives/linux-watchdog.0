@@ -1,7 +1,7 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from server19320154104.serverpool.info ([193.201.54.104]:36735 "EHLO
+Received: from server19320154104.serverpool.info ([193.201.54.104]:36741 "EHLO
 	hauke-m.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752615Ab2KXWdJ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	id S1752635Ab2KXWdJ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
 	Sat, 24 Nov 2012 17:33:09 -0500
 From: Hauke Mehrtens <hauke@hauke-m.de>
 To: linville@tuxdriver.com
@@ -9,108 +9,83 @@ Cc: linux-wireless@vger.kernel.org, wim@iguana.be,
 	linux-watchdog@vger.kernel.org, castet.matthieu@free.fr,
 	biblbroks@sezampro.rs, m@bues.ch, zajec5@gmail.com,
 	linux-mips@linux-mips.org, Hauke Mehrtens <hauke@hauke-m.de>
-Subject: [PATCH 03/15] watchdog: bcm47xx_wdt.c: rename ops methods
-Date: Sat, 24 Nov 2012 23:24:03 +0100
-Message-Id: <1353795855-22236-4-git-send-email-hauke@hauke-m.de>
+Subject: [PATCH 07/15] bcma: set the pmu watchdog if available
+Date: Sat, 24 Nov 2012 23:24:07 +0100
+Message-Id: <1353795855-22236-8-git-send-email-hauke@hauke-m.de>
 In-Reply-To: <1353795855-22236-1-git-send-email-hauke@hauke-m.de>
 References: <1353795855-22236-1-git-send-email-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Rename the methods registered to struct watchdog_ops in order to add an
-other struct watchdog_ops using different ops in the next patch.
+Mostly all bcma based devices have a PMU and the PMU watchdog should be
+used and not the old one in chip common. This patch also calculates the
+maximal number the watchdog could be set to.
 
 Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
 ---
- drivers/watchdog/bcm47xx_wdt.c |   30 +++++++++++++++---------------
- 1 file changed, 15 insertions(+), 15 deletions(-)
+ drivers/bcma/driver_chipcommon.c |   42 ++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 40 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/bcm47xx_wdt.c b/drivers/watchdog/bcm47xx_wdt.c
-index cf1191b..66f2d2b 100644
---- a/drivers/watchdog/bcm47xx_wdt.c
-+++ b/drivers/watchdog/bcm47xx_wdt.c
-@@ -49,7 +49,7 @@ static inline struct bcm47xx_wdt *bcm47xx_wdt_get(struct watchdog_device *wdd)
- 	return container_of(wdd, struct bcm47xx_wdt, wdd);
+diff --git a/drivers/bcma/driver_chipcommon.c b/drivers/bcma/driver_chipcommon.c
+index ef68553..7c132e5 100644
+--- a/drivers/bcma/driver_chipcommon.c
++++ b/drivers/bcma/driver_chipcommon.c
+@@ -31,6 +31,28 @@ static u32 bcma_chipco_alp_clock(struct bcma_drv_cc *cc)
+ 	return 20000000;
  }
  
--static void bcm47xx_timer_tick(unsigned long data)
-+static void bcm47xx_wdt_soft_timer_tick(unsigned long data)
++static u32 bcma_chipco_watchdog_get_max_timer(struct bcma_drv_cc *cc)
++{
++	struct bcma_bus *bus = cc->core->bus;
++	u32 nb;
++
++	if (cc->capabilities & BCMA_CC_CAP_PMU) {
++		if (bus->chipinfo.id == BCMA_CHIP_ID_BCM4706)
++			nb = 32;
++		else if (cc->core->id.rev < 26)
++			nb = 16;
++		else
++			nb = (cc->core->id.rev >= 37) ? 32 : 24;
++	} else {
++		nb = 28;
++	}
++	if (nb == 32)
++		return 0xffffffff;
++	else
++		return (1 << nb) - 1;
++}
++
++
+ void bcma_core_chipcommon_early_init(struct bcma_drv_cc *cc)
  {
- 	struct bcm47xx_wdt *wdt = (struct bcm47xx_wdt *)data;
- 	u32 next_tick = min(wdt->wdd.timeout * 1000, wdt->max_timer_ms);
-@@ -62,7 +62,7 @@ static void bcm47xx_timer_tick(unsigned long data)
- 	}
- }
- 
--static int bcm47xx_wdt_keepalive(struct watchdog_device *wdd)
-+static int bcm47xx_wdt_soft_keepalive(struct watchdog_device *wdd)
+ 	if (cc->early_setup_done)
+@@ -85,8 +107,24 @@ void bcma_core_chipcommon_init(struct bcma_drv_cc *cc)
+ /* Set chip watchdog reset timer to fire in 'ticks' backplane cycles */
+ void bcma_chipco_watchdog_timer_set(struct bcma_drv_cc *cc, u32 ticks)
  {
- 	struct bcm47xx_wdt *wdt = bcm47xx_wdt_get(wdd);
- 
-@@ -71,17 +71,17 @@ static int bcm47xx_wdt_keepalive(struct watchdog_device *wdd)
- 	return 0;
+-	/* instant NMI */
+-	bcma_cc_write32(cc, BCMA_CC_WATCHDOG, ticks);
++	u32 maxt;
++	enum bcma_clkmode clkmode;
++
++	maxt = bcma_chipco_watchdog_get_max_timer(cc);
++	if (cc->capabilities & BCMA_CC_CAP_PMU) {
++		if (ticks == 1)
++			ticks = 2;
++		else if (ticks > maxt)
++			ticks = maxt;
++		bcma_cc_write32(cc, BCMA_CC_PMU_WATCHDOG, ticks);
++	} else {
++		clkmode = ticks ? BCMA_CLKMODE_FAST : BCMA_CLKMODE_DYNAMIC;
++		bcma_core_set_clockmode(cc->core, clkmode);
++		if (ticks > maxt)
++			ticks = maxt;
++		/* instant NMI */
++		bcma_cc_write32(cc, BCMA_CC_WATCHDOG, ticks);
++	}
  }
  
--static int bcm47xx_wdt_start(struct watchdog_device *wdd)
-+static int bcm47xx_wdt_soft_start(struct watchdog_device *wdd)
- {
- 	struct bcm47xx_wdt *wdt = bcm47xx_wdt_get(wdd);
- 
--	bcm47xx_wdt_keepalive(wdd);
--	bcm47xx_timer_tick((unsigned long)wdt);
-+	bcm47xx_wdt_soft_keepalive(wdd);
-+	bcm47xx_wdt_soft_timer_tick((unsigned long)wdt);
- 
- 	return 0;
- }
- 
--static int bcm47xx_wdt_stop(struct watchdog_device *wdd)
-+static int bcm47xx_wdt_soft_stop(struct watchdog_device *wdd)
- {
- 	struct bcm47xx_wdt *wdt = bcm47xx_wdt_get(wdd);
- 
-@@ -91,8 +91,8 @@ static int bcm47xx_wdt_stop(struct watchdog_device *wdd)
- 	return 0;
- }
- 
--static int bcm47xx_wdt_set_timeout(struct watchdog_device *wdd,
--				   unsigned int new_time)
-+static int bcm47xx_wdt_soft_set_timeout(struct watchdog_device *wdd,
-+					unsigned int new_time)
- {
- 	if (new_time < 1 || new_time > WDT_MAX_TIME) {
- 		pr_warn("timeout value must be 1<=x<=%d, using %d\n",
-@@ -122,12 +122,12 @@ static int bcm47xx_wdt_notify_sys(struct notifier_block *this,
- 	return NOTIFY_DONE;
- }
- 
--static struct watchdog_ops bcm47xx_wdt_ops = {
-+static struct watchdog_ops bcm47xx_wdt_soft_ops = {
- 	.owner		= THIS_MODULE,
--	.start		= bcm47xx_wdt_start,
--	.stop		= bcm47xx_wdt_stop,
--	.ping		= bcm47xx_wdt_keepalive,
--	.set_timeout	= bcm47xx_wdt_set_timeout,
-+	.start		= bcm47xx_wdt_soft_start,
-+	.stop		= bcm47xx_wdt_soft_stop,
-+	.ping		= bcm47xx_wdt_soft_keepalive,
-+	.set_timeout	= bcm47xx_wdt_soft_set_timeout,
- };
- 
- static int __devinit bcm47xx_wdt_probe(struct platform_device *pdev)
-@@ -138,10 +138,10 @@ static int __devinit bcm47xx_wdt_probe(struct platform_device *pdev)
- 	if (!wdt)
- 		return -ENXIO;
- 
--	setup_timer(&wdt->soft_timer, bcm47xx_timer_tick,
-+	setup_timer(&wdt->soft_timer, bcm47xx_wdt_soft_timer_tick,
- 		    (long unsigned int)wdt);
- 
--	wdt->wdd.ops = &bcm47xx_wdt_ops;
-+	wdt->wdd.ops = &bcm47xx_wdt_soft_ops;
- 	wdt->wdd.info = &bcm47xx_wdt_info;
- 	wdt->wdd.timeout = WDT_DEFAULT_TIME;
- 	ret = wdt->wdd.ops->set_timeout(&wdt->wdd, timeout);
+ void bcma_chipco_irq_mask(struct bcma_drv_cc *cc, u32 mask, u32 value)
 -- 
 1.7.10.4
 
