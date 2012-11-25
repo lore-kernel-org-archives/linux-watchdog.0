@@ -1,44 +1,32 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from server19320154104.serverpool.info ([193.201.54.104]:37625 "EHLO
-	hauke-m.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751390Ab2KYM1z (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 25 Nov 2012 07:27:55 -0500
-Message-ID: <50B20EBB.3080204@hauke-m.de>
-Date: Sun, 25 Nov 2012 13:27:39 +0100
-From: Hauke Mehrtens <hauke@hauke-m.de>
-MIME-Version: 1.0
-To: Sergei Shtylyov <sshtylyov@mvista.com>
-CC: linville@tuxdriver.com, linux-wireless@vger.kernel.org,
-	wim@iguana.be, linux-watchdog@vger.kernel.org,
-	castet.matthieu@free.fr, biblbroks@sezampro.rs, m@bues.ch,
-	zajec5@gmail.com, linux-mips@linux-mips.org
-Subject: Re: [PATCH 04/15] watchdog: bcm47xx_wdt.c: rename wdt_timeout to
- timeout
-References: <1353795855-22236-1-git-send-email-hauke@hauke-m.de> <1353795855-22236-5-git-send-email-hauke@hauke-m.de> <50B14BD6.8050302@mvista.com>
-In-Reply-To: <50B14BD6.8050302@mvista.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from fallback8.mail.ru ([94.100.176.136]:60253 "EHLO
+	fallback8.mail.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752964Ab2KYNhu (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Sun, 25 Nov 2012 08:37:50 -0500
+Received: from smtp44.i.mail.ru (smtp44.i.mail.ru [94.100.177.104])
+	by fallback8.mail.ru (mPOP.Fallback_MX) with ESMTP id 8DF8DDF6043
+	for <linux-watchdog@vger.kernel.org>; Sun, 25 Nov 2012 17:25:12 +0400 (MSK)
+Date: Sun, 25 Nov 2012 17:24:47 +0400
+From: Alexander Shiyan <shc_work@mail.ru>
+To: linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Subject: INTEL_SCU_WATCHDOG is orphaned
+Message-Id: <20121125172447.6baf4115522107d5396bc780@mail.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 11/24/2012 11:36 PM, Sergei Shtylyov wrote:
-> Hello.
-> 
-> On 25-11-2012 2:24, Hauke Mehrtens wrote:
-> 
->> Rename rename
-> 
->    Once it enough. :-)
-> 
->> wdt_timeout
-> 
->    'wdt_time', you mean?
-> 
->> to timeout to name it like the other watchdog
->> driver do it.
-> 
->    It's not the only change you're doing.
-> 
-Thanks for spotting this, I will change the changelog.
+Hello.
 
-Hauke
+Kernel symbol X86_MRST has been removed from the kernel.
+INTEL_SCU_WATCHDOG driver can never be compiled due dependence of X86_MRST
+which remained in the drivers/watchdog/Kconfig.
+Unfortunately, I do not know the right decision on this issue and just want
+to draw the attention of developers to it.
+Thanks!
+
+-- 
+Alexander Shiyan <shc_work@mail.ru>
