@@ -1,73 +1,294 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from devils.ext.ti.com ([198.47.26.153]:53995 "EHLO
-	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755385Ab2KZVls (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 26 Nov 2012 16:41:48 -0500
-From: Murali Karicheri <m-karicheri2@ti.com>
-To: <grant.likely@secretlab.ca>, <rob.herring@calxeda.com>,
-	<rob@landley.net>, <wim@iguana.be>,
-	<devicetree-discuss@lists.ozlabs.org>, <linux-doc@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
-	<linux-keystone@list.ti.com>
-CC: Murali Karicheri <m-karicheri2@ti.com>
-Subject: [PATCH] watchdog: davinci_wdt: add OF support
-Date: Mon, 26 Nov 2012 16:41:35 -0500
-Message-ID: <1353966095-23331-1-git-send-email-m-karicheri2@ti.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+Received: from server19320154104.serverpool.info ([193.201.54.104]:42500 "EHLO
+	hauke-m.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754827Ab2K0A0B (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 26 Nov 2012 19:26:01 -0500
+From: Hauke Mehrtens <hauke@hauke-m.de>
+To: linville@tuxdriver.com, wim@iguana.be
+Cc: linux-wireless@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	castet.matthieu@free.fr, biblbroks@sezampro.rs, m@bues.ch,
+	zajec5@gmail.com, linux-mips@linux-mips.org,
+	Hauke Mehrtens <hauke@hauke-m.de>
+Subject: [PATCH v2 01/15] watchdog: bcm47xx_wdt.c: convert to watchdog core api
+Date: Tue, 27 Nov 2012 01:25:11 +0100
+Message-Id: <1353975925-32056-2-git-send-email-hauke@hauke-m.de>
+In-Reply-To: <1353975925-32056-1-git-send-email-hauke@hauke-m.de>
+References: <1353975925-32056-1-git-send-email-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This adds OF support for davinci_wdt driver.
+Convert the bcm47xx_wdt.c driver to the new watchdog core api.
 
-Signed-off-by: Murali Karicheri <m-karicheri2@ti.com>
+The nowayout parameter is now added unconditionally to the module.
+
+Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
 ---
- .../devicetree/bindings/watchdog/davinci-wdt.txt   |   12 ++++++++++++
- drivers/watchdog/davinci_wdt.c                     |    7 +++++++
- 2 files changed, 19 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/davinci-wdt.txt
+ drivers/watchdog/Kconfig       |    1 +
+ drivers/watchdog/bcm47xx_wdt.c |  152 ++++++----------------------------------
+ 2 files changed, 23 insertions(+), 130 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/davinci-wdt.txt b/Documentation/devicetree/bindings/watchdog/davinci-wdt.txt
-new file mode 100644
-index 0000000..75558cc
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/davinci-wdt.txt
-@@ -0,0 +1,12 @@
-+DaVinci Watchdog Timer (WDT) Controller
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index ad1bb93..9f21356 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -959,6 +959,7 @@ config ATH79_WDT
+ config BCM47XX_WDT
+ 	tristate "Broadcom BCM47xx Watchdog Timer"
+ 	depends on BCM47XX
++	select WATCHDOG_CORE
+ 	help
+ 	  Hardware driver for the Broadcom BCM47xx Watchdog Timer.
+ 
+diff --git a/drivers/watchdog/bcm47xx_wdt.c b/drivers/watchdog/bcm47xx_wdt.c
+index bc0e91e..4c520d6 100644
+--- a/drivers/watchdog/bcm47xx_wdt.c
++++ b/drivers/watchdog/bcm47xx_wdt.c
+@@ -14,15 +14,12 @@
+ 
+ #include <linux/bitops.h>
+ #include <linux/errno.h>
+-#include <linux/fs.h>
+ #include <linux/init.h>
+ #include <linux/kernel.h>
+-#include <linux/miscdevice.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/reboot.h>
+ #include <linux/types.h>
+-#include <linux/uaccess.h>
+ #include <linux/watchdog.h>
+ #include <linux/timer.h>
+ #include <linux/jiffies.h>
+@@ -41,15 +38,11 @@ module_param(wdt_time, int, 0);
+ MODULE_PARM_DESC(wdt_time, "Watchdog time in seconds. (default="
+ 				__MODULE_STRING(WDT_DEFAULT_TIME) ")");
+ 
+-#ifdef CONFIG_WATCHDOG_NOWAYOUT
+ module_param(nowayout, bool, 0);
+ MODULE_PARM_DESC(nowayout,
+ 		"Watchdog cannot be stopped once started (default="
+ 				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+-#endif
+ 
+-static unsigned long bcm47xx_wdt_busy;
+-static char expect_release;
+ static struct timer_list wdt_timer;
+ static atomic_t ticks;
+ 
+@@ -97,29 +90,31 @@ static void bcm47xx_timer_tick(unsigned long unused)
+ 	}
+ }
+ 
+-static inline void bcm47xx_wdt_pet(void)
++static int bcm47xx_wdt_keepalive(struct watchdog_device *wdd)
+ {
+ 	atomic_set(&ticks, wdt_time);
 +
-+Required properties:
-+- compatible : Should be "ti,davinci-wdt"
-+- reg : Should contain WDT registers location and length
++	return 0;
+ }
+ 
+-static void bcm47xx_wdt_start(void)
++static int bcm47xx_wdt_start(struct watchdog_device *wdd)
+ {
+ 	bcm47xx_wdt_pet();
+ 	bcm47xx_timer_tick(0);
 +
-+Examples:
-+
-+wdt: wdt@2320000 {
-+	compatible = "ti,davinci-wdt";
-+	reg = <0x02320000 0x80>;
-+};
-diff --git a/drivers/watchdog/davinci_wdt.c b/drivers/watchdog/davinci_wdt.c
-index eb44b03..c73e166 100644
---- a/drivers/watchdog/davinci_wdt.c
-+++ b/drivers/watchdog/davinci_wdt.c
-@@ -262,10 +262,17 @@ static int __devexit davinci_wdt_remove(struct platform_device *pdev)
++	return 0;
+ }
+ 
+-static void bcm47xx_wdt_pause(void)
++static int bcm47xx_wdt_stop(struct watchdog_device *wdd)
+ {
+ 	del_timer_sync(&wdt_timer);
+ 	bcm47xx_wdt_hw_stop();
+-}
+ 
+-static void bcm47xx_wdt_stop(void)
+-{
+-	bcm47xx_wdt_pause();
++	return 0;
+ }
+ 
+-static int bcm47xx_wdt_settimeout(int new_time)
++static int bcm47xx_wdt_set_timeout(struct watchdog_device *wdd,
++				   unsigned int new_time)
+ {
+ 	if ((new_time <= 0) || (new_time > WDT_MAX_TIME))
+ 		return -EINVAL;
+@@ -128,51 +123,6 @@ static int bcm47xx_wdt_settimeout(int new_time)
  	return 0;
  }
  
-+static const struct of_device_id davinci_wdt_of_match[] = {
-+	{ .compatible = "ti,davinci-wdt", },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, davinci_wdt_of_match);
-+
- static struct platform_driver platform_wdt_driver = {
- 	.driver = {
- 		.name = "watchdog",
- 		.owner	= THIS_MODULE,
-+		.of_match_table = davinci_wdt_of_match,
- 	},
- 	.probe = davinci_wdt_probe,
- 	.remove = __devexit_p(davinci_wdt_remove),
+-static int bcm47xx_wdt_open(struct inode *inode, struct file *file)
+-{
+-	if (test_and_set_bit(0, &bcm47xx_wdt_busy))
+-		return -EBUSY;
+-
+-	bcm47xx_wdt_start();
+-	return nonseekable_open(inode, file);
+-}
+-
+-static int bcm47xx_wdt_release(struct inode *inode, struct file *file)
+-{
+-	if (expect_release == 42) {
+-		bcm47xx_wdt_stop();
+-	} else {
+-		pr_crit("Unexpected close, not stopping watchdog!\n");
+-		bcm47xx_wdt_start();
+-	}
+-
+-	clear_bit(0, &bcm47xx_wdt_busy);
+-	expect_release = 0;
+-	return 0;
+-}
+-
+-static ssize_t bcm47xx_wdt_write(struct file *file, const char __user *data,
+-				size_t len, loff_t *ppos)
+-{
+-	if (len) {
+-		if (!nowayout) {
+-			size_t i;
+-
+-			expect_release = 0;
+-
+-			for (i = 0; i != len; i++) {
+-				char c;
+-				if (get_user(c, data + i))
+-					return -EFAULT;
+-				if (c == 'V')
+-					expect_release = 42;
+-			}
+-		}
+-		bcm47xx_wdt_pet();
+-	}
+-	return len;
+-}
+-
+ static const struct watchdog_info bcm47xx_wdt_info = {
+ 	.identity	= DRV_NAME,
+ 	.options	= WDIOF_SETTIMEOUT |
+@@ -180,80 +130,25 @@ static const struct watchdog_info bcm47xx_wdt_info = {
+ 				WDIOF_MAGICCLOSE,
+ };
+ 
+-static long bcm47xx_wdt_ioctl(struct file *file,
+-					unsigned int cmd, unsigned long arg)
+-{
+-	void __user *argp = (void __user *)arg;
+-	int __user *p = argp;
+-	int new_value, retval = -EINVAL;
+-
+-	switch (cmd) {
+-	case WDIOC_GETSUPPORT:
+-		return copy_to_user(argp, &bcm47xx_wdt_info,
+-				sizeof(bcm47xx_wdt_info)) ? -EFAULT : 0;
+-
+-	case WDIOC_GETSTATUS:
+-	case WDIOC_GETBOOTSTATUS:
+-		return put_user(0, p);
+-
+-	case WDIOC_SETOPTIONS:
+-		if (get_user(new_value, p))
+-			return -EFAULT;
+-
+-		if (new_value & WDIOS_DISABLECARD) {
+-			bcm47xx_wdt_stop();
+-			retval = 0;
+-		}
+-
+-		if (new_value & WDIOS_ENABLECARD) {
+-			bcm47xx_wdt_start();
+-			retval = 0;
+-		}
+-
+-		return retval;
+-
+-	case WDIOC_KEEPALIVE:
+-		bcm47xx_wdt_pet();
+-		return 0;
+-
+-	case WDIOC_SETTIMEOUT:
+-		if (get_user(new_value, p))
+-			return -EFAULT;
+-
+-		if (bcm47xx_wdt_settimeout(new_value))
+-			return -EINVAL;
+-
+-		bcm47xx_wdt_pet();
+-
+-	case WDIOC_GETTIMEOUT:
+-		return put_user(wdt_time, p);
+-
+-	default:
+-		return -ENOTTY;
+-	}
+-}
+-
+ static int bcm47xx_wdt_notify_sys(struct notifier_block *this,
+-	unsigned long code, void *unused)
++				  unsigned long code, void *unused)
+ {
+ 	if (code == SYS_DOWN || code == SYS_HALT)
+ 		bcm47xx_wdt_stop();
+ 	return NOTIFY_DONE;
+ }
+ 
+-static const struct file_operations bcm47xx_wdt_fops = {
++static struct watchdog_ops bcm47xx_wdt_ops = {
+ 	.owner		= THIS_MODULE,
+-	.llseek		= no_llseek,
+-	.unlocked_ioctl	= bcm47xx_wdt_ioctl,
+-	.open		= bcm47xx_wdt_open,
+-	.release	= bcm47xx_wdt_release,
+-	.write		= bcm47xx_wdt_write,
++	.start		= bcm47xx_wdt_start,
++	.stop		= bcm47xx_wdt_stop,
++	.ping		= bcm47xx_wdt_keepalive,
++	.set_timeout	= bcm47xx_wdt_set_timeout,
+ };
+ 
+-static struct miscdevice bcm47xx_wdt_miscdev = {
+-	.minor		= WATCHDOG_MINOR,
+-	.name		= "watchdog",
+-	.fops		= &bcm47xx_wdt_fops,
++static struct watchdog_device bcm47xx_wdt_wdd = {
++	.info		= &bcm47xx_wdt_info,
++	.ops		= &bcm47xx_wdt_ops,
+ };
+ 
+ static struct notifier_block bcm47xx_wdt_notifier = {
+@@ -274,12 +169,13 @@ static int __init bcm47xx_wdt_init(void)
+ 		pr_info("wdt_time value must be 0 < wdt_time < %d, using %d\n",
+ 			(WDT_MAX_TIME + 1), wdt_time);
+ 	}
++	watchdog_set_nowayout(&bcm47xx_wdt_wdd, nowayout);
+ 
+ 	ret = register_reboot_notifier(&bcm47xx_wdt_notifier);
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = misc_register(&bcm47xx_wdt_miscdev);
++	ret = watchdog_register_device(&bcm47xx_wdt_wdd);
+ 	if (ret) {
+ 		unregister_reboot_notifier(&bcm47xx_wdt_notifier);
+ 		return ret;
+@@ -292,10 +188,7 @@ static int __init bcm47xx_wdt_init(void)
+ 
+ static void __exit bcm47xx_wdt_exit(void)
+ {
+-	if (!nowayout)
+-		bcm47xx_wdt_stop();
+-
+-	misc_deregister(&bcm47xx_wdt_miscdev);
++	watchdog_unregister_device(&bcm47xx_wdt_wdd);
+ 
+ 	unregister_reboot_notifier(&bcm47xx_wdt_notifier);
+ }
+@@ -306,4 +199,3 @@ module_exit(bcm47xx_wdt_exit);
+ MODULE_AUTHOR("Aleksandar Radovanovic");
+ MODULE_DESCRIPTION("Watchdog driver for Broadcom BCM47xx");
+ MODULE_LICENSE("GPL");
+-MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
 -- 
-1.7.9.5
+1.7.10.4
 
