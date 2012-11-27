@@ -1,135 +1,88 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from server19320154104.serverpool.info ([193.201.54.104]:42605 "EHLO
+Received: from server19320154104.serverpool.info ([193.201.54.104]:42616 "EHLO
 	hauke-m.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932792Ab2K0A01 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 26 Nov 2012 19:26:27 -0500
+	id S932713Ab2K0A0b (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 26 Nov 2012 19:26:31 -0500
 From: Hauke Mehrtens <hauke@hauke-m.de>
 To: linville@tuxdriver.com, wim@iguana.be
 Cc: linux-wireless@vger.kernel.org, linux-watchdog@vger.kernel.org,
 	castet.matthieu@free.fr, biblbroks@sezampro.rs, m@bues.ch,
 	zajec5@gmail.com, linux-mips@linux-mips.org,
 	Hauke Mehrtens <hauke@hauke-m.de>
-Subject: [PATCH v2 09/15] bcma: register watchdog driver
-Date: Tue, 27 Nov 2012 01:25:19 +0100
-Message-Id: <1353975925-32056-10-git-send-email-hauke@hauke-m.de>
+Subject: [PATCH v2 11/15] ssb: set the PMU watchdog if available
+Date: Tue, 27 Nov 2012 01:25:21 +0100
+Message-Id: <1353975925-32056-12-git-send-email-hauke@hauke-m.de>
 In-Reply-To: <1353975925-32056-1-git-send-email-hauke@hauke-m.de>
 References: <1353975925-32056-1-git-send-email-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Register the watchdog driver to the system if this is a SoC. Using the
-watchdog on a non SoC device, like a PCIe card, will make the PCIe
-card die when the timeout expired, but starting it again is not
-supported by bcma.
+Some ssb based devices have a PMU and the PMU watchdog register should
+be used instead of the register in the chip common part, if the device
+has a PMU. This patch also calculates the maximal number the watchdog
+could be set to.
 
 Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
 ---
- drivers/bcma/bcma_private.h                 |    2 ++
- drivers/bcma/driver_chipcommon.c            |   22 ++++++++++++++++++++++
- drivers/bcma/main.c                         |    8 ++++++++
- include/linux/bcma/bcma_driver_chipcommon.h |    3 +++
- 4 files changed, 35 insertions(+)
+ drivers/ssb/driver_chipcommon.c |   38 ++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 36 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/bcma/bcma_private.h b/drivers/bcma/bcma_private.h
-index 169fc58..bcb830e 100644
---- a/drivers/bcma/bcma_private.h
-+++ b/drivers/bcma/bcma_private.h
-@@ -84,6 +84,8 @@ extern void __exit bcma_host_pci_exit(void);
- /* driver_pci.c */
- u32 bcma_pcie_read(struct bcma_drv_pci *pc, u32 address);
- 
-+extern int bcma_chipco_watchdog_register(struct bcma_drv_cc *cc);
-+
- #ifdef CONFIG_BCMA_DRIVER_PCI_HOSTMODE
- bool __devinit bcma_core_pci_is_in_hostmode(struct bcma_drv_pci *pc);
- void __devinit bcma_core_pci_hostmode_init(struct bcma_drv_pci *pc);
-diff --git a/drivers/bcma/driver_chipcommon.c b/drivers/bcma/driver_chipcommon.c
-index 1172226..d017f25 100644
---- a/drivers/bcma/driver_chipcommon.c
-+++ b/drivers/bcma/driver_chipcommon.c
-@@ -12,6 +12,7 @@
- #include "bcma_private.h"
- #include <linux/bcm47xx_wdt.h>
- #include <linux/export.h>
-+#include <linux/platform_device.h>
- #include <linux/bcma/bcma.h>
- 
- static inline u32 bcma_cc_write32_masked(struct bcma_drv_cc *cc, u16 offset,
-@@ -87,6 +88,27 @@ static int bcma_chipco_watchdog_ticks_per_ms(struct bcma_drv_cc *cc)
- 	}
+diff --git a/drivers/ssb/driver_chipcommon.c b/drivers/ssb/driver_chipcommon.c
+index 603b630..6e080f6 100644
+--- a/drivers/ssb/driver_chipcommon.c
++++ b/drivers/ssb/driver_chipcommon.c
+@@ -288,6 +288,24 @@ static u32 ssb_chipco_alp_clock(struct ssb_chipcommon *cc)
+ 	return 20000000;
  }
  
-+int bcma_chipco_watchdog_register(struct bcma_drv_cc *cc)
++static u32 ssb_chipco_watchdog_get_max_timer(struct ssb_chipcommon *cc)
 +{
-+	struct bcm47xx_wdt wdt = {};
-+	struct platform_device *pdev;
++	u32 nb;
 +
-+	wdt.driver_data = cc;
-+	wdt.timer_set = bcma_chipco_watchdog_timer_set_wdt;
-+	wdt.timer_set_ms = bcma_chipco_watchdog_timer_set_ms_wdt;
-+	wdt.max_timer_ms = bcma_chipco_watchdog_get_max_timer(cc) / cc->ticks_per_ms;
-+
-+	pdev = platform_device_register_data(NULL, "bcm47xx-wdt",
-+					     cc->core->bus->num, &wdt,
-+					     sizeof(wdt));
-+	if (IS_ERR(pdev))
-+		return PTR_ERR(pdev);
-+
-+	cc->watchdog = pdev;
-+
-+	return 0;
++	if (cc->capabilities & SSB_CHIPCO_CAP_PMU) {
++		if (cc->dev->id.revision < 26)
++			nb = 16;
++		else
++			nb = (cc->dev->id.revision >= 37) ? 32 : 24;
++	} else {
++		nb = 28;
++	}
++	if (nb == 32)
++		return 0xffffffff;
++	else
++		return (1 << nb) - 1;
 +}
 +
- void bcma_core_chipcommon_early_init(struct bcma_drv_cc *cc)
+ void ssb_chipcommon_init(struct ssb_chipcommon *cc)
  {
- 	if (cc->early_setup_done)
-diff --git a/drivers/bcma/main.c b/drivers/bcma/main.c
-index a971889..debd4f1 100644
---- a/drivers/bcma/main.c
-+++ b/drivers/bcma/main.c
-@@ -165,6 +165,12 @@ static int bcma_register_cores(struct bcma_bus *bus)
- 	}
- #endif
- 
-+	if (bus->hosttype == BCMA_HOSTTYPE_SOC) {
-+		err = bcma_chipco_watchdog_register(&bus->drv_cc);
-+		if (err)
-+			bcma_err(bus, "Error registering watchdog driver\n");
+ 	if (!cc->dev)
+@@ -405,8 +423,24 @@ void ssb_chipco_timing_init(struct ssb_chipcommon *cc,
+ /* Set chip watchdog reset timer to fire in 'ticks' backplane cycles */
+ void ssb_chipco_watchdog_timer_set(struct ssb_chipcommon *cc, u32 ticks)
+ {
+-	/* instant NMI */
+-	chipco_write32(cc, SSB_CHIPCO_WATCHDOG, ticks);
++	u32 maxt;
++	enum ssb_clkmode clkmode;
++
++	maxt = ssb_chipco_watchdog_get_max_timer(cc);
++	if (cc->capabilities & SSB_CHIPCO_CAP_PMU) {
++		if (ticks == 1)
++			ticks = 2;
++		else if (ticks > maxt)
++			ticks = maxt;
++		chipco_write32(cc, SSB_CHIPCO_PMU_WATCHDOG, ticks);
++	} else {
++		clkmode = ticks ? SSB_CLKMODE_FAST : SSB_CLKMODE_DYNAMIC;
++		ssb_chipco_set_clockmode(cc, clkmode);
++		if (ticks > maxt)
++			ticks = maxt;
++		/* instant NMI */
++		chipco_write32(cc, SSB_CHIPCO_WATCHDOG, ticks);
 +	}
-+
- 	return 0;
  }
  
-@@ -177,6 +183,8 @@ static void bcma_unregister_cores(struct bcma_bus *bus)
- 		if (core->dev_registered)
- 			device_unregister(&core->dev);
- 	}
-+	if (bus->hosttype == BCMA_HOSTTYPE_SOC)
-+		platform_device_unregister(bus->drv_cc.watchdog);
- }
- 
- int __devinit bcma_bus_register(struct bcma_bus *bus)
-diff --git a/include/linux/bcma/bcma_driver_chipcommon.h b/include/linux/bcma/bcma_driver_chipcommon.h
-index 2f9b014..e513591 100644
---- a/include/linux/bcma/bcma_driver_chipcommon.h
-+++ b/include/linux/bcma/bcma_driver_chipcommon.h
-@@ -1,6 +1,8 @@
- #ifndef LINUX_BCMA_DRIVER_CC_H_
- #define LINUX_BCMA_DRIVER_CC_H_
- 
-+#include <linux/platform_device.h>
-+
- /** ChipCommon core registers. **/
- #define BCMA_CC_ID			0x0000
- #define  BCMA_CC_ID_ID			0x0000FFFF
-@@ -571,6 +573,7 @@ struct bcma_drv_cc {
- 	struct bcma_serial_port serial_ports[4];
- #endif /* CONFIG_BCMA_DRIVER_MIPS */
- 	u32 ticks_per_ms;
-+	struct platform_device *watchdog;
- };
- 
- /* Register access */
+ void ssb_chipco_irq_mask(struct ssb_chipcommon *cc, u32 mask, u32 value)
 -- 
 1.7.10.4
 
