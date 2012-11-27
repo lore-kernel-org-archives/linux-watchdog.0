@@ -1,88 +1,114 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from server19320154104.serverpool.info ([193.201.54.104]:42616 "EHLO
+Received: from server19320154104.serverpool.info ([193.201.54.104]:42628 "EHLO
 	hauke-m.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932713Ab2K0A0b (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 26 Nov 2012 19:26:31 -0500
+	id S932713Ab2K0A0d (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 26 Nov 2012 19:26:33 -0500
 From: Hauke Mehrtens <hauke@hauke-m.de>
 To: linville@tuxdriver.com, wim@iguana.be
 Cc: linux-wireless@vger.kernel.org, linux-watchdog@vger.kernel.org,
 	castet.matthieu@free.fr, biblbroks@sezampro.rs, m@bues.ch,
 	zajec5@gmail.com, linux-mips@linux-mips.org,
 	Hauke Mehrtens <hauke@hauke-m.de>
-Subject: [PATCH v2 11/15] ssb: set the PMU watchdog if available
-Date: Tue, 27 Nov 2012 01:25:21 +0100
-Message-Id: <1353975925-32056-12-git-send-email-hauke@hauke-m.de>
+Subject: [PATCH v2 10/15] ssb: get alp clock from devices with PMU
+Date: Tue, 27 Nov 2012 01:25:20 +0100
+Message-Id: <1353975925-32056-11-git-send-email-hauke@hauke-m.de>
 In-Reply-To: <1353975925-32056-1-git-send-email-hauke@hauke-m.de>
 References: <1353975925-32056-1-git-send-email-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Some ssb based devices have a PMU and the PMU watchdog register should
-be used instead of the register in the chip common part, if the device
-has a PMU. This patch also calculates the maximal number the watchdog
-could be set to.
+If there is a PMU in the device, get the alp clock from that part and
+do not assume 20000000.
 
 Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
 ---
- drivers/ssb/driver_chipcommon.c |   38 ++++++++++++++++++++++++++++++++++++--
- 1 file changed, 36 insertions(+), 2 deletions(-)
+ drivers/ssb/driver_chipcommon.c     |   15 +++++++++------
+ drivers/ssb/driver_chipcommon_pmu.c |   27 +++++++++++++++++++++++++++
+ drivers/ssb/ssb_private.h           |    1 +
+ 3 files changed, 37 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/ssb/driver_chipcommon.c b/drivers/ssb/driver_chipcommon.c
-index 603b630..6e080f6 100644
+index e9d2ca1..603b630 100644
 --- a/drivers/ssb/driver_chipcommon.c
 +++ b/drivers/ssb/driver_chipcommon.c
-@@ -288,6 +288,24 @@ static u32 ssb_chipco_alp_clock(struct ssb_chipcommon *cc)
- 	return 20000000;
+@@ -280,6 +280,14 @@ static void calc_fast_powerup_delay(struct ssb_chipcommon *cc)
+ 	cc->fast_pwrup_delay = tmp;
  }
  
-+static u32 ssb_chipco_watchdog_get_max_timer(struct ssb_chipcommon *cc)
++static u32 ssb_chipco_alp_clock(struct ssb_chipcommon *cc)
 +{
-+	u32 nb;
++	if (cc->capabilities & SSB_CHIPCO_CAP_PMU)
++		return ssb_pmu_get_alp_clock(cc);
 +
-+	if (cc->capabilities & SSB_CHIPCO_CAP_PMU) {
-+		if (cc->dev->id.revision < 26)
-+			nb = 16;
-+		else
-+			nb = (cc->dev->id.revision >= 37) ? 32 : 24;
-+	} else {
-+		nb = 28;
-+	}
-+	if (nb == 32)
-+		return 0xffffffff;
-+	else
-+		return (1 << nb) - 1;
++	return 20000000;
 +}
 +
  void ssb_chipcommon_init(struct ssb_chipcommon *cc)
  {
  	if (!cc->dev)
-@@ -405,8 +423,24 @@ void ssb_chipco_timing_init(struct ssb_chipcommon *cc,
- /* Set chip watchdog reset timer to fire in 'ticks' backplane cycles */
- void ssb_chipco_watchdog_timer_set(struct ssb_chipcommon *cc, u32 ticks)
- {
--	/* instant NMI */
--	chipco_write32(cc, SSB_CHIPCO_WATCHDOG, ticks);
-+	u32 maxt;
-+	enum ssb_clkmode clkmode;
-+
-+	maxt = ssb_chipco_watchdog_get_max_timer(cc);
-+	if (cc->capabilities & SSB_CHIPCO_CAP_PMU) {
-+		if (ticks == 1)
-+			ticks = 2;
-+		else if (ticks > maxt)
-+			ticks = maxt;
-+		chipco_write32(cc, SSB_CHIPCO_PMU_WATCHDOG, ticks);
-+	} else {
-+		clkmode = ticks ? SSB_CLKMODE_FAST : SSB_CLKMODE_DYNAMIC;
-+		ssb_chipco_set_clockmode(cc, clkmode);
-+		if (ticks > maxt)
-+			ticks = maxt;
-+		/* instant NMI */
-+		chipco_write32(cc, SSB_CHIPCO_WATCHDOG, ticks);
-+	}
- }
+@@ -473,12 +481,7 @@ int ssb_chipco_serial_init(struct ssb_chipcommon *cc,
+ 				       chipco_read32(cc, SSB_CHIPCO_CORECTL)
+ 				       | SSB_CHIPCO_CORECTL_UARTCLK0);
+ 		} else if ((ccrev >= 11) && (ccrev != 15)) {
+-			/* Fixed ALP clock */
+-			baud_base = 20000000;
+-			if (cc->capabilities & SSB_CHIPCO_CAP_PMU) {
+-				/* FIXME: baud_base is different for devices with a PMU */
+-				SSB_WARN_ON(1);
+-			}
++			baud_base = ssb_chipco_alp_clock(cc);
+ 			div = 1;
+ 			if (ccrev >= 21) {
+ 				/* Turn off UART clock before switching clocksource. */
+diff --git a/drivers/ssb/driver_chipcommon_pmu.c b/drivers/ssb/driver_chipcommon_pmu.c
+index d7d5804..a43415a 100644
+--- a/drivers/ssb/driver_chipcommon_pmu.c
++++ b/drivers/ssb/driver_chipcommon_pmu.c
+@@ -618,6 +618,33 @@ void ssb_pmu_set_ldo_paref(struct ssb_chipcommon *cc, bool on)
+ EXPORT_SYMBOL(ssb_pmu_set_ldo_voltage);
+ EXPORT_SYMBOL(ssb_pmu_set_ldo_paref);
  
- void ssb_chipco_irq_mask(struct ssb_chipcommon *cc, u32 mask, u32 value)
++static u32 ssb_pmu_get_alp_clock_clk0(struct ssb_chipcommon *cc)
++{
++	u32 crystalfreq;
++	const struct pmu0_plltab_entry *e = NULL;
++
++	crystalfreq = chipco_read32(cc, SSB_CHIPCO_PMU_CTL) &
++		      SSB_CHIPCO_PMU_CTL_XTALFREQ >> SSB_CHIPCO_PMU_CTL_XTALFREQ_SHIFT;
++	e = pmu0_plltab_find_entry(crystalfreq);
++	BUG_ON(!e);
++	return e->freq * 1000;
++}
++
++u32 ssb_pmu_get_alp_clock(struct ssb_chipcommon *cc)
++{
++	struct ssb_bus *bus = cc->dev->bus;
++
++	switch (bus->chip_id) {
++	case 0x5354:
++		ssb_pmu_get_alp_clock_clk0(cc);
++	default:
++		ssb_printk(KERN_ERR PFX
++			   "ERROR: PMU alp clock unknown for device %04X\n",
++			   bus->chip_id);
++		return 0;
++	}
++}
++
+ u32 ssb_pmu_get_cpu_clock(struct ssb_chipcommon *cc)
+ {
+ 	struct ssb_bus *bus = cc->dev->bus;
+diff --git a/drivers/ssb/ssb_private.h b/drivers/ssb/ssb_private.h
+index a305550..98b2915 100644
+--- a/drivers/ssb/ssb_private.h
++++ b/drivers/ssb/ssb_private.h
+@@ -210,5 +210,6 @@ static inline void b43_pci_ssb_bridge_exit(void)
+ /* driver_chipcommon_pmu.c */
+ extern u32 ssb_pmu_get_cpu_clock(struct ssb_chipcommon *cc);
+ extern u32 ssb_pmu_get_controlclock(struct ssb_chipcommon *cc);
++extern u32 ssb_pmu_get_alp_clock(struct ssb_chipcommon *cc);
+ 
+ #endif /* LINUX_SSB_PRIVATE_H_ */
 -- 
 1.7.10.4
 
