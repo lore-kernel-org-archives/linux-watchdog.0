@@ -1,66 +1,91 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from server19320154104.serverpool.info ([193.201.54.104]:42573 "EHLO
+Received: from server19320154104.serverpool.info ([193.201.54.104]:42583 "EHLO
 	hauke-m.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757506Ab2K0A0T (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 26 Nov 2012 19:26:19 -0500
+	id S1757512Ab2K0A0U (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 26 Nov 2012 19:26:20 -0500
 From: Hauke Mehrtens <hauke@hauke-m.de>
 To: linville@tuxdriver.com, wim@iguana.be
 Cc: linux-wireless@vger.kernel.org, linux-watchdog@vger.kernel.org,
 	castet.matthieu@free.fr, biblbroks@sezampro.rs, m@bues.ch,
 	zajec5@gmail.com, linux-mips@linux-mips.org,
 	Hauke Mehrtens <hauke@hauke-m.de>
-Subject: [PATCH v2 06/15] bcma: add bcma_chipco_alp_clock
-Date: Tue, 27 Nov 2012 01:25:16 +0100
-Message-Id: <1353975925-32056-7-git-send-email-hauke@hauke-m.de>
+Subject: [PATCH v2 07/15] bcma: set the pmu watchdog if available
+Date: Tue, 27 Nov 2012 01:25:17 +0100
+Message-Id: <1353975925-32056-8-git-send-email-hauke@hauke-m.de>
 In-Reply-To: <1353975925-32056-1-git-send-email-hauke@hauke-m.de>
 References: <1353975925-32056-1-git-send-email-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-For devices without a PMU the alp clock is always 20000000.
+Mostly all bcma based devices have a PMU and the PMU watchdog should be
+used and not the old one in chip common. This patch also calculates the
+maximal number the watchdog could be set to.
 
 Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
 ---
- drivers/bcma/driver_chipcommon.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/bcma/driver_chipcommon.c |   42 ++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 40 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/bcma/driver_chipcommon.c b/drivers/bcma/driver_chipcommon.c
-index ffd74e5..ef68553 100644
+index ef68553..7c132e5 100644
 --- a/drivers/bcma/driver_chipcommon.c
 +++ b/drivers/bcma/driver_chipcommon.c
-@@ -4,6 +4,7 @@
-  *
-  * Copyright 2005, Broadcom Corporation
-  * Copyright 2006, 2007, Michael Buesch <m@bues.ch>
-+ * Copyright 2012, Hauke Mehrtens <hauke@hauke-m.de>
-  *
-  * Licensed under the GNU/GPL. See COPYING for details.
-  */
-@@ -22,6 +23,14 @@ static inline u32 bcma_cc_write32_masked(struct bcma_drv_cc *cc, u16 offset,
- 	return value;
+@@ -31,6 +31,28 @@ static u32 bcma_chipco_alp_clock(struct bcma_drv_cc *cc)
+ 	return 20000000;
  }
  
-+static u32 bcma_chipco_alp_clock(struct bcma_drv_cc *cc)
++static u32 bcma_chipco_watchdog_get_max_timer(struct bcma_drv_cc *cc)
 +{
-+	if (cc->capabilities & BCMA_CC_CAP_PMU)
-+		return bcma_pmu_alp_clock(cc);
++	struct bcma_bus *bus = cc->core->bus;
++	u32 nb;
 +
-+	return 20000000;
++	if (cc->capabilities & BCMA_CC_CAP_PMU) {
++		if (bus->chipinfo.id == BCMA_CHIP_ID_BCM4706)
++			nb = 32;
++		else if (cc->core->id.rev < 26)
++			nb = 16;
++		else
++			nb = (cc->core->id.rev >= 37) ? 32 : 24;
++	} else {
++		nb = 28;
++	}
++	if (nb == 32)
++		return 0xffffffff;
++	else
++		return (1 << nb) - 1;
 +}
++
 +
  void bcma_core_chipcommon_early_init(struct bcma_drv_cc *cc)
  {
  	if (cc->early_setup_done)
-@@ -131,8 +140,7 @@ void bcma_chipco_serial_init(struct bcma_drv_cc *cc)
- 	struct bcma_serial_port *ports = cc->serial_ports;
+@@ -85,8 +107,24 @@ void bcma_core_chipcommon_init(struct bcma_drv_cc *cc)
+ /* Set chip watchdog reset timer to fire in 'ticks' backplane cycles */
+ void bcma_chipco_watchdog_timer_set(struct bcma_drv_cc *cc, u32 ticks)
+ {
+-	/* instant NMI */
+-	bcma_cc_write32(cc, BCMA_CC_WATCHDOG, ticks);
++	u32 maxt;
++	enum bcma_clkmode clkmode;
++
++	maxt = bcma_chipco_watchdog_get_max_timer(cc);
++	if (cc->capabilities & BCMA_CC_CAP_PMU) {
++		if (ticks == 1)
++			ticks = 2;
++		else if (ticks > maxt)
++			ticks = maxt;
++		bcma_cc_write32(cc, BCMA_CC_PMU_WATCHDOG, ticks);
++	} else {
++		clkmode = ticks ? BCMA_CLKMODE_FAST : BCMA_CLKMODE_DYNAMIC;
++		bcma_core_set_clockmode(cc->core, clkmode);
++		if (ticks > maxt)
++			ticks = maxt;
++		/* instant NMI */
++		bcma_cc_write32(cc, BCMA_CC_WATCHDOG, ticks);
++	}
+ }
  
- 	if (ccrev >= 11 && ccrev != 15) {
--		/* Fixed ALP clock */
--		baud_base = bcma_pmu_alp_clock(cc);
-+		baud_base = bcma_chipco_alp_clock(cc);
- 		if (ccrev >= 21) {
- 			/* Turn off UART clock before switching clocksource. */
- 			bcma_cc_write32(cc, BCMA_CC_CORECTL,
+ void bcma_chipco_irq_mask(struct bcma_drv_cc *cc, u32 mask, u32 value)
 -- 
 1.7.10.4
 
