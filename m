@@ -1,91 +1,132 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from server19320154104.serverpool.info ([193.201.54.104]:42583 "EHLO
+Received: from server19320154104.serverpool.info ([193.201.54.104]:42597 "EHLO
 	hauke-m.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757512Ab2K0A0U (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 26 Nov 2012 19:26:20 -0500
+	id S932659Ab2K0A0Z (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 26 Nov 2012 19:26:25 -0500
 From: Hauke Mehrtens <hauke@hauke-m.de>
 To: linville@tuxdriver.com, wim@iguana.be
 Cc: linux-wireless@vger.kernel.org, linux-watchdog@vger.kernel.org,
 	castet.matthieu@free.fr, biblbroks@sezampro.rs, m@bues.ch,
 	zajec5@gmail.com, linux-mips@linux-mips.org,
 	Hauke Mehrtens <hauke@hauke-m.de>
-Subject: [PATCH v2 07/15] bcma: set the pmu watchdog if available
-Date: Tue, 27 Nov 2012 01:25:17 +0100
-Message-Id: <1353975925-32056-8-git-send-email-hauke@hauke-m.de>
+Subject: [PATCH v2 08/15] bcma: add methods for watchdog driver
+Date: Tue, 27 Nov 2012 01:25:18 +0100
+Message-Id: <1353975925-32056-9-git-send-email-hauke@hauke-m.de>
 In-Reply-To: <1353975925-32056-1-git-send-email-hauke@hauke-m.de>
 References: <1353975925-32056-1-git-send-email-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Mostly all bcma based devices have a PMU and the PMU watchdog should be
-used and not the old one in chip common. This patch also calculates the
-maximal number the watchdog could be set to.
+The watchdog driver wants to set the watchdog timeout in ms and not in
+ticks, which is depending on the SoC type and the clock.
+Calculate the number of ticks per millisecond and provide two functions
+for the watchdog driver. Also return the ticks or millisecond the timer
+was set to in case the provided value was bigger than the max allowed
+value.
 
 Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
 ---
- drivers/bcma/driver_chipcommon.c |   42 ++++++++++++++++++++++++++++++++++++--
- 1 file changed, 40 insertions(+), 2 deletions(-)
+ drivers/bcma/driver_chipcommon.c            |   38 ++++++++++++++++++++++++++-
+ include/linux/bcma/bcma_driver_chipcommon.h |    4 +--
+ 2 files changed, 39 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/bcma/driver_chipcommon.c b/drivers/bcma/driver_chipcommon.c
-index ef68553..7c132e5 100644
+index 7c132e5..1172226 100644
 --- a/drivers/bcma/driver_chipcommon.c
 +++ b/drivers/bcma/driver_chipcommon.c
-@@ -31,6 +31,28 @@ static u32 bcma_chipco_alp_clock(struct bcma_drv_cc *cc)
- 	return 20000000;
+@@ -10,6 +10,7 @@
+  */
+ 
+ #include "bcma_private.h"
++#include <linux/bcm47xx_wdt.h>
+ #include <linux/export.h>
+ #include <linux/bcma/bcma.h>
+ 
+@@ -52,6 +53,39 @@ static u32 bcma_chipco_watchdog_get_max_timer(struct bcma_drv_cc *cc)
+ 		return (1 << nb) - 1;
  }
  
-+static u32 bcma_chipco_watchdog_get_max_timer(struct bcma_drv_cc *cc)
++static u32 bcma_chipco_watchdog_timer_set_wdt(struct bcm47xx_wdt *wdt,
++					      u32 ticks)
++{
++	struct bcma_drv_cc *cc = bcm47xx_wdt_get_drvdata(wdt);
++
++	return bcma_chipco_watchdog_timer_set(cc, ticks);
++}
++
++static u32 bcma_chipco_watchdog_timer_set_ms_wdt(struct bcm47xx_wdt *wdt,
++						 u32 ms)
++{
++	struct bcma_drv_cc *cc = bcm47xx_wdt_get_drvdata(wdt);
++	u32 ticks;
++
++	ticks = bcma_chipco_watchdog_timer_set(cc, cc->ticks_per_ms * ms);
++	return ticks / cc->ticks_per_ms;
++}
++
++static int bcma_chipco_watchdog_ticks_per_ms(struct bcma_drv_cc *cc)
 +{
 +	struct bcma_bus *bus = cc->core->bus;
-+	u32 nb;
 +
 +	if (cc->capabilities & BCMA_CC_CAP_PMU) {
 +		if (bus->chipinfo.id == BCMA_CHIP_ID_BCM4706)
-+			nb = 32;
-+		else if (cc->core->id.rev < 26)
-+			nb = 16;
++			/* 4706 CC and PMU watchdogs are clocked at 1/4 of ALP clock */
++			return bcma_chipco_alp_clock(cc) / 4000;
 +		else
-+			nb = (cc->core->id.rev >= 37) ? 32 : 24;
++			/* based on 32KHz ILP clock */
++			return 32;
 +	} else {
-+		nb = 28;
++		return bcma_chipco_alp_clock(cc) / 1000;
 +	}
-+	if (nb == 32)
-+		return 0xffffffff;
-+	else
-+		return (1 << nb) - 1;
 +}
-+
-+
+ 
  void bcma_core_chipcommon_early_init(struct bcma_drv_cc *cc)
  {
- 	if (cc->early_setup_done)
-@@ -85,8 +107,24 @@ void bcma_core_chipcommon_init(struct bcma_drv_cc *cc)
+@@ -100,12 +134,13 @@ void bcma_core_chipcommon_init(struct bcma_drv_cc *cc)
+ 			((leddc_on << BCMA_CC_GPIOTIMER_ONTIME_SHIFT) |
+ 			 (leddc_off << BCMA_CC_GPIOTIMER_OFFTIME_SHIFT)));
+ 	}
++	cc->ticks_per_ms = bcma_chipco_watchdog_ticks_per_ms(cc);
+ 
+ 	cc->setup_done = true;
+ }
+ 
  /* Set chip watchdog reset timer to fire in 'ticks' backplane cycles */
- void bcma_chipco_watchdog_timer_set(struct bcma_drv_cc *cc, u32 ticks)
+-void bcma_chipco_watchdog_timer_set(struct bcma_drv_cc *cc, u32 ticks)
++u32 bcma_chipco_watchdog_timer_set(struct bcma_drv_cc *cc, u32 ticks)
  {
--	/* instant NMI */
--	bcma_cc_write32(cc, BCMA_CC_WATCHDOG, ticks);
-+	u32 maxt;
-+	enum bcma_clkmode clkmode;
-+
-+	maxt = bcma_chipco_watchdog_get_max_timer(cc);
-+	if (cc->capabilities & BCMA_CC_CAP_PMU) {
-+		if (ticks == 1)
-+			ticks = 2;
-+		else if (ticks > maxt)
-+			ticks = maxt;
-+		bcma_cc_write32(cc, BCMA_CC_PMU_WATCHDOG, ticks);
-+	} else {
-+		clkmode = ticks ? BCMA_CLKMODE_FAST : BCMA_CLKMODE_DYNAMIC;
-+		bcma_core_set_clockmode(cc->core, clkmode);
-+		if (ticks > maxt)
-+			ticks = maxt;
-+		/* instant NMI */
-+		bcma_cc_write32(cc, BCMA_CC_WATCHDOG, ticks);
-+	}
+ 	u32 maxt;
+ 	enum bcma_clkmode clkmode;
+@@ -125,6 +160,7 @@ void bcma_chipco_watchdog_timer_set(struct bcma_drv_cc *cc, u32 ticks)
+ 		/* instant NMI */
+ 		bcma_cc_write32(cc, BCMA_CC_WATCHDOG, ticks);
+ 	}
++	return ticks;
  }
  
  void bcma_chipco_irq_mask(struct bcma_drv_cc *cc, u32 mask, u32 value)
+diff --git a/include/linux/bcma/bcma_driver_chipcommon.h b/include/linux/bcma/bcma_driver_chipcommon.h
+index 145f3c5..2f9b014 100644
+--- a/include/linux/bcma/bcma_driver_chipcommon.h
++++ b/include/linux/bcma/bcma_driver_chipcommon.h
+@@ -570,6 +570,7 @@ struct bcma_drv_cc {
+ 	int nr_serial_ports;
+ 	struct bcma_serial_port serial_ports[4];
+ #endif /* CONFIG_BCMA_DRIVER_MIPS */
++	u32 ticks_per_ms;
+ };
+ 
+ /* Register access */
+@@ -593,8 +594,7 @@ extern void bcma_chipco_resume(struct bcma_drv_cc *cc);
+ 
+ void bcma_chipco_bcm4331_ext_pa_lines_ctl(struct bcma_drv_cc *cc, bool enable);
+ 
+-extern void bcma_chipco_watchdog_timer_set(struct bcma_drv_cc *cc,
+-					  u32 ticks);
++extern u32 bcma_chipco_watchdog_timer_set(struct bcma_drv_cc *cc, u32 ticks);
+ 
+ void bcma_chipco_irq_mask(struct bcma_drv_cc *cc, u32 mask, u32 value);
+ 
 -- 
 1.7.10.4
 
