@@ -1,75 +1,123 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:57104 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751454Ab2K0F25 (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 27 Nov 2012 00:28:57 -0500
-Received: by mail-pa0-f46.google.com with SMTP id bh2so5649218pad.19
-        for <linux-watchdog@vger.kernel.org>; Mon, 26 Nov 2012 21:28:56 -0800 (PST)
-Message-ID: <50B44FB3.5090308@linaro.org>
-Date: Tue, 27 Nov 2012 10:59:23 +0530
-From: Tushar Behera <tushar.behera@linaro.org>
-MIME-Version: 1.0
-To: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
-CC: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	wim@iguana.be, patches@linaro.org, Anthony.Olech@diasemi.com
-Subject: Re: [PATCH] watchdog: da9052: Fix invalid free of devm_ allocated
- data
-References: <1353559384-26570-1-git-send-email-tushar.behera@linaro.org> <CAM=Q2csrtLOCvQpkSfLfE3teCYU1GUzdVaBpuWwocLy2j-9Wuw@mail.gmail.com>
-In-Reply-To: <CAM=Q2csrtLOCvQpkSfLfE3teCYU1GUzdVaBpuWwocLy2j-9Wuw@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Received: from mail.gw90.de ([188.40.100.199]:38011 "EHLO mail.gw90.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752797Ab2K1Jkz (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 28 Nov 2012 04:40:55 -0500
+Message-ID: <1354094368.4467.4.camel@mattotaupa>
+Subject: Re: [PATCH v2] sp5100_tco: Add SB8x0 chipset support
+From: Paul Menzel <paulepanter@users.sourceforge.net>
+To: Takahisa Tanaka <mc74hc00@gmail.com>
+Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+	Arkadiusz Miskiewicz <arekm@maven.pl>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Jonathan Nieder <jrnieder@gmail.com>,
+	linux-kernel@vger.kernel.org
+Date: Wed, 28 Nov 2012 10:19:28 +0100
+In-Reply-To: <1352993009-3448-1-git-send-email-mc74hc00@gmail.com>
+References: <1352993009-3448-1-git-send-email-mc74hc00@gmail.com>
+Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature";
+	boundary="=-CoO0JgjYCAjEaLw/kj/A"
+Mime-Version: 1.0
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 11/26/2012 06:31 PM, Shubhrajyoti Datta wrote:
-> On Thu, Nov 22, 2012 at 10:13 AM, Tushar Behera
-> <tushar.behera@linaro.org> wrote:
->> It is not required to free devm_ allocated data. Since kref_put
->> needs a valid release function, da9052_wdt_release_resources()
->> is not deleted.
->>
->> Fixes following warning.
->> drivers/watchdog/da9052_wdt.c:59:1-6: WARNING: invalid free of
->> devm_ allocated data
->>
->> Signed-off-by: Tushar Behera <tushar.behera@linaro.org>
->> ---
->>  drivers/watchdog/da9052_wdt.c |    4 ----
->>  1 files changed, 0 insertions(+), 4 deletions(-)
->>
->> diff --git a/drivers/watchdog/da9052_wdt.c b/drivers/watchdog/da9052_wdt.c
->> index f7abbae..20071de 100644
->> --- a/drivers/watchdog/da9052_wdt.c
->> +++ b/drivers/watchdog/da9052_wdt.c
->> @@ -53,10 +53,6 @@ static const struct {
->>
->>  static void da9052_wdt_release_resources(struct kref *r)
->>  {
->> -       struct da9052_wdt_data *driver_data =
->> -               container_of(r, struct da9052_wdt_data, kref);
->> -
->> -       kfree(driver_data);
-> 
-> However now the function will be empty right?
-> 
-> 
 
-Yes, the function would be empty now. It is kept just to avoid the
-run-time warning.
+--=-CoO0JgjYCAjEaLw/kj/A
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
->>  }
->>
->>  static int da9052_wdt_set_timeout(struct watchdog_device *wdt_dev,
->> --
->> 1.7.4.1
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
+Dear Takahisa,
 
 
--- 
-Tushar Behera
+as replied to ticket #43176 in Bugzilla thanks a lot for your work.
+
+
+Am Freitag, den 16.11.2012, 00:23 +0900 schrieb Takahisa Tanaka:
+> The current sp5100_tco driver only supports SP5100/SB7x0 chipset, doesn't
+> support SB8x0 chipset, because current sp5100_tco driver doesn't know tha=
+t the
+> offset address for watchdog timer was changed from SB8x0 chipset.
+>=20
+> The offset address of SP5100 and SB7x0 chipsets are as follows, quote fro=
+m the
+> AMD SB700/710/750 Register Reference Guide(Page 164) and the AMD SP5100
+
+In English you leave a space before parentheses: =E2=80=A6 Guide (page 164)=
+ =E2=80=A6
+
+> Register Reference Guide(Page 166).
+
+Dito.
+
+>   WatchDogTimerControl 69h
+>   WatchDogTimerBase0   6Ch
+>   WatchDogTimerBase1   6Dh
+>   WatchDogTimerBase2   6Eh
+>   WatchDogTimerBase3   6Fh
+>=20
+> In contrast, the offset address of SB8x0 chipset is as follows, quote fro=
+m
+> AMD SB800-Series Southbridges Register Reference Guide(Page 147).
+
+Dito.
+
+>   WatchDogTimerEn      48h
+>   WatchDogTimerConfig  4Ch
+>=20
+> So, In the case of SB8x0 chipset, sp5100_tco reads meaningless MMIO
+> address(for example, 0xbafe00) from wrong offset address, and the followi=
+ng
+
+Dito.
+
+> message is logged.
+>=20
+>    SP5100 TCO timer: mmio address 0xbafe00 already in use
+>=20
+> With this patch, sp5100_tco driver supports SB8x0 chipset, and can avoid
+> iomem resource conflict.
+>=20
+> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=3D43176
+> Tested-by: Arkadiusz Miskiewicz <arekm@maven.pl>
+> Signed-off-by: Takahisa Tanaka <mc74hc00@gmail.com>
+>=20
+> ---
+> v1 -> v2
+>  -Fix typo in module description and source code.
+>  -Fix a bug that can't correctly determine the watchdog fired.
+>  -Improve syslog messages.
+>  -Truncate the commit log, because previous commit log is too long.
+
+There are no too long commit messages. ;-)
+
+> ---
+>  drivers/watchdog/sp5100_tco.c | 321 +++++++++++++++++++++++++++++++++++-=
+------
+>  drivers/watchdog/sp5100_tco.h |  46 ++++--
+>  2 files changed, 306 insertions(+), 61 deletions(-)
+
+[=E2=80=A6]
+
+Tested-by: Paul Menzel <paulepanter@users.sourceforge.net>
+
+
+Thanks,
+
+Paul
+
+--=-CoO0JgjYCAjEaLw/kj/A
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEABECAAYFAlC11yAACgkQPX1aK2wOHVgXAACaAsw75EUvCnPkJE4cO3DocpC+
+3kAAnjI6EAB3fTtQwBukMLgR7/HeUvuk
+=K1r7
+-----END PGP SIGNATURE-----
+
+--=-CoO0JgjYCAjEaLw/kj/A--
+
