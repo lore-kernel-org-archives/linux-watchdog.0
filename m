@@ -1,52 +1,82 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:40521 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751547Ab2K1QHi (ORCPT
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:50026 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751593Ab2K2Q2P (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 28 Nov 2012 11:07:38 -0500
-Received: by mail-ob0-f174.google.com with SMTP id wc20so12075400obb.19
-        for <linux-watchdog@vger.kernel.org>; Wed, 28 Nov 2012 08:07:37 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <20120730034904.GE30774@S2101-09.ap.freescale.net>
-References: <1341264782-19098-1-git-send-email-festevam@gmail.com>
-	<CAOMZO5DiV8io9v2v=6L9zpEY1M+Df3UZGYmSdTofq0FoxVe14Q@mail.gmail.com>
-	<20120730034904.GE30774@S2101-09.ap.freescale.net>
-Date: Wed, 28 Nov 2012 14:07:37 -0200
-Message-ID: <CAOMZO5DmV5dKQxeK20h-up9M8BQT6RkQ1KXaWj3f+U4ePsDNtQ@mail.gmail.com>
-Subject: Re: [PATCH] watchdog: imx2_wdt: Select the driver via ARCH_MXC
-From: Fabio Estevam <festevam@gmail.com>
-To: Shawn Guo <shawn.guo@linaro.org>
-Cc: wim@iguana.be, kernel@pengutronix.de,
-	linux-watchdog@vger.kernel.org,
-	Fabio Estevam <fabio.estevam@freescale.com>
-Content-Type: text/plain; charset=UTF-8
+	Thu, 29 Nov 2012 11:28:15 -0500
+Received: by mail-wg0-f44.google.com with SMTP id dr13so4395053wgb.1
+        for <linux-watchdog@vger.kernel.org>; Thu, 29 Nov 2012 08:28:14 -0800 (PST)
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [linux-keystone] [PATCH] watchdog: davinci_wdt: add OF support
+To: Murali Karicheri <m-karicheri2@ti.com>, rob.herring@calxeda.com,
+	rob@landley.net, wim@iguana.be,
+	devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	linux-keystone@list.ti.com
+Cc: Murali Karicheri <m-karicheri2@ti.com>
+In-Reply-To: <1353966095-23331-1-git-send-email-m-karicheri2@ti.com>
+References: <1353966095-23331-1-git-send-email-m-karicheri2@ti.com>
+Date: Thu, 29 Nov 2012 16:28:11 +0000
+Message-Id: <20121129162811.EF9923E0912@localhost>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Wim,
+On Mon, 26 Nov 2012 16:41:35 -0500, Murali Karicheri <m-karicheri2@ti.com> wrote:
+> This adds OF support for davinci_wdt driver.
+> 
+> Signed-off-by: Murali Karicheri <m-karicheri2@ti.com>
 
-On Mon, Jul 30, 2012 at 12:49 AM, Shawn Guo <shawn.guo@linaro.org> wrote:
-> On Sat, Jul 28, 2012 at 04:35:46PM -0300, Fabio Estevam wrote:
->> On Mon, Jul 2, 2012 at 6:33 PM, Fabio Estevam <festevam@gmail.com> wrote:
->> > From: Fabio Estevam <fabio.estevam@freescale.com>
->> >
->> > With device tree support in place, we should not use IMX_HAVE_PLATFORM_IMX2_WDT
->> > as a dependency for selecting the imx2_wdt driver.
->> >
->> > Use ARCH_MXC symbol instead, so that the driver can be even selected by a device-tree
->> > only SoC, such as i.MX6.
->> >
->> > Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
->>
->> Sascha/Shawn,
->>
->> Any comments?
->>
-> Acked-by: Shawn Guo <shawn.guo@linaro.org>
->
+Acked-by: Grant Likely <grant.likely@secretlab.ca>
+> ---
+>  .../devicetree/bindings/watchdog/davinci-wdt.txt   |   12 ++++++++++++
+>  drivers/watchdog/davinci_wdt.c                     |    7 +++++++
+>  2 files changed, 19 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/davinci-wdt.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/davinci-wdt.txt b/Documentation/devicetree/bindings/watchdog/davinci-wdt.txt
+> new file mode 100644
+> index 0000000..75558cc
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/watchdog/davinci-wdt.txt
+> @@ -0,0 +1,12 @@
+> +DaVinci Watchdog Timer (WDT) Controller
+> +
+> +Required properties:
+> +- compatible : Should be "ti,davinci-wdt"
+> +- reg : Should contain WDT registers location and length
+> +
+> +Examples:
+> +
+> +wdt: wdt@2320000 {
+> +	compatible = "ti,davinci-wdt";
+> +	reg = <0x02320000 0x80>;
+> +};
+> diff --git a/drivers/watchdog/davinci_wdt.c b/drivers/watchdog/davinci_wdt.c
+> index eb44b03..c73e166 100644
+> --- a/drivers/watchdog/davinci_wdt.c
+> +++ b/drivers/watchdog/davinci_wdt.c
+> @@ -262,10 +262,17 @@ static int __devexit davinci_wdt_remove(struct platform_device *pdev)
+>  	return 0;
+>  }
+>  
+> +static const struct of_device_id davinci_wdt_of_match[] = {
+> +	{ .compatible = "ti,davinci-wdt", },
+> +	{},
+> +};
+> +MODULE_DEVICE_TABLE(of, davinci_wdt_of_match);
+> +
+>  static struct platform_driver platform_wdt_driver = {
+>  	.driver = {
+>  		.name = "watchdog",
+>  		.owner	= THIS_MODULE,
+> +		.of_match_table = davinci_wdt_of_match,
+>  	},
+>  	.probe = davinci_wdt_probe,
+>  	.remove = __devexit_p(davinci_wdt_remove),
+> -- 
+> 1.7.9.5
+> 
 
-Could this one be applied, please?
-
-Regards,
-
-Fabio Estevam
+-- 
+Grant Likely, B.Sc, P.Eng.
+Secret Lab Technologies, Ltd.
