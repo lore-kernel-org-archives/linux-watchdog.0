@@ -8,14 +8,13 @@ CC: "linux-arm-kernel@lists.infradead.org"
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         "Ferre, Nicolas" <Nicolas.FERRE@atmel.com>,
         "Lin, JM" <JM.Lin@atmel.com>
-Subject: RE: [PATCH 03/11] watchdog/at91sam9_wdt: change the wdt_read and
- wdt_write macro to the inline function
-Date: Tue, 4 Dec 2012 03:13:09 +0000
-Message-ID: <B256D81BAE5131468A838E5D7A2436413A01CE7D@penmbx01>
+Subject: RE: [PATCH 00/11] watchdog/at91sam9_wdt: use watchdog framework,
+ support DT
+Date: Tue, 4 Dec 2012 03:12:06 +0000
+Message-ID: <B256D81BAE5131468A838E5D7A2436413A01CE70@penmbx01>
 References: <1352877369-19740-1-git-send-email-wenyou.yang@atmel.com>
- <1352877369-19740-4-git-send-email-wenyou.yang@atmel.com>
- <20121116134901.GH4398@game.jcrosoft.org>
-In-Reply-To: <20121116134901.GH4398@game.jcrosoft.org>
+ <20121116135043.GI4398@game.jcrosoft.org>
+In-Reply-To: <20121116135043.GI4398@game.jcrosoft.org>
 Content-Language: en-US
 Content-Type: text/plain; charset="gb2312"
 MIME-Version: 1.0
@@ -25,64 +24,77 @@ List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi JC,
-
+Hi JC
 > -----Original Message-----
 > From: Jean-Christophe PLAGNIOL-VILLARD [mailto:plagnioj@jcrosoft.com]
-> Sent: 2012Äê11ÔÂ16ÈÕ 21:49
+> Sent: 2012Äê11ÔÂ16ÈÕ 21:51
 > To: Yang, Wenyou
 > Cc: linux-arm-kernel@lists.infradead.org; wim@iguana.be;
 > linux-watchdog@vger.kernel.org; linux-kernel@vger.kernel.org; Ferre, Nicolas; Lin,
 > JM
-> Subject: Re: [PATCH 03/11] watchdog/at91sam9_wdt: change the wdt_read and
-> wdt_write macro to the inline function
+> Subject: Re: [PATCH 00/11] watchdog/at91sam9_wdt: use watchdog framework,
+> support DT
 > 
-> On 15:16 Wed 14 Nov     , Wenyou Yang wrote:
-> > Signed-off-by: Wenyou Yang <wenyou.yang@atmel.com>
-> > ---
-> >  drivers/watchdog/at91sam9_wdt.c |   28 ++++++++++++++++++----------
-> >  1 file changed, 18 insertions(+), 10 deletions(-)
+> On 15:15 Wed 14 Nov     , Wenyou Yang wrote:
+> > Hi, All
 > >
-> > diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
-> > index 31c914a..98e7d5a 100644
-> > --- a/drivers/watchdog/at91sam9_wdt.c
-> > +++ b/drivers/watchdog/at91sam9_wdt.c
-> > @@ -34,11 +34,6 @@
-> >
-> >  #define DRV_NAME "AT91SAM9 Watchdog"
-> >
-> > -#define wdt_read(field) \
-> > -	__raw_readl(at91wdt_private.base + field)
-> > -#define wdt_write(field, val) \
-> > -	__raw_writel((val), at91wdt_private.base + field)
-> > -
-> >  /* AT91SAM9 watchdog runs a 12bit counter @ 256Hz,
-> >   * use this to convert a watchdog
-> >   * value from/to milliseconds.
-> > @@ -75,13 +70,24 @@ struct at91wdt_drvdata {
-> >
-> >  /* ......................................................................... */
-> >
-> > +static inline unsigned int wdt_read(struct at91wdt_drvdata *driver_data,
-> > +					unsigned int field)
-> > +{
-> > +	return __raw_readl(driver_data->base + field);
-> > +}
-> > +
-> > +static inline void wdt_write(struct at91wdt_drvdata *driver_data,
-> > +				unsigned int field, unsigned int val)
-> > +{
-> > +	__raw_writel((val), driver_data->base + field);
-> > +}
-> use relaxed version
-
-Thanks, I will change it.
-> 
-> Best Regrds,
+> > The patch series is intended to convert to use the watchdog framework,
+> > and add support to device tree.
+> > It has been tested on sam9m10g45ek, sam9g20ek, sam9263ek and sam9g25ek.
+> you need to check Fabio wrok which is present on the ML for a while and  was
+> reviewed and binding too
+>
+OK, I will do it, thanks.
+ 
+> Best Regards,
 > J.
+> >
+> > It is based on v3.7-rc5.
+> >
+> > Best Regards
+> > Wenyou Yang
+> >
 
-Best Regards,
+Best Regards
 Wenyou Yang
+
+> > Wenyou Yang (11):
+> >   watchdog/at91sam9_wdt: remove the file_operations struct
+> >   watchdog/at91sam9_wdt: change the at91wdt_private struct to the
+> >     at91wdt_drvdata struct
+> >   watchdog/at91sam9_wdt: change the wdt_read and wdt_write macro to the
+> >     inline function
+> >   watchdog/at91sam9_wdt: change "at91_wdt_settimeout" function name to
+> >     "at91wdt_enable"
+> >   watchdog/at91sam9_wdt: add to use the watchdog framework
+> >   watchdog/at91sam9_wdt: change the timer function name
+> >   watchdog/at91sam9_wdt: add nowayout helpers to Watchdog Timer Driver
+> >     Kernel API
+> >   watchdog/at91sam9_wdt: use module_platform_driver()
+> >   watchdog/at91sam9_wdt: add support to device tree
+> >   watchdog/at91sam9_wdt: using dev_info replaces pr_info, dev_crit
+> >     repalces pr_crit
+> >   ARM: dts: add the watchdog nodes for atmel SoC
+> >
+> >  .../devicetree/bindings/watchdog/atmel-wdt.txt     |   14 +
+> >  arch/arm/boot/dts/at91sam9260.dtsi                 |    6 +
+> >  arch/arm/boot/dts/at91sam9263.dtsi                 |    6 +
+> >  arch/arm/boot/dts/at91sam9263ek.dts                |    4 +
+> >  arch/arm/boot/dts/at91sam9g20ek_common.dtsi        |    4 +
+> >  arch/arm/boot/dts/at91sam9g25ek.dts                |    4 +
+> >  arch/arm/boot/dts/at91sam9g45.dtsi                 |    5 +
+> >  arch/arm/boot/dts/at91sam9m10g45ek.dts             |    4 +
+> >  arch/arm/boot/dts/at91sam9n12.dtsi                 |    6 +
+> >  arch/arm/boot/dts/at91sam9n12ek.dts                |    4 +
+> >  arch/arm/boot/dts/at91sam9x5.dtsi                  |    6 +
+> >  drivers/watchdog/Kconfig                           |    1 +
+> >  drivers/watchdog/at91sam9_wdt.c                    |  294 ++++++++------------
+> >  13 files changed, 185 insertions(+), 173 deletions(-)
+> >  create mode 100644 Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+> >
+> > --
+> > 1.7.9.5
+> >
 ÿôèº{.nÇ+‰·Ÿ®‰­†+%ŠËÿ±éİ¶¥Šwÿº{.nÇ+‰·¥Š{±şG«éÿŠ{ayº
 Ê‡Ú™ë,j­¢f£¢·hšïêÿ‘êçz_è®(­éšŠİ¢j"ú¶m§ÿÿ¾«şG«éÿ¢¸?™¨è­Ú&£ø§~á¶iO•æ¬z·švØ^¶m§ÿÿÃ
 ÿ¶ìÿ¢¸?–I¥
