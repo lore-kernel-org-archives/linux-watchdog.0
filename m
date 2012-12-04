@@ -1,82 +1,88 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wg0-f44.google.com ([74.125.82.44]:50026 "EHLO
-	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751593Ab2K2Q2P (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 29 Nov 2012 11:28:15 -0500
-Received: by mail-wg0-f44.google.com with SMTP id dr13so4395053wgb.1
-        for <linux-watchdog@vger.kernel.org>; Thu, 29 Nov 2012 08:28:14 -0800 (PST)
-From: Grant Likely <grant.likely@secretlab.ca>
-Subject: Re: [linux-keystone] [PATCH] watchdog: davinci_wdt: add OF support
-To: Murali Karicheri <m-karicheri2@ti.com>, rob.herring@calxeda.com,
-	rob@landley.net, wim@iguana.be,
-	devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-keystone@list.ti.com
-Cc: Murali Karicheri <m-karicheri2@ti.com>
-In-Reply-To: <1353966095-23331-1-git-send-email-m-karicheri2@ti.com>
-References: <1353966095-23331-1-git-send-email-m-karicheri2@ti.com>
-Date: Thu, 29 Nov 2012 16:28:11 +0000
-Message-Id: <20121129162811.EF9923E0912@localhost>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: "Yang, Wenyou" <Wenyou.Yang@atmel.com>
+To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+CC: "linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>,
+        "wim@iguana.be" <wim@iguana.be>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "Ferre, Nicolas" <Nicolas.FERRE@atmel.com>,
+        "Lin, JM" <JM.Lin@atmel.com>
+Subject: RE: [PATCH 03/11] watchdog/at91sam9_wdt: change the wdt_read and
+ wdt_write macro to the inline function
+Date: Tue, 4 Dec 2012 03:13:09 +0000
+Message-ID: <B256D81BAE5131468A838E5D7A2436413A01CE7D@penmbx01>
+References: <1352877369-19740-1-git-send-email-wenyou.yang@atmel.com>
+ <1352877369-19740-4-git-send-email-wenyou.yang@atmel.com>
+ <20121116134901.GH4398@game.jcrosoft.org>
+In-Reply-To: <20121116134901.GH4398@game.jcrosoft.org>
+Content-Language: en-US
+Content-Type: text/plain; charset="gb2312"
+MIME-Version: 1.0
+Sender: linux-kernel-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Mon, 26 Nov 2012 16:41:35 -0500, Murali Karicheri <m-karicheri2@ti.com> wrote:
-> This adds OF support for davinci_wdt driver.
-> 
-> Signed-off-by: Murali Karicheri <m-karicheri2@ti.com>
+Hi JC,
 
-Acked-by: Grant Likely <grant.likely@secretlab.ca>
-> ---
->  .../devicetree/bindings/watchdog/davinci-wdt.txt   |   12 ++++++++++++
->  drivers/watchdog/davinci_wdt.c                     |    7 +++++++
->  2 files changed, 19 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/watchdog/davinci-wdt.txt
+> -----Original Message-----
+> From: Jean-Christophe PLAGNIOL-VILLARD [mailto:plagnioj@jcrosoft.com]
+> Sent: 2012Äê11ÔÂ16ÈÕ 21:49
+> To: Yang, Wenyou
+> Cc: linux-arm-kernel@lists.infradead.org; wim@iguana.be;
+> linux-watchdog@vger.kernel.org; linux-kernel@vger.kernel.org; Ferre, Nicolas; Lin,
+> JM
+> Subject: Re: [PATCH 03/11] watchdog/at91sam9_wdt: change the wdt_read and
+> wdt_write macro to the inline function
 > 
-> diff --git a/Documentation/devicetree/bindings/watchdog/davinci-wdt.txt b/Documentation/devicetree/bindings/watchdog/davinci-wdt.txt
-> new file mode 100644
-> index 0000000..75558cc
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/watchdog/davinci-wdt.txt
-> @@ -0,0 +1,12 @@
-> +DaVinci Watchdog Timer (WDT) Controller
-> +
-> +Required properties:
-> +- compatible : Should be "ti,davinci-wdt"
-> +- reg : Should contain WDT registers location and length
-> +
-> +Examples:
-> +
-> +wdt: wdt@2320000 {
-> +	compatible = "ti,davinci-wdt";
-> +	reg = <0x02320000 0x80>;
-> +};
-> diff --git a/drivers/watchdog/davinci_wdt.c b/drivers/watchdog/davinci_wdt.c
-> index eb44b03..c73e166 100644
-> --- a/drivers/watchdog/davinci_wdt.c
-> +++ b/drivers/watchdog/davinci_wdt.c
-> @@ -262,10 +262,17 @@ static int __devexit davinci_wdt_remove(struct platform_device *pdev)
->  	return 0;
->  }
->  
-> +static const struct of_device_id davinci_wdt_of_match[] = {
-> +	{ .compatible = "ti,davinci-wdt", },
-> +	{},
-> +};
-> +MODULE_DEVICE_TABLE(of, davinci_wdt_of_match);
-> +
->  static struct platform_driver platform_wdt_driver = {
->  	.driver = {
->  		.name = "watchdog",
->  		.owner	= THIS_MODULE,
-> +		.of_match_table = davinci_wdt_of_match,
->  	},
->  	.probe = davinci_wdt_probe,
->  	.remove = __devexit_p(davinci_wdt_remove),
-> -- 
-> 1.7.9.5
-> 
+> On 15:16 Wed 14 Nov     , Wenyou Yang wrote:
+> > Signed-off-by: Wenyou Yang <wenyou.yang@atmel.com>
+> > ---
+> >  drivers/watchdog/at91sam9_wdt.c |   28 ++++++++++++++++++----------
+> >  1 file changed, 18 insertions(+), 10 deletions(-)
+> >
+> > diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
+> > index 31c914a..98e7d5a 100644
+> > --- a/drivers/watchdog/at91sam9_wdt.c
+> > +++ b/drivers/watchdog/at91sam9_wdt.c
+> > @@ -34,11 +34,6 @@
+> >
+> >  #define DRV_NAME "AT91SAM9 Watchdog"
+> >
+> > -#define wdt_read(field) \
+> > -	__raw_readl(at91wdt_private.base + field)
+> > -#define wdt_write(field, val) \
+> > -	__raw_writel((val), at91wdt_private.base + field)
+> > -
+> >  /* AT91SAM9 watchdog runs a 12bit counter @ 256Hz,
+> >   * use this to convert a watchdog
+> >   * value from/to milliseconds.
+> > @@ -75,13 +70,24 @@ struct at91wdt_drvdata {
+> >
+> >  /* ......................................................................... */
+> >
+> > +static inline unsigned int wdt_read(struct at91wdt_drvdata *driver_data,
+> > +					unsigned int field)
+> > +{
+> > +	return __raw_readl(driver_data->base + field);
+> > +}
+> > +
+> > +static inline void wdt_write(struct at91wdt_drvdata *driver_data,
+> > +				unsigned int field, unsigned int val)
+> > +{
+> > +	__raw_writel((val), driver_data->base + field);
+> > +}
+> use relaxed version
 
--- 
-Grant Likely, B.Sc, P.Eng.
-Secret Lab Technologies, Ltd.
+Thanks, I will change it.
+> 
+> Best Regrds,
+> J.
+
+Best Regards,
+Wenyou Yang
+ÿôèº{.nÇ+‰·Ÿ®‰­†+%ŠËÿ±éİ¶¥Šwÿº{.nÇ+‰·¥Š{±şG«éÿŠ{ayº
+Ê‡Ú™ë,j­¢f£¢·hšïêÿ‘êçz_è®(­éšŠİ¢j"ú¶m§ÿÿ¾«şG«éÿ¢¸?™¨è­Ú&£ø§~á¶iO•æ¬z·švØ^¶m§ÿÿÃ
+ÿ¶ìÿ¢¸?–I¥
