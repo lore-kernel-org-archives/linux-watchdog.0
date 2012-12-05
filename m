@@ -1,44 +1,58 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:39454 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751936Ab2LEKtj (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 5 Dec 2012 05:49:39 -0500
-From: Florian Fainelli <florian@openwrt.org>
-To: Wenyou Yang <wenyou.yang@atmel.com>
-Cc: linux-arm-kernel@lists.infradead.org, nicolas.ferre@atmel.com,
-	plagnioj@jcrosoft.com, JM.Lin@atmel.com, wim@iguana.be,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [v2 PATCH 2/8] watchdog/at91sam9_wdt: Convert to use the watchdog framework
-Date: Wed, 05 Dec 2012 11:47:39 +0100
-Message-ID: <3976223.KImVV2lC5B@flexo>
-In-Reply-To: <1354671267-19277-3-git-send-email-wenyou.yang@atmel.com>
-References: <1354671267-19277-1-git-send-email-wenyou.yang@atmel.com> <1354671267-19277-3-git-send-email-wenyou.yang@atmel.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="utf-8"
+Received: from server19320154104.serverpool.info ([193.201.54.104]:47279 "EHLO
+	hauke-m.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751820Ab2LERqu (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 5 Dec 2012 12:46:50 -0500
+From: Hauke Mehrtens <hauke@hauke-m.de>
+To: linville@tuxdriver.com, wim@iguana.be
+Cc: linux-wireless@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	castet.matthieu@free.fr, biblbroks@sezampro.rs, m@bues.ch,
+	zajec5@gmail.com, linux-mips@linux-mips.org,
+	Hauke Mehrtens <hauke@hauke-m.de>
+Subject: [PATCH v3 01/11] ssb/bcma: add common header for watchdog
+Date: Wed,  5 Dec 2012 18:45:58 +0100
+Message-Id: <1354729568-19993-2-git-send-email-hauke@hauke-m.de>
+In-Reply-To: <1354729568-19993-1-git-send-email-hauke@hauke-m.de>
+References: <1354729568-19993-1-git-send-email-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello Wenyou,
+This adds a common header for watchdog functions, so a watchdog driver
+just needs to use this and could provide watchdog functionality for ssb
+and bcma based SoCs. Patches for a watchdog driver using this interface
+will be send later.
 
-On Wednesday 05 December 2012 09:34:21 Wenyou Yang wrote:
-> According to the kernel document: convert_drivers_to_kernel_api.txt,
-> remove the file_operations struct, miscdevice, and obsolete includes
-> 
-> Since the at91sam watchdog inherent characteristics, add the watchdog
-> operations: at91wdt_start, at91wdt_stop and at91wdt_ping.
-> 
+Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+---
+ include/linux/bcm47xx_wdt.h |   19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+ create mode 100644 include/linux/bcm47xx_wdt.h
 
-[snip]
+diff --git a/include/linux/bcm47xx_wdt.h b/include/linux/bcm47xx_wdt.h
+new file mode 100644
+index 0000000..e5dfc25
+--- /dev/null
++++ b/include/linux/bcm47xx_wdt.h
+@@ -0,0 +1,19 @@
++#ifndef LINUX_BCM47XX_WDT_H_
++#define LINUX_BCM47XX_WDT_H_
++
++#include <linux/types.h>
++
++
++struct bcm47xx_wdt {
++	u32 (*timer_set)(struct bcm47xx_wdt *, u32);
++	u32 (*timer_set_ms)(struct bcm47xx_wdt *, u32);
++	u32 max_timer_ms;
++
++	void *driver_data;
++};
++
++static inline void *bcm47xx_wdt_get_drvdata(struct bcm47xx_wdt *wdt)
++{
++	return wdt->driver_data;
++}
++#endif /* LINUX_BCM47XX_WDT_H_ */
+-- 
+1.7.10.4
 
->  
-> +static inline bool watchdog_is_open(struct watchdog_device *wddev)
-> +{
-> +	return test_bit(WDOG_DEV_OPEN, &wddev->status);
-> +}
-
-This helper should be moved to include/linux/watchdog.h as it can be useful
-for other watchdog drivers as well. 
---
-Florian
