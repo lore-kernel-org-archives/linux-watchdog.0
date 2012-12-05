@@ -1,173 +1,129 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from server19320154104.serverpool.info ([193.201.54.104]:47388 "EHLO
+Received: from server19320154104.serverpool.info ([193.201.54.104]:47399 "EHLO
 	hauke-m.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752137Ab2LERsS (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 5 Dec 2012 12:48:18 -0500
+	id S1753222Ab2LERsV (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 5 Dec 2012 12:48:21 -0500
 From: Hauke Mehrtens <hauke@hauke-m.de>
 To: linville@tuxdriver.com, wim@iguana.be
 Cc: linux-wireless@vger.kernel.org, linux-watchdog@vger.kernel.org,
 	castet.matthieu@free.fr, biblbroks@sezampro.rs, m@bues.ch,
 	zajec5@gmail.com, linux-mips@linux-mips.org,
 	Hauke Mehrtens <hauke@hauke-m.de>
-Subject: [PATCH v3 08/11] ssb: add methods for watchdog driver
-Date: Wed,  5 Dec 2012 18:46:05 +0100
-Message-Id: <1354729568-19993-9-git-send-email-hauke@hauke-m.de>
+Subject: [PATCH v3 10/11] ssb: extif: add methods for watchdog driver
+Date: Wed,  5 Dec 2012 18:46:07 +0100
+Message-Id: <1354729568-19993-11-git-send-email-hauke@hauke-m.de>
 In-Reply-To: <1354729568-19993-1-git-send-email-hauke@hauke-m.de>
 References: <1354729568-19993-1-git-send-email-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 The watchdog driver wants to set the watchdog timeout in ms and not in
-ticks, which is depending on the SoC type and the clock.
-Calculate the number of ticks per millisecond and provide two functions
-for the watchdog driver. Also return the ticks or millisecond the timer
-was set to in case the provided value was bigger than the max allowed
-value.
+ticks, add a method converting ms to ticks before setting the watchdog
+register. Return the ticks or millisecond the timer was set to in case
+the provided value was bigger than the max allowed value.
 
 Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
 ---
- drivers/ssb/driver_chipcommon.c           |   47 ++++++++++++++++++++++++++++-
- drivers/ssb/ssb_private.h                 |    5 +++
- include/linux/ssb/ssb_driver_chipcommon.h |    5 +--
- 3 files changed, 54 insertions(+), 3 deletions(-)
+ drivers/ssb/driver_extif.c           |   21 ++++++++++++++++++++-
+ drivers/ssb/ssb_private.h            |   15 +++++++++++++++
+ include/linux/ssb/ssb_driver_extif.h |    9 +++++----
+ 3 files changed, 40 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/ssb/driver_chipcommon.c b/drivers/ssb/driver_chipcommon.c
-index 6e080f6..95c33a0 100644
---- a/drivers/ssb/driver_chipcommon.c
-+++ b/drivers/ssb/driver_chipcommon.c
-@@ -4,6 +4,7 @@
-  *
-  * Copyright 2005, Broadcom Corporation
-  * Copyright 2006, 2007, Michael Buesch <m@bues.ch>
-+ * Copyright 2012, Hauke Mehrtens <hauke@hauke-m.de>
-  *
-  * Licensed under the GNU/GPL. See COPYING for details.
-  */
-@@ -12,6 +13,7 @@
- #include <linux/ssb/ssb_regs.h>
- #include <linux/export.h>
- #include <linux/pci.h>
-+#include <linux/bcm47xx_wdt.h>
- 
- #include "ssb_private.h"
- 
-@@ -306,6 +308,43 @@ static u32 ssb_chipco_watchdog_get_max_timer(struct ssb_chipcommon *cc)
- 		return (1 << nb) - 1;
+diff --git a/drivers/ssb/driver_extif.c b/drivers/ssb/driver_extif.c
+index 0aa4c2a..553227a 100644
+--- a/drivers/ssb/driver_extif.c
++++ b/drivers/ssb/driver_extif.c
+@@ -112,11 +112,30 @@ void ssb_extif_get_clockcontrol(struct ssb_extif *extif,
+ 	*m = extif_read32(extif, SSB_EXTIF_CLOCK_SB);
  }
  
-+u32 ssb_chipco_watchdog_timer_set_wdt(struct bcm47xx_wdt *wdt, u32 ticks)
+-void ssb_extif_watchdog_timer_set(struct ssb_extif *extif, u32 ticks)
++u32 ssb_extif_watchdog_timer_set_wdt(struct bcm47xx_wdt *wdt, u32 ticks)
 +{
-+	struct ssb_chipcommon *cc = bcm47xx_wdt_get_drvdata(wdt);
++	struct ssb_extif *extif = bcm47xx_wdt_get_drvdata(wdt);
 +
-+	if (cc->dev->bus->bustype != SSB_BUSTYPE_SSB)
-+		return 0;
-+
-+	return ssb_chipco_watchdog_timer_set(cc, ticks);
++	return ssb_extif_watchdog_timer_set(extif, ticks);
 +}
 +
-+u32 ssb_chipco_watchdog_timer_set_ms(struct bcm47xx_wdt *wdt, u32 ms)
++u32 ssb_extif_watchdog_timer_set_ms(struct bcm47xx_wdt *wdt, u32 ms)
 +{
-+	struct ssb_chipcommon *cc = bcm47xx_wdt_get_drvdata(wdt);
-+	u32 ticks;
++	struct ssb_extif *extif = bcm47xx_wdt_get_drvdata(wdt);
++	u32 ticks = (SSB_EXTIF_WATCHDOG_CLK / 1000) * ms;
 +
-+	if (cc->dev->bus->bustype != SSB_BUSTYPE_SSB)
-+		return 0;
++	ticks = ssb_extif_watchdog_timer_set(extif, ticks);
 +
-+	ticks = ssb_chipco_watchdog_timer_set(cc, cc->ticks_per_ms * ms);
-+	return ticks / cc->ticks_per_ms;
++	return (ticks * 1000) / SSB_EXTIF_WATCHDOG_CLK;
 +}
 +
-+static int ssb_chipco_watchdog_ticks_per_ms(struct ssb_chipcommon *cc)
-+{
-+	struct ssb_bus *bus = cc->dev->bus;
-+
-+	if (cc->capabilities & SSB_CHIPCO_CAP_PMU) {
-+			/* based on 32KHz ILP clock */
-+			return 32;
-+	} else {
-+		if (cc->dev->id.revision < 18)
-+			return ssb_clockspeed(bus) / 1000;
-+		else
-+			return ssb_chipco_alp_clock(cc) / 1000;
-+	}
-+}
-+
- void ssb_chipcommon_init(struct ssb_chipcommon *cc)
++u32 ssb_extif_watchdog_timer_set(struct ssb_extif *extif, u32 ticks)
  {
- 	if (!cc->dev)
-@@ -323,6 +362,11 @@ void ssb_chipcommon_init(struct ssb_chipcommon *cc)
- 	chipco_powercontrol_init(cc);
- 	ssb_chipco_set_clockmode(cc, SSB_CLKMODE_FAST);
- 	calc_fast_powerup_delay(cc);
+ 	if (ticks > SSB_EXTIF_WATCHDOG_MAX_TIMER)
+ 		ticks = SSB_EXTIF_WATCHDOG_MAX_TIMER;
+ 	extif_write32(extif, SSB_EXTIF_WATCHDOG, ticks);
 +
-+	if (cc->dev->bus->bustype == SSB_BUSTYPE_SSB) {
-+		cc->ticks_per_ms = ssb_chipco_watchdog_ticks_per_ms(cc);
-+		cc->max_timer_ms = ssb_chipco_watchdog_get_max_timer(cc) / cc->ticks_per_ms;
-+	}
- }
- 
- void ssb_chipco_suspend(struct ssb_chipcommon *cc)
-@@ -421,7 +465,7 @@ void ssb_chipco_timing_init(struct ssb_chipcommon *cc,
- }
- 
- /* Set chip watchdog reset timer to fire in 'ticks' backplane cycles */
--void ssb_chipco_watchdog_timer_set(struct ssb_chipcommon *cc, u32 ticks)
-+u32 ssb_chipco_watchdog_timer_set(struct ssb_chipcommon *cc, u32 ticks)
- {
- 	u32 maxt;
- 	enum ssb_clkmode clkmode;
-@@ -441,6 +485,7 @@ void ssb_chipco_watchdog_timer_set(struct ssb_chipcommon *cc, u32 ticks)
- 		/* instant NMI */
- 		chipco_write32(cc, SSB_CHIPCO_WATCHDOG, ticks);
- 	}
 +	return ticks;
  }
  
- void ssb_chipco_irq_mask(struct ssb_chipcommon *cc, u32 mask, u32 value)
+ u32 ssb_extif_gpio_in(struct ssb_extif *extif, u32 mask)
 diff --git a/drivers/ssb/ssb_private.h b/drivers/ssb/ssb_private.h
-index 98b2915..03cc40a 100644
+index 03cc40a..50ea028 100644
 --- a/drivers/ssb/ssb_private.h
 +++ b/drivers/ssb/ssb_private.h
-@@ -3,6 +3,7 @@
+@@ -217,4 +217,19 @@ extern u32 ssb_chipco_watchdog_timer_set_wdt(struct bcm47xx_wdt *wdt,
+ 					     u32 ticks);
+ extern u32 ssb_chipco_watchdog_timer_set_ms(struct bcm47xx_wdt *wdt, u32 ms);
  
- #include <linux/ssb/ssb.h>
- #include <linux/types.h>
-+#include <linux/bcm47xx_wdt.h>
- 
- 
- #define PFX	"ssb: "
-@@ -212,4 +213,8 @@ extern u32 ssb_pmu_get_cpu_clock(struct ssb_chipcommon *cc);
- extern u32 ssb_pmu_get_controlclock(struct ssb_chipcommon *cc);
- extern u32 ssb_pmu_get_alp_clock(struct ssb_chipcommon *cc);
- 
-+extern u32 ssb_chipco_watchdog_timer_set_wdt(struct bcm47xx_wdt *wdt,
-+					     u32 ticks);
-+extern u32 ssb_chipco_watchdog_timer_set_ms(struct bcm47xx_wdt *wdt, u32 ms);
-+
++#ifdef CONFIG_SSB_DRIVER_EXTIF
++extern u32 ssb_extif_watchdog_timer_set_wdt(struct bcm47xx_wdt *wdt, u32 ticks);
++extern u32 ssb_extif_watchdog_timer_set_ms(struct bcm47xx_wdt *wdt, u32 ms);
++#else
++static inline u32 ssb_extif_watchdog_timer_set_wdt(struct bcm47xx_wdt *wdt,
++						   u32 ticks)
++{
++	return 0;
++}
++static inline u32 ssb_extif_watchdog_timer_set_ms(struct bcm47xx_wdt *wdt,
++						  u32 ms)
++{
++	return 0;
++}
++#endif
  #endif /* LINUX_SSB_PRIVATE_H_ */
-diff --git a/include/linux/ssb/ssb_driver_chipcommon.h b/include/linux/ssb/ssb_driver_chipcommon.h
-index c2b02a5..38339fd 100644
---- a/include/linux/ssb/ssb_driver_chipcommon.h
-+++ b/include/linux/ssb/ssb_driver_chipcommon.h
-@@ -591,6 +591,8 @@ struct ssb_chipcommon {
- 	/* Fast Powerup Delay constant */
- 	u16 fast_pwrup_delay;
- 	struct ssb_chipcommon_pmu pmu;
-+	u32 ticks_per_ms;
-+	u32 max_timer_ms;
- };
+diff --git a/include/linux/ssb/ssb_driver_extif.h b/include/linux/ssb/ssb_driver_extif.h
+index b618188..99511d0 100644
+--- a/include/linux/ssb/ssb_driver_extif.h
++++ b/include/linux/ssb/ssb_driver_extif.h
+@@ -153,6 +153,8 @@
+ #define SSB_EXTIF_WATCHDOG_CLK		48000000	/* Hz */
  
- static inline bool ssb_chipco_available(struct ssb_chipcommon *cc)
-@@ -630,8 +632,7 @@ enum ssb_clkmode {
- extern void ssb_chipco_set_clockmode(struct ssb_chipcommon *cc,
- 				     enum ssb_clkmode mode);
+ #define SSB_EXTIF_WATCHDOG_MAX_TIMER	((1 << 28) - 1)
++#define SSB_EXTIF_WATCHDOG_MAX_TIMER_MS	(SSB_EXTIF_WATCHDOG_MAX_TIMER \
++					 / (SSB_EXTIF_WATCHDOG_CLK / 1000))
  
--extern void ssb_chipco_watchdog_timer_set(struct ssb_chipcommon *cc,
--					  u32 ticks);
-+extern u32 ssb_chipco_watchdog_timer_set(struct ssb_chipcommon *cc, u32 ticks);
  
- void ssb_chipco_irq_mask(struct ssb_chipcommon *cc, u32 mask, u32 value);
+ #ifdef CONFIG_SSB_DRIVER_EXTIF
+@@ -172,8 +174,7 @@ extern void ssb_extif_get_clockcontrol(struct ssb_extif *extif,
+ extern void ssb_extif_timing_init(struct ssb_extif *extif,
+ 				  unsigned long ns);
  
+-extern void ssb_extif_watchdog_timer_set(struct ssb_extif *extif,
+-					 u32 ticks);
++extern u32 ssb_extif_watchdog_timer_set(struct ssb_extif *extif, u32 ticks);
+ 
+ /* Extif GPIO pin access */
+ u32 ssb_extif_gpio_in(struct ssb_extif *extif, u32 mask);
+@@ -211,9 +212,9 @@ void ssb_extif_timing_init(struct ssb_extif *extif, unsigned long ns)
+ }
+ 
+ static inline
+-void ssb_extif_watchdog_timer_set(struct ssb_extif *extif,
+-				  u32 ticks)
++u32 ssb_extif_watchdog_timer_set(struct ssb_extif *extif, u32 ticks)
+ {
++	return 0;
+ }
+ 
+ static inline u32 ssb_extif_gpio_in(struct ssb_extif *extif, u32 mask)
 -- 
 1.7.10.4
 
