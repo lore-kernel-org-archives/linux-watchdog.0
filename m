@@ -4,9 +4,9 @@ To: linux-arm-kernel@lists.infradead.org
 Cc: nicolas.ferre@atmel.com, plagnioj@jcrosoft.com, JM.Lin@atmel.com,
         wenyou.yang@atmel.com, wim@iguana.be, linux-watchdog@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [v2 PATCH 4/8] watchdog/at91sam9_wdt: Add nowayout helpers to Watchdog Timer Driver Kernel API
-Date: Wed,  5 Dec 2012 09:34:23 +0800
-Message-Id: <1354671267-19277-5-git-send-email-wenyou.yang@atmel.com>
+Subject: [v2 PATCH 3/8] watchdog/at91sam9_wdt: Adjust the options of watchdog_info
+Date: Wed,  5 Dec 2012 09:34:22 +0800
+Message-Id: <1354671267-19277-4-git-send-email-wenyou.yang@atmel.com>
 In-Reply-To: <1354671267-19277-1-git-send-email-wenyou.yang@atmel.com>
 References: <1354671267-19277-1-git-send-email-wenyou.yang@atmel.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -14,26 +14,31 @@ List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
+Since the Watchdog Timer Mode Register can be only written only once,
+so the watchdog_info shall not support WDIOF_SETTIMEOUT
+and WDIOF_MAGICCLOSE options, remove them.
+
 Signed-off-by: Wenyou Yang <wenyou.yang@atmel.com>
 Cc: wim@iguana.be
 Cc: linux-watchdog@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 ---
- drivers/watchdog/at91sam9_wdt.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/watchdog/at91sam9_wdt.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
-index 4dc6d61..f1e21dd 100644
+index 92467d4..4dc6d61 100644
 --- a/drivers/watchdog/at91sam9_wdt.c
 +++ b/drivers/watchdog/at91sam9_wdt.c
-@@ -240,6 +240,8 @@ static int __init at91wdt_probe(struct platform_device *pdev)
- 		return ret;
- 	}
+@@ -156,8 +156,7 @@ static int at91wdt_enable(struct watchdog_device *wddev, unsigned int timeout)
  
-+	watchdog_set_nowayout(&at91wdt_wdd, nowayout);
-+
- 	watchdog_init_timeout(&at91wdt_wdd, heartbeat, pdev->dev.of_node);
+ static const struct watchdog_info at91_wdt_info = {
+ 	.identity	= DRV_NAME,
+-	.options	= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
+-						WDIOF_MAGICCLOSE,
++	.options	= WDIOF_KEEPALIVEPING,
+ };
  
- 	ret = at91wdt_enable(&at91wdt_wdd, ms_to_ticks(WDT_HW_TIMEOUT * 1000));
+ static int at91wdt_start(struct watchdog_device *wddev)
 -- 
 1.7.9.5
