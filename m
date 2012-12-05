@@ -1,135 +1,114 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from server19320154104.serverpool.info ([193.201.54.104]:47340 "EHLO
+Received: from server19320154104.serverpool.info ([193.201.54.104]:47355 "EHLO
 	hauke-m.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752950Ab2LERr6 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 5 Dec 2012 12:47:58 -0500
+	id S1753035Ab2LERsI (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 5 Dec 2012 12:48:08 -0500
 From: Hauke Mehrtens <hauke@hauke-m.de>
 To: linville@tuxdriver.com, wim@iguana.be
 Cc: linux-wireless@vger.kernel.org, linux-watchdog@vger.kernel.org,
 	castet.matthieu@free.fr, biblbroks@sezampro.rs, m@bues.ch,
 	zajec5@gmail.com, linux-mips@linux-mips.org,
 	Hauke Mehrtens <hauke@hauke-m.de>
-Subject: [PATCH v3 05/11] bcma: register watchdog driver
-Date: Wed,  5 Dec 2012 18:46:02 +0100
-Message-Id: <1354729568-19993-6-git-send-email-hauke@hauke-m.de>
+Subject: [PATCH v3 06/11] ssb: get alp clock from devices with PMU
+Date: Wed,  5 Dec 2012 18:46:03 +0100
+Message-Id: <1354729568-19993-7-git-send-email-hauke@hauke-m.de>
 In-Reply-To: <1354729568-19993-1-git-send-email-hauke@hauke-m.de>
 References: <1354729568-19993-1-git-send-email-hauke@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Register the watchdog driver to the system if this is a SoC. Using the
-watchdog on a non SoC device, like a PCIe card, will make the PCIe
-card die when the timeout expired, but starting it again is not
-supported by bcma.
+If there is a PMU in the device, get the alp clock from that part and
+do not assume 20000000.
 
 Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
 ---
- drivers/bcma/bcma_private.h                 |    2 ++
- drivers/bcma/driver_chipcommon.c            |   22 ++++++++++++++++++++++
- drivers/bcma/main.c                         |    8 ++++++++
- include/linux/bcma/bcma_driver_chipcommon.h |    3 +++
- 4 files changed, 35 insertions(+)
+ drivers/ssb/driver_chipcommon.c     |   15 +++++++++------
+ drivers/ssb/driver_chipcommon_pmu.c |   27 +++++++++++++++++++++++++++
+ drivers/ssb/ssb_private.h           |    1 +
+ 3 files changed, 37 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/bcma/bcma_private.h b/drivers/bcma/bcma_private.h
-index 169fc58..bcb830e 100644
---- a/drivers/bcma/bcma_private.h
-+++ b/drivers/bcma/bcma_private.h
-@@ -84,6 +84,8 @@ extern void __exit bcma_host_pci_exit(void);
- /* driver_pci.c */
- u32 bcma_pcie_read(struct bcma_drv_pci *pc, u32 address);
- 
-+extern int bcma_chipco_watchdog_register(struct bcma_drv_cc *cc);
-+
- #ifdef CONFIG_BCMA_DRIVER_PCI_HOSTMODE
- bool __devinit bcma_core_pci_is_in_hostmode(struct bcma_drv_pci *pc);
- void __devinit bcma_core_pci_hostmode_init(struct bcma_drv_pci *pc);
-diff --git a/drivers/bcma/driver_chipcommon.c b/drivers/bcma/driver_chipcommon.c
-index 1172226..d017f25 100644
---- a/drivers/bcma/driver_chipcommon.c
-+++ b/drivers/bcma/driver_chipcommon.c
-@@ -12,6 +12,7 @@
- #include "bcma_private.h"
- #include <linux/bcm47xx_wdt.h>
- #include <linux/export.h>
-+#include <linux/platform_device.h>
- #include <linux/bcma/bcma.h>
- 
- static inline u32 bcma_cc_write32_masked(struct bcma_drv_cc *cc, u16 offset,
-@@ -87,6 +88,27 @@ static int bcma_chipco_watchdog_ticks_per_ms(struct bcma_drv_cc *cc)
- 	}
+diff --git a/drivers/ssb/driver_chipcommon.c b/drivers/ssb/driver_chipcommon.c
+index e9d2ca1..603b630 100644
+--- a/drivers/ssb/driver_chipcommon.c
++++ b/drivers/ssb/driver_chipcommon.c
+@@ -280,6 +280,14 @@ static void calc_fast_powerup_delay(struct ssb_chipcommon *cc)
+ 	cc->fast_pwrup_delay = tmp;
  }
  
-+int bcma_chipco_watchdog_register(struct bcma_drv_cc *cc)
++static u32 ssb_chipco_alp_clock(struct ssb_chipcommon *cc)
 +{
-+	struct bcm47xx_wdt wdt = {};
-+	struct platform_device *pdev;
++	if (cc->capabilities & SSB_CHIPCO_CAP_PMU)
++		return ssb_pmu_get_alp_clock(cc);
 +
-+	wdt.driver_data = cc;
-+	wdt.timer_set = bcma_chipco_watchdog_timer_set_wdt;
-+	wdt.timer_set_ms = bcma_chipco_watchdog_timer_set_ms_wdt;
-+	wdt.max_timer_ms = bcma_chipco_watchdog_get_max_timer(cc) / cc->ticks_per_ms;
-+
-+	pdev = platform_device_register_data(NULL, "bcm47xx-wdt",
-+					     cc->core->bus->num, &wdt,
-+					     sizeof(wdt));
-+	if (IS_ERR(pdev))
-+		return PTR_ERR(pdev);
-+
-+	cc->watchdog = pdev;
-+
-+	return 0;
++	return 20000000;
 +}
 +
- void bcma_core_chipcommon_early_init(struct bcma_drv_cc *cc)
+ void ssb_chipcommon_init(struct ssb_chipcommon *cc)
  {
- 	if (cc->early_setup_done)
-diff --git a/drivers/bcma/main.c b/drivers/bcma/main.c
-index a971889..debd4f1 100644
---- a/drivers/bcma/main.c
-+++ b/drivers/bcma/main.c
-@@ -165,6 +165,12 @@ static int bcma_register_cores(struct bcma_bus *bus)
- 	}
- #endif
+ 	if (!cc->dev)
+@@ -473,12 +481,7 @@ int ssb_chipco_serial_init(struct ssb_chipcommon *cc,
+ 				       chipco_read32(cc, SSB_CHIPCO_CORECTL)
+ 				       | SSB_CHIPCO_CORECTL_UARTCLK0);
+ 		} else if ((ccrev >= 11) && (ccrev != 15)) {
+-			/* Fixed ALP clock */
+-			baud_base = 20000000;
+-			if (cc->capabilities & SSB_CHIPCO_CAP_PMU) {
+-				/* FIXME: baud_base is different for devices with a PMU */
+-				SSB_WARN_ON(1);
+-			}
++			baud_base = ssb_chipco_alp_clock(cc);
+ 			div = 1;
+ 			if (ccrev >= 21) {
+ 				/* Turn off UART clock before switching clocksource. */
+diff --git a/drivers/ssb/driver_chipcommon_pmu.c b/drivers/ssb/driver_chipcommon_pmu.c
+index d7d5804..a43415a 100644
+--- a/drivers/ssb/driver_chipcommon_pmu.c
++++ b/drivers/ssb/driver_chipcommon_pmu.c
+@@ -618,6 +618,33 @@ void ssb_pmu_set_ldo_paref(struct ssb_chipcommon *cc, bool on)
+ EXPORT_SYMBOL(ssb_pmu_set_ldo_voltage);
+ EXPORT_SYMBOL(ssb_pmu_set_ldo_paref);
  
-+	if (bus->hosttype == BCMA_HOSTTYPE_SOC) {
-+		err = bcma_chipco_watchdog_register(&bus->drv_cc);
-+		if (err)
-+			bcma_err(bus, "Error registering watchdog driver\n");
++static u32 ssb_pmu_get_alp_clock_clk0(struct ssb_chipcommon *cc)
++{
++	u32 crystalfreq;
++	const struct pmu0_plltab_entry *e = NULL;
++
++	crystalfreq = chipco_read32(cc, SSB_CHIPCO_PMU_CTL) &
++		      SSB_CHIPCO_PMU_CTL_XTALFREQ >> SSB_CHIPCO_PMU_CTL_XTALFREQ_SHIFT;
++	e = pmu0_plltab_find_entry(crystalfreq);
++	BUG_ON(!e);
++	return e->freq * 1000;
++}
++
++u32 ssb_pmu_get_alp_clock(struct ssb_chipcommon *cc)
++{
++	struct ssb_bus *bus = cc->dev->bus;
++
++	switch (bus->chip_id) {
++	case 0x5354:
++		ssb_pmu_get_alp_clock_clk0(cc);
++	default:
++		ssb_printk(KERN_ERR PFX
++			   "ERROR: PMU alp clock unknown for device %04X\n",
++			   bus->chip_id);
++		return 0;
 +	}
++}
 +
- 	return 0;
- }
+ u32 ssb_pmu_get_cpu_clock(struct ssb_chipcommon *cc)
+ {
+ 	struct ssb_bus *bus = cc->dev->bus;
+diff --git a/drivers/ssb/ssb_private.h b/drivers/ssb/ssb_private.h
+index a305550..98b2915 100644
+--- a/drivers/ssb/ssb_private.h
++++ b/drivers/ssb/ssb_private.h
+@@ -210,5 +210,6 @@ static inline void b43_pci_ssb_bridge_exit(void)
+ /* driver_chipcommon_pmu.c */
+ extern u32 ssb_pmu_get_cpu_clock(struct ssb_chipcommon *cc);
+ extern u32 ssb_pmu_get_controlclock(struct ssb_chipcommon *cc);
++extern u32 ssb_pmu_get_alp_clock(struct ssb_chipcommon *cc);
  
-@@ -177,6 +183,8 @@ static void bcma_unregister_cores(struct bcma_bus *bus)
- 		if (core->dev_registered)
- 			device_unregister(&core->dev);
- 	}
-+	if (bus->hosttype == BCMA_HOSTTYPE_SOC)
-+		platform_device_unregister(bus->drv_cc.watchdog);
- }
- 
- int __devinit bcma_bus_register(struct bcma_bus *bus)
-diff --git a/include/linux/bcma/bcma_driver_chipcommon.h b/include/linux/bcma/bcma_driver_chipcommon.h
-index 2f9b014..e513591 100644
---- a/include/linux/bcma/bcma_driver_chipcommon.h
-+++ b/include/linux/bcma/bcma_driver_chipcommon.h
-@@ -1,6 +1,8 @@
- #ifndef LINUX_BCMA_DRIVER_CC_H_
- #define LINUX_BCMA_DRIVER_CC_H_
- 
-+#include <linux/platform_device.h>
-+
- /** ChipCommon core registers. **/
- #define BCMA_CC_ID			0x0000
- #define  BCMA_CC_ID_ID			0x0000FFFF
-@@ -571,6 +573,7 @@ struct bcma_drv_cc {
- 	struct bcma_serial_port serial_ports[4];
- #endif /* CONFIG_BCMA_DRIVER_MIPS */
- 	u32 ticks_per_ms;
-+	struct platform_device *watchdog;
- };
- 
- /* Register access */
+ #endif /* LINUX_SSB_PRIVATE_H_ */
 -- 
 1.7.10.4
 
