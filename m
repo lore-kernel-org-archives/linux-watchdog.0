@@ -1,69 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: "Yang, Wenyou" <Wenyou.Yang@atmel.com>
-To: Florian Fainelli <florian@openwrt.org>
-CC: "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-        "Ferre, Nicolas" <Nicolas.FERRE@atmel.com>,
-        "plagnioj@jcrosoft.com" <plagnioj@jcrosoft.com>,
-        "Lin, JM" <JM.Lin@atmel.com>, "wim@iguana.be" <wim@iguana.be>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: RE: [v2 PATCH 2/8] watchdog/at91sam9_wdt: Convert to use the
- watchdog framework
-Date: Thu, 6 Dec 2012 00:54:48 +0000
-Message-ID: <B256D81BAE5131468A838E5D7A2436413A01D599@penmbx01>
-References: <1354671267-19277-1-git-send-email-wenyou.yang@atmel.com>
- <1354671267-19277-3-git-send-email-wenyou.yang@atmel.com>
- <3976223.KImVV2lC5B@flexo>
-In-Reply-To: <3976223.KImVV2lC5B@flexo>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
+Message-ID: <50C0E0E8.3020809@mvista.com>
+Date: Thu, 06 Dec 2012 21:16:08 +0300
+From: Sergei Shtylyov <sshtylyov@mvista.com>
 MIME-Version: 1.0
+To: Wenyou Yang <wenyou.yang@atmel.com>
+CC: linux-arm-kernel@lists.infradead.org, linux-watchdog@vger.kernel.org,
+        JM.Lin@atmel.com, nicolas.ferre@atmel.com,
+        linux-kernel@vger.kernel.org, wim@iguana.be, plagnioj@jcrosoft.com
+Subject: Re: [v2 PATCH 6/8] watchdog/at91sam9_wdt: Use module_platform_driver()
+References: <1354671267-19277-1-git-send-email-wenyou.yang@atmel.com> <1354671267-19277-7-git-send-email-wenyou.yang@atmel.com>
+In-Reply-To: <1354671267-19277-7-git-send-email-wenyou.yang@atmel.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
-Content-Transfer-Encoding: 8bit
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Florian,
+Hello.
 
-> -----Original Message-----
-> From: Florian Fainelli [mailto:f.fainelli@gmail.com] On Behalf Of Florian Fainelli
-> Sent: 2012å¹´12æœˆ5æ—¥ 18:48
-> To: Yang, Wenyou
-> Cc: linux-arm-kernel@lists.infradead.org; Ferre, Nicolas; plagnioj@jcrosoft.com; Lin,
-> JM; wim@iguana.be; linux-watchdog@vger.kernel.org; linux-kernel@vger.kernel.org
-> Subject: Re: [v2 PATCH 2/8] watchdog/at91sam9_wdt: Convert to use the watchdog
-> framework
-> 
-> Hello Wenyou,
-> 
-> On Wednesday 05 December 2012 09:34:21 Wenyou Yang wrote:
-> > According to the kernel document: convert_drivers_to_kernel_api.txt,
-> > remove the file_operations struct, miscdevice, and obsolete includes
-> >
-> > Since the at91sam watchdog inherent characteristics, add the watchdog
-> > operations: at91wdt_start, at91wdt_stop and at91wdt_ping.
-> >
-> 
-> [snip]
-> 
-> >
-> > +static inline bool watchdog_is_open(struct watchdog_device *wddev)
-> > +{
-> > +	return test_bit(WDOG_DEV_OPEN, &wddev->status);
-> > +}
-> 
-> This helper should be moved to include/linux/watchdog.h as it can be useful
-> for other watchdog drivers as well.
+On 12/05/2012 04:34 AM, Wenyou Yang wrote:
 
-Thanks, I will move it in next version.
+> Using module_platform_driver() replaces module_init() and module_exit()
+> and makes the code simpler.
 
-> --
-> Florian
+> Signed-off-by: Wenyou Yang <wenyou.yang@atmel.com>
+> Cc: wim@iguana.be
+> Cc: linux-watchdog@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> ---
+>  drivers/watchdog/at91sam9_wdt.c |   14 ++------------
+>  1 file changed, 2 insertions(+), 12 deletions(-)
+> 
+> diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
+> index 5afd3fb..a7c0881 100644
+> --- a/drivers/watchdog/at91sam9_wdt.c
+> +++ b/drivers/watchdog/at91sam9_wdt.c
+> @@ -278,6 +278,7 @@ MODULE_DEVICE_TABLE(of, at91_wdt_dt_ids);
+>  #endif
+>  
+>  static struct platform_driver at91wdt_driver = {
+> +	.probe		= at91wdt_probe,
 
-Best Regards
-Wenyou Yang
-ÿôèº{.nÇ+‰·Ÿ®‰­†+%ŠËÿ±éİ¶¥Šwÿº{.nÇ+‰·¥Š{±şG«éÿŠ{ayº
-Ê‡Ú™ë,j­¢f£¢·hšïêÿ‘êçz_è®(­éšŠİ¢j"ú¶m§ÿÿ¾«şG«éÿ¢¸?™¨è­Ú&£ø§~á¶iO•æ¬z·švØ^¶m§ÿÿÃ
-ÿ¶ìÿ¢¸?–I¥
+   You also need to remove '__init' annotation from that function since the
+driver becomes hot-plug aware now.
+
+WBR, Sergei
