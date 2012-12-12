@@ -1,34 +1,27 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:36084 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:36086 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754849Ab2LLUXf (ORCPT
+	with ESMTP id S1754169Ab2LLUgC (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 12 Dec 2012 15:23:35 -0500
-Date: Wed, 12 Dec 2012 21:23:31 +0100
+	Wed, 12 Dec 2012 15:36:02 -0500
+Date: Wed, 12 Dec 2012 21:18:09 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Fabio Estevam <festevam@gmail.com>
-Cc: shawn.guo@linaro.org, kernel@pengutronix.de,
-	linux-watchdog@vger.kernel.org,
-	Fabio Estevam <fabio.estevam@freescale.com>
-Subject: Re: [PATCH] watchdog: imx2_wdt: Select the driver via ARCH_MXC
-Message-ID: <20121212202331.GA31012@spo001.leaseweb.com>
-References: <1341264782-19098-1-git-send-email-festevam@gmail.com>
+To: "devendra.aaru" <devendra.aaru@gmail.com>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: watchdog: del_timer call missing on the cpu5wdt.c
+Message-ID: <20121212201809.GA30880@spo001.leaseweb.com>
+References: <CAHdPZaMo6P-OA84NAGyXRArm1Hjc9xvo1zAMiG2N-w3me8RnWQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1341264782-19098-1-git-send-email-festevam@gmail.com>
+In-Reply-To: <CAHdPZaMo6P-OA84NAGyXRArm1Hjc9xvo1zAMiG2N-w3me8RnWQ@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Fabio,
+Hi,
 
-> With device tree support in place, we should not use IMX_HAVE_PLATFORM_IMX2_WDT
-> as a dependency for selecting the imx2_wdt driver.
-> 
-> Use ARCH_MXC symbol instead, so that the driver can be even selected by a device-tree
-> only SoC, such as i.MX6. 
-> 
-> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+> We do a setup_timer at init stage of the module, but we didn't
+> de-activate the time using del_timer.
 
 Added to linux-watchdog-next.
 
