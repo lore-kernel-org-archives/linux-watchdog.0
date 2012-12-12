@@ -1,41 +1,58 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from quartz.orcorp.ca ([184.70.90.242]:57283 "EHLO quartz.orcorp.ca"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751310Ab2LGXEr (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 7 Dec 2012 18:04:47 -0500
-Date: Fri, 7 Dec 2012 15:44:46 -0700
-From: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
-To: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: [PATCH] ARM: Orion: Fix possible null-deference in orion_wdt_probe
-Message-ID: <20121207224446.GA29262@obsidianresearch.com>
+Received: from mail-oa0-f46.google.com ([209.85.219.46]:64742 "EHLO
+	mail-oa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751208Ab2LLL4Y (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 12 Dec 2012 06:56:24 -0500
+Received: by mail-oa0-f46.google.com with SMTP id h16so592528oag.19
+        for <linux-watchdog@vger.kernel.org>; Wed, 12 Dec 2012 03:56:23 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+In-Reply-To: <CAOMZO5DmV5dKQxeK20h-up9M8BQT6RkQ1KXaWj3f+U4ePsDNtQ@mail.gmail.com>
+References: <1341264782-19098-1-git-send-email-festevam@gmail.com>
+	<CAOMZO5DiV8io9v2v=6L9zpEY1M+Df3UZGYmSdTofq0FoxVe14Q@mail.gmail.com>
+	<20120730034904.GE30774@S2101-09.ap.freescale.net>
+	<CAOMZO5DmV5dKQxeK20h-up9M8BQT6RkQ1KXaWj3f+U4ePsDNtQ@mail.gmail.com>
+Date: Wed, 12 Dec 2012 09:56:23 -0200
+Message-ID: <CAOMZO5DiKo=bCO+WzRD073Vf-nLw_oTw7c4WffnxfSaSrtzzqw@mail.gmail.com>
+Subject: Re: [PATCH] watchdog: imx2_wdt: Select the driver via ARCH_MXC
+From: Fabio Estevam <festevam@gmail.com>
+To: Shawn Guo <shawn.guo@linaro.org>
+Cc: wim@iguana.be, kernel@pengutronix.de,
+	linux-watchdog@vger.kernel.org,
+	Fabio Estevam <fabio.estevam@freescale.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-If the DT does not include a regs parameter then the null res
-would be dereferenced.
+Wim,
 
-Signed-off-by: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
----
- drivers/watchdog/orion_wdt.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+Ping?
 
-diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
-index c20f96b..140a1e3 100644
---- a/drivers/watchdog/orion_wdt.c
-+++ b/drivers/watchdog/orion_wdt.c
-@@ -156,6 +156,8 @@ static int __devinit orion_wdt_probe(struct platform_device *pdev)
- 	wdt_tclk = clk_get_rate(clk);
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!res)
-+		return -ENODEV;
- 	wdt_reg = devm_ioremap(&pdev->dev, res->start, resource_size(res));
- 	if (!wdt_reg)
- 		return -ENOMEM;
--- 
-1.7.5.4
-
+On Wed, Nov 28, 2012 at 2:07 PM, Fabio Estevam <festevam@gmail.com> wrote:
+> Wim,
+>
+> On Mon, Jul 30, 2012 at 12:49 AM, Shawn Guo <shawn.guo@linaro.org> wrote:
+>> On Sat, Jul 28, 2012 at 04:35:46PM -0300, Fabio Estevam wrote:
+>>> On Mon, Jul 2, 2012 at 6:33 PM, Fabio Estevam <festevam@gmail.com> wrote:
+>>> > From: Fabio Estevam <fabio.estevam@freescale.com>
+>>> >
+>>> > With device tree support in place, we should not use IMX_HAVE_PLATFORM_IMX2_WDT
+>>> > as a dependency for selecting the imx2_wdt driver.
+>>> >
+>>> > Use ARCH_MXC symbol instead, so that the driver can be even selected by a device-tree
+>>> > only SoC, such as i.MX6.
+>>> >
+>>> > Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+>>>
+>>> Sascha/Shawn,
+>>>
+>>> Any comments?
+>>>
+>> Acked-by: Shawn Guo <shawn.guo@linaro.org>
+>>
+>
+> Could this one be applied, please?
+>
+> Regards,
+>
+> Fabio Estevam
