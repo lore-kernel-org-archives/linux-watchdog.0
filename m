@@ -1,45 +1,58 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:36137 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1755059Ab2LLVh7 (ORCPT
+Received: from mho-04-ewr.mailhop.org ([204.13.248.74]:64704 "EHLO
+	mho-02-ewr.mailhop.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1755747Ab2LNBdH (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 12 Dec 2012 16:37:59 -0500
-Date: Wed, 12 Dec 2012 22:37:53 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: =?utf-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>
-Cc: Hauke Mehrtens <hauke@hauke-m.de>, linville@tuxdriver.com,
-	linux-wireless@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	castet.matthieu@free.fr, biblbroks@sezampro.rs, m@bues.ch,
-	linux-mips@linux-mips.org
-Subject: Re: [PATCH v2 00/15] watchdog/bcm47xx/bcma/ssb: add support for SoCs with PMU
-Message-ID: <20121212213753.GC31853@spo001.leaseweb.com>
-References: <1353975925-32056-1-git-send-email-hauke@hauke-m.de> <CACna6rwmfpNFAFZpvbt8GHzofC6UoyBC4oKF5rL=9xN5_=gYXw@mail.gmail.com>
-Mime-Version: 1.0
+	Thu, 13 Dec 2012 20:33:07 -0500
+Date: Thu, 13 Dec 2012 17:32:57 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: Sebastian Reichel <sre@debian.org>
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>, wim@iguana.be,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-omap@vger.kernel.org
+Subject: Re: [RESEND PATCH v3 1/6] watchdog: omap_wdt: convert to new
+ watchdog core
+Message-ID: <20121214013256.GM4989@atomide.com>
+References: <1352746025-1669-1-git-send-email-aaro.koskinen@iki.fi>
+ <1352746025-1669-2-git-send-email-aaro.koskinen@iki.fi>
+ <20121112224703.GT6801@atomide.com>
+ <20121214012336.GA402@earth.universe>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CACna6rwmfpNFAFZpvbt8GHzofC6UoyBC4oKF5rL=9xN5_=gYXw@mail.gmail.com>
+In-Reply-To: <20121214012336.GA402@earth.universe>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
-
-> > @Wim Could you give me an ACK on the "watchdog: bcm47xx_wdt.c:" patches
-> >      so that John could take them trough the wireless-testing tree, or
-> >      provide me with some feedback on what I should change.
+* Sebastian Reichel <sre@debian.org> [121213 17:26]:
+> On Mon, Nov 12, 2012 at 02:47:03PM -0800, Tony Lindgren wrote:
+> > * Aaro Koskinen <aaro.koskinen@iki.fi> [121112 10:49]:
+> > > Convert omap_wdt to new watchdog core. On OMAP boards, there are usually
+> > > multiple watchdogs. Since the new watchdog core supports multiple
+> > > watchdogs, all watchdog drivers used on OMAP should be converted.
+> > > 
+> > > The legacy watchdog device node is still created, so this should not
+> > > break existing users.
+> > > 
+> > > Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+> > > Tested-by: Jarkko Nikula <jarkko.nikula@jollamobile.com>
+> > > Tested-by: Lokesh Vutla <lokeshvutla@ti.com>
+> > > Cc: Wim Van Sebroeck <wim@iguana.be>
+> > 
+> > Wim, looks like these will cause merge conflicts with what we
+> > have already queued in omap-for-v3.8/cleanup-prcm as patch
+> > "watchdog: OMAP: use standard GETBOOTSTATUS interface; use
+> > platform_data fn ptr" along with other ARM multiplatform
+> > related clean up. If these look ackable to you, I can queue
+> > these that's OK to you.
 > 
-> Hi Wim,
-> 
-> Have you got a chance to look at that patches?
-> 
-> I've some additional bcma changes I wish to submit on top of this :)
+> What's the status of this patchset? If I'm not mistaken it is
+> neither included in linux-omap, nor in linux-watchdog-next.
 
-Sorry, but family health issues have distracted me from kernel stuff the last months.
-Things are better now.
+It should be all linux-watchdog-next with what got merged into
+the mainline kernel today. No more arch/arm/*omap*/ dependencies
+AFAIK.
 
-Concerning these patches: The correct decision has been taken to split this allready up
-into the bcma/ssb patches and do the watchdog patches later on. I will check the watchdog
-part and react on it as soon as possible.
+Regards,
 
-Kind regards,
-Wim.
-
+Tony
