@@ -1,42 +1,54 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp185.iad.emailsrvr.com ([207.97.245.185]:53284 "EHLO
-	smtp185.iad.emailsrvr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751088Ab2LNHnN (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 14 Dec 2012 02:43:13 -0500
-Message-ID: <50CAD6B7.6060303@jollamobile.com>
-Date: Fri, 14 Dec 2012 09:35:19 +0200
-From: Jarkko Nikula <jarkko.nikula@jollamobile.com>
-MIME-Version: 1.0
-To: Sebastian Reichel <sre@debian.org>
-CC: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-omap@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>
-Subject: Re: [PATCH_v2] watchdog: Convert twl4030_wdt to watchdog core
-References: <20120910215946.GB26184@blackmetal.musicnaut.iki.fi> <1347343270-16881-1-git-send-email-jarkko.nikula@jollamobile.com> <50643D2A.7020402@jollamobile.com> <20120927212312.GJ16482@spo001.leaseweb.com> <20121214012828.GB402@earth.universe>
-In-Reply-To: <20121214012828.GB402@earth.universe>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Received: from mga14.intel.com ([143.182.124.37]:46370 "EHLO mga14.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751811Ab2LPLXl (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Sun, 16 Dec 2012 06:23:41 -0500
+From: Tomas Winkler <tomas.winkler@intel.com>
+To: gregkh@linuxfoundation.org, hdegoede@redhat.com, wim@iguana.be
+Cc: arnd@arndb.de, alan@linux.intel.com, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	Tomas Winkler <tomas.winkler@intel.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Wanlong Gao <gaowanlong@cn.fujitsu.com>,
+	Jerry Snitselaar <jerry.snitselaar@oracle.com>
+Subject: [char-misc for 3.8] mei: avoid oops in watchdog unregister code path
+Date: Sun, 16 Dec 2012 13:23:17 +0200
+Message-Id: <1355656997-30659-1-git-send-email-tomas.winkler@intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi
+With commit c7d3df3 "mei: use internal watchdog device registration
+tracking" will crash the kernel on shutdown path on systems
+where ME watchdog is not present.
+Since the watchdog was never initialized in such case
+the WDOG_UNREGISTERED bit is never set and the system
+crashes on access to uninitialized variables down the path.
 
-On 12/14/2012 03:28 AM, Sebastian Reichel wrote:
-> Hi,
->
-> On Thu, Sep 27, 2012 at 11:23:12PM +0200, Wim Van Sebroeck wrote:
->>> On 09/11/2012 09:01 AM, Jarkko Nikula wrote:
->>>> Convert the twl4030_wdt watchdog driver to watchdog core.
->>>>
->>>> While at there use devm_kzalloc and set the default timeout in order to be
->>>> able test this driver with a simple shell script.
->>>>
->>>> Signed-off-by: Jarkko Nikula<jarkko.nikula@jollamobile.com>
->>>> Tested-by: Aaro Koskinen<aaro.koskinen@iki.fi>
->> on my todo list.
-> Will this patch get into 3.8? I did not yet see it
-> in linux-watchdog-next.git.
-I've been wondering the same. How to get forward with this patch?
+To solve the issue we query for NULL on watchdog driver driver_data
+to check whether the device is registered. This is handled in the
+driver and doesn't depend on watchdog core internals.
 
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Signed-off-by: Jerry Snitselaar <jerry.snitselaar@oracle.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+---
+ drivers/misc/mei/wd.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/misc/mei/wd.c b/drivers/misc/mei/wd.c
+index 636409f..9299a8c 100644
+--- a/drivers/misc/mei/wd.c
++++ b/drivers/misc/mei/wd.c
+@@ -370,7 +370,7 @@ void mei_watchdog_register(struct mei_device *dev)
+ 
+ void mei_watchdog_unregister(struct mei_device *dev)
+ {
+-	if (test_bit(WDOG_UNREGISTERED, &amt_wd_dev.status))
++	if (watchdog_get_drvdata(&amt_wd_dev) == NULL)
+ 		return;
+ 
+ 	watchdog_set_drvdata(&amt_wd_dev, NULL);
 -- 
-Jarkko
+1.7.4.4
+
