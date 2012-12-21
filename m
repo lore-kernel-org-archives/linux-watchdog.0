@@ -1,50 +1,51 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:39653 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750729Ab2LULce (ORCPT
+Received: from mail-pa0-f41.google.com ([209.85.220.41]:50913 "EHLO
+	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750752Ab2LUNQz (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 21 Dec 2012 06:32:34 -0500
-Date: Fri, 21 Dec 2012 12:32:29 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Fabio Porcedda <fabio.porcedda@gmail.com>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
-	Andrew Victor <linux@maxim.org.za>,
-	Jason Cooper <jason@lakedaemon.net>,
-	Andrew Lunn <andrew@lunn.ch>, Ben Dooks <ben-linux@fluff.org>,
-	Kukjin Kim <kgene.kim@samsung.com>,
-	devicetree-discuss@lists.ozlabs.org
-Subject: Re: [PATCH v6 0/7] watchdog: dt: add support for the timeout-sec dt property
-Message-ID: <20121221113229.GE13147@spo001.leaseweb.com>
-References: <1353588716-28917-1-git-send-email-fabio.porcedda@gmail.com> <CAHkwnC-kOM2dzv9QmxbTgAYg5e2Ni39ixQR73cHt_5krMqwPbA@mail.gmail.com>
+	Fri, 21 Dec 2012 08:16:55 -0500
+Received: by mail-pa0-f41.google.com with SMTP id bj3so2842158pad.0
+        for <linux-watchdog@vger.kernel.org>; Fri, 21 Dec 2012 05:16:55 -0800 (PST)
+Message-ID: <1356095346.18328.0.camel@phoenix>
+Subject: [PATCH] watchdog: da9055: Fix invalid free of devm_ allocated data
+From: Axel Lin <axel.lin@ingics.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: David Dajun Chen <dchen@diasemi.com>,
+	Ashish Jangam <ashish.jangam@kpitcummins.com>,
+	linux-watchdog@vger.kernel.org
+Date: Fri, 21 Dec 2012 21:09:06 +0800
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHkwnC-kOM2dzv9QmxbTgAYg5e2Ni39ixQR73cHt_5krMqwPbA@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Fabio,
+It is not required to free devm_ allocated data. Since kref_put
+needs a valid release function, da9055_wdt_release_resources()
+is not deleted.
 
-> > Hi all,
-> > this patchset add the timeout-sec property to the watchdog core,
-> > to the at91sam9_wdt driver and on all framework enabled watchdog driver
-> > with dt support.
-> > The at91sam9_wdt is tested on evk-pr3,
-> > the other drivers are compile tested only.
-> >
-> > This patchset depends on the patchset already sent:
-> > "[PATCH v9 0/3 RESEND] watchdog: at91sam9_wdt: add device tree support"
-> > that is already pulled in arm-soc/for-next branch.
-> 
-> Ping.
-> 
-> The dependency is already merged.
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+---
+ drivers/watchdog/da9055_wdt.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
-Will not be for this merge window. Will review next week.
+diff --git a/drivers/watchdog/da9055_wdt.c b/drivers/watchdog/da9055_wdt.c
+index 709ea1a..31d5379 100644
+--- a/drivers/watchdog/da9055_wdt.c
++++ b/drivers/watchdog/da9055_wdt.c
+@@ -102,10 +102,6 @@ static int da9055_wdt_ping(struct watchdog_device *wdt_dev)
+ 
+ static void da9055_wdt_release_resources(struct kref *r)
+ {
+-	struct da9055_wdt_data *driver_data =
+-		container_of(r, struct da9055_wdt_data, kref);
+-
+-	kfree(driver_data);
+ }
+ 
+ static void da9055_wdt_ref(struct watchdog_device *wdt_dev)
+-- 
+1.7.9.5
 
-Kind regards,
-Wim.
+
 
