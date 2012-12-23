@@ -1,78 +1,43 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f42.google.com ([209.85.220.42]:62386 "EHLO
-	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751497Ab2LVDHO (ORCPT
+Received: from filtteri2.pp.htv.fi ([213.243.153.185]:43710 "EHLO
+	filtteri2.pp.htv.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752099Ab2LWUDs (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 21 Dec 2012 22:07:14 -0500
-Received: by mail-pa0-f42.google.com with SMTP id rl6so3193294pac.1
-        for <linux-watchdog@vger.kernel.org>; Fri, 21 Dec 2012 19:07:14 -0800 (PST)
-Message-ID: <1356145621.11884.1.camel@phoenix>
-Subject: [PATCH] watchdog: da9055: Don't update wdt_dev->timeout in
- da9055_wdt_set_timeout error path
-From: Axel Lin <axel.lin@ingics.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: David Dajun Chen <dchen@diasemi.com>,
-	Ashish Jangam <ashish.jangam@kpitcummins.com>,
-	linux-watchdog@vger.kernel.org
-Date: Sat, 22 Dec 2012 11:07:01 +0800
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Mime-Version: 1.0
+	Sun, 23 Dec 2012 15:03:48 -0500
+From: Aaro Koskinen <aaro.koskinen@iki.fi>
+To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	linux-omap@vger.kernel.org
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>
+Subject: [PATCH] watchdog: omap_wdt: eliminate unused variable and a compiler warning
+Date: Sun, 23 Dec 2012 22:03:36 +0200
+Message-Id: <1356293017-29443-1-git-send-email-aaro.koskinen@iki.fi>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Otherwise, WDIOC_GETTIMEOUT returns wrong value if set_timeout fails.
-This patch also removes unnecessary ret variable in da9055_wdt_ping function.
+We forgot to delete this in the commit 4f4753d9 (watchdog: omap_wdt:
+convert to devm_ functions), and as a result the following compilation
+warning was introduced:
 
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
+drivers/watchdog/omap_wdt.c: In function 'omap_wdt_remove':
+drivers/watchdog/omap_wdt.c:299:19: warning: unused variable 'res' [-Wunused-variable]
+
+Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
 ---
- drivers/watchdog/da9055_wdt.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/watchdog/omap_wdt.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/watchdog/da9055_wdt.c b/drivers/watchdog/da9055_wdt.c
-index 31d5379..f5ad105 100644
---- a/drivers/watchdog/da9055_wdt.c
-+++ b/drivers/watchdog/da9055_wdt.c
-@@ -72,20 +72,21 @@ static int da9055_wdt_set_timeout(struct watchdog_device *wdt_dev,
- 					DA9055_TWDSCALE_MASK,
- 					da9055_wdt_maps[i].reg_val <<
- 					DA9055_TWDSCALE_SHIFT);
--	if (ret < 0)
-+	if (ret < 0) {
- 		dev_err(da9055->dev,
- 			"Failed to update timescale bit, %d\n", ret);
-+		return ret;
-+	}
- 
- 	wdt_dev->timeout = timeout;
- 
--	return ret;
-+	return 0;
- }
- 
- static int da9055_wdt_ping(struct watchdog_device *wdt_dev)
+diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
+index 34ed61e..b0e541d 100644
+--- a/drivers/watchdog/omap_wdt.c
++++ b/drivers/watchdog/omap_wdt.c
+@@ -296,7 +296,6 @@ static int omap_wdt_remove(struct platform_device *pdev)
  {
- 	struct da9055_wdt_data *driver_data = watchdog_get_drvdata(wdt_dev);
- 	struct da9055 *da9055 = driver_data->da9055;
--	int ret;
+ 	struct watchdog_device *wdog = platform_get_drvdata(pdev);
+ 	struct omap_wdt_dev *wdev = watchdog_get_drvdata(wdog);
+-	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
  
- 	/*
- 	 * We have a minimum time for watchdog window called TWDMIN. A write
-@@ -94,10 +95,8 @@ static int da9055_wdt_ping(struct watchdog_device *wdt_dev)
- 	mdelay(DA9055_TWDMIN);
- 
- 	/* Reset the watchdog timer */
--	ret = da9055_reg_update(da9055, DA9055_REG_CONTROL_E,
--				DA9055_WATCHDOG_MASK, 1);
--
--	return ret;
-+	return da9055_reg_update(da9055, DA9055_REG_CONTROL_E,
-+				 DA9055_WATCHDOG_MASK, 1);
- }
- 
- static void da9055_wdt_release_resources(struct kref *r)
+ 	pm_runtime_disable(wdev->dev);
+ 	watchdog_unregister_device(wdog);
 -- 
-1.7.9.5
-
-
+1.7.10.4
 
