@@ -1,221 +1,66 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:41006 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752134Ab3ABMXW (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:39917 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754757Ab3ADN7D (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 2 Jan 2013 07:23:22 -0500
-Date: Wed, 2 Jan 2013 13:23:19 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>
-Subject: [GIT PULL REQUEST] watchdog - v3.8-rc1 Fixes
-Message-ID: <20130102122319.GA10667@spo001.leaseweb.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Fri, 4 Jan 2013 08:59:03 -0500
+From: Wolfram Sang <w.sang@pengutronix.de>
+To: linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Wolfram Sang <w.sang@pengutronix.de>
+Subject: [PATCH 0/3] improved watchdog driver for STMP3xyz/imx23/imx28
+Date: Fri,  4 Jan 2013 14:58:46 +0100
+Message-Id: <1357307929-1666-1-git-send-email-w.sang@pengutronix.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Linus,
+Geez, this should have been sent a year ago but it dropped off somehow.
+Introduce a new user of the watchdog framework. This is a rewritten driver
+for STMP and imx23/28: Quoting Patch 2/3 for the motivation of a rewrite:
 
-Please pull from 'master' branch of
-	git://www.linux-watchdog.org/linux-watchdog.git
+===
 
-It fixes some small errors in the new da9055 driver, eliminates a compiler warning
-and adds DT support for the twl4030_wdt driver (so that we can have multiple watchdogs
-with DT on the omap platforms).
+Replace the existing STMP3xxx driver because it has enough drawbacks
+that a rewrite is apropriate. The new driver is designed to use the
+watchdog framework which makes it a lot smaller and avoids open coding
+the watchdog API again. It also uses now an explicitly exported function
+from the RTC driver to set up its registers (the old driver silently
+reused the hopefully(!) already remapped RTC registers). Also, this
+driver is mach independent, while the old one depends on a mach replaced
+by another one a year ago. Since the user interface is still the
+standard watchdog API, users don't need to adapt.
 
-This will update the following files:
+===
 
- Documentation/devicetree/bindings/watchdog/twl4030-wdt.txt |   10 +++++++
- arch/arm/boot/dts/twl4030.dtsi                             |    4 +++
- drivers/watchdog/da9055_wdt.c                              |   17 ++++---------
- drivers/watchdog/omap_wdt.c                                |    1 
- drivers/watchdog/twl4030_wdt.c                             |   11 ++++++--
- 5 files changed, 29 insertions(+), 14 deletions(-)
+The first patch adds an accessor routine to the RTC-driver which can hopefully
+go via the watchdog-tree as well (asking for Andrew's ack here). It is needed
+because the old driver silently assumed its IO area to be already remapped by
+the RTC driver. The second patch adds the new driver, the third removes the old
+one. The old driver was broken (= not compilable, no arch for it) anyhow, so
+there cannot be any regression. Based on 3.8-rc2 and tested on various MX28
+boards.
 
-with these Changes:
+Thanks,
 
-commit 8899b8d93ec64b7a8e54807a68a958e1206535e2
-Author: Aaro Koskinen <aaro.koskinen@iki.fi>
-Date:   Sun Dec 23 22:03:37 2012 +0200
+   Wolfram
 
-    watchdog: twl4030_wdt: add DT support
-    
-    Add DT support for twl4030_wdt. This is needed to get twl4030_wdt to
-    probe when booting with DT.
-    
-    Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
 
-commit 412b3729dd0234771c67452b8999191f1e8d8630
-Author: Aaro Koskinen <aaro.koskinen@iki.fi>
-Date:   Sun Dec 23 22:03:36 2012 +0200
+Wolfram Sang (3):
+  rtc: stmp3xxx: add wdt-accessor function
+  watchdog: add new driver for STMP3xxx and i.MX23/28
+  watchdog: remove old STMP3xxx driver
 
-    watchdog: omap_wdt: eliminate unused variable and a compiler warning
-    
-    We forgot to delete this in the commit 4f4753d9 (watchdog: omap_wdt:
-    convert to devm_ functions), and as a result the following compilation
-    warning was introduced:
-    
-    drivers/watchdog/omap_wdt.c: In function 'omap_wdt_remove':
-    drivers/watchdog/omap_wdt.c:299:19: warning: unused variable 'res' [-Wunused-variable]
-    
-    Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
-    Reviewed-by: Paul Walmsley <paul@pwsan.com>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+ drivers/rtc/rtc-stmp3xxx.c          |   64 ++++++++
+ drivers/watchdog/Kconfig            |   13 +-
+ drivers/watchdog/Makefile           |    2 +-
+ drivers/watchdog/stmp3xxx_rtc_wdt.c |  111 ++++++++++++++
+ drivers/watchdog/stmp3xxx_wdt.c     |  288 -----------------------------------
+ include/linux/stmp3xxx_rtc_wdt.h    |   15 ++
+ 6 files changed, 198 insertions(+), 295 deletions(-)
+ create mode 100644 drivers/watchdog/stmp3xxx_rtc_wdt.c
+ delete mode 100644 drivers/watchdog/stmp3xxx_wdt.c
+ create mode 100644 include/linux/stmp3xxx_rtc_wdt.h
 
-commit 98e4a293895dda2b74476ac3a9f79c58b5d0155a
-Author: Axel Lin <axel.lin@ingics.com>
-Date:   Sat Dec 22 11:07:01 2012 +0800
+-- 
+1.7.10.4
 
-    watchdog: da9055: Don't update wdt_dev->timeout in da9055_wdt_set_timeout error path
-    
-    Otherwise, WDIOC_GETTIMEOUT returns wrong value if set_timeout fails.
-    This patch also removes unnecessary ret variable in da9055_wdt_ping function.
-    
-    Signed-off-by: Axel Lin <axel.lin@ingics.com>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-commit ee8c94adff9bd8609e70fb2ecdfaa71f561ed40d
-Author: Axel Lin <axel.lin@ingics.com>
-Date:   Fri Dec 21 21:09:06 2012 +0800
-
-    watchdog: da9055: Fix invalid free of devm_ allocated data
-    
-    It is not required to free devm_ allocated data. Since kref_put
-    needs a valid release function, da9055_wdt_release_resources()
-    is not deleted.
-    
-    Signed-off-by: Axel Lin <axel.lin@ingics.com>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-For completeness, I added the overal diff below.
-
-Greetings,
-Wim.
-
-================================================================================
-diff --git a/Documentation/devicetree/bindings/watchdog/twl4030-wdt.txt b/Documentation/devicetree/bindings/watchdog/twl4030-wdt.txt
-new file mode 100644
-index 0000000..80a3719
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/twl4030-wdt.txt
-@@ -0,0 +1,10 @@
-+Device tree bindings for twl4030-wdt driver (TWL4030 watchdog)
-+
-+Required properties:
-+	compatible = "ti,twl4030-wdt";
-+
-+Example:
-+
-+watchdog {
-+	compatible = "ti,twl4030-wdt";
-+};
-diff --git a/arch/arm/boot/dts/twl4030.dtsi b/arch/arm/boot/dts/twl4030.dtsi
-index 63411b0..ed0bc95 100644
---- a/arch/arm/boot/dts/twl4030.dtsi
-+++ b/arch/arm/boot/dts/twl4030.dtsi
-@@ -19,6 +19,10 @@
- 		interrupts = <11>;
- 	};
- 
-+	watchdog {
-+		compatible = "ti,twl4030-wdt";
-+	};
-+
- 	vdac: regulator-vdac {
- 		compatible = "ti,twl4030-vdac";
- 		regulator-min-microvolt = <1800000>;
-diff --git a/drivers/watchdog/da9055_wdt.c b/drivers/watchdog/da9055_wdt.c
-index 709ea1a..f5ad105 100644
---- a/drivers/watchdog/da9055_wdt.c
-+++ b/drivers/watchdog/da9055_wdt.c
-@@ -72,20 +72,21 @@ static int da9055_wdt_set_timeout(struct watchdog_device *wdt_dev,
- 					DA9055_TWDSCALE_MASK,
- 					da9055_wdt_maps[i].reg_val <<
- 					DA9055_TWDSCALE_SHIFT);
--	if (ret < 0)
-+	if (ret < 0) {
- 		dev_err(da9055->dev,
- 			"Failed to update timescale bit, %d\n", ret);
-+		return ret;
-+	}
- 
- 	wdt_dev->timeout = timeout;
- 
--	return ret;
-+	return 0;
- }
- 
- static int da9055_wdt_ping(struct watchdog_device *wdt_dev)
- {
- 	struct da9055_wdt_data *driver_data = watchdog_get_drvdata(wdt_dev);
- 	struct da9055 *da9055 = driver_data->da9055;
--	int ret;
- 
- 	/*
- 	 * We have a minimum time for watchdog window called TWDMIN. A write
-@@ -94,18 +95,12 @@ static int da9055_wdt_ping(struct watchdog_device *wdt_dev)
- 	mdelay(DA9055_TWDMIN);
- 
- 	/* Reset the watchdog timer */
--	ret = da9055_reg_update(da9055, DA9055_REG_CONTROL_E,
--				DA9055_WATCHDOG_MASK, 1);
--
--	return ret;
-+	return da9055_reg_update(da9055, DA9055_REG_CONTROL_E,
-+				 DA9055_WATCHDOG_MASK, 1);
- }
- 
- static void da9055_wdt_release_resources(struct kref *r)
- {
--	struct da9055_wdt_data *driver_data =
--		container_of(r, struct da9055_wdt_data, kref);
--
--	kfree(driver_data);
- }
- 
- static void da9055_wdt_ref(struct watchdog_device *wdt_dev)
-diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
-index 34ed61e..b0e541d 100644
---- a/drivers/watchdog/omap_wdt.c
-+++ b/drivers/watchdog/omap_wdt.c
-@@ -296,7 +296,6 @@ static int omap_wdt_remove(struct platform_device *pdev)
- {
- 	struct watchdog_device *wdog = platform_get_drvdata(pdev);
- 	struct omap_wdt_dev *wdev = watchdog_get_drvdata(wdog);
--	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 
- 	pm_runtime_disable(wdev->dev);
- 	watchdog_unregister_device(wdog);
-diff --git a/drivers/watchdog/twl4030_wdt.c b/drivers/watchdog/twl4030_wdt.c
-index 81918cf..0f03106 100644
---- a/drivers/watchdog/twl4030_wdt.c
-+++ b/drivers/watchdog/twl4030_wdt.c
-@@ -131,14 +131,21 @@ static int twl4030_wdt_resume(struct platform_device *pdev)
- #define twl4030_wdt_resume         NULL
- #endif
- 
-+static const struct of_device_id twl_wdt_of_match[] = {
-+	{ .compatible = "ti,twl4030-wdt", },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, twl_wdt_of_match);
-+
- static struct platform_driver twl4030_wdt_driver = {
- 	.probe		= twl4030_wdt_probe,
- 	.remove		= twl4030_wdt_remove,
- 	.suspend	= twl4030_wdt_suspend,
- 	.resume		= twl4030_wdt_resume,
- 	.driver		= {
--		.owner	= THIS_MODULE,
--		.name	= "twl4030_wdt",
-+		.owner		= THIS_MODULE,
-+		.name		= "twl4030_wdt",
-+		.of_match_table	= twl_wdt_of_match,
- 	},
- };
- 
