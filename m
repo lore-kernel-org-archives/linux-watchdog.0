@@ -4,9 +4,9 @@ To: linux-arm-kernel@lists.infradead.org
 Cc: nicolas.ferre@atmel.com, plagnioj@jcrosoft.com, JM.Lin@atmel.com,
         wenyou.yang@atmel.com, wim@iguana.be, linux-watchdog@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [v3 PATCH 5/9] watchdog/at91sam9_wdt: Add nowayout helpers to Watchdog Timer Driver Kernel API
-Date: Sat,  5 Jan 2013 10:38:45 +0800
-Message-Id: <1357353529-20901-6-git-send-email-wenyou.yang@atmel.com>
+Subject: [v3 PATCH 7/9] watchdog/at91sam9_wdt: Use module_platform_driver()
+Date: Sat,  5 Jan 2013 10:38:47 +0800
+Message-Id: <1357353529-20901-8-git-send-email-wenyou.yang@atmel.com>
 In-Reply-To: <1357353529-20901-1-git-send-email-wenyou.yang@atmel.com>
 References: <1357353529-20901-1-git-send-email-wenyou.yang@atmel.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -14,26 +14,60 @@ List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
+Using module_platform_driver() replaces module_init() and module_exit()
+and makes the code simpler.
+
+Remove '__init' annotation from the function 'at91wdt_probe'
+since the driver becomes hot-plug aware now.
+
 Signed-off-by: Wenyou Yang <wenyou.yang@atmel.com>
 Cc: wim@iguana.be
 Cc: linux-watchdog@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 ---
- drivers/watchdog/at91sam9_wdt.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/watchdog/at91sam9_wdt.c |   16 +++-------------
+ 1 file changed, 3 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
-index a3d1a09..53ede84 100644
+index 94be9d6..7c13dda 100644
 --- a/drivers/watchdog/at91sam9_wdt.c
 +++ b/drivers/watchdog/at91sam9_wdt.c
-@@ -235,6 +235,8 @@ static int __init at91wdt_probe(struct platform_device *pdev)
- 		return ret;
- 	}
+@@ -204,7 +204,7 @@ static struct watchdog_device at91wdt_wdd = {
+ 	.ops = &at91wdt_ops,
+ };
  
-+	watchdog_set_nowayout(&at91wdt_wdd, nowayout);
-+
- 	watchdog_init_timeout(&at91wdt_wdd, heartbeat, pdev->dev.of_node);
+-static int __init at91wdt_probe(struct platform_device *pdev)
++static int at91wdt_probe(struct platform_device *pdev)
+ {
+ 	struct at91wdt_drvdata *driver_data;
+ 	struct resource	*r;
+@@ -273,6 +273,7 @@ MODULE_DEVICE_TABLE(of, at91_wdt_dt_ids);
+ #endif
  
- 	ret = at91wdt_enable(&at91wdt_wdd, ms_to_ticks(WDT_HW_TIMEOUT * 1000));
+ static struct platform_driver at91wdt_driver = {
++	.probe		= at91wdt_probe,
+ 	.remove		= __exit_p(at91wdt_remove),
+ 	.driver		= {
+ 		.name	= "at91_wdt",
+@@ -281,18 +282,7 @@ static struct platform_driver at91wdt_driver = {
+ 	},
+ };
+ 
+-static int __init at91sam_wdt_init(void)
+-{
+-	return platform_driver_probe(&at91wdt_driver, at91wdt_probe);
+-}
+-
+-static void __exit at91sam_wdt_exit(void)
+-{
+-	platform_driver_unregister(&at91wdt_driver);
+-}
+-
+-module_init(at91sam_wdt_init);
+-module_exit(at91sam_wdt_exit);
++module_platform_driver(at91wdt_driver);
+ 
+ MODULE_AUTHOR("Renaud CERRATO <r.cerrato@til-technologies.fr>");
+ MODULE_DESCRIPTION("Watchdog driver for Atmel AT91SAM9x processors");
 -- 
 1.7.9.5
