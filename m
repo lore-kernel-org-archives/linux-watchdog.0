@@ -1,219 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Wenyou Yang <wenyou.yang@atmel.com>
-To: linux-arm-kernel@lists.infradead.org
-Cc: nicolas.ferre@atmel.com, plagnioj@jcrosoft.com, JM.Lin@atmel.com,
-        wenyou.yang@atmel.com, wim@iguana.be, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [v3 PATCH 2/9] watchdog/at91sam9_wdt: Remove at91wdt_private and add at91wdt_drvdata struct
-Date: Sat,  5 Jan 2013 10:38:42 +0800
-Message-Id: <1357353529-20901-3-git-send-email-wenyou.yang@atmel.com>
-In-Reply-To: <1357353529-20901-1-git-send-email-wenyou.yang@atmel.com>
-References: <1357353529-20901-1-git-send-email-wenyou.yang@atmel.com>
+MIME-Version: 1.0
+In-Reply-To: <1357353529-20901-8-git-send-email-wenyou.yang@atmel.com>
+References: <1357353529-20901-1-git-send-email-wenyou.yang@atmel.com> <1357353529-20901-8-git-send-email-wenyou.yang@atmel.com>
+From: Fabio Porcedda <fabio.porcedda@gmail.com>
+Date: Tue, 8 Jan 2013 11:17:43 +0100
+Message-ID: <CAHkwnC8CTFxrJ8F=u=MqKW=cZ88SeoT+rA_hzW38jL8ffT9D2Q@mail.gmail.com>
+Subject: Re: [v3 PATCH 7/9] watchdog/at91sam9_wdt: Use module_platform_driver()
+To: Wenyou Yang <wenyou.yang@atmel.com>
+Cc: linux-arm-kernel@lists.infradead.org,
+        Nicolas Ferre <nicolas.ferre@atmel.com>,
+        Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
+        JM.Lin@atmel.com, Wim Van Sebroeck <wim@iguana.be>,
+        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Geert Uytterhoeven <geert@linux-m68k.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Remove the global variable at91wdt_private, add the struct at91wdt_drvdata
-as a substitute, and set it as the driver data of the at91wdt_wdd.
+On Sat, Jan 5, 2013 at 3:38 AM, Wenyou Yang <wenyou.yang@atmel.com> wrote:
+> Using module_platform_driver() replaces module_init() and module_exit()
+> and makes the code simpler.
+>
+> Remove '__init' annotation from the function 'at91wdt_probe'
+> since the driver becomes hot-plug aware now.
+>
+> Signed-off-by: Wenyou Yang <wenyou.yang@atmel.com>
+> Cc: wim@iguana.be
+> Cc: linux-watchdog@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> ---
+>  drivers/watchdog/at91sam9_wdt.c |   16 +++-------------
+>  1 file changed, 3 insertions(+), 13 deletions(-)
+>
+> diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
+> index 94be9d6..7c13dda 100644
+> --- a/drivers/watchdog/at91sam9_wdt.c
+> +++ b/drivers/watchdog/at91sam9_wdt.c
+> @@ -204,7 +204,7 @@ static struct watchdog_device at91wdt_wdd = {
+>         .ops = &at91wdt_ops,
+>  };
+>
+> -static int __init at91wdt_probe(struct platform_device *pdev)
+> +static int at91wdt_probe(struct platform_device *pdev)
+>  {
+>         struct at91wdt_drvdata *driver_data;
+>         struct resource *r;
+> @@ -273,6 +273,7 @@ MODULE_DEVICE_TABLE(of, at91_wdt_dt_ids);
+>  #endif
+>
+>  static struct platform_driver at91wdt_driver = {
+> +       .probe          = at91wdt_probe,
+>         .remove         = __exit_p(at91wdt_remove),
+>         .driver         = {
+>                 .name   = "at91_wdt",
+> @@ -281,18 +282,7 @@ static struct platform_driver at91wdt_driver = {
+>         },
+>  };
+>
+> -static int __init at91sam_wdt_init(void)
+> -{
+> -       return platform_driver_probe(&at91wdt_driver, at91wdt_probe);
+> -}
+> -
+> -static void __exit at91sam_wdt_exit(void)
+> -{
+> -       platform_driver_unregister(&at91wdt_driver);
+> -}
+> -
+> -module_init(at91sam_wdt_init);
+> -module_exit(at91sam_wdt_exit);
+> +module_platform_driver(at91wdt_driver);
+>
+>  MODULE_AUTHOR("Renaud CERRATO <r.cerrato@til-technologies.fr>");
+>  MODULE_DESCRIPTION("Watchdog driver for Atmel AT91SAM9x processors");
+> --
+> 1.7.9.5
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Signed-off-by: Wenyou Yang <wenyou.yang@atmel.com>
-Cc: wim@iguana.be
-Cc: linux-watchdog@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
----
- drivers/watchdog/at91sam9_wdt.c |   88 +++++++++++++++++++++------------------
- 1 file changed, 47 insertions(+), 41 deletions(-)
+The module_platform_driver isn't a substitute of platform_driver_probe,
+because module_platform_driver  use platform_driver_register/unregister.
+Using that macro we lose the advantage of platform_driver_probe,
+as stated in:
 
-diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
-index d864dc4..f10a897 100644
---- a/drivers/watchdog/at91sam9_wdt.c
-+++ b/drivers/watchdog/at91sam9_wdt.c
-@@ -38,11 +38,6 @@
- 
- #define DRV_NAME "AT91SAM9 Watchdog"
- 
--#define wdt_read(field) \
--	__raw_readl(at91wdt_private.base + field)
--#define wdt_write(field, val) \
--	__raw_writel((val), at91wdt_private.base + field)
--
- /* AT91SAM9 watchdog runs a 12bit counter @ 256Hz,
-  * use this to convert a watchdog
-  * value from/to milliseconds.
-@@ -72,23 +67,33 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
- 
- static void at91_ping(unsigned long data);
- 
--static struct {
--	void __iomem *base;
--	unsigned long next_heartbeat;	/* the next_heartbeat for the timer */
--	unsigned long open;
--	char expect_close;
--	struct timer_list timer;	/* The timer that pings the watchdog */
--} at91wdt_private;
-+struct at91wdt_drvdata {
-+	void __iomem	*phybase;
-+	bool		is_enable;	/* indicate if the watchdog is eabled */
-+	unsigned long	next_heartbeat;	/* the next_heartbeat for the timer */
-+	struct timer_list	timer;	/* The timer that pings the watchdog */
-+};
- 
- /* ......................................................................... */
- 
-+static inline unsigned int wdt_read(struct at91wdt_drvdata *driver_data,
-+					unsigned int field)
-+{
-+	return readl_relaxed(driver_data->phybase + field);
-+}
-+
-+static inline void wdt_write(struct at91wdt_drvdata *driver_data,
-+				unsigned int field, unsigned int val)
-+{
-+	writel_relaxed((val), driver_data->phybase + field);
-+}
- 
- /*
-  * Reload the watchdog timer.  (ie, pat the watchdog)
-  */
--static inline void at91_wdt_reset(void)
-+static inline void at91_wdt_reset(struct at91wdt_drvdata *driver_data)
- {
--	wdt_write(AT91_WDT_CR, AT91_WDT_KEY | AT91_WDT_WDRSTT);
-+	wdt_write(driver_data, AT91_WDT_CR, AT91_WDT_KEY | AT91_WDT_WDRSTT);
- }
- 
- /*
-@@ -96,10 +101,12 @@ static inline void at91_wdt_reset(void)
-  */
- static void at91_ping(unsigned long data)
- {
--	if (time_before(jiffies, at91wdt_private.next_heartbeat) ||
--			(!nowayout && !at91wdt_private.open)) {
--		at91_wdt_reset();
--		mod_timer(&at91wdt_private.timer, jiffies + WDT_TIMEOUT);
-+	struct watchdog_device *wddev = (struct watchdog_device *)data;
-+	struct at91wdt_drvdata *driver_data = watchdog_get_drvdata(wddev);
-+
-+	if (time_before(jiffies, driver_data->next_heartbeat)) {
-+		at91_wdt_reset(driver_data);
-+		mod_timer(&driver_data->timer, jiffies + WDT_TIMEOUT);
- 	} else
- 		pr_crit("I will reset your machine !\n");
- }
-@@ -109,11 +116,8 @@ static void at91_ping(unsigned long data)
-  */
- static int at91_wdt_open(struct inode *inode, struct file *file)
- {
--	if (test_and_set_bit(0, &at91wdt_private.open))
--		return -EBUSY;
--
--	at91wdt_private.next_heartbeat = jiffies + heartbeat * HZ;
--	mod_timer(&at91wdt_private.timer, jiffies + WDT_TIMEOUT);
-+	driver_data->next_heartbeat = jiffies + heartbeat * HZ;
-+	mod_timer(&driver_data->timer, jiffies + WDT_TIMEOUT);
- 
- 	return nonseekable_open(inode, file);
- }
-@@ -123,13 +127,8 @@ static int at91_wdt_open(struct inode *inode, struct file *file)
-  */
- static int at91_wdt_close(struct inode *inode, struct file *file)
- {
--	clear_bit(0, &at91wdt_private.open);
-+	del_timer(&driver_data->timer);
- 
--	/* stop internal ping */
--	if (!at91wdt_private.expect_close)
--		del_timer(&at91wdt_private.timer);
--
--	at91wdt_private.expect_close = 0;
- 	return 0;
- }
- 
-@@ -191,7 +190,7 @@ static long at91_wdt_ioctl(struct file *file,
- 		return put_user(0, p);
- 
- 	case WDIOC_KEEPALIVE:
--		at91wdt_private.next_heartbeat = jiffies + heartbeat * HZ;
-+		driver_data->next_heartbeat = jiffies + heartbeat * HZ;
- 		return 0;
- 
- 	case WDIOC_SETTIMEOUT:
-@@ -199,7 +198,7 @@ static long at91_wdt_ioctl(struct file *file,
- 			return -EFAULT;
- 
- 		heartbeat = new_value;
--		at91wdt_private.next_heartbeat = jiffies + heartbeat * HZ;
-+		driver_data->next_heartbeat = jiffies + heartbeat * HZ;
- 
- 		return put_user(new_value, p);  /* return current value */
- 
-@@ -222,20 +221,16 @@ static ssize_t at91_wdt_write(struct file *file, const char *data, size_t len,
- 	if (!nowayout) {
- 		size_t i;
- 
--		at91wdt_private.expect_close = 0;
- 
- 		for (i = 0; i < len; i++) {
- 			char c;
- 			if (get_user(c, data + i))
- 				return -EFAULT;
--			if (c == 'V') {
--				at91wdt_private.expect_close = 42;
--				break;
- 			}
- 		}
- 	}
- 
--	at91wdt_private.next_heartbeat = jiffies + heartbeat * HZ;
-+	driver_data->next_heartbeat = jiffies + heartbeat * HZ;
- 
- 	return len;
- }
-@@ -265,9 +260,19 @@ static struct watchdog_device at91wdt_wdd __initdata = {
- 
- static int __init at91wdt_probe(struct platform_device *pdev)
- {
-+	struct at91wdt_drvdata *driver_data;
- 	struct resource	*r;
- 	int res;
- 
-+	driver_data = devm_kzalloc(&pdev->dev,
-+				sizeof(*driver_data), GFP_KERNEL);
-+	if (!driver_data) {
-+		dev_err(&pdev->dev, "Unable to alloacate watchdog device\n");
-+		return -ENOMEM;
-+	}
-+
-+	watchdog_set_drvdata(&at91wdt_wdd, driver_data);
-+
- 	if (at91wdt_miscdev.parent)
- 		return -EBUSY;
- 	at91wdt_miscdev.parent = &pdev->dev;
-@@ -275,8 +280,8 @@ static int __init at91wdt_probe(struct platform_device *pdev)
- 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	if (!r)
- 		return -ENODEV;
--	at91wdt_private.base = ioremap(r->start, resource_size(r));
--	if (!at91wdt_private.base) {
-+	driver_data->phybase = ioremap(r->start, resource_size(r));
-+	if (!driver_data->phybase) {
- 		dev_err(&pdev->dev, "failed to map registers, aborting.\n");
- 		return -ENOMEM;
- 	}
-@@ -292,9 +297,10 @@ static int __init at91wdt_probe(struct platform_device *pdev)
- 	if (res)
- 		return res;
- 
--	at91wdt_private.next_heartbeat = jiffies + at91wdt_wdd.timeout * HZ;
--	setup_timer(&at91wdt_private.timer, at91_ping, 0);
--	mod_timer(&at91wdt_private.timer, jiffies + WDT_TIMEOUT);
-+	driver_data->next_heartbeat = jiffies + at91wdt_wdd.timeout * HZ;
-+	setup_timer(&driver_data->timer, at91_ping,
-+					(unsigned long)&at91wdt_wdd);
-+	mod_timer(&driver_data->timer, jiffies + WDT_TIMEOUT);
- 
- 	pr_info("enabled (heartbeat=%d sec, nowayout=%d)\n",
- 		at91wdt_wdd.timeout, nowayout);
--- 
-1.7.9.5
+https://lkml.org/lkml/2012/1/10/335
+On Tue, Jan 10, 2012 at 21:47, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+> [...]
+>Still, setting up platform_driver.probe and removing __init from all probe
+>functions is not the right thing to do, as this make (non-__init) kernel code
+>size bigger, while none of these devices are hotpluggable and thus cannot
+>appear after bootup. That's why we have platform_driver_probe() in the
+>first place. So I think all of this should be reverted for non-hotpluggable
+>drivers.
+> [...]
+
+Best regards
+
+--
+Fabio Porcedda
