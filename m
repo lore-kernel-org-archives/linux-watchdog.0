@@ -1,11 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ee0-f51.google.com ([74.125.83.51]:45198 "EHLO
-	mail-ee0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755236Ab3AHKEZ (ORCPT
+Received: from mail-ea0-f175.google.com ([209.85.215.175]:58615 "EHLO
+	mail-ea0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755236Ab3AHKE2 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 8 Jan 2013 05:04:25 -0500
-Received: by mail-ee0-f51.google.com with SMTP id d4so111055eek.24
-        for <linux-watchdog@vger.kernel.org>; Tue, 08 Jan 2013 02:04:24 -0800 (PST)
+	Tue, 8 Jan 2013 05:04:28 -0500
+Received: by mail-ea0-f175.google.com with SMTP id h11so94791eaa.20
+        for <linux-watchdog@vger.kernel.org>; Tue, 08 Jan 2013 02:04:27 -0800 (PST)
 From: Fabio Porcedda <fabio.porcedda@gmail.com>
 To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
@@ -15,10 +15,12 @@ To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
 	Jason Cooper <jason@lakedaemon.net>,
 	Andrew Lunn <andrew@lunn.ch>, Ben Dooks <ben-linux@fluff.org>,
 	Kukjin Kim <kgene.kim@samsung.com>
-Cc: devicetree-discuss@lists.ozlabs.org
-Subject: [PATCH v7 2/6] watchdog: orion_wdt: add timeout-sec property binding
-Date: Tue,  8 Jan 2013 11:04:11 +0100
-Message-Id: <1357639455-21935-3-git-send-email-fabio.porcedda@gmail.com>
+Cc: devicetree-discuss@lists.ozlabs.org,
+	Wolfram Sang <w.sang@pengutronix.de>,
+	Masanari Iida <standby24x7@gmail.com>
+Subject: [PATCH v7 3/6] watchdog: pnx4008: add timeout-sec property binding
+Date: Tue,  8 Jan 2013 11:04:12 +0100
+Message-Id: <1357639455-21935-4-git-send-email-fabio.porcedda@gmail.com>
 In-Reply-To: <1357639455-21935-1-git-send-email-fabio.porcedda@gmail.com>
 References: <1357639455-21935-1-git-send-email-fabio.porcedda@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -27,60 +29,70 @@ List-Id: linux-watchdog@vger.kernel.org
 Only compile tested.
 
 Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
-Cc: Andrew Lunn <andrew@lunn.ch>
-Acked-by: Jason Cooper <jason@lakedaemon.net>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: Wolfram Sang <w.sang@pengutronix.de>
+Cc: Masanari Iida <standby24x7@gmail.com>
 ---
- Documentation/devicetree/bindings/watchdog/marvel.txt | 5 +++++
- drivers/watchdog/orion_wdt.c                          | 8 +++-----
- 2 files changed, 8 insertions(+), 5 deletions(-)
+ Documentation/devicetree/bindings/watchdog/pnx4008-wdt.txt | 4 ++++
+ drivers/watchdog/pnx4008_wdt.c                             | 7 +++----
+ 2 files changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/marvel.txt b/Documentation/devicetree/bindings/watchdog/marvel.txt
-index 0b2503a..5dc8d30 100644
---- a/Documentation/devicetree/bindings/watchdog/marvel.txt
-+++ b/Documentation/devicetree/bindings/watchdog/marvel.txt
-@@ -5,10 +5,15 @@ Required Properties:
- - Compatibility : "marvell,orion-wdt"
- - reg		: Address of the timer registers
+diff --git a/Documentation/devicetree/bindings/watchdog/pnx4008-wdt.txt b/Documentation/devicetree/bindings/watchdog/pnx4008-wdt.txt
+index 7c7f688..556d06c 100644
+--- a/Documentation/devicetree/bindings/watchdog/pnx4008-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/pnx4008-wdt.txt
+@@ -5,9 +5,13 @@ Required properties:
+ - reg: physical base address of the controller and length of memory mapped
+   region.
  
 +Optional properties:
-+
-+- timeout-sec	: Contains the watchdog timeout in seconds
++- timeout-sec: contains the watchdog timeout in seconds.
 +
  Example:
  
- 	wdt@20300 {
- 		compatible = "marvell,orion-wdt";
- 		reg = <0x20300 0x28>;
+ 	watchdog@4003C000 {
+ 		compatible = "nxp,pnx4008-wdt";
+ 		reg = <0x4003C000 0x1000>;
 +		timeout-sec = <10>;
- 		status = "okay";
  	};
-diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
-index 7c18b3b..b7018600 100644
---- a/drivers/watchdog/orion_wdt.c
-+++ b/drivers/watchdog/orion_wdt.c
-@@ -164,12 +164,10 @@ static int orion_wdt_probe(struct platform_device *pdev)
+diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
+index dcba5da..aa4ec26 100644
+--- a/drivers/watchdog/pnx4008_wdt.c
++++ b/drivers/watchdog/pnx4008_wdt.c
+@@ -142,6 +142,7 @@ static const struct watchdog_ops pnx4008_wdt_ops = {
+ static struct watchdog_device pnx4008_wdd = {
+ 	.info = &pnx4008_wdt_ident,
+ 	.ops = &pnx4008_wdt_ops,
++	.timeout = DEFAULT_HEARTBEAT,
+ 	.min_timeout = 1,
+ 	.max_timeout = MAX_HEARTBEAT,
+ };
+@@ -151,8 +152,7 @@ static int pnx4008_wdt_probe(struct platform_device *pdev)
+ 	struct resource *r;
+ 	int ret = 0;
  
- 	wdt_max_duration = WDT_MAX_CYCLE_COUNT / wdt_tclk;
+-	if (heartbeat < 1 || heartbeat > MAX_HEARTBEAT)
+-		heartbeat = DEFAULT_HEARTBEAT;
++	watchdog_init_timeout(&pnx4008_wdd, heartbeat, pdev->dev.of_node);
  
--	if ((heartbeat < 1) || (heartbeat > wdt_max_duration))
--		heartbeat = wdt_max_duration;
--
--	orion_wdt.timeout = heartbeat;
- 	orion_wdt.min_timeout = 1;
-+	orion_wdt.timeout = wdt_max_duration;
- 	orion_wdt.max_timeout = wdt_max_duration;
-+	watchdog_init_timeout(&orion_wdt, heartbeat, pdev->dev.of_node);
+ 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	wdt_base = devm_request_and_ioremap(&pdev->dev, r);
+@@ -167,7 +167,6 @@ static int pnx4008_wdt_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto out;
  
- 	watchdog_set_nowayout(&orion_wdt, nowayout);
- 	ret = watchdog_register_device(&orion_wdt);
-@@ -179,7 +177,7 @@ static int orion_wdt_probe(struct platform_device *pdev)
+-	pnx4008_wdd.timeout = heartbeat;
+ 	pnx4008_wdd.bootstatus = (readl(WDTIM_RES(wdt_base)) & WDOG_RESET) ?
+ 			WDIOF_CARDRESET : 0;
+ 	watchdog_set_nowayout(&pnx4008_wdd, nowayout);
+@@ -181,7 +180,7 @@ static int pnx4008_wdt_probe(struct platform_device *pdev)
  	}
  
- 	pr_info("Initial timeout %d sec%s\n",
--		heartbeat, nowayout ? ", nowayout" : "");
-+		orion_wdt.timeout, nowayout ? ", nowayout" : "");
+ 	dev_info(&pdev->dev, "PNX4008 Watchdog Timer: heartbeat %d sec\n",
+-			heartbeat);
++		 pnx4008_wdd.timeout);
+ 
  	return 0;
- }
  
 -- 
 1.8.0.3
