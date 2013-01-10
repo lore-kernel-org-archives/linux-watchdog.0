@@ -1,63 +1,153 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:42123 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1757764Ab3AIMpn (ORCPT
+Received: from mailout1.samsung.com ([203.254.224.24]:9077 "EHLO
+	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758024Ab3AJCGe (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 9 Jan 2013 07:45:43 -0500
-Date: Wed, 9 Jan 2013 13:45:36 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: =?utf-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>
-Cc: Hauke Mehrtens <hauke@hauke-m.de>, linville@tuxdriver.com,
-	linux-wireless@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	castet.matthieu@free.fr, biblbroks@sezampro.rs, m@bues.ch,
-	linux-mips@linux-mips.org
-Subject: Re: [PATCH v3 00/11] watchdog/bcm47xx/bcma/ssb: add support for SoCs with PMU
-Message-ID: <20130109124536.GG10667@spo001.leaseweb.com>
-References: <1354729568-19993-1-git-send-email-hauke@hauke-m.de> <CACna6rzcYReMs1ZxKuMDjAte+3bX_rjvd3Jd7265tgkMF2E-oA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <CACna6rzcYReMs1ZxKuMDjAte+3bX_rjvd3Jd7265tgkMF2E-oA@mail.gmail.com>
+	Wed, 9 Jan 2013 21:06:34 -0500
+Received: from epcpsbgm1.samsung.com (epcpsbgm1 [203.254.230.26])
+ by mailout1.samsung.com
+ (Oracle Communications Messaging Server 7u4-24.01(7.0.4.24.0) 64bit (built Nov
+ 17 2011)) with ESMTP id <0MGE00KN40IJOGD0@mailout1.samsung.com> for
+ linux-watchdog@vger.kernel.org; Thu, 10 Jan 2013 11:06:33 +0900 (KST)
+Received: from DOJG1HAN02 ([12.23.120.99])
+ by mmp1.samsung.com (Oracle Communications Messaging Server 7u4-24.01
+ (7.0.4.24.0) 64bit (built Nov 17 2011))
+ with ESMTPA id <0MGE006DJ0IXXN10@mmp1.samsung.com> for
+ linux-watchdog@vger.kernel.org; Thu, 10 Jan 2013 11:06:33 +0900 (KST)
+From: Jingoo Han <jg1.han@samsung.com>
+To: 'Wim Van Sebroec' <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org, 'Jingoo Han' <jg1.han@samsung.com>
+References: 
+In-reply-to: 
+Subject: [PATCH v2] watchdog: s3c2410_wdt: Use devm_* functions
+Date: Thu, 10 Jan 2013 11:06:33 +0900
+Message-id: <007701cdeed7$1cece940$56c6bbc0$%han@samsung.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-language: ko
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-Hi Rafal,
+Use devm_* functions to make cleanup paths more simple.
 
-this will probably be done after I reviewed the v2 watchdog part first.
+Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+---
+Changes since v1:
+- modified the commit message
 
-Kind regards,
-Wim.
+ drivers/watchdog/s3c2410_wdt.c |   42 ++++++++-------------------------------
+ 1 files changed, 9 insertions(+), 33 deletions(-)
 
-> 2012/12/5 Hauke Mehrtens <hauke@hauke-m.de>:
-> > This patch series improves the functions for setting the watchdog
-> > driver in ssb amd bcma. It also makes ssb and bcma register a platfor=
-m
-> > device which could be used by a watchdog driver to better set the tim=
-es
-> > where the system should restart. The patches for the watchdog driver
-> > will be send later and were removed in v3.
-> >
-> > This code is currently based on the wireless-testing/master tree by
-> > John Linville.
-> >
-> > v3:
-> >  * Remove changes done to the watchdog driver so John could pull this
-> >    into wireless-testing, this sill works with the old watchdog drive=
-r.
-> >    The patches changing the watchdog driver will be send later.
-> >    This was done to get this into 3.8 because Wim Van Sebroeck is
-> >    neither giving an Ack or a Nack on these patches and we want to do
-> >    more changes to bcma/ssb on top of these.
->=20
-> Your changes are already in Linus's tree, do you plan to re-send
-> watchdog patches dropped in V3 through linux-watchdog? Can you take
-> care of this?
->=20
-> --=20
-> Rafa=C5=82
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+index 27bcd4e..6419c61 100644
+--- a/drivers/watchdog/s3c2410_wdt.c
++++ b/drivers/watchdog/s3c2410_wdt.c
+@@ -309,7 +309,6 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ 	unsigned int wtcon;
+ 	int started = 0;
+ 	int ret;
+-	int size;
+ 
+ 	DBG("%s: probe=%p\n", __func__, pdev);
+ 
+@@ -330,28 +329,20 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	/* get the memory region for the watchdog timer */
+-
+-	size = resource_size(wdt_mem);
+-	if (!request_mem_region(wdt_mem->start, size, pdev->name)) {
+-		dev_err(dev, "failed to get memory region\n");
+-		ret = -EBUSY;
+-		goto err;
+-	}
+-
+-	wdt_base = ioremap(wdt_mem->start, size);
++	wdt_base = devm_request_and_ioremap(dev, wdt_mem);
+ 	if (wdt_base == NULL) {
+-		dev_err(dev, "failed to ioremap() region\n");
+-		ret = -EINVAL;
+-		goto err_req;
++		dev_err(dev, "failed to devm_request_and_ioremap() region\n");
++		ret = -ENOMEM;
++		goto err;
+ 	}
+ 
+ 	DBG("probe: mapped wdt_base=%p\n", wdt_base);
+ 
+-	wdt_clock = clk_get(&pdev->dev, "watchdog");
++	wdt_clock = devm_clk_get(dev, "watchdog");
+ 	if (IS_ERR(wdt_clock)) {
+ 		dev_err(dev, "failed to find watchdog clock source\n");
+ 		ret = PTR_ERR(wdt_clock);
+-		goto err_map;
++		goto err;
+ 	}
+ 
+ 	clk_prepare_enable(wdt_clock);
+@@ -378,7 +369,8 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ 							"cannot start\n");
+ 	}
+ 
+-	ret = request_irq(wdt_irq->start, s3c2410wdt_irq, 0, pdev->name, pdev);
++	ret = devm_request_irq(dev, wdt_irq->start, s3c2410wdt_irq, 0,
++				pdev->name, pdev);
+ 	if (ret != 0) {
+ 		dev_err(dev, "failed to install irq (%d)\n", ret);
+ 		goto err_cpufreq;
+@@ -389,7 +381,7 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ 	ret = watchdog_register_device(&s3c2410_wdd);
+ 	if (ret) {
+ 		dev_err(dev, "cannot register watchdog (%d)\n", ret);
+-		goto err_irq;
++		goto err_cpufreq;
+ 	}
+ 
+ 	if (tmr_atboot && started == 0) {
+@@ -414,23 +406,13 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ 
+ 	return 0;
+ 
+- err_irq:
+-	free_irq(wdt_irq->start, pdev);
+-
+  err_cpufreq:
+ 	s3c2410wdt_cpufreq_deregister();
+ 
+  err_clk:
+ 	clk_disable_unprepare(wdt_clock);
+-	clk_put(wdt_clock);
+ 	wdt_clock = NULL;
+ 
+- err_map:
+-	iounmap(wdt_base);
+-
+- err_req:
+-	release_mem_region(wdt_mem->start, size);
+-
+  err:
+ 	wdt_irq = NULL;
+ 	wdt_mem = NULL;
+@@ -441,17 +423,11 @@ static int s3c2410wdt_remove(struct platform_device *dev)
+ {
+ 	watchdog_unregister_device(&s3c2410_wdd);
+ 
+-	free_irq(wdt_irq->start, dev);
+-
+ 	s3c2410wdt_cpufreq_deregister();
+ 
+ 	clk_disable_unprepare(wdt_clock);
+-	clk_put(wdt_clock);
+ 	wdt_clock = NULL;
+ 
+-	iounmap(wdt_base);
+-
+-	release_mem_region(wdt_mem->start, resource_size(wdt_mem));
+ 	wdt_irq = NULL;
+ 	wdt_mem = NULL;
+ 	return 0;
+-- 
+1.7.2.5
+
+
