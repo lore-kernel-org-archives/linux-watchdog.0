@@ -1,153 +1,82 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailout1.samsung.com ([203.254.224.24]:9077 "EHLO
-	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758024Ab3AJCGe (ORCPT
+Received: from mail-ob0-f179.google.com ([209.85.214.179]:52297 "EHLO
+	mail-ob0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754090Ab3AJMvK (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 9 Jan 2013 21:06:34 -0500
-Received: from epcpsbgm1.samsung.com (epcpsbgm1 [203.254.230.26])
- by mailout1.samsung.com
- (Oracle Communications Messaging Server 7u4-24.01(7.0.4.24.0) 64bit (built Nov
- 17 2011)) with ESMTP id <0MGE00KN40IJOGD0@mailout1.samsung.com> for
- linux-watchdog@vger.kernel.org; Thu, 10 Jan 2013 11:06:33 +0900 (KST)
-Received: from DOJG1HAN02 ([12.23.120.99])
- by mmp1.samsung.com (Oracle Communications Messaging Server 7u4-24.01
- (7.0.4.24.0) 64bit (built Nov 17 2011))
- with ESMTPA id <0MGE006DJ0IXXN10@mmp1.samsung.com> for
- linux-watchdog@vger.kernel.org; Thu, 10 Jan 2013 11:06:33 +0900 (KST)
-From: Jingoo Han <jg1.han@samsung.com>
-To: 'Wim Van Sebroec' <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org, 'Jingoo Han' <jg1.han@samsung.com>
-References: 
-In-reply-to: 
-Subject: [PATCH v2] watchdog: s3c2410_wdt: Use devm_* functions
-Date: Thu, 10 Jan 2013 11:06:33 +0900
-Message-id: <007701cdeed7$1cece940$56c6bbc0$%han@samsung.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-language: ko
+	Thu, 10 Jan 2013 07:51:10 -0500
+MIME-Version: 1.0
+In-Reply-To: <1357730128-23018-2-git-send-email-fabio.porcedda@gmail.com>
+References: <1357730128-23018-1-git-send-email-fabio.porcedda@gmail.com> <1357730128-23018-2-git-send-email-fabio.porcedda@gmail.com>
+From: Fabio Porcedda <fabio.porcedda@gmail.com>
+Date: Thu, 10 Jan 2013 13:50:48 +0100
+Message-ID: <CAHkwnC8bmDxZdy=xos6AnG1vPDtGhGF6S8FYFfbdKG9vrHCnYw@mail.gmail.com>
+Subject: Re: [PATCH 1/3] driver core: add helper macro for platform_driver_probe()
+ boilerplate
+To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org, linux-usb@vger.kernel.org,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Use devm_* functions to make cleanup paths more simple.
+Hi Greg,
+I'm sorry, In the previous email I used your wrong email address,
+in this email I've used your correct email address.
 
-Signed-off-by: Jingoo Han <jg1.han@samsung.com>
----
-Changes since v1:
-- modified the commit message
+Best regards
+Fabio Porcedda
 
- drivers/watchdog/s3c2410_wdt.c |   42 ++++++++-------------------------------
- 1 files changed, 9 insertions(+), 33 deletions(-)
+On Wed, Jan 9, 2013 at 12:15 PM, Fabio Porcedda
+<fabio.porcedda@gmail.com> wrote:
+> For simple modules that contain a single platform_driver without any
+> additional setup code then ends up being a block of duplicated
+> boilerplate.  This patch adds a new macro,
+> module_platform_driver_probe(), which replaces the
+> module_init()/module_exit() registrations with template functions.
+>
+> This macro use the same idea of module_platform_driver().
+>
+> This macro is useful to stop the misuse of module_platform_driver() for
+> removing the platform_driver_probe() boilerplate.
+>
+> Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
+> Cc: Greg Kroah-Hartman <gregkh@suse.de>
 
-diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
-index 27bcd4e..6419c61 100644
---- a/drivers/watchdog/s3c2410_wdt.c
-+++ b/drivers/watchdog/s3c2410_wdt.c
-@@ -309,7 +309,6 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
- 	unsigned int wtcon;
- 	int started = 0;
- 	int ret;
--	int size;
- 
- 	DBG("%s: probe=%p\n", __func__, pdev);
- 
-@@ -330,28 +329,20 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
- 	}
- 
- 	/* get the memory region for the watchdog timer */
--
--	size = resource_size(wdt_mem);
--	if (!request_mem_region(wdt_mem->start, size, pdev->name)) {
--		dev_err(dev, "failed to get memory region\n");
--		ret = -EBUSY;
--		goto err;
--	}
--
--	wdt_base = ioremap(wdt_mem->start, size);
-+	wdt_base = devm_request_and_ioremap(dev, wdt_mem);
- 	if (wdt_base == NULL) {
--		dev_err(dev, "failed to ioremap() region\n");
--		ret = -EINVAL;
--		goto err_req;
-+		dev_err(dev, "failed to devm_request_and_ioremap() region\n");
-+		ret = -ENOMEM;
-+		goto err;
- 	}
- 
- 	DBG("probe: mapped wdt_base=%p\n", wdt_base);
- 
--	wdt_clock = clk_get(&pdev->dev, "watchdog");
-+	wdt_clock = devm_clk_get(dev, "watchdog");
- 	if (IS_ERR(wdt_clock)) {
- 		dev_err(dev, "failed to find watchdog clock source\n");
- 		ret = PTR_ERR(wdt_clock);
--		goto err_map;
-+		goto err;
- 	}
- 
- 	clk_prepare_enable(wdt_clock);
-@@ -378,7 +369,8 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
- 							"cannot start\n");
- 	}
- 
--	ret = request_irq(wdt_irq->start, s3c2410wdt_irq, 0, pdev->name, pdev);
-+	ret = devm_request_irq(dev, wdt_irq->start, s3c2410wdt_irq, 0,
-+				pdev->name, pdev);
- 	if (ret != 0) {
- 		dev_err(dev, "failed to install irq (%d)\n", ret);
- 		goto err_cpufreq;
-@@ -389,7 +381,7 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
- 	ret = watchdog_register_device(&s3c2410_wdd);
- 	if (ret) {
- 		dev_err(dev, "cannot register watchdog (%d)\n", ret);
--		goto err_irq;
-+		goto err_cpufreq;
- 	}
- 
- 	if (tmr_atboot && started == 0) {
-@@ -414,23 +406,13 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
- 
- 	return 0;
- 
-- err_irq:
--	free_irq(wdt_irq->start, pdev);
--
-  err_cpufreq:
- 	s3c2410wdt_cpufreq_deregister();
- 
-  err_clk:
- 	clk_disable_unprepare(wdt_clock);
--	clk_put(wdt_clock);
- 	wdt_clock = NULL;
- 
-- err_map:
--	iounmap(wdt_base);
--
-- err_req:
--	release_mem_region(wdt_mem->start, size);
--
-  err:
- 	wdt_irq = NULL;
- 	wdt_mem = NULL;
-@@ -441,17 +423,11 @@ static int s3c2410wdt_remove(struct platform_device *dev)
- {
- 	watchdog_unregister_device(&s3c2410_wdd);
- 
--	free_irq(wdt_irq->start, dev);
--
- 	s3c2410wdt_cpufreq_deregister();
- 
- 	clk_disable_unprepare(wdt_clock);
--	clk_put(wdt_clock);
- 	wdt_clock = NULL;
- 
--	iounmap(wdt_base);
--
--	release_mem_region(wdt_mem->start, resource_size(wdt_mem));
- 	wdt_irq = NULL;
- 	wdt_mem = NULL;
- 	return 0;
--- 
-1.7.2.5
+Cc: Greg Kroah-Hartman (linuxfoundation.org)
 
-
+> ---
+>  include/linux/platform_device.h | 18 ++++++++++++++++++
+>  1 file changed, 18 insertions(+)
+>
+> diff --git a/include/linux/platform_device.h b/include/linux/platform_device.h
+> index a9ded9a..c082c71 100644
+> --- a/include/linux/platform_device.h
+> +++ b/include/linux/platform_device.h
+> @@ -204,6 +204,24 @@ static inline void platform_set_drvdata(struct platform_device *pdev, void *data
+>         module_driver(__platform_driver, platform_driver_register, \
+>                         platform_driver_unregister)
+>
+> +/* module_platform_driver_probe() - Helper macro for drivers that don't do
+> + * anything special in module init/exit.  This eliminates a lot of
+> + * boilerplate.  Each module may only use this macro once, and
+> + * calling it replaces module_init() and module_exit()
+> + */
+> +#define module_platform_driver_probe(__platform_driver, __platform_probe) \
+> +static int __init __platform_driver##_init(void) \
+> +{ \
+> +       return platform_driver_probe(&(__platform_driver), \
+> +                                    __platform_probe);    \
+> +} \
+> +module_init(__platform_driver##_init); \
+> +static void __exit __platform_driver##_exit(void) \
+> +{ \
+> +       platform_driver_unregister(&(__platform_driver)); \
+> +} \
+> +module_exit(__platform_driver##_exit);
+> +
+>  extern struct platform_device *platform_create_bundle(struct platform_driver *driver,
+>                                         int (*probe)(struct platform_device *),
+>                                         struct resource *res, unsigned int n_res,
+> --
+> 1.8.0.3
+>
