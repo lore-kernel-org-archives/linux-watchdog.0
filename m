@@ -1,143 +1,65 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from server19320154104.serverpool.info ([193.201.54.104]:55187 "EHLO
-	hauke-m.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752126Ab3ALROn (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 12 Jan 2013 12:14:43 -0500
-From: Hauke Mehrtens <hauke@hauke-m.de>
-To: wim@iguana.be
-Cc: linux-watchdog@vger.kernel.org, zajec5@gmail.com,
-	linux-mips@linux-mips.org, Hauke Mehrtens <hauke@hauke-m.de>
-Subject: [PATCH v4 5/5] watchdog: bcm47xx_wdt.c: add hard timer
-Date: Sat, 12 Jan 2013 18:14:11 +0100
-Message-Id: <1358010851-28077-6-git-send-email-hauke@hauke-m.de>
-In-Reply-To: <1358010851-28077-1-git-send-email-hauke@hauke-m.de>
-References: <1358010851-28077-1-git-send-email-hauke@hauke-m.de>
+Received: from mail-pb0-f41.google.com ([209.85.160.41]:40544 "EHLO
+	mail-pb0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753538Ab3ANCCS (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Sun, 13 Jan 2013 21:02:18 -0500
+From: Takahisa Tanaka <mc74hc00@gmail.com>
+To: linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Paul Menzel <paulepanter@users.sourceforge.net>,
+	Arkadiusz Miskiewicz <arekm@maven.pl>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Jonathan Nieder <jrnieder@gmail.com>,
+	linux-kernel@vger.kernel.org,
+	Florian Mickler <florian@mickler.org>,
+	Takahisa Tanaka <mc74hc00@gmail.com>
+Subject: [PATCH 1/2] sp5100_tco: Fix wrong indirect I/O access for getting value of reserved bits
+Date: Mon, 14 Jan 2013 11:01:57 +0900
+Message-Id: <1358128918-4415-1-git-send-email-mc74hc00@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The more recent devices have a watchdog timer which could be configured
-for over 2 hours and not just 2 seconds like the first generation
-devices. For those devices do not use the extra software timer, but
-directly program the time into the register. This will automatically be
-used if the timer supports more than a minute.
+In case of SB800 or later chipset and re-programming MMIO address(*),
+sp5100_tco module may read incorrect value of reserved bit, because the module
+reads a value from an incorrect I/O address. However, this bug doesn't cause
+a problem, because when re-programming MMIO address, by chance the module
+writes zero (this is BIOS's default value) to the low three bits of register.
+* In most cases, PC with SB8x0 or later chipset doesn't need to re-programming
+  MMIO address, because such PC can enable AcpiMmio and can use 0xfed80b00 for
+  watchdog register base address.
 
-Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+This patch fixes this bug.
+
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=43176
+Signed-off-by: Takahisa Tanaka <mc74hc00@gmail.com>
 ---
- drivers/watchdog/bcm47xx_wdt.c |   69 ++++++++++++++++++++++++++++++++++++----
- 1 file changed, 63 insertions(+), 6 deletions(-)
+ drivers/watchdog/sp5100_tco.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/bcm47xx_wdt.c b/drivers/watchdog/bcm47xx_wdt.c
-index f188097..9cb69ad 100644
---- a/drivers/watchdog/bcm47xx_wdt.c
-+++ b/drivers/watchdog/bcm47xx_wdt.c
-@@ -31,6 +31,7 @@
+diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
+index 2b0e000..5dfe86e 100644
+--- a/drivers/watchdog/sp5100_tco.c
++++ b/drivers/watchdog/sp5100_tco.c
+@@ -500,14 +500,15 @@ static unsigned char sp5100_tco_setupdevice(void)
+ 	/* Restore to the low three bits, if chipset is SB8x0(or later) */
+ 	if (sp5100_tco_pci->revision >= 0x40) {
+ 		u8 reserved_bit;
+-		reserved_bit = inb(base_addr) & 0x7;
++		outb(base_addr+0, index_reg);
++		reserved_bit = inb(data_reg) & 0x7;
+ 		val |= (u32)reserved_bit;
+ 	}
  
- #define WDT_DEFAULT_TIME	30	/* seconds */
- #define WDT_SOFTTIMER_MAX	255	/* seconds */
-+#define WDT_SOFTTIMER_THRESHOLD	60	/* seconds */
- 
- static int timeout = WDT_DEFAULT_TIME;
- static bool nowayout = WATCHDOG_NOWAYOUT;
-@@ -49,6 +50,53 @@ static inline struct bcm47xx_wdt *bcm47xx_wdt_get(struct watchdog_device *wdd)
- 	return container_of(wdd, struct bcm47xx_wdt, wdd);
- }
- 
-+static int bcm47xx_wdt_hard_keepalive(struct watchdog_device *wdd)
-+{
-+	struct bcm47xx_wdt *wdt = bcm47xx_wdt_get(wdd);
-+
-+	wdt->timer_set_ms(wdt, wdd->timeout * 1000);
-+
-+	return 0;
-+}
-+
-+static int bcm47xx_wdt_hard_start(struct watchdog_device *wdd)
-+{
-+	return 0;
-+}
-+
-+static int bcm47xx_wdt_hard_stop(struct watchdog_device *wdd)
-+{
-+	struct bcm47xx_wdt *wdt = bcm47xx_wdt_get(wdd);
-+
-+	wdt->timer_set(wdt, 0);
-+
-+	return 0;
-+}
-+
-+static int bcm47xx_wdt_hard_set_timeout(struct watchdog_device *wdd,
-+					unsigned int new_time)
-+{
-+	struct bcm47xx_wdt *wdt = bcm47xx_wdt_get(wdd);
-+	u32 max_timer = wdt->max_timer_ms;
-+
-+	if (new_time < 1 || new_time > max_timer / 1000) {
-+		pr_warn("timeout value must be 1<=x<=%d, using %d\n",
-+			max_timer / 1000, new_time);
-+		return -EINVAL;
-+	}
-+
-+	wdd->timeout = new_time;
-+	return 0;
-+}
-+
-+static struct watchdog_ops bcm47xx_wdt_hard_ops = {
-+	.owner		= THIS_MODULE,
-+	.start		= bcm47xx_wdt_hard_start,
-+	.stop		= bcm47xx_wdt_hard_stop,
-+	.ping		= bcm47xx_wdt_hard_keepalive,
-+	.set_timeout	= bcm47xx_wdt_hard_set_timeout,
-+};
-+
- static void bcm47xx_wdt_soft_timer_tick(unsigned long data)
- {
- 	struct bcm47xx_wdt *wdt = (struct bcm47xx_wdt *)data;
-@@ -133,15 +181,22 @@ static struct watchdog_ops bcm47xx_wdt_soft_ops = {
- static int __devinit bcm47xx_wdt_probe(struct platform_device *pdev)
- {
- 	int ret;
-+	bool soft;
- 	struct bcm47xx_wdt *wdt = dev_get_platdata(&pdev->dev);
- 
- 	if (!wdt)
- 		return -ENXIO;
- 
--	setup_timer(&wdt->soft_timer, bcm47xx_wdt_soft_timer_tick,
--		    (long unsigned int)wdt);
-+	soft = wdt->max_timer_ms < WDT_SOFTTIMER_THRESHOLD * 1000;
-+
-+	if (soft) {
-+		wdt->wdd.ops = &bcm47xx_wdt_soft_ops;
-+		setup_timer(&wdt->soft_timer, bcm47xx_wdt_soft_timer_tick,
-+			    (long unsigned int)wdt);
-+	} else {
-+		wdt->wdd.ops = &bcm47xx_wdt_hard_ops;
-+	}
- 
--	wdt->wdd.ops = &bcm47xx_wdt_soft_ops;
- 	wdt->wdd.info = &bcm47xx_wdt_info;
- 	wdt->wdd.timeout = WDT_DEFAULT_TIME;
- 	ret = wdt->wdd.ops->set_timeout(&wdt->wdd, timeout);
-@@ -159,14 +214,16 @@ static int __devinit bcm47xx_wdt_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto err_notifier;
- 
--	pr_info("BCM47xx Watchdog Timer enabled (%d seconds%s)\n",
--		timeout, nowayout ? ", nowayout" : "");
-+	dev_info(&pdev->dev, "BCM47xx Watchdog Timer enabled (%d seconds%s%s)\n",
-+		timeout, nowayout ? ", nowayout" : "",
-+		soft ? ", Software Timer" : "");
- 	return 0;
- 
- err_notifier:
- 	unregister_reboot_notifier(&wdt->notifier);
- err_timer:
--	del_timer_sync(&wdt->soft_timer);
-+	if (soft)
-+		del_timer_sync(&wdt->soft_timer);
- 
- 	return ret;
- }
+ 	/* Re-programming the watchdog timer base address */
+ 	outb(base_addr+0, index_reg);
+ 	/* Low three bits of BASE are reserved */
+-	outb((val >>  0) & 0xf8, data_reg);
++	outb((val >>  0) & 0xff, data_reg);
+ 	outb(base_addr+1, index_reg);
+ 	outb((val >>  8) & 0xff, data_reg);
+ 	outb(base_addr+2, index_reg);
 -- 
-1.7.10.4
+1.7.11.7
 
