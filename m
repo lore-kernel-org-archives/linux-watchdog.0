@@ -1,11 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ea0-f175.google.com ([209.85.215.175]:38572 "EHLO
-	mail-ea0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755039Ab3ARLlh (ORCPT
+Received: from mail-ea0-f182.google.com ([209.85.215.182]:53202 "EHLO
+	mail-ea0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751629Ab3ARLlR (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 18 Jan 2013 06:41:37 -0500
-Received: by mail-ea0-f175.google.com with SMTP id d1so1411429eab.20
-        for <linux-watchdog@vger.kernel.org>; Fri, 18 Jan 2013 03:41:35 -0800 (PST)
+	Fri, 18 Jan 2013 06:41:17 -0500
+Received: by mail-ea0-f182.google.com with SMTP id a12so1398645eaa.27
+        for <linux-watchdog@vger.kernel.org>; Fri, 18 Jan 2013 03:41:15 -0800 (PST)
 From: Fabio Baltieri <fabio.baltieri@linaro.org>
 To: linux-watchdog@vger.kernel.org,
 	Samuel Ortiz <sameo@linux.intel.com>,
@@ -15,62 +15,61 @@ Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
 	Lee Jones <lee.jones@linaro.org>,
 	Srinidhi Kasagar <srinidhi.kasagar@stericsson.com>,
 	Fabio Baltieri <fabio.baltieri@linaro.org>
-Subject: [PATCH 4/4] mfd: db8500-prcmu: add ux500_wdt mfd_cell
-Date: Fri, 18 Jan 2013 12:40:14 +0100
-Message-Id: <1358509214-22407-5-git-send-email-fabio.baltieri@linaro.org>
+Subject: [PATCH 2/4] mfd: dbx500-prcmu: export a9wdog functions
+Date: Fri, 18 Jan 2013 12:40:12 +0100
+Message-Id: <1358509214-22407-3-git-send-email-fabio.baltieri@linaro.org>
 In-Reply-To: <1358509214-22407-1-git-send-email-fabio.baltieri@linaro.org>
 References: <1358509214-22407-1-git-send-email-fabio.baltieri@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patch adds the necessary structures to use the watchdog
-functionality of PRCMU.
-
-The watchdog driver is named ux500_wdt.
+Add EXPORT_SYMBOL to db500_prcmu_*_a9wdog functions to allow usage from
+module.
 
 Acked-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Fabio Baltieri <fabio.baltieri@linaro.org>
 ---
- drivers/mfd/db8500-prcmu.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/mfd/db8500-prcmu.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
 diff --git a/drivers/mfd/db8500-prcmu.c b/drivers/mfd/db8500-prcmu.c
-index 7a63fa8..e42a417 100644
+index 268f45d..7a63fa8 100644
 --- a/drivers/mfd/db8500-prcmu.c
 +++ b/drivers/mfd/db8500-prcmu.c
-@@ -32,6 +32,7 @@
- #include <linux/regulator/db8500-prcmu.h>
- #include <linux/regulator/machine.h>
- #include <linux/cpufreq.h>
-+#include <linux/platform_data/ux500_wdt.h>
- #include <asm/hardware/gic.h>
- #include <mach/hardware.h>
- #include <mach/irqs.h>
-@@ -3074,6 +3075,11 @@ static struct resource ab8500_resources[] = {
- 	}
- };
+@@ -2212,21 +2212,25 @@ int db8500_prcmu_config_a9wdog(u8 num, bool sleep_auto_off)
+ 			    sleep_auto_off ? A9WDOG_AUTO_OFF_EN :
+ 			    A9WDOG_AUTO_OFF_DIS);
+ }
++EXPORT_SYMBOL(db8500_prcmu_config_a9wdog);
  
-+static struct ux500_wdt_data db8500_wdt_pdata = {
-+	.timeout = 600, /* 10 minutes */
-+	.has_28_bits_resolution = true,
-+};
-+
- static struct mfd_cell db8500_prcmu_devs[] = {
- 	{
- 		.name = "db8500-prcmu-regulators",
-@@ -3088,6 +3094,12 @@ static struct mfd_cell db8500_prcmu_devs[] = {
- 		.pdata_size = sizeof(db8500_cpufreq_table),
- 	},
- 	{
-+		.name = "ux500_wdt",
-+		.platform_data = &db8500_wdt_pdata,
-+		.pdata_size = sizeof(db8500_wdt_pdata),
-+		.id = -1,
-+	},
-+	{
- 		.name = "ab8500-core",
- 		.of_compatible = "stericsson,ab8500",
- 		.num_resources = ARRAY_SIZE(ab8500_resources),
+ int db8500_prcmu_enable_a9wdog(u8 id)
+ {
+ 	return prcmu_a9wdog(MB4H_A9WDOG_EN, id, 0, 0, 0);
+ }
++EXPORT_SYMBOL(db8500_prcmu_enable_a9wdog);
+ 
+ int db8500_prcmu_disable_a9wdog(u8 id)
+ {
+ 	return prcmu_a9wdog(MB4H_A9WDOG_DIS, id, 0, 0, 0);
+ }
++EXPORT_SYMBOL(db8500_prcmu_disable_a9wdog);
+ 
+ int db8500_prcmu_kick_a9wdog(u8 id)
+ {
+ 	return prcmu_a9wdog(MB4H_A9WDOG_KICK, id, 0, 0, 0);
+ }
++EXPORT_SYMBOL(db8500_prcmu_kick_a9wdog);
+ 
+ /*
+  * timeout is 28 bit, in ms.
+@@ -2244,6 +2248,7 @@ int db8500_prcmu_load_a9wdog(u8 id, u32 timeout)
+ 			    (u8)((timeout >> 12) & 0xff),
+ 			    (u8)((timeout >> 20) & 0xff));
+ }
++EXPORT_SYMBOL(db8500_prcmu_load_a9wdog);
+ 
+ /**
+  * prcmu_abb_read() - Read register value(s) from the ABB.
 -- 
 1.7.12.1
 
