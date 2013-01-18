@@ -1,94 +1,59 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-da0-f46.google.com ([209.85.210.46]:35316 "EHLO
-	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755340Ab3ANCCa (ORCPT
+Received: from mail-ea0-f180.google.com ([209.85.215.180]:42076 "EHLO
+	mail-ea0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751461Ab3ARLkc (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 13 Jan 2013 21:02:30 -0500
-From: Takahisa Tanaka <mc74hc00@gmail.com>
-To: linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Paul Menzel <paulepanter@users.sourceforge.net>,
-	Arkadiusz Miskiewicz <arekm@maven.pl>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Jonathan Nieder <jrnieder@gmail.com>,
-	linux-kernel@vger.kernel.org,
-	Florian Mickler <florian@mickler.org>,
-	Takahisa Tanaka <mc74hc00@gmail.com>
-Subject: [PATCH 2/2] sp5100_tco: Write back the original value to reserved bits, instead of zero
-Date: Mon, 14 Jan 2013 11:01:58 +0900
-Message-Id: <1358128918-4415-2-git-send-email-mc74hc00@gmail.com>
-In-Reply-To: <1358128918-4415-1-git-send-email-mc74hc00@gmail.com>
-References: <1358128918-4415-1-git-send-email-mc74hc00@gmail.com>
+	Fri, 18 Jan 2013 06:40:32 -0500
+Received: by mail-ea0-f180.google.com with SMTP id c1so1401984eaa.11
+        for <linux-watchdog@vger.kernel.org>; Fri, 18 Jan 2013 03:40:30 -0800 (PST)
+From: Fabio Baltieri <fabio.baltieri@linaro.org>
+To: linux-watchdog@vger.kernel.org,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Srinidhi Kasagar <srinidhi.kasagar@stericsson.com>,
+	Fabio Baltieri <fabio.baltieri@linaro.org>
+Subject: [PATCH 0/4] add ux500_wdt support
+Date: Fri, 18 Jan 2013 12:40:10 +0100
+Message-Id: <1358509214-22407-1-git-send-email-fabio.baltieri@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-In case of SP5100 or SB7x0 chipsets, the sp5100_tco module writes zero to
-reserved bits. The module, however, shouldn't depend on specific default
-value, and should perform a read-merge-write operation for the reserved
-bits.
+Hi all,
 
-This patch makes the sp5100_tco module perform a read-merge-write operation
-on all the chipset (sp5100, sb7x0, sb8x0 or later).
+this set adds support for the ux500_wdt timer, implemented in the PRCMU
+unit of ST-Ericsson ux500 architecture.
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=43176
-Signed-off-by: Takahisa Tanaka <mc74hc00@gmail.com>
----
- drivers/watchdog/sp5100_tco.c | 28 ++++++++--------------------
- 1 file changed, 8 insertions(+), 20 deletions(-)
+The first two patches add the necessary definitions and function export
+to the PRCMU driver currently in mainline, while the third an fourth
+patches add the actual watchdog driver and mfd_cell definition to make
+it probe when PRCMU is compiled in.
 
-diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
-index 5dfe86e..e3b8f75 100644
---- a/drivers/watchdog/sp5100_tco.c
-+++ b/drivers/watchdog/sp5100_tco.c
-@@ -361,7 +361,7 @@ static unsigned char sp5100_tco_setupdevice(void)
- {
- 	struct pci_dev *dev = NULL;
- 	const char *dev_name = NULL;
--	u32 val;
-+	u32 val, tmp_val;
- 	u32 index_reg, data_reg, base_addr;
- 
- 	/* Match the PCI device */
-@@ -497,31 +497,19 @@ static unsigned char sp5100_tco_setupdevice(void)
- 		pr_debug("Got 0x%04x from resource tree\n", val);
- 	}
- 
--	/* Restore to the low three bits, if chipset is SB8x0(or later) */
--	if (sp5100_tco_pci->revision >= 0x40) {
--		u8 reserved_bit;
--		outb(base_addr+0, index_reg);
--		reserved_bit = inb(data_reg) & 0x7;
--		val |= (u32)reserved_bit;
--	}
-+	/* Restore to the low three bits */
-+	outb(base_addr+0, index_reg);
-+	tmp_val = val | (inb(data_reg) & 0x7);
- 
- 	/* Re-programming the watchdog timer base address */
- 	outb(base_addr+0, index_reg);
--	/* Low three bits of BASE are reserved */
--	outb((val >>  0) & 0xff, data_reg);
-+	outb((tmp_val >>  0) & 0xff, data_reg);
- 	outb(base_addr+1, index_reg);
--	outb((val >>  8) & 0xff, data_reg);
-+	outb((tmp_val >>  8) & 0xff, data_reg);
- 	outb(base_addr+2, index_reg);
--	outb((val >> 16) & 0xff, data_reg);
-+	outb((tmp_val >> 16) & 0xff, data_reg);
- 	outb(base_addr+3, index_reg);
--	outb((val >> 24) & 0xff, data_reg);
--
--	/*
--	 * Clear unnecessary the low three bits,
--	 * if chipset is SB8x0(or later)
--	 */
--	if (sp5100_tco_pci->revision >= 0x40)
--		val &= ~0x7;
-+	outb((tmp_val >> 24) & 0xff, data_reg);
- 
- 	if (!request_mem_region_exclusive(val, SP5100_WDT_MEM_MAP_SIZE,
- 								   dev_name)) {
+As the patches touches files in both mfd and watchdog subsystems, what do
+you think is the best way to handle this set?
+
+Thanks,
+Fabio
+
+
+Fabio Baltieri (4):
+  mfd: dbx500-prcmu: add watchdog ID definitions
+  mfd: dbx500-prcmu: export a9wdog functions
+  watchdog: add support for ux500_wdt watchdog
+  mfd: db8500-prcmu: add ux500_wdt mfd_cell
+
+ drivers/mfd/db8500-prcmu.c              |  17 ++++
+ drivers/watchdog/Kconfig                |  12 +++
+ drivers/watchdog/Makefile               |   1 +
+ drivers/watchdog/ux500_wdt.c            | 171 ++++++++++++++++++++++++++++++++
+ include/linux/mfd/dbx500-prcmu.h        |  12 +++
+ include/linux/platform_data/ux500_wdt.h |  19 ++++
+ 6 files changed, 232 insertions(+)
+ create mode 100644 drivers/watchdog/ux500_wdt.c
+ create mode 100644 include/linux/platform_data/ux500_wdt.h
+
 -- 
-1.7.11.7
+1.7.12.1
 
