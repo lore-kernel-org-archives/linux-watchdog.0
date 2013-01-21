@@ -1,141 +1,189 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: "Yang, Wenyou" <Wenyou.Yang@atmel.com>
-To: Fabio Porcedda <fabio.porcedda@gmail.com>
-CC: "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-        "Ferre, Nicolas" <Nicolas.FERRE@atmel.com>,
-        Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
-        "Lin, JM" <JM.Lin@atmel.com>, Wim Van Sebroeck <wim@iguana.be>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: RE: [v3 PATCH 7/9] watchdog/at91sam9_wdt: Use
- module_platform_driver()
-Date: Wed, 16 Jan 2013 05:22:12 +0000
-Message-ID: <B256D81BAE5131468A838E5D7A2436413A05DCFE@penmbx02>
-References: <1357353529-20901-1-git-send-email-wenyou.yang@atmel.com>
- <1357353529-20901-8-git-send-email-wenyou.yang@atmel.com>
- <CAHkwnC8CTFxrJ8F=u=MqKW=cZ88SeoT+rA_hzW38jL8ffT9D2Q@mail.gmail.com>
-In-Reply-To: <CAHkwnC8CTFxrJ8F=u=MqKW=cZ88SeoT+rA_hzW38jL8ffT9D2Q@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="gb2312"
-MIME-Version: 1.0
+From: Thierry Reding <thierry.reding@avionic-design.de>
+To: linux-kernel@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <w.sang@pengutronix.de>,
+        Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+Subject: [PATCH 32/33] watchdog: Convert to devm_ioremap_resource()
+Date: Mon, 21 Jan 2013 11:09:25 +0100
+Message-Id: <1358762966-20791-33-git-send-email-thierry.reding@avionic-design.de>
+In-Reply-To: <1358762966-20791-1-git-send-email-thierry.reding@avionic-design.de>
+References: <1358762966-20791-1-git-send-email-thierry.reding@avionic-design.de>
 Sender: linux-kernel-owner@vger.kernel.org
-Content-Transfer-Encoding: 8bit
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Fabio Porcedda,
+Convert all uses of devm_request_and_ioremap() to the newly introduced
+devm_ioremap_resource() which provides more consistent error handling.
 
-> -----Original Message-----
-> From: Fabio Porcedda [mailto:fabio.porcedda@gmail.com]
-> Sent: 2013Äê1ÔÂ8ÈÕ 18:18
-> To: Yang, Wenyou
-> Cc: linux-arm-kernel@lists.infradead.org; Ferre, Nicolas; Jean-Christophe
-> PLAGNIOL-VILLARD; Lin, JM; Wim Van Sebroeck;
-> linux-watchdog@vger.kernel.org; linux-kernel@vger.kernel.org; Geert
-> Uytterhoeven
-> Subject: Re: [v3 PATCH 7/9] watchdog/at91sam9_wdt: Use
-> module_platform_driver()
-> 
-> On Sat, Jan 5, 2013 at 3:38 AM, Wenyou Yang <wenyou.yang@atmel.com>
-> wrote:
-> > Using module_platform_driver() replaces module_init() and module_exit()
-> > and makes the code simpler.
-> >
-> > Remove '__init' annotation from the function 'at91wdt_probe'
-> > since the driver becomes hot-plug aware now.
-> >
-> > Signed-off-by: Wenyou Yang <wenyou.yang@atmel.com>
-> > Cc: wim@iguana.be
-> > Cc: linux-watchdog@vger.kernel.org
-> > Cc: linux-kernel@vger.kernel.org
-> > ---
-> >  drivers/watchdog/at91sam9_wdt.c |   16 +++-------------
-> >  1 file changed, 3 insertions(+), 13 deletions(-)
-> >
-> > diff --git a/drivers/watchdog/at91sam9_wdt.c
-> b/drivers/watchdog/at91sam9_wdt.c
-> > index 94be9d6..7c13dda 100644
-> > --- a/drivers/watchdog/at91sam9_wdt.c
-> > +++ b/drivers/watchdog/at91sam9_wdt.c
-> > @@ -204,7 +204,7 @@ static struct watchdog_device at91wdt_wdd = {
-> >         .ops = &at91wdt_ops,
-> >  };
-> >
-> > -static int __init at91wdt_probe(struct platform_device *pdev)
-> > +static int at91wdt_probe(struct platform_device *pdev)
-> >  {
-> >         struct at91wdt_drvdata *driver_data;
-> >         struct resource *r;
-> > @@ -273,6 +273,7 @@ MODULE_DEVICE_TABLE(of, at91_wdt_dt_ids);
-> >  #endif
-> >
-> >  static struct platform_driver at91wdt_driver = {
-> > +       .probe          = at91wdt_probe,
-> >         .remove         = __exit_p(at91wdt_remove),
-> >         .driver         = {
-> >                 .name   = "at91_wdt",
-> > @@ -281,18 +282,7 @@ static struct platform_driver at91wdt_driver = {
-> >         },
-> >  };
-> >
-> > -static int __init at91sam_wdt_init(void)
-> > -{
-> > -       return platform_driver_probe(&at91wdt_driver, at91wdt_probe);
-> > -}
-> > -
-> > -static void __exit at91sam_wdt_exit(void)
-> > -{
-> > -       platform_driver_unregister(&at91wdt_driver);
-> > -}
-> > -
-> > -module_init(at91sam_wdt_init);
-> > -module_exit(at91sam_wdt_exit);
-> > +module_platform_driver(at91wdt_driver);
-> >
-> >  MODULE_AUTHOR("Renaud CERRATO <r.cerrato@til-technologies.fr>");
-> >  MODULE_DESCRIPTION("Watchdog driver for Atmel AT91SAM9x
-> processors");
-> > --
-> > 1.7.9.5
-> >
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-> The module_platform_driver isn't a substitute of platform_driver_probe,
-> because module_platform_driver  use platform_driver_register/unregister.
-> Using that macro we lose the advantage of platform_driver_probe,
-> as stated in:
-> 
-> https://lkml.org/lkml/2012/1/10/335
-I just referred to the commit 6b761b2902c56b468370e0ee1691c37e0dae042a.
-Didn't think more about it.
-I will remove this patch in the next version.
+devm_ioremap_resource() provides its own error messages so all explicit
+error messages can be removed from the failure code paths.
 
-> On Tue, Jan 10, 2012 at 21:47, Geert Uytterhoeven <geert@linux-m68k.org>
-> wrote:
-> > [...]
-> >Still, setting up platform_driver.probe and removing __init from all probe
-> >functions is not the right thing to do, as this make (non-__init) kernel code
-> >size bigger, while none of these devices are hotpluggable and thus cannot
-> >appear after bootup. That's why we have platform_driver_probe() in the
-> >first place. So I think all of this should be reverted for non-hotpluggable
-> >drivers.
-> > [...]
+Signed-off-by: Thierry Reding <thierry.reding@avionic-design.de>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org
+---
+ drivers/watchdog/ar7_wdt.c     | 8 +++-----
+ drivers/watchdog/dw_wdt.c      | 6 +++---
+ drivers/watchdog/imx2_wdt.c    | 8 +++-----
+ drivers/watchdog/jz4740_wdt.c  | 6 +++---
+ drivers/watchdog/lantiq_wdt.c  | 8 +++-----
+ drivers/watchdog/max63xx_wdt.c | 7 ++++---
+ drivers/watchdog/pnx4008_wdt.c | 6 +++---
+ drivers/watchdog/txx9wdt.c     | 6 +++---
+ 8 files changed, 25 insertions(+), 30 deletions(-)
 
-You said is reasonable, watchdog is not hotpluggable.
-> 
-> Best regards
-> 
-> --
-> Fabio Porcedda
-
-Best Regards,
-Wenyou Yang
-ÿôèº{.nÇ+‰·Ÿ®‰­†+%ŠËÿ±éÝ¶¥Šwÿº{.nÇ+‰·¥Š{±þG«éÿŠ{ayº
-Ê‡Ú™ë,j­¢f£¢·hšïêÿ‘êçz_è®(­éšŽŠÝ¢j"ú¶m§ÿÿ¾«þG«éÿ¢¸?™¨è­Ú&£ø§~á¶iO•æ¬z·švØ^¶m§ÿÿÃ
-ÿ¶ìÿ¢¸?–I¥
+diff --git a/drivers/watchdog/ar7_wdt.c b/drivers/watchdog/ar7_wdt.c
+index 3003e2a..2f3cc8f 100644
+--- a/drivers/watchdog/ar7_wdt.c
++++ b/drivers/watchdog/ar7_wdt.c
+@@ -285,11 +285,9 @@ static int ar7_wdt_probe(struct platform_device *pdev)
+ 		return -ENODEV;
+ 	}
+ 
+-	ar7_wdt = devm_request_and_ioremap(&pdev->dev, ar7_regs_wdt);
+-	if (!ar7_wdt) {
+-		pr_err("could not ioremap registers\n");
+-		return -ENXIO;
+-	}
++	ar7_wdt = devm_ioremap_resource(&pdev->dev, ar7_regs_wdt);
++	if (IS_ERR(ar7_wdt))
++		return PTR_ERR(ar7_wdt);
+ 
+ 	vbus_clk = clk_get(NULL, "vbus");
+ 	if (IS_ERR(vbus_clk)) {
+diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+index a0eba3c..2037669 100644
+--- a/drivers/watchdog/dw_wdt.c
++++ b/drivers/watchdog/dw_wdt.c
+@@ -301,9 +301,9 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
+ 	if (!mem)
+ 		return -EINVAL;
+ 
+-	dw_wdt.regs = devm_request_and_ioremap(&pdev->dev, mem);
+-	if (!dw_wdt.regs)
+-		return -ENOMEM;
++	dw_wdt.regs = devm_ioremap_resource(&pdev->dev, mem);
++	if (IS_ERR(dw_wdt.regs))
++		return PTR_ERR(dw_wdt.regs);
+ 
+ 	dw_wdt.clk = clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(dw_wdt.clk))
+diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+index 9a45d029..7f023e2 100644
+--- a/drivers/watchdog/imx2_wdt.c
++++ b/drivers/watchdog/imx2_wdt.c
+@@ -262,11 +262,9 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
+ 		return -ENODEV;
+ 	}
+ 
+-	imx2_wdt.base = devm_request_and_ioremap(&pdev->dev, res);
+-	if (!imx2_wdt.base) {
+-		dev_err(&pdev->dev, "ioremap failed\n");
+-		return -ENOMEM;
+-	}
++	imx2_wdt.base = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(imx2_wdt.base))
++		return PTR_ERR(imx2_wdt.base);
+ 
+ 	imx2_wdt.clk = clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(imx2_wdt.clk)) {
+diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
+index a61408f..1cb25f6 100644
+--- a/drivers/watchdog/jz4740_wdt.c
++++ b/drivers/watchdog/jz4740_wdt.c
+@@ -171,9 +171,9 @@ static int jz4740_wdt_probe(struct platform_device *pdev)
+ 	watchdog_set_drvdata(jz4740_wdt, drvdata);
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	drvdata->base = devm_request_and_ioremap(&pdev->dev, res);
+-	if (drvdata->base == NULL) {
+-		ret = -EBUSY;
++	drvdata->base = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(drvdata->base)) {
++		ret = PTR_ERR(drvdata->base);
+ 		goto err_out;
+ 	}
+ 
+diff --git a/drivers/watchdog/lantiq_wdt.c b/drivers/watchdog/lantiq_wdt.c
+index 79fe01b..088fd0c 100644
+--- a/drivers/watchdog/lantiq_wdt.c
++++ b/drivers/watchdog/lantiq_wdt.c
+@@ -197,11 +197,9 @@ ltq_wdt_probe(struct platform_device *pdev)
+ 		return -ENOENT;
+ 	}
+ 
+-	ltq_wdt_membase = devm_request_and_ioremap(&pdev->dev, res);
+-	if (!ltq_wdt_membase) {
+-		dev_err(&pdev->dev, "cannot remap I/O memory region\n");
+-		return -ENOMEM;
+-	}
++	ltq_wdt_membase = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(ltq_wdt_membase))
++		return PTR_ERR(ltq_wdt_membase);
+ 
+ 	/* we do not need to enable the clock as it is always running */
+ 	clk = clk_get_io();
+diff --git a/drivers/watchdog/max63xx_wdt.c b/drivers/watchdog/max63xx_wdt.c
+index 773c661..cc9d328 100644
+--- a/drivers/watchdog/max63xx_wdt.c
++++ b/drivers/watchdog/max63xx_wdt.c
+@@ -14,6 +14,7 @@
+  * another interface, some abstraction will have to be introduced.
+  */
+ 
++#include <linux/err.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/types.h>
+@@ -198,9 +199,9 @@ static int max63xx_wdt_probe(struct platform_device *pdev)
+ 	heartbeat = current_timeout->twd;
+ 
+ 	wdt_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	wdt_base = devm_request_and_ioremap(&pdev->dev, wdt_mem);
+-	if (!wdt_base)
+-		return -ENOMEM;
++	wdt_base = devm_ioremap_resource(&pdev->dev, wdt_mem);
++	if (IS_ERR(wdt_base))
++		return PTR_ERR(wdt_base);
+ 
+ 	max63xx_wdt_dev.timeout = heartbeat;
+ 	watchdog_set_nowayout(&max63xx_wdt_dev, nowayout);
+diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
+index dcba5da..de1f3fa 100644
+--- a/drivers/watchdog/pnx4008_wdt.c
++++ b/drivers/watchdog/pnx4008_wdt.c
+@@ -155,9 +155,9 @@ static int pnx4008_wdt_probe(struct platform_device *pdev)
+ 		heartbeat = DEFAULT_HEARTBEAT;
+ 
+ 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	wdt_base = devm_request_and_ioremap(&pdev->dev, r);
+-	if (!wdt_base)
+-		return -EADDRINUSE;
++	wdt_base = devm_ioremap_resource(&pdev->dev, r);
++	if (IS_ERR(wdt_base))
++		return PTR_ERR(wdt_base);
+ 
+ 	wdt_clk = clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(wdt_clk))
+diff --git a/drivers/watchdog/txx9wdt.c b/drivers/watchdog/txx9wdt.c
+index 98e1637..626dc0b 100644
+--- a/drivers/watchdog/txx9wdt.c
++++ b/drivers/watchdog/txx9wdt.c
+@@ -121,9 +121,9 @@ static int __init txx9wdt_probe(struct platform_device *dev)
+ 	}
+ 
+ 	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
+-	txx9wdt_reg = devm_request_and_ioremap(&dev->dev, res);
+-	if (!txx9wdt_reg) {
+-		ret = -EBUSY;
++	txx9wdt_reg = devm_ioremap_resource(&dev->dev, res);
++	if (IS_ERR(txx9wdt_reg)) {
++		ret = PTR_ERR(txx9wdt_reg);
+ 		goto exit;
+ 	}
+ 
+-- 
+1.8.1.1
