@@ -1,15 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Arnd Bergmann <arnd@arndb.de>
-To: linux-arm-kernel@list.infradead.org
+To: linux-arm-kernel@lists.infradead.org
 Cc: linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
         Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
         Nicolas Ferre <nicolas.ferre@atmel.com>,
         Fabio Porcedda <fabio.porcedda@gmail.com>
 Subject: [PATCH 10/19] watchdog: at91sam9: at91_wdt_dt_ids cannot be __init
-Date: Fri, 25 Jan 2013 14:14:27 +0000
-Message-Id: <1359123276-15833-11-git-send-email-arnd@arndb.de>
-In-Reply-To: <1359123276-15833-1-git-send-email-arnd@arndb.de>
+Date: Fri, 25 Jan 2013 22:44:09 +0000
+Message-Id: <1359153858-31992-11-git-send-email-arnd@arndb.de>
+In-Reply-To: <1359153858-31992-1-git-send-email-arnd@arndb.de>
 References: <1359123276-15833-1-git-send-email-arnd@arndb.de>
+ <1359153858-31992-1-git-send-email-arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
