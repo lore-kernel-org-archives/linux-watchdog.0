@@ -1,64 +1,55 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from server19320154104.serverpool.info ([193.201.54.104]:56675 "EHLO
-	hauke-m.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751150Ab3AXRQF (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 24 Jan 2013 12:16:05 -0500
-Message-ID: <51016C4D.40707@hauke-m.de>
-Date: Thu, 24 Jan 2013 18:15:57 +0100
-From: Hauke Mehrtens <hauke@hauke-m.de>
-MIME-Version: 1.0
-To: wim@iguana.be
-CC: linux-watchdog@vger.kernel.org, zajec5@gmail.com,
-	linux-mips@linux-mips.org
-Subject: Re: [PATCH v4 0/5] watchdog: bcm47xx_wdt.c: add support for SoCs
- with PMU
-References: <1358010851-28077-1-git-send-email-hauke@hauke-m.de>
-In-Reply-To: <1358010851-28077-1-git-send-email-hauke@hauke-m.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Received: from ns1.pc-advies.be ([83.149.101.17]:32898 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752418Ab3A1VMY (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 28 Jan 2013 16:12:24 -0500
+Date: Mon, 28 Jan 2013 22:12:22 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Fabio Baltieri <fabio.baltieri@linaro.org>
+Cc: linux-watchdog@vger.kernel.org,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Srinidhi Kasagar <srinidhi.kasagar@stericsson.com>
+Subject: Re: [PATCH 3/4] watchdog: add support for ux500_wdt watchdog
+Message-ID: <20130128211222.GA3338@spo001.leaseweb.com>
+References: <1358509214-22407-1-git-send-email-fabio.baltieri@linaro.org> <1358509214-22407-4-git-send-email-fabio.baltieri@linaro.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1358509214-22407-4-git-send-email-fabio.baltieri@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 01/12/2013 06:14 PM, Hauke Mehrtens wrote:
-> This patch series improves the functions for setting the watchdog 
-> driver for bcm47xx based SoCs using ssb and bcma. This makes the 
-> watchdog driver use the platform device provided by bcma or ssb.
-> 
-> This code is currently based on the linux-watchdog/master tree by 
-> Wim Van Sebroeck.
-> 
-> v4:
->  * Just the parts changing the watchdog driver itself and not ssb or bcma.
-> 
-> v3:
->  * Remove changes done to the watchdog driver so John could pull this 
->    into wireless-testing, this sill works with the old watchdog driver. 
->    The patches changing the watchdog driver will be send later.
->    This was done to get this into 3.8 because Wim Van Sebroeck is 
->    neither giving an Ack or a Nack on these patches and we want to do 
->    more changes to bcma/ssb on top of these.
-> 
-> v2:
->  * reword some commit messages
->  * rebase on current wireless-testing/master with 
->       "ssb: extif: fix compile errors" applied on top of it.
->  * do not change value of WDT_SOFTTIMER_MAX
->  * moved some small changes in the bcm47xx_wdt.c patches
-> 
-> Hauke Mehrtens (5):
->   watchdog: bcm47xx_wdt.c: convert to watchdog core api
->   watchdog: bcm47xx_wdt.c: use platform device
->   watchdog: bcm47xx_wdt.c: rename ops methods
->   watchdog: bcm47xx_wdt.c: rename wdt_time to timeout
->   watchdog: bcm47xx_wdt.c: add hard timer
-> 
->  drivers/watchdog/Kconfig       |    1 +
->  drivers/watchdog/bcm47xx_wdt.c |  339 +++++++++++++++++-----------------------
->  include/linux/bcm47xx_wdt.h    |    9 ++
->  3 files changed, 154 insertions(+), 195 deletions(-)
-> 
-Hi Wim,
+Hi Fabio,
 
-what is the status of these patches?
+> This patch adds support for the ux500_wdt watchdog that is found in
+> ST-Ericsson Ux500 platform.  The driver is based on PRCMU APIs.
+> 
+> Acked-by: Lee Jones <lee.jones@linaro.org>
+> Signed-off-by: Fabio Baltieri <fabio.baltieri@linaro.org>
 
-Hauke
+> +static int timeout = WATCHDOG_TIMEOUT;
+> +module_param(timeout, int, 0);
+> +MODULE_PARM_DESC(timeout,
+> +	"Watchdog timeout in seconds. default="
+> +				__MODULE_STRING(WATCHDOG_TIMEOUT) ".");
+
+We should go for unsigned int timeout values...
+
+> +static int nowayout = WATCHDOG_NOWAYOUT;
+> +module_param(nowayout, int, 0);
+> +MODULE_PARM_DESC(nowayout,
+> +	"Watchdog cannot be stopped once started (default="
+> +				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+
+nowayout is a boolean value so please change this to
+static bool nowayout = WATCHDOG_NOWAYOUT;
+
+The rest is OK by me. So if bowayout get's fixed then you have my acked-by.
+
+Kind regards,
+Wim.
+
