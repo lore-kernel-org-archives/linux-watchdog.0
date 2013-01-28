@@ -1,54 +1,31 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:32898 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:32906 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752418Ab3A1VMY (ORCPT
+	with ESMTP id S1754074Ab3A1Vfq (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 28 Jan 2013 16:12:24 -0500
-Date: Mon, 28 Jan 2013 22:12:22 +0100
+	Mon, 28 Jan 2013 16:35:46 -0500
+Date: Mon, 28 Jan 2013 22:35:44 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Fabio Baltieri <fabio.baltieri@linaro.org>
-Cc: linux-watchdog@vger.kernel.org,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Srinidhi Kasagar <srinidhi.kasagar@stericsson.com>
-Subject: Re: [PATCH 3/4] watchdog: add support for ux500_wdt watchdog
-Message-ID: <20130128211222.GA3338@spo001.leaseweb.com>
-References: <1358509214-22407-1-git-send-email-fabio.baltieri@linaro.org> <1358509214-22407-4-git-send-email-fabio.baltieri@linaro.org>
+To: Hauke Mehrtens <hauke@hauke-m.de>
+Cc: linux-watchdog@vger.kernel.org, zajec5@gmail.com,
+	linux-mips@linux-mips.org
+Subject: Re: [PATCH v4 0/5] watchdog: bcm47xx_wdt.c: add support for SoCs with PMU
+Message-ID: <20130128213544.GB3338@spo001.leaseweb.com>
+References: <1358010851-28077-1-git-send-email-hauke@hauke-m.de> <51016C4D.40707@hauke-m.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1358509214-22407-4-git-send-email-fabio.baltieri@linaro.org>
+In-Reply-To: <51016C4D.40707@hauke-m.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Fabio,
+Hi Hauke,
 
-> This patch adds support for the ux500_wdt watchdog that is found in
-> ST-Ericsson Ux500 platform.  The driver is based on PRCMU APIs.
-> 
-> Acked-by: Lee Jones <lee.jones@linaro.org>
-> Signed-off-by: Fabio Baltieri <fabio.baltieri@linaro.org>
+> what is the status of these patches?
 
-> +static int timeout = WATCHDOG_TIMEOUT;
-> +module_param(timeout, int, 0);
-> +MODULE_PARM_DESC(timeout,
-> +	"Watchdog timeout in seconds. default="
-> +				__MODULE_STRING(WATCHDOG_TIMEOUT) ".");
-
-We should go for unsigned int timeout values...
-
-> +static int nowayout = WATCHDOG_NOWAYOUT;
-> +module_param(nowayout, int, 0);
-> +MODULE_PARM_DESC(nowayout,
-> +	"Watchdog cannot be stopped once started (default="
-> +				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-
-nowayout is a boolean value so please change this to
-static bool nowayout = WATCHDOG_NOWAYOUT;
-
-The rest is OK by me. So if bowayout get's fixed then you have my acked-by.
+First reading/checking (v4+v5) seems OK.
+1 small remark allready: the settimeout functions seem to check the min and max timeout values.
+Can't you use the min and max values of the watchdog structure for this?
 
 Kind regards,
 Wim.
