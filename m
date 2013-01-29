@@ -1,68 +1,31 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-da0-f46.google.com ([209.85.210.46]:50793 "EHLO
-	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753021Ab3A2RSl (ORCPT
+Received: from mail.linuxfoundation.org ([140.211.169.12]:51784 "EHLO
+	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751681Ab3A2X7S (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 29 Jan 2013 12:18:41 -0500
-Subject: Re: [BUG?] false positive in soft lockup detector while unlzma
- initramfs on slow cpu
-From: anish kumar <anish198519851985@gmail.com>
+	Tue, 29 Jan 2013 18:59:18 -0500
+Date: Tue, 29 Jan 2013 15:59:17 -0800
+From: Andrew Morton <akpm@linux-foundation.org>
 To: Don Zickus <dzickus@redhat.com>
-Cc: Mike Lykov <combr@yandex.ru>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Ingo Molnar <mingo@kernel.org>,
+Cc: Mike Lykov <combr@yandex.ru>, Ingo Molnar <mingo@kernel.org>,
 	Thomas Gleixner <tglx@linutronix.de>,
 	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
 	kirill@shutemov.name
+Subject: Re: [BUG?] false positive in soft lockup detector while unlzma
+ initramfs on slow cpu
+Message-Id: <20130129155917.4ee64214.akpm@linux-foundation.org>
 In-Reply-To: <20130129153348.GR98867@redhat.com>
-References: <5107D1D3.6040105@yandex.ru> <20130129153348.GR98867@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 29 Jan 2013 22:48:27 +0530
-Message-ID: <1359479907.1641.161.camel@anish-Inspiron-N5050>
+References: <5107D1D3.6040105@yandex.ru>
+	<20130129153348.GR98867@redhat.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, 2013-01-29 at 10:33 -0500, Don Zickus wrote:
-> Hi Mike,
-> 
-> On Tue, Jan 29, 2013 at 05:42:43PM +0400, Mike Lykov wrote:
-> > 
-> > So my questions:
-> > 
-> > 1. Are there a BUG in soft lockup detection mechanizm? Changing
-> > watchdog_thresh to 30 have a side effect in production - D-state
-> > userspace processes will be detected slowly. Are there a need to
-> > detecting soft lockups at boot time? Maybe it need after initramfs
-you want to disable it then you can do that with nosoftlockup parameter
-in kernel-parameters.
-> > boot only when userspace processes begin to work?
-If my understanding is correct you can do this as well by enabling
-watchdog using sysctl.
-> 
-> The softlockup mechanism works scheduling a high priority task that kicks
-> the softlockups.  If the unzip thread is taking too long, it could
-> accidentally trip the detection.
-> 
-> Seeing that you are running on a 600 MHz machine, it could be possible.
-> Though I am not entirely sure how the scheduling works for decompressing
-> the initramfs.  I wouldn't think it is that high of a priority.
-> 
-> > 
-> > 2. How to change watchdog_thresh parameter at boot without patching
-> > sources? If it necessary (with it side effects) maybe implement it
-> > as commandline parameter or config compile time parameter?
-> 
-> I attached a patch below that allows you to set it a boot time.  Let me
-> know if this works for you, then I can clean it up and post it properly.
-> 
-> Cheers,
-> Don
-> 
-> 
-> diff --git a/kernel/watchdog.c b/kernel/watchdog.c
-> index 75a2ab3..e448d63 100644
+On Tue, 29 Jan 2013 10:33:48 -0500
+Don Zickus <dzickus@redhat.com> wrote:
+
 > --- a/kernel/watchdog.c
 > +++ b/kernel/watchdog.c
 > @@ -79,6 +79,14 @@ static int __init softlockup_panic_setup(char *str)
@@ -76,37 +39,11 @@ watchdog using sysctl.
 > +	return 1;
 > +}
 > +__setup("watchdog_thresh=", watchdog_thresh_setup);
-> +
->  static int __init nowatchdog_setup(char *str)
->  {
->  	watchdog_enabled = 0;
-Sorry for digressing from the topic but I think there is something wrong
-with my understanding or something wrong with the code.So I guess Don
-can clarify this.
-If I pass this below parameter during boot i.e. setting watchdog_enabled
-to zero.
-__setup("nowatchdog", nowatchdog_setup);
 
-Now I use sysctl to enable the watchdog then wouldn't the below code
-will hinder enabling the watchdog?
+I wonder if there's some magical way in which we can set any sysctl
+from the kernel command line.  Add sys.vm.min_free_kbytes=42 to the
+command line, walk the hierarchy late in boot...
 
-static void watchdog_enable_all_cpus(void)
-{//snip
-        if (watchdog_disabled) {  /* this is zero ?? */
-                watchdog_disabled = 0;
-//snip
-}
-
-Should watchdog_disabled be set to 1?Or is it that we always disable the
-watchdog and then enable it?
-
-This code is used from long time and that is the reason I am puzzled as
-to how it can be wrong?I think there is some missing piece which I am
-not understanding.
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-
+To address Mike's bug I suggest we poke a touch_softlockup_watchdog()
+into the appropriate place.  Presumably the loop in
+lib/decompress_unlzma.c:unlzma().  The decompress code makes me cry.
