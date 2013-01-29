@@ -1,114 +1,112 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:40786 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753613Ab3A2Q0L (ORCPT
+Received: from mail-da0-f46.google.com ([209.85.210.46]:50793 "EHLO
+	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753021Ab3A2RSl (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 29 Jan 2013 11:26:11 -0500
-Date: Tue, 29 Jan 2013 17:26:09 +0100
-From: Wolfram Sang <w.sang@pengutronix.de>
-To: linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [PATCH 0/3] improved watchdog driver for STMP3xyz/imx23/imx28
-Message-ID: <20130129162609.GC3323@pengutronix.de>
-References: <1357307929-1666-1-git-send-email-w.sang@pengutronix.de>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="O3RTKUHj+75w1tg5"
-Content-Disposition: inline
-In-Reply-To: <1357307929-1666-1-git-send-email-w.sang@pengutronix.de>
+	Tue, 29 Jan 2013 12:18:41 -0500
+Subject: Re: [BUG?] false positive in soft lockup detector while unlzma
+ initramfs on slow cpu
+From: anish kumar <anish198519851985@gmail.com>
+To: Don Zickus <dzickus@redhat.com>
+Cc: Mike Lykov <combr@yandex.ru>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Ingo Molnar <mingo@kernel.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	kirill@shutemov.name
+In-Reply-To: <20130129153348.GR98867@redhat.com>
+References: <5107D1D3.6040105@yandex.ru> <20130129153348.GR98867@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 29 Jan 2013 22:48:27 +0530
+Message-ID: <1359479907.1641.161.camel@anish-Inspiron-N5050>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On Tue, 2013-01-29 at 10:33 -0500, Don Zickus wrote:
+> Hi Mike,
+> 
+> On Tue, Jan 29, 2013 at 05:42:43PM +0400, Mike Lykov wrote:
+> > 
+> > So my questions:
+> > 
+> > 1. Are there a BUG in soft lockup detection mechanizm? Changing
+> > watchdog_thresh to 30 have a side effect in production - D-state
+> > userspace processes will be detected slowly. Are there a need to
+> > detecting soft lockups at boot time? Maybe it need after initramfs
+you want to disable it then you can do that with nosoftlockup parameter
+in kernel-parameters.
+> > boot only when userspace processes begin to work?
+If my understanding is correct you can do this as well by enabling
+watchdog using sysctl.
+> 
+> The softlockup mechanism works scheduling a high priority task that kicks
+> the softlockups.  If the unzip thread is taking too long, it could
+> accidentally trip the detection.
+> 
+> Seeing that you are running on a 600 MHz machine, it could be possible.
+> Though I am not entirely sure how the scheduling works for decompressing
+> the initramfs.  I wouldn't think it is that high of a priority.
+> 
+> > 
+> > 2. How to change watchdog_thresh parameter at boot without patching
+> > sources? If it necessary (with it side effects) maybe implement it
+> > as commandline parameter or config compile time parameter?
+> 
+> I attached a patch below that allows you to set it a boot time.  Let me
+> know if this works for you, then I can clean it up and post it properly.
+> 
+> Cheers,
+> Don
+> 
+> 
+> diff --git a/kernel/watchdog.c b/kernel/watchdog.c
+> index 75a2ab3..e448d63 100644
+> --- a/kernel/watchdog.c
+> +++ b/kernel/watchdog.c
+> @@ -79,6 +79,14 @@ static int __init softlockup_panic_setup(char *str)
+>  }
+>  __setup("softlockup_panic=", softlockup_panic_setup);
+>  
+> +static int __init watchdog_thresh_setup(char *str)
+> +{
+> +	watchdog_thresh = simple_strtoul(str, NULL, 0);
+> +
+> +	return 1;
+> +}
+> +__setup("watchdog_thresh=", watchdog_thresh_setup);
+> +
+>  static int __init nowatchdog_setup(char *str)
+>  {
+>  	watchdog_enabled = 0;
+Sorry for digressing from the topic but I think there is something wrong
+with my understanding or something wrong with the code.So I guess Don
+can clarify this.
+If I pass this below parameter during boot i.e. setting watchdog_enabled
+to zero.
+__setup("nowatchdog", nowatchdog_setup);
 
---O3RTKUHj+75w1tg5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Now I use sysctl to enable the watchdog then wouldn't the below code
+will hinder enabling the watchdog?
 
-On Fri, Jan 04, 2013 at 02:58:46PM +0100, Wolfram Sang wrote:
-> Geez, this should have been sent a year ago but it dropped off somehow.
-> Introduce a new user of the watchdog framework. This is a rewritten driver
-> for STMP and imx23/28: Quoting Patch 2/3 for the motivation of a rewrite:
->=20
-> =3D=3D=3D
->=20
-> Replace the existing STMP3xxx driver because it has enough drawbacks
-> that a rewrite is apropriate. The new driver is designed to use the
-> watchdog framework which makes it a lot smaller and avoids open coding
-> the watchdog API again. It also uses now an explicitly exported function
-> from the RTC driver to set up its registers (the old driver silently
-> reused the hopefully(!) already remapped RTC registers). Also, this
-> driver is mach independent, while the old one depends on a mach replaced
-> by another one a year ago. Since the user interface is still the
-> standard watchdog API, users don't need to adapt.
->=20
-> =3D=3D=3D
->=20
-> The first patch adds an accessor routine to the RTC-driver which can hope=
-fully
-> go via the watchdog-tree as well (asking for Andrew's ack here). It is ne=
-eded
-> because the old driver silently assumed its IO area to be already remappe=
-d by
-> the RTC driver. The second patch adds the new driver, the third removes t=
-he old
-> one. The old driver was broken (=3D not compilable, no arch for it) anyho=
-w, so
-> there cannot be any regression. Based on 3.8-rc2 and tested on various MX=
-28
-> boards.
->=20
-> Thanks,
->=20
->    Wolfram
+static void watchdog_enable_all_cpus(void)
+{//snip
+        if (watchdog_disabled) {  /* this is zero ?? */
+                watchdog_disabled = 0;
+//snip
+}
 
-Ping.
+Should watchdog_disabled be set to 1?Or is it that we always disable the
+watchdog and then enable it?
 
-I rebased and tested the series against v3.8-rc5, added Andrew's ack and
-pushed it out to
+This code is used from long time and that is the reason I am puzzled as
+to how it can be wrong?I think there is some missing piece which I am
+not understanding.
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-	git://git.pengutronix.de/git/wsa/linux.git watchdog_mxs
 
-Would be awesome to have this (simple) driver in 3.9.
-
->=20
->=20
-> Wolfram Sang (3):
->   rtc: stmp3xxx: add wdt-accessor function
->   watchdog: add new driver for STMP3xxx and i.MX23/28
->   watchdog: remove old STMP3xxx driver
->=20
->  drivers/rtc/rtc-stmp3xxx.c          |   64 ++++++++
->  drivers/watchdog/Kconfig            |   13 +-
->  drivers/watchdog/Makefile           |    2 +-
->  drivers/watchdog/stmp3xxx_rtc_wdt.c |  111 ++++++++++++++
->  drivers/watchdog/stmp3xxx_wdt.c     |  288 -----------------------------=
-------
->  include/linux/stmp3xxx_rtc_wdt.h    |   15 ++
->  6 files changed, 198 insertions(+), 295 deletions(-)
->  create mode 100644 drivers/watchdog/stmp3xxx_rtc_wdt.c
->  delete mode 100644 drivers/watchdog/stmp3xxx_wdt.c
->  create mode 100644 include/linux/stmp3xxx_rtc_wdt.h
->=20
-> --=20
-> 1.7.10.4
->=20
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---O3RTKUHj+75w1tg5
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAlEH+CEACgkQD27XaX1/VRul2QCgn+Oi7Dy35WMJ4g+SVK4CJSV+
-1soAn2bEKmJuPc4TEF0stXr8rycjNh5s
-=K8DA
------END PGP SIGNATURE-----
-
---O3RTKUHj+75w1tg5--
