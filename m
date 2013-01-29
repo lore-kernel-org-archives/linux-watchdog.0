@@ -1,49 +1,68 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from server19320154104.serverpool.info ([193.201.54.104]:41107 "EHLO
-	hauke-m.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754830Ab3A1WGN (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 28 Jan 2013 17:06:13 -0500
-Message-ID: <5106F64B.6040801@hauke-m.de>
-Date: Mon, 28 Jan 2013 23:06:03 +0100
-From: Hauke Mehrtens <hauke@hauke-m.de>
-MIME-Version: 1.0
+Received: from mail-we0-f179.google.com ([74.125.82.179]:51328 "EHLO
+	mail-we0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754841Ab3A2InX (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 29 Jan 2013 03:43:23 -0500
+Received: by mail-we0-f179.google.com with SMTP id x43so121758wey.24
+        for <linux-watchdog@vger.kernel.org>; Tue, 29 Jan 2013 00:43:22 -0800 (PST)
+Date: Tue, 29 Jan 2013 09:43:13 +0100
+From: Fabio Baltieri <fabio.baltieri@linaro.org>
 To: Wim Van Sebroeck <wim@iguana.be>
-CC: linux-watchdog@vger.kernel.org, zajec5@gmail.com,
-	linux-mips@linux-mips.org
-Subject: Re: [PATCH v4 0/5] watchdog: bcm47xx_wdt.c: add support for SoCs
- with PMU
-References: <1358010851-28077-1-git-send-email-hauke@hauke-m.de> <51016C4D.40707@hauke-m.de> <20130128213544.GB3338@spo001.leaseweb.com>
-In-Reply-To: <20130128213544.GB3338@spo001.leaseweb.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Cc: linux-watchdog@vger.kernel.org,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Srinidhi Kasagar <srinidhi.kasagar@stericsson.com>
+Subject: Re: [PATCH 3/4] watchdog: add support for ux500_wdt watchdog
+Message-ID: <20130129084313.GA20514@balto.lan>
+References: <1358509214-22407-1-git-send-email-fabio.baltieri@linaro.org>
+ <1358509214-22407-4-git-send-email-fabio.baltieri@linaro.org>
+ <20130128211222.GA3338@spo001.leaseweb.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20130128211222.GA3338@spo001.leaseweb.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 01/28/2013 10:35 PM, Wim Van Sebroeck wrote:
-> Hi Hauke,
-> 
->> what is the status of these patches?
-> 
-> First reading/checking (v4+v5) seems OK.
-> 1 small remark allready: the settimeout functions seem to check the min and max timeout values.
-> Can't you use the min and max values of the watchdog structure for this?
-> 
-> Kind regards,
-> Wim.
-> 
-Hi Wim,
+Hello Wim,
 
-The max_timer_ms attribute in struct bcm47xx_wdt contains the maximum
-value the hardware is capable of, the watchdog driver uses a softtimer
-if this value is too low and in that case it is no problem if a
-userspace application sets the timeout to some value higher than
-max_timer_ms.
+thanks for the review!
 
-If I would use max_timeout from struct watchdog_device I would have to
-change that values when softtimer is selected.
+On Mon, Jan 28, 2013 at 10:12:22PM +0100, Wim Van Sebroeck wrote:
+> > +static int timeout = WATCHDOG_TIMEOUT;
+> > +module_param(timeout, int, 0);
+> > +MODULE_PARM_DESC(timeout,
+> > +	"Watchdog timeout in seconds. default="
+> > +				__MODULE_STRING(WATCHDOG_TIMEOUT) ".");
+> 
+> We should go for unsigned int timeout values...
 
-The best solution would be if the softtimer choice and implementation
-would go to watchdog_dev.c as some more watchdog driver do something
-similar.
+You're right!  This ends up in an unsigned on the rest of the code
+anyway and I see other drivers using it as unsigned so I'll change it in
+v2 (here and in ux500_wdt_data).
 
-Hauke
+> 
+> > +static int nowayout = WATCHDOG_NOWAYOUT;
+> > +module_param(nowayout, int, 0);
+> > +MODULE_PARM_DESC(nowayout,
+> > +	"Watchdog cannot be stopped once started (default="
+> > +				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+> 
+> nowayout is a boolean value so please change this to
+> static bool nowayout = WATCHDOG_NOWAYOUT;
+
+Right.
+
+> The rest is OK by me. So if bowayout get's fixed then you have my acked-by.
+
+Ok, I'll send a v2 of this patch soon with both parameters fixed for you
+to ack.
+
+Thanks!
+Fabio
+
+-- 
+Fabio Baltieri
