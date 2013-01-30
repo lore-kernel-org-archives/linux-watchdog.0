@@ -1,43 +1,32 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:33138 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:33174 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1756689Ab3A3TUU (ORCPT
+	with ESMTP id S1753177Ab3A3TwO (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 30 Jan 2013 14:20:20 -0500
-Date: Wed, 30 Jan 2013 20:20:18 +0100
+	Wed, 30 Jan 2013 14:52:14 -0500
+Date: Wed, 30 Jan 2013 20:52:12 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Takahisa Tanaka <mc74hc00@gmail.com>
-Cc: linux-watchdog@vger.kernel.org,
-	Paul Menzel <paulepanter@users.sourceforge.net>,
-	Arkadiusz Miskiewicz <arekm@maven.pl>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Jonathan Nieder <jrnieder@gmail.com>,
-	linux-kernel@vger.kernel.org, Florian Mickler <florian@mickler.org>
-Subject: Re: [PATCH 2/2] sp5100_tco: Write back the original value to reserved bits, instead of zero
-Message-ID: <20130130192018.GB20100@spo001.leaseweb.com>
-References: <1358128918-4415-1-git-send-email-mc74hc00@gmail.com> <1358128918-4415-2-git-send-email-mc74hc00@gmail.com>
+To: Gabor Juhos <juhosg@openwrt.org>
+Cc: linux-watchdog@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>,
+	linux-mips@linux-mips.org
+Subject: Re: [PATCH 1/3] watchdog: ath79_wdt: convert to use devm_clk_get
+Message-ID: <20130130195212.GA20513@spo001.leaseweb.com>
+References: <1356619106-13403-1-git-send-email-juhosg@openwrt.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1358128918-4415-2-git-send-email-mc74hc00@gmail.com>
+In-Reply-To: <1356619106-13403-1-git-send-email-juhosg@openwrt.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
+Hi Gabor
 
-> In case of SP5100 or SB7x0 chipsets, the sp5100_tco module writes zero to
-> reserved bits. The module, however, shouldn't depend on specific default
-> value, and should perform a read-merge-write operation for the reserved
-> bits.
+> Use the managed version of clk_get. This allows to
+> simplify the probe/remove functions a bit.
 > 
-> This patch makes the sp5100_tco module perform a read-merge-write operation
-> on all the chipset (sp5100, sb7x0, sb8x0 or later).
-> 
-> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=43176
-> Signed-off-by: Takahisa Tanaka <mc74hc00@gmail.com>
+> Signed-off-by: Gabor Juhos <juhosg@openwrt.org>
 
-Added to linux-watchdog-next.
+All 3 patches added to linux-watchdog-next.
 
 Kind regards,
 Wim.
