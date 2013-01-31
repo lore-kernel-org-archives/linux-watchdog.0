@@ -1,125 +1,85 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oa0-f45.google.com ([209.85.219.45]:53146 "EHLO
-	mail-oa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752510Ab3AaLZH (ORCPT
+Received: from forward10.mail.yandex.net ([77.88.61.49]:47440 "EHLO
+	forward10.mail.yandex.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753070Ab3AaL31 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 31 Jan 2013 06:25:07 -0500
-Received: by mail-oa0-f45.google.com with SMTP id o6so2869605oag.18
-        for <linux-watchdog@vger.kernel.org>; Thu, 31 Jan 2013 03:25:06 -0800 (PST)
+	Thu, 31 Jan 2013 06:29:27 -0500
+Message-ID: <510A539E.7020105@yandex.ru>
+Date: Thu, 31 Jan 2013 15:21:02 +0400
+From: Mike Lykov <combr@yandex.ru>
 MIME-Version: 1.0
-In-Reply-To: <20130108153447.GC7360@game.jcrosoft.org>
-References: <1357639455-21935-1-git-send-email-fabio.porcedda@gmail.com> <20130108153447.GC7360@game.jcrosoft.org>
-From: Fabio Porcedda <fabio.porcedda@gmail.com>
-Date: Thu, 31 Jan 2013 12:24:46 +0100
-Message-ID: <CAHkwnC-mLG9mehc8eRwEZGf1o8S7x16abtjoZLZTCmJ+UZYgMw@mail.gmail.com>
-Subject: Re: [PATCH v7 0/6] watchdog: dt: add support for the timeout-sec dt property
-To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Andrew Victor <linux@maxim.org.za>,
-	Jason Cooper <jason@lakedaemon.net>,
-	Andrew Lunn <andrew@lunn.ch>, Ben Dooks <ben-linux@fluff.org>,
-	Kukjin Kim <kgene.kim@samsung.com>,
-	devicetree-discuss@lists.ozlabs.org,
-	Wenyou Yang <wenyou.yang@atmel.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Don Zickus <dzickus@redhat.com>
+CC: Andrew Morton <akpm@linux-foundation.org>,
+	Ingo Molnar <mingo@kernel.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	kirill@shutemov.name
+Subject: Re: [BUG?] false positive in soft lockup detector while unlzma initramfs
+ on slow cpu
+References: <5107D1D3.6040105@yandex.ru> <20130129153348.GR98867@redhat.com> <5108EA4B.7030003@yandex.ru> <20130130154033.GE98867@redhat.com>
+In-Reply-To: <20130130154033.GE98867@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jan 8, 2013 at 4:34 PM, Jean-Christophe PLAGNIOL-VILLARD
-<plagnioj@jcrosoft.com> wrote:
-> On 11:04 Tue 08 Jan     , Fabio Porcedda wrote:
->> Hi all,
->> this patchset add the timeout-sec property to the watchdog core,
->> to the at91sam9_wdt driver and on all framework enabled watchdog driver
->> with dt support.
->> The at91sam9_wdt is tested on evk-pr3,
->> the other drivers are compile tested only.
->>
->
-> I'll prefer a macro to abstract the string in every driver
 
-I know but Rob Herring dislikes that macro/function. I had to remove that part.
+30.01.2013 19:40, Don Zickus =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
+ > I have never seen usage like 'kernel.watchdog_thresh=3D30'.  Could you=
+ try
+ > 'watchdog_thresh=3D30' instead?
 
-> except this fine by me
+Ok. "kernel.watchdog_thresh=3D30" is a sysctl presentation, i mixed them=20
+wrongly.
 
-On Fri, Dec 21, 2012 at 12:32 PM, Wim Van Sebroeck <wim@iguana.be> wrote:
->> Ping.
->>
->> The dependency is already merged.
->
-> Will not be for this merge window. Will review next week.
+Your patch about cmd support for 'watchdog_thresh=3D30' working. I tested=
+=20
+it: parameter applies and lzma -9 initramfs loading successfully.
+If I delete parameter from cmdline - same kernel not boot.
 
-Hi Wim,
+ > I also attached another patch as suggested by Andrew to add a
+ > touch_softlockup_watchdog in the unlzma routine.  Probably makes thing=
+s
+ > run a little slower.  Compiled tested only.
 
-Ping.
+In my case (3.2.32) it cannot compile:
 
-Best regards
-Fabio Porcedda
+   LD      arch/x86/boot/compressed/vmlinux
+arch/x86/boot/compressed/misc.o: In function `decompress_kernel':
+misc.c:(.text+0x993): undefined reference to `touch_softlockup_watchdog'
 
-> Best Regards,
-> J.
->
->> Best regards
->> Fabio Porcedda
->>
->> changes:
->> v7:
->>   - rebase over v3.8-rc2
->>   - remove the patch already merged
->> v6:
->>   - remove patch for function of_get_timeout_sec as aked by Rob Herring
->>   - add Acked-by: Jason Cooper <jason@lakedaemon.net>
->>   - add Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
->> v5:
->>   - fix codestyle for compilance ti checkpatch.pl about
->>     "ERROR: do not initialise statics to 0 or NULL"
->>     for s3c2410_wdt.c:56 and at91sam9_wdt.c:63
->> v4:
->>   - add of_get_timeout_sec
->>   - add s3c2410_wdt driver
->>   - split driver patch
->>   - fixed watchdog_init_timeout handling of min_timeout and max_timeout
->> v3:
->>   - rename watchdog_probe_dt_timeout ->  watchdog_init_timeout
->>   - move the watchdog_init_timeout function from inline to watchdog_core.c
->>   - add timeout parameter handling code to watchdog_init_timeout
->>   - add timeout-sec property to the pnx4008-wdt driver
->>   - add two small commit for fixup and cleanup
->> v2:
->>   - change "timeout" to "timeout-sec" as asked by Jean-Christophe
->>   - at91sam9_wdt: use the new helper function
->>   - at91sam9_wdt: add bounds checking
->>   - watchdog.h: add bounds checking
->>
->> Fabio Porcedda (6):
->>   watchdog: core: dt: add support for the timeout-sec dt property
->>   watchdog: orion_wdt: add timeout-sec property binding
->>   watchdog: pnx4008: add timeout-sec property binding
->>   watchdog: s3c2410_wdt: add timeout-sec property binding
->>   watchdog: at91sam9_wdt: add timeout-sec property binding
->>   watchdog: orion_wdt: move the min_timeout initialization
->>
->>  .../devicetree/bindings/watchdog/atmel-wdt.txt     |  4 +++
->>  .../devicetree/bindings/watchdog/marvel.txt        |  5 +++
->>  .../devicetree/bindings/watchdog/pnx4008-wdt.txt   |  4 +++
->>  .../devicetree/bindings/watchdog/samsung-wdt.txt   |  3 ++
->>  Documentation/watchdog/watchdog-kernel-api.txt     | 10 ++++++
->>  drivers/watchdog/Kconfig                           |  1 +
->>  drivers/watchdog/at91sam9_wdt.c                    | 16 ++++++++--
->>  drivers/watchdog/orion_wdt.c                       | 10 +++---
->>  drivers/watchdog/pnx4008_wdt.c                     |  7 ++--
->>  drivers/watchdog/s3c2410_wdt.c                     |  6 ++--
->>  drivers/watchdog/watchdog_core.c                   | 37 ++++++++++++++++++++++
->>  include/linux/watchdog.h                           |  3 ++
->>  12 files changed, 91 insertions(+), 15 deletions(-)
->>
->> --
->> 1.8.0.3
->>
+---
+Mike
 
 
 
+ >
+ > Cheers,
+ > Don
+ >
+ > diff --git a/lib/decompress_unlzma.c b/lib/decompress_unlzma.c
+ > index 32adb73..313f4fa 100644
+ > --- a/lib/decompress_unlzma.c
+ > +++ b/lib/decompress_unlzma.c
+ > @@ -36,6 +36,7 @@
+ >   #endif /* STATIC */
+ >
+ >   #include<linux/decompress/mm.h>
+ > +#include<linux/nmi.h>
+ >
+ >   #define	MIN(a, b) (((a)<  (b)) ? (a) : (b))
+ >
+ > @@ -648,6 +649,7 @@ STATIC inline int INIT unlzma(unsigned char *buf,=20
+int in_len,
+ >   		}
+ >   		if (rc.buffer_size<=3D 0)
+ >   			goto exit_3;
+ > +		touch_softlockup_watchdog();
+ >   	}
+ >
+ >   	if (posp)
 --
-Fabio Porcedda
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
