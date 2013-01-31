@@ -1,49 +1,60 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:33221 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1757040Ab3A3V4Q (ORCPT
+Received: from mail-ea0-f178.google.com ([209.85.215.178]:40413 "EHLO
+	mail-ea0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751082Ab3AaLSa (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 30 Jan 2013 16:56:16 -0500
-Date: Wed, 30 Jan 2013 22:56:15 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Lubomir Rintel <lkundrak@v3.sk>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] orion_wdt: Add platform alias
-Message-ID: <20130130215615.GA21145@spo001.leaseweb.com>
-References: <1357308388-19566-1-git-send-email-lkundrak@v3.sk>
-Mime-Version: 1.0
+	Thu, 31 Jan 2013 06:18:30 -0500
+Date: Thu, 31 Jan 2013 12:18:23 +0100
+From: Ingo Molnar <mingo@kernel.org>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Don Zickus <dzickus@redhat.com>, Mike Lykov <combr@yandex.ru>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	kirill@shutemov.name
+Subject: Re: [BUG?] false positive in soft lockup detector while unlzma
+ initramfs on slow cpu
+Message-ID: <20130131111823.GA4587@gmail.com>
+References: <5107D1D3.6040105@yandex.ru>
+ <20130129153348.GR98867@redhat.com>
+ <20130129155917.4ee64214.akpm@linux-foundation.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1357308388-19566-1-git-send-email-lkundrak@v3.sk>
+In-Reply-To: <20130129155917.4ee64214.akpm@linux-foundation.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Lubomir,
 
-> ...so that it's automatically picked up on relevant platforms.
-> Tested on Kirkwood-based GuruPlug.
+* Andrew Morton <akpm@linux-foundation.org> wrote:
+
+> On Tue, 29 Jan 2013 10:33:48 -0500
+> Don Zickus <dzickus@redhat.com> wrote:
 > 
-> Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
-> ---
->  drivers/watchdog/orion_wdt.c |    1 +
->  1 files changed, 1 insertions(+), 0 deletions(-)
+> > --- a/kernel/watchdog.c
+> > +++ b/kernel/watchdog.c
+> > @@ -79,6 +79,14 @@ static int __init softlockup_panic_setup(char *str)
+> >  }
+> >  __setup("softlockup_panic=", softlockup_panic_setup);
+> >  
+> > +static int __init watchdog_thresh_setup(char *str)
+> > +{
+> > +	watchdog_thresh = simple_strtoul(str, NULL, 0);
+> > +
+> > +	return 1;
+> > +}
+> > +__setup("watchdog_thresh=", watchdog_thresh_setup);
 > 
-> diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
-> index c20f96b..c9dd66f 100644
-> --- a/drivers/watchdog/orion_wdt.c
-> +++ b/drivers/watchdog/orion_wdt.c
-> @@ -223,4 +223,5 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
->  				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
->  
->  MODULE_LICENSE("GPL");
-> +MODULE_ALIAS("platform:orion_wdt");
->  MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
-> -- 
-> 1.7.1
-> 
+> I wonder if there's some magical way in which we can set any 
+> sysctl from the kernel command line.  Add 
+> sys.vm.min_free_kbytes=42 to the command line, walk the 
+> hierarchy late in boot...
 
-Added to linux-watchdog-next.
+A facility like that would be totally awesome - we could remove 
+a lot of duplicated and outright inconsistent (often missing) 
+__setup() hackery that way.
 
-Kind regards,
-Wim.
+Single source of information and all that.
 
+Thanks,
+
+	Ingo
