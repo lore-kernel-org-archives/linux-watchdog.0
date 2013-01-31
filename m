@@ -1,60 +1,125 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ea0-f178.google.com ([209.85.215.178]:40413 "EHLO
-	mail-ea0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751082Ab3AaLSa (ORCPT
+Received: from mail-oa0-f45.google.com ([209.85.219.45]:53146 "EHLO
+	mail-oa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752510Ab3AaLZH (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 31 Jan 2013 06:18:30 -0500
-Date: Thu, 31 Jan 2013 12:18:23 +0100
-From: Ingo Molnar <mingo@kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Don Zickus <dzickus@redhat.com>, Mike Lykov <combr@yandex.ru>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	kirill@shutemov.name
-Subject: Re: [BUG?] false positive in soft lockup detector while unlzma
- initramfs on slow cpu
-Message-ID: <20130131111823.GA4587@gmail.com>
-References: <5107D1D3.6040105@yandex.ru>
- <20130129153348.GR98867@redhat.com>
- <20130129155917.4ee64214.akpm@linux-foundation.org>
+	Thu, 31 Jan 2013 06:25:07 -0500
+Received: by mail-oa0-f45.google.com with SMTP id o6so2869605oag.18
+        for <linux-watchdog@vger.kernel.org>; Thu, 31 Jan 2013 03:25:06 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20130129155917.4ee64214.akpm@linux-foundation.org>
+In-Reply-To: <20130108153447.GC7360@game.jcrosoft.org>
+References: <1357639455-21935-1-git-send-email-fabio.porcedda@gmail.com> <20130108153447.GC7360@game.jcrosoft.org>
+From: Fabio Porcedda <fabio.porcedda@gmail.com>
+Date: Thu, 31 Jan 2013 12:24:46 +0100
+Message-ID: <CAHkwnC-mLG9mehc8eRwEZGf1o8S7x16abtjoZLZTCmJ+UZYgMw@mail.gmail.com>
+Subject: Re: [PATCH v7 0/6] watchdog: dt: add support for the timeout-sec dt property
+To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Andrew Victor <linux@maxim.org.za>,
+	Jason Cooper <jason@lakedaemon.net>,
+	Andrew Lunn <andrew@lunn.ch>, Ben Dooks <ben-linux@fluff.org>,
+	Kukjin Kim <kgene.kim@samsung.com>,
+	devicetree-discuss@lists.ozlabs.org,
+	Wenyou Yang <wenyou.yang@atmel.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On Tue, Jan 8, 2013 at 4:34 PM, Jean-Christophe PLAGNIOL-VILLARD
+<plagnioj@jcrosoft.com> wrote:
+> On 11:04 Tue 08 Jan     , Fabio Porcedda wrote:
+>> Hi all,
+>> this patchset add the timeout-sec property to the watchdog core,
+>> to the at91sam9_wdt driver and on all framework enabled watchdog driver
+>> with dt support.
+>> The at91sam9_wdt is tested on evk-pr3,
+>> the other drivers are compile tested only.
+>>
+>
+> I'll prefer a macro to abstract the string in every driver
 
-* Andrew Morton <akpm@linux-foundation.org> wrote:
+I know but Rob Herring dislikes that macro/function. I had to remove that part.
 
-> On Tue, 29 Jan 2013 10:33:48 -0500
-> Don Zickus <dzickus@redhat.com> wrote:
-> 
-> > --- a/kernel/watchdog.c
-> > +++ b/kernel/watchdog.c
-> > @@ -79,6 +79,14 @@ static int __init softlockup_panic_setup(char *str)
-> >  }
-> >  __setup("softlockup_panic=", softlockup_panic_setup);
-> >  
-> > +static int __init watchdog_thresh_setup(char *str)
-> > +{
-> > +	watchdog_thresh = simple_strtoul(str, NULL, 0);
-> > +
-> > +	return 1;
-> > +}
-> > +__setup("watchdog_thresh=", watchdog_thresh_setup);
-> 
-> I wonder if there's some magical way in which we can set any 
-> sysctl from the kernel command line.  Add 
-> sys.vm.min_free_kbytes=42 to the command line, walk the 
-> hierarchy late in boot...
+> except this fine by me
 
-A facility like that would be totally awesome - we could remove 
-a lot of duplicated and outright inconsistent (often missing) 
-__setup() hackery that way.
+On Fri, Dec 21, 2012 at 12:32 PM, Wim Van Sebroeck <wim@iguana.be> wrote:
+>> Ping.
+>>
+>> The dependency is already merged.
+>
+> Will not be for this merge window. Will review next week.
 
-Single source of information and all that.
+Hi Wim,
 
-Thanks,
+Ping.
 
-	Ingo
+Best regards
+Fabio Porcedda
+
+> Best Regards,
+> J.
+>
+>> Best regards
+>> Fabio Porcedda
+>>
+>> changes:
+>> v7:
+>>   - rebase over v3.8-rc2
+>>   - remove the patch already merged
+>> v6:
+>>   - remove patch for function of_get_timeout_sec as aked by Rob Herring
+>>   - add Acked-by: Jason Cooper <jason@lakedaemon.net>
+>>   - add Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
+>> v5:
+>>   - fix codestyle for compilance ti checkpatch.pl about
+>>     "ERROR: do not initialise statics to 0 or NULL"
+>>     for s3c2410_wdt.c:56 and at91sam9_wdt.c:63
+>> v4:
+>>   - add of_get_timeout_sec
+>>   - add s3c2410_wdt driver
+>>   - split driver patch
+>>   - fixed watchdog_init_timeout handling of min_timeout and max_timeout
+>> v3:
+>>   - rename watchdog_probe_dt_timeout ->  watchdog_init_timeout
+>>   - move the watchdog_init_timeout function from inline to watchdog_core.c
+>>   - add timeout parameter handling code to watchdog_init_timeout
+>>   - add timeout-sec property to the pnx4008-wdt driver
+>>   - add two small commit for fixup and cleanup
+>> v2:
+>>   - change "timeout" to "timeout-sec" as asked by Jean-Christophe
+>>   - at91sam9_wdt: use the new helper function
+>>   - at91sam9_wdt: add bounds checking
+>>   - watchdog.h: add bounds checking
+>>
+>> Fabio Porcedda (6):
+>>   watchdog: core: dt: add support for the timeout-sec dt property
+>>   watchdog: orion_wdt: add timeout-sec property binding
+>>   watchdog: pnx4008: add timeout-sec property binding
+>>   watchdog: s3c2410_wdt: add timeout-sec property binding
+>>   watchdog: at91sam9_wdt: add timeout-sec property binding
+>>   watchdog: orion_wdt: move the min_timeout initialization
+>>
+>>  .../devicetree/bindings/watchdog/atmel-wdt.txt     |  4 +++
+>>  .../devicetree/bindings/watchdog/marvel.txt        |  5 +++
+>>  .../devicetree/bindings/watchdog/pnx4008-wdt.txt   |  4 +++
+>>  .../devicetree/bindings/watchdog/samsung-wdt.txt   |  3 ++
+>>  Documentation/watchdog/watchdog-kernel-api.txt     | 10 ++++++
+>>  drivers/watchdog/Kconfig                           |  1 +
+>>  drivers/watchdog/at91sam9_wdt.c                    | 16 ++++++++--
+>>  drivers/watchdog/orion_wdt.c                       | 10 +++---
+>>  drivers/watchdog/pnx4008_wdt.c                     |  7 ++--
+>>  drivers/watchdog/s3c2410_wdt.c                     |  6 ++--
+>>  drivers/watchdog/watchdog_core.c                   | 37 ++++++++++++++++++++++
+>>  include/linux/watchdog.h                           |  3 ++
+>>  12 files changed, 91 insertions(+), 15 deletions(-)
+>>
+>> --
+>> 1.8.0.3
+>>
+
+
+
+--
+Fabio Porcedda
