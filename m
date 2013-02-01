@@ -4,9 +4,9 @@ To: linux-arm-kernel@lists.infradead.org
 Cc: nicolas.ferre@atmel.com, plagnioj@jcrosoft.com, fabio.porcedda@gmail.com,
         JM.Lin@atmel.com, wenyou.yang@atmel.com, wim@iguana.be,
         linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v4 5/8] watchdog/at91sam9_wdt: Add nowayout helpers to Watchdog Timer Driver Kernel API
-Date: Fri,  1 Feb 2013 15:06:23 +0800
-Message-Id: <1359702386-21284-6-git-send-email-wenyou.yang@atmel.com>
+Subject: [PATCH v4 6/8] watchdog/at91sam9_wdt: Remove the __initdata of at91wdt_wdd
+Date: Fri,  1 Feb 2013 15:06:24 +0800
+Message-Id: <1359702386-21284-7-git-send-email-wenyou.yang@atmel.com>
 In-Reply-To: <1359702386-21284-1-git-send-email-wenyou.yang@atmel.com>
 References: <1359702386-21284-1-git-send-email-wenyou.yang@atmel.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -14,26 +14,28 @@ List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
+For this variable will be used in the timer handler.
+
 Signed-off-by: Wenyou Yang <wenyou.yang@atmel.com>
 Cc: wim@iguana.be
 Cc: linux-watchdog@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 ---
- drivers/watchdog/at91sam9_wdt.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/watchdog/at91sam9_wdt.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
-index c6d9f1f..e60a718 100644
+index e60a718..3fc90ba 100644
 --- a/drivers/watchdog/at91sam9_wdt.c
 +++ b/drivers/watchdog/at91sam9_wdt.c
-@@ -238,6 +238,8 @@ static int __init at91wdt_probe(struct platform_device *pdev)
- 		return ret;
- 	}
+@@ -199,7 +199,7 @@ static struct watchdog_ops at91wdt_ops = {
+ 	.ping = at91wdt_ping,
+ };
  
-+	watchdog_set_nowayout(&at91wdt_wdd, nowayout);
-+
- 	watchdog_init_timeout(&at91wdt_wdd, heartbeat, pdev->dev.of_node);
- 
- 	ret = at91wdt_enable(&at91wdt_wdd, ms_to_ticks(WDT_HW_TIMEOUT * 1000));
+-static struct watchdog_device at91wdt_wdd __initdata = {
++static struct watchdog_device at91wdt_wdd = {
+ 	.timeout = WDT_HEARTBEAT,
+ 	.min_timeout = MIN_HEARTBEAT,
+ 	.max_timeout = MAX_HEARTBEAT,
 -- 
 1.7.9.5
