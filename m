@@ -1,58 +1,56 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from forward3.mail.yandex.net ([77.88.46.8]:45264 "EHLO
-	forward3.mail.yandex.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756891Ab3BAQnJ (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 1 Feb 2013 11:43:09 -0500
-Message-ID: <510BF096.7060705@yandex.ru>
-Date: Fri, 01 Feb 2013 20:43:02 +0400
-From: Mike Lykov <combr@yandex.ru>
+Received: from mga03.intel.com ([143.182.124.21]:36620 "EHLO mga03.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753008Ab3BCRHV (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Sun, 3 Feb 2013 12:07:21 -0500
+Date: Sun, 3 Feb 2013 18:07:18 +0100
+From: Samuel Ortiz <sameo@linux.intel.com>
+To: Fabio Baltieri <fabio.baltieri@linaro.org>
+Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Srinidhi Kasagar <srinidhi.kasagar@stericsson.com>
+Subject: Re: [PATCH 0/4] add ux500_wdt support
+Message-ID: <20130203170718.GR8476@sortiz-mobl>
+References: <1358509214-22407-1-git-send-email-fabio.baltieri@linaro.org>
 MIME-Version: 1.0
-To: Don Zickus <dzickus@redhat.com>
-CC: Andrew Morton <akpm@linux-foundation.org>,
-	Ingo Molnar <mingo@kernel.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	kirill@shutemov.name
-Subject: Re: [BUG?] false positive in soft lockup detector while unlzma initramfs
- on slow cpu
-References: <5107D1D3.6040105@yandex.ru> <20130129153348.GR98867@redhat.com> <5108EA4B.7030003@yandex.ru> <20130130154033.GE98867@redhat.com> <510A539E.7020105@yandex.ru> <20130131144627.GL98867@redhat.com> <510B9C9B.6090605@yandex.ru> <20130201155908.GR98867@redhat.com>
-In-Reply-To: <20130201155908.GR98867@redhat.com>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1358509214-22407-1-git-send-email-fabio.baltieri@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-01.02.2013 19:59, Don Zickus =D0=C9=DB=C5=D4:
- > Hmm, that seems to make sense.  I was expecting that problem to pop up=
- on
- > my end but didn't see.  I just asusmed the boot code didn't use that
- > decompressor.
+Hi Fabio,
 
-Can you accumulate all our discussion and create one right-coded,=20
-kernelcode-styled patch?
+On Fri, Jan 18, 2013 at 12:40:10PM +0100, Fabio Baltieri wrote:
+> Hi all,
+> 
+> this set adds support for the ux500_wdt timer, implemented in the PRCMU
+> unit of ST-Ericsson ux500 architecture.
+> 
+> The first two patches add the necessary definitions and function export
+> to the PRCMU driver currently in mainline, while the third an fourth
+> patches add the actual watchdog driver and mfd_cell definition to make
+> it probe when PRCMU is compiled in.
+> 
+> As the patches touches files in both mfd and watchdog subsystems, what do
+> you think is the best way to handle this set?
+> 
+> Thanks,
+> Fabio
+> 
+> 
+> Fabio Baltieri (4):
+>   mfd: dbx500-prcmu: add watchdog ID definitions
+>   mfd: dbx500-prcmu: export a9wdog functions
+>   watchdog: add support for ux500_wdt watchdog
+>   mfd: db8500-prcmu: add ux500_wdt mfd_cell
+All 4 patches (v2 for #3) applied, many thanks.
 
- > Though I am not sure why that is leading to your other PATA problems
- > below.  Did you have similar problems when you used other decompressio=
-n
- > levels?
+Cheers,
+Samuel.
 
-In past - no. But I not test this last  kernel variant with other level.
-
- > I am not sure how to explain the differences.
-
-I think this is similar as decompress:
-Kernel stop and wait next try in "default_idle()" for 20-30 sec, and in=20
-this moment softlockup detector panics ;)
-
-But without patch for touch_softlockup_watchdog in=20
-decompress_unlzma+misc.c it works (try, fail, pause, try, fail, go on).
-
---=20
-Mike
-Sapienti sat.
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Intel Open Source Technology Centre
+http://oss.intel.com/
