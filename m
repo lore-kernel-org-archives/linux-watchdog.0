@@ -1,115 +1,67 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:60139 "EHLO bear.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752435Ab3BGDbA (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 6 Feb 2013 22:31:00 -0500
-From: "Kumar, Anil" <anilkumar.v@ti.com>
-To: <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<davinci-linux-open-source@linux.davincidsp.com>
-CC: <wim@iguana.be>, <nsekhar@ti.com>, <anilkumar.v@ti.com>
-Subject: [PATCH] watchdog: davinci_wdt: update to devm_* API
-Date: Thu, 7 Feb 2013 09:02:15 +0530
-Message-ID: <1360207935-24325-1-git-send-email-anilkumar.v@ti.com>
+Received: from mail-la0-f43.google.com ([209.85.215.43]:43274 "EHLO
+	mail-la0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758148Ab3BGLWD (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 7 Feb 2013 06:22:03 -0500
+Received: by mail-la0-f43.google.com with SMTP id ek20so2483820lab.16
+        for <linux-watchdog@vger.kernel.org>; Thu, 07 Feb 2013 03:22:00 -0800 (PST)
+Message-ID: <51138E41.3080708@mvista.com>
+Date: Thu, 07 Feb 2013 15:21:37 +0400
+From: Sergei Shtylyov <sshtylyov@mvista.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+To: "Kumar, Anil" <anilkumar.v@ti.com>
+CC: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	davinci-linux-open-source@linux.davincidsp.com, wim@iguana.be
+Subject: Re: [PATCH] watchdog: davinci_wdt: update to devm_* API
+References: <1360207935-24325-1-git-send-email-anilkumar.v@ti.com>
+In-Reply-To: <1360207935-24325-1-git-send-email-anilkumar.v@ti.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Update the code to use devm_* API so that driver
-core will manage resources.
+Hello.
 
-Signed-off-by: Kumar, Anil <anilkumar.v@ti.com>
----
-This patch applies on top of v3.8-rc6.
+On 07-02-2013 7:32, Kumar, Anil wrote:
 
-Tested on da850 EVM.
+> Update the code to use devm_* API so that driver
+> core will manage resources.
 
-:100644 100644 e8e8724... 6ad76a3... M	drivers/watchdog/davinci_wdt.c
- drivers/watchdog/davinci_wdt.c |   34 +++++++++-------------------------
- 1 files changed, 9 insertions(+), 25 deletions(-)
+> Signed-off-by: Kumar, Anil <anilkumar.v@ti.com>
+> ---
+> This patch applies on top of v3.8-rc6.
 
-diff --git a/drivers/watchdog/davinci_wdt.c b/drivers/watchdog/davinci_wdt.c
-index e8e8724..6ad76a3 100644
---- a/drivers/watchdog/davinci_wdt.c
-+++ b/drivers/watchdog/davinci_wdt.c
-@@ -69,7 +69,6 @@ static unsigned long wdt_status;
- #define WDT_REGION_INITED 2
- #define WDT_DEVICE_INITED 3
- 
--static struct resource	*wdt_mem;
- static void __iomem	*wdt_base;
- struct clk		*wdt_clk;
- 
-@@ -201,10 +200,10 @@ static struct miscdevice davinci_wdt_miscdev = {
- 
- static int davinci_wdt_probe(struct platform_device *pdev)
- {
--	int ret = 0, size;
--	struct device *dev = &pdev->dev;
-+	int ret = 0;
-+	static struct resource  *wdt_mem;
- 
--	wdt_clk = clk_get(dev, NULL);
-+	wdt_clk = clk_get(&pdev->dev, NULL);
- 	if (WARN_ON(IS_ERR(wdt_clk)))
- 		return PTR_ERR(wdt_clk);
- 
-@@ -213,49 +212,34 @@ static int davinci_wdt_probe(struct platform_device *pdev)
- 	if (heartbeat < 1 || heartbeat > MAX_HEARTBEAT)
- 		heartbeat = DEFAULT_HEARTBEAT;
- 
--	dev_info(dev, "heartbeat %d sec\n", heartbeat);
-+	dev_info(&pdev->dev, "heartbeat %d sec\n", heartbeat);
- 
- 	wdt_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	if (wdt_mem == NULL) {
--		dev_err(dev, "failed to get memory region resource\n");
-+		dev_err(&pdev->dev, "failed to get memory region resource\n");
- 		return -ENOENT;
- 	}
- 
--	size = resource_size(wdt_mem);
--	if (!request_mem_region(wdt_mem->start, size, pdev->name)) {
--		dev_err(dev, "failed to get memory region\n");
--		return -ENOENT;
--	}
--
--	wdt_base = ioremap(wdt_mem->start, size);
-+	wdt_base = devm_request_and_ioremap(&pdev->dev, wdt_mem);
- 	if (!wdt_base) {
--		dev_err(dev, "failed to map memory region\n");
--		release_mem_region(wdt_mem->start, size);
--		wdt_mem = NULL;
-+		dev_err(&pdev->dev, "ioremap failed\n");
- 		return -ENOMEM;
- 	}
- 
- 	ret = misc_register(&davinci_wdt_miscdev);
- 	if (ret < 0) {
--		dev_err(dev, "cannot register misc device\n");
--		release_mem_region(wdt_mem->start, size);
--		wdt_mem = NULL;
-+		dev_err(&pdev->dev, "cannot register misc device\n");
- 	} else {
- 		set_bit(WDT_DEVICE_INITED, &wdt_status);
-+		return ret;
- 	}
- 
--	iounmap(wdt_base);
- 	return ret;
- }
- 
- static int davinci_wdt_remove(struct platform_device *pdev)
- {
- 	misc_deregister(&davinci_wdt_miscdev);
--	if (wdt_mem) {
--		release_mem_region(wdt_mem->start, resource_size(wdt_mem));
--		wdt_mem = NULL;
--	}
--
- 	clk_disable_unprepare(wdt_clk);
- 	clk_put(wdt_clk);
- 
--- 
-1.7.4.1
+> Tested on da850 EVM.
+
+> :100644 100644 e8e8724... 6ad76a3... M	drivers/watchdog/davinci_wdt.c
+>   drivers/watchdog/davinci_wdt.c |   34 +++++++++-------------------------
+>   1 files changed, 9 insertions(+), 25 deletions(-)
+
+> diff --git a/drivers/watchdog/davinci_wdt.c b/drivers/watchdog/davinci_wdt.c
+> index e8e8724..6ad76a3 100644
+> --- a/drivers/watchdog/davinci_wdt.c
+> +++ b/drivers/watchdog/davinci_wdt.c
+[...]
+> @@ -213,49 +212,34 @@ static int davinci_wdt_probe(struct platform_device *pdev)
+[...]
+> -	size = resource_size(wdt_mem);
+> -	if (!request_mem_region(wdt_mem->start, size, pdev->name)) {
+> -		dev_err(dev, "failed to get memory region\n");
+> -		return -ENOENT;
+> -	}
+> -
+> -	wdt_base = ioremap(wdt_mem->start, size);
+> +	wdt_base = devm_request_and_ioremap(&pdev->dev, wdt_mem);
+>   	if (!wdt_base) {
+> -		dev_err(dev, "failed to map memory region\n");
+> -		release_mem_region(wdt_mem->start, size);
+> -		wdt_mem = NULL;
+> +		dev_err(&pdev->dev, "ioremap failed\n");
+>   		return -ENOMEM;
+
+    Comment to devm_request_and_ioremap() suggest returning -EADDRNOTAVAIL 
+instead.
+
+WBR, Sergei
 
