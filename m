@@ -1,37 +1,115 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from utopia.booyaka.com ([74.50.51.50]:38732 "EHLO
-	utopia.booyaka.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756749Ab3BFXQn (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 6 Feb 2013 18:16:43 -0500
-Date: Wed, 6 Feb 2013 23:16:42 +0000 (UTC)
-From: Paul Walmsley <paul@pwsan.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-cc: Aaro Koskinen <aaro.koskinen@iki.fi>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-omap@vger.kernel.org
-Subject: Re: [PATCH v5] watchdog: introduce retu_wdt driver
-In-Reply-To: <20130128151223.GH23053@blackmetal.musicnaut.iki.fi>
-Message-ID: <alpine.DEB.2.00.1302062315321.12769@utopia.booyaka.com>
-References: <1356641909-8598-1-git-send-email-aaro.koskinen@iki.fi> <20130128151223.GH23053@blackmetal.musicnaut.iki.fi>
+Received: from bear.ext.ti.com ([192.94.94.41]:60139 "EHLO bear.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752435Ab3BGDbA (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 6 Feb 2013 22:31:00 -0500
+From: "Kumar, Anil" <anilkumar.v@ti.com>
+To: <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<davinci-linux-open-source@linux.davincidsp.com>
+CC: <wim@iguana.be>, <nsekhar@ti.com>, <anilkumar.v@ti.com>
+Subject: [PATCH] watchdog: davinci_wdt: update to devm_* API
+Date: Thu, 7 Feb 2013 09:02:15 +0530
+Message-ID: <1360207935-24325-1-git-send-email-anilkumar.v@ti.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Wim,
+Update the code to use devm_* API so that driver
+core will manage resources.
 
-On Mon, 28 Jan 2013, Aaro Koskinen wrote:
+Signed-off-by: Kumar, Anil <anilkumar.v@ti.com>
+---
+This patch applies on top of v3.8-rc6.
 
-> On Thu, Dec 27, 2012 at 10:58:29PM +0200, Aaro Koskinen wrote:
-> > Introduce Retu watchdog driver.
-> 
-> Wim, any comments about this driver? Do you think it could be queued
-> for 3.9?
+Tested on da850 EVM.
 
-It'd be really great if this could go in for v3.9.  Without it, Nokia N800 
-boards crash shortly after boot because the Retu watchdog isn't being 
-tickled :-(
+:100644 100644 e8e8724... 6ad76a3... M	drivers/watchdog/davinci_wdt.c
+ drivers/watchdog/davinci_wdt.c |   34 +++++++++-------------------------
+ 1 files changed, 9 insertions(+), 25 deletions(-)
 
+diff --git a/drivers/watchdog/davinci_wdt.c b/drivers/watchdog/davinci_wdt.c
+index e8e8724..6ad76a3 100644
+--- a/drivers/watchdog/davinci_wdt.c
++++ b/drivers/watchdog/davinci_wdt.c
+@@ -69,7 +69,6 @@ static unsigned long wdt_status;
+ #define WDT_REGION_INITED 2
+ #define WDT_DEVICE_INITED 3
+ 
+-static struct resource	*wdt_mem;
+ static void __iomem	*wdt_base;
+ struct clk		*wdt_clk;
+ 
+@@ -201,10 +200,10 @@ static struct miscdevice davinci_wdt_miscdev = {
+ 
+ static int davinci_wdt_probe(struct platform_device *pdev)
+ {
+-	int ret = 0, size;
+-	struct device *dev = &pdev->dev;
++	int ret = 0;
++	static struct resource  *wdt_mem;
+ 
+-	wdt_clk = clk_get(dev, NULL);
++	wdt_clk = clk_get(&pdev->dev, NULL);
+ 	if (WARN_ON(IS_ERR(wdt_clk)))
+ 		return PTR_ERR(wdt_clk);
+ 
+@@ -213,49 +212,34 @@ static int davinci_wdt_probe(struct platform_device *pdev)
+ 	if (heartbeat < 1 || heartbeat > MAX_HEARTBEAT)
+ 		heartbeat = DEFAULT_HEARTBEAT;
+ 
+-	dev_info(dev, "heartbeat %d sec\n", heartbeat);
++	dev_info(&pdev->dev, "heartbeat %d sec\n", heartbeat);
+ 
+ 	wdt_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	if (wdt_mem == NULL) {
+-		dev_err(dev, "failed to get memory region resource\n");
++		dev_err(&pdev->dev, "failed to get memory region resource\n");
+ 		return -ENOENT;
+ 	}
+ 
+-	size = resource_size(wdt_mem);
+-	if (!request_mem_region(wdt_mem->start, size, pdev->name)) {
+-		dev_err(dev, "failed to get memory region\n");
+-		return -ENOENT;
+-	}
+-
+-	wdt_base = ioremap(wdt_mem->start, size);
++	wdt_base = devm_request_and_ioremap(&pdev->dev, wdt_mem);
+ 	if (!wdt_base) {
+-		dev_err(dev, "failed to map memory region\n");
+-		release_mem_region(wdt_mem->start, size);
+-		wdt_mem = NULL;
++		dev_err(&pdev->dev, "ioremap failed\n");
+ 		return -ENOMEM;
+ 	}
+ 
+ 	ret = misc_register(&davinci_wdt_miscdev);
+ 	if (ret < 0) {
+-		dev_err(dev, "cannot register misc device\n");
+-		release_mem_region(wdt_mem->start, size);
+-		wdt_mem = NULL;
++		dev_err(&pdev->dev, "cannot register misc device\n");
+ 	} else {
+ 		set_bit(WDT_DEVICE_INITED, &wdt_status);
++		return ret;
+ 	}
+ 
+-	iounmap(wdt_base);
+ 	return ret;
+ }
+ 
+ static int davinci_wdt_remove(struct platform_device *pdev)
+ {
+ 	misc_deregister(&davinci_wdt_miscdev);
+-	if (wdt_mem) {
+-		release_mem_region(wdt_mem->start, resource_size(wdt_mem));
+-		wdt_mem = NULL;
+-	}
+-
+ 	clk_disable_unprepare(wdt_clk);
+ 	clk_put(wdt_clk);
+ 
+-- 
+1.7.4.1
 
-- Paul
