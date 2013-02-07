@@ -1,67 +1,61 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:43248 "EHLO comal.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759210Ab3BGRvA (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 7 Feb 2013 12:51:00 -0500
-Message-ID: <5113E978.2060201@ti.com>
-Date: Thu, 7 Feb 2013 23:20:48 +0530
-From: Sekhar Nori <nsekhar@ti.com>
-MIME-Version: 1.0
-To: "Kumar, Anil" <anilkumar.v@ti.com>
-CC: <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<davinci-linux-open-source@linux.davincidsp.com>, <wim@iguana.be>
-Subject: Re: [PATCH] watchdog: davinci_wdt: update to devm_* API
-References: <1360207935-24325-1-git-send-email-anilkumar.v@ti.com>
-In-Reply-To: <1360207935-24325-1-git-send-email-anilkumar.v@ti.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Received: from ns1.pc-advies.be ([83.149.101.17]:34147 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1030249Ab3BGUTT (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 7 Feb 2013 15:19:19 -0500
+Date: Thu, 7 Feb 2013 21:19:17 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Alexander Shiyan <shc_work@mail.ru>
+Cc: linux-watchdog@vger.kernel.org, Alan Cox <alan@linux.intel.com>
+Subject: Re: INTEL_SCU_WATCHDOG is orphaned
+Message-ID: <20130207201917.GQ7867@spo001.leaseweb.com>
+References: <20121125172447.6baf4115522107d5396bc780@mail.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20121125172447.6baf4115522107d5396bc780@mail.ru>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+Hi Alexander,
 
-On 2/7/2013 9:02 AM, Kumar, Anil wrote:
-> Update the code to use devm_* API so that driver
-> core will manage resources.
-> 
-> Signed-off-by: Kumar, Anil <anilkumar.v@ti.com>
-> ---
-> This patch applies on top of v3.8-rc6.
-> 
-> Tested on da850 EVM.
-> 
-> :100644 100644 e8e8724... 6ad76a3... M	drivers/watchdog/davinci_wdt.c
->  drivers/watchdog/davinci_wdt.c |   34 +++++++++-------------------------
->  1 files changed, 9 insertions(+), 25 deletions(-)
-> 
-> diff --git a/drivers/watchdog/davinci_wdt.c b/drivers/watchdog/davinci_wdt.c
-> index e8e8724..6ad76a3 100644
-> --- a/drivers/watchdog/davinci_wdt.c
-> +++ b/drivers/watchdog/davinci_wdt.c
-> @@ -69,7 +69,6 @@ static unsigned long wdt_status;
->  #define WDT_REGION_INITED 2
->  #define WDT_DEVICE_INITED 3
->  
-> -static struct resource	*wdt_mem;
->  static void __iomem	*wdt_base;
->  struct clk		*wdt_clk;
->  
-> @@ -201,10 +200,10 @@ static struct miscdevice davinci_wdt_miscdev = {
->  
->  static int davinci_wdt_probe(struct platform_device *pdev)
->  {
-> -	int ret = 0, size;
-> -	struct device *dev = &pdev->dev;
+> Kernel symbol X86_MRST has been removed from the kernel.
+> INTEL_SCU_WATCHDOG driver can never be compiled due dependence of X86_MRST
+> which remained in the drivers/watchdog/Kconfig.
+> Unfortunately, I do not know the right decision on this issue and just want
+> to draw the attention of developers to it.
+> Thanks!
 
-Its not clear why you had to drop use of this variable?
+I added below fix for this issue.
 
-> +	int ret = 0;
-> +	static struct resource  *wdt_mem;
->  
-> -	wdt_clk = clk_get(dev, NULL);
-> +	wdt_clk = clk_get(&pdev->dev, NULL);
+Kind regards,
+Wim.
+---
+commit 5a6e917801729dd8368a5f829438074e1cf010ca
+Author: Wim Van Sebroeck <wim@iguana.be>
+Date:   Thu Feb 7 21:14:36 2013 +0100
 
-When you are converting to use devres, why not convert this to
-devm_clk_get() as well?
+    watchdog: intel_scu_watchdog: fix Kconfig dependency
+    
+    Kernel symbol X86_MRST has been removed from the kernel.
+    INTEL_SCU_WATCHDOG driver can never be compiled due dependence of X86_MRST
+    which remained in the drivers/watchdog/Kconfig.
+    
+    Reported-by: Alexander Shiyan <shc_work@mail.ru>
+    Cc: Alan Cox <alan@linux.intel.com>
+    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
 
-Thanks,
-Sekhar
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 52d83f4..af54904 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -583,7 +583,7 @@ config IE6XX_WDT
+ 
+ config INTEL_SCU_WATCHDOG
+ 	bool "Intel SCU Watchdog for Mobile Platforms"
+-	depends on X86_MRST
++	depends on X86_INTEL_MID
+ 	---help---
+ 	  Hardware driver for the watchdog time built into the Intel SCU
+ 	  for Intel Mobile Platforms.
