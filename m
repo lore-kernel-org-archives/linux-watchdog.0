@@ -1,56 +1,53 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from arroyo.ext.ti.com ([192.94.94.40]:49107 "EHLO arroyo.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758237Ab3BHCf1 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 7 Feb 2013 21:35:27 -0500
-From: "Kumar, Anil" <anilkumar.v@ti.com>
-To: "Nori, Sekhar" <nsekhar@ti.com>
+Received: from devils.ext.ti.com ([198.47.26.153]:37729 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759690Ab3BHETj (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 7 Feb 2013 23:19:39 -0500
+Message-ID: <51147CCF.7050100@ti.com>
+Date: Fri, 8 Feb 2013 09:49:27 +0530
+From: Sekhar Nori <nsekhar@ti.com>
+MIME-Version: 1.0
+To: "Kumar, Anil" <anilkumar.v@ti.com>
 CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
 	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
 	"davinci-linux-open-source@linux.davincidsp.com"
 	<davinci-linux-open-source@linux.davincidsp.com>,
 	"wim@iguana.be" <wim@iguana.be>
-Subject: RE: [PATCH] watchdog: davinci_wdt: update to devm_* API
-Date: Fri, 8 Feb 2013 02:35:17 +0000
-Message-ID: <F3DBB1B3EF102E4994C89758CFCA32412C59CA@DBDE01.ent.ti.com>
-References: <1360207935-24325-1-git-send-email-anilkumar.v@ti.com>
- <5113E978.2060201@ti.com>
-In-Reply-To: <5113E978.2060201@ti.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
+Subject: Re: [PATCH] watchdog: davinci_wdt: update to devm_* API
+References: <1360207935-24325-1-git-send-email-anilkumar.v@ti.com> <5113E978.2060201@ti.com> <F3DBB1B3EF102E4994C89758CFCA32412C59CA@DBDE01.ent.ti.com>
+In-Reply-To: <F3DBB1B3EF102E4994C89758CFCA32412C59CA@DBDE01.ent.ti.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-SGkgU2VraGFyLA0KDQpUaGFua3MgZm9yIHRoZSByZXZpZXcuIA0KDQpPbiBUaHUsIEZlYiAwNywg
-MjAxMyBhdCAyMzoyMDo0OCwgTm9yaSwgU2VraGFyIHdyb3RlOg0KPiANCj4gT24gMi83LzIwMTMg
-OTowMiBBTSwgS3VtYXIsIEFuaWwgd3JvdGU6DQo+ID4gVXBkYXRlIHRoZSBjb2RlIHRvIHVzZSBk
-ZXZtXyogQVBJIHNvIHRoYXQgZHJpdmVyDQo+ID4gY29yZSB3aWxsIG1hbmFnZSByZXNvdXJjZXMu
-DQo+ID4gDQo+ID4gU2lnbmVkLW9mZi1ieTogS3VtYXIsIEFuaWwgPGFuaWxrdW1hci52QHRpLmNv
-bT4NCj4gPiAtLS0NCj4gPiBUaGlzIHBhdGNoIGFwcGxpZXMgb24gdG9wIG9mIHYzLjgtcmM2Lg0K
-PiA+IA0KPiA+IFRlc3RlZCBvbiBkYTg1MCBFVk0uDQo+ID4gDQo+ID4gOjEwMDY0NCAxMDA2NDQg
-ZThlODcyNC4uLiA2YWQ3NmEzLi4uIE0JZHJpdmVycy93YXRjaGRvZy9kYXZpbmNpX3dkdC5jDQo+
-ID4gIGRyaXZlcnMvd2F0Y2hkb2cvZGF2aW5jaV93ZHQuYyB8ICAgMzQgKysrKysrKysrLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLQ0KPiA+ICAxIGZpbGVzIGNoYW5nZWQsIDkgaW5zZXJ0aW9ucygr
-KSwgMjUgZGVsZXRpb25zKC0pDQo+ID4gDQo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvd2F0Y2hk
-b2cvZGF2aW5jaV93ZHQuYyBiL2RyaXZlcnMvd2F0Y2hkb2cvZGF2aW5jaV93ZHQuYw0KPiA+IGlu
-ZGV4IGU4ZTg3MjQuLjZhZDc2YTMgMTAwNjQ0DQo+ID4gLS0tIGEvZHJpdmVycy93YXRjaGRvZy9k
-YXZpbmNpX3dkdC5jDQo+ID4gKysrIGIvZHJpdmVycy93YXRjaGRvZy9kYXZpbmNpX3dkdC5jDQo+
-ID4gQEAgLTY5LDcgKzY5LDYgQEAgc3RhdGljIHVuc2lnbmVkIGxvbmcgd2R0X3N0YXR1czsNCj4g
-PiAgI2RlZmluZSBXRFRfUkVHSU9OX0lOSVRFRCAyDQo+ID4gICNkZWZpbmUgV0RUX0RFVklDRV9J
-TklURUQgMw0KPiA+ICANCj4gPiAtc3RhdGljIHN0cnVjdCByZXNvdXJjZQkqd2R0X21lbTsNCj4g
-PiAgc3RhdGljIHZvaWQgX19pb21lbQkqd2R0X2Jhc2U7DQo+ID4gIHN0cnVjdCBjbGsJCSp3ZHRf
-Y2xrOw0KPiA+ICANCj4gPiBAQCAtMjAxLDEwICsyMDAsMTAgQEAgc3RhdGljIHN0cnVjdCBtaXNj
-ZGV2aWNlIGRhdmluY2lfd2R0X21pc2NkZXYgPSB7DQo+ID4gIA0KPiA+ICBzdGF0aWMgaW50IGRh
-dmluY2lfd2R0X3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpDQo+ID4gIHsNCj4g
-PiAtCWludCByZXQgPSAwLCBzaXplOw0KPiA+IC0Jc3RydWN0IGRldmljZSAqZGV2ID0gJnBkZXYt
-PmRldjsNCj4gDQo+IEl0cyBub3QgY2xlYXIgd2h5IHlvdSBoYWQgdG8gZHJvcCB1c2Ugb2YgdGhp
-cyB2YXJpYWJsZT8NCg0KQWN0dWFsbHksIEkgaGF2ZSBub3QgZm91bmQgYW55IHBhcnRpY3VsYXIg
-bmVlZCB0byB0YWtlIHBvaW50ZXINCmludG8gZGV2IGFuZCB0aGVuIHVzZSBpbiB0aGUgY29kZS4g
-UmF0aGVyIHdlIGNhbiBkaXJlY3RseSB1c2UuICANCg0KPiANCj4gPiArCWludCByZXQgPSAwOw0K
-PiA+ICsJc3RhdGljIHN0cnVjdCByZXNvdXJjZSAgKndkdF9tZW07DQo+ID4gIA0KPiA+IC0Jd2R0
-X2NsayA9IGNsa19nZXQoZGV2LCBOVUxMKTsNCj4gPiArCXdkdF9jbGsgPSBjbGtfZ2V0KCZwZGV2
-LT5kZXYsIE5VTEwpOw0KPiANCj4gV2hlbiB5b3UgYXJlIGNvbnZlcnRpbmcgdG8gdXNlIGRldnJl
-cywgd2h5IG5vdCBjb252ZXJ0IHRoaXMgdG8NCj4gZGV2bV9jbGtfZ2V0KCkgYXMgd2VsbD8NCj4g
-DQpSaWdodC4gSSB3aWxsIGRvIGl0Lg0KDQpUaGFua3MsDQpBbmlsDQoNCg==
+On 2/8/2013 8:05 AM, Kumar, Anil wrote:
+> On Thu, Feb 07, 2013 at 23:20:48, Nori, Sekhar wrote:
+>> On 2/7/2013 9:02 AM, Kumar, Anil wrote:
+
+>>> Update the code to use devm_* API so that driver
+>>> core will manage resources.
+
+>>> Signed-off-by: Kumar, Anil <anilkumar.v@ti.com>
+
+>>> diff --git a/drivers/watchdog/davinci_wdt.c b/drivers/watchdog/davinci_wdt.c
+
+>>> @@ -201,10 +200,10 @@ static struct miscdevice davinci_wdt_miscdev = {
+>>>  
+>>>  static int davinci_wdt_probe(struct platform_device *pdev)
+>>>  {
+>>> -	int ret = 0, size;
+>>> -	struct device *dev = &pdev->dev;
+>>
+>> Its not clear why you had to drop use of this variable?
+> 
+> Actually, I have not found any particular need to take pointer
+> into dev and then use in the code. Rather we can directly use. 
+
+No, it is good enough as-is. It will help rid your patch of unnecessary
+changes and its not really convenient to to keep reading &pdev->dev all
+the time.
+
+Thanks,
+Sekhar
