@@ -1,84 +1,56 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from devils.ext.ti.com ([198.47.26.153]:58356 "EHLO
-	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753875Ab3BHCTg convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 7 Feb 2013 21:19:36 -0500
+Received: from arroyo.ext.ti.com ([192.94.94.40]:49107 "EHLO arroyo.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758237Ab3BHCf1 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 7 Feb 2013 21:35:27 -0500
 From: "Kumar, Anil" <anilkumar.v@ti.com>
-To: Sergei Shtylyov <sshtylyov@mvista.com>
+To: "Nori, Sekhar" <nsekhar@ti.com>
 CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
 	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
 	"davinci-linux-open-source@linux.davincidsp.com"
 	<davinci-linux-open-source@linux.davincidsp.com>,
 	"wim@iguana.be" <wim@iguana.be>
 Subject: RE: [PATCH] watchdog: davinci_wdt: update to devm_* API
-Date: Fri, 8 Feb 2013 02:19:25 +0000
-Message-ID: <F3DBB1B3EF102E4994C89758CFCA32412C59AA@DBDE01.ent.ti.com>
+Date: Fri, 8 Feb 2013 02:35:17 +0000
+Message-ID: <F3DBB1B3EF102E4994C89758CFCA32412C59CA@DBDE01.ent.ti.com>
 References: <1360207935-24325-1-git-send-email-anilkumar.v@ti.com>
- <51138E41.3080708@mvista.com>
-In-Reply-To: <51138E41.3080708@mvista.com>
+ <5113E978.2060201@ti.com>
+In-Reply-To: <5113E978.2060201@ti.com>
 Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-Hi Sergei
-
-On Thu, Feb 07, 2013 at 16:51:37, Sergei Shtylyov wrote:
-> Hello.
->=20
-> On 07-02-2013 7:32, Kumar, Anil wrote:
->=20
-> > Update the code to use devm_* API so that driver
-> > core will manage resources.
->=20
-> > Signed-off-by: Kumar, Anil <anilkumar.v@ti.com>
-> > ---
-> > This patch applies on top of v3.8-rc6.
->=20
-> > Tested on da850 EVM.
->=20
-> > :100644 100644 e8e8724... 6ad76a3... M	drivers/watchdog/davinci_wdt.c
-> >   drivers/watchdog/davinci_wdt.c |   34 +++++++++--------------------=
------
-> >   1 files changed, 9 insertions(+), 25 deletions(-)
->=20
-> > diff --git a/drivers/watchdog/davinci_wdt.c b/drivers/watchdog/davinc=
-i_wdt.c
-> > index e8e8724..6ad76a3 100644
-> > --- a/drivers/watchdog/davinci_wdt.c
-> > +++ b/drivers/watchdog/davinci_wdt.c
-> [...]
-> > @@ -213,49 +212,34 @@ static int davinci_wdt_probe(struct platform_de=
-vice *pdev)
-> [...]
-> > -	size =3D resource_size(wdt_mem);
-> > -	if (!request_mem_region(wdt_mem->start, size, pdev->name)) {
-> > -		dev_err(dev, "failed to get memory region\n");
-> > -		return -ENOENT;
-> > -	}
-> > -
-> > -	wdt_base =3D ioremap(wdt_mem->start, size);
-> > +	wdt_base =3D devm_request_and_ioremap(&pdev->dev, wdt_mem);
-> >   	if (!wdt_base) {
-> > -		dev_err(dev, "failed to map memory region\n");
-> > -		release_mem_region(wdt_mem->start, size);
-> > -		wdt_mem =3D NULL;
-> > +		dev_err(&pdev->dev, "ioremap failed\n");
-> >   		return -ENOMEM;
->=20
->     Comment to devm_request_and_ioremap() suggest returning -EADDRNOTAV=
-AIL=20
-> instead.
-
-Right.=20
-
-Thanks,
-Anil
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+SGkgU2VraGFyLA0KDQpUaGFua3MgZm9yIHRoZSByZXZpZXcuIA0KDQpPbiBUaHUsIEZlYiAwNywg
+MjAxMyBhdCAyMzoyMDo0OCwgTm9yaSwgU2VraGFyIHdyb3RlOg0KPiANCj4gT24gMi83LzIwMTMg
+OTowMiBBTSwgS3VtYXIsIEFuaWwgd3JvdGU6DQo+ID4gVXBkYXRlIHRoZSBjb2RlIHRvIHVzZSBk
+ZXZtXyogQVBJIHNvIHRoYXQgZHJpdmVyDQo+ID4gY29yZSB3aWxsIG1hbmFnZSByZXNvdXJjZXMu
+DQo+ID4gDQo+ID4gU2lnbmVkLW9mZi1ieTogS3VtYXIsIEFuaWwgPGFuaWxrdW1hci52QHRpLmNv
+bT4NCj4gPiAtLS0NCj4gPiBUaGlzIHBhdGNoIGFwcGxpZXMgb24gdG9wIG9mIHYzLjgtcmM2Lg0K
+PiA+IA0KPiA+IFRlc3RlZCBvbiBkYTg1MCBFVk0uDQo+ID4gDQo+ID4gOjEwMDY0NCAxMDA2NDQg
+ZThlODcyNC4uLiA2YWQ3NmEzLi4uIE0JZHJpdmVycy93YXRjaGRvZy9kYXZpbmNpX3dkdC5jDQo+
+ID4gIGRyaXZlcnMvd2F0Y2hkb2cvZGF2aW5jaV93ZHQuYyB8ICAgMzQgKysrKysrKysrLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLQ0KPiA+ICAxIGZpbGVzIGNoYW5nZWQsIDkgaW5zZXJ0aW9ucygr
+KSwgMjUgZGVsZXRpb25zKC0pDQo+ID4gDQo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvd2F0Y2hk
+b2cvZGF2aW5jaV93ZHQuYyBiL2RyaXZlcnMvd2F0Y2hkb2cvZGF2aW5jaV93ZHQuYw0KPiA+IGlu
+ZGV4IGU4ZTg3MjQuLjZhZDc2YTMgMTAwNjQ0DQo+ID4gLS0tIGEvZHJpdmVycy93YXRjaGRvZy9k
+YXZpbmNpX3dkdC5jDQo+ID4gKysrIGIvZHJpdmVycy93YXRjaGRvZy9kYXZpbmNpX3dkdC5jDQo+
+ID4gQEAgLTY5LDcgKzY5LDYgQEAgc3RhdGljIHVuc2lnbmVkIGxvbmcgd2R0X3N0YXR1czsNCj4g
+PiAgI2RlZmluZSBXRFRfUkVHSU9OX0lOSVRFRCAyDQo+ID4gICNkZWZpbmUgV0RUX0RFVklDRV9J
+TklURUQgMw0KPiA+ICANCj4gPiAtc3RhdGljIHN0cnVjdCByZXNvdXJjZQkqd2R0X21lbTsNCj4g
+PiAgc3RhdGljIHZvaWQgX19pb21lbQkqd2R0X2Jhc2U7DQo+ID4gIHN0cnVjdCBjbGsJCSp3ZHRf
+Y2xrOw0KPiA+ICANCj4gPiBAQCAtMjAxLDEwICsyMDAsMTAgQEAgc3RhdGljIHN0cnVjdCBtaXNj
+ZGV2aWNlIGRhdmluY2lfd2R0X21pc2NkZXYgPSB7DQo+ID4gIA0KPiA+ICBzdGF0aWMgaW50IGRh
+dmluY2lfd2R0X3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpDQo+ID4gIHsNCj4g
+PiAtCWludCByZXQgPSAwLCBzaXplOw0KPiA+IC0Jc3RydWN0IGRldmljZSAqZGV2ID0gJnBkZXYt
+PmRldjsNCj4gDQo+IEl0cyBub3QgY2xlYXIgd2h5IHlvdSBoYWQgdG8gZHJvcCB1c2Ugb2YgdGhp
+cyB2YXJpYWJsZT8NCg0KQWN0dWFsbHksIEkgaGF2ZSBub3QgZm91bmQgYW55IHBhcnRpY3VsYXIg
+bmVlZCB0byB0YWtlIHBvaW50ZXINCmludG8gZGV2IGFuZCB0aGVuIHVzZSBpbiB0aGUgY29kZS4g
+UmF0aGVyIHdlIGNhbiBkaXJlY3RseSB1c2UuICANCg0KPiANCj4gPiArCWludCByZXQgPSAwOw0K
+PiA+ICsJc3RhdGljIHN0cnVjdCByZXNvdXJjZSAgKndkdF9tZW07DQo+ID4gIA0KPiA+IC0Jd2R0
+X2NsayA9IGNsa19nZXQoZGV2LCBOVUxMKTsNCj4gPiArCXdkdF9jbGsgPSBjbGtfZ2V0KCZwZGV2
+LT5kZXYsIE5VTEwpOw0KPiANCj4gV2hlbiB5b3UgYXJlIGNvbnZlcnRpbmcgdG8gdXNlIGRldnJl
+cywgd2h5IG5vdCBjb252ZXJ0IHRoaXMgdG8NCj4gZGV2bV9jbGtfZ2V0KCkgYXMgd2VsbD8NCj4g
+DQpSaWdodC4gSSB3aWxsIGRvIGl0Lg0KDQpUaGFua3MsDQpBbmlsDQoNCg==
