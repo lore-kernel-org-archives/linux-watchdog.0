@@ -1,234 +1,232 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:49585 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758358Ab3BLKDU (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:34718 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754500Ab3BLXDL (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 12 Feb 2013 05:03:20 -0500
-From: Sascha Hauer <s.hauer@pengutronix.de>
-To: linux-kernel@vger.kernel.org
-Cc: x86@kernel.org, linux-i2c@vger.kernel.org,
-	linux-watchdog@vger.kernel.org,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Sascha Hauer <s.hauer@pengutronix.de>
-Subject: [PATCH 3/3] watchdog: Add Congatec CGEB watchdog driver
-Date: Tue, 12 Feb 2013 11:02:54 +0100
-Message-Id: <1360663374-30951-4-git-send-email-s.hauer@pengutronix.de>
-In-Reply-To: <1360663374-30951-1-git-send-email-s.hauer@pengutronix.de>
-References: <1360663374-30951-1-git-send-email-s.hauer@pengutronix.de>
+	Tue, 12 Feb 2013 18:03:11 -0500
+Date: Wed, 13 Feb 2013 00:03:03 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Fabio Porcedda <fabio.porcedda@gmail.com>
+Cc: linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
+	Andrew Victor <linux@maxim.org.za>,
+	Jason Cooper <jason@lakedaemon.net>,
+	Andrew Lunn <andrew@lunn.ch>, Ben Dooks <ben-linux@fluff.org>,
+	Kukjin Kim <kgene.kim@samsung.com>,
+	devicetree-discuss@lists.ozlabs.org
+Subject: Re: [PATCH v7 1/6] watchdog: core: dt: add support for the timeout-sec dt property
+Message-ID: <20130212230303.GA7867@spo001.leaseweb.com>
+References: <1357639455-21935-1-git-send-email-fabio.porcedda@gmail.com> <1357639455-21935-2-git-send-email-fabio.porcedda@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1357639455-21935-2-git-send-email-fabio.porcedda@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This driver provides support for the CGEB watchdog found on some
-Congatec x86 modules.
+Hi Fabio,
 
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+I must admit that the different iterations of this patch only made it better.
+I like the idea that you are proposing here (put the default timeout in the
+watchdog_device struct and use a helper function to set the timeout parameter
+value or the timeout-sec dt value). To be able to use other mechanism in the
+future also, I think it make more sense to pass the device instead of the
+device_node.
+
+> Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
+> ---
+>  Documentation/watchdog/watchdog-kernel-api.txt | 10 +++++++
+>  drivers/watchdog/watchdog_core.c               | 37 ++++++++++++++++++++++++++
+>  include/linux/watchdog.h                       |  3 +++
+>  3 files changed, 50 insertions(+)
+> 
+...
+>  
+> +static bool watchdog_is_valid_timeout(struct watchdog_device *wdd,
+> +				      unsigned int t)
+> +
+> +{
+> +	if (wdd->min_timeout < wdd->max_timeout)
+> +		return (wdd->min_timeout <= t) && (t <= wdd->max_timeout);
+> +	else
+> +		return (t > 0);
+> +}
+
+We use a similar check allready in watchdog_dev.c in the set_timeout wrapper.
+And we should move this to the watchdog.h include file so that drivers can also
+use the logic if necessary.
+
+> +/**
+> + * watchdog_init_timeout() - initialize the timeout field
+> + * @parm: timeout module parameter, it takes precedence over the
+> + *        timeout-sec property.
+> + * @node: Retrieve the timeout-sec property only if the parm_timeout
+> + *        is out of bounds.
+> + */
+> +void watchdog_init_timeout(struct watchdog_device *wdd, unsigned int parm,
+> +			   struct device_node *node)
+
+make this int so that drivers can give appropriate warnings if necessary.
+
+I also detailed your documentation a bit more and incorporated above changes
+in an adjusted patch. Can you have a look at it and if OK for you I will put
+it in linux-watchdog-next as your v10 :-).
+
+Kind regards,
+Wim.
 ---
- drivers/watchdog/Kconfig                  |   10 ++
- drivers/watchdog/Makefile                 |    1 +
- drivers/watchdog/congatec_cgeb_watchdog.c |  161 +++++++++++++++++++++++++++++
- 3 files changed, 172 insertions(+)
- create mode 100644 drivers/watchdog/congatec_cgeb_watchdog.c
-
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 7f809fd..47138fb 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -934,6 +934,16 @@ config SBC_EPX_C3_WATCHDOG
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called sbc_epx_c3.
+diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
+index 086638f..a0438f3 100644
+--- a/Documentation/watchdog/watchdog-kernel-api.txt
++++ b/Documentation/watchdog/watchdog-kernel-api.txt
+@@ -1,6 +1,6 @@
+ The Linux WatchDog Timer Driver Core kernel API.
+ ===============================================
+-Last reviewed: 22-May-2012
++Last reviewed: 12-Feb-2013
  
-+config CONGATEC_CGEB_WATCHDOG
-+	depends on CONGATEC_CGEB
-+	tristate "Congatec CGEB watchdog"
-+	---help---
-+	  This driver provides support for the watchdogs found on Congatec
-+	  modules with the CGEB BIOS interface.
+ Wim Van Sebroeck <wim@iguana.be>
+ 
+@@ -212,3 +212,15 @@ driver specific data to and a pointer to the data itself.
+ The watchdog_get_drvdata function allows you to retrieve driver specific data.
+ The argument of this function is the watchdog device where you want to retrieve
+ data from. The function returns the pointer to the driver specific data.
 +
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called congatec_cgeb_wdt.
++To initialize the timeout field, the following function can be used:
 +
- # M32R Architecture
++extern int watchdog_init_timeout(struct watchdog_device *wdd,
++                                  unsigned int timeout_parm, struct device *dev);
++
++The watchdog_init_timeout function allows you to initialize the timeout field
++using the module timeout parameter or by retrieving the timeout-sec property from
++the device tree (if the module timeout parameter is invalid). Best practice is
++to set the default timeout value as timeout value in the watchdog_device and
++then use this function to set the user "preferred" timeout value.
++This routine returns zero on success and a negative errno code for failure.
+diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+index 3796434..a74a3ef 100644
+--- a/drivers/watchdog/watchdog_core.c
++++ b/drivers/watchdog/watchdog_core.c
+@@ -36,12 +36,62 @@
+ #include <linux/init.h>		/* For __init/__exit/... */
+ #include <linux/idr.h>		/* For ida_* macros */
+ #include <linux/err.h>		/* For IS_ERR macros */
++#include <linux/of.h>		/* For of_get_timeout_sec */
  
- # M68K Architecture
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 97bbdb3a..e67eee5 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -108,6 +108,7 @@ obj-$(CONFIG_W83977F_WDT) += w83977f_wdt.o
- obj-$(CONFIG_MACHZ_WDT) += machzwd.o
- obj-$(CONFIG_SBC_EPX_C3_WATCHDOG) += sbc_epx_c3.o
- obj-$(CONFIG_INTEL_SCU_WATCHDOG) += intel_scu_watchdog.o
-+obj-$(CONFIG_CONGATEC_CGEB_WATCHDOG) += congatec_cgeb_watchdog.o
+ #include "watchdog_core.h"	/* For watchdog_dev_register/... */
  
- # M32R Architecture
+ static DEFINE_IDA(watchdog_ida);
+ static struct class *watchdog_class;
  
-diff --git a/drivers/watchdog/congatec_cgeb_watchdog.c b/drivers/watchdog/congatec_cgeb_watchdog.c
-new file mode 100644
-index 0000000..b7b6cf5
---- /dev/null
-+++ b/drivers/watchdog/congatec_cgeb_watchdog.c
-@@ -0,0 +1,161 @@
-+/*
-+ * CGEB watchdog driver
++void watchdog_check_min_max_timeout(struct watchdog_device *wdd)
++{
++	/*
++	 * Check that we have valid min and max timeout values, if
++	 * not reset them both to 0 (=not used or unknown)
++	 */
++	if (wdd->min_timeout > wdd->max_timeout) {
++		pr_info("Invalid min and max timeout values, resetting to 0!\n");
++		wdd->min_timeout = 0;
++		wdd->max_timeout = 0;
++	}
++}
++
++/**
++ * watchdog_init_timeout() - initialize the timeout field
++ * @timeout_parm: timeout module parameter
++ * @dev: Device that stores the timeout-sec property
 + *
-+ * (c) 2011 Sascha Hauer, Pengutronix
++ * Initialize the timeout field of the watchdog_device struct with either the
++ * timeout module parameter (if it is valid value) or the timeout-sec property
++ * (only if it is a valid value and the timeout_parm is out of bounds).
++ * If none of them are valid then we keep the old value (which should normally
++ * be the default timeout value.
 + *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; version 2 of the License.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
++ * A zero is returned on success and -EINVAL for failure.
 + */
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/watchdog.h>
-+#include <asm/congatec-cgeb.h>
-+
-+#define CGOS_WDOG_MODE_REBOOT_PC    0
-+#define CGOS_WDOG_MODE_RESTART_OS   1
-+#define CGOS_WDOG_MODE_STAGED    0x80
-+
-+#define CGOS_WDOG_OPMODE_DISABLED      0
-+#define CGOS_WDOG_OPMODE_ONETIME_TRIG  1
-+#define CGOS_WDOG_OPMODE_SINGLE_EVENT  2
-+#define CGOS_WDOG_OPMODE_EVENT_REPEAT  3
-+
-+#define CGOS_WDOG_EVENT_INT 0	/* NMI/IRQ */
-+#define CGOS_WDOG_EVENT_SCI 1	/* SMI/SCI */
-+#define CGOS_WDOG_EVENT_RST 2	/* system reset */
-+#define CGOS_WDOG_EVENT_BTN 3	/* power button */
-+
-+#define CGOS_WDOG_EVENT_MAX_STAGES 3
-+
-+struct cgeb_watchdog_stage {
-+	unsigned long timeout;
-+	unsigned long event;
-+};
-+
-+struct cgeb_watchdog_config {
-+	unsigned long size;
-+	unsigned long timeout; /* not used in staged mode */
-+	unsigned long delay;
-+	unsigned long mode;
-+	/* optional parameters for staged watchdog */
-+	unsigned long op_mode;
-+	unsigned long stage_count;
-+	struct cgeb_watchdog_stage stages[CGOS_WDOG_EVENT_MAX_STAGES];
-+};
-+
-+struct cgeb_watchdog_priv {
-+	struct cgeb_board_data	*board;
-+	struct watchdog_device	wdd;
-+	int unit;
-+};
-+
-+static struct watchdog_info cgeb_wdd_info = {
-+	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-+	.firmware_version = 0,
-+	.identity = "cgeb watchdog",
-+};
-+
-+static unsigned int watchdog_set_config(struct cgeb_watchdog_priv *priv,
-+		unsigned int timeout_s)
++int watchdog_init_timeout(struct watchdog_device *wdd,
++				unsigned int timeout_parm, struct device *dev)
 +{
-+	struct cgeb_board_data *board = priv->board;
-+	struct cgeb_watchdog_config wdi;
-+	struct cgeb_function_parameters fps;
++	unsigned int t = 0;
 +
-+	memset(&wdi, 0, sizeof(wdi));
-+	memset(&fps, 0, sizeof(fps));
++	watchdog_check_min_max_timeout(wdd);
 +
-+	fps.unit = priv->unit;
-+	fps.iptr = &wdi;
++	/* try to get the tiemout module parameter first */
++	if (!watchdog_timeout_invalid(wdd, timeout_parm)) {
++		wdd->timeout = timeout_parm;
++		return 0;
++	}
 +
-+	wdi.timeout = timeout_s * 1000;
-+	wdi.delay = 0;
-+	wdi.size = sizeof(wdi);
-+	wdi.mode = CGOS_WDOG_MODE_REBOOT_PC;
-+
-+	return cgeb_call(board, &fps, CgebWDogSetConfig);
-+}
-+
-+static int cgeb_watchdog_start(struct watchdog_device *wdd)
-+{
-+	struct cgeb_watchdog_priv *priv = watchdog_get_drvdata(wdd);
-+
-+	return watchdog_set_config(priv, wdd->timeout);
-+}
-+
-+static int cgeb_watchdog_stop(struct watchdog_device *wdd)
-+{
-+	struct cgeb_watchdog_priv *priv = watchdog_get_drvdata(wdd);
-+
-+	return watchdog_set_config(priv, 0);
-+}
-+
-+static int cgeb_watchdog_set_timeout(struct watchdog_device *wdd,
-+		unsigned int timeout_s)
-+{
++	/* try to get the timeout_sec property */
++	if (dev == NULL || dev->of_node == NULL)
++		return -EINVAL;
++	of_property_read_u32(dev->of_node, "timeout-sec", &t);
++	if (!watchdog_timeout_invalid(wdd, t))
++		wdd->timeout = t;
 +	return 0;
 +}
++EXPORT_SYMBOL_GPL(watchdog_init_timeout);
 +
-+struct watchdog_ops cgeb_watchdog_ops = {
-+	.start = cgeb_watchdog_start,
-+	.stop = cgeb_watchdog_stop,
-+	.set_timeout = cgeb_watchdog_set_timeout,
-+};
-+
-+static int cgeb_watchdog_probe(struct platform_device *pdev)
+ /**
+  * watchdog_register_device() - register a watchdog device
+  * @wdd: watchdog device
+@@ -63,15 +113,7 @@ int watchdog_register_device(struct watchdog_device *wdd)
+ 	if (wdd->ops->start == NULL || wdd->ops->stop == NULL)
+ 		return -EINVAL;
+ 
+-	/*
+-	 * Check that we have valid min and max timeout values, if
+-	 * not reset them both to 0 (=not used or unknown)
+-	 */
+-	if (wdd->min_timeout > wdd->max_timeout) {
+-		pr_info("Invalid min and max timeout values, resetting to 0!\n");
+-		wdd->min_timeout = 0;
+-		wdd->max_timeout = 0;
+-	}
++	watchdog_check_min_max_timeout(wdd);
+ 
+ 	/*
+ 	 * Note: now that all watchdog_device data has been verified, we
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index ef8edec..08b48bb 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -200,8 +200,7 @@ static int watchdog_set_timeout(struct watchdog_device *wddev,
+ 	    !(wddev->info->options & WDIOF_SETTIMEOUT))
+ 		return -EOPNOTSUPP;
+ 
+-	if ((wddev->max_timeout != 0) &&
+-	    (timeout < wddev->min_timeout || timeout > wddev->max_timeout))
++	if (watchdog_timeout_invalid(wddev, timeout))
+ 		return -EINVAL;
+ 
+ 	mutex_lock(&wddev->lock);
+diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+index 3a9df2f..2a3038e 100644
+--- a/include/linux/watchdog.h
++++ b/include/linux/watchdog.h
+@@ -118,6 +118,13 @@ static inline void watchdog_set_nowayout(struct watchdog_device *wdd, bool noway
+ 		set_bit(WDOG_NO_WAY_OUT, &wdd->status);
+ }
+ 
++/* Use the following function to check if a timeout value is invalid */
++static inline bool watchdog_timeout_invalid(struct watchdog_device *wdd, unsigned int t)
 +{
-+	struct cgeb_watchdog_priv *priv;
-+	struct cgeb_pdata *pdata = pdev->dev.platform_data;
-+	int ret;
-+
-+	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+
-+	priv->wdd.ops = &cgeb_watchdog_ops;
-+	priv->wdd.info = &cgeb_wdd_info;
-+	priv->wdd.min_timeout = 1;
-+	priv->wdd.max_timeout = 3600;
-+	priv->board = pdata->board;
-+	priv->unit = pdata->unit;
-+
-+	watchdog_set_drvdata(&priv->wdd, priv);
-+	platform_set_drvdata(pdev, priv);
-+
-+	ret = watchdog_register_device(&priv->wdd);
-+	if (ret)
-+		return ret;
-+
-+	dev_info(&pdev->dev, "registered\n");
-+
-+	return 0;
++	return ((wdd->max_timeout != 0) &&
++		(t < wdd->min_timeout || t > wdd->max_timeout));
 +}
 +
-+static int cgeb_watchdog_remove(struct platform_device *pdev)
-+{
-+	struct cgeb_watchdog_priv *priv = platform_get_drvdata(pdev);
-+
-+	watchdog_unregister_device(&priv->wdd);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver cgeb_watchdog_driver = {
-+	.probe		= cgeb_watchdog_probe,
-+	.remove		= cgeb_watchdog_remove,
-+	.driver	= {
-+		.name	= "cgeb-watchdog",
-+		.owner	= THIS_MODULE,
-+	},
-+};
-+module_platform_driver(cgeb_watchdog_driver);
-+
-+MODULE_AUTHOR("Sascha Hauer <s.hauer@pengutronix.de>");
-+MODULE_DESCRIPTION("cgeb watchdog driver");
-+MODULE_LICENSE("GPL v2");
--- 
-1.7.10.4
-
+ /* Use the following functions to manipulate watchdog driver specific data */
+ static inline void watchdog_set_drvdata(struct watchdog_device *wdd, void *data)
+ {
+@@ -130,6 +137,8 @@ static inline void *watchdog_get_drvdata(struct watchdog_device *wdd)
+ }
+ 
+ /* drivers/watchdog/watchdog_core.c */
++extern int watchdog_init_timeout(struct watchdog_device *wdd,
++				  unsigned int timeout_parm, struct device *dev);
+ extern int watchdog_register_device(struct watchdog_device *);
+ extern void watchdog_unregister_device(struct watchdog_device *);
+ 
