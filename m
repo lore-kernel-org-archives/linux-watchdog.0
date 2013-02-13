@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 13 Feb 2013 23:46:47 +0100
+Date: Thu, 14 Feb 2013 00:13:32 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
 To: Wenyou Yang <wenyou.yang@atmel.com>
 Cc: linux-arm-kernel@lists.infradead.org, nicolas.ferre@atmel.com,
         plagnioj@jcrosoft.com, fabio.porcedda@gmail.com, JM.Lin@atmel.com,
         linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4 1/8] watchdog: add the function watchdog_is_open
-Message-ID: <20130213224647.GC7867@spo001.leaseweb.com>
-References: <1359702386-21284-1-git-send-email-wenyou.yang@atmel.com> <1359702386-21284-2-git-send-email-wenyou.yang@atmel.com>
+Subject: Re: [PATCH v4 6/8] watchdog/at91sam9_wdt: Remove the __initdata of at91wdt_wdd
+Message-ID: <20130213231332.GG7867@spo001.leaseweb.com>
+References: <1359702386-21284-1-git-send-email-wenyou.yang@atmel.com> <1359702386-21284-7-git-send-email-wenyou.yang@atmel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1359702386-21284-2-git-send-email-wenyou.yang@atmel.com>
+In-Reply-To: <1359702386-21284-7-git-send-email-wenyou.yang@atmel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -19,39 +19,32 @@ List-ID: <linux-watchdog@vger.kernel.org>
 
 Hi Wenyou,
 
-> Add the function watchdog_is_open to check whether or not
-> the /dev/watchdog? is opened
+> For this variable will be used in the timer handler.
 > 
 > Signed-off-by: Wenyou Yang <wenyou.yang@atmel.com>
 > Cc: wim@iguana.be
 > Cc: linux-watchdog@vger.kernel.org
 > Cc: linux-kernel@vger.kernel.org
 > ---
->  include/linux/watchdog.h |    8 ++++++++
->  1 file changed, 8 insertions(+)
+>  drivers/watchdog/at91sam9_wdt.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
-> index e40cc2b..7ea4465 100644
-> --- a/include/linux/watchdog.h
-> +++ b/include/linux/watchdog.h
-> @@ -111,6 +111,14 @@ static inline bool watchdog_active(struct watchdog_device *wdd)
->  	return test_bit(WDOG_ACTIVE, &wdd->status);
->  }
+> diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
+> index e60a718..3fc90ba 100644
+> --- a/drivers/watchdog/at91sam9_wdt.c
+> +++ b/drivers/watchdog/at91sam9_wdt.c
+> @@ -199,7 +199,7 @@ static struct watchdog_ops at91wdt_ops = {
+>  	.ping = at91wdt_ping,
+>  };
 >  
-> +/* Use the following function to check whether or not
-> + * the /dev/watchdog? is opened
-> + */
-> +static inline bool watchdog_is_open(struct watchdog_device *wddev)
-> +{
-> +	return test_bit(WDOG_DEV_OPEN, &wddev->status);
-> +}
-> +
->  /* Use the following function to set the nowayout feature */
->  static inline void watchdog_set_nowayout(struct watchdog_device *wdd, bool nowayout)
->  {
+> -static struct watchdog_device at91wdt_wdd __initdata = {
+> +static struct watchdog_device at91wdt_wdd = {
+>  	.timeout = WDT_HEARTBEAT,
+>  	.min_timeout = MIN_HEARTBEAT,
+>  	.max_timeout = MAX_HEARTBEAT,
 
-NAK, this is not good. You should use watchdog_active instead.
-Reason: your device could have been opened as for instance /dev/watchdog0.
+should imho also have been part of your previous patches.
+Anyway, it's also like this in the patch I just sent you.
 
 Kind regards,
 Wim.
