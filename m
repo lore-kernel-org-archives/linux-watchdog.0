@@ -1,61 +1,54 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ea0-f179.google.com ([209.85.215.179]:45848 "EHLO
-	mail-ea0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933922Ab3BMM3g (ORCPT
+Received: from mail-qc0-f178.google.com ([209.85.216.178]:44842 "EHLO
+	mail-qc0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755679Ab3BMPFJ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 13 Feb 2013 07:29:36 -0500
-Received: by mail-ea0-f179.google.com with SMTP id d12so444750eaa.38
-        for <linux-watchdog@vger.kernel.org>; Wed, 13 Feb 2013 04:29:35 -0800 (PST)
-From: Fabio Porcedda <fabio.porcedda@gmail.com>
-To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
-	Andrew Victor <linux@maxim.org.za>,
-	Jason Cooper <jason@lakedaemon.net>,
-	Andrew Lunn <andrew@lunn.ch>, Ben Dooks <ben-linux@fluff.org>,
-	Kukjin Kim <kgene.kim@samsung.com>
-Cc: devicetree-discuss@lists.ozlabs.org,
-	Wenyou Yang <wenyou.yang@atmel.com>
-Subject: [PATCH v8 7/7] watchdog: orion_wdt: move the min_timeout initialization
-Date: Wed, 13 Feb 2013 13:22:30 +0100
-Message-Id: <1360758150-23004-8-git-send-email-fabio.porcedda@gmail.com>
-In-Reply-To: <1360758150-23004-1-git-send-email-fabio.porcedda@gmail.com>
-References: <1360758150-23004-1-git-send-email-fabio.porcedda@gmail.com>
+	Wed, 13 Feb 2013 10:05:09 -0500
+MIME-Version: 1.0
+In-Reply-To: <1360663374-30951-1-git-send-email-s.hauer@pengutronix.de>
+References: <1360663374-30951-1-git-send-email-s.hauer@pengutronix.de>
+From: Christian Gmeiner <christian.gmeiner@gmail.com>
+Date: Wed, 13 Feb 2013 15:57:02 +0100
+Message-ID: <CAH9NwWfSQKW2c1LvLQkojPiKA_r7+_6OmgoVHrBNRHUEFNYvJg@mail.gmail.com>
+Subject: Re: [PATCH] Congatec CGEB base, i2c and watchdog driver support
+To: Sascha Hauer <s.hauer@pengutronix.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, x86@kernel.org,
+	linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	Thomas Gleixner <tglx@linutronix.de>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Move the min_timeout initialization inside the orion_wdt definition.
+2013/2/12 Sascha Hauer <s.hauer@pengutronix.de>:
+> I'd like to come back to this topic. I have sent patches last year
+> already, changes to the last time I posted this is mainly that
+> I moved the CGEB base support from drivers/mfd/ to arch/x86/platform/
+> like suggested by Samuel Ortiz back then.
+>
+> The following series adds support for the Congatec CGEB interface
+> found on some Congatec x86 boards. The CGEB interface is a BIOS
+> interface which provides access to onboard peripherals like I2C
+> busses and watchdogs. It works by mapping BIOS code and searching
+> for magic values which specify the entry points to the CGEB call.
+> The CGEB call is an API provided by the BIOS which provides access
+> to the functions in an ioctl like fashion.
+>
+> For more information about the CGEB API have a look at:
+>
+> http://www.congatec.com/single_news+M5d58c9cd155.html
+>
+> This document only describes the C API, unfortunately not the
+> underlying BIOS interface.
+>
+> Also added are two users of this interface, a i2c master driver
+> and a watchdog driver.
+>
+> Comments very appreciated.
 
-Only compile tested.
+Hi Sascha,
 
-Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
-Cc: Andrew Lunn <andrew@lunn.ch>
-Acked-by: Jason Cooper <jason@lakedaemon.net>
----
- drivers/watchdog/orion_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+against what version is this patch set? Would like to try it out but it fails
+to apply to 3.8-rc7.
 
-diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
-index 3022a38..da57798 100644
---- a/drivers/watchdog/orion_wdt.c
-+++ b/drivers/watchdog/orion_wdt.c
-@@ -140,6 +140,7 @@ static const struct watchdog_ops orion_wdt_ops = {
- static struct watchdog_device orion_wdt = {
- 	.info = &orion_wdt_info,
- 	.ops = &orion_wdt_ops,
-+	.min_timeout = 1,
- };
- 
- static int orion_wdt_probe(struct platform_device *pdev)
-@@ -164,7 +165,6 @@ static int orion_wdt_probe(struct platform_device *pdev)
- 
- 	wdt_max_duration = WDT_MAX_CYCLE_COUNT / wdt_tclk;
- 
--	orion_wdt.min_timeout = 1;
- 	orion_wdt.timeout = wdt_max_duration;
- 	orion_wdt.max_timeout = wdt_max_duration;
- 	watchdog_init_timeout(&orion_wdt, heartbeat, &pdev->dev);
--- 
-1.8.1.1
-
+--
+Christian Gmeiner, MSc
