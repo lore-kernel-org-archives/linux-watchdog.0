@@ -1,11 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ea0-f181.google.com ([209.85.215.181]:42397 "EHLO
-	mail-ea0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933922Ab3BMMWg (ORCPT
+Received: from mail-ea0-f174.google.com ([209.85.215.174]:36460 "EHLO
+	mail-ea0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933922Ab3BMMWi (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 13 Feb 2013 07:22:36 -0500
-Received: by mail-ea0-f181.google.com with SMTP id i13so504185eaa.40
-        for <linux-watchdog@vger.kernel.org>; Wed, 13 Feb 2013 04:22:35 -0800 (PST)
+	Wed, 13 Feb 2013 07:22:38 -0500
+Received: by mail-ea0-f174.google.com with SMTP id 1so486589eaa.19
+        for <linux-watchdog@vger.kernel.org>; Wed, 13 Feb 2013 04:22:37 -0800 (PST)
 From: Fabio Porcedda <fabio.porcedda@gmail.com>
 To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
@@ -17,81 +17,73 @@ To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
 	Kukjin Kim <kgene.kim@samsung.com>
 Cc: devicetree-discuss@lists.ozlabs.org,
 	Wenyou Yang <wenyou.yang@atmel.com>
-Subject: [PATCH v8 0/7] watchdog: dt: add support for the timeout-sec dt property
-Date: Wed, 13 Feb 2013 13:22:23 +0100
-Message-Id: <1360758150-23004-1-git-send-email-fabio.porcedda@gmail.com>
+Subject: [PATCH v8 1/7] watchdog: core: add and use watchdog_is_valid_timeout function
+Date: Wed, 13 Feb 2013 13:22:24 +0100
+Message-Id: <1360758150-23004-2-git-send-email-fabio.porcedda@gmail.com>
+In-Reply-To: <1360758150-23004-1-git-send-email-fabio.porcedda@gmail.com>
+References: <1360758150-23004-1-git-send-email-fabio.porcedda@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi all,
-this patchset add the timeout-sec property to the watchdog core,
-to the at91sam9_wdt driver and on all framework enabled watchdog driver
-with dt support.
-The at91sam9_wdt is tested on evk-pr3,
-the other drivers are compile tested only.
+Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
+---
+ drivers/watchdog/watchdog_core.c | 14 ++++++++++++++
+ drivers/watchdog/watchdog_dev.c  |  3 +--
+ include/linux/watchdog.h         |  2 ++
+ 3 files changed, 17 insertions(+), 2 deletions(-)
 
-Best regards
-Fabio Porcedda
-
-changes:
-v8:
-  - watchdog_is_valid_timeout(): export in watchdog.h
-  - watchdog_is_valid_timeout(): use in watchdog_set_timeout()
-  - watchdog_is_valid_timeout(): split patch
-  - watchdog_init_timeout(): return -EINVAL for out of range values.
-  - watchdog_init_timeout(): use struct device instead of struct device_node
-v7:
-  - rebase over v3.8-rc2
-  - remove the patch already merged
-v6:
-  - remove patch for function of_get_timeout_sec as aked by Rob Herring
-  - add Acked-by: Jason Cooper <jason@lakedaemon.net>
-  - add Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
-v5:
-  - fix codestyle for compilance ti checkpatch.pl about
-    "ERROR: do not initialise statics to 0 or NULL"
-    for s3c2410_wdt.c:56 and at91sam9_wdt.c:63
-v4:
-  - add of_get_timeout_sec
-  - add s3c2410_wdt driver
-  - split driver patch
-  - fixed watchdog_init_timeout handling of min_timeout and max_timeout
-v3:
-  - rename watchdog_probe_dt_timeout ->  watchdog_init_timeout
-  - move the watchdog_init_timeout function from inline to watchdog_core.c
-  - add timeout parameter handling code to watchdog_init_timeout
-  - add timeout-sec property to the pnx4008-wdt driver
-  - add two small commit for fixup and cleanup
-v2:
-  - change "timeout" to "timeout-sec" as asked by Jean-Christophe
-  - at91sam9_wdt: use the new helper function
-  - at91sam9_wdt: add bounds checking
-  - watchdog.h: add bounds checking
-
-Fabio Porcedda (7):
-  watchdog: core: add and use watchdog_is_valid_timeout function
-  watchdog: core: dt: add support for the timeout-sec dt property
-  watchdog: orion_wdt: add timeout-sec property binding
-  watchdog: pnx4008: add timeout-sec property binding
-  watchdog: s3c2410_wdt: add timeout-sec property binding
-  watchdog: at91sam9_wdt: add timeout-sec property binding
-  watchdog: orion_wdt: move the min_timeout initialization
-
- .../devicetree/bindings/watchdog/atmel-wdt.txt     |  4 ++
- .../devicetree/bindings/watchdog/marvel.txt        |  5 +++
- .../devicetree/bindings/watchdog/pnx4008-wdt.txt   |  4 ++
- .../devicetree/bindings/watchdog/samsung-wdt.txt   |  3 ++
- Documentation/watchdog/watchdog-kernel-api.txt     | 10 +++++
- drivers/watchdog/Kconfig                           |  1 +
- drivers/watchdog/at91sam9_wdt.c                    | 16 ++++++--
- drivers/watchdog/orion_wdt.c                       | 10 ++---
- drivers/watchdog/pnx4008_wdt.c                     |  7 ++--
- drivers/watchdog/s3c2410_wdt.c                     |  6 ++-
- drivers/watchdog/watchdog_core.c                   | 48 ++++++++++++++++++++++
- drivers/watchdog/watchdog_dev.c                    |  3 +-
- include/linux/watchdog.h                           |  4 ++
- 13 files changed, 104 insertions(+), 17 deletions(-)
-
+diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+index 3796434..f10fa31 100644
+--- a/drivers/watchdog/watchdog_core.c
++++ b/drivers/watchdog/watchdog_core.c
+@@ -43,6 +43,20 @@ static DEFINE_IDA(watchdog_ida);
+ static struct class *watchdog_class;
+ 
+ /**
++ * watchdog_is_valid_timeout() - check if the timeout is within a valid range
++ * @timeout: value to check
++ */
++bool watchdog_is_valid_timeout(struct watchdog_device *wdd, uint timeout)
++{
++	if (wdd->min_timeout < wdd->max_timeout)
++		return (wdd->min_timeout <= timeout) &&
++			(timeout <= wdd->max_timeout);
++	else
++		return (timeout > 0);
++}
++EXPORT_SYMBOL_GPL(watchdog_is_valid_timeout);
++
++/**
+  * watchdog_register_device() - register a watchdog device
+  * @wdd: watchdog device
+  *
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index ef8edec..49976f8 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -200,8 +200,7 @@ static int watchdog_set_timeout(struct watchdog_device *wddev,
+ 	    !(wddev->info->options & WDIOF_SETTIMEOUT))
+ 		return -EOPNOTSUPP;
+ 
+-	if ((wddev->max_timeout != 0) &&
+-	    (timeout < wddev->min_timeout || timeout > wddev->max_timeout))
++	if (!watchdog_is_valid_timeout(wddev, timeout))
+ 		return -EINVAL;
+ 
+ 	mutex_lock(&wddev->lock);
+diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+index 3a9df2f..9ae945e 100644
+--- a/include/linux/watchdog.h
++++ b/include/linux/watchdog.h
+@@ -130,6 +130,8 @@ static inline void *watchdog_get_drvdata(struct watchdog_device *wdd)
+ }
+ 
+ /* drivers/watchdog/watchdog_core.c */
++extern bool watchdog_is_valid_timeout(struct watchdog_device *wdd,
++				      uint timeout);
+ extern int watchdog_register_device(struct watchdog_device *);
+ extern void watchdog_unregister_device(struct watchdog_device *);
+ 
 -- 
 1.8.1.1
 
