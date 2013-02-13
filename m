@@ -1,11 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ea0-f174.google.com ([209.85.215.174]:36460 "EHLO
-	mail-ea0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933922Ab3BMMWi (ORCPT
+Received: from mail-ee0-f52.google.com ([74.125.83.52]:65303 "EHLO
+	mail-ee0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933922Ab3BMMWl (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 13 Feb 2013 07:22:38 -0500
-Received: by mail-ea0-f174.google.com with SMTP id 1so486589eaa.19
-        for <linux-watchdog@vger.kernel.org>; Wed, 13 Feb 2013 04:22:37 -0800 (PST)
+	Wed, 13 Feb 2013 07:22:41 -0500
+Received: by mail-ee0-f52.google.com with SMTP id b15so545453eek.25
+        for <linux-watchdog@vger.kernel.org>; Wed, 13 Feb 2013 04:22:39 -0800 (PST)
 From: Fabio Porcedda <fabio.porcedda@gmail.com>
 To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
@@ -17,9 +17,9 @@ To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
 	Kukjin Kim <kgene.kim@samsung.com>
 Cc: devicetree-discuss@lists.ozlabs.org,
 	Wenyou Yang <wenyou.yang@atmel.com>
-Subject: [PATCH v8 1/7] watchdog: core: add and use watchdog_is_valid_timeout function
-Date: Wed, 13 Feb 2013 13:22:24 +0100
-Message-Id: <1360758150-23004-2-git-send-email-fabio.porcedda@gmail.com>
+Subject: [PATCH v8 2/7] watchdog: core: dt: add support for the timeout-sec dt property
+Date: Wed, 13 Feb 2013 13:22:25 +0100
+Message-Id: <1360758150-23004-3-git-send-email-fabio.porcedda@gmail.com>
 In-Reply-To: <1360758150-23004-1-git-send-email-fabio.porcedda@gmail.com>
 References: <1360758150-23004-1-git-send-email-fabio.porcedda@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -27,60 +27,91 @@ List-Id: linux-watchdog@vger.kernel.org
 
 Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
 ---
- drivers/watchdog/watchdog_core.c | 14 ++++++++++++++
- drivers/watchdog/watchdog_dev.c  |  3 +--
- include/linux/watchdog.h         |  2 ++
- 3 files changed, 17 insertions(+), 2 deletions(-)
+ Documentation/watchdog/watchdog-kernel-api.txt | 10 ++++++++
+ drivers/watchdog/watchdog_core.c               | 34 ++++++++++++++++++++++++++
+ include/linux/watchdog.h                       |  2 ++
+ 3 files changed, 46 insertions(+)
 
+diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
+index 086638f..44098c2 100644
+--- a/Documentation/watchdog/watchdog-kernel-api.txt
++++ b/Documentation/watchdog/watchdog-kernel-api.txt
+@@ -212,3 +212,13 @@ driver specific data to and a pointer to the data itself.
+ The watchdog_get_drvdata function allows you to retrieve driver specific data.
+ The argument of this function is the watchdog device where you want to retrieve
+ data from. The function returns the pointer to the driver specific data.
++
++To initialize the timeout field use the following function:
++
++extern void watchdog_init_timeout(struct watchdog_device *wdd,
++                                  unsigned int parm_timeout,
++                                  struct device_node *node);
++
++The watchdog_init_timeout function allows you to initialize the timeout field
++using the module timeout parameter or retrieving the timeout-sec property from
++the device tree.
 diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-index 3796434..f10fa31 100644
+index f10fa31..b9e9148 100644
 --- a/drivers/watchdog/watchdog_core.c
 +++ b/drivers/watchdog/watchdog_core.c
-@@ -43,6 +43,20 @@ static DEFINE_IDA(watchdog_ida);
- static struct class *watchdog_class;
+@@ -36,6 +36,7 @@
+ #include <linux/init.h>		/* For __init/__exit/... */
+ #include <linux/idr.h>		/* For ida_* macros */
+ #include <linux/err.h>		/* For IS_ERR macros */
++#include <linux/of.h>		/* For of_get_timeout_sec */
+ 
+ #include "watchdog_core.h"	/* For watchdog_dev_register/... */
+ 
+@@ -57,6 +58,39 @@ bool watchdog_is_valid_timeout(struct watchdog_device *wdd, uint timeout)
+ EXPORT_SYMBOL_GPL(watchdog_is_valid_timeout);
  
  /**
-+ * watchdog_is_valid_timeout() - check if the timeout is within a valid range
-+ * @timeout: value to check
++ * watchdog_init_timeout() - initialize the timeout field
++ * @parm: timeout module parameter, it takes precedence over the
++ *        timeout-sec property.
++ * @node: Retrieve the timeout-sec property only if the parm_timeout
++ *        is out of bounds.
 + */
-+bool watchdog_is_valid_timeout(struct watchdog_device *wdd, uint timeout)
++int watchdog_init_timeout(struct watchdog_device *wdd, uint parm,
++			  struct device *dev)
 +{
-+	if (wdd->min_timeout < wdd->max_timeout)
-+		return (wdd->min_timeout <= timeout) &&
-+			(timeout <= wdd->max_timeout);
++	uint timeout = 0;
++	int ret = 0;
++
++	if (watchdog_is_valid_timeout(wdd, parm)) {
++		wdd->timeout = parm;
++		return ret;
++	}
++	if (parm)
++		ret = -EINVAL;
++
++	/* try to get the timeout_sec property */
++	if (!dev->of_node)
++		return ret;
++	of_property_read_u32(dev->of_node, "timeout-sec", &timeout);
++	if (watchdog_is_valid_timeout(wdd, timeout))
++		wdd->timeout = timeout;
 +	else
-+		return (timeout > 0);
++		ret = -EINVAL;
++
++	return ret;
 +}
-+EXPORT_SYMBOL_GPL(watchdog_is_valid_timeout);
++EXPORT_SYMBOL_GPL(watchdog_init_timeout);
 +
 +/**
   * watchdog_register_device() - register a watchdog device
   * @wdd: watchdog device
   *
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index ef8edec..49976f8 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -200,8 +200,7 @@ static int watchdog_set_timeout(struct watchdog_device *wddev,
- 	    !(wddev->info->options & WDIOF_SETTIMEOUT))
- 		return -EOPNOTSUPP;
- 
--	if ((wddev->max_timeout != 0) &&
--	    (timeout < wddev->min_timeout || timeout > wddev->max_timeout))
-+	if (!watchdog_is_valid_timeout(wddev, timeout))
- 		return -EINVAL;
- 
- 	mutex_lock(&wddev->lock);
 diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
-index 3a9df2f..9ae945e 100644
+index 9ae945e..b1023dd 100644
 --- a/include/linux/watchdog.h
 +++ b/include/linux/watchdog.h
-@@ -130,6 +130,8 @@ static inline void *watchdog_get_drvdata(struct watchdog_device *wdd)
- }
- 
+@@ -132,6 +132,8 @@ static inline void *watchdog_get_drvdata(struct watchdog_device *wdd)
  /* drivers/watchdog/watchdog_core.c */
-+extern bool watchdog_is_valid_timeout(struct watchdog_device *wdd,
-+				      uint timeout);
+ extern bool watchdog_is_valid_timeout(struct watchdog_device *wdd,
+ 				      uint timeout);
++extern int watchdog_init_timeout(struct watchdog_device *wdd,
++				  uint parm_timeout, struct device *dev);
  extern int watchdog_register_device(struct watchdog_device *);
  extern void watchdog_unregister_device(struct watchdog_device *);
  
