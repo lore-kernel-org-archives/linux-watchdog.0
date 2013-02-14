@@ -1,61 +1,115 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:34959 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S964934Ab3BMXZ6 (ORCPT
+Received: from mail-ob0-f169.google.com ([209.85.214.169]:40034 "EHLO
+	mail-ob0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755857Ab3BNHV5 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 13 Feb 2013 18:25:58 -0500
-Date: Thu, 14 Feb 2013 00:25:56 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Nicolas Ferre <nicolas.ferre@atmel.com>
-Cc: Wenyou Yang <wenyou.yang@atmel.com>, fabio.porcedda@gmail.com,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, plagnioj@jcrosoft.com,
-	JM.Lin@atmel.com
-Subject: Re: [PATCH v4 0/8] watchdog/at91sam9_wdt: Convert to use the new framework
-Message-ID: <20130213232556.GI7867@spo001.leaseweb.com>
-References: <1359702386-21284-1-git-send-email-wenyou.yang@atmel.com> <51139188.8030601@atmel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <51139188.8030601@atmel.com>
+	Thu, 14 Feb 2013 02:21:57 -0500
+Received: by mail-ob0-f169.google.com with SMTP id ta14so2127812obb.28
+        for <linux-watchdog@vger.kernel.org>; Wed, 13 Feb 2013 23:21:56 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <1360758150-23004-1-git-send-email-fabio.porcedda@gmail.com>
+References: <1360758150-23004-1-git-send-email-fabio.porcedda@gmail.com>
+From: Fabio Porcedda <fabio.porcedda@gmail.com>
+Date: Thu, 14 Feb 2013 08:21:36 +0100
+Message-ID: <CAHkwnC_umHuPA07u0DKCfTS2O6W2v83-nhkEDA_KY+rMbMv01A@mail.gmail.com>
+Subject: Re: [PATCH v8 0/7] watchdog: dt: add support for the timeout-sec dt property
+To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
+	Andrew Victor <linux@maxim.org.za>,
+	Jason Cooper <jason@lakedaemon.net>,
+	Andrew Lunn <andrew@lunn.ch>, Ben Dooks <ben-linux@fluff.org>,
+	Kukjin Kim <kgene.kim@samsung.com>
+Cc: devicetree-discuss@lists.ozlabs.org,
+	Wenyou Yang <wenyou.yang@atmel.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Nicolas,
+On Wed, Feb 13, 2013 at 1:22 PM, Fabio Porcedda
+<fabio.porcedda@gmail.com> wrote:
+> Hi all,
+> this patchset add the timeout-sec property to the watchdog core,
+> to the at91sam9_wdt driver and on all framework enabled watchdog driver
+> with dt support.
+> The at91sam9_wdt is tested on evk-pr3,
+> the other drivers are compile tested only.
 
-> > The purpose of the patch series is to convert at91sam9_wdt to use the watchdog framework,
-> >  
-> > Because the Watchdog Mode Register(WDT_MR) which WDDIS bit to disable or disable the watchdog
-> > can be written only once after reset. so if you want to use the watchdog in the kernel, 
-> > you must be sure the watchdog doesn't be disabled in the at91bootstrap.
-> > 
-> > It is tested on at91sam9m10g45ek both DT and non-DT support, at91sam9g25ek with DT support
-> > by building Documentation/watchdog/src/watchdog-simple.c.
-> > 
-> > It is based on v3.8-rc6 + Arnd Bergmann's at91_wdt_dt_ids cannot be __init
-> > 			+ Fabio Porcedda's add timeout-sec property binding
-> 
-> On my side, I give my acknowledgement to the whole patch series:
-> 
-> Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
-> 
-> I hope that once Fabio Porcedda's series is merged, this series can be
-> applied on top of it seamlessly and quickly.
-> 
-> Wim,
-> Tell us if you need that we resend this series or rebase it on top of
-> another git tree.
-> 
-> Thanks for your work and for your reviews.
+Because in the watchdog-next tree there is already the reworked first
+patch of the v7,
+i will send the v9 rebased over the  watchdog-next tree, dropping the
+first and second patch.
 
-This is how I'm going to do it:
-1) We are going to add my reworked version of Fabio's v7 patch of the core timeout-sec part.
-2) then we are going to do the conversion of the at91sam9 driver but without doing the other changes that Wenyou proposed.
-3) Then we add the driver related part of Fabio's patches (I don't want non converted drivers to have the watchdog_core select, hence we do the conversion of at91sam9 first in step 2).
-4) then we can see what is still needed of Wenyou's patches.
--> all will go through the linuw-watchdog trees.
+Fabio
 
-Note: I know we have another patch in Greg's driver tree that changes the module_platform_driver_probe, but that should not interfere with these patches.
+> Best regards
+> Fabio Porcedda
+>
+> changes:
+> v8:
+>   - watchdog_is_valid_timeout(): export in watchdog.h
+>   - watchdog_is_valid_timeout(): use in watchdog_set_timeout()
+>   - watchdog_is_valid_timeout(): split patch
+>   - watchdog_init_timeout(): return -EINVAL for out of range values.
+>   - watchdog_init_timeout(): use struct device instead of struct device_node
+> v7:
+>   - rebase over v3.8-rc2
+>   - remove the patch already merged
+> v6:
+>   - remove patch for function of_get_timeout_sec as aked by Rob Herring
+>   - add Acked-by: Jason Cooper <jason@lakedaemon.net>
+>   - add Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
+> v5:
+>   - fix codestyle for compilance ti checkpatch.pl about
+>     "ERROR: do not initialise statics to 0 or NULL"
+>     for s3c2410_wdt.c:56 and at91sam9_wdt.c:63
+> v4:
+>   - add of_get_timeout_sec
+>   - add s3c2410_wdt driver
+>   - split driver patch
+>   - fixed watchdog_init_timeout handling of min_timeout and max_timeout
+> v3:
+>   - rename watchdog_probe_dt_timeout ->  watchdog_init_timeout
+>   - move the watchdog_init_timeout function from inline to watchdog_core.c
+>   - add timeout parameter handling code to watchdog_init_timeout
+>   - add timeout-sec property to the pnx4008-wdt driver
+>   - add two small commit for fixup and cleanup
+> v2:
+>   - change "timeout" to "timeout-sec" as asked by Jean-Christophe
+>   - at91sam9_wdt: use the new helper function
+>   - at91sam9_wdt: add bounds checking
+>   - watchdog.h: add bounds checking
+>
+> Fabio Porcedda (7):
+>   watchdog: core: add and use watchdog_is_valid_timeout function
+>   watchdog: core: dt: add support for the timeout-sec dt property
+>   watchdog: orion_wdt: add timeout-sec property binding
+>   watchdog: pnx4008: add timeout-sec property binding
+>   watchdog: s3c2410_wdt: add timeout-sec property binding
+>   watchdog: at91sam9_wdt: add timeout-sec property binding
+>   watchdog: orion_wdt: move the min_timeout initialization
+>
+>  .../devicetree/bindings/watchdog/atmel-wdt.txt     |  4 ++
+>  .../devicetree/bindings/watchdog/marvel.txt        |  5 +++
+>  .../devicetree/bindings/watchdog/pnx4008-wdt.txt   |  4 ++
+>  .../devicetree/bindings/watchdog/samsung-wdt.txt   |  3 ++
+>  Documentation/watchdog/watchdog-kernel-api.txt     | 10 +++++
+>  drivers/watchdog/Kconfig                           |  1 +
+>  drivers/watchdog/at91sam9_wdt.c                    | 16 ++++++--
+>  drivers/watchdog/orion_wdt.c                       | 10 ++---
+>  drivers/watchdog/pnx4008_wdt.c                     |  7 ++--
+>  drivers/watchdog/s3c2410_wdt.c                     |  6 ++-
+>  drivers/watchdog/watchdog_core.c                   | 48 ++++++++++++++++++++++
+>  drivers/watchdog/watchdog_dev.c                    |  3 +-
+>  include/linux/watchdog.h                           |  4 ++
+>  13 files changed, 104 insertions(+), 17 deletions(-)
+>
+> --
+> 1.8.1.1
+>
 
-Kind regards,
-Wim.
+
+
+--
+Fabio Porcedda
