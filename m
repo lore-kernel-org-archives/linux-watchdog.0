@@ -1,11 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ee0-f43.google.com ([74.125.83.43]:44140 "EHLO
-	mail-ee0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756160Ab3BNIOk (ORCPT
+Received: from mail-ee0-f47.google.com ([74.125.83.47]:58382 "EHLO
+	mail-ee0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756160Ab3BNIOm (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 14 Feb 2013 03:14:40 -0500
-Received: by mail-ee0-f43.google.com with SMTP id c50so1173697eek.16
-        for <linux-watchdog@vger.kernel.org>; Thu, 14 Feb 2013 00:14:39 -0800 (PST)
+	Thu, 14 Feb 2013 03:14:42 -0500
+Received: by mail-ee0-f47.google.com with SMTP id e52so1007120eek.20
+        for <linux-watchdog@vger.kernel.org>; Thu, 14 Feb 2013 00:14:41 -0800 (PST)
 From: Fabio Porcedda <fabio.porcedda@gmail.com>
 To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
@@ -17,61 +17,71 @@ To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
 	Kukjin Kim <kgene.kim@samsung.com>
 Cc: devicetree-discuss@lists.ozlabs.org,
 	Wenyou Yang <wenyou.yang@atmel.com>
-Subject: [PATCH v9 2/8] watchdog: core: fix watchdog_check_min_max_timeout() return value
-Date: Thu, 14 Feb 2013 09:14:24 +0100
-Message-Id: <1360829670-10418-3-git-send-email-fabio.porcedda@gmail.com>
+Subject: [PATCH v9 3/8] watchdog: orion_wdt: add timeout-sec property binding
+Date: Thu, 14 Feb 2013 09:14:25 +0100
+Message-Id: <1360829670-10418-4-git-send-email-fabio.porcedda@gmail.com>
 In-Reply-To: <1360829670-10418-1-git-send-email-fabio.porcedda@gmail.com>
 References: <1360829670-10418-1-git-send-email-fabio.porcedda@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The device tree support is not mandatory, so the function doesn't
-return error when is not used.
-Return -EINVAL when the module parameter or
-timeout-sec property is out of bounds.
+Only compile tested.
 
 Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org
+Cc: Andrew Lunn <andrew@lunn.ch>
+Acked-by: Jason Cooper <jason@lakedaemon.net>
 ---
- drivers/watchdog/watchdog_core.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ Documentation/devicetree/bindings/watchdog/marvel.txt | 5 +++++
+ drivers/watchdog/orion_wdt.c                          | 8 +++-----
+ 2 files changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-index 94590f6..05d18b4 100644
---- a/drivers/watchdog/watchdog_core.c
-+++ b/drivers/watchdog/watchdog_core.c
-@@ -73,22 +73,28 @@ int watchdog_init_timeout(struct watchdog_device *wdd,
- 				unsigned int timeout_parm, struct device *dev)
- {
- 	unsigned int t = 0;
-+	int ret = 0;
+diff --git a/Documentation/devicetree/bindings/watchdog/marvel.txt b/Documentation/devicetree/bindings/watchdog/marvel.txt
+index 0b2503a..5dc8d30 100644
+--- a/Documentation/devicetree/bindings/watchdog/marvel.txt
++++ b/Documentation/devicetree/bindings/watchdog/marvel.txt
+@@ -5,10 +5,15 @@ Required Properties:
+ - Compatibility : "marvell,orion-wdt"
+ - reg		: Address of the timer registers
  
- 	watchdog_check_min_max_timeout(wdd);
- 
- 	/* try to get the tiemout module parameter first */
- 	if (!watchdog_timeout_invalid(wdd, timeout_parm)) {
- 		wdd->timeout = timeout_parm;
--		return 0;
-+		return ret;
- 	}
-+	if (timeout_parm)
-+		ret = -EINVAL;
- 
- 	/* try to get the timeout_sec property */
- 	if (dev == NULL || dev->of_node == NULL)
--		return -EINVAL;
-+		return ret;
- 	of_property_read_u32(dev->of_node, "timeout-sec", &t);
- 	if (!watchdog_timeout_invalid(wdd, t))
- 		wdd->timeout = t;
--	return 0;
-+	else
-+		ret = -EINVAL;
++Optional properties:
 +
-+	return ret;
++- timeout-sec	: Contains the watchdog timeout in seconds
++
+ Example:
+ 
+ 	wdt@20300 {
+ 		compatible = "marvell,orion-wdt";
+ 		reg = <0x20300 0x28>;
++		timeout-sec = <10>;
+ 		status = "okay";
+ 	};
+diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
+index 87ed2b9..3022a38 100644
+--- a/drivers/watchdog/orion_wdt.c
++++ b/drivers/watchdog/orion_wdt.c
+@@ -164,12 +164,10 @@ static int orion_wdt_probe(struct platform_device *pdev)
+ 
+ 	wdt_max_duration = WDT_MAX_CYCLE_COUNT / wdt_tclk;
+ 
+-	if ((heartbeat < 1) || (heartbeat > wdt_max_duration))
+-		heartbeat = wdt_max_duration;
+-
+-	orion_wdt.timeout = heartbeat;
+ 	orion_wdt.min_timeout = 1;
++	orion_wdt.timeout = wdt_max_duration;
+ 	orion_wdt.max_timeout = wdt_max_duration;
++	watchdog_init_timeout(&orion_wdt, heartbeat, &pdev->dev);
+ 
+ 	watchdog_set_nowayout(&orion_wdt, nowayout);
+ 	ret = watchdog_register_device(&orion_wdt);
+@@ -179,7 +177,7 @@ static int orion_wdt_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	pr_info("Initial timeout %d sec%s\n",
+-		heartbeat, nowayout ? ", nowayout" : "");
++		orion_wdt.timeout, nowayout ? ", nowayout" : "");
+ 	return 0;
  }
- EXPORT_SYMBOL_GPL(watchdog_init_timeout);
  
 -- 
 1.8.1.1
