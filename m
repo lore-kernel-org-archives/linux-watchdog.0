@@ -1,65 +1,119 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:43845 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932311Ab3BNIfk (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 14 Feb 2013 03:35:40 -0500
-Date: Thu, 14 Feb 2013 09:35:34 +0100
-From: Sascha Hauer <s.hauer@pengutronix.de>
-To: Christian Gmeiner <christian.gmeiner@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, x86@kernel.org,
+Received: from sauhun.de ([89.238.76.85]:37790 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752693Ab3BNKLf (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 14 Feb 2013 05:11:35 -0500
+Date: Thu, 14 Feb 2013 11:11:30 +0100
+From: Wolfram Sang <wsa@the-dreams.de>
+To: Sascha Hauer <s.hauer@pengutronix.de>
+Cc: linux-kernel@vger.kernel.org, x86@kernel.org,
 	linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org,
 	Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH] Congatec CGEB base, i2c and watchdog driver support
-Message-ID: <20130214083534.GC25672@pengutronix.de>
+Subject: Re: [PATCH 2/3] i2c: Add Congatec CGEB I2C driver
+Message-ID: <20130214101130.GB12290@nekote.pengutronix.de>
 References: <1360663374-30951-1-git-send-email-s.hauer@pengutronix.de>
- <CAH9NwWfSQKW2c1LvLQkojPiKA_r7+_6OmgoVHrBNRHUEFNYvJg@mail.gmail.com>
+ <1360663374-30951-3-git-send-email-s.hauer@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAH9NwWfSQKW2c1LvLQkojPiKA_r7+_6OmgoVHrBNRHUEFNYvJg@mail.gmail.com>
+In-Reply-To: <1360663374-30951-3-git-send-email-s.hauer@pengutronix.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Feb 13, 2013 at 03:57:02PM +0100, Christian Gmeiner wrote:
-> 2013/2/12 Sascha Hauer <s.hauer@pengutronix.de>:
-> > I'd like to come back to this topic. I have sent patches last year
-> > already, changes to the last time I posted this is mainly that
-> > I moved the CGEB base support from drivers/mfd/ to arch/x86/platform/
-> > like suggested by Samuel Ortiz back then.
-> >
-> > The following series adds support for the Congatec CGEB interface
-> > found on some Congatec x86 boards. The CGEB interface is a BIOS
-> > interface which provides access to onboard peripherals like I2C
-> > busses and watchdogs. It works by mapping BIOS code and searching
-> > for magic values which specify the entry points to the CGEB call.
-> > The CGEB call is an API provided by the BIOS which provides access
-> > to the functions in an ioctl like fashion.
-> >
-> > For more information about the CGEB API have a look at:
-> >
-> > http://www.congatec.com/single_news+M5d58c9cd155.html
-> >
-> > This document only describes the C API, unfortunately not the
-> > underlying BIOS interface.
-> >
-> > Also added are two users of this interface, a i2c master driver
-> > and a watchdog driver.
-> >
-> > Comments very appreciated.
-> 
-> Hi Sascha,
-> 
-> against what version is this patch set? Would like to try it out but it fails
-> to apply to 3.8-rc7.
+Hi Sascha,
 
-I made it against 3.8-rc6, but I just checked the patches apply to
-3.8-rc7 aswell
+> diff --git a/drivers/i2c/busses/i2c-congatec-cgeb.c b/drivers/i2c/busses/i2c-congatec-cgeb.c
+> new file mode 100644
+> index 0000000..5f48ca4
+> --- /dev/null
+> +++ b/drivers/i2c/busses/i2c-congatec-cgeb.c
+> @@ -0,0 +1,194 @@
+> +/*
+> + * CGEB i2c driver
+> + *
+> + * (c) 2011 Sascha Hauer, Pengutronix
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; version 2 of the License.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + */
+> +#include <linux/module.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/slab.h>
+> +#include <linux/i2c.h>
+> +#include <asm/congatec-cgeb.h>
 
-Sascha
+Is asm a good place? Maybe linux/platform_data?
 
--- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+> +
+> +#define CG_I2C_FLAG_START   0x00080	/* send START condition */
+> +#define CG_I2C_FLAG_STOP    0x00040	/* send STOP condition */
+> +#define CG_I2C_FLAG_ALL_ACK 0x08000	/* send ACK on all read bytes */
+> +#define CG_I2C_FLAG_ALL_NAK 0x04000	/* send NAK on all read bytes */
+> +
+> +struct cgeb_i2c_priv {
+> +	struct cgeb_board_data		*board;
+> +	struct i2c_adapter	adapter;
+> +	int unit;
+> +};
+> +
+> +static u32 cgeb_i2c_func(struct i2c_adapter *adapter)
+> +{
+> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+> +}
+
+To make sure: Have you checked if the driver can do SMBUS_QUICK by using
+'i2cdetect'?
+
+...
+
+> +static int cgeb_i2c_probe(struct platform_device *pdev)
+> +{
+> +	struct cgeb_i2c_priv *priv;
+> +	struct cgeb_pdata *pdata = pdev->dev.platform_data;
+> +	int ret;
+> +
+> +	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+> +	if (!priv)
+> +		return -ENOMEM;
+> +
+> +	strcpy(priv->adapter.name, pdev->name);
+> +	priv->adapter.owner		= THIS_MODULE;
+> +	priv->adapter.algo		= &cgeb_i2c_algo;
+> +	priv->adapter.dev.parent	= &pdev->dev;
+> +	priv->unit = pdata->unit;
+> +	priv->board = pdata->board;
+> +	i2c_set_adapdata(&priv->adapter, priv);
+> +
+> +	platform_set_drvdata(pdev, priv);
+> +
+> +	ret = cgeb_i2c_set_speed(priv, 400000);
+
+Not all slaves handle 400kHz. So, this might be a bit demanding. Then
+again, it is probably fix which slaves are connected and they work
+currently?
+
+...
+
+> +MODULE_AUTHOR("Sascha Hauer <s.hauer@pengutronix.de>");
+> +MODULE_DESCRIPTION("cgeb i2c driver");
+> +MODULE_LICENSE("GPL");
+
+GPLv2 is mentioned in the header.
+
+Other than that, the driver looks fine to me. If it should go via mfd,
+here is my
+
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
+
+Otherwise, let me know if and when I should pick it up.
+
+Thanks,
+
+   Wolfram
+
