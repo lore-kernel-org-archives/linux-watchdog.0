@@ -1,53 +1,50 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:36971 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161288Ab3BOOzI (ORCPT
+Received: from mail-ee0-f42.google.com ([74.125.83.42]:45370 "EHLO
+	mail-ee0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755147Ab3BPXuQ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 15 Feb 2013 09:55:08 -0500
-Message-ID: <511E4C43.7080403@canonical.com>
-Date: Fri, 15 Feb 2013 09:54:59 -0500
-From: Joseph Salisbury <joseph.salisbury@canonical.com>
-MIME-Version: 1.0
+	Sat, 16 Feb 2013 18:50:16 -0500
+From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
 To: Wim Van Sebroeck <wim@iguana.be>
-CC: mc74hc00@gmail.com, linux-watchdog@vger.kernel.org,
-	LKML <linux-kernel@vger.kernel.org>,
-	Kernel Team <kernel-team@lists.ubuntu.com>
-Subject: Re: [v3.8 Regression] watchdog: sp5100_tco: Add SB8x0 chipset support
-References: <511D0BCC.9070208@canonical.com> <20130215073210.GM7867@spo001.leaseweb.com>
-In-Reply-To: <20130215073210.GM7867@spo001.leaseweb.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	=?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: [PATCH] watchdog: omap_wdt: Add option nowayout
+Date: Sun, 17 Feb 2013 00:49:26 +0100
+Message-Id: <1361058566-30309-1-git-send-email-pali.rohar@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/15/2013 02:32 AM, Wim Van Sebroeck wrote:
-> Hi Joseph,
->
->> A bug was opened against the Ubuntu kernel[0].  It was found that
->> reverting the following commit resolved this bug:
->>
->> commit 740fbddf5c3f9ad8b23c5d917ba1cc7e376a5104
->> Author: Takahisa Tanaka <mc74hc00@gmail.com>
->> Date:   Sun Dec 2 14:33:18 2012 +0900
->>
->>      watchdog: sp5100_tco: Add SB8x0 chipset support
->>
->>
->> The regression was introduced as of v3.8-rc1.
->>
->> I see that you are the author of this patch, so I wanted to run this by
->> you.  I was thinking of requesting a revert for v3.8, but I wanted to
->> get your feedback first.
-> Please check out the attached patches first (They are allready in linux-next).
-Thanks for the feedback, Wim.  I'll let you know if the patches resolve 
-this bug.
+Like other watchdog drivers, this patch adds new option nowayout
+which overwrite WATCHDOG_NOWAYOUT.
 
->
-> Other references:
-> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=43176
-> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=43176
->
-> Kind regards,
-> Wim.
->
+---
+ drivers/watchdog/omap_wdt.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
+index b0e541d..af88ffd 100644
+--- a/drivers/watchdog/omap_wdt.c
++++ b/drivers/watchdog/omap_wdt.c
+@@ -45,6 +45,11 @@
+ 
+ #include "omap_wdt.h"
+ 
++static bool nowayout = WATCHDOG_NOWAYOUT;
++module_param(nowayout, bool, 0);
++MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
++	"(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++
+ static unsigned timer_margin;
+ module_param(timer_margin, uint, 0);
+ MODULE_PARM_DESC(timer_margin, "initial watchdog timeout (in seconds)");
+@@ -201,7 +206,6 @@ static const struct watchdog_ops omap_wdt_ops = {
+ static int omap_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct omap_wd_timer_platform_data *pdata = pdev->dev.platform_data;
+-	bool nowayout = WATCHDOG_NOWAYOUT;
+ 	struct watchdog_device *omap_wdt;
+ 	struct resource *res, *mem;
+ 	struct omap_wdt_dev *wdev;
+-- 
+1.7.10.4
 
