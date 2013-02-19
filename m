@@ -1,27 +1,30 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:35865 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:36058 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1756133Ab3BRUMu (ORCPT
+	with ESMTP id S933048Ab3BSTnG (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 18 Feb 2013 15:12:50 -0500
-Date: Mon, 18 Feb 2013 21:12:49 +0100
+	Tue, 19 Feb 2013 14:43:06 -0500
+Date: Tue, 19 Feb 2013 20:43:03 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: omap_wdt: Add option nowayout
-Message-ID: <20130218201249.GQ7867@spo001.leaseweb.com>
-References: <1361058566-30309-1-git-send-email-pali.rohar@gmail.com>
+To: "Kumar, Anil" <anilkumar.v@ti.com>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	davinci-linux-open-source@linux.davincidsp.com, nsekhar@ti.com
+Subject: Re: [PATCH V2] watchdog: davinci_wdt: update to devm_* API
+Message-ID: <20130219194303.GT7867@spo001.leaseweb.com>
+References: <1360309170-9672-1-git-send-email-anilkumar.v@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1361058566-30309-1-git-send-email-pali.rohar@gmail.com>
+In-Reply-To: <1360309170-9672-1-git-send-email-anilkumar.v@ti.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Pali,
+Hi Kumar,
 
-> Like other watchdog drivers, this patch adds new option nowayout
-> which overwrite WATCHDOG_NOWAYOUT.
+> Update the code to use devm_* API so that driver
+> core will manage resources.
+> 
+> Signed-off-by: Kumar, Anil <anilkumar.v@ti.com>
 
 Added to linux-watchdog-next.
 
