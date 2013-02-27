@@ -1,36 +1,58 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:52480 "EHLO
-	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759597Ab3B0Si4 (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 27 Feb 2013 13:38:56 -0500
-Message-ID: <512E52BC.6070206@wwwdotorg.org>
-Date: Wed, 27 Feb 2013 11:38:52 -0700
-From: Stephen Warren <swarren@wwwdotorg.org>
-MIME-Version: 1.0
-To: Ian Lartey <ian@slimlogic.co.uk>
-CC: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	ldewangan@nvidia.com, j-keerthy@ti.com, gg@slimlogic.co.uk,
-	wim@iguana.be, grant.likely@secretlab.ca, rob.herring@calxeda.com
-Subject: Re: [PATCH 1/2] watchdog: add Palmas Watchdog support
-References: <1361990168-882-1-git-send-email-ian@slimlogic.co.uk>
+Received: from slimlogic.co.uk ([89.16.172.20]:57175 "EHLO slimlogic.co.uk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753580Ab3B0SrY (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 27 Feb 2013 13:47:24 -0500
+From: Ian Lartey <ian@slimlogic.co.uk>
+To: linux-kernel@vger.kernel.org
+Cc: linux-watchdog@vger.kernel.org, ldewangan@nvidia.com,
+	j-keerthy@ti.com, gg@slimlogic.co.uk, wim@iguana.be,
+	grant.likely@secretlab.ca, rob.herring@calxeda.com,
+	Ian Lartey <ian@slimlogic.co.uk>
+Subject: [PATCH 2/2] watchdog: Kconfig for Palmas watchdog driver
+Date: Wed, 27 Feb 2013 18:36:08 +0000
+Message-Id: <1361990168-882-2-git-send-email-ian@slimlogic.co.uk>
 In-Reply-To: <1361990168-882-1-git-send-email-ian@slimlogic.co.uk>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+References: <1361990168-882-1-git-send-email-ian@slimlogic.co.uk>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/27/2013 11:36 AM, Ian Lartey wrote:
-> From: Graeme Gregory <gg@slimlogic.co.uk>
-> 
-> Add support for the Palmas watchdog timer which has a timeout configurable
-> from 1s to 128s.
+Add the Kconfig and MAkefile for the Palmas Watchdog driver
 
-> diff --git a/drivers/watchdog/palmas_wdt.c b/drivers/watchdog/palmas_wdt.c
+Signed-off-by: Graeme Gregory <gg@slimlogic.co.uk>
+Signed-off-by: Ian Lartey <ian@slimlogic.co.uk>
+---
+ drivers/watchdog/Kconfig  |    7 +++++++
+ drivers/watchdog/Makefile |    1 +
+ 2 files changed, 8 insertions(+), 0 deletions(-)
 
-> +static struct of_device_id of_palmas_match_tbl[] = {
-> +	{ .compatible = "ti,palmas-wdt", },
-> +	{ /* end */ }
-> +};
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 0374e0e..dae5a91 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -103,6 +103,13 @@ config WM8350_WATCHDOG
+ 	  Support for the watchdog in the WM8350 AudioPlus PMIC.  When
+ 	  the watchdog triggers the system will be reset.
+ 
++config PALMAS_WATCHDOG
++	tristate "Palmas Watchdog"
++	depends on MFD_PALMAS
++	help
++	  Support for the watchdog in the Palmas family of PMICs. When the
++	  watchdog times out system will be reset.
++
+ # ALPHA Architecture
+ 
+ # ARM Architecture
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index a300b94..e845c21 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -171,3 +171,4 @@ obj-$(CONFIG_WM831X_WATCHDOG) += wm831x_wdt.o
+ obj-$(CONFIG_WM8350_WATCHDOG) += wm8350_wdt.o
+ obj-$(CONFIG_MAX63XX_WATCHDOG) += max63xx_wdt.o
+ obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
++obj-$(CONFIG_PALMAS_WATCHDOG) += palmas_wdt.o
+-- 
+1.7.0.4
 
-Is there a DT binding document for that compatible value?
