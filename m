@@ -1,329 +1,166 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from slimlogic.co.uk ([89.16.172.20]:57176 "EHLO slimlogic.co.uk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759862Ab3B0SrZ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 27 Feb 2013 13:47:25 -0500
-From: Ian Lartey <ian@slimlogic.co.uk>
-To: linux-kernel@vger.kernel.org
-Cc: linux-watchdog@vger.kernel.org, ldewangan@nvidia.com,
-	j-keerthy@ti.com, gg@slimlogic.co.uk, wim@iguana.be,
-	grant.likely@secretlab.ca, rob.herring@calxeda.com,
-	Ian Lartey <ian@slimlogic.co.uk>
-Subject: [PATCH 1/2] watchdog: add Palmas Watchdog support
-Date: Wed, 27 Feb 2013 18:36:07 +0000
-Message-Id: <1361990168-882-1-git-send-email-ian@slimlogic.co.uk>
+Received: from ns1.pc-advies.be ([83.149.101.17]:37243 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750715Ab3B0TwQ (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 27 Feb 2013 14:52:16 -0500
+Date: Wed, 27 Feb 2013 20:52:14 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Christophe Leroy <christophe.leroy@c-s.fr>
+Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org
+Subject: Re: [PATCH] Enhanced support for MPC8xx/8xxx watchdog
+Message-ID: <20130227195214.GC7867@spo001.leaseweb.com>
+References: <201302131519.r1DFJtGm032487@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <201302131519.r1DFJtGm032487@localhost.localdomain>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Graeme Gregory <gg@slimlogic.co.uk>
+Hi Christophe,
 
-Add support for the Palmas watchdog timer which has a timeout configurable
-from 1s to 128s.
+> This patch modifies the behaviour of the MPC8xx/8xxx watchdog. On the MPC8xx,
+> at 133Mhz, the maximum timeout of the watchdog timer is 1s, which means it must
+> be pinged twice a second. This is not in line with the Linux watchdog concept
+> which is based on a default watchdog timeout around 60s.
+> This patch introduces an intermediate layer between the CPU and the userspace.
+> The kernel pings the watchdog at the required frequency at the condition that
+> userspace tools refresh it regularly.
+> The new parameter 'heartbeat' allows to set up the userspace timeout.
+> The driver also implements the WDIOC_SETTIMEOUT ioctl.
 
-Signed-off-by: Graeme Gregory <gg@slimlogic.co.uk>
-Signed-off-by: Ian Lartey <ian@slimlogic.co.uk>
----
- drivers/watchdog/palmas_wdt.c |  291 +++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 291 insertions(+), 0 deletions(-)
- create mode 100644 drivers/watchdog/palmas_wdt.c
+No, no, no... we should standardise on naming. heartbeat should be the thing that
+actually keeps the dog alive, whereas timeout is the userspace timeout that the user
+can play with...
 
-diff --git a/drivers/watchdog/palmas_wdt.c b/drivers/watchdog/palmas_wdt.c
-new file mode 100644
-index 0000000..68cdc1e
---- /dev/null
-+++ b/drivers/watchdog/palmas_wdt.c
-@@ -0,0 +1,291 @@
-+/*
-+ * Driver for Watchdog part of Palmas PMIC Chips
-+ *
-+ * Copyright 2011 Texas Instruments Inc.
-+ *
-+ * Author: Graeme Gregory <gg@slimlogic.co.uk>
-+ * Author: Ian Lartey <ian@slimlogic.co.uk>
-+ *
-+ * Based on twl4030_wdt.c
-+ *
-+ * Author: Timo Kokkonen <timo.t.kokkonen at nokia.com>
-+ *
-+ *  This program is free software; you can redistribute it and/or modify it
-+ *  under  the terms of the GNU General  Public License as published by the
-+ *  Free Software Foundation;  either version 2 of the License, or (at your
-+ *  option) any later version.
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/types.h>
-+#include <linux/slab.h>
-+#include <linux/kernel.h>
-+#include <linux/fs.h>
-+#include <linux/watchdog.h>
-+#include <linux/platform_device.h>
-+#include <linux/miscdevice.h>
-+#include <linux/uaccess.h>
-+#include <linux/mfd/palmas.h>
-+
-+static struct platform_device *palmas_wdt_dev;
-+
-+struct palmas_wdt {
-+	struct palmas *palmas;
-+
-+	struct miscdevice miscdev;
-+	int timer_margin;
-+	unsigned long state;
-+};
-+
-+#define PALMAS_WDT_ENABLED	(1<<1)
-+
-+static int nowayout = WATCHDOG_NOWAYOUT;
-+module_param(nowayout, int, 0);
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
-+	"(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-+
-+static int palmas_wdt_write(struct palmas *palmas, unsigned int data)
-+{
-+	unsigned int addr;
-+
-+	addr = PALMAS_BASE_TO_REG(PALMAS_PMU_CONTROL_BASE, PALMAS_WATCHDOG);
-+
-+	return palmas_write(palmas, PALMAS_PMU_CONTROL_BASE, addr, addr);
-+}
-+
-+static int palmas_wdt_enable(struct palmas_wdt *wdt)
-+{
-+	return palmas_wdt_write(wdt->palmas,
-+			wdt->timer_margin | PALMAS_WATCHDOG_ENABLE);
-+}
-+
-+static int palmas_wdt_disable(struct palmas_wdt *wdt)
-+{
-+	return palmas_wdt_write(wdt->palmas, wdt->timer_margin);
-+}
-+
-+static int palmas_wdt_set_timeout(struct palmas_wdt *wdt, int timeout)
-+{
-+	if (timeout < 1 || timeout > 128) {
-+		dev_warn(wdt->miscdev.parent,
-+			"Timeout can only be in the range [1-128] seconds");
-+		return -EINVAL;
-+	}
-+	wdt->timer_margin = fls(timeout) - 1;
-+	return palmas_wdt_enable(wdt);
-+}
-+
-+static ssize_t palmas_wdt_write_fop(struct file *file,
-+		const char __user *data, size_t len, loff_t *ppos)
-+{
-+	struct palmas_wdt *wdt = file->private_data;
-+
-+	if (len)
-+		palmas_wdt_enable(wdt);
-+
-+	return len;
-+}
-+
-+static long palmas_wdt_ioctl(struct file *file,
-+		unsigned int cmd, unsigned long arg)
-+{
-+	void __user *argp = (void __user *)arg;
-+	int __user *p = argp;
-+	int new_margin;
-+	struct palmas_wdt *wdt = file->private_data;
-+	int time = 0;
-+
-+	static const struct watchdog_info palmas_wd_ident = {
-+		.identity = "Palmas Watchdog",
-+		.options = WDIOF_SETTIMEOUT,
-+		.firmware_version = 0,
-+	};
-+
-+	switch (cmd) {
-+	case WDIOC_GETSUPPORT:
-+		return copy_to_user(argp, &palmas_wd_ident,
-+				sizeof(palmas_wd_ident)) ? -EFAULT : 0;
-+
-+	case WDIOC_GETSTATUS:
-+	case WDIOC_GETBOOTSTATUS:
-+		return put_user(0, p);
-+
-+	case WDIOC_KEEPALIVE:
-+		palmas_wdt_enable(wdt);
-+		break;
-+
-+	case WDIOC_SETTIMEOUT:
-+		if (get_user(new_margin, p))
-+			return -EFAULT;
-+		if (palmas_wdt_set_timeout(wdt, new_margin))
-+			return -EINVAL;
-+
-+		time = 1 << wdt->timer_margin;
-+
-+		return put_user(time, p);
-+
-+	case WDIOC_GETTIMEOUT:
-+		time = 1 << wdt->timer_margin;
-+
-+		return put_user(time, p);
-+
-+	default:
-+		return -ENOTTY;
-+	}
-+
-+	return 0;
-+}
-+
-+static int palmas_wdt_open(struct inode *inode, struct file *file)
-+{
-+	struct palmas_wdt *wdt = platform_get_drvdata(palmas_wdt_dev);
-+
-+	/* /dev/watchdog can only be opened once */
-+	if (test_and_set_bit(0, &wdt->state))
-+		return -EBUSY;
-+
-+	wdt->state |= PALMAS_WDT_ENABLED;
-+	file->private_data = (void *) wdt;
-+
-+	palmas_wdt_enable(wdt);
-+	return nonseekable_open(inode, file);
-+}
-+
-+static int palmas_wdt_release(struct inode *inode, struct file *file)
-+{
-+	struct palmas_wdt *wdt = file->private_data;
-+	if (nowayout) {
-+		dev_alert(wdt->miscdev.parent,
-+		       "Unexpected close, watchdog still running!\n");
-+		palmas_wdt_enable(wdt);
-+	} else {
-+		if (palmas_wdt_disable(wdt))
-+			return -EFAULT;
-+		wdt->state &= ~PALMAS_WDT_ENABLED;
-+	}
-+
-+	clear_bit(0, &wdt->state);
-+	return 0;
-+}
-+
-+static const struct file_operations palmas_wdt_fops = {
-+	.owner		= THIS_MODULE,
-+	.llseek		= no_llseek,
-+	.open		= palmas_wdt_open,
-+	.release	= palmas_wdt_release,
-+	.unlocked_ioctl	= palmas_wdt_ioctl,
-+	.write		= palmas_wdt_write_fop,
-+};
-+
-+static int palmas_wdt_probe(struct platform_device *pdev)
-+{
-+	struct palmas *palmas = dev_get_drvdata(pdev->dev.parent);
-+	struct palmas_wdt *wdt;
-+	int ret = 0;
-+
-+	wdt = kzalloc(sizeof(*wdt), GFP_KERNEL);
-+	if (!wdt)
-+		return -ENOMEM;
-+
-+	wdt->palmas		= palmas;
-+	wdt->state		= 0;
-+	wdt->timer_margin	= 7;
-+	wdt->miscdev.parent	= &pdev->dev;
-+	wdt->miscdev.fops	= &palmas_wdt_fops;
-+	wdt->miscdev.minor	= WATCHDOG_MINOR;
-+	wdt->miscdev.name	= "watchdog";
-+
-+	platform_set_drvdata(pdev, wdt);
-+
-+	palmas_wdt_dev = pdev;
-+
-+	palmas_wdt_disable(wdt);
-+
-+	ret = misc_register(&wdt->miscdev);
-+	if (ret) {
-+		dev_err(wdt->miscdev.parent,
-+			"Failed to register misc device\n");
-+		platform_set_drvdata(pdev, NULL);
-+		kfree(wdt);
-+		palmas_wdt_dev = NULL;
-+		return ret;
-+	}
-+	return 0;
-+}
-+
-+static int palmas_wdt_remove(struct platform_device *pdev)
-+{
-+	struct palmas_wdt *wdt = platform_get_drvdata(pdev);
-+
-+	if (wdt->state & PALMAS_WDT_ENABLED)
-+		if (palmas_wdt_disable(wdt))
-+			return -EFAULT;
-+
-+	wdt->state &= ~PALMAS_WDT_ENABLED;
-+	misc_deregister(&wdt->miscdev);
-+
-+	platform_set_drvdata(pdev, NULL);
-+	kfree(wdt);
-+	palmas_wdt_dev = NULL;
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM
-+static int palmas_wdt_suspend(struct platform_device *pdev, pm_message_t state)
-+{
-+	struct palmas_wdt *wdt = platform_get_drvdata(pdev);
-+	if (wdt->state & PALMAS_WDT_ENABLED)
-+		return palmas_wdt_disable(wdt);
-+
-+	return 0;
-+}
-+
-+static int palmas_wdt_resume(struct platform_device *pdev)
-+{
-+	struct palmas_wdt *wdt = platform_get_drvdata(pdev);
-+	if (wdt->state & PALMAS_WDT_ENABLED)
-+		return palmas_wdt_enable(wdt);
-+
-+	return 0;
-+}
-+#else
-+#define palmas_wdt_suspend        NULL
-+#define palmas_wdt_resume         NULL
-+#endif
-+
-+static struct of_device_id of_palmas_match_tbl[] = {
-+	{ .compatible = "ti,palmas-wdt", },
-+	{ /* end */ }
-+};
-+
-+static struct platform_driver palmas_wdt_driver = {
-+	.probe = palmas_wdt_probe,
-+	.remove = palmas_wdt_remove,
-+	.suspend = palmas_wdt_suspend,
-+	.resume = palmas_wdt_resume,
-+	.driver = {
-+		.owner = THIS_MODULE,
-+		.of_match_table = of_palmas_match_tbl,
-+		.name = "palmas-wdt",
-+	},
-+};
-+
-+static int palmas_wdt_init(void)
-+{
-+	return platform_driver_register(&palmas_wdt_driver);
-+}
-+module_init(palmas_wdt_init);
-+
-+static void palmas_wdt_exit(void)
-+{
-+	platform_driver_unregister(&palmas_wdt_driver);
-+}
-+module_exit(palmas_wdt_exit);
-+
-+MODULE_AUTHOR("Graeme Gregory <gg@slimlogic.co.uk>");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
-+MODULE_ALIAS("platform:palmas-wdt");
-+MODULE_DEVICE_TABLE(of, of_palmas_match_tbl);
--- 
-1.7.0.4
+> Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+> 
+> diff -ur linux-3.7.7/drivers/watchdog/mpc8xxx_wdt.c linux/drivers/watchdog/mpc8xxx_wdt.c
+> --- linux-3.7.7/drivers/watchdog/mpc8xxx_wdt.c	2013-02-11 18:05:09.000000000 +0100
+> +++ linux/drivers/watchdog/mpc8xxx_wdt.c	2013-02-13 15:55:22.000000000 +0100
+> @@ -52,10 +52,17 @@
+>  static struct mpc8xxx_wdt __iomem *wd_base;
+>  static int mpc8xxx_wdt_init_late(void);
+>  
+> +#define WD_TIMO 10			/* Default heartbeat = 10 seconds */
+> +
+> +static int heartbeat = WD_TIMO;
+> +module_param(heartbeat, int, 0);
+> +MODULE_PARM_DESC(heartbeat,
+> +	"Watchdog SW heartbeat in seconds. (0 < heartbeat < 65536s, default="
+> +				__MODULE_STRING(WD_TIMO) "s)");
+
+and the userspace timeout should be an unsigned int to be honoust.
+
+>  static u16 timeout = 0xffff;
+>  module_param(timeout, ushort, 0);
+>  MODULE_PARM_DESC(timeout,
+> -	"Watchdog timeout in ticks. (0<timeout<65536, default=65535)");
+> +	"Watchdog HW timeout in ticks. (0<timeout<65536, default=65535)");
+>  
+>  static bool reset = 1;
+>  module_param(reset, bool, 0);
+> @@ -74,8 +81,10 @@
+>  static int prescale = 1;
+>  static unsigned int timeout_sec;
+>  
+> +static int wdt_auto = 1;
+>  static unsigned long wdt_is_open;
+>  static DEFINE_SPINLOCK(wdt_spinlock);
+> +static unsigned long wdt_last_ping;
+>  
+>  static void mpc8xxx_wdt_keepalive(void)
+>  {
+> @@ -91,9 +100,20 @@
+>  
+>  static void mpc8xxx_wdt_timer_ping(unsigned long arg)
+>  {
+> -	mpc8xxx_wdt_keepalive();
+> -	/* We're pinging it twice faster than needed, just to be sure. */
+> -	mod_timer(&wdt_timer, jiffies + HZ * timeout_sec / 2);
+> +	if (wdt_auto)
+> +		wdt_last_ping = jiffies;
+> +
+> +	if (jiffies - wdt_last_ping <= heartbeat * HZ) {
+> +		mpc8xxx_wdt_keepalive();
+> +		/* We're pinging it twice faster than needed, to be sure. */
+> +		mod_timer(&wdt_timer, jiffies + HZ * timeout_sec / 2);
+> +	}
+> +}
+> +
+> +static void mpc8xxx_wdt_sw_keepalive(void)
+> +{
+> +	wdt_last_ping = jiffies;
+> +	mpc8xxx_wdt_timer_ping(0);
+>  }
+>  
+>  static void mpc8xxx_wdt_pr_warn(const char *msg)
+> @@ -106,7 +126,7 @@
+>  				 size_t count, loff_t *ppos)
+>  {
+>  	if (count)
+> -		mpc8xxx_wdt_keepalive();
+> +		mpc8xxx_wdt_sw_keepalive();
+>  	return count;
+>  }
+>  
+> @@ -130,7 +150,7 @@
+>  
+>  	out_be32(&wd_base->swcrr, tmp);
+>  
+> -	del_timer_sync(&wdt_timer);
+> +	wdt_auto = 0;
+>  
+>  	return nonseekable_open(inode, file);
+>  }
+> @@ -138,7 +158,8 @@
+>  static int mpc8xxx_wdt_release(struct inode *inode, struct file *file)
+>  {
+>  	if (!nowayout)
+> -		mpc8xxx_wdt_timer_ping(0);
+> +		wdt_auto = 1;
+> +
+>  	else
+>  		mpc8xxx_wdt_pr_warn("watchdog closed");
+>  	clear_bit(0, &wdt_is_open);
+> @@ -163,10 +184,12 @@
+>  	case WDIOC_GETBOOTSTATUS:
+>  		return put_user(0, p);
+>  	case WDIOC_KEEPALIVE:
+> -		mpc8xxx_wdt_keepalive();
+> +		mpc8xxx_wdt_sw_keepalive();
+>  		return 0;
+>  	case WDIOC_GETTIMEOUT:
+> -		return put_user(timeout_sec, p);
+> +		return put_user(heartbeat, p);
+> +	case WDIOC_SETTIMEOUT:
+> +		return get_user(heartbeat, p);
+>  	default:
+>  		return -ENOTTY;
+>  	}
+> @@ -215,6 +238,8 @@
+>  		ret = -ENOSYS;
+>  		goto err_unmap;
+>  	}
+> +	if (enabled)
+> +		timeout = in_be32(&wd_base->swcrr) >> 16;
+>  
+>  	/* Calculate the timeout in seconds */
+>  	if (prescale)
+> @@ -273,6 +298,7 @@
+>  		.compatible = "fsl,mpc823-wdt",
+>  		.data = &(struct mpc8xxx_wdt_type) {
+>  			.prescaler = 0x800,
+> +			.hw_enabled = true,
+>  		},
+>  	},
+>  	{},
+
+The rest of the code is OK and when above comments are corrected,
+I will add the patch to improve the userspace experience.
+
+Kind regards,
+Wim.
 
