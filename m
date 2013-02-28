@@ -1,66 +1,53 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from slimlogic.co.uk ([89.16.172.20]:44889 "EHLO slimlogic.co.uk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751532Ab3B0W3N (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 27 Feb 2013 17:29:13 -0500
-Message-ID: <512E88B5.6050008@slimlogic.co.uk>
-Date: Wed, 27 Feb 2013 22:29:09 +0000
-From: Ian Lartey <ian@slimlogic.co.uk>
+Received: from hqemgate04.nvidia.com ([216.228.121.35]:17911 "EHLO
+	hqemgate04.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750775Ab3B1Fva (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 28 Feb 2013 00:51:30 -0500
+Message-ID: <512EF012.7080006@nvidia.com>
+Date: Thu, 28 Feb 2013 11:20:10 +0530
+From: Laxman Dewangan <ldewangan@nvidia.com>
 MIME-Version: 1.0
-To: Stephen Warren <swarren@wwwdotorg.org>
-CC: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	ldewangan@nvidia.com, j-keerthy@ti.com, gg@slimlogic.co.uk,
-	wim@iguana.be, grant.likely@secretlab.ca, rob.herring@calxeda.com
+To: Ian Lartey <ian@slimlogic.co.uk>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"j-keerthy@ti.com" <j-keerthy@ti.com>,
+	"gg@slimlogic.co.uk" <gg@slimlogic.co.uk>,
+	"wim@iguana.be" <wim@iguana.be>,
+	"grant.likely@secretlab.ca" <grant.likely@secretlab.ca>,
+	"rob.herring@calxeda.com" <rob.herring@calxeda.com>
 Subject: Re: [PATCH 1/2] watchdog: add Palmas Watchdog support
-References: <1361990168-882-1-git-send-email-ian@slimlogic.co.uk> <512E52BC.6070206@wwwdotorg.org> <512E69C5.5020607@slimlogic.co.uk> <512E6E5B.7010601@wwwdotorg.org>
-In-Reply-To: <512E6E5B.7010601@wwwdotorg.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <1361990168-882-1-git-send-email-ian@slimlogic.co.uk>
+In-Reply-To: <1361990168-882-1-git-send-email-ian@slimlogic.co.uk>
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 27/02/13 20:36, Stephen Warren wrote:
-> On 02/27/2013 01:17 PM, Ian Lartey wrote:
->> On 27/02/13 18:38, Stephen Warren wrote:
->>> On 02/27/2013 11:36 AM, Ian Lartey wrote:
->>>> From: Graeme Gregory <gg@slimlogic.co.uk>
->>>>
->>>> Add support for the Palmas watchdog timer which has a timeout
->>>> configurable
->>>> from 1s to 128s.
->>>
->>>> diff --git a/drivers/watchdog/palmas_wdt.c
->>>> b/drivers/watchdog/palmas_wdt.c
->>>
->>>> +static struct of_device_id of_palmas_match_tbl[] = {
->>>> +    { .compatible = "ti,palmas-wdt", },
->>>> +    { /* end */ }
->>>> +};
->>>
->>> Is there a DT binding document for that compatible value?
->>
->> The device tree for this compatible value is actually empty,
->> shall I remove it or is it OK to show it as empty in the
->> bindings document ?
->> There will be other palmas device bindings in this document.
+On Thursday 28 February 2013 12:06 AM, Ian Lartey wrote:
+> From: Graeme Gregory <gg@slimlogic.co.uk>
 >
-> Well, you need a binding document that describes how to create this
-> node. If it needs no properties other than compatible, it'll be a simple
-> document!
+> Add support for the Palmas watchdog timer which has a timeout configurable
+> from 1s to 128s.
 >
-> Did you review my comments on the other patches re: whether the
-> sub-modules of this HW actually should be sub-nodes in DT or not? If
-> not, then you don't need this node in DT, and hence there will be no
-> compatible value for the node, and hence no need to write a binding
-> document.
+> Signed-off-by: Graeme Gregory <gg@slimlogic.co.uk>
+> Signed-off-by: Ian Lartey <ian@slimlogic.co.uk>
+> ---
+>   drivers/watchdog/palmas_wdt.c |  291 +++++++++++++++++++++++++++++++++++++++++
+>   1 files changed, 291 insertions(+), 0 deletions(-)
+>   create mode 100644 drivers/watchdog/palmas_wdt.c
 
-I've not reviewed your comments on the other patches, so I'll look at
-those before responding properly.
+patch 1 and 2 can be merge as single patch.
 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+generic comment, we have proper watchdog framework where we can have 
+some api for watchdog_ops and register as watchdog_register_device().
+Then core parts take care of the all fileops/sysfs interface.
+This need not to be develop locally.
+
+You can refer wm831x_wdt.c, wm8350_wdt.c driver for more reference where 
+it is really used watchdog framework.
+
+
+I think you can use the watchdog framework for this.
+
 
