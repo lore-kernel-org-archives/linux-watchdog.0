@@ -1,12 +1,18 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.gw90.de ([188.40.100.199]:58893 "EHLO mail.gw90.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752746Ab3CCJk1 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 3 Mar 2013 04:40:27 -0500
-Message-ID: <1362303621.13011.14.camel@mattotaupa>
+Received: from mail-lb0-f169.google.com ([209.85.217.169]:62877 "EHLO
+	mail-lb0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753530Ab3CCPj2 (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Sun, 3 Mar 2013 10:39:28 -0500
+MIME-Version: 1.0
+In-Reply-To: <1362303621.13011.14.camel@mattotaupa>
+References: <1362289927-3635-1-git-send-email-mc74hc00@gmail.com>
+	<1362303621.13011.14.camel@mattotaupa>
+Date: Mon, 4 Mar 2013 00:39:26 +0900
+Message-ID: <CAHh0gOinjQvHV4yG+w4Lu+ZJ9ZWS=EgnDjCrFHAwkfquWEPhCg@mail.gmail.com>
 Subject: Re: [PATCH v2] sp5100_tco: Remove code that may cause a boot failure
-From: Paul Menzel <paulepanter@users.sourceforge.net>
-To: Takahisa Tanaka <mc74hc00@gmail.com>
+From: Tanaka Takahisa <mc74hc00@gmail.com>
+To: Paul Menzel <paulepanter@users.sourceforge.net>
 Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
 	Arkadiusz Miskiewicz <arekm@maven.pl>,
 	Bjorn Helgaas <bhelgaas@google.com>,
@@ -16,96 +22,59 @@ Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
 	Florian Mickler <florian@mickler.org>,
 	Joseph Salisbury <joseph.salisbury@canonical.com>,
 	Joseph Salisbury <josephtsalisbury@gmail.com>
-Date: Sun, 03 Mar 2013 10:40:21 +0100
-In-Reply-To: <1362289927-3635-1-git-send-email-mc74hc00@gmail.com>
-References: <1362289927-3635-1-git-send-email-mc74hc00@gmail.com>
-Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature";
-	boundary="=-GWJK8iy925fE51ByZBHK"
-Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+Hi Paul,
 
---=-GWJK8iy925fE51ByZBHK
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Thank you for your advice!
+The patch reflecting what was pointed out is posted later.
 
-Dear Takahisa,
+2013/3/3 Paul Menzel <paulepanter@users.sourceforge.net>:
+> I still do not understand it, as your patches were for SB8x0 support,
+> right?
 
+There are two methods of accessing the watchdog registers.
 
-thank you for your patch.
+ 1. Re-programming a resource address obtained by allocate_resource()
+to chipset.
+ 2. Use the direct memory-mapped IO access.
 
+The method 1 can be used by all the chipsets (SP5100, SB7x0, SB8x0 or
+later). However, experience shows that only PC with the SB8x0 (or
+later) chipsets can use the method 2.
 
-Am Sonntag, den 03.03.2013, 14:52 +0900 schrieb Takahisa Tanaka:
-> The critical problem which can't boot OS until the power is completely
-> cut off found on PC with SB700 chipset.
-
-As commented in my first reply =E2=80=93 at least I think =E2=80=93 please =
-add the
-mainboard model in here too.
-
-Also add the commit (summary and hash) introducing this problem.
-
-> This patch fix the problem, but,
-
-=E2=80=A2 fix*es*
-
-> this patch prevents the sp5100_tco driver from using watchdog timer
-> function of chipset on PC with SP5100 or SB7x0 chipset.
-
-I still do not understand it, as your patches were for SB8x0 support,
-right?
-
-> Re-programming the MMIO address registers for the watchdog timer must
-> have generated the problem. However, I don't know root cause so far.
-> So, I decided to remove the concerned codes.
->=20
-> Note that this patch is dependent on the commit adbdcc03 and a6e26b13.
-
-Please add the commit summaries, as a lot of people cannot memorize
-commit hashes.
-
-Is this patch exactly reverting these two patches?
-
-> Link: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1116835
-> Link: https://lkml.org/lkml/2013/2/14/271
->=20
-> Signed-off-by: Takahisa Tanaka <mc74hc00@gmail.com>
-
-As Linux 3.8 has been released, please add
-
-CC: stable@vger.kernel.org
-
-> ---
-> v1 -> v2
->  -The patch was split into the bug fix and the typo fix.
-
-Thanks. Good idea.
-
-> ---
->  drivers/watchdog/sp5100_tco.c | 126 ++----------------------------------=
-------
->  1 file changed, 6 insertions(+), 120 deletions(-)
-
-[=E2=80=A6]
+This patch removes the method 1, because the critical problem was found.
+That's why the watchdog timer was able to be used on SP5100 and SB7x0
+chipsets until now.
 
 
-Thanks,
+> Is this patch exactly reverting these two patches?
 
-Paul
+Yes. This patch was made on the linux-next brunch (next-20130301).
 
---=-GWJK8iy925fE51ByZBHK
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-Content-Transfer-Encoding: 7bit
+This patch is dependent on the following patches. So, This patch isn't
+applicable to Linux 3.8 kernel which doesn't apply the following patches.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
+  commit adbdcc030be5f7bb54d229c04efdd0c6b7ed3ab7
+      watchdog: sp5100_tco: Write back the original value to reserved
+bits, instead of zero
 
-iEYEABECAAYFAlEzGoUACgkQPX1aK2wOHVhTJgCeNIazkmtEIeAJfP2X/oImyB6a
-g0YAoIKvhghc4stsu+YE0UiaaOR6Q2y7
-=jsVA
------END PGP SIGNATURE-----
+  commit a6e26b1369b34760ca5e1f16039c9018bf68ce7e
+      watchdog: sp5100_tco: Fix wrong indirect I/O access for getting
+value of reserved bits
 
---=-GWJK8iy925fE51ByZBHK--
 
+> As Linux 3.8 has been released, please add
+
+The above-mentioned two patches may be soon applied to stable kernel (3.8.n).
+
+https://lkml.org/lkml/2013/3/1/546
+
+I thought that I should submit this patch to the stable after these
+two patches are merged into stable 3.8.n.
+
+
+Regards,
+Takahisa
