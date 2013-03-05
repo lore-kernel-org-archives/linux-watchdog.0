@@ -1,16 +1,16 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:52534 "EHLO
+Received: from mail.active-venture.com ([67.228.131.205]:49933 "EHLO
 	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933280Ab3CEEyi (ORCPT
+	with ESMTP id S933239Ab3CEEyd (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 4 Mar 2013 23:54:38 -0500
+	Mon, 4 Mar 2013 23:54:33 -0500
 From: Guenter Roeck <linux@roeck-us.net>
 To: linux-watchdog@vger.kernel.org
 Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: =?UTF-8?q?=5BPATCH=208/8=5D=20watchdog=3A=20Remove=20drivers=20for=20W83697HF=20and=20W83697UG?=
-Date: Mon,  4 Mar 2013 20:54:19 -0800
-Message-Id: <1362459259-9733-9-git-send-email-linux@roeck-us.net>
+Subject: =?UTF-8?q?=5BPATCH=201/8=5D=20watchdog=3A=20w83627hf=3A=20Convert=20to=20watchdog=20infrastructure?=
+Date: Mon,  4 Mar 2013 20:54:12 -0800
+Message-Id: <1362459259-9733-2-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1362459259-9733-1-git-send-email-linux@roeck-us.net>
 References: <1362459259-9733-1-git-send-email-linux@roeck-us.net>
 MIME-Version: 1.0
@@ -19,741 +19,165 @@ Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 Content-Transfer-Encoding: quoted-printable
 
-Since both chips are now supported by the w83627hf watchdog driver,
-the chip specific drivers are no longer needed and can be removed.
-
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/Kconfig        |   30 ---
- drivers/watchdog/Makefile       |    2 -
- drivers/watchdog/w83697hf_wdt.c |  461 ---------------------------------=
+ drivers/watchdog/Kconfig        |    1 +
+ drivers/watchdog/w83627hf_wdt.c |  234 ++++++++-------------------------=
 ------
- drivers/watchdog/w83697ug_wdt.c |  398 ---------------------------------
- 4 files changed, 891 deletions(-)
- delete mode 100644 drivers/watchdog/w83697hf_wdt.c
- delete mode 100644 drivers/watchdog/w83697ug_wdt.c
+ 2 files changed, 47 insertions(+), 188 deletions(-)
 
 diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index acdd347..095edd0 100644
+index 9fcc70c..dd462af 100644
 --- a/drivers/watchdog/Kconfig
 +++ b/drivers/watchdog/Kconfig
-@@ -882,36 +882,6 @@ config W83627HF_WDT
-=20
- 	  Most people will say N.
-=20
--config W83697HF_WDT
--	tristate "W83697HF/W83697HG Watchdog Timer"
--	depends on X86
--	---help---
--	  This is the driver for the hardware watchdog on the W83697HF/HG
--	  chipset as used in Dedibox/VIA motherboards (and likely others).
--	  This watchdog simply watches your kernel to make sure it doesn't
--	  freeze, and if it does, it reboots your computer after a certain
--	  amount of time.
--
--	  To compile this driver as a module, choose M here: the
--	  module will be called w83697hf_wdt.
--
--	  Most people will say N.
--
--config W83697UG_WDT
--	tristate "W83697UG/W83697UF Watchdog Timer"
--	depends on X86
--	---help---
--	  This is the driver for the hardware watchdog on the W83697UG/UF
--	  chipset as used in MSI Fuzzy CX700 VIA motherboards (and likely other=
-s).
--	  This watchdog simply watches your kernel to make sure it doesn't
--	  freeze, and if it does, it reboots your computer after a certain
--	  amount of time.
--
--	  To compile this driver as a module, choose M here: the
--	  module will be called w83697ug_wdt.
--
--	  Most people will say N.
--
- config W83877F_WDT
- 	tristate "W83877F (EMACS) Watchdog Timer"
+@@ -856,6 +856,7 @@ config VIA_WDT
+ config W83627HF_WDT
+ 	tristate "W83627HF/W83627DHG Watchdog Timer"
  	depends on X86
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index a300b94..b330b1f 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -103,8 +103,6 @@ obj-$(CONFIG_SMSC_SCH311X_WDT) +=3D sch311x_wdt.o
- obj-$(CONFIG_SMSC37B787_WDT) +=3D smsc37b787_wdt.o
- obj-$(CONFIG_VIA_WDT) +=3D via_wdt.o
- obj-$(CONFIG_W83627HF_WDT) +=3D w83627hf_wdt.o
--obj-$(CONFIG_W83697HF_WDT) +=3D w83697hf_wdt.o
--obj-$(CONFIG_W83697UG_WDT) +=3D w83697ug_wdt.o
- obj-$(CONFIG_W83877F_WDT) +=3D w83877f_wdt.o
- obj-$(CONFIG_W83977F_WDT) +=3D w83977f_wdt.o
- obj-$(CONFIG_MACHZ_WDT) +=3D machzwd.o
-diff --git a/drivers/watchdog/w83697hf_wdt.c b/drivers/watchdog/w83697hf_=
++	select WATCHDOG_CORE
+ 	---help---
+ 	  This is the driver for the hardware watchdog on the W83627HF chipset
+ 	  as used in Advantech PC-9578 and Tyan S2721-533 motherboards
+diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_=
 wdt.c
-deleted file mode 100644
-index cd9f3c1..0000000
---- a/drivers/watchdog/w83697hf_wdt.c
-+++ /dev/null
-@@ -1,461 +0,0 @@
--/*
-- *	w83697hf/hg WDT driver
-- *
-- *	(c) Copyright 2006 Samuel Tardieu <sam@rfc1149.net>
-- *	(c) Copyright 2006 Marcus Junker <junker@anduras.de>
-- *
-- *	Based on w83627hf_wdt.c which is based on advantechwdt.c
-- *	which is based on wdt.c.
-- *	Original copyright messages:
-- *
-- *	(c) Copyright 2003 P=C3=A1draig Brady <P@draigBrady.com>
-- *
-- *	(c) Copyright 2000-2001 Marek Michalkiewicz <marekm@linux.org.pl>
-- *
-- *	(c) Copyright 1996 Alan Cox <alan@lxorguk.ukuu.org.uk>,
-- *						All Rights Reserved.
-- *
-- *	This program is free software; you can redistribute it and/or
-- *	modify it under the terms of the GNU General Public License
-- *	as published by the Free Software Foundation; either version
-- *	2 of the License, or (at your option) any later version.
-- *
-- *	Neither Marcus Junker nor ANDURAS AG admit liability nor provide
-- *	warranty for any of this software. This material is provided
-- *	"AS-IS" and at no charge.
-- */
--
--#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
--
--#include <linux/module.h>
--#include <linux/moduleparam.h>
--#include <linux/types.h>
+index 92f1326..cd82a47 100644
+--- a/drivers/watchdog/w83627hf_wdt.c
++++ b/drivers/watchdog/w83627hf_wdt.c
+@@ -1,6 +1,9 @@
+ /*
+  *	w83627hf/thf WDT driver
+  *
++ *	(c) Copyright 2013 Guenter Roeck
++ *		converted to watchdog infrastructure
++ *
+  *	(c) Copyright 2007 Vlad Drukker <vlad@storewiz.com>
+  *		added support for W83627THF.
+  *
+@@ -31,42 +34,21 @@
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/types.h>
 -#include <linux/miscdevice.h>
--#include <linux/watchdog.h>
+ #include <linux/watchdog.h>
 -#include <linux/fs.h>
--#include <linux/ioport.h>
+ #include <linux/ioport.h>
 -#include <linux/notifier.h>
--#include <linux/reboot.h>
--#include <linux/init.h>
--#include <linux/spinlock.h>
--#include <linux/io.h>
+ #include <linux/reboot.h>
+ #include <linux/init.h>
+ #include <linux/spinlock.h>
+ #include <linux/io.h>
 -#include <linux/uaccess.h>
 -
--
--#define WATCHDOG_NAME "w83697hf/hg WDT"
--#define WATCHDOG_TIMEOUT 60		/* 60 sec default timeout */
--#define WATCHDOG_EARLY_DISABLE 1	/* Disable until userland kicks in */
--
+=20
+ #define WATCHDOG_NAME "w83627hf/thf/hg/dhg WDT"
+ #define WATCHDOG_TIMEOUT 60		/* 60 sec default timeout */
+=20
 -static unsigned long wdt_is_open;
 -static char expect_close;
 -static DEFINE_SPINLOCK(io_lock);
 -
--/* You must set this - there is no sane way to probe for this board. */
--static int wdt_io =3D 0x2e;
--module_param(wdt_io, int, 0);
--MODULE_PARM_DESC(wdt_io,
--		"w83697hf/hg WDT io port (default 0x2e, 0 =3D autodetect)");
--
+ /* You must set this - there is no sane way to probe for this board. */
+ static int wdt_io =3D 0x2E;
+ module_param(wdt_io, int, 0);
+ MODULE_PARM_DESC(wdt_io, "w83627hf/thf WDT io port (default 0x2E)");
+=20
 -static int timeout =3D WATCHDOG_TIMEOUT;	/* in seconds */
 -module_param(timeout, int, 0);
 -MODULE_PARM_DESC(timeout,
--	"Watchdog timeout in seconds. 1<=3D timeout <=3D255 (default=3D"
--				__MODULE_STRING(WATCHDOG_TIMEOUT) ")");
+-		"Watchdog timeout in seconds. 1 <=3D timeout <=3D 255, default=3D"
+-				__MODULE_STRING(WATCHDOG_TIMEOUT) ".");
 -
 -static bool nowayout =3D WATCHDOG_NOWAYOUT;
 -module_param(nowayout, bool, 0);
 -MODULE_PARM_DESC(nowayout,
--	"Watchdog cannot be stopped once started (default=3D"
+-		"Watchdog cannot be stopped once started (default=3D"
 -				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
 -
--static int early_disable =3D WATCHDOG_EARLY_DISABLE;
--module_param(early_disable, int, 0);
--MODULE_PARM_DESC(early_disable,
--	"Watchdog gets disabled at boot time (default=3D"
--				__MODULE_STRING(WATCHDOG_EARLY_DISABLE) ")");
--
--/*
-- *	Kernel methods.
-- */
--
--#define W83697HF_EFER (wdt_io + 0)  /* Extended Function Enable Register=
- */
--#define W83697HF_EFIR (wdt_io + 0)  /* Extended Function Index Register
--							(same as EFER) */
--#define W83697HF_EFDR (wdt_io + 1)  /* Extended Function Data Register *=
-/
--
--static inline void w83697hf_unlock(void)
--{
--	outb_p(0x87, W83697HF_EFER);	/* Enter extended function mode */
--	outb_p(0x87, W83697HF_EFER);	/* Again according to manual */
--}
--
--static inline void w83697hf_lock(void)
--{
--	outb_p(0xAA, W83697HF_EFER);	/* Leave extended function mode */
--}
--
--/*
-- *	The three functions w83697hf_get_reg(), w83697hf_set_reg() and
-- *	w83697hf_write_timeout() must be called with the device unlocked.
-- */
--
--static unsigned char w83697hf_get_reg(unsigned char reg)
--{
--	outb_p(reg, W83697HF_EFIR);
--	return inb_p(W83697HF_EFDR);
--}
--
--static void w83697hf_set_reg(unsigned char reg, unsigned char data)
--{
--	outb_p(reg, W83697HF_EFIR);
--	outb_p(data, W83697HF_EFDR);
--}
--
--static void w83697hf_write_timeout(int timeout)
--{
--	/* Write Timeout counter to CRF4 */
--	w83697hf_set_reg(0xF4, timeout);
--}
--
--static void w83697hf_select_wdt(void)
--{
--	w83697hf_unlock();
--	w83697hf_set_reg(0x07, 0x08);	/* Switch to logic device 8 (GPIO2) */
--}
--
--static inline void w83697hf_deselect_wdt(void)
--{
--	w83697hf_lock();
--}
--
--static void w83697hf_init(void)
--{
--	unsigned char bbuf;
--
--	w83697hf_select_wdt();
--
--	bbuf =3D w83697hf_get_reg(0x29);
--	bbuf &=3D ~0x60;
--	bbuf |=3D 0x20;
--
--	/* Set pin 119 to WDTO# mode (=3D CR29, WDT0) */
--	w83697hf_set_reg(0x29, bbuf);
--
--	bbuf =3D w83697hf_get_reg(0xF3);
--	bbuf &=3D ~0x04;
--	w83697hf_set_reg(0xF3, bbuf);	/* Count mode is seconds */
--
--	w83697hf_deselect_wdt();
--}
--
--static void wdt_ping(void)
--{
--	spin_lock(&io_lock);
--	w83697hf_select_wdt();
--
--	w83697hf_write_timeout(timeout);
--
--	w83697hf_deselect_wdt();
--	spin_unlock(&io_lock);
--}
--
--static void wdt_enable(void)
--{
--	spin_lock(&io_lock);
--	w83697hf_select_wdt();
--
--	w83697hf_write_timeout(timeout);
--	w83697hf_set_reg(0x30, 1);	/* Enable timer */
--
--	w83697hf_deselect_wdt();
--	spin_unlock(&io_lock);
--}
--
--static void wdt_disable(void)
--{
--	spin_lock(&io_lock);
--	w83697hf_select_wdt();
--
--	w83697hf_set_reg(0x30, 0);	/* Disable timer */
--	w83697hf_write_timeout(0);
--
--	w83697hf_deselect_wdt();
--	spin_unlock(&io_lock);
--}
--
--static unsigned char wdt_running(void)
--{
--	unsigned char t;
--
--	spin_lock(&io_lock);
--	w83697hf_select_wdt();
--
--	t =3D w83697hf_get_reg(0xF4);	/* Read timer */
--
--	w83697hf_deselect_wdt();
--	spin_unlock(&io_lock);
--
--	return t;
--}
--
--static int wdt_set_heartbeat(int t)
--{
--	if (t < 1 || t > 255)
--		return -EINVAL;
--
--	timeout =3D t;
--	return 0;
--}
--
--static ssize_t wdt_write(struct file *file, const char __user *buf,
--						size_t count, loff_t *ppos)
--{
--	if (count) {
--		if (!nowayout) {
--			size_t i;
--
--			expect_close =3D 0;
--
--			for (i =3D 0; i !=3D count; i++) {
--				char c;
--				if (get_user(c, buf + i))
--					return -EFAULT;
--				if (c =3D=3D 'V')
--					expect_close =3D 42;
--			}
--		}
--		wdt_ping();
--	}
--	return count;
--}
--
--static long wdt_ioctl(struct file *file, unsigned int cmd, unsigned long=
- arg)
--{
--	void __user *argp =3D (void __user *)arg;
--	int __user *p =3D argp;
--	int new_timeout;
--	static const struct watchdog_info ident =3D {
--		.options =3D WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT
--							| WDIOF_MAGICCLOSE,
--		.firmware_version =3D 1,
--		.identity =3D "W83697HF WDT",
--	};
--
--	switch (cmd) {
--	case WDIOC_GETSUPPORT:
--		if (copy_to_user(argp, &ident, sizeof(ident)))
--			return -EFAULT;
--		break;
--
--	case WDIOC_GETSTATUS:
--	case WDIOC_GETBOOTSTATUS:
--		return put_user(0, p);
--
--	case WDIOC_SETOPTIONS:
--	{
--		int options, retval =3D -EINVAL;
--
--		if (get_user(options, p))
--			return -EFAULT;
--
--		if (options & WDIOS_DISABLECARD) {
--			wdt_disable();
--			retval =3D 0;
--		}
--
--		if (options & WDIOS_ENABLECARD) {
--			wdt_enable();
--			retval =3D 0;
--		}
--
--		return retval;
--	}
--
--	case WDIOC_KEEPALIVE:
--		wdt_ping();
--		break;
--
--	case WDIOC_SETTIMEOUT:
--		if (get_user(new_timeout, p))
--			return -EFAULT;
--		if (wdt_set_heartbeat(new_timeout))
--			return -EINVAL;
--		wdt_ping();
--		/* Fall */
--
--	case WDIOC_GETTIMEOUT:
--		return put_user(timeout, p);
--
--	default:
--		return -ENOTTY;
--	}
--	return 0;
--}
--
--static int wdt_open(struct inode *inode, struct file *file)
--{
--	if (test_and_set_bit(0, &wdt_is_open))
--		return -EBUSY;
--	/*
--	 *	Activate
--	 */
--
--	wdt_enable();
--	return nonseekable_open(inode, file);
--}
--
--static int wdt_close(struct inode *inode, struct file *file)
--{
--	if (expect_close =3D=3D 42)
--		wdt_disable();
--	else {
--		pr_crit("Unexpected close, not stopping watchdog!\n");
--		wdt_ping();
--	}
--	expect_close =3D 0;
--	clear_bit(0, &wdt_is_open);
--	return 0;
--}
--
--/*
-- *	Notifier for system down
-- */
--
--static int wdt_notify_sys(struct notifier_block *this, unsigned long cod=
-e,
--	void *unused)
--{
--	if (code =3D=3D SYS_DOWN || code =3D=3D SYS_HALT)
--		wdt_disable();	/* Turn the WDT off */
--
--	return NOTIFY_DONE;
--}
--
--/*
-- *	Kernel Interfaces
-- */
--
--static const struct file_operations wdt_fops =3D {
--	.owner		=3D THIS_MODULE,
--	.llseek		=3D no_llseek,
--	.write		=3D wdt_write,
--	.unlocked_ioctl	=3D wdt_ioctl,
--	.open		=3D wdt_open,
--	.release	=3D wdt_close,
--};
--
--static struct miscdevice wdt_miscdev =3D {
--	.minor =3D WATCHDOG_MINOR,
--	.name =3D "watchdog",
--	.fops =3D &wdt_fops,
--};
--
--/*
-- *	The WDT needs to learn about soft shutdowns in order to
-- *	turn the timebomb registers off.
-- */
--
--static struct notifier_block wdt_notifier =3D {
--	.notifier_call =3D wdt_notify_sys,
--};
--
--static int w83697hf_check_wdt(void)
--{
--	if (!request_region(wdt_io, 2, WATCHDOG_NAME)) {
--		pr_err("I/O address 0x%x already in use\n", wdt_io);
--		return -EIO;
--	}
--
--	pr_debug("Looking for watchdog at address 0x%x\n", wdt_io);
--	w83697hf_unlock();
--	if (w83697hf_get_reg(0x20) =3D=3D 0x60) {
--		pr_info("watchdog found at address 0x%x\n", wdt_io);
--		w83697hf_lock();
--		return 0;
--	}
--	/* Reprotect in case it was a compatible device */
--	w83697hf_lock();
--
--	pr_info("watchdog not found at address 0x%x\n", wdt_io);
--	release_region(wdt_io, 2);
--	return -EIO;
--}
--
--static int w83697hf_ioports[] =3D { 0x2e, 0x4e, 0x00 };
--
--static int __init wdt_init(void)
--{
--	int ret, i, found =3D 0;
--
--	pr_info("WDT driver for W83697HF/HG initializing\n");
--
--	if (wdt_io =3D=3D 0) {
--		/* we will autodetect the W83697HF/HG watchdog */
--		for (i =3D 0; ((!found) && (w83697hf_ioports[i] !=3D 0)); i++) {
--			wdt_io =3D w83697hf_ioports[i];
--			if (!w83697hf_check_wdt())
--				found++;
--		}
--	} else {
--		if (!w83697hf_check_wdt())
--			found++;
--	}
--
--	if (!found) {
--		pr_err("No W83697HF/HG could be found\n");
--		ret =3D -EIO;
--		goto out;
--	}
--
--	w83697hf_init();
--	if (early_disable) {
--		if (wdt_running())
--			pr_warn("Stopping previously enabled watchdog until userland kicks in=
-\n");
--		wdt_disable();
--	}
--
--	if (wdt_set_heartbeat(timeout)) {
--		wdt_set_heartbeat(WATCHDOG_TIMEOUT);
--		pr_info("timeout value must be 1 <=3D timeout <=3D 255, using %d\n",
--			WATCHDOG_TIMEOUT);
--	}
--
--	ret =3D register_reboot_notifier(&wdt_notifier);
--	if (ret !=3D 0) {
--		pr_err("cannot register reboot notifier (err=3D%d)\n", ret);
--		goto unreg_regions;
--	}
--
--	ret =3D misc_register(&wdt_miscdev);
--	if (ret !=3D 0) {
--		pr_err("cannot register miscdev on minor=3D%d (err=3D%d)\n",
--		       WATCHDOG_MINOR, ret);
--		goto unreg_reboot;
--	}
--
--	pr_info("initialized. timeout=3D%d sec (nowayout=3D%d)\n",
--		timeout, nowayout);
--
--out:
--	return ret;
--unreg_reboot:
--	unregister_reboot_notifier(&wdt_notifier);
--unreg_regions:
--	release_region(wdt_io, 2);
--	goto out;
--}
--
--static void __exit wdt_exit(void)
--{
--	misc_deregister(&wdt_miscdev);
--	unregister_reboot_notifier(&wdt_notifier);
--	release_region(wdt_io, 2);
--}
--
--module_init(wdt_init);
--module_exit(wdt_exit);
--
--MODULE_LICENSE("GPL");
--MODULE_AUTHOR("Marcus Junker <junker@anduras.de>, "
--		"Samuel Tardieu <sam@rfc1149.net>");
--MODULE_DESCRIPTION("w83697hf/hg WDT driver");
--MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
-diff --git a/drivers/watchdog/w83697ug_wdt.c b/drivers/watchdog/w83697ug_=
-wdt.c
-deleted file mode 100644
-index 274be0b..0000000
---- a/drivers/watchdog/w83697ug_wdt.c
-+++ /dev/null
-@@ -1,398 +0,0 @@
--/*
-- *	w83697ug/uf WDT driver
-- *
-- *	(c) Copyright 2008 Flemming Fransen <ff@nrvissing.net>
-- *		reused original code to support w83697ug/uf.
-- *
-- *	Based on w83627hf_wdt.c which is based on advantechwdt.c
-- *	which is based on wdt.c.
-- *	Original copyright messages:
-- *
-- *	(c) Copyright 2007 Vlad Drukker <vlad@storewiz.com>
-- *		added support for W83627THF.
-- *
-- *	(c) Copyright 2003 P=C3=A1draig Brady <P@draigBrady.com>
-- *
-- *	(c) Copyright 2000-2001 Marek Michalkiewicz <marekm@linux.org.pl>
-- *
-- *	(c) Copyright 1996 Alan Cox <alan@redhat.com>, All Rights Reserved.
-- *				http://www.redhat.com
-- *
-- *	This program is free software; you can redistribute it and/or
-- *	modify it under the terms of the GNU General Public License
-- *	as published by the Free Software Foundation; either version
-- *	2 of the License, or (at your option) any later version.
-- *
-- *	Neither Alan Cox nor CymruNet Ltd. admit liability nor provide
-- *	warranty for any of this software. This material is provided
-- *	"AS-IS" and at no charge.
-- *
-- *	(c) Copyright 1995    Alan Cox <alan@redhat.com>
-- */
--
--#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
--
--#include <linux/module.h>
--#include <linux/moduleparam.h>
--#include <linux/types.h>
--#include <linux/miscdevice.h>
--#include <linux/watchdog.h>
--#include <linux/fs.h>
--#include <linux/ioport.h>
--#include <linux/notifier.h>
--#include <linux/reboot.h>
--#include <linux/init.h>
--#include <linux/spinlock.h>
--#include <linux/io.h>
--#include <linux/uaccess.h>
--
--
--#define WATCHDOG_NAME "w83697ug/uf WDT"
--#define WATCHDOG_TIMEOUT 60		/* 60 sec default timeout */
--
--static unsigned long wdt_is_open;
--static char expect_close;
--static DEFINE_SPINLOCK(io_lock);
--
--static int wdt_io =3D 0x2e;
--module_param(wdt_io, int, 0);
--MODULE_PARM_DESC(wdt_io, "w83697ug/uf WDT io port (default 0x2e)");
--
--static int timeout =3D WATCHDOG_TIMEOUT;	/* in seconds */
--module_param(timeout, int, 0);
--MODULE_PARM_DESC(timeout,
--	"Watchdog timeout in seconds. 1<=3D timeout <=3D255 (default=3D"
--				__MODULE_STRING(WATCHDOG_TIMEOUT) ")");
--
--static bool nowayout =3D WATCHDOG_NOWAYOUT;
--module_param(nowayout, bool, 0);
--MODULE_PARM_DESC(nowayout,
--	"Watchdog cannot be stopped once started (default=3D"
--				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
--
--/*
-- *	Kernel methods.
-- */
--
--#define WDT_EFER (wdt_io+0)   /* Extended Function Enable Registers */
--#define WDT_EFIR (wdt_io+0)   /* Extended Function Index Register
--							(same as EFER) */
--#define WDT_EFDR (WDT_EFIR+1) /* Extended Function Data Register */
--
--static int w83697ug_select_wd_register(void)
--{
--	unsigned char c;
--	unsigned char version;
--
--	outb_p(0x87, WDT_EFER); /* Enter extended function mode */
--	outb_p(0x87, WDT_EFER); /* Again according to manual */
--
--	outb(0x20, WDT_EFER);	/* check chip version	*/
--	version =3D inb(WDT_EFDR);
--
--	if (version =3D=3D 0x68) {	/* W83697UG		*/
--		pr_info("Watchdog chip version 0x%02x =3D W83697UG/UF found at 0x%04x\=
-n",
--			version, wdt_io);
--
--		outb_p(0x2b, WDT_EFER);
--		c =3D inb_p(WDT_EFDR);    /* select WDT0 */
--		c &=3D ~0x04;
--		outb_p(0x2b, WDT_EFER);
--		outb_p(c, WDT_EFDR);	/* set pin118 to WDT0 */
--
--	} else {
--		pr_err("No W83697UG/UF could be found\n");
--		return -ENODEV;
--	}
--
--	outb_p(0x07, WDT_EFER); /* point to logical device number reg */
--	outb_p(0x08, WDT_EFDR); /* select logical device 8 (GPIO2) */
--	outb_p(0x30, WDT_EFER); /* select CR30 */
--	c =3D inb_p(WDT_EFDR);
--	outb_p(c | 0x01, WDT_EFDR); /* set bit 0 to activate GPIO2 */
--
--	return 0;
--}
--
--static void w83697ug_unselect_wd_register(void)
--{
--	outb_p(0xAA, WDT_EFER); /* Leave extended function mode */
--}
--
--static int w83697ug_init(void)
--{
--	int ret;
--	unsigned char t;
--
--	ret =3D w83697ug_select_wd_register();
--	if (ret !=3D 0)
--		return ret;
--
--	outb_p(0xF6, WDT_EFER); /* Select CRF6 */
--	t =3D inb_p(WDT_EFDR);    /* read CRF6 */
--	if (t !=3D 0) {
--		pr_info("Watchdog already running. Resetting timeout to %d sec\n",
+ /*
+  *	Kernel methods.
+  */
+@@ -120,8 +102,8 @@ static void w83627hf_init(void)
+ 	t =3D inb_p(WDT_EFDR);      /* read CRF6 */
+ 	if (t !=3D 0) {
+ 		pr_info("Watchdog already running. Resetting timeout to %d sec\n",
 -			timeout);
 -		outb_p(timeout, WDT_EFDR);    /* Write back to CRF6 */
--	}
--	outb_p(0xF5, WDT_EFER); /* Select CRF5 */
--	t =3D inb_p(WDT_EFDR);    /* read CRF5 */
--	t &=3D ~0x0C;             /* set second mode &
--					disable keyboard turning off watchdog */
--	outb_p(t, WDT_EFDR);    /* Write back to CRF5 */
--
--	w83697ug_unselect_wd_register();
--	return 0;
--}
--
--static void wdt_ctrl(int timeout)
--{
++			WATCHDOG_TIMEOUT);
++		outb_p(WATCHDOG_TIMEOUT, WDT_EFDR);    /* Write back to CRF6 */
+ 	}
+=20
+ 	outb_p(0xF5, WDT_EFER); /* Select CRF5 */
+@@ -141,171 +123,53 @@ static void w83627hf_init(void)
+ 	w83627hf_unselect_wd_register();
+ }
+=20
+-static void wdt_set_time(int timeout)
++static int wdt_set_time(unsigned int timeout)
+ {
 -	spin_lock(&io_lock);
 -
--	if (w83697ug_select_wd_register() < 0) {
--		spin_unlock(&io_lock);
--		return;
--	}
+ 	w83627hf_select_wd_register();
 -
--	outb_p(0xF4, WDT_EFER);    /* Select CRF4 */
--	outb_p(timeout, WDT_EFDR); /* Write Timeout counter to CRF4 */
+ 	outb_p(0xF6, WDT_EFER);    /* Select CRF6 */
+ 	outb_p(timeout, WDT_EFDR); /* Write Timeout counter to CRF6 */
 -
--	w83697ug_unselect_wd_register();
+ 	w83627hf_unselect_wd_register();
 -
 -	spin_unlock(&io_lock);
--}
--
++	return 0;
+ }
+=20
 -static int wdt_ping(void)
--{
--	wdt_ctrl(timeout);
++static int wdt_start(struct watchdog_device *wdog)
+ {
+-	wdt_set_time(timeout);
 -	return 0;
--}
--
++	return wdt_set_time(wdog->timeout);
+ }
+=20
 -static int wdt_disable(void)
--{
--	wdt_ctrl(0);
++static int wdt_stop(struct watchdog_device *wdog)
+ {
+-	wdt_set_time(0);
 -	return 0;
--}
--
++	return wdt_set_time(0);
+ }
+=20
 -static int wdt_set_heartbeat(int t)
--{
++static int wdt_set_timeout(struct watchdog_device *wdog, unsigned int ti=
+meout)
+ {
 -	if (t < 1 || t > 255)
 -		return -EINVAL;
--
 -	timeout =3D t;
--	return 0;
--}
++	wdt_set_time(timeout);
++	wdog->timeout =3D timeout;
++
+ 	return 0;
+ }
+=20
+-static int wdt_get_time(void)
++static unsigned int wdt_get_time(struct watchdog_device *wdog)
+ {
+-	int timeleft;
 -
+-	spin_lock(&io_lock);
++	unsigned int timeleft;
+=20
+ 	w83627hf_select_wd_register();
+-
+-	outb_p(0xF6, WDT_EFER);    /* Select CRF6 */
+-	timeleft =3D inb_p(WDT_EFDR); /* Read Timeout counter to CRF6 */
+-
++	outb_p(0xF6, WDT_EFER);
++	timeleft =3D inb(WDT_EFDR);
+ 	w83627hf_unselect_wd_register();
+=20
+-	spin_unlock(&io_lock);
+-
+ 	return timeleft;
+ }
+=20
 -static ssize_t wdt_write(struct file *file, const char __user *buf,
 -						size_t count, loff_t *ppos)
 -{
@@ -781,13 +205,12 @@ n",
 -{
 -	void __user *argp =3D (void __user *)arg;
 -	int __user *p =3D argp;
--	int new_timeout;
+-	int timeval;
 -	static const struct watchdog_info ident =3D {
--		.options =3D		WDIOF_KEEPALIVEPING |
--					WDIOF_SETTIMEOUT |
--					WDIOF_MAGICCLOSE,
--		.firmware_version =3D	1,
--		.identity =3D		"W83697UG WDT",
+-		.options =3D WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT |
+-							WDIOF_MAGICCLOSE,
+-		.firmware_version =3D 1,
+-		.identity =3D "W83627HF WDT",
 -	};
 -
 -	switch (cmd) {
@@ -795,46 +218,40 @@ n",
 -		if (copy_to_user(argp, &ident, sizeof(ident)))
 -			return -EFAULT;
 -		break;
--
 -	case WDIOC_GETSTATUS:
 -	case WDIOC_GETBOOTSTATUS:
 -		return put_user(0, p);
--
 -	case WDIOC_SETOPTIONS:
 -	{
 -		int options, retval =3D -EINVAL;
 -
 -		if (get_user(options, p))
 -			return -EFAULT;
--
 -		if (options & WDIOS_DISABLECARD) {
 -			wdt_disable();
 -			retval =3D 0;
 -		}
--
 -		if (options & WDIOS_ENABLECARD) {
 -			wdt_ping();
 -			retval =3D 0;
 -		}
--
 -		return retval;
 -	}
--
 -	case WDIOC_KEEPALIVE:
 -		wdt_ping();
 -		break;
--
 -	case WDIOC_SETTIMEOUT:
--		if (get_user(new_timeout, p))
+-		if (get_user(timeval, p))
 -			return -EFAULT;
--		if (wdt_set_heartbeat(new_timeout))
+-		if (wdt_set_heartbeat(timeval))
 -			return -EINVAL;
 -		wdt_ping();
 -		/* Fall */
--
 -	case WDIOC_GETTIMEOUT:
 -		return put_user(timeout, p);
--
+-	case WDIOC_GETTIMELEFT:
+-		timeval =3D wdt_get_time();
+-		return put_user(timeval, p);
 -	default:
 -		return -ENOTTY;
 -	}
@@ -866,24 +283,25 @@ n",
 -	return 0;
 -}
 -
--/*
-- *	Notifier for system down
-- */
+ /*
+  *	Notifier for system down
+  */
 -
--static int wdt_notify_sys(struct notifier_block *this, unsigned long cod=
+ static int wdt_notify_sys(struct notifier_block *this, unsigned long cod=
 e,
--	void *unused)
--{
--	if (code =3D=3D SYS_DOWN || code =3D=3D SYS_HALT)
+ 	void *unused)
+ {
+ 	if (code =3D=3D SYS_DOWN || code =3D=3D SYS_HALT)
 -		wdt_disable();	/* Turn the WDT off */
--
--	return NOTIFY_DONE;
--}
--
--/*
-- *	Kernel Interfaces
-- */
--
++		wdt_set_time(0);	/* Turn the WDT off */
+=20
+ 	return NOTIFY_DONE;
+ }
+@@ -314,19 +178,26 @@ static int wdt_notify_sys(struct notifier_block *th=
+is, unsigned long code,
+  *	Kernel Interfaces
+  */
+=20
 -static const struct file_operations wdt_fops =3D {
 -	.owner		=3D THIS_MODULE,
 -	.llseek		=3D no_llseek,
@@ -891,84 +309,95 @@ e,
 -	.unlocked_ioctl	=3D wdt_ioctl,
 -	.open		=3D wdt_open,
 -	.release	=3D wdt_close,
--};
--
++static struct watchdog_info wdt_info =3D {
++	.options =3D WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
++	.identity =3D "W83627HF Watchdog",
++};
++
++static struct watchdog_ops wdt_ops =3D {
++	.owner =3D THIS_MODULE,
++	.start =3D wdt_start,
++	.stop =3D wdt_stop,
++	.ping =3D wdt_start,
++	.set_timeout =3D wdt_set_timeout,
++	.get_timeleft =3D wdt_get_time,
+ };
+=20
 -static struct miscdevice wdt_miscdev =3D {
 -	.minor =3D WATCHDOG_MINOR,
 -	.name =3D "watchdog",
 -	.fops =3D &wdt_fops,
--};
--
--/*
-- *	The WDT needs to learn about soft shutdowns in order to
-- *	turn the timebomb registers off.
-- */
--
--static struct notifier_block wdt_notifier =3D {
--	.notifier_call =3D wdt_notify_sys,
--};
--
--static int __init wdt_init(void)
--{
--	int ret;
--
--	pr_info("WDT driver for the Winbond(TM) W83697UG/UF Super I/O chip init=
-ialising\n");
--
++static struct watchdog_device wdt_dev =3D {
++	.info =3D &wdt_info,
++	.ops =3D &wdt_ops,
++	.timeout =3D WATCHDOG_TIMEOUT,
++	.min_timeout =3D 1,
++	.max_timeout =3D 255,
+ };
+=20
+ /*
+@@ -341,19 +212,13 @@ static struct notifier_block wdt_notifier =3D {
+ static int __init wdt_init(void)
+ {
+ 	int ret;
++	bool nowayout =3D WATCHDOG_NOWAYOUT;
+=20
+ 	pr_info("WDT driver for the Winbond(TM) W83627HF/THF/HG/DHG Super I/O c=
+hip initialising\n");
+=20
 -	if (wdt_set_heartbeat(timeout)) {
 -		wdt_set_heartbeat(WATCHDOG_TIMEOUT);
--		pr_info("timeout value must be 1<=3Dtimeout<=3D255, using %d\n",
+-		pr_info("timeout value must be 1 <=3D timeout <=3D 255, using %d\n",
 -			WATCHDOG_TIMEOUT);
 -	}
 -
--	if (!request_region(wdt_io, 1, WATCHDOG_NAME)) {
--		pr_err("I/O address 0x%04x already in use\n", wdt_io);
+ 	if (!request_region(wdt_io, 1, WATCHDOG_NAME)) {
+ 		pr_err("I/O address 0x%04x already in use\n", wdt_io);
 -		ret =3D -EIO;
 -		goto out;
--	}
--
--	ret =3D w83697ug_init();
--	if (ret !=3D 0)
--		goto unreg_regions;
--
--	ret =3D register_reboot_notifier(&wdt_notifier);
--	if (ret !=3D 0) {
--		pr_err("cannot register reboot notifier (err=3D%d)\n", ret);
--		goto unreg_regions;
--	}
--
++		return -EIO;
+ 	}
+=20
+ 	w83627hf_init();
+@@ -364,28 +229,22 @@ static int __init wdt_init(void)
+ 		goto unreg_regions;
+ 	}
+=20
 -	ret =3D misc_register(&wdt_miscdev);
 -	if (ret !=3D 0) {
 -		pr_err("cannot register miscdev on minor=3D%d (err=3D%d)\n",
 -		       WATCHDOG_MINOR, ret);
--		goto unreg_reboot;
++	watchdog_set_nowayout(&wdt_dev, nowayout);
++	ret =3D watchdog_register_device(&wdt_dev);
++	if (ret)
+ 		goto unreg_reboot;
 -	}
 -
 -	pr_info("initialized. timeout=3D%d sec (nowayout=3D%d)\n",
 -		timeout, nowayout);
 -
 -out:
--	return ret;
--unreg_reboot:
--	unregister_reboot_notifier(&wdt_notifier);
--unreg_regions:
--	release_region(wdt_io, 1);
+ 	return ret;
++
+ unreg_reboot:
+ 	unregister_reboot_notifier(&wdt_notifier);
+ unreg_regions:
+ 	release_region(wdt_io, 1);
 -	goto out;
--}
--
--static void __exit wdt_exit(void)
--{
++	return ret;
+ }
+=20
+ static void __exit wdt_exit(void)
+ {
 -	misc_deregister(&wdt_miscdev);
--	unregister_reboot_notifier(&wdt_notifier);
--	release_region(wdt_io, 1);
--}
--
--module_init(wdt_init);
--module_exit(wdt_exit);
--
--MODULE_LICENSE("GPL");
--MODULE_AUTHOR("Flemming Frandsen <ff@nrvissing.net>");
--MODULE_DESCRIPTION("w83697ug/uf WDT driver");
++	watchdog_unregister_device(&wdt_dev);
+ 	unregister_reboot_notifier(&wdt_notifier);
+ 	release_region(wdt_io, 1);
+ }
+@@ -396,4 +255,3 @@ module_exit(wdt_exit);
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("P=C3=A1draig  Brady <P@draigBrady.com>");
+ MODULE_DESCRIPTION("w83627hf/thf WDT driver");
 -MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
 --=20
 1.7.9.7
