@@ -1,91 +1,86 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.126.186]:64629 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750990Ab3CDGyd (ORCPT
+Received: from mail.active-venture.com ([67.228.131.205]:55098 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933241Ab3CEEyd (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 4 Mar 2013 01:54:33 -0500
-Date: Mon, 4 Mar 2013 07:54:23 +0100
-From: Thierry Reding <thierry.reding@avionic-design.de>
-To: Sachin Kamat <sachin.kamat@linaro.org>
-Cc: linux-watchdog@vger.kernel.org, wim@iguana.be,
-	Paul Mundt <lethal@linux-sh.org>
-Subject: Re: [PATCH 4/4] watchdog: shwdt: Convert to devm_ioremap_resource()
-Message-ID: <20130304065423.GD16261@avionic-0098.mockup.avionic-design.de>
-References: <1362373604-26771-1-git-send-email-sachin.kamat@linaro.org>
- <1362373604-26771-4-git-send-email-sachin.kamat@linaro.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bajzpZikUji1w+G9"
-Content-Disposition: inline
-In-Reply-To: <1362373604-26771-4-git-send-email-sachin.kamat@linaro.org>
+	Mon, 4 Mar 2013 23:54:33 -0500
+From: Guenter Roeck <linux@roeck-us.net>
+To: linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
+	Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 2/8] watchdog: w83627hf: Enable watchdog only once
+Date: Mon,  4 Mar 2013 20:54:13 -0800
+Message-Id: <1362459259-9733-3-git-send-email-linux@roeck-us.net>
+In-Reply-To: <1362459259-9733-1-git-send-email-linux@roeck-us.net>
+References: <1362459259-9733-1-git-send-email-linux@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+It is unnecessary to enable the logical device and WDT0 each time
+the watchdog is accessed. Do it only once during initialization.
 
---bajzpZikUji1w+G9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+ drivers/watchdog/w83627hf_wdt.c |   35 +++++++++++++++++------------------
+ 1 file changed, 17 insertions(+), 18 deletions(-)
 
-On Mon, Mar 04, 2013 at 10:36:44AM +0530, Sachin Kamat wrote:
-> Use the newly introduced devm_ioremap_resource() instead of
-> devm_request_and_ioremap() which provides more consistent error handling.
->=20
-> devm_ioremap_resource() provides its own error messages; so all explicit
-> error messages can be removed from the failure code paths.
->=20
-> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
-> Cc: Paul Mundt <lethal@linux-sh.org>
-> ---
->  drivers/watchdog/shwdt.c |    7 ++++---
->  1 files changed, 4 insertions(+), 3 deletions(-)
->=20
-> diff --git a/drivers/watchdog/shwdt.c b/drivers/watchdog/shwdt.c
-> index 6a89e40..6185af2 100644
-> --- a/drivers/watchdog/shwdt.c
-> +++ b/drivers/watchdog/shwdt.c
-> @@ -34,6 +34,7 @@
->  #include <linux/slab.h>
->  #include <linux/io.h>
->  #include <linux/clk.h>
-> +#include <linux/err.h>
->  #include <asm/watchdog.h>
-> =20
->  #define DRV_NAME "sh-wdt"
-> @@ -249,9 +250,9 @@ static int sh_wdt_probe(struct platform_device *pdev)
->  		wdt->clk =3D NULL;
->  	}
-> =20
-> -	wdt->base =3D devm_request_and_ioremap(wdt->dev, res);
-> -	if (unlikely(!wdt->base)) {
-> -		rc =3D -EADDRNOTAVAIL;
-> +	wdt->base =3D devm_ioremap_resource(wdt->dev, res);
-> +	if (IS_ERR(wdt->base)) {
-> +		rc =3D PTR_ERR(wdt->base);
->  		goto err;
->  	}
+diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
+index cd82a47..98a4fd0 100644
+--- a/drivers/watchdog/w83627hf_wdt.c
++++ b/drivers/watchdog/w83627hf_wdt.c
+@@ -60,28 +60,10 @@ MODULE_PARM_DESC(wdt_io, "w83627hf/thf WDT io port (default 0x2E)");
+ 
+ static void w83627hf_select_wd_register(void)
+ {
+-	unsigned char c;
+ 	outb_p(0x87, WDT_EFER); /* Enter extended function mode */
+ 	outb_p(0x87, WDT_EFER); /* Again according to manual */
+-
+-	outb(0x20, WDT_EFER);	/* check chip version	*/
+-	c = inb(WDT_EFDR);
+-	if (c == 0x82) {	/* W83627THF		*/
+-		outb_p(0x2b, WDT_EFER); /* select GPIO3 */
+-		c = ((inb_p(WDT_EFDR) & 0xf7) | 0x04); /* select WDT0 */
+-		outb_p(0x2b, WDT_EFER);
+-		outb_p(c, WDT_EFDR);	/* set GPIO3 to WDT0 */
+-	} else if (c == 0x88 || c == 0xa0) {	/* W83627EHF / W83627DHG */
+-		outb_p(0x2d, WDT_EFER); /* select GPIO5 */
+-		c = inb_p(WDT_EFDR) & ~0x01; /* PIN77 -> WDT0# */
+-		outb_p(0x2d, WDT_EFER);
+-		outb_p(c, WDT_EFDR); /* set GPIO5 to WDT0 */
+-	}
+-
+ 	outb_p(0x07, WDT_EFER); /* point to logical device number reg */
+ 	outb_p(0x08, WDT_EFDR); /* select logical device 8 (GPIO2) */
+-	outb_p(0x30, WDT_EFER); /* select CR30 */
+-	outb_p(0x01, WDT_EFDR); /* set bit 0 to activate GPIO2 */
+ }
+ 
+ static void w83627hf_unselect_wd_register(void)
+@@ -98,6 +80,23 @@ static void w83627hf_init(void)
+ 
+ 	w83627hf_select_wd_register();
+ 
++	outb(0x20, WDT_EFER);	/* check chip version	*/
++	t = inb(WDT_EFDR);
++	if (t == 0x82) {	/* W83627THF		*/
++		outb_p(0x2b, WDT_EFER); /* select GPIO3 */
++		t = ((inb_p(WDT_EFDR) & 0xf7) | 0x04); /* select WDT0 */
++		outb_p(0x2b, WDT_EFER);
++		outb_p(t, WDT_EFDR);	/* set GPIO3 to WDT0 */
++	} else if (t == 0x88 || t == 0xa0) {	/* W83627EHF / W83627DHG */
++		outb_p(0x2d, WDT_EFER); /* select GPIO5 */
++		t = inb_p(WDT_EFDR) & ~0x01; /* PIN77 -> WDT0# */
++		outb_p(0x2d, WDT_EFER);
++		outb_p(t, WDT_EFDR); /* set GPIO5 to WDT0 */
++	}
++
++	outb_p(0x30, WDT_EFER); /* select CR30 */
++	outb_p(0x01, WDT_EFDR); /* set bit 0 to activate GPIO2 */
++
+ 	outb_p(0xF6, WDT_EFER); /* Select CRF6 */
+ 	t = inb_p(WDT_EFDR);      /* read CRF6 */
+ 	if (t != 0) {
+-- 
+1.7.9.7
 
-Reviewed-by: Thierry Reding <thierry.reding@avionic-design.de>
-
---bajzpZikUji1w+G9
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.19 (GNU/Linux)
-
-iQIcBAEBAgAGBQJRNEUfAAoJEN0jrNd/PrOhXu4P/3LVDHyuliSseoEwkSC+QPFN
-VJ2Qn/dxZmAbnqk0yK8mlJQNtvVtoeXumPuS2Q3DzZYISn6ioHAG64M+qNqG1YH1
-Zfg5bHkiGjr34psgVNuuwpXSqcukMAS2tJSTwdUN0it3YbhnT1Ef2WwD2YM9Hb9a
-JFXB5AQoEbQPepkHGTgVDVg6/oVJBqE7mE0wVl/NDQHD6AP5nYt2gYdQ+ZjDu+U+
-uB0EaIyJiIj4SoAZVPq1VhUdL6HbPVH24KZdkPWHCgxyMPKMehjRujWs7Z1Ag6gQ
-C6Gd2ekoR0pMHr/d2EbzrzDySqfJiXzZodK0suwaqyfGeDofEXSa2QsTyueXB4s0
-qObPAq072h69VVF6Sioz+O9nrkjnwBa7T/3tu701BjGSPYSvg1R7pitdvyleqL9T
-d2FDk0zFybxCuOmKR64fScpT0TkzsdFrgyRwWsiwpTw2U9Xrqy2M093p5MjPIGaI
-nzATyknb+04M1cP17fuxCqtSkHcdWdNgnx81t9u9kErbiuOJ2H4OxzO+uSgy4Usz
-gge0Kr/gPRhw1IbMnpkBrHUh+sGuC/nVUwGYXiTL9AXKnrHFy49ZlGkRFBnxhnlO
-mDgCiqtEAO5ne5xOsrcAYSOL4OU+pLsal+2hcKPVASHQOtrn/U7fTwx5B4mLVCwC
-JRghkJStYN+qWDMAUdHE
-=27gr
------END PGP SIGNATURE-----
-
---bajzpZikUji1w+G9--
