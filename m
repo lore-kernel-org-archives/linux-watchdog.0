@@ -1,23 +1,23 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailout1.samsung.com ([203.254.224.24]:16277 "EHLO
-	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750816Ab3CFJCK (ORCPT
+Received: from mailout2.samsung.com ([203.254.224.25]:35647 "EHLO
+	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750816Ab3CFJCw (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 6 Mar 2013 04:02:10 -0500
-Received: from epcpsbgr5.samsung.com
- (u145.gpu120.samsung.co.kr [203.254.230.145])
- by mailout1.samsung.com (Oracle Communications Messaging Server 7u4-24.01
+	Wed, 6 Mar 2013 04:02:52 -0500
+Received: from epcpsbgr3.samsung.com
+ (u143.gpu120.samsung.co.kr [203.254.230.143])
+ by mailout2.samsung.com (Oracle Communications Messaging Server 7u4-24.01
  (7.0.4.24.0) 64bit (built Nov 17 2011))
- with ESMTP id <0MJ80057LEFLLGK0@mailout1.samsung.com> for
- linux-watchdog@vger.kernel.org; Wed, 06 Mar 2013 18:02:09 +0900 (KST)
+ with ESMTP id <0MJ8006DTEGPN3V0@mailout2.samsung.com> for
+ linux-watchdog@vger.kernel.org; Wed, 06 Mar 2013 18:02:49 +0900 (KST)
 From: Jingoo Han <jg1.han@samsung.com>
 To: 'Wim Van Sebroeck' <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org, 'Jingoo Han' <jg1.han@samsung.com>
 References: <00a801ce1a49$247141a0$6d53c4e0$%han@samsung.com>
 In-reply-to: <00a801ce1a49$247141a0$6d53c4e0$%han@samsung.com>
-Subject: [PATCH 3/5] watchdog: pnx4008_wdt: use devm_clk_get()
-Date: Wed, 06 Mar 2013 18:02:09 +0900
-Message-id: <00aa01ce1a49$488343e0$d989cba0$%han@samsung.com>
+Subject: [PATCH 4/5] watchdog: shwdt: use devm_clk_get()
+Date: Wed, 06 Mar 2013 18:02:48 +0900
+Message-id: <00ab01ce1a49$5ffe5000$1ffaf000$%han@samsung.com>
 MIME-version: 1.0
 Content-type: text/plain; charset=us-ascii
 Content-transfer-encoding: 7bit
@@ -29,43 +29,61 @@ Use devm_clk_get() to make cleanup paths more simple.
 
 Signed-off-by: Jingoo Han <jg1.han@samsung.com>
 ---
- drivers/watchdog/pnx4008_wdt.c |    7 ++-----
- 1 files changed, 2 insertions(+), 5 deletions(-)
+ drivers/watchdog/shwdt.c |   16 ++++------------
+ 1 files changed, 4 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
-index a3684a3..b30bd43 100644
---- a/drivers/watchdog/pnx4008_wdt.c
-+++ b/drivers/watchdog/pnx4008_wdt.c
-@@ -159,13 +159,13 @@ static int pnx4008_wdt_probe(struct platform_device *pdev)
- 	if (IS_ERR(wdt_base))
- 		return PTR_ERR(wdt_base);
+diff --git a/drivers/watchdog/shwdt.c b/drivers/watchdog/shwdt.c
+index 6a89e40..e5fe555 100644
+--- a/drivers/watchdog/shwdt.c
++++ b/drivers/watchdog/shwdt.c
+@@ -240,7 +240,7 @@ static int sh_wdt_probe(struct platform_device *pdev)
  
--	wdt_clk = clk_get(&pdev->dev, NULL);
-+	wdt_clk = devm_clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(wdt_clk))
- 		return PTR_ERR(wdt_clk);
+ 	wdt->dev = &pdev->dev;
  
- 	ret = clk_enable(wdt_clk);
- 	if (ret)
--		goto out;
-+		return ret;
+-	wdt->clk = clk_get(&pdev->dev, NULL);
++	wdt->clk = devm_clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(wdt->clk)) {
+ 		/*
+ 		 * Clock framework support is optional, continue on
+@@ -250,10 +250,8 @@ static int sh_wdt_probe(struct platform_device *pdev)
+ 	}
  
- 	pnx4008_wdd.bootstatus = (readl(WDTIM_RES(wdt_base)) & WDOG_RESET) ?
- 			WDIOF_CARDRESET : 0;
-@@ -186,8 +186,6 @@ static int pnx4008_wdt_probe(struct platform_device *pdev)
+ 	wdt->base = devm_request_and_ioremap(wdt->dev, res);
+-	if (unlikely(!wdt->base)) {
+-		rc = -EADDRNOTAVAIL;
+-		goto err;
+-	}
++	if (unlikely(!wdt->base))
++		return -EADDRNOTAVAIL;
  
- disable_clk:
- 	clk_disable(wdt_clk);
--out:
--	clk_put(wdt_clk);
- 	return ret;
+ 	watchdog_set_nowayout(&sh_wdt_dev, nowayout);
+ 	watchdog_set_drvdata(&sh_wdt_dev, wdt);
+@@ -276,7 +274,7 @@ static int sh_wdt_probe(struct platform_device *pdev)
+ 	rc = watchdog_register_device(&sh_wdt_dev);
+ 	if (unlikely(rc)) {
+ 		dev_err(&pdev->dev, "Can't register watchdog (err=%d)\n", rc);
+-		goto err;
++		return rc;
+ 	}
+ 
+ 	init_timer(&wdt->timer);
+@@ -291,11 +289,6 @@ static int sh_wdt_probe(struct platform_device *pdev)
+ 	pm_runtime_enable(&pdev->dev);
+ 
+ 	return 0;
+-
+-err:
+-	clk_put(wdt->clk);
+-
+-	return rc;
  }
  
-@@ -196,7 +194,6 @@ static int pnx4008_wdt_remove(struct platform_device *pdev)
- 	watchdog_unregister_device(&pnx4008_wdd);
+ static int sh_wdt_remove(struct platform_device *pdev)
+@@ -307,7 +300,6 @@ static int sh_wdt_remove(struct platform_device *pdev)
+ 	watchdog_unregister_device(&sh_wdt_dev);
  
- 	clk_disable(wdt_clk);
--	clk_put(wdt_clk);
+ 	pm_runtime_disable(&pdev->dev);
+-	clk_put(wdt->clk);
  
  	return 0;
  }
