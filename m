@@ -1,8 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from slimlogic.co.uk ([89.16.172.20]:60877 "EHLO slimlogic.co.uk"
+Received: from slimlogic.co.uk ([89.16.172.20]:60812 "EHLO slimlogic.co.uk"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932826Ab3CGNS1 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 7 Mar 2013 08:18:27 -0500
+	id S932739Ab3CGNSY (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 7 Mar 2013 08:18:24 -0500
 From: Ian Lartey <ian@slimlogic.co.uk>
 To: linux-kernel@vger.kernel.org
 Cc: linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
@@ -13,50 +13,96 @@ Cc: linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
 	cooloney@gmail.com, rpurdie@rpsys.net, sameo@linux.intel.com,
 	wim@iguana.be, lgirdwood@gmail.com, gg@slimlogic.co.uk,
 	j-keerthy@ti.com, ldewangan@nvidia.com, t-kristo@ti.com
-Subject: [PATCH v8 08/12] gpio: palmas: Enable DT support for palmas gpio.
-Date: Thu,  7 Mar 2013 13:17:52 +0000
-Message-Id: <1362662276-20792-8-git-send-email-ian@slimlogic.co.uk>
+Subject: [PATCH v8 04/12] regulator: palmas correct dt parsing
+Date: Thu,  7 Mar 2013 13:17:48 +0000
+Message-Id: <1362662276-20792-4-git-send-email-ian@slimlogic.co.uk>
 In-Reply-To: <1362662276-20792-1-git-send-email-ian@slimlogic.co.uk>
 References: <1362662276-20792-1-git-send-email-ian@slimlogic.co.uk>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: J Keerthy <j-keerthy@ti.com>
+From: Graeme Gregory <gg@slimlogic.co.uk>
 
-Enable DT support for palmas gpio.
+Fix the DT parsing to agree with the bindings document. Some small changes
+to the value names and also fix the handling of boolean values. They were
+previously using prop = 1/0, now just use of_property_read_bool calls.
 
-Signed-off-by: J Keerthy <j-keerthy@ti.com>
+Signed-off-by: Graeme Gregory <gg@slimlogic.co.uk>
 ---
- drivers/gpio/gpio-palmas.c |   13 +++++++++++++
- 1 files changed, 13 insertions(+), 0 deletions(-)
+ drivers/regulator/palmas-regulator.c |   36 ++++++++++++++++++---------------
+ 1 files changed, 20 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/gpio/gpio-palmas.c b/drivers/gpio/gpio-palmas.c
-index 636648c..04da57a 100644
---- a/drivers/gpio/gpio-palmas.c
-+++ b/drivers/gpio/gpio-palmas.c
-@@ -208,9 +208,22 @@ static int palmas_gpio_remove(struct platform_device *pdev)
- 	return gpiochip_remove(&palmas_gpio->gpio_chip);
+diff --git a/drivers/regulator/palmas-regulator.c b/drivers/regulator/palmas-regulator.c
+index 8a716a9..b2b1baa 100644
+--- a/drivers/regulator/palmas-regulator.c
++++ b/drivers/regulator/palmas-regulator.c
+@@ -1,7 +1,7 @@
+ /*
+  * Driver for Regulator part of Palmas PMIC Chips
+  *
+- * Copyright 2011-2012 Texas Instruments Inc.
++ * Copyright 2011-2013 Texas Instruments Inc.
+  *
+  * Author: Graeme Gregory <gg@slimlogic.co.uk>
+  * Author: Ian Lartey <ian@slimlogic.co.uk>
+@@ -553,15 +553,13 @@ static void palmas_dt_to_pdata(struct device *dev,
+ 		pdata->reg_init[idx] = devm_kzalloc(dev,
+ 				sizeof(struct palmas_reg_init), GFP_KERNEL);
+ 
+-		ret = of_property_read_u32(palmas_matches[idx].of_node,
+-				"ti,warm-reset", &prop);
+-		if (!ret)
+-			pdata->reg_init[idx]->warm_reset = prop;
++		pdata->reg_init[idx]->warm_reset =
++			of_property_read_u32(palmas_matches[idx].of_node,
++					     "ti,warm-reset", &prop);
+ 
+-		ret = of_property_read_u32(palmas_matches[idx].of_node,
+-				"ti,roof-floor", &prop);
+-		if (!ret)
+-			pdata->reg_init[idx]->roof_floor = prop;
++		pdata->reg_init[idx]->roof_floor =
++			of_property_read_bool(palmas_matches[idx].of_node,
++					      "ti,roof-floor");
+ 
+ 		ret = of_property_read_u32(palmas_matches[idx].of_node,
+ 				"ti,mode-sleep", &prop);
+@@ -573,15 +571,14 @@ static void palmas_dt_to_pdata(struct device *dev,
+ 		if (!ret)
+ 			pdata->reg_init[idx]->tstep = prop;
+ 
+-		ret = of_property_read_u32(palmas_matches[idx].of_node,
+-				"ti,vsel", &prop);
+-		if (!ret)
+-			pdata->reg_init[idx]->vsel = prop;
++		ret = of_property_read_bool(palmas_matches[idx].of_node,
++					    "ti,smps-range");
++		if (ret)
++			pdata->reg_init[idx]->vsel =
++				PALMAS_SMPS12_VOLTAGE_RANGE;
+ 	}
+ 
+-	ret = of_property_read_u32(node, "ti,ldo6-vibrator", &prop);
+-	if (!ret)
+-		pdata->ldo6_vibrator = prop;
++	pdata->ldo6_vibrator = of_property_read_bool(node, "ti,ldo6-vibrator");
  }
  
-+static struct of_device_id of_palmas_match_tbl[] = {
-+	{ .compatible = "ti,palmas-gpio", },
-+	{ .compatible = "ti,palmas-charger-gpio", },
-+	{ .compatible = "ti,twl6035-gpio", },
-+	{ .compatible = "ti,twl6036-gpio", },
-+	{ .compatible = "ti,twl6037-gpio", },
-+	{ .compatible = "ti,tps65913-gpio", },
-+	{ .compatible = "ti,tps65914-gpio", },
-+	{ .compatible = "ti,tps80036-gpio", },
-+	{ /* end */ }
-+};
-+
- static struct platform_driver palmas_gpio_driver = {
- 	.driver.name	= "palmas-gpio",
- 	.driver.owner	= THIS_MODULE,
-+	.driver.of_match_table = of_palmas_match_tbl,
- 	.probe		= palmas_gpio_probe,
- 	.remove		= palmas_gpio_remove,
+ 
+@@ -806,6 +803,13 @@ static int palmas_remove(struct platform_device *pdev)
+ 
+ static struct of_device_id of_palmas_match_tbl[] = {
+ 	{ .compatible = "ti,palmas-pmic", },
++	{ .compatible = "ti,palmas-charger-pmic", },
++	{ .compatible = "ti,twl6035-pmic", },
++	{ .compatible = "ti,twl6036-pmic", },
++	{ .compatible = "ti,twl6037-pmic", },
++	{ .compatible = "ti,tps65913-pmic", },
++	{ .compatible = "ti,tps65914-pmic", },
++	{ .compatible = "ti,tps80036-pmic", },
+ 	{ /* end */ }
  };
+ 
 -- 
 1.7.0.4
 
