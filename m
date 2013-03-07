@@ -1,98 +1,69 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-lb0-f174.google.com ([209.85.217.174]:33598 "EHLO
-	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751226Ab3CGMRe convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 7 Mar 2013 07:17:34 -0500
-MIME-Version: 1.0
-In-Reply-To: <1362301836.13011.8.camel@mattotaupa>
-References: <1362289680-3527-1-git-send-email-mc74hc00@gmail.com>
-	<1362301836.13011.8.camel@mattotaupa>
-Date: Thu, 7 Mar 2013 21:17:32 +0900
-Message-ID: <CAHh0gOgCr2Hnj4JvK1DBXQ58Lb3o5D_beptfVDTXzbRFf676Fw@mail.gmail.com>
-Subject: Re: [PATCH v2] sp5100_tco: Set the AcpiMmioSel bitmask value to 1
- instead of 2
-From: Tanaka Takahisa <mc74hc00@gmail.com>
-To: Paul Menzel <paulepanter@users.sourceforge.net>
-Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	Arkadiusz Miskiewicz <arekm@maven.pl>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Jonathan Nieder <jrnieder@gmail.com>,
-	linux-kernel@vger.kernel.org,
-	Florian Mickler <florian@mickler.org>,
-	Joseph Salisbury <joseph.salisbury@canonical.com>,
-	Joseph Salisbury <josephtsalisbury@gmail.com>
-Content-Type: text/plain; charset=windows-1252
+Received: from slimlogic.co.uk ([89.16.172.20]:60784 "EHLO slimlogic.co.uk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932599Ab3CGNSW (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 7 Mar 2013 08:18:22 -0500
+From: Ian Lartey <ian@slimlogic.co.uk>
+To: linux-kernel@vger.kernel.org
+Cc: linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-leds@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	swarren@wwwdotorg.org, grant.likely@secretlab.ca,
+	broonie@opensource.wolfsonmicro.com, rob.herring@calxeda.com,
+	rob@landley.net, mturquette@linaro.org, linus.walleij@linaro.org,
+	cooloney@gmail.com, rpurdie@rpsys.net, sameo@linux.intel.com,
+	wim@iguana.be, lgirdwood@gmail.com, gg@slimlogic.co.uk,
+	j-keerthy@ti.com, ldewangan@nvidia.com, t-kristo@ti.com,
+	Ian Lartey <ian@slimlogic.co.uk>
+Subject: [PATCH v8 02/12] mfd: palmas: is_palmas_charger needed by multiple drivers
+Date: Thu,  7 Mar 2013 13:17:46 +0000
+Message-Id: <1362662276-20792-2-git-send-email-ian@slimlogic.co.uk>
+In-Reply-To: <1362662276-20792-1-git-send-email-ian@slimlogic.co.uk>
+References: <1362662276-20792-1-git-send-email-ian@slimlogic.co.uk>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-Hi Paul,
+is_palmas_charger checks for the presence of charging
+functionality in the device
 
-2013/3/3 Paul Menzel <paulepanter@users.sourceforge.net>:
-> From: Takahisa Tanaka <mc74hc00@gmail.com>
-> Date: Sun, 3 Mar 2013 14:48:00 +0900
->
-> The AcpiMmioSel bit is bit 1 in the AcpiMmioEn register, but the curren=
-t
-> sp5100_tco driver is using bit 2.
->
-> See 2.3.3 Power Management (PM) Registers page 150 of the
-> AMD SB800-Series Southbridges Register Reference Guide [1].
->
->         AcpiMmioEn - RW =96 8/16/32 bits - [PM_Reg: 24h]
->         Field Name        Bits  Default  Description
->         AcpiMMioDecodeEn  0     0b       Set to 1 to enable AcpiMMio sp=
-ace.
->         AcpiMMIoSel       1     0b       Set AcpiMMio registers to be m=
-emory-mapped or IO-mapped space.
->                                          0: Memory-mapped space
->                                          1: I/O-mapped space
->
-> The sp5100_tco driver expects zero as a value of AcpiMmioSel (bit 1).
->
-> Fortunately, no problems were caused by this typo, because the default
-> value of the undocumented misused bit 2 seems to be zero.
->
-> However, the sp5100_tco driver should use the correct bitmask value.
->
-> [1] http://support.amd.com/us/Embedded_TechDocs/45482.pdf
->
-> Signed-off-by: Takahisa Tanaka <mc74hc00@gmail.com>
-> CC: stable@vger.kernel.org
-> Signed-off-by: Paul Menzel <paulepanter@users.sourceforge.net>
-> ---
-> v2: Hopefully improved the commit message.
->
->  drivers/watchdog/sp5100_tco.h |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/watchdog/sp5100_tco.h b/drivers/watchdog/sp5100_tc=
-o.h
-> index 71594a0..2b28c00 100644
-> --- a/drivers/watchdog/sp5100_tco.h
-> +++ b/drivers/watchdog/sp5100_tco.h
-> @@ -57,7 +57,7 @@
->  #define SB800_PM_WATCHDOG_DISABLE      (1 << 2)
->  #define SB800_PM_WATCHDOG_SECOND_RES   (3 << 0)
->  #define SB800_ACPI_MMIO_DECODE_EN      (1 << 0)
-> -#define SB800_ACPI_MMIO_SEL            (1 << 2)
-> +#define SB800_ACPI_MMIO_SEL            (1 << 1)
->
->
->  #define SB800_PM_WDT_MMIO_OFFSET       0xB00
-> --
-> 1.7.10.4
+Signed-off-by: Graeme Gregory <gg@slimlogic.co.uk>
+Signed-off-by: Ian Lartey <ian@slimlogic.co.uk>
+Acked-by: Laxman Dewangani <ldewangan@nvidia.com>
+---
+ include/linux/mfd/palmas.h |   12 +++++++++++-
+ 1 files changed, 11 insertions(+), 1 deletions(-)
 
-I'm sorry for late reply.
-Thank you for improving the commit log.
+diff --git a/include/linux/mfd/palmas.h b/include/linux/mfd/palmas.h
+index a4d13d7..f66ef32 100644
+--- a/include/linux/mfd/palmas.h
++++ b/include/linux/mfd/palmas.h
+@@ -1,9 +1,10 @@
+ /*
+  * TI Palmas
+  *
+- * Copyright 2011 Texas Instruments Inc.
++ * Copyright 2011-2013 Texas Instruments Inc.
+  *
+  * Author: Graeme Gregory <gg@slimlogic.co.uk>
++ * Author: Ian Lartey <ian@slimlogic.co.uk>
+  *
+  *  This program is free software; you can redistribute it and/or modify it
+  *  under  the terms of the GNU General  Public License as published by the
+@@ -22,6 +23,15 @@
+ 
+ #define PALMAS_NUM_CLIENTS		3
+ 
++/* The ID_REVISION NUMBERS */
++#define PALMAS_CHIP_OLD_ID		0x0000
++#define PALMAS_CHIP_ID			0xC035
++#define PALMAS_CHIP_CHARGER_ID		0xC036
++
++#define is_palmas(a)	(((a) == PALMAS_CHIP_OLD_ID) || \
++			((a) == PALMAS_CHIP_ID))
++#define is_palmas_charger(a) ((a) == PALMAS_CHIP_CHARGER_ID)
++
+ struct palmas_pmic;
+ struct palmas_gpadc;
+ struct palmas_resource;
+-- 
+1.7.0.4
 
-
-Regards,
-Takahisa
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
