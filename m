@@ -1,76 +1,98 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailout1.samsung.com ([203.254.224.24]:16516 "EHLO
-	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755288Ab3CFJDU (ORCPT
+Received: from mail-lb0-f174.google.com ([209.85.217.174]:33598 "EHLO
+	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751226Ab3CGMRe convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 6 Mar 2013 04:03:20 -0500
-Received: from epcpsbgr1.samsung.com
- (u141.gpu120.samsung.co.kr [203.254.230.141])
- by mailout1.samsung.com (Oracle Communications Messaging Server 7u4-24.01
- (7.0.4.24.0) 64bit (built Nov 17 2011))
- with ESMTP id <0MJ80058NEGRLGK0@mailout1.samsung.com> for
- linux-watchdog@vger.kernel.org; Wed, 06 Mar 2013 18:03:19 +0900 (KST)
-From: Jingoo Han <jg1.han@samsung.com>
-To: 'Wim Van Sebroeck' <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org, 'Jingoo Han' <jg1.han@samsung.com>
-References: <00a801ce1a49$247141a0$6d53c4e0$%han@samsung.com>
-In-reply-to: <00a801ce1a49$247141a0$6d53c4e0$%han@samsung.com>
-Subject: [PATCH 5/5] watchdog: sp805_wdt: use devm_clk_get()
-Date: Wed, 06 Mar 2013 18:03:19 +0900
-Message-id: <00ac01ce1a49$72389a50$56a9cef0$%han@samsung.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-language: ko
+	Thu, 7 Mar 2013 07:17:34 -0500
+MIME-Version: 1.0
+In-Reply-To: <1362301836.13011.8.camel@mattotaupa>
+References: <1362289680-3527-1-git-send-email-mc74hc00@gmail.com>
+	<1362301836.13011.8.camel@mattotaupa>
+Date: Thu, 7 Mar 2013 21:17:32 +0900
+Message-ID: <CAHh0gOgCr2Hnj4JvK1DBXQ58Lb3o5D_beptfVDTXzbRFf676Fw@mail.gmail.com>
+Subject: Re: [PATCH v2] sp5100_tco: Set the AcpiMmioSel bitmask value to 1
+ instead of 2
+From: Tanaka Takahisa <mc74hc00@gmail.com>
+To: Paul Menzel <paulepanter@users.sourceforge.net>
+Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+	Arkadiusz Miskiewicz <arekm@maven.pl>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Jonathan Nieder <jrnieder@gmail.com>,
+	linux-kernel@vger.kernel.org,
+	Florian Mickler <florian@mickler.org>,
+	Joseph Salisbury <joseph.salisbury@canonical.com>,
+	Joseph Salisbury <josephtsalisbury@gmail.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-Use devm_clk_get() to make cleanup paths more simple.
+Hi Paul,
 
-Signed-off-by: Jingoo Han <jg1.han@samsung.com>
----
- drivers/watchdog/sp805_wdt.c |    7 ++-----
- 1 files changed, 2 insertions(+), 5 deletions(-)
+2013/3/3 Paul Menzel <paulepanter@users.sourceforge.net>:
+> From: Takahisa Tanaka <mc74hc00@gmail.com>
+> Date: Sun, 3 Mar 2013 14:48:00 +0900
+>
+> The AcpiMmioSel bit is bit 1 in the AcpiMmioEn register, but the curren=
+t
+> sp5100_tco driver is using bit 2.
+>
+> See 2.3.3 Power Management (PM) Registers page 150 of the
+> AMD SB800-Series Southbridges Register Reference Guide [1].
+>
+>         AcpiMmioEn - RW =96 8/16/32 bits - [PM_Reg: 24h]
+>         Field Name        Bits  Default  Description
+>         AcpiMMioDecodeEn  0     0b       Set to 1 to enable AcpiMMio sp=
+ace.
+>         AcpiMMIoSel       1     0b       Set AcpiMMio registers to be m=
+emory-mapped or IO-mapped space.
+>                                          0: Memory-mapped space
+>                                          1: I/O-mapped space
+>
+> The sp5100_tco driver expects zero as a value of AcpiMmioSel (bit 1).
+>
+> Fortunately, no problems were caused by this typo, because the default
+> value of the undocumented misused bit 2 seems to be zero.
+>
+> However, the sp5100_tco driver should use the correct bitmask value.
+>
+> [1] http://support.amd.com/us/Embedded_TechDocs/45482.pdf
+>
+> Signed-off-by: Takahisa Tanaka <mc74hc00@gmail.com>
+> CC: stable@vger.kernel.org
+> Signed-off-by: Paul Menzel <paulepanter@users.sourceforge.net>
+> ---
+> v2: Hopefully improved the commit message.
+>
+>  drivers/watchdog/sp5100_tco.h |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/watchdog/sp5100_tco.h b/drivers/watchdog/sp5100_tc=
+o.h
+> index 71594a0..2b28c00 100644
+> --- a/drivers/watchdog/sp5100_tco.h
+> +++ b/drivers/watchdog/sp5100_tco.h
+> @@ -57,7 +57,7 @@
+>  #define SB800_PM_WATCHDOG_DISABLE      (1 << 2)
+>  #define SB800_PM_WATCHDOG_SECOND_RES   (3 << 0)
+>  #define SB800_ACPI_MMIO_DECODE_EN      (1 << 0)
+> -#define SB800_ACPI_MMIO_SEL            (1 << 2)
+> +#define SB800_ACPI_MMIO_SEL            (1 << 1)
+>
+>
+>  #define SB800_PM_WDT_MMIO_OFFSET       0xB00
+> --
+> 1.7.10.4
 
-diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
-index 8872642..58df98a 100644
---- a/drivers/watchdog/sp805_wdt.c
-+++ b/drivers/watchdog/sp805_wdt.c
-@@ -231,7 +231,7 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
- 		goto err;
- 	}
- 
--	wdt->clk = clk_get(&adev->dev, NULL);
-+	wdt->clk = devm_clk_get(&adev->dev, NULL);
- 	if (IS_ERR(wdt->clk)) {
- 		dev_warn(&adev->dev, "Clock not found\n");
- 		ret = PTR_ERR(wdt->clk);
-@@ -251,15 +251,13 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
- 	if (ret) {
- 		dev_err(&adev->dev, "watchdog_register_device() failed: %d\n",
- 				ret);
--		goto err_register;
-+		goto err;
- 	}
- 	amba_set_drvdata(adev, wdt);
- 
- 	dev_info(&adev->dev, "registration successful\n");
- 	return 0;
- 
--err_register:
--	clk_put(wdt->clk);
- err:
- 	dev_err(&adev->dev, "Probe Failed!!!\n");
- 	return ret;
-@@ -272,7 +270,6 @@ static int sp805_wdt_remove(struct amba_device *adev)
- 	watchdog_unregister_device(&wdt->wdd);
- 	amba_set_drvdata(adev, NULL);
- 	watchdog_set_drvdata(&wdt->wdd, NULL);
--	clk_put(wdt->clk);
- 
- 	return 0;
- }
--- 
-1.7.2.5
+I'm sorry for late reply.
+Thank you for improving the commit log.
 
 
+Regards,
+Takahisa
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
