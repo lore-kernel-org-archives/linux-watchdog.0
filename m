@@ -1,67 +1,60 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:58126 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S933454Ab3CHJp0 (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 8 Mar 2013 04:45:26 -0500
-Date: Fri, 8 Mar 2013 17:44:46 +0800
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-To: Ian Lartey <ian@slimlogic.co.uk>
-Cc: linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-leds@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, swarren@wwwdotorg.org,
-	grant.likely@secretlab.ca, rob.herring@calxeda.com,
-	rob@landley.net, mturquette@linaro.org, linus.walleij@linaro.org,
-	cooloney@gmail.com, rpurdie@rpsys.net, sameo@linux.intel.com,
-	wim@iguana.be, lgirdwood@gmail.com, gg@slimlogic.co.uk,
-	j-keerthy@ti.com, ldewangan@nvidia.com, t-kristo@ti.com
-Subject: Re: [PATCH v8 04/12] regulator: palmas correct dt parsing
-Message-ID: <20130308094443.GD28481@opensource.wolfsonmicro.com>
-References: <1362662276-20792-1-git-send-email-ian@slimlogic.co.uk>
- <1362662276-20792-4-git-send-email-ian@slimlogic.co.uk>
+Received: from slimlogic.co.uk ([89.16.172.20]:40570 "EHLO slimlogic.co.uk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1759805Ab3CHRMt (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 8 Mar 2013 12:12:49 -0500
+Message-ID: <513A1C0F.3070602@slimlogic.co.uk>
+Date: Fri, 08 Mar 2013 17:12:47 +0000
+From: Ian Lartey <ian@slimlogic.co.uk>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wLAMOaPNJ0fu1fTG"
-Content-Disposition: inline
-In-Reply-To: <1362662276-20792-4-git-send-email-ian@slimlogic.co.uk>
+To: Linus Walleij <linus.walleij@linaro.org>
+CC: t-kristo@ti.com, broonie@opensource.wolfsonmicro.com,
+	mturquette@linaro.org, linux-watchdog@vger.kernel.org,
+	swarren@wwwdotorg.org, j-keerthy@ti.com, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org, rob.herring@calxeda.com,
+	lgirdwood@gmail.com, grant.likely@secretlab.ca, wim@iguana.be,
+	ldewangan@nvidia.com, rpurdie@rpsys.net,
+	linux-arm-kernel@lists.infradead.org, rob@landley.net,
+	cooloney@gmail.com, gg@slimlogic.co.uk, linux-leds@vger.kernel.org,
+	sameo@linux.intel.com
+Subject: Re: [PATCH v8 0/12] Palmas Updates
+References: <1362662276-20792-1-git-send-email-ian@slimlogic.co.uk> <513894E3.1070206@slimlogic.co.uk> <CACRpkdYHhh=ANiHvgxXiAQ_4LLiBBe0AfJ-60Wy6aEi7Cv0HOg@mail.gmail.com>
+In-Reply-To: <CACRpkdYHhh=ANiHvgxXiAQ_4LLiBBe0AfJ-60Wy6aEi7Cv0HOg@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On 08/03/13 07:12, Linus Walleij wrote:
+> On Thu, Mar 7, 2013 at 2:23 PM, Ian Lartey <ian@slimlogic.co.uk> wrote:
+>
+>> This patchset adds to the support for the Palmas iseries of PMIC chips.
+>>
+>> Some of the patches have previously been submitted individually.
+>> The DT bindings doc has been added first due to comments that it was
+>> missing.
+>
+> Can the patches to the individual subsystems be applied individually
+> (like can we apply the two GPIO patches to the GPIO tree) or are
+> the deps such that the whole shebang needs to go in at once and you're
+> just harvesting ACKs to take it all into MFD or similar?
 
---wLAMOaPNJ0fu1fTG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+There are a few dependencies:
 
-On Thu, Mar 07, 2013 at 01:17:48PM +0000, Ian Lartey wrote:
-> From: Graeme Gregory <gg@slimlogic.co.uk>
->=20
-> Fix the DT parsing to agree with the bindings document. Some small changes
-> to the value names and also fix the handling of boolean values. They were
-> previously using prop =3D 1/0, now just use of_property_read_bool calls.
+The GPIO and LEDS subsystem patches both depend on:
+[PATCH v8 02/12] mfd: palmas: is_palmas_charger needed by multiple drivers
 
-Applied, thanks.
+all the subsystems depend on:
+[PATCH v8 01/12] mfd: DT bindings for the palmas family MFD
+for their DT documentation.
 
---wLAMOaPNJ0fu1fTG
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+so taking the whole shooting match in one go seems the safest.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
+>
+> Yours,
+> Linus Walleij
 
-iQIcBAEBAgAGBQJRObClAAoJELSic+t+oim9yp4P/2u+oc0znK+IyLsewOE83Iap
-VP5ijx7aXMWbYMdYKu3d6AWx9wZDxTEpp7XMK716ot5/Dgngu2Pq53ubxyQIvO0U
-Z+AXJHH2z9q4RKjk0ov+rlhPK+LjjQY/zztrGTQul4pvhWW45GDnR3fQ2aCDRyMP
-TZ0OViwlHGqVSkaZq0+v4aQFqkLr5jvbALe52+C7dQ6JwOAJk0Pq+LxwsrpbCmMT
-9/fxsMfbSaoROUzQwLTG6L35eMLFYWaBT8ZKq8QugNiOwVCz2lKYsAKyZo4qi+R+
-Zxo76aCFp6J3zzoUdWofe6IcaPiHBhBlRoBmRL5V+bV3V6HsbTwwI7NOdX0AVWLC
-g/BqEspivOusSiAyq3S7Rs/U+MZiWoGkLQ+WAejsYNTnSPlPXHwvRsc7tdDuy5k+
-ptLun5sXwG7rh8tV4DMTFSQ2f8S2ZrNVD2HCfZItJxhHHWVAk5USshJgrANNd+8y
-nMqSzZWhHT7AIF+1Bjpq5GlFtMGMwbSEdwhm74DeSqX71TkZFaWtBUinbGo1eNWb
-6ZIsigrFGJS0XTvTxjuPWjRvERL2XzwO0b+Zl1O8n5L7zgQmYYagU2rCUAM+nrB9
-YFg60AG81tZHz8FABlJspxlSbl13d9pY3KhEKYagJ+CXUnANpD68kt0q9OE/2e6B
-cGhJKaf3soS1JyAVFydM
-=WT8H
------END PGP SIGNATURE-----
 
---wLAMOaPNJ0fu1fTG--
+Regards,
+
+Ian
