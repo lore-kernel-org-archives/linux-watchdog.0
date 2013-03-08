@@ -1,85 +1,44 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from slimlogic.co.uk ([89.16.172.20]:42312 "EHLO slimlogic.co.uk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753481Ab3CGNXf (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 7 Mar 2013 08:23:35 -0500
-Message-ID: <513894E3.1070206@slimlogic.co.uk>
-Date: Thu, 07 Mar 2013 13:23:47 +0000
-From: Ian Lartey <ian@slimlogic.co.uk>
+Received: from mail-ie0-f172.google.com ([209.85.223.172]:50637 "EHLO
+	mail-ie0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753566Ab3CHHMB (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 8 Mar 2013 02:12:01 -0500
+Received: by mail-ie0-f172.google.com with SMTP id c10so1668006ieb.31
+        for <linux-watchdog@vger.kernel.org>; Thu, 07 Mar 2013 23:12:00 -0800 (PST)
 MIME-Version: 1.0
+In-Reply-To: <513894E3.1070206@slimlogic.co.uk>
+References: <1362662276-20792-1-git-send-email-ian@slimlogic.co.uk>
+	<513894E3.1070206@slimlogic.co.uk>
+Date: Fri, 8 Mar 2013 08:12:00 +0100
+Message-ID: <CACRpkdYHhh=ANiHvgxXiAQ_4LLiBBe0AfJ-60Wy6aEi7Cv0HOg@mail.gmail.com>
+Subject: Re: [PATCH v8 0/12] Palmas Updates
+From: Linus Walleij <linus.walleij@linaro.org>
 To: Ian Lartey <ian@slimlogic.co.uk>
-CC: linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+Cc: linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org, linux-leds@vger.kernel.org,
 	linux-watchdog@vger.kernel.org, swarren@wwwdotorg.org,
 	grant.likely@secretlab.ca, broonie@opensource.wolfsonmicro.com,
 	rob.herring@calxeda.com, rob@landley.net, mturquette@linaro.org,
-	linus.walleij@linaro.org, cooloney@gmail.com, rpurdie@rpsys.net,
-	sameo@linux.intel.com, wim@iguana.be, lgirdwood@gmail.com,
-	gg@slimlogic.co.uk, j-keerthy@ti.com, ldewangan@nvidia.com,
-	t-kristo@ti.com
-Subject: [PATCH v8 0/12] Palmas Updates
-References: <1362662276-20792-1-git-send-email-ian@slimlogic.co.uk>
-In-Reply-To: <1362662276-20792-1-git-send-email-ian@slimlogic.co.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	cooloney@gmail.com, rpurdie@rpsys.net, sameo@linux.intel.com,
+	wim@iguana.be, lgirdwood@gmail.com, gg@slimlogic.co.uk,
+	j-keerthy@ti.com, ldewangan@nvidia.com, t-kristo@ti.com
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patchset adds to the support for the Palmas iseries of PMIC chips.
+On Thu, Mar 7, 2013 at 2:23 PM, Ian Lartey <ian@slimlogic.co.uk> wrote:
 
-Some of the patches have previously been submitted individually.
-The DT bindings doc has been added first due to comments that it was 
-missing.
+> This patchset adds to the support for the Palmas iseries of PMIC chips.
+>
+> Some of the patches have previously been submitted individually.
+> The DT bindings doc has been added first due to comments that it was
+> missing.
 
-Patches based on linux-next-20130306
+Can the patches to the individual subsystems be applied individually
+(like can we apply the two GPIO patches to the GPIO tree) or are
+the deps such that the whole shebang needs to go in at once and you're
+just harvesting ACKs to take it all into MFD or similar?
 
-mfd: DT bindings for the palmas family MFD
-mfd: palmas: is_palmas_charger needed by multiple driv
-mfd: palmas add variant and OTP detection
-regulator: palmas correct dt parsing
-watchdog: add Palmas Watchdog support
-watchdog: Kconfig for Palmas watchdog
-gpio: palmas: add in GPIO support for palmas charger
-gpio: palmas: Enable DT support for palmas gpio
-leds: Add support for Palmas LEDs
-leds: Kconfig for Palmas LEDs
-clk: add a clock driver for palmas
-clk: Kconfig for Palmas clock driver
-
-  .../devicetree/bindings/clock/palmas-clk.txt       |   25 +
-  .../devicetree/bindings/gpio/gpio-palmas.txt       |   21 +
-  .../devicetree/bindings/input/palmas-pwrbutton.txt |   22 +
-  .../devicetree/bindings/leds/leds-palmas.txt       |   35 ++
-  Documentation/devicetree/bindings/mfd/palmas.txt   |   70 +++
-  .../devicetree/bindings/regulator/palmas-pmic.txt  |  168 ++++++
-  .../devicetree/bindings/rtc/palmas-rtc.txt         |   22 +
-  .../devicetree/bindings/watchdog/palmas-wdt.txt    |   22 +
-  drivers/clk/Kconfig                                |    8 +
-  drivers/clk/Makefile                               |    1 +
-  drivers/clk/clk-palmas.c                           |  268 ++++++++++
-  drivers/gpio/gpio-palmas.c                         |   90 +++-
-  drivers/leds/Kconfig                               |    9 +
-  drivers/leds/Makefile                              |    1 +
-  drivers/leds/leds-palmas.c                         |  560 
-++++++++++++++++++++
-  drivers/mfd/palmas.c                               |  103 +++-
-  drivers/regulator/palmas-regulator.c               |   36 +-
-  drivers/watchdog/Kconfig                           |    8 +
-  drivers/watchdog/Makefile                          |    1 +
-  drivers/watchdog/palmas_wdt.c                      |  170 ++++++
-  include/linux/mfd/palmas.h                         |  119 ++++-
-  21 files changed, 1703 insertions(+), 56 deletions(-)
-  create mode 100644 Documentation/devicetree/bindings/clock/palmas-clk.txt
-  create mode 100644 Documentation/devicetree/bindings/gpio/gpio-palmas.txt
-  create mode 100644 
-Documentation/devicetree/bindings/input/palmas-pwrbutton.txt
-  create mode 100644 Documentation/devicetree/bindings/leds/leds-palmas.txt
-  create mode 100644 Documentation/devicetree/bindings/mfd/palmas.txt
-  create mode 100644 
-Documentation/devicetree/bindings/regulator/palmas-pmic.txt
-  create mode 100644 Documentation/devicetree/bindings/rtc/palmas-rtc.txt
-  create mode 100644 
-Documentation/devicetree/bindings/watchdog/palmas-wdt.txt
-  create mode 100644 drivers/clk/clk-palmas.c
-  create mode 100644 drivers/leds/leds-palmas.c
-  create mode 100644 drivers/watchdog/palmas_wdt.c
+Yours,
+Linus Walleij
