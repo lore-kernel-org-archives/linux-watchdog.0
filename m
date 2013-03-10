@@ -1,60 +1,48 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from slimlogic.co.uk ([89.16.172.20]:40570 "EHLO slimlogic.co.uk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759805Ab3CHRMt (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 8 Mar 2013 12:12:49 -0500
-Message-ID: <513A1C0F.3070602@slimlogic.co.uk>
-Date: Fri, 08 Mar 2013 17:12:47 +0000
-From: Ian Lartey <ian@slimlogic.co.uk>
-MIME-Version: 1.0
-To: Linus Walleij <linus.walleij@linaro.org>
-CC: t-kristo@ti.com, broonie@opensource.wolfsonmicro.com,
-	mturquette@linaro.org, linux-watchdog@vger.kernel.org,
-	swarren@wwwdotorg.org, j-keerthy@ti.com, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, rob.herring@calxeda.com,
-	lgirdwood@gmail.com, grant.likely@secretlab.ca, wim@iguana.be,
-	ldewangan@nvidia.com, rpurdie@rpsys.net,
-	linux-arm-kernel@lists.infradead.org, rob@landley.net,
-	cooloney@gmail.com, gg@slimlogic.co.uk, linux-leds@vger.kernel.org,
-	sameo@linux.intel.com
-Subject: Re: [PATCH v8 0/12] Palmas Updates
-References: <1362662276-20792-1-git-send-email-ian@slimlogic.co.uk> <513894E3.1070206@slimlogic.co.uk> <CACRpkdYHhh=ANiHvgxXiAQ_4LLiBBe0AfJ-60Wy6aEi7Cv0HOg@mail.gmail.com>
-In-Reply-To: <CACRpkdYHhh=ANiHvgxXiAQ_4LLiBBe0AfJ-60Wy6aEi7Cv0HOg@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Received: from mail.active-venture.com ([67.228.131.205]:61892 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751377Ab3CJXPH (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Sun, 10 Mar 2013 19:15:07 -0400
+From: Guenter Roeck <linux@roeck-us.net>
+To: linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
+	Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH v2 3/7] watchdog: w83627hf: Enable watchdog device only if not already enabled
+Date: Sun, 10 Mar 2013 16:14:56 -0700
+Message-Id: <1362957300-18223-4-git-send-email-linux@roeck-us.net>
+In-Reply-To: <1362957300-18223-1-git-send-email-linux@roeck-us.net>
+References: <1362957300-18223-1-git-send-email-linux@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 08/03/13 07:12, Linus Walleij wrote:
-> On Thu, Mar 7, 2013 at 2:23 PM, Ian Lartey <ian@slimlogic.co.uk> wrote:
->
->> This patchset adds to the support for the Palmas iseries of PMIC chips.
->>
->> Some of the patches have previously been submitted individually.
->> The DT bindings doc has been added first due to comments that it was
->> missing.
->
-> Can the patches to the individual subsystems be applied individually
-> (like can we apply the two GPIO patches to the GPIO tree) or are
-> the deps such that the whole shebang needs to go in at once and you're
-> just harvesting ACKs to take it all into MFD or similar?
+There is no need to enable the watchdog device if it is already enabled.
+Also, when enabling the watchdog device, only set the watchdog device
+enable bit and do not touch other bits; depending on the chip type,
+those bits may enable other functionality.
 
-There are a few dependencies:
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+v2: No change
 
-The GPIO and LEDS subsystem patches both depend on:
-[PATCH v8 02/12] mfd: palmas: is_palmas_charger needed by multiple drivers
+ drivers/watchdog/w83627hf_wdt.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-all the subsystems depend on:
-[PATCH v8 01/12] mfd: DT bindings for the palmas family MFD
-for their DT documentation.
+diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
+index bb19368..13bad31 100644
+--- a/drivers/watchdog/w83627hf_wdt.c
++++ b/drivers/watchdog/w83627hf_wdt.c
+@@ -101,7 +101,9 @@ static void w83627hf_init(struct watchdog_device *wdog)
+ 	}
+ 
+ 	outb_p(0x30, WDT_EFER); /* select CR30 */
+-	outb_p(0x01, WDT_EFDR); /* set bit 0 to activate GPIO2 */
++	t = inb(WDT_EFDR);
++	if (!(t & 0x01))
++		outb_p(t | 0x01, WDT_EFDR); /* set bit 0 to activate GPIO2 */
+ 
+ 	outb_p(0xF6, WDT_EFER); /* Select CRF6 */
+ 	t = inb_p(WDT_EFDR);      /* read CRF6 */
+-- 
+1.7.9.7
 
-so taking the whole shooting match in one go seems the safest.
-
->
-> Yours,
-> Linus Walleij
-
-
-Regards,
-
-Ian
