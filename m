@@ -1,42 +1,93 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oa0-f52.google.com ([209.85.219.52]:50184 "EHLO
-	mail-oa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752812Ab3CKKXc (ORCPT
+Received: from mail-ia0-f174.google.com ([209.85.210.174]:41720 "EHLO
+	mail-ia0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932319Ab3CMOPR (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 11 Mar 2013 06:23:32 -0400
-Received: by mail-oa0-f52.google.com with SMTP id k14so4189014oag.25
-        for <linux-watchdog@vger.kernel.org>; Mon, 11 Mar 2013 03:23:32 -0700 (PDT)
+	Wed, 13 Mar 2013 10:15:17 -0400
+Received: by mail-ia0-f174.google.com with SMTP id k38so988572iah.19
+        for <linux-watchdog@vger.kernel.org>; Wed, 13 Mar 2013 07:15:16 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1362987503-6449-1-git-send-email-silviupopescu1990@gmail.com>
-References: <1362987503-6449-1-git-send-email-silviupopescu1990@gmail.com>
-Date: Mon, 11 Mar 2013 15:53:31 +0530
-Message-ID: <CAK9yfHxJNtdYdx4pwfq_F2HBvOxvumt+XFsdQQjh2xHB9_s3sg@mail.gmail.com>
-Subject: Re: [PATCH] watchdog: convert to devm_ioremap_resource()
-From: Sachin Kamat <sachin.kamat@linaro.org>
-To: Silviu-Mihai Popescu <silviupopescu1990@gmail.com>
-Cc: linux-watchdog@vger.kernel.org, wim@iguana.be, ben-linux@fluff.org,
-	kgene.kim@samsung.com, linux-arm-kernel@lists.infradead.org,
-	linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1362662276-20792-7-git-send-email-ian@slimlogic.co.uk>
+References: <1362662276-20792-1-git-send-email-ian@slimlogic.co.uk>
+	<1362662276-20792-7-git-send-email-ian@slimlogic.co.uk>
+Date: Wed, 13 Mar 2013 15:15:16 +0100
+Message-ID: <CACRpkdaNs+NmAbuwRYzn1xgjHy=7ZknJa-GD1+Q8HBsu53KQqQ@mail.gmail.com>
+Subject: Re: [PATCH v8 07/12] gpio: palmas: add in GPIO support for palmas charger
+From: Linus Walleij <linus.walleij@linaro.org>
+To: Ian Lartey <ian@slimlogic.co.uk>
+Cc: linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-leds@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, swarren@wwwdotorg.org,
+	grant.likely@secretlab.ca, broonie@opensource.wolfsonmicro.com,
+	rob.herring@calxeda.com, rob@landley.net, mturquette@linaro.org,
+	cooloney@gmail.com, rpurdie@rpsys.net, sameo@linux.intel.com,
+	wim@iguana.be, lgirdwood@gmail.com, gg@slimlogic.co.uk,
+	j-keerthy@ti.com, ldewangan@nvidia.com, t-kristo@ti.com
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
+Sorry for slow replies :-(
 
-On 11 March 2013 13:08, Silviu-Mihai Popescu
-<silviupopescu1990@gmail.com> wrote:
-> Convert all uses of devm_request_and_ioremap() to the newly introduced
-> devm_ioremap_resource() which provides more consistent error handling.
->
-> devm_ioremap_resource() provides its own error messages so all explicit
-> error messages can be removed from the failure code paths.
->
-> Signed-off-by: Silviu-Mihai Popescu <silviupopescu1990@gmail.com>
+On Thu, Mar 7, 2013 at 2:17 PM, Ian Lartey <ian@slimlogic.co.uk> wrote:
 
-I have already submitted a similar patchset to do this:
-http://www.spinics.net/lists/linux-watchdog/msg02101.html
+> +static int palmas_gpio_read(struct palmas *palmas, unsigned int reg,
+> +               int gpio, unsigned int *dest)
+
+I don't like "int gpio" here, please use "int offset".
+
+This is not a global GPIO number, it is an offset in the local gpio_chip,
+right?
+
+> +{
+> +       /* registers for second bank are identical and offset by 0x9 */
+> +       if (gpio > 7)
+> +               reg += PALMAS_GPIO_DATA_IN2;
+> +
+> +       return palmas_read(palmas, PALMAS_GPIO_BASE, reg, dest);
+> +}
+> +
+> +static int palmas_gpio_write(struct palmas *palmas, unsigned int reg,
+> +               int gpio, unsigned int data)
+> +{
+> +       /* registers for second bank are identical and offset by 0x9 */
+> +       if (gpio > 7)
+> +               reg += PALMAS_GPIO_DATA_IN2;
+> +
+> +       return palmas_write(palmas, PALMAS_GPIO_BASE, reg, data);
+> +}
+> +
+> +static int palmas_gpio_update_bits(struct palmas *palmas, unsigned int reg,
+> +               int gpio, unsigned int mask, unsigned int data)
+> +{
+> +       /* registers for second bank are identical and offset by 0x9 */
+> +       if (gpio > 7)
+> +               reg += PALMAS_GPIO_DATA_IN2;
+> +
+> +       return palmas_update_bits(palmas, PALMAS_GPIO_BASE, reg, mask, data);
+> +}
 
 
--- 
-With warm regards,
-Sachin
+> -       ret = palmas_read(palmas, PALMAS_GPIO_BASE, PALMAS_GPIO_DATA_IN, &val);
+> +       ret = palmas_gpio_read(palmas, PALMAS_GPIO_DATA_IN, offset, &val);
+
+(Obviously you are passing the offset.)
+
+> +               ret = palmas_gpio_write(palmas, PALMAS_GPIO_SET_DATA_OUT,
+> +                               offset, BIT(offset % 8));
+(..)
+> +               ret = palmas_gpio_write(palmas, PALMAS_GPIO_CLEAR_DATA_OUT,
+> +                               offset, BIT(offset % 8));
+(...)
+> +       ret = palmas_gpio_update_bits(palmas, PALMAS_GPIO_DATA_DIR,
+> +                       offset, 1 << (offset % 8), 1 << (offset % 8));
+
+Why aren't you using the BIT() macro here too?
+
+Further: if these functions are always used like this, with offset
+and some BIT() or (1 << (offset % 8)) why don't you move that
+latter part into the static helper and just pass offset into the
+helper?
+
+Yours,
+Linus Walleij
