@@ -1,41 +1,91 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-la0-f44.google.com ([209.85.215.44]:33018 "EHLO
-	mail-la0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750898Ab3CPQYK (ORCPT
+Received: from mailout3.samsung.com ([203.254.224.33]:55327 "EHLO
+	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751116Ab3CRHdk (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 16 Mar 2013 12:24:10 -0400
-MIME-Version: 1.0
-In-Reply-To: <CAHh0gOinjQvHV4yG+w4Lu+ZJ9ZWS=EgnDjCrFHAwkfquWEPhCg@mail.gmail.com>
-References: <1362289927-3635-1-git-send-email-mc74hc00@gmail.com>
-	<1362303621.13011.14.camel@mattotaupa>
-	<CAHh0gOinjQvHV4yG+w4Lu+ZJ9ZWS=EgnDjCrFHAwkfquWEPhCg@mail.gmail.com>
-Date: Sun, 17 Mar 2013 01:24:07 +0900
-Message-ID: <CAHh0gOihWm052RAyQV0VJxqxWqq+4Z6YaHFnogBcCzvGzxZ5tQ@mail.gmail.com>
-Subject: Re: [PATCH v2] sp5100_tco: Remove code that may cause a boot failure
-From: Tanaka Takahisa <mc74hc00@gmail.com>
-To: Wim Van Sebroeck <wim@iguana.be>,
-	Paul Menzel <paulepanter@users.sourceforge.net>
-Cc: linux-watchdog@vger.kernel.org,
-	Arkadiusz Miskiewicz <arekm@maven.pl>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Jonathan Nieder <jrnieder@gmail.com>,
-	linux-kernel@vger.kernel.org,
-	Joseph Salisbury <joseph.salisbury@canonical.com>,
-	Joseph Salisbury <josephtsalisbury@gmail.com>,
-	Timothy Rundle <tgrundlesr@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 18 Mar 2013 03:33:40 -0400
+Received: from epcpsbgr3.samsung.com
+ (u143.gpu120.samsung.co.kr [203.254.230.143])
+ by mailout3.samsung.com (Oracle Communications Messaging Server 7u4-24.01
+ (7.0.4.24.0) 64bit (built Nov 17 2011))
+ with ESMTP id <0MJU0092PIBX0HU0@mailout3.samsung.com> for
+ linux-watchdog@vger.kernel.org; Mon, 18 Mar 2013 16:33:33 +0900 (KST)
+Received: from DOJG1HAN02 ([12.23.120.99])
+ by mmp1.samsung.com (Oracle Communications Messaging Server 7u4-24.01
+ (7.0.4.24.0) 64bit (built Nov 17 2011))
+ with ESMTPA id <0MJU00EIXIBWDN00@mmp1.samsung.com> for
+ linux-watchdog@vger.kernel.org; Mon, 18 Mar 2013 16:33:33 +0900 (KST)
+From: Jingoo Han <jg1.han@samsung.com>
+To: 'Wim Van Sebroeck' <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org, 'Jingoo Han' <jg1.han@samsung.com>
+Subject: [PATCH 1/7] watchdog: at32ap700x_wdt: use devm_*() functions
+Date: Mon, 18 Mar 2013 16:33:32 +0900
+Message-id: <01ad01ce23aa$e49c8b00$add5a100$%han@samsung.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-language: ko
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Wim,
+Use devm_*() functions to make cleanup paths simpler.
 
-I found out the commit of this patch in the linux-next. Thank you for
-improving the commit log.
-I am sorry for all the trouble I have caused you and Paul.
+Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+---
+ drivers/watchdog/at32ap700x_wdt.c |   12 ++++--------
+ 1 files changed, 4 insertions(+), 8 deletions(-)
 
-https://git.kernel.org/cgit/linux/kernel/git/next/linux-next.git/commit/?id=84a9a694633692d54c8b969664ce8fd115fa09f9
+diff --git a/drivers/watchdog/at32ap700x_wdt.c b/drivers/watchdog/at32ap700x_wdt.c
+index 7a715e3..c4cb552 100644
+--- a/drivers/watchdog/at32ap700x_wdt.c
++++ b/drivers/watchdog/at32ap700x_wdt.c
+@@ -321,13 +321,14 @@ static int __init at32_wdt_probe(struct platform_device *pdev)
+ 		return -ENXIO;
+ 	}
+ 
+-	wdt = kzalloc(sizeof(struct wdt_at32ap700x), GFP_KERNEL);
++	wdt = devm_kzalloc(&pdev->dev, sizeof(struct wdt_at32ap700x),
++			GFP_KERNEL);
+ 	if (!wdt) {
+ 		dev_dbg(&pdev->dev, "no memory for wdt structure\n");
+ 		return -ENOMEM;
+ 	}
+ 
+-	wdt->regs = ioremap(regs->start, resource_size(regs));
++	wdt->regs = devm_ioremap(&pdev->dev, regs->start, resource_size(regs));
+ 	if (!wdt->regs) {
+ 		ret = -ENOMEM;
+ 		dev_dbg(&pdev->dev, "could not map I/O memory\n");
+@@ -342,7 +343,7 @@ static int __init at32_wdt_probe(struct platform_device *pdev)
+ 		dev_info(&pdev->dev, "CPU must be reset with external "
+ 				"reset or POR due to silicon errata.\n");
+ 		ret = -EIO;
+-		goto err_iounmap;
++		goto err_free;
+ 	} else {
+ 		wdt->users = 0;
+ 	}
+@@ -375,10 +376,7 @@ static int __init at32_wdt_probe(struct platform_device *pdev)
+ 
+ err_register:
+ 	platform_set_drvdata(pdev, NULL);
+-err_iounmap:
+-	iounmap(wdt->regs);
+ err_free:
+-	kfree(wdt);
+ 	wdt = NULL;
+ 	return ret;
+ }
+@@ -391,8 +389,6 @@ static int __exit at32_wdt_remove(struct platform_device *pdev)
+ 			at32_wdt_stop();
+ 
+ 		misc_deregister(&wdt->miscdev);
+-		iounmap(wdt->regs);
+-		kfree(wdt);
+ 		wdt = NULL;
+ 		platform_set_drvdata(pdev, NULL);
+ 	}
+-- 
+1.7.2.5
 
 
-Best regards,
-Takahisa
