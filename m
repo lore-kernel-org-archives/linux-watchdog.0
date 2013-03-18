@@ -1,152 +1,63 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailout1.samsung.com ([203.254.224.24]:18660 "EHLO
-	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751779Ab3CRHhY (ORCPT
+Received: from mail-ob0-f180.google.com ([209.85.214.180]:57251 "EHLO
+	mail-ob0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752397Ab3CRIoj (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 18 Mar 2013 03:37:24 -0400
-Received: from epcpsbgr4.samsung.com
- (u144.gpu120.samsung.co.kr [203.254.230.144])
- by mailout1.samsung.com (Oracle Communications Messaging Server 7u4-24.01
- (7.0.4.24.0) 64bit (built Nov 17 2011))
- with ESMTP id <0MJU00LRIIHU2670@mailout1.samsung.com> for
- linux-watchdog@vger.kernel.org; Mon, 18 Mar 2013 16:37:23 +0900 (KST)
-From: Jingoo Han <jg1.han@samsung.com>
-To: 'Wim Van Sebroeck' <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org, 'Jingoo Han' <jg1.han@samsung.com>
-References: <01ad01ce23aa$e49c8b00$add5a100$%han@samsung.com>
-In-reply-to: <01ad01ce23aa$e49c8b00$add5a100$%han@samsung.com>
-Subject: [PATCH 7/7] watchdog: ts72xx_wdt: use devm_*() functions
-Date: Mon, 18 Mar 2013 16:37:23 +0900
-Message-id: <01b301ce23ab$6df18e50$49d4aaf0$%han@samsung.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-language: ko
+	Mon, 18 Mar 2013 04:44:39 -0400
+Received: by mail-ob0-f180.google.com with SMTP id ef5so4940912obb.39
+        for <linux-watchdog@vger.kernel.org>; Mon, 18 Mar 2013 01:44:39 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CAK9yfHx85WWx=UMWVDN=1e=h=FtmbOwrc35oG1mwRep6gjskVA@mail.gmail.com>
+References: <1362373604-26771-1-git-send-email-sachin.kamat@linaro.org>
+	<20130304065308.GA16261@avionic-0098.mockup.avionic-design.de>
+	<CAK9yfHx85WWx=UMWVDN=1e=h=FtmbOwrc35oG1mwRep6gjskVA@mail.gmail.com>
+Date: Mon, 18 Mar 2013 14:14:38 +0530
+Message-ID: <CAK9yfHwQZwG+Qqc69xsTWOoosVjSS50NnAfN0QgFuDVfzzwCHA@mail.gmail.com>
+Subject: Re: [PATCH 1/4] watchdog: s3c2410_wdt: Convert to devm_ioremap_resource()
+From: Sachin Kamat <sachin.kamat@linaro.org>
+To: wim@iguana.be, linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Use devm_*() functions to make cleanup paths simpler.
+On 11 March 2013 14:59, Sachin Kamat <sachin.kamat@linaro.org> wrote:
+> Hi Wim,
+>
+> On 4 March 2013 12:23, Thierry Reding <thierry.reding@avionic-design.de> wrote:
+>> On Mon, Mar 04, 2013 at 10:36:41AM +0530, Sachin Kamat wrote:
+>>> Use the newly introduced devm_ioremap_resource() instead of
+>>> devm_request_and_ioremap() which provides more consistent error handling.
+>>>
+>>> devm_ioremap_resource() provides its own error messages; so all explicit
+>>> error messages can be removed from the failure code paths.
+>>>
+>>> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+>>> Cc: Thierry Reding <thierry.reding@avionic-design.de>
+>>> ---
+>>>  drivers/watchdog/s3c2410_wdt.c |    7 +++----
+>>>  1 files changed, 3 insertions(+), 4 deletions(-)
+>>>
+>>> diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+>>> index c1a221c..ee03135 100644
+>>> --- a/drivers/watchdog/s3c2410_wdt.c
+>>> +++ b/drivers/watchdog/s3c2410_wdt.c
+>>> @@ -330,10 +330,9 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+>>>       }
+>>>
+>>>       /* get the memory region for the watchdog timer */
+>>> -     wdt_base = devm_request_and_ioremap(dev, wdt_mem);
+>>> -     if (wdt_base == NULL) {
+>>> -             dev_err(dev, "failed to devm_request_and_ioremap() region\n");
+>>> -             ret = -ENOMEM;
+>>> +     wdt_base = devm_ioremap_resource(dev, wdt_mem);
+>>> +     if (IS_ERR(wdt_base)) {
+>>> +             ret = PTR_ERR(wdt_base);
+>>>               goto err;
+>>>       }
+>>>
+>>
+>> Reviewed-by: Thierry Reding <thierry.reding@avionic-design.de>
+>
+> Did you get a chance to check this series?
 
-Signed-off-by: Jingoo Han <jg1.han@samsung.com>
----
- drivers/watchdog/ts72xx_wdt.c |   64 +++++++----------------------------------
- 1 files changed, 11 insertions(+), 53 deletions(-)
-
-diff --git a/drivers/watchdog/ts72xx_wdt.c b/drivers/watchdog/ts72xx_wdt.c
-index b8a9245..b19ca75 100644
---- a/drivers/watchdog/ts72xx_wdt.c
-+++ b/drivers/watchdog/ts72xx_wdt.c
-@@ -396,7 +396,7 @@ static int ts72xx_wdt_probe(struct platform_device *pdev)
- 	struct resource *r1, *r2;
- 	int error = 0;
- 
--	wdt = kzalloc(sizeof(struct ts72xx_wdt), GFP_KERNEL);
-+	wdt = devm_kzalloc(&pdev->dev, sizeof(struct ts72xx_wdt), GFP_KERNEL);
- 	if (!wdt) {
- 		dev_err(&pdev->dev, "failed to allocate memory\n");
- 		return -ENOMEM;
-@@ -405,44 +405,22 @@ static int ts72xx_wdt_probe(struct platform_device *pdev)
- 	r1 = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	if (!r1) {
- 		dev_err(&pdev->dev, "failed to get memory resource\n");
--		error = -ENODEV;
--		goto fail;
--	}
--
--	r1 = request_mem_region(r1->start, resource_size(r1), pdev->name);
--	if (!r1) {
--		dev_err(&pdev->dev, "cannot request memory region\n");
--		error = -EBUSY;
--		goto fail;
-+		return -ENODEV;
- 	}
- 
--	wdt->control_reg = ioremap(r1->start, resource_size(r1));
--	if (!wdt->control_reg) {
--		dev_err(&pdev->dev, "failed to map memory\n");
--		error = -ENODEV;
--		goto fail_free_control;
--	}
-+	wdt->control_reg = devm_ioremap_resource(&pdev->dev, r1);
-+	if (IS_ERR(wdt->control_reg))
-+		return PTR_ERR(wdt->control_reg);
- 
- 	r2 = platform_get_resource(pdev, IORESOURCE_MEM, 1);
- 	if (!r2) {
- 		dev_err(&pdev->dev, "failed to get memory resource\n");
--		error = -ENODEV;
--		goto fail_unmap_control;
-+		return -ENODEV;
- 	}
- 
--	r2 = request_mem_region(r2->start, resource_size(r2), pdev->name);
--	if (!r2) {
--		dev_err(&pdev->dev, "cannot request memory region\n");
--		error = -EBUSY;
--		goto fail_unmap_control;
--	}
--
--	wdt->feed_reg = ioremap(r2->start, resource_size(r2));
--	if (!wdt->feed_reg) {
--		dev_err(&pdev->dev, "failed to map memory\n");
--		error = -ENODEV;
--		goto fail_free_feed;
--	}
-+	wdt->feed_reg = devm_ioremap_resource(&pdev->dev, r2);
-+	if (IS_ERR(wdt->feed_reg))
-+		return PTR_ERR(wdt->feed_reg);
- 
- 	platform_set_drvdata(pdev, wdt);
- 	ts72xx_wdt_pdev = pdev;
-@@ -455,45 +433,25 @@ static int ts72xx_wdt_probe(struct platform_device *pdev)
- 	error = misc_register(&ts72xx_wdt_miscdev);
- 	if (error) {
- 		dev_err(&pdev->dev, "failed to register miscdev\n");
--		goto fail_unmap_feed;
-+		goto fail;
- 	}
- 
- 	dev_info(&pdev->dev, "TS-72xx Watchdog driver\n");
- 
- 	return 0;
- 
--fail_unmap_feed:
--	platform_set_drvdata(pdev, NULL);
--	iounmap(wdt->feed_reg);
--fail_free_feed:
--	release_mem_region(r2->start, resource_size(r2));
--fail_unmap_control:
--	iounmap(wdt->control_reg);
--fail_free_control:
--	release_mem_region(r1->start, resource_size(r1));
- fail:
--	kfree(wdt);
-+	platform_set_drvdata(pdev, NULL);
- 	return error;
- }
- 
- static int ts72xx_wdt_remove(struct platform_device *pdev)
- {
--	struct ts72xx_wdt *wdt = platform_get_drvdata(pdev);
--	struct resource *res;
- 	int error;
- 
- 	error = misc_deregister(&ts72xx_wdt_miscdev);
- 	platform_set_drvdata(pdev, NULL);
- 
--	iounmap(wdt->feed_reg);
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
--	release_mem_region(res->start, resource_size(res));
--
--	iounmap(wdt->control_reg);
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	release_mem_region(res->start, resource_size(res));
--
--	kfree(wdt);
- 	return error;
- }
- 
--- 
-1.7.2.5
-
-
+ping..
