@@ -1,77 +1,58 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from haggis.pcug.org.au ([203.10.76.10]:43031 "EHLO
-	members.tip.net.au" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754885Ab3CVTFQ (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:40311 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1423029Ab3CVUxA (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 22 Mar 2013 15:05:16 -0400
-Date: Sat, 23 Mar 2013 06:04:55 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Ian Lartey <ian@slimlogic.co.uk>
-Cc: linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-leds@vger.kernel.org,
-	linux-watchdog@vger.kernel.org,
-	devicetree-discuss@lists.ozlabs.org, swarren@wwwdotorg.org,
-	grant.likely@secretlab.ca, broonie@opensource.wolfsonmicro.com,
-	rob.herring@calxeda.com, rob@landley.net, mturquette@linaro.org,
-	linus.walleij@linaro.org, cooloney@gmail.com, rpurdie@rpsys.net,
-	akpm@linux-foundation.org, sameo@linux.intel.com, wim@iguana.be,
-	lgirdwood@gmail.com, gg@slimlogic.co.uk, j-keerthy@ti.com,
-	ldewangan@nvidia.com, t-kristo@ti.com
-Subject: Re: [PATCH v10 0/12] Palmas updates
-Message-Id: <20130323060455.78a4c90c3f1e028434818fd1@canb.auug.org.au>
-In-Reply-To: <1363964122-19201-1-git-send-email-ian@slimlogic.co.uk>
-References: <1363964122-19201-1-git-send-email-ian@slimlogic.co.uk>
+	Fri, 22 Mar 2013 16:53:00 -0400
+Date: Fri, 22 Mar 2013 21:52:58 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	=?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
+Subject: Re: [PATCH v2 0/8] watchdog: w83627hf: Convert to watchdog infrastructure
+Message-ID: <20130322205258.GE7867@spo001.leaseweb.com>
+References: <1362957300-18223-1-git-send-email-linux@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA256";
- boundary="Signature=_Sat__23_Mar_2013_06_04_55_+1100_7Olw5O_=bY6EnJIk"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1362957300-18223-1-git-send-email-linux@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
---Signature=_Sat__23_Mar_2013_06_04_55_+1100_7Olw5O_=bY6EnJIk
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi Guenter,
 
-Hi Ian,
+> Convert to watchdog infrastructure, cleanup, add support for additional
+> chips, and merge with W83697HF and W83697UG watchdog drivers.
+> 
+> Tested with W83627UHG, NCT6775, NCT6776. Additional test feedback
+> for other chips would be appreciated.
+> 
+> Original idea was to prepare the driver for use as a client to an MFD driver,
+> but I found that requesting memory with request_muxed_region works just as well
+> and has less impact. v2 includes the knowledge gained from converting the
+> driver to an MFD client driver, but without the actual conversion.
+> 
+> v2: Tested with W83627UHG
+>     Retain timeout module parameter; use watchdog_init_timeout to set it
+>     Eliminate some cosmetic changes
+>     Drop spinlock.h include
+>     Keep "initialized" message
+>     Don't try to configure WDTO for W83627UHG and W83627EHF
+>     Don't report the nowayout option with the 'initializing' message
+>     Use request_muxed_region to reserve memory range only while needed
+>     Add support for W83627S, W83627DHG-P, W83667HG, and NCT6779
 
-On Fri, 22 Mar 2013 14:55:10 +0000 Ian Lartey <ian@slimlogic.co.uk> wrote:
->
-> This patchset adds to the support for the Palmas series of PMIC chips.
->=20
-> Some of the patches have previously been submitted individually.
-> The DT bindings doc has been added first due to comments that it was miss=
-ing.
->=20
-> Patches based on linux-next-20130319
+In 2011 I started something similar but then with the MFD approach in mind.
+Goal was also to clean-up the w836* watchdog drivers and get a clean driver that
+supports all Winbond super-I/O based watchdog drivers.
 
-I can't really comment on the patch set except to say that you should not
-base on linux-next, you should base on the tree to which you expect the
-patch set to be applied.
+I dug op the development code again. I'll post it in a next e-mail so that we can
+see what the best way forward is. Note: I took the MFD approach because:
+1) all superio shares the similar functions for using the Super-I/O registers.
+2) Goal is to have low-level driver that support the specific super-I/O chipsets
+and that does the platform stuff for hwmon, watchdog, gpio, ...
 
---=20
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
+Kind regards,
+Wim.
 
---Signature=_Sat__23_Mar_2013_06_04_55_+1100_7Olw5O_=bY6EnJIk
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBCAAGBQJRTKtXAAoJEECxmPOUX5FE0UQP/0KeuAdMIeoUJESYzR52cQRt
-aykiOFX+2bqP4WysLpghKuqJJKMPtVvVyIiCKtl6KimXgheucQGcAlmYcmHnwIo6
-v3sg+B8wPWBNQOpA+wR8dsly10arpqdQQJ43dyTIpG+4zWD83sSaClKBhj9KuaIn
-Ib8DzbwDOaO3PTyiz8AOWvI4GgqxBhzfzZ2y7heojGPOqvHKy3cMgQMync6vgx7C
-1hTIbOq54KY7OsCBvkZoshGhqRD0DxYrDb3EJFt9ogpGQZx0pLIoUy9AqWgpgHN3
-CXBsy0+QKRjNImOu6za3T1d/vH/SVoupRlvzWxaNeKm285/JnZ9JrCJBKq7uR66i
-4ekE7kpVih0nrN7AGAOFIaSYVYJOroXzrbKBmFqhgTSch0xUTSkYqB6OgOrCbyzg
-cZ3E6kFwEv8tkvFsUEmvFHUnShs9ig8vY4Ria0/UG/IooswCMzxzzyb4Oe1MBi6J
-DEMcjZMUgPhvkwiIx0K4fZVUOg8ejg5Dsm85LPW8vCH9+IWxZkToOxt5dqGWOZNY
-I/RsZa6KiCrPIDn/b0kzsCiW4R1eDgAYG9esZJtD24FjAxy4hz23bIhBGCnyQSGy
-XCNKg7Y7dTldlE3b0NeymXKmCSqB1oVzhYvfsYwTkBEM9Ndn8Xcx3PLkUJuCz+04
-flX7Y1oRx47xFh6o8Ajm
-=vdaI
------END PGP SIGNATURE-----
-
---Signature=_Sat__23_Mar_2013_06_04_55_+1100_7Olw5O_=bY6EnJIk--
