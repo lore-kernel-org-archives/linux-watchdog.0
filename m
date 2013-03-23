@@ -1,25 +1,24 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:55922 "EHLO
+Received: from mail.active-venture.com ([67.228.131.205]:50265 "EHLO
 	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752441Ab3CWX1B (ORCPT
+	with ESMTP id S1752403Ab3CXCSU (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 23 Mar 2013 19:27:01 -0400
-Date: Sat, 23 Mar 2013 08:15:56 -0700
+	Sat, 23 Mar 2013 22:18:20 -0400
+Date: Sat, 23 Mar 2013 10:49:14 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 To: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
 	Samuel Ortiz <sameo@linux.intel.com>,
 	=?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
-Subject: mfd: Core driver for W836{2389}7[T]HF
-Message-ID: <20130323151556.GB17355@roeck-us.net>
+Subject: mfd: Core driver for Winbond chips
+Message-ID: <20130323174914.GA21563@roeck-us.net>
 References: <1362957300-18223-1-git-send-email-linux@roeck-us.net>
  <20130322205258.GE7867@spo001.leaseweb.com>
  <20130323002810.GA26245@roeck-us.net>
- <20130323125742.GG7867@spo001.leaseweb.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20130323125742.GG7867@spo001.leaseweb.com>
+In-Reply-To: <20130323002810.GA26245@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
@@ -27,20 +26,6 @@ MFD core driver for various variants of Winbond/Nuvoton SuperIO chips.
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
-
-My variant of an MFD core driver for Winbond chips.
-
-Key differences to Wim's driver
-- Uses mfd infrastructure
-- Passes enum instead of raw device id to client drivers
-- Uses request_muxed_region instead of an in-module function for
-  superio_enter
-  [ Using an in-module function and in-module locking may be better ]
-
-TODO:
-- Detect and instantiate superio chips on both addresses, not just one.
-- Replace static variables 'pdev' and mfd_cells[].
-
  drivers/mfd/Kconfig          |   22 +++
  drivers/mfd/Makefile         |    1 +
  drivers/mfd/w83627hf-core.c  |  324 ++++++++++++++++++++++++++++++++++++++++++
