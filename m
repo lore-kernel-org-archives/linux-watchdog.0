@@ -1,88 +1,65 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:34138 "EHLO
-	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422725Ab3CWCYx (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:40379 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750806Ab3CWM5q (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 22 Mar 2013 22:24:53 -0400
-Message-ID: <514D1273.8070902@wwwdotorg.org>
-Date: Fri, 22 Mar 2013 20:24:51 -0600
-From: Stephen Warren <swarren@wwwdotorg.org>
-MIME-Version: 1.0
-To: Lubomir Rintel <lkundrak@v3.sk>
-CC: linux-kernel@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	linux-rpi-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: Add Broadcom BCM2708 watchdog timer driver
-References: <1363956907-5644-1-git-send-email-lkundrak@v3.sk>
-In-Reply-To: <1363956907-5644-1-git-send-email-lkundrak@v3.sk>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sat, 23 Mar 2013 08:57:46 -0400
+Date: Sat, 23 Mar 2013 13:57:42 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	=?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
+Subject: Re: [PATCH v2 0/8] watchdog: w83627hf: Convert to watchdog infrastructure
+Message-ID: <20130323125742.GG7867@spo001.leaseweb.com>
+References: <1362957300-18223-1-git-send-email-linux@roeck-us.net> <20130322205258.GE7867@spo001.leaseweb.com> <20130323002810.GA26245@roeck-us.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20130323002810.GA26245@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 03/22/2013 06:55 AM, Lubomir Rintel wrote:
-> Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+Hi Guenter,
 
-A commit description would be useful.
+> > In 2011 I started something similar but then with the MFD approach in mind.
+> > Goal was also to clean-up the w836* watchdog drivers and get a clean driver that
+> > supports all Winbond super-I/O based watchdog drivers.
+> > 
+> > I dug op the development code again. I'll post it in a next e-mail so that we can
+> > see what the best way forward is. Note: I took the MFD approach because:
+> > 1) all superio shares the similar functions for using the Super-I/O registers.
+> > 2) Goal is to have low-level driver that support the specific super-I/O chipsets
+> > and that does the platform stuff for hwmon, watchdog, gpio, ...
+> > 
+> Hi Wim,
+> 
+> I started with a similar approach, only I used mfd cells to pass on platform
+> specific information such as the device type and the superio base address.
+> I still have the patchset for the mfd driver, in case you are interested.
+> My code is based on the patches submitted by Rodolfo Giometti a couple
+> of years ago. Want me to post it ?
 
->  arch/arm/configs/bcm2835_defconfig |    4 +
->  drivers/watchdog/Kconfig           |   11 +++
->  drivers/watchdog/Makefile          |    1 +
->  drivers/watchdog/bcm2835_wdt.c     |  158 ++++++++++++++++++++++++++++++++++++
+If it's not v1 then I am interested.
+I think it depends on the super-I/O chipset of what info you can pass. I would
+not use mfd cells for the winbond driver but use platform data (similar to
+drivers/mfd/adp5520.c) because you don't need more then just pass some data.
 
-The changes to bcm2835_defconfig should be a separate patch, since they
-would be applied in the BCM2835 ARM sub-arch tree, whereas the driver
-patch would be applied to the watchdog driver tree.
+> What I noticed in my testing is that the superio address range (2e or 4e),
+> which the drivers currently take as granted, is at least on my systems
+> (all three of them) reserved by ACPI. Unfortunately that means one can not
+> use the mfd infrastructure to pass on the superio memory region,
+> since it checks for acpi conflicts. With that I gave up on the idea and
+> reverted to using request_muxed_region. That seemed simpler and accomplish
+> the same as long as all drivers actually use it.
 
-> diff --git a/arch/arm/configs/bcm2835_defconfig b/arch/arm/configs/bcm2835_defconfig
+Noticed the same. That's why passing the platform data together with the
+superio-address and type seems the best way to go. I also kept the superio_enter
+and superio_exit a function in the low level driver because I used a lock to
+make sure that the hwmon code doesn't start doing things when the watchdog is
+doing things. But I think that the request_muxed_region is doing something similar
+also.
 
-> +CONFIG_BCM2835_WDT=y
-> +
->  CONFIG_MMC=y
+Kind regards,
+Wim.
 
-That blank line is a little odd; was this defconfig change created using
-"make savedefconfig"?
-
-> diff --git a/drivers/watchdog/bcm2835_wdt.c b/drivers/watchdog/bcm2835_wdt.c
-
-> +static int heartbeat = -1;
-> +static bool nowayout = WATCHDOG_NOWAYOUT;
-> +static void __iomem *wdt_regs;
-> +static DEFINE_SPINLOCK(wdog_lock);
-
-Can these be stored in a dynamically-allocated structure, stored in the
-device's drvdata?
-
-> +static struct platform_driver bcm2835_wdt_driver = {
-...
-> +};
-> +
-> +module_platform_driver(bcm2835_wdt_driver);
-
-I believe it's typical not to leave a blank line before
-module_platform_driver();
-
-A couple of general comments:
-
-1)
-
-This driver touches the same registers that
-arch/arm/mach-bcm2835/bcm2835.c uses to implement reboot and "power
-off". Some co-ordination might be necessary.
-
-The implementation of bcm2835_power_off() could easily be moved into
-this driver, to avoid some of the need for co-ordination.
-
-Moving bcm2835_restart() would be more tricky, since the ARM machine
-descriptor needs a pointer to that function. I guess the kernel probably
-ensures that none of the code in this watchdog driver is running by the
-time bcm2835_restart() is called, although perhaps it'd be better to
-have mach-bcm2835/bcm2835.c and this driver share a lock?
-
-2)
-
-I'm curious where you got the documentation to write this driver; this
-HW module isn't described in BCM2835-ARM-Peripherals.pdf. I assume this
-is based on the downstream kernel driver? If so, at least some credit in
-the commit description might be appropriate. At least the relevant
-commit downstream already has an appropriate Signed-off-by line:-)
