@@ -1,78 +1,88 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:49249 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422754Ab3CWA2H (ORCPT
+Received: from avon.wwwdotorg.org ([70.85.31.133]:34138 "EHLO
+	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1422725Ab3CWCYx (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 22 Mar 2013 20:28:07 -0400
-Date: Fri, 22 Mar 2013 17:28:10 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	=?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
-Subject: Re: [PATCH v2 0/8] watchdog: w83627hf: Convert to watchdog
- infrastructure
-Message-ID: <20130323002810.GA26245@roeck-us.net>
-References: <1362957300-18223-1-git-send-email-linux@roeck-us.net>
- <20130322205258.GE7867@spo001.leaseweb.com>
+	Fri, 22 Mar 2013 22:24:53 -0400
+Message-ID: <514D1273.8070902@wwwdotorg.org>
+Date: Fri, 22 Mar 2013 20:24:51 -0600
+From: Stephen Warren <swarren@wwwdotorg.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20130322205258.GE7867@spo001.leaseweb.com>
+To: Lubomir Rintel <lkundrak@v3.sk>
+CC: linux-kernel@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+	linux-rpi-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] watchdog: Add Broadcom BCM2708 watchdog timer driver
+References: <1363956907-5644-1-git-send-email-lkundrak@v3.sk>
+In-Reply-To: <1363956907-5644-1-git-send-email-lkundrak@v3.sk>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Mar 22, 2013 at 09:52:58PM +0100, Wim Van Sebroeck wrote:
-> Hi Guenter,
-> 
-> > Convert to watchdog infrastructure, cleanup, add support for additional
-> > chips, and merge with W83697HF and W83697UG watchdog drivers.
-> > 
-> > Tested with W83627UHG, NCT6775, NCT6776. Additional test feedback
-> > for other chips would be appreciated.
-> > 
-> > Original idea was to prepare the driver for use as a client to an MFD driver,
-> > but I found that requesting memory with request_muxed_region works just as well
-> > and has less impact. v2 includes the knowledge gained from converting the
-> > driver to an MFD client driver, but without the actual conversion.
-> > 
-> > v2: Tested with W83627UHG
-> >     Retain timeout module parameter; use watchdog_init_timeout to set it
-> >     Eliminate some cosmetic changes
-> >     Drop spinlock.h include
-> >     Keep "initialized" message
-> >     Don't try to configure WDTO for W83627UHG and W83627EHF
-> >     Don't report the nowayout option with the 'initializing' message
-> >     Use request_muxed_region to reserve memory range only while needed
-> >     Add support for W83627S, W83627DHG-P, W83667HG, and NCT6779
-> 
-> In 2011 I started something similar but then with the MFD approach in mind.
-> Goal was also to clean-up the w836* watchdog drivers and get a clean driver that
-> supports all Winbond super-I/O based watchdog drivers.
-> 
-> I dug op the development code again. I'll post it in a next e-mail so that we can
-> see what the best way forward is. Note: I took the MFD approach because:
-> 1) all superio shares the similar functions for using the Super-I/O registers.
-> 2) Goal is to have low-level driver that support the specific super-I/O chipsets
-> and that does the platform stuff for hwmon, watchdog, gpio, ...
-> 
-Hi Wim,
+On 03/22/2013 06:55 AM, Lubomir Rintel wrote:
+> Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
 
-I started with a similar approach, only I used mfd cells to pass on platform
-specific information such as the device type and the superio base address.
-I still have the patchset for the mfd driver, in case you are interested.
-My code is based on the patches submitted by Rodolfo Giometti a couple
-of years ago. Want me to post it ?
+A commit description would be useful.
 
-What I noticed in my testing is that the superio address range (2e or 4e),
-which the drivers currently take as granted, is at least on my systems
-(all three of them) reserved by ACPI. Unfortunately that means one can not
-use the mfd infrastructure to pass on the superio memory region,
-since it checks for acpi conflicts. With that I gave up on the idea and
-reverted to using request_muxed_region. That seemed simpler and accomplish
-the same as long as all drivers actually use it.
+>  arch/arm/configs/bcm2835_defconfig |    4 +
+>  drivers/watchdog/Kconfig           |   11 +++
+>  drivers/watchdog/Makefile          |    1 +
+>  drivers/watchdog/bcm2835_wdt.c     |  158 ++++++++++++++++++++++++++++++++++++
 
-Ultimately, I am open to either approach.
+The changes to bcm2835_defconfig should be a separate patch, since they
+would be applied in the BCM2835 ARM sub-arch tree, whereas the driver
+patch would be applied to the watchdog driver tree.
 
-Thanks,
-Guenter
+> diff --git a/arch/arm/configs/bcm2835_defconfig b/arch/arm/configs/bcm2835_defconfig
+
+> +CONFIG_BCM2835_WDT=y
+> +
+>  CONFIG_MMC=y
+
+That blank line is a little odd; was this defconfig change created using
+"make savedefconfig"?
+
+> diff --git a/drivers/watchdog/bcm2835_wdt.c b/drivers/watchdog/bcm2835_wdt.c
+
+> +static int heartbeat = -1;
+> +static bool nowayout = WATCHDOG_NOWAYOUT;
+> +static void __iomem *wdt_regs;
+> +static DEFINE_SPINLOCK(wdog_lock);
+
+Can these be stored in a dynamically-allocated structure, stored in the
+device's drvdata?
+
+> +static struct platform_driver bcm2835_wdt_driver = {
+...
+> +};
+> +
+> +module_platform_driver(bcm2835_wdt_driver);
+
+I believe it's typical not to leave a blank line before
+module_platform_driver();
+
+A couple of general comments:
+
+1)
+
+This driver touches the same registers that
+arch/arm/mach-bcm2835/bcm2835.c uses to implement reboot and "power
+off". Some co-ordination might be necessary.
+
+The implementation of bcm2835_power_off() could easily be moved into
+this driver, to avoid some of the need for co-ordination.
+
+Moving bcm2835_restart() would be more tricky, since the ARM machine
+descriptor needs a pointer to that function. I guess the kernel probably
+ensures that none of the code in this watchdog driver is running by the
+time bcm2835_restart() is called, although perhaps it'd be better to
+have mach-bcm2835/bcm2835.c and this driver share a lock?
+
+2)
+
+I'm curious where you got the documentation to write this driver; this
+HW module isn't described in BCM2835-ARM-Peripherals.pdf. I assume this
+is based on the downstream kernel driver? If so, at least some credit in
+the commit description might be appropriate. At least the relevant
+commit downstream already has an appropriate Signed-off-by line:-)
