@@ -1,35 +1,78 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-vc0-f170.google.com ([209.85.220.170]:62835 "EHLO
-	mail-vc0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755060Ab3CVXz0 (ORCPT
+Received: from mail.active-venture.com ([67.228.131.205]:49249 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1422754Ab3CWA2H (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 22 Mar 2013 19:55:26 -0400
-MIME-Version: 1.0
-In-Reply-To: <20130322222750.GF7867@spo001.leaseweb.com>
-References: <20130322222750.GF7867@spo001.leaseweb.com>
-Date: Fri, 22 Mar 2013 16:55:25 -0700
-Message-ID: <CA+55aFyuMNR1tj9NyvZ3qx2ygoghqFcmquTeDnkH48S0pPTHqg@mail.gmail.com>
-Subject: Re: [GIT PULL REQUEST] watchdog - v3.9-rc4 Fixes
-From: Linus Torvalds <torvalds@linux-foundation.org>
+	Fri, 22 Mar 2013 20:28:07 -0400
+Date: Fri, 22 Mar 2013 17:28:10 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Takahisa Tanaka <mc74hc00@gmail.com>,
-	Paul Menzel <paulepanter@users.sourceforge.net>
-Content-Type: text/plain; charset=UTF-8
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	=?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
+Subject: Re: [PATCH v2 0/8] watchdog: w83627hf: Convert to watchdog
+ infrastructure
+Message-ID: <20130323002810.GA26245@roeck-us.net>
+References: <1362957300-18223-1-git-send-email-linux@roeck-us.net>
+ <20130322205258.GE7867@spo001.leaseweb.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20130322205258.GE7867@spo001.leaseweb.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Mar 22, 2013 at 3:27 PM, Wim Van Sebroeck <wim@iguana.be> wrote:
->
-> Please pull from 'master' branch of
->         git://www.linux-watchdog.org/linux-watchdog.git
+On Fri, Mar 22, 2013 at 09:52:58PM +0100, Wim Van Sebroeck wrote:
+> Hi Guenter,
+> 
+> > Convert to watchdog infrastructure, cleanup, add support for additional
+> > chips, and merge with W83697HF and W83697UG watchdog drivers.
+> > 
+> > Tested with W83627UHG, NCT6775, NCT6776. Additional test feedback
+> > for other chips would be appreciated.
+> > 
+> > Original idea was to prepare the driver for use as a client to an MFD driver,
+> > but I found that requesting memory with request_muxed_region works just as well
+> > and has less impact. v2 includes the knowledge gained from converting the
+> > driver to an MFD client driver, but without the actual conversion.
+> > 
+> > v2: Tested with W83627UHG
+> >     Retain timeout module parameter; use watchdog_init_timeout to set it
+> >     Eliminate some cosmetic changes
+> >     Drop spinlock.h include
+> >     Keep "initialized" message
+> >     Don't try to configure WDTO for W83627UHG and W83627EHF
+> >     Don't report the nowayout option with the 'initializing' message
+> >     Use request_muxed_region to reserve memory range only while needed
+> >     Add support for W83627S, W83627DHG-P, W83667HG, and NCT6779
+> 
+> In 2011 I started something similar but then with the MFD approach in mind.
+> Goal was also to clean-up the w836* watchdog drivers and get a clean driver that
+> supports all Winbond super-I/O based watchdog drivers.
+> 
+> I dug op the development code again. I'll post it in a next e-mail so that we can
+> see what the best way forward is. Note: I took the MFD approach because:
+> 1) all superio shares the similar functions for using the Super-I/O registers.
+> 2) Goal is to have low-level driver that support the specific super-I/O chipsets
+> and that does the platform stuff for hwmon, watchdog, gpio, ...
+> 
+Hi Wim,
 
-That host seems to be a little sick right now. I'm not getting
-anything from it, just a very long wait followed by "Connection reset
-by peer".
+I started with a similar approach, only I used mfd cells to pass on platform
+specific information such as the device type and the superio base address.
+I still have the patchset for the mfd driver, in case you are interested.
+My code is based on the patches submitted by Rodolfo Giometti a couple
+of years ago. Want me to post it ?
 
-Hmm?
+What I noticed in my testing is that the superio address range (2e or 4e),
+which the drivers currently take as granted, is at least on my systems
+(all three of them) reserved by ACPI. Unfortunately that means one can not
+use the mfd infrastructure to pass on the superio memory region,
+since it checks for acpi conflicts. With that I gave up on the idea and
+reverted to using request_muxed_region. That seemed simpler and accomplish
+the same as long as all drivers actually use it.
 
-              Linus
+Ultimately, I am open to either approach.
+
+Thanks,
+Guenter
