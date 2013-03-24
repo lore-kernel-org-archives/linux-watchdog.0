@@ -1,109 +1,133 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from norkia.v3.sk ([91.210.183.14]:46838 "EHLO norkia.v3.sk"
+Received: from norkia.v3.sk ([91.210.183.14]:58426 "EHLO norkia.v3.sk"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753845Ab3CXOHB (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 24 Mar 2013 10:07:01 -0400
-Subject: Re: watchdog: Add Broadcom BCM2708 watchdog timer driver
+	id S1753845Ab3CXOMI (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Sun, 24 Mar 2013 10:12:08 -0400
+Subject: Re: [PATCH] watchdog: Add Broadcom BCM2708 watchdog timer driver
 From: Lubomir Rintel <lkundrak@v3.sk>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-kernel@vger.kernel.org,
-	Stephen Warren <swarren@wwwdotorg.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
+To: Stephen Warren <swarren@wwwdotorg.org>
+Cc: linux-kernel@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
 	linux-rpi-kernel@lists.infradead.org,
 	linux-watchdog@vger.kernel.org
-In-Reply-To: <20130322135601.GA11264@roeck-us.net>
+In-Reply-To: <514D1273.8070902@wwwdotorg.org>
 References: <1363956907-5644-1-git-send-email-lkundrak@v3.sk>
-	 <20130322135601.GA11264@roeck-us.net>
+	 <514D1273.8070902@wwwdotorg.org>
 Content-Type: text/plain; charset="UTF-8"
-Date: Sun, 24 Mar 2013 15:06:59 +0100
-Message-ID: <1364134019.2906.2.camel@hobbes.kokotovo>
+Date: Sun, 24 Mar 2013 15:12:04 +0100
+Message-ID: <1364134324.2906.8.camel@hobbes.kokotovo>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, 2013-03-22 at 06:56 -0700, Guenter Roeck wrote:
+On Fri, 2013-03-22 at 20:24 -0600, Stephen Warren wrote:
 
 Thank you for your response!
 
-On Fri Mar 22 09:56:01 EDT 2013, Guenter Roeck wrote:
-> On Fri, Mar 22, 2013 at 12:55:07PM -0000, Lubomir Rintel wrote:
-...
-> > +	writel_relaxed(PM_PASSWORD | (cur & PM_RSTC_WRCFG_CLR) |
-> > +		  PM_RSTC_WRCFG_FULL_RESET, wdt_regs + PM_RSTC);
+> On 03/22/2013 06:55 AM, Lubomir Rintel wrote:
+> > Signed-off-by: Lubomir Rintel <lkundrak at v3.sk>
+> 
+> A commit description would be useful.
+
+I'll add a more descriptive one in next patch revision.
+
+> >  arch/arm/configs/bcm2835_defconfig |    4 +
+> >  drivers/watchdog/Kconfig           |   11 +++
+> >  drivers/watchdog/Makefile          |    1 +
+> >  drivers/watchdog/bcm2835_wdt.c     |  158 ++++++++++++++++++++++++++++++++++++
+> 
+> The changes to bcm2835_defconfig should be a separate patch, since they
+> would be applied in the BCM2835 ARM sub-arch tree, whereas the driver
+> patch would be applied to the watchdog driver tree.
+
+Okay, makes sense to me.
+
+> > diff --git a/arch/arm/configs/bcm2835_defconfig b/arch/arm/configs/bcm2835_defconfig
+> 
+> > +CONFIG_BCM2835_WDT=y
 > > +
-> Nitpick - I prefer people to use the recommended continuation line style,
-> but that is really up to the maintainer to decide.
-
-Well, I intended to comply with Documentation/CodingStyle, are you referring to 
-it? I fail to understand what to do to be more compliant and could not really 
-identify a style that would be consistently used across the kernel source. 
-Should I cut then second line into two smaller parts that would be aligned with 
-right line end?
-
-...
-> > +static int bcm2835_wdt_set_timeout(struct watchdog_device *wdog, unsigned int t)
-> > +{
-> > +	wdog->timeout = t;
+> >  CONFIG_MMC=y
 > 
-> No need to update the actual chip timeout ?
+> That blank line is a little odd; was this defconfig change created using
+> "make savedefconfig"?
 
-No need to, watchdog core applies the new timeout by pinging the device (see 
-below for what happens when this driver is pinged).
+No, I did not notice that the savedefconfig exists and modified the defconfig 
+by hand. I'll use it for next patch revision.
 
-See: WDIOC_SETTIMEOUT in drivers/watchdog/watchdog_dev.c
-
-...
-> > +static struct watchdog_ops bcm2835_wdt_ops = {
-> > +	.owner =	THIS_MODULE,
-> > +	.start =	bcm2835_wdt_start,
-> > +	.stop =		bcm2835_wdt_stop,
-> > +	.set_timeout =	bcm2835_wdt_set_timeout,
-> > +	.get_timeleft =	bcm2835_wdt_get_timeleft,
+> > diff --git a/drivers/watchdog/bcm2835_wdt.c b/drivers/watchdog/bcm2835_wdt.c
 > 
-> No separate ping function ?
-
-The watchdog documentation core states:
-
-  "Most hardware that does not support this as a separate function uses the
-  start function to restart the watchdog timer hardware. And that's also what
-  the watchdog timer driver core does."
-
-This indeed applies to this driver.
-
-...
-> > +	if (WARN(!wdt_regs, "failed to remap watchdog regs"))
-> > +		return -ENODEV;
+> > +static int heartbeat = -1;
+> > +static bool nowayout = WATCHDOG_NOWAYOUT;
+> > +static void __iomem *wdt_regs;
+> > +static DEFINE_SPINLOCK(wdog_lock);
 > 
-> WARN seems to be a bit extreme. Is this necessary ?
+> Can these be stored in a dynamically-allocated structure, stored in the
+> device's drvdata?
 
-Probably not. I'll replace it with dev_err() instead.
+Well, not hearbeat and nowayout, those are module parameters.
 
-> > +	dev_info(dev, "Broadcom BCM2835 watchdog timer");
+The other ones make perfect sense, I've attempted to use a per-device 
+dynamically-allocated structure for those.
+
+> > +static struct platform_driver bcm2835_wdt_driver = {
+> ...
+> > +};
 > > +
-> > +	watchdog_init_timeout(&bcm2835_wdt_wdd, heartbeat, dev);
+> > +module_platform_driver(bcm2835_wdt_driver);
 > 
-> Since heartbeat is by default set to -1, which is interpreted as unsigned
-> int, I would expect this call to return -EINVAL, leaving the default timeout
-> undefined. Is this really what you want ?
+> I believe it's typical not to leave a blank line before
+> module_platform_driver();
 
-Well, I looked into orion-wdt for an example how to initialize the default 
-timeout, but failed to understand it correctly. I thought that watchdog core 
-picks a sensible value upon getting -1, which is incorrect. They in fact use 
-initialize timeout with maximal value, and use a fall-through vi EINVAL to leave 
-it untouched if it was not overridden. I'll do the same thing now.
+Okay.
 
-> > +	watchdog_set_nowayout(&bcm2835_wdt_wdd, nowayout);
-> > +	return watchdog_register_device(&bcm2835_wdt_wdd);
+> A couple of general comments:
 > 
-> Leaking iomap if this fails.
+> 1)
+> 
+> This driver touches the same registers that
+> arch/arm/mach-bcm2835/bcm2835.c uses to implement reboot and "power
+> off". Some co-ordination might be necessary.
+> 
+> The implementation of bcm2835_power_off() could easily be moved into
+> this driver, to avoid some of the need for co-ordination.
+> 
+> Moving bcm2835_restart() would be more tricky, since the ARM machine
+> descriptor needs a pointer to that function. I guess the kernel probably
+> ensures that none of the code in this watchdog driver is running by the
+> time bcm2835_restart() is called, although perhaps it'd be better to
+> have mach-bcm2835/bcm2835.c and this driver share a lock?
 
-Oops. Fixing.
+I need help here, I'm not sure what's the proper way to address this
+(whether to include the actual reboot code in the wdt driver or the
+platform driver).
 
-> Would be nice to have something like devm_of_iomap ...
+Is it okay to have the platform driver depend on watchdog timer?
+Is it okay for the platform driver not to reboot properly if the kernel
+is running without the wdt driver loaded?
 
-That sounds sound to me. Sent out a separate patch implementing it, and I'll 
-modify this if it gets merged.
+(For now, I'll send a revised patch addressing the other issues so that
+it can be reviewed without addressing this yet.)
+
+> 2)
+> 
+> I'm curious where you got the documentation to write this driver; this
+> HW module isn't described in BCM2835-ARM-Peripherals.pdf. I assume this
+> is based on the downstream kernel driver? If so, at least some credit in
+> the commit description might be appropriate. At least the relevant
+> commit downstream already has an appropriate Signed-off-by line:-)
+
+Your guess is right, used bcm2708_wdog driver from rpi-3.6.y as a reference. 
+I'll add that information to the commit message.
+
+The Signed-off-by line is indeed present, but unfortunately does not seem to be 
+particularly appropriate:
+
+Signed-off-by: popcornmix <popcornmix@gmail.com>
+
+I'm wondering if it's actually relevant, since the useful bits of the 
+downstream driver boil down to macro defines.
+
+Have a nice day!
 
 -- 
 Lubomir Rintel <lkundrak@v3.sk>
