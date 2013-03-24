@@ -1,35 +1,36 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:62277 "EHLO
+Received: from mail.active-venture.com ([67.228.131.205]:62343 "EHLO
 	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752715Ab3CXJRv (ORCPT
+	with ESMTP id S1752898Ab3CXJSB (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 24 Mar 2013 05:17:51 -0400
-Date: Sat, 23 Mar 2013 19:39:44 -0700
+	Sun, 24 Mar 2013 05:18:01 -0400
+Date: Sat, 23 Mar 2013 21:09:34 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	=?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
-Subject: Re: mfd: Core driver for Winbond chips
-Message-ID: <20130324023944.GA26505@roeck-us.net>
-References: <1362957300-18223-1-git-send-email-linux@roeck-us.net>
- <20130322205258.GE7867@spo001.leaseweb.com>
- <20130323002810.GA26245@roeck-us.net>
- <20130323174914.GA21563@roeck-us.net>
+To: Ian Lartey <ian@slimlogic.co.uk>
+Cc: linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-leds@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	devicetree-discuss@lists.ozlabs.org, swarren@wwwdotorg.org,
+	grant.likely@secretlab.ca, broonie@opensource.wolfsonmicro.com,
+	rob.h@jasper.es
+Subject: Re: [PATCH v10 05/12] watchdog: Kconfig for Palmas watchdog
+Message-ID: <20130324040934.GA26781@roeck-us.net>
+References: <1363964122-19201-1-git-send-email-ian@slimlogic.co.uk>
+ <1363964122-19201-6-git-send-email-ian@slimlogic.co.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20130323174914.GA21563@roeck-us.net>
+In-Reply-To: <1363964122-19201-6-git-send-email-ian@slimlogic.co.uk>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sat, Mar 23, 2013 at 10:49:14AM -0700, Guenter Roeck wrote:
-> MFD core driver for various variants of Winbond/Nuvoton SuperIO chips.
+On Fri, Mar 22, 2013 at 02:55:15PM +0000, Ian Lartey wrote:
+> Add the Kconfig and Makefile for the Palmas watchdog driver
 > 
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> Signed-off-by: Ian Lartey <ian@slimlogic.co.uk>
+> Signed-off-by: Graeme Gregory <gg@slimlogic.co.uk>
+> ---
 
-Sorry for sending this twice. I seem to be having trouble with outgoing e-mail
-being delayed for hours. The first patch didn't show up for a long time, and I
-thought I did something wrong when sending it.
+I think this patch should be merged with the previous one.
 
 Guenter
