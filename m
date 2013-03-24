@@ -1,131 +1,76 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:51288 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754027Ab3CXPg1 (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:33192 "EHLO
+	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754161Ab3CXVNl (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 24 Mar 2013 11:36:27 -0400
-Date: Sun, 24 Mar 2013 08:36:35 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Lubomir Rintel <lkundrak@v3.sk>
-Cc: linux-kernel@vger.kernel.org,
-	Stephen Warren <swarren@wwwdotorg.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-rpi-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: watchdog: Add Broadcom BCM2708 watchdog timer driver
-Message-ID: <20130324153635.GA15620@roeck-us.net>
-References: <1363956907-5644-1-git-send-email-lkundrak@v3.sk>
- <20130322135601.GA11264@roeck-us.net>
- <1364134019.2906.2.camel@hobbes.kokotovo>
+	Sun, 24 Mar 2013 17:13:41 -0400
+Date: Sun, 24 Mar 2013 21:13:37 +0000
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Ian Lartey <ian@slimlogic.co.uk>, linux-kernel@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-leds@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	devicetree-discuss@lists.ozlabs.org, swarren@wwwdotorg.org,
+	grant.likely@secretlab.ca, rob.herring@calxeda.com,
+	rob@landley.net, mturquette@linaro.org, linus.walleij@linaro.org,
+	cooloney@gmail.com, rpurdie@rpsys.net, akpm@linux-foundation.org,
+	sameo@linux.intel.com, wim@iguana.be, lgirdwood@gmail.com,
+	gg@slimlogic.co.uk, j-keerthy@ti.com, ldewangan@nvidia.com,
+	t-kristo@ti.com
+Subject: Re: [PATCH v10 0/12] Palmas updates
+Message-ID: <20130324211336.GA18316@opensource.wolfsonmicro.com>
+References: <1363964122-19201-1-git-send-email-ian@slimlogic.co.uk>
+ <20130323060455.78a4c90c3f1e028434818fd1@canb.auug.org.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="oyUTqETQ0mS9luUI"
 Content-Disposition: inline
-In-Reply-To: <1364134019.2906.2.camel@hobbes.kokotovo>
+In-Reply-To: <20130323060455.78a4c90c3f1e028434818fd1@canb.auug.org.au>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sun, Mar 24, 2013 at 03:06:59PM +0100, Lubomir Rintel wrote:
-> On Fri, 2013-03-22 at 06:56 -0700, Guenter Roeck wrote:
-> 
-> Thank you for your response!
-> 
-> On Fri Mar 22 09:56:01 EDT 2013, Guenter Roeck wrote:
-> > On Fri, Mar 22, 2013 at 12:55:07PM -0000, Lubomir Rintel wrote:
-> ...
-> > > +	writel_relaxed(PM_PASSWORD | (cur & PM_RSTC_WRCFG_CLR) |
-> > > +		  PM_RSTC_WRCFG_FULL_RESET, wdt_regs + PM_RSTC);
-> > > +
-> > Nitpick - I prefer people to use the recommended continuation line style,
-> > but that is really up to the maintainer to decide.
-> 
-> Well, I intended to comply with Documentation/CodingStyle, are you referring to 
-> it? I fail to understand what to do to be more compliant and could not really 
-> identify a style that would be consistently used across the kernel source. 
-> Should I cut then second line into two smaller parts that would be aligned with 
-> right line end?
-> 
-I was referring to line continuation aligned with '(', such as
 
-	writel_relaxed(PM_PASSWORD | (cur & PM_RSTC_WRCFG_CLR) |
-		       PM_RSTC_WRCFG_FULL_RESET, wdt_regs + PM_RSTC);
+--oyUTqETQ0mS9luUI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I don't recall how deep the indentation was - does that not fit ?
+On Sat, Mar 23, 2013 at 06:04:55AM +1100, Stephen Rothwell wrote:
+> On Fri, 22 Mar 2013 14:55:10 +0000 Ian Lartey <ian@slimlogic.co.uk> wrote:
 
-> ...
-> > > +static int bcm2835_wdt_set_timeout(struct watchdog_device *wdog, unsigned int t)
-> > > +{
-> > > +	wdog->timeout = t;
-> > 
-> > No need to update the actual chip timeout ?
-> 
-> No need to, watchdog core applies the new timeout by pinging the device (see 
-> below for what happens when this driver is pinged).
-> 
-> See: WDIOC_SETTIMEOUT in drivers/watchdog/watchdog_dev.c
-> 
-Ok, makes sense.
+> > Patches based on linux-next-20130319
 
-> ...
-> > > +static struct watchdog_ops bcm2835_wdt_ops = {
-> > > +	.owner =	THIS_MODULE,
-> > > +	.start =	bcm2835_wdt_start,
-> > > +	.stop =		bcm2835_wdt_stop,
-> > > +	.set_timeout =	bcm2835_wdt_set_timeout,
-> > > +	.get_timeleft =	bcm2835_wdt_get_timeleft,
-> > 
-> > No separate ping function ?
-> 
-> The watchdog documentation core states:
-> 
->   "Most hardware that does not support this as a separate function uses the
->   start function to restart the watchdog timer hardware. And that's also what
->   the watchdog timer driver core does."
-> 
-> This indeed applies to this driver.
-> 
-Ok.
+> I can't really comment on the patch set except to say that you should not
+> base on linux-next, you should base on the tree to which you expect the
+> patch set to be applied.
 
-> ...
-> > > +	if (WARN(!wdt_regs, "failed to remap watchdog regs"))
-> > > +		return -ENODEV;
-> > 
-> > WARN seems to be a bit extreme. Is this necessary ?
-> 
-> Probably not. I'll replace it with dev_err() instead.
-> 
-> > > +	dev_info(dev, "Broadcom BCM2835 watchdog timer");
-> > > +
-> > > +	watchdog_init_timeout(&bcm2835_wdt_wdd, heartbeat, dev);
-> > 
-> > Since heartbeat is by default set to -1, which is interpreted as unsigned
-> > int, I would expect this call to return -EINVAL, leaving the default timeout
-> > undefined. Is this really what you want ?
-> 
-> Well, I looked into orion-wdt for an example how to initialize the default 
-> timeout, but failed to understand it correctly. I thought that watchdog core 
-> picks a sensible value upon getting -1, which is incorrect. They in fact use 
-> initialize timeout with maximal value, and use a fall-through vi EINVAL to leave 
-> it untouched if it was not overridden. I'll do the same thing now.
-> 
-Some user level documentation states that the default timeout for all drivers
-would be 60 seconds. Unfortunately, that is not correct, as all drivers do
-what they want. I myself use it as a guideline, ie use a 60 seconds default
-unless there is a good reason to use another default value (eg if the
-chip only supports a lower maximum).
+It's fairly common to suggest to people working over lots of subsystems
+like this that they use -next since for most subsystems it contains the
+trees that should be submitted against and it's much more efficient.
+This works OK most of the time when people are posting patches as
+opposed to pull requests, though obviously cross tree issues do happen
+=66rom time to time.
 
-> > > +	watchdog_set_nowayout(&bcm2835_wdt_wdd, nowayout);
-> > > +	return watchdog_register_device(&bcm2835_wdt_wdd);
-> > 
-> > Leaking iomap if this fails.
-> 
-> Oops. Fixing.
-> 
-> > Would be nice to have something like devm_of_iomap ...
-> 
-> That sounds sound to me. Sent out a separate patch implementing it, and I'll 
-> modify this if it gets merged.
-> 
-Excellent!
+--oyUTqETQ0mS9luUI
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-Thanks,
-Guenter
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJRT2xmAAoJELSic+t+oim9sQ8P/3zX1xNz3uTlq3HlnhSX79xf
+7Iw6wgZ+1SILWpR1+FEfkCNjUuf9C4raa5DBVJM6VOqbldQENviWMrmojhi5y+Ts
+2bCCuB/1+55C0W1WhNaAnmCtL6Yrg7RVlUr3zMLeETOWlmGc+TeNywzJMZdWCurs
+Z+DOMaZRG5AehOc1XZ0lZrGlP9QVSXTjKpGPVT65vS8Ttj9aNa7+U0X4tCVDRxsk
+ptN61dBPWXtx1PSaEiJ6IMgf8Gx7IBEtJFt1i3VgCGlFqgKrEq9oshsn1L4VwjG+
+mWiRVf5lpDhfmxUO8yFq2IbF/nVTsAx4kp45J9IbdCTjwVh5AuF8/VIDDpTIlVdO
+ibotoXoeEF4qZe/UZSwkUhVq3Pv2/z1oSrG++N0Z1KAbrnUjCLymG50zfYY8cJXP
+g1Lu6iv89emD6nMdaA/mOCsFzX+eeuBuY+Cx5j8N+EbergNjxppx4JRnplXvbNOJ
+7I/+VX1flt+pzwz6tpwwzvlSEA2yy1E5cPG9ER3tT8pwgioeR7bq6fd6V9mkiVc/
+oPjgfQ/Wll4V78nSp1yQfvKoxqW/GOczrTSv4KcJFWU+X+xMf3NEUslHYZ0xjqHv
+yNlXBx0WCqnNxCf1v8X68eMqm55YV7VRkddVR7pLV5Wdo0O/wNBc1IqV4cueU1Ze
+zKqVHVWL6GlFwJbMJS8l
+=Zv8k
+-----END PGP SIGNATURE-----
+
+--oyUTqETQ0mS9luUI--
