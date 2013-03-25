@@ -1,10 +1,10 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:37300 "EHLO
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:42633 "EHLO
 	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755017Ab3CYBHw (ORCPT
+	by vger.kernel.org with ESMTP id S1756521Ab3CYBRF (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 24 Mar 2013 21:07:52 -0400
-Date: Mon, 25 Mar 2013 01:07:43 +0000
+	Sun, 24 Mar 2013 21:17:05 -0400
+Date: Mon, 25 Mar 2013 01:16:54 +0000
 From: Mark Brown <broonie@opensource.wolfsonmicro.com>
 To: Ian Lartey <ian@slimlogic.co.uk>
 Cc: linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
@@ -17,49 +17,49 @@ Cc: linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
 	akpm@linux-foundation.org, sameo@linux.intel.com, wim@iguana.be,
 	lgirdwood@gmail.com, gg@slimlogic.co.uk, j-keerthy@ti.com,
 	ldewangan@nvidia.com, t-kristo@ti.com
-Subject: Re: [PATCH v10 12/12] regulator: palmas remove palmas-charger option
+Subject: Re: [PATCH v9 11/11] regulator: palmas remove palmas-charger option
  from DT bindings
-Message-ID: <20130325010741.GG18316@opensource.wolfsonmicro.com>
-References: <1363964122-19201-1-git-send-email-ian@slimlogic.co.uk>
- <1363964122-19201-13-git-send-email-ian@slimlogic.co.uk>
+Message-ID: <20130325011653.GI18316@opensource.wolfsonmicro.com>
+References: <1363959373-10671-1-git-send-email-ian@slimlogic.co.uk>
+ <1363959373-10671-12-git-send-email-ian@slimlogic.co.uk>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HB4mHL4PVvkpZAgW"
+	protocol="application/pgp-signature"; boundary="0XMZdl/q8hSSmFeD"
 Content-Disposition: inline
-In-Reply-To: <1363964122-19201-13-git-send-email-ian@slimlogic.co.uk>
+In-Reply-To: <1363959373-10671-12-git-send-email-ian@slimlogic.co.uk>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 
---HB4mHL4PVvkpZAgW
+--0XMZdl/q8hSSmFeD
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Fri, Mar 22, 2013 at 02:55:22PM +0000, Ian Lartey wrote:
+On Fri, Mar 22, 2013 at 01:36:13PM +0000, Ian Lartey wrote:
 > Signed-off-by: Ian Lartey <ian@slimlogic.co.uk>
 
 Applied, thanks.
 
---HB4mHL4PVvkpZAgW
+--0XMZdl/q8hSSmFeD
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJRT6NWAAoJELSic+t+oim9KOEP+gPV3x04XgKlV5XMlRypwW1o
-z1JiRLRfzJfA4uWqIenvN+3Mylzh9nWDtFGc526ZTTi9fzVnk4E3PaqCeig/8/p4
-dz8Ym0ywnEZxtO/Pvm79JnIKwCLBZO8hdJ/9YuFOe8eqyad5HW1ub7wYbnQ0NIFl
-hHMpJRxUX+w6+rBD+LK+wu8Bh0ksxmy9/R2ie93MRYMACV4LCXqY5+WtqB21hTMQ
-3nEmzo8Hfp1AaPtJRDxruNB/O2n3AVs7syP9izwG6tgtXLsIqUHKnYRJ2FkDY+jf
-+C377QTTVHek+0Yy0H6XujStmRkqNas9uAifyMPUr+nn1tD1JPL4qTkW1rSbYsSG
-zZWWq2m6HtlP6as5qXj7RwR2wcqGAKY+6IJbXFAlaFfwyMT4BKxxOP9MSwe40lRh
-HYCgPvbrF0s+kjB60r0/YOj2KDG8rtJIr8comPMCWNPbY4EL/DBAKHD6yK9sowwl
-6gGGLz0FHphklQDYG35l5athy51G2TbLCKkadDGJnUCFpViD2HMSKramvc0h3Qd0
-JcRUdIGeMKsUymucJnIDXXNtDODNncoFx3QhgbwnRsirNN+pgcechHzcN523QK4l
-U3oasKdCOylc5OKuUnnOBKOfS5Dxiqip1LJ7F4OBVChwtDpsFQvLMq/vo8wbWlrk
-GAYannmZ9/jgGlWqFPg5
-=6DEX
+iQIcBAEBAgAGBQJRT6VDAAoJELSic+t+oim95LkQAJlrVFlfarcOjVYOV08eI/gI
+rF3+84syglkIYWcxct+5P+7nZPAdk4ZC0KmiVzmFIGLbJMnaMXBfrXPLtaxkOQ81
+zSqlClTV8v9WiQDDlMpP3PL5Uxo3qxE8Zdl98KDXBRGOGVzCwM8DmOFJXktBjii1
+nsDgouWNGbVVYMZDycn+f0Z7f5Q0StxaZvBnWr2QeXYv+DV3eg1qfiANw3X/kgnA
+t6Y1drXh9l0RBqckm0Mjsj4YWcvWs4auVee4hH6Pwbweo7mZaY7UIlbwJOaQnk0k
+WbpmQkB265jnEhsnpjN9eehQ3lVCJ/GayAbYXar4ekbh/CRT2FPIaSx4v79t51Jk
+0XXaVvBVcnIKvMEQkLgLi5afOVoJCzJymG9TyC/5iUcDD3YjtawNp3ywM6lnplTs
+Jq879/DpN4glXPElYzJxItVopeTqdQhvaxtTDyjH9J6Fzg7mseFAMWvmCh8LA81Z
+S6Me6yfkXitI/xs0Faxev7qHYRmeTDT9Pux/rYFmC6JwWs9XVUjJPr8ZC+5kGRlc
+lnIuh2dWonnFKxgeY0mbxmySq/cBA/CPX6ZLlkE1NReA+YzQTR4ixQcUkSQfh5Vg
+gglcypRxEGi8qnvf91wnErF0R4Cbhr8n5VIvrhJZFONPzIAKF8D7MmDgBGSly4I8
+Ry+TX87TGVZf4+TTkrbM
+=uhet
 -----END PGP SIGNATURE-----
 
---HB4mHL4PVvkpZAgW--
+--0XMZdl/q8hSSmFeD--
