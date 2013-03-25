@@ -1,240 +1,153 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:62080 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757539Ab3CYNBb (ORCPT
+Received: from avon.wwwdotorg.org ([70.85.31.133]:54764 "EHLO
+	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932333Ab3CYSFT (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 25 Mar 2013 09:01:31 -0400
-Date: Mon, 25 Mar 2013 06:01:35 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Tony Chung <tonychung00@gmail.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/1] watchdog:improve w83627hf_wdt to timeout in minutes
-Message-ID: <20130325130135.GB28652@roeck-us.net>
-References: <1364184957-32386-1-git-send-email-tonychung00@gmail.com>
- <20130325051914.GB17618@roeck-us.net>
- <CAHyaeP0aTBcqpb0uUcwKCfzi-gJfrEoX6vQK08kN5Vh7sOqVBg@mail.gmail.com>
+	Mon, 25 Mar 2013 14:05:19 -0400
+Message-ID: <5150906F.9040202@wwwdotorg.org>
+Date: Mon, 25 Mar 2013 11:59:11 -0600
+From: Stephen Warren <swarren@wwwdotorg.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHyaeP0aTBcqpb0uUcwKCfzi-gJfrEoX6vQK08kN5Vh7sOqVBg@mail.gmail.com>
+To: Ian Lartey <ian@slimlogic.co.uk>
+CC: linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-leds@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	devicetree-discuss@lists.ozlabs.org, grant.likely@secretlab.ca,
+	broonie@opensource.wolfsonmicro.com, rob.herring@calxeda.com,
+	rob@landley.net, mturquette@linaro.org, linus.walleij@linaro.org,
+	cooloney@gmail.com, sfr@canb.auug.org.au, rpurdie@rpsys.net,
+	akpm@linux-foundation.org, sameo@linux.intel.com, wim@iguana.be,
+	lgirdwood@gmail.com, gg@slimlogic.co.uk, j-keerthy@ti.com,
+	ldewangan@nvidia.com, t-kristo@ti.com
+Subject: Re: [PATCH v10 01/12] mfd: DT bindings for the palmas family MFD
+References: <1363964122-19201-1-git-send-email-ian@slimlogic.co.uk> <1363964122-19201-2-git-send-email-ian@slimlogic.co.uk>
+In-Reply-To: <1363964122-19201-2-git-send-email-ian@slimlogic.co.uk>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sun, Mar 24, 2013 at 11:57:51PM -0700, Tony Chung wrote:
-> Thanks Guenter.
+On 03/22/2013 08:55 AM, Ian Lartey wrote:
+> From: Graeme Gregory <gg@slimlogic.co.uk>
 > 
-> So will the new watchdog infrastructure for this driver back-ported to
-> older LTS releases?
-> 
-I don't think so.
+> Add the various binding files for the palmas family of chips. There is a
+> top level MFD binding then a seperate binding for IP blocks on chips.
 
-Guenter
+> diff --git a/Documentation/devicetree/bindings/clock/palmas-clk.txt b/Documentation/devicetree/bindings/clock/palmas-clk.txt
 
-> On Sun, Mar 24, 2013 at 10:19 PM, Guenter Roeck <linux@roeck-us.net> wrote:
-> 
-> > On Sun, Mar 24, 2013 at 09:15:57PM -0700, Tony Chung wrote:
-> > > The current maximum of 255 seconds is insufficient.
-> > > For example, crash dump could take 5+ minutes.
-> > >
-> > > Signed-off-by: Tony Chung <tonychung00@gmail.com>
-> >
-> > I would suggest to use the port to the watchdog infrastructure for any
-> > changes on this driver.
-> >
-> > > ---
-> > >  drivers/watchdog/w83627hf_wdt.c |   73
-> > ++++++++++++++++++++++++++++++--------
-> > >  1 files changed, 57 insertions(+), 16 deletions(-)
-> > >
-> > > diff --git a/drivers/watchdog/w83627hf_wdt.c
-> > b/drivers/watchdog/w83627hf_wdt.c
-> > > index 92f1326..d26adfb 100644
-> > > --- a/drivers/watchdog/w83627hf_wdt.c
-> > > +++ b/drivers/watchdog/w83627hf_wdt.c
-> > > @@ -58,7 +58,7 @@ MODULE_PARM_DESC(wdt_io, "w83627hf/thf WDT io port
-> > (default 0x2E)");
-> > >  static int timeout = WATCHDOG_TIMEOUT;       /* in seconds */
-> > >  module_param(timeout, int, 0);
-> > >  MODULE_PARM_DESC(timeout,
-> > > -             "Watchdog timeout in seconds. 1 <= timeout <= 255,
-> > default="
-> > > +             "Watchdog timeout in seconds. 1 <= timeout <= 15300,
-> > default="
-> > >                               __MODULE_STRING(WATCHDOG_TIMEOUT) ".");
-> > >
-> > >  static bool nowayout = WATCHDOG_NOWAYOUT;
-> > > @@ -67,6 +67,29 @@ MODULE_PARM_DESC(nowayout,
-> > >               "Watchdog cannot be stopped once started (default="
-> > >                               __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-> > >
-> > > +/* timeout unit in minute */
-> > > +static bool use_minute;
-> > > +static char *unit;
-> > > +static int max_timeout = 15300; /* 255*60 seconds */
-> > > +
-> > > +static inline int wdt_round_secs_to_minute(int t)
-> > > +{
-> > > +     return (t + 59) / 60;
-> > > +}
-> >
-> > Use DIV_ROUND_UP().
-> >
-> > > +
-> > > +static inline int wdt_use_minute(int t)
-> > > +{
-> > > +     if (t > 255) {
-> > > +             t = wdt_round_secs_to_minute(t);
-> > > +             use_minute = 1;
-> >
-> > bool has true / false.
-> >
-> > > +             unit = "minutes";
-> > > +     } else {
-> > > +             use_minute = 0;
-> > > +             unit = "secs";
-> > > +     }
-> > > +     return t;
-> > > +}
-> > > +
-> > >  /*
-> > >   *   Kernel methods.
-> > >   */
-> > > @@ -107,6 +130,23 @@ static void w83627hf_unselect_wd_register(void)
-> > >       outb_p(0xAA, WDT_EFER); /* Leave extended function mode */
-> > >  }
-> > >
-> > > +/* set CRF5 register */
-> > > +static void w83627hf_set_crf5(void)
-> > > +{
-> > > +     unsigned char t;
-> > > +
-> > > +     outb_p(0xF5, WDT_EFER); /* Select CRF5 */
-> > > +     t = inb_p(WDT_EFDR);      /* read CRF5 */
-> > > +     t &= ~0x0C;               /* set second mode & disable keyboard
-> > > +                                 turning off watchdog */
-> > > +     t |= 0x02;                /* enable the WDTO# output low pulse
-> > > +                                 to the KBRST# pin (PIN60) */
-> > > +     if (use_minute)
-> > > +             t |= 0x80;        /* set timeout in minute */
-> > > +
-> > > +     outb_p(t, WDT_EFDR);    /* Write back to CRF5 */
-> > > +}
-> > > +
-> > >  /* tyan motherboards seem to set F5 to 0x4C ?
-> > >   * So explicitly init to appropriate value. */
-> > >
-> > > @@ -116,21 +156,16 @@ static void w83627hf_init(void)
-> > >
-> > >       w83627hf_select_wd_register();
-> > >
-> > > +     w83627hf_set_crf5();
-> > > +
-> > >       outb_p(0xF6, WDT_EFER); /* Select CRF6 */
-> > >       t = inb_p(WDT_EFDR);      /* read CRF6 */
-> > >       if (t != 0) {
-> > > -             pr_info("Watchdog already running. Resetting timeout to %d
-> > sec\n",
-> > > -                     timeout);
-> > > +             pr_info("Watchdog already running.  Reset timeout to %d
-> > %s\n",
-> > > +                     timeout, unit);
-> > >               outb_p(timeout, WDT_EFDR);    /* Write back to CRF6 */
-> > >       }
-> > >
-> > > -     outb_p(0xF5, WDT_EFER); /* Select CRF5 */
-> > > -     t = inb_p(WDT_EFDR);      /* read CRF5 */
-> > > -     t &= ~0x0C;               /* set second mode & disable keyboard
-> > > -                                 turning off watchdog */
-> > > -     t |= 0x02;                /* enable the WDTO# output low pulse
-> > > -                                 to the KBRST# pin (PIN60) */
-> > > -     outb_p(t, WDT_EFDR);    /* Write back to CRF5 */
-> > >
-> > >       outb_p(0xF7, WDT_EFER); /* Select CRF7 */
-> > >       t = inb_p(WDT_EFDR);      /* read CRF7 */
-> > > @@ -147,6 +182,9 @@ static void wdt_set_time(int timeout)
-> > >
-> > >       w83627hf_select_wd_register();
-> > >
-> > > +     if (use_minute)
-> > > +             w83627hf_set_crf5();
-> >
-> > What if the new timeout is less than 256 seconds ?
-> >
-> > > +
-> > >       outb_p(0xF6, WDT_EFER);    /* Select CRF6 */
-> > >       outb_p(timeout, WDT_EFDR); /* Write Timeout counter to CRF6 */
-> > >
-> > > @@ -169,9 +207,9 @@ static int wdt_disable(void)
-> > >
-> > >  static int wdt_set_heartbeat(int t)
-> > >  {
-> > > -     if (t < 1 || t > 255)
-> > > +     if (t < 1 || t > max_timeout)
-> > >               return -EINVAL;
-> > > -     timeout = t;
-> > > +     timeout = wdt_use_minute(t);
-> >
-> > This should probably also update the watchdog timer register.
-> >
-> > >       return 0;
-> > >  }
-> > >
-> > > @@ -262,9 +300,11 @@ static long wdt_ioctl(struct file *file, unsigned
-> > int cmd, unsigned long arg)
-> > >               wdt_ping();
-> > >               /* Fall */
-> > >       case WDIOC_GETTIMEOUT:
-> > > -             return put_user(timeout, p);
-> > > +             timeval = (use_minute) ? timeout * 60 : timeout;
-> >
-> > Isn't timeout always in seconds ?
-> >
-> > > +             return put_user(timeval, p);
-> > >       case WDIOC_GETTIMELEFT:
-> > >               timeval = wdt_get_time();
-> > > +             timeval = (use_minute) ? timeval * 60 : timeval;
-> > >               return put_user(timeval, p);
-> > >       default:
-> > >               return -ENOTTY;
-> > > @@ -346,7 +386,8 @@ static int __init wdt_init(void)
-> > >
-> > >       if (wdt_set_heartbeat(timeout)) {
-> > >               wdt_set_heartbeat(WATCHDOG_TIMEOUT);
-> > > -             pr_info("timeout value must be 1 <= timeout <= 255, using
-> > %d\n",
-> > > +             pr_info("timeout value must be 1 <= timeout <= %d, using
-> > %d\n",
-> > > +                     max_timeout,
-> >
-> > That is still a constant, isn't it ? Why use a variable ?
-> >
-> > >                       WATCHDOG_TIMEOUT);
-> > >       }
-> > >
-> > > @@ -371,8 +412,8 @@ static int __init wdt_init(void)
-> > >               goto unreg_reboot;
-> > >       }
-> > >
-> > > -     pr_info("initialized. timeout=%d sec (nowayout=%d)\n",
-> > > -             timeout, nowayout);
-> > > +     pr_info("initialized. timeout=%d %s (nowayout=%d)\n",
-> > > +             timeout, unit, nowayout);
-> > >
-> > >  out:
-> > >       return ret;
-> > > --
-> > > 1.7.0.4
-> > >
-> > > --
-> > > To unsubscribe from this list: send the line "unsubscribe
-> > linux-watchdog" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > >
-> >
-> 
-> 
-> 
-> -- 
-> - Tony Chung
+Where is the reg property; if you're instantiating the clk device as a
+standalone DT node and driver, it should be possible to retrieve the
+address of this IP block instance from DT, not using driver-internal APIs.
+
+This same comment likely applies everywhere, so I won't repeat it.
+
+> +Example:
+> +
+> +clk {
+> +    compatible = "ti,twl6035-clk", "ti,palmas-clk";
+> +    ti,clk32kg-mode-sleep = <0>;
+> +    ti,clk32kgaudio-mode-sleep = <0>;
+
+> +    #clock-cells = <1>;
+> +    clock-frequency = <32000000>;
+> +    clock-names = "clk32kg", "clk32kgaudio";
+
+The binding description itself should describe what clocks this node
+provides and consumes.
+
+What is clock-frequency; which clock does it affect?
+
+The presence of #clock-cells implies this is a clock provider. This
+binding should define the format of the clock cells that this property
+implies. I assume it's just the ID of the output clocks, but what values
+correspond to which output clocks? That mapping table needs to be listed
+here.
+
+The presence of clock-names implies this is a clock consumer. However,
+there is no clocks property in the example. Is clks missing from the
+example, or should this property be clock-output-names instead? If this
+node is a clock consumer, the list of which clocks it requires should be
+documented.
+
+> diff --git a/Documentation/devicetree/bindings/gpio/gpio-palmas.txt b/Documentation/devicetree/bindings/gpio/gpio-palmas.txt
+
+> +- gpio-controller: mark the device as a GPIO controller
+> +- gpio-cells = <1>:  GPIO lines are provided.
+
+That's #gpio-cells not gpio-cells.
+
+I assume that cell simply contains the GPIO ID/number. That should be
+documented for clarity.
+
+Surely gpio-cells should be 2 not 1, so there is space for flags. At
+least an "inverted" or "active-low" flag should be included; GPIO
+consumers would typically implement that flag in SW, so there' no
+requirement that the flag only be supported if the HW supports the feature.
+
+> +- interrupt-controller : palmas has its own internal IRQs
+> +- #interrupt-cells : should be set to 2 for IRQ number and flags
+> +  The first cell is the IRQ number.
+> +  The second cell is the flags, encoded as the trigger masks from
+> +  Documentation/devicetree/bindings/interrupts.txt
+
+You need "/interrupt-controller" before the filename there.
+
+> +- interrupt-parent : The parent interrupt controller.
+
+If this IP block has interrupt outputs, it should require an
+"interrupts" property too. This is the same concept that drives the need
+for a reg property. This same comment likely applies everywhere, so I
+won't repeat it.
+
+> diff --git a/Documentation/devicetree/bindings/input/palmas-pwrbutton.txt b/Documentation/devicetree/bindings/input/palmas-pwrbutton.txt
+
+> +- interrupts: the interrupt outputs of the controller.
+
+How many entries are there, what do they mean, and in what order must
+they appear? (Note that the binding of a node must define the order of
+the interrupts property, since historically it's been accessed by index,
+not by name, and all bindings must allow that access method to be used).
+
+> +- interrupt-names : Should be the name of irq resource. Each interrupt
+> +  binds its interrupt-name.
+
+The binding needs to define standard names for the entries in this
+property, or define that interrupts are only retrieved by index, in
+which case interrupt-names shouldn't be present. This same comment
+likely applies everywhere, so I won't repeat it.
+
+> diff --git a/Documentation/devicetree/bindings/mfd/palmas.txt b/Documentation/devicetree/bindings/mfd/palmas.txt
+
+> +Required properties:
+...
+
+I believe the Palmas devices have many separate I2C addresses, even
+buses, which are I think are at least partially independently SW
+configurable. In that case, the reg property for this node should
+probably enumerate all the I2C addresses that this chip responds to, so
+that they can each be passed down to the child nodes.
+
+> diff --git a/Documentation/devicetree/bindings/regulator/palmas-pmic.txt b/Documentation/devicetree/bindings/regulator/palmas-pmic.txt
+
+> +Optional nodes:
+> +- regulators : should contain the constrains and init information for the
+> +	       regulators. It should contain a subnode per regulator from the
+> +	       list.
+> +	       For ti,palmas-pmic - smps12, smps123, smps3 depending on OTP,
+> +	       smps45, smps457, smps7 depending on varient, smps6, smps[8-10],
+> +	       ldo[1-9], ldoln, ldousb
+> +	       For ti,palmas-charger-pmic - smps12, smps123, smps3 depending on OTP,
+> +	       smps[6-9], boost, ldo[1-14], ldoln, ldousb
+
+The list of legal compatible values for this node above doesn't include
+both ti,palmas-pmic and ti,palmas-charger-pmic. Should it? This node
+should describe this PMIC block in a completely standalone fashion,
+without the need to go look at the top-level node to see if it's a
+"charger" variant or not.
+
+> +	       optional chip specific regulator fields :-
+> +	       ti,warm-reset - maintain voltage during warm reset
+> +	       ti,roof-floor - control voltage selection by pin
+
+I assume those are Boolean not integer. It's worth mentioning the type
+of each property.
