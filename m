@@ -1,153 +1,90 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:54764 "EHLO
-	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932333Ab3CYSFT (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:45088 "EHLO
+	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932858Ab3CYTrz (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 25 Mar 2013 14:05:19 -0400
-Message-ID: <5150906F.9040202@wwwdotorg.org>
-Date: Mon, 25 Mar 2013 11:59:11 -0600
-From: Stephen Warren <swarren@wwwdotorg.org>
-MIME-Version: 1.0
-To: Ian Lartey <ian@slimlogic.co.uk>
-CC: linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-leds@vger.kernel.org,
-	linux-watchdog@vger.kernel.org,
+	Mon, 25 Mar 2013 15:47:55 -0400
+Date: Mon, 25 Mar 2013 19:47:21 +0000
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+To: Stephen Warren <swarren@wwwdotorg.org>
+Cc: Ian Lartey <ian@slimlogic.co.uk>, linux-kernel@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-leds@vger.kernel.org, linux-watchdog@vger.kernel.org,
 	devicetree-discuss@lists.ozlabs.org, grant.likely@secretlab.ca,
-	broonie@opensource.wolfsonmicro.com, rob.herring@calxeda.com,
-	rob@landley.net, mturquette@linaro.org, linus.walleij@linaro.org,
-	cooloney@gmail.com, sfr@canb.auug.org.au, rpurdie@rpsys.net,
-	akpm@linux-foundation.org, sameo@linux.intel.com, wim@iguana.be,
-	lgirdwood@gmail.com, gg@slimlogic.co.uk, j-keerthy@ti.com,
-	ldewangan@nvidia.com, t-kristo@ti.com
+	rob.herring@calxeda.com, rob@landley.net, mturquette@linaro.org,
+	linus.walleij@linaro.org, cooloney@gmail.com, sfr@canb.auug.org.au,
+	rpurdie@rpsys.net, akpm@linux-foundation.org,
+	sameo@linux.intel.com, wim@iguana.be, lgirdwood@gmail.com,
+	gg@slimlogic.co.uk, j-keerthy@ti.com, ldewangan@nvidia.com,
+	t-kristo@ti.com
 Subject: Re: [PATCH v10 01/12] mfd: DT bindings for the palmas family MFD
-References: <1363964122-19201-1-git-send-email-ian@slimlogic.co.uk> <1363964122-19201-2-git-send-email-ian@slimlogic.co.uk>
-In-Reply-To: <1363964122-19201-2-git-send-email-ian@slimlogic.co.uk>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Message-ID: <20130325194711.GT18316@opensource.wolfsonmicro.com>
+References: <1363964122-19201-1-git-send-email-ian@slimlogic.co.uk>
+ <1363964122-19201-2-git-send-email-ian@slimlogic.co.uk>
+ <5150906F.9040202@wwwdotorg.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="y80AKZIs+e/pKYlV"
+Content-Disposition: inline
+In-Reply-To: <5150906F.9040202@wwwdotorg.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 03/22/2013 08:55 AM, Ian Lartey wrote:
-> From: Graeme Gregory <gg@slimlogic.co.uk>
-> 
-> Add the various binding files for the palmas family of chips. There is a
-> top level MFD binding then a seperate binding for IP blocks on chips.
 
-> diff --git a/Documentation/devicetree/bindings/clock/palmas-clk.txt b/Documentation/devicetree/bindings/clock/palmas-clk.txt
+--y80AKZIs+e/pKYlV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Where is the reg property; if you're instantiating the clk device as a
-standalone DT node and driver, it should be possible to retrieve the
-address of this IP block instance from DT, not using driver-internal APIs.
+On Mon, Mar 25, 2013 at 11:59:11AM -0600, Stephen Warren wrote:
+> On 03/22/2013 08:55 AM, Ian Lartey wrote:
+> > From: Graeme Gregory <gg@slimlogic.co.uk>
 
-This same comment likely applies everywhere, so I won't repeat it.
+> > +Optional nodes:
+> > +- regulators : should contain the constrains and init information for the
+> > +	       regulators. It should contain a subnode per regulator from the
+> > +	       list.
+> > +	       For ti,palmas-pmic - smps12, smps123, smps3 depending on OTP,
+> > +	       smps45, smps457, smps7 depending on varient, smps6, smps[8-10],
+> > +	       ldo[1-9], ldoln, ldousb
+> > +	       For ti,palmas-charger-pmic - smps12, smps123, smps3 depending on OTP,
+> > +	       smps[6-9], boost, ldo[1-14], ldoln, ldousb
 
-> +Example:
-> +
-> +clk {
-> +    compatible = "ti,twl6035-clk", "ti,palmas-clk";
-> +    ti,clk32kg-mode-sleep = <0>;
-> +    ti,clk32kgaudio-mode-sleep = <0>;
+> The list of legal compatible values for this node above doesn't include
+> both ti,palmas-pmic and ti,palmas-charger-pmic. Should it? This node
+> should describe this PMIC block in a completely standalone fashion,
+> without the need to go look at the top-level node to see if it's a
+> "charger" variant or not.
 
-> +    #clock-cells = <1>;
-> +    clock-frequency = <32000000>;
-> +    clock-names = "clk32kg", "clk32kgaudio";
+The latter was removed from the code in this series, only palmas-pmic is
+present now.
 
-The binding description itself should describe what clocks this node
-provides and consumes.
+Just as a general thing there seems to be an awful lot of stuff here
+about the boilerplate for the generic properties like the interrupt
+and GPIO controller stuff - we probably need to spin round and look at
+factoring this out to make life easier.  There seems to be a lot of
+boiler plate in the bindings that is factored out well by the frameworks
+in the code so people don't even need to think about it.
 
-What is clock-frequency; which clock does it affect?
+--y80AKZIs+e/pKYlV
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-The presence of #clock-cells implies this is a clock provider. This
-binding should define the format of the clock cells that this property
-implies. I assume it's just the ID of the output clocks, but what values
-correspond to which output clocks? That mapping table needs to be listed
-here.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
 
-The presence of clock-names implies this is a clock consumer. However,
-there is no clocks property in the example. Is clks missing from the
-example, or should this property be clock-output-names instead? If this
-node is a clock consumer, the list of which clocks it requires should be
-documented.
+iQIcBAEBAgAGBQJRUKm3AAoJELSic+t+oim9fowQAJK8XJJZnIkcTIK2LzQfAHFo
+H+dqFvQDFXcfH+JaE/pnAQAYQaTexgj/VaS7ujlkjyxgz8HcnCUqA0daW+uInZB4
+rUiLmt/SpprD0uc9cv6zV7uzff9aZ/MYFUz51IF+MBM5RPu4XYl/jLXWGG7rHDAq
+KD/m1IThbMSJwl0uZ319Qujm3nYorRJzcaJwEcIncfr74h08hr0bqqMCqL/wfZqf
+g63A7Nb9iBVVwcc31OVQk0PmSnMOam6arf1OTbQmSGwUoxH7v6YIELCy3IanUTka
+iVJMrQU22Wwi1gdG4RcMCGmagUoNHD3F+QUD08EqepkVoznfkZHQtKW7Ul1FP0aA
+dvTEUUXk/dDEgIsqX70nbC4Bw94a0ZCV5h6L61kPdgmCvUMfWI8iqsEh1E52yE42
+GkMQt02dcC1uAa+T5J3OoYr9nTDoMm8T6ImuYrV1jl9unO1KHYJ/bM1t8Ayp+kNN
+wAnGfvcFQRF7BtwAwbJu/6V80529fyh+cBztvd69FinY2urQTc0zQUr6swnC5Q15
+g2dX/RMesFZLAo3+l/y6Mfjj9PDMLjPnArF4ai8nH7s3mmOWeCx9sZemM58JGBNq
+E6DLjnaE7NASTfGxA1AMh5A81S/rvCYPyx2CbZpNB98EdE7pnEJRbjCjI8cQzXvn
+YtwdbowWb+augz2h3QWD
+=dRiZ
+-----END PGP SIGNATURE-----
 
-> diff --git a/Documentation/devicetree/bindings/gpio/gpio-palmas.txt b/Documentation/devicetree/bindings/gpio/gpio-palmas.txt
-
-> +- gpio-controller: mark the device as a GPIO controller
-> +- gpio-cells = <1>:  GPIO lines are provided.
-
-That's #gpio-cells not gpio-cells.
-
-I assume that cell simply contains the GPIO ID/number. That should be
-documented for clarity.
-
-Surely gpio-cells should be 2 not 1, so there is space for flags. At
-least an "inverted" or "active-low" flag should be included; GPIO
-consumers would typically implement that flag in SW, so there' no
-requirement that the flag only be supported if the HW supports the feature.
-
-> +- interrupt-controller : palmas has its own internal IRQs
-> +- #interrupt-cells : should be set to 2 for IRQ number and flags
-> +  The first cell is the IRQ number.
-> +  The second cell is the flags, encoded as the trigger masks from
-> +  Documentation/devicetree/bindings/interrupts.txt
-
-You need "/interrupt-controller" before the filename there.
-
-> +- interrupt-parent : The parent interrupt controller.
-
-If this IP block has interrupt outputs, it should require an
-"interrupts" property too. This is the same concept that drives the need
-for a reg property. This same comment likely applies everywhere, so I
-won't repeat it.
-
-> diff --git a/Documentation/devicetree/bindings/input/palmas-pwrbutton.txt b/Documentation/devicetree/bindings/input/palmas-pwrbutton.txt
-
-> +- interrupts: the interrupt outputs of the controller.
-
-How many entries are there, what do they mean, and in what order must
-they appear? (Note that the binding of a node must define the order of
-the interrupts property, since historically it's been accessed by index,
-not by name, and all bindings must allow that access method to be used).
-
-> +- interrupt-names : Should be the name of irq resource. Each interrupt
-> +  binds its interrupt-name.
-
-The binding needs to define standard names for the entries in this
-property, or define that interrupts are only retrieved by index, in
-which case interrupt-names shouldn't be present. This same comment
-likely applies everywhere, so I won't repeat it.
-
-> diff --git a/Documentation/devicetree/bindings/mfd/palmas.txt b/Documentation/devicetree/bindings/mfd/palmas.txt
-
-> +Required properties:
-...
-
-I believe the Palmas devices have many separate I2C addresses, even
-buses, which are I think are at least partially independently SW
-configurable. In that case, the reg property for this node should
-probably enumerate all the I2C addresses that this chip responds to, so
-that they can each be passed down to the child nodes.
-
-> diff --git a/Documentation/devicetree/bindings/regulator/palmas-pmic.txt b/Documentation/devicetree/bindings/regulator/palmas-pmic.txt
-
-> +Optional nodes:
-> +- regulators : should contain the constrains and init information for the
-> +	       regulators. It should contain a subnode per regulator from the
-> +	       list.
-> +	       For ti,palmas-pmic - smps12, smps123, smps3 depending on OTP,
-> +	       smps45, smps457, smps7 depending on varient, smps6, smps[8-10],
-> +	       ldo[1-9], ldoln, ldousb
-> +	       For ti,palmas-charger-pmic - smps12, smps123, smps3 depending on OTP,
-> +	       smps[6-9], boost, ldo[1-14], ldoln, ldousb
-
-The list of legal compatible values for this node above doesn't include
-both ti,palmas-pmic and ti,palmas-charger-pmic. Should it? This node
-should describe this PMIC block in a completely standalone fashion,
-without the need to go look at the top-level node to see if it's a
-"charger" variant or not.
-
-> +	       optional chip specific regulator fields :-
-> +	       ti,warm-reset - maintain voltage during warm reset
-> +	       ti,roof-floor - control voltage selection by pin
-
-I assume those are Boolean not integer. It's worth mentioning the type
-of each property.
+--y80AKZIs+e/pKYlV--
