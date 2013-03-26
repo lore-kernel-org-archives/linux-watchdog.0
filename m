@@ -1,21 +1,19 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qa0-f51.google.com ([209.85.216.51]:43586 "EHLO
-	mail-qa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758827Ab3CZJjM (ORCPT
+Received: from mail-qa0-f53.google.com ([209.85.216.53]:51003 "EHLO
+	mail-qa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759640Ab3CZJzo (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 26 Mar 2013 05:39:12 -0400
+	Tue, 26 Mar 2013 05:55:44 -0400
 MIME-Version: 1.0
-In-Reply-To: <20130326093139.GL1906@pengutronix.de>
+In-Reply-To: <20130214101130.GB12290@nekote.pengutronix.de>
 References: <1360663374-30951-1-git-send-email-s.hauer@pengutronix.de>
- <1360663374-30951-2-git-send-email-s.hauer@pengutronix.de>
- <CAH9NwWdOCo642KqUXk1y5hbwdtW5RYgQnQfZFUEe4FOJzSiByQ@mail.gmail.com>
- <20130326085454.GK1906@pengutronix.de> <20130326092435.GB8553@the-dreams.de> <20130326093139.GL1906@pengutronix.de>
+ <1360663374-30951-3-git-send-email-s.hauer@pengutronix.de> <20130214101130.GB12290@nekote.pengutronix.de>
 From: Christian Gmeiner <christian.gmeiner@gmail.com>
-Date: Tue, 26 Mar 2013 10:38:50 +0100
-Message-ID: <CAH9NwWdUqH8gF8Vz7K_2UW1X==LWbYEd5dhSTPqqYwEnDuRVuQ@mail.gmail.com>
-Subject: Re: [PATCH 1/3] x86: Add basic support for the Congatec CGEB BIOS interface
-To: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>,
+Date: Tue, 26 Mar 2013 10:55:22 +0100
+Message-ID: <CAH9NwWd2soWW-Fx_ESYErL2wioUqxrq=57rnfi7GOsg9LSiBWw@mail.gmail.com>
+Subject: Re: [PATCH 2/3] i2c: Add Congatec CGEB I2C driver
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Sascha Hauer <s.hauer@pengutronix.de>,
 	LKML <linux-kernel@vger.kernel.org>, x86@kernel.org,
 	linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org,
 	Thomas Gleixner <tglx@linutronix.de>
@@ -23,25 +21,100 @@ Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-2013/3/26 Sascha Hauer <s.hauer@pengutronix.de>:
-> Hi Wolfram,
+2013/2/14 Wolfram Sang <wsa@the-dreams.de>:
+> Hi Sascha,
 >
-> On Tue, Mar 26, 2013 at 10:24:35AM +0100, Wolfram Sang wrote:
->> Hi Sascha,
->>
->> > Any other comments to this series? Is the base cgeb support ok to
->> > include?
->>
->> I had a few comments to the I2C driver.
+>> diff --git a/drivers/i2c/busses/i2c-congatec-cgeb.c b/drivers/i2c/busses/i2c-congatec-cgeb.c
+>> new file mode 100644
+>> index 0000000..5f48ca4
+>> --- /dev/null
+>> +++ b/drivers/i2c/busses/i2c-congatec-cgeb.c
+>> @@ -0,0 +1,194 @@
+>> +/*
+>> + * CGEB i2c driver
+>> + *
+>> + * (c) 2011 Sascha Hauer, Pengutronix
+>> + *
+>> + * This program is free software; you can redistribute it and/or modify
+>> + * it under the terms of the GNU General Public License as published by
+>> + * the Free Software Foundation; version 2 of the License.
+>> + *
+>> + * This program is distributed in the hope that it will be useful,
+>> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+>> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+>> + * GNU General Public License for more details.
+>> + */
+>> +#include <linux/module.h>
+>> +#include <linux/platform_device.h>
+>> +#include <linux/slab.h>
+>> +#include <linux/i2c.h>
+>> +#include <asm/congatec-cgeb.h>
 >
-> Yes, thanks, I have seen this and will address them. Atm I'm more
-> interested in the base support though, since without it there won't be a
-> need for the i2c driver ;)
+> Is asm a good place? Maybe linux/platform_data?
 >
-
-vis@OT:~$ dmesg | grep CGEB
-[    2.466519] CGEB: Board name: QBRA
-
+>> +
+>> +#define CG_I2C_FLAG_START   0x00080  /* send START condition */
+>> +#define CG_I2C_FLAG_STOP    0x00040  /* send STOP condition */
+>> +#define CG_I2C_FLAG_ALL_ACK 0x08000  /* send ACK on all read bytes */
+>> +#define CG_I2C_FLAG_ALL_NAK 0x04000  /* send NAK on all read bytes */
+>> +
+>> +struct cgeb_i2c_priv {
+>> +     struct cgeb_board_data          *board;
+>> +     struct i2c_adapter      adapter;
+>> +     int unit;
+>> +};
+>> +
+>> +static u32 cgeb_i2c_func(struct i2c_adapter *adapter)
+>> +{
+>> +     return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+>> +}
+>
+> To make sure: Have you checked if the driver can do SMBUS_QUICK by using
+> 'i2cdetect'?
+>
+> ...
+>
+>> +static int cgeb_i2c_probe(struct platform_device *pdev)
+>> +{
+>> +     struct cgeb_i2c_priv *priv;
+>> +     struct cgeb_pdata *pdata = pdev->dev.platform_data;
+>> +     int ret;
+>> +
+>> +     priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+>> +     if (!priv)
+>> +             return -ENOMEM;
+>> +
+>> +     strcpy(priv->adapter.name, pdev->name);
+>> +     priv->adapter.owner             = THIS_MODULE;
+>> +     priv->adapter.algo              = &cgeb_i2c_algo;
+>> +     priv->adapter.dev.parent        = &pdev->dev;
+>> +     priv->unit = pdata->unit;
+>> +     priv->board = pdata->board;
+>> +     i2c_set_adapdata(&priv->adapter, priv);
+>> +
+>> +     platform_set_drvdata(pdev, priv);
+>> +
+>> +     ret = cgeb_i2c_set_speed(priv, 400000);
+>
+> Not all slaves handle 400kHz. So, this might be a bit demanding. Then
+> again, it is probably fix which slaves are connected and they work
+> currently?
+>
+> ...
+>
+>> +MODULE_AUTHOR("Sascha Hauer <s.hauer@pengutronix.de>");
+>> +MODULE_DESCRIPTION("cgeb i2c driver");
+>> +MODULE_LICENSE("GPL");
+>
+> GPLv2 is mentioned in the header.
+>
+> Other than that, the driver looks fine to me. If it should go via mfd,
+> here is my
+>
+> Acked-by: Wolfram Sang <wsa@the-dreams.de>
+>
+> Otherwise, let me know if and when I should pick it up.
+>
 
 root@OT:/home/vis# i2cdetect -l
 i2c-0   i2c             cgeb-i2c                                I2C adapter
@@ -69,15 +142,7 @@ Continue? [Y/n]
 60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 70: -- -- -- -- -- -- -- --
 
-I hope to see this patches soon in mainline - I have some Congatec
-devices where I
-am using an early version of this patch set.
-
-Btw I have a cgeb-backlight driver lying here :)
-
 
 Tested-by: Christian Gmeiner <christian.gmeiner@gmail.com>
-Acked-by: Christian Gmeiner <christian.gmeiner@gmail.com>
-
 --
 Christian Gmeiner, MSc
