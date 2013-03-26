@@ -1,58 +1,120 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from vps.mortis.eu ([79.99.135.181]:58833 "EHLO vps.mortis.eu"
+Received: from norkia.v3.sk ([91.210.183.14]:34025 "EHLO norkia.v3.sk"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753131Ab3CZRdf (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 26 Mar 2013 13:33:35 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
+	id S1755389Ab3CZRsA (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 26 Mar 2013 13:48:00 -0400
+Subject: Re: [PATCH v2] watchdog: Add Broadcom BCM2835 watchdog timer driver
+From: Lubomir Rintel <lkundrak@v3.sk>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-kernel@vger.kernel.org,
+	Stephen Warren <swarren@wwwdotorg.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-rpi-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org
+In-Reply-To: <20130324161241.GB15620@roeck-us.net>
+References: <1363956907-5644-1-git-send-email-lkundrak@v3.sk>
+	 <1364134973-26592-1-git-send-email-lkundrak@v3.sk>
+	 <20130324161241.GB15620@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 26 Mar 2013 18:47:55 +0100
+Message-ID: <1364320075.18728.26.camel@hobbes.kokotovo>
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Date: Tue, 26 Mar 2013 18:26:07 +0100
-From: Giel van Schijndel <me@mortis.eu>
-To: BrunoFerreira <bruno.ferreira@efacec.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, <linux-watchdog@vger.kernel.org>
-Subject: Re: Fintek F81865 chip (Wdog support)
-In-Reply-To: <51409586.4030204@efacec.com>
-References: <51409586.4030204@efacec.com>
-Message-ID: <07936d3ec21c2de67a97b2664c7bf484@mortis.eu>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
- On Wed, 13 Mar 2013 15:04:38 +0000, BrunoFerreira wrote:
-> I'm currently working with a new board iEi NOVA-PV-D5251 [1] that
-> have the Fintek F81865 chip for Super I/O support and I will need to
-> develop the watchdog driver and another to access to the IO that this
-> board supports (gpio). I made a search and I see that already exists 
-> a
-> driver for F71808E chip, I use this driver as an example an I made a
-> new driver for F81865 chip. My driver is working pretty well, but 
-> I've
-> a question that I can't find the answer on datasheet of this chip 
-> that
-> may be Wim or Giel could know.
+On Sun, 2013-03-24 at 09:12 -0700, Guenter Roeck wrote:
+> On Sun, Mar 24, 2013 at 03:22:53PM +0100, Lubomir Rintel wrote:
+> > This adds a driver for watchdog timer hardware present on Broadcom BCM2835 SoC,
+> > used in Raspberry Pi and Roku 2 devices.
+> > 
+> > Interface to the Broadcom BCM2835 watchdog timer hardware is based on
+> > "bcm2708_wdog" driver written by Luke Diamand that was obtained from branch
+> > "rpi-3.6.y" of git://github.com/raspberrypi/linux.git
+> > 
+> I would suggest to put that into the coments at the top of the driver.
+> Also, if the original code has a copyright statement, you might want
+> to copy that.
 
-> On both chips, we need to configure a pin that can work as a normal
-> GPIO (F81865: Set pin 70 the function of WDTRST#/GPIO15 is WDTRST# |
-> F71808E: Set pin 21 to GPIO23/WDTRST#, then to WDTRST#), this is here
-> where I get myself confused, this WDTRST will be mapped in any GPIO
-> output on my board? I mean, if the watchdog is enable I will get any
-> output pin set to 1 (i.e. the GPIO15, output 5?) and when the 
-> watchdog
-> goes down this output goes to 0?
+Okay.
 
- Sorry, I can't give you a definite answer on that. All Fintek 
- datasheets I've seen are very poorly written. At one point I actually 
- stopped trusting the datasheet enough to go through the hassle of 
- hooking up a scope to the pins of the chip.
+> > +#include <linux/miscdevice.h>
+> 
+> Just noticed - you should not need that include.
 
- Hazarding a guess however, I'd say that when the watchdog is enabled 
- you cannot use the WDTRST pin as a GPIO pin.
+Well, I think the bottommost line of the driver uses that and it's a
+good practice to provide a device number alias. Is that one completely
+useless?
 
-> The other question is to Wim, can you tell me if there is interest in
-> add this chip support to kernel?
+  MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
 
- This would be a yes, unless there are good reasons not to include it in 
- mainline.
+> > +#define PM_RSTS				0x20
+> 
+> Not used
 
+Dropped.
+
+> > +#define PM_RSTC_WRCFG_MASK		0x00000030
+> 
+> Not used
+
+Dropped.
+
+> > +#define PM_RSTS_HADWRH_SET		0x00000040
+> 
+> Not used
+
+Dropped.
+
+> > +#define PM_RSTC_WRCFG_SET		0x00000030
+> 
+> Not used 
+
+Dropped.
+
+> > +#define PM_RSTC_WRCFG_FULL_RESET	0x00000020
+> 
+> Defined twice
+
+Extra occurrence dropped.
+
+> 
+> > +#define PM_RSTC_RESET			0x00000102
+> > +
+> > +#define SECS_TO_WDOG_TICKS(x) ((x) << 16)
+> > +#define WDOG_TICKS_TO_SECS(x) ((x) >> 16)
+> > +
+> > +struct bcm2835_wdt {
+> > +	void __iomem		*base;
+> > +	spinlock_t		lock;
+> > +};
+> > +
+> > +static int heartbeat = -1;
+> 
+> The parameter passed to watchdog_init_timeout is an unsigned int, so you should
+> really use an unsigned int here. Depending on -1 being converted to maxuint is a
+> bit of side effect programming. Easier to just set it to 0, which the watchdog
+> core interprets as invalid as well.
+
+Done.
+
+> > +	dev_info(dev, "Broadcom BCM2835 watchdog timer");
+> > +
+> I think this should come later, after you are sure that there will be
+> no failure.
+
+Moved.
+
+> > +	platform_set_drvdata(pdev, NULL);
+> 
+> It is unnecessary to set this to NULL (the infrastructure does it for you).
+
+Okay.
+
+I've seen this being done on way too many places. I've really should
+have checked that though.
+
+Thank you for your response, I'll submit an updated revision shortly.
 -- 
- Giel
+Lubomir Rintel <lkundrak@v3.sk>
+
