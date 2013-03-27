@@ -1,11 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:54891 "EHLO
+Received: from avon.wwwdotorg.org ([70.85.31.133]:43056 "EHLO
 	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751988Ab3C0D0y (ORCPT
+	with ESMTP id S1754187Ab3C0Ddc (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 26 Mar 2013 23:26:54 -0400
-Message-ID: <515266FC.5090103@wwwdotorg.org>
-Date: Tue, 26 Mar 2013 21:26:52 -0600
+	Tue, 26 Mar 2013 23:33:32 -0400
+Message-ID: <5152688A.70402@wwwdotorg.org>
+Date: Tue, 26 Mar 2013 21:33:30 -0600
 From: Stephen Warren <swarren@wwwdotorg.org>
 MIME-Version: 1.0
 To: Lubomir Rintel <lkundrak@v3.sk>
@@ -28,23 +28,44 @@ On 03/24/2013 08:12 AM, Lubomir Rintel wrote:
 >> On 03/22/2013 06:55 AM, Lubomir Rintel wrote:
 >>> Signed-off-by: Lubomir Rintel <lkundrak at v3.sk>
 
->> I'm curious where you got the documentation to write this driver; this
->> HW module isn't described in BCM2835-ARM-Peripherals.pdf. I assume this
->> is based on the downstream kernel driver? If so, at least some credit in
->> the commit description might be appropriate. At least the relevant
->> commit downstream already has an appropriate Signed-off-by line:-)
+>> A couple of general comments:
+>>
+>> 1)
+>>
+>> This driver touches the same registers that
+>> arch/arm/mach-bcm2835/bcm2835.c uses to implement reboot and "power
+>> off". Some co-ordination might be necessary.
+>>
+>> The implementation of bcm2835_power_off() could easily be moved into
+>> this driver, to avoid some of the need for co-ordination.
+>>
+>> Moving bcm2835_restart() would be more tricky, since the ARM machine
+>> descriptor needs a pointer to that function. I guess the kernel probably
+>> ensures that none of the code in this watchdog driver is running by the
+>> time bcm2835_restart() is called, although perhaps it'd be better to
+>> have mach-bcm2835/bcm2835.c and this driver share a lock?
 > 
-> Your guess is right, used bcm2708_wdog driver from rpi-3.6.y as a reference. 
-> I'll add that information to the commit message.
+> I need help here, I'm not sure what's the proper way to address this
+> (whether to include the actual reboot code in the wdt driver or the
+> platform driver).
+
+I assume by "platform driver" you mean the code in
+arch/arm/mach-bcm2835? The phrase "platform driver" usually refers to a
+struct platform_driver, so that usage is a little unusual. I think you
+would usually say "arch code" to refer to mach-bcm2835/, or something
+like that!
+
+> Is it okay to have the platform driver depend on watchdog timer?
+> Is it okay for the platform driver not to reboot properly if the kernel
+> is running without the wdt driver loaded?
 > 
-> The Signed-off-by line is indeed present, but unfortunately does not seem to be 
-> particularly appropriate:
-> 
-> Signed-off-by: popcornmix <popcornmix@gmail.com>
+> (For now, I'll send a revised patch addressing the other issues so that
+> it can be reviewed without addressing this yet.)
 
-That s-o-b line maps to Dom Cobley. In a previous message on the
-linux-rpi-kernel mailing list, he gave his permission to re-write the
-name part of that to "Dom Cobley". That would make the s-o-b useful.
+I guess what we should do here is merge the driver as you've posted it,
+then later we can migrate any code from arch/arm/mach-bcm2835 into the
+WDT driver.
 
-http://lists.infradead.org/pipermail/linux-rpi-kernel/2012-September/000154.html
-
+IIRC, there certainly are some existing WDT drivers that implement the
+reboot hook for their platforms, so it's probably OK to migrate that way
+sometime, although indeed the issues you raise do deserve some thought.
