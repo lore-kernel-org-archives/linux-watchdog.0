@@ -1,58 +1,50 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:50943 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754545Ab3CZTra (ORCPT
+Received: from avon.wwwdotorg.org ([70.85.31.133]:54891 "EHLO
+	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751988Ab3C0D0y (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 26 Mar 2013 15:47:30 -0400
-Date: Tue, 26 Mar 2013 12:47:37 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Tue, 26 Mar 2013 23:26:54 -0400
+Message-ID: <515266FC.5090103@wwwdotorg.org>
+Date: Tue, 26 Mar 2013 21:26:52 -0600
+From: Stephen Warren <swarren@wwwdotorg.org>
+MIME-Version: 1.0
 To: Lubomir Rintel <lkundrak@v3.sk>
-Cc: linux-kernel@vger.kernel.org,
-	Stephen Warren <swarren@wwwdotorg.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
+CC: linux-kernel@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
 	linux-rpi-kernel@lists.infradead.org,
 	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v2] watchdog: Add Broadcom BCM2835 watchdog timer driver
-Message-ID: <20130326194737.GA26646@roeck-us.net>
-References: <1363956907-5644-1-git-send-email-lkundrak@v3.sk>
- <1364134973-26592-1-git-send-email-lkundrak@v3.sk>
- <20130324161241.GB15620@roeck-us.net>
- <1364320075.18728.26.camel@hobbes.kokotovo>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1364320075.18728.26.camel@hobbes.kokotovo>
+Subject: Re: [PATCH] watchdog: Add Broadcom BCM2708 watchdog timer driver
+References: <1363956907-5644-1-git-send-email-lkundrak@v3.sk>  <514D1273.8070902@wwwdotorg.org> <1364134324.2906.8.camel@hobbes.kokotovo>
+In-Reply-To: <1364134324.2906.8.camel@hobbes.kokotovo>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Mar 26, 2013 at 06:47:55PM +0100, Lubomir Rintel wrote:
-> On Sun, 2013-03-24 at 09:12 -0700, Guenter Roeck wrote:
-> > On Sun, Mar 24, 2013 at 03:22:53PM +0100, Lubomir Rintel wrote:
-> > > This adds a driver for watchdog timer hardware present on Broadcom BCM2835 SoC,
-> > > used in Raspberry Pi and Roku 2 devices.
-> > > 
-> > > Interface to the Broadcom BCM2835 watchdog timer hardware is based on
-> > > "bcm2708_wdog" driver written by Luke Diamand that was obtained from branch
-> > > "rpi-3.6.y" of git://github.com/raspberrypi/linux.git
-> > > 
-> > I would suggest to put that into the coments at the top of the driver.
-> > Also, if the original code has a copyright statement, you might want
-> > to copy that.
+On 03/24/2013 08:12 AM, Lubomir Rintel wrote:
+> On Fri, 2013-03-22 at 20:24 -0600, Stephen Warren wrote:
 > 
-> Okay.
+> Thank you for your response!
 > 
-> > > +#include <linux/miscdevice.h>
-> > 
-> > Just noticed - you should not need that include.
-> 
-> Well, I think the bottommost line of the driver uses that and it's a
-> good practice to provide a device number alias. Is that one completely
-> useless?
-> 
->   MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
-> 
-Ah, I didn't realize this is still used. The documentation suggests that it can be
-kept when converting drivers to the watchdog core, so I guess there must be a reason.
+>> On 03/22/2013 06:55 AM, Lubomir Rintel wrote:
+>>> Signed-off-by: Lubomir Rintel <lkundrak at v3.sk>
 
-Thanks,
-Guenter
+>> I'm curious where you got the documentation to write this driver; this
+>> HW module isn't described in BCM2835-ARM-Peripherals.pdf. I assume this
+>> is based on the downstream kernel driver? If so, at least some credit in
+>> the commit description might be appropriate. At least the relevant
+>> commit downstream already has an appropriate Signed-off-by line:-)
+> 
+> Your guess is right, used bcm2708_wdog driver from rpi-3.6.y as a reference. 
+> I'll add that information to the commit message.
+> 
+> The Signed-off-by line is indeed present, but unfortunately does not seem to be 
+> particularly appropriate:
+> 
+> Signed-off-by: popcornmix <popcornmix@gmail.com>
+
+That s-o-b line maps to Dom Cobley. In a previous message on the
+linux-rpi-kernel mailing list, he gave his permission to re-write the
+name part of that to "Dom Cobley". That would make the s-o-b useful.
+
+http://lists.infradead.org/pipermail/linux-rpi-kernel/2012-September/000154.html
+
