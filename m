@@ -1,11 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:40231 "EHLO
+Received: from avon.wwwdotorg.org ([70.85.31.133]:58251 "EHLO
 	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753413Ab3C0Dkv (ORCPT
+	with ESMTP id S1751521Ab3C0DtN (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 26 Mar 2013 23:40:51 -0400
-Message-ID: <51526A41.5090703@wwwdotorg.org>
-Date: Tue, 26 Mar 2013 21:40:49 -0600
+	Tue, 26 Mar 2013 23:49:13 -0400
+Message-ID: <51526C37.5070400@wwwdotorg.org>
+Date: Tue, 26 Mar 2013 21:49:11 -0600
 From: Stephen Warren <swarren@wwwdotorg.org>
 MIME-Version: 1.0
 To: Lubomir Rintel <lkundrak@v3.sk>
@@ -25,48 +25,4 @@ On 03/26/2013 11:50 AM, Lubomir Rintel wrote:
 > This adds a driver for watchdog timer hardware present on Broadcom BCM2835 SoC,
 > used in Raspberry Pi and Roku 2 devices.
 
-Since this patch defines a new DT binding, you should send it to
-devicetree-discuss@lists.ozlabs.org too.
-
-> diff --git a/drivers/watchdog/bcm2835_wdt.c b/drivers/watchdog/bcm2835_wdt.c
-
-> +/*
-> + * Watchdog driver for Broadcom BCM2835
-> + *
-> + * Interface to the Broadcom BCM2835 watchdog timer hardware is based on
-> + * "bcm2708_wdog" driver written by Luke Diamand that was obtained from branch
-> + * "rpi-3.6.y" of git://github.com/raspberrypi/linux.git
-
-I see that the patch isn't S-o-b Luke in the downstream kernel. However,
-it is S-o-b Dom Cobley (popcornmix), and they both work for Broadcom, so
-I think that's OK.
-
-> +static int bcm2835_wdt_probe(struct platform_device *pdev)
-> +{
-> +	struct device *dev = &pdev->dev;
-> +	struct device_node *np = dev->of_node;
-> +	struct bcm2835_wdt *wdt;
-> +	int err;
-> +
-> +	wdt = devm_kzalloc(dev, sizeof(struct bcm2835_wdt), GFP_KERNEL);
-> +	if (!wdt) {
-> +		dev_err(dev, "Failed to allocate memory for watchdog device");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	spin_lock_init(&wdt->lock);
-> +
-> +	wdt->base = of_iomap(np, 0);
-> +	if (!wdt->base) {
-> +		dev_err(dev, "Failed to remap watchdog regs");
-> +		return -ENODEV;
-> +	}
-> +
-> +	platform_set_drvdata(pdev, wdt);
-> +	watchdog_set_drvdata(&bcm2835_wdt_wdd, wdt);
-
-Do you really need both of those? I would have thought just one would
-have been enough.
-
-I'd be tempted to put the platform_set_drvdata() call right after the
-devm_kzalloc() of wdt, but it's not a big deal either way.
+Tested-by: Stephen Warren <swarren@wwwdotorg.org>
