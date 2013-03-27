@@ -1,62 +1,71 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ie0-f175.google.com ([209.85.223.175]:38578 "EHLO
-	mail-ie0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754407Ab3C0NQB (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 27 Mar 2013 09:16:01 -0400
-Received: by mail-ie0-f175.google.com with SMTP id c12so10014995ieb.6
-        for <linux-watchdog@vger.kernel.org>; Wed, 27 Mar 2013 06:16:00 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <1363959373-10671-6-git-send-email-ian@slimlogic.co.uk>
-References: <1363959373-10671-1-git-send-email-ian@slimlogic.co.uk>
-	<1363959373-10671-6-git-send-email-ian@slimlogic.co.uk>
-Date: Wed, 27 Mar 2013 14:15:57 +0100
-Message-ID: <CACRpkdbc3U=4T4P-CtbzU1Ds4Fupno__AkZjPRenzdwW0jEOjg@mail.gmail.com>
-Subject: Re: [PATCH v9 05/11] gpio: palmas: add in GPIO support for palmas charger
-From: Linus Walleij <linus.walleij@linaro.org>
-To: Ian Lartey <ian@slimlogic.co.uk>
-Cc: linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-leds@vger.kernel.org,
-	linux-watchdog@vger.kernel.org,
-	devicetree-discuss@lists.ozlabs.org, swarren@wwwdotorg.org,
-	grant.likely@secretlab.ca, broonie@opensource.wolfsonmicro.com,
-	rob.herring@calxeda.com, rob@landley.net, mturquette@linaro.org,
-	cooloney@gmail.com, sfr@canb.auug.org.au, rpurdie@rpsys.net,
-	akpm@linux-foundation.org, sameo@linux.intel.com, wim@iguana.be,
-	lgirdwood@gmail.com, gg@slimlogic.co.uk, j-keerthy@ti.com,
-	ldewangan@nvidia.com, t-kristo@ti.com
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from norkia.v3.sk ([91.210.183.14]:42996 "EHLO norkia.v3.sk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751036Ab3C0Qg0 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 27 Mar 2013 12:36:26 -0400
+Subject: Re: [PATCH v3] watchdog: Add Broadcom BCM2835 watchdog timer driver
+From: Lubomir Rintel <lkundrak@v3.sk>
+To: Stephen Warren <swarren@wwwdotorg.org>
+Cc: linux-kernel@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-rpi-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org
+In-Reply-To: <51526A41.5090703@wwwdotorg.org>
+References: <1364135137-26691-1-git-send-email-lkundrak@v3.sk>
+	 <1364320200-23569-1-git-send-email-lkundrak@v3.sk>
+	 <51526A41.5090703@wwwdotorg.org>
+Content-Type: text/plain; charset="UTF-8"
+Date: Wed, 27 Mar 2013 17:36:19 +0100
+Message-ID: <1364402179.17807.4.camel@hobbes.kokotovo>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Mar 22, 2013 at 2:36 PM, Ian Lartey <ian@slimlogic.co.uk> wrote:
+On Tue, 2013-03-26 at 21:40 -0600, Stephen Warren wrote:
+> On 03/26/2013 11:50 AM, Lubomir Rintel wrote:
+> > This adds a driver for watchdog timer hardware present on Broadcom BCM2835 SoC,
+> > used in Raspberry Pi and Roku 2 devices.
+> 
+> Since this patch defines a new DT binding, you should send it to
+> devicetree-discuss@lists.ozlabs.org too.
 
-> Palmas charger has 16 GPIOs
-> add palmas_gpio_[read|write|update] api to take account
-> second bank of GPIOs
->
-> Signed-off-by: Ian Lartey <ian@slimlogic.co.uk>
-> Signed-off-by: Graeme Gregory <gg@slimlogic.co.uk>
-> ---
->  drivers/gpio/gpio-palmas.c |   77 ++++++++++++++++++++++++++++++++++++--------
->  include/linux/mfd/palmas.h |   12 ++++++-
->  2 files changed, 74 insertions(+), 15 deletions(-)
->
-> diff --git a/drivers/gpio/gpio-palmas.c b/drivers/gpio/gpio-palmas.c
-> index e3a4e56..636648c 100644
-> --- a/drivers/gpio/gpio-palmas.c
-> +++ b/drivers/gpio/gpio-palmas.c
-> @@ -1,7 +1,7 @@
->  /*
-> - * TI Palma series PMIC's GPIO driver.
-> + * TI Palmas series PMIC's GPIO driver.
->   *
-> - * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
-> + * Copyright (c) 2012-2012, NVIDIA CORPORATION.  All rights reserved.
+Okay.
 
-Do you mean 2012-2013?
+...
+> > + * Interface to the Broadcom BCM2835 watchdog timer hardware is based on
+> > + * "bcm2708_wdog" driver written by Luke Diamand that was obtained from branch
+> > + * "rpi-3.6.y" of git://github.com/raspberrypi/linux.git
+> 
+> I see that the patch isn't S-o-b Luke in the downstream kernel. However,
+> it is S-o-b Dom Cobley (popcornmix), and they both work for Broadcom, so
+> I think that's OK.
 
-Anyway, Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Okay, I'll add it.
 
-Yours,
-Linus Walleij
+...
+> > +	platform_set_drvdata(pdev, wdt);
+> > +	watchdog_set_drvdata(&bcm2835_wdt_wdd, wdt);
+> 
+> Do you really need both of those? I would have thought just one would
+> have been enough.
+
+I think so; I would like to get rid of the platform_*() one, but we need
+that in remove hook. All of the existing drivers in drivers/watchdog/
+tree either use global data to represent a single device or use two of
+the *_set_drvdata() functions -- the watchdog_*() one and dev_*(),
+platform_*(), amba_*() or the like.
+
+> I'd be tempted to put the platform_set_drvdata() call right after the
+> devm_kzalloc() of wdt, but it's not a big deal either way.
+
+Done.
+
+I'm actually rather thankful for style fixes such as this, since I'm
+only getting familiar with what's customary to do there.
+
+Updated patch will follow shortly.
+
+-- 
+Lubomir Rintel <lkundrak@v3.sk>
+
