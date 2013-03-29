@@ -1,89 +1,210 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:54947 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754498Ab3C1D5l (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:41173 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1756072Ab3C2RFg (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 27 Mar 2013 23:57:41 -0400
-Date: Wed, 27 Mar 2013 20:50:18 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Stephen Warren <swarren@wwwdotorg.org>
-Cc: Lubomir Rintel <lkundrak@v3.sk>, linux-kernel@vger.kernel.org,
-	Dom Cobley <popcornmix@gmail.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-rpi-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v4] watchdog: Add Broadcom BCM2835 watchdog timer driver
-Message-ID: <20130328035018.GA11872@roeck-us.net>
-References: <1364320200-23569-1-git-send-email-lkundrak@v3.sk>
- <1364402424-19503-1-git-send-email-lkundrak@v3.sk>
- <5153B24D.1010408@wwwdotorg.org>
-MIME-Version: 1.0
+	Fri, 29 Mar 2013 13:05:36 -0400
+Date: Fri, 29 Mar 2013 18:05:34 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Fabio Porcedda <fabio.porcedda@gmail.com>
+Cc: linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] watchdog: core: fix some whitespace and comment to improve coding style
+Message-ID: <20130329170534.GT7867@spo001.leaseweb.com>
+References: <1361969118-19081-1-git-send-email-fabio.porcedda@telit.com> <CAHkwnC-Y3=PPx185dyxicg1yor8xxeq6L92DwNG9LPRQB=4-fg@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5153B24D.1010408@wwwdotorg.org>
+In-Reply-To: <CAHkwnC-Y3=PPx185dyxicg1yor8xxeq6L92DwNG9LPRQB=4-fg@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Mar 27, 2013 at 09:00:29PM -0600, Stephen Warren wrote:
-> On 03/27/2013 10:40 AM, Lubomir Rintel wrote:
-> > This adds a driver for watchdog timer hardware present on Broadcom BCM2835 SoC,
-> > used in Raspberry Pi and Roku 2 devices.
-> > 
-> > Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
-> > Signed-off-by: Dom Cobley <popcornmix@gmail.com>
-> 
-> Those two s-o-b lines should be swapped, since if Dom did sign off on
-> any part of this patch, he did it before you did.
-> 
-> That said...
-> 
-> I wonder if it's actually appropriate to include Dom's s-o-b here, since
-> I don't think he really wrote this patch itself. I think you mentioned
-> that you hadn't use much of the downstream driver except for some defines?
-> 
-> To be clear, I mentioned the existence of the S-o-b line downstream
-> simply to demonstrate that the commits you were getting information from
-> had correctly followed the process described in
-> Documentation/SubmittingPatches, and so it was OK to use that
-> information while creating a GPL'd driver.
-> 
-> So there are a couple of ways that this patch could have been created:
-> 
-> 1) You took the downstream commit itself, cherry-picked it into the
-> upstream kernel, modified it to suit upstream, and then submitted that.
-> The modifications might be extensive, such as renaming the file,
-> removing parts of the code that the upstream watchdog core now handles,
-> adding some new features, fixing bugs, cleanup, etc.; whatever is needed
-> to upstream the patch.
-> 
-> In this case, I believe it would be appropriate to maintain any S-o-b
-> lines from the original downstream commit, and add yours. But, I believe
-> you should also (a) maintain the git author field from the original
-> downstream commit (b) include a list of the changes you made to the
-> patch in the commit description, so you can be blamed for them rather
-> than the original author:-)
-> 
-> 2) You read the downstream commit for information, but created a
-> completely new driver for the upstream kernel, using the downstream
-> driver just as a reference. In this case, I believe it's fine for the
-> git author field to be you, and for the only s-o-b line present to be
-> yours, since you really did write the patch from scratch. However, you
-> should credit the downstream work in the (c) header and/or commit
-> description.
-> 
-> This current patch sees to be a slight hybrid of both approaches (you're
-> listed as the git author, but have included Dom's s-o-b line on a patch
-> I don't think he created, and wasn't directly derived from one he created).
-> 
-> I'm not sure if I'm being too picky. I guess I'll leave it up to Wim Van
-> Sebroeck, since he's the watchdog maintainer and would be the person who
-> applies this patch.
-> 
-I wondered about the same.
+NACK.
 
-I think 2) would be more appropriate. My approach would have been to reference
-previous work in the file header, something along the line of "derived from
-xxx", and add a copyright statement from the original work if there was one -
-pretty much what you propose above.
-
-Guenter
+> On Wed, Feb 27, 2013 at 1:45 PM, Fabio Porcedda
+> <fabio.porcedda@telit.com> wrote:
+> > From: Fabio Porcedda <fabio.porcedda@gmail.com>
+> >
+> > - Fix alignement of some function declarations
+> > - Remove some superfluous empty lines
+> > - Fix a comment because of_get_timeout_sec function does not exist
+> >
+> > Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
+> > Cc: Wim Van Sebroeck <wim@iguana.be>
+> > ---
+> >  drivers/watchdog/watchdog_core.c |  4 ++--
+> >  drivers/watchdog/watchdog_dev.c  | 27 ++++++---------------------
+> >  2 files changed, 8 insertions(+), 23 deletions(-)
+> >
+> > diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+> > index 05d18b4..3bc4ec0 100644
+> > --- a/drivers/watchdog/watchdog_core.c
+> > +++ b/drivers/watchdog/watchdog_core.c
+> > @@ -36,7 +36,7 @@
+> >  #include <linux/init.h>                /* For __init/__exit/... */
+> >  #include <linux/idr.h>         /* For ida_* macros */
+> >  #include <linux/err.h>         /* For IS_ERR macros */
+> > -#include <linux/of.h>          /* For of_get_timeout_sec */
+> > +#include <linux/of.h>          /* For of_* functions */
+> >
+> >  #include "watchdog_core.h"     /* For watchdog_dev_register/... */
+> >
+> > @@ -70,7 +70,7 @@ static void watchdog_check_min_max_timeout(struct watchdog_device *wdd)
+> >   * A zero is returned on success and -EINVAL for failure.
+> >   */
+> >  int watchdog_init_timeout(struct watchdog_device *wdd,
+> > -                               unsigned int timeout_parm, struct device *dev)
+> > +                         unsigned int timeout_parm, struct device *dev)
+> >  {
+> >         unsigned int t = 0;
+> >         int ret = 0;
+> > diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+> > index 08b48bb..cfbc806 100644
+> > --- a/drivers/watchdog/watchdog_dev.c
+> > +++ b/drivers/watchdog/watchdog_dev.c
+> > @@ -58,7 +58,6 @@ static struct watchdog_device *old_wdd;
+> >   *     exactly that.
+> >   *     We only ping when the watchdog device is running.
+> >   */
+> > -
+> >  static int watchdog_ping(struct watchdog_device *wddev)
+> >  {
+> >         int err = 0;
+> > @@ -91,7 +90,6 @@ out_ping:
+> >   *     This function returns zero on success or a negative errno code for
+> >   *     failure.
+> >   */
+> > -
+> >  static int watchdog_start(struct watchdog_device *wddev)
+> >  {
+> >         int err = 0;
+> > @@ -124,7 +122,6 @@ out_start:
+> >   *     failure.
+> >   *     If the 'nowayout' feature was set, the watchdog cannot be stopped.
+> >   */
+> > -
+> >  static int watchdog_stop(struct watchdog_device *wddev)
+> >  {
+> >         int err = 0;
+> > @@ -161,9 +158,8 @@ out_stop:
+> >   *
+> >   *     Get the watchdog's status flags.
+> >   */
+> > -
+> >  static int watchdog_get_status(struct watchdog_device *wddev,
+> > -                                                       unsigned int *status)
+> > +                              unsigned int *status)
+> >  {
+> >         int err = 0;
+> >
+> > @@ -190,9 +186,8 @@ out_status:
+> >   *     @wddev: the watchdog device to set the timeout for
+> >   *     @timeout: timeout to set in seconds
+> >   */
+> > -
+> >  static int watchdog_set_timeout(struct watchdog_device *wddev,
+> > -                                                       unsigned int timeout)
+> > +                               unsigned int timeout)
+> >  {
+> >         int err;
+> >
+> > @@ -224,9 +219,8 @@ out_timeout:
+> >   *
+> >   *     Get the time before a watchdog will reboot (if not pinged).
+> >   */
+> > -
+> >  static int watchdog_get_timeleft(struct watchdog_device *wddev,
+> > -                                                       unsigned int *timeleft)
+> > +                                unsigned int *timeleft)
+> >  {
+> >         int err = 0;
+> >
+> > @@ -254,9 +248,8 @@ out_timeleft:
+> >   *     @cmd: watchdog command
+> >   *     @arg: argument pointer
+> >   */
+> > -
+> >  static int watchdog_ioctl_op(struct watchdog_device *wddev, unsigned int cmd,
+> > -                                                       unsigned long arg)
+> > +                            unsigned long arg)
+> >  {
+> >         int err;
+> >
+> > @@ -288,9 +281,8 @@ out_ioctl:
+> >   *     Writing the magic 'V' sequence allows the next close to turn
+> >   *     off the watchdog (if 'nowayout' is not set).
+> >   */
+> > -
+> >  static ssize_t watchdog_write(struct file *file, const char __user *data,
+> > -                                               size_t len, loff_t *ppos)
+> > +                             size_t len, loff_t *ppos)
+> >  {
+> >         struct watchdog_device *wdd = file->private_data;
+> >         size_t i;
+> > @@ -328,9 +320,8 @@ static ssize_t watchdog_write(struct file *file, const char __user *data,
+> >   *     The watchdog API defines a common set of functions for all watchdogs
+> >   *     according to their available features.
+> >   */
+> > -
+> >  static long watchdog_ioctl(struct file *file, unsigned int cmd,
+> > -                                                       unsigned long arg)
+> > +                          unsigned long arg)
+> >  {
+> >         struct watchdog_device *wdd = file->private_data;
+> >         void __user *argp = (void __user *)arg;
+> > @@ -407,7 +398,6 @@ static long watchdog_ioctl(struct file *file, unsigned int cmd,
+> >   *     Watch out: the /dev/watchdog device is single open, so we make sure
+> >   *     it can only be opened once.
+> >   */
+> > -
+> >  static int watchdog_open(struct inode *inode, struct file *file)
+> >  {
+> >         int err = -EBUSY;
+> > @@ -458,7 +448,6 @@ out:
+> >   *     stop the watchdog when we have received the magic char (and nowayout
+> >   *     was not set), else the watchdog will keep running.
+> >   */
+> > -
+> >  static int watchdog_release(struct inode *inode, struct file *file)
+> >  {
+> >         struct watchdog_device *wdd = file->private_data;
+> > @@ -517,7 +506,6 @@ static struct miscdevice watchdog_miscdev = {
+> >   *     /dev/watchdog node. /dev/watchdog is actually a miscdevice and
+> >   *     thus we set it up like that.
+> >   */
+> > -
+> >  int watchdog_dev_register(struct watchdog_device *watchdog)
+> >  {
+> >         int err, devno;
+> > @@ -560,7 +548,6 @@ int watchdog_dev_register(struct watchdog_device *watchdog)
+> >   *
+> >   *     Unregister the watchdog and if needed the legacy /dev/watchdog device.
+> >   */
+> > -
+> >  int watchdog_dev_unregister(struct watchdog_device *watchdog)
+> >  {
+> >         mutex_lock(&watchdog->lock);
+> > @@ -580,7 +567,6 @@ int watchdog_dev_unregister(struct watchdog_device *watchdog)
+> >   *
+> >   *     Allocate a range of chardev nodes to use for watchdog devices
+> >   */
+> > -
+> >  int __init watchdog_dev_init(void)
+> >  {
+> >         int err = alloc_chrdev_region(&watchdog_devt, 0, MAX_DOGS, "watchdog");
+> > @@ -594,7 +580,6 @@ int __init watchdog_dev_init(void)
+> >   *
+> >   *     Release the range of chardev nodes used for watchdog devices
+> >   */
+> > -
+> >  void __exit watchdog_dev_exit(void)
+> >  {
+> >         unregister_chrdev_region(watchdog_devt, MAX_DOGS);
+> > --
+> > 1.8.1.1
+> >
+> 
+> ping
+> 
+> Best regards
+> --
+> Fabio Porcedda
