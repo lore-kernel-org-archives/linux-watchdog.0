@@ -1,45 +1,66 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ye0-f176.google.com ([209.85.213.176]:51785 "EHLO
-	mail-ye0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754187Ab3CaCHB (ORCPT
+Received: from mail.active-venture.com ([67.228.131.205]:50369 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755747Ab3CaELN (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 30 Mar 2013 22:07:01 -0400
-From: Tony Chung <tonychung00@gmail.com>
-To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Tony Chung <tonychung00@gmail.com>
-Subject: [PATCHv2 2/2] watchdog: fix w83627hf_wdt reboot due to timeout expired
-Date: Sat, 30 Mar 2013 18:59:08 -0700
-Message-Id: <1364695148-5605-2-git-send-email-tonychung00@gmail.com>
-In-Reply-To: <1364695148-5605-1-git-send-email-tonychung00@gmail.com>
+	Sun, 31 Mar 2013 00:11:13 -0400
+Date: Sat, 30 Mar 2013 21:11:15 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Tony Chung <tonychung00@gmail.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCHv2 2/2] watchdog: fix w83627hf_wdt reboot due to timeout
+ expired
+Message-ID: <20130331041115.GA13304@roeck-us.net>
 References: <1364695148-5605-1-git-send-email-tonychung00@gmail.com>
+ <1364695148-5605-2-git-send-email-tonychung00@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1364695148-5605-2-git-send-email-tonychung00@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Observed that the w83627hf watchdog timer start counting during reboot.
-If the system load the driver after 5  minutes, it rebooted immediately because of timer expired.
-For example, fsck took more than 5 minutes to run, then reboot will occurred.
+On Sat, Mar 30, 2013 at 06:59:08PM -0700, Tony Chung wrote:
+> Observed that the w83627hf watchdog timer start counting during reboot.
+> If the system load the driver after 5  minutes, it rebooted immediately because of timer expired.
+> For example, fsck took more than 5 minutes to run, then reboot will occurred.
+> 
+> Signed-off-by: Tony Chung <tonychung00@gmail.com>
+> ---
+>  drivers/watchdog/w83627hf_wdt.c |    5 +++++
+>  1 files changed, 5 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
+> index 8f1111d..47eb233 100644
+> --- a/drivers/watchdog/w83627hf_wdt.c
+> +++ b/drivers/watchdog/w83627hf_wdt.c
+> @@ -174,6 +174,11 @@ static void w83627hf_init(void)
+>  
+>  	outb_p(0xF7, WDT_EFER); /* Select CRF7 */
+>  	t = inb_p(WDT_EFDR);      /* read CRF7 */
+> +	if (t & 0x10) {
+> +		pr_info("Watchdog Timer timeout occurred!");
+> +		t &= ~0x10; /* clear the event */
+> +		pr_info("Event cleared\n");
+> +	}
+>  	t &= ~0xC0;               /* disable keyboard & mouse turning off
+>  				    watchdog */
 
-Signed-off-by: Tony Chung <tonychung00@gmail.com>
----
- drivers/watchdog/w83627hf_wdt.c |    5 +++++
- 1 files changed, 5 insertions(+), 0 deletions(-)
+I would suggest to simply clear it silently. I don't think an extra message
+provides any real value.
 
-diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
-index 8f1111d..47eb233 100644
---- a/drivers/watchdog/w83627hf_wdt.c
-+++ b/drivers/watchdog/w83627hf_wdt.c
-@@ -174,6 +174,11 @@ static void w83627hf_init(void)
- 
- 	outb_p(0xF7, WDT_EFER); /* Select CRF7 */
- 	t = inb_p(WDT_EFDR);      /* read CRF7 */
-+	if (t & 0x10) {
-+		pr_info("Watchdog Timer timeout occurred!");
-+		t &= ~0x10; /* clear the event */
-+		pr_info("Event cleared\n");
-+	}
- 	t &= ~0xC0;               /* disable keyboard & mouse turning off
- 				    watchdog */
- 	outb_p(t, WDT_EFDR);    /* Write back to CRF7 */
--- 
-1.7.0.4
+	t &= ~0xE0;	/* clear watchdog, disable keyboard & mouse
+			   turning off watchdog */
 
+Guenter
+
+>  	outb_p(t, WDT_EFDR);    /* Write back to CRF7 */
+> -- 
+> 1.7.0.4
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
