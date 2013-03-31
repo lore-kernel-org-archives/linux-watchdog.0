@@ -1,224 +1,179 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oa0-f44.google.com ([209.85.219.44]:45114 "EHLO
-	mail-oa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756620Ab3C2Uay (ORCPT
+Received: from mail-gh0-f178.google.com ([209.85.160.178]:54229 "EHLO
+	mail-gh0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754962Ab3CaCFc (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 29 Mar 2013 16:30:54 -0400
-Received: by mail-oa0-f44.google.com with SMTP id h1so654911oag.17
-        for <linux-watchdog@vger.kernel.org>; Fri, 29 Mar 2013 13:30:53 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20130329170534.GT7867@spo001.leaseweb.com>
-References: <1361969118-19081-1-git-send-email-fabio.porcedda@telit.com>
- <CAHkwnC-Y3=PPx185dyxicg1yor8xxeq6L92DwNG9LPRQB=4-fg@mail.gmail.com> <20130329170534.GT7867@spo001.leaseweb.com>
-From: Fabio Porcedda <fabio.porcedda@gmail.com>
-Date: Fri, 29 Mar 2013 21:30:32 +0100
-Message-ID: <CAHkwnC-ZAX=_SgebYNJ8konmCgQuW1L-TiMv85FrzHzPoykdAQ@mail.gmail.com>
-Subject: Re: [PATCH] watchdog: core: fix some whitespace and comment to
- improve coding style
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+	Sat, 30 Mar 2013 22:05:32 -0400
+From: Tony Chung <tonychung00@gmail.com>
+To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Tony Chung <tonychung00@gmail.com>
+Subject: [PATCHv2 1/2] watchdog: improve w83627hf_wdt to timeout in minute
+Date: Sat, 30 Mar 2013 18:59:07 -0700
+Message-Id: <1364695148-5605-1-git-send-email-tonychung00@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Mar 29, 2013 at 6:05 PM, Wim Van Sebroeck <wim@iguana.be> wrote:
-> NACK.
+Watchdog should support timeout in minutes.
+For example, crash dump will usually require 5+ minutes.
 
-Could you tell me the reason for the NACK?
+This patch increase the timeout from 255 seconds to (255*60) seconds and should be good for older LTS releases.
+This patch need to be rewritten again when this driver migrate to new watchdog infrastructure.
 
-Regards
-Fabio Porcedda
+Added a new max_timeout variable so we can change it if needed.
 
->> On Wed, Feb 27, 2013 at 1:45 PM, Fabio Porcedda
->> <fabio.porcedda@telit.com> wrote:
->> > From: Fabio Porcedda <fabio.porcedda@gmail.com>
->> >
->> > - Fix alignement of some function declarations
->> > - Remove some superfluous empty lines
->> > - Fix a comment because of_get_timeout_sec function does not exist
->> >
->> > Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
->> > Cc: Wim Van Sebroeck <wim@iguana.be>
->> > ---
->> >  drivers/watchdog/watchdog_core.c |  4 ++--
->> >  drivers/watchdog/watchdog_dev.c  | 27 ++++++---------------------
->> >  2 files changed, 8 insertions(+), 23 deletions(-)
->> >
->> > diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
->> > index 05d18b4..3bc4ec0 100644
->> > --- a/drivers/watchdog/watchdog_core.c
->> > +++ b/drivers/watchdog/watchdog_core.c
->> > @@ -36,7 +36,7 @@
->> >  #include <linux/init.h>                /* For __init/__exit/... */
->> >  #include <linux/idr.h>         /* For ida_* macros */
->> >  #include <linux/err.h>         /* For IS_ERR macros */
->> > -#include <linux/of.h>          /* For of_get_timeout_sec */
->> > +#include <linux/of.h>          /* For of_* functions */
->> >
->> >  #include "watchdog_core.h"     /* For watchdog_dev_register/... */
->> >
->> > @@ -70,7 +70,7 @@ static void watchdog_check_min_max_timeout(struct watchdog_device *wdd)
->> >   * A zero is returned on success and -EINVAL for failure.
->> >   */
->> >  int watchdog_init_timeout(struct watchdog_device *wdd,
->> > -                               unsigned int timeout_parm, struct device *dev)
->> > +                         unsigned int timeout_parm, struct device *dev)
->> >  {
->> >         unsigned int t = 0;
->> >         int ret = 0;
->> > diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
->> > index 08b48bb..cfbc806 100644
->> > --- a/drivers/watchdog/watchdog_dev.c
->> > +++ b/drivers/watchdog/watchdog_dev.c
->> > @@ -58,7 +58,6 @@ static struct watchdog_device *old_wdd;
->> >   *     exactly that.
->> >   *     We only ping when the watchdog device is running.
->> >   */
->> > -
->> >  static int watchdog_ping(struct watchdog_device *wddev)
->> >  {
->> >         int err = 0;
->> > @@ -91,7 +90,6 @@ out_ping:
->> >   *     This function returns zero on success or a negative errno code for
->> >   *     failure.
->> >   */
->> > -
->> >  static int watchdog_start(struct watchdog_device *wddev)
->> >  {
->> >         int err = 0;
->> > @@ -124,7 +122,6 @@ out_start:
->> >   *     failure.
->> >   *     If the 'nowayout' feature was set, the watchdog cannot be stopped.
->> >   */
->> > -
->> >  static int watchdog_stop(struct watchdog_device *wddev)
->> >  {
->> >         int err = 0;
->> > @@ -161,9 +158,8 @@ out_stop:
->> >   *
->> >   *     Get the watchdog's status flags.
->> >   */
->> > -
->> >  static int watchdog_get_status(struct watchdog_device *wddev,
->> > -                                                       unsigned int *status)
->> > +                              unsigned int *status)
->> >  {
->> >         int err = 0;
->> >
->> > @@ -190,9 +186,8 @@ out_status:
->> >   *     @wddev: the watchdog device to set the timeout for
->> >   *     @timeout: timeout to set in seconds
->> >   */
->> > -
->> >  static int watchdog_set_timeout(struct watchdog_device *wddev,
->> > -                                                       unsigned int timeout)
->> > +                               unsigned int timeout)
->> >  {
->> >         int err;
->> >
->> > @@ -224,9 +219,8 @@ out_timeout:
->> >   *
->> >   *     Get the time before a watchdog will reboot (if not pinged).
->> >   */
->> > -
->> >  static int watchdog_get_timeleft(struct watchdog_device *wddev,
->> > -                                                       unsigned int *timeleft)
->> > +                                unsigned int *timeleft)
->> >  {
->> >         int err = 0;
->> >
->> > @@ -254,9 +248,8 @@ out_timeleft:
->> >   *     @cmd: watchdog command
->> >   *     @arg: argument pointer
->> >   */
->> > -
->> >  static int watchdog_ioctl_op(struct watchdog_device *wddev, unsigned int cmd,
->> > -                                                       unsigned long arg)
->> > +                            unsigned long arg)
->> >  {
->> >         int err;
->> >
->> > @@ -288,9 +281,8 @@ out_ioctl:
->> >   *     Writing the magic 'V' sequence allows the next close to turn
->> >   *     off the watchdog (if 'nowayout' is not set).
->> >   */
->> > -
->> >  static ssize_t watchdog_write(struct file *file, const char __user *data,
->> > -                                               size_t len, loff_t *ppos)
->> > +                             size_t len, loff_t *ppos)
->> >  {
->> >         struct watchdog_device *wdd = file->private_data;
->> >         size_t i;
->> > @@ -328,9 +320,8 @@ static ssize_t watchdog_write(struct file *file, const char __user *data,
->> >   *     The watchdog API defines a common set of functions for all watchdogs
->> >   *     according to their available features.
->> >   */
->> > -
->> >  static long watchdog_ioctl(struct file *file, unsigned int cmd,
->> > -                                                       unsigned long arg)
->> > +                          unsigned long arg)
->> >  {
->> >         struct watchdog_device *wdd = file->private_data;
->> >         void __user *argp = (void __user *)arg;
->> > @@ -407,7 +398,6 @@ static long watchdog_ioctl(struct file *file, unsigned int cmd,
->> >   *     Watch out: the /dev/watchdog device is single open, so we make sure
->> >   *     it can only be opened once.
->> >   */
->> > -
->> >  static int watchdog_open(struct inode *inode, struct file *file)
->> >  {
->> >         int err = -EBUSY;
->> > @@ -458,7 +448,6 @@ out:
->> >   *     stop the watchdog when we have received the magic char (and nowayout
->> >   *     was not set), else the watchdog will keep running.
->> >   */
->> > -
->> >  static int watchdog_release(struct inode *inode, struct file *file)
->> >  {
->> >         struct watchdog_device *wdd = file->private_data;
->> > @@ -517,7 +506,6 @@ static struct miscdevice watchdog_miscdev = {
->> >   *     /dev/watchdog node. /dev/watchdog is actually a miscdevice and
->> >   *     thus we set it up like that.
->> >   */
->> > -
->> >  int watchdog_dev_register(struct watchdog_device *watchdog)
->> >  {
->> >         int err, devno;
->> > @@ -560,7 +548,6 @@ int watchdog_dev_register(struct watchdog_device *watchdog)
->> >   *
->> >   *     Unregister the watchdog and if needed the legacy /dev/watchdog device.
->> >   */
->> > -
->> >  int watchdog_dev_unregister(struct watchdog_device *watchdog)
->> >  {
->> >         mutex_lock(&watchdog->lock);
->> > @@ -580,7 +567,6 @@ int watchdog_dev_unregister(struct watchdog_device *watchdog)
->> >   *
->> >   *     Allocate a range of chardev nodes to use for watchdog devices
->> >   */
->> > -
->> >  int __init watchdog_dev_init(void)
->> >  {
->> >         int err = alloc_chrdev_region(&watchdog_devt, 0, MAX_DOGS, "watchdog");
->> > @@ -594,7 +580,6 @@ int __init watchdog_dev_init(void)
->> >   *
->> >   *     Release the range of chardev nodes used for watchdog devices
->> >   */
->> > -
->> >  void __exit watchdog_dev_exit(void)
->> >  {
->> >         unregister_chrdev_region(watchdog_devt, MAX_DOGS);
->> > --
->> > 1.8.1.1
->> >
->>
->> ping
->>
->> Best regards
->> --
->> Fabio Porcedda
+Signed-off-by: Tony Chung <tonychung00@gmail.com>
+---
+ drivers/watchdog/w83627hf_wdt.c |   74 ++++++++++++++++++++++++++++++--------
+ 1 files changed, 58 insertions(+), 16 deletions(-)
 
+diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
+index 92f1326..8f1111d 100644
+--- a/drivers/watchdog/w83627hf_wdt.c
++++ b/drivers/watchdog/w83627hf_wdt.c
+@@ -45,6 +45,7 @@
+ 
+ #define WATCHDOG_NAME "w83627hf/thf/hg/dhg WDT"
+ #define WATCHDOG_TIMEOUT 60		/* 60 sec default timeout */
++#define WATCHDOG_MAX_TIMEOUT	(60 * 255)
+ 
+ static unsigned long wdt_is_open;
+ static char expect_close;
+@@ -55,11 +56,14 @@ static int wdt_io = 0x2E;
+ module_param(wdt_io, int, 0);
+ MODULE_PARM_DESC(wdt_io, "w83627hf/thf WDT io port (default 0x2E)");
+ 
++static bool use_minute; /* timeout unit in minutes if set */
++static const int max_timeout = WATCHDOG_MAX_TIMEOUT;
+ static int timeout = WATCHDOG_TIMEOUT;	/* in seconds */
+ module_param(timeout, int, 0);
+ MODULE_PARM_DESC(timeout,
+-		"Watchdog timeout in seconds. 1 <= timeout <= 255, default="
+-				__MODULE_STRING(WATCHDOG_TIMEOUT) ".");
++		"Watchdog timeout in seconds. 1<= timeout <="
++			__MODULE_STRING(WATCHDOG_MAX_TIMEOUT) " (default="
++			__MODULE_STRING(WATCHDOG_TIMEOUT) ")");
+ 
+ static bool nowayout = WATCHDOG_NOWAYOUT;
+ module_param(nowayout, bool, 0);
+@@ -107,6 +111,48 @@ static void w83627hf_unselect_wd_register(void)
+ 	outb_p(0xAA, WDT_EFER); /* Leave extended function mode */
+ }
+ 
++/* setup CRF5 register */
++static void w83627hf_setup_crf5(void)
++{
++	unsigned char t;
++
++	outb_p(0xF5, WDT_EFER); /* Select CRF5 */
++	t = inb_p(WDT_EFDR);      /* read CRF5 */
++	t &= ~0x0C;               /* set second mode & disable keyboard
++				    turning off watchdog */
++	t |= 0x02;		  /* enable the WDTO# output low pulse
++				    to the KBRST# pin (PIN60) */
++	if (use_minute)
++		t |= 0x8;        /* set timeout in minute */
++
++	outb_p(t, WDT_EFDR);    /* Write back to CRF5 */
++}
++
++/* set use_minute if t > 255 */
++static inline int wdt_use_minute(int t)
++{
++	if (t > 255) {
++		t = DIV_ROUND_UP(t, 60); /* convert secs to minutes */
++		use_minute = 1;
++	} else {
++		use_minute = 0;
++	}
++
++	/* setup CRF5 for new timeout unit */
++	w83627hf_select_wd_register();
++	w83627hf_setup_crf5();
++	w83627hf_unselect_wd_register();
++
++	return t;
++}
++
++/* convert specified value to seconds if use_minute is set */
++static inline int wdt_get_timeout_secs(int t)
++{
++	return (use_minute) ? (t * 60) : t;
++}
++
++
+ /* tyan motherboards seem to set F5 to 0x4C ?
+  * So explicitly init to appropriate value. */
+ 
+@@ -120,17 +166,11 @@ static void w83627hf_init(void)
+ 	t = inb_p(WDT_EFDR);      /* read CRF6 */
+ 	if (t != 0) {
+ 		pr_info("Watchdog already running. Resetting timeout to %d sec\n",
+-			timeout);
++			wdt_get_timeout_secs(timeout));
+ 		outb_p(timeout, WDT_EFDR);    /* Write back to CRF6 */
+ 	}
+ 
+-	outb_p(0xF5, WDT_EFER); /* Select CRF5 */
+-	t = inb_p(WDT_EFDR);      /* read CRF5 */
+-	t &= ~0x0C;               /* set second mode & disable keyboard
+-				    turning off watchdog */
+-	t |= 0x02;		  /* enable the WDTO# output low pulse
+-				    to the KBRST# pin (PIN60) */
+-	outb_p(t, WDT_EFDR);    /* Write back to CRF5 */
++	w83627hf_setup_crf5();
+ 
+ 	outb_p(0xF7, WDT_EFER); /* Select CRF7 */
+ 	t = inb_p(WDT_EFDR);      /* read CRF7 */
+@@ -169,9 +209,9 @@ static int wdt_disable(void)
+ 
+ static int wdt_set_heartbeat(int t)
+ {
+-	if (t < 1 || t > 255)
++	if (t < 1 || t > max_timeout)
+ 		return -EINVAL;
+-	timeout = t;
++	timeout = wdt_use_minute(t);
+ 	return 0;
+ }
+ 
+@@ -190,7 +230,7 @@ static int wdt_get_time(void)
+ 
+ 	spin_unlock(&io_lock);
+ 
+-	return timeleft;
++	return wdt_get_timeout_secs(timeleft);
+ }
+ 
+ static ssize_t wdt_write(struct file *file, const char __user *buf,
+@@ -262,7 +302,8 @@ static long wdt_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 		wdt_ping();
+ 		/* Fall */
+ 	case WDIOC_GETTIMEOUT:
+-		return put_user(timeout, p);
++		timeval = wdt_get_timeout_secs(timeout);
++		return put_user(timeval, p);
+ 	case WDIOC_GETTIMELEFT:
+ 		timeval = wdt_get_time();
+ 		return put_user(timeval, p);
+@@ -346,7 +387,8 @@ static int __init wdt_init(void)
+ 
+ 	if (wdt_set_heartbeat(timeout)) {
+ 		wdt_set_heartbeat(WATCHDOG_TIMEOUT);
+-		pr_info("timeout value must be 1 <= timeout <= 255, using %d\n",
++		pr_info("timeout value must be 1 <= timeout <= %d, using %d\n",
++			max_timeout,
+ 			WATCHDOG_TIMEOUT);
+ 	}
+ 
+@@ -372,7 +414,7 @@ static int __init wdt_init(void)
+ 	}
+ 
+ 	pr_info("initialized. timeout=%d sec (nowayout=%d)\n",
+-		timeout, nowayout);
++		wdt_get_timeout_secs(timeout), nowayout);
+ 
+ out:
+ 	return ret;
+-- 
+1.7.0.4
 
-
---
-Fabio Porcedda
