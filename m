@@ -1,49 +1,57 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ie0-f182.google.com ([209.85.223.182]:48022 "EHLO
-	mail-ie0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759829Ab3DCPG7 (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:43373 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760644Ab3DCPZZ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 3 Apr 2013 11:06:59 -0400
+	Wed, 3 Apr 2013 11:25:25 -0400
+Date: Wed, 3 Apr 2013 17:16:54 +0200
+From: Sascha Hauer <s.hauer@pengutronix.de>
+To: Christian Gmeiner <christian.gmeiner@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, x86@kernel.org,
+	linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH 3/3] watchdog: Add Congatec CGEB watchdog driver
+Message-ID: <20130403151654.GY1906@pengutronix.de>
+References: <1360663374-30951-1-git-send-email-s.hauer@pengutronix.de>
+ <1360663374-30951-4-git-send-email-s.hauer@pengutronix.de>
+ <CAH9NwWd7YdtK0urutisVgKoE7NmPFLpG3wFG5W6P7o45vUqAng@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20130403042142.GA3640@roeck-us.net>
-References: <1364795972-8649-1-git-send-email-tonychung00@gmail.com>
-	<1364795972-8649-2-git-send-email-tonychung00@gmail.com>
-	<20130402000741.GA4077@roeck-us.net>
-	<CAHyaeP1ExzMr8_KvSrmf6+urVROEHRePs_KA3CZ3bnU6Ov79LQ@mail.gmail.com>
-	<20130403042142.GA3640@roeck-us.net>
-Date: Wed, 3 Apr 2013 08:06:59 -0700
-Message-ID: <CAHyaeP1tdNpqtOLOYpy-OyL2_myPSQAO3eQF5_k9ryuFW6bhAQ@mail.gmail.com>
-Subject: Re: [PATCH v3 2/2] watchdog: fix w83627hf_wdt clear timeout expired
-From: Tony Chung <tonychung00@gmail.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAH9NwWd7YdtK0urutisVgKoE7NmPFLpG3wFG5W6P7o45vUqAng@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Apr 2, 2013 at 9:21 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+On Tue, Mar 26, 2013 at 11:16:35AM +0100, Christian Gmeiner wrote:
+> 2013/2/12 Sascha Hauer <s.hauer@pengutronix.de>:
+> > --
+> 
+> There seems to be a problem:
+> 
+> Mar 26 16:11:25 OT kernel: [   80.207514] cgeb-watchdog
+> cgeb-watchdog.0: registered
+> Mar 26 16:11:38 OT watchdog[2519]: stopping daemon (5.9)
+> Mar 26 16:11:43 OT watchdog[2750]: starting daemon (5.9):
+> Mar 26 16:11:43 OT watchdog[2750]: int=1s realtime=yes sync=no soft=no
+> mla=0 mem=0
+> Mar 26 16:11:43 OT watchdog[2750]: ping: no machine to check
+> Mar 26 16:11:43 OT watchdog[2750]: file: no file to check
+> Mar 26 16:11:43 OT watchdog[2750]: pidfile: no server process to check
+> Mar 26 16:11:43 OT watchdog[2750]: interface: no interface to check
+> Mar 26 16:11:43 OT watchdog[2750]: test=none(0) repair=none(0)
+> alive=/dev/watchdog heartbeat=none temp=none to=root no_act=no
+> Mar 26 16:11:43 OT watchdog[2750]: cannot set timeout 60 (errno = 95 =
+> 'Operation not supported')
 
->
->
-> What is the exact chip type in your system ? I want to have a look into the
-> datasheet; maybe I can find out how it can trigger without causing a reset.
+As mentioned in my other mail the watchdog core no longer sets
+wdd->timeout which results in the above message. Should be fixed
+with the next version.
 
-Winbond 83627HF chip
-
-I believe BIOS has watchdog disabled otherwise it would have reboot the box.
-However, the timer just start counting.
-
-Comparing to ipmi_watchdog, you can do this:
-modprobe ipmi_watchdog ... start_now=0 ...action=<>  nowayout=1
-
-So it is possible to load the driver without start counting.
-
-Notice it is an else, so t is actually 0 already (i.e. expired or
-never start running):
-> +     } else {
-> +             outb_p(0, WDT_EFDR);    /* disable to prevent reboot */
+Sascha
 
 
---
-- Tony Chung
+-- 
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
