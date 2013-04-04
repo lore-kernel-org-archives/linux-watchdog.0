@@ -1,79 +1,49 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:63443 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750783Ab3DDF3l (ORCPT
+Received: from mail-ee0-f54.google.com ([74.125.83.54]:34738 "EHLO
+	mail-ee0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1765160Ab3DDWXe convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 4 Apr 2013 01:29:41 -0400
-Date: Wed, 3 Apr 2013 22:29:45 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Tony Chung <tonychung00@gmail.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4 2/2] watchdog: fix w83627hf_wdt  clear timeout expired
-Message-ID: <20130404052945.GA21371@roeck-us.net>
-References: <1365050384-9130-1-git-send-email-tonychung00@gmail.com>
- <1365050384-9130-2-git-send-email-tonychung00@gmail.com>
+	Thu, 4 Apr 2013 18:23:34 -0400
+From: Arkadiusz Miskiewicz <a.miskiewicz@gmail.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: 3.8.3 and 3.9git occasional watchdog oops
+Date: Fri, 5 Apr 2013 00:23:30 +0200
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <201303142154.20501.arekm@maven.pl>
+In-Reply-To: <201303142154.20501.arekm@maven.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1365050384-9130-2-git-send-email-tonychung00@gmail.com>
+Content-Type: Text/Plain;
+  charset="utf-8"
+Message-Id: <201304050023.31143.a.miskiewicz@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 03, 2013 at 09:39:44PM -0700, Tony Chung wrote:
-> 
-> Observed that the Watchdog Timer Status bit can be set when the driver is
-> loaded. Reset it during initialization. The time-out value must be set to 0
-> explicitly in this case to prevent an immediate reset.
-> 
-> Depending on the motherboard and with watchdog disabled in the BIOS, this reset problem can easily be reproduced by the following steps:
-> 1.  reboot the system 
-> 2.  wait for 5+ minutes 
-> 3.  don't start any watchdog server.
-> 4.  just run "modprobe w83627hf_wdt"
-> 
-> If the system load the driver after 5  minutes, it rebooted immediately because of timer expired.  For example, fsck could take more than 5 minutes to run, 
-> then the computer reboot as soon as the driver was loaded.
-> 
-[ the above aplies to your system, so I would not add that to the commit log,
-but that it up to Wim to decide ]
+On Thursday 14 of March 2013, Arkadiusz Mi=C5=9Bkiewicz wrote:
+> Hi.
+>=20
+> Just hit watchdog related oops in 3.8.3 kernel. Unfortunately photos on=
+ly.
+>=20
+> http://ixion.pld-linux.org/~arekm/watchdog-oops-3.8.3/IMG_8942.JPG
+> http://ixion.pld-linux.org/~arekm/watchdog-oops-3.8.3/IMG_8941.JPG
 
-> Signed-off-by: Tony Chung <tonychung00@gmail.com>
+3.9git from today isn't any better unfortunately:
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
+http://ixion.pld-linux.org/~arekm/watchdog-oops-3.9git.jpg
 
-> ---
->  drivers/watchdog/w83627hf_wdt.c |    6 ++++--
->  1 files changed, 4 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
-> index 8f1111d..7eaa226 100644
-> --- a/drivers/watchdog/w83627hf_wdt.c
-> +++ b/drivers/watchdog/w83627hf_wdt.c
-> @@ -168,14 +168,16 @@ static void w83627hf_init(void)
->  		pr_info("Watchdog already running. Resetting timeout to %d sec\n",
->  			wdt_get_timeout_secs(timeout));
->  		outb_p(timeout, WDT_EFDR);    /* Write back to CRF6 */
-> +	} else {
-> +		outb_p(0, WDT_EFDR);    /* disable to prevent reboot */
->  	}
->  
->  	w83627hf_setup_crf5();
->  
->  	outb_p(0xF7, WDT_EFER); /* Select CRF7 */
->  	t = inb_p(WDT_EFDR);      /* read CRF7 */
-> -	t &= ~0xC0;               /* disable keyboard & mouse turning off
-> -				    watchdog */
-> +	t &= ~0xD0;               /* clear timeout occurred and disable keyboard
-> +				     & mouse turning off watchdog */
->  	outb_p(t, WDT_EFDR);    /* Write back to CRF7 */
->  
->  	w83627hf_unselect_wd_register();
-> -- 
-> 1.7.0.4
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+>=20
+> oops started after I enabled systemd watchdog functionality. Cannot
+> reproduce easily.
+>=20
+> watchdog here (thinkpad t400) is:
+>  iTCO_wdt: Found a ICH9M-E TCO device (Version=3D2, TCOBASE=3D0x1060)
+
+
+--=20
+Arkadiusz Mi=C5=9Bkiewicz, arekm / maven.pl
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
