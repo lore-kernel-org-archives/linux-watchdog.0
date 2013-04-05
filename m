@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:61414 "EHLO mga09.intel.com"
+Received: from mga09.intel.com ([134.134.136.24]:3328 "EHLO mga09.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161970Ab3DEQbG (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 5 Apr 2013 12:31:06 -0400
-Date: Fri, 5 Apr 2013 18:30:56 +0200
+	id S1161978Ab3DEQck (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 5 Apr 2013 12:32:40 -0400
+Date: Fri, 5 Apr 2013 18:32:23 +0200
 From: Samuel Ortiz <sameo@linux.intel.com>
 To: Ian Lartey <ian@slimlogic.co.uk>
 Cc: linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
@@ -16,28 +16,54 @@ Cc: linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
 	rpurdie@rpsys.net, akpm@linux-foundation.org, wim@iguana.be,
 	lgirdwood@gmail.com, gg@slimlogic.co.uk, j-keerthy@ti.com,
 	ldewangan@nvidia.com, t-kristo@ti.com
-Subject: Re: [PATCH v10 0/12] Palmas updates
-Message-ID: <20130405163056.GN17363@zurbaran>
+Subject: Re: [PATCH v10 03/12] mfd: palmas add variant and OTP detection
+Message-ID: <20130405163223.GO17363@zurbaran>
 References: <1363964122-19201-1-git-send-email-ian@slimlogic.co.uk>
+ <1363964122-19201-4-git-send-email-ian@slimlogic.co.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1363964122-19201-1-git-send-email-ian@slimlogic.co.uk>
+In-Reply-To: <1363964122-19201-4-git-send-email-ian@slimlogic.co.uk>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 Hi Ian,
 
-On Fri, Mar 22, 2013 at 02:55:10PM +0000, Ian Lartey wrote:
-> This patchset adds to the support for the Palmas series of PMIC chips.
-> 
-> Some of the patches have previously been submitted individually.
-> The DT bindings doc has been added first due to comments that it was missing.
-> 
-> Patches based on linux-next-20130319
-Are you expecting all those patches to go through the MFD tree ?
-Also, you stil have a few comments from Milo and Stephen to adress. Are you
-planning to send a v11 ?
+On Fri, Mar 22, 2013 at 02:55:13PM +0000, Ian Lartey wrote:
+> @@ -278,20 +329,20 @@ static void palmas_dt_to_pdata(struct i2c_client *i2c,
+>  	int ret;
+>  	u32 prop;
+>  
+> -	ret = of_property_read_u32(node, "ti,mux_pad1", &prop);
+> +	ret = of_property_read_u32(node, "ti,mux-pad1", &prop);
+>  	if (!ret) {
+>  		pdata->mux_from_pdata = 1;
+>  		pdata->pad1 = prop;
+>  	}
+>  
+> -	ret = of_property_read_u32(node, "ti,mux_pad2", &prop);
+> +	ret = of_property_read_u32(node, "ti,mux-pad2", &prop);
+>  	if (!ret) {
+>  		pdata->mux_from_pdata = 1;
+>  		pdata->pad2 = prop;
+>  	}
+>  
+>  	/* The default for this register is all masked */
+> -	ret = of_property_read_u32(node, "ti,power_ctrl", &prop);
+> +	ret = of_property_read_u32(node, "ti,power-ctrl", &prop);
+>  	if (!ret)
+>  		pdata->power_ctrl = prop;
+>  	else
+> @@ -309,7 +360,7 @@ static int palmas_i2c_probe(struct i2c_client *i2c,
+>  	struct palmas_platform_data *pdata;
+>  	struct device_node *node = i2c->dev.of_node;
+>  	int ret = 0, i;
+> -	unsigned int reg, addr;
+> +	unsigned int reg;
+>  	int slave;
+>  	struct mfd_cell *children;
+The '-' to '_' fix has been sent by J Keerthy and is on my mfd-next tree
+aready. Would you mind removing it from this patch ?
 
 Cheers,
 Samuel.
