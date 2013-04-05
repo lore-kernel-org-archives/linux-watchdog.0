@@ -1,73 +1,126 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:3328 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1161978Ab3DEQck (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 5 Apr 2013 12:32:40 -0400
-Date: Fri, 5 Apr 2013 18:32:23 +0200
-From: Samuel Ortiz <sameo@linux.intel.com>
-To: Ian Lartey <ian@slimlogic.co.uk>
-Cc: linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-leds@vger.kernel.org,
-	linux-watchdog@vger.kernel.org,
-	devicetree-discuss@lists.ozlabs.org, swarren@wwwdotorg.org,
-	grant.likely@secretlab.ca, broonie@opensource.wolfsonmicro.com,
-	rob.herring@calxeda.com, rob@landley.net, mturquette@linaro.org,
-	linus.walleij@linaro.org, cooloney@gmail.com, sfr@canb.auug.org.au,
-	rpurdie@rpsys.net, akpm@linux-foundation.org, wim@iguana.be,
-	lgirdwood@gmail.com, gg@slimlogic.co.uk, j-keerthy@ti.com,
-	ldewangan@nvidia.com, t-kristo@ti.com
-Subject: Re: [PATCH v10 03/12] mfd: palmas add variant and OTP detection
-Message-ID: <20130405163223.GO17363@zurbaran>
-References: <1363964122-19201-1-git-send-email-ian@slimlogic.co.uk>
- <1363964122-19201-4-git-send-email-ian@slimlogic.co.uk>
+Received: from mail.active-venture.com ([67.228.131.205]:57101 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1162404Ab3DESev (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 5 Apr 2013 14:34:51 -0400
+Date: Fri, 5 Apr 2013 11:34:50 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Hector Palacios <hector.palacios@digi.com>
+Cc: linux-watchdog@vger.kernel.org, wim@iguana.be,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH RFC] watchdog: core: don't try to stop device if not
+ running
+Message-ID: <20130405183450.GA29835@roeck-us.net>
+References: <515EF748.6060504@digi.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1363964122-19201-4-git-send-email-ian@slimlogic.co.uk>
+In-Reply-To: <515EF748.6060504@digi.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Ian,
+On Fri, Apr 05, 2013 at 06:09:44PM +0200, Hector Palacios wrote:
+> A watchdog device may be stopped from userspace using WDIOC_SETOPTIONS
+> ioctl and flag WDIOS_DISABLECARD. If the device is closed after this
+> operation, watchdog_release() is called and status bits checked for
+> stopping it. Besides, if the device has not been unregistered a critical
+> message "watchdog did not stop!" is printed, although the ioctl may have
+> successfully stopped it already.
+> 
+> Without the patch a user application sample code like this will successfully
+> stop the watchdog, but the kernel will output the message
+> "watchdog did not stop!":
+> 
+> 	wd_fd = open("/dev/watchdog", O_RDWR);
+> 
+> 	flags = WDIOS_DISABLECARD;
+> 	ioctl(wd_fd, WDIOC_SETOPTIONS, &flags);
+> 
+> 	close(wd_fd);
+> 
+> Signed-off-by: Hector Palacios <hector.palacios@digi.com>
 
-On Fri, Mar 22, 2013 at 02:55:13PM +0000, Ian Lartey wrote:
-> @@ -278,20 +329,20 @@ static void palmas_dt_to_pdata(struct i2c_client *i2c,
->  	int ret;
->  	u32 prop;
->  
-> -	ret = of_property_read_u32(node, "ti,mux_pad1", &prop);
-> +	ret = of_property_read_u32(node, "ti,mux-pad1", &prop);
->  	if (!ret) {
->  		pdata->mux_from_pdata = 1;
->  		pdata->pad1 = prop;
+How about the following patch instead ?
+
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 08b48bb..9775e8d 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -469,7 +469,9 @@ static int watchdog_release(struct inode *inode, struct file *file)
+ 	 * or if WDIOF_MAGICCLOSE is not set. If nowayout was set then
+ 	 * watchdog_stop will fail.
+ 	 */
+-	if (test_and_clear_bit(WDOG_ALLOW_RELEASE, &wdd->status) ||
++	if (!test_bit(WDOG_ACTIVE, &wdd->status))
++		err = 0;
++	else if (test_and_clear_bit(WDOG_ALLOW_RELEASE, &wdd->status) ||
+ 	    !(wdd->info->options & WDIOF_MAGICCLOSE))
+ 		err = watchdog_stop(wdd);
+
+Much less invasive and the result is the same.
+
+Thanks,
+Guenter
+
+> ---
+>  drivers/watchdog/watchdog_dev.c |   38 +++++++++++++++++++++-----------------
+>  1 file changed, 21 insertions(+), 17 deletions(-)
+> 
+> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+> index ef8edec..adadbdd 100644
+> --- a/drivers/watchdog/watchdog_dev.c
+> +++ b/drivers/watchdog/watchdog_dev.c
+> @@ -463,24 +463,28 @@ out:
+>  static int watchdog_release(struct inode *inode, struct file *file)
+>  {
+>  	struct watchdog_device *wdd = file->private_data;
+> -	int err = -EBUSY;
+> 
+> -	/*
+> -	 * We only stop the watchdog if we received the magic character
+> -	 * or if WDIOF_MAGICCLOSE is not set. If nowayout was set then
+> -	 * watchdog_stop will fail.
+> -	 */
+> -	if (test_and_clear_bit(WDOG_ALLOW_RELEASE, &wdd->status) ||
+> -	    !(wdd->info->options & WDIOF_MAGICCLOSE))
+> -		err = watchdog_stop(wdd);
+> -
+> -	/* If the watchdog was not stopped, send a keepalive ping */
+> -	if (err < 0) {
+> -		mutex_lock(&wdd->lock);
+> -		if (!test_bit(WDOG_UNREGISTERED, &wdd->status))
+> -			dev_crit(wdd->dev, "watchdog did not stop!\n");
+> -		mutex_unlock(&wdd->lock);
+> -		watchdog_ping(wdd);
+> +	if (test_bit(WDOG_ACTIVE, &wdd->status)) {
+> +		int err = -EBUSY;
+> +
+> +		/*
+> +		 * We only stop the watchdog if we received the magic character
+> +		 * or if WDIOF_MAGICCLOSE is not set. If nowayout was set then
+> +		 * watchdog_stop will fail.
+> +		 */
+> +		if (test_and_clear_bit(WDOG_ALLOW_RELEASE, &wdd->status) ||
+> +		    !(wdd->info->options & WDIOF_MAGICCLOSE)) {
+> +			err = watchdog_stop(wdd);
+> +		}
+> +
+> +		/* If the watchdog was not stopped, send a keepalive ping */
+> +		if (err < 0) {
+> +			mutex_lock(&wdd->lock);
+> +			if (!test_bit(WDOG_UNREGISTERED, &wdd->status))
+> +				dev_crit(wdd->dev, "watchdog did not stop!\n");
+> +			mutex_unlock(&wdd->lock);
+> +			watchdog_ping(wdd);
+> +		}
 >  	}
->  
-> -	ret = of_property_read_u32(node, "ti,mux_pad2", &prop);
-> +	ret = of_property_read_u32(node, "ti,mux-pad2", &prop);
->  	if (!ret) {
->  		pdata->mux_from_pdata = 1;
->  		pdata->pad2 = prop;
->  	}
->  
->  	/* The default for this register is all masked */
-> -	ret = of_property_read_u32(node, "ti,power_ctrl", &prop);
-> +	ret = of_property_read_u32(node, "ti,power-ctrl", &prop);
->  	if (!ret)
->  		pdata->power_ctrl = prop;
->  	else
-> @@ -309,7 +360,7 @@ static int palmas_i2c_probe(struct i2c_client *i2c,
->  	struct palmas_platform_data *pdata;
->  	struct device_node *node = i2c->dev.of_node;
->  	int ret = 0, i;
-> -	unsigned int reg, addr;
-> +	unsigned int reg;
->  	int slave;
->  	struct mfd_cell *children;
-The '-' to '_' fix has been sent by J Keerthy and is on my mfd-next tree
-aready. Would you mind removing it from this patch ?
-
-Cheers,
-Samuel.
-
--- 
-Intel Open Source Technology Centre
-http://oss.intel.com/
+> 
+>  	/* Allow the owner module to be unloaded again */
+> -- 
+> 1.7.9.5
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
