@@ -1,62 +1,93 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:64039 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161189Ab3DECAB (ORCPT
+Received: from mail1.bemta7.messagelabs.com ([216.82.254.97]:52726 "EHLO
+	mail1.bemta7.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1162004Ab3DEQRK (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 4 Apr 2013 22:00:01 -0400
-Date: Thu, 4 Apr 2013 18:59:59 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Arkadiusz Miskiewicz <a.miskiewicz@gmail.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: 3.8.3 and 3.9git occasional watchdog oops
-Message-ID: <20130405015959.GA2566@roeck-us.net>
-References: <201303142154.20501.arekm@maven.pl>
- <201304050023.31143.a.miskiewicz@gmail.com>
+	Fri, 5 Apr 2013 12:17:10 -0400
+Message-ID: <515EF748.6060504@digi.com>
+Date: Fri, 5 Apr 2013 18:09:44 +0200
+From: Hector Palacios <hector.palacios@digi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <201304050023.31143.a.miskiewicz@gmail.com>
+To: <linux-watchdog@vger.kernel.org>, <wim@iguana.be>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [PATCH RFC] watchdog: core: don't try to stop device if not running
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, Apr 05, 2013 at 12:23:30AM +0200, Arkadiusz Miskiewicz wrote:
-> On Thursday 14 of March 2013, Arkadiusz Mi=C5=9Bkiewicz wrote:
-> > Hi.
-> >=20
-> > Just hit watchdog related oops in 3.8.3 kernel. Unfortunately photos =
-only.
-> >=20
-> > http://ixion.pld-linux.org/~arekm/watchdog-oops-3.8.3/IMG_8942.JPG
-> > http://ixion.pld-linux.org/~arekm/watchdog-oops-3.8.3/IMG_8941.JPG
->=20
-> 3.9git from today isn't any better unfortunately:
->=20
-> http://ixion.pld-linux.org/~arekm/watchdog-oops-3.9git.jpg
->=20
-> >=20
-> > oops started after I enabled systemd watchdog functionality. Cannot
-> > reproduce easily.
-> >=20
-> > watchdog here (thinkpad t400) is:
-> >  iTCO_wdt: Found a ICH9M-E TCO device (Version=3D2, TCOBASE=3D0x1060)
->=20
->=20
-Wonder if there is a race condition in the watchdog driver: The watchdog =
-device
-is opened before watchdog_register_device returns. I suspect systemd wait=
-s for
-a udev event, or by some other means detects that /dev/watchdog was creat=
-ed,
-and opens it immediately.
+A watchdog device may be stopped from userspace using WDIOC_SETOPTIONS
+ioctl and flag WDIOS_DISABLECARD. If the device is closed after this
+operation, watchdog_release() is called and status bits checked for
+stopping it. Besides, if the device has not been unregistered a critical
+message "watchdog did not stop!" is printed, although the ioctl may have
+successfully stopped it already.
 
-I just have no idea where exactly the race condition, if there is one, is
-hiding. Or maybe I am completely off track.
+Without the patch a user application sample code like this will successfully
+stop the watchdog, but the kernel will output the message
+"watchdog did not stop!":
 
-Guenter
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+	wd_fd = open("/dev/watchdog", O_RDWR);
+
+	flags = WDIOS_DISABLECARD;
+	ioctl(wd_fd, WDIOC_SETOPTIONS, &flags);
+
+	close(wd_fd);
+
+Signed-off-by: Hector Palacios <hector.palacios@digi.com>
+---
+  drivers/watchdog/watchdog_dev.c |   38 +++++++++++++++++++++-----------------
+  1 file changed, 21 insertions(+), 17 deletions(-)
+
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index ef8edec..adadbdd 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -463,24 +463,28 @@ out:
+  static int watchdog_release(struct inode *inode, struct file *file)
+  {
+  	struct watchdog_device *wdd = file->private_data;
+-	int err = -EBUSY;
+
+-	/*
+-	 * We only stop the watchdog if we received the magic character
+-	 * or if WDIOF_MAGICCLOSE is not set. If nowayout was set then
+-	 * watchdog_stop will fail.
+-	 */
+-	if (test_and_clear_bit(WDOG_ALLOW_RELEASE, &wdd->status) ||
+-	    !(wdd->info->options & WDIOF_MAGICCLOSE))
+-		err = watchdog_stop(wdd);
+-
+-	/* If the watchdog was not stopped, send a keepalive ping */
+-	if (err < 0) {
+-		mutex_lock(&wdd->lock);
+-		if (!test_bit(WDOG_UNREGISTERED, &wdd->status))
+-			dev_crit(wdd->dev, "watchdog did not stop!\n");
+-		mutex_unlock(&wdd->lock);
+-		watchdog_ping(wdd);
++	if (test_bit(WDOG_ACTIVE, &wdd->status)) {
++		int err = -EBUSY;
++
++		/*
++		 * We only stop the watchdog if we received the magic character
++		 * or if WDIOF_MAGICCLOSE is not set. If nowayout was set then
++		 * watchdog_stop will fail.
++		 */
++		if (test_and_clear_bit(WDOG_ALLOW_RELEASE, &wdd->status) ||
++		    !(wdd->info->options & WDIOF_MAGICCLOSE)) {
++			err = watchdog_stop(wdd);
++		}
++
++		/* If the watchdog was not stopped, send a keepalive ping */
++		if (err < 0) {
++			mutex_lock(&wdd->lock);
++			if (!test_bit(WDOG_UNREGISTERED, &wdd->status))
++				dev_crit(wdd->dev, "watchdog did not stop!\n");
++			mutex_unlock(&wdd->lock);
++			watchdog_ping(wdd);
++		}
+  	}
+
+  	/* Allow the owner module to be unloaded again */
+-- 
+1.7.9.5
