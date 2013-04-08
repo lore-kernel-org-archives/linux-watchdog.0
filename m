@@ -1,50 +1,56 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:61028 "EHLO mga11.intel.com"
+Received: from slimlogic.co.uk ([89.16.172.20]:57754 "EHLO slimlogic.co.uk"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S936499Ab3DHPvy (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 8 Apr 2013 11:51:54 -0400
-Date: Mon, 8 Apr 2013 17:51:37 +0200
-From: Samuel Ortiz <sameo@linux.intel.com>
-To: Ian Lartey <ian@slimlogic.co.uk>
-Cc: linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-leds@vger.kernel.org,
-	linux-watchdog@vger.kernel.org,
+	id S936543Ab3DHP4C (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 8 Apr 2013 11:56:02 -0400
+Message-ID: <5162E88E.9010204@slimlogic.co.uk>
+Date: Mon, 08 Apr 2013 16:55:58 +0100
+From: Graeme Gregory <gg@slimlogic.co.uk>
+MIME-Version: 1.0
+To: Samuel Ortiz <sameo@linux.intel.com>
+CC: Ian Lartey <ian@slimlogic.co.uk>, linux-kernel@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-leds@vger.kernel.org, linux-watchdog@vger.kernel.org,
 	devicetree-discuss@lists.ozlabs.org, swarren@wwwdotorg.org,
 	grant.likely@secretlab.ca, broonie@opensource.wolfsonmicro.com,
 	rob.herring@calxeda.com, rob@landley.net, mturquette@linaro.org,
 	linus.walleij@linaro.org, cooloney@gmail.com, sfr@canb.auug.org.au,
 	rpurdie@rpsys.net, akpm@linux-foundation.org, wim@iguana.be,
-	lgirdwood@gmail.com, gg@slimlogic.co.uk, j-keerthy@ti.com,
-	ldewangan@nvidia.com, t-kristo@ti.com
-Subject: Re: [PATCH v10 02/12] mfd: palmas: is_palmas_charger needed by
- multiple drivers
-Message-ID: <20130408155137.GY24058@zurbaran>
-References: <1363964122-19201-1-git-send-email-ian@slimlogic.co.uk>
- <1363964122-19201-3-git-send-email-ian@slimlogic.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1363964122-19201-3-git-send-email-ian@slimlogic.co.uk>
+	lgirdwood@gmail.com, j-keerthy@ti.com, ldewangan@nvidia.com,
+	t-kristo@ti.com
+Subject: Re: [PATCH v10 0/12] Palmas updates
+References: <1363964122-19201-1-git-send-email-ian@slimlogic.co.uk> <20130405163056.GN17363@zurbaran>
+In-Reply-To: <20130405163056.GN17363@zurbaran>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Ian,
+On 05/04/13 17:30, Samuel Ortiz wrote:
+> Hi Ian,
+>
+> On Fri, Mar 22, 2013 at 02:55:10PM +0000, Ian Lartey wrote:
+>> This patchset adds to the support for the Palmas series of PMIC chips.
+>>
+>> Some of the patches have previously been submitted individually.
+>> The DT bindings doc has been added first due to comments that it was missing.
+>>
+>> Patches based on linux-next-20130319
+> Are you expecting all those patches to go through the MFD tree ?
+> Also, you stil have a few comments from Milo and Stephen to adress. Are you
+> planning to send a v11 ?
+>
+>
+Hi Samuel,
 
-On Fri, Mar 22, 2013 at 02:55:12PM +0000, Ian Lartey wrote:
-> is_palmas_charger checks for the presence of charging
-> functionality in the device
-> 
-> Signed-off-by: Graeme Gregory <gg@slimlogic.co.uk>
-> Signed-off-by: Ian Lartey <ian@slimlogic.co.uk>
-> Acked-by: Laxman Dewangani <ldewangan@nvidia.com>
-> ---
->  include/linux/mfd/palmas.h |   12 +++++++++++-
->  1 files changed, 11 insertions(+), 1 deletions(-)
-I applied this one now, thanks.
+The device is an MFD so I suspect the best path is through MFD tree
+although I notice you have applied the patch that was required by all
+other patches so maybe this is not so much the case now!
 
-Cheers,
-Samuel.
+Real life has got in the way of the next updated series of patches but
+they will be issued just as soon as we can.
 
--- 
-Intel Open Source Technology Centre
-http://oss.intel.com/
+Thanks
+
+Graeme
+
