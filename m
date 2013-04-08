@@ -1,110 +1,159 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ea0-f175.google.com ([209.85.215.175]:46804 "EHLO
-	mail-ea0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756410Ab3DFITi convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 6 Apr 2013 04:19:38 -0400
-From: Arkadiusz Miskiewicz <a.miskiewicz@gmail.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH] watchdog: Fix race condition in registration code
-Date: Sat, 6 Apr 2013 10:19:34 +0200
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Wim Van Sebroeck <wim@iguana.be>
-References: <1365222163-26761-1-git-send-email-linux@roeck-us.net>
-In-Reply-To: <1365222163-26761-1-git-send-email-linux@roeck-us.net>
+Received: from mx1.redhat.com ([209.132.183.28]:28868 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S934719Ab3DHFrX (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 8 Apr 2013 01:47:23 -0400
+Message-ID: <516259D2.7000805@redhat.com>
+Date: Mon, 08 Apr 2013 13:46:58 +0800
+From: Dave Young <dyoung@redhat.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="utf-8"
-Message-Id: <201304061019.34473.a.miskiewicz@gmail.com>
+To: Don Zickus <dzickus@redhat.com>
+CC: linux-watchdog@vger.kernel.org, kexec@lists.infradead.org,
+	wim@iguana.be, LKML <linux-kernel@vger.kernel.org>,
+	vgoyal@redhat.com
+Subject: Re: [RFC PATCH] watchdog: Add hook for kicking in kdump path
+References: <1365192994-94850-1-git-send-email-dzickus@redhat.com>
+In-Reply-To: <1365192994-94850-1-git-send-email-dzickus@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-On Saturday 06 of April 2013, Guenter Roeck wrote:
-> A race condition exists when registering the first watchdog device.
-> Sequence of events:
->=20
-> - watchdog_register_device calls watchdog_dev_register
-> - watchdog_dev_register creates the watchdog misc device by calling
->   misc_register.
->   At that time, the matching character device (/dev/watchdog0) does not=
- yet
->   exist, and old_wdd is not set either.
-> - Userspace gets an event and opens /dev/watchdog
-> - watchdog_open is called and sets sets wdd =3D old_wdd, which is still=
- NULL,
->   and tries to dereference it. This causes the kernel to panic.
->=20
-> Seen with systemd trying to open /dev/watchdog immediately after
-> it was created.
->=20
-> Reported-by: Arkadiusz Miskiewicz <a.miskiewicz@gmail.com>
+On 04/06/2013 04:16 AM, Don Zickus wrote:
+> A common problem with kdump is that during the boot up of the
+> second kernel, the hardware watchdog times out and reboots the
+> machine before a vmcore can be captured.
+> 
+> Instead of tellling customers to disable their hardware watchdog
+> timers, I hacked up a hook to put in the kdump path that provides
+> one last kick before jumping into the second kernel.
+> 
+> The assumption is the watchdog timeout is at least 10-30 seconds
+> long, enough to get the second kernel to userspace to kick the watchdog
+> again, if needed.
 
-Please use
-Reported-by: Arkadiusz Mi=C5=9Bkiewicz <arekm@maven.pl>
+For kdump kernel some devices need to reset, this might increase the
+boot time, it's not so reliable for the 10-30s for us to kicking the
+watchdog.
 
-I have to use gmail address because maven.pl domain is blocked due to som=
-e=20
-unknown, secret reason and vger.kernel.org postmasters (Dave M etc) are l=
-ess=20
-than helpful:
+Could we have another option to disable/stop the watchdog while panic
+happens? Ie. add a kernel cmdline panic_stop_wd=<0|1> for 1st kernel, if
+it's set to 1, then just stop the watchdog or we can kick the watchdog
+like what you do in this patch. Of course stopping watchdog should be
+lockless as well..
 
-"We are under no obligation to explain why you were banned nor to remove
-the ban.
-
-If you don't like this, you can run your own list server and on it determ=
-ine
-your own set of policies."
-
-
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> 
+> Of course kdump is usually executed on a panic path, so grabbing the
+> watchdog mutexes to communicate with the hardware won't work.  For now,
+> I do everything locklessly.
+> 
+> I can attempt a 'mutex_trylock' but not sure what to do in the failure
+> case?  spin up to a second?
+> 
+> This patch is more of a proof of concept right now.  Hopefully feedback
+> will help solve this problem better.
+> 
+> I have tested this with a machine using iTCO_wdt and the 'watchdog' app.
+> The extra kicked happened as expected.
+> 
+> Signed-off-by: Don Zickus <dzickus@redhat.com>
 > ---
-> Arkadiusz,
->=20
-> would be great if you can test this in your system.
-
-Did few reboots without oops but this test isn't reliable. Previously I w=
-asn't=20
-able to reproduce this on demand. It just happens sometime. If any proble=
-m=20
-popup I'll let you know.
-
-So for now
-Tested-by: Arkadiusz Mi=C5=9Bkiewicz <arekm@maven.pl>
-
->=20
->  drivers/watchdog/watchdog_dev.c |    3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
->=20
-> diff --git a/drivers/watchdog/watchdog_dev.c
-> b/drivers/watchdog/watchdog_dev.c index 08b48bb..faf4e18 100644
+>  drivers/watchdog/watchdog_dev.c |   35 +++++++++++++++++++++++++++++++++++
+>  include/linux/watchdog.h        |    7 +++++++
+>  kernel/kexec.c                  |    6 ++++++
+>  3 files changed, 48 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+> index 08b48bb..6393572 100644
 > --- a/drivers/watchdog/watchdog_dev.c
 > +++ b/drivers/watchdog/watchdog_dev.c
-> @@ -523,6 +523,7 @@ int watchdog_dev_register(struct watchdog_device
-> *watchdog) int err, devno;
->=20
->  	if (watchdog->id =3D=3D 0) {
-> +		old_wdd =3D watchdog;
->  		watchdog_miscdev.parent =3D watchdog->parent;
->  		err =3D misc_register(&watchdog_miscdev);
->  		if (err !=3D 0) {
-> @@ -531,9 +532,9 @@ int watchdog_dev_register(struct watchdog_device
-> *watchdog) if (err =3D=3D -EBUSY)
->  				pr_err("%s: a legacy watchdog module is probably present.\n",
->  					watchdog->info->identity);
-> +			old_wdd =3D NULL;
->  			return err;
->  		}
-> -		old_wdd =3D watchdog;
->  	}
->=20
->  	/* Fill in the data structures */
+> @@ -84,6 +84,41 @@ out_ping:
+>  }
+>  
+>  /*
+> + *	watchdog_kick_for_kdump: kick the watchdog in the kdump path
+> + *
+> + * 	The kdump path needs time to reboot the kernel back into
+> + * 	userspace.  This window is big enough the hardware watchdog
+> + * 	may come in and reboot the box.  This hook gives the watchdog
+> + * 	one final kick to get kdump over the hump.
+> + *
+> + * 	We don't know what devices are open, so just use the legacy
+> + * 	interface for now.  We have to do this locklessly as we can
+> + * 	not wait.
+> + */
+> +
+> +void watchdog_kick_for_kdump(void)
+> +{
+> +	struct watchdog_device *wddev = old_wdd;
+> +
+> +	/* FIXME - Perhaps use a mutex_trylock? */
+> +
+> +	if (!wddev)
+> +		return;
+> +
+> +	if (test_bit(WDOG_UNREGISTERED, &wddev->status))
+> +		return;
+> +
+> +	if (!watchdog_active(wddev))
+> +		return;
+> +
+> +	if (wddev->ops->ping)
+> +		wddev->ops->ping(wddev);  /* ping the watchdog */
+> +	else
+> +		wddev->ops->start(wddev); /* restart watchdog */
+> +}
+> +EXPORT_SYMBOL_GPL(watchdog_kick_for_kdump);
+> +
+> +/*
+>   *	watchdog_start: wrapper to start the watchdog.
+>   *	@wddev: the watchdog device to start
+>   *
+> diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+> index 2a3038e..5dff975 100644
+> --- a/include/linux/watchdog.h
+> +++ b/include/linux/watchdog.h
+> @@ -142,4 +142,11 @@ extern int watchdog_init_timeout(struct watchdog_device *wdd,
+>  extern int watchdog_register_device(struct watchdog_device *);
+>  extern void watchdog_unregister_device(struct watchdog_device *);
+>  
+> +#ifdef CONFIG_WATCHDOG_CORE
+> +/* drivers/watchdog/watchdog_dev.c */
+> +extern void watchdog_kick_for_kdump(void);
+> +#else
+> +static inline void watchdog_kick_for_kdump(void) { };
+> +#endif
+> +
+>  #endif  /* ifndef _LINUX_WATCHDOG_H */
+> diff --git a/kernel/kexec.c b/kernel/kexec.c
+> index bddd3d7..ced7ccd 100644
+> --- a/kernel/kexec.c
+> +++ b/kernel/kexec.c
+> @@ -32,6 +32,7 @@
+>  #include <linux/vmalloc.h>
+>  #include <linux/swap.h>
+>  #include <linux/syscore_ops.h>
+> +#include <linux/watchdog.h>
+>  
+>  #include <asm/page.h>
+>  #include <asm/uaccess.h>
+> @@ -1094,6 +1095,11 @@ void crash_kexec(struct pt_regs *regs)
+>  		if (kexec_crash_image) {
+>  			struct pt_regs fixed_regs;
+>  
+> +			/*
+> +			 * Give panic path a chance to do its post processing
+> +			 */
+> +			watchdog_kick_for_kdump();
+> +
+>  			crash_setup_regs(&fixed_regs, regs);
+>  			crash_save_vmcoreinfo();
+>  			machine_crash_shutdown(&fixed_regs);
+> 
 
 
---=20
-Arkadiusz Mi=C5=9Bkiewicz, arekm / maven.pl
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Thanks
+Dave
+
+
