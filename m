@@ -1,33 +1,27 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:61290 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934801Ab3DILgf (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:42190 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1759399Ab3DILhp (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 9 Apr 2013 07:36:35 -0400
-Date: Tue, 9 Apr 2013 04:36:39 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Tue, 9 Apr 2013 07:37:45 -0400
+Date: Tue, 9 Apr 2013 13:37:42 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
 To: Samuel Ortiz <sameo@linux.intel.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+Cc: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	=?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
 Subject: Re: mfd: Core driver for Winbond chips
-Message-ID: <20130409113639.GA8731@roeck-us.net>
-References: <1362957300-18223-1-git-send-email-linux@roeck-us.net>
- <20130322205258.GE7867@spo001.leaseweb.com>
- <20130323002810.GA26245@roeck-us.net>
- <20130323174914.GA21563@roeck-us.net>
- <20130409093700.GM24058@zurbaran>
-MIME-Version: 1.0
+Message-ID: <20130409113742.GC7867@spo001.leaseweb.com>
+References: <1362957300-18223-1-git-send-email-linux@roeck-us.net> <20130322205258.GE7867@spo001.leaseweb.com> <20130323002810.GA26245@roeck-us.net> <20130323174914.GA21563@roeck-us.net> <20130409093700.GM24058@zurbaran>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20130409093700.GM24058@zurbaran>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Apr 09, 2013 at 11:37:01AM +0200, Samuel Ortiz wrote:
-> Hi Guenter,
-> 
-> On Sat, Mar 23, 2013 at 10:49:14AM -0700, Guenter Roeck wrote:
+Hi Samuel,
+
 > > MFD core driver for various variants of Winbond/Nuvoton SuperIO chips.
 > > 
 > > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
@@ -41,20 +35,10 @@ On Tue, Apr 09, 2013 at 11:37:01AM +0200, Samuel Ortiz wrote:
 > >  create mode 100644 include/linux/mfd/w83627hf.h
 > This driver looks overall good to me. Is this your final version, or should I
 > expect any follow up patch ?
-> 
-Hi Samuel,
 
-I was waiting for feedback from Wim, who submitted a similar driver, about his
-thoughts. Key question is how to reserve access to the shared resource - either
-through an exported function in the mfd driver requesting a mutex, or through
-request_muxed_region(). I am going back and forth myself on which one is better.
+If possible could you wait a couple of days. I need to review it with what I had created
+so that Guenter and Myself can come up with a final version.
 
-Maybe it does not really matter, but using a function has the slight advantage
-that it auto-loads and locks the mfd module while one of its client modules
-is loaded. If we use request_muxed_region, that is not the case and the client
-module must use another means to request and lock the mfd module.
+Kind regards,
+Wim.
 
-Maybe you have an opinion ?
-
-Thanks,
-Guenter
