@@ -1,77 +1,59 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:54821 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S935997Ab3DIQkz (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:42232 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1759912Ab3DIRbT (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 9 Apr 2013 12:40:55 -0400
-Date: Tue, 9 Apr 2013 09:41:01 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Kevin Strasser <kevin.strasser@linux.intel.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Michael Brunner <michael.brunner@kontron.com>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Wolfram Sang <wsa@the-dreams.de>,
-	Ben Dooks <ben-linux@fluff.org>,
-	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-	Grant Likely <grant.likely@secretlab.ca>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org,
-	Darren Hart <dvhart@linux.intel.com>,
-	Michael Brunner <mibru@gmx.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 3/4] gpio: Kontron PLD gpio driver
-Message-ID: <20130409164101.GA20001@roeck-us.net>
-References: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com>
- <1365441321-21952-3-git-send-email-kevin.strasser@linux.intel.com>
- <CACRpkdYrGK_SPbiRssFUrg2vMvWbYO_iXsy+aZr99tyFtk88Uw@mail.gmail.com>
-MIME-Version: 1.0
+	Tue, 9 Apr 2013 13:31:19 -0400
+Date: Tue, 9 Apr 2013 19:31:15 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Samuel Ortiz <sameo@linux.intel.com>,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	=?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
+Subject: Re: mfd: Core driver for Winbond chips
+Message-ID: <20130409173115.GF7867@spo001.leaseweb.com>
+References: <1362957300-18223-1-git-send-email-linux@roeck-us.net> <20130322205258.GE7867@spo001.leaseweb.com> <20130323002810.GA26245@roeck-us.net> <20130323174914.GA21563@roeck-us.net> <20130409093700.GM24058@zurbaran> <20130409113639.GA8731@roeck-us.net> <20130409114544.GD7867@spo001.leaseweb.com> <20130409161838.GB27050@roeck-us.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CACRpkdYrGK_SPbiRssFUrg2vMvWbYO_iXsy+aZr99tyFtk88Uw@mail.gmail.com>
+In-Reply-To: <20130409161838.GB27050@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Apr 09, 2013 at 10:46:15AM +0200, Linus Walleij wrote:
-> On Mon, Apr 8, 2013 at 7:15 PM, Kevin Strasser
-> <kevin.strasser@linux.intel.com> wrote:
-> 
-> > From: Michael Brunner <michael.brunner@kontron.com>
-> >
-> > Add gpio support for the on-board PLD found on some Kontron embedded
-> > modules.
-> >
-> > Signed-off-by: Michael Brunner <michael.brunner@kontron.com>
-> > Signed-off-by: Kevin Strasser <kevin.strasser@linux.intel.com>
-> 
-> This looks very generic, setting and clearing bits in bytesized
-> registers.
-> 
-> Can you please attempt to use generic GPIO for this?
-> 
-Linus,
+Hi Guenter,
 
-I looked into it, but for my part I seem to be missing how the generic GPIO code
-permits locking access to the hardware (PLD) and setting the PLD's page register.
-In other words, I don't immediately see how to call kempld_get_mutex_set_index()
-from the generic GPIO code. The other drivers using generic GPIO code don't
-seem to have that requirement.
+> > > I was waiting for feedback from Wim, who submitted a similar driver, about his
+> > > thoughts. Key question is how to reserve access to the shared resource - either
+> > > through an exported function in the mfd driver requesting a mutex, or through
+> > > request_muxed_region(). I am going back and forth myself on which one is better.
+> > > 
+> > > Maybe it does not really matter, but using a function has the slight advantage
+> > > that it auto-loads and locks the mfd module while one of its client modules
+> > > is loaded. If we use request_muxed_region, that is not the case and the client
+> > > module must use another means to request and lock the mfd module.
+> > > 
+> > > Maybe you have an opinion ?
+> > 
+> > This is indeed the main issue that has to be solved. Both options will work.
+> > I like the auto-load and lock, but I need to look at the request_muxed_region
+> > code again first before I can see what the possible drawbacks are :-).
+> > 
+> One drawback of using request_muxed_region is that it needs a return value
+> from superio_enter. Also, it needs some code in the client driver init function
+> to ensure that the mfd driver gets loaded, and possibly a call to __module_get()
+> in the client driver probe function to keep the mfd driver loaded.
+> 
+> winbond_superio_enter() would not need a return value and could use
+> devm_request_region. We could also consider allocating the hwmon memory space in
+> the mfd driver and pass it as resource to the client drivers, which would remove
+> a few more lines of code from those.
+> 
+> Overall I am slightly in favor of using an exported function.
 
-Thanks,
-Guenter
+I looked at commit 8b6d043b7ee2d1b819dc833d677ea2aead71a0c0 (which implements
+request_muxed_region). You indeed need some extra code for loading the lowl-level
+mfd driver. So I am also in favour of the exported function.
 
-> drivers/gpio/gpio-generic.c
-> <linux/basic_mmio_gpio.h>
-> 
-> See for example:
-> gpio-ep93xx.c, gpio-sodaville.c ...
-> 
-> Since you don't even have IRQ support in this it will be even simpler.
-> 
-> Yours,
-> Linus Walleij
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+Kind regards,
+Wim.
+
