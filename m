@@ -1,59 +1,47 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ie0-f181.google.com ([209.85.223.181]:49488 "EHLO
-	mail-ie0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757706Ab3DIIqQ (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 9 Apr 2013 04:46:16 -0400
-Received: by mail-ie0-f181.google.com with SMTP id 17so7981919iea.40
-        for <linux-watchdog@vger.kernel.org>; Tue, 09 Apr 2013 01:46:15 -0700 (PDT)
+Received: from mga03.intel.com ([143.182.124.21]:6794 "EHLO mga03.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1763878Ab3DIJhG (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 9 Apr 2013 05:37:06 -0400
+Date: Tue, 9 Apr 2013 11:37:01 +0200
+From: Samuel Ortiz <sameo@linux.intel.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	=?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
+Subject: Re: mfd: Core driver for Winbond chips
+Message-ID: <20130409093700.GM24058@zurbaran>
+References: <1362957300-18223-1-git-send-email-linux@roeck-us.net>
+ <20130322205258.GE7867@spo001.leaseweb.com>
+ <20130323002810.GA26245@roeck-us.net>
+ <20130323174914.GA21563@roeck-us.net>
 MIME-Version: 1.0
-In-Reply-To: <1365441321-21952-3-git-send-email-kevin.strasser@linux.intel.com>
-References: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com>
-	<1365441321-21952-3-git-send-email-kevin.strasser@linux.intel.com>
-Date: Tue, 9 Apr 2013 10:46:15 +0200
-Message-ID: <CACRpkdYrGK_SPbiRssFUrg2vMvWbYO_iXsy+aZr99tyFtk88Uw@mail.gmail.com>
-Subject: Re: [PATCH 3/4] gpio: Kontron PLD gpio driver
-From: Linus Walleij <linus.walleij@linaro.org>
-To: Kevin Strasser <kevin.strasser@linux.intel.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Michael Brunner <michael.brunner@kontron.com>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Wolfram Sang <wsa@the-dreams.de>,
-	Ben Dooks <ben-linux@fluff.org>,
-	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-	Grant Likely <grant.likely@secretlab.ca>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org,
-	Darren Hart <dvhart@linux.intel.com>,
-	Michael Brunner <mibru@gmx.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20130323174914.GA21563@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Apr 8, 2013 at 7:15 PM, Kevin Strasser
-<kevin.strasser@linux.intel.com> wrote:
+Hi Guenter,
 
-> From: Michael Brunner <michael.brunner@kontron.com>
->
-> Add gpio support for the on-board PLD found on some Kontron embedded
-> modules.
->
-> Signed-off-by: Michael Brunner <michael.brunner@kontron.com>
-> Signed-off-by: Kevin Strasser <kevin.strasser@linux.intel.com>
+On Sat, Mar 23, 2013 at 10:49:14AM -0700, Guenter Roeck wrote:
+> MFD core driver for various variants of Winbond/Nuvoton SuperIO chips.
+> 
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> ---
+>  drivers/mfd/Kconfig          |   22 +++
+>  drivers/mfd/Makefile         |    1 +
+>  drivers/mfd/w83627hf-core.c  |  324 ++++++++++++++++++++++++++++++++++++++++++
+>  include/linux/mfd/w83627hf.h |  131 +++++++++++++++++
+>  4 files changed, 478 insertions(+)
+>  create mode 100644 drivers/mfd/w83627hf-core.c
+>  create mode 100644 include/linux/mfd/w83627hf.h
+This driver looks overall good to me. Is this your final version, or should I
+expect any follow up patch ?
 
-This looks very generic, setting and clearing bits in bytesized
-registers.
+Cheers,
+Samuel.
 
-Can you please attempt to use generic GPIO for this?
-
-drivers/gpio/gpio-generic.c
-<linux/basic_mmio_gpio.h>
-
-See for example:
-gpio-ep93xx.c, gpio-sodaville.c ...
-
-Since you don't even have IRQ support in this it will be even simpler.
-
-Yours,
-Linus Walleij
+-- 
+Intel Open Source Technology Centre
+http://oss.intel.com/
