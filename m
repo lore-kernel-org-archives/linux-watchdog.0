@@ -1,72 +1,64 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:58035 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1764843Ab3DJAg0 (ORCPT
+Received: from eusmtp01.atmel.com ([212.144.249.242]:53696 "EHLO
+	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S935862Ab3DJMgZ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 9 Apr 2013 20:36:26 -0400
-Date: Tue, 9 Apr 2013 17:36:32 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Samuel Ortiz <sameo@linux.intel.com>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	=?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
-Subject: Re: mfd: Core driver for Winbond chips
-Message-ID: <20130410003632.GA25712@roeck-us.net>
-References: <1362957300-18223-1-git-send-email-linux@roeck-us.net>
- <20130322205258.GE7867@spo001.leaseweb.com>
- <20130323002810.GA26245@roeck-us.net>
- <20130323174914.GA21563@roeck-us.net>
- <20130409093700.GM24058@zurbaran>
- <20130409113639.GA8731@roeck-us.net>
- <20130409114544.GD7867@spo001.leaseweb.com>
- <20130409161838.GB27050@roeck-us.net>
- <20130409173115.GF7867@spo001.leaseweb.com>
+	Wed, 10 Apr 2013 08:36:25 -0400
+From: Nicolas Ferre <nicolas.ferre@atmel.com>
+To: <wim@iguana.be>, <manabian@gmail.com>
+CC: <linux-watchdog@vger.kernel.org>,
+	<linux-arm-kernel@lists.infradead.org>,
+	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
+	<devicetree-discuss@lists.ozlabs.org>,
+	Nicolas Ferre <nicolas.ferre@atmel.com>
+Subject: [PATCH] watchdog: Revert the AT91RM9200_WATCHDOG dependency
+Date: Wed, 10 Apr 2013 14:36:22 +0200
+Message-ID: <1365597382-15455-1-git-send-email-nicolas.ferre@atmel.com>
+In-Reply-To: <20130409202711.GG7867@spo001.leaseweb.com>
+References: <20130409202711.GG7867@spo001.leaseweb.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20130409173115.GF7867@spo001.leaseweb.com>
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Apr 09, 2013 at 07:31:15PM +0200, Wim Van Sebroeck wrote:
-> Hi Guenter,
-> 
-> > > > I was waiting for feedback from Wim, who submitted a similar driver, about his
-> > > > thoughts. Key question is how to reserve access to the shared resource - either
-> > > > through an exported function in the mfd driver requesting a mutex, or through
-> > > > request_muxed_region(). I am going back and forth myself on which one is better.
-> > > > 
-> > > > Maybe it does not really matter, but using a function has the slight advantage
-> > > > that it auto-loads and locks the mfd module while one of its client modules
-> > > > is loaded. If we use request_muxed_region, that is not the case and the client
-> > > > module must use another means to request and lock the mfd module.
-> > > > 
-> > > > Maybe you have an opinion ?
-> > > 
-> > > This is indeed the main issue that has to be solved. Both options will work.
-> > > I like the auto-load and lock, but I need to look at the request_muxed_region
-> > > code again first before I can see what the possible drawbacks are :-).
-> > > 
-> > One drawback of using request_muxed_region is that it needs a return value
-> > from superio_enter. Also, it needs some code in the client driver init function
-> > to ensure that the mfd driver gets loaded, and possibly a call to __module_get()
-> > in the client driver probe function to keep the mfd driver loaded.
-> > 
-> > winbond_superio_enter() would not need a return value and could use
-> > devm_request_region. We could also consider allocating the hwmon memory space in
-> > the mfd driver and pass it as resource to the client drivers, which would remove
-> > a few more lines of code from those.
-> > 
-> > Overall I am slightly in favor of using an exported function.
-> 
-> I looked at commit 8b6d043b7ee2d1b819dc833d677ea2aead71a0c0 (which implements
-> request_muxed_region). You indeed need some extra code for loading the lowl-level
-> mfd driver. So I am also in favour of the exported function.
-> 
-So which way should we go ? Take your driver as a starting point or mine ?
+Compiling the at91rm9200_wdt.c driver without at91rm9200
+support was leading to several errors:
 
-One thing I'll want to add is support for both superio regions, as I have a use
-case for it.
+drivers/built-in.o: In function `at91_wdt_close':
+at91_adc.c:(.text+0xc9fe4): undefined reference to `at91_st_base'
+drivers/built-in.o: In function `at91_wdt_write':
+at91_adc.c:(.text+0xca004): undefined reference to `at91_st_base'
+drivers/built-in.o: In function `at91wdt_shutdown':
+at91_adc.c:(.text+0xca01c): undefined reference to `at91_st_base'
+drivers/built-in.o: In function `at91wdt_suspend':
+at91_adc.c:(.text+0xca038): undefined reference to `at91_st_base'
+drivers/built-in.o: In function `at91_wdt_open':
+at91_adc.c:(.text+0xca0cc): undefined reference to `at91_st_base'
+drivers/built-in.o:at91_adc.c:(.text+0xca2c8): more undefined references to
+`at91_st_base' follow
 
-Thanks,
-Guenter
+So, reverting the modification of the "depends" Kconfig line
+introduced by patch a6a1bcd37 (watchdog: at91rm9200: add DT support)
+seems to be the good solution.
+
+Signed-off-by: Nicolas Ferre <nicolas.ferre@atmel.com>
+---
+ drivers/watchdog/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 9fcc70c..e89fc31 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -117,7 +117,7 @@ config ARM_SP805_WATCHDOG
+ 
+ config AT91RM9200_WATCHDOG
+ 	tristate "AT91RM9200 watchdog"
+-	depends on ARCH_AT91
++	depends on ARCH_AT91RM9200
+ 	help
+ 	  Watchdog timer embedded into AT91RM9200 chips. This will reboot your
+ 	  system when the timeout is reached.
+-- 
+1.8.0
+
