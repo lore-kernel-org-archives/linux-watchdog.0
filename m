@@ -1,24 +1,21 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ia0-f182.google.com ([209.85.210.182]:53682 "EHLO
-	mail-ia0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755554Ab3DJUGL (ORCPT
+Received: from mail-ie0-f169.google.com ([209.85.223.169]:63554 "EHLO
+	mail-ie0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752570Ab3DJUpw (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 10 Apr 2013 16:06:11 -0400
-Received: by mail-ia0-f182.google.com with SMTP id u20so764090iag.13
-        for <linux-watchdog@vger.kernel.org>; Wed, 10 Apr 2013 13:06:10 -0700 (PDT)
+	Wed, 10 Apr 2013 16:45:52 -0400
+Received: by mail-ie0-f169.google.com with SMTP id ar20so718737iec.14
+        for <linux-watchdog@vger.kernel.org>; Wed, 10 Apr 2013 13:45:52 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20130409164101.GA20001@roeck-us.net>
+In-Reply-To: <1365441321-21952-3-git-send-email-kevin.strasser@linux.intel.com>
 References: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com>
 	<1365441321-21952-3-git-send-email-kevin.strasser@linux.intel.com>
-	<CACRpkdYrGK_SPbiRssFUrg2vMvWbYO_iXsy+aZr99tyFtk88Uw@mail.gmail.com>
-	<20130409164101.GA20001@roeck-us.net>
-Date: Wed, 10 Apr 2013 22:06:10 +0200
-Message-ID: <CACRpkdYOoZQP_mc3j0z-qTepN7tvA6rpL9E1rc-4D+AyL9_5XQ@mail.gmail.com>
+Date: Wed, 10 Apr 2013 22:45:51 +0200
+Message-ID: <CACRpkdaU-QT-VBiG8i5XreEP-DvTosHeptUo+5vdmSyi0=uWTw@mail.gmail.com>
 Subject: Re: [PATCH 3/4] gpio: Kontron PLD gpio driver
 From: Linus Walleij <linus.walleij@linaro.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Kevin Strasser <kevin.strasser@linux.intel.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+To: Kevin Strasser <kevin.strasser@linux.intel.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
 	Michael Brunner <michael.brunner@kontron.com>,
 	Samuel Ortiz <sameo@linux.intel.com>,
 	Wolfram Sang <wsa@the-dreams.de>,
@@ -29,42 +26,162 @@ Cc: Kevin Strasser <kevin.strasser@linux.intel.com>,
 	linux-watchdog@vger.kernel.org,
 	Darren Hart <dvhart@linux.intel.com>,
 	Michael Brunner <mibru@gmx.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Thomas Gleixner <tglx@linutronix.de>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Apr 9, 2013 at 6:41 PM, Guenter Roeck <linux@roeck-us.net> wrote:
-> On Tue, Apr 09, 2013 at 10:46:15AM +0200, Linus Walleij wrote:
->> On Mon, Apr 8, 2013 at 7:15 PM, Kevin Strasser
->> <kevin.strasser@linux.intel.com> wrote:
->>
->> > From: Michael Brunner <michael.brunner@kontron.com>
->> >
->> > Add gpio support for the on-board PLD found on some Kontron embedded
->> > modules.
->> >
->> > Signed-off-by: Michael Brunner <michael.brunner@kontron.com>
->> > Signed-off-by: Kevin Strasser <kevin.strasser@linux.intel.com>
->>
->> This looks very generic, setting and clearing bits in bytesized
->> registers.
->>
->> Can you please attempt to use generic GPIO for this?
->>
-> Linus,
+On Mon, Apr 8, 2013 at 7:15 PM, Kevin Strasser
+<kevin.strasser@linux.intel.com> wrote:
+
+> From: Michael Brunner <michael.brunner@kontron.com>
 >
-> I looked into it, but for my part I seem to be missing how the generic GPIO code
-> permits locking access to the hardware (PLD) and setting the PLD's page register.
-> In other words, I don't immediately see how to call kempld_get_mutex_set_index()
-> from the generic GPIO code. The other drivers using generic GPIO code don't
-> seem to have that requirement.
+> Add gpio support for the on-board PLD found on some Kontron embedded
+> modules.
+>
+> Signed-off-by: Michael Brunner <michael.brunner@kontron.com>
+> Signed-off-by: Kevin Strasser <kevin.strasser@linux.intel.com>
 
-Ah yes, I was totally wrong here.
+Trying to do some real review...
 
-I thought it was MMIO while it is indeed through an MFD proxy.
+(...)
+> +++ b/drivers/gpio/gpio-kempld.c
+> +#include <linux/acpi.h>
 
-I'll have a second look then...
+Is this used?
+
+> +#include <linux/platform_device.h>
+> +#include <linux/gpio.h>
+> +#include <linux/mfd/kempld.h>
+> +#include <linux/seq_file.h>
+> +
+> +#include "gpio-kempld.h"
+> +
+> +static int gpiobase = -1;
+> +static int gpioien = 0x00;
+> +static int gpioevt_lvl_edge = -1;
+> +static int gpioevt_low_high = -1;
+> +static int gpionmien = 0x00;
+
+(...)
+
++static int kempld_gpio_to_irq(struct gpio_chip *chip, unsigned offset)
++{
++       struct kempld_gpio_data *gpio
++               = container_of(chip, struct kempld_gpio_data, chip);
++       return gpio->irq;
++}
+
+I don't understand this *at all* so help me out here.
+
+.gpio_to_irq() should return a *Linux* IRQ number, usually we take
+the event offset (in this case) and map to a Linux IRQ using the
+irqdomain helper library. Can you explain how we can be sure that
+this number (apparently just a read from a register on the device)
+can be made to correspond to a Linux IRQ?
+
+Also if this thing can generate IRQs, are these one line to the CPU
+per IRQ really? Don't you need to demux the status register and
+create a cascades irqchip?
+
+Maybe it's just me not understanding x86 & ACPI so bear with me...
+
+> +static int kempld_gpio_setup_event(struct kempld_gpio_data *gpio)
+> +{
+> +       struct kempld_device_data *pld = gpio->pld;
+> +       struct gpio_chip *chip = &gpio->chip;
+> +       int irq;
+> +
+> +       irq = gpio->irq;
+> +
+> +       kempld_get_mutex_set_index(pld, KEMPLD_IRQ_GPIO);
+> +       irq = kempld_read8(pld, KEMPLD_IRQ_GPIO);
+> +
+> +       /* Leave if interrupts are not supported by the GPIO core */
+> +       if ((irq & 0xf0) == 0xf0)
+> +               return 0;
+> +
+> +       gpio->irq = irq & 0x0f;
+
+So you read the IRQ from some plug-n-play here, and it's some
+system-wide IRQ number?
+
+(...)
+> +       if (gpio->irq)
+> +               chip->to_irq =          kempld_gpio_to_irq;
+
+So that is this mystery with the IRQs and how they turn into
+Linux IRQs.
+
+> +module_param(gpiobase, int, 0444);
+
+Why do you need to be able to configure this?
+It must be a real usecase, debugging can be done by patching
+the code.
+
+> +module_param(gpioien, int, 0444);
+> +module_param(gpioevt_lvl_edge, int, 0444);
+> +module_param(gpioevt_low_high, int, 0444);
+> +module_param(gpionmien, int, 0444);
+
+Argh how can anyone possibly make this out ... do you really
+need them or can we get rid of some and rely on autodetect?
+
+> +MODULE_DESCRIPTION("KEM PLD GPIO Driver");
+> +MODULE_AUTHOR("Michael Brunner <michael.brunner@kontron.com>");
+> +MODULE_LICENSE("GPL");
+> +MODULE_ALIAS("platform:kempld_gpio");
+> +MODULE_PARM_DESC(gpiobase, "Set GPIO base (default -1=dynamic)");
+> +MODULE_PARM_DESC(gpioien, "Set GPIO IEN register (default 0x00)");
+> +MODULE_PARM_DESC(gpioevt_lvl_edge,
+> +                       "Set GPIO EVT_LVL_EDGE register (default -1=no change)");
+> +MODULE_PARM_DESC(gpioevt_low_high,
+> +                       "Set GPIO EVT_LOW_HIGH register (default -1=no change)");
+> +MODULE_PARM_DESC(gpionmien, "Set GPIO NMIEN register (default 0x00)");
+
+
+So I don't really like that interrupt enablement and edge and low/high
+is done with module parameters instead of just creating an irqchip and
+have it implement the operations to do exactly these things at runtime
+instead.
+
+Again maybe some x86 thing I don't get...
+
+> diff --git a/drivers/gpio/gpio-kempld.h b/drivers/gpio/gpio-kempld.h
+(...)
+> +struct kempld_gpio_data {
+> +       struct gpio_chip                chip;
+> +       int                             irq;
+> +       struct kempld_device_data       *pld;
+> +       uint16_t                        mask;
+
+Just u16?
+
+> +};
+
+(...)
+> diff --git a/drivers/gpio/gpio-kempld_now1.c b/drivers/gpio/gpio-kempld_now1.c
+> +#include <linux/io.h>
+
+Do you use this?
+
+> +#include <linux/slab.h>
+> +#include <linux/errno.h>
+> +#include <linux/acpi.h>
+
+And this?
+
+> +#include <linux/platform_device.h>
+> +#include <linux/gpio.h>
+> +#include <linux/mfd/kempld.h>
+> +#include <linux/seq_file.h>
+> +
+> +#include "gpio-kempld.h"
+(...)
+> +
+
+Most comments concern the other driver too.
 
 Yours,
 Linus Walleij
