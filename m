@@ -1,73 +1,70 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:65226 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964953Ab3DJRRQ (ORCPT
+Received: from mail-ia0-f182.google.com ([209.85.210.182]:53682 "EHLO
+	mail-ia0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755554Ab3DJUGL (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 10 Apr 2013 13:17:16 -0400
-Date: Wed, 10 Apr 2013 10:17:22 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: David Teigland <teigland@redhat.com>
-Cc: Don Zickus <dzickus@redhat.com>, Dave Young <dyoung@redhat.com>,
-	linux-watchdog@vger.kernel.org, kexec@lists.infradead.org,
-	wim@iguana.be, LKML <linux-kernel@vger.kernel.org>,
-	vgoyal@redhat.com
-Subject: Re: [RFC PATCH] watchdog: Add hook for kicking in kdump path
-Message-ID: <20130410171722.GC19533@roeck-us.net>
-References: <1365192994-94850-1-git-send-email-dzickus@redhat.com>
- <516259D2.7000805@redhat.com>
- <20130408124858.GC79013@redhat.com>
- <20130408151509.GA20919@roeck-us.net>
- <20130409144431.GL79013@redhat.com>
- <20130409145228.GA1111@roeck-us.net>
- <20130409151423.GM79013@redhat.com>
- <20130409160757.GA27050@roeck-us.net>
- <20130410134039.GV79013@redhat.com>
- <20130410164914.GA18946@redhat.com>
+	Wed, 10 Apr 2013 16:06:11 -0400
+Received: by mail-ia0-f182.google.com with SMTP id u20so764090iag.13
+        for <linux-watchdog@vger.kernel.org>; Wed, 10 Apr 2013 13:06:10 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20130410164914.GA18946@redhat.com>
+In-Reply-To: <20130409164101.GA20001@roeck-us.net>
+References: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com>
+	<1365441321-21952-3-git-send-email-kevin.strasser@linux.intel.com>
+	<CACRpkdYrGK_SPbiRssFUrg2vMvWbYO_iXsy+aZr99tyFtk88Uw@mail.gmail.com>
+	<20130409164101.GA20001@roeck-us.net>
+Date: Wed, 10 Apr 2013 22:06:10 +0200
+Message-ID: <CACRpkdYOoZQP_mc3j0z-qTepN7tvA6rpL9E1rc-4D+AyL9_5XQ@mail.gmail.com>
+Subject: Re: [PATCH 3/4] gpio: Kontron PLD gpio driver
+From: Linus Walleij <linus.walleij@linaro.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Kevin Strasser <kevin.strasser@linux.intel.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Michael Brunner <michael.brunner@kontron.com>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Wolfram Sang <wsa@the-dreams.de>,
+	Ben Dooks <ben-linux@fluff.org>,
+	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+	Grant Likely <grant.likely@secretlab.ca>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org,
+	Darren Hart <dvhart@linux.intel.com>,
+	Michael Brunner <mibru@gmx.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Apr 10, 2013 at 12:49:14PM -0400, David Teigland wrote:
-> On Wed, Apr 10, 2013 at 09:40:39AM -0400, Don Zickus wrote:
-> > However, we still have the problem that if the machine panics and we want
-> > to jump into the kdump kernel, we need to 'kick' the watchdog one more
-> > time.  This provides us a sane sync point for determining how long we have
-> > to load the watchdog driver in the second kernel before the hardware
-> > reboots us.  Otherwise the reboots are pretty random and nothing is
-> > guaranteed.
-> 
-> Some time ago I submitted this patch
-> http://www.spinics.net/lists/linux-watchdog/msg01477.html
-> 
-> to get rid of the one "extraneous" ping that was causing me trouble.
-> I'd still like to see merged, but haven't had time to follow up.
-> 
-The use case makes sense to me, so it gets my Ack. Did Wim ever comment on it ?
+On Tue, Apr 9, 2013 at 6:41 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+> On Tue, Apr 09, 2013 at 10:46:15AM +0200, Linus Walleij wrote:
+>> On Mon, Apr 8, 2013 at 7:15 PM, Kevin Strasser
+>> <kevin.strasser@linux.intel.com> wrote:
+>>
+>> > From: Michael Brunner <michael.brunner@kontron.com>
+>> >
+>> > Add gpio support for the on-board PLD found on some Kontron embedded
+>> > modules.
+>> >
+>> > Signed-off-by: Michael Brunner <michael.brunner@kontron.com>
+>> > Signed-off-by: Kevin Strasser <kevin.strasser@linux.intel.com>
+>>
+>> This looks very generic, setting and clearing bits in bytesized
+>> registers.
+>>
+>> Can you please attempt to use generic GPIO for this?
+>>
+> Linus,
+>
+> I looked into it, but for my part I seem to be missing how the generic GPIO code
+> permits locking access to the hardware (PLD) and setting the PLD's page register.
+> In other words, I don't immediately see how to call kempld_get_mutex_set_index()
+> from the generic GPIO code. The other drivers using generic GPIO code don't
+> seem to have that requirement.
 
-Thanks,
-Guenter
+Ah yes, I was totally wrong here.
 
-> I have a use case where I need to guarantee that the watchdog
-> will *not* be pinged unless my userland daemon does the ping.
-> If my daemon is killed, the close() generates a ping that I
-> don't intend.  This kdump ping looks like it would be another
-> instance that I'd need to suppress.  Perhaps by renaming my flag
-> WDOG_NO_EXTRA_PING and checking it both in release and in
-> kick_for_kdump?
-> 
-> (My daemon associates watchdog pings with shared storage heartbeats.
-> Based on the heartbeats, hosts in a cluster can calculate when an
-> unresponsive host last pinged its watchdog, and can be fairly
-> certain that the "dead" host has been reset by its watchdog 60
-> seconds later.  This is used as an alternative to i/o fencing
-> where we're protecting data on shared storage from corruption
-> after host failures.  If there are uncontrolled watchdog pings,
-> then hosts don't know when a dead host might have last pinged
-> its watchdog, since it is no longer based on the last timestamp
-> it wrote to shared storage.)
-> 
-> Dave
-> 
+I thought it was MMIO while it is indeed through an MFD proxy.
+
+I'll have a second look then...
+
+Yours,
+Linus Walleij
