@@ -1,187 +1,40 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ie0-f169.google.com ([209.85.223.169]:63554 "EHLO
-	mail-ie0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752570Ab3DJUpw (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:42364 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1760011Ab3DJU73 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 10 Apr 2013 16:45:52 -0400
-Received: by mail-ie0-f169.google.com with SMTP id ar20so718737iec.14
-        for <linux-watchdog@vger.kernel.org>; Wed, 10 Apr 2013 13:45:52 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <1365441321-21952-3-git-send-email-kevin.strasser@linux.intel.com>
-References: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com>
-	<1365441321-21952-3-git-send-email-kevin.strasser@linux.intel.com>
-Date: Wed, 10 Apr 2013 22:45:51 +0200
-Message-ID: <CACRpkdaU-QT-VBiG8i5XreEP-DvTosHeptUo+5vdmSyi0=uWTw@mail.gmail.com>
-Subject: Re: [PATCH 3/4] gpio: Kontron PLD gpio driver
-From: Linus Walleij <linus.walleij@linaro.org>
-To: Kevin Strasser <kevin.strasser@linux.intel.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Michael Brunner <michael.brunner@kontron.com>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Wolfram Sang <wsa@the-dreams.de>,
-	Ben Dooks <ben-linux@fluff.org>,
-	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-	Grant Likely <grant.likely@secretlab.ca>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org,
-	Darren Hart <dvhart@linux.intel.com>,
-	Michael Brunner <mibru@gmx.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Thomas Gleixner <tglx@linutronix.de>
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 10 Apr 2013 16:59:29 -0400
+Date: Wed, 10 Apr 2013 22:59:26 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Samuel Ortiz <sameo@linux.intel.com>,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	=?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
+Subject: Re: mfd: Core driver for Winbond chips
+Message-ID: <20130410205926.GB14155@spo001.leaseweb.com>
+References: <1362957300-18223-1-git-send-email-linux@roeck-us.net> <20130322205258.GE7867@spo001.leaseweb.com> <20130323002810.GA26245@roeck-us.net> <20130323174914.GA21563@roeck-us.net> <20130409093700.GM24058@zurbaran> <20130409113639.GA8731@roeck-us.net> <20130409114544.GD7867@spo001.leaseweb.com> <20130409161838.GB27050@roeck-us.net> <20130409173115.GF7867@spo001.leaseweb.com> <20130410003632.GA25712@roeck-us.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20130410003632.GA25712@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Apr 8, 2013 at 7:15 PM, Kevin Strasser
-<kevin.strasser@linux.intel.com> wrote:
+Hi Guenter,
 
-> From: Michael Brunner <michael.brunner@kontron.com>
->
-> Add gpio support for the on-board PLD found on some Kontron embedded
-> modules.
->
-> Signed-off-by: Michael Brunner <michael.brunner@kontron.com>
-> Signed-off-by: Kevin Strasser <kevin.strasser@linux.intel.com>
+> > I looked at commit 8b6d043b7ee2d1b819dc833d677ea2aead71a0c0 (which implements
+> > request_muxed_region). You indeed need some extra code for loading the lowl-level
+> > mfd driver. So I am also in favour of the exported function.
+> > 
+> So which way should we go ? Take your driver as a starting point or mine ?
+> 
+> One thing I'll want to add is support for both superio regions, as I have a use
+> case for it.
 
-Trying to do some real review...
+I'll come back on this tomorrow. It's going to be a merge of your and my code anyway.
 
-(...)
-> +++ b/drivers/gpio/gpio-kempld.c
-> +#include <linux/acpi.h>
+I agree it would be nice to add also hwmon + wdog support in it from the start.
 
-Is this used?
+Kind regards,
+Wim.
 
-> +#include <linux/platform_device.h>
-> +#include <linux/gpio.h>
-> +#include <linux/mfd/kempld.h>
-> +#include <linux/seq_file.h>
-> +
-> +#include "gpio-kempld.h"
-> +
-> +static int gpiobase = -1;
-> +static int gpioien = 0x00;
-> +static int gpioevt_lvl_edge = -1;
-> +static int gpioevt_low_high = -1;
-> +static int gpionmien = 0x00;
-
-(...)
-
-+static int kempld_gpio_to_irq(struct gpio_chip *chip, unsigned offset)
-+{
-+       struct kempld_gpio_data *gpio
-+               = container_of(chip, struct kempld_gpio_data, chip);
-+       return gpio->irq;
-+}
-
-I don't understand this *at all* so help me out here.
-
-.gpio_to_irq() should return a *Linux* IRQ number, usually we take
-the event offset (in this case) and map to a Linux IRQ using the
-irqdomain helper library. Can you explain how we can be sure that
-this number (apparently just a read from a register on the device)
-can be made to correspond to a Linux IRQ?
-
-Also if this thing can generate IRQs, are these one line to the CPU
-per IRQ really? Don't you need to demux the status register and
-create a cascades irqchip?
-
-Maybe it's just me not understanding x86 & ACPI so bear with me...
-
-> +static int kempld_gpio_setup_event(struct kempld_gpio_data *gpio)
-> +{
-> +       struct kempld_device_data *pld = gpio->pld;
-> +       struct gpio_chip *chip = &gpio->chip;
-> +       int irq;
-> +
-> +       irq = gpio->irq;
-> +
-> +       kempld_get_mutex_set_index(pld, KEMPLD_IRQ_GPIO);
-> +       irq = kempld_read8(pld, KEMPLD_IRQ_GPIO);
-> +
-> +       /* Leave if interrupts are not supported by the GPIO core */
-> +       if ((irq & 0xf0) == 0xf0)
-> +               return 0;
-> +
-> +       gpio->irq = irq & 0x0f;
-
-So you read the IRQ from some plug-n-play here, and it's some
-system-wide IRQ number?
-
-(...)
-> +       if (gpio->irq)
-> +               chip->to_irq =          kempld_gpio_to_irq;
-
-So that is this mystery with the IRQs and how they turn into
-Linux IRQs.
-
-> +module_param(gpiobase, int, 0444);
-
-Why do you need to be able to configure this?
-It must be a real usecase, debugging can be done by patching
-the code.
-
-> +module_param(gpioien, int, 0444);
-> +module_param(gpioevt_lvl_edge, int, 0444);
-> +module_param(gpioevt_low_high, int, 0444);
-> +module_param(gpionmien, int, 0444);
-
-Argh how can anyone possibly make this out ... do you really
-need them or can we get rid of some and rely on autodetect?
-
-> +MODULE_DESCRIPTION("KEM PLD GPIO Driver");
-> +MODULE_AUTHOR("Michael Brunner <michael.brunner@kontron.com>");
-> +MODULE_LICENSE("GPL");
-> +MODULE_ALIAS("platform:kempld_gpio");
-> +MODULE_PARM_DESC(gpiobase, "Set GPIO base (default -1=dynamic)");
-> +MODULE_PARM_DESC(gpioien, "Set GPIO IEN register (default 0x00)");
-> +MODULE_PARM_DESC(gpioevt_lvl_edge,
-> +                       "Set GPIO EVT_LVL_EDGE register (default -1=no change)");
-> +MODULE_PARM_DESC(gpioevt_low_high,
-> +                       "Set GPIO EVT_LOW_HIGH register (default -1=no change)");
-> +MODULE_PARM_DESC(gpionmien, "Set GPIO NMIEN register (default 0x00)");
-
-
-So I don't really like that interrupt enablement and edge and low/high
-is done with module parameters instead of just creating an irqchip and
-have it implement the operations to do exactly these things at runtime
-instead.
-
-Again maybe some x86 thing I don't get...
-
-> diff --git a/drivers/gpio/gpio-kempld.h b/drivers/gpio/gpio-kempld.h
-(...)
-> +struct kempld_gpio_data {
-> +       struct gpio_chip                chip;
-> +       int                             irq;
-> +       struct kempld_device_data       *pld;
-> +       uint16_t                        mask;
-
-Just u16?
-
-> +};
-
-(...)
-> diff --git a/drivers/gpio/gpio-kempld_now1.c b/drivers/gpio/gpio-kempld_now1.c
-> +#include <linux/io.h>
-
-Do you use this?
-
-> +#include <linux/slab.h>
-> +#include <linux/errno.h>
-> +#include <linux/acpi.h>
-
-And this?
-
-> +#include <linux/platform_device.h>
-> +#include <linux/gpio.h>
-> +#include <linux/mfd/kempld.h>
-> +#include <linux/seq_file.h>
-> +
-> +#include "gpio-kempld.h"
-(...)
-> +
-
-Most comments concern the other driver too.
-
-Yours,
-Linus Walleij
