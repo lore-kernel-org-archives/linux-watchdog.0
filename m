@@ -1,80 +1,72 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:52853 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759774Ab3DJNdo (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 10 Apr 2013 09:33:44 -0400
-Date: Wed, 10 Apr 2013 06:33:51 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Nicolas Ferre <nicolas.ferre@atmel.com>
-Cc: wim@iguana.be, manabian@gmail.com, linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
-	devicetree-discuss@lists.ozlabs.org
-Subject: Re: [PATCH] watchdog: Revert the AT91RM9200_WATCHDOG dependency
-Message-ID: <20130410133351.GA7295@roeck-us.net>
-References: <20130409202711.GG7867@spo001.leaseweb.com>
- <1365597382-15455-1-git-send-email-nicolas.ferre@atmel.com>
+Received: from mx1.redhat.com ([209.132.183.28]:31958 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752576Ab3DJNkt (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 10 Apr 2013 09:40:49 -0400
+Date: Wed, 10 Apr 2013 09:40:39 -0400
+From: Don Zickus <dzickus@redhat.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Dave Young <dyoung@redhat.com>, linux-watchdog@vger.kernel.org,
+	kexec@lists.infradead.org, wim@iguana.be,
+	LKML <linux-kernel@vger.kernel.org>, vgoyal@redhat.com
+Subject: Re: [RFC PATCH] watchdog: Add hook for kicking in kdump path
+Message-ID: <20130410134039.GV79013@redhat.com>
+References: <1365192994-94850-1-git-send-email-dzickus@redhat.com>
+ <516259D2.7000805@redhat.com>
+ <20130408124858.GC79013@redhat.com>
+ <20130408151509.GA20919@roeck-us.net>
+ <20130409144431.GL79013@redhat.com>
+ <20130409145228.GA1111@roeck-us.net>
+ <20130409151423.GM79013@redhat.com>
+ <20130409160757.GA27050@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1365597382-15455-1-git-send-email-nicolas.ferre@atmel.com>
+In-Reply-To: <20130409160757.GA27050@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Apr 10, 2013 at 02:36:22PM +0200, Nicolas Ferre wrote:
-> Compiling the at91rm9200_wdt.c driver without at91rm9200
-> support was leading to several errors:
+On Tue, Apr 09, 2013 at 09:07:58AM -0700, Guenter Roeck wrote:
+> > > Just look for the use of mod_timer in the watchdog directory.
+> > 
+> > So looking at the mod_timer logic in various drivers, it seems regardless
+> > if the /dev/watchdog device is opened or not, if it is running, it will
+> > automagically kick the watchdog.
+> > 
+> yes
 > 
-> drivers/built-in.o: In function `at91_wdt_close':
-> at91_adc.c:(.text+0xc9fe4): undefined reference to `at91_st_base'
-> drivers/built-in.o: In function `at91_wdt_write':
-> at91_adc.c:(.text+0xca004): undefined reference to `at91_st_base'
-> drivers/built-in.o: In function `at91wdt_shutdown':
-> at91_adc.c:(.text+0xca01c): undefined reference to `at91_st_base'
-> drivers/built-in.o: In function `at91wdt_suspend':
-> at91_adc.c:(.text+0xca038): undefined reference to `at91_st_base'
-> drivers/built-in.o: In function `at91_wdt_open':
-> at91_adc.c:(.text+0xca0cc): undefined reference to `at91_st_base'
-> drivers/built-in.o:at91_adc.c:(.text+0xca2c8): more undefined references to
-> `at91_st_base' follow
-> 
-> So, reverting the modification of the "depends" Kconfig line
-> introduced by patch a6a1bcd37 (watchdog: at91rm9200: add DT support)
-> seems to be the good solution.
-> 
-Really ? Why ? I mean, this was supposed to be for at91rm9200, wasn't it ?
-And why would want try to compile a watchdog for at91rm9200 without at91rm9200
-support ?
+> > This seems that we can avoid pulling in userspace pieces for this.  Just
+> > load the driver and the hardware starts getting kicked.
+> > 
+> Only if it is already running. Also, you don't want to rely on it, because you
+> lose protection against user space issues.
 
-I understand there is a problem, I just don't see how removing that line would
-solgve it.
+IOW if something goes wrong with a runaway userspace app, the kernel
+blindly continues to kick the watchdog, which masks the problem, right?
 
-Guenter
+> 
+> A second use is if the hw watchdog needs to be pinged more often than user
+> space can provide. Some of the HW watchdogs need a ping in one-second intervals
+> or even faster.
+> 
+> > Is that true?  And if so, do all drivers detect if the hardware is already
+> > running during their init?  Or is it based on the first device open?
+> > 
+> It is usually done in the probe function.
 
-> Signed-off-by: Nicolas Ferre <nicolas.ferre@atmel.com>
-> ---
->  drivers/watchdog/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 9fcc70c..e89fc31 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -117,7 +117,7 @@ config ARM_SP805_WATCHDOG
->  
->  config AT91RM9200_WATCHDOG
->  	tristate "AT91RM9200 watchdog"
-> -	depends on ARCH_AT91
-> +	depends on ARCH_AT91RM9200
->  	help
->  	  Watchdog timer embedded into AT91RM9200 chips. This will reboot your
->  	  system when the timeout is reached.
-> -- 
-> 1.8.0
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+Ok.  Thanks for the understanding of how the softdog stuff works.
+
+However, we still have the problem that if the machine panics and we want
+to jump into the kdump kernel, we need to 'kick' the watchdog one more
+time.  This provides us a sane sync point for determining how long we have
+to load the watchdog driver in the second kernel before the hardware
+reboots us.  Otherwise the reboots are pretty random and nothing is
+guaranteed.
+
+Hence the need for some sort of patch resembling the one I posted.
+
+Soooooooo, any thoughts about that patch and what changes I should make?
+:-)
+
+Cheers,
+Don
