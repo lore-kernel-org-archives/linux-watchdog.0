@@ -1,40 +1,94 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:42364 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1760011Ab3DJU73 (ORCPT
+Received: from mail-qc0-f179.google.com ([209.85.216.179]:52841 "EHLO
+	mail-qc0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753765Ab3DKHPK (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 10 Apr 2013 16:59:29 -0400
-Date: Wed, 10 Apr 2013 22:59:26 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Samuel Ortiz <sameo@linux.intel.com>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	=?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
-Subject: Re: mfd: Core driver for Winbond chips
-Message-ID: <20130410205926.GB14155@spo001.leaseweb.com>
-References: <1362957300-18223-1-git-send-email-linux@roeck-us.net> <20130322205258.GE7867@spo001.leaseweb.com> <20130323002810.GA26245@roeck-us.net> <20130323174914.GA21563@roeck-us.net> <20130409093700.GM24058@zurbaran> <20130409113639.GA8731@roeck-us.net> <20130409114544.GD7867@spo001.leaseweb.com> <20130409161838.GB27050@roeck-us.net> <20130409173115.GF7867@spo001.leaseweb.com> <20130410003632.GA25712@roeck-us.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20130410003632.GA25712@roeck-us.net>
+	Thu, 11 Apr 2013 03:15:10 -0400
+MIME-Version: 1.0
+In-Reply-To: <CAH9NwWdUqH8gF8Vz7K_2UW1X==LWbYEd5dhSTPqqYwEnDuRVuQ@mail.gmail.com>
+References: <1360663374-30951-1-git-send-email-s.hauer@pengutronix.de>
+ <1360663374-30951-2-git-send-email-s.hauer@pengutronix.de>
+ <CAH9NwWdOCo642KqUXk1y5hbwdtW5RYgQnQfZFUEe4FOJzSiByQ@mail.gmail.com>
+ <20130326085454.GK1906@pengutronix.de> <20130326092435.GB8553@the-dreams.de>
+ <20130326093139.GL1906@pengutronix.de> <CAH9NwWdUqH8gF8Vz7K_2UW1X==LWbYEd5dhSTPqqYwEnDuRVuQ@mail.gmail.com>
+From: Christian Gmeiner <christian.gmeiner@gmail.com>
+Date: Thu, 11 Apr 2013 09:14:48 +0200
+Message-ID: <CAH9NwWd-UAYG0y2R379hPvntnfPhNEwvXm-f2uO3o1AZZ+OSMw@mail.gmail.com>
+Subject: Re: [PATCH 1/3] x86: Add basic support for the Congatec CGEB BIOS interface
+To: Sascha Hauer <s.hauer@pengutronix.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>,
+	LKML <linux-kernel@vger.kernel.org>, x86@kernel.org,
+	linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	Thomas Gleixner <tglx@linutronix.de>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Guenter,
+2013/3/26 Christian Gmeiner <christian.gmeiner@gmail.com>:
+> 2013/3/26 Sascha Hauer <s.hauer@pengutronix.de>:
+>> Hi Wolfram,
+>>
+>> On Tue, Mar 26, 2013 at 10:24:35AM +0100, Wolfram Sang wrote:
+>>> Hi Sascha,
+>>>
+>>> > Any other comments to this series? Is the base cgeb support ok to
+>>> > include?
+>>>
+>>> I had a few comments to the I2C driver.
+>>
+>> Yes, thanks, I have seen this and will address them. Atm I'm more
+>> interested in the base support though, since without it there won't be a
+>> need for the i2c driver ;)
+>>
+>
+> vis@OT:~$ dmesg | grep CGEB
+> [    2.466519] CGEB: Board name: QBRA
+>
+>
+> root@OT:/home/vis# i2cdetect -l
+> i2c-0   i2c             cgeb-i2c                                I2C adapter
+> i2c-1   i2c             Radeon i2c bit bus 0x90                 I2C adapter
+> i2c-2   i2c             Radeon i2c bit bus 0x91                 I2C adapter
+> i2c-3   i2c             Radeon i2c bit bus 0x92                 I2C adapter
+> i2c-4   i2c             Radeon i2c bit bus 0x93                 I2C adapter
+> i2c-5   i2c             Radeon i2c bit bus 0x94                 I2C adapter
+> i2c-6   i2c             Radeon i2c bit bus 0x95                 I2C adapter
+> i2c-7   i2c             Radeon i2c bit bus 0x96                 I2C adapter
+> i2c-8   i2c             Radeon i2c bit bus 0x97                 I2C adapter
+> i2c-9   i2c             Radeon aux bus DP-auxch                 I2C adapter
+> root@OT:/home/vis# i2cdetect 0
+> WARNING! This program can confuse your I2C bus, cause data loss and worse!
+> I will probe file /dev/i2c-0.
+> I will probe address range 0x03-0x77.
+> Continue? [Y/n]
+>      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+> 00:          -- -- -- -- -- -- -- -- -- -- -- -- --
+> 10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+> 20: -- 21 -- -- -- -- -- -- -- -- -- -- -- -- -- --
+> 30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+> 40: -- -- -- -- -- -- -- -- 48 -- -- -- -- -- -- --
+> 50: 50 51 -- -- -- -- -- -- -- -- -- -- -- -- -- --
+> 60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+> 70: -- -- -- -- -- -- -- --
+>
+> I hope to see this patches soon in mainline - I have some Congatec
+> devices where I
+> am using an early version of this patch set.
+>
+> Btw I have a cgeb-backlight driver lying here :)
+>
+>
+> Tested-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+> Acked-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+>
 
-> > I looked at commit 8b6d043b7ee2d1b819dc833d677ea2aead71a0c0 (which implements
-> > request_muxed_region). You indeed need some extra code for loading the lowl-level
-> > mfd driver. So I am also in favour of the exported function.
-> > 
-> So which way should we go ? Take your driver as a starting point or mine ?
-> 
-> One thing I'll want to add is support for both superio regions, as I have a use
-> case for it.
 
-I'll come back on this tomorrow. It's going to be a merge of your and my code anyway.
+Hi Wolfram,
 
-I agree it would be nice to add also hwmon + wdog support in it from the start.
+any update on your patch series to support CGEB? I have some time to work
+on these patches but I don't want to duplicate the work. I really want
+this watches
+to hit mainline soon.
 
-Kind regards,
-Wim.
-
+--
+Christian Gmeiner, MSc
