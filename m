@@ -1,94 +1,37 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qc0-f179.google.com ([209.85.216.179]:52841 "EHLO
-	mail-qc0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753765Ab3DKHPK (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 11 Apr 2013 03:15:10 -0400
-MIME-Version: 1.0
-In-Reply-To: <CAH9NwWdUqH8gF8Vz7K_2UW1X==LWbYEd5dhSTPqqYwEnDuRVuQ@mail.gmail.com>
-References: <1360663374-30951-1-git-send-email-s.hauer@pengutronix.de>
- <1360663374-30951-2-git-send-email-s.hauer@pengutronix.de>
- <CAH9NwWdOCo642KqUXk1y5hbwdtW5RYgQnQfZFUEe4FOJzSiByQ@mail.gmail.com>
- <20130326085454.GK1906@pengutronix.de> <20130326092435.GB8553@the-dreams.de>
- <20130326093139.GL1906@pengutronix.de> <CAH9NwWdUqH8gF8Vz7K_2UW1X==LWbYEd5dhSTPqqYwEnDuRVuQ@mail.gmail.com>
-From: Christian Gmeiner <christian.gmeiner@gmail.com>
-Date: Thu, 11 Apr 2013 09:14:48 +0200
-Message-ID: <CAH9NwWd-UAYG0y2R379hPvntnfPhNEwvXm-f2uO3o1AZZ+OSMw@mail.gmail.com>
-Subject: Re: [PATCH 1/3] x86: Add basic support for the Congatec CGEB BIOS interface
-To: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>,
+Received: from sauhun.de ([89.238.76.85]:50157 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751746Ab3DKLU1 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 11 Apr 2013 07:20:27 -0400
+Date: Thu, 11 Apr 2013 13:20:21 +0200
+From: Wolfram Sang <wsa@the-dreams.de>
+To: Christian Gmeiner <christian.gmeiner@gmail.com>
+Cc: Sascha Hauer <s.hauer@pengutronix.de>,
 	LKML <linux-kernel@vger.kernel.org>, x86@kernel.org,
 	linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org,
 	Thomas Gleixner <tglx@linutronix.de>
-Content-Type: text/plain; charset=UTF-8
+Subject: Re: [PATCH 1/3] x86: Add basic support for the Congatec CGEB BIOS
+ interface
+Message-ID: <20130411112021.GA3507@the-dreams.de>
+References: <1360663374-30951-1-git-send-email-s.hauer@pengutronix.de>
+ <1360663374-30951-2-git-send-email-s.hauer@pengutronix.de>
+ <CAH9NwWdOCo642KqUXk1y5hbwdtW5RYgQnQfZFUEe4FOJzSiByQ@mail.gmail.com>
+ <20130326085454.GK1906@pengutronix.de>
+ <20130326092435.GB8553@the-dreams.de>
+ <20130326093139.GL1906@pengutronix.de>
+ <CAH9NwWdUqH8gF8Vz7K_2UW1X==LWbYEd5dhSTPqqYwEnDuRVuQ@mail.gmail.com>
+ <CAH9NwWd-UAYG0y2R379hPvntnfPhNEwvXm-f2uO3o1AZZ+OSMw@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAH9NwWd-UAYG0y2R379hPvntnfPhNEwvXm-f2uO3o1AZZ+OSMw@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-2013/3/26 Christian Gmeiner <christian.gmeiner@gmail.com>:
-> 2013/3/26 Sascha Hauer <s.hauer@pengutronix.de>:
->> Hi Wolfram,
->>
->> On Tue, Mar 26, 2013 at 10:24:35AM +0100, Wolfram Sang wrote:
->>> Hi Sascha,
->>>
->>> > Any other comments to this series? Is the base cgeb support ok to
->>> > include?
->>>
->>> I had a few comments to the I2C driver.
->>
->> Yes, thanks, I have seen this and will address them. Atm I'm more
->> interested in the base support though, since without it there won't be a
->> need for the i2c driver ;)
->>
->
-> vis@OT:~$ dmesg | grep CGEB
-> [    2.466519] CGEB: Board name: QBRA
->
->
-> root@OT:/home/vis# i2cdetect -l
-> i2c-0   i2c             cgeb-i2c                                I2C adapter
-> i2c-1   i2c             Radeon i2c bit bus 0x90                 I2C adapter
-> i2c-2   i2c             Radeon i2c bit bus 0x91                 I2C adapter
-> i2c-3   i2c             Radeon i2c bit bus 0x92                 I2C adapter
-> i2c-4   i2c             Radeon i2c bit bus 0x93                 I2C adapter
-> i2c-5   i2c             Radeon i2c bit bus 0x94                 I2C adapter
-> i2c-6   i2c             Radeon i2c bit bus 0x95                 I2C adapter
-> i2c-7   i2c             Radeon i2c bit bus 0x96                 I2C adapter
-> i2c-8   i2c             Radeon i2c bit bus 0x97                 I2C adapter
-> i2c-9   i2c             Radeon aux bus DP-auxch                 I2C adapter
-> root@OT:/home/vis# i2cdetect 0
-> WARNING! This program can confuse your I2C bus, cause data loss and worse!
-> I will probe file /dev/i2c-0.
-> I will probe address range 0x03-0x77.
-> Continue? [Y/n]
->      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-> 00:          -- -- -- -- -- -- -- -- -- -- -- -- --
-> 10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> 20: -- 21 -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> 30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> 40: -- -- -- -- -- -- -- -- 48 -- -- -- -- -- -- --
-> 50: 50 51 -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> 60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> 70: -- -- -- -- -- -- -- --
->
-> I hope to see this patches soon in mainline - I have some Congatec
-> devices where I
-> am using an early version of this patch set.
->
-> Btw I have a cgeb-backlight driver lying here :)
->
->
-> Tested-by: Christian Gmeiner <christian.gmeiner@gmail.com>
-> Acked-by: Christian Gmeiner <christian.gmeiner@gmail.com>
->
 
+> any update on your patch series to support CGEB? I have some time to
+> work on these patches but I don't want to duplicate the work. I really
+> want this watches to hit mainline soon.
 
-Hi Wolfram,
+I acked the I2C patch and this is all I can do for this series.
 
-any update on your patch series to support CGEB? I have some time to work
-on these patches but I don't want to duplicate the work. I really want
-this watches
-to hit mainline soon.
-
---
-Christian Gmeiner, MSc
