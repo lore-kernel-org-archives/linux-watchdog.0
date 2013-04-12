@@ -1,37 +1,83 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:50157 "EHLO pokefinder.org"
+Received: from arroyo.ext.ti.com ([192.94.94.40]:49381 "EHLO arroyo.ext.ti.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751746Ab3DKLU1 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 11 Apr 2013 07:20:27 -0400
-Date: Thu, 11 Apr 2013 13:20:21 +0200
-From: Wolfram Sang <wsa@the-dreams.de>
-To: Christian Gmeiner <christian.gmeiner@gmail.com>
-Cc: Sascha Hauer <s.hauer@pengutronix.de>,
-	LKML <linux-kernel@vger.kernel.org>, x86@kernel.org,
-	linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH 1/3] x86: Add basic support for the Congatec CGEB BIOS
- interface
-Message-ID: <20130411112021.GA3507@the-dreams.de>
-References: <1360663374-30951-1-git-send-email-s.hauer@pengutronix.de>
- <1360663374-30951-2-git-send-email-s.hauer@pengutronix.de>
- <CAH9NwWdOCo642KqUXk1y5hbwdtW5RYgQnQfZFUEe4FOJzSiByQ@mail.gmail.com>
- <20130326085454.GK1906@pengutronix.de>
- <20130326092435.GB8553@the-dreams.de>
- <20130326093139.GL1906@pengutronix.de>
- <CAH9NwWdUqH8gF8Vz7K_2UW1X==LWbYEd5dhSTPqqYwEnDuRVuQ@mail.gmail.com>
- <CAH9NwWd-UAYG0y2R379hPvntnfPhNEwvXm-f2uO3o1AZZ+OSMw@mail.gmail.com>
+	id S1753776Ab3DLGvz convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 12 Apr 2013 02:51:55 -0400
+From: "Kim, Milo" <Milo.Kim@ti.com>
+To: "wim@iguana.be" <wim@iguana.be>
+CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2/2] watchdog: fix cleanup device code on registration
+Date: Fri, 12 Apr 2013 06:51:48 +0000
+Message-ID: <A874F61F95741C4A9BA573A70FE3998F82E4BBCA@DQHE02.ent.ti.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAH9NwWd-UAYG0y2R379hPvntnfPhNEwvXm-f2uO3o1AZZ+OSMw@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
+
+Duplicate lines of code are moved to cleanup_dev section.
+And it returns 0 explicitly in case of no error.
+
+Signed-off-by: Milo(Woogyom) Kim <milo.kim@ti.com>
+---
+ drivers/watchdog/watchdog_dev.c |   18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_=
+dev.c
+index 42bfc9a..37c2dcc 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -613,11 +613,7 @@ int watchdog_dev_register(struct watchdog_device *wa=
+tchdog)
+ 	if (err) {
+ 		pr_err("watchdog%d unable to add device %d:%d\n",
+ 			watchdog->id,  MAJOR(watchdog_devt), watchdog->id);
+-		if (watchdog->id =3D=3D 0) {
+-			misc_deregister(&watchdog_miscdev);
+-			old_wdd =3D NULL;
+-		}
+-		return err;
++		goto cleanup_dev;
+ 	}
+=20
+ 	/* Activate the watchdog automatically by the driver itself */
+@@ -625,13 +621,17 @@ int watchdog_dev_register(struct watchdog_device *w=
+atchdog)
+ 		err =3D watchdog_auto_start(watchdog);
+ 		if (err) {
+ 			cdev_del(&watchdog->cdev);
+-			if (watchdog->id =3D=3D 0) {
+-				misc_deregister(&watchdog_miscdev);
+-				old_wdd =3D NULL;
+-			}
++			goto cleanup_dev;
+ 		}
+ 	}
+=20
++	return 0;
++
++cleanup_dev:
++	if (watchdog->id =3D=3D 0) {
++		misc_deregister(&watchdog_miscdev);
++		old_wdd =3D NULL;
++	}
+ 	return err;
+ }
+=20
+--=20
+1.7.9.5
 
 
-> any update on your patch series to support CGEB? I have some time to
-> work on these patches but I don't want to duplicate the work. I really
-> want this watches to hit mainline soon.
+Best Regards,
+Milo
 
-I acked the I2C patch and this is all I can do for this series.
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
