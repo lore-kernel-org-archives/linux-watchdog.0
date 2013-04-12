@@ -1,318 +1,227 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:36705 "EHLO comal.ext.ti.com"
+Received: from mout.gmx.net ([212.227.17.21]:60281 "EHLO mout.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753782Ab3DLGvz convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 12 Apr 2013 02:51:55 -0400
-From: "Kim, Milo" <Milo.Kim@ti.com>
-To: "wim@iguana.be" <wim@iguana.be>
-CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: [PATCH 1/2] watchdog: introduce new watchdog AUTOSTART option
-Date: Fri, 12 Apr 2013 06:51:47 +0000
-Message-ID: <A874F61F95741C4A9BA573A70FE3998F82E4BBC2@DQHE02.ent.ti.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
+	id S1752581Ab3DLLII (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 12 Apr 2013 07:08:08 -0400
+Received: from mailout-de.gmx.net ([10.1.76.29]) by mrigmx.server.lan
+ (mrigmx001) with ESMTP (Nemesis) id 0MDBXW-1UNHvG2N80-00Ga0X for
+ <linux-watchdog@vger.kernel.org>; Fri, 12 Apr 2013 13:08:06 +0200
+Date: Fri, 12 Apr 2013 13:09:35 +0200
+From: Michael Brunner <mibru@gmx.de>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Kevin Strasser <kevin.strasser@linux.intel.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Michael Brunner <michael.brunner@kontron.com>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Wolfram Sang <wsa@the-dreams.de>,
+	Ben Dooks <ben-linux@fluff.org>,
+	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+	Grant Likely <grant.likely@secretlab.ca>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org,
+	Darren Hart <dvhart@linux.intel.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH 3/4] gpio: Kontron PLD gpio driver
+Message-ID: <20130412130936.3f428cc9@hyperion>
+In-Reply-To: <CACRpkdaU-QT-VBiG8i5XreEP-DvTosHeptUo+5vdmSyi0=uWTw@mail.gmail.com>
+References: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com>
+	<1365441321-21952-3-git-send-email-kevin.strasser@linux.intel.com>
+	<CACRpkdaU-QT-VBiG8i5XreEP-DvTosHeptUo+5vdmSyi0=uWTw@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-Conventionally, watchdog timer driver is activated by an user space reque=
-st.
-This patch enables an automatic start/ping operation of a watchdog withou=
-t an
-application.
+Hi Linus,
 
-(a) Work flow
-If a watchdog timer driver is configured with WDIOF_AUTOSTART option,
-then it starts and ping automatically on watchdog device registration.
-A delayed workqueue invokes a ping operation of the watchdog periodically=
-.
-In the mean time, if an application tries to open the watchdog device,
-it returns as -EBUSY because the watchdog is already running.
-When the watchdog is unregistered, timed workqueue is canceled.
+As this code is from me I will comment on your review.
 
-(b) Structure changes
-ping_period      : Period time for watchdog ping. Unit is millisecond.
-work             : Workqueue for automatic ping operation.
-WDOG_AUTOSTARTED : Added status bit. Set when ping is done.
-                   Cleared when period time is expired.
-WDIOF_AUTOSTART  : New option flag.
+On Wed, 10 Apr 2013 22:45:51 +0200
+Linus Walleij <linus.walleij@linaro.org> wrote:
+(...)
+> Trying to do some real review...
+> 
+> (...)  
+> > +++ b/drivers/gpio/gpio-kempld.c
+> > +#include <linux/acpi.h>  
+> 
+> Is this used?  
 
-(c) Documentation
-It describes how it works and how to use this feature in a watchdog drive=
-r.
+Actually not, this can be removed.
 
-Signed-off-by: Milo(Woogyom) Kim <milo.kim@ti.com>
----
- Documentation/watchdog/watchdog-without-app.txt |   59 ++++++++++++++++
- drivers/watchdog/watchdog_dev.c                 |   86 +++++++++++++++++=
-+++++-
- include/linux/watchdog.h                        |    6 ++
- include/uapi/linux/watchdog.h                   |    1 +
- 4 files changed, 151 insertions(+), 1 deletion(-)
- create mode 100644 Documentation/watchdog/watchdog-without-app.txt
+> > +#include <linux/platform_device.h>
+> > +#include <linux/gpio.h>
+> > +#include <linux/mfd/kempld.h>
+> > +#include <linux/seq_file.h>
+> > +
+> > +#include "gpio-kempld.h"
+> > +
+> > +static int gpiobase = -1;
+> > +static int gpioien = 0x00;
+> > +static int gpioevt_lvl_edge = -1;
+> > +static int gpioevt_low_high = -1;
+> > +static int gpionmien = 0x00;  
+> 
+> (...)
+> 
+> +static int kempld_gpio_to_irq(struct gpio_chip *chip, unsigned
+> offset) +{
+> +       struct kempld_gpio_data *gpio
+> +               = container_of(chip, struct kempld_gpio_data, chip);
+> +       return gpio->irq;
+> +}
+> 
+> I don't understand this *at all* so help me out here.
+> 
+> .gpio_to_irq() should return a *Linux* IRQ number, usually we take
+> the event offset (in this case) and map to a Linux IRQ using the
+> irqdomain helper library. Can you explain how we can be sure that
+> this number (apparently just a read from a register on the device)
+> can be made to correspond to a Linux IRQ?
+> 
+> Also if this thing can generate IRQs, are these one line to the CPU
+> per IRQ really? Don't you need to demux the status register and
+> create a cascades irqchip?
+> 
+> Maybe it's just me not understanding x86 & ACPI so bear with me...  
 
-diff --git a/Documentation/watchdog/watchdog-without-app.txt b/Documentat=
-ion/watchdog/watchdog-without-app.txt
-new file mode 100644
-index 0000000..596a30a
---- /dev/null
-+++ b/Documentation/watchdog/watchdog-without-app.txt
-@@ -0,0 +1,59 @@
-+The Linux WatchDog Timer Driver without an Application
-+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-+
-+Milo Kim <milo.kim@ti.com>
-+
-+Introduction
-+------------
-+Linux WatchDog Timer (WDT) driver is activated by an user space request.
-+If a WDT needs to be enabled alone, without an application, you can conf=
-igure
-+the WDT driver with 'AUTOSTART' option.
-+
-+How it works
-+------------
-+* Conventional watchdog system
-+
-+  (WDT driver)        ------------                       (WDT Applicatio=
-n)
-+   register    -->      WDT Core
-+                      ------------
-+   .start      <--      WDT Dev   /dev/watchdogN  <--       open
-+   .ping              ------------                 .        ioctl - keep=
-alive
-+   .stop                                           .        close
-+                                                   .
-+                                                   activated by an appli=
-cation
-+
-+* Watchdog autostart feature
-+
-+  (WDT driver)        ------------
-+   register    -->      WDT Core
-+                      ------------
-+   .start      <--      WDT Dev   /dev/watchdogN
-+   .ping        .     ------------
-+                .
-+                .
-+                start and ping periodically without an application
-+
-+How to use
-+----------
-+1) Add 'WDIOF_AUTOSTART' option in your watchdog_info.
-+
-+static const struct watchdog_info foo_wdt_info =3D {
-+	.options =3D WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_AUTOSTART,
-+	.identity =3D "Auto Watchdog Sample",
-+};
-+
-+2) Define the value of 'ping_period' in your watchdog_device structure.
-+   Unit is millisecond.
-+
-+static int foo_wdt_probe(struct platform_device *pdev)
-+{
-+	struct watchdog_device *foo_wdt;
-+
-+	foo_wdt->info =3D &foo_wdt_info;
-+	foo_wdt->ops =3D &foo_wdt_ops;
-+	foo_wdt->ping_period =3D 1000;	/* kick a watchdog per 1 sec */
-+
-+	return watchdog_register_device(foo_wdt);
-+}
-+
-+Then the foo watchdog is started and ping periodically without an applic=
-ation.
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_=
-dev.c
-index 08b48bb..42bfc9a 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -44,6 +44,8 @@
-=20
- #include "watchdog_core.h"
-=20
-+#define MAX_PING_PERIOD		(60 * 60 * 1000)	/* 1 hour */
-+
- /* the dev_t structure to store the dynamically allocated watchdog devic=
-es */
- static dev_t watchdog_devt;
- /* the watchdog device behind /dev/watchdog */
-@@ -115,6 +117,70 @@ out_start:
- 	return err;
- }
-=20
-+static void watchdog_set_autostart(struct watchdog_device *wdd)
-+{
-+	schedule_delayed_work(&wdd->work, msecs_to_jiffies(wdd->ping_period));
-+	set_bit(WDOG_AUTOSTARTED, &wdd->status);
-+}
-+
-+static void watchdog_clear_autostart(struct watchdog_device *wdd)
-+{
-+	clear_bit(WDOG_AUTOSTARTED, &wdd->status);
-+}
-+
-+static bool watchdog_autostarted(struct watchdog_device *wdd)
-+{
-+	return test_bit(WDOG_AUTOSTARTED, &wdd->status);
-+}
-+
-+static void watchdog_autoping_work(struct work_struct *w)
-+{
-+	struct watchdog_device *wdd =3D container_of(w, struct watchdog_device,
-+						work.work);
-+	int err;
-+
-+	if (!watchdog_autostarted(wdd))
-+		return;
-+
-+	watchdog_clear_autostart(wdd);
-+
-+	err =3D watchdog_ping(wdd);
-+	if (err)
-+		return;
-+
-+	watchdog_set_autostart(wdd);
-+}
-+
-+/*
-+ *	watchdog_auto_start: start the watchdong and ping it
-+ *	@wdd: the watchdog device to start
-+ *
-+ *	If watchdog_info has WDIOF_AUTOSTART option, then the watchdog
-+ *	starts automatically. Ping operation is done by internal timer.
-+ *	The watchdog driver is activated without a watchdog user application.
-+ *	This function should be used by the watchdog driver, not an user-spac=
-e
-+ *	interface.
-+ */
-+
-+static int watchdog_auto_start(struct watchdog_device *wdd)
-+{
-+	int err;
-+
-+	if (wdd->ping_period < 1 || wdd->ping_period >=3D MAX_PING_PERIOD) {
-+		pr_err("invalid ping time value:%u\n", wdd->ping_period);
-+		return -EINVAL;
-+	}
-+
-+	err =3D watchdog_start(wdd);
-+	if (err)
-+		return err;
-+
-+	INIT_DELAYED_WORK(&wdd->work, watchdog_autoping_work);
-+	watchdog_set_autostart(wdd);
-+
-+	return 0;
-+}
-+
- /*
-  *	watchdog_stop: wrapper to stop the watchdog.
-  *	@wddev: the watchdog device to stop
-@@ -420,7 +486,8 @@ static int watchdog_open(struct inode *inode, struct =
-file *file)
- 		wdd =3D container_of(inode->i_cdev, struct watchdog_device, cdev);
-=20
- 	/* the watchdog is single open! */
--	if (test_and_set_bit(WDOG_DEV_OPEN, &wdd->status))
-+	if (test_and_set_bit(WDOG_DEV_OPEN, &wdd->status) ||
-+	    watchdog_autostarted(wdd))
- 		return -EBUSY;
-=20
- 	/*
-@@ -550,7 +617,21 @@ int watchdog_dev_register(struct watchdog_device *wa=
-tchdog)
- 			misc_deregister(&watchdog_miscdev);
- 			old_wdd =3D NULL;
- 		}
-+		return err;
-+	}
-+
-+	/* Activate the watchdog automatically by the driver itself */
-+	if (watchdog->info->options & WDIOF_AUTOSTART) {
-+		err =3D watchdog_auto_start(watchdog);
-+		if (err) {
-+			cdev_del(&watchdog->cdev);
-+			if (watchdog->id =3D=3D 0) {
-+				misc_deregister(&watchdog_miscdev);
-+				old_wdd =3D NULL;
-+			}
-+		}
- 	}
-+
- 	return err;
- }
-=20
-@@ -563,6 +644,9 @@ int watchdog_dev_register(struct watchdog_device *wat=
-chdog)
-=20
- int watchdog_dev_unregister(struct watchdog_device *watchdog)
- {
-+	if (watchdog_autostarted(watchdog))
-+		cancel_delayed_work_sync(&watchdog->work);
-+
- 	mutex_lock(&watchdog->lock);
- 	set_bit(WDOG_UNREGISTERED, &watchdog->status);
- 	mutex_unlock(&watchdog->lock);
-diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
-index 2a3038e..4b7478a 100644
---- a/include/linux/watchdog.h
-+++ b/include/linux/watchdog.h
-@@ -62,6 +62,9 @@ struct watchdog_ops {
-  * @timeout:	The watchdog devices timeout value.
-  * @min_timeout:The watchdog devices minimum timeout value.
-  * @max_timeout:The watchdog devices maximum timeout value.
-+ * @ping_period:Period time for watchdog ping. Unit is millisecond.
-+ *		Only valid with WDIOF_AUTOSTART.
-+ * @work:       Workqueue for handling auto ping
-  * @driver-data:Pointer to the drivers private data.
-  * @lock:	Lock for watchdog core internal use only.
-  * @status:	Field that contains the devices internal status bits.
-@@ -86,6 +89,8 @@ struct watchdog_device {
- 	unsigned int timeout;
- 	unsigned int min_timeout;
- 	unsigned int max_timeout;
-+	unsigned int ping_period;
-+	struct delayed_work work;
- 	void *driver_data;
- 	struct mutex lock;
- 	unsigned long status;
-@@ -95,6 +100,7 @@ struct watchdog_device {
- #define WDOG_ALLOW_RELEASE	2	/* Did we receive the magic char ? */
- #define WDOG_NO_WAY_OUT		3	/* Is 'nowayout' feature set ? */
- #define WDOG_UNREGISTERED	4	/* Has the device been unregistered */
-+#define WDOG_AUTOSTARTED	5	/* Started and kicked automatically */
- };
-=20
- #ifdef CONFIG_WATCHDOG_NOWAYOUT
-diff --git a/include/uapi/linux/watchdog.h b/include/uapi/linux/watchdog.=
-h
-index 2babe72..9095ec8 100644
---- a/include/uapi/linux/watchdog.h
-+++ b/include/uapi/linux/watchdog.h
-@@ -47,6 +47,7 @@ struct watchdog_info {
- #define	WDIOF_PRETIMEOUT	0x0200  /* Pretimeout (in seconds), get/set */
- #define	WDIOF_ALARMONLY		0x0400	/* Watchdog triggers a management or
- 					   other external alarm not a reboot */
-+#define	WDIOF_AUTOSTART		0x1000	/* Start and ping automatically */
- #define	WDIOF_KEEPALIVEPING	0x8000	/* Keep alive ping reply */
-=20
- #define	WDIOS_DISABLECARD	0x0001	/* Turn off the watchdog timer */
---=20
-1.7.9.5
+The chip is connected to the CPU through a serial IRQ line and IRQs
+are managed through the (A)PIC which is configured by the
+firmware. I never saw a difference between Linux and HW IRQ numbers
+for the legacy IRQs (0-15) this chip generates. But I will take
+another look at the IRQ handling of this driver.
 
+> > +static int kempld_gpio_setup_event(struct kempld_gpio_data *gpio)
+> > +{
+> > +       struct kempld_device_data *pld = gpio->pld;
+> > +       struct gpio_chip *chip = &gpio->chip;
+> > +       int irq;
+> > +
+> > +       irq = gpio->irq;
+> > +
+> > +       kempld_get_mutex_set_index(pld, KEMPLD_IRQ_GPIO);
+> > +       irq = kempld_read8(pld, KEMPLD_IRQ_GPIO);
+> > +
+> > +       /* Leave if interrupts are not supported by the GPIO core */
+> > +       if ((irq & 0xf0) == 0xf0)
+> > +               return 0;
+> > +
+> > +       gpio->irq = irq & 0x0f;  
+> 
+> So you read the IRQ from some plug-n-play here, and it's some
+> system-wide IRQ number?  
 
-Best Regards,
-Milo
+Correct.
 
+> (...)  
+> > +       if (gpio->irq)
+> > +               chip->to_irq =          kempld_gpio_to_irq;  
+> 
+> So that is this mystery with the IRQs and how they turn into
+> Linux IRQs.
+>   
+> > +module_param(gpiobase, int, 0444);  
+> 
+> Why do you need to be able to configure this?
+> It must be a real usecase, debugging can be done by patching
+> the code.  
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+This was intended to help developing userspace applications or scripts.
+For this parameter I had in mind that one configures a static
+GPIO base and then maps the GPIOs with the help of the sysfs interface
+without the need to first find out which is the actual GPIO base. If you think this shouldn't be done this way I won't insist
+to keep this parameter.
+
+> > +module_param(gpioien, int, 0444);
+> > +module_param(gpioevt_lvl_edge, int, 0444);
+> > +module_param(gpioevt_low_high, int, 0444);
+> > +module_param(gpionmien, int, 0444);  
+> 
+> Argh how can anyone possibly make this out ... do you really
+> need them or can we get rid of some and rely on autodetect?  
+
+As the chip sits on a computer module that is usually only configured
+generically, it is not possible to auto detect the needed configuration.
+Those parameters are intended to let the developer configure the chip
+without having to touch the driver code.
+You are right anyway, doing it this way might not be the best way. So if
+there is a good way to configure this stuff at runtime by using a
+generic interface I would also prefer this.
+
+> > +MODULE_DESCRIPTION("KEM PLD GPIO Driver");
+> > +MODULE_AUTHOR("Michael Brunner <michael.brunner@kontron.com>");
+> > +MODULE_LICENSE("GPL");
+> > +MODULE_ALIAS("platform:kempld_gpio");
+> > +MODULE_PARM_DESC(gpiobase, "Set GPIO base (default -1=dynamic)");
+> > +MODULE_PARM_DESC(gpioien, "Set GPIO IEN register (default 0x00)");
+> > +MODULE_PARM_DESC(gpioevt_lvl_edge,
+> > +                       "Set GPIO EVT_LVL_EDGE register (default
+> > -1=no change)"); +MODULE_PARM_DESC(gpioevt_low_high,
+> > +                       "Set GPIO EVT_LOW_HIGH register (default
+> > -1=no change)"); +MODULE_PARM_DESC(gpionmien, "Set GPIO NMIEN
+> > register (default 0x00)");  
+> 
+> 
+> So I don't really like that interrupt enablement and edge and low/high
+> is done with module parameters instead of just creating an irqchip and
+> have it implement the operations to do exactly these things at runtime
+> instead.
+> 
+> Again maybe some x86 thing I don't get...  
+
+Possibly not. I am not very familiar with irqchip so far, therefore I
+will have a look at it and check if the whole IRQ handling can be
+ported to this framework.
+
+> > diff --git a/drivers/gpio/gpio-kempld.h
+> > b/drivers/gpio/gpio-kempld.h  
+> (...)  
+> > +struct kempld_gpio_data {
+> > +       struct gpio_chip                chip;
+> > +       int                             irq;
+> > +       struct kempld_device_data       *pld;
+> > +       uint16_t                        mask;  
+> 
+> Just u16?  
+
+The specification allows 16 GPIOs for this device, therefore this seems
+to be the right size. Would it be better to use another type instead?
+
+> > +};  
+> 
+> (...)  
+> > diff --git a/drivers/gpio/gpio-kempld_now1.c
+> > b/drivers/gpio/gpio-kempld_now1.c +#include <linux/io.h>  
+> 
+> Do you use this?  
+
+This can be removed.
+
+> > +#include <linux/slab.h>
+> > +#include <linux/errno.h>
+> > +#include <linux/acpi.h>  
+> 
+> And this?  
+
+linux/slab.h is necessary for kzalloc, but the rest can be removed.
+
+> > +#include <linux/platform_device.h>
+> > +#include <linux/gpio.h>
+> > +#include <linux/mfd/kempld.h>
+> > +#include <linux/seq_file.h>
+> > +
+> > +#include "gpio-kempld.h"  
+> (...)  
+> > +  
+> 
+> Most comments concern the other driver too.
+> 
+> Yours,
+> Linus Walleij  
+
+Thank you for the review!
+
+Best regards,
+  Michael
