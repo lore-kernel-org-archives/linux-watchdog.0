@@ -1,49 +1,62 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:56275 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751397Ab3DNMU1 (ORCPT
+Received: from bear.ext.ti.com ([192.94.94.41]:56973 "EHLO bear.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752366Ab3DOAnn convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 14 Apr 2013 08:20:27 -0400
-Date: Sun, 14 Apr 2013 05:20:40 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>
-Subject: Re: [GIT PULL REQUEST] watchdog - v3.9-rc6 Fixes
-Message-ID: <20130414122040.GA16009@roeck-us.net>
-References: <20130414071702.GH14155@spo001.leaseweb.com>
+	Sun, 14 Apr 2013 20:43:43 -0400
+From: "Kim, Milo" <Milo.Kim@ti.com>
+To: Guenter Roeck <linux@roeck-us.net>
+CC: "wim@iguana.be" <wim@iguana.be>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH 1/2] watchdog: introduce new watchdog AUTOSTART option
+Date: Mon, 15 Apr 2013 00:43:31 +0000
+Message-ID: <A874F61F95741C4A9BA573A70FE3998F82E4BD12@DQHE02.ent.ti.com>
+References: <A874F61F95741C4A9BA573A70FE3998F82E4BBC2@DQHE02.ent.ti.com>
+ <20130412151826.GC28704@roeck-us.net>
+In-Reply-To: <20130412151826.GC28704@roeck-us.net>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20130414071702.GH14155@spo001.leaseweb.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-On Sun, Apr 14, 2013 at 09:17:03AM +0200, Wim Van Sebroeck wrote:
-> Hi Linus,
-> 
-> Please pull from 'master' branch of
-> 	git://www.linux-watchdog.org/linux-watchdog.git
-> 
-> It will fix compile errors for teh at91rm9200_wdt driver.
-> 
-> This will update the following files:
-> 
->  Kconfig |    2 +-
->  1 files changed, 1 insertion(+), 1 deletion(-)
-> 
-> with these Changes:
-> 
-> commit 09549cd01726a7ff8b102a93e46b059531583ab6
-> Author: Nicolas Ferre <nicolas.ferre@atmel.com>
-> Date:   Wed Apr 10 14:36:22 2013 +0200
-> 
-Hi Wim,
+Hi Guenter
 
-What is your take on "watchdog: Fix race condition in registration code" [1] ?
+> I really don't like that idea. It defeats a significant part of the
+> purpose
+> for having a watchdog, which is to prevent user-space hangups.
+>=20
+> To make this a driver option is even more odd - it forces every user of
+> this
+> driver to use it in-kernel only, and makes /dev/watchdog quite useless.
+>=20
+> I mean, really, if you have such a watchdog, what is the point of using
+> the
+> watchdog infrastructure in the first place ? Just make it a kernel
+> thread or
+> timer-activated platform code which pings your watchdog once in a while=
+.
+> No
+> need to get the watchdog infrastructure involved in the first place.
+>=20
+> Am I missing something ?
 
-Thanks,
-Guenter
+I wanted to enable the watchdog timer without the watchdog application fo=
+r
+making sure the system alive.
+However, I think I misunderstood the purpose of the watchdog driver.
+The watchdog is for detecting user-space hangups rather than kernel stall=
+.
+Is it correct? If yes, this patch is totally wrong.
 
-[1] http://www.spinics.net/lists/linux-watchdog/msg02291.html,
-    https://patchwork.kernel.org/patch/2400801/
+Thanks!
+
+Milo
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
