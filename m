@@ -1,54 +1,70 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:42974 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1755930Ab3DOSkr (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 15 Apr 2013 14:40:47 -0400
-Date: Mon, 15 Apr 2013 20:40:45 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
+Received: from mx1.redhat.com ([209.132.183.28]:20089 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932162Ab3DOUzR (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 15 Apr 2013 16:55:17 -0400
+Date: Mon, 15 Apr 2013 16:55:04 -0400
+From: Don Zickus <dzickus@redhat.com>
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>
-Subject: Re: [GIT PULL REQUEST] watchdog - v3.9-rc6 Fixes
-Message-ID: <20130415184045.GI14155@spo001.leaseweb.com>
-References: <20130414071702.GH14155@spo001.leaseweb.com> <20130414122040.GA16009@roeck-us.net>
-Mime-Version: 1.0
+Cc: Dave Young <dyoung@redhat.com>, linux-watchdog@vger.kernel.org,
+	kexec@lists.infradead.org, wim@iguana.be,
+	LKML <linux-kernel@vger.kernel.org>, vgoyal@redhat.com
+Subject: Re: [RFC PATCH] watchdog: Add hook for kicking in kdump path
+Message-ID: <20130415205504.GQ79013@redhat.com>
+References: <20130409144431.GL79013@redhat.com>
+ <20130409145228.GA1111@roeck-us.net>
+ <20130409151423.GM79013@redhat.com>
+ <20130409160757.GA27050@roeck-us.net>
+ <20130410134039.GV79013@redhat.com>
+ <20130410135123.GB15456@roeck-us.net>
+ <20130410142055.GW79013@redhat.com>
+ <20130410151041.GA6670@roeck-us.net>
+ <20130412211627.GM79013@redhat.com>
+ <20130412213024.GA5812@roeck-us.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20130414122040.GA16009@roeck-us.net>
+In-Reply-To: <20130412213024.GA5812@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Guenter,
+On Fri, Apr 12, 2013 at 02:30:24PM -0700, Guenter Roeck wrote:
+> On Fri, Apr 12, 2013 at 05:16:27PM -0400, Don Zickus wrote:
+> > On Wed, Apr 10, 2013 at 08:10:41AM -0700, Guenter Roeck wrote:
+> > > > have no idea how to even find out if multiple watchdogs are open on the
+> > > > system.  Is there a list I could walk?  And with regard to 'watchdog is
+> > > 
+> > > /* the dev_t structure to store the dynamically allocated watchdog devices */
+> > > static dev_t watchdog_devt;
+> > > 
+> > > One way to look up the allocated watchdogs might be to loop through all kobj
+> > > instances for the major device using kobj_lookup. Don't know if there is a
+> > > better way.
+> > 
+> > Hmm, I got around to poking at this today and I am not sure kobj_lookup
+> > will work.  Besides being surrounded with another mutex, I don't have
+> > access to the character device domain to pass to kobj_lookup.
+> > 
+> > Perhaps I am not reading the code right, but I can't find a good way
+> > forward.
+> > 
+> > The only other hack I can think of, is to embed a list object in the
+> > watchdog structure and list_add each new register'd watchdog.  Then it
+> > would be trivial to walk the watchdog list.
+> > 
+> After looking into it again, I agree. Maybe you can give it a try. At least
+> other options look even more complicated (eg creating a watchdog class ?).
 
-> > Please pull from 'master' branch of
-> > 	git://www.linux-watchdog.org/linux-watchdog.git
-> > 
-> > It will fix compile errors for teh at91rm9200_wdt driver.
-> > 
-> > This will update the following files:
-> > 
-> >  Kconfig |    2 +-
-> >  1 files changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > with these Changes:
-> > 
-> > commit 09549cd01726a7ff8b102a93e46b059531583ab6
-> > Author: Nicolas Ferre <nicolas.ferre@atmel.com>
-> > Date:   Wed Apr 10 14:36:22 2013 +0200
-> > 
-> Hi Wim,
-> 
-> What is your take on "watchdog: Fix race condition in registration code" [1] ?
-> 
-> Thanks,
-> Guenter
-> 
-> [1] http://www.spinics.net/lists/linux-watchdog/msg02291.html,
->     https://patchwork.kernel.org/patch/2400801/
+I looked at the watchdog class in watchdog_core.c.  Even implemented
+class_for_each_device.  But got stuck trying to figure out how to go from
+a struct device *dev to a struct watchdog_device.  Then I realized in the
+bowels of class_for_each_device were spinlocks. :-(
 
-Patch is the correct fix. I'll apply it later on.
+So I implemented an RCU list.  It isn't the prettiest solution but it
+seems to work.
 
-Kind regards,
-Wim.
+I posted a V2 and realized I forgot to cc you on it.  I apologize for
+that. :-(  I hope you can find it, otherwise I can post a pointer to it.
 
+Cheers,
+Don
