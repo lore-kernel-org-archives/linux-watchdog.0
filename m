@@ -1,56 +1,54 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:59092 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932601Ab3DOCG0 (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:42974 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1755930Ab3DOSkr (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 14 Apr 2013 22:06:26 -0400
-Date: Sun, 14 Apr 2013 19:06:42 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: "Kim, Milo" <Milo.Kim@ti.com>
-Cc: "wim@iguana.be" <wim@iguana.be>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/2] watchdog: introduce new watchdog AUTOSTART option
-Message-ID: <20130415020642.GA29589@roeck-us.net>
-References: <A874F61F95741C4A9BA573A70FE3998F82E4BBC2@DQHE02.ent.ti.com>
- <20130412151826.GC28704@roeck-us.net>
- <A874F61F95741C4A9BA573A70FE3998F82E4BD12@DQHE02.ent.ti.com>
-MIME-Version: 1.0
+	Mon, 15 Apr 2013 14:40:47 -0400
+Date: Mon, 15 Apr 2013 20:40:45 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>
+Subject: Re: [GIT PULL REQUEST] watchdog - v3.9-rc6 Fixes
+Message-ID: <20130415184045.GI14155@spo001.leaseweb.com>
+References: <20130414071702.GH14155@spo001.leaseweb.com> <20130414122040.GA16009@roeck-us.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <A874F61F95741C4A9BA573A70FE3998F82E4BD12@DQHE02.ent.ti.com>
+In-Reply-To: <20130414122040.GA16009@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Apr 15, 2013 at 12:43:31AM +0000, Kim, Milo wrote:
-> Hi Guenter
-> 
-> > I really don't like that idea. It defeats a significant part of the
-> > purpose
-> > for having a watchdog, which is to prevent user-space hangups.
-> > 
-> > To make this a driver option is even more odd - it forces every user of
-> > this
-> > driver to use it in-kernel only, and makes /dev/watchdog quite useless.
-> > 
-> > I mean, really, if you have such a watchdog, what is the point of using
-> > the
-> > watchdog infrastructure in the first place ? Just make it a kernel
-> > thread or
-> > timer-activated platform code which pings your watchdog once in a while.
-> > No
-> > need to get the watchdog infrastructure involved in the first place.
-> > 
-> > Am I missing something ?
-> 
-> I wanted to enable the watchdog timer without the watchdog application for
-> making sure the system alive.
-> However, I think I misunderstood the purpose of the watchdog driver.
-> The watchdog is for detecting user-space hangups rather than kernel stall.
-> Is it correct? If yes, this patch is totally wrong.
-> 
-Correct. After all, if the kernel stalls, user space will stall as well, so by
-covering user space it covers both. Covering kernel alone doesn't help much,
-since most of the stalls (at least in my experience) happen in user space.
+Hi Guenter,
 
-Guenter
+> > Please pull from 'master' branch of
+> > 	git://www.linux-watchdog.org/linux-watchdog.git
+> > 
+> > It will fix compile errors for teh at91rm9200_wdt driver.
+> > 
+> > This will update the following files:
+> > 
+> >  Kconfig |    2 +-
+> >  1 files changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > with these Changes:
+> > 
+> > commit 09549cd01726a7ff8b102a93e46b059531583ab6
+> > Author: Nicolas Ferre <nicolas.ferre@atmel.com>
+> > Date:   Wed Apr 10 14:36:22 2013 +0200
+> > 
+> Hi Wim,
+> 
+> What is your take on "watchdog: Fix race condition in registration code" [1] ?
+> 
+> Thanks,
+> Guenter
+> 
+> [1] http://www.spinics.net/lists/linux-watchdog/msg02291.html,
+>     https://patchwork.kernel.org/patch/2400801/
+
+Patch is the correct fix. I'll apply it later on.
+
+Kind regards,
+Wim.
+
