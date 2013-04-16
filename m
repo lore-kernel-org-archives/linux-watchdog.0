@@ -1,75 +1,60 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:60935 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754328Ab3DOWuL (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 15 Apr 2013 18:50:11 -0400
-Date: Mon, 15 Apr 2013 15:50:27 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Don Zickus <dzickus@redhat.com>
-Cc: Dave Young <dyoung@redhat.com>, linux-watchdog@vger.kernel.org,
-	kexec@lists.infradead.org, wim@iguana.be,
-	LKML <linux-kernel@vger.kernel.org>, vgoyal@redhat.com
-Subject: Re: [RFC PATCH] watchdog: Add hook for kicking in kdump path
-Message-ID: <20130415225027.GB11485@roeck-us.net>
-References: <20130409145228.GA1111@roeck-us.net>
- <20130409151423.GM79013@redhat.com>
- <20130409160757.GA27050@roeck-us.net>
- <20130410134039.GV79013@redhat.com>
- <20130410135123.GB15456@roeck-us.net>
- <20130410142055.GW79013@redhat.com>
- <20130410151041.GA6670@roeck-us.net>
- <20130412211627.GM79013@redhat.com>
- <20130412213024.GA5812@roeck-us.net>
- <20130415205504.GQ79013@redhat.com>
+Received: from sauhun.de ([89.238.76.85]:57694 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757379Ab3DPJxk (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 16 Apr 2013 05:53:40 -0400
+Date: Tue, 16 Apr 2013 11:53:09 +0200
+From: Wolfram Sang <wsa@the-dreams.de>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Kevin Strasser <kevin.strasser@linux.intel.com>,
+	linux-kernel@vger.kernel.org,
+	Michael Brunner <michael.brunner@kontron.com>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Ben Dooks <ben-linux@fluff.org>, linux-i2c@vger.kernel.org,
+	Grant Likely <grant.likely@secretlab.ca>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org,
+	Darren Hart <dvhart@linux.intel.com>,
+	Michael Brunner <mibru@gmx.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 2/4] i2c: Kontron PLD i2c bus driver
+Message-ID: <20130416095309.GD16978@the-dreams.de>
+References: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com>
+ <1365441321-21952-2-git-send-email-kevin.strasser@linux.intel.com>
+ <20130410170212.GB19533@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20130415205504.GQ79013@redhat.com>
+In-Reply-To: <20130410170212.GB19533@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Apr 15, 2013 at 04:55:04PM -0400, Don Zickus wrote:
-> On Fri, Apr 12, 2013 at 02:30:24PM -0700, Guenter Roeck wrote:
-> > On Fri, Apr 12, 2013 at 05:16:27PM -0400, Don Zickus wrote:
-> > > On Wed, Apr 10, 2013 at 08:10:41AM -0700, Guenter Roeck wrote:
-> > > > > have no idea how to even find out if multiple watchdogs are open on the
-> > > > > system.  Is there a list I could walk?  And with regard to 'watchdog is
-> > > > 
-> > > > /* the dev_t structure to store the dynamically allocated watchdog devices */
-> > > > static dev_t watchdog_devt;
-> > > > 
-> > > > One way to look up the allocated watchdogs might be to loop through all kobj
-> > > > instances for the major device using kobj_lookup. Don't know if there is a
-> > > > better way.
-> > > 
-> > > Hmm, I got around to poking at this today and I am not sure kobj_lookup
-> > > will work.  Besides being surrounded with another mutex, I don't have
-> > > access to the character device domain to pass to kobj_lookup.
-> > > 
-> > > Perhaps I am not reading the code right, but I can't find a good way
-> > > forward.
-> > > 
-> > > The only other hack I can think of, is to embed a list object in the
-> > > watchdog structure and list_add each new register'd watchdog.  Then it
-> > > would be trivial to walk the watchdog list.
-> > > 
-> > After looking into it again, I agree. Maybe you can give it a try. At least
-> > other options look even more complicated (eg creating a watchdog class ?).
+On Wed, Apr 10, 2013 at 10:02:12AM -0700, Guenter Roeck wrote:
+> On Mon, Apr 08, 2013 at 10:15:19AM -0700, Kevin Strasser wrote:
+> > From: Michael Brunner <michael.brunner@kontron.com>
+> > 
+> > Add i2c support for the on-board PLD found on some Kontron embedded
+> > modules.
+> > 
+> > Signed-off-by: Michael Brunner <michael.brunner@kontron.com>
+> > Signed-off-by: Kevin Strasser <kevin.strasser@linux.intel.com>
 > 
-> I looked at the watchdog class in watchdog_core.c.  Even implemented
-> class_for_each_device.  But got stuck trying to figure out how to go from
-> a struct device *dev to a struct watchdog_device.  Then I realized in the
-> bowels of class_for_each_device were spinlocks. :-(
+> Overall well written, though I have a couple of nitpicks.
 > 
-> So I implemented an RCU list.  It isn't the prettiest solution but it
-> seems to work.
+> I would prefer two separate drivers, one for the mux and one for the i2c bus.
+> If that is possible, it would help getting rid of the #ifdef in the code, which
+> is frowned upon in the kernel.
 > 
-> I posted a V2 and realized I forgot to cc you on it.  I apologize for
-> that. :-(  I hope you can find it, otherwise I can post a pointer to it.
+> I dislike unnecessary ( ). Maintainer's call, though.
 > 
-Where did you submit it ? I am subscribed to the watchdog mailing list, but I
-didn't see it.
+> Couple of places have missing spaces around operators (checkpatch doesn't catch
+> all those).
+> 
+> As far as I know, devm_ functions are supposed to print an error message on
+> failure, so it should be unnecessary to print another one if that happens (this
+> might need some confirmation).
 
-Thanks,
-Guenter
+Haven't done a full review due to tglx NACK. I agree to the points
+mentioned here by Guenter, though.
+
