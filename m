@@ -1,72 +1,65 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:62709 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751245Ab3DRSjl (ORCPT
+Received: from eu1sys200aog119.obsmtp.com ([207.126.144.147]:53203 "EHLO
+	eu1sys200aog119.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755989Ab3DVJzj (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 18 Apr 2013 14:39:41 -0400
-Date: Thu, 18 Apr 2013 11:40:03 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Joe Perches <joe@perches.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-	Kevin Strasser <kevin.strasser@linux.intel.com>,
-	linux-kernel@vger.kernel.org,
-	Michael Brunner <michael.brunner@kontron.com>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Wolfram Sang <wsa@the-dreams.de>,
-	Ben Dooks <ben-linux@fluff.org>, linux-i2c@vger.kernel.org,
-	Grant Likely <grant.likely@secretlab.ca>,
-	Linus Walleij <linus.walleij@linaro.org>,
+	Mon, 22 Apr 2013 05:55:39 -0400
+From: Linus Walleij <linus.walleij@stericsson.com>
+To: <linux-arm-kernel@lists.infradead.org>,
 	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org,
-	Darren Hart <dvhart@linux.intel.com>,
-	Michael Brunner <mibru@gmx.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 1/4] mfd: Kontron PLD mfd driver
-Message-ID: <20130418184003.GA8251@roeck-us.net>
-References: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com>
- <alpine.LFD.2.02.1304132152320.21884@ionos>
- <20130418041940.GB7535@roeck-us.net>
- <1366260053.28609.66.camel@joe-AO722>
- <20130418133555.GA2767@roeck-us.net>
- <1366303337.2119.22.camel@joe-AO722>
+	<linux-watchdog@vger.kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	<devicetree-discuss@lists.ozlabs.org>,
+	Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 10/23] ARM: u300: add the COH 901 327 watchdog to device tree
+Date: Mon, 22 Apr 2013 11:55:18 +0200
+Message-ID: <1366624518-6471-1-git-send-email-linus.walleij@stericsson.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1366303337.2119.22.camel@joe-AO722>
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Apr 18, 2013 at 09:42:17AM -0700, Joe Perches wrote:
-> On Thu, 2013-04-18 at 06:35 -0700, Guenter Roeck wrote:
-> > On Wed, Apr 17, 2013 at 09:40:53PM -0700, Joe Perches wrote:
-> > > On Wed, 2013-04-17 at 21:19 -0700, Guenter Roeck wrote:
-> > > > On Sat, Apr 13, 2013 at 10:38:07PM +0200, Thomas Gleixner wrote:
-> > > > > > + return kempld_read8(pld, index) | kempld_read8(pld, index+1) << 8;
-> > > > >                                                         index + 1)
-> > > > > Please
-> > > > Wondering .... why does checkpatch not report those ?
-> > > 
-> > > because checkpatch doesn't care about spacing around
-> > > arithmetic as long as it's consistent.
-> > > 
-> > > Documentation/CodingStyle doesn't say anything about
-> > > it either.
-> > > 
-> > Hi Joe,
-> > 
-> > "Use one space around (on each side of) most binary and ternary operators"
-> > 
-> > doesn't apply, then ? When does it apply ? I always thought it would apply
-> > to cases such as the above.
-> 
-> There's a _lot_ of code that doesn't follow the
-> "single space around binary operators" style,
-> it's contentious, and was determined when Andy
-> did the original checkpatch implementation to not
-> be a valuable addition or worth the complaint pain.
-> 
-Looks like it is contentious either way.
+From: Linus Walleij <linus.walleij@linaro.org>
 
-Thanks a lot for the clarification.
+This adds the COH 901 327 watchdog to the U300 device tree.
 
-Guenter
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ arch/arm/boot/dts/ste-u300.dts | 7 +++++++
+ arch/arm/mach-u300/core.c      | 2 ++
+ 2 files changed, 9 insertions(+)
+
+diff --git a/arch/arm/boot/dts/ste-u300.dts b/arch/arm/boot/dts/ste-u300.dts
+index 9c08d5e..b1b63bb 100644
+--- a/arch/arm/boot/dts/ste-u300.dts
++++ b/arch/arm/boot/dts/ste-u300.dts
+@@ -49,6 +49,13 @@
+ 		reg = <0xc0011000 0x1000>;
+ 	};
+ 
++	watchdog: watchdog@c0012000 {
++		compatible = "stericsson,coh901327";
++		reg = <0xc0012000 0x1000>;
++		interrupt-parent = <&vicb>;
++		interrupts = <3>;
++	};
++
+ 	i2c0: i2c@c0004000 {
+ 		compatible = "st,ddci2c";
+ 		reg = <0xc0004000 0x1000>;
+diff --git a/arch/arm/mach-u300/core.c b/arch/arm/mach-u300/core.c
+index fedad38..f97b65c 100644
+--- a/arch/arm/mach-u300/core.c
++++ b/arch/arm/mach-u300/core.c
+@@ -709,6 +709,8 @@ static struct of_dev_auxdata u300_auxdata_lookup[] __initdata = {
+ 		"pinctrl-u300", NULL),
+ 	OF_DEV_AUXDATA("stericsson,gpio-coh901", U300_GPIO_BASE,
+ 		"u300-gpio", &u300_gpio_plat),
++	OF_DEV_AUXDATA("stericsson,coh901327", U300_WDOG_BASE,
++		"coh901327_wdog", NULL),
+ 	OF_DEV_AUXDATA("arm,primecell", U300_UART0_BASE,
+ 		"uart0", &uart0_plat_data),
+ 	OF_DEV_AUXDATA("arm,primecell", U300_UART1_BASE,
+-- 
+1.7.11.3
+
