@@ -1,16 +1,17 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailout1.samsung.com ([203.254.224.24]:23432 "EHLO
+Received: from mailout1.samsung.com ([203.254.224.24]:24915 "EHLO
 	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752091Ab3D2JQw (ORCPT
+	with ESMTP id S1753464Ab3D2J0O (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 29 Apr 2013 05:16:52 -0400
+	Mon, 29 Apr 2013 05:26:14 -0400
 From: Jingoo Han <jg1.han@samsung.com>
 To: 'Andrew Morton' <akpm@linux-foundation.org>
 Cc: linux-kernel@vger.kernel.org, 'Wim Van Sebroeck' <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org, Jingoo Han <jg1.han@samsung.com>
-Subject: [PATCH RESEND 5/5] watchdog: sp805_wdt: use devm_clk_get()
-Date: Mon, 29 Apr 2013 18:16:49 +0900
-Message-id: <000601ce44ba$47b62bd0$d7228370$@samsung.com>
+	linux-watchdog@vger.kernel.org, 'Jingoo Han' <jg1.han@samsung.com>
+Subject: [PATCH RESEND 1/2] watchdog: s3c2410_wdt: use dev_err()/dev_info()
+ instead of pr_err()/pr_info()
+Date: Mon, 29 Apr 2013 18:26:12 +0900
+Message-id: <000701ce44bb$96f4ecd0$c4dec670$@samsung.com>
 MIME-version: 1.0
 Content-type: text/plain; charset=us-ascii
 Content-transfer-encoding: 7bit
@@ -18,51 +19,35 @@ Content-language: ko
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Use devm_clk_get() to make cleanup paths more simple.
+dev_err()/dev_info() are more preferred than pr_err()/pr_info().
 
 Signed-off-by: Jingoo Han <jg1.han@samsung.com>
 ---
- drivers/watchdog/sp805_wdt.c |    7 ++-----
- 1 files changed, 2 insertions(+), 5 deletions(-)
+ drivers/watchdog/s3c2410_wdt.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
-index 8872642..58df98a 100644
---- a/drivers/watchdog/sp805_wdt.c
-+++ b/drivers/watchdog/sp805_wdt.c
-@@ -231,7 +231,7 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
- 		goto err;
+diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+index ee03135..c9f480d 100644
+--- a/drivers/watchdog/s3c2410_wdt.c
++++ b/drivers/watchdog/s3c2410_wdt.c
+@@ -349,7 +349,7 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ 
+ 	ret = s3c2410wdt_cpufreq_register();
+ 	if (ret < 0) {
+-		pr_err("failed to register cpufreq\n");
++		dev_err(dev, "failed to register cpufreq\n");
+ 		goto err_clk;
  	}
  
--	wdt->clk = clk_get(&adev->dev, NULL);
-+	wdt->clk = devm_clk_get(&adev->dev, NULL);
- 	if (IS_ERR(wdt->clk)) {
- 		dev_warn(&adev->dev, "Clock not found\n");
- 		ret = PTR_ERR(wdt->clk);
-@@ -251,15 +251,13 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
- 	if (ret) {
- 		dev_err(&adev->dev, "watchdog_register_device() failed: %d\n",
- 				ret);
--		goto err_register;
-+		goto err;
- 	}
- 	amba_set_drvdata(adev, wdt);
+@@ -464,7 +464,7 @@ static int s3c2410wdt_resume(struct platform_device *dev)
+ 	writel(wtdat_save, wdt_base + S3C2410_WTCNT); /* Reset count */
+ 	writel(wtcon_save, wdt_base + S3C2410_WTCON);
  
- 	dev_info(&adev->dev, "registration successful\n");
- 	return 0;
- 
--err_register:
--	clk_put(wdt->clk);
- err:
- 	dev_err(&adev->dev, "Probe Failed!!!\n");
- 	return ret;
-@@ -272,7 +270,6 @@ static int sp805_wdt_remove(struct amba_device *adev)
- 	watchdog_unregister_device(&wdt->wdd);
- 	amba_set_drvdata(adev, NULL);
- 	watchdog_set_drvdata(&wdt->wdd, NULL);
--	clk_put(wdt->clk);
+-	pr_info("watchdog %sabled\n",
++	dev_info(&dev->dev, "watchdog %sabled\n",
+ 		(wtcon_save & S3C2410_WTCON_ENABLE) ? "en" : "dis");
  
  	return 0;
- }
 -- 
 1.7.2.5
 
