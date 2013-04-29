@@ -1,61 +1,68 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:59083 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757000Ab3DXPVM (ORCPT
+Received: from mailout2.samsung.com ([203.254.224.25]:20868 "EHLO
+	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751639Ab3D2JPe (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 24 Apr 2013 11:21:12 -0400
-Date: Wed, 24 Apr 2013 08:21:42 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Don Zickus <dzickus@redhat.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-	linux-watchdog@vger.kernel.org, kexec@lists.infradead.org,
-	wim@iguana.be, LKML <linux-kernel@vger.kernel.org>,
-	vgoyal@redhat.com, dyoung@redhat.com
-Subject: Re: [PATCH v3] watchdog: Add hook for kicking in kdump path
-Message-ID: <20130424152142.GA26864@roeck-us.net>
-References: <1366233596-34681-1-git-send-email-dzickus@redhat.com>
- <87li8gaku0.fsf@xmission.com>
- <20130418130009.GH79013@redhat.com>
- <20130418134904.GC2767@roeck-us.net>
- <20130418135257.GL79013@redhat.com>
- <20130418145413.GA1980@roeck-us.net>
- <20130424144226.GI79013@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20130424144226.GI79013@redhat.com>
+	Mon, 29 Apr 2013 05:15:34 -0400
+From: Jingoo Han <jg1.han@samsung.com>
+To: 'Andrew Morton' <akpm@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, 'Wim Van Sebroeck' <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org, Jingoo Han <jg1.han@samsung.com>
+Subject: [PATCH RESEND 1/5] watchdog: dw_wdt: use devm_clk_get()
+Date: Mon, 29 Apr 2013 18:15:26 +0900
+Message-id: <000201ce44ba$160fc0a0$422f41e0$@samsung.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-language: ko
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Apr 24, 2013 at 10:42:26AM -0400, Don Zickus wrote:
-> On Thu, Apr 18, 2013 at 07:54:13AM -0700, Guenter Roeck wrote:
-> > > No, that will probably work.  It is my misunderstanding.  Is there a
-> > > common way to check the timeout length and the ping frequency?
-> > > 
-> > Usually it is configured in /etc/watchdog.conf if the watchdog package
-> > is installed. The standard ping interval is "interval", the timeout is
-> > "watchdog-timeout". See "man watchdog.conf" for details.
-> > 
-> > Minimum and maximum values for a given watchdog driver are not exported
-> > to user space, so you would have to look into the driver sources to find
-> > out what they are.
-> 
-> Hi Guenter,
-> 
-> Is there an easy way to determine which driver is loaded for each
-> /dev/watchdogN device (from a script perspective).
-> 
-> Basically, I wanted to determine the module that needs to be included in
-> the kdump initrd image.
-> 
-Sometimes. For example, the iTCO_wdt driver has an entry in /sys/devices, and
-/sys/class/watchdog/watchdogX/device points to it. That is not always the case,
-howewver. In my system, for example, the MEI watchdog is active, but there is
-nothing I can find that would give me an indication that /dev/watchdog0 actually
-points to the MEI watchdog driver.
+Use devm_clk_get() to make cleanup paths more simple.
 
-Of course I might be missing something, and there might be some other means
-to identify the driver from userspace. Would be great, actually, as I am having
-the same problem.
+Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+---
+ drivers/watchdog/dw_wdt.c |    7 ++-----
+ 1 files changed, 2 insertions(+), 5 deletions(-)
 
-Guenter
+diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+index 2037669..2e70fd0 100644
+--- a/drivers/watchdog/dw_wdt.c
++++ b/drivers/watchdog/dw_wdt.c
+@@ -305,13 +305,13 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
+ 	if (IS_ERR(dw_wdt.regs))
+ 		return PTR_ERR(dw_wdt.regs);
+ 
+-	dw_wdt.clk = clk_get(&pdev->dev, NULL);
++	dw_wdt.clk = devm_clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(dw_wdt.clk))
+ 		return PTR_ERR(dw_wdt.clk);
+ 
+ 	ret = clk_enable(dw_wdt.clk);
+ 	if (ret)
+-		goto out_put_clk;
++		return ret;
+ 
+ 	spin_lock_init(&dw_wdt.lock);
+ 
+@@ -327,8 +327,6 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
+ 
+ out_disable_clk:
+ 	clk_disable(dw_wdt.clk);
+-out_put_clk:
+-	clk_put(dw_wdt.clk);
+ 
+ 	return ret;
+ }
+@@ -338,7 +336,6 @@ static int dw_wdt_drv_remove(struct platform_device *pdev)
+ 	misc_deregister(&dw_wdt_miscdev);
+ 
+ 	clk_disable(dw_wdt.clk);
+-	clk_put(dw_wdt.clk);
+ 
+ 	return 0;
+ }
+-- 
+1.7.2.5
+
+
