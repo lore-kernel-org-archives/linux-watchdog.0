@@ -1,85 +1,99 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from nm17.access.bullet.mail.sp2.yahoo.com ([98.139.44.144]:23152
-	"EHLO nm17.access.bullet.mail.sp2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1757190Ab3D2SHz (ORCPT
+Received: from nm1.access.bullet.mail.sp2.yahoo.com ([98.139.44.128]:21434
+	"EHLO nm1.access.bullet.mail.sp2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1758363Ab3D2SJ5 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 29 Apr 2013 14:07:55 -0400
-Date: Mon, 29 Apr 2013 11:07:55 -0700
+	Mon, 29 Apr 2013 14:09:57 -0400
+Date: Mon, 29 Apr 2013 11:09:57 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 To: Jingoo Han <jg1.han@samsung.com>
 Cc: 'Andrew Morton' <akpm@linux-foundation.org>,
 	linux-kernel@vger.kernel.org, 'Wim Van Sebroeck' <wim@iguana.be>,
 	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH RESEND 6/7] watchdog: riowd: use devm_kzalloc()
-Message-ID: <20130429180755.GF5183@roeck-us.net>
-References: <001001ce44bc$faf2ce40$f0d86ac0$@samsung.com>
+Subject: Re: [PATCH RESEND 7/7] watchdog: ts72xx_wdt: use devm_*() functions
+Message-ID: <20130429180957.GG5183@roeck-us.net>
+References: <001101ce44bd$0a0105f0$1e0311d0$@samsung.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <001001ce44bc$faf2ce40$f0d86ac0$@samsung.com>
+In-Reply-To: <001101ce44bd$0a0105f0$1e0311d0$@samsung.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Apr 29, 2013 at 06:36:09PM +0900, Jingoo Han wrote:
-> Use devm_kzalloc() to make cleanup paths simpler.
+On Mon, Apr 29, 2013 at 06:36:34PM +0900, Jingoo Han wrote:
+> Use devm_*() functions to make cleanup paths simpler.
 > 
 > Signed-off-by: Jingoo Han <jg1.han@samsung.com>
 > ---
->  drivers/watchdog/riowd.c |    8 ++------
->  1 files changed, 2 insertions(+), 6 deletions(-)
+>  drivers/watchdog/ts72xx_wdt.c |   64 +++++++----------------------------------
+>  1 files changed, 11 insertions(+), 53 deletions(-)
 > 
-> diff --git a/drivers/watchdog/riowd.c b/drivers/watchdog/riowd.c
-> index 0040451..13363ad 100644
-> --- a/drivers/watchdog/riowd.c
-> +++ b/drivers/watchdog/riowd.c
-> @@ -183,7 +183,7 @@ static int riowd_probe(struct platform_device *op)
->  		goto out;
+> diff --git a/drivers/watchdog/ts72xx_wdt.c b/drivers/watchdog/ts72xx_wdt.c
+> index b8a9245..b19ca75 100644
+> --- a/drivers/watchdog/ts72xx_wdt.c
+> +++ b/drivers/watchdog/ts72xx_wdt.c
+> @@ -396,7 +396,7 @@ static int ts72xx_wdt_probe(struct platform_device *pdev)
+>  	struct resource *r1, *r2;
+>  	int error = 0;
 >  
->  	err = -ENOMEM;
-> -	p = kzalloc(sizeof(*p), GFP_KERNEL);
-> +	p = devm_kzalloc(&op->dev, sizeof(*p), GFP_KERNEL);
->  	if (!p)
->  		goto out;
->  
-That goto is really unnecessary. Just return -ENOMEM and drop the label.
-Though that is really another logical change and should be done separately,
-so
-
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
-> @@ -192,7 +192,7 @@ static int riowd_probe(struct platform_device *op)
->  	p->regs = of_ioremap(&op->resource[0], 0, 2, DRIVER_NAME);
->  	if (!p->regs) {
->  		pr_err("Cannot map registers\n");
-> -		goto out_free;
-> +		goto out;
->  	}
->  	/* Make miscdev useable right away */
->  	riowd_device = p;
-> @@ -213,9 +213,6 @@ out_iounmap:
->  	riowd_device = NULL;
->  	of_iounmap(&op->resource[0], p->regs, 2);
->  
-> -out_free:
-> -	kfree(p);
+> -	wdt = kzalloc(sizeof(struct ts72xx_wdt), GFP_KERNEL);
+> +	wdt = devm_kzalloc(&pdev->dev, sizeof(struct ts72xx_wdt), GFP_KERNEL);
+>  	if (!wdt) {
+>  		dev_err(&pdev->dev, "failed to allocate memory\n");
+>  		return -ENOMEM;
+> @@ -405,44 +405,22 @@ static int ts72xx_wdt_probe(struct platform_device *pdev)
+>  	r1 = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>  	if (!r1) {
+>  		dev_err(&pdev->dev, "failed to get memory resource\n");
+> -		error = -ENODEV;
+> -		goto fail;
+> -	}
 > -
->  out:
->  	return err;
->  }
-> @@ -226,7 +223,6 @@ static int riowd_remove(struct platform_device *op)
+> -	r1 = request_mem_region(r1->start, resource_size(r1), pdev->name);
+> -	if (!r1) {
+> -		dev_err(&pdev->dev, "cannot request memory region\n");
+> -		error = -EBUSY;
+> -		goto fail;
+> +		return -ENODEV;
+>  	}
 >  
->  	misc_deregister(&riowd_miscdev);
->  	of_iounmap(&op->resource[0], p->regs, 2);
-> -	kfree(p);
+> -	wdt->control_reg = ioremap(r1->start, resource_size(r1));
+> -	if (!wdt->control_reg) {
+> -		dev_err(&pdev->dev, "failed to map memory\n");
+> -		error = -ENODEV;
+> -		goto fail_free_control;
+> -	}
+> +	wdt->control_reg = devm_ioremap_resource(&pdev->dev, r1);
+> +	if (IS_ERR(wdt->control_reg))
+> +		return PTR_ERR(wdt->control_reg);
 >  
->  	return 0;
->  }
-> -- 
-> 1.7.2.5
-> 
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+>  	r2 = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+>  	if (!r2) {
+>  		dev_err(&pdev->dev, "failed to get memory resource\n");
+> -		error = -ENODEV;
+> -		goto fail_unmap_control;
+> +		return -ENODEV;
+>  	}
+>  
+> -	r2 = request_mem_region(r2->start, resource_size(r2), pdev->name);
+> -	if (!r2) {
+> -		dev_err(&pdev->dev, "cannot request memory region\n");
+> -		error = -EBUSY;
+> -		goto fail_unmap_control;
+> -	}
+> -
+> -	wdt->feed_reg = ioremap(r2->start, resource_size(r2));
+> -	if (!wdt->feed_reg) {
+> -		dev_err(&pdev->dev, "failed to map memory\n");
+> -		error = -ENODEV;
+> -		goto fail_free_feed;
+> -	}
+> +	wdt->feed_reg = devm_ioremap_resource(&pdev->dev, r2);
+> +	if (IS_ERR(wdt->feed_reg))
+> +		return PTR_ERR(wdt->feed_reg);
+>  
+You have a mix of returns with and without error messages now. Can you make sure
+that this is all consistent ?
+
+Thanks,
+Guenter
