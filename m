@@ -1,16 +1,16 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailout4.samsung.com ([203.254.224.34]:65148 "EHLO
-	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753523Ab3D2JfQ (ORCPT
+Received: from mailout2.samsung.com ([203.254.224.25]:24131 "EHLO
+	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752404Ab3D2JgK (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 29 Apr 2013 05:35:16 -0400
+	Mon, 29 Apr 2013 05:36:10 -0400
 From: Jingoo Han <jg1.han@samsung.com>
 To: 'Andrew Morton' <akpm@linux-foundation.org>
 Cc: linux-kernel@vger.kernel.org, 'Wim Van Sebroeck' <wim@iguana.be>,
 	linux-watchdog@vger.kernel.org, Jingoo Han <jg1.han@samsung.com>
-Subject: [PATCH RESEND 3/7] watchdog: mv64x60_wdt: use devm_ioremap()
-Date: Mon, 29 Apr 2013 18:35:15 +0900
-Message-id: <000d01ce44bc$da891380$8f9b3a80$@samsung.com>
+Subject: [PATCH RESEND 6/7] watchdog: riowd: use devm_kzalloc()
+Date: Mon, 29 Apr 2013 18:36:09 +0900
+Message-id: <001001ce44bc$faf2ce40$f0d86ac0$@samsung.com>
 MIME-version: 1.0
 Content-type: text/plain; charset=us-ascii
 Content-transfer-encoding: 7bit
@@ -18,35 +18,53 @@ Content-language: ko
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Use devm_ioremap() to make cleanup paths simpler.
+Use devm_kzalloc() to make cleanup paths simpler.
 
 Signed-off-by: Jingoo Han <jg1.han@samsung.com>
 ---
- drivers/watchdog/mv64x60_wdt.c |    4 +---
- 1 files changed, 1 insertions(+), 3 deletions(-)
+ drivers/watchdog/riowd.c |    8 ++------
+ 1 files changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/watchdog/mv64x60_wdt.c b/drivers/watchdog/mv64x60_wdt.c
-index c7fb878..e4cf980 100644
---- a/drivers/watchdog/mv64x60_wdt.c
-+++ b/drivers/watchdog/mv64x60_wdt.c
-@@ -276,7 +276,7 @@ static int mv64x60_wdt_probe(struct platform_device *dev)
- 	if (!r)
- 		return -ENODEV;
+diff --git a/drivers/watchdog/riowd.c b/drivers/watchdog/riowd.c
+index 0040451..13363ad 100644
+--- a/drivers/watchdog/riowd.c
++++ b/drivers/watchdog/riowd.c
+@@ -183,7 +183,7 @@ static int riowd_probe(struct platform_device *op)
+ 		goto out;
  
--	mv64x60_wdt_regs = ioremap(r->start, resource_size(r));
-+	mv64x60_wdt_regs = devm_ioremap(&dev->dev, r->start, resource_size(r));
- 	if (mv64x60_wdt_regs == NULL)
- 		return -ENOMEM;
+ 	err = -ENOMEM;
+-	p = kzalloc(sizeof(*p), GFP_KERNEL);
++	p = devm_kzalloc(&op->dev, sizeof(*p), GFP_KERNEL);
+ 	if (!p)
+ 		goto out;
  
-@@ -293,8 +293,6 @@ static int mv64x60_wdt_remove(struct platform_device *dev)
+@@ -192,7 +192,7 @@ static int riowd_probe(struct platform_device *op)
+ 	p->regs = of_ioremap(&op->resource[0], 0, 2, DRIVER_NAME);
+ 	if (!p->regs) {
+ 		pr_err("Cannot map registers\n");
+-		goto out_free;
++		goto out;
+ 	}
+ 	/* Make miscdev useable right away */
+ 	riowd_device = p;
+@@ -213,9 +213,6 @@ out_iounmap:
+ 	riowd_device = NULL;
+ 	of_iounmap(&op->resource[0], p->regs, 2);
  
- 	mv64x60_wdt_handler_disable();
- 
--	iounmap(mv64x60_wdt_regs);
+-out_free:
+-	kfree(p);
 -
+ out:
+ 	return err;
+ }
+@@ -226,7 +223,6 @@ static int riowd_remove(struct platform_device *op)
+ 
+ 	misc_deregister(&riowd_miscdev);
+ 	of_iounmap(&op->resource[0], p->regs, 2);
+-	kfree(p);
+ 
  	return 0;
  }
- 
 -- 
 1.7.2.5
 
