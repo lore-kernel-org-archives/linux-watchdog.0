@@ -1,99 +1,29 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from nm1.access.bullet.mail.sp2.yahoo.com ([98.139.44.128]:21434
-	"EHLO nm1.access.bullet.mail.sp2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1758363Ab3D2SJ5 (ORCPT
+Received: from nm16-vm0.access.bullet.mail.mud.yahoo.com ([66.94.236.19]:46685
+	"EHLO nm16-vm0.access.bullet.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754931Ab3D2SL7 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 29 Apr 2013 14:09:57 -0400
-Date: Mon, 29 Apr 2013 11:09:57 -0700
+	Mon, 29 Apr 2013 14:11:59 -0400
+Date: Mon, 29 Apr 2013 11:05:02 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 To: Jingoo Han <jg1.han@samsung.com>
 Cc: 'Andrew Morton' <akpm@linux-foundation.org>,
 	linux-kernel@vger.kernel.org, 'Wim Van Sebroeck' <wim@iguana.be>,
 	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH RESEND 7/7] watchdog: ts72xx_wdt: use devm_*() functions
-Message-ID: <20130429180957.GG5183@roeck-us.net>
-References: <001101ce44bd$0a0105f0$1e0311d0$@samsung.com>
+Subject: Re: [PATCH RESEND 5/7] watchdog: rc32434_wdt: use
+ devm_ioremap_nocache() functions
+Message-ID: <20130429180502.GE5183@roeck-us.net>
+References: <000f01ce44bc$f1342570$d39c7050$@samsung.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <001101ce44bd$0a0105f0$1e0311d0$@samsung.com>
+In-Reply-To: <000f01ce44bc$f1342570$d39c7050$@samsung.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Apr 29, 2013 at 06:36:34PM +0900, Jingoo Han wrote:
-> Use devm_*() functions to make cleanup paths simpler.
+On Mon, Apr 29, 2013 at 06:35:53PM +0900, Jingoo Han wrote:
+> Use devm_ioremap_nocache() functions to make cleanup paths simpler.
 > 
 > Signed-off-by: Jingoo Han <jg1.han@samsung.com>
-> ---
->  drivers/watchdog/ts72xx_wdt.c |   64 +++++++----------------------------------
->  1 files changed, 11 insertions(+), 53 deletions(-)
-> 
-> diff --git a/drivers/watchdog/ts72xx_wdt.c b/drivers/watchdog/ts72xx_wdt.c
-> index b8a9245..b19ca75 100644
-> --- a/drivers/watchdog/ts72xx_wdt.c
-> +++ b/drivers/watchdog/ts72xx_wdt.c
-> @@ -396,7 +396,7 @@ static int ts72xx_wdt_probe(struct platform_device *pdev)
->  	struct resource *r1, *r2;
->  	int error = 0;
->  
-> -	wdt = kzalloc(sizeof(struct ts72xx_wdt), GFP_KERNEL);
-> +	wdt = devm_kzalloc(&pdev->dev, sizeof(struct ts72xx_wdt), GFP_KERNEL);
->  	if (!wdt) {
->  		dev_err(&pdev->dev, "failed to allocate memory\n");
->  		return -ENOMEM;
-> @@ -405,44 +405,22 @@ static int ts72xx_wdt_probe(struct platform_device *pdev)
->  	r1 = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->  	if (!r1) {
->  		dev_err(&pdev->dev, "failed to get memory resource\n");
-> -		error = -ENODEV;
-> -		goto fail;
-> -	}
-> -
-> -	r1 = request_mem_region(r1->start, resource_size(r1), pdev->name);
-> -	if (!r1) {
-> -		dev_err(&pdev->dev, "cannot request memory region\n");
-> -		error = -EBUSY;
-> -		goto fail;
-> +		return -ENODEV;
->  	}
->  
-> -	wdt->control_reg = ioremap(r1->start, resource_size(r1));
-> -	if (!wdt->control_reg) {
-> -		dev_err(&pdev->dev, "failed to map memory\n");
-> -		error = -ENODEV;
-> -		goto fail_free_control;
-> -	}
-> +	wdt->control_reg = devm_ioremap_resource(&pdev->dev, r1);
-> +	if (IS_ERR(wdt->control_reg))
-> +		return PTR_ERR(wdt->control_reg);
->  
->  	r2 = platform_get_resource(pdev, IORESOURCE_MEM, 1);
->  	if (!r2) {
->  		dev_err(&pdev->dev, "failed to get memory resource\n");
-> -		error = -ENODEV;
-> -		goto fail_unmap_control;
-> +		return -ENODEV;
->  	}
->  
-> -	r2 = request_mem_region(r2->start, resource_size(r2), pdev->name);
-> -	if (!r2) {
-> -		dev_err(&pdev->dev, "cannot request memory region\n");
-> -		error = -EBUSY;
-> -		goto fail_unmap_control;
-> -	}
-> -
-> -	wdt->feed_reg = ioremap(r2->start, resource_size(r2));
-> -	if (!wdt->feed_reg) {
-> -		dev_err(&pdev->dev, "failed to map memory\n");
-> -		error = -ENODEV;
-> -		goto fail_free_feed;
-> -	}
-> +	wdt->feed_reg = devm_ioremap_resource(&pdev->dev, r2);
-> +	if (IS_ERR(wdt->feed_reg))
-> +		return PTR_ERR(wdt->feed_reg);
->  
-You have a mix of returns with and without error messages now. Can you make sure
-that this is all consistent ?
 
-Thanks,
-Guenter
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
