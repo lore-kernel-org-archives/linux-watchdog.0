@@ -1,22 +1,18 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailout3.samsung.com ([203.254.224.33]:39849 "EHLO
-	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751835Ab3D3CSf (ORCPT
+Received: from mailout2.samsung.com ([203.254.224.25]:24808 "EHLO
+	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751254Ab3D3E7u (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 29 Apr 2013 22:18:35 -0400
+	Tue, 30 Apr 2013 00:59:50 -0400
 From: Jingoo Han <jg1.han@samsung.com>
-To: 'Guenter Roeck' <linux@roeck-us.net>
-Cc: 'Andrew Morton' <akpm@linux-foundation.org>,
-	linux-kernel@vger.kernel.org, 'Wim Van Sebroeck' <wim@iguana.be>,
+To: 'Andrew Morton' <akpm@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, 'Wim Van Sebroeck' <wim@iguana.be>,
 	linux-watchdog@vger.kernel.org,
-	'Thierry Reding' <thierry.reding@avionic-design.de>,
+	'Guenter Roeck' <linux@roeck-us.net>,
 	'Jingoo Han' <jg1.han@samsung.com>
-References: <001101ce44bd$0a0105f0$1e0311d0$@samsung.com>
- <20130429180957.GG5183@roeck-us.net>
-In-reply-to: <20130429180957.GG5183@roeck-us.net>
-Subject: Re: [PATCH RESEND 7/7] watchdog: ts72xx_wdt: use devm_*() functions
-Date: Tue, 30 Apr 2013 11:18:33 +0900
-Message-id: <000701ce4549$03cc1a80$0b644f80$@samsung.com>
+Subject: [PATCH V2 1/7] watchdog: at32ap700x_wdt: use devm_*() functions
+Date: Tue, 30 Apr 2013 13:59:48 +0900
+Message-id: <000d01ce455f$8a789110$9f69b330$@samsung.com>
 MIME-version: 1.0
 Content-type: text/plain; charset=us-ascii
 Content-transfer-encoding: 7bit
@@ -24,89 +20,67 @@ Content-language: ko
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tuesday, April 30, 2013 3:10 AM, Guenter Roeck wrote:
-> On Mon, Apr 29, 2013 at 06:36:34PM +0900, Jingoo Han wrote:
-> > Use devm_*() functions to make cleanup paths simpler.
-> >
-> > Signed-off-by: Jingoo Han <jg1.han@samsung.com>
-> > ---
-> >  drivers/watchdog/ts72xx_wdt.c |   64 +++++++----------------------------------
-> >  1 files changed, 11 insertions(+), 53 deletions(-)
-> >
-> > diff --git a/drivers/watchdog/ts72xx_wdt.c b/drivers/watchdog/ts72xx_wdt.c
-> > index b8a9245..b19ca75 100644
-> > --- a/drivers/watchdog/ts72xx_wdt.c
-> > +++ b/drivers/watchdog/ts72xx_wdt.c
-> > @@ -396,7 +396,7 @@ static int ts72xx_wdt_probe(struct platform_device *pdev)
-> >  	struct resource *r1, *r2;
-> >  	int error = 0;
-> >
-> > -	wdt = kzalloc(sizeof(struct ts72xx_wdt), GFP_KERNEL);
-> > +	wdt = devm_kzalloc(&pdev->dev, sizeof(struct ts72xx_wdt), GFP_KERNEL);
-> >  	if (!wdt) {
-> >  		dev_err(&pdev->dev, "failed to allocate memory\n");
-> >  		return -ENOMEM;
-> > @@ -405,44 +405,22 @@ static int ts72xx_wdt_probe(struct platform_device *pdev)
-> >  	r1 = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> >  	if (!r1) {
-> >  		dev_err(&pdev->dev, "failed to get memory resource\n");
-> > -		error = -ENODEV;
-> > -		goto fail;
-> > -	}
-> > -
-> > -	r1 = request_mem_region(r1->start, resource_size(r1), pdev->name);
-> > -	if (!r1) {
-> > -		dev_err(&pdev->dev, "cannot request memory region\n");
-> > -		error = -EBUSY;
-> > -		goto fail;
-> > +		return -ENODEV;
-> >  	}
-> >
-> > -	wdt->control_reg = ioremap(r1->start, resource_size(r1));
-> > -	if (!wdt->control_reg) {
-> > -		dev_err(&pdev->dev, "failed to map memory\n");
-> > -		error = -ENODEV;
-> > -		goto fail_free_control;
-> > -	}
-> > +	wdt->control_reg = devm_ioremap_resource(&pdev->dev, r1);
-> > +	if (IS_ERR(wdt->control_reg))
-> > +		return PTR_ERR(wdt->control_reg);
-> >
-> >  	r2 = platform_get_resource(pdev, IORESOURCE_MEM, 1);
-> >  	if (!r2) {
-> >  		dev_err(&pdev->dev, "failed to get memory resource\n");
-> > -		error = -ENODEV;
-> > -		goto fail_unmap_control;
-> > +		return -ENODEV;
-> >  	}
-> >
-> > -	r2 = request_mem_region(r2->start, resource_size(r2), pdev->name);
-> > -	if (!r2) {
-> > -		dev_err(&pdev->dev, "cannot request memory region\n");
-> > -		error = -EBUSY;
-> > -		goto fail_unmap_control;
-> > -	}
-> > -
-> > -	wdt->feed_reg = ioremap(r2->start, resource_size(r2));
-> > -	if (!wdt->feed_reg) {
-> > -		dev_err(&pdev->dev, "failed to map memory\n");
-> > -		error = -ENODEV;
-> > -		goto fail_free_feed;
-> > -	}
-> > +	wdt->feed_reg = devm_ioremap_resource(&pdev->dev, r2);
-> > +	if (IS_ERR(wdt->feed_reg))
-> > +		return PTR_ERR(wdt->feed_reg);
-> >
-> You have a mix of returns with and without error messages now. Can you make sure
-> that this is all consistent ?
+Use devm_*() functions to make cleanup paths simpler.
 
-As I previously mentioned, there is no need to add an error message.
-(http://www.mail-archive.com/linux-kernel@vger.kernel.org/msg426498.html)
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+---
+No changes since v1:
 
-Best regards,
-Jingoo Han
+ drivers/watchdog/at32ap700x_wdt.c |   12 ++++--------
+ 1 files changed, 4 insertions(+), 8 deletions(-)
 
-> 
-> Thanks,
-> Guenter
+diff --git a/drivers/watchdog/at32ap700x_wdt.c b/drivers/watchdog/at32ap700x_wdt.c
+index 7a715e3..c4cb552 100644
+--- a/drivers/watchdog/at32ap700x_wdt.c
++++ b/drivers/watchdog/at32ap700x_wdt.c
+@@ -321,13 +321,14 @@ static int __init at32_wdt_probe(struct platform_device *pdev)
+ 		return -ENXIO;
+ 	}
+ 
+-	wdt = kzalloc(sizeof(struct wdt_at32ap700x), GFP_KERNEL);
++	wdt = devm_kzalloc(&pdev->dev, sizeof(struct wdt_at32ap700x),
++			GFP_KERNEL);
+ 	if (!wdt) {
+ 		dev_dbg(&pdev->dev, "no memory for wdt structure\n");
+ 		return -ENOMEM;
+ 	}
+ 
+-	wdt->regs = ioremap(regs->start, resource_size(regs));
++	wdt->regs = devm_ioremap(&pdev->dev, regs->start, resource_size(regs));
+ 	if (!wdt->regs) {
+ 		ret = -ENOMEM;
+ 		dev_dbg(&pdev->dev, "could not map I/O memory\n");
+@@ -342,7 +343,7 @@ static int __init at32_wdt_probe(struct platform_device *pdev)
+ 		dev_info(&pdev->dev, "CPU must be reset with external "
+ 				"reset or POR due to silicon errata.\n");
+ 		ret = -EIO;
+-		goto err_iounmap;
++		goto err_free;
+ 	} else {
+ 		wdt->users = 0;
+ 	}
+@@ -375,10 +376,7 @@ static int __init at32_wdt_probe(struct platform_device *pdev)
+ 
+ err_register:
+ 	platform_set_drvdata(pdev, NULL);
+-err_iounmap:
+-	iounmap(wdt->regs);
+ err_free:
+-	kfree(wdt);
+ 	wdt = NULL;
+ 	return ret;
+ }
+@@ -391,8 +389,6 @@ static int __exit at32_wdt_remove(struct platform_device *pdev)
+ 			at32_wdt_stop();
+ 
+ 		misc_deregister(&wdt->miscdev);
+-		iounmap(wdt->regs);
+-		kfree(wdt);
+ 		wdt = NULL;
+ 		platform_set_drvdata(pdev, NULL);
+ 	}
+-- 
+1.7.2.5
+
 
