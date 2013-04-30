@@ -1,19 +1,18 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailout3.samsung.com ([203.254.224.33]:64670 "EHLO
-	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752248Ab3D3FBm (ORCPT
+Received: from mailout4.samsung.com ([203.254.224.34]:65313 "EHLO
+	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752151Ab3D3FCB (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 30 Apr 2013 01:01:42 -0400
+	Tue, 30 Apr 2013 01:02:01 -0400
 From: Jingoo Han <jg1.han@samsung.com>
 To: 'Andrew Morton' <akpm@linux-foundation.org>
 Cc: linux-kernel@vger.kernel.org, 'Wim Van Sebroeck' <wim@iguana.be>,
 	linux-watchdog@vger.kernel.org,
 	'Guenter Roeck' <linux@roeck-us.net>,
 	Jingoo Han <jg1.han@samsung.com>
-Subject: [PATCH V2 5/7] watchdog: rc32434_wdt: use devm_ioremap_nocache()
- functions
-Date: Tue, 30 Apr 2013 14:01:41 +0900
-Message-id: <001201ce455f$cdb6ec10$6924c430$@samsung.com>
+Subject: [PATCH V2 6/7] watchdog: riowd: use devm_kzalloc()
+Date: Tue, 30 Apr 2013 14:01:59 +0900
+Message-id: <001301ce455f$d856f430$8904dc90$@samsung.com>
 MIME-version: 1.0
 Content-type: text/plain; charset=us-ascii
 Content-transfer-encoding: 7bit
@@ -21,62 +20,56 @@ Content-language: ko
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Use devm_ioremap_nocache() functions to make cleanup paths simpler.
+Use devm_kzalloc() to make cleanup paths simpler.
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Jingoo Han <jg1.han@samsung.com>
 ---
 No changes since v1:
 
- drivers/watchdog/rc32434_wdt.c |   10 +++-------
- 1 files changed, 3 insertions(+), 7 deletions(-)
+ drivers/watchdog/riowd.c |    8 ++------
+ 1 files changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/watchdog/rc32434_wdt.c b/drivers/watchdog/rc32434_wdt.c
-index f78bc00..9cf6bc7 100644
---- a/drivers/watchdog/rc32434_wdt.c
-+++ b/drivers/watchdog/rc32434_wdt.c
-@@ -32,6 +32,7 @@
- #include <linux/platform_device.h>	/* For platform_driver framework */
- #include <linux/spinlock.h>		/* For spin_lock/spin_unlock/... */
- #include <linux/uaccess.h>		/* For copy_to_user/put_user/... */
-+#include <linux/io.h>			/* For devm_ioremap_nocache */
+diff --git a/drivers/watchdog/riowd.c b/drivers/watchdog/riowd.c
+index 0040451..13363ad 100644
+--- a/drivers/watchdog/riowd.c
++++ b/drivers/watchdog/riowd.c
+@@ -183,7 +183,7 @@ static int riowd_probe(struct platform_device *op)
+ 		goto out;
  
- #include <asm/mach-rc32434/integ.h>	/* For the Watchdog registers */
+ 	err = -ENOMEM;
+-	p = kzalloc(sizeof(*p), GFP_KERNEL);
++	p = devm_kzalloc(&op->dev, sizeof(*p), GFP_KERNEL);
+ 	if (!p)
+ 		goto out;
  
-@@ -271,7 +272,7 @@ static int rc32434_wdt_probe(struct platform_device *pdev)
- 		return -ENODEV;
+@@ -192,7 +192,7 @@ static int riowd_probe(struct platform_device *op)
+ 	p->regs = of_ioremap(&op->resource[0], 0, 2, DRIVER_NAME);
+ 	if (!p->regs) {
+ 		pr_err("Cannot map registers\n");
+-		goto out_free;
++		goto out;
  	}
+ 	/* Make miscdev useable right away */
+ 	riowd_device = p;
+@@ -213,9 +213,6 @@ out_iounmap:
+ 	riowd_device = NULL;
+ 	of_iounmap(&op->resource[0], p->regs, 2);
  
--	wdt_reg = ioremap_nocache(r->start, resource_size(r));
-+	wdt_reg = devm_ioremap_nocache(&pdev->dev, r->start, resource_size(r));
- 	if (!wdt_reg) {
- 		pr_err("failed to remap I/O resources\n");
- 		return -ENXIO;
-@@ -293,23 +294,18 @@ static int rc32434_wdt_probe(struct platform_device *pdev)
- 	ret = misc_register(&rc32434_wdt_miscdev);
- 	if (ret < 0) {
- 		pr_err("failed to register watchdog device\n");
--		goto unmap;
-+		return ret;
- 	}
- 
- 	pr_info("Watchdog Timer version " VERSION ", timer margin: %d sec\n",
- 		timeout);
- 
- 	return 0;
+-out_free:
+-	kfree(p);
 -
--unmap:
--	iounmap(wdt_reg);
--	return ret;
+ out:
+ 	return err;
  }
+@@ -226,7 +223,6 @@ static int riowd_remove(struct platform_device *op)
  
- static int rc32434_wdt_remove(struct platform_device *pdev)
- {
- 	misc_deregister(&rc32434_wdt_miscdev);
--	iounmap(wdt_reg);
+ 	misc_deregister(&riowd_miscdev);
+ 	of_iounmap(&op->resource[0], p->regs, 2);
+-	kfree(p);
+ 
  	return 0;
  }
- 
 -- 
 1.7.2.5
 
