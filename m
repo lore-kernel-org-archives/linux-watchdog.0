@@ -1,18 +1,19 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailout3.samsung.com ([203.254.224.33]:64597 "EHLO
+Received: from mailout3.samsung.com ([203.254.224.33]:64670 "EHLO
 	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751406Ab3D3FB2 (ORCPT
+	with ESMTP id S1752248Ab3D3FBm (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 30 Apr 2013 01:01:28 -0400
+	Tue, 30 Apr 2013 01:01:42 -0400
 From: Jingoo Han <jg1.han@samsung.com>
 To: 'Andrew Morton' <akpm@linux-foundation.org>
 Cc: linux-kernel@vger.kernel.org, 'Wim Van Sebroeck' <wim@iguana.be>,
 	linux-watchdog@vger.kernel.org,
 	'Guenter Roeck' <linux@roeck-us.net>,
 	Jingoo Han <jg1.han@samsung.com>
-Subject: [PATCH V2 4/7] watchdog: nuc900_wdt: use devm_*() functions
-Date: Tue, 30 Apr 2013 14:01:25 +0900
-Message-id: <001101ce455f$c441cf60$4cc56e20$@samsung.com>
+Subject: [PATCH V2 5/7] watchdog: rc32434_wdt: use devm_ioremap_nocache()
+ functions
+Date: Tue, 30 Apr 2013 14:01:41 +0900
+Message-id: <001201ce455f$cdb6ec10$6924c430$@samsung.com>
 MIME-version: 1.0
 Content-type: text/plain; charset=us-ascii
 Content-transfer-encoding: 7bit
@@ -20,114 +21,62 @@ Content-language: ko
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Use devm_*() functions to make cleanup paths simpler.
+Use devm_ioremap_nocache() functions to make cleanup paths simpler.
 
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Jingoo Han <jg1.han@samsung.com>
 ---
-Changes since v1:
-- used sizeof(*nuc900_wdt) instead of sizeof(struct nuc900_wdt)
-- declared 'nuc900_wdt->res' variable as logical variable
+No changes since v1:
 
- drivers/watchdog/nuc900_wdt.c |   50 +++++++++--------------------------------
- 1 files changed, 11 insertions(+), 39 deletions(-)
+ drivers/watchdog/rc32434_wdt.c |   10 +++-------
+ 1 files changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/watchdog/nuc900_wdt.c b/drivers/watchdog/nuc900_wdt.c
-index 04c45a1..e2b6d2c 100644
---- a/drivers/watchdog/nuc900_wdt.c
-+++ b/drivers/watchdog/nuc900_wdt.c
-@@ -61,7 +61,6 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
- 	"(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+diff --git a/drivers/watchdog/rc32434_wdt.c b/drivers/watchdog/rc32434_wdt.c
+index f78bc00..9cf6bc7 100644
+--- a/drivers/watchdog/rc32434_wdt.c
++++ b/drivers/watchdog/rc32434_wdt.c
+@@ -32,6 +32,7 @@
+ #include <linux/platform_device.h>	/* For platform_driver framework */
+ #include <linux/spinlock.h>		/* For spin_lock/spin_unlock/... */
+ #include <linux/uaccess.h>		/* For copy_to_user/put_user/... */
++#include <linux/io.h>			/* For devm_ioremap_nocache */
  
- struct nuc900_wdt {
--	struct resource  *res;
- 	struct clk	 *wdt_clock;
- 	struct platform_device *pdev;
- 	void __iomem	 *wdt_base;
-@@ -244,9 +243,11 @@ static struct miscdevice nuc900wdt_miscdev = {
+ #include <asm/mach-rc32434/integ.h>	/* For the Watchdog registers */
  
- static int nuc900wdt_probe(struct platform_device *pdev)
- {
-+	struct resource *res;
- 	int ret = 0;
- 
--	nuc900_wdt = kzalloc(sizeof(struct nuc900_wdt), GFP_KERNEL);
-+	nuc900_wdt = devm_kzalloc(&pdev->dev, sizeof(*nuc900_wdt),
-+				GFP_KERNEL);
- 	if (!nuc900_wdt)
- 		return -ENOMEM;
- 
-@@ -254,33 +255,20 @@ static int nuc900wdt_probe(struct platform_device *pdev)
- 
- 	spin_lock_init(&nuc900_wdt->wdt_lock);
- 
--	nuc900_wdt->res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	if (nuc900_wdt->res == NULL) {
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (res == NULL) {
- 		dev_err(&pdev->dev, "no memory resource specified\n");
--		ret = -ENOENT;
--		goto err_get;
-+		return -ENOENT;
+@@ -271,7 +272,7 @@ static int rc32434_wdt_probe(struct platform_device *pdev)
+ 		return -ENODEV;
  	}
  
--	if (!request_mem_region(nuc900_wdt->res->start,
--				resource_size(nuc900_wdt->res), pdev->name)) {
--		dev_err(&pdev->dev, "failed to get memory region\n");
--		ret = -ENOENT;
--		goto err_get;
--	}
--
--	nuc900_wdt->wdt_base = ioremap(nuc900_wdt->res->start,
--					resource_size(nuc900_wdt->res));
--	if (nuc900_wdt->wdt_base == NULL) {
--		dev_err(&pdev->dev, "failed to ioremap() region\n");
--		ret = -EINVAL;
--		goto err_req;
--	}
-+	nuc900_wdt->wdt_base = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(nuc900_wdt->wdt_base))
-+		return PTR_ERR(nuc900_wdt->wdt_base);
- 
--	nuc900_wdt->wdt_clock = clk_get(&pdev->dev, NULL);
-+	nuc900_wdt->wdt_clock = devm_clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(nuc900_wdt->wdt_clock)) {
- 		dev_err(&pdev->dev, "failed to find watchdog clock source\n");
--		ret = PTR_ERR(nuc900_wdt->wdt_clock);
--		goto err_map;
-+		return PTR_ERR(nuc900_wdt->wdt_clock);
+-	wdt_reg = ioremap_nocache(r->start, resource_size(r));
++	wdt_reg = devm_ioremap_nocache(&pdev->dev, r->start, resource_size(r));
+ 	if (!wdt_reg) {
+ 		pr_err("failed to remap I/O resources\n");
+ 		return -ENXIO;
+@@ -293,23 +294,18 @@ static int rc32434_wdt_probe(struct platform_device *pdev)
+ 	ret = misc_register(&rc32434_wdt_miscdev);
+ 	if (ret < 0) {
+ 		pr_err("failed to register watchdog device\n");
+-		goto unmap;
++		return ret;
  	}
  
- 	clk_enable(nuc900_wdt->wdt_clock);
-@@ -298,14 +286,6 @@ static int nuc900wdt_probe(struct platform_device *pdev)
- 
- err_clk:
- 	clk_disable(nuc900_wdt->wdt_clock);
--	clk_put(nuc900_wdt->wdt_clock);
--err_map:
--	iounmap(nuc900_wdt->wdt_base);
--err_req:
--	release_mem_region(nuc900_wdt->res->start,
--					resource_size(nuc900_wdt->res));
--err_get:
--	kfree(nuc900_wdt);
- 	return ret;
- }
- 
-@@ -314,14 +294,6 @@ static int nuc900wdt_remove(struct platform_device *pdev)
- 	misc_deregister(&nuc900wdt_miscdev);
- 
- 	clk_disable(nuc900_wdt->wdt_clock);
--	clk_put(nuc900_wdt->wdt_clock);
--
--	iounmap(nuc900_wdt->wdt_base);
--
--	release_mem_region(nuc900_wdt->res->start,
--					resource_size(nuc900_wdt->res));
--
--	kfree(nuc900_wdt);
+ 	pr_info("Watchdog Timer version " VERSION ", timer margin: %d sec\n",
+ 		timeout);
  
  	return 0;
+-
+-unmap:
+-	iounmap(wdt_reg);
+-	return ret;
  }
+ 
+ static int rc32434_wdt_remove(struct platform_device *pdev)
+ {
+ 	misc_deregister(&rc32434_wdt_miscdev);
+-	iounmap(wdt_reg);
+ 	return 0;
+ }
+ 
 -- 
 1.7.2.5
 
