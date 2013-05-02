@@ -1,349 +1,206 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 31 May 2013 15:32:14 +0200
-From: Johannes Thumshirn <johannes.thumshirn@men.de>
-To: <wim@iguana.be>
-CC: <linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
-        <guenter@roeck-us.net>, <johannes.thumshirn@men.de>
-Subject: [PATCH v7] watchdog: New watchdog driver for MEN A21 watchdogs
-Message-ID: <20130531133209.GA20399@jtlinux>
-References: <20130531114037.GA13533@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20130531114037.GA13533@roeck-us.net>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mailout3.samsung.com ([203.254.224.33]:39959 "EHLO
+	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752124Ab3EBAUR (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 1 May 2013 20:20:17 -0400
+From: Jingoo Han <jg1.han@samsung.com>
+To: 'Guenter Roeck' <linux@roeck-us.net>
+Cc: 'Andrew Morton' <akpm@linux-foundation.org>,
+	linux-kernel@vger.kernel.org, 'Wim Van Sebroeck' <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org, Jingoo Han <jg1.han@samsung.com>
+References: <001401ce455f$e7ba02a0$b72e07e0$@samsung.com>
+ <20130430150544.GA15491@roeck-us.net>
+In-reply-to: <20130430150544.GA15491@roeck-us.net>
+Subject: Re: [PATCH V2 7/7] watchdog: ts72xx_wdt: use devm_*() functions
+Date: Thu, 02 May 2013 09:20:14 +0900
+Message-id: <003c01ce46ca$d1380290$73a807b0$@samsung.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-language: ko
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-This patch adds the driver for the watchdog devices found on MEN Mikro
-Elektronik A21 VMEbus CPU Carrier Boards. It has DT-support and uses the
-watchdog framework.
+On Wednesday, May 01, 2013 12:06 AM, Guenter Roeck wrote:
+> On Tue, Apr 30, 2013 at 02:02:25PM +0900, Jingoo Han wrote:
+> > Use devm_*() functions to make cleanup paths simpler.
+> >
+> > Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+> > ---
+> > No changes since v1:
+> >
+> Side note: If you make no changes, there is no need to send V2, especially not
+> one marked as another version. Usually, when I do that kind of thing, I just
+> resend.
+> 
+> This also applies if you get a Reviewed-by:, Acked-by:, or similar response.
+> You can leave it up to the maintainer to add those to the patch.
+> 
+> >  drivers/watchdog/ts72xx_wdt.c |   64 +++++++----------------------------------
+> >  1 files changed, 11 insertions(+), 53 deletions(-)
+> >
+> > diff --git a/drivers/watchdog/ts72xx_wdt.c b/drivers/watchdog/ts72xx_wdt.c
+> > index b8a9245..b19ca75 100644
+> > --- a/drivers/watchdog/ts72xx_wdt.c
+> > +++ b/drivers/watchdog/ts72xx_wdt.c
+> > @@ -396,7 +396,7 @@ static int ts72xx_wdt_probe(struct platform_device *pdev)
+> >  	struct resource *r1, *r2;
+> >  	int error = 0;
+> >
+> > -	wdt = kzalloc(sizeof(struct ts72xx_wdt), GFP_KERNEL);
+> > +	wdt = devm_kzalloc(&pdev->dev, sizeof(struct ts72xx_wdt), GFP_KERNEL);
+> >  	if (!wdt) {
+> >  		dev_err(&pdev->dev, "failed to allocate memory\n");
+> 
+> My understanding from other conversations is that this error message is no
+> longer needed.
 
-Revision 2:
-* Removed unneeded open flag in struct a21_wdt_drv
-* Corrected 3bit reason code from gpio
-* Additional sysfs files are now part of watchdog sysfs
-* Changed OFF/ON delay in ping from 400ms to 10ns
-* Reworked timeout setting
-* Removed a21_wdt_ioctl(...)
+The error message for devm_ioremap_resource() is not necessary,
+however, the error message for devm_kzalloc() is necessary.
+In devm_kzalloc(), there is no error message.
+It just return NULL, when it fails as below:
 
-Revision 3:
-* Changed pr_{err,info} to dev_{err,info}
-* Removed out of memory error print
-* Transition from "fast" to "slow" mode not allowed by chip
+./drivers/base/devres.c
 
-Revision 4:
-* Remove reboot_notifier and place disable code into platform_device's shutdown function
-* Removed sysfs interface
+773 void * devm_kzalloc(struct device *dev, size_t size, gfp_t gfp)
+774 {
+775         struct devres *dr;
+776
+777         /* use raw alloc_dr for kmalloc caller tracing */
+778         dr = alloc_dr(devm_kzalloc_release, size, gfp);
+779         if (unlikely(!dr))
+780                 return NULL;
+781
+782         set_node_dbginfo(&dr->node, "devm_kzalloc_release", size);
+783         devres_add(dev, dr->data);
+784         return dr->data;
+785 }
+786 EXPORT_SYMBOL_GPL(devm_kzalloc);
 
-Revision 5:
 
-* Added setting of .bootstatus on driver init
-* Added initial timeout on driver init
+> 
+> >  		return -ENOMEM;
+> > @@ -405,44 +405,22 @@ static int ts72xx_wdt_probe(struct platform_device *pdev)
+> >  	r1 = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> >  	if (!r1) {
+> >  		dev_err(&pdev->dev, "failed to get memory resource\n");
+> > -		error = -ENODEV;
+> > -		goto fail;
+> > -	}
+> > -
+> > -	r1 = request_mem_region(r1->start, resource_size(r1), pdev->name);
+> > -	if (!r1) {
+> > -		dev_err(&pdev->dev, "cannot request memory region\n");
+> > -		error = -EBUSY;
+> > -		goto fail;
+> > +		return -ENODEV;
+> >  	}
+> >
+> > -	wdt->control_reg = ioremap(r1->start, resource_size(r1));
+> > -	if (!wdt->control_reg) {
+> > -		dev_err(&pdev->dev, "failed to map memory\n");
+> > -		error = -ENODEV;
+> > -		goto fail_free_control;
+> > -	}
+> > +	wdt->control_reg = devm_ioremap_resource(&pdev->dev, r1);
+> > +	if (IS_ERR(wdt->control_reg))
+> > +		return PTR_ERR(wdt->control_reg);
+> >
+> >  	r2 = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+> >  	if (!r2) {
+> >  		dev_err(&pdev->dev, "failed to get memory resource\n");
+> > -		error = -ENODEV;
+> > -		goto fail_unmap_control;
+> > +		return -ENODEV;
+> >  	}
+> >
+> > -	r2 = request_mem_region(r2->start, resource_size(r2), pdev->name);
+> > -	if (!r2) {
+> > -		dev_err(&pdev->dev, "cannot request memory region\n");
+> > -		error = -EBUSY;
+> > -		goto fail_unmap_control;
+> > -	}
+> > -
+> > -	wdt->feed_reg = ioremap(r2->start, resource_size(r2));
+> > -	if (!wdt->feed_reg) {
+> > -		dev_err(&pdev->dev, "failed to map memory\n");
+> > -		error = -ENODEV;
+> > -		goto fail_free_feed;
+> > -	}
+> > +	wdt->feed_reg = devm_ioremap_resource(&pdev->dev, r2);
+> > +	if (IS_ERR(wdt->feed_reg))
+> > +		return PTR_ERR(wdt->feed_reg);
+> >
+> >  	platform_set_drvdata(pdev, wdt);
+> >  	ts72xx_wdt_pdev = pdev;
+> > @@ -455,45 +433,25 @@ static int ts72xx_wdt_probe(struct platform_device *pdev)
+> >  	error = misc_register(&ts72xx_wdt_miscdev);
+> >  	if (error) {
+> >  		dev_err(&pdev->dev, "failed to register miscdev\n");
+> > -		goto fail_unmap_feed;
+> > +		goto fail;
+> >  	}
+> >
+> >  	dev_info(&pdev->dev, "TS-72xx Watchdog driver\n");
+> >
+> >  	return 0;
+> >
+> > -fail_unmap_feed:
+> > -	platform_set_drvdata(pdev, NULL);
+> > -	iounmap(wdt->feed_reg);
+> > -fail_free_feed:
+> > -	release_mem_region(r2->start, resource_size(r2));
+> > -fail_unmap_control:
+> > -	iounmap(wdt->control_reg);
+> > -fail_free_control:
+> > -	release_mem_region(r1->start, resource_size(r1));
+> >  fail:
+> > -	kfree(wdt);
+> > +	platform_set_drvdata(pdev, NULL);
+> 
+> 	platform_set_drvdata(pdev, NULL);
+> 
+> is not needed. By eliminating it you could get rid of the entire error path.
 
-Revision 6:
-* Use watchdog_init_timeout() to initialize timeout
+OK, I will remove it.
+Thank you.
 
-Revision 7:
-* Fix possible get_bootstatus race condition
+Best regards,
+Jingoo Han
 
-Signed-off-by: Johannes Thumshirn <johannes.thumshirn@men.de>
----
- MAINTAINERS                   |    6 ++
- drivers/watchdog/Kconfig      |    8 ++
- drivers/watchdog/Makefile     |    1 +
- drivers/watchdog/mena21_wdt.c |  234 +++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 249 insertions(+)
- create mode 100644 drivers/watchdog/mena21_wdt.c
+> 
+> >  	return error;
+> >  }
+> >
+> >  static int ts72xx_wdt_remove(struct platform_device *pdev)
+> >  {
+> > -	struct ts72xx_wdt *wdt = platform_get_drvdata(pdev);
+> > -	struct resource *res;
+> >  	int error;
+> >
+> >  	error = misc_deregister(&ts72xx_wdt_miscdev);
+> >  	platform_set_drvdata(pdev, NULL);
+> >
+> > -	iounmap(wdt->feed_reg);
+> > -	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+> > -	release_mem_region(res->start, resource_size(res));
+> > -
+> > -	iounmap(wdt->control_reg);
+> > -	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> > -	release_mem_region(res->start, resource_size(res));
+> > -
+> > -	kfree(wdt);
+> >  	return error;
+> >  }
+> >
+> > --
+> > 1.7.2.5
+> >
+> >
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 7714c3c..023945a 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -5307,6 +5307,12 @@ F:	drivers/mtd/
- F:	include/linux/mtd/
- F:	include/uapi/mtd/
-
-+MEN A21 WATCHDOG DRIVER
-+M:  	Johannes Thumshirn <johannes.thumshirn@men.de>
-+L:	linux-watchdog@vger.kernel.org
-+S:	Supported
-+F:	drivers/watchdog/mena21_wdt.c
-+
- METAG ARCHITECTURE
- M:	James Hogan <james.hogan@imgtec.com>
- S:	Supported
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index e89fc31..192b84d 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -1172,6 +1172,14 @@ config BOOKE_WDT_DEFAULT_TIMEOUT
-
- 	  The value can be overridden by the wdt_period command-line parameter.
-
-+config MEN_A21_WDT
-+       tristate "MEN A21 VME CPU Carrier Board Watchdog Timer"
-+       select WATCHDOG_CORE
-+       help
-+        Watchdog driver for MEN A21 VMEbus CPU Carrier Boards.
-+
-+	If unsure select N here.
-+
- # PPC64 Architecture
-
- config WATCHDOG_RTAS
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index a300b94..bffdcb1 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -143,6 +143,7 @@ obj-$(CONFIG_8xxx_WDT) += mpc8xxx_wdt.o
- obj-$(CONFIG_MV64X60_WDT) += mv64x60_wdt.o
- obj-$(CONFIG_PIKA_WDT) += pika_wdt.o
- obj-$(CONFIG_BOOKE_WDT) += booke_wdt.o
-+obj-$(CONFIG_MEN_A21_WDT) += mena21_wdt.o
-
- # PPC64 Architecture
- obj-$(CONFIG_WATCHDOG_RTAS) += wdrtas.o
-diff --git a/drivers/watchdog/mena21_wdt.c b/drivers/watchdog/mena21_wdt.c
-new file mode 100644
-index 0000000..dec35ec
---- /dev/null
-+++ b/drivers/watchdog/mena21_wdt.c
-@@ -0,0 +1,234 @@
-+/*
-+ * Watchdog driver for the A21 VME CPU Boards
-+ *
-+ * Copyright (C) 2013 MEN Mikro Elektronik Nuernberg GmbH
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation
-+ */
-+#include <linux/module.h>
-+#include <linux/moduleparam.h>
-+#include <linux/types.h>
-+#include <linux/kernel.h>
-+#include <linux/slab.h>
-+#include <linux/platform_device.h>
-+#include <linux/watchdog.h>
-+#include <linux/uaccess.h>
-+#include <linux/gpio.h>
-+#include <linux/delay.h>
-+#include <linux/bitops.h>
-+
-+#define GPIO_WD_ENAB	169
-+#define GPIO_WD_FAST	170
-+#define GPIO_WD_TRIG	171
-+
-+#define GPIO_RST_CAUSE_BASE 166
-+
-+struct a21_wdt_drv {
-+	struct watchdog_device wdt;
-+	struct mutex lock;
-+};
-+
-+static bool nowayout = WATCHDOG_NOWAYOUT;
-+module_param(nowayout, bool, 0);
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
-+			    __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-+
-+static int a21_wdt_get_bootstatus(unsigned int *reset)
-+{
-+	int i;
-+
-+	for (i = 0; i < 3; i++)
-+		*reset |= gpio_get_value(GPIO_RST_CAUSE_BASE + i)
-+			? (1 << i) : 0;
-+
-+	if (*reset >= 8)
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
-+static int a21_wdt_start(struct watchdog_device *wdt)
-+{
-+	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
-+
-+	mutex_lock(&drv->lock);
-+
-+	gpio_set_value(GPIO_WD_ENAB, 1);
-+
-+	mutex_unlock(&drv->lock);
-+
-+	return 0;
-+}
-+
-+static int a21_wdt_stop(struct watchdog_device *wdt)
-+{
-+	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
-+
-+	/* We don't stop if WDOG_NO_WAY_OUT is set */
-+	if (test_bit(WDOG_NO_WAY_OUT, &wdt->status))
-+		return -EINVAL;
-+
-+	mutex_lock(&drv->lock);
-+
-+	gpio_set_value(GPIO_WD_ENAB, 0);
-+
-+	mutex_unlock(&drv->lock);
-+
-+	return 0;
-+}
-+
-+static int a21_wdt_ping(struct watchdog_device *wdt)
-+{
-+	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
-+
-+	mutex_lock(&drv->lock);
-+
-+	gpio_set_value(GPIO_WD_TRIG, 0);
-+	ndelay(10);
-+	gpio_set_value(GPIO_WD_TRIG, 1);
-+
-+	mutex_unlock(&drv->lock);
-+
-+	return 0;
-+}
-+
-+static int a21_wdt_set_timeout(struct watchdog_device *wdt,
-+			       unsigned int timeout)
-+{
-+	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
-+
-+	if (timeout != 1 && timeout != 30) {
-+		dev_err(wdt->dev, "Only 1 and 30 allowed as timeout\n");
-+		return -EINVAL;
-+	}
-+
-+	if (timeout == 30 && wdt->timeout == 1) {
-+		dev_err(wdt->dev,
-+			"Transition from fast to slow mode not allowed\n");
-+		return -EINVAL;
-+	}
-+
-+	mutex_lock(&drv->lock);
-+
-+	if (timeout == 1)
-+		gpio_set_value(GPIO_WD_FAST, 1);
-+	else
-+		gpio_set_value(GPIO_WD_FAST, 0);
-+
-+	wdt->timeout = timeout;
-+
-+	mutex_unlock(&drv->lock);
-+
-+	return 0;
-+}
-+
-+static const struct watchdog_info a21_wdt_info = {
-+	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
-+	.identity = "MEN A21 Watchdog",
-+};
-+
-+static const struct watchdog_ops a21_wdt_ops = {
-+	.owner = THIS_MODULE,
-+	.start = a21_wdt_start,
-+	.stop = a21_wdt_stop,
-+	.ping = a21_wdt_ping,
-+	.set_timeout = a21_wdt_set_timeout,
-+};
-+
-+static struct watchdog_device a21_wdt = {
-+	.info = &a21_wdt_info,
-+	.ops = &a21_wdt_ops,
-+	.min_timeout = 1,
-+	.max_timeout = 30,
-+};
-+
-+static int a21_wdt_probe(struct platform_device *pdev)
-+{
-+	struct a21_wdt_drv *drv;
-+	unsigned int reset = 0;
-+	int ret;
-+
-+	dev_info(&pdev->dev, "MEN A21 watchdog timer driver enabled\n");
-+
-+	drv = devm_kzalloc(&pdev->dev, sizeof(struct a21_wdt_drv), GFP_KERNEL);
-+	if (!drv)
-+		return -ENOMEM;
-+
-+	mutex_init(&drv->lock);
-+	watchdog_init_timeout(&a21_wdt, 30, &pdev->dev);
-+	watchdog_set_nowayout(&a21_wdt, nowayout);
-+	watchdog_set_drvdata(&a21_wdt, drv);
-+
-+	ret = a21_wdt_get_bootstatus(&reset);
-+	if (ret)
-+		dev_warn(&pdev->dev, "Reset Cause contains invalid data\n");
-+	else {
-+		if (reset == 2)
-+			a21_wdt.bootstatus |= WDIOF_EXTERN1;
-+		else if (reset == 4)
-+			a21_wdt.bootstatus |= WDIOF_CARDRESET;
-+		else if (reset == 5)
-+			a21_wdt.bootstatus |= WDIOF_POWERUNDER;
-+		else if (reset == 7)
-+			a21_wdt.bootstatus |= WDIOF_EXTERN2;
-+	}
-+
-+	ret = watchdog_register_device(&a21_wdt);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Cannot register watchdog device\n");
-+		goto err_register_wd;
-+	}
-+
-+	dev_set_drvdata(&pdev->dev, drv);
-+
-+	return 0;
-+
-+err_register_wd:
-+	mutex_destroy(&drv->lock);
-+
-+	return ret;
-+}
-+
-+static int a21_wdt_remove(struct platform_device *pdev)
-+{
-+	struct a21_wdt_drv *drv = dev_get_drvdata(&pdev->dev);
-+
-+	dev_warn(&pdev->dev,
-+		"Unregistering A21 watchdog driver, board may reboot\n");
-+
-+
-+	watchdog_unregister_device(&drv->wdt);
-+
-+	mutex_destroy(&drv->lock);
-+
-+	return 0;
-+}
-+
-+static void a21_wdt_shutdown(struct platform_device *pdev)
-+{
-+	gpio_set_value(GPIO_WD_ENAB, 0);
-+}
-+
-+static const struct of_device_id a21_wdt_ids[] = {
-+	{ .compatible = "men,a021-wdt" },
-+	{ },
-+};
-+
-+static struct platform_driver a21_wdt_driver = {
-+	.probe = a21_wdt_probe,
-+	.remove = a21_wdt_remove,
-+	.shutdown = a21_wdt_shutdown,
-+	.driver = {
-+		.name = "a21-watchdog",
-+		.of_match_table = a21_wdt_ids,
-+	},
-+};
-+
-+module_platform_driver(a21_wdt_driver);
-+
-+MODULE_AUTHOR("MEN Mikro Elektronik");
-+MODULE_DESCRIPTION("MEN A21 Watchdog");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:a21-watchdog");
---
-1.7.9.5
