@@ -1,97 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: dirk.eibach@gdsys.cc
-To: linux-kernel@vger.kernel.org
-Cc: Dirk Eibach <dirk.eibach@gdsys.cc>, Kumar Gala <galak@kernel.crashing.org>,
+Date: Thu, 2 May 2013 09:17:20 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: dirk.eibach@gdsys.cc
+Cc: linux-kernel@vger.kernel.org, Kumar Gala <galak@kernel.crashing.org>,
         Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
-Subject: [PATCH] powerpc: Make Book E watchdog reset type configurable
-Date: Thu,  2 May 2013 16:45:13 +0200
-Message-Id: <1367505913-18970-1-git-send-email-dirk.eibach@gdsys.cc>
+Subject: Re: [PATCH] powerpc: Make Book E watchdog reset type configurable
+Message-ID: <20130502161720.GA7797@roeck-us.net>
+References: <1367505913-18970-1-git-send-email-dirk.eibach@gdsys.cc>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1367505913-18970-1-git-send-email-dirk.eibach@gdsys.cc>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-From: Dirk Eibach <dirk.eibach@gdsys.cc>
+On Thu, May 02, 2013 at 04:45:13PM +0200, dirk.eibach@gdsys.cc wrote:
+> From: Dirk Eibach <dirk.eibach@gdsys.cc>
+> 
+> Signed-off-by: Dirk Eibach <dirk.eibach@gdsys.cc>
+> Cc: Kumar Gala <galak@kernel.crashing.org>
+> Cc: Wim Van Sebroeck <wim@iguana.be>
+> Cc: linux-watchdog@vger.kernel.org
+> ---
+>  drivers/watchdog/Kconfig     |   32 ++++++++++++++++++++++++++++++++
+>  drivers/watchdog/booke_wdt.c |   10 +++++++++-
+>  2 files changed, 41 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index e89fc31..6048593 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -1172,6 +1172,38 @@ config BOOKE_WDT_DEFAULT_TIMEOUT
+>  
+>  	  The value can be overridden by the wdt_period command-line parameter.
+>  
+> +choice
+> +	prompt "PowerPC Book-E Watchdog reset type"
+> +	depends on BOOKE_WDT
+> +	default BOOKE_WDT_RESET_CHIP
+> +	help
+> +	  Specify what kind of reset will be executed on watchdog timeout.
+> +
+Seems to me it would be much better to make this configurable via platform data 
+and/or device tree.
 
-Signed-off-by: Dirk Eibach <dirk.eibach@gdsys.cc>
-Cc: Kumar Gala <galak@kernel.crashing.org>
-Cc: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org
----
- drivers/watchdog/Kconfig     |   32 ++++++++++++++++++++++++++++++++
- drivers/watchdog/booke_wdt.c |   10 +++++++++-
- 2 files changed, 41 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index e89fc31..6048593 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -1172,6 +1172,38 @@ config BOOKE_WDT_DEFAULT_TIMEOUT
- 
- 	  The value can be overridden by the wdt_period command-line parameter.
- 
-+choice
-+	prompt "PowerPC Book-E Watchdog reset type"
-+	depends on BOOKE_WDT
-+	default BOOKE_WDT_RESET_CHIP
-+	help
-+	  Specify what kind of reset will be executed on watchdog timeout.
-+
-+	config BOOKE_WDT_RESET_CORE
-+		bool "Core reset"
-+	help
-+	  Watchdog timeout will trigger a core reset.
-+	  The exact function of any of these settings is implementation-de-
-+	  pendent.
-+	  See the User's Manual for the implementation for further details.
-+
-+	config BOOKE_WDT_RESET_CHIP
-+		bool "Chip reset"
-+	help
-+	  Watchdog timeout will trigger a chip reset.
-+	  The exact function of any of these settings is implementation-de-
-+	  pendent.
-+	  See the User's Manual for the implementation for further details.
-+
-+	config BOOKE_WDT_RESET_SYSTEM
-+		bool "System reset"
-+	help
-+	  Watchdog timeout will trigger a system reset.
-+	  The exact function of any of these settings is implementation-de-
-+	  pendent.
-+	  See the User's Manual for the implementation for further details.
-+endchoice
-+
- # PPC64 Architecture
- 
- config WATCHDOG_RTAS
-diff --git a/drivers/watchdog/booke_wdt.c b/drivers/watchdog/booke_wdt.c
-index a8dbceb3..7791d19 100644
---- a/drivers/watchdog/booke_wdt.c
-+++ b/drivers/watchdog/booke_wdt.c
-@@ -22,6 +22,14 @@
- #include <asm/time.h>
- #include <asm/div64.h>
- 
-+#if defined(CONFIG_BOOKE_WDT_RESET_CORE)
-+#define WRC		WRC_CORE
-+#elif defined(CONFIG_BOOKE_WDT_RESET_CHIP)
-+#define WRC		WRC_CHIP
-+#elif defined(CONFIG_BOOKE_WDT_RESET_SYSTEM)
-+#define WRC		WRC_SYSTEM
-+#endif
-+
- /* If the kernel parameter wdt=1, the watchdog will be enabled at boot.
-  * Also, the wdt_period sets the watchdog timer period timeout.
-  * For E500 cpus the wdt_period sets which bit changing from 0->1 will
-@@ -136,7 +144,7 @@ static void __booke_wdt_enable(void *data)
- 	__booke_wdt_ping(NULL);
- 	val = mfspr(SPRN_TCR);
- 	val &= ~WDTP_MASK;
--	val |= (TCR_WIE|TCR_WRC(WRC_CHIP)|WDTP(booke_wdt_period));
-+	val |= (TCR_WIE|TCR_WRC(WRC)|WDTP(booke_wdt_period));
- 
- 	mtspr(SPRN_TCR, val);
- }
--- 
-1.7.2.5
+Guenter
