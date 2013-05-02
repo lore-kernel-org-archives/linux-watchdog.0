@@ -1,28 +1,54 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from nm9.access.bullet.mail.sp2.yahoo.com ([98.139.44.136]:39958
-	"EHLO nm9.access.bullet.mail.sp2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1759001Ab3EBNbf (ORCPT
+Received: from smtprelay03.ispgateway.de ([80.67.31.30]:55967 "EHLO
+	smtprelay03.ispgateway.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1761227Ab3EBTL0 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 2 May 2013 09:31:35 -0400
-Date: Thu, 2 May 2013 06:31:37 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Jingoo Han <jg1.han@samsung.com>
-Cc: 'Andrew Morton' <akpm@linux-foundation.org>,
-	linux-kernel@vger.kernel.org, 'Wim Van Sebroeck' <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH V3 7/7] watchdog: ts72xx_wdt: use devm_*() functions
-Message-ID: <20130502133137.GA14103@roeck-us.net>
-References: <000a01ce46f9$334257f0$99c707d0$@samsung.com>
+	Thu, 2 May 2013 15:11:26 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <000a01ce46f9$334257f0$99c707d0$@samsung.com>
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date: Thu, 02 May 2013 21:11:19 +0200
+From: Dirk Eibach <dirk.eibach@gdsys.cc>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: <linux-kernel@vger.kernel.org>,
+	Kumar Gala <galak@kernel.crashing.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	<linux-watchdog@vger.kernel.org>,
+	<devicetree-discuss@lists.ozlabs.org>
+Subject: Re: [PATCH] powerpc: Make Book E watchdog reset type configurable
+In-Reply-To: <20130502161720.GA7797@roeck-us.net>
+References: <1367505913-18970-1-git-send-email-dirk.eibach@gdsys.cc>
+ <20130502161720.GA7797@roeck-us.net>
+Message-ID: <429ec64cf7c30a139db40eb20fd3e682@gdsys.cc>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, May 02, 2013 at 02:52:16PM +0900, Jingoo Han wrote:
-> Use devm_*() functions to make cleanup paths simpler.
-> 
-> Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+Hi Guenter,
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
+
+>> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+>> index e89fc31..6048593 100644
+>> --- a/drivers/watchdog/Kconfig
+>> +++ b/drivers/watchdog/Kconfig
+>> @@ -1172,6 +1172,38 @@ config BOOKE_WDT_DEFAULT_TIMEOUT
+>> 
+>>  	  The value can be overridden by the wdt_period command-line 
+>> parameter.
+>> 
+>> +choice
+>> +	prompt "PowerPC Book-E Watchdog reset type"
+>> +	depends on BOOKE_WDT
+>> +	default BOOKE_WDT_RESET_CHIP
+>> +	help
+>> +	  Specify what kind of reset will be executed on watchdog timeout.
+>> +
+> Seems to me it would be much better to make this configurable via 
+> platform data
+> and/or device tree.
+
+good catch. What do the device-tree gurus think to be a nice property 
+name?
+
+Cheers
+Dirk
