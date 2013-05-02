@@ -1,80 +1,28 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailout3.samsung.com ([203.254.224.33]:47646 "EHLO
-	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753427Ab3EBFwC (ORCPT
+Received: from nm9.access.bullet.mail.sp2.yahoo.com ([98.139.44.136]:39958
+	"EHLO nm9.access.bullet.mail.sp2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1759001Ab3EBNbf (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 2 May 2013 01:52:02 -0400
-From: Jingoo Han <jg1.han@samsung.com>
-To: 'Andrew Morton' <akpm@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, 'Wim Van Sebroeck' <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org,
-	'Guenter Roeck' <linux@roeck-us.net>,
-	Jingoo Han <jg1.han@samsung.com>
-Subject: [PATCH RESEND 5/7] watchdog: rc32434_wdt: use devm_ioremap_nocache()
- functions
-Date: Thu, 02 May 2013 14:51:39 +0900
-Message-id: <000801ce46f9$1d910f50$58b32df0$@samsung.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-language: ko
+	Thu, 2 May 2013 09:31:35 -0400
+Date: Thu, 2 May 2013 06:31:37 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Jingoo Han <jg1.han@samsung.com>
+Cc: 'Andrew Morton' <akpm@linux-foundation.org>,
+	linux-kernel@vger.kernel.org, 'Wim Van Sebroeck' <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH V3 7/7] watchdog: ts72xx_wdt: use devm_*() functions
+Message-ID: <20130502133137.GA14103@roeck-us.net>
+References: <000a01ce46f9$334257f0$99c707d0$@samsung.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <000a01ce46f9$334257f0$99c707d0$@samsung.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Use devm_ioremap_nocache() functions to make cleanup paths simpler.
+On Thu, May 02, 2013 at 02:52:16PM +0900, Jingoo Han wrote:
+> Use devm_*() functions to make cleanup paths simpler.
+> 
+> Signed-off-by: Jingoo Han <jg1.han@samsung.com>
 
-Signed-off-by: Jingoo Han <jg1.han@samsung.com>
----
- drivers/watchdog/rc32434_wdt.c |   10 +++-------
- 1 files changed, 3 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/watchdog/rc32434_wdt.c b/drivers/watchdog/rc32434_wdt.c
-index f78bc00..9cf6bc7 100644
---- a/drivers/watchdog/rc32434_wdt.c
-+++ b/drivers/watchdog/rc32434_wdt.c
-@@ -32,6 +32,7 @@
- #include <linux/platform_device.h>	/* For platform_driver framework */
- #include <linux/spinlock.h>		/* For spin_lock/spin_unlock/... */
- #include <linux/uaccess.h>		/* For copy_to_user/put_user/... */
-+#include <linux/io.h>			/* For devm_ioremap_nocache */
- 
- #include <asm/mach-rc32434/integ.h>	/* For the Watchdog registers */
- 
-@@ -271,7 +272,7 @@ static int rc32434_wdt_probe(struct platform_device *pdev)
- 		return -ENODEV;
- 	}
- 
--	wdt_reg = ioremap_nocache(r->start, resource_size(r));
-+	wdt_reg = devm_ioremap_nocache(&pdev->dev, r->start, resource_size(r));
- 	if (!wdt_reg) {
- 		pr_err("failed to remap I/O resources\n");
- 		return -ENXIO;
-@@ -293,23 +294,18 @@ static int rc32434_wdt_probe(struct platform_device *pdev)
- 	ret = misc_register(&rc32434_wdt_miscdev);
- 	if (ret < 0) {
- 		pr_err("failed to register watchdog device\n");
--		goto unmap;
-+		return ret;
- 	}
- 
- 	pr_info("Watchdog Timer version " VERSION ", timer margin: %d sec\n",
- 		timeout);
- 
- 	return 0;
--
--unmap:
--	iounmap(wdt_reg);
--	return ret;
- }
- 
- static int rc32434_wdt_remove(struct platform_device *pdev)
- {
- 	misc_deregister(&rc32434_wdt_miscdev);
--	iounmap(wdt_reg);
- 	return 0;
- }
- 
--- 
-1.7.2.5
-
-
+Acked-by: Guenter Roeck <linux@roeck-us.net>
