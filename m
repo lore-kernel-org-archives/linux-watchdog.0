@@ -1,73 +1,61 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtprelay06.ispgateway.de ([80.67.31.104]:60148 "EHLO
-	smtprelay06.ispgateway.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758751Ab3ECSaI (ORCPT
+Received: from mail-pa0-f41.google.com ([209.85.220.41]:56502 "EHLO
+	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934180Ab3ECULb (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 3 May 2013 14:30:08 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date: Fri, 03 May 2013 20:30:03 +0200
-From: Dirk Eibach <dirk.eibach@gdsys.cc>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: <linux-kernel@vger.kernel.org>,
-	Kumar Gala <galak@kernel.crashing.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	<linux-watchdog@vger.kernel.org>,
-	<devicetree-discuss@lists.ozlabs.org>
-Subject: Re: [PATCH] powerpc: Make Book E watchdog reset type configurable
-In-Reply-To: <20130503134610.GA31037@roeck-us.net>
-References: <1367505913-18970-1-git-send-email-dirk.eibach@gdsys.cc>
- <20130502161720.GA7797@roeck-us.net>
- <429ec64cf7c30a139db40eb20fd3e682@gdsys.cc>
- <20130503011741.GA23266@roeck-us.net>
- <7be2cb3417615ff206270a756c6422d6@gdsys.cc>
- <20130503134610.GA31037@roeck-us.net>
-Message-ID: <d735c13abccd6ba75fd65658ab94654d@gdsys.cc>
+	Fri, 3 May 2013 16:11:31 -0400
+Received: by mail-pa0-f41.google.com with SMTP id rl6so1101512pac.0
+        for <linux-watchdog@vger.kernel.org>; Fri, 03 May 2013 13:11:31 -0700 (PDT)
+From: Sachin Kamat <sachin.kamat@linaro.org>
+To: linux-watchdog@vger.kernel.org
+Cc: wim@iguana.be, linux@roeck-us.net, sachin.kamat@linaro.org,
+	Hans-Christian Egtvedt <egtvedt@samfundet.no>
+Subject: [PATCH 1/5] watchdog: at32ap700x: Remove redundant platform_set_drvdata()
+Date: Sat,  4 May 2013 01:41:14 +0530
+Message-Id: <1367611878-3784-1-git-send-email-sachin.kamat@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+Commit 0998d06310 (device-core: Ensure drvdata = NULL when no
+driver is bound) removes the need to set driver data field to
+NULL.
 
+Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: Hans-Christian Egtvedt <egtvedt@samfundet.no>
+---
+ drivers/watchdog/at32ap700x_wdt.c |    5 +----
+ 1 files changed, 1 insertions(+), 4 deletions(-)
 
-Am 03.05.2013 15:46, schrieb Guenter Roeck:
-> On Fri, May 03, 2013 at 10:33:13AM +0200, Dirk Eibach wrote:
->> Hi Guenter,
->> 
->>>>>> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
->>>>>> index e89fc31..6048593 100644
->>>>>> --- a/drivers/watchdog/Kconfig
->>>>>> +++ b/drivers/watchdog/Kconfig
->>>>>> @@ -1172,6 +1172,38 @@ config BOOKE_WDT_DEFAULT_TIMEOUT
->>>>>> 
->>>>>> 	  The value can be overridden by the wdt_period command-line
->>>>>> parameter.
->>>>>> 
->>>>>> +choice
->>>>>> +	prompt "PowerPC Book-E Watchdog reset type"
->>>>>> +	depends on BOOKE_WDT
->>>>>> +	default BOOKE_WDT_RESET_CHIP
->>>>>> +	help
->>>>>> +	  Specify what kind of reset will be executed on watchdog
->>>>>> timeout.
->>>>>> +
->>>>> Seems to me it would be much better to make this configurable via
->>>>> platform data
->>>>> and/or device tree.
->>>> 
->>>> good catch. What do the device-tree gurus think to be a nice
->>>> property name?
->> 
->> having a closer look, I realized booke_wdt is not device-tree based
->> yet. Migrating it would come close to a rewrite, breaking
->> compatibility for all current users. Sorry, this is way beyond the
-> 
-> Really ? I don't think making it a platform driver would be that hard,
-> or break anything.
+diff --git a/drivers/watchdog/at32ap700x_wdt.c b/drivers/watchdog/at32ap700x_wdt.c
+index 7a715e3..18c6e61 100644
+--- a/drivers/watchdog/at32ap700x_wdt.c
++++ b/drivers/watchdog/at32ap700x_wdt.c
+@@ -364,7 +364,7 @@ static int __init at32_wdt_probe(struct platform_device *pdev)
+ 	ret = misc_register(&wdt->miscdev);
+ 	if (ret) {
+ 		dev_dbg(&pdev->dev, "failed to register wdt miscdev\n");
+-		goto err_register;
++		goto err_iounmap;
+ 	}
+ 
+ 	dev_info(&pdev->dev,
+@@ -373,8 +373,6 @@ static int __init at32_wdt_probe(struct platform_device *pdev)
+ 
+ 	return 0;
+ 
+-err_register:
+-	platform_set_drvdata(pdev, NULL);
+ err_iounmap:
+ 	iounmap(wdt->regs);
+ err_free:
+@@ -394,7 +392,6 @@ static int __exit at32_wdt_remove(struct platform_device *pdev)
+ 		iounmap(wdt->regs);
+ 		kfree(wdt);
+ 		wdt = NULL;
+-		platform_set_drvdata(pdev, NULL);
+ 	}
+ 	return 0;
+ }
+-- 
+1.7.4.1
 
-Maybe I am missing something, but wouldn't making it a device-tree 
-driver mean, that I would have to identify all users of BOOKE_WDT and 
-add it to their device trees?
-
-Cheers
-Dirk
