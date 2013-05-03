@@ -1,68 +1,91 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from nm5.access.bullet.mail.sp2.yahoo.com ([98.139.44.132]:41434
-	"EHLO nm5.access.bullet.mail.sp2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1762424Ab3ECNqI (ORCPT
+Received: from nm11-vm0.access.bullet.mail.sp2.yahoo.com ([98.139.44.124]:44679
+	"EHLO nm11-vm0.access.bullet.mail.sp2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932459Ab3ECP5C (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 3 May 2013 09:46:08 -0400
-Date: Fri, 3 May 2013 06:46:10 -0700
+	Fri, 3 May 2013 11:57:02 -0400
 From: Guenter Roeck <linux@roeck-us.net>
-To: Dirk Eibach <dirk.eibach@gdsys.cc>
-Cc: linux-kernel@vger.kernel.org,
-	Kumar Gala <galak@kernel.crashing.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org, devicetree-discuss@lists.ozlabs.org
-Subject: Re: [PATCH] powerpc: Make Book E watchdog reset type configurable
-Message-ID: <20130503134610.GA31037@roeck-us.net>
-References: <1367505913-18970-1-git-send-email-dirk.eibach@gdsys.cc>
- <20130502161720.GA7797@roeck-us.net>
- <429ec64cf7c30a139db40eb20fd3e682@gdsys.cc>
- <20130503011741.GA23266@roeck-us.net>
- <7be2cb3417615ff206270a756c6422d6@gdsys.cc>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7be2cb3417615ff206270a756c6422d6@gdsys.cc>
+To: linux-watchdog@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+	Dirk Eibach <dirk.eibach@gdsys.cc>
+Subject: [RFC PATCH 1/2] watchdog: booke: Convert to platform driver
+Date: Fri,  3 May 2013 08:56:45 -0700
+Message-Id: <1367596606-22476-1-git-send-email-linux@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, May 03, 2013 at 10:33:13AM +0200, Dirk Eibach wrote:
-> Hi Guenter,
-> 
-> >>>>diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> >>>>index e89fc31..6048593 100644
-> >>>>--- a/drivers/watchdog/Kconfig
-> >>>>+++ b/drivers/watchdog/Kconfig
-> >>>>@@ -1172,6 +1172,38 @@ config BOOKE_WDT_DEFAULT_TIMEOUT
-> >>>>
-> >>>>	  The value can be overridden by the wdt_period command-line
-> >>>>parameter.
-> >>>>
-> >>>>+choice
-> >>>>+	prompt "PowerPC Book-E Watchdog reset type"
-> >>>>+	depends on BOOKE_WDT
-> >>>>+	default BOOKE_WDT_RESET_CHIP
-> >>>>+	help
-> >>>>+	  Specify what kind of reset will be executed on watchdog
-> >>>>timeout.
-> >>>>+
-> >>>Seems to me it would be much better to make this configurable via
-> >>>platform data
-> >>>and/or device tree.
-> >>
-> >>good catch. What do the device-tree gurus think to be a nice
-> >>property name?
-> 
-> having a closer look, I realized booke_wdt is not device-tree based
-> yet. Migrating it would come close to a rewrite, breaking
-> compatibility for all current users. Sorry, this is way beyond the
+Required to be able to add device tree support
 
-Really ? I don't think making it a platform driver would be that hard,
-or break anything.
+Cc: Dirk Eibach <dirk.eibach@gdsys.cc>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+Compile tested only. I'll test it on a real system over the weekend
+or early next week.
 
-> time I have for this project. So I suggest merging the change the
-> way it is, as it is clearly an improvement.
-> 
-That will be up to Wim to decide.
+ drivers/watchdog/booke_wdt.c |   28 +++++++++++++++++++++++-----
+ 1 file changed, 23 insertions(+), 5 deletions(-)
 
-Thanks,
-Guenter
+diff --git a/drivers/watchdog/booke_wdt.c b/drivers/watchdog/booke_wdt.c
+index a8dbceb3..9b066b9 100644
+--- a/drivers/watchdog/booke_wdt.c
++++ b/drivers/watchdog/booke_wdt.c
+@@ -17,6 +17,7 @@
+ #include <linux/module.h>
+ #include <linux/smp.h>
+ #include <linux/watchdog.h>
++#include <linux/platform_device.h>
+ 
+ #include <asm/reg_booke.h>
+ #include <asm/time.h>
+@@ -218,17 +219,24 @@ static struct watchdog_device booke_wdt_dev = {
+ 	.max_timeout = 0xFFFF
+ };
+ 
+-static void __exit booke_wdt_exit(void)
++static int booke_wdt_remove(struct platform_device *pdev)
+ {
+ 	watchdog_unregister_device(&booke_wdt_dev);
++	return 0;
++}
++
++static void booke_wdt_shutdown(struct platform_device *pdev)
++{
++	booke_wdt_stop(&booke_wdt_dev);
+ }
+ 
+-static int __init booke_wdt_init(void)
++static int booke_wdt_probe(struct platform_device *pdev)
+ {
+ 	int ret = 0;
+ 	bool nowayout = WATCHDOG_NOWAYOUT;
+ 
+-	pr_info("powerpc book-e watchdog driver loaded\n");
++	dev_info(&pdev->dev, "powerpc book-e watchdog driver loaded\n");
++
+ 	booke_wdt_info.firmware_version = cur_cpu_spec->pvr_value;
+ 	booke_wdt_set_timeout(&booke_wdt_dev,
+ 			      period_to_sec(CONFIG_BOOKE_WDT_DEFAULT_TIMEOUT));
+@@ -241,8 +249,18 @@ static int __init booke_wdt_init(void)
+ 	return ret;
+ }
+ 
+-module_init(booke_wdt_init);
+-module_exit(booke_wdt_exit);
++static struct platform_driver booke_wdt_driver = {
++	.probe = booke_wdt_probe,
++	.remove = booke_wdt_remove,
++	.shutdown = booke_wdt_shutdown,
++	.driver = {
++		.owner  = THIS_MODULE,
++		.name = "booke_wdt",
++	},
++};
++
++module_platform_driver(booke_wdt_driver);
+ 
+ MODULE_DESCRIPTION("PowerPC Book-E watchdog driver");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:booke_wdt");
+-- 
+1.7.9.7
+
