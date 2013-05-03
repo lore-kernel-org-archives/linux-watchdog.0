@@ -1,18 +1,18 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-da0-f50.google.com ([209.85.210.50]:34849 "EHLO
-	mail-da0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934180Ab3ECULk (ORCPT
+Received: from mail-pa0-f45.google.com ([209.85.220.45]:51336 "EHLO
+	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934198Ab3ECULn (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 3 May 2013 16:11:40 -0400
-Received: by mail-da0-f50.google.com with SMTP id i23so958797dad.37
-        for <linux-watchdog@vger.kernel.org>; Fri, 03 May 2013 13:11:40 -0700 (PDT)
+	Fri, 3 May 2013 16:11:43 -0400
+Received: by mail-pa0-f45.google.com with SMTP id lj1so1095871pab.18
+        for <linux-watchdog@vger.kernel.org>; Fri, 03 May 2013 13:11:43 -0700 (PDT)
 From: Sachin Kamat <sachin.kamat@linaro.org>
 To: linux-watchdog@vger.kernel.org
 Cc: wim@iguana.be, linux@roeck-us.net, sachin.kamat@linaro.org,
-	Mika Westerberg <mika.westerberg@iki.fi>
-Subject: [PATCH 4/5] watchdog: ts72xx: Remove redundant platform_set_drvdata()
-Date: Sat,  4 May 2013 01:41:17 +0530
-Message-Id: <1367611878-3784-4-git-send-email-sachin.kamat@linaro.org>
+	Timo Kokkonen <timo.t.kokkonen@nokia.com>
+Subject: [PATCH 5/5] watchdog: twl4030: Remove redundant platform_set_drvdata()
+Date: Sat,  4 May 2013 01:41:18 +0530
+Message-Id: <1367611878-3784-5-git-send-email-sachin.kamat@linaro.org>
 In-Reply-To: <1367611878-3784-1-git-send-email-sachin.kamat@linaro.org>
 References: <1367611878-3784-1-git-send-email-sachin.kamat@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -23,31 +23,35 @@ driver is bound) removes the need to set driver data field to
 NULL.
 
 Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
-Cc: Mika Westerberg <mika.westerberg@iki.fi>
+Cc: Timo Kokkonen <timo.t.kokkonen@nokia.com>
 ---
- drivers/watchdog/ts72xx_wdt.c |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
+ drivers/watchdog/twl4030_wdt.c |    5 +----
+ 1 files changed, 1 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/watchdog/ts72xx_wdt.c b/drivers/watchdog/ts72xx_wdt.c
-index b8a9245..be59bf1 100644
---- a/drivers/watchdog/ts72xx_wdt.c
-+++ b/drivers/watchdog/ts72xx_wdt.c
-@@ -463,7 +463,6 @@ static int ts72xx_wdt_probe(struct platform_device *pdev)
+diff --git a/drivers/watchdog/twl4030_wdt.c b/drivers/watchdog/twl4030_wdt.c
+index 0f03106..2d4535d 100644
+--- a/drivers/watchdog/twl4030_wdt.c
++++ b/drivers/watchdog/twl4030_wdt.c
+@@ -90,10 +90,8 @@ static int twl4030_wdt_probe(struct platform_device *pdev)
+ 	twl4030_wdt_stop(wdt);
+ 
+ 	ret = watchdog_register_device(wdt);
+-	if (ret) {
+-		platform_set_drvdata(pdev, NULL);
++	if (ret)
+ 		return ret;
+-	}
+ 
  	return 0;
+ }
+@@ -103,7 +101,6 @@ static int twl4030_wdt_remove(struct platform_device *pdev)
+ 	struct watchdog_device *wdt = platform_get_drvdata(pdev);
  
- fail_unmap_feed:
--	platform_set_drvdata(pdev, NULL);
- 	iounmap(wdt->feed_reg);
- fail_free_feed:
- 	release_mem_region(r2->start, resource_size(r2));
-@@ -483,7 +482,6 @@ static int ts72xx_wdt_remove(struct platform_device *pdev)
- 	int error;
- 
- 	error = misc_deregister(&ts72xx_wdt_miscdev);
+ 	watchdog_unregister_device(wdt);
 -	platform_set_drvdata(pdev, NULL);
  
- 	iounmap(wdt->feed_reg);
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+ 	return 0;
+ }
 -- 
 1.7.4.1
 
