@@ -1,41 +1,54 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from cassarossa.samfundet.no ([193.35.52.29]:40120 "EHLO
-	cassarossa.samfundet.no" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752536Ab3EDKTF (ORCPT
+Received: from zeniv.linux.org.uk ([195.92.253.2]:55154 "EHLO
+	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756226Ab3EGUKE (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 4 May 2013 06:19:05 -0400
-Date: Sat, 4 May 2013 12:18:59 +0200
-From: Hans-Christian Egtvedt <egtvedt@samfundet.no>
-To: Sachin Kamat <sachin.kamat@linaro.org>
-Cc: linux-watchdog@vger.kernel.org, wim@iguana.be, linux@roeck-us.net
-Subject: Re: [PATCH 1/5] watchdog: at32ap700x: Remove redundant
- platform_set_drvdata()
-Message-ID: <20130504101859.GA15645@samfundet.no>
-References: <1367611878-3784-1-git-send-email-sachin.kamat@linaro.org>
+	Tue, 7 May 2013 16:10:04 -0400
+Date: Tue, 7 May 2013 21:10:01 +0100
+From: Al Viro <viro@ZenIV.linux.org.uk>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org,
+	Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [RFC] watchdog ->release() races
+Message-ID: <20130507201001.GR25399@ZenIV.linux.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1367611878-3784-1-git-send-email-sachin.kamat@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Around Sat 04 May 2013 01:41:14 +0530 or thereabout, Sachin Kamat wrote:
-> Commit 0998d06310 (device-core: Ensure drvdata = NULL when no
-> driver is bound) removes the need to set driver data field to
-> NULL.
+	Watchdog drivers tend to do something like that:
 
-You are sure cleaning up a lot of drivers, thanks (-:
+foo_open()
+{
+	if (test_and_set_bit(0, &foo_is_open))
+		return -EBUSY;
+	...
+}
 
-> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
-> Cc: Hans-Christian Egtvedt <egtvedt@samfundet.no>
+foo_write()
+{
+	...
+	assign foo_expect_close
+	...
+}
 
-Acked-by: Hans-Christian Egtvedt <egtvedt@samfundet.no>
+foo_release()
+{
+	look at foo_expect_close, act accordingly
+	clear_bit(0, &foo_is_open);
+	foo_expect_close = 0;
+}
 
-> ---
->  drivers/watchdog/at32ap700x_wdt.c |    5 +----
->  1 files changed, 1 insertions(+), 4 deletions(-)
+OK, so it tries to make sure that there's only one opened struct file for
+the device; fair enough, but what happens if we have
+task A: open()/write()/close()
+task B: open()/write()/close()
+with task A losing CPU just between clear_bit() and clearing foo_expect_close?
+If it regains CPU just after write() done by task B, we'll get foo_expect_close
+unexpectedly cleared.
 
-<snipp diff>
+It's obviously racy; I'm not sure if we care about that race, but if we
+do, there's about 80 drivers that need to be fixed...
 
--- 
-HcE
+Comments?
