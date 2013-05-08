@@ -1,38 +1,70 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from zeniv.linux.org.uk ([195.92.253.2]:55504 "EHLO
-	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755820Ab3EGVRY (ORCPT
+Received: from nm16-vm0.access.bullet.mail.sp2.yahoo.com ([98.139.44.166]:27088
+	"EHLO nm16-vm0.access.bullet.mail.sp2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752725Ab3EHAaY (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 7 May 2013 17:17:24 -0400
-Date: Tue, 7 May 2013 22:17:22 +0100
-From: Al Viro <viro@ZenIV.linux.org.uk>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>
+	Tue, 7 May 2013 20:30:24 -0400
+Date: Tue, 7 May 2013 17:30:27 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Al Viro <viro@ZenIV.linux.org.uk>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	Linus Torvalds <torvalds@linux-foundation.org>
 Subject: Re: [RFC] watchdog ->release() races
-Message-ID: <20130507211722.GS25399@ZenIV.linux.org.uk>
+Message-ID: <20130508003027.GA8103@roeck-us.net>
 References: <20130507201001.GR25399@ZenIV.linux.org.uk>
- <CA+55aFwxBj-+r3z_1JgAG4Tv5p3NF-WTaYedYNGq9jDq+riOaw@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CA+55aFwxBj-+r3z_1JgAG4Tv5p3NF-WTaYedYNGq9jDq+riOaw@mail.gmail.com>
+In-Reply-To: <20130507201001.GR25399@ZenIV.linux.org.uk>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, May 07, 2013 at 02:00:02PM -0700, Linus Torvalds wrote:
-> On Tue, May 7, 2013 at 1:10 PM, Al Viro <viro@zeniv.linux.org.uk> wrote:
-> >
-> > It's obviously racy; I'm not sure if we care about that race, but if we
-> > do, there's about 80 drivers that need to be fixed...
+On Tue, May 07, 2013 at 09:10:01PM +0100, Al Viro wrote:
+> 	Watchdog drivers tend to do something like that:
 > 
-> I suspect the "we don't really care" is the correct answer here. It's
-> not like you can really screw things up by mistake, and if you try to
-> screw this up on purpose, you need to be root anyway to open
-> /dev/watchdog etc.
+> foo_open()
+> {
+> 	if (test_and_set_bit(0, &foo_is_open))
+> 		return -EBUSY;
+> 	...
+> }
+> 
+> foo_write()
+> {
+> 	...
+> 	assign foo_expect_close
+> 	...
+> }
+> 
+> foo_release()
+> {
+> 	look at foo_expect_close, act accordingly
+> 	clear_bit(0, &foo_is_open);
+> 	foo_expect_close = 0;
+> }
+> 
+> OK, so it tries to make sure that there's only one opened struct file for
+> the device; fair enough, but what happens if we have
+> task A: open()/write()/close()
+> task B: open()/write()/close()
+> with task A losing CPU just between clear_bit() and clearing foo_expect_close?
+> If it regains CPU just after write() done by task B, we'll get foo_expect_close
+> unexpectedly cleared.
+> 
+> It's obviously racy; I'm not sure if we care about that race, but if we
+> do, there's about 80 drivers that need to be fixed...
+> 
+> Comments?
 
-I'm not sure...  It's obviously not a "the sky is falling" kind of thing,
-but in a situation when task B kills task A, then spins trying to open
-until open() succeeds...  Hell knows; it might be triggerable by somebody
-not trying to trigger the race on purpose.  I really don't know what does
-the userland side of that thing look like, thus the Cc to linux-wtchdog...
+Good catch.
+
+Unless I am missing something, the problem should be fixed for drivers using
+the watchdog infrastructure. Might be a good incentive to convert the remaining
+drivers.
+
+There is a race in watchdog_register_device which I think is a bit more serious.
+See https://patchwork.kernel.org/patch/2400801/.
+
+It is in linux-next, so Linus should get it from Wim's pull request.
+
+Guenter
