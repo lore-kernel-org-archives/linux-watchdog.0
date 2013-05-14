@@ -1,53 +1,80 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([94.23.35.102]:52190 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756061Ab3EOInJ (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 15 May 2013 04:43:09 -0400
-Message-ID: <51934A94.3070503@free-electrons.com>
-Date: Wed, 15 May 2013 10:43:00 +0200
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-MIME-Version: 1.0
-To: wim@iguana.be, linux-watchdog@vger.kernel.org
-CC: Carlo Caione <carlo.caione@gmail.com>,
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH] ARM: sunxi: New watchdog driver for Allwinner A10/A13
-References: <1368390994-27161-1-git-send-email-carlo.caione@gmail.com>
-In-Reply-To: <1368390994-27161-1-git-send-email-carlo.caione@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from perches-mx.perches.com ([206.117.179.246]:60123 "EHLO
+	labridge.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1757884Ab3ENTd4 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 14 May 2013 15:33:56 -0400
+Message-ID: <1368560034.24692.4.camel@joe-AO722>
+Subject: Re: [PATCH v2] watchdog: New watchdog driver for MEN A21 watchdogs
+From: Joe Perches <joe@perches.com>
+To: johannes.thumshirn@men.de
+Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Date: Tue, 14 May 2013 12:33:54 -0700
+In-Reply-To: <1368558589-3156-1-git-send-email-johannes.thumshirn@men.de>
+References: <20130513224440.GA13891@roeck-us.net>
+	 <1368558589-3156-1-git-send-email-johannes.thumshirn@men.de>
+Content-Type: text/plain; charset="ISO-8859-1"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-Hi,
+On Tue, 2013-05-14 at 21:09 +0200, johannes.thumshirn@men.de wrote:
+> From: Johannes Thumshirn <johannes.thumshirn@men.de>
+> 
+> This patch adds the driver for the watchdog devices found on MEN Mikro
+> Elektronik A21 VMEbus CPU Carrier Boards. It has DT-support and uses the
+> watchdog framework.
 
-Le 12/05/2013 22:36, Carlo Caione a =E9crit :
-> This patch adds the driver for the watchdog found in the Allwinner A10 =
-and
-> A13 SoCs. It has DT-support and uses the new watchdog framework.
+trivia:
 
-I'd like to start some more general discussion here.
+> diff --git a/drivers/watchdog/mena21_wdt.c b/drivers/watchdog/mena21_wdt.c
 
-All the sunxi boards don't have a PMIC to do the reset properly, so we
-chose to do the reboot hook using the watchdog.
+add:
 
-How is that handled usually? Obviously, we could have a rather minimal
-approach, like this one, where we have code duplication between the arch
-code and the watchdog driver code, which is probably not so nice, but I
-couldn't find either any convention for this, or a piece of
-infrastructure to do so.
+#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
-What could be the preferred solution?
+before any #include to prefix pr_<level> messages.
 
-Thanks,
-Maxime
+> +#include <linux/module.h>
+[]
+> +static int a21_wdt_probe(struct platform_device *pdev)
+> +{
+> +	struct a21_wdt_drv *drv;
+> +	int ret;
+> +
+> +	dev_info(&pdev->dev, "MEN A21 watchdog timer driver enabled\n");
+> +
+> +	drv = devm_kzalloc(&pdev->dev, sizeof(struct a21_wdt_drv), GFP_KERNEL);
+> +	if (!drv) {
+> +		dev_err(&pdev->dev,
+> +			"Unable to allocate memory for watchdog device\n");
 
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+OOM messages aren't particularly useful as all
+failed memory allocations (without __GFP_NOWARN)
+get a generic dump_stack().
+
+> +	ret = watchdog_register_device(&a21_wdt);
+> +	if (ret) {
+> +		pr_err("Cannot register watchdog device\n");
+> +		goto err_register_wd;
+> +	}
+> +
+> +	ret = register_reboot_notifier(&a21_wdt_notifier);
+> +	if (ret) {
+> +		pr_err("Cannot register reboot notifier\n");
+> +		goto err_register_notif;
+> +	}
+> +
+> +	ret = a21_wdt_create_files(&a21_wdt);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "Cannot create sysfs entries\n");
+> +		goto err_create_sysfs;
+> +	}
+
+Mixing pr_err and dev_err may not be that useful.
+
+Why not all dev_err?  Then there'd be no pr_<level>
+uses at all and you wouldn't need the pr_fmt either.
+
+
