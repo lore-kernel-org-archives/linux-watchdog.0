@@ -3,11 +3,11 @@ From: johannes.thumshirn@men.de
 To: wim@iguana.be
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         Johannes Thumshirn <johannes.thumshirn@men.de>
-Subject: [PATCH v2] watchdog: New watchdog driver for MEN A21 watchdogs
-Date: Tue, 14 May 2013 21:09:49 +0200
-Message-Id: <1368558589-3156-1-git-send-email-johannes.thumshirn@men.de>
-In-Reply-To: <20130513224440.GA13891@roeck-us.net>
-References: <20130513224440.GA13891@roeck-us.net>
+Subject: [PATCH v3] watchdog: New watchdog driver for MEN A21 watchdogs
+Date: Wed, 15 May 2013 20:50:10 +0200
+Message-Id: <1368643810-2789-1-git-send-email-johannes.thumshirn@men.de>
+In-Reply-To: <1368560034.24692.4.camel@joe-AO722>
+References: <1368560034.24692.4.camel@joe-AO722>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -27,13 +27,18 @@ Revision 2:
 * Reworked timeout setting
 * Removed a21_wdt_ioctl(...)
 
+Revision 3:
+* Changed pr_{err,info} to dev_{err,info}
+* Removed out of memory error print
+* Transition from "fast" to "slow" mode not allowed by chip
+
 Signed-off-by: Johannes Thumshirn <johannes.thumshirn@men.de>
 ---
  MAINTAINERS                   |    6 +
  drivers/watchdog/Kconfig      |    8 ++
  drivers/watchdog/Makefile     |    1 +
- drivers/watchdog/mena21_wdt.c |  305 +++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 320 insertions(+)
+ drivers/watchdog/mena21_wdt.c |  309 +++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 324 insertions(+)
  create mode 100644 drivers/watchdog/mena21_wdt.c
 
 diff --git a/MAINTAINERS b/MAINTAINERS
@@ -86,10 +91,10 @@ index a300b94..bffdcb1 100644
  obj-$(CONFIG_WATCHDOG_RTAS) += wdrtas.o
 diff --git a/drivers/watchdog/mena21_wdt.c b/drivers/watchdog/mena21_wdt.c
 new file mode 100644
-index 0000000..9c5bf32
+index 0000000..389bd59
 --- /dev/null
 +++ b/drivers/watchdog/mena21_wdt.c
-@@ -0,0 +1,305 @@
+@@ -0,0 +1,309 @@
 +/*
 + * Watchdog driver for the A21 VME CPU Boards
 + *
@@ -262,9 +267,15 @@ index 0000000..9c5bf32
 +		return -EINVAL;
 +	}
 +
++	if (timeout == 30 && wdt->timeout == 1) {
++		dev_err(wdt->dev,
++			"Transition from fast to slow mode not allowed\n");
++		return -EINVAL;
++	}
++
 +	mutex_lock(&drv->lock);
 +
-+	if (timeout == 30)
++	if (timeout == 1)
 +		gpio_set_value(GPIO_WD_FAST, 1);
 +	else
 +		gpio_set_value(GPIO_WD_FAST, 0);
@@ -317,11 +328,8 @@ index 0000000..9c5bf32
 +	dev_info(&pdev->dev, "MEN A21 watchdog timer driver enabled\n");
 +
 +	drv = devm_kzalloc(&pdev->dev, sizeof(struct a21_wdt_drv), GFP_KERNEL);
-+	if (!drv) {
-+		dev_err(&pdev->dev,
-+			"Unable to allocate memory for watchdog device\n");
++	if (!drv)
 +		return -ENOMEM;
-+	}
 +
 +	mutex_init(&drv->lock);
 +	watchdog_set_nowayout(&a21_wdt, nowayout);
@@ -329,13 +337,13 @@ index 0000000..9c5bf32
 +
 +	ret = watchdog_register_device(&a21_wdt);
 +	if (ret) {
-+		pr_err("Cannot register watchdog device\n");
++		dev_err(&pdev->dev, "Cannot register watchdog device\n");
 +		goto err_register_wd;
 +	}
 +
 +	ret = register_reboot_notifier(&a21_wdt_notifier);
 +	if (ret) {
-+		pr_err("Cannot register reboot notifier\n");
++		dev_err(&pdev->dev, "Cannot register reboot notifier\n");
 +		goto err_register_notif;
 +	}
 +
@@ -363,7 +371,8 @@ index 0000000..9c5bf32
 +{
 +	struct a21_wdt_drv *drv = dev_get_drvdata(&pdev->dev);
 +
-+	pr_warn("Unregistering A21 watchdog driver, board may reboot\n");
++	dev_warn(&pdev->dev,
++		"Unregistering A21 watchdog driver, board may reboot\n");
 +
 +	a21_wdt_remove_files(&drv->wdt);
 +
