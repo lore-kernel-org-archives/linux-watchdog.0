@@ -1,30 +1,41 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:57440 "EHLO
-	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751771Ab3EQC7V (ORCPT
+Received: from mail-oa0-f45.google.com ([209.85.219.45]:58835 "EHLO
+	mail-oa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753669Ab3EQK6J (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 16 May 2013 22:59:21 -0400
-Message-ID: <51959D07.3010509@wwwdotorg.org>
-Date: Thu, 16 May 2013 20:59:19 -0600
-From: Stephen Warren <swarren@wwwdotorg.org>
+	Fri, 17 May 2013 06:58:09 -0400
+Received: by mail-oa0-f45.google.com with SMTP id j6so5025266oag.18
+        for <linux-watchdog@vger.kernel.org>; Fri, 17 May 2013 03:58:09 -0700 (PDT)
 MIME-Version: 1.0
-To: Lubomir Rintel <lkundrak@v3.sk>
-CC: linux-kernel@vger.kernel.org, Dom Cobley <popcornmix@gmail.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-rpi-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v4] watchdog: Add Broadcom BCM2835 watchdog timer driver
-References: <1364320200-23569-1-git-send-email-lkundrak@v3.sk> <1364402424-19503-1-git-send-email-lkundrak@v3.sk>
-In-Reply-To: <1364402424-19503-1-git-send-email-lkundrak@v3.sk>
+In-Reply-To: <20130504101859.GA15645@samfundet.no>
+References: <1367611878-3784-1-git-send-email-sachin.kamat@linaro.org>
+	<20130504101859.GA15645@samfundet.no>
+Date: Fri, 17 May 2013 16:28:08 +0530
+Message-ID: <CAK9yfHzTeG63dZu19n_g3eqArsxzo77ye77S28XwRZBY3FEeEg@mail.gmail.com>
+Subject: Re: [PATCH 1/5] watchdog: at32ap700x: Remove redundant platform_set_drvdata()
+From: Sachin Kamat <sachin.kamat@linaro.org>
+To: wim@iguana.be
+Cc: linux-watchdog@vger.kernel.org
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 03/27/2013 10:40 AM, Lubomir Rintel wrote:
-> This adds a driver for watchdog timer hardware present on Broadcom BCM2835 SoC,
-> used in Raspberry Pi and Roku 2 devices.
+On 4 May 2013 15:48, Hans-Christian Egtvedt <egtvedt@samfundet.no> wrote:
+> Around Sat 04 May 2013 01:41:14 +0530 or thereabout, Sachin Kamat wrote:
+>> Commit 0998d06310 (device-core: Ensure drvdata = NULL when no
+>> driver is bound) removes the need to set driver data field to
+>> NULL.
+>
+> You are sure cleaning up a lot of drivers, thanks (-:
+>
+>> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+>> Cc: Hans-Christian Egtvedt <egtvedt@samfundet.no>
+>
+> Acked-by: Hans-Christian Egtvedt <egtvedt@samfundet.no>
+>
 
-Lubomir, I don't believe this patch was applied for 3.10. Are you
-planning to fix up any remaining issues and repost for 3.11?
+Ping on this series Wim.
+
+-- 
+With warm regards,
+Sachin
