@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ee0-f41.google.com ([74.125.83.41]:53338 "EHLO
-	mail-ee0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753460Ab3ERWhg (ORCPT
+Received: from mail-ee0-f44.google.com ([74.125.83.44]:41736 "EHLO
+	mail-ee0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753460Ab3ERWhi (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 18 May 2013 18:37:36 -0400
+	Sat, 18 May 2013 18:37:38 -0400
 From: Tomasz Figa <tomasz.figa@gmail.com>
 To: linux-arm-kernel@lists.infradead.org
 Cc: linux-samsung-soc@vger.kernel.org,
@@ -13,68 +13,70 @@ Cc: linux-samsung-soc@vger.kernel.org,
 	Wim Van Sebroeck <wim@iguana.be>,
 	linux-watchdog@vger.kernel.org, jhbird.choi@samsung.com,
 	Tomasz Figa <tomasz.figa@gmail.com>
-Subject: [PATCH 5/6] ARM: SAMSUNG: Remove legacy watchdog reset code
-Date: Sun, 19 May 2013 00:37:06 +0200
-Message-Id: <1368916627-23139-6-git-send-email-tomasz.figa@gmail.com>
+Subject: [PATCH 6/6] ARM: SAMSUNG: Remove unused plat/regs-watchdog.h header
+Date: Sun, 19 May 2013 00:37:07 +0200
+Message-Id: <1368916627-23139-7-git-send-email-tomasz.figa@gmail.com>
 In-Reply-To: <1368916627-23139-1-git-send-email-tomasz.figa@gmail.com>
 References: <1368916627-23139-1-git-send-email-tomasz.figa@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Since all platforms have been moved to the new watchdog reset driver,
-the legacy code can be removed safely.
+Since there are no remaining users of this header, it can be safely
+dropped.
 
 Signed-off-by: Tomasz Figa <tomasz.figa@gmail.com>
 ---
- .../arm/plat-samsung/include/plat/watchdog-reset.h | 35 ----------------------
- 1 file changed, 35 deletions(-)
+ arch/arm/plat-samsung/include/plat/regs-watchdog.h | 41 ----------------------
+ 1 file changed, 41 deletions(-)
+ delete mode 100644 arch/arm/plat-samsung/include/plat/regs-watchdog.h
 
-diff --git a/arch/arm/plat-samsung/include/plat/watchdog-reset.h b/arch/arm/plat-samsung/include/plat/watchdog-reset.h
-index 4def1b2..f2dc304 100644
---- a/arch/arm/plat-samsung/include/plat/watchdog-reset.h
-+++ b/arch/arm/plat-samsung/include/plat/watchdog-reset.h
-@@ -13,41 +13,6 @@
- #ifndef __PLAT_WATCHDOG_RESET_H
- #define __PLAT_WATCHDOG_RESET_H
- 
--#include <plat/clock.h>
--#include <plat/regs-watchdog.h>
--#include <mach/map.h>
+diff --git a/arch/arm/plat-samsung/include/plat/regs-watchdog.h b/arch/arm/plat-samsung/include/plat/regs-watchdog.h
+deleted file mode 100644
+index 4938492..0000000
+--- a/arch/arm/plat-samsung/include/plat/regs-watchdog.h
++++ /dev/null
+@@ -1,41 +0,0 @@
+-/* arch/arm/mach-s3c2410/include/mach/regs-watchdog.h
+- *
+- * Copyright (c) 2003 Simtec Electronics <linux@simtec.co.uk>
+- *		      http://www.simtec.co.uk/products/SWLINUX/
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 2 as
+- * published by the Free Software Foundation.
+- *
+- * S3C2410 Watchdog timer control
+-*/
 -
--#include <linux/clk.h>
--#include <linux/err.h>
--#include <linux/io.h>
--#include <linux/delay.h>
 -
--static inline void arch_wdt_reset(void)
--{
--	printk("arch_reset: attempting watchdog reset\n");
+-#ifndef __ASM_ARCH_REGS_WATCHDOG_H
+-#define __ASM_ARCH_REGS_WATCHDOG_H
 -
--	__raw_writel(0, S3C2410_WTCON);	  /* disable watchdog, to be safe  */
+-#define S3C_WDOGREG(x) ((x) + S3C_VA_WATCHDOG)
 -
--	if (!IS_ERR(s3c2410_wdtclk))
--		clk_enable(s3c2410_wdtclk);
+-#define S3C2410_WTCON	   S3C_WDOGREG(0x00)
+-#define S3C2410_WTDAT	   S3C_WDOGREG(0x04)
+-#define S3C2410_WTCNT	   S3C_WDOGREG(0x08)
 -
--	/* put initial values into count and data */
--	__raw_writel(0x80, S3C2410_WTCNT);
--	__raw_writel(0x80, S3C2410_WTDAT);
+-/* the watchdog can either generate a reset pulse, or an
+- * interrupt.
+- */
 -
--	/* set the watchdog to go and reset... */
--	__raw_writel(S3C2410_WTCON_ENABLE|S3C2410_WTCON_DIV16|S3C2410_WTCON_RSTEN |
--		     S3C2410_WTCON_PRESCALE(0x20), S3C2410_WTCON);
+-#define S3C2410_WTCON_RSTEN   (0x01)
+-#define S3C2410_WTCON_INTEN   (1<<2)
+-#define S3C2410_WTCON_ENABLE  (1<<5)
 -
--	/* wait for reset to assert... */
--	mdelay(500);
+-#define S3C2410_WTCON_DIV16   (0<<3)
+-#define S3C2410_WTCON_DIV32   (1<<3)
+-#define S3C2410_WTCON_DIV64   (2<<3)
+-#define S3C2410_WTCON_DIV128  (3<<3)
 -
--	printk(KERN_ERR "Watchdog reset failed to assert reset\n");
+-#define S3C2410_WTCON_PRESCALE(x) ((x) << 8)
+-#define S3C2410_WTCON_PRESCALE_MASK (0xff00)
 -
--	/* delay to allow the serial port to show the message */
--	mdelay(50);
--}
+-#endif /* __ASM_ARCH_REGS_WATCHDOG_H */
 -
- extern void samsung_wdt_reset(void);
- extern void samsung_wdt_reset_of_init(void);
- extern void samsung_wdt_reset_init(void __iomem *base);
+-
 -- 
 1.8.2.1
 
