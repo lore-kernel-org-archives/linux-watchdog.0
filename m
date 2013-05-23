@@ -1,18 +1,18 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailout2.samsung.com ([203.254.224.25]:54351 "EHLO
-	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758117Ab3EWKoY (ORCPT
+Received: from mailout1.samsung.com ([203.254.224.24]:38786 "EHLO
+	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758260Ab3EWKok (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 23 May 2013 06:44:24 -0400
+	Thu, 23 May 2013 06:44:40 -0400
 From: Jingoo Han <jg1.han@samsung.com>
 To: 'Andrew Morton' <akpm@linux-foundation.org>
 Cc: linux-kernel@vger.kernel.org, 'Wim Van Sebroeck' <wim@iguana.be>,
 	linux-watchdog@vger.kernel.org,
 	'Guenter Roeck' <linux@roeck-us.net>,
 	Jingoo Han <jg1.han@samsung.com>
-Subject: [PATCH 3/5] watchdog: da9055: use platform_{get,set}_drvdata()
-Date: Thu, 23 May 2013 19:44:23 +0900
-Message-id: <003601ce57a2$7d2617d0$77724770$@samsung.com>
+Subject: [PATCH 4/5] watchdog: riowd: use platform_{get,set}_drvdata()
+Date: Thu, 23 May 2013 19:44:38 +0900
+Message-id: <003701ce57a2$864a0740$92de15c0$@samsung.com>
 MIME-version: 1.0
 Content-type: text/plain; charset=us-ascii
 Content-transfer-encoding: 7bit
@@ -26,31 +26,31 @@ so we can directly pass a struct platform_device.
 
 Signed-off-by: Jingoo Han <jg1.han@samsung.com>
 ---
- drivers/watchdog/da9055_wdt.c |    4 ++--
+ drivers/watchdog/riowd.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/da9055_wdt.c b/drivers/watchdog/da9055_wdt.c
-index f5ad105..575f37a 100644
---- a/drivers/watchdog/da9055_wdt.c
-+++ b/drivers/watchdog/da9055_wdt.c
-@@ -174,7 +174,7 @@ static int da9055_wdt_probe(struct platform_device *pdev)
- 		goto err;
- 	}
+diff --git a/drivers/watchdog/riowd.c b/drivers/watchdog/riowd.c
+index 0040451..4f99f12 100644
+--- a/drivers/watchdog/riowd.c
++++ b/drivers/watchdog/riowd.c
+@@ -206,7 +206,7 @@ static int riowd_probe(struct platform_device *op)
+ 	pr_info("Hardware watchdog [%i minutes], regs at %p\n",
+ 		riowd_timeout, p->regs);
  
--	dev_set_drvdata(&pdev->dev, driver_data);
-+	platform_set_drvdata(pdev, driver_data);
+-	dev_set_drvdata(&op->dev, p);
++	platform_set_drvdata(op, p);
+ 	return 0;
  
- 	ret = watchdog_register_device(&driver_data->wdt);
- 	if (ret != 0)
-@@ -187,7 +187,7 @@ err:
+ out_iounmap:
+@@ -222,7 +222,7 @@ out:
  
- static int da9055_wdt_remove(struct platform_device *pdev)
+ static int riowd_remove(struct platform_device *op)
  {
--	struct da9055_wdt_data *driver_data = dev_get_drvdata(&pdev->dev);
-+	struct da9055_wdt_data *driver_data = platform_get_drvdata(pdev);
+-	struct riowd *p = dev_get_drvdata(&op->dev);
++	struct riowd *p = platform_get_drvdata(op);
  
- 	watchdog_unregister_device(&driver_data->wdt);
- 	kref_put(&driver_data->kref, da9055_wdt_release_resources);
+ 	misc_deregister(&riowd_miscdev);
+ 	of_iounmap(&op->resource[0], p->regs, 2);
 -- 
 1.7.10.4
 
