@@ -1,59 +1,57 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([94.23.35.102]:55100 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751789Ab3ESVki (ORCPT
+Received: from mailout2.samsung.com ([203.254.224.25]:54277 "EHLO
+	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757967Ab3EWKnp (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 19 May 2013 17:40:38 -0400
-Date: Sun, 19 May 2013 23:40:33 +0200
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Carlo Caione <carlo.caione@gmail.com>
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-sunxi@googlegroups.com,
-	Henrik =?iso-8859-1?Q?Nordstr=F6m?= <henrik@henriknordstrom.net>
-Subject: Re: [PATCH v2] ARM: sunxi: New watchdog driver for Allwinner A10/A13
-Message-ID: <20130519214033.GA8509@lukather>
-References: <1368903956-32388-1-git-send-email-carlo.caione@gmail.com>
- <20130519153235.GC7717@lukather>
- <F595BD7D-09B6-452A-B8FF-C7B667CE1DF8@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <F595BD7D-09B6-452A-B8FF-C7B667CE1DF8@gmail.com>
+	Thu, 23 May 2013 06:43:45 -0400
+From: Jingoo Han <jg1.han@samsung.com>
+To: 'Andrew Morton' <akpm@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, 'Wim Van Sebroeck' <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org,
+	'Guenter Roeck' <linux@roeck-us.net>,
+	'Jingoo Han' <jg1.han@samsung.com>
+Subject: [PATCH 1/5] watchdog: cpwd: use platform_{get,set}_drvdata()
+Date: Thu, 23 May 2013 19:43:43 +0900
+Message-id: <003401ce57a2$658fbb80$30af3280$@samsung.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-language: ko
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sun, May 19, 2013 at 07:01:54PM +0200, Carlo Caione wrote:
-> 
-> On May 19, 2013, at 5:32 PM, Maxime Ripard <maxime.ripard@free-electrons.com> wrote:
-> 
-> > Hi Carlo,
-> 
-> Hi Maxime,
-> 
-> >> +
-> >> +#define WDT_CTRL                0x00
-> >> +#define WDT_CTRL_RESTART        (1 << 0)
-> >> +#define WDT_CTRL_RESERVED       (0x0a57 << 1)
-> > 
-> > You didn't replied to me on that part in the previous mail. It doesn't
-> > seem to be needed, so why keeping it?
-> 
-> Actually I wrote you about this on irc (probably you were afk)
-> Anyway I tested the driver without using the 0x0a57 and without these bits the watchdog is never successfully kicked.
-> I'm going to submit a v3 soon, addressing also the suggestions given by Henrik on linux-sunxi ml.
+Use the wrapper functions for getting and setting the driver data using
+platform_device instead of using dev_{get,set}_drvdata() with &pdev->dev,
+so we can directly pass a struct platform_device.
 
-Ok, please discuss this both using mails and by keeping all the
-recipients... I wasn't in copy of these mails anymore, neither were the
-kernel mailing lists which makes it a pain for the archives and for
-other people being part of the discussions.
+Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+---
+ drivers/watchdog/cpwd.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Please always reply-to-all, and with mails, to these questions.
-
-Anyway, ok. Put a comment explaining why you need it then.
-
-Maxime
-
+diff --git a/drivers/watchdog/cpwd.c b/drivers/watchdog/cpwd.c
+index 7038758..213225e 100644
+--- a/drivers/watchdog/cpwd.c
++++ b/drivers/watchdog/cpwd.c
+@@ -621,7 +621,7 @@ static int cpwd_probe(struct platform_device *op)
+ 			WD_BADMODEL);
+ 	}
+ 
+-	dev_set_drvdata(&op->dev, p);
++	platform_set_drvdata(op, p);
+ 	cpwd_device = p;
+ 	err = 0;
+ 
+@@ -642,7 +642,7 @@ out_free:
+ 
+ static int cpwd_remove(struct platform_device *op)
+ {
+-	struct cpwd *p = dev_get_drvdata(&op->dev);
++	struct cpwd *p = platform_get_drvdata(op);
+ 	int i;
+ 
+ 	for (i = 0; i < WD_NUMDEVS; i++) {
 -- 
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.7.10.4
+
+
