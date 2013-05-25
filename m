@@ -1,36 +1,36 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:47900 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:47905 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1757769Ab3EYTYY (ORCPT
+	with ESMTP id S1757785Ab3EYTfv (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 25 May 2013 15:24:24 -0400
-Date: Sat, 25 May 2013 21:24:19 +0200
+	Sat, 25 May 2013 15:35:51 -0400
+Date: Sat, 25 May 2013 21:35:49 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
 To: Jingoo Han <jg1.han@samsung.com>
 Cc: 'Andrew Morton' <akpm@linux-foundation.org>,
 	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
 	'Guenter Roeck' <linux@roeck-us.net>
-Subject: Re: [PATCH V2 5/7] watchdog: rc32434_wdt: use devm_ioremap_nocache() functions
-Message-ID: <20130525192419.GA12860@spo001.leaseweb.com>
-References: <001201ce455f$cdb6ec10$6924c430$@samsung.com>
+Subject: Re: [PATCH V2 6/7] watchdog: riowd: use devm_kzalloc()
+Message-ID: <20130525193549.GA13004@spo001.leaseweb.com>
+References: <001301ce455f$d856f430$8904dc90$@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <001201ce455f$cdb6ec10$6924c430$@samsung.com>
+In-Reply-To: <001301ce455f$d856f430$8904dc90$@samsung.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 Hi Jingoo,
 
-> Use devm_ioremap_nocache() functions to make cleanup paths simpler.
+> Use devm_kzalloc() to make cleanup paths simpler.
 > 
 > Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 > Signed-off-by: Jingoo Han <jg1.han@samsung.com>
 > ---
 > No changes since v1:
 > 
->  drivers/watchdog/rc32434_wdt.c |   10 +++-------
->  1 files changed, 3 insertions(+), 7 deletions(-)
+>  drivers/watchdog/riowd.c |    8 ++------
+>  1 files changed, 2 insertions(+), 6 deletions(-)
 > 
 
 Patch added to linux-watchdog-next.
