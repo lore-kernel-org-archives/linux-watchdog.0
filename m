@@ -1,35 +1,32 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:47933 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:47939 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1757947Ab3EYUjs (ORCPT
+	with ESMTP id S1757993Ab3EYUo5 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 25 May 2013 16:39:48 -0400
-Date: Sat, 25 May 2013 22:39:47 +0200
+	Sat, 25 May 2013 16:44:57 -0400
+Date: Sat, 25 May 2013 22:44:55 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Sachin Kamat <sachin.kamat@linaro.org>
-Cc: linux-watchdog@vger.kernel.org, linux@roeck-us.net,
-	Paul Mundt <lethal@linux-sh.org>
-Subject: Re: [PATCH 3/5] watchdog: shwdt: Remove redundant platform_set_drvdata()
-Message-ID: <20130525203947.GA13709@spo001.leaseweb.com>
-References: <1367611878-3784-1-git-send-email-sachin.kamat@linaro.org> <1367611878-3784-3-git-send-email-sachin.kamat@linaro.org>
+To: Jingoo Han <jg1.han@samsung.com>
+Cc: 'Andrew Morton' <akpm@linux-foundation.org>,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH RESEND 5/5] watchdog: sp805_wdt: use devm_clk_get()
+Message-ID: <20130525204455.GA13977@spo001.leaseweb.com>
+References: <000601ce44ba$47b62bd0$d7228370$@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1367611878-3784-3-git-send-email-sachin.kamat@linaro.org>
+In-Reply-To: <000601ce44ba$47b62bd0$d7228370$@samsung.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Sachin,
+Hi Jingoo,
 
-> Commit 0998d06310 (device-core: Ensure drvdata = NULL when no
-> driver is bound) removes the need to set driver data field to
-> NULL.
+> Use devm_clk_get() to make cleanup paths more simple.
 > 
-> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
-> Cc: Paul Mundt <lethal@linux-sh.org>
+> Signed-off-by: Jingoo Han <jg1.han@samsung.com>
 > ---
->  drivers/watchdog/shwdt.c |    2 --
->  1 files changed, 0 insertions(+), 2 deletions(-)
+>  drivers/watchdog/sp805_wdt.c |    7 ++-----
+>  1 files changed, 2 insertions(+), 5 deletions(-)
 > 
 
 Patch added to linux-watchdog-next.
