@@ -1,60 +1,37 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:48130 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:48136 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754217Ab3EZQvl (ORCPT
+	with ESMTP id S1754183Ab3EZRE5 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 26 May 2013 12:51:41 -0400
-Date: Sun, 26 May 2013 18:51:39 +0200
+	Sun, 26 May 2013 13:04:57 -0400
+Date: Sun, 26 May 2013 19:04:54 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Hector Palacios <hector.palacios@digi.com>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux@roeck-us.net
-Subject: Re: [PATCH v3] watchdog: core: don't try to stop device if not running
-Message-ID: <20130526165139.GA8365@spo001.leaseweb.com>
-References: <1365433592-25687-1-git-send-email-hector.palacios@digi.com>
+To: Dirk Eibach <dirk.eibach@gdsys.cc>
+Cc: Guenter Roeck <linux@roeck-us.net>, linux-kernel@vger.kernel.org,
+	Kumar Gala <galak@kernel.crashing.org>,
+	linux-watchdog@vger.kernel.org, devicetree-discuss@lists.ozlabs.org
+Subject: Re: [PATCH] powerpc: Make Book E watchdog reset type configurable
+Message-ID: <20130526170454.GA8395@spo001.leaseweb.com>
+References: <1367505913-18970-1-git-send-email-dirk.eibach@gdsys.cc> <20130502161720.GA7797@roeck-us.net> <429ec64cf7c30a139db40eb20fd3e682@gdsys.cc> <20130503011741.GA23266@roeck-us.net> <7be2cb3417615ff206270a756c6422d6@gdsys.cc>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1365433592-25687-1-git-send-email-hector.palacios@digi.com>
+In-Reply-To: <7be2cb3417615ff206270a756c6422d6@gdsys.cc>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Hector,
+Hi Dirk,
 
-> A watchdog device may be stopped from userspace using WDIOC_SETOPTIONS
-> ioctl and flag WDIOS_DISABLECARD. If the device is closed after this
-> operation, watchdog_release() is called and status bits checked for
-> stopping it. Besides, if the device has not been unregistered a critical
-> message "watchdog did not stop!" is printed, although the ioctl may have
-> successfully stopped it already.
-> 
-> Without the patch a user application sample code like this will successfully
-> stop the watchdog, but the kernel will output the message
-> "watchdog did not stop!":
-> 
-> 	wd_fd = open("/dev/watchdog", O_RDWR);
-> 
-> 	flags = WDIOS_DISABLECARD;
-> 	ioctl(wd_fd, WDIOC_SETOPTIONS, &flags);
-> 
-> 	close(wd_fd);
-> 
-> Signed-off-by: Hector Palacios <hector.palacios@digi.com>
-> ---
-> 
-> Changes from v1:
->  - Make it less intrusive with 'if/else if' clauses.
->  - Change the logic of 'err' variable for better readability of code.
->  - Remove one-liner if brackets that broke coding sytle.
-> Changes from v2:
->  - Revert "Change the logic of 'err'..." from v1 because otherwise the
->    'else if' can't be reached if the watchdog is running.
-> 
->  drivers/watchdog/watchdog_dev.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
-> 
+> having a closer look, I realized booke_wdt is not device-tree based 
+> yet. Migrating it would come close to a rewrite, breaking compatibility 
+> for all current users. Sorry, this is way beyond the time I have for 
+> this project. So I suggest merging the change the way it is, as it is 
+> clearly an improvement.
 
-Patch added to linux-watchdog-next.
+My opinion: don't put it in Kconfig.
+I see 2 options for the time being:
+1) the DT way
+2) introduce a moduleparam for it.
 
 Kind regards,
 Wim.
