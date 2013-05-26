@@ -1,35 +1,33 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:48034 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:48041 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751188Ab3EZNgn (ORCPT
+	with ESMTP id S1752731Ab3EZOEF (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 26 May 2013 09:36:43 -0400
-Date: Sun, 26 May 2013 15:36:41 +0200
+	Sun, 26 May 2013 10:04:05 -0400
+Date: Sun, 26 May 2013 16:04:03 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Jingoo Han <jg1.han@samsung.com>
-Cc: 'Andrew Morton' <akpm@linux-foundation.org>,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	'Guenter Roeck' <linux@roeck-us.net>
-Subject: Re: [PATCH 3/5] watchdog: da9055: use platform_{get,set}_drvdata()
-Message-ID: <20130526133641.GB6957@spo001.leaseweb.com>
-References: <003601ce57a2$7d2617d0$77724770$@samsung.com>
+To: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: linux-watchdog@vger.kernel.org, linux@roeck-us.net
+Subject: Re: [PATCH 2/5] watchdog: mpcore: Remove redundant platform_set_drvdata()
+Message-ID: <20130526140403.GA7512@spo001.leaseweb.com>
+References: <1367611878-3784-1-git-send-email-sachin.kamat@linaro.org> <1367611878-3784-2-git-send-email-sachin.kamat@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <003601ce57a2$7d2617d0$77724770$@samsung.com>
+In-Reply-To: <1367611878-3784-2-git-send-email-sachin.kamat@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Jingoo,
+Hi Sachin,
 
-> Use the wrapper functions for getting and setting the driver data using
-> platform_device instead of using dev_{get,set}_drvdata() with &pdev->dev,
-> so we can directly pass a struct platform_device.
+> Commit 0998d06310 (device-core: Ensure drvdata = NULL when no
+> driver is bound) removes the need to set driver data field to
+> NULL.
 > 
-> Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
 > ---
->  drivers/watchdog/da9055_wdt.c |    4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+>  drivers/watchdog/mpcore_wdt.c |    2 --
+>  1 files changed, 0 insertions(+), 2 deletions(-)
 > 
 
 Patch added to linux-watchdog-next.
