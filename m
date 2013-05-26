@@ -1,32 +1,35 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:48021 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:48024 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751985Ab3EZNXF (ORCPT
+	with ESMTP id S1752843Ab3EZN33 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 26 May 2013 09:23:05 -0400
-Date: Sun, 26 May 2013 15:23:04 +0200
+	Sun, 26 May 2013 09:29:29 -0400
+Date: Sun, 26 May 2013 15:29:27 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
 To: Jingoo Han <jg1.han@samsung.com>
-Cc: linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 2/2] watchdog: s3c2410_wdt: convert s3c2410wdt to dev_pm_ops
-Message-ID: <20130526132304.GB6609@spo001.leaseweb.com>
-References: <005e01ce2053$7e483980$7ad8ac80$%han@samsung.com> <005f01ce2053$a23cefc0$e6b6cf40$%han@samsung.com>
+Cc: 'Andrew Morton' <akpm@linux-foundation.org>,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	'Guenter Roeck' <linux@roeck-us.net>
+Subject: Re: [PATCH 1/5] watchdog: cpwd: use platform_{get,set}_drvdata()
+Message-ID: <20130526132927.GA6787@spo001.leaseweb.com>
+References: <003401ce57a2$658fbb80$30af3280$@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <005f01ce2053$a23cefc0$e6b6cf40$%han@samsung.com>
+In-Reply-To: <003401ce57a2$658fbb80$30af3280$@samsung.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 Hi Jingoo,
 
-> Instead of using legacy suspend/resume methods, using newer
-> dev_pm_ops structure allows better control over power management.
+> Use the wrapper functions for getting and setting the driver data using
+> platform_device instead of using dev_{get,set}_drvdata() with &pdev->dev,
+> so we can directly pass a struct platform_device.
 > 
 > Signed-off-by: Jingoo Han <jg1.han@samsung.com>
 > ---
->  drivers/watchdog/s3c2410_wdt.c |   18 ++++++++----------
->  1 files changed, 8 insertions(+), 10 deletions(-)
+>  drivers/watchdog/cpwd.c |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
 
 Patch added to linux-watchdog-next.
