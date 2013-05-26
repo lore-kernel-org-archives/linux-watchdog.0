@@ -1,22 +1,22 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:48029 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:48034 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750923Ab3EZNgM (ORCPT
+	with ESMTP id S1751188Ab3EZNgn (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 26 May 2013 09:36:12 -0400
-Date: Sun, 26 May 2013 15:36:10 +0200
+	Sun, 26 May 2013 09:36:43 -0400
+Date: Sun, 26 May 2013 15:36:41 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
 To: Jingoo Han <jg1.han@samsung.com>
 Cc: 'Andrew Morton' <akpm@linux-foundation.org>,
 	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
 	'Guenter Roeck' <linux@roeck-us.net>
-Subject: Re: [PATCH 2/5] watchdog: da9052: use platform_{get,set}_drvdata()
-Message-ID: <20130526133610.GA6957@spo001.leaseweb.com>
-References: <003501ce57a2$749344d0$5db9ce70$@samsung.com>
+Subject: Re: [PATCH 3/5] watchdog: da9055: use platform_{get,set}_drvdata()
+Message-ID: <20130526133641.GB6957@spo001.leaseweb.com>
+References: <003601ce57a2$7d2617d0$77724770$@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <003501ce57a2$749344d0$5db9ce70$@samsung.com>
+In-Reply-To: <003601ce57a2$7d2617d0$77724770$@samsung.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
@@ -28,7 +28,7 @@ Hi Jingoo,
 > 
 > Signed-off-by: Jingoo Han <jg1.han@samsung.com>
 > ---
->  drivers/watchdog/da9052_wdt.c |    4 ++--
+>  drivers/watchdog/da9055_wdt.c |    4 ++--
 >  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
 
