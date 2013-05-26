@@ -1,32 +1,35 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:48011 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:48014 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750923Ab3EZNEm (ORCPT
+	with ESMTP id S1751939Ab3EZNN3 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 26 May 2013 09:04:42 -0400
-Date: Sun, 26 May 2013 15:04:34 +0200
+	Sun, 26 May 2013 09:13:29 -0400
+Date: Sun, 26 May 2013 15:13:28 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
 To: Jingoo Han <jg1.han@samsung.com>
 Cc: 'Andrew Morton' <akpm@linux-foundation.org>,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH RESEND 1/2] watchdog: mtx1-wdt: use devm_gpio_request_one()
-Message-ID: <20130526130434.GA6094@spo001.leaseweb.com>
-References: <000901ce44bc$38dcfbf0$aa96f3d0$@samsung.com>
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	'Guenter Roeck' <linux@roeck-us.net>
+Subject: Re: [PATCH 5/5] watchdog: wm831x: use platform_{get,set}_drvdata()
+Message-ID: <20130526131328.GA6387@spo001.leaseweb.com>
+References: <003801ce57a2$8f0dae40$ad290ac0$@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <000901ce44bc$38dcfbf0$aa96f3d0$@samsung.com>
+In-Reply-To: <003801ce57a2$8f0dae40$ad290ac0$@samsung.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 Hi Jingoo,
 
-> Use devm_gpio_request_one() to make cleanup paths simpler.
+> Use the wrapper functions for getting and setting the driver data using
+> platform_device instead of using dev_{get,set}_drvdata() with &pdev->dev,
+> so we can directly pass a struct platform_device.
 > 
 > Signed-off-by: Jingoo Han <jg1.han@samsung.com>
 > ---
->  drivers/watchdog/mtx-1_wdt.c |    3 +--
->  1 files changed, 1 insertions(+), 2 deletions(-)
+>  drivers/watchdog/wm831x_wdt.c |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
 
 Patch added to linux-watchdog-next.
