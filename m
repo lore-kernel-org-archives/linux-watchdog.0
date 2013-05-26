@@ -1,53 +1,35 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:48064 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:48094 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753217Ab3EZOi7 (ORCPT
+	with ESMTP id S1754018Ab3EZPi2 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 26 May 2013 10:38:59 -0400
-Date: Sun, 26 May 2013 16:38:56 +0200
+	Sun, 26 May 2013 11:38:28 -0400
+Date: Sun, 26 May 2013 17:38:24 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Kevin Strasser <kevin.strasser@linux.intel.com>
-Cc: Guenter Roeck <linux@roeck-us.net>, linux-kernel@vger.kernel.org,
-	Michael Brunner <michael.brunner@kontron.com>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Wolfram Sang <wsa@the-dreams.de>,
-	Ben Dooks <ben-linux@fluff.org>, linux-i2c@vger.kernel.org,
-	Grant Likely <grant.likely@secretlab.ca>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	linux-watchdog@vger.kernel.org,
-	Darren Hart <dvhart@linux.intel.com>,
-	Michael Brunner <mibru@gmx.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 4/4] watchdog: Kontron PLD watchdog timer
-Message-ID: <20130526143856.GC7603@spo001.leaseweb.com>
-References: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com> <1365441321-21952-4-git-send-email-kevin.strasser@linux.intel.com> <20130410164717.GA19533@roeck-us.net> <20130410165733.GA2769@wrk>
+To: Lars-Peter Clausen <lars@metafoo.de>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] watchdog: jz4740: Pass device to clk_get
+Message-ID: <20130526153824.GA7990@spo001.leaseweb.com>
+References: <1368381843-3856-1-git-send-email-lars@metafoo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20130410165733.GA2769@wrk>
+In-Reply-To: <1368381843-3856-1-git-send-email-lars@metafoo.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Kevin,
+Hi Lars-Peter,
 
-> On Wed, Apr 10, 2013 at 09:47:17AM -0700, Guenter Roeck wrote:
-> > On Mon, Apr 08, 2013 at 10:15:21AM -0700, Kevin Strasser wrote:
-> > > From: Michael Brunner <michael.brunner@kontron.com>
-> > > 
-> > > Add watchdog timer support for the on-board PLD found on some Kontron
-> > > embedded modules.
-> > > 
-> > > Signed-off-by: Michael Brunner <michael.brunner@kontron.com>
-> > > Signed-off-by: Kevin Strasser <kevin.strasser@linux.intel.com>
-> > 
-> > Personally I would prefer two separate patches for the two drivers,
-> > and to have the drivers converted to the watchdog infrastructure.
-> > Wim's call, of course.
-> > 
-> Thanks for the feedback. I'm happy to do both if Wim thinks it's
-> necessary.
+> In preparation to switching the jz4740 clk driver to the common clk framework
+> make sure to pass the device to clk_get().
+> 
+> Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+> ---
+>  drivers/watchdog/jz4740_wdt.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
 
-Yes, 2 patches with conversion to the new watchdog infrastructure please.
+Patch added to linux-watchdog-next.
 
 Kind regards,
 Wim.
