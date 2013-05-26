@@ -1,36 +1,43 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:48094 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:48105 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754018Ab3EZPi2 (ORCPT
+	with ESMTP id S1753851Ab3EZQgr (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 26 May 2013 11:38:28 -0400
-Date: Sun, 26 May 2013 17:38:24 +0200
+	Sun, 26 May 2013 12:36:47 -0400
+Date: Sun, 26 May 2013 18:36:44 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Lars-Peter Clausen <lars@metafoo.de>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: jz4740: Pass device to clk_get
-Message-ID: <20130526153824.GA7990@spo001.leaseweb.com>
-References: <1368381843-3856-1-git-send-email-lars@metafoo.de>
+To: Linus Walleij <linus.walleij@stericsson.com>
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+	devicetree-discuss@lists.ozlabs.org,
+	Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 09/23] watchdog: coh901327: devicetree support
+Message-ID: <20130526163644.GA8221@spo001.leaseweb.com>
+References: <1366624505-6437-1-git-send-email-linus.walleij@stericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1368381843-3856-1-git-send-email-lars@metafoo.de>
+In-Reply-To: <1366624505-6437-1-git-send-email-linus.walleij@stericsson.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Lars-Peter,
+Hi Linus,
 
-> In preparation to switching the jz4740 clk driver to the common clk framework
-> make sure to pass the device to clk_get().
+> From: Linus Walleij <linus.walleij@linaro.org>
 > 
-> Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+> This adds support for probing the COH 901 327 watchdog from
+> the device tree and also adds associated bindings.
+> 
+> Cc: Wim Van Sebroeck <wim@iguana.be>
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 > ---
->  drivers/watchdog/jz4740_wdt.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
+> Hi Wim, I'm seeking an ACK on this patch to take it into
+> ARM SoC along with the patches making use of this new
+> binding.
+> ---
 
-Patch added to linux-watchdog-next.
+You have my Acked-by.
 
-Kind regards,
+Kind regards and sorry for the delay,
 Wim.
 
