@@ -1,30 +1,180 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:48272 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752629Ab3E0JH5 (ORCPT
+Received: from mail-ea0-f169.google.com ([209.85.215.169]:56885 "EHLO
+	mail-ea0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756319Ab3E0SMA (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 27 May 2013 05:07:57 -0400
-Date: Mon, 27 May 2013 11:07:56 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: "Thumshirn, Johannes Tobias" <Johannes.Thumshirn@men.de>
-Cc: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v3] watchdog: New watchdog driver for MEN A21 watchdogs
-Message-ID: <20130527090756.GA14258@spo001.leaseweb.com>
-References: <1368560034.24692.4.camel@joe-AO722> <1368643810-2789-1-git-send-email-johannes.thumshirn@men.de> <20130526143403.GB7603@spo001.leaseweb.com> <42A09AAC7DAAF64ABE4E4C1AD5F5E295094C82A0@MEN-EX1.intra.men.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42A09AAC7DAAF64ABE4E4C1AD5F5E295094C82A0@MEN-EX1.intra.men.de>
+	Mon, 27 May 2013 14:12:00 -0400
+From: johannes.thumshirn@men.de
+To: wim@iguana.be
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Johannes Thumshirn <johannes.thumshirn@men.de>
+Subject: [PATCH v4 2/2] watchdog: Add sysfs interface for MEN A21 watchdog
+Date: Mon, 27 May 2013 20:13:54 +0200
+Message-Id: <1369678434-13515-2-git-send-email-johannes.thumshirn@men.de>
+In-Reply-To: <1369678434-13515-1-git-send-email-johannes.thumshirn@men.de>
+References: <20130527090756.GA14258@spo001.leaseweb.com>
+ <1369678434-13515-1-git-send-email-johannes.thumshirn@men.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Johannes,
+From: Johannes Thumshirn <johannes.thumshirn@men.de>
 
-> Of cause I'll do, but unfortunately I probably won't be able to do it today, mind if you get the patch tomorrow?
+This patch adds a sysfs interface for the watchdog device found on MEN A21
+Boards.
 
-I don't mind. There is no rush. Just take the time you need to change the code and do your testing.
+The newly generated files are:
+* rebootcause:
+Can be one of:
+Power on Reset,
+CPU Reset Request,
+Push Button,
+FPGA Reset Request,
+Watchdog,
+Local Power Bad,
+Invalid or
+BDI
+and shows the reason of the boards last reboot.
 
-Kind regards,
-wim.
+* active:
+Shows if the watchdog CPLD is actually running
+
+* allow_disable:
+Shows if the watchdog is allowed to be disabled (NOWAYOUT disabled)
+
+* fastmode:
+Shows if the CPLD is running in fast mode (1s timeout), once it is in
+fastmode it can't be switched back to slow mode (30s timeout) until the
+next reboot.
+
+Signed-off-by: Johannes Thumshirn <johannes.thumshirn@men.de>
+---
+ drivers/watchdog/mena21_wdt.c |   88 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 88 insertions(+)
+
+diff --git a/drivers/watchdog/mena21_wdt.c b/drivers/watchdog/mena21_wdt.c
+index 4fe65ec..c97c5f4 100644
+--- a/drivers/watchdog/mena21_wdt.c
++++ b/drivers/watchdog/mena21_wdt.c
+@@ -19,6 +19,17 @@
+ #include <linux/delay.h>
+ #include <linux/bitops.h>
+ 
++static char *reset_causes[] = {
++	"Power On Reset",
++	"CPU Reset Request",
++	"Push Button",
++	"FPGA Reset Request",
++	"Watchdog",
++	"Local Power Bad",
++	"Invalid",
++	"BDI",
++};
++
+ #define GPIO_WD_ENAB	169
+ #define GPIO_WD_FAST	170
+ #define GPIO_WD_TRIG	171
+@@ -35,6 +46,74 @@ module_param(nowayout, bool, 0);
+ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+ 			    __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+ 
++static ssize_t rebootcause_show(struct device *dev,
++				struct device_attribute *attr,
++				char *buf)
++{
++	unsigned int reset = 0;
++	int i;
++
++	for (i = 0; i < 3; i++)
++		reset |= gpio_get_value(GPIO_RST_CAUSE_BASE + i)
++			 ? (1 << i) : 0;
++
++	if (reset >= 8)
++		return -EIO;
++
++	return sprintf(buf, "%s\n", reset_causes[reset]);
++}
++static DEVICE_ATTR(rebootcause, S_IRUGO, rebootcause_show, NULL);
++
++static ssize_t active_show(struct device *dev, struct device_attribute *attr,
++			   char *buf)
++{
++	return sprintf(buf, "%d\n", !!gpio_get_value(GPIO_WD_ENAB));
++}
++static DEVICE_ATTR(active, S_IRUGO, active_show, NULL);
++
++static ssize_t allow_disable_show(struct device *dev,
++				  struct device_attribute *attr,
++				  char *buf)
++{
++	return sprintf(buf, "%d\n", !nowayout);
++}
++static DEVICE_ATTR(allow_disable, S_IRUGO, allow_disable_show, NULL);
++
++static ssize_t fastmode_show(struct device *dev, struct device_attribute *attr,
++			     char *buf)
++{
++	return sprintf(buf, "%d\n", !!gpio_get_value(GPIO_WD_FAST));
++}
++static DEVICE_ATTR(fastmode, S_IRUGO, fastmode_show, NULL);
++
++static int a21_wdt_create_files(struct watchdog_device *wdev)
++{
++	int ret;
++
++	ret = device_create_file(wdev->dev, &dev_attr_rebootcause);
++	if (ret)
++		return ret;
++	ret = device_create_file(wdev->dev, &dev_attr_active);
++	if (ret)
++		return ret;
++	ret = device_create_file(wdev->dev, &dev_attr_allow_disable);
++	if (ret)
++		return ret;
++	ret = device_create_file(wdev->dev, &dev_attr_fastmode);
++	if (ret)
++		return ret;
++
++	return 0;
++}
++
++static void a21_wdt_remove_files(struct watchdog_device *wdev)
++{
++	device_remove_file(wdev->dev, &dev_attr_rebootcause);
++	device_remove_file(wdev->dev, &dev_attr_active);
++	device_remove_file(wdev->dev, &dev_attr_allow_disable);
++	device_remove_file(wdev->dev, &dev_attr_fastmode);
++}
++
+ static int a21_wdt_start(struct watchdog_device *wdt)
+ {
+ 	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
+@@ -151,10 +230,18 @@ static int a21_wdt_probe(struct platform_device *pdev)
+ 		goto err_register_wd;
+ 	}
+ 
++	ret = a21_wdt_create_files(&a21_wdt);
++	if (ret) {
++		dev_err(&pdev->dev, "Cannot create sysfs entries\n");
++		goto err_create_sysfs;
++	}
++
+ 	dev_set_drvdata(&pdev->dev, drv);
+ 
+ 	return 0;
+ 
++err_create_sysfs:
++	watchdog_unregister_device(&drv->wdt);
+ err_register_wd:
+ 	mutex_destroy(&drv->lock);
+ 
+@@ -168,6 +255,7 @@ static int a21_wdt_remove(struct platform_device *pdev)
+ 	dev_warn(&pdev->dev,
+ 		"Unregistering A21 watchdog driver, board may reboot\n");
+ 
++	a21_wdt_remove_files(&drv->wdt);
+ 
+ 	watchdog_unregister_device(&drv->wdt);
+ 
+-- 
+1.7.9.5
 
