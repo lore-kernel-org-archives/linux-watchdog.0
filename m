@@ -1,38 +1,45 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:48136 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754183Ab3EZRE5 (ORCPT
+Received: from mail-ob0-f170.google.com ([209.85.214.170]:32995 "EHLO
+	mail-ob0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756021Ab3E0C7a (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 26 May 2013 13:04:57 -0400
-Date: Sun, 26 May 2013 19:04:54 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Dirk Eibach <dirk.eibach@gdsys.cc>
-Cc: Guenter Roeck <linux@roeck-us.net>, linux-kernel@vger.kernel.org,
-	Kumar Gala <galak@kernel.crashing.org>,
-	linux-watchdog@vger.kernel.org, devicetree-discuss@lists.ozlabs.org
-Subject: Re: [PATCH] powerpc: Make Book E watchdog reset type configurable
-Message-ID: <20130526170454.GA8395@spo001.leaseweb.com>
-References: <1367505913-18970-1-git-send-email-dirk.eibach@gdsys.cc> <20130502161720.GA7797@roeck-us.net> <429ec64cf7c30a139db40eb20fd3e682@gdsys.cc> <20130503011741.GA23266@roeck-us.net> <7be2cb3417615ff206270a756c6422d6@gdsys.cc>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7be2cb3417615ff206270a756c6422d6@gdsys.cc>
+	Sun, 26 May 2013 22:59:30 -0400
+Received: by mail-ob0-f170.google.com with SMTP id er7so7586256obc.29
+        for <linux-watchdog@vger.kernel.org>; Sun, 26 May 2013 19:59:30 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CALp=xyPyWrjB6+6tjCM5owusHUgu2Ps3q6UjhFUd8RzSNoY+MQ@mail.gmail.com>
+References: <1367611878-3784-1-git-send-email-sachin.kamat@linaro.org>
+	<1367611878-3784-4-git-send-email-sachin.kamat@linaro.org>
+	<CALp=xyPyWrjB6+6tjCM5owusHUgu2Ps3q6UjhFUd8RzSNoY+MQ@mail.gmail.com>
+Date: Mon, 27 May 2013 08:29:29 +0530
+Message-ID: <CAK9yfHwNikbaMa2z2D0xJWQU3U-kgyb2X-+K+uHxrMzucPmeww@mail.gmail.com>
+Subject: Re: [PATCH 4/5] watchdog: ts72xx: Remove redundant platform_set_drvdata()
+From: Sachin Kamat <sachin.kamat@linaro.org>
+To: wim@iguana.be
+Cc: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Dirk,
+Hi Wim,
 
-> having a closer look, I realized booke_wdt is not device-tree based 
-> yet. Migrating it would come close to a rewrite, breaking compatibility 
-> for all current users. Sorry, this is way beyond the time I have for 
-> this project. So I suggest merging the change the way it is, as it is 
-> clearly an improvement.
+On 6 May 2013 12:32, Mika Westerberg <mika.westerberg@iki.fi> wrote:
+> On Fri, May 3, 2013 at 11:11 PM, Sachin Kamat <sachin.kamat@linaro.org>
+> wrote:
+>>
+>> Commit 0998d06310 (device-core: Ensure drvdata = NULL when no
+>> driver is bound) removes the need to set driver data field to
+>> NULL.
+>>
+>> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+>> Cc: Mika Westerberg <mika.westerberg@iki.fi>
+>
+>
+> Acked-by: Mika Westerberg <mika.westerberg@iki.fi>
+>
 
-My opinion: don't put it in Kconfig.
-I see 2 options for the time being:
-1) the DT way
-2) introduce a moduleparam for it.
+Looks like you missed this patch.
 
-Kind regards,
-Wim.
-
+-- 
+With warm regards,
+Sachin
