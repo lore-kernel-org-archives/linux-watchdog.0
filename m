@@ -3,11 +3,11 @@ From: johannes.thumshirn@men.de
 To: wim@iguana.be
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
         Johannes Thumshirn <johannes.thumshirn@men.de>
-Subject: [PATCH v3] watchdog: New watchdog driver for MEN A21 watchdogs
-Date: Wed, 15 May 2013 20:50:10 +0200
-Message-Id: <1368643810-2789-1-git-send-email-johannes.thumshirn@men.de>
-In-Reply-To: <1368560034.24692.4.camel@joe-AO722>
-References: <1368560034.24692.4.camel@joe-AO722>
+Subject: [PATCH v4 1/2] watchdog: New watchdog driver for MEN A21 watchdogs
+Date: Mon, 27 May 2013 20:13:53 +0200
+Message-Id: <1369678434-13515-1-git-send-email-johannes.thumshirn@men.de>
+In-Reply-To: <20130527090756.GA14258@spo001.leaseweb.com>
+References: <20130527090756.GA14258@spo001.leaseweb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
@@ -32,25 +32,29 @@ Revision 3:
 * Removed out of memory error print
 * Transition from "fast" to "slow" mode not allowed by chip
 
+Revision 4:
+* Remove reboot_notifier and place disable code into platform_device's shutdown function
+* Removed sysfs interface
+
 Signed-off-by: Johannes Thumshirn <johannes.thumshirn@men.de>
 ---
- MAINTAINERS                   |    6 +
+ MAINTAINERS                   |    6 ++
  drivers/watchdog/Kconfig      |    8 ++
  drivers/watchdog/Makefile     |    1 +
- drivers/watchdog/mena21_wdt.c |  309 +++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 324 insertions(+)
+ drivers/watchdog/mena21_wdt.c |  204 +++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 219 insertions(+)
  create mode 100644 drivers/watchdog/mena21_wdt.c
 
 diff --git a/MAINTAINERS b/MAINTAINERS
-index 3d7782b..3e5b3f1 100644
+index fd3a495..1ca147a 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -5291,6 +5291,12 @@ F:	drivers/mtd/
+@@ -5306,6 +5306,12 @@ F:	drivers/mtd/
  F:	include/linux/mtd/
  F:	include/uapi/mtd/
  
 +MEN A21 WATCHDOG DRIVER
-+M:	Johannes Thumshirn <johannes.thumshirn@men.de>
++M:  	Johannes Thumshirn <johannes.thumshirn@men.de>
 +L:	linux-watchdog@vger.kernel.org
 +S:	Supported
 +F:	drivers/watchdog/mena21_wdt.c
@@ -91,10 +95,10 @@ index a300b94..bffdcb1 100644
  obj-$(CONFIG_WATCHDOG_RTAS) += wdrtas.o
 diff --git a/drivers/watchdog/mena21_wdt.c b/drivers/watchdog/mena21_wdt.c
 new file mode 100644
-index 0000000..389bd59
+index 0000000..4fe65ec
 --- /dev/null
 +++ b/drivers/watchdog/mena21_wdt.c
-@@ -0,0 +1,309 @@
+@@ -0,0 +1,204 @@
 +/*
 + * Watchdog driver for the A21 VME CPU Boards
 + *
@@ -114,19 +118,7 @@ index 0000000..389bd59
 +#include <linux/uaccess.h>
 +#include <linux/gpio.h>
 +#include <linux/delay.h>
-+#include <linux/reboot.h>
 +#include <linux/bitops.h>
-+
-+static char *reset_causes[] = {
-+	"Power On Reset",
-+	"CPU Reset Request",
-+	"Push Button",
-+	"FPGA Reset Request",
-+	"Watchdog",
-+	"Local Power Bad",
-+	"Invalid",
-+	"BDI",
-+};
 +
 +#define GPIO_WD_ENAB	169
 +#define GPIO_WD_FAST	170
@@ -143,74 +135,6 @@ index 0000000..389bd59
 +module_param(nowayout, bool, 0);
 +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
 +			    __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-+
-+static ssize_t rebootcause_show(struct device *dev,
-+				struct device_attribute *attr,
-+				char *buf)
-+{
-+	unsigned int reset = 0;
-+	int i;
-+
-+	for (i = 0; i < 3; i++)
-+		reset |= gpio_get_value(GPIO_RST_CAUSE_BASE + i)
-+			 ? (1 << i) : 0;
-+
-+	if (reset >= 8)
-+		return -EIO;
-+
-+	return sprintf(buf, "%s\n", reset_causes[reset]);
-+}
-+static DEVICE_ATTR(rebootcause, S_IRUGO, rebootcause_show, NULL);
-+
-+static ssize_t active_show(struct device *dev, struct device_attribute *attr,
-+			   char *buf)
-+{
-+	return sprintf(buf, "%d\n", !!gpio_get_value(GPIO_WD_ENAB));
-+}
-+static DEVICE_ATTR(active, S_IRUGO, active_show, NULL);
-+
-+static ssize_t allow_disable_show(struct device *dev,
-+				  struct device_attribute *attr,
-+				  char *buf)
-+{
-+	return sprintf(buf, "%d\n", !nowayout);
-+}
-+static DEVICE_ATTR(allow_disable, S_IRUGO, allow_disable_show, NULL);
-+
-+static ssize_t fastmode_show(struct device *dev, struct device_attribute *attr,
-+			     char *buf)
-+{
-+	return sprintf(buf, "%d\n", !!gpio_get_value(GPIO_WD_FAST));
-+}
-+static DEVICE_ATTR(fastmode, S_IRUGO, fastmode_show, NULL);
-+
-+static int a21_wdt_create_files(struct watchdog_device *wdev)
-+{
-+	int ret;
-+
-+	ret = device_create_file(wdev->dev, &dev_attr_rebootcause);
-+	if (ret)
-+		return ret;
-+	ret = device_create_file(wdev->dev, &dev_attr_active);
-+	if (ret)
-+		return ret;
-+	ret = device_create_file(wdev->dev, &dev_attr_allow_disable);
-+	if (ret)
-+		return ret;
-+	ret = device_create_file(wdev->dev, &dev_attr_fastmode);
-+	if (ret)
-+		return ret;
-+
-+	return 0;
-+}
-+
-+static void a21_wdt_remove_files(struct watchdog_device *wdev)
-+{
-+	device_remove_file(wdev->dev, &dev_attr_rebootcause);
-+	device_remove_file(wdev->dev, &dev_attr_active);
-+	device_remove_file(wdev->dev, &dev_attr_allow_disable);
-+	device_remove_file(wdev->dev, &dev_attr_fastmode);
-+}
 +
 +static int a21_wdt_start(struct watchdog_device *wdt)
 +{
@@ -287,19 +211,6 @@ index 0000000..389bd59
 +	return 0;
 +}
 +
-+static int a21_wdt_notify_sys(struct notifier_block *notify, unsigned long code,
-+			void *unused)
-+{
-+	if (code == SYS_DOWN || code == SYS_HALT)
-+		gpio_set_value(GPIO_WD_ENAB, 0);
-+
-+	return NOTIFY_DONE;
-+}
-+
-+static struct notifier_block a21_wdt_notifier = {
-+	.notifier_call = a21_wdt_notify_sys,
-+};
-+
 +static const struct watchdog_info a21_wdt_info = {
 +	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
 +	.identity = "MEN A21 Watchdog",
@@ -341,26 +252,10 @@ index 0000000..389bd59
 +		goto err_register_wd;
 +	}
 +
-+	ret = register_reboot_notifier(&a21_wdt_notifier);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Cannot register reboot notifier\n");
-+		goto err_register_notif;
-+	}
-+
-+	ret = a21_wdt_create_files(&a21_wdt);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Cannot create sysfs entries\n");
-+		goto err_create_sysfs;
-+	}
-+
 +	dev_set_drvdata(&pdev->dev, drv);
 +
 +	return 0;
 +
-+err_create_sysfs:
-+	unregister_reboot_notifier(&a21_wdt_notifier);
-+err_register_notif:
-+	watchdog_unregister_device(&drv->wdt);
 +err_register_wd:
 +	mutex_destroy(&drv->lock);
 +
@@ -374,14 +269,17 @@ index 0000000..389bd59
 +	dev_warn(&pdev->dev,
 +		"Unregistering A21 watchdog driver, board may reboot\n");
 +
-+	a21_wdt_remove_files(&drv->wdt);
 +
 +	watchdog_unregister_device(&drv->wdt);
-+	unregister_reboot_notifier(&a21_wdt_notifier);
 +
 +	mutex_destroy(&drv->lock);
 +
 +	return 0;
++}
++
++static void a21_wdt_shutdown(struct platform_device *pdev)
++{
++	gpio_set_value(GPIO_WD_ENAB, 0);
 +}
 +
 +static const struct of_device_id a21_wdt_ids[] = {
@@ -392,6 +290,7 @@ index 0000000..389bd59
 +static struct platform_driver a21_wdt_driver = {
 +	.probe = a21_wdt_probe,
 +	.remove = a21_wdt_remove,
++	.shutdown = a21_wdt_shutdown,
 +	.driver = {
 +		.name = "a21-watchdog",
 +		.of_match_table = a21_wdt_ids,
