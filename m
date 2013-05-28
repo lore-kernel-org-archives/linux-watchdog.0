@@ -1,40 +1,71 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta5.messagelabs.com ([195.245.231.146]:45304 "EHLO
-	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S933327Ab3E1IJE (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 28 May 2013 04:09:04 -0400
-Date: Tue, 28 May 2013 10:10:53 +0200
-From: Johannes Thumshirn <johannes.thumshirn@men.de>
-To: Wim Van Sebroeck <wim@iguana.be>
-CC: <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v4 1/2] watchdog: New watchdog driver for MEN A21
- watchdogs
-Message-ID: <20130528081053.GC818@jtlinux>
-References: <20130527090756.GA14258@spo001.leaseweb.com>
- <1369678434-13515-1-git-send-email-johannes.thumshirn@men.de>
- <20130527182554.GB14258@spo001.leaseweb.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20130527182554.GB14258@spo001.leaseweb.com>
+Received: from mga01.intel.com ([192.55.52.88]:30339 "EHLO mga01.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933724Ab3E1JZz (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 28 May 2013 05:25:55 -0400
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH] wdrtas: don't use custom version of print_hex_dump
+Date: Tue, 28 May 2013 12:25:49 +0300
+Message-Id: <1369733149-25487-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, May 27, 2013 at 08:25:54PM +0200, Wim Van Sebroeck wrote:
-[...]
-> > +	watchdog_set_drvdata(&a21_wdt, drv);
->
-> I am missing the initialisation of the watchdog's timeout value here...
+Kernel has nice helpers to dump buffers.
 
-This watchdog only knows two timeout values, 1s and 30s with the constraint
-that you can't go back to 30s once your in a 1s timeout without a reset of the
-CPLD. I could initially set it to 30s but that would be redundant.
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/watchdog/wdrtas.c | 29 +++--------------------------
+ 1 file changed, 3 insertions(+), 26 deletions(-)
 
-> For the rest this looks OK.
->
-> Kind regards,
-> wim.
->
+diff --git a/drivers/watchdog/wdrtas.c b/drivers/watchdog/wdrtas.c
+index 0a77655..3045deb 100644
+--- a/drivers/watchdog/wdrtas.c
++++ b/drivers/watchdog/wdrtas.c
+@@ -162,31 +162,6 @@ static void wdrtas_timer_stop(void)
+ }
+ 
+ /**
+- * wdrtas_log_scanned_event - logs an event we received during keepalive
+- *
+- * wdrtas_log_scanned_event prints a message to the log buffer dumping
+- * the results of the last event-scan call
+- */
+-static void wdrtas_log_scanned_event(void)
+-{
+-	int i;
+-
+-	for (i = 0; i < WDRTAS_LOGBUFFER_LEN; i += 16)
+-		pr_info("dumping event (line %i/%i), data = "
+-			"%02x %02x %02x %02x  %02x %02x %02x %02x   "
+-			"%02x %02x %02x %02x  %02x %02x %02x %02x\n",
+-			(i / 16) + 1, (WDRTAS_LOGBUFFER_LEN / 16),
+-			wdrtas_logbuffer[i + 0], wdrtas_logbuffer[i + 1],
+-			wdrtas_logbuffer[i + 2], wdrtas_logbuffer[i + 3],
+-			wdrtas_logbuffer[i + 4], wdrtas_logbuffer[i + 5],
+-			wdrtas_logbuffer[i + 6], wdrtas_logbuffer[i + 7],
+-			wdrtas_logbuffer[i + 8], wdrtas_logbuffer[i + 9],
+-			wdrtas_logbuffer[i + 10], wdrtas_logbuffer[i + 11],
+-			wdrtas_logbuffer[i + 12], wdrtas_logbuffer[i + 13],
+-			wdrtas_logbuffer[i + 14], wdrtas_logbuffer[i + 15]);
+-}
+-
+-/**
+  * wdrtas_timer_keepalive - resets watchdog timer to keep system alive
+  *
+  * wdrtas_timer_keepalive restarts the watchdog timer by calling the
+@@ -205,7 +180,9 @@ static void wdrtas_timer_keepalive(void)
+ 		if (result < 0)
+ 			pr_err("event-scan failed: %li\n", result);
+ 		if (result == 0)
+-			wdrtas_log_scanned_event();
++			print_hex_dump(KERN_INFO, "dumping event, data: ",
++				DUMP_PREFIX_OFFSET, 16, 1,
++				wdrtas_logbuffer, WDRTAS_LOGBUFFER_LEN, false);
+ 	} while (result == 0);
+ }
+ 
+-- 
+1.8.2.rc0.22.gb3600c3
 
-This sounds pretty good.
