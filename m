@@ -1,45 +1,26 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:49954 "EHLO
+Received: from mail.active-venture.com ([67.228.131.205]:53044 "EHLO
 	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934576Ab3E1QVy (ORCPT
+	with ESMTP id S934576Ab3E1QYo (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 28 May 2013 12:21:54 -0400
-Date: Tue, 28 May 2013 09:22:18 -0700
+	Tue, 28 May 2013 12:24:44 -0400
+Date: Tue, 28 May 2013 09:25:09 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Johannes Thumshirn <johannes.thumshirn@men.de>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4 1/2] watchdog: New watchdog driver for MEN A21
- watchdogs
-Message-ID: <20130528162218.GA22351@roeck-us.net>
-References: <20130527090756.GA14258@spo001.leaseweb.com>
- <1369678434-13515-1-git-send-email-johannes.thumshirn@men.de>
- <20130527182554.GB14258@spo001.leaseweb.com>
- <20130528081053.GC818@jtlinux>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] wdrtas: don't use custom version of print_hex_dump
+Message-ID: <20130528162509.GA26474@roeck-us.net>
+References: <1369733149-25487-1-git-send-email-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20130528081053.GC818@jtlinux>
+In-Reply-To: <1369733149-25487-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, May 28, 2013 at 10:10:53AM +0200, Johannes Thumshirn wrote:
-> On Mon, May 27, 2013 at 08:25:54PM +0200, Wim Van Sebroeck wrote:
-> [...]
-> > > +	watchdog_set_drvdata(&a21_wdt, drv);
-> >
-> > I am missing the initialisation of the watchdog's timeout value here...
+On Tue, May 28, 2013 at 12:25:49PM +0300, Andy Shevchenko wrote:
+> Kernel has nice helpers to dump buffers.
 > 
-> This watchdog only knows two timeout values, 1s and 30s with the constraint
-> that you can't go back to 30s once your in a 1s timeout without a reset of the
-> CPLD. I could initially set it to 30s but that would be redundant.
-> 
-I wonder - why bother with supporting one-second timeouts ?
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Is this realistic, ie can you guarantee that the watchdog will be pinged fast
-enough to keep the system alive under all load conditions ? As far as I know
-you can not even configure the watchdog application for less than 1 second
-ping intervals.
-
-Thanks,
-Guenter
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
