@@ -1,62 +1,66 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:48382 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1756763Ab3E0Tlz (ORCPT
+Received: from mail.active-venture.com ([67.228.131.205]:62863 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754312Ab3E1BKX (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 27 May 2013 15:41:55 -0400
-Date: Mon, 27 May 2013 21:41:54 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: johannes.thumshirn@men.de
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4 2/2] watchdog: Add sysfs interface for MEN A21 watchdog
-Message-ID: <20130527194154.GE14258@spo001.leaseweb.com>
-References: <20130527090756.GA14258@spo001.leaseweb.com> <1369678434-13515-1-git-send-email-johannes.thumshirn@men.de> <1369678434-13515-2-git-send-email-johannes.thumshirn@men.de>
-Mime-Version: 1.0
+	Mon, 27 May 2013 21:10:23 -0400
+Date: Mon, 27 May 2013 18:10:47 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Don Zickus <dzickus@redhat.com>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	linux-watchdog@vger.kernel.org, kexec@lists.infradead.org,
+	LKML <linux-kernel@vger.kernel.org>, vgoyal@redhat.com,
+	dyoung@redhat.com
+Subject: Re: [PATCH v3] watchdog: Add hook for kicking in kdump path
+Message-ID: <20130528011047.GA28597@roeck-us.net>
+References: <1366233596-34681-1-git-send-email-dzickus@redhat.com>
+ <87li8gaku0.fsf@xmission.com>
+ <20130418130009.GH79013@redhat.com>
+ <20130418134904.GC2767@roeck-us.net>
+ <20130418135257.GL79013@redhat.com>
+ <20130418145413.GA1980@roeck-us.net>
+ <20130424144226.GI79013@redhat.com>
+ <20130424152142.GA26864@roeck-us.net>
+ <20130527191618.GD14258@spo001.leaseweb.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1369678434-13515-2-git-send-email-johannes.thumshirn@men.de>
+In-Reply-To: <20130527191618.GD14258@spo001.leaseweb.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Johannes,
-
-> This patch adds a sysfs interface for the watchdog device found on MEN A21
-> Boards.
+On Mon, May 27, 2013 at 09:16:18PM +0200, Wim Van Sebroeck wrote:
+>  Hi Guenter,
 > 
-> The newly generated files are:
-> * rebootcause:
-> Can be one of:
-> Power on Reset,
-> CPU Reset Request,
-> Push Button,
-> FPGA Reset Request,
-> Watchdog,
-> Local Power Bad,
-> Invalid or
-> BDI
-> and shows the reason of the boards last reboot.
+> > > Hi Guenter,
+> > > 
+> > > Is there an easy way to determine which driver is loaded for each
+> > > /dev/watchdogN device (from a script perspective).
+> > > 
+> > > Basically, I wanted to determine the module that needs to be included in
+> > > the kdump initrd image.
+> > > 
+> > Sometimes. For example, the iTCO_wdt driver has an entry in /sys/devices, and
+> > /sys/class/watchdog/watchdogX/device points to it. That is not always the case,
+> > howewver. In my system, for example, the MEI watchdog is active, but there is
+> > nothing I can find that would give me an indication that /dev/watchdog0 actually
+> > points to the MEI watchdog driver.
+> > 
+> > Of course I might be missing something, and there might be some other means
+> > to identify the driver from userspace. Would be great, actually, as I am having
+> > the same problem.
+> 
+> Only when you set the .parent field in the watchdog_device data you will get the
+> referal in the /sys/class/... tree. In iTCO_wdt.c you have the following code
+> that does that: iTCO_wdt_watchdog_dev.parent = dev->dev.parent;
+> 
+> From the watchdog-kernel-api documentation:
+> * parent: set this to the parent device (or NULL) before calling
+>   watchdog_register_device.
+> 
+Hi Wim,
 
-Question: why don't you use the detection of the reboot cause in your driver
-initialization so that you can:
-1) report the reboot cause at the start of the driver (like we do in most
-drivers that support these kind of features)
-2) set the .bootstatus info in the watchdog_device struct data?
-(See the WDIOF flags in #include <uapi/linux/watchdog.h>
-#define	WDIOF_OVERHEAT		0x0001	/* Reset due to CPU overheat */
-#define	WDIOF_FANFAULT		0x0002	/* Fan failed */
-#define	WDIOF_EXTERN1		0x0004	/* External relay 1 */
-#define	WDIOF_EXTERN2		0x0008	/* External relay 2 */
-#define	WDIOF_POWERUNDER	0x0010	/* Power bad/power fault */
-#define	WDIOF_CARDRESET		0x0020	/* Card previously reset the CPU */
-#define	WDIOF_POWEROVER		0x0040	/* Power over voltage */
-#define	WDIOF_SETTIMEOUT	0x0080  /* Set timeout (in seconds) */
-#define	WDIOF_MAGICCLOSE	0x0100	/* Supports magic close char */
-#define	WDIOF_PRETIMEOUT	0x0200  /* Pretimeout (in seconds), get/set */
-#define	WDIOF_ALARMONLY		0x0400	/* Watchdog triggers a management or
-					   other external alarm not a reboot */
-#define	WDIOF_KEEPALIVEPING	0x8000	/* Keep alive ping reply */
-(Example driver: wdt_pci.c )).
+We live and learn ... thanks a lot for the hint!
 
-Kind regards,
-Wim.
-
+Guenter
