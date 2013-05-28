@@ -1,71 +1,70 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:30339 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933724Ab3E1JZz (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 28 May 2013 05:25:55 -0400
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH] wdrtas: don't use custom version of print_hex_dump
-Date: Tue, 28 May 2013 12:25:49 +0300
-Message-Id: <1369733149-25487-1-git-send-email-andriy.shevchenko@linux.intel.com>
+Received: from mail.active-venture.com ([67.228.131.205]:62948 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934374Ab3E1Pe2 (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 28 May 2013 11:34:28 -0400
+Date: Tue, 28 May 2013 08:34:52 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Don Zickus <dzickus@redhat.com>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	linux-watchdog@vger.kernel.org, kexec@lists.infradead.org,
+	LKML <linux-kernel@vger.kernel.org>, vgoyal@redhat.com,
+	dyoung@redhat.com
+Subject: Re: [PATCH v3] watchdog: Add hook for kicking in kdump path
+Message-ID: <20130528153452.GA21891@roeck-us.net>
+References: <1366233596-34681-1-git-send-email-dzickus@redhat.com>
+ <87li8gaku0.fsf@xmission.com>
+ <20130418130009.GH79013@redhat.com>
+ <20130418134904.GC2767@roeck-us.net>
+ <20130418135257.GL79013@redhat.com>
+ <20130418145413.GA1980@roeck-us.net>
+ <20130424144226.GI79013@redhat.com>
+ <20130424152142.GA26864@roeck-us.net>
+ <20130527191618.GD14258@spo001.leaseweb.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20130527191618.GD14258@spo001.leaseweb.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Kernel has nice helpers to dump buffers.
+On Mon, May 27, 2013 at 09:16:18PM +0200, Wim Van Sebroeck wrote:
+>  Hi Guenter,
+> 
+> > > Hi Guenter,
+> > > 
+> > > Is there an easy way to determine which driver is loaded for each
+> > > /dev/watchdogN device (from a script perspective).
+> > > 
+> > > Basically, I wanted to determine the module that needs to be included in
+> > > the kdump initrd image.
+> > > 
+> > Sometimes. For example, the iTCO_wdt driver has an entry in /sys/devices, and
+> > /sys/class/watchdog/watchdogX/device points to it. That is not always the case,
+> > howewver. In my system, for example, the MEI watchdog is active, but there is
+> > nothing I can find that would give me an indication that /dev/watchdog0 actually
+> > points to the MEI watchdog driver.
+> > 
+> > Of course I might be missing something, and there might be some other means
+> > to identify the driver from userspace. Would be great, actually, as I am having
+> > the same problem.
+> 
+> Only when you set the .parent field in the watchdog_device data you will get the
+> referal in the /sys/class/... tree. In iTCO_wdt.c you have the following code
+> that does that: iTCO_wdt_watchdog_dev.parent = dev->dev.parent;
+> 
+> From the watchdog-kernel-api documentation:
+> * parent: set this to the parent device (or NULL) before calling
+>   watchdog_register_device.
+> 
+Hi Wim,
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/watchdog/wdrtas.c | 29 +++--------------------------
- 1 file changed, 3 insertions(+), 26 deletions(-)
+unfortunately that only works if the driver is instantiated as platform driver,
+PCI driver, or similar, where a parent device exists. Some drivers are, however,
+instantiated directly from the init function (the BookE driver is an example).
+What is the recommended action in this case ? Convert it to a platform driver ?
 
-diff --git a/drivers/watchdog/wdrtas.c b/drivers/watchdog/wdrtas.c
-index 0a77655..3045deb 100644
---- a/drivers/watchdog/wdrtas.c
-+++ b/drivers/watchdog/wdrtas.c
-@@ -162,31 +162,6 @@ static void wdrtas_timer_stop(void)
- }
- 
- /**
-- * wdrtas_log_scanned_event - logs an event we received during keepalive
-- *
-- * wdrtas_log_scanned_event prints a message to the log buffer dumping
-- * the results of the last event-scan call
-- */
--static void wdrtas_log_scanned_event(void)
--{
--	int i;
--
--	for (i = 0; i < WDRTAS_LOGBUFFER_LEN; i += 16)
--		pr_info("dumping event (line %i/%i), data = "
--			"%02x %02x %02x %02x  %02x %02x %02x %02x   "
--			"%02x %02x %02x %02x  %02x %02x %02x %02x\n",
--			(i / 16) + 1, (WDRTAS_LOGBUFFER_LEN / 16),
--			wdrtas_logbuffer[i + 0], wdrtas_logbuffer[i + 1],
--			wdrtas_logbuffer[i + 2], wdrtas_logbuffer[i + 3],
--			wdrtas_logbuffer[i + 4], wdrtas_logbuffer[i + 5],
--			wdrtas_logbuffer[i + 6], wdrtas_logbuffer[i + 7],
--			wdrtas_logbuffer[i + 8], wdrtas_logbuffer[i + 9],
--			wdrtas_logbuffer[i + 10], wdrtas_logbuffer[i + 11],
--			wdrtas_logbuffer[i + 12], wdrtas_logbuffer[i + 13],
--			wdrtas_logbuffer[i + 14], wdrtas_logbuffer[i + 15]);
--}
--
--/**
-  * wdrtas_timer_keepalive - resets watchdog timer to keep system alive
-  *
-  * wdrtas_timer_keepalive restarts the watchdog timer by calling the
-@@ -205,7 +180,9 @@ static void wdrtas_timer_keepalive(void)
- 		if (result < 0)
- 			pr_err("event-scan failed: %li\n", result);
- 		if (result == 0)
--			wdrtas_log_scanned_event();
-+			print_hex_dump(KERN_INFO, "dumping event, data: ",
-+				DUMP_PREFIX_OFFSET, 16, 1,
-+				wdrtas_logbuffer, WDRTAS_LOGBUFFER_LEN, false);
- 	} while (result == 0);
- }
- 
--- 
-1.8.2.rc0.22.gb3600c3
-
+Thanks,
+Guenter
