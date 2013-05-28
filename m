@@ -1,70 +1,45 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:62948 "EHLO
+Received: from mail.active-venture.com ([67.228.131.205]:49954 "EHLO
 	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934374Ab3E1Pe2 (ORCPT
+	with ESMTP id S934576Ab3E1QVy (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 28 May 2013 11:34:28 -0400
-Date: Tue, 28 May 2013 08:34:52 -0700
+	Tue, 28 May 2013 12:21:54 -0400
+Date: Tue, 28 May 2013 09:22:18 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Don Zickus <dzickus@redhat.com>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	linux-watchdog@vger.kernel.org, kexec@lists.infradead.org,
-	LKML <linux-kernel@vger.kernel.org>, vgoyal@redhat.com,
-	dyoung@redhat.com
-Subject: Re: [PATCH v3] watchdog: Add hook for kicking in kdump path
-Message-ID: <20130528153452.GA21891@roeck-us.net>
-References: <1366233596-34681-1-git-send-email-dzickus@redhat.com>
- <87li8gaku0.fsf@xmission.com>
- <20130418130009.GH79013@redhat.com>
- <20130418134904.GC2767@roeck-us.net>
- <20130418135257.GL79013@redhat.com>
- <20130418145413.GA1980@roeck-us.net>
- <20130424144226.GI79013@redhat.com>
- <20130424152142.GA26864@roeck-us.net>
- <20130527191618.GD14258@spo001.leaseweb.com>
+To: Johannes Thumshirn <johannes.thumshirn@men.de>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 1/2] watchdog: New watchdog driver for MEN A21
+ watchdogs
+Message-ID: <20130528162218.GA22351@roeck-us.net>
+References: <20130527090756.GA14258@spo001.leaseweb.com>
+ <1369678434-13515-1-git-send-email-johannes.thumshirn@men.de>
+ <20130527182554.GB14258@spo001.leaseweb.com>
+ <20130528081053.GC818@jtlinux>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20130527191618.GD14258@spo001.leaseweb.com>
+In-Reply-To: <20130528081053.GC818@jtlinux>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, May 27, 2013 at 09:16:18PM +0200, Wim Van Sebroeck wrote:
->  Hi Guenter,
+On Tue, May 28, 2013 at 10:10:53AM +0200, Johannes Thumshirn wrote:
+> On Mon, May 27, 2013 at 08:25:54PM +0200, Wim Van Sebroeck wrote:
+> [...]
+> > > +	watchdog_set_drvdata(&a21_wdt, drv);
+> >
+> > I am missing the initialisation of the watchdog's timeout value here...
 > 
-> > > Hi Guenter,
-> > > 
-> > > Is there an easy way to determine which driver is loaded for each
-> > > /dev/watchdogN device (from a script perspective).
-> > > 
-> > > Basically, I wanted to determine the module that needs to be included in
-> > > the kdump initrd image.
-> > > 
-> > Sometimes. For example, the iTCO_wdt driver has an entry in /sys/devices, and
-> > /sys/class/watchdog/watchdogX/device points to it. That is not always the case,
-> > howewver. In my system, for example, the MEI watchdog is active, but there is
-> > nothing I can find that would give me an indication that /dev/watchdog0 actually
-> > points to the MEI watchdog driver.
-> > 
-> > Of course I might be missing something, and there might be some other means
-> > to identify the driver from userspace. Would be great, actually, as I am having
-> > the same problem.
+> This watchdog only knows two timeout values, 1s and 30s with the constraint
+> that you can't go back to 30s once your in a 1s timeout without a reset of the
+> CPLD. I could initially set it to 30s but that would be redundant.
 > 
-> Only when you set the .parent field in the watchdog_device data you will get the
-> referal in the /sys/class/... tree. In iTCO_wdt.c you have the following code
-> that does that: iTCO_wdt_watchdog_dev.parent = dev->dev.parent;
-> 
-> From the watchdog-kernel-api documentation:
-> * parent: set this to the parent device (or NULL) before calling
->   watchdog_register_device.
-> 
-Hi Wim,
+I wonder - why bother with supporting one-second timeouts ?
 
-unfortunately that only works if the driver is instantiated as platform driver,
-PCI driver, or similar, where a parent device exists. Some drivers are, however,
-instantiated directly from the init function (the BookE driver is an example).
-What is the recommended action in this case ? Convert it to a platform driver ?
+Is this realistic, ie can you guarantee that the watchdog will be pinged fast
+enough to keep the system alive under all load conditions ? As far as I know
+you can not even configure the watchdog application for less than 1 second
+ping intervals.
 
 Thanks,
 Guenter
