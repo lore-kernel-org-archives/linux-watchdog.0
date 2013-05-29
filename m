@@ -1,60 +1,72 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta14.messagelabs.com ([193.109.254.105]:30425 "EHLO
-	mail1.bemta14.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S965165Ab3E2ITo (ORCPT
+Received: from mail1.bemta5.messagelabs.com ([195.245.231.145]:39486 "EHLO
+	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S965032Ab3E2Iew (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 29 May 2013 04:19:44 -0400
-Date: Wed, 29 May 2013 10:14:44 +0200
+	Wed, 29 May 2013 04:34:52 -0400
+Date: Wed, 29 May 2013 10:35:27 +0200
 From: Johannes Thumshirn <johannes.thumshirn@men.de>
-To: Guenter Roeck <linux@roeck-us.net>
-CC: Wim Van Sebroeck <wim@iguana.be>, <linux-watchdog@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v4 1/2] watchdog: New watchdog driver for MEN A21
- watchdogs
-Message-ID: <20130529081444.GA11195@jtlinux>
+To: Wim Van Sebroeck <wim@iguana.be>
+CC: <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v4 2/2] watchdog: Add sysfs interface for MEN A21 watchdog
+Message-ID: <20130529083527.GA12478@jtlinux>
 References: <20130527090756.GA14258@spo001.leaseweb.com>
  <1369678434-13515-1-git-send-email-johannes.thumshirn@men.de>
- <20130527182554.GB14258@spo001.leaseweb.com>
- <20130528081053.GC818@jtlinux>
- <20130528162218.GA22351@roeck-us.net>
+ <1369678434-13515-2-git-send-email-johannes.thumshirn@men.de>
+ <20130527194154.GE14258@spo001.leaseweb.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-In-Reply-To: <20130528162218.GA22351@roeck-us.net>
+In-Reply-To: <20130527194154.GE14258@spo001.leaseweb.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, May 28, 2013 at 09:22:18AM -0700, Guenter Roeck wrote:
-> On Tue, May 28, 2013 at 10:10:53AM +0200, Johannes Thumshirn wrote:
-> > On Mon, May 27, 2013 at 08:25:54PM +0200, Wim Van Sebroeck wrote:
-> > [...]
-> > > > +	watchdog_set_drvdata(&a21_wdt, drv);
-> > >
-> > > I am missing the initialisation of the watchdog's timeout value here...
-> >
-> > This watchdog only knows two timeout values, 1s and 30s with the constraint
-> > that you can't go back to 30s once your in a 1s timeout without a reset of the
-> > CPLD. I could initially set it to 30s but that would be redundant.
-> >
-> I wonder - why bother with supporting one-second timeouts ?
+On Mon, May 27, 2013 at 09:41:54PM +0200, Wim Van Sebroeck wrote:
+> Hi Johannes,
 >
-> Is this realistic, ie can you guarantee that the watchdog will be pinged fast
-> enough to keep the system alive under all load conditions ? As far as I know
-> you can not even configure the watchdog application for less than 1 second
-> ping intervals.
+> > This patch adds a sysfs interface for the watchdog device found on MEN A21
+> > Boards.
+> >
+> > The newly generated files are:
+> > * rebootcause:
+> > Can be one of:
+> > Power on Reset,
+> > CPU Reset Request,
+> > Push Button,
+> > FPGA Reset Request,
+> > Watchdog,
+> > Local Power Bad,
+> > Invalid or
+> > BDI
+> > and shows the reason of the boards last reboot.
 >
-> Thanks,
-> Guenter
+> Question: why don't you use the detection of the reboot cause in your driver
+> initialization so that you can:
+> 1) report the reboot cause at the start of the driver (like we do in most
+> drivers that support these kind of features)
+> 2) set the .bootstatus info in the watchdog_device struct data?
+> (See the WDIOF flags in #include <uapi/linux/watchdog.h>
+> #define	WDIOF_OVERHEAT		0x0001	/* Reset due to CPU overheat */
+> #define	WDIOF_FANFAULT		0x0002	/* Fan failed */
+> #define	WDIOF_EXTERN1		0x0004	/* External relay 1 */
+> #define	WDIOF_EXTERN2		0x0008	/* External relay 2 */
+> #define	WDIOF_POWERUNDER	0x0010	/* Power bad/power fault */
+> #define	WDIOF_CARDRESET		0x0020	/* Card previously reset the CPU */
+> #define	WDIOF_POWEROVER		0x0040	/* Power over voltage */
+> #define	WDIOF_SETTIMEOUT	0x0080  /* Set timeout (in seconds) */
+> #define	WDIOF_MAGICCLOSE	0x0100	/* Supports magic close char */
+> #define	WDIOF_PRETIMEOUT	0x0200  /* Pretimeout (in seconds), get/set */
+> #define	WDIOF_ALARMONLY		0x0400	/* Watchdog triggers a management or
+> 					   other external alarm not a reboot */
+> #define	WDIOF_KEEPALIVEPING	0x8000	/* Keep alive ping reply */
+> (Example driver: wdt_pci.c )).
+>
+> Kind regards,
+> Wim.
+>
 
-Well in my tests it was possible, maybe not under extremely high load. But
-considering the application these boards (the VME CPU board the watchdogs chip
-is on) are usually used by our customers, I hope they can react within a single
-second. Another reason why I want to support the 1s timeout is, the VxWorks BSP
-does it too and we don't want a Linux driver have less features than it's
-VxWorks counterpart, do we ;-). Just kidding. My opinion is, the hardware
-supports it and so should the driver, especially for the (safety critical)
-industrial control and automation applications our customers usually do. Just
-my point of view though.
+Ok I'll do. Should I repost this as a change of this patch or the "add driver"
+patch?
 
 Regards,
 Johannes
