@@ -1,100 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <51A746F3.5030503@monstr.eu>
-Date: Thu, 30 May 2013 14:32:51 +0200
-From: Michal Simek <monstr@monstr.eu>
-Reply-To: monstr@monstr.eu
+Message-ID: <51A76199.5010004@udio.cujae.edu.cu>
+Date: Thu, 30 May 2013 09:26:33 -0500
+From: Alejandro Cabrera <acabrera@udio.cujae.edu.cu>
 MIME-Version: 1.0
-To: Venu Byravarasu <vbyravarasu@nvidia.com>
-CC: Michal Simek <michal.simek@xilinx.com>,
+To: monstr@monstr.eu
+CC: Venu Byravarasu <vbyravarasu@nvidia.com>,
+        Michal Simek <michal.simek@xilinx.com>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         Wim Van Sebroeck <wim@iguana.be>,
         "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
 Subject: Re: [PATCH 1/3] watchdog: xilinx: Fix driver header
-References: <b565740967bfa3b3fa867442634f524000c097f8.1369916757.git.michal.simek@xilinx.com> <D958900912E20642BCBC71664EFECE3E6E51FD29A4@BGMAIL02.nvidia.com>
-In-Reply-To: <D958900912E20642BCBC71664EFECE3E6E51FD29A4@BGMAIL02.nvidia.com>
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="----enig2QLVHUFWQVGIVDXVXHECT"
+References: <b565740967bfa3b3fa867442634f524000c097f8.1369916757.git.michal.simek@xilinx.com>
+	<D958900912E20642BCBC71664EFECE3E6E51FD29A4@BGMAIL02.nvidia.com>
+	<51A746F3.5030503@monstr.eu>
+In-Reply-To: <51A746F3.5030503@monstr.eu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
-------enig2QLVHUFWQVGIVDXVXHECT
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
 
-On 05/30/2013 02:30 PM, Venu Byravarasu wrote:
->> -----Original Message-----
->> From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
->> owner@vger.kernel.org] On Behalf Of Michal Simek
->> Sent: Thursday, May 30, 2013 5:56 PM
->> To: linux-kernel@vger.kernel.org
->> Cc: Michal Simek; Michal Simek; Wim Van Sebroeck; linux-
->> watchdog@vger.kernel.org
->> Subject: [PATCH 1/3] watchdog: xilinx: Fix driver header
->>
->> * PGP Signed by an unknown key
->>
->> - Remove reference for IP version
->> - Fix header coding style
->> - Remove notes which are visible from the code
->> - Fix driver license according to header
->>
->> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
->> ---
->>  drivers/watchdog/of_xilinx_wdt.c | 30 ++++++++++--------------------
->>  1 file changed, 10 insertions(+), 20 deletions(-)
->>
->> diff --git a/drivers/watchdog/of_xilinx_wdt.c
->> b/drivers/watchdog/of_xilinx_wdt.c
->> index 2761ddb..d4a35ab 100644
->> --- a/drivers/watchdog/of_xilinx_wdt.c
->> +++ b/drivers/watchdog/of_xilinx_wdt.c
->> @@ -1,23 +1,13 @@
->>  /*
->> -*   of_xilinx_wdt.c  1.01  A Watchdog Device Driver for Xilinx
->> xps_timebase_wdt
->> -*
->> -*   (C) Copyright 2011 (Alejandro Cabrera <aldaya@gmail.com>)
->> -*
->> -*       -----------------------
->> -*/
->> + * Watchdog Device Driver for Xilinx axi/xps_timebase_wdt
->> + *
->> + * (C) Copyright 2011 (Alejandro Cabrera <aldaya@gmail.com>)
->=20
-> Should year not be updated?=20
 
-This is just header fixup.
-I think he is not working/maintaining this driver for a long time.
-I would write there Xilinx copyright but I really don't care.
-
-Thanks,
-Michal
-
---=20
-Michal Simek, Ing. (M.Eng), OpenPGP -> KeyID: FE3D1F91
-w: www.monstr.eu p: +42-0-721842854
-Maintainer of Linux kernel - Microblaze cpu - http://www.monstr.eu/fdt/
-Maintainer of Linux kernel - Xilinx Zynq ARM architecture
-Microblaze U-BOOT custodian and responsible for u-boot arm zynq platform
+On 30/5/2013 7:32 AM, Michal Simek wrote:
+> On 05/30/2013 02:30 PM, Venu Byravarasu wrote:
+>>> -----Original Message-----
+>>> From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
+>>> owner@vger.kernel.org] On Behalf Of Michal Simek
+>>> Sent: Thursday, May 30, 2013 5:56 PM
+>>> To: linux-kernel@vger.kernel.org
+>>> Cc: Michal Simek; Michal Simek; Wim Van Sebroeck; linux-
+>>> watchdog@vger.kernel.org
+>>> Subject: [PATCH 1/3] watchdog: xilinx: Fix driver header
+>>>
+>>> * PGP Signed by an unknown key
+>>>
+>>> - Remove reference for IP version
+>>> - Fix header coding style
+>>> - Remove notes which are visible from the code
+>>> - Fix driver license according to header
+>>>
+>>> Signed-off-by: Michal Simek<michal.simek@xilinx.com>
+>>> ---
+>>>   drivers/watchdog/of_xilinx_wdt.c | 30 ++++++++++--------------------
+>>>   1 file changed, 10 insertions(+), 20 deletions(-)
+>>>
+>>> diff --git a/drivers/watchdog/of_xilinx_wdt.c
+>>> b/drivers/watchdog/of_xilinx_wdt.c
+>>> index 2761ddb..d4a35ab 100644
+>>> --- a/drivers/watchdog/of_xilinx_wdt.c
+>>> +++ b/drivers/watchdog/of_xilinx_wdt.c
+>>> @@ -1,23 +1,13 @@
+>>>   /*
+>>> -*   of_xilinx_wdt.c  1.01  A Watchdog Device Driver for Xilinx
+>>> xps_timebase_wdt
+>>> -*
+>>> -*   (C) Copyright 2011 (Alejandro Cabrera<aldaya@gmail.com>)
+>>> -*
+>>> -*       -----------------------
+>>> -*/
+>>> + * Watchdog Device Driver for Xilinx axi/xps_timebase_wdt
+>>> + *
+>>> + * (C) Copyright 2011 (Alejandro Cabrera<aldaya@gmail.com>)
+>> Should year not be updated?
+> This is just header fixup.
+> I think he is not working/maintaining this driver for a long time.
+Indeed :(.
+Since this driver was upstream the new watchdog subsystem was under 
+development and I want to port it to the new core, but unfortunately I 
+haven't enough time :(.
+> I would write there Xilinx copyright but I really don't care.
+>
+> Thanks,
+> Michal
+Thanks, you,
+Alejandro
 
 
 
-------enig2QLVHUFWQVGIVDXVXHECT
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+48 Aniversario de la Cujae, Una obra de la Revolucion Cubana | 2 de diciembre de 1964 | http://cujae.edu.cu
 
-iEYEARECAAYFAlGnRvMACgkQykllyylKDCEWfACfYvsjyJjXWj+xJDAfEPilTzf5
-gpkAn2dVpK616nXcUJWG+UhBsTTELF8C
-=OvZD
------END PGP SIGNATURE-----
-
-------enig2QLVHUFWQVGIVDXVXHECT--
+Consulte la enciclopedia colaborativa cubana. http://www.ecured.cu
