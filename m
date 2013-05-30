@@ -1,319 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 27 May 2013 20:25:54 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: johannes.thumshirn@men.de
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4 1/2] watchdog: New watchdog driver for MEN A21 watchdogs
-Message-ID: <20130527182554.GB14258@spo001.leaseweb.com>
-References: <20130527090756.GA14258@spo001.leaseweb.com> <1369678434-13515-1-git-send-email-johannes.thumshirn@men.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1369678434-13515-1-git-send-email-johannes.thumshirn@men.de>
+From: Venu Byravarasu <vbyravarasu@nvidia.com>
+To: Michal Simek <michal.simek@xilinx.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC: Michal Simek <monstr@monstr.eu>, Wim Van Sebroeck <wim@iguana.be>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+Date: Thu, 30 May 2013 18:00:45 +0530
+Subject: RE: [PATCH 1/3] watchdog: xilinx: Fix driver header
+Message-ID: <D958900912E20642BCBC71664EFECE3E6E51FD29A4@BGMAIL02.nvidia.com>
+References: <b565740967bfa3b3fa867442634f524000c097f8.1369916757.git.michal.simek@xilinx.com>
+In-Reply-To: <b565740967bfa3b3fa867442634f524000c097f8.1369916757.git.michal.simek@xilinx.com>
+MIME-Version: 1.0
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Johannes,
-
-> This patch adds the driver for the watchdog devices found on MEN Mikro
-> Elektronik A21 VMEbus CPU Carrier Boards. It has DT-support and uses the
-> watchdog framework.
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
+> owner@vger.kernel.org] On Behalf Of Michal Simek
+> Sent: Thursday, May 30, 2013 5:56 PM
+> To: linux-kernel@vger.kernel.org
+> Cc: Michal Simek; Michal Simek; Wim Van Sebroeck; linux-
+> watchdog@vger.kernel.org
+> Subject: [PATCH 1/3] watchdog: xilinx: Fix driver header
 > 
-> Revision 2:
-> * Removed unneeded open flag in struct a21_wdt_drv
-> * Corrected 3bit reason code from gpio
-> * Additional sysfs files are now part of watchdog sysfs
-> * Changed OFF/ON delay in ping from 400ms to 10ns
-> * Reworked timeout setting
-> * Removed a21_wdt_ioctl(...)
+> * PGP Signed by an unknown key
 > 
-> Revision 3:
-> * Changed pr_{err,info} to dev_{err,info}
-> * Removed out of memory error print
-> * Transition from "fast" to "slow" mode not allowed by chip
+> - Remove reference for IP version
+> - Fix header coding style
+> - Remove notes which are visible from the code
+> - Fix driver license according to header
 > 
-> Revision 4:
-> * Remove reboot_notifier and place disable code into platform_device's shutdown function
-> * Removed sysfs interface
-> 
-> Signed-off-by: Johannes Thumshirn <johannes.thumshirn@men.de>
+> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 > ---
->  MAINTAINERS                   |    6 ++
->  drivers/watchdog/Kconfig      |    8 ++
->  drivers/watchdog/Makefile     |    1 +
->  drivers/watchdog/mena21_wdt.c |  204 +++++++++++++++++++++++++++++++++++++++++
->  4 files changed, 219 insertions(+)
->  create mode 100644 drivers/watchdog/mena21_wdt.c
+>  drivers/watchdog/of_xilinx_wdt.c | 30 ++++++++++--------------------
+>  1 file changed, 10 insertions(+), 20 deletions(-)
 > 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index fd3a495..1ca147a 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -5306,6 +5306,12 @@ F:	drivers/mtd/
->  F:	include/linux/mtd/
->  F:	include/uapi/mtd/
->  
-> +MEN A21 WATCHDOG DRIVER
-> +M:  	Johannes Thumshirn <johannes.thumshirn@men.de>
-> +L:	linux-watchdog@vger.kernel.org
-> +S:	Supported
-> +F:	drivers/watchdog/mena21_wdt.c
-> +
->  METAG ARCHITECTURE
->  M:	James Hogan <james.hogan@imgtec.com>
->  S:	Supported
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index e89fc31..192b84d 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -1172,6 +1172,14 @@ config BOOKE_WDT_DEFAULT_TIMEOUT
->  
->  	  The value can be overridden by the wdt_period command-line parameter.
->  
-> +config MEN_A21_WDT
-> +       tristate "MEN A21 VME CPU Carrier Board Watchdog Timer"
-> +       select WATCHDOG_CORE
-> +       help
-> +        Watchdog driver for MEN A21 VMEbus CPU Carrier Boards.
-> +
-> +	If unsure select N here.
-> +
->  # PPC64 Architecture
->  
->  config WATCHDOG_RTAS
-> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index a300b94..bffdcb1 100644
-> --- a/drivers/watchdog/Makefile
-> +++ b/drivers/watchdog/Makefile
-> @@ -143,6 +143,7 @@ obj-$(CONFIG_8xxx_WDT) += mpc8xxx_wdt.o
->  obj-$(CONFIG_MV64X60_WDT) += mv64x60_wdt.o
->  obj-$(CONFIG_PIKA_WDT) += pika_wdt.o
->  obj-$(CONFIG_BOOKE_WDT) += booke_wdt.o
-> +obj-$(CONFIG_MEN_A21_WDT) += mena21_wdt.o
->  
->  # PPC64 Architecture
->  obj-$(CONFIG_WATCHDOG_RTAS) += wdrtas.o
-> diff --git a/drivers/watchdog/mena21_wdt.c b/drivers/watchdog/mena21_wdt.c
-> new file mode 100644
-> index 0000000..4fe65ec
-> --- /dev/null
-> +++ b/drivers/watchdog/mena21_wdt.c
-> @@ -0,0 +1,204 @@
-> +/*
-> + * Watchdog driver for the A21 VME CPU Boards
+> diff --git a/drivers/watchdog/of_xilinx_wdt.c
+> b/drivers/watchdog/of_xilinx_wdt.c
+> index 2761ddb..d4a35ab 100644
+> --- a/drivers/watchdog/of_xilinx_wdt.c
+> +++ b/drivers/watchdog/of_xilinx_wdt.c
+> @@ -1,23 +1,13 @@
+>  /*
+> -*   of_xilinx_wdt.c  1.01  A Watchdog Device Driver for Xilinx
+> xps_timebase_wdt
+> -*
+> -*   (C) Copyright 2011 (Alejandro Cabrera <aldaya@gmail.com>)
+> -*
+> -*       -----------------------
+> -*/
+> + * Watchdog Device Driver for Xilinx axi/xps_timebase_wdt
 > + *
-> + * Copyright (C) 2013 MEN Mikro Elektronik Nuernberg GmbH
+> + * (C) Copyright 2011 (Alejandro Cabrera <aldaya@gmail.com>)
+
+Should year not be updated? 
+
 > + *
 > + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License
-> + * as published by the Free Software Foundation
-> + */
-> +#include <linux/module.h>
-> +#include <linux/moduleparam.h>
-> +#include <linux/types.h>
-> +#include <linux/kernel.h>
-> +#include <linux/slab.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/watchdog.h>
-> +#include <linux/uaccess.h>
-> +#include <linux/gpio.h>
-> +#include <linux/delay.h>
-> +#include <linux/bitops.h>
-> +
-> +#define GPIO_WD_ENAB	169
-> +#define GPIO_WD_FAST	170
-> +#define GPIO_WD_TRIG	171
-> +
-> +#define GPIO_RST_CAUSE_BASE 166
-> +
-> +struct a21_wdt_drv {
-> +	struct watchdog_device wdt;
-> +	struct mutex lock;
-> +};
-> +
-> +static bool nowayout = WATCHDOG_NOWAYOUT;
-> +module_param(nowayout, bool, 0);
-> +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
-> +			    __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-> +
-> +static int a21_wdt_start(struct watchdog_device *wdt)
-> +{
-> +	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
-> +
-> +	mutex_lock(&drv->lock);
-> +
-> +	gpio_set_value(GPIO_WD_ENAB, 1);
-> +
-> +	mutex_unlock(&drv->lock);
-> +
-> +	return 0;
-> +}
-> +
-> +static int a21_wdt_stop(struct watchdog_device *wdt)
-> +{
-> +	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
-> +
-> +	/* We don't stop if WDOG_NO_WAY_OUT is set */
-> +	if (test_bit(WDOG_NO_WAY_OUT, &wdt->status))
-> +		return -EINVAL;
-> +
-> +	mutex_lock(&drv->lock);
-> +
-> +	gpio_set_value(GPIO_WD_ENAB, 0);
-> +
-> +	mutex_unlock(&drv->lock);
-> +
-> +	return 0;
-> +}
-> +
-> +static int a21_wdt_ping(struct watchdog_device *wdt)
-> +{
-> +	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
-> +
-> +	mutex_lock(&drv->lock);
-> +
-> +	gpio_set_value(GPIO_WD_TRIG, 0);
-> +	ndelay(10);
-> +	gpio_set_value(GPIO_WD_TRIG, 1);
-> +
-> +	mutex_unlock(&drv->lock);
-> +
-> +	return 0;
-> +}
-> +
-> +static int a21_wdt_set_timeout(struct watchdog_device *wdt,
-> +			       unsigned int timeout)
-> +{
-> +	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
-> +
-> +	if (timeout != 1 && timeout != 30) {
-> +		dev_err(wdt->dev, "Only 1 and 30 allowed as timeout\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	if (timeout == 30 && wdt->timeout == 1) {
-> +		dev_err(wdt->dev,
-> +			"Transition from fast to slow mode not allowed\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	mutex_lock(&drv->lock);
-> +
-> +	if (timeout == 1)
-> +		gpio_set_value(GPIO_WD_FAST, 1);
-> +	else
-> +		gpio_set_value(GPIO_WD_FAST, 0);
-> +
-> +	wdt->timeout = timeout;
-> +
-> +	mutex_unlock(&drv->lock);
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct watchdog_info a21_wdt_info = {
-> +	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
-> +	.identity = "MEN A21 Watchdog",
-> +};
-> +
-> +static const struct watchdog_ops a21_wdt_ops = {
-> +	.owner = THIS_MODULE,
-> +	.start = a21_wdt_start,
-> +	.stop = a21_wdt_stop,
-> +	.ping = a21_wdt_ping,
-> +	.set_timeout = a21_wdt_set_timeout,
-> +};
-> +
-> +static struct watchdog_device a21_wdt = {
-> +	.info = &a21_wdt_info,
-> +	.ops = &a21_wdt_ops,
-> +	.min_timeout = 1,
-> +	.max_timeout = 30,
-> +};
-> +
-> +static int a21_wdt_probe(struct platform_device *pdev)
-> +{
-> +	struct a21_wdt_drv *drv;
-> +	int ret;
-> +
-> +	dev_info(&pdev->dev, "MEN A21 watchdog timer driver enabled\n");
-> +
-> +	drv = devm_kzalloc(&pdev->dev, sizeof(struct a21_wdt_drv), GFP_KERNEL);
-> +	if (!drv)
-> +		return -ENOMEM;
-> +
-> +	mutex_init(&drv->lock);
-> +	watchdog_set_nowayout(&a21_wdt, nowayout);
-> +	watchdog_set_drvdata(&a21_wdt, drv);
-
-I am missing the initialisation of the watchdog's timeout value here...
-
-> +
-> +	ret = watchdog_register_device(&a21_wdt);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "Cannot register watchdog device\n");
-> +		goto err_register_wd;
-> +	}
-> +
-> +	dev_set_drvdata(&pdev->dev, drv);
-> +
-> +	return 0;
-> +
-> +err_register_wd:
-> +	mutex_destroy(&drv->lock);
-> +
-> +	return ret;
-> +}
-> +
-> +static int a21_wdt_remove(struct platform_device *pdev)
-> +{
-> +	struct a21_wdt_drv *drv = dev_get_drvdata(&pdev->dev);
-> +
-> +	dev_warn(&pdev->dev,
-> +		"Unregistering A21 watchdog driver, board may reboot\n");
-> +
-> +
-> +	watchdog_unregister_device(&drv->wdt);
-> +
-> +	mutex_destroy(&drv->lock);
-> +
-> +	return 0;
-> +}
-> +
-> +static void a21_wdt_shutdown(struct platform_device *pdev)
-> +{
-> +	gpio_set_value(GPIO_WD_ENAB, 0);
-> +}
-> +
-> +static const struct of_device_id a21_wdt_ids[] = {
-> +	{ .compatible = "men,a021-wdt" },
-> +	{ },
-> +};
-> +
-> +static struct platform_driver a21_wdt_driver = {
-> +	.probe = a21_wdt_probe,
-> +	.remove = a21_wdt_remove,
-> +	.shutdown = a21_wdt_shutdown,
-> +	.driver = {
-> +		.name = "a21-watchdog",
-> +		.of_match_table = a21_wdt_ids,
-> +	},
-> +};
-> +
-> +module_platform_driver(a21_wdt_driver);
-> +
-> +MODULE_AUTHOR("MEN Mikro Elektronik");
-> +MODULE_DESCRIPTION("MEN A21 Watchdog");
-> +MODULE_LICENSE("GPL");
-> +MODULE_ALIAS("platform:a21-watchdog");
-> -- 
-> 1.7.9.5
->
-
-For the rest this looks OK.
-
-Kind regards,
-wim.
- 
