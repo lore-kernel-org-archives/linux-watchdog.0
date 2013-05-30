@@ -1,43 +1,42 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:48960 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:48966 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752243Ab3E3UhQ (ORCPT
+	with ESMTP id S1757925Ab3E3VwE (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 30 May 2013 16:37:16 -0400
-Date: Thu, 30 May 2013 22:37:04 +0200
+	Thu, 30 May 2013 17:52:04 -0400
+Date: Thu, 30 May 2013 23:52:03 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Don Zickus <dzickus@redhat.com>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	linux-watchdog@vger.kernel.org, kexec@lists.infradead.org,
-	LKML <linux-kernel@vger.kernel.org>, vgoyal@redhat.com,
-	dyoung@redhat.com
-Subject: Re: [PATCH v3] watchdog: Add hook for kicking in kdump path
-Message-ID: <20130530203704.GH14258@spo001.leaseweb.com>
-References: <1366233596-34681-1-git-send-email-dzickus@redhat.com> <87li8gaku0.fsf@xmission.com> <20130418130009.GH79013@redhat.com> <20130418134904.GC2767@roeck-us.net> <20130418135257.GL79013@redhat.com> <20130418145413.GA1980@roeck-us.net> <20130424144226.GI79013@redhat.com> <20130424152142.GA26864@roeck-us.net> <20130527191618.GD14258@spo001.leaseweb.com> <20130528011047.GA28597@roeck-us.net>
+To: Johannes Thumshirn <johannes.thumshirn@men.de>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 1/2] watchdog: New watchdog driver for MEN A21 watchdogs
+Message-ID: <20130530215203.GJ14258@spo001.leaseweb.com>
+References: <20130527090756.GA14258@spo001.leaseweb.com> <1369678434-13515-1-git-send-email-johannes.thumshirn@men.de> <20130527182554.GB14258@spo001.leaseweb.com> <20130528081053.GC818@jtlinux>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20130528011047.GA28597@roeck-us.net>
+In-Reply-To: <20130528081053.GC818@jtlinux>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Guenter,
+Hi Johannes,
 
-> > Only when you set the .parent field in the watchdog_device data you will get the
-> > referal in the /sys/class/... tree. In iTCO_wdt.c you have the following code
-> > that does that: iTCO_wdt_watchdog_dev.parent = dev->dev.parent;
-> > 
-> > From the watchdog-kernel-api documentation:
-> > * parent: set this to the parent device (or NULL) before calling
-> >   watchdog_register_device.
-> > 
-> Hi Wim,
+> On Mon, May 27, 2013 at 08:25:54PM +0200, Wim Van Sebroeck wrote:
+> [...]
+> > > +	watchdog_set_drvdata(&a21_wdt, drv);
+> >
+> > I am missing the initialisation of the watchdog's timeout value here...
 > 
-> We live and learn ... thanks a lot for the hint!
+> This watchdog only knows two timeout values, 1s and 30s with the constraint
+> that you can't go back to 30s once your in a 1s timeout without a reset of the
+> CPLD. I could initially set it to 30s but that would be redundant.
 
-If it's about learning: the old way was via miscdevice.parent ... I think some "old"
-drivers still do this.
+Yes, but if I use a WDIOC_GETTIMEOUT ioctl call then I will get 0 because
+you didn't initialize a21_wdt.timeout so you don't know wether or not
+it's 30 or 1.
+
+You can also set it default to 1 and use a timer to do the bridge between userspace
+and an in kernel timer of 0.5msec. (see git/linux-watchdog/drivers/watchdog/pika_wdt.c
+as an example).
 
 Kind regards,
 Wim.
