@@ -1,78 +1,55 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wg0-f42.google.com ([74.125.82.42]:54030 "EHLO
-	mail-wg0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753325Ab3E3M0R (ORCPT
+Received: from mail.active-venture.com ([67.228.131.205]:56142 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757002Ab3E3OAP (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 30 May 2013 08:26:17 -0400
-Received: by mail-wg0-f42.google.com with SMTP id n12so5036265wgh.3
-        for <linux-watchdog@vger.kernel.org>; Thu, 30 May 2013 05:26:15 -0700 (PDT)
-From: Michal Simek <michal.simek@xilinx.com>
-To: linux-kernel@vger.kernel.org
-Cc: Michal Simek <monstr@monstr.eu>,
-	Michal Simek <michal.simek@xilinx.com>,
+	Thu, 30 May 2013 10:00:15 -0400
+Date: Thu, 30 May 2013 07:00:41 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Michal Simek <michal.simek@xilinx.com>
+Cc: linux-kernel@vger.kernel.org, Michal Simek <monstr@monstr.eu>,
 	Wim Van Sebroeck <wim@iguana.be>,
 	linux-watchdog@vger.kernel.org
-Subject: [PATCH 2/3] watchdog: xilinx: Setup the origin compatible string
-Date: Thu, 30 May 2013 14:26:03 +0200
-Message-Id: <eef4939944768b2d8cbed2bcb4cf75954b86fc27.1369916757.git.michal.simek@xilinx.com>
-In-Reply-To: <b565740967bfa3b3fa867442634f524000c097f8.1369916757.git.michal.simek@xilinx.com>
+Subject: Re: [PATCH 2/3] watchdog: xilinx: Setup the origin compatible string
+Message-ID: <20130530140041.GA28232@roeck-us.net>
 References: <b565740967bfa3b3fa867442634f524000c097f8.1369916757.git.michal.simek@xilinx.com>
-In-Reply-To: <b565740967bfa3b3fa867442634f524000c097f8.1369916757.git.michal.simek@xilinx.com>
-References: <b565740967bfa3b3fa867442634f524000c097f8.1369916757.git.michal.simek@xilinx.com>
-Content-Type: multipart/signed;
-    boundary="=_mimegpg-monstr-desktop-8721-1369916773-0001";
-    micalg=pgp-sha1; protocol="application/pgp-signature"
+ <eef4939944768b2d8cbed2bcb4cf75954b86fc27.1369916757.git.michal.simek@xilinx.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <eef4939944768b2d8cbed2bcb4cf75954b86fc27.1369916757.git.michal.simek@xilinx.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This is a MIME GnuPG-signed message.  If you see this text, it means that
-your E-mail or Usenet software does not support MIME signed messages.
-The Internet standard for MIME PGP messages, RFC 2015, was published in 1996.
-To open this message correctly you will need to install E-mail or Usenet
-software that supports modern Internet standards.
+On Thu, May 30, 2013 at 02:26:03PM +0200, Michal Simek wrote:
+> Watchdog 1.01.a is also compatible with 1.00.a.
+> Setup the origin version to compatible list.
+> If you want to use newer watchdog version, please
+> extend your compatible list.
+> 
+> For example:
+> compatible = "xlnx,xps-timebase-wdt-1.02.a", "xlnx,xps-timebase-wdt-1.00.a";
+> 
+> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+> ---
+>  drivers/watchdog/of_xilinx_wdt.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/of_xilinx_wdt.c b/drivers/watchdog/of_xilinx_wdt.c
+> index d4a35ab..79f358c 100644
+> --- a/drivers/watchdog/of_xilinx_wdt.c
+> +++ b/drivers/watchdog/of_xilinx_wdt.c
+> @@ -384,7 +384,7 @@ static int xwdt_remove(struct platform_device *dev)
+> 
+>  /* Match table for of_platform binding */
+>  static struct of_device_id xwdt_of_match[] = {
+> -	{ .compatible = "xlnx,xps-timebase-wdt-1.01.a", },
+> +	{ .compatible = "xlnx,xps-timebase-wdt-1.00.a", },
 
---=_mimegpg-monstr-desktop-8721-1369916773-0001
+Is this really a good idea ? It means every existing device tree binding which
+specifies 1.01a will now fail. If the code is compatible to 1.00a, I think it
+would make more sense to add that to the driver as additional entry instead of
+deleting the existing entry for 1.01a.
 
-Watchdog 1.01.a is also compatible with 1.00.a.
-Setup the origin version to compatible list.
-If you want to use newer watchdog version, please
-extend your compatible list.
-
-For example:
-compatible = "xlnx,xps-timebase-wdt-1.02.a", "xlnx,xps-timebase-wdt-1.00.a";
-
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
----
- drivers/watchdog/of_xilinx_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/watchdog/of_xilinx_wdt.c b/drivers/watchdog/of_xilinx_wdt.c
-index d4a35ab..79f358c 100644
---- a/drivers/watchdog/of_xilinx_wdt.c
-+++ b/drivers/watchdog/of_xilinx_wdt.c
-@@ -384,7 +384,7 @@ static int xwdt_remove(struct platform_device *dev)
-
- /* Match table for of_platform binding */
- static struct of_device_id xwdt_of_match[] = {
--	{ .compatible = "xlnx,xps-timebase-wdt-1.01.a", },
-+	{ .compatible = "xlnx,xps-timebase-wdt-1.00.a", },
- 	{},
- };
- MODULE_DEVICE_TABLE(of, xwdt_of_match);
---
-1.8.2.3
-
-
---=_mimegpg-monstr-desktop-8721-1369916773-0001
-Content-Type: application/pgp-signature
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEABECAAYFAlGnRWUACgkQykllyylKDCEqHwCcDVjl7A+2gdeHhQxfZlJ3rn3L
-R7gAoJr5QvYJFLp6llX245thfGPtR/f+
-=qNs8
------END PGP SIGNATURE-----
-
---=_mimegpg-monstr-desktop-8721-1369916773-0001--
+Thanks,
+Guenter
