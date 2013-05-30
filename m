@@ -1,100 +1,44 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:64700 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932767Ab3E3PZQ (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:48960 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752243Ab3E3UhQ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 30 May 2013 11:25:16 -0400
-Date: Thu, 30 May 2013 08:25:45 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Michal Simek <monstr@monstr.eu>
-Cc: Michal Simek <michal.simek@xilinx.com>,
-	linux-kernel@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 3/3] watchdog: xilinx: Add WDIOC_SETTIMEOUT ioctl function
-Message-ID: <20130530152545.GA29874@roeck-us.net>
-References: <b565740967bfa3b3fa867442634f524000c097f8.1369916757.git.michal.simek@xilinx.com>
- <595eb49b34909318959fe6825c209a7d635ed849.1369916757.git.michal.simek@xilinx.com>
- <20130530140754.GB28232@roeck-us.net>
- <51A75F11.7000001@monstr.eu>
- <20130530142145.GA28856@roeck-us.net>
- <51A7635A.8070300@monstr.eu>
- <20130530150306.GA29508@roeck-us.net>
- <51A76C58.5060107@monstr.eu>
-MIME-Version: 1.0
+	Thu, 30 May 2013 16:37:16 -0400
+Date: Thu, 30 May 2013 22:37:04 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Don Zickus <dzickus@redhat.com>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	linux-watchdog@vger.kernel.org, kexec@lists.infradead.org,
+	LKML <linux-kernel@vger.kernel.org>, vgoyal@redhat.com,
+	dyoung@redhat.com
+Subject: Re: [PATCH v3] watchdog: Add hook for kicking in kdump path
+Message-ID: <20130530203704.GH14258@spo001.leaseweb.com>
+References: <1366233596-34681-1-git-send-email-dzickus@redhat.com> <87li8gaku0.fsf@xmission.com> <20130418130009.GH79013@redhat.com> <20130418134904.GC2767@roeck-us.net> <20130418135257.GL79013@redhat.com> <20130418145413.GA1980@roeck-us.net> <20130424144226.GI79013@redhat.com> <20130424152142.GA26864@roeck-us.net> <20130527191618.GD14258@spo001.leaseweb.com> <20130528011047.GA28597@roeck-us.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <51A76C58.5060107@monstr.eu>
+In-Reply-To: <20130528011047.GA28597@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, May 30, 2013 at 05:12:24PM +0200, Michal Simek wrote:
-> On 05/30/2013 05:03 PM, Guenter Roeck wrote:
-> > On Thu, May 30, 2013 at 04:34:02PM +0200, Michal Simek wrote:
-> >> On 05/30/2013 04:21 PM, Guenter Roeck wrote:
-> >>> On Thu, May 30, 2013 at 04:15:45PM +0200, Michal Simek wrote:
-> >>>> On 05/30/2013 04:07 PM, Guenter Roeck wrote:
-> >>>>> On Thu, May 30, 2013 at 02:26:04PM +0200, Michal Simek wrote:
-> >>>>>> Standard watchdog programs try to setup timeout
-> >>>>>> via ioctl and this functionality should be implemented.
-> >>>>>> Timeout value is hardcoded in the hardware but
-> >>>>>> based on Documentation/watchdog/watchdog-api.txt
-> >>>>>> can return the real timeout used in the same variable.
-> >>>>>>
-> >>>>>> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
-> >>>>>> ---
-> >>>>>>  drivers/watchdog/of_xilinx_wdt.c | 1 +
-> >>>>>>  1 file changed, 1 insertion(+)
-> >>>>>>
-> >>>>>> diff --git a/drivers/watchdog/of_xilinx_wdt.c b/drivers/watchdog/of_xilinx_wdt.c
-> >>>>>> index 79f358c..a3bbe72 100644
-> >>>>>> --- a/drivers/watchdog/of_xilinx_wdt.c
-> >>>>>> +++ b/drivers/watchdog/of_xilinx_wdt.c
-> >>>>>> @@ -253,6 +253,7 @@ static long xwdt_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-> >>>>>>  		xwdt_keepalive();
-> >>>>>>  		return 0;
-> >>>>>>
-> >>>>>> +	case WDIOC_SETTIMEOUT:
-> >>>>>>  	case WDIOC_GETTIMEOUT:
-> >>>>>>  		if (no_timeout)
-> >>>>>>  			return -ENOTTY;
-> >>>>>
-> >>>>> Watchdog programs should check ident.options before trying to set the timeout.
-> >>>>> If they don't, there is an application bug. I don't think it is a good idea
-> >>>>> to start hacking the kernel to work around application bugs.
-> >>>>
-> >>>> Based on Documentation/watchdog/watchdog-api.txt
-> >>>>
-> >>>> "For some drivers it is possible to modify the watchdog timeout on the
-> >>>> fly with the SETTIMEOUT ioctl, those drivers have the WDIOF_SETTIMEOUT
-> >>>> flag set in their option field.  The argument is an integer
-> >>>
-> >>> Yes, but WDIOF_SETTIMEOUT is not set in the driver's option field.
-> >>
-> >> ok. It means I should probably enable it.
-> >>
-> > I am missing your point. Applications should not try to write the timeout
-> > since WDIOF_SETTIMEOUT is not set. Any application doing it anyway is buggy
-> > and should be fixed.
-> 
-> I fully understand your points and 100% agree with you
-> 1. the application is broken and should be fixed
-> 2. also the kernel shouldn't fix any problem with stupid application
-> 
-> But based on documentation the driver can support setup timeout
-> and based on description "the driver returns the real timeout used
-> in the same variable and this timeout might differ from the requested one
-> due to limitation of the hardware"
-> Based on this I still think that the driver can support set timeout
-> feature and if the driver supports this option then WDIOF_SETTIMEOUT
-> should be set in driver's option field. And I would add this to v2.
-> 
-> Can you see my point now?
+Hi Guenter,
 
-No. The driver doesn't support setting the timeout. You just want it
-to falsely claim that it does to work around an application problem.
-With your logic, _every_ watchdog driver would "support" setting
-the timeout.
+> > Only when you set the .parent field in the watchdog_device data you will get the
+> > referal in the /sys/class/... tree. In iTCO_wdt.c you have the following code
+> > that does that: iTCO_wdt_watchdog_dev.parent = dev->dev.parent;
+> > 
+> > From the watchdog-kernel-api documentation:
+> > * parent: set this to the parent device (or NULL) before calling
+> >   watchdog_register_device.
+> > 
+> Hi Wim,
+> 
+> We live and learn ... thanks a lot for the hint!
 
-I'll defer to a higher authority, ie Wim.
+If it's about learning: the old way was via miscdevice.parent ... I think some "old"
+drivers still do this.
 
-Guenter
+Kind regards,
+Wim.
+
