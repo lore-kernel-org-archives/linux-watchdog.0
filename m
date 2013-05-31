@@ -1,71 +1,102 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:61850 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752526Ab3EaKJL (ORCPT
+Received: from mail1.bemta5.messagelabs.com ([195.245.231.149]:48079 "EHLO
+	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750758Ab3EaMxO (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 31 May 2013 06:09:11 -0400
-Date: Fri, 31 May 2013 03:09:41 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: anish singh <anish198519851985@gmail.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Johannes Thumshirn <johannes.thumshirn@men.de>,
-	linux-watchdog@vger.kernel.org,
-	linux-kernel-mail <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v4 1/2] watchdog: New watchdog driver for MEN A21
- watchdogs
-Message-ID: <20130531100941.GA31434@roeck-us.net>
-References: <20130527090756.GA14258@spo001.leaseweb.com>
- <1369678434-13515-1-git-send-email-johannes.thumshirn@men.de>
- <20130527182554.GB14258@spo001.leaseweb.com>
- <20130528081053.GC818@jtlinux>
- <20130528162218.GA22351@roeck-us.net>
- <20130530215928.GL14258@spo001.leaseweb.com>
- <20130530220247.GA2275@roeck-us.net>
- <CAK7N6vpwizg3zAJtY2VTsXoccPhsAx0B5Em4TSJoRycz421S3Q@mail.gmail.com>
+	Fri, 31 May 2013 08:53:14 -0400
+Date: Fri, 31 May 2013 14:55:19 +0200
+From: Johannes Thumshirn <johannes.thumshirn@men.de>
+To: Guenter Roeck <linux@roeck-us.net>
+CC: <wim@iguana.be>, <guenter@roeck-us.net>,
+	<linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<johannes.thumshirn@men.de>
+Subject: Re: [PATCH v6] watchdog: New watchdog driver for MEN A21 watchdogs
+Message-ID: <20130531125519.GB8983@jtlinux>
+References: <20130531103654.GB5619@roeck-us.net>
+ <20130531110846.GA15707@jtlinux>
+ <20130531114037.GA13533@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-In-Reply-To: <CAK7N6vpwizg3zAJtY2VTsXoccPhsAx0B5Em4TSJoRycz421S3Q@mail.gmail.com>
+In-Reply-To: <20130531114037.GA13533@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, May 31, 2013 at 03:05:50PM +0530, anish singh wrote:
-> Hi Guenter,
-> 
-> On Fri, May 31, 2013 at 3:32 AM, Guenter Roeck <linux@roeck-us.net> wrote:
-> > On Thu, May 30, 2013 at 11:59:28PM +0200, Wim Van Sebroeck wrote:
-> >> Hi Guenter,
-> >>
-> >> > On Tue, May 28, 2013 at 10:10:53AM +0200, Johannes Thumshirn wrote:
-> >> > > On Mon, May 27, 2013 at 08:25:54PM +0200, Wim Van Sebroeck wrote:
-> >> > > [...]
-> >> > > > > +     watchdog_set_drvdata(&a21_wdt, drv);
-> >> > > >
-> >> > > > I am missing the initialisation of the watchdog's timeout value here...
-> >> > >
-> >> > > This watchdog only knows two timeout values, 1s and 30s with the constraint
-> >> > > that you can't go back to 30s once your in a 1s timeout without a reset of the
-> >> > > CPLD. I could initially set it to 30s but that would be redundant.
-> >> > >
-> >> > I wonder - why bother with supporting one-second timeouts ?
-> >> >
-> >> > Is this realistic, ie can you guarantee that the watchdog will be pinged fast
-> >> > enough to keep the system alive under all load conditions ? As far as I know
-> >> > you can not even configure the watchdog application for less than 1 second
-> >> > ping intervals.
-> >>
-> >> that's why certain drivers use a timer to keep kicking the watchdog at
-> >> a rate of 0.5s (do a grep on HZ/2) untill userspace times out.
-> >> (example: drivers/watchdog/pika_wdt.c or drivers/watchdog/pcwd.c).
-> >>
-> > Yes, I have used the same trick in a couple of my drivers. That isn't done here,
-> > though.
-> >
-> > I even thought about adding this capability to the infrastructure.
-> 
-> If you don't mind can I give it a try?
+Hi Guenther,
+On Fri, May 31, 2013 at 04:40:37AM -0700, Guenter Roeck wrote:
+> > +#define GPIO_WD_ENAB	169
+> > +#define GPIO_WD_FAST	170
+> > +#define GPIO_WD_TRIG	171
+> > +
+> > +#define GPIO_RST_CAUSE_BASE 166
+> > +
+>
+> I think I asked that before ... as you are supporting devicetree, gpio pins
+> should really be provided through devicetree properties and not be hardcoded.
+>
+Yes you did and I didn't come up with a solution to this problem yet. I understand
+and agree to your concerns but I'm lacking example code/documentation for it, maybe
+you can point me to an example on that and then I'll update my code accordingly.
 
-I don't mind, but you might want to wait for Wim's feedback.
+> > +struct a21_wdt_drv {
+> > +	struct watchdog_device wdt;
+> > +	struct mutex lock;
+> > +	}
+> > +
+> > +	if (timeout == 30 && wdt->timeout == 1) {
+> > +		dev_err(wdt->dev,
+> > +			"Transition from fast to slow mode not allowed\n");
+> > +		return -EINVAL;
+> > +	}
+> > +
+> I dislike that [2 .. 29] timeout values are not supported, and would rather have
+> you accept that range and set the timeout to 30. Also, it is somewhat undesirable
+> that the timeout can not be changed back to 30 after being set to 1.
 
-Thanks,
-Guenter
+The not changing back issue was a hardware design criterion and I have no
+influence on that one. I've already checked with the IC developer and he said,
+this is intended. I don't quite understand why I should accept the timeout and
+set it to 30? In my opinion this only introduces some magic the user won't
+understand. Instead failing and giving an error message is something a user can
+take as a hint for investigating.
+
+> As Wim recommended, a softdog on top of the hardware watchdog would be the best
+> solution. I'll leave it up to him to decide if he wants to accept the code
+> as-is.
+
+Yes let's see what he's saying.
+
+>
+> > +	mutex_lock(&drv->lock);
+> > +
+> > +	ret = watchdog_register_device(&a21_wdt);
+> > +	if (ret) {
+> > +		dev_err(&pdev->dev, "Cannot register watchdog device\n");
+> > +		goto err_register_wd;
+> > +	}
+> > +
+> > +	ret = a21_wdt_get_bootstatus(&reset);
+> > +	if (ret)
+> > +		dev_warn(&pdev->dev, "Reset Cause contains invalid data\n");
+> > +	else {
+> > +		if (reset == 2)
+> > +			a21_wdt.bootstatus |= WDIOF_EXTERN1;
+> > +		else if (reset == 4)
+> > +			a21_wdt.bootstatus |= WDIOF_CARDRESET;
+> > +		else if (reset == 5)
+> > +			a21_wdt.bootstatus |= WDIOF_POWERUNDER;
+> > +		else if (reset == 7)
+> > +			a21_wdt.bootstatus |= WDIOF_EXTERN2;
+>
+> What about other causes ? No useful match ?
+>
+
+None I could find. Actually WDIOF_EXTERN[12] already are a pretty creative
+mapping in my opinion. EXTERN1 is a "Push Button" event, EXTERN2 is a reset
+caused by a JTAG/BDM adapter...
+
+> I think bootstatus should be set prior to registering the watchdog device
+> to avoid race conditions where an application reads it prior to being set.
+>
+Agreed, didn't see that one *doh*, must be fixed before inclusion.
+> > +	}
