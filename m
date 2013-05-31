@@ -1,77 +1,44 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ea0-f178.google.com ([209.85.215.178]:54966 "EHLO
-	mail-ea0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751203Ab3EaF4r (ORCPT
+Received: from mail1.bemta3.messagelabs.com ([195.245.230.169]:36377 "EHLO
+	mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750791Ab3EaI2m (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 31 May 2013 01:56:47 -0400
-Received: by mail-ea0-f178.google.com with SMTP id q15so1145367ead.37
-        for <linux-watchdog@vger.kernel.org>; Thu, 30 May 2013 22:56:45 -0700 (PDT)
-From: Michal Simek <michal.simek@xilinx.com>
-To: linux-kernel@vger.kernel.org
-Cc: Michal Simek <monstr@monstr.eu>,
-	Michal Simek <michal.simek@xilinx.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org
-Subject: [PATCH v2 2/2] watchdog: xilinx: Setup the origin compatible string
-Date: Fri, 31 May 2013 07:56:34 +0200
-Message-Id: <88e5677451bf32bb31e99b7d2d5acd7d75bdba0e.1369979787.git.michal.simek@xilinx.com>
-In-Reply-To: <cover.1369979787.git.michal.simek@xilinx.com>
-References: <cover.1369979787.git.michal.simek@xilinx.com>
-In-Reply-To: <cover.1369979787.git.michal.simek@xilinx.com>
-References: <cover.1369979787.git.michal.simek@xilinx.com>
-Content-Type: multipart/signed;
-    boundary="=_mimegpg-monstr-desktop-31320-1369979804-0001";
-    micalg=pgp-sha1; protocol="application/pgp-signature"
+	Fri, 31 May 2013 04:28:42 -0400
+Date: Fri, 31 May 2013 10:24:17 +0200
+From: Johannes Thumshirn <johannes.thumshirn@men.de>
+To: Guenter Roeck <linux@roeck-us.net>
+CC: Wim Van Sebroeck <wim@iguana.be>, <linux-watchdog@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <johannes.thumshirn@men.de>
+Subject: Re: [PATCH v4 1/2] watchdog: New watchdog driver for MEN A21
+ watchdogs
+Message-ID: <20130531082416.GA21470@jtlinux>
+References: <20130527090756.GA14258@spo001.leaseweb.com>
+ <1369678434-13515-1-git-send-email-johannes.thumshirn@men.de>
+ <20130527182554.GB14258@spo001.leaseweb.com>
+ <20130528081053.GC818@jtlinux>
+ <20130528162218.GA22351@roeck-us.net>
+ <20130530215928.GL14258@spo001.leaseweb.com>
+ <20130530220247.GA2275@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20130530220247.GA2275@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This is a MIME GnuPG-signed message.  If you see this text, it means that
-your E-mail or Usenet software does not support MIME signed messages.
-The Internet standard for MIME PGP messages, RFC 2015, was published in 1996.
-To open this message correctly you will need to install E-mail or Usenet
-software that supports modern Internet standards.
+Hi Guenther,
 
---=_mimegpg-monstr-desktop-31320-1369979804-0001
+On Thu, May 30, 2013 at 03:02:47PM -0700, Guenter Roeck wrote:
+> On Thu, May 30, 2013 at 11:59:28PM +0200, Wim Van Sebroeck wrote:
+> > Hi Guenter,
+> >
+[...]
+>
+> I even thought about adding this capability to the infrastructure.
 
-Watchdog 1.01.a is also compatible with 1.00.a.
-Add the origin version to compatible list.
+Actually this would be pretty nice to have
+>
+> Thanks,
+> Guenter
 
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
----
-Changes in v2:
-- Extend compatible list with 1.00.a instead of replacing 1.01.a
-  reported by Guenter Roeck <linux@roeck-us.net>
-
- drivers/watchdog/of_xilinx_wdt.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/watchdog/of_xilinx_wdt.c b/drivers/watchdog/of_xilinx_wdt.c
-index d4a35ab..4dd281f 100644
---- a/drivers/watchdog/of_xilinx_wdt.c
-+++ b/drivers/watchdog/of_xilinx_wdt.c
-@@ -384,6 +384,7 @@ static int xwdt_remove(struct platform_device *dev)
-
- /* Match table for of_platform binding */
- static struct of_device_id xwdt_of_match[] = {
-+	{ .compatible = "xlnx,xps-timebase-wdt-1.00.a", },
- 	{ .compatible = "xlnx,xps-timebase-wdt-1.01.a", },
- 	{},
- };
---
-1.8.2.3
-
-
---=_mimegpg-monstr-desktop-31320-1369979804-0001
-Content-Type: application/pgp-signature
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEABECAAYFAlGoO5wACgkQykllyylKDCGVAACdEZf0FObMmShU/5hgrwbc3clf
-9b0Anidskc+HBaZ/Ypm+t0mLkJbcsTJL
-=4tUc
------END PGP SIGNATURE-----
-
---=_mimegpg-monstr-desktop-31320-1369979804-0001--
+Johannes
