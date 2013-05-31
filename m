@@ -1,151 +1,188 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:49558 "EHLO
-	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750724Ab3E3XDh (ORCPT
+Received: from mail-wi0-f176.google.com ([209.85.212.176]:58356 "EHLO
+	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750962Ab3EaFsb (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 30 May 2013 19:03:37 -0400
-Message-ID: <51A7DAC2.80602@wwwdotorg.org>
-Date: Thu, 30 May 2013 17:03:30 -0600
-From: Stephen Warren <swarren@wwwdotorg.org>
+	Fri, 31 May 2013 01:48:31 -0400
+Received: by mail-wi0-f176.google.com with SMTP id hr14so343481wib.15
+        for <linux-watchdog@vger.kernel.org>; Thu, 30 May 2013 22:48:30 -0700 (PDT)
+Message-ID: <51A839AC.4040904@monstr.eu>
+Date: Fri, 31 May 2013 07:48:28 +0200
+From: Michal Simek <monstr@monstr.eu>
+Reply-To: monstr@monstr.eu
 MIME-Version: 1.0
-To: keerthy <j-keerthy@ti.com>
-CC: gg@slimlogic.co.uk, Ian Lartey <ian@slimlogic.co.uk>,
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-leds@vger.kernel.org,
-	linux-watchdog@vger.kernel.org,
-	devicetree-discuss@lists.ozlabs.org, grant.likely@secretlab.ca,
-	broonie@opensource.wolfsonmicro.com, rob.herring@calxeda.com,
-	rob@landley.net, mturquette@linaro.org, linus.walleij@linaro.org,
-	cooloney@gmail.com, sfr@canb.auug.org.au, rpurdie@rpsys.net,
-	akpm@linux-foundation.org, sameo@linux.intel.com, wim@iguana.be,
-	lgirdwood@gmail.com, ldewangan@nvidia.com, t-kristo@ti.com
-Subject: Re: [PATCH v10 01/12] mfd: DT bindings for the palmas family MFD
-References: <1363964122-19201-1-git-send-email-ian@slimlogic.co.uk> <1363964122-19201-2-git-send-email-ian@slimlogic.co.uk> <5150906F.9040202@wwwdotorg.org> <51A73908.7020206@ti.com>
-In-Reply-To: <51A73908.7020206@ti.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+To: Wim Van Sebroeck <wim@iguana.be>
+CC: Guenter Roeck <linux@roeck-us.net>,
+	LKML <linux-kernel@vger.kernel.org>,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 3/3] watchdog: xilinx: Add WDIOC_SETTIMEOUT ioctl function
+References: <b565740967bfa3b3fa867442634f524000c097f8.1369916757.git.michal.simek@xilinx.com> <595eb49b34909318959fe6825c209a7d635ed849.1369916757.git.michal.simek@xilinx.com> <20130530140754.GB28232@roeck-us.net> <51A75F11.7000001@monstr.eu> <20130530142145.GA28856@roeck-us.net> <51A7635A.8070300@monstr.eu> <20130530150306.GA29508@roeck-us.net> <51A76C58.5060107@monstr.eu> <20130530152545.GA29874@roeck-us.net> <CAHTX3dJ9fDJ6ggMGcF5v1vdcruMqnV4fv_6eP3U3DgOUfm8r+w@mail.gmail.com> <20130530220812.GN14258@spo001.leaseweb.com>
+In-Reply-To: <20130530220812.GN14258@spo001.leaseweb.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="----enig2RDWBIDEFNDWHNAKLJHBX"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 05/30/2013 05:33 AM, keerthy wrote:
-> 
-> On 03/25/2013 11:29 PM, Stephen Warren wrote:
-> 
->> On 03/22/2013 08:55 AM, Ian Lartey wrote:
->>> From: Graeme Gregory <gg@slimlogic.co.uk>
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+------enig2RDWBIDEFNDWHNAKLJHBX
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+On 05/31/2013 12:08 AM, Wim Van Sebroeck wrote:
+> Hi All,
+>=20
+>>> On Thu, May 30, 2013 at 05:12:24PM +0200, Michal Simek wrote:
+>>>> On 05/30/2013 05:03 PM, Guenter Roeck wrote:
+>>>>> On Thu, May 30, 2013 at 04:34:02PM +0200, Michal Simek wrote:
+>>>>>> On 05/30/2013 04:21 PM, Guenter Roeck wrote:
+>>>>>>> On Thu, May 30, 2013 at 04:15:45PM +0200, Michal Simek wrote:
+>>>>>>>> On 05/30/2013 04:07 PM, Guenter Roeck wrote:
+>>>>>>>>> On Thu, May 30, 2013 at 02:26:04PM +0200, Michal Simek wrote:
+>>>>>>>>>> Standard watchdog programs try to setup timeout
+>>>>>>>>>> via ioctl and this functionality should be implemented.
+>>>>>>>>>> Timeout value is hardcoded in the hardware but
+>>>>>>>>>> based on Documentation/watchdog/watchdog-api.txt
+>>>>>>>>>> can return the real timeout used in the same variable.
+>>>>>>>>>>
+>>>>>>>>>> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+>>>>>>>>>> ---
+>>>>>>>>>>  drivers/watchdog/of_xilinx_wdt.c | 1 +
+>>>>>>>>>>  1 file changed, 1 insertion(+)
+>>>>>>>>>>
+>>>>>>>>>> diff --git a/drivers/watchdog/of_xilinx_wdt.c
+>>> b/drivers/watchdog/of_xilinx_wdt.c
+>>>>>>>>>> index 79f358c..a3bbe72 100644
+>>>>>>>>>> --- a/drivers/watchdog/of_xilinx_wdt.c
+>>>>>>>>>> +++ b/drivers/watchdog/of_xilinx_wdt.c
+>>>>>>>>>> @@ -253,6 +253,7 @@ static long xwdt_ioctl(struct file *file,
+>>> unsigned int cmd, unsigned long arg)
+>>>>>>>>>>                xwdt_keepalive();
+>>>>>>>>>>                return 0;
+>>>>>>>>>>
+>>>>>>>>>> +      case WDIOC_SETTIMEOUT:
+>>>>>>>>>>        case WDIOC_GETTIMEOUT:
+>>>>>>>>>>                if (no_timeout)
+>>>>>>>>>>                        return -ENOTTY;
+>>>>>>>>>
+>>>>>>>>> Watchdog programs should check ident.options before trying to s=
+et
+>>> the timeout.
+>>>>>>>>> If they don't, there is an application bug. I don't think it is=
+ a
+>>> good idea
+>>>>>>>>> to start hacking the kernel to work around application bugs.
+>>>>>>>>
+>>>>>>>> Based on Documentation/watchdog/watchdog-api.txt
+>>>>>>>>
+>>>>>>>> "For some drivers it is possible to modify the watchdog timeout =
+on
+>>> the
+>>>>>>>> fly with the SETTIMEOUT ioctl, those drivers have the
+>>> WDIOF_SETTIMEOUT
+>>>>>>>> flag set in their option field.  The argument is an integer
+>>>>>>>
+>>>>>>> Yes, but WDIOF_SETTIMEOUT is not set in the driver's option field=
+=2E
+>>>>>>
+>>>>>> ok. It means I should probably enable it.
+>>>>>>
+>>>>> I am missing your point. Applications should not try to write the
+>>> timeout
+>>>>> since WDIOF_SETTIMEOUT is not set. Any application doing it anyway =
+is
+>>> buggy
+>>>>> and should be fixed.
+>>>>
+>>>> I fully understand your points and 100% agree with you
+>>>> 1. the application is broken and should be fixed
+>>>> 2. also the kernel shouldn't fix any problem with stupid application=
+
+>>>>
+>>>> But based on documentation the driver can support setup timeout
+>>>> and based on description "the driver returns the real timeout used
+>>>> in the same variable and this timeout might differ from the requeste=
+d one
+>>>> due to limitation of the hardware"
+>>>> Based on this I still think that the driver can support set timeout
+>>>> feature and if the driver supports this option then WDIOF_SETTIMEOUT=
+
+>>>> should be set in driver's option field. And I would add this to v2.
+>>>>
+>>>> Can you see my point now?
 >>>
->>> Add the various binding files for the palmas family of chips. There is a
->>> top level MFD binding then a seperate binding for IP blocks on chips.
+>>> No. The driver doesn't support setting the timeout. You just want it
+>>> to falsely claim that it does to work around an application problem.
+>>> With your logic, _every_ watchdog driver would "support" setting
+>>> the timeout.
+>>>
 >>
->>> diff --git a/Documentation/devicetree/bindings/clock/palmas-clk.txt b/Documentation/devicetree/bindings/clock/palmas-clk.txt
+>> I don't want to falsely claim anything.
+>> I am just saying this is written in the documentation and
+>> it is my understanding that this can be implemented it this way
+>> for this xilinx device and behaviour of the driver will be correct
+>> according to documentation which I copied to this thread.
 >>
->> Where is the reg property; if you're instantiating the clk device as a
->> standalone DT node and driver, it should be possible to retrieve the
->> address of this IP block instance from DT, not using driver-internal APIs.
->>
->> This same comment likely applies everywhere, so I won't repeat it.
->>
->>> +Example:
->>> +
->>> +clk {
->>> +    compatible = "ti,twl6035-clk", "ti,palmas-clk";
->>> +    ti,clk32kg-mode-sleep = <0>;
->>> +    ti,clk32kgaudio-mode-sleep = <0>;
->>
->>> +    #clock-cells = <1>;
->>> +    clock-frequency = <32000000>;
->>> +    clock-names = "clk32kg", "clk32kgaudio";
->>
->> The binding description itself should describe what clocks this node
->> provides and consumes.
->>
->> What is clock-frequency; which clock does it affect?
->>
->> The presence of #clock-cells implies this is a clock provider. This
->> binding should define the format of the clock cells that this property
->> implies. I assume it's just the ID of the output clocks, but what values
->> correspond to which output clocks? That mapping table needs to be listed
->> here.
->>
->> The presence of clock-names implies this is a clock consumer. However,
->> there is no clocks property in the example. Is clks missing from the
->> example, or should this property be clock-output-names instead? If this
->> node is a clock consumer, the list of which clocks it requires should be
->> documented.
->>
->>> diff --git a/Documentation/devicetree/bindings/gpio/gpio-palmas.txt b/Documentation/devicetree/bindings/gpio/gpio-palmas.txt
->>
->>> +- gpio-controller: mark the device as a GPIO controller
->>> +- gpio-cells = <1>:  GPIO lines are provided.
->>
->> That's #gpio-cells not gpio-cells.
->>
->> I assume that cell simply contains the GPIO ID/number. That should be
->> documented for clarity.
->>
->> Surely gpio-cells should be 2 not 1, so there is space for flags. At
->> least an "inverted" or "active-low" flag should be included; GPIO
->> consumers would typically implement that flag in SW, so there' no
->> requirement that the flag only be supported if the HW supports the feature.
->>
->>> +- interrupt-controller : palmas has its own internal IRQs
->>> +- #interrupt-cells : should be set to 2 for IRQ number and flags
->>> +  The first cell is the IRQ number.
->>> +  The second cell is the flags, encoded as the trigger masks from
->>> +  Documentation/devicetree/bindings/interrupts.txt
->>
->> You need "/interrupt-controller" before the filename there.
->>
->>> +- interrupt-parent : The parent interrupt controller.
->>
->> If this IP block has interrupt outputs, it should require an
->> "interrupts" property too. This is the same concept that drives the need
->> for a reg property. This same comment likely applies everywhere, so I
->> won't repeat it.
->>
->>> diff --git a/Documentation/devicetree/bindings/input/palmas-pwrbutton.txt b/Documentation/devicetree/bindings/input/palmas-pwrbutton.txt
->>
->>> +- interrupts: the interrupt outputs of the controller.
->>
->> How many entries are there, what do they mean, and in what order must
->> they appear? (Note that the binding of a node must define the order of
->> the interrupts property, since historically it's been accessed by index,
->> not by name, and all bindings must allow that access method to be used).
->>
->>> +- interrupt-names : Should be the name of irq resource. Each interrupt
->>> +  binds its interrupt-name.
->>
->> The binding needs to define standard names for the entries in this
->> property, or define that interrupts are only retrieved by index, in
->> which case interrupt-names shouldn't be present. This same comment
->> likely applies everywhere, so I won't repeat it.
->>
->>> diff --git a/Documentation/devicetree/bindings/mfd/palmas.txt b/Documentation/devicetree/bindings/mfd/palmas.txt
->>
->>> +Required properties:
->> ...
->>
->> I believe the Palmas devices have many separate I2C addresses, even
->> buses, which are I think are at least partially independently SW
->> configurable. In that case, the reg property for this node should
->> probably enumerate all the I2C addresses that this chip responds to, so
->> that they can each be passed down to the child nodes.
-> 
-> 
-> Stephen,
-> 
-> The palmas devices do have multiple I2C slave IDs. From OMAP5 as the master
-> all the palmas slave devices are connected via I2C1 bus.
-> 
-> I did not understand the SW configurable part. It is more board
-> dependent. Correct me if i understood it wrongly.
+>> If Wim says that if device doesn't support setting timeout in HW
+>> then this ioctl can't be implemented in this way I am definitely OK wi=
+th
+>> it.
+>> And I will remove this patch and will also remove this change
+>> from our xilinx repo.
+>> The main purpose for me is to cleanup our repo and push all changes
+>> to the mainline. Of course if this change goes against watchdog
+>> logic and it is broken I will the first who will revert it in our repo=
 
-IIRC (and I may not sine it's been a while since I looked at this),
-there are SW registers that can modify the I2C address that the chip
-will respond to, so you could access the main I2C address, then program
-which other I2C addresses get used.
+>> and will have proper description based on our discussion.
+>>
+>> I really appreciate your inputs for this discussion and both
+>> resolution ACK/NACK are OK because I will know what's the correct
+>> way and I can fix it in mainline or our repo and both will be in sync.=
 
-Or, perhaps I was just thinking of the fact that there are strapping
-pins on the chip that affect both the main I2C address, and some/all of
-the other I2C addresses, so the driver needs to be told each and every
-I2C address, not just one single overall I2C address.
+>=20
+> Logic is: if device supports setting timeout values, then and only then=
+
+> you indicate this by setting the WDIOF_SETTIMEOUT flag and adding the c=
+ode
+> for it. And then you can do minor adjustments if needed and report this=
+ back.
+> But that's only to make sure that some roundings (like a timer in minut=
+es=20
+> gives back 60 or 120 seconds if you would set a new timeout of 70 secon=
+ds).
+>=20
+> So in this case: the HW doesn't support setting timeout values,
+> so we don't add the WDIOF_SETTIMEOUT flag and thus we don't add the ioc=
+tl
+> call neither. So NACK on this patch.
+
+ok. Good. I will revert this change in our tree and will send v2 without
+it.
+
+Thanks,
+Michal
+
+--=20
+Michal Simek, Ing. (M.Eng), OpenPGP -> KeyID: FE3D1F91
+w: www.monstr.eu p: +42-0-721842854
+Maintainer of Linux kernel - Microblaze cpu - http://www.monstr.eu/fdt/
+Maintainer of Linux kernel - Xilinx Zynq ARM architecture
+Microblaze U-BOOT custodian and responsible for u-boot arm zynq platform
+
+
+
+------enig2RDWBIDEFNDWHNAKLJHBX
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+
+iEYEARECAAYFAlGoOawACgkQykllyylKDCE/AQCeK8Sm1EdyDpfs6210diDfrusI
+7NUAn0C+Z1zumKkuDBJqZmIRPjJ0USkt
+=4r5v
+-----END PGP SIGNATURE-----
+
+------enig2RDWBIDEFNDWHNAKLJHBX--
