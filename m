@@ -1,75 +1,49 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-bk0-f48.google.com ([209.85.214.48]:50972 "EHLO
-	mail-bk0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751191Ab3FAIQ5 (ORCPT
+Received: from moutng.kundenserver.de ([212.227.17.10]:59769 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752099Ab3FAI4Q (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 1 Jun 2013 04:16:57 -0400
-Message-ID: <51A9ADF4.8010102@gmail.com>
-Date: Sat, 01 Jun 2013 10:16:52 +0200
-From: Sylwester Nawrocki <sylvester.nawrocki@gmail.com>
+	Sat, 1 Jun 2013 04:56:16 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Johannes Thumshirn <johannes.thumshirn@men.de>
+Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v5 1/2] watchdog: New watchdog driver for MEN A21 watchdogs
+Date: Sat, 01 Jun 2013 10:56:16 +0200
+Message-ID: <2637599.Z6OQQQSYxb@wuerfel>
+In-Reply-To: <20130531085842.GA8572@jtlinux>
+References: <20130531085842.GA8572@jtlinux>
 MIME-Version: 1.0
-To: Tomasz Figa <tomasz.figa@gmail.com>
-CC: linux-arm-kernel@lists.infradead.org,
-	linux-samsung-soc@vger.kernel.org,
-	Kukjin Kim <kgene.kim@samsung.com>,
-	=?ISO-8859-1?Q?Heiko_St=FCbner?= <heiko@sntech.de>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org, jhbird.choi@samsung.com
-Subject: Re: [PATCH 0/6] Samsung watchdog support clean-up
-References: <1368916627-23139-1-git-send-email-tomasz.figa@gmail.com>
-In-Reply-To: <1368916627-23139-1-git-send-email-tomasz.figa@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Tomasz,
+On Friday 31 May 2013 10:58:48 Johannes Thumshirn wrote:
+> This patch adds the driver for the watchdog devices found on MEN Mikro
+> Elektronik A21 VMEbus CPU Carrier Boards. It has DT-support and uses the
+> watchdog framework.
+> 
 
-On 05/19/2013 12:37 AM, Tomasz Figa wrote:
-> This series is aiming at cleaning up a bit watchdog support on Samsung
-> SoCs. The patches tweak a bit all the watchdog handling code here and
-> there, with the goal of making it DT- and multiplatform-friendly.
->
-> See particular patches for more detailed descriptions.
->
-> On S3C6410-based Tiny6410 board (Mini6410-compatible):
->
-> Tested-by: Tomasz Figa<tomasz.figa@gmail.com>
+It seems the DT support is rather incomplete
 
-I've tested this series on a s3c2440 based board. The system restart
-works fine.
 
-Tested-by: Sylwester Nawrocki <sylvester.nawrocki@gmail.com>
+> Signed-off-by: Johannes Thumshirn <johannes.thumshirn@men.de>
+> ---
+>  MAINTAINERS                   |    6 ++
+>  drivers/watchdog/Kconfig      |    8 ++
+>  drivers/watchdog/Makefile     |    1 +
 
-> Depends on:
->   - [PATCH] ARM: s5p64x0: Use common uncompress.h part for plat-samsung
->
-> Tomasz Figa (6):
->    watchdog: s3c2410_wdt: Use local register definitions
->    ARM: SAMSUNG: uncompress: Use local definitions of watchdog registers
->    ARM: SAMSUNG: Add watchdog reset driver
->    ARM: SAMSUNG: Let platforms use the new watchdog reset driver
->    ARM: SAMSUNG: Remove legacy watchdog reset code
->    ARM: SAMSUNG: Remove unused plat/regs-watchdog.h header
->
->   arch/arm/Kconfig                                   |  3 +
->   arch/arm/mach-s3c24xx/Kconfig                      |  2 +
->   arch/arm/mach-s3c24xx/s3c2410.c                    |  3 +-
->   arch/arm/mach-s3c24xx/s3c244x.c                    |  3 +-
->   arch/arm/mach-s3c64xx/common.c                     |  8 +-
->   arch/arm/mach-s5p64x0/common.c                     |  4 +-
->   arch/arm/mach-s5pc100/common.c                     |  3 +-
->   arch/arm/plat-samsung/Kconfig                      |  6 ++
->   arch/arm/plat-samsung/Makefile                     |  1 +
->   arch/arm/plat-samsung/include/plat/regs-watchdog.h | 41 ---------
->   arch/arm/plat-samsung/include/plat/uncompress.h    | 15 +++-
->   .../arm/plat-samsung/include/plat/watchdog-reset.h | 38 ++-------
->   arch/arm/plat-samsung/watchdog-reset.c             | 97 ++++++++++++++++++++++
->   drivers/watchdog/s3c2410_wdt.c                     | 17 +++-
->   14 files changed, 156 insertions(+), 85 deletions(-)
->   delete mode 100644 arch/arm/plat-samsung/include/plat/regs-watchdog.h
->   create mode 100644 arch/arm/plat-samsung/watchdog-reset.c>
+Please add a binding document to Documentation/devicetree/bindings/
 
---
-Regards,
-Sylwester
+> +
+> +#define GPIO_WD_ENAB	169
+> +#define GPIO_WD_FAST	170
+> +#define GPIO_WD_TRIG	171
+> +
+> +#define GPIO_RST_CAUSE_BASE 166
+
+You should never hardwire GPIO numbers like this. There is a DT binding
+for GPIO, so use that to get the number of the tree.
+
+	Arnd
