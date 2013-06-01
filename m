@@ -1,119 +1,75 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:56128 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750936Ab3FAEOx (ORCPT
+Received: from mail-bk0-f48.google.com ([209.85.214.48]:50972 "EHLO
+	mail-bk0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751191Ab3FAIQ5 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 1 Jun 2013 00:14:53 -0400
-Date: Fri, 31 May 2013 21:15:23 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Johannes Thumshirn <johannes.thumshirn@men.de>
-Cc: wim@iguana.be, guenter@roeck-us.net,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v6] watchdog: New watchdog driver for MEN A21 watchdogs
-Message-ID: <20130601041523.GB4081@roeck-us.net>
-References: <20130531103654.GB5619@roeck-us.net>
- <20130531110846.GA15707@jtlinux>
- <20130531114037.GA13533@roeck-us.net>
- <20130531125519.GB8983@jtlinux>
+	Sat, 1 Jun 2013 04:16:57 -0400
+Message-ID: <51A9ADF4.8010102@gmail.com>
+Date: Sat, 01 Jun 2013 10:16:52 +0200
+From: Sylwester Nawrocki <sylvester.nawrocki@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20130531125519.GB8983@jtlinux>
+To: Tomasz Figa <tomasz.figa@gmail.com>
+CC: linux-arm-kernel@lists.infradead.org,
+	linux-samsung-soc@vger.kernel.org,
+	Kukjin Kim <kgene.kim@samsung.com>,
+	=?ISO-8859-1?Q?Heiko_St=FCbner?= <heiko@sntech.de>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org, jhbird.choi@samsung.com
+Subject: Re: [PATCH 0/6] Samsung watchdog support clean-up
+References: <1368916627-23139-1-git-send-email-tomasz.figa@gmail.com>
+In-Reply-To: <1368916627-23139-1-git-send-email-tomasz.figa@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, May 31, 2013 at 02:55:19PM +0200, Johannes Thumshirn wrote:
-> Hi Guenther,
-> On Fri, May 31, 2013 at 04:40:37AM -0700, Guenter Roeck wrote:
-> > > +#define GPIO_WD_ENAB	169
-> > > +#define GPIO_WD_FAST	170
-> > > +#define GPIO_WD_TRIG	171
-> > > +
-> > > +#define GPIO_RST_CAUSE_BASE 166
-> > > +
-> >
-> > I think I asked that before ... as you are supporting devicetree, gpio pins
-> > should really be provided through devicetree properties and not be hardcoded.
-> >
-> Yes you did and I didn't come up with a solution to this problem yet. I understand
-> and agree to your concerns but I'm lacking example code/documentation for it, maybe
-> you can point me to an example on that and then I'll update my code accordingly.
-> 
+Hi Tomasz,
 
-Have a look at Documentation/devicetree/bindings/gpio/gpio-fan.txt and
-drivers/hwmon/gpio-fan.c.
+On 05/19/2013 12:37 AM, Tomasz Figa wrote:
+> This series is aiming at cleaning up a bit watchdog support on Samsung
+> SoCs. The patches tweak a bit all the watchdog handling code here and
+> there, with the goal of making it DT- and multiplatform-friendly.
+>
+> See particular patches for more detailed descriptions.
+>
+> On S3C6410-based Tiny6410 board (Mini6410-compatible):
+>
+> Tested-by: Tomasz Figa<tomasz.figa@gmail.com>
 
-> > > +struct a21_wdt_drv {
-> > > +	struct watchdog_device wdt;
-> > > +	struct mutex lock;
-> > > +	}
-> > > +
-> > > +	if (timeout == 30 && wdt->timeout == 1) {
-> > > +		dev_err(wdt->dev,
-> > > +			"Transition from fast to slow mode not allowed\n");
-> > > +		return -EINVAL;
-> > > +	}
-> > > +
-> > I dislike that [2 .. 29] timeout values are not supported, and would rather have
-> > you accept that range and set the timeout to 30. Also, it is somewhat undesirable
-> > that the timeout can not be changed back to 30 after being set to 1.
-> 
-> The not changing back issue was a hardware design criterion and I have no
-> influence on that one. I've already checked with the IC developer and he said,
-> this is intended. I don't quite understand why I should accept the timeout and
-> set it to 30? In my opinion this only introduces some magic the user won't
-> understand. Instead failing and giving an error message is something a user can
-> take as a hint for investigating.
-> 
-On the other side you expect the user to know about the 1 / 30 limitation, which
-I think is worse. The value actually set is returned by the ioctl per API, so
-the application can check the actually configured value. As such, it is not
-entirely true that the behavior would be unexpected.
+I've tested this series on a s3c2440 based board. The system restart
+works fine.
 
-> > As Wim recommended, a softdog on top of the hardware watchdog would be the best
-> > solution. I'll leave it up to him to decide if he wants to accept the code
-> > as-is.
-> 
-> Yes let's see what he's saying.
-> 
-Agreed.
+Tested-by: Sylwester Nawrocki <sylvester.nawrocki@gmail.com>
 
-> >
-> > > +	mutex_lock(&drv->lock);
-> > > +
-> > > +	ret = watchdog_register_device(&a21_wdt);
-> > > +	if (ret) {
-> > > +		dev_err(&pdev->dev, "Cannot register watchdog device\n");
-> > > +		goto err_register_wd;
-> > > +	}
-> > > +
-> > > +	ret = a21_wdt_get_bootstatus(&reset);
-> > > +	if (ret)
-> > > +		dev_warn(&pdev->dev, "Reset Cause contains invalid data\n");
-> > > +	else {
-> > > +		if (reset == 2)
-> > > +			a21_wdt.bootstatus |= WDIOF_EXTERN1;
-> > > +		else if (reset == 4)
-> > > +			a21_wdt.bootstatus |= WDIOF_CARDRESET;
-> > > +		else if (reset == 5)
-> > > +			a21_wdt.bootstatus |= WDIOF_POWERUNDER;
-> > > +		else if (reset == 7)
-> > > +			a21_wdt.bootstatus |= WDIOF_EXTERN2;
-> >
-> > What about other causes ? No useful match ?
-> >
-> 
-> None I could find. Actually WDIOF_EXTERN[12] already are a pretty creative
-> mapping in my opinion. EXTERN1 is a "Push Button" event, EXTERN2 is a reset
-> caused by a JTAG/BDM adapter...
-> 
-ok.
+> Depends on:
+>   - [PATCH] ARM: s5p64x0: Use common uncompress.h part for plat-samsung
+>
+> Tomasz Figa (6):
+>    watchdog: s3c2410_wdt: Use local register definitions
+>    ARM: SAMSUNG: uncompress: Use local definitions of watchdog registers
+>    ARM: SAMSUNG: Add watchdog reset driver
+>    ARM: SAMSUNG: Let platforms use the new watchdog reset driver
+>    ARM: SAMSUNG: Remove legacy watchdog reset code
+>    ARM: SAMSUNG: Remove unused plat/regs-watchdog.h header
+>
+>   arch/arm/Kconfig                                   |  3 +
+>   arch/arm/mach-s3c24xx/Kconfig                      |  2 +
+>   arch/arm/mach-s3c24xx/s3c2410.c                    |  3 +-
+>   arch/arm/mach-s3c24xx/s3c244x.c                    |  3 +-
+>   arch/arm/mach-s3c64xx/common.c                     |  8 +-
+>   arch/arm/mach-s5p64x0/common.c                     |  4 +-
+>   arch/arm/mach-s5pc100/common.c                     |  3 +-
+>   arch/arm/plat-samsung/Kconfig                      |  6 ++
+>   arch/arm/plat-samsung/Makefile                     |  1 +
+>   arch/arm/plat-samsung/include/plat/regs-watchdog.h | 41 ---------
+>   arch/arm/plat-samsung/include/plat/uncompress.h    | 15 +++-
+>   .../arm/plat-samsung/include/plat/watchdog-reset.h | 38 ++-------
+>   arch/arm/plat-samsung/watchdog-reset.c             | 97 ++++++++++++++++++++++
+>   drivers/watchdog/s3c2410_wdt.c                     | 17 +++-
+>   14 files changed, 156 insertions(+), 85 deletions(-)
+>   delete mode 100644 arch/arm/plat-samsung/include/plat/regs-watchdog.h
+>   create mode 100644 arch/arm/plat-samsung/watchdog-reset.c>
 
-> > I think bootstatus should be set prior to registering the watchdog device
-> > to avoid race conditions where an application reads it prior to being set.
-> >
-> Agreed, didn't see that one *doh*, must be fixed before inclusion.
-
-Happens to me all the time :)
-
-Guenter
+--
+Regards,
+Sylwester
