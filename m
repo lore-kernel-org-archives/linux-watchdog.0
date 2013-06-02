@@ -1,57 +1,122 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:53949 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750866Ab3FAP3A (ORCPT
+Received: from mail-pd0-f180.google.com ([209.85.192.180]:48593 "EHLO
+	mail-pd0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752868Ab3FBKNU (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 1 Jun 2013 11:29:00 -0400
-Date: Sat, 1 Jun 2013 08:29:33 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Michal Simek <michal.simek@xilinx.com>
-Cc: linux-kernel@vger.kernel.org, Michal Simek <monstr@monstr.eu>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v2 2/2] watchdog: xilinx: Setup the origin compatible
- string
-Message-ID: <20130601152933.GC7751@roeck-us.net>
-References: <cover.1369979787.git.michal.simek@xilinx.com>
- <88e5677451bf32bb31e99b7d2d5acd7d75bdba0e.1369979787.git.michal.simek@xilinx.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <88e5677451bf32bb31e99b7d2d5acd7d75bdba0e.1369979787.git.michal.simek@xilinx.com>
+	Sun, 2 Jun 2013 06:13:20 -0400
+From: anish kumar <anish198519851985@gmail.com>
+To: wim@iguana.be, linux@roeck-us.net
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	anish kumar <anish198519851985@gmail.com>
+Subject: [PATCH] [RFC]Watchdog:core: constant pinging until userspace timesout when delay very less
+Date: Sun,  2 Jun 2013 15:43:07 +0530
+Message-Id: <1370167987-14252-1-git-send-email-anish198519851985@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, May 31, 2013 at 07:56:34AM +0200, Michal Simek wrote:
-> Watchdog 1.01.a is also compatible with 1.00.a.
-> Add the origin version to compatible list.
-> 
-> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Certain watchdog drivers use a timer to keep kicking the watchdog at
+a rate of 0.5s (HZ/2) untill userspace times out.They do this as
+we can't guarantee that watchdog will be pinged fast enough
+for all system loads, especially if timeout is configured for
+less than or equal to 1 second(basically small values).
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+As suggested by Wim Van Sebroeck & Guenter Roeck we should
+add this functionality of individual watchdog drivers in the core
+watchdog core.
 
-> ---
-> Changes in v2:
-> - Extend compatible list with 1.00.a instead of replacing 1.01.a
->   reported by Guenter Roeck <linux@roeck-us.net>
-> 
->  drivers/watchdog/of_xilinx_wdt.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/watchdog/of_xilinx_wdt.c b/drivers/watchdog/of_xilinx_wdt.c
-> index d4a35ab..4dd281f 100644
-> --- a/drivers/watchdog/of_xilinx_wdt.c
-> +++ b/drivers/watchdog/of_xilinx_wdt.c
-> @@ -384,6 +384,7 @@ static int xwdt_remove(struct platform_device *dev)
-> 
->  /* Match table for of_platform binding */
->  static struct of_device_id xwdt_of_match[] = {
-> +	{ .compatible = "xlnx,xps-timebase-wdt-1.00.a", },
->  	{ .compatible = "xlnx,xps-timebase-wdt-1.01.a", },
->  	{},
->  };
-> --
-> 1.8.2.3
-> 
+Signed-off-by: anish kumar <anish198519851985@gmail.com>
+---
+ drivers/watchdog/watchdog_dev.c |   34 +++++++++++++++++++++++++++++-----
+ include/linux/watchdog.h        |    1 +
+ 2 files changed, 30 insertions(+), 5 deletions(-)
 
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index faf4e18..0305803 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -41,9 +41,14 @@
+ #include <linux/miscdevice.h>	/* For handling misc devices */
+ #include <linux/init.h>		/* For __init/__exit/... */
+ #include <linux/uaccess.h>	/* For copy_to_user/put_user/... */
++#include <linux/timer.h>
++#include <linux/jiffies.h>
+ 
+ #include "watchdog_core.h"
+ 
++/* Timer heartbeat (500ms) */
++#define WDT_TIMEOUT	(HZ/2) /* should this be sysfs? */
++
+ /* the dev_t structure to store the dynamically allocated watchdog devices */
+ static dev_t watchdog_devt;
+ /* the watchdog device behind /dev/watchdog */
+@@ -73,16 +78,33 @@ static int watchdog_ping(struct watchdog_device *wddev)
+ 	if (!watchdog_active(wddev))
+ 		goto out_ping;
+ 
+-	if (wddev->ops->ping)
+-		err = wddev->ops->ping(wddev);  /* ping the watchdog */
+-	else
+-		err = wddev->ops->start(wddev); /* restart watchdog */
++	/* should we check ping interval value i.e. timeout value
++	   if it is less than certain threshold then only we 
++	   should add this logic of periodic pinging? */
++	if (time_before(jiffies, (unsigned long)wddev->timeout)) {
++		if (wddev->ops->ping)
++			err = wddev->ops->ping(wddev);/* ping the watchdog */
++		else
++			err = wddev->ops->start(wddev);/* restart watchdog */
++		mod_timer(&wddev->timer, jiffies + WDT_TIMEOUT);
++	} else {
++		/*
++		 *what we should when we find out that userspace
++		 *has timed out?
++		 **/
++	}
+ 
+ out_ping:
+ 	mutex_unlock(&wddev->lock);
+ 	return err;
+ }
+ 
++static void watchdog_ping_wrapper(unsigned long priv)
++{
++	struct watchdog_device *wdd = (void *)priv;
++	watchdog_ping(wdd);
++}
++
+ /*
+  *	watchdog_start: wrapper to start the watchdog.
+  *	@wddev: the watchdog device to start
+@@ -109,7 +131,8 @@ static int watchdog_start(struct watchdog_device *wddev)
+ 	err = wddev->ops->start(wddev);
+ 	if (err == 0)
+ 		set_bit(WDOG_ACTIVE, &wddev->status);
+-
++	
++	mod_timer(&wddev->timer, jiffies + WDT_TIMEOUT);
+ out_start:
+ 	mutex_unlock(&wddev->lock);
+ 	return err;
+@@ -552,6 +575,7 @@ int watchdog_dev_register(struct watchdog_device *watchdog)
+ 			old_wdd = NULL;
+ 		}
+ 	}
++	setup_timer(&watchdog->timer, 0, (long)watchdog_ping_wrapper);
+ 	return err;
+ }
+ 
+diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+index 2a3038e..e5f18f7 100644
+--- a/include/linux/watchdog.h
++++ b/include/linux/watchdog.h
+@@ -84,6 +84,7 @@ struct watchdog_device {
+ 	const struct watchdog_ops *ops;
+ 	unsigned int bootstatus;
+ 	unsigned int timeout;
++	struct timer_list timer;
+ 	unsigned int min_timeout;
+ 	unsigned int max_timeout;
+ 	void *driver_data;
+-- 
+1.7.10.4
 
