@@ -1,75 +1,69 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-we0-f170.google.com ([74.125.82.170]:62580 "EHLO
-	mail-we0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753514Ab3FDDJP (ORCPT
+Received: from mailout2.samsung.com ([203.254.224.25]:17871 "EHLO
+	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752231Ab3FDJh4 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 3 Jun 2013 23:09:15 -0400
-MIME-Version: 1.0
-In-Reply-To: <20130603222514.GA9082@roeck-us.net>
-References: <1370167987-14252-1-git-send-email-anish198519851985@gmail.com>
-	<20130603152725.GA2644@roeck-us.net>
-	<CAK7N6vrO4yFmEDotNnneG8EFgYOND9_iOXV5LnTPdCW0CMO10A@mail.gmail.com>
-	<20130603222514.GA9082@roeck-us.net>
-Date: Tue, 4 Jun 2013 08:39:10 +0530
-Message-ID: <CAK7N6vpZB-bYohKFAjS55GVZO0MP8bHrLwBEja7EpqOXeqSW3g@mail.gmail.com>
-Subject: Re: [PATCH] [RFC]Watchdog:core: constant pinging until userspace
- timesout when delay very less
-From: anish singh <anish198519851985@gmail.com>
-To: Guenter Roeck <linux@roeck-us.net>, randy.dunlap@oracle.com,
-	"alan@lxorguk.ukuu.org.uk" <alan@lxorguk.ukuu.org.uk>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-kernel-mail <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+	Tue, 4 Jun 2013 05:37:56 -0400
+From: Kukjin Kim <kgene.kim@samsung.com>
+To: 'Tomasz Figa' <t.figa@samsung.com>,
+	'Sylwester Nawrocki' <sylvester.nawrocki@gmail.com>
+Cc: 'Tomasz Figa' <tomasz.figa@gmail.com>,
+	linux-arm-kernel@lists.infradead.org,
+	linux-samsung-soc@vger.kernel.org,
+	=?ISO-8859-1?Q?'Heiko_St=FCbner'?= <heiko@sntech.de>,
+	'Wim Van Sebroeck' <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org, jhbird.choi@samsung.com
+References: <1368916627-23139-1-git-send-email-tomasz.figa@gmail.com>
+ <51A9ADF4.8010102@gmail.com> <1850418.EOBZxN7PB0@amdc1227>
+In-reply-to: <1850418.EOBZxN7PB0@amdc1227>
+Subject: RE: [PATCH 0/6] Samsung watchdog support clean-up
+Date: Tue, 04 Jun 2013 18:37:54 +0900
+Message-id: <06d601ce6107$304078c0$90c16a40$%kim@samsung.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+Content-language: ko
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Jun 4, 2013 at 3:55 AM, Guenter Roeck <linux@roeck-us.net> wrote:
-> On Mon, Jun 03, 2013 at 10:23:04PM +0530, anish singh wrote:
->> On Mon, Jun 3, 2013 at 8:57 PM, Guenter Roeck <linux@roeck-us.net> wrote:
->> > On Sun, Jun 02, 2013 at 03:43:07PM +0530, anish kumar wrote:
->> >> Certain watchdog drivers use a timer to keep kicking the watchdog at
->> >> a rate of 0.5s (HZ/2) untill userspace times out.They do this as
->> >> we can't guarantee that watchdog will be pinged fast enough
->> >> for all system loads, especially if timeout is configured for
->> >> less than or equal to 1 second(basically small values).
->> >>
->> >> As suggested by Wim Van Sebroeck & Guenter Roeck we should
->> >> add this functionality of individual watchdog drivers in the core
->> >> watchdog core.
->> >>
->> >> Signed-off-by: anish kumar <anish198519851985@gmail.com>
->> >
->> > Not exactly what I had in mind. My idea was to enable the softdog only if
->> > the hardware watchdog's maximum timeout was low (say, less than a couple
->> > of minutes), and if a timeout larger than its maximum value was configured.
->>
->> watchdog_timeout_invalid wouldn't this check will fail if the user space tries
->> to set maximum timeout more that what driver can support?It would work
->> for pika_wdt.c as it is old watchdog driver and doesn't register with watchdog
->> framwork but new drivers has to pass this api.
->>
->> OR
->>
->> Do you want to remove this check and go as explained by you?I would
->> favour this approach though.
->>
-> One would still have a check, but the enforced limits would no longer be
-> the driver limits, but larger limits implemented in the watchdog core.
-How much larger would be the big question here?Should it be configurable
-property(sysfs?) or some hardcoding based on existing drivers?
+Tomasz Figa wrote:
+> 
+> Hi Sylwester, Kukjin,
+> 
+Hi,
 
-Before going for next patch, it would be better for me to wait for some
-more comments.
->
->> > In that case, I would have set the hardware watchdog to its maximum value
->> > and use the softdog to ping it at a rate of, say, 50% of this maximum.
->> >
->> > If userspace would not ping the watchdog within its configured value,
->> > I would stop pinging the hardware watchdog and let it time out.
->>
->> One more question.Why is the return value of watchdog_ping int? Anyway
->> we discard it.
->
-> I can not answer that question.
->
-> Guenter
+> On Saturday 01 of June 2013 10:16:52 Sylwester Nawrocki wrote:
+> > Hi Tomasz,
+> >
+> > On 05/19/2013 12:37 AM, Tomasz Figa wrote:
+> > > This series is aiming at cleaning up a bit watchdog support on Samsung
+> > > SoCs. The patches tweak a bit all the watchdog handling code here and
+> > > there, with the goal of making it DT- and multiplatform-friendly.
+> > >
+> > > See particular patches for more detailed descriptions.
+> > >
+> > > On S3C6410-based Tiny6410 board (Mini6410-compatible):
+> > >
+> > > Tested-by: Tomasz Figa<tomasz.figa@gmail.com>
+> >
+> > I've tested this series on a s3c2440 based board. The system restart
+> > works fine.
+> >
+> > Tested-by: Sylwester Nawrocki <sylvester.nawrocki@gmail.com>
+> 
+> Thank you Sylwester for testing this series.
+> 
+Thanks again :-)
+
+> Kukjin, since it has been already tested on s3c24xx and s3c64xx and nobody
+> seems to care about s5p64x0 and s5pc100 (although I don't see a reason why
+> these patches should break them), could we have this series applied?
+> 
+OK, let me test this series on the smdk64x0 then, will apply.
+
+If any problems, let you know.
+
+Thanks for your gentle reminder.
+
+- Kukjin
+
