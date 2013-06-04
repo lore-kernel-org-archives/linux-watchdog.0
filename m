@@ -1,435 +1,206 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 3 Jun 2013 16:34:59 +0200
-From: Johannes Thumshirn <johannes.thumshirn@men.de>
-To: <wim@iguana.be>
-CC: <linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
-        <guenter@roeck-us.net>, <johannes.thumshirn@men.de>
-Subject: [PATCH v8] watchdog: New watchdog driver for MEN A21 watchdogs
-Message-ID: <20130603143453.GA14251@jtlinux>
-References: <20130531114037.GA13533@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20130531114037.GA13533@roeck-us.net>
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date: Tue, 04 Jun 2013 07:24:36 +0100
+From: gg@slimlogic.co.uk
+To: "J, KEERTHY" <j-keerthy@ti.com>
+Cc: Stephen Warren <swarren@wwwdotorg.org>, linux-kernel@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-leds@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        devicetree-discuss@lists.ozlabs.org, grant.likely@secretlab.ca,
+        broonie@opensource.wolfsonmicro.com, rob.herring@calxeda.com,
+        rob@landley.net, mturquette@linaro.org, linus.walleij@linaro.org,
+        cooloney@gmail.com, sfr@canb.auug.org.au, rpurdie@rpsys.net,
+        akpm@linux-foundation.org, sameo@linux.intel.com, wim@iguana.be,
+        lgirdwood@gmail.com, ldewangan@nvidia.com,
+        "Kristo, Tero" <t-kristo@ti.com>
+Subject: RE: [PATCH v10 01/12] mfd: DT bindings for the palmas family MFD
+In-Reply-To: <DC88CAD03C0052499C1907B327FC63229E662E@DBDE04.ent.ti.com>
+References: <1363964122-19201-1-git-send-email-ian@slimlogic.co.uk>
+ <1363964122-19201-2-git-send-email-ian@slimlogic.co.uk>
+ <5150906F.9040202@wwwdotorg.org> <51A73908.7020206@ti.com>
+ <51A7DAC2.80602@wwwdotorg.org>
+ <DC88CAD03C0052499C1907B327FC63229E662E@DBDE04.ent.ti.com>
+Message-ID: <6af100d1d4ba82de24f96561b5108072@slimlogic.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-This patch adds the driver for the watchdog devices found on MEN Mikro
-Elektronik A21 VMEbus CPU Carrier Boards. It has DT-support and uses the
-watchdog framework.
+On 2013-06-03 07:55, J, KEERTHY wrote:
+> Hi Stephen,
+> 
+>> -----Original Message-----
+>> From: Stephen Warren [mailto:swarren@wwwdotorg.org]
+>> Sent: Friday, May 31, 2013 4:34 AM
+>> To: J, KEERTHY
+>> Cc: gg@slimlogic.co.uk; Ian Lartey; linux-kernel@vger.kernel.org;
+>> linux-doc@vger.kernel.org; linux-arm-kernel@lists.infradead.org; 
+>> linux-
+>> leds@vger.kernel.org; linux-watchdog@vger.kernel.org; devicetree-
+>> discuss@lists.ozlabs.org; grant.likely@secretlab.ca;
+>> broonie@opensource.wolfsonmicro.com; rob.herring@calxeda.com;
+>> rob@landley.net; mturquette@linaro.org; linus.walleij@linaro.org;
+>> cooloney@gmail.com; sfr@canb.auug.org.au; rpurdie@rpsys.net;
+>> akpm@linux-foundation.org; sameo@linux.intel.com; wim@iguana.be;
+>> lgirdwood@gmail.com; ldewangan@nvidia.com; Kristo, Tero
+>> Subject: Re: [PATCH v10 01/12] mfd: DT bindings for the palmas family
+>> MFD
+>> 
+>> On 05/30/2013 05:33 AM, keerthy wrote:
+>> >
+>> > On 03/25/2013 11:29 PM, Stephen Warren wrote:
+>> >
+>> >> On 03/22/2013 08:55 AM, Ian Lartey wrote:
+>> >>> From: Graeme Gregory <gg@slimlogic.co.uk>
+>> >>>
+>> >>> Add the various binding files for the palmas family of chips. There
+>> >>> is a top level MFD binding then a seperate binding for IP blocks on
+>> chips.
+>> >>
+>> >>> diff --git a/Documentation/devicetree/bindings/clock/palmas-clk.txt
+>> >>> b/Documentation/devicetree/bindings/clock/palmas-clk.txt
+>> >>
+>> >> Where is the reg property; if you're instantiating the clk device as
+>> >> a standalone DT node and driver, it should be possible to retrieve
+>> >> the address of this IP block instance from DT, not using driver-
+>> internal APIs.
+>> >>
+>> >> This same comment likely applies everywhere, so I won't repeat it.
+>> >>
+>> >>> +Example:
+>> >>> +
+>> >>> +clk {
+>> >>> +    compatible = "ti,twl6035-clk", "ti,palmas-clk";
+>> >>> +    ti,clk32kg-mode-sleep = <0>;
+>> >>> +    ti,clk32kgaudio-mode-sleep = <0>;
+>> >>
+>> >>> +    #clock-cells = <1>;
+>> >>> +    clock-frequency = <32000000>;
+>> >>> +    clock-names = "clk32kg", "clk32kgaudio";
+>> >>
+>> >> The binding description itself should describe what clocks this node
+>> >> provides and consumes.
+>> >>
+>> >> What is clock-frequency; which clock does it affect?
+>> >>
+>> >> The presence of #clock-cells implies this is a clock provider. This
+>> >> binding should define the format of the clock cells that this
+>> >> property implies. I assume it's just the ID of the output clocks,
+>> but
+>> >> what values correspond to which output clocks? That mapping table
+>> >> needs to be listed here.
+>> >>
+>> >> The presence of clock-names implies this is a clock consumer.
+>> >> However, there is no clocks property in the example. Is clks missing
+>> >> from the example, or should this property be clock-output-names
+>> >> instead? If this node is a clock consumer, the list of which clocks
+>> >> it requires should be documented.
+>> >>
+>> >>> diff --git a/Documentation/devicetree/bindings/gpio/gpio-palmas.txt
+>> >>> b/Documentation/devicetree/bindings/gpio/gpio-palmas.txt
+>> >>
+>> >>> +- gpio-controller: mark the device as a GPIO controller
+>> >>> +- gpio-cells = <1>:  GPIO lines are provided.
+>> >>
+>> >> That's #gpio-cells not gpio-cells.
+>> >>
+>> >> I assume that cell simply contains the GPIO ID/number. That should
+>> be
+>> >> documented for clarity.
+>> >>
+>> >> Surely gpio-cells should be 2 not 1, so there is space for flags. At
+>> >> least an "inverted" or "active-low" flag should be included; GPIO
+>> >> consumers would typically implement that flag in SW, so there' no
+>> >> requirement that the flag only be supported if the HW supports the
+>> feature.
+>> >>
+>> >>> +- interrupt-controller : palmas has its own internal IRQs
+>> >>> +- #interrupt-cells : should be set to 2 for IRQ number and flags
+>> >>> +  The first cell is the IRQ number.
+>> >>> +  The second cell is the flags, encoded as the trigger masks from
+>> >>> +  Documentation/devicetree/bindings/interrupts.txt
+>> >>
+>> >> You need "/interrupt-controller" before the filename there.
+>> >>
+>> >>> +- interrupt-parent : The parent interrupt controller.
+>> >>
+>> >> If this IP block has interrupt outputs, it should require an
+>> >> "interrupts" property too. This is the same concept that drives the
+>> >> need for a reg property. This same comment likely applies
+>> everywhere,
+>> >> so I won't repeat it.
+>> >>
+>> >>> diff --git
+>> >>> a/Documentation/devicetree/bindings/input/palmas-pwrbutton.txt
+>> >>> b/Documentation/devicetree/bindings/input/palmas-pwrbutton.txt
+>> >>
+>> >>> +- interrupts: the interrupt outputs of the controller.
+>> >>
+>> >> How many entries are there, what do they mean, and in what order
+>> must
+>> >> they appear? (Note that the binding of a node must define the order
+>> >> of the interrupts property, since historically it's been accessed by
+>> >> index, not by name, and all bindings must allow that access method
+>> to be used).
+>> >>
+>> >>> +- interrupt-names : Should be the name of irq resource. Each
+>> >>> +interrupt
+>> >>> +  binds its interrupt-name.
+>> >>
+>> >> The binding needs to define standard names for the entries in this
+>> >> property, or define that interrupts are only retrieved by index, in
+>> >> which case interrupt-names shouldn't be present. This same comment
+>> >> likely applies everywhere, so I won't repeat it.
+>> >>
+>> >>> diff --git a/Documentation/devicetree/bindings/mfd/palmas.txt
+>> >>> b/Documentation/devicetree/bindings/mfd/palmas.txt
+>> >>
+>> >>> +Required properties:
+>> >> ...
+>> >>
+>> >> I believe the Palmas devices have many separate I2C addresses, even
+>> >> buses, which are I think are at least partially independently SW
+>> >> configurable. In that case, the reg property for this node should
+>> >> probably enumerate all the I2C addresses that this chip responds to,
+>> >> so that they can each be passed down to the child nodes.
+>> >
+>> >
+>> > Stephen,
+>> >
+>> > The palmas devices do have multiple I2C slave IDs. From OMAP5 as the
+>> > master all the palmas slave devices are connected via I2C1 bus.
+>> >
+>> > I did not understand the SW configurable part. It is more board
+>> > dependent. Correct me if i understood it wrongly.
+>> 
+>> IIRC (and I may not sine it's been a while since I looked at this),
+>> there are SW registers that can modify the I2C address that the chip
+>> will respond to, so you could access the main I2C address, then 
+>> program
+>> which other I2C addresses get used.
+> 
+> Ok. I guess you are referring to the I2C_SPI register of Palmas.
+> This register is indeed SW configurable and I tried changing the
+> Slave IDs on the fly and I could change them. AFAIK these are OTP
+> And never changed through software on the fly.
+> 
+>> 
+>> Or, perhaps I was just thinking of the fact that there are strapping
+>> pins on the chip that affect both the main I2C address, and some/all 
+>> of
+>> the other I2C addresses, so the driver needs to be told each and every
+>> I2C address, not just one single overall I2C address.
+> 
+> Looking at the register spec there seem to be 2 possible combinations:
+> 0x48, 0x49, 0x4A or 0x58, 0x59, 0x5A. Again these are OTP. By default
+> It is 0x48, 0x49, 0x4A. So passing 0x48 or 0x58 as the main I2C
+> Address seems sufficient here.
+> 
+The I2C addresses are set in OTP, I do not think they should ever be 
+changed
+on the fly.
 
-Revision 2:
-* Removed unneeded open flag in struct a21_wdt_drv
-* Corrected 3bit reason code from gpio
-* Additional sysfs files are now part of watchdog sysfs
-* Changed OFF/ON delay in ping from 400ms to 10ns
-* Reworked timeout setting
-* Removed a21_wdt_ioctl(...)
-
-Revision 3:
-* Changed pr_{err,info} to dev_{err,info}
-* Removed out of memory error print
-* Transition from "fast" to "slow" mode not allowed by chip
-
-Revision 4:
-* Remove reboot_notifier and place disable code into platform_device's shutdown function
-* Removed sysfs interface
-
-Revision 5:
-* Added setting of .bootstatus on driver init
-* Added initial timeout on driver init
-
-Revision 6:
-* Use watchdog_init_timeout() to initialize timeout
-
-Revision 7:
-* Fix possible get_bootstatus race condition
-
-Revision 8:
-* a21_wdt_get_bootstatus() should return reset code
-* GPIOs are supplied via DT instead of being hardcoded. Code derived from
-  (drivers/hwmon/gpio-fan.c)
-* Added Devicetree binding document
-* Driver now depends on GPIOLIB
-
-Signed-off-by: Johannes Thumshirn <johannes.thumshirn@men.de>
----
- .../devicetree/bindings/gpio/men-a021-wdt.txt      |   25 ++
- MAINTAINERS                                        |    6 +
- drivers/watchdog/Kconfig                           |   12 +
- drivers/watchdog/Makefile                          |    1 +
- drivers/watchdog/mena21_wdt.c                      |  277 ++++++++++++++++++++
- 5 files changed, 321 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/gpio/men-a021-wdt.txt
- create mode 100644 drivers/watchdog/mena21_wdt.c
-
-diff --git a/Documentation/devicetree/bindings/gpio/men-a021-wdt.txt b/Documentation/devicetree/bindings/gpio/men-a021-wdt.txt
-new file mode 100644
-index 0000000..370dee3
---- /dev/null
-+++ b/Documentation/devicetree/bindings/gpio/men-a021-wdt.txt
-@@ -0,0 +1,25 @@
-+Bindings for MEN A21 Watchdog device connected to GPIO lines
-+
-+Required properties:
-+- compatible: "men,a021-wdt"
-+- gpios: Specifies the pins that control the Watchdog, order:
-+  1: Watchdog enable
-+  2: Watchdog fast-mode
-+  3: Watchdog trigger
-+  4: Watchdog reset cause bit 0
-+  5: Watchdog reset cause bit 1
-+  6: Watchdog reset cause bit 2
-+
-+Optional properties:
-+- None
-+
-+Example:
-+	watchdog {
-+		compatible ="men,a021-wdt";
-+		gpios = <&gpio3 9  1	/* WD_EN */
-+			 &gpio3 10 1	/* WD_FAST */
-+			 &gpio3 11 1	/* WD_TRIG */
-+			 &gpio3 6  1	/* RST_CAUSE[0] */
-+			 &gpio3 7  1	/* RST_CAUSE[1] */
-+			 &gpio3 8  1>;	/* RST_CAUSE[2] */
-+	};
-diff --git a/MAINTAINERS b/MAINTAINERS
-index f35a259..bd86661 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -5307,6 +5307,12 @@ F:	drivers/mtd/
- F:	include/linux/mtd/
- F:	include/uapi/mtd/
-
-+MEN A21 WATCHDOG DRIVER
-+M:  	Johannes Thumshirn <johannes.thumshirn@men.de>
-+L:	linux-watchdog@vger.kernel.org
-+S:	Supported
-+F:	drivers/watchdog/mena21_wdt.c
-+
- METAG ARCHITECTURE
- M:	James Hogan <james.hogan@imgtec.com>
- S:	Supported
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index e89fc31..8b143ee 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -1172,6 +1172,18 @@ config BOOKE_WDT_DEFAULT_TIMEOUT
-
- 	  The value can be overridden by the wdt_period command-line parameter.
-
-+config MEN_A21_WDT
-+       tristate "MEN A21 VME CPU Carrier Board Watchdog Timer"
-+       select WATCHDOG_CORE
-+       depends on GPIOLIB
-+       help
-+        Watchdog driver for MEN A21 VMEbus CPU Carrier Boards.
-+
-+	The driver can also be built as a module. If so, the module will be
-+	called mena21_wdt.
-+
-+	If unsure select N here.
-+
- # PPC64 Architecture
-
- config WATCHDOG_RTAS
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index a300b94..bffdcb1 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -143,6 +143,7 @@ obj-$(CONFIG_8xxx_WDT) += mpc8xxx_wdt.o
- obj-$(CONFIG_MV64X60_WDT) += mv64x60_wdt.o
- obj-$(CONFIG_PIKA_WDT) += pika_wdt.o
- obj-$(CONFIG_BOOKE_WDT) += booke_wdt.o
-+obj-$(CONFIG_MEN_A21_WDT) += mena21_wdt.o
-
- # PPC64 Architecture
- obj-$(CONFIG_WATCHDOG_RTAS) += wdrtas.o
-diff --git a/drivers/watchdog/mena21_wdt.c b/drivers/watchdog/mena21_wdt.c
-new file mode 100644
-index 0000000..29f9c0d
---- /dev/null
-+++ b/drivers/watchdog/mena21_wdt.c
-@@ -0,0 +1,277 @@
-+/*
-+ * Watchdog driver for the A21 VME CPU Boards
-+ *
-+ * Copyright (C) 2013 MEN Mikro Elektronik Nuernberg GmbH
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation
-+ */
-+#include <linux/module.h>
-+#include <linux/moduleparam.h>
-+#include <linux/types.h>
-+#include <linux/kernel.h>
-+#include <linux/slab.h>
-+#include <linux/platform_device.h>
-+#include <linux/watchdog.h>
-+#include <linux/uaccess.h>
-+#include <linux/gpio.h>
-+#include <linux/of_gpio.h>
-+#include <linux/delay.h>
-+#include <linux/bitops.h>
-+
-+enum a21_wdt_gpios {
-+	GPIO_WD_ENAB,
-+	GPIO_WD_FAST,
-+	GPIO_WD_TRIG,
-+	GPIO_WD_RST0,
-+	GPIO_WD_RST1,
-+	GPIO_WD_RST2,
-+};
-+
-+struct a21_wdt_drv {
-+	struct watchdog_device wdt;
-+	struct mutex lock;
-+	int num_gpios;
-+	unsigned *gpios;
-+};
-+
-+static bool nowayout = WATCHDOG_NOWAYOUT;
-+module_param(nowayout, bool, 0);
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
-+			    __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-+
-+static unsigned int a21_wdt_get_bootstatus(struct a21_wdt_drv *drv)
-+{
-+	int reset = 0;
-+
-+	reset |= gpio_get_value(drv->gpios[GPIO_WD_RST0]) ? (1 << 0) : 0;
-+	reset |= gpio_get_value(drv->gpios[GPIO_WD_RST1]) ? (1 << 1) : 0;
-+	reset |= gpio_get_value(drv->gpios[GPIO_WD_RST2]) ? (1 << 2) : 0;
-+
-+	return reset;
-+}
-+
-+static int a21_wdt_start(struct watchdog_device *wdt)
-+{
-+	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
-+
-+	mutex_lock(&drv->lock);
-+
-+	gpio_set_value(drv->gpios[GPIO_WD_ENAB], 1);
-+
-+	mutex_unlock(&drv->lock);
-+
-+	return 0;
-+}
-+
-+static int a21_wdt_stop(struct watchdog_device *wdt)
-+{
-+	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
-+
-+	/* We don't stop if WDOG_NO_WAY_OUT is set */
-+	if (test_bit(WDOG_NO_WAY_OUT, &wdt->status))
-+		return -EINVAL;
-+
-+	mutex_lock(&drv->lock);
-+
-+	gpio_set_value(drv->gpios[GPIO_WD_ENAB], 0);
-+
-+	mutex_unlock(&drv->lock);
-+
-+	return 0;
-+}
-+
-+static int a21_wdt_ping(struct watchdog_device *wdt)
-+{
-+	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
-+
-+	mutex_lock(&drv->lock);
-+
-+	gpio_set_value(drv->gpios[GPIO_WD_TRIG], 0);
-+	ndelay(10);
-+	gpio_set_value(drv->gpios[GPIO_WD_TRIG], 1);
-+
-+	mutex_unlock(&drv->lock);
-+
-+	return 0;
-+}
-+
-+static int a21_wdt_set_timeout(struct watchdog_device *wdt,
-+			       unsigned int timeout)
-+{
-+	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
-+
-+	if (timeout != 1 && timeout != 30) {
-+		dev_err(wdt->dev, "Only 1 and 30 allowed as timeout\n");
-+		return -EINVAL;
-+	}
-+
-+	if (timeout == 30 && wdt->timeout == 1) {
-+		dev_err(wdt->dev,
-+			"Transition from fast to slow mode not allowed\n");
-+		return -EINVAL;
-+	}
-+
-+	mutex_lock(&drv->lock);
-+
-+	if (timeout == 1)
-+		gpio_set_value(drv->gpios[GPIO_WD_FAST], 1);
-+	else
-+		gpio_set_value(drv->gpios[GPIO_WD_FAST], 0);
-+
-+	wdt->timeout = timeout;
-+
-+	mutex_unlock(&drv->lock);
-+
-+	return 0;
-+}
-+
-+static const struct watchdog_info a21_wdt_info = {
-+	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
-+	.identity = "MEN A21 Watchdog",
-+};
-+
-+static const struct watchdog_ops a21_wdt_ops = {
-+	.owner = THIS_MODULE,
-+	.start = a21_wdt_start,
-+	.stop = a21_wdt_stop,
-+	.ping = a21_wdt_ping,
-+	.set_timeout = a21_wdt_set_timeout,
-+};
-+
-+static struct watchdog_device a21_wdt = {
-+	.info = &a21_wdt_info,
-+	.ops = &a21_wdt_ops,
-+	.min_timeout = 1,
-+	.max_timeout = 30,
-+};
-+
-+static int a21_wdt_probe(struct platform_device *pdev)
-+{
-+	struct device_node *node;
-+	struct a21_wdt_drv *drv;
-+	unsigned int reset = 0;
-+	unsigned *gpios;
-+	int ret;
-+	int i;
-+
-+	dev_info(&pdev->dev, "MEN A21 watchdog timer driver enabled\n");
-+
-+	drv = devm_kzalloc(&pdev->dev, sizeof(struct a21_wdt_drv), GFP_KERNEL);
-+	if (!drv)
-+		return -ENOMEM;
-+
-+	/* Fill GPIO pin array */
-+	node = pdev->dev.of_node;
-+
-+	drv->num_gpios = of_gpio_count(node);
-+	if (drv->num_gpios <= 0) {
-+		dev_err(&pdev->dev, "gpios DT property empty / missing");
-+		return -ENODEV;
-+	}
-+
-+	gpios = devm_kzalloc(&pdev->dev, drv->num_gpios * sizeof(unsigned),
-+			     GFP_KERNEL);
-+	if (!gpios)
-+		return -ENOMEM;
-+
-+	for (i = 0; i < drv->num_gpios; i++) {
-+		int val;
-+
-+		val = of_get_gpio(node, i);
-+		if (val < 0)
-+			return val;
-+
-+		gpios[i] = val;
-+	}
-+	drv->gpios = gpios;
-+
-+	/* Request the used GPIOs */
-+	for (i = 0; i < drv->num_gpios; i++) {
-+		ret = devm_gpio_request(&pdev->dev, drv->gpios[i],
-+					"MEN A21 Watchdog");
-+		if (ret)
-+			return ret;
-+
-+		ret = gpio_direction_output(drv->gpios[i],
-+					    gpio_get_value(drv->gpios[i]));
-+		if (ret)
-+			return ret;
-+	}
-+
-+	mutex_init(&drv->lock);
-+	watchdog_init_timeout(&a21_wdt, 30, &pdev->dev);
-+	watchdog_set_nowayout(&a21_wdt, nowayout);
-+	watchdog_set_drvdata(&a21_wdt, drv);
-+
-+	reset = a21_wdt_get_bootstatus(drv);
-+	if (reset == 2)
-+		a21_wdt.bootstatus |= WDIOF_EXTERN1;
-+	else if (reset == 4)
-+		a21_wdt.bootstatus |= WDIOF_CARDRESET;
-+	else if (reset == 5)
-+		a21_wdt.bootstatus |= WDIOF_POWERUNDER;
-+	else if (reset == 7)
-+		a21_wdt.bootstatus |= WDIOF_EXTERN2;
-+
-+
-+	ret = watchdog_register_device(&a21_wdt);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Cannot register watchdog device\n");
-+		goto err_register_wd;
-+	}
-+
-+	dev_set_drvdata(&pdev->dev, drv);
-+
-+	return 0;
-+
-+err_register_wd:
-+	mutex_destroy(&drv->lock);
-+
-+	return ret;
-+}
-+
-+static int a21_wdt_remove(struct platform_device *pdev)
-+{
-+	struct a21_wdt_drv *drv = dev_get_drvdata(&pdev->dev);
-+
-+	dev_warn(&pdev->dev,
-+		"Unregistering A21 watchdog driver, board may reboot\n");
-+
-+
-+	watchdog_unregister_device(&drv->wdt);
-+
-+	mutex_destroy(&drv->lock);
-+
-+	return 0;
-+}
-+
-+static void a21_wdt_shutdown(struct platform_device *pdev)
-+{
-+	struct a21_wdt_drv *drv = dev_get_drvdata(&pdev->dev);
-+
-+	gpio_set_value(drv->gpios[GPIO_WD_ENAB], 0);
-+}
-+
-+static const struct of_device_id a21_wdt_ids[] = {
-+	{ .compatible = "men,a021-wdt" },
-+	{ },
-+};
-+
-+static struct platform_driver a21_wdt_driver = {
-+	.probe = a21_wdt_probe,
-+	.remove = a21_wdt_remove,
-+	.shutdown = a21_wdt_shutdown,
-+	.driver = {
-+		.name = "a21-watchdog",
-+		.of_match_table = a21_wdt_ids,
-+	},
-+};
-+
-+module_platform_driver(a21_wdt_driver);
-+
-+MODULE_AUTHOR("MEN Mikro Elektronik");
-+MODULE_DESCRIPTION("MEN A21 Watchdog");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:a21-watchdog");
---
-1.7.9.5
+Graeme
