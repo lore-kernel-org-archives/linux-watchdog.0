@@ -1,304 +1,149 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ea0-f182.google.com ([209.85.215.182]:53505 "EHLO
-	mail-ea0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752101Ab3FFTdz (ORCPT
+Received: from mail1.bemta14.messagelabs.com ([193.109.254.115]:56862 "EHLO
+	mail1.bemta14.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751023Ab3FGHmx (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 6 Jun 2013 15:33:55 -0400
-Received: by mail-ea0-f182.google.com with SMTP id r16so2998479ead.27
-        for <linux-watchdog@vger.kernel.org>; Thu, 06 Jun 2013 12:33:54 -0700 (PDT)
-From: Carlo Caione <carlo.caione@gmail.com>
-To: wim@iguana.be, linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-sunxi@googlegroups.com,
-	maxime.ripard@free-electrons.com, henrik@henriknordstrom.net,
-	linux@roeck-us.net
-Cc: Carlo Caione <carlo.caione@gmail.com>
-Subject: [PATCH v5] ARM: sunxi: New watchdog driver for Allwinner A10/A13
-Date: Thu,  6 Jun 2013 21:34:25 +0200
-Message-Id: <1370547265-24854-1-git-send-email-carlo.caione@gmail.com>
+	Fri, 7 Jun 2013 03:42:53 -0400
+Date: Fri, 7 Jun 2013 09:45:19 +0200
+From: Johannes Thumshirn <johannes.thumshirn@men.de>
+To: Guenter Roeck <linux@roeck-us.net>
+CC: Johannes Thumshirn <johannes.thumshirn@men.de>, <wim@iguana.be>,
+	<linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: Some problems with sysfs patch (was Re: [PATCH v6] watchdog: New
+ watchdog driver for MEN A21 watchdogs)
+Message-ID: <20130607074519.GA26046@jtlinux>
+References: <20130531103654.GB5619@roeck-us.net>
+ <20130531110846.GA15707@jtlinux>
+ <20130531114037.GA13533@roeck-us.net>
+ <20130531125519.GB8983@jtlinux>
+ <20130601041523.GB4081@roeck-us.net>
+ <20130603095026.GA21720@jtlinux>
+ <20130606105103.GA25245@jtlinux>
+ <20130606113110.GA5834@roeck-us.net>
+ <20130606130055.GA27244@jtlinux>
+ <20130606170828.GA30898@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20130606170828.GA30898@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patch adds the driver for the watchdog found in the Allwinner A10 and
-A13 SoCs. It has DT-support and uses the new watchdog framework.
+On Thu, Jun 06, 2013 at 10:08:28AM -0700, Guenter Roeck wrote:
+> On Thu, Jun 06, 2013 at 03:00:55PM +0200, Johannes Thumshirn wrote:
+> > On Thu, Jun 06, 2013 at 04:31:10AM -0700, Guenter Roeck wrote:
+> > > On Thu, Jun 06, 2013 at 12:51:03PM +0200, Johannes Thumshirn wrote:
+> > > > On Mon, Jun 03, 2013 at 11:50:26AM +0200, Johannes Thumshirn wrote:
+> > > > > On Fri, May 31, 2013 at 09:15:23PM -0700, Guenter Roeck wrote:
+> > > > > > On Fri, May 31, 2013 at 02:55:19PM +0200, Johannes Thumshirn wrote:
+> > > > > > > Hi Guenther,
+> > > > > > > On Fri, May 31, 2013 at 04:40:37AM -0700, Guenter Roeck wrote:
+> > > > > > > > > +#define GPIO_WD_ENAB	169
+> > > > > > > > > +#define GPIO_WD_FAST	170
+> > > > > > > > > +#define GPIO_WD_TRIG	171
+> > > > > > > > > +
+> > > > > > > > > +#define GPIO_RST_CAUSE_BASE 166
+> > > > > > > > > +
+> > > > > > > >
+> > > > > > > > I think I asked that before ... as you are supporting devicetree, gpio pins
+> > > > > > > > should really be provided through devicetree properties and not be hardcoded.
+> > > > > > > >
+> > > > > > > Yes you did and I didn't come up with a solution to this problem yet. I understand
+> > > > > > > and agree to your concerns but I'm lacking example code/documentation for it, maybe
+> > > > > > > you can point me to an example on that and then I'll update my code accordingly.
+> > > > > > >
+> > > > > >
+> > > > > > Have a look at Documentation/devicetree/bindings/gpio/gpio-fan.txt and
+> > > > > > drivers/hwmon/gpio-fan.c.
+> > > > >
+> > > > > Thanks a lot, this really helped me out. Updated patch is comming today
+> > > > > including the bindings document Arnd Bergmann requested. I only need to rebase
+> > > > > the sysfs patch on top of that changes.
+> > > > >
+> > > > > Regards,
+> > > > > Johannes
+> > > >
+> > > > Regarding the sysfs patch, I have a funny effect in my (rebased) sysfs code.
+> > > >
+> > > > Given the following code:
+> > > >
+> > > > +static ssize_t rebootcause_show(struct device *dev,
+> > > > +                               struct device_attribute *attr,
+> > > > +                               char *buf)
+> > > > +{
+> > > > +       struct a21_wdt_drv *drv = dev_get_drvdata(dev);
+> > > > +       unsigned int reset = 0;
+> > > > +
+> > > > +       if (!drv)
+> > > > +               return -EIO;
+> > > > +
+> > > > +       reset = a21_wdt_get_bootstatus(drv);
+> > > > +
+> > > > +       return sprintf(buf, "%s\n", reset_causes[reset]);
+> > > > +}
+> > > > +static DEVICE_ATTR(rebootcause, S_IRUGO, rebootcause_show, NULL);
+> > > >
+> > > > I actually need the check for if (!drv) to prevent an OOPS, as
+> > > > dev_get_drvdata(dev) returns NULL., though it is set at the end of my probe
+> > > > function via:
+> > > >
+> > > > [...]
+> > > > +       ret = watchdog_register_device(&a21_wdt);
+> > > > +       if (ret) {
+> > > > +               dev_err(&pdev->dev, "Cannot register watchdog device\n");
+> > > > +               goto err_register_wd;
+> > > > +       }
+> > > > +
+> > > > +       dev_set_drvdata(&pdev->dev, drv);
+> > > > +
+> > > > +       return 0;
+> > > > [...]
+> > > >
+> > > > The watchdog driver itself is working without any troubles.
+> > > >
+> > > > Some advice here would be worth its weight in gold.
+> > > >
+> > > It has to be set before the attribute is created. Are you doing that ? Also, is
+> > > 'dev' the same device pointer (ie is the 'dev' in your function the same as
+> > > &pdev->dev) ?
+> > >
+> > > Guenter
+> >
+> > Hi Guenter,
+> >
+> > Thanks for the quick reply. Indeed 'dev' in my function is a struct
+> > watchdog_device's dev (for device_create_file) and not &pdev->dev. Which in turn
+> > are not the same.
+> >
+> > A call to dev_set_drvdata(a21_wdt.dev, drv); solved the NULL pointer access. So
+> > last question, is it save to set the drvdata of a dev inside the struct
+> > watchdog_device or do I break something vital that way?
+> >
+> Good question. At issue is if your driver 'owns' struct watchdog_device,
+> or if the watchdog core owns it.
+>
+> However, since you know that a21_wdt.dev is the device, you can use
+> container_of() to get a reference to a21_wdt, and watchdog_get_drvdata
+> to get access to drv from a21_wdt. So you should not really need it.
+>
+> Thanks,
+> Guenter
 
-Signed-off-by: Carlo Caione <carlo.caione@gmail.com>
----
- drivers/watchdog/Kconfig     |  10 ++
- drivers/watchdog/Makefile    |   1 +
- drivers/watchdog/sunxi_wdt.c | 231 +++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 242 insertions(+)
- create mode 100644 drivers/watchdog/sunxi_wdt.c
+OK, but doesn't the container_of() macro only work if the parent struct embeds
+the child struct and not a pointer to it? But struct watchdog_device only has a
+pointer to a struct device (checked my 3.10-rc4 as well as watchdog-next/master,
+just in case I missed something).
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index e89fc31..8ad2238 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -299,6 +299,16 @@ config ORION_WATCHDOG
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called orion_wdt.
- 
-+config SUNXI_WATCHDOG
-+	tristate "Allwinner SoCs watchdog support"
-+	depends on ARCH_SUNXI
-+	select WATCHDOG_CORE
-+	help
-+	  Say Y here to include support for the watchdog timer
-+	  in Allwinner SoCs.
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called sunxi_wdt.
-+
- config COH901327_WATCHDOG
- 	bool "ST-Ericsson COH 901 327 watchdog"
- 	depends on ARCH_U300
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index a300b94..5012d5f 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -47,6 +47,7 @@ obj-$(CONFIG_PNX4008_WATCHDOG) += pnx4008_wdt.o
- obj-$(CONFIG_IOP_WATCHDOG) += iop_wdt.o
- obj-$(CONFIG_DAVINCI_WATCHDOG) += davinci_wdt.o
- obj-$(CONFIG_ORION_WATCHDOG) += orion_wdt.o
-+obj-$(CONFIG_SUNXI_WATCHDOG) += sunxi_wdt.o
- obj-$(CONFIG_COH901327_WATCHDOG) += coh901327_wdt.o
- obj-$(CONFIG_STMP3XXX_RTC_WATCHDOG) += stmp3xxx_rtc_wdt.o
- obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
-diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
-new file mode 100644
-index 0000000..69d4d44
---- /dev/null
-+++ b/drivers/watchdog/sunxi_wdt.c
-@@ -0,0 +1,231 @@
-+/*
-+ *      sunxi Watchdog Driver
-+ *
-+ *      Copyright (c) 2013 Carlo Caione
-+ *                    2012 Henrik Nordstrom
-+ *
-+ *      This program is free software; you can redistribute it and/or
-+ *      modify it under the terms of the GNU General Public License
-+ *      as published by the Free Software Foundation; either version
-+ *      2 of the License, or (at your option) any later version.
-+ *
-+ *      Based on xen_wdt.c
-+ *      (c) Copyright 2010 Novell, Inc.
-+ */
-+
-+#include <linux/clk.h>
-+#include <linux/err.h>
-+#include <linux/init.h>
-+#include <linux/io.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/moduleparam.h>
-+#include <linux/of.h>
-+#include <linux/of_address.h>
-+#include <linux/platform_device.h>
-+#include <linux/types.h>
-+#include <linux/watchdog.h>
-+
-+#define WDT_MAX_TIMEOUT         16
-+#define WDT_MIN_TIMEOUT         1
-+#define WDT_MODE_TIMEOUT(n)     ((n) << 3)
-+#define WDT_TIMEOUT_MASK        WDT_MODE_TIMEOUT(0x0F)
-+
-+#define WDT_CTRL                0x00
-+#define WDT_CTRL_RELOAD         ((1 << 0) | (0x0a57 << 1))
-+
-+#define WDT_MODE                0x04
-+#define WDT_MODE_EN             (1 << 0)
-+#define WDT_MODE_RST_EN         (1 << 1)
-+
-+#define DRV_NAME		"sunxi-wdt"
-+#define DRV_VERSION		"1.0"
-+
-+static bool nowayout = WATCHDOG_NOWAYOUT;
-+static int heartbeat = WDT_MAX_TIMEOUT;
-+
-+struct sunxi_wdt_dev {
-+	struct watchdog_device wdt_dev;
-+	void __iomem *wdt_base;
-+};
-+
-+/*
-+ * wdt_timeout_map maps the watchdog timer interval value in seconds to
-+ * the value of the register WDT_MODE bit 3:6
-+ *
-+ * [timeout seconds] = register value
-+ *
-+ */
-+
-+static const int wdt_timeout_map[] = {
-+	[1] = 0b0001,  /* 1s  */
-+	[2] = 0b0010,  /* 2s  */
-+	[3] = 0b0011,  /* 3s  */
-+	[4] = 0b0100,  /* 4s  */
-+	[5] = 0b0101,  /* 5s  */
-+	[6] = 0b0110,  /* 6s  */
-+	[8] = 0b0111,  /* 8s  */
-+	[10] = 0b1000, /* 10s */
-+	[12] = 0b1001, /* 12s */
-+	[14] = 0b1010, /* 14s */
-+	[16] = 0b1011, /* 16s */
-+};
-+
-+static int sunxi_wdt_ping(struct watchdog_device *wdt_dev)
-+{
-+	struct sunxi_wdt_dev *sunxi_wdt = watchdog_get_drvdata(wdt_dev);
-+	void __iomem *wdt_base = sunxi_wdt->wdt_base;
-+
-+	iowrite32(WDT_CTRL_RELOAD, wdt_base + WDT_CTRL);
-+
-+	return 0;
-+}
-+
-+static int sunxi_wdt_set_timeout(struct watchdog_device *wdt_dev,
-+		unsigned int timeout)
-+{
-+	struct sunxi_wdt_dev *sunxi_wdt = watchdog_get_drvdata(wdt_dev);
-+	void __iomem *wdt_base = sunxi_wdt->wdt_base;
-+	u32 reg;
-+
-+	if (timeout > WDT_MAX_TIMEOUT)
-+		return -EINVAL;
-+
-+	if (wdt_timeout_map[timeout] == 0)
-+		timeout++;
-+
-+	sunxi_wdt->wdt_dev.timeout = timeout;
-+
-+	reg = ioread32(wdt_base + WDT_MODE);
-+	reg &= ~WDT_TIMEOUT_MASK;
-+	reg |= WDT_MODE_TIMEOUT(wdt_timeout_map[timeout]);
-+	iowrite32(reg, wdt_base + WDT_MODE);
-+
-+	sunxi_wdt_ping(wdt_dev);
-+
-+	return 0;
-+}
-+
-+static int sunxi_wdt_stop(struct watchdog_device *wdt_dev)
-+{
-+	struct sunxi_wdt_dev *sunxi_wdt = watchdog_get_drvdata(wdt_dev);
-+	void __iomem *wdt_base = sunxi_wdt->wdt_base;
-+
-+	iowrite32(0, wdt_base + WDT_MODE);
-+
-+	return 0;
-+}
-+
-+static int sunxi_wdt_start(struct watchdog_device *wdt_dev)
-+{
-+	u32 reg;
-+	struct sunxi_wdt_dev *sunxi_wdt = watchdog_get_drvdata(wdt_dev);
-+	void __iomem *wdt_base = sunxi_wdt->wdt_base;
-+	int ret;
-+
-+	ret = sunxi_wdt_set_timeout(&sunxi_wdt->wdt_dev,
-+			sunxi_wdt->wdt_dev.timeout);
-+	if (ret < 0)
-+		return ret;
-+
-+	reg = ioread32(wdt_base + WDT_MODE);
-+	reg |= (WDT_MODE_RST_EN | WDT_MODE_EN);
-+	iowrite32(reg, wdt_base + WDT_MODE);
-+
-+	return 0;
-+}
-+
-+static const struct watchdog_info sunxi_wdt_info = {
-+	.identity	= DRV_NAME,
-+	.options	= WDIOF_SETTIMEOUT |
-+			  WDIOF_KEEPALIVEPING |
-+			  WDIOF_MAGICCLOSE,
-+};
-+
-+static const struct watchdog_ops sunxi_wdt_ops = {
-+	.owner		= THIS_MODULE,
-+	.start		= sunxi_wdt_start,
-+	.stop		= sunxi_wdt_stop,
-+	.ping		= sunxi_wdt_ping,
-+	.set_timeout	= sunxi_wdt_set_timeout,
-+};
-+
-+static int __init sunxi_wdt_probe(struct platform_device *pdev)
-+{
-+	struct sunxi_wdt_dev *sunxi_wdt;
-+	struct resource *res;
-+	int err;
-+
-+	sunxi_wdt = devm_kzalloc(&pdev->dev, sizeof(*sunxi_wdt), GFP_KERNEL);
-+	if (!sunxi_wdt)
-+		return -EINVAL;
-+
-+	platform_set_drvdata(pdev, sunxi_wdt);
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	sunxi_wdt->wdt_base = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(sunxi_wdt->wdt_base))
-+		return PTR_ERR(sunxi_wdt->wdt_base);
-+
-+	sunxi_wdt->wdt_dev.info = &sunxi_wdt_info;
-+	sunxi_wdt->wdt_dev.ops = &sunxi_wdt_ops;
-+	sunxi_wdt->wdt_dev.timeout = WDT_MAX_TIMEOUT;
-+	sunxi_wdt->wdt_dev.max_timeout = WDT_MAX_TIMEOUT;
-+	sunxi_wdt->wdt_dev.min_timeout = WDT_MIN_TIMEOUT;
-+	sunxi_wdt->wdt_dev.parent = &pdev->dev;
-+
-+	watchdog_init_timeout(&sunxi_wdt->wdt_dev, heartbeat, &pdev->dev);
-+	watchdog_set_nowayout(&sunxi_wdt->wdt_dev, nowayout);
-+
-+	watchdog_set_drvdata(&sunxi_wdt->wdt_dev, sunxi_wdt);
-+
-+	err = watchdog_register_device(&sunxi_wdt->wdt_dev);
-+	if (unlikely(err))
-+		return err;
-+
-+	dev_info(&pdev->dev, "Watchdog enabled (heartbeat=%d sec, nowayout=%d)",
-+			sunxi_wdt->wdt_dev.timeout, nowayout);
-+
-+	return 0;
-+}
-+
-+static int __exit sunxi_wdt_remove(struct platform_device *pdev)
-+{
-+	struct sunxi_wdt_dev *sunxi_wdt = platform_get_drvdata(pdev);
-+
-+	watchdog_unregister_device(&sunxi_wdt->wdt_dev);
-+	watchdog_set_drvdata(&sunxi_wdt->wdt_dev, NULL);
-+
-+	return 0;
-+}
-+
-+static const struct of_device_id sunxi_wdt_dt_ids[] = {
-+	{ .compatible = "allwinner,sun4i-wdt" },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, sunxi_wdt_dt_ids);
-+
-+static struct platform_driver sunxi_wdt_driver = {
-+	.probe		= sunxi_wdt_probe,
-+	.remove		= sunxi_wdt_remove,
-+	.driver		= {
-+		.owner		= THIS_MODULE,
-+		.name		= DRV_NAME,
-+		.of_match_table	= of_match_ptr(sunxi_wdt_dt_ids)
-+	},
-+};
-+
-+module_platform_driver(sunxi_wdt_driver);
-+
-+module_param(heartbeat, int, 0);
-+MODULE_PARM_DESC(heartbeat, "Watchdog heartbeat in seconds");
-+
-+module_param(nowayout, bool, 0);
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
-+		"(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Carlo Caione <carlo.caione@gmail.com>");
-+MODULE_AUTHOR("Henrik Nordstrom <henrik@henriknordstrom.net>");
-+MODULE_DESCRIPTION("sunxi WatchDog Timer Driver");
-+MODULE_VERSION(DRV_VERSION);
--- 
-1.8.2.3
+This would also explain my compiler warnings about "initialization from
+incompatible pointer type" when compiling this pice code:
 
+static inline struct a21_wdt_drv *to_a21_wdt_drv(struct device *dev)
+{
+        struct watchdog_device *wdt = container_of(dev, struct watchdog_device, dev);
+        struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
+
+        return drv;
+}
+
+Regards,
+Johannes
