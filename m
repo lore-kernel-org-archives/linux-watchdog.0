@@ -1,11 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from 3.mo1.mail-out.ovh.net ([46.105.60.232]:41397 "EHLO
+Received: from 19.mo1.mail-out.ovh.net ([178.32.97.206]:45034 "EHLO
 	mo1.mail-out.ovh.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753319Ab3FKKwa (ORCPT
+	with ESMTP id S1754237Ab3FKLAa (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 11 Jun 2013 06:52:30 -0400
+	Tue, 11 Jun 2013 07:00:30 -0400
 Received: from mail640.ha.ovh.net (b9.ovh.net [213.186.33.59])
-	by mo1.mail-out.ovh.net (Postfix) with SMTP id 90B8FFFADBA
+	by mo1.mail-out.ovh.net (Postfix) with SMTP id 67A97FFAE6D
 	for <linux-watchdog@vger.kernel.org>; Tue, 11 Jun 2013 12:52:29 +0200 (CEST)
 From: Boris BREZILLON <b.brezillon@overkiz.com>
 To: Wim Van Sebroeck <wim@iguana.be>,
@@ -15,38 +15,122 @@ Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
 	linux-watchdog@vger.kernel.org,
 	Boris BREZILLON <b.brezillon@overkiz.com>,
 	Russell King <linux@arm.linux.org.uk>
-Subject: [RFC PATCH 4/4] ARM: at91/dt: add watchdog properties to kizbox board
-Date: Tue, 11 Jun 2013 12:51:29 +0200
-Message-Id: <1370947890-954-5-git-send-email-b.brezillon@overkiz.com>
+Subject: [RFC PATCH 3/4] ARM: at91/dt: add sam9 watchdog default options to SoCs
+Date: Tue, 11 Jun 2013 12:51:28 +0200
+Message-Id: <1370947890-954-4-git-send-email-b.brezillon@overkiz.com>
 In-Reply-To: <1370947890-954-1-git-send-email-b.brezillon@overkiz.com>
 References: <1370947890-954-1-git-send-email-b.brezillon@overkiz.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Add watchdog specific config for kizbox board.
+Set default watchdog options in every SoC compatible with the sam9 watchdog.
 
 Signed-off-by: Boris BREZILLON <b.brezillon@overkiz.com>
 ---
- arch/arm/boot/dts/kizbox.dts |    6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm/boot/dts/at91sam9260.dtsi |    5 +++++
+ arch/arm/boot/dts/at91sam9263.dtsi |    5 +++++
+ arch/arm/boot/dts/at91sam9g45.dtsi |    5 +++++
+ arch/arm/boot/dts/at91sam9n12.dtsi |    5 +++++
+ arch/arm/boot/dts/at91sam9x5.dtsi  |    5 +++++
+ arch/arm/boot/dts/sama5d3.dtsi     |    5 +++++
+ 6 files changed, 30 insertions(+)
 
-diff --git a/arch/arm/boot/dts/kizbox.dts b/arch/arm/boot/dts/kizbox.dts
-index 02df191..928f6ee 100644
---- a/arch/arm/boot/dts/kizbox.dts
-+++ b/arch/arm/boot/dts/kizbox.dts
-@@ -53,6 +53,12 @@
- 				status = "okay";
+diff --git a/arch/arm/boot/dts/at91sam9260.dtsi b/arch/arm/boot/dts/at91sam9260.dtsi
+index 899a7cf..6c44c35 100644
+--- a/arch/arm/boot/dts/at91sam9260.dtsi
++++ b/arch/arm/boot/dts/at91sam9260.dtsi
+@@ -643,6 +643,11 @@
+ 			watchdog@fffffd40 {
+ 				compatible = "atmel,at91sam9260-wdt";
+ 				reg = <0xfffffd40 0x10>;
++				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
++				atmel,watchdog-type = "hardware";
++				atmel,reset-type = "all";
++				atmel,dbg-halt;
++				atmel,idle-halt;
+ 				status = "disabled";
+ 			};
+ 		};
+diff --git a/arch/arm/boot/dts/at91sam9263.dtsi b/arch/arm/boot/dts/at91sam9263.dtsi
+index ff63811..6b31ee0 100644
+--- a/arch/arm/boot/dts/at91sam9263.dtsi
++++ b/arch/arm/boot/dts/at91sam9263.dtsi
+@@ -519,6 +519,11 @@
+ 			watchdog@fffffd40 {
+ 				compatible = "atmel,at91sam9260-wdt";
+ 				reg = <0xfffffd40 0x10>;
++				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
++				atmel,watchdog-type = "hardware";
++				atmel,reset-type = "all";
++				atmel,dbg-halt;
++				atmel,idle-halt;
+ 				status = "disabled";
  			};
  
-+			watchdog@fffffd40 {
-+				timeout-sec = <15>;
-+				atmel,max-heartbeat-sec = <16>;
-+				atmel,min-heartbeat-sec = <0>;
-+				status = "okay";
-+			};
- 		};
+diff --git a/arch/arm/boot/dts/at91sam9g45.dtsi b/arch/arm/boot/dts/at91sam9g45.dtsi
+index faec17d..ca1a643 100644
+--- a/arch/arm/boot/dts/at91sam9g45.dtsi
++++ b/arch/arm/boot/dts/at91sam9g45.dtsi
+@@ -634,6 +634,11 @@
+ 			watchdog@fffffd40 {
+ 				compatible = "atmel,at91sam9260-wdt";
+ 				reg = <0xfffffd40 0x10>;
++				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
++				atmel,watchdog-type = "hardware";
++				atmel,reset-type = "all";
++				atmel,dbg-halt;
++				atmel,idle-halt;
+ 				status = "disabled";
+ 			};
  
- 		nand0: nand@40000000 {
+diff --git a/arch/arm/boot/dts/at91sam9n12.dtsi b/arch/arm/boot/dts/at91sam9n12.dtsi
+index 3166e1d..7c8a5ea 100644
+--- a/arch/arm/boot/dts/at91sam9n12.dtsi
++++ b/arch/arm/boot/dts/at91sam9n12.dtsi
+@@ -505,6 +505,11 @@
+ 			watchdog@fffffe40 {
+ 				compatible = "atmel,at91sam9260-wdt";
+ 				reg = <0xfffffe40 0x10>;
++				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
++				atmel,watchdog-type = "hardware";
++				atmel,reset-type = "all";
++				atmel,dbg-halt;
++				atmel,idle-halt;
+ 				status = "disabled";
+ 			};
+ 		};
+diff --git a/arch/arm/boot/dts/at91sam9x5.dtsi b/arch/arm/boot/dts/at91sam9x5.dtsi
+index e77106e..48eb1cc 100644
+--- a/arch/arm/boot/dts/at91sam9x5.dtsi
++++ b/arch/arm/boot/dts/at91sam9x5.dtsi
+@@ -742,6 +742,11 @@
+ 			watchdog@fffffe40 {
+ 				compatible = "atmel,at91sam9260-wdt";
+ 				reg = <0xfffffe40 0x10>;
++				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
++				atmel,watchdog-type = "hardware";
++				atmel,reset-type = "all";
++				atmel,dbg-halt;
++				atmel,idle-halt;
+ 				status = "disabled";
+ 			};
+ 
+diff --git a/arch/arm/boot/dts/sama5d3.dtsi b/arch/arm/boot/dts/sama5d3.dtsi
+index c00e158..7974723 100644
+--- a/arch/arm/boot/dts/sama5d3.dtsi
++++ b/arch/arm/boot/dts/sama5d3.dtsi
+@@ -885,6 +885,11 @@
+ 			watchdog@fffffe40 {
+ 				compatible = "atmel,at91sam9260-wdt";
+ 				reg = <0xfffffe40 0x10>;
++				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
++				atmel,watchdog-type = "hardware";
++				atmel,reset-type = "all";
++				atmel,dbg-halt;
++				atmel,idle-halt;
+ 				status = "disabled";
+ 			};
+ 
 -- 
 1.7.9.5
 
