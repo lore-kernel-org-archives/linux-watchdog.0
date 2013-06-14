@@ -1,62 +1,189 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta14.messagelabs.com ([193.109.254.115]:15785 "EHLO
-	mail1.bemta14.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752009Ab3FNHgs (ORCPT
+Received: from mail1.bemta3.messagelabs.com ([195.245.230.169]:44218 "EHLO
+	mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752298Ab3FNLRI (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 14 Jun 2013 03:36:48 -0400
-Date: Fri, 14 Jun 2013 09:39:48 +0200
+	Fri, 14 Jun 2013 07:17:08 -0400
+Date: Fri, 14 Jun 2013 13:19:53 +0200
 From: Johannes Thumshirn <johannes.thumshirn@men.de>
-To: Guenter Roeck <linux@roeck-us.net>
-CC: Johannes Thumshirn <johannes.thumshirn@men.de>, <wim@iguana.be>,
-	<linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
-	<guenter@roeck-us.net>
-Subject: Re: [PATCH v8] watchdog: New watchdog driver for MEN A21 watchdogs
-Message-ID: <20130614073948.GA9438@jtlinux>
-References: <20130531114037.GA13533@roeck-us.net>
- <20130603143453.GA14251@jtlinux>
- <20130614035533.GC6980@roeck-us.net>
+To: <wim@iguana.be>
+CC: <linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
+	<guenter@roeck-us.net>, <johannes.thumshirn@men.de>
+Subject: [PATCH v9 2/2] watchdog: Sysfs interface for MEN A21 watchdog
+Message-ID: <20130614111947.GA17814@jtlinux>
+References: <20130614105831.GA9334@jtlinux>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-In-Reply-To: <20130614035533.GC6980@roeck-us.net>
+In-Reply-To: <20130614105831.GA9334@jtlinux>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Jun 13, 2013 at 08:55:33PM -0700, Guenter Roeck wrote:
-[...]
-> > Signed-off-by: Johannes Thumshirn <johannes.thumshirn@men.de>
->
-> Almost good. One comment below.
->
-> Thanks,
-> Guenter
->
-Nice to hear. Thanks for the review by the way.
+This patch adds a sysfs interface for the watchdog
+device found on MEN A21 Boards.
 
-[...]
+The newly generated files are:
+* rebootcause:
+Can be one of:
+Power on Reset,
+CPU Reset Request,
+Push Button,
+FPGA Reset Request,
+Watchdog,
+Local Power Bad,
+Invalid or
+BDI
+and shows the reason of the boards last reboot.
 
-> > +
-> > +	drv->num_gpios = of_gpio_count(node);
-> > +	if (drv->num_gpios <= 0) {
-> > +		dev_err(&pdev->dev, "gpios DT property empty / missing");
-> > +		return -ENODEV;
-> > +	}
->
-> Not happy with this. Code accepts one gpio pin, but then assumes throughout the
-> driver that all pins are defined. I am quite sure I can get it to crash if I
-> specify only a single gpio pin. num_gpios will be 1, you allocate a single
-> entry, but then access all 6 of them.
->
-> I think it would be easier if you expect a fixed number of gpio pins (6) and abort
-> if it is not correct. You can then make drv->gpios an array and don't have to
-> allocate it separately, and you don't need drv->num_gpios (which you don't need
-> anyway as it is not used outside this function).
->
+* active:
+Shows if the watchdog CPLD is actually running
 
-Yup, you're right. Now that you're saying it I see it as well. This is probably a
-copy'n'paste error from drivers/hwmon/gpio-fan.c.
+* allow_disable:
+Shows if the watchdog is allowed to be disabled (NOWAYOUT disabled)
 
-@Wim are there any objections from your side?
+* fastmode:
+Shows if the CPLD is running in fast mode (1s timeout), once it is in
+fastmode it can't be switched back to slow mode (30s timeout) until the
+next reboot.
 
-Byte
-Johannes
+Signed-off-by: Johannes Thumshirn <johannes.thumshirn@men.de>
+---
+
+ Revision 2:
+ * Re-worked sysfs patch to apply on re-worked base
+
+ Revision 3:
+ * Re-worked sysfs patch to apply on re-worked base
+
+ Revision 4:
+ * Re-worked sysfs patch to apply on re-worked base
+
+ drivers/watchdog/mena21_wdt.c |   88 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 88 insertions(+)
+
+diff --git a/drivers/watchdog/mena21_wdt.c b/drivers/watchdog/mena21_wdt.c
+index 0d3409a..03165be 100644
+--- a/drivers/watchdog/mena21_wdt.c
++++ b/drivers/watchdog/mena21_wdt.c
+@@ -22,6 +22,17 @@
+
+ #define NUM_GPIOS 6
+
++static char *reset_causes[] = {
++	"Power On Reset",
++	"CPU Reset Request",
++	"Push Button",
++	"FPGA Reset Request",
++	"Watchdog",
++	"Local Power Bad",
++	"Invalid",
++	"BDI",
++};
++
+ enum a21_wdt_gpios {
+ 	GPIO_WD_ENAB,
+ 	GPIO_WD_FAST,
+@@ -53,6 +64,73 @@ static unsigned int a21_wdt_get_bootstatus(struct a21_wdt_drv *drv)
+ 	return reset;
+ }
+
++static ssize_t rebootcause_show(struct device *dev,
++				struct device_attribute *attr,
++				char *buf)
++{
++	struct a21_wdt_drv *drv = dev_get_drvdata(dev);
++	unsigned int reset = 0;
++
++	reset = a21_wdt_get_bootstatus(drv);
++
++	return sprintf(buf, "%s\n", reset_causes[reset]);
++}
++static DEVICE_ATTR(rebootcause, S_IRUGO, rebootcause_show, NULL);
++
++static ssize_t active_show(struct device *dev, struct device_attribute *attr,
++			   char *buf)
++{
++	struct a21_wdt_drv *drv = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%d\n", !!gpio_get_value(drv->gpios[GPIO_WD_ENAB]));
++}
++static DEVICE_ATTR(active, S_IRUGO, active_show, NULL);
++
++static ssize_t allow_disable_show(struct device *dev,
++				  struct device_attribute *attr,
++				  char *buf)
++{
++	return sprintf(buf, "%d\n", !nowayout);
++}
++static DEVICE_ATTR(allow_disable, S_IRUGO, allow_disable_show, NULL);
++
++static ssize_t fastmode_show(struct device *dev, struct device_attribute *attr,
++			     char *buf)
++{
++	struct a21_wdt_drv *drv = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%d\n", !!gpio_get_value(drv->gpios[GPIO_WD_FAST]));
++}
++static DEVICE_ATTR(fastmode, S_IRUGO, fastmode_show, NULL);
++
++static int a21_wdt_create_files(struct watchdog_device *wdev)
++{
++	int ret;
++
++	ret = device_create_file(wdev->dev, &dev_attr_rebootcause);
++	if (ret)
++		return ret;
++	ret = device_create_file(wdev->dev, &dev_attr_active);
++	if (ret)
++		return ret;
++	ret = device_create_file(wdev->dev, &dev_attr_allow_disable);
++	if (ret)
++		return ret;
++	ret = device_create_file(wdev->dev, &dev_attr_fastmode);
++	if (ret)
++		return ret;
++
++	return 0;
++}
++
++static void a21_wdt_remove_files(struct watchdog_device *wdev)
++{
++	device_remove_file(wdev->dev, &dev_attr_rebootcause);
++	device_remove_file(wdev->dev, &dev_attr_active);
++	device_remove_file(wdev->dev, &dev_attr_allow_disable);
++	device_remove_file(wdev->dev, &dev_attr_fastmode);
++}
++
+ static int a21_wdt_start(struct watchdog_device *wdt)
+ {
+ 	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
+@@ -222,9 +300,18 @@ static int a21_wdt_probe(struct platform_device *pdev)
+ 	}
+
+ 	dev_set_drvdata(&pdev->dev, drv);
++	dev_set_drvdata(a21_wdt.dev, drv);
++
++	ret = a21_wdt_create_files(&a21_wdt);
++	if (ret) {
++		dev_err(&pdev->dev, "Cannot create sysfs entries\n");
++		goto err_create_sysfs;
++	}
+
+ 	return 0;
+
++err_create_sysfs:
++	watchdog_unregister_device(&drv->wdt);
+ err_register_wd:
+ 	mutex_destroy(&drv->lock);
+
+@@ -238,6 +325,7 @@ static int a21_wdt_remove(struct platform_device *pdev)
+ 	dev_warn(&pdev->dev,
+ 		"Unregistering A21 watchdog driver, board may reboot\n");
+
++	a21_wdt_remove_files(&drv->wdt);
+
+ 	watchdog_unregister_device(&drv->wdt);
+
+--
+1.7.9.5
+
