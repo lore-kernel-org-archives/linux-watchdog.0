@@ -1,66 +1,62 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ee0-f41.google.com ([74.125.83.41]:61475 "EHLO
-	mail-ee0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752314Ab3FMXZ6 (ORCPT
+Received: from mail1.bemta14.messagelabs.com ([193.109.254.115]:15785 "EHLO
+	mail1.bemta14.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752009Ab3FNHgs (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 13 Jun 2013 19:25:58 -0400
-From: Tomasz Figa <tomasz.figa@gmail.com>
-To: Kukjin Kim <kgene.kim@samsung.com>
-Cc: 'Tomasz Figa' <t.figa@samsung.com>,
-	'Sylwester Nawrocki' <sylvester.nawrocki@gmail.com>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-samsung-soc@vger.kernel.org,
-	'Heiko =?ISO-8859-1?Q?St=FCbner=27?= <heiko@sntech.de>,
-	'Wim Van Sebroeck' <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org, jhbird.choi@samsung.com
-Subject: Re: [PATCH 0/6] Samsung watchdog support clean-up
-Date: Fri, 14 Jun 2013 01:25:55 +0200
-Message-ID: <1428158.DdRrRkV3Fx@flatron>
-In-Reply-To: <15e501ce688c$e01fbe90$a05f3bb0$%kim@samsung.com>
-References: <1368916627-23139-1-git-send-email-tomasz.figa@gmail.com> <2600203.AqDGG2pvxF@flatron> <15e501ce688c$e01fbe90$a05f3bb0$%kim@samsung.com>
+	Fri, 14 Jun 2013 03:36:48 -0400
+Date: Fri, 14 Jun 2013 09:39:48 +0200
+From: Johannes Thumshirn <johannes.thumshirn@men.de>
+To: Guenter Roeck <linux@roeck-us.net>
+CC: Johannes Thumshirn <johannes.thumshirn@men.de>, <wim@iguana.be>,
+	<linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
+	<guenter@roeck-us.net>
+Subject: Re: [PATCH v8] watchdog: New watchdog driver for MEN A21 watchdogs
+Message-ID: <20130614073948.GA9438@jtlinux>
+References: <20130531114037.GA13533@roeck-us.net>
+ <20130603143453.GA14251@jtlinux>
+ <20130614035533.GC6980@roeck-us.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
 Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20130614035533.GC6980@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Friday 14 of June 2013 08:22:30 Kukjin Kim wrote:
-> Tomasz Figa wrote:
-> > Hi Kukjin,
-> 
-> Hi,
-> 
-> > > > > > Kukjin, since it has been already tested on s3c24xx and
-> > > > > > s3c64xx
-> > > > > > and nobody seems to care about s5p64x0 and s5pc100 (although I
-> > > > > > don't see a reason why these patches should break them), could
-> > > > > > we
-> > > > > > have this series applied?> >
-> > > > > 
-> > > > > OK, let me test this series on the smdk64x0 then, will apply.
-> > > > > 
-> > > > > If any problems, let you know.
-> > > > > 
-> > > > > Thanks for your gentle reminder.
-> > > > 
-> > > > Thank you for handling this. I have a lot of patches for S3C64xx
-> > > > depending on this series queued in my private tree and it would be
-> > > > really nice if I could finally get them merged for 3.11.
-> > > 
-> > > Applied, thanks.
-> > 
-> > Seems like this series got lost in action, as I don't see it in your
-> > tree. Is there any problem with it?
-> 
-> This series should be in my local and I didn't finish test something
-> yet. So I didn't push yet but it should be done in this weekend.
-> Anyway, sorry for late. If you have any further series based on this,
-> please go ahead.
+On Thu, Jun 13, 2013 at 08:55:33PM -0700, Guenter Roeck wrote:
+[...]
+> > Signed-off-by: Johannes Thumshirn <johannes.thumshirn@men.de>
+>
+> Almost good. One comment below.
+>
+> Thanks,
+> Guenter
+>
+Nice to hear. Thanks for the review by the way.
 
-OK, no problem. Just wanted to know what happened (some errors or other 
-problems), since you said that you applied it, but I couldn't find it in 
-your tree.
+[...]
 
-Best regards,
-Tomasz
+> > +
+> > +	drv->num_gpios = of_gpio_count(node);
+> > +	if (drv->num_gpios <= 0) {
+> > +		dev_err(&pdev->dev, "gpios DT property empty / missing");
+> > +		return -ENODEV;
+> > +	}
+>
+> Not happy with this. Code accepts one gpio pin, but then assumes throughout the
+> driver that all pins are defined. I am quite sure I can get it to crash if I
+> specify only a single gpio pin. num_gpios will be 1, you allocate a single
+> entry, but then access all 6 of them.
+>
+> I think it would be easier if you expect a fixed number of gpio pins (6) and abort
+> if it is not correct. You can then make drv->gpios an array and don't have to
+> allocate it separately, and you don't need drv->num_gpios (which you don't need
+> anyway as it is not used outside this function).
+>
 
+Yup, you're right. Now that you're saying it I see it as well. This is probably a
+copy'n'paste error from drivers/hwmon/gpio-fan.c.
+
+@Wim are there any objections from your side?
+
+Byte
+Johannes
