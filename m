@@ -1,21 +1,20 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta3.messagelabs.com ([195.245.230.169]:44218 "EHLO
+Received: from mail1.bemta3.messagelabs.com ([195.245.230.164]:8209 "EHLO
 	mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752298Ab3FNLRI (ORCPT
+	by vger.kernel.org with ESMTP id S932300Ab3FQKVJ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 14 Jun 2013 07:17:08 -0400
-Date: Fri, 14 Jun 2013 13:19:53 +0200
+	Mon, 17 Jun 2013 06:21:09 -0400
+Date: Mon, 17 Jun 2013 12:24:13 +0200
 From: Johannes Thumshirn <johannes.thumshirn@men.de>
 To: <wim@iguana.be>
 CC: <linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
 	<guenter@roeck-us.net>, <johannes.thumshirn@men.de>
-Subject: [PATCH v9 2/2] watchdog: Sysfs interface for MEN A21 watchdog
-Message-ID: <20130614111947.GA17814@jtlinux>
-References: <20130614105831.GA9334@jtlinux>
+Subject: [PATCH v10 2/2] watchdog: Sysfs interface for MEN A21 watchdog
+Message-ID: <20130617102407.GA25443@jtlinux>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-In-Reply-To: <20130614105831.GA9334@jtlinux>
+In-Reply-To: <20130617102242.GA25393@jtlinux>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
@@ -46,23 +45,18 @@ Shows if the CPLD is running in fast mode (1s timeout), once it is in
 fastmode it can't be switched back to slow mode (30s timeout) until the
 next reboot.
 
+Revision 2:
+* Re-worked sysfs patch to apply on re-worked base
+
+Revision 3:
+* Re-worked sysfs patch to apply on re-worked base
 Signed-off-by: Johannes Thumshirn <johannes.thumshirn@men.de>
 ---
-
- Revision 2:
- * Re-worked sysfs patch to apply on re-worked base
-
- Revision 3:
- * Re-worked sysfs patch to apply on re-worked base
-
- Revision 4:
- * Re-worked sysfs patch to apply on re-worked base
-
- drivers/watchdog/mena21_wdt.c |   88 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 88 insertions(+)
+ drivers/watchdog/mena21_wdt.c |   89 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 89 insertions(+)
 
 diff --git a/drivers/watchdog/mena21_wdt.c b/drivers/watchdog/mena21_wdt.c
-index 0d3409a..03165be 100644
+index 96dbba9..91cc90b 100644
 --- a/drivers/watchdog/mena21_wdt.c
 +++ b/drivers/watchdog/mena21_wdt.c
 @@ -22,6 +22,17 @@
@@ -157,7 +151,7 @@ index 0d3409a..03165be 100644
  static int a21_wdt_start(struct watchdog_device *wdt)
  {
  	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
-@@ -222,9 +300,18 @@ static int a21_wdt_probe(struct platform_device *pdev)
+@@ -215,11 +293,20 @@ static int a21_wdt_probe(struct platform_device *pdev)
  	}
 
  	dev_set_drvdata(&pdev->dev, drv);
@@ -169,6 +163,8 @@ index 0d3409a..03165be 100644
 +		goto err_create_sysfs;
 +	}
 
+ 	dev_info(&pdev->dev, "MEN A21 watchdog timer driver enabled\n");
+
  	return 0;
 
 +err_create_sysfs:
@@ -176,14 +172,15 @@ index 0d3409a..03165be 100644
  err_register_wd:
  	mutex_destroy(&drv->lock);
 
-@@ -238,6 +325,7 @@ static int a21_wdt_remove(struct platform_device *pdev)
+@@ -233,6 +320,8 @@ static int a21_wdt_remove(struct platform_device *pdev)
  	dev_warn(&pdev->dev,
  		"Unregistering A21 watchdog driver, board may reboot\n");
 
 +	a21_wdt_remove_files(&drv->wdt);
-
++
  	watchdog_unregister_device(&drv->wdt);
 
+ 	mutex_destroy(&drv->lock);
 --
 1.7.9.5
 
