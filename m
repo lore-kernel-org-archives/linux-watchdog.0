@@ -1,189 +1,66 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta5.messagelabs.com ([195.245.231.149]:28992 "EHLO
-	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932076Ab3FRPSI (ORCPT
+Received: from mail-pb0-f47.google.com ([209.85.160.47]:51610 "EHLO
+	mail-pb0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932302Ab3FRPUq (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 18 Jun 2013 11:18:08 -0400
-Date: Tue, 18 Jun 2013 17:21:29 +0200
-From: Johannes Thumshirn <johannes.thumshirn@men.de>
-To: <wim@iguana.be>
-CC: <linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
-	<guenter@roeck-us.net>, <johannes.thumshirn@men.de>
-Subject: [PATCH RESEND v10 2/2] watchdog: Sysfs interface for MEN A21 watchdog
-Message-ID: <20130618152119.GA23399@jtlinux>
-References: <20130618151939.GA23296@jtlinux>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20130618151939.GA23296@jtlinux>
+	Tue, 18 Jun 2013 11:20:46 -0400
+Received: by mail-pb0-f47.google.com with SMTP id rr13so4017510pbb.20
+        for <linux-watchdog@vger.kernel.org>; Tue, 18 Jun 2013 08:20:46 -0700 (PDT)
+From: Viresh Kumar <viresh.kumar@linaro.org>
+To: wim@iguana.be
+Cc: marc.zyngier@arm.com, linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Viresh Kumar <viresh.kumar@linaro.org>
+Subject: [PATCH V3 00/14] watchdog: ARM mpcore Improvements
+Date: Tue, 18 Jun 2013 20:50:24 +0530
+Message-Id: <cover.1371535241.git.viresh.kumar@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patch adds a sysfs interface for the watchdog
-device found on MEN A21 Boards.
+** This still doesn't make it workable **
 
-The newly generated files are:
-* rebootcause:
-Can be one of:
-Power on Reset,
-CPU Reset Request,
-Push Button,
-FPGA Reset Request,
-Watchdog,
-Local Power Bad,
-Invalid or
-BDI
-and shows the reason of the boards last reboot.
+Hi,
 
-* active:
-Shows if the watchdog CPLD is actually running
+ARM mpcore watchdog isn't workable and so is marked broken in the first patch of
+the series. Reasons are mentioned in 01/14 and important links are shared too.
 
-* allow_disable:
-Shows if the watchdog is allowed to be disabled (NOWAYOUT disabled)
+Other are basically improvements which I have written more than a year back. I
+am just pushing them through as they still improve the driver (or broken
+driver). They still don't fix the issues pointed out by Marc Zyngier earlier.
+But as these are generic improvements I don't see why they can't be applied,
+even to a still broken driver.
 
-* fastmode:
-Shows if the CPLD is running in fast mode (1s timeout), once it is in
-fastmode it can't be switched back to slow mode (30s timeout) until the
-next reboot.
+I don't want somebody to waste time reinventing these patches, rather they can
+work on fixing the issues due to which this driver is broken.
 
-Signed-off-by: Johannes Thumshirn <johannes.thumshirn@men.de>
----
+I don't have hardware & time to fix the BROKEN part of this driver now :(
 
- Revision 2:
- * Re-worked sysfs patch to apply on re-worked base
+Link to the last version, nothing much changed after that. Just a resend:
 
- Revision 3:
- * Re-worked sysfs patch to apply on re-worked base
+http://lists.infradead.org/pipermail/linux-arm-kernel/2012-March/089076.html
 
- drivers/watchdog/mena21_wdt.c |   89 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 89 insertions(+)
+Viresh Kumar (14):
+  watchdog/mpcore_wdt: Mark it as BROKEN
+  watchdog/mpcore_wdt: convert to watchdog core
+  watchdog/mpcore_wdt: Fix multiline comments
+  watchdog/mpcore_wdt: Arrange #includes in alphabetical order
+  watchdog/mpcore_wdt: Set default heartbeat in probe instead of init
+  watchdog/mpcore_wdt: convert to use module_platform_driver()
+  watchdog/mpcore_wdt: Add support for dev_pm_ops interface
+  watchdog/mpcore_wdt: disable wdt in suspend only if it is busy
+  watchdog/mpcore_wdt: replace (__raw_)readl/writel with lighter
+    *_relaxed variants
+  watchdog/mpcore_wdt: Add support for WDIOC_GETBOOTSTATUS IOCTL
+  watchdog/mpcore_wdt: Add clock framework support
+  watchdog/mpcore_wdt: use correct clk_rate to program timeout
+  watchdog/mpcore_wdt: Start registers from 0x00 instead of 0x20
+  watchdog/mpcore_wdt: Add DT probing support for ARM mpcore watchdog
 
-diff --git a/drivers/watchdog/mena21_wdt.c b/drivers/watchdog/mena21_wdt.c
-index 96dbba9..91cc90b 100644
---- a/drivers/watchdog/mena21_wdt.c
-+++ b/drivers/watchdog/mena21_wdt.c
-@@ -22,6 +22,17 @@
+ arch/arm/include/asm/smp_twd.h |   7 -
+ drivers/watchdog/Kconfig       |   3 +-
+ drivers/watchdog/mpcore_wdt.c  | 529 ++++++++++++++++++++---------------------
+ 3 files changed, 256 insertions(+), 283 deletions(-)
 
- #define NUM_GPIOS 6
-
-+static char *reset_causes[] = {
-+	"Power On Reset",
-+	"CPU Reset Request",
-+	"Push Button",
-+	"FPGA Reset Request",
-+	"Watchdog",
-+	"Local Power Bad",
-+	"Invalid",
-+	"BDI",
-+};
-+
- enum a21_wdt_gpios {
- 	GPIO_WD_ENAB,
- 	GPIO_WD_FAST,
-@@ -53,6 +64,73 @@ static unsigned int a21_wdt_get_bootstatus(struct a21_wdt_drv *drv)
- 	return reset;
- }
-
-+static ssize_t rebootcause_show(struct device *dev,
-+				struct device_attribute *attr,
-+				char *buf)
-+{
-+	struct a21_wdt_drv *drv = dev_get_drvdata(dev);
-+	unsigned int reset = 0;
-+
-+	reset = a21_wdt_get_bootstatus(drv);
-+
-+	return sprintf(buf, "%s\n", reset_causes[reset]);
-+}
-+static DEVICE_ATTR(rebootcause, S_IRUGO, rebootcause_show, NULL);
-+
-+static ssize_t active_show(struct device *dev, struct device_attribute *attr,
-+			   char *buf)
-+{
-+	struct a21_wdt_drv *drv = dev_get_drvdata(dev);
-+
-+	return sprintf(buf, "%d\n", !!gpio_get_value(drv->gpios[GPIO_WD_ENAB]));
-+}
-+static DEVICE_ATTR(active, S_IRUGO, active_show, NULL);
-+
-+static ssize_t allow_disable_show(struct device *dev,
-+				  struct device_attribute *attr,
-+				  char *buf)
-+{
-+	return sprintf(buf, "%d\n", !nowayout);
-+}
-+static DEVICE_ATTR(allow_disable, S_IRUGO, allow_disable_show, NULL);
-+
-+static ssize_t fastmode_show(struct device *dev, struct device_attribute *attr,
-+			     char *buf)
-+{
-+	struct a21_wdt_drv *drv = dev_get_drvdata(dev);
-+
-+	return sprintf(buf, "%d\n", !!gpio_get_value(drv->gpios[GPIO_WD_FAST]));
-+}
-+static DEVICE_ATTR(fastmode, S_IRUGO, fastmode_show, NULL);
-+
-+static int a21_wdt_create_files(struct watchdog_device *wdev)
-+{
-+	int ret;
-+
-+	ret = device_create_file(wdev->dev, &dev_attr_rebootcause);
-+	if (ret)
-+		return ret;
-+	ret = device_create_file(wdev->dev, &dev_attr_active);
-+	if (ret)
-+		return ret;
-+	ret = device_create_file(wdev->dev, &dev_attr_allow_disable);
-+	if (ret)
-+		return ret;
-+	ret = device_create_file(wdev->dev, &dev_attr_fastmode);
-+	if (ret)
-+		return ret;
-+
-+	return 0;
-+}
-+
-+static void a21_wdt_remove_files(struct watchdog_device *wdev)
-+{
-+	device_remove_file(wdev->dev, &dev_attr_rebootcause);
-+	device_remove_file(wdev->dev, &dev_attr_active);
-+	device_remove_file(wdev->dev, &dev_attr_allow_disable);
-+	device_remove_file(wdev->dev, &dev_attr_fastmode);
-+}
-+
- static int a21_wdt_start(struct watchdog_device *wdt)
- {
- 	struct a21_wdt_drv *drv = watchdog_get_drvdata(wdt);
-@@ -215,11 +293,20 @@ static int a21_wdt_probe(struct platform_device *pdev)
- 	}
-
- 	dev_set_drvdata(&pdev->dev, drv);
-+	dev_set_drvdata(a21_wdt.dev, drv);
-+
-+	ret = a21_wdt_create_files(&a21_wdt);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Cannot create sysfs entries\n");
-+		goto err_create_sysfs;
-+	}
-
- 	dev_info(&pdev->dev, "MEN A21 watchdog timer driver enabled\n");
-
- 	return 0;
-
-+err_create_sysfs:
-+	watchdog_unregister_device(&drv->wdt);
- err_register_wd:
- 	mutex_destroy(&drv->lock);
-
-@@ -233,6 +320,8 @@ static int a21_wdt_remove(struct platform_device *pdev)
- 	dev_warn(&pdev->dev,
- 		"Unregistering A21 watchdog driver, board may reboot\n");
-
-+	a21_wdt_remove_files(&drv->wdt);
-+
- 	watchdog_unregister_device(&drv->wdt);
-
- 	mutex_destroy(&drv->lock);
---
-1.7.9.5
+-- 
+1.7.12.rc2.18.g61b472e
 
