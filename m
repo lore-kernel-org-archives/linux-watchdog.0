@@ -1,117 +1,73 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:63230 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755449Ab3FRVNd (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 18 Jun 2013 17:13:33 -0400
-From: Kevin Strasser <kevin.strasser@linux.intel.com>
-To: linux-kernel@vger.kernel.org
-Cc: Kevin Strasser <kevin.strasser@linux.intel.com>,
-	Darren Hart <dvhart@linux.intel.com>,
-	Samuel Ortiz <sameo@linux.intel.com>,
+Received: from mail-ob0-f181.google.com ([209.85.214.181]:55994 "EHLO
+	mail-ob0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933861Ab3FSDK0 (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 18 Jun 2013 23:10:26 -0400
+Received: by mail-ob0-f181.google.com with SMTP id 16so5350108obc.40
+        for <linux-watchdog@vger.kernel.org>; Tue, 18 Jun 2013 20:10:25 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CAOesGMia0OZz5dcDooRHG9EAnaLimRL5_Gku2rm_fVDNxrxEEA@mail.gmail.com>
+References: <cover.1371535241.git.viresh.kumar@linaro.org>
+	<22d22fe6eea294c5132e47b8901e094d60b0e99d.1371535242.git.viresh.kumar@linaro.org>
+	<20130618154236.GA9022@roeck-us.net>
+	<51C086A8.3070601@arm.com>
+	<CAOesGMia0OZz5dcDooRHG9EAnaLimRL5_Gku2rm_fVDNxrxEEA@mail.gmail.com>
+Date: Wed, 19 Jun 2013 08:40:25 +0530
+Message-ID: <CAKohpom3S3NMhxbhbmyC6bceS51727CnWRWmWDGxwDcRJkHFyQ@mail.gmail.com>
+Subject: Re: [PATCH V3 01/14] watchdog/mpcore_wdt: Mark it as BROKEN
+From: Viresh Kumar <viresh.kumar@linaro.org>
+To: Marc Zyngier <marc.zyngier@arm.com>,
 	Guenter Roeck <linux@roeck-us.net>,
-	Michael Brunner <Michael.Brunner@kontron.com>,
-	Michael Brunner <mibru@gmx.de>,
-	Chris Healy <chealy@imsco-us.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Dirk Hohndel <Dirk.Hohndel@intel.com>,
-	Wolfram Sang <wsa@the-dreams.de>,
-	Ben Dooks <ben-linux@fluff.org>,
-	Grant Likely <grant.likely@secretlab.ca>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Wim Van Sebroeck <wim@iguana.be>, linux-i2c@vger.kernel.org,
-	linux-watchdog@vger.kernel.org
-Subject: [PATCH v2 0/4] Kontron PLD drivers
-Date: Tue, 18 Jun 2013 14:04:25 -0700
-Message-Id: <1371589469-32700-1-git-send-email-kevin.strasser@linux.intel.com>
-In-Reply-To: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com>
-References: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com>
+	Olof Johansson <olof@lixom.net>,
+	Russell King - ARM Linux <linux@arm.linux.org.uk>,
+	Stephen Warren <swarren@nvidia.com>
+Cc: "wim@iguana.be" <wim@iguana.be>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-mfd changes since v1:
-- Use a mutex instead of spinlock
-- Poll for hardware mutex without timeout
-- Restructure mfd cell structs, only call mfd_add_devices once
-- Drop pointless BUG_ONs
-- EXPORT_SYMBOL -> EXPORT_SYMBOL_GPL
-- kempld_*_mutex_set_index -> kempld_*_mutex
-- Removed kempld_try_get_mutex
-- Drop last_index
-- Remove EFT code
-- Drop unused includes
-- Use devm_ioport_map
-- Restructure to get rid of forward function prototypes
-- Renamed module parameter force_ident -> force_device_id
-- Dropped force_unlock module parameter
-- Formatting fixes
+Wow!! So many replies, let me reply to everyone in this chain.
 
-i2c changes since v1:
-- Always disable bus during suspend,
-- Detect was_active in probe
-- Remove i2c-kempld.h
-- Clean up register definitions
-- Use the correct device for printing
-- Set default bus frequency to 100kHz
-- Drop irq support
-- Drop now1 driver
-- Remove i2c-mux code
-- Clean up includes
-- Use devm_kzalloc
-- Formatting fixes
+On 18 June 2013 22:05, Olof Johansson <olof@lixom.net> wrote:
+> On Tue, Jun 18, 2013 at 9:11 AM, Marc Zyngier <marc.zyngier@arm.com> wrote:
+>> On 18/06/13 16:42, Guenter Roeck wrote:
+>>> On Tue, Jun 18, 2013 at 08:50:25PM +0530, Viresh Kumar wrote:
 
-gpio changes since v1:
-- Change label from kempld-gpio -> gpio-kempld
-- Drop unnecessary include seq_file.h
-- Register and value parameters to kempld_get_bit and kempld_bitop are now u8
-- Status variable in kempld_bitop is now u8
-- Fix kempld_gpio_pincount(). hweight16 doesn't work, but __ffs does
-- Drop interrupt support
-- Drop gpio-kempld.h
-- Use helper functions for bit and read operations
-- Use generic DEBUG_FS code
-- Use devm_kzalloc
-- Get gpio_base from platform data
-- Drop all module parameters
-- Use module_platform_driver
-- Drop unused includes
-- Include device.h instead of slab.h for devm_kzalloc
-- Some cleanup here and there
+>>>> Lets mark it broken until somebody with this hardware gets up and fixes it.
+>>>>
+>>> I must be missing something. What is the point of the remaining patches in this
+>>> case ?
 
-watchdog changes since v1:
-- Use watchdog framework
-- Allocate stages statically
-- Drop now1 driver
-- Use devm_kzalloc
-- Change default timeout to 30 seconds
-- Drop unused includes
-- General formatting cleanup
+In case somebody wakes up and tries to fix this driver, he doesn't have to
+write stuff which I already wrote. That's it. This stuff was pending in my tree
+for more than a year now and I wanted to get rid of it (without deleting it) :)
 
-Kevin Strasser (4):
-  mfd: Kontron PLD mfd driver
-  i2c: Kontron PLD i2c bus driver
-  gpio: Kontron PLD gpio driver
-  watchdog: Kontron PLD watchdog timer driver
+>> Indeed. This looks like pointless churn to me, unless someone actually
+>> picks up the driver and fixes it for good.
+>>
+>> If nobody cares enough about it, then maybe it should be moved into
+>> staging and eventually retired...
+>
+>
+> That was a year ago, and nobody has done anything to the driver. Just
+> remove it -- if someone wants to do the work later on it's easy to
+> revert the commit and start over.
+>
+> Keeping code in the kernel but marking it BROKEN is only useful if we
+> think someone will fix it soon. It seems very unlikely in this case.
 
- drivers/gpio/Kconfig            |   12 +
- drivers/gpio/Makefile           |    1 +
- drivers/gpio/gpio-kempld.c      |  225 ++++++++++++++
- drivers/i2c/busses/Kconfig      |   10 +
- drivers/i2c/busses/Makefile     |    1 +
- drivers/i2c/busses/i2c-kempld.c |  410 +++++++++++++++++++++++++
- drivers/mfd/Kconfig             |   21 ++
- drivers/mfd/Makefile            |    1 +
- drivers/mfd/kempld-core.c       |  642 +++++++++++++++++++++++++++++++++++++++
- drivers/watchdog/Kconfig        |   11 +
- drivers/watchdog/Makefile       |    1 +
- drivers/watchdog/kempld_wdt.c   |  580 +++++++++++++++++++++++++++++++++++
- include/linux/mfd/kempld.h      |  125 ++++++++
- 13 files changed, 2040 insertions(+)
- create mode 100644 drivers/gpio/gpio-kempld.c
- create mode 100644 drivers/i2c/busses/i2c-kempld.c
- create mode 100644 drivers/mfd/kempld-core.c
- create mode 100644 drivers/watchdog/kempld_wdt.c
- create mode 100644 include/linux/mfd/kempld.h
+I believed that this is the driver which will be used by all cortex family, i.e.
+all ARM SMP platforms, isn't it? I am sure atleast the A9 family had this.
 
--- 
-1.7.9.5
+If no, then which ones are the real users of this driver/hardware?
+If yes, Why isn't anybody using this?
 
+I will send a patch that will delete this driver and will provide link to my
+patches, in case somebody wants it back in future.
+
+--
+Viresh
