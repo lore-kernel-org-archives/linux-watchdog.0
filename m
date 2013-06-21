@@ -1,25 +1,29 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mo3.mail-out.ovh.net ([178.32.228.3]:49438 "EHLO
-	mo3.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161473Ab3FUHsB (ORCPT
+Received: from 20.mo3.mail-out.ovh.net ([178.33.47.94]:38847 "EHLO
+	mo3.mail-out.ovh.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1161096Ab3FUHsB (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
 	Fri, 21 Jun 2013 03:48:01 -0400
 Received: from mail432.ha.ovh.net (b6.ovh.net [213.186.33.56])
-	by mo3.mail-out.ovh.net (Postfix) with SMTP id 976E8FF93B6
-	for <linux-watchdog@vger.kernel.org>; Fri, 21 Jun 2013 09:31:48 +0200 (CEST)
+	by mo3.mail-out.ovh.net (Postfix) with SMTP id 9240BFF9286
+	for <linux-watchdog@vger.kernel.org>; Fri, 21 Jun 2013 09:30:20 +0200 (CEST)
 From: Boris BREZILLON <b.brezillon@overkiz.com>
 To: Wim Van Sebroeck <wim@iguana.be>,
 	Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
 	Ludovic Desroches <ludovic.desroches@atmel.com>,
 	Yang Wenyou <Wenyou.Yang@atmel.com>,
-	Russell King <linux@arm.linux.org.uk>
+	Russell King <linux@arm.linux.org.uk>,
+	Mark Brown <broonie@opensource.wolfsonmicro.com>,
+	Bo Shen <voice.shen@atmel.com>,
+	Richard Genoud <richard.genoud@gmail.com>,
+	Linus Walleij <linus.walleij@linaro.org>
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
 	Boris BREZILLON <b.brezillon@overkiz.com>
 Subject: [PATCH v2 3/4] ARM: at91/dt: add sam9 watchdog default options to SoCs
-Date: Fri, 21 Jun 2013 09:31:29 +0200
-Message-Id: <1371799889-3812-1-git-send-email-b.brezillon@overkiz.com>
+Date: Fri, 21 Jun 2013 09:29:26 +0200
+Message-Id: <1371799766-3774-1-git-send-email-b.brezillon@overkiz.com>
 In-Reply-To: <1371799176-3408-1-git-send-email-b.brezillon@overkiz.com>
 References: <1371799176-3408-1-git-send-email-b.brezillon@overkiz.com>
 Sender: linux-watchdog-owner@vger.kernel.org
