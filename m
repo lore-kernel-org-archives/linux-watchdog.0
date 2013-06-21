@@ -3,19 +3,20 @@ From: "Yang, Wenyou" <Wenyou.Yang@atmel.com>
 To: Boris BREZILLON <b.brezillon@overkiz.com>,
         Wim Van Sebroeck <wim@iguana.be>,
         Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-        "Ferre, Nicolas" <Nicolas.FERRE@atmel.com>
-CC: Russell King <linux@arm.linux.org.uk>,
+        "Ferre, Nicolas" <Nicolas.FERRE@atmel.com>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+CC: "devicetree-discuss@lists.ozlabs.org"
+	<devicetree-discuss@lists.ozlabs.org>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Subject: RE: [RFC PATCH 3/4] ARM: at91/dt: add sam9 watchdog default options
- to SoCs
-Date: Fri, 21 Jun 2013 01:45:43 +0000
-Message-ID: <B256D81BAE5131468A838E5D7A243641687DE064@penmbx01>
+	<linux-arm-kernel@lists.infradead.org>
+Subject: RE: [RFC PATCH 0/4] watchdog: at91sam9_wdt: handle already
+ configured wdt
+Date: Fri, 21 Jun 2013 01:47:40 +0000
+Message-ID: <B256D81BAE5131468A838E5D7A243641687DE078@penmbx01>
 References: <1370947890-954-1-git-send-email-b.brezillon@overkiz.com>
- <1370947890-954-4-git-send-email-b.brezillon@overkiz.com>
-In-Reply-To: <1370947890-954-4-git-send-email-b.brezillon@overkiz.com>
+In-Reply-To: <1370947890-954-1-git-send-email-b.brezillon@overkiz.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="gb2312"
 MIME-Version: 1.0
@@ -31,135 +32,74 @@ List-ID: <linux-watchdog@vger.kernel.org>
 > From: linux-arm-kernel [mailto:linux-arm-kernel-bounces@lists.infradead.org]
 > On Behalf Of Boris BREZILLON
 > Sent: 2013Äê6ÔÂ11ÈÕ 18:51
-> To: Wim Van Sebroeck; Jean-Christophe Plagniol-Villard; Ferre, Nicolas
-> Cc: Boris BREZILLON; Russell King; linux-kernel@vger.kernel.org;
-> linux-arm-kernel@lists.infradead.org; linux-watchdog@vger.kernel.org
-> Subject: [RFC PATCH 3/4] ARM: at91/dt: add sam9 watchdog default options to
-> SoCs
+> To: Wim Van Sebroeck; Jean-Christophe Plagniol-Villard; Ferre, Nicolas;
+> linux-watchdog@vger.kernel.org
+> Cc: devicetree-discuss@lists.ozlabs.org; linux-doc@vger.kernel.org;
+> linux-kernel@vger.kernel.org; linux-arm-kernel@lists.infradead.org; Boris
+> BREZILLON
+> Subject: [RFC PATCH 0/4] watchdog: at91sam9_wdt: handle already configured
+> wdt
 > 
-> Set default watchdog options in every SoC compatible with the sam9 watchdog.
+> Hello,
 > 
-> Signed-off-by: Boris BREZILLON <b.brezillon@overkiz.com>
-> ---
->  arch/arm/boot/dts/at91sam9260.dtsi |    5 +++++
->  arch/arm/boot/dts/at91sam9263.dtsi |    5 +++++
->  arch/arm/boot/dts/at91sam9g45.dtsi |    5 +++++
->  arch/arm/boot/dts/at91sam9n12.dtsi |    5 +++++
->  arch/arm/boot/dts/at91sam9x5.dtsi  |    5 +++++
->  arch/arm/boot/dts/sama5d3.dtsi     |    5 +++++
->  6 files changed, 30 insertions(+)
+> This patch series is a porposal to enhance the sam9 watchdog timer support.
 > 
-> diff --git a/arch/arm/boot/dts/at91sam9260.dtsi
-> b/arch/arm/boot/dts/at91sam9260.dtsi
-> index 899a7cf..6c44c35 100644
-> --- a/arch/arm/boot/dts/at91sam9260.dtsi
-> +++ b/arch/arm/boot/dts/at91sam9260.dtsi
-> @@ -643,6 +643,11 @@
->  			watchdog@fffffd40 {
->  				compatible = "atmel,at91sam9260-wdt";
->  				reg = <0xfffffd40 0x10>;
-> +				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
-> +				atmel,watchdog-type = "hardware";
-> +				atmel,reset-type = "all";
-> +				atmel,dbg-halt;
-> +				atmel,idle-halt;
->  				status = "disabled";
->  			};
->  		};
-> diff --git a/arch/arm/boot/dts/at91sam9263.dtsi
-> b/arch/arm/boot/dts/at91sam9263.dtsi
-> index ff63811..6b31ee0 100644
-> --- a/arch/arm/boot/dts/at91sam9263.dtsi
-> +++ b/arch/arm/boot/dts/at91sam9263.dtsi
-> @@ -519,6 +519,11 @@
->  			watchdog@fffffd40 {
->  				compatible = "atmel,at91sam9260-wdt";
->  				reg = <0xfffffd40 0x10>;
-> +				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
-> +				atmel,watchdog-type = "hardware";
-> +				atmel,reset-type = "all";
-> +				atmel,dbg-halt;
-> +				atmel,idle-halt;
->  				status = "disabled";
->  			};
+> The at91sam9 watchdog timer cannot configured twice, and the current
+> implementation only tries to configure in a static way:
+> - 2 seconds timeout
+> - wdt restart every 500ms
 > 
-> diff --git a/arch/arm/boot/dts/at91sam9g45.dtsi
-> b/arch/arm/boot/dts/at91sam9g45.dtsi
-> index faec17d..ca1a643 100644
-> --- a/arch/arm/boot/dts/at91sam9g45.dtsi
-> +++ b/arch/arm/boot/dts/at91sam9g45.dtsi
-> @@ -634,6 +634,11 @@
->  			watchdog@fffffd40 {
->  				compatible = "atmel,at91sam9260-wdt";
->  				reg = <0xfffffd40 0x10>;
-> +				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
-> +				atmel,watchdog-type = "hardware";
-> +				atmel,reset-type = "all";
-> +				atmel,dbg-halt;
-> +				atmel,idle-halt;
->  				status = "disabled";
->  			};
+> If the timer has already been configured with different values, it returns an
+> error and do not create any watchdog device.
 > 
-> diff --git a/arch/arm/boot/dts/at91sam9n12.dtsi
-> b/arch/arm/boot/dts/at91sam9n12.dtsi
-> index 3166e1d..7c8a5ea 100644
-> --- a/arch/arm/boot/dts/at91sam9n12.dtsi
-> +++ b/arch/arm/boot/dts/at91sam9n12.dtsi
-> @@ -505,6 +505,11 @@
->  			watchdog@fffffe40 {
->  				compatible = "atmel,at91sam9260-wdt";
->  				reg = <0xfffffe40 0x10>;
-> +				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
-> +				atmel,watchdog-type = "hardware";
-> +				atmel,reset-type = "all";
-> +				atmel,dbg-halt;
-> +				atmel,idle-halt;
->  				status = "disabled";
->  			};
->  		};
-> diff --git a/arch/arm/boot/dts/at91sam9x5.dtsi
-> b/arch/arm/boot/dts/at91sam9x5.dtsi
-> index e77106e..48eb1cc 100644
-> --- a/arch/arm/boot/dts/at91sam9x5.dtsi
-> +++ b/arch/arm/boot/dts/at91sam9x5.dtsi
-> @@ -742,6 +742,11 @@
->  			watchdog@fffffe40 {
->  				compatible = "atmel,at91sam9260-wdt";
->  				reg = <0xfffffe40 0x10>;
-> +				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
-> +				atmel,watchdog-type = "hardware";
-> +				atmel,reset-type = "all";
-> +				atmel,dbg-halt;
-> +				atmel,idle-halt;
->  				status = "disabled";
->  			};
+> This is not critical if the watchdog is disabled, but if it has been enabled with
+> different timeout values it will lead to a SoC reset.
 > 
-> diff --git a/arch/arm/boot/dts/sama5d3.dtsi
-> b/arch/arm/boot/dts/sama5d3.dtsi
-> index c00e158..7974723 100644
-> --- a/arch/arm/boot/dts/sama5d3.dtsi
-> +++ b/arch/arm/boot/dts/sama5d3.dtsi
-> @@ -885,6 +885,11 @@
->  			watchdog@fffffe40 {
->  				compatible = "atmel,at91sam9260-wdt";
->  				reg = <0xfffffe40 0x10>;
-> +				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
-Change it with,
-				interrupts = <4 IRQ_TYPE_LEVEL_HIGH 7>;
-Because in sama5d3, watchdog interrupt is not shared with SYSC, it uses a separate interrupt line, 4.
-> +				atmel,watchdog-type = "hardware";
-> +				atmel,reset-type = "all";
-> +				atmel,dbg-halt;
-> +				atmel,idle-halt;
->  				status = "disabled";
->  			};
+> This patch series tries to address this issue by adapting the heartbeat value
+> according the WDT timer config:
+> - it first tries to configure the timer as requested.
+> - if it fails it fallbacks to the current config, adapting its heartbeat timer
+> to the needs
+> 
+> This patch series also move to a dynamically allocated at91wdt device instead
+> of the static instance. I'm not sure this is the best solution, so please tell
+> me if you prefer to keep static instance of watchdog.
+> 
+> It adds a new at91 wdt type: software. This new type make use of the at91 wdt
+> interrupt to trigger a software watchdog.
+> 
+> Finally it adds several properties to the device tree bindings.
+> 
+> Best Regards,
+> Boris
+> 
+> Boris BREZILLON (4):
+>   watchdog: at91sam9_wdt: better watchdog support
+>   watchdog: at91sam9_wdt: update device tree doc
+>   ARM: at91/dt: add sam9 watchdog default options to SoCs
+>   ARM: at91/dt: add watchdog properties to kizbox board
+> 
+>  .../devicetree/bindings/watchdog/atmel-wdt.txt     |   30 +-
+>  arch/arm/boot/dts/at91sam9260.dtsi                 |    5 +
+>  arch/arm/boot/dts/at91sam9263.dtsi                 |    5 +
+>  arch/arm/boot/dts/at91sam9g45.dtsi                 |    5 +
+>  arch/arm/boot/dts/at91sam9n12.dtsi                 |    5 +
+>  arch/arm/boot/dts/at91sam9x5.dtsi                  |    5 +
+>  arch/arm/boot/dts/kizbox.dts                       |    6 +
+>  arch/arm/boot/dts/sama5d3.dtsi                     |    5 +
+>  drivers/watchdog/at91sam9_wdt.c                    |  319
+> +++++++++++++++-----
+>  9 files changed, 300 insertions(+), 85 deletions(-)
 > 
 > --
 > 1.7.9.5
 > 
 > 
-Best Regards,
-Wenyou Yang
+Tested on sama5d34ek, at91sam9g25ek, linux-next_20130620
+
+Tested by Wenyou Yang <Wenyou.yang@atmel.com>
+
+
 > _______________________________________________
 > linux-arm-kernel mailing list
 > linux-arm-kernel@lists.infradead.org
