@@ -1,80 +1,71 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from 20.mo3.mail-out.ovh.net ([178.33.47.94]:36662 "EHLO
-	mo3.mail-out.ovh.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1161520Ab3FUINB (ORCPT
+Received: from mail.free-electrons.com ([94.23.35.102]:60871 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751285Ab3FWNQx (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 21 Jun 2013 04:13:01 -0400
-Received: from mail432.ha.ovh.net (b6.ovh.net [213.186.33.56])
-	by mo3.mail-out.ovh.net (Postfix) with SMTP id 4C9EBFF9124
-	for <linux-watchdog@vger.kernel.org>; Fri, 21 Jun 2013 09:19:46 +0200 (CEST)
-From: Boris BREZILLON <b.brezillon@overkiz.com>
-To: Wim Van Sebroeck <wim@iguana.be>,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
-	Ludovic Desroches <ludovic.desroches@atmel.com>,
-	Yang Wenyou <Wenyou.Yang@atmel.com>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Boris BREZILLON <b.brezillon@overkiz.com>
-Subject: [PATCH v2 0/4] watchdog: at91sam9_wdt: handle already configured wdt
-Date: Fri, 21 Jun 2013 09:19:36 +0200
-Message-Id: <1371799176-3408-1-git-send-email-b.brezillon@overkiz.com>
+	Sun, 23 Jun 2013 09:16:53 -0400
+Date: Sun, 23 Jun 2013 15:16:48 +0200
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: Carlo Caione <carlo.caione@gmail.com>, wim@iguana.be
+Cc: linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-sunxi@googlegroups.com,
+	henrik@henriknordstrom.net, linux@roeck-us.net
+Subject: Re: [PATCH v5] ARM: sunxi: New watchdog driver for Allwinner A10/A13
+Message-ID: <20130623131647.GE26008@lukather>
+References: <1370547265-24854-1-git-send-email-carlo.caione@gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2qXFWqzzG3v1+95a"
+Content-Disposition: inline
+In-Reply-To: <1370547265-24854-1-git-send-email-carlo.caione@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello,
 
-This patch series is a porposal to enhance the sam9 watchdog timer support.
+--2qXFWqzzG3v1+95a
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The at91sam9 watchdog timer can only be configured once, and the current
-implementation tries to configure it in a static way:
-- 2 seconds timeout
-- wdt restart every 500ms
+Hi Wim,
 
-If the timer has already been configured with different values, it returns an
-error and do not create any watchdog device.
+On Thu, Jun 06, 2013 at 09:34:25PM +0200, Carlo Caione wrote:
+> This patch adds the driver for the watchdog found in the Allwinner A10 and
+> A13 SoCs. It has DT-support and uses the new watchdog framework.
+>=20
+> Signed-off-by: Carlo Caione <carlo.caione@gmail.com>
 
-This is not critical if the watchdog is disabled, but if it has been enabled
-with different timeout values it will lead to a SoC reset.
+It would be great if we have this patch merged for 3.11, unless if you
+have additional comments of course.
 
-This patch series tries to address this issue by adapting the heartbeat value
-according the WDT timer config:
-- it first tries to configure the timer as requested.
-- if it fails it fallbacks to the current config, adapting its heartbeat timer
-to the needs
+Thanks,
+Maxime
 
-This patch series also move to a dynamically allocated at91wdt device instead
-of the static instance. I'm not sure this is the best solution, so please tell
-me if you prefer to keep static instance of watchdog.
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
-It adds a new at91 wdt type: software. This new type make use of the at91 wdt
-interrupt to trigger a software reboot.
+--2qXFWqzzG3v1+95a
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-Finally it adds several properties to the device tree bindings.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
 
-Best Regards,
-Boris
+iQIcBAEBAgAGBQJRxvU/AAoJEBx+YmzsjxAgVj8P/i1emoKrXShGPA8yNSDQDJAU
+liuobqwXtZdUqFaGTDJoJd9K2kLXpdgkWK/YKiGgSZj4osX4iSqQeGYEPbLBpxK0
+4W4tjN/5FvgJHU5a7GDiYRkIfxUFseMeH+aqM1Vw/J9otkyK1hdsxoW9pxaD+DPO
+btKDGzV1F0TRGU4ChmURubwwKPdLTpfXui4sUx30h7lGINwYZqLlswVLJE6Y1IZw
+Qy1g2HXu0GxPD0hmLm4mzZoPgPB/XscNXwl//+kji2A2lhnv1AXUcrEbI+E91VxV
+HIatNCWcKAF2523YJw9D6+zgE1GRfqcjAUpkvA2D/3P0qujR9Fb5Q9SU4GFhr0pR
+04fmKJkHM9JwHjDtNDDKd+Er3KUUmjcLz7+FqhlIGQgFjVxgYRu3HdCKvo5UNCr6
+QJphaDdAXdupoQwObVWIujyECqOrlF41uxtV8FNMQg6X4A0uH260Z6gRjMUa82XH
+pmbimR95piQjlCZ/5B/3pW//u5MIe81yd77Mk/8nOeiJrUNnVvTs0E1cXrVvHTos
+VXjEvOgso2veraMITCGmDzzaRGQ7rRpMsaKh+/lwGlDQY0oA2wSaBm9Iowx6Fren
+NogUmwg/KE/mKR7AYvHVpb61WoMYAOKSXO3Cf8IscSDNU48RJYKyRtcbdiLY0svL
+bu13cE/f3xEuBknNcvW9
+=qrLF
+-----END PGP SIGNATURE-----
 
-Change since v1:
- - fix typo in documentaion
- - fix irq dt definition for sama5d3 SoC
-
-Boris BREZILLON (4):
-  watchdog: at91sam9_wdt: better watchdog support
-  watchdog: at91sam9_wdt: update device tree doc
-  ARM: at91/dt: add sam9 watchdog default options to SoCs
-  ARM: at91/dt: add watchdog properties to kizbox board
-
- .../devicetree/bindings/watchdog/atmel-wdt.txt     |   30 +-
- arch/arm/boot/dts/at91sam9260.dtsi                 |    5 +
- arch/arm/boot/dts/at91sam9263.dtsi                 |    5 +
- arch/arm/boot/dts/at91sam9g45.dtsi                 |    5 +
- arch/arm/boot/dts/at91sam9n12.dtsi                 |    5 +
- arch/arm/boot/dts/at91sam9x5.dtsi                  |    5 +
- arch/arm/boot/dts/kizbox.dts                       |    6 +
- arch/arm/boot/dts/sama5d3.dtsi                     |    5 +
- drivers/watchdog/at91sam9_wdt.c                    |  319 +++++++++++++++-----
- 9 files changed, 300 insertions(+), 85 deletions(-)
-
--- 
-1.7.9.5
-
+--2qXFWqzzG3v1+95a--
