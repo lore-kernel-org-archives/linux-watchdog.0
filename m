@@ -1,71 +1,66 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([94.23.35.102]:60871 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751285Ab3FWNQx (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 23 Jun 2013 09:16:53 -0400
-Date: Sun, 23 Jun 2013 15:16:48 +0200
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Carlo Caione <carlo.caione@gmail.com>, wim@iguana.be
-Cc: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-sunxi@googlegroups.com,
-	henrik@henriknordstrom.net, linux@roeck-us.net
-Subject: Re: [PATCH v5] ARM: sunxi: New watchdog driver for Allwinner A10/A13
-Message-ID: <20130623131647.GE26008@lukather>
-References: <1370547265-24854-1-git-send-email-carlo.caione@gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2qXFWqzzG3v1+95a"
-Content-Disposition: inline
-In-Reply-To: <1370547265-24854-1-git-send-email-carlo.caione@gmail.com>
+Received: from mga09.intel.com ([134.134.136.24]:5919 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750733Ab3FXEHA (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 24 Jun 2013 00:07:00 -0400
+From: Kevin Strasser <kevin.strasser@linux.intel.com>
+To: linux-kernel@vger.kernel.org
+Cc: Kevin Strasser <kevin.strasser@linux.intel.com>,
+	Kevin Strasser <strassek@engr.orst.edu>,
+	Darren Hart <dvhart@linux.intel.com>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Michael Brunner <Michael.Brunner@kontron.com>,
+	Michael Brunner <mibru@gmx.de>,
+	Chris Healy <chealy@imsco-us.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Dirk Hohndel <Dirk.Hohndel@intel.com>,
+	Wolfram Sang <wsa@the-dreams.de>,
+	Ben Dooks <ben-linux@fluff.org>,
+	Grant Likely <grant.likely@secretlab.ca>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Wim Van Sebroeck <wim@iguana.be>, linux-i2c@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH v3 0/4] Kontron PLD drivers
+Date: Sun, 23 Jun 2013 21:00:02 -0700
+Message-Id: <1372046406-3127-1-git-send-email-kevin.strasser@linux.intel.com>
+In-Reply-To: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com>
+References: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+Changes since v2:
+-Change Michael's "Signed-off-by" to "Originally-From" in all patches
+-Add "From: Guenter Roeck <linux@roeck-us.net>" to gpio patch
 
---2qXFWqzzG3v1+95a
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Guenter Roeck (1):
+  gpio: Kontron PLD gpio driver
 
-Hi Wim,
+Kevin Strasser (3):
+  mfd: Kontron PLD mfd driver
+  i2c: Kontron PLD i2c bus driver
+  watchdog: Kontron PLD watchdog timer driver
 
-On Thu, Jun 06, 2013 at 09:34:25PM +0200, Carlo Caione wrote:
-> This patch adds the driver for the watchdog found in the Allwinner A10 and
-> A13 SoCs. It has DT-support and uses the new watchdog framework.
->=20
-> Signed-off-by: Carlo Caione <carlo.caione@gmail.com>
+ drivers/gpio/Kconfig            |   12 +
+ drivers/gpio/Makefile           |    1 +
+ drivers/gpio/gpio-kempld.c      |  225 ++++++++++++++
+ drivers/i2c/busses/Kconfig      |   10 +
+ drivers/i2c/busses/Makefile     |    1 +
+ drivers/i2c/busses/i2c-kempld.c |  410 +++++++++++++++++++++++++
+ drivers/mfd/Kconfig             |   21 ++
+ drivers/mfd/Makefile            |    1 +
+ drivers/mfd/kempld-core.c       |  642 +++++++++++++++++++++++++++++++++++++++
+ drivers/watchdog/Kconfig        |   11 +
+ drivers/watchdog/Makefile       |    1 +
+ drivers/watchdog/kempld_wdt.c   |  580 +++++++++++++++++++++++++++++++++++
+ include/linux/mfd/kempld.h      |  125 ++++++++
+ 13 files changed, 2040 insertions(+)
+ create mode 100644 drivers/gpio/gpio-kempld.c
+ create mode 100644 drivers/i2c/busses/i2c-kempld.c
+ create mode 100644 drivers/mfd/kempld-core.c
+ create mode 100644 drivers/watchdog/kempld_wdt.c
+ create mode 100644 include/linux/mfd/kempld.h
 
-It would be great if we have this patch merged for 3.11, unless if you
-have additional comments of course.
+-- 
+1.7.9.5
 
-Thanks,
-Maxime
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---2qXFWqzzG3v1+95a
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJRxvU/AAoJEBx+YmzsjxAgVj8P/i1emoKrXShGPA8yNSDQDJAU
-liuobqwXtZdUqFaGTDJoJd9K2kLXpdgkWK/YKiGgSZj4osX4iSqQeGYEPbLBpxK0
-4W4tjN/5FvgJHU5a7GDiYRkIfxUFseMeH+aqM1Vw/J9otkyK1hdsxoW9pxaD+DPO
-btKDGzV1F0TRGU4ChmURubwwKPdLTpfXui4sUx30h7lGINwYZqLlswVLJE6Y1IZw
-Qy1g2HXu0GxPD0hmLm4mzZoPgPB/XscNXwl//+kji2A2lhnv1AXUcrEbI+E91VxV
-HIatNCWcKAF2523YJw9D6+zgE1GRfqcjAUpkvA2D/3P0qujR9Fb5Q9SU4GFhr0pR
-04fmKJkHM9JwHjDtNDDKd+Er3KUUmjcLz7+FqhlIGQgFjVxgYRu3HdCKvo5UNCr6
-QJphaDdAXdupoQwObVWIujyECqOrlF41uxtV8FNMQg6X4A0uH260Z6gRjMUa82XH
-pmbimR95piQjlCZ/5B/3pW//u5MIe81yd77Mk/8nOeiJrUNnVvTs0E1cXrVvHTos
-VXjEvOgso2veraMITCGmDzzaRGQ7rRpMsaKh+/lwGlDQY0oA2wSaBm9Iowx6Fren
-NogUmwg/KE/mKR7AYvHVpb61WoMYAOKSXO3Cf8IscSDNU48RJYKyRtcbdiLY0svL
-bu13cE/f3xEuBknNcvW9
-=qrLF
------END PGP SIGNATURE-----
-
---2qXFWqzzG3v1+95a--
