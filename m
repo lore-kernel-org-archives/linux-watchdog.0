@@ -1,90 +1,39 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ee0-f52.google.com ([74.125.83.52]:53503 "EHLO
-	mail-ee0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751355Ab3FZNAW (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 26 Jun 2013 09:00:22 -0400
-Received: by mail-ee0-f52.google.com with SMTP id c50so7405620eek.39
-        for <linux-watchdog@vger.kernel.org>; Wed, 26 Jun 2013 06:00:21 -0700 (PDT)
-Message-ID: <51CAE5E3.2060503@monstr.eu>
-Date: Wed, 26 Jun 2013 15:00:19 +0200
-From: Michal Simek <monstr@monstr.eu>
-Reply-To: monstr@monstr.eu
+Received: from gloria.sntech.de ([95.129.55.99]:45389 "EHLO gloria.sntech.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752694Ab3FZSDV (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 26 Jun 2013 14:03:21 -0400
+From: Heiko =?utf-8?q?St=C3=BCbner?= <heiko@sntech.de>
+To: Wim Van Sebroeck <wim@iguana.be>
+Subject: [PATCH 0/3] watchdog: dw_wdt: common clock framework and devicetree support
+Date: Wed, 26 Jun 2013 20:03:12 +0200
+Cc: Jamie Iles <jamie@jamieiles.com>,
+	Grant Likely <grant.likely@linaro.org>,
+	Rob Herring <rob.herring@calxeda.com>,
+	devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
 MIME-Version: 1.0
-To: monstr@monstr.eu
-CC: Michal Simek <michal.simek@xilinx.com>,
-	linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-	linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [PATCH v2 0/2] Xilinx watchdog changes
-References: <cover.1369979787.git.michal.simek@xilinx.com> <51B59803.5090509@monstr.eu>
-In-Reply-To: <51B59803.5090509@monstr.eu>
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="----enig2VJAQIQSIALVPUEKTVPGM"
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <201306262003.13256.heiko@sntech.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
-------enig2VJAQIQSIALVPUEKTVPGM
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+This small series changes the dw_wdt driver, so that it is usable on
+machines using the common clock framework (needs the clk to be prepared)
+and devicetree (needs a binding).
 
-On 06/10/2013 11:10 AM, Michal Simek wrote:
-> Hi Wim
->=20
-> On 05/31/2013 07:56 AM, Michal Simek wrote:
->> The patchset fixes license header and add 1.00.a IP to compatible
->> list.
->>
->> Thanks for your review,
->> Michal
->>
->> Remove the 3rd patch from this series which incorrectly
->> tried to support set timeout feature.
->>
->> Changes in v2:
->> - Extend compatible list with 1.00.a instead of replacing 1.01.a
->>   reported by Guenter Roeck <linux@roeck-us.net>
->>
->> Michal Simek (2):
->>   watchdog: xilinx: Fix driver header
->>   watchdog: xilinx: Setup the origin compatible string
->>
->>  drivers/watchdog/of_xilinx_wdt.c | 31 +++++++++++--------------------=
+Heiko Stuebner (3):
+  watchdog: dw_wdt: convert to SIMPLE_DEV_PM_OPS
+  watchdog: dw_wdt: use clk_prepare_enable and clk_disable_unprepare
+  watchdog: dw_wdt: add a devicetree binding
 
->>  1 file changed, 11 insertions(+), 20 deletions(-)
->=20
-> Can you please add these two patches to your tree?
+ .../bindings/watchdog/snps-dw-apb-wdt.txt          |   18 ++++++++++++
+ drivers/watchdog/dw_wdt.c                          |   31 ++++++++++++--------
+ 2 files changed, 36 insertions(+), 13 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/snps-dw-apb-wdt.txt
 
-Wim: I can't see these patches in linux-next that's why I expect
-you haven't added them to your branch.
-Can you please look at it?
+-- 
+1.7.10.4
 
-Thanks,
-Michal
-
-
---=20
-Michal Simek, Ing. (M.Eng), OpenPGP -> KeyID: FE3D1F91
-w: www.monstr.eu p: +42-0-721842854
-Maintainer of Linux kernel - Microblaze cpu - http://www.monstr.eu/fdt/
-Maintainer of Linux kernel - Xilinx Zynq ARM architecture
-Microblaze U-BOOT custodian and responsible for u-boot arm zynq platform
-
-
-
-------enig2VJAQIQSIALVPUEKTVPGM
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
-
-iEYEARECAAYFAlHK5eMACgkQykllyylKDCFe8ACfVzotzJu9QttyqL2GvfzWKfO/
-ec8An0oLJN7TrqoLMSAtXwpVe+4FoA9K
-=5GgQ
------END PGP SIGNATURE-----
-
-------enig2VJAQIQSIALVPUEKTVPGM--
