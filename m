@@ -1,36 +1,90 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ob0-f182.google.com ([209.85.214.182]:36928 "EHLO
-	mail-ob0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751631Ab3FZJer (ORCPT
+Received: from mail-ee0-f52.google.com ([74.125.83.52]:53503 "EHLO
+	mail-ee0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751355Ab3FZNAW (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 26 Jun 2013 05:34:47 -0400
-Received: by mail-ob0-f182.google.com with SMTP id va7so13089309obc.27
-        for <linux-watchdog@vger.kernel.org>; Wed, 26 Jun 2013 02:34:47 -0700 (PDT)
+	Wed, 26 Jun 2013 09:00:22 -0400
+Received: by mail-ee0-f52.google.com with SMTP id c50so7405620eek.39
+        for <linux-watchdog@vger.kernel.org>; Wed, 26 Jun 2013 06:00:21 -0700 (PDT)
+Message-ID: <51CAE5E3.2060503@monstr.eu>
+Date: Wed, 26 Jun 2013 15:00:19 +0200
+From: Michal Simek <monstr@monstr.eu>
+Reply-To: monstr@monstr.eu
 MIME-Version: 1.0
-In-Reply-To: <20130619155100.GB29516@roeck-us.net>
-References: <4b48e037462c7d74452618e631f6cf077b7ce5de.1371654384.git.viresh.kumar@linaro.org>
-	<20130619155100.GB29516@roeck-us.net>
-Date: Wed, 26 Jun 2013 15:04:47 +0530
-Message-ID: <CAKohpomHti-auk8O3bepb-UW4UG-1_wjr048s0=wE9b-Ps+Qew@mail.gmail.com>
-Subject: Re: [PATCH] watchdog: delete mpcore_wdt driver
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux@arm.linux.org.uk, Guenter Roeck <linux@roeck-us.net>,
-	linux-arm-kernel@lists.infradead.org,
-	linaro-kernel@lists.linaro.org, patches@linaro.org,
-	marc.zyngier@arm.com, olof@lixom.net,
-	linux-watchdog@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+To: monstr@monstr.eu
+CC: Michal Simek <michal.simek@xilinx.com>,
+	linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+	linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: [PATCH v2 0/2] Xilinx watchdog changes
+References: <cover.1369979787.git.michal.simek@xilinx.com> <51B59803.5090509@monstr.eu>
+In-Reply-To: <51B59803.5090509@monstr.eu>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="----enig2VJAQIQSIALVPUEKTVPGM"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 19 June 2013 21:21, Guenter Roeck <linux@roeck-us.net> wrote:
-> On Wed, Jun 19, 2013 at 08:38:58PM +0530, Viresh Kumar wrote:
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+------enig2VJAQIQSIALVPUEKTVPGM
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
->> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
->
-> Acked-by: Guenter Roeck <linux@roeck-us.net>
+On 06/10/2013 11:10 AM, Michal Simek wrote:
+> Hi Wim
+>=20
+> On 05/31/2013 07:56 AM, Michal Simek wrote:
+>> The patchset fixes license header and add 1.00.a IP to compatible
+>> list.
+>>
+>> Thanks for your review,
+>> Michal
+>>
+>> Remove the 3rd patch from this series which incorrectly
+>> tried to support set timeout feature.
+>>
+>> Changes in v2:
+>> - Extend compatible list with 1.00.a instead of replacing 1.01.a
+>>   reported by Guenter Roeck <linux@roeck-us.net>
+>>
+>> Michal Simek (2):
+>>   watchdog: xilinx: Fix driver header
+>>   watchdog: xilinx: Setup the origin compatible string
+>>
+>>  drivers/watchdog/of_xilinx_wdt.c | 31 +++++++++++--------------------=
 
-Hi Wim,
+>>  1 file changed, 11 insertions(+), 20 deletions(-)
+>=20
+> Can you please add these two patches to your tree?
 
-Are you going to apply this patch for 3.11?
+Wim: I can't see these patches in linux-next that's why I expect
+you haven't added them to your branch.
+Can you please look at it?
+
+Thanks,
+Michal
+
+
+--=20
+Michal Simek, Ing. (M.Eng), OpenPGP -> KeyID: FE3D1F91
+w: www.monstr.eu p: +42-0-721842854
+Maintainer of Linux kernel - Microblaze cpu - http://www.monstr.eu/fdt/
+Maintainer of Linux kernel - Xilinx Zynq ARM architecture
+Microblaze U-BOOT custodian and responsible for u-boot arm zynq platform
+
+
+
+------enig2VJAQIQSIALVPUEKTVPGM
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+
+iEYEARECAAYFAlHK5eMACgkQykllyylKDCFe8ACfVzotzJu9QttyqL2GvfzWKfO/
+ec8An0oLJN7TrqoLMSAtXwpVe+4FoA9K
+=5GgQ
+-----END PGP SIGNATURE-----
+
+------enig2VJAQIQSIALVPUEKTVPGM--
