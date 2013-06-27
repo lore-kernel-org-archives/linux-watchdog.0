@@ -1,48 +1,38 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:52683 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:52689 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753654Ab3F0TVH (ORCPT
+	with ESMTP id S1753796Ab3F0Tbj (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 27 Jun 2013 15:21:07 -0400
-Date: Thu, 27 Jun 2013 21:21:04 +0200
+	Thu, 27 Jun 2013 15:31:39 -0400
+Date: Thu, 27 Jun 2013 21:31:38 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Michal Simek <michal.simek@xilinx.com>
-Cc: linux-kernel@vger.kernel.org, Michal Simek <monstr@monstr.eu>,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v2 0/2] Xilinx watchdog changes
-Message-ID: <20130627192104.GA30433@spo001.leaseweb.com>
-References: <cover.1369979787.git.michal.simek@xilinx.com>
+To: anish kumar <anish198519851985@gmail.com>
+Cc: linux@roeck-us.net, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [RFC]Watchdog:core: constant pinging until userspace timesout when delay very less
+Message-ID: <20130627193138.GB30433@spo001.leaseweb.com>
+References: <1370167987-14252-1-git-send-email-anish198519851985@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <cover.1369979787.git.michal.simek@xilinx.com>
+In-Reply-To: <1370167987-14252-1-git-send-email-anish198519851985@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Michal,
+Hi Anish,
 
-> The patchset fixes license header and add 1.00.a IP to compatible
-> list.
+> Certain watchdog drivers use a timer to keep kicking the watchdog at
+> a rate of 0.5s (HZ/2) untill userspace times out.They do this as
+> we can't guarantee that watchdog will be pinged fast enough
+> for all system loads, especially if timeout is configured for
+> less than or equal to 1 second(basically small values).
 > 
-> Thanks for your review,
-> Michal
-> 
-> Remove the 3rd patch from this series which incorrectly
-> tried to support set timeout feature.
-> 
-> Changes in v2:
-> - Extend compatible list with 1.00.a instead of replacing 1.01.a
->   reported by Guenter Roeck <linux@roeck-us.net>
-> 
-> Michal Simek (2):
->   watchdog: xilinx: Fix driver header
->   watchdog: xilinx: Setup the origin compatible string
-> 
->  drivers/watchdog/of_xilinx_wdt.c | 31 +++++++++++--------------------
->  1 file changed, 11 insertions(+), 20 deletions(-)
+> As suggested by Wim Van Sebroeck & Guenter Roeck we should
+> add this functionality of individual watchdog drivers in the core
+> watchdog core.
 
-Both patches added to linux-watchdog-next.
+Have you considered the effect this change has on all watchdog drivers
+that don't need a timer?
 
 Kind regards,
 Wim.
