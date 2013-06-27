@@ -1,41 +1,49 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:65049 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753547Ab3F0S2q (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 27 Jun 2013 14:28:46 -0400
-Date: Thu, 27 Jun 2013 11:23:15 -0700
-From: Kevin Strasser <kevin.strasser@linux.intel.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Kevin Strasser <strassek@engr.orst.edu>,
-	Darren Hart <dvhart@linux.intel.com>,
-	Samuel Ortiz <sameo@linux.intel.com>,
+Received: from ns1.pc-advies.be ([83.149.101.17]:52683 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753654Ab3F0TVH (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 27 Jun 2013 15:21:07 -0400
+Date: Thu, 27 Jun 2013 21:21:04 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Michal Simek <michal.simek@xilinx.com>
+Cc: linux-kernel@vger.kernel.org, Michal Simek <monstr@monstr.eu>,
 	Guenter Roeck <linux@roeck-us.net>,
-	Michael Brunner <Michael.Brunner@kontron.com>,
-	Michael Brunner <mibru@gmx.de>,
-	Chris Healy <chealy@imsco-us.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Dirk Hohndel <Dirk.Hohndel@intel.com>,
-	Wolfram Sang <wsa@the-dreams.de>,
-	Ben Dooks <ben-linux@fluff.org>,
-	Grant Likely <grant.likely@secretlab.ca>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 4/4] watchdog: Kontron PLD watchdog timer driver
-Message-ID: <20130627182314.GA16090@wrk>
-References: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com>
- <1372046406-3127-1-git-send-email-kevin.strasser@linux.intel.com>
- <1372046406-3127-5-git-send-email-kevin.strasser@linux.intel.com>
-MIME-Version: 1.0
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v2 0/2] Xilinx watchdog changes
+Message-ID: <20130627192104.GA30433@spo001.leaseweb.com>
+References: <cover.1369979787.git.michal.simek@xilinx.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1372046406-3127-5-git-send-email-kevin.strasser@linux.intel.com>
+In-Reply-To: <cover.1369979787.git.michal.simek@xilinx.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Wim,
+Hi Michal,
 
-This driver hasn't received any further feedback. Are you ready to take it
-into watchdog-next, or do you still need to review it?
+> The patchset fixes license header and add 1.00.a IP to compatible
+> list.
+> 
+> Thanks for your review,
+> Michal
+> 
+> Remove the 3rd patch from this series which incorrectly
+> tried to support set timeout feature.
+> 
+> Changes in v2:
+> - Extend compatible list with 1.00.a instead of replacing 1.01.a
+>   reported by Guenter Roeck <linux@roeck-us.net>
+> 
+> Michal Simek (2):
+>   watchdog: xilinx: Fix driver header
+>   watchdog: xilinx: Setup the origin compatible string
+> 
+>  drivers/watchdog/of_xilinx_wdt.c | 31 +++++++++++--------------------
+>  1 file changed, 11 insertions(+), 20 deletions(-)
 
-Thanks,
-Kevin
+Both patches added to linux-watchdog-next.
+
+Kind regards,
+Wim.
+
