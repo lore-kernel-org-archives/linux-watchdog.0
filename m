@@ -1,109 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <51C3F9DD.5040709@overkiz.com>
-Date: Fri, 21 Jun 2013 08:59:41 +0200
-From: boris brezillon <b.brezillon@overkiz.com>
-MIME-Version: 1.0
-To: "Yang, Wenyou" <Wenyou.Yang@atmel.com>
-CC: Wim Van Sebroeck <wim@iguana.be>,
-        Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-        "Ferre, Nicolas" <Nicolas.FERRE@atmel.com>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "devicetree-discuss@lists.ozlabs.org"
-	<devicetree-discuss@lists.ozlabs.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>
-Subject: Re: [RFC PATCH 0/4] watchdog: at91sam9_wdt: handle already configured
- wdt
-References: <1370947890-954-1-git-send-email-b.brezillon@overkiz.com> <B256D81BAE5131468A838E5D7A243641687DE078@penmbx01>
-In-Reply-To: <B256D81BAE5131468A838E5D7A243641687DE078@penmbx01>
-Content-Type: text/plain; charset=GB2312
-Content-Transfer-Encoding: 8bit
+Date: Thu, 27 Jun 2013 22:25:18 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Lubomir Rintel <lkundrak@v3.sk>
+Cc: linux-kernel@vger.kernel.org, Stephen Warren <swarren@wwwdotorg.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-rpi-kernel@lists.infradead.org, linux-watchdog@vger.kernel.org,
+        devicetree-discuss@lists.ozlabs.org
+Subject: Re: [PATCH v5] watchdog: Add Broadcom BCM2835 watchdog timer driver
+Message-ID: <20130627202518.GA30950@spo001.leaseweb.com>
+References: <51C09478.30909@wwwdotorg.org> <1371577488-22438-1-git-send-email-lkundrak@v3.sk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1371577488-22438-1-git-send-email-lkundrak@v3.sk>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On 21/06/2013 03:47, Yang, Wenyou wrote:
->
->> -----Original Message-----
->> From: linux-arm-kernel [mailto:linux-arm-kernel-bounces@lists.infradead.org]
->> On Behalf Of Boris BREZILLON
->> Sent: 2013Äê6ÔÂ11ÈÕ 18:51
->> To: Wim Van Sebroeck; Jean-Christophe Plagniol-Villard; Ferre, Nicolas;
->> linux-watchdog@vger.kernel.org
->> Cc: devicetree-discuss@lists.ozlabs.org; linux-doc@vger.kernel.org;
->> linux-kernel@vger.kernel.org; linux-arm-kernel@lists.infradead.org; Boris
->> BREZILLON
->> Subject: [RFC PATCH 0/4] watchdog: at91sam9_wdt: handle already configured
->> wdt
->>
->> Hello,
->>
->> This patch series is a porposal to enhance the sam9 watchdog timer support.
->>
->> The at91sam9 watchdog timer cannot configured twice, and the current
->> implementation only tries to configure in a static way:
->> - 2 seconds timeout
->> - wdt restart every 500ms
->>
->> If the timer has already been configured with different values, it returns an
->> error and do not create any watchdog device.
->>
->> This is not critical if the watchdog is disabled, but if it has been enabled with
->> different timeout values it will lead to a SoC reset.
->>
->> This patch series tries to address this issue by adapting the heartbeat value
->> according the WDT timer config:
->> - it first tries to configure the timer as requested.
->> - if it fails it fallbacks to the current config, adapting its heartbeat timer
->> to the needs
->>
->> This patch series also move to a dynamically allocated at91wdt device instead
->> of the static instance. I'm not sure this is the best solution, so please tell
->> me if you prefer to keep static instance of watchdog.
->>
->> It adds a new at91 wdt type: software. This new type make use of the at91 wdt
->> interrupt to trigger a software watchdog.
->>
->> Finally it adds several properties to the device tree bindings.
->>
->> Best Regards,
->> Boris
->>
->> Boris BREZILLON (4):
->>   watchdog: at91sam9_wdt: better watchdog support
->>   watchdog: at91sam9_wdt: update device tree doc
->>   ARM: at91/dt: add sam9 watchdog default options to SoCs
->>   ARM: at91/dt: add watchdog properties to kizbox board
->>
->>  .../devicetree/bindings/watchdog/atmel-wdt.txt     |   30 +-
->>  arch/arm/boot/dts/at91sam9260.dtsi                 |    5 +
->>  arch/arm/boot/dts/at91sam9263.dtsi                 |    5 +
->>  arch/arm/boot/dts/at91sam9g45.dtsi                 |    5 +
->>  arch/arm/boot/dts/at91sam9n12.dtsi                 |    5 +
->>  arch/arm/boot/dts/at91sam9x5.dtsi                  |    5 +
->>  arch/arm/boot/dts/kizbox.dts                       |    6 +
->>  arch/arm/boot/dts/sama5d3.dtsi                     |    5 +
->>  drivers/watchdog/at91sam9_wdt.c                    |  319
->> +++++++++++++++-----
->>  9 files changed, 300 insertions(+), 85 deletions(-)
->>
->> --
->> 1.7.9.5
->>
->>
-> Tested on sama5d34ek, at91sam9g25ek, linux-next_20130620
->
-> Tested by Wenyou Yang <Wenyou.yang@atmel.com>
->
-Thanks for your tests and review.
+Hi Lubomir,
 
-Best Regards,
+> This adds a driver for watchdog timer hardware present on Broadcom BCM2835 SoC,
+> used in Raspberry Pi and Roku 2 devices.
+> 
+> Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+> Tested-by: Stephen Warren <swarren@wwwdotorg.org>
+> Cc: Stephen Warren <swarren@wwwdotorg.org>
+> Cc: Wim Van Sebroeck <wim@iguana.be>
+> Cc: Guenter Roeck <linux@roeck-us.net>
+> Cc: linux-rpi-kernel@lists.infradead.org
+> Cc: linux-watchdog@vger.kernel.org
+> Cc: devicetree-discuss@lists.ozlabs.org
 
-Boris
->> _______________________________________________
->> linux-arm-kernel mailing list
->> linux-arm-kernel@lists.infradead.org
->> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+Added to linux-watchdog-next.
+
+Kind regards,
+Wim.
