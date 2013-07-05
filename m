@@ -1,27 +1,26 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pb0-f44.google.com ([209.85.160.44]:53407 "EHLO
-	mail-pb0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757288Ab3GERSX (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:53930 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750937Ab3GEUxJ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 5 Jul 2013 13:18:23 -0400
-Date: Fri, 5 Jul 2013 10:18:24 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Fri, 5 Jul 2013 16:53:09 -0400
+Date: Fri, 5 Jul 2013 22:53:07 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
 To: Jean Delvare <jdelvare@suse.de>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+Cc: linux-watchdog@vger.kernel.org,
 	linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: modalias char-major-10-130
-Message-ID: <20130705171824.GB29175@roeck-us.net>
+Message-ID: <20130705205307.GB14258@spo001.leaseweb.com>
 References: <1372854803.22042.22.camel@chaos.site>
-MIME-Version: 1.0
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <1372854803.22042.22.camel@chaos.site>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Jul 03, 2013 at 02:33:23PM +0200, Jean Delvare wrote:
-> Hi Wim,
-> 
+Hi Jean,
+
 > All watchdog drivers include:
 > 
 > MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
@@ -54,11 +53,13 @@ On Wed, Jul 03, 2013 at 02:33:23PM +0200, Jean Delvare wrote:
 > So, can we please get rid of all these
 > MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR) statements? They do more harm than
 > good as far as I can see.
-> 
-Agreed.
 
-Can you submit a set of patches ? I'll be happy to add my Reviewed-by: tag
-to it. Of course that won't guarantee acceptance ;).
+You have a valid point: There were we have modaliases and other detection
+mechanism we should indeed remove them. The rest should be evaluated
+afterwards on a case by case basis. Certain intel based drivers should
+(like advantechwdt) should indeed be fixed because they poke in the hardware
+directly and can't be really detected.
 
-Thanks,
-Guenter
+Kind regards,
+Wim.
+
