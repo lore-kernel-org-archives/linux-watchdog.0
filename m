@@ -1,599 +1,66 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-gh0-f187.google.com ([209.85.160.187]:64663 "EHLO
-	mail-gh0-f187.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752371Ab3GFR3q (ORCPT
+Received: from mail.free-electrons.com ([94.23.35.102]:54725 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751851Ab3GFRnR (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 6 Jul 2013 13:29:46 -0400
-Received: by mail-gh0-f187.google.com with SMTP id 16so910170ghy.4
-        for <linux-watchdog@vger.kernel.org>; Sat, 06 Jul 2013 10:29:45 -0700 (PDT)
-Date: Sat, 6 Jul 2013 10:29:44 -0700 (PDT)
-From: viniciusfre@gmail.com
-To: linux-sunxi@googlegroups.com
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	maxime.ripard@free-electrons.com, henrik@henriknordstrom.net,
-	linux@roeck-us.net, Carlo Caione <carlo.caione@gmail.com>
-Message-Id: <09c7fd3c-063b-4af4-bace-e148831a7e50@googlegroups.com>
-In-Reply-To: <1370547265-24854-1-git-send-email-carlo.caione@gmail.com>
+	Sat, 6 Jul 2013 13:43:17 -0400
+Date: Sat, 6 Jul 2013 19:43:15 +0200
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: viniciusfre@gmail.com
+Cc: linux-sunxi@googlegroups.com,
+	Carlo Caione <carlo.caione@gmail.com>,
+	linux-watchdog@vger.kernel.org, henrik@henriknordstrom.net,
+	wim@iguana.be, linux-arm-kernel@lists.infradead.org,
+	linux@roeck-us.net
+Subject: Re: [PATCH v5] ARM: sunxi: New watchdog driver for Allwinner A10/A13
+Message-ID: <20130706174315.GC11243@lukather>
 References: <1370547265-24854-1-git-send-email-carlo.caione@gmail.com>
-Subject: Re: [PATCH v5] ARM: sunxi: New watchdog driver for Allwinner
- A10/A13
+ <09c7fd3c-063b-4af4-bace-e148831a7e50@googlegroups.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_Part_175_3620935.1373131784909"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="96YOpH+ONegL0A3E"
+Content-Disposition: inline
+In-Reply-To: <09c7fd3c-063b-4af4-bace-e148831a7e50@googlegroups.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-------=_Part_175_3620935.1373131784909
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
 
-Em quinta-feira, 6 de junho de 2013 16h34min25s UTC-3, Carlo Caione  escreveu:
-> This patch adds the driver for the watchdog found in the Allwinner A10 and
-> 
-> A13 SoCs. It has DT-support and uses the new watchdog framework.
-> 
-> 
-> 
-> Signed-off-by: Carlo Caione <carlo.caione@gmail.com>
-> 
-> ---
-> 
->  drivers/watchdog/Kconfig     |  10 ++
-> 
->  drivers/watchdog/Makefile    |   1 +
-> 
->  drivers/watchdog/sunxi_wdt.c | 231 +++++++++++++++++++++++++++++++++++++++++++
-> 
->  3 files changed, 242 insertions(+)
-> 
->  create mode 100644 drivers/watchdog/sunxi_wdt.c
-> 
-> 
-> 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> 
-> index e89fc31..8ad2238 100644
-> 
-> --- a/drivers/watchdog/Kconfig
-> 
-> +++ b/drivers/watchdog/Kconfig
-> 
-> @@ -299,6 +299,16 @@ config ORION_WATCHDOG
-> 
->  	  To compile this driver as a module, choose M here: the
-> 
->  	  module will be called orion_wdt.
-> 
->  
-> 
-> +config SUNXI_WATCHDOG
-> 
-> +	tristate "Allwinner SoCs watchdog support"
-> 
-> +	depends on ARCH_SUNXI
-> 
-> +	select WATCHDOG_CORE
-> 
-> +	help
-> 
-> +	  Say Y here to include support for the watchdog timer
-> 
-> +	  in Allwinner SoCs.
-> 
-> +	  To compile this driver as a module, choose M here: the
-> 
-> +	  module will be called sunxi_wdt.
-> 
-> +
-> 
->  config COH901327_WATCHDOG
-> 
->  	bool "ST-Ericsson COH 901 327 watchdog"
-> 
->  	depends on ARCH_U300
-> 
-> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> 
-> index a300b94..5012d5f 100644
-> 
-> --- a/drivers/watchdog/Makefile
-> 
-> +++ b/drivers/watchdog/Makefile
-> 
-> @@ -47,6 +47,7 @@ obj-$(CONFIG_PNX4008_WATCHDOG) += pnx4008_wdt.o
-> 
->  obj-$(CONFIG_IOP_WATCHDOG) += iop_wdt.o
-> 
->  obj-$(CONFIG_DAVINCI_WATCHDOG) += davinci_wdt.o
-> 
->  obj-$(CONFIG_ORION_WATCHDOG) += orion_wdt.o
-> 
-> +obj-$(CONFIG_SUNXI_WATCHDOG) += sunxi_wdt.o
-> 
->  obj-$(CONFIG_COH901327_WATCHDOG) += coh901327_wdt.o
-> 
->  obj-$(CONFIG_STMP3XXX_RTC_WATCHDOG) += stmp3xxx_rtc_wdt.o
-> 
->  obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
-> 
-> diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
-> 
-> new file mode 100644
-> 
-> index 0000000..69d4d44
-> 
-> --- /dev/null
-> 
-> +++ b/drivers/watchdog/sunxi_wdt.c
-> 
-> @@ -0,0 +1,231 @@
-> 
-> +/*
-> 
-> + *      sunxi Watchdog Driver
-> 
-> + *
-> 
-> + *      Copyright (c) 2013 Carlo Caione
-> 
-> + *                    2012 Henrik Nordstrom
-> 
-> + *
-> 
-> + *      This program is free software; you can redistribute it and/or
-> 
-> + *      modify it under the terms of the GNU General Public License
-> 
-> + *      as published by the Free Software Foundation; either version
-> 
-> + *      2 of the License, or (at your option) any later version.
-> 
-> + *
-> 
-> + *      Based on xen_wdt.c
-> 
-> + *      (c) Copyright 2010 Novell, Inc.
-> 
-> + */
-> 
-> +
-> 
-> +#include <linux/clk.h>
-> 
-> +#include <linux/err.h>
-> 
-> +#include <linux/init.h>
-> 
-> +#include <linux/io.h>
-> 
-> +#include <linux/kernel.h>
-> 
-> +#include <linux/module.h>
-> 
-> +#include <linux/moduleparam.h>
-> 
-> +#include <linux/of.h>
-> 
-> +#include <linux/of_address.h>
-> 
-> +#include <linux/platform_device.h>
-> 
-> +#include <linux/types.h>
-> 
-> +#include <linux/watchdog.h>
-> 
-> +
-> 
-> +#define WDT_MAX_TIMEOUT         16
-> 
-> +#define WDT_MIN_TIMEOUT         1
-> 
-> +#define WDT_MODE_TIMEOUT(n)     ((n) << 3)
-> 
-> +#define WDT_TIMEOUT_MASK        WDT_MODE_TIMEOUT(0x0F)
-> 
-> +
-> 
-> +#define WDT_CTRL                0x00
-> 
-> +#define WDT_CTRL_RELOAD         ((1 << 0) | (0x0a57 << 1))
-> 
-> +
-> 
-> +#define WDT_MODE                0x04
-> 
-> +#define WDT_MODE_EN             (1 << 0)
-> 
-> +#define WDT_MODE_RST_EN         (1 << 1)
-> 
-> +
-> 
-> +#define DRV_NAME		"sunxi-wdt"
-> 
-> +#define DRV_VERSION		"1.0"
-> 
-> +
-> 
-> +static bool nowayout = WATCHDOG_NOWAYOUT;
-> 
-> +static int heartbeat = WDT_MAX_TIMEOUT;
-> 
-> +
-> 
-> +struct sunxi_wdt_dev {
-> 
-> +	struct watchdog_device wdt_dev;
-> 
-> +	void __iomem *wdt_base;
-> 
-> +};
-> 
-> +
-> 
-> +/*
-> 
-> + * wdt_timeout_map maps the watchdog timer interval value in seconds to
-> 
-> + * the value of the register WDT_MODE bit 3:6
-> 
-> + *
-> 
-> + * [timeout seconds] = register value
-> 
-> + *
-> 
-> + */
-> 
-> +
-> 
-> +static const int wdt_timeout_map[] = {
-> 
-> +	[1] = 0b0001,  /* 1s  */
-> 
-> +	[2] = 0b0010,  /* 2s  */
-> 
-> +	[3] = 0b0011,  /* 3s  */
-> 
-> +	[4] = 0b0100,  /* 4s  */
-> 
-> +	[5] = 0b0101,  /* 5s  */
-> 
-> +	[6] = 0b0110,  /* 6s  */
-> 
-> +	[8] = 0b0111,  /* 8s  */
-> 
-> +	[10] = 0b1000, /* 10s */
-> 
-> +	[12] = 0b1001, /* 12s */
-> 
-> +	[14] = 0b1010, /* 14s */
-> 
-> +	[16] = 0b1011, /* 16s */
-> 
-> +};
-> 
-> +
-> 
-> +static int sunxi_wdt_ping(struct watchdog_device *wdt_dev)
-> 
-> +{
-> 
-> +	struct sunxi_wdt_dev *sunxi_wdt = watchdog_get_drvdata(wdt_dev);
-> 
-> +	void __iomem *wdt_base = sunxi_wdt->wdt_base;
-> 
-> +
-> 
-> +	iowrite32(WDT_CTRL_RELOAD, wdt_base + WDT_CTRL);
-> 
-> +
-> 
-> +	return 0;
-> 
-> +}
-> 
-> +
-> 
-> +static int sunxi_wdt_set_timeout(struct watchdog_device *wdt_dev,
-> 
-> +		unsigned int timeout)
-> 
-> +{
-> 
-> +	struct sunxi_wdt_dev *sunxi_wdt = watchdog_get_drvdata(wdt_dev);
-> 
-> +	void __iomem *wdt_base = sunxi_wdt->wdt_base;
-> 
-> +	u32 reg;
-> 
-> +
-> 
-> +	if (timeout > WDT_MAX_TIMEOUT)
-> 
-> +		return -EINVAL;
-> 
-> +
-> 
-> +	if (wdt_timeout_map[timeout] == 0)
-> 
-> +		timeout++;
-> 
-> +
-> 
-> +	sunxi_wdt->wdt_dev.timeout = timeout;
-> 
-> +
-> 
-> +	reg = ioread32(wdt_base + WDT_MODE);
-> 
-> +	reg &= ~WDT_TIMEOUT_MASK;
-> 
-> +	reg |= WDT_MODE_TIMEOUT(wdt_timeout_map[timeout]);
-> 
-> +	iowrite32(reg, wdt_base + WDT_MODE);
-> 
-> +
-> 
-> +	sunxi_wdt_ping(wdt_dev);
-> 
-> +
-> 
-> +	return 0;
-> 
-> +}
-> 
-> +
-> 
-> +static int sunxi_wdt_stop(struct watchdog_device *wdt_dev)
-> 
-> +{
-> 
-> +	struct sunxi_wdt_dev *sunxi_wdt = watchdog_get_drvdata(wdt_dev);
-> 
-> +	void __iomem *wdt_base = sunxi_wdt->wdt_base;
-> 
-> +
-> 
-> +	iowrite32(0, wdt_base + WDT_MODE);
-> 
-> +
-> 
-> +	return 0;
-> 
-> +}
-> 
-> +
-> 
-> +static int sunxi_wdt_start(struct watchdog_device *wdt_dev)
-> 
-> +{
-> 
-> +	u32 reg;
-> 
-> +	struct sunxi_wdt_dev *sunxi_wdt = watchdog_get_drvdata(wdt_dev);
-> 
-> +	void __iomem *wdt_base = sunxi_wdt->wdt_base;
-> 
-> +	int ret;
-> 
-> +
-> 
-> +	ret = sunxi_wdt_set_timeout(&sunxi_wdt->wdt_dev,
-> 
-> +			sunxi_wdt->wdt_dev.timeout);
-> 
-> +	if (ret < 0)
-> 
-> +		return ret;
-> 
-> +
-> 
-> +	reg = ioread32(wdt_base + WDT_MODE);
-> 
-> +	reg |= (WDT_MODE_RST_EN | WDT_MODE_EN);
-> 
-> +	iowrite32(reg, wdt_base + WDT_MODE);
-> 
-> +
-> 
-> +	return 0;
-> 
-> +}
-> 
-> +
-> 
-> +static const struct watchdog_info sunxi_wdt_info = {
-> 
-> +	.identity	= DRV_NAME,
-> 
-> +	.options	= WDIOF_SETTIMEOUT |
-> 
-> +			  WDIOF_KEEPALIVEPING |
-> 
-> +			  WDIOF_MAGICCLOSE,
-> 
-> +};
-> 
-> +
-> 
-> +static const struct watchdog_ops sunxi_wdt_ops = {
-> 
-> +	.owner		= THIS_MODULE,
-> 
-> +	.start		= sunxi_wdt_start,
-> 
-> +	.stop		= sunxi_wdt_stop,
-> 
-> +	.ping		= sunxi_wdt_ping,
-> 
-> +	.set_timeout	= sunxi_wdt_set_timeout,
-> 
-> +};
-> 
-> +
-> 
-> +static int __init sunxi_wdt_probe(struct platform_device *pdev)
-> 
-> +{
-> 
-> +	struct sunxi_wdt_dev *sunxi_wdt;
-> 
-> +	struct resource *res;
-> 
-> +	int err;
-> 
-> +
-> 
-> +	sunxi_wdt = devm_kzalloc(&pdev->dev, sizeof(*sunxi_wdt), GFP_KERNEL);
-> 
-> +	if (!sunxi_wdt)
-> 
-> +		return -EINVAL;
-> 
-> +
-> 
-> +	platform_set_drvdata(pdev, sunxi_wdt);
-> 
-> +
-> 
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> 
-> +	sunxi_wdt->wdt_base = devm_ioremap_resource(&pdev->dev, res);
-> 
-> +	if (IS_ERR(sunxi_wdt->wdt_base))
-> 
-> +		return PTR_ERR(sunxi_wdt->wdt_base);
-> 
-> +
-> 
-> +	sunxi_wdt->wdt_dev.info = &sunxi_wdt_info;
-> 
-> +	sunxi_wdt->wdt_dev.ops = &sunxi_wdt_ops;
-> 
-> +	sunxi_wdt->wdt_dev.timeout = WDT_MAX_TIMEOUT;
-> 
-> +	sunxi_wdt->wdt_dev.max_timeout = WDT_MAX_TIMEOUT;
-> 
-> +	sunxi_wdt->wdt_dev.min_timeout = WDT_MIN_TIMEOUT;
-> 
-> +	sunxi_wdt->wdt_dev.parent = &pdev->dev;
-> 
-> +
-> 
-> +	watchdog_init_timeout(&sunxi_wdt->wdt_dev, heartbeat, &pdev->dev);
-> 
-> +	watchdog_set_nowayout(&sunxi_wdt->wdt_dev, nowayout);
-> 
-> +
-> 
-> +	watchdog_set_drvdata(&sunxi_wdt->wdt_dev, sunxi_wdt);
-> 
-> +
-> 
-> +	err = watchdog_register_device(&sunxi_wdt->wdt_dev);
-> 
-> +	if (unlikely(err))
-> 
-> +		return err;
-> 
-> +
-> 
-> +	dev_info(&pdev->dev, "Watchdog enabled (heartbeat=%d sec, nowayout=%d)",
-> 
-> +			sunxi_wdt->wdt_dev.timeout, nowayout);
-> 
-> +
-> 
-> +	return 0;
-> 
-> +}
-> 
-> +
-> 
-> +static int __exit sunxi_wdt_remove(struct platform_device *pdev)
-> 
-> +{
-> 
-> +	struct sunxi_wdt_dev *sunxi_wdt = platform_get_drvdata(pdev);
-> 
-> +
-> 
-> +	watchdog_unregister_device(&sunxi_wdt->wdt_dev);
-> 
-> +	watchdog_set_drvdata(&sunxi_wdt->wdt_dev, NULL);
-> 
-> +
-> 
-> +	return 0;
-> 
-> +}
-> 
-> +
-> 
-> +static const struct of_device_id sunxi_wdt_dt_ids[] = {
-> 
-> +	{ .compatible = "allwinner,sun4i-wdt" },
-> 
-> +	{ /* sentinel */ }
-> 
-> +};
-> 
-> +MODULE_DEVICE_TABLE(of, sunxi_wdt_dt_ids);
-> 
-> +
-> 
-> +static struct platform_driver sunxi_wdt_driver = {
-> 
-> +	.probe		= sunxi_wdt_probe,
-> 
-> +	.remove		= sunxi_wdt_remove,
-> 
-> +	.driver		= {
-> 
-> +		.owner		= THIS_MODULE,
-> 
-> +		.name		= DRV_NAME,
-> 
-> +		.of_match_table	= of_match_ptr(sunxi_wdt_dt_ids)
-> 
-> +	},
-> 
-> +};
-> 
-> +
-> 
-> +module_platform_driver(sunxi_wdt_driver);
-> 
-> +
-> 
-> +module_param(heartbeat, int, 0);
-> 
-> +MODULE_PARM_DESC(heartbeat, "Watchdog heartbeat in seconds");
-> 
-> +
-> 
-> +module_param(nowayout, bool, 0);
-> 
-> +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
-> 
-> +		"(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-> 
-> +
-> 
-> +MODULE_LICENSE("GPL");
-> 
-> +MODULE_AUTHOR("Carlo Caione <carlo.caione@gmail.com>");
-> 
-> +MODULE_AUTHOR("Henrik Nordstrom <henrik@henriknordstrom.net>");
-> 
-> +MODULE_DESCRIPTION("sunxi WatchDog Timer Driver");
-> 
-> +MODULE_VERSION(DRV_VERSION);
-> 
-> -- 
-> 
-> 1.8.2.3
+--96YOpH+ONegL0A3E
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Ok, sorry about that. Anyway, this driver can be not used in linux-sunxi?
-------=_Part_175_3620935.1373131784909--
+On Sat, Jul 06, 2013 at 10:29:44AM -0700, viniciusfre@gmail.com wrote:
+> Ok, sorry about that. Anyway, this driver can be not used in
+> linux-sunxi?
+
+It's already in use in linux-sunxi.
+
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--96YOpH+ONegL0A3E
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJR2FczAAoJEBx+YmzsjxAgiiEQAJ74X0EgepEAjckAugsQ8bQh
+ADRGUlX70l9Lr9yjzkghMoDK011Nnkx6xvN16gsHhF0Qu325BNQXL2XbwaMmyBXx
+DGD+CTIGMblBB90IJ6WV9Qmbz3GIRHlf+Mqy3osISasXSJBQc2oc2hQLWjSsd7d+
+SYdaQHq8MUauIFbbjtGytIbo5WcG/l5Qch5OVR6v3n8hQAT3sWLayzifynbx9xoe
+JxNVbalAdmjIXR40uGGcxZf0UL9pRDa7YMCULnZ4C9Og3MNUi01BRoPZbAxFJFG3
+ATM3ona+UltaHjEwFzlT0miC9H2Ud5NQgtXX5eh4qmwBbrfQOnyveSqhyZYhHMmP
+SIJTLYq81xMhjmfX1O48BXIGx5n5qKuu94dDq0+eO+mHMnlQ5B+xq/qo+xIa5e6c
+AVC42j4TUA7awUwIrojHUrU9j4tp4ZAhW9NkG5Ank2TOz0AFttNrwJQF9TgId4aV
+YPUsDEb7K5n/wHUYNPzDSHS6CYaTGR2MzvFqWWJoopjD+cT4Zl4MkIGfrqc/vFba
+Lvga4n3z/nSEBJHrAU0jf+Zcy1NL8bBnMFLvtVXbAjFK3FujM53SXdZWKUwyN+JO
+af3bSWmbIrcYMnOm2l6MitfPavU/3moAo2iLk8yN0k493TzeeVEHGqJI1rbvlEN3
+zrOcfFVXjWTEUZ80HM0D
+=Ryui
+-----END PGP SIGNATURE-----
+
+--96YOpH+ONegL0A3E--
