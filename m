@@ -1,40 +1,50 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:54042 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752974Ab3GGTIM (ORCPT
+Received: from mail1.bemta14.messagelabs.com ([193.109.254.106]:10837 "EHLO
+	mail1.bemta14.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753661Ab3GHGyQ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 7 Jul 2013 15:08:12 -0400
-Date: Sun, 7 Jul 2013 21:08:05 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, henrik@henriknordstrom.net,
-	linux@roeck-us.net, Carlo Caione <carlo.caione@gmail.com>,
-	linux-sunxi@googlegroups.com
-Subject: Re: [linux-sunxi] [PATCH v5] ARM: sunxi: New watchdog driver for Allwinner A10/A13
-Message-ID: <20130707190805.GC14258@spo001.leaseweb.com>
-References: <1370547265-24854-1-git-send-email-carlo.caione@gmail.com> <20130706163953.GB11243@lukather>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 8 Jul 2013 02:54:16 -0400
+Date: Mon, 8 Jul 2013 08:59:02 +0200
+From: Johannes Thumshirn <johannes.thumshirn@men.de>
+To: Wim Van Sebroeck <wim@iguana.be>
+CC: Johannes Thumshirn <johannes.thumshirn@men.de>,
+	<linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
+	<guenter@roeck-us.net>
+Subject: Re: [PATCH RESEND v10 1/2] watchdog: New watchdog driver for MEN A21
+ watchdogs
+Message-ID: <20130708065902.GA22574@jtlinux>
+References: <20130617140019.GA23794@roeck-us.net>
+ <20130618151939.GA23296@jtlinux>
+ <20130705210119.GA10354@spo001.leaseweb.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-In-Reply-To: <20130706163953.GB11243@lukather>
+In-Reply-To: <20130705210119.GA10354@spo001.leaseweb.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Maxime,
+On Fri, Jul 05, 2013 at 11:01:19PM +0200, Wim Van Sebroeck wrote:
+> Hi Johannes,
+>
+> > This patch adds the driver for the watchdog devices found on MEN Mikro
+> > Elektronik A21 VMEbus CPU Carrier Boards. It has DT-support and uses the
+> > watchdog framework.
+> >
+> > Signed-off-by: Johannes Thumshirn <johannes.thumshirn@men.de>
+> > Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+>
+> I added this patch to linux-watchdog-next.
+> I am still thinking about wether or not we shouldn't add a timer to this
+> watchdog device driver. But that's something we can change later on.
 
-> > This patch adds the driver for the watchdog found in the Allwinner A10 and
-> > A13 SoCs. It has DT-support and uses the new watchdog framework.
-> > 
-> > Signed-off-by: Carlo Caione <carlo.caione@gmail.com>
-> 
-> This patch has been sent over a month ago now, without any review or
-> comments from your part.
-> 
-> Do you intend to merge it at some point?
+Probably yes, but that really would be some work for watchdog core imho.
 
-Correct, Review will happen shortly and then we will see if we can merge it.
+Anyway, tanks for adding the patch.
 
-Kind regards,
-Wim.
+Thanks,
+Johannes
 
+>
+> Kind regards,
+> Wim.
+>
