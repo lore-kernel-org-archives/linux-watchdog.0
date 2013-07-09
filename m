@@ -1,75 +1,38 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta3.messagelabs.com ([195.245.230.176]:40375 "EHLO
-	mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753491Ab3GHHB4 (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:54204 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752528Ab3GITAz (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 8 Jul 2013 03:01:56 -0400
-Date: Mon, 8 Jul 2013 09:06:45 +0200
-From: Johannes Thumshirn <johannes.thumshirn@men.de>
-To: Wim Van Sebroeck <wim@iguana.be>
-CC: Johannes Thumshirn <johannes.thumshirn@men.de>,
-	<linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
-	<guenter@roeck-us.net>
-Subject: Re: [PATCH RESEND v10 2/2] watchdog: Sysfs interface for MEN A21
- watchdog
-Message-ID: <20130708070645.GB22574@jtlinux>
-References: <20130618151939.GA23296@jtlinux>
- <20130618152119.GA23399@jtlinux>
- <20130705210321.GB10354@spo001.leaseweb.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Tue, 9 Jul 2013 15:00:55 -0400
+Date: Tue, 9 Jul 2013 21:00:52 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: "Kim, Milo" <Milo.Kim@ti.com>
+Cc: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] watchdog: softdog: remove replaceable ping operation
+Message-ID: <20130709190052.GA20296@spo001.leaseweb.com>
+References: <A874F61F95741C4A9BA573A70FE3998F82E49607@DQHE02.ent.ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20130705210321.GB10354@spo001.leaseweb.com>
+In-Reply-To: <A874F61F95741C4A9BA573A70FE3998F82E49607@DQHE02.ent.ti.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Jul 05, 2013 at 11:03:21PM +0200, Wim Van Sebroeck wrote:
-> Hi Johannes,
->
-> > This patch adds a sysfs interface for the watchdog
-> > device found on MEN A21 Boards.
-> >
-> > The newly generated files are:
-> > * rebootcause:
-> > Can be one of:
-> > Power on Reset,
-> > CPU Reset Request,
-> > Push Button,
-> > FPGA Reset Request,
-> > Watchdog,
-> > Local Power Bad,
-> > Invalid or
-> > BDI
-> > and shows the reason of the boards last reboot.
-> >
-> > * active:
-> > Shows if the watchdog CPLD is actually running
-> >
-> > * allow_disable:
-> > Shows if the watchdog is allowed to be disabled (NOWAYOUT disabled)
->
-> allow_disable should be nowayout because that is the general watchdog
-> parameter we will have for all watchdog drivers.
->
-> > * fastmode:
-> > Shows if the CPLD is running in fast mode (1s timeout), once it is in
-> > fastmode it can't be switched back to slow mode (30s timeout) until the
-> > next reboot.
-> >
-> > Signed-off-by: Johannes Thumshirn <johannes.thumshirn@men.de>
->
-> I will not add this patch and put it in my waiting queue.
-> Reason: we should first do the sysfs stuff for the wwatchdog_core (since
-> active and nowayout are parameters that will be in the sysfs watchdog core).
->
-> Kind regards,
-> Wim.
->
+Hi Milo,
 
+> In watchdog_ping(), 'start' is called automatically when 'ping' function call
+> is not configured.
+> Softdog driver has same handling in both cases - start and ping, so 'ping' OPS
+> can be removed.
+> 
+> Signed-off-by: Milo(Woogyom) Kim <milo.kim@ti.com>
+> ---
+>  drivers/watchdog/softdog.c |    1 -
+>  1 file changed, 1 deletion(-)
 
-Ok. If you want to offload it, I think I could spend some time on it the next
-weeks, as I'll probably have to write a driver for a Ti TPS3813K33 watchdog
-anyway, I can have a look into watchdog core as well.
+Patch added to linux-watchdog-next.
 
-Byte,
-Johannes
+Kind regards,
+Wim.
+
