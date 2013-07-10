@@ -1,13 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ea0-f174.google.com ([209.85.215.174]:43332 "EHLO
-	mail-ea0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751173Ab3GJKlG (ORCPT
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:36548 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752658Ab3GJKeA (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 10 Jul 2013 06:41:06 -0400
-Received: by mail-ea0-f174.google.com with SMTP id o10so4778363eaj.19
-        for <linux-watchdog@vger.kernel.org>; Wed, 10 Jul 2013 03:41:03 -0700 (PDT)
-Date: Wed, 10 Jul 2013 11:41:01 +0100
-From: Jamie Iles <jamie@jamieiles.com>
+	Wed, 10 Jul 2013 06:34:00 -0400
+Date: Wed, 10 Jul 2013 12:33:58 +0200
+From: Pavel Machek <pavel@denx.de>
 To: dinguyen@altera.com
 Cc: linux-watchdog@vger.kernel.org,
 	devicetree-discuss@lists.ozlabs.org, dinh.linux@gmail.com,
@@ -15,10 +13,9 @@ Cc: linux-watchdog@vger.kernel.org,
 	Viresh Kumar <viresh.kumar@st.com>,
 	Grant Likely <grant.likely@linaro.org>,
 	Rob Herring <rob.herring@calxeda.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Pavel Machek <pavel@denx.de>
+	Wim Van Sebroeck <wim@iguana.be>
 Subject: Re: [PATCH] watchdog: dw: Enable OF support for DW watchdog timer.
-Message-ID: <20130710104101.GA3552@page>
+Message-ID: <20130710103358.GA5845@amd.pavel.ucw.cz>
 References: <1373411377-5170-1-git-send-email-dinguyen@altera.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -27,9 +24,7 @@ In-Reply-To: <1373411377-5170-1-git-send-email-dinguyen@altera.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Dinh,
-
-On Tue, Jul 09, 2013 at 06:09:37PM -0500, dinguyen@altera.com wrote:
+On Tue 2013-07-09 18:09:37, dinguyen@altera.com wrote:
 > From: Dinh Nguyen <dinguyen@altera.com>
 > 
 > Add device tree support to the DW watchdog timer.
@@ -41,44 +36,14 @@ On Tue, Jul 09, 2013 at 06:09:37PM -0500, dinguyen@altera.com wrote:
 > Cc: Rob Herring <rob.herring@calxeda.com>
 > Cc: Wim Van Sebroeck <wim@iguana.be>
 > Cc: Pavel Machek <pavel@denx.de>
-> ---
->  .../devicetree/bindings/watchdog/dw_wdt.txt        |   16 ++++++++++++++++
->  drivers/watchdog/dw_wdt.c                          |    7 +++++++
->  2 files changed, 23 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/watchdog/dw_wdt.txt
->
-> diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-> index 2037669..f7eec38 100644
-> --- a/drivers/watchdog/dw_wdt.c
-> +++ b/drivers/watchdog/dw_wdt.c
-> @@ -343,12 +343,19 @@ static int dw_wdt_drv_remove(struct platform_device *pdev)
->  	return 0;
->  }
->  
-> +static const struct of_device_id dw_wdt_of_match[] = {
-> +	{ .compatible = "snps,dw-wdt", },
-> +	{ /* sentinel */ }
-> +};
-> +MODULE_DEVICE_TABLE(of, dw_wdt_of_match);
-> +
->  static struct platform_driver dw_wdt_driver = {
->  	.probe		= dw_wdt_drv_probe,
->  	.remove		= dw_wdt_drv_remove,
->  	.driver		= {
->  		.name	= "dw_wdt",
->  		.owner	= THIS_MODULE,
-> +		.of_match_table = dw_wdt_of_match,
 
-I think we want:
+Nice!
 
-		.of_match_table = of_match_ptr(dw_wdt_of_match),
-
-as the module doesn't have an OF dependency.
-
-Otherwise looks good to me.
-
-Acked-by: Jamie Iles <jamie@jamieiles.com>
+Reviewed-by: Pavel Machek <pavel@denx.de>
 
 Thanks,
+								Pavel
 
-Jamie
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
