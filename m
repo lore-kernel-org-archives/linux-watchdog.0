@@ -1,91 +1,104 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from [213.199.154.187] ([213.199.154.187]:53513 "EHLO
-	db8outboundpool.messaging.microsoft.com" rhost-flags-FAIL-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S1752561Ab3GJO4m (ORCPT
+Received: from ch1ehsobe002.messaging.microsoft.com ([216.32.181.182]:12610
+	"EHLO ch1outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753897Ab3GJPPg (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 10 Jul 2013 10:56:42 -0400
-Message-ID: <1373468148.8797.0.camel@linux-builds1>
-Subject: Re: [PATCH] watchdog: dw: Enable OF support for DW watchdog timer.
-From: Dinh Nguyen <dinguyen@altera.com>
-To: Jamie Iles <jamie@jamieiles.com>
-CC: <linux-watchdog@vger.kernel.org>,
-	<devicetree-discuss@lists.ozlabs.org>, <dinh.linux@gmail.com>,
-	Viresh Kumar <viresh.kumar@st.com>,
+	Wed, 10 Jul 2013 11:15:36 -0400
+From: <dinguyen@altera.com>
+To: <linux-watchdog@vger.kernel.org>,
+	<devicetree-discuss@lists.ozlabs.org>
+CC: <dinh.linux@gmail.com>, Dinh Nguyen <dinguyen@altera.com>,
+	Jamie Iles <jamie@jamieiles.com>,
+	Viresh Kumar <viresh.linux@gmail.com>,
 	Grant Likely <grant.likely@linaro.org>,
 	Rob Herring <rob.herring@calxeda.com>,
 	Wim Van Sebroeck <wim@iguana.be>,
 	Pavel Machek <pavel@denx.de>
-Date: Wed, 10 Jul 2013 09:55:48 -0500
-In-Reply-To: <20130710104101.GA3552@page>
-References: <1373411377-5170-1-git-send-email-dinguyen@altera.com>
-	 <20130710104101.GA3552@page>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Subject: [PATCHv2] watchdog: dw: Enable OF support for DW watchdog timer.
+Date: Wed, 10 Jul 2013 10:14:57 -0500
+Message-ID: <1373469297-30082-1-git-send-email-dinguyen@altera.com>
 MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, 2013-07-10 at 11:41 +0100, Jamie Iles wrote:
-> Hi Dinh,
-> 
-> On Tue, Jul 09, 2013 at 06:09:37PM -0500, dinguyen@altera.com wrote:
-> > From: Dinh Nguyen <dinguyen@altera.com>
-> > 
-> > Add device tree support to the DW watchdog timer.
-> > 
-> > Signed-off-by: Dinh Nguyen <dinguyen@altera.com>
-> > Cc: Jamie Iles <jamie@jamieiles.com>
-> > Cc: Viresh Kumar <viresh.kumar@st.com>
-> > Cc: Grant Likely <grant.likely@linaro.org>
-> > Cc: Rob Herring <rob.herring@calxeda.com>
-> > Cc: Wim Van Sebroeck <wim@iguana.be>
-> > Cc: Pavel Machek <pavel@denx.de>
-> > ---
-> >  .../devicetree/bindings/watchdog/dw_wdt.txt        |   16 ++++++++++++++++
-> >  drivers/watchdog/dw_wdt.c                          |    7 +++++++
-> >  2 files changed, 23 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/watchdog/dw_wdt.txt
-> >
-> > diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-> > index 2037669..f7eec38 100644
-> > --- a/drivers/watchdog/dw_wdt.c
-> > +++ b/drivers/watchdog/dw_wdt.c
-> > @@ -343,12 +343,19 @@ static int dw_wdt_drv_remove(struct platform_device *pdev)
-> >  	return 0;
-> >  }
-> >  
-> > +static const struct of_device_id dw_wdt_of_match[] = {
-> > +	{ .compatible = "snps,dw-wdt", },
-> > +	{ /* sentinel */ }
-> > +};
-> > +MODULE_DEVICE_TABLE(of, dw_wdt_of_match);
-> > +
-> >  static struct platform_driver dw_wdt_driver = {
-> >  	.probe		= dw_wdt_drv_probe,
-> >  	.remove		= dw_wdt_drv_remove,
-> >  	.driver		= {
-> >  		.name	= "dw_wdt",
-> >  		.owner	= THIS_MODULE,
-> > +		.of_match_table = dw_wdt_of_match,
-> 
-> I think we want:
-> 
-> 		.of_match_table = of_match_ptr(dw_wdt_of_match),
-> 
-> as the module doesn't have an OF dependency.
+From: Dinh Nguyen <dinguyen@altera.com>
 
-Thanks Jamie, I'll send a v2 with your Ack and comment.
+Add device tree support to the DW watchdog timer.
 
-Dinh
-> 
-> Otherwise looks good to me.
-> 
-> Acked-by: Jamie Iles <jamie@jamieiles.com>
-> 
-> Thanks,
-> 
-> Jamie
-> 
+Signed-off-by: Dinh Nguyen <dinguyen@altera.com>
+Acked-by: Jamie Iles <jamie@jamieiles.com>
+Reviewed-by: Pavel Machek <pavel@denx.de>
+Cc: Jamie Iles <jamie@jamieiles.com>
+Cc: Viresh Kumar <viresh.linux@gmail.com>
+Cc: Grant Likely <grant.likely@linaro.org>
+Cc: Rob Herring <rob.herring@calxeda.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: Pavel Machek <pavel@denx.de>
 
+v2:
+- Use of_match_ptr() for of_match_table
+---
+ .../devicetree/bindings/watchdog/dw_wdt.txt        |   16 ++++++++++++++++
+ drivers/watchdog/dw_wdt.c                          |    8 ++++++++
+ 2 files changed, 24 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/dw_wdt.txt
+
+diff --git a/Documentation/devicetree/bindings/watchdog/dw_wdt.txt b/Documentation/devicetree/bindings/watchdog/dw_wdt.txt
+new file mode 100644
+index 0000000..29e150b
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/dw_wdt.txt
+@@ -0,0 +1,16 @@
++Synopsys Designware Watchdog Timer
++
++Required Properties:
++
++- Compatiblity	: "snps,dw-wdt"
++- reg		: Base address of the watchdog timer register.
++
++Example:
++
++	watchdog0: wd@ffd02000 {
++		compatible = "snps,dw-wdt";
++		reg = <0xffd02000 0x1000>;
++		interrupts = <0 171 4>;
++		clocks = <&per_base_clk>;
++		status = "okay";
++	};
+diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+index 2037669..a720f9b 100644
+--- a/drivers/watchdog/dw_wdt.c
++++ b/drivers/watchdog/dw_wdt.c
+@@ -29,6 +29,7 @@
+ #include <linux/miscdevice.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
++#include <linux/of.h>
+ #include <linux/pm.h>
+ #include <linux/platform_device.h>
+ #include <linux/spinlock.h>
+@@ -343,12 +344,19 @@ static int dw_wdt_drv_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++static const struct of_device_id dw_wdt_of_match[] = {
++	{ .compatible = "snps,dw-wdt", },
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(of, dw_wdt_of_match);
++
+ static struct platform_driver dw_wdt_driver = {
+ 	.probe		= dw_wdt_drv_probe,
+ 	.remove		= dw_wdt_drv_remove,
+ 	.driver		= {
+ 		.name	= "dw_wdt",
+ 		.owner	= THIS_MODULE,
++		.of_match_table = of_match_ptr(dw_wdt_of_match),
+ #ifdef CONFIG_PM
+ 		.pm	= &dw_wdt_pm_ops,
+ #endif /* CONFIG_PM */
+-- 
+1.7.9.5
 
 
