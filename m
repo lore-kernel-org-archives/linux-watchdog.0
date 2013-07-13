@@ -1,72 +1,92 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from haggis.pcug.org.au ([203.10.76.10]:37619 "EHLO
-	members.tip.net.au" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751616Ab3GLGW4 (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:54476 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751555Ab3GMMHR (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 12 Jul 2013 02:22:56 -0400
-Date: Fri, 12 Jul 2013 16:22:41 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Wim Van Sebroeck <wim@iguana.be>
+	Sat, 13 Jul 2013 08:07:17 -0400
+Date: Sat, 13 Jul 2013 14:07:13 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>,
 	Andrew Morton <akpm@linux-foundation.org>,
 	LKML <linux-kernel@vger.kernel.org>,
 	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>
 Subject: Re: [GIT PULL REQUEST] watchdog - v3.11-rc1
-Message-Id: <20130712162241.08c8dd775abd0d6792b4927b@canb.auug.org.au>
-In-Reply-To: <20130711203424.GE14258@spo001.leaseweb.com>
-References: <20130711203424.GE14258@spo001.leaseweb.com>
+Message-ID: <20130713120713.GG14258@spo001.leaseweb.com>
+References: <20130711203424.GE14258@spo001.leaseweb.com> <20130712162241.08c8dd775abd0d6792b4927b@canb.auug.org.au>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA256";
- boundary="Signature=_Fri__12_Jul_2013_16_22_41_+1000_cDJ0V1ZjNzCcPnQM"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20130712162241.08c8dd775abd0d6792b4927b@canb.auug.org.au>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
---Signature=_Fri__12_Jul_2013_16_22_41_+1000_cDJ0V1ZjNzCcPnQM
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi Stephen,
 
-Hi Wim,
+> On Thu, 11 Jul 2013 22:34:24 +0200 Wim Van Sebroeck <wim@iguana.be> wrote:
+> >
+> > Please pull from 'master' branch of
+> > 	git://www.linux-watchdog.org/linux-watchdog.git
+> 
+> This was all rebased in the last day from what has been in linux-next for
+> some time.  All the patches are the same, so the rebase achieved nothing
+> positive at all.  Please don't do this (see I am still much nicer than
+> Linus :-)).  Just submit what you have in linux-next which has already
+> been tested (presumably) and Linus can fix up any conflicts (in this case
+> there were nothing significant anyway).
 
-On Thu, 11 Jul 2013 22:34:24 +0200 Wim Van Sebroeck <wim@iguana.be> wrote:
->
-> Please pull from 'master' branch of
-> 	git://www.linux-watchdog.org/linux-watchdog.git
+<sigh on><sigh off>.
+My linux-next patches are in:
+git://www.linux-watchdog.org/linux-watchdog-next.git
+which is a different tree then:
+git://www.linux-watchdog.org/linux-watchdog.git .
 
-This was all rebased in the last day from what has been in linux-next for
-some time.  All the patches are the same, so the rebase achieved nothing
-positive at all.  Please don't do this (see I am still much nicer than
-Linus :-)).  Just submit what you have in linux-next which has already
-been tested (presumably) and Linus can fix up any conflicts (in this case
-there were nothing significant anyway).
+So my development process is the following:
+After the merge window is closed I start adding patch to the
+linux-watchdog-next.git tree. All patches go into the linux-watchdog-next tree
+so that they also become part of the linux-next tree. This to make sure that
+patches are normally tested. Once in a while I receive a bugfix which is also
+applied to linux-watchdog-next. After having been a couple of days in
+linux-watchdog-next, I also apply this patch to the linux-watchdog tree and ask
+Linus to pull the fix from the linux-watchdog tree (and thus not from the
+linux-watchdog-next tree). Near the end of the merge window I sync up the
+linux-watchdog tree to the mainline linux tree and add the patches (that have
+been in linux-next) to this tree. Reason I do this is because there are
+also other watchdog patches that come in via the arch or mfd trees. I can then
+catch small merge conflicts so that Linus has no problem with this. At the same
+time I clean-up my linux-watchdog-next tree so that it is clean again for the
+development towards the next merge window again.
 
-Also, you might like to consider using "git request-pull" to generate a
-starting place for your pull request rather than sending all the commit
-messages and the diff in line.
---=20
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
+I'm sure that everything can be done in one tree with different branches, but
+I am used to do this for years now.
 
---Signature=_Fri__12_Jul_2013_16_22_41_+1000_cDJ0V1ZjNzCcPnQM
-Content-Type: application/pgp-signature
+So to answer on what you wrote:
+1) it was not a rebase in the linux-watchdog-next tree but a sync + the addition
+of the patches from development into the linux-watchdog tree so that I can do
+a so clean possible handover to Linus for the watchdog patches.
+2) If I have to submit what is in Linux-next, why don't we then make the merge
+only one day where Linus just pulls linux-next ? We don't allow any patches
+for the nex merge window in linux-next when the merge window opens so
+technically this is possible. But I'm sure you also understand that everything
+what is in linux-next is not always something what Linus want's to pull. So me
+sticking to 2 different trees is still in line with the phylosofy that Linus
+decides on which trees he wants to pull and that we test as much as possible by
+using linux-next.
+3) I personnaly think you are doing a great job for the complete community and
+linux kernel development, but I think you started to focus on merge details to
+much so that you forgot the overal system that we created. If our Basic system
+(testing in linux-next and then handing over the tested stuff to Linus so that
+he still has the final decision as the overall maintainer) however has changed
+then I have to apologize and then my development cycle is indeed wrong. If the
+basic system is still the same then my way or working is probably not the best
+but still the easiest for me, and still correct.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.20 (GNU/Linux)
+> Also, you might like to consider using "git request-pull" to generate a
+> starting place for your pull request rather than sending all the commit
+> messages and the diff in line.
 
-iQIcBAEBCAAGBQJR36C1AAoJEECxmPOUX5FEvkoP/3vms1xbUmQhFXlqDJWXnwlU
-TXHFwKJSq5pTT3PO90nOvXFA1kFFRVXx9zelFqfQ0asce7sCijFf9ByMmIIMpJZi
-se0u6zWhDm9kWM7JrJ3KxN39Wlp4CSFiylkvPdb+U6iOFYNWgwQvwnQkyywfmH9Y
-vNRVreBsecLfjKqvTFFMMt1JuDHf6b6ET2HYv9oVjq856VJYHZFyYc0pCKafLOk4
-EJc3nK7Y46fwdqDRoaz80JACMz42STXJjY9PqQS8XTvwKgnAVaPC9z+pcjKw7TjH
-FWbu3adD21andPaaRoISW1eX3lLRB8e7koKXddLC3x248D+/LI/HgV/MLPVSPKFz
-cfI4MyQBjHOgzvxkL/fgeXZCAztdxLKvDtkwjHCGZDCNf+D/f8bVuOn12sapoF+j
-XH84QZn/tjaEnA7qQNNGFRuT80anKjVCpmsLzr13ts9xxEOZEq8CANZrW1q3k5ad
-GSgNSsSrtcAWUBCD0hbBZJDc2jHqiHmblILlgOWRVKIgsO8QS+1Pns+aVDsGKDby
-sYXAsAA2uKnP/dYsCYp2jR6ashOBNYA8yPJ2bgh3ZDZD9G2XD5WleLEgBifTioSY
-Phfxa1ePucQGrDTr/BJyaZfPZVSYR96SmmRT1cFnjlnNuGiDFo+FlRVtaxknJlXi
-4OIHToN6m/3wqBZCIAbJ
-=hdxF
------END PGP SIGNATURE-----
+Nice! Learned something new here. Thanks!
 
---Signature=_Fri__12_Jul_2013_16_22_41_+1000_cDJ0V1ZjNzCcPnQM--
+Kind regards,
+Wim.
+
