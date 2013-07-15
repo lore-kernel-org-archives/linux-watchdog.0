@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([94.23.35.102]:60551 "EHLO
+Received: from mail.free-electrons.com ([94.23.35.102]:60563 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758359Ab3GOXd5 (ORCPT
+	with ESMTP id S1758391Ab3GOXeD (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 15 Jul 2013 19:33:57 -0400
+	Mon, 15 Jul 2013 19:34:03 -0400
 From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 To: <linux-arm-kernel@lists.infradead.org>,
 	<devicetree-discuss@lists.ozlabs.org>,
@@ -16,46 +16,40 @@ Cc: Jason Cooper <jason@lakedaemon.net>,
 	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
 	Gregory Clement <gregory.clement@free-electrons.com>,
 	wim@iguana.be, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-Subject: [PATCH 07/10] watchdog: orion: Remove unneeded BRIDGE_CAUSE clear
-Date: Mon, 15 Jul 2013 20:32:40 -0300
-Message-Id: <1373931163-12670-8-git-send-email-ezequiel.garcia@free-electrons.com>
+Subject: [PATCH 08/10] watchdog: orion: Remove mach-specific unneeded header
+Date: Mon, 15 Jul 2013 20:32:41 -0300
+Message-Id: <1373931163-12670-9-git-send-email-ezequiel.garcia@free-electrons.com>
 In-Reply-To: <1373931163-12670-1-git-send-email-ezequiel.garcia@free-electrons.com>
 References: <1373931163-12670-1-git-send-email-ezequiel.garcia@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-With the introduction of the orion irqchip driver, now the BRIDGE_CAUSE
-bit is cleared by it. There's no longer a need to do it in the watchdog
-driver, so we can simply remove it.
+The mach/bridge-regs.h header is not needed anymore, so we can remove it.
+This commit allows to use this driver on multiplatforms builds.
 
 Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 ---
- drivers/watchdog/orion_wdt.c | 7 -------
- 1 file changed, 7 deletions(-)
+ drivers/watchdog/orion_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
-index 3c9b3d2..4a0ab47 100644
+index 4a0ab47..4ed7a74 100644
 --- a/drivers/watchdog/orion_wdt.c
 +++ b/drivers/watchdog/orion_wdt.c
-@@ -59,18 +59,11 @@ static int orion_wdt_ping(struct watchdog_device *wdt_dev)
+@@ -26,12 +26,12 @@
+ #include <linux/err.h>
+ #include <linux/of.h>
+ #include <linux/time-orion.h>
+-#include <mach/bridge-regs.h>
  
- static int orion_wdt_start(struct watchdog_device *wdt_dev)
- {
--	u32 reg;
--
- 	spin_lock(&wdt_lock);
+ /*
+  * Watchdog timer block registers.
+  */
+ #define WDT_EN			0x0010
++#define WDT_RESET_OUT_EN	0x0002
  
- 	/* Set watchdog duration */
- 	writel(wdt_tclk * wdt_dev->timeout, wdt_reg);
- 
--	/* Clear watchdog timer interrupt */
--	reg = readl(BRIDGE_CAUSE);
--	reg &= ~WDT_INT_REQ;
--	writel(reg, BRIDGE_CAUSE);
--
- 	/* Enable watchdog timer */
- 	orion_timer_ctrl_clrset(0, WDT_EN);
- 
+ #define WDT_MAX_CYCLE_COUNT	0xffffffff
+ #define WDT_IN_USE		0
 -- 
 1.8.1.5
 
