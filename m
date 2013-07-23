@@ -1,88 +1,76 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta5.messagelabs.com ([195.245.231.151]:51739 "EHLO
-	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755096Ab3GVGRF (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 22 Jul 2013 02:17:05 -0400
-Date: Mon, 22 Jul 2013 08:16:28 +0200
-From: Johannes Thumshirn <johannes.thumshirn@men.de>
-To: Alexander Shiyan <shc_work@mail.ru>
-CC: Guenter Roeck <linux@roeck-us.net>,
-	<linux-watchdog@vger.kernel.org>, Wim Van Sebroeck <wim@iguana.be>,
-	<johannes.thumshirn@men.de>
-Subject: Re: [RFC] watchdog: GPIO-controlled watchdog
-Message-ID: <20130722061628.GA24579@jtlinux>
-References: <1373814599-6040-1-git-send-email-shc_work@mail.ru>
- <20130714194356.GA29771@roeck-us.net>
- <20130720080749.6394f6c4fb07b0a6b2b02946@mail.ru>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20130720080749.6394f6c4fb07b0a6b2b02946@mail.ru>
+Received: from sauhun.de ([89.238.76.85]:51127 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933643Ab3GWSDz (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 23 Jul 2013 14:03:55 -0400
+From: Wolfram Sang <wsa@the-dreams.de>
+To: linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>,
+	Wan ZongShun <mcuos.com@gmail.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH 20/27] drivers/watchdog: don't check resource with devm_ioremap_resource
+Date: Tue, 23 Jul 2013 20:01:53 +0200
+Message-Id: <1374602524-3398-21-git-send-email-wsa@the-dreams.de>
+In-Reply-To: <1374602524-3398-1-git-send-email-wsa@the-dreams.de>
+References: <1374602524-3398-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sat, Jul 20, 2013 at 08:07:49AM +0400, Alexander Shiyan wrote:
-> On Sun, 14 Jul 2013 12:43:56 -0700
-> Guenter Roeck <linux@roeck-us.net> wrote:
->
-> > On Sun, Jul 14, 2013 at 07:09:59PM +0400, Alexander Shiyan wrote:
-> > > This patch adds a watchdog driver for devices controlled through GPIO,
-> > > (Analog Devices ADM706, for example). Driver written for DT-based systems
-> > > only. No description for Documentation/devicetree yet.
-> > > Comments are welcome.
-> > >
-> > > Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
-> > > ---
-> > >  drivers/watchdog/Kconfig    |   8 +++
-> > >  drivers/watchdog/Makefile   |   1 +
-> > >  drivers/watchdog/gpio_wdt.c | 121 ++++++++++++++++++++++++++++++++++++++++++++
-> > >  3 files changed, 130 insertions(+)
-> > >  create mode 100644 drivers/watchdog/gpio_wdt.c
->
-> [...]
->
-> > Lots of context knowledge here. For a generic driver, how does one know
-> > that toggling the output value triggers the ping ?
-> >
-> > Also, there is no mention that the toggle has to occur within 1.6 seconds.
-> > Linux expects that watchdogs support much larger timeouts. I think it would
-> > make sense to implement a soft-dog which actually triggers the ping,
-> > and handles the higher level ping received from applications.
-> > There are several other watchdog drivers implementing this approach.
-> >
-> > Overall, I think this should be a watchdog driver specifically for
-> > ADM705/706/707/708.
->
-> [...]
->
-> > > +	nowayout = of_property_read_bool(pdev->dev.of_node, "wdt,nowayout");
-> > > +	if (!nowayout)
-> > > +		nowayout = WATCHDOG_NOWAYOUT;
-> >
-> > I don't think it is a good idea to introduce a driver specific
-> > devicetreee property like this one.
-> >
-> > First, it is a configuration parameter and does not describe the hardware. as
-> > such, a module parameter as implemented by other drivers would be more
-> > appropriate. Second, even if a devicetree property was used, it should be
-> > implemented in the watchdog core code and not in drivers.
->
-> [...]
->
-> Thanks for the comments.
-> I will make v2 with this recommendation for more generic driver.
-> There are a few ideas.
->
-> --
-> Alexander Shiyan <shc_work@mail.ru>
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+devm_ioremap_resource does sanity checks on the given resource. No need to
+duplicate this in the driver.
 
-I think it would be really valuable to have dt properties to set the min and
-max timeouts as well.
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+---
+Please apply via the subsystem-tree.
 
-Regards,
-Johannes
+ drivers/watchdog/nuc900_wdt.c |    5 -----
+ drivers/watchdog/ts72xx_wdt.c |   10 ----------
+ 2 files changed, 15 deletions(-)
+
+diff --git a/drivers/watchdog/nuc900_wdt.c b/drivers/watchdog/nuc900_wdt.c
+index e2b6d2c..b15b6ef 100644
+--- a/drivers/watchdog/nuc900_wdt.c
++++ b/drivers/watchdog/nuc900_wdt.c
+@@ -256,11 +256,6 @@ static int nuc900wdt_probe(struct platform_device *pdev)
+ 	spin_lock_init(&nuc900_wdt->wdt_lock);
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (res == NULL) {
+-		dev_err(&pdev->dev, "no memory resource specified\n");
+-		return -ENOENT;
+-	}
+-
+ 	nuc900_wdt->wdt_base = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(nuc900_wdt->wdt_base))
+ 		return PTR_ERR(nuc900_wdt->wdt_base);
+diff --git a/drivers/watchdog/ts72xx_wdt.c b/drivers/watchdog/ts72xx_wdt.c
+index 4da59b4..42913f1 100644
+--- a/drivers/watchdog/ts72xx_wdt.c
++++ b/drivers/watchdog/ts72xx_wdt.c
+@@ -403,21 +403,11 @@ static int ts72xx_wdt_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	r1 = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!r1) {
+-		dev_err(&pdev->dev, "failed to get memory resource\n");
+-		return -ENODEV;
+-	}
+-
+ 	wdt->control_reg = devm_ioremap_resource(&pdev->dev, r1);
+ 	if (IS_ERR(wdt->control_reg))
+ 		return PTR_ERR(wdt->control_reg);
+ 
+ 	r2 = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+-	if (!r2) {
+-		dev_err(&pdev->dev, "failed to get memory resource\n");
+-		return -ENODEV;
+-	}
+-
+ 	wdt->feed_reg = devm_ioremap_resource(&pdev->dev, r2);
+ 	if (IS_ERR(wdt->feed_reg))
+ 		return PTR_ERR(wdt->feed_reg);
+-- 
+1.7.10.4
+
