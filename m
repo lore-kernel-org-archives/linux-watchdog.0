@@ -1,18 +1,18 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailout1.samsung.com ([203.254.224.24]:55066 "EHLO
-	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754020Ab3G3H5y (ORCPT
+Received: from mailout2.samsung.com ([203.254.224.25]:15758 "EHLO
+	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751482Ab3G3K6x (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 30 Jul 2013 03:57:54 -0400
+	Tue, 30 Jul 2013 06:58:53 -0400
 From: Jingoo Han <jg1.han@samsung.com>
 To: 'Andrew Morton' <akpm@linux-foundation.org>
 Cc: linux-kernel@vger.kernel.org, 'Wim Van Sebroeck' <wim@iguana.be>,
 	linux-watchdog@vger.kernel.org,
 	'Guenter Roeck' <linux@roeck-us.net>,
-	'Jingoo Han' <jg1.han@samsung.com>
-Subject: [PATCH 03/35] watchdog: use dev_get_platdata()
-Date: Tue, 30 Jul 2013 16:57:52 +0900
-Message-id: <003501ce8cfa$7e12ff90$7a38feb0$@samsung.com>
+	Jingoo Han <jg1.han@samsung.com>
+Subject: [PATCH V2 03/35] watchdog: use dev_get_platdata()
+Date: Tue, 30 Jul 2013 19:58:51 +0900
+Message-id: <008001ce8d13$c6805fc0$53811f40$@samsung.com>
 MIME-version: 1.0
 Content-type: text/plain; charset=us-ascii
 Content-transfer-encoding: 7bit
@@ -27,12 +27,12 @@ Signed-off-by: Jingoo Han <jg1.han@samsung.com>
 ---
  drivers/watchdog/iTCO_wdt.c         |    2 +-
  drivers/watchdog/mv64x60_wdt.c      |    2 +-
- drivers/watchdog/omap_wdt.c         |    3 ++-
+ drivers/watchdog/omap_wdt.c         |    2 +-
  drivers/watchdog/rdc321x_wdt.c      |    2 +-
  drivers/watchdog/stmp3xxx_rtc_wdt.c |    4 ++--
  drivers/watchdog/ux500_wdt.c        |    2 +-
  drivers/watchdog/wm831x_wdt.c       |    8 +++-----
- 7 files changed, 11 insertions(+), 12 deletions(-)
+ 7 files changed, 10 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
 index 6130321..439b160 100644
@@ -61,16 +61,15 @@ index e4cf980..2f2ff19 100644
  	int timeout = 10;
  
 diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
-index af88ffd..2cd5218 100644
+index af88ffd..7b79ca0 100644
 --- a/drivers/watchdog/omap_wdt.c
 +++ b/drivers/watchdog/omap_wdt.c
-@@ -205,7 +205,8 @@ static const struct watchdog_ops omap_wdt_ops = {
+@@ -205,7 +205,7 @@ static const struct watchdog_ops omap_wdt_ops = {
  
  static int omap_wdt_probe(struct platform_device *pdev)
  {
 -	struct omap_wd_timer_platform_data *pdata = pdev->dev.platform_data;
-+	struct omap_wd_timer_platform_data *pdata =
-+			dev_get_platdata(&pdev->dev);
++	struct omap_wd_timer_platform_data *pdata = dev_get_platdata(&pdev->dev);
  	struct watchdog_device *omap_wdt;
  	struct resource *res, *mem;
  	struct omap_wdt_dev *wdev;
