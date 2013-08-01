@@ -1,78 +1,65 @@
-Date: Fri, 9 Aug 2013 12:34:59 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: John Crispin <blogic@openwrt.org>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-        linux-mips@linux-mips.org, devicetree-discuss@lists.ozlabs.org
-Subject: Re: [PATCH V3 1/2] DT: Add documentation for rt2880-wdt
-Message-ID: <20130809193459.GE10417@roeck-us.net>
-References: <1376074831-29561-1-git-send-email-blogic@openwrt.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1376074831-29561-1-git-send-email-blogic@openwrt.org>
-Return-Path: <groeck7@gmail.com>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
-List-Archive: <https://lore.kernel.org/linux-mips/>
-List-Post: <mailto:linux-mips@vger.kernel.org>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mailout2.samsung.com ([203.254.224.25]:60431 "EHLO
+	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752877Ab3HAFij (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 1 Aug 2013 01:38:39 -0400
+Received: from epcpsbgr5.samsung.com
+ (u145.gpu120.samsung.co.kr [203.254.230.145])
+ by mailout2.samsung.com (Oracle Communications Messaging Server 7u4-24.01
+ (7.0.4.24.0) 64bit (built Nov 17 2011))
+ with ESMTP id <0MQU00I9J7ODVOK0@mailout2.samsung.com> for
+ linux-watchdog@vger.kernel.org; Thu, 01 Aug 2013 14:38:37 +0900 (KST)
+From: Jingoo Han <jg1.han@samsung.com>
+To: 'Wim Van Sebroeck' <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org,
+	'Guenter Roeck' <linux@roeck-us.net>,
+	Jamie Iles <jamie@jamieiles.com>,
+	'Jingoo Han' <jg1.han@samsung.com>
+Subject: [PATCH] watchdog: dw_wdt: Add __user annotation
+Date: Thu, 01 Aug 2013 14:38:36 +0900
+Message-id: <003101ce8e79$5e7a6670$1b6f3350$@samsung.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-language: ko
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Aug 09, 2013 at 09:00:31PM +0200, John Crispin wrote:
-> This document describes the binding of the watchdog core found ralink wireless
-> SoC.
-> 
-> Signed-off-by: John Crispin <blogic@openwrt.org>
-> Cc: linux-watchdog@vger.kernel.org
-> Cc: linux-mips@linux-mips.org
-> Cc: devicetree-discuss@lists.ozlabs.org
+Added __user annotation to fix the following sparse warnings.
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
+drivers/watchdog/dw_wdt.c:206:38: warning: incorrect type in argument 1 (different address spaces)
+drivers/watchdog/dw_wdt.c:206:38:    expected void [noderef] <asn:1>*to
+drivers/watchdog/dw_wdt.c:206:38:    got struct watchdog_info *<noident>
+drivers/watchdog/dw_wdt.c:211:24: warning: incorrect type in initializer (different address spaces)
+drivers/watchdog/dw_wdt.c:211:24:    expected int const [noderef] <asn:1>*register __p
+drivers/watchdog/dw_wdt.c:211:24:    got int *<noident>
 
-> ---
-> Changes in V3:
-> * renamed file to rt2880-wdt.txt
-> 
->  .../devicetree/bindings/watchdog/rt2880-wdt.txt     |   19 +++++++++++++++++++
->  1 file changed, 19 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/watchdog/rt2880-wdt.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/watchdog/rt2880-wdt.txt b/Documentation/devicetree/bindings/watchdog/rt2880-wdt.txt
-> new file mode 100644
-> index 0000000..a654dd1
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/watchdog/rt2880-wdt.txt
-> @@ -0,0 +1,19 @@
-> +Ralink Watchdog Timers
-> +
-> +Required properties :
-> +- compatible: must be "ralink,rt2880-wdt"
-> +- reg: physical base address of the controller and length of the register range
-> +
-> +Optional properties :
-> +- interrupt-parent: phandle to the INTC device node
-> +- interrupts: Specify the INTC interrupt number
-> +
-> +Example:
-> +
-> +	watchdog@120 {
-> +		compatible = "ralink,rt2880-wdt";
-> +		reg = <0x120 0x10>;
-> +
-> +		interrupt-parent = <&intc>;
-> +		interrupts = <1>;
-> +	};
-> -- 
-> 1.7.10.4
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+---
+ drivers/watchdog/dw_wdt.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+index e621098..cd5befb 100644
+--- a/drivers/watchdog/dw_wdt.c
++++ b/drivers/watchdog/dw_wdt.c
+@@ -203,12 +203,12 @@ static long dw_wdt_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+ 
+ 	switch (cmd) {
+ 	case WDIOC_GETSUPPORT:
+-		return copy_to_user((struct watchdog_info *)arg, &dw_wdt_ident,
++		return copy_to_user((void __user *)arg, &dw_wdt_ident,
+ 				    sizeof(dw_wdt_ident)) ? -EFAULT : 0;
+ 
+ 	case WDIOC_GETSTATUS:
+ 	case WDIOC_GETBOOTSTATUS:
+-		return put_user(0, (int *)arg);
++		return put_user(0, (int __user *)arg);
+ 
+ 	case WDIOC_KEEPALIVE:
+ 		dw_wdt_set_next_heartbeat();
+-- 
+1.7.10.4
+
+
