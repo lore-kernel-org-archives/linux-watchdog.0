@@ -1,350 +1,273 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.efacec.com ([213.58.212.93]:53318 "HELO mail1.efacec.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1751710Ab3HBOaf (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 2 Aug 2013 10:30:35 -0400
-Message-ID: <51FBBF84.2050109@efacec.com>
-Date: Fri, 2 Aug 2013 15:17:40 +0100
-From: BrunoFerreira <bruno.ferreira@efacec.com>
-MIME-Version: 1.0
-To: Wim Van Sebroeck <wim@iguana.be>
-CC: Giel van Schijndel <me@mortis.eu>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Subject: Re: Fintek F81865 chip (Wdog support)
-References: <51409586.4030204@efacec.com> <07936d3ec21c2de67a97b2664c7bf484@mortis.eu> <20130526164410.GA8274@spo001.leaseweb.com>
-In-Reply-To: <20130526164410.GA8274@spo001.leaseweb.com>
-Content-Type: multipart/mixed;
-	boundary="------------040004090809050000040309"
+Received: from mail-la0-f54.google.com ([209.85.215.54]:53087 "EHLO
+	mail-la0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752556Ab3HBOlN (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 2 Aug 2013 10:41:13 -0400
+From: Jonas Jensen <jonas.jensen@gmail.com>
+To: linux-watchdog@vger.kernel.org
+Cc: wim@iguana.be, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, arm@kernel.org, linux@roeck-us.net,
+	arnd@arndb.de, Jonas Jensen <jonas.jensen@gmail.com>
+Subject: [PATCH v8] watchdog: Add MOXA ART watchdog driver
+Date: Fri,  2 Aug 2013 16:40:45 +0200
+Message-Id: <1375454445-15589-1-git-send-email-jonas.jensen@gmail.com>
+In-Reply-To: <1375101228-10930-1-git-send-email-jonas.jensen@gmail.com>
+References: <1375101228-10930-1-git-send-email-jonas.jensen@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
---------------040004090809050000040309
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+This patch adds a watchdog driver for the main hardware watchdog timer
+found on MOXA ART SoCs.
 
-Hi All.
+The MOXA ART SoC provides one writable timer register, restarting
+the hardware once it reaches zero. The register is auto decremented
+every APB clock cycle.
 
-Sorry about the delay.
-Please find in attach the driver source code with support for this chip.
+Signed-off-by: Jonas Jensen <jonas.jensen@gmail.com>
+---
 
-Kind regards,
-Bruno Ferreira
-
-On 05/26/2013 05:44 PM, Wim Van Sebroeck wrote:
-> Hi All,
->
->> On Wed, 13 Mar 2013 15:04:38 +0000, BrunoFerreira wrote:
->>> I'm currently working with a new board iEi NOVA-PV-D5251 [1] that
->>> have the Fintek F81865 chip for Super I/O support and I will need to
->>> develop the watchdog driver and another to access to the IO that this
->>> board supports (gpio). I made a search and I see that already exists
->>> a
->>> driver for F71808E chip, I use this driver as an example an I made a
->>> new driver for F81865 chip. My driver is working pretty well, but
->>> I've
->>> a question that I can't find the answer on datasheet of this chip
->>> that
->>> may be Wim or Giel could know.
->>> On both chips, we need to configure a pin that can work as a normal
->>> GPIO (F81865: Set pin 70 the function of WDTRST#/GPIO15 is WDTRST# |
->>> F71808E: Set pin 21 to GPIO23/WDTRST#, then to WDTRST#), this is here
->>> where I get myself confused, this WDTRST will be mapped in any GPIO
->>> output on my board? I mean, if the watchdog is enable I will get any
->>> output pin set to 1 (i.e. the GPIO15, output 5?) and when the
->>> watchdog
->>> goes down this output goes to 0?
->> Sorry, I can't give you a definite answer on that. All Fintek
->> datasheets I've seen are very poorly written. At one point I actually
->> stopped trusting the datasheet enough to go through the hassle of
->> hooking up a scope to the pins of the chip.
->>
->> Hazarding a guess however, I'd say that when the watchdog is enabled
->> you cannot use the WDTRST pin as a GPIO pin.
->>
->>> The other question is to Wim, can you tell me if there is interest in
->>> add this chip support to kernel?
->> This would be a yes, unless there are good reasons not to include it in
->> mainline.
-> The answer is indeed yes. Has a patch been created since this message?
->
-> Kind regards,
-> Wim.
->
->
-
-
---------------040004090809050000040309
-Content-Type: text/x-csrc; name="f81865_gpio.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="f81865_gpio.c"
-
-/***************************************************************************
-* Copyright (C) 2013 Bruno Ferreira <bruno.ferreira@efacec.com>            *
-*                                                                          *
-* This program is free software; you can redistribute it and/or modify     *
-* it under the terms of the GNU General Public License as published by     *
-* the Free Software Foundation; either version 2 of the License, or        *
-* (at your option) any later version.                                      *
-*                                                                          *
-* This program is distributed in the hope that it will be useful,          *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of           *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the             *
-* GNU General Public License for more details.                             *
-*                                                                          *
-* You should have received a copy of the GNU General Public License        *
-* along with this program; if not, write to the                            *
-* Free Software Foundation, Inc.,                                          *
-* 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.                 *
-***************************************************************************/
-
-#include <linux/init.h>
-#include <linux/kernel.h>
-#include <linux/module.h>
-#include <linux/io.h>
-#include <linux/errno.h>
-#include <linux/ioport.h>
-
-#include <linux/gpio.h>
-
-#define DRVNAME                 "f81865_gpio"
-
-/* Global Control Registers */
-#define SIO_F81865_LD_WDT	0x07	/* Watchdog Logic Number Register (LDN) */
-#define SIO_F81865_LD_GPIO	0x06	/* GPIO Logic Number Register (LDN) */
-#define SIO_UNLOCK_KEY		0x87	/* Key to enable Super-I/O */
-#define SIO_LOCK_KEY		0xAA	/* Key to diasble Super-I/O */
-
-#define SIO_REG_DEVID		0x20	/* Device ID (2 bytes) */
-#define SIO_REG_DEVREV		0x22	/* Device revision */
-#define SIO_REG_MANID		0x23	/* Fintek ID (2 bytes) */
-
-/* Manufacture and Chip Information */
-#define SIO_FINTEK_ID		0x1934	/* Manufacturers ID */
-#define SIO_F81865_ID           0x0704  /* Chipset ID*/
-
-static DEFINE_SPINLOCK(gpio_lock);
-
-/* GPIO internal data information */
-struct gpio_data {
-    unsigned short      sioaddr;        /* default index port */
-    unsigned long       opened;         /* driver open state */
-};
-
-static struct gpio_data gpio = {};
-
-/* Super-I/O Function prototypes */
-static inline int superio_enter(int base);
-static inline void superio_exit(int base);
-static inline int superio_inb(int base, int reg);
-static inline void superio_outb(int base, int reg, u8 val);
-static inline int superio_inw(int base, int reg);
-
-static inline void superio_set_bit(int base, int reg, int bit);
-static inline void superio_clear_bit(int base, int reg, int bit);
-
-
-/* Super I/O functions */
-static inline int superio_enter(int base)
-{
-    /* don't step on other drivers' I/O space by accident */
-    if (!request_muxed_region(base, 2, DRVNAME)) {
-        printk(KERN_ERR DRVNAME ": I/O address 0x%04x already in use\n", (int)base);
-        return -EBUSY;
-    }
-
-    /* according to the datasheet the key must be send twice! */
-    outb(SIO_UNLOCK_KEY, base);
-    outb(SIO_UNLOCK_KEY, base);
-
-    return 0;
-}
-
-static inline void superio_exit(int base)
-{
-    outb(SIO_LOCK_KEY, base);
-    release_region(base, 2);
-}
-
-static inline int superio_inb(int base, int reg)
-{
-    outb(reg, base);
-    return inb(base + 1);
-}
-
-static inline void superio_outb(int base, int reg, u8 val)
-{
-    outb(reg, base);
-    outb(val, base + 1);
-}
-
-static int superio_inw(int base, int reg)
-{
-    int val;
-    val  = superio_inb(base, reg) << 8;
-    val |= superio_inb(base, reg + 1);
-    return val;
-}
-
-static inline void superio_set_bit(int base, int reg, int bit)
-{
-    unsigned long val = superio_inb(base, reg);
-    __set_bit(bit, &val);
-    superio_outb(base, reg, val);
-}
-
-static inline void superio_clear_bit(int base, int reg, int bit)
-{
-    unsigned long val = superio_inb(base, reg);
-    __clear_bit(bit, &val);
-    superio_outb(base, reg, val);
-}
-
-/* GPIO api */
-static int f81865_gpio_direction_in(struct gpio_chip *gc, unsigned _gpio_num)
-{
-    return 0;
-}
-
-static int f81865_gpio_direction_out(struct gpio_chip *gc, unsigned _gpio_num, int val)
-{
-    return 0;
-}
-
-static int f81865_gpio_get(struct gpio_chip *gc, unsigned _gpio_num)
-{
-    return 0;
-}
-
-static void f81865_gpio_set(struct gpio_chip *gc, unsigned _gpio_num, int val)
-{
-
-}
-
-static struct gpio_chip f81865_gpio_chip =
-{
-    .label              = DRVNAME,
-    .owner              = THIS_MODULE,
-    .get                = f81865_gpio_get,
-    .direction_input    = f81865_gpio_direction_in,
-    .set                = f81865_gpio_set,
-    .direction_output   = f81865_gpio_direction_out,
-};
-
-/* Driver useful functions */
-static int __init f81865_configure(void)
-{
-    int err = 0;
-    /* temporary */
-    //u8 io_reg, curr_vals;
+Notes:
+    Changes since v7:
     
-    /* Enable all pins with GPIO capability */
-    /* By default we enable all possible GPIOs on the chip */
-    spin_lock(&gpio_lock);
-    err = superio_enter(gpio.sioaddr);
-    if (err) goto exit_unlock;
+    1. remove unlikely from watchdog_register_device return value check
+    2. elaborate commit message
     
-    /* Enable GPIO... */
+    Applies to next-20130802
 
-    //io_reg = 0x27; /* Enable Rom Address Register */
-    //curr_vals = superio_inb(gpio.sioaddr, io_reg);
-    //printk(KERN_INFO DRVNAME ": Rom Address Register: (%d) \n", curr_vals);
-    //superio_set_bit(gpio.sioaddr, io_reg, 4); /* PORT_4E_EN to 1*/
+ .../bindings/watchdog/moxa,moxart-watchdog.txt     |  15 ++
+ drivers/watchdog/Kconfig                           |  10 ++
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/moxart_wdt.c                      | 165 +++++++++++++++++++++
+ 4 files changed, 191 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/moxa,moxart-watchdog.txt
+ create mode 100644 drivers/watchdog/moxart_wdt.c
 
-    /* Enable GPIO[10-17], GPIO1 | WARNING the GPIO15 could be the WDTRST# */
-    /* GPIO1 Enable Register - Index 2Bh */
-    superio_outb(gpio.sioaddr, 0x2b, 0xff);
-
-    /* Enable GPIO[20-27], GPIO1 */
-    /* GPIO2 Enable Register - Index 2Ch */
-    superio_outb(gpio.sioaddr, 0x2c, 0xff);
-
-    /* Enable GPIO[30-37], GPIO1 */
-    /* GPIO3 Enable Register - Index 29h */
-    superio_outb(gpio.sioaddr, 0x29, 0xff);
-
-    /* Enable GPIO[40-47], GPIO1 */
-    /* GPIO4 Enable Register - Index 28h */
-    superio_outb(gpio.sioaddr, 0x28, 0xff);
-
-    superio_exit(gpio.sioaddr);
-    
-exit_unlock:
-    spin_unlock(&gpio_lock);
-
-    printk(KERN_INFO DRVNAME ": configured(%d)...\n", err);
-    return err;
-}
-
-static int __init f81865_find(int sio_addr)
-{
-    u16 devid;
-    int err = superio_enter(sio_addr);
-    if (err) return err;
-
-    devid = superio_inw(sio_addr, SIO_REG_MANID);
-    if (devid != SIO_FINTEK_ID) {
-        pr_debug(DRVNAME ": Not a Fintek device\n");
-        err = -ENODEV;
-        goto exit;
-    }
-
-    devid = superio_inw(sio_addr, SIO_REG_DEVID);
-    if (devid != SIO_F81865_ID) {
-        printk(KERN_INFO DRVNAME ": Unrecognized Fintek device: %04x\n", (unsigned int) devid);
-        err = -ENODEV;
-        goto exit;
-    }
-
-    printk(KERN_INFO DRVNAME ": Found F81865 Super I/O chip, revision %d\n", (int) superio_inb(sio_addr, SIO_REG_DEVREV));
-
-exit:
-    superio_exit(sio_addr);
-
-    return err;
-}
-
-static int __init f81865_gpio_init(void)
-{
-    static const unsigned short addrs[] = { 0x2e, 0x4e };
-    int err = -ENODEV, i;
-
-    for (i=0; i < ARRAY_SIZE(addrs); i++) {
-        err = f81865_find(addrs[i]);
-        if (err == 0) break;
-    }
-    if (i == ARRAY_SIZE(addrs)) return err;
-
-    /* set GPIO base address */
-    gpio.sioaddr = addrs[i];
-
-    /* configure GPIO pins capability */
-    err = f81865_configure();
-    if (err)
-    {
-        printk(KERN_ERR DRVNAME ": configuring the GPIO...\n");
-        return EAGAIN;
-    }
-
-    f81865_gpio_chip.base = -1;
-    f81865_gpio_chip.ngpio = 26; /* !!! FIX THIS !!! */
-
-    err = gpiochip_add(&f81865_gpio_chip);
-    
-    return (err < 0) ? err : 0;
-}
-
-static void __exit f81865_gpio_exit(void)
-{
-    gpiochip_remove(&f81865_gpio_chip);
-    printk(KERN_INFO DRVNAME ": unloaded...\n");   
-}
-
-MODULE_AUTHOR("Bruno Ferreira");
-MODULE_DESCRIPTION("GPIO interface for F81865 Super I/O chip");
-MODULE_LICENSE("GPL");
-
-module_init(f81865_gpio_init);
-module_exit(f81865_gpio_exit);
-
---------------040004090809050000040309--
+diff --git a/Documentation/devicetree/bindings/watchdog/moxa,moxart-watchdog.txt b/Documentation/devicetree/bindings/watchdog/moxa,moxart-watchdog.txt
+new file mode 100644
+index 0000000..1169857
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/moxa,moxart-watchdog.txt
+@@ -0,0 +1,15 @@
++MOXA ART Watchdog timer
++
++Required properties:
++
++- compatible : Must be "moxa,moxart-watchdog"
++- reg : Should contain registers location and length
++- clocks : Should contain phandle for the clock that drives the counter
++
++Example:
++
++	watchdog: watchdog@98500000 {
++		compatible = "moxa,moxart-watchdog";
++		reg = <0x98500000 0x10>;
++		clocks = <&coreclk>;
++	};
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 362085d..6883aab 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -382,6 +382,16 @@ config RETU_WATCHDOG
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called retu_wdt.
+ 
++config MOXART_WDT
++	tristate "MOXART watchdog"
++	depends on ARCH_MOXART
++	help
++	  Say Y here to include Watchdog timer support for the watchdog
++	  existing on the MOXA ART SoC series platforms.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called moxart_wdt.
++
+ # AVR32 Architecture
+ 
+ config AT32AP700X_WDT
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 2f26a0b..7cab53a 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -54,6 +54,7 @@ obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
+ obj-$(CONFIG_UX500_WATCHDOG) += ux500_wdt.o
+ obj-$(CONFIG_RETU_WATCHDOG) += retu_wdt.o
+ obj-$(CONFIG_BCM2835_WDT) += bcm2835_wdt.o
++obj-$(CONFIG_MOXART_WDT) += moxart_wdt.o
+ 
+ # AVR32 Architecture
+ obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
+diff --git a/drivers/watchdog/moxart_wdt.c b/drivers/watchdog/moxart_wdt.c
+new file mode 100644
+index 0000000..4166e4d
+--- /dev/null
++++ b/drivers/watchdog/moxart_wdt.c
+@@ -0,0 +1,165 @@
++/*
++ * MOXA ART SoCs watchdog driver.
++ *
++ * Copyright (C) 2013 Jonas Jensen
++ *
++ * Jonas Jensen <jonas.jensen@gmail.com>
++ *
++ * This file is licensed under the terms of the GNU General Public
++ * License version 2.  This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
++ */
++
++#include <linux/clk.h>
++#include <linux/io.h>
++#include <linux/module.h>
++#include <linux/err.h>
++#include <linux/kernel.h>
++#include <linux/platform_device.h>
++#include <linux/watchdog.h>
++#include <linux/moduleparam.h>
++
++#define REG_COUNT			0x4
++#define REG_MODE			0x8
++#define REG_ENABLE			0xC
++
++struct moxart_wdt_dev {
++	struct watchdog_device dev;
++	void __iomem *base;
++	unsigned int clock_frequency;
++};
++
++static int heartbeat;
++
++static int moxart_wdt_stop(struct watchdog_device *wdt_dev)
++{
++	struct moxart_wdt_dev *moxart_wdt = watchdog_get_drvdata(wdt_dev);
++
++	writel(0, moxart_wdt->base + REG_ENABLE);
++
++	return 0;
++}
++
++static int moxart_wdt_start(struct watchdog_device *wdt_dev)
++{
++	struct moxart_wdt_dev *moxart_wdt = watchdog_get_drvdata(wdt_dev);
++
++	writel(moxart_wdt->clock_frequency * wdt_dev->timeout,
++	       moxart_wdt->base + REG_COUNT);
++	writel(0x5ab9, moxart_wdt->base + REG_MODE);
++	writel(0x03, moxart_wdt->base + REG_ENABLE);
++
++	return 0;
++}
++
++static int moxart_wdt_set_timeout(struct watchdog_device *wdt_dev,
++				  unsigned int timeout)
++{
++	wdt_dev->timeout = timeout;
++
++	return 0;
++}
++
++static const struct watchdog_info moxart_wdt_info = {
++	.identity       = "moxart-wdt",
++	.options        = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
++			  WDIOF_MAGICCLOSE,
++};
++
++static const struct watchdog_ops moxart_wdt_ops = {
++	.owner          = THIS_MODULE,
++	.start          = moxart_wdt_start,
++	.stop           = moxart_wdt_stop,
++	.set_timeout    = moxart_wdt_set_timeout,
++};
++
++static int moxart_wdt_probe(struct platform_device *pdev)
++{
++	struct moxart_wdt_dev *moxart_wdt;
++	struct device *dev = &pdev->dev;
++	struct device_node *node = dev->of_node;
++	struct resource *res;
++	struct clk *clk;
++	int err;
++	unsigned int max_timeout;
++	bool nowayout = WATCHDOG_NOWAYOUT;
++
++	moxart_wdt = devm_kzalloc(dev, sizeof(*moxart_wdt), GFP_KERNEL);
++	if (!moxart_wdt)
++		return -ENOMEM;
++
++	platform_set_drvdata(pdev, moxart_wdt);
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	moxart_wdt->base = devm_ioremap_resource(dev, res);
++	if (IS_ERR(moxart_wdt->base))
++		return PTR_ERR(moxart_wdt->base);
++
++	clk = of_clk_get(node, 0);
++	if (IS_ERR(clk)) {
++		pr_err("%s: of_clk_get failed\n", __func__);
++		return PTR_ERR(clk);
++	}
++
++	moxart_wdt->clock_frequency = clk_get_rate(clk);
++	if (moxart_wdt->clock_frequency == 0) {
++		pr_err("%s: incorrect clock frequency\n", __func__);
++		return -EINVAL;
++	}
++
++	max_timeout = UINT_MAX / moxart_wdt->clock_frequency;
++
++	moxart_wdt->dev.info = &moxart_wdt_info;
++	moxart_wdt->dev.ops = &moxart_wdt_ops;
++	moxart_wdt->dev.timeout = max_timeout;
++	moxart_wdt->dev.min_timeout = 1;
++	moxart_wdt->dev.max_timeout = max_timeout;
++	moxart_wdt->dev.parent = dev;
++
++	watchdog_init_timeout(&moxart_wdt->dev, heartbeat, dev);
++	watchdog_set_nowayout(&moxart_wdt->dev, nowayout);
++
++	watchdog_set_drvdata(&moxart_wdt->dev, moxart_wdt);
++
++	err = watchdog_register_device(&moxart_wdt->dev);
++	if (err)
++		return err;
++
++	dev_dbg(dev, "Watchdog enabled (heartbeat=%d sec, nowayout=%d)\n",
++		moxart_wdt->dev.timeout, nowayout);
++
++	return 0;
++}
++
++static int moxart_wdt_remove(struct platform_device *pdev)
++{
++	struct moxart_wdt_dev *moxart_wdt = platform_get_drvdata(pdev);
++
++	moxart_wdt_stop(&moxart_wdt->dev);
++	watchdog_unregister_device(&moxart_wdt->dev);
++
++	return 0;
++}
++
++static const struct of_device_id moxart_watchdog_match[] = {
++	{ .compatible = "moxa,moxart-watchdog" },
++	{ },
++};
++
++static struct platform_driver moxart_wdt_driver = {
++	.probe      = moxart_wdt_probe,
++	.remove     = moxart_wdt_remove,
++	.driver     = {
++		.name		= "moxart-watchdog",
++		.owner		= THIS_MODULE,
++		.of_match_table	= moxart_watchdog_match,
++	},
++};
++module_platform_driver(moxart_wdt_driver);
++
++module_param(heartbeat, int, 0);
++MODULE_PARM_DESC(heartbeat, "Watchdog heartbeat in seconds");
++
++MODULE_DESCRIPTION("MOXART watchdog driver");
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Jonas Jensen <jonas.jensen@gmail.com>");
+-- 
+1.8.2.1
 
