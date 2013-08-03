@@ -1,42 +1,69 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:52342 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752386Ab3HBX6p (ORCPT
+Received: from mail-we0-f170.google.com ([74.125.82.170]:36377 "EHLO
+	mail-we0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752313Ab3HCXLq (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 2 Aug 2013 19:58:45 -0400
-Message-ID: <51FC47B5.5050103@roeck-us.net>
-Date: Fri, 02 Aug 2013 16:58:45 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Sat, 3 Aug 2013 19:11:46 -0400
+Received: by mail-we0-f170.google.com with SMTP id w60so1514307wes.29
+        for <linux-watchdog@vger.kernel.org>; Sat, 03 Aug 2013 16:11:45 -0700 (PDT)
+Date: Sun, 4 Aug 2013 00:11:42 +0100
+From: Jamie Iles <jamie@jamieiles.com>
+To: Jingoo Han <jg1.han@samsung.com>
+Cc: 'Wim Van Sebroeck' <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	'Guenter Roeck' <linux@roeck-us.net>,
+	Jamie Iles <jamie@jamieiles.com>
+Subject: Re: [PATCH] watchdog: dw_wdt: Add __user annotation
+Message-ID: <20130803231142.GA3515@maple>
+References: <003101ce8e79$5e7a6670$1b6f3350$@samsung.com>
 MIME-Version: 1.0
-To: Jonas Jensen <jonas.jensen@gmail.com>
-CC: linux-watchdog@vger.kernel.org, wim@iguana.be,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	arm@kernel.org, arnd@arndb.de
-Subject: Re: [PATCH v8] watchdog: Add MOXA ART watchdog driver
-References: <1375101228-10930-1-git-send-email-jonas.jensen@gmail.com> <1375454445-15589-1-git-send-email-jonas.jensen@gmail.com>
-In-Reply-To: <1375454445-15589-1-git-send-email-jonas.jensen@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <003101ce8e79$5e7a6670$1b6f3350$@samsung.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 08/02/2013 07:40 AM, Jonas Jensen wrote:
-> This patch adds a watchdog driver for the main hardware watchdog timer
-> found on MOXA ART SoCs.
->
-> The MOXA ART SoC provides one writable timer register, restarting
-> the hardware once it reaches zero. The register is auto decremented
-> every APB clock cycle.
->
-> Signed-off-by: Jonas Jensen <jonas.jensen@gmail.com>
+Hi Jingoo,
 
-Still wondering where the requirement comes from not to use unlikely()
-in probe functions. Must be one of those tribal knowledge things people
-have been talking about.
+On Thu, Aug 01, 2013 at 02:38:36PM +0900, Jingoo Han wrote:
+> Added __user annotation to fix the following sparse warnings.
+> 
+> drivers/watchdog/dw_wdt.c:206:38: warning: incorrect type in argument 1 (different address spaces)
+> drivers/watchdog/dw_wdt.c:206:38:    expected void [noderef] <asn:1>*to
+> drivers/watchdog/dw_wdt.c:206:38:    got struct watchdog_info *<noident>
+> drivers/watchdog/dw_wdt.c:211:24: warning: incorrect type in initializer (different address spaces)
+> drivers/watchdog/dw_wdt.c:211:24:    expected int const [noderef] <asn:1>*register __p
+> drivers/watchdog/dw_wdt.c:211:24:    got int *<noident>
+> 
+> Signed-off-by: Jingoo Han <jg1.han@samsung.com>
 
-Nevertheless, still
+This looks good to me, thanks.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Acked-by: Jamie Iles <jamie@jamieiles.com>
 
-Guenter
-
+> ---
+>  drivers/watchdog/dw_wdt.c |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+> index e621098..cd5befb 100644
+> --- a/drivers/watchdog/dw_wdt.c
+> +++ b/drivers/watchdog/dw_wdt.c
+> @@ -203,12 +203,12 @@ static long dw_wdt_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+>  
+>  	switch (cmd) {
+>  	case WDIOC_GETSUPPORT:
+> -		return copy_to_user((struct watchdog_info *)arg, &dw_wdt_ident,
+> +		return copy_to_user((void __user *)arg, &dw_wdt_ident,
+>  				    sizeof(dw_wdt_ident)) ? -EFAULT : 0;
+>  
+>  	case WDIOC_GETSTATUS:
+>  	case WDIOC_GETBOOTSTATUS:
+> -		return put_user(0, (int *)arg);
+> +		return put_user(0, (int __user *)arg);
+>  
+>  	case WDIOC_KEEPALIVE:
+>  		dw_wdt_set_next_heartbeat();
+> -- 
+> 1.7.10.4
+> 
+> 
