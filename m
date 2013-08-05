@@ -1,69 +1,66 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-we0-f170.google.com ([74.125.82.170]:36377 "EHLO
-	mail-we0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752313Ab3HCXLq (ORCPT
+Received: from cam-admin0.cambridge.arm.com ([217.140.96.50]:53759 "EHLO
+	cam-admin0.cambridge.arm.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751978Ab3HEKMv (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 3 Aug 2013 19:11:46 -0400
-Received: by mail-we0-f170.google.com with SMTP id w60so1514307wes.29
-        for <linux-watchdog@vger.kernel.org>; Sat, 03 Aug 2013 16:11:45 -0700 (PDT)
-Date: Sun, 4 Aug 2013 00:11:42 +0100
-From: Jamie Iles <jamie@jamieiles.com>
-To: Jingoo Han <jg1.han@samsung.com>
-Cc: 'Wim Van Sebroeck' <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	'Guenter Roeck' <linux@roeck-us.net>,
-	Jamie Iles <jamie@jamieiles.com>
-Subject: Re: [PATCH] watchdog: dw_wdt: Add __user annotation
-Message-ID: <20130803231142.GA3515@maple>
-References: <003101ce8e79$5e7a6670$1b6f3350$@samsung.com>
+	Mon, 5 Aug 2013 06:12:51 -0400
+Date: Mon, 5 Aug 2013 11:12:14 +0100
+From: Mark Rutland <mark.rutland@arm.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Jonas Jensen <jonas.jensen@gmail.com>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"arnd@arndb.de" <arnd@arndb.de>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"wim@iguana.be" <wim@iguana.be>, "arm@kernel.org" <arm@kernel.org>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH v7] watchdog: Add MOXA ART watchdog driver
+Message-ID: <20130805101214.GB7594@e106331-lin.cambridge.arm.com>
+References: <1375098093-8975-1-git-send-email-jonas.jensen@gmail.com>
+ <1375101228-10930-1-git-send-email-jonas.jensen@gmail.com>
+ <20130802114159.GK2884@e106331-lin.cambridge.arm.com>
+ <51FBE0D5.3070007@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <003101ce8e79$5e7a6670$1b6f3350$@samsung.com>
+In-Reply-To: <51FBE0D5.3070007@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Jingoo,
+On Fri, Aug 02, 2013 at 05:39:49PM +0100, Guenter Roeck wrote:
+> On 08/02/2013 04:41 AM, Mark Rutland wrote:
+> > On Mon, Jul 29, 2013 at 01:33:48PM +0100, Jonas Jensen wrote:
+> >> Add watchdog driver for MOXA ART SoCs.
+> >>
+> [ ... ]
+> >> +
+> >> +	err = watchdog_register_device(&moxart_wdt->dev);
+> >> +	if (unlikely(err))
+> >> +		return err;
+> >
+> > This is a probe path. Is the use of unlikely() really appropriate here?
+> > I suspect it doesn't make any appreciable difference, and should go.
+> >
+> Just wondering, for my education - why ? Is there s rule that unlikely()
+> shall not be used in the probe path ? If so, I would like to know it and
+> its reasoning to be able to apply it to my own reviews.
 
-On Thu, Aug 01, 2013 at 02:38:36PM +0900, Jingoo Han wrote:
-> Added __user annotation to fix the following sparse warnings.
-> 
-> drivers/watchdog/dw_wdt.c:206:38: warning: incorrect type in argument 1 (different address spaces)
-> drivers/watchdog/dw_wdt.c:206:38:    expected void [noderef] <asn:1>*to
-> drivers/watchdog/dw_wdt.c:206:38:    got struct watchdog_info *<noident>
-> drivers/watchdog/dw_wdt.c:211:24: warning: incorrect type in initializer (different address spaces)
-> drivers/watchdog/dw_wdt.c:211:24:    expected int const [noderef] <asn:1>*register __p
-> drivers/watchdog/dw_wdt.c:211:24:    got int *<noident>
-> 
-> Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+I thought there had been some discussion on LKML about likely and
+unlikely being abused, but in some quick searching I couldn't find the
+thread I remembered. I found a comment from Steve Rostedt [1], but
+that's not necessarily canonical.
 
-This looks good to me, thanks.
+As I understand it, likely() and unlikely() should be used to tell the
+compiler to optimise for very specific cases where we know the branch
+likelihood far better than the compiler, and the performance gain is
+significant (i.e. hot paths). Using them elsewhere may lead to
+performance and/or size degradation, as we're asking the compiler to do
+something other than what it believes is optimal.
 
-Acked-by: Jamie Iles <jamie@jamieiles.com>
+Probing is far from a hot path, and it seems in this case at least that
+unlikely() is only present as part of some duplicated black magic.
 
-> ---
->  drivers/watchdog/dw_wdt.c |    4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-> index e621098..cd5befb 100644
-> --- a/drivers/watchdog/dw_wdt.c
-> +++ b/drivers/watchdog/dw_wdt.c
-> @@ -203,12 +203,12 @@ static long dw_wdt_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
->  
->  	switch (cmd) {
->  	case WDIOC_GETSUPPORT:
-> -		return copy_to_user((struct watchdog_info *)arg, &dw_wdt_ident,
-> +		return copy_to_user((void __user *)arg, &dw_wdt_ident,
->  				    sizeof(dw_wdt_ident)) ? -EFAULT : 0;
->  
->  	case WDIOC_GETSTATUS:
->  	case WDIOC_GETBOOTSTATUS:
-> -		return put_user(0, (int *)arg);
-> +		return put_user(0, (int __user *)arg);
->  
->  	case WDIOC_KEEPALIVE:
->  		dw_wdt_set_next_heartbeat();
-> -- 
-> 1.7.10.4
-> 
-> 
+Thanks,
+Mark.
+
+[1] https://lkml.org/lkml/2011/1/3/135
