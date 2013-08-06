@@ -1,66 +1,34 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from cam-admin0.cambridge.arm.com ([217.140.96.50]:53759 "EHLO
-	cam-admin0.cambridge.arm.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751978Ab3HEKMv (ORCPT
+Received: from mail-ve0-f177.google.com ([209.85.128.177]:36890 "EHLO
+	mail-ve0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751114Ab3HFHwi (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 5 Aug 2013 06:12:51 -0400
-Date: Mon, 5 Aug 2013 11:12:14 +0100
-From: Mark Rutland <mark.rutland@arm.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Jonas Jensen <jonas.jensen@gmail.com>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"arnd@arndb.de" <arnd@arndb.de>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"wim@iguana.be" <wim@iguana.be>, "arm@kernel.org" <arm@kernel.org>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>
-Subject: Re: [PATCH v7] watchdog: Add MOXA ART watchdog driver
-Message-ID: <20130805101214.GB7594@e106331-lin.cambridge.arm.com>
-References: <1375098093-8975-1-git-send-email-jonas.jensen@gmail.com>
- <1375101228-10930-1-git-send-email-jonas.jensen@gmail.com>
- <20130802114159.GK2884@e106331-lin.cambridge.arm.com>
- <51FBE0D5.3070007@roeck-us.net>
+	Tue, 6 Aug 2013 03:52:38 -0400
+Received: by mail-ve0-f177.google.com with SMTP id cz11so58251veb.8
+        for <linux-watchdog@vger.kernel.org>; Tue, 06 Aug 2013 00:52:37 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <51FBE0D5.3070007@roeck-us.net>
+In-Reply-To: <1375212046-12823-1-git-send-email-carlo.caione@gmail.com>
+References: <1375212046-12823-1-git-send-email-carlo.caione@gmail.com>
+Date: Tue, 6 Aug 2013 09:52:37 +0200
+Message-ID: <CAOQ7t2ajtWXZb5-6vjhk4C=VRy6BA=q3Xd_H8fGmK-JQ8N3-bw@mail.gmail.com>
+Subject: Re: [PATCH v7] ARM: sunxi: New watchdog driver for Allwinner A10/A13
+From: Carlo Caione <carlo.caione@gmail.com>
+To: wim@iguana.be, linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-sunxi@googlegroups.com,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	=?ISO-8859-1?Q?Henrik_Nordstr=F6m?= <henrik@henriknordstrom.net>,
+	linux@roeck-us.net
+Cc: Carlo Caione <carlo.caione@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Aug 02, 2013 at 05:39:49PM +0100, Guenter Roeck wrote:
-> On 08/02/2013 04:41 AM, Mark Rutland wrote:
-> > On Mon, Jul 29, 2013 at 01:33:48PM +0100, Jonas Jensen wrote:
-> >> Add watchdog driver for MOXA ART SoCs.
-> >>
-> [ ... ]
-> >> +
-> >> +	err = watchdog_register_device(&moxart_wdt->dev);
-> >> +	if (unlikely(err))
-> >> +		return err;
-> >
-> > This is a probe path. Is the use of unlikely() really appropriate here?
-> > I suspect it doesn't make any appreciable difference, and should go.
-> >
-> Just wondering, for my education - why ? Is there s rule that unlikely()
-> shall not be used in the probe path ? If so, I would like to know it and
-> its reasoning to be able to apply it to my own reviews.
+On Tue, Jul 30, 2013 at 9:20 PM, Carlo Caione <carlo.caione@gmail.com> wrote:
+> This patch adds the driver for the watchdog found in the Allwinner A10 and
+> A13 SoCs. It has DT-support and uses the new watchdog framework.
+>
+> Signed-off-by: Carlo Caione <carlo.caione@gmail.com>
+> Acked-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+> ---
 
-I thought there had been some discussion on LKML about likely and
-unlikely being abused, but in some quick searching I couldn't find the
-thread I remembered. I found a comment from Steve Rostedt [1], but
-that's not necessarily canonical.
-
-As I understand it, likely() and unlikely() should be used to tell the
-compiler to optimise for very specific cases where we know the branch
-likelihood far better than the compiler, and the performance gain is
-significant (i.e. hot paths). Using them elsewhere may lead to
-performance and/or size degradation, as we're asking the compiler to do
-something other than what it believes is optimal.
-
-Probing is far from a hot path, and it seems in this case at least that
-unlikely() is only present as part of some duplicated black magic.
-
-Thanks,
-Mark.
-
-[1] https://lkml.org/lkml/2011/1/3/135
+Guys, any feedback on this patch?
