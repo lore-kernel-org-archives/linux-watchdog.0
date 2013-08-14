@@ -1,16 +1,17 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail3-relais-sop.national.inria.fr ([192.134.164.104]:44583
+Received: from mail3-relais-sop.national.inria.fr ([192.134.164.104]:57951
 	"EHLO mail3-relais-sop.national.inria.fr" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932254Ab3HNJLr (ORCPT
+	by vger.kernel.org with ESMTP id S932093Ab3HNJLm (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 14 Aug 2013 05:11:47 -0400
+	Wed, 14 Aug 2013 05:11:42 -0400
 From: Julia Lawall <Julia.Lawall@lip6.fr>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: kernel-janitors@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 19/29] watchdog: ts72xx_wdt: simplify use of devm_ioremap_resource
-Date: Wed, 14 Aug 2013 11:11:23 +0200
-Message-Id: <1376471493-22215-20-git-send-email-Julia.Lawall@lip6.fr>
+To: Wan ZongShun <mcuos.com@gmail.com>
+Cc: kernel-janitors@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+	linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 10/29] drivers/watchdog/nuc900_wdt.c: simplify use of devm_ioremap_resource
+Date: Wed, 14 Aug 2013 11:11:14 +0200
+Message-Id: <1376471493-22215-11-git-send-email-Julia.Lawall@lip6.fr>
 In-Reply-To: <1376471493-22215-1-git-send-email-Julia.Lawall@lip6.fr>
 References: <1376471493-22215-1-git-send-email-Julia.Lawall@lip6.fr>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -42,33 +43,23 @@ identifier l;
 Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
 
 ---
- drivers/watchdog/ts72xx_wdt.c |   10 ----------
- 1 file changed, 10 deletions(-)
+ drivers/watchdog/nuc900_wdt.c |    5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/drivers/watchdog/ts72xx_wdt.c b/drivers/watchdog/ts72xx_wdt.c
-index 4da59b4..42913f1 100644
---- a/drivers/watchdog/ts72xx_wdt.c
-+++ b/drivers/watchdog/ts72xx_wdt.c
-@@ -403,21 +403,11 @@ static int ts72xx_wdt_probe(struct platform_device *pdev)
- 	}
+diff --git a/drivers/watchdog/nuc900_wdt.c b/drivers/watchdog/nuc900_wdt.c
+index e2b6d2c..b15b6ef 100644
+--- a/drivers/watchdog/nuc900_wdt.c
++++ b/drivers/watchdog/nuc900_wdt.c
+@@ -256,11 +256,6 @@ static int nuc900wdt_probe(struct platform_device *pdev)
+ 	spin_lock_init(&nuc900_wdt->wdt_lock);
  
- 	r1 = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	if (!r1) {
--		dev_err(&pdev->dev, "failed to get memory resource\n");
--		return -ENODEV;
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (res == NULL) {
+-		dev_err(&pdev->dev, "no memory resource specified\n");
+-		return -ENOENT;
 -	}
 -
- 	wdt->control_reg = devm_ioremap_resource(&pdev->dev, r1);
- 	if (IS_ERR(wdt->control_reg))
- 		return PTR_ERR(wdt->control_reg);
- 
- 	r2 = platform_get_resource(pdev, IORESOURCE_MEM, 1);
--	if (!r2) {
--		dev_err(&pdev->dev, "failed to get memory resource\n");
--		return -ENODEV;
--	}
--
- 	wdt->feed_reg = devm_ioremap_resource(&pdev->dev, r2);
- 	if (IS_ERR(wdt->feed_reg))
- 		return PTR_ERR(wdt->feed_reg);
+ 	nuc900_wdt->wdt_base = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(nuc900_wdt->wdt_base))
+ 		return PTR_ERR(nuc900_wdt->wdt_base);
 
