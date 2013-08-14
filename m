@@ -1,70 +1,80 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from co9ehsobe005.messaging.microsoft.com ([207.46.163.28]:1945 "EHLO
-	co9outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1031651Ab3HJACn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 9 Aug 2013 20:02:43 -0400
-Message-ID: <1376092951.15633.93.camel@snotra.buserror.net>
-Subject: Re: [v2] Enhanced support for MPC8xx/8xxx watchdog
-From: Scott Wood <scottwood@freescale.com>
-To: leroy christophe <christophe.leroy@c-s.fr>
-CC: Wim Van Sebroeck <wim@iguana.be>, <linuxppc-dev@lists.ozlabs.org>,
-	<linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>
-Date: Fri, 9 Aug 2013 19:02:31 -0500
-In-Reply-To: <520331C1.4060406@c-s.fr>
-References: <201302280852.r1S8qMYu003742@localhost.localdomain>
-	 <20130625230431.GA29393@home.buserror.net> <520331C1.4060406@c-s.fr>
-Content-Type: text/plain; charset="UTF-8"
-MIME-Version: 1.0
+Received: from mail3-relais-sop.national.inria.fr ([192.134.164.104]:57962
+	"EHLO mail3-relais-sop.national.inria.fr" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932255Ab3HNJLs (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 14 Aug 2013 05:11:48 -0400
+From: Julia Lawall <Julia.Lawall@lip6.fr>
+To: Ben Dooks <ben-linux@fluff.org>
+Cc: kernel-janitors@vger.kernel.org,
+	Kukjin Kim <kgene.kim@samsung.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-arm-kernel@lists.infradead.org,
+	linux-samsung-soc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 20/29] watchdog: s3c2410_wdt: simplify use of devm_ioremap_resource
+Date: Wed, 14 Aug 2013 11:11:24 +0200
+Message-Id: <1376471493-22215-21-git-send-email-Julia.Lawall@lip6.fr>
+In-Reply-To: <1376471493-22215-1-git-send-email-Julia.Lawall@lip6.fr>
+References: <1376471493-22215-1-git-send-email-Julia.Lawall@lip6.fr>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, 2013-08-08 at 07:50 +0200, leroy christophe wrote:
-> Le 26/06/2013 01:04, Scott Wood a =C3=A9crit :
-> > What happens if there's a race?  If another CPU updates wdt_last_ping=
- in
-> > parallel, then you could see wdt_last_ping greater than the value you
-> > read for jiffies.  Since this is an unsigned comparison, it will fail=
- to
-> > call keepalive.  You might get saved by pinging it twice as often as
-> > necessary, but you shouldn't rely on that.
-> Euh ... This watchdog is integrated inside the CPU, so there is no=20
-> chance that any external CPU get access to it.
+From: Julia Lawall <Julia.Lawall@lip6.fr>
 
-Hmm, it looks like mpc8641d (which is the only multi-core SoC among mpc8x=
-x/mpc83xx/mpc86xx) does not have this watchdog, even though mpc8610 does.
+Remove unneeded error handling on the result of a call to
+platform_get_resource when the value is passed to devm_ioremap_resource.
 
-So pretend I said "what if you get preempted?". :-)
+Move the call to platform_get_resource adjacent to the call to
+devm_ioremap_resource to make the connection between them more clear.
 
-> >> +		mpc8xxx_wdt_keepalive();
-> >> +		/* We're pinging it twice faster than needed, to be sure. */
-> >> +		mod_timer(&wdt_timer, jiffies + HZ * hw_timo_sec / 2);
-> >> +	}
-> >> +}
-> >> +
-> >> +static void mpc8xxx_wdt_sw_keepalive(void)
-> >> +{
-> >> +	wdt_last_ping =3D jiffies;
-> >> +	mpc8xxx_wdt_timer_ping(0);
-> >>   }
-> > This isn't new with this patch, but it looks like
-> > mpc8xxx_wdt_keepalive() can be called either from timer context, or w=
-ith
-> > interrupts enabled... yet it uses a bare spin_lock() rather than an
-> > irq-safe version.  This should be fixed.
-> Ok, I'll propose another patch for that. Indeed, is the spin_lock neede=
-d=20
-> at all ? If we get two writes interleaved, it will make it anyway.
+A simplified version of the semantic patch that makes this change is as
+follows: (http://coccinelle.lip6.fr/)
 
-I suppose...  I don't like relying on things like that, though.
+// <smpl>
+@@
+expression pdev,res,n,e,e1;
+expression ret != 0;
+identifier l;
+@@
 
--Scott
+- res = platform_get_resource(pdev, IORESOURCE_MEM, n);
+  ... when != res
+- if (res == NULL) { ... \(goto l;\|return ret;\) }
+  ... when != res
++ res = platform_get_resource(pdev, IORESOURCE_MEM, n);
+  e = devm_ioremap_resource(e1, res);
+// </smpl>
 
+Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
 
+---
+ drivers/watchdog/s3c2410_wdt.c |    7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+index 6a22cf5..9fbc993 100644
+--- a/drivers/watchdog/s3c2410_wdt.c
++++ b/drivers/watchdog/s3c2410_wdt.c
+@@ -325,12 +325,6 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ 	dev = &pdev->dev;
+ 	wdt_dev = &pdev->dev;
+ 
+-	wdt_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (wdt_mem == NULL) {
+-		dev_err(dev, "no memory resource specified\n");
+-		return -ENOENT;
+-	}
+-
+ 	wdt_irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+ 	if (wdt_irq == NULL) {
+ 		dev_err(dev, "no irq resource specified\n");
+@@ -339,6 +333,7 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	/* get the memory region for the watchdog timer */
++	wdt_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	wdt_base = devm_ioremap_resource(dev, wdt_mem);
+ 	if (IS_ERR(wdt_base)) {
+ 		ret = PTR_ERR(wdt_base);
+
