@@ -1,22 +1,19 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:56852 "EHLO
+Received: from mail.active-venture.com ([67.228.131.205]:58782 "EHLO
 	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759977Ab3HODRD (ORCPT
+	with ESMTP id S1759993Ab3HODSQ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 14 Aug 2013 23:17:03 -0400
-Message-ID: <520C482F.5090806@roeck-us.net>
-Date: Wed, 14 Aug 2013 20:17:03 -0700
+	Wed, 14 Aug 2013 23:18:16 -0400
+Message-ID: <520C4879.7000204@roeck-us.net>
+Date: Wed, 14 Aug 2013 20:18:17 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
 To: Julia Lawall <Julia.Lawall@lip6.fr>
-CC: Wan ZongShun <mcuos.com@gmail.com>,
-	kernel-janitors@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	linux-arm-kernel@lists.infradead.org,
+CC: Wim Van Sebroeck <wim@iguana.be>, kernel-janitors@vger.kernel.org,
 	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 10/29] drivers/watchdog/nuc900_wdt.c: simplify use of
- devm_ioremap_resource
-References: <1376471493-22215-1-git-send-email-Julia.Lawall@lip6.fr> <1376471493-22215-11-git-send-email-Julia.Lawall@lip6.fr>
-In-Reply-To: <1376471493-22215-11-git-send-email-Julia.Lawall@lip6.fr>
+Subject: Re: [PATCH 19/29] watchdog: ts72xx_wdt: simplify use of devm_ioremap_resource
+References: <1376471493-22215-1-git-send-email-Julia.Lawall@lip6.fr> <1376471493-22215-20-git-send-email-Julia.Lawall@lip6.fr>
+In-Reply-To: <1376471493-22215-20-git-send-email-Julia.Lawall@lip6.fr>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
