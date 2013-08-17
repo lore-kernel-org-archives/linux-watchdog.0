@@ -1,47 +1,44 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f171.google.com ([209.85.192.171]:43810 "EHLO
-	mail-pd0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754643Ab3HQU6w (ORCPT
+Received: from mail-pd0-f178.google.com ([209.85.192.178]:56099 "EHLO
+	mail-pd0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754945Ab3HQU7K (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 17 Aug 2013 16:58:52 -0400
+	Sat, 17 Aug 2013 16:59:10 -0400
 From: Guenter Roeck <linux@roeck-us.net>
 To: linux-watchdog@vger.kernel.org
 Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v3 0/8] watchdog: w83627hf: Convert to watchdog infrastructure
-Date: Sat, 17 Aug 2013 13:58:38 -0700
-Message-Id: <1376773126-2717-1-git-send-email-linux@roeck-us.net>
+Subject: [PATCH v3 8/8] watchdog: w83627hf_wdt: Reset watchdog trigger during initialization
+Date: Sat, 17 Aug 2013 13:58:46 -0700
+Message-Id: <1376773126-2717-9-git-send-email-linux@roeck-us.net>
+In-Reply-To: <1376773126-2717-1-git-send-email-linux@roeck-us.net>
+References: <1376773126-2717-1-git-send-email-linux@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Convert to watchdog infrastructure, cleanup, add support for additional
-chips, and merge with W83697HF and W83697UG watchdog drivers.
+If the watchdog has already triggered for whatever reason, it won't restart
+unless the trigger is reset.
 
-Tested with W83627UHG, NCT6775, NCT6776.
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+ drivers/watchdog/w83627hf_wdt.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Original idea was to prepare the driver for use as a client to an MFD driver,
-but I found that requesting memory with request_muxed_region works just as well
-and has less impact. v2 includes the knowledge gained from converting the
-driver to an MFD client driver, but without the actual conversion.
+diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
+index 4c9f27a..5979c1c 100644
+--- a/drivers/watchdog/w83627hf_wdt.c
++++ b/drivers/watchdog/w83627hf_wdt.c
+@@ -211,8 +211,8 @@ static int w83627hf_init(struct watchdog_device *wdog, enum chips chip)
+ 	t = superio_inb(cr_wdt_control) & ~0x0C;
+ 	superio_outb(cr_wdt_control, t);
+ 
+-	/* disable keyboard & mouse turning off watchdog */
+-	t = superio_inb(0xF7) & ~0xC0;
++	/* reset trigger, disable keyboard & mouse turning off watchdog */
++	t = superio_inb(0xF7) & ~0xD0;
+ 	superio_outb(0xF7, t);
+ 
+ 	superio_exit();
+-- 
+1.7.9.7
 
-With this set of patches, the watchdog driver for the supported chips
-can be used together with the hwmon driver for those chips.
-
-Wim, please consider merging this set of patches into 3.12. I need
-both watchdog and hwmon driver running, which means I have to run
-patched kernels which gets a bit annoying over time. If you don't
-like the idea of merging the drivers for W83697HF and W83697UG
-into this one, please drop patch 6 and 7 from the series.
-
-v3: Reset watchdog trigger on startup
-    Rebased to v3.11-rc5
-
-v2: Tested with W83627UHG
-    Retain timeout module parameter; use watchdog_init_timeout to set it
-    Eliminate some cosmetic changes
-    Drop spinlock.h include
-    Keep "initialized" message
-    Don't try to configure WDTO for W83627UHG and W83627EHF
-    Don't report the nowayout option with the 'initializing' message
-    Use request_muxed_region to reserve memory range only while needed
-    Add support for W83627S, W83627DHG-P, W83667HG, and NCT6779
