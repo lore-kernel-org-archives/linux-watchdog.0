@@ -1,82 +1,47 @@
-Return-Path: <groeck7@gmail.com>
-Return-Path: <groeck7@gmail.com>
-Sender: Guenter Roeck <groeck7@gmail.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pd0-f171.google.com ([209.85.192.171]:43810 "EHLO
+	mail-pd0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754643Ab3HQU6w (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Sat, 17 Aug 2013 16:58:52 -0400
 From: Guenter Roeck <linux@roeck-us.net>
 To: linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	linux-kernel@vger.kernel.org,
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v3 2/8] watchdog: w83627hf: Enable watchdog only once
-Date: Sat, 17 Aug 2013 13:58:40 -0700
-Message-Id: <1376773126-2717-3-git-send-email-linux@roeck-us.net>
-In-Reply-To: <1376773126-2717-1-git-send-email-linux@roeck-us.net>
-References: <1376773126-2717-1-git-send-email-linux@roeck-us.net>
-List-ID: <linux-watchdog@vger.kernel.org>
+Subject: [PATCH v3 0/8] watchdog: w83627hf: Convert to watchdog infrastructure
+Date: Sat, 17 Aug 2013 13:58:38 -0700
+Message-Id: <1376773126-2717-1-git-send-email-linux@roeck-us.net>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-It is unnecessary to enable the logical device and WDT0 each time
-the watchdog is accessed. Do it only once during initialization.
+Convert to watchdog infrastructure, cleanup, add support for additional
+chips, and merge with W83697HF and W83697UG watchdog drivers.
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
- drivers/watchdog/w83627hf_wdt.c |   35 +++++++++++++++++------------------
- 1 file changed, 17 insertions(+), 18 deletions(-)
+Tested with W83627UHG, NCT6775, NCT6776.
 
-diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
-index 51a22ab..bb19368 100644
---- a/drivers/watchdog/w83627hf_wdt.c
-+++ b/drivers/watchdog/w83627hf_wdt.c
-@@ -66,28 +66,10 @@ MODULE_PARM_DESC(timeout,
- 
- static void w83627hf_select_wd_register(void)
- {
--	unsigned char c;
- 	outb_p(0x87, WDT_EFER); /* Enter extended function mode */
- 	outb_p(0x87, WDT_EFER); /* Again according to manual */
--
--	outb(0x20, WDT_EFER);	/* check chip version	*/
--	c = inb(WDT_EFDR);
--	if (c == 0x82) {	/* W83627THF		*/
--		outb_p(0x2b, WDT_EFER); /* select GPIO3 */
--		c = ((inb_p(WDT_EFDR) & 0xf7) | 0x04); /* select WDT0 */
--		outb_p(0x2b, WDT_EFER);
--		outb_p(c, WDT_EFDR);	/* set GPIO3 to WDT0 */
--	} else if (c == 0x88 || c == 0xa0) {	/* W83627EHF / W83627DHG */
--		outb_p(0x2d, WDT_EFER); /* select GPIO5 */
--		c = inb_p(WDT_EFDR) & ~0x01; /* PIN77 -> WDT0# */
--		outb_p(0x2d, WDT_EFER);
--		outb_p(c, WDT_EFDR); /* set GPIO5 to WDT0 */
--	}
--
- 	outb_p(0x07, WDT_EFER); /* point to logical device number reg */
- 	outb_p(0x08, WDT_EFDR); /* select logical device 8 (GPIO2) */
--	outb_p(0x30, WDT_EFER); /* select CR30 */
--	outb_p(0x01, WDT_EFDR); /* set bit 0 to activate GPIO2 */
- }
- 
- static void w83627hf_unselect_wd_register(void)
-@@ -104,6 +86,23 @@ static void w83627hf_init(struct watchdog_device *wdog)
- 
- 	w83627hf_select_wd_register();
- 
-+	outb(0x20, WDT_EFER);	/* check chip version	*/
-+	t = inb(WDT_EFDR);
-+	if (t == 0x82) {	/* W83627THF		*/
-+		outb_p(0x2b, WDT_EFER); /* select GPIO3 */
-+		t = ((inb_p(WDT_EFDR) & 0xf7) | 0x04); /* select WDT0 */
-+		outb_p(0x2b, WDT_EFER);
-+		outb_p(t, WDT_EFDR);	/* set GPIO3 to WDT0 */
-+	} else if (t == 0x88 || t == 0xa0) {	/* W83627EHF / W83627DHG */
-+		outb_p(0x2d, WDT_EFER); /* select GPIO5 */
-+		t = inb_p(WDT_EFDR) & ~0x01; /* PIN77 -> WDT0# */
-+		outb_p(0x2d, WDT_EFER);
-+		outb_p(t, WDT_EFDR); /* set GPIO5 to WDT0 */
-+	}
-+
-+	outb_p(0x30, WDT_EFER); /* select CR30 */
-+	outb_p(0x01, WDT_EFDR); /* set bit 0 to activate GPIO2 */
-+
- 	outb_p(0xF6, WDT_EFER); /* Select CRF6 */
- 	t = inb_p(WDT_EFDR);      /* read CRF6 */
- 	if (t != 0) {
--- 
-1.7.9.7
+Original idea was to prepare the driver for use as a client to an MFD driver,
+but I found that requesting memory with request_muxed_region works just as well
+and has less impact. v2 includes the knowledge gained from converting the
+driver to an MFD client driver, but without the actual conversion.
+
+With this set of patches, the watchdog driver for the supported chips
+can be used together with the hwmon driver for those chips.
+
+Wim, please consider merging this set of patches into 3.12. I need
+both watchdog and hwmon driver running, which means I have to run
+patched kernels which gets a bit annoying over time. If you don't
+like the idea of merging the drivers for W83697HF and W83697UG
+into this one, please drop patch 6 and 7 from the series.
+
+v3: Reset watchdog trigger on startup
+    Rebased to v3.11-rc5
+
+v2: Tested with W83627UHG
+    Retain timeout module parameter; use watchdog_init_timeout to set it
+    Eliminate some cosmetic changes
+    Drop spinlock.h include
+    Keep "initialized" message
+    Don't try to configure WDTO for W83627UHG and W83627EHF
+    Don't report the nowayout option with the 'initializing' message
+    Use request_muxed_region to reserve memory range only while needed
+    Add support for W83627S, W83627DHG-P, W83667HG, and NCT6779
