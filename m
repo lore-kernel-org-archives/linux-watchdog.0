@@ -1,61 +1,53 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
 Received: from mail2-relais-roc.national.inria.fr ([192.134.164.83]:12631 "EHLO
 	mail2-relais-roc.national.inria.fr" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751092Ab3HSIwC (ORCPT
+	by vger.kernel.org with ESMTP id S1750922Ab3HSIwA (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 19 Aug 2013 04:52:02 -0400
+	Mon, 19 Aug 2013 04:52:00 -0400
 From: Julia Lawall <Julia.Lawall@lip6.fr>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: kernel-janitors@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 2/6] watchdog: simplify platform_get_resource_byname/devm_ioremap_resource
-Date: Mon, 19 Aug 2013 10:51:52 +0200
-Message-Id: <1376902316-18520-3-git-send-email-Julia.Lawall@lip6.fr>
-In-Reply-To: <1376902316-18520-1-git-send-email-Julia.Lawall@lip6.fr>
-References: <1376902316-18520-1-git-send-email-Julia.Lawall@lip6.fr>
+To: linux-mtd@lists.infradead.org
+Cc: kernel-janitors@vger.kernel.org, alsa-devel@alsa-project.org,
+	linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, linux-usb@vger.kernel.org,
+	linux-mips@linux-mips.org
+Subject: [PATCH 0/6] simplify platform_get_resource_byname/devm_ioremap_resource
+Date: Mon, 19 Aug 2013 10:51:50 +0200
+Message-Id: <1376902316-18520-1-git-send-email-Julia.Lawall@lip6.fr>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Julia Lawall <Julia.Lawall@lip6.fr>
+devm_ioremap_resource often uses the result of a call to
+platform_get_resource_byname as its last argument.  devm_ioremap_resource
+does appropriate error handling on this argument, so error handling can be
+removed from the call to platform_get_resource_byname.
 
-Remove unneeded error handling on the result of a call to
-platform_get_resource_byname when the value is passed to devm_ioremap_resource.
-
-A simplified version of the semantic patch that makes this change is as
-follows: (http://coccinelle.lip6.fr/)
+The semantic patch that makes this change is as follows:
+(http://coccinelle.lip6.fr/)
 
 // <smpl>
 @@
-expression pdev,res,e,e1;
+expression pdev,res,n,e,e1;
 expression ret != 0;
-identifier l;
+identifier l,f;
+expression list es;
 @@
 
-  res = platform_get_resource_byname(...);
+(
+  res = f(...);
 - if (res == NULL) { ... \(goto l;\|return ret;\) }
   e = devm_ioremap_resource(e1, res);
+|
+- res = f(es);
+  ... when != res
+- if (res == NULL) { ... \(goto l;\|return ret;\) }
+  ... when != res
++ res = f(es);
+  e = devm_ioremap_resource(e1, res);
+)
 // </smpl>
 
-Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
-
----
- drivers/watchdog/ar7_wdt.c |    5 -----
- 1 file changed, 5 deletions(-)
-
-diff --git a/drivers/watchdog/ar7_wdt.c b/drivers/watchdog/ar7_wdt.c
-index 2f3cc8f..b3709f9 100644
---- a/drivers/watchdog/ar7_wdt.c
-+++ b/drivers/watchdog/ar7_wdt.c
-@@ -280,11 +280,6 @@ static int ar7_wdt_probe(struct platform_device *pdev)
- 
- 	ar7_regs_wdt =
- 		platform_get_resource_byname(pdev, IORESOURCE_MEM, "regs");
--	if (!ar7_regs_wdt) {
--		pr_err("could not get registers resource\n");
--		return -ENODEV;
--	}
--
- 	ar7_wdt = devm_ioremap_resource(&pdev->dev, ar7_regs_wdt);
- 	if (IS_ERR(ar7_wdt))
- 		return PTR_ERR(ar7_wdt);
+In practice, f is always platform_get_resource_byname (or
+platform_get_resource, which was handled by a previous patch series).  And
+the call to platform_get_resource_byname always immediately precedes the
+call to devm_ioremap_resource.
 
