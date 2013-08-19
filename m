@@ -1,66 +1,61 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pb0-f49.google.com ([209.85.160.49]:53395 "EHLO
-	mail-pb0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758311Ab3HOD3j (ORCPT
+Received: from mail2-relais-roc.national.inria.fr ([192.134.164.83]:12631 "EHLO
+	mail2-relais-roc.national.inria.fr" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751092Ab3HSIwC (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 14 Aug 2013 23:29:39 -0400
-MIME-Version: 1.0
-In-Reply-To: <520C482F.5090806@roeck-us.net>
-References: <1376471493-22215-1-git-send-email-Julia.Lawall@lip6.fr>
- <1376471493-22215-11-git-send-email-Julia.Lawall@lip6.fr> <520C482F.5090806@roeck-us.net>
-From: Wan ZongShun <mcuos.com@gmail.com>
-Date: Thu, 15 Aug 2013 11:29:19 +0800
-Message-ID: <CAKT61h9DCnJZkgi4O6jq41tfd1mS2bZm9vEu=RfvXk_0EWfObQ@mail.gmail.com>
-Subject: Re: [PATCH 10/29] drivers/watchdog/nuc900_wdt.c: simplify use of devm_ioremap_resource
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Julia Lawall <Julia.Lawall@lip6.fr>,
-	kernel-janitors@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-	linux-watchdog@vger.kernel.org,
-	linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 19 Aug 2013 04:52:02 -0400
+From: Julia Lawall <Julia.Lawall@lip6.fr>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: kernel-janitors@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 2/6] watchdog: simplify platform_get_resource_byname/devm_ioremap_resource
+Date: Mon, 19 Aug 2013 10:51:52 +0200
+Message-Id: <1376902316-18520-3-git-send-email-Julia.Lawall@lip6.fr>
+In-Reply-To: <1376902316-18520-1-git-send-email-Julia.Lawall@lip6.fr>
+References: <1376902316-18520-1-git-send-email-Julia.Lawall@lip6.fr>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-2013/8/15 Guenter Roeck <linux@roeck-us.net>:
-> On 08/14/2013 02:11 AM, Julia Lawall wrote:
->>
->> From: Julia Lawall <Julia.Lawall@lip6.fr>
->>
->> Remove unneeded error handling on the result of a call to
->> platform_get_resource when the value is passed to devm_ioremap_resource.
->>
->> A simplified version of the semantic patch that makes this change is as
->> follows: (http://coccinelle.lip6.fr/)
->>
->> // <smpl>
->> @@
->> expression pdev,res,n,e,e1;
->> expression ret != 0;
->> identifier l;
->> @@
->>
->> - res = platform_get_resource(pdev, IORESOURCE_MEM, n);
->>    ... when != res
->> - if (res == NULL) { ... \(goto l;\|return ret;\) }
->>    ... when != res
->> + res = platform_get_resource(pdev, IORESOURCE_MEM, n);
->>    e = devm_ioremap_resource(e1, res);
->> // </smpl>
->>
->> Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
->>
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+From: Julia Lawall <Julia.Lawall@lip6.fr>
 
-Acked-by: Wan Zongshun <mcuos.com@gmail.com>
+Remove unneeded error handling on the result of a call to
+platform_get_resource_byname when the value is passed to devm_ioremap_resource.
 
-Thanks for your patch.
+A simplified version of the semantic patch that makes this change is as
+follows: (http://coccinelle.lip6.fr/)
 
->
->
+// <smpl>
+@@
+expression pdev,res,e,e1;
+expression ret != 0;
+identifier l;
+@@
 
+  res = platform_get_resource_byname(...);
+- if (res == NULL) { ... \(goto l;\|return ret;\) }
+  e = devm_ioremap_resource(e1, res);
+// </smpl>
 
+Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
 
--- 
-Wan ZongShun.
-www.mcuos.com
+---
+ drivers/watchdog/ar7_wdt.c |    5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/drivers/watchdog/ar7_wdt.c b/drivers/watchdog/ar7_wdt.c
+index 2f3cc8f..b3709f9 100644
+--- a/drivers/watchdog/ar7_wdt.c
++++ b/drivers/watchdog/ar7_wdt.c
+@@ -280,11 +280,6 @@ static int ar7_wdt_probe(struct platform_device *pdev)
+ 
+ 	ar7_regs_wdt =
+ 		platform_get_resource_byname(pdev, IORESOURCE_MEM, "regs");
+-	if (!ar7_regs_wdt) {
+-		pr_err("could not get registers resource\n");
+-		return -ENODEV;
+-	}
+-
+ 	ar7_wdt = devm_ioremap_resource(&pdev->dev, ar7_regs_wdt);
+ 	if (IS_ERR(ar7_wdt))
+ 		return PTR_ERR(ar7_wdt);
+
