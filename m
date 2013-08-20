@@ -1,74 +1,151 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:59394 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751462Ab3HSNGh (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:58354 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751575Ab3HTU7z (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 19 Aug 2013 09:06:37 -0400
-Message-ID: <5212185B.8080907@roeck-us.net>
-Date: Mon, 19 Aug 2013 06:06:35 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: Julia Lawall <Julia.Lawall@lip6.fr>
-CC: Wim Van Sebroeck <wim@iguana.be>, kernel-janitors@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/6] watchdog: simplify platform_get_resource_byname/devm_ioremap_resource
-References: <1376902316-18520-1-git-send-email-Julia.Lawall@lip6.fr> <1376902316-18520-3-git-send-email-Julia.Lawall@lip6.fr>
-In-Reply-To: <1376902316-18520-3-git-send-email-Julia.Lawall@lip6.fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Aug 2013 16:59:55 -0400
+Date: Tue, 20 Aug 2013 22:31:03 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Ian Lartey <ian@slimlogic.co.uk>
+Cc: linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-leds@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	devicetree-discuss@lists.ozlabs.org, swarren@wwwdotorg.org,
+	grant.likely@secretlab.ca, broonie@opensource.wolfsonmicro.com,
+	rob.herring@calxeda.com, rob@landley.net, mturquette@linaro.org,
+	linus.walleij@linaro.org, cooloney@gmail.com, sfr@canb.auug.org.au,
+	rpurdie@rpsys.net, akpm@linux-foundation.org,
+	sameo@linux.intel.com, lgirdwood@gmail.com, gg@slimlogic.co.uk,
+	j-keerthy@ti.com, ldewangan@nvidia.com, t-kristo@ti.com
+Subject: Re: [PATCH v10 04/12] watchdog: add Palmas Watchdog support
+Message-ID: <20130820203103.GA20762@spo001.leaseweb.com>
+References: <1363964122-19201-1-git-send-email-ian@slimlogic.co.uk> <1363964122-19201-5-git-send-email-ian@slimlogic.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1363964122-19201-5-git-send-email-ian@slimlogic.co.uk>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 08/19/2013 01:51 AM, Julia Lawall wrote:
-> From: Julia Lawall <Julia.Lawall@lip6.fr>
->
-> Remove unneeded error handling on the result of a call to
-> platform_get_resource_byname when the value is passed to devm_ioremap_resource.
->
-> A simplified version of the semantic patch that makes this change is as
-> follows: (http://coccinelle.lip6.fr/)
->
-> // <smpl>
-> @@
-> expression pdev,res,e,e1;
-> expression ret != 0;
-> identifier l;
-> @@
->
->    res = platform_get_resource_byname(...);
-> - if (res == NULL) { ... \(goto l;\|return ret;\) }
->    e = devm_ioremap_resource(e1, res);
-> // </smpl>
->
-> Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
->
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Hi Ian,
 
-> ---
->   drivers/watchdog/ar7_wdt.c |    5 -----
->   1 file changed, 5 deletions(-)
->
-> diff --git a/drivers/watchdog/ar7_wdt.c b/drivers/watchdog/ar7_wdt.c
-> index 2f3cc8f..b3709f9 100644
-> --- a/drivers/watchdog/ar7_wdt.c
-> +++ b/drivers/watchdog/ar7_wdt.c
-> @@ -280,11 +280,6 @@ static int ar7_wdt_probe(struct platform_device *pdev)
->
->   	ar7_regs_wdt =
->   		platform_get_resource_byname(pdev, IORESOURCE_MEM, "regs");
-> -	if (!ar7_regs_wdt) {
-> -		pr_err("could not get registers resource\n");
-> -		return -ENODEV;
-> -	}
-> -
->   	ar7_wdt = devm_ioremap_resource(&pdev->dev, ar7_regs_wdt);
->   	if (IS_ERR(ar7_wdt))
->   		return PTR_ERR(ar7_wdt);
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
->
+> +static int palmas_wdt_set_timeout(struct watchdog_device *wdt, unsigned timeout)
+> +{
+> +	struct palmas_wdt *driver_data = watchdog_get_drvdata(wdt);
+> +
+> +	if (timeout < 1 || timeout > 128) {
+> +		dev_warn(driver_data->dev,
+> +			"Timeout can only be in the range [1-128] seconds");
+> +		return -EINVAL;
+> +	}
+> +	driver_data->timer_margin = fls(timeout) - 1;
+> +	return 0;
+> +}
+
+The core can test this also with the .min_timeout and .max_timeout fields of the watchdog_device.
+
+> +
+> +static const struct watchdog_info palmas_wdt_info = {
+> +	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
+> +	.identity = "Palmas Watchdog",
+> +	.firmware_version = 0,
+> +};
+> +
+> +static const struct watchdog_ops palmas_wdt_ops = {
+> +	.owner = THIS_MODULE,
+> +	.start = palmas_wdt_enable,
+> +	.stop = palmas_wdt_disable,
+> +	.ping = palmas_wdt_enable,
+
+Since .ping is the same as .start you don't need to add .ping .
+
+> +	.set_timeout = palmas_wdt_set_timeout,
+> +};
+> +
+> +static int palmas_wdt_probe(struct platform_device *pdev)
+> +{
+> +	struct palmas *palmas = dev_get_drvdata(pdev->dev.parent);
+> +	struct palmas_wdt *driver_data;
+> +	struct watchdog_device *palmas_wdt;
+> +	int ret = 0;
+> +
+> +	driver_data = devm_kzalloc(&pdev->dev, sizeof(*driver_data),
+> +				   GFP_KERNEL);
+> +	if (!driver_data) {
+> +		dev_err(&pdev->dev, "Unable to alloacate watchdog device\n");
+> +		ret = -ENOMEM;
+> +		goto err;
+> +	}
+> +
+> +	driver_data->palmas = palmas;
+> +
+> +	palmas_wdt = &driver_data->wdt;
+> +
+> +	palmas_wdt->info = &palmas_wdt_info;
+> +	palmas_wdt->ops = &palmas_wdt_ops;
+> +	watchdog_set_nowayout(palmas_wdt, nowayout);
+> +	watchdog_set_drvdata(palmas_wdt, driver_data);
+
+
+I think you want a watchdog_init_timeout(struct watchdog_device *wdd, unsigned int timeout_parm, struct device *dev); here.
+And also make sure that the watchdog isn't running.
+
+> +
+> +	ret = watchdog_register_device(&driver_data->wdt);
+> +	if (ret) {
+> +		platform_set_drvdata(pdev, NULL);
+> +		goto err;
+> +	}
+> +
+> +	dev_set_drvdata(&pdev->dev, driver_data);
+> +
+> +	return 0;
+> +err:
+> +	return ret;
+> +}
+> +
+> +static int palmas_wdt_remove(struct platform_device *pdev)
+> +{
+> +	struct palmas_wdt *driver_data = dev_get_drvdata(&pdev->dev);
+> +
+> +	watchdog_unregister_device(&driver_data->wdt);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct of_device_id of_palmas_match_tbl[] = {
+> +	{ .compatible = "ti,palmas-wdt", },
+> +	{ .compatible = "ti,twl6035-wdt", },
+> +	{ .compatible = "ti,twl6036-wdt", },
+> +	{ .compatible = "ti,twl6037-wdt", },
+> +	{ .compatible = "ti,tps65913-wdt", },
+> +	{ .compatible = "ti,tps65914-wdt", },
+> +	{ .compatible = "ti,tps80036-wdt", },
+> +	{ /* end */ }
+> +};
+> +
+> +static struct platform_driver palmas_wdt_driver = {
+> +	.probe = palmas_wdt_probe,
+> +	.remove = palmas_wdt_remove,
+> +	.driver = {
+> +		.owner = THIS_MODULE,
+> +		.of_match_table = of_palmas_match_tbl,
+> +		.name = "palmas-wdt",
+> +	},
+> +};
+> +
+> +module_platform_driver(palmas_wdt_driver);
+> +
+> +MODULE_AUTHOR("Graeme Gregory <gg@slimlogic.co.uk>");
+> +MODULE_LICENSE("GPL");
+> +MODULE_ALIAS("platform:palmas-wdt");
+> +MODULE_DEVICE_TABLE(of, of_palmas_match_tbl);
+> -- 
+> 1.7.0.4
+> 
+
+If you can add the devicetree bindings Documentation and the Kconfig patch together with the revised version of this patch into a single patch then we can complete the review.
+
+Kind regards,
+Wim.
 
