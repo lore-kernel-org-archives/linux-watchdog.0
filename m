@@ -1,53 +1,65 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ob0-f169.google.com ([209.85.214.169]:36202 "EHLO
-	mail-ob0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753059Ab3HVGGI (ORCPT
+Received: from avon.wwwdotorg.org ([70.85.31.133]:33228 "EHLO
+	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752077Ab3HVUUy (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 22 Aug 2013 02:06:08 -0400
-Received: by mail-ob0-f169.google.com with SMTP id wc20so2813193obb.14
-        for <linux-watchdog@vger.kernel.org>; Wed, 21 Aug 2013 23:06:07 -0700 (PDT)
+	Thu, 22 Aug 2013 16:20:54 -0400
+Message-ID: <521672A1.6010202@wwwdotorg.org>
+Date: Thu, 22 Aug 2013 14:20:49 -0600
+From: Stephen Warren <swarren@wwwdotorg.org>
 MIME-Version: 1.0
-In-Reply-To: <1375872531-24992-1-git-send-email-sachin.kamat@linaro.org>
-References: <1375872531-24992-1-git-send-email-sachin.kamat@linaro.org>
-Date: Thu, 22 Aug 2013 11:36:07 +0530
-Message-ID: <CAK9yfHz5rjchLzFkT6-nC=4BROuTp5yRKNmb_RqG_sE4ChehxA@mail.gmail.com>
-Subject: Re: [PATCH 1/1] watchdog: ibmasr: Fix incorrect placement of __initdata
-From: Sachin Kamat <sachin.kamat@linaro.org>
-To: linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Sachin Kamat <sachin.kamat@linaro.org>
+To: Johannes Thumshirn <johannes.thumshirn@men.de>
+CC: Rob Landley <rob@landley.net>,
+	Rob Herring <rob.herring@calxeda.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ian.campbell@citrix.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] documentation/devicetree: Move DT bindigns from gpio
+ to watchdog
+References: <1377088929-23694-1-git-send-email-johannes.thumshirn@men.de> <5214FA08.7090502@wwwdotorg.org> <20130822073740.GA3717@jtlinux>
+In-Reply-To: <20130822073740.GA3717@jtlinux>
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 7 August 2013 16:18, Sachin Kamat <sachin.kamat@linaro.org> wrote:
-> __initdata should be placed between the variable name and equal
-> sign for the variable to be placed in the intended section.
->
-> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
-> ---
->  drivers/watchdog/ibmasr.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/watchdog/ibmasr.c b/drivers/watchdog/ibmasr.c
-> index bc3fb8f..e7e7720 100644
-> --- a/drivers/watchdog/ibmasr.c
-> +++ b/drivers/watchdog/ibmasr.c
-> @@ -360,7 +360,7 @@ struct ibmasr_id {
->         int type;
->  };
->
-> -static struct ibmasr_id __initdata ibmasr_id_table[] = {
-> +static struct ibmasr_id ibmasr_id_table[] __initdata = {
->         { "IBM Automatic Server Restart - eserver xSeries 220", ASMTYPE_TOPAZ },
->         { "IBM Automatic Server Restart - Machine Type 8673", ASMTYPE_PEARL },
->         { "IBM Automatic Server Restart - Machine Type 8480", ASMTYPE_JASPER },
-> --
-> 1.7.9.5
->
+On 08/22/2013 01:37 AM, Johannes Thumshirn wrote:
+> On Wed, Aug 21, 2013 at 11:34:00AM -0600, Stephen Warren wrote:
+>> On 08/21/2013 06:42 AM, Johannes Thumshirn wrote:
+>>> I accidently put the devicetree bindings for the MEN A21 watchdog driver in
+>>> Documentation/devicetree/bindings/gpio instead of
+>>> Documentation/devicetree/bindings/watchdog, this patch addresses this error.
+>>
+>> The rename sounds fine, so that part,
+>> Acked-by: Stephen Warren <swarren@nvidia.com>
+>>
+>> However, the binding itself doesn't look right; it appears to have a
+>> single "gpios" property rather than using separate named xxx-gpios
+>> properties for different things...
+> 
+> Ok, so I'll need something like the following?
+> 
+> watchdog {
+> 	compatible ="men,a021-wdt";
+> 	enable-gpios = <&gpio3 9 1>; /* WD_EN */
+> 	fast-gpios = <&gpio3 10 1>;  /* WD_FAST */
+> 	trig-gpios = <&gpio3 11 1>;  /* WD_TRIG */
+> 	rst0-gpio = <&gpio3 6 1>;    /* RST_CAUSE[0] */
+> 	rst1-gpio = <&gpio3 7 1>;    /* RST_CAUSE[1] */
+> 	rst2-gpio = <&gpio3 8 1>;    /* RST_CAUSE[2] */
+> };
 
-Ping Wim.
+Yes, that looks more like what I'd expect, albeit I'd probably expect to
+see a rst-gpio property with 3 entries.
 
--- 
-With warm regards,
-Sachin
+> Or is there something like of_get_named_gpios(...) so I can put all 3 rst-gpios
+> into one property? A quick grep only revealed of_get_named_gpio(...).
+
+The availablity of APIs within Linux shouldn't impact the binding
+definitions. I would imagine it's easy enough to add
+of_get_named_gpio_by_index() or similar to Linux.
+
