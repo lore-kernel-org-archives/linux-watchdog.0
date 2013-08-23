@@ -1,65 +1,37 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:33228 "EHLO
-	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752077Ab3HVUUy (ORCPT
+Received: from userp1040.oracle.com ([156.151.31.81]:20374 "EHLO
+	userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755126Ab3HWIk6 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 22 Aug 2013 16:20:54 -0400
-Message-ID: <521672A1.6010202@wwwdotorg.org>
-Date: Thu, 22 Aug 2013 14:20:49 -0600
-From: Stephen Warren <swarren@wwwdotorg.org>
+	Fri, 23 Aug 2013 04:40:58 -0400
+Date: Fri, 23 Aug 2013 11:40:59 +0300
+From: Dan Carpenter <dan.carpenter@oracle.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org, kernel-janitors@vger.kernel.org
+Subject: [patch 2/2] watchdog: ts72xx_wdt: locking bug in ioctl
+Message-ID: <20130823084059.GE31293@elgon.mountain>
 MIME-Version: 1.0
-To: Johannes Thumshirn <johannes.thumshirn@men.de>
-CC: Rob Landley <rob@landley.net>,
-	Rob Herring <rob.herring@calxeda.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ian.campbell@citrix.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
-	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] documentation/devicetree: Move DT bindigns from gpio
- to watchdog
-References: <1377088929-23694-1-git-send-email-johannes.thumshirn@men.de> <5214FA08.7090502@wwwdotorg.org> <20130822073740.GA3717@jtlinux>
-In-Reply-To: <20130822073740.GA3717@jtlinux>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 08/22/2013 01:37 AM, Johannes Thumshirn wrote:
-> On Wed, Aug 21, 2013 at 11:34:00AM -0600, Stephen Warren wrote:
->> On 08/21/2013 06:42 AM, Johannes Thumshirn wrote:
->>> I accidently put the devicetree bindings for the MEN A21 watchdog driver in
->>> Documentation/devicetree/bindings/gpio instead of
->>> Documentation/devicetree/bindings/watchdog, this patch addresses this error.
->>
->> The rename sounds fine, so that part,
->> Acked-by: Stephen Warren <swarren@nvidia.com>
->>
->> However, the binding itself doesn't look right; it appears to have a
->> single "gpios" property rather than using separate named xxx-gpios
->> properties for different things...
-> 
-> Ok, so I'll need something like the following?
-> 
-> watchdog {
-> 	compatible ="men,a021-wdt";
-> 	enable-gpios = <&gpio3 9 1>; /* WD_EN */
-> 	fast-gpios = <&gpio3 10 1>;  /* WD_FAST */
-> 	trig-gpios = <&gpio3 11 1>;  /* WD_TRIG */
-> 	rst0-gpio = <&gpio3 6 1>;    /* RST_CAUSE[0] */
-> 	rst1-gpio = <&gpio3 7 1>;    /* RST_CAUSE[1] */
-> 	rst2-gpio = <&gpio3 8 1>;    /* RST_CAUSE[2] */
-> };
+Calling the WDIOC_GETSTATUS & WDIOC_GETBOOTSTATUS and twice will cause a
+interruptible deadlock.
 
-Yes, that looks more like what I'd expect, albeit I'd probably expect to
-see a rst-gpio property with 3 entries.
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-> Or is there something like of_get_named_gpios(...) so I can put all 3 rst-gpios
-> into one property? A quick grep only revealed of_get_named_gpio(...).
-
-The availablity of APIs within Linux shouldn't impact the binding
-definitions. I would imagine it's easy enough to add
-of_get_named_gpio_by_index() or similar to Linux.
-
+diff --git a/drivers/watchdog/ts72xx_wdt.c b/drivers/watchdog/ts72xx_wdt.c
+index 9125b0f..3ddd527 100644
+--- a/drivers/watchdog/ts72xx_wdt.c
++++ b/drivers/watchdog/ts72xx_wdt.c
+@@ -311,7 +311,8 @@ static long ts72xx_wdt_ioctl(struct file *file, unsigned int cmd,
+ 
+ 	case WDIOC_GETSTATUS:
+ 	case WDIOC_GETBOOTSTATUS:
+-		return put_user(0, p);
++		error = put_user(0, p);
++		break;
+ 
+ 	case WDIOC_KEEPALIVE:
+ 		ts72xx_wdt_kick(wdt);
