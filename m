@@ -1,75 +1,152 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:59961 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751725Ab3HZPfq (ORCPT
+Received: from a10-13.smtp-out.amazonses.com ([54.240.10.13]:55611 "EHLO
+	a10-13.smtp-out.amazonses.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752160Ab3HZUzx (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 26 Aug 2013 11:35:46 -0400
-Date: Mon, 26 Aug 2013 17:35:43 +0200
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: wim@iguana.be
-Cc: Carlo Caione <carlo.caione@gmail.com>,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-sunxi@googlegroups.com,
-	henrik@henriknordstrom.net, linux@roeck-us.net
-Subject: Re: [PATCH v7] ARM: sunxi: New watchdog driver for Allwinner A10/A13
-Message-ID: <20130826153543.GC2695@lukather>
-References: <1375212046-12823-1-git-send-email-carlo.caione@gmail.com>
- <20130819110244.GH3173@lukather>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="JWEK1jqKZ6MHAcjA"
-Content-Disposition: inline
-In-Reply-To: <20130819110244.GH3173@lukather>
+	Mon, 26 Aug 2013 16:55:53 -0400
+Message-ID: <00000140bc5f0925-9b66638b-9a5e-48b0-ad71-86c89b619085-000000@email.amazonses.com>
+Date: Mon, 26 Aug 2013 20:44:39 +0000
+From: Christoph Lameter <cl@linux.com>
+To: Tejun Heo <tj@kernel.org>
+Cc: akpm@linuxfoundation.org, Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org
+Cc: linux-arch@vger.kernel.org
+Cc: Steven Rostedt <srostedt@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [guv v2 12/31] watchdog: Replace __get_cpu_var uses
+References: <20130826204351.725357339@linux.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+__get_cpu_var() is used for multiple purposes in the kernel source. One of them is
+address calculation via the form &__get_cpu_var(x). This calculates the address for
+the instance of the percpu variable of the current processor based on an offset.
 
---JWEK1jqKZ6MHAcjA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Others usage cases are for storing and retrieving data from the current processors percpu area.
+__get_cpu_var() can be used as an lvalue when writing data or on the right side of an assignment.
 
-On Mon, Aug 19, 2013 at 01:02:44PM +0200, Maxime Ripard wrote:
-> Hi Wim,
->=20
-> On Tue, Jul 30, 2013 at 09:20:46PM +0200, Carlo Caione wrote:
-> > This patch adds the driver for the watchdog found in the Allwinner A10 =
-and
-> > A13 SoCs. It has DT-support and uses the new watchdog framework.
-> >=20
-> > Signed-off-by: Carlo Caione <carlo.caione@gmail.com>
-> > Acked-by: Maxime Ripard <maxime.ripard@free-electrons.com>
->=20
-> It would be great if this patch could come in 3.12. Do you have any
-> additional comments?
+__get_cpu_var() is defined as :
 
-Ping?
 
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+#define __get_cpu_var(var) (*this_cpu_ptr(&(var)))
 
---JWEK1jqKZ6MHAcjA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSG3XPAAoJEBx+YmzsjxAg3nEP+gM1hpItbaRYRjZY4vcIwPCT
-vyfDcGKKAxYjb3ACpvfbDPFiN11kkJd0SoAu9/xCOELBSLqvGVDzFYC4tiCzVwCz
-0RucHTVVyfYibRlm7pMSMJ23PQNaJIvFGx3md2S59Z6b+We+0e7lTWBI6orMcKMC
-Q3M4Kp8wbRsN/E6gDWR52rrrC0aSijH0wS2fvlKcQoOZtMrNlgC+u6/TJtvfojlM
-O0GBdhk5rWXXVxJeLSaJijeHOH0x3LxC/67rMwbGXhgy5MqkMUNdmI4V7TWniIek
-jfX29TpdR4oZkIK9C8eAP71TFO7CKoWixQWflL/utKG2YmPEHASY4r5owz0dSc2s
-swaxdRAOE3D11WN/EexuJJZUWq9zHjrtMK67zvX79kwQQE910Ywe3jtx0odlK1aF
-9ofCjurHhnWlYGd9nyTWGygdwq7MsgMJZEnBUDMuRd85XY39pNc+MHNcMkTtII4U
-YIYRFQxmXuuWuJ5IhMEfPqmBxcPO0wqME1rUBIAPw2mUOLmZY7V1oOc20q6SqGbQ
-6Sq3xzM/IFK4T7x8kRasKH7brbRfpv0vVPgeI2r9CibuMv+Nw0yhfmuXS9uc6Cuk
-ld72ypAEHSFvtMv4E9K/U02CNBkwVS3mgmIA/XHo/9d5osxviuip4yU0LpMxs15b
-R5lC9/SxaVTz9Jg45snh
-=hQmm
------END PGP SIGNATURE-----
+__get_cpu_var() always only does a address determination. However, store and retrieve operations
+could use a segment prefix (or global register on other platforms) to avoid the address calculation.
 
---JWEK1jqKZ6MHAcjA--
+this_cpu_write() and this_cpu_read() can directly take an offset into a percpu area and use
+optimized assembly code to read and write per cpu variables.
+
+
+This patch converts __get_cpu_var into either and explicit address calculation using this_cpu_ptr()
+or into a use of this_cpu operations that use the offset. Thereby address calcualtions are avoided
+and less registers are used when code is generated.
+
+At the end of the patchset all uses of __get_cpu_var have been removed so the macro is removed too.
+
+The patchset includes passes over all arches as well. Once these operations are used throughout then
+specialized macros can be defined in non -x86 arches as well in order to optimize per cpu access by
+f.e. using a global register that may be set to the per cpu base.
+
+
+
+
+Transformations done to __get_cpu_var()
+
+
+1. Determine the address of the percpu instance of the current processor.
+
+	DEFINE_PER_CPU(int, y);
+	int *x = &__get_cpu_var(y);
+
+    Converts to
+
+	int *x = this_cpu_ptr(&y);
+
+
+2. Same as #1 but this time an array structure is involved.
+
+	DEFINE_PER_CPU(int, y[20]);
+	int *x = __get_cpu_var(y);
+
+    Converts to
+
+	int *x = this_cpu_ptr(y);
+
+
+3. Retrieve the content of the current processors instance of a per cpu variable.
+
+	DEFINE_PER_CPU(int, u);
+	int x = __get_cpu_var(y)
+
+   Converts to
+
+	int x = __this_cpu_read(y);
+
+
+4. Retrieve the content of a percpu struct
+
+	DEFINE_PER_CPU(struct mystruct, y);
+	struct mystruct x = __get_cpu_var(y);
+
+   Converts to
+
+	memcpy(this_cpu_ptr(&y), x, sizeof(x));
+
+
+5. Assignment to a per cpu variable
+
+	DEFINE_PER_CPU(int, y)
+	__get_cpu_var(y) = x;
+
+   Converts to
+
+	this_cpu_write(y, x);
+
+
+6. Increment/Decrement etc of a per cpu variable
+
+	DEFINE_PER_CPU(int, y);
+	__get_cpu_var(y)++
+
+   Converts to
+
+	this_cpu_inc(y)
+
+Signed-off-by: Christoph Lameter <cl@linux.com>
+
+Index: linux/kernel/watchdog.c
+===================================================================
+--- linux.orig/kernel/watchdog.c	2013-08-26 14:28:39.000000000 -0500
++++ linux/kernel/watchdog.c	2013-08-26 14:29:34.471034451 -0500
+@@ -174,8 +174,8 @@ EXPORT_SYMBOL(touch_nmi_watchdog);
+ 
+ void touch_softlockup_watchdog_sync(void)
+ {
+-	__raw_get_cpu_var(softlockup_touch_sync) = true;
+-	__raw_get_cpu_var(watchdog_touch_ts) = 0;
++	__this_cpu_write(softlockup_touch_sync, 1);
++	__this_cpu_write(watchdog_touch_ts, 0);
+ }
+ 
+ #ifdef CONFIG_HARDLOCKUP_DETECTOR
+@@ -341,7 +341,7 @@ static void watchdog_set_prio(unsigned i
+ 
+ static void watchdog_enable(unsigned int cpu)
+ {
+-	struct hrtimer *hrtimer = &__raw_get_cpu_var(watchdog_hrtimer);
++	struct hrtimer *hrtimer = __this_cpu_ptr(&watchdog_hrtimer);
+ 
+ 	/* kick off the timer for the hardlockup detector */
+ 	hrtimer_init(hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+@@ -361,7 +361,7 @@ static void watchdog_enable(unsigned int
+ 
+ static void watchdog_disable(unsigned int cpu)
+ {
+-	struct hrtimer *hrtimer = &__raw_get_cpu_var(watchdog_hrtimer);
++	struct hrtimer *hrtimer = __this_cpu_ptr(&watchdog_hrtimer);
+ 
+ 	watchdog_set_prio(SCHED_NORMAL, 0);
+ 	hrtimer_cancel(hrtimer);
+
