@@ -1,95 +1,99 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from 6.mo3.mail-out.ovh.net ([188.165.43.173]:50372 "EHLO
+Received: from 15.mo3.mail-out.ovh.net ([87.98.150.177]:49265 "EHLO
 	mo3.mail-out.ovh.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751879Ab3HZN2I (ORCPT
+	with ESMTP id S1752002Ab3HZO6I (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 26 Aug 2013 09:28:08 -0400
+	Mon, 26 Aug 2013 10:58:08 -0400
 Received: from mail402.ha.ovh.net (b6.ovh.net [213.186.33.56])
-	by mo3.mail-out.ovh.net (Postfix) with SMTP id 9C4B8FF8FEB
-	for <linux-watchdog@vger.kernel.org>; Mon, 26 Aug 2013 15:19:07 +0200 (CEST)
-Message-ID: <521B5597.6030802@overkiz.com>
-Date: Mon, 26 Aug 2013 15:18:15 +0200
+	by mo3.mail-out.ovh.net (Postfix) with SMTP id 69E55FF92AE
+	for <linux-watchdog@vger.kernel.org>; Mon, 26 Aug 2013 15:25:43 +0200 (CEST)
+Message-ID: <521B5754.2070603@overkiz.com>
+Date: Mon, 26 Aug 2013 15:25:40 +0200
 From: boris brezillon <b.brezillon@overkiz.com>
 MIME-Version: 1.0
-To: Boris BREZILLON <b.brezillon@overkiz.com>
+To: Boris BREZILLON <b.brezillon@overkiz.com>,
+	Yang Wenyou <Wenyou.Yang@atmel.com>
 CC: Wim Van Sebroeck <wim@iguana.be>,
 	Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
 	Ludovic Desroches <ludovic.desroches@atmel.com>,
-	Yang Wenyou <Wenyou.Yang@atmel.com>,
-	Grant Likely <grant.likely@linaro.org>,
-	Rob Herring <rob.herring@calxeda.com>,
-	Rob Landley <rob@landley.net>,
-	Fabio Porcedda <fabio.porcedda@gmail.com>,
 	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org
-Subject: Re: [PATCH v2 2/4] watchdog: at91sam9_wdt: update device tree doc
-References: <1371799176-3408-1-git-send-email-b.brezillon@overkiz.com> <1371799414-3654-1-git-send-email-b.brezillon@overkiz.com>
-In-Reply-To: <1371799414-3654-1-git-send-email-b.brezillon@overkiz.com>
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH v2 0/4] watchdog: at91sam9_wdt: handle already configured
+ wdt
+References: <1371799176-3408-1-git-send-email-b.brezillon@overkiz.com>
+In-Reply-To: <1371799176-3408-1-git-send-email-b.brezillon@overkiz.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello,
+Hello Yang,
 
-I missed Grant's ack on this patch:
+Did you test/review this series ?
 
-Acked-by: Grant Likely<grant.likely@linaro.org>
+If you did, could you add your Acked, Reviewed and/or Tested-by.
+I'd really like to get this series merged to mainline.
+
+Thanks.
 
 Best Regards,
-
 Boris
-On 21/06/2013 09:23, Boris BREZILLON wrote:
-> Add new at91sam9 watchdog properties to the documentation.
+
+On 21/06/2013 09:19, Boris BREZILLON wrote:
+> Hello,
 >
-> Signed-off-by: Boris BREZILLON <b.brezillon@overkiz.com>
-> ---
->   .../devicetree/bindings/watchdog/atmel-wdt.txt     |   30 ++++++++++++++++++--
->   1 file changed, 28 insertions(+), 2 deletions(-)
+> This patch series is a porposal to enhance the sam9 watchdog timer support.
 >
-> diff --git a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
-> index fcdd48f..e043106 100644
-> --- a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
-> +++ b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
-> @@ -9,11 +9,37 @@ Required properties:
->   
->   Optional properties:
->   - timeout-sec: contains the watchdog timeout in seconds.
-> +- interrupts : Should contain WDT interrupt.
-> +- atmel,max-heartbeat-sec : Should contain the maximum heartbeat value in
-> +	seconds. This value should be less than 16. It is used to compute the
-> +	WDV field.
-> +- atmel,min-heartbeat-sec : Should contain the minimum heartbeat value in
-> +	seconds. This value should be less than 4 times the max-heartbeat-sec
-> +	value. It is used to compute the WDD field.
-> +- atmel,watchdog-type : Should be "hardware" or "software". Hardware watchdog
-> +	use the at91 watchdog reset. Software watchdog use the watchdog
-> +	interrupt to trigger a software reset.
-> +- atmel,reset-type : Should be "proc" or "all".
-> +	"all" : assert peripherals and processor reset signals
-> +	"proc" : assert the processor reset signal
-> +	This is valid only when using "hardware" watchdog.
-> +- atmel,disable : Should be present if you want to disable the watchdog.
-> +- atmel,idle-halt : Should be present if you want to stop the watchdog when
-> +	entering idle state.
-> +- atmel,dbg-halt : Should be present if you want to stop the watchdog when
-> +	entering debug state.
->   
->   Example:
-> -
->   	watchdog@fffffd40 {
->   		compatible = "atmel,at91sam9260-wdt";
->   		reg = <0xfffffd40 0x10>;
-> -		timeout-sec = <10>;
-> +		interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
-> +		timeout-sec = <15>;
-> +		atmel,watchdog-type = "hardware";
-> +		atmel,reset-type = "all";
-> +		atmel,dbg-halt;
-> +		atmel,idle-halt;
-> +		atmel,max-heartbeat-sec = <16>;
-> +		atmel,min-heartbeat-sec = <0>;
-> +		status = "okay";
->   	};
+> The at91sam9 watchdog timer can only be configured once, and the current
+> implementation tries to configure it in a static way:
+> - 2 seconds timeout
+> - wdt restart every 500ms
+>
+> If the timer has already been configured with different values, it returns an
+> error and do not create any watchdog device.
+>
+> This is not critical if the watchdog is disabled, but if it has been enabled
+> with different timeout values it will lead to a SoC reset.
+>
+> This patch series tries to address this issue by adapting the heartbeat value
+> according the WDT timer config:
+> - it first tries to configure the timer as requested.
+> - if it fails it fallbacks to the current config, adapting its heartbeat timer
+> to the needs
+>
+> This patch series also move to a dynamically allocated at91wdt device instead
+> of the static instance. I'm not sure this is the best solution, so please tell
+> me if you prefer to keep static instance of watchdog.
+>
+> It adds a new at91 wdt type: software. This new type make use of the at91 wdt
+> interrupt to trigger a software reboot.
+>
+> Finally it adds several properties to the device tree bindings.
+>
+> Best Regards,
+> Boris
+>
+> Change since v1:
+>   - fix typo in documentaion
+>   - fix irq dt definition for sama5d3 SoC
+>
+> Boris BREZILLON (4):
+>    watchdog: at91sam9_wdt: better watchdog support
+>    watchdog: at91sam9_wdt: update device tree doc
+>    ARM: at91/dt: add sam9 watchdog default options to SoCs
+>    ARM: at91/dt: add watchdog properties to kizbox board
+>
+>   .../devicetree/bindings/watchdog/atmel-wdt.txt     |   30 +-
+>   arch/arm/boot/dts/at91sam9260.dtsi                 |    5 +
+>   arch/arm/boot/dts/at91sam9263.dtsi                 |    5 +
+>   arch/arm/boot/dts/at91sam9g45.dtsi                 |    5 +
+>   arch/arm/boot/dts/at91sam9n12.dtsi                 |    5 +
+>   arch/arm/boot/dts/at91sam9x5.dtsi                  |    5 +
+>   arch/arm/boot/dts/kizbox.dts                       |    6 +
+>   arch/arm/boot/dts/sama5d3.dtsi                     |    5 +
+>   drivers/watchdog/at91sam9_wdt.c                    |  319 +++++++++++++++-----
+>   9 files changed, 300 insertions(+), 85 deletions(-)
+>
 
