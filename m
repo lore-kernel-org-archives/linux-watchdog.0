@@ -1,52 +1,39 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ob0-f173.google.com ([209.85.214.173]:59251 "EHLO
-	mail-ob0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751653Ab3H0QFU (ORCPT
+Received: from mail-we0-f181.google.com ([74.125.82.181]:37522 "EHLO
+	mail-we0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752919Ab3H0SFe (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 27 Aug 2013 12:05:20 -0400
-Received: by mail-ob0-f173.google.com with SMTP id ta17so4966874obb.32
-        for <linux-watchdog@vger.kernel.org>; Tue, 27 Aug 2013 09:05:20 -0700 (PDT)
+	Tue, 27 Aug 2013 14:05:34 -0400
+Received: by mail-we0-f181.google.com with SMTP id q57so4120872wes.26
+        for <linux-watchdog@vger.kernel.org>; Tue, 27 Aug 2013 11:05:33 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1375872531-24992-1-git-send-email-sachin.kamat@linaro.org>
-References: <1375872531-24992-1-git-send-email-sachin.kamat@linaro.org>
-Date: Tue, 27 Aug 2013 21:35:20 +0530
-Message-ID: <CAK9yfHwNqrpyA4xUNp_ZKhhQisybhTv6RRWEkxz3vgR564jx+A@mail.gmail.com>
-Subject: Re: [PATCH 1/1] watchdog: ibmasr: Fix incorrect placement of __initdata
-From: Sachin Kamat <sachin.kamat@linaro.org>
+Date: Tue, 27 Aug 2013 21:05:33 +0300
+Message-ID: <CAC0tyxObqmsEh1xWfVMH09BG0Hqp1hb3niVvRp+dweX83y79OQ@mail.gmail.com>
+Subject: MX28: Enable watchdog before reaching userspace
+From: =?ISO-8859-1?Q?M=E5rten_Wikman?= <marten.wikman@novia.fi>
 To: linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@iguana.be>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 7 August 2013 16:18, Sachin Kamat <sachin.kamat@linaro.org> wrote:
-> __initdata should be placed between the variable name and equal
-> sign for the variable to be placed in the intended section.
->
-> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
-> ---
->  drivers/watchdog/ibmasr.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/watchdog/ibmasr.c b/drivers/watchdog/ibmasr.c
-> index bc3fb8f..e7e7720 100644
-> --- a/drivers/watchdog/ibmasr.c
-> +++ b/drivers/watchdog/ibmasr.c
-> @@ -360,7 +360,7 @@ struct ibmasr_id {
->         int type;
->  };
->
-> -static struct ibmasr_id __initdata ibmasr_id_table[] = {
-> +static struct ibmasr_id ibmasr_id_table[] __initdata = {
->         { "IBM Automatic Server Restart - eserver xSeries 220", ASMTYPE_TOPAZ },
->         { "IBM Automatic Server Restart - Machine Type 8673", ASMTYPE_PEARL },
->         { "IBM Automatic Server Restart - Machine Type 8480", ASMTYPE_JASPER },
-> --
-> 1.7.9.5
->
+Hello,
 
- This patch is not necessary. Please ignore it.
+The thing is that I'm using a Freescale mx28 based board with 3.11
+mainline kernel and now I want to enable watchdog before reaching
+userspace so it will reset my board if no rootfs is found for some
+reason.
 
--- 
-With warm regards,
-Sachin
+I have compiled the kernel with stmp3xxx-rtc and stmp3xxx_rtc_wdt and
+the watchdog is working fine in userspace when I echo something to
+/dev/watchdog0.  I can't however get watchdog to reset my board in the
+early boot process. RTC and RTC_WDT is loaded on boot and I got the
+following output:
+
+[    1.990863] stmp3xxx-rtc 80056000.rtc: rtc core: registered
+80056000.rtc as rtc0
+[    1.999625] i2c /dev entries driver
+[    2.012643] stmp3xxx_rtc_wdt stmp3xxx_rtc_wdt: initialized watchdog
+with heartbeat 19s
+
+but  watchdog won't reset my board if I trigger a kernel panic by
+removing rootfs.
