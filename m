@@ -1,152 +1,243 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from a9-58.smtp-out.amazonses.com ([54.240.9.58]:60907 "EHLO
-	a9-58.smtp-out.amazonses.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754543Ab3H1TsP (ORCPT
+Received: from mail-qc0-f170.google.com ([209.85.216.170]:35963 "EHLO
+	mail-qc0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751626Ab3H2DTm (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 28 Aug 2013 15:48:15 -0400
-Message-ID: <00000140c6781711-904ca320-545b-48d2-abfa-c3d8a9d273b9-000000@email.amazonses.com>
-Date: Wed, 28 Aug 2013 19:48:14 +0000
-From: Christoph Lameter <cl@linux.com>
-To: Tejun Heo <tj@kernel.org>
-Cc: akpm@linuxfoundation.org, Wim Van Sebroeck <wim@iguana.be>,
+	Wed, 28 Aug 2013 23:19:42 -0400
+Received: by mail-qc0-f170.google.com with SMTP id i8so4039713qcq.15
+        for <linux-watchdog@vger.kernel.org>; Wed, 28 Aug 2013 20:19:42 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <20130821195502.GA815@spo001.leaseweb.com>
+References: <1368536872-2189-1-git-send-email-21cnbao@gmail.com> <20130821195502.GA815@spo001.leaseweb.com>
+From: Barry Song <21cnbao@gmail.com>
+Date: Thu, 29 Aug 2013 11:19:21 +0800
+Message-ID: <CAGsJ_4xHf43sWTD4SUG-PX4yhS2ntXFDj0r43aaHtNpN4W_zbA@mail.gmail.com>
+Subject: Re: [PATCH] watchdog: sirf: add watchdog driver of CSR SiRFprimaII
+ and SiRFatlasVI
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: "linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>,
+	DL-SHA-WorkGroupLinux <workgroup.linux@csr.com>,
+	Xianglong Du <Xianglong.Du@csr.com>,
+	Barry Song <Baohua.Song@csr.com>,
 	linux-watchdog@vger.kernel.org
-Cc: linux-arch@vger.kernel.org
-Cc: Steven Rostedt <srostedt@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [gcv v3 12/35] watchdog: Replace __get_cpu_var uses
-References: <20130828193457.140443630@linux.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-__get_cpu_var() is used for multiple purposes in the kernel source. One of them is
-address calculation via the form &__get_cpu_var(x). This calculates the address for
-the instance of the percpu variable of the current processor based on an offset.
+Hi Wim,
 
-Other use cases are for storing and retrieving data from the current processors percpu area.
-__get_cpu_var() can be used as an lvalue when writing data or on the right side of an assignment.
+thanks for reviewing. xianglong, will you do some update according to
+Wim's comments.
 
-__get_cpu_var() is defined as :
+> >
+> > +config SIRFSOC_WATCHDOG
+> > +     tristate "SiRFSOC watchdog"
+> > +     depends on ARCH_SIRF
+>
+> You are missing a:
+>         select WATCHDOG_CORE
+> here.
+
+ok. it was done by changing defconfig:
++CONFIG_WATCHDOG=y
++CONFIG_WATCHDOG_CORE=y
+but we can move to your solution.
+
+> > +
+> > +
+> > +static unsigned int default_timeout = SIRFSOC_WDT_DEFAULT_TIMEOUT;
+> > +module_param(default_timeout, uint, 0);
+> > +MODULE_PARM_DESC(default_timeout, "Default watchdog timeout (in seconds)");
+>
+> Preferred module parameter name is timeout .
+>
+
+ok.
+
+> > +static unsigned int sirfsoc_wdt_gettimeleft(struct watchdog_device *wdd)
+> > +{
+> > +     u32 counter, match;
+> > +     int time_left;
+> > +
+> > +     counter = readl(watchdog_get_drvdata(wdd) + SIRFSOC_TIMER_COUNTER_LO);
+> > +     match = readl(watchdog_get_drvdata(wdd) +
+> > +             SIRFSOC_TIMER_MATCH_0 + (SIRFSOC_TIMER_WDT_INDEX << 2));
+> > +
+> > +     if (match >= counter) {
+> > +             time_left = match-counter;
+> > +     } else {
+> > +             /* rollover */
+> > +             time_left = (0xffffffffUL - counter) + match;
+> > +     }
+>
+> should be:
+>         if (match >= counter)
+>                 time_left = match-counter;
+>         else
+>                 /* rollover */
+>                 time_left = (0xffffffffUL - counter) + match;
+>
+> according to coding style.
+
+yes. need fix.
+
+>
+> > +
+> > +     return time_left / CLOCK_TICK_RATE;
+> > +}
+> > +
+> > +static int sirfsoc_wdt_updatetimeout(struct watchdog_device *wdd)
+> > +{
+> > +     u32 counter, timeout_ticks;
+> > +
+> > +     timeout_ticks = wdd->timeout * CLOCK_TICK_RATE;
+> > +
+> > +     /* Enable the latch before reading the LATCH_LO register */
+> > +     writel(1, watchdog_get_drvdata(wdd) + SIRFSOC_TIMER_LATCH);
+> > +
+> > +     /* Set the TO value */
+> > +     counter = readl(watchdog_get_drvdata(wdd) + SIRFSOC_TIMER_LATCHED_LO);
+> > +
+> > +     if ((0xffffffffUL - counter) >= timeout_ticks) {
+> > +             counter += timeout_ticks;
+> > +     } else {
+> > +             /* Rollover */
+> > +             counter = timeout_ticks - (0xffffffffUL - counter);
+> > +     }
+>
+> Same here (coding style).
+
+agree.
+
+>
+> > +     writel(counter, watchdog_get_drvdata(wdd) +
+> > +             SIRFSOC_TIMER_MATCH_0 + (SIRFSOC_TIMER_WDT_INDEX << 2));
+> > +
+> > +     return 0;
+> > +}
+> > +
+> > +static int sirfsoc_wdt_enable(struct watchdog_device *wdd)
+> > +{
+> > +     sirfsoc_wdt_updatetimeout(wdd);
+> > +
+> > +     /*
+> > +      * NOTE: If interrupt is not enabled
+> > +      * then WD-Reset doesn't get generated at all.
+> > +      */
+> > +     writel(readl(watchdog_get_drvdata(wdd) + SIRFSOC_TIMER_INT_EN)
+> > +             | (1 << SIRFSOC_TIMER_WDT_INDEX),
+> > +             watchdog_get_drvdata(wdd) + SIRFSOC_TIMER_INT_EN);
+> > +     writel(1, watchdog_get_drvdata(wdd) + SIRFSOC_TIMER_WATCHDOG_EN);
+>
+> Wouldn't it be better to define a local variable first that get's the value
+> of watchdog_get_drvdata(wdd)? This would definitely improve readability.
+> Goes also for other functions (like sirfsoc_wdt_gettimeleft and
+> sirfsoc_wdt_disable).
+>
+
+ok
+
+> > +
+> > +static int sirfsoc_wdt_settimeout(struct watchdog_device *wdd, unsigned int to)
+> > +{
+> > +     if (to < SIRFSOC_WDT_MIN_TIMEOUT)
+> > +             to = SIRFSOC_WDT_MIN_TIMEOUT;
+> > +     if (to > SIRFSOC_WDT_MAX_TIMEOUT)
+> > +             to = SIRFSOC_WDT_MAX_TIMEOUT;
+>
+> Hmm, since SIRFSOC_WDT_MIN_TIMEOUT and SIRFSOC_WDT_MAX_TIMEOUT are defined:
+> setting the timeout will call watchdog_set_timeout and that function will do a:
+> if (watchdog_timeout_invalid(wddev, timeout))
+>                 return -EINVAL;
+>
+> with watchdog_timeout_invalid returning:
+>         ((wdd->max_timeout != 0) && (t < wdd->min_timeout || t > wdd->max_timeout));
+>
+> So this will never happen...
+
+so we will drop this.
+
+>
+>
+> > +     wdd->timeout = to;
+> > +     sirfsoc_wdt_updatetimeout(wdd);
+> > +
+> > +     return 0;
+> > +}
+> > +
+> > +#define OPTIONS (WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE)
+> > +
+> > +static const struct watchdog_info sirfsoc_wdt_ident = {
+> > +     .options          =     OPTIONS,
+> > +     .firmware_version =     0,
+> > +     .identity         =     "SiRFSOC Watchdog",
+> > +};
+> > +
+> > +static struct watchdog_ops sirfsoc_wdt_ops = {
+> > +     .owner = THIS_MODULE,
+> > +     .start = sirfsoc_wdt_enable,
+> > +     .stop = sirfsoc_wdt_disable,
+> > +     .get_timeleft = sirfsoc_wdt_gettimeleft,
+> > +     .ping = sirfsoc_wdt_updatetimeout,
+> > +     .set_timeout = sirfsoc_wdt_settimeout,
+> > +};
+> > +
+> > +static struct watchdog_device sirfsoc_wdd = {
+> > +     .info = &sirfsoc_wdt_ident,
+> > +     .ops = &sirfsoc_wdt_ops,
+> > +     .timeout = SIRFSOC_WDT_DEFAULT_TIMEOUT,
+> > +     .min_timeout = SIRFSOC_WDT_MIN_TIMEOUT,
+> > +     .max_timeout = SIRFSOC_WDT_MAX_TIMEOUT,
+> > +};
+> > +
+> > +static int sirfsoc_wdt_probe(struct platform_device *pdev)
+> > +{
+> > +     struct resource *res;
+> > +     int ret;
+> > +     void __iomem *base;
+> > +
+> > +     /* reserve static register mappings */
+> > +     res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> > +     if (!res) {
+> > +             dev_err(&pdev->dev, "sirfsoc wdt: could not get mem resources\n");
+> > +             ret = -ENOMEM;
+> > +             goto out;
+> > +     }
+> > +
+> > +     base = devm_ioremap_resource(&pdev->dev, res);
+> > +     if (!base) {
+> > +             dev_err(&pdev->dev, "sirfsoc wdt: could not remap the mem\n");
+> > +             ret = -EADDRNOTAVAIL;
+> > +             goto out;
+> > +     }
+> > +     watchdog_set_drvdata(&sirfsoc_wdd, base);
+> > +
+> > +     sirfsoc_wdd.timeout = default_timeout;
+>
+> You can consider using watchdog_init_timeout here.
+> I would also advice to add watchdog_set_nowayout and use the nowayout functionality.
+
+agree.
+
+> > +
+> > +MODULE_DESCRIPTION("SiRF SoC watchdog driver");
+> > +MODULE_AUTHOR("Xianglong Du <Xianglong.Du@csr.com>");
+> > +MODULE_LICENSE("GPL v2");
+> > +MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
+>
+> This alias can be removed if you have the platform alias (like listed in the following line).
+>
+> > +MODULE_ALIAS("platform:sirfsoc-wdt");
+
+agree.
 
 
-#define __get_cpu_var(var) (*this_cpu_ptr(&(var)))
+> > --
+> > 1.7.4.1
+>
+> Kind regards,
+> Wim.
+>
 
-
-
-__get_cpu_var() always only does an address determination. However, store and retrieve operations
-could use a segment prefix (or global register on other platforms) to avoid the address calculation.
-
-this_cpu_write() and this_cpu_read() can directly take an offset into a percpu area and use
-optimized assembly code to read and write per cpu variables.
-
-
-This patch converts __get_cpu_var into either an explicit address calculation using this_cpu_ptr()
-or into a use of this_cpu operations that use the offset. Thereby address calcualtions are avoided
-and less registers are used when code is generated.
-
-At the end of the patchset all uses of __get_cpu_var have been removed so the macro is removed too.
-
-The patchset includes passes over all arches as well. Once these operations are used throughout then
-specialized macros can be defined in non -x86 arches as well in order to optimize per cpu access by
-f.e. using a global register that may be set to the per cpu base.
-
-
-
-
-Transformations done to __get_cpu_var()
-
-
-1. Determine the address of the percpu instance of the current processor.
-
-	DEFINE_PER_CPU(int, y);
-	int *x = &__get_cpu_var(y);
-
-    Converts to
-
-	int *x = this_cpu_ptr(&y);
-
-
-2. Same as #1 but this time an array structure is involved.
-
-	DEFINE_PER_CPU(int, y[20]);
-	int *x = __get_cpu_var(y);
-
-    Converts to
-
-	int *x = this_cpu_ptr(y);
-
-
-3. Retrieve the content of the current processors instance of a per cpu variable.
-
-	DEFINE_PER_CPU(int, u);
-	int x = __get_cpu_var(y)
-
-   Converts to
-
-	int x = __this_cpu_read(y);
-
-
-4. Retrieve the content of a percpu struct
-
-	DEFINE_PER_CPU(struct mystruct, y);
-	struct mystruct x = __get_cpu_var(y);
-
-   Converts to
-
-	memcpy(this_cpu_ptr(&x), y, sizeof(x));
-
-
-5. Assignment to a per cpu variable
-
-	DEFINE_PER_CPU(int, y)
-	__get_cpu_var(y) = x;
-
-   Converts to
-
-	this_cpu_write(y, x);
-
-
-6. Increment/Decrement etc of a per cpu variable
-
-	DEFINE_PER_CPU(int, y);
-	__get_cpu_var(y)++
-
-   Converts to
-
-	this_cpu_inc(y)
-
-Signed-off-by: Christoph Lameter <cl@linux.com>
-
-Index: linux/kernel/watchdog.c
-===================================================================
---- linux.orig/kernel/watchdog.c	2013-08-26 14:28:39.000000000 -0500
-+++ linux/kernel/watchdog.c	2013-08-26 14:29:34.471034451 -0500
-@@ -174,8 +174,8 @@ EXPORT_SYMBOL(touch_nmi_watchdog);
- 
- void touch_softlockup_watchdog_sync(void)
- {
--	__raw_get_cpu_var(softlockup_touch_sync) = true;
--	__raw_get_cpu_var(watchdog_touch_ts) = 0;
-+	__this_cpu_write(softlockup_touch_sync, 1);
-+	__this_cpu_write(watchdog_touch_ts, 0);
- }
- 
- #ifdef CONFIG_HARDLOCKUP_DETECTOR
-@@ -341,7 +341,7 @@ static void watchdog_set_prio(unsigned i
- 
- static void watchdog_enable(unsigned int cpu)
- {
--	struct hrtimer *hrtimer = &__raw_get_cpu_var(watchdog_hrtimer);
-+	struct hrtimer *hrtimer = __this_cpu_ptr(&watchdog_hrtimer);
- 
- 	/* kick off the timer for the hardlockup detector */
- 	hrtimer_init(hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-@@ -361,7 +361,7 @@ static void watchdog_enable(unsigned int
- 
- static void watchdog_disable(unsigned int cpu)
- {
--	struct hrtimer *hrtimer = &__raw_get_cpu_var(watchdog_hrtimer);
-+	struct hrtimer *hrtimer = __this_cpu_ptr(&watchdog_hrtimer);
- 
- 	watchdog_set_prio(SCHED_NORMAL, 0);
- 	hrtimer_cancel(hrtimer);
-
+-barry
