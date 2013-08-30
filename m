@@ -1,13 +1,14 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f176.google.com ([209.85.192.176]:46396 "EHLO
-	mail-pd0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756530Ab3H3QlK (ORCPT
+Received: from mail-pa0-f53.google.com ([209.85.220.53]:52963 "EHLO
+	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753612Ab3H3TLv (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 30 Aug 2013 12:41:10 -0400
+	Fri, 30 Aug 2013 15:11:51 -0400
+Date: Fri, 30 Aug 2013 12:11:46 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: linux-kernel@vger.kernel.org
-Cc: linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+	netdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
 	"David S. Miller" <davem@davemloft.net>,
 	Al Viro <viro@zeniv.linux.org.uk>,
 	Eric Paris <eparis@redhat.com>,
@@ -16,42 +17,41 @@ Cc: linux-ide@vger.kernel.org, netdev@vger.kernel.org,
 	David Howells <dhowells@redhat.com>,
 	Thomas Gleixner <tglx@linutronix.de>,
 	Stephen Rothwell <sfr@canb.auug.org.au>,
-	Linus Torvalds <torvalds@linux-foundation.org>,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 6/7] Drop MAINTAINERS entry for H8/300
-Date: Fri, 30 Aug 2013 09:40:41 -0700
-Message-Id: <1377880842-6835-7-git-send-email-linux@roeck-us.net>
-In-Reply-To: <1377880842-6835-1-git-send-email-linux@roeck-us.net>
+	Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH 0/7] Drop support for Renesys H8/300 architecture
+Message-ID: <20130830191146.GA12090@roeck-us.net>
 References: <1377880842-6835-1-git-send-email-linux@roeck-us.net>
+ <20130830184611.GA27455@spo001.leaseweb.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20130830184611.GA27455@spo001.leaseweb.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The architecture is gone.
+On Fri, Aug 30, 2013 at 08:46:11PM +0200, Wim Van Sebroeck wrote:
+> Hi Guenter,
+> 
+> > H8/300 has been dead for several years, the kernel for it has
+> > not compiled for ages, and recent versions of gcc for it are broken.
+> > It is time to drop support for it.
+> > 
+> > Yes, I understand it is not that simple to drop an architecture,
+> > and it may need some discussion, but someone has to put a stake
+> > into the ground. Keeping a virtually dead architecture on life support
+> > takes resources which are better spent elsewhere.
+> 
+> Agree. You may add my Acked-by.
+> How do you plan to get this upstream? Do I need to take the watchdog in my tree or do you plan to keep the set of patches together in one tree?
+> 
+My plan is create a branch on my repository on kernel.org, ask Stephen
+to add it to linux-next, and then ask Linus to pull it after one
+release cycle (ie for 3.13). This should give people enough time
+to find out about it and complain, and give everyone else enough time
+to find any missing pieces.
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
- MAINTAINERS |    8 --------
- 1 file changed, 8 deletions(-)
+I would not mind if Linus would agree to pull it right away for 3.12,
+but that seems to be a bit on the fast side.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 8197fbd..62e513e 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -8482,14 +8482,6 @@ S:	Maintained
- F:	arch/m68k/*/*_no.*
- F:	arch/m68k/include/asm/*_no.*
- 
--UCLINUX FOR RENESAS H8/300 (H8300)
--M:	Yoshinori Sato <ysato@users.sourceforge.jp>
--W:	http://uclinux-h8.sourceforge.jp/
--S:	Supported
--F:	arch/h8300/
--F:	drivers/ide/ide-h8300.c
--F:	drivers/net/ethernet/8390/ne-h8300.c
--
- UDF FILESYSTEM
- M:	Jan Kara <jack@suse.cz>
- S:	Maintained
--- 
-1.7.9.7
-
+Thanks,
+Guenter
