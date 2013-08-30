@@ -1,47 +1,55 @@
-Return-Path: <gregkh@linuxfoundation.org>
-Date: Fri, 30 Aug 2013 09:55:50 -0700
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-	netdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	Wim Van Sebroeck <wim@iguana.be>,
-	"David S. Miller" <davem@davemloft.net>,
-	Al Viro <viro@zeniv.linux.org.uk>, Eric Paris <eparis@redhat.com>,
-	Jiang Liu <jiang.liu@huawei.com>,
-	David Howells <dhowells@redhat.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Stephen Rothwell <sfr@canb.auug.org.au>,
-	Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH 0/7] Drop support for Renesys H8/300 architecture
-Message-ID: <20130830165550.GA8151@kroah.com>
-References: <1377880842-6835-1-git-send-email-linux@roeck-us.net>
-MIME-Version: 1.0
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from ns1.pc-advies.be ([83.149.101.17]:59568 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754841Ab3H3STH (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 30 Aug 2013 14:19:07 -0400
+Date: Fri, 30 Aug 2013 20:19:05 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Leela Krishna Amudala <l.krishna@samsung.com>
+Cc: linux-samsung-soc@vger.kernel.org, kgene.kim@samsung.com,
+	dianders@chromium.org, jg1.han@samsung.com, t.figa@samsung.com,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH V4] watchdog: s3c2410_wdt: remove the global variables
+Message-ID: <20130830181905.GA27363@spo001.leaseweb.com>
+References: <1377597963-27939-1-git-send-email-l.krishna@samsung.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1377880842-6835-1-git-send-email-linux@roeck-us.net>
-List-ID: <linux-watchdog@vger.kernel.org>
+In-Reply-To: <1377597963-27939-1-git-send-email-l.krishna@samsung.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Aug 30, 2013 at 09:40:35AM -0700, Guenter Roeck wrote:
-> H8/300 has been dead for several years, the kernel for it has
-> not compiled for ages, and recent versions of gcc for it are broken.
-> It is time to drop support for it.
+Hi Leela,
+
+> This patch removes the global variables in the driver file and
+> group them into a structure.
 > 
-> Yes, I understand it is not that simple to drop an architecture,
-> and it may need some discussion, but someone has to put a stake
-> into the ground. Keeping a virtually dead architecture on life support
-> takes resources which are better spent elsewhere.
+> Signed-off-by: Leela Krishna Amudala <l.krishna@samsung.com>
+> Reviewed-by: Tomasz Figa <t.figa@samsung.com>
+> Acked-by: Kukjin Kim <kgene.kim@samsung.com>
+> ---
+> Note: This patch is rebased on kgene's for-next branch and tested on SMDK5420.
+> 
+>  Changes since V3:
+> 	- As Wim Van Sebroeck suggested removed to_s3c2410_wdt() and used
+> 	  watchdog_get_drvdata() instead.
+> 
+>  Changes since V2:
+> 	- Addressed comments given by Tomasz Figa <t.figa@samsung.com>
+> 	  https://patchwork.kernel.org/patch/2831032/
+> 	- Renamed structure name from s3c2410_watchdog to s3c2410_wdt.
+> 
+>  Changes since V1:
+> 	- changed the patch subject.
+> 	- indentation correction in s3c2410_watchdog structure.
+> 
+>  drivers/watchdog/s3c2410_wdt.c |  222 +++++++++++++++++++++++-----------------
+>  1 file changed, 128 insertions(+), 94 deletions(-)
+> 
 
-If this doesn't build, and no one is using it anymore, I agree, it
-should be removed.  If someone wants to revive it, 'git revert' works
-just fine.
+Added to linux-watchdog-next.
 
-You can put my:
+Kind regards,
+Wim.
 
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-on these patches, unless someone steps up to be the active maintainer of
-the arch and gets it building/working again.
-
-thanks,
-
-greg k-h
