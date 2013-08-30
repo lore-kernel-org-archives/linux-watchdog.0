@@ -1,53 +1,47 @@
-Return-Path: <Johannes.Thumshirn@men.de>
-Return-Path: <Johannes.Thumshirn@men.de>
-Date: Thu, 22 Aug 2013 09:37:42 +0200
-From: Johannes Thumshirn <johannes.thumshirn@men.de>
-To: Stephen Warren <swarren@wwwdotorg.org>
-CC: Johannes Thumshirn <johannes.thumshirn@men.de>, Rob Landley
-	<rob@landley.net>, Rob Herring <rob.herring@calxeda.com>, Pawel Moll
-	<pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell
-	<ian.campbell@citrix.com>, Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck
-	<linux@roeck-us.net>, <devicetree@vger.kernel.org>,
-	<linux-doc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH] documentation/devicetree: Move DT bindigns from gpio to
- watchdog
-Message-ID: <20130822073740.GA3717@jtlinux>
-References: <1377088929-23694-1-git-send-email-johannes.thumshirn@men.de>
- <5214FA08.7090502@wwwdotorg.org>
+Return-Path: <gregkh@linuxfoundation.org>
+Date: Fri, 30 Aug 2013 09:55:50 -0700
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+	netdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	Wim Van Sebroeck <wim@iguana.be>,
+	"David S. Miller" <davem@davemloft.net>,
+	Al Viro <viro@zeniv.linux.org.uk>, Eric Paris <eparis@redhat.com>,
+	Jiang Liu <jiang.liu@huawei.com>,
+	David Howells <dhowells@redhat.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Stephen Rothwell <sfr@canb.auug.org.au>,
+	Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH 0/7] Drop support for Renesys H8/300 architecture
+Message-ID: <20130830165550.GA8151@kroah.com>
+References: <1377880842-6835-1-git-send-email-linux@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5214FA08.7090502@wwwdotorg.org>
+In-Reply-To: <1377880842-6835-1-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Wed, Aug 21, 2013 at 11:34:00AM -0600, Stephen Warren wrote:
-> On 08/21/2013 06:42 AM, Johannes Thumshirn wrote:
-> > I accidently put the devicetree bindings for the MEN A21 watchdog driver in
-> > Documentation/devicetree/bindings/gpio instead of
-> > Documentation/devicetree/bindings/watchdog, this patch addresses this error.
->
-> The rename sounds fine, so that part,
-> Acked-by: Stephen Warren <swarren@nvidia.com>
->
-> However, the binding itself doesn't look right; it appears to have a
-> single "gpios" property rather than using separate named xxx-gpios
-> properties for different things...
+On Fri, Aug 30, 2013 at 09:40:35AM -0700, Guenter Roeck wrote:
+> H8/300 has been dead for several years, the kernel for it has
+> not compiled for ages, and recent versions of gcc for it are broken.
+> It is time to drop support for it.
+> 
+> Yes, I understand it is not that simple to drop an architecture,
+> and it may need some discussion, but someone has to put a stake
+> into the ground. Keeping a virtually dead architecture on life support
+> takes resources which are better spent elsewhere.
 
-Ok, so I'll need something like the following?
+If this doesn't build, and no one is using it anymore, I agree, it
+should be removed.  If someone wants to revive it, 'git revert' works
+just fine.
 
-watchdog {
-	compatible ="men,a021-wdt";
-	enable-gpios = <&gpio3 9 1>; /* WD_EN */
-	fast-gpios = <&gpio3 10 1>;  /* WD_FAST */
-	trig-gpios = <&gpio3 11 1>;  /* WD_TRIG */
-	rst0-gpio = <&gpio3 6 1>;    /* RST_CAUSE[0] */
-	rst1-gpio = <&gpio3 7 1>;    /* RST_CAUSE[1] */
-	rst2-gpio = <&gpio3 8 1>;    /* RST_CAUSE[2] */
-};
+You can put my:
 
-Or is there something like of_get_named_gpios(...) so I can put all 3 rst-gpios
-into one property? A quick grep only revealed of_get_named_gpio(...).
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Thanks,
-Johannes
+on these patches, unless someone steps up to be the active maintainer of
+the arch and gets it building/working again.
+
+thanks,
+
+greg k-h
