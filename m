@@ -1,42 +1,54 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:59596 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1755400Ab3H3TOR (ORCPT
+Received: from mail-pd0-f180.google.com ([209.85.192.180]:52551 "EHLO
+	mail-pd0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753716Ab3H3Thn (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 30 Aug 2013 15:14:17 -0400
-Date: Fri, 30 Aug 2013 21:14:13 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Carlo Caione <carlo.caione@gmail.com>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-sunxi@googlegroups.com,
-	maxime.ripard@free-electrons.com, henrik@henriknordstrom.net,
-	linux@roeck-us.net
-Subject: Re: [PATCH v7] ARM: sunxi: New watchdog driver for Allwinner A10/A13
-Message-ID: <20130830191413.GA27703@spo001.leaseweb.com>
-References: <1375212046-12823-1-git-send-email-carlo.caione@gmail.com>
-Mime-Version: 1.0
+	Fri, 30 Aug 2013 15:37:43 -0400
+Date: Fri, 30 Aug 2013 12:37:40 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	IDE-ML <linux-ide@vger.kernel.org>,
+	Network Development <netdev@vger.kernel.org>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Al Viro <viro@zeniv.linux.org.uk>,
+	Eric Paris <eparis@redhat.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jiang Liu <jiang.liu@huawei.com>,
+	David Howells <dhowells@redhat.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Stephen Rothwell <sfr@canb.auug.org.au>
+Subject: Re: [PATCH 0/7] Drop support for Renesys H8/300 architecture
+Message-ID: <20130830193740.GA13101@roeck-us.net>
+References: <1377880842-6835-1-git-send-email-linux@roeck-us.net>
+ <20130830184611.GA27455@spo001.leaseweb.com>
+ <20130830191146.GA12090@roeck-us.net>
+ <CA+55aFyxHsKhtqqz9jTDYo89bCNqCWhjHGJ4HzFrHnJ0yxLXjQ@mail.gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1375212046-12823-1-git-send-email-carlo.caione@gmail.com>
+In-Reply-To: <CA+55aFyxHsKhtqqz9jTDYo89bCNqCWhjHGJ4HzFrHnJ0yxLXjQ@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi All,
-
-> This patch adds the driver for the watchdog found in the Allwinner A10 and
-> A13 SoCs. It has DT-support and uses the new watchdog framework.
+On Fri, Aug 30, 2013 at 12:14:20PM -0700, Linus Torvalds wrote:
+> On Fri, Aug 30, 2013 at 12:11 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+> >
+> > I would not mind if Linus would agree to pull it right away for 3.12,
+> > but that seems to be a bit on the fast side.
 > 
-> Signed-off-by: Carlo Caione <carlo.caione@gmail.com>
-> Acked-by: Maxime Ripard <maxime.ripard@free-electrons.com>
-> ---
->  drivers/watchdog/Kconfig     |  10 ++
->  drivers/watchdog/Makefile    |   1 +
->  drivers/watchdog/sunxi_wdt.c | 237 +++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 248 insertions(+)
->  create mode 100644 drivers/watchdog/sunxi_wdt.c
+> I'm ok with code deletion patches, I don't think that would be a
+> problem. I didn't check them, but I assume this is all literally just
+> removing code that is conditional on h8/300 config options?
+> 
+Yes.
 
-Added to linux-watchdog-next.
+I found a couple more since I sent the series, but nothing significant.
 
-Kind regards,
-Wim.
+What is your preference - keep it until 3.13, or prepare it now and send you
+a pull request for 3.12 ?
 
+Thanks,
+Guenter
