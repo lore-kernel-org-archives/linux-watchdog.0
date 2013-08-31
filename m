@@ -1,61 +1,57 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f170.google.com ([209.85.192.170]:50020 "EHLO
-	mail-pd0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756166Ab3H3XwN (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 30 Aug 2013 19:52:13 -0400
-From: Guenter Roeck <linux@roeck-us.net>
-To: linux-kernel@vger.kernel.org
-Cc: linux-ide@vger.kernel.org, netdev@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	"David S. Miller" <davem@davemloft.net>,
-	Yoshinori Sato <ysato@users.sourceforge.jp>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Al Viro <viro@zeniv.linux.org.uk>,
-	Eric Paris <eparis@redhat.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Jiang Liu <jiang.liu@huawei.com>,
-	David Howells <dhowells@redhat.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Stephen Rothwell <sfr@canb.auug.org.au>,
-	Linus Torvalds <torvalds@linux-foundation.org>,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v2 6/8] Drop MAINTAINERS entry for H8/300
-Date: Fri, 30 Aug 2013 16:51:32 -0700
-Message-Id: <1377906694-9578-7-git-send-email-linux@roeck-us.net>
-In-Reply-To: <1377906694-9578-1-git-send-email-linux@roeck-us.net>
-References: <1377906694-9578-1-git-send-email-linux@roeck-us.net>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <geert.uytterhoeven@gmail.com>
+MIME-Version: 1.0
+Sender: geert.uytterhoeven@gmail.com
+In-Reply-To: <20130830193740.GA13101@roeck-us.net>
+References: <1377880842-6835-1-git-send-email-linux@roeck-us.net>
+	<20130830184611.GA27455@spo001.leaseweb.com>
+	<20130830191146.GA12090@roeck-us.net>
+	<CA+55aFyxHsKhtqqz9jTDYo89bCNqCWhjHGJ4HzFrHnJ0yxLXjQ@mail.gmail.com>
+	<20130830193740.GA13101@roeck-us.net>
+Date: Sat, 31 Aug 2013 08:44:45 +0200
+Message-ID: <CAMuHMdW6KcHbpR_KzbTg9V_FJ8XvQAWQOB-2jXQxG5fo1wWg1A@mail.gmail.com>
+Subject: Re: [PATCH 0/7] Drop support for Renesys H8/300 architecture
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Guenter Roeck <linux@roeck-us.net>, Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Wim Van Sebroeck <wim@iguana.be>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, IDE-ML <linux-ide@vger.kernel.org>,
+	Network Development <netdev@vger.kernel.org>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>,
+	Al Viro <viro@zeniv.linux.org.uk>, Eric Paris <eparis@redhat.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiang Liu <jiang.liu@huawei.com>,
+	David Howells <dhowells@redhat.com>, Thomas Gleixner <tglx@linutronix.de>,
+	Stephen Rothwell <sfr@canb.auug.org.au>
+Content-Type: text/plain; charset=UTF-8
+List-ID: <linux-watchdog@vger.kernel.org>
 
-The architecture is gone.
+On Fri, Aug 30, 2013 at 9:37 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+> On Fri, Aug 30, 2013 at 12:14:20PM -0700, Linus Torvalds wrote:
+>> On Fri, Aug 30, 2013 at 12:11 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+>> >
+>> > I would not mind if Linus would agree to pull it right away for 3.12,
+>> > but that seems to be a bit on the fast side.
+>>
+>> I'm ok with code deletion patches, I don't think that would be a
+>> problem. I didn't check them, but I assume this is all literally just
+>> removing code that is conditional on h8/300 config options?
+>>
+> Yes.
+>
+> I found a couple more since I sent the series, but nothing significant.
+>
+> What is your preference - keep it until 3.13, or prepare it now and send you
+> a pull request for 3.12 ?
 
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
- MAINTAINERS |    8 --------
- 1 file changed, 8 deletions(-)
+It would be nice to check with Sato-san, who wanted to attend Kernel
+Summit as a hobbyist architecture maintainer, and see what are his plans
+and opinions.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 8197fbd..62e513e 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -8482,14 +8482,6 @@ S:	Maintained
- F:	arch/m68k/*/*_no.*
- F:	arch/m68k/include/asm/*_no.*
- 
--UCLINUX FOR RENESAS H8/300 (H8300)
--M:	Yoshinori Sato <ysato@users.sourceforge.jp>
--W:	http://uclinux-h8.sourceforge.jp/
--S:	Supported
--F:	arch/h8300/
--F:	drivers/ide/ide-h8300.c
--F:	drivers/net/ethernet/8390/ne-h8300.c
--
- UDF FILESYSTEM
- M:	Jan Kara <jack@suse.cz>
- S:	Maintained
--- 
-1.7.9.7
+Gr{oetje,eeting}s,
 
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
