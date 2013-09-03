@@ -1,345 +1,472 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pb0-f50.google.com ([209.85.160.50]:43513 "EHLO
-	mail-pb0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754211Ab3I3OJQ (ORCPT
+Received: from mail-pa0-f51.google.com ([209.85.220.51]:59578 "EHLO
+	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759215Ab3ICCyS (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 30 Sep 2013 10:09:16 -0400
-Received: by mail-pb0-f50.google.com with SMTP id uo5so5674419pbc.9
-        for <linux-watchdog@vger.kernel.org>; Mon, 30 Sep 2013 07:09:15 -0700 (PDT)
-From: Barry Song <21cnbao@gmail.com>
-To: wim@iguana.be, linux-watchdog@vger.kernel.org
-Cc: workgroup.linux@csr.com, Xianglong Du <Xianglong.Du@csr.com>,
-	Barry Song <Baohua.Song@csr.com>,
-	Romain Izard <romain.izard.pro@gmail.com>,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v6] watchdog: sirf: add watchdog driver of CSR SiRFprimaII and SiRFatlasVI
-Date: Mon, 30 Sep 2013 22:08:59 +0800
-Message-Id: <1380550139-28796-1-git-send-email-Baohua.Song@csr.com>
+	Mon, 2 Sep 2013 22:54:18 -0400
+Message-ID: <52254F11.8070601@gmail.com>
+Date: Tue, 03 Sep 2013 10:53:05 +0800
+From: Chen Gang F T <chen.gang.flying.transformer@gmail.com>
+MIME-Version: 1.0
+To: Guenter Roeck <linux@roeck-us.net>
+CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+	netdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	Wim Van Sebroeck <wim@iguana.be>,
+	"David S. Miller" <davem@davemloft.net>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Al Viro <viro@zeniv.linux.org.uk>,
+	Eric Paris <eparis@redhat.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jiang Liu <jiang.liu@huawei.com>,
+	David Howells <dhowells@redhat.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Stephen Rothwell <sfr@canb.auug.org.au>,
+	Linus Torvalds <torvalds@linux-foundation.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH v2 0/8] Drop support for Renesas H8/300 architecture
+References: <1377906694-9578-1-git-send-email-linux@roeck-us.net>
+In-Reply-To: <1377906694-9578-1-git-send-email-linux@roeck-us.net>
+Content-Type: text/plain; charset=GB2312
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Xianglong Du <Xianglong.Du@csr.com>
+Hello Guenter Roeck:
 
-On CSR SiRFprimaII and SiRFatlasVI, the 6th timer can act as a watchdog
-timer when the Watchdog mode is enabled.
 
-watchdog occur when TIMER watchdog counter matches the value software
-pre-set, when this event occurs, the effect is the same as the system
-software reset.
+I don't care about whether I am in cc mailing list, but at least,
+please help confirm 2 things:
 
-Signed-off-by: Xianglong Du <Xianglong.Du@csr.com>
-Signed-off-by: Barry Song <Baohua.Song@csr.com>
-Cc: Romain Izard <romain.izard.pro@gmail.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
----
- -v6: drop redundant empty suspend/resume;
- replace CONFIG_PM by CONFIG_PM_SLEEP
+  Is what I had done for h8300 just making wastes and noisy in kernel and related sub-system mailing list ?
 
- .../devicetree/bindings/watchdog/sirfsoc_wdt.txt   |  15 ++
- arch/arm/configs/prima2_defconfig                  |   1 +
- drivers/watchdog/Kconfig                           |   9 +
- drivers/watchdog/Makefile                          |   1 +
- drivers/watchdog/sirfsoc_wdt.c                     | 225 +++++++++++++++++++++
- 5 files changed, 251 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt
- create mode 100644 drivers/watchdog/sirfsoc_wdt.c
+  and is the disccusion about h8300 between us also wastes and noisy in kernel mailing list ?
 
-diff --git a/Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt b/Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt
-new file mode 100644
-index 0000000..7d11960
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt
-@@ -0,0 +1,15 @@
-+SiRFSoC Timer and Watchdog Timer(WDT) Controller
-+
-+Required properties:
-+- compatible: "sirf,prima2-tick"
-+- reg: Address range of tick timer/WDT register set
-+- interrupts: interrupt number to the cpu
-+
-+Example:
-+
-+timer@b0020000 {
-+	compatible = "sirf,prima2-tick";
-+	reg = <0xb0020000 0x1000>;
-+	interrupts = <0>;
-+};
-+
-diff --git a/arch/arm/configs/prima2_defconfig b/arch/arm/configs/prima2_defconfig
-index 002a1ce..23591db 100644
---- a/arch/arm/configs/prima2_defconfig
-+++ b/arch/arm/configs/prima2_defconfig
-@@ -39,6 +39,7 @@ CONFIG_SPI=y
- CONFIG_SPI_SIRF=y
- CONFIG_SPI_SPIDEV=y
- # CONFIG_HWMON is not set
-+CONFIG_WATCHDOG=y
- CONFIG_USB_GADGET=y
- CONFIG_USB_MASS_STORAGE=m
- CONFIG_MMC=y
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index d1d53f3..98fb560 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -392,6 +392,15 @@ config RETU_WATCHDOG
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called retu_wdt.
- 
-+config SIRFSOC_WATCHDOG
-+	tristate "SiRFSOC watchdog"
-+	depends on ARCH_SIRF
-+	select WATCHDOG_CORE
-+	default y
-+	help
-+	  Support for CSR SiRFprimaII and SiRFatlasVI watchdog. When
-+	  the watchdog triggers the system will be reset.
-+
- # AVR32 Architecture
- 
- config AT32AP700X_WDT
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 6c5bb27..1a1300d 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -55,6 +55,7 @@ obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
- obj-$(CONFIG_UX500_WATCHDOG) += ux500_wdt.o
- obj-$(CONFIG_RETU_WATCHDOG) += retu_wdt.o
- obj-$(CONFIG_BCM2835_WDT) += bcm2835_wdt.o
-+obj-$(CONFIG_SIRFSOC_WATCHDOG) += sirfsoc_wdt.o
- 
- # AVR32 Architecture
- obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
-diff --git a/drivers/watchdog/sirfsoc_wdt.c b/drivers/watchdog/sirfsoc_wdt.c
-new file mode 100644
-index 0000000..deaa2ed
---- /dev/null
-+++ b/drivers/watchdog/sirfsoc_wdt.c
-@@ -0,0 +1,225 @@
-+/*
-+ * Watchdog driver for CSR SiRFprimaII and SiRFatlasVI
-+ *
-+ * Copyright (c) 2013 Cambridge Silicon Radio Limited, a CSR plc group company.
-+ *
-+ * Licensed under GPLv2 or later.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/watchdog.h>
-+#include <linux/platform_device.h>
-+#include <linux/moduleparam.h>
-+#include <linux/of.h>
-+#include <linux/io.h>
-+#include <linux/uaccess.h>
-+
-+#define SIRFSOC_TIMER_COUNTER_LO	0x0000
-+#define SIRFSOC_TIMER_MATCH_0		0x0008
-+#define SIRFSOC_TIMER_INT_EN		0x0024
-+#define SIRFSOC_TIMER_WATCHDOG_EN	0x0028
-+#define SIRFSOC_TIMER_LATCH		0x0030
-+#define SIRFSOC_TIMER_LATCHED_LO	0x0034
-+
-+#define SIRFSOC_TIMER_WDT_INDEX		5
-+
-+#define SIRFSOC_WDT_MIN_TIMEOUT		30		/* 30 secs */
-+#define SIRFSOC_WDT_MAX_TIMEOUT		(10 * 60)	/* 10 mins */
-+#define SIRFSOC_WDT_DEFAULT_TIMEOUT	30		/* 30 secs */
-+
-+
-+static unsigned int timeout = SIRFSOC_WDT_DEFAULT_TIMEOUT;
-+static bool nowayout = WATCHDOG_NOWAYOUT;
-+
-+module_param(timeout, uint, 0);
-+module_param(nowayout, bool, 0);
-+
-+MODULE_PARM_DESC(timeout, "Default watchdog timeout (in seconds)");
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
-+			__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-+
-+static unsigned int sirfsoc_wdt_gettimeleft(struct watchdog_device *wdd)
-+{
-+	u32 counter, match;
-+	void __iomem *wdt_base;
-+	int time_left;
-+
-+	wdt_base = watchdog_get_drvdata(wdd);
-+	counter = readl(wdt_base + SIRFSOC_TIMER_COUNTER_LO);
-+	match = readl(wdt_base +
-+		SIRFSOC_TIMER_MATCH_0 + (SIRFSOC_TIMER_WDT_INDEX << 2));
-+
-+	time_left = match - counter;
-+
-+	return time_left / CLOCK_TICK_RATE;
-+}
-+
-+static int sirfsoc_wdt_updatetimeout(struct watchdog_device *wdd)
-+{
-+	u32 counter, timeout_ticks;
-+	void __iomem *wdt_base;
-+
-+	timeout_ticks = wdd->timeout * CLOCK_TICK_RATE;
-+	wdt_base = watchdog_get_drvdata(wdd);
-+
-+	/* Enable the latch before reading the LATCH_LO register */
-+	writel(1, wdt_base + SIRFSOC_TIMER_LATCH);
-+
-+	/* Set the TO value */
-+	counter = readl(wdt_base + SIRFSOC_TIMER_LATCHED_LO);
-+
-+	counter += timeout_ticks;
-+
-+	writel(counter, wdt_base +
-+		SIRFSOC_TIMER_MATCH_0 + (SIRFSOC_TIMER_WDT_INDEX << 2));
-+
-+	return 0;
-+}
-+
-+static int sirfsoc_wdt_enable(struct watchdog_device *wdd)
-+{
-+	void __iomem *wdt_base = watchdog_get_drvdata(wdd);
-+	sirfsoc_wdt_updatetimeout(wdd);
-+
-+	/*
-+	 * NOTE: If interrupt is not enabled
-+	 * then WD-Reset doesn't get generated at all.
-+	 */
-+	writel(readl(wdt_base + SIRFSOC_TIMER_INT_EN)
-+		| (1 << SIRFSOC_TIMER_WDT_INDEX),
-+		wdt_base + SIRFSOC_TIMER_INT_EN);
-+	writel(1, wdt_base + SIRFSOC_TIMER_WATCHDOG_EN);
-+
-+	return 0;
-+}
-+
-+static int sirfsoc_wdt_disable(struct watchdog_device *wdd)
-+{
-+	void __iomem *wdt_base = watchdog_get_drvdata(wdd);
-+
-+	writel(0, wdt_base + SIRFSOC_TIMER_WATCHDOG_EN);
-+	writel(readl(wdt_base + SIRFSOC_TIMER_INT_EN)
-+		& (~(1 << SIRFSOC_TIMER_WDT_INDEX)),
-+		wdt_base + SIRFSOC_TIMER_INT_EN);
-+
-+	return 0;
-+}
-+
-+static int sirfsoc_wdt_settimeout(struct watchdog_device *wdd, unsigned int to)
-+{
-+	wdd->timeout = to;
-+	sirfsoc_wdt_updatetimeout(wdd);
-+
-+	return 0;
-+}
-+
-+#define OPTIONS (WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE)
-+
-+static const struct watchdog_info sirfsoc_wdt_ident = {
-+	.options          =     OPTIONS,
-+	.firmware_version =	0,
-+	.identity         =	"SiRFSOC Watchdog",
-+};
-+
-+static struct watchdog_ops sirfsoc_wdt_ops = {
-+	.owner = THIS_MODULE,
-+	.start = sirfsoc_wdt_enable,
-+	.stop = sirfsoc_wdt_disable,
-+	.get_timeleft = sirfsoc_wdt_gettimeleft,
-+	.ping = sirfsoc_wdt_updatetimeout,
-+	.set_timeout = sirfsoc_wdt_settimeout,
-+};
-+
-+static struct watchdog_device sirfsoc_wdd = {
-+	.info = &sirfsoc_wdt_ident,
-+	.ops = &sirfsoc_wdt_ops,
-+	.timeout = SIRFSOC_WDT_DEFAULT_TIMEOUT,
-+	.min_timeout = SIRFSOC_WDT_MIN_TIMEOUT,
-+	.max_timeout = SIRFSOC_WDT_MAX_TIMEOUT,
-+};
-+
-+static int sirfsoc_wdt_probe(struct platform_device *pdev)
-+{
-+	struct resource *res;
-+	int ret;
-+	void __iomem *base;
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	base = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(base))
-+		return PTR_ERR(base);
-+
-+	watchdog_set_drvdata(&sirfsoc_wdd, base);
-+
-+	watchdog_init_timeout(&sirfsoc_wdd, timeout, &pdev->dev);
-+	watchdog_set_nowayout(&sirfsoc_wdd, nowayout);
-+
-+	ret = watchdog_register_device(&sirfsoc_wdd);
-+	if (ret)
-+		return ret;
-+
-+	platform_set_drvdata(pdev, &sirfsoc_wdd);
-+
-+	return 0;
-+}
-+
-+static void sirfsoc_wdt_shutdown(struct platform_device *pdev)
-+{
-+	struct watchdog_device *wdd = platform_get_drvdata(pdev);
-+
-+	sirfsoc_wdt_disable(wdd);
-+}
-+
-+static int sirfsoc_wdt_remove(struct platform_device *pdev)
-+{
-+	sirfsoc_wdt_shutdown(pdev);
-+	return 0;
-+}
-+
-+#ifdef	CONFIG_PM_SLEEP
-+static int sirfsoc_wdt_suspend(struct device *dev)
-+{
-+	return 0;
-+}
-+
-+static int sirfsoc_wdt_resume(struct device *dev)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+
-+	/*
-+	 * NOTE: Since timer controller registers settings are saved
-+	 * and restored back by the timer-prima2.c, so we need not
-+	 * update WD settings except refreshing timeout.
-+	 */
-+	sirfsoc_wdt_updatetimeout(wdd);
-+
-+	return 0;
-+}
-+#endif
-+
-+static SIMPLE_DEV_PM_OPS(sirfsoc_wdt_pm_ops,
-+		sirfsoc_wdt_suspend, sirfsoc_wdt_resume);
-+
-+static const struct of_device_id sirfsoc_wdt_of_match[] = {
-+	{ .compatible = "sirf,prima2-tick"},
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, sirfsoc_wdt_of_match);
-+
-+static struct platform_driver sirfsoc_wdt_driver = {
-+	.driver = {
-+		.name = "sirfsoc-wdt",
-+		.owner = THIS_MODULE,
-+		.pm = &sirfsoc_wdt_pm_ops,
-+		.of_match_table	= of_match_ptr(sirfsoc_wdt_of_match),
-+	},
-+	.probe = sirfsoc_wdt_probe,
-+	.remove = sirfsoc_wdt_remove,
-+	.shutdown = sirfsoc_wdt_shutdown,
-+};
-+module_platform_driver(sirfsoc_wdt_driver);
-+
-+MODULE_DESCRIPTION("SiRF SoC watchdog driver");
-+MODULE_AUTHOR("Xianglong Du <Xianglong.Du@csr.com>");
-+MODULE_LICENSE("GPL v2");
-+MODULE_ALIAS("platform:sirfsoc-wdt");
+
+And also I have to make an apologize to kernel and other related sub
+system mailing list:
+
+  some of patches about h8300 which I have sent in 2013-09-02 are really wastes (and I wasted my time resource for it, too).
+
+  the excuse (not reason) is I do not know about Guenter Roeck has sent this patch (I am not in this cc list, so I find it one day delay).
+
+
+BTW: I also add some another related members in cc mailing list to let
+them know about some of suspending thread about h8300 (which waiting
+for allmodconfig finish) can be canceled.
+
+
+Thanks.
+
+On 08/31/2013 07:51 AM, Guenter Roeck wrote:
+> H8/300 has been dead for several years, the kernel for it has
+> not compiled for ages, and recent versions of gcc for it are broken.
+> It is time to drop support for it.
+> 
+> Yes, I understand it is not that simple to drop an architecture,
+> and it may need some discussion, but someone has to put a stake
+> into the ground. Keeping a virtually dead architecture on life support
+> takes resources which are better spent elsewhere.
+> 
+> v2:
+> - s/Renesys/Renesas/g
+> - Found and removed more architecture specific code in fs/minix
+>   and in smc9194 driver
+> - Added explicit Cc: for h8300 maintainer
+> - Added subsystem maintainer Acks
+> 
+> ----------------------------------------------------------------
+> Guenter Roeck (8):
+>       Drop support for Renesas H8/300 (h8300) architecture
+>       ide: Drop H8/300 driver
+>       net/ethernet: smsc9194: Drop conditional code for H8/300
+>       net/ethernet: Drop H8/300 Ethernet driver
+>       watchdog: Drop references to H8300 architecture
+>       Drop MAINTAINERS entry for H8/300
+>       Drop remaining references to H8/300 architecture
+>       fs/minix: Drop dependency on H8300
+> 
+>  Documentation/scheduler/sched-arch.txt           |    5 -
+>  MAINTAINERS                                      |    8 -
+>  arch/h8300/Kconfig                               |  109 ----
+>  arch/h8300/Kconfig.cpu                           |  171 ------
+>  arch/h8300/Kconfig.debug                         |   68 ---
+>  arch/h8300/Kconfig.ide                           |   44 --
+>  arch/h8300/Makefile                              |   71 ---
+>  arch/h8300/README                                |   38 --
+>  arch/h8300/boot/Makefile                         |   22 -
+>  arch/h8300/boot/compressed/Makefile              |   37 --
+>  arch/h8300/boot/compressed/head.S                |   47 --
+>  arch/h8300/boot/compressed/misc.c                |  180 ------
+>  arch/h8300/boot/compressed/vmlinux.lds           |   32 -
+>  arch/h8300/boot/compressed/vmlinux.scr           |    9 -
+>  arch/h8300/defconfig                             |   42 --
+>  arch/h8300/include/asm/Kbuild                    |    8 -
+>  arch/h8300/include/asm/asm-offsets.h             |    1 -
+>  arch/h8300/include/asm/atomic.h                  |  146 -----
+>  arch/h8300/include/asm/barrier.h                 |   29 -
+>  arch/h8300/include/asm/bitops.h                  |  211 -------
+>  arch/h8300/include/asm/bootinfo.h                |    2 -
+>  arch/h8300/include/asm/bug.h                     |   12 -
+>  arch/h8300/include/asm/bugs.h                    |   16 -
+>  arch/h8300/include/asm/cache.h                   |   13 -
+>  arch/h8300/include/asm/cachectl.h                |   14 -
+>  arch/h8300/include/asm/cacheflush.h              |   40 --
+>  arch/h8300/include/asm/checksum.h                |  102 ----
+>  arch/h8300/include/asm/cmpxchg.h                 |   60 --
+>  arch/h8300/include/asm/cputime.h                 |    6 -
+>  arch/h8300/include/asm/current.h                 |   25 -
+>  arch/h8300/include/asm/dbg.h                     |    2 -
+>  arch/h8300/include/asm/delay.h                   |   38 --
+>  arch/h8300/include/asm/device.h                  |    7 -
+>  arch/h8300/include/asm/div64.h                   |    1 -
+>  arch/h8300/include/asm/dma.h                     |   15 -
+>  arch/h8300/include/asm/elf.h                     |  101 ----
+>  arch/h8300/include/asm/emergency-restart.h       |    6 -
+>  arch/h8300/include/asm/fb.h                      |   12 -
+>  arch/h8300/include/asm/flat.h                    |   26 -
+>  arch/h8300/include/asm/fpu.h                     |    1 -
+>  arch/h8300/include/asm/ftrace.h                  |    1 -
+>  arch/h8300/include/asm/futex.h                   |    6 -
+>  arch/h8300/include/asm/gpio-internal.h           |   52 --
+>  arch/h8300/include/asm/hardirq.h                 |   19 -
+>  arch/h8300/include/asm/hw_irq.h                  |    1 -
+>  arch/h8300/include/asm/io.h                      |  358 -----------
+>  arch/h8300/include/asm/irq.h                     |   49 --
+>  arch/h8300/include/asm/irq_regs.h                |    1 -
+>  arch/h8300/include/asm/irqflags.h                |   43 --
+>  arch/h8300/include/asm/kdebug.h                  |    1 -
+>  arch/h8300/include/asm/kmap_types.h              |    6 -
+>  arch/h8300/include/asm/local.h                   |    6 -
+>  arch/h8300/include/asm/local64.h                 |    1 -
+>  arch/h8300/include/asm/mc146818rtc.h             |    9 -
+>  arch/h8300/include/asm/mmu_context.h             |   32 -
+>  arch/h8300/include/asm/mutex.h                   |    9 -
+>  arch/h8300/include/asm/page.h                    |   78 ---
+>  arch/h8300/include/asm/page_offset.h             |    3 -
+>  arch/h8300/include/asm/param.h                   |    9 -
+>  arch/h8300/include/asm/pci.h                     |   19 -
+>  arch/h8300/include/asm/percpu.h                  |    6 -
+>  arch/h8300/include/asm/pgalloc.h                 |    8 -
+>  arch/h8300/include/asm/pgtable.h                 |   73 ---
+>  arch/h8300/include/asm/processor.h               |  139 -----
+>  arch/h8300/include/asm/ptrace.h                  |   33 --
+>  arch/h8300/include/asm/regs267x.h                |  336 -----------
+>  arch/h8300/include/asm/regs306x.h                |  212 -------
+>  arch/h8300/include/asm/scatterlist.h             |    6 -
+>  arch/h8300/include/asm/sections.h                |    6 -
+>  arch/h8300/include/asm/segment.h                 |   49 --
+>  arch/h8300/include/asm/sh_bios.h                 |   29 -
+>  arch/h8300/include/asm/shm.h                     |   31 -
+>  arch/h8300/include/asm/shmparam.h                |    6 -
+>  arch/h8300/include/asm/signal.h                  |   24 -
+>  arch/h8300/include/asm/smp.h                     |    1 -
+>  arch/h8300/include/asm/spinlock.h                |    6 -
+>  arch/h8300/include/asm/string.h                  |   44 --
+>  arch/h8300/include/asm/switch_to.h               |   50 --
+>  arch/h8300/include/asm/target_time.h             |    4 -
+>  arch/h8300/include/asm/termios.h                 |   50 --
+>  arch/h8300/include/asm/thread_info.h             |  103 ----
+>  arch/h8300/include/asm/timer.h                   |   25 -
+>  arch/h8300/include/asm/timex.h                   |   19 -
+>  arch/h8300/include/asm/tlb.h                     |    8 -
+>  arch/h8300/include/asm/tlbflush.h                |   55 --
+>  arch/h8300/include/asm/topology.h                |    6 -
+>  arch/h8300/include/asm/traps.h                   |   37 --
+>  arch/h8300/include/asm/types.h                   |    9 -
+>  arch/h8300/include/asm/uaccess.h                 |  163 ------
+>  arch/h8300/include/asm/ucontext.h                |   12 -
+>  arch/h8300/include/asm/unaligned.h               |   11 -
+>  arch/h8300/include/asm/unistd.h                  |   36 --
+>  arch/h8300/include/asm/user.h                    |   75 ---
+>  arch/h8300/include/asm/virtconvert.h             |   20 -
+>  arch/h8300/include/uapi/asm/Kbuild               |   34 --
+>  arch/h8300/include/uapi/asm/auxvec.h             |    4 -
+>  arch/h8300/include/uapi/asm/bitsperlong.h        |    1 -
+>  arch/h8300/include/uapi/asm/byteorder.h          |    6 -
+>  arch/h8300/include/uapi/asm/errno.h              |    6 -
+>  arch/h8300/include/uapi/asm/fcntl.h              |   11 -
+>  arch/h8300/include/uapi/asm/ioctl.h              |    1 -
+>  arch/h8300/include/uapi/asm/ioctls.h             |    8 -
+>  arch/h8300/include/uapi/asm/ipcbuf.h             |    1 -
+>  arch/h8300/include/uapi/asm/kvm_para.h           |    1 -
+>  arch/h8300/include/uapi/asm/mman.h               |    1 -
+>  arch/h8300/include/uapi/asm/msgbuf.h             |   31 -
+>  arch/h8300/include/uapi/asm/param.h              |   16 -
+>  arch/h8300/include/uapi/asm/poll.h               |   11 -
+>  arch/h8300/include/uapi/asm/posix_types.h        |   26 -
+>  arch/h8300/include/uapi/asm/ptrace.h             |   44 --
+>  arch/h8300/include/uapi/asm/resource.h           |    6 -
+>  arch/h8300/include/uapi/asm/sembuf.h             |   25 -
+>  arch/h8300/include/uapi/asm/setup.h              |    6 -
+>  arch/h8300/include/uapi/asm/shmbuf.h             |   42 --
+>  arch/h8300/include/uapi/asm/sigcontext.h         |   18 -
+>  arch/h8300/include/uapi/asm/siginfo.h            |    6 -
+>  arch/h8300/include/uapi/asm/signal.h             |  115 ----
+>  arch/h8300/include/uapi/asm/socket.h             |   79 ---
+>  arch/h8300/include/uapi/asm/sockios.h            |   13 -
+>  arch/h8300/include/uapi/asm/stat.h               |   78 ---
+>  arch/h8300/include/uapi/asm/statfs.h             |    6 -
+>  arch/h8300/include/uapi/asm/swab.h               |   10 -
+>  arch/h8300/include/uapi/asm/termbits.h           |  201 -------
+>  arch/h8300/include/uapi/asm/termios.h            |   44 --
+>  arch/h8300/include/uapi/asm/types.h              |    1 -
+>  arch/h8300/include/uapi/asm/unistd.h             |  330 -----------
+>  arch/h8300/kernel/Makefile                       |   12 -
+>  arch/h8300/kernel/asm-offsets.c                  |   60 --
+>  arch/h8300/kernel/entry.S                        |  402 -------------
+>  arch/h8300/kernel/gpio.c                         |  178 ------
+>  arch/h8300/kernel/h8300_ksyms.c                  |  100 ----
+>  arch/h8300/kernel/irq.c                          |  165 ------
+>  arch/h8300/kernel/module.c                       |   75 ---
+>  arch/h8300/kernel/process.c                      |  154 -----
+>  arch/h8300/kernel/ptrace.c                       |  168 ------
+>  arch/h8300/kernel/setup.c                        |  242 --------
+>  arch/h8300/kernel/signal.c                       |  444 --------------
+>  arch/h8300/kernel/sys_h8300.c                    |   48 --
+>  arch/h8300/kernel/syscalls.S                     |  338 -----------
+>  arch/h8300/kernel/time.c                         |   66 ---
+>  arch/h8300/kernel/timer/Makefile                 |    6 -
+>  arch/h8300/kernel/timer/itu.c                    |   82 ---
+>  arch/h8300/kernel/timer/timer16.c                |   77 ---
+>  arch/h8300/kernel/timer/timer8.c                 |  102 ----
+>  arch/h8300/kernel/timer/tpu.c                    |  100 ----
+>  arch/h8300/kernel/traps.c                        |  166 ------
+>  arch/h8300/kernel/vmlinux.lds.S                  |  157 -----
+>  arch/h8300/lib/Makefile                          |    5 -
+>  arch/h8300/lib/abs.S                             |   21 -
+>  arch/h8300/lib/ashrdi3.c                         |   63 --
+>  arch/h8300/lib/checksum.c                        |  164 ------
+>  arch/h8300/lib/memcpy.S                          |   84 ---
+>  arch/h8300/lib/memset.S                          |   61 --
+>  arch/h8300/lib/romfs.S                           |   57 --
+>  arch/h8300/mm/Makefile                           |    5 -
+>  arch/h8300/mm/fault.c                            |   56 --
+>  arch/h8300/mm/init.c                             |  155 -----
+>  arch/h8300/mm/kmap.c                             |   58 --
+>  arch/h8300/mm/memory.c                           |   54 --
+>  arch/h8300/platform/h8300h/Makefile              |    7 -
+>  arch/h8300/platform/h8300h/aki3068net/Makefile   |    5 -
+>  arch/h8300/platform/h8300h/aki3068net/crt0_ram.S |  110 ----
+>  arch/h8300/platform/h8300h/generic/Makefile      |    5 -
+>  arch/h8300/platform/h8300h/generic/crt0_ram.S    |  107 ----
+>  arch/h8300/platform/h8300h/generic/crt0_rom.S    |  122 ----
+>  arch/h8300/platform/h8300h/h8max/Makefile        |    5 -
+>  arch/h8300/platform/h8300h/h8max/crt0_ram.S      |  110 ----
+>  arch/h8300/platform/h8300h/irq.c                 |   82 ---
+>  arch/h8300/platform/h8300h/ptrace_h8300h.c       |  284 ---------
+>  arch/h8300/platform/h8s/Makefile                 |    7 -
+>  arch/h8300/platform/h8s/edosk2674/Makefile       |    5 -
+>  arch/h8300/platform/h8s/edosk2674/crt0_ram.S     |  130 ----
+>  arch/h8300/platform/h8s/edosk2674/crt0_rom.S     |  186 ------
+>  arch/h8300/platform/h8s/generic/Makefile         |    5 -
+>  arch/h8300/platform/h8s/generic/crt0_ram.S       |  127 ----
+>  arch/h8300/platform/h8s/generic/crt0_rom.S       |  128 ----
+>  arch/h8300/platform/h8s/irq.c                    |  104 ----
+>  arch/h8300/platform/h8s/ptrace_h8s.c             |   84 ---
+>  drivers/ide/Kconfig                              |    7 -
+>  drivers/ide/Makefile                             |    2 -
+>  drivers/ide/ide-h8300.c                          |  109 ----
+>  drivers/net/Space.c                              |    3 +-
+>  drivers/net/ethernet/8390/Kconfig                |    7 -
+>  drivers/net/ethernet/8390/Makefile               |    1 -
+>  drivers/net/ethernet/8390/ne-h8300.c             |  684 ----------------------
+>  drivers/net/ethernet/smsc/smc9194.c              |   24 -
+>  drivers/watchdog/Kconfig                         |    2 -
+>  drivers/watchdog/Makefile                        |    2 -
+>  fs/minix/Kconfig                                 |    2 +-
+>  include/linux/serial_sci.h                       |    2 +-
+>  include/uapi/linux/audit.h                       |    1 -
+>  include/uapi/linux/elf-em.h                      |    1 -
+>  tools/testing/ktest/examples/crosstests.conf     |    6 -
+>  193 files changed, 3 insertions(+), 11742 deletions(-)
+>  delete mode 100644 arch/h8300/Kconfig
+>  delete mode 100644 arch/h8300/Kconfig.cpu
+>  delete mode 100644 arch/h8300/Kconfig.debug
+>  delete mode 100644 arch/h8300/Kconfig.ide
+>  delete mode 100644 arch/h8300/Makefile
+>  delete mode 100644 arch/h8300/README
+>  delete mode 100644 arch/h8300/boot/Makefile
+>  delete mode 100644 arch/h8300/boot/compressed/Makefile
+>  delete mode 100644 arch/h8300/boot/compressed/head.S
+>  delete mode 100644 arch/h8300/boot/compressed/misc.c
+>  delete mode 100644 arch/h8300/boot/compressed/vmlinux.lds
+>  delete mode 100644 arch/h8300/boot/compressed/vmlinux.scr
+>  delete mode 100644 arch/h8300/defconfig
+>  delete mode 100644 arch/h8300/include/asm/Kbuild
+>  delete mode 100644 arch/h8300/include/asm/asm-offsets.h
+>  delete mode 100644 arch/h8300/include/asm/atomic.h
+>  delete mode 100644 arch/h8300/include/asm/barrier.h
+>  delete mode 100644 arch/h8300/include/asm/bitops.h
+>  delete mode 100644 arch/h8300/include/asm/bootinfo.h
+>  delete mode 100644 arch/h8300/include/asm/bug.h
+>  delete mode 100644 arch/h8300/include/asm/bugs.h
+>  delete mode 100644 arch/h8300/include/asm/cache.h
+>  delete mode 100644 arch/h8300/include/asm/cachectl.h
+>  delete mode 100644 arch/h8300/include/asm/cacheflush.h
+>  delete mode 100644 arch/h8300/include/asm/checksum.h
+>  delete mode 100644 arch/h8300/include/asm/cmpxchg.h
+>  delete mode 100644 arch/h8300/include/asm/cputime.h
+>  delete mode 100644 arch/h8300/include/asm/current.h
+>  delete mode 100644 arch/h8300/include/asm/dbg.h
+>  delete mode 100644 arch/h8300/include/asm/delay.h
+>  delete mode 100644 arch/h8300/include/asm/device.h
+>  delete mode 100644 arch/h8300/include/asm/div64.h
+>  delete mode 100644 arch/h8300/include/asm/dma.h
+>  delete mode 100644 arch/h8300/include/asm/elf.h
+>  delete mode 100644 arch/h8300/include/asm/emergency-restart.h
+>  delete mode 100644 arch/h8300/include/asm/fb.h
+>  delete mode 100644 arch/h8300/include/asm/flat.h
+>  delete mode 100644 arch/h8300/include/asm/fpu.h
+>  delete mode 100644 arch/h8300/include/asm/ftrace.h
+>  delete mode 100644 arch/h8300/include/asm/futex.h
+>  delete mode 100644 arch/h8300/include/asm/gpio-internal.h
+>  delete mode 100644 arch/h8300/include/asm/hardirq.h
+>  delete mode 100644 arch/h8300/include/asm/hw_irq.h
+>  delete mode 100644 arch/h8300/include/asm/io.h
+>  delete mode 100644 arch/h8300/include/asm/irq.h
+>  delete mode 100644 arch/h8300/include/asm/irq_regs.h
+>  delete mode 100644 arch/h8300/include/asm/irqflags.h
+>  delete mode 100644 arch/h8300/include/asm/kdebug.h
+>  delete mode 100644 arch/h8300/include/asm/kmap_types.h
+>  delete mode 100644 arch/h8300/include/asm/local.h
+>  delete mode 100644 arch/h8300/include/asm/local64.h
+>  delete mode 100644 arch/h8300/include/asm/mc146818rtc.h
+>  delete mode 100644 arch/h8300/include/asm/mmu_context.h
+>  delete mode 100644 arch/h8300/include/asm/mutex.h
+>  delete mode 100644 arch/h8300/include/asm/page.h
+>  delete mode 100644 arch/h8300/include/asm/page_offset.h
+>  delete mode 100644 arch/h8300/include/asm/param.h
+>  delete mode 100644 arch/h8300/include/asm/pci.h
+>  delete mode 100644 arch/h8300/include/asm/percpu.h
+>  delete mode 100644 arch/h8300/include/asm/pgalloc.h
+>  delete mode 100644 arch/h8300/include/asm/pgtable.h
+>  delete mode 100644 arch/h8300/include/asm/processor.h
+>  delete mode 100644 arch/h8300/include/asm/ptrace.h
+>  delete mode 100644 arch/h8300/include/asm/regs267x.h
+>  delete mode 100644 arch/h8300/include/asm/regs306x.h
+>  delete mode 100644 arch/h8300/include/asm/scatterlist.h
+>  delete mode 100644 arch/h8300/include/asm/sections.h
+>  delete mode 100644 arch/h8300/include/asm/segment.h
+>  delete mode 100644 arch/h8300/include/asm/sh_bios.h
+>  delete mode 100644 arch/h8300/include/asm/shm.h
+>  delete mode 100644 arch/h8300/include/asm/shmparam.h
+>  delete mode 100644 arch/h8300/include/asm/signal.h
+>  delete mode 100644 arch/h8300/include/asm/smp.h
+>  delete mode 100644 arch/h8300/include/asm/spinlock.h
+>  delete mode 100644 arch/h8300/include/asm/string.h
+>  delete mode 100644 arch/h8300/include/asm/switch_to.h
+>  delete mode 100644 arch/h8300/include/asm/target_time.h
+>  delete mode 100644 arch/h8300/include/asm/termios.h
+>  delete mode 100644 arch/h8300/include/asm/thread_info.h
+>  delete mode 100644 arch/h8300/include/asm/timer.h
+>  delete mode 100644 arch/h8300/include/asm/timex.h
+>  delete mode 100644 arch/h8300/include/asm/tlb.h
+>  delete mode 100644 arch/h8300/include/asm/tlbflush.h
+>  delete mode 100644 arch/h8300/include/asm/topology.h
+>  delete mode 100644 arch/h8300/include/asm/traps.h
+>  delete mode 100644 arch/h8300/include/asm/types.h
+>  delete mode 100644 arch/h8300/include/asm/uaccess.h
+>  delete mode 100644 arch/h8300/include/asm/ucontext.h
+>  delete mode 100644 arch/h8300/include/asm/unaligned.h
+>  delete mode 100644 arch/h8300/include/asm/unistd.h
+>  delete mode 100644 arch/h8300/include/asm/user.h
+>  delete mode 100644 arch/h8300/include/asm/virtconvert.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/Kbuild
+>  delete mode 100644 arch/h8300/include/uapi/asm/auxvec.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/bitsperlong.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/byteorder.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/errno.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/fcntl.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/ioctl.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/ioctls.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/ipcbuf.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/kvm_para.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/mman.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/msgbuf.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/param.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/poll.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/posix_types.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/ptrace.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/resource.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/sembuf.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/setup.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/shmbuf.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/sigcontext.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/siginfo.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/signal.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/socket.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/sockios.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/stat.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/statfs.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/swab.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/termbits.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/termios.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/types.h
+>  delete mode 100644 arch/h8300/include/uapi/asm/unistd.h
+>  delete mode 100644 arch/h8300/kernel/Makefile
+>  delete mode 100644 arch/h8300/kernel/asm-offsets.c
+>  delete mode 100644 arch/h8300/kernel/entry.S
+>  delete mode 100644 arch/h8300/kernel/gpio.c
+>  delete mode 100644 arch/h8300/kernel/h8300_ksyms.c
+>  delete mode 100644 arch/h8300/kernel/irq.c
+>  delete mode 100644 arch/h8300/kernel/module.c
+>  delete mode 100644 arch/h8300/kernel/process.c
+>  delete mode 100644 arch/h8300/kernel/ptrace.c
+>  delete mode 100644 arch/h8300/kernel/setup.c
+>  delete mode 100644 arch/h8300/kernel/signal.c
+>  delete mode 100644 arch/h8300/kernel/sys_h8300.c
+>  delete mode 100644 arch/h8300/kernel/syscalls.S
+>  delete mode 100644 arch/h8300/kernel/time.c
+>  delete mode 100644 arch/h8300/kernel/timer/Makefile
+>  delete mode 100644 arch/h8300/kernel/timer/itu.c
+>  delete mode 100644 arch/h8300/kernel/timer/timer16.c
+>  delete mode 100644 arch/h8300/kernel/timer/timer8.c
+>  delete mode 100644 arch/h8300/kernel/timer/tpu.c
+>  delete mode 100644 arch/h8300/kernel/traps.c
+>  delete mode 100644 arch/h8300/kernel/vmlinux.lds.S
+>  delete mode 100644 arch/h8300/lib/Makefile
+>  delete mode 100644 arch/h8300/lib/abs.S
+>  delete mode 100644 arch/h8300/lib/ashrdi3.c
+>  delete mode 100644 arch/h8300/lib/checksum.c
+>  delete mode 100644 arch/h8300/lib/memcpy.S
+>  delete mode 100644 arch/h8300/lib/memset.S
+>  delete mode 100644 arch/h8300/lib/romfs.S
+>  delete mode 100644 arch/h8300/mm/Makefile
+>  delete mode 100644 arch/h8300/mm/fault.c
+>  delete mode 100644 arch/h8300/mm/init.c
+>  delete mode 100644 arch/h8300/mm/kmap.c
+>  delete mode 100644 arch/h8300/mm/memory.c
+>  delete mode 100644 arch/h8300/platform/h8300h/Makefile
+>  delete mode 100644 arch/h8300/platform/h8300h/aki3068net/Makefile
+>  delete mode 100644 arch/h8300/platform/h8300h/aki3068net/crt0_ram.S
+>  delete mode 100644 arch/h8300/platform/h8300h/generic/Makefile
+>  delete mode 100644 arch/h8300/platform/h8300h/generic/crt0_ram.S
+>  delete mode 100644 arch/h8300/platform/h8300h/generic/crt0_rom.S
+>  delete mode 100644 arch/h8300/platform/h8300h/h8max/Makefile
+>  delete mode 100644 arch/h8300/platform/h8300h/h8max/crt0_ram.S
+>  delete mode 100644 arch/h8300/platform/h8300h/irq.c
+>  delete mode 100644 arch/h8300/platform/h8300h/ptrace_h8300h.c
+>  delete mode 100644 arch/h8300/platform/h8s/Makefile
+>  delete mode 100644 arch/h8300/platform/h8s/edosk2674/Makefile
+>  delete mode 100644 arch/h8300/platform/h8s/edosk2674/crt0_ram.S
+>  delete mode 100644 arch/h8300/platform/h8s/edosk2674/crt0_rom.S
+>  delete mode 100644 arch/h8300/platform/h8s/generic/Makefile
+>  delete mode 100644 arch/h8300/platform/h8s/generic/crt0_ram.S
+>  delete mode 100644 arch/h8300/platform/h8s/generic/crt0_rom.S
+>  delete mode 100644 arch/h8300/platform/h8s/irq.c
+>  delete mode 100644 arch/h8300/platform/h8s/ptrace_h8s.c
+>  delete mode 100644 drivers/ide/ide-h8300.c
+>  delete mode 100644 drivers/net/ethernet/8390/ne-h8300.c
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+
 -- 
-1.8.2.3
-
+Chen Gang
