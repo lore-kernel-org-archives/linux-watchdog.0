@@ -1,179 +1,154 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailout2.w1.samsung.com ([210.118.77.12]:13417 "EHLO
-	mailout2.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752683Ab3IQNbL (ORCPT
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from b232-131.smtp-out.amazonses.com ([199.127.232.131]:51935 "EHLO
+	b232-131.smtp-out.amazonses.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1760714Ab3ICTWA (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 17 Sep 2013 09:31:11 -0400
-From: Tomasz Figa <t.figa@samsung.com>
-To: Leela Krishna Amudala <l.krishna@samsung.com>
-Cc: linux-samsung-soc@vger.kernel.org, wim@iguana.be,
-	kgene.kim@samsung.com, devicetree@vger.kernel.org,
-	dianders@chromium.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 3/4] watchdog: s3c2410_wdt: parse watchdog dt node to read
- PMU registers adresses
-Date: Tue, 17 Sep 2013 15:30:55 +0200
-Message-id: <3395282.rv7qzo3E3P@amdc1227>
-In-reply-to: <1379414623-26329-4-git-send-email-l.krishna@samsung.com>
-References: <1379414623-26329-1-git-send-email-l.krishna@samsung.com>
- <1379414623-26329-4-git-send-email-l.krishna@samsung.com>
-MIME-version: 1.0
-Content-transfer-encoding: 7Bit
-Content-type: text/plain; charset=us-ascii
+	Tue, 3 Sep 2013 15:22:00 -0400
+Message-Id: <00000140e53d5f3e-a6ae67f9-6390-4563-863a-7f41e7428e37-000000@email.amazonses.com>
+Date: Tue, 3 Sep 2013 19:12:20 +0000
+From: Christoph Lameter <cl@linux.com>
+To: Tejun Heo <tj@kernel.org>
+Cc: akpm@linuxfoundation.org, Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org
+Cc: linux-arch@vger.kernel.org
+Cc: Steven Rostedt <srostedt@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Subject: [gcv v4 15/38] watchdog: Replace __get_cpu_var uses
+References: <20130903190014.794420260@linux.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Leela,
+__get_cpu_var() is used for multiple purposes in the kernel source. One of them is
+address calculation via the form &__get_cpu_var(x). This calculates the address for
+the instance of the percpu variable of the current processor based on an offset.
 
-Please see my comments below.
+Other use cases are for storing and retrieving data from the current processors percpu area.
+__get_cpu_var() can be used as an lvalue when writing data or on the right side of an assignment.
 
-On Tuesday 17 of September 2013 16:13:42 Leela Krishna Amudala wrote:
-> This patch parses the watchdog node to read pmu wdt sys registers
-> addresses and do mask/unmask enable/disable of WDT in probe and s2r
-> scenarios.
-> 
-> Reviewed-by: Doug Anderson <dianders@chromium.org>
-> Signed-off-by: Leela Krishna Amudala <l.krishna@samsung.com>
-> ---
->  .../devicetree/bindings/watchdog/samsung-wdt.txt   |   14 ++++-
->  drivers/watchdog/s3c2410_wdt.c                     |   56
-> ++++++++++++++++++++ 2 files changed, 69 insertions(+), 1 deletion(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
-> b/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt index
-> 2aa486c..4c798e3 100644
-> --- a/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
-> +++ b/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
-> @@ -7,8 +7,20 @@ occurred.
->  Required properties:
->  - compatible : should be "samsung,s3c2410-wdt"
+__get_cpu_var() is defined as :
 
-Since the WDT block of Exynos 5420 needs some extra configuration in PMU 
-registers, it is no longer compatible with samsung.s3c2410-wdt. Please 
-introduce separate compatible ("samsung,exynos5420-wdt") and make the 
-driver handle the additional configuration only if running on a device with 
-this compatible value.
 
-I'd suggest introducing quirk system to the driver and adding a 
-NEEDS_PMU_CONFIG quirk selected by DT match entry with "samsung,exynos5420-
-wdt" compatible.
+#define __get_cpu_var(var) (*this_cpu_ptr(&(var)))
 
->  - reg : base physical address of the controller and length of memory
-> mapped -	region.
-> +	region and the optional (addresses and length of memory mapped regions
-> +	of) PMU registers for masking/unmasking WDT.
->  - interrupts : interrupt number to the cpu.
-> 
->  Optional properties:
->  - timeout-sec : contains the watchdog timeout in seconds.
-> +- reset-mask-bit: bit number in the PMU registers to program mask/unmask
-> WDT. +
 
-I believe this is mandatory on Exynos 5420 and unused on previous SoCs. It 
-should be handled depending on compatible value.
 
->
-[...]
-> +static void s3c2410wdt_mask_and_disable_reset(int mask, struct
-> s3c2410_wdt *wdt) +{
-> +	unsigned int value;
-> +
-> +	if (IS_ERR(wdt->pmu_disable_reg) || IS_ERR(wdt->pmu_mask_reset_reg)
-> +					 || (wdt->pmu_mask_bit < 0))
-> +		return;
+__get_cpu_var() always only does an address determination. However, store and retrieve operations
+could use a segment prefix (or global register on other platforms) to avoid the address calculation.
 
-This function could be called only if respective quirk is active and the 
-check above could be dropped.
+this_cpu_write() and this_cpu_read() can directly take an offset into a percpu area and use
+optimized assembly code to read and write per cpu variables.
 
-> +
-> +	if (mask) {
-> +		value = readl(wdt->pmu_disable_reg);
-> +		value |= (1 << wdt->pmu_mask_bit);
-> +		writel(value, wdt->pmu_disable_reg);
-> +
-> +		value = readl(wdt->pmu_mask_reset_reg);
-> +		value |= (1 << wdt->pmu_mask_bit);
-> +		writel(value, wdt->pmu_mask_reset_reg);
-> +	} else {
-> +		value = readl(wdt->pmu_disable_reg);
-> +		value &= ~(1 << wdt->pmu_mask_bit);
-> +		writel(value, wdt->pmu_disable_reg);
-> +
-> +		value = readl(wdt->pmu_mask_reset_reg);
-> +		value &= ~(1 << wdt->pmu_mask_bit);
-> +		writel(value, wdt->pmu_mask_reset_reg);
-> +	}
 
-This can be greatly simplified by moving readl and writel outside the 
-conditional block, i.e.
+This patch converts __get_cpu_var into either an explicit address calculation using this_cpu_ptr()
+or into a use of this_cpu operations that use the offset. Thereby address calculations are avoided
+and less registers are used when code is generated.
 
-	u32 disable, mask_reset;
+At the end of the patch set all uses of __get_cpu_var have been removed so the macro is removed too.
 
-	disable = readl(wdt->pmu_disable_reg);
-	mask_reset = readl(wdt->pmu_mask_reset_reg);
+The patch set includes passes over all arches as well. Once these operations are used throughout then
+specialized macros can be defined in non -x86 arches as well in order to optimize per cpu access by
+f.e. using a global register that may be set to the per cpu base.
 
-	if (mask) {
-		disable |= (1 << wdt->pmu_mask_bit);
-		mask_reset |= (1 << wdt->pmu_mask_bit);
-	} else {
-		disable &= ~(1 << wdt->pmu_mask_bit);
-		mask_reset &= ~(1 << wdt->pmu_mask_bit);
-	}
 
-	writel(disable, wdt->pmu_disable_reg);
-	writel(mask_reset, wdt->pmu_mask_reset_reg);
 
-> +}
-> +
->  static int s3c2410wdt_keepalive(struct watchdog_device *wdd)
->  {
->  	struct s3c2410_wdt *wdt = watchdog_get_drvdata(wdd);
-> @@ -341,6 +371,8 @@ static int s3c2410wdt_probe(struct platform_device
-> *pdev) unsigned int wtcon;
->  	int started = 0;
->  	int ret;
-> +	struct resource *res;
-> +	unsigned int mask_bit;
-> 
->  	DBG("%s: probe=%p\n", __func__, pdev);
-> 
-> @@ -369,6 +401,25 @@ static int s3c2410wdt_probe(struct platform_device
-> *pdev) goto err;
->  	}
 
-The code added below could be handled conditionally and missing PMU 
-registers could simply trigger an error.
+Transformations done to __get_cpu_var()
 
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
-> +	wdt->pmu_disable_reg = devm_ioremap_resource(&pdev->dev, res);
-> +
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 2);
-> +	wdt->pmu_mask_reset_reg = devm_ioremap_resource(&pdev->dev, res);
-> +
-> +	if (!IS_ERR(wdt->pmu_disable_reg) && !IS_ERR(wdt->pmu_mask_reset_reg))
-> { +		if (pdev->dev.of_node) {
-> +			if (of_property_read_u32(pdev->dev.of_node,
-> +							"reset-mask-bit",
-> +							&mask_bit)) {
-> +				dev_warn(dev, "reset-mask-bit not specified\n");
-> +				wdt->pmu_mask_bit = -EINVAL;
-> +			} else {
-> +				wdt->pmu_mask_bit = mask_bit;
-> +			}
-> +		}
-> +	}
-> +
->  	DBG("probe: mapped reg_base=%p\n", wdt->reg_base);
-> 
->  	wdt->clock = devm_clk_get(dev, "watchdog");
-> @@ -444,6 +495,7 @@ static int s3c2410wdt_probe(struct platform_device
-> *pdev) (wtcon & S3C2410_WTCON_RSTEN) ? "en" : "dis",
->  		 (wtcon & S3C2410_WTCON_INTEN) ? "en" : "dis");
-> 
-> +	s3c2410wdt_mask_and_disable_reset(0, wdt);
 
-The call above (and further call to this function bellow) could happen 
-conditionally.
+1. Determine the address of the percpu instance of the current processor.
 
-Best regards,
-Tomasz
+	DEFINE_PER_CPU(int, y);
+	int *x = &__get_cpu_var(y);
+
+    Converts to
+
+	int *x = this_cpu_ptr(&y);
+
+
+2. Same as #1 but this time an array structure is involved.
+
+	DEFINE_PER_CPU(int, y[20]);
+	int *x = __get_cpu_var(y);
+
+    Converts to
+
+	int *x = this_cpu_ptr(y);
+
+
+3. Retrieve the content of the current processors instance of a per cpu variable.
+
+	DEFINE_PER_CPU(int, y);
+	int x = __get_cpu_var(y)
+
+   Converts to
+
+	int x = __this_cpu_read(y);
+
+
+4. Retrieve the content of a percpu struct
+
+	DEFINE_PER_CPU(struct mystruct, y);
+	struct mystruct x = __get_cpu_var(y);
+
+   Converts to
+
+	memcpy(&x, this_cpu_ptr(&y), sizeof(x));
+
+
+5. Assignment to a per cpu variable
+
+	DEFINE_PER_CPU(int, y)
+	__get_cpu_var(y) = x;
+
+   Converts to
+
+	this_cpu_write(y, x);
+
+
+6. Increment/Decrement etc of a per cpu variable
+
+	DEFINE_PER_CPU(int, y);
+	__get_cpu_var(y)++
+
+   Converts to
+
+	this_cpu_inc(y)
+
+Signed-off-by: Christoph Lameter <cl@linux.com>
+
+Index: linux/kernel/watchdog.c
+===================================================================
+--- linux.orig/kernel/watchdog.c	2013-08-26 14:28:39.000000000 -0500
++++ linux/kernel/watchdog.c	2013-08-26 14:29:34.471034451 -0500
+@@ -174,8 +174,8 @@ EXPORT_SYMBOL(touch_nmi_watchdog);
+ 
+ void touch_softlockup_watchdog_sync(void)
+ {
+-	__raw_get_cpu_var(softlockup_touch_sync) = true;
+-	__raw_get_cpu_var(watchdog_touch_ts) = 0;
++	__this_cpu_write(softlockup_touch_sync, 1);
++	__this_cpu_write(watchdog_touch_ts, 0);
+ }
+ 
+ #ifdef CONFIG_HARDLOCKUP_DETECTOR
+@@ -341,7 +341,7 @@ static void watchdog_set_prio(unsigned i
+ 
+ static void watchdog_enable(unsigned int cpu)
+ {
+-	struct hrtimer *hrtimer = &__raw_get_cpu_var(watchdog_hrtimer);
++	struct hrtimer *hrtimer = __this_cpu_ptr(&watchdog_hrtimer);
+ 
+ 	/* kick off the timer for the hardlockup detector */
+ 	hrtimer_init(hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+@@ -361,7 +361,7 @@ static void watchdog_enable(unsigned int
+ 
+ static void watchdog_disable(unsigned int cpu)
+ {
+-	struct hrtimer *hrtimer = &__raw_get_cpu_var(watchdog_hrtimer);
++	struct hrtimer *hrtimer = __this_cpu_ptr(&watchdog_hrtimer);
+ 
+ 	watchdog_set_prio(SCHED_NORMAL, 0);
+ 	hrtimer_cancel(hrtimer);
 
