@@ -1,42 +1,67 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.126.187]:53726 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750846Ab3IPT6Z (ORCPT
+Received: from mail-ob0-f178.google.com ([209.85.214.178]:59643 "EHLO
+	mail-ob0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751292Ab3IREed (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 16 Sep 2013 15:58:25 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Domenico Andreoli <domenico.andreoli@linux.com>,
-	Olof Johansson <olof@lixom.net>,
-	Russell King - ARM Linux <linux@arm.linux.org.uk>,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v4 4/4] ARM: bcm4760: Add restart hook
-Date: Mon, 16 Sep 2013 22:01:08 +0200
-Message-ID: <13398230.iOE1HhgZy2@wuerfel>
-In-Reply-To: <20130916120001.GE401@spo001.leaseweb.com>
-References: <20130914152032.401907974@gmail.com> <20130916071821.GA18210@glitch> <20130916120001.GE401@spo001.leaseweb.com>
+	Wed, 18 Sep 2013 00:34:33 -0400
+Received: by mail-ob0-f178.google.com with SMTP id uy5so6733359obc.37
+        for <linux-watchdog@vger.kernel.org>; Tue, 17 Sep 2013 21:34:32 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+In-Reply-To: <3395282.rv7qzo3E3P@amdc1227>
+References: <1379414623-26329-1-git-send-email-l.krishna@samsung.com>
+	<1379414623-26329-4-git-send-email-l.krishna@samsung.com>
+	<3395282.rv7qzo3E3P@amdc1227>
+Date: Tue, 17 Sep 2013 21:34:31 -0700
+Message-ID: <CAD=FV=XQSLULsYanJCCFehxrs9LESZ=KO8XgyzZaacL4GNeXPA@mail.gmail.com>
+Subject: Re: [PATCH 3/4] watchdog: s3c2410_wdt: parse watchdog dt node to read
+ PMU registers adresses
+From: Doug Anderson <dianders@chromium.org>
+To: Tomasz Figa <t.figa@samsung.com>
+Cc: Leela Krishna Amudala <l.krishna@samsung.com>,
+	linux-samsung-soc <linux-samsung-soc@vger.kernel.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Kukjin Kim <kgene.kim@samsung.com>, devicetree@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Monday 16 September 2013 14:00:01 Wim Van Sebroeck wrote:
-> 
-> I remember that the Cobalt Devices have no ability to reboot themselves.
-> That's why the driver uses the reboot_notifier for rebooting the device.
-> See drivers/watchdog/alim7101_wdt.c .
+Tomasz,
 
-Hmm, a notifier seems the wrong approach here, because we really want
-to handle all reboot_notifiers before actually rebooting, and we'd enter
-the wdt driver at a random point in the notifier chain. It probably works
-by chance if the watchdog reboots a second after its notifier is called,
-and all other calls are done as well, but it doesn't seem like a clean
-solution.
+On Tue, Sep 17, 2013 at 6:30 AM, Tomasz Figa <t.figa@samsung.com> wrote:
+>> --- a/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
+>> +++ b/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
+>> @@ -7,8 +7,20 @@ occurred.
+>>  Required properties:
+>>  - compatible : should be "samsung,s3c2410-wdt"
+>
+> Since the WDT block of Exynos 5420 needs some extra configuration in PMU
+> registers, it is no longer compatible with samsung.s3c2410-wdt. Please
+> introduce separate compatible ("samsung,exynos5420-wdt") and make the
+> driver handle the additional configuration only if running on a device with
+> this compatible value.
+>
+> I'd suggest introducing quirk system to the driver and adding a
+> NEEDS_PMU_CONFIG quirk selected by DT match entry with "samsung,exynos5420-
+> wdt" compatible.
+>
+>>  - reg : base physical address of the controller and length of memory
+>> mapped -      region.
+>> +     region and the optional (addresses and length of memory mapped regions
+>> +     of) PMU registers for masking/unmasking WDT.
+>>  - interrupts : interrupt number to the cpu.
+>>
+>>  Optional properties:
+>>  - timeout-sec : contains the watchdog timeout in seconds.
+>> +- reset-mask-bit: bit number in the PMU registers to program mask/unmask
+>> WDT. +
+>
+> I believe this is mandatory on Exynos 5420 and unused on previous SoCs. It
+> should be handled depending on compatible value.
 
-> I'll have a look to have an extra ops that adds this functionality in the framework.
+I think at least 5250 needs something similar.  I believe we got away
+with it in the past since other (non-WDT) code was tweaking with this
+bit, but that was a little bit gross.  Leela Krishna can correct me if
+I'm wrong.
 
-Ok, cool. Thanks!
-
-	Arnd
+-Doug
