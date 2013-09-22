@@ -1,106 +1,154 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ve0-f172.google.com ([209.85.128.172]:32835 "EHLO
-	mail-ve0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751770Ab3IRGuv (ORCPT
+Received: from mail-qa0-f43.google.com ([209.85.216.43]:60034 "EHLO
+	mail-qa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752599Ab3IVDH0 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 18 Sep 2013 02:50:51 -0400
+	Sat, 21 Sep 2013 23:07:26 -0400
+Received: by mail-qa0-f43.google.com with SMTP id k15so682801qaq.16
+        for <linux-watchdog@vger.kernel.org>; Sat, 21 Sep 2013 20:07:25 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAD=FV=XQSLULsYanJCCFehxrs9LESZ=KO8XgyzZaacL4GNeXPA@mail.gmail.com>
-References: <1379414623-26329-1-git-send-email-l.krishna@samsung.com>
- <1379414623-26329-4-git-send-email-l.krishna@samsung.com> <3395282.rv7qzo3E3P@amdc1227>
- <CAD=FV=XQSLULsYanJCCFehxrs9LESZ=KO8XgyzZaacL4GNeXPA@mail.gmail.com>
-From: Leela Krishna Amudala <l.krishna@samsung.com>
-Date: Wed, 18 Sep 2013 12:20:31 +0530
-Message-ID: <CAL1wa8eWKNL3kdfjqxqaLsAtc8nqgiPW34SBk4gozAR1jnRaSg@mail.gmail.com>
-Subject: Re: [PATCH 3/4] watchdog: s3c2410_wdt: parse watchdog dt node to read
- PMU registers adresses
-To: Doug Anderson <dianders@chromium.org>
-Cc: Tomasz Figa <t.figa@samsung.com>,
-	Leela Krishna Amudala <l.krishna@samsung.com>,
-	linux-samsung-soc <linux-samsung-soc@vger.kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Kukjin Kim <kgene.kim@samsung.com>, devicetree@vger.kernel.org,
+In-Reply-To: <l0sp1v$5tp$1@ger.gmane.org>
+References: <1378953828-374-1-git-send-email-Baohua.Song@csr.com>
+ <l0rusk$789$1@ger.gmane.org> <CAGsJ_4zxCzmvYvB8NnuPWW3gr3ht3_qexWR4PLN7i1rMrrNf4g@mail.gmail.com>
+ <l0sp1v$5tp$1@ger.gmane.org>
+From: Barry Song <21cnbao@gmail.com>
+Date: Sun, 22 Sep 2013 11:07:05 +0800
+Message-ID: <CAGsJ_4wYwAHUPHCD-PTUbJdjzXixYyo79nGcf52zKNJ4PLRuuw@mail.gmail.com>
+Subject: Re: [PATCH v2] watchdog: sirf: add watchdog driver of CSR SiRFprimaII
+ and SiRFatlasVI
+To: Romain Izard <romain.izard.pro@gmail.com>
+Cc: "linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>,
+	DL-SHA-WorkGroupLinux <workgroup.linux@csr.com>,
+	Xianglong Du <xianglong.du@csr.com>,
 	linux-watchdog@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Tomasz,
-
-On Wed, Sep 18, 2013 at 10:04 AM, Doug Anderson <dianders@chromium.org> wrote:
-> Tomasz,
->
-> On Tue, Sep 17, 2013 at 6:30 AM, Tomasz Figa <t.figa@samsung.com> wrote:
->>> --- a/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
->>> +++ b/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
->>> @@ -7,8 +7,20 @@ occurred.
->>>  Required properties:
->>>  - compatible : should be "samsung,s3c2410-wdt"
->>
->> Since the WDT block of Exynos 5420 needs some extra configuration in PMU
->> registers, it is no longer compatible with samsung.s3c2410-wdt. Please
->> introduce separate compatible ("samsung,exynos5420-wdt") and make the
->> driver handle the additional configuration only if running on a device with
->> this compatible value.
->>
->> I'd suggest introducing quirk system to the driver and adding a
->> NEEDS_PMU_CONFIG quirk selected by DT match entry with "samsung,exynos5420-
->> wdt" compatible.
->>
->>>  - reg : base physical address of the controller and length of memory
->>> mapped -      region.
->>> +     region and the optional (addresses and length of memory mapped regions
->>> +     of) PMU registers for masking/unmasking WDT.
->>>  - interrupts : interrupt number to the cpu.
+2013/9/13 Romain Izard <romain.izard.pro@gmail.com>:
+> On 2013-09-12, Barry Song <21cnbao@gmail.com> wrote:
+>> 2013/9/12 Romain Izard <romain.izard.pro@gmail.com>:
 >>>
->>>  Optional properties:
->>>  - timeout-sec : contains the watchdog timeout in seconds.
->>> +- reset-mask-bit: bit number in the PMU registers to program mask/unmask
->>> WDT. +
+>>> Does this really mean that both drivers will be loaded?  From what I
+>>> understand of device tree, this means to use the "sirf,prima2-tick"
+>>> driver, and then if not available, the "sirf-prima2-wdt" driver.
+>>> It would be necessary to either add the watchdog support in the
+>>> clocksource driver, or create a separate node in the device tree
+>>> (with the same address?) to respect the compatible rules.
 >>
->> I believe this is mandatory on Exynos 5420 and unused on previous SoCs. It
->> should be handled depending on compatible value.
+>> that means both. the 6th timer can act as a watchdog timer when the
+>> Watchdog mode is enabled. all 6 timers have been controlled by timer
+>> driver, here it is a more-functionality for timer6.
+>>
 >
-> I think at least 5250 needs something similar.  I believe we got away
-> with it in the past since other (non-WDT) code was tweaking with this
-> bit, but that was a little bit gross.  Leela Krishna can correct me if
-> I'm wrong.
+> First, from my reading the device tree specification says that the
+> compatible property describes an ordered list from which a single driver
+> is used.
+>
+> After checking with the platform code, I understand why this is possible,
+> but I think the current syntax is not good.
+>
+> The general case for device tree is the following one:
+> - Linux parses the device tree on startup with of_platform_populate, and
+>   creates a struct platform_device per node in the tree with a
+>   compatible string.
+> - Creating each device calls device_attach, trying to match and bind the
+>   new device with already existing drivers, until one of them succeeds
+>   or no driver is left.
+> - Registering a new device driver ilater calls driver_attach, trying to
+>   match and bind each unbound device with the new driver.
+>
+> As each device can only be bound to a single driver, the normal case
+> is that only one compatible driver can be bound to a device. As noted
+> in http://xillybus.com/tutorials/device-tree-zynq-3, what happens when
+> multiple drivers are compatible with a node is dependent on the
+> initialization order.
+>
+> But in our specific case, "sirf,prima2-tick" does not describe a normal
+> device from the kernel point of view, it describes a clocksource node.
+> It is used earlier during the startup sequence to avoid cyclic
+> dependency issues between the timers and the driver framework. When the
+> node is created later on, there is no driver to match with the node from
+> the device tree. This is why in this case, and for all clocksource
+> nodes, it will be possible to have a second matching compatible string.
+>
+> So, since this behaviour is specific for clocksource nodes, and does not
+> describe the hardware as device tree should, I believe it would be
+> appropriate to use "sirf,prima2-tick" as the compatible string for the
+> watchdog driver, binding the device left by the clocksource with it.
+
+ok. make sense. i guess the best name for "sirf,prima2-tick" should be
+"sirf,prima2-timer" as tick is a software concept but timer is a
+hardware concept.
+
+but i will use prima2-tick for both watchdog and clocksource for the
+moment as i don't want to touch two tasks in a patch.
+
+>
+>
+>>>> diff --git a/arch/arm/configs/prima2_defconfig b/arch/arm/configs/prima2_defconfig
+>>>> index 002a1ce..eec56e8 100644
+>>>> --- a/arch/arm/configs/prima2_defconfig
+>>>> +++ b/arch/arm/configs/prima2_defconfig
+>>>> @@ -1,4 +1,3 @@
+>>>> -CONFIG_EXPERIMENTAL=y
+>>>
+>>> CONFIG_EXPERIMENTAL is not related to this change.
+>>
+>> i think it is just due to kernel upgrade. here just make menuconfig
+>> with enabling watchdog and save defconfig, then there are some minor
+>> differences here.
+>>
+> Perhaps would it be better to put it in a different patch?
+
+ok.
+
+>
+>>>> +
+>>>> +     if (match >= counter)
+>>>> +             time_left = match-counter;
+>>>> +     else
+>>>> +             /* rollover */
+>>>> +             time_left = (0xffffffffUL - counter) + match;
+>>>
+>>> As u32 is a modulo 2^32 type, those values are almost the same (off by one).
+>>> time_left = match - counter; will be valid in all cases.
+>>>
+>
+> On one side, we have:
+>         time_left = match - counter (mod 2^32)
+> On the other side we have:
+>         time_left = (0xffffffffUL - counter) + match (mod 2^32)
+> <=>     time_left = match - counter + 0xFFFFFFFF (mod 2^32)
+> As we are in the modulo 2^32 space, adding or substracting 2^32 does not
+> change the result
+> <=>     time_left = match - counter + 0xFFFFFFFF - 2^32 (mod 2^32)
+> And since 0xFFFFFFFF = 2^32 - 1
+>         time_left = match - counter - 1; (mod 2^32)
+>
+>>>> +
+>>>> +     if ((0xffffffffUL - counter) >= timeout_ticks)
+>>>> +             counter += timeout_ticks;
+>>>> +     else
+>>>> +             /* Rollover */
+>>>> +             counter = timeout_ticks - (0xffffffffUL - counter);
+>>>
+>>> modulo 2^32 arithmetic, no need for two cases.
+>>
+>> you mean just "counter += timeout_ticks" is ok?
+>
+> Yes, with the same reasoning as previously. Adding or substracting
+> 0xffffffff for 32 bit unsigned values is the same as substracting
+> or adding 1. But we do not even want this 1, we just want to
+> rollover like the timer itself does, because it counts on 32 bit
+> unsigned values.
 >
 
-Yes, 5250 also needs this reset-mask-bit, but not required by SoCs
-other than Exynos5xxx.
-Hence I kept it as optional parameter.
+well. good.
 
-I took care of this code such that it won't break on older SoCs.
-
-If you notice the code in probe function, I used the check condition
-
-if (!IS_ERR(wdt->pmu_disable_reg) && !IS_ERR(wdt->pmu_mask_reset_reg)) {
-}
-
-i.e., if any of the PMU register address is not mentioned in the DT
-node it simply skips reading reset-mask-bit
-and continues execution (which may happen in older SoC DT node).
-
-..also, in s3c2410wdt_mask_and_disable_reset() function, below
-condition check is happening
-
-if (IS_ERR(wdt->pmu_disable_reg) || IS_ERR(wdt->pmu_mask_reset_reg)
-                                || (wdt->pmu_mask_bit < 0))
-        return;
-
-i.e., if any of the registers is not specified in DT node simply
-return without programming
-PMU registers(which is true in case of older SoCs).
-
-If you think this doesn't sounds good way of handling older SoCs.
-I'll add new compatible string for Exynos5xxx and do like what you said. :)
-
-Best Wishes,
-Leela Krishna Amudala
-
-> -Doug
 > --
-> To unsubscribe from this list: send the line "unsubscribe linux-samsung-soc" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Romain Izard
+>
+
+-barry
