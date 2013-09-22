@@ -1,19 +1,20 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f179.google.com ([209.85.192.179]:36996 "EHLO
-	mail-pd0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751349Ab3ILCoH (ORCPT
+Received: from mail-pb0-f47.google.com ([209.85.160.47]:63220 "EHLO
+	mail-pb0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752466Ab3IVGoN (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 11 Sep 2013 22:44:07 -0400
-Received: by mail-pd0-f179.google.com with SMTP id v10so10055516pde.24
-        for <linux-watchdog@vger.kernel.org>; Wed, 11 Sep 2013 19:44:06 -0700 (PDT)
+	Sun, 22 Sep 2013 02:44:13 -0400
+Received: by mail-pb0-f47.google.com with SMTP id rr4so1980962pbb.34
+        for <linux-watchdog@vger.kernel.org>; Sat, 21 Sep 2013 23:44:13 -0700 (PDT)
 From: Barry Song <21cnbao@gmail.com>
-To: wim@iguana.be, linux-watchdog@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org, workgroup.linux@csr.com,
+To: wim@iguana.be
+Cc: linux-watchdog@vger.kernel.org, workgroup.linux@csr.com,
 	Xianglong Du <Xianglong.Du@csr.com>,
-	Barry Song <Baohua.Song@csr.com>
-Subject: [PATCH v2] watchdog: sirf: add watchdog driver of CSR SiRFprimaII and SiRFatlasVI
-Date: Thu, 12 Sep 2013 10:43:48 +0800
-Message-Id: <1378953828-374-1-git-send-email-Baohua.Song@csr.com>
+	Barry Song <Baohua.Song@csr.com>,
+	Romain Izard <romain.izard.pro@gmail.com>
+Subject: [PATCH v3] watchdog: sirf: add watchdog driver of CSR SiRFprimaII and SiRFatlasVI
+Date: Sun, 22 Sep 2013 14:43:57 +0800
+Message-Id: <1379832237-3833-1-git-send-email-Baohua.Song@csr.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
@@ -28,59 +29,44 @@ software reset.
 
 Signed-off-by: Xianglong Du <Xianglong.Du@csr.com>
 Signed-off-by: Barry Song <Baohua.Song@csr.com>
+Cc: Romain Izard <romain.izard.pro@gmail.com>
 ---
- -v2: select WATCHDOG_CORE;
- module parameter name is timeout;
- fix coding style;
- define a local variable first that get's the value of watchdog_get_drvdata(wdd);
- drop redundant watchdog_timeout_invalid check;
- MODULE_ALIAS_MISCDEV is removed as we have the platform alias.
-
- arch/arm/boot/dts/atlas6.dtsi     |   2 +-
- arch/arm/boot/dts/prima2.dtsi     |   2 +-
- arch/arm/configs/prima2_defconfig |   6 +-
- drivers/watchdog/Kconfig          |   9 ++
- drivers/watchdog/Makefile         |   1 +
- drivers/watchdog/sirfsoc_wdt.c    | 251 ++++++++++++++++++++++++++++++++++++++
- 6 files changed, 266 insertions(+), 5 deletions(-)
+ -v3: cleanup according to feedback from Romain Izard, thanks!
+ .../devicetree/bindings/watchdog/sirfsoc_wdt.txt   |  15 ++
+ arch/arm/configs/prima2_defconfig                  |   1 +
+ drivers/watchdog/Kconfig                           |   9 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/sirfsoc_wdt.c                     | 242 +++++++++++++++++++++
+ 5 files changed, 268 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt
  create mode 100644 drivers/watchdog/sirfsoc_wdt.c
 
-diff --git a/arch/arm/boot/dts/atlas6.dtsi b/arch/arm/boot/dts/atlas6.dtsi
-index 8678e0c..afee4a1 100644
---- a/arch/arm/boot/dts/atlas6.dtsi
-+++ b/arch/arm/boot/dts/atlas6.dtsi
-@@ -155,7 +155,7 @@
- 			       <0x56000000 0x56000000 0x1b00000>;
- 
- 			timer@b0020000 {
--				compatible = "sirf,prima2-tick";
-+				compatible = "sirf,prima2-tick", "sirf,prima2-wdt";
- 				reg = <0xb0020000 0x1000>;
- 				interrupts = <0>;
- 			};
-diff --git a/arch/arm/boot/dts/prima2.dtsi b/arch/arm/boot/dts/prima2.dtsi
-index bbeb623..d41ab98e 100644
---- a/arch/arm/boot/dts/prima2.dtsi
-+++ b/arch/arm/boot/dts/prima2.dtsi
-@@ -174,7 +174,7 @@
- 			ranges = <0xb0000000 0xb0000000 0x180000>;
- 
- 			timer@b0020000 {
--				compatible = "sirf,prima2-tick";
-+				compatible = "sirf,prima2-tick", "sirf,prima2-wdt";
- 				reg = <0xb0020000 0x1000>;
- 				interrupts = <0>;
- 			};
+diff --git a/Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt b/Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt
+new file mode 100644
+index 0000000..7d11960
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt
+@@ -0,0 +1,15 @@
++SiRFSoC Timer and Watchdog Timer(WDT) Controller
++
++Required properties:
++- compatible: "sirf,prima2-tick"
++- reg: Address range of tick timer/WDT register set
++- interrupts: interrupt number to the cpu
++
++Example:
++
++timer@b0020000 {
++	compatible = "sirf,prima2-tick";
++	reg = <0xb0020000 0x1000>;
++	interrupts = <0>;
++};
++
 diff --git a/arch/arm/configs/prima2_defconfig b/arch/arm/configs/prima2_defconfig
-index 002a1ce..eec56e8 100644
+index 002a1ce..23591db 100644
 --- a/arch/arm/configs/prima2_defconfig
 +++ b/arch/arm/configs/prima2_defconfig
-@@ -1,4 +1,3 @@
--CONFIG_EXPERIMENTAL=y
- CONFIG_NO_HZ=y
- CONFIG_HIGH_RES_TIMERS=y
- CONFIG_RELAY=y
-@@ -39,6 +38,7 @@ CONFIG_SPI=y
+@@ -39,6 +39,7 @@ CONFIG_SPI=y
  CONFIG_SPI_SIRF=y
  CONFIG_SPI_SPIDEV=y
  # CONFIG_HWMON is not set
@@ -88,26 +74,11 @@ index 002a1ce..eec56e8 100644
  CONFIG_USB_GADGET=y
  CONFIG_USB_MASS_STORAGE=m
  CONFIG_MMC=y
-@@ -59,12 +59,12 @@ CONFIG_ROMFS_FS=y
- CONFIG_NLS_CODEPAGE_437=y
- CONFIG_NLS_ASCII=y
- CONFIG_NLS_ISO8859_1=y
--CONFIG_MAGIC_SYSRQ=y
-+CONFIG_DEBUG_INFO=y
- CONFIG_DEBUG_SECTION_MISMATCH=y
-+CONFIG_MAGIC_SYSRQ=y
- CONFIG_DEBUG_KERNEL=y
- # CONFIG_DEBUG_PREEMPT is not set
- CONFIG_DEBUG_RT_MUTEXES=y
- CONFIG_DEBUG_SPINLOCK=y
- CONFIG_DEBUG_MUTEXES=y
--CONFIG_DEBUG_INFO=y
- CONFIG_CRC_CCITT=y
 diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 362085d..c76cb61 100644
+index d1d53f3..98fb560 100644
 --- a/drivers/watchdog/Kconfig
 +++ b/drivers/watchdog/Kconfig
-@@ -382,6 +382,15 @@ config RETU_WATCHDOG
+@@ -392,6 +392,15 @@ config RETU_WATCHDOG
  	  To compile this driver as a module, choose M here: the
  	  module will be called retu_wdt.
  
@@ -124,10 +95,10 @@ index 362085d..c76cb61 100644
  
  config AT32AP700X_WDT
 diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 2f26a0b..b917ae6 100644
+index 6c5bb27..1a1300d 100644
 --- a/drivers/watchdog/Makefile
 +++ b/drivers/watchdog/Makefile
-@@ -54,6 +54,7 @@ obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
+@@ -55,6 +55,7 @@ obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
  obj-$(CONFIG_UX500_WATCHDOG) += ux500_wdt.o
  obj-$(CONFIG_RETU_WATCHDOG) += retu_wdt.o
  obj-$(CONFIG_BCM2835_WDT) += bcm2835_wdt.o
@@ -137,10 +108,10 @@ index 2f26a0b..b917ae6 100644
  obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
 diff --git a/drivers/watchdog/sirfsoc_wdt.c b/drivers/watchdog/sirfsoc_wdt.c
 new file mode 100644
-index 0000000..0542a4d
+index 0000000..464495d
 --- /dev/null
 +++ b/drivers/watchdog/sirfsoc_wdt.c
-@@ -0,0 +1,251 @@
+@@ -0,0 +1,242 @@
 +/*
 + * Watchdog driver for CSR SiRFprimaII and SiRFatlasVI
 + *
@@ -150,7 +121,6 @@ index 0000000..0542a4d
 + */
 +
 +#include <linux/module.h>
-+#include <linux/miscdevice.h>
 +#include <linux/watchdog.h>
 +#include <linux/platform_device.h>
 +#include <linux/moduleparam.h>
@@ -193,11 +163,7 @@ index 0000000..0542a4d
 +	match = readl(wdt_base +
 +		SIRFSOC_TIMER_MATCH_0 + (SIRFSOC_TIMER_WDT_INDEX << 2));
 +
-+	if (match >= counter)
-+		time_left = match-counter;
-+	else
-+		/* rollover */
-+		time_left = (0xffffffffUL - counter) + match;
++	time_left = match - counter;
 +
 +	return time_left / CLOCK_TICK_RATE;
 +}
@@ -216,11 +182,7 @@ index 0000000..0542a4d
 +	/* Set the TO value */
 +	counter = readl(wdt_base + SIRFSOC_TIMER_LATCHED_LO);
 +
-+	if ((0xffffffffUL - counter) >= timeout_ticks)
-+		counter += timeout_ticks;
-+	else
-+		/* Rollover */
-+		counter = timeout_ticks - (0xffffffffUL - counter);
++	counter += timeout_ticks;
 +
 +	writel(counter, wdt_base +
 +		SIRFSOC_TIMER_MATCH_0 + (SIRFSOC_TIMER_WDT_INDEX << 2));
@@ -368,7 +330,7 @@ index 0000000..0542a4d
 +};
 +
 +static const struct of_device_id sirfsoc_wdt_of_match[] = {
-+	{ .compatible = "sirf,prima2-wdt"},
++	{ .compatible = "sirf,prima2-tick"},
 +	{},
 +};
 +MODULE_DEVICE_TABLE(of, sirfsoc_wdt_of_match);
