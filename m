@@ -1,57 +1,126 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ee0-f54.google.com ([74.125.83.54]:55395 "EHLO
-	mail-ee0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755167Ab3I3OCs (ORCPT
+Received: from mail-qe0-f54.google.com ([209.85.128.54]:63528 "EHLO
+	mail-qe0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754934Ab3I3Qyf (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 30 Sep 2013 10:02:48 -0400
-Received: by mail-ee0-f54.google.com with SMTP id e53so2739370eek.13
-        for <linux-watchdog@vger.kernel.org>; Mon, 30 Sep 2013 07:02:47 -0700 (PDT)
-Date: Mon, 30 Sep 2013 16:02:46 +0200
-From: Domenico Andreoli <cavokz@gmail.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Wim Van Sebroeck <wim@iguana.be>, Olof Johansson <olof@lixom.net>,
-	Russell King - ARM Linux <linux@arm.linux.org.uk>,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v4 4/4] ARM: bcm4760: Add restart hook
-Message-ID: <20130930140246.GA25992@glitch>
-References: <20130914152032.401907974@gmail.com>
- <20130916071821.GA18210@glitch>
- <20130916120001.GE401@spo001.leaseweb.com>
- <13398230.iOE1HhgZy2@wuerfel>
+	Mon, 30 Sep 2013 12:54:35 -0400
+Received: by mail-qe0-f54.google.com with SMTP id cy11so4066311qeb.13
+        for <linux-watchdog@vger.kernel.org>; Mon, 30 Sep 2013 09:54:34 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <13398230.iOE1HhgZy2@wuerfel>
+In-Reply-To: <13147351.I7ksvhO9sb@flatron>
+References: <1379414623-26329-1-git-send-email-l.krishna@samsung.com>
+	<2201944.6vg4a9ttux@flatron>
+	<CAD=FV=Wa0BpmE7mQoAk-RC_g9QCCz2T_7=Pd46CDSN8Z9KQ8jg@mail.gmail.com>
+	<13147351.I7ksvhO9sb@flatron>
+Date: Mon, 30 Sep 2013 09:54:33 -0700
+Message-ID: <CAD=FV=U35jtZBMjx3te9+2brd0KDQHJr0c6u8y1ucQtDQfMTDQ@mail.gmail.com>
+Subject: Re: [PATCH 3/4] watchdog: s3c2410_wdt: parse watchdog dt node to read
+ PMU registers adresses
+From: Doug Anderson <dianders@chromium.org>
+To: Tomasz Figa <tomasz.figa@gmail.com>
+Cc: Tomasz Figa <t.figa@samsung.com>,
+	Leela Krishna Amudala <l.krishna@samsung.com>,
+	Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+	linux-samsung-soc <linux-samsung-soc@vger.kernel.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Kukjin Kim <kgene.kim@samsung.com>, devicetree@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	Sylwester Nawrocki <s.nawrocki@samsung.com>,
+	Stephen Warren <swarren@wwwdotorg.org>,
+	Ian Campbell <ian.campbell@citrix.com>, mark.rutland@arm.com,
+	galak <galak@codeaurora.org>, pawel.moll@arm.com,
+	Rob Herring <rob.herring@calxeda.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Wim,
+Tomasz,
 
-On Mon, Sep 16, 2013 at 10:01:08PM +0200, Arnd Bergmann wrote:
-> On Monday 16 September 2013 14:00:01 Wim Van Sebroeck wrote:
-> > 
-> > I remember that the Cobalt Devices have no ability to reboot themselves.
-> > That's why the driver uses the reboot_notifier for rebooting the device.
-> > See drivers/watchdog/alim7101_wdt.c .
-> 
-> Hmm, a notifier seems the wrong approach here, because we really want
-> to handle all reboot_notifiers before actually rebooting, and we'd enter
-> the wdt driver at a random point in the notifier chain. It probably works
-> by chance if the watchdog reboots a second after its notifier is called,
-> and all other calls are done as well, but it doesn't seem like a clean
-> solution.
-> 
-> > I'll have a look to have an extra ops that adds this functionality in the framework.
+On Sat, Sep 28, 2013 at 6:49 PM, Tomasz Figa <tomasz.figa@gmail.com> wrote:
+>> On Fri, Sep 27, 2013 at 11:14 AM, Tomasz Figa <tomasz.figa@gmail.com>
+> wrote:
+>> >> So isn't the register in the PMU there to save power in the case that
+>> >> the watchdog timer isn't being used?  How is the PMU "driver" to know
+>> >> whether the watchdog is being used?  Better IMHO that the watchdog
+>> >> driver knows to enable and disable itself as needed, right?
+>> >
+>> > How much power can you save on one low frequency counter? Anyway,
+>> > those
+>> > bits look more like reset signal masks to me, unrelated to any power
+>> > saving and even if, this driver switches them on at probe regardless
+>> > of
+>> > whether the watchdog is actually used or not.
+>>
+>> I don't know for sure how much power it saves if any.  The description
+>> I have of those fields is also definitely a little on the confusing
+>> side.  The fact that they are in the PMU leads me to believe that they
+>> save power, but perhaps that's not the case here.
+>>
+>> It still does seem nice to keep watchdog related code in the watchdog
+>> driver, though...
+>
+> For me, this thing looks more related to PMU than watchdog, since the code
+> writes to PMU registers and does this only on system power state
+> transitions, i.e. once per boot, suspend, resume and shutdown.
 
-I'd like to do something here.
+I wonder if there is any reason that it shouldn't be put in the
+s3c2410wdt_start() and s3c2410wdt_stop() functions?
 
-I'm thinking at a simple "atomic_reset()" wdt op which purpose it to use
-the specific watchdog to trigger a HW reset. As the name implies, the call
-needs to be callable in atomic context. Any other constrains I'm missing?
 
-At this point a DT attribute in the wdt stanzas could be used to register
-the reboot hook at runtime.
+>> I guess I could also imagine ordering problems if
+>> we tweaked this bit in the PMU driver, though I don't have actual
+>> evidence of this.  Maybe cases where enabling at the wrong time could
+>> cause spurious watchdog resets depending on how the BIOS left the
+>> state of things.
+>
+> Even if you put this code in watchdog driver you don't have any warranties
+> that the firmware leaves both the watchdog and PMU bits sets correctly.
+> I'm not sure what would be the point of firmware existence if you can't
+> trust it to set up at least the basic working environment for you and I
+> consider watchdog to be part of such.
 
-thanks,
-Domenico
+I trust it to leave the system in some state that is safe.  ...but I
+don't trust the firmware of all exynos-based products to have the same
+idea of what "safe" is.  I could imagine some of them disabling the
+watchdog before booting linux by tweaking the settings in the PMU (and
+leaving the reset of the watchdog configured and running) and some of
+them disabling the watchdog by leaving the PMU settings alone and
+turning off the enable bit.  I could also imagine some of them
+actually leaving the watchdog fully configured and running to try to
+catch the case where the kernel crashes at bootup.  I don't know of
+any official rules here, which means that the kernel needs to be
+flexible enough.
+
+
+>> It would be unfortunate if we found we needed to
+>> reach into the watchdog register bank from the PMU driver to "pet" the
+>> watchdog before enabling it.
+>
+> If you find any such need in future, then with the solution I proposed
+> there will be no problem in changing things to be done as you and Leela
+> propose. The other way around would not be that simple, because the
+> introduced binding would still have to be supported and the code touching
+> PMU would have to be kept in watchdog code...
+>
+> However, if you really insist on handling this in watchdog driver,
+
+I certainly don't insist.  I have not contributed nearly enough to the
+community to insist on anything.  At this point I'm merely stating my
+opinion.  Feel free to take it into consideration or ignore it.  I
+will not be offended if you choose to ignore my opinion here.  It is
+really up to Leela Krishna and the maintainer of the subsystem if I
+understand correctly.
+
+
+> please
+> consider using something smarter to access the PMU. I believe that device
+> node of watchdog should not represent parts of PMU, which should be
+> represented as a separate node instead.
+
+We've already had this discussion before.  Assuming I'm understanding
+him correctly, Olof weighed in and suggested that he preferred to do
+the simpler thing in this case (AKA: what Leela Krishna is doing):
+
+http://www.spinics.net/lists/devicetree/msg00812.html
+
+-Doug
