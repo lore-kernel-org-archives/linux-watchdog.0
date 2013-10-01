@@ -1,41 +1,42 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f179.google.com ([209.85.192.179]:47228 "EHLO
-	mail-pd0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756117Ab3I3Ukl (ORCPT
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail.active-venture.com ([67.228.131.205]:62170 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750966Ab3JAEqB (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 30 Sep 2013 16:40:41 -0400
-Received: by mail-pd0-f179.google.com with SMTP id v10so6135395pde.38
-        for <linux-watchdog@vger.kernel.org>; Mon, 30 Sep 2013 13:40:40 -0700 (PDT)
-Date: Mon, 30 Sep 2013 13:40:31 -0700
+	Tue, 1 Oct 2013 00:46:01 -0400
+Message-ID: <524A5384.9060704@roeck-us.net>
+Date: Mon, 30 Sep 2013 21:45:56 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
-Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [PATCH v3 1/8] watchdog: w83627hf: Convert to watchdog
- infrastructure
-Message-ID: <20130930204031.GA24043@roeck-us.net>
-References: <1376773126-2717-1-git-send-email-linux@roeck-us.net>
- <1376773126-2717-2-git-send-email-linux@roeck-us.net>
- <5247A607.8080308@draigBrady.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <5247A607.8080308@draigBrady.com>
+To: Barry Song <21cnbao@gmail.com>, wim@iguana.be,
+	linux-watchdog@vger.kernel.org
+CC: workgroup.linux@csr.com, Xianglong Du <Xianglong.Du@csr.com>,
+	Barry Song <Baohua.Song@csr.com>,
+	Romain Izard <romain.izard.pro@gmail.com>
+Subject: Re: [PATCH v6] watchdog: sirf: add watchdog driver of CSR SiRFprimaII
+ and SiRFatlasVI
+References: <1380550139-28796-1-git-send-email-Baohua.Song@csr.com>
+In-Reply-To: <1380550139-28796-1-git-send-email-Baohua.Song@csr.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sun, Sep 29, 2013 at 05:01:11AM +0100, P=E1draig Brady wrote:
-> Real nice work on this series.
-> Looks good to me.
->=20
-Wim,
+On 09/30/2013 07:08 AM, Barry Song wrote:
+> From: Xianglong Du <Xianglong.Du@csr.com>
+>
+> On CSR SiRFprimaII and SiRFatlasVI, the 6th timer can act as a watchdog
+> timer when the Watchdog mode is enabled.
+>
+> watchdog occur when TIMER watchdog counter matches the value software
+> pre-set, when this event occurs, the effect is the same as the system
+> software reset.
+>
+> Signed-off-by: Xianglong Du <Xianglong.Du@csr.com>
+> Signed-off-by: Barry Song <Baohua.Song@csr.com>
+> Cc: Romain Izard <romain.izard.pro@gmail.com>
+> Cc: Guenter Roeck <linux@roeck-us.net>
 
-any update on this patch series ?
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Thanks,
-Guenter
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
