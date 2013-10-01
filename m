@@ -1,28 +1,29 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pb0-f41.google.com ([209.85.160.41]:42786 "EHLO
-	mail-pb0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753886Ab3JAPoO (ORCPT
+Received: from mail-pb0-f42.google.com ([209.85.160.42]:54559 "EHLO
+	mail-pb0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751093Ab3JAPw0 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 1 Oct 2013 11:44:14 -0400
-Date: Tue, 1 Oct 2013 08:44:02 -0700
+	Tue, 1 Oct 2013 11:52:26 -0400
+Date: Tue, 1 Oct 2013 08:52:19 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	kernel-janitors@vger.kernel.org
-Subject: Re: [2/2] watchdog: ts72xx_wdt: locking bug in ioctl
-Message-ID: <20131001154402.GA309@roeck-us.net>
-References: <20130823084059.GE31293@elgon.mountain>
+To: Jingoo Han <jg1.han@samsung.com>
+Cc: 'Andrew Morton' <akpm@linux-foundation.org>,
+	linux-kernel@vger.kernel.org, 'Wim Van Sebroeck' <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [V2,03/35] watchdog: use dev_get_platdata()
+Message-ID: <20131001155219.GA25022@roeck-us.net>
+References: <008001ce8d13$c6805fc0$53811f40$@samsung.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20130823084059.GE31293@elgon.mountain>
+In-Reply-To: <008001ce8d13$c6805fc0$53811f40$@samsung.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Aug 23, 2013 at 04:40:59PM -0000, Dan Carpenter wrote:
-> Calling the WDIOC_GETSTATUS & WDIOC_GETBOOTSTATUS and twice will cause a
-> interruptible deadlock.
+On Tue, Jul 30, 2013 at 06:58:51PM -0000, Jingoo Han wrote:
+> Use the wrapper function for retrieving the platform data instead of
+> accessing dev->platform_data directly.
 > 
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> Signed-off-by: Jingoo Han <jg1.han@samsung.com>
 > 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
