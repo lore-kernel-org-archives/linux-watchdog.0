@@ -1,29 +1,32 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pb0-f42.google.com ([209.85.160.42]:54559 "EHLO
-	mail-pb0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751093Ab3JAPw0 (ORCPT
+Received: from mail-pa0-f51.google.com ([209.85.220.51]:36326 "EHLO
+	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751184Ab3JAQNT (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 1 Oct 2013 11:52:26 -0400
-Date: Tue, 1 Oct 2013 08:52:19 -0700
+	Tue, 1 Oct 2013 12:13:19 -0400
+Date: Tue, 1 Oct 2013 09:13:13 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Jingoo Han <jg1.han@samsung.com>
-Cc: 'Andrew Morton' <akpm@linux-foundation.org>,
-	linux-kernel@vger.kernel.org, 'Wim Van Sebroeck' <wim@iguana.be>,
+To: =?utf-8?q?Heiko_St=C3=BCbner_=3Cheiko=40sntech=2Ede=3E?=@roeck-us.net
+Cc: Wim Van Sebroeck <wim@iguana.be>, Jamie Iles <jamie@jamieiles.com>,
+	Grant Likely <grant.likely@linaro.org>,
+	Rob Herring <rob.herring@calxeda.com>,
+	devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org,
 	linux-watchdog@vger.kernel.org
-Subject: Re: [V2,03/35] watchdog: use dev_get_platdata()
-Message-ID: <20131001155219.GA25022@roeck-us.net>
-References: <008001ce8d13$c6805fc0$53811f40$@samsung.com>
+Subject: Re: [1/3] watchdog: dw_wdt: convert to SIMPLE_DEV_PM_OPS
+Message-ID: <20131001161313.GA14043@roeck-us.net>
+References: <201306262003.53192.heiko@sntech.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <008001ce8d13$c6805fc0$53811f40$@samsung.com>
+In-Reply-To: <201306262003.53192.heiko@sntech.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Jul 30, 2013 at 06:58:51PM -0000, Jingoo Han wrote:
-> Use the wrapper function for retrieving the platform data instead of
-> accessing dev->platform_data directly.
+On Thu, Jun 27, 2013 at 02:03:52AM -0000, =?utf-8?q?Heiko_St=C3=BCbner_=3Cheiko=40sntech=2Ede=3E?= wrote:
+> The dw_wdt only provides PM_SLEEP operations, so convert the driver
+> to use SIMPLE_DEV_PM_OPS instead of populating the struct manually.
+> This has the added effect of simplifying the CONFIG_PM ifdefs.
 > 
-> Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+> Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 > 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
