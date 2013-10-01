@@ -1,52 +1,45 @@
-Message-ID: <526F7569.7040903@openwrt.org>
-Date: Tue, 29 Oct 2013 09:44:25 +0100
-From: John Crispin <blogic@openwrt.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pa0-f51.google.com ([209.85.220.51]:60297 "EHLO
+	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750964Ab3JAQSk (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 1 Oct 2013 12:18:40 -0400
+Date: Tue, 1 Oct 2013 09:18:35 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: johannes.thumshirn@men.de
+Cc: Rob Landley <rob@landley.net>,
+	Rob Herring <rob.herring@calxeda.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Stephen Warren <swarren@wwwdotorg.org>,
+	Ian Campbell <ian.campbell@citrix.com>,
+	Wim Van Sebroeck <wim@iguana.be>, devicetree@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [RFC, v2] documentation/devicetree: Move DT bindigns from gpio
+ to watchdog
+Message-ID: <20131001161835.GA14449@roeck-us.net>
+References: <1377601837-18989-1-git-send-email-johannes.thumshirn@men.de>
 MIME-Version: 1.0
-To: Wim Van Sebroeck <wim@iguana.be>
-CC: linux-watchdog@vger.kernel.org, linux-mips@linux-mips.org
-Subject: Re: [PATCH 2/2] watchdog: MIPS: add ralink watchdog driver
-References: <1375954303-28830-1-git-send-email-blogic@openwrt.org> <20131029073935.GD19569@spo001.leaseweb.com>
-In-Reply-To: <20131029073935.GD19569@spo001.leaseweb.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-Path: <blogic@openwrt.org>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
-List-Archive: <https://lore.kernel.org/linux-mips/>
-List-Post: <mailto:linux-mips@vger.kernel.org>
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1377601837-18989-1-git-send-email-johannes.thumshirn@men.de>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On 29/10/13 08:39, Wim Van Sebroeck wrote:
-> Hi John,
->
->> Add a driver for the watchdog timer found on Ralink SoC
->>
->> Signed-off-by: John Crispin<blogic@openwrt.org>
->> Cc: linux-watchdog@vger.kernel.org
->> Cc: linux-mips@linux-mips.org
->> ---
->>   drivers/watchdog/Kconfig      |    7 ++
->>   drivers/watchdog/Makefile     |    1 +
->>   drivers/watchdog/rt2880_wdt.c |  208 +++++++++++++++++++++++++++++++++++++++++
->>   3 files changed, 216 insertions(+)
->>   create mode 100644 drivers/watchdog/rt2880_wdt.c
-> This patch (together with the DT binding part) has been added as 1 patch to linux-watchdog-next.
->
-> Kind regards,
-> Wim.
->
->
->
-
-Hi Wim,
-
-Thanks a lot for the review/merge
-
-     John
+On Tue, Aug 27, 2013 at 07:10:37PM -0000, johannes.thumshirn@men.de wrote:
+> I accidently put the devicetree bindings for the MEN A21 watchdog driver in
+> Documentation/devicetree/bindings/gpio instead of
+> Documentation/devicetree/bindings/watchdog, this patch addresses this error.
+> 
+> Signed-off-by: Johannes Thumshirn <johannes.thumshirn@men.de>
+> Cc: Rob Herring <rob.herring@calxeda.com>
+> Cc: Pawel Moll <pawel.moll@arm.com>
+> Cc: Mark Rutland <mark.rutland@arm.com>
+> Cc: Stephen Warren <swarren@wwwdotorg.org>
+> Cc: Ian Campbell <ian.campbell@citrix.com>
+> Cc: Rob Landley <rob@landley.net>
+> Cc: Wim Van Sebroeck <wim@iguana.be>
+> Cc: Guenter Roeck <linux@roeck-us.net>
+> 
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
