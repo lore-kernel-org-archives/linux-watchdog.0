@@ -1,42 +1,36 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:62170 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750966Ab3JAEqB (ORCPT
+Received: from mail-pb0-f47.google.com ([209.85.160.47]:59006 "EHLO
+	mail-pb0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751093Ab3JAPjf (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 1 Oct 2013 00:46:01 -0400
-Message-ID: <524A5384.9060704@roeck-us.net>
-Date: Mon, 30 Sep 2013 21:45:56 -0700
+	Tue, 1 Oct 2013 11:39:35 -0400
+Date: Tue, 1 Oct 2013 08:39:30 -0700
 From: Guenter Roeck <linux@roeck-us.net>
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	kernel-janitors@vger.kernel.org
+Subject: Re: watchdog: ts72xx_wdt: cleanup return codes in ioctl
+Message-ID: <20131001153930.GA25875@roeck-us.net>
+References: <20130823093832.GL31293@elgon.mountain>
 MIME-Version: 1.0
-To: Barry Song <21cnbao@gmail.com>, wim@iguana.be,
-	linux-watchdog@vger.kernel.org
-CC: workgroup.linux@csr.com, Xianglong Du <Xianglong.Du@csr.com>,
-	Barry Song <Baohua.Song@csr.com>,
-	Romain Izard <romain.izard.pro@gmail.com>
-Subject: Re: [PATCH v6] watchdog: sirf: add watchdog driver of CSR SiRFprimaII
- and SiRFatlasVI
-References: <1380550139-28796-1-git-send-email-Baohua.Song@csr.com>
-In-Reply-To: <1380550139-28796-1-git-send-email-Baohua.Song@csr.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20130823093832.GL31293@elgon.mountain>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 09/30/2013 07:08 AM, Barry Song wrote:
-> From: Xianglong Du <Xianglong.Du@csr.com>
->
-> On CSR SiRFprimaII and SiRFatlasVI, the 6th timer can act as a watchdog
-> timer when the Watchdog mode is enabled.
->
-> watchdog occur when TIMER watchdog counter matches the value software
-> pre-set, when this event occurs, the effect is the same as the system
-> software reset.
->
-> Signed-off-by: Xianglong Du <Xianglong.Du@csr.com>
-> Signed-off-by: Barry Song <Baohua.Song@csr.com>
-> Cc: Romain Izard <romain.izard.pro@gmail.com>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-
+On Fri, Aug 23, 2013 at 05:38:32PM -0000, Dan Carpenter wrote:
+> There seems to be some confusion here which functions return positive
+> numbers and which return negative error codes.
+> 
+> copy_to_user() returns the number of bytes remaining to be copied but we
+> want to return -EFAULT.
+> 
+> The rest is just clean up.  get_user() actually returns zero on success
+> and -EFAULT on error so we can preserve the error code.  The
+> timeout_to_regval() function returns -EINVAL on failure, but we can
+> propogate that back instead of hardcoding -EINVAL ourselves.
+> 
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
-
