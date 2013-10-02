@@ -1,100 +1,64 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from 7.mo4.mail-out.ovh.net ([178.33.253.54]:35142 "EHLO
-	mo4.mail-out.ovh.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754094Ab3JBTLe (ORCPT
+Received: from mail-pd0-f181.google.com ([209.85.192.181]:59967 "EHLO
+	mail-pd0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752416Ab3JBPNx (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 2 Oct 2013 15:11:34 -0400
-Received: from mail172.ha.ovh.net (b9.ovh.net [213.186.33.59])
-	by mo4.mail-out.ovh.net (Postfix) with SMTP id 1164E105C589
-	for <linux-watchdog@vger.kernel.org>; Wed,  2 Oct 2013 18:43:19 +0200 (CEST)
-Message-ID: <524C4CF1.7060407@overkiz.com>
-Date: Wed, 02 Oct 2013 18:42:25 +0200
-From: boris brezillon <b.brezillon@overkiz.com>
+	Wed, 2 Oct 2013 11:13:53 -0400
+Received: by mail-pd0-f181.google.com with SMTP id g10so1033742pdj.40
+        for <linux-watchdog@vger.kernel.org>; Wed, 02 Oct 2013 08:13:53 -0700 (PDT)
+Date: Wed, 2 Oct 2013 08:13:47 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: [1/3] watchdog: at91rm9200: Remove redundant of_match_ptr
+Message-ID: <20131002151347.GA14121@roeck-us.net>
+References: <1380516173-6974-1-git-send-email-sachin.kamat@linaro.org>
+ <20131001204842.GA20057@roeck-us.net>
+ <CAK9yfHz4vPbiSq+85OegDN4bJ-UWy6RFxhi+4HJnWoCBMxpUNA@mail.gmail.com>
 MIME-Version: 1.0
-To: Guenter Roeck <linux@roeck-us.net>
-CC: Wim Van Sebroeck <wim@iguana.be>,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
-	Ludovic Desroches <ludovic.desroches@atmel.com>,
-	Yang Wenyou <Wenyou.Yang@atmel.com>,
-	Grant Likely <grant.likely@linaro.org>,
-	Rob Herring <rob.herring@calxeda.com>,
-	Rob Landley <rob@landley.net>,
-	Fabio Porcedda <fabio.porcedda@gmail.com>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org
-Subject: Re: [v2,2/4] watchdog: at91sam9_wdt: update device tree doc
-References: <1371799414-3654-1-git-send-email-b.brezillon@overkiz.com> <20131002155118.GA16703@roeck-us.net>
-In-Reply-To: <20131002155118.GA16703@roeck-us.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAK9yfHz4vPbiSq+85OegDN4bJ-UWy6RFxhi+4HJnWoCBMxpUNA@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/10/2013 17:51, Guenter Roeck wrote:
-> On Fri, Jun 21, 2013 at 03:23:34PM -0000, Boris BREZILLON wrote:
->> Add new at91sam9 watchdog properties to the documentation.
->>
->> Signed-off-by: Boris BREZILLON <b.brezillon@overkiz.com>
->> Acked-by: Grant Likely<grant.likely@linaro.org>
->>
->> ---
->> .../devicetree/bindings/watchdog/atmel-wdt.txt     |   30 ++++++++++++++++++--
->>   1 file changed, 28 insertions(+), 2 deletions(-)
->>
->> diff --git a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
->> index fcdd48f..e043106 100644
->> --- a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
->> +++ b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
->> @@ -9,11 +9,37 @@ Required properties:
->>   
->>   Optional properties:
->>   - timeout-sec: contains the watchdog timeout in seconds.
->> +- interrupts : Should contain WDT interrupt.
->> +- atmel,max-heartbeat-sec : Should contain the maximum heartbeat value in
->> +	seconds. This value should be less than 16. It is used to compute the
->> +	WDV field.
->> +- atmel,min-heartbeat-sec : Should contain the minimum heartbeat value in
->> +	seconds. This value should be less than 4 times the max-heartbeat-sec
->> +	value. It is used to compute the WDD field.
-> I am a bit at loss about "less than 4 times the max-heartbeat-sec value".
-> Why would a min-timeout larger than the max-timeout make sense under any
-> condition ? Do you mean to say that max-heartbeat should be at least four
-> times the value of min-heartbeat (or that min-heartbeat should be less or
-> equal to one-forth of max-heartbeat) ?
-That's exactely what I meant (should be less or equal to one-forth of 
-max-heartbeat).
-I'll fix it.
+On Wed, Oct 02, 2013 at 12:13:04PM +0530, Sachin Kamat wrote:
+> Hi  Guenter,
+> 
+> On 2 October 2013 02:18, Guenter Roeck <linux@roeck-us.net> wrote:
+> > On Mon, Sep 30, 2013 at 12:42:51PM -0000, Sachin Kamat wrote:
+> >> The data structure of_match_ptr() protects is always compiled in.
+> >> Hence of_match_ptr() is not needed.
+> >>
+> >> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+> >>
+> >
+> > Hi Sachin,
+> >
+> > I understand that the driver doesn't currently support to be built as module,
+> > so of_match_ptr() is not really necessary. But unless I am missing something,
+> > here isn't anything wrong with it either, not does it hurt to have it in place.
+> >
+> > So what is the benefit of this series ?
+> 
+> of_match_ptr() is a macro used to avoid undefined reference error if
+> CONFIG_OF is used to selectively compile in or out the
+> data structure. It is defined as follows:
+> 
+> #ifdef CONFIG_OF
+> #define of_match_ptr(ptr) ptr
+> #else
+> #define of_match_ptr(ptr) NULL
+> #endif
+> 
+> In the case of this series, none of the drivers use CONFIG_OF macro to
+> compile out the data structure (i.e., the data structure is always
+> defined).
+> Hence the use of of_match_ptr() does not make any sense. Thus removing
+> it to make the code look simpler for readability.
+> 
+> Hope this clarifies.
 
-> Guenter
->
->> +- atmel,watchdog-type : Should be "hardware" or "software". Hardware watchdog
->> +	use the at91 watchdog reset. Software watchdog use the watchdog
->> +	interrupt to trigger a software reset.
->> +- atmel,reset-type : Should be "proc" or "all".
->> +	"all" : assert peripherals and processor reset signals
->> +	"proc" : assert the processor reset signal
->> +	This is valid only when using "hardware" watchdog.
->> +- atmel,disable : Should be present if you want to disable the watchdog.
->> +- atmel,idle-halt : Should be present if you want to stop the watchdog when
->> +	entering idle state.
->> +- atmel,dbg-halt : Should be present if you want to stop the watchdog when
->> +	entering debug state.
->>   
->>   Example:
->> -
->>   	watchdog@fffffd40 {
->>   		compatible = "atmel,at91sam9260-wdt";
->>   		reg = <0xfffffd40 0x10>;
->> -		timeout-sec = <10>;
->> +		interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
->> +		timeout-sec = <15>;
->> +		atmel,watchdog-type = "hardware";
->> +		atmel,reset-type = "all";
->> +		atmel,dbg-halt;
->> +		atmel,idle-halt;
->> +		atmel,max-heartbeat-sec = <16>;
->> +		atmel,min-heartbeat-sec = <0>;
->> +		status = "okay";
->>   	};
+Ok, I'll accept that.
 
+Acked-by: Guenter Roeck <linux@roeck-us.net>
