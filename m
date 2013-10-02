@@ -1,369 +1,100 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f54.google.com ([209.85.220.54]:45812 "EHLO
-	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752799Ab3JAPY4 (ORCPT
+Received: from 7.mo4.mail-out.ovh.net ([178.33.253.54]:35142 "EHLO
+	mo4.mail-out.ovh.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754094Ab3JBTLe (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 1 Oct 2013 11:24:56 -0400
-Received: by mail-pa0-f54.google.com with SMTP id kx10so7592068pab.13
-        for <linux-watchdog@vger.kernel.org>; Tue, 01 Oct 2013 08:24:55 -0700 (PDT)
-Date: Tue, 1 Oct 2013 08:24:50 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Barry Song <21cnbao@gmail.com>
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
-	workgroup.linux@csr.com, Xianglong Du <Xianglong.Du@csr.com>,
-	Barry Song <Baohua.Song@csr.com>,
-	Romain Izard <romain.izard.pro@gmail.com>
-Subject: Re: [PATCH v6] watchdog: sirf: add watchdog driver of CSR
- SiRFprimaII and SiRFatlasVI
-Message-ID: <20131001152450.GC14887@roeck-us.net>
-References: <1380550139-28796-1-git-send-email-Baohua.Song@csr.com>
+	Wed, 2 Oct 2013 15:11:34 -0400
+Received: from mail172.ha.ovh.net (b9.ovh.net [213.186.33.59])
+	by mo4.mail-out.ovh.net (Postfix) with SMTP id 1164E105C589
+	for <linux-watchdog@vger.kernel.org>; Wed,  2 Oct 2013 18:43:19 +0200 (CEST)
+Message-ID: <524C4CF1.7060407@overkiz.com>
+Date: Wed, 02 Oct 2013 18:42:25 +0200
+From: boris brezillon <b.brezillon@overkiz.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1380550139-28796-1-git-send-email-Baohua.Song@csr.com>
+To: Guenter Roeck <linux@roeck-us.net>
+CC: Wim Van Sebroeck <wim@iguana.be>,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
+	Ludovic Desroches <ludovic.desroches@atmel.com>,
+	Yang Wenyou <Wenyou.Yang@atmel.com>,
+	Grant Likely <grant.likely@linaro.org>,
+	Rob Herring <rob.herring@calxeda.com>,
+	Rob Landley <rob@landley.net>,
+	Fabio Porcedda <fabio.porcedda@gmail.com>,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org
+Subject: Re: [v2,2/4] watchdog: at91sam9_wdt: update device tree doc
+References: <1371799414-3654-1-git-send-email-b.brezillon@overkiz.com> <20131002155118.GA16703@roeck-us.net>
+In-Reply-To: <20131002155118.GA16703@roeck-us.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Sep 30, 2013 at 10:08:59PM +0800, Barry Song wrote:
-> From: Xianglong Du <Xianglong.Du@csr.com>
-> 
-> On CSR SiRFprimaII and SiRFatlasVI, the 6th timer can act as a watchdog
-> timer when the Watchdog mode is enabled.
-> 
-> watchdog occur when TIMER watchdog counter matches the value software
-> pre-set, when this event occurs, the effect is the same as the system
-> software reset.
-> 
-> Signed-off-by: Xianglong Du <Xianglong.Du@csr.com>
-> Signed-off-by: Barry Song <Baohua.Song@csr.com>
-> Cc: Romain Izard <romain.izard.pro@gmail.com>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> ---
->  -v6: drop redundant empty suspend/resume;
->  replace CONFIG_PM by CONFIG_PM_SLEEP
-> 
->  .../devicetree/bindings/watchdog/sirfsoc_wdt.txt   |  15 ++
->  arch/arm/configs/prima2_defconfig                  |   1 +
->  drivers/watchdog/Kconfig                           |   9 +
->  drivers/watchdog/Makefile                          |   1 +
->  drivers/watchdog/sirfsoc_wdt.c                     | 225 +++++++++++++++++++++
->  5 files changed, 251 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt
->  create mode 100644 drivers/watchdog/sirfsoc_wdt.c
-> 
-> diff --git a/Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt b/Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt
-> new file mode 100644
-> index 0000000..7d11960
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/watchdog/sirfsoc_wdt.txt
-> @@ -0,0 +1,15 @@
-> +SiRFSoC Timer and Watchdog Timer(WDT) Controller
-> +
-> +Required properties:
-> +- compatible: "sirf,prima2-tick"
-> +- reg: Address range of tick timer/WDT register set
-> +- interrupts: interrupt number to the cpu
-> +
-> +Example:
-> +
-> +timer@b0020000 {
-> +	compatible = "sirf,prima2-tick";
-> +	reg = <0xb0020000 0x1000>;
-> +	interrupts = <0>;
-> +};
-> +
+On 02/10/2013 17:51, Guenter Roeck wrote:
+> On Fri, Jun 21, 2013 at 03:23:34PM -0000, Boris BREZILLON wrote:
+>> Add new at91sam9 watchdog properties to the documentation.
+>>
+>> Signed-off-by: Boris BREZILLON <b.brezillon@overkiz.com>
+>> Acked-by: Grant Likely<grant.likely@linaro.org>
+>>
+>> ---
+>> .../devicetree/bindings/watchdog/atmel-wdt.txt     |   30 ++++++++++++++++++--
+>>   1 file changed, 28 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+>> index fcdd48f..e043106 100644
+>> --- a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+>> +++ b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+>> @@ -9,11 +9,37 @@ Required properties:
+>>   
+>>   Optional properties:
+>>   - timeout-sec: contains the watchdog timeout in seconds.
+>> +- interrupts : Should contain WDT interrupt.
+>> +- atmel,max-heartbeat-sec : Should contain the maximum heartbeat value in
+>> +	seconds. This value should be less than 16. It is used to compute the
+>> +	WDV field.
+>> +- atmel,min-heartbeat-sec : Should contain the minimum heartbeat value in
+>> +	seconds. This value should be less than 4 times the max-heartbeat-sec
+>> +	value. It is used to compute the WDD field.
+> I am a bit at loss about "less than 4 times the max-heartbeat-sec value".
+> Why would a min-timeout larger than the max-timeout make sense under any
+> condition ? Do you mean to say that max-heartbeat should be at least four
+> times the value of min-heartbeat (or that min-heartbeat should be less or
+> equal to one-forth of max-heartbeat) ?
+That's exactely what I meant (should be less or equal to one-forth of 
+max-heartbeat).
+I'll fix it.
 
-Followup ... trying to apply this patch I get 
+> Guenter
+>
+>> +- atmel,watchdog-type : Should be "hardware" or "software". Hardware watchdog
+>> +	use the at91 watchdog reset. Software watchdog use the watchdog
+>> +	interrupt to trigger a software reset.
+>> +- atmel,reset-type : Should be "proc" or "all".
+>> +	"all" : assert peripherals and processor reset signals
+>> +	"proc" : assert the processor reset signal
+>> +	This is valid only when using "hardware" watchdog.
+>> +- atmel,disable : Should be present if you want to disable the watchdog.
+>> +- atmel,idle-halt : Should be present if you want to stop the watchdog when
+>> +	entering idle state.
+>> +- atmel,dbg-halt : Should be present if you want to stop the watchdog when
+>> +	entering debug state.
+>>   
+>>   Example:
+>> -
+>>   	watchdog@fffffd40 {
+>>   		compatible = "atmel,at91sam9260-wdt";
+>>   		reg = <0xfffffd40 0x10>;
+>> -		timeout-sec = <10>;
+>> +		interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
+>> +		timeout-sec = <15>;
+>> +		atmel,watchdog-type = "hardware";
+>> +		atmel,reset-type = "all";
+>> +		atmel,dbg-halt;
+>> +		atmel,idle-halt;
+>> +		atmel,max-heartbeat-sec = <16>;
+>> +		atmel,min-heartbeat-sec = <0>;
+>> +		status = "okay";
+>>   	};
 
-/home/groeck/src/linux-staging/.git/rebase-apply/patch:34: new blank line at EOF.
-
-warning: 1 line adds whitespace errors.
-
-Please fix. Also see below.
-
-> diff --git a/arch/arm/configs/prima2_defconfig b/arch/arm/configs/prima2_defconfig
-> index 002a1ce..23591db 100644
-> --- a/arch/arm/configs/prima2_defconfig
-> +++ b/arch/arm/configs/prima2_defconfig
-> @@ -39,6 +39,7 @@ CONFIG_SPI=y
->  CONFIG_SPI_SIRF=y
->  CONFIG_SPI_SPIDEV=y
->  # CONFIG_HWMON is not set
-> +CONFIG_WATCHDOG=y
->  CONFIG_USB_GADGET=y
->  CONFIG_USB_MASS_STORAGE=m
->  CONFIG_MMC=y
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index d1d53f3..98fb560 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -392,6 +392,15 @@ config RETU_WATCHDOG
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called retu_wdt.
->  
-> +config SIRFSOC_WATCHDOG
-> +	tristate "SiRFSOC watchdog"
-> +	depends on ARCH_SIRF
-> +	select WATCHDOG_CORE
-> +	default y
-> +	help
-> +	  Support for CSR SiRFprimaII and SiRFatlasVI watchdog. When
-> +	  the watchdog triggers the system will be reset.
-> +
->  # AVR32 Architecture
->  
->  config AT32AP700X_WDT
-> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index 6c5bb27..1a1300d 100644
-> --- a/drivers/watchdog/Makefile
-> +++ b/drivers/watchdog/Makefile
-> @@ -55,6 +55,7 @@ obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
->  obj-$(CONFIG_UX500_WATCHDOG) += ux500_wdt.o
->  obj-$(CONFIG_RETU_WATCHDOG) += retu_wdt.o
->  obj-$(CONFIG_BCM2835_WDT) += bcm2835_wdt.o
-> +obj-$(CONFIG_SIRFSOC_WATCHDOG) += sirfsoc_wdt.o
->  
->  # AVR32 Architecture
->  obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
-> diff --git a/drivers/watchdog/sirfsoc_wdt.c b/drivers/watchdog/sirfsoc_wdt.c
-> new file mode 100644
-> index 0000000..deaa2ed
-> --- /dev/null
-> +++ b/drivers/watchdog/sirfsoc_wdt.c
-> @@ -0,0 +1,225 @@
-> +/*
-> + * Watchdog driver for CSR SiRFprimaII and SiRFatlasVI
-> + *
-> + * Copyright (c) 2013 Cambridge Silicon Radio Limited, a CSR plc group company.
-> + *
-> + * Licensed under GPLv2 or later.
-> + */
-> +
-> +#include <linux/module.h>
-> +#include <linux/watchdog.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/moduleparam.h>
-> +#include <linux/of.h>
-> +#include <linux/io.h>
-> +#include <linux/uaccess.h>
-> +
-> +#define SIRFSOC_TIMER_COUNTER_LO	0x0000
-> +#define SIRFSOC_TIMER_MATCH_0		0x0008
-> +#define SIRFSOC_TIMER_INT_EN		0x0024
-> +#define SIRFSOC_TIMER_WATCHDOG_EN	0x0028
-> +#define SIRFSOC_TIMER_LATCH		0x0030
-> +#define SIRFSOC_TIMER_LATCHED_LO	0x0034
-> +
-> +#define SIRFSOC_TIMER_WDT_INDEX		5
-> +
-> +#define SIRFSOC_WDT_MIN_TIMEOUT		30		/* 30 secs */
-> +#define SIRFSOC_WDT_MAX_TIMEOUT		(10 * 60)	/* 10 mins */
-> +#define SIRFSOC_WDT_DEFAULT_TIMEOUT	30		/* 30 secs */
-> +
-> +
-Please remove the extra blank line above. One empty line is sufficient.
-
-Once you have done that, feel free to add my Reviewed-by: to the next version.
-
-Thanks,
-Guenter
-
-> +static unsigned int timeout = SIRFSOC_WDT_DEFAULT_TIMEOUT;
-> +static bool nowayout = WATCHDOG_NOWAYOUT;
-> +
-> +module_param(timeout, uint, 0);
-> +module_param(nowayout, bool, 0);
-> +
-> +MODULE_PARM_DESC(timeout, "Default watchdog timeout (in seconds)");
-> +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
-> +			__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-> +
-> +static unsigned int sirfsoc_wdt_gettimeleft(struct watchdog_device *wdd)
-> +{
-> +	u32 counter, match;
-> +	void __iomem *wdt_base;
-> +	int time_left;
-> +
-> +	wdt_base = watchdog_get_drvdata(wdd);
-> +	counter = readl(wdt_base + SIRFSOC_TIMER_COUNTER_LO);
-> +	match = readl(wdt_base +
-> +		SIRFSOC_TIMER_MATCH_0 + (SIRFSOC_TIMER_WDT_INDEX << 2));
-> +
-> +	time_left = match - counter;
-> +
-> +	return time_left / CLOCK_TICK_RATE;
-> +}
-> +
-> +static int sirfsoc_wdt_updatetimeout(struct watchdog_device *wdd)
-> +{
-> +	u32 counter, timeout_ticks;
-> +	void __iomem *wdt_base;
-> +
-> +	timeout_ticks = wdd->timeout * CLOCK_TICK_RATE;
-> +	wdt_base = watchdog_get_drvdata(wdd);
-> +
-> +	/* Enable the latch before reading the LATCH_LO register */
-> +	writel(1, wdt_base + SIRFSOC_TIMER_LATCH);
-> +
-> +	/* Set the TO value */
-> +	counter = readl(wdt_base + SIRFSOC_TIMER_LATCHED_LO);
-> +
-> +	counter += timeout_ticks;
-> +
-> +	writel(counter, wdt_base +
-> +		SIRFSOC_TIMER_MATCH_0 + (SIRFSOC_TIMER_WDT_INDEX << 2));
-> +
-> +	return 0;
-> +}
-> +
-> +static int sirfsoc_wdt_enable(struct watchdog_device *wdd)
-> +{
-> +	void __iomem *wdt_base = watchdog_get_drvdata(wdd);
-> +	sirfsoc_wdt_updatetimeout(wdd);
-> +
-> +	/*
-> +	 * NOTE: If interrupt is not enabled
-> +	 * then WD-Reset doesn't get generated at all.
-> +	 */
-> +	writel(readl(wdt_base + SIRFSOC_TIMER_INT_EN)
-> +		| (1 << SIRFSOC_TIMER_WDT_INDEX),
-> +		wdt_base + SIRFSOC_TIMER_INT_EN);
-> +	writel(1, wdt_base + SIRFSOC_TIMER_WATCHDOG_EN);
-> +
-> +	return 0;
-> +}
-> +
-> +static int sirfsoc_wdt_disable(struct watchdog_device *wdd)
-> +{
-> +	void __iomem *wdt_base = watchdog_get_drvdata(wdd);
-> +
-> +	writel(0, wdt_base + SIRFSOC_TIMER_WATCHDOG_EN);
-> +	writel(readl(wdt_base + SIRFSOC_TIMER_INT_EN)
-> +		& (~(1 << SIRFSOC_TIMER_WDT_INDEX)),
-> +		wdt_base + SIRFSOC_TIMER_INT_EN);
-> +
-> +	return 0;
-> +}
-> +
-> +static int sirfsoc_wdt_settimeout(struct watchdog_device *wdd, unsigned int to)
-> +{
-> +	wdd->timeout = to;
-> +	sirfsoc_wdt_updatetimeout(wdd);
-> +
-> +	return 0;
-> +}
-> +
-> +#define OPTIONS (WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE)
-> +
-> +static const struct watchdog_info sirfsoc_wdt_ident = {
-> +	.options          =     OPTIONS,
-> +	.firmware_version =	0,
-> +	.identity         =	"SiRFSOC Watchdog",
-> +};
-> +
-> +static struct watchdog_ops sirfsoc_wdt_ops = {
-> +	.owner = THIS_MODULE,
-> +	.start = sirfsoc_wdt_enable,
-> +	.stop = sirfsoc_wdt_disable,
-> +	.get_timeleft = sirfsoc_wdt_gettimeleft,
-> +	.ping = sirfsoc_wdt_updatetimeout,
-> +	.set_timeout = sirfsoc_wdt_settimeout,
-> +};
-> +
-> +static struct watchdog_device sirfsoc_wdd = {
-> +	.info = &sirfsoc_wdt_ident,
-> +	.ops = &sirfsoc_wdt_ops,
-> +	.timeout = SIRFSOC_WDT_DEFAULT_TIMEOUT,
-> +	.min_timeout = SIRFSOC_WDT_MIN_TIMEOUT,
-> +	.max_timeout = SIRFSOC_WDT_MAX_TIMEOUT,
-> +};
-> +
-> +static int sirfsoc_wdt_probe(struct platform_device *pdev)
-> +{
-> +	struct resource *res;
-> +	int ret;
-> +	void __iomem *base;
-> +
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	base = devm_ioremap_resource(&pdev->dev, res);
-> +	if (IS_ERR(base))
-> +		return PTR_ERR(base);
-> +
-> +	watchdog_set_drvdata(&sirfsoc_wdd, base);
-> +
-> +	watchdog_init_timeout(&sirfsoc_wdd, timeout, &pdev->dev);
-> +	watchdog_set_nowayout(&sirfsoc_wdd, nowayout);
-> +
-> +	ret = watchdog_register_device(&sirfsoc_wdd);
-> +	if (ret)
-> +		return ret;
-> +
-> +	platform_set_drvdata(pdev, &sirfsoc_wdd);
-> +
-> +	return 0;
-> +}
-> +
-> +static void sirfsoc_wdt_shutdown(struct platform_device *pdev)
-> +{
-> +	struct watchdog_device *wdd = platform_get_drvdata(pdev);
-> +
-> +	sirfsoc_wdt_disable(wdd);
-> +}
-> +
-> +static int sirfsoc_wdt_remove(struct platform_device *pdev)
-> +{
-> +	sirfsoc_wdt_shutdown(pdev);
-> +	return 0;
-> +}
-> +
-> +#ifdef	CONFIG_PM_SLEEP
-> +static int sirfsoc_wdt_suspend(struct device *dev)
-> +{
-> +	return 0;
-> +}
-> +
-> +static int sirfsoc_wdt_resume(struct device *dev)
-> +{
-> +	struct watchdog_device *wdd = dev_get_drvdata(dev);
-> +
-> +	/*
-> +	 * NOTE: Since timer controller registers settings are saved
-> +	 * and restored back by the timer-prima2.c, so we need not
-> +	 * update WD settings except refreshing timeout.
-> +	 */
-> +	sirfsoc_wdt_updatetimeout(wdd);
-> +
-> +	return 0;
-> +}
-> +#endif
-> +
-> +static SIMPLE_DEV_PM_OPS(sirfsoc_wdt_pm_ops,
-> +		sirfsoc_wdt_suspend, sirfsoc_wdt_resume);
-> +
-> +static const struct of_device_id sirfsoc_wdt_of_match[] = {
-> +	{ .compatible = "sirf,prima2-tick"},
-> +	{},
-> +};
-> +MODULE_DEVICE_TABLE(of, sirfsoc_wdt_of_match);
-> +
-> +static struct platform_driver sirfsoc_wdt_driver = {
-> +	.driver = {
-> +		.name = "sirfsoc-wdt",
-> +		.owner = THIS_MODULE,
-> +		.pm = &sirfsoc_wdt_pm_ops,
-> +		.of_match_table	= of_match_ptr(sirfsoc_wdt_of_match),
-> +	},
-> +	.probe = sirfsoc_wdt_probe,
-> +	.remove = sirfsoc_wdt_remove,
-> +	.shutdown = sirfsoc_wdt_shutdown,
-> +};
-> +module_platform_driver(sirfsoc_wdt_driver);
-> +
-> +MODULE_DESCRIPTION("SiRF SoC watchdog driver");
-> +MODULE_AUTHOR("Xianglong Du <Xianglong.Du@csr.com>");
-> +MODULE_LICENSE("GPL v2");
-> +MODULE_ALIAS("platform:sirfsoc-wdt");
-> -- 
-> 1.8.2.3
-> 
-> 
