@@ -1,57 +1,55 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pb0-f52.google.com ([209.85.160.52]:64879 "EHLO
-	mail-pb0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751223Ab3JAUst (ORCPT
+Received: from caramon.arm.linux.org.uk ([78.32.30.218]:40336 "EHLO
+	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753681Ab3JBUZq (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 1 Oct 2013 16:48:49 -0400
-Received: by mail-pb0-f52.google.com with SMTP id wz12so7611548pbc.25
-        for <linux-watchdog@vger.kernel.org>; Tue, 01 Oct 2013 13:48:48 -0700 (PDT)
-Date: Tue, 1 Oct 2013 13:48:42 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Sachin Kamat <sachin.kamat@linaro.org>
-Cc: linux-watchdog@vger.kernel.org, wim@iguana.be
-Subject: Re: [1/3] watchdog: at91rm9200: Remove redundant of_match_ptr
-Message-ID: <20131001204842.GA20057@roeck-us.net>
-References: <1380516173-6974-1-git-send-email-sachin.kamat@linaro.org>
+	Wed, 2 Oct 2013 16:25:46 -0400
+Date: Wed, 2 Oct 2013 21:25:21 +0100
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+To: Michal Simek <michal.simek@xilinx.com>
+Cc: linux-kernel@vger.kernel.org, monstr@monstr.eu,
+	Dan Williams <dan.j.williams@intel.com>,
+	Vinod Koul <vinod.koul@intel.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Chris Ball <cjb@laptop.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Mark Brown <broonie@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jiri Slaby <jslaby@suse.cz>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	Tomi Valkeinen <tomi.valkeinen@ti.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	"zhangwei(Jovi)" <jovi.zhangwei@huawei.com>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org,
+	linux-mmc@vger.kernel.org, rtc-linux@googlegroups.com,
+	linux-spi@vger.kernel.org, linux-serial@vger.kernel.org,
+	linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] amba: Ensure drvdata is NULL
+Message-ID: <20131002202521.GU12758@n2100.arm.linux.org.uk>
+References: <1b2479137287fa8dfda3089ca0cb9fba8c4b1f1d.1380524337.git.michal.simek@xilinx.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1380516173-6974-1-git-send-email-sachin.kamat@linaro.org>
+In-Reply-To: <1b2479137287fa8dfda3089ca0cb9fba8c4b1f1d.1380524337.git.michal.simek@xilinx.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Sep 30, 2013 at 12:42:51PM -0000, Sachin Kamat wrote:
-> The data structure of_match_ptr() protects is always compiled in.
-> Hence of_match_ptr() is not needed.
+On Mon, Sep 30, 2013 at 08:59:06AM +0200, Michal Simek wrote:
+> This patch is inpired by the patch for drvdata
+> "device-core: Ensure drvdata = NULL when no driver is bound"
+> (sha1: 0998d0631001288a5974afc0b2a5f568bcdecb4d)
 > 
-> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+> Also it fixes all occurences in drivers.
 > 
-
-Hi Sachin,
-
-I understand that the driver doesn't currently support to be built as module,
-so of_match_ptr() is not really necessary. But unless I am missing something,
-here isn't anything wrong with it either, not does it hurt to have it in place.
-
-So what is the benefit of this series ?
-
-Thanks,
-Guenter
-
+> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 > ---
-> drivers/watchdog/at91rm9200_wdt.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/at91rm9200_wdt.c b/drivers/watchdog/at91rm9200_wdt.c
-> index 1c75260..aa5cb56 100644
-> --- a/drivers/watchdog/at91rm9200_wdt.c
-> +++ b/drivers/watchdog/at91rm9200_wdt.c
-> @@ -269,7 +269,7 @@ static struct platform_driver at91wdt_driver = {
->  	.driver		= {
->  		.name	= "at91_wdt",
->  		.owner	= THIS_MODULE,
-> -		.of_match_table = of_match_ptr(at91_wdt_dt_ids),
-> +		.of_match_table = at91_wdt_dt_ids,
->  	},
->  };
->  
+> This patch has been sent as RFC in this thread.
+> http://lkml.org/lkml/2013/9/4/393
+
+Why not have the driver core do this?  Then it gets applied to all bus
+types uniformly.
+
+Thanks.
