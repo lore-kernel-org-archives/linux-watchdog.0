@@ -1,88 +1,66 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from 7.mo4.mail-out.ovh.net ([178.33.253.54]:33727 "EHLO
-	mo4.mail-out.ovh.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754290Ab3JCMle (ORCPT
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:55495 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754150Ab3JCQrI (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 3 Oct 2013 08:41:34 -0400
-Received: from mail172.ha.ovh.net (b9.ovh.net [213.186.33.59])
-	by mo4.mail-out.ovh.net (Postfix) with SMTP id 75CE8105CCAA
-	for <linux-watchdog@vger.kernel.org>; Thu,  3 Oct 2013 14:24:18 +0200 (CEST)
-From: Boris BREZILLON <b.brezillon@overkiz.com>
-To: Rob Herring <rob.herring@calxeda.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Stephen Warren <swarren@wwwdotorg.org>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Rob Landley <rob@landley.net>,
-	Russell King <linux@arm.linux.org.uk>,
+	Thu, 3 Oct 2013 12:47:08 -0400
+Date: Thu, 3 Oct 2013 09:47:01 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Michal Simek <michal.simek@xilinx.com>
+Cc: linux-kernel@vger.kernel.org, monstr@monstr.eu,
 	Wim Van Sebroeck <wim@iguana.be>,
-	Fabio Porcedda <fabio.porcedda@gmail.com>,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Guenter Roeck <groeck7@gmail.com>,
-	Yang Wenyou <wenyou.yang@atmel.com>
-Cc: devicetree@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org,
-	Boris BREZILLON <b.brezillon@overkiz.com>
-Subject: [PATCH 2/4] watchdog: at91sam9_wdt: update device tree doc
-Date: Thu,  3 Oct 2013 14:19:19 +0200
-Message-Id: <1380802761-32279-3-git-send-email-b.brezillon@overkiz.com>
-In-Reply-To: <1380802761-32279-1-git-send-email-b.brezillon@overkiz.com>
-References: <1380802761-32279-1-git-send-email-b.brezillon@overkiz.com>
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 8/9] watchdog: sp805_wdt: Remove unnecessary
+ amba_set_drvdata()
+Message-ID: <20131003164701.GB31605@roeck-us.net>
+References: <27e289763bbcb7d10f84081543cfc3a4dc770398.1380793579.git.michal.simek@xilinx.com>
+ <7a51da3b47e0dd14d9ad13853f649463dba9350f.1380793579.git.michal.simek@xilinx.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7a51da3b47e0dd14d9ad13853f649463dba9350f.1380793579.git.michal.simek@xilinx.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Add new at91sam9 watchdog properties to the documentation.
+On Thu, Oct 03, 2013 at 11:46:30AM +0200, Michal Simek wrote:
+> Driver core clears the driver data to NULL after device_release
+> or on probe failure, so just remove it from here.
+> 
+> Driver core change:
+> "device-core: Ensure drvdata = NULL when no driver is bound"
+> (sha1: 0998d0631001288a5974afc0b2a5f568bcdecb4d)
+> 
+> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+> ---
+>  drivers/watchdog/sp805_wdt.c | 1 -
+>  1 file changed, 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
+> index 58df98a..3f786ce 100644
+> --- a/drivers/watchdog/sp805_wdt.c
+> +++ b/drivers/watchdog/sp805_wdt.c
+> @@ -268,7 +268,6 @@ static int sp805_wdt_remove(struct amba_device *adev)
+>  	struct sp805_wdt *wdt = amba_get_drvdata(adev);
+> 
+>  	watchdog_unregister_device(&wdt->wdd);
+> -	amba_set_drvdata(adev, NULL);
+>  	watchdog_set_drvdata(&wdt->wdd, NULL);
 
-Signed-off-by: Boris BREZILLON <b.brezillon@overkiz.com>
----
- .../devicetree/bindings/watchdog/atmel-wdt.txt     |   30 ++++++++++++++++++--
- 1 file changed, 28 insertions(+), 2 deletions(-)
+This one is quite unnecessary as well. The wdt data structure will be freed
+as part of the removal. That could be a separate patch, though, so still
 
-diff --git a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
-index fcdd48f..f90e294 100644
---- a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
-@@ -9,11 +9,37 @@ Required properties:
- 
- Optional properties:
- - timeout-sec: contains the watchdog timeout in seconds.
-+- interrupts : Should contain WDT interrupt.
-+- atmel,max-heartbeat-sec : Should contain the maximum heartbeat value in
-+	seconds. This value should be less or equal to 16. It is used to
-+	compute the WDV field.
-+- atmel,min-heartbeat-sec : Should contain the minimum heartbeat value in
-+	seconds. This value must be smaller than the max-heartbeat-sec value.
-+	It is used to compute the WDD field.
-+- atmel,watchdog-type : Should be "hardware" or "software". Hardware watchdog
-+	use the at91 watchdog reset. Software watchdog use the watchdog
-+	interrupt to trigger a software reset.
-+- atmel,reset-type : Should be "proc" or "all".
-+	"all" : assert peripherals and processor reset signals
-+	"proc" : assert the processor reset signal
-+	This is valid only when using "hardware" watchdog.
-+- atmel,disable : Should be present if you want to disable the watchdog.
-+- atmel,idle-halt : Should be present if you want to stop the watchdog when
-+	entering idle state.
-+- atmel,dbg-halt : Should be present if you want to stop the watchdog when
-+	entering debug state.
- 
- Example:
--
- 	watchdog@fffffd40 {
- 		compatible = "atmel,at91sam9260-wdt";
- 		reg = <0xfffffd40 0x10>;
--		timeout-sec = <10>;
-+		interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
-+		timeout-sec = <15>;
-+		atmel,watchdog-type = "hardware";
-+		atmel,reset-type = "all";
-+		atmel,dbg-halt;
-+		atmel,idle-halt;
-+		atmel,max-heartbeat-sec = <16>;
-+		atmel,min-heartbeat-sec = <0>;
-+		status = "okay";
- 	};
--- 
-1.7.9.5
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
+If you like, feel free to resubmit with the watchdog_set_drvdata() removed
+and keep my Reviewed-by.
+
+Thanks,
+Guenter
+
+> 
+>  	return 0;
+> --
+> 1.8.2.3
+> 
+
 
