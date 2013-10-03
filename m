@@ -1,67 +1,145 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from [207.46.163.24] ([207.46.163.24]:6149 "EHLO
-	co9outboundpool.messaging.microsoft.com" rhost-flags-FAIL-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S1753551Ab3JCJOa (ORCPT
+Received: from 17.mo4.mail-out.ovh.net ([46.105.41.16]:50300 "EHLO
+	mo4.mail-out.ovh.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753615Ab3JCMZz (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 3 Oct 2013 05:14:30 -0400
-Date: Thu, 3 Oct 2013 11:13:05 +0200
-From: Michal Simek <michal.simek@xilinx.com>
-MIME-Version: 1.0
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>
-CC: Michal Simek <michal.simek@xilinx.com>,
-	<linux-kernel@vger.kernel.org>, <monstr@monstr.eu>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Vinod Koul <vinod.koul@intel.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Chris Ball <cjb@laptop.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Mark Brown <broonie@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Jiri Slaby <jslaby@suse.cz>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Tomi Valkeinen <tomi.valkeinen@ti.com>,
+	Thu, 3 Oct 2013 08:25:55 -0400
+Received: from mail172.ha.ovh.net (b9.ovh.net [213.186.33.59])
+	by mo4.mail-out.ovh.net (Postfix) with SMTP id 1544F105CE57
+	for <linux-watchdog@vger.kernel.org>; Thu,  3 Oct 2013 14:25:54 +0200 (CEST)
+From: Boris BREZILLON <b.brezillon@overkiz.com>
+To: Rob Herring <rob.herring@calxeda.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Stephen Warren <swarren@wwwdotorg.org>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Rob Landley <rob@landley.net>,
+	Russell King <linux@arm.linux.org.uk>,
 	Wim Van Sebroeck <wim@iguana.be>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	"zhangwei(Jovi)" <jovi.zhangwei@huawei.com>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	<linux-arm-kernel@lists.infradead.org>,
-	<linux-input@vger.kernel.org>, <linux-mmc@vger.kernel.org>,
-	<rtc-linux@googlegroups.com>, <linux-spi@vger.kernel.org>,
-	<linux-serial@vger.kernel.org>, <linux-fbdev@vger.kernel.org>,
-	<linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH] amba: Ensure drvdata is NULL
-References: <1b2479137287fa8dfda3089ca0cb9fba8c4b1f1d.1380524337.git.michal.simek@xilinx.com> <20131002202521.GU12758@n2100.arm.linux.org.uk>
-In-Reply-To: <20131002202521.GU12758@n2100.arm.linux.org.uk>
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-ID: <d5a0aab9-f023-4464-b4a1-f7055e6c82d5@CO9EHSMHS010.ehs.local>
+	Fabio Porcedda <fabio.porcedda@gmail.com>,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Guenter Roeck <groeck7@gmail.com>,
+	Yang Wenyou <wenyou.yang@atmel.com>
+Cc: devicetree@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org,
+	Boris BREZILLON <b.brezillon@overkiz.com>
+Subject: [PATCH 3/4] ARM: at91/dt: add sam9 watchdog default options to SoCs
+Date: Thu,  3 Oct 2013 14:19:20 +0200
+Message-Id: <1380802761-32279-4-git-send-email-b.brezillon@overkiz.com>
+In-Reply-To: <1380802761-32279-1-git-send-email-b.brezillon@overkiz.com>
+References: <1380802761-32279-1-git-send-email-b.brezillon@overkiz.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 10/02/2013 10:25 PM, Russell King - ARM Linux wrote:
-> On Mon, Sep 30, 2013 at 08:59:06AM +0200, Michal Simek wrote:
->> This patch is inpired by the patch for drvdata
->> "device-core: Ensure drvdata = NULL when no driver is bound"
->> (sha1: 0998d0631001288a5974afc0b2a5f568bcdecb4d)
->>
->> Also it fixes all occurences in drivers.
->>
->> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
->> ---
->> This patch has been sent as RFC in this thread.
->> http://lkml.org/lkml/2013/9/4/393
-> 
-> Why not have the driver core do this?  Then it gets applied to all bus
-> types uniformly.
+Set default watchdog options in every SoC compatible with the sam9 watchdog.
 
-ok - I have checked that path and it should be already done
-in really_probe function which calls amba_probe() and then driver probe function.
+Signed-off-by: Boris BREZILLON <b.brezillon@overkiz.com>
+---
+ arch/arm/boot/dts/at91sam9260.dtsi |    5 +++++
+ arch/arm/boot/dts/at91sam9263.dtsi |    5 +++++
+ arch/arm/boot/dts/at91sam9g45.dtsi |    5 +++++
+ arch/arm/boot/dts/at91sam9n12.dtsi |    5 +++++
+ arch/arm/boot/dts/at91sam9x5.dtsi  |    5 +++++
+ arch/arm/boot/dts/sama5d3.dtsi     |    5 +++++
+ 6 files changed, 30 insertions(+)
 
-It means that the patch should contain just "amba_set_drvdata(dev, NULL);"
-removal and not touching bus.c file.
-
-Thanks,
-Michal
-
+diff --git a/arch/arm/boot/dts/at91sam9260.dtsi b/arch/arm/boot/dts/at91sam9260.dtsi
+index 56ee828..997901f 100644
+--- a/arch/arm/boot/dts/at91sam9260.dtsi
++++ b/arch/arm/boot/dts/at91sam9260.dtsi
+@@ -648,6 +648,11 @@
+ 			watchdog@fffffd40 {
+ 				compatible = "atmel,at91sam9260-wdt";
+ 				reg = <0xfffffd40 0x10>;
++				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
++				atmel,watchdog-type = "hardware";
++				atmel,reset-type = "all";
++				atmel,dbg-halt;
++				atmel,idle-halt;
+ 				status = "disabled";
+ 			};
+ 		};
+diff --git a/arch/arm/boot/dts/at91sam9263.dtsi b/arch/arm/boot/dts/at91sam9263.dtsi
+index d5bd65f..45fb0a4 100644
+--- a/arch/arm/boot/dts/at91sam9263.dtsi
++++ b/arch/arm/boot/dts/at91sam9263.dtsi
+@@ -523,6 +523,11 @@
+ 			watchdog@fffffd40 {
+ 				compatible = "atmel,at91sam9260-wdt";
+ 				reg = <0xfffffd40 0x10>;
++				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
++				atmel,watchdog-type = "hardware";
++				atmel,reset-type = "all";
++				atmel,dbg-halt;
++				atmel,idle-halt;
+ 				status = "disabled";
+ 			};
+ 
+diff --git a/arch/arm/boot/dts/at91sam9g45.dtsi b/arch/arm/boot/dts/at91sam9g45.dtsi
+index c3e5148..16534c7 100644
+--- a/arch/arm/boot/dts/at91sam9g45.dtsi
++++ b/arch/arm/boot/dts/at91sam9g45.dtsi
+@@ -639,6 +639,11 @@
+ 			watchdog@fffffd40 {
+ 				compatible = "atmel,at91sam9260-wdt";
+ 				reg = <0xfffffd40 0x10>;
++				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
++				atmel,watchdog-type = "hardware";
++				atmel,reset-type = "all";
++				atmel,dbg-halt;
++				atmel,idle-halt;
+ 				status = "disabled";
+ 			};
+ 
+diff --git a/arch/arm/boot/dts/at91sam9n12.dtsi b/arch/arm/boot/dts/at91sam9n12.dtsi
+index 9fb7ffd..eaef94b 100644
+--- a/arch/arm/boot/dts/at91sam9n12.dtsi
++++ b/arch/arm/boot/dts/at91sam9n12.dtsi
+@@ -537,6 +537,11 @@
+ 			watchdog@fffffe40 {
+ 				compatible = "atmel,at91sam9260-wdt";
+ 				reg = <0xfffffe40 0x10>;
++				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
++				atmel,watchdog-type = "hardware";
++				atmel,reset-type = "all";
++				atmel,dbg-halt;
++				atmel,idle-halt;
+ 				status = "disabled";
+ 			};
+ 		};
+diff --git a/arch/arm/boot/dts/at91sam9x5.dtsi b/arch/arm/boot/dts/at91sam9x5.dtsi
+index e74dc15..6d31fd7 100644
+--- a/arch/arm/boot/dts/at91sam9x5.dtsi
++++ b/arch/arm/boot/dts/at91sam9x5.dtsi
+@@ -820,6 +820,11 @@
+ 			watchdog@fffffe40 {
+ 				compatible = "atmel,at91sam9260-wdt";
+ 				reg = <0xfffffe40 0x10>;
++				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
++				atmel,watchdog-type = "hardware";
++				atmel,reset-type = "all";
++				atmel,dbg-halt;
++				atmel,idle-halt;
+ 				status = "disabled";
+ 			};
+ 
+diff --git a/arch/arm/boot/dts/sama5d3.dtsi b/arch/arm/boot/dts/sama5d3.dtsi
+index b7f4961..3a17a3e 100644
+--- a/arch/arm/boot/dts/sama5d3.dtsi
++++ b/arch/arm/boot/dts/sama5d3.dtsi
+@@ -891,6 +891,11 @@
+ 			watchdog@fffffe40 {
+ 				compatible = "atmel,at91sam9260-wdt";
+ 				reg = <0xfffffe40 0x10>;
++				interrupts = <4 IRQ_TYPE_LEVEL_HIGH 7>;
++				atmel,watchdog-type = "hardware";
++				atmel,reset-type = "all";
++				atmel,dbg-halt;
++				atmel,idle-halt;
+ 				status = "disabled";
+ 			};
+ 
+-- 
+1.7.9.5
 
