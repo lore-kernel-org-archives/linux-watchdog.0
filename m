@@ -1,73 +1,110 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ee0-f52.google.com ([74.125.83.52]:53956 "EHLO
-	mail-ee0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753824Ab3JCJrH (ORCPT
+Received: from 5.mo2.mail-out.ovh.net ([87.98.181.248]:50207 "EHLO
+	mo2.mail-out.ovh.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751257Ab3JDH0B (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 3 Oct 2013 05:47:07 -0400
-Received: by mail-ee0-f52.google.com with SMTP id c41so948410eek.25
-        for <linux-watchdog@vger.kernel.org>; Thu, 03 Oct 2013 02:47:06 -0700 (PDT)
-From: Michal Simek <michal.simek@xilinx.com>
-To: linux-kernel@vger.kernel.org, monstr@monstr.eu
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
-Subject: [PATCH 8/9] watchdog: sp805_wdt: Remove unnecessary amba_set_drvdata()
-Date: Thu,  3 Oct 2013 11:46:30 +0200
-Message-Id: <7a51da3b47e0dd14d9ad13853f649463dba9350f.1380793579.git.michal.simek@xilinx.com>
-In-Reply-To: <27e289763bbcb7d10f84081543cfc3a4dc770398.1380793579.git.michal.simek@xilinx.com>
-References: <27e289763bbcb7d10f84081543cfc3a4dc770398.1380793579.git.michal.simek@xilinx.com>
-In-Reply-To: <27e289763bbcb7d10f84081543cfc3a4dc770398.1380793579.git.michal.simek@xilinx.com>
-References: <27e289763bbcb7d10f84081543cfc3a4dc770398.1380793579.git.michal.simek@xilinx.com>
-Content-Type: multipart/signed;
-    boundary="=_mimegpg-monstr-desktop-4152-1380793623-0001";
-    micalg=pgp-sha1; protocol="application/pgp-signature"
+	Fri, 4 Oct 2013 03:26:01 -0400
+Received: from mail631.ha.ovh.net (b9.ovh.net [213.186.33.59])
+	by mo2.mail-out.ovh.net (Postfix) with SMTP id 3FC5BDC3199
+	for <linux-watchdog@vger.kernel.org>; Fri,  4 Oct 2013 09:25:59 +0200 (CEST)
+From: Boris BREZILLON <b.brezillon@overkiz.com>
+To: Rob Herring <rob.herring@calxeda.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Stephen Warren <swarren@wwwdotorg.org>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Rob Landley <rob@landley.net>,
+	Russell King <linux@arm.linux.org.uk>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Fabio Porcedda <fabio.porcedda@gmail.com>,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Guenter Roeck <groeck7@gmail.com>,
+	Yang Wenyou <wenyou.yang@atmel.com>
+Cc: devicetree@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org,
+	Boris BREZILLON <b.brezillon@overkiz.com>
+Subject: [PATCH v5 0/4] watchdog: at91sam9_wdt: handle already configured wdt
+Date: Fri,  4 Oct 2013 09:24:11 +0200
+Message-Id: <1380871455-7324-1-git-send-email-b.brezillon@overkiz.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This is a MIME GnuPG-signed message.  If you see this text, it means that
-your E-mail or Usenet software does not support MIME signed messages.
-The Internet standard for MIME PGP messages, RFC 2015, was published in 1996.
-To open this message correctly you will need to install E-mail or Usenet
-software that supports modern Internet standards.
+Hello,
 
---=_mimegpg-monstr-desktop-4152-1380793623-0001
+This patch series is a porposal to enhance the sam9 watchdog timer support.
 
-Driver core clears the driver data to NULL after device_release
-or on probe failure, so just remove it from here.
+The at91sam9 watchdog timer can only be configured once, and the current
+implementation tries to configure it in a static way:
+- 2 seconds timeout
+- wdt restart every 500ms
 
-Driver core change:
-"device-core: Ensure drvdata = NULL when no driver is bound"
-(sha1: 0998d0631001288a5974afc0b2a5f568bcdecb4d)
+If the timer has already been configured with different values, it returns an
+error and do not create any watchdog device.
 
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
----
- drivers/watchdog/sp805_wdt.c | 1 -
- 1 file changed, 1 deletion(-)
+This is not critical if the watchdog is disabled, but if it has been enabled
+with different timeout values it will lead to a SoC reset.
 
-diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
-index 58df98a..3f786ce 100644
---- a/drivers/watchdog/sp805_wdt.c
-+++ b/drivers/watchdog/sp805_wdt.c
-@@ -268,7 +268,6 @@ static int sp805_wdt_remove(struct amba_device *adev)
- 	struct sp805_wdt *wdt = amba_get_drvdata(adev);
+This patch series tries to address this issue by adapting the heartbeat value
+according the WDT timer config:
+- it first tries to configure the timer as requested.
+- if it fails it fallbacks to the current config, adapting its heartbeat timer
+to the needs
 
- 	watchdog_unregister_device(&wdt->wdd);
--	amba_set_drvdata(adev, NULL);
- 	watchdog_set_drvdata(&wdt->wdd, NULL);
+This patch series also move to a dynamically allocated at91wdt device instead
+of the static instance. I'm not sure this is the best solution, so please tell
+me if you prefer to keep static instance of watchdog.
 
- 	return 0;
---
-1.8.2.3
+It adds a new at91 wdt type: software. This new type make use of the at91 wdt
+interrupt to trigger a software reboot.
+
+Finally it adds several properties to the device tree bindings.
+
+Best Regards,
+Boris
+
+Changes since v4:
+ - fix coding style issues
+ - remove unneeded watchdog_active test
+
+Changes since v3:
+ - fix a bug in heartbeat time computation
+ - fix a bug in at91_wdt_set_timeout when new timeout is bigger than the old
+   one
+ - rename at91_wdt_ping into at91_wdt_start
+ - remove unneeded ping callback assignment
+
+Changes since v2:
+ - fix documentation
+ - rework the heartbeat computation to get a more flexible behaviour
+ - fix xx_to_yy macros
+ - modify warning and error messages
+ - remove unneeded parenthesis in arithmetic operations
+ - use devm functions to map io memory
+ - remove unneeded devm_kfree calls
+
+Change since v1:
+ - fix typo in documentaion
+ - fix irq dt definition for sama5d3 SoC
 
 
---=_mimegpg-monstr-desktop-4152-1380793623-0001
-Content-Type: application/pgp-signature
-Content-Transfer-Encoding: 7bit
+Boris BREZILLON (4):
+  watchdog: at91sam9_wdt: better watchdog support
+  watchdog: at91sam9_wdt: update device tree doc
+  ARM: at91/dt: add sam9 watchdog default options to SoCs
+  ARM: at91/dt: add watchdog properties to kizbox board
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
+ .../devicetree/bindings/watchdog/atmel-wdt.txt     |   30 +-
+ arch/arm/boot/dts/at91sam9260.dtsi                 |    5 +
+ arch/arm/boot/dts/at91sam9263.dtsi                 |    5 +
+ arch/arm/boot/dts/at91sam9g45.dtsi                 |    5 +
+ arch/arm/boot/dts/at91sam9n12.dtsi                 |    5 +
+ arch/arm/boot/dts/at91sam9x5.dtsi                  |    5 +
+ arch/arm/boot/dts/kizbox.dts                       |    6 +
+ arch/arm/boot/dts/sama5d3.dtsi                     |    5 +
+ drivers/watchdog/at91sam9_wdt.c                    |  309 ++++++++++++++------
+ 9 files changed, 287 insertions(+), 88 deletions(-)
 
-iEYEABECAAYFAlJNPRcACgkQykllyylKDCEKEQCfRDy7lFYAZSnLe6iStdsA0KiH
-CWsAn3yRQ3KgJuflwgPMBsxIma3ky5IE
-=geup
------END PGP SIGNATURE-----
+-- 
+1.7.9.5
 
---=_mimegpg-monstr-desktop-4152-1380793623-0001--
