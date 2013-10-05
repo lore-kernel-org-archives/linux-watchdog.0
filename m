@@ -1,61 +1,56 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from 6.mo2.mail-out.ovh.net ([87.98.165.38]:36252 "EHLO
-	mo2.mail-out.ovh.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750935Ab3JDHih (ORCPT
+Received: from top.free-electrons.com ([176.31.233.9]:50023 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752239Ab3JEOU3 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 4 Oct 2013 03:38:37 -0400
-Received: from mail631.ha.ovh.net (b9.ovh.net [213.186.33.59])
-	by mo2.mail-out.ovh.net (Postfix) with SMTP id 37B74DC3246
-	for <linux-watchdog@vger.kernel.org>; Fri,  4 Oct 2013 09:32:03 +0200 (CEST)
-From: Boris BREZILLON <b.brezillon@overkiz.com>
-To: Rob Herring <rob.herring@calxeda.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Stephen Warren <swarren@wwwdotorg.org>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Rob Landley <rob@landley.net>,
-	Russell King <linux@arm.linux.org.uk>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Fabio Porcedda <fabio.porcedda@gmail.com>,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Guenter Roeck <groeck7@gmail.com>,
-	Yang Wenyou <wenyou.yang@atmel.com>
-Cc: devicetree@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org,
-	Boris BREZILLON <b.brezillon@overkiz.com>
-Subject: [PATCH v5 4/4] ARM: at91/dt: add watchdog properties to kizbox board
-Date: Fri,  4 Oct 2013 09:24:15 +0200
-Message-Id: <1380871455-7324-5-git-send-email-b.brezillon@overkiz.com>
-In-Reply-To: <1380871455-7324-1-git-send-email-b.brezillon@overkiz.com>
-References: <1380871455-7324-1-git-send-email-b.brezillon@overkiz.com>
+	Sat, 5 Oct 2013 10:20:29 -0400
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: wim@iguana.be
+Cc: linux-arm-kernel@lists.infradead.org, carlo.caione@gmail.com,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: [PATCH] wdt: sunxi: Fix section mismatch
+Date: Sat,  5 Oct 2013 16:20:17 +0200
+Message-Id: <1380982817-10234-1-git-send-email-maxime.ripard@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Add watchdog specific config for kizbox board.
+This driver has a section mismatch, for probe and remove functions,
+leading to the following warning during the compilation.
 
-Signed-off-by: Boris BREZILLON <b.brezillon@overkiz.com>
+WARNING: drivers/watchdog/built-in.o(.data+0x24): Section mismatch in
+reference from the variable sunxi_wdt_driver to the function
+.init.text:sunxi_wdt_probe()
+The variable sunxi_wdt_driver references
+the function __init sunxi_wdt_probe()
+
+Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
 ---
- arch/arm/boot/dts/kizbox.dts |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/watchdog/sunxi_wdt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/kizbox.dts b/arch/arm/boot/dts/kizbox.dts
-index 02df191..928f6ee 100644
---- a/arch/arm/boot/dts/kizbox.dts
-+++ b/arch/arm/boot/dts/kizbox.dts
-@@ -53,6 +53,12 @@
- 				status = "okay";
- 			};
+diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
+index 1f94b42..f6caa77 100644
+--- a/drivers/watchdog/sunxi_wdt.c
++++ b/drivers/watchdog/sunxi_wdt.c
+@@ -146,7 +146,7 @@ static const struct watchdog_ops sunxi_wdt_ops = {
+ 	.set_timeout	= sunxi_wdt_set_timeout,
+ };
  
-+			watchdog@fffffd40 {
-+				timeout-sec = <15>;
-+				atmel,max-heartbeat-sec = <16>;
-+				atmel,min-heartbeat-sec = <0>;
-+				status = "okay";
-+			};
- 		};
+-static int __init sunxi_wdt_probe(struct platform_device *pdev)
++static int sunxi_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct sunxi_wdt_dev *sunxi_wdt;
+ 	struct resource *res;
+@@ -187,7 +187,7 @@ static int __init sunxi_wdt_probe(struct platform_device *pdev)
+ 	return 0;
+ }
  
- 		nand0: nand@40000000 {
+-static int __exit sunxi_wdt_remove(struct platform_device *pdev)
++static int sunxi_wdt_remove(struct platform_device *pdev)
+ {
+ 	struct sunxi_wdt_dev *sunxi_wdt = platform_get_drvdata(pdev);
+ 
 -- 
-1.7.9.5
+1.8.4
 
