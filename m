@@ -1,57 +1,125 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-we0-f178.google.com ([74.125.82.178]:44672 "EHLO
-	mail-we0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756800Ab3JIXrG (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:37426 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754840Ab3JMSHb (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 9 Oct 2013 19:47:06 -0400
-Received: by mail-we0-f178.google.com with SMTP id q59so1698111wes.9
-        for <linux-watchdog@vger.kernel.org>; Wed, 09 Oct 2013 16:47:04 -0700 (PDT)
-MIME-Version: 1.0
-Date: Wed, 9 Oct 2013 16:47:03 -0700
-Message-ID: <CAPdLdqnz9EpW5S4OSh_2mokWH36n5zO0q-7MMuctRL_LQTYsNQ@mail.gmail.com>
-Subject: Disabling watchdog when closing /dev/watchdog
-From: Markus Mayer <markus.mayer@linaro.org>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Linux Watchdog <linux-watchdog@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
+	Sun, 13 Oct 2013 14:07:31 -0400
+Date: Sun, 13 Oct 2013 20:07:27 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Jingoo Han <jg1.han@samsung.com>,
+	Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [GIT PULL REQUEST] watchdog - v3.12-rc4 Fixes
+Message-ID: <20131013180727.GN401@spo001.leaseweb.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Currently, the watchdog framework works such that upon closing
-/dev/watchdog it will attempt to disable the watchdog timer and,
-failing that, will poke the watchdog (via the watchdog_release()
-function).
+Hi Linus,
 
-I am working on a new watchdog driver for a Broadcom SoC, and for test
-purposes at least, it would be helpful if the watchdog could be left
-alone when the device is closed (i.e. the watchdog is neither stopped
-nor poked). That way I could use a command line utility to issue ioctl
-calls and observe the effect of these calls.
+Please pull from 'master' branch of
+	git://www.linux-watchdog.org/linux-watchdog.git
 
-Right now, using my line tool to check the "time left" will return the
-proper amount of time left, but it will also poke the watchdog,
-therefore changing the time that's actually left until the watchdog
-expires (the command line tool opens /dev/watchdog, issues an ioctl
-and closes /dev/watchdog), turning a "read-only" operation into one
-that actually changes the watchdog's status.
+This will fix a deadlock on the ts72xx_wdt driver,
+fix bitmasks in the kempld_wdt driver and
+fix a section mismatch in the sunxi_wdt driver.
 
-Automatically stopping or poking the watchdog upon close only makes
-sense in the case of a continuously running daemon that keeps
-/dev/watchdog open at all times. It doesn't work for case where an
-application would open the watchdog device only for brief amounts of
-time.
+This will update the following files:
 
-Would it make sense to add a flag like "WDOG_LEAVE_ON" to, say, struct
-watchdog_device's "status" values, which the driver could set,
-allowing watchdog_release() to leave the watchdog alone upon closing
-the device? Or is there a different way to achieve this? A daemon is
-not practicable for me at this point, and even later on, we may not
-want to go with a daemon solution, but may want to rely on the
-watchdog continuing to run even if the device is closed.
+ kempld_wdt.c |    2 +-
+ sunxi_wdt.c  |    4 ++--
+ ts72xx_wdt.c |    3 ++-
+ 3 files changed, 5 insertions(+), 4 deletions(-)
 
-Thanks,
--Markus
+with these Changes:
 
--- 
-Markus Mayer
-Broadcom Landing Team
+commit 1d5898b4f8a0f6e231546d30dd54f6f9b89c232c
+Author: Maxime Ripard <maxime.ripard@free-electrons.com>
+Date:   Sat Oct 5 16:20:17 2013 +0200
+
+    watchdog: sunxi: Fix section mismatch
+    
+    This driver has a section mismatch, for probe and remove functions,
+    leading to the following warning during the compilation.
+    
+    WARNING: drivers/watchdog/built-in.o(.data+0x24): Section mismatch in
+    reference from the variable sunxi_wdt_driver to the function
+    .init.text:sunxi_wdt_probe()
+    The variable sunxi_wdt_driver references
+    the function __init sunxi_wdt_probe()
+    
+    Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+    Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+
+commit 4c4e45669de475573b15d968a6dca8d00124c9ad
+Author: Jingoo Han <jg1.han@samsung.com>
+Date:   Mon Sep 23 19:16:57 2013 +0900
+
+    watchdog: kempld_wdt: Fix bit mask definition
+    
+    STAGE_CFG bits are defined as [5:4] bits. However, '(((x) & 0x30) << 4)'
+    handles [9:8] bits. Thus, it should be fixed in order to handle
+    [5:4] bits.
+    
+    Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+    Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+
+commit 8612ed0d97abcf1c016d34755b7cf2060de71963
+Author: Dan Carpenter <dan.carpenter@oracle.com>
+Date:   Fri Aug 23 11:40:59 2013 +0300
+
+    watchdog: ts72xx_wdt: locking bug in ioctl
+    
+    Calling the WDIOC_GETSTATUS & WDIOC_GETBOOTSTATUS and twice will cause a
+    interruptible deadlock.
+    
+    Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+    Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+
+For completeness, I added the overal diff below.
+
+Greetings,
+Wim.
+
+================================================================================
+diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
+index 1eff743..ae60406 100644
+--- a/drivers/watchdog/hpwdt.c
++++ b/drivers/watchdog/hpwdt.c
+@@ -814,6 +814,9 @@ static int __devinit hpwdt_init_one(struct pci_dev *dev,
+ 	hpwdt_timer_reg = pci_mem_addr + 0x70;
+ 	hpwdt_timer_con = pci_mem_addr + 0x72;
+ 
++	/* Make sure that timer is disabled until /dev/watchdog is opened */
++	hpwdt_stop();
++
+ 	/* Make sure that we have a valid soft_margin */
+ 	if (hpwdt_change_timer(soft_margin))
+ 		hpwdt_change_timer(DEFAULT_MARGIN);
+diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+index 6aa46a9..3796434 100644
+--- a/drivers/watchdog/watchdog_core.c
++++ b/drivers/watchdog/watchdog_core.c
+@@ -128,11 +128,12 @@ EXPORT_SYMBOL_GPL(watchdog_register_device);
+ void watchdog_unregister_device(struct watchdog_device *wdd)
+ {
+ 	int ret;
+-	int devno = wdd->cdev.dev;
++	int devno;
+ 
+ 	if (wdd == NULL)
+ 		return;
+ 
++	devno = wdd->cdev.dev;
+ 	ret = watchdog_dev_unregister(wdd);
+ 	if (ret)
+ 		pr_err("error unregistering /dev/watchdog (err=%d)\n", ret);
