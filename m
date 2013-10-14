@@ -1,31 +1,34 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:55400 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756457Ab3JNPrm (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 14 Oct 2013 11:47:42 -0400
-Message-ID: <525C1218.7060901@roeck-us.net>
-Date: Mon, 14 Oct 2013 08:47:36 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: linux-usb <linux-usb@vger.kernel.org>
-CC: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+Return-Path: <gregkh@linuxfoundation.org>
+Date: Mon, 14 Oct 2013 08:53:10 -0700
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-usb <linux-usb@vger.kernel.org>,
 	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Subject: usb_control_msg and non-dma buffers
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Subject: Re: usb_control_msg and non-dma buffers
+Message-ID: <20131014155310.GA3474@kroah.com>
+References: <525C1218.7060901@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <525C1218.7060901@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi all,
+On Mon, Oct 14, 2013 at 08:47:36AM -0700, Guenter Roeck wrote:
+> Hi all,
+> 
+> I am getting the following smatch error in drivers/watchdog/pcwd_usb.c:
+> 
+> drivers/watchdog/pcwd_usb.c:257 usb_pcwd_send_command() error: doing dma on the stack (buf)
+> 
+> This is from a call to usb_control_msg().
+> 
+> Is this a false positive or a real problem that needs to be fixed ?
 
-I am getting the following smatch error in drivers/watchdog/pcwd_usb.c:
+It is a real problem that must be fixed.
 
-drivers/watchdog/pcwd_usb.c:257 usb_pcwd_send_command() error: doing dma on the stack (buf)
+You can't send USB data off of the stack and expect the driver to work
+on all controllers and platforms.
 
-This is from a call to usb_control_msg().
+thanks,
 
-Is this a false positive or a real problem that needs to be fixed ?
-
-Thanks,
-Guenter
+greg k-h
