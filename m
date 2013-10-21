@@ -1,64 +1,98 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f172.google.com ([209.85.192.172]:59453 "EHLO
-	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751141Ab3JUTGe (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 21 Oct 2013 15:06:34 -0400
-Date: Mon, 21 Oct 2013 12:06:25 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Jean Delvare <jdelvare@suse.de>
-Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	Stephen Warren <swarren@wwwdotorg.org>,
-	Mike Frysinger <vapier.adi@gmail.com>,
-	Wan ZongShun <mcuos.com@gmail.com>,
-	Ben Dooks <ben-linux@fluff.org>,
-	Kukjin Kim <kgene.kim@samsung.com>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Jim Cromie <jim.cromie@gmail.com>,
-	LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] watchdog: Get rid of MODULE_ALIAS_MISCDEV statements
-Message-ID: <20131021190625.GA19242@roeck-us.net>
-References: <20131021173849.2d8be882@endymion.delvare>
+Return-Path: <mark.rutland@arm.com>
+Date: Mon, 21 Oct 2013 12:05:33 +0100
+From: Mark Rutland <mark.rutland@arm.com>
+To: "dinguyen@altera.com" <dinguyen@altera.com>
+Cc: "dinh.linux@gmail.com" <dinh.linux@gmail.com>,
+   Guenter Roeck <linux@roeck-us.net>, Jamie Iles <jamie@jamieiles.com>,
+   Viresh Kumar <viresh.linux@gmail.com>, Wim Van Sebroeck <wim@iguana.be>,
+   Pavel Machek <pavel@denx.de>,
+   "rob.herring@calxeda.com" <rob.herring@calxeda.com>,
+   Pawel Moll <Pawel.Moll@arm.com>, Stephen Warren <swarren@wwwdotorg.org>,
+   Ian Campbell <ian.campbell@citrix.com>,
+   "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+   "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+Subject: Re: [RESEND PATCHv2] watchdog: dw: Enable OF support for DW watchdog
+ timer.
+Message-ID: <20131021110532.GA8144@kartoffel>
+References: <1380739472-26172-1-git-send-email-dinguyen@altera.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20131021173849.2d8be882@endymion.delvare>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <1380739472-26172-1-git-send-email-dinguyen@altera.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Mon, Oct 21, 2013 at 05:38:49PM +0200, Jean Delvare wrote:
-> I just can't find any value in MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR)
-> and MODULE_ALIAS_MISCDEV(TEMP_MINOR) statements.
+On Wed, Oct 02, 2013 at 07:44:32PM +0100, dinguyen@altera.com wrote:
+> From: Dinh Nguyen <dinguyen@altera.com>
 > 
-> Either the device is enumerated and the driver already has a module
-> alias (e.g. PCI, USB etc.) that will get the right driver loaded
-> automatically.
+> Add device tree support to the DW watchdog timer.
 > 
-> Or the device is not enumerated and loading its driver will lead to
-> more or less intrusive hardware poking. Such hardware poking should be
-> limited to a bare minimum, so the user should really decide which
-> drivers should be tried and in what order. Trying them all in
-> arbitrary order can't do any good.
-> 
-> On top of that, loading that many drivers at once bloats the kernel
-> log. Also many drivers will stay loaded afterward, bloating the output
-> of "lsmod" and wasting memory. Some modules (cs5535_mfgpt which gets
-> loaded as a dependency) can't even be unloaded!
-> 
-> If defining char-major-10-130 is needed then it should happen in
-> user-space.
-> 
-> Signed-off-by: Jean Delvare <jdelvare@suse.de>
-> Cc: Wim Van Sebroeck <wim@iguana.be>
-> Cc: Stephen Warren <swarren@wwwdotorg.org>
-> Cc: Mike Frysinger <vapier.adi@gmail.com>
-> Cc: Wan ZongShun <mcuos.com@gmail.com>
-> Cc: Ben Dooks <ben-linux@fluff.org>
-> Cc: Kukjin Kim <kgene.kim@samsung.com>
-> Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-> Cc: Jim Cromie <jim.cromie@gmail.com>
+> Signed-off-by: Dinh Nguyen <dinguyen@altera.com>
+> Acked-by: Jamie Iles <jamie@jamieiles.com>
+> Reviewed-by: Pavel Machek <pavel@denx.de>
 > Cc: Guenter Roeck <linux@roeck-us.net>
+> Cc: Jamie Iles <jamie@jamieiles.com>
+> Cc: Viresh Kumar <viresh.linux@gmail.com>
+> Cc: Wim Van Sebroeck <wim@iguana.be>
+> Cc: Pavel Machek <pavel@denx.de>
+> Cc: Rob Herring <rob.herring@calxeda.com>
+> Cc: Pawel Moll <pawel.moll@arm.com>
+> Cc: Mark Rutland <mark.rutland@arm.com>
+> Cc: Stephen Warren <swarren@wwwdotorg.org>
+> Cc: Ian Campbell <ian.campbell@citrix.com>
+> Cc: devicetree@vger.kernel.org
+> Cc: linux-watchdog@vger.kernel.org
+> ---
+> v2:
+> - Use of_match_ptr() for of_match_table
+> ---
+>  .../devicetree/bindings/watchdog/dw_wdt.txt        |   16 ++++++++++++++++
+>  drivers/watchdog/dw_wdt.c                          |    8 ++++++++
+>  2 files changed, 24 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/dw_wdt.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/dw_wdt.txt b/Documentation/devicetree/bindings/watchdog/dw_wdt.txt
+> new file mode 100644
+> index 0000000..29e150b
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/watchdog/dw_wdt.txt
+> @@ -0,0 +1,16 @@
+> +Synopsys Designware Watchdog Timer
+> +
+> +Required Properties:
+> +
+> +- Compatiblity	: "snps,dw-wdt"
 
-Makes sense to me.
+This should presumably be:
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
+- compatbile: should contain "snps,dw-wdt"
+
+> +- reg		: Base address of the watchdog timer register.
+
+And the size...
+
+> +
+> +Example:
+> +
+> +	watchdog0: wd@ffd02000 {
+> +		compatible = "snps,dw-wdt";
+> +		reg = <0xffd02000 0x1000>;
+> +		interrupts = <0 171 4>;
+
+This wasn't mentioned.
+
+Is it necessary?
+
+Is it the only interrupt?
+
+> +		clocks = <&per_base_clk>;
+
+Similarly, is this the only clock?
+
+Is it necessary?
+
+> +		status = "okay";
+
+This is unnecessary.
+
+Thanks,
+Mark.
