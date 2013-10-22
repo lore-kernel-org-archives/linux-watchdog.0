@@ -1,50 +1,121 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-we0-f177.google.com ([74.125.82.177]:37422 "EHLO
-	mail-we0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752545Ab3JVLCs (ORCPT
+Received: from [216.32.180.188] ([216.32.180.188]:43412 "EHLO
+	co1outboundpool.messaging.microsoft.com" rhost-flags-FAIL-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S1751372Ab3JVLfu (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 22 Oct 2013 07:02:48 -0400
-Received: by mail-we0-f177.google.com with SMTP id x55so7638760wes.8
-        for <linux-watchdog@vger.kernel.org>; Tue, 22 Oct 2013 04:02:47 -0700 (PDT)
-Date: Tue, 22 Oct 2013 12:02:42 +0100
-From: Jamie Iles <jamie@jamieiles.com>
-To: Dinh Nguyen <dinh.linux@gmail.com>
-Cc: Mark Rutland <mark.rutland@arm.com>,
+	Tue, 22 Oct 2013 07:35:50 -0400
+From: <dinguyen@altera.com>
+To: <dinh.linux@gmail.com>
+CC: Dinh Nguyen <dinguyen@altera.com>,
 	Guenter Roeck <linux@roeck-us.net>,
-	"dinguyen@altera.com" <dinguyen@altera.com>,
 	Jamie Iles <jamie@jamieiles.com>,
 	Viresh Kumar <viresh.linux@gmail.com>,
 	Wim Van Sebroeck <wim@iguana.be>,
 	Pavel Machek <pavel@denx.de>,
-	"rob.herring@calxeda.com" <rob.herring@calxeda.com>,
-	Pawel Moll <Pawel.Moll@arm.com>,
+	Rob Herring <rob.herring@calxeda.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
 	Stephen Warren <swarren@wwwdotorg.org>,
-	Ian Campbell <ian.campbell@citrix.com>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Subject: Re: [RESEND PATCHv2] watchdog: dw: Enable OF support for DW watchdog
- timer.
-Message-ID: <20131022110242.GA7560@maple>
-References: <1380739472-26172-1-git-send-email-dinguyen@altera.com>
- <20131021110532.GA8144@kartoffel>
- <5265C9B0.2060003@roeck-us.net>
- <20131022103936.GA5511@kartoffel>
- <52665A1E.5020700@gmail.com>
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	<devicetree@vger.kernel.org>, <linux-watchdog@vger.kernel.org>
+Subject: [PATCHv4] watchdog: dw: Enable OF support for DW watchdog timer
+Date: Tue, 22 Oct 2013 06:34:31 -0500
+Message-ID: <1382441671-18444-1-git-send-email-dinguyen@altera.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <52665A1E.5020700@gmail.com>
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Oct 22, 2013 at 05:57:34AM -0500, Dinh Nguyen wrote:
-> On 10/22/13 5:39 AM, Mark Rutland wrote:
-> >Does the device have any interrupts, even if they're unused?
-> Yes, the device does have an interrupt. Should I add it as an
-> optional property?
+From: Dinh Nguyen <dinguyen@altera.com>
 
-iirc the interrupt feature is part of the IP configuration so not all 
-instantiations will have the interrupt, so this should be an optional 
-property.
+Add device tree support to the DW watchdog timer.
 
-Jamie
+Signed-off-by: Dinh Nguyen <dinguyen@altera.com>
+Acked-by: Jamie Iles <jamie@jamieiles.com>
+Reviewed-by: Pavel Machek <pavel@denx.de>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Jamie Iles <jamie@jamieiles.com>
+Cc: Viresh Kumar <viresh.linux@gmail.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: Pavel Machek <pavel@denx.de>
+Cc: Rob Herring <rob.herring@calxeda.com>
+Cc: Pawel Moll <pawel.moll@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Stephen Warren <swarren@wwwdotorg.org>
+Cc: Ian Campbell <ijc+devicetree@hellion.org.uk>
+Cc: devicetree@vger.kernel.org
+Cc: linux-watchdog@vger.kernel.org
+---
+v4:
+- Add interrupts as an optional property, use "should contain".
+v3:
+- Clean up documentation
+v2:
+- Use of_match_ptr() for of_match_table
+---
+ .../devicetree/bindings/watchdog/dw_wdt.txt        |   19 +++++++++++++++++++
+ drivers/watchdog/dw_wdt.c                          |    8 ++++++++
+ 2 files changed, 27 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/dw_wdt.txt
+
+diff --git a/Documentation/devicetree/bindings/watchdog/dw_wdt.txt b/Documentation/devicetree/bindings/watchdog/dw_wdt.txt
+new file mode 100644
+index 0000000..8f5948a
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/dw_wdt.txt
+@@ -0,0 +1,19 @@
++Synopsys Designware Watchdog Timer
++
++Required Properties:
++
++- compatible	: Should contain "snps,dw-wdt"
++- reg		: Base address and size of the watchdog timer register.
++
++Optional Properties:
++
++- interrupts	: The interrupt used for the watchdog timeout warning.
++
++Example:
++
++	watchdog0: wd@ffd02000 {
++		compatible = "snps,dw-wdt";
++		reg = <0xffd02000 0x1000>;
++		interrupts = <0 171 4>;
++		clocks = <&per_base_clk>;
++	};
+diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+index e621098..261fa42 100644
+--- a/drivers/watchdog/dw_wdt.c
++++ b/drivers/watchdog/dw_wdt.c
+@@ -29,6 +29,7 @@
+ #include <linux/miscdevice.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
++#include <linux/of.h>
+ #include <linux/pm.h>
+ #include <linux/platform_device.h>
+ #include <linux/spinlock.h>
+@@ -340,12 +341,19 @@ static int dw_wdt_drv_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++static const struct of_device_id dw_wdt_of_match[] = {
++	{ .compatible = "snps,dw-wdt", },
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(of, dw_wdt_of_match);
++
+ static struct platform_driver dw_wdt_driver = {
+ 	.probe		= dw_wdt_drv_probe,
+ 	.remove		= dw_wdt_drv_remove,
+ 	.driver		= {
+ 		.name	= "dw_wdt",
+ 		.owner	= THIS_MODULE,
++		.of_match_table = of_match_ptr(dw_wdt_of_match),
+ #ifdef CONFIG_PM
+ 		.pm	= &dw_wdt_pm_ops,
+ #endif /* CONFIG_PM */
+-- 
+1.7.9.5
+
+
