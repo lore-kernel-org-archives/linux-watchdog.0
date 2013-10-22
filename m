@@ -1,145 +1,134 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:64546 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755120Ab3JMSOr (ORCPT
+Received: from cam-admin0.cambridge.arm.com ([217.140.96.50]:63963 "EHLO
+	cam-admin0.cambridge.arm.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751544Ab3JVKkA (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 13 Oct 2013 14:14:47 -0400
-Message-ID: <525AE311.8060605@roeck-us.net>
-Date: Sun, 13 Oct 2013 11:14:41 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Tue, 22 Oct 2013 06:40:00 -0400
+Date: Tue, 22 Oct 2013 11:39:40 +0100
+From: Mark Rutland <mark.rutland@arm.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: "dinguyen@altera.com" <dinguyen@altera.com>,
+	"dinh.linux@gmail.com" <dinh.linux@gmail.com>,
+	Jamie Iles <jamie@jamieiles.com>,
+	Viresh Kumar <viresh.linux@gmail.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Pavel Machek <pavel@denx.de>,
+	"rob.herring@calxeda.com" <rob.herring@calxeda.com>,
+	Pawel Moll <Pawel.Moll@arm.com>,
+	Stephen Warren <swarren@wwwdotorg.org>,
+	Ian Campbell <ian.campbell@citrix.com>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+Subject: Re: [RESEND PATCHv2] watchdog: dw: Enable OF support for DW watchdog
+ timer.
+Message-ID: <20131022103936.GA5511@kartoffel>
+References: <1380739472-26172-1-git-send-email-dinguyen@altera.com>
+ <20131021110532.GA8144@kartoffel>
+ <5265C9B0.2060003@roeck-us.net>
 MIME-Version: 1.0
-To: Wim Van Sebroeck <wim@iguana.be>,
-	Linus Torvalds <torvalds@linux-foundation.org>
-CC: Andrew Morton <akpm@linux-foundation.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Jingoo Han <jg1.han@samsung.com>,
-	Dan Carpenter <dan.carpenter@oracle.com>
-Subject: Re: [GIT PULL REQUEST] watchdog - v3.12-rc4 Fixes
-References: <20131013180727.GN401@spo001.leaseweb.com>
-In-Reply-To: <20131013180727.GN401@spo001.leaseweb.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <5265C9B0.2060003@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 10/13/2013 11:07 AM, Wim Van Sebroeck wrote:
-> Hi Linus,
->
-> Please pull from 'master' branch of
-> 	git://www.linux-watchdog.org/linux-watchdog.git
->
-> This will fix a deadlock on the ts72xx_wdt driver,
-> fix bitmasks in the kempld_wdt driver and
-> fix a section mismatch in the sunxi_wdt driver.
->
-> This will update the following files:
->
->   kempld_wdt.c |    2 +-
->   sunxi_wdt.c  |    4 ++--
->   ts72xx_wdt.c |    3 ++-
->   3 files changed, 5 insertions(+), 4 deletions(-)
->
-> with these Changes:
->
-> commit 1d5898b4f8a0f6e231546d30dd54f6f9b89c232c
-> Author: Maxime Ripard <maxime.ripard@free-electrons.com>
-> Date:   Sat Oct 5 16:20:17 2013 +0200
->
->      watchdog: sunxi: Fix section mismatch
->
->      This driver has a section mismatch, for probe and remove functions,
->      leading to the following warning during the compilation.
->
->      WARNING: drivers/watchdog/built-in.o(.data+0x24): Section mismatch in
->      reference from the variable sunxi_wdt_driver to the function
->      .init.text:sunxi_wdt_probe()
->      The variable sunxi_wdt_driver references
->      the function __init sunxi_wdt_probe()
->
->      Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
->      Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->      Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
->
-> commit 4c4e45669de475573b15d968a6dca8d00124c9ad
-> Author: Jingoo Han <jg1.han@samsung.com>
-> Date:   Mon Sep 23 19:16:57 2013 +0900
->
->      watchdog: kempld_wdt: Fix bit mask definition
->
->      STAGE_CFG bits are defined as [5:4] bits. However, '(((x) & 0x30) << 4)'
->      handles [9:8] bits. Thus, it should be fixed in order to handle
->      [5:4] bits.
->
->      Signed-off-by: Jingoo Han <jg1.han@samsung.com>
->      Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->      Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
->
-> commit 8612ed0d97abcf1c016d34755b7cf2060de71963
-> Author: Dan Carpenter <dan.carpenter@oracle.com>
-> Date:   Fri Aug 23 11:40:59 2013 +0300
->
->      watchdog: ts72xx_wdt: locking bug in ioctl
->
->      Calling the WDIOC_GETSTATUS & WDIOC_GETBOOTSTATUS and twice will cause a
->      interruptible deadlock.
->
->      Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
->      Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->      Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
->
-> For completeness, I added the overal diff below.
->
-Hi Wim,
+On Tue, Oct 22, 2013 at 01:41:20AM +0100, Guenter Roeck wrote:
+> On 10/21/2013 04:05 AM, Mark Rutland wrote:
+> > On Wed, Oct 02, 2013 at 07:44:32PM +0100, dinguyen@altera.com wrote:
+> >> From: Dinh Nguyen <dinguyen@altera.com>
+> >>
+> >> Add device tree support to the DW watchdog timer.
+> >>
+> >> Signed-off-by: Dinh Nguyen <dinguyen@altera.com>
+> >> Acked-by: Jamie Iles <jamie@jamieiles.com>
+> >> Reviewed-by: Pavel Machek <pavel@denx.de>
+> >> Cc: Guenter Roeck <linux@roeck-us.net>
+> >> Cc: Jamie Iles <jamie@jamieiles.com>
+> >> Cc: Viresh Kumar <viresh.linux@gmail.com>
+> >> Cc: Wim Van Sebroeck <wim@iguana.be>
+> >> Cc: Pavel Machek <pavel@denx.de>
+> >> Cc: Rob Herring <rob.herring@calxeda.com>
+> >> Cc: Pawel Moll <pawel.moll@arm.com>
+> >> Cc: Mark Rutland <mark.rutland@arm.com>
+> >> Cc: Stephen Warren <swarren@wwwdotorg.org>
+> >> Cc: Ian Campbell <ian.campbell@citrix.com>
+> >> Cc: devicetree@vger.kernel.org
+> >> Cc: linux-watchdog@vger.kernel.org
+> >> ---
+> >> v2:
+> >> - Use of_match_ptr() for of_match_table
+> >> ---
+> >>   .../devicetree/bindings/watchdog/dw_wdt.txt        |   16 ++++++++++++++++
+> >>   drivers/watchdog/dw_wdt.c                          |    8 ++++++++
+> >>   2 files changed, 24 insertions(+)
+> >>   create mode 100644 Documentation/devicetree/bindings/watchdog/dw_wdt.txt
+> >>
+> >> diff --git a/Documentation/devicetree/bindings/watchdog/dw_wdt.txt b/Documentation/devicetree/bindings/watchdog/dw_wdt.txt
+> >> new file mode 100644
+> >> index 0000000..29e150b
+> >> --- /dev/null
+> >> +++ b/Documentation/devicetree/bindings/watchdog/dw_wdt.txt
+> >> @@ -0,0 +1,16 @@
+> >> +Synopsys Designware Watchdog Timer
+> >> +
+> >> +Required Properties:
+> >> +
+> >> +- Compatiblity	: "snps,dw-wdt"
+> >
+> > This should presumably be:
+> >
+> > - compatbile: should contain "snps,dw-wdt"
+> >
+> 
+> Hi Mark,
+> 
+> s/compatbile/compatible/ :-)
 
-thanks a lot for picking up those patches.
+Indeed :)
 
-Looks like the diffs don't match the description.
-Are those possibly the diffs from your previous pull request ?
+> 
+> "must be" or "should contain" ? I see both in various bindings.
+> Is there a preference ?
 
-Guenter
+I would prefer "should contain" -- it doesn't preclude future compatible
+variants.
 
-> Greetings,
-> Wim.
->
-> ================================================================================
-> diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-> index 1eff743..ae60406 100644
-> --- a/drivers/watchdog/hpwdt.c
-> +++ b/drivers/watchdog/hpwdt.c
-> @@ -814,6 +814,9 @@ static int __devinit hpwdt_init_one(struct pci_dev *dev,
->   	hpwdt_timer_reg = pci_mem_addr + 0x70;
->   	hpwdt_timer_con = pci_mem_addr + 0x72;
->
-> +	/* Make sure that timer is disabled until /dev/watchdog is opened */
-> +	hpwdt_stop();
-> +
->   	/* Make sure that we have a valid soft_margin */
->   	if (hpwdt_change_timer(soft_margin))
->   		hpwdt_change_timer(DEFAULT_MARGIN);
-> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-> index 6aa46a9..3796434 100644
-> --- a/drivers/watchdog/watchdog_core.c
-> +++ b/drivers/watchdog/watchdog_core.c
-> @@ -128,11 +128,12 @@ EXPORT_SYMBOL_GPL(watchdog_register_device);
->   void watchdog_unregister_device(struct watchdog_device *wdd)
->   {
->   	int ret;
-> -	int devno = wdd->cdev.dev;
-> +	int devno;
->
->   	if (wdd == NULL)
->   		return;
->
-> +	devno = wdd->cdev.dev;
->   	ret = watchdog_dev_unregister(wdd);
->   	if (ret)
->   		pr_err("error unregistering /dev/watchdog (err=%d)\n", ret);
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
->
+> 
+> >> +- reg		: Base address of the watchdog timer register.
+> >
+> > And the size...
+> >
+> >> +
+> >> +Example:
+> >> +
+> >> +	watchdog0: wd@ffd02000 {
+> >> +		compatible = "snps,dw-wdt";
+> >> +		reg = <0xffd02000 0x1000>;
+> >> +		interrupts = <0 171 4>;
+> >
+> > This wasn't mentioned.
+> >
+> > Is it necessary?
+> >
+> 
+>  From looking into the code ...
+> 
+> The driver doesn't use interrupts, so I guess the answer is no. Cut-and-paste error, maybe ?
 
+Does the device have any interrupts, even if they're unused?
+
+> 
+> > Is it the only interrupt?
+> >
+> >> +		clocks = <&per_base_clk>;
+> >
+> > Similarly, is this the only clock?
+> >
+> The driver uses one clock, and it is mandatory.
+
+Is this the only clock into the unit?
+
+Does it have a name?
+
+Thanks,
+Mark.
