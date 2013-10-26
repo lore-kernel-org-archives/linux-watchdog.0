@@ -1,35 +1,37 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:38909 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:38926 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751774Ab3JZPSd (ORCPT
+	with ESMTP id S1751615Ab3JZPqQ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 26 Oct 2013 11:18:33 -0400
-Date: Sat, 26 Oct 2013 17:18:20 +0200
+	Sat, 26 Oct 2013 11:46:16 -0400
+Date: Sat, 26 Oct 2013 17:46:14 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Jonas Jensen <jonas.jensen@gmail.com>
+To: Jingoo Han <jg1.han@samsung.com>
 Cc: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	arm@kernel.org, linux@roeck-us.net, arnd@arndb.de
-Subject: Re: [PATCH v8] watchdog: Add MOXA ART watchdog driver
-Message-ID: <20131026151820.GA17243@spo001.leaseweb.com>
-References: <1375101228-10930-1-git-send-email-jonas.jensen@gmail.com> <1375454445-15589-1-git-send-email-jonas.jensen@gmail.com>
+	'Guenter Roeck' <linux@roeck-us.net>,
+	Jamie Iles <jamie@jamieiles.com>
+Subject: Re: [PATCH] watchdog: dw_wdt: Add __user annotation
+Message-ID: <20131026154614.GA17394@spo001.leaseweb.com>
+References: <003101ce8e79$5e7a6670$1b6f3350$@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1375454445-15589-1-git-send-email-jonas.jensen@gmail.com>
+In-Reply-To: <003101ce8e79$5e7a6670$1b6f3350$@samsung.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Jonas,
+Hi Jingoo,
 
-> This patch adds a watchdog driver for the main hardware watchdog timer
-> found on MOXA ART SoCs.
+> Added __user annotation to fix the following sparse warnings.
 > 
-> The MOXA ART SoC provides one writable timer register, restarting
-> the hardware once it reaches zero. The register is auto decremented
-> every APB clock cycle.
+> drivers/watchdog/dw_wdt.c:206:38: warning: incorrect type in argument 1 (different address spaces)
+> drivers/watchdog/dw_wdt.c:206:38:    expected void [noderef] <asn:1>*to
+> drivers/watchdog/dw_wdt.c:206:38:    got struct watchdog_info *<noident>
+> drivers/watchdog/dw_wdt.c:211:24: warning: incorrect type in initializer (different address spaces)
+> drivers/watchdog/dw_wdt.c:211:24:    expected int const [noderef] <asn:1>*register __p
+> drivers/watchdog/dw_wdt.c:211:24:    got int *<noident>
 > 
-> Signed-off-by: Jonas Jensen <jonas.jensen@gmail.com>
+> Signed-off-by: Jingoo Han <jg1.han@samsung.com>
 
 Added to linux-watchdog-next.
 
