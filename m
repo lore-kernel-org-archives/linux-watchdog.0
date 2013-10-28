@@ -1,66 +1,60 @@
-Return-Path: <Johannes.Thumshirn@men.de>
-Return-Path: <Johannes.Thumshirn@men.de>
-Date: Wed, 23 Oct 2013 08:57:59 +0200
-From: Johannes Thumshirn <johannes.thumshirn@men.de>
-To: Guenter Roeck <linux@roeck-us.net>
-CC: Wim Van Sebroeck <wim@iguana.be>, <linux-watchdog@vger.kernel.org>,
-	Johannes Thumshirn <johannes.thumshirn@men.de>
-Subject: Re: [GIT PULL v2] watchdog updates for Linux 3.13
-Message-ID: <20131023065759.GA24193@jtlinux>
-References: <20131023003541.GA2435@roeck-us.net>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from cam-admin0.cambridge.arm.com ([217.140.96.50]:40967 "EHLO
+	cam-admin0.cambridge.arm.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751857Ab3J1GwM (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 28 Oct 2013 02:52:12 -0400
+Date: Mon, 28 Oct 2013 06:52:01 +0000
+From: Mark Rutland <mark.rutland@arm.com>
+To: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"wim@iguana.be" <wim@iguana.be>,
+	"rob@landley.net" <rob@landley.net>,
+	"linux-samsung-soc@vger.kernel.org"
+	<linux-samsung-soc@vger.kernel.org>,
+	"kgene.kim@samsung.com" <kgene.kim@samsung.com>
+Subject: Re: [PATCH] Documentation/watchdog: Update node name in samsung-wdt
+ example
+Message-ID: <20131028065201.GB3065@kartoffel>
+References: <1382941457-2826-1-git-send-email-sachin.kamat@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20131023003541.GA2435@roeck-us.net>
-List-ID: <linux-watchdog@vger.kernel.org>
+In-Reply-To: <1382941457-2826-1-git-send-email-sachin.kamat@linaro.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Oct 22, 2013 at 05:35:41PM -0700, Guenter Roeck wrote:
-> * PGP Signed by an unknown key
->
-> Hi Wim,
->
-> This is v2 of my pull request. Please ignore the previous request.
-> There are a couple of changes as outlined below, and I rebased the
-> branch to 3.12-rc6.
->
-> Please consider pulling watchdog updates for Linux 3.13 from signed tag:
->
->     git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git watchdog-for-wim
->
-> The tag has been applied on top of the watchdog-next branch. The branch includes
-> a number of patches I collected over the last few months. It does not include
-> all submitted patches; only the ones I reviewed and felt comfortable with are
-> included.
->
-> I reviewed all patches and ran build tests as well as source verification tests
-> with both smatch and spatch. The branch has been on my Linux repo for a while,
-> so presumably Fenguang's robot will have built the code as well.
-> The w83627hf patches have been running on several servers for more than a month
-> without problems.
->
-> You can find the most recent build results at
-> http://server.roeck-us.net:8010/builders/watchdog-next.
->
-> If you don't want to apply the entire series, please consider applying whatever
-> subset you might feel comfortable with.
->
-> Thanks,
-> Guenter
->
-> ------
+On Mon, Oct 28, 2013 at 06:24:17AM +0000, Sachin Kamat wrote:
+> Update the name as per DT naming convention.
+> 
+> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
 
-Hi Gunther,
+Acked-by: Mark Rutland <mark.rutland@arm.com>
 
-Can you please drop the patch from me from the pull request?  I'm afraid
-something went wrong there, I thought Stephen Warren and I decided to just move
-the binding document and not change the bindings, as the driver went upstream in
-3.11.
-
-But somehow I can't find his mail in the list archives. Maybe he accidently sent
-it to me directly (and of cause I've already deleted it :-(, sorry ).
-
-Should I re-send the move-patch, which was acked by Stephen? Or do you still
-have it in an inbox?
-
-Thanks a lot,
-Johannes
+> ---
+>  .../devicetree/bindings/watchdog/samsung-wdt.txt   |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt b/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
+> index 4c798e3..0642fb8 100644
+> --- a/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
+> +++ b/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
+> @@ -17,7 +17,7 @@ Optional properties:
+>  
+>  Example:
+>  
+> -watchdog {
+> +watchdog@101D0000 {
+>  	compatible = "samsung,s3c2410-wdt";
+>  	reg = <0x101D0000 0x100>, <0x10040408 0x4>, <0x1004040c 0x4>;
+>  	interrupts = <0 42 0>;
+> -- 
+> 1.7.9.5
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe devicetree" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
