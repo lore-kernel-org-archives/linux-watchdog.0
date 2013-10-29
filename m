@@ -1,72 +1,38 @@
-Return-Path: <wimvs@spo001.leaseweb.com>
-Date: Tue, 29 Oct 2013 09:08:16 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Alexander Shiyan <shc_work@mail.ru>
-Cc: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org
-Subject: Re: [RFC] watchdog: GPIO-controlled watchdog
-Message-ID: <20131029080816.GK19704@spo001.leaseweb.com>
-References: <1373814599-6040-1-git-send-email-shc_work@mail.ru> <20130714194356.GA29771@roeck-us.net> <20130720080749.6394f6c4fb07b0a6b2b02946@mail.ru>
+Return-Path: <shc_work@mail.ru>
+From: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
+To: =?UTF-8?B?V2ltIFZhbiBTZWJyb2Vjaw==?= <wim@iguana.be>
+Cc: =?UTF-8?B?R3VlbnRlciBSb2Vjaw==?= <linux@roeck-us.net>,
+	linux-watchdog@vger.kernel.org
+Subject: =?UTF-8?B?UmU6IFtSRkNdIHdhdGNoZG9nOiBHUElPLWNvbnRyb2xsZWQgd2F0Y2hkb2c=?=
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20130720080749.6394f6c4fb07b0a6b2b02946@mail.ru>
-Sender: <wimvs@spo001.leaseweb.com>
+Date: Tue, 29 Oct 2013 12:18:45 +0400
+Reply-To: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
+Message-ID: <1383034725.166515621@f424.i.mail.ru>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+In-Reply-To: <20131029080816.GK19704@spo001.leaseweb.com>
+References: <1373814599-6040-1-git-send-email-shc_work@mail.ru>
+ <20130720080749.6394f6c4fb07b0a6b2b02946@mail.ru>
+ <20131029080816.GK19704@spo001.leaseweb.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Alexander,
-
-> On Sun, 14 Jul 2013 12:43:56 -0700
-> Guenter Roeck <linux@roeck-us.net> wrote:
-> 
-> > On Sun, Jul 14, 2013 at 07:09:59PM +0400, Alexander Shiyan wrote:
-> > > This patch adds a watchdog driver for devices controlled through GPIO,
-> > > (Analog Devices ADM706, for example). Driver written for DT-based systems
-> > > only. No description for Documentation/devicetree yet.
-> > > Comments are welcome.
-> > > 
-> > > Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
-> > > ---
-> > >  drivers/watchdog/Kconfig    |   8 +++
-> > >  drivers/watchdog/Makefile   |   1 +
-> > >  drivers/watchdog/gpio_wdt.c | 121 ++++++++++++++++++++++++++++++++++++++++++++
-> > >  3 files changed, 130 insertions(+)
-> > >  create mode 100644 drivers/watchdog/gpio_wdt.c
-> 
-> [...]
-> 
-> > Lots of context knowledge here. For a generic driver, how does one know
-> > that toggling the output value triggers the ping ?
-> > 
-> > Also, there is no mention that the toggle has to occur within 1.6 seconds.
-> > Linux expects that watchdogs support much larger timeouts. I think it would
-> > make sense to implement a soft-dog which actually triggers the ping,
-> > and handles the higher level ping received from applications.
-> > There are several other watchdog drivers implementing this approach.
-> > 
-> > Overall, I think this should be a watchdog driver specifically for
-> > ADM705/706/707/708.
-> 
-> [...]
-> 
-> > > +	nowayout = of_property_read_bool(pdev->dev.of_node, "wdt,nowayout");
-> > > +	if (!nowayout)
-> > > +		nowayout = WATCHDOG_NOWAYOUT;
-> > 
-> > I don't think it is a good idea to introduce a driver specific
-> > devicetreee property like this one.
-> > 
-> > First, it is a configuration parameter and does not describe the hardware. as
-> > such, a module parameter as implemented by other drivers would be more
-> > appropriate. Second, even if a devicetree property was used, it should be
-> > implemented in the watchdog core code and not in drivers.
-> 
-> [...]
-> 
-> Thanks for the comments.
-> I will make v2 with this recommendation for more generic driver.
-> There are a few ideas.
-
-Any news on v2?
-
-Kind regards,
-Wim.
+PiBIaSBBbGV4YW5kZXIsCj4gCj4gPiBPbiBTdW4sIDE0IEp1bCAyMDEzIDEyOjQzOjU2IC0wNzAw
+Cj4gPiBHdWVudGVyIFJvZWNrIDxsaW51eEByb2Vjay11cy5uZXQ+IHdyb3RlOgo+ID4gCj4gPiA+
+IE9uIFN1biwgSnVsIDE0LCAyMDEzIGF0IDA3OjA5OjU5UE0gKzA0MDAsIEFsZXhhbmRlciBTaGl5
+YW4gd3JvdGU6Cj4gPiA+ID4gVGhpcyBwYXRjaCBhZGRzIGEgd2F0Y2hkb2cgZHJpdmVyIGZvciBk
+ZXZpY2VzIGNvbnRyb2xsZWQgdGhyb3VnaCBHUElPLAo+ID4gPiA+IChBbmFsb2cgRGV2aWNlcyBB
+RE03MDYsIGZvciBleGFtcGxlKS4gRHJpdmVyIHdyaXR0ZW4gZm9yIERULWJhc2VkIHN5c3RlbXMK
+PiA+ID4gPiBvbmx5LiBObyBkZXNjcmlwdGlvbiBmb3IgRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVl
+IHlldC4KPiA+ID4gPiBDb21tZW50cyBhcmUgd2VsY29tZS4KPiA+ID4gPiAKPiA+ID4gPiBTaWdu
+ZWQtb2ZmLWJ5OiBBbGV4YW5kZXIgU2hpeWFuIDxzaGNfd29ya0BtYWlsLnJ1Pgo+ID4gPiA+IC0t
+LQo+ID4gPiA+ICBkcml2ZXJzL3dhdGNoZG9nL0tjb25maWcgICAgfCAgIDggKysrCj4gPiA+ID4g
+IGRyaXZlcnMvd2F0Y2hkb2cvTWFrZWZpbGUgICB8ICAgMSArCj4gPiA+ID4gIGRyaXZlcnMvd2F0
+Y2hkb2cvZ3Bpb193ZHQuYyB8IDEyMSArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKwo+ID4gPiA+ICAzIGZpbGVzIGNoYW5nZWQsIDEzMCBpbnNlcnRpb25zKCspCj4g
+PiA+ID4gIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL3dhdGNoZG9nL2dwaW9fd2R0LmMKLi4u
+Cj4gPiBUaGFua3MgZm9yIHRoZSBjb21tZW50cy4KPiA+IEkgd2lsbCBtYWtlIHYyIHdpdGggdGhp
+cyByZWNvbW1lbmRhdGlvbiBmb3IgbW9yZSBnZW5lcmljIGRyaXZlci4KPiA+IFRoZXJlIGFyZSBh
+IGZldyBpZGVhcy4KPiAKPiBBbnkgbmV3cyBvbiB2Mj8KClVuZm9ydHVuYXRlbHksIG5vdyBJIGRv
+IG5vdCBoYXZlIGVub3VnaCB0aW1lIHRvIGRvIGl0LiBCdXQgSSBrZWVwIHRoYXQgaW4gbWluZC4K
+SWYgeW91IGhhdmUgeW91ciBvd24gaW1wbGVtZW50YXRpb24gb2Ygc3VjaCBhIGRyaXZlciwgSSdt
+IGhhcHB5IHRvIGxvb2sgaXQgYW5kIGJlIGFibGUgdG8gdGVzdC4KCi0tLQo=
