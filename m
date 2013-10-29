@@ -1,45 +1,48 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:39287 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:39288 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751558Ab3J2HdC (ORCPT
+	with ESMTP id S1752151Ab3J2HgF (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 29 Oct 2013 03:33:02 -0400
-Date: Tue, 29 Oct 2013 08:32:55 +0100
+	Tue, 29 Oct 2013 03:36:05 -0400
+Date: Tue, 29 Oct 2013 08:36:03 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-Cc: Jamie Iles <jamie@jamieiles.com>,
-	Grant Likely <grant.likely@linaro.org>,
-	Rob Herring <rob.herring@calxeda.com>,
-	devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 0/3] watchdog: dw_wdt: common clock framework and devicetree support
-Message-ID: <20131029073255.GA19569@spo001.leaseweb.com>
-References: <201306262003.13256.heiko@sntech.de>
+To: Niels de Vos <ndevos@redhat.com>
+Cc: devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Shawn Guo <shawn.guo@linaro.org>
+Subject: Re: [PATCH] imx2_wdt: expose module alias for loading from device-tree
+Message-ID: <20131029073603.GB19569@spo001.leaseweb.com>
+References: <1375083498-14822-1-git-send-email-ndevos@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <201306262003.13256.heiko@sntech.de>
+In-Reply-To: <1375083498-14822-1-git-send-email-ndevos@redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Heiko,
+Hi Niels,
 
-> This small series changes the dw_wdt driver, so that it is usable on
-> machines using the common clock framework (needs the clk to be prepared)
-> and devicetree (needs a binding).
+> Enable auto loading by udev when imx2_wdt is compiled as a module.
 > 
-> Heiko Stuebner (3):
->   watchdog: dw_wdt: convert to SIMPLE_DEV_PM_OPS
->   watchdog: dw_wdt: use clk_prepare_enable and clk_disable_unprepare
->   watchdog: dw_wdt: add a devicetree binding
+> Signed-off-by: Niels de Vos <ndevos@redhat.com>
+> Cc: Shawn Guo <shawn.guo@linaro.org>
+> ---
+>  drivers/watchdog/imx2_wdt.c | 1 +
+>  1 file changed, 1 insertion(+)
 > 
->  .../bindings/watchdog/snps-dw-apb-wdt.txt          |   18 ++++++++++++
->  drivers/watchdog/dw_wdt.c                          |   31 ++++++++++++--------
->  2 files changed, 36 insertions(+), 13 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/watchdog/snps-dw-apb-wdt.txt
+> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+> index 693ac3f..17680aa 100644
+> --- a/drivers/watchdog/imx2_wdt.c
+> +++ b/drivers/watchdog/imx2_wdt.c
+> @@ -322,6 +322,7 @@ static const struct of_device_id imx2_wdt_dt_ids[] = {
+>  	{ .compatible = "fsl,imx21-wdt", },
+>  	{ /* sentinel */ }
+>  };
+> +MODULE_DEVICE_TABLE(of, imx2_wdt_dt_ids);
+>  
+>  static struct platform_driver imx2_wdt_driver = {
+>  	.remove		= __exit_p(imx2_wdt_remove),
 
-patches 1 and 2 have been added to linux-watchdog-next.
-Patch 3 has been replaced with Dinh Nguyen's patch (watchdog: dw: Enable OF support for DW watchdog timer).
+This has been added to linux-watchdog-next.
 
 Kind regards,
 Wim.
