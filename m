@@ -1,49 +1,37 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:39288 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752151Ab3J2HgF (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 29 Oct 2013 03:36:05 -0400
-Date: Tue, 29 Oct 2013 08:36:03 +0100
+Return-Path: <wimvs@spo001.leaseweb.com>
+Date: Tue, 29 Oct 2013 08:37:23 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Niels de Vos <ndevos@redhat.com>
-Cc: devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Shawn Guo <shawn.guo@linaro.org>
-Subject: Re: [PATCH] imx2_wdt: expose module alias for loading from device-tree
-Message-ID: <20131029073603.GB19569@spo001.leaseweb.com>
-References: <1375083498-14822-1-git-send-email-ndevos@redhat.com>
+To: Jingoo Han <jg1.han@samsung.com>
+Cc: 'Andrew Morton' <akpm@linux-foundation.org>,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	'Guenter Roeck' <linux@roeck-us.net>
+Subject: Re: [PATCH V2 03/35] watchdog: use dev_get_platdata()
+Message-ID: <20131029073723.GC19569@spo001.leaseweb.com>
+References: <008001ce8d13$c6805fc0$53811f40$@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1375083498-14822-1-git-send-email-ndevos@redhat.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <008001ce8d13$c6805fc0$53811f40$@samsung.com>
+Sender: <wimvs@spo001.leaseweb.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Niels,
+Hi Jingoo,
 
-> Enable auto loading by udev when imx2_wdt is compiled as a module.
+> Use the wrapper function for retrieving the platform data instead of
+> accessing dev->platform_data directly.
 > 
-> Signed-off-by: Niels de Vos <ndevos@redhat.com>
-> Cc: Shawn Guo <shawn.guo@linaro.org>
+> Signed-off-by: Jingoo Han <jg1.han@samsung.com>
 > ---
->  drivers/watchdog/imx2_wdt.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-> index 693ac3f..17680aa 100644
-> --- a/drivers/watchdog/imx2_wdt.c
-> +++ b/drivers/watchdog/imx2_wdt.c
-> @@ -322,6 +322,7 @@ static const struct of_device_id imx2_wdt_dt_ids[] = {
->  	{ .compatible = "fsl,imx21-wdt", },
->  	{ /* sentinel */ }
->  };
-> +MODULE_DEVICE_TABLE(of, imx2_wdt_dt_ids);
->  
->  static struct platform_driver imx2_wdt_driver = {
->  	.remove		= __exit_p(imx2_wdt_remove),
+>  drivers/watchdog/iTCO_wdt.c         |    2 +-
+>  drivers/watchdog/mv64x60_wdt.c      |    2 +-
+>  drivers/watchdog/omap_wdt.c         |    2 +-
+>  drivers/watchdog/rdc321x_wdt.c      |    2 +-
+>  drivers/watchdog/stmp3xxx_rtc_wdt.c |    4 ++--
+>  drivers/watchdog/ux500_wdt.c        |    2 +-
+>  drivers/watchdog/wm831x_wdt.c       |    8 +++-----
+>  7 files changed, 10 insertions(+), 12 deletions(-)
 
-This has been added to linux-watchdog-next.
+This patch has been added to linux-watchdog-next.
 
 Kind regards,
 Wim.
-
