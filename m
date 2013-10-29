@@ -1,56 +1,53 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:52145 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756521Ab3J1Nht (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 28 Oct 2013 09:37:49 -0400
-Message-ID: <526E68A9.8030002@roeck-us.net>
-Date: Mon, 28 Oct 2013 06:37:45 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+Received: from gloria.sntech.de ([95.129.55.99]:57450 "EHLO gloria.sntech.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752043Ab3J2IQw (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 29 Oct 2013 04:16:52 -0400
+From: Heiko =?iso-8859-1?q?St=FCbner?= <heiko@sntech.de>
+To: Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: [PATCH 0/3] watchdog: dw_wdt: common clock framework and devicetree support
+Date: Tue, 29 Oct 2013 09:16:42 +0100
+Cc: Jamie Iles <jamie@jamieiles.com>,
+	Grant Likely <grant.likely@linaro.org>,
+	Rob Herring <rob.herring@calxeda.com>,
+	devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+References: <201306262003.13256.heiko@sntech.de> <20131029073255.GA19569@spo001.leaseweb.com>
+In-Reply-To: <20131029073255.GA19569@spo001.leaseweb.com>
 MIME-Version: 1.0
-To: Sachin Kamat <sachin.kamat@linaro.org>, linux-doc@vger.kernel.org
-CC: devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	wim@iguana.be, rob@landley.net, linux-samsung-soc@vger.kernel.org,
-	kgene.kim@samsung.com
-Subject: Re: [PATCH] Documentation/watchdog: Update node name in samsung-wdt
- example
-References: <1382941457-2826-1-git-send-email-sachin.kamat@linaro.org>
-In-Reply-To: <1382941457-2826-1-git-send-email-sachin.kamat@linaro.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <201310290916.43425.heiko@sntech.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 10/27/2013 11:24 PM, Sachin Kamat wrote:
-> Update the name as per DT naming convention.
->
-> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
-> ---
->   .../devicetree/bindings/watchdog/samsung-wdt.txt   |    2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt b/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
-> index 4c798e3..0642fb8 100644
-> --- a/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
-> +++ b/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
-> @@ -17,7 +17,7 @@ Optional properties:
->
->   Example:
->
-> -watchdog {
-> +watchdog@101D0000 {
->   	compatible = "samsung,s3c2410-wdt";
->   	reg = <0x101D0000 0x100>, <0x10040408 0x4>, <0x1004040c 0x4>;
->   	interrupts = <0 42 0>;
->
+Hi Wim,
 
-Sachin,
+Am Dienstag, 29. Oktober 2013, 08:32:55 schrieb Wim Van Sebroeck:
+> > This small series changes the dw_wdt driver, so that it is usable on
+> > machines using the common clock framework (needs the clk to be prepared)
+> > and devicetree (needs a binding).
+> > 
+> > Heiko Stuebner (3):
+> >   watchdog: dw_wdt: convert to SIMPLE_DEV_PM_OPS
+> >   watchdog: dw_wdt: use clk_prepare_enable and clk_disable_unprepare
+> >   watchdog: dw_wdt: add a devicetree binding
+> >  
+> >  .../bindings/watchdog/snps-dw-apb-wdt.txt          |   18 ++++++++++++
+> >  drivers/watchdog/dw_wdt.c                          |   31
+> >  ++++++++++++-------- 2 files changed, 36 insertions(+), 13 deletions(-)
+> >  create mode 100644
+> >  Documentation/devicetree/bindings/watchdog/snps-dw-apb-wdt.txt
+> 
+> patches 1 and 2 have been added to linux-watchdog-next.
+> Patch 3 has been replaced with Dinh Nguyen's patch (watchdog: dw: Enable OF
+> support for DW watchdog timer).
 
-It appears that this patch depends on some other patch which is not upstream yet.
-It is not in -next either. Can you point to that other patch ?
+cool ... totally forgot about this series.
 
-Thanks,
-Guenter
+Shared IPs-blocks are a nice thing, making stuff not depend on individual lazy 
+developers [like me this time ;-) ]
 
 
-
+Heiko
