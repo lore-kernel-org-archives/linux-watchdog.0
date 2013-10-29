@@ -1,34 +1,38 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:39319 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751774Ab3J2Hqr (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 29 Oct 2013 03:46:47 -0400
-Date: Tue, 29 Oct 2013 08:46:46 +0100
+Return-Path: <wimvs@spo001.leaseweb.com>
+Date: Tue, 29 Oct 2013 08:48:00 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Sachin Kamat <sachin.kamat@linaro.org>
-Cc: linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 1/3] watchdog: at91rm9200: Remove redundant of_match_ptr
-Message-ID: <20131029074646.GC19704@spo001.leaseweb.com>
-References: <1380516173-6974-1-git-send-email-sachin.kamat@linaro.org>
+To: Barry Song <21cnbao@gmail.com>
+Cc: linux@roeck-us.net, linux-watchdog@vger.kernel.org,
+	workgroup.linux@csr.com, Xianglong Du <Xianglong.Du@csr.com>,
+	Barry Song <Baohua.Song@csr.com>,
+	Romain Izard <romain.izard.pro@gmail.com>
+Subject: Re: [PATCH v7] watchdog: sirf: add watchdog driver of CSR SiRFprimaII and SiRFatlasVI
+Message-ID: <20131029074800.GD19704@spo001.leaseweb.com>
+References: <1380672829-13440-1-git-send-email-Baohua.Song@csr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1380516173-6974-1-git-send-email-sachin.kamat@linaro.org>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <1380672829-13440-1-git-send-email-Baohua.Song@csr.com>
+Sender: <wimvs@spo001.leaseweb.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Sachin,
+Hi Barry and Xianglong,
 
-> The data structure of_match_ptr() protects is always compiled in.
-> Hence of_match_ptr() is not needed.
+> From: Xianglong Du <Xianglong.Du@csr.com>
 > 
-> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+> On CSR SiRFprimaII and SiRFatlasVI, the 6th timer can act as a watchdog
+> timer when the Watchdog mode is enabled.
+> 
+> watchdog occur when TIMER watchdog counter matches the value software
+> pre-set, when this event occurs, the effect is the same as the system
+> software reset.
+> 
+> Signed-off-by: Xianglong Du <Xianglong.Du@csr.com>
+> Signed-off-by: Barry Song <Baohua.Song@csr.com>
+> Cc: Romain Izard <romain.izard.pro@gmail.com>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Your 3 patches concerning of_match_ptr have been added as a single patch
-to linux-watchdog-next. I also adapted the commit message with your the
-description you gave later on to Guenter.
+This patch has been added to linux-watchdog-next.
 
 Kind regards,
 Wim.
-
