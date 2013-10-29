@@ -1,66 +1,56 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta14.messagelabs.com ([193.109.254.114]:11072 "EHLO
-	mail1.bemta14.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753587Ab3J2Jm3 (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:39441 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1755082Ab3J2M7D (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 29 Oct 2013 05:42:29 -0400
-Date: Tue, 29 Oct 2013 10:42:19 +0100
-From: Johannes Thumshirn <johannes.thumshirn@men.de>
-To: Wim Van Sebroeck <wim@iguana.be>
-CC: Johannes Thumshirn <johannes.thumshirn@men.de>,
-	Rob Landley <rob@landley.net>,
-	Rob Herring <rob.herring@calxeda.com>,
+	Tue, 29 Oct 2013 08:59:03 -0400
+Date: Tue, 29 Oct 2013 13:58:48 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: boris brezillon <b.brezillon@overkiz.com>
+Cc: Rob Herring <rob.herring@calxeda.com>,
 	Pawel Moll <pawel.moll@arm.com>,
 	Mark Rutland <mark.rutland@arm.com>,
 	Stephen Warren <swarren@wwwdotorg.org>,
-	Ian Campbell <ian.campbell@citrix.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	<devicetree@vger.kernel.org>, <linux-doc@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH] documentation/devicetree: Move DT bindigns from gpio to
- watchdog
-Message-ID: <20131029094219.GA25358@jtlinux>
-References: <1377088929-23694-1-git-send-email-johannes.thumshirn@men.de>
- <20131029074153.GE19569@spo001.leaseweb.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Rob Landley <rob@landley.net>,
+	Russell King <linux@arm.linux.org.uk>,
+	Fabio Porcedda <fabio.porcedda@gmail.com>,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Guenter Roeck <groeck7@gmail.com>,
+	Yang Wenyou <wenyou.yang@atmel.com>,
+	devicetree@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v5 0/4] watchdog: at91sam9_wdt: handle already configured wdt
+Message-ID: <20131029125848.GB5261@spo001.leaseweb.com>
+References: <1380871455-7324-1-git-send-email-b.brezillon@overkiz.com> <20131029075028.GF19704@spo001.leaseweb.com> <526F8E89.30005@overkiz.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20131029074153.GE19569@spo001.leaseweb.com>
+In-Reply-To: <526F8E89.30005@overkiz.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Oct 29, 2013 at 08:41:53AM +0100, Wim Van Sebroeck wrote:
-> Hi Johannes,
->
-> > I accidently put the devicetree bindings for the MEN A21 watchdog driver in
-> > Documentation/devicetree/bindings/gpio instead of
-> > Documentation/devicetree/bindings/watchdog, this patch addresses this error.
-> >
-> > Signed-off-by: Johannes Thumshirn <johannes.thumshirn@men.de>
-> > Cc: Rob Herring <rob.herring@calxeda.com>
-> > Cc: Pawel Moll <pawel.moll@arm.com>
-> > Cc: Mark Rutland <mark.rutland@arm.com>
-> > Cc: Stephen Warren <swarren@wwwdotorg.org>
-> > Cc: Ian Campbell <ian.campbell@citrix.com>
-> > Cc: Rob Landley <rob@landley.net>
-> > Cc: Wim Van Sebroeck <wim@iguana.be>
-> > Cc: Guenter Roeck <linux@roeck-us.net>
-> > ---
-> >  .../bindings/{gpio => watchdog}/men-a021-wdt.txt   |    0
-> >  1 file changed, 0 insertions(+), 0 deletions(-)
-> >  rename Documentation/devicetree/bindings/{gpio => watchdog}/men-a021-wdt.txt (100%)
-> >
-> > diff --git a/Documentation/devicetree/bindings/gpio/men-a021-wdt.txt b/Documentation/devicetree/bindings/watchdog/men-a021-wdt.txt
-> > similarity index 100%
-> > rename from Documentation/devicetree/bindings/gpio/men-a021-wdt.txt
-> > rename to Documentation/devicetree/bindings/watchdog/men-a021-wdt.txt
->
-> This patch has been added to linux-watchdog-next.
->
-> Kind regards,
-> Wim.
->
+Hi Boris,
 
-Thanks Wim
+> I'm sorry for the inconvenience, but I found some bugs in my patch series:
+> 
+> 1) the secs_to_ticks returns an erronous value when 0 is passed as an 
+> argument
+> 2) the calculated heartbeat is too small for some use cases
+>     (i.e. kexecing a new kernel might trigger a watchdog reset before 
+> the new kernel
+>      is able to load the watchdog driver)
+> 3) when initializing the watchdog driver, the timer should be configured 
+> with the min_heartbeat value
+>     instead of the standard heartbeat value, because we don't for how 
+> long the timer has been running.
+> 
+> I'll send a new patch fixing those issues.
+> I hope it won't bother you :-(.
 
-       Johannes
+No problem :-). Just sent me the fixes when they are ready.
+
+Kind regards,
+Wim.
+
