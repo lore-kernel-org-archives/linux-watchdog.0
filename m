@@ -1,37 +1,39 @@
-Return-Path: <wimvs@spo001.leaseweb.com>
-Date: Tue, 29 Oct 2013 08:37:23 +0100
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from ns1.pc-advies.be ([83.149.101.17]:39300 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751774Ab3J2Hjg (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 29 Oct 2013 03:39:36 -0400
+Date: Tue, 29 Oct 2013 08:39:35 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Jingoo Han <jg1.han@samsung.com>
-Cc: 'Andrew Morton' <akpm@linux-foundation.org>,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	'Guenter Roeck' <linux@roeck-us.net>
-Subject: Re: [PATCH V2 03/35] watchdog: use dev_get_platdata()
-Message-ID: <20131029073723.GC19569@spo001.leaseweb.com>
-References: <008001ce8d13$c6805fc0$53811f40$@samsung.com>
+To: John Crispin <blogic@openwrt.org>
+Cc: linux-watchdog@vger.kernel.org, linux-mips@linux-mips.org
+Subject: Re: [PATCH 2/2] watchdog: MIPS: add ralink watchdog driver
+Message-ID: <20131029073935.GD19569@spo001.leaseweb.com>
+References: <1375954303-28830-1-git-send-email-blogic@openwrt.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <008001ce8d13$c6805fc0$53811f40$@samsung.com>
-Sender: <wimvs@spo001.leaseweb.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+In-Reply-To: <1375954303-28830-1-git-send-email-blogic@openwrt.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hi Jingoo,
+Hi John,
 
-> Use the wrapper function for retrieving the platform data instead of
-> accessing dev->platform_data directly.
+> Add a driver for the watchdog timer found on Ralink SoC
 > 
-> Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+> Signed-off-by: John Crispin <blogic@openwrt.org>
+> Cc: linux-watchdog@vger.kernel.org
+> Cc: linux-mips@linux-mips.org
 > ---
->  drivers/watchdog/iTCO_wdt.c         |    2 +-
->  drivers/watchdog/mv64x60_wdt.c      |    2 +-
->  drivers/watchdog/omap_wdt.c         |    2 +-
->  drivers/watchdog/rdc321x_wdt.c      |    2 +-
->  drivers/watchdog/stmp3xxx_rtc_wdt.c |    4 ++--
->  drivers/watchdog/ux500_wdt.c        |    2 +-
->  drivers/watchdog/wm831x_wdt.c       |    8 +++-----
->  7 files changed, 10 insertions(+), 12 deletions(-)
+>  drivers/watchdog/Kconfig      |    7 ++
+>  drivers/watchdog/Makefile     |    1 +
+>  drivers/watchdog/rt2880_wdt.c |  208 +++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 216 insertions(+)
+>  create mode 100644 drivers/watchdog/rt2880_wdt.c
 
-This patch has been added to linux-watchdog-next.
+This patch (together with the DT binding part) has been added as 1 patch to linux-watchdog-next.
 
 Kind regards,
 Wim.
+
