@@ -1,40 +1,42 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:39314 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752607Ab3J2Ho1 (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 29 Oct 2013 03:44:27 -0400
-Date: Tue, 29 Oct 2013 08:44:26 +0100
+Return-Path: <wimvs@spo001.leaseweb.com>
+Date: Tue, 29 Oct 2013 08:45:09 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: linux-watchdog@vger.kernel.org, kernel-janitors@vger.kernel.org
-Subject: Re: [patch] watchdog: ts72xx_wdt: cleanup return codes in ioctl
-Message-ID: <20131029074426.GA19704@spo001.leaseweb.com>
-References: <20130823093832.GL31293@elgon.mountain>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] watchdog: ts72xx_wdt: Propagate return value from timeout_to_regval
+Message-ID: <20131029074509.GB19704@spo001.leaseweb.com>
+References: <1381768368-25062-1-git-send-email-linux@roeck-us.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20130823093832.GL31293@elgon.mountain>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <1381768368-25062-1-git-send-email-linux@roeck-us.net>
+Sender: <wimvs@spo001.leaseweb.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Dan,
+Hi Guenter,
 
-> There seems to be some confusion here which functions return positive
-> numbers and which return negative error codes.
+> timeout_to_regval() returns a valid error code. Might as well use it.
 > 
-> copy_to_user() returns the number of bytes remaining to be copied but we
-> want to return -EFAULT.
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> ---
+>  drivers/watchdog/ts72xx_wdt.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> The rest is just clean up.  get_user() actually returns zero on success
-> and -EFAULT on error so we can preserve the error code.  The
-> timeout_to_regval() function returns -EINVAL on failure, but we can
-> propogate that back instead of hardcoding -EINVAL ourselves.
-> 
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> diff --git a/drivers/watchdog/ts72xx_wdt.c b/drivers/watchdog/ts72xx_wdt.c
+> index 42913f1..a4f3ce5 100644
+> --- a/drivers/watchdog/ts72xx_wdt.c
+> +++ b/drivers/watchdog/ts72xx_wdt.c
+> @@ -192,7 +192,7 @@ static int ts72xx_wdt_open(struct inode *inode, struct file *file)
+>  		dev_err(&wdt->pdev->dev,
+>  			"failed to convert timeout (%d) to register value\n",
+>  			timeout);
+> -		return -EINVAL;
+> +		return regval;
+>  	}
+>  
+>  	if (mutex_lock_interruptible(&wdt->lock))
 
 This patch has been added to linux-watchdog-next.
 
 Kind regards,
 Wim.
-
