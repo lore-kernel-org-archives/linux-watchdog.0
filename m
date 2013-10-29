@@ -1,142 +1,125 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from 13.mo6.mail-out.ovh.net ([188.165.56.124]:44947 "EHLO
+Received: from 13.mo6.mail-out.ovh.net ([188.165.56.124]:44185 "EHLO
 	mo6.mail-out.ovh.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753523Ab3J2KlG (ORCPT
+	with ESMTP id S1751349Ab3J2KqI (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 29 Oct 2013 06:41:06 -0400
+	Tue, 29 Oct 2013 06:46:08 -0400
 Received: from mail645.ha.ovh.net (b6.ovh.net [213.186.33.56])
-	by mo6.mail-out.ovh.net (Postfix) with SMTP id 7C95DFF9DBE
-	for <linux-watchdog@vger.kernel.org>; Tue, 29 Oct 2013 11:33:36 +0100 (CET)
-Message-ID: <526F8E89.30005@overkiz.com>
-Date: Tue, 29 Oct 2013 11:31:37 +0100
-From: boris brezillon <b.brezillon@overkiz.com>
-MIME-Version: 1.0
+	by mo6.mail-out.ovh.net (Postfix) with SMTP id 8BB31FF9AEB
+	for <linux-watchdog@vger.kernel.org>; Tue, 29 Oct 2013 11:38:13 +0100 (CET)
+From: Boris BREZILLON <b.brezillon@overkiz.com>
 To: Wim Van Sebroeck <wim@iguana.be>
-CC: Rob Herring <rob.herring@calxeda.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Stephen Warren <swarren@wwwdotorg.org>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Rob Landley <rob@landley.net>,
-	Russell King <linux@arm.linux.org.uk>,
-	Fabio Porcedda <fabio.porcedda@gmail.com>,
+Cc: Fabio Porcedda <fabio.porcedda@gmail.com>,
 	Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Guenter Roeck <groeck7@gmail.com>,
 	Yang Wenyou <wenyou.yang@atmel.com>,
-	devicetree@vger.kernel.org, linux-doc@vger.kernel.org,
 	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v5 0/4] watchdog: at91sam9_wdt: handle already configured
- wdt
-References: <1380871455-7324-1-git-send-email-b.brezillon@overkiz.com> <20131029075028.GF19704@spo001.leaseweb.com>
+	linux-watchdog@vger.kernel.org,
+	Boris BREZILLON <b.brezillon@overkiz.com>
+Subject: [PATCH] watchdog: at91sam9_wdt: various fixes
+Date: Tue, 29 Oct 2013 11:37:33 +0100
+Message-Id: <1383043053-3520-1-git-send-email-b.brezillon@overkiz.com>
 In-Reply-To: <20131029075028.GF19704@spo001.leaseweb.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20131029075028.GF19704@spo001.leaseweb.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Wim,
+Fix the secs_to_ticks macro in case 0 is passed as an argument.
 
-I'm sorry for the inconvenience, but I found some bugs in my patch series:
+Rework the heartbeat calculation to increase the security margin of the
+watchdog reset timer.
 
-1) the secs_to_ticks returns an erronous value when 0 is passed as an 
-argument
-2) the calculated heartbeat is too small for some use cases
-     (i.e. kexecing a new kernel might trigger a watchdog reset before 
-the new kernel
-      is able to load the watchdog driver)
-3) when initializing the watchdog driver, the timer should be configured 
-with the min_heartbeat value
-     instead of the standard heartbeat value, because we don't for how 
-long the timer has been running.
+Use the min_heartbeat value instead of the calculated heartbeat value for
+the first watchdog reset.
 
-I'll send a new patch fixing those issues.
-I hope it won't bother you :-(.
+Signed-off-by: Boris BREZILLON <b.brezillon@overkiz.com>
+---
+ drivers/watchdog/at91sam9_wdt.c |   35 ++++++++++++++++++++++++-----------
+ 1 file changed, 24 insertions(+), 11 deletions(-)
 
-Best Regards,
-
-Boris
-
-On 29/10/2013 08:50, Wim Van Sebroeck wrote:
-> Hi Boris,
->
->> Hello,
->>
->> This patch series is a porposal to enhance the sam9 watchdog timer support.
->>
->> The at91sam9 watchdog timer can only be configured once, and the current
->> implementation tries to configure it in a static way:
->> - 2 seconds timeout
->> - wdt restart every 500ms
->>
->> If the timer has already been configured with different values, it returns an
->> error and do not create any watchdog device.
->>
->> This is not critical if the watchdog is disabled, but if it has been enabled
->> with different timeout values it will lead to a SoC reset.
->>
->> This patch series tries to address this issue by adapting the heartbeat value
->> according the WDT timer config:
->> - it first tries to configure the timer as requested.
->> - if it fails it fallbacks to the current config, adapting its heartbeat timer
->> to the needs
->>
->> This patch series also move to a dynamically allocated at91wdt device instead
->> of the static instance. I'm not sure this is the best solution, so please tell
->> me if you prefer to keep static instance of watchdog.
->>
->> It adds a new at91 wdt type: software. This new type make use of the at91 wdt
->> interrupt to trigger a software reboot.
->>
->> Finally it adds several properties to the device tree bindings.
->>
->> Best Regards,
->> Boris
->>
->> Changes since v4:
->>   - fix coding style issues
->>   - remove unneeded watchdog_active test
->>
->> Changes since v3:
->>   - fix a bug in heartbeat time computation
->>   - fix a bug in at91_wdt_set_timeout when new timeout is bigger than the old
->>     one
->>   - rename at91_wdt_ping into at91_wdt_start
->>   - remove unneeded ping callback assignment
->>
->> Changes since v2:
->>   - fix documentation
->>   - rework the heartbeat computation to get a more flexible behaviour
->>   - fix xx_to_yy macros
->>   - modify warning and error messages
->>   - remove unneeded parenthesis in arithmetic operations
->>   - use devm functions to map io memory
->>   - remove unneeded devm_kfree calls
->>
->> Change since v1:
->>   - fix typo in documentaion
->>   - fix irq dt definition for sama5d3 SoC
->>
->>
->> Boris BREZILLON (4):
->>    watchdog: at91sam9_wdt: better watchdog support
->>    watchdog: at91sam9_wdt: update device tree doc
->>    ARM: at91/dt: add sam9 watchdog default options to SoCs
->>    ARM: at91/dt: add watchdog properties to kizbox board
->>
->>   .../devicetree/bindings/watchdog/atmel-wdt.txt     |   30 +-
->>   arch/arm/boot/dts/at91sam9260.dtsi                 |    5 +
->>   arch/arm/boot/dts/at91sam9263.dtsi                 |    5 +
->>   arch/arm/boot/dts/at91sam9g45.dtsi                 |    5 +
->>   arch/arm/boot/dts/at91sam9n12.dtsi                 |    5 +
->>   arch/arm/boot/dts/at91sam9x5.dtsi                  |    5 +
->>   arch/arm/boot/dts/kizbox.dts                       |    6 +
->>   arch/arm/boot/dts/sama5d3.dtsi                     |    5 +
->>   drivers/watchdog/at91sam9_wdt.c                    |  309 ++++++++++++++------
->>   9 files changed, 287 insertions(+), 88 deletions(-)
-> These 4 patches have been added to linux-watchdog-next.
->
-> Kind regards,
-> Wim.
->
+diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
+index 9bd089e..f1b59f1 100644
+--- a/drivers/watchdog/at91sam9_wdt.c
++++ b/drivers/watchdog/at91sam9_wdt.c
+@@ -51,7 +51,7 @@
+ #define ticks_to_hz_rounddown(t)	((((t) + 1) * HZ) >> 8)
+ #define ticks_to_hz_roundup(t)		(((((t) + 1) * HZ) + 255) >> 8)
+ #define ticks_to_secs(t)		(((t) + 1) >> 8)
+-#define secs_to_ticks(s)		(((s) << 8) - 1)
++#define secs_to_ticks(s)		(s ? (((s) << 8) - 1) : 0)
+ 
+ #define WDT_MR_RESET	0x3FFF2FFF
+ 
+@@ -61,6 +61,11 @@
+ /* Watchdog max delta/value in secs */
+ #define WDT_COUNTER_MAX_SECS	ticks_to_secs(WDT_COUNTER_MAX_TICKS)
+ 
++/* Watchdog heartbeat shift used for security margin:
++ * we'll try to rshift the heartbeat value with this value to secure
++ * the watchdog reset. */
++#define WDT_HEARTBEAT_SHIFT	2
++
+ /* Hardware timeout in seconds */
+ #define WDT_HW_TIMEOUT 2
+ 
+@@ -158,7 +163,9 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
+ 	int err;
+ 	u32 mask = wdt->mr_mask;
+ 	unsigned long min_heartbeat = 1;
++	unsigned long max_heartbeat;
+ 	struct device *dev = &pdev->dev;
++	int shift;
+ 
+ 	tmp = wdt_read(wdt, AT91_WDT_MR);
+ 	if ((tmp & mask) != (wdt->mr & mask)) {
+@@ -181,23 +188,27 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
+ 	if (delta < value)
+ 		min_heartbeat = ticks_to_hz_roundup(value - delta);
+ 
+-	wdt->heartbeat = ticks_to_hz_rounddown(value);
+-	if (!wdt->heartbeat) {
++	max_heartbeat = ticks_to_hz_rounddown(value);
++	if (!max_heartbeat) {
+ 		dev_err(dev,
+ 			"heartbeat is too small for the system to handle it correctly\n");
+ 		return -EINVAL;
+ 	}
+ 
+-	if (wdt->heartbeat < min_heartbeat + 4) {
++	for (shift = WDT_HEARTBEAT_SHIFT; shift > 0; shift--) {
++		if ((max_heartbeat >> shift) < min_heartbeat)
++			continue;
++
++		wdt->heartbeat = max_heartbeat >> shift;
++		break;
++	}
++
++	if (!shift)
+ 		wdt->heartbeat = min_heartbeat;
++
++	if (max_heartbeat < min_heartbeat + 4)
+ 		dev_warn(dev,
+ 			 "min heartbeat and max heartbeat might be too close for the system to handle it correctly\n");
+-		if (wdt->heartbeat < 4)
+-			dev_warn(dev,
+-				 "heartbeat might be too small for the system to handle it correctly\n");
+-	} else {
+-		wdt->heartbeat -= 4;
+-	}
+ 
+ 	if ((tmp & AT91_WDT_WDFIEN) && wdt->irq) {
+ 		err = request_irq(wdt->irq, wdt_interrupt,
+@@ -213,7 +224,9 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
+ 			 tmp & wdt->mr_mask, wdt->mr & wdt->mr_mask);
+ 
+ 	setup_timer(&wdt->timer, at91_ping, (unsigned long)wdt);
+-	mod_timer(&wdt->timer, jiffies + wdt->heartbeat);
++	/* Use min_heartbeat the first time because the watchdog timer might
++	 * be running for a long time when we reach this init function. */
++	mod_timer(&wdt->timer, jiffies + min_heartbeat);
+ 
+ 	/* Try to set timeout from device tree first */
+ 	if (watchdog_init_timeout(&wdt->wdd, 0, dev))
+-- 
+1.7.9.5
 
