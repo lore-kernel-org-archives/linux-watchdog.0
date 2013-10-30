@@ -1,71 +1,86 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.11.231]:59049 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752598Ab3J3OPi convert rfc822-to-8bit (ORCPT
+Received: from mailout4.w1.samsung.com ([210.118.77.14]:33271 "EHLO
+	mailout4.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751954Ab3J3LWM (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 30 Oct 2013 10:15:38 -0400
-Subject: Re: [RESEND] [PATCH V3 2/2] watchdog: s3c2410_wdt: use syscon regmap interface to configure pmu register
-Mime-Version: 1.0 (Apple Message framework v1283)
-Content-Type: text/plain; charset=us-ascii
-From: Kumar Gala <galak@codeaurora.org>
-In-Reply-To: <1383116464-5951-3-git-send-email-l.krishna@samsung.com>
-Date: Wed, 30 Oct 2013 09:15:35 -0500
-Cc: linux-samsung-soc@vger.kernel.org, kgene.kim@samsung.com,
-	wim@iguana.be, t.figa@samsung.com, devicetree@vger.kernel.org,
-	dianders@chromium.org, linux-watchdog@vger.kernel.org,
-	cpgs@samsung.com, sachin.kamat@linaro.org
-Content-Transfer-Encoding: 8BIT
-Message-Id: <B9207640-E74A-441D-B79F-5E5B60A8A5B1@codeaurora.org>
-References: <1383116464-5951-1-git-send-email-l.krishna@samsung.com> <1383116464-5951-3-git-send-email-l.krishna@samsung.com>
-To: Leela Krishna Amudala <l.krishna@samsung.com>
+	Wed, 30 Oct 2013 07:22:12 -0400
+From: Tomasz Figa <t.figa@samsung.com>
+To: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: Leela Krishna Amudala <l.krishna@samsung.com>,
+	linux-samsung-soc <linux-samsung-soc@vger.kernel.org>,
+	Kukjin Kim <kgene.kim@samsung.com>,
+	Wim Van Sebroeck <wim@iguana.be>, devicetree@vger.kernel.org,
+	Doug Anderson <dianders@chromium.org>,
+	linux-watchdog@vger.kernel.org, cpgs@samsung.com
+Subject: Re: [PATCH V4 1/3] ARM: dts: Add pmu sysreg node to Exynos5 dtsi file
+Date: Wed, 30 Oct 2013 12:22:09 +0100
+Message-id: <1416559.T8R3YI7yDK@amdc1227>
+In-reply-to: <CAK9yfHwXMRXM6m9LhOi7tcL+y9iQ3yF5K8DE6PyGyi16RYK3+A@mail.gmail.com>
+References: <1383126673-29033-1-git-send-email-l.krishna@samsung.com>
+ <CAL1wa8dwa3roUwC-KUy2N4fdFEj3tY9V4m_9O+vQWq4T59zxcA@mail.gmail.com>
+ <CAK9yfHwXMRXM6m9LhOi7tcL+y9iQ3yF5K8DE6PyGyi16RYK3+A@mail.gmail.com>
+MIME-version: 1.0
+Content-transfer-encoding: 7Bit
+Content-type: text/plain; charset=us-ascii
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-
-On Oct 30, 2013, at 2:01 AM, Leela Krishna Amudala wrote:
-
-> The syscon regmap interface is used to configure AUTOMATIC_WDT_RESET_DISABLE
-> and MASK_WDT_RESET_REQUEST registers of PMU to mask/unmask enable/disable of
-> watchdog in probe and s2r scenarios.
+On Wednesday 30 of October 2013 15:43:19 Sachin Kamat wrote:
+> On 30 October 2013 15:39, Leela Krishna Amudala <l.krishna@samsung.com> wrote:
+> > Hi,
+> >
+> > On Wed, Oct 30, 2013 at 3:22 PM, Sachin Kamat <sachin.kamat@linaro.org> wrote:
+> >> Hi Leela,
+> >>
+> >> On 30 October 2013 15:21, Leela Krishna Amudala <l.krishna@samsung.com> wrote:
+> >>> This patch adds pmusysreg node to Exynos5 dtsi file to handle PMU
+> >>> register accesses in a centralized way using syscon driver
+> >>>
+> >>> Signed-off-by: Leela Krishna Amudala <l.krishna@samsung.com>
+> >>> ---
+> >>>  arch/arm/boot/dts/exynos5.dtsi |    5 +++++
+> >>>  1 file changed, 5 insertions(+)
+> >>>
+> >>> diff --git a/arch/arm/boot/dts/exynos5.dtsi b/arch/arm/boot/dts/exynos5.dtsi
+> >>> index e52b038..918e732 100644
+> >>> --- a/arch/arm/boot/dts/exynos5.dtsi
+> >>> +++ b/arch/arm/boot/dts/exynos5.dtsi
+> >>> @@ -106,4 +106,9 @@
+> >>>                 #size-cells = <0>;
+> >>>                 status = "disabled";
+> >>>         };
+> >>> +
+> >>> +       pmu_sys_reg: pmusysreg@1004000 {
+> >>> +               compatible = "syscon";
+> >>> +               reg = <0x10040000 0x5000>;
+> >>> +       };
+> >>>  };
+> >>
+> >> Had a look at this in a bit detail and found the following.
+> >> The register base address for this block on 5250 and 5420 as per the
+> >> TRM is 0x10050000.
+> >>
+> >> Also, the binding document specifies the naming convention. According
+> >> to it this node
+> >> should like:
+> >>
+> >> sys_reg: sysreg@10050000 {
+> >>            compatible = "samsung,exynos5-sysreg", "syscon";
+> >>            reg = <0x10050000 0x500>;
+> >> };
+> >>
+> >
+> > I know, but here my intention is not to regmap system register (0x10050000),
+> > but instead PMU register (0x10040000), Hence created this node.
 > 
-> Signed-off-by: Leela Krishna Amudala <l.krishna@samsung.com>
-> ---
-> .../devicetree/bindings/watchdog/samsung-wdt.txt   |   13 ++-
-> drivers/watchdog/s3c2410_wdt.c                     |  114 ++++++++++++++++++--
-> 2 files changed, 118 insertions(+), 9 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt b/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
-> index 2aa486c..c46c7ce 100644
-> --- a/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
-> +++ b/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
-> @@ -5,10 +5,21 @@ after a preset amount of time during which the WDT reset event has not
-> occurred.
-> 
-> Required properties:
-> -- compatible : should be "samsung,s3c2410-wdt"
-> +- compatible : should be "samsung,s3c2410-wdt" or "samsung,s3c5250-wdt" or "samsung,s3c5420-wdt"
-> - reg : base physical address of the controller and length of memory mapped
-> 	region.
-> - interrupts : interrupt number to the cpu.
-> +- samsung,pmusysreg : reference node to pmu sysreg (required only in case of Exynos5250 and 5420)
+> This clashes with the existing binding for this type of node. Probably
+> you will need to
+> define it differently?
 
-Rather than saying required only on Exynos5250 and 5420, how about saying required only in case of compatible being "samsung,s3c5250-wdt" or "samsung,s3c5420-wdt"
+PMU and System Registers are two completely separate entities. However
+a generic syscon binding can be used to represent both, because they are
+just collections of registers shared by multiple IPs.
 
-> 
-> Optional properties:
-> - timeout-sec : contains the watchdog timeout in seconds.
-> +
-> +watchdog@101D0000 {
-> +	compatible = "samsung,s3c5250-wdt";
-> +	reg = <0x101D0000 0x100>;
-> +	interrupts = <0 42 0>;
-> +	clocks = <&clock 336>;
-> +	clock-names = "watchdog";
-> +	samsung,sysreg = <&pmu_sys_reg>;
-> +	status = "okay";
-> +};
-
--- 
-Employee of Qualcomm Innovation Center, Inc.
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum, hosted by The Linux Foundation
+Best regards,
+Tomasz
 
