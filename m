@@ -1,347 +1,132 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from 7.mo7.mail-out.ovh.net ([46.105.43.131]:50699 "EHLO
-	mo7.mail-out.ovh.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750784Ab3J3H4T (ORCPT
+Received: from mail-ob0-f180.google.com ([209.85.214.180]:34158 "EHLO
+	mail-ob0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752172Ab3J3Gui (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 30 Oct 2013 03:56:19 -0400
-Received: from mail302.ha.ovh.net (b9.ovh.net [213.186.33.59])
-	by mo7.mail-out.ovh.net (Postfix) with SMTP id A499FFF8207
-	for <linux-watchdog@vger.kernel.org>; Wed, 30 Oct 2013 07:04:00 +0100 (CET)
+	Wed, 30 Oct 2013 02:50:38 -0400
+Received: by mail-ob0-f180.google.com with SMTP id wo20so1015532obc.39
+        for <linux-watchdog@vger.kernel.org>; Tue, 29 Oct 2013 23:50:38 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Date: Wed, 30 Oct 2013 07:01:41 +0100
-From: <b.brezillon@overkiz.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Fabio Porcedda <fabio.porcedda@gmail.com>,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Guenter Roeck <groeck7@gmail.com>,
-	Yang Wenyou <wenyou.yang@atmel.com>,
-	<linux-kernel@vger.kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>,
-	<linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH] watchdog: =?UTF-8?Q?at=39=31sam=39=5Fwdt=3A=20various?=
- =?UTF-8?Q?=20fixes?=
-In-Reply-To: <20131029212738.GA16739@roeck-us.net>
-References: <20131029075028.GF19704@spo001.leaseweb.com>
- <1383043053-3520-1-git-send-email-b.brezillon@overkiz.com>
- <20131029154519.GB9266@roeck-us.net> <526FE0DA.1020308@overkiz.com>
- <20131029164323.GF9266@roeck-us.net> <526FEEE7.7030708@overkiz.com>
- <20131029212738.GA16739@roeck-us.net>
-Message-ID: <d27d0719a382c1cc01009097d13f885b@localhost>
+In-Reply-To: <1383116025-5638-2-git-send-email-l.krishna@samsung.com>
+References: <1383116025-5638-1-git-send-email-l.krishna@samsung.com>
+	<1383116025-5638-2-git-send-email-l.krishna@samsung.com>
+Date: Wed, 30 Oct 2013 12:20:38 +0530
+Message-ID: <CAK9yfHzcDcL7EUVd2_EWoG1Qd=aqXXOh+Zb8MAB0kN1b1_cArA@mail.gmail.com>
+Subject: Re: [PATCH 1/2] ARM: dts: add watchdog device nodes for Exynos5250
+ and Exynos5420
+From: Sachin Kamat <sachin.kamat@linaro.org>
+To: Leela Krishna Amudala <l.krishna@samsung.com>
+Cc: linux-samsung-soc <linux-samsung-soc@vger.kernel.org>,
+	Kukjin Kim <kgene.kim@samsung.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Tomasz Figa <t.figa@samsung.com>, devicetree@vger.kernel.org,
+	Doug Anderson <dianders@chromium.org>,
+	linux-watchdog@vger.kernel.org, cpgs@samsung.com
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, 29 Oct 2013 14:27:38 -0700, Guenter Roeck <linux@roeck-us.net>
-wrote:
-> On Tue, Oct 29, 2013 at 06:22:47PM +0100, boris brezillon wrote:
->> On 29/10/2013 17:43, Guenter Roeck wrote:
->> >On Tue, Oct 29, 2013 at 05:22:50PM +0100, boris brezillon wrote:
->> >>On 29/10/2013 16:45, Guenter Roeck wrote:
->> >>>On Tue, Oct 29, 2013 at 11:37:33AM +0100, Boris BREZILLON wrote:
->> >>>>Fix the secs_to_ticks macro in case 0 is passed as an argument.
->> >>>>
->> >>>>Rework the heartbeat calculation to increase the security margin of the
->> >>>>watchdog reset timer.
->> >>>>
->> >>>>Use the min_heartbeat value instead of the calculated heartbeat value for
->> >>>>the first watchdog reset.
->> >>>>
->> >>>>Signed-off-by: Boris BREZILLON <b.brezillon@overkiz.com>
->> >>>Hi Boris,
->> >>>
->> >>>can you possibly split the three changes into separate patches ?
->> >>Sure. My first idea was to split this in 3 patches, but, as the
->> >>buggy at91 watchdog series was
->> >>already applied to linux-watchdog-next, I thought it would be faster
->> >>to only provide one
->> >>patch to fix all the issues at once.
->> >>
->> >>>The first is a no-brainer. Gives my opinion of my code review capabilities
->> >>>a slight damper ;-).
->> >>>
->> >>>For the other two problems, it might make sense to describe
->> >>>the problems you are trying to solve.
->> >>>
->> >>>Couple of comments inline.
->> >>>
->> >>>Thanks,
->> >>>Guenter
->> >>>
->> >>>
->> >>>>---
->> >>>>  drivers/watchdog/at91sam9_wdt.c |   35 ++++++++++++++++++++++++-----------
->> >>>>  1 file changed, 24 insertions(+), 11 deletions(-)
->> >>>>
->> >>>>diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
->> >>>>index 9bd089e..f1b59f1 100644
->> >>>>--- a/drivers/watchdog/at91sam9_wdt.c
->> >>>>+++ b/drivers/watchdog/at91sam9_wdt.c
->> >>>>@@ -51,7 +51,7 @@
->> >>>>  #define ticks_to_hz_rounddown(t)	((((t) + 1) * HZ) >> 8)
->> >>>>  #define ticks_to_hz_roundup(t)		(((((t) + 1) * HZ) + 255) >> 8)
->> >>>>  #define ticks_to_secs(t)		(((t) + 1) >> 8)
->> >>>>-#define secs_to_ticks(s)		(((s) << 8) - 1)
->> >>>>+#define secs_to_ticks(s)		(s ? (((s) << 8) - 1) : 0)
->> >>>	(s)
->> >>>
->> >>>>  #define WDT_MR_RESET	0x3FFF2FFF
->> >>>>@@ -61,6 +61,11 @@
->> >>>>  /* Watchdog max delta/value in secs */
->> >>>>  #define WDT_COUNTER_MAX_SECS	ticks_to_secs(WDT_COUNTER_MAX_TICKS)
->> >>>>+/* Watchdog heartbeat shift used for security margin:
->> >>>>+ * we'll try to rshift the heartbeat value with this value to secure
->> >>>>+ * the watchdog reset. */
->> >>>>+#define WDT_HEARTBEAT_SHIFT	2
->> >>>>+
->> >>>>  /* Hardware timeout in seconds */
->> >>>>  #define WDT_HW_TIMEOUT 2
->> >>>>@@ -158,7 +163,9 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
->> >>>>  	int err;
->> >>>>  	u32 mask = wdt->mr_mask;
->> >>>>  	unsigned long min_heartbeat = 1;
->> >>>>+	unsigned long max_heartbeat;
->> >>>>  	struct device *dev = &pdev->dev;
->> >>>>+	int shift;
->> >>>>  	tmp = wdt_read(wdt, AT91_WDT_MR);
->> >>>>  	if ((tmp & mask) != (wdt->mr & mask)) {
->> >>>>@@ -181,23 +188,27 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
->> >>>>  	if (delta < value)
->> >>>>  		min_heartbeat = ticks_to_hz_roundup(value - delta);
->> >>>>-	wdt->heartbeat = ticks_to_hz_rounddown(value);
->> >>>>-	if (!wdt->heartbeat) {
->> >>>>+	max_heartbeat = ticks_to_hz_rounddown(value);
->> >>>>+	if (!max_heartbeat) {
->> >>>>  		dev_err(dev,
->> >>>>  			"heartbeat is too small for the system to handle it correctly\n");
->> >>>>  		return -EINVAL;
->> >>>>  	}
->> >>>>-	if (wdt->heartbeat < min_heartbeat + 4) {
->> >>>>+	for (shift = WDT_HEARTBEAT_SHIFT; shift > 0; shift--) {
->> >>>>+		if ((max_heartbeat >> shift) < min_heartbeat)
->> >>>>+			continue;
->> >>>>+
->> >>>>+		wdt->heartbeat = max_heartbeat >> shift;
->> >>>>+		break;
->> >>>>+	}
->> >>>>+
->> >>>>+	if (!shift)
->> >>>>  		wdt->heartbeat = min_heartbeat;
->> >>>Correct me if I am wrong, but it seems to me that
->> >>>
->> >>>	if ((max_heartbeat >> 2) >= min_heartbeat)
->> >>>		 wdt->heartbeat = max_heartbeat >> 2;
->> >>>	else if ((max_heartbeat >> 1) >= min_heartbeat)
->> >>>		wdt->heartbeat = max_heartbeat >> 1;
->> >>>	else
->> >>>		wdt->heartbeat = min_heartbeat;
->> >>>
->> >>>would accomplish the same and be easier to understand.
->> >>This is exactly what I'm trying to accomplish.
->> >>I used the for loop in case we ever want to change the
->> >>WDT_HEARTBEAT_SHIFT value
->> >>(which is unlikely to happen).
->> >>
->> >>I'll move to your proposition.
->> >>
->> >>>However, given that, I wonder if it is really necessary to bail out above if
->> >>>max_heartbeat is 0. After all, you set heartbeat to min_heartbeat anyway
->> >>>in this case.
->> >>Yes it is necessary. The max_heartbeat is a configuration that
->> >>cannot be changed once configured.
->> >>We have to inform the user that his max_heartbeat value is too small
->> >>to be handled correctly by the Linux kernel.
->> >>
->> >>If we simply use the min_heartbeat value as heartbeat and ignore the
->> >>wrong max_heartbeat value,
->> >>the watchdog will reset the SoC before we can ever reset the
->> >>watchdog counter.
->> >>
->> >>>>+
->> >>>>+	if (max_heartbeat < min_heartbeat + 4)
->> >>>>  		dev_warn(dev,
->> >>>>  			 "min heartbeat and max heartbeat might be too close for the system to handle it correctly\n");
->> >>>>-		if (wdt->heartbeat < 4)
->> >>>>-			dev_warn(dev,
->> >>>>-				 "heartbeat might be too small for the system to handle it correctly\n");
->> >>>>-	} else {
->> >>>>-		wdt->heartbeat -= 4;
->> >>>>-	}
->> >>>>  	if ((tmp & AT91_WDT_WDFIEN) && wdt->irq) {
->> >>>>  		err = request_irq(wdt->irq, wdt_interrupt,
->> >>>>@@ -213,7 +224,9 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
->> >>>>  			 tmp & wdt->mr_mask, wdt->mr & wdt->mr_mask);
->> >>>>  	setup_timer(&wdt->timer, at91_ping, (unsigned long)wdt);
->> >>>>-	mod_timer(&wdt->timer, jiffies + wdt->heartbeat);
->> >>>>+	/* Use min_heartbeat the first time because the watchdog timer might
->> >>>>+	 * be running for a long time when we reach this init function. */
->> >>>	/*
->> >>>	 * Multi-line comment style
->> >>>	 *
->> >>>	 * Not really sure I understand what this accomplishes. What problem
->> >>>	 * are you trying to solve here ?
->> >>>	 */
->> >>Sure, I'll change the comment style.
->> >>
->> >>What, I'm trying to explain, is that the watchdog might (or should)
->> >>have been resetted
->> >>before loading the linux kernel. But loading the kernel takes some
->> >>time (uncompressing,
->> >>low level init, ...), and if we take the heartbeat (or max_heartbeat
->> >>/ 4 in the common case) value as
->> >>the next trigger to reset the watchdog counter, the watchdog timer
->> >>might have already expired.
->> >>
->> >But increasing anything in the watchdog driver itself won't help you there.
->> >You can not execute any kernel code before that kernel code is running.
->>
->> Of course, but you can at least try to minimize the time between the
->> watchdog driver init
->> and the first wathdog counter reset.
->>
-> Sure.
-> 
->> >>Here is an example:
->> >>  - max_heartbeat configured to 8 seconds
->> >>  - min_heartbeat configured to 1 second
->> >>  => heartbeat = 2s
->> >>  - kernel boot time (before at91 watchdog is loaded) = 6 secs
->> >>
->> >Guess that is where I got lost. Do you mean the time from loading the driver
->> >to starting the watchdog application ? Because the init function is only
->> >executed after the driver is loaded, so nothing will help you if it takes
->> >too long for the driver to load.
->>
->> I think there is another bug here: the driver should not be compiled
->> as a module.
->>
->> Here is why:
->>
->> At POR the at91 SoC configure its watchdog with these default values:
->>  - enabled
->>  - min heartbeat = 0 ticks
->>  - max heartbeat = 0xfff ticks <=> 16 secs
->>  - some reset options
->> After a POR the watchdog can only be reconfigured once (and only once).
->> This configuration oftenly takes place in the the bootstrap (or bootloader),
->> but can eventually be done by the Linux kernel.
->>
->> If the watchdog is kept enabled by the bootstrap (or bootloader), this means
->> the linux kernel will have to reset the watchdog counter as soon as
->> possible to avoid
->> a possible watchdog reset.
->>
->> => If we authorize the at91 sam9 watchdog to be compiled as a
->> module, we're not sure
->> the module will be loaded soon enough to be able to reset the
->> watchdog counter.
->>
-> Agreed, but that is only an issue _if_ the watchdog is enabled from ROMMON,
-> which we don't know. This makes it a configuration issue: If the watchdog 
-> is enabled by ROMMON, the driver should not be built as module. On the other
-> side, unless it is known for sure (say, from the HW architecture) that it
-> is always enabled, we should not force everyone to build it into the kernel.
-> 
+Hi Leela,
 
-This is the case: the HW enable the watchdog with default timings
-(min_heartbeat = 0 secs max_heartbeat = 16 secs) after a Reset or a
-Power On
-Reset.
+On 30 October 2013 12:23, Leela Krishna Amudala <l.krishna@samsung.com> wrote:
+> Adds watchdog device nodes to the DT device list for Exynos5250 and Exynos5420
+>
+> Signed-off-by: Leela Krishna Amudala <l.krishna@samsung.com>
+> ---
+>  arch/arm/boot/dts/exynos5.dtsi    |   12 +++++-------
+>  arch/arm/boot/dts/exynos5250.dtsi |    7 ++++++-
+>  arch/arm/boot/dts/exynos5420.dtsi |   10 ++++++++++
+>  3 files changed, 21 insertions(+), 8 deletions(-)
+>
+> diff --git a/arch/arm/boot/dts/exynos5.dtsi b/arch/arm/boot/dts/exynos5.dtsi
+> index e52b038..e7b6dbd 100644
+> --- a/arch/arm/boot/dts/exynos5.dtsi
+> +++ b/arch/arm/boot/dts/exynos5.dtsi
+> @@ -81,13 +81,6 @@
+>                 status = "disabled";
+>         };
+>
+> -       watchdog {
+> -               compatible = "samsung,s3c2410-wdt";
+> -               reg = <0x101D0000 0x100>;
+> -               interrupts = <0 42 0>;
+> -               status = "disabled";
+> -       };
+> -
+>         fimd@14400000 {
+>                 compatible = "samsung,exynos5250-fimd";
+>                 interrupt-parent = <&combiner>;
+> @@ -106,4 +99,9 @@
+>                 #size-cells = <0>;
+>                 status = "disabled";
+>         };
+> +
+> +       pmu_sys_reg: pmusysreg {
 
-The enable/disable bit is part of the config and thus can only be
-configured once.
+Make this pmusysreg@10040000.
 
-You then have these 2 use cases:
+> +               compatible = "samsung,exynos5-pmureg", "syscon";
 
-1) The ROMMON does not reconfigure the watchdog
-   => The linux kernel must reset the watchdog counter within 16 secs.
-2) The ROMMON reconfigure the watchdog
-   a) The ROMMON enable the watchdog with different timings
-      => The linux kernel must reset the watchdog counter within X secs
-(according
-         to the ROMMON config).
-   b) The ROMMON disable the watchdog
-      => The watchdog is unusable and the linux watchdog driver is
-useless
+I do not see any reference to "samsung,exynos5-pmureg" in the tree.
 
+> +               reg = <0x10040000 0x5000>;
+> +       };
 
-BTW, 16 seconds should be enough to
- - load the kernel
- - mount a rootfs
- - load the at91 sam9 watchdog module
+Since this is a separate node, IMO it could be added in a separate patch.
+
+>  };
+> diff --git a/arch/arm/boot/dts/exynos5250.dtsi b/arch/arm/boot/dts/exynos5250.dtsi
+> index c4a8662..3ccd150 100644
+> --- a/arch/arm/boot/dts/exynos5250.dtsi
+> +++ b/arch/arm/boot/dts/exynos5250.dtsi
+> @@ -158,9 +158,14 @@
+>                 interrupts = <0 47 0>;
+>         };
+>
+> -       watchdog {
+> +       watchdog@101D0000 {
+> +               compatible = "samsung,s3c5250-wdt";
+
+Exynos5 does not belong to S3C series. Please change this to
+exynos5250-wdt instead.
+
+> +               reg = <0x101D0000 0x100>;
+> +               interrupts = <0 42 0>;
+>                 clocks = <&clock 336>;
+>                 clock-names = "watchdog";
+> +               samsung,sysreg = <&pmu_sys_reg>;
+> +               status = "okay";
+>         };
+>
+>         g2d@10850000 {
+> diff --git a/arch/arm/boot/dts/exynos5420.dtsi b/arch/arm/boot/dts/exynos5420.dtsi
+> index 6ffefd1..5fb7ae2 100644
+> --- a/arch/arm/boot/dts/exynos5420.dtsi
+> +++ b/arch/arm/boot/dts/exynos5420.dtsi
+> @@ -369,4 +369,14 @@
+>                 clock-names = "gscl";
+>                 samsung,power-domain = <&gsc_pd>;
+>         };
+> +
+> +        watchdog@101D0000 {
+> +               compatible = "samsung,s3c5420-wdt";
+
+ditto
+
+> +               reg = <0x101D0000 0x100>;
+> +               interrupts = <0 42 0>;
+> +               clocks = <&clock 316>;
+> +               clock-names = "watchdog";
+> +               samsung,sysreg = <&pmu_sys_reg>;
+> +               status = "okay";
+> +        };
+>  };
+> --
+> 1.7.10.4
+>
 
 
 
-> Other drivers deal with that condition by only resetting and re-initializing
-> the watchdog if it is already running. This driver is a bit of an exception,
-> as it always enables the watchdog during initialization. Which is actually
-> another reason to be able to build it as module: If the watchdog was not
-> enabled by ROMMON, this ensures that it only starts running when the module
-> is loaded.
-> 
-> Thanks,
-> Guenter
-> 
->> >
->> >You really have two times to deal with:
->> >- Time from ROMMON handoff to loading the driver
->> >   Nothing you can do there. If the watchdog fires before the driver is loaded,
->> >   you are lost. Only way t handle this situation is to increase the timeout
->> >   in the ROMMON.
->> >- Time from loading driver to watchdog device open. This is really the time
->> >   you are increasing with your change.
->>
->> This is where it gets a bit tricky.
->>
->> The heartbeat I'm talking about is not the "user space" heartbeat
->> (struct watchdog_device timeout field), it's the "hardware watchdog
->> counter reset"
->> heartbeat (struct at91wdt heartbeat field).
->>
->> Actually the at91 sam9 wdt driver does not provide a direct access
->> to the watchdog reset
->> counter functionnality.
->> Instead, it periodically reset the watchdog counter (based on the
->> timing config retrieved from
->> the hw registers), and eventually, if the user open a the watchdog
->> dev file and fails to reset
->> the watchdog (using the user space API), the drivers stops resetting
->> the hw counter, which leads
->> to a watchdog reset.
->>
->> I hope I'm clear enough, cause it's quite complicated to explain.
->>
->> Best Regards,
->>
->> Boris
->>
->> >Thanks,
->> >Guenter
->> >
->> >>If I use the heartbeat value when configuring the first expiration
->> >>of the timer,
->> >>it might be too late to reset the watchdog counter.
->> >>
->> >>I'll try to find a proper to explain this use case :-).
->> >>
->> >>>>+	mod_timer(&wdt->timer, jiffies + min_heartbeat);
->> >>>>  	/* Try to set timeout from device tree first */
->> >>>>  	if (watchdog_init_timeout(&wdt->wdd, 0, dev))
->> >>>>--
->> >>>>1.7.9.5
->> >>>>
->> >>>>--
->> >>>>To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
->> >>>>the body of a message to majordomo@vger.kernel.org
->> >>>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> >>>>
->> >>--
->> >>To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
->> >>the body of a message to majordomo@vger.kernel.org
->> >>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> >>
->>
->>
-
+-- 
+With warm regards,
+Sachin
