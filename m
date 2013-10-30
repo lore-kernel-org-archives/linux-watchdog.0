@@ -1,46 +1,68 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f50.google.com ([209.85.220.50]:54757 "EHLO
-	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750763Ab3J3FMb (ORCPT
+Received: from mail-ob0-f173.google.com ([209.85.214.173]:42887 "EHLO
+	mail-ob0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750766Ab3J3FPn (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 30 Oct 2013 01:12:31 -0400
-Received: by mail-pa0-f50.google.com with SMTP id fb1so399469pad.37
-        for <linux-watchdog@vger.kernel.org>; Tue, 29 Oct 2013 22:12:30 -0700 (PDT)
+	Wed, 30 Oct 2013 01:15:43 -0400
+Received: by mail-ob0-f173.google.com with SMTP id gq1so953432obb.4
+        for <linux-watchdog@vger.kernel.org>; Tue, 29 Oct 2013 22:15:41 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <526E68A9.8030002@roeck-us.net>
+References: <1382941457-2826-1-git-send-email-sachin.kamat@linaro.org>
+	<526E68A9.8030002@roeck-us.net>
+Date: Wed, 30 Oct 2013 10:45:41 +0530
+Message-ID: <CAK9yfHxDHoYaDS=8EH_omAiWtcwx4-4DOO6bvfJeOTqfBGDKiw@mail.gmail.com>
+Subject: Re: [PATCH] Documentation/watchdog: Update node name in samsung-wdt example
 From: Sachin Kamat <sachin.kamat@linaro.org>
-To: linux-watchdog@vger.kernel.org
-Cc: linux-samsung-soc@vger.kernel.org, devicetree@vger.kernel.org,
-	mark.rutland@arm.com, wim@iguana.be, linux@roeck-us.net,
-	sachin.kamat@linaro.org
-Subject: [PATCH 1/1] Documentation/watchdog: Add binding example in samsung-wdt
-Date: Wed, 30 Oct 2013 10:41:10 +0530
-Message-Id: <1383109870-30297-1-git-send-email-sachin.kamat@linaro.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-doc@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+	Rob Landley <rob@landley.net>,
+	linux-samsung-soc <linux-samsung-soc@vger.kernel.org>,
+	Kukjin Kim <kgene.kim@samsung.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Added an example for reference.
+On 28 October 2013 19:07, Guenter Roeck <linux@roeck-us.net> wrote:
+> On 10/27/2013 11:24 PM, Sachin Kamat wrote:
+>>
+>> Update the name as per DT naming convention.
+>>
+>> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+>> ---
+>>   .../devicetree/bindings/watchdog/samsung-wdt.txt   |    2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
+>> b/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
+>> index 4c798e3..0642fb8 100644
+>> --- a/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
+>> +++ b/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
+>> @@ -17,7 +17,7 @@ Optional properties:
+>>
+>>   Example:
+>>
+>> -watchdog {
+>> +watchdog@101D0000 {
+>>         compatible = "samsung,s3c2410-wdt";
+>>         reg = <0x101D0000 0x100>, <0x10040408 0x4>, <0x1004040c 0x4>;
+>>         interrupts = <0 42 0>;
+>>
+>
+> Sachin,
+>
+> It appears that this patch depends on some other patch which is not upstream
+> yet.
 
-Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
----
- .../devicetree/bindings/watchdog/samsung-wdt.txt   |    9 +++++++++
- 1 file changed, 9 insertions(+)
+Yes you are right.
 
-diff --git a/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt b/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
-index 2aa486c..7ddf461 100644
---- a/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
-@@ -12,3 +12,12 @@ Required properties:
- 
- Optional properties:
- - timeout-sec : contains the watchdog timeout in seconds.
-+
-+Example:
-+
-+watchdog@101D0000 {
-+ 	compatible = "samsung,s3c2410-wdt";
-+ 	reg = <0x101D0000 0x100>;
-+ 	interrupts = <0 42 0>;
-+ 	status = "disabled";
-+ };
+> It is not in -next either. Can you point to that other patch ?
+
+This patch was based on a non-upstream patch. I have now posted the
+right version.
+Please ignore the current one. Sorry for the mess up.
+
 -- 
-1.7.9.5
-
+With warm regards,
+Sachin
