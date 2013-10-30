@@ -1,86 +1,57 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailout4.w1.samsung.com ([210.118.77.14]:33271 "EHLO
-	mailout4.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751954Ab3J3LWM (ORCPT
+Received: from mailout2.samsung.com ([203.254.224.25]:47974 "EHLO
+	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753558Ab3J3Ja6 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 30 Oct 2013 07:22:12 -0400
-From: Tomasz Figa <t.figa@samsung.com>
-To: Sachin Kamat <sachin.kamat@linaro.org>
-Cc: Leela Krishna Amudala <l.krishna@samsung.com>,
-	linux-samsung-soc <linux-samsung-soc@vger.kernel.org>,
-	Kukjin Kim <kgene.kim@samsung.com>,
-	Wim Van Sebroeck <wim@iguana.be>, devicetree@vger.kernel.org,
-	Doug Anderson <dianders@chromium.org>,
-	linux-watchdog@vger.kernel.org, cpgs@samsung.com
-Subject: Re: [PATCH V4 1/3] ARM: dts: Add pmu sysreg node to Exynos5 dtsi file
-Date: Wed, 30 Oct 2013 12:22:09 +0100
-Message-id: <1416559.T8R3YI7yDK@amdc1227>
-In-reply-to: <CAK9yfHwXMRXM6m9LhOi7tcL+y9iQ3yF5K8DE6PyGyi16RYK3+A@mail.gmail.com>
-References: <1383126673-29033-1-git-send-email-l.krishna@samsung.com>
- <CAL1wa8dwa3roUwC-KUy2N4fdFEj3tY9V4m_9O+vQWq4T59zxcA@mail.gmail.com>
- <CAK9yfHwXMRXM6m9LhOi7tcL+y9iQ3yF5K8DE6PyGyi16RYK3+A@mail.gmail.com>
-MIME-version: 1.0
-Content-transfer-encoding: 7Bit
-Content-type: text/plain; charset=us-ascii
+	Wed, 30 Oct 2013 05:30:58 -0400
+From: Leela Krishna Amudala <l.krishna@samsung.com>
+To: linux-samsung-soc@vger.kernel.org, kgene.kim@samsung.com,
+	wim@iguana.be
+Cc: t.figa@samsung.com, devicetree@vger.kernel.org,
+	dianders@chromium.org, linux-watchdog@vger.kernel.org,
+	cpgs@samsung.com, sachin.kamat@linaro.org
+Subject: [PATCH V4 0/3] Add watchdog DT nodes and use syscon regmap interfac to
+ configure pmu registers
+Date: Wed, 30 Oct 2013 15:21:10 +0530
+Message-id: <1383126673-29033-1-git-send-email-l.krishna@samsung.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wednesday 30 of October 2013 15:43:19 Sachin Kamat wrote:
-> On 30 October 2013 15:39, Leela Krishna Amudala <l.krishna@samsung.com> wrote:
-> > Hi,
-> >
-> > On Wed, Oct 30, 2013 at 3:22 PM, Sachin Kamat <sachin.kamat@linaro.org> wrote:
-> >> Hi Leela,
-> >>
-> >> On 30 October 2013 15:21, Leela Krishna Amudala <l.krishna@samsung.com> wrote:
-> >>> This patch adds pmusysreg node to Exynos5 dtsi file to handle PMU
-> >>> register accesses in a centralized way using syscon driver
-> >>>
-> >>> Signed-off-by: Leela Krishna Amudala <l.krishna@samsung.com>
-> >>> ---
-> >>>  arch/arm/boot/dts/exynos5.dtsi |    5 +++++
-> >>>  1 file changed, 5 insertions(+)
-> >>>
-> >>> diff --git a/arch/arm/boot/dts/exynos5.dtsi b/arch/arm/boot/dts/exynos5.dtsi
-> >>> index e52b038..918e732 100644
-> >>> --- a/arch/arm/boot/dts/exynos5.dtsi
-> >>> +++ b/arch/arm/boot/dts/exynos5.dtsi
-> >>> @@ -106,4 +106,9 @@
-> >>>                 #size-cells = <0>;
-> >>>                 status = "disabled";
-> >>>         };
-> >>> +
-> >>> +       pmu_sys_reg: pmusysreg@1004000 {
-> >>> +               compatible = "syscon";
-> >>> +               reg = <0x10040000 0x5000>;
-> >>> +       };
-> >>>  };
-> >>
-> >> Had a look at this in a bit detail and found the following.
-> >> The register base address for this block on 5250 and 5420 as per the
-> >> TRM is 0x10050000.
-> >>
-> >> Also, the binding document specifies the naming convention. According
-> >> to it this node
-> >> should like:
-> >>
-> >> sys_reg: sysreg@10050000 {
-> >>            compatible = "samsung,exynos5-sysreg", "syscon";
-> >>            reg = <0x10050000 0x500>;
-> >> };
-> >>
-> >
-> > I know, but here my intention is not to regmap system register (0x10050000),
-> > but instead PMU register (0x10040000), Hence created this node.
-> 
-> This clashes with the existing binding for this type of node. Probably
-> you will need to
-> define it differently?
+This patchset does the following things
+	- Adds pmusysreg device node to exynos5.dtsi file
+	- Adds watchdog DT nodes to Exynos5250 and 5420
+	- Uses syscon regmap interface to configure pmu registers
+	  to mask/unmask enable/disable of watchdog.
+	
+This patch set is rebased on Kgene's for-next branch and tested on SMDK5420
 
-PMU and System Registers are two completely separate entities. However
-a generic syscon binding can be used to represent both, because they are
-just collections of registers shared by multiple IPs.
+Changes since V3:
+	- changed the compatible strings for watchdog node
+	- splitted up adding pmusysreg node and made it separate patch
+	- Addressed comments given by Sachin Kamat <sachin.kamat@linaro.org>
 
-Best regards,
-Tomasz
+Changes since V2:
+	- used syscon regmap interface to configure pmu registers in WDT driver
+	  (suggested by Tomasz Figa <t.figa@samsung.com>)
+
+Changes since V1:
+        - Added new compatible string for Exynos5 SoCs
+        - Introduced quirk mechanism to program PMU registers
+        - Addressed comments given by Tomasz Figa <t.figa@samsung.com>
+
+Leela Krishna Amudala (3):
+  ARM: dts: Add pmu sysreg node to Exynos5 dtsi file
+  ARM: dts: add watchdog device nodes for Exynos5250 and Exynos5420
+  watchdog: s3c2410_wdt: use syscon regmap interface to configure pmu
+    register
+
+ .../devicetree/bindings/watchdog/samsung-wdt.txt   |   19 +++-
+ arch/arm/boot/dts/exynos5.dtsi                     |   12 +--
+ arch/arm/boot/dts/exynos5250.dtsi                  |    7 +-
+ arch/arm/boot/dts/exynos5420.dtsi                  |   10 ++
+ drivers/watchdog/s3c2410_wdt.c                     |  112 ++++++++++++++++++--
+ 5 files changed, 143 insertions(+), 17 deletions(-)
+
+-- 
+1.7.10.4
 
