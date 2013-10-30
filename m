@@ -1,56 +1,46 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:39441 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1755082Ab3J2M7D (ORCPT
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:54757 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750763Ab3J3FMb (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 29 Oct 2013 08:59:03 -0400
-Date: Tue, 29 Oct 2013 13:58:48 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: boris brezillon <b.brezillon@overkiz.com>
-Cc: Rob Herring <rob.herring@calxeda.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Stephen Warren <swarren@wwwdotorg.org>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Rob Landley <rob@landley.net>,
-	Russell King <linux@arm.linux.org.uk>,
-	Fabio Porcedda <fabio.porcedda@gmail.com>,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Guenter Roeck <groeck7@gmail.com>,
-	Yang Wenyou <wenyou.yang@atmel.com>,
-	devicetree@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v5 0/4] watchdog: at91sam9_wdt: handle already configured wdt
-Message-ID: <20131029125848.GB5261@spo001.leaseweb.com>
-References: <1380871455-7324-1-git-send-email-b.brezillon@overkiz.com> <20131029075028.GF19704@spo001.leaseweb.com> <526F8E89.30005@overkiz.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <526F8E89.30005@overkiz.com>
+	Wed, 30 Oct 2013 01:12:31 -0400
+Received: by mail-pa0-f50.google.com with SMTP id fb1so399469pad.37
+        for <linux-watchdog@vger.kernel.org>; Tue, 29 Oct 2013 22:12:30 -0700 (PDT)
+From: Sachin Kamat <sachin.kamat@linaro.org>
+To: linux-watchdog@vger.kernel.org
+Cc: linux-samsung-soc@vger.kernel.org, devicetree@vger.kernel.org,
+	mark.rutland@arm.com, wim@iguana.be, linux@roeck-us.net,
+	sachin.kamat@linaro.org
+Subject: [PATCH 1/1] Documentation/watchdog: Add binding example in samsung-wdt
+Date: Wed, 30 Oct 2013 10:41:10 +0530
+Message-Id: <1383109870-30297-1-git-send-email-sachin.kamat@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Boris,
+Added an example for reference.
 
-> I'm sorry for the inconvenience, but I found some bugs in my patch series:
-> 
-> 1) the secs_to_ticks returns an erronous value when 0 is passed as an 
-> argument
-> 2) the calculated heartbeat is too small for some use cases
->     (i.e. kexecing a new kernel might trigger a watchdog reset before 
-> the new kernel
->      is able to load the watchdog driver)
-> 3) when initializing the watchdog driver, the timer should be configured 
-> with the min_heartbeat value
->     instead of the standard heartbeat value, because we don't for how 
-> long the timer has been running.
-> 
-> I'll send a new patch fixing those issues.
-> I hope it won't bother you :-(.
+Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+---
+ .../devicetree/bindings/watchdog/samsung-wdt.txt   |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-No problem :-). Just sent me the fixes when they are ready.
-
-Kind regards,
-Wim.
+diff --git a/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt b/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
+index 2aa486c..7ddf461 100644
+--- a/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
+@@ -12,3 +12,12 @@ Required properties:
+ 
+ Optional properties:
+ - timeout-sec : contains the watchdog timeout in seconds.
++
++Example:
++
++watchdog@101D0000 {
++ 	compatible = "samsung,s3c2410-wdt";
++ 	reg = <0x101D0000 0x100>;
++ 	interrupts = <0 42 0>;
++ 	status = "disabled";
++ };
+-- 
+1.7.9.5
 
