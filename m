@@ -1,302 +1,250 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wg0-f51.google.com ([74.125.82.51]:61255 "EHLO
-	mail-wg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750762Ab3JaFcK (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 31 Oct 2013 01:32:10 -0400
+Return-Path: <plagnioj@jcrosoft.com>
+Date: Thu, 31 Oct 2013 11:13:50 +0100
+From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: boris brezillon <b.brezillon@overkiz.com>,
+	linux-watchdog@vger.kernel.org,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	linux-kernel@vger.kernel.org, Yang Wenyou <wenyou.yang@atmel.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Fabio Porcedda <fabio.porcedda@gmail.com>,
+	linux-arm-kernel@lists.infradead.org,
+	Guenter Roeck <groeck7@gmail.com>
+Subject: Re: [PATCH] watchdog: at91sam9_wdt: various fixes
+Message-ID: <20131031101350.GB28304@ns203013.ovh.net>
+References: <20131029075028.GF19704@spo001.leaseweb.com>
+ <1383043053-3520-1-git-send-email-b.brezillon@overkiz.com>
+ <20131029154519.GB9266@roeck-us.net>
+ <526FE0DA.1020308@overkiz.com>
+ <20131029164323.GF9266@roeck-us.net>
+ <526FEEE7.7030708@overkiz.com>
+ <20131029212738.GA16739@roeck-us.net>
 MIME-Version: 1.0
-In-Reply-To: <3427382.I443SkGPfg@amdc1227>
-References: <1383126673-29033-1-git-send-email-l.krishna@samsung.com>
- <1383126673-29033-4-git-send-email-l.krishna@samsung.com> <3427382.I443SkGPfg@amdc1227>
-From: Leela Krishna Amudala <l.krishna@samsung.com>
-Date: Thu, 31 Oct 2013 11:01:48 +0530
-Message-ID: <CAL1wa8cT=DrTLGFcK=7BO7pGB=_rBQZz9OXYsozA8qs=vAHc+g@mail.gmail.com>
-Subject: Re: [PATCH V4 3/3] watchdog: s3c2410_wdt: use syscon regmap interface
- to configure pmu register
-To: Tomasz Figa <t.figa@samsung.com>
-Cc: Leela Krishna Amudala <l.krishna@samsung.com>,
-	linux-samsung-soc <linux-samsung-soc@vger.kernel.org>,
-	Kukjin Kim <kgene.kim@samsung.com>,
-	Wim Van Sebroeck <wim@iguana.be>, devicetree@vger.kernel.org,
-	Douglas Anderson <dianders@chromium.org>,
-	linux-watchdog@vger.kernel.org, cpgs@samsung.com,
-	Sachin Kamat <sachin.kamat@linaro.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20131029212738.GA16739@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Tomasz,
+On 14:27 Tue 29 Oct     , Guenter Roeck wrote:
+> On Tue, Oct 29, 2013 at 06:22:47PM +0100, boris brezillon wrote:
+> > On 29/10/2013 17:43, Guenter Roeck wrote:
+> > >On Tue, Oct 29, 2013 at 05:22:50PM +0100, boris brezillon wrote:
+> > >>On 29/10/2013 16:45, Guenter Roeck wrote:
+> > >>>On Tue, Oct 29, 2013 at 11:37:33AM +0100, Boris BREZILLON wrote:
+> > >>>>Fix the secs_to_ticks macro in case 0 is passed as an argument.
+> > >>>>
+> > >>>>Rework the heartbeat calculation to increase the security margin of the
+> > >>>>watchdog reset timer.
+> > >>>>
+> > >>>>Use the min_heartbeat value instead of the calculated heartbeat value for
+> > >>>>the first watchdog reset.
+> > >>>>
+> > >>>>Signed-off-by: Boris BREZILLON <b.brezillon@overkiz.com>
+> > >>>Hi Boris,
+> > >>>
+> > >>>can you possibly split the three changes into separate patches ?
+> > >>Sure. My first idea was to split this in 3 patches, but, as the
+> > >>buggy at91 watchdog series was
+> > >>already applied to linux-watchdog-next, I thought it would be faster
+> > >>to only provide one
+> > >>patch to fix all the issues at once.
+> > >>
+> > >>>The first is a no-brainer. Gives my opinion of my code review capabilities
+> > >>>a slight damper ;-).
+> > >>>
+> > >>>For the other two problems, it might make sense to describe
+> > >>>the problems you are trying to solve.
+> > >>>
+> > >>>Couple of comments inline.
+> > >>>
+> > >>>Thanks,
+> > >>>Guenter
+> > >>>
+> > >>>
+> > >>>>---
+> > >>>>  drivers/watchdog/at91sam9_wdt.c |   35 ++++++++++++++++++++++++-----------
+> > >>>>  1 file changed, 24 insertions(+), 11 deletions(-)
+> > >>>>
+> > >>>>diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
+> > >>>>index 9bd089e..f1b59f1 100644
+> > >>>>--- a/drivers/watchdog/at91sam9_wdt.c
+> > >>>>+++ b/drivers/watchdog/at91sam9_wdt.c
+> > >>>>@@ -51,7 +51,7 @@
+> > >>>>  #define ticks_to_hz_rounddown(t)	((((t) + 1) * HZ) >> 8)
+> > >>>>  #define ticks_to_hz_roundup(t)		(((((t) + 1) * HZ) + 255) >> 8)
+> > >>>>  #define ticks_to_secs(t)		(((t) + 1) >> 8)
+> > >>>>-#define secs_to_ticks(s)		(((s) << 8) - 1)
+> > >>>>+#define secs_to_ticks(s)		(s ? (((s) << 8) - 1) : 0)
+> > >>>	(s)
+> > >>>
+> > >>>>  #define WDT_MR_RESET	0x3FFF2FFF
+> > >>>>@@ -61,6 +61,11 @@
+> > >>>>  /* Watchdog max delta/value in secs */
+> > >>>>  #define WDT_COUNTER_MAX_SECS	ticks_to_secs(WDT_COUNTER_MAX_TICKS)
+> > >>>>+/* Watchdog heartbeat shift used for security margin:
+> > >>>>+ * we'll try to rshift the heartbeat value with this value to secure
+> > >>>>+ * the watchdog reset. */
+> > >>>>+#define WDT_HEARTBEAT_SHIFT	2
+> > >>>>+
+> > >>>>  /* Hardware timeout in seconds */
+> > >>>>  #define WDT_HW_TIMEOUT 2
+> > >>>>@@ -158,7 +163,9 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
+> > >>>>  	int err;
+> > >>>>  	u32 mask = wdt->mr_mask;
+> > >>>>  	unsigned long min_heartbeat = 1;
+> > >>>>+	unsigned long max_heartbeat;
+> > >>>>  	struct device *dev = &pdev->dev;
+> > >>>>+	int shift;
+> > >>>>  	tmp = wdt_read(wdt, AT91_WDT_MR);
+> > >>>>  	if ((tmp & mask) != (wdt->mr & mask)) {
+> > >>>>@@ -181,23 +188,27 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
+> > >>>>  	if (delta < value)
+> > >>>>  		min_heartbeat = ticks_to_hz_roundup(value - delta);
+> > >>>>-	wdt->heartbeat = ticks_to_hz_rounddown(value);
+> > >>>>-	if (!wdt->heartbeat) {
+> > >>>>+	max_heartbeat = ticks_to_hz_rounddown(value);
+> > >>>>+	if (!max_heartbeat) {
+> > >>>>  		dev_err(dev,
+> > >>>>  			"heartbeat is too small for the system to handle it correctly\n");
+> > >>>>  		return -EINVAL;
+> > >>>>  	}
+> > >>>>-	if (wdt->heartbeat < min_heartbeat + 4) {
+> > >>>>+	for (shift = WDT_HEARTBEAT_SHIFT; shift > 0; shift--) {
+> > >>>>+		if ((max_heartbeat >> shift) < min_heartbeat)
+> > >>>>+			continue;
+> > >>>>+
+> > >>>>+		wdt->heartbeat = max_heartbeat >> shift;
+> > >>>>+		break;
+> > >>>>+	}
+> > >>>>+
+> > >>>>+	if (!shift)
+> > >>>>  		wdt->heartbeat = min_heartbeat;
+> > >>>Correct me if I am wrong, but it seems to me that
+> > >>>
+> > >>>	if ((max_heartbeat >> 2) >= min_heartbeat)
+> > >>>		 wdt->heartbeat = max_heartbeat >> 2;
+> > >>>	else if ((max_heartbeat >> 1) >= min_heartbeat)
+> > >>>		wdt->heartbeat = max_heartbeat >> 1;
+> > >>>	else
+> > >>>		wdt->heartbeat = min_heartbeat;
+> > >>>
+> > >>>would accomplish the same and be easier to understand.
+> > >>This is exactly what I'm trying to accomplish.
+> > >>I used the for loop in case we ever want to change the
+> > >>WDT_HEARTBEAT_SHIFT value
+> > >>(which is unlikely to happen).
+> > >>
+> > >>I'll move to your proposition.
+> > >>
+> > >>>However, given that, I wonder if it is really necessary to bail out above if
+> > >>>max_heartbeat is 0. After all, you set heartbeat to min_heartbeat anyway
+> > >>>in this case.
+> > >>Yes it is necessary. The max_heartbeat is a configuration that
+> > >>cannot be changed once configured.
+> > >>We have to inform the user that his max_heartbeat value is too small
+> > >>to be handled correctly by the Linux kernel.
+> > >>
+> > >>If we simply use the min_heartbeat value as heartbeat and ignore the
+> > >>wrong max_heartbeat value,
+> > >>the watchdog will reset the SoC before we can ever reset the
+> > >>watchdog counter.
+> > >>
+> > >>>>+
+> > >>>>+	if (max_heartbeat < min_heartbeat + 4)
+> > >>>>  		dev_warn(dev,
+> > >>>>  			 "min heartbeat and max heartbeat might be too close for the system to handle it correctly\n");
+> > >>>>-		if (wdt->heartbeat < 4)
+> > >>>>-			dev_warn(dev,
+> > >>>>-				 "heartbeat might be too small for the system to handle it correctly\n");
+> > >>>>-	} else {
+> > >>>>-		wdt->heartbeat -= 4;
+> > >>>>-	}
+> > >>>>  	if ((tmp & AT91_WDT_WDFIEN) && wdt->irq) {
+> > >>>>  		err = request_irq(wdt->irq, wdt_interrupt,
+> > >>>>@@ -213,7 +224,9 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
+> > >>>>  			 tmp & wdt->mr_mask, wdt->mr & wdt->mr_mask);
+> > >>>>  	setup_timer(&wdt->timer, at91_ping, (unsigned long)wdt);
+> > >>>>-	mod_timer(&wdt->timer, jiffies + wdt->heartbeat);
+> > >>>>+	/* Use min_heartbeat the first time because the watchdog timer might
+> > >>>>+	 * be running for a long time when we reach this init function. */
+> > >>>	/*
+> > >>>	 * Multi-line comment style
+> > >>>	 *
+> > >>>	 * Not really sure I understand what this accomplishes. What problem
+> > >>>	 * are you trying to solve here ?
+> > >>>	 */
+> > >>Sure, I'll change the comment style.
+> > >>
+> > >>What, I'm trying to explain, is that the watchdog might (or should)
+> > >>have been resetted
+> > >>before loading the linux kernel. But loading the kernel takes some
+> > >>time (uncompressing,
+> > >>low level init, ...), and if we take the heartbeat (or max_heartbeat
+> > >>/ 4 in the common case) value as
+> > >>the next trigger to reset the watchdog counter, the watchdog timer
+> > >>might have already expired.
+> > >>
+> > >But increasing anything in the watchdog driver itself won't help you there.
+> > >You can not execute any kernel code before that kernel code is running.
+> > 
+> > Of course, but you can at least try to minimize the time between the
+> > watchdog driver init
+> > and the first wathdog counter reset.
+> > 
+> Sure.
+> 
+> > >>Here is an example:
+> > >>  - max_heartbeat configured to 8 seconds
+> > >>  - min_heartbeat configured to 1 second
+> > >>  => heartbeat = 2s
+> > >>  - kernel boot time (before at91 watchdog is loaded) = 6 secs
+> > >>
+> > >Guess that is where I got lost. Do you mean the time from loading the driver
+> > >to starting the watchdog application ? Because the init function is only
+> > >executed after the driver is loaded, so nothing will help you if it takes
+> > >too long for the driver to load.
+> > 
+> > I think there is another bug here: the driver should not be compiled
+> > as a module.
+> > 
+> > Here is why:
+> > 
+> > At POR the at91 SoC configure its watchdog with these default values:
+> >  - enabled
+> >  - min heartbeat = 0 ticks
+> >  - max heartbeat = 0xfff ticks <=> 16 secs
+> >  - some reset options
+> > After a POR the watchdog can only be reconfigured once (and only once).
+> > This configuration oftenly takes place in the the bootstrap (or bootloader),
+> > but can eventually be done by the Linux kernel.
+> > 
+> > If the watchdog is kept enabled by the bootstrap (or bootloader), this means
+> > the linux kernel will have to reset the watchdog counter as soon as
+> > possible to avoid
+> > a possible watchdog reset.
+> > 
+> > => If we authorize the at91 sam9 watchdog to be compiled as a
+> > module, we're not sure
+> > the module will be loaded soon enough to be able to reset the
+> > watchdog counter.
+> > 
+> Agreed, but that is only an issue _if_ the watchdog is enabled from ROMMON,
+> which we don't know. This makes it a configuration issue: If the watchdog 
+> is enabled by ROMMON, the driver should not be built as module. On the other
+> side, unless it is known for sure (say, from the HW architecture) that it
+> is always enabled, we should not force everyone to build it into the kernel.
+> 
+> Other drivers deal with that condition by only resetting and re-initializing
+> the watchdog if it is already running. This driver is a bit of an exception,
+> as it always enables the watchdog during initialization. Which is actually
+> another reason to be able to build it as module: If the watchdog was not
+> enabled by ROMMON, this ensures that it only starts running when the module
+> is loaded.
 
-On Wed, Oct 30, 2013 at 8:09 PM, Tomasz Figa <t.figa@samsung.com> wrote:
-> Hi Leela,
->
-> On Wednesday 30 of October 2013 15:21:13 Leela Krishna Amudala wrote:
->> The syscon regmap interface is used to configure AUTOMATIC_WDT_RESET_DISABLE
->> and MASK_WDT_RESET_REQUEST registers of PMU to mask/unmask enable/disable of
->> watchdog in probe and s2r scenarios.
->>
->> Signed-off-by: Leela Krishna Amudala <l.krishna@samsung.com>
->> ---
->>  .../devicetree/bindings/watchdog/samsung-wdt.txt   |   19 +++-
->>  drivers/watchdog/s3c2410_wdt.c                     |  112 ++++++++++++++++++--
->>  2 files changed, 122 insertions(+), 9 deletions(-)
->>
->> diff --git a/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt b/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
->> index 2aa486c..5a9889b 100644
->> --- a/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
->> +++ b/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
->> @@ -5,10 +5,27 @@ after a preset amount of time during which the WDT reset event has not
->>  occurred.
->>
->>  Required properties:
->> -- compatible : should be "samsung,s3c2410-wdt"
->> +- compatible : should be one among the following
->> +     (a) "samsung,s3c2410-wdt" for Exynos4 and previous SoCs
->> +     (b) "samsung,exynos5250-wdt" for Exynos5250
->> +     (c) "samsung,exynos5420-wdt" for Exynos5420
->> +
->>  - reg : base physical address of the controller and length of memory mapped
->>       region.
->>  - interrupts : interrupt number to the cpu.
->> +- samsung,pmusysreg : reference node to pmu sysreg (required only in case of Exynos5250 and 5420)
->
-> I don't really like the name of this property. Maybe
-> samsung,syscon-phandle would be better?
->
-Okay, changed.
+this make no sense on at91 as the watchdog is always ON and can be disable
+only once
 
-> I'm not sure if this property should be tied to PMU, as on future SoCs
-> those registers might be located in another syscon-style IP. The
-> description should note that in case of Exynos 5250 and 5420 this should
-> point to the PMU node, though.
->
+so always enable as builtin is the right way to do
 
-Added
-
->>
->>  Optional properties:
->>  - timeout-sec : contains the watchdog timeout in seconds.
->> +
->> +Example:
->> +
->> +watchdog@101D0000 {
->> +     compatible = "samsung,exynos5250-wdt";
->> +     reg = <0x101D0000 0x100>;
->> +     interrupts = <0 42 0>;
->> +     clocks = <&clock 336>;
->> +     clock-names = "watchdog";
->> +     samsung,sysreg = <&pmu_sys_reg>;
->> +     status = "okay";
->> +};
->> diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
->> index 23aad7c..d8aefef 100644
->> --- a/drivers/watchdog/s3c2410_wdt.c
->> +++ b/drivers/watchdog/s3c2410_wdt.c
->> @@ -41,6 +41,8 @@
->>  #include <linux/slab.h>
->>  #include <linux/err.h>
->>  #include <linux/of.h>
->> +#include <linux/mfd/syscon.h>
->> +#include <linux/regmap.h>
->>
->>  #define S3C2410_WTCON                0x00
->>  #define S3C2410_WTDAT                0x04
->> @@ -61,6 +63,10 @@
->>  #define CONFIG_S3C2410_WATCHDOG_ATBOOT               (0)
->>  #define CONFIG_S3C2410_WATCHDOG_DEFAULT_TIME (15)
->>
->> +#define WDT_DISABLE_REG_OFFSET               0x0408
->> +#define WDT_MASK_RESET_REG_OFFSET    0x040c
->> +#define QUIRK_NEEDS_PMU_CONFIG               (1 << 0)
->> +
->>  static bool nowayout = WATCHDOG_NOWAYOUT;
->>  static int tmr_margin;
->>  static int tmr_atboot        = CONFIG_S3C2410_WATCHDOG_ATBOOT;
->> @@ -84,6 +90,12 @@ MODULE_PARM_DESC(soft_noboot, "Watchdog action, set to 1 to ignore reboots, "
->>                       "0 to reboot (default 0)");
->>  MODULE_PARM_DESC(debug, "Watchdog debug, set to >1 for debug (default 0)");
->>
->> +struct pmu_config {
->
-> For the sake of future extensibility I'd rename this struct to
-> s3c2410_wdt_variant and add an u32 quirks field, which would has
-> the QUIRK_NEEDS_PMU_CONFIG set for 5250 and 5420 variants.
->
-
-Modified
-
->> +     int     disable_reg;
->> +     int     mask_reset_reg;
->> +     int     mask_bit;
->> +};
->> +
->>  struct s3c2410_wdt {
->>       struct device           *dev;
->>       struct clk              *clock;
->> @@ -94,7 +106,34 @@ struct s3c2410_wdt {
->>       unsigned long           wtdat_save;
->>       struct watchdog_device  wdt_device;
->>       struct notifier_block   freq_transition;
->> +     struct pmu_config       *wdt_pmu_config;
->> +     struct regmap           *pmureg;
->> +     unsigned int            quirks;
->
-> Quirks should be a static per-variant property.
->
-
-Taken care
-
->> +};
->> +
->> +#ifdef CONFIG_OF
->> +static struct pmu_config pmu_config_5250  = {
->> +     .disable_reg = WDT_DISABLE_REG_OFFSET,
->> +     .mask_reset_reg = WDT_MASK_RESET_REG_OFFSET,
->> +     .mask_bit = 20
->> +};
->> +
->> +static struct pmu_config pmu_config_5420 = {
->> +     .disable_reg = WDT_DISABLE_REG_OFFSET,
->> +     .mask_reset_reg = WDT_MASK_RESET_REG_OFFSET,
->> +     .mask_bit = 0
->> +};
->> +
->> +static const struct of_device_id s3c2410_wdt_match[] = {
->> +     { .compatible = "samsung,s3c2410-wdt" },
->
-> If you follow what I suggested above, the basic variant would also have
-> a variant struct associated with it, which would be more consistent.
->
->> +     { .compatible = "samsung,exynos5250-wdt",
->> +       .data = (struct pmu_config *) &pmu_config_5250 },
->> +     { .compatible = "samsung,exynos5420-wdt",
->> +       .data = (struct pmu_config *) &pmu_config_5420 },
->> +     {},
->>  };
->> +MODULE_DEVICE_TABLE(of, s3c2410_wdt_match);
->> +#endif
->>
->>  /* watchdog control routines */
->>
->> @@ -111,6 +150,38 @@ static inline struct s3c2410_wdt *freq_to_wdt(struct notifier_block *nb)
->>       return container_of(nb, struct s3c2410_wdt, freq_transition);
->>  }
->>
->> +static void s3c2410wdt_mask_and_disable_reset(int mask, struct s3c2410_wdt *wdt)
->> +{
->> +     unsigned int disable, mask_reset;
->> +     int ret;
->> +
->> +     ret = regmap_read(wdt->pmureg, wdt->wdt_pmu_config->disable_reg,
->> +                                                             &disable);
->> +     if (ret < 0) {
->> +             dev_err(wdt->dev, "failed to read disable reg(%d)\n", ret);
->> +             return;
->> +     }
->> +
->> +     ret = regmap_read(wdt->pmureg, wdt->wdt_pmu_config->mask_reset_reg,
->> +                                                             &mask_reset);
->> +     if (ret < 0) {
->> +             dev_err(wdt->dev, "failed to read mask reset reg(%d)\n", ret);
->> +             return;
->> +     }
->> +
->> +     if (mask) {
->> +             disable |= (1 << wdt->wdt_pmu_config->mask_bit);
->> +             mask_reset |= (1 << wdt->wdt_pmu_config->mask_bit);
->> +     } else {
->> +             disable &= ~(1 << wdt->wdt_pmu_config->mask_bit);
->> +             mask_reset &= ~(1 << wdt->wdt_pmu_config->mask_bit);
->> +     }
->> +
->> +     regmap_write(wdt->pmureg, wdt->wdt_pmu_config->disable_reg, disable);
->> +     regmap_write(wdt->pmureg, wdt->wdt_pmu_config->mask_reset_reg,
->> +                                                             mask_reset);
->
-> I believe you can (and on some SoCs even have to, due to other bits in the
-> registers being used for other purposes) use regmap_update_bits() for
-> read-modify-write sequences above.
->
-
-Okay, Modified
-
->> +}
->> +
->>  static int s3c2410wdt_keepalive(struct watchdog_device *wdd)
->>  {
->>       struct s3c2410_wdt *wdt = watchdog_get_drvdata(wdd);
->> @@ -332,6 +403,14 @@ static inline void s3c2410wdt_cpufreq_deregister(struct s3c2410_wdt *wdt)
->>  }
->>  #endif
->>
->> +/* s3c2410_get_wdt_driver_data */
->> +static inline unsigned int get_wdt_driver_data(struct platform_device *pdev)
->> +{
->> +     const struct of_device_id *match;
->> +     match = of_match_node(s3c2410_wdt_match, pdev->dev.of_node);
->> +     return (unsigned int)match->data;
->
-> Why do you need this cast? I believe this function should simply return
-> (const struct pmu_config *) or (const struct s3c2410_wdt_variant *) when
-> my comments above get addressed.
->
-
-My mistake, Changed
-
->> +}
->> +
->>  static int s3c2410wdt_probe(struct platform_device *pdev)
->>  {
->>       struct device *dev;
->> @@ -354,6 +433,17 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
->>       spin_lock_init(&wdt->lock);
->>       wdt->wdt_device = s3c2410_wdd;
->>
->> +     wdt->pmureg = syscon_regmap_lookup_by_phandle(dev->of_node,
->> +                                             "samsung,pmusysreg");
->> +     if (IS_ERR(wdt->pmureg)) {
->> +             dev_err(dev, "syscon regmap lookup failed.\n");
->> +             return PTR_ERR(wdt->pmureg);
->> +     }
->
-> This should be performed only if given variant has the
-> QUIRK_NEEDS_PMU_CONFIG flag set in its variant data. Otherwise you don't
-> have any distinction between cases when PMU is not needed (and so
-> unspecified) and PMU is needed, but unspecified.
->
-
-Okay, Taken care
-
->> +
->> +     wdt->wdt_pmu_config = (struct pmu_config *) get_wdt_driver_data(pdev);
->> +     if (wdt->wdt_pmu_config)
->> +             wdt->quirks = QUIRK_NEEDS_PMU_CONFIG;
->
-> See my comment on quirks above.
->
->> +
->>       wdt_irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
->>       if (wdt_irq == NULL) {
->>               dev_err(dev, "no irq resource specified\n");
->> @@ -444,6 +534,8 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
->>                (wtcon & S3C2410_WTCON_RSTEN) ? "en" : "dis",
->>                (wtcon & S3C2410_WTCON_INTEN) ? "en" : "dis");
->>
->> +     if (wdt->quirks & QUIRK_NEEDS_PMU_CONFIG)
->> +             s3c2410wdt_mask_and_disable_reset(0, wdt);
->
-> nit: Blank line here would be nice.
->
-
-Done.
-
-Best Wishes,
-Leela Krishna
-
-> Best regards,
-> Tomasz
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-samsung-soc" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Best Regards
+J.
