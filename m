@@ -1,70 +1,48 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from 13.mo6.mail-out.ovh.net ([188.165.56.124]:50674 "EHLO
-	mo6.mail-out.ovh.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753801Ab3KCSBV (ORCPT
+Received: from mail.active-venture.com ([67.228.131.205]:61547 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752926Ab3KCSJS (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 3 Nov 2013 13:01:21 -0500
-Received: from mail425.ha.ovh.net (gw6.ovh.net [213.251.189.206])
-	by mo6.mail-out.ovh.net (Postfix) with SMTP id D66C8FFA745
-	for <linux-watchdog@vger.kernel.org>; Sun,  3 Nov 2013 18:53:36 +0100 (CET)
-From: Boris BREZILLON <b.brezillon@overkiz.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Fabio Porcedda <fabio.porcedda@gmail.com>,
+	Sun, 3 Nov 2013 13:09:18 -0500
+Message-ID: <5276914C.3010803@roeck-us.net>
+Date: Sun, 03 Nov 2013 10:09:16 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+MIME-Version: 1.0
+To: Boris BREZILLON <b.brezillon@overkiz.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+CC: Fabio Porcedda <fabio.porcedda@gmail.com>,
 	Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Guenter Roeck <groeck7@gmail.com>,
 	Yang Wenyou <wenyou.yang@atmel.com>,
 	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org,
-	Boris BREZILLON <b.brezillon@overkiz.com>
-Subject: [PATCH 2/3] watchdog: at91sam9_wdt: avoid spurious watchdog reset during init
-Date: Sun,  3 Nov 2013 18:52:43 +0100
-Message-Id: <1383501164-8111-3-git-send-email-b.brezillon@overkiz.com>
-In-Reply-To: <1383501164-8111-1-git-send-email-b.brezillon@overkiz.com>
-References: <1383501164-8111-1-git-send-email-b.brezillon@overkiz.com>
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 2/3] watchdog: at91sam9_wdt: avoid spurious watchdog reset
+ during init
+References: <1383501164-8111-1-git-send-email-b.brezillon@overkiz.com> <1383501164-8111-3-git-send-email-b.brezillon@overkiz.com>
+In-Reply-To: <1383501164-8111-3-git-send-email-b.brezillon@overkiz.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Use the min_heartbeat value instead of the calculated heartbeat value for
-the first watchdog reset to avoid spurious watchdog reset.
+On 11/03/2013 09:52 AM, Boris BREZILLON wrote:
+> Use the min_heartbeat value instead of the calculated heartbeat value for
+> the first watchdog reset to avoid spurious watchdog reset.
+>
+> Resetting the watchdog counter during init might lead to a watchdog fault
+> reset because the watchdog counter has to be running for at least
+> min_heartbeat.
+>
+> Resetting the watchdog counter after heartbeat might lead to a watchdog
+> timeout reset because the watchdog counter is running for more than
+> max_heartbeat time.
+>
+> Using min_heartbeat instead of heartbeat does not guarantee that the
+> watchdog won't trigger a reset, but at least it reduces the chances to be
+> in such a case.
+>
+> Signed-off-by: Boris BREZILLON <b.brezillon@overkiz.com>
 
-Resetting the watchdog counter during init might lead to a watchdog fault
-reset because the watchdog counter has to be running for at least
-min_heartbeat.
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Resetting the watchdog counter after heartbeat might lead to a watchdog
-timeout reset because the watchdog counter is running for more than
-max_heartbeat time.
-
-Using min_heartbeat instead of heartbeat does not guarantee that the
-watchdog won't trigger a reset, but at least it reduces the chances to be
-in such a case.
-
-Signed-off-by: Boris BREZILLON <b.brezillon@overkiz.com>
----
- drivers/watchdog/at91sam9_wdt.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
-index 65f4691..ab0c4e0 100644
---- a/drivers/watchdog/at91sam9_wdt.c
-+++ b/drivers/watchdog/at91sam9_wdt.c
-@@ -213,7 +213,15 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
- 			 tmp & wdt->mr_mask, wdt->mr & wdt->mr_mask);
- 
- 	setup_timer(&wdt->timer, at91_ping, (unsigned long)wdt);
--	mod_timer(&wdt->timer, jiffies + wdt->heartbeat);
-+
-+	/*
-+	 * Use min_heartbeat the first time to avoid spurious watchdog reset:
-+	 * we don't know for how long the watchdog counter is running, and
-+	 *  - resetting it right now might trigger a watchdog fault reset
-+	 *  - waiting for heartbeat time might lead to a watchdog timeout
-+	 *    reset
-+	 */
-+	mod_timer(&wdt->timer, jiffies + min_heartbeat);
- 
- 	/* Try to set timeout from device tree first */
- 	if (watchdog_init_timeout(&wdt->wdd, 0, dev))
--- 
-1.7.9.5
 
