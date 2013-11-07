@@ -1,90 +1,56 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from 3.mo6.mail-out.ovh.net ([178.33.253.26]:52061 "EHLO
-	mo6.mail-out.ovh.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753933Ab3KCSQY (ORCPT
+Received: from mail.active-venture.com ([67.228.131.205]:56291 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751369Ab3KGO1a (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 3 Nov 2013 13:16:24 -0500
-Received: from mail425.ha.ovh.net (gw6.ovh.net [213.251.189.206])
-	by mo6.mail-out.ovh.net (Postfix) with SMTP id DD8FFFFA74E
-	for <linux-watchdog@vger.kernel.org>; Sun,  3 Nov 2013 18:53:38 +0100 (CET)
-From: Boris BREZILLON <b.brezillon@overkiz.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Fabio Porcedda <fabio.porcedda@gmail.com>,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Guenter Roeck <groeck7@gmail.com>,
-	Yang Wenyou <wenyou.yang@atmel.com>,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org,
-	Boris BREZILLON <b.brezillon@overkiz.com>
-Subject: [PATCH 3/3] watchdog: at91sam9_wdt: increase security margin on watchdog counter reset
-Date: Sun,  3 Nov 2013 18:52:44 +0100
-Message-Id: <1383501164-8111-4-git-send-email-b.brezillon@overkiz.com>
-In-Reply-To: <1383501164-8111-1-git-send-email-b.brezillon@overkiz.com>
-References: <1383501164-8111-1-git-send-email-b.brezillon@overkiz.com>
+	Thu, 7 Nov 2013 09:27:30 -0500
+Message-ID: <527BA351.10705@roeck-us.net>
+Date: Thu, 07 Nov 2013 06:27:29 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+MIME-Version: 1.0
+To: Dan Carpenter <dan.carpenter@oracle.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+CC: linux-watchdog@vger.kernel.org, kernel-janitors@vger.kernel.org
+Subject: Re: [patch] watchdog: pcwd_usb: overflow in usb_pcwd_send_command()
+References: <20131107074028.GA21844@elgon.mountain>
+In-Reply-To: <20131107074028.GA21844@elgon.mountain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Try to reset the watchdog counter 4 or 2 times more often than actually
-requested, to avoid spurious watchdog reset.
-If this is not possible because of the min_heartbeat value, reset it at
-the min_heartbeat period.
+On 11/06/2013 11:40 PM, Dan Carpenter wrote:
+> We changed "buf" from being an array of 6 chars to being a pointer this
+> sizeof(buf) needs to be updated as well.
+>
+oops ...
 
-Signed-off-by: Boris BREZILLON <b.brezillon@overkiz.com>
----
- drivers/watchdog/at91sam9_wdt.c |   25 ++++++++++++++++---------
- 1 file changed, 16 insertions(+), 9 deletions(-)
+> Fixes: 2ddb8089a7e5 ('watchdog: pcwd_usb: Use allocated buffer for usb_control_msg')
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+>
+> diff --git a/drivers/watchdog/pcwd_usb.c b/drivers/watchdog/pcwd_usb.c
+> index 53598e8..7031b9b 100644
+> --- a/drivers/watchdog/pcwd_usb.c
+> +++ b/drivers/watchdog/pcwd_usb.c
+> @@ -258,7 +258,7 @@ static int usb_pcwd_send_command(struct usb_pcwd_private *usb_pcwd,
+>
+>   	if (usb_control_msg(usb_pcwd->udev, usb_sndctrlpipe(usb_pcwd->udev, 0),
+>   			HID_REQ_SET_REPORT, HID_DT_REPORT,
+> -			0x0200, usb_pcwd->interface_number, buf, sizeof(buf),
+> +			0x0200, usb_pcwd->interface_number, buf, 6,
+>   			USB_COMMAND_TIMEOUT) != sizeof(buf)) {
 
-diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
-index ab0c4e0..489729b 100644
---- a/drivers/watchdog/at91sam9_wdt.c
-+++ b/drivers/watchdog/at91sam9_wdt.c
-@@ -158,6 +158,7 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
- 	int err;
- 	u32 mask = wdt->mr_mask;
- 	unsigned long min_heartbeat = 1;
-+	unsigned long max_heartbeat;
- 	struct device *dev = &pdev->dev;
- 
- 	tmp = wdt_read(wdt, AT91_WDT_MR);
-@@ -181,23 +182,29 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
- 	if (delta < value)
- 		min_heartbeat = ticks_to_hz_roundup(value - delta);
- 
--	wdt->heartbeat = ticks_to_hz_rounddown(value);
--	if (!wdt->heartbeat) {
-+	max_heartbeat = ticks_to_hz_rounddown(value);
-+	if (!max_heartbeat) {
- 		dev_err(dev,
- 			"heartbeat is too small for the system to handle it correctly\n");
- 		return -EINVAL;
- 	}
- 
--	if (wdt->heartbeat < min_heartbeat + 4) {
-+	/*
-+	 * Try to reset the watchdog counter 4 or 2 times more often than
-+	 * actually requested, to avoid spurious watchdog reset.
-+	 * If this is not possible because of the min_heartbeat value, reset
-+	 * it at the min_heartbeat period.
-+	 */
-+	if ((max_heartbeat / 4) >= min_heartbeat)
-+		wdt->heartbeat = max_heartbeat / 4;
-+	else if ((max_heartbeat / 2) >= min_heartbeat)
-+		wdt->heartbeat = max_heartbeat / 2;
-+	else
- 		wdt->heartbeat = min_heartbeat;
-+
-+	if (max_heartbeat < min_heartbeat + 4)
- 		dev_warn(dev,
- 			 "min heartbeat and max heartbeat might be too close for the system to handle it correctly\n");
--		if (wdt->heartbeat < 4)
--			dev_warn(dev,
--				 "heartbeat might be too small for the system to handle it correctly\n");
--	} else {
--		wdt->heartbeat -= 4;
--	}
- 
- 	if ((tmp & AT91_WDT_WDFIEN) && wdt->irq) {
- 		err = request_irq(wdt->irq, wdt_interrupt,
--- 
-1.7.9.5
+Doesn't it have to be fixed here as well ?
+
+Thanks,
+Guenter
+
+>   		dbg("usb_pcwd_send_command: error in usb_control_msg for "
+>   				"cmd 0x%x 0x%x 0x%x\n", cmd, *msb, *lsb);
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+>
 
