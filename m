@@ -1,39 +1,41 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ea0-f173.google.com ([209.85.215.173]:42446 "EHLO
-	mail-ea0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751690Ab3KJT1d (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 10 Nov 2013 14:27:33 -0500
-From: Tomasz Figa <tomasz.figa@gmail.com>
-To: Leela Krishna Amudala <l.krishna@samsung.com>
-Cc: linux-samsung-soc@vger.kernel.org, kgene.kim@samsung.com,
-	wim@iguana.be, t.figa@samsung.com, devicetree@vger.kernel.org,
-	dianders@chromium.org, linux-watchdog@vger.kernel.org,
-	cpgs@samsung.com, sachin.kamat@linaro.org
-Subject: Re: [PATCH V6 2/3] ARM: dts: add watchdog device nodes for Exynos5250 and Exynos5420
-Date: Sun, 10 Nov 2013 20:27:30 +0100
-Message-ID: <1741749.lLZhaDvyuy@flatron>
-In-Reply-To: <1383825078-24515-3-git-send-email-l.krishna@samsung.com>
-References: <1383825078-24515-1-git-send-email-l.krishna@samsung.com> <1383825078-24515-3-git-send-email-l.krishna@samsung.com>
+Received: from mms2.broadcom.com ([216.31.210.18]:4515 "EHLO mms2.broadcom.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757845Ab3KHUpC (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 8 Nov 2013 15:45:02 -0500
+From: "Markus Mayer" <markus.mayer@linaro.org>
+To: "Wim Van Sebroeck" <wim@iguana.be>,
+	"Christian Daudt" <bcm@fixthebug.org>
+cc: "Linaro Patches" <patches@linaro.org>,
+	"Matt Porter" <matt.porter@linaro.org>,
+	"Linux Watchdog List" <linux-watchdog@vger.kernel.org>,
+	"ARM Kernel List" <linux-arm-kernel@lists.infradead.org>,
+	"Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+	"Markus Mayer" <markus.mayer@linaro.org>
+Subject: [PATCH 0/2] watchdog: bcm281xx: Watchdog Driver
+Date: Fri, 8 Nov 2013 12:44:46 -0800
+Message-ID: <1383943488-6537-1-git-send-email-markus.mayer@linaro.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Leela,
+This series introduces the watchdog driver for the BCM281xx family of
+mobile SoCs.
 
-On Thursday 07 of November 2013 17:21:17 Leela Krishna Amudala wrote:
-> Adds watchdog device nodes to the DT device list for Exynos5250 and Exynos5420
+Markus Mayer (2):
+  watchdog: bcm281xx: Watchdog Driver
+  ARM: bcm281xx: watchdog configuration
 
-s/add/update/ since there was already a device tree node in exynos5.dtsi.
+ arch/arm/configs/bcm_defconfig  |    3 +
+ drivers/watchdog/Kconfig        |   21 +++
+ drivers/watchdog/Makefile       |    1 +
+ drivers/watchdog/bcm_kona_wdt.c |  399 +++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 424 insertions(+)
+ create mode 100644 drivers/watchdog/bcm_kona_wdt.c
 
-Also, patch description should mention all the changes done in the patch
-and I see more changes than described by your description. This patch also
-makes the watchdog node enabled by default.
+-- 
+1.7.9.5
 
-Otherwise the patch looks good.
-
-Best regards,
-Tomasz
 
