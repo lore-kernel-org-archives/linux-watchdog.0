@@ -1,20 +1,20 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ee0-f41.google.com ([74.125.83.41]:52728 "EHLO
-	mail-ee0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751528Ab3KJTNo (ORCPT
+Received: from mail-ea0-f180.google.com ([209.85.215.180]:49919 "EHLO
+	mail-ea0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751532Ab3KJTX5 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 10 Nov 2013 14:13:44 -0500
+	Sun, 10 Nov 2013 14:23:57 -0500
 From: Tomasz Figa <tomasz.figa@gmail.com>
 To: Leela Krishna Amudala <l.krishna@samsung.com>
 Cc: linux-samsung-soc@vger.kernel.org, kgene.kim@samsung.com,
 	wim@iguana.be, t.figa@samsung.com, devicetree@vger.kernel.org,
 	dianders@chromium.org, linux-watchdog@vger.kernel.org,
 	cpgs@samsung.com, sachin.kamat@linaro.org
-Subject: Re: [PATCH V6 3/3] watchdog: s3c2410_wdt: use syscon regmap interface to configure pmu register
-Date: Sun, 10 Nov 2013 20:13:43 +0100
-Message-ID: <3426745.Yob7zMjee0@flatron>
-In-Reply-To: <1383825078-24515-4-git-send-email-l.krishna@samsung.com>
-References: <1383825078-24515-1-git-send-email-l.krishna@samsung.com> <1383825078-24515-4-git-send-email-l.krishna@samsung.com>
+Subject: Re: [PATCH V6 1/3] ARM: dts: Add pmu sysreg node to Exynos5 dtsi file
+Date: Sun, 10 Nov 2013 20:23:55 +0100
+Message-ID: <7285526.XmfYtBHBpD@flatron>
+In-Reply-To: <1383825078-24515-2-git-send-email-l.krishna@samsung.com>
+References: <1383825078-24515-1-git-send-email-l.krishna@samsung.com> <1383825078-24515-2-git-send-email-l.krishna@samsung.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7Bit
 Content-Type: text/plain; charset="us-ascii"
@@ -23,44 +23,46 @@ List-Id: linux-watchdog@vger.kernel.org
 
 Hi Leela,
 
-On Thursday 07 of November 2013 17:21:18 Leela Krishna Amudala wrote:
-> The syscon regmap interface is used to configure AUTOMATIC_WDT_RESET_DISABLE
-> and MASK_WDT_RESET_REQUEST registers of PMU to mask/unmask enable/disable of
-> watchdog in probe and s2r scenarios.
+On Thursday 07 of November 2013 17:21:16 Leela Krishna Amudala wrote:
+> This patch adds pmusysreg node to Exynos5 dtsi file to handle PMU
+> register accesses in a centralized way using syscon driver
 > 
 > Signed-off-by: Leela Krishna Amudala <l.krishna@samsung.com>
+> Reviewed-by: Tomasz Figa <t.figa@samsung.com>
 > ---
->  .../devicetree/bindings/watchdog/samsung-wdt.txt   |   21 ++-
->  drivers/watchdog/s3c2410_wdt.c                     |  139 ++++++++++++++++++--
->  2 files changed, 151 insertions(+), 9 deletions(-)
-[snip]
-> diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
-> index 23aad7c..a151c20 100644
-> --- a/drivers/watchdog/s3c2410_wdt.c
-> +++ b/drivers/watchdog/s3c2410_wdt.c
-[snip]
-> +/* s3c2410_get_wdt_driver_data */
-> +static inline struct s3c2410_wdt_variant *
-> +get_wdt_drv_data(struct platform_device *pdev)
-> +{
-> +#ifdef CONFIG_OF
-> +	if (pdev->dev.of_node) {
-> +		const struct of_device_id *match;
-> +		match = of_match_node(s3c2410_wdt_match, pdev->dev.of_node);
-> +		return (struct s3c2410_wdt_variant *)match->data;
-> +	}
-> +#endif
-> +	return (struct s3c2410_wdt_variant *)
-> +		platform_get_device_id(pdev)->driver_data;
+>  arch/arm/boot/dts/exynos5.dtsi |    5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/arch/arm/boot/dts/exynos5.dtsi b/arch/arm/boot/dts/exynos5.dtsi
+> index e52b038..ad6e47c9 100644
+> --- a/arch/arm/boot/dts/exynos5.dtsi
+> +++ b/arch/arm/boot/dts/exynos5.dtsi
+> @@ -106,4 +106,9 @@
+>  		#size-cells = <0>;
+>  		status = "disabled";
+>  	};
+> +
+> +	pmu_syscon: syscon@10040000 {
+> +		compatible = "syscon";
+> +		reg = <0x10040000 0x5000>;
+> +	};
+>  };
+> 
 
-This code calls platform_get_device_id(), but I don't see any array of
-platform_device_id in this driver. This will always crash on a NULL
-pointer dereference whenever booted on a platform using board files.
+Just to be safe, I would also add some SoC-specific compatible value to
+this node. My proposal is "samsung,exynos5250-pmu" for the PMU of
+Exynos5250 (unless all Exynos 5 SoCs really have identical set of PMU
+registers, but based on your patch to WDT driver, I don't think so) and
+put the node in dtsi of particular SoC.
 
-Also, as this driver is now using syscon API, its Kconfig entry should
-select MFD_SYSCON.
+We already have a PMU driver in arch/arm/mach-exynos and we should rather
+allow it to bind to some device tree node and access the registers it
+needs when we finally stop mapping PMU registers statically.
 
-Other than that, the patch looks fine.
+You should also document such binding somewhere. IMHO [1] would be a good
+place for it.
+
+[1] - Documentation/devicetree/bindings/arm/samsung/pmu.txt
 
 Best regards,
 Tomasz
