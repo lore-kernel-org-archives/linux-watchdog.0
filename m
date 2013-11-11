@@ -1,48 +1,95 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mms3.broadcom.com ([216.31.210.19]:1725 "EHLO mms3.broadcom.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758284Ab3KHUp2 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 8 Nov 2013 15:45:28 -0500
-From: "Markus Mayer" <markus.mayer@linaro.org>
-To: "Wim Van Sebroeck" <wim@iguana.be>,
-	"Christian Daudt" <bcm@fixthebug.org>
-cc: "Linaro Patches" <patches@linaro.org>,
-	"Matt Porter" <matt.porter@linaro.org>,
-	"Linux Watchdog List" <linux-watchdog@vger.kernel.org>,
-	"ARM Kernel List" <linux-arm-kernel@lists.infradead.org>,
-	"Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-	"Markus Mayer" <markus.mayer@linaro.org>
-Subject: [PATCH 2/2] ARM: bcm281xx: watchdog configuration
-Date: Fri, 8 Nov 2013 12:44:48 -0800
-Message-ID: <1383943488-6537-3-git-send-email-markus.mayer@linaro.org>
-In-Reply-To: <1383943488-6537-1-git-send-email-markus.mayer@linaro.org>
-References: <1383943488-6537-1-git-send-email-markus.mayer@linaro.org>
-MIME-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Received: from mailout4.samsung.com ([203.254.224.34]:46618 "EHLO
+	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753707Ab3KKMZH (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 11 Nov 2013 07:25:07 -0500
+From: Leela Krishna Amudala <l.krishna@samsung.com>
+To: linux-samsung-soc@vger.kernel.org, kgene.kim@samsung.com,
+	wim@iguana.be
+Cc: t.figa@samsung.com, devicetree@vger.kernel.org,
+	dianders@chromium.org, linux-watchdog@vger.kernel.org,
+	cpgs@samsung.com, sachin.kamat@linaro.org
+Subject: [PATCH V7 2/3] ARM: dts: update watchdog device nodes for Exynos5250
+ and Exynos5420
+Date: Mon, 11 Nov 2013 18:14:56 +0530
+Message-id: <1384173897-16106-3-git-send-email-l.krishna@samsung.com>
+In-reply-to: <1384173897-16106-1-git-send-email-l.krishna@samsung.com>
+References: <1384173897-16106-1-git-send-email-l.krishna@samsung.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This commit enables the watchdog driver for the BCM281xx family of SoCs.
+In Exynos5 series SoCs, PMU has registers to enable/disable mask/unmask
+watchdog timer which is not the case with s3c series SoCs so, there is a
+need to have different compatible names for watchdog to handle these pmu
+registers access.
 
-Signed-off-by: Markus Mayer <markus.mayer@linaro.org>
-Reviewed-by: Matt Porter <matt.porter@linaro.org>
+Hence this patch removes watchdog node from Exynos5.dtsi common file and
+make it separate by updating existing node in Exynos5250 and adding new node
+to Exynos5420. This patch also makes the watchdog node enabled by default
+
+Signed-off-by: Leela Krishna Amudala <l.krishna@samsung.com>
 ---
- arch/arm/configs/bcm_defconfig |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/boot/dts/exynos5.dtsi    |    7 -------
+ arch/arm/boot/dts/exynos5250.dtsi |    6 +++++-
+ arch/arm/boot/dts/exynos5420.dtsi |    9 +++++++++
+ 3 files changed, 14 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm/configs/bcm_defconfig b/arch/arm/configs/bcm_defconfig
-index 6e49310..8b98e11 100644
---- a/arch/arm/configs/bcm_defconfig
-+++ b/arch/arm/configs/bcm_defconfig
-@@ -130,3 +130,6 @@ CONFIG_CRC_ITU_T=y
- CONFIG_CRC7=y
- CONFIG_XZ_DEC=y
- CONFIG_AVERAGE=y
-+CONFIG_WATCHDOG=y
-+CONFIG_BCM_KONA_WDT=y
-+CONFIG_BCM_KONA_WDT_DEBUG=y
+diff --git a/arch/arm/boot/dts/exynos5.dtsi b/arch/arm/boot/dts/exynos5.dtsi
+index e52b038..f1fea28 100644
+--- a/arch/arm/boot/dts/exynos5.dtsi
++++ b/arch/arm/boot/dts/exynos5.dtsi
+@@ -81,13 +81,6 @@
+ 		status = "disabled";
+ 	};
+ 
+-	watchdog {
+-		compatible = "samsung,s3c2410-wdt";
+-		reg = <0x101D0000 0x100>;
+-		interrupts = <0 42 0>;
+-		status = "disabled";
+-	};
+-
+ 	fimd@14400000 {
+ 		compatible = "samsung,exynos5250-fimd";
+ 		interrupt-parent = <&combiner>;
+diff --git a/arch/arm/boot/dts/exynos5250.dtsi b/arch/arm/boot/dts/exynos5250.dtsi
+index 6056a83..69f6c6a 100644
+--- a/arch/arm/boot/dts/exynos5250.dtsi
++++ b/arch/arm/boot/dts/exynos5250.dtsi
+@@ -163,9 +163,13 @@
+ 		reg = <0x10040000 0x5000>;
+ 	};
+ 
+-	watchdog {
++	watchdog@101D0000 {
++		compatible = "samsung,exynos5250-wdt";
++		reg = <0x101D0000 0x100>;
++		interrupts = <0 42 0>;
+ 		clocks = <&clock 336>;
+ 		clock-names = "watchdog";
++		samsung,syscon-phandle = <&pmu_syscon>;
+ 	};
+ 
+ 	g2d@10850000 {
+diff --git a/arch/arm/boot/dts/exynos5420.dtsi b/arch/arm/boot/dts/exynos5420.dtsi
+index 39ce15a..61764bb 100644
+--- a/arch/arm/boot/dts/exynos5420.dtsi
++++ b/arch/arm/boot/dts/exynos5420.dtsi
+@@ -374,4 +374,13 @@
+ 		compatible = "samsung,exynos5420-pmu", "syscon";
+ 		reg = <0x10040000 0x5000>;
+ 	};
++
++        watchdog@101D0000 {
++		compatible = "samsung,exynos5420-wdt";
++		reg = <0x101D0000 0x100>;
++		interrupts = <0 42 0>;
++		clocks = <&clock 316>;
++		clock-names = "watchdog";
++		samsung,syscon-phandle = <&pmu_syscon>;
++        };
+ };
 -- 
-1.7.9.5
-
+1.7.10.4
 
