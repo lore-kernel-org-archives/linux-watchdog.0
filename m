@@ -1,10 +1,11 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:41456 "EHLO bear.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754173Ab3KLPh5 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 12 Nov 2013 10:37:57 -0500
-Message-ID: <52824B35.7020207@ti.com>
-Date: Tue, 12 Nov 2013 10:37:25 -0500
+Received: from devils.ext.ti.com ([198.47.26.153]:35686 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753783Ab3KLPjB (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 12 Nov 2013 10:39:01 -0500
+Message-ID: <52824B73.6040704@ti.com>
+Date: Tue, 12 Nov 2013 10:38:27 -0500
 From: Santosh Shilimkar <santosh.shilimkar@ti.com>
 MIME-Version: 1.0
 To: "ivan.khoronzhuk" <ivan.khoronzhuk@ti.com>
@@ -15,18 +16,17 @@ CC: <wim@iguana.be>, <nsekhar@ti.com>,
 	<swarren@wwwdotorg.org>, <galak@kernel.crashing.org>,
 	<ijc+devicetree@hellion.org.uk>, <linux-kernel@vger.kernel.org>,
 	<linux-arm-kernel@lists.infradead.org>
-Subject: Re: Fwd: [PATCH 3/8] watchdog: davinci: add GET_TIMELEFT option support
-References: <1383680783-12114-4-git-send-email-ivan.khoronzhuk@ti.com> <527A28AF.9040308@ti.com>
-In-Reply-To: <527A28AF.9040308@ti.com>
+Subject: Re: Fwd: [PATCH 4/8] watchdog: davinci: add GET_STATUS option support
+References: <1383680783-12114-5-git-send-email-ivan.khoronzhuk@ti.com> <527A28CE.2070802@ti.com>
+In-Reply-To: <527A28CE.2070802@ti.com>
 Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wednesday 06 November 2013 06:31 AM, ivan.khoronzhuk wrote:
-> Currently, the davinci watchdog can be read while counting,
-> so we can add ability to report the remaining time before
-> the system will reboot.
+On Wednesday 06 November 2013 06:32 AM, ivan.khoronzhuk wrote:
+> When watchdog timer is expired we can know about it thought
+> GET_STATUS ioctl option.
 > 
 > Signed-off-by: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
 > ---
