@@ -1,10 +1,10 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from arroyo.ext.ti.com ([192.94.94.40]:48658 "EHLO arroyo.ext.ti.com"
+Received: from arroyo.ext.ti.com ([192.94.94.40]:48779 "EHLO arroyo.ext.ti.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753327Ab3KLPlU (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 12 Nov 2013 10:41:20 -0500
-Message-ID: <52824C01.7030302@ti.com>
-Date: Tue, 12 Nov 2013 10:40:49 -0500
+	id S1752010Ab3KLPn1 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 12 Nov 2013 10:43:27 -0500
+Message-ID: <52824C7C.7050706@ti.com>
+Date: Tue, 12 Nov 2013 10:42:52 -0500
 From: Santosh Shilimkar <santosh.shilimkar@ti.com>
 MIME-Version: 1.0
 To: "ivan.khoronzhuk" <ivan.khoronzhuk@ti.com>
@@ -15,19 +15,24 @@ CC: <wim@iguana.be>, <nsekhar@ti.com>,
 	<swarren@wwwdotorg.org>, <galak@kernel.crashing.org>,
 	<ijc+devicetree@hellion.org.uk>, <linux-kernel@vger.kernel.org>,
 	<linux-arm-kernel@lists.infradead.org>
-Subject: Re: Fwd: [PATCH 7/8] watchdog: davinci: add "clocks" property
-References: <1383680783-12114-8-git-send-email-ivan.khoronzhuk@ti.com> <527A28E8.4010204@ti.com>
-In-Reply-To: <527A28E8.4010204@ti.com>
+Subject: Re: Fwd: [PATCH 8/8] arm: dts: keystone: add watchdog entry
+References: <1383680783-12114-9-git-send-email-ivan.khoronzhuk@ti.com> <527A28F0.6050406@ti.com>
+In-Reply-To: <527A28F0.6050406@ti.com>
 Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wednesday 06 November 2013 06:32 AM, ivan.khoronzhuk wrote:
-> The Keystone arch is using clocks in DT and source clock for watchdog
-> has to be specified, so add this to binding.
+On Wednesday 06 November 2013 06:33 AM, ivan.khoronzhuk wrote:
+> Add watchdog entry to keystone device tree.
 > 
 > Signed-off-by: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
 > ---
-Acked-by: Santosh Shilimkar <santosh.shilimkar@ti.com>
+This patch I can take via my tree once the watchdog guys are ok
+and queuing up rest of the series.
+
+Thanks Ivan for the clean-up and keystone updates.
+
+Regards,
+Santosh
 
