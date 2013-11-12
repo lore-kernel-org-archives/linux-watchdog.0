@@ -1,92 +1,88 @@
-Return-Path: <santosh.shilimkar@ti.com>
-Message-ID: <52825746.4090702@ti.com>
-Date: Tue, 12 Nov 2013 11:28:54 -0500
-From: Santosh Shilimkar <santosh.shilimkar@ti.com>
-MIME-Version: 1.0
-To: Guenter Roeck <linux@roeck-us.net>
-CC: "ivan.khoronzhuk" <ivan.khoronzhuk@ti.com>, <wim@iguana.be>,
-        <nsekhar@ti.com>, <linux-watchdog@vger.kernel.org>,
-        <devicetree@vger.kernel.org>, <grant.likely@linaro.org>,
-        <rob.herring@calxeda.com>, <pawel.moll@arm.com>,
-        <mark.rutland@arm.com>, <swarren@wwwdotorg.org>,
-        <galak@kernel.crashing.org>, <ijc+devicetree@hellion.org.uk>,
-        <linux-kernel@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>
-Subject: Re: Fwd: [PATCH 2/8] watchdog: davinci: use davinci_wdt_device structure
- to hold device data
-References: <1383680783-12114-3-git-send-email-ivan.khoronzhuk@ti.com> <527A2888.5030604@ti.com> <52824B20.9080002@ti.com> <20131112162731.GA5449@roeck-us.net>
-In-Reply-To: <20131112162731.GA5449@roeck-us.net>
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mailout1.samsung.com ([203.254.224.24]:41045 "EHLO
+	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750944Ab3KLGPE (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 12 Nov 2013 01:15:04 -0500
+From: Leela Krishna Amudala <l.krishna@samsung.com>
+To: linux-samsung-soc@vger.kernel.org, kgene.kim@samsung.com,
+	wim@iguana.be
+Cc: t.figa@samsung.com, devicetree@vger.kernel.org,
+	dianders@chromium.org, linux-watchdog@vger.kernel.org,
+	cpgs@samsung.com, sachin.kamat@linaro.org
+Subject: [PATCH V8 0/3] Add watchdog DT nodes and use syscon regmap interfac to
+ configure pmu registers
+Date: Tue, 12 Nov 2013 12:04:45 +0530
+Message-id: <1384238088-9862-1-git-send-email-l.krishna@samsung.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Tuesday 12 November 2013 11:27 AM, Guenter Roeck wrote:
-> On Tue, Nov 12, 2013 at 10:37:04AM -0500, Santosh Shilimkar wrote:
->> On Wednesday 06 November 2013 06:31 AM, ivan.khoronzhuk wrote:
->>> Some SoCs, like Keystone 2, can support more than one WDT and each
->>> watchdog device has to use it's own base address, clock source,
->>> wdd device, so add new davinci_wdt_device structure to hold device
->> In commit avoid struct names ;)
->> s/wdd/watchdog device
->>> data.
->>>
->>> Signed-off-by: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
->>> ---
->>>  drivers/watchdog/davinci_wdt.c |   74 ++++++++++++++++++++++++++--------------
->>>  1 file changed, 48 insertions(+), 26 deletions(-)
->>>
->>> diff --git a/drivers/watchdog/davinci_wdt.c b/drivers/watchdog/davinci_wdt.c
->>> index a6eef71..1fc2093 100644
->>> --- a/drivers/watchdog/davinci_wdt.c
->>> +++ b/drivers/watchdog/davinci_wdt.c
->>
->> [...]
->>
->>> @@ -123,14 +135,21 @@ static int davinci_wdt_probe(struct platform_device *pdev)
->>>  	struct device *dev = &pdev->dev;
->>>  	struct resource  *wdt_mem;
->>>  	struct watchdog_device *wdd;
->>> +	struct davinci_wdt_device *davinci_wdt;
->>> +
->>> +	davinci_wdt = devm_kzalloc(dev, sizeof(*davinci_wdt), GFP_KERNEL);
->>> +	if (!davinci_wdt)
->>> +		return -ENOMEM;
->>>  
->>> -	wdt_clk = devm_clk_get(dev, NULL);
->>> -	if (WARN_ON(IS_ERR(wdt_clk)))
->>> -		return PTR_ERR(wdt_clk);
->>> +	davinci_wdt->clk = devm_clk_get(dev, NULL);
->>> +	if (WARN_ON(IS_ERR(davinci_wdt->clk)))
->>> +		return PTR_ERR(davinci_wdt->clk);
->>>  
->>> -	clk_prepare_enable(wdt_clk);
->>> +	clk_prepare_enable(davinci_wdt->clk);
->>>  
->>> -	wdd			= &wdt_wdd;
->>> +	platform_set_drvdata(pdev, davinci_wdt);
->>> +
->>> +	wdd			= &davinci_wdt->wdd;
->>>  	wdd->info		= &davinci_wdt_info;
->>>  	wdd->ops		= &davinci_wdt_ops;
->>>  	wdd->min_timeout 	= 1;
->>> @@ -142,12 +161,13 @@ static int davinci_wdt_probe(struct platform_device *pdev)
->>>  
->>>  	dev_info(dev, "heartbeat %d sec\n", wdd->timeout);
->>>  
->>> +	watchdog_set_drvdata(wdd, davinci_wdt);
->>>  	watchdog_set_nowayout(wdd, WATCHDOG_NOWAYOUT);
->>>  
->>>  	wdt_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->>> -	wdt_base = devm_ioremap_resource(dev, wdt_mem);
->>> -	if (IS_ERR(wdt_base))
->>> -		return PTR_ERR(wdt_base);
->>> +	davinci_wdt->base = devm_ioremap_resource(dev, wdt_mem);
->>> +	if (IS_ERR(davinci_wdt->base))
->>> +		return PTR_ERR(davinci_wdt->base);
->> You should free up davinci_wdt memory before returning, right ?
->>
-> No, devm should take care of that.
-> 
-You are right. I didn't pay attention about the devm_*() usage.
+This patchset does the following things
+	- Adds pmusysreg device node to exynos5.dtsi file
+	- Adds watchdog DT nodes to Exynos5250 and 5420
+	- Uses syscon regmap interface to configure pmu registers
+	  to mask/unmask enable/disable of watchdog.
+	
+This patch set is rebased on Kgene's for-next branch and tested on SMDK5420
 
-Regards,
-Santosh
+changes since V7:
+	- re-ordered the patches in the series
+	- moved pmu_config_s3c2410 structure out of ifdef CONFIG_OF
+	  and limited only this structure to platform match table
+	- renamed structure name from s3c_wdt_driver_ids to s3c2410_wdt_ids
+	- removed exynos variants from platform match table
+	  (suggested by Tomasz Figa <t.figa@samsung.com>)
+
+changes since V6:
+	- added SoC-specific compatible value to syscon node and documented it
+	- given more patch description for below patch
+	  ARM: dts: update watchdog device nodes for Exynos5250 and Exynos5420
+	- added platform_device_id array for watchdog devices
+	- selected MFD_SYSCON in Kconfig entry for watchdog
+
+Changes since V5:
+	- removed status property in DT nodes
+	- changed the return type for the function s3c2410wdt_mask_and_disable_reset()
+	  and handled error cases
+	- Handled to get driver data in non-DT cases
+	- Addressed comments given by Tomasz Figa <t.figa@samsung.com>
+
+Changes since V4:
+	- changed the node name from pmusysreg to syscon and node label from pmu_sys_reg to pmu_syscon
+	- changed the property name from samsung,pmusysreg to samsung,syscon-phandle
+	- used regmap_update_bits instead of remap_read/regmap_write
+	- Addressed other comments given by Tomasz Figa <t.figa@samsung.com>
+
+Changes since V3:
+	- changed the compatible strings for watchdog node
+	- splitted up adding pmusysreg node and made it separate patch
+	- Addressed comments given by Sachin Kamat <sachin.kamat@linaro.org>
+
+Changes since V2:
+	- used syscon regmap interface to configure pmu registers in WDT driver
+	  (suggested by Tomasz Figa <t.figa@samsung.com>)
+
+Changes since V1:
+        - Added new compatible string for Exynos5 SoCs
+        - Introduced quirk mechanism to program PMU registers
+        - Addressed comments given by Tomasz Figa <t.figa@samsung.com>
+
+Leela Krishna Amudala (3):
+  ARM: dts: Add pmu sysreg node to exynos5250 and exynos5420 dtsi files
+  watchdog: s3c2410_wdt: add device tree support and use syscon regmap
+    interface to configure pmu register
+  ARM: dts: update watchdog device nodes for Exynos5250 and Exynos5420
+
+ .../devicetree/bindings/arm/samsung/pmu.txt        |   13 ++
+ .../devicetree/bindings/watchdog/samsung-wdt.txt   |   21 ++-
+ arch/arm/boot/dts/exynos5.dtsi                     |    7 -
+ arch/arm/boot/dts/exynos5250.dtsi                  |   11 +-
+ arch/arm/boot/dts/exynos5420.dtsi                  |   14 ++
+ drivers/watchdog/Kconfig                           |    1 +
+ drivers/watchdog/s3c2410_wdt.c                     |  148 ++++++++++++++++++--
+ 7 files changed, 198 insertions(+), 17 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/arm/samsung/pmu.txt
+
+-- 
+1.7.10.4
+
