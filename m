@@ -1,109 +1,115 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-we0-f171.google.com ([74.125.82.171]:36394 "EHLO
-	mail-we0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755239Ab3KMAI6 (ORCPT
+Received: from mail.active-venture.com ([67.228.131.205]:57716 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756037Ab3KMEAU (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 12 Nov 2013 19:08:58 -0500
-Received: by mail-we0-f171.google.com with SMTP id t61so3463967wes.30
-        for <linux-watchdog@vger.kernel.org>; Tue, 12 Nov 2013 16:08:57 -0800 (PST)
+	Tue, 12 Nov 2013 23:00:20 -0500
+Message-ID: <5282F94F.2060208@roeck-us.net>
+Date: Tue, 12 Nov 2013 20:00:15 -0800
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-In-Reply-To: <20131112233911.16eba130@alan.etchedpixels.co.uk>
-References: <1383943488-6537-1-git-send-email-markus.mayer@linaro.org>
-	<1383943488-6537-2-git-send-email-markus.mayer@linaro.org>
-	<20131112233911.16eba130@alan.etchedpixels.co.uk>
-Date: Tue, 12 Nov 2013 16:08:56 -0800
-Message-ID: <CAPdLdqnKvKbU_6M4uUBAwtq1YUaKMtrZcR7mzJfxjZva=duPHg@mail.gmail.com>
-Subject: Re: [PATCH 1/2] watchdog: bcm281xx: Watchdog Driver
-From: Markus Mayer <markus.mayer@linaro.org>
-To: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
+To: Markus Mayer <markus.mayer@linaro.org>
+CC: Wim Van Sebroeck <wim@iguana.be>,
 	Christian Daudt <bcm@fixthebug.org>,
 	Linaro Patches <patches@linaro.org>,
 	Matt Porter <matt.porter@linaro.org>,
 	Linux Watchdog List <linux-watchdog@vger.kernel.org>,
 	ARM Kernel List <linux-arm-kernel@lists.infradead.org>,
 	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [PATCH 1/2] watchdog: bcm281xx: Watchdog Driver
+References: <1383943488-6537-1-git-send-email-markus.mayer@linaro.org>	<1383943488-6537-2-git-send-email-markus.mayer@linaro.org>	<20131111173434.GA25532@roeck-us.net> <CAPdLdqn5bvxnURdcy0JATBWmyJsbL=EJ65repSVxchw7srWpfQ@mail.gmail.com>
+In-Reply-To: <CAPdLdqn5bvxnURdcy0JATBWmyJsbL=EJ65repSVxchw7srWpfQ@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 12 November 2013 15:39, One Thousand Gnomes
-<gnomes@lxorguk.ukuu.org.uk> wrote:
+On 11/12/2013 02:17 PM, Markus Mayer wrote:
+
+>>> +
+>>> +     if (!timeout)
+>>> +             dev_info(wdog->dev, "Watchdog timer stopped");
+>>> +
+>> All that noise.
 >
->> +static int bcm_kona_wdt_set_resolution_reg(struct bcm_kona_wdt *wdt)
->> +{
->> +     uint32_t val;
->> +     int timeout;
->> +     unsigned long flags;
->> +     int ret = 0;
->> +
->> +     if (wdt->resolution > SECWDOG_MAX_RES)
->> +             return -EINVAL;
->> +
->> +     spin_lock_irqsave(&wdt->lock, flags);
->> +
->> +     val = secure_register_read(wdt->base + SECWDOG_CTRL_REG, &timeout);
->> +     if (!timeout) {
->> +             val &= ~SECWDOG_RES_MASK;
->> +             val |= wdt->resolution << SECWDOG_CLKS_SHIFT;
->> +             writel_relaxed(val, wdt->base + SECWDOG_CTRL_REG);
->> +     } else {
->> +             ret = -EAGAIN;
+> Would it be acceptable to turn these calls into dev_dbg() calls, here
+> and elsewhere?
 >
-> This is I think the wrong choice of return. If the register fails to read
-> then presumably the device is b*ggered ? In which case return something
-> like -EIO and log something nasty.
+
+Ok with me.
+
+
+>>> +
+>>> +     wdt->resolution = SECWDOG_DEFAULT_RESOLUTION;
+>>> +     ret = bcm_kona_wdt_set_resolution_reg(wdt);
+>>> +     if (ret) {
+>>> +             dev_err(dev, "Failed to set resolution (error: %d)", ret);
+>>
+>> ret can be -EAGAIN or -EINVAL. -EINVAL suggests a bad internale error (hopefully
+>> SECWDOG_DEFAULT_RESOLUTION is defined to be smaller than SECWDOG_MAX_RES),
+>> and if it is -EAGAIN there should be no error message.
+>>
+>> Actually, bcm_kona_wdt_set_resolution_reg is only called from here, meaning the
+>> error check in the function is really unnecessary.
 >
-> EAGAIN has fairly specific semantics around signals and/or specific
-> requests for an I/O operation not to wait.
+> This again goes back to making resolution available to userland. Then
+> bcm_kona_wdt_set_resolution_reg() would be called from elsewhere. Why
+> is it bad to print an error message on timeout? Would this still apply
 
-I will change that based on Guenter's and your comments.
+That was related to -EAGAIN. Which would be bad here anyway as it could result
+in an endless loop if there is a problem with the chip.
 
->> +     spin_lock_irqsave(&wdt->lock, flags);
->> +
->> +     val = secure_register_read(wdt->base + SECWDOG_CTRL_REG, &timeout);
->> +     if (!timeout) {
->> +             val &= ~SECWDOG_COUNT_MASK;
->> +             val |= SECS_TO_TICKS(wdog->timeout, wdt);
->> +             writel_relaxed(val, wdt->base + SECWDOG_CTRL_REG);
->> +     } else {
->> +             ret = -EAGAIN;
->> +     }
->> +
->> +     spin_unlock_irqrestore(&wdt->lock, flags);
+> if I switch the code to -ETIMEDOUT?
 >
-> As an aside you could fold most of these functions into one single helper
-> method that read CTRL_REG, did the and and or and wrote the result back
-> rather than repeating yourself. But hey if you like typing...
+That is one option, or -EIO if the condition indicates a chip error.
 
-I'll look into that.
-
->> +     res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>>> +             return ret;
+>>> +     }
+>>> +
+>>> +     spin_lock_init(&wdt->lock);
+>>> +     platform_set_drvdata(pdev, wdt);
+>>> +     watchdog_set_drvdata(&bcm_kona_wdt_wdd, wdt);
+>>> +
+>>> +     ret = bcm_kona_wdt_set_timeout_reg(&bcm_kona_wdt_wdd);
+>>> +     if (ret) {
+>>> +             dev_err(dev, "Failed set watchdog timeout");
+>>
+>> The only error case is -EAGAIN. I don't think there should be an error mesasge
+>> in this case (though I am not sure what the reaction should be).
 >
-> What if there is no resource present ?
-
-Then devm_ioremap_resource() will print an error message and return
-with ERR_PTR(-EINVAL). Subsequently probe() will fail. So it'll work
-as intended.
-
->> +     dev_info(dev, "Broadcom Kona Watchdog Timer");
+> I am thinking that probe() needs to return an error if setting the
+> timeout fails, as it can't really rely on the watchdog timer or let
+> the system use it. Shouldn't that be accompanied by an error message
+> letting the user know what happened?
 >
-> The module load succeeded - the user knows it loaded from that. Likewise
-> the unload spewage is unwanted and the kernel would just drown in such
-> messages if we didn't keep them in check. If you need the for debug then
-> mark them dev_dbg but otherwise bin them.
+Oh, I agree it should return an error, and an error message is ok as well.
+I am just sure it should not be -EAGAIN, but I don't know what it should be.
+Maybe -ETIMEDOUT, or -EIO.
 
-I already changed them all to "debug" in my local tree. For this one
-message, I am feeling a bit ambivalent, though. The user only knows
-loading of the module succeeded if the user manually loaded the module
--- which, I imagine, would almost never be the case. The driver is
-either going to be built in or loaded automatically by some facility.
-In which case it might be nice to have some confirmation of that fact
-in the logs.
+>>> +             return ret;
+>>> +     }
+>>> +
+>>> +     ret = watchdog_register_device(&bcm_kona_wdt_wdd);
+>>> +     if (ret) {
+>>> +             dev_err(dev, "Failed to register watchdog device");
+>>> +             return ret;
+>>> +     }
+>>> +
+>>> +#ifdef CONFIG_BCM_KONA_WDT_DEBUG
+>>> +     wdt->debugfs = bcm_kona_wdt_debugfs_init(wdt, &bcm_kona_wdt_wdd);
+>>> +#endif
+>>> +     dev_info(dev, "Broadcom Kona Watchdog Timer");
+>>> +
+>> Such messages are in general considered nuisance nowadays. I would suggest to
+>> remove it (or ask Greg KH for advice).
+>>
 
-Regards,
--Markus
+Referring to your other mail.... seems those messages are falling out of favor.
+I consider it a nuisance, though so far I let it go through. The messages do
+increase boot time, especially on systems with slow serial console, and IMO
+do not provide any real value. Users either don't care, or can check if the
+driver is loaded by other means. I would suggest to at least make it dev_dbg.
 
--- 
-Markus Mayer
-Broadcom Landing Team
+Thanks,
+Guenter
+
