@@ -1,84 +1,109 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:54794 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753391Ab3KMAAd (ORCPT
+Received: from mail-we0-f171.google.com ([74.125.82.171]:36394 "EHLO
+	mail-we0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755239Ab3KMAI6 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 12 Nov 2013 19:00:33 -0500
-Date: Tue, 12 Nov 2013 23:39:11 +0000
-From: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
-To: "Markus Mayer" <markus.mayer@linaro.org>
-Cc: "Wim Van Sebroeck" <wim@iguana.be>,
-	"Christian Daudt" <bcm@fixthebug.org>,
-	"Linaro Patches" <patches@linaro.org>,
-	"Matt Porter" <matt.porter@linaro.org>,
-	"Linux Watchdog List" <linux-watchdog@vger.kernel.org>,
-	"ARM Kernel List" <linux-arm-kernel@lists.infradead.org>,
-	"Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/2] watchdog: bcm281xx: Watchdog Driver
-Message-ID: <20131112233911.16eba130@alan.etchedpixels.co.uk>
-In-Reply-To: <1383943488-6537-2-git-send-email-markus.mayer@linaro.org>
+	Tue, 12 Nov 2013 19:08:58 -0500
+Received: by mail-we0-f171.google.com with SMTP id t61so3463967wes.30
+        for <linux-watchdog@vger.kernel.org>; Tue, 12 Nov 2013 16:08:57 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <20131112233911.16eba130@alan.etchedpixels.co.uk>
 References: <1383943488-6537-1-git-send-email-markus.mayer@linaro.org>
 	<1383943488-6537-2-git-send-email-markus.mayer@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	<20131112233911.16eba130@alan.etchedpixels.co.uk>
+Date: Tue, 12 Nov 2013 16:08:56 -0800
+Message-ID: <CAPdLdqnKvKbU_6M4uUBAwtq1YUaKMtrZcR7mzJfxjZva=duPHg@mail.gmail.com>
+Subject: Re: [PATCH 1/2] watchdog: bcm281xx: Watchdog Driver
+From: Markus Mayer <markus.mayer@linaro.org>
+To: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Christian Daudt <bcm@fixthebug.org>,
+	Linaro Patches <patches@linaro.org>,
+	Matt Porter <matt.porter@linaro.org>,
+	Linux Watchdog List <linux-watchdog@vger.kernel.org>,
+	ARM Kernel List <linux-arm-kernel@lists.infradead.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On 12 November 2013 15:39, One Thousand Gnomes
+<gnomes@lxorguk.ukuu.org.uk> wrote:
+>
+>> +static int bcm_kona_wdt_set_resolution_reg(struct bcm_kona_wdt *wdt)
+>> +{
+>> +     uint32_t val;
+>> +     int timeout;
+>> +     unsigned long flags;
+>> +     int ret = 0;
+>> +
+>> +     if (wdt->resolution > SECWDOG_MAX_RES)
+>> +             return -EINVAL;
+>> +
+>> +     spin_lock_irqsave(&wdt->lock, flags);
+>> +
+>> +     val = secure_register_read(wdt->base + SECWDOG_CTRL_REG, &timeout);
+>> +     if (!timeout) {
+>> +             val &= ~SECWDOG_RES_MASK;
+>> +             val |= wdt->resolution << SECWDOG_CLKS_SHIFT;
+>> +             writel_relaxed(val, wdt->base + SECWDOG_CTRL_REG);
+>> +     } else {
+>> +             ret = -EAGAIN;
+>
+> This is I think the wrong choice of return. If the register fails to read
+> then presumably the device is b*ggered ? In which case return something
+> like -EIO and log something nasty.
+>
+> EAGAIN has fairly specific semantics around signals and/or specific
+> requests for an I/O operation not to wait.
 
-> +static int bcm_kona_wdt_set_resolution_reg(struct bcm_kona_wdt *wdt)
-> +{
-> +	uint32_t val;
-> +	int timeout;
-> +	unsigned long flags;
-> +	int ret = 0;
-> +
-> +	if (wdt->resolution > SECWDOG_MAX_RES)
-> +		return -EINVAL;
-> +
-> +	spin_lock_irqsave(&wdt->lock, flags);
-> +
-> +	val = secure_register_read(wdt->base + SECWDOG_CTRL_REG, &timeout);
-> +	if (!timeout) {
-> +		val &= ~SECWDOG_RES_MASK;
-> +		val |= wdt->resolution << SECWDOG_CLKS_SHIFT;
-> +		writel_relaxed(val, wdt->base + SECWDOG_CTRL_REG);
-> +	} else {
-> +		ret = -EAGAIN;
+I will change that based on Guenter's and your comments.
 
-This is I think the wrong choice of return. If the register fails to read
-then presumably the device is b*ggered ? In which case return something
-like -EIO and log something nasty.
+>> +     spin_lock_irqsave(&wdt->lock, flags);
+>> +
+>> +     val = secure_register_read(wdt->base + SECWDOG_CTRL_REG, &timeout);
+>> +     if (!timeout) {
+>> +             val &= ~SECWDOG_COUNT_MASK;
+>> +             val |= SECS_TO_TICKS(wdog->timeout, wdt);
+>> +             writel_relaxed(val, wdt->base + SECWDOG_CTRL_REG);
+>> +     } else {
+>> +             ret = -EAGAIN;
+>> +     }
+>> +
+>> +     spin_unlock_irqrestore(&wdt->lock, flags);
+>
+> As an aside you could fold most of these functions into one single helper
+> method that read CTRL_REG, did the and and or and wrote the result back
+> rather than repeating yourself. But hey if you like typing...
 
-EAGAIN has fairly specific semantics around signals and/or specific
-requests for an I/O operation not to wait.
+I'll look into that.
 
-> +	spin_lock_irqsave(&wdt->lock, flags);
-> +
-> +	val = secure_register_read(wdt->base + SECWDOG_CTRL_REG, &timeout);
-> +	if (!timeout) {
-> +		val &= ~SECWDOG_COUNT_MASK;
-> +		val |= SECS_TO_TICKS(wdog->timeout, wdt);
-> +		writel_relaxed(val, wdt->base + SECWDOG_CTRL_REG);
-> +	} else {
-> +		ret = -EAGAIN;
-> +	}
-> +
-> +	spin_unlock_irqrestore(&wdt->lock, flags);
+>> +     res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>
+> What if there is no resource present ?
 
-As an aside you could fold most of these functions into one single helper
-method that read CTRL_REG, did the and and or and wrote the result back
-rather than repeating yourself. But hey if you like typing...
+Then devm_ioremap_resource() will print an error message and return
+with ERR_PTR(-EINVAL). Subsequently probe() will fail. So it'll work
+as intended.
 
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>> +     dev_info(dev, "Broadcom Kona Watchdog Timer");
+>
+> The module load succeeded - the user knows it loaded from that. Likewise
+> the unload spewage is unwanted and the kernel would just drown in such
+> messages if we didn't keep them in check. If you need the for debug then
+> mark them dev_dbg but otherwise bin them.
 
-What if there is no resource present ?
+I already changed them all to "debug" in my local tree. For this one
+message, I am feeling a bit ambivalent, though. The user only knows
+loading of the module succeeded if the user manually loaded the module
+-- which, I imagine, would almost never be the case. The driver is
+either going to be built in or loaded automatically by some facility.
+In which case it might be nice to have some confirmation of that fact
+in the logs.
 
-> +	dev_info(dev, "Broadcom Kona Watchdog Timer");
+Regards,
+-Markus
 
-The module load succeeded - the user knows it loaded from that. Likewise
-the unload spewage is unwanted and the kernel would just drown in such
-messages if we didn't keep them in check. If you need the for debug then
-mark them dev_dbg but otherwise bin them.
-
-Alan
+-- 
+Markus Mayer
+Broadcom Landing Team
