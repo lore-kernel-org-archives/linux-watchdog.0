@@ -1,177 +1,502 @@
-Return-Path: <tomasz.figa@gmail.com>
-Return-Path: <tomasz.figa@gmail.com>
-From: Tomasz Figa <tomasz.figa@gmail.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Leela Krishna Amudala <l.krishna@samsung.com>, linux-samsung-soc@vger.kernel.org, kgene.kim@samsung.com, wim@iguana.be, t.figa@samsung.com, devicetree@vger.kernel.org, dianders@chromium.org, linux-watchdog@vger.kernel.org, cpgs@samsung.com, sachin.kamat@linaro.org
-Subject: Re: [PATCH V8 2/3] watchdog: s3c2410_wdt: add device tree support and use syscon regmap interface to configure pmu register
-Date: Sat, 16 Nov 2013 00:57:32 +0100
-Message-ID: <1624293.Me8KZc3LAK@flatron>
-In-Reply-To: <52858BBE.5030800@roeck-us.net>
-References: <1384238088-9862-1-git-send-email-l.krishna@samsung.com> <1384238088-9862-3-git-send-email-l.krishna@samsung.com> <52858BBE.5030800@roeck-us.net>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail.active-venture.com ([67.228.131.205]:58524 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752353Ab3KPE1N (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 15 Nov 2013 23:27:13 -0500
+Message-ID: <5286F41F.6090504@roeck-us.net>
+Date: Fri, 15 Nov 2013 20:27:11 -0800
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
-List-ID: <linux-watchdog@vger.kernel.org>
+To: Markus Mayer <markus.mayer@linaro.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Christian Daudt <bcm@fixthebug.org>
+CC: Linaro Patches <patches@linaro.org>,
+	Matt Porter <matt.porter@linaro.org>,
+	Linux Watchdog List <linux-watchdog@vger.kernel.org>,
+	ARM Kernel List <linux-arm-kernel@lists.infradead.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v2 1/2] watchdog: bcm281xx: Watchdog Driver
+References: <1384549081-9571-1-git-send-email-markus.mayer@linaro.org> <1384549081-9571-2-git-send-email-markus.mayer@linaro.org>
+In-Reply-To: <1384549081-9571-2-git-send-email-markus.mayer@linaro.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Thursday 14 of November 2013 18:49:34 Guenter Roeck wrote:
-> On 11/11/2013 10:34 PM, Leela Krishna Amudala wrote:
-> > Add device tree support and use syscon regmap interface to configure
-> > AUTOMATIC_WDT_RESET_DISABLE and MASK_WDT_RESET_REQUEST registers of PMU
-> > to mask/unmask enable/disable of watchdog in probe and s2r scenarios.
-> >
-> If the driver didn't support devicetree before, why did it have #ifdef CONFIG_OF, and
-> why does its devicetree bindings file already exist ?
-> 
-> Seems to me the description does not match the patch; it appears that you are really
-> adding Exynos5 support to the driver.
+On 11/15/2013 12:58 PM, Markus Mayer wrote:
+> This commit adds support for the watchdog timer used on the BCM281xx
+> family of SoCs.
+>
+> Signed-off-by: Markus Mayer <markus.mayer@linaro.org>
 
-Yes, the driver did support Device Tree before. Patch description needs
-to be corrected.
+You are using two different e-mail addresses, the one here and the one in MODULE_AUTHOR.
+Any chance to use only one ? Of course, there may be a reason, so maybe it is ok.
 
-> > diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
-> > index 23aad7c..ccf755d 100644
-> > --- a/drivers/watchdog/s3c2410_wdt.c
-> > +++ b/drivers/watchdog/s3c2410_wdt.c
-[snip]
-> > +
-> > +static const struct platform_device_id s3c2410_wdt_ids[] = {
-> > +	{
-> > +		.name = "s3c2410-wdt",
-> > +		.driver_data = (unsigned long)&pmu_config_s3c2410,
-> > +	},
-> > +	{}
-> > +};
-> > +MODULE_DEVICE_TABLE(platform, s3c2410_wdt_ids);
-> > +
-> 
-> What is this second device ID and MODULE_DEVICE_TABLE for ?
-> I assume it is to provide driver_data. If so, you should probably remove the
-> platform MODULE_ALIAS at the end of the driver.
+> Reviewed-by: Matt Porter <matt.porter@linaro.org>
+> ---
+>   drivers/watchdog/Kconfig        |   22 +++
+>   drivers/watchdog/Makefile       |    1 +
+>   drivers/watchdog/bcm_kona_wdt.c |  367 +++++++++++++++++++++++++++++++++++++++
+>   3 files changed, 390 insertions(+)
+>   create mode 100644 drivers/watchdog/bcm_kona_wdt.c
+>
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index d1d53f3..fe8bd21 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -1121,6 +1121,28 @@ config BCM2835_WDT
+>   	  To compile this driver as a loadable module, choose M here.
+>   	  The module will be called bcm2835_wdt.
+>
+> +config BCM_KONA_WDT
+> +	tristate "BCM Kona Watchdog"
+> +	depends on ARCH_BCM
+> +	select WATCHDOG_CORE
+> +	help
+> +	  Support for the watchdog timer on the following Broadcom BCM281xx
+> +	  family, which includes BCM11130, BCM11140, BCM11351, BCM28145 and
+> +	  BCM28155 variants.
+> +
+> +	  Say 'Y' or 'M' here to enable the driver. The module will be called
+> +	  bcm_kona_wdt.
+> +
+> +config BCM_KONA_WDT_DEBUG
+> +	bool "DEBUGFS support for BCM Kona Watchdog"
+> +	depends on BCM_KONA_WDT
+> +	help
+> +	  If enabled, adds /sys/kernel/debug/bcm-kona-wdt/info which provides
+> +	  access to the driver's internal data structures as well as watchdog
+> +	  timer hardware registres.
+> +
+> +	  If in doubt, say 'N'.
+> +
+>   config LANTIQ_WDT
+>   	tristate "Lantiq SoC watchdog"
+>   	depends on LANTIQ
+> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> index 6c5bb27..7c860ca 100644
+> --- a/drivers/watchdog/Makefile
+> +++ b/drivers/watchdog/Makefile
+> @@ -55,6 +55,7 @@ obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
+>   obj-$(CONFIG_UX500_WATCHDOG) += ux500_wdt.o
+>   obj-$(CONFIG_RETU_WATCHDOG) += retu_wdt.o
+>   obj-$(CONFIG_BCM2835_WDT) += bcm2835_wdt.o
+> +obj-$(CONFIG_BCM_KONA_WDT) += bcm_kona_wdt.o
+>
+>   # AVR32 Architecture
+>   obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
+> diff --git a/drivers/watchdog/bcm_kona_wdt.c b/drivers/watchdog/bcm_kona_wdt.c
+> new file mode 100644
+> index 0000000..5a03d5a
+> --- /dev/null
+> +++ b/drivers/watchdog/bcm_kona_wdt.c
+> @@ -0,0 +1,367 @@
+> +/*
+> + * Copyright (C) 2013 Broadcom Corporation
+> + *
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License as
+> + * published by the Free Software Foundation version 2.
+> + *
+> + * This program is distributed "as is" WITHOUT ANY WARRANTY of any
+> + * kind, whether express or implied; without even the implied warranty
+> + * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + */
+> +
+> +#include <linux/debugfs.h>
+> +#include <linux/delay.h>
+> +#include <linux/err.h>
+> +#include <linux/io.h>
+> +#include <linux/miscdevice.h>
+> +#include <linux/module.h>
+> +#include <linux/of_address.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/watchdog.h>
+> +
+> +#define SECWDOG_CTRL_REG		0x00000000
+> +#define SECWDOG_COUNT_REG		0x00000004
+> +
+> +#define SECWDOG_RESERVED_MASK		0x1dffffff
+> +#define SECWDOG_WD_LOAD_FLAG		0x10000000
+> +#define SECWDOG_EN_MASK			0x08000000
+> +#define SECWDOG_SRSTEN_MASK		0x04000000
+> +#define SECWDOG_RES_MASK		0x00f00000
+> +#define SECWDOG_COUNT_MASK		0x000fffff
+> +
+> +#define SECWDOG_MAX_COUNT		SECWDOG_COUNT_MASK
+> +#define SECWDOG_CLKS_SHIFT		20
+> +#define SECWDOG_MAX_RES			15
+> +#define SECWDOG_DEFAULT_RESOLUTION	4
+> +#define SECWDOG_MAX_TRY			1000
+> +
+> +#define SECS_TO_TICKS(x, w)		((x) << (w)->resolution)
+> +#define TICKS_TO_SECS(x, w)		((x) >> (w)->resolution)
+> +
+> +#define BCM_KONA_WDT_NAME		"bcm-kona-wdt"
+> +
 
-Yes. I suggested adding it to simplify the code a bit by having driver
-data supplied even when booting without DT. Good catch with MODULE_ALIAS,
-though.
+You mentioned this should be s/-/_/g in your other mail. Wonder why ?
+This name doesn't have to match the file name.
 
-> 
-> >   /* watchdog control routines */
-> >
-> >   #define DBG(fmt, ...)					\
-> > @@ -111,6 +166,30 @@ static inline struct s3c2410_wdt *freq_to_wdt(struct notifier_block *nb)
-> >   	return container_of(nb, struct s3c2410_wdt, freq_transition);
-> >   }
-> >
-> > +static int s3c2410wdt_mask_and_disable_reset(struct s3c2410_wdt *wdt, bool mask)
-> > +{
-> > +	int ret;
-> > +	u32 mask_val = 1 << wdt->pmu_config->mask_bit;
-> > +	u32 val = 0;
-> > +
-> > +	if (mask)
-> > +		val = mask_val;
-> > +
-> > +	ret = regmap_update_bits(wdt->pmureg,
-> > +			wdt->pmu_config->disable_reg,
-> > +			mask_val, val);
-> > +	if (ret < 0)
-> > +		return ret;
-> > +
-> > +	ret = regmap_update_bits(wdt->pmureg,
-> > +			wdt->pmu_config->mask_reset_reg,
-> > +			mask_val, val);
-> > +	if (ret < 0)
-> > +		return ret;
-> > +
-> > +	return 0;
-> 
-> The above code is identical to
-> 	return ret;
+> +struct bcm_kona_wdt {
+> +	void __iomem *base;
+> +	/*
+> +	 * One watchdog tick is 1/(2^resolution) seconds. Resolution can take
+> +	 * the values 0-15, meaning one tick can be 1s to 30.52us. Our default
+> +	 * resolution of 4 means one tick is 62.5ms.
+> +	 *
+> +	 * The watchdog counter is 20 bits. Depending on resolution, the maximum
+> +	 * counter value of 0xfffff expires after about 12 days (resolution 0)
+> +	 * down to only 32s (resolution 15). The default resolution of 4 gives
+> +	 * us a maximum of about 18 hours and 12 minutes before the watchdog
+> +	 * times out.
+> +	 */
+> +	int resolution;
+> +	spinlock_t lock;
+> +#ifdef CONFIG_BCM_KONA_WDT_DEBUG
+> +	struct dentry *debugfs;
+> +#endif
+> +};
+> +
+> +#ifdef CONFIG_BCM_KONA_WDT_DEBUG
+> +static unsigned long busy_count = 0;
 
-I'd even say that the above code is identical to
+ERROR: do not initialise statics to 0 or NULL
 
-	return regmap_update_bits(wdt->pmureg,
-			wdt->pmu_config->mask_reset_reg,
-			mask_val, val);
+> +#endif
+> +
+> +static int secure_register_read(void __iomem *addr)
+> +{
+> +	uint32_t val;
+> +	unsigned count = 0;
+> +
+> +	/*
+> +	 * If the WD_LOAD_FLAG is set, the watchdog counter field is being
+> +	 * updated in hardware. Once the WD timer is updated in hardware, it
+> +	 * gets cleared.
+> +	 */
+> +	do {
+> +		if (unlikely(count > 1)) {
+> +			udelay(5);
+> +#ifdef CONFIG_BCM_KONA_WDT_DEBUG
+> +			/* To keep track how often we get stalled here. */
+> +			busy_count++;
+> +#endif
 
-> 
-> > +}
-> > +
-> >   static int s3c2410wdt_keepalive(struct watchdog_device *wdd)
-> >   {
-> >   	struct s3c2410_wdt *wdt = watchdog_get_drvdata(wdd);
-> > @@ -332,6 +411,20 @@ static inline void s3c2410wdt_cpufreq_deregister(struct s3c2410_wdt *wdt)
-> >   }
-> >   #endif
-> >
-> > +/* s3c2410_get_wdt_driver_data */
-> > +static inline struct s3c2410_wdt_variant *
-> > +get_wdt_drv_data(struct platform_device *pdev)
-> > +{
-> > +	if (pdev->dev.of_node) {
-> > +		const struct of_device_id *match;
-> > +		match = of_match_node(s3c2410_wdt_match, pdev->dev.of_node);
-> > +		return (struct s3c2410_wdt_variant *)match->data;
-> > +	} else {
-> > +		return (struct s3c2410_wdt_variant *)
-> > +			platform_get_device_id(pdev)->driver_data;
-> > +	}
-> > +}
-> > +
-> >   static int s3c2410wdt_probe(struct platform_device *pdev)
-> >   {
-> >   	struct device *dev;
-> > @@ -354,6 +447,16 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
-> >   	spin_lock_init(&wdt->lock);
-> >   	wdt->wdt_device = s3c2410_wdd;
-> >
-> > +	wdt->pmu_config = get_wdt_drv_data(pdev);
-> > +	if (wdt->pmu_config->quirks & QUIRK_NEEDS_PMU_CONFIG) {
-> > +		wdt->pmureg = syscon_regmap_lookup_by_phandle(dev->of_node,
-> > +							"samsung,syscon-phandle");
-> > +		if (IS_ERR(wdt->pmureg)) {
-> > +			dev_err(dev, "syscon regmap lookup failed.\n");
-> > +			return PTR_ERR(wdt->pmureg);
-> > +		}
-> > +	}
-> > +
-> >   	wdt_irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
-> >   	if (wdt_irq == NULL) {
-> >   		dev_err(dev, "no irq resource specified\n");
-> > @@ -444,6 +547,14 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
-> >   		 (wtcon & S3C2410_WTCON_RSTEN) ? "en" : "dis",
-> >   		 (wtcon & S3C2410_WTCON_INTEN) ? "en" : "dis");
-> >
-> > +	if (wdt->pmu_config->quirks & QUIRK_NEEDS_PMU_CONFIG) {
-> 
-> Might be easier to check for wdt->pmureg in all those secondary conditionals.
+Does the total number of stalls over the lifetime of the driver really provide value ?
+It doesn't really tell you anything, or does it (the number will increase over time, so what ?).
 
-IMHO not really much easier and less meaningful. Furthermore, in case of
-other quirks showing up in future that wouldn't have alternative way
-of checking, they will have consistent style of checks.
+It might make more sense to count the overall maximum, such as with
 
-However, I think I missed to point out the ugly field name in my previous
-reviews. Instead of calling it "pmu_config", "drv_data" would be much
-better.
+	if (count > busy_count)
+		busy_count = count;
 
-> 
-> > +		ret = s3c2410wdt_mask_and_disable_reset(wdt, false);
-> > +		if (ret < 0) {
-> > +			dev_warn(wdt->dev, "failed to update pmu register");
-> 
-> Is this a warning or an error ?
-> 
-> If it is (only) a warning, why do you bail out ?
-> 
-> On a side note, I am not sure if all those errors can really happen in practice.
-> Becasue if not, all you do is to increase code size with no real benefit.
+after the end of the loop. Just a thought.
 
-Yes, that's a good point. I was under impression that returned error codes
-should not be ignored, but maybe I was a bit too strict over this.
+> +		}
+> +		val = readl_relaxed(addr);
+> +		count++;
+> +	} while ((val & SECWDOG_WD_LOAD_FLAG) && count < SECWDOG_MAX_TRY);
+> +
+> +	/* This is the only place we return a negative value. */
+> +	if (val & SECWDOG_WD_LOAD_FLAG) {
+> +		return -ETIMEDOUT;
+> +	}
+> +
 
-Generally on currently supported platforms that will end up as a simple
-MMIO register access locked with a spinlock, so really no way to fail.
+WARNING: braces {} are not necessary for single statement blocks
 
-Anyway, a failure to write these PMU registers would end up with the
-watchdog not generating the reset, so IMHO it would be an error.
+> +	/* We always mask out reserved bits. */
+> +	val &= SECWDOG_RESERVED_MASK;
+> +
+> +	return val;
+> +}
+> +
+> +#ifdef CONFIG_BCM_KONA_WDT_DEBUG
+> +
+> +static int bcm_kona_wdt_dbg_show(struct seq_file *s, void *data)
+> +{
+> +	int ctl_val, cur_val, ret;
+> +	unsigned long flags;
+> +	struct bcm_kona_wdt *wdt = s->private;
+> +
+> +	if (!wdt)
+> +		return seq_printf(s, "No device pointer\n");
+> +
+WARNING: Prefer seq_puts to seq_printf
 
-Best regards,
-Tomasz
+> +	spin_lock_irqsave(&wdt->lock, flags);
+> +	ctl_val = secure_register_read(wdt->base + SECWDOG_CTRL_REG);
+> +	cur_val = secure_register_read(wdt->base + SECWDOG_COUNT_REG);
+> +	spin_unlock_irqrestore(&wdt->lock, flags);
+> +
+> +	if (ctl_val < 0 || cur_val < 0) {
+> +		ret = seq_printf(s, "Error accessing hardware\n");
+
+WARNING: Prefer seq_puts to seq_printf
+
+> +	} else {
+> +		int ctl, cur, ctl_sec, cur_sec, res;
+> +
+> +		ctl = ctl_val & SECWDOG_COUNT_MASK;
+> +		res = (ctl_val & SECWDOG_RES_MASK) >> SECWDOG_CLKS_SHIFT;
+> +		cur = cur_val & SECWDOG_COUNT_MASK;
+> +		ctl_sec = TICKS_TO_SECS(ctl, wdt);
+> +		cur_sec = TICKS_TO_SECS(cur, wdt);
+> +		ret = seq_printf(s, "Resolution: %d / %d\n"
+> +				"Control: %d s / %d (%#x) ticks\n"
+> +				"Current: %d s / %d (%#x) ticks\n"
+> +				"Busy count: %lu\n", res,
+> +				wdt->resolution, ctl_sec, ctl, ctl, cur_sec,
+> +				cur, cur, busy_count);
+> +	}
+> +
+> +	return ret;
+> +}
+> +
+> +static int bcm_kona_dbg_open(struct inode *inode, struct file *file)
+> +{
+> +	return single_open(file, bcm_kona_wdt_dbg_show, inode->i_private);
+> +}
+> +
+> +static const struct file_operations bcm_kona_dbg_operations = {
+> +	.open		= bcm_kona_dbg_open,
+> +	.read		= seq_read,
+> +	.llseek		= seq_lseek,
+> +	.release	= single_release,
+> +};
+> +
+> +static struct dentry *bcm_kona_wdt_debugfs_init(struct bcm_kona_wdt *wdt,
+> +	struct watchdog_device *wdd)
+> +{
+> +	struct dentry *dir;
+> +
+> +	dir = debugfs_create_dir(BCM_KONA_WDT_NAME, NULL);
+> +	if (IS_ERR_OR_NULL(dir))
+> +		return NULL;
+> +
+> +	if (debugfs_create_file("info", S_IFREG | S_IRUGO, dir, wdt,
+> +				&bcm_kona_dbg_operations))
+> +		return dir;
+> +
+> +	/* Clean up */
+> +	debugfs_remove_recursive(dir);
+> +	return NULL;
+> +}
+> +
+> +static void bcm_kona_debugfs_exit(struct dentry *dir)
+> +{
+> +	debugfs_remove_recursive(dir);
+> +}
+> +
+> +#endif /* CONFIG_BCM_KONA_WDT_DEBUG */
+> +
+> +static int bcm_kona_wdt_ctrl_reg_modify(struct bcm_kona_wdt *wdt,
+> +					unsigned mask, unsigned newval)
+> +{
+> +	int val;
+> +	unsigned long flags;
+> +	int ret = 0;
+> +
+> +	spin_lock_irqsave(&wdt->lock, flags);
+> +
+> +	val = secure_register_read(wdt->base + SECWDOG_CTRL_REG);
+> +	if (val < 0) {
+> +		ret = val;
+> +	} else {
+> +		val &= ~mask;
+> +		val |= newval;
+> +		writel_relaxed(val, wdt->base + SECWDOG_CTRL_REG);
+> +	}
+> +
+> +	spin_unlock_irqrestore(&wdt->lock, flags);
+> +
+> +	return ret;
+> +}
+> +
+> +static int bcm_kona_wdt_set_resolution_reg(struct bcm_kona_wdt *wdt)
+> +{
+> +	if (wdt->resolution > SECWDOG_MAX_RES)
+> +		return -EINVAL;
+> +
+> +	return bcm_kona_wdt_ctrl_reg_modify(wdt, SECWDOG_RES_MASK,
+> +					wdt->resolution << SECWDOG_CLKS_SHIFT);
+> +}
+> +
+> +static int bcm_kona_wdt_set_timeout_reg(struct watchdog_device *wdog,
+> +					unsigned watchdog_flags)
+> +{
+> +	struct bcm_kona_wdt *wdt = watchdog_get_drvdata(wdog);
+> +
+> +	return bcm_kona_wdt_ctrl_reg_modify(wdt, SECWDOG_COUNT_MASK,
+> +					SECS_TO_TICKS(wdog->timeout, wdt) |
+> +					watchdog_flags);
+> +}
+> +
+> +static int bcm_kona_wdt_set_timeout(struct watchdog_device *wdog,
+> +	unsigned int t)
+> +{
+> +	wdog->timeout = t;
+> +	return 0;
+> +}
+> +
+> +static unsigned int bcm_kona_wdt_get_timeleft(struct watchdog_device *wdog)
+> +{
+> +	struct bcm_kona_wdt *wdt = watchdog_get_drvdata(wdog);
+> +	int val;
+> +	unsigned long flags;
+> +
+> +	spin_lock_irqsave(&wdt->lock, flags);
+> +	val = secure_register_read(wdt->base + SECWDOG_COUNT_REG);
+> +	spin_unlock_irqrestore(&wdt->lock, flags);
+> +
+> +	if (val < 0)
+> +		return val;
+> +
+> +	return TICKS_TO_SECS(val & SECWDOG_COUNT_MASK, wdt);
+> +}
+> +
+> +static int bcm_kona_wdt_start(struct watchdog_device *wdog)
+> +{
+> +	return bcm_kona_wdt_set_timeout_reg(wdog,
+> +					SECWDOG_EN_MASK | SECWDOG_SRSTEN_MASK);
+> +}
+> +
+> +static int bcm_kona_wdt_stop(struct watchdog_device *wdog)
+> +{
+> +	struct bcm_kona_wdt *wdt = watchdog_get_drvdata(wdog);
+> +
+> +	return bcm_kona_wdt_ctrl_reg_modify(wdt, SECWDOG_EN_MASK |
+> +						SECWDOG_SRSTEN_MASK, 0);
+
+Your second-line indentation is really inconsistent. Preferred is to align with (.
+If you don't like that, can you at least align to the same column ?
+
+> +}
+> +
+> +static struct watchdog_ops bcm_kona_wdt_ops = {
+> +	.owner =	THIS_MODULE,
+> +	.start =	bcm_kona_wdt_start,
+> +	.stop =		bcm_kona_wdt_stop,
+> +	.set_timeout =	bcm_kona_wdt_set_timeout,
+> +	.get_timeleft =	bcm_kona_wdt_get_timeleft,
+> +};
+> +
+> +static struct watchdog_info bcm_kona_wdt_info = {
+> +	.options =	WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE |
+> +			WDIOF_KEEPALIVEPING,
+> +	.identity =	"Broadcom Kona Watchdog Timer",
+> +};
+> +
+> +static struct watchdog_device bcm_kona_wdt_wdd = {
+> +	.info =		&bcm_kona_wdt_info,
+> +	.ops =		&bcm_kona_wdt_ops,
+> +	.min_timeout =	1,
+> +	.max_timeout =	SECWDOG_MAX_COUNT >> SECWDOG_DEFAULT_RESOLUTION,
+> +	.timeout =	SECWDOG_MAX_COUNT >> SECWDOG_DEFAULT_RESOLUTION,
+> +};
+> +
+> +static void bcm_kona_wdt_shutdown(struct platform_device *pdev)
+> +{
+> +	bcm_kona_wdt_stop(&bcm_kona_wdt_wdd);
+> +}
+> +
+> +static int bcm_kona_wdt_probe(struct platform_device *pdev)
+> +{
+> +	struct device *dev = &pdev->dev;
+> +	struct bcm_kona_wdt *wdt;
+> +	struct resource *res;
+> +	int ret;
+> +
+> +	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
+> +	if (!wdt) {
+> +		dev_err(dev, "Failed to allocate memory for watchdog device");
+
+devm_kzalloc() already dumps a message, so this message is unnecessary.
+
+> +		return -ENOMEM;
+> +	}
+> +
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	wdt->base = devm_ioremap_resource(dev, res);
+> +	if (IS_ERR(wdt->base))
+> +		return -ENODEV;
+> +
+> +	wdt->resolution = SECWDOG_DEFAULT_RESOLUTION;
+> +	ret = bcm_kona_wdt_set_resolution_reg(wdt);
+> +	if (ret) {
+> +		dev_err(dev, "Failed to set resolution (error: %d)", ret);
+> +		return ret;
+> +	}
+> +
+> +	spin_lock_init(&wdt->lock);
+> +	platform_set_drvdata(pdev, wdt);
+> +	watchdog_set_drvdata(&bcm_kona_wdt_wdd, wdt);
+> +
+> +	ret = bcm_kona_wdt_set_timeout_reg(&bcm_kona_wdt_wdd, 0);
+> +	if (ret) {
+> +		dev_err(dev, "Failed set watchdog timeout");
+> +		return ret;
+> +	}
+> +
+> +	ret = watchdog_register_device(&bcm_kona_wdt_wdd);
+> +	if (ret) {
+> +		dev_err(dev, "Failed to register watchdog device");
+> +		return ret;
+> +	}
+> +
+> +#ifdef CONFIG_BCM_KONA_WDT_DEBUG
+> +	wdt->debugfs = bcm_kona_wdt_debugfs_init(wdt, &bcm_kona_wdt_wdd);
+> +#endif
+> +	dev_dbg(dev, "Broadcom Kona Watchdog Timer");
+> +
+> +	return 0;
+> +}
+> +
+> +static int bcm_kona_wdt_remove(struct platform_device *pdev)
+> +{
+> +#ifdef CONFIG_BCM_KONA_WDT_DEBUG
+> +	struct bcm_kona_wdt *wdt = platform_get_drvdata(pdev);
+> +
+> +	if (wdt->debugfs)
+> +		bcm_kona_debugfs_exit(wdt->debugfs);
+> +#endif /* CONFIG_BCM_KONA_WDT_DEBUG */
+> +	bcm_kona_wdt_shutdown(pdev);
+> +	watchdog_unregister_device(&bcm_kona_wdt_wdd);
+> +	dev_dbg(&pdev->dev, "Watchdog driver disabled");
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct of_device_id bcm_kona_wdt_of_match[] = {
+> +	{ .compatible = "brcm,kona-wdt", },
+> +	{},
+> +};
+> +MODULE_DEVICE_TABLE(of, bcm_kona_wdt_of_match);
+> +
+> +static struct platform_driver bcm_kona_wdt_driver = {
+> +	.driver = {
+> +			.name = BCM_KONA_WDT_NAME,
+> +			.owner = THIS_MODULE,
+> +			.of_match_table =bcm_kona_wdt_of_match,
+> +		  },
+> +	.probe = bcm_kona_wdt_probe,
+> +	.remove = bcm_kona_wdt_remove,
+> +	.shutdown = bcm_kona_wdt_shutdown,
+> +};
+> +
+> +module_platform_driver(bcm_kona_wdt_driver);
+> +
+> +MODULE_AUTHOR("Markus Mayer <mmayer@broadcom.com>");
+> +MODULE_DESCRIPTION("Broadcom Kona Watchdog Driver");
+> +MODULE_LICENSE("GPL v2");
+>
+
+You might also need
+
+MODULE_ALIAS("platform:" BCM_KONA_WDT_NAME);
+
+at least if the driver is ever loaded w/o fdt.
+
