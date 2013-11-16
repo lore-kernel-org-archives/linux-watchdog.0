@@ -1,138 +1,328 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ea0-f172.google.com ([209.85.215.172]:50865 "EHLO
-	mail-ea0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752514Ab3KPABf (ORCPT
+Received: from mail.active-venture.com ([67.228.131.205]:55738 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752794Ab3KPU33 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 15 Nov 2013 19:01:35 -0500
-Received: by mail-ea0-f172.google.com with SMTP id h11so1313459eaj.3
-        for <linux-watchdog@vger.kernel.org>; Fri, 15 Nov 2013 16:01:34 -0800 (PST)
-From: Taras Kondratiuk <taras.kondratiuk@linaro.org>
-To: linux-omap@vger.kernel.org
-Cc: linaro-networking@linaro.org,
-	Victor Kamensky <victor.kamensky@linaro.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [RFC 02/23] watchdog: omap_wdt: raw read and write endian fix
-Date: Sat, 16 Nov 2013 02:01:05 +0200
-Message-Id: <1384560086-11994-3-git-send-email-taras.kondratiuk@linaro.org>
-In-Reply-To: <1384560086-11994-1-git-send-email-taras.kondratiuk@linaro.org>
-References: <1384560086-11994-1-git-send-email-taras.kondratiuk@linaro.org>
+	Sat, 16 Nov 2013 15:29:29 -0500
+Message-ID: <5287D5A7.7060702@roeck-us.net>
+Date: Sat, 16 Nov 2013 12:29:27 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+MIME-Version: 1.0
+To: "ivan.khoronzhuk" <ivan.khoronzhuk@ti.com>,
+	Santosh Shilimkar <santosh.shilimkar@ti.com>, wim@iguana.be,
+	nsekhar@ti.com, linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org
+CC: grant.likely@linaro.org, rob.herring@calxeda.com,
+	pawel.moll@arm.com, mark.rutland@arm.com, swarren@wwwdotorg.org,
+	galak@kernel.crashing.org, ijc+devicetree@hellion.org.uk,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: Fwd: [PATCH 1/8] watchdog: davinci: change driver to use WDT
+ core
+References: <1383680783-12114-2-git-send-email-ivan.khoronzhuk@ti.com> <527A287C.2090401@ti.com>
+In-Reply-To: <527A287C.2090401@ti.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Victor Kamensky <victor.kamensky@linaro.org>
+On 11/06/2013 03:31 AM, ivan.khoronzhuk wrote:
+> To reduce code duplicate and increase code readability use WDT core
+> code to handle WDT interface.
+>
+> Remove io_lock as the WDT core uses mutex to lock each wdt device.
+> Remove wdt_state as the WDT core track state with its own variable.
+>
+> The watchdog_init_timeout() can read timeout value from timeout-sec
+> property if the passed value is out of bounds. So set initial
+> heartbeat value more than max value in order to initialize heartbeat
+> in next way. If heartbeat is not set thought module parameter, try
+> to read it's value from WDT node timeout-sec property. If node has
+> no one, use default value.
+>
+> The heartbeat is hold in wdd->timeout by WDT core, so use it in
+> order to set timeout period.
+>
+> Signed-off-by: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
+> ---
+>   drivers/watchdog/Kconfig       |    1 +
+>   drivers/watchdog/davinci_wdt.c |  150 ++++++++++------------------------------
+>   2 files changed, 38 insertions(+), 113 deletions(-)
+>
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index d1d53f3..2c954b5 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -271,6 +271,7 @@ config IOP_WATCHDOG
+>   config DAVINCI_WATCHDOG
+>   	tristate "DaVinci watchdog"
+>   	depends on ARCH_DAVINCI
+> +	select WATCHDOG_CORE
+>   	help
+>   	  Say Y here if to include support for the watchdog timer
+>   	  in the DaVinci DM644x/DM646x processors.
+> diff --git a/drivers/watchdog/davinci_wdt.c b/drivers/watchdog/davinci_wdt.c
+> index bead774..a6eef71 100644
+> --- a/drivers/watchdog/davinci_wdt.c
+> +++ b/drivers/watchdog/davinci_wdt.c
+> @@ -3,7 +3,7 @@
+>    *
+>    * Watchdog driver for DaVinci DM644x/DM646x processors
+>    *
+> - * Copyright (C) 2006 Texas Instruments.
+> + * Copyright (C) 2013 Texas Instruments.
 
-All OMAP IP blocks expect LE data, but CPU may operate in BE mode.
-Need to use endian neutral functions to read/write h/w registers.
-I.e instead of __raw_read[lw] and __raw_write[lw] functions code
-need to use read[lw]_relaxed and write[lw]_relaxed functions.
-If the first simply reads/writes register, the second will byteswap
-it if host operates in BE mode.
+2006-2013
 
-Changes are trivial sed like replacement of __raw_xxx functions
-with xxx_relaxed variant.
+>    *
+>    * 2007 (c) MontaVista Software, Inc. This file is licensed under
+>    * the terms of the GNU General Public License version 2. This program
+> @@ -15,18 +15,12 @@
+>   #include <linux/moduleparam.h>
+>   #include <linux/types.h>
+>   #include <linux/kernel.h>
+> -#include <linux/fs.h>
+> -#include <linux/miscdevice.h>
+>   #include <linux/watchdog.h>
+>   #include <linux/init.h>
+> -#include <linux/bitops.h>
+>   #include <linux/platform_device.h>
+> -#include <linux/spinlock.h>
+> -#include <linux/uaccess.h>
+>   #include <linux/io.h>
+>   #include <linux/device.h>
+>   #include <linux/clk.h>
+> -#include <linux/slab.h>
+>   #include <linux/err.h>
+>
+>   #define MODULE_NAME "DAVINCI-WDT: "
+> @@ -61,31 +55,13 @@
+>   #define WDKEY_SEQ0		(0xa5c6 << 16)
+>   #define WDKEY_SEQ1		(0xda7e << 16)
+>
+> -static int heartbeat = DEFAULT_HEARTBEAT;
+> -
+> -static DEFINE_SPINLOCK(io_lock);
+> -static unsigned long wdt_status;
+> -#define WDT_IN_USE        0
+> -#define WDT_OK_TO_CLOSE   1
+> -#define WDT_REGION_INITED 2
+> -#define WDT_DEVICE_INITED 3
+> -
+> +static int heartbeat = MAX_HEARTBEAT + 1;
 
-Signed-off-by: Victor Kamensky <victor.kamensky@linaro.org>
-Signed-off-by: Taras Kondratiuk <taras.kondratiuk@linaro.org>
----
- drivers/watchdog/omap_wdt.c |   36 ++++++++++++++++++------------------
- 1 file changed, 18 insertions(+), 18 deletions(-)
+Initializing it with 0 (ie not at all) would be just as good. Also see below.
 
-diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
-index af88ffd..2ff7bff 100644
---- a/drivers/watchdog/omap_wdt.c
-+++ b/drivers/watchdog/omap_wdt.c
-@@ -68,14 +68,14 @@ static void omap_wdt_reload(struct omap_wdt_dev *wdev)
- 	void __iomem    *base = wdev->base;
- 
- 	/* wait for posted write to complete */
--	while ((__raw_readl(base + OMAP_WATCHDOG_WPS)) & 0x08)
-+	while ((readl_relaxed(base + OMAP_WATCHDOG_WPS)) & 0x08)
- 		cpu_relax();
- 
- 	wdev->wdt_trgr_pattern = ~wdev->wdt_trgr_pattern;
--	__raw_writel(wdev->wdt_trgr_pattern, (base + OMAP_WATCHDOG_TGR));
-+	writel_relaxed(wdev->wdt_trgr_pattern, (base + OMAP_WATCHDOG_TGR));
- 
- 	/* wait for posted write to complete */
--	while ((__raw_readl(base + OMAP_WATCHDOG_WPS)) & 0x08)
-+	while ((readl_relaxed(base + OMAP_WATCHDOG_WPS)) & 0x08)
- 		cpu_relax();
- 	/* reloaded WCRR from WLDR */
- }
-@@ -85,12 +85,12 @@ static void omap_wdt_enable(struct omap_wdt_dev *wdev)
- 	void __iomem *base = wdev->base;
- 
- 	/* Sequence to enable the watchdog */
--	__raw_writel(0xBBBB, base + OMAP_WATCHDOG_SPR);
--	while ((__raw_readl(base + OMAP_WATCHDOG_WPS)) & 0x10)
-+	writel_relaxed(0xBBBB, base + OMAP_WATCHDOG_SPR);
-+	while ((readl_relaxed(base + OMAP_WATCHDOG_WPS)) & 0x10)
- 		cpu_relax();
- 
--	__raw_writel(0x4444, base + OMAP_WATCHDOG_SPR);
--	while ((__raw_readl(base + OMAP_WATCHDOG_WPS)) & 0x10)
-+	writel_relaxed(0x4444, base + OMAP_WATCHDOG_SPR);
-+	while ((readl_relaxed(base + OMAP_WATCHDOG_WPS)) & 0x10)
- 		cpu_relax();
- }
- 
-@@ -99,12 +99,12 @@ static void omap_wdt_disable(struct omap_wdt_dev *wdev)
- 	void __iomem *base = wdev->base;
- 
- 	/* sequence required to disable watchdog */
--	__raw_writel(0xAAAA, base + OMAP_WATCHDOG_SPR);	/* TIMER_MODE */
--	while (__raw_readl(base + OMAP_WATCHDOG_WPS) & 0x10)
-+	writel_relaxed(0xAAAA, base + OMAP_WATCHDOG_SPR);	/* TIMER_MODE */
-+	while (readl_relaxed(base + OMAP_WATCHDOG_WPS) & 0x10)
- 		cpu_relax();
- 
--	__raw_writel(0x5555, base + OMAP_WATCHDOG_SPR);	/* TIMER_MODE */
--	while (__raw_readl(base + OMAP_WATCHDOG_WPS) & 0x10)
-+	writel_relaxed(0x5555, base + OMAP_WATCHDOG_SPR);	/* TIMER_MODE */
-+	while (readl_relaxed(base + OMAP_WATCHDOG_WPS) & 0x10)
- 		cpu_relax();
- }
- 
-@@ -115,11 +115,11 @@ static void omap_wdt_set_timer(struct omap_wdt_dev *wdev,
- 	void __iomem *base = wdev->base;
- 
- 	/* just count up at 32 KHz */
--	while (__raw_readl(base + OMAP_WATCHDOG_WPS) & 0x04)
-+	while (readl_relaxed(base + OMAP_WATCHDOG_WPS) & 0x04)
- 		cpu_relax();
- 
--	__raw_writel(pre_margin, base + OMAP_WATCHDOG_LDR);
--	while (__raw_readl(base + OMAP_WATCHDOG_WPS) & 0x04)
-+	writel_relaxed(pre_margin, base + OMAP_WATCHDOG_LDR);
-+	while (readl_relaxed(base + OMAP_WATCHDOG_WPS) & 0x04)
- 		cpu_relax();
- }
- 
-@@ -135,11 +135,11 @@ static int omap_wdt_start(struct watchdog_device *wdog)
- 	pm_runtime_get_sync(wdev->dev);
- 
- 	/* initialize prescaler */
--	while (__raw_readl(base + OMAP_WATCHDOG_WPS) & 0x01)
-+	while (readl_relaxed(base + OMAP_WATCHDOG_WPS) & 0x01)
- 		cpu_relax();
- 
--	__raw_writel((1 << 5) | (PTV << 2), base + OMAP_WATCHDOG_CNTRL);
--	while (__raw_readl(base + OMAP_WATCHDOG_WPS) & 0x01)
-+	writel_relaxed((1 << 5) | (PTV << 2), base + OMAP_WATCHDOG_CNTRL);
-+	while (readl_relaxed(base + OMAP_WATCHDOG_WPS) & 0x01)
- 		cpu_relax();
- 
- 	omap_wdt_set_timer(wdev, wdog->timeout);
-@@ -275,7 +275,7 @@ static int omap_wdt_probe(struct platform_device *pdev)
- 	}
- 
- 	pr_info("OMAP Watchdog Timer Rev 0x%02x: initial timeout %d sec\n",
--		__raw_readl(wdev->base + OMAP_WATCHDOG_REV) & 0xFF,
-+		readl_relaxed(wdev->base + OMAP_WATCHDOG_REV) & 0xFF,
- 		omap_wdt->timeout);
- 
- 	pm_runtime_put_sync(wdev->dev);
--- 
-1.7.9.5
+>   static void __iomem	*wdt_base;
+>   struct clk		*wdt_clk;
+> +static struct watchdog_device	wdt_wdd;
+>
+> -static void wdt_service(void)
+> -{
+> -	spin_lock(&io_lock);
+> -
+> -	/* put watchdog in service state */
+> -	iowrite32(WDKEY_SEQ0, wdt_base + WDTCR);
+> -	/* put watchdog in active state */
+> -	iowrite32(WDKEY_SEQ1, wdt_base + WDTCR);
+> -
+> -	spin_unlock(&io_lock);
+> -}
+> -
+> -static void wdt_enable(void)
+> +/* davinci_wdt_start - enable watchdog */
+
+That comment doesn't really provide much value.
+
+> +static int davinci_wdt_start(struct watchdog_device *wdd)
+>   {
+>   	u32 tgcr;
+>   	u32 timer_margin;
+> @@ -93,8 +69,6 @@ static void wdt_enable(void)
+>
+>   	wdt_freq = clk_get_rate(wdt_clk);
+>
+> -	spin_lock(&io_lock);
+> -
+>   	/* disable, internal clock source */
+>   	iowrite32(0, wdt_base + TCR);
+>   	/* reset timer, set mode to 64-bit watchdog, and unreset */
+> @@ -105,9 +79,9 @@ static void wdt_enable(void)
+>   	iowrite32(0, wdt_base + TIM12);
+>   	iowrite32(0, wdt_base + TIM34);
+>   	/* set timeout period */
+> -	timer_margin = (((u64)heartbeat * wdt_freq) & 0xffffffff);
+> +	timer_margin = (((u64)wdd->timeout * wdt_freq) & 0xffffffff);
+>   	iowrite32(timer_margin, wdt_base + PRD12);
+> -	timer_margin = (((u64)heartbeat * wdt_freq) >> 32);
+> +	timer_margin = (((u64)wdd->timeout * wdt_freq) >> 32);
+>   	iowrite32(timer_margin, wdt_base + PRD34);
+>   	/* enable run continuously */
+>   	iowrite32(ENAMODE12_PERIODIC, wdt_base + TCR);
+> @@ -119,84 +93,28 @@ static void wdt_enable(void)
+>   	iowrite32(WDKEY_SEQ0 | WDEN, wdt_base + WDTCR);
+>   	/* put watchdog in active state */
+>   	iowrite32(WDKEY_SEQ1 | WDEN, wdt_base + WDTCR);
+> -
+> -	spin_unlock(&io_lock);
+> -}
+> -
+> -static int davinci_wdt_open(struct inode *inode, struct file *file)
+> -{
+> -	if (test_and_set_bit(WDT_IN_USE, &wdt_status))
+> -		return -EBUSY;
+> -
+> -	wdt_enable();
+> -
+> -	return nonseekable_open(inode, file);
+> +	return 0;
+>   }
+>
+> -static ssize_t
+> -davinci_wdt_write(struct file *file, const char *data, size_t len,
+> -		  loff_t *ppos)
+> +static int davinci_wdt_ping(struct watchdog_device *wdd)
+>   {
+> -	if (len)
+> -		wdt_service();
+> -
+> -	return len;
+> +	/* put watchdog in service state */
+> +	iowrite32(WDKEY_SEQ0, wdt_base + WDTCR);
+> +	/* put watchdog in active state */
+> +	iowrite32(WDKEY_SEQ1, wdt_base + WDTCR);
+> +	return 0;
+>   }
+>
+> -static const struct watchdog_info ident = {
+> +static const struct watchdog_info davinci_wdt_info = {
+>   	.options = WDIOF_KEEPALIVEPING,
+>   	.identity = "DaVinci Watchdog",
+>   };
+>
+> -static long davinci_wdt_ioctl(struct file *file,
+> -					unsigned int cmd, unsigned long arg)
+> -{
+> -	int ret = -ENOTTY;
+> -
+> -	switch (cmd) {
+> -	case WDIOC_GETSUPPORT:
+> -		ret = copy_to_user((struct watchdog_info *)arg, &ident,
+> -				   sizeof(ident)) ? -EFAULT : 0;
+> -		break;
+> -
+> -	case WDIOC_GETSTATUS:
+> -	case WDIOC_GETBOOTSTATUS:
+> -		ret = put_user(0, (int *)arg);
+> -		break;
+> -
+> -	case WDIOC_KEEPALIVE:
+> -		wdt_service();
+> -		ret = 0;
+> -		break;
+> -
+> -	case WDIOC_GETTIMEOUT:
+> -		ret = put_user(heartbeat, (int *)arg);
+> -		break;
+> -	}
+> -	return ret;
+> -}
+> -
+> -static int davinci_wdt_release(struct inode *inode, struct file *file)
+> -{
+> -	wdt_service();
+> -	clear_bit(WDT_IN_USE, &wdt_status);
+> -
+> -	return 0;
+> -}
+> -
+> -static const struct file_operations davinci_wdt_fops = {
+> -	.owner = THIS_MODULE,
+> -	.llseek = no_llseek,
+> -	.write = davinci_wdt_write,
+> -	.unlocked_ioctl = davinci_wdt_ioctl,
+> -	.open = davinci_wdt_open,
+> -	.release = davinci_wdt_release,
+> -};
+> -
+> -static struct miscdevice davinci_wdt_miscdev = {
+> -	.minor = WATCHDOG_MINOR,
+> -	.name = "watchdog",
+> -	.fops = &davinci_wdt_fops,
+> +static const struct watchdog_ops davinci_wdt_ops = {
+> +	.owner		= THIS_MODULE,
+> +	.start		= davinci_wdt_start,
+> +	.stop		= davinci_wdt_ping,
+> +	.ping		= davinci_wdt_ping,
+>   };
+>
+>   static int davinci_wdt_probe(struct platform_device *pdev)
+> @@ -204,6 +122,7 @@ static int davinci_wdt_probe(struct platform_device *pdev)
+>   	int ret = 0;
+>   	struct device *dev = &pdev->dev;
+>   	struct resource  *wdt_mem;
+> +	struct watchdog_device *wdd;
+>
+>   	wdt_clk = devm_clk_get(dev, NULL);
+>   	if (WARN_ON(IS_ERR(wdt_clk)))
+> @@ -211,29 +130,35 @@ static int davinci_wdt_probe(struct platform_device *pdev)
+>
+>   	clk_prepare_enable(wdt_clk);
+>
+> -	if (heartbeat < 1 || heartbeat > MAX_HEARTBEAT)
+> -		heartbeat = DEFAULT_HEARTBEAT;
+> +	wdd			= &wdt_wdd;
+> +	wdd->info		= &davinci_wdt_info;
+> +	wdd->ops		= &davinci_wdt_ops;
+> +	wdd->min_timeout 	= 1;
+> +	wdd->max_timeout 	= MAX_HEARTBEAT;
+> +	wdd->timeout		= DEFAULT_HEARTBEAT;
+> +
+> +	if (heartbeat)
+> +		watchdog_init_timeout(wdd, heartbeat, dev);
+> +
+The if statement here is unnecessary. Actually, you always want to call watchdog_init_timeout()
+to ensure that it gets the configuration from fdt if available.
+
+> +	dev_info(dev, "heartbeat %d sec\n", wdd->timeout);
+>
+> -	dev_info(dev, "heartbeat %d sec\n", heartbeat);
+> +	watchdog_set_nowayout(wdd, WATCHDOG_NOWAYOUT);
+>
+>   	wdt_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>   	wdt_base = devm_ioremap_resource(dev, wdt_mem);
+>   	if (IS_ERR(wdt_base))
+>   		return PTR_ERR(wdt_base);
+>
+> -	ret = misc_register(&davinci_wdt_miscdev);
+> -	if (ret < 0) {
+> -		dev_err(dev, "cannot register misc device\n");
+> -	} else {
+> -		set_bit(WDT_DEVICE_INITED, &wdt_status);
+> -	}
+> +	ret = watchdog_register_device(wdd);
+> +	if (ret < 0)
+> +		dev_err(dev, "cannot register watchdog device\n");
+>
+>   	return ret;
+>   }
+>
+>   static int davinci_wdt_remove(struct platform_device *pdev)
+>   {
+> -	misc_deregister(&davinci_wdt_miscdev);
+> +	watchdog_unregister_device(&wdt_wdd);
+>   	clk_disable_unprepare(wdt_clk);
+>
+>   	return 0;
+> @@ -267,5 +192,4 @@ MODULE_PARM_DESC(heartbeat,
+>   		 __MODULE_STRING(DEFAULT_HEARTBEAT));
+>
+>   MODULE_LICENSE("GPL");
+> -MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
+>   MODULE_ALIAS("platform:watchdog");
+>
+You might want to rename the platform driver to something like davinci-wdt and change the MODULE_ALIAS
+accordingly.
+
+Guenter
+
 
