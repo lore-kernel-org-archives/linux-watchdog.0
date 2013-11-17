@@ -1,30 +1,44 @@
-Return-Path: <wimvs@spo001.leaseweb.com>
-Date: Sun, 17 Nov 2013 20:06:31 +0100
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from ns1.pc-advies.be ([83.149.101.17]:42095 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751360Ab3KQTJH (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Sun, 17 Nov 2013 14:09:07 -0500
+Date: Sun, 17 Nov 2013 20:09:05 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: linux-watchdog@vger.kernel.org, kernel-janitors@vger.kernel.org,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [patch v2] watchdog: pcwd_usb: overflow in usb_pcwd_send_command()
-Message-ID: <20131117190631.GG10136@spo001.leaseweb.com>
-References: <527BA351.10705@roeck-us.net> <20131108092419.GA22389@elgon.mountain>
+To: Taras Kondratiuk <taras.kondratiuk@linaro.org>
+Cc: linux-omap@vger.kernel.org, linaro-networking@linaro.org,
+	Victor Kamensky <victor.kamensky@linaro.org>,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC 02/23] watchdog: omap_wdt: raw read and write endian fix
+Message-ID: <20131117190905.GI10136@spo001.leaseweb.com>
+References: <1384560086-11994-1-git-send-email-taras.kondratiuk@linaro.org> <1384560086-11994-3-git-send-email-taras.kondratiuk@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20131108092419.GA22389@elgon.mountain>
-Sender: <wimvs@spo001.leaseweb.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+In-Reply-To: <1384560086-11994-3-git-send-email-taras.kondratiuk@linaro.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hi Dan,
+Hi Victor, Taras,
 
-> We changed "buf" from being an array of 6 chars to being a pointer this
-> sizeof(buf) needs to be updated as well.
+> From: Victor Kamensky <victor.kamensky@linaro.org>
 > 
-> Fixes: 2ddb8089a7e5 ('watchdog: pcwd_usb: Use allocated buffer for usb_control_msg')
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-> ---
-> v2: Fix the bug that Guenter Roeck pointed out in v1.
+> All OMAP IP blocks expect LE data, but CPU may operate in BE mode.
+> Need to use endian neutral functions to read/write h/w registers.
+> I.e instead of __raw_read[lw] and __raw_write[lw] functions code
+> need to use read[lw]_relaxed and write[lw]_relaxed functions.
+> If the first simply reads/writes register, the second will byteswap
+> it if host operates in BE mode.
+> 
+> Changes are trivial sed like replacement of __raw_xxx functions
+> with xxx_relaxed variant.
+> 
+> Signed-off-by: Victor Kamensky <victor.kamensky@linaro.org>
+> Signed-off-by: Taras Kondratiuk <taras.kondratiuk@linaro.org>
 
 This was added to linux-watchdog-next.
 
 Kind regards,
 Wim.
+
