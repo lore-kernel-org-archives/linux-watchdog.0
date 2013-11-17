@@ -1,55 +1,30 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:50850 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753352Ab3KQC3U (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 16 Nov 2013 21:29:20 -0500
-Message-ID: <528829FF.8090803@roeck-us.net>
-Date: Sat, 16 Nov 2013 18:29:19 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: "ivan.khoronzhuk" <ivan.khoronzhuk@ti.com>,
-	Santosh Shilimkar <santosh.shilimkar@ti.com>, wim@iguana.be,
-	nsekhar@ti.com, linux-watchdog@vger.kernel.org,
-	devicetree@vger.kernel.org
-CC: grant.likely@linaro.org, rob.herring@calxeda.com,
-	pawel.moll@arm.com, mark.rutland@arm.com, swarren@wwwdotorg.org,
-	galak@kernel.crashing.org, ijc+devicetree@hellion.org.uk,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: Fwd: [PATCH 8/8] arm: dts: keystone: add watchdog entry
-References: <1383680783-12114-9-git-send-email-ivan.khoronzhuk@ti.com> <527A28F0.6050406@ti.com>
-In-Reply-To: <527A28F0.6050406@ti.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <wimvs@spo001.leaseweb.com>
+Date: Sun, 17 Nov 2013 20:06:31 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: linux-watchdog@vger.kernel.org, kernel-janitors@vger.kernel.org,
+	Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [patch v2] watchdog: pcwd_usb: overflow in usb_pcwd_send_command()
+Message-ID: <20131117190631.GG10136@spo001.leaseweb.com>
+References: <527BA351.10705@roeck-us.net> <20131108092419.GA22389@elgon.mountain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20131108092419.GA22389@elgon.mountain>
+Sender: <wimvs@spo001.leaseweb.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 11/06/2013 03:33 AM, ivan.khoronzhuk wrote:
-> Add watchdog entry to keystone device tree.
->
-> Signed-off-by: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
+Hi Dan,
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
-
+> We changed "buf" from being an array of 6 chars to being a pointer this
+> sizeof(buf) needs to be updated as well.
+> 
+> Fixes: 2ddb8089a7e5 ('watchdog: pcwd_usb: Use allocated buffer for usb_control_msg')
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 > ---
->   arch/arm/boot/dts/keystone.dts |    6 ++++++
->   1 file changed, 6 insertions(+)
->
-> diff --git a/arch/arm/boot/dts/keystone.dts b/arch/arm/boot/dts/keystone.dts
-> index 100bdf5..a6e5f91 100644
-> --- a/arch/arm/boot/dts/keystone.dts
-> +++ b/arch/arm/boot/dts/keystone.dts
-> @@ -179,5 +179,11 @@
->   			interrupts = <GIC_SPI 300 IRQ_TYPE_EDGE_RISING>;
->   			clocks = <&clkspi>;
->   		};
-> +
-> +		wdt: wdt@022f0080 {
-> +			compatible = "ti,keystone-wdt";
-> +			reg = <0x022f0080 0x80>;
-> +			clocks = <&clkwdtimer0>;
-> +		};
->   	};
->   };
->
+> v2: Fix the bug that Guenter Roeck pointed out in v1.
 
+This was added to linux-watchdog-next.
+
+Kind regards,
+Wim.
