@@ -1,46 +1,88 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:51155 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751222Ab3KQVV3 (ORCPT
+Received: from mailout3.samsung.com ([203.254.224.33]:22715 "EHLO
+	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751266Ab3KRJaI (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 17 Nov 2013 16:21:29 -0500
-Message-ID: <52893358.3080404@roeck-us.net>
-Date: Sun, 17 Nov 2013 13:21:28 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: Wim Van Sebroeck <wim@iguana.be>
-CC: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4] watchdog: w83627hf: Convert to watchdog infrastructure
-References: <1376773126-2717-1-git-send-email-linux@roeck-us.net> <1376773126-2717-2-git-send-email-linux@roeck-us.net> <20131028215755.GA13226@spo001.leaseweb.com> <20131029024357.GA27070@roeck-us.net> <20131117191252.GA20636@spo001.leaseweb.com>
-In-Reply-To: <20131117191252.GA20636@spo001.leaseweb.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Nov 2013 04:30:08 -0500
+From: Leela Krishna Amudala <l.krishna@samsung.com>
+To: linux-samsung-soc@vger.kernel.org, kgene.kim@samsung.com,
+	wim@iguana.be
+Cc: t.figa@samsung.com, devicetree@vger.kernel.org,
+	dianders@chromium.org, linux-watchdog@vger.kernel.org,
+	cpgs@samsung.com, sachin.kamat@linaro.org, linux@roeck-us.net
+Subject: [PATCH V9 1/3] ARM: dts: Add pmu sysreg node to exynos5250 and
+ exynos5420 dtsi files
+Date: Mon, 18 Nov 2013 15:19:47 +0530
+Message-id: <1384768189-2839-2-git-send-email-l.krishna@samsung.com>
+In-reply-to: <1384768189-2839-1-git-send-email-l.krishna@samsung.com>
+References: <1384768189-2839-1-git-send-email-l.krishna@samsung.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 11/17/2013 11:12 AM, Wim Van Sebroeck wrote:
-> Hi Guenter,
->
->> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
->> ---
->> v4: Restore 'nowayout' module parameter
->>
->> The changes cause a trivial conflict with 'watchdog: w83627hf: Auto-detect
->> IO address and supported chips'. Please let me know if I should re-send
->> the entire series.
->>
+This patch adds pmusysreg node to exynos5250 and exynos5420 dtsi files to
+handle PMU register accesses in a centralized way using syscon driver
 
-[ ... ]
+Signed-off-by: Leela Krishna Amudala <l.krishna@samsung.com>
+Reviewed-by: Tomasz Figa <t.figa@samsung.com>
+---
+ Documentation/devicetree/bindings/arm/samsung/pmu.txt |   16 ++++++++++++++++
+ arch/arm/boot/dts/exynos5250.dtsi                     |    5 +++++
+ arch/arm/boot/dts/exynos5420.dtsi                     |    5 +++++
+ 3 files changed, 26 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/arm/samsung/pmu.txt
 
->
-> I will add this patch with above two small corrections to linux-watchdog-next.
->
-
-Hi Wim,
-
-still learning watchdog details ;-).
-
-Thanks a lot for picking this up!
-
-Guenter
+diff --git a/Documentation/devicetree/bindings/arm/samsung/pmu.txt b/Documentation/devicetree/bindings/arm/samsung/pmu.txt
+new file mode 100644
+index 0000000..307e727
+--- /dev/null
++++ b/Documentation/devicetree/bindings/arm/samsung/pmu.txt
+@@ -0,0 +1,16 @@
++SAMSUNG Exynos SoC series PMU Registers
++
++Properties:
++ - name : should be 'syscon';
++ - compatible : should contain two values. First value must be one from following list:
++		   - "samsung,exynos5250-pmu" - for Exynos5250 SoC,
++		   - "samsung,exynos5420-pmu" - for Exynos5420 SoC.
++		second value must be always "syscon".
++
++ - reg : offset and length of the register set.
++
++Example :
++pmu_syscon: syscon@10040000 {
++	compatible = "samsung,exynos5250-pmu", "syscon";
++	reg = <0x10040000 0x5000>;
++};
+diff --git a/arch/arm/boot/dts/exynos5250.dtsi b/arch/arm/boot/dts/exynos5250.dtsi
+index c4a8662..6056a83 100644
+--- a/arch/arm/boot/dts/exynos5250.dtsi
++++ b/arch/arm/boot/dts/exynos5250.dtsi
+@@ -158,6 +158,11 @@
+ 		interrupts = <0 47 0>;
+ 	};
+ 
++	pmu_syscon: syscon@10040000 {
++		compatible = "samsung,exynos5250-pmu", "syscon";
++		reg = <0x10040000 0x5000>;
++	};
++
+ 	watchdog {
+ 		clocks = <&clock 336>;
+ 		clock-names = "watchdog";
+diff --git a/arch/arm/boot/dts/exynos5420.dtsi b/arch/arm/boot/dts/exynos5420.dtsi
+index 6ffefd1..39ce15a 100644
+--- a/arch/arm/boot/dts/exynos5420.dtsi
++++ b/arch/arm/boot/dts/exynos5420.dtsi
+@@ -369,4 +369,9 @@
+ 		clock-names = "gscl";
+ 		samsung,power-domain = <&gsc_pd>;
+ 	};
++
++	pmu_syscon: syscon@10040000 {
++		compatible = "samsung,exynos5420-pmu", "syscon";
++		reg = <0x10040000 0x5000>;
++	};
+ };
+-- 
+1.7.10.4
 
