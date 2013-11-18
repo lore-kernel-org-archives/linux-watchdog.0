@@ -1,411 +1,324 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:58500 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750710Ab3KSFAk (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 19 Nov 2013 00:00:40 -0500
-Message-ID: <528AF077.8000307@roeck-us.net>
-Date: Mon, 18 Nov 2013 21:00:39 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: Leela Krishna Amudala <l.krishna@samsung.com>
-CC: linux-samsung-soc <linux-samsung-soc@vger.kernel.org>,
-	Kukjin Kim <kgene.kim@samsung.com>,
+Received: from comal.ext.ti.com ([198.47.26.152]:59860 "EHLO comal.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751469Ab3KRRUt (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 18 Nov 2013 12:20:49 -0500
+From: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
+To: Santosh Shilimkar <santosh.shilimkar@ti.com>,
 	Wim Van Sebroeck <wim@iguana.be>,
-	Tomasz Figa <t.figa@samsung.com>, devicetree@vger.kernel.org,
-	Douglas Anderson <dianders@chromium.org>,
-	linux-watchdog@vger.kernel.org, cpgs@samsung.com,
-	Sachin Kamat <sachin.kamat@linaro.org>
-Subject: Re: [PATCH V9 2/3] watchdog: s3c2410_wdt: use syscon regmap interface
- to configure pmu register
-References: <1384768189-2839-1-git-send-email-l.krishna@samsung.com> <1384768189-2839-3-git-send-email-l.krishna@samsung.com> <20131118164203.GA15902@roeck-us.net> <CAL1wa8d7=60KB_Km0dkjDZeLP2Get7h-8EKE_T9qQ2JGG_js8g@mail.gmail.com>
-In-Reply-To: <CAL1wa8d7=60KB_Km0dkjDZeLP2Get7h-8EKE_T9qQ2JGG_js8g@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sekhar Nori <nsekhar@ti.com>, <linux-watchdog@vger.kernel.org>,
+	<devicetree@vger.kernel.org>
+CC: Grant Likely <grant.likely@linaro.org>,
+	Rob Herring <rob.herring@calxeda.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Stephen Warren <swarren@wwwdotorg.org>,
+	Kumar Gala <galak@kernel.crashing.org>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	<linux-kernel@vger.kernel.org>,
+	<linux-arm-kernel@lists.infradead.org>,
+	Strashko Grygorii <grygorii.strashko@ti.com>,
+	Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
+Subject: [PATCH 1/6] watchdog: davinci: change driver to use WDT core
+Date: Mon, 18 Nov 2013 19:18:54 +0200
+Message-ID: <1384795139-19466-2-git-send-email-ivan.khoronzhuk@ti.com>
+In-Reply-To: <1384795139-19466-1-git-send-email-ivan.khoronzhuk@ti.com>
+References: <1384795139-19466-1-git-send-email-ivan.khoronzhuk@ti.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 11/18/2013 08:36 PM, Leela Krishna Amudala wrote:
-> Hi Guenter Roeck,
->
-> Thanks for reviewing the patch.
->
->
-> On Mon, Nov 18, 2013 at 10:12 PM, Guenter Roeck <linux@roeck-us.net> wrote:
->> On Mon, Nov 18, 2013 at 03:19:48PM +0530, Leela Krishna Amudala wrote:
->>> Add device tree support for exynos5250 and 5420 SoCs and use syscon regmap interface
->>> to configure AUTOMATIC_WDT_RESET_DISABLE and MASK_WDT_RESET_REQUEST registers of PMU
->>> to mask/unmask enable/disable of watchdog in probe and s2r scenarios.
->>>
->>> Signed-off-by: Leela Krishna Amudala <l.krishna@samsung.com>
->>> ---
->>>   .../devicetree/bindings/watchdog/samsung-wdt.txt   |   21 ++-
->>>   drivers/watchdog/Kconfig                           |    1 +
->>>   drivers/watchdog/s3c2410_wdt.c                     |  145 ++++++++++++++++++--
->>>   3 files changed, 157 insertions(+), 10 deletions(-)
->>>
->>> diff --git a/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt b/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
->>> index 2aa486c..5dea363 100644
->>> --- a/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
->>> +++ b/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
->>> @@ -5,10 +5,29 @@ after a preset amount of time during which the WDT reset event has not
->>>   occurred.
->>>
->>>   Required properties:
->>> -- compatible : should be "samsung,s3c2410-wdt"
->>> +- compatible : should be one among the following
->>> +     (a) "samsung,s3c2410-wdt" for Exynos4 and previous SoCs
->>> +     (b) "samsung,exynos5250-wdt" for Exynos5250
->>> +     (c) "samsung,exynos5420-wdt" for Exynos5420
->>> +
->>>   - reg : base physical address of the controller and length of memory mapped
->>>        region.
->>>   - interrupts : interrupt number to the cpu.
->>> +- samsung,syscon-phandle : reference to syscon node (This property required only
->>> +     in case of compatible being "samsung,exynos5250-wdt" or "samsung,exynos5420-wdt".
->>> +     In case of Exynos5250 and 5420 this property points to syscon node holding the PMU
->>> +     base address)
->>>
->>>   Optional properties:
->>>   - timeout-sec : contains the watchdog timeout in seconds.
->>> +
->>> +Example:
->>> +
->>> +watchdog@101D0000 {
->>> +     compatible = "samsung,exynos5250-wdt";
->>> +     reg = <0x101D0000 0x100>;
->>> +     interrupts = <0 42 0>;
->>> +     clocks = <&clock 336>;
->>> +     clock-names = "watchdog";
->>> +     samsung,syscon-phandle = <&pmu_sys_reg>;
->>> +};
->>> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
->>> index d1d53f3..0d272ae 100644
->>> --- a/drivers/watchdog/Kconfig
->>> +++ b/drivers/watchdog/Kconfig
->>> @@ -188,6 +188,7 @@ config S3C2410_WATCHDOG
->>>        tristate "S3C2410 Watchdog"
->>>        depends on HAVE_S3C2410_WATCHDOG
->>>        select WATCHDOG_CORE
->>> +     select MFD_SYSCON if ARCH_EXYNOS5
->>>        help
->>>          Watchdog timer block in the Samsung SoCs. This will reboot
->>>          the system when the timer expires with the watchdog enabled.
->>> diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
->>> index 23aad7c..42e0fd3 100644
->>> --- a/drivers/watchdog/s3c2410_wdt.c
->>> +++ b/drivers/watchdog/s3c2410_wdt.c
->>> @@ -41,6 +41,8 @@
->>>   #include <linux/slab.h>
->>>   #include <linux/err.h>
->>>   #include <linux/of.h>
->>> +#include <linux/mfd/syscon.h>
->>> +#include <linux/regmap.h>
->>>
->>>   #define S3C2410_WTCON                0x00
->>>   #define S3C2410_WTDAT                0x04
->>> @@ -61,6 +63,10 @@
->>>   #define CONFIG_S3C2410_WATCHDOG_ATBOOT               (0)
->>>   #define CONFIG_S3C2410_WATCHDOG_DEFAULT_TIME (15)
->>>
->>> +#define WDT_DISABLE_REG_OFFSET               0x0408
->>> +#define WDT_MASK_RESET_REG_OFFSET    0x040c
->>> +#define QUIRK_NEEDS_PMU_CONFIG               (1 << 0)
->>> +
->>>   static bool nowayout = WATCHDOG_NOWAYOUT;
->>>   static int tmr_margin;
->>>   static int tmr_atboot        = CONFIG_S3C2410_WATCHDOG_ATBOOT;
->>> @@ -84,6 +90,13 @@ MODULE_PARM_DESC(soft_noboot, "Watchdog action, set to 1 to ignore reboots, "
->>>                        "0 to reboot (default 0)");
->>>   MODULE_PARM_DESC(debug, "Watchdog debug, set to >1 for debug (default 0)");
->>>
->>> +struct s3c2410_wdt_variant {
->>> +     int disable_reg;
->>> +     int mask_reset_reg;
->>> +     int mask_bit;
->>> +     u32 quirks;
->>> +};
->>> +
->>>   struct s3c2410_wdt {
->>>        struct device           *dev;
->>>        struct clk              *clock;
->>> @@ -94,7 +107,49 @@ struct s3c2410_wdt {
->>>        unsigned long           wtdat_save;
->>>        struct watchdog_device  wdt_device;
->>>        struct notifier_block   freq_transition;
->>> +     struct s3c2410_wdt_variant *drv_data;
->>> +     struct regmap *pmureg;
->>> +};
->>> +
->>> +static const struct s3c2410_wdt_variant drv_data_s3c2410 = {
->>> +     .quirks = 0
->>> +};
->>> +
->>> +#ifdef CONFIG_OF
->>> +static const struct s3c2410_wdt_variant drv_data_exynos5250  = {
->>> +     .disable_reg = WDT_DISABLE_REG_OFFSET,
->>> +     .mask_reset_reg = WDT_MASK_RESET_REG_OFFSET,
->>> +     .mask_bit = 20,
->>> +     .quirks = QUIRK_NEEDS_PMU_CONFIG
->>> +};
->>> +
->>> +static const struct s3c2410_wdt_variant drv_data_exynos5420 = {
->>> +     .disable_reg = WDT_DISABLE_REG_OFFSET,
->>> +     .mask_reset_reg = WDT_MASK_RESET_REG_OFFSET,
->>> +     .mask_bit = 0,
->>> +     .quirks = QUIRK_NEEDS_PMU_CONFIG
->>> +};
->>> +
->>> +static const struct of_device_id s3c2410_wdt_match[] = {
->>> +     { .compatible = "samsung,s3c2410-wdt",
->>> +       .data = &drv_data_s3c2410 },
->>> +     { .compatible = "samsung,exynos5250-wdt",
->>> +       .data = &drv_data_exynos5250 },
->>> +     { .compatible = "samsung,exynos5420-wdt",
->>> +       .data = &drv_data_exynos5420 },
->>> +     {},
->>>   };
->>> +MODULE_DEVICE_TABLE(of, s3c2410_wdt_match);
->>> +#endif
->>> +
->>> +static const struct platform_device_id s3c2410_wdt_ids[] = {
->>> +     {
->>> +             .name = "s3c2410-wdt",
->>> +             .driver_data = (unsigned long)&drv_data_s3c2410,
->>> +     },
->>> +     {}
->>> +};
->>> +MODULE_DEVICE_TABLE(platform, s3c2410_wdt_ids);
->>>
->>>   /* watchdog control routines */
->>>
->>> @@ -111,6 +166,26 @@ static inline struct s3c2410_wdt *freq_to_wdt(struct notifier_block *nb)
->>>        return container_of(nb, struct s3c2410_wdt, freq_transition);
->>>   }
->>>
->>> +static int s3c2410wdt_mask_and_disable_reset(struct s3c2410_wdt *wdt, bool mask)
->>> +{
->>> +     int ret;
->>> +     u32 mask_val = 1 << wdt->drv_data->mask_bit;
->>> +     u32 val = 0;
->>> +
->>> +     if (mask)
->>> +             val = mask_val;
->>> +
->>> +     ret = regmap_update_bits(wdt->pmureg,
->>> +                     wdt->drv_data->disable_reg,
->>> +                     mask_val, val);
->>> +     if (ret < 0)
->>> +             return ret;
->>> +
->>> +     return regmap_update_bits(wdt->pmureg,
->>> +                     wdt->drv_data->mask_reset_reg,
->>> +                     mask_val, val);
->>> +}
->>> +
->>>   static int s3c2410wdt_keepalive(struct watchdog_device *wdd)
->>>   {
->>>        struct s3c2410_wdt *wdt = watchdog_get_drvdata(wdd);
->>> @@ -332,6 +407,20 @@ static inline void s3c2410wdt_cpufreq_deregister(struct s3c2410_wdt *wdt)
->>>   }
->>>   #endif
->>>
->>> +/* s3c2410_get_wdt_driver_data */
->>> +static inline struct s3c2410_wdt_variant *
->>> +get_wdt_drv_data(struct platform_device *pdev)
->>> +{
->>> +     if (pdev->dev.of_node) {
->>> +             const struct of_device_id *match;
->>> +             match = of_match_node(s3c2410_wdt_match, pdev->dev.of_node);
->>> +             return (struct s3c2410_wdt_variant *)match->data;
->>> +     } else {
->>> +             return (struct s3c2410_wdt_variant *)
->>> +                     platform_get_device_id(pdev)->driver_data;
->>> +     }
->>> +}
->>> +
->>>   static int s3c2410wdt_probe(struct platform_device *pdev)
->>>   {
->>>        struct device *dev;
->>> @@ -354,6 +443,16 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
->>>        spin_lock_init(&wdt->lock);
->>>        wdt->wdt_device = s3c2410_wdd;
->>>
->>> +     wdt->drv_data = get_wdt_drv_data(pdev);
->>> +     if (wdt->drv_data->quirks & QUIRK_NEEDS_PMU_CONFIG) {
->>> +             wdt->pmureg = syscon_regmap_lookup_by_phandle(dev->of_node,
->>> +                                                     "samsung,syscon-phandle");
->>> +             if (IS_ERR(wdt->pmureg)) {
->>> +                     dev_err(dev, "syscon regmap lookup failed.\n");
->>> +                     return PTR_ERR(wdt->pmureg);
->>> +             }
->>> +     }
->>> +
->>>        wdt_irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
->>>        if (wdt_irq == NULL) {
->>>                dev_err(dev, "no irq resource specified\n");
->>> @@ -444,6 +543,14 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
->>>                 (wtcon & S3C2410_WTCON_RSTEN) ? "en" : "dis",
->>>                 (wtcon & S3C2410_WTCON_INTEN) ? "en" : "dis");
->>>
->>> +     if (wdt->drv_data->quirks & QUIRK_NEEDS_PMU_CONFIG) {
->>> +             ret = s3c2410wdt_mask_and_disable_reset(wdt, false);
->>> +             if (ret < 0) {
->>> +                     dev_err(wdt->dev, "failed to update pmu register");
->>
->> Hmm ... still not happy ;-). This message is the same for each call
->> to s3c2410wdt_mask_and_disable_reset(). Why not create it there ?
->> Sure, you'd have to decide if you want to use dev_warn() or dev_err(),
->> but that would still be better than repeating the same message (and code)
->> five times.
->>
->> The same is true for the if() statement. It might be worthwhile calling
->> s3c2410wdt_mask_and_disable_reset() unconditionally and adding something
->> like
->>
->>          if (!(wdt->drv_data->quirks & QUIRK_NEEDS_PMU_CONFIG))
->>                  return 0;
->>
->> to it.
->>
->
-> As Tomasz Figa suggested I handled the error conditions here
-> Please go through this link for your reference
-> https://patchwork.kernel.org/patch/3118771/
->
+To reduce code duplicate and increase code readability use WDT core
+code to handle WDT interface.
 
-His proposed function had the error message in the function,
-so I am not entirely following your logic.
+Remove io_lock as the WDT core uses mutex to lock each wdt device.
+Remove wdt_state as the WDT core track state with its own variable.
 
-He said you should _handle_ the error condition in the calling code.
-Dumping an error message and doing nothing isn't really "handling"
-the error condition.
+The watchdog_init_timeout() can read timeout value from timeout-sec
+property if the passed value is out of bounds. The heartbeat is
+initialized in next way. If heartbeat is not set thought module
+parameter, try to read it's value from WDT node timeout-sec property.
+If node has no one, use default value.
 
-Guenter
+The heartbeat is hold in wdd->timeout by WDT core, so use it in
+order to set timeout period.
 
-> Best Wishes,
-> Leela Krishna.
->
->> Thanks,
->> Guenter
->>
->>> +                     goto err_cpufreq;
->>> +             }
->>> +     }
->>> +
->>>        return 0;
->>>
->>>    err_cpufreq:
->>> @@ -459,8 +566,15 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
->>>
->>>   static int s3c2410wdt_remove(struct platform_device *dev)
->>>   {
->>> +     int ret;
->>>        struct s3c2410_wdt *wdt = platform_get_drvdata(dev);
->>>
->>> +     if (wdt->drv_data->quirks & QUIRK_NEEDS_PMU_CONFIG) {
->>> +             ret = s3c2410wdt_mask_and_disable_reset(wdt, true);
->>> +             if (ret < 0)
->>> +                     dev_warn(wdt->dev, "failed to update pmu register");
->>> +     }
->>> +
->>>        watchdog_unregister_device(&wdt->wdt_device);
->>>
->>>        s3c2410wdt_cpufreq_deregister(wdt);
->>> @@ -473,8 +587,15 @@ static int s3c2410wdt_remove(struct platform_device *dev)
->>>
->>>   static void s3c2410wdt_shutdown(struct platform_device *dev)
->>>   {
->>> +     int ret;
->>>        struct s3c2410_wdt *wdt = platform_get_drvdata(dev);
->>>
->>> +     if (wdt->drv_data->quirks & QUIRK_NEEDS_PMU_CONFIG) {
->>> +             ret = s3c2410wdt_mask_and_disable_reset(wdt, true);
->>> +             if (ret < 0)
->>> +                     dev_warn(wdt->dev, "failed to update pmu register");
->>> +     }
->>> +
->>>        s3c2410wdt_stop(&wdt->wdt_device);
->>>   }
->>>
->>> @@ -482,12 +603,19 @@ static void s3c2410wdt_shutdown(struct platform_device *dev)
->>>
->>>   static int s3c2410wdt_suspend(struct device *dev)
->>>   {
->>> +     int ret;
->>>        struct s3c2410_wdt *wdt = dev_get_drvdata(dev);
->>>
->>>        /* Save watchdog state, and turn it off. */
->>>        wdt->wtcon_save = readl(wdt->reg_base + S3C2410_WTCON);
->>>        wdt->wtdat_save = readl(wdt->reg_base + S3C2410_WTDAT);
->>>
->>> +     if (wdt->drv_data->quirks & QUIRK_NEEDS_PMU_CONFIG) {
->>> +             ret = s3c2410wdt_mask_and_disable_reset(wdt, true);
->>> +             if (ret < 0)
->>> +                     dev_warn(wdt->dev, "failed to update pmu register");
->>> +     }
->>> +
->>>        /* Note that WTCNT doesn't need to be saved. */
->>>        s3c2410wdt_stop(&wdt->wdt_device);
->>>
->>> @@ -496,6 +624,7 @@ static int s3c2410wdt_suspend(struct device *dev)
->>>
->>>   static int s3c2410wdt_resume(struct device *dev)
->>>   {
->>> +     int ret;
->>>        struct s3c2410_wdt *wdt = dev_get_drvdata(dev);
->>>
->>>        /* Restore watchdog state. */
->>> @@ -503,6 +632,12 @@ static int s3c2410wdt_resume(struct device *dev)
->>>        writel(wdt->wtdat_save, wdt->reg_base + S3C2410_WTCNT);/* Reset count */
->>>        writel(wdt->wtcon_save, wdt->reg_base + S3C2410_WTCON);
->>>
->>> +     if (wdt->drv_data->quirks & QUIRK_NEEDS_PMU_CONFIG) {
->>> +             ret = s3c2410wdt_mask_and_disable_reset(wdt, false);
->>> +             if (ret < 0)
->>> +                     dev_warn(wdt->dev, "failed to update pmu register");
->>> +     }
->>> +
->>>        dev_info(dev, "watchdog %sabled\n",
->>>                (wdt->wtcon_save & S3C2410_WTCON_ENABLE) ? "en" : "dis");
->>>
->>> @@ -513,18 +648,11 @@ static int s3c2410wdt_resume(struct device *dev)
->>>   static SIMPLE_DEV_PM_OPS(s3c2410wdt_pm_ops, s3c2410wdt_suspend,
->>>                        s3c2410wdt_resume);
->>>
->>> -#ifdef CONFIG_OF
->>> -static const struct of_device_id s3c2410_wdt_match[] = {
->>> -     { .compatible = "samsung,s3c2410-wdt" },
->>> -     {},
->>> -};
->>> -MODULE_DEVICE_TABLE(of, s3c2410_wdt_match);
->>> -#endif
->>> -
->>>   static struct platform_driver s3c2410wdt_driver = {
->>>        .probe          = s3c2410wdt_probe,
->>>        .remove         = s3c2410wdt_remove,
->>>        .shutdown       = s3c2410wdt_shutdown,
->>> +     .id_table       = s3c2410_wdt_ids,
->>>        .driver         = {
->>>                .owner  = THIS_MODULE,
->>>                .name   = "s3c2410-wdt",
->>> @@ -540,4 +668,3 @@ MODULE_AUTHOR("Ben Dooks <ben@simtec.co.uk>, "
->>>   MODULE_DESCRIPTION("S3C2410 Watchdog Device Driver");
->>>   MODULE_LICENSE("GPL");
->>>   MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
->>> -MODULE_ALIAS("platform:s3c2410-wdt");
->>> --
->>> 1.7.10.4
->>>
->>>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-samsung-soc" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
->
+Signed-off-by: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
+Acked-by: Santosh Shilimkar <santosh.shilimkar@ti.com>
+---
+ drivers/watchdog/Kconfig       |    2 +
+ drivers/watchdog/davinci_wdt.c |  152 ++++++++++------------------------------
+ 2 files changed, 39 insertions(+), 115 deletions(-)
+
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index d1d53f3..d7db13d 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -271,6 +271,8 @@ config IOP_WATCHDOG
+ config DAVINCI_WATCHDOG
+ 	tristate "DaVinci watchdog"
+ 	depends on ARCH_DAVINCI
++	select WATCHDOG_CORE
++	select WATCHDOG_NOWAYOUT
+ 	help
+ 	  Say Y here if to include support for the watchdog timer
+ 	  in the DaVinci DM644x/DM646x processors.
+diff --git a/drivers/watchdog/davinci_wdt.c b/drivers/watchdog/davinci_wdt.c
+index bead774..cb9e8c5 100644
+--- a/drivers/watchdog/davinci_wdt.c
++++ b/drivers/watchdog/davinci_wdt.c
+@@ -3,7 +3,7 @@
+  *
+  * Watchdog driver for DaVinci DM644x/DM646x processors
+  *
+- * Copyright (C) 2006 Texas Instruments.
++ * Copyright (C) 2006-2013 Texas Instruments.
+  *
+  * 2007 (c) MontaVista Software, Inc. This file is licensed under
+  * the terms of the GNU General Public License version 2. This program
+@@ -15,18 +15,12 @@
+ #include <linux/moduleparam.h>
+ #include <linux/types.h>
+ #include <linux/kernel.h>
+-#include <linux/fs.h>
+-#include <linux/miscdevice.h>
+ #include <linux/watchdog.h>
+ #include <linux/init.h>
+-#include <linux/bitops.h>
+ #include <linux/platform_device.h>
+-#include <linux/spinlock.h>
+-#include <linux/uaccess.h>
+ #include <linux/io.h>
+ #include <linux/device.h>
+ #include <linux/clk.h>
+-#include <linux/slab.h>
+ #include <linux/err.h>
+ 
+ #define MODULE_NAME "DAVINCI-WDT: "
+@@ -61,31 +55,12 @@
+ #define WDKEY_SEQ0		(0xa5c6 << 16)
+ #define WDKEY_SEQ1		(0xda7e << 16)
+ 
+-static int heartbeat = DEFAULT_HEARTBEAT;
+-
+-static DEFINE_SPINLOCK(io_lock);
+-static unsigned long wdt_status;
+-#define WDT_IN_USE        0
+-#define WDT_OK_TO_CLOSE   1
+-#define WDT_REGION_INITED 2
+-#define WDT_DEVICE_INITED 3
+-
++static int heartbeat;
+ static void __iomem	*wdt_base;
+ struct clk		*wdt_clk;
++static struct watchdog_device	wdt_wdd;
+ 
+-static void wdt_service(void)
+-{
+-	spin_lock(&io_lock);
+-
+-	/* put watchdog in service state */
+-	iowrite32(WDKEY_SEQ0, wdt_base + WDTCR);
+-	/* put watchdog in active state */
+-	iowrite32(WDKEY_SEQ1, wdt_base + WDTCR);
+-
+-	spin_unlock(&io_lock);
+-}
+-
+-static void wdt_enable(void)
++static int davinci_wdt_start(struct watchdog_device *wdd)
+ {
+ 	u32 tgcr;
+ 	u32 timer_margin;
+@@ -93,8 +68,6 @@ static void wdt_enable(void)
+ 
+ 	wdt_freq = clk_get_rate(wdt_clk);
+ 
+-	spin_lock(&io_lock);
+-
+ 	/* disable, internal clock source */
+ 	iowrite32(0, wdt_base + TCR);
+ 	/* reset timer, set mode to 64-bit watchdog, and unreset */
+@@ -105,9 +78,9 @@ static void wdt_enable(void)
+ 	iowrite32(0, wdt_base + TIM12);
+ 	iowrite32(0, wdt_base + TIM34);
+ 	/* set timeout period */
+-	timer_margin = (((u64)heartbeat * wdt_freq) & 0xffffffff);
++	timer_margin = (((u64)wdd->timeout * wdt_freq) & 0xffffffff);
+ 	iowrite32(timer_margin, wdt_base + PRD12);
+-	timer_margin = (((u64)heartbeat * wdt_freq) >> 32);
++	timer_margin = (((u64)wdd->timeout * wdt_freq) >> 32);
+ 	iowrite32(timer_margin, wdt_base + PRD34);
+ 	/* enable run continuously */
+ 	iowrite32(ENAMODE12_PERIODIC, wdt_base + TCR);
+@@ -119,84 +92,28 @@ static void wdt_enable(void)
+ 	iowrite32(WDKEY_SEQ0 | WDEN, wdt_base + WDTCR);
+ 	/* put watchdog in active state */
+ 	iowrite32(WDKEY_SEQ1 | WDEN, wdt_base + WDTCR);
+-
+-	spin_unlock(&io_lock);
+-}
+-
+-static int davinci_wdt_open(struct inode *inode, struct file *file)
+-{
+-	if (test_and_set_bit(WDT_IN_USE, &wdt_status))
+-		return -EBUSY;
+-
+-	wdt_enable();
+-
+-	return nonseekable_open(inode, file);
++	return 0;
+ }
+ 
+-static ssize_t
+-davinci_wdt_write(struct file *file, const char *data, size_t len,
+-		  loff_t *ppos)
++static int davinci_wdt_ping(struct watchdog_device *wdd)
+ {
+-	if (len)
+-		wdt_service();
+-
+-	return len;
++	/* put watchdog in service state */
++	iowrite32(WDKEY_SEQ0, wdt_base + WDTCR);
++	/* put watchdog in active state */
++	iowrite32(WDKEY_SEQ1, wdt_base + WDTCR);
++	return 0;
+ }
+ 
+-static const struct watchdog_info ident = {
++static const struct watchdog_info davinci_wdt_info = {
+ 	.options = WDIOF_KEEPALIVEPING,
+ 	.identity = "DaVinci Watchdog",
+ };
+ 
+-static long davinci_wdt_ioctl(struct file *file,
+-					unsigned int cmd, unsigned long arg)
+-{
+-	int ret = -ENOTTY;
+-
+-	switch (cmd) {
+-	case WDIOC_GETSUPPORT:
+-		ret = copy_to_user((struct watchdog_info *)arg, &ident,
+-				   sizeof(ident)) ? -EFAULT : 0;
+-		break;
+-
+-	case WDIOC_GETSTATUS:
+-	case WDIOC_GETBOOTSTATUS:
+-		ret = put_user(0, (int *)arg);
+-		break;
+-
+-	case WDIOC_KEEPALIVE:
+-		wdt_service();
+-		ret = 0;
+-		break;
+-
+-	case WDIOC_GETTIMEOUT:
+-		ret = put_user(heartbeat, (int *)arg);
+-		break;
+-	}
+-	return ret;
+-}
+-
+-static int davinci_wdt_release(struct inode *inode, struct file *file)
+-{
+-	wdt_service();
+-	clear_bit(WDT_IN_USE, &wdt_status);
+-
+-	return 0;
+-}
+-
+-static const struct file_operations davinci_wdt_fops = {
+-	.owner = THIS_MODULE,
+-	.llseek = no_llseek,
+-	.write = davinci_wdt_write,
+-	.unlocked_ioctl = davinci_wdt_ioctl,
+-	.open = davinci_wdt_open,
+-	.release = davinci_wdt_release,
+-};
+-
+-static struct miscdevice davinci_wdt_miscdev = {
+-	.minor = WATCHDOG_MINOR,
+-	.name = "watchdog",
+-	.fops = &davinci_wdt_fops,
++static const struct watchdog_ops davinci_wdt_ops = {
++	.owner		= THIS_MODULE,
++	.start		= davinci_wdt_start,
++	.stop		= davinci_wdt_ping,
++	.ping		= davinci_wdt_ping,
+ };
+ 
+ static int davinci_wdt_probe(struct platform_device *pdev)
+@@ -204,6 +121,7 @@ static int davinci_wdt_probe(struct platform_device *pdev)
+ 	int ret = 0;
+ 	struct device *dev = &pdev->dev;
+ 	struct resource  *wdt_mem;
++	struct watchdog_device *wdd;
+ 
+ 	wdt_clk = devm_clk_get(dev, NULL);
+ 	if (WARN_ON(IS_ERR(wdt_clk)))
+@@ -211,29 +129,34 @@ static int davinci_wdt_probe(struct platform_device *pdev)
+ 
+ 	clk_prepare_enable(wdt_clk);
+ 
+-	if (heartbeat < 1 || heartbeat > MAX_HEARTBEAT)
+-		heartbeat = DEFAULT_HEARTBEAT;
++	wdd			= &wdt_wdd;
++	wdd->info		= &davinci_wdt_info;
++	wdd->ops		= &davinci_wdt_ops;
++	wdd->min_timeout 	= 1;
++	wdd->max_timeout 	= MAX_HEARTBEAT;
++	wdd->timeout		= DEFAULT_HEARTBEAT;
++
++	watchdog_init_timeout(wdd, heartbeat, dev);
++
++	dev_info(dev, "heartbeat %d sec\n", wdd->timeout);
+ 
+-	dev_info(dev, "heartbeat %d sec\n", heartbeat);
++	watchdog_set_nowayout(wdd, WATCHDOG_NOWAYOUT);
+ 
+ 	wdt_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	wdt_base = devm_ioremap_resource(dev, wdt_mem);
+ 	if (IS_ERR(wdt_base))
+ 		return PTR_ERR(wdt_base);
+ 
+-	ret = misc_register(&davinci_wdt_miscdev);
+-	if (ret < 0) {
+-		dev_err(dev, "cannot register misc device\n");
+-	} else {
+-		set_bit(WDT_DEVICE_INITED, &wdt_status);
+-	}
++	ret = watchdog_register_device(wdd);
++	if (ret < 0)
++		dev_err(dev, "cannot register watchdog device\n");
+ 
+ 	return ret;
+ }
+ 
+ static int davinci_wdt_remove(struct platform_device *pdev)
+ {
+-	misc_deregister(&davinci_wdt_miscdev);
++	watchdog_unregister_device(&wdt_wdd);
+ 	clk_disable_unprepare(wdt_clk);
+ 
+ 	return 0;
+@@ -247,7 +170,7 @@ MODULE_DEVICE_TABLE(of, davinci_wdt_of_match);
+ 
+ static struct platform_driver platform_wdt_driver = {
+ 	.driver = {
+-		.name = "watchdog",
++		.name = "davinci-wdt",
+ 		.owner	= THIS_MODULE,
+ 		.of_match_table = davinci_wdt_of_match,
+ 	},
+@@ -267,5 +190,4 @@ MODULE_PARM_DESC(heartbeat,
+ 		 __MODULE_STRING(DEFAULT_HEARTBEAT));
+ 
+ MODULE_LICENSE("GPL");
+-MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
+-MODULE_ALIAS("platform:watchdog");
++MODULE_ALIAS("platform:davinci-wdt");
+-- 
+1.7.9.5
 
