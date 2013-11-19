@@ -1,56 +1,77 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wi0-f176.google.com ([209.85.212.176]:65489 "EHLO
-	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751720Ab3KRXtS (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 18 Nov 2013 18:49:18 -0500
-Received: by mail-wi0-f176.google.com with SMTP id f4so4663613wiw.15
-        for <linux-watchdog@vger.kernel.org>; Mon, 18 Nov 2013 15:49:17 -0800 (PST)
+Received: from mms2.broadcom.com ([216.31.210.18]:2344 "EHLO mms2.broadcom.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751666Ab3KSBY0 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 18 Nov 2013 20:24:26 -0500
+From: "Markus Mayer" <markus.mayer@linaro.org>
+To: "Wim Van Sebroeck" <wim@iguana.be>,
+	"Guenter Roeck" <linux@roeck-us.net>,
+	"Christian Daudt" <bcm@fixthebug.org>
+cc: "Linaro Patches" <patches@linaro.org>,
+	"Matt Porter" <matt.porter@linaro.org>,
+	"One Thousand Gnomes" <gnomes@lxorguk.ukuu.org.uk>,
+	"Linux Watchdog List" <linux-watchdog@vger.kernel.org>,
+	"ARM Kernel List" <linux-arm-kernel@lists.infradead.org>,
+	"Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+	"Markus Mayer" <markus.mayer@linaro.org>
+Subject: [PATCH v3 0/2] watchdog: bcm281xx: Watchdog Driver
+Date: Mon, 18 Nov 2013 17:24:08 -0800
+Message-ID: <1384824250-16727-1-git-send-email-markus.mayer@linaro.org>
 MIME-Version: 1.0
-In-Reply-To: <5286F41F.6090504@roeck-us.net>
-References: <1384549081-9571-1-git-send-email-markus.mayer@linaro.org>
-	<1384549081-9571-2-git-send-email-markus.mayer@linaro.org>
-	<5286F41F.6090504@roeck-us.net>
-Date: Mon, 18 Nov 2013 15:49:16 -0800
-Message-ID: <CAPdLdq=vhM_cpFFWZvdX90feJzzwowLRWsSBG5gaPaDdgjUbdw@mail.gmail.com>
-Subject: Re: [PATCH v2 1/2] watchdog: bcm281xx: Watchdog Driver
-From: Markus Mayer <markus.mayer@linaro.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Christian Daudt <bcm@fixthebug.org>,
-	Linaro Patches <patches@linaro.org>,
-	Matt Porter <matt.porter@linaro.org>,
-	Linux Watchdog List <linux-watchdog@vger.kernel.org>,
-	ARM Kernel List <linux-arm-kernel@lists.infradead.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 15 November 2013 20:27, Guenter Roeck <linux@roeck-us.net> wrote:
-> On 11/15/2013 12:58 PM, Markus Mayer wrote:
->>
->> This commit adds support for the watchdog timer used on the BCM281xx
->> family of SoCs.
->>
->> Signed-off-by: Markus Mayer <markus.mayer@linaro.org>
->
->
-> You are using two different e-mail addresses, the one here and the one in
-> MODULE_AUTHOR.
-> Any chance to use only one ? Of course, there may be a reason, so maybe it
-> is ok.
+This is version 3 of the watchdog driver for the BCM281xx family of mobile
+SoCs.
 
-There is indeed reason behind the madness. I am wearing two hats of
-sorts. I work for Broadcom, but I am assigned to Linaro, hence the
-somewhat adventurous construction with two e-mail addresses.
+Changes since version 2:
 
-I addressed your remaining comments and will be sending out v3 of the
-patch shortly.
+- BCM_KONA_WDT_NAME: "bcm-kona-wdt" -> "bcm_kona_wdt"
+- Don't initialize static variable
+- Remove '{'/'}' from single-line statements
+- busy_count retains the maximum loop count of the longest loop rather
+  than an over-all maximum
+- Use seq_puts() in lieu of seq_printf() in 2 locations
+- Removed error message after devm_kzalloc()
+- Added MODULE_ALIAS
 
-Thanks,
--Markus
+Changes since version 1:
+
+- Added module name to "help" section in Kconfig A few cosmetic code
+- simplifications and fixes Removed most dev_info() calls and changed the
+- remaining ones to dev_dbg() Renamed SECWDOG_WD_LOAD_FLAG_MASK to
+- SECWDOG_WD_LOAD_FLAG Added some comments to secure_register_read() and
+- struct bcm_kona_wdt Added delay to secure_register_read() Reduced maximum
+- retry loop from 10000 to 1000 Introduced "busy_count" variable to count
+- how often secure_register_read() gets stalled; this is available through
+- debugfs Simplified secure_register_read() to return -ETIMEDOUT rather than
+- using a variable parameter to indicate a timeout error Got rid of all uses
+- of -EAGAIN Fixed return value check for debugfs_create_dir() Simplified
+- bcm_kona_wdt_debugfs_init() by getting rid of goto Created new generic
+- function bcm_kona_wdt_ctrl_reg_modify() The following functions now use
+- bcm_kona_wdt_ctrl_reg_modify():
+    - bcm_kona_wdt_set_resolution_reg() bcm_kona_wdt_set_timeout_reg()
+    - bcm_kona_wdt_stop()
+- Made bcm_kona_wdt_set_timeout_reg() more generic, so bcm_kona_wdt_start()
+  can use it Removed MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR)
+
+
+
+
+Markus Mayer (2):
+  watchdog: bcm281xx: Watchdog Driver
+  ARM: bcm281xx: watchdog configuration
+
+ arch/arm/configs/bcm_defconfig  |    3 +
+ drivers/watchdog/Kconfig        |   22 +++
+ drivers/watchdog/Makefile       |    1 +
+ drivers/watchdog/bcm_kona_wdt.c |  366 +++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 392 insertions(+)
+ create mode 100644 drivers/watchdog/bcm_kona_wdt.c
 
 -- 
-Markus Mayer
-Broadcom Landing Team
+1.7.9.5
+
+
