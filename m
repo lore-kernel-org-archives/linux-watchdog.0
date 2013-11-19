@@ -1,81 +1,78 @@
-Return-Path: <grygorii.strashko@ti.com>
-Message-ID: <528B8F1C.3090506@ti.com>
-Date: Tue, 19 Nov 2013 18:17:32 +0200
-From: Grygorii Strashko <grygorii.strashko@ti.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mms3.broadcom.com ([216.31.210.19]:3472 "EHLO mms3.broadcom.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752521Ab3KSTIU (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 19 Nov 2013 14:08:20 -0500
+From: "Markus Mayer" <markus.mayer@linaro.org>
+To: "Wim Van Sebroeck" <wim@iguana.be>,
+	"Guenter Roeck" <linux@roeck-us.net>,
+	"Christian Daudt" <bcm@fixthebug.org>
+cc: "Linaro Patches" <patches@linaro.org>,
+	"Matt Porter" <matt.porter@linaro.org>,
+	"One Thousand Gnomes" <gnomes@lxorguk.ukuu.org.uk>,
+	"Linux Watchdog List" <linux-watchdog@vger.kernel.org>,
+	"ARM Kernel List" <linux-arm-kernel@lists.infradead.org>,
+	"Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+	"Markus Mayer" <markus.mayer@linaro.org>
+Subject: [PATCH v4 0/2] watchdog: bcm281xx: Watchdog Driver
+Date: Tue, 19 Nov 2013 11:07:52 -0800
+Message-ID: <1384888074-19696-1-git-send-email-markus.mayer@linaro.org>
 MIME-Version: 1.0
-To: Guenter Roeck <linux@roeck-us.net>,
-        Ivan Khoronzhuk
-	<ivan.khoronzhuk@ti.com>,
-        Santosh Shilimkar <santosh.shilimkar@ti.com>,
-        Wim
- Van Sebroeck <wim@iguana.be>, Sekhar Nori <nsekhar@ti.com>,
-        <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>
-CC: Grant Likely <grant.likely@linaro.org>,
-        Rob Herring
-	<rob.herring@calxeda.com>,
-        Pawel Moll <pawel.moll@arm.com>, Mark Rutland
-	<mark.rutland@arm.com>,
-        Stephen Warren <swarren@wwwdotorg.org>,
-        Kumar Gala
-	<galak@kernel.crashing.org>,
-        Ian Campbell <ijc+devicetree@hellion.org.uk>,
-        <linux-kernel@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>
-Subject: Re: [PATCH 1/6] watchdog: davinci: change driver to use WDT core
-References: <1384795139-19466-1-git-send-email-ivan.khoronzhuk@ti.com> <1384795139-19466-2-git-send-email-ivan.khoronzhuk@ti.com> <528AF349.9070902@roeck-us.net>
-In-Reply-To: <528AF349.9070902@roeck-us.net>
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On 11/19/2013 07:12 AM, Guenter Roeck wrote:
-> On 11/18/2013 09:18 AM, Ivan Khoronzhuk wrote:
->> To reduce code duplicate and increase code readability use WDT core
->> code to handle WDT interface.
->>
->> Remove io_lock as the WDT core uses mutex to lock each wdt device.
->> Remove wdt_state as the WDT core track state with its own variable.
->>
->> The watchdog_init_timeout() can read timeout value from timeout-sec
->> property if the passed value is out of bounds. The heartbeat is
->> initialized in next way. If heartbeat is not set thought module
->> parameter, try to read it's value from WDT node timeout-sec property.
->> If node has no one, use default value.
->>
->> The heartbeat is hold in wdd->timeout by WDT core, so use it in
->> order to set timeout period.
->>
->> Signed-off-by: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
->> Acked-by: Santosh Shilimkar <santosh.shilimkar@ti.com>
->> ---
->>   drivers/watchdog/Kconfig       |    2 +
->>   drivers/watchdog/davinci_wdt.c |  152
->> ++++++++++------------------------------
->>   2 files changed, 39 insertions(+), 115 deletions(-)
->>
->> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
->> index d1d53f3..d7db13d 100644
->> --- a/drivers/watchdog/Kconfig
->> +++ b/drivers/watchdog/Kconfig
->> @@ -271,6 +271,8 @@ config IOP_WATCHDOG
->>   config DAVINCI_WATCHDOG
->>       tristate "DaVinci watchdog"
->>       depends on ARCH_DAVINCI
->> +    select WATCHDOG_CORE
->> +    select WATCHDOG_NOWAYOUT
->
-> Is this mandatory, ie is it correct that the watchdog can not be stopped
-> once started ?
->
-> Assuming it is,
+This is version 4 of the watchdog driver for the BCM281xx family of mobile
+SoCs.
 
-Yes, it is. Davinci WDT can't be stopped and once it's expired - it can 
-be rearmed only after hardware reset.
+Changes since version 3:
+- Removed #include <linux/miscdevice.h>
+- Added Reviewed-by:/Acked-by: Guenter Roeck
 
->
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->
+Changes since version 2:
 
-Thanks a lot for your review.
+- BCM_KONA_WDT_NAME: "bcm-kona-wdt" -> "bcm_kona_wdt"
+- Don't initialize static variable
+- Removed '{'/'}' from single-line statements
+- busy_count retains the maximum loop count of the longest loop rather
+  than an over-all maximum
+- Use seq_puts() in lieu of seq_printf() in 2 locations
+- Removed error message after devm_kzalloc()
+- Added MODULE_ALIAS
 
-Regards,
--grygorii
+Changes since version 1:
+
+- Added module name to "help" section in Kconfig A few cosmetic code
+- simplifications and fixes Removed most dev_info() calls and changed the
+- remaining ones to dev_dbg() Renamed SECWDOG_WD_LOAD_FLAG_MASK to
+- SECWDOG_WD_LOAD_FLAG Added some comments to secure_register_read() and
+- struct bcm_kona_wdt Added delay to secure_register_read() Reduced maximum
+- retry loop from 10000 to 1000 Introduced "busy_count" variable to count
+- how often secure_register_read() gets stalled; this is available through
+- debugfs Simplified secure_register_read() to return -ETIMEDOUT rather than
+- using a variable parameter to indicate a timeout error Got rid of all uses
+- of -EAGAIN Fixed return value check for debugfs_create_dir() Simplified
+- bcm_kona_wdt_debugfs_init() by getting rid of goto Created new generic
+- function bcm_kona_wdt_ctrl_reg_modify() The following functions now use
+- bcm_kona_wdt_ctrl_reg_modify():
+    - bcm_kona_wdt_set_resolution_reg() bcm_kona_wdt_set_timeout_reg()
+    - bcm_kona_wdt_stop()
+- Made bcm_kona_wdt_set_timeout_reg() more generic, so bcm_kona_wdt_start()
+  can use it Removed MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR)
+
+Markus Mayer (2):
+  watchdog: bcm281xx: Watchdog Driver
+  ARM: bcm281xx: watchdog configuration
+
+ arch/arm/configs/bcm_defconfig  |    3 +
+ drivers/watchdog/Kconfig        |   22 +++
+ drivers/watchdog/Makefile       |    1 +
+ drivers/watchdog/bcm_kona_wdt.c |  365 +++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 391 insertions(+)
+ create mode 100644 drivers/watchdog/bcm_kona_wdt.c
+
+-- 
+1.7.9.5
+
+
