@@ -1,50 +1,56 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mms3.broadcom.com ([216.31.210.19]:4036 "EHLO mms3.broadcom.com"
+Received: from cantor2.suse.de ([195.135.220.15]:42656 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751562Ab3KSBYw (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 18 Nov 2013 20:24:52 -0500
-From: "Markus Mayer" <markus.mayer@linaro.org>
-To: "Wim Van Sebroeck" <wim@iguana.be>,
-	"Guenter Roeck" <linux@roeck-us.net>,
-	"Christian Daudt" <bcm@fixthebug.org>
-cc: "Linaro Patches" <patches@linaro.org>,
-	"Matt Porter" <matt.porter@linaro.org>,
-	"One Thousand Gnomes" <gnomes@lxorguk.ukuu.org.uk>,
-	"Linux Watchdog List" <linux-watchdog@vger.kernel.org>,
-	"ARM Kernel List" <linux-arm-kernel@lists.infradead.org>,
-	"Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-	"Markus Mayer" <markus.mayer@linaro.org>
-Subject: [PATCH v3 2/2] ARM: bcm281xx: watchdog configuration
-Date: Mon, 18 Nov 2013 17:24:10 -0800
-Message-ID: <1384824250-16727-3-git-send-email-markus.mayer@linaro.org>
-In-Reply-To: <1384824250-16727-1-git-send-email-markus.mayer@linaro.org>
-References: <1384824250-16727-1-git-send-email-markus.mayer@linaro.org>
-MIME-Version: 1.0
-Content-Type: text/plain
+	id S1751331Ab3KTIOP (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 20 Nov 2013 03:14:15 -0500
+Date: Wed, 20 Nov 2013 09:14:07 +0100
+From: Jean Delvare <jdelvare@suse.de>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: [PATCH] watchdog: Drop unnecessary include of miscdevice.h
+Message-ID: <20131120091407.1a94acbf@endymion.delvare>
+In-Reply-To: <1384896377-32382-1-git-send-email-linux@roeck-us.net>
+References: <1384896377-32382-1-git-send-email-linux@roeck-us.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This commit enables the watchdog driver for the BCM281xx family of SoCs.
+Hi Guenter,
 
-Signed-off-by: Markus Mayer <markus.mayer@linaro.org>
-Reviewed-by: Matt Porter <matt.porter@linaro.org>
----
- arch/arm/configs/bcm_defconfig |    3 +++
- 1 file changed, 3 insertions(+)
+On Tue, 19 Nov 2013 13:26:17 -0800, Guenter Roeck wrote:
+> After commit 487722cf2 (watchdog: Get rid of MODULE_ALIAS_MISCDEV
+> statements) the affected drivers no longer need to include miscdevice.h.
+> Only exception is rt2880_wdt.c which never needed it.
 
-diff --git a/arch/arm/configs/bcm_defconfig b/arch/arm/configs/bcm_defconfig
-index 6e49310..8b98e11 100644
---- a/arch/arm/configs/bcm_defconfig
-+++ b/arch/arm/configs/bcm_defconfig
-@@ -130,3 +130,6 @@ CONFIG_CRC_ITU_T=y
- CONFIG_CRC7=y
- CONFIG_XZ_DEC=y
- CONFIG_AVERAGE=y
-+CONFIG_WATCHDOG=y
-+CONFIG_BCM_KONA_WDT=y
-+CONFIG_BCM_KONA_WDT_DEBUG=y
+I'm surprised because I thought I did check after applying my changes
+and had removed the #include <linux/miscdevice.h> every time it was OK
+to do so. But apparently I missed many...  Thanks for noticing.
+
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> ---
+> Compile tested.
+> 
+>  drivers/watchdog/bcm2835_wdt.c      |    1 -
+>  drivers/watchdog/ep93xx_wdt.c       |    1 -
+>  drivers/watchdog/ie6xx_wdt.c        |    1 -
+>  drivers/watchdog/jz4740_wdt.c       |    1 -
+>  drivers/watchdog/kempld_wdt.c       |    1 -
+>  drivers/watchdog/max63xx_wdt.c      |    1 -
+>  drivers/watchdog/orion_wdt.c        |    1 -
+>  drivers/watchdog/pnx4008_wdt.c      |    1 -
+>  drivers/watchdog/rt2880_wdt.c       |    1 -
+>  drivers/watchdog/shwdt.c            |    1 -
+>  drivers/watchdog/softdog.c          |    1 -
+>  drivers/watchdog/stmp3xxx_rtc_wdt.c |    1 -
+>  drivers/watchdog/txx9wdt.c          |    1 -
+>  drivers/watchdog/ux500_wdt.c        |    1 -
+>  14 files changed, 14 deletions(-)
+> (...)
+
 -- 
-1.7.9.5
-
-
+Jean Delvare
+Suse L3 Support
