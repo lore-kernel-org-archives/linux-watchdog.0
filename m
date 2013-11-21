@@ -1,61 +1,55 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wg0-f52.google.com ([74.125.82.52]:46277 "EHLO
-	mail-wg0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754081Ab3KTSmN (ORCPT
+Received: from mail-we0-f171.google.com ([74.125.82.171]:50484 "EHLO
+	mail-we0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750724Ab3KUFTr (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 20 Nov 2013 13:42:13 -0500
-Received: by mail-wg0-f52.google.com with SMTP id z12so9526808wgg.31
-        for <linux-watchdog@vger.kernel.org>; Wed, 20 Nov 2013 10:42:12 -0800 (PST)
+	Thu, 21 Nov 2013 00:19:47 -0500
 MIME-Version: 1.0
-In-Reply-To: <20131120184034.GC30952@roeck-us.net>
-References: <1384888074-19696-1-git-send-email-markus.mayer@linaro.org>
-	<1384888074-19696-2-git-send-email-markus.mayer@linaro.org>
-	<CAPdLdqmxFnJ9HZa04buh8NecMszEAp11VRU4Q159vZ+=NG9p3A@mail.gmail.com>
-	<20131120162721.GB28683@roeck-us.net>
-	<CAPdLdq=xUjsr1ykTHh3t_Uy9kBkKXbW0gpAmtgiOfj8gC42yeA@mail.gmail.com>
-	<20131120184034.GC30952@roeck-us.net>
-Date: Wed, 20 Nov 2013 10:42:12 -0800
-Message-ID: <CAPdLdqma+YMsZqMB3CD=0UEzBPYf3XoCzjkcCMaOOS2mt+51xQ@mail.gmail.com>
-Subject: Re: [PATCH v4 1/2] watchdog: bcm281xx: Watchdog Driver
-From: Markus Mayer <markus.mayer@linaro.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Christian Daudt <bcm@fixthebug.org>,
-	Linaro Patches <patches@linaro.org>,
-	Matt Porter <matt.porter@linaro.org>,
-	One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>,
-	Linux Watchdog List <linux-watchdog@vger.kernel.org>,
-	ARM Kernel List <linux-arm-kernel@lists.infradead.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1552959.6e3zcBLbjf@amdc1227>
+References: <1384768189-2839-1-git-send-email-l.krishna@samsung.com> <1552959.6e3zcBLbjf@amdc1227>
+From: Leela Krishna Amudala <l.krishna@samsung.com>
+Date: Thu, 21 Nov 2013 10:49:25 +0530
+Message-ID: <CAL1wa8c98vBNVKz081dBNHXfd8RvGohgFJPwJ0vJihYeMGmr2w@mail.gmail.com>
+Subject: Re: [PATCH V9 0/3] Add watchdog DT nodes and use syscon regmap
+ interface to configure pmu registers
+To: Tomasz Figa <t.figa@samsung.com>
+Cc: Leela Krishna Amudala <l.krishna@samsung.com>,
+	linux-samsung-soc <linux-samsung-soc@vger.kernel.org>,
+	Kukjin Kim <kgene.kim@samsung.com>,
+	Wim Van Sebroeck <wim@iguana.be>, devicetree@vger.kernel.org,
+	Douglas Anderson <dianders@chromium.org>,
+	linux-watchdog@vger.kernel.org, cpgs@samsung.com,
+	Sachin Kamat <sachin.kamat@linaro.org>,
+	Guenter Roeck <linux@roeck-us.net>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 20 November 2013 10:40, Guenter Roeck <linux@roeck-us.net> wrote:
-> On Wed, Nov 20, 2013 at 10:24:54AM -0800, Markus Mayer wrote:
->> > Hi Markus,
->> >
->> > Yes, I noticed when I merged it into my watchdog-next branch.
->> >
->> > Reminds me ... v3 had a whitespace problem. I don't recall if you fixed
->> > that in v4. If you didn't, that might be a better reason to send v5.
->>
->> That's still there, unfortunately. Trailing space on the first
->> help-text line in Kconfig:
->>     Support for the watchdog timer on the following Broadcom BCM281xx
->>
->> So, I'll generate v5 with that fixed. Do you prefer I also rebase it
->> right now to whatever current tip is to take care of the merge
->> conflict?
->>
-> I would suggest to wait for -rc1 and rebase to it before you send the new
-> version. After all, it won't make it into 3.13 anyway, so no need to hurry.
+Hello Wim Van Sebroeck,
 
-Sure thing. I'll do that.
+Can you please review this series and take necessary action.
 
-Thanks,
--Markus
+Best Wishes,
+Leela Krishna.
 
--- 
-Markus Mayer
-Broadcom Landing Team
+On Mon, Nov 18, 2013 at 4:35 PM, Tomasz Figa <t.figa@samsung.com> wrote:
+> Hi Leela,
+>
+> On Monday 18 of November 2013 15:19:46 Leela Krishna Amudala wrote:
+>> This patchset does the following things
+>>       - Adds pmusysreg device node to exynos5.dtsi file
+>>       - Adds watchdog DT nodes to Exynos5250 and 5420
+>>       - Uses syscon regmap interface to configure pmu registers
+>>         to mask/unmask enable/disable of watchdog.
+>
+> For the whole series:
+>
+> Reviewed-by: Tomasz Figa <t.figa@samsung.com>
+>
+> Best regards,
+> Tomasz
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-samsung-soc" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
