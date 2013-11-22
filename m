@@ -1,8 +1,8 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Received: from mms2.broadcom.com ([216.31.210.18]:2561 "EHLO mms2.broadcom.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755526Ab3KVW4W (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 22 Nov 2013 17:56:22 -0500
+	id S1755797Ab3KVW4h (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 22 Nov 2013 17:56:37 -0500
 From: "Markus Mayer" <markus.mayer@linaro.org>
 To: "Wim Van Sebroeck" <wim@iguana.be>,
 	"Guenter Roeck" <linux@roeck-us.net>,
@@ -14,68 +14,37 @@ cc: "Linaro Patches" <patches@linaro.org>,
 	"ARM Kernel List" <linux-arm-kernel@lists.infradead.org>,
 	"Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
 	"Markus Mayer" <markus.mayer@linaro.org>
-Subject: [PATCH v5 0/2] watchdog: bcm281xx: Watchdog Driver
-Date: Fri, 22 Nov 2013 14:56:02 -0800
-Message-ID: <1385160964-18578-1-git-send-email-markus.mayer@linaro.org>
+Subject: [PATCH v5 2/2] ARM: bcm281xx: watchdog configuration
+Date: Fri, 22 Nov 2013 14:56:04 -0800
+Message-ID: <1385160964-18578-3-git-send-email-markus.mayer@linaro.org>
+In-Reply-To: <1385160964-18578-1-git-send-email-markus.mayer@linaro.org>
+References: <1385160964-18578-1-git-send-email-markus.mayer@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This is version 5 of the watchdog driver for the BCM281xx family of mobile
-SoCs.
+This commit enables the watchdog driver for the BCM281xx family of SoCs.
 
-Changes since version 4:
-- Fixed whitespace issue in Kconfig "help" section
-- Rebased onto 3.13-rc1 (due to merge conflict in Makefile)
+Signed-off-by: Markus Mayer <markus.mayer@linaro.org>
+Reviewed-by: Matt Porter <matt.porter@linaro.org>
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+---
+ arch/arm/configs/bcm_defconfig |    3 +++
+ 1 file changed, 3 insertions(+)
 
-Changes since version 3:
-- Removed #include <linux/miscdevice.h>
-- Added Reviewed-by:/Acked-by: Guenter Roeck
-
-Changes since version 2:
-
-- BCM_KONA_WDT_NAME: "bcm-kona-wdt" -> "bcm_kona_wdt"
-- Don't initialize static variable
-- Removed '{'/'}' from single-line statements
-- busy_count retains the maximum loop count of the longest loop rather
-  than an over-all maximum
-- Use seq_puts() in lieu of seq_printf() in 2 locations
-- Removed error message after devm_kzalloc()
-- Added MODULE_ALIAS
-
-Changes since version 1:
-
-- Added module name to "help" section in Kconfig A few cosmetic code
-- simplifications and fixes Removed most dev_info() calls and changed the
-- remaining ones to dev_dbg() Renamed SECWDOG_WD_LOAD_FLAG_MASK to
-- SECWDOG_WD_LOAD_FLAG Added some comments to secure_register_read() and
-- struct bcm_kona_wdt Added delay to secure_register_read() Reduced maximum
-- retry loop from 10000 to 1000 Introduced "busy_count" variable to count
-- how often secure_register_read() gets stalled; this is available through
-- debugfs Simplified secure_register_read() to return -ETIMEDOUT rather than
-- using a variable parameter to indicate a timeout error Got rid of all uses
-- of -EAGAIN Fixed return value check for debugfs_create_dir() Simplified
-- bcm_kona_wdt_debugfs_init() by getting rid of goto Created new generic
-- function bcm_kona_wdt_ctrl_reg_modify() The following functions now use
-- bcm_kona_wdt_ctrl_reg_modify():
-    - bcm_kona_wdt_set_resolution_reg() bcm_kona_wdt_set_timeout_reg()
-    - bcm_kona_wdt_stop()
-- Made bcm_kona_wdt_set_timeout_reg() more generic, so bcm_kona_wdt_start()
-  can use it Removed MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR)
-
-Markus Mayer (2):
-  watchdog: bcm281xx: Watchdog Driver
-  ARM: bcm281xx: watchdog configuration
-
- arch/arm/configs/bcm_defconfig  |    3 +
- drivers/watchdog/Kconfig        |   22 +++
- drivers/watchdog/Makefile       |    1 +
- drivers/watchdog/bcm_kona_wdt.c |  365 +++++++++++++++++++++++++++++++++++++++
- 4 files changed, 391 insertions(+)
- create mode 100644 drivers/watchdog/bcm_kona_wdt.c
-
+diff --git a/arch/arm/configs/bcm_defconfig b/arch/arm/configs/bcm_defconfig
+index 287ac1d..d4d0083 100644
+--- a/arch/arm/configs/bcm_defconfig
++++ b/arch/arm/configs/bcm_defconfig
+@@ -126,3 +126,6 @@ CONFIG_CRC_ITU_T=y
+ CONFIG_CRC7=y
+ CONFIG_XZ_DEC=y
+ CONFIG_AVERAGE=y
++CONFIG_WATCHDOG=y
++CONFIG_BCM_KONA_WDT=y
++CONFIG_BCM_KONA_WDT_DEBUG=y
 -- 
 1.7.9.5
 
