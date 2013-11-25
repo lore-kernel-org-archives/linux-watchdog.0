@@ -1,74 +1,65 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:37005 "EHLO bear.ext.ti.com"
+Received: from arroyo.ext.ti.com ([192.94.94.40]:48047 "EHLO arroyo.ext.ti.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754447Ab3KYOF4 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 25 Nov 2013 09:05:56 -0500
-From: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
-To: Santosh Shilimkar <santosh.shilimkar@ti.com>
+	id S1757831Ab3KYOQs (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 25 Nov 2013 09:16:48 -0500
+Message-ID: <52935BAD.9080908@ti.com>
+Date: Mon, 25 Nov 2013 09:16:13 -0500
+From: Santosh Shilimkar <santosh.shilimkar@ti.com>
+MIME-Version: 1.0
+To: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
 CC: <linux-arm-kernel@lists.infradead.org>, <mark.rutland@arm.com>,
 	<wim@iguana.be>, <nsekhar@ti.com>,
 	<linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
 	Pawel Moll <Pawel.Moll@arm.com>, <swarren@wwwdotorg.org>,
 	<ijc+devicetree@hellion.org.uk>, <galak@kernel.crashing.org>,
 	<rob.herring@calxeda.com>, <linux-kernel@vger.kernel.org>,
-	<grant.likely@linaro.org>, <grygorii.strashko@ti.com>,
-	Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
-Subject: [PATCH v3 0/6] Update Davinci watchdog driver
-Date: Mon, 25 Nov 2013 16:04:39 +0200
-Message-ID: <1385388285-10553-1-git-send-email-ivan.khoronzhuk@ti.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+	<grant.likely@linaro.org>, <grygorii.strashko@ti.com>
+Subject: Re: [PATCH v3 1/6] watchdog: davinci: change driver to use WDT core
+References: <1385388285-10553-1-git-send-email-ivan.khoronzhuk@ti.com> <1385388285-10553-2-git-send-email-ivan.khoronzhuk@ti.com>
+In-Reply-To: <1385388285-10553-2-git-send-email-ivan.khoronzhuk@ti.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-These patches are intended to update Davinci watchdog to use WDT core
-and reuse driver for keystone arch, because Keystone uses the similar
-IP like Davinci.
+Ivan,
 
-See Documentation:
-Davinci DM646x - http://www.ti.com/lit/ug/spruer5b/spruer5b.pdf
-Keystone - http://www.ti.com/lit/ug/sprugv5a/sprugv5a.pdf
+On Monday 25 November 2013 09:04 AM, Ivan Khoronzhuk wrote:
+> To reduce code duplicate and increase code readability use WDT core
+> code to handle WDT interface.
+> 
+> Remove io_lock as the WDT core uses mutex to lock each wdt device.
+> Remove wdt_state as the WDT core tracks state with its own variable.
+> 
+> The watchdog_init_timeout() can read timeout value from timeout-sec
+> property if the passed value is out of bounds. The heartbeat is
+> initialized in next way. If heartbeat is not set thought module
+> parameter, try to read it's value from WDT node timeout-sec property.
+> If node has no one, use default value.
+> 
+> The heartbeat is hold in wdd->timeout by WDT core, so use it in
+> order to set timeout period.
+> 
+> Signed-off-by: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
+> Acked-by: Santosh Shilimkar <santosh.shilimkar@ti.com>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Also:
- - improved to support GET_TIMELEFT option.
- - added "clocks" and "timeout-sec" properties to DT.
+Minor suggestion regarding the SOB line which applies to
+rest of the series as well. Typically your SOB line
+should be the last one like below.
 
-Based on
-git://git.kernel.org/pub/scm/linux/kernel/git/ssantosh/linux-keystone.git
-keystone/master
+Acked-by: Santosh Shilimkar <santosh.shilimkar@ti.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
 
-v2..v3:
-- watchdog: davinci: change driver to use WDT core
-	removed "ti,keystone-wdt" compatible from driver
-	renamed wdt device names for mach-davinci from
-		"watchdog" to "davinci-wdt"
+No need to repost the series just for that. The last
+patch as I commented earlier, needs to be separate
+patch which will go via linux-keystone tree.
 
-- watchdog: davinci: reuse driver for keystone arch
-	moved "clocks" property under "Optional properties"
-	improved decsription of "clocks" property
+Once the watchdog maintainer is happy with rest of the
+series and applies it, I will pick last patch.
 
-- arm: dts: keystone: add watchdog entry
-	replaced "ti,keystone-wdt" compatible on
-		 "ti,keystone-wdt","ti,davinci-wdt"
-
-Ivan Khoronzhuk (6):
-  watchdog: davinci: change driver to use WDT core
-  watchdog: davinci: use davinci_wdt_device structure to hold device
-    data
-  watchdog: davinci: add GET_TIMELEFT option support
-  watchdog: davinci: add "timeout-sec" property
-  watchdog: davinci: reuse driver for keystone arch
-  arm: dts: keystone: add watchdog entry
-
- .../devicetree/bindings/watchdog/davinci-wdt.txt   |   16 +-
- arch/arm/boot/dts/keystone.dtsi                    |    6 +
- arch/arm/mach-davinci/da8xx-dt.c                   |    2 +-
- arch/arm/mach-davinci/devices-da8xx.c              |    4 +-
- arch/arm/mach-davinci/devices.c                    |    2 +-
- drivers/watchdog/Kconfig                           |    6 +-
- drivers/watchdog/davinci_wdt.c                     |  225 +++++++++-----------
- 7 files changed, 126 insertions(+), 135 deletions(-)
-
--- 
-1.7.9.5
+Regards,
+Santosh
 
