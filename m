@@ -1,51 +1,50 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from arroyo.ext.ti.com ([192.94.94.40]:45963 "EHLO arroyo.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754195Ab3KYNVB (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 25 Nov 2013 08:21:01 -0500
-Message-ID: <52934E7C.9040102@ti.com>
-Date: Mon, 25 Nov 2013 15:19:56 +0200
-From: "ivan.khoronzhuk" <ivan.khoronzhuk@ti.com>
+Received: from mail-vc0-f178.google.com ([209.85.220.178]:40811 "EHLO
+	mail-vc0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752889Ab3KYWYJ (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 25 Nov 2013 17:24:09 -0500
+Received: by mail-vc0-f178.google.com with SMTP id lh4so3226364vcb.37
+        for <linux-watchdog@vger.kernel.org>; Mon, 25 Nov 2013 14:24:08 -0800 (PST)
 MIME-Version: 1.0
-To: Sekhar Nori <nsekhar@ti.com>,
-	Santosh Shilimkar <santosh.shilimkar@ti.com>,
+In-Reply-To: <1384768189-2839-2-git-send-email-l.krishna@samsung.com>
+References: <1384768189-2839-1-git-send-email-l.krishna@samsung.com>
+	<1384768189-2839-2-git-send-email-l.krishna@samsung.com>
+Date: Mon, 25 Nov 2013 14:24:08 -0800
+Message-ID: <CAD=FV=UUTZLhxdNWF262crUf2CykkPWj3RRDowusPwEDyjASAg@mail.gmail.com>
+Subject: Re: [PATCH V9 1/3] ARM: dts: Add pmu sysreg node to exynos5250 and
+ exynos5420 dtsi files
+From: Doug Anderson <dianders@chromium.org>
+To: Leela Krishna Amudala <l.krishna@samsung.com>
+Cc: linux-samsung-soc <linux-samsung-soc@vger.kernel.org>,
+	Kukjin Kim <kgene.kim@samsung.com>,
 	Wim Van Sebroeck <wim@iguana.be>,
-	<linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>
-CC: Grant Likely <grant.likely@linaro.org>,
-	Rob Herring <rob.herring@calxeda.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Stephen Warren <swarren@wwwdotorg.org>,
-	Kumar Gala <galak@kernel.crashing.org>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	<linux-kernel@vger.kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>,
-	Strashko Grygorii <grygorii.strashko@ti.com>
-Subject: Re: [PATCH v2 0/6] Update Davinci watchdog driver
-References: <1384795139-19466-1-git-send-email-ivan.khoronzhuk@ti.com> <52934B6C.4060308@ti.com>
-In-Reply-To: <52934B6C.4060308@ti.com>
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tomasz Figa <t.figa@samsung.com>, devicetree@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, "cpgs ." <cpgs@samsung.com>,
+	Sachin Kamat <sachin.kamat@linaro.org>,
+	Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 11/25/2013 03:06 PM, Sekhar Nori wrote:
-> On Monday 18 November 2013 10:48 PM, Ivan Khoronzhuk wrote:
->> These patches are intended to update Davinci watchdog to use WDT core
->> and reuse driver for keystone arch, because Keystone uses the similar
->> IP like Davinci.
->
-> This series causes a regression on all DaVinci platforms because after
-> the series is applied the watchdog device does not get registered at
-> all. Since you changed the device name please include a patch to fix the
-> platform references too.
->
-> Thanks,
-> Sekhar
->
+Hi Leela Krishna,
 
-Ok, I will replace
+On Mon, Nov 18, 2013 at 1:49 AM, Leela Krishna Amudala
+<l.krishna@samsung.com> wrote:
+> This patch adds pmusysreg node to exynos5250 and exynos5420 dtsi files to
+> handle PMU register accesses in a centralized way using syscon driver
+>
+> Signed-off-by: Leela Krishna Amudala <l.krishna@samsung.com>
+> Reviewed-by: Tomasz Figa <t.figa@samsung.com>
+> ---
+>  Documentation/devicetree/bindings/arm/samsung/pmu.txt |   16 ++++++++++++++++
+>  arch/arm/boot/dts/exynos5250.dtsi                     |    5 +++++
+>  arch/arm/boot/dts/exynos5420.dtsi                     |    5 +++++
+>  3 files changed, 26 insertions(+)
 
--- 
-Regards,
-Ivan Khoronzhuk
+Looks good to me.  I've tested this applied to our local tree
+<https://chromium-review.googlesource.com/#/c/177931/> and it's
+working well for me.
+
+Reviewed-by: Doug Anderson <dianders@chromium.org>
+Tested-by: Doug Anderson <dianders@chromium.org>
