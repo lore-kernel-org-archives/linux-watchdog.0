@@ -1,74 +1,44 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from cam-admin0.cambridge.arm.com ([217.140.96.50]:56269 "EHLO
-	cam-admin0.cambridge.arm.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751743Ab3KYMPd (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 25 Nov 2013 07:15:33 -0500
-Date: Mon, 25 Nov 2013 12:15:29 +0000
-From: Mark Rutland <mark.rutland@arm.com>
-To: "ivan.khoronzhuk" <ivan.khoronzhuk@ti.com>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-	Santosh Shilimkar <santosh.shilimkar@ti.com>,
-	"wim@iguana.be" <wim@iguana.be>, "nsekhar@ti.com" <nsekhar@ti.com>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	Pawel Moll <Pawel.Moll@arm.com>,
-	"swarren@wwwdotorg.org" <swarren@wwwdotorg.org>,
-	"ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>,
-	"galak@kernel.crashing.org" <galak@kernel.crashing.org>,
-	"rob.herring@calxeda.com" <rob.herring@calxeda.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"grant.likely@linaro.org" <grant.likely@linaro.org>
-Subject: Re: Fwd: [PATCH 7/8] watchdog: davinci: add "clocks" property
-Message-ID: <20131125121529.GE32081@e106331-lin.cambridge.arm.com>
-References: <1383680783-12114-8-git-send-email-ivan.khoronzhuk@ti.com>
- <527A28E8.4010204@ti.com>
- <201311231857.47104.arnd@arndb.de>
- <52932DA1.8040204@ti.com>
+Received: from bear.ext.ti.com ([192.94.94.41]:34754 "EHLO bear.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754501Ab3KYNIM (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 25 Nov 2013 08:08:12 -0500
+Message-ID: <52934B6C.4060308@ti.com>
+Date: Mon, 25 Nov 2013 18:36:52 +0530
+From: Sekhar Nori <nsekhar@ti.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <52932DA1.8040204@ti.com>
+To: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>,
+	Santosh Shilimkar <santosh.shilimkar@ti.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	<linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>
+CC: Grant Likely <grant.likely@linaro.org>,
+	Rob Herring <rob.herring@calxeda.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Stephen Warren <swarren@wwwdotorg.org>,
+	Kumar Gala <galak@kernel.crashing.org>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	<linux-kernel@vger.kernel.org>,
+	<linux-arm-kernel@lists.infradead.org>,
+	Strashko Grygorii <grygorii.strashko@ti.com>
+Subject: Re: [PATCH v2 0/6] Update Davinci watchdog driver
+References: <1384795139-19466-1-git-send-email-ivan.khoronzhuk@ti.com>
+In-Reply-To: <1384795139-19466-1-git-send-email-ivan.khoronzhuk@ti.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Nov 25, 2013 at 10:59:45AM +0000, ivan.khoronzhuk wrote:
-> On 11/23/2013 07:57 PM, Arnd Bergmann wrote:
-> > On Wednesday 06 November 2013, ivan.khoronzhuk wrote:
-> >> @@ -7,6 +7,10 @@ Required properties:
-> >>   
-> >>   - reg : Should contain WDT registers location and length
-> >>   
-> >> +- clocks: phandle reference to the controller clock.
-> >> +         Required only for Keystone arch.
-> >> +         See clock-bindings.txt
-> >> +
-> >>   Optional properties:
-> >>   
-> >>   - timeout-sec:         Contains the watchdog timeout in seconds
-> > 
-> > I think it should really be listed under "Optional properties" and the
-> > reference to Keystone removed. Note how the binding would need
-> > to change otherwise if another platform started to use the clock, which
-> > is a little silly.
-> > 
-> > 	Arnd
-> > 
-> 
-> Ok, I'll move clocks property under "Optional properties" and describe it
-> as following:
-> 
-> Optional properties:
-> - timeout-sec : Contains the watchdog timeout in seconds
-> - clocks: phandle reference to the controller clock.
-> 	  Needed if platform uses clocks.
-> 	  See clock-bindings.txt
+On Monday 18 November 2013 10:48 PM, Ivan Khoronzhuk wrote:
+> These patches are intended to update Davinci watchdog to use WDT core
+> and reuse driver for keystone arch, because Keystone uses the similar
+> IP like Davinci.
 
-Nit: clocks aren't just phandles, they have a clock-specifier too (which
-might be 0 cells).
+This series causes a regression on all DaVinci platforms because after
+the series is applied the watchdog device does not get registered at
+all. Since you changed the device name please include a patch to fix the
+platform references too.
 
-Otherwise this looks fine to me.
+Thanks,
+Sekhar
 
-Mark.
