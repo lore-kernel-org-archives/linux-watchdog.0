@@ -1,45 +1,67 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f182.google.com ([209.85.192.182]:59597 "EHLO
-	mail-pd0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752193Ab3KUJRe (ORCPT
+Received: from devils.ext.ti.com ([198.47.26.153]:48490 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750867Ab3KYLA4 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 21 Nov 2013 04:17:34 -0500
-Received: by mail-pd0-f182.google.com with SMTP id v10so5342597pde.13
-        for <linux-watchdog@vger.kernel.org>; Thu, 21 Nov 2013 01:17:33 -0800 (PST)
-Date: Thu, 21 Nov 2013 09:17:24 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Bibek Basu <bbasu@nvidia.com>
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] mfd: as3722: add watchdog support
-Message-ID: <20131121091724.GC19368@lee--X1>
-References: <1384986810-10952-1-git-send-email-bbasu@nvidia.com>
+	Mon, 25 Nov 2013 06:00:56 -0500
+Message-ID: <52932DA1.8040204@ti.com>
+Date: Mon, 25 Nov 2013 12:59:45 +0200
+From: "ivan.khoronzhuk" <ivan.khoronzhuk@ti.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <1384986810-10952-1-git-send-email-bbasu@nvidia.com>
+To: Arnd Bergmann <arnd@arndb.de>,
+	<linux-arm-kernel@lists.infradead.org>
+CC: Santosh Shilimkar <santosh.shilimkar@ti.com>, <wim@iguana.be>,
+	<nsekhar@ti.com>, <linux-watchdog@vger.kernel.org>,
+	<devicetree@vger.kernel.org>, <mark.rutland@arm.com>,
+	<pawel.moll@arm.com>, <swarren@wwwdotorg.org>,
+	<ijc+devicetree@hellion.org.uk>, <galak@kernel.crashing.org>,
+	<rob.herring@calxeda.com>, <linux-kernel@vger.kernel.org>,
+	<grant.likely@linaro.org>
+Subject: Re: Fwd: [PATCH 7/8] watchdog: davinci: add "clocks" property
+References: <1383680783-12114-8-git-send-email-ivan.khoronzhuk@ti.com> <527A28E8.4010204@ti.com> <201311231857.47104.arnd@arndb.de>
+In-Reply-To: <201311231857.47104.arnd@arndb.de>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, 21 Nov 2013, Bibek Basu wrote:
+On 11/23/2013 07:57 PM, Arnd Bergmann wrote:
+> On Wednesday 06 November 2013, ivan.khoronzhuk wrote:
+>> @@ -7,6 +7,10 @@ Required properties:
+>>   
+>>   - reg : Should contain WDT registers location and length
+>>   
+>> +- clocks: phandle reference to the controller clock.
+>> +         Required only for Keystone arch.
+>> +         See clock-bindings.txt
+>> +
+>>   Optional properties:
+>>   
+>>   - timeout-sec:         Contains the watchdog timeout in seconds
+> 
+> I think it should really be listed under "Optional properties" and the
+> reference to Keystone removed. Note how the binding would need
+> to change otherwise if another platform started to use the clock, which
+> is a little silly.
+> 
+> 	Arnd
+> 
 
-> Add watchdog device support for as3722
->=20
-> Signed-off-by: Bibek Basu <bbasu@nvidia.com>
-> ---
->  drivers/mfd/as3722.c | 3 +++
->  1 file changed, 3 insertions(+)
+Ok, I'll move clocks property under "Optional properties" and describe it
+as following:
 
-Applied, thanks.
+Optional properties:
+- timeout-sec : Contains the watchdog timeout in seconds
+- clocks: phandle reference to the controller clock.
+	  Needed if platform uses clocks.
+	  See clock-bindings.txt
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+FYI:
+The new patch series had been already presented, where the patches
+"watchdog: davinci: add "clocks" property" and
+"watchdog: davinci: reuse driver for keystone arch" were combined.
+http://www.spinics.net/lists/devicetree/msg12542.html
+
+-- 
+Regards,
+Ivan Khoronzhuk
