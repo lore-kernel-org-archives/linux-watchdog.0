@@ -1,70 +1,58 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from arroyo.ext.ti.com ([192.94.94.40]:42041 "EHLO arroyo.ext.ti.com"
+Received: from bear.ext.ti.com ([192.94.94.41]:60725 "EHLO bear.ext.ti.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751841Ab3KYLKP (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 25 Nov 2013 06:10:15 -0500
-Message-ID: <52932FD3.10508@ti.com>
-Date: Mon, 25 Nov 2013 13:09:07 +0200
-From: "ivan.khoronzhuk" <ivan.khoronzhuk@ti.com>
+	id S1751763Ab3KYL56 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 25 Nov 2013 06:57:58 -0500
+Message-ID: <52933AE4.3070608@ti.com>
+Date: Mon, 25 Nov 2013 17:26:20 +0530
+From: Sekhar Nori <nsekhar@ti.com>
 MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>,
-	<linux-arm-kernel@lists.infradead.org>
-CC: Santosh Shilimkar <santosh.shilimkar@ti.com>, <wim@iguana.be>,
-	<nsekhar@ti.com>, <linux-watchdog@vger.kernel.org>,
-	<devicetree@vger.kernel.org>, <mark.rutland@arm.com>,
-	<pawel.moll@arm.com>, <swarren@wwwdotorg.org>,
-	<ijc+devicetree@hellion.org.uk>, <galak@kernel.crashing.org>,
-	<rob.herring@calxeda.com>, <linux-kernel@vger.kernel.org>,
-	<grant.likely@linaro.org>
-Subject: Re: Fwd: [PATCH 6/8] watchdog: davinci: reuse driver for keystone
- arch
-References: <1383680783-12114-7-git-send-email-ivan.khoronzhuk@ti.com> <527A28DE.4030906@ti.com> <201311231902.02807.arnd@arndb.de>
-In-Reply-To: <201311231902.02807.arnd@arndb.de>
+To: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>,
+	Santosh Shilimkar <santosh.shilimkar@ti.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	<linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>
+CC: Grant Likely <grant.likely@linaro.org>,
+	Rob Herring <rob.herring@calxeda.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Stephen Warren <swarren@wwwdotorg.org>,
+	Kumar Gala <galak@kernel.crashing.org>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	<linux-kernel@vger.kernel.org>,
+	<linux-arm-kernel@lists.infradead.org>,
+	Strashko Grygorii <grygorii.strashko@ti.com>
+Subject: Re: [PATCH 1/6] watchdog: davinci: change driver to use WDT core
+References: <1384795139-19466-1-git-send-email-ivan.khoronzhuk@ti.com> <1384795139-19466-2-git-send-email-ivan.khoronzhuk@ti.com>
+In-Reply-To: <1384795139-19466-2-git-send-email-ivan.khoronzhuk@ti.com>
 Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 11/23/2013 08:02 PM, Arnd Bergmann wrote:
-> On Wednesday 06 November 2013, ivan.khoronzhuk wrote:
-> 
->> @@ -1,13 +1,20 @@
->> -DaVinci Watchdog Timer (WDT) Controller
->> +Texas Instruments DaVinci/Keystone Watchdog Timer (WDT) Controller
->>   
->>   Required properties:
->> -- compatible : Should be "ti,davinci-wdt"
->> +
->> +- compatible:          "ti,davinci-wdt"
->> +                       "ti,keystone-wdt"
->> +
->>   - reg : Should contain WDT registers location and length
->>   
-> 
-> ...
-> 
->> @@ -229,6 +229,7 @@ static int davinci_wdt_remove(struct platform_device *pdev)
->>   
->>   static const struct of_device_id davinci_wdt_of_match[] = {
->>          { .compatible = "ti,davinci-wdt", },
->> +       { .compatible = "ti,keystone-wdt", },
->>          {},
->>   };
->>   MODULE_DEVICE_TABLE(of, davinci_wdt_of_match);
-> 
-> You should clarify the compatible list here: It seems that the devices are fully
-> compatible, so the driver should only need to check for "ti,davinci-wdt" as the
-> compatible string, while the dtb files should list both "ti,davinci-wdt" and
-> "ti,keystone-wdt" for keystone, but only the davinci string for davinci.
-> 
-> 	Arnd
-> 
+On Monday 18 November 2013 10:48 PM, Ivan Khoronzhuk wrote:
+> @@ -211,29 +129,34 @@ static int davinci_wdt_probe(struct platform_device *pdev)
+>  
+>  	clk_prepare_enable(wdt_clk);
+>  
+> -	if (heartbeat < 1 || heartbeat > MAX_HEARTBEAT)
+> -		heartbeat = DEFAULT_HEARTBEAT;
+> +	wdd			= &wdt_wdd;
+> +	wdd->info		= &davinci_wdt_info;
+> +	wdd->ops		= &davinci_wdt_ops;
+> +	wdd->min_timeout 	= 1;
+> +	wdd->max_timeout 	= MAX_HEARTBEAT;
 
-Ok, I will remove "ti,keystone-wdt" compatible from driver and for the keystone WDT node
-describe compatible as:
+Some checkpatch warnings. Please fix.
 
-compatible = "ti,keystone-wdt", "ti,davinci-wdt";
+WARNING: please, no space before tabs
+#273: FILE: drivers/watchdog/davinci_wdt.c:135:
++^Iwdd->min_timeout ^I= 1;$
 
--- 
-Regards,
-Ivan Khoronzhuk
+WARNING: please, no space before tabs
+#274: FILE: drivers/watchdog/davinci_wdt.c:136:
++^Iwdd->max_timeout ^I= MAX_HEARTBEAT;$
+
+total: 0 errors, 2 warnings, 0 checks, 249 lines checked
+
+Thanks,
+sekhar
