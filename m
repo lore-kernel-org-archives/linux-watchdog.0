@@ -1,60 +1,65 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from devils.ext.ti.com ([198.47.26.153]:35573 "EHLO
-	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754507Ab3KYQpK (ORCPT
+Received: from mail.active-venture.com ([67.228.131.205]:57886 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755486Ab3KZMKV (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 25 Nov 2013 11:45:10 -0500
-Message-ID: <52937E52.8070502@ti.com>
-Date: Mon, 25 Nov 2013 18:44:02 +0200
-From: "ivan.khoronzhuk" <ivan.khoronzhuk@ti.com>
+	Tue, 26 Nov 2013 07:10:21 -0500
+Message-ID: <52948FA8.7000609@roeck-us.net>
+Date: Tue, 26 Nov 2013 04:10:16 -0800
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-To: Sekhar Nori <nsekhar@ti.com>,
-	Santosh Shilimkar <santosh.shilimkar@ti.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	<linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>
-CC: Grant Likely <grant.likely@linaro.org>,
-	Rob Herring <rob.herring@calxeda.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Stephen Warren <swarren@wwwdotorg.org>,
-	Kumar Gala <galak@kernel.crashing.org>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	<linux-kernel@vger.kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>,
-	Strashko Grygorii <grygorii.strashko@ti.com>
-Subject: Re: [PATCH v2 0/6] Update Davinci watchdog driver
-References: <1384795139-19466-1-git-send-email-ivan.khoronzhuk@ti.com> <52934B6C.4060308@ti.com> <52934E7C.9040102@ti.com>
-In-Reply-To: <52934E7C.9040102@ti.com>
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+To: Grygorii Strashko <grygorii.strashko@ti.com>,
+	Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>,
+	Santosh Shilimkar <santosh.shilimkar@ti.com>
+CC: linux-arm-kernel@lists.infradead.org, mark.rutland@arm.com,
+	wim@iguana.be, nsekhar@ti.com, linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org, Pawel Moll <Pawel.Moll@arm.com>,
+	swarren@wwwdotorg.org, ijc+devicetree@hellion.org.uk,
+	galak@kernel.crashing.org, rob.herring@calxeda.com,
+	linux-kernel@vger.kernel.org, grant.likely@linaro.org
+Subject: Re: [PATCH v3 1/6] watchdog: davinci: change driver to use WDT core
+References: <1385388285-10553-1-git-send-email-ivan.khoronzhuk@ti.com> <1385388285-10553-2-git-send-email-ivan.khoronzhuk@ti.com> <52948184.50604@ti.com>
+In-Reply-To: <52948184.50604@ti.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 11/25/2013 03:19 PM, ivan.khoronzhuk wrote:
-> On 11/25/2013 03:06 PM, Sekhar Nori wrote:
->> On Monday 18 November 2013 10:48 PM, Ivan Khoronzhuk wrote:
->>> These patches are intended to update Davinci watchdog to use WDT core
->>> and reuse driver for keystone arch, because Keystone uses the similar
->>> IP like Davinci.
+On 11/26/2013 03:09 AM, Grygorii Strashko wrote:
+> On 11/25/2013 04:04 PM, Ivan Khoronzhuk wrote:
+>> To reduce code duplicate and increase code readability use WDT core
+>> code to handle WDT interface.
 >>
->> This series causes a regression on all DaVinci platforms because after
->> the series is applied the watchdog device does not get registered at
->> all. Since you changed the device name please include a patch to fix the
->> platform references too.
+>> Remove io_lock as the WDT core uses mutex to lock each wdt device.
+>> Remove wdt_state as the WDT core tracks state with its own variable.
 >>
->> Thanks,
->> Sekhar
+>> The watchdog_init_timeout() can read timeout value from timeout-sec
+>> property if the passed value is out of bounds. The heartbeat is
+>> initialized in next way. If heartbeat is not set thought module
+>> parameter, try to read it's value from WDT node timeout-sec property.
+>> If node has no one, use default value.
 >>
+>> The heartbeat is hold in wdd->timeout by WDT core, so use it in
+>> order to set timeout period.
+>>
+>> Signed-off-by: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
+>> Acked-by: Santosh Shilimkar <santosh.shilimkar@ti.com>
+>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+>> ---
+>>   arch/arm/mach-davinci/da8xx-dt.c      |    2 +-
+>>   arch/arm/mach-davinci/devices-da8xx.c |    4 +-
+>>   arch/arm/mach-davinci/devices.c       |    2 +-
+>>   drivers/watchdog/Kconfig              |    2 +
+>>   drivers/watchdog/davinci_wdt.c        |  151 ++++++++-------------------------
+>>   5 files changed, 43 insertions(+), 118 deletions(-)
 >
-> Ok, I will replace
+> Pls note, that this patch contains both changes in platform and driver code to fix regression reported by Sekhar Nori on v2 of this series and caused by driver name changing.
 >
+> Is it ok?
+>
+> It can be splitted, but then both patches will introduce regression by itself and thing will work only if both of them will be applied together.
+>
+Splitting it would break bisect, even if applied together, so I don't think this would be a good idea.
 
-Sekhar I have replaced names in new patch seria
-https://lkml.org/lkml/2013/11/25/461
-at watchdog: davinci: change driver to use WDT core
+Guenter
 
-Is it OK for you?
-
--- 
-Regards,
-Ivan Khoronzhuk
