@@ -1,11 +1,11 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:58358 "EHLO
+Received: from mail.active-venture.com ([67.228.131.205]:62233 "EHLO
 	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753634Ab3KZS6L (ORCPT
+	with ESMTP id S932396Ab3KZS6d (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 26 Nov 2013 13:58:11 -0500
-Message-ID: <5294EF42.3090001@roeck-us.net>
-Date: Tue, 26 Nov 2013 10:58:10 -0800
+	Tue, 26 Nov 2013 13:58:33 -0500
+Message-ID: <5294EF58.7040905@roeck-us.net>
+Date: Tue, 26 Nov 2013 10:58:32 -0800
 From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
 To: Doug Anderson <dianders@chromium.org>,
@@ -13,61 +13,35 @@ To: Doug Anderson <dianders@chromium.org>,
 CC: Fabio Porcedda <fabio.porcedda@gmail.com>,
 	Sachin Kamat <sachin.kamat@linaro.org>,
 	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] watchdog: core: Fix watchdog_init_timeout() when
- invalid param / valid dt
-References: <1385490173-7511-1-git-send-email-dianders@chromium.org> <1385490173-7511-2-git-send-email-dianders@chromium.org>
-In-Reply-To: <1385490173-7511-2-git-send-email-dianders@chromium.org>
+Subject: Re: [PATCH 1/2] watchdog: core: Make dt "timeout-sec" property work
+ on drivers w/out min/max
+References: <1385490173-7511-1-git-send-email-dianders@chromium.org>
+In-Reply-To: <1385490173-7511-1-git-send-email-dianders@chromium.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 On 11/26/2013 10:22 AM, Doug Anderson wrote:
-> There was a minor bug in watchdog_init_timeout() where it would return
-> an error code if someone specified an invalid parameter on the
-> command line but then there was a valid parameter in the device tree
-> as "timeout-sec".
+> It is valid for a watchdog driver to have 0 for a "min" and "max"
+> timeout if the driver doesn't need the core to enforce the concepts of
+> min and max.  The s3c2410_wdt driver is one such driver.  Specifically
+> it can be hard for that driver to come up with a static "max" on all
+> platforms without a lot more information since the input clock on
+> S3C2410 and S3C2440 can change with DVFS.
+>
+> As written, watchdog_init_timeout() will not ever read "timeout-sec"
+> on these drivers since watchdog_timeout_invalid() will _never_ return
+> true.  Change to not consider a timeout_parm of 0 as valid even if
+> min/max aren't specified by the driver.  Also handle the case when
+> there is no min/max and no "timeout-sec" property.
 >
 > Signed-off-by: Doug Anderson <dianders@chromium.org>
 
-I thought that was on purpose.
+Makes sense to me.
 
-Problem as I see it is that users would expect the timeout to be set to
-the provided parameter, which would be silently ignored and replaced
-by timeout-sec if the parameter is wrong and timeout-sec is specified.
-Seems to me that the user should be informed about the problem,
-and not be permitted to provide invalid parameters.
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Thanks,
 Guenter
 
-> ---
->   drivers/watchdog/watchdog_core.c | 8 ++++----
->   1 file changed, 4 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-> index cec9b55..8d27753 100644
-> --- a/drivers/watchdog/watchdog_core.c
-> +++ b/drivers/watchdog/watchdog_core.c
-> @@ -82,12 +82,12 @@ int watchdog_init_timeout(struct watchdog_device *wdd,
->   		wdd->timeout = timeout_parm;
->   		return ret;
->   	}
-> -	if (timeout_parm)
-> -		ret = -EINVAL;
->
-> -	/* try to get the timeout_sec property */
-> +	/* if no device tree then we're done */
->   	if (dev == NULL || dev->of_node == NULL)
-> -		return ret;
-> +		return (timeout_parm) ? -EINVAL : ret;
-
-( ) is unnecessary.
-
-> +
-> +	/* try to get the timeout_sec property */
->   	of_property_read_u32(dev->of_node, "timeout-sec", &t);
->   	if (!watchdog_timeout_invalid(wdd, t) && t)
->   		wdd->timeout = t;
->
 
