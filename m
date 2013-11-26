@@ -1,64 +1,73 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oa0-f74.google.com ([209.85.219.74]:59103 "EHLO
-	mail-oa0-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757293Ab3KZSXD (ORCPT
+Received: from mail.active-venture.com ([67.228.131.205]:58358 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753634Ab3KZS6L (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 26 Nov 2013 13:23:03 -0500
-Received: by mail-oa0-f74.google.com with SMTP id o6so1272125oag.5
-        for <linux-watchdog@vger.kernel.org>; Tue, 26 Nov 2013 10:23:02 -0800 (PST)
-From: Doug Anderson <dianders@chromium.org>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Fabio Porcedda <fabio.porcedda@gmail.com>,
+	Tue, 26 Nov 2013 13:58:11 -0500
+Message-ID: <5294EF42.3090001@roeck-us.net>
+Date: Tue, 26 Nov 2013 10:58:10 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+MIME-Version: 1.0
+To: Doug Anderson <dianders@chromium.org>,
+	Wim Van Sebroeck <wim@iguana.be>
+CC: Fabio Porcedda <fabio.porcedda@gmail.com>,
 	Sachin Kamat <sachin.kamat@linaro.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Doug Anderson <dianders@chromium.org>,
 	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/2] watchdog: core: Make dt "timeout-sec" property work on drivers w/out min/max
-Date: Tue, 26 Nov 2013 10:22:52 -0800
-Message-Id: <1385490173-7511-1-git-send-email-dianders@chromium.org>
+Subject: Re: [PATCH 2/2] watchdog: core: Fix watchdog_init_timeout() when
+ invalid param / valid dt
+References: <1385490173-7511-1-git-send-email-dianders@chromium.org> <1385490173-7511-2-git-send-email-dianders@chromium.org>
+In-Reply-To: <1385490173-7511-2-git-send-email-dianders@chromium.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-It is valid for a watchdog driver to have 0 for a "min" and "max"
-timeout if the driver doesn't need the core to enforce the concepts of
-min and max.  The s3c2410_wdt driver is one such driver.  Specifically
-it can be hard for that driver to come up with a static "max" on all
-platforms without a lot more information since the input clock on
-S3C2410 and S3C2440 can change with DVFS.
+On 11/26/2013 10:22 AM, Doug Anderson wrote:
+> There was a minor bug in watchdog_init_timeout() where it would return
+> an error code if someone specified an invalid parameter on the
+> command line but then there was a valid parameter in the device tree
+> as "timeout-sec".
+>
+> Signed-off-by: Doug Anderson <dianders@chromium.org>
 
-As written, watchdog_init_timeout() will not ever read "timeout-sec"
-on these drivers since watchdog_timeout_invalid() will _never_ return
-true.  Change to not consider a timeout_parm of 0 as valid even if
-min/max aren't specified by the driver.  Also handle the case when
-there is no min/max and no "timeout-sec" property.
+I thought that was on purpose.
 
-Signed-off-by: Doug Anderson <dianders@chromium.org>
----
- drivers/watchdog/watchdog_core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Problem as I see it is that users would expect the timeout to be set to
+the provided parameter, which would be silently ignored and replaced
+by timeout-sec if the parameter is wrong and timeout-sec is specified.
+Seems to me that the user should be informed about the problem,
+and not be permitted to provide invalid parameters.
 
-diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-index 461336c..cec9b55 100644
---- a/drivers/watchdog/watchdog_core.c
-+++ b/drivers/watchdog/watchdog_core.c
-@@ -78,7 +78,7 @@ int watchdog_init_timeout(struct watchdog_device *wdd,
- 	watchdog_check_min_max_timeout(wdd);
- 
- 	/* try to get the timeout module parameter first */
--	if (!watchdog_timeout_invalid(wdd, timeout_parm)) {
-+	if (!watchdog_timeout_invalid(wdd, timeout_parm) && timeout_parm) {
- 		wdd->timeout = timeout_parm;
- 		return ret;
- 	}
-@@ -89,7 +89,7 @@ int watchdog_init_timeout(struct watchdog_device *wdd,
- 	if (dev == NULL || dev->of_node == NULL)
- 		return ret;
- 	of_property_read_u32(dev->of_node, "timeout-sec", &t);
--	if (!watchdog_timeout_invalid(wdd, t))
-+	if (!watchdog_timeout_invalid(wdd, t) && t)
- 		wdd->timeout = t;
- 	else
- 		ret = -EINVAL;
--- 
-1.8.4.1
+Thanks,
+Guenter
+
+> ---
+>   drivers/watchdog/watchdog_core.c | 8 ++++----
+>   1 file changed, 4 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+> index cec9b55..8d27753 100644
+> --- a/drivers/watchdog/watchdog_core.c
+> +++ b/drivers/watchdog/watchdog_core.c
+> @@ -82,12 +82,12 @@ int watchdog_init_timeout(struct watchdog_device *wdd,
+>   		wdd->timeout = timeout_parm;
+>   		return ret;
+>   	}
+> -	if (timeout_parm)
+> -		ret = -EINVAL;
+>
+> -	/* try to get the timeout_sec property */
+> +	/* if no device tree then we're done */
+>   	if (dev == NULL || dev->of_node == NULL)
+> -		return ret;
+> +		return (timeout_parm) ? -EINVAL : ret;
+
+( ) is unnecessary.
+
+> +
+> +	/* try to get the timeout_sec property */
+>   	of_property_read_u32(dev->of_node, "timeout-sec", &t);
+>   	if (!watchdog_timeout_invalid(wdd, t) && t)
+>   		wdd->timeout = t;
+>
 
