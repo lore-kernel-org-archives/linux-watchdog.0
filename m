@@ -1,96 +1,108 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:57981 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757954Ab3KZTv4 (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 26 Nov 2013 14:51:56 -0500
-Message-ID: <5294FBD5.8030005@roeck-us.net>
-Date: Tue, 26 Nov 2013 11:51:49 -0800
-From: Guenter Roeck <linux@roeck-us.net>
+Return-Path: <dianders@google.com>
 MIME-Version: 1.0
-To: Doug Anderson <dianders@chromium.org>
-CC: Wim Van Sebroeck <wim@iguana.be>,
-	Fabio Porcedda <fabio.porcedda@gmail.com>,
-	Sachin Kamat <sachin.kamat@linaro.org>,
-	linux-watchdog@vger.kernel.org,
+Sender: dianders@google.com
+In-Reply-To: <5294ED12.9080700@roeck-us.net>
+References: <1385490637-10306-1-git-send-email-dianders@chromium.org>
+	<5294ED12.9080700@roeck-us.net>
+Date: Tue, 26 Nov 2013 13:34:20 -0800
+Message-ID: <CAD=FV=UX5gm3Ju8sCd3DSgyo97P6imN_Ay1zvc8yX=qTJ_mbrw@mail.gmail.com>
+Subject: Re: [PATCH] watchdog: s3c2410_wdt: Handle rounding a little better
+ for timeout
+From: Doug Anderson <dianders@chromium.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@iguana.be>, Leela Krishna Amudala <l.krishna@samsung.com>,
+	Olof Johansson <olof@lixom.net>, Tomasz Figa <tomasz.figa@gmail.com>,
+	Kukjin Kim <kgene.kim@samsung.com>, Ben Dooks <ben-linux@fluff.org>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, linux-watchdog@vger.kernel.org,
 	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/2] watchdog: core: Fix watchdog_init_timeout() when
- invalid param / valid dt
-References: <1385490173-7511-1-git-send-email-dianders@chromium.org>	<1385490173-7511-2-git-send-email-dianders@chromium.org>	<5294EF42.3090001@roeck-us.net> <CAD=FV=W0Op73P2f5KSWhOG+34N8OyeKUzS17ot3BTtzULApv8A@mail.gmail.com>
-In-Reply-To: <CAD=FV=W0Op73P2f5KSWhOG+34N8OyeKUzS17ot3BTtzULApv8A@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 11/26/2013 11:23 AM, Doug Anderson wrote:
-> Guenter,
->
-> Thanks for your reviews!
->
-> On Tue, Nov 26, 2013 at 10:58 AM, Guenter Roeck <linux@roeck-us.net> wrote:
->> On 11/26/2013 10:22 AM, Doug Anderson wrote:
->>>
->>> There was a minor bug in watchdog_init_timeout() where it would return
->>> an error code if someone specified an invalid parameter on the
->>> command line but then there was a valid parameter in the device tree
->>> as "timeout-sec".
->>>
->>> Signed-off-by: Doug Anderson <dianders@chromium.org>
+Guenter,
+
+On Tue, Nov 26, 2013 at 10:48 AM, Guenter Roeck <linux@roeck-us.net> wrote:
+> On 11/26/2013 10:30 AM, Doug Anderson wrote:
 >>
+>> The existing watchdog timeout worked OK but didn't deal with
+>> rounding in an ideal way when dividing out all of its clocks.
 >>
->> I thought that was on purpose.
+>> Specifically if you had a timeout of 32 seconds and an input clock of
+>> 66666666, you'd end up setting a timeout of 31.9998 seconds and
+>> reporting a timeout of 31 seconds.
 >>
->> Problem as I see it is that users would expect the timeout to be set to
->> the provided parameter, which would be silently ignored and replaced
->> by timeout-sec if the parameter is wrong and timeout-sec is specified.
->> Seems to me that the user should be informed about the problem,
->> and not be permitted to provide invalid parameters.
->
-> Wow, really?  ...so it's on purpose that the function will properly
-> read the device tree entry and fill it in but still return an error?
->
-I said "I thought ...", which wasn't meant to imply that I know.
-Maybe Wim should comment and provide directions.
+>> Specifically DBG printouts showed:
+>>    s3c2410wdt_set_heartbeat: count=16666656, timeout=32, freq=520833
+>>    s3c2410wdt_set_heartbeat: timeout=32, divisor=255, count=16666656
+>> (0000ff4f)
+>> and the final timeout reported to the user was:
+>>    ((count / divisor) * divisor) / freq
+>>    (0xff4f * 255) / 520833 = 31 (truncated from 31.9998)
+>> the technically "correct" value is:
+>>    (0xff4f * 255) / (66666666.0 / 128) = 31.9998
+>>
+>> By using "DIV_ROUND_UP" we can be a little more correct.
+>>    s3c2410wdt_set_heartbeat: count=16666688, timeout=32, freq=520834
+>>    s3c2410wdt_set_heartbeat: timeout=32, divisor=255, count=16666688
+>> (0000ff50)
+>> and the final timeout reported to the user:
+>>    (0xff50 * 255) / 520834 = 32
+>> the technically "correct" value is:
+>>    (0xff50 * 255) / (66666666.0 / 128) = 32.0003
+>>
+>> We'll use a DIV_ROUND_UP to solve this, generally erroring on the side
+>> of reporting shorter values to the user and setting the watchdog to
+>> slightly longer than requested:
+>> * Round input frequency up to assume watchdog is counting faster.
+>> * Round divisions by divisor up to give us extra time.
+>>
+>> Signed-off-by: Doug Anderson <dianders@chromium.org>
+>> ---
+>>   drivers/watchdog/s3c2410_wdt.c | 10 +++++-----
+>>   1 file changed, 5 insertions(+), 5 deletions(-)
+>>
+>> diff --git a/drivers/watchdog/s3c2410_wdt.c
+>> b/drivers/watchdog/s3c2410_wdt.c
+>> index 7d8fd04..fe2322b 100644
+>> --- a/drivers/watchdog/s3c2410_wdt.c
+>> +++ b/drivers/watchdog/s3c2410_wdt.c
+>> @@ -188,7 +188,7 @@ static int s3c2410wdt_set_heartbeat(struct
+>> watchdog_device *wdd, unsigned timeou
+>>         if (timeout < 1)
+>>                 return -EINVAL;
+>>
+>> -       freq /= 128;
+>> +       freq = DIV_ROUND_UP(freq, 128);
+>>         count = timeout * freq;
+>>
+>>         DBG("%s: count=%d, timeout=%d, freq=%lu\n",
+>> @@ -201,20 +201,20 @@ static int s3c2410wdt_set_heartbeat(struct
+>> watchdog_device *wdd, unsigned timeou
+>>
+>>         if (count >= 0x10000) {
+>>                 for (divisor = 1; divisor <= 0x100; divisor++) {
+>> -                       if ((count / divisor) < 0x10000)
+>> +                       if (DIV_ROUND_UP(count, divisor) < 0x10000)
+>>                                 break;
+>>                 }
+>>
+> Since you are at it,
+>         divisor = DIV_ROUND_UP(count + 1, 0x10000);
+> might be faster, simpler, and easier to understand than the loop.
 
-> I guess that can make some sense (treating device tree as an extension
-> of the "default"), though it's non-obvious enough to me that it feels
-> like it deserves some documentation.  I'd also question the value of
-> the return code from this function anyway.  I'd vote for:
->
-> 1. If param is non-zero and invalid, dev_warn() in this function.
->
-> 2. If "timeout-sec" is specified in device tree and invalid,
-> dev_warn() in this function.
->
-Makes sense to me. Again up to Wim to provide direction.
+Way to see the forest for the trees!
 
-> Function doesn't need to return an error code.  ...or if we keep it
-> then nobody should be looking at it.  They should be putting their
-> default in "timeout" before calling the function and trusting that the
-> function will do the right thing and update it as needed.
->
->
-> In practice only one caller ever checks this result in the code I'm
-> looking at (at91sam9_wdt) and it's a little confusing what that's
-> trying to do.  It does look like it would be broken by my suggestions
-> above.  I guess it's trying to do:
-> 1. device tree first (always passes 0 as the "param")
-> 2. a value based on the patting heartbeat second.
-> 3. the value WDT_HEARTBEAT third (starts in ->timeout)
->
-I thought the idea was to give drivers the ability to handle errors
-this way. Notice the "thought" ... I may be wrong.
+Your math ends up with a slightly different result than the old code,
+though.  One example is when the count is 0x1ffff.  You'll end up with
+a divider of 2 and I'll end up with a divider of 3.
 
->
-> In any case I'm OK with just dropping this patch.  The code looked
-> wrong and so I thought I'd fix it up, but I have no real need to see
-> it land (we don't use kernel parameters for things like this) in
-> Chrome OS.  I'm also happy to spin it if there is some interest.
->
+I think we just want:
 
-It is really be up to Wim to decide what to do, so I'll defer to him.
+divisor = DIV_ROUND_UP(count, 0xffff);
 
-Thanks,
-Guenter
+...that produces the same result as the old loop, but am curious to
+know why you chose the "count + 1" and "0x10000".
 
+Thanks!
+
+-Doug
