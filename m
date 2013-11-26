@@ -1,88 +1,96 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from devils.ext.ti.com ([198.47.26.153]:47624 "EHLO
-	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932566Ab3KZTpH (ORCPT
+Received: from mail.active-venture.com ([67.228.131.205]:57981 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757954Ab3KZTv4 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 26 Nov 2013 14:45:07 -0500
-Message-ID: <5294F942.8070401@ti.com>
-Date: Tue, 26 Nov 2013 21:40:50 +0200
-From: Grygorii Strashko <grygorii.strashko@ti.com>
+	Tue, 26 Nov 2013 14:51:56 -0500
+Message-ID: <5294FBD5.8030005@roeck-us.net>
+Date: Tue, 26 Nov 2013 11:51:49 -0800
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-To: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>,
-	Santosh Shilimkar <santosh.shilimkar@ti.com>
-CC: <linux-arm-kernel@lists.infradead.org>, <mark.rutland@arm.com>,
-	<wim@iguana.be>, <nsekhar@ti.com>,
-	<linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
-	Pawel Moll <Pawel.Moll@arm.com>, <swarren@wwwdotorg.org>,
-	<ijc+devicetree@hellion.org.uk>, <galak@kernel.crashing.org>,
-	<rob.herring@calxeda.com>, <linux-kernel@vger.kernel.org>,
-	<grant.likely@linaro.org>
-Subject: Re: [PATCH v3 0/6] Update Davinci watchdog driver
-References: <1385388285-10553-1-git-send-email-ivan.khoronzhuk@ti.com>
-In-Reply-To: <1385388285-10553-1-git-send-email-ivan.khoronzhuk@ti.com>
-Content-Type: text/plain; charset="ISO-8859-1"
+To: Doug Anderson <dianders@chromium.org>
+CC: Wim Van Sebroeck <wim@iguana.be>,
+	Fabio Porcedda <fabio.porcedda@gmail.com>,
+	Sachin Kamat <sachin.kamat@linaro.org>,
+	linux-watchdog@vger.kernel.org,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/2] watchdog: core: Fix watchdog_init_timeout() when
+ invalid param / valid dt
+References: <1385490173-7511-1-git-send-email-dianders@chromium.org>	<1385490173-7511-2-git-send-email-dianders@chromium.org>	<5294EF42.3090001@roeck-us.net> <CAD=FV=W0Op73P2f5KSWhOG+34N8OyeKUzS17ot3BTtzULApv8A@mail.gmail.com>
+In-Reply-To: <CAD=FV=W0Op73P2f5KSWhOG+34N8OyeKUzS17ot3BTtzULApv8A@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Sekhar,
+On 11/26/2013 11:23 AM, Doug Anderson wrote:
+> Guenter,
+>
+> Thanks for your reviews!
+>
+> On Tue, Nov 26, 2013 at 10:58 AM, Guenter Roeck <linux@roeck-us.net> wrote:
+>> On 11/26/2013 10:22 AM, Doug Anderson wrote:
+>>>
+>>> There was a minor bug in watchdog_init_timeout() where it would return
+>>> an error code if someone specified an invalid parameter on the
+>>> command line but then there was a valid parameter in the device tree
+>>> as "timeout-sec".
+>>>
+>>> Signed-off-by: Doug Anderson <dianders@chromium.org>
+>>
+>>
+>> I thought that was on purpose.
+>>
+>> Problem as I see it is that users would expect the timeout to be set to
+>> the provided parameter, which would be silently ignored and replaced
+>> by timeout-sec if the parameter is wrong and timeout-sec is specified.
+>> Seems to me that the user should be informed about the problem,
+>> and not be permitted to provide invalid parameters.
+>
+> Wow, really?  ...so it's on purpose that the function will properly
+> read the device tree entry and fill it in but still return an error?
+>
+I said "I thought ...", which wasn't meant to imply that I know.
+Maybe Wim should comment and provide directions.
 
-On 11/25/2013 04:04 PM, Ivan Khoronzhuk wrote:
-> These patches are intended to update Davinci watchdog to use WDT core
-> and reuse driver for keystone arch, because Keystone uses the similar
-> IP like Davinci.
-> 
-> See Documentation:
-> Davinci DM646x - http://www.ti.com/lit/ug/spruer5b/spruer5b.pdf
-> Keystone - http://www.ti.com/lit/ug/sprugv5a/sprugv5a.pdf
-> 
-> Also:
->   - improved to support GET_TIMELEFT option.
->   - added "clocks" and "timeout-sec" properties to DT.
-> 
-> Based on
-> git://git.kernel.org/pub/scm/linux/kernel/git/ssantosh/linux-keystone.git
-> keystone/master
-> 
+> I guess that can make some sense (treating device tree as an extension
+> of the "default"), though it's non-obvious enough to me that it feels
+> like it deserves some documentation.  I'd also question the value of
+> the return code from this function anyway.  I'd vote for:
+>
+> 1. If param is non-zero and invalid, dev_warn() in this function.
+>
+> 2. If "timeout-sec" is specified in device tree and invalid,
+> dev_warn() in this function.
+>
+Makes sense to me. Again up to Wim to provide direction.
 
-Could you confirm that regression detected in v2 of series is gone?
+> Function doesn't need to return an error code.  ...or if we keep it
+> then nobody should be looking at it.  They should be putting their
+> default in "timeout" before calling the function and trusting that the
+> function will do the right thing and update it as needed.
+>
+>
+> In practice only one caller ever checks this result in the code I'm
+> looking at (at91sam9_wdt) and it's a little confusing what that's
+> trying to do.  It does look like it would be broken by my suggestions
+> above.  I guess it's trying to do:
+> 1. device tree first (always passes 0 as the "param")
+> 2. a value based on the patting heartbeat second.
+> 3. the value WDT_HEARTBEAT third (starts in ->timeout)
+>
+I thought the idea was to give drivers the ability to handle errors
+this way. Notice the "thought" ... I may be wrong.
 
-Also would it be acceptable if this series will go via WDT tree?
-- The first patch patch in series contains changes in both
- Davinci platform & wdt driver.
+>
+> In any case I'm OK with just dropping this patch.  The code looked
+> wrong and so I thought I'd fix it up, but I have no real need to see
+> it land (we don't use kernel parameters for things like this) in
+> Chrome OS.  I'm also happy to spin it if there is some interest.
+>
 
-> v2..v3:
-> - watchdog: davinci: change driver to use WDT core
-> 	removed "ti,keystone-wdt" compatible from driver
-> 	renamed wdt device names for mach-davinci from
-> 		"watchdog" to "davinci-wdt"
-> 
-> - watchdog: davinci: reuse driver for keystone arch
-> 	moved "clocks" property under "Optional properties"
-> 	improved decsription of "clocks" property
-> 
-> - arm: dts: keystone: add watchdog entry
-> 	replaced "ti,keystone-wdt" compatible on
-> 		 "ti,keystone-wdt","ti,davinci-wdt"
-> 
-> Ivan Khoronzhuk (6):
->    watchdog: davinci: change driver to use WDT core
->    watchdog: davinci: use davinci_wdt_device structure to hold device
->      data
->    watchdog: davinci: add GET_TIMELEFT option support
->    watchdog: davinci: add "timeout-sec" property
->    watchdog: davinci: reuse driver for keystone arch
->    arm: dts: keystone: add watchdog entry
-> 
->   .../devicetree/bindings/watchdog/davinci-wdt.txt   |   16 +-
->   arch/arm/boot/dts/keystone.dtsi                    |    6 +
->   arch/arm/mach-davinci/da8xx-dt.c                   |    2 +-
->   arch/arm/mach-davinci/devices-da8xx.c              |    4 +-
->   arch/arm/mach-davinci/devices.c                    |    2 +-
->   drivers/watchdog/Kconfig                           |    6 +-
->   drivers/watchdog/davinci_wdt.c                     |  225 +++++++++-----------
->   7 files changed, 126 insertions(+), 135 deletions(-)
-> 
+It is really be up to Wim to decide what to do, so I'll defer to him.
 
 Thanks,
-- grygorii
+Guenter
+
