@@ -1,67 +1,84 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ob0-f202.google.com ([209.85.214.202]:45482 "EHLO
-	mail-ob0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753649Ab3KYXmW (ORCPT
+Received: from mail-bk0-f48.google.com ([209.85.214.48]:48464 "EHLO
+	mail-bk0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751077Ab3KZANA (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 25 Nov 2013 18:42:22 -0500
-Received: by mail-ob0-f202.google.com with SMTP id gq1so1045090obb.3
-        for <linux-watchdog@vger.kernel.org>; Mon, 25 Nov 2013 15:42:22 -0800 (PST)
-From: Doug Anderson <dianders@chromium.org>
-To: Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>
+	Mon, 25 Nov 2013 19:13:00 -0500
+From: Tomasz Figa <tomasz.figa@gmail.com>
+To: Doug Anderson <dianders@chromium.org>
 Cc: Leela Krishna Amudala <l.krishna@samsung.com>,
-	Olof Johansson <olof@lixom.net>,
-	Tomasz Figa <tomasz.figa@gmail.com>,
+	linux-samsung-soc <linux-samsung-soc@vger.kernel.org>,
 	Kukjin Kim <kgene.kim@samsung.com>,
-	Doug Anderson <dianders@chromium.org>,
-	Ben Dooks <ben-linux@fluff.org>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-samsung-soc@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2] watchdog: s3c2410_wdt: Only register for cpufreq on ARM_S3C24XX_CPUFREQ
-Date: Mon, 25 Nov 2013 15:36:43 -0800
-Message-Id: <1385422603-22684-1-git-send-email-dianders@chromium.org>
-In-Reply-To: <1385420137-32725-1-git-send-email-dianders@chromium.org>
-References: <1385420137-32725-1-git-send-email-dianders@chromium.org>
+	Wim Van Sebroeck <wim@iguana.be>,
+	Tomasz Figa <t.figa@samsung.com>, devicetree@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, "cpgs ." <cpgs@samsung.com>,
+	Sachin Kamat <sachin.kamat@linaro.org>,
+	Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH V9 2/3] watchdog: s3c2410_wdt: use syscon regmap interface to configure pmu register
+Date: Tue, 26 Nov 2013 01:12:57 +0100
+Message-ID: <2152635.sFpuVi4ATm@flatron>
+In-Reply-To: <CAD=FV=W+PNhUY+KC6DoMqRuEQFsgdffP466x=VTdGR-3L8ibFQ@mail.gmail.com>
+References: <1384768189-2839-1-git-send-email-l.krishna@samsung.com> <1384768189-2839-3-git-send-email-l.krishna@samsung.com> <CAD=FV=W+PNhUY+KC6DoMqRuEQFsgdffP466x=VTdGR-3L8ibFQ@mail.gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On modern SoCs the watchdog timer is parented on a clock that doesn't
-change every time we have a cpufreq change.  That means we don't need
-to constantly adjust the watchdog timer, so avoid registering for and
-dealing with cpufreq transitions unless we've actually got
-CONFIG_ARM_S3C24XX_CPUFREQ defined.
+On Monday 25 of November 2013 14:44:01 Doug Anderson wrote:
+> > +
+> >  struct s3c2410_wdt {
+> >         struct device           *dev;
+> >         struct clk              *clock;
+> > @@ -94,7 +107,49 @@ struct s3c2410_wdt {
+> >         unsigned long           wtdat_save;
+> >         struct watchdog_device  wdt_device;
+> >         struct notifier_block   freq_transition;
+> > +       struct s3c2410_wdt_variant *drv_data;
+> > +       struct regmap *pmureg;
+> 
+> Total nit, but everything else in this structure is tab aligned and
+> your new elements are not.
 
-Note that this is more than just an optimization.  The s3c2410
-watchdog driver actually pats the watchdog on every CPU frequency
-change.  On modern systems these happen many times per second (even in
-a system where "nothing" is happening).  That effectively makes any
-userspace watchdog program useless (the watchdog is constantly patted
-by the kernel).  If we need ARM_S3C24XX_CPUFREQ defined on a
-multiplatform kernel we'll need to make sure that kernel supports
-common clock and change this to user common clock framework.
+That would mean adding extra tabs in lines above to align them with the
+longest drv_data field.
 
-Signed-off-by: Doug Anderson <dianders@chromium.org>
----
-Changes in v2:
-- Use the updated config name.
+AFAIK we're observing a trend of moving away from such field alignment,
+so IMHO it would be better to keep this as is in this version and just
+send a separate patch removing the alignment of remaining fields.
 
- drivers/watchdog/s3c2410_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> >  static int s3c2410wdt_probe(struct platform_device *pdev)
+> >  {
+> >         struct device *dev;
+> > @@ -354,6 +443,16 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+> >         spin_lock_init(&wdt->lock);
+> >         wdt->wdt_device = s3c2410_wdd;
+> >
+> > +       wdt->drv_data = get_wdt_drv_data(pdev);
+> > +       if (wdt->drv_data->quirks & QUIRK_NEEDS_PMU_CONFIG) {
+> > +               wdt->pmureg = syscon_regmap_lookup_by_phandle(dev->of_node,
+> > +                                                       "samsung,syscon-phandle");
+> > +               if (IS_ERR(wdt->pmureg)) {
+> > +                       dev_err(dev, "syscon regmap lookup failed.\n");
+> > +                       return PTR_ERR(wdt->pmureg);
+> 
+> nit: this function appears to never call "return" directly.  You'll
+> match other error handling better if you do:
+> 
+> ret = PTR_ERR(wdt->pmureg);
+> goto err;
 
-diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
-index 7d8fd04..c1ada33 100644
---- a/drivers/watchdog/s3c2410_wdt.c
-+++ b/drivers/watchdog/s3c2410_wdt.c
-@@ -264,7 +264,7 @@ static irqreturn_t s3c2410wdt_irq(int irqno, void *param)
- 	return IRQ_HANDLED;
- }
- 
--#ifdef CONFIG_CPU_FREQ
-+#ifdef CONFIG_ARM_S3C24XX_CPUFREQ
- 
- static int s3c2410wdt_cpufreq_transition(struct notifier_block *nb,
- 					  unsigned long val, void *data)
--- 
-1.8.4.1
+Jumping away just to a single return statement isn't really a good idea.
+If there is nothing to do, returning right away seems less confusing IMHO
+(and saves you one line of code per each such error case as a side
+effect).
+
+A separate patch could be possibly made to clean-up remaining error cases
+and remove the err label.
+
+As for all the remaining points, I agree with Doug.
+
+Best regards,
+Tomasz
 
