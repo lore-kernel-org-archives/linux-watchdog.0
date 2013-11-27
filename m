@@ -1,130 +1,67 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:63557 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751106Ab3K0AK0 (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 26 Nov 2013 19:10:26 -0500
-Message-ID: <52953870.5050906@roeck-us.net>
-Date: Tue, 26 Nov 2013 16:10:24 -0800
-From: Guenter Roeck <linux@roeck-us.net>
+Received: from arroyo.ext.ti.com ([192.94.94.40]:37217 "EHLO arroyo.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751977Ab3K0KEN (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 27 Nov 2013 05:04:13 -0500
+Message-ID: <5295C355.6000604@ti.com>
+Date: Wed, 27 Nov 2013 12:03:01 +0200
+From: "ivan.khoronzhuk" <ivan.khoronzhuk@ti.com>
 MIME-Version: 1.0
-To: Doug Anderson <dianders@chromium.org>
-CC: Wim Van Sebroeck <wim@iguana.be>,
-	Leela Krishna Amudala <l.krishna@samsung.com>,
-	Olof Johansson <olof@lixom.net>,
-	Tomasz Figa <tomasz.figa@gmail.com>,
-	Kukjin Kim <kgene.kim@samsung.com>,
-	Ben Dooks <ben-linux@fluff.org>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-	linux-samsung-soc <linux-samsung-soc@vger.kernel.org>,
-	linux-watchdog@vger.kernel.org,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] watchdog: s3c2410_wdt: Handle rounding a little better
- for timeout
-References: <1385490637-10306-1-git-send-email-dianders@chromium.org>	<5294ED12.9080700@roeck-us.net> <CAD=FV=UX5gm3Ju8sCd3DSgyo97P6imN_Ay1zvc8yX=qTJ_mbrw@mail.gmail.com>
-In-Reply-To: <CAD=FV=UX5gm3Ju8sCd3DSgyo97P6imN_Ay1zvc8yX=qTJ_mbrw@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Guenter Roeck <linux@roeck-us.net>, Sekhar Nori <nsekhar@ti.com>,
+	Santosh Shilimkar <santosh.shilimkar@ti.com>
+CC: <linux-arm-kernel@lists.infradead.org>, <mark.rutland@arm.com>,
+	<wim@iguana.be>, <linux-watchdog@vger.kernel.org>,
+	<devicetree@vger.kernel.org>, Pawel Moll <Pawel.Moll@arm.com>,
+	<swarren@wwwdotorg.org>, <ijc+devicetree@hellion.org.uk>,
+	<galak@kernel.crashing.org>, <rob.herring@calxeda.com>,
+	<linux-kernel@vger.kernel.org>, <grant.likely@linaro.org>,
+	<grygorii.strashko@ti.com>
+Subject: Re: [PATCH v3 1/6] watchdog: davinci: change driver to use WDT core
+References: <1385388285-10553-1-git-send-email-ivan.khoronzhuk@ti.com> <1385388285-10553-2-git-send-email-ivan.khoronzhuk@ti.com> <5295758C.2030907@ti.com> <52959966.7000509@roeck-us.net>
+In-Reply-To: <52959966.7000509@roeck-us.net>
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 11/26/2013 01:34 PM, Doug Anderson wrote:
-> Guenter,
+On 11/27/2013 09:04 AM, Guenter Roeck wrote:
+> On 11/26/2013 08:31 PM, Sekhar Nori wrote:
+>> On Monday 25 November 2013 07:34 PM, Ivan Khoronzhuk wrote:
+>>> To reduce code duplicate and increase code readability use WDT core
+>>> code to handle WDT interface.
+>>>
+>>> Remove io_lock as the WDT core uses mutex to lock each wdt device.
+>>> Remove wdt_state as the WDT core tracks state with its own variable.
+>>>
+>>> The watchdog_init_timeout() can read timeout value from timeout-sec
+>>> property if the passed value is out of bounds. The heartbeat is
+>>> initialized in next way. If heartbeat is not set thought module
+>>> parameter, try to read it's value from WDT node timeout-sec property.
+>>> If node has no one, use default value.
+>>>
+>>> The heartbeat is hold in wdd->timeout by WDT core, so use it in
+>>> order to set timeout period.
+>>>
+>>> Signed-off-by: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
+>>> Acked-by: Santosh Shilimkar <santosh.shilimkar@ti.com>
+>>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+>>
+>> So this still causes a regression because the clk_get()
+>> fails due to the changed device name. Please fold this
+>> patch in (tested on DM365, compiled on rest).
+>>
+>> Also, the change in device name (while needed) does not seem
+>> to be related to usage of wdt core. Can you may be split
+>> that change into a separate patch?
+>>
 >
-> On Tue, Nov 26, 2013 at 10:48 AM, Guenter Roeck <linux@roeck-us.net> wrote:
->> On 11/26/2013 10:30 AM, Doug Anderson wrote:
->>>
->>> The existing watchdog timeout worked OK but didn't deal with
->>> rounding in an ideal way when dividing out all of its clocks.
->>>
->>> Specifically if you had a timeout of 32 seconds and an input clock of
->>> 66666666, you'd end up setting a timeout of 31.9998 seconds and
->>> reporting a timeout of 31 seconds.
->>>
->>> Specifically DBG printouts showed:
->>>     s3c2410wdt_set_heartbeat: count=16666656, timeout=32, freq=520833
->>>     s3c2410wdt_set_heartbeat: timeout=32, divisor=255, count=16666656
->>> (0000ff4f)
->>> and the final timeout reported to the user was:
->>>     ((count / divisor) * divisor) / freq
->>>     (0xff4f * 255) / 520833 = 31 (truncated from 31.9998)
->>> the technically "correct" value is:
->>>     (0xff4f * 255) / (66666666.0 / 128) = 31.9998
->>>
->>> By using "DIV_ROUND_UP" we can be a little more correct.
->>>     s3c2410wdt_set_heartbeat: count=16666688, timeout=32, freq=520834
->>>     s3c2410wdt_set_heartbeat: timeout=32, divisor=255, count=16666688
->>> (0000ff50)
->>> and the final timeout reported to the user:
->>>     (0xff50 * 255) / 520834 = 32
->>> the technically "correct" value is:
->>>     (0xff50 * 255) / (66666666.0 / 128) = 32.0003
->>>
->>> We'll use a DIV_ROUND_UP to solve this, generally erroring on the side
->>> of reporting shorter values to the user and setting the watchdog to
->>> slightly longer than requested:
->>> * Round input frequency up to assume watchdog is counting faster.
->>> * Round divisions by divisor up to give us extra time.
->>>
->>> Signed-off-by: Doug Anderson <dianders@chromium.org>
->>> ---
->>>    drivers/watchdog/s3c2410_wdt.c | 10 +++++-----
->>>    1 file changed, 5 insertions(+), 5 deletions(-)
->>>
->>> diff --git a/drivers/watchdog/s3c2410_wdt.c
->>> b/drivers/watchdog/s3c2410_wdt.c
->>> index 7d8fd04..fe2322b 100644
->>> --- a/drivers/watchdog/s3c2410_wdt.c
->>> +++ b/drivers/watchdog/s3c2410_wdt.c
->>> @@ -188,7 +188,7 @@ static int s3c2410wdt_set_heartbeat(struct
->>> watchdog_device *wdd, unsigned timeou
->>>          if (timeout < 1)
->>>                  return -EINVAL;
->>>
->>> -       freq /= 128;
->>> +       freq = DIV_ROUND_UP(freq, 128);
->>>          count = timeout * freq;
->>>
->>>          DBG("%s: count=%d, timeout=%d, freq=%lu\n",
->>> @@ -201,20 +201,20 @@ static int s3c2410wdt_set_heartbeat(struct
->>> watchdog_device *wdd, unsigned timeou
->>>
->>>          if (count >= 0x10000) {
->>>                  for (divisor = 1; divisor <= 0x100; divisor++) {
->>> -                       if ((count / divisor) < 0x10000)
->>> +                       if (DIV_ROUND_UP(count, divisor) < 0x10000)
->>>                                  break;
->>>                  }
->>>
->> Since you are at it,
->>          divisor = DIV_ROUND_UP(count + 1, 0x10000);
->> might be faster, simpler, and easier to understand than the loop.
+> Given all the trouble with it, I think that would be a good idea.
 >
-> Way to see the forest for the trees!
->
-> Your math ends up with a slightly different result than the old code,
-> though.  One example is when the count is 0x1ffff.  You'll end up with
-> a divider of 2 and I'll end up with a divider of 3.
->
-> I think we just want:
->
-> divisor = DIV_ROUND_UP(count, 0xffff);
->
-> ...that produces the same result as the old loop, but am curious to
-> know why you chose the "count + 1" and "0x10000".
+> Guenter
 >
 
-Hi Doug,
+Ok, I'll split it for convenience.
 
-I thought the idea was to keep (count / div) less than 0x10000, which you get
-by dividing through 0x10000. 0x10000 / 0x10000 = 1, though, so I added 1
-to the counter. But maybe I was thinking too much ;-).
-
-Now, 0x1ffff / 2 = 0xffff is still lower than 0x10000, which is what
-I thought is the requirement. Ultimately the error is small either way,
-so DIV_ROUND_UP(count, 0xffff) is just as good to me to avoid the loop.
-
-Thanks,
-Guenter
-
+-- 
+Regards,
+Ivan Khoronzhuk
