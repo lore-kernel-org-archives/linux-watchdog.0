@@ -1,62 +1,95 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:58861 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750842Ab3K0HEK (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 27 Nov 2013 02:04:10 -0500
-Message-ID: <52959966.7000509@roeck-us.net>
-Date: Tue, 26 Nov 2013 23:04:06 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: Sekhar Nori <nsekhar@ti.com>,
-	Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>,
-	Santosh Shilimkar <santosh.shilimkar@ti.com>
-CC: linux-arm-kernel@lists.infradead.org, mark.rutland@arm.com,
-	wim@iguana.be, linux-watchdog@vger.kernel.org,
-	devicetree@vger.kernel.org, Pawel Moll <Pawel.Moll@arm.com>,
-	swarren@wwwdotorg.org, ijc+devicetree@hellion.org.uk,
-	galak@kernel.crashing.org, rob.herring@calxeda.com,
-	linux-kernel@vger.kernel.org, grant.likely@linaro.org,
-	grygorii.strashko@ti.com
-Subject: Re: [PATCH v3 1/6] watchdog: davinci: change driver to use WDT core
-References: <1385388285-10553-1-git-send-email-ivan.khoronzhuk@ti.com> <1385388285-10553-2-git-send-email-ivan.khoronzhuk@ti.com> <5295758C.2030907@ti.com>
-In-Reply-To: <5295758C.2030907@ti.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <l.krishna@samsung.com>
+From: Leela Krishna Amudala <l.krishna@samsung.com>
+To: linux-samsung-soc@vger.kernel.org, wim@iguana.be
+Cc: dianders@chromium.org, kgene.kim@samsung.com, t.figa@samsung.com,
+ devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org, cpgs@samsung.com,
+ linux@roeck-us.net
+Subject: [PATCH V10 0/3] Add watchdog DT nodes and use syscon regmap interface
+ to configure pmu registers
+Date: Wed, 27 Nov 2013 17:20:07 +0530
+Message-id: <1385553010-30183-1-git-send-email-l.krishna@samsung.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 11/26/2013 08:31 PM, Sekhar Nori wrote:
-> On Monday 25 November 2013 07:34 PM, Ivan Khoronzhuk wrote:
->> To reduce code duplicate and increase code readability use WDT core
->> code to handle WDT interface.
->>
->> Remove io_lock as the WDT core uses mutex to lock each wdt device.
->> Remove wdt_state as the WDT core tracks state with its own variable.
->>
->> The watchdog_init_timeout() can read timeout value from timeout-sec
->> property if the passed value is out of bounds. The heartbeat is
->> initialized in next way. If heartbeat is not set thought module
->> parameter, try to read it's value from WDT node timeout-sec property.
->> If node has no one, use default value.
->>
->> The heartbeat is hold in wdd->timeout by WDT core, so use it in
->> order to set timeout period.
->>
->> Signed-off-by: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
->> Acked-by: Santosh Shilimkar <santosh.shilimkar@ti.com>
->> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->
-> So this still causes a regression because the clk_get()
-> fails due to the changed device name. Please fold this
-> patch in (tested on DM365, compiled on rest).
->
-> Also, the change in device name (while needed) does not seem
-> to be related to usage of wdt core. Can you may be split
-> that change into a separate patch?
->
+This patchset does the following things
+	- Adds pmusysreg device node to exynos5.dtsi file
+	- Adds watchdog DT nodes to Exynos5250 and 5420
+	- Uses syscon regmap interface to configure pmu registers
+	  to mask/unmask enable/disable of watchdog.
+	
+This patch set is rebased on Kgene's for-next branch and tested on SMDK5420
 
-Given all the trouble with it, I think that would be a good idea.
+changes since V9:
+	- added descriptions to s3c2410_wdt_variant structure fields
+	- moved calling s3c2410wdt_mask_and_disable_reset() function above s3c2410wdt_start() call in probe
+	- put dev_err message back to s3c2410wdt_mask_and_disable_reset() function
+	  (suggested by Doug Anderson <dianders@chromium.org>)
 
-Guenter
+changes since V8:
+	- modified the patch description for the below patch
+	  "watchdog: s3c2410_wdt: use syscon regmap interface to configure pmu register"
+	- removed MODULE_ALIAS in watchdog driver
+	- changed dev_warn to dev_err in one failure case handling (suggested by Guenter Roeck <linux@roeck-us.net>)
+	- renamed variable name from pmu_config to drv_data
+	- changed the compatible field description in documentation file
+	  (suggested by Tomasz Figa <t.figa@samsung.com>)
 
+changes since V7:
+	- re-ordered the patches in the series
+	- moved pmu_config_s3c2410 structure out of ifdef CONFIG_OF
+	  and limited only this structure to platform match table
+	- renamed structure name from s3c_wdt_driver_ids to s3c2410_wdt_ids
+	- removed exynos variants from platform match table
+	  (suggested by Tomasz Figa <t.figa@samsung.com>)
+
+changes since V6:
+	- added SoC-specific compatible value to syscon node and documented it
+	- given more patch description for below patch
+	  ARM: dts: update watchdog device nodes for Exynos5250 and Exynos5420
+	- added platform_device_id array for watchdog devices
+	- selected MFD_SYSCON in Kconfig entry for watchdog
+
+Changes since V5:
+	- removed status property in DT nodes
+	- changed the return type for the function s3c2410wdt_mask_and_disable_reset()
+	  and handled error cases
+	- Handled to get driver data in non-DT cases
+	- Addressed comments given by Tomasz Figa <t.figa@samsung.com>
+
+Changes since V4:
+	- changed the node name from pmusysreg to syscon and node label from pmu_sys_reg to pmu_syscon
+	- changed the property name from samsung,pmusysreg to samsung,syscon-phandle
+	- used regmap_update_bits instead of remap_read/regmap_write
+	- Addressed other comments given by Tomasz Figa <t.figa@samsung.com>
+
+Changes since V3:
+	- changed the compatible strings for watchdog node
+	- splitted up adding pmusysreg node and made it separate patch
+	- Addressed comments given by Sachin Kamat <sachin.kamat@linaro.org>
+
+Changes since V2:
+	- used syscon regmap interface to configure pmu registers in WDT driver
+	  (suggested by Tomasz Figa <t.figa@samsung.com>)
+
+Changes since V1:
+        - Added new compatible string for Exynos5 SoCs
+        - Introduced quirk mechanism to program PMU registers
+        - Addressed comments given by Tomasz Figa <t.figa@samsung.com>
+
+Leela Krishna Amudala (3):
+  ARM: dts: Add pmu sysreg node to exynos5250 and exynos5420 dtsi files
+  watchdog: s3c2410_wdt: use syscon regmap interface to configure pmu
+    register
+  ARM: dts: update watchdog device nodes for Exynos5250 and Exynos5420
+
+ .../devicetree/bindings/arm/samsung/pmu.txt        |   16 ++
+ .../devicetree/bindings/watchdog/samsung-wdt.txt   |   21 ++-
+ arch/arm/boot/dts/exynos5.dtsi                     |    7 -
+ arch/arm/boot/dts/exynos5250.dtsi                  |   11 +-
+ arch/arm/boot/dts/exynos5420.dtsi                  |   14 ++
+ drivers/watchdog/Kconfig                           |    1 +
+ drivers/watchdog/s3c2410_wdt.c                     |  164 ++++++++++++++++++--
+ 7 files changed, 216 insertions(+), 18 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/arm/samsung/pmu.txt
+
+-- 
+1.7.10.4
