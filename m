@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from devils.ext.ti.com ([198.47.26.153]:33743 "EHLO
+Received: from devils.ext.ti.com ([198.47.26.153]:33755 "EHLO
 	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752608Ab3K0Mt7 (ORCPT
+	with ESMTP id S1756723Ab3K0MuN (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 27 Nov 2013 07:49:59 -0500
+	Wed, 27 Nov 2013 07:50:13 -0500
 From: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
 To: Santosh Shilimkar <santosh.shilimkar@ti.com>
 CC: <linux-arm-kernel@lists.infradead.org>, <mark.rutland@arm.com>,
@@ -14,91 +14,94 @@ CC: <linux-arm-kernel@lists.infradead.org>, <mark.rutland@arm.com>,
 	<rob.herring@calxeda.com>, <linux-kernel@vger.kernel.org>,
 	<grant.likely@linaro.org>, <grygorii.strashko@ti.com>,
 	Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
-Subject: [PATCH v4 0/5] Update Davinci watchdog driver
-Date: Wed, 27 Nov 2013 14:48:23 +0200
-Message-ID: <1385556508-3935-1-git-send-email-ivan.khoronzhuk@ti.com>
+Subject: [PATCH v4 5/5] watchdog: davinci: reuse driver for keystone arch
+Date: Wed, 27 Nov 2013 14:48:28 +0200
+Message-ID: <1385556508-3935-6-git-send-email-ivan.khoronzhuk@ti.com>
+In-Reply-To: <1385556508-3935-1-git-send-email-ivan.khoronzhuk@ti.com>
+References: <1385556508-3935-1-git-send-email-ivan.khoronzhuk@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-These patches are intended to update Davinci watchdog to use WDT core
-and reuse driver for keystone arch, because Keystone uses the similar
-IP like Davinci.
+The keystone arch uses the same IP watchdog, so add "ti,keystone-wdt"
+compatible and correct identity.
 
-See Documentation:
-Davinci DM646x - http://www.ti.com/lit/ug/spruer5b/spruer5b.pdf
-Keystone - http://www.ti.com/lit/ug/sprugv5a/sprugv5a.pdf
+The Keystone arch is using clocks in DT and source clock for watchdog
+has to be specified, so add this to binding.
 
-Also:
- - improved to support GET_TIMELEFT option.
- - added "clocks" and "timeout-sec" properties to DT.
+Acked-by: Santosh Shilimkar <santosh.shilimkar@ti.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
+---
+ .../devicetree/bindings/watchdog/davinci-wdt.txt   |   12 ++++++++++--
+ drivers/watchdog/Kconfig                           |    4 ++--
+ drivers/watchdog/davinci_wdt.c                     |    2 +-
+ 3 files changed, 13 insertions(+), 5 deletions(-)
 
-Based on
-git://git.kernel.org/pub/scm/linux/kernel/git/ssantosh/linux-keystone.git
-keystone/master
-
-v3..v4:
-- watchdog: davinci: change driver to use WDT core
-	reverted rename of platform driver to "davinci-wdt"
-	as it causes a regression on Davinci platforms.
-
-- arm: dts: keystone: add watchdog entry
-	The patch will be sent separately after series is ready.
-
-v2..v3:
-- watchdog: davinci: change driver to use WDT core
-	removed "ti,keystone-wdt" compatible from driver
-	renamed wdt device names for mach-davinci from
-		"watchdog" to "davinci-wdt"
-
-- watchdog: davinci: reuse driver for keystone arch
-	moved "clocks" property under "Optional properties"
-	improved description of "clocks" property
-
-- arm: dts: keystone: add watchdog entry
-	replaced "ti,keystone-wdt" compatible on
-		 "ti,keystone-wdt","ti,davinci-wdt"
-
-v1..v2:
-- watchdog: davinci: change driver to use WDT core
-	corrected 2011 -> 2006-2013
-	removed useless function comment
-	corrected initialization of heartbeat
-	switched on CONFIG_WATCHDOG_NOWAYOUT option
-
-- watchdog: davinci: use davinci_wdt_device structure to hold device data
-	substituted wdd to watchdog device in commit message
-
-- watchdog: davinci: add GET_TIMELEFT option support
-	corrected comment (is -> has)
-	removed redundant error message "clock freq is not set"
-
-- watchdog: davinci: add GET_STATUS option support
-	dropped
-
-- watchdog: davinci: add "timeout-sec" property
-	use consistent formatting
-
-- watchdog: davinci: reuse driver for keystone arch
-	use consistent formatting
-
-- watchdog: davinci: add "clocks" property
-	merged with above patch
-
-Ivan Khoronzhuk (5):
-  watchdog: davinci: change driver to use WDT core
-  watchdog: davinci: use davinci_wdt_device structure to hold device
-    data
-  watchdog: davinci: add GET_TIMELEFT option support
-  watchdog: davinci: add "timeout-sec" property
-  watchdog: davinci: reuse driver for keystone arch
-
- .../devicetree/bindings/watchdog/davinci-wdt.txt   |   16 +-
- drivers/watchdog/Kconfig                           |    6 +-
- drivers/watchdog/davinci_wdt.c                     |  221 +++++++++-----------
- 3 files changed, 114 insertions(+), 129 deletions(-)
-
+diff --git a/Documentation/devicetree/bindings/watchdog/davinci-wdt.txt b/Documentation/devicetree/bindings/watchdog/davinci-wdt.txt
+index e450134..e60b9a1 100644
+--- a/Documentation/devicetree/bindings/watchdog/davinci-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/davinci-wdt.txt
+@@ -1,11 +1,18 @@
+-DaVinci Watchdog Timer (WDT) Controller
++Texas Instruments DaVinci/Keystone Watchdog Timer (WDT) Controller
+ 
+ Required properties:
+-- compatible : Should be "ti,davinci-wdt"
++- compatible : Should be "ti,davinci-wdt", "ti,keystone-wdt"
+ - reg : Should contain WDT registers location and length
+ 
+ Optional properties:
+ - timeout-sec : Contains the watchdog timeout in seconds
++- clocks : the clock feeding the watchdog timer.
++	   Needed if platform uses clocks.
++	   See clock-bindings.txt
++
++Documentation:
++Davinci DM646x - http://www.ti.com/lit/ug/spruer5b/spruer5b.pdf
++Keystone - http://www.ti.com/lit/ug/sprugv5a/sprugv5a.pdf
+ 
+ Examples:
+ 
+@@ -13,4 +20,5 @@ wdt: wdt@2320000 {
+ 	compatible = "ti,davinci-wdt";
+ 	reg = <0x02320000 0x80>;
+ 	timeout-sec = <30>;
++	clocks = <&clkwdtimer0>;
+ };
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index eb8c89d..01f3f81 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -270,12 +270,12 @@ config IOP_WATCHDOG
+ 
+ config DAVINCI_WATCHDOG
+ 	tristate "DaVinci watchdog"
+-	depends on ARCH_DAVINCI
++	depends on ARCH_DAVINCI || ARCH_KEYSTONE
+ 	select WATCHDOG_CORE
+ 	select WATCHDOG_NOWAYOUT
+ 	help
+ 	  Say Y here if to include support for the watchdog timer
+-	  in the DaVinci DM644x/DM646x processors.
++	  in the DaVinci DM644x/DM646x or Keystone processors.
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called davinci_wdt.
+ 
+diff --git a/drivers/watchdog/davinci_wdt.c b/drivers/watchdog/davinci_wdt.c
+index 0eb2189..884f696 100644
+--- a/drivers/watchdog/davinci_wdt.c
++++ b/drivers/watchdog/davinci_wdt.c
+@@ -143,7 +143,7 @@ static unsigned int davinci_wdt_get_timeleft(struct watchdog_device *wdd)
+ 
+ static const struct watchdog_info davinci_wdt_info = {
+ 	.options = WDIOF_KEEPALIVEPING,
+-	.identity = "DaVinci Watchdog",
++	.identity = "DaVinci/Keystone Watchdog",
+ };
+ 
+ static const struct watchdog_ops davinci_wdt_ops = {
 -- 
 1.7.9.5
 
