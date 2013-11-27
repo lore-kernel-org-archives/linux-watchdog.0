@@ -1,97 +1,94 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailout2.samsung.com ([203.254.224.25]:20811 "EHLO
-	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752650Ab3K0LrN (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 27 Nov 2013 06:47:13 -0500
-From: Leela Krishna Amudala <l.krishna@samsung.com>
-To: linux-samsung-soc@vger.kernel.org, wim@iguana.be
-Cc: dianders@chromium.org, kgene.kim@samsung.com, t.figa@samsung.com,
-	devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	cpgs@samsung.com, linux@roeck-us.net
-Subject: [PATCH V10 3/3] ARM: dts: update watchdog device nodes for Exynos5250
- and Exynos5420
-Date: Wed, 27 Nov 2013 17:20:10 +0530
-Message-id: <1385553010-30183-4-git-send-email-l.krishna@samsung.com>
-In-reply-to: <1385553010-30183-1-git-send-email-l.krishna@samsung.com>
-References: <1385553010-30183-1-git-send-email-l.krishna@samsung.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <shc_work@mail.ru>
+From: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
+To: =?UTF-8?B?R3VlbnRlciBSb2Vjaw==?= <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	=?UTF-8?B?V2ltIFZhbiBTZWJyb2Vjaw==?= <wim@iguana.be>,
+	=?UTF-8?B?Um9iIEhlcnJpbmc=?= <rob.herring@calxeda.com>,
+	=?UTF-8?B?UGF3ZWwgTW9sbA==?= <pawel.moll@arm.com>,
+	=?UTF-8?B?TWFyayBSdXRsYW5k?= <mark.rutland@arm.com>,
+	=?UTF-8?B?U3RlcGhlbiBXYXJyZW4=?= <swarren@wwwdotorg.org>,
+	=?UTF-8?B?SWFuIENhbXBiZWxs?= <ijc+devicetree@hellion.org.uk>,
+	=?UTF-8?B?R3JhbnQgTGlrZWx5?= <grant.likely@linaro.org>
+Subject: =?UTF-8?B?UmU6IFtQQVRDSCB2Ml0gd2F0Y2hkb2c6IEdQSU8tY29udHJvbGxlZCB3YXRj?=
+ =?UTF-8?B?aGRvZw==?=
+Mime-Version: 1.0
+Date: Wed, 27 Nov 2013 11:34:54 +0400
+Reply-To: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
+Message-ID: <1385537694.255779958@f424.i.mail.ru>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+In-Reply-To: <5294E05A.3040104@roeck-us.net>
+References: <1385483188-12221-1-git-send-email-shc_work@mail.ru>
+ <5294E05A.3040104@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-In Exynos5 series SoCs, PMU has registers to enable/disable mask/unmask
-watchdog timer which is not the case with s3c series SoCs so, there is a
-need to have different compatible names for watchdog to handle these pmu
-registers access.
-
-Hence this patch removes watchdog node from Exynos5.dtsi common file and
-make it separate by updating existing node in Exynos5250 and adding new node
-to Exynos5420. This patch also makes the watchdog node enabled by default
-
-Signed-off-by: Leela Krishna Amudala <l.krishna@samsung.com>
-Reviewed-by: Tomasz Figa <t.figa@samsung.com>
-Reviewed-by: Doug Anderson <dianders@chromium.org>
-Tested-by: Doug Anderson <dianders@chromium.org>
----
- arch/arm/boot/dts/exynos5.dtsi    |    7 -------
- arch/arm/boot/dts/exynos5250.dtsi |    6 +++++-
- arch/arm/boot/dts/exynos5420.dtsi |    9 +++++++++
- 3 files changed, 14 insertions(+), 8 deletions(-)
-
-diff --git a/arch/arm/boot/dts/exynos5.dtsi b/arch/arm/boot/dts/exynos5.dtsi
-index 074739d..de6a606 100644
---- a/arch/arm/boot/dts/exynos5.dtsi
-+++ b/arch/arm/boot/dts/exynos5.dtsi
-@@ -102,13 +102,6 @@
- 		status = "disabled";
- 	};
- 
--	watchdog {
--		compatible = "samsung,s3c2410-wdt";
--		reg = <0x101D0000 0x100>;
--		interrupts = <0 42 0>;
--		status = "disabled";
--	};
--
- 	fimd@14400000 {
- 		compatible = "samsung,exynos5250-fimd";
- 		interrupt-parent = <&combiner>;
-diff --git a/arch/arm/boot/dts/exynos5250.dtsi b/arch/arm/boot/dts/exynos5250.dtsi
-index 2f264ad..54df046 100644
---- a/arch/arm/boot/dts/exynos5250.dtsi
-+++ b/arch/arm/boot/dts/exynos5250.dtsi
-@@ -168,9 +168,13 @@
- 		reg = <0x10040000 0x5000>;
- 	};
- 
--	watchdog {
-+	watchdog@101D0000 {
-+		compatible = "samsung,exynos5250-wdt";
-+		reg = <0x101D0000 0x100>;
-+		interrupts = <0 42 0>;
- 		clocks = <&clock 336>;
- 		clock-names = "watchdog";
-+		samsung,syscon-phandle = <&pmu_syscon>;
- 	};
- 
- 	g2d@10850000 {
-diff --git a/arch/arm/boot/dts/exynos5420.dtsi b/arch/arm/boot/dts/exynos5420.dtsi
-index 06e97a7..f5a0076 100644
---- a/arch/arm/boot/dts/exynos5420.dtsi
-+++ b/arch/arm/boot/dts/exynos5420.dtsi
-@@ -315,4 +315,13 @@
- 		compatible = "samsung,exynos5420-pmu", "syscon";
- 		reg = <0x10040000 0x5000>;
- 	};
-+
-+        watchdog@101D0000 {
-+		compatible = "samsung,exynos5420-wdt";
-+		reg = <0x101D0000 0x100>;
-+		interrupts = <0 42 0>;
-+		clocks = <&clock 316>;
-+		clock-names = "watchdog";
-+		samsung,syscon-phandle = <&pmu_syscon>;
-+        };
- };
--- 
-1.7.10.4
-
+SGVsbG8uCgo+IE9uIDExLzI2LzIwMTMgMDg6MjYgQU0sIEFsZXhhbmRlciBTaGl5YW4gd3JvdGU6
+Cj4gPiBUaGlzIHBhdGNoIGFkZHMgYSB3YXRjaGRvZyBkcml2ZXIgZm9yIGRldmljZXMgY29udHJv
+bGxlZCB0aHJvdWdoIEdQSU8sCj4gPiAoQW5hbG9nIERldmljZXMgQURNNzA2LCBJQyA1NTUgZXRj
+KS4KPiA+Cj4gPiBTaWduZWQtb2ZmLWJ5OiBBbGV4YW5kZXIgU2hpeWFuIDxzaGNfd29ya0BtYWls
+LnJ1PgouLi4KPiA+ICsrKyBiL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy93YXRj
+aGRvZy9ncGlvLXdkdC50eHQKPiA+IEBAIC0wLDAgKzEsMjMgQEAKPiA+ICsqIEdQSU8tY29udHJv
+bGxlZCBXYXRjaGRvZwo+ID4gKwo+ID4gK1JlcXVpcmVkIFByb3BlcnRpZXM6Cj4gPiArLSBjb21w
+YXRpYmxlOiBTaG91bGQgY29udGFpbiAibGludXgsd2R0LWdwaW8iLgo+IAo+IFNob3VsZCA/Cj4g
+Cj4gPiArLSBncGlvczogRnJvbSBjb21tb24gZ3BpbyBiaW5kaW5nOyBncGlvIGNvbm5lY3Rpb24g
+dG8gV0RUIHJlc2V0IHBpbi4KPiA+ICstIHdkdC1ncGlvLGh3X2FsZ286IFRoZSBhbGdvcml0aG0g
+dXNlZCBieSB0aGUgZHJpdmVyLiBTaG91bGQgYmUgb25lCj4gPiArICBvZiB0aGUgZm9sbG93aW5n
+IHZhbHVlczoKPiAKPiBTaG91bGQgPwoKV2hhdCB3cm9uZyBoZXJlPwoKLi4uCj4gPiArRXhhbXBs
+ZToKPiA+ICsJd2F0Y2hkb2c6IHdhdGNoZG9nIHsKPiA+ICsJCS8qIEFETTcwNiAqLwo+ID4gKwkJ
+Y29tcGF0aWJsZSA9ICJsaW51eCx3ZHQtZ3BpbyI7Cj4gCj4gT2RkbHkgZW5vdWdoLCB0aGUgYmlu
+ZGluZ3MgY291bGQgYmUgdXNlZCBieSBub24tTGludXggb3BlcmF0aW5nIHN5c3RlbXMsCj4gYnV0
+IHdobyBhbSBJIHRvIGFyZ3VlLiBGaW5lIGlmIHRoaXMgaXMgd2hhdCB0aGUgRFQgbWFpbnRhaW5l
+cnMgd2FudCB0byBzZWUuCgpPbiBteSBvcGluaW9uIHRoaXMgbWVhbiB0aGF0IHRoaXMgaXMgbm90
+IGEgcmVhbCBoYXJkd2FyZSwgYnV0IGhhcmR3YXJlIGVtdWxhdGlvbiwKbGlrZSBzb21lIG90aGVy
+IGRyaXZlciBkb2VzLgoKLi4uCj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy93YXRjaGRvZy9ncGlv
+X3dkdC5jIGIvZHJpdmVycy93YXRjaGRvZy9ncGlvX3dkdC5jCj4gPiBuZXcgZmlsZSBtb2RlIDEw
+MDY0NAo+ID4gaW5kZXggMDAwMDAwMC4uYzcxNjZiZQo+ID4gLS0tIC9kZXYvbnVsbAo+ID4gKysr
+IGIvZHJpdmVycy93YXRjaGRvZy9ncGlvX3dkdC5jCj4gPiBAQCAtMCwwICsxLDI0NiBAQAo+ID4g
+Ky8qCj4gPiArICogRHJpdmVyIGZvciB3YXRjaGRvZyBkZXZpY2UgY29udHJvbGxlZCB0aHJvdWdo
+IEdQSU8tbGluZQo+ID4gKyAqCj4gPiArICogQXV0aG9yOiAyMDEzLCBBbGV4YW5kZXIgU2hpeWFu
+IDxzaGNfd29ya0BtYWlsLnJ1Pgo+ID4gKyAqCj4gPiArICogVGhpcyBwcm9ncmFtIGlzIGZyZWUg
+c29mdHdhcmU7IHlvdSBjYW4gcmVkaXN0cmlidXRlIGl0IGFuZC9vciBtb2RpZnkKPiA+ICsgKiBp
+dCB1bmRlciB0aGUgdGVybXMgb2YgdGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIGFzIHB1
+Ymxpc2hlZCBieQo+ID4gKyAqIHRoZSBGcmVlIFNvZnR3YXJlIEZvdW5kYXRpb247IGVpdGhlciB2
+ZXJzaW9uIDIgb2YgdGhlIExpY2Vuc2UsIG9yCj4gPiArICogKGF0IHlvdXIgb3B0aW9uKSBhbnkg
+bGF0ZXIgdmVyc2lvbi4KPiA+ICsgKi8KPiA+ICsKPiA+ICsjaW5jbHVkZSA8bGludXgvZXJyLmg+
+Cj4gPiArI2luY2x1ZGUgPGxpbnV4L2RlbGF5Lmg+Cj4gPiArI2luY2x1ZGUgPGxpbnV4L21vZHVs
+ZS5oPgo+ID4gKyNpbmNsdWRlIDxsaW51eC9ub3RpZmllci5oPgo+ID4gKyNpbmNsdWRlIDxsaW51
+eC9vZl9ncGlvLmg+Cj4gPiArI2luY2x1ZGUgPGxpbnV4L3BsYXRmb3JtX2RldmljZS5oPgo+ID4g
+KyNpbmNsdWRlIDxsaW51eC9yZWJvb3QuaD4KPiA+ICsjaW5jbHVkZSA8bGludXgvd2F0Y2hkb2cu
+aD4KPiA+ICsKPiA+ICsjZGVmaW5lIFNPRlRfVElNRU9VVF9NSU4JMQo+ID4gKyNkZWZpbmUgU09G
+VF9USU1FT1VUX0RFRgk2MAo+ID4gKyNkZWZpbmUgU09GVF9USU1FT1VUX01BWAkweGZmZmYKPiA+
+ICsKPiA+ICtlbnVtIHsKPiA+ICsJSFdfQUxHT19UT0dHTEUsCj4gPiArCUhXX0FMR09fTEVWRUws
+Cj4gPiArfTsKPiA+ICsKPiA+ICtzdHJ1Y3QgZ3Bpb193ZHRfcHJpdiB7Cj4gPiArCWludAkJCWdw
+aW87Cj4gPiArCWJvb2wJCQlhY3RpdmVfbG93Owo+ID4gKwlib29sCQkJc3RhdGU7Cj4gPiArCXVu
+c2lnbmVkIGludAkJaHdfYWxnbzsKPiA+ICsJdW5zaWduZWQgaW50CQlod19tYXJnaW47Cj4gPiAr
+CXVuc2lnbmVkIGxvbmcJCWxhc3RfamlmZmllczsKPiA+ICsJc3RydWN0IG5vdGlmaWVyX2Jsb2Nr
+CW5vdGlmaWVyOwo+ID4gKwlzdHJ1Y3QgdGltZXJfbGlzdAl0aW1lcjsKPiA+ICsJc3RydWN0IHdh
+dGNoZG9nX2RldmljZQl3ZGQ7Cj4gPiArfTsKPiA+ICsKPiA+ICtzdGF0aWMgaW50IGdwaW9fd2R0
+X2Rpc2FibGUoc3RydWN0IGdwaW9fd2R0X3ByaXYgKnByaXYpCj4gPiArewo+ID4gKwlncGlvX3Nl
+dF92YWx1ZV9jYW5zbGVlcChwcml2LT5ncGlvLCAhcHJpdi0+YWN0aXZlX2xvdyk7Cj4gPiArCj4g
+PiArCS8qIFB1dCBHUElPIGJhY2sgdG8gdHJpc3RhdGUgKi8KPiA+ICsJaWYgKHByaXYtPmh3X2Fs
+Z28gPT0gSFdfQUxHT19UT0dHTEUpCj4gPiArCQlyZXR1cm4gZ3Bpb19kaXJlY3Rpb25faW5wdXQo
+cHJpdi0+Z3Bpbyk7Cj4gPiArCj4gTm8gZGlzYWJsZSBmb3IgJ2xldmVsJyB3YXRjaGRvZ3MgPyBT
+aG91bGRuJ3QgaXQgYmUgc2V0IHRvIHRoZSBvcHBvc2l0ZQo+IG9mIHByaXYtPnN0YXRlID8KPiAK
+PiA+ICsJcmV0dXJuIDA7Cj4gCj4gU2luY2UgdGhpcyBpcyBhbiBpbnRlcm5hbCBmdW5jdGlvbiB3
+aGljaCBuZXZlciByZXR1cm5zIGFueXRoaW5nIGJ1dCAwLAo+IHlvdSBtaWdodCBhcyB3ZWxsIG1h
+a2UgaXQgdm9pZC4KCiJsZXZlbCIgdmVyc2lvbiB3aWxsIGJlIGRpc2FibGVkIGJ5CiJncGlvX3Nl
+dF92YWx1ZV9jYW5zbGVlcChwcml2LT5ncGlvLCAhcHJpdi0+YWN0aXZlX2xvdyk7IiBsaW5lIGFi
+b3ZlLgoicmV0dXJuIiBpcyB1c2VkIGJ5ICJ0cmlzdGF0ZSIgc3dpdGNoLgoKLi4uCj4gPiArc3Rh
+dGljIHZvaWQgZ3Bpb193ZHRfaHdwaW5nKHVuc2lnbmVkIGxvbmcgZGF0YSkKPiA+ICt7Cj4gPiAr
+CXN0cnVjdCB3YXRjaGRvZ19kZXZpY2UgKndkZCA9IChzdHJ1Y3Qgd2F0Y2hkb2dfZGV2aWNlICop
+ZGF0YTsKPiA+ICsJc3RydWN0IGdwaW9fd2R0X3ByaXYgKnByaXYgPSB3YXRjaGRvZ19nZXRfZHJ2
+ZGF0YSh3ZGQpOwo+ID4gKwo+ID4gKwlpZiAodGltZV9iZWZvcmUoamlmZmllcywgcHJpdi0+bGFz
+dF9qaWZmaWVzICsKPiA+ICsJCQltc2Vjc190b19qaWZmaWVzKHdkZC0+dGltZW91dCAqIDEwMDAp
+KSkgewo+ID4gKwkJLyogUmVzdGFydCB0aW1lciAqLwo+ID4gKwkJbW9kX3RpbWVyKCZwcml2LT50
+aW1lciwgamlmZmllcyArIHByaXYtPmh3X21hcmdpbik7Cj4gPiArCj4gPiArCQlzd2l0Y2ggKHBy
+aXYtPmh3X2FsZ28pIHsKPiA+ICsJCWNhc2UgSFdfQUxHT19UT0dHTEU6Cj4gPiArCQkJLyogVG9n
+Z2xlIG91dHB1dCBwaW4gKi8KPiA+ICsJCQlwcml2LT5zdGF0ZSA9ICFwcml2LT5zdGF0ZTsKPiA+
+ICsJCQlncGlvX3NldF92YWx1ZV9jYW5zbGVlcChwcml2LT5ncGlvLCBwcml2LT5zdGF0ZSk7Cj4g
+PiArCQkJYnJlYWs7Cj4gPiArCQljYXNlIEhXX0FMR09fTEVWRUw6Cj4gPiArCQkJLyogUHVsc2Ug
+Ki8KPiA+ICsJCQlncGlvX3NldF92YWx1ZV9jYW5zbGVlcChwcml2LT5ncGlvLCAhcHJpdi0+YWN0
+aXZlX2xvdyk7Cj4gPiArCQkJdWRlbGF5KDEpOwo+IAo+IFByZXR0eSBhcmJpdHJhcnkgdG9nZ2xl
+IHRpbWUuIFNob3VsZCB0aGlzIGJlIGEgcHJvcGVydHkgPwoKV2hhdCBhYm91dCAxLzEwIG9mIGhh
+cmR3YXJlIHRpbWVvdXQ/CgouLi4KVGhhbmtzLgoKLS0tCg==
