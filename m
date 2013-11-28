@@ -1,40 +1,99 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from pegase1.c-s.fr ([93.17.236.30]:30410 "EHLO mailhub1.si.c-s.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752675Ab3K3Ppn convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 30 Nov 2013 10:45:43 -0500
-From: Christophe Leroy <christophe.leroy@c-s.fr>
-To: Wim Van Sebroeck <wim@iguana.be>, <scottwood@freescale.com>
-CC: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH] watchdog: mpc8xxx_wdt: MPC8xx is HW enabled
-Message-Id: <20131130154540.E83D743E15@localhost.localdomain>
-Date: Sat, 30 Nov 2013 16:45:40 +0100 (CET)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <l.krishna@samsung.com>
+From: Leela Krishna Amudala <l.krishna@samsung.com>
+To: linux-samsung-soc@vger.kernel.org, wim@iguana.be
+Cc: dianders@chromium.org, kgene.kim@samsung.com, t.figa@samsung.com,
+ devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org, cpgs@samsung.com,
+ linux@roeck-us.net
+Subject: [PATCH V11 0/3] Add watchdog DT nodes and use syscon regmap interface
+ to configure pmu registers
+Date: Thu, 28 Nov 2013 10:04:00 +0530
+Message-id: <1385613243-3559-1-git-send-email-l.krishna@samsung.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-MPC8xx watchdog is enabled at startup by HW.
-If the bootloader disables it, it cannot be reenabled.
+This patchset does the following things
+	- Adds pmusysreg device node to exynos5.dtsi file
+	- Adds watchdog DT nodes to Exynos5250 and 5420
+	- Uses syscon regmap interface to configure pmu registers
+	  to mask/unmask enable/disable of watchdog.
+	
+This patch set is rebased on Kgene's for-next branch and tested on SMDK5420
 
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+changes since V10:
+	- followed coding style rules
+	- removed duplicate error message suggested by Guenter Roeck <linux@roeck-us.net>
 
-diff -ur a/drivers/watchdog/mpc8xxx_wdt.c b/drivers/watchdog/mpc8xxx_wdt.c
---- a/drivers/watchdog/mpc8xxx_wdt.c	2013-05-11 22:57:46.000000000 +0200
-+++ b/drivers/watchdog/mpc8xxx_wdt.c	2013-08-08 02:12:15.000000000 +0200
-@@ -273,6 +310,7 @@
- 		.compatible = "fsl,mpc823-wdt",
- 		.data = &(struct mpc8xxx_wdt_type) {
- 			.prescaler = 0x800,
-+			.hw_enabled = true,
- 		},
- 	},
- 	{},
+changes since V9:
+	- added descriptions to s3c2410_wdt_variant structure fields
+	- moved calling s3c2410wdt_mask_and_disable_reset() function above s3c2410wdt_start() call in probe
+	- put dev_err message back to s3c2410wdt_mask_and_disable_reset() function
+	  (suggested by Doug Anderson <dianders@chromium.org>)
 
----
-Ce courrier électronique ne contient aucun virus ou logiciel malveillant parce que la protection avast! Antivirus est active.
-http://www.avast.com
+changes since V8:
+	- modified the patch description for the below patch
+	  "watchdog: s3c2410_wdt: use syscon regmap interface to configure pmu register"
+	- removed MODULE_ALIAS in watchdog driver
+	- changed dev_warn to dev_err in one failure case handling (suggested by Guenter Roeck <linux@roeck-us.net>)
+	- renamed variable name from pmu_config to drv_data
+	- changed the compatible field description in documentation file
+	  (suggested by Tomasz Figa <t.figa@samsung.com>)
 
+changes since V7:
+	- re-ordered the patches in the series
+	- moved pmu_config_s3c2410 structure out of ifdef CONFIG_OF
+	  and limited only this structure to platform match table
+	- renamed structure name from s3c_wdt_driver_ids to s3c2410_wdt_ids
+	- removed exynos variants from platform match table
+	  (suggested by Tomasz Figa <t.figa@samsung.com>)
+
+changes since V6:
+	- added SoC-specific compatible value to syscon node and documented it
+	- given more patch description for below patch
+	  ARM: dts: update watchdog device nodes for Exynos5250 and Exynos5420
+	- added platform_device_id array for watchdog devices
+	- selected MFD_SYSCON in Kconfig entry for watchdog
+
+Changes since V5:
+	- removed status property in DT nodes
+	- changed the return type for the function s3c2410wdt_mask_and_disable_reset()
+	  and handled error cases
+	- Handled to get driver data in non-DT cases
+	- Addressed comments given by Tomasz Figa <t.figa@samsung.com>
+
+Changes since V4:
+	- changed the node name from pmusysreg to syscon and node label from pmu_sys_reg to pmu_syscon
+	- changed the property name from samsung,pmusysreg to samsung,syscon-phandle
+	- used regmap_update_bits instead of remap_read/regmap_write
+	- Addressed other comments given by Tomasz Figa <t.figa@samsung.com>
+
+Changes since V3:
+	- changed the compatible strings for watchdog node
+	- splitted up adding pmusysreg node and made it separate patch
+	- Addressed comments given by Sachin Kamat <sachin.kamat@linaro.org>
+
+Changes since V2:
+	- used syscon regmap interface to configure pmu registers in WDT driver
+	  (suggested by Tomasz Figa <t.figa@samsung.com>)
+
+Changes since V1:
+        - Added new compatible string for Exynos5 SoCs
+        - Introduced quirk mechanism to program PMU registers
+        - Addressed comments given by Tomasz Figa <t.figa@samsung.com>
+
+Leela Krishna Amudala (3):
+  ARM: dts: Add pmu sysreg node to exynos5250 and exynos5420 dtsi files
+  watchdog: s3c2410_wdt: use syscon regmap interface to configure pmu
+    register
+  ARM: dts: update watchdog device nodes for Exynos5250 and Exynos5420
+
+ .../devicetree/bindings/arm/samsung/pmu.txt        |   16 ++
+ .../devicetree/bindings/watchdog/samsung-wdt.txt   |   21 ++-
+ arch/arm/boot/dts/exynos5.dtsi                     |    7 -
+ arch/arm/boot/dts/exynos5250.dtsi                  |   11 +-
+ arch/arm/boot/dts/exynos5420.dtsi                  |   14 ++
+ drivers/watchdog/Kconfig                           |    1 +
+ drivers/watchdog/s3c2410_wdt.c                     |  159 ++++++++++++++++++--
+ 7 files changed, 211 insertions(+), 18 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/arm/samsung/pmu.txt
+
+-- 
+1.7.10.4
