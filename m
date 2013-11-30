@@ -1,77 +1,225 @@
-Return-Path: <markus.mayer@linaro.org>
-From: "Markus Mayer" <markus.mayer@linaro.org>
-To: "Guenter Roeck" <linux@roeck-us.net>,
-	"Wim Van Sebroeck" <wim@iguana.be>
-cc: "Linux Watchdog List" <linux-watchdog@vger.kernel.org>,
-	"Markus Mayer" <markus.mayer@linaro.org>
-Subject: [RFC 0/2] Proposal for Watchdog Timer Resolution
-Date: Fri, 29 Nov 2013 13:20:28 -0800
-Message-ID: <1385760030-24264-1-git-send-email-markus.mayer@linaro.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from pegase1.c-s.fr ([93.17.236.30]:30423 "EHLO mailhub1.si.c-s.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751892Ab3K3QBs convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Sat, 30 Nov 2013 11:01:48 -0500
+From: Christophe Leroy <christophe.leroy@c-s.fr>
+To: Wim Van Sebroeck <wim@iguana.be>, <scottwood@freescale.com>
+CC: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH] watchdog: mpc8xxx_wdt convert to watchdog core
+Message-Id: <20131130153345.3070443E15@localhost.localdomain>
+Date: Sat, 30 Nov 2013 16:33:45 +0100 (CET)
 MIME-Version: 1.0
-Return-path: markus.mayer@linaro.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-I would like to propose the following extension to the watchdog
-framework to allow userland programs access to the resolution of the
-watchdog timer should the hardware support such a feature. The first
-driver to make use of this feature would be the BCM Kona watchdog
-driver.
+Convert mpc8xxx_wdt.c to the new watchdog API.
 
-I would also like to propose introducing a sysfs interface to the
-watchdog framework in a later phase of updating the watchdog framework.
-The sysfs interface would exist in addition to the existing ioctl
-interface. In the future, the ioctl interface could be deprecated in
-favour of the sysfs interface or both interfaces could be kept
-indefinitely.
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
 
-Phase 1:
+diff -ur a/drivers/watchdog/mpc8xxx_wdt.c b/drivers/watchdog/mpc8xxx_wdt.c
+--- a/drivers/watchdog/mpc8xxx_wdt.c	2013-05-11 22:57:46.000000000 +0200
++++ b/drivers/watchdog/mpc8xxx_wdt.c	2013-11-30 16:14:53.803495472 +0100
+@@ -72,28 +72,31 @@
+  * to 0
+  */
+ static int prescale = 1;
+-static unsigned int timeout_sec;
+ 
+-static unsigned long wdt_is_open;
+ static DEFINE_SPINLOCK(wdt_spinlock);
+ 
+-static void mpc8xxx_wdt_keepalive(void)
++static int mpc8xxx_wdt_ping(struct watchdog_device *w)
+ {
+ 	/* Ping the WDT */
+ 	spin_lock(&wdt_spinlock);
+ 	out_be16(&wd_base->swsrr, 0x556c);
+ 	out_be16(&wd_base->swsrr, 0xaa39);
+ 	spin_unlock(&wdt_spinlock);
++	return 0;
+ }
+ 
++static struct watchdog_device mpc8xxx_wdt_dev;
+ static void mpc8xxx_wdt_timer_ping(unsigned long arg);
+-static DEFINE_TIMER(wdt_timer, mpc8xxx_wdt_timer_ping, 0, 0);
++static DEFINE_TIMER(wdt_timer, mpc8xxx_wdt_timer_ping, 0,
++		(unsigned long)&mpc8xxx_wdt_dev);
+ 
+ static void mpc8xxx_wdt_timer_ping(unsigned long arg)
+ {
+-	mpc8xxx_wdt_keepalive();
++	struct watchdog_device *w = (struct watchdog_device *)arg;
++
++	mpc8xxx_wdt_ping(w);
+ 	/* We're pinging it twice faster than needed, just to be sure. */
+-	mod_timer(&wdt_timer, jiffies + HZ * timeout_sec / 2);
++	mod_timer(&wdt_timer, jiffies + HZ * w->timeout / 2);
+ }
+ 
+ static void mpc8xxx_wdt_pr_warn(const char *msg)
+@@ -102,19 +105,9 @@
+ 		reset ? "reset" : "machine check exception");
+ }
+ 
+-static ssize_t mpc8xxx_wdt_write(struct file *file, const char __user *buf,
+-				 size_t count, loff_t *ppos)
+-{
+-	if (count)
+-		mpc8xxx_wdt_keepalive();
+-	return count;
+-}
+-
+-static int mpc8xxx_wdt_open(struct inode *inode, struct file *file)
++static int mpc8xxx_wdt_start(struct watchdog_device *w)
+ {
+ 	u32 tmp = SWCRR_SWEN;
+-	if (test_and_set_bit(0, &wdt_is_open))
+-		return -EBUSY;
+ 
+ 	/* Once we start the watchdog we can't stop it */
+ 	if (nowayout)
+@@ -132,59 +125,30 @@
+ 
+ 	del_timer_sync(&wdt_timer);
+ 
+-	return nonseekable_open(inode, file);
++	return 0;
+ }
+ 
+-static int mpc8xxx_wdt_release(struct inode *inode, struct file *file)
++static int mpc8xxx_wdt_stop(struct watchdog_device *w)
+ {
+-	if (!nowayout)
+-		mpc8xxx_wdt_timer_ping(0);
+-	else
+-		mpc8xxx_wdt_pr_warn("watchdog closed");
+-	clear_bit(0, &wdt_is_open);
++	mpc8xxx_wdt_timer_ping((unsigned long)w);
+ 	return 0;
+ }
+ 
+-static long mpc8xxx_wdt_ioctl(struct file *file, unsigned int cmd,
+-							unsigned long arg)
+-{
+-	void __user *argp = (void __user *)arg;
+-	int __user *p = argp;
+-	static const struct watchdog_info ident = {
+-		.options = WDIOF_KEEPALIVEPING,
+-		.firmware_version = 1,
+-		.identity = "MPC8xxx",
+-	};
+-
+-	switch (cmd) {
+-	case WDIOC_GETSUPPORT:
+-		return copy_to_user(argp, &ident, sizeof(ident)) ? -EFAULT : 0;
+-	case WDIOC_GETSTATUS:
+-	case WDIOC_GETBOOTSTATUS:
+-		return put_user(0, p);
+-	case WDIOC_KEEPALIVE:
+-		mpc8xxx_wdt_keepalive();
+-		return 0;
+-	case WDIOC_GETTIMEOUT:
+-		return put_user(timeout_sec, p);
+-	default:
+-		return -ENOTTY;
+-	}
+-}
++static struct watchdog_info mpc8xxx_wdt_info = {
++	.options = WDIOF_KEEPALIVEPING,
++	.firmware_version = 1,
++	.identity = "MPC8xxx",
++};
+ 
+-static const struct file_operations mpc8xxx_wdt_fops = {
+-	.owner		= THIS_MODULE,
+-	.llseek		= no_llseek,
+-	.write		= mpc8xxx_wdt_write,
+-	.unlocked_ioctl	= mpc8xxx_wdt_ioctl,
+-	.open		= mpc8xxx_wdt_open,
+-	.release	= mpc8xxx_wdt_release,
++static struct watchdog_ops mpc8xxx_wdt_ops = {
++	.owner = THIS_MODULE,
++	.start = mpc8xxx_wdt_start,
++	.stop = mpc8xxx_wdt_stop,
+ };
+ 
+-static struct miscdevice mpc8xxx_wdt_miscdev = {
+-	.minor	= WATCHDOG_MINOR,
+-	.name	= "watchdog",
+-	.fops	= &mpc8xxx_wdt_fops,
++static struct watchdog_device mpc8xxx_wdt_dev = {
++	.info = &mpc8xxx_wdt_info,
++	.ops = &mpc8xxx_wdt_ops,
+ };
+ 
+ static const struct of_device_id mpc8xxx_wdt_match[];
+@@ -196,6 +160,7 @@
+ 	const struct mpc8xxx_wdt_type *wdt_type;
+ 	u32 freq = fsl_get_sys_freq();
+ 	bool enabled;
++	unsigned int timeout_sec;
+ 
+ 	match = of_match_device(mpc8xxx_wdt_match, &ofdev->dev);
+ 	if (!match)
+@@ -222,6 +187,7 @@
+ 	else
+ 		timeout_sec = timeout / freq;
+ 
++	mpc8xxx_wdt_dev.timeout = timeout_sec;
+ #ifdef MODULE
+ 	ret = mpc8xxx_wdt_init_late();
+ 	if (ret)
+@@ -237,7 +203,7 @@
+ 	 * userspace handles it.
+ 	 */
+ 	if (enabled)
+-		mpc8xxx_wdt_timer_ping(0);
++		mpc8xxx_wdt_timer_ping((unsigned long)&mpc8xxx_wdt_dev);
+ 	return 0;
+ err_unmap:
+ 	iounmap(wd_base);
+@@ -249,7 +215,7 @@
+ {
+ 	mpc8xxx_wdt_pr_warn("watchdog removed");
+ 	del_timer_sync(&wdt_timer);
+-	misc_deregister(&mpc8xxx_wdt_miscdev);
++	watchdog_unregister_device(&mpc8xxx_wdt_dev);
+ 	iounmap(wd_base);
+ 
+ 	return 0;
+@@ -301,10 +267,11 @@
+ 	if (!wd_base)
+ 		return -ENODEV;
+ 
+-	ret = misc_register(&mpc8xxx_wdt_miscdev);
++	watchdog_set_nowayout(&mpc8xxx_wdt_dev, nowayout);
++
++	ret = watchdog_register_device(&mpc8xxx_wdt_dev);
+ 	if (ret) {
+-		pr_err("cannot register miscdev on minor=%d (err=%d)\n",
+-		       WATCHDOG_MINOR, ret);
++		pr_err("cannot register watchdog device (err=%d)\n", ret);
+ 		return ret;
+ 	}
+ 	return 0;
+diff -ur a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1146,6 +1146,7 @@
+ config 8xxx_WDT
+ 	tristate "MPC8xxx Platform Watchdog Timer"
+ 	depends on PPC_8xx || PPC_83xx || PPC_86xx
++	select WATCHDOG_CORE
+ 	help
+ 	  This driver is for a SoC level watchdog that exists on some
+ 	  Freescale PowerPC processors. So far this driver supports:
 
-Add get resolution/set resolution ioctls.
-Add necessary flags and call-back functions.
-Extend bcm_kona_wdt.c to make use of the new functionality.
+---
+Ce courrier électronique ne contient aucun virus ou logiciel malveillant parce que la protection avast! Antivirus est active.
+http://www.avast.com
 
-Phase 2:
-
-Abstract the ioctl interface (into watchdog_ioctl.c) with a new set of
-per-driver ops, similar to what other frameworks are already doing.
-
-Phase 3:
-
-Introduce a sysfs interface (watchdog_sysfs.c) hooking into the already
-established per-driver ops. ioctl and sysfs calls would use the same
-framework and driver functions, requiring no code duplication.
-
-Please let me know if this sounds sensible or whether an alternate
-approach would be preferred.
-
-To give you an idea I am attaching an initial patch series for phase 1.
-Please keep in mind that the series is not meant to be applied as is.
-The code may need a bit more cleaning up. Also, I didn't add any
-documentation for the new features. Lastly, the series is currently
-only broken down into 2 patches (all framework changes and the actual
-driver changes), without further regard as to how this series may be
-applied.
-
-Patch 2/2 is dependent on the previous bcm_kona_wdt series:
-
-http://www.spinics.net/lists/linux-watchdog/msg03328.html
-
-Regards,
--Markus
-
-
-Markus Mayer (2):
-  watchdog: Add support to set timer resolution
-  watchdog: bcm281xx: Support for timer resolution ioctls
-
- drivers/watchdog/bcm_kona_wdt.c  |   57 +++++++++++++++++++++-----------------
- drivers/watchdog/watchdog_core.c |   14 ++++++++++
- drivers/watchdog/watchdog_dev.c  |   41 +++++++++++++++++++++++++++
- include/linux/watchdog.h         |   12 ++++++++
- include/uapi/linux/watchdog.h    |    3 ++
- 5 files changed, 101 insertions(+), 26 deletions(-)
-
--- 
-1.7.9.5
