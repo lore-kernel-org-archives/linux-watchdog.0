@@ -1,255 +1,99 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:51774 "EHLO
+Received: from mail.active-venture.com ([67.228.131.205]:52959 "EHLO
 	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752023Ab3LATiD (ORCPT
+	with ESMTP id S1751753Ab3LASyG (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 1 Dec 2013 14:38:03 -0500
-Message-ID: <529B9019.9090404@roeck-us.net>
-Date: Sun, 01 Dec 2013 11:38:01 -0800
+	Sun, 1 Dec 2013 13:54:06 -0500
+Message-ID: <529B85CD.9040505@roeck-us.net>
+Date: Sun, 01 Dec 2013 10:54:05 -0800
 From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-To: Christophe Leroy <christophe.leroy@c-s.fr>,
-	Wim Van Sebroeck <wim@iguana.be>, scottwood@freescale.com
-CC: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org
-Subject: Re: [PATCH] watchdog: mpc8xxx_wdt convert to watchdog core
-References: <20131130153345.3070443E15@localhost.localdomain>
-In-Reply-To: <20131130153345.3070443E15@localhost.localdomain>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+To: Markus Mayer <markus.mayer@linaro.org>,
+	Wim Van Sebroeck <wim@iguana.be>
+CC: Linux Watchdog List <linux-watchdog@vger.kernel.org>
+Subject: Re: [RFC 0/2] Proposal for Watchdog Timer Resolution
+References: <1385760030-24264-1-git-send-email-markus.mayer@linaro.org>
+In-Reply-To: <1385760030-24264-1-git-send-email-markus.mayer@linaro.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 11/30/2013 07:33 AM, Christophe Leroy wrote:
-> Convert mpc8xxx_wdt.c to the new watchdog API.
+On 11/29/2013 01:20 PM, Markus Mayer wrote:
+> I would like to propose the following extension to the watchdog
+> framework to allow userland programs access to the resolution of the
+> watchdog timer should the hardware support such a feature. The first
+> driver to make use of this feature would be the BCM Kona watchdog
+> driver.
 >
-> Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+> I would also like to propose introducing a sysfs interface to the
+> watchdog framework in a later phase of updating the watchdog framework.
+> The sysfs interface would exist in addition to the existing ioctl
+> interface. In the future, the ioctl interface could be deprecated in
+> favour of the sysfs interface or both interfaces could be kept
+> indefinitely.
 >
-> diff -ur a/drivers/watchdog/mpc8xxx_wdt.c b/drivers/watchdog/mpc8xxx_wdt.c
-> --- a/drivers/watchdog/mpc8xxx_wdt.c	2013-05-11 22:57:46.000000000 +0200
-> +++ b/drivers/watchdog/mpc8xxx_wdt.c	2013-11-30 16:14:53.803495472 +0100
-> @@ -72,28 +72,31 @@
->    * to 0
->    */
->   static int prescale = 1;
-> -static unsigned int timeout_sec;
+> Phase 1:
 >
-> -static unsigned long wdt_is_open;
->   static DEFINE_SPINLOCK(wdt_spinlock);
->
-> -static void mpc8xxx_wdt_keepalive(void)
-> +static int mpc8xxx_wdt_ping(struct watchdog_device *w)
->   {
->   	/* Ping the WDT */
->   	spin_lock(&wdt_spinlock);
->   	out_be16(&wd_base->swsrr, 0x556c);
->   	out_be16(&wd_base->swsrr, 0xaa39);
->   	spin_unlock(&wdt_spinlock);
-> +	return 0;
+> Add get resolution/set resolution ioctls.
 
-The return code is never checked, so you can make this function void.
+Hi Markus,
 
->   }
->
-> +static struct watchdog_device mpc8xxx_wdt_dev;
->   static void mpc8xxx_wdt_timer_ping(unsigned long arg);
-> -static DEFINE_TIMER(wdt_timer, mpc8xxx_wdt_timer_ping, 0, 0);
-> +static DEFINE_TIMER(wdt_timer, mpc8xxx_wdt_timer_ping, 0,
-> +		(unsigned long)&mpc8xxx_wdt_dev);
->
->   static void mpc8xxx_wdt_timer_ping(unsigned long arg)
->   {
-> -	mpc8xxx_wdt_keepalive();
-> +	struct watchdog_device *w = (struct watchdog_device *)arg;
-> +
-> +	mpc8xxx_wdt_ping(w);
->   	/* We're pinging it twice faster than needed, just to be sure. */
-> -	mod_timer(&wdt_timer, jiffies + HZ * timeout_sec / 2);
-> +	mod_timer(&wdt_timer, jiffies + HZ * w->timeout / 2);
->   }
->
->   static void mpc8xxx_wdt_pr_warn(const char *msg)
-> @@ -102,19 +105,9 @@
->   		reset ? "reset" : "machine check exception");
->   }
->
-> -static ssize_t mpc8xxx_wdt_write(struct file *file, const char __user *buf,
-> -				 size_t count, loff_t *ppos)
-> -{
-> -	if (count)
-> -		mpc8xxx_wdt_keepalive();
-> -	return count;
-> -}
-> -
-> -static int mpc8xxx_wdt_open(struct inode *inode, struct file *file)
-> +static int mpc8xxx_wdt_start(struct watchdog_device *w)
->   {
->   	u32 tmp = SWCRR_SWEN;
-> -	if (test_and_set_bit(0, &wdt_is_open))
-> -		return -EBUSY;
->
->   	/* Once we start the watchdog we can't stop it */
->   	if (nowayout)
+I am not entirely sure I understand the rationale for this one, or if it is really
+valuable for the user.
 
-This code and the subsequent module_get can be removed; it is handled by the infrastructure.
+One example where a resolution might be applicable is the w83627hf_wdt.c driver.
+The Winbond/Nuvoton chips support watchdog timeouts either in seconds or in
+minutes, based on some configuration register. Currently the driver supports
+only seconds (1..255). I had thought about extending it to minutes, but my
+approach would have been to automatically select minutes-based timeouts if the
+requested timeout is too large (> 255 seconds).
 
+The same approach should be possible for the bcm_kona driver as well; just select
+the optimal resolution based on the requested timeout. I think this would make more
+sense than manual configuration from a user perspective, to keep the API as simple
+as possible while supporting a wide range of timeouts.
 
-> @@ -132,59 +125,30 @@
->
->   	del_timer_sync(&wdt_timer);
->
-> -	return nonseekable_open(inode, file);
-> +	return 0;
->   }
->
-> -static int mpc8xxx_wdt_release(struct inode *inode, struct file *file)
-> +static int mpc8xxx_wdt_stop(struct watchdog_device *w)
->   {
-> -	if (!nowayout)
-> -		mpc8xxx_wdt_timer_ping(0);
-> -	else
-> -		mpc8xxx_wdt_pr_warn("watchdog closed");
-> -	clear_bit(0, &wdt_is_open);
-> +	mpc8xxx_wdt_timer_ping((unsigned long)w);
+On a side note, I don't think you specify anywhere what "resolution" actually means;
+it is just a number which, as far as I can see, does not seem to resemble a specific
+time. In the case of the bcm_kona driver, it appears to be that values of 0..15 map
+to 30us .. 1s in reverse order, which translates to a maximum timeout of anywhere
+between 32s and about 12 days.
 
-I really dislike this typecasting back and forth.
+Based on this, you could set the maximum permitted timeout for the driver to 12 days
+or 748800 seconds (or , and then calculate the required resolution from the actually
+selected timeout.
 
-I think it would be better to move the mod_timer() call from mpc8xxx_wdt_timer_ping
-into mpc8xxx_wdt_ping and call mpc8xxx_wdt_ping directly whenever possible.
- From mpc8xxx_wdt_timer_ping you can then just call mpc8xxx_wdt_ping with the
-typecasted parameter.
+Example:
+	requested timeout: 24 x 3600 = 86400 seconds, ie 1 day
+	Required resolution: 86400 s / 0xfffff = 82.4 ms ==> resolution = 3.
 
->   	return 0;
->   }
->
-> -static long mpc8xxx_wdt_ioctl(struct file *file, unsigned int cmd,
-> -							unsigned long arg)
-> -{
-> -	void __user *argp = (void __user *)arg;
-> -	int __user *p = argp;
-> -	static const struct watchdog_info ident = {
-> -		.options = WDIOF_KEEPALIVEPING,
-> -		.firmware_version = 1,
-> -		.identity = "MPC8xxx",
-> -	};
-> -
-> -	switch (cmd) {
-> -	case WDIOC_GETSUPPORT:
-> -		return copy_to_user(argp, &ident, sizeof(ident)) ? -EFAULT : 0;
-> -	case WDIOC_GETSTATUS:
-> -	case WDIOC_GETBOOTSTATUS:
-> -		return put_user(0, p);
-> -	case WDIOC_KEEPALIVE:
-> -		mpc8xxx_wdt_keepalive();
-> -		return 0;
-> -	case WDIOC_GETTIMEOUT:
-> -		return put_user(timeout_sec, p);
-> -	default:
-> -		return -ENOTTY;
-> -	}
-> -}
-> +static struct watchdog_info mpc8xxx_wdt_info = {
-> +	.options = WDIOF_KEEPALIVEPING,
-> +	.firmware_version = 1,
-> +	.identity = "MPC8xxx",
-> +};
->
-> -static const struct file_operations mpc8xxx_wdt_fops = {
-> -	.owner		= THIS_MODULE,
-> -	.llseek		= no_llseek,
-> -	.write		= mpc8xxx_wdt_write,
-> -	.unlocked_ioctl	= mpc8xxx_wdt_ioctl,
-> -	.open		= mpc8xxx_wdt_open,
-> -	.release	= mpc8xxx_wdt_release,
-> +static struct watchdog_ops mpc8xxx_wdt_ops = {
-> +	.owner = THIS_MODULE,
-> +	.start = mpc8xxx_wdt_start,
-> +	.stop = mpc8xxx_wdt_stop,
->   };
->
-> -static struct miscdevice mpc8xxx_wdt_miscdev = {
-> -	.minor	= WATCHDOG_MINOR,
-> -	.name	= "watchdog",
-> -	.fops	= &mpc8xxx_wdt_fops,
-> +static struct watchdog_device mpc8xxx_wdt_dev = {
-> +	.info = &mpc8xxx_wdt_info,
-> +	.ops = &mpc8xxx_wdt_ops,
->   };
->
->   static const struct of_device_id mpc8xxx_wdt_match[];
-> @@ -196,6 +160,7 @@
->   	const struct mpc8xxx_wdt_type *wdt_type;
->   	u32 freq = fsl_get_sys_freq();
->   	bool enabled;
-> +	unsigned int timeout_sec;
->
->   	match = of_match_device(mpc8xxx_wdt_match, &ofdev->dev);
->   	if (!match)
-> @@ -222,6 +187,7 @@
->   	else
->   		timeout_sec = timeout / freq;
->
-> +	mpc8xxx_wdt_dev.timeout = timeout_sec;
->   #ifdef MODULE
->   	ret = mpc8xxx_wdt_init_late();
->   	if (ret)
-> @@ -237,7 +203,7 @@
->   	 * userspace handles it.
->   	 */
->   	if (enabled)
-> -		mpc8xxx_wdt_timer_ping(0);
-> +		mpc8xxx_wdt_timer_ping((unsigned long)&mpc8xxx_wdt_dev);
->   	return 0;
->   err_unmap:
->   	iounmap(wd_base);
-> @@ -249,7 +215,7 @@
->   {
->   	mpc8xxx_wdt_pr_warn("watchdog removed");
+On the other side, I am not sure if all this complexity is really needed.
+Even at maximum resolution of 1s you can always provide the remaining timeout
+exactly down to the second to the user, which is the granularity provided
+by the watchdog subsystem. So, if you want to be able to support 12-day
+timeouts, why don't you just set the resolution to the maximum supported ?
 
-The mpc8xxx_wdt_pr_warn function is now rather unnecessary since
-it is called only once. Might as well merge it into this function.
+> Add necessary flags and call-back functions.
+> Extend bcm_kona_wdt.c to make use of the new functionality.
+>
+> Phase 2:
+>
+> Abstract the ioctl interface (into watchdog_ioctl.c) with a new set of
+> per-driver ops, similar to what other frameworks are already doing.
+>
+> Phase 3:
+>
+> Introduce a sysfs interface (watchdog_sysfs.c) hooking into the already
+> established per-driver ops. ioctl and sysfs calls would use the same
+> framework and driver functions, requiring no code duplication.
+>
+> Please let me know if this sounds sensible or whether an alternate
+> approach would be preferred.
+>
+I would like to see a sysfs interface, so I would like to see phase 3.
+I'd have to see a patch set for phase 2; not really sure what this entails.
 
->   	del_timer_sync(&wdt_timer);
-> -	misc_deregister(&mpc8xxx_wdt_miscdev);
-> +	watchdog_unregister_device(&mpc8xxx_wdt_dev);
->   	iounmap(wd_base);
->
->   	return 0;
-> @@ -301,10 +267,11 @@
->   	if (!wd_base)
->   		return -ENODEV;
->
-> -	ret = misc_register(&mpc8xxx_wdt_miscdev);
-> +	watchdog_set_nowayout(&mpc8xxx_wdt_dev, nowayout);
-> +
-> +	ret = watchdog_register_device(&mpc8xxx_wdt_dev);
->   	if (ret) {
-> -		pr_err("cannot register miscdev on minor=%d (err=%d)\n",
-> -		       WATCHDOG_MINOR, ret);
-> +		pr_err("cannot register watchdog device (err=%d)\n", ret);
->   		return ret;
->   	}
->   	return 0;
-> diff -ur a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -1146,6 +1146,7 @@
->   config 8xxx_WDT
->   	tristate "MPC8xxx Platform Watchdog Timer"
->   	depends on PPC_8xx || PPC_83xx || PPC_86xx
-> +	select WATCHDOG_CORE
->   	help
->   	  This driver is for a SoC level watchdog that exists on some
->   	  Freescale PowerPC processors. So far this driver supports:
->
-> ---
-> Ce courrier électronique ne contient aucun virus ou logiciel malveillant parce que la protection avast! Antivirus est active.
-> http://www.avast.com
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
->
+Thanks,
+Guenter
 
