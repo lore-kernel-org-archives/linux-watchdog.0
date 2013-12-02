@@ -1,56 +1,61 @@
-Return-Path: <tomasz.figa@gmail.com>
-Return-Path: <tomasz.figa@gmail.com>
-From: Tomasz Figa <tomasz.figa@gmail.com>
-To: Olof Johansson <olof@lixom.net>
-Cc: Leela Krishna Amudala <l.krishna@samsung.com>, "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, Wim Van Sebroeck <wim@iguana.be>, Doug Anderson <dianders@chromium.org>, Kukjin Kim <kgene.kim@samsung.com>, Tomasz Figa <t.figa@samsung.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, cpgs@samsung.com, Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH V11 1/3] ARM: dts: Add pmu sysreg node to exynos5250 and exynos5420 dtsi files
-Date: Mon, 02 Dec 2013 20:49:39 +0100
-Message-ID: <1468334.WxyIceyAAx@flatron>
-In-Reply-To: <CAOesGMjbWRwEvuYh2DRvUfKm=fMmLOzpKCOO9p-gNvSXuf5hQg@mail.gmail.com>
-References: <1385613243-3559-1-git-send-email-l.krishna@samsung.com> <1385613243-3559-2-git-send-email-l.krishna@samsung.com> <CAOesGMjbWRwEvuYh2DRvUfKm=fMmLOzpKCOO9p-gNvSXuf5hQg@mail.gmail.com>
+Return-Path: <olof@lixom.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+In-Reply-To: <20131202202120.GA23611@roeck-us.net>
+References: <1386008082-28740-1-git-send-email-dianders@chromium.org>
+	<20131202202120.GA23611@roeck-us.net>
+Date: Mon, 2 Dec 2013 12:47:53 -0800
+Message-ID: <CAOesGMi-P6LG1-XKVizUS_qX-gfZi_iXBO5r+=6a2nfvBS60mw@mail.gmail.com>
+Subject: Re: [PATCH] watchdog: s3c2410_wdt: Report when the watchdog reset the system
+From: Olof Johansson <olof@lixom.net>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Doug Anderson <dianders@chromium.org>, Wim Van Sebroeck <wim@iguana.be>,
+	Leela Krishna Amudala <l.krishna@samsung.com>, Tomasz Figa <tomasz.figa@gmail.com>,
+	Kukjin Kim <kgene.kim@samsung.com>, Ben Dooks <ben-linux@fluff.org>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	"linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Monday 02 of December 2013 10:50:14 Olof Johansson wrote:
-> Hi,
-> 
-> On Wed, Nov 27, 2013 at 8:34 PM, Leela Krishna Amudala
-> <l.krishna@samsung.com> wrote:
-> > This patch adds pmusysreg node to exynos5250 and exynos5420 dtsi files to
-> > handle PMU register accesses in a centralized way using syscon driver
-> >
-> > Signed-off-by: Leela Krishna Amudala <l.krishna@samsung.com>
-> > Reviewed-by: Tomasz Figa <t.figa@samsung.com>
-> > Reviewed-by: Doug Anderson <dianders@chromium.org>
-> > Tested-by: Doug Anderson <dianders@chromium.org>
-> > ---
-> >  Documentation/devicetree/bindings/arm/samsung/pmu.txt |   16 ++++++++++++++++
-> >  arch/arm/boot/dts/exynos5250.dtsi                     |    5 +++++
-> >  arch/arm/boot/dts/exynos5420.dtsi                     |    5 +++++
-> >  3 files changed, 26 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/arm/samsung/pmu.txt
-> >
-> > diff --git a/Documentation/devicetree/bindings/arm/samsung/pmu.txt b/Documentation/devicetree/bindings/arm/samsung/pmu.txt
-> > new file mode 100644
-> > index 0000000..307e727
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/arm/samsung/pmu.txt
-> > @@ -0,0 +1,16 @@
-> > +SAMSUNG Exynos SoC series PMU Registers
-> > +
-> > +Properties:
-> > + - name : should be 'syscon';
-> 
-> It's common to use a non-abbreviated name, such as 'system-controller'
-> here. Or, given that it's referring to "pmusysreg" then maybe
-> something like "pmu-system-registers".
+On Mon, Dec 2, 2013 at 12:21 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+> On Mon, Dec 02, 2013 at 10:14:41AM -0800, Doug Anderson wrote:
+>> A good watchdog driver is supposed to report when it was responsible
+>> for resetting the system.  Implement this for the s3c2410, at least on
+>> exynos5250 and exynos5420 where we already have a pointer to the PMU
+>> registers to read the information.
+>>
+>> Signed-off-by: Doug Anderson <dianders@chromium.org>
+>> ---
+>> This patch is based atop Leela Krishna's recent series that ends with
+>> (ARM: dts: update watchdog device nodes for Exynos5250 and Exynos5420)
+>> AKA <https://patchwork.kernel.org/patch/3251861/>.
+>>
+>>  drivers/watchdog/s3c2410_wdt.c | 42 +++++++++++++++++++++++++++++++++++++++---
+>>  1 file changed, 39 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+>> index 47f4dcf..2c87d37 100644
+>> --- a/drivers/watchdog/s3c2410_wdt.c
+>> +++ b/drivers/watchdog/s3c2410_wdt.c
+>> @@ -62,9 +62,13 @@
+>>  #define CONFIG_S3C2410_WATCHDOG_ATBOOT               (0)
+>>  #define CONFIG_S3C2410_WATCHDOG_DEFAULT_TIME (15)
+>>
+>> +#define RST_STAT_REG_OFFSET          0x0404
+>>  #define WDT_DISABLE_REG_OFFSET               0x0408
+>>  #define WDT_MASK_RESET_REG_OFFSET    0x040c
+>>  #define QUIRK_NEEDS_PMU_CONFIG               (1 << 0)
+>> +#define QUIRK_HAS_RST_STAT           (1 << 1)
+>> +#define QUIRKS_NEED_PMUREG           (QUIRK_NEEDS_PMU_CONFIG | \
+>> +                                      QUIRK_HAS_RST_STAT)
+>>
+> I am not really happy about the NEED (both of them, really) here.
+> How about HAS instead ?
 
-Hmm, it's two syscons vs two system-controllers in existing device trees.
-I agree that system-controller sounds much better as a name for this class
-of devices. I don't remember why I initially suggested syscon, though.
-Possibly based on those two existing device trees using this name.
+Ah, I just commented on these things on our internal review site too
+on this patch. I don't even think a quirk is needed -- just use the
+presence of a non-0 rst_stat_reg to tell if you need to use regmap.
 
-Best regards,
-Tomasz
+
+-Olof
