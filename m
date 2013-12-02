@@ -1,292 +1,140 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f175.google.com ([209.85.192.175]:61775 "EHLO
-	mail-pd0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751432Ab3LBQSN (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 2 Dec 2013 11:18:13 -0500
-Date: Mon, 2 Dec 2013 08:18:11 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: leroy christophe <christophe.leroy@c-s.fr>
-Cc: Wim Van Sebroeck <wim@iguana.be>, scottwood@freescale.com,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org
-Subject: Re: [PATCH] watchdog: mpc8xxx_wdt convert to watchdog core
-Message-ID: <20131202161811.GA31606@roeck-us.net>
-References: <20131130153345.3070443E15@localhost.localdomain>
- <529B9019.9090404@roeck-us.net>
- <529C6165.3050106@c-s.fr>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <529C6165.3050106@c-s.fr>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <dianders@google.com>
+Return-Path: <dianders@google.com>
+From: Doug Anderson <dianders@chromium.org>
+To: Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>
+Cc: Leela Krishna Amudala <l.krishna@samsung.com>,
+	Olof Johansson <olof@lixom.net>,
+	Tomasz Figa <tomasz.figa@gmail.com>,
+	Kukjin Kim <kgene.kim@samsung.com>,
+	Doug Anderson <dianders@chromium.org>,
+	Ben Dooks <ben-linux@fluff.org>,
+	linux-arm-kernel@lists.infradead.org,
+	linux-samsung-soc@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] watchdog: s3c2410_wdt: Report when the watchdog reset the system
+Date: Mon,  2 Dec 2013 10:14:41 -0800
+Message-Id: <1386008082-28740-1-git-send-email-dianders@chromium.org>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Mon, Dec 02, 2013 at 11:31:01AM +0100, leroy christophe wrote:
-> 
-> Le 01/12/2013 20:38, Guenter Roeck a écrit :
-> >On 11/30/2013 07:33 AM, Christophe Leroy wrote:
-> >>Convert mpc8xxx_wdt.c to the new watchdog API.
-> >>
-> >>Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-> >>
-> >>diff -ur a/drivers/watchdog/mpc8xxx_wdt.c
-> >>b/drivers/watchdog/mpc8xxx_wdt.c
-> >>--- a/drivers/watchdog/mpc8xxx_wdt.c    2013-05-11
-> >>22:57:46.000000000 +0200
-> >>+++ b/drivers/watchdog/mpc8xxx_wdt.c    2013-11-30
-> >>16:14:53.803495472 +0100
-> >>@@ -72,28 +72,31 @@
-> >>   * to 0
-> >>   */
-> >>  static int prescale = 1;
-> >>-static unsigned int timeout_sec;
-> >>
-> >>-static unsigned long wdt_is_open;
-> >>  static DEFINE_SPINLOCK(wdt_spinlock);
-> 
-_> >>-static void mpc8xxxwdt_keepalive(void)
-> >>+static int mpc8xxx_wdt_ping(struct watchdog_device *w)
-> >>  {
-> >>      /* Ping the WDT */
-> >>      spin_lock(&wdt_spinlock);
-> >>      out_be16(&wd_base->swsrr, 0x556c);
-> >>      out_be16(&wd_base->swsrr, 0xaa39);
-> >>      spin_unlock(&wdt_spinlock);
-> >>+    return 0;
-> >
-> >The return code is never checked, so you can make this function void.
-> watchdog .h expects an int function.
-> Wouldn't it be an error to make it void, if for instance in the
-> future the return code is checked by the core ?
+A good watchdog driver is supposed to report when it was responsible
+for resetting the system.  Implement this for the s3c2410, at least on
+exynos5250 and exynos5420 where we already have a pointer to the PMU
+registers to read the information.
 
-This would be correct if the watchdog core would ever call this function,
-which it could only do if it was specified in mpc8xxx_wdt_ops, which it isn't.
-As written, mpc8xxx_wdt_ping is only called from mpc8xxx_wdt_timer_ping.
+Signed-off-by: Doug Anderson <dianders@chromium.org>
+---
+This patch is based atop Leela Krishna's recent series that ends with
+(ARM: dts: update watchdog device nodes for Exynos5250 and Exynos5420)
+AKA <https://patchwork.kernel.org/patch/3251861/>.
 
-If this is not intentional, ie if mpc8xxx_wdt_ping is supposed to be called
-from the infrastructure, something else is wrong.
+ drivers/watchdog/s3c2410_wdt.c | 42 +++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 39 insertions(+), 3 deletions(-)
 
-Guenter
-
-> >
-> >>  }
-> >>
-> >>+static struct watchdog_device mpc8xxx_wdt_dev;
-> >>  static void mpc8xxx_wdt_timer_ping(unsigned long arg);
-> >>-static DEFINE_TIMER(wdt_timer, mpc8xxx_wdt_timer_ping, 0, 0);
-> >>+static DEFINE_TIMER(wdt_timer, mpc8xxx_wdt_timer_ping, 0,
-> >>+        (unsigned long)&mpc8xxx_wdt_dev);
-> >>
-> >>  static void mpc8xxx_wdt_timer_ping(unsigned long arg)
-> >>  {
-> >>-    mpc8xxx_wdt_keepalive();
-> >>+    struct watchdog_device *w = (struct watchdog_device *)arg;
-> >>+
-> >>+    mpc8xxx_wdt_ping(w);
-> >>      /* We're pinging it twice faster than needed, just to be sure. */
-> >>-    mod_timer(&wdt_timer, jiffies + HZ * timeout_sec / 2);
-> >>+    mod_timer(&wdt_timer, jiffies + HZ * w->timeout / 2);
-> >>  }
-> >>
-> >>  static void mpc8xxx_wdt_pr_warn(const char *msg)
-> >>@@ -102,19 +105,9 @@
-> >>          reset ? "reset" : "machine check exception");
-> >>  }
-> >>
-> >>-static ssize_t mpc8xxx_wdt_write(struct file *file, const char
-> >>__user *buf,
-> >>-                 size_t count, loff_t *ppos)
-> >>-{
-> >>-    if (count)
-> >>-        mpc8xxx_wdt_keepalive();
-> >>-    return count;
-> >>-}
-> >>-
-> >>-static int mpc8xxx_wdt_open(struct inode *inode, struct file *file)
-> >>+static int mpc8xxx_wdt_start(struct watchdog_device *w)
-> >>  {
-> >>      u32 tmp = SWCRR_SWEN;
-> >>-    if (test_and_set_bit(0, &wdt_is_open))
-> >>-        return -EBUSY;
-> >>
-> >>      /* Once we start the watchdog we can't stop it */
-> >>      if (nowayout)
-> >
-> >This code and the subsequent module_get can be removed; it is
-> >handled by the infrastructure.
-> >
-> >
-> >>@@ -132,59 +125,30 @@
-> >>
-> >>      del_timer_sync(&wdt_timer);
-> >>
-> >>-    return nonseekable_open(inode, file);
-> >>+    return 0;
-> >>  }
-> >>
-> >>-static int mpc8xxx_wdt_release(struct inode *inode, struct file *file)
-> >>+static int mpc8xxx_wdt_stop(struct watchdog_device *w)
-> >>  {
-> >>-    if (!nowayout)
-> >>-        mpc8xxx_wdt_timer_ping(0);
-> >>-    else
-> >>-        mpc8xxx_wdt_pr_warn("watchdog closed");
-> >>-    clear_bit(0, &wdt_is_open);
-> >>+    mpc8xxx_wdt_timer_ping((unsigned long)w);
-> >
-> >I really dislike this typecasting back and forth.
-> >
-> >I think it would be better to move the mod_timer() call from
-> >mpc8xxx_wdt_timer_ping
-> >into mpc8xxx_wdt_ping and call mpc8xxx_wdt_ping directly whenever
-> >possible.
-> >From mpc8xxx_wdt_timer_ping you can then just call
-> >mpc8xxx_wdt_ping with the
-> >typecasted parameter.
-> I'm not sure I understand what you mean.
-> mpc8xxx_wdt_ping() is called by the core when the user app writes
-> into /dev/watchdog.
-> We don't want the set the timer in that case.
-> The timer is only used for when no user app has opened /dev/watchdog yet.
-> 
-> >
-> >>      return 0;
-> >>  }
-> >>
-> >>-static long mpc8xxx_wdt_ioctl(struct file *file, unsigned int cmd,
-> >>-                            unsigned long arg)
-> >>-{
-> >>-    void __user *argp = (void __user *)arg;
-> >>-    int __user *p = argp;
-> >>-    static const struct watchdog_info ident = {
-> >>-        .options = WDIOF_KEEPALIVEPING,
-> >>-        .firmware_version = 1,
-> >>-        .identity = "MPC8xxx",
-> >>-    };
-> >>-
-> >>-    switch (cmd) {
-> >>-    case WDIOC_GETSUPPORT:
-> >>-        return copy_to_user(argp, &ident, sizeof(ident)) ? -EFAULT : 0;
-> >>-    case WDIOC_GETSTATUS:
-> >>-    case WDIOC_GETBOOTSTATUS:
-> >>-        return put_user(0, p);
-> >>-    case WDIOC_KEEPALIVE:
-> >>-        mpc8xxx_wdt_keepalive();
-> >>-        return 0;
-> >>-    case WDIOC_GETTIMEOUT:
-> >>-        return put_user(timeout_sec, p);
-> >>-    default:
-> >>-        return -ENOTTY;
-> >>-    }
-> >>-}
-> >>+static struct watchdog_info mpc8xxx_wdt_info = {
-> >>+    .options = WDIOF_KEEPALIVEPING,
-> >>+    .firmware_version = 1,
-> >>+    .identity = "MPC8xxx",
-> >>+};
-> >>
-> >>-static const struct file_operations mpc8xxx_wdt_fops = {
-> >>-    .owner        = THIS_MODULE,
-> >>-    .llseek        = no_llseek,
-> >>-    .write        = mpc8xxx_wdt_write,
-> >>-    .unlocked_ioctl    = mpc8xxx_wdt_ioctl,
-> >>-    .open        = mpc8xxx_wdt_open,
-> >>-    .release    = mpc8xxx_wdt_release,
-> >>+static struct watchdog_ops mpc8xxx_wdt_ops = {
-> >>+    .owner = THIS_MODULE,
-> >>+    .start = mpc8xxx_wdt_start,
-> >>+    .stop = mpc8xxx_wdt_stop,
-> >>  };
-> >>
-> >>-static struct miscdevice mpc8xxx_wdt_miscdev = {
-> >>-    .minor    = WATCHDOG_MINOR,
-> >>-    .name    = "watchdog",
-> >>-    .fops    = &mpc8xxx_wdt_fops,
-> >>+static struct watchdog_device mpc8xxx_wdt_dev = {
-> >>+    .info = &mpc8xxx_wdt_info,
-> >>+    .ops = &mpc8xxx_wdt_ops,
-> >>  };
-> >>
-> >>  static const struct of_device_id mpc8xxx_wdt_match[];
-> >>@@ -196,6 +160,7 @@
-> >>      const struct mpc8xxx_wdt_type *wdt_type;
-> >>      u32 freq = fsl_get_sys_freq();
-> >>      bool enabled;
-> >>+    unsigned int timeout_sec;
-> >>
-> >>      match = of_match_device(mpc8xxx_wdt_match, &ofdev->dev);
-> >>      if (!match)
-> >>@@ -222,6 +187,7 @@
-> >>      else
-> >>          timeout_sec = timeout / freq;
-> >>
-> >>+    mpc8xxx_wdt_dev.timeout = timeout_sec;
-> >>  #ifdef MODULE
-> >>      ret = mpc8xxx_wdt_init_late();
-> >>      if (ret)
-> >>@@ -237,7 +203,7 @@
-> >>       * userspace handles it.
-> >>       */
-> >>      if (enabled)
-> >>-        mpc8xxx_wdt_timer_ping(0);
-> >>+        mpc8xxx_wdt_timer_ping((unsigned long)&mpc8xxx_wdt_dev);
-> >>      return 0;
-> >>  err_unmap:
-> >>      iounmap(wd_base);
-> >>@@ -249,7 +215,7 @@
-> >>  {
-> >>      mpc8xxx_wdt_pr_warn("watchdog removed");
-> >
-> >The mpc8xxx_wdt_pr_warn function is now rather unnecessary since
-> >it is called only once. Might as well merge it into this function.
-> >
-> >>      del_timer_sync(&wdt_timer);
-> >>-    misc_deregister(&mpc8xxx_wdt_miscdev);
-> >>+    watchdog_unregister_device(&mpc8xxx_wdt_dev);
-> >>      iounmap(wd_base);
-> >>
-> >>      return 0;
-> >>@@ -301,10 +267,11 @@
-> >>      if (!wd_base)
-> >>          return -ENODEV;
-> >>
-> >>-    ret = misc_register(&mpc8xxx_wdt_miscdev);
-> >>+    watchdog_set_nowayout(&mpc8xxx_wdt_dev, nowayout);
-> >>+
-> >>+    ret = watchdog_register_device(&mpc8xxx_wdt_dev);
-> >>      if (ret) {
-> >>-        pr_err("cannot register miscdev on minor=%d (err=%d)\n",
-> >>-               WATCHDOG_MINOR, ret);
-> >>+        pr_err("cannot register watchdog device (err=%d)\n", ret);
-> >>          return ret;
-> >>      }
-> >>      return 0;
-> >>diff -ur a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> >>--- a/drivers/watchdog/Kconfig
-> >>+++ b/drivers/watchdog/Kconfig
-> >>@@ -1146,6 +1146,7 @@
-> >>  config 8xxx_WDT
-> >>      tristate "MPC8xxx Platform Watchdog Timer"
-> >>      depends on PPC_8xx || PPC_83xx || PPC_86xx
-> >>+    select WATCHDOG_CORE
-> >>      help
-> >>        This driver is for a SoC level watchdog that exists on some
-> >>        Freescale PowerPC processors. So far this driver supports:
-> >>
-> >>---
-> >>Ce courrier électronique ne contient aucun virus ou logiciel
-> >>malveillant parce que la protection avast! Antivirus est active.
-> >>http://www.avast.com
-> >>
-> >>-- 
-> >>To unsubscribe from this list: send the line "unsubscribe
-> >>linux-watchdog" in
-> >>the body of a message to majordomo@vger.kernel.org
-> >>More majordomo info at http://vger.kernel.org/majordomo-info.html
-> >>
-> >>
-> >
-> 
-> 
+diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+index 47f4dcf..2c87d37 100644
+--- a/drivers/watchdog/s3c2410_wdt.c
++++ b/drivers/watchdog/s3c2410_wdt.c
+@@ -62,9 +62,13 @@
+ #define CONFIG_S3C2410_WATCHDOG_ATBOOT		(0)
+ #define CONFIG_S3C2410_WATCHDOG_DEFAULT_TIME	(15)
+ 
++#define RST_STAT_REG_OFFSET		0x0404
+ #define WDT_DISABLE_REG_OFFSET		0x0408
+ #define WDT_MASK_RESET_REG_OFFSET	0x040c
+ #define QUIRK_NEEDS_PMU_CONFIG		(1 << 0)
++#define QUIRK_HAS_RST_STAT		(1 << 1)
++#define QUIRKS_NEED_PMUREG		(QUIRK_NEEDS_PMU_CONFIG | \
++					 QUIRK_HAS_RST_STAT)
+ 
+ static bool nowayout	= WATCHDOG_NOWAYOUT;
+ static int tmr_margin;
+@@ -98,6 +102,9 @@ MODULE_PARM_DESC(debug, "Watchdog debug, set to >1 for debug (default 0)");
+  * timer reset functionality.
+  * @mask_bit: Bit number for the watchdog timer in the disable register and the
+  * mask reset register.
++ * @rst_stat_reg: Offset in pmureg for the register that has the reset status.
++ * @rst_stat_bit: Bit number in the rst_stat register indicating a watchdog
++ * reset.
+  * @quirks: A bitfield of quirks.
+  */
+ 
+@@ -105,6 +112,8 @@ struct s3c2410_wdt_variant {
+ 	int disable_reg;
+ 	int mask_reset_reg;
+ 	int mask_bit;
++	int rst_stat_reg;
++	int rst_stat_bit;
+ 	u32 quirks;
+ };
+ 
+@@ -131,14 +140,20 @@ static const struct s3c2410_wdt_variant drv_data_exynos5250  = {
+ 	.disable_reg = WDT_DISABLE_REG_OFFSET,
+ 	.mask_reset_reg = WDT_MASK_RESET_REG_OFFSET,
+ 	.mask_bit = 20,
+-	.quirks = QUIRK_NEEDS_PMU_CONFIG
++	.rst_stat_reg = RST_STAT_REG_OFFSET,
++	.rst_stat_bit = 20,
++	.quirks = QUIRK_NEEDS_PMU_CONFIG |
++		QUIRK_HAS_RST_STAT,
+ };
+ 
+ static const struct s3c2410_wdt_variant drv_data_exynos5420 = {
+ 	.disable_reg = WDT_DISABLE_REG_OFFSET,
+ 	.mask_reset_reg = WDT_MASK_RESET_REG_OFFSET,
+ 	.mask_bit = 0,
+-	.quirks = QUIRK_NEEDS_PMU_CONFIG
++	.rst_stat_reg = RST_STAT_REG_OFFSET,
++	.rst_stat_bit = 9,
++	.quirks = QUIRK_NEEDS_PMU_CONFIG |
++		QUIRK_HAS_RST_STAT,
+ };
+ 
+ static const struct of_device_id s3c2410_wdt_match[] = {
+@@ -423,6 +438,25 @@ static inline void s3c2410wdt_cpufreq_deregister(struct s3c2410_wdt *wdt)
+ }
+ #endif
+ 
++static inline unsigned int s3c2410wdt_get_bootstatus(struct s3c2410_wdt *wdt)
++{
++	unsigned int bootstatus = 0;
++	int ret;
++
++	if (wdt->drv_data->quirks & QUIRK_HAS_RST_STAT) {
++		unsigned int rst_stat;
++
++		ret = regmap_read(wdt->pmureg, wdt->drv_data->rst_stat_reg,
++				  &rst_stat);
++		if (ret)
++			dev_warn(wdt->dev, "Couldn't get RST_STAT register\n");
++		else if (rst_stat & BIT(wdt->drv_data->rst_stat_bit))
++			bootstatus |= WDIOF_CARDRESET;
++	}
++
++	return bootstatus;
++}
++
+ /* s3c2410_get_wdt_driver_data */
+ static inline struct s3c2410_wdt_variant *
+ get_wdt_drv_data(struct platform_device *pdev)
+@@ -460,7 +494,7 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ 	wdt->wdt_device = s3c2410_wdd;
+ 
+ 	wdt->drv_data = get_wdt_drv_data(pdev);
+-	if (wdt->drv_data->quirks & QUIRK_NEEDS_PMU_CONFIG) {
++	if (wdt->drv_data->quirks & QUIRKS_NEED_PMUREG) {
+ 		wdt->pmureg = syscon_regmap_lookup_by_phandle(dev->of_node,
+ 							"samsung,syscon-phandle");
+ 		if (IS_ERR(wdt->pmureg)) {
+@@ -531,6 +565,8 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ 
+ 	watchdog_set_nowayout(&wdt->wdt_device, nowayout);
+ 
++	wdt->wdt_device.bootstatus = s3c2410wdt_get_bootstatus(wdt);
++
+ 	ret = watchdog_register_device(&wdt->wdt_device);
+ 	if (ret) {
+ 		dev_err(dev, "cannot register watchdog (%d)\n", ret);
+-- 
+1.8.4.1
