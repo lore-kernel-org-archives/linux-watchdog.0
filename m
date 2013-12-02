@@ -1,61 +1,49 @@
-Return-Path: <olof@lixom.net>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-ve0-f177.google.com ([209.85.128.177]:62699 "EHLO
+	mail-ve0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752837Ab3LBRcq (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 2 Dec 2013 12:32:46 -0500
+Received: by mail-ve0-f177.google.com with SMTP id db12so8873322veb.8
+        for <linux-watchdog@vger.kernel.org>; Mon, 02 Dec 2013 09:32:45 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <1385613243-3559-2-git-send-email-l.krishna@samsung.com>
+In-Reply-To: <1385613243-3559-3-git-send-email-l.krishna@samsung.com>
 References: <1385613243-3559-1-git-send-email-l.krishna@samsung.com>
-	<1385613243-3559-2-git-send-email-l.krishna@samsung.com>
-Date: Mon, 2 Dec 2013 10:50:14 -0800
-Message-ID: <CAOesGMjbWRwEvuYh2DRvUfKm=fMmLOzpKCOO9p-gNvSXuf5hQg@mail.gmail.com>
-Subject: Re: [PATCH V11 1/3] ARM: dts: Add pmu sysreg node to exynos5250 and
- exynos5420 dtsi files
-From: Olof Johansson <olof@lixom.net>
-To: Leela Krishna Amudala <l.krishna@samsung.com>
-Cc: "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, Wim Van Sebroeck <wim@iguana.be>,
-	Doug Anderson <dianders@chromium.org>, Kukjin Kim <kgene.kim@samsung.com>,
-	Tomasz Figa <t.figa@samsung.com>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, cpgs@samsung.com,
+	<1385613243-3559-3-git-send-email-l.krishna@samsung.com>
+Date: Mon, 2 Dec 2013 09:32:45 -0800
+Message-ID: <CAD=FV=XvTPbkdopAQVQt-ga2HrwwZ1MSWytMTeDAz=M91icy3g@mail.gmail.com>
+Subject: Re: [PATCH V11 2/3] watchdog: s3c2410_wdt: use syscon regmap
+ interface to configure pmu register
+From: Doug Anderson <dianders@chromium.org>
+To: Leela Krishna Amudala <l.krishna@samsung.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-samsung-soc <linux-samsung-soc@vger.kernel.org>,
+	Kukjin Kim <kgene.kim@samsung.com>,
+	Tomasz Figa <t.figa@samsung.com>, devicetree@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, "cpgs ." <cpgs@samsung.com>,
 	Guenter Roeck <linux@roeck-us.net>
 Content-Type: text/plain; charset=ISO-8859-1
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
+Leela Krishna,
 
 On Wed, Nov 27, 2013 at 8:34 PM, Leela Krishna Amudala
 <l.krishna@samsung.com> wrote:
-> This patch adds pmusysreg node to exynos5250 and exynos5420 dtsi files to
-> handle PMU register accesses in a centralized way using syscon driver
+> Add device tree support for exynos5250 and 5420 SoCs and use syscon regmap interface
+> to configure AUTOMATIC_WDT_RESET_DISABLE and MASK_WDT_RESET_REQUEST registers of PMU
+> to mask/unmask enable/disable of watchdog in probe and s2r scenarios.
 >
 > Signed-off-by: Leela Krishna Amudala <l.krishna@samsung.com>
-> Reviewed-by: Tomasz Figa <t.figa@samsung.com>
-> Reviewed-by: Doug Anderson <dianders@chromium.org>
-> Tested-by: Doug Anderson <dianders@chromium.org>
 > ---
->  Documentation/devicetree/bindings/arm/samsung/pmu.txt |   16 ++++++++++++++++
->  arch/arm/boot/dts/exynos5250.dtsi                     |    5 +++++
->  arch/arm/boot/dts/exynos5420.dtsi                     |    5 +++++
->  3 files changed, 26 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/arm/samsung/pmu.txt
->
-> diff --git a/Documentation/devicetree/bindings/arm/samsung/pmu.txt b/Documentation/devicetree/bindings/arm/samsung/pmu.txt
-> new file mode 100644
-> index 0000000..307e727
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/arm/samsung/pmu.txt
-> @@ -0,0 +1,16 @@
-> +SAMSUNG Exynos SoC series PMU Registers
-> +
-> +Properties:
-> + - name : should be 'syscon';
+>  .../devicetree/bindings/watchdog/samsung-wdt.txt   |   21 ++-
+>  drivers/watchdog/Kconfig                           |    1 +
+>  drivers/watchdog/s3c2410_wdt.c                     |  159 ++++++++++++++++++--
+>  3 files changed, 171 insertions(+), 10 deletions(-)
 
-It's common to use a non-abbreviated name, such as 'system-controller'
-here. Or, given that it's referring to "pmusysreg" then maybe
-something like "pmu-system-registers".
+Tested on ARM Chromebook in a backport to 3.8.  See
+<https://chromium-review.googlesource.com/#/c/177932/3> for this
+patch.
 
-> + - compatible : should contain two values. First value must be one from following list:
-> +                  - "samsung,exynos5250-pmu" - for Exynos5250 SoC,
-> +                  - "samsung,exynos5420-pmu" - for Exynos5420 SoC.
-> +               second value must be always "syscon".
-
-
-
--Olof
+Reviewed-by: Doug Anderson <dianders@chromium.org>
+Tested-by: Doug Anderson <dianders@chromium.org>
