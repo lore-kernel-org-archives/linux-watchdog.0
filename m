@@ -1,22 +1,24 @@
-Return-Path: <olof@lixom.net>
+Return-Path: <dianders@google.com>
 MIME-Version: 1.0
+Sender: dianders@google.com
 In-Reply-To: <20131202202120.GA23611@roeck-us.net>
 References: <1386008082-28740-1-git-send-email-dianders@chromium.org>
 	<20131202202120.GA23611@roeck-us.net>
-Date: Mon, 2 Dec 2013 12:47:53 -0800
-Message-ID: <CAOesGMi-P6LG1-XKVizUS_qX-gfZi_iXBO5r+=6a2nfvBS60mw@mail.gmail.com>
+Date: Mon, 2 Dec 2013 13:16:35 -0800
+Message-ID: <CAD=FV=U_ddOu447kCcOfcWS7RA6C7NCPx7CpiuEd-FXcO9dSGw@mail.gmail.com>
 Subject: Re: [PATCH] watchdog: s3c2410_wdt: Report when the watchdog reset the system
-From: Olof Johansson <olof@lixom.net>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Doug Anderson <dianders@chromium.org>, Wim Van Sebroeck <wim@iguana.be>,
-	Leela Krishna Amudala <l.krishna@samsung.com>, Tomasz Figa <tomasz.figa@gmail.com>,
-	Kukjin Kim <kgene.kim@samsung.com>, Ben Dooks <ben-linux@fluff.org>,
+From: Doug Anderson <dianders@chromium.org>
+To: Guenter Roeck <linux@roeck-us.net>, Olof Johansson <olof@lixom.net>
+Cc: Wim Van Sebroeck <wim@iguana.be>, Leela Krishna Amudala <l.krishna@samsung.com>,
+	Tomasz Figa <tomasz.figa@gmail.com>, Kukjin Kim <kgene.kim@samsung.com>,
+	Ben Dooks <ben-linux@fluff.org>,
 	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, linux-watchdog@vger.kernel.org,
 	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <linux-watchdog@vger.kernel.org>
+
+Guenter and Olof,
 
 On Mon, Dec 2, 2013 at 12:21 PM, Guenter Roeck <linux@roeck-us.net> wrote:
 > On Mon, Dec 02, 2013 at 10:14:41AM -0800, Doug Anderson wrote:
@@ -53,9 +55,102 @@ On Mon, Dec 2, 2013 at 12:21 PM, Guenter Roeck <linux@roeck-us.net> wrote:
 > I am not really happy about the NEED (both of them, really) here.
 > How about HAS instead ?
 
-Ah, I just commented on these things on our internal review site too
-on this patch. I don't even think a quirk is needed -- just use the
-presence of a non-0 rst_stat_reg to tell if you need to use regmap.
+Are you suggesting also changing QUIRK_NEEDS_PMU_CONFIG, then?  That
+would be a request for Leela Krishna on his patch?
+
+...see below for more...
+
+>
+>>  static bool nowayout = WATCHDOG_NOWAYOUT;
+>>  static int tmr_margin;
+>> @@ -98,6 +102,9 @@ MODULE_PARM_DESC(debug, "Watchdog debug, set to >1 for debug (default 0)");
+>>   * timer reset functionality.
+>>   * @mask_bit: Bit number for the watchdog timer in the disable register and the
+>>   * mask reset register.
+>> + * @rst_stat_reg: Offset in pmureg for the register that has the reset status.
+>> + * @rst_stat_bit: Bit number in the rst_stat register indicating a watchdog
+>> + * reset.
+>>   * @quirks: A bitfield of quirks.
+>>   */
+>>
+>> @@ -105,6 +112,8 @@ struct s3c2410_wdt_variant {
+>>       int disable_reg;
+>>       int mask_reset_reg;
+>>       int mask_bit;
+>> +     int rst_stat_reg;
+>> +     int rst_stat_bit;
+>>       u32 quirks;
+>>  };
+>>
+>> @@ -131,14 +140,20 @@ static const struct s3c2410_wdt_variant drv_data_exynos5250  = {
+>>       .disable_reg = WDT_DISABLE_REG_OFFSET,
+>>       .mask_reset_reg = WDT_MASK_RESET_REG_OFFSET,
+>>       .mask_bit = 20,
+>> -     .quirks = QUIRK_NEEDS_PMU_CONFIG
+>> +     .rst_stat_reg = RST_STAT_REG_OFFSET,
+>> +     .rst_stat_bit = 20,
+>> +     .quirks = QUIRK_NEEDS_PMU_CONFIG |
+>> +             QUIRK_HAS_RST_STAT,
+>
+> Why not use QUIRKS_NEED_PMUREG ?
+>
+> Also, is there ever a chance that the two bits don't come together ?
+> If not a single bit might be sufficient.
+
+Here's my logic:
+
+According to our 3.4 sources (exynos_get_bootstatus) there is a
+RST_STAT register on exynos4. See
+<https://chromium.googlesource.com/chromiumos/third_party/kernel/+/chromeos-3.4/arch/arm/mach-exynos/pmu.c>.
+
+According to Tomasz at
+<http://www.spinics.net/lists/linux-watchdog/msg02942.html> the extra
+PMU_CONFIG was needed on exynos5250/5420 and not needed on exynos4.
+
+My patch doesn't actually add RST_STAT support for exynos4 but it
+seems wise to pave the way for someone else to add it.
 
 
--Olof
+...so basically I was saying:
+
+* On exynos5250 and exynos5420 we _need_ to configure the PMU to get
+proper functioning
+
+* On various devices we _have_ a reset status that register that we can query.
+
+* If we need to use the PMU or we want to query the reset status we
+need to have PMU registers specified.
+
+
+Does any of that change your mind(s)?
+
+
+>>  static const struct of_device_id s3c2410_wdt_match[] = {
+>> @@ -423,6 +438,25 @@ static inline void s3c2410wdt_cpufreq_deregister(struct s3c2410_wdt *wdt)
+>>  }
+>>  #endif
+>>
+>> +static inline unsigned int s3c2410wdt_get_bootstatus(struct s3c2410_wdt *wdt)
+>> +{
+>> +     unsigned int bootstatus = 0;
+>> +     int ret;
+>> +
+>> +     if (wdt->drv_data->quirks & QUIRK_HAS_RST_STAT) {
+
+Internally Olof requested to reverse this "if" and return 0 early
+(avoid indentation).  I'll fix that up for the next patch.
+
+
+>> +             unsigned int rst_stat;
+>> +
+>> +             ret = regmap_read(wdt->pmureg, wdt->drv_data->rst_stat_reg,
+>> +                               &rst_stat);
+>> +             if (ret)
+>> +                     dev_warn(wdt->dev, "Couldn't get RST_STAT register\n");
+>> +             else if (rst_stat & BIT(wdt->drv_data->rst_stat_bit))
+>> +                     bootstatus |= WDIOF_CARDRESET;
+>> +     }
+>> +
+>> +     return bootstatus;
+>> +}
+>> +
