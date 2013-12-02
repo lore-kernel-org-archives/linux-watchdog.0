@@ -1,68 +1,61 @@
-Return-Path: <dianders@google.com>
+Return-Path: <olof@lixom.net>
 MIME-Version: 1.0
-Sender: dianders@google.com
-Date: Mon, 2 Dec 2013 10:31:48 -0800
-Message-ID: <CAD=FV=VEJj0-AnymUO1gM4C7omQdqv+F5r10TypZNWErnfi8Gw@mail.gmail.com>
-Subject: Recent s3c2410 watchdog patches?
-From: Doug Anderson <dianders@chromium.org>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Leelakrishna A <l.krishna@samsung.com>, Kukjin Kim <kgene.kim@samsung.com>,
-	Olof Johansson <olof@lixom.net>, Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org
+In-Reply-To: <1385613243-3559-2-git-send-email-l.krishna@samsung.com>
+References: <1385613243-3559-1-git-send-email-l.krishna@samsung.com>
+	<1385613243-3559-2-git-send-email-l.krishna@samsung.com>
+Date: Mon, 2 Dec 2013 10:50:14 -0800
+Message-ID: <CAOesGMjbWRwEvuYh2DRvUfKm=fMmLOzpKCOO9p-gNvSXuf5hQg@mail.gmail.com>
+Subject: Re: [PATCH V11 1/3] ARM: dts: Add pmu sysreg node to exynos5250 and
+ exynos5420 dtsi files
+From: Olof Johansson <olof@lixom.net>
+To: Leela Krishna Amudala <l.krishna@samsung.com>
+Cc: "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, Wim Van Sebroeck <wim@iguana.be>,
+	Doug Anderson <dianders@chromium.org>, Kukjin Kim <kgene.kim@samsung.com>,
+	Tomasz Figa <t.figa@samsung.com>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, cpgs@samsung.com,
+	Guenter Roeck <linux@roeck-us.net>
 Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Wim,
+Hi,
 
-Just checking up on the status of recent watchdog patches that have
-been flying by on the list over the last week (some from me, some from
-Leela Krishna).  I think many of them are in good shape and I wanted
-to see if there was anything else you needed before Acking them and/or
-landing them.
+On Wed, Nov 27, 2013 at 8:34 PM, Leela Krishna Amudala
+<l.krishna@samsung.com> wrote:
+> This patch adds pmusysreg node to exynos5250 and exynos5420 dtsi files to
+> handle PMU register accesses in a centralized way using syscon driver
+>
+> Signed-off-by: Leela Krishna Amudala <l.krishna@samsung.com>
+> Reviewed-by: Tomasz Figa <t.figa@samsung.com>
+> Reviewed-by: Doug Anderson <dianders@chromium.org>
+> Tested-by: Doug Anderson <dianders@chromium.org>
+> ---
+>  Documentation/devicetree/bindings/arm/samsung/pmu.txt |   16 ++++++++++++++++
+>  arch/arm/boot/dts/exynos5250.dtsi                     |    5 +++++
+>  arch/arm/boot/dts/exynos5420.dtsi                     |    5 +++++
+>  3 files changed, 26 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/arm/samsung/pmu.txt
+>
+> diff --git a/Documentation/devicetree/bindings/arm/samsung/pmu.txt b/Documentation/devicetree/bindings/arm/samsung/pmu.txt
+> new file mode 100644
+> index 0000000..307e727
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/arm/samsung/pmu.txt
+> @@ -0,0 +1,16 @@
+> +SAMSUNG Exynos SoC series PMU Registers
+> +
+> +Properties:
+> + - name : should be 'syscon';
 
-Here's a summary (IDs are patchwork IDs that you can get like
-https://patchwork.kernel.org/patch/3251851/).  I can also repost if
-that's more helpful.
+It's common to use a non-abbreviated name, such as 'system-controller'
+here. Or, given that it's referring to "pmusysreg" then maybe
+something like "pmu-system-registers".
 
----
-
-Specifically I think these are ready (from Leela Krishna):
-
-3251851 New          [V11,1/3] ARM: dts: Add pmu sysreg node to
-exynos5250 and exynos5420 dtsi files
-3251841 New          [V11,2/3] watchdog: s3c2410_wdt: use syscon
-regmap interface to configure pmu register
-3251861 New          [V11,3/3] ARM: dts: update watchdog device nodes
-for Exynos5250 and Exynos5420
-
-...you may want to funnel the DTS changes through Kukjin (exynos
-maintainer) or through the ARM SoC tree...
-
-
-I think these are ready as well:
-
-3235201 New          [v2] watchdog: s3c2410_wdt: Only register for
-cpufreq on ARM_S3C24XX_CPUFREQ
-3240581 New          [1/2] watchdog: core: Make dt "timeout-sec"
-property work on drivers w/out min/max
-3244711 New          [v2] watchdog: s3c2410_wdt: Handle rounding a
-little better for timeout
-
-
-I just posted this one, so you could wait or review as your discretion:
-
-3266591 New          watchdog: s3c2410_wdt: Report when the watchdog
-reset the system
+> + - compatible : should contain two values. First value must be one from following list:
+> +                  - "samsung,exynos5250-pmu" - for Exynos5250 SoC,
+> +                  - "samsung,exynos5420-pmu" - for Exynos5420 SoC.
+> +               second value must be always "syscon".
 
 
-...and this one can be dropped or reworked at your request (no need to
-hold up other patches for it):
 
-3240561 New          [2/2] watchdog: core: Fix watchdog_init_timeout()
-when invalid param / valid dt
-
----
-
-If you need more time, that's OK (I know it's the holidays).  I just
-wanted to double-check on them.  Thanks!
-
--Doug
+-Olof
