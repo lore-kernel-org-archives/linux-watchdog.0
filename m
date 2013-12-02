@@ -1,140 +1,68 @@
 Return-Path: <dianders@google.com>
-Return-Path: <dianders@google.com>
+MIME-Version: 1.0
+Sender: dianders@google.com
+Date: Mon, 2 Dec 2013 10:31:48 -0800
+Message-ID: <CAD=FV=VEJj0-AnymUO1gM4C7omQdqv+F5r10TypZNWErnfi8Gw@mail.gmail.com>
+Subject: Recent s3c2410 watchdog patches?
 From: Doug Anderson <dianders@chromium.org>
-To: Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>
-Cc: Leela Krishna Amudala <l.krishna@samsung.com>,
-	Olof Johansson <olof@lixom.net>,
-	Tomasz Figa <tomasz.figa@gmail.com>,
-	Kukjin Kim <kgene.kim@samsung.com>,
-	Doug Anderson <dianders@chromium.org>,
-	Ben Dooks <ben-linux@fluff.org>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-samsung-soc@vger.kernel.org,
-	linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] watchdog: s3c2410_wdt: Report when the watchdog reset the system
-Date: Mon,  2 Dec 2013 10:14:41 -0800
-Message-Id: <1386008082-28740-1-git-send-email-dianders@chromium.org>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Leelakrishna A <l.krishna@samsung.com>, Kukjin Kim <kgene.kim@samsung.com>,
+	Olof Johansson <olof@lixom.net>, Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <linux-watchdog@vger.kernel.org>
 
-A good watchdog driver is supposed to report when it was responsible
-for resetting the system.  Implement this for the s3c2410, at least on
-exynos5250 and exynos5420 where we already have a pointer to the PMU
-registers to read the information.
+Wim,
 
-Signed-off-by: Doug Anderson <dianders@chromium.org>
+Just checking up on the status of recent watchdog patches that have
+been flying by on the list over the last week (some from me, some from
+Leela Krishna).  I think many of them are in good shape and I wanted
+to see if there was anything else you needed before Acking them and/or
+landing them.
+
+Here's a summary (IDs are patchwork IDs that you can get like
+https://patchwork.kernel.org/patch/3251851/).  I can also repost if
+that's more helpful.
+
 ---
-This patch is based atop Leela Krishna's recent series that ends with
-(ARM: dts: update watchdog device nodes for Exynos5250 and Exynos5420)
-AKA <https://patchwork.kernel.org/patch/3251861/>.
 
- drivers/watchdog/s3c2410_wdt.c | 42 +++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 39 insertions(+), 3 deletions(-)
+Specifically I think these are ready (from Leela Krishna):
 
-diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
-index 47f4dcf..2c87d37 100644
---- a/drivers/watchdog/s3c2410_wdt.c
-+++ b/drivers/watchdog/s3c2410_wdt.c
-@@ -62,9 +62,13 @@
- #define CONFIG_S3C2410_WATCHDOG_ATBOOT		(0)
- #define CONFIG_S3C2410_WATCHDOG_DEFAULT_TIME	(15)
- 
-+#define RST_STAT_REG_OFFSET		0x0404
- #define WDT_DISABLE_REG_OFFSET		0x0408
- #define WDT_MASK_RESET_REG_OFFSET	0x040c
- #define QUIRK_NEEDS_PMU_CONFIG		(1 << 0)
-+#define QUIRK_HAS_RST_STAT		(1 << 1)
-+#define QUIRKS_NEED_PMUREG		(QUIRK_NEEDS_PMU_CONFIG | \
-+					 QUIRK_HAS_RST_STAT)
- 
- static bool nowayout	= WATCHDOG_NOWAYOUT;
- static int tmr_margin;
-@@ -98,6 +102,9 @@ MODULE_PARM_DESC(debug, "Watchdog debug, set to >1 for debug (default 0)");
-  * timer reset functionality.
-  * @mask_bit: Bit number for the watchdog timer in the disable register and the
-  * mask reset register.
-+ * @rst_stat_reg: Offset in pmureg for the register that has the reset status.
-+ * @rst_stat_bit: Bit number in the rst_stat register indicating a watchdog
-+ * reset.
-  * @quirks: A bitfield of quirks.
-  */
- 
-@@ -105,6 +112,8 @@ struct s3c2410_wdt_variant {
- 	int disable_reg;
- 	int mask_reset_reg;
- 	int mask_bit;
-+	int rst_stat_reg;
-+	int rst_stat_bit;
- 	u32 quirks;
- };
- 
-@@ -131,14 +140,20 @@ static const struct s3c2410_wdt_variant drv_data_exynos5250  = {
- 	.disable_reg = WDT_DISABLE_REG_OFFSET,
- 	.mask_reset_reg = WDT_MASK_RESET_REG_OFFSET,
- 	.mask_bit = 20,
--	.quirks = QUIRK_NEEDS_PMU_CONFIG
-+	.rst_stat_reg = RST_STAT_REG_OFFSET,
-+	.rst_stat_bit = 20,
-+	.quirks = QUIRK_NEEDS_PMU_CONFIG |
-+		QUIRK_HAS_RST_STAT,
- };
- 
- static const struct s3c2410_wdt_variant drv_data_exynos5420 = {
- 	.disable_reg = WDT_DISABLE_REG_OFFSET,
- 	.mask_reset_reg = WDT_MASK_RESET_REG_OFFSET,
- 	.mask_bit = 0,
--	.quirks = QUIRK_NEEDS_PMU_CONFIG
-+	.rst_stat_reg = RST_STAT_REG_OFFSET,
-+	.rst_stat_bit = 9,
-+	.quirks = QUIRK_NEEDS_PMU_CONFIG |
-+		QUIRK_HAS_RST_STAT,
- };
- 
- static const struct of_device_id s3c2410_wdt_match[] = {
-@@ -423,6 +438,25 @@ static inline void s3c2410wdt_cpufreq_deregister(struct s3c2410_wdt *wdt)
- }
- #endif
- 
-+static inline unsigned int s3c2410wdt_get_bootstatus(struct s3c2410_wdt *wdt)
-+{
-+	unsigned int bootstatus = 0;
-+	int ret;
-+
-+	if (wdt->drv_data->quirks & QUIRK_HAS_RST_STAT) {
-+		unsigned int rst_stat;
-+
-+		ret = regmap_read(wdt->pmureg, wdt->drv_data->rst_stat_reg,
-+				  &rst_stat);
-+		if (ret)
-+			dev_warn(wdt->dev, "Couldn't get RST_STAT register\n");
-+		else if (rst_stat & BIT(wdt->drv_data->rst_stat_bit))
-+			bootstatus |= WDIOF_CARDRESET;
-+	}
-+
-+	return bootstatus;
-+}
-+
- /* s3c2410_get_wdt_driver_data */
- static inline struct s3c2410_wdt_variant *
- get_wdt_drv_data(struct platform_device *pdev)
-@@ -460,7 +494,7 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
- 	wdt->wdt_device = s3c2410_wdd;
- 
- 	wdt->drv_data = get_wdt_drv_data(pdev);
--	if (wdt->drv_data->quirks & QUIRK_NEEDS_PMU_CONFIG) {
-+	if (wdt->drv_data->quirks & QUIRKS_NEED_PMUREG) {
- 		wdt->pmureg = syscon_regmap_lookup_by_phandle(dev->of_node,
- 							"samsung,syscon-phandle");
- 		if (IS_ERR(wdt->pmureg)) {
-@@ -531,6 +565,8 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
- 
- 	watchdog_set_nowayout(&wdt->wdt_device, nowayout);
- 
-+	wdt->wdt_device.bootstatus = s3c2410wdt_get_bootstatus(wdt);
-+
- 	ret = watchdog_register_device(&wdt->wdt_device);
- 	if (ret) {
- 		dev_err(dev, "cannot register watchdog (%d)\n", ret);
--- 
-1.8.4.1
+3251851 New          [V11,1/3] ARM: dts: Add pmu sysreg node to
+exynos5250 and exynos5420 dtsi files
+3251841 New          [V11,2/3] watchdog: s3c2410_wdt: use syscon
+regmap interface to configure pmu register
+3251861 New          [V11,3/3] ARM: dts: update watchdog device nodes
+for Exynos5250 and Exynos5420
+
+...you may want to funnel the DTS changes through Kukjin (exynos
+maintainer) or through the ARM SoC tree...
+
+
+I think these are ready as well:
+
+3235201 New          [v2] watchdog: s3c2410_wdt: Only register for
+cpufreq on ARM_S3C24XX_CPUFREQ
+3240581 New          [1/2] watchdog: core: Make dt "timeout-sec"
+property work on drivers w/out min/max
+3244711 New          [v2] watchdog: s3c2410_wdt: Handle rounding a
+little better for timeout
+
+
+I just posted this one, so you could wait or review as your discretion:
+
+3266591 New          watchdog: s3c2410_wdt: Report when the watchdog
+reset the system
+
+
+...and this one can be dropped or reworked at your request (no need to
+hold up other patches for it):
+
+3240561 New          [2/2] watchdog: core: Fix watchdog_init_timeout()
+when invalid param / valid dt
+
+---
+
+If you need more time, that's OK (I know it's the holidays).  I just
+wanted to double-check on them.  Thanks!
+
+-Doug
