@@ -1,72 +1,44 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-Id: <20131219155033.183620013@linux.com>
-Date: Thu, 19 Dec 2013 09:50:38 -0600
-From: Christoph Lameter <cl@linux.com>
-To: Tejun Heo <tj@kernel.org>
-Cc: akpm@linuxfoundation.org, rostedt@goodmis.org,
-        linux-kernel@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>, Wim Van Sebroeck <wim@iguana.be>,
-        linux-watchdog@vger.kernel.org
-Subject: [PATCH 23/40] watchdog: Replace __raw_get_cpu_var uses
-References: <20131219155015.443763038@linux.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline; filename=this_watchdog
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:56137 "EHLO
+	alan.etchedpixels.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932542Ab3LDPbu (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 4 Dec 2013 10:31:50 -0500
+Subject: [PATCH] sc1200_wdt: Fix oops
+To: wim@iguana.be, linux-watchdog@vger.kernel.org
+From: Alan <gnomes@lxorguk.ukuu.org.uk>
+Date: Wed, 04 Dec 2013 15:31:52 +0000
+Message-ID: <20131204153135.32175.35874.stgit@alan.etchedpixels.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-[Patch depends on another patch in this series that introduces raw_cpu_ops]
+If loaded with isapnp = 0 the driver explodes. This is catching
+people out now and then. What should happen in the working case is
+a complete mystery and the code appears terminally confused, but we
+can at least make the error path work properly.
 
-Most of these are the uses of &__raw_get_cpu_var for address calculation.
+Signed-off-by: Alan Cox <alan@linux.intel.com>
+Partially-Resolves-bug: https://bugzilla.kernel.org/show_bug.cgi?id=53991
+---
+ drivers/watchdog/sc1200wdt.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-touch_softlockup_watchdog_sync() uses __raw_get_cpu_var to write to
-per cpu variables. Use __this_cpu_write instead.
+diff --git a/drivers/watchdog/sc1200wdt.c b/drivers/watchdog/sc1200wdt.c
+index 3b9fff9..131193a 100644
+--- a/drivers/watchdog/sc1200wdt.c
++++ b/drivers/watchdog/sc1200wdt.c
+@@ -409,8 +409,9 @@ static int __init sc1200wdt_init(void)
+ #if defined CONFIG_PNP
+ 	/* now that the user has specified an IO port and we haven't detected
+ 	 * any devices, disable pnp support */
++	if (isapnp)
++		pnp_unregister_driver(&scl200wdt_pnp_driver);
+ 	isapnp = 0;
+-	pnp_unregister_driver(&scl200wdt_pnp_driver);
+ #endif
+ 
+ 	if (!request_region(io, io_len, SC1200_MODULE_NAME)) {
 
-Cc: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org
-Signed-off-by: Christoph Lameter <cl@linux.com>
-
-Index: linux/kernel/watchdog.c
-===================================================================
---- linux.orig/kernel/watchdog.c	2013-12-02 16:07:54.234510172 -0600
-+++ linux/kernel/watchdog.c	2013-12-02 16:07:54.234510172 -0600
-@@ -174,8 +174,8 @@ EXPORT_SYMBOL(touch_nmi_watchdog);
- 
- void touch_softlockup_watchdog_sync(void)
- {
--	__raw_get_cpu_var(softlockup_touch_sync) = true;
--	__raw_get_cpu_var(watchdog_touch_ts) = 0;
-+	__this_cpu_write(softlockup_touch_sync, true);
-+	__this_cpu_write(watchdog_touch_ts, 0);
- }
- 
- #ifdef CONFIG_HARDLOCKUP_DETECTOR
-@@ -341,7 +341,7 @@ static void watchdog_set_prio(unsigned i
- 
- static void watchdog_enable(unsigned int cpu)
- {
--	struct hrtimer *hrtimer = &__raw_get_cpu_var(watchdog_hrtimer);
-+	struct hrtimer *hrtimer = raw_cpu_ptr(&watchdog_hrtimer);
- 
- 	/* kick off the timer for the hardlockup detector */
- 	hrtimer_init(hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-@@ -361,7 +361,7 @@ static void watchdog_enable(unsigned int
- 
- static void watchdog_disable(unsigned int cpu)
- {
--	struct hrtimer *hrtimer = &__raw_get_cpu_var(watchdog_hrtimer);
-+	struct hrtimer *hrtimer = raw_cpu_ptr(&watchdog_hrtimer);
- 
- 	watchdog_set_prio(SCHED_NORMAL, 0);
- 	hrtimer_cancel(hrtimer);
-@@ -488,7 +488,7 @@ static struct smp_hotplug_thread watchdo
- 
- static void restart_watchdog_hrtimer(void *info)
- {
--	struct hrtimer *hrtimer = &__raw_get_cpu_var(watchdog_hrtimer);
-+	struct hrtimer *hrtimer = raw_cpu_ptr(&watchdog_hrtimer);
- 	int ret;
- 
- 	/*
