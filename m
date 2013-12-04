@@ -1,107 +1,58 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:43433 "EHLO bear.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933067Ab3LDTlA (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 4 Dec 2013 14:41:00 -0500
-From: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
-To: Santosh Shilimkar <santosh.shilimkar@ti.com>
-CC: <linux-arm-kernel@lists.infradead.org>, <mark.rutland@arm.com>,
-	<wim@iguana.be>, <nsekhar@ti.com>,
-	<linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
-	<Pawel.Moll@arm.com>, <swarren@wwwdotorg.org>,
-	<ijc+devicetree@hellion.org.uk>, <galak@kernel.crashing.org>,
-	<rob.herring@calxeda.com>, <linux-kernel@vger.kernel.org>,
-	<grant.likely@linaro.org>, <grygorii.strashko@ti.com>,
-	Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
-Subject: [PATCH v5 0/5] Update Davinci watchdog driver
-Date: Wed, 4 Dec 2013 21:39:25 +0200
-Message-ID: <1386185970-14488-1-git-send-email-ivan.khoronzhuk@ti.com>
+Received: from mail-pb0-f42.google.com ([209.85.160.42]:62406 "EHLO
+	mail-pb0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933277Ab3LDUsV (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 4 Dec 2013 15:48:21 -0500
+Date: Wed, 4 Dec 2013 12:48:18 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
+Cc: Santosh Shilimkar <santosh.shilimkar@ti.com>,
+	linux-arm-kernel@lists.infradead.org, mark.rutland@arm.com,
+	wim@iguana.be, nsekhar@ti.com, linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org, Pawel.Moll@arm.com,
+	swarren@wwwdotorg.org, ijc+devicetree@hellion.org.uk,
+	galak@kernel.crashing.org, rob.herring@calxeda.com,
+	linux-kernel@vger.kernel.org, grant.likely@linaro.org,
+	grygorii.strashko@ti.com
+Subject: Re: [PATCH v5 1/5] watchdog: davinci: change driver to use WDT core
+Message-ID: <20131204204818.GA3096@roeck-us.net>
+References: <1386185970-14488-1-git-send-email-ivan.khoronzhuk@ti.com>
+ <1386185970-14488-2-git-send-email-ivan.khoronzhuk@ti.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1386185970-14488-2-git-send-email-ivan.khoronzhuk@ti.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-These patches are intended to update Davinci watchdog to use WDT core
-and reuse driver for keystone arch, because Keystone uses the similar
-IP like Davinci.
+On Wed, Dec 04, 2013 at 09:39:26PM +0200, Ivan Khoronzhuk wrote:
+> To reduce code duplicate and increase code readability use WDT core
+> code to handle WDT interface.
+> 
+> Remove io_lock as the WDT core uses mutex to lock each wdt device.
+> Remove wdt_state as the WDT core tracks state with its own variable.
+> 
+> The watchdog_init_timeout() can read timeout value from timeout-sec
+> property if the passed value is out of bounds. The heartbeat is
+> initialized in next way. If heartbeat is not set thought module
+> parameter, try to read it's value from WDT node timeout-sec property.
+> If node has no one, use default value.
+> 
+> The heartbeat is hold in wdd->timeout by WDT core, so use it in
+> order to set timeout period.
+> 
+> Acked-by: Santosh Shilimkar <santosh.shilimkar@ti.com>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> Signed-off-by: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
 
-See Documentation:
-Davinci DM646x - http://www.ti.com/lit/ug/spruer5b/spruer5b.pdf
-Keystone - http://www.ti.com/lit/ug/sprugv5a/sprugv5a.pdf
+Looks good, except you did not explain ...
 
-Also:
- - improved to support GET_TIMELEFT option.
- - added "clocks" and "timeout-sec" properties to DT.
+>  
+> -	dev_info(dev, "heartbeat %d sec\n", heartbeat);
+> +	watchdog_set_nowayout(wdd, 1);
+>  
+why nowayout is enforced.
 
-Based on
-git://git.kernel.org/pub/scm/linux/kernel/git/ssantosh/linux-keystone.git
-keystone/master
-
-v4..v5:
-- watchdog: davinci: change driver to use WDT core
-	switched off CONFIG_WATCHDOG_NOWAYOUT option
-
-v3..v4:
-- watchdog: davinci: change driver to use WDT core
-	reverted rename of platform driver to "davinci-wdt"
-	as it causes a regression on Davinci platforms.
-
-- arm: dts: keystone: add watchdog entry
-	The patch will be sent separately after series is ready.
-
-v2..v3:
-- watchdog: davinci: change driver to use WDT core
-	removed "ti,keystone-wdt" compatible from driver
-	renamed wdt device names for mach-davinci from
-		"watchdog" to "davinci-wdt"
-
-- watchdog: davinci: reuse driver for keystone arch
-	moved "clocks" property under "Optional properties"
-	improved description of "clocks" property
-
-- arm: dts: keystone: add watchdog entry
-	replaced "ti,keystone-wdt" compatible on
-		 "ti,keystone-wdt","ti,davinci-wdt"
-
-v1..v2:
-- watchdog: davinci: change driver to use WDT core
-	corrected 2011 -> 2006-2013
-	removed useless function comment
-	corrected initialization of heartbeat
-	switched on CONFIG_WATCHDOG_NOWAYOUT option
-
-- watchdog: davinci: use davinci_wdt_device structure to hold device data
-	substituted wdd to watchdog device in commit message
-
-- watchdog: davinci: add GET_TIMELEFT option support
-	corrected comment (is -> has)
-	removed redundant error message "clock freq is not set"
-
-- watchdog: davinci: add GET_STATUS option support
-	dropped
-
-- watchdog: davinci: add "timeout-sec" property
-	use consistent formatting
-
-- watchdog: davinci: reuse driver for keystone arch
-	use consistent formatting
-
-- watchdog: davinci: add "clocks" property
-	merged with above patch
-
-Ivan Khoronzhuk (5):
-  watchdog: davinci: change driver to use WDT core
-  watchdog: davinci: use davinci_wdt_device structure to hold device
-    data
-  watchdog: davinci: add GET_TIMELEFT option support
-  watchdog: davinci: add "timeout-sec" property
-  watchdog: davinci: reuse driver for keystone arch
-
- .../devicetree/bindings/watchdog/davinci-wdt.txt   |   16 +-
- drivers/watchdog/Kconfig                           |    5 +-
- drivers/watchdog/davinci_wdt.c                     |  221 +++++++++-----------
- 3 files changed, 113 insertions(+), 129 deletions(-)
-
--- 
-1.7.9.5
-
+Thanks,
+Guenter
