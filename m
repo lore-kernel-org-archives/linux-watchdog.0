@@ -1,30 +1,66 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:55168 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753454Ab3LDHPJ (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 4 Dec 2013 02:15:09 -0500
-Message-ID: <529ED678.1080401@roeck-us.net>
-Date: Tue, 03 Dec 2013 23:15:04 -0800
-From: Guenter Roeck <linux@roeck-us.net>
+Received: from comal.ext.ti.com ([198.47.26.152]:58322 "EHLO comal.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752934Ab3LDSFj (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 4 Dec 2013 13:05:39 -0500
+Message-ID: <529F6EBE.5050703@ti.com>
+Date: Wed, 4 Dec 2013 23:34:46 +0530
+From: Sekhar Nori <nsekhar@ti.com>
 MIME-Version: 1.0
-To: Christophe Leroy <christophe.leroy@c-s.fr>,
-	Wim Van Sebroeck <wim@iguana.be>, scottwood@freescale.com
-CC: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org
-Subject: Re: [PATCH v3] watchdog: mpc8xxx_wdt convert to watchdog core
-References: <20131204063214.D1DB01A2BEA@localhost.localdomain>
-In-Reply-To: <20131204063214.D1DB01A2BEA@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
+CC: Santosh Shilimkar <santosh.shilimkar@ti.com>,
+	<linux-arm-kernel@lists.infradead.org>, <mark.rutland@arm.com>,
+	<wim@iguana.be>, <linux-watchdog@vger.kernel.org>,
+	<devicetree@vger.kernel.org>, <Pawel.Moll@arm.com>,
+	<swarren@wwwdotorg.org>, <ijc+devicetree@hellion.org.uk>,
+	<galak@kernel.crashing.org>, <rob.herring@calxeda.com>,
+	<linux-kernel@vger.kernel.org>, <grant.likely@linaro.org>,
+	<grygorii.strashko@ti.com>
+Subject: Re: [PATCH v4 1/5] watchdog: davinci: change driver to use WDT core
+References: <1385556508-3935-1-git-send-email-ivan.khoronzhuk@ti.com> <1385556508-3935-2-git-send-email-ivan.khoronzhuk@ti.com>
+In-Reply-To: <1385556508-3935-2-git-send-email-ivan.khoronzhuk@ti.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 12/03/2013 10:32 PM, Christophe Leroy wrote:
-> Convert mpc8xxx_wdt.c to the new watchdog API.
->
-> Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
->
+On 11/27/2013 6:18 PM, Ivan Khoronzhuk wrote:
+> To reduce code duplicate and increase code readability use WDT core
+> code to handle WDT interface.
+> 
+> Remove io_lock as the WDT core uses mutex to lock each wdt device.
+> Remove wdt_state as the WDT core tracks state with its own variable.
+> 
+> The watchdog_init_timeout() can read timeout value from timeout-sec
+> property if the passed value is out of bounds. The heartbeat is
+> initialized in next way. If heartbeat is not set thought module
+> parameter, try to read it's value from WDT node timeout-sec property.
+> If node has no one, use default value.
+> 
+> The heartbeat is hold in wdd->timeout by WDT core, so use it in
+> order to set timeout period.
+> 
+> Acked-by: Santosh Shilimkar <santosh.shilimkar@ti.com>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> Signed-off-by: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
+> ---
+>  drivers/watchdog/Kconfig       |    2 +
+>  drivers/watchdog/davinci_wdt.c |  147 ++++++++++------------------------------
+>  2 files changed, 37 insertions(+), 112 deletions(-)
+> 
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index 5be6e91..eb8c89d 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -271,6 +271,8 @@ config IOP_WATCHDOG
+>  config DAVINCI_WATCHDOG
+>  	tristate "DaVinci watchdog"
+>  	depends on ARCH_DAVINCI
+> +	select WATCHDOG_CORE
+> +	select WATCHDOG_NOWAYOUT
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Its not clear for change log why NOWAYOUT needs to be forced on all the
+time for all users of DaVinci watchdog.
 
+Thanks,
+Sekhar
