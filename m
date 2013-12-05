@@ -1,55 +1,89 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:58187 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756451Ab3LECqz (ORCPT
+Received: from mail-qe0-f45.google.com ([209.85.128.45]:41941 "EHLO
+	mail-qe0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753092Ab3LES0T (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 4 Dec 2013 21:46:55 -0500
-Message-ID: <529FE919.9060604@roeck-us.net>
-Date: Wed, 04 Dec 2013 18:46:49 -0800
-From: Guenter Roeck <linux@roeck-us.net>
+	Thu, 5 Dec 2013 13:26:19 -0500
+Received: by mail-qe0-f45.google.com with SMTP id 6so17757208qea.32
+        for <linux-watchdog@vger.kernel.org>; Thu, 05 Dec 2013 10:26:18 -0800 (PST)
 MIME-Version: 1.0
-To: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
-CC: wim@iguana.be, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] sc1200_wdt: Fix oops
-References: <20131204153135.32175.35874.stgit@alan.etchedpixels.co.uk>	<20131204163118.GA1299@roeck-us.net> <20131205001511.6c8e9f60@alan.etchedpixels.co.uk>
-In-Reply-To: <20131205001511.6c8e9f60@alan.etchedpixels.co.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <1468334.WxyIceyAAx@flatron>
+References: <1385613243-3559-1-git-send-email-l.krishna@samsung.com>
+	<1385613243-3559-2-git-send-email-l.krishna@samsung.com>
+	<CAOesGMjbWRwEvuYh2DRvUfKm=fMmLOzpKCOO9p-gNvSXuf5hQg@mail.gmail.com>
+	<1468334.WxyIceyAAx@flatron>
+Date: Thu, 5 Dec 2013 10:26:18 -0800
+Message-ID: <CAD=FV=VKT2mdwNMeZrimurtHeqNBJcpbmZzXV1-es2DxKcFXqw@mail.gmail.com>
+Subject: Re: [PATCH V11 1/3] ARM: dts: Add pmu sysreg node to exynos5250 and
+ exynos5420 dtsi files
+From: Doug Anderson <dianders@chromium.org>
+To: Tomasz Figa <tomasz.figa@gmail.com>
+Cc: Olof Johansson <olof@lixom.net>,
+	Leela Krishna Amudala <l.krishna@samsung.com>,
+	"linux-samsung-soc@vger.kernel.org"
+	<linux-samsung-soc@vger.kernel.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Kukjin Kim <kgene.kim@samsung.com>,
+	Tomasz Figa <t.figa@samsung.com>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"cpgs ." <cpgs@samsung.com>, Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 12/04/2013 04:15 PM, One Thousand Gnomes wrote:
-> On Wed, 4 Dec 2013 08:31:18 -0800
-> Guenter Roeck <linux@roeck-us.net> wrote:
->
->> On Wed, Dec 04, 2013 at 03:31:52PM +0000, Alan wrote:
->>> If loaded with isapnp = 0 the driver explodes. This is catching
->>> people out now and then. What should happen in the working case is
->>> a complete mystery and the code appears terminally confused, but we
+Leela Krishna,
+
+On Mon, Dec 2, 2013 at 11:49 AM, Tomasz Figa <tomasz.figa@gmail.com> wrote:
+> On Monday 02 of December 2013 10:50:14 Olof Johansson wrote:
+>> Hi,
 >>
->> Looks like it uses the pnp infrastructure only to auto-detect the
->> "io" address, and assumes that pnp_register_driver() calls the
->> pnp probe function immediately. Afterwards it unregisters and
->> works (or is supposed to work) outside the pnp subsystem. Brr.
+>> On Wed, Nov 27, 2013 at 8:34 PM, Leela Krishna Amudala
+>> <l.krishna@samsung.com> wrote:
+>> > This patch adds pmusysreg node to exynos5250 and exynos5420 dtsi files to
+>> > handle PMU register accesses in a centralized way using syscon driver
+>> >
+>> > Signed-off-by: Leela Krishna Amudala <l.krishna@samsung.com>
+>> > Reviewed-by: Tomasz Figa <t.figa@samsung.com>
+>> > Reviewed-by: Doug Anderson <dianders@chromium.org>
+>> > Tested-by: Doug Anderson <dianders@chromium.org>
+>> > ---
+>> >  Documentation/devicetree/bindings/arm/samsung/pmu.txt |   16 ++++++++++++++++
+>> >  arch/arm/boot/dts/exynos5250.dtsi                     |    5 +++++
+>> >  arch/arm/boot/dts/exynos5420.dtsi                     |    5 +++++
+>> >  3 files changed, 26 insertions(+)
+>> >  create mode 100644 Documentation/devicetree/bindings/arm/samsung/pmu.txt
+>> >
+>> > diff --git a/Documentation/devicetree/bindings/arm/samsung/pmu.txt b/Documentation/devicetree/bindings/arm/samsung/pmu.txt
+>> > new file mode 100644
+>> > index 0000000..307e727
+>> > --- /dev/null
+>> > +++ b/Documentation/devicetree/bindings/arm/samsung/pmu.txt
+>> > @@ -0,0 +1,16 @@
+>> > +SAMSUNG Exynos SoC series PMU Registers
+>> > +
+>> > +Properties:
+>> > + - name : should be 'syscon';
 >>
->>> can at least make the error path work properly.
->>>
->>> Signed-off-by: Alan Cox <alan@linux.intel.com>
->>> Partially-Resolves-bug: https://bugzilla.kernel.org/show_bug.cgi?id=53991
->>
->> Actually, I think it fully resolves it, because the other part (sc520 driver
->> not working on SC1100 CPU) isn't a bug. It isn't working on an ARM or PPC CPU
->> either, nor on any Intel CPU.
+>> It's common to use a non-abbreviated name, such as 'system-controller'
+>> here. Or, given that it's referring to "pmusysreg" then maybe
+>> something like "pmu-system-registers".
 >
-> As far as I can tell the fact it fails on the sc1100 is also a bug - but
-> the mess of idefs around PNP is impossible to figure out without some
-> actual docs, time and real hardware.
->
+> Hmm, it's two syscons vs two system-controllers in existing device trees.
+> I agree that system-controller sounds much better as a name for this class
+> of devices. I don't remember why I initially suggested syscon, though.
+> Possibly based on those two existing device trees using this name.
 
-... unless isapnp was set to 0 via module parameter, or if SC1100 is not compatible
-with SC1200. But I agree, hard to say w/o datasheet and hw.
+I'd vote for using "pmu-system-registers".  We end up using the
+"syscon" subsystem but really we're describing pmu registers.
 
-Either case, seems to me the driver is screaming for a substantial overhaul.
+I'd even say that you don't need to formally specify the "name" in the
+bindings (though I'm not up with all the latest device tree
+requirements).  ...still you'd want to use "pmu-system-registers" in
+the DTS changes.
 
-Guenter
+Can you spin up a v12?
 
+Thanks!
+
+-Doug
