@@ -1,217 +1,85 @@
-Return-Path: <christophe.leroy@c-s.fr>
-From: Christophe Leroy <christophe.leroy@c-s.fr>
-To: Wim Van Sebroeck <wim@iguana.be>, <scottwood@freescale.com>, Guenter Roeck <linux@roeck-us.net>
-CC: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH v3] watchdog: mpc8xxx_wdt convert to watchdog core
-Message-Id: <20131204063214.D1DB01A2BEA@localhost.localdomain>
-Date: Wed,  4 Dec 2013 07:32:14 +0100 (CET)
+Return-Path: <leelakrishna.a@gmail.com>
+MIME-Version: 1.0
+Sender: leelakrishna.a@gmail.com
+In-Reply-To: <20131202213654.GA4059@roeck-us.net>
+References: <1386008082-28740-1-git-send-email-dianders@chromium.org>
+ <20131202202120.GA23611@roeck-us.net> <CAOesGMi-P6LG1-XKVizUS_qX-gfZi_iXBO5r+=6a2nfvBS60mw@mail.gmail.com>
+ <20131202213654.GA4059@roeck-us.net>
+From: Leela Krishna Amudala <l.krishna@samsung.com>
+Date: Thu, 5 Dec 2013 13:27:13 +0530
+Message-ID: <CAL1wa8cQcvRzXgaEP3kzkvzogqyeM2eJt_oRZfu6NbWxfP3zAg@mail.gmail.com>
+Subject: Re: [PATCH] watchdog: s3c2410_wdt: Report when the watchdog reset the system
+To: Guenter Roeck <linux@roeck-us.net>, Tomasz Figa <tomasz.figa@gmail.com>
+Cc: Olof Johansson <olof@lixom.net>, Doug Anderson <dianders@chromium.org>,
+	Wim Van Sebroeck <wim@iguana.be>, Leela Krishna Amudala <l.krishna@samsung.com>,
+	Kukjin Kim <kgene.kim@samsung.com>, Ben Dooks <ben-linux@fluff.org>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	"linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Convert mpc8xxx_wdt.c to the new watchdog API.
+Hi Guenter Roeck,
 
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+On Tue, Dec 3, 2013 at 3:06 AM, Guenter Roeck <linux@roeck-us.net> wrote:
+>
+> On Mon, Dec 02, 2013 at 12:47:53PM -0800, Olof Johansson wrote:
+> > On Mon, Dec 2, 2013 at 12:21 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+> > > On Mon, Dec 02, 2013 at 10:14:41AM -0800, Doug Anderson wrote:
+> > >> A good watchdog driver is supposed to report when it was responsible
+> > >> for resetting the system.  Implement this for the s3c2410, at least on
+> > >> exynos5250 and exynos5420 where we already have a pointer to the PMU
+> > >> registers to read the information.
+> > >>
+> > >> Signed-off-by: Doug Anderson <dianders@chromium.org>
+> > >> ---
+> > >> This patch is based atop Leela Krishna's recent series that ends with
+> > >> (ARM: dts: update watchdog device nodes for Exynos5250 and Exynos5420)
+> > >> AKA <https://patchwork.kernel.org/patch/3251861/>.
+> > >>
+> > >>  drivers/watchdog/s3c2410_wdt.c | 42 +++++++++++++++++++++++++++++++++++++++---
+> > >>  1 file changed, 39 insertions(+), 3 deletions(-)
+> > >>
+> > >> diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+> > >> index 47f4dcf..2c87d37 100644
+> > >> --- a/drivers/watchdog/s3c2410_wdt.c
+> > >> +++ b/drivers/watchdog/s3c2410_wdt.c
+> > >> @@ -62,9 +62,13 @@
+> > >>  #define CONFIG_S3C2410_WATCHDOG_ATBOOT               (0)
+> > >>  #define CONFIG_S3C2410_WATCHDOG_DEFAULT_TIME (15)
+> > >>
+> > >> +#define RST_STAT_REG_OFFSET          0x0404
+> > >>  #define WDT_DISABLE_REG_OFFSET               0x0408
+> > >>  #define WDT_MASK_RESET_REG_OFFSET    0x040c
+> > >>  #define QUIRK_NEEDS_PMU_CONFIG               (1 << 0)
+> > >> +#define QUIRK_HAS_RST_STAT           (1 << 1)
+> > >> +#define QUIRKS_NEED_PMUREG           (QUIRK_NEEDS_PMU_CONFIG | \
+> > >> +                                      QUIRK_HAS_RST_STAT)
+> > >>
+> > > I am not really happy about the NEED (both of them, really) here.
+> > > How about HAS instead ?
+> >
+> > Ah, I just commented on these things on our internal review site too
+> > on this patch. I don't even think a quirk is needed -- just use the
+> > presence of a non-0 rst_stat_reg to tell if you need to use regmap.
+> >
+> Agreed; same is true for the QUIRK_NEEDS_PMU_CONFIG related registers
+> as well.
+>
 
-diff -ur a/drivers/watchdog/mpc8xxx_wdt.c b/drivers/watchdog/mpc8xxx_wdt.c
---- a/drivers/watchdog/mpc8xxx_wdt.c	2013-05-11 22:57:46.000000000 +0200
-+++ b/drivers/watchdog/mpc8xxx_wdt.c	2013-11-30 16:14:53.803495472 +0100
-@@ -72,9 +72,7 @@
-  * to 0
-  */
- static int prescale = 1;
--static unsigned int timeout_sec;
- 
--static unsigned long wdt_is_open;
- static DEFINE_SPINLOCK(wdt_spinlock);
- 
- static void mpc8xxx_wdt_keepalive(void)
-@@ -86,39 +84,23 @@
- 	spin_unlock(&wdt_spinlock);
- }
- 
-+static struct watchdog_device mpc8xxx_wdt_dev;
- static void mpc8xxx_wdt_timer_ping(unsigned long arg);
--static DEFINE_TIMER(wdt_timer, mpc8xxx_wdt_timer_ping, 0, 0);
-+static DEFINE_TIMER(wdt_timer, mpc8xxx_wdt_timer_ping, 0,
-+		(unsigned long)&mpc8xxx_wdt_dev);
- 
- static void mpc8xxx_wdt_timer_ping(unsigned long arg)
- {
-+	struct watchdog_device *w = (struct watchdog_device *)arg;
-+
- 	mpc8xxx_wdt_keepalive();
- 	/* We're pinging it twice faster than needed, just to be sure. */
--	mod_timer(&wdt_timer, jiffies + HZ * timeout_sec / 2);
--}
--
--static void mpc8xxx_wdt_pr_warn(const char *msg)
--{
--	pr_crit("%s, expect the %s soon!\n", msg,
--		reset ? "reset" : "machine check exception");
-+	mod_timer(&wdt_timer, jiffies + HZ * w->timeout / 2);
- }
- 
--static ssize_t mpc8xxx_wdt_write(struct file *file, const char __user *buf,
--				 size_t count, loff_t *ppos)
--{
--	if (count)
--		mpc8xxx_wdt_keepalive();
--	return count;
--}
--
--static int mpc8xxx_wdt_open(struct inode *inode, struct file *file)
-+static int mpc8xxx_wdt_start(struct watchdog_device *w)
- {
- 	u32 tmp = SWCRR_SWEN;
--	if (test_and_set_bit(0, &wdt_is_open))
--		return -EBUSY;
--
--	/* Once we start the watchdog we can't stop it */
--	if (nowayout)
--		__module_get(THIS_MODULE);
- 
- 	/* Good, fire up the show */
- 	if (prescale)
-@@ -132,59 +114,37 @@
- 
- 	del_timer_sync(&wdt_timer);
- 
--	return nonseekable_open(inode, file);
-+	return 0;
- }
- 
--static int mpc8xxx_wdt_release(struct inode *inode, struct file *file)
-+static int mpc8xxx_wdt_ping(struct watchdog_device *w)
- {
--	if (!nowayout)
--		mpc8xxx_wdt_timer_ping(0);
--	else
--		mpc8xxx_wdt_pr_warn("watchdog closed");
--	clear_bit(0, &wdt_is_open);
-+	mpc8xxx_wdt_keepalive();
- 	return 0;
- }
- 
--static long mpc8xxx_wdt_ioctl(struct file *file, unsigned int cmd,
--							unsigned long arg)
-+static int mpc8xxx_wdt_stop(struct watchdog_device *w)
- {
--	void __user *argp = (void __user *)arg;
--	int __user *p = argp;
--	static const struct watchdog_info ident = {
--		.options = WDIOF_KEEPALIVEPING,
--		.firmware_version = 1,
--		.identity = "MPC8xxx",
--	};
--
--	switch (cmd) {
--	case WDIOC_GETSUPPORT:
--		return copy_to_user(argp, &ident, sizeof(ident)) ? -EFAULT : 0;
--	case WDIOC_GETSTATUS:
--	case WDIOC_GETBOOTSTATUS:
--		return put_user(0, p);
--	case WDIOC_KEEPALIVE:
--		mpc8xxx_wdt_keepalive();
--		return 0;
--	case WDIOC_GETTIMEOUT:
--		return put_user(timeout_sec, p);
--	default:
--		return -ENOTTY;
--	}
-+	mod_timer(&wdt_timer, jiffies);
-+	return 0;
- }
- 
--static const struct file_operations mpc8xxx_wdt_fops = {
--	.owner		= THIS_MODULE,
--	.llseek		= no_llseek,
--	.write		= mpc8xxx_wdt_write,
--	.unlocked_ioctl	= mpc8xxx_wdt_ioctl,
--	.open		= mpc8xxx_wdt_open,
--	.release	= mpc8xxx_wdt_release,
-+static struct watchdog_info mpc8xxx_wdt_info = {
-+	.options = WDIOF_KEEPALIVEPING,
-+	.firmware_version = 1,
-+	.identity = "MPC8xxx",
- };
- 
--static struct miscdevice mpc8xxx_wdt_miscdev = {
--	.minor	= WATCHDOG_MINOR,
--	.name	= "watchdog",
--	.fops	= &mpc8xxx_wdt_fops,
-+static struct watchdog_ops mpc8xxx_wdt_ops = {
-+	.owner = THIS_MODULE,
-+	.start = mpc8xxx_wdt_start,
-+	.ping = mpc8xxx_wdt_ping,
-+	.stop = mpc8xxx_wdt_stop,
-+};
-+
-+static struct watchdog_device mpc8xxx_wdt_dev = {
-+	.info = &mpc8xxx_wdt_info,
-+	.ops = &mpc8xxx_wdt_ops,
- };
- 
- static const struct of_device_id mpc8xxx_wdt_match[];
-@@ -196,6 +156,7 @@
- 	const struct mpc8xxx_wdt_type *wdt_type;
- 	u32 freq = fsl_get_sys_freq();
- 	bool enabled;
-+	unsigned int timeout_sec;
- 
- 	match = of_match_device(mpc8xxx_wdt_match, &ofdev->dev);
- 	if (!match)
-@@ -222,6 +183,7 @@
- 	else
- 		timeout_sec = timeout / freq;
- 
-+	mpc8xxx_wdt_dev.timeout = timeout_sec;
- #ifdef MODULE
- 	ret = mpc8xxx_wdt_init_late();
- 	if (ret)
-@@ -237,7 +199,7 @@
- 	 * userspace handles it.
- 	 */
- 	if (enabled)
--		mpc8xxx_wdt_timer_ping(0);
-+		mod_timer(&wdt_timer, jiffies);
- 	return 0;
- err_unmap:
- 	iounmap(wd_base);
-@@ -247,9 +209,10 @@
- 
- static int mpc8xxx_wdt_remove(struct platform_device *ofdev)
- {
--	mpc8xxx_wdt_pr_warn("watchdog removed");
-+	pr_crit("Watchdog removed, expect the %s soon!\n",
-+		reset ? "reset" : "machine check exception");
- 	del_timer_sync(&wdt_timer);
--	misc_deregister(&mpc8xxx_wdt_miscdev);
-+	watchdog_unregister_device(&mpc8xxx_wdt_dev);
- 	iounmap(wd_base);
- 
- 	return 0;
-@@ -301,10 +264,11 @@
- 	if (!wd_base)
- 		return -ENODEV;
- 
--	ret = misc_register(&mpc8xxx_wdt_miscdev);
-+	watchdog_set_nowayout(&mpc8xxx_wdt_dev, nowayout);
-+
-+	ret = watchdog_register_device(&mpc8xxx_wdt_dev);
- 	if (ret) {
--		pr_err("cannot register miscdev on minor=%d (err=%d)\n",
--		       WATCHDOG_MINOR, ret);
-+		pr_err("cannot register watchdog device (err=%d)\n", ret);
- 		return ret;
- 	}
- 	return 0;
-diff -ur a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -1146,6 +1146,7 @@
- config 8xxx_WDT
- 	tristate "MPC8xxx Platform Watchdog Timer"
- 	depends on PPC_8xx || PPC_83xx || PPC_86xx
-+	select WATCHDOG_CORE
- 	help
- 	  This driver is for a SoC level watchdog that exists on some
- 	  Freescale PowerPC processors. So far this driver supports:
+As Tomasz Figa suggested I introduced quirks,
+
+Tomasz,
+Any comments from you here...??
+
+
+Best wishes,
+Leela Krishna
+
+
+> Guenter
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-samsung-soc" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
