@@ -1,58 +1,42 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pb0-f42.google.com ([209.85.160.42]:62406 "EHLO
-	mail-pb0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933277Ab3LDUsV (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 4 Dec 2013 15:48:21 -0500
-Date: Wed, 4 Dec 2013 12:48:18 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
-Cc: Santosh Shilimkar <santosh.shilimkar@ti.com>,
-	linux-arm-kernel@lists.infradead.org, mark.rutland@arm.com,
-	wim@iguana.be, nsekhar@ti.com, linux-watchdog@vger.kernel.org,
-	devicetree@vger.kernel.org, Pawel.Moll@arm.com,
-	swarren@wwwdotorg.org, ijc+devicetree@hellion.org.uk,
-	galak@kernel.crashing.org, rob.herring@calxeda.com,
-	linux-kernel@vger.kernel.org, grant.likely@linaro.org,
-	grygorii.strashko@ti.com
-Subject: Re: [PATCH v5 1/5] watchdog: davinci: change driver to use WDT core
-Message-ID: <20131204204818.GA3096@roeck-us.net>
-References: <1386185970-14488-1-git-send-email-ivan.khoronzhuk@ti.com>
- <1386185970-14488-2-git-send-email-ivan.khoronzhuk@ti.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1386185970-14488-2-git-send-email-ivan.khoronzhuk@ti.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <gnomes@lxorguk.ukuu.org.uk>
+Date: Thu, 5 Dec 2013 00:15:11 +0000
+From: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: wim@iguana.be, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] sc1200_wdt: Fix oops
+Message-ID: <20131205001511.6c8e9f60@alan.etchedpixels.co.uk>
+In-Reply-To: <20131204163118.GA1299@roeck-us.net>
+References: <20131204153135.32175.35874.stgit@alan.etchedpixels.co.uk>
+	<20131204163118.GA1299@roeck-us.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Wed, Dec 04, 2013 at 09:39:26PM +0200, Ivan Khoronzhuk wrote:
-> To reduce code duplicate and increase code readability use WDT core
-> code to handle WDT interface.
-> 
-> Remove io_lock as the WDT core uses mutex to lock each wdt device.
-> Remove wdt_state as the WDT core tracks state with its own variable.
-> 
-> The watchdog_init_timeout() can read timeout value from timeout-sec
-> property if the passed value is out of bounds. The heartbeat is
-> initialized in next way. If heartbeat is not set thought module
-> parameter, try to read it's value from WDT node timeout-sec property.
-> If node has no one, use default value.
-> 
-> The heartbeat is hold in wdd->timeout by WDT core, so use it in
-> order to set timeout period.
-> 
-> Acked-by: Santosh Shilimkar <santosh.shilimkar@ti.com>
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-> Signed-off-by: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
+On Wed, 4 Dec 2013 08:31:18 -0800
+Guenter Roeck <linux@roeck-us.net> wrote:
 
-Looks good, except you did not explain ...
+> On Wed, Dec 04, 2013 at 03:31:52PM +0000, Alan wrote:
+> > If loaded with isapnp = 0 the driver explodes. This is catching
+> > people out now and then. What should happen in the working case is
+> > a complete mystery and the code appears terminally confused, but we
+> 
+> Looks like it uses the pnp infrastructure only to auto-detect the
+> "io" address, and assumes that pnp_register_driver() calls the
+> pnp probe function immediately. Afterwards it unregisters and
+> works (or is supposed to work) outside the pnp subsystem. Brr.
+> 
+> > can at least make the error path work properly.
+> > 
+> > Signed-off-by: Alan Cox <alan@linux.intel.com>
+> > Partially-Resolves-bug: https://bugzilla.kernel.org/show_bug.cgi?id=53991
+> 
+> Actually, I think it fully resolves it, because the other part (sc520 driver
+> not working on SC1100 CPU) isn't a bug. It isn't working on an ARM or PPC CPU
+> either, nor on any Intel CPU.
 
->  
-> -	dev_info(dev, "heartbeat %d sec\n", heartbeat);
-> +	watchdog_set_nowayout(wdd, 1);
->  
-why nowayout is enforced.
+As far as I can tell the fact it fails on the sc1100 is also a bug - but
+the mess of idefs around PNP is impossible to figure out without some
+actual docs, time and real hardware.
 
-Thanks,
-Guenter
+Alan
