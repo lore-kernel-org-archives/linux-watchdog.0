@@ -1,266 +1,208 @@
-Return-Path: <wimvs@spo001.leaseweb.com>
-Date: Tue, 10 Dec 2013 08:53:17 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Alan <gnomes@lxorguk.ukuu.org.uk>
-Subject: [GIT PULL REQUEST] watchdog - v3.13-rc3 Fixes
-Message-ID: <20131210075317.GB10136@spo001.leaseweb.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Sender: <wimvs@spo001.leaseweb.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-wg0-f50.google.com ([74.125.82.50]:33996 "EHLO
+	mail-wg0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751058Ab3LKMXH (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 11 Dec 2013 07:23:07 -0500
+MIME-Version: 1.0
+In-Reply-To: <52A39F3B.5070806@gmail.com>
+References: <1386308868-30264-1-git-send-email-l.krishna@samsung.com>
+ <1386308868-30264-2-git-send-email-l.krishna@samsung.com> <52A207D8.3030206@gmail.com>
+ <8302228.6iSJIFqj3A@flatron> <52A39F3B.5070806@gmail.com>
+From: Leela Krishna Amudala <l.krishna@samsung.com>
+Date: Wed, 11 Dec 2013 21:22:45 +0900
+Message-ID: <CAL1wa8fTuOMk9=G3JhdpNOE8=FPTfMSJ_mB-7jo1pNF1cAavgg@mail.gmail.com>
+Subject: Re: [PATCH V12 1/3] ARM: dts: Add pmu sysreg node to exynos5250 and
+ exynos5420 dtsi files
+To: Sylwester Nawrocki <sylvester.nawrocki@gmail.com>
+Cc: Tomasz Figa <tomasz.figa@gmail.com>,
+	Leela Krishna Amudala <l.krishna@samsung.com>,
+	linux-samsung-soc <linux-samsung-soc@vger.kernel.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Douglas Anderson <dianders@chromium.org>,
+	Kukjin Kim <kgene.kim@samsung.com>,
+	Tomasz Figa <t.figa@samsung.com>, devicetree@vger.kernel.org,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"cpgs ." <cpgs@samsung.com>, Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
+Hi,
 
-Hi Linus,
+As I was in travel not accessed my mails.
 
-Please pull from 'master' branch of
-	git://www.linux-watchdog.org/linux-watchdog.git
+I'll try to post next version of this series tomorrow addressing
+Sylwester's comments.
 
-It will drop the unnecessary miscdevice.h includes that we forgot in
-commit 487722cf2 and fix an oops for the sc1200_wdt driver.
+Best Wishes,
+Leela Krishna.
 
-This will update the following files:
-
- bcm2835_wdt.c      |    1 -
- ep93xx_wdt.c       |    1 -
- ie6xx_wdt.c        |    1 -
- jz4740_wdt.c       |    1 -
- kempld_wdt.c       |    1 -
- max63xx_wdt.c      |    1 -
- orion_wdt.c        |    1 -
- pnx4008_wdt.c      |    1 -
- rt2880_wdt.c       |    1 -
- sc1200wdt.c        |    3 ++-
- shwdt.c            |    1 -
- softdog.c          |    1 -
- stmp3xxx_rtc_wdt.c |    1 -
- txx9wdt.c          |    1 -
- ux500_wdt.c        |    1 -
- 15 files changed, 2 insertions(+), 15 deletions(-)
-
-with these Changes:
-
-commit dace8bbfccfd9e4fcccfffcfbd82881fda3e756f
-Author: Alan <gnomes@lxorguk.ukuu.org.uk>
-Date:   Wed Dec 4 15:31:52 2013 +0000
-
-    sc1200_wdt: Fix oops
-    
-    If loaded with isapnp = 0 the driver explodes. This is catching
-    people out now and then. What should happen in the working case is
-    a complete mystery and the code appears terminally confused, but we
-    can at least make the error path work properly.
-    
-    Signed-off-by: Alan Cox <alan@linux.intel.com>
-    Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-    Partially-Resolves-bug: https://bugzilla.kernel.org/show_bug.cgi?id=53991
-
-commit 9539210e17dc09ea1472076c297d461c7507a5bb
-Author: Guenter Roeck <linux@roeck-us.net>
-Date:   Tue Nov 19 13:26:17 2013 -0800
-
-    watchdog: Drop unnecessary include of miscdevice.h
-    
-    After commit 487722cf2 (watchdog: Get rid of MODULE_ALIAS_MISCDEV
-    statements) the affected drivers no longer need to include miscdevice.h.
-    Only exception is rt2880_wdt.c which never needed it.
-    
-    Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-    Reviewed-by: Jean Delvare <jdelvare@suse.de>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-For completeness, I added the overal diff below.
-
-Greetings,
-Wim.
-
-================================================================================
-diff --git a/drivers/watchdog/bcm2835_wdt.c b/drivers/watchdog/bcm2835_wdt.c
-index a6a2ceb..cafa973 100644
---- a/drivers/watchdog/bcm2835_wdt.c
-+++ b/drivers/watchdog/bcm2835_wdt.c
-@@ -19,7 +19,6 @@
- #include <linux/watchdog.h>
- #include <linux/platform_device.h>
- #include <linux/of_address.h>
--#include <linux/miscdevice.h>
- 
- #define PM_RSTC				0x1c
- #define PM_WDOG				0x24
-diff --git a/drivers/watchdog/ep93xx_wdt.c b/drivers/watchdog/ep93xx_wdt.c
-index 833e813..d1d07f2 100644
---- a/drivers/watchdog/ep93xx_wdt.c
-+++ b/drivers/watchdog/ep93xx_wdt.c
-@@ -28,7 +28,6 @@
- 
- #include <linux/platform_device.h>
- #include <linux/module.h>
--#include <linux/miscdevice.h>
- #include <linux/watchdog.h>
- #include <linux/timer.h>
- #include <linux/io.h>
-diff --git a/drivers/watchdog/ie6xx_wdt.c b/drivers/watchdog/ie6xx_wdt.c
-index 70a2402..07f88f5 100644
---- a/drivers/watchdog/ie6xx_wdt.c
-+++ b/drivers/watchdog/ie6xx_wdt.c
-@@ -28,7 +28,6 @@
- #include <linux/kernel.h>
- #include <linux/types.h>
- #include <linux/watchdog.h>
--#include <linux/miscdevice.h>
- #include <linux/seq_file.h>
- #include <linux/debugfs.h>
- #include <linux/uaccess.h>
-diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
-index 2de486a..3aa50cf 100644
---- a/drivers/watchdog/jz4740_wdt.c
-+++ b/drivers/watchdog/jz4740_wdt.c
-@@ -17,7 +17,6 @@
- #include <linux/moduleparam.h>
- #include <linux/types.h>
- #include <linux/kernel.h>
--#include <linux/miscdevice.h>
- #include <linux/watchdog.h>
- #include <linux/init.h>
- #include <linux/platform_device.h>
-diff --git a/drivers/watchdog/kempld_wdt.c b/drivers/watchdog/kempld_wdt.c
-index a1a3638..20dc738 100644
---- a/drivers/watchdog/kempld_wdt.c
-+++ b/drivers/watchdog/kempld_wdt.c
-@@ -26,7 +26,6 @@
- 
- #include <linux/module.h>
- #include <linux/moduleparam.h>
--#include <linux/miscdevice.h>
- #include <linux/uaccess.h>
- #include <linux/watchdog.h>
- #include <linux/platform_device.h>
-diff --git a/drivers/watchdog/max63xx_wdt.c b/drivers/watchdog/max63xx_wdt.c
-index 6d4f399..bdb3f4a 100644
---- a/drivers/watchdog/max63xx_wdt.c
-+++ b/drivers/watchdog/max63xx_wdt.c
-@@ -19,7 +19,6 @@
- #include <linux/moduleparam.h>
- #include <linux/types.h>
- #include <linux/kernel.h>
--#include <linux/miscdevice.h>
- #include <linux/watchdog.h>
- #include <linux/init.h>
- #include <linux/bitops.h>
-diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
-index 44edca6..f7722a4 100644
---- a/drivers/watchdog/orion_wdt.c
-+++ b/drivers/watchdog/orion_wdt.c
-@@ -16,7 +16,6 @@
- #include <linux/moduleparam.h>
- #include <linux/types.h>
- #include <linux/kernel.h>
--#include <linux/miscdevice.h>
- #include <linux/platform_device.h>
- #include <linux/watchdog.h>
- #include <linux/init.h>
-diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
-index 1bdcc31..5bec20f 100644
---- a/drivers/watchdog/pnx4008_wdt.c
-+++ b/drivers/watchdog/pnx4008_wdt.c
-@@ -23,7 +23,6 @@
- #include <linux/moduleparam.h>
- #include <linux/types.h>
- #include <linux/kernel.h>
--#include <linux/miscdevice.h>
- #include <linux/watchdog.h>
- #include <linux/init.h>
- #include <linux/platform_device.h>
-diff --git a/drivers/watchdog/rt2880_wdt.c b/drivers/watchdog/rt2880_wdt.c
-index 53d37fe..d92c2d5 100644
---- a/drivers/watchdog/rt2880_wdt.c
-+++ b/drivers/watchdog/rt2880_wdt.c
-@@ -16,7 +16,6 @@
- #include <linux/module.h>
- #include <linux/kernel.h>
- #include <linux/watchdog.h>
--#include <linux/miscdevice.h>
- #include <linux/moduleparam.h>
- #include <linux/platform_device.h>
- 
-diff --git a/drivers/watchdog/sc1200wdt.c b/drivers/watchdog/sc1200wdt.c
-index 3b9fff9..131193a 100644
---- a/drivers/watchdog/sc1200wdt.c
-+++ b/drivers/watchdog/sc1200wdt.c
-@@ -409,8 +409,9 @@ static int __init sc1200wdt_init(void)
- #if defined CONFIG_PNP
- 	/* now that the user has specified an IO port and we haven't detected
- 	 * any devices, disable pnp support */
-+	if (isapnp)
-+		pnp_unregister_driver(&scl200wdt_pnp_driver);
- 	isapnp = 0;
--	pnp_unregister_driver(&scl200wdt_pnp_driver);
- #endif
- 
- 	if (!request_region(io, io_len, SC1200_MODULE_NAME)) {
-diff --git a/drivers/watchdog/shwdt.c b/drivers/watchdog/shwdt.c
-index f9b8e06..af3528f 100644
---- a/drivers/watchdog/shwdt.c
-+++ b/drivers/watchdog/shwdt.c
-@@ -26,7 +26,6 @@
- #include <linux/init.h>
- #include <linux/types.h>
- #include <linux/spinlock.h>
--#include <linux/miscdevice.h>
- #include <linux/watchdog.h>
- #include <linux/pm_runtime.h>
- #include <linux/fs.h>
-diff --git a/drivers/watchdog/softdog.c b/drivers/watchdog/softdog.c
-index ef2638f..c04a1aa 100644
---- a/drivers/watchdog/softdog.c
-+++ b/drivers/watchdog/softdog.c
-@@ -42,7 +42,6 @@
- #include <linux/moduleparam.h>
- #include <linux/types.h>
- #include <linux/timer.h>
--#include <linux/miscdevice.h>
- #include <linux/watchdog.h>
- #include <linux/notifier.h>
- #include <linux/reboot.h>
-diff --git a/drivers/watchdog/stmp3xxx_rtc_wdt.c b/drivers/watchdog/stmp3xxx_rtc_wdt.c
-index d667f6b..bb64ae3 100644
---- a/drivers/watchdog/stmp3xxx_rtc_wdt.c
-+++ b/drivers/watchdog/stmp3xxx_rtc_wdt.c
-@@ -12,7 +12,6 @@
- #include <linux/init.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
--#include <linux/miscdevice.h>
- #include <linux/watchdog.h>
- #include <linux/platform_device.h>
- #include <linux/stmp3xxx_rtc_wdt.h>
-diff --git a/drivers/watchdog/txx9wdt.c b/drivers/watchdog/txx9wdt.c
-index 0fd0e8a..6a447e3 100644
---- a/drivers/watchdog/txx9wdt.c
-+++ b/drivers/watchdog/txx9wdt.c
-@@ -13,7 +13,6 @@
- #include <linux/module.h>
- #include <linux/moduleparam.h>
- #include <linux/types.h>
--#include <linux/miscdevice.h>
- #include <linux/watchdog.h>
- #include <linux/init.h>
- #include <linux/platform_device.h>
-diff --git a/drivers/watchdog/ux500_wdt.c b/drivers/watchdog/ux500_wdt.c
-index e029b57..5aed9d7 100644
---- a/drivers/watchdog/ux500_wdt.c
-+++ b/drivers/watchdog/ux500_wdt.c
-@@ -12,7 +12,6 @@
- #include <linux/module.h>
- #include <linux/kernel.h>
- #include <linux/moduleparam.h>
--#include <linux/miscdevice.h>
- #include <linux/err.h>
- #include <linux/uaccess.h>
- #include <linux/watchdog.h>
+On Sun, Dec 8, 2013 at 7:20 AM, Sylwester Nawrocki
+<sylvester.nawrocki@gmail.com> wrote:
+> Hi Tomasz,
+>
+>
+> On 12/07/2013 01:57 AM, Tomasz Figa wrote:
+>>
+>> On Friday 06 of December 2013 18:22:32 Sylwester Nawrocki wrote:
+>
+> [...]
+>
+>> I wouldn't really nitpick on such things, but if we end up needing another
+>> respin, here's what I think.
+>
+>
+> Yeah, I didn't really realize the iteration index for this series was
+> already
+> a 2 digit number and some people could have already gotten upset or
+> seriously
+> impatient. Started to regret I even bothered with posting any comments to
+> that.
+> :) Anyway, I didn't request any corrections, just pointed out what could be
+> improved. People are free to accept it or ignore as they see fit. And having
+> seen patch series that got merged after periods like 2.5 year V12 is not
+> something unusual anyway. :)
+>
+>
+>>> On 12/06/2013 06:47 AM, Leela Krishna Amudala wrote:
+>>>>
+>>>> This patch adds pmusysreg node to exynos5250 and exynos5420 dtsi files
+>>>> to
+>>>
+>>>
+>>> s/pmusysreg/PMU sysreg ? Similarly I would capitalize it in the subject
+>>> line as well.
+>>
+>>
+>> Well, since this is supposed to be a human readable description, I would
+>> go even further and write "...device tree node of Power Management Unit
+>>   to...".
+>
+>
+> Agreed, it sounds better.
+>
+>
+>>>> handle PMU register accesses in a centralized way using syscon driver
+>>>>
+>>>> Signed-off-by: Leela Krishna Amudala<l.krishna@samsung.com>
+>>>> Reviewed-by: Tomasz Figa<t.figa@samsung.com>
+>>>> Reviewed-by: Doug Anderson<dianders@chromium.org>
+>>>> Tested-by: Doug Anderson<dianders@chromium.org>
+>>>> ---
+>>>>    Documentation/devicetree/bindings/arm/samsung/pmu.txt |   15
+>>>> +++++++++++++++
+>>>>    arch/arm/boot/dts/exynos5250.dtsi                     |    5 +++++
+>>>>    arch/arm/boot/dts/exynos5420.dtsi                     |    5 +++++
+>>>>    3 files changed, 25 insertions(+)
+>>>>    create mode 100644
+>>>> Documentation/devicetree/bindings/arm/samsung/pmu.txt
+>>>>
+>>>> diff --git a/Documentation/devicetree/bindings/arm/samsung/pmu.txt
+>>>> b/Documentation/devicetree/bindings/arm/samsung/pmu.txt
+>>>> new file mode 100644
+>>>> index 0000000..f1f1552
+>>>> --- /dev/null
+>>>> +++ b/Documentation/devicetree/bindings/arm/samsung/pmu.txt
+>>>
+>>>
+>>> I might be easy to confuse this with ARM Performance Monitoring Unit.
+>>> So perhaps we should rename this file to, e.g. power-management-unit.txt
+>>> ?
+>>
+>>
+>> Considering location of this file, which is arm/samsung, I think this
+>> name is pretty much clear. ARM PMU is a generic thing, so it couldn't
+>> be placed here.
+>
+>
+> It's up to the patch author if they want to change it or not, I still think
+> it's better to not use short acronyms like this, if we can easily make it
+> unambiguous.
+>
+>
+>>>> @@ -0,0 +1,15 @@
+>>>> +SAMSUNG Exynos SoC series PMU Registers
+>>>
+>>>
+>>> s/PMU/Power Management Unit ?
+>>
+>>
+>> s/PMU Registers/Power Management Unit/
+>
+>
+> Yeah, that's more accurate.
+>
+>
+>>>> +Properties:
+>>>> + - compatible : should contain two values. First value must be one from
+>>>> following list:
+>>>> +                  - "samsung,exynos5250-pmu" - for Exynos5250 SoC,
+>>>> +                  - "samsung,exynos5420-pmu" - for Exynos5420 SoC.
+>>>
+>>>
+>>> s/./; ?
+>>>
+>>>> +               second value must be always "syscon".
+>>>
+>>>
+>>> It might be more safe to specify it as the last value, so something along
+>>> the lines of:
+>>>
+>>>         The last value should be "syscon".
+>>>
+>>>> +
+>>>> + - reg : offset and length of the register set.
+>>>> +
+>>>> +Example :
+>>>> +pmu_system_controller: system-controller@10040000 {
+>>>
+>>>
+>>> Might be more sensible to use 'power_management_unit' for the label.
+>>
+>>
+>> That's quite a lot of text for a label. pmu_syscon as in previous version
+>> of this patch would look more sensible to me.
+>
+>
+> I don't think it hurts to have this long labels, what I proposed is exactly
+> of same length as the original one. Anyway pmu_syscon sounds good to me too.
+>
+>
+>>>> +       compatible = "samsung,exynos5250-pmu", "syscon";
+>>>> +       reg =<0x10040000 0x5000>;
+>>>> +};
+>>>> diff --git a/arch/arm/boot/dts/exynos5250.dtsi
+>>>> b/arch/arm/boot/dts/exynos5250.dtsi
+>>>> index b98ffc3..62f9e36 100644
+>>>> --- a/arch/arm/boot/dts/exynos5250.dtsi
+>>>> +++ b/arch/arm/boot/dts/exynos5250.dtsi
+>>>> @@ -163,6 +163,11 @@
+>>>>                 interrupts =<0 47 0>;
+>>>>         };
+>>>>
+>>>> +       pmu_system_controller: system-controller@10040000 {
+>>>
+>>>
+>>> s/pmu_system_controller/power_management_unit ? So it describes the
+>>> subsystem better in terms used in the SoCs User Manual ?
+>>
+>>
+>> See above.
+>
+>
+> I can't see anything wrong in such long labels, but this discussion is
+> really
+> just a bike-shedding, so let's end it right now not to risk annoying even
+> more
+> people! :)
+>
+> --
+> Regards,
+> Sylwester
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-samsung-soc"
+> in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
