@@ -1,70 +1,53 @@
-Return-Path: <leelakrishna.a@gmail.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from devils.ext.ti.com ([198.47.26.153]:53532 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753612Ab3LNTSS (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Sat, 14 Dec 2013 14:18:18 -0500
+Message-ID: <52ACAED4.7000305@ti.com>
+Date: Sat, 14 Dec 2013 14:17:40 -0500
+From: Santosh Shilimkar <santosh.shilimkar@ti.com>
 MIME-Version: 1.0
-Sender: leelakrishna.a@gmail.com
-In-Reply-To: <CA+Ln22GysOQPQwbb-Ak=SYVpLP5zzMhecUw_pp+qv7CkAcC3=g@mail.gmail.com>
-References: <1386308868-30264-1-git-send-email-l.krishna@samsung.com>
- <1386308868-30264-2-git-send-email-l.krishna@samsung.com> <52A207D8.3030206@gmail.com>
- <8302228.6iSJIFqj3A@flatron> <52A39F3B.5070806@gmail.com> <CAL1wa8fTuOMk9=G3JhdpNOE8=FPTfMSJ_mB-7jo1pNF1cAavgg@mail.gmail.com>
- <CAD=FV=WZNmWdxTWzHCEtkCo7O1RZ7YDNkmNBD4wwpDc-=O1LCQ@mail.gmail.com> <CA+Ln22GysOQPQwbb-Ak=SYVpLP5zzMhecUw_pp+qv7CkAcC3=g@mail.gmail.com>
-From: Leela Krishna Amudala <l.krishna@samsung.com>
-Date: Thu, 12 Dec 2013 20:32:24 +0900
-Message-ID: <CAL1wa8eMenw_iS=qXLkEfZ0hWvE7u0vgnhoWDW6YJ7j4Kc=C_A@mail.gmail.com>
-Subject: Re: [PATCH V12 1/3] ARM: dts: Add pmu sysreg node to exynos5250 and
- exynos5420 dtsi files
-To: Tomasz Figa <tomasz.figa@gmail.com>, Wim Van Sebroeck <wim@iguana.be>
-Cc: Doug Anderson <dianders@chromium.org>, Leela Krishna Amudala <l.krishna@samsung.com>,
-	Sylwester Nawrocki <sylvester.nawrocki@gmail.com>,
-	linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, Kukjin Kim <kgene.kim@samsung.com>,
-	Tomasz Figa <t.figa@samsung.com>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "cpgs ." <cpgs@samsung.com>,
-	Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset=ISO-8859-1
-List-ID: <linux-watchdog@vger.kernel.org>
+To: <wim@iguana.be>
+CC: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>,
+	<linux-arm-kernel@lists.infradead.org>, <mark.rutland@arm.com>,
+	<nsekhar@ti.com>, <linux-watchdog@vger.kernel.org>,
+	<devicetree@vger.kernel.org>, <Pawel.Moll@arm.com>,
+	<swarren@wwwdotorg.org>, <ijc+devicetree@hellion.org.uk>,
+	<galak@kernel.crashing.org>, <rob.herring@calxeda.com>,
+	<linux-kernel@vger.kernel.org>, <grant.likely@linaro.org>,
+	<grygorii.strashko@ti.com>,
+	Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH v5 0/5] Update Davinci watchdog driver
+References: <1386185970-14488-1-git-send-email-ivan.khoronzhuk@ti.com> <52A5EF6B.6060700@ti.com>
+In-Reply-To: <52A5EF6B.6060700@ti.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
+Wim,
 
-On Thu, Dec 12, 2013 at 8:57 AM, Tomasz Figa <tomasz.figa@gmail.com> wrote:
-> 2013/12/11 Doug Anderson <dianders@chromium.org>:
->> Leela Krishna,
+On Monday 09 December 2013 11:27 AM, Santosh Shilimkar wrote:
+> Wim,
+> 
+> On Wednesday 04 December 2013 02:39 PM, Ivan Khoronzhuk wrote:
+>> These patches are intended to update Davinci watchdog to use WDT core
+>> and reuse driver for keystone arch, because Keystone uses the similar
+>> IP like Davinci.
 >>
->> On Wed, Dec 11, 2013 at 4:22 AM, Leela Krishna Amudala
->> <l.krishna@samsung.com> wrote:
->>> Hi,
->>>
->>> As I was in travel not accessed my mails.
->>>
->>> I'll try to post next version of this series tomorrow addressing
->>> Sylwester's comments.
+> 
+> [..]
+> 
+>> v4..v5:
+>> - watchdog: davinci: change driver to use WDT core
+>> 	switched off CONFIG_WATCHDOG_NOWAYOUT option
 >>
->> It's completely up to you (and Wim), of course.  ...but if it were me
->> I wouldn't spin the patch at this point.  Your existing version has
->> Guenter's Ack and his indication that he thinks that v12 is good
->> enough to land without future spins.  You could spin with Tomasz /
->> Sylwester's suggestions but remember that it is not mandatory.
->
-> As I said, at this point the comments are just nitpicks that it would be
-> nice to have them addressed, but this might be done as well in incremental
-> patch(es).
->
-> So if it's not a problem for you and you can find time for it, a re-spin would
-> be nice, but it's not a necessity (unless Wim decides otherwise).
->
+> Can you please apply the series to your watchdog tree ?
+> Do let me know if you want us to prepare a git branch
+> to pull from.
+> 
+ping..
 
-Okay, Then I'll drop my plan to post next version of this series.
-Anyways I don't have code repository and hardware with me now to
-re-base and test.
-
-Hello Wim,
-Can you kindly look into this series and take necessary action..?
-
-Best Wishes,
-Leela Krishna.
-
-
-> Best regards,
-> Tomasz
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-samsung-soc" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Regards,
+Santosh
