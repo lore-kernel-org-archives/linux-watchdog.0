@@ -1,47 +1,97 @@
-Return-Path: <markus.mayer@linaro.org>
-From: Markus Mayer <markus.mayer@linaro.org>
-To: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
-	Christian Daudt <bcm@fixthebug.org>
-CC: Linaro Patches <patches@linaro.org>, Linux Watchdog List
-	<linux-watchdog@vger.kernel.org>, Linux Kernel Mailing List
-	<linux-kernel@vger.kernel.org>, Markus Mayer <markus.mayer@linaro.org>
-Subject: [PATCH 0/2] watchdog: bcm281xx: Debugfs support
-Date: Tue, 31 Dec 2013 13:22:12 -0800
-Message-ID: <1388524934-10563-1-git-send-email-markus.mayer@linaro.org>
-MIME-Version: 1.0
-Content-Type: text/plain
-Return-Path: markus.mayer@linaro.org
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-la0-f46.google.com ([209.85.215.46]:48310 "EHLO
+	mail-la0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754287Ab3LRPSQ (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 18 Dec 2013 10:18:16 -0500
+From: Jonas Jensen <jonas.jensen@gmail.com>
+To: linux-watchdog@vger.kernel.org
+Cc: wim@iguana.be, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, arm@kernel.org, arnd@arndb.de,
+	linux@roeck-us.net, Jonas Jensen <jonas.jensen@gmail.com>
+Subject: [PATCH] watchdog: mach-moxart: add restart handler
+Date: Wed, 18 Dec 2013 16:18:03 +0100
+Message-Id: <1387379883-16525-1-git-send-email-jonas.jensen@gmail.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-This series adds debugfs support to the bcm281xx watchdog driver. Most
-of the code submitted here was already included as part of v5 of the
-original driver submission. See
-http://www.spinics.net/lists/linux-watchdog/msg03328.html
+mach-moxart lacks a separate register for reset; as a workaround,
+add a function that can be hooked to arm_pm_restart.
 
-However, the debugfs code has since been broken out of the original
-driver submission and the following changes have been made over what
-was submitted earlier:
+Signed-off-by: Jonas Jensen <jonas.jensen@gmail.com>
+---
 
-- The global variable busy_count is now, instead, part of struct
-  bcm_kona_wdt.
-- As a result secure_register_read() now needs to take a struct
-  bcm_kona_wdt * and a register offset as its arguments.
-- debugfs setup and teardown is now performed by
-  bcm_kona_wdt_debug_init() and bcm_kona_wdt_debug_exit() rather than
-  by using #ifdefs in bcm_kona_wdt_probe() and
-  bcm_kona_wdt_debug_exit().
+Notes:
+    During review of this driver, the restart handler for moxart was
+    removed, and moved to platform code under arch/arm/mach-moxart/.
+    
+    Since then, new considerations arrived,
+    see replies from Arnd and Guenter:
+    
+    "[PATCH v4 1/2] ARM: mach-moxart: add MOXA ART SoC platform files"
+    http://lists.infradead.org/pipermail/linux-arm-kernel/2013-December/219175.html
+    
+    I can move this to a new power/restart driver, but first, I want to
+    hear what Wim or others think.
+    
+    Until there is a better solution, my motivation is that this uses
+    the watchdog. The way I see it, the problem is that there is no
+    separate register for reset, this was always a workaround for that.
+    
+    Applies to next-20131218
 
-This series is dependent on commit
-bd90ccd42c5d6317979c62919ba1c79fd34fa785 in linux-watchdog-next.
+ drivers/watchdog/moxart_wdt.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-Markus Mayer (2):
-  watchdog: bcm281xx: Debugfs support
-  watchdog: bcm281xx: Turn on debugfs support for watchdog driver
-
- arch/arm/configs/bcm_defconfig  |    1 +
- drivers/watchdog/Kconfig        |   10 ++++
- drivers/watchdog/bcm_kona_wdt.c |  116 +++++++++++++++++++++++++++++++++++++--
- 3 files changed, 123 insertions(+), 4 deletions(-)
-
+diff --git a/drivers/watchdog/moxart_wdt.c b/drivers/watchdog/moxart_wdt.c
+index 4166e4d..4aa3a8a 100644
+--- a/drivers/watchdog/moxart_wdt.c
++++ b/drivers/watchdog/moxart_wdt.c
+@@ -19,6 +19,8 @@
+ #include <linux/watchdog.h>
+ #include <linux/moduleparam.h>
+ 
++#include <asm/system_misc.h>
++
+ #define REG_COUNT			0x4
+ #define REG_MODE			0x8
+ #define REG_ENABLE			0xC
+@@ -29,8 +31,17 @@ struct moxart_wdt_dev {
+ 	unsigned int clock_frequency;
+ };
+ 
++static struct moxart_wdt_dev *moxart_restart_ctx;
++
+ static int heartbeat;
+ 
++static void moxart_wdt_restart(enum reboot_mode reboot_mode, const char *cmd)
++{
++	writel(1, moxart_restart_ctx->base + REG_COUNT);
++	writel(0x5ab9, moxart_restart_ctx->base + REG_MODE);
++	writel(0x03, moxart_restart_ctx->base + REG_ENABLE);
++}
++
+ static int moxart_wdt_stop(struct watchdog_device *wdt_dev)
+ {
+ 	struct moxart_wdt_dev *moxart_wdt = watchdog_get_drvdata(wdt_dev);
+@@ -125,6 +136,9 @@ static int moxart_wdt_probe(struct platform_device *pdev)
+ 	if (err)
+ 		return err;
+ 
++	moxart_restart_ctx = moxart_wdt;
++	arm_pm_restart = moxart_wdt_restart;
++
+ 	dev_dbg(dev, "Watchdog enabled (heartbeat=%d sec, nowayout=%d)\n",
+ 		moxart_wdt->dev.timeout, nowayout);
+ 
+@@ -135,6 +149,7 @@ static int moxart_wdt_remove(struct platform_device *pdev)
+ {
+ 	struct moxart_wdt_dev *moxart_wdt = platform_get_drvdata(pdev);
+ 
++	arm_pm_restart = NULL;
+ 	moxart_wdt_stop(&moxart_wdt->dev);
+ 	watchdog_unregister_device(&moxart_wdt->dev);
+ 
 -- 
-1.7.9.5
+1.8.2.1
+
