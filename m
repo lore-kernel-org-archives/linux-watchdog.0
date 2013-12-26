@@ -1,36 +1,60 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:59902 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754482Ab3LUSAl (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 21 Dec 2013 13:00:41 -0500
-Message-ID: <52B5D748.9030508@roeck-us.net>
-Date: Sat, 21 Dec 2013 10:00:40 -0800
-From: Guenter Roeck <linux@roeck-us.net>
+Received: from arroyo.ext.ti.com ([192.94.94.40]:51428 "EHLO arroyo.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753395Ab3LZRzq (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 26 Dec 2013 12:55:46 -0500
+Message-ID: <52BC6D76.7000400@ti.com>
+Date: Thu, 26 Dec 2013 12:55:02 -0500
+From: Santosh Shilimkar <santosh.shilimkar@ti.com>
 MIME-Version: 1.0
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	linux-usb@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] Watchdog: pcwd_usb: remove CONFIG_USB_DEBUG usage
-References: <20131219234410.GD4884@kroah.com>
-In-Reply-To: <20131219234410.GD4884@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>
+CC: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>,
+	<linux-arm-kernel@lists.infradead.org>, <mark.rutland@arm.com>,
+	<nsekhar@ti.com>, <linux-watchdog@vger.kernel.org>,
+	<devicetree@vger.kernel.org>, <Pawel.Moll@arm.com>,
+	<swarren@wwwdotorg.org>, <ijc+devicetree@hellion.org.uk>,
+	<galak@kernel.crashing.org>, <rob.herring@calxeda.com>,
+	<linux-kernel@vger.kernel.org>, <grant.likely@linaro.org>,
+	<grygorii.strashko@ti.com>,
+	Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH v5 0/5] Update Davinci watchdog driver
+References: <1386185970-14488-1-git-send-email-ivan.khoronzhuk@ti.com> <52A5EF6B.6060700@ti.com> <52ACAED4.7000305@ti.com>
+In-Reply-To: <52ACAED4.7000305@ti.com>
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 12/19/2013 03:44 PM, Greg Kroah-Hartman wrote:
-> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->
-> CONFIG_USB_DEBUG is going away, and all of the other USB drivers no
-> longer rely on "debug" module parameters for debugging lines, so move
-> the pcwd_usb driver to use the dynamic debug infrastructure to be more
-> in line with the rest of the kernel.
->
->
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Wim Van Sebroeck <wim@iguana.be>
->
+On Saturday 14 December 2013 02:17 PM, Santosh Shilimkar wrote:
+> Wim,
+> 
+> On Monday 09 December 2013 11:27 AM, Santosh Shilimkar wrote:
+>> Wim,
+>>
+>> On Wednesday 04 December 2013 02:39 PM, Ivan Khoronzhuk wrote:
+>>> These patches are intended to update Davinci watchdog to use WDT core
+>>> and reuse driver for keystone arch, because Keystone uses the similar
+>>> IP like Davinci.
+>>>
+>>
+>> [..]
+>>
+>>> v4..v5:
+>>> - watchdog: davinci: change driver to use WDT core
+>>> 	switched off CONFIG_WATCHDOG_NOWAYOUT option
+>>>
+>> Can you please apply the series to your watchdog tree ?
+>> Do let me know if you want us to prepare a git branch
+>> to pull from.
+>>
+> ping..
+> 
+I haven't heard anything on this yet from you Wim.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Guenter,
+I have seen you actively reviewing the $subject patch series.
+Will you be able to pick the series up for 3.14 merge window
+considering almost no response from Wim so far on it ?
 
+Regards,
+Santosh
