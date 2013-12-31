@@ -1,80 +1,102 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-we0-f171.google.com ([74.125.82.171]:64584 "EHLO
-	mail-we0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932116Ab3L3Tf2 (ORCPT
+Received: from mail-wi0-f175.google.com ([209.85.212.175]:48694 "EHLO
+	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754084Ab3LaSDi (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 30 Dec 2013 14:35:28 -0500
-Received: by mail-we0-f171.google.com with SMTP id q58so10514583wes.16
-        for <linux-watchdog@vger.kernel.org>; Mon, 30 Dec 2013 11:35:26 -0800 (PST)
-Date: Mon, 30 Dec 2013 19:35:23 +0000
-From: Jamie Iles <jamie@jamieiles.com>
-To: Baruch Siach <baruch@tkos.co.il>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	Jamie Iles <jamie@jamieiles.com>
-Subject: Re: [PATCH v2] watchdog: dw_wdt: remove build dependencies
-Message-ID: <20131230193523.GA3640@maple>
-References: <a41f433ac50ef0da9e9eae0e793119cb4e88b9e3.1388406354.git.baruch@tkos.co.il>
+	Tue, 31 Dec 2013 13:03:38 -0500
+Received: by mail-wi0-f175.google.com with SMTP id hi5so17450709wib.2
+        for <linux-watchdog@vger.kernel.org>; Tue, 31 Dec 2013 10:03:37 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a41f433ac50ef0da9e9eae0e793119cb4e88b9e3.1388406354.git.baruch@tkos.co.il>
+In-Reply-To: <20131228204039.GA19982@spo001.leaseweb.com>
+References: <1385160964-18578-1-git-send-email-markus.mayer@linaro.org>
+	<20131228204039.GA19982@spo001.leaseweb.com>
+Date: Tue, 31 Dec 2013 10:03:37 -0800
+Message-ID: <CAPdLdqkNtvPwETc+TK9xRSh-ru6q4VvUk7zfYEbjPb1TOESMaA@mail.gmail.com>
+Subject: Re: [PATCH v5 0/2] watchdog: bcm281xx: Watchdog Driver
+From: Markus Mayer <markus.mayer@linaro.org>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Guenter Roeck <linux@roeck-us.net>,
+	Christian Daudt <bcm@fixthebug.org>,
+	Linaro Patches <patches@linaro.org>,
+	Matt Porter <matt.porter@linaro.org>,
+	One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>,
+	Linux Watchdog List <linux-watchdog@vger.kernel.org>,
+	ARM Kernel List <linux-arm-kernel@lists.infradead.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Baruch,
+Hi Wim,
 
-Looks good, thanks!
+Thanks for your comments. I addressed them and will be sending out the
+resulting patches shortly.
 
-Acked-by: Jamie Iles <jamie@jamieiles.com>
+> Questions/remarks I still have:
+> 1) *debugfs is defined in the bcm_kona_wdt struct, but busy_count isn't.
+>    Seems odd to me. What's the reason?
 
-Jamie
+secure_register_read() only took a void __iomem * argument, but I
+changed that to struct bcm_kona_wdt * and offset. With that change,
+busy_count can be part of struct bcm_kona_wdt.
 
-On Mon, Dec 30, 2013 at 02:25:54PM +0200, Baruch Siach wrote:
-> There is nothing ARM specific in this driver, and we intend to use it on the
-> Xtensa architecture. Also, clk.h now includes stubs for !CONFIG_HAVE_CLK, so
-> the driver should build anyway.
-> 
-> Cc: Jamie Iles <jamie@jamieiles.com>
-> Signed-off-by: Baruch Siach <baruch@tkos.co.il>
-> ---
-> v2:
->     Don't mention ARM in the Kconfig help text, and source comment
-> 
->     Mention in the commit log message that this driver is used on Xtensa
-> ---
->  drivers/watchdog/Kconfig  | 3 +--
->  drivers/watchdog/dw_wdt.c | 2 +-
->  2 files changed, 2 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 5be6e91..d3bcad0 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -214,10 +214,9 @@ config SA1100_WATCHDOG
->  
->  config DW_WATCHDOG
->  	tristate "Synopsys DesignWare watchdog"
-> -	depends on ARM && HAVE_CLK
->  	help
->  	  Say Y here if to include support for the Synopsys DesignWare
-> -	  watchdog timer found in many ARM chips.
-> +	  watchdog timer found in many chips.
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called dw_wdt.
->  
-> diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-> index a46f5c7..ee4f86b 100644
-> --- a/drivers/watchdog/dw_wdt.c
-> +++ b/drivers/watchdog/dw_wdt.c
-> @@ -8,7 +8,7 @@
->   * 2 of the License, or (at your option) any later version.
->   *
->   * This file implements a driver for the Synopsys DesignWare watchdog device
-> - * in the many ARM subsystems. The watchdog has 16 different timeout periods
-> + * in the many subsystems. The watchdog has 16 different timeout periods
->   * and these are a function of the input clock frequency.
->   *
->   * The DesignWare watchdog cannot be stopped once it has been started so we
-> -- 
-> 1.8.5.2
-> 
+> 2) I don't like the #ifdef pieces in the probe and remove functions.
+>    The preferred method is to not have the #ifdefs there, but to have an
+>    init and exit function that is defined in a similar way:
+
+I took care of those. However I opted to pass a struct platform_device
+* to the new functions bcm_kona_wdt_debug_init() and
+bcm_kona_wdt_debug_exit(). The reason being that bcm_kona_wdt_remove()
+didn't have a struct bcm_kona_wdt * outside the #ifdef that I was
+about to remove. For consistency, I then used struct platform_device *
+for bcm_kona_wdt_debug_init(), as well.
+
+>         #ifdef CONFIG_BCM_KONA_WDT_DEBUG
+>         ...
+>         static void bcm_kona_wdt_debug_init(struct bcm_kona_wdt *wdt)
+>         {
+>                 wdt->debugfs = bcm_kona_wdt_debugfs_init(wdt, &bcm_kona_wdt_wdd);
+>         }
+>         ...
+>         #else /* !CONFIG_BCM_KONA_WDT_DEBUG */
+>         static void bcm_kona_wdt_debug_init(struct bcm_kona_wdt *wdt) {}
+>         ...
+>         #endif /* CONFIG_BCM_KONA_WDT_DEBUG */
+
+Now I have a question (or rather a comment) of my own. I noticed that
+you "squashed" my two original patches into a single patch before
+breaking out the debugfs related code. The side-effect of this was
+that two lines of my bcm_defconfig change (CONFIG_WATCHDOG=y and
+CONFIG_BCM_KONA_WDT=y) were included in the patch you took into
+linux-watchdog-next.
+
+If I understand correctly (and this is why I had broken out the
+bcm_defconfig change into a separate patch), a defconfig change would
+normally go through the platform maintainer's tree, in this case
+Christian, whereas the actual driver would go upstream through your
+tree.
+
+I don't think it makes too much of a difference with regards to this
+driver where the defconfig change goes. In fact, taking it all through
+one tree might even be slightly easier and reduce the chance of
+conflicts, but I still think Christian needs to at least be aware of
+this change going through the watchdog tree. He owns bcm_defconfig,
+after all.
+
+A loosely related comment: gitweb for linux-watchdog-next seems to be
+broken: http://www.linux-watchdog.org/cgi-bin/gitweb.cgi?p=linux-watchdog-next.git;a=summary.
+I stumbled upon this yesterday when I was trying to look at the
+current status of this tree.
+
+In case readers of this e-mail are interested in taking a quick peek
+at the parts of the Kona watchdog driver that were already accepted,
+without cloning the entire repo, I created a temporary watchdog mirror
+with the commit in question available for in-browser viewing at
+http://git.linaro.org/people/markus.mayer/watchdog-next-mirror.git/commit/bd90ccd42c5d6317979c62919ba1c79fd34fa785
+
+Regards,
+-Markus
+
+-- 
+Markus Mayer
+Broadcom Landing Team
