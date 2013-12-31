@@ -1,123 +1,236 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.linuxfoundation.org ([140.211.169.12]:46749 "EHLO
-	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755736Ab3LSXoH (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 19 Dec 2013 18:44:07 -0500
-Date: Thu, 19 Dec 2013 15:44:10 -0800
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: linux-usb@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org
-Subject: [PATCH] Watchdog: pcwd_usb: remove CONFIG_USB_DEBUG usage
-Message-ID: <20131219234410.GD4884@kroah.com>
+Return-Path: <markus.mayer@linaro.org>
+From: Markus Mayer <markus.mayer@linaro.org>
+To: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
+	Christian Daudt <bcm@fixthebug.org>
+CC: Linaro Patches <patches@linaro.org>, Linux Watchdog List
+	<linux-watchdog@vger.kernel.org>, Linux Kernel Mailing List
+	<linux-kernel@vger.kernel.org>, Markus Mayer <markus.mayer@linaro.org>
+Subject: [PATCH 1/2] watchdog: bcm281xx: Debugfs support
+Date: Tue, 31 Dec 2013 13:22:13 -0800
+Message-ID: <1388524934-10563-2-git-send-email-markus.mayer@linaro.org>
+In-Reply-To: <1388524934-10563-1-git-send-email-markus.mayer@linaro.org>
+References: <1388524934-10563-1-git-send-email-markus.mayer@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain
+Return-Path: markus.mayer@linaro.org
+List-ID: <linux-watchdog@vger.kernel.org>
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This change introduces debugfs support for the BCM281xx watchdog driver.
 
-CONFIG_USB_DEBUG is going away, and all of the other USB drivers no
-longer rely on "debug" module parameters for debugging lines, so move
-the pcwd_usb driver to use the dynamic debug infrastructure to be more
-in line with the rest of the kernel.
-
-
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Wim Van Sebroeck <wim@iguana.be>
-
+Signed-off-by: Markus Mayer <markus.mayer@linaro.org>
 ---
- drivers/watchdog/pcwd_usb.c |   40 +++++++++++-----------------------------
- 1 file changed, 11 insertions(+), 29 deletions(-)
+ drivers/watchdog/Kconfig        |   10 ++++
+ drivers/watchdog/bcm_kona_wdt.c |  116 +++++++++++++++++++++++++++++++++++++--
+ 2 files changed, 122 insertions(+), 4 deletions(-)
 
---- a/drivers/watchdog/pcwd_usb.c
-+++ b/drivers/watchdog/pcwd_usb.c
-@@ -44,23 +44,6 @@
- #include <linux/hid.h>		/* For HID_REQ_SET_REPORT & HID_DT_REPORT */
- #include <linux/uaccess.h>	/* For copy_to_user/put_user/... */
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 10d188a..9b8b96d 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1152,6 +1152,16 @@ config BCM_KONA_WDT
+ 	  Say 'Y' or 'M' here to enable the driver. The module will be called
+ 	  bcm_kona_wdt.
  
--#ifdef CONFIG_USB_DEBUG
--static int debug = 1;
--#else
--static int debug;
--#endif
--
--/* Use our own dbg macro */
--
--#undef dbg
--#ifndef DEBUG
--#define DEBUG
--#endif
--#define dbg(format, ...)				\
--do {							\
--	if (debug)					\
--		pr_debug(format "\n", ##__VA_ARGS__);	\
--} while (0)
++config BCM_KONA_WDT_DEBUG
++	bool "DEBUGFS support for BCM Kona Watchdog"
++	depends on BCM_KONA_WDT
++	help
++	  If enabled, adds /sys/kernel/debug/bcm-kona-wdt/info which provides
++	  access to the driver's internal data structures as well as watchdog
++	  timer hardware registres.
++
++	  If in doubt, say 'N'.
++
+ config LANTIQ_WDT
+ 	tristate "Lantiq SoC watchdog"
+ 	depends on LANTIQ
+diff --git a/drivers/watchdog/bcm_kona_wdt.c b/drivers/watchdog/bcm_kona_wdt.c
+index 7e41a83..d3aa473 100644
+--- a/drivers/watchdog/bcm_kona_wdt.c
++++ b/drivers/watchdog/bcm_kona_wdt.c
+@@ -11,6 +11,7 @@
+  * GNU General Public License for more details.
+  */
  
- /* Module and Version Information */
- #define DRIVER_VERSION "1.02"
-@@ -73,10 +56,6 @@ MODULE_AUTHOR(DRIVER_AUTHOR);
- MODULE_DESCRIPTION(DRIVER_DESC);
- MODULE_LICENSE(DRIVER_LICENSE);
++#include <linux/debugfs.h>
+ #include <linux/delay.h>
+ #include <linux/err.h>
+ #include <linux/io.h>
+@@ -55,9 +56,13 @@ struct bcm_kona_wdt {
+ 	 */
+ 	int resolution;
+ 	spinlock_t lock;
++#ifdef CONFIG_BCM_KONA_WDT_DEBUG
++	unsigned long busy_count;
++	struct dentry *debugfs;
++#endif
+ };
  
--/* Module Parameters */
--module_param(debug, int, 0);
--MODULE_PARM_DESC(debug, "Debug enabled or not");
--
- #define WATCHDOG_HEARTBEAT 0	/* default heartbeat =
- 						delay-time from dip-switches */
- static int heartbeat = WATCHDOG_HEARTBEAT;
-@@ -193,6 +172,7 @@ static void usb_pcwd_intr_done(struct ur
- 	struct usb_pcwd_private *usb_pcwd =
- 				(struct usb_pcwd_private *)urb->context;
- 	unsigned char *data = usb_pcwd->intr_buffer;
-+	struct device *dev = &usb_pcwd->interface->dev;
- 	int retval;
+-static int secure_register_read(void __iomem *addr)
++static int secure_register_read(struct bcm_kona_wdt *wdt, uint32_t offset)
+ {
+ 	uint32_t val;
+ 	unsigned count = 0;
+@@ -70,10 +75,16 @@ static int secure_register_read(void __iomem *addr)
+ 	do {
+ 		if (unlikely(count > 1))
+ 			udelay(5);
+-		val = readl_relaxed(addr);
++		val = readl_relaxed(wdt->base + offset);
+ 		count++;
+ 	} while ((val & SECWDOG_WD_LOAD_FLAG) && count < SECWDOG_MAX_TRY);
  
- 	switch (urb->status) {
-@@ -202,17 +182,17 @@ static void usb_pcwd_intr_done(struct ur
- 	case -ENOENT:
- 	case -ESHUTDOWN:
- 		/* this urb is terminated, clean up */
--		dbg("%s - urb shutting down with status: %d", __func__,
--								urb->status);
-+		dev_dbg(dev, "%s - urb shutting down with status: %d",
-+			__func__, urb->status);
- 		return;
- 	/* -EPIPE:  should clear the halt */
- 	default:		/* error */
--		dbg("%s - nonzero urb status received: %d", __func__,
--								urb->status);
-+		dev_dbg(dev, "%s - nonzero urb status received: %d",
-+			__func__, urb->status);
- 		goto resubmit;
++#ifdef CONFIG_BCM_KONA_WDT_DEBUG
++	/* Remember the maximum number iterations due to WD_LOAD_FLAG */
++	if (count > wdt->busy_count)
++		wdt->busy_count = count;
++#endif
++
+ 	/* This is the only place we return a negative value. */
+ 	if (val & SECWDOG_WD_LOAD_FLAG)
+ 		return -ETIMEDOUT;
+@@ -84,6 +95,80 @@ static int secure_register_read(void __iomem *addr)
+ 	return val;
+ }
+ 
++#ifdef CONFIG_BCM_KONA_WDT_DEBUG
++
++static int bcm_kona_wdt_dbg_show(struct seq_file *s, void *data)
++{
++	int ctl_val, cur_val, ret;
++	unsigned long flags;
++	struct bcm_kona_wdt *wdt = s->private;
++
++	if (!wdt)
++		return seq_puts(s, "No device pointer\n");
++
++	spin_lock_irqsave(&wdt->lock, flags);
++	ctl_val = secure_register_read(wdt, SECWDOG_CTRL_REG);
++	cur_val = secure_register_read(wdt, SECWDOG_COUNT_REG);
++	spin_unlock_irqrestore(&wdt->lock, flags);
++
++	if (ctl_val < 0 || cur_val < 0) {
++		ret = seq_puts(s, "Error accessing hardware\n");
++	} else {
++		int ctl, cur, ctl_sec, cur_sec, res;
++
++		ctl = ctl_val & SECWDOG_COUNT_MASK;
++		res = (ctl_val & SECWDOG_RES_MASK) >> SECWDOG_CLKS_SHIFT;
++		cur = cur_val & SECWDOG_COUNT_MASK;
++		ctl_sec = TICKS_TO_SECS(ctl, wdt);
++		cur_sec = TICKS_TO_SECS(cur, wdt);
++		ret = seq_printf(s, "Resolution: %d / %d\n"
++				"Control: %d s / %d (%#x) ticks\n"
++				"Current: %d s / %d (%#x) ticks\n"
++				"Busy count: %lu\n", res,
++				wdt->resolution, ctl_sec, ctl, ctl, cur_sec,
++				cur, cur, wdt->busy_count);
++	}
++
++	return ret;
++}
++
++static int bcm_kona_dbg_open(struct inode *inode, struct file *file)
++{
++	return single_open(file, bcm_kona_wdt_dbg_show, inode->i_private);
++}
++
++static const struct file_operations bcm_kona_dbg_operations = {
++	.open		= bcm_kona_dbg_open,
++	.read		= seq_read,
++	.llseek		= seq_lseek,
++	.release	= single_release,
++};
++
++static struct dentry *bcm_kona_wdt_debugfs_init(struct bcm_kona_wdt *wdt,
++	struct watchdog_device *wdd)
++{
++	struct dentry *dir;
++
++	dir = debugfs_create_dir(BCM_KONA_WDT_NAME, NULL);
++	if (IS_ERR_OR_NULL(dir))
++		return NULL;
++
++	if (debugfs_create_file("info", S_IFREG | S_IRUGO, dir, wdt,
++				&bcm_kona_dbg_operations))
++		return dir;
++
++	/* Clean up */
++	debugfs_remove_recursive(dir);
++	return NULL;
++}
++
++static void bcm_kona_debugfs_exit(struct dentry *dir)
++{
++	debugfs_remove_recursive(dir);
++}
++
++#endif /* CONFIG_BCM_KONA_WDT_DEBUG */
++
+ static int bcm_kona_wdt_ctrl_reg_modify(struct bcm_kona_wdt *wdt,
+ 					unsigned mask, unsigned newval)
+ {
+@@ -93,7 +178,7 @@ static int bcm_kona_wdt_ctrl_reg_modify(struct bcm_kona_wdt *wdt,
+ 
+ 	spin_lock_irqsave(&wdt->lock, flags);
+ 
+-	val = secure_register_read(wdt->base + SECWDOG_CTRL_REG);
++	val = secure_register_read(wdt, SECWDOG_CTRL_REG);
+ 	if (val < 0) {
+ 		ret = val;
+ 	} else {
+@@ -140,7 +225,7 @@ static unsigned int bcm_kona_wdt_get_timeleft(struct watchdog_device *wdog)
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&wdt->lock, flags);
+-	val = secure_register_read(wdt->base + SECWDOG_COUNT_REG);
++	val = secure_register_read(wdt, SECWDOG_COUNT_REG);
+ 	spin_unlock_irqrestore(&wdt->lock, flags);
+ 
+ 	if (val < 0)
+@@ -190,6 +275,27 @@ static void bcm_kona_wdt_shutdown(struct platform_device *pdev)
+ 	bcm_kona_wdt_stop(&bcm_kona_wdt_wdd);
+ }
+ 
++#ifdef CONFIG_BCM_KONA_WDT_DEBUG
++static void bcm_kona_wdt_debug_init(struct platform_device *pdev)
++{
++	struct bcm_kona_wdt *wdt = platform_get_drvdata(pdev);
++
++	wdt->debugfs = bcm_kona_wdt_debugfs_init(wdt, &bcm_kona_wdt_wdd);
++}
++
++static void bcm_kona_wdt_debug_exit(struct platform_device *pdev)
++{
++	struct bcm_kona_wdt *wdt = platform_get_drvdata(pdev);
++
++	if (wdt->debugfs)
++		bcm_kona_debugfs_exit(wdt->debugfs);
++}
++
++#else
++static void bcm_kona_wdt_debug_init(struct platform_device *pdev) {}
++static void bcm_kona_wdt_debug_exit(struct platform_device *pdev) {}
++#endif
++
+ static int bcm_kona_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+@@ -229,6 +335,7 @@ static int bcm_kona_wdt_probe(struct platform_device *pdev)
+ 		return ret;
  	}
  
--	dbg("received following data cmd=0x%02x msb=0x%02x lsb=0x%02x",
-+	dev_dbg(dev, "received following data cmd=0x%02x msb=0x%02x lsb=0x%02x",
- 		data[0], data[1], data[2]);
++	bcm_kona_wdt_debug_init(pdev);
+ 	dev_dbg(dev, "Broadcom Kona Watchdog Timer");
  
- 	usb_pcwd->cmd_command  = data[0];
-@@ -251,7 +231,8 @@ static int usb_pcwd_send_command(struct
- 	buf[2] = *lsb;			/* Byte 2 = Data LSB */
- 	buf[3] = buf[4] = buf[5] = 0;	/* All other bytes not used */
+ 	return 0;
+@@ -236,6 +343,7 @@ static int bcm_kona_wdt_probe(struct platform_device *pdev)
  
--	dbg("sending following data cmd=0x%02x msb=0x%02x lsb=0x%02x",
-+	dev_dbg(&usb_pcwd->interface->dev,
-+		"sending following data cmd=0x%02x msb=0x%02x lsb=0x%02x",
- 		buf[0], buf[1], buf[2]);
- 
- 	atomic_set(&usb_pcwd->cmd_received, 0);
-@@ -260,8 +241,9 @@ static int usb_pcwd_send_command(struct
- 			HID_REQ_SET_REPORT, HID_DT_REPORT,
- 			0x0200, usb_pcwd->interface_number, buf, 6,
- 			USB_COMMAND_TIMEOUT) != 6) {
--		dbg("usb_pcwd_send_command: error in usb_control_msg for "
--				"cmd 0x%x 0x%x 0x%x\n", cmd, *msb, *lsb);
-+		dev_dbg(&usb_pcwd->interface->dev,
-+			"usb_pcwd_send_command: error in usb_control_msg for cmd 0x%x 0x%x 0x%x\n",
-+			cmd, *msb, *lsb);
- 	}
- 	/* wait till the usb card processed the command,
- 	 * with a max. timeout of USB_COMMAND_TIMEOUT */
+ static int bcm_kona_wdt_remove(struct platform_device *pdev)
+ {
++	bcm_kona_wdt_debug_exit(pdev);
+ 	bcm_kona_wdt_shutdown(pdev);
+ 	watchdog_unregister_device(&bcm_kona_wdt_wdd);
+ 	dev_dbg(&pdev->dev, "Watchdog driver disabled");
+-- 
+1.7.9.5
