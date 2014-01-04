@@ -1,161 +1,234 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ee0-f42.google.com ([74.125.83.42]:40907 "EHLO
-	mail-ee0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754177AbaAaOSm (ORCPT
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail.active-venture.com ([67.228.131.205]:63264 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754729AbaADRmg (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 31 Jan 2014 09:18:42 -0500
-Received: by mail-ee0-f42.google.com with SMTP id b15so474747eek.15
-        for <linux-watchdog@vger.kernel.org>; Fri, 31 Jan 2014 06:18:41 -0800 (PST)
-From: Michal Simek <michal.simek@xilinx.com>
-To: linux-kernel@vger.kernel.org, monstr@monstr.eu
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: [PATCH 03/10] watchdog: xilinx: Simplify probe and remove functions
-Date: Fri, 31 Jan 2014 15:18:12 +0100
-Message-Id: <578455fd630e70b5de8bae6091568f05e7769057.1391177880.git.michal.simek@xilinx.com>
-In-Reply-To: <ed4cb31c9a549343e6b492cf62fc962d39034bd0.1391177880.git.michal.simek@xilinx.com>
-References: <ed4cb31c9a549343e6b492cf62fc962d39034bd0.1391177880.git.michal.simek@xilinx.com>
-In-Reply-To: <ed4cb31c9a549343e6b492cf62fc962d39034bd0.1391177880.git.michal.simek@xilinx.com>
-References: <ed4cb31c9a549343e6b492cf62fc962d39034bd0.1391177880.git.michal.simek@xilinx.com>
-Content-Type: multipart/signed;
-    boundary="=_mimegpg-monstr-desktop-23095-1391177916-0001";
-    micalg=pgp-sha1; protocol="application/pgp-signature"
+	Sat, 4 Jan 2014 12:42:36 -0500
+Message-ID: <52C8480C.9040409@roeck-us.net>
+Date: Sat, 04 Jan 2014 09:42:36 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+MIME-Version: 1.0
+To: Markus Mayer <markus.mayer@linaro.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Christian Daudt <bcm@fixthebug.org>
+CC: Linaro Patches <patches@linaro.org>,
+	Linux Watchdog List <linux-watchdog@vger.kernel.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/2] watchdog: bcm281xx: Debugfs support
+References: <1388524934-10563-1-git-send-email-markus.mayer@linaro.org> <1388524934-10563-2-git-send-email-markus.mayer@linaro.org>
+In-Reply-To: <1388524934-10563-2-git-send-email-markus.mayer@linaro.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This is a MIME GnuPG-signed message.  If you see this text, it means that
-your E-mail or Usenet software does not support MIME signed messages.
-The Internet standard for MIME PGP messages, RFC 2015, was published in 1996.
-To open this message correctly you will need to install E-mail or Usenet
-software that supports modern Internet standards.
+On 12/31/2013 01:22 PM, Markus Mayer wrote:
+> This change introduces debugfs support for the BCM281xx watchdog driver.
+>
+> Signed-off-by: Markus Mayer <markus.mayer@linaro.org>
+> ---
+>   drivers/watchdog/Kconfig        |   10 ++++
+>   drivers/watchdog/bcm_kona_wdt.c |  116 +++++++++++++++++++++++++++++++++++++--
+>   2 files changed, 122 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index 10d188a..9b8b96d 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -1152,6 +1152,16 @@ config BCM_KONA_WDT
+>   	  Say 'Y' or 'M' here to enable the driver. The module will be called
+>   	  bcm_kona_wdt.
+>
+> +config BCM_KONA_WDT_DEBUG
+> +	bool "DEBUGFS support for BCM Kona Watchdog"
+> +	depends on BCM_KONA_WDT
+> +	help
+> +	  If enabled, adds /sys/kernel/debug/bcm-kona-wdt/info which provides
+> +	  access to the driver's internal data structures as well as watchdog
+> +	  timer hardware registres.
+> +
+Unless Wim already applied this patch, I would suggest to merge the followup patch
+with this one.
 
---=_mimegpg-monstr-desktop-23095-1391177916-0001
+> +	  If in doubt, say 'N'.
+> +
+>   config LANTIQ_WDT
+>   	tristate "Lantiq SoC watchdog"
+>   	depends on LANTIQ
+> diff --git a/drivers/watchdog/bcm_kona_wdt.c b/drivers/watchdog/bcm_kona_wdt.c
+> index 7e41a83..d3aa473 100644
+> --- a/drivers/watchdog/bcm_kona_wdt.c
+> +++ b/drivers/watchdog/bcm_kona_wdt.c
+> @@ -11,6 +11,7 @@
+>    * GNU General Public License for more details.
+>    */
+>
+> +#include <linux/debugfs.h>
+>   #include <linux/delay.h>
+>   #include <linux/err.h>
+>   #include <linux/io.h>
+> @@ -55,9 +56,13 @@ struct bcm_kona_wdt {
+>   	 */
+>   	int resolution;
+>   	spinlock_t lock;
+> +#ifdef CONFIG_BCM_KONA_WDT_DEBUG
+> +	unsigned long busy_count;
+> +	struct dentry *debugfs;
+> +#endif
+>   };
+>
+> -static int secure_register_read(void __iomem *addr)
+> +static int secure_register_read(struct bcm_kona_wdt *wdt, uint32_t offset)
+>   {
+>   	uint32_t val;
+>   	unsigned count = 0;
+> @@ -70,10 +75,16 @@ static int secure_register_read(void __iomem *addr)
+>   	do {
+>   		if (unlikely(count > 1))
+>   			udelay(5);
+> -		val = readl_relaxed(addr);
+> +		val = readl_relaxed(wdt->base + offset);
+>   		count++;
+>   	} while ((val & SECWDOG_WD_LOAD_FLAG) && count < SECWDOG_MAX_TRY);
+>
+> +#ifdef CONFIG_BCM_KONA_WDT_DEBUG
+> +	/* Remember the maximum number iterations due to WD_LOAD_FLAG */
+> +	if (count > wdt->busy_count)
+> +		wdt->busy_count = count;
+> +#endif
+> +
+>   	/* This is the only place we return a negative value. */
+>   	if (val & SECWDOG_WD_LOAD_FLAG)
+>   		return -ETIMEDOUT;
+> @@ -84,6 +95,80 @@ static int secure_register_read(void __iomem *addr)
+>   	return val;
+>   }
+>
+> +#ifdef CONFIG_BCM_KONA_WDT_DEBUG
+> +
+> +static int bcm_kona_wdt_dbg_show(struct seq_file *s, void *data)
+> +{
+> +	int ctl_val, cur_val, ret;
+> +	unsigned long flags;
+> +	struct bcm_kona_wdt *wdt = s->private;
+> +
+> +	if (!wdt)
+> +		return seq_puts(s, "No device pointer\n");
+> +
+> +	spin_lock_irqsave(&wdt->lock, flags);
+> +	ctl_val = secure_register_read(wdt, SECWDOG_CTRL_REG);
+> +	cur_val = secure_register_read(wdt, SECWDOG_COUNT_REG);
+> +	spin_unlock_irqrestore(&wdt->lock, flags);
+> +
+> +	if (ctl_val < 0 || cur_val < 0) {
+> +		ret = seq_puts(s, "Error accessing hardware\n");
+> +	} else {
+> +		int ctl, cur, ctl_sec, cur_sec, res;
+> +
+> +		ctl = ctl_val & SECWDOG_COUNT_MASK;
+> +		res = (ctl_val & SECWDOG_RES_MASK) >> SECWDOG_CLKS_SHIFT;
+> +		cur = cur_val & SECWDOG_COUNT_MASK;
+> +		ctl_sec = TICKS_TO_SECS(ctl, wdt);
+> +		cur_sec = TICKS_TO_SECS(cur, wdt);
+> +		ret = seq_printf(s, "Resolution: %d / %d\n"
+> +				"Control: %d s / %d (%#x) ticks\n"
+> +				"Current: %d s / %d (%#x) ticks\n"
+> +				"Busy count: %lu\n", res,
+> +				wdt->resolution, ctl_sec, ctl, ctl, cur_sec,
+> +				cur, cur, wdt->busy_count);
+> +	}
+> +
+> +	return ret;
+> +}
+> +
+> +static int bcm_kona_dbg_open(struct inode *inode, struct file *file)
+> +{
+> +	return single_open(file, bcm_kona_wdt_dbg_show, inode->i_private);
+> +}
+> +
+> +static const struct file_operations bcm_kona_dbg_operations = {
+> +	.open		= bcm_kona_dbg_open,
+> +	.read		= seq_read,
+> +	.llseek		= seq_lseek,
+> +	.release	= single_release,
+> +};
+> +
+> +static struct dentry *bcm_kona_wdt_debugfs_init(struct bcm_kona_wdt *wdt,
+> +	struct watchdog_device *wdd)
+> +{
+> +	struct dentry *dir;
+> +
+> +	dir = debugfs_create_dir(BCM_KONA_WDT_NAME, NULL);
+> +	if (IS_ERR_OR_NULL(dir))
+> +		return NULL;
+> +
+> +	if (debugfs_create_file("info", S_IFREG | S_IRUGO, dir, wdt,
+> +				&bcm_kona_dbg_operations))
+> +		return dir;
+> +
+> +	/* Clean up */
+> +	debugfs_remove_recursive(dir);
+> +	return NULL;
+> +}
+> +
+> +static void bcm_kona_debugfs_exit(struct dentry *dir)
+> +{
+> +	debugfs_remove_recursive(dir);
+> +}
+> +
+> +#endif /* CONFIG_BCM_KONA_WDT_DEBUG */
+> +
+>   static int bcm_kona_wdt_ctrl_reg_modify(struct bcm_kona_wdt *wdt,
+>   					unsigned mask, unsigned newval)
+>   {
+> @@ -93,7 +178,7 @@ static int bcm_kona_wdt_ctrl_reg_modify(struct bcm_kona_wdt *wdt,
+>
+>   	spin_lock_irqsave(&wdt->lock, flags);
+>
+> -	val = secure_register_read(wdt->base + SECWDOG_CTRL_REG);
+> +	val = secure_register_read(wdt, SECWDOG_CTRL_REG);
+>   	if (val < 0) {
+>   		ret = val;
+>   	} else {
+> @@ -140,7 +225,7 @@ static unsigned int bcm_kona_wdt_get_timeleft(struct watchdog_device *wdog)
+>   	unsigned long flags;
+>
+>   	spin_lock_irqsave(&wdt->lock, flags);
+> -	val = secure_register_read(wdt->base + SECWDOG_COUNT_REG);
+> +	val = secure_register_read(wdt, SECWDOG_COUNT_REG);
+>   	spin_unlock_irqrestore(&wdt->lock, flags);
+>
+>   	if (val < 0)
+> @@ -190,6 +275,27 @@ static void bcm_kona_wdt_shutdown(struct platform_device *pdev)
+>   	bcm_kona_wdt_stop(&bcm_kona_wdt_wdd);
+>   }
+>
+> +#ifdef CONFIG_BCM_KONA_WDT_DEBUG
+> +static void bcm_kona_wdt_debug_init(struct platform_device *pdev)
+> +{
+> +	struct bcm_kona_wdt *wdt = platform_get_drvdata(pdev);
+> +
+> +	wdt->debugfs = bcm_kona_wdt_debugfs_init(wdt, &bcm_kona_wdt_wdd);
+> +}
+> +
+> +static void bcm_kona_wdt_debug_exit(struct platform_device *pdev)
+> +{
+> +	struct bcm_kona_wdt *wdt = platform_get_drvdata(pdev);
+> +
+> +	if (wdt->debugfs)
+> +		bcm_kona_debugfs_exit(wdt->debugfs);
+> +}
+> +
+> +#else
+> +static void bcm_kona_wdt_debug_init(struct platform_device *pdev) {}
+> +static void bcm_kona_wdt_debug_exit(struct platform_device *pdev) {}
+> +#endif
+> +
 
-Use devm_ helper function to simplify probe and error path.
-Move ioremap to the beginning of probe function.
+Can you fold those functions into bcm_kona_wdt_debugfs_init() and bcm_kona_debugfs_exit() ?
+Then you only need a sinfle #ifdef / #else combination. Only functional change would be to
+set wdt->debugfs in bcm_kona_wdt_debugfs_init() and to check it in bcm_kona_debugfs_exit().
 
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
----
+Thanks,
+Guenter
 
- drivers/watchdog/of_xilinx_wdt.c | 41 +++++++++-------------------------------
- 1 file changed, 9 insertions(+), 32 deletions(-)
-
-diff --git a/drivers/watchdog/of_xilinx_wdt.c b/drivers/watchdog/of_xilinx_wdt.c
-index aca9bab..7f371ed 100644
---- a/drivers/watchdog/of_xilinx_wdt.c
-+++ b/drivers/watchdog/of_xilinx_wdt.c
-@@ -12,6 +12,7 @@
-
- #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-
-+#include <linux/err.h>
- #include <linux/module.h>
- #include <linux/types.h>
- #include <linux/kernel.h>
-@@ -44,7 +45,6 @@
- #define PFX WATCHDOG_NAME ": "
-
- struct xwdt_device {
--	struct resource  res;
- 	void __iomem *base;
- 	u32 wdt_interval;
- };
-@@ -159,9 +159,15 @@ static int xwdt_probe(struct platform_device *pdev)
- 	int rc;
- 	u32 *tmptr;
- 	u32 *pfreq;
-+	struct resource *res;
-
- 	no_timeout = 0;
-
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	xdev.base = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(xdev.base))
-+		return PTR_ERR(xdev.base);
-+
- 	pfreq = (u32 *)of_get_property(pdev->dev.of_node,
- 					"clock-frequency", NULL);
-
-@@ -170,12 +176,6 @@ static int xwdt_probe(struct platform_device *pdev)
- 		no_timeout = 1;
- 	}
-
--	rc = of_address_to_resource(pdev->dev.of_node, 0, &xdev.res);
--	if (rc) {
--		pr_warn("invalid address!\n");
--		return rc;
--	}
--
- 	tmptr = (u32 *)of_get_property(pdev->dev.of_node,
- 					"xlnx,wdt-interval", NULL);
- 	if (tmptr == NULL) {
-@@ -199,50 +199,27 @@ static int xwdt_probe(struct platform_device *pdev)
- 	if (!no_timeout)
- 		timeout = 2 * ((1<<xdev.wdt_interval) / *pfreq);
-
--	if (!request_mem_region(xdev.res.start,
--			xdev.res.end - xdev.res.start + 1, WATCHDOG_NAME)) {
--		rc = -ENXIO;
--		pr_err("memory request failure!\n");
--		goto err_out;
--	}
--
--	xdev.base = ioremap(xdev.res.start, xdev.res.end - xdev.res.start + 1);
--	if (xdev.base == NULL) {
--		rc = -ENOMEM;
--		pr_err("ioremap failure!\n");
--		goto release_mem;
--	}
--
- 	rc = xwdt_selftest();
- 	if (rc == XWT_TIMER_FAILED) {
- 		pr_err("SelfTest routine error!\n");
--		goto unmap_io;
-+		return rc;
- 	}
-
- 	rc = watchdog_register_device(&xilinx_wdt_wdd);
- 	if (rc) {
- 		pr_err("cannot register watchdog (err=%d)\n", rc);
--		goto unmap_io;
-+		return rc;
- 	}
-
- 	dev_info(&pdev->dev, "Xilinx Watchdog Timer at %p with timeout %ds\n",
- 		 xdev.base, timeout);
-
- 	return 0;
--
--unmap_io:
--	iounmap(xdev.base);
--release_mem:
--	release_mem_region(xdev.res.start, resource_size(&xdev.res));
--err_out:
--	return rc;
- }
-
- static int xwdt_remove(struct platform_device *dev)
- {
- 	watchdog_unregister_device(&xilinx_wdt_wdd);
--	iounmap(xdev.base);
--	release_mem_region(xdev.res.start, resource_size(&xdev.res));
-
- 	return 0;
- }
---
-1.8.2.3
-
-
---=_mimegpg-monstr-desktop-23095-1391177916-0001
-Content-Type: application/pgp-signature
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEABECAAYFAlLrsLwACgkQykllyylKDCExhgCcDMnoW/I/1WUKucny/filj8L1
-mn0AoJMRHfQn+RCkOuMrnFsljIUxKXuu
-=D1Lq
------END PGP SIGNATURE-----
-
---=_mimegpg-monstr-desktop-23095-1391177916-0001--
