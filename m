@@ -1,47 +1,51 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:50690 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1756184AbaAFVLA (ORCPT
+Received: from mail-gw2-out.broadcom.com ([216.31.210.63]:65287 "EHLO
+	mail-gw2-out.broadcom.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754709AbaAFV43 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 6 Jan 2014 16:11:00 -0500
-Date: Mon, 6 Jan 2014 22:10:58 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Alexander Shiyan <shc_work@mail.ru>
-Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	Mon, 6 Jan 2014 16:56:29 -0500
+From: Markus Mayer <markus.mayer@linaro.org>
+To: Wim Van Sebroeck <wim@iguana.be>,
 	Guenter Roeck <linux@roeck-us.net>,
-	Rob Herring <rob.herring@calxeda.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Stephen Warren <swarren@wwwdotorg.org>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Grant Likely <grant.likely@linaro.org>
-Subject: Re: [PATCH v3] watchdog: GPIO-controlled watchdog
-Message-ID: <20140106211058.GA16886@spo001.leaseweb.com>
-References: <1385798072-3886-1-git-send-email-shc_work@mail.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1385798072-3886-1-git-send-email-shc_work@mail.ru>
+	Christian Daudt <bcm@fixthebug.org>
+CC: Linaro Patches <patches@linaro.org>,
+	Linux Watchdog List <linux-watchdog@vger.kernel.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Markus Mayer <markus.mayer@linaro.org>
+Subject: [PATCH v2 0/2] watchdog: bcm281xx: Debugfs support
+Date: Mon, 6 Jan 2014 13:56:09 -0800
+Message-ID: <1389045371-1631-1-git-send-email-markus.mayer@linaro.org>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Alexander,
+This series adds debugfs support to the bcm281xx watchdog driver. Most
+of the code submitted here was already included as part of v5 of the
+original driver submission. See
+http://www.spinics.net/lists/linux-watchdog/msg03328.html
 
-> This patch adds a watchdog driver for devices controlled through GPIO,
-> (Analog Devices ADM706, Maxim MAX823, National NE555 etc).
-> 
-> Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
-> ---
->  .../devicetree/bindings/watchdog/gpio-wdt.txt      |  23 ++
->  drivers/watchdog/Kconfig                           |   8 +
->  drivers/watchdog/Makefile                          |   1 +
->  drivers/watchdog/gpio_wdt.c                        | 254 +++++++++++++++++++++
->  4 files changed, 286 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
->  create mode 100644 drivers/watchdog/gpio_wdt.c
+This series is dependent on commit
+bd90ccd42c5d6317979c62919ba1c79fd34fa785 in linux-watchdog-next.
 
-Patch added to linux-watchdog-next.
+Changes since v1 of this series:
 
-Kind regards,
-Wim.
+- http://www.spinics.net/lists/linux-watchdog/msg03544.html has been
+  included here
+
+- bcm_kona_wdt_debug_init() and bcm_kona_wdt_debugfs_init() as well as
+  bcm_kona_wdt_debug_exit() and bcm_kona_debugfs_exit() were merged
+  together, so now there are just two instead of four functions 
+
+Markus Mayer (2):
+  watchdog: bcm281xx: Debugfs support
+  watchdog: bcm281xx: Turn on debugfs support for watchdog driver
+
+ arch/arm/configs/bcm_defconfig  |    1 +
+ drivers/watchdog/Kconfig        |   10 ++++
+ drivers/watchdog/bcm_kona_wdt.c |  108 +++++++++++++++++++++++++++++++++++++--
+ 3 files changed, 115 insertions(+), 4 deletions(-)
+
+-- 
+1.7.9.5
 
