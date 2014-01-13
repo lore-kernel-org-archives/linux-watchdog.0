@@ -1,57 +1,56 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:52248 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:52258 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751236AbaAMVCU (ORCPT
+	with ESMTP id S1751437AbaAMVKT (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 13 Jan 2014 16:02:20 -0500
-Date: Mon, 13 Jan 2014 22:02:11 +0100
+	Mon, 13 Jan 2014 16:10:19 -0500
+Date: Mon, 13 Jan 2014 22:10:16 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
 To: Markus Mayer <markus.mayer@linaro.org>
 Cc: Guenter Roeck <linux@roeck-us.net>,
 	Christian Daudt <bcm@fixthebug.org>,
 	Linaro Patches <patches@linaro.org>,
-	Matt Porter <matt.porter@linaro.org>,
-	One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>,
 	Linux Watchdog List <linux-watchdog@vger.kernel.org>,
-	ARM Kernel List <linux-arm-kernel@lists.infradead.org>,
 	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v5 0/2] watchdog: bcm281xx: Watchdog Driver
-Message-ID: <20140113210211.GB23454@spo001.leaseweb.com>
-References: <1385160964-18578-1-git-send-email-markus.mayer@linaro.org> <20131228204039.GA19982@spo001.leaseweb.com> <CAPdLdqkNtvPwETc+TK9xRSh-ru6q4VvUk7zfYEbjPb1TOESMaA@mail.gmail.com>
+Subject: Re: [PATCH v2 0/2] watchdog: bcm281xx: Debugfs support
+Message-ID: <20140113211016.GA23635@spo001.leaseweb.com>
+References: <1389045371-1631-1-git-send-email-markus.mayer@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAPdLdqkNtvPwETc+TK9xRSh-ru6q4VvUk7zfYEbjPb1TOESMaA@mail.gmail.com>
+In-Reply-To: <1389045371-1631-1-git-send-email-markus.mayer@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 Hi Markus,
 
-> Now I have a question (or rather a comment) of my own. I noticed that
-> you "squashed" my two original patches into a single patch before
-> breaking out the debugfs related code. The side-effect of this was
-> that two lines of my bcm_defconfig change (CONFIG_WATCHDOG=y and
-> CONFIG_BCM_KONA_WDT=y) were included in the patch you took into
-> linux-watchdog-next.
+> This series adds debugfs support to the bcm281xx watchdog driver. Most
+> of the code submitted here was already included as part of v5 of the
+> original driver submission. See
+> http://www.spinics.net/lists/linux-watchdog/msg03328.html
 > 
-> If I understand correctly (and this is why I had broken out the
-> bcm_defconfig change into a separate patch), a defconfig change would
-> normally go through the platform maintainer's tree, in this case
-> Christian, whereas the actual driver would go upstream through your
-> tree.
+> This series is dependent on commit
+> bd90ccd42c5d6317979c62919ba1c79fd34fa785 in linux-watchdog-next.
 > 
-> I don't think it makes too much of a difference with regards to this
-> driver where the defconfig change goes. In fact, taking it all through
-> one tree might even be slightly easier and reduce the chance of
-> conflicts, but I still think Christian needs to at least be aware of
-> this change going through the watchdog tree. He owns bcm_defconfig,
-> after all.
+> Changes since v1 of this series:
+> 
+> - http://www.spinics.net/lists/linux-watchdog/msg03544.html has been
+>   included here
+> 
+> - bcm_kona_wdt_debug_init() and bcm_kona_wdt_debugfs_init() as well as
+>   bcm_kona_wdt_debug_exit() and bcm_kona_debugfs_exit() were merged
+>   together, so now there are just two instead of four functions 
+> 
+> Markus Mayer (2):
+>   watchdog: bcm281xx: Debugfs support
+>   watchdog: bcm281xx: Turn on debugfs support for watchdog driver
+> 
+>  arch/arm/configs/bcm_defconfig  |    1 +
+>  drivers/watchdog/Kconfig        |   10 ++++
+>  drivers/watchdog/bcm_kona_wdt.c |  108 +++++++++++++++++++++++++++++++++++++--
+>  3 files changed, 115 insertions(+), 4 deletions(-)
 
-If it is an existing driver then it makes sense to go through the platform
-maintainer's tree. If it is a new driver then I prefer to keep it as one
-patch. Suppose the defconfig stuff get's in via the platform tree and I
-don't sent the watchdog driver; would be an annoying situation in my opinion...
-So that's why I prefer it as a single patch.
+This patch was added to linux-watchdog-next.
 
 Kind regards,
 Wim.
