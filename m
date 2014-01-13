@@ -1,59 +1,48 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from [213.199.154.187] ([213.199.154.187]:4295 "EHLO
-	db8outboundpool.messaging.microsoft.com" rhost-flags-FAIL-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S1751223AbaAMMBS (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:52208 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751316AbaAMS07 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 13 Jan 2014 07:01:18 -0500
-From: Anson Huang <b20788@freescale.com>
-To: <wim@iguana.be>, <shawn.guo@linaro.org>
-CC: <linux-watchdog@vger.kernel.org>
-Subject: [PATCH] watchdog: imx2_wdt: disable watchdog timer during low power mode
-Date: Mon, 13 Jan 2014 19:58:34 +0800
-Message-ID: <1389614314-8987-1-git-send-email-b20788@freescale.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+	Mon, 13 Jan 2014 13:26:59 -0500
+Date: Mon, 13 Jan 2014 19:26:45 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Doug Anderson <dianders@chromium.org>
+Cc: Guenter Roeck <linux@roeck-us.net>,
+	Leela Krishna Amudala <l.krishna@samsung.com>,
+	Olof Johansson <olof@lixom.net>,
+	Tomasz Figa <tomasz.figa@gmail.com>,
+	Kukjin Kim <kgene.kim@samsung.com>,
+	Ben Dooks <ben-linux@fluff.org>,
+	linux-arm-kernel@lists.infradead.org,
+	linux-samsung-soc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3] watchdog: s3c2410_wdt: Report when the watchdog reset the system
+Message-ID: <20140113182645.GA22249@spo001.leaseweb.com>
+References: <1386267329-9941-2-git-send-email-dianders@chromium.org> <1386364088-6220-1-git-send-email-dianders@chromium.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1386364088-6220-1-git-send-email-dianders@chromium.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-We should set watchdog timer to be disabled in low power mode,
-as there is no service running in background, otherwise, system
-will reset unexpected.
+Hi Doug,
 
-Signed-off-by: Anson Huang <b20788@freescale.com>
----
- drivers/watchdog/imx2_wdt.c |    4 ++++
- 1 file changed, 4 insertions(+)
+> A good watchdog driver is supposed to report when it was responsible
+> for resetting the system.  Implement this for the s3c2410, at least on
+> exynos5250 and exynos5420 where we already have a pointer to the PMU
+> registers to read the information.
+> 
+> Note that exynos4 SoCs also provide the reset status, but providing
+> that is left as an exercise for future changes and is not plumbed up
+> in this patch series.  Also note the exynos4 SoCs don't appear to need
+> any PMU config, which is why this patch separates the concepts of
+> having PMU Registers vs. needing PMU Config.
+> 
+> Signed-off-by: Doug Anderson <dianders@chromium.org>
 
-diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-index b4786bc..dd51d95 100644
---- a/drivers/watchdog/imx2_wdt.c
-+++ b/drivers/watchdog/imx2_wdt.c
-@@ -2,6 +2,7 @@
-  * Watchdog driver for IMX2 and later processors
-  *
-  *  Copyright (C) 2010 Wolfram Sang, Pengutronix e.K. <w.sang@pengutronix.de>
-+ *  Copyright (C) 2014 Freescale Semiconductor, Inc.
-  *
-  * some parts adapted by similar drivers from Darius Augulis and Vladimir
-  * Zapolskiy, additional improvements by Wim Van Sebroeck.
-@@ -40,6 +41,7 @@
- #define IMX2_WDT_WCR_WT		(0xFF << 8)	/* -> Watchdog Timeout Field */
- #define IMX2_WDT_WCR_WRE	(1 << 3)	/* -> WDOG Reset Enable */
- #define IMX2_WDT_WCR_WDE	(1 << 2)	/* -> Watchdog Enable */
-+#define IMX2_WDT_WCR_WDZST	(1 << 0)	/* -> Watchdog timer Suspend */
- 
- #define IMX2_WDT_WSR		0x02		/* Service Register */
- #define IMX2_WDT_SEQ1		0x5555		/* -> service sequence 1 */
-@@ -87,6 +89,8 @@ static inline void imx2_wdt_setup(void)
- {
- 	u16 val = __raw_readw(imx2_wdt.base + IMX2_WDT_WCR);
- 
-+	/* Suspend timer in low power mode, write once-only */
-+	val |= IMX2_WDT_WCR_WDZST;
- 	/* Strip the old watchdog Time-Out value */
- 	val &= ~IMX2_WDT_WCR_WT;
- 	/* Generate reset if WDOG times out */
--- 
-1.7.9.5
+This patch has been added to linux-watchdog-next.
 
+Kind regards,
+Wim.
 
