@@ -1,57 +1,66 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:52258 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751437AbaAMVKT (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 13 Jan 2014 16:10:19 -0500
-Date: Mon, 13 Jan 2014 22:10:16 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Markus Mayer <markus.mayer@linaro.org>
-Cc: Guenter Roeck <linux@roeck-us.net>,
-	Christian Daudt <bcm@fixthebug.org>,
-	Linaro Patches <patches@linaro.org>,
-	Linux Watchdog List <linux-watchdog@vger.kernel.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2 0/2] watchdog: bcm281xx: Debugfs support
-Message-ID: <20140113211016.GA23635@spo001.leaseweb.com>
-References: <1389045371-1631-1-git-send-email-markus.mayer@linaro.org>
-Mime-Version: 1.0
+Received: from mx1.redhat.com ([209.132.183.28]:63621 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750906AbaANIWy (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 14 Jan 2014 03:22:54 -0500
+Date: Tue, 14 Jan 2014 16:23:23 +0800
+From: Dave Young <dyoung@redhat.com>
+To: wim@iguana.be
+Cc: dzickus@redhat.com, bhe@redhat.com, vgoyal@redhat.com,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] watchdog: add a parameter for stop wdt before register
+Message-ID: <20140114082323.GA4485@dhcp-16-126.nay.redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1389045371-1631-1-git-send-email-markus.mayer@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Markus,
+In kdump kernel watchdog could interrupt vmcore capturing because we
+have no way to disable/stop it while crashing happens.
 
-> This series adds debugfs support to the bcm281xx watchdog driver. Most
-> of the code submitted here was already included as part of v5 of the
-> original driver submission. See
-> http://www.spinics.net/lists/linux-watchdog/msg03328.html
-> 
-> This series is dependent on commit
-> bd90ccd42c5d6317979c62919ba1c79fd34fa785 in linux-watchdog-next.
-> 
-> Changes since v1 of this series:
-> 
-> - http://www.spinics.net/lists/linux-watchdog/msg03544.html has been
->   included here
-> 
-> - bcm_kona_wdt_debug_init() and bcm_kona_wdt_debugfs_init() as well as
->   bcm_kona_wdt_debug_exit() and bcm_kona_debugfs_exit() were merged
->   together, so now there are just two instead of four functions 
-> 
-> Markus Mayer (2):
->   watchdog: bcm281xx: Debugfs support
->   watchdog: bcm281xx: Turn on debugfs support for watchdog driver
-> 
->  arch/arm/configs/bcm_defconfig  |    1 +
->  drivers/watchdog/Kconfig        |   10 ++++
->  drivers/watchdog/bcm_kona_wdt.c |  108 +++++++++++++++++++++++++++++++++++++--
->  3 files changed, 115 insertions(+), 4 deletions(-)
+Add a module parameter stop_before_register so watchdog can be stopped
+before register in driver loading path. Thus we can try to load the
+watchdog driver as early as possible in kdump kernel to ensure vmcore
+capturing.
 
-This patch was added to linux-watchdog-next.
+Don Zickus mentioned that there's the case that bios start the watchdog
+and it is expected that the kernel keep the watchdog alive. To address
+this case I added the module parameter which is false by default so
+it will stop the watchdog only when user provice kernel cmdline
+"watchdog.stop_before_register=1".  
 
-Kind regards,
-Wim.
+Signed-off-by: Dave Young <dyoung@redhat.com>
+---
+ drivers/watchdog/watchdog_core.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
+--- linux.orig/drivers/watchdog/watchdog_core.c
++++ linux/drivers/watchdog/watchdog_core.c
+@@ -42,6 +42,7 @@
+ 
+ static DEFINE_IDA(watchdog_ida);
+ static struct class *watchdog_class;
++static bool stop_before_register;
+ 
+ static void watchdog_check_min_max_timeout(struct watchdog_device *wdd)
+ {
+@@ -119,6 +120,9 @@ int watchdog_register_device(struct watc
+ 	if (wdd->ops->start == NULL || wdd->ops->stop == NULL)
+ 		return -EINVAL;
+ 
++	if (stop_before_register)
++		wdd->ops->stop(wdd);
++
+ 	watchdog_check_min_max_timeout(wdd);
+ 
+ 	/*
+@@ -220,6 +224,8 @@ static void __exit watchdog_exit(void)
+ subsys_initcall(watchdog_init);
+ module_exit(watchdog_exit);
+ 
++module_param(stop_before_register, bool, 0644);
++
+ MODULE_AUTHOR("Alan Cox <alan@lxorguk.ukuu.org.uk>");
+ MODULE_AUTHOR("Wim Van Sebroeck <wim@iguana.be>");
+ MODULE_DESCRIPTION("WatchDog Timer Driver Core");
