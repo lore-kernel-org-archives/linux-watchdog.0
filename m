@@ -1,16 +1,16 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:28839 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:40402 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751342AbaANQYS (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 14 Jan 2014 11:24:18 -0500
-Date: Tue, 14 Jan 2014 11:24:05 -0500
-From: Vivek Goyal <vgoyal@redhat.com>
-To: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>,
-	Dave Young <dyoung@redhat.com>
+	id S1751707AbaAOA7O (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 14 Jan 2014 19:59:14 -0500
+Date: Wed, 15 Jan 2014 08:59:31 +0800
+From: Dave Young <dyoung@redhat.com>
+To: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
 Cc: wim@iguana.be, dzickus@redhat.com, bhe@redhat.com,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+	vgoyal@redhat.com, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] watchdog: add a parameter for stop wdt before register
-Message-ID: <20140114162405.GG3096@redhat.com>
+Message-ID: <20140115005931.GB23767@dhcp-16-126.nay.redhat.com>
 References: <20140114082323.GA4485@dhcp-16-126.nay.redhat.com>
  <20140114121639.77fe75ec@alan.etchedpixels.co.uk>
 MIME-Version: 1.0
@@ -20,7 +20,7 @@ In-Reply-To: <20140114121639.77fe75ec@alan.etchedpixels.co.uk>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Jan 14, 2014 at 12:16:39PM +0000, One Thousand Gnomes wrote:
+On 01/14/14 at 12:16pm, One Thousand Gnomes wrote:
 > On Tue, 14 Jan 2014 16:23:23 +0800
 > Dave Young <dyoung@redhat.com> wrote:
 > 
@@ -38,6 +38,12 @@ On Tue, Jan 14, 2014 at 12:16:39PM +0000, One Thousand Gnomes wrote:
 > watchdog is to make sure the system never gets stuck. Adding conditions
 > and special cases simply increases the odds of something bad not
 > triggering the watchdog.
+
+watchdog and crash dump really conflicts to some degree, from the watchdog
+point of view it can reboot system whhen kdump kernel hangs. But from kdump
+point of view it want ensure saving the vmcore for later debugging.
+
+Maybe we can only select only one in this case.
 > 
 > If you have a system that can stop the watchdog then providing no way out
 > is not set you can open it and stop it.
@@ -47,26 +53,17 @@ On Tue, Jan 14, 2014 at 12:16:39PM +0000, One Thousand Gnomes wrote:
 > - if it can't be stopped you lost
 > - if "nowayout" is set then by design you lost
 > - if it can be stopped, you can open and stop it
+
+For the last one since crashing happens we have no chance to open and stop.
+
 > 
 > Now whether in the !nowayout case the watchdog core should catch whatever
 > hooks/notifiers are available and stop any watchdogs it can on a
 > kexec/kdump is a more interesting question and probably needs to default
 > to not doing so but with the option to force otherwise for debugging work.
 
-Hi All,
-
-I thought this problem was resolved (atleast conceptually) last time
-when Don Zickus brought it up.
-
-He mentioned that it was concluded that keep watchdog interval long
-enough, say 60 seconds and keep on kicking it fast enough, say every
-10-20 seconds. That would ensure that after the crash, there is atleast
-60 - 20 = 40 seconds left before watchdog expires. And in that duration
-we should try to boot into second kernel load watchdog driver early enough
-from initramfs which can start kicking watchdog again.
-
-I am wondering what happened to this idea. Dave, did we try to implement/
-experiment with this?
+Unfortunately in crash path there's no chance to do so. It's not good to
+add more logic in that path as well.
 
 Thanks
-Vivek
+Dave
