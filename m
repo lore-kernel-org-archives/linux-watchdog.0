@@ -1,89 +1,48 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:21260 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750928AbaAOBjC (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 14 Jan 2014 20:39:02 -0500
-Date: Wed, 15 Jan 2014 09:11:42 +0800
-From: Dave Young <dyoung@redhat.com>
-To: Vivek Goyal <vgoyal@redhat.com>
-Cc: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>, wim@iguana.be,
-	dzickus@redhat.com, bhe@redhat.com, linux-watchdog@vger.kernel.org,
+Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:51953 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751451AbaAOMQN (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 15 Jan 2014 07:16:13 -0500
+Date: Wed, 15 Jan 2014 12:15:56 +0000
+From: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
+To: Dave Young <dyoung@redhat.com>
+Cc: wim@iguana.be, dzickus@redhat.com, bhe@redhat.com,
+	vgoyal@redhat.com, linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] watchdog: add a parameter for stop wdt before register
-Message-ID: <20140115011142.GC23767@dhcp-16-126.nay.redhat.com>
+Message-ID: <20140115121556.0407a099@alan.etchedpixels.co.uk>
+In-Reply-To: <20140115005931.GB23767@dhcp-16-126.nay.redhat.com>
 References: <20140114082323.GA4485@dhcp-16-126.nay.redhat.com>
- <20140114121639.77fe75ec@alan.etchedpixels.co.uk>
- <20140114162405.GG3096@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20140114162405.GG3096@redhat.com>
+	<20140114121639.77fe75ec@alan.etchedpixels.co.uk>
+	<20140115005931.GB23767@dhcp-16-126.nay.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 01/14/14 at 11:24am, Vivek Goyal wrote:
-> On Tue, Jan 14, 2014 at 12:16:39PM +0000, One Thousand Gnomes wrote:
-> > On Tue, 14 Jan 2014 16:23:23 +0800
-> > Dave Young <dyoung@redhat.com> wrote:
-> > 
-> > > In kdump kernel watchdog could interrupt vmcore capturing because we
-> > > have no way to disable/stop it while crashing happens.
-> > 
-> > Lots of watchdogs cannot be stopped.
-> > 
-> > > Add a module parameter stop_before_register so watchdog can be stopped
-> > > before register in driver loading path. Thus we can try to load the
-> > > watchdog driver as early as possible in kdump kernel to ensure vmcore
-> > > capturing.
-> > 
-> > If you want to kdump then don't start the watchdog. The goal of the
-> > watchdog is to make sure the system never gets stuck. Adding conditions
-> > and special cases simply increases the odds of something bad not
-> > triggering the watchdog.
-> > 
-> > If you have a system that can stop the watchdog then providing no way out
-> > is not set you can open it and stop it.
-> > 
-> > I don't see the need for any kernel change here
-> > 
-> > - if it can't be stopped you lost
-> > - if "nowayout" is set then by design you lost
+> watchdog and crash dump really conflicts to some degree, from the watchdog
+> point of view it can reboot system whhen kdump kernel hangs. But from kdump
+> point of view it want ensure saving the vmcore for later debugging.
+> 
+> Maybe we can only select only one in this case.
+
+You want to be able to make a decision at runtime which to use.
+
 > > - if it can be stopped, you can open and stop it
-> > 
-> > Now whether in the !nowayout case the watchdog core should catch whatever
-> > hooks/notifiers are available and stop any watchdogs it can on a
-> > kexec/kdump is a more interesting question and probably needs to default
-> > to not doing so but with the option to force otherwise for debugging work.
 > 
-> Hi All,
-> 
-> I thought this problem was resolved (atleast conceptually) last time
-> when Don Zickus brought it up.
-> 
-> He mentioned that it was concluded that keep watchdog interval long
-> enough, say 60 seconds and keep on kicking it fast enough, say every
-> 10-20 seconds. That would ensure that after the crash, there is atleast
-> 60 - 20 = 40 seconds left before watchdog expires. And in that duration
-> we should try to boot into second kernel load watchdog driver early enough
-> from initramfs which can start kicking watchdog again.
+> For the last one since crashing happens we have no chance to open and stop.
 
-Some drivers did stop the watchdog while module loading such as iTCO_wdt.
-so we can load them as early as possible and not necessary to kick them
-again. Thus I wrote this patch to add the stop to generic code so more drivers
-can be covered.
+When you decide you need to set up to catch a core rather than just
+crash you can open and stop the watchdog (if supported), and you can then
+set up for a kdump and then at some point later if it crashes capture the
+dump.
 
-But as Alan said I begin to feel that this is not a good design. the iTCO_wdt
-nowayout become useless because of this stop_before_register..
+As you say the two are basically incompatible models of operating, but
+that also means if you are about to take a dump you want ensure you will
+not be disturbed. So as far as I can see if you might need to take a
+dump, turn the watchdog off in advance. Worrying about it as you take a
+dump is too late.
 
-For wdts which can not be stopped we can still continue working on kicking
-them early in initramfs.
-
-> 
-> I am wondering what happened to this idea. Dave, did we try to implement/
-> experiment with this?
-
-No, we are just begin with iTCO_wdt and is trying to add iTCO_wdt firstly.
-Other devices has not been investigated.
-
-Thanks
-Dave
+Alan
