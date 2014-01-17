@@ -1,66 +1,77 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:55986 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753063AbaAMOtQ (ORCPT
+Received: from qmta14.emeryville.ca.mail.comcast.net ([76.96.27.212]:49333
+	"EHLO qmta14.emeryville.ca.mail.comcast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752541AbaAQPYs (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 13 Jan 2014 09:49:16 -0500
-Message-ID: <52D3FCE9.2060108@roeck-us.net>
-Date: Mon, 13 Jan 2014 06:49:13 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: Anson Huang <b20788@freescale.com>, wim@iguana.be,
-	shawn.guo@linaro.org
-CC: linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: imx2_wdt: disable watchdog timer during low
- power mode
-References: <1389614314-8987-1-git-send-email-b20788@freescale.com>
-In-Reply-To: <1389614314-8987-1-git-send-email-b20788@freescale.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Jan 2014 10:24:48 -0500
+Message-Id: <20140117151836.782183950@linux.com>
+Date: Fri, 17 Jan 2014 09:18:35 -0600
+From: Christoph Lameter <cl@linux.com>
+To: Tejun Heo <tj@kernel.org>
+Cc: akpm@linuxfoundation.org, rostedt@goodmis.org,
+	linux-kernel@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH 23/41] watchdog: Replace __raw_get_cpu_var uses
+References: <20140117151812.770437629@linux.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline; filename=this_watchdog
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 01/13/2014 03:58 AM, Anson Huang wrote:
-> We should set watchdog timer to be disabled in low power mode,
-> as there is no service running in background, otherwise, system
-> will reset unexpected.
->
-> Signed-off-by: Anson Huang <b20788@freescale.com>
+[Patch depends on another patch in this series that introduces raw_cpu_ops]
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Most of these are the uses of &__raw_get_cpu_var for address calculation.
 
-> ---
->   drivers/watchdog/imx2_wdt.c |    4 ++++
->   1 file changed, 4 insertions(+)
->
-> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-> index b4786bc..dd51d95 100644
-> --- a/drivers/watchdog/imx2_wdt.c
-> +++ b/drivers/watchdog/imx2_wdt.c
-> @@ -2,6 +2,7 @@
->    * Watchdog driver for IMX2 and later processors
->    *
->    *  Copyright (C) 2010 Wolfram Sang, Pengutronix e.K. <w.sang@pengutronix.de>
-> + *  Copyright (C) 2014 Freescale Semiconductor, Inc.
->    *
->    * some parts adapted by similar drivers from Darius Augulis and Vladimir
->    * Zapolskiy, additional improvements by Wim Van Sebroeck.
-> @@ -40,6 +41,7 @@
->   #define IMX2_WDT_WCR_WT		(0xFF << 8)	/* -> Watchdog Timeout Field */
->   #define IMX2_WDT_WCR_WRE	(1 << 3)	/* -> WDOG Reset Enable */
->   #define IMX2_WDT_WCR_WDE	(1 << 2)	/* -> Watchdog Enable */
-> +#define IMX2_WDT_WCR_WDZST	(1 << 0)	/* -> Watchdog timer Suspend */
->
->   #define IMX2_WDT_WSR		0x02		/* Service Register */
->   #define IMX2_WDT_SEQ1		0x5555		/* -> service sequence 1 */
-> @@ -87,6 +89,8 @@ static inline void imx2_wdt_setup(void)
->   {
->   	u16 val = __raw_readw(imx2_wdt.base + IMX2_WDT_WCR);
->
-> +	/* Suspend timer in low power mode, write once-only */
-> +	val |= IMX2_WDT_WCR_WDZST;
->   	/* Strip the old watchdog Time-Out value */
->   	val &= ~IMX2_WDT_WCR_WT;
->   	/* Generate reset if WDOG times out */
->
+touch_softlockup_watchdog_sync() uses __raw_get_cpu_var to write to
+per cpu variables. Use __this_cpu_write instead.
+
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org
+Signed-off-by: Christoph Lameter <cl@linux.com>
+
+Index: linux/kernel/watchdog.c
+===================================================================
+--- linux.orig/kernel/watchdog.c	2013-12-02 16:07:54.234510172 -0600
++++ linux/kernel/watchdog.c	2013-12-02 16:07:54.234510172 -0600
+@@ -174,8 +174,8 @@ EXPORT_SYMBOL(touch_nmi_watchdog);
+ 
+ void touch_softlockup_watchdog_sync(void)
+ {
+-	__raw_get_cpu_var(softlockup_touch_sync) = true;
+-	__raw_get_cpu_var(watchdog_touch_ts) = 0;
++	__this_cpu_write(softlockup_touch_sync, true);
++	__this_cpu_write(watchdog_touch_ts, 0);
+ }
+ 
+ #ifdef CONFIG_HARDLOCKUP_DETECTOR
+@@ -341,7 +341,7 @@ static void watchdog_set_prio(unsigned i
+ 
+ static void watchdog_enable(unsigned int cpu)
+ {
+-	struct hrtimer *hrtimer = &__raw_get_cpu_var(watchdog_hrtimer);
++	struct hrtimer *hrtimer = raw_cpu_ptr(&watchdog_hrtimer);
+ 
+ 	/* kick off the timer for the hardlockup detector */
+ 	hrtimer_init(hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+@@ -361,7 +361,7 @@ static void watchdog_enable(unsigned int
+ 
+ static void watchdog_disable(unsigned int cpu)
+ {
+-	struct hrtimer *hrtimer = &__raw_get_cpu_var(watchdog_hrtimer);
++	struct hrtimer *hrtimer = raw_cpu_ptr(&watchdog_hrtimer);
+ 
+ 	watchdog_set_prio(SCHED_NORMAL, 0);
+ 	hrtimer_cancel(hrtimer);
+@@ -488,7 +488,7 @@ static struct smp_hotplug_thread watchdo
+ 
+ static void restart_watchdog_hrtimer(void *info)
+ {
+-	struct hrtimer *hrtimer = &__raw_get_cpu_var(watchdog_hrtimer);
++	struct hrtimer *hrtimer = raw_cpu_ptr(&watchdog_hrtimer);
+ 	int ret;
+ 
+ 	/*
 
