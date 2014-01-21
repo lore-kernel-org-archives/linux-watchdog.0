@@ -1,72 +1,114 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailout3.samsung.com ([203.254.224.33]:42014 "EHLO
-	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750748AbaAUFIH (ORCPT
+Received: from top.free-electrons.com ([176.31.233.9]:39636 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753419AbaAUJMg (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 21 Jan 2014 00:08:07 -0500
-From: kgene@kernel.org
-To: 'Leela Krishna Amudala' <l.krishna@samsung.com>,
-	'Wim Van Sebroeck' <wim@iguana.be>
-Cc: linux-samsung-soc@vger.kernel.org, dianders@chromium.org,
-	t.figa@samsung.com, devicetree@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, linux@roeck-us.net
-References: <1386308868-30264-1-git-send-email-l.krishna@samsung.com>
- <1386308868-30264-2-git-send-email-l.krishna@samsung.com>
- <20140110074113.GB12119@spo001.leaseweb.com>
- <CAL1wa8cfE7_HfkMOx8jKM6p+xjMFGXaE9X1DsN1pfbt11x62jg@mail.gmail.com>
-In-reply-to: <CAL1wa8cfE7_HfkMOx8jKM6p+xjMFGXaE9X1DsN1pfbt11x62jg@mail.gmail.com>
-Subject: RE: [PATCH V12 1/3] ARM: dts: Add pmu sysreg node to exynos5250 and
- exynos5420 dtsi files
-Date: Tue, 21 Jan 2014 14:08:04 +0900
-Message-id: <0baa01cf1666$c42d1d80$4c875880$@kernel.org>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-language: ko
+	Tue, 21 Jan 2014 04:12:36 -0500
+From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+To: <linux-arm-kernel@lists.infradead.org>,
+	<linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Lior Amsalem <alior@marvell.com>,
+	Tawfik Bayouk <tawfik@marvell.com>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	Jason Cooper <jason@lakedaemon.net>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+Subject: [PATCH v2 01/15] ARM: Introduce atomic MMIO modify
+Date: Tue, 21 Jan 2014 06:12:27 -0300
+Message-Id: <1390295561-3466-2-git-send-email-ezequiel.garcia@free-electrons.com>
+In-Reply-To: <1390295561-3466-1-git-send-email-ezequiel.garcia@free-electrons.com>
+References: <1390295561-3466-1-git-send-email-ezequiel.garcia@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Leela Krishna Amudala wrote:
-> 
-> On 1/10/14, Wim Van Sebroeck <wim@iguana.be> wrote:
-> > Hi Leela,
-> >
-> >> This patch adds pmusysreg node to exynos5250 and exynos5420 dtsi files
-> to
-> >> handle PMU register accesses in a centralized way using syscon driver
-> >>
-> >> Signed-off-by: Leela Krishna Amudala <l.krishna@samsung.com>
-> >> Reviewed-by: Tomasz Figa <t.figa@samsung.com>
-> >> Reviewed-by: Doug Anderson <dianders@chromium.org>
-> >> Tested-by: Doug Anderson <dianders@chromium.org>
-> >> ---
-> > ...
-> >> diff --git a/arch/arm/boot/dts/exynos5420.dtsi
-> >> b/arch/arm/boot/dts/exynos5420.dtsi
-> >> index b1fa334..cd47db0 100644
-> >> --- a/arch/arm/boot/dts/exynos5420.dtsi
-> >> +++ b/arch/arm/boot/dts/exynos5420.dtsi
-> >> @@ -402,4 +402,9 @@
-> >>  		clock-names = "gscl";
-> >>  		samsung,power-domain = <&gsc_pd>;
-> >>  	};
-> >
-> > I can't add this patch since there is no "gscl" in the current linux-
-> tree.
-> > Is this depending on another patch or are we going to fix this in
-> another
-> > way?
-> >
-> 
-> Hi Kgene,
-> 
-Hi Leela,
+Some SoC have MMIO regions that are shared across orthogonal
+subsystems. This commit implements a possible solution for the
+thread-safe access of such regions through a spinlock-protected API.
 
-> Driver changes has been merged to Wim's tree, so can you please pick
-> this patch into your tree.
-> 
-OK, let me take this and 3rd patch into Samsung tree for next time.
+Concurrent access is protected with a single spinlock for the
+entire MMIO address space. While this protects shared-registers,
+it also serializes access to unrelated/unshared registers.
 
-Thanks,
-Kukjin
+We add relaxed and non-relaxed variants, by using writel_relaxed and writel,
+respectively. The rationale for this is that some users may not require
+register write completion but only thread-safe access to a register.
+
+Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+---
+Submitted to ARM patch tracker:
+http://www.arm.linux.org.uk/developer/patches/viewpatch.php?id=7930/1
+
+ arch/arm/include/asm/io.h |  6 ++++++
+ arch/arm/kernel/io.c      | 35 +++++++++++++++++++++++++++++++++++
+ 2 files changed, 41 insertions(+)
+
+diff --git a/arch/arm/include/asm/io.h b/arch/arm/include/asm/io.h
+index fbeb39c..8aa4cca 100644
+--- a/arch/arm/include/asm/io.h
++++ b/arch/arm/include/asm/io.h
+@@ -38,6 +38,12 @@
+ #define isa_bus_to_virt phys_to_virt
+ 
+ /*
++ * Atomic MMIO-wide IO modify
++ */
++extern void atomic_io_modify(void __iomem *reg, u32 mask, u32 set);
++extern void atomic_io_modify_relaxed(void __iomem *reg, u32 mask, u32 set);
++
++/*
+  * Generic IO read/write.  These perform native-endian accesses.  Note
+  * that some architectures will want to re-define __raw_{read,write}w.
+  */
+diff --git a/arch/arm/kernel/io.c b/arch/arm/kernel/io.c
+index dcd5b4d..9203cf8 100644
+--- a/arch/arm/kernel/io.c
++++ b/arch/arm/kernel/io.c
+@@ -1,6 +1,41 @@
+ #include <linux/export.h>
+ #include <linux/types.h>
+ #include <linux/io.h>
++#include <linux/spinlock.h>
++
++static DEFINE_RAW_SPINLOCK(__io_lock);
++
++/*
++ * Generic atomic MMIO modify.
++ *
++ * Allows thread-safe access to registers shared by unrelated subsystems.
++ * The access is protected by a single MMIO-wide lock.
++ */
++void atomic_io_modify_relaxed(void __iomem *reg, u32 mask, u32 set)
++{
++	unsigned long flags;
++	u32 value;
++
++	raw_spin_lock_irqsave(&__io_lock, flags);
++	value = readl_relaxed(reg) & ~mask;
++	value |= (set & mask);
++	writel_relaxed(value, reg);
++	raw_spin_unlock_irqrestore(&__io_lock, flags);
++}
++EXPORT_SYMBOL(atomic_io_modify_relaxed);
++
++void atomic_io_modify(void __iomem *reg, u32 mask, u32 set)
++{
++	unsigned long flags;
++	u32 value;
++
++	raw_spin_lock_irqsave(&__io_lock, flags);
++	value = readl_relaxed(reg) & ~mask;
++	value |= (set & mask);
++	writel(value, reg);
++	raw_spin_unlock_irqrestore(&__io_lock, flags);
++}
++EXPORT_SYMBOL(atomic_io_modify);
+ 
+ /*
+  * Copy data from IO memory space to "real" memory space.
+-- 
+1.8.1.5
 
