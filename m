@@ -1,63 +1,95 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ea0-f176.google.com ([209.85.215.176]:50044 "EHLO
-	mail-ea0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754375AbaAUJ6W (ORCPT
+Received: from top.free-electrons.com ([176.31.233.9]:40186 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753900AbaAUKE1 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 21 Jan 2014 04:58:22 -0500
-Message-ID: <52DE44B9.70308@gmail.com>
-Date: Tue, 21 Jan 2014 10:58:17 +0100
-From: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-To: Arnd Bergmann <arnd@arndb.de>, linux-arm-kernel@lists.infradead.org
-CC: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>,
+	Tue, 21 Jan 2014 05:04:27 -0500
+Date: Tue, 21 Jan 2014 07:04:35 -0300
+From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+To: Andrew Lunn <andrew@lunn.ch>
+Cc: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	linux-arm-kernel@lists.infradead.org,
 	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
 	Lior Amsalem <alior@marvell.com>,
+	Tawfik Bayouk <tawfik@marvell.com>,
 	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
 	Jason Cooper <jason@lakedaemon.net>,
-	Tawfik Bayouk <tawfik@marvell.com>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Gregory Clement <gregory.clement@free-electrons.com>
-Subject: Re: [PATCH v2 02/15] clocksource: orion: Use atomic access for shared
- registers
-References: <1390295561-3466-1-git-send-email-ezequiel.garcia@free-electrons.com> <1390295561-3466-3-git-send-email-ezequiel.garcia@free-electrons.com> <5118193.GjKusj569J@wuerfel>
-In-Reply-To: <5118193.GjKusj569J@wuerfel>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+Subject: Re: [PATCH v2 14/15] watchdog: orion: Allow to build on any Orion
+ platform
+Message-ID: <20140121100434.GC3577@localhost>
+References: <1390295561-3466-1-git-send-email-ezequiel.garcia@free-electrons.com>
+ <1390295561-3466-15-git-send-email-ezequiel.garcia@free-electrons.com>
+ <52DE40BD.10700@gmail.com>
+ <20140121094501.GA13396@lunn.ch>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+In-Reply-To: <20140121094501.GA13396@lunn.ch>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 01/21/14 10:46, Arnd Bergmann wrote:
-> On Tuesday 21 January 2014 06:12:28 Ezequiel Garcia wrote:
->> -/*
->> - * Thread-safe access to TIMER_CTRL register
->> - * (shared with watchdog timer)
->> - */
->> -void orion_timer_ctrl_clrset(u32 clr, u32 set)
->> -{
->> -       spin_lock(&timer_ctrl_lock);
->> -       writel((readl(timer_base + TIMER_CTRL) & ~clr) | set,
->> -               timer_base + TIMER_CTRL);
->> -       spin_unlock(&timer_ctrl_lock);
->> -}
->> -EXPORT_SYMBOL(orion_timer_ctrl_clrset);
+Hi Andrew, Sebastian:
+
+On Tue, Jan 21, 2014 at 10:45:01AM +0100, Andrew Lunn wrote:
+> On Tue, Jan 21, 2014 at 10:41:17AM +0100, Sebastian Hesselbarth wrote=
+:
+> > On 01/21/14 10:12, Ezequiel Garcia wrote:
+> > >After getting rid of all the mach-specific code, it's now possible
+> > >to allow builds in any Orion platform.
+> > >
+> > >Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com=
 >
-> I don't understand what's wrong with this function, it seems like
-> a cleaner approach than touching the register directly from two
-> different drivers. Is this something that would only work on
-> orion but not on armadaxp?
+> > >---
+> > >  drivers/watchdog/Kconfig | 2 +-
+> > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > >
+> > >diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> > >index 5be6e91..1689f72 100644
+> > >--- a/drivers/watchdog/Kconfig
+> > >+++ b/drivers/watchdog/Kconfig
+> > >@@ -282,7 +282,7 @@ config DAVINCI_WATCHDOG
+> > >
+> > >  config ORION_WATCHDOG
+> > >  	tristate "Orion watchdog"
+> > >-	depends on ARCH_ORION5X || ARCH_KIRKWOOD || ARCH_DOVE
+> > >+	depends on PLAT_ORION
+[..]
+> >=20
+> > while above is true now, I tend to rather have ARCH_MVEBU added her=
+e.
+> > We really want to get rid of both !ARCH_MVEBU and PLAT_ORION and th=
+is
+> > unnecessarily will make it more complicated.
+> >=20
+> > I haven't checked why ARCH_MVEBU at all added PLAT_ORION as depende=
+ncy,
+> > but IIRC it was just because of a missing mbus driver? If it is jus=
+t
+> > this, we should also remove PLAT_ORION from ARCH_MVEBU to have a cl=
+ean
+> > cut between new common arch and existing sub-archs.
+>=20
 
-The real problem with this is that it resides in orion-time.c which
-is fine for Orion SoCs. Armada 370/XP use a different timer and
-therefore the _common_ watchdog driver cannot call this function.
+Hm... not sure why we depend on PLAT_ORION. I'll take a look.
 
-Moreover, Dove (out of Orion) and Armada 370/XP will happily live in
-one V7 kernel with both time-orion and time-armada-370-xp compiled in.
+> I took a look at this when moving DT kirkwood into mach-mvebu. There
+> is nothing in plat-orion which ARCH_MVEBU needs. So i agree with
+> Sebastian, it should be PLAT_ORION || ARCH_MVEBU.
+>=20
 
-The idea of the atomic readl/writel was to have something lightweight
-and _early_ to allow such locking even for timers.
+OK, will do.
 
-IIRC, there was some kind of consensus that it is okay to have atomic
-readl/writel here.
-
-Sebastian
+Thanks!
+--=20
+Ezequiel Garc=C3=ADa, Free Electrons
+Embedded Linux, Kernel and Android Engineering
+http://free-electrons.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
