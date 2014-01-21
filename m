@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:41716 "EHLO
+Received: from top.free-electrons.com ([176.31.233.9]:41723 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754558AbaAUN1I (ORCPT
+	with ESMTP id S1754403AbaAUN1M (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 21 Jan 2014 08:27:08 -0500
+	Tue, 21 Jan 2014 08:27:12 -0500
 From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 To: <linux-arm-kernel@lists.infradead.org>,
 	<linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>
@@ -19,36 +19,35 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Daniel Lezcano <daniel.lezcano@linaro.org>,
 	Fabio Estevam <festevam@gmail.com>,
 	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-Subject: [PATCH v3 13/15] ARM: kirkwood: Add RSTOUT 'reg' entry to devicetree
-Date: Tue, 21 Jan 2014 10:26:12 -0300
-Message-Id: <1390310774-20781-14-git-send-email-ezequiel.garcia@free-electrons.com>
+Subject: [PATCH v3 14/15] watchdog: orion: Enable the build on ARCH_MVEBU
+Date: Tue, 21 Jan 2014 10:26:13 -0300
+Message-Id: <1390310774-20781-15-git-send-email-ezequiel.garcia@free-electrons.com>
 In-Reply-To: <1390310774-20781-1-git-send-email-ezequiel.garcia@free-electrons.com>
 References: <1390310774-20781-1-git-send-email-ezequiel.garcia@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-In order to support multiplatform builds the watchdog devicetree binding
-was modified and now the 'reg' property is specified to need two
-entries. This commit adds the second entry as-per the new specification.
+After adding support for Armada 370/XP SoC let's enable the build on
+these platforms.
 
 Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 ---
- arch/arm/boot/dts/kirkwood.dtsi | 2 +-
+ drivers/watchdog/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/kirkwood.dtsi b/arch/arm/boot/dts/kirkwood.dtsi
-index 8b73c80..80a56b0 100644
---- a/arch/arm/boot/dts/kirkwood.dtsi
-+++ b/arch/arm/boot/dts/kirkwood.dtsi
-@@ -165,7 +165,7 @@
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 5be6e91..8b79012 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -282,7 +282,7 @@ config DAVINCI_WATCHDOG
  
- 		wdt: watchdog-timer@20300 {
- 			compatible = "marvell,orion-wdt";
--			reg = <0x20300 0x28>;
-+			reg = <0x20300 0x28>, <0x20108 0x4>;
- 			interrupt-parent = <&bridge_intc>;
- 			interrupts = <3>;
- 			clocks = <&gate_clk 7>;
+ config ORION_WATCHDOG
+ 	tristate "Orion watchdog"
+-	depends on ARCH_ORION5X || ARCH_KIRKWOOD || ARCH_DOVE
++	depends on ARCH_ORION5X || ARCH_KIRKWOOD || ARCH_DOVE || ARCH_MVEBU
+ 	select WATCHDOG_CORE
+ 	help
+ 	  Say Y here if to include support for the watchdog timer
 -- 
 1.8.1.5
 
