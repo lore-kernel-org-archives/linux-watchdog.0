@@ -1,13 +1,13 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:40487 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754090AbaAUKxI (ORCPT
+Received: from moutng.kundenserver.de ([212.227.17.10]:50796 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754023AbaAUKzg (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 21 Jan 2014 05:53:08 -0500
-Date: Tue, 21 Jan 2014 07:53:21 -0300
-From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-To: Daniel Lezcano <daniel.lezcano@linaro.org>
+	Tue, 21 Jan 2014 05:55:36 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
 Cc: linux-arm-kernel@lists.infradead.org,
+	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>,
 	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
 	Lior Amsalem <alior@marvell.com>,
 	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
@@ -16,70 +16,64 @@ Cc: linux-arm-kernel@lists.infradead.org,
 	Andrew Lunn <andrew@lunn.ch>,
 	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
 	Wim Van Sebroeck <wim@iguana.be>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-Subject: Re: [PATCH v2 02/15] clocksource: orion: Use atomic access for
- shared registers
-Message-ID: <20140121105320.GA4356@localhost>
-References: <1390295561-3466-1-git-send-email-ezequiel.garcia@free-electrons.com>
- <1390295561-3466-3-git-send-email-ezequiel.garcia@free-electrons.com>
- <52DE4491.2000505@linaro.org>
+	Gregory Clement <gregory.clement@free-electrons.com>
+Subject: Re: [PATCH v2 02/15] clocksource: orion: Use atomic access for shared registers
+Date: Tue, 21 Jan 2014 11:54:52 +0100
+Message-ID: <4103670.WQZpL6dQdj@wuerfel>
+In-Reply-To: <52DE44B9.70308@gmail.com>
+References: <1390295561-3466-1-git-send-email-ezequiel.garcia@free-electrons.com> <5118193.GjKusj569J@wuerfel> <52DE44B9.70308@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <52DE4491.2000505@linaro.org>
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello Daniel,
-
-On Tue, Jan 21, 2014 at 10:57:37AM +0100, Daniel Lezcano wrote:
-> On 01/21/2014 10:12 AM, Ezequiel Garcia wrote:
-> > Replace the driver-specific thread-safe shared register API
-> > by the recently introduced atomic_io_clear_set().
+On Tuesday 21 January 2014 10:58:17 Sebastian Hesselbarth wrote:
+> On 01/21/14 10:46, Arnd Bergmann wrote:
+> > On Tuesday 21 January 2014 06:12:28 Ezequiel Garcia wrote:
+> >> -/*
+> >> - * Thread-safe access to TIMER_CTRL register
+> >> - * (shared with watchdog timer)
+> >> - */
+> >> -void orion_timer_ctrl_clrset(u32 clr, u32 set)
+> >> -{
+> >> -       spin_lock(&timer_ctrl_lock);
+> >> -       writel((readl(timer_base + TIMER_CTRL) & ~clr) | set,
+> >> -               timer_base + TIMER_CTRL);
+> >> -       spin_unlock(&timer_ctrl_lock);
+> >> -}
+> >> -EXPORT_SYMBOL(orion_timer_ctrl_clrset);
 > >
-> > Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
->=20
-> in the future, put me in Cc when modifying files in clocksource that=20
-> will make my life easier to track the changes.
->=20
+> > I don't understand what's wrong with this function, it seems like
+> > a cleaner approach than touching the register directly from two
+> > different drivers. Is this something that would only work on
+> > orion but not on armadaxp?
+> 
+> The real problem with this is that it resides in orion-time.c which
+> is fine for Orion SoCs. Armada 370/XP use a different timer and
+> therefore the _common_ watchdog driver cannot call this function.
 
-Ouch, sorry about that.
+Right, I had missed this part.
 
-[..]
-> >   /*
-> >    * Free-running clocksource handling.
-> > @@ -68,7 +54,8 @@ static int orion_clkevt_next_event(unsigned long =
-delta,
-> >   {
-> >   	/* setup and enable one-shot timer */
-> >   	writel(delta, timer_base + TIMER1_VAL);
-> > -	orion_timer_ctrl_clrset(TIMER1_RELOAD_EN, TIMER1_EN);
-> > +	atomic_io_modify(timer_base + TIMER_CTRL,
-> > +		TIMER1_RELOAD_EN | TIMER1_EN, TIMER1_EN);
->=20
-> I am not convinced this change is worth.
->=20
-> Could you elaborate the race the spinlock should prevent ?
->=20
+> Moreover, Dove (out of Orion) and Armada 370/XP will happily live in
+> one V7 kernel with both time-orion and time-armada-370-xp compiled in.
 
-Sure. Take a look to the patchset that adds the atomic I/O (sorry again=
- for
-not Ccing you on that one):
+It still wouldn't be too hard to do: both clock drivers could export
+functions with different identifiers, and the wdt driver can use
+conditional compilation (#ifdef or if(IS_ENABLED())) to only call
+those functions when the respective clocksource drivers are enabled.
 
-  http://www.spinics.net/lists/arm-kernel/msg292775.html
+I think the part where it went wrong is the fact that we have two
+device nodes in DT that claim the same register range, which should
+not have happened, but seems too hard to fix now without breaking
+one part or another.
 
-The TIMER_CTRL register provides clocksource and watchdog control, so w=
-e
-need a safe way to access the register, since we're sharing it on two
-completely unrelated drivers.
---=20
-Ezequiel Garc=C3=ADa, Free Electrons
-Embedded Linux, Kernel and Android Engineering
-http://free-electrons.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> The idea of the atomic readl/writel was to have something lightweight
+> and _early_ to allow such locking even for timers.
+> 
+> IIRC, there was some kind of consensus that it is okay to have atomic
+> readl/writel here.
+
+Ok, Ezequiel pointed me to that discussion now, seems ok then.
+
+	Arnd
