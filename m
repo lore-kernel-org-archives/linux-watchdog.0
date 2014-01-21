@@ -1,12 +1,12 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:40450 "EHLO
+Received: from top.free-electrons.com ([176.31.233.9]:40487 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754204AbaAUKq2 (ORCPT
+	with ESMTP id S1754090AbaAUKxI (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 21 Jan 2014 05:46:28 -0500
-Date: Tue, 21 Jan 2014 07:46:38 -0300
+	Tue, 21 Jan 2014 05:53:08 -0500
+Date: Tue, 21 Jan 2014 07:53:21 -0300
 From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-To: Arnd Bergmann <arnd@arndb.de>
+To: Daniel Lezcano <daniel.lezcano@linaro.org>
 Cc: linux-arm-kernel@lists.infradead.org,
 	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
 	Lior Amsalem <alior@marvell.com>,
@@ -18,72 +18,62 @@ Cc: linux-arm-kernel@lists.infradead.org,
 	Wim Van Sebroeck <wim@iguana.be>,
 	Gregory Clement <gregory.clement@free-electrons.com>,
 	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-Subject: Re: [PATCH v2 01/15] ARM: Introduce atomic MMIO modify
-Message-ID: <20140121104637.GD3577@localhost>
+Subject: Re: [PATCH v2 02/15] clocksource: orion: Use atomic access for
+ shared registers
+Message-ID: <20140121105320.GA4356@localhost>
 References: <1390295561-3466-1-git-send-email-ezequiel.garcia@free-electrons.com>
- <1390295561-3466-2-git-send-email-ezequiel.garcia@free-electrons.com>
- <3512865.jTEvHVvFLA@wuerfel>
+ <1390295561-3466-3-git-send-email-ezequiel.garcia@free-electrons.com>
+ <52DE4491.2000505@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <3512865.jTEvHVvFLA@wuerfel>
+In-Reply-To: <52DE4491.2000505@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Jan 21, 2014 at 10:45:21AM +0100, Arnd Bergmann wrote:
-> On Tuesday 21 January 2014 06:12:27 Ezequiel Garcia wrote:
-> > Some SoC have MMIO regions that are shared across orthogonal
-> > subsystems. This commit implements a possible solution for the
-> > thread-safe access of such regions through a spinlock-protected API=
-=2E
-> >=20
-> > Concurrent access is protected with a single spinlock for the
-> > entire MMIO address space. While this protects shared-registers,
-> > it also serializes access to unrelated/unshared registers.
-> >=20
-> > We add relaxed and non-relaxed variants, by using writel_relaxed an=
-d writel,
-> > respectively. The rationale for this is that some users may not req=
-uire
-> > register write completion but only thread-safe access to a register=
-=2E
-> >=20
+Hello Daniel,
+
+On Tue, Jan 21, 2014 at 10:57:37AM +0100, Daniel Lezcano wrote:
+> On 01/21/2014 10:12 AM, Ezequiel Garcia wrote:
+> > Replace the driver-specific thread-safe shared register API
+> > by the recently introduced atomic_io_clear_set().
+> >
 > > Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 >=20
-> You add the new atomic mmio interfaces in an ARM global header file,
-> but at the same time make them ARM-only. I'm not opposed to having
-> interfaces like that, but I'm not convinced they are actually needed
-> for this case and if we go there, it needs to be done more carefully
-> and should be available for all architectures so that portable driver=
-s
-> can use them.
+> in the future, put me in Cc when modifying files in clocksource that=20
+> will make my life easier to track the changes.
 >=20
 
-Yes, true. We've discussed about this and even post an arch-generic API=
-:
+Ouch, sorry about that.
 
-http://lwn.net/Articles/564709/
-
-In the end it was decided to keep it ARM-specific for now:
-
-http://www.spinics.net/lists/arm-kernel/msg271773.html
-
-Just for reference, the last posted patchset for the atomic I/O API
-is this:
-
-http://www.spinics.net/lists/arm-kernel/msg292775.html
-
-> It also seems to duplicate functionality that is already present in
-> regmap-mmio.
+[..]
+> >   /*
+> >    * Free-running clocksource handling.
+> > @@ -68,7 +54,8 @@ static int orion_clkevt_next_event(unsigned long =
+delta,
+> >   {
+> >   	/* setup and enable one-shot timer */
+> >   	writel(delta, timer_base + TIMER1_VAL);
+> > -	orion_timer_ctrl_clrset(TIMER1_RELOAD_EN, TIMER1_EN);
+> > +	atomic_io_modify(timer_base + TIMER_CTRL,
+> > +		TIMER1_RELOAD_EN | TIMER1_EN, TIMER1_EN);
+>=20
+> I am not convinced this change is worth.
+>=20
+> Could you elaborate the race the spinlock should prevent ?
 >=20
 
-Yes, this is true. We tried to use regmap-mmio/syscon but we need this
-to initialize the clocksource which is too early for that to work:
+Sure. Take a look to the patchset that adds the atomic I/O (sorry again=
+ for
+not Ccing you on that one):
 
-https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg484535.htm=
-l
+  http://www.spinics.net/lists/arm-kernel/msg292775.html
 
+The TIMER_CTRL register provides clocksource and watchdog control, so w=
+e
+need a safe way to access the register, since we're sharing it on two
+completely unrelated drivers.
 --=20
 Ezequiel Garc=C3=ADa, Free Electrons
 Embedded Linux, Kernel and Android Engineering
