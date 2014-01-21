@@ -1,56 +1,69 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.126.171]:55931 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754224AbaAUJqE (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 21 Jan 2014 04:46:04 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: linux-arm-kernel@lists.infradead.org
+Received: from vps0.lunn.ch ([178.209.37.122]:54863 "EHLO vps0.lunn.ch"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753946AbaAUJqt (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 21 Jan 2014 04:46:49 -0500
+Date: Tue, 21 Jan 2014 10:45:01 +0100
+From: Andrew Lunn <andrew@lunn.ch>
+To: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
 Cc: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>,
+	linux-arm-kernel@lists.infradead.org,
 	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	Lior Amsalem <alior@marvell.com>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	Jason Cooper <jason@lakedaemon.net>,
-	Tawfik Bayouk <tawfik@marvell.com>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
 	Wim Van Sebroeck <wim@iguana.be>,
 	Gregory Clement <gregory.clement@free-electrons.com>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-Subject: Re: [PATCH v2 01/15] ARM: Introduce atomic MMIO modify
-Date: Tue, 21 Jan 2014 10:45:21 +0100
-Message-ID: <3512865.jTEvHVvFLA@wuerfel>
-In-Reply-To: <1390295561-3466-2-git-send-email-ezequiel.garcia@free-electrons.com>
-References: <1390295561-3466-1-git-send-email-ezequiel.garcia@free-electrons.com> <1390295561-3466-2-git-send-email-ezequiel.garcia@free-electrons.com>
+	Lior Amsalem <alior@marvell.com>,
+	Tawfik Bayouk <tawfik@marvell.com>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	Jason Cooper <jason@lakedaemon.net>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Andrew Lunn <andrew@lunn.ch>
+Subject: Re: [PATCH v2 14/15] watchdog: orion: Allow to build on any Orion
+ platform
+Message-ID: <20140121094501.GA13396@lunn.ch>
+References: <1390295561-3466-1-git-send-email-ezequiel.garcia@free-electrons.com>
+ <1390295561-3466-15-git-send-email-ezequiel.garcia@free-electrons.com>
+ <52DE40BD.10700@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <52DE40BD.10700@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tuesday 21 January 2014 06:12:27 Ezequiel Garcia wrote:
-> Some SoC have MMIO regions that are shared across orthogonal
-> subsystems. This commit implements a possible solution for the
-> thread-safe access of such regions through a spinlock-protected API.
+On Tue, Jan 21, 2014 at 10:41:17AM +0100, Sebastian Hesselbarth wrote:
+> On 01/21/14 10:12, Ezequiel Garcia wrote:
+> >After getting rid of all the mach-specific code, it's now possible
+> >to allow builds in any Orion platform.
+> >
+> >Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+> >---
+> >  drivers/watchdog/Kconfig | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> >diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> >index 5be6e91..1689f72 100644
+> >--- a/drivers/watchdog/Kconfig
+> >+++ b/drivers/watchdog/Kconfig
+> >@@ -282,7 +282,7 @@ config DAVINCI_WATCHDOG
+> >
+> >  config ORION_WATCHDOG
+> >  	tristate "Orion watchdog"
+> >-	depends on ARCH_ORION5X || ARCH_KIRKWOOD || ARCH_DOVE
+> >+	depends on PLAT_ORION
 > 
-> Concurrent access is protected with a single spinlock for the
-> entire MMIO address space. While this protects shared-registers,
-> it also serializes access to unrelated/unshared registers.
+> Ezequiel,
 > 
-> We add relaxed and non-relaxed variants, by using writel_relaxed and writel,
-> respectively. The rationale for this is that some users may not require
-> register write completion but only thread-safe access to a register.
+> while above is true now, I tend to rather have ARCH_MVEBU added here.
+> We really want to get rid of both !ARCH_MVEBU and PLAT_ORION and this
+> unnecessarily will make it more complicated.
 > 
-> Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+> I haven't checked why ARCH_MVEBU at all added PLAT_ORION as dependency,
+> but IIRC it was just because of a missing mbus driver? If it is just
+> this, we should also remove PLAT_ORION from ARCH_MVEBU to have a clean
+> cut between new common arch and existing sub-archs.
 
-You add the new atomic mmio interfaces in an ARM global header file,
-but at the same time make them ARM-only. I'm not opposed to having
-interfaces like that, but I'm not convinced they are actually needed
-for this case and if we go there, it needs to be done more carefully
-and should be available for all architectures so that portable drivers
-can use them.
+I took a look at this when moving DT kirkwood into mach-mvebu. There
+is nothing in plat-orion which ARCH_MVEBU needs. So i agree with
+Sebastian, it should be PLAT_ORION || ARCH_MVEBU.
 
-It also seems to duplicate functionality that is already present in
-regmap-mmio.
-
-	Arnd
+	   Andrew
