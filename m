@@ -1,62 +1,81 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from vps0.lunn.ch ([178.209.37.122]:54960 "EHLO vps0.lunn.ch"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754384AbaAULEl (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 21 Jan 2014 06:04:41 -0500
-Date: Tue, 21 Jan 2014 12:02:55 +0100
-From: Andrew Lunn <andrew@lunn.ch>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	linux-arm-kernel@lists.infradead.org,
-	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>,
+Received: from top.free-electrons.com ([176.31.233.9]:40684 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754441AbaAULFv (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 21 Jan 2014 06:05:51 -0500
+Date: Tue, 21 Jan 2014 08:06:04 -0300
+From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+To: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Cc: linux-arm-kernel@lists.infradead.org,
 	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
 	Lior Amsalem <alior@marvell.com>,
+	Tawfik Bayouk <tawfik@marvell.com>,
 	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
 	Jason Cooper <jason@lakedaemon.net>,
-	Tawfik Bayouk <tawfik@marvell.com>,
-	Andrew Lunn <andrew@lunn.ch>,
 	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Gregory Clement <gregory.clement@free-electrons.com>
-Subject: Re: [PATCH v2 02/15] clocksource: orion: Use atomic access for
- shared registers
-Message-ID: <20140121110255.GD13396@lunn.ch>
+	Andrew Lunn <andrew@lunn.ch>
+Subject: Removing PLAT_ORION dependency from ARCH_MVEBU (Was Re: [PATCH v2
+ 14/15] watchdog: orion: Allow to build on any Orion platform)
+Message-ID: <20140121110603.GB4356@localhost>
 References: <1390295561-3466-1-git-send-email-ezequiel.garcia@free-electrons.com>
- <5118193.GjKusj569J@wuerfel>
- <52DE44B9.70308@gmail.com>
- <4103670.WQZpL6dQdj@wuerfel>
+ <1390295561-3466-15-git-send-email-ezequiel.garcia@free-electrons.com>
+ <52DE40BD.10700@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <4103670.WQZpL6dQdj@wuerfel>
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+In-Reply-To: <52DE40BD.10700@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-> > The real problem with this is that it resides in orion-time.c which
-> > is fine for Orion SoCs. Armada 370/XP use a different timer and
-> > therefore the _common_ watchdog driver cannot call this function.
-> 
-> Right, I had missed this part.
-> 
-> > Moreover, Dove (out of Orion) and Armada 370/XP will happily live in
-> > one V7 kernel with both time-orion and time-armada-370-xp compiled in.
-> 
-> It still wouldn't be too hard to do: both clock drivers could export
-> functions with different identifiers, and the wdt driver can use
-> conditional compilation (#ifdef or if(IS_ENABLED())) to only call
-> those functions when the respective clocksource drivers are enabled.
+Sebastian,
 
-Hi Arnd.
+I'm picking on this discussion, with a new Subject.
 
-The plan is to make dove part of MULTI_V7. At that point, you have
-both dove and armada-370-xp in the same kernel. Conditional
-compilation does not work, the watchdog driver would need to know at
-runtime which timer is in use, and call the right timer function.
+On Tue, Jan 21, 2014 at 10:41:17AM +0100, Sebastian Hesselbarth wrote:
+> On 01/21/14 10:12, Ezequiel Garcia wrote:
+> > After getting rid of all the mach-specific code, it's now possible
+> > to allow builds in any Orion platform.
+> >
+> > Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+> > ---
+> >   drivers/watchdog/Kconfig | 2 +-
+> >   1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> > index 5be6e91..1689f72 100644
+> > --- a/drivers/watchdog/Kconfig
+> > +++ b/drivers/watchdog/Kconfig
+> > @@ -282,7 +282,7 @@ config DAVINCI_WATCHDOG
+> >
+> >   config ORION_WATCHDOG
+> >   	tristate "Orion watchdog"
+> > -	depends on ARCH_ORION5X || ARCH_KIRKWOOD || ARCH_DOVE
+> > +	depends on PLAT_ORION
+[..]
+>=20
+> I haven't checked why ARCH_MVEBU at all added PLAT_ORION as dependenc=
+y,
+> but IIRC it was just because of a missing mbus driver? If it is just
+> this, we should also remove PLAT_ORION from ARCH_MVEBU to have a clea=
+n
+> cut between new common arch and existing sub-archs.
+>=20
 
-I'm working on making DT Kirkwood part of MULTI_V5. The changes needed
-are mostly trivial. I expect making Dove part of MULTI_V7 is also
-trivial, so could happen during the next cycle. So this mix of Dove
-and Armada 370 XP is not a theoretical problem, it is something which
-needs to be solved ready for merging during the next window.
+Well, I'm not sure if I'm following you. Many drivers currently depend
+on PLAT_ORION, so if we remove PLAT_ORION from ARCH_MVEBU we would have
+to replace: s/PLAT_ORION/ARCH_{MVEBU, KIRKWOOD, DOVE, ...}.
 
-	Andrew
+Is this the suggested roadmap or I've completely misunderstood it?
+--=20
+Ezequiel Garc=C3=ADa, Free Electrons
+Embedded Linux, Kernel and Android Engineering
+http://free-electrons.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
