@@ -1,115 +1,75 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:47659 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752310AbaAVRGI (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 22 Jan 2014 12:06:08 -0500
-Date: Wed, 22 Jan 2014 14:06:22 -0300
-From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-arm-kernel@lists.infradead.org,
+Received: from quartz.orcorp.ca ([184.70.90.242]:49051 "EHLO quartz.orcorp.ca"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751359AbaAVRe0 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 22 Jan 2014 12:34:26 -0500
+Date: Wed, 22 Jan 2014 10:34:17 -0700
+From: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+To: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+Cc: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	linux-arm-kernel@lists.infradead.org,
 	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
 	Lior Amsalem <alior@marvell.com>,
-	Tawfik Bayouk <tawfik@marvell.com>,
 	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
 	Jason Cooper <jason@lakedaemon.net>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Fabio Estevam <festevam@gmail.com>
-Subject: Re: [PATCH v3 08/15] watchdog: orion: Introduce per-compatible
- of_device_id data
-Message-ID: <20140122170621.GC27273@localhost>
-References: <1390310774-20781-1-git-send-email-ezequiel.garcia@free-electrons.com>
- <1390310774-20781-9-git-send-email-ezequiel.garcia@free-electrons.com>
- <20140121163547.GB3311@roeck-us.net>
+	Tawfik Bayouk <tawfik@marvell.com>,
+	Andrew Lunn <andrew@lunn.ch>, Wim Van Sebroeck <wim@iguana.be>,
+	Gregory Clement <gregory.clement@free-electrons.com>
+Subject: Re: [PATCH v2 06/15] watchdog: orion: Remove unneeded BRIDGE_CAUSE
+ clear
+Message-ID: <20140122173417.GT18269@obsidianresearch.com>
+References: <1390295561-3466-1-git-send-email-ezequiel.garcia@free-electrons.com>
+ <1390295561-3466-7-git-send-email-ezequiel.garcia@free-electrons.com>
+ <20140121233537.GS18269@obsidianresearch.com>
+ <20140122164904.GB27273@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <20140121163547.GB3311@roeck-us.net>
+In-Reply-To: <20140122164904.GB27273@localhost>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Jan 21, 2014 at 08:35:47AM -0800, Guenter Roeck wrote:
-> On Tue, Jan 21, 2014 at 10:26:07AM -0300, Ezequiel Garcia wrote:
-> > This commit adds an orion_watchdog_data structure to holda compatib=
-le-data
->=20
-> 	s/holda/hold/
->=20
+On Wed, Jan 22, 2014 at 01:49:05PM -0300, Ezequiel Garcia wrote:
+> > Looking at this patch in isolation it looks to me like the clear
+> > bridge lines should be replaced with a request_irq (as that does the
+> > clear) - is the request_irq in the wrong spot?
+> 
+> First of all, it seems to me that the first item "Disable WDT" is not
+> currently true on this driver. orion_wdt_start() seem to reset the
+> counter, but doesn't clear the WDT_EN bit. Do you think we should
+> enforce a "true" disable?
 
-Yup.
+I think so.
 
-> > information. This allows to remove the driver-wide definition and t=
-o
-> > future add support for multiple compatible-strings.
->=20
-> Maybe "and to be able to add support for multiple compatible-strings =
-in the
-> future" ?
->=20
+> Regarding the sequence. Let me see if I got this problem right. The
+> concern here is about the bootloader leaving the registers in a
+> weird-state, right?
 
-Yes, sounds better.
+It isn't just bootloaders to worry about, but also things like kexec..
 
-[..]
-> > =20
-> >  #define WDT_MAX_CYCLE_COUNT	0xffffffff
-> >  #define WDT_IN_USE		0
-> >  #define WDT_OK_TO_CLOSE		1
-> > =20
-> While looking at the new defines below, I noticed that WDT_IN_USE and
-> WDT_OK_TO_CLOSE are not used (anymore ?) and thus should be removed
-> (separate patch, though).
->=20
+> In that case, I thought that requesting the IRQ at probe time was enough
+> to ensure the BRIDGE_CAUSE would be cleared by the time the watchdog is
+> started. However, after reading through the irqchip code again, I'm no longer
+> sure this is the case.
 
-OK, let's clean this.
+The watchdog should ideally be fully stopped before request_irq so
+there is no possible race.
 
-> > -#define WDT_RESET_OUT_EN	BIT(1)
-> > +#define WDT_A370_RATIO_MASK(v)	((v) << 16)
-> > +#define WDT_A370_RATIO_SHIFT	5
-> > +#define WDT_A370_RATIO		(1 << WDT_A370_RATIO_SHIFT)
-> > +
-> > +#define WDT_AXP_FIXED_ENABLE_BIT BIT(10)
-> > =20
-> Those new defines are not used. They should be introduced if and when=
- used.
->=20
+> It looks like the BRIDGE_CAUSE register is cleared when the interruption
+> is acked (which happens in the handler if I understood the code right).
+> So requesting the IRQ is useless...
 
-Hm... maybe after dozens and dozens of rebases these macros sneaked her=
-e?
+IMHO, the IRQ stuff should clear out pending edge triggered interrupts
+at request_irq time. It makes no sense to take an interrupt for a
+stale edge event.
 
-[..]
-> > =20
-> > +	match =3D of_match_device(orion_wdt_of_match_table, &pdev->dev);
-> > +	if (!match)
-> > +		/* Default legacy match */
-> > +		match =3D &orion_wdt_of_match_table[0];
-> > +
-> >  	dev->wdt.info =3D &orion_wdt_info;
-> >  	dev->wdt.ops =3D &orion_wdt_ops;
-> >  	dev->wdt.min_timeout =3D 1;
-> > +	dev->data =3D (struct orion_watchdog_data *)match->data;
->=20
-> match->data is a void *, so the typecast should not be needed here.
-> You might want to declare 'data' to be of type
-> 'const struct orion_watchdog_data *' because otherwise you loose the
-> 'const' attribute of match->data (which may be the reason for the typ=
-ecast ?).
->=20
+I had always assumed the core code did this via irq_gc_ack_clr_bit -
+but I don't see an obvious path..
 
-Done.
+> Sebastian: If the above is correct, do you think we can add a cause clear to
+> the orion irqchip? (supposing it's harmful) Something like this:
 
-Thanks a lot for reviewing!
---=20
-Ezequiel Garc=C3=ADa, Free Electrons
-Embedded Linux, Kernel and Android Engineering
-http://free-electrons.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Hrm, irq_startup looks like the right hook to put something like this
+in.
+
+Jason
