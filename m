@@ -1,8 +1,12 @@
-Return-Path: <ezequiel.garcia@free-electrons.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from top.free-electrons.com ([176.31.233.9]:49402 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751527AbaAVXFC (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 22 Jan 2014 18:05:02 -0500
 From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 To: <linux-arm-kernel@lists.infradead.org>,
-	<devicetree@vger.kernel.org>,
-	<linux-watchdog@vger.kernel.org>
+	<devicetree@vger.kernel.org>, <linux-watchdog@vger.kernel.org>
 Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
 	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
@@ -17,155 +21,83 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Guenter Roeck <linux@roeck-us.net>,
 	Jason Cooper <jason@lakedaemon.net>,
 	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-Subject: [PATCH v4 14/18] watchdog: orion: Add support for Armada 370 and Armada XP SoC
-Date: Wed, 22 Jan 2014 20:05:11 -0300
-Message-Id: <1390431915-5115-15-git-send-email-ezequiel.garcia@free-electrons.com>
-In-Reply-To: <1390431915-5115-1-git-send-email-ezequiel.garcia@free-electrons.com>
-References: <1390431915-5115-1-git-send-email-ezequiel.garcia@free-electrons.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+Subject: [PATCH v4 00/18] Armada 370/XP watchdog support
+Date: Wed, 22 Jan 2014 20:04:57 -0300
+Message-Id: <1390431915-5115-1-git-send-email-ezequiel.garcia@free-electrons.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Using the added infrastructure for handling SoC differences,
-this commit adds support for the watchdog controller available
-in Armada 370 and Armada XP SoCs.
+After some lengthy discussion on the [v2] and [v3] patchsets, here's a new
+round. I hope I haven't forgotten anything.
 
-Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
----
- drivers/watchdog/orion_wdt.c | 94 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 94 insertions(+)
+[v2] http://www.spinics.net/lists/arm-kernel/msg302104.html
 
-diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
-index 471d6d9..90e8b53 100644
---- a/drivers/watchdog/orion_wdt.c
-+++ b/drivers/watchdog/orion_wdt.c
-@@ -36,9 +36,17 @@
-  * Watchdog timer block registers.
-  */
- #define TIMER_CTRL		0x0000
-+#define TIMER_A370_STATUS	0x04
- 
- #define WDT_MAX_CYCLE_COUNT	0xffffffff
- 
-+#define WDT_A370_RATIO_MASK(v)	((v) << 16)
-+#define WDT_A370_RATIO_SHIFT	5
-+#define WDT_A370_RATIO		(1 << WDT_A370_RATIO_SHIFT)
-+
-+#define WDT_AXP_FIXED_ENABLE_BIT BIT(10)
-+#define WDT_A370_EXPIRED	BIT(31)
-+
- static bool nowayout = WATCHDOG_NOWAYOUT;
- static int heartbeat = -1;		/* module parameter (seconds) */
- 
-@@ -78,6 +86,48 @@ static int orion_wdt_clock_init(struct platform_device *pdev,
- 	return 0;
- }
- 
-+static int armada370_wdt_clock_init(struct platform_device *pdev,
-+				    struct orion_watchdog *dev)
-+{
-+	int ret;
-+
-+	dev->clk = devm_clk_get(&pdev->dev, NULL);
-+	if (IS_ERR(dev->clk))
-+		return PTR_ERR(dev->clk);
-+	ret = clk_prepare_enable(dev->clk);
-+	if (ret)
-+		return ret;
-+
-+	/* Setup watchdog input clock */
-+	atomic_io_modify(dev->reg + TIMER_CTRL,
-+			WDT_A370_RATIO_MASK(WDT_A370_RATIO_SHIFT),
-+			WDT_A370_RATIO_MASK(WDT_A370_RATIO_SHIFT));
-+
-+	dev->clk_rate = clk_get_rate(dev->clk) / WDT_A370_RATIO;
-+	return 0;
-+}
-+
-+static int armadaxp_wdt_clock_init(struct platform_device *pdev,
-+				   struct orion_watchdog *dev)
-+{
-+	int ret;
-+
-+	dev->clk = of_clk_get_by_name(pdev->dev.of_node, "fixed");
-+	if (IS_ERR(dev->clk))
-+		return PTR_ERR(dev->clk);
-+	ret = clk_prepare_enable(dev->clk);
-+	if (ret)
-+		return ret;
-+
-+	/* Enable the fixed watchdog clock input */
-+	atomic_io_modify(dev->reg + TIMER_CTRL,
-+			 WDT_AXP_FIXED_ENABLE_BIT,
-+			 WDT_AXP_FIXED_ENABLE_BIT);
-+
-+	dev->clk_rate = clk_get_rate(dev->clk);
-+	return 0;
-+}
-+
- static int orion_wdt_ping(struct watchdog_device *wdt_dev)
- {
- 	struct orion_watchdog *dev = watchdog_get_drvdata(wdt_dev);
-@@ -87,6 +137,26 @@ static int orion_wdt_ping(struct watchdog_device *wdt_dev)
- 	return 0;
- }
- 
-+static int armada370_start(struct watchdog_device *wdt_dev)
-+{
-+	struct orion_watchdog *dev = watchdog_get_drvdata(wdt_dev);
-+
-+	/* Set watchdog duration */
-+	writel(dev->clk_rate * wdt_dev->timeout,
-+	       dev->reg + dev->data->wdt_counter_offset);
-+
-+	/* Clear the watchdog expiration bit */
-+	atomic_io_modify(dev->reg + TIMER_A370_STATUS, WDT_A370_EXPIRED, 0);
-+
-+	/* Enable watchdog timer */
-+	atomic_io_modify(dev->reg + TIMER_CTRL, dev->data->wdt_enable_bit,
-+						dev->data->wdt_enable_bit);
-+
-+	atomic_io_modify(dev->rstout, dev->data->rstout_enable_bit,
-+				      dev->data->rstout_enable_bit);
-+	return 0;
-+}
-+
- static int orion_start(struct watchdog_device *wdt_dev)
- {
- 	struct orion_watchdog *dev = watchdog_get_drvdata(wdt_dev);
-@@ -195,11 +265,35 @@ static const struct orion_watchdog_data orion_data = {
- 	.start = orion_start,
- };
- 
-+static const struct orion_watchdog_data armada370_data = {
-+	.rstout_enable_bit = BIT(8),
-+	.wdt_enable_bit = BIT(8),
-+	.wdt_counter_offset = 0x34,
-+	.clock_init = armada370_wdt_clock_init,
-+	.start = armada370_start,
-+};
-+
-+static const struct orion_watchdog_data armadaxp_data = {
-+	.rstout_enable_bit = BIT(8),
-+	.wdt_enable_bit = BIT(8),
-+	.wdt_counter_offset = 0x34,
-+	.clock_init = armadaxp_wdt_clock_init,
-+	.start = armada370_start,
-+};
-+
- static const struct of_device_id orion_wdt_of_match_table[] = {
- 	{
- 		.compatible = "marvell,orion-wdt",
- 		.data = &orion_data,
- 	},
-+	{
-+		.compatible = "marvell,armada-370-wdt",
-+		.data = &armada370_data,
-+	},
-+	{
-+		.compatible = "marvell,armada-xp-wdt",
-+		.data = &armadaxp_data,
-+	},
- 	{},
- };
- MODULE_DEVICE_TABLE(of, orion_wdt_of_match_table);
+[v3] http://www.spinics.net/lists/arm-kernel/msg302245.html
+
+The main changes from v3 are:
+
+  * It wasn't nice to break DT compatibility by adding a second resource
+    requirement, so we provided a fallback to use the RSTOUT address.
+    All in all, the solution doesn't look too bad.
+
+  * Added a full watchdog stop at driver probe time, *before* the call
+    to request_irq().
+
+    Notice that currently the request_irq() doesn't seem to clear the
+    pending interruption. This means the BRIDGE_CAUSE clear removal is
+    still not safe.
+
+    This should be fixed sooner than later and, of course, before this
+    gets merged.
+
+  * Rework the interruption request, to use devm_request_irq() and
+    avoid dealing with IRQ releasing.
+
+  * Added proper clock error handling and fixed the probe() error path.
+
+  * Typos and minor issues got fixed
+
+Thanks to everyone who has helped reviewing the previous sets! It's certainly
+easier to move forward when you get so much nice feedback...
+
+Ezequiel Garcia (18):
+  ARM: Introduce atomic MMIO modify
+  clocksource: orion: Use atomic access for shared registers
+  watchdog: orion: Add clock error handling
+  watchdog: orion: Use atomic access for shared registers
+  watchdog: orion: Remove unused macros
+  watchdog: orion: Make sure the watchdog is initially stopped
+  watchdog: orion: Handle IRQ
+  watchdog: orion: Make RSTOUT register a separate resource
+  watchdog: orion: Remove unneeded BRIDGE_CAUSE clear
+  watchdog: orion: Introduce an orion_watchdog device structure
+  watchdog: orion: Introduce per-compatible of_device_id data
+  watchdog: orion: Add per-compatible clock initialization
+  watchdog: orion: Add per-compatible watchdog start implementation
+  watchdog: orion: Add support for Armada 370 and Armada XP SoC
+  ARM: mvebu: Enable Armada 370/XP watchdog in the devicetree
+  ARM: kirkwood: Add RSTOUT 'reg' entry to devicetree
+  watchdog: orion: Enable the build on ARCH_MVEBU
+  ARM: mvebu: Enable watchdog support in defconfig
+
+ .../devicetree/bindings/watchdog/marvel.txt        |   8 +-
+ arch/arm/boot/dts/armada-370-xp.dtsi               |   4 +
+ arch/arm/boot/dts/armada-370.dtsi                  |   5 +
+ arch/arm/boot/dts/armada-xp.dtsi                   |   6 +
+ arch/arm/boot/dts/kirkwood.dtsi                    |   2 +-
+ arch/arm/configs/mvebu_defconfig                   |   2 +
+ arch/arm/include/asm/io.h                          |   6 +
+ arch/arm/kernel/io.c                               |  35 ++
+ arch/arm/mach-dove/include/mach/bridge-regs.h      |   1 +
+ arch/arm/mach-kirkwood/include/mach/bridge-regs.h  |   1 +
+ arch/arm/mach-mv78xx0/include/mach/bridge-regs.h   |   1 +
+ arch/arm/mach-orion5x/include/mach/bridge-regs.h   |   1 +
+ arch/arm/plat-orion/common.c                       |  10 +-
+ drivers/clocksource/time-orion.c                   |  28 +-
+ drivers/watchdog/Kconfig                           |   2 +-
+ drivers/watchdog/orion_wdt.c                       | 370 ++++++++++++++++-----
+ 16 files changed, 373 insertions(+), 109 deletions(-)
+
 -- 
 1.8.1.5
+
