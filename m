@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:49402 "EHLO
+Received: from top.free-electrons.com ([176.31.233.9]:49415 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751527AbaAVXFC (ORCPT
+	with ESMTP id S1751527AbaAVXFH (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 22 Jan 2014 18:05:02 -0500
+	Wed, 22 Jan 2014 18:05:07 -0500
 From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 To: <linux-arm-kernel@lists.infradead.org>,
 	<devicetree@vger.kernel.org>, <linux-watchdog@vger.kernel.org>
@@ -21,83 +21,95 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Guenter Roeck <linux@roeck-us.net>,
 	Jason Cooper <jason@lakedaemon.net>,
 	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-Subject: [PATCH v4 00/18] Armada 370/XP watchdog support
-Date: Wed, 22 Jan 2014 20:04:57 -0300
-Message-Id: <1390431915-5115-1-git-send-email-ezequiel.garcia@free-electrons.com>
+Subject: [PATCH v4 01/18] ARM: Introduce atomic MMIO modify
+Date: Wed, 22 Jan 2014 20:04:58 -0300
+Message-Id: <1390431915-5115-2-git-send-email-ezequiel.garcia@free-electrons.com>
+In-Reply-To: <1390431915-5115-1-git-send-email-ezequiel.garcia@free-electrons.com>
+References: <1390431915-5115-1-git-send-email-ezequiel.garcia@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-After some lengthy discussion on the [v2] and [v3] patchsets, here's a new
-round. I hope I haven't forgotten anything.
+Some SoC have MMIO regions that are shared across orthogonal
+subsystems. This commit implements a possible solution for the
+thread-safe access of such regions through a spinlock-protected API.
 
-[v2] http://www.spinics.net/lists/arm-kernel/msg302104.html
+Concurrent access is protected with a single spinlock for the
+entire MMIO address space. While this protects shared-registers,
+it also serializes access to unrelated/unshared registers.
 
-[v3] http://www.spinics.net/lists/arm-kernel/msg302245.html
+We add relaxed and non-relaxed variants, by using writel_relaxed and writel,
+respectively. The rationale for this is that some users may not require
+register write completion but only thread-safe access to a register.
 
-The main changes from v3 are:
+Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+---
+ arch/arm/include/asm/io.h |  6 ++++++
+ arch/arm/kernel/io.c      | 35 +++++++++++++++++++++++++++++++++++
+ 2 files changed, 41 insertions(+)
 
-  * It wasn't nice to break DT compatibility by adding a second resource
-    requirement, so we provided a fallback to use the RSTOUT address.
-    All in all, the solution doesn't look too bad.
-
-  * Added a full watchdog stop at driver probe time, *before* the call
-    to request_irq().
-
-    Notice that currently the request_irq() doesn't seem to clear the
-    pending interruption. This means the BRIDGE_CAUSE clear removal is
-    still not safe.
-
-    This should be fixed sooner than later and, of course, before this
-    gets merged.
-
-  * Rework the interruption request, to use devm_request_irq() and
-    avoid dealing with IRQ releasing.
-
-  * Added proper clock error handling and fixed the probe() error path.
-
-  * Typos and minor issues got fixed
-
-Thanks to everyone who has helped reviewing the previous sets! It's certainly
-easier to move forward when you get so much nice feedback...
-
-Ezequiel Garcia (18):
-  ARM: Introduce atomic MMIO modify
-  clocksource: orion: Use atomic access for shared registers
-  watchdog: orion: Add clock error handling
-  watchdog: orion: Use atomic access for shared registers
-  watchdog: orion: Remove unused macros
-  watchdog: orion: Make sure the watchdog is initially stopped
-  watchdog: orion: Handle IRQ
-  watchdog: orion: Make RSTOUT register a separate resource
-  watchdog: orion: Remove unneeded BRIDGE_CAUSE clear
-  watchdog: orion: Introduce an orion_watchdog device structure
-  watchdog: orion: Introduce per-compatible of_device_id data
-  watchdog: orion: Add per-compatible clock initialization
-  watchdog: orion: Add per-compatible watchdog start implementation
-  watchdog: orion: Add support for Armada 370 and Armada XP SoC
-  ARM: mvebu: Enable Armada 370/XP watchdog in the devicetree
-  ARM: kirkwood: Add RSTOUT 'reg' entry to devicetree
-  watchdog: orion: Enable the build on ARCH_MVEBU
-  ARM: mvebu: Enable watchdog support in defconfig
-
- .../devicetree/bindings/watchdog/marvel.txt        |   8 +-
- arch/arm/boot/dts/armada-370-xp.dtsi               |   4 +
- arch/arm/boot/dts/armada-370.dtsi                  |   5 +
- arch/arm/boot/dts/armada-xp.dtsi                   |   6 +
- arch/arm/boot/dts/kirkwood.dtsi                    |   2 +-
- arch/arm/configs/mvebu_defconfig                   |   2 +
- arch/arm/include/asm/io.h                          |   6 +
- arch/arm/kernel/io.c                               |  35 ++
- arch/arm/mach-dove/include/mach/bridge-regs.h      |   1 +
- arch/arm/mach-kirkwood/include/mach/bridge-regs.h  |   1 +
- arch/arm/mach-mv78xx0/include/mach/bridge-regs.h   |   1 +
- arch/arm/mach-orion5x/include/mach/bridge-regs.h   |   1 +
- arch/arm/plat-orion/common.c                       |  10 +-
- drivers/clocksource/time-orion.c                   |  28 +-
- drivers/watchdog/Kconfig                           |   2 +-
- drivers/watchdog/orion_wdt.c                       | 370 ++++++++++++++++-----
- 16 files changed, 373 insertions(+), 109 deletions(-)
-
+diff --git a/arch/arm/include/asm/io.h b/arch/arm/include/asm/io.h
+index fbeb39c..8aa4cca 100644
+--- a/arch/arm/include/asm/io.h
++++ b/arch/arm/include/asm/io.h
+@@ -38,6 +38,12 @@
+ #define isa_bus_to_virt phys_to_virt
+ 
+ /*
++ * Atomic MMIO-wide IO modify
++ */
++extern void atomic_io_modify(void __iomem *reg, u32 mask, u32 set);
++extern void atomic_io_modify_relaxed(void __iomem *reg, u32 mask, u32 set);
++
++/*
+  * Generic IO read/write.  These perform native-endian accesses.  Note
+  * that some architectures will want to re-define __raw_{read,write}w.
+  */
+diff --git a/arch/arm/kernel/io.c b/arch/arm/kernel/io.c
+index dcd5b4d..9203cf8 100644
+--- a/arch/arm/kernel/io.c
++++ b/arch/arm/kernel/io.c
+@@ -1,6 +1,41 @@
+ #include <linux/export.h>
+ #include <linux/types.h>
+ #include <linux/io.h>
++#include <linux/spinlock.h>
++
++static DEFINE_RAW_SPINLOCK(__io_lock);
++
++/*
++ * Generic atomic MMIO modify.
++ *
++ * Allows thread-safe access to registers shared by unrelated subsystems.
++ * The access is protected by a single MMIO-wide lock.
++ */
++void atomic_io_modify_relaxed(void __iomem *reg, u32 mask, u32 set)
++{
++	unsigned long flags;
++	u32 value;
++
++	raw_spin_lock_irqsave(&__io_lock, flags);
++	value = readl_relaxed(reg) & ~mask;
++	value |= (set & mask);
++	writel_relaxed(value, reg);
++	raw_spin_unlock_irqrestore(&__io_lock, flags);
++}
++EXPORT_SYMBOL(atomic_io_modify_relaxed);
++
++void atomic_io_modify(void __iomem *reg, u32 mask, u32 set)
++{
++	unsigned long flags;
++	u32 value;
++
++	raw_spin_lock_irqsave(&__io_lock, flags);
++	value = readl_relaxed(reg) & ~mask;
++	value |= (set & mask);
++	writel(value, reg);
++	raw_spin_unlock_irqrestore(&__io_lock, flags);
++}
++EXPORT_SYMBOL(atomic_io_modify);
+ 
+ /*
+  * Copy data from IO memory space to "real" memory space.
 -- 
 1.8.1.5
 
