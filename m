@@ -1,98 +1,92 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:49347 "EHLO
+Received: from top.free-electrons.com ([176.31.233.9]:49616 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752401AbaAVW4j (ORCPT
+	with ESMTP id S1752130AbaAVXGY (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 22 Jan 2014 17:56:39 -0500
-Date: Wed, 22 Jan 2014 19:56:55 -0300
+	Wed, 22 Jan 2014 18:06:24 -0500
 From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-To: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
-Cc: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	Lior Amsalem <alior@marvell.com>,
+To: <linux-arm-kernel@lists.infradead.org>,
+	<devicetree@vger.kernel.org>, <linux-watchdog@vger.kernel.org>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Daniel Lezcano <daniel.lezcano@linaro.org>,
+	Fabio Estevam <festevam@gmail.com>,
+	Andrew Lunn <andrew@lunn.ch>,
 	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	Jason Cooper <jason@lakedaemon.net>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
 	Tawfik Bayouk <tawfik@marvell.com>,
-	Andrew Lunn <andrew@lunn.ch>, Wim Van Sebroeck <wim@iguana.be>,
-	Gregory Clement <gregory.clement@free-electrons.com>
-Subject: Re: [PATCH v2 06/15] watchdog: orion: Remove unneeded BRIDGE_CAUSE
- clear
-Message-ID: <20140122225654.GB30763@localhost>
-References: <1390295561-3466-1-git-send-email-ezequiel.garcia@free-electrons.com>
- <1390295561-3466-7-git-send-email-ezequiel.garcia@free-electrons.com>
- <20140121233537.GS18269@obsidianresearch.com>
- <20140122164904.GB27273@localhost>
- <20140122173417.GT18269@obsidianresearch.com>
- <52E02AB6.7040104@gmail.com>
- <20140122205213.GW18269@obsidianresearch.com>
- <20140122221237.GA30763@localhost>
- <20140122223117.GX18269@obsidianresearch.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <20140122223117.GX18269@obsidianresearch.com>
+	Lior Amsalem <alior@marvell.com>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Jason Cooper <jason@lakedaemon.net>,
+	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+Subject: [PATCH v4 15/18] ARM: mvebu: Enable Armada 370/XP watchdog in the devicetree
+Date: Wed, 22 Jan 2014 20:05:12 -0300
+Message-Id: <1390431915-5115-16-git-send-email-ezequiel.garcia@free-electrons.com>
+In-Reply-To: <1390431915-5115-1-git-send-email-ezequiel.garcia@free-electrons.com>
+References: <1390431915-5115-1-git-send-email-ezequiel.garcia@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Jan 22, 2014 at 03:31:17PM -0700, Jason Gunthorpe wrote:
-> On Wed, Jan 22, 2014 at 07:12:38PM -0300, Ezequiel Garcia wrote:
-> > On Wed, Jan 22, 2014 at 01:52:13PM -0700, Jason Gunthorpe wrote:
-> > > > Clearing BRIDGE_CAUSE will only clear all currently pending ups=
-tream
-> > > > IRQs, of course. If WDT IRQ will be re-raised right after that =
-in
-> > > > BRIDGE_CAUSE depends on the actual HW implementation, i.e. we d=
-o no
-> > > > clear the causing IRQ itself but just what it raised in BRIDGE_=
-CAUSE.
-> > >=20
-> > > Which is why it makes no sense to clear it one time at kernel sta=
-rt.
-> > >=20
-> >=20
-> > So, it seems we need to handle irq_startup(), as you suggested.
-> > I've just tested the attached patch, and it's working fine: the dri=
-ver's
-> > probe() fully stops the watchdog, and then request_irq() acks and
-> > pending interrupts, through the added irq_startup().
-> >=20
-> > How does it look?
->=20
-> Looks sane to me.
->=20
-> I looked some more and there are other drivers (eg irq-metag-ext) tha=
-t
-> take this same approach.
->=20
+Add the DT nodes to enable watchdog support available in Armada 370
+and Armada XP SoCs.
 
-Yup, I took that one as a starting point.
+Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+---
+ arch/arm/boot/dts/armada-370-xp.dtsi | 4 ++++
+ arch/arm/boot/dts/armada-370.dtsi    | 5 +++++
+ arch/arm/boot/dts/armada-xp.dtsi     | 6 ++++++
+ 3 files changed, 15 insertions(+)
 
-[..]
-> I looked at the irq-orion driver a bit more and noticed this:
->=20
->         ret =3D irq_alloc_domain_generic_chips(domain, nrirqs, 1, np-=
->name,
->                              handle_level_irq, clr, 0, IRQ_GC_INIT_MA=
-SK_CACHE);
->                            ^^^^^^^^^^^^^^^^^^^^^
-> Shouldn't it be handle_edge_irq? Otherwise who is calling irq_ack? Ho=
-w
-> does this work at all? :)
->=20
+diff --git a/arch/arm/boot/dts/armada-370-xp.dtsi b/arch/arm/boot/dts/armada-370-xp.dtsi
+index 7f10f62..96e0389 100644
+--- a/arch/arm/boot/dts/armada-370-xp.dtsi
++++ b/arch/arm/boot/dts/armada-370-xp.dtsi
+@@ -151,6 +151,10 @@
+ 				interrupts = <37>, <38>, <39>, <40>, <5>, <6>;
+ 			};
+ 
++			watchdog@20300 {
++				reg = <0x20300 0x34>, <0x20704 0x4>;
++			};
++
+ 			sata@a0000 {
+ 				compatible = "marvell,orion-sata";
+ 				reg = <0xa0000 0x5000>;
+diff --git a/arch/arm/boot/dts/armada-370.dtsi b/arch/arm/boot/dts/armada-370.dtsi
+index 7a4b82e..aebed9e 100644
+--- a/arch/arm/boot/dts/armada-370.dtsi
++++ b/arch/arm/boot/dts/armada-370.dtsi
+@@ -168,6 +168,11 @@
+ 				clocks = <&coreclk 2>;
+ 			};
+ 
++			watchdog@20300 {
++				compatible = "marvell,armada-370-wdt";
++				clocks = <&coreclk 2>;
++			};
++
+ 			coreclk: mvebu-sar@18230 {
+ 				compatible = "marvell,armada-370-core-clock";
+ 				reg = <0x18230 0x08>;
+diff --git a/arch/arm/boot/dts/armada-xp.dtsi b/arch/arm/boot/dts/armada-xp.dtsi
+index 281c644..8c6c06c 100644
+--- a/arch/arm/boot/dts/armada-xp.dtsi
++++ b/arch/arm/boot/dts/armada-xp.dtsi
+@@ -74,6 +74,12 @@
+ 				clock-names = "nbclk", "fixed";
+ 			};
+ 
++			watchdog@20300 {
++				compatible = "marvell,armada-xp-wdt";
++				clocks = <&coreclk 2>, <&refclk>;
++				clock-names = "nbclk", "fixed";
++			};
++
+ 			coreclk: mvebu-sar@18230 {
+ 				compatible = "marvell,armada-xp-core-clock";
+ 				reg = <0x18230 0x08>;
+-- 
+1.8.1.5
 
-I'm not familiar with the differences between handle_level_irq and
-handle_edge_irq, but -AFAICS- both seem to ack the IRQ.
-
-In fact handle_level_irq(), masks and acks the IRQ as the first thing.
---=20
-Ezequiel Garc=C3=ADa, Free Electrons
-Embedded Linux, Kernel and Android Engineering
-http://free-electrons.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
