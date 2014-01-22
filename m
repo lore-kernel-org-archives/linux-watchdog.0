@@ -1,86 +1,104 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:47483 "EHLO
+Received: from top.free-electrons.com ([176.31.233.9]:47598 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752697AbaAVQVX (ORCPT
+	with ESMTP id S1752311AbaAVQsu (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 22 Jan 2014 11:21:23 -0500
-Date: Wed, 22 Jan 2014 13:21:37 -0300
+	Wed, 22 Jan 2014 11:48:50 -0500
+Date: Wed, 22 Jan 2014 13:49:05 -0300
 From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-To: Arnd Bergmann <arnd@arndb.de>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+To: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
 Cc: linux-arm-kernel@lists.infradead.org,
-	Lior Amsalem <alior@marvell.com>, devicetree@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, Tawfik Bayouk <tawfik@marvell.com>,
-	Andrew Lunn <andrew@lunn.ch>, Wim Van Sebroeck <wim@iguana.be>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	Lior Amsalem <alior@marvell.com>,
 	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	Jason Cooper <jason@lakedaemon.net>
-Subject: Re: [PATCH v2 05/15] watchdog: orion: Make RSTOUT register a
- separate resource
-Message-ID: <20140122162136.GA27273@localhost>
+	Jason Cooper <jason@lakedaemon.net>,
+	Tawfik Bayouk <tawfik@marvell.com>,
+	Andrew Lunn <andrew@lunn.ch>, Wim Van Sebroeck <wim@iguana.be>,
+	Gregory Clement <gregory.clement@free-electrons.com>
+Subject: Re: [PATCH v2 06/15] watchdog: orion: Remove unneeded BRIDGE_CAUSE
+ clear
+Message-ID: <20140122164904.GB27273@localhost>
 References: <1390295561-3466-1-git-send-email-ezequiel.garcia@free-electrons.com>
- <1390295561-3466-6-git-send-email-ezequiel.garcia@free-electrons.com>
- <20140121233321.GR18269@obsidianresearch.com>
- <3176358.2QFcJHj0fv@wuerfel>
+ <1390295561-3466-7-git-send-email-ezequiel.garcia@free-electrons.com>
+ <20140121233537.GS18269@obsidianresearch.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <3176358.2QFcJHj0fv@wuerfel>
+In-Reply-To: <20140121233537.GS18269@obsidianresearch.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Jason, Arnd:
-
-On Wed, Jan 22, 2014 at 10:48:37AM +0100, Arnd Bergmann wrote:
-> On Tuesday 21 January 2014 16:33:21 Jason Gunthorpe wrote:
-> > On Tue, Jan 21, 2014 at 06:12:31AM -0300, Ezequiel Garcia wrote:
-> > > In order to support other SoC, it's required to distinguish
-> > > the 'control' timer register, from the 'rstout' register
-> > > that enables system reset on watchdog expiration.
-> >=20
-> > > +     res =3D platform_get_resource(pdev, IORESOURCE_MEM, 1);
-> > > +     if (!res)
-> > > +             return -ENODEV;
-> >            ^^^^^^^^^^^^^^^^^^^^^^
-> >=20
-> > This change seems to break compatibility with existing DT files tha=
-t
-> > have only a single entry in reg?
-> >=20
-> > Can the value be defaulted some how if missing?
+On Tue, Jan 21, 2014 at 04:35:37PM -0700, Jason Gunthorpe wrote:
+> On Tue, Jan 21, 2014 at 06:12:32AM -0300, Ezequiel Garcia wrote:
+> > After adding the IRQ request, the BRIDGE_CAUSE bit should be cleare=
+d by the
+> > bridge interrupt controller. There's no longer a need to do it in t=
+he watchdog
+> > driver, so we can simply remove it.
 >=20
-> I think this is a direct consequence of the attempt to remove the
-> header file dependency, since the RSTOUTn_MASK macro is defined
-> in mach/bridge-regs.h.
+> When we talked about this before I pointed out that sequence here is
+> important:
+>=20
+> - Disable WDT
+> - Clear bridge
+> - Enable WDT
 >=20
 
-Exactly. Just for the record, I warned about this a while back:
+Sure, I wrote this series with that in mind and made some tests to
+ensure that no spurious trigger was possible.
 
-http://www.spinics.net/lists/arm-kernel/msg270163.html
-
-That said, it truly sucks to break compatibility so finding a way to
-keep backwards compatibility would be certainly desirable.
-
-> I don't see a good way out that would preserve backwards compatibilit=
-y,
-> other than hardcoding the physical address in the driver, which seems
-> just as bad as breaking compatibility. That said, it is always the
-> same constant (0xf1000000 + 0x20000 + 0x0108) on Dove, Kirkwood and
-> Orion5x (not on mv78xx0, but that doesn't use the wdt), so hardcoding
-> a fallback would technically work, but we should print a fat warning =
-at
-> boot time if we actually fall back to that.
+> Looking at this patch in isolation it looks to me like the clear
+> bridge lines should be replaced with a request_irq (as that does the
+> clear) - is the request_irq in the wrong spot?
 >=20
 
-Yes, I was thinking just about this. Namely:
+=46irst of all, it seems to me that the first item "Disable WDT" is not
+currently true on this driver. orion_wdt_start() seem to reset the
+counter, but doesn't clear the WDT_EN bit. Do you think we should
+enforce a "true" disable?
 
-If the second resource is missing *and* the compatible-string is
-"orion-watchdog" (or it's not DT-registered), then use a hardcoded
-RSTOUTn_MASK address. And pr_warn() something.
+As an example, s3c2410wdt calls stop() from start(). Maybe we should
+do something like it?
 
-Thanks for the feedback,
+Regarding the sequence. Let me see if I got this problem right. The
+concern here is about the bootloader leaving the registers in a
+weird-state, right?
+
+In that case, I thought that requesting the IRQ at probe time was enoug=
+h
+to ensure the BRIDGE_CAUSE would be cleared by the time the watchdog is
+started. However, after reading through the irqchip code again, I'm no =
+longer
+sure this is the case.
+
+It looks like the BRIDGE_CAUSE register is cleared when the interruptio=
+n
+is acked (which happens in the handler if I understood the code right).
+So requesting the IRQ is useless...
+
+I'll trace the code to confirm this.
+
+Sebastian: If the above is correct, do you think we can add a cause cle=
+ar to
+the orion irqchip? (supposing it's harmful) Something like this:
+
+diff --git a/drivers/irqchip/irq-orion.c b/drivers/irqchip/irq-orion.c
+index e51d400..fef9171 100644
+--- a/drivers/irqchip/irq-orion.c
++++ b/drivers/irqchip/irq-orion.c
+@@ -180,6 +180,9 @@ static int __init orion_bridge_irq_init(struct devi=
+ce_node *np,
+ 	gc->chip_types[0].chip.irq_mask =3D irq_gc_mask_clr_bit;
+ 	gc->chip_types[0].chip.irq_unmask =3D irq_gc_mask_set_bit;
+=20
++	/* clear pending interrupts */
++	writel(0, gc->reg_base + ORION_BRIDGE_IRQ_CAUSE);
++
+ 	/* mask all interrupts */
+ 	writel(0, gc->reg_base + ORION_BRIDGE_IRQ_MASK);
+=20
 --=20
 Ezequiel Garc=C3=ADa, Free Electrons
 Embedded Linux, Kernel and Android Engineering
