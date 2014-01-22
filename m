@@ -1,76 +1,53 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:48051 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752310AbaAVS3D (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:53644 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753786AbaAVT7r (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 22 Jan 2014 13:29:03 -0500
-Date: Wed, 22 Jan 2014 15:29:15 -0300
-From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-To: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
-Cc: Arnd Bergmann <arnd@arndb.de>,
+	Wed, 22 Jan 2014 14:59:47 -0500
+Date: Wed, 22 Jan 2014 20:59:40 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: naresh.bhat@linaro.org
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
-	Lior Amsalem <alior@marvell.com>, devicetree@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, Tawfik Bayouk <tawfik@marvell.com>,
-	Andrew Lunn <andrew@lunn.ch>, Wim Van Sebroeck <wim@iguana.be>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	Jason Cooper <jason@lakedaemon.net>
-Subject: Re: [PATCH v2 05/15] watchdog: orion: Make RSTOUT register a
- separate resource
-Message-ID: <20140122182914.GH27273@localhost>
-References: <1390295561-3466-1-git-send-email-ezequiel.garcia@free-electrons.com>
- <1390295561-3466-6-git-send-email-ezequiel.garcia@free-electrons.com>
- <20140121233321.GR18269@obsidianresearch.com>
- <3176358.2QFcJHj0fv@wuerfel>
- <20140122162136.GA27273@localhost>
- <20140122180100.GE27273@localhost>
- <20140122181409.GV18269@obsidianresearch.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	linaro-kernel@lists.linaro.org, linaro-acpi@lists.linaro.org,
+	patches@linaro.org
+Subject: Re: [PATCH] watchdog: Add sp805_wdt depends on ARM64
+Message-ID: <20140122195940.GW5647@spo001.leaseweb.com>
+References: <1390394643-25443-1-git-send-email-naresh.bhat@linaro.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <20140122181409.GV18269@obsidianresearch.com>
+In-Reply-To: <1390394643-25443-1-git-send-email-naresh.bhat@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Jan 22, 2014 at 11:14:09AM -0700, Jason Gunthorpe wrote:
-> On Wed, Jan 22, 2014 at 03:01:01PM -0300, Ezequiel Garcia wrote:
-> > On Wed, Jan 22, 2014 at 01:21:36PM -0300, Ezequiel Garcia wrote:
-> > > > I don't see a good way out that would preserve backwards compat=
-ibility,
-> > > > other than hardcoding the physical address in the driver, which=
- seems
-> > > > just as bad as breaking compatibility. That said, it is always =
-the
-> > > > same constant (0xf1000000 + 0x20000 + 0x0108) on Dove, Kirkwood=
- and
-> > > > Orion5x (not on mv78xx0, but that doesn't use the wdt), so hard=
-coding
-> > > > a fallback would technically work, but we should print a fat wa=
-rning at
-> > > > boot time if we actually fall back to that.
-> > > >=20
-> > >=20
-> > > Yes, I was thinking just about this. Namely:
-> > >=20
-> > [..]
-> >=20
-> > How about something like this?
->=20
-> I liked Arnd's idea to use an offset from the first register. With th=
-e
-> mbus driver we can now actually change the 0xF1.. prefix via the DT.
->=20
+Hi Naresh,
 
-Good idea. Maybe extracting the base address from the timer control
-register: wdt_reg & 0xff000000 ?
---=20
-Ezequiel Garc=C3=ADa, Free Electrons
-Embedded Linux, Kernel and Android Engineering
-http://free-electrons.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> From: Naresh Bhat <naresh.bhat@linaro.org>
+> 
+> Add sp805_wdt depends on ARM64.
+> 
+> Signed-off-by: Naresh Bhat <naresh.bhat@linaro.org>
+> ---
+>  drivers/watchdog/Kconfig |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index 5be6e91..2385124 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -109,7 +109,7 @@ config WM8350_WATCHDOG
+>  
+>  config ARM_SP805_WATCHDOG
+>  	tristate "ARM SP805 Watchdog"
+> -	depends on ARM && ARM_AMBA
+> +	depends on (ARM || ARM64) && ARM_AMBA
+>  	select WATCHDOG_CORE
+>  	help
+>  	  ARM Primecell SP805 Watchdog timer. This will reboot your system when
+
+Added to linux-watchdog-next.
+
+Kind regards,
+Wim.
+
