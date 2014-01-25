@@ -1,45 +1,42 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pb0-f51.google.com ([209.85.160.51]:41844 "EHLO
-	mail-pb0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755190AbaAVMoh (ORCPT
+Received: from mail.active-venture.com ([67.228.131.205]:59476 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751498AbaAYSMI (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 22 Jan 2014 07:44:37 -0500
-Received: by mail-pb0-f51.google.com with SMTP id un15so335817pbc.24
-        for <linux-watchdog@vger.kernel.org>; Wed, 22 Jan 2014 04:44:36 -0800 (PST)
-From: naresh.bhat@linaro.org
-To: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Cc: wim@iguana.be, linaro-kernel@lists.linaro.org,
-	linaro-acpi@lists.linaro.org, patches@linaro.org,
-	Naresh Bhat <naresh.bhat@linaro.org>
-Subject: [PATCH] watchdog: Add sp805_wdt depends on ARM64
-Date: Wed, 22 Jan 2014 18:14:03 +0530
-Message-Id: <1390394643-25443-1-git-send-email-naresh.bhat@linaro.org>
+	Sat, 25 Jan 2014 13:12:08 -0500
+Message-ID: <52E3FE77.9050809@roeck-us.net>
+Date: Sat, 25 Jan 2014 10:12:07 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+MIME-Version: 1.0
+To: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>,
+	linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+CC: Wim Van Sebroeck <wim@iguana.be>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Daniel Lezcano <daniel.lezcano@linaro.org>,
+	Fabio Estevam <festevam@gmail.com>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Tawfik Bayouk <tawfik@marvell.com>,
+	Lior Amsalem <alior@marvell.com>,
+	Jason Cooper <jason@lakedaemon.net>
+Subject: Re: [PATCH v4 03/18] watchdog: orion: Add clock error handling
+References: <1390431915-5115-1-git-send-email-ezequiel.garcia@free-electrons.com> <1390431915-5115-4-git-send-email-ezequiel.garcia@free-electrons.com>
+In-Reply-To: <1390431915-5115-4-git-send-email-ezequiel.garcia@free-electrons.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Naresh Bhat <naresh.bhat@linaro.org>
+On 01/22/2014 03:05 PM, Ezequiel Garcia wrote:
+> This commit adds a check for clk_prepare_enable success and introduces
+> an error path to disable the clock properly.
+>
+> Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 
-Add sp805_wdt depends on ARM64.
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Signed-off-by: Naresh Bhat <naresh.bhat@linaro.org>
----
- drivers/watchdog/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 5be6e91..2385124 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -109,7 +109,7 @@ config WM8350_WATCHDOG
- 
- config ARM_SP805_WATCHDOG
- 	tristate "ARM SP805 Watchdog"
--	depends on ARM && ARM_AMBA
-+	depends on (ARM || ARM64) && ARM_AMBA
- 	select WATCHDOG_CORE
- 	help
- 	  ARM Primecell SP805 Watchdog timer. This will reboot your system when
--- 
-1.7.9.5
 
