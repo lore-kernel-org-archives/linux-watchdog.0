@@ -1,5 +1,5 @@
 Return-Path: <ezequiel.garcia@free-electrons.com>
-Date: Sun, 26 Jan 2014 10:14:46 -0300
+Date: Sun, 26 Jan 2014 10:18:56 -0300
 From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 To: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Cc: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
@@ -14,49 +14,37 @@ Cc: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
 	Lior Amsalem <alior@marvell.com>,
 	Guenter Roeck <linux@roeck-us.net>,
 	Jason Cooper <jason@lakedaemon.net>
-Subject: Re: [PATCH v4 07/18] watchdog: orion: Handle IRQ
-Message-ID: <20140126131445.GA14713@localhost>
+Subject: Re: [PATCH v4 08/18] watchdog: orion: Make RSTOUT register a
+ separate resource
+Message-ID: <20140126131855.GB14713@localhost>
 References: <1390431915-5115-1-git-send-email-ezequiel.garcia@free-electrons.com>
- <1390431915-5115-8-git-send-email-ezequiel.garcia@free-electrons.com>
- <20140126090412.37f4932f@skate>
+ <1390431915-5115-9-git-send-email-ezequiel.garcia@free-electrons.com>
+ <20140126091753.2910a39f@skate>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20140126090412.37f4932f@skate>
+In-Reply-To: <20140126091753.2910a39f@skate>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Sun, Jan 26, 2014 at 09:04:12AM +0100, Thomas Petazzoni wrote:
-> Dear Ezequiel Garcia,
+On Sun, Jan 26, 2014 at 09:17:53AM +0100, Thomas Petazzoni wrote:
+[..]
+> > +/*
+> > + * The original devicetree binding for this driver specified only
+> > + * one memory resource, so in order to keep DT backwards compatibility
+> > + * we try to fallback to a hardcoded register address, if the resource
+> > + * is missing from the devicetree.
+> > + */
+> > +static void __iomem *try_rstout_ioremap(struct platform_device *pdev,
+> > +					phys_addr_t internal_regs)
 > 
-> On Wed, 22 Jan 2014 20:05:04 -0300, Ezequiel Garcia wrote:
-> > DT-enabled where an irqchip driver for the brigde interrupt controller is
-> > available can handle the watchdog IRQ properly. Therefore, we request
-> > the interruption and add a dummy handler that merely calls panic().
+> Why is it called "try" ? It actually does the mapping. So I would
+> prefer the function to be named:
 > 
-> I don't quiite understand the first sentence of this commit log, and
-> the commit title looks wrong. Maybe a bad copy/paste or something?
-> 
-
-Hm... yes it doesn't look right. It should read:
-
-"DT-enabled platforms, where the irqchip driver for the brigde interrupt
-controller is available, can handle the watchdog IRQ properly. Therefore,
-we request the interrupt and add a dummy handler that merely calls panic()".
-
-I guess we can re-phrase it be a bit more readable.
-
-Why does th commit title looks wrong? By requesting the IRQ we are
-"handling it", no?
-
-> > 
-> > This is done in order to have an initial 'ack' of the interruption,
-> 
-> interruption -> interrupt
+> 	orion_wdt_ioremap_rstout()
 > 
 
-Right.
-
+Ah, yes. This is a left over from the previous attempt.
 -- 
 Ezequiel García, Free Electrons
 Embedded Linux, Kernel and Android Engineering
