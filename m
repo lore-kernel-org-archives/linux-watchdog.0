@@ -1,15 +1,14 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:46947 "EHLO
+Received: from top.free-electrons.com ([176.31.233.9]:47474 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751456AbaAZISB (ORCPT
+	with ESMTP id S1751348AbaAZO6I (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 26 Jan 2014 03:18:01 -0500
-Date: Sun, 26 Jan 2014 09:17:53 +0100
+	Sun, 26 Jan 2014 09:58:08 -0500
+Date: Sun, 26 Jan 2014 15:57:51 +0100
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 To: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-Cc: <linux-arm-kernel@lists.infradead.org>,
-	<devicetree@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
+Cc: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
 	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
 	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
 	Arnd Bergmann <arnd@arndb.de>,
@@ -21,12 +20,13 @@ Cc: <linux-arm-kernel@lists.infradead.org>,
 	Lior Amsalem <alior@marvell.com>,
 	Guenter Roeck <linux@roeck-us.net>,
 	Jason Cooper <jason@lakedaemon.net>
-Subject: Re: [PATCH v4 08/18] watchdog: orion: Make RSTOUT register a
- separate resource
-Message-ID: <20140126091753.2910a39f@skate>
-In-Reply-To: <1390431915-5115-9-git-send-email-ezequiel.garcia@free-electrons.com>
+Subject: Re: [PATCH v4 07/18] watchdog: orion: Handle IRQ
+Message-ID: <20140126155751.6c6ea59d@skate>
+In-Reply-To: <20140126131445.GA14713@localhost>
 References: <1390431915-5115-1-git-send-email-ezequiel.garcia@free-electrons.com>
-	<1390431915-5115-9-git-send-email-ezequiel.garcia@free-electrons.com>
+	<1390431915-5115-8-git-send-email-ezequiel.garcia@free-electrons.com>
+	<20140126090412.37f4932f@skate>
+	<20140126131445.GA14713@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -35,33 +35,31 @@ List-Id: linux-watchdog@vger.kernel.org
 
 Dear Ezequiel Garcia,
 
-On Wed, 22 Jan 2014 20:05:05 -0300, Ezequiel Garcia wrote:
+On Sun, 26 Jan 2014 10:14:46 -0300, Ezequiel Garcia wrote:
 
-> +/* RSTOUT mask register physical address for Orion5x, Kirkwood and Dove */
-> +#define ORION_RSTOUT_MASK_OFFSET	0x20108
-> +
-> +/* Internal registers can be configured at any 1 MiB aligned address */
-> +#define INTERNAL_REGS_MASK		~(SZ_1M - 1)
+> > I don't quiite understand the first sentence of this commit log, and
+> > the commit title looks wrong. Maybe a bad copy/paste or something?
+> > 
+> 
+> Hm... yes it doesn't look right. It should read:
+> 
+> "DT-enabled platforms, where the irqchip driver for the brigde interrupt
+> controller is available, can handle the watchdog IRQ properly. Therefore,
+> we request the interrupt and add a dummy handler that merely calls panic()".
 
-I'm not a big fan of hardcoding the internal register window size in a
-driver. I would have preferred to have used the offset between the
-watchdog registers and the rstout register, but since this one is
-*before* the watchdog registers, it would have to be a negative offset.
-Not sure how to handle this.
+Ok.
 
-> +/*
-> + * The original devicetree binding for this driver specified only
-> + * one memory resource, so in order to keep DT backwards compatibility
-> + * we try to fallback to a hardcoded register address, if the resource
-> + * is missing from the devicetree.
-> + */
-> +static void __iomem *try_rstout_ioremap(struct platform_device *pdev,
-> +					phys_addr_t internal_regs)
+> I guess we can re-phrase it be a bit more readable.
+> 
+> Why does th commit title looks wrong? By requesting the IRQ we are
+> "handling it", no?
 
-Why is it called "try" ? It actually does the mapping. So I would
-prefer the function to be named:
+Right, but it looks "truncated". Maybe something like:
 
-	orion_wdt_ioremap_rstout()
+watchdog: orion: handle irq to avoid having to clear BRIDGE_CLAUSE
+
+or something like that (adjust to the actual reality, I haven't
+followed all the implications).
 
 Thomas
 -- 
