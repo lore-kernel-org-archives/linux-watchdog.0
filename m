@@ -14,34 +14,37 @@ Cc: Jason Cooper <jason@lakedaemon.net>,
 	Daniel Lezcano <daniel.lezcano@linaro.org>,
 	Guenter Roeck <linux@roeck-us.net>,
 	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-Subject: [PATCH v5 05/20] watchdog: orion: Remove unused macros
-Date: Mon, 27 Jan 2014 12:27:05 -0300
-Message-Id: <1390836440-12744-6-git-send-email-ezequiel.garcia@free-electrons.com>
+Subject: [PATCH v5 06/20] watchdog: orion: Make sure the watchdog is initially stopped
+Date: Mon, 27 Jan 2014 12:27:06 -0300
+Message-Id: <1390836440-12744-7-git-send-email-ezequiel.garcia@free-electrons.com>
 In-Reply-To: <1390836440-12744-1-git-send-email-ezequiel.garcia@free-electrons.com>
 References: <1390836440-12744-1-git-send-email-ezequiel.garcia@free-electrons.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-These are not used anywhere so it's safe to remove them.
+Having the watchdog initially fully stopped is important to avoid
+any spurious watchdog triggers, in case the registers are not in
+its reset state.
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Tested-by: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
 Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 ---
- drivers/watchdog/orion_wdt.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/watchdog/orion_wdt.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
-index b92a991..6746033 100644
+index 6746033..2dbeee9 100644
 --- a/drivers/watchdog/orion_wdt.c
 +++ b/drivers/watchdog/orion_wdt.c
-@@ -33,8 +33,6 @@
- #define WDT_VAL			0x0024
+@@ -142,6 +142,9 @@ static int orion_wdt_probe(struct platform_device *pdev)
+ 	orion_wdt.max_timeout = wdt_max_duration;
+ 	watchdog_init_timeout(&orion_wdt, heartbeat, &pdev->dev);
  
- #define WDT_MAX_CYCLE_COUNT	0xffffffff
--#define WDT_IN_USE		0
--#define WDT_OK_TO_CLOSE		1
- 
- #define WDT_RESET_OUT_EN	BIT(1)
- #define WDT_INT_REQ		BIT(3)
++	/* Let's make sure the watchdog is fully stopped */
++	orion_wdt_stop(&orion_wdt);
++
+ 	watchdog_set_nowayout(&orion_wdt, nowayout);
+ 	ret = watchdog_register_device(&orion_wdt);
+ 	if (ret)
 -- 
 1.8.1.5
