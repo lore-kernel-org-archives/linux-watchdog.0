@@ -1,24 +1,27 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ee0-f51.google.com ([74.125.83.51]:49929 "EHLO
-	mail-ee0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932238AbaAaOSz (ORCPT
+Received: from mail-ee0-f54.google.com ([74.125.83.54]:58356 "EHLO
+	mail-ee0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932145AbaAaOSy (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 31 Jan 2014 09:18:55 -0500
-Received: by mail-ee0-f51.google.com with SMTP id b57so2299559eek.24
-        for <linux-watchdog@vger.kernel.org>; Fri, 31 Jan 2014 06:18:54 -0800 (PST)
+	Fri, 31 Jan 2014 09:18:54 -0500
+Received: by mail-ee0-f54.google.com with SMTP id e53so2322570eek.27
+        for <linux-watchdog@vger.kernel.org>; Fri, 31 Jan 2014 06:18:53 -0800 (PST)
 From: Michal Simek <michal.simek@xilinx.com>
 To: linux-kernel@vger.kernel.org, monstr@monstr.eu
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: [PATCH 08/10] watchdog: xilinx: Use correct comment indentation
-Date: Fri, 31 Jan 2014 15:18:17 +0100
-Message-Id: <45680208de6e22a49fe8311d49877096ccd702af.1391177880.git.michal.simek@xilinx.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Grant Likely <grant.likely@linaro.org>,
+	Rob Herring <robh+dt@kernel.org>,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH 07/10] watchdog: xilinx: Fix OF binding
+Date: Fri, 31 Jan 2014 15:18:16 +0100
+Message-Id: <26d172891694e4041e73b7dae85a1848adf38034.1391177880.git.michal.simek@xilinx.com>
 In-Reply-To: <ed4cb31c9a549343e6b492cf62fc962d39034bd0.1391177880.git.michal.simek@xilinx.com>
 References: <ed4cb31c9a549343e6b492cf62fc962d39034bd0.1391177880.git.michal.simek@xilinx.com>
 In-Reply-To: <ed4cb31c9a549343e6b492cf62fc962d39034bd0.1391177880.git.michal.simek@xilinx.com>
 References: <ed4cb31c9a549343e6b492cf62fc962d39034bd0.1391177880.git.michal.simek@xilinx.com>
 Content-Type: multipart/signed;
-    boundary="=_mimegpg-monstr-desktop-23161-1391177930-0001";
+    boundary="=_mimegpg-monstr-desktop-23148-1391177928-0001";
     micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
@@ -29,49 +32,90 @@ The Internet standard for MIME PGP messages, RFC 2015, was published in 1996.
 To open this message correctly you will need to install E-mail or Usenet
 software that supports modern Internet standards.
 
---=_mimegpg-monstr-desktop-23161-1391177930-0001
+--=_mimegpg-monstr-desktop-23148-1391177928-0001
 
-No functional changes.
+Use of_property_read_u32 functions to clean OF probing.
 
 Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 ---
 
- drivers/watchdog/of_xilinx_wdt.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/watchdog/of_xilinx_wdt.c | 25 ++++++++++---------------
+ 1 file changed, 10 insertions(+), 15 deletions(-)
 
 diff --git a/drivers/watchdog/of_xilinx_wdt.c b/drivers/watchdog/of_xilinx_wdt.c
-index 475440a6..7948def 100644
+index c229cc4..475440a6 100644
 --- a/drivers/watchdog/of_xilinx_wdt.c
 +++ b/drivers/watchdog/of_xilinx_wdt.c
-@@ -190,10 +190,10 @@ static int xwdt_probe(struct platform_device *pdev)
- 		watchdog_set_nowayout(xilinx_wdt_wdd, true);
+@@ -147,8 +147,7 @@ static u32 xwdt_selftest(struct xwdt_device *xdev)
+ static int xwdt_probe(struct platform_device *pdev)
+ {
+ 	int rc;
+-	u32 *tmptr;
+-	u32 *pfreq;
++	u32 pfreq, enable_once;
+ 	struct resource *res;
+ 	struct xwdt_device *xdev;
+ 	bool no_timeout = false;
+@@ -168,28 +167,24 @@ static int xwdt_probe(struct platform_device *pdev)
+ 	if (IS_ERR(xdev->base))
+ 		return PTR_ERR(xdev->base);
+
+-	pfreq = (u32 *)of_get_property(pdev->dev.of_node,
+-					"clock-frequency", NULL);
+-
+-	if (pfreq == NULL) {
++	rc = of_property_read_u32(pdev->dev.of_node, "clock-frequency", &pfreq);
++	if (rc) {
+ 		dev_warn(&pdev->dev,
+ 			 "The watchdog clock frequency cannot be obtained\n");
+ 		no_timeout = true;
  	}
 
--/*
-- *  Twice of the 2^wdt_interval / freq  because the first wdt overflow is
-- *  ignored (interrupt), reset is only generated at second wdt overflow
-- */
-+	/*
-+	 * Twice of the 2^wdt_interval / freq  because the first wdt overflow is
-+	 * ignored (interrupt), reset is only generated at second wdt overflow
-+	 */
+-	tmptr = (u32 *)of_get_property(pdev->dev.of_node,
+-					"xlnx,wdt-interval", NULL);
+-	if (tmptr == NULL) {
++	rc = of_property_read_u32(pdev->dev.of_node, "xlnx,wdt-interval",
++				  &xdev->wdt_interval);
++	if (rc) {
+ 		dev_warn(&pdev->dev,
+ 			 "Parameter \"xlnx,wdt-interval\" not found\n");
+ 		no_timeout = true;
+-	} else {
+-		xdev->wdt_interval = *tmptr;
+ 	}
+
+-	tmptr = (u32 *)of_get_property(pdev->dev.of_node,
+-					"xlnx,wdt-enable-once", NULL);
+-	if (tmptr == NULL) {
++	rc = of_property_read_u32(pdev->dev.of_node, "xlnx,wdt-enable-once",
++				  &enable_once);
++	if (!rc && enable_once) {
+ 		dev_warn(&pdev->dev,
+ 			 "Parameter \"xlnx,wdt-enable-once\" not found\n");
+ 		watchdog_set_nowayout(xilinx_wdt_wdd, true);
+@@ -201,7 +196,7 @@ static int xwdt_probe(struct platform_device *pdev)
+  */
  	if (!no_timeout)
  		xilinx_wdt_wdd->timeout = 2 * ((1 << xdev->wdt_interval) /
- 					  pfreq);
+-					  *pfreq);
++					  pfreq);
+
+ 	spin_lock_init(&xdev->spinlock);
+ 	watchdog_set_drvdata(xilinx_wdt_wdd, xdev);
 --
 1.8.2.3
 
 
---=_mimegpg-monstr-desktop-23161-1391177930-0001
+--=_mimegpg-monstr-desktop-23148-1391177928-0001
 Content-Type: application/pgp-signature
 Content-Transfer-Encoding: 7bit
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.10 (GNU/Linux)
 
-iEYEABECAAYFAlLrsMoACgkQykllyylKDCHXqACcCPeU4YUtCh3D0Y2JtbCZu+Sb
-Ua0An2fd/Jm4GHhRWlSlIbEyeuSUzpX8
-=5rkm
+iEYEABECAAYFAlLrsMgACgkQykllyylKDCE2agCffpz8z7kK8Ip6ol0OI3dGmDMq
+WmwAnjRwdVNI/5IL2uX6U5skoxGR4Idf
+=kCzG
 -----END PGP SIGNATURE-----
 
---=_mimegpg-monstr-desktop-23161-1391177930-0001--
+--=_mimegpg-monstr-desktop-23148-1391177928-0001--
