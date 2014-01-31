@@ -1,47 +1,111 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from 1wt.eu ([62.212.114.60]:56097 "EHLO 1wt.eu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932236AbaAaR1M (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 31 Jan 2014 12:27:12 -0500
-Date: Fri, 31 Jan 2014 18:25:25 +0100
-From: Willy Tarreau <w@1wt.eu>
-To: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-Cc: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, Lior Amsalem <alior@marvell.com>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Jason Cooper <jason@lakedaemon.net>,
-	Tawfik Bayouk <tawfik@marvell.com>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
+Received: from mail-ve0-f181.google.com ([209.85.128.181]:64272 "EHLO
+	mail-ve0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932616AbaAaRdv (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 31 Jan 2014 12:33:51 -0500
+MIME-Version: 1.0
+In-Reply-To: <26d172891694e4041e73b7dae85a1848adf38034.1391177880.git.michal.simek@xilinx.com>
+References: <ed4cb31c9a549343e6b492cf62fc962d39034bd0.1391177880.git.michal.simek@xilinx.com>
+	<26d172891694e4041e73b7dae85a1848adf38034.1391177880.git.michal.simek@xilinx.com>
+Date: Fri, 31 Jan 2014 11:33:50 -0600
+Message-ID: <CAL_JsqJ+Dc9PFVYcxHvLiG9unKQX-kEc1fsYsieyTjf-AN3j=A@mail.gmail.com>
+Subject: Re: [PATCH 07/10] watchdog: xilinx: Fix OF binding
+From: Rob Herring <robherring2@gmail.com>
+To: Michal Simek <michal.simek@xilinx.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Michal Simek <monstr@monstr.eu>,
 	Wim Van Sebroeck <wim@iguana.be>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-Subject: Re: [PATCH v5 00/20] Armada 370/XP watchdog support
-Message-ID: <20140131172525.GL31190@1wt.eu>
-References: <1390836440-12744-1-git-send-email-ezequiel.garcia@free-electrons.com> <20140129181949.GB27143@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20140129181949.GB27143@localhost>
+	Grant Likely <grant.likely@linaro.org>,
+	Rob Herring <robh+dt@kernel.org>,
+	linux-watchdog@vger.kernel.org,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Jan 29, 2014 at 03:19:50PM -0300, Ezequiel Garcia wrote:
-> On Mon, Jan 27, 2014 at 12:27:00PM -0300, Ezequiel Garcia wrote:
-> > A new round, mostly fixing some minor nitpicks.
-> > 
-> 
-> If anyone wants to give this a test, here's a public branch:
-> 
-> https://github.com/MISL-EBU-System-SW/mainline-public/tree/wdt_for_v3.14_v5
+On Fri, Jan 31, 2014 at 8:18 AM, Michal Simek <michal.simek@xilinx.com> wrote:
+> Use of_property_read_u32 functions to clean OF probing.
 
-Tested-By: Willy Tarreau <w@1wt.eu>
+The subject is a bit misleading as this doesn't really fix anything.
 
-Works like a charm on the mirabox, I've long been missing a hardware
-watchdog to save me from unplugging the power cord after some hangs
-during development.
+>
+> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+> ---
+>
+>  drivers/watchdog/of_xilinx_wdt.c | 25 ++++++++++---------------
+>  1 file changed, 10 insertions(+), 15 deletions(-)
+>
+> diff --git a/drivers/watchdog/of_xilinx_wdt.c b/drivers/watchdog/of_xilinx_wdt.c
+> index c229cc4..475440a6 100644
+> --- a/drivers/watchdog/of_xilinx_wdt.c
+> +++ b/drivers/watchdog/of_xilinx_wdt.c
+> @@ -147,8 +147,7 @@ static u32 xwdt_selftest(struct xwdt_device *xdev)
+>  static int xwdt_probe(struct platform_device *pdev)
+>  {
+>         int rc;
+> -       u32 *tmptr;
+> -       u32 *pfreq;
+> +       u32 pfreq, enable_once;
+>         struct resource *res;
+>         struct xwdt_device *xdev;
+>         bool no_timeout = false;
+> @@ -168,28 +167,24 @@ static int xwdt_probe(struct platform_device *pdev)
+>         if (IS_ERR(xdev->base))
+>                 return PTR_ERR(xdev->base);
+>
+> -       pfreq = (u32 *)of_get_property(pdev->dev.of_node,
+> -                                       "clock-frequency", NULL);
+> -
+> -       if (pfreq == NULL) {
+> +       rc = of_property_read_u32(pdev->dev.of_node, "clock-frequency", &pfreq);
+> +       if (rc) {
+>                 dev_warn(&pdev->dev,
+>                          "The watchdog clock frequency cannot be obtained\n");
+>                 no_timeout = true;
 
-Thanks,
-Willy
+You can kill this...
 
+>         }
+>
+> -       tmptr = (u32 *)of_get_property(pdev->dev.of_node,
+> -                                       "xlnx,wdt-interval", NULL);
+> -       if (tmptr == NULL) {
+> +       rc = of_property_read_u32(pdev->dev.of_node, "xlnx,wdt-interval",
+> +                                 &xdev->wdt_interval);
+> +       if (rc) {
+>                 dev_warn(&pdev->dev,
+>                          "Parameter \"xlnx,wdt-interval\" not found\n");
+>                 no_timeout = true;
+
+and this...
+
+> -       } else {
+> -               xdev->wdt_interval = *tmptr;
+>         }
+>
+> -       tmptr = (u32 *)of_get_property(pdev->dev.of_node,
+> -                                       "xlnx,wdt-enable-once", NULL);
+> -       if (tmptr == NULL) {
+> +       rc = of_property_read_u32(pdev->dev.of_node, "xlnx,wdt-enable-once",
+> +                                 &enable_once);
+> +       if (!rc && enable_once) {
+>                 dev_warn(&pdev->dev,
+>                          "Parameter \"xlnx,wdt-enable-once\" not found\n");
+>                 watchdog_set_nowayout(xilinx_wdt_wdd, true);
+> @@ -201,7 +196,7 @@ static int xwdt_probe(struct platform_device *pdev)
+>   */
+>         if (!no_timeout)
+
+and use "if (pfreq && xdev->wdt_interval)" if you initialize pfreq to 0.
+
+>                 xilinx_wdt_wdd->timeout = 2 * ((1 << xdev->wdt_interval) /
+> -                                         *pfreq);
+> +                                         pfreq);
+
+Is the wdog really usable if the timeout properties are missing? Seems
+like you should fail to probe rather than warn.
+
+Rob
