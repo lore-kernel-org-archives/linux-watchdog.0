@@ -1,65 +1,100 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:49923 "EHLO
+Received: from top.free-electrons.com ([176.31.233.9]:49918 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751686AbaBCIaN (ORCPT
+	with ESMTP id S1751678AbaBCIaM (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 3 Feb 2014 03:30:13 -0500
+	Mon, 3 Feb 2014 03:30:12 -0500
 From: Maxime Ripard <maxime.ripard@free-electrons.com>
 To: wim@iguana.be
 Cc: linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
 	Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: [PATCH 1/3] wdt: sunxi: Introduce a new compatible for the A10 and A31
-Date: Sun,  2 Feb 2014 14:55:23 +0100
-Message-Id: <1391349325-11132-1-git-send-email-maxime.ripard@free-electrons.com>
+Subject: [PATCH 3/3] ARM: sunxi: dt: Update the watchdog compatibles
+Date: Sun,  2 Feb 2014 14:55:25 +0100
+Message-Id: <1391349325-11132-3-git-send-email-maxime.ripard@free-electrons.com>
+In-Reply-To: <1391349325-11132-1-git-send-email-maxime.ripard@free-electrons.com>
+References: <1391349325-11132-1-git-send-email-maxime.ripard@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-For historical reasons, the Allwinner A10 compatibles are not following the
-patterns used for this other Allwinner SoCs.
-
-Introduce a new compatible following the usual pattern, and deprecate the olders.
+The watchdog compatibles were following a different pattern than the one found
+in the other devices. Now that the driver supports the right pattern, switch to
+it in the DT.
 
 Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
 ---
- Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt | 7 ++++---
- drivers/watchdog/sunxi_wdt.c                             | 1 +
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/sun4i-a10.dtsi  | 2 +-
+ arch/arm/boot/dts/sun5i-a10s.dtsi | 2 +-
+ arch/arm/boot/dts/sun5i-a13.dtsi  | 2 +-
+ arch/arm/boot/dts/sun6i-a31.dtsi  | 2 +-
+ arch/arm/boot/dts/sun7i-a20.dtsi  | 2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt b/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
-index e39cb26..6e8c937 100644
---- a/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
-@@ -2,13 +2,14 @@ Allwinner SoCs Watchdog timer
+diff --git a/arch/arm/boot/dts/sun4i-a10.dtsi b/arch/arm/boot/dts/sun4i-a10.dtsi
+index 040bb0e..f1eb8718 100644
+--- a/arch/arm/boot/dts/sun4i-a10.dtsi
++++ b/arch/arm/boot/dts/sun4i-a10.dtsi
+@@ -410,7 +410,7 @@
+ 		};
  
- Required properties:
+ 		wdt: watchdog@01c20c90 {
+-			compatible = "allwinner,sun4i-wdt";
++			compatible = "allwinner,sun4i-a10-wdt";
+ 			reg = <0x01c20c90 0x10>;
+ 		};
  
--- compatible : should be "allwinner,<soc-family>-wdt", the currently supported
--  SoC families being sun4i and sun6i
-+- compatible : should be either "allwinner,sun4i-a10-wdt" or
-+               "allwinner,sun6i-a31-wdt" (deprecated:
-+               "allwinner,sun4i-wdt", "allwinner,sun6i-wdt")
- - reg : Specifies base physical address and size of the registers.
+diff --git a/arch/arm/boot/dts/sun5i-a10s.dtsi b/arch/arm/boot/dts/sun5i-a10s.dtsi
+index ea16054..c4a4b23 100644
+--- a/arch/arm/boot/dts/sun5i-a10s.dtsi
++++ b/arch/arm/boot/dts/sun5i-a10s.dtsi
+@@ -373,7 +373,7 @@
+ 		};
  
- Example:
+ 		wdt: watchdog@01c20c90 {
+-			compatible = "allwinner,sun4i-wdt";
++			compatible = "allwinner,sun4i-a10-wdt";
+ 			reg = <0x01c20c90 0x10>;
+ 		};
  
- wdt: watchdog@01c20c90 {
--	compatible = "allwinner,sun4i-wdt";
-+	compatible = "allwinner,sun4i-a10-wdt";
- 	reg = <0x01c20c90 0x10>;
- };
-diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
-index 76332d8..7c8923d 100644
---- a/drivers/watchdog/sunxi_wdt.c
-+++ b/drivers/watchdog/sunxi_wdt.c
-@@ -206,6 +206,7 @@ static void sunxi_wdt_shutdown(struct platform_device *pdev)
+diff --git a/arch/arm/boot/dts/sun5i-a13.dtsi b/arch/arm/boot/dts/sun5i-a13.dtsi
+index 320335a..143656b 100644
+--- a/arch/arm/boot/dts/sun5i-a13.dtsi
++++ b/arch/arm/boot/dts/sun5i-a13.dtsi
+@@ -336,7 +336,7 @@
+ 		};
  
- static const struct of_device_id sunxi_wdt_dt_ids[] = {
- 	{ .compatible = "allwinner,sun4i-wdt" },
-+	{ .compatible = "allwinner,sun4i-a10-wdt" },
- 	{ /* sentinel */ }
- };
- MODULE_DEVICE_TABLE(of, sunxi_wdt_dt_ids);
+ 		wdt: watchdog@01c20c90 {
+-			compatible = "allwinner,sun4i-wdt";
++			compatible = "allwinner,sun4i-a10-wdt";
+ 			reg = <0x01c20c90 0x10>;
+ 		};
+ 
+diff --git a/arch/arm/boot/dts/sun6i-a31.dtsi b/arch/arm/boot/dts/sun6i-a31.dtsi
+index 5256ad9..cc691d1 100644
+--- a/arch/arm/boot/dts/sun6i-a31.dtsi
++++ b/arch/arm/boot/dts/sun6i-a31.dtsi
+@@ -242,7 +242,7 @@
+ 		};
+ 
+ 		wdt1: watchdog@01c20ca0 {
+-			compatible = "allwinner,sun6i-wdt";
++			compatible = "allwinner,sun6i-a31-wdt";
+ 			reg = <0x01c20ca0 0x20>;
+ 		};
+ 
+diff --git a/arch/arm/boot/dts/sun7i-a20.dtsi b/arch/arm/boot/dts/sun7i-a20.dtsi
+index 119f066..aaa7b3d 100644
+--- a/arch/arm/boot/dts/sun7i-a20.dtsi
++++ b/arch/arm/boot/dts/sun7i-a20.dtsi
+@@ -447,7 +447,7 @@
+ 		};
+ 
+ 		wdt: watchdog@01c20c90 {
+-			compatible = "allwinner,sun4i-wdt";
++			compatible = "allwinner,sun4i-a10-wdt";
+ 			reg = <0x01c20c90 0x10>;
+ 		};
+ 
 -- 
 1.8.4.2
 
