@@ -1,69 +1,44 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from hqemgate14.nvidia.com ([216.228.121.143]:17074 "EHLO
-	hqemgate14.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752464AbaBDAQ7 (ORCPT
+Received: from top.free-electrons.com ([176.31.233.9]:49915 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751566AbaBCIaM (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 3 Feb 2014 19:16:59 -0500
-From: Andrew Chew <achew@nvidia.com>
-To: <daniel.lezcano@linaro.org>, <tglx@linutronix.de>,
-	<swarren@wwwdotorg.org>, <thierry.reding@gmail.com>,
-	<rob@landley.net>, <grant.likely@linaro.org>, <robh+dt@kernel.org>,
-	<abrestic@chromium.org>, <dgreid@chromium.org>,
-	<katierh@chromium.org>
-CC: <linux-kernel@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
-	<linux-watchdog@vger.kernel.org>, <linux-doc@vger.kernel.org>,
-	Andrew Chew <achew@nvidia.com>
-Subject: [PATCH v2 0/3] tegra30 watchdog support
-Date: Mon, 3 Feb 2014 16:17:32 -0800
-Message-ID: <1391473055-3158-1-git-send-email-achew@nvidia.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+	Mon, 3 Feb 2014 03:30:12 -0500
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: wim@iguana.be
+Cc: linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: [PATCH 2/3] ARM: sunxi: Add the new watchog compatibles to the reboot code
+Date: Sun,  2 Feb 2014 14:55:24 +0100
+Message-Id: <1391349325-11132-2-git-send-email-maxime.ripard@free-electrons.com>
+In-Reply-To: <1391349325-11132-1-git-send-email-maxime.ripard@free-electrons.com>
+References: <1391349325-11132-1-git-send-email-maxime.ripard@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patch series ultimately adds watchdog support for tegra30 and later
-chips.
+Now that the watchdog driver has new compatibles, we need to support them in
+the machine reboot code too.
 
-The existing tegra clocksource driver (drivers/clocksource/tegra20_timer.c)
-sadly does not distinguish between tegra20 and tegra30 (and later), which
-it should have done since the contents of the timer register base have
-changed significantly.  In particular, tegra30 (and later) has more timers,
-and also hardware watchdog registers.
+Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+---
+ arch/arm/mach-sunxi/sunxi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-The first patch adds nvidia,tegra30-timer to the list of compatibilty
-strings for the tegra timer device tree node, so that we can distinguish
-between tegra20 and tegra30 (and later).
-
-The second patch separates out some macros that are interesting to other
-drivers (in particular, the tegra watchdog driver), and also adds the
-the missing timers that are present in tegra30 and later.
-
-The third patch adds the actual watchdog driver.  This driver configures
-a single watchdog (watchdog 0), pairs it with timer 5
-(defined as TEGRA30_TIMER_WDT_* in the shared header file from the previous
-patch), and sets it up so that upon timer expiration, will cause the target
-system to reset.
-
-I've decided to encapsulate all related changes into one patch series, since
-I did not modify any device tree bindings and therefore don't need to review
-dt changes separately.  This way, everything can be seen within its complete
-context.
-
-Andrew Chew (3):
-  clocksource: tegra: Add nvidia,tegra30-timer compat
-  clocksource: tegra: Define timer bases in header file
-  watchdog: Add tegra watchdog
-
- Documentation/watchdog/watchdog-parameters.txt |   5 +
- drivers/clocksource/tegra20_timer.c            |  16 +-
- drivers/watchdog/Kconfig                       |  11 +
- drivers/watchdog/Makefile                      |   1 +
- drivers/watchdog/tegra_wdt.c                   | 372 +++++++++++++++++++++++++
- include/clocksource/tegra_timer.h              |  43 +++
- 6 files changed, 439 insertions(+), 9 deletions(-)
- create mode 100644 drivers/watchdog/tegra_wdt.c
- create mode 100644 include/clocksource/tegra_timer.h
-
+diff --git a/arch/arm/mach-sunxi/sunxi.c b/arch/arm/mach-sunxi/sunxi.c
+index aeea6ce..c310df6 100644
+--- a/arch/arm/mach-sunxi/sunxi.c
++++ b/arch/arm/mach-sunxi/sunxi.c
+@@ -95,7 +95,9 @@ static void sun6i_restart(enum reboot_mode mode, const char *cmd)
+ 
+ static struct of_device_id sunxi_restart_ids[] = {
+ 	{ .compatible = "allwinner,sun4i-wdt" },
++	{ .compatible = "allwinner,sun4i-a10-wdt" },
+ 	{ .compatible = "allwinner,sun6i-wdt" },
++	{ .compatible = "allwinner,sun6i-a31-wdt" },
+ 	{ /*sentinel*/ }
+ };
+ 
 -- 
-1.8.1.5
+1.8.4.2
 
