@@ -1,35 +1,106 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:55745 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750750AbaBCI6I (ORCPT
+Received: from mail-ee0-f51.google.com ([74.125.83.51]:34965 "EHLO
+	mail-ee0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751376AbaBCIpw (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 3 Feb 2014 03:58:08 -0500
-Date: Mon, 3 Feb 2014 09:58:00 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Richard Weinberger <richard@nod.at>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog,dw: Add dependency on HAS_IOMEM
-Message-ID: <20140203085800.GC29278@spo001.leaseweb.com>
-References: <1391172454-17959-1-git-send-email-richard@nod.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1391172454-17959-1-git-send-email-richard@nod.at>
+	Mon, 3 Feb 2014 03:45:52 -0500
+Received: by mail-ee0-f51.google.com with SMTP id b57so3506194eek.10
+        for <linux-watchdog@vger.kernel.org>; Mon, 03 Feb 2014 00:45:50 -0800 (PST)
+Message-ID: <52EF573B.2000701@monstr.eu>
+Date: Mon, 03 Feb 2014 09:45:47 +0100
+From: Michal Simek <monstr@monstr.eu>
+Reply-To: monstr@monstr.eu
+MIME-Version: 1.0
+To: Guenter Roeck <linux@roeck-us.net>
+CC: Michal Simek <michal.simek@xilinx.com>,
+	linux-kernel@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 10/10] watchdog: xilinx: Enable this driver for Zynq
+References: <ed4cb31c9a549343e6b492cf62fc962d39034bd0.1391177880.git.michal.simek@xilinx.com> <f7bdfada576e93eaab8f6dc2ecd881da8f43911c.1391177880.git.michal.simek@xilinx.com> <52EBB897.6040300@roeck-us.net> <52EF3ECF.4010006@monstr.eu> <52EF52A8.4080400@roeck-us.net>
+In-Reply-To: <52EF52A8.4080400@roeck-us.net>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="VxjsieEpO8aKvrtlcOSt3lKOdFSktdSJU"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Richard,
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--VxjsieEpO8aKvrtlcOSt3lKOdFSktdSJU
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-> On archs like S390 or um this driver cannot build nor work.
-> Make it depend on HAS_IOMEM to bypass build failures.
-> 
-> drivers/built-in.o: In function `dw_wdt_drv_probe':
-> drivers/watchdog/dw_wdt.c:302: undefined reference to `devm_ioremap_resource'
-> 
-> Signed-off-by: Richard Weinberger <richard@nod.at>
+On 02/03/2014 09:26 AM, Guenter Roeck wrote:
+> On 02/02/2014 11:01 PM, Michal Simek wrote:
+>> On 01/31/2014 03:52 PM, Guenter Roeck wrote:
+>>> On 01/31/2014 06:18 AM, Michal Simek wrote:
+>>>> Enable this driver for Zynq.
+>>>> Move it to architecture independent Kconfig part.
+>>>>
+>>>> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+>>>> ---
+>>>>
+>>>> Build tested by zero day testing system.
+>>>> ---
+>>>>    drivers/watchdog/Kconfig | 22 +++++++++-------------
+>>>>    1 file changed, 9 insertions(+), 13 deletions(-)
+>>>>
+>>>> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+>>>> index 9db5d3c..6120403 100644
+>>>> --- a/drivers/watchdog/Kconfig
+>>>> +++ b/drivers/watchdog/Kconfig
+>>>> @@ -111,6 +111,15 @@ config WM8350_WATCHDOG
+>>>>          Support for the watchdog in the WM8350 AudioPlus PMIC.  Whe=
+n
+>>>>          the watchdog triggers the system will be reset.
+>>>>
+>>>> +config XILINX_WATCHDOG
+>>>> +    tristate "Xilinx Watchdog timer"
+>>>> +    select WATCHDOG_CORE
+>>>
+>>> This needs to depend on HAS_IOMEM.
+>>
+>> Are you sure?
+>> I have no problem to do this change.
+>> Zero day testing system doesn't report any problem with it.
+>>
+>> I have checked dependencies and only score, tile and um has NO_IOMEM o=
+ption
+>> enables. And below in log is tile with allyesconfig that's why I belie=
+ve
+>> this driver has been also tested without any issue.
+>>
+>=20
+> https://lkml.org/lkml/2014/1/31/123
+>=20
+> I would have assumed the same applies here, but if you are sure that it=
+ doesn't I am fine.
 
-Patch added to linux-watchdog-next.
+I am not 100% sure because I didn't compile it myself for that 3 archs
+but one was just fine.
 
-Kind regards,
-Wim.
+Thanks,
+Michal
+--=20
+Michal Simek, Ing. (M.Eng), OpenPGP -> KeyID: FE3D1F91
+w: www.monstr.eu p: +42-0-721842854
+Maintainer of Linux kernel - Microblaze cpu - http://www.monstr.eu/fdt/
+Maintainer of Linux kernel - Xilinx Zynq ARM architecture
+Microblaze U-BOOT custodian and responsible for u-boot arm zynq platform
 
+
+
+--VxjsieEpO8aKvrtlcOSt3lKOdFSktdSJU
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+
+iEYEARECAAYFAlLvVzsACgkQykllyylKDCE1jQCfYJtdx7go5wLO7gHOvmHXyikZ
+4mQAoJyWFRdWQSUy2ux/bJlXcks8iI8f
+=uQJN
+-----END PGP SIGNATURE-----
+
+--VxjsieEpO8aKvrtlcOSt3lKOdFSktdSJU--
