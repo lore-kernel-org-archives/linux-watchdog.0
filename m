@@ -1,66 +1,35 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:51466 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750716AbaBCI0U (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:55745 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750750AbaBCI6I (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 3 Feb 2014 03:26:20 -0500
-Message-ID: <52EF52A8.4080400@roeck-us.net>
-Date: Mon, 03 Feb 2014 00:26:16 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: monstr@monstr.eu
-CC: Michal Simek <michal.simek@xilinx.com>,
-	linux-kernel@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 10/10] watchdog: xilinx: Enable this driver for Zynq
-References: <ed4cb31c9a549343e6b492cf62fc962d39034bd0.1391177880.git.michal.simek@xilinx.com> <f7bdfada576e93eaab8f6dc2ecd881da8f43911c.1391177880.git.michal.simek@xilinx.com> <52EBB897.6040300@roeck-us.net> <52EF3ECF.4010006@monstr.eu>
-In-Reply-To: <52EF3ECF.4010006@monstr.eu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 3 Feb 2014 03:58:08 -0500
+Date: Mon, 3 Feb 2014 09:58:00 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Richard Weinberger <richard@nod.at>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] watchdog,dw: Add dependency on HAS_IOMEM
+Message-ID: <20140203085800.GC29278@spo001.leaseweb.com>
+References: <1391172454-17959-1-git-send-email-richard@nod.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1391172454-17959-1-git-send-email-richard@nod.at>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/02/2014 11:01 PM, Michal Simek wrote:
-> On 01/31/2014 03:52 PM, Guenter Roeck wrote:
->> On 01/31/2014 06:18 AM, Michal Simek wrote:
->>> Enable this driver for Zynq.
->>> Move it to architecture independent Kconfig part.
->>>
->>> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
->>> ---
->>>
->>> Build tested by zero day testing system.
->>> ---
->>>    drivers/watchdog/Kconfig | 22 +++++++++-------------
->>>    1 file changed, 9 insertions(+), 13 deletions(-)
->>>
->>> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
->>> index 9db5d3c..6120403 100644
->>> --- a/drivers/watchdog/Kconfig
->>> +++ b/drivers/watchdog/Kconfig
->>> @@ -111,6 +111,15 @@ config WM8350_WATCHDOG
->>>          Support for the watchdog in the WM8350 AudioPlus PMIC.  When
->>>          the watchdog triggers the system will be reset.
->>>
->>> +config XILINX_WATCHDOG
->>> +    tristate "Xilinx Watchdog timer"
->>> +    select WATCHDOG_CORE
->>
->> This needs to depend on HAS_IOMEM.
->
-> Are you sure?
-> I have no problem to do this change.
-> Zero day testing system doesn't report any problem with it.
->
-> I have checked dependencies and only score, tile and um has NO_IOMEM option
-> enables. And below in log is tile with allyesconfig that's why I believe
-> this driver has been also tested without any issue.
->
+Hi Richard,
 
-https://lkml.org/lkml/2014/1/31/123
+> On archs like S390 or um this driver cannot build nor work.
+> Make it depend on HAS_IOMEM to bypass build failures.
+> 
+> drivers/built-in.o: In function `dw_wdt_drv_probe':
+> drivers/watchdog/dw_wdt.c:302: undefined reference to `devm_ioremap_resource'
+> 
+> Signed-off-by: Richard Weinberger <richard@nod.at>
 
-I would have assumed the same applies here, but if you are sure that it doesn't I am fine.
+Patch added to linux-watchdog-next.
 
-Thanks,
-Guenter
+Kind regards,
+Wim.
 
