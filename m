@@ -1,109 +1,84 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:38173 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751100AbaBZMvB (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 26 Feb 2014 07:51:01 -0500
-From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-To: <linux-arm-kernel@lists.infradead.org>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	<linux-watchdog@vger.kernel.org>
-Cc: Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Lior Amsalem <alior@marvell.com>,
-	Tawfik Bayouk <tawfik@marvell.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-Subject: [PATCH 2/2] ARM: mvebu: system-controller: Add A375 initialization
-Date: Wed, 26 Feb 2014 09:50:47 -0300
-Message-Id: <1393419047-10071-3-git-send-email-ezequiel.garcia@free-electrons.com>
-In-Reply-To: <1393419047-10071-1-git-send-email-ezequiel.garcia@free-electrons.com>
-References: <1393419047-10071-1-git-send-email-ezequiel.garcia@free-electrons.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Andrew Chew <AChew@nvidia.com>
+To: Daniel Lezcano <daniel.lezcano@linaro.org>,
+        "tglx@linutronix.de" <tglx@linutronix.de>,
+        "swarren@wwwdotorg.org" <swarren@wwwdotorg.org>,
+        "thierry.reding@gmail.com" <thierry.reding@gmail.com>,
+        "rob@landley.net" <rob@landley.net>,
+        "grant.likely@linaro.org" <grant.likely@linaro.org>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "abrestic@chromium.org" <abrestic@chromium.org>,
+        "dgreid@chromium.org" <dgreid@chromium.org>,
+        "katierh@chromium.org" <katierh@chromium.org>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>
+Date: Tue, 4 Feb 2014 10:55:22 -0800
+Subject: RE: [PATCH v2 2/3] clocksource: tegra: Define timer bases in header
+ file
+Message-ID: <643E69AA4436674C8F39DCC2C05F763863199855EA@HQMAIL03.nvidia.com>
+References: <1391473055-3158-1-git-send-email-achew@nvidia.com>
+ <1391473055-3158-3-git-send-email-achew@nvidia.com>
+ <52F09CC8.80601@linaro.org>
+In-Reply-To: <52F09CC8.80601@linaro.org>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Sender: linux-kernel-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-The Armada 370/375/XP SoC family watchdog controller has a dedicated
-RSTOUT register to mask/unmask the watchdog reset. However, the A375
-SoC has also a bit to mask the watchdog reset (WDT_RSTOUT), in the RSTOUT
-global register that is handled by the system-controller.
+> From: Daniel Lezcano [mailto:daniel.lezcano@linaro.org]
+> Sent: Monday, February 03, 2014 11:55 PM
+> To: Andrew Chew; tglx@linutronix.de; swarren@wwwdotorg.org;
+> thierry.reding@gmail.com; rob@landley.net; grant.likely@linaro.org;
+> robh+dt@kernel.org; abrestic@chromium.org; dgreid@chromium.org;
+> katierh@chromium.org
+> Cc: linux-kernel@vger.kernel.org; linux-tegra@vger.kernel.org; linux-
+> watchdog@vger.kernel.org; linux-doc@vger.kernel.org
+> Subject: Re: [PATCH v2 2/3] clocksource: tegra: Define timer bases in header
+> file
+> 
+> On 02/04/2014 01:17 AM, Andrew Chew wrote:
+> > Added timers that are present in tegra30 and later, that are NOT in tegra20.
+> >
+> > Also, some of these timer bases are needed in the tegra watchdog
+> > driver, so separate them out into a header file that both the
+> > clocksource driver and the watchdog driver can share them.
+> >
+> > Signed-off-by: Andrew Chew <achew@nvidia.com>
+> 
+> When reading the patch 3/3, I don't see any define reused from this header
+> except TEGRA30_TIMER_WDT_BASE which is only used for the watchdog.
+> May be I missed something but I don't see any definition shared and thus I
+> don't see the point of creating this header file.
 
-Therefore, let's add a per-SoC initialization routine to unmask the watchdog
-reset in the shared system-controller register, in this initialization.
-The dedicated register for watchdog RSTOUT is handled by the watchdog
-driver, just as is done for the rest of mvebu SoCs.
+I guess the point is to make other potential drivers that make use of the timer
+registers aware that this particular timer (timer 5) is provisioned for the watchdog
+driver.  Right now, you're right, there really isn't much that's shared...the only
+thing really is the base address of timer 5 (and its associated ID)...the timer bases
+are kind of all over the place, so it's not straightforward to calculate the ID from the
+base address.
 
-Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
----
- arch/arm/mach-mvebu/system-controller.c | 30 ++++++++++++++++++++++++++++++
- 1 file changed, 30 insertions(+)
+But I believe the thought at the time (from Stephen Warren's suggestion) is to have
+a central place where this stuff is defined so that it's more clear what timers are
+provisioned for what purposes.  It just happens that today, the only users of
+the timers, other than clocksource, is watchdog, as far as I can tell.
 
-diff --git a/arch/arm/mach-mvebu/system-controller.c b/arch/arm/mach-mvebu/system-controller.c
-index 614ba68..96c0a68 100644
---- a/arch/arm/mach-mvebu/system-controller.c
-+++ b/arch/arm/mach-mvebu/system-controller.c
-@@ -29,6 +29,8 @@
- #include <linux/reboot.h>
- #include "common.h"
- 
-+#define A375_RSTOUT_WDT_MASK BIT(10)
-+
- static void __iomem *system_controller_base;
- 
- struct mvebu_system_controller {
-@@ -37,9 +39,33 @@ struct mvebu_system_controller {
- 
- 	u32 rstoutn_mask_reset_out_en;
- 	u32 system_soft_reset;
-+
-+	int (*init)(void);
- };
- static struct mvebu_system_controller *mvebu_sc;
- 
-+int armada_375_system_controller_init(void)
-+{
-+	u32 reg;
-+
-+	/*
-+	 * The Armada 370/375/XP SoC family watchdog controller has a
-+	 * dedicated RSTOUT register to mask/unmask the watchdog reset.
-+	 * However, the A375 SoC also has a bit to mask the watchdog reset
-+	 * (WDT_RSTOUT), in the RSTOUT global register that is handled by the
-+	 * system-controller.
-+	 *
-+	 * Therefore, we unmask the watchdog reset in the shared
-+	 * system-controller register, in this initialization. The dedicated
-+	 * register for watchdog RSTOUT is handled by the watchdog driver.
-+	 */
-+	reg = readl(system_controller_base + mvebu_sc->rstoutn_mask_offset);
-+	reg &= ~A375_RSTOUT_WDT_MASK;
-+	writel(reg, system_controller_base + mvebu_sc->rstoutn_mask_offset);
-+
-+	return 0;
-+}
-+
- static const struct mvebu_system_controller armada_370_xp_system_controller = {
- 	.rstoutn_mask_offset = 0x60,
- 	.system_soft_reset_offset = 0x64,
-@@ -52,6 +78,7 @@ static const struct mvebu_system_controller armada_375_system_controller = {
- 	.system_soft_reset_offset = 0x58,
- 	.rstoutn_mask_reset_out_en = 0x1,
- 	.system_soft_reset = 0x1,
-+	.init = armada_375_system_controller_init,
- };
- 
- static const struct mvebu_system_controller orion_system_controller = {
-@@ -109,6 +136,9 @@ static int __init mvebu_system_controller_init(void)
- 		system_controller_base = of_iomap(np, 0);
- 		mvebu_sc = (struct mvebu_system_controller *)match->data;
- 		of_node_put(np);
-+
-+		if (mvebu_sc->init)
-+			mvebu_sc->init();
- 	}
- 
- 	return 0;
--- 
-1.8.1.5
+> > +++ b/include/clocksource/tegra_timer.h
+> > @@ -0,0 +1,43 @@
+> > +/*
+> > + * Copyright (C) 2010 Google, Inc.
+> > + *
+> > + * Author:
+> > + *	Colin Cross <ccross@google.com>
 
+The contents of this new header file are largely just a cut and paste of the corresponding
+snippet in tegra20-timer.c, so I thought I'd carry over the license verbatim.  I didn't author
+this really...I just moved it around.  What should I do instead?
+ÿôèº{.nÇ+‰·Ÿ®‰­†+%ŠËÿ±éİ¶¥Šwÿº{.nÇ+‰·¥Š{±şG«éÿŠ{ayº
+Ê‡Ú™ë,j­¢f£¢·hšïêÿ‘êçz_è®(­éšŠİ¢j"ú¶m§ÿÿ¾«şG«éÿ¢¸?™¨è­Ú&£ø§~á¶iO•æ¬z·švØ^¶m§ÿÿÃ
+ÿ¶ìÿ¢¸?–I¥
