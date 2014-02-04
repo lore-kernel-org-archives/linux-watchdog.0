@@ -1,111 +1,53 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ve0-f181.google.com ([209.85.128.181]:64272 "EHLO
-	mail-ve0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932616AbaAaRdv (ORCPT
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from hqemgate16.nvidia.com ([216.228.121.65]:2528 "EHLO
+	hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753541AbaBDARC (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 31 Jan 2014 12:33:51 -0500
+	Mon, 3 Feb 2014 19:17:02 -0500
+From: Andrew Chew <achew@nvidia.com>
+To: <daniel.lezcano@linaro.org>, <tglx@linutronix.de>,
+	<swarren@wwwdotorg.org>, <thierry.reding@gmail.com>,
+	<rob@landley.net>, <grant.likely@linaro.org>, <robh+dt@kernel.org>,
+	<abrestic@chromium.org>, <dgreid@chromium.org>,
+	<katierh@chromium.org>
+CC: <linux-kernel@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
+	<linux-watchdog@vger.kernel.org>, <linux-doc@vger.kernel.org>,
+	Andrew Chew <achew@nvidia.com>
+Subject: [PATCH v2 1/3] clocksource: tegra: Add nvidia,tegra30-timer compat
+Date: Mon, 3 Feb 2014 16:17:33 -0800
+Message-ID: <1391473055-3158-2-git-send-email-achew@nvidia.com>
+In-Reply-To: <1391473055-3158-1-git-send-email-achew@nvidia.com>
+References: <1391473055-3158-1-git-send-email-achew@nvidia.com>
 MIME-Version: 1.0
-In-Reply-To: <26d172891694e4041e73b7dae85a1848adf38034.1391177880.git.michal.simek@xilinx.com>
-References: <ed4cb31c9a549343e6b492cf62fc962d39034bd0.1391177880.git.michal.simek@xilinx.com>
-	<26d172891694e4041e73b7dae85a1848adf38034.1391177880.git.michal.simek@xilinx.com>
-Date: Fri, 31 Jan 2014 11:33:50 -0600
-Message-ID: <CAL_JsqJ+Dc9PFVYcxHvLiG9unKQX-kEc1fsYsieyTjf-AN3j=A@mail.gmail.com>
-Subject: Re: [PATCH 07/10] watchdog: xilinx: Fix OF binding
-From: Rob Herring <robherring2@gmail.com>
-To: Michal Simek <michal.simek@xilinx.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Michal Simek <monstr@monstr.eu>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Grant Likely <grant.likely@linaro.org>,
-	Rob Herring <robh+dt@kernel.org>,
-	linux-watchdog@vger.kernel.org,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Jan 31, 2014 at 8:18 AM, Michal Simek <michal.simek@xilinx.com> wrote:
-> Use of_property_read_u32 functions to clean OF probing.
+There are some differences between tegra20's timer registers and tegra30's
+(and later).  For example, tegra30 has more timers.  In addition, watchdogs
+are not present in tegra20.
 
-The subject is a bit misleading as this doesn't really fix anything.
+Add this compatibility string in order to be able to distinguish
+whether the additional timers and watchdogs are there or not.
 
->
-> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
-> ---
->
->  drivers/watchdog/of_xilinx_wdt.c | 25 ++++++++++---------------
->  1 file changed, 10 insertions(+), 15 deletions(-)
->
-> diff --git a/drivers/watchdog/of_xilinx_wdt.c b/drivers/watchdog/of_xilinx_wdt.c
-> index c229cc4..475440a6 100644
-> --- a/drivers/watchdog/of_xilinx_wdt.c
-> +++ b/drivers/watchdog/of_xilinx_wdt.c
-> @@ -147,8 +147,7 @@ static u32 xwdt_selftest(struct xwdt_device *xdev)
->  static int xwdt_probe(struct platform_device *pdev)
->  {
->         int rc;
-> -       u32 *tmptr;
-> -       u32 *pfreq;
-> +       u32 pfreq, enable_once;
->         struct resource *res;
->         struct xwdt_device *xdev;
->         bool no_timeout = false;
-> @@ -168,28 +167,24 @@ static int xwdt_probe(struct platform_device *pdev)
->         if (IS_ERR(xdev->base))
->                 return PTR_ERR(xdev->base);
->
-> -       pfreq = (u32 *)of_get_property(pdev->dev.of_node,
-> -                                       "clock-frequency", NULL);
-> -
-> -       if (pfreq == NULL) {
-> +       rc = of_property_read_u32(pdev->dev.of_node, "clock-frequency", &pfreq);
-> +       if (rc) {
->                 dev_warn(&pdev->dev,
->                          "The watchdog clock frequency cannot be obtained\n");
->                 no_timeout = true;
+Signed-off-by: Andrew Chew <achew@nvidia.com>
+Acked-by: Stephen Warren <swarren@nvidia.com>
+---
+ drivers/clocksource/tegra20_timer.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-You can kill this...
+diff --git a/drivers/clocksource/tegra20_timer.c b/drivers/clocksource/tegra20_timer.c
+index d1869f0..73cfa56 100644
+--- a/drivers/clocksource/tegra20_timer.c
++++ b/drivers/clocksource/tegra20_timer.c
+@@ -218,6 +218,7 @@ static void __init tegra20_init_timer(struct device_node *np)
+ 					0x1, 0x1fffffff);
+ }
+ CLOCKSOURCE_OF_DECLARE(tegra20_timer, "nvidia,tegra20-timer", tegra20_init_timer);
++CLOCKSOURCE_OF_DECLARE(tegra30_timer, "nvidia,tegra30-timer", tegra20_init_timer);
+ 
+ static void __init tegra20_init_rtc(struct device_node *np)
+ {
+-- 
+1.8.1.5
 
->         }
->
-> -       tmptr = (u32 *)of_get_property(pdev->dev.of_node,
-> -                                       "xlnx,wdt-interval", NULL);
-> -       if (tmptr == NULL) {
-> +       rc = of_property_read_u32(pdev->dev.of_node, "xlnx,wdt-interval",
-> +                                 &xdev->wdt_interval);
-> +       if (rc) {
->                 dev_warn(&pdev->dev,
->                          "Parameter \"xlnx,wdt-interval\" not found\n");
->                 no_timeout = true;
-
-and this...
-
-> -       } else {
-> -               xdev->wdt_interval = *tmptr;
->         }
->
-> -       tmptr = (u32 *)of_get_property(pdev->dev.of_node,
-> -                                       "xlnx,wdt-enable-once", NULL);
-> -       if (tmptr == NULL) {
-> +       rc = of_property_read_u32(pdev->dev.of_node, "xlnx,wdt-enable-once",
-> +                                 &enable_once);
-> +       if (!rc && enable_once) {
->                 dev_warn(&pdev->dev,
->                          "Parameter \"xlnx,wdt-enable-once\" not found\n");
->                 watchdog_set_nowayout(xilinx_wdt_wdd, true);
-> @@ -201,7 +196,7 @@ static int xwdt_probe(struct platform_device *pdev)
->   */
->         if (!no_timeout)
-
-and use "if (pfreq && xdev->wdt_interval)" if you initialize pfreq to 0.
-
->                 xilinx_wdt_wdd->timeout = 2 * ((1 << xdev->wdt_interval) /
-> -                                         *pfreq);
-> +                                         pfreq);
-
-Is the wdog really usable if the timeout properties are missing? Seems
-like you should fail to probe rather than warn.
-
-Rob
