@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from hqemgate14.nvidia.com ([216.228.121.143]:14287 "EHLO
+Received: from hqemgate14.nvidia.com ([216.228.121.143]:14377 "EHLO
 	hqemgate14.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752062AbaBEVjj convert rfc822-to-8bit (ORCPT
+	with ESMTP id S1754324AbaBEVla convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 5 Feb 2014 16:39:39 -0500
+	Wed, 5 Feb 2014 16:41:30 -0500
 From: Andrew Chew <AChew@nvidia.com>
 To: Stephen Warren <swarren@wwwdotorg.org>,
 	"daniel.lezcano@linaro.org" <daniel.lezcano@linaro.org>,
@@ -19,16 +19,14 @@ CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
 	"linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
 	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
 	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>
-Date: Wed, 5 Feb 2014 13:39:37 -0800
-Subject: RE: [PATCH v2 1/3] clocksource: tegra: Add nvidia,tegra30-timer
- compat
-Message-ID: <643E69AA4436674C8F39DCC2C05F763863199859FD@HQMAIL03.nvidia.com>
+Date: Wed, 5 Feb 2014 13:41:28 -0800
+Subject: RE: [PATCH v2 2/3] clocksource: tegra: Define timer bases in header
+ file
+Message-ID: <643E69AA4436674C8F39DCC2C05F76386319985A02@HQMAIL03.nvidia.com>
 References: <1391473055-3158-1-git-send-email-achew@nvidia.com>
- <1391473055-3158-2-git-send-email-achew@nvidia.com>
- <52F2996B.4080005@wwwdotorg.org>
- <643E69AA4436674C8F39DCC2C05F763863199859AC@HQMAIL03.nvidia.com>
- <52F29C45.9020206@wwwdotorg.org>
-In-Reply-To: <52F29C45.9020206@wwwdotorg.org>
+ <1391473055-3158-3-git-send-email-achew@nvidia.com>
+ <52F29923.6020708@wwwdotorg.org>
+In-Reply-To: <52F29923.6020708@wwwdotorg.org>
 Content-Language: en-US
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
@@ -36,43 +34,38 @@ MIME-Version: 1.0
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-> On 02/05/2014 01:06 PM, Andrew Chew wrote:
-> >> On 02/03/2014 05:17 PM, Andrew Chew wrote:
-> >>> There are some differences between tegra20's timer registers and
-> >>> tegra30's (and later).  For example, tegra30 has more timers.  In
-> >>> addition, watchdogs are not present in tegra20.
-> >>>
-> >>> Add this compatibility string in order to be able to distinguish
-> >>> whether the additional timers and watchdogs are there or not.
-> >>
-> >>> diff --git a/drivers/clocksource/tegra20_timer.c
-> >>> b/drivers/clocksource/tegra20_timer.c
-> >>
-> >>>  CLOCKSOURCE_OF_DECLARE(tegra20_timer, "nvidia,tegra20-timer",
-> >>> tegra20_init_timer);
-> >>> +CLOCKSOURCE_OF_DECLARE(tegra30_timer, "nvidia,tegra30-timer",
-> >>> +tegra20_init_timer);
-> >>
-> >> Thinking about this more, nothing in this driver actually cares about
-> >> Tegra20 vs. Tegra30+, since the timer that's used is present in all chips.
-> >> Hence, this patch isn't needed.
-> >
-> > Don't I need to add nvidia,tegra30-timer so that the tegra WDT driver
-> > can match against it?  It would be weird to have the tegra WDT driver
-> > bind against nvidia,tegra20-timer when the tegra WDT driver as it is
-> > won't work at all on tegra20.
+> > +/* Tegra 20 timers */
+> > +#define TEGRA20_TIMER1_BASE	0x0
+> > +#define TEGRA20_TIMER2_BASE	0x8
+> > +#define TEGRA20_TIMER3_BASE	0x50
+> > +#define TEGRA20_TIMER4_BASE	0x58
+> > +
+> > +/* Tegra 30 timers */
+> > +#define TEGRA30_TIMER1_BASE	TEGRA20_TIMER1_BASE
+> > +#define TEGRA30_TIMER2_BASE	TEGRA20_TIMER2_BASE
+> > +#define TEGRA30_TIMER3_BASE	TEGRA20_TIMER3_BASE
+> > +#define TEGRA30_TIMER4_BASE	TEGRA20_TIMER4_BASE
+> > +#define TEGRA30_TIMER5_BASE	0x60
+> > +#define TEGRA30_TIMER6_BASE	0x68
+> > +#define TEGRA30_TIMER7_BASE	0x70
+> > +#define TEGRA30_TIMER8_BASE	0x78
+> > +#define TEGRA30_TIMER9_BASE	0x80
+> > +#define TEGRA30_TIMER0_BASE	0x88
 > 
-> The DT files need to contain all of:
+> Why put the SoC name in the define names? Why not just have
+> TIMER1_BASE..TIMER10_BASE (that should be 10 not 0 as in your patch,
+> right?) and have the driver know that 1..4 are valid on Tegra20, and
+> 1..10 are valid on later chips.
 > 
-> * The specific SoC (this is already present)
-> * nvidia,tegra30-timer for SoCs >= Tegra30 (this is missing)
-> * nvidia,tegra20-timer for all SoCs (this is already present)
+> I guess if the defines are moved into a header file, adding a TEGRA_ prefix
+> does make sense.
 > 
-> However, since all DTs will contain nvidia,tegra20-timer, since all HW is
-> backwards-compatible IIUC, any code that only cares about the parts that
-> have existed since Tegra20 only need match against the Tegra20 compatible
-> value.
+> But I wonder if it wouldn't be simpler for the Tegra WDT driver to just call a
+> function on the Tegra clocksource driver to find out which timer
+> ID(s) to avoid using? Even simpler would be to just put a comment in the
+> WDT driver saying that timer 5 was chosen arbitrarily, but if it's changed make
+> sure not to conflict with the clocksource driver (and an equivalent change to
+> the clocksource driver).
 
-Okay, I think I get what you're saying.  So I'll drop this patch.  The tegra WDT
-driver will still match against nvidia,tegra30-timer, and device trees for SoCs
-that expect to use this WDT driver will have to have nvidia,tegra30-timer.
+Alright, I think I'll just go with putting a comment in the WDT driver then, so that
+We don't need to add this new header file.
