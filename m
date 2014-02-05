@@ -1,112 +1,68 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:39387 "EHLO
+Received: from avon.wwwdotorg.org ([70.85.31.133]:36453 "EHLO
 	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755467AbaBEUO0 (ORCPT
+	with ESMTP id S1754271AbaBEURN (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 5 Feb 2014 15:14:26 -0500
-Message-ID: <52F29B9D.2090804@wwwdotorg.org>
-Date: Wed, 05 Feb 2014 13:14:21 -0700
+	Wed, 5 Feb 2014 15:17:13 -0500
+Message-ID: <52F29C45.9020206@wwwdotorg.org>
+Date: Wed, 05 Feb 2014 13:17:09 -0700
 From: Stephen Warren <swarren@wwwdotorg.org>
 MIME-Version: 1.0
-To: Andrew Chew <achew@nvidia.com>, daniel.lezcano@linaro.org,
-	tglx@linutronix.de, thierry.reding@gmail.com, rob@landley.net,
-	grant.likely@linaro.org, robh+dt@kernel.org, abrestic@chromium.org,
-	dgreid@chromium.org, katierh@chromium.org
-CC: linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org
-Subject: Re: [PATCH v2 3/3] watchdog: Add tegra watchdog
-References: <1391473055-3158-1-git-send-email-achew@nvidia.com> <1391473055-3158-4-git-send-email-achew@nvidia.com>
-In-Reply-To: <1391473055-3158-4-git-send-email-achew@nvidia.com>
+To: Andrew Chew <AChew@nvidia.com>,
+	"daniel.lezcano@linaro.org" <daniel.lezcano@linaro.org>,
+	"tglx@linutronix.de" <tglx@linutronix.de>,
+	"thierry.reding@gmail.com" <thierry.reding@gmail.com>,
+	"rob@landley.net" <rob@landley.net>,
+	"grant.likely@linaro.org" <grant.likely@linaro.org>,
+	"robh+dt@kernel.org" <robh+dt@kernel.org>,
+	"abrestic@chromium.org" <abrestic@chromium.org>,
+	"dgreid@chromium.org" <dgreid@chromium.org>,
+	"katierh@chromium.org" <katierh@chromium.org>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>
+Subject: Re: [PATCH v2 1/3] clocksource: tegra: Add nvidia,tegra30-timer compat
+References: <1391473055-3158-1-git-send-email-achew@nvidia.com> <1391473055-3158-2-git-send-email-achew@nvidia.com> <52F2996B.4080005@wwwdotorg.org> <643E69AA4436674C8F39DCC2C05F763863199859AC@HQMAIL03.nvidia.com>
+In-Reply-To: <643E69AA4436674C8F39DCC2C05F763863199859AC@HQMAIL03.nvidia.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/03/2014 05:17 PM, Andrew Chew wrote:
-> Add a driver for the hardware watchdogs in NVIDIA Tegra SoCs (tegra30 and
-
-s/tegra30/Tegra30/
-
-> later).  This driver will configure one watchdog timer that will reset the
-> system in the case of a watchdog timeout.
+On 02/05/2014 01:06 PM, Andrew Chew wrote:
+>> On 02/03/2014 05:17 PM, Andrew Chew wrote:
+>>> There are some differences between tegra20's timer registers and
+>>> tegra30's (and later).  For example, tegra30 has more timers.  In
+>>> addition, watchdogs are not present in tegra20.
+>>>
+>>> Add this compatibility string in order to be able to distinguish
+>>> whether the additional timers and watchdogs are there or not.
+>>
+>>> diff --git a/drivers/clocksource/tegra20_timer.c
+>>> b/drivers/clocksource/tegra20_timer.c
+>>
+>>>  CLOCKSOURCE_OF_DECLARE(tegra20_timer, "nvidia,tegra20-timer",
+>>> tegra20_init_timer);
+>>> +CLOCKSOURCE_OF_DECLARE(tegra30_timer, "nvidia,tegra30-timer",
+>>> +tegra20_init_timer);
+>>
+>> Thinking about this more, nothing in this driver actually cares about
+>> Tegra20 vs. Tegra30+, since the timer that's used is present in all chips.
+>> Hence, this patch isn't needed.
 > 
-> This driver binds to the nvidia,tegra30-timer device node and gets its
-> register base from there.
+> Don't I need to add nvidia,tegra30-timer so that the tegra WDT driver
+> can match against it?  It would be weird to have the tegra WDT driver
+> bind against nvidia,tegra20-timer when the tegra WDT driver as it is won't
+> work at all on tegra20.
 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+The DT files need to contain all of:
 
-> +config TEGRA_WATCHDOG
-> +	tristate "Tegra watchdog"
-> +	depends on ARCH_TEGRA
+* The specific SoC (this is already present)
+* nvidia,tegra30-timer for SoCs >= Tegra30 (this is missing)
+* nvidia,tegra20-timer for all SoCs (this is already present)
 
-|| COMPILE_TEST ?
-
-> diff --git a/drivers/watchdog/tegra_wdt.c b/drivers/watchdog/tegra_wdt.c
-
-> +static int tegra_wdt_probe(struct platform_device *pdev)
-
-> +	/* This is the timer base. */
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	if (!res) {
-...
-> +	mem = devm_request_mem_region(&pdev->dev, res->start,
-> +				      resource_size(res),
-> +				      pdev->name);
-> +	if (!mem) {
-...
-> +	regs = devm_ioremap(&pdev->dev, mem->start,
-> +			    resource_size(mem));
-> +	if (!regs) {
-...
-
-I forget exactly which of those, but I think at least one/some of those
-don't need to be error-checked, since the later functions will detect an
-error input, and return an appropriate error code, so they can be
-chained together while only error-checking the final result.
-
-> +static int tegra_wdt_remove(struct platform_device *pdev)
-
-> +	platform_set_drvdata(pdev, NULL);
-
-There's no need to do that; the value of drvdata is irrelevant when the
-device isn't probed, so there's no need for it to be NULL.
-
-> +static struct platform_driver tegra_wdt_driver = {
-> +	.probe		= tegra_wdt_probe,
-> +	.remove		= tegra_wdt_remove,
-> +#ifdef CONFIG_PM
-> +	.suspend	= tegra_wdt_suspend,
-> +	.resume		= tegra_wdt_resume,
-> +#endif
-
-I think for suspend/resume, you'd usually set it up like:
-
-static const struct dev_pm_ops tegra20_i2s_pm_ops = {
-        SET_RUNTIME_PM_OPS(tegra20_i2s_runtime_suspend,
-                           tegra20_i2s_runtime_resume, NULL)
-};
-
-static struct platform_driver tegra20_i2s_driver = {
-        .driver = {
-...
-               .pm = &tegra20_i2s_pm_ops,
-        },
-...
-};
-
-> +	.driver		= {
-> +		.owner	= THIS_MODULE,
-> +		.name	= "tegra-wdt",
-> +		.of_match_table = tegra_wdt_of_match,
-> +	},
-> +};
-> +
-> +module_platform_driver(tegra_wdt_driver);
-
-No need for the blank line before module_platform_driver().
-
-> +MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
-> +MODULE_ALIAS("platform:tegra-wdt");
-
-You don't need at least that second alias; everything binds to the
-MODULE_DEVICE_TABLE() now with DT.
+However, since all DTs will contain nvidia,tegra20-timer, since all HW
+is backwards-compatible IIUC, any code that only cares about the parts
+that have existed since Tegra20 only need match against the Tegra20
+compatible value.
