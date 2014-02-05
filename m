@@ -1,100 +1,112 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:49918 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751678AbaBCIaM (ORCPT
+Received: from e23smtp06.au.ibm.com ([202.81.31.148]:58739 "EHLO
+	e23smtp06.au.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756020AbaBEWRJ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 3 Feb 2014 03:30:12 -0500
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: wim@iguana.be
-Cc: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: [PATCH 3/3] ARM: sunxi: dt: Update the watchdog compatibles
-Date: Sun,  2 Feb 2014 14:55:25 +0100
-Message-Id: <1391349325-11132-3-git-send-email-maxime.ripard@free-electrons.com>
-In-Reply-To: <1391349325-11132-1-git-send-email-maxime.ripard@free-electrons.com>
-References: <1391349325-11132-1-git-send-email-maxime.ripard@free-electrons.com>
+	Wed, 5 Feb 2014 17:17:09 -0500
+Received: from /spool/local
+	by e23smtp06.au.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+	for <linux-watchdog@vger.kernel.org> from <srivatsa.bhat@linux.vnet.ibm.com>;
+	Thu, 6 Feb 2014 08:17:08 +1000
+From: "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
+Subject: [PATCH 40/51] octeon, watchdog: Fix CPU hotplug callback registration
+To: paulus@samba.org, oleg@redhat.com, rusty@rustcorp.com.au,
+	peterz@infradead.org, tglx@linutronix.de, akpm@linux-foundation.org
+Cc: mingo@kernel.org, paulmck@linux.vnet.ibm.com, tj@kernel.org,
+	walken@google.com, ego@linux.vnet.ibm.com, linux@arm.linux.org.uk,
+	linux-kernel@vger.kernel.org, srivatsa.bhat@linux.vnet.ibm.com,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org,
+	"Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
+Date: Thu, 06 Feb 2014 03:41:44 +0530
+Message-ID: <20140205221144.19080.47455.stgit@srivatsabhat.in.ibm.com>
+In-Reply-To: <20140205220251.19080.92336.stgit@srivatsabhat.in.ibm.com>
+References: <20140205220251.19080.92336.stgit@srivatsabhat.in.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The watchdog compatibles were following a different pattern than the one found
-in the other devices. Now that the driver supports the right pattern, switch to
-it in the DT.
+Subsystems that want to register CPU hotplug callbacks, as well as perform
+initialization for the CPUs that are already online, often do it as shown
+below:
 
-Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+	get_online_cpus();
+
+	for_each_online_cpu(cpu)
+		init_cpu(cpu);
+
+	register_cpu_notifier(&foobar_cpu_notifier);
+
+	put_online_cpus();
+
+This is wrong, since it is prone to ABBA deadlocks involving the
+cpu_add_remove_lock and the cpu_hotplug.lock (when running concurrently
+with CPU hotplug operations).
+
+Instead, the correct and race-free way of performing the callback
+registration is:
+
+	cpu_maps_update_begin();
+
+	for_each_online_cpu(cpu)
+		init_cpu(cpu);
+
+	/* Note the use of the double underscored version of the API */
+	__register_cpu_notifier(&foobar_cpu_notifier);
+
+	cpu_maps_update_done();
+
+
+Fix the watchdog code in octeon by using this latter form of callback
+registration.
+
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org
+Signed-off-by: Srivatsa S. Bhat <srivatsa.bhat@linux.vnet.ibm.com>
 ---
- arch/arm/boot/dts/sun4i-a10.dtsi  | 2 +-
- arch/arm/boot/dts/sun5i-a10s.dtsi | 2 +-
- arch/arm/boot/dts/sun5i-a13.dtsi  | 2 +-
- arch/arm/boot/dts/sun6i-a31.dtsi  | 2 +-
- arch/arm/boot/dts/sun7i-a20.dtsi  | 2 +-
- 5 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/boot/dts/sun4i-a10.dtsi b/arch/arm/boot/dts/sun4i-a10.dtsi
-index 040bb0e..f1eb8718 100644
---- a/arch/arm/boot/dts/sun4i-a10.dtsi
-+++ b/arch/arm/boot/dts/sun4i-a10.dtsi
-@@ -410,7 +410,7 @@
- 		};
+ drivers/watchdog/octeon-wdt-main.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/watchdog/octeon-wdt-main.c b/drivers/watchdog/octeon-wdt-main.c
+index 4612088..c991acf 100644
+--- a/drivers/watchdog/octeon-wdt-main.c
++++ b/drivers/watchdog/octeon-wdt-main.c
+@@ -708,10 +708,13 @@ static int __init octeon_wdt_init(void)
  
- 		wdt: watchdog@01c20c90 {
--			compatible = "allwinner,sun4i-wdt";
-+			compatible = "allwinner,sun4i-a10-wdt";
- 			reg = <0x01c20c90 0x10>;
- 		};
+ 	cpumask_clear(&irq_enabled_cpus);
  
-diff --git a/arch/arm/boot/dts/sun5i-a10s.dtsi b/arch/arm/boot/dts/sun5i-a10s.dtsi
-index ea16054..c4a4b23 100644
---- a/arch/arm/boot/dts/sun5i-a10s.dtsi
-+++ b/arch/arm/boot/dts/sun5i-a10s.dtsi
-@@ -373,7 +373,7 @@
- 		};
++	cpu_maps_update_begin();
+ 	for_each_online_cpu(cpu)
+ 		octeon_wdt_setup_interrupt(cpu);
  
- 		wdt: watchdog@01c20c90 {
--			compatible = "allwinner,sun4i-wdt";
-+			compatible = "allwinner,sun4i-a10-wdt";
- 			reg = <0x01c20c90 0x10>;
- 		};
+-	register_hotcpu_notifier(&octeon_wdt_cpu_notifier);
++	__register_hotcpu_notifier(&octeon_wdt_cpu_notifier);
++	cpu_maps_update_done();
++
+ out:
+ 	return ret;
+ }
+@@ -725,7 +728,8 @@ static void __exit octeon_wdt_cleanup(void)
  
-diff --git a/arch/arm/boot/dts/sun5i-a13.dtsi b/arch/arm/boot/dts/sun5i-a13.dtsi
-index 320335a..143656b 100644
---- a/arch/arm/boot/dts/sun5i-a13.dtsi
-+++ b/arch/arm/boot/dts/sun5i-a13.dtsi
-@@ -336,7 +336,7 @@
- 		};
+ 	misc_deregister(&octeon_wdt_miscdev);
  
- 		wdt: watchdog@01c20c90 {
--			compatible = "allwinner,sun4i-wdt";
-+			compatible = "allwinner,sun4i-a10-wdt";
- 			reg = <0x01c20c90 0x10>;
- 		};
+-	unregister_hotcpu_notifier(&octeon_wdt_cpu_notifier);
++	cpu_maps_update_begin();
++	__unregister_hotcpu_notifier(&octeon_wdt_cpu_notifier);
  
-diff --git a/arch/arm/boot/dts/sun6i-a31.dtsi b/arch/arm/boot/dts/sun6i-a31.dtsi
-index 5256ad9..cc691d1 100644
---- a/arch/arm/boot/dts/sun6i-a31.dtsi
-+++ b/arch/arm/boot/dts/sun6i-a31.dtsi
-@@ -242,7 +242,7 @@
- 		};
- 
- 		wdt1: watchdog@01c20ca0 {
--			compatible = "allwinner,sun6i-wdt";
-+			compatible = "allwinner,sun6i-a31-wdt";
- 			reg = <0x01c20ca0 0x20>;
- 		};
- 
-diff --git a/arch/arm/boot/dts/sun7i-a20.dtsi b/arch/arm/boot/dts/sun7i-a20.dtsi
-index 119f066..aaa7b3d 100644
---- a/arch/arm/boot/dts/sun7i-a20.dtsi
-+++ b/arch/arm/boot/dts/sun7i-a20.dtsi
-@@ -447,7 +447,7 @@
- 		};
- 
- 		wdt: watchdog@01c20c90 {
--			compatible = "allwinner,sun4i-wdt";
-+			compatible = "allwinner,sun4i-a10-wdt";
- 			reg = <0x01c20c90 0x10>;
- 		};
- 
--- 
-1.8.4.2
+ 	for_each_online_cpu(cpu) {
+ 		int core = cpu2core(cpu);
+@@ -734,6 +738,9 @@ static void __exit octeon_wdt_cleanup(void)
+ 		/* Free the interrupt handler */
+ 		free_irq(OCTEON_IRQ_WDOG0 + core, octeon_wdt_poke_irq);
+ 	}
++
++	cpu_maps_update_done();
++
+ 	/*
+ 	 * Disable the boot-bus memory, the code it points to is soon
+ 	 * to go missing.
 
