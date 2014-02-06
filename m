@@ -1,70 +1,83 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from userp1040.oracle.com ([156.151.31.81]:21282 "EHLO
-	userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752166AbaBFHtX (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 6 Feb 2014 02:49:23 -0500
-Message-ID: <52F33E7D.2060302@oracle.com>
-Date: Thu, 06 Feb 2014 11:49:17 +0400
-From: Stanislav Kholmanskikh <stanislav.kholmanskikh@oracle.com>
+Received: from mx1.redhat.com ([209.132.183.28]:21102 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755832AbaBFLOy (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 6 Feb 2014 06:14:54 -0500
+Message-ID: <52F36E8D.4050503@redhat.com>
+Date: Thu, 06 Feb 2014 12:14:21 +0100
+From: Hans de Goede <hdegoede@redhat.com>
 MIME-Version: 1.0
-To: Guenter Roeck <linux@roeck-us.net>
-CC: linux-watchdog@vger.kernel.org, vasily.isaenko@oracle.com
-Subject: Re: [PATCH] watchdog: w83697hf_wdt: return ENODEV if no device was
- found
-References: <1390806273-8848-1-git-send-email-stanislav.kholmanskikh@oracle.com> <20140127163332.GA29882@roeck-us.net> <52F32AD8.4010108@oracle.com> <52F338EB.2070702@roeck-us.net>
-In-Reply-To: <52F338EB.2070702@roeck-us.net>
+To: Maxime Ripard <maxime.ripard@free-electrons.com>, wim@iguana.be
+CC: linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH 1/3] wdt: sunxi: Introduce a new compatible for the A10
+ and A31
+References: <1391349325-11132-1-git-send-email-maxime.ripard@free-electrons.com>
+In-Reply-To: <1391349325-11132-1-git-send-email-maxime.ripard@free-electrons.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+Hi,
 
-
-On 02/06/2014 11:25 AM, Guenter Roeck wrote:
-> On 02/05/2014 10:25 PM, Stanislav Kholmanskikh wrote:
->> Hi!
->>
->> On 01/27/2014 08:33 PM, Guenter Roeck wrote:
->>> On Mon, Jan 27, 2014 at 11:04:33AM +0400, Stanislav Kholmanskikh wrote:
->>>> Most WDT driver modules return ENODEV during modprobe if
->>>> no valid device was found, but w83697hf_wdt returns EIO.
->>>>
->>>> Let w83697hf_wdt return ENODEV.
->>>>
->>>> Signed-off-by: Stanislav Kholmanskikh
->>>> <stanislav.kholmanskikh@oracle.com>
->>>
->>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->>
->> Thank you.
->>
->> I'm a newbie here.
->>
->> Should I do something to move it forward (like send this to an another
->> mail list), or just wait? :)
->>
+On 02/02/2014 02:55 PM, Maxime Ripard wrote:
+> For historical reasons, the Allwinner A10 compatibles are not following the
+> patterns used for this other Allwinner SoCs.
 >
-> Just wait. I'll apply it to my tree and send a reminder to Wim at some
-> point.
-> Usually Wim is pretty good at picking things up himself, though.
+> Introduce a new compatible following the usual pattern, and deprecate the olders.
 >
-> Of course, fun part in this case is that I actually submitted a patch
-> to remove this driver ;-). Not as bad as it sounds - reason was that
-> the w83627hf driver now supports the w83697hf as well, and the w83697hf
-> driver is thus redundant. I can understand Wim if he wants to keep
-> the driver around for a while, though.
+> Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+> ---
+>   Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt | 7 ++++---
+>   drivers/watchdog/sunxi_wdt.c                             | 1 +
+>   2 files changed, 5 insertions(+), 3 deletions(-)
+>
+> diff --git a/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt b/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
+> index e39cb26..6e8c937 100644
+> --- a/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
+> +++ b/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
+> @@ -2,13 +2,14 @@ Allwinner SoCs Watchdog timer
+>
+>   Required properties:
+>
+> -- compatible : should be "allwinner,<soc-family>-wdt", the currently supported
+> -  SoC families being sun4i and sun6i
+> +- compatible : should be either "allwinner,sun4i-a10-wdt" or
+> +               "allwinner,sun6i-a31-wdt" (deprecated:
+> +               "allwinner,sun4i-wdt", "allwinner,sun6i-wdt")
+>   - reg : Specifies base physical address and size of the registers.
+>
+>   Example:
+>
+>   wdt: watchdog@01c20c90 {
+> -	compatible = "allwinner,sun4i-wdt";
+> +	compatible = "allwinner,sun4i-a10-wdt";
+>   	reg = <0x01c20c90 0x10>;
+>   };
+
+You talk about deprecating the old compat strings in the commit message, but
+here you outright replace them, which will break things with old dtb files ?
+
+Other 2 patches in the series look good and are:
+
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+
+
+> diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
+> index 76332d8..7c8923d 100644
+> --- a/drivers/watchdog/sunxi_wdt.c
+> +++ b/drivers/watchdog/sunxi_wdt.c
+> @@ -206,6 +206,7 @@ static void sunxi_wdt_shutdown(struct platform_device *pdev)
+>
+>   static const struct of_device_id sunxi_wdt_dt_ids[] = {
+>   	{ .compatible = "allwinner,sun4i-wdt" },
+> +	{ .compatible = "allwinner,sun4i-a10-wdt" },
+>   	{ /* sentinel */ }
+>   };
+>   MODULE_DEVICE_TABLE(of, sunxi_wdt_dt_ids);
 >
 
-Ok. Got it.
+Regards,
 
-Both outcomes are good for me :)
-
-
-> Guenter
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Hans
