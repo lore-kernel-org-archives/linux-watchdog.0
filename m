@@ -1,12 +1,12 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:42819 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750739AbaBFTKb (ORCPT
+Received: from mho-03-ewr.mailhop.org ([204.13.248.66]:49771 "EHLO
+	mho-01-ewr.mailhop.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1756718AbaBFTMi (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 6 Feb 2014 14:10:31 -0500
-Date: Thu, 6 Feb 2014 16:10:24 -0300
-From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-To: Jason Cooper <jason@lakedaemon.net>
+	Thu, 6 Feb 2014 14:12:38 -0500
+Date: Thu, 6 Feb 2014 14:12:23 -0500
+From: Jason Cooper <jason@lakedaemon.net>
+To: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 Cc: devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
 	linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
 	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
@@ -14,42 +14,41 @@ Cc: devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
 	Lior Amsalem <alior@marvell.com>,
 	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
 	Andrew Lunn <andrew@lunn.ch>
-Subject: Re: [PATCH v6 18/19] ARM: mvebu: Enable watchdog support in defconfig
-Message-ID: <20140206191023.GA19328@localhost>
+Subject: Re: [PATCH v6 18/19] ARM: mvebu: Enable watchdog support in
+ defconfig
+Message-ID: <20140206191223.GL8533@titan.lakedaemon.net>
 References: <1391707226-18258-1-git-send-email-ezequiel.garcia@free-electrons.com>
  <1391707226-18258-19-git-send-email-ezequiel.garcia@free-electrons.com>
  <20140206175159.GI8533@titan.lakedaemon.net>
+ <20140206191023.GA19328@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <20140206175159.GI8533@titan.lakedaemon.net>
+In-Reply-To: <20140206191023.GA19328@localhost>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Feb 06, 2014 at 12:51:59PM -0500, Jason Cooper wrote:
-> On Thu, Feb 06, 2014 at 02:20:25PM -0300, Ezequiel Garcia wrote:
-> > Now that we have proper support for Armada 370/XP watchdog
-> > let's enable it in the defconfig.
-> >=20
-> > Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-> > ---
-> >  arch/arm/configs/mvebu_defconfig | 2 ++
-> >  1 file changed, 2 insertions(+)
->=20
-> If this ends up being the last version for this series, I'll add a pa=
-tch
-> for multi_v7_defconfig.  Otherwise, please add for the next round.
->=20
+On Thu, Feb 06, 2014 at 04:10:24PM -0300, Ezequiel Garcia wrote:
+> On Thu, Feb 06, 2014 at 12:51:59PM -0500, Jason Cooper wrote:
+> > On Thu, Feb 06, 2014 at 02:20:25PM -0300, Ezequiel Garcia wrote:
+> > > Now that we have proper support for Armada 370/XP watchdog
+> > > let's enable it in the defconfig.
+> > > 
+> > > Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+> > > ---
+> > >  arch/arm/configs/mvebu_defconfig | 2 ++
+> > >  1 file changed, 2 insertions(+)
+> > 
+> > If this ends up being the last version for this series, I'll add a patch
+> > for multi_v7_defconfig.  Otherwise, please add for the next round.
+> > 
+> 
+> Oh, yes, I forgot about your request on this. Let's hope I don't forget
+> next time.
 
-Oh, yes, I forgot about your request on this. Let's hope I don't forget
-next time.
---=20
-Ezequiel Garc=C3=ADa, Free Electrons
-Embedded Linux, Kernel and Android Engineering
-http://free-electrons.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Yes, we found the i2c hang because of multi_v7, so it's definitely worth
+the effort.
+
+thx,
+
+Jason.
