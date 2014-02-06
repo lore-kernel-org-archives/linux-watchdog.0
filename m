@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:42276 "EHLO
+Received: from top.free-electrons.com ([176.31.233.9]:42268 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1756496AbaBFRVT (ORCPT
+	with ESMTP id S1756374AbaBFRVP (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 6 Feb 2014 12:21:19 -0500
+	Thu, 6 Feb 2014 12:21:15 -0500
 From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 To: <devicetree@vger.kernel.org>,
 	<linux-arm-kernel@lists.infradead.org>,
@@ -15,122 +15,174 @@ Cc: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
 	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
 	Andrew Lunn <andrew@lunn.ch>,
 	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-Subject: [PATCH v6 11/19] watchdog: orion: Add per-compatible clock initialization
-Date: Thu,  6 Feb 2014 14:20:18 -0300
-Message-Id: <1391707226-18258-12-git-send-email-ezequiel.garcia@free-electrons.com>
+Subject: [PATCH v6 10/19] watchdog: orion: Introduce per-compatible of_device_id data
+Date: Thu,  6 Feb 2014 14:20:17 -0300
+Message-Id: <1391707226-18258-11-git-send-email-ezequiel.garcia@free-electrons.com>
 In-Reply-To: <1391707226-18258-1-git-send-email-ezequiel.garcia@free-electrons.com>
 References: <1391707226-18258-1-git-send-email-ezequiel.garcia@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Following the introduction of the compatible-data field,
-it's now possible to further abstract the clock initialization.
-This will allow to support SoC with a different clock setup.
+This commit adds an orion_watchdog_data structure to hold compatible-data
+information. This allows to remove the driver-wide definition and to
+be able to add support for multiple compatible-strings in the future.
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Tested-by: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
 Tested-by: Willy Tarreau <w@1wt.eu>
 Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 ---
- drivers/watchdog/orion_wdt.c | 53 ++++++++++++++++++++++++++------------------
- 1 file changed, 32 insertions(+), 21 deletions(-)
+ drivers/watchdog/orion_wdt.c | 58 +++++++++++++++++++++++++++++++-------------
+ 1 file changed, 41 insertions(+), 17 deletions(-)
 
 diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
-index 12fedf4..de7a10b 100644
+index 30ce504..12fedf4 100644
 --- a/drivers/watchdog/orion_wdt.c
 +++ b/drivers/watchdog/orion_wdt.c
-@@ -42,10 +42,14 @@
+@@ -24,6 +24,7 @@
+ #include <linux/clk.h>
+ #include <linux/err.h>
+ #include <linux/of.h>
++#include <linux/of_device.h>
+ 
+ /* RSTOUT mask register physical address for Orion5x, Kirkwood and Dove */
+ #define ORION_RSTOUT_MASK_OFFSET	0x20108
+@@ -35,29 +36,33 @@
+  * Watchdog timer block registers.
+  */
+ #define TIMER_CTRL		0x0000
+-#define WDT_EN			0x0010
+-#define WDT_VAL			0x0024
+ 
+ #define WDT_MAX_CYCLE_COUNT	0xffffffff
+ 
+-#define WDT_RESET_OUT_EN	BIT(1)
+-
  static bool nowayout = WATCHDOG_NOWAYOUT;
  static int heartbeat = -1;		/* module parameter (seconds) */
  
-+struct orion_watchdog;
++struct orion_watchdog_data {
++	int wdt_counter_offset;
++	int wdt_enable_bit;
++	int rstout_enable_bit;
++};
 +
- struct orion_watchdog_data {
- 	int wdt_counter_offset;
- 	int wdt_enable_bit;
- 	int rstout_enable_bit;
-+	int (*clock_init)(struct platform_device *,
-+			  struct orion_watchdog *);
- };
- 
  struct orion_watchdog {
-@@ -57,6 +61,22 @@ struct orion_watchdog {
- 	const struct orion_watchdog_data *data;
+ 	struct watchdog_device wdt;
+ 	void __iomem *reg;
+ 	void __iomem *rstout;
+ 	unsigned long clk_rate;
+ 	struct clk *clk;
++	const struct orion_watchdog_data *data;
  };
  
-+static int orion_wdt_clock_init(struct platform_device *pdev,
-+				struct orion_watchdog *dev)
-+{
-+	int ret;
-+
-+	dev->clk = devm_clk_get(&pdev->dev, NULL);
-+	if (IS_ERR(dev->clk))
-+		return PTR_ERR(dev->clk);
-+	ret = clk_prepare_enable(dev->clk);
-+	if (ret)
-+		return ret;
-+
-+	dev->clk_rate = clk_get_rate(dev->clk);
-+	return 0;
-+}
-+
  static int orion_wdt_ping(struct watchdog_device *wdt_dev)
  {
  	struct orion_watchdog *dev = watchdog_get_drvdata(wdt_dev);
-@@ -162,6 +182,7 @@ static const struct orion_watchdog_data orion_data = {
- 	.rstout_enable_bit = BIT(1),
- 	.wdt_enable_bit = BIT(4),
- 	.wdt_counter_offset = 0x24,
-+	.clock_init = orion_wdt_clock_init,
- };
+ 	/* Reload watchdog duration */
+-	writel(dev->clk_rate * wdt_dev->timeout, dev->reg + WDT_VAL);
++	writel(dev->clk_rate * wdt_dev->timeout,
++	       dev->reg + dev->data->wdt_counter_offset);
+ 	return 0;
+ }
  
- static const struct of_device_id orion_wdt_of_match_table[] = {
-@@ -196,34 +217,24 @@ static int orion_wdt_probe(struct platform_device *pdev)
- 	dev->wdt.min_timeout = 1;
- 	dev->data = match->data;
+@@ -66,13 +71,16 @@ static int orion_wdt_start(struct watchdog_device *wdt_dev)
+ 	struct orion_watchdog *dev = watchdog_get_drvdata(wdt_dev);
  
--	dev->clk = devm_clk_get(&pdev->dev, NULL);
--	if (IS_ERR(dev->clk)) {
--		dev_err(&pdev->dev, "Orion Watchdog missing clock\n");
--		return PTR_ERR(dev->clk);
--	}
--	ret = clk_prepare_enable(dev->clk);
--	if (ret)
--		return ret;
--	dev->clk_rate = clk_get_rate(dev->clk);
--
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	if (!res) {
--		ret = -ENODEV;
--		goto disable_clk;
--	}
-+	if (!res)
-+		return -ENODEV;
+ 	/* Set watchdog duration */
+-	writel(dev->clk_rate * wdt_dev->timeout, dev->reg + WDT_VAL);
++	writel(dev->clk_rate * wdt_dev->timeout,
++	       dev->reg + dev->data->wdt_counter_offset);
  
- 	dev->reg = devm_ioremap(&pdev->dev, res->start,
- 			       resource_size(res));
--	if (!dev->reg) {
--		ret = -ENOMEM;
--		goto disable_clk;
--	}
-+	if (!dev->reg)
-+		return -ENOMEM;
+ 	/* Enable watchdog timer */
+-	atomic_io_modify(dev->reg + TIMER_CTRL, WDT_EN, WDT_EN);
++	atomic_io_modify(dev->reg + TIMER_CTRL, dev->data->wdt_enable_bit,
++						dev->data->wdt_enable_bit);
  
- 	dev->rstout = orion_wdt_ioremap_rstout(pdev, res->start &
- 						     INTERNAL_REGS_MASK);
--	if (!dev->rstout) {
--		ret = -ENODEV;
--		goto disable_clk;
-+	if (!dev->rstout)
-+		return -ENODEV;
+ 	/* Enable reset on watchdog */
+-	atomic_io_modify(dev->rstout, WDT_RESET_OUT_EN, WDT_RESET_OUT_EN);
++	atomic_io_modify(dev->rstout, dev->data->rstout_enable_bit,
++				      dev->data->rstout_enable_bit);
+ 
+ 	return 0;
+ }
+@@ -82,10 +90,10 @@ static int orion_wdt_stop(struct watchdog_device *wdt_dev)
+ 	struct orion_watchdog *dev = watchdog_get_drvdata(wdt_dev);
+ 
+ 	/* Disable reset on watchdog */
+-	atomic_io_modify(dev->rstout, WDT_RESET_OUT_EN, 0);
++	atomic_io_modify(dev->rstout, dev->data->rstout_enable_bit, 0);
+ 
+ 	/* Disable watchdog timer */
+-	atomic_io_modify(dev->reg + TIMER_CTRL, WDT_EN, 0);
++	atomic_io_modify(dev->reg + TIMER_CTRL, dev->data->wdt_enable_bit, 0);
+ 
+ 	return 0;
+ }
+@@ -93,7 +101,7 @@ static int orion_wdt_stop(struct watchdog_device *wdt_dev)
+ static unsigned int orion_wdt_get_timeleft(struct watchdog_device *wdt_dev)
+ {
+ 	struct orion_watchdog *dev = watchdog_get_drvdata(wdt_dev);
+-	return readl(dev->reg + WDT_VAL) / dev->clk_rate;
++	return readl(dev->reg + dev->data->wdt_counter_offset) / dev->clk_rate;
+ }
+ 
+ static int orion_wdt_set_timeout(struct watchdog_device *wdt_dev,
+@@ -150,9 +158,25 @@ static void __iomem *orion_wdt_ioremap_rstout(struct platform_device *pdev,
+ 	return devm_ioremap(&pdev->dev, rstout, 0x4);
+ }
+ 
++static const struct orion_watchdog_data orion_data = {
++	.rstout_enable_bit = BIT(1),
++	.wdt_enable_bit = BIT(4),
++	.wdt_counter_offset = 0x24,
++};
 +
-+	ret = dev->data->clock_init(pdev, dev);
-+	if (ret) {
-+		dev_err(&pdev->dev, "cannot initialize clock\n");
-+		return ret;
- 	}
++static const struct of_device_id orion_wdt_of_match_table[] = {
++	{
++		.compatible = "marvell,orion-wdt",
++		.data = &orion_data,
++	},
++	{},
++};
++MODULE_DEVICE_TABLE(of, orion_wdt_of_match_table);
++
+ static int orion_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct orion_watchdog *dev;
++	const struct of_device_id *match;
+ 	unsigned int wdt_max_duration;	/* (seconds) */
+ 	struct resource *res;
+ 	int ret, irq;
+@@ -162,9 +186,15 @@ static int orion_wdt_probe(struct platform_device *pdev)
+ 	if (!dev)
+ 		return -ENOMEM;
  
- 	wdt_max_duration = WDT_MAX_CYCLE_COUNT / dev->clk_rate;
++	match = of_match_device(orion_wdt_of_match_table, &pdev->dev);
++	if (!match)
++		/* Default legacy match */
++		match = &orion_wdt_of_match_table[0];
++
+ 	dev->wdt.info = &orion_wdt_info;
+ 	dev->wdt.ops = &orion_wdt_ops;
+ 	dev->wdt.min_timeout = 1;
++	dev->data = match->data;
+ 
+ 	dev->clk = devm_clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(dev->clk)) {
+@@ -253,12 +283,6 @@ static void orion_wdt_shutdown(struct platform_device *pdev)
+ 	orion_wdt_stop(wdt_dev);
+ }
+ 
+-static const struct of_device_id orion_wdt_of_match_table[] = {
+-	{ .compatible = "marvell,orion-wdt", },
+-	{},
+-};
+-MODULE_DEVICE_TABLE(of, orion_wdt_of_match_table);
+-
+ static struct platform_driver orion_wdt_driver = {
+ 	.probe		= orion_wdt_probe,
+ 	.remove		= orion_wdt_remove,
 -- 
 1.8.1.5
 
