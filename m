@@ -1,36 +1,71 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:53413 "EHLO
+Received: from mail.active-venture.com ([67.228.131.205]:60295 "EHLO
 	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750774AbaBGB53 (ORCPT
+	with ESMTP id S1751056AbaBGCC7 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 6 Feb 2014 20:57:29 -0500
-Message-ID: <52F43D88.2050304@roeck-us.net>
-Date: Thu, 06 Feb 2014 17:57:28 -0800
+	Thu, 6 Feb 2014 21:02:59 -0500
+Message-ID: <52F43ED0.4050808@roeck-us.net>
+Date: Thu, 06 Feb 2014 18:02:56 -0800
 From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-To: Andrew Chew <achew@nvidia.com>, wim@iguana.be, rob@landley.net,
-	swarren@wwwdotorg.org, thierry.reding@gmail.com,
-	grant.likely@linaro.org, robh+dt@kernel.org, abrestic@chromium.org,
-	dgreid@chromium.org, katierh@chromium.org
-CC: linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org
-Subject: Re: [PATCH v5 1/1] watchdog: Add tegra watchdog
-References: <1391738086-29142-1-git-send-email-achew@nvidia.com>
-In-Reply-To: <1391738086-29142-1-git-send-email-achew@nvidia.com>
+To: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>,
+	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+	Jason Cooper <jason@lakedaemon.net>
+CC: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Lior Amsalem <alior@marvell.com>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Andrew Lunn <andrew@lunn.ch>
+Subject: Re: [PATCH v6 05/19] watchdog: orion: Make sure the watchdog is initially
+ stopped
+References: <1391707226-18258-1-git-send-email-ezequiel.garcia@free-electrons.com> <1391707226-18258-6-git-send-email-ezequiel.garcia@free-electrons.com>
+In-Reply-To: <1391707226-18258-6-git-send-email-ezequiel.garcia@free-electrons.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/06/2014 05:54 PM, Andrew Chew wrote:
-> Add a driver for the hardware watchdogs in NVIDIA Tegra SoCs (Tegra30 and
-> later).  This driver will configure one watchdog timer that will reset the
-> system in the case of a watchdog timeout.
+On 02/06/2014 09:20 AM, Ezequiel Garcia wrote:
+> Having the watchdog initially fully stopped is important to avoid
+> any spurious watchdog triggers, in case the registers are not in
+> its reset state.
 >
-> This driver binds to the nvidia,tegra30-timer device node and gets its
-> register base from there.
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> Tested-by: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+> Tested-by: Willy Tarreau <w@1wt.eu>
+> Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+> ---
+>   drivers/watchdog/orion_wdt.c | 3 +++
+>   1 file changed, 3 insertions(+)
 >
-> Signed-off-by: Andrew Chew <achew@nvidia.com>
+> diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
+> index 6746033..2dbeee9 100644
+> --- a/drivers/watchdog/orion_wdt.c
+> +++ b/drivers/watchdog/orion_wdt.c
+> @@ -142,6 +142,9 @@ static int orion_wdt_probe(struct platform_device *pdev)
+>   	orion_wdt.max_timeout = wdt_max_duration;
+>   	watchdog_init_timeout(&orion_wdt, heartbeat, &pdev->dev);
+>
+> +	/* Let's make sure the watchdog is fully stopped */
+> +	orion_wdt_stop(&orion_wdt);
+> +
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Actually we just had that in another driver, and I stumbled over it there.
+
+Problem with stopping the watchdog in probe unconditionally is that you can
+use it to defeat nowayout: unload the module, then load it again,
+and the watchdog is stopped even if nowayout is true.
+
+Is this really what you want ? Or, in other words, what is the problem
+you are trying to solve ?
+
+Thanks,
+Guenter
+
+
+>   	watchdog_set_nowayout(&orion_wdt, nowayout);
+>   	ret = watchdog_register_device(&orion_wdt);
+>   	if (ret)
+>
 
