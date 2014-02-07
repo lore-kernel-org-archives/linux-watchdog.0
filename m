@@ -1,84 +1,54 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wg0-f42.google.com ([74.125.82.42]:47116 "EHLO
-	mail-wg0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751199AbaBFXrg (ORCPT
+Received: from mail.active-venture.com ([67.228.131.205]:50724 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752228AbaBGBgl (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 6 Feb 2014 18:47:36 -0500
-Received: by mail-wg0-f42.google.com with SMTP id l18so310319wgh.1
-        for <linux-watchdog@vger.kernel.org>; Thu, 06 Feb 2014 15:47:35 -0800 (PST)
-Message-ID: <52F41F15.307@linaro.org>
-Date: Thu, 06 Feb 2014 23:47:33 +0000
-From: Daniel Lezcano <daniel.lezcano@linaro.org>
+	Thu, 6 Feb 2014 20:36:41 -0500
+Message-ID: <52F438A9.9000908@roeck-us.net>
+Date: Thu, 06 Feb 2014 17:36:41 -0800
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-To: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>,
-	Jason Cooper <jason@lakedaemon.net>
-CC: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, Lior Amsalem <alior@marvell.com>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Tawfik Bayouk <tawfik@marvell.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-Subject: Re: [PATCH v5 02/20] clocksource: orion: Use atomic access for shared
- registers
-References: <1390836440-12744-1-git-send-email-ezequiel.garcia@free-electrons.com> <1390836440-12744-3-git-send-email-ezequiel.garcia@free-electrons.com> <20140205191035.GZ8533@titan.lakedaemon.net> <20140205231903.GA30244@localhost>
-In-Reply-To: <20140205231903.GA30244@localhost>
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+To: Andrew Chew <achew@nvidia.com>, wim@iguana.be, rob@landley.net,
+	swarren@wwwdotorg.org, thierry.reding@gmail.com,
+	grant.likely@linaro.org, robh+dt@kernel.org, abrestic@chromium.org,
+	dgreid@chromium.org, katierh@chromium.org
+CC: linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org
+Subject: Re: [PATCH v4 1/1] watchdog: Add tegra watchdog
+References: <1391724356-17034-1-git-send-email-achew@nvidia.com>
+In-Reply-To: <1391724356-17034-1-git-send-email-achew@nvidia.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/05/2014 11:19 PM, Ezequiel Garcia wrote:
-> On Wed, Feb 05, 2014 at 02:10:35PM -0500, Jason Cooper wrote:
->> On Mon, Jan 27, 2014 at 12:27:02PM -0300, Ezequiel Garcia wrote:
->>> Replace the driver-specific thread-safe shared register API
->>> by the recently introduced atomic_io_clear_set().
->>>
->>> Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
->>> Tested-by: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
->>> Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
->>> ---
->>>   drivers/clocksource/time-orion.c | 28 ++++++++++-----------------=
--
->>>   1 file changed, 10 insertions(+), 18 deletions(-)
->>
->> The MMIO patch this depends on:
->>
->>    c5ca95b507c8 ARM: 7930/1: Introduce atomic MMIO modify
->>
->> made it in to v3.14-rc1.  It looks like this change is independent o=
-f
->> the rest of the watchdog series, so:
->>
->> Acked-by: Jason Cooper <jason@lakedaemon.net>
->>
+On 02/06/2014 02:05 PM, Andrew Chew wrote:
+> Add a driver for the hardware watchdogs in NVIDIA Tegra SoCs (Tegra30 and
+> later).  This driver will configure one watchdog timer that will reset the
+> system in the case of a watchdog timeout.
 >
-> Thanks, Jason.
+> This driver binds to the nvidia,tegra30-timer device node and gets its
+> register base from there.
 >
-> Daniel: If you can pick this I'll drop it from the next watchdog patc=
-hset
-> submission.
+> Signed-off-by: Andrew Chew <achew@nvidia.com>
+> ---
 
-Yep, ok. I am out of the office for the moment, I will take care of it=20
-Monday.
+Hi Andrew,
 
-Thanks
-   -- Daniel
+> +
+> +	/* This is the timer base. */
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	if (!res) {
+> +		dev_err(&pdev->dev, "incorrect resources\n");
+> +		return -ENODEV;
+> +	}
+> +
 
+I thought I mentioned that before - dem_iomap_resource() creates the
+very same error message and returns an error if NULL is passed
+as res argument to it. So the above error message (and error check)
+is really redundant.
 
---=20
-  <http://www.linaro.org/> Linaro.org =E2=94=82 Open source software fo=
-r ARM SoCs
+Thanks,
+Guenter
 
-=46ollow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
-<http://twitter.com/#!/linaroorg> Twitter |
-<http://www.linaro.org/linaro-blog/> Blog
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
