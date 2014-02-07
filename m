@@ -1,96 +1,100 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from quartz.orcorp.ca ([184.70.90.242]:35909 "EHLO quartz.orcorp.ca"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752981AbaBGRnU (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 7 Feb 2014 12:43:20 -0500
-Date: Fri, 7 Feb 2014 10:43:14 -0700
-From: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
-To: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-Cc: Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
+Received: from top.free-electrons.com ([176.31.233.9]:50021 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751511AbaBGVaX (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 7 Feb 2014 16:30:23 -0500
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: wim@iguana.be
+Cc: linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	Jason Cooper <jason@lakedaemon.net>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Lior Amsalem <alior@marvell.com>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Andrew Lunn <andrew@lunn.ch>
-Subject: Re: [PATCH v6 05/19] watchdog: orion: Make sure the watchdog is
- initially stopped
-Message-ID: <20140207174314.GB16263@obsidianresearch.com>
-References: <1391707226-18258-1-git-send-email-ezequiel.garcia@free-electrons.com>
- <1391707226-18258-6-git-send-email-ezequiel.garcia@free-electrons.com>
- <52F43ED0.4050808@roeck-us.net>
- <20140207104044.GA11063@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20140207104044.GA11063@localhost>
+	Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: [PATCH v2 3/3] ARM: sunxi: dt: Update the watchdog compatibles
+Date: Fri,  7 Feb 2014 22:29:26 +0100
+Message-Id: <1391808566-31008-4-git-send-email-maxime.ripard@free-electrons.com>
+In-Reply-To: <1391808566-31008-1-git-send-email-maxime.ripard@free-electrons.com>
+References: <1391808566-31008-1-git-send-email-maxime.ripard@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Feb 07, 2014 at 07:40:45AM -0300, Ezequiel Garcia wrote:
+The watchdog compatibles were following a different pattern than the one found
+in the other devices. Now that the driver supports the right pattern, switch to
+it in the DT.
 
-> Well, this is related to the discussion about the bootloader not
-> reseting the watchdog properly, provoking spurious watchdog triggering.
-> 
-> Jason Gunthorpe explained [1] that we needed a particular sequence:
-> 
->  1. Disable WDT
->  2. Clear bridge
->  3. Enable WDT
-> 
-> We added the irq handling to satisfy (2), and the watchdog stop for (1).
+Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+---
+ arch/arm/boot/dts/sun4i-a10.dtsi  | 2 +-
+ arch/arm/boot/dts/sun5i-a10s.dtsi | 2 +-
+ arch/arm/boot/dts/sun5i-a13.dtsi  | 2 +-
+ arch/arm/boot/dts/sun6i-a31.dtsi  | 2 +-
+ arch/arm/boot/dts/sun7i-a20.dtsi  | 2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
 
-The issue here is the driver configures two 'machine kill' elements:
-the PANIC IRQ and the RstOut setup.
+diff --git a/arch/arm/boot/dts/sun4i-a10.dtsi b/arch/arm/boot/dts/sun4i-a10.dtsi
+index 26cf191..3e066b5 100644
+--- a/arch/arm/boot/dts/sun4i-a10.dtsi
++++ b/arch/arm/boot/dts/sun4i-a10.dtsi
+@@ -426,7 +426,7 @@
+ 		};
+ 
+ 		wdt: watchdog@01c20c90 {
+-			compatible = "allwinner,sun4i-wdt";
++			compatible = "allwinner,sun4i-a10-wdt";
+ 			reg = <0x01c20c90 0x10>;
+ 		};
+ 
+diff --git a/arch/arm/boot/dts/sun5i-a10s.dtsi b/arch/arm/boot/dts/sun5i-a10s.dtsi
+index b114be7..cff37c5 100644
+--- a/arch/arm/boot/dts/sun5i-a10s.dtsi
++++ b/arch/arm/boot/dts/sun5i-a10s.dtsi
+@@ -387,7 +387,7 @@
+ 		};
+ 
+ 		wdt: watchdog@01c20c90 {
+-			compatible = "allwinner,sun4i-wdt";
++			compatible = "allwinner,sun4i-a10-wdt";
+ 			reg = <0x01c20c90 0x10>;
+ 		};
+ 
+diff --git a/arch/arm/boot/dts/sun5i-a13.dtsi b/arch/arm/boot/dts/sun5i-a13.dtsi
+index 5c121fc..0ecde81 100644
+--- a/arch/arm/boot/dts/sun5i-a13.dtsi
++++ b/arch/arm/boot/dts/sun5i-a13.dtsi
+@@ -351,7 +351,7 @@
+ 		};
+ 
+ 		wdt: watchdog@01c20c90 {
+-			compatible = "allwinner,sun4i-wdt";
++			compatible = "allwinner,sun4i-a10-wdt";
+ 			reg = <0x01c20c90 0x10>;
+ 		};
+ 
+diff --git a/arch/arm/boot/dts/sun6i-a31.dtsi b/arch/arm/boot/dts/sun6i-a31.dtsi
+index d3f1995..2d2ff8a 100644
+--- a/arch/arm/boot/dts/sun6i-a31.dtsi
++++ b/arch/arm/boot/dts/sun6i-a31.dtsi
+@@ -289,7 +289,7 @@
+ 		};
+ 
+ 		wdt1: watchdog@01c20ca0 {
+-			compatible = "allwinner,sun6i-wdt";
++			compatible = "allwinner,sun6i-a31-wdt";
+ 			reg = <0x01c20ca0 0x20>;
+ 		};
+ 
+diff --git a/arch/arm/boot/dts/sun7i-a20.dtsi b/arch/arm/boot/dts/sun7i-a20.dtsi
+index 4fbe530..30d1eb4 100644
+--- a/arch/arm/boot/dts/sun7i-a20.dtsi
++++ b/arch/arm/boot/dts/sun7i-a20.dtsi
+@@ -471,7 +471,7 @@
+ 		};
+ 
+ 		wdt: watchdog@01c20c90 {
+-			compatible = "allwinner,sun4i-wdt";
++			compatible = "allwinner,sun4i-a10-wdt";
+ 			reg = <0x01c20c90 0x10>;
+ 		};
+ 
+-- 
+1.8.4.2
 
-Before configuring either of those the driver needs to ensure that any
-old watchdog events are cleared out of the HW. We must not get a
-spurious event. 
-
-I agree not disabling an already functional and properly configured
-counter from the bootloader is desirable.
-
-So lets break it down a bit..
-
-1) The IRQ:
-  It looks like the cause bit latches high on watchdog timer
-  expiration but has no side effect unless it is unmasked.
-
-  The new IRQ flow code ensures the bit is cleared during request_irq
-  so no old events can trigger the IRQ. Thus it is solved now.
-
-2) The RstOut:
-  It is a bit unspecific, but I think this signal latches high when
-  any unmasked rst event occurs and stays high until the RstIn pin
-  is asserted.
-
-  So we don't need to worry about clearing old events from here
-
-  Alternatively the WDRstOutEn routes the Cause bit into the RstOut
-  pin.
-
-3) The timer itself:
-  The WDT is just a general timer with an optional hookup to the
-  rst control. If it is harmlessly counting but not resetting we need
-  to stop that before enabling rst out.
-
-So, how about this for psuedo-code in probe:
-
-if (readl(RSTOUTn) & WDRstOutEn)
-{
-    /* Watchdog is configured and may be down counting,
-       don't touch it */
-    request_irq(..);
-}
-else
-{
-    /* Watchdog is not configured, fully disable the timer
-       and configure for watchdog operation. */
-    disable_watchdog();
-    request_irq();
-    writel(RSTOUTn), .. WDRstOutEn);
-}
-
-Jason
