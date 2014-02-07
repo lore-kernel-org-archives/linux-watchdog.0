@@ -1,140 +1,135 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:47191 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752814AbaBGNUE (ORCPT
+Received: from mail-pd0-f195.google.com ([209.85.192.195]:61808 "EHLO
+	mail-pd0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753243AbaBGQzY (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 7 Feb 2014 08:20:04 -0500
-Date: Fri, 7 Feb 2014 14:19:48 +0100
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 1/3] wdt: sunxi: Introduce a new compatible for the A10
- and A31
-Message-ID: <20140207131948.GI3192@lukather>
-References: <1391349325-11132-1-git-send-email-maxime.ripard@free-electrons.com>
- <52F36E8D.4050503@redhat.com>
+	Fri, 7 Feb 2014 11:55:24 -0500
+Date: Fri, 7 Feb 2014 08:55:22 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: Jason Cooper <jason@lakedaemon.net>
+Cc: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Lior Amsalem <alior@marvell.com>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Andrew Lunn <andrew@lunn.ch>
+Subject: Re: [PATCH v6 05/19] watchdog: orion: Make sure the watchdog is
+ initially stopped
+Message-ID: <20140207165522.GA9158@roeck-us.net>
+References: <1391707226-18258-1-git-send-email-ezequiel.garcia@free-electrons.com>
+ <1391707226-18258-6-git-send-email-ezequiel.garcia@free-electrons.com>
+ <52F43ED0.4050808@roeck-us.net>
+ <20140207104044.GA11063@localhost>
+ <52F4E1C1.4010805@roeck-us.net>
+ <20140207151727.GB8218@localhost>
+ <20140207154453.GA8533@titan.lakedaemon.net>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1E1Oui4vdubnXi3o"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <52F36E8D.4050503@redhat.com>
+In-Reply-To: <20140207154453.GA8533@titan.lakedaemon.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On Fri, Feb 07, 2014 at 10:44:53AM -0500, Jason Cooper wrote:
+> On Fri, Feb 07, 2014 at 12:17:28PM -0300, Ezequiel Garcia wrote:
+> > On Fri, Feb 07, 2014 at 05:38:09AM -0800, Guenter Roeck wrote:
+> > > On 02/07/2014 02:40 AM, Ezequiel Garcia wrote:
+> > > > On Thu, Feb 06, 2014 at 06:02:56PM -0800, Guenter Roeck wrote:
+> > > >> On 02/06/2014 09:20 AM, Ezequiel Garcia wrote:
+> > > >>> Having the watchdog initially fully stopped is important to avoid
+> > > >>> any spurious watchdog triggers, in case the registers are not in
+> > > >>> its reset state.
+> > > >>>
+> > > >>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> > > >>> Tested-by: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+> > > >>> Tested-by: Willy Tarreau <w@1wt.eu>
+> > > >>> Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+> > > >>> ---
+> > > >>>    drivers/watchdog/orion_wdt.c | 3 +++
+> > > >>>    1 file changed, 3 insertions(+)
+> > > >>>
+> > > >>> diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
+> > > >>> index 6746033..2dbeee9 100644
+> > > >>> --- a/drivers/watchdog/orion_wdt.c
+> > > >>> +++ b/drivers/watchdog/orion_wdt.c
+> > > >>> @@ -142,6 +142,9 @@ static int orion_wdt_probe(struct platform_device *pdev)
+> > > >>>    	orion_wdt.max_timeout = wdt_max_duration;
+> > > >>>    	watchdog_init_timeout(&orion_wdt, heartbeat, &pdev->dev);
+> > > >>>
+> > > >>> +	/* Let's make sure the watchdog is fully stopped */
+> > > >>> +	orion_wdt_stop(&orion_wdt);
+> > > >>> +
+> > > >>
+> > > >> Actually we just had that in another driver, and I stumbled over it there.
+> > > >>
+> > > >> Problem with stopping the watchdog in probe unconditionally is that you can
+> > > >> use it to defeat nowayout: unload the module, then load it again,
+> > > >> and the watchdog is stopped even if nowayout is true.
+> > > >>
+> 
+> How often would a user legitimately want to unload/load the watchdog
+> module?
+> 
+Not sure what you are saying here. If you don't think the nowayout option
+should be supported, drop it. Don't claim it is supported when it isn't.
 
---1E1Oui4vdubnXi3o
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > > >
+> > > > Hm... I see.
+> > > >
+> > > >> Is this really what you want ? Or, in other words, what is the problem
+> > > >> you are trying to solve ?
+> > > >>
+> > > >
+> > > > Well, this is related to the discussion about the bootloader not
+> > > > reseting the watchdog properly, provoking spurious watchdog triggering.
+> > > >
+> > > > Jason Gunthorpe explained [1] that we needed a particular sequence:
+> > > >
+> > > >   1. Disable WDT
+> > > >   2. Clear bridge
+> > > >   3. Enable WDT
+> > > >
+> > > > We added the irq handling to satisfy (2), and the watchdog stop for (1).
+> > > >
+> > > > The watchdog stop was agreed specifically [2].
+> > > >
+> > > > Ideas?
+> > > >
+> > > 
+> > > Other drivers assume that if the watchdog is running, it is supposed
+> > > to be running. The more common approach in such cases is to ping the
+> > > watchdog once to give userspace more time to get ready, but leave
+> > > it enabled. So you could check if the watchdog is enabled, and if
+> > > it was enabled re-enable it after initialization is complete
+> > > (and maybe log a message stating that the watchdog is enabled).
+> > > 
+> > > If you don't want to do that, and if you are defeating nowayout
+> > > on purpose to fix a problem with a broken bootloader,
+> > > you should at least put in comment describing the problem you are
+> > > trying to solve, and that you accept breaking nowayout with your fix.
+> 
+> Yes, this should be commented.
+> 
+> > I'm not fond of not having "nowayout" option on our driver, given I'm sure
+> > it's a watchdog feature for a good reason.
+> > 
+> > On the other side, I can't see how can we distinguish a previously
+> > and explicitly enabled watchdog, from a spurious enable by broken bootloader.
+> 
+> How about we just don't define module_exit() and leave a comment as
+> such?  It's not unprecedented, a couple of the atm drivers are
+> explicitly setup like this (uPD98402.c, zatm.c, eni.c).
+> 
+Or don't support tristate in the first place. There was some argument from
+others earlier that a watchdog should never be optional. Or drop the nowayout
+option from the driver.
 
-Hi Hans,
+There is one problem, though, if you don't support a pre-enabled watchdog:
+If the system dies before the watchdog application starts running, it will
+hang. This is the reason why the watchdog is enabled on purpose by some
+boot loaders.
 
-On Thu, Feb 06, 2014 at 12:14:21PM +0100, Hans de Goede wrote:
-> On 02/02/2014 02:55 PM, Maxime Ripard wrote:
-> >For historical reasons, the Allwinner A10 compatibles are not following =
-the
-> >patterns used for this other Allwinner SoCs.
-> >
-> >Introduce a new compatible following the usual pattern, and deprecate th=
-e olders.
-> >
-> >Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
-> >---
-> >  Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt | 7 ++++---
-> >  drivers/watchdog/sunxi_wdt.c                             | 1 +
-> >  2 files changed, 5 insertions(+), 3 deletions(-)
-> >
-> >diff --git a/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt b/=
-Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
-> >index e39cb26..6e8c937 100644
-> >--- a/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
-> >+++ b/Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt
-> >@@ -2,13 +2,14 @@ Allwinner SoCs Watchdog timer
-> >
-> >  Required properties:
-> >
-> >-- compatible : should be "allwinner,<soc-family>-wdt", the currently su=
-pported
-> >-  SoC families being sun4i and sun6i
-> >+- compatible : should be either "allwinner,sun4i-a10-wdt" or
-> >+               "allwinner,sun6i-a31-wdt" (deprecated:
-> >+               "allwinner,sun4i-wdt", "allwinner,sun6i-wdt")
-> >  - reg : Specifies base physical address and size of the registers.
-> >
-> >  Example:
-> >
-> >  wdt: watchdog@01c20c90 {
-> >-	compatible =3D "allwinner,sun4i-wdt";
-> >+	compatible =3D "allwinner,sun4i-a10-wdt";
-> >  	reg =3D <0x01c20c90 0x10>;
-> >  };
->=20
-> You talk about deprecating the old compat strings in the commit message, =
-but
-> here you outright replace them, which will break things with old dtb file=
-s ?
-
-I'm replacing them only in the Documentation here.
-
-I only add it to the driver after that, which means that the driver
-will be probed with both the new and the old compatibles.
-
-However, the DT maintainers said it was ok to remove them entirely, so
-I'll send a v2.
-
-Maxime
-
->=20
-> Other 2 patches in the series look good and are:
->=20
-> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
->=20
->=20
-> >diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
-> >index 76332d8..7c8923d 100644
-> >--- a/drivers/watchdog/sunxi_wdt.c
-> >+++ b/drivers/watchdog/sunxi_wdt.c
-> >@@ -206,6 +206,7 @@ static void sunxi_wdt_shutdown(struct platform_devic=
-e *pdev)
-> >
-> >  static const struct of_device_id sunxi_wdt_dt_ids[] =3D {
-> >  	{ .compatible =3D "allwinner,sun4i-wdt" },
-> >+	{ .compatible =3D "allwinner,sun4i-a10-wdt" },
-> >  	{ /* sentinel */ }
-> >  };
-> >  MODULE_DEVICE_TABLE(of, sunxi_wdt_dt_ids);
-> >
->=20
-> Regards,
->=20
-> Hans
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---1E1Oui4vdubnXi3o
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJS9N10AAoJEBx+YmzsjxAg37wP/1CpySBvZpfmDbYIRk7+31UI
-RPg18nqL9Dn4tbtM/++j3WC+mNdAY8pKIMs3t1HeIgJ+m6lqtV441aE8A8wQFKCd
-Yy7WI9x5RRGzUmTetwYds8K+eayJTnLjTUKX3RaKp+fOHWU+0bKltjpFOrTUCX2L
-T9INNS7QqbNx4W1zvdxXBedjMytQEY9hNmn5fJ322cK4c8+u9mC8BFi3fA/FWchI
-VO86yWewliiJnGcFvhBG1YwkQFDf0sjQoumq213uVrHzVGVGxANQgoFVlBAaaTYa
-YhGnRF0tIGe0HAKSQGahvh3N+YK47a/sHR+91WezwfS3WWUFANtf3pZhrpHttTbK
-9DoZWbj0A9tHzXk4oRbpYaKSSnN31F3w62qe6AxlsDmb8yzN6SKE5pp5qqetvo+A
-TL9vqwoPjU9UbZshZy2my0ihrN1/M0q2KVXkZ2fFo/ruWOgy/R0b6jPGsIEoGEXj
-mGcoYl2Luu24KTcUwx24VIb8eSRibJ07l2ztiJyyhcsXe7RkeurNQ4j8kEjCw9Pl
-+TLf2c1HJliUPqQUx6/JksXIP7IfaAWoZvBoefRCiviBixhG8B+AcYP41PQusaOm
-dcUBlJrmyWCd7ePQVdYyb5PhN5cybJOtJ/0E1c0L1Vd2ql8md5XHHDJVEM3pG7wE
-Ezw9w6ITs6b4RkMn/k4o
-=XAsH
------END PGP SIGNATURE-----
-
---1E1Oui4vdubnXi3o--
+Guenter
