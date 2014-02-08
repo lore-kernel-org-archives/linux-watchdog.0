@@ -1,45 +1,68 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:50028 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751617AbaBGVaa (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:56536 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751386AbaBHIu4 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 7 Feb 2014 16:30:30 -0500
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: wim@iguana.be
-Cc: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: [PATCH v2 0/3] watchdog: sunxi: Change compatible patterns
-Date: Fri,  7 Feb 2014 22:29:23 +0100
-Message-Id: <1391808566-31008-1-git-send-email-maxime.ripard@free-electrons.com>
+	Sat, 8 Feb 2014 03:50:56 -0500
+Date: Sat, 8 Feb 2014 09:50:53 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+	Richard Weinberger <richard@nod.at>
+Subject: [GIT PULL REQUEST] watchdog - Fixes for v3.14-rc2
+Message-ID: <20140208085053.GA1484@spo001.leaseweb.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
+Hi Linus,
 
-This is the second version of the A10 watchdog compatible changes.
-The only difference with the v1 being that we're now droping the old
-compatibles, instead of keeping them, since the DT maintainers said it was
-fine.
+Please pull from 'master' branch of
+	git://www.linux-watchdog.org/linux-watchdog.git
 
-Thanks,
-Maxime
+It will fix the HAS_IOMEM dependency for dw_wdt.
 
-Maxime Ripard (3):
-  watchdog: sunxi: Change compatibles
-  ARM: sunxi: Add the new watchog compatibles to the reboot code
-  ARM: sunxi: dt: Update the watchdog compatibles
+This will update the following files:
 
- Documentation/devicetree/bindings/watchdog/sunxi-wdt.txt | 6 +++---
- arch/arm/boot/dts/sun4i-a10.dtsi                         | 2 +-
- arch/arm/boot/dts/sun5i-a10s.dtsi                        | 2 +-
- arch/arm/boot/dts/sun5i-a13.dtsi                         | 2 +-
- arch/arm/boot/dts/sun6i-a31.dtsi                         | 2 +-
- arch/arm/boot/dts/sun7i-a20.dtsi                         | 2 +-
- arch/arm/mach-sunxi/sunxi.c                              | 4 ++--
- drivers/watchdog/sunxi_wdt.c                             | 2 +-
- 8 files changed, 11 insertions(+), 11 deletions(-)
+ Kconfig |    1 +
+ 1 files changed, 1 insertion(+)
 
--- 
-1.8.4.2
+with these Changes:
 
+commit 1ccfe6f982674e4b7bd832b904bafcb3db890252
+Author: Richard Weinberger <richard@nod.at>
+Date:   Fri Jan 31 13:47:34 2014 +0100
+
+    watchdog: dw_wdt: Add dependency on HAS_IOMEM
+    
+    On archs like S390 or um this driver cannot build nor work.
+    Make it depend on HAS_IOMEM to bypass build failures.
+    
+    drivers/built-in.o: In function `dw_wdt_drv_probe':
+    drivers/watchdog/dw_wdt.c:302: undefined reference to `devm_ioremap_resource'
+    
+    Signed-off-by: Richard Weinberger <richard@nod.at>
+    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+
+For completeness, I added the overal diff below.
+
+Greetings,
+Wim.
+
+================================================================================
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 4c4c566..79d2589 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -223,6 +223,7 @@ config SA1100_WATCHDOG
+ 
+ config DW_WATCHDOG
+ 	tristate "Synopsys DesignWare watchdog"
++	depends on HAS_IOMEM
+ 	help
+ 	  Say Y here if to include support for the Synopsys DesignWare
+ 	  watchdog timer found in many chips.
