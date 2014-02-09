@@ -1,51 +1,31 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:51453 "EHLO
+Received: from mail.active-venture.com ([67.228.131.205]:60541 "EHLO
 	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752217AbaBIUD7 (ORCPT
+	with ESMTP id S1752351AbaBIUF1 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 9 Feb 2014 15:03:59 -0500
-Message-ID: <52F7DF2F.5060001@roeck-us.net>
-Date: Sun, 09 Feb 2014 12:03:59 -0800
+	Sun, 9 Feb 2014 15:05:27 -0500
+Message-ID: <52F7DF87.9040409@roeck-us.net>
+Date: Sun, 09 Feb 2014 12:05:27 -0800
 From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
 To: Michal Simek <michal.simek@xilinx.com>,
 	linux-kernel@vger.kernel.org, monstr@monstr.eu
 CC: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 01/10] watchdog: xilinx: Convert driver to the watchdog
- framework
-References: <ed4cb31c9a549343e6b492cf62fc962d39034bd0.1391177880.git.michal.simek@xilinx.com>
-In-Reply-To: <ed4cb31c9a549343e6b492cf62fc962d39034bd0.1391177880.git.michal.simek@xilinx.com>
+Subject: Re: [PATCH 02/10] watchdog: xilinx: Move control_status_reg to functions
+References: <ed4cb31c9a549343e6b492cf62fc962d39034bd0.1391177880.git.michal.simek@xilinx.com> <ca50a63f8e204043247268217f7981102da1e530.1391177880.git.michal.simek@xilinx.com>
+In-Reply-To: <ca50a63f8e204043247268217f7981102da1e530.1391177880.git.michal.simek@xilinx.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 On 01/31/2014 06:18 AM, Michal Simek wrote:
-> - Remove uneeded headers, fops functions
-> - Use xilinx_wdt prefix in start/stop/keepalive functions
->    and in new structures
+> control_status_reg is temp variables and should be
+> used locally by specific function.
 >
 > Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 
-Hi Michal,
-
->   static int xwdt_probe(struct platform_device *pdev)
->   {
->   	int rc;
-> @@ -314,7 +184,7 @@ static int xwdt_probe(struct platform_device *pdev)
->   					"xlnx,wdt-enable-once", NULL);
->   	if (tmptr == NULL) {
->   		pr_warn("Parameter \"xlnx,wdt-enable-once\" not found in device tree!\n");
-> -		xdev.nowayout = WATCHDOG_NOWAYOUT;
-> +		watchdog_set_nowayout(&xilinx_wdt_wdd, true);
-
-Sure you want to set this to always true instead of using WATCHDOG_NOWAYOUT ?
-
-Assuming this is what you want:
-
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Thanks,
-Guenter
 
