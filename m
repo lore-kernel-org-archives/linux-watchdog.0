@@ -1,68 +1,51 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:56536 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751386AbaBHIu4 (ORCPT
+Received: from mail.active-venture.com ([67.228.131.205]:51453 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752217AbaBIUD7 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 8 Feb 2014 03:50:56 -0500
-Date: Sat, 8 Feb 2014 09:50:53 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Richard Weinberger <richard@nod.at>
-Subject: [GIT PULL REQUEST] watchdog - Fixes for v3.14-rc2
-Message-ID: <20140208085053.GA1484@spo001.leaseweb.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Sun, 9 Feb 2014 15:03:59 -0500
+Message-ID: <52F7DF2F.5060001@roeck-us.net>
+Date: Sun, 09 Feb 2014 12:03:59 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+MIME-Version: 1.0
+To: Michal Simek <michal.simek@xilinx.com>,
+	linux-kernel@vger.kernel.org, monstr@monstr.eu
+CC: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH 01/10] watchdog: xilinx: Convert driver to the watchdog
+ framework
+References: <ed4cb31c9a549343e6b492cf62fc962d39034bd0.1391177880.git.michal.simek@xilinx.com>
+In-Reply-To: <ed4cb31c9a549343e6b492cf62fc962d39034bd0.1391177880.git.michal.simek@xilinx.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Linus,
+On 01/31/2014 06:18 AM, Michal Simek wrote:
+> - Remove uneeded headers, fops functions
+> - Use xilinx_wdt prefix in start/stop/keepalive functions
+>    and in new structures
+>
+> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 
-Please pull from 'master' branch of
-	git://www.linux-watchdog.org/linux-watchdog.git
+Hi Michal,
 
-It will fix the HAS_IOMEM dependency for dw_wdt.
+>   static int xwdt_probe(struct platform_device *pdev)
+>   {
+>   	int rc;
+> @@ -314,7 +184,7 @@ static int xwdt_probe(struct platform_device *pdev)
+>   					"xlnx,wdt-enable-once", NULL);
+>   	if (tmptr == NULL) {
+>   		pr_warn("Parameter \"xlnx,wdt-enable-once\" not found in device tree!\n");
+> -		xdev.nowayout = WATCHDOG_NOWAYOUT;
+> +		watchdog_set_nowayout(&xilinx_wdt_wdd, true);
 
-This will update the following files:
+Sure you want to set this to always true instead of using WATCHDOG_NOWAYOUT ?
 
- Kconfig |    1 +
- 1 files changed, 1 insertion(+)
+Assuming this is what you want:
 
-with these Changes:
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-commit 1ccfe6f982674e4b7bd832b904bafcb3db890252
-Author: Richard Weinberger <richard@nod.at>
-Date:   Fri Jan 31 13:47:34 2014 +0100
+Thanks,
+Guenter
 
-    watchdog: dw_wdt: Add dependency on HAS_IOMEM
-    
-    On archs like S390 or um this driver cannot build nor work.
-    Make it depend on HAS_IOMEM to bypass build failures.
-    
-    drivers/built-in.o: In function `dw_wdt_drv_probe':
-    drivers/watchdog/dw_wdt.c:302: undefined reference to `devm_ioremap_resource'
-    
-    Signed-off-by: Richard Weinberger <richard@nod.at>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-For completeness, I added the overal diff below.
-
-Greetings,
-Wim.
-
-================================================================================
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 4c4c566..79d2589 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -223,6 +223,7 @@ config SA1100_WATCHDOG
- 
- config DW_WATCHDOG
- 	tristate "Synopsys DesignWare watchdog"
-+	depends on HAS_IOMEM
- 	help
- 	  Say Y here if to include support for the Synopsys DesignWare
- 	  watchdog timer found in many chips.
