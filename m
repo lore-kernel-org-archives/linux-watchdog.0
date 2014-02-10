@@ -1,84 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Andrew Chew <AChew@nvidia.com>
-To: Daniel Lezcano <daniel.lezcano@linaro.org>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "swarren@wwwdotorg.org" <swarren@wwwdotorg.org>,
-        "thierry.reding@gmail.com" <thierry.reding@gmail.com>,
-        "rob@landley.net" <rob@landley.net>,
-        "grant.likely@linaro.org" <grant.likely@linaro.org>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "abrestic@chromium.org" <abrestic@chromium.org>,
-        "dgreid@chromium.org" <dgreid@chromium.org>,
-        "katierh@chromium.org" <katierh@chromium.org>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
+From: Guenter Roeck <groeck@juniper.net>
+To: "monstr@monstr.eu" <monstr@monstr.eu>, Guenter Roeck <linux@roeck-us.net>
+CC: Michal Simek <michal.simek@xilinx.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Wim Van Sebroeck <wim@iguana.be>,
         "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>
-Date: Tue, 4 Feb 2014 10:55:22 -0800
-Subject: RE: [PATCH v2 2/3] clocksource: tegra: Define timer bases in header
- file
-Message-ID: <643E69AA4436674C8F39DCC2C05F763863199855EA@HQMAIL03.nvidia.com>
-References: <1391473055-3158-1-git-send-email-achew@nvidia.com>
- <1391473055-3158-3-git-send-email-achew@nvidia.com>
- <52F09CC8.80601@linaro.org>
-In-Reply-To: <52F09CC8.80601@linaro.org>
+        "linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>
+Subject: RE: [PATCH 01/10] watchdog: xilinx: Convert driver to the watchdog
+ framework
+Date: Mon, 10 Feb 2014 17:18:11 +0000
+Message-ID: <c5f221694e2041519cabeef0b7552aac@CO1PR05MB523.namprd05.prod.outlook.com>
+References: <ed4cb31c9a549343e6b492cf62fc962d39034bd0.1391177880.git.michal.simek@xilinx.com>
+ <52F7DF2F.5060001@roeck-us.net> <52F879CF.8080906@monstr.eu>
+In-Reply-To: <52F879CF.8080906@monstr.eu>
 Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
-Content-Transfer-Encoding: 8bit
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-> From: Daniel Lezcano [mailto:daniel.lezcano@linaro.org]
-> Sent: Monday, February 03, 2014 11:55 PM
-> To: Andrew Chew; tglx@linutronix.de; swarren@wwwdotorg.org;
-> thierry.reding@gmail.com; rob@landley.net; grant.likely@linaro.org;
-> robh+dt@kernel.org; abrestic@chromium.org; dgreid@chromium.org;
-> katierh@chromium.org
-> Cc: linux-kernel@vger.kernel.org; linux-tegra@vger.kernel.org; linux-
-> watchdog@vger.kernel.org; linux-doc@vger.kernel.org
-> Subject: Re: [PATCH v2 2/3] clocksource: tegra: Define timer bases in header
-> file
+> -----Original Message-----
+> From: Michal Simek [mailto:monstr@monstr.eu]
+> Sent: Sunday, February 09, 2014 11:04 PM
+> To: Guenter Roeck
+> Cc: Michal Simek; linux-kernel@vger.kernel.org; Wim Van Sebroeck;
+> linux-watchdog@vger.kernel.org; linux-arm-kernel@lists.infradead.org
+> Subject: Re: [PATCH 01/10] watchdog: xilinx: Convert driver to the
+> watchdog framework
 > 
-> On 02/04/2014 01:17 AM, Andrew Chew wrote:
-> > Added timers that are present in tegra30 and later, that are NOT in tegra20.
+> On 02/09/2014 09:03 PM, Guenter Roeck wrote:
+> > On 01/31/2014 06:18 AM, Michal Simek wrote:
+> >> - Remove uneeded headers, fops functions
+> >> - Use xilinx_wdt prefix in start/stop/keepalive functions
+> >>    and in new structures
+> >>
+> >> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 > >
-> > Also, some of these timer bases are needed in the tegra watchdog
-> > driver, so separate them out into a header file that both the
-> > clocksource driver and the watchdog driver can share them.
+> > Hi Michal,
 > >
-> > Signed-off-by: Andrew Chew <achew@nvidia.com>
+> >>   static int xwdt_probe(struct platform_device *pdev)
+> >>   {
+> >>       int rc;
+> >> @@ -314,7 +184,7 @@ static int xwdt_probe(struct platform_device
+> *pdev)
+> >>                       "xlnx,wdt-enable-once", NULL);
+> >>       if (tmptr == NULL) {
+> >>           pr_warn("Parameter \"xlnx,wdt-enable-once\" not found in
+> device tree!\n");
+> >> -        xdev.nowayout = WATCHDOG_NOWAYOUT;
+> >> +        watchdog_set_nowayout(&xilinx_wdt_wdd, true);
+> >
+> > Sure you want to set this to always true instead of using
+> WATCHDOG_NOWAYOUT ?
 > 
-> When reading the patch 3/3, I don't see any define reused from this header
-> except TEGRA30_TIMER_WDT_BASE which is only used for the watchdog.
-> May be I missed something but I don't see any definition shared and thus I
-> don't see the point of creating this header file.
+> I have checked it and
+> option CONFIG_WATCHDOG_NOWAYOUT - Disable watchdog shutdown on close
+> 
+> with this part in the header
+> 
+> 100 #ifdef CONFIG_WATCHDOG_NOWAYOUT
+> 101 #define WATCHDOG_NOWAYOUT               1
+> 102 #define WATCHDOG_NOWAYOUT_INIT_STATUS   (1 << WDOG_NO_WAY_OUT)
+> 103 #else
+> 104 #define WATCHDOG_NOWAYOUT               0
+> 105 #define WATCHDOG_NOWAYOUT_INIT_STATUS   0
+> 106 #endif
+> 
+> enable once is hardware option and it means when this option is setup
+> in hw you can't stop watchdog. That's why I think that setting up true
+> instead of WATCHDOG_NOWAYOUT is correct.
+> 
 
-I guess the point is to make other potential drivers that make use of the timer
-registers aware that this particular timer (timer 5) is provisioned for the watchdog
-driver.  Right now, you're right, there really isn't much that's shared...the only
-thing really is the base address of timer 5 (and its associated ID)...the timer bases
-are kind of all over the place, so it's not straightforward to calculate the ID from the
-base address.
+Ok, makes sense.
 
-But I believe the thought at the time (from Stephen Warren's suggestion) is to have
-a central place where this stuff is defined so that it's more clear what timers are
-provisioned for what purposes.  It just happens that today, the only users of
-the timers, other than clocksource, is watchdog, as far as I can tell.
-
-> > +++ b/include/clocksource/tegra_timer.h
-> > @@ -0,0 +1,43 @@
-> > +/*
-> > + * Copyright (C) 2010 Google, Inc.
-> > + *
-> > + * Author:
-> > + *	Colin Cross <ccross@google.com>
-
-The contents of this new header file are largely just a cut and paste of the corresponding
-snippet in tegra20-timer.c, so I thought I'd carry over the license verbatim.  I didn't author
-this really...I just moved it around.  What should I do instead?
-ÿôèº{.nÇ+‰·Ÿ®‰­†+%ŠËÿ±éİ¶¥Šwÿº{.nÇ+‰·¥Š{±şG«éÿŠ{ayº
-Ê‡Ú™ë,j­¢f£¢·hšïêÿ‘êçz_è®(­éšŠİ¢j"ú¶m§ÿÿ¾«şG«éÿ¢¸?™¨è­Ú&£ø§~á¶iO•æ¬z·švØ^¶m§ÿÿÃ
-ÿ¶ìÿ¢¸?–I¥
+Guenter
