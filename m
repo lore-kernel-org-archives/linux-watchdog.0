@@ -1,117 +1,77 @@
-Return-Path: <jason@lakedaemon.net>
-Date: Fri, 7 Feb 2014 10:44:53 -0500
-From: Jason Cooper <jason@lakedaemon.net>
-To: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-Cc: Guenter Roeck <linux@roeck-us.net>,
+Return-Path: <ezequiel.garcia@free-electrons.com>
+From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+To: <linux-arm-kernel@lists.infradead.org>,
+	<linux-watchdog@vger.kernel.org>
+Cc: Jason Cooper <jason@lakedaemon.net>,
 	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Lior Amsalem <alior@marvell.com>,
+	Tawfik Bayouk <tawfik@marvell.com>,
 	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
 	Gregory Clement <gregory.clement@free-electrons.com>,
-	Lior Amsalem <alior@marvell.com>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Andrew Lunn <andrew@lunn.ch>
-Subject: Re: [PATCH v6 05/19] watchdog: orion: Make sure the watchdog is
- initially stopped
-Message-ID: <20140207154453.GA8533@titan.lakedaemon.net>
-References: <1391707226-18258-1-git-send-email-ezequiel.garcia@free-electrons.com>
- <1391707226-18258-6-git-send-email-ezequiel.garcia@free-electrons.com>
- <52F43ED0.4050808@roeck-us.net>
- <20140207104044.GA11063@localhost>
- <52F4E1C1.4010805@roeck-us.net>
- <20140207151727.GB8218@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20140207151727.GB8218@localhost>
+	Wim Van Sebroeck <wim@iguana.be>,
+	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+Subject: [PATCH v7 00/18] Armada 370/XP watchdog
+Date: Mon, 10 Feb 2014 20:00:19 -0300
+Message-Id: <1392073237-2554-1-git-send-email-ezequiel.garcia@free-electrons.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Fri, Feb 07, 2014 at 12:17:28PM -0300, Ezequiel Garcia wrote:
-> On Fri, Feb 07, 2014 at 05:38:09AM -0800, Guenter Roeck wrote:
-> > On 02/07/2014 02:40 AM, Ezequiel Garcia wrote:
-> > > On Thu, Feb 06, 2014 at 06:02:56PM -0800, Guenter Roeck wrote:
-> > >> On 02/06/2014 09:20 AM, Ezequiel Garcia wrote:
-> > >>> Having the watchdog initially fully stopped is important to avoid
-> > >>> any spurious watchdog triggers, in case the registers are not in
-> > >>> its reset state.
-> > >>>
-> > >>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-> > >>> Tested-by: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-> > >>> Tested-by: Willy Tarreau <w@1wt.eu>
-> > >>> Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-> > >>> ---
-> > >>>    drivers/watchdog/orion_wdt.c | 3 +++
-> > >>>    1 file changed, 3 insertions(+)
-> > >>>
-> > >>> diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
-> > >>> index 6746033..2dbeee9 100644
-> > >>> --- a/drivers/watchdog/orion_wdt.c
-> > >>> +++ b/drivers/watchdog/orion_wdt.c
-> > >>> @@ -142,6 +142,9 @@ static int orion_wdt_probe(struct platform_device *pdev)
-> > >>>    	orion_wdt.max_timeout = wdt_max_duration;
-> > >>>    	watchdog_init_timeout(&orion_wdt, heartbeat, &pdev->dev);
-> > >>>
-> > >>> +	/* Let's make sure the watchdog is fully stopped */
-> > >>> +	orion_wdt_stop(&orion_wdt);
-> > >>> +
-> > >>
-> > >> Actually we just had that in another driver, and I stumbled over it there.
-> > >>
-> > >> Problem with stopping the watchdog in probe unconditionally is that you can
-> > >> use it to defeat nowayout: unload the module, then load it again,
-> > >> and the watchdog is stopped even if nowayout is true.
-> > >>
+Yet another round. This time, addressing Guenter's comment about the nowayout
+parameter. So, to allow for proper nowayout behavior, we now restrict the
+initial watchdog stop; which is only done if the watchdog is not properly
+enabled.
 
-How often would a user legitimately want to unload/load the watchdog
-module?
+I've dropped the clocksource patch which was previously part of the series.
+The patch is independent and will be merged through the subsystem maintainer,
+Daniel Lezcano.
 
-> > >
-> > > Hm... I see.
-> > >
-> > >> Is this really what you want ? Or, in other words, what is the problem
-> > >> you are trying to solve ?
-> > >>
-> > >
-> > > Well, this is related to the discussion about the bootloader not
-> > > reseting the watchdog properly, provoking spurious watchdog triggering.
-> > >
-> > > Jason Gunthorpe explained [1] that we needed a particular sequence:
-> > >
-> > >   1. Disable WDT
-> > >   2. Clear bridge
-> > >   3. Enable WDT
-> > >
-> > > We added the irq handling to satisfy (2), and the watchdog stop for (1).
-> > >
-> > > The watchdog stop was agreed specifically [2].
-> > >
-> > > Ideas?
-> > >
-> > 
-> > Other drivers assume that if the watchdog is running, it is supposed
-> > to be running. The more common approach in such cases is to ping the
-> > watchdog once to give userspace more time to get ready, but leave
-> > it enabled. So you could check if the watchdog is enabled, and if
-> > it was enabled re-enable it after initialization is complete
-> > (and maybe log a message stating that the watchdog is enabled).
-> > 
-> > If you don't want to do that, and if you are defeating nowayout
-> > on purpose to fix a problem with a broken bootloader,
-> > you should at least put in comment describing the problem you are
-> > trying to solve, and that you accept breaking nowayout with your fix.
+Also, I've updated the multi_v7_defconfig, as per Jason Cooper request.
 
-Yes, this should be commented.
+This series depends on Sebastian's irqchip fixes to clear the bridge irqs
+cause, which Jason picked here:
 
-> I'm not fond of not having "nowayout" option on our driver, given I'm sure
-> it's a watchdog feature for a good reason.
-> 
-> On the other side, I can't see how can we distinguish a previously
-> and explicitly enabled watchdog, from a spurious enable by broken bootloader.
+  http://git.infradead.org/linux-mvebu.git mvebu-next/irqchip-fixes
 
-How about we just don't define module_exit() and leave a comment as
-such?  It's not unprecedented, a couple of the atm drivers are
-explicitly setup like this (uPD98402.c, zatm.c, eni.c).
+Wim: Can we take all the watchdog changes through mvebu, with your Ack?
+This way, we can sort out the irqchip dependency.
 
-thx,
+Ezequiel Garcia (18):
+  watchdog: orion: Add clock error handling
+  watchdog: orion: Use atomic access for shared registers
+  watchdog: orion: Remove unused macros
+  watchdog: orion: Make sure the watchdog is initially stopped
+  watchdog: orion: Handle the interrupt so it's properly acked
+  watchdog: orion: Make RSTOUT register a separate resource
+  watchdog: orion: Remove unneeded BRIDGE_CAUSE clear
+  watchdog: orion: Introduce an orion_watchdog device structure
+  watchdog: orion: Introduce per-compatible of_device_id data
+  watchdog: orion: Add per-compatible clock initialization
+  watchdog: orion: Add per-compatible watchdog start implementation
+  watchdog: orion: Add support for Armada 370 and Armada XP SoC
+  ARM: mvebu: Enable Armada 370/XP watchdog in the devicetree
+  ARM: kirkwood: Add RSTOUT 'reg' entry to devicetree
+  ARM: dove: Enable Dove watchdog in the devicetree
+  watchdog: orion: Enable the build on ARCH_MVEBU
+  ARM: mvebu: Enable watchdog support in defconfig
+  ARM: dove: Enable watchdog support in the defconfig
 
-Jason.
+ .../devicetree/bindings/watchdog/marvel.txt        |  11 +-
+ arch/arm/boot/dts/armada-370-xp.dtsi               |   4 +
+ arch/arm/boot/dts/armada-370.dtsi                  |   5 +
+ arch/arm/boot/dts/armada-xp.dtsi                   |   6 +
+ arch/arm/boot/dts/dove.dtsi                        |   8 +
+ arch/arm/boot/dts/kirkwood.dtsi                    |   2 +-
+ arch/arm/configs/dove_defconfig                    |   2 +
+ arch/arm/configs/multi_v7_defconfig                |   2 +
+ arch/arm/configs/mvebu_defconfig                   |   2 +
+ arch/arm/mach-dove/include/mach/bridge-regs.h      |   1 +
+ arch/arm/mach-kirkwood/include/mach/bridge-regs.h  |   1 +
+ arch/arm/mach-mv78xx0/include/mach/bridge-regs.h   |   1 +
+ arch/arm/mach-orion5x/include/mach/bridge-regs.h   |   1 +
+ arch/arm/plat-orion/common.c                       |  10 +-
+ drivers/watchdog/Kconfig                           |   2 +-
+ drivers/watchdog/orion_wdt.c                       | 381 ++++++++++++++++-----
+ 16 files changed, 352 insertions(+), 87 deletions(-)
+
+-- 
+1.8.1.5
