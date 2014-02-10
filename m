@@ -1,40 +1,102 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:52913 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751732AbaBJAvg (ORCPT
+Received: from mail-ee0-f47.google.com ([74.125.83.47]:61219 "EHLO
+	mail-ee0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750797AbaBJHDz (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 9 Feb 2014 19:51:36 -0500
-Message-ID: <52F82296.8010804@roeck-us.net>
-Date: Sun, 09 Feb 2014 16:51:34 -0800
-From: Guenter Roeck <linux@roeck-us.net>
+	Mon, 10 Feb 2014 02:03:55 -0500
+Received: by mail-ee0-f47.google.com with SMTP id d49so2714917eek.34
+        for <linux-watchdog@vger.kernel.org>; Sun, 09 Feb 2014 23:03:54 -0800 (PST)
+Message-ID: <52F879CF.8080906@monstr.eu>
+Date: Mon, 10 Feb 2014 08:03:43 +0100
+From: Michal Simek <monstr@monstr.eu>
+Reply-To: monstr@monstr.eu
 MIME-Version: 1.0
-To: Michal Simek <michal.simek@xilinx.com>,
-	linux-kernel@vger.kernel.org, monstr@monstr.eu
-CC: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 10/10] watchdog: xilinx: Enable this driver for Zynq
-References: <ed4cb31c9a549343e6b492cf62fc962d39034bd0.1391177880.git.michal.simek@xilinx.com> <f7bdfada576e93eaab8f6dc2ecd881da8f43911c.1391177880.git.michal.simek@xilinx.com>
-In-Reply-To: <f7bdfada576e93eaab8f6dc2ecd881da8f43911c.1391177880.git.michal.simek@xilinx.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Guenter Roeck <linux@roeck-us.net>
+CC: Michal Simek <michal.simek@xilinx.com>,
+	linux-kernel@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH 01/10] watchdog: xilinx: Convert driver to the watchdog
+ framework
+References: <ed4cb31c9a549343e6b492cf62fc962d39034bd0.1391177880.git.michal.simek@xilinx.com> <52F7DF2F.5060001@roeck-us.net>
+In-Reply-To: <52F7DF2F.5060001@roeck-us.net>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="DpxClkbQkmgeo552XHnWWFOWLNPnBjoDG"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 01/31/2014 06:18 AM, Michal Simek wrote:
-> Enable this driver for Zynq.
-> Move it to architecture independent Kconfig part.
->
-> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
-> ---
->
-> Build tested by zero day testing system.
-> ---
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--DpxClkbQkmgeo552XHnWWFOWLNPnBjoDG
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Hi Michal,
+On 02/09/2014 09:03 PM, Guenter Roeck wrote:
+> On 01/31/2014 06:18 AM, Michal Simek wrote:
+>> - Remove uneeded headers, fops functions
+>> - Use xilinx_wdt prefix in start/stop/keepalive functions
+>>    and in new structures
+>>
+>> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+>=20
+> Hi Michal,
+>=20
+>>   static int xwdt_probe(struct platform_device *pdev)
+>>   {
+>>       int rc;
+>> @@ -314,7 +184,7 @@ static int xwdt_probe(struct platform_device *pdev=
+)
+>>                       "xlnx,wdt-enable-once", NULL);
+>>       if (tmptr =3D=3D NULL) {
+>>           pr_warn("Parameter \"xlnx,wdt-enable-once\" not found in dev=
+ice tree!\n");
+>> -        xdev.nowayout =3D WATCHDOG_NOWAYOUT;
+>> +        watchdog_set_nowayout(&xilinx_wdt_wdd, true);
+>=20
+> Sure you want to set this to always true instead of using WATCHDOG_NOWA=
+YOUT ?
 
-I tried myself, and I don't see any build failures on any platform.
-So let's assume this works as-is.
+I have checked it and
+option CONFIG_WATCHDOG_NOWAYOUT - Disable watchdog shutdown on close
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+with this part in the header
 
-Guenter
+100 #ifdef CONFIG_WATCHDOG_NOWAYOUT
+101 #define WATCHDOG_NOWAYOUT               1
+102 #define WATCHDOG_NOWAYOUT_INIT_STATUS   (1 << WDOG_NO_WAY_OUT)
+103 #else
+104 #define WATCHDOG_NOWAYOUT               0
+105 #define WATCHDOG_NOWAYOUT_INIT_STATUS   0
+106 #endif
 
+enable once is hardware option and it means when this option is setup in
+hw you can't stop watchdog. That's why I think that setting up true
+instead of WATCHDOG_NOWAYOUT is correct.
+
+Thanks,
+Michal
+
+--=20
+Michal Simek, Ing. (M.Eng), OpenPGP -> KeyID: FE3D1F91
+w: www.monstr.eu p: +42-0-721842854
+Maintainer of Linux kernel - Microblaze cpu - http://www.monstr.eu/fdt/
+Maintainer of Linux kernel - Xilinx Zynq ARM architecture
+Microblaze U-BOOT custodian and responsible for u-boot arm zynq platform
+
+
+
+--DpxClkbQkmgeo552XHnWWFOWLNPnBjoDG
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+
+iEYEARECAAYFAlL4edAACgkQykllyylKDCHhBACgi+cnCGDk7DtyIBFrliDzuA4b
+H/0An2t2HUIpyz3HNx0FB9+E/tHkjx7j
+=YDI7
+-----END PGP SIGNATURE-----
+
+--DpxClkbQkmgeo552XHnWWFOWLNPnBjoDG--
