@@ -1,102 +1,55 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ea0-f182.google.com ([209.85.215.182]:57873 "EHLO
-	mail-ea0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750869AbaBKG4E (ORCPT
+Received: from mailout1.samsung.com ([203.254.224.24]:10730 "EHLO
+	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750831AbaBKG7l (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 11 Feb 2014 01:56:04 -0500
-Received: by mail-ea0-f182.google.com with SMTP id r15so3410484ead.41
-        for <linux-watchdog@vger.kernel.org>; Mon, 10 Feb 2014 22:56:02 -0800 (PST)
-From: Michal Simek <michal.simek@xilinx.com>
-To: linux-kernel@vger.kernel.org, monstr@monstr.eu
-Cc: Guenter Roeck <linux@roeck-us.net>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: [PATCH v2 02/11] watchdog: xilinx: Move control_status_reg to functions
-Date: Tue, 11 Feb 2014 07:55:45 +0100
-Message-Id: <edb974b379ad91a5736d95133ac5dc6de882f5a6.1392101734.git.michal.simek@xilinx.com>
-In-Reply-To: <f298edd222c57b0ce1ebad3ae50c3f715406c631.1392101734.git.michal.simek@xilinx.com>
-References: <f298edd222c57b0ce1ebad3ae50c3f715406c631.1392101734.git.michal.simek@xilinx.com>
-In-Reply-To: <f298edd222c57b0ce1ebad3ae50c3f715406c631.1392101734.git.michal.simek@xilinx.com>
-References: <f298edd222c57b0ce1ebad3ae50c3f715406c631.1392101734.git.michal.simek@xilinx.com>
-Content-Type: multipart/signed;
-    boundary="=_mimegpg-monstr-desktop-9481-1392101759-0001";
-    micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 11 Feb 2014 01:59:41 -0500
+Received: from epcpsbgr1.samsung.com
+ (u141.gpu120.samsung.co.kr [203.254.230.141])
+ by mailout1.samsung.com (Oracle Communications Messaging Server 7u4-24.01
+ (7.0.4.24.0) 64bit (built Nov 17 2011))
+ with ESMTP id <0N0T00G4RKRE9M30@mailout1.samsung.com> for
+ linux-watchdog@vger.kernel.org; Tue, 11 Feb 2014 15:59:38 +0900 (KST)
+From: Jingoo Han <jg1.han@samsung.com>
+To: 'Wim Van Sebroeck' <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org,
+	'Guenter Roeck' <linux@roeck-us.net>,
+	'Jingoo Han' <jg1.han@samsung.com>,
+	'Mika Westerberg' <mika.westerberg@linux.intel.com>
+Subject: [PATCH] watchdog: ts72xx_wdt: make 'ts72xx_wdt_pdev' static
+Date: Tue, 11 Feb 2014 15:59:38 +0900
+Message-id: <001a01cf26f6$d4636dd0$7d2a4970$%han@samsung.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-language: ko
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This is a MIME GnuPG-signed message.  If you see this text, it means that
-your E-mail or Usenet software does not support MIME signed messages.
-The Internet standard for MIME PGP messages, RFC 2015, was published in 1996.
-To open this message correctly you will need to install E-mail or Usenet
-software that supports modern Internet standards.
+Make 'ts72xx_wdt_pdev' static, because it is used only in this
+file. It also fixes the following sparse warning.
 
---=_mimegpg-monstr-desktop-9481-1392101759-0001
+  warning: symbol 'ts72xx_wdt_pdev' was not declared. Should it be static?
 
-control_status_reg is temp variables and should be
-used locally by specific function.
-
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Jingoo Han <jg1.han@samsung.com>
 ---
+ drivers/watchdog/ts72xx_wdt.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Changes in v2: None
-
- drivers/watchdog/of_xilinx_wdt.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/watchdog/of_xilinx_wdt.c b/drivers/watchdog/of_xilinx_wdt.c
-index 8c2814e..aca9bab 100644
---- a/drivers/watchdog/of_xilinx_wdt.c
-+++ b/drivers/watchdog/of_xilinx_wdt.c
-@@ -52,13 +52,14 @@ struct xwdt_device {
- static struct xwdt_device xdev;
-
- static  u32 timeout;
--static  u32 control_status_reg;
- static  u8  no_timeout;
-
- static  DEFINE_SPINLOCK(spinlock);
-
- static int xilinx_wdt_start(struct watchdog_device *wdd)
- {
-+	u32 control_status_reg;
-+
- 	spin_lock(&spinlock);
-
- 	/* Clean previous status and enable the watchdog timer */
-@@ -77,6 +78,8 @@ static int xilinx_wdt_start(struct watchdog_device *wdd)
-
- static int xilinx_wdt_stop(struct watchdog_device *wdd)
- {
-+	u32 control_status_reg;
-+
- 	spin_lock(&spinlock);
-
- 	control_status_reg = ioread32(xdev.base + XWT_TWCSR0_OFFSET);
-@@ -94,6 +97,8 @@ static int xilinx_wdt_stop(struct watchdog_device *wdd)
-
- static int xilinx_wdt_keepalive(struct watchdog_device *wdd)
- {
-+	u32 control_status_reg;
-+
- 	spin_lock(&spinlock);
-
- 	control_status_reg = ioread32(xdev.base + XWT_TWCSR0_OFFSET);
---
-1.8.2.3
+diff --git a/drivers/watchdog/ts72xx_wdt.c b/drivers/watchdog/ts72xx_wdt.c
+index 6959fa0..afa9d6e 100644
+--- a/drivers/watchdog/ts72xx_wdt.c
++++ b/drivers/watchdog/ts72xx_wdt.c
+@@ -61,7 +61,7 @@ struct ts72xx_wdt {
+ 	struct platform_device *pdev;
+ };
+ 
+-struct platform_device *ts72xx_wdt_pdev;
++static struct platform_device *ts72xx_wdt_pdev;
+ 
+ /*
+  * TS-72xx Watchdog supports following timeouts (value written
+-- 
+1.7.10.4
 
 
---=_mimegpg-monstr-desktop-9481-1392101759-0001
-Content-Type: application/pgp-signature
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEABECAAYFAlL5yX8ACgkQykllyylKDCH1iACeIliz9n2XLQs19Sid7y558LZU
-Dj8An2t5f39M0Sbd6f6qZ1F8gjxMlp5w
-=ij0U
------END PGP SIGNATURE-----
-
---=_mimegpg-monstr-desktop-9481-1392101759-0001--
