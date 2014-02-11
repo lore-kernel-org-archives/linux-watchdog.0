@@ -1,26 +1,26 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ee0-f53.google.com ([74.125.83.53]:64233 "EHLO
-	mail-ee0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752470AbaBKG4a (ORCPT
+Received: from mail-ea0-f182.google.com ([209.85.215.182]:57873 "EHLO
+	mail-ea0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750869AbaBKG4E (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 11 Feb 2014 01:56:30 -0500
-Received: by mail-ee0-f53.google.com with SMTP id t10so3334711eei.26
-        for <linux-watchdog@vger.kernel.org>; Mon, 10 Feb 2014 22:56:28 -0800 (PST)
+	Tue, 11 Feb 2014 01:56:04 -0500
+Received: by mail-ea0-f182.google.com with SMTP id r15so3410484ead.41
+        for <linux-watchdog@vger.kernel.org>; Mon, 10 Feb 2014 22:56:02 -0800 (PST)
 From: Michal Simek <michal.simek@xilinx.com>
 To: linux-kernel@vger.kernel.org, monstr@monstr.eu
 Cc: Guenter Roeck <linux@roeck-us.net>,
 	Wim Van Sebroeck <wim@iguana.be>,
 	linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org
-Subject: [PATCH v2 11/11] watchdog: xilinx: Remove no_timeout variable
-Date: Tue, 11 Feb 2014 07:55:54 +0100
-Message-Id: <52d86e3f2b957411deafbdfbd4bf93bb78f491ac.1392101734.git.michal.simek@xilinx.com>
+Subject: [PATCH v2 02/11] watchdog: xilinx: Move control_status_reg to functions
+Date: Tue, 11 Feb 2014 07:55:45 +0100
+Message-Id: <edb974b379ad91a5736d95133ac5dc6de882f5a6.1392101734.git.michal.simek@xilinx.com>
 In-Reply-To: <f298edd222c57b0ce1ebad3ae50c3f715406c631.1392101734.git.michal.simek@xilinx.com>
 References: <f298edd222c57b0ce1ebad3ae50c3f715406c631.1392101734.git.michal.simek@xilinx.com>
 In-Reply-To: <f298edd222c57b0ce1ebad3ae50c3f715406c631.1392101734.git.michal.simek@xilinx.com>
 References: <f298edd222c57b0ce1ebad3ae50c3f715406c631.1392101734.git.michal.simek@xilinx.com>
 Content-Type: multipart/signed;
-    boundary="=_mimegpg-monstr-desktop-9611-1392101786-0001";
+    boundary="=_mimegpg-monstr-desktop-9481-1392101759-0001";
     micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
@@ -31,82 +31,72 @@ The Internet standard for MIME PGP messages, RFC 2015, was published in 1996.
 To open this message correctly you will need to install E-mail or Usenet
 software that supports modern Internet standards.
 
---=_mimegpg-monstr-desktop-9611-1392101786-0001
+--=_mimegpg-monstr-desktop-9481-1392101759-0001
 
-Remove no_timeout variable and check variables
-directly.
+control_status_reg is temp variables and should be
+used locally by specific function.
 
-Suggested-by: Rob Herring <robherring2@gmail.com>
 Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 ---
 
-Changes in v2:
-- New patch in this series
+Changes in v2: None
 
- drivers/watchdog/of_xilinx_wdt.c | 13 ++++---------
- 1 file changed, 4 insertions(+), 9 deletions(-)
+ drivers/watchdog/of_xilinx_wdt.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/watchdog/of_xilinx_wdt.c b/drivers/watchdog/of_xilinx_wdt.c
-index dad8fb5..fc91285 100644
+index 8c2814e..aca9bab 100644
 --- a/drivers/watchdog/of_xilinx_wdt.c
 +++ b/drivers/watchdog/of_xilinx_wdt.c
-@@ -147,10 +147,9 @@ static u32 xwdt_selftest(struct xwdt_device *xdev)
- static int xwdt_probe(struct platform_device *pdev)
+@@ -52,13 +52,14 @@ struct xwdt_device {
+ static struct xwdt_device xdev;
+
+ static  u32 timeout;
+-static  u32 control_status_reg;
+ static  u8  no_timeout;
+
+ static  DEFINE_SPINLOCK(spinlock);
+
+ static int xilinx_wdt_start(struct watchdog_device *wdd)
  {
- 	int rc;
--	u32 pfreq, enable_once = 0;
-+	u32 pfreq = 0, enable_once = 0;
- 	struct resource *res;
- 	struct xwdt_device *xdev;
--	bool no_timeout = false;
- 	struct watchdog_device *xilinx_wdt_wdd;
++	u32 control_status_reg;
++
+ 	spin_lock(&spinlock);
 
- 	xdev = devm_kzalloc(&pdev->dev, sizeof(*xdev), GFP_KERNEL);
-@@ -168,19 +167,15 @@ static int xwdt_probe(struct platform_device *pdev)
- 		return PTR_ERR(xdev->base);
+ 	/* Clean previous status and enable the watchdog timer */
+@@ -77,6 +78,8 @@ static int xilinx_wdt_start(struct watchdog_device *wdd)
 
- 	rc = of_property_read_u32(pdev->dev.of_node, "clock-frequency", &pfreq);
--	if (rc) {
-+	if (rc)
- 		dev_warn(&pdev->dev,
- 			 "The watchdog clock frequency cannot be obtained\n");
--		no_timeout = true;
--	}
+ static int xilinx_wdt_stop(struct watchdog_device *wdd)
+ {
++	u32 control_status_reg;
++
+ 	spin_lock(&spinlock);
 
- 	rc = of_property_read_u32(pdev->dev.of_node, "xlnx,wdt-interval",
- 				  &xdev->wdt_interval);
--	if (rc) {
-+	if (rc)
- 		dev_warn(&pdev->dev,
- 			 "Parameter \"xlnx,wdt-interval\" not found\n");
--		no_timeout = true;
--	}
+ 	control_status_reg = ioread32(xdev.base + XWT_TWCSR0_OFFSET);
+@@ -94,6 +97,8 @@ static int xilinx_wdt_stop(struct watchdog_device *wdd)
 
- 	rc = of_property_read_u32(pdev->dev.of_node, "xlnx,wdt-enable-once",
- 				  &enable_once);
-@@ -195,7 +190,7 @@ static int xwdt_probe(struct platform_device *pdev)
- 	 * Twice of the 2^wdt_interval / freq  because the first wdt overflow is
- 	 * ignored (interrupt), reset is only generated at second wdt overflow
- 	 */
--	if (!no_timeout)
-+	if (pfreq && xdev->wdt_interval)
- 		xilinx_wdt_wdd->timeout = 2 * ((1 << xdev->wdt_interval) /
- 					  pfreq);
+ static int xilinx_wdt_keepalive(struct watchdog_device *wdd)
+ {
++	u32 control_status_reg;
++
+ 	spin_lock(&spinlock);
 
+ 	control_status_reg = ioread32(xdev.base + XWT_TWCSR0_OFFSET);
 --
 1.8.2.3
 
 
---=_mimegpg-monstr-desktop-9611-1392101786-0001
+--=_mimegpg-monstr-desktop-9481-1392101759-0001
 Content-Type: application/pgp-signature
 Content-Transfer-Encoding: 7bit
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.10 (GNU/Linux)
 
-iEYEABECAAYFAlL5yZoACgkQykllyylKDCHQ6gCcCFpUU6bCC6KkTf++tZ1jz71N
-0IMAnjq7VC69Wx/a5il+e9fYLxTin89Y
-=qnh8
+iEYEABECAAYFAlL5yX8ACgkQykllyylKDCH1iACeIliz9n2XLQs19Sid7y558LZU
+Dj8An2t5f39M0Sbd6f6qZ1F8gjxMlp5w
+=ij0U
 -----END PGP SIGNATURE-----
 
---=_mimegpg-monstr-desktop-9611-1392101786-0001--
+--=_mimegpg-monstr-desktop-9481-1392101759-0001--
