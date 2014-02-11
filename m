@@ -1,55 +1,47 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailout1.samsung.com ([203.254.224.24]:10730 "EHLO
-	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750831AbaBKG7l (ORCPT
+Received: from mail-oa0-f44.google.com ([209.85.219.44]:49884 "EHLO
+	mail-oa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750762AbaBKHo4 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 11 Feb 2014 01:59:41 -0500
-Received: from epcpsbgr1.samsung.com
- (u141.gpu120.samsung.co.kr [203.254.230.141])
- by mailout1.samsung.com (Oracle Communications Messaging Server 7u4-24.01
- (7.0.4.24.0) 64bit (built Nov 17 2011))
- with ESMTP id <0N0T00G4RKRE9M30@mailout1.samsung.com> for
- linux-watchdog@vger.kernel.org; Tue, 11 Feb 2014 15:59:38 +0900 (KST)
-From: Jingoo Han <jg1.han@samsung.com>
-To: 'Wim Van Sebroeck' <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org,
-	'Guenter Roeck' <linux@roeck-us.net>,
-	'Jingoo Han' <jg1.han@samsung.com>,
-	'Mika Westerberg' <mika.westerberg@linux.intel.com>
-Subject: [PATCH] watchdog: ts72xx_wdt: make 'ts72xx_wdt_pdev' static
-Date: Tue, 11 Feb 2014 15:59:38 +0900
-Message-id: <001a01cf26f6$d4636dd0$7d2a4970$%han@samsung.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-language: ko
+	Tue, 11 Feb 2014 02:44:56 -0500
+Received: by mail-oa0-f44.google.com with SMTP id g12so8781682oah.17
+        for <linux-watchdog@vger.kernel.org>; Mon, 10 Feb 2014 23:44:55 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <000701cf26f6$03fc9950$0bf5cbf0$%han@samsung.com>
+References: <000101cf26f5$06c21760$14464620$%han@samsung.com>
+	<000701cf26f6$03fc9950$0bf5cbf0$%han@samsung.com>
+Date: Tue, 11 Feb 2014 13:14:55 +0530
+Message-ID: <CAKohpomfuWHn4tUgiWs8-fj+7P0Y=kGayC7JPJ660kxmMF-WDQ@mail.gmail.com>
+Subject: Re: [PATCH 6/8] watchdog: sp805_wdt: Remove unnecessary OOM messages
+From: Viresh Kumar <viresh.kumar@linaro.org>
+To: Jingoo Han <jg1.han@samsung.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Make 'ts72xx_wdt_pdev' static, because it is used only in this
-file. It also fixes the following sparse warning.
+On 11 February 2014 12:23, Jingoo Han <jg1.han@samsung.com> wrote:
+> The site-specific OOM messages are unnecessary, because they
+> duplicate the MM subsystem generic OOM message.
+>
+> Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+> ---
+>  drivers/watchdog/sp805_wdt.c |    1 -
+>  1 file changed, 1 deletion(-)
+>
+> diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
+> index 3f786ce..d7da73e 100644
+> --- a/drivers/watchdog/sp805_wdt.c
+> +++ b/drivers/watchdog/sp805_wdt.c
+> @@ -218,7 +218,6 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
+>
+>         wdt = devm_kzalloc(&adev->dev, sizeof(*wdt), GFP_KERNEL);
+>         if (!wdt) {
+> -               dev_warn(&adev->dev, "Kzalloc failed\n");
+>                 ret = -ENOMEM;
+>                 goto err;
+>         }
 
-  warning: symbol 'ts72xx_wdt_pdev' was not declared. Should it be static?
-
-Signed-off-by: Jingoo Han <jg1.han@samsung.com>
----
- drivers/watchdog/ts72xx_wdt.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/watchdog/ts72xx_wdt.c b/drivers/watchdog/ts72xx_wdt.c
-index 6959fa0..afa9d6e 100644
---- a/drivers/watchdog/ts72xx_wdt.c
-+++ b/drivers/watchdog/ts72xx_wdt.c
-@@ -61,7 +61,7 @@ struct ts72xx_wdt {
- 	struct platform_device *pdev;
- };
- 
--struct platform_device *ts72xx_wdt_pdev;
-+static struct platform_device *ts72xx_wdt_pdev;
- 
- /*
-  * TS-72xx Watchdog supports following timeouts (value written
--- 
-1.7.10.4
-
-
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
