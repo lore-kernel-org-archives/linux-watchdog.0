@@ -1,60 +1,73 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-we0-f170.google.com ([74.125.82.170]:59508 "EHLO
-	mail-we0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752672AbaBKAGq (ORCPT
+Received: from mailout3.samsung.com ([203.254.224.33]:59994 "EHLO
+	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752750AbaBKG6v (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 10 Feb 2014 19:06:46 -0500
-Received: by mail-we0-f170.google.com with SMTP id w62so4896577wes.15
-        for <linux-watchdog@vger.kernel.org>; Mon, 10 Feb 2014 16:06:45 -0800 (PST)
-Message-ID: <52F96993.9090007@linaro.org>
-Date: Tue, 11 Feb 2014 01:06:43 +0100
-From: Daniel Lezcano <daniel.lezcano@linaro.org>
-MIME-Version: 1.0
-To: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>,
-	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	Jason Cooper <jason@lakedaemon.net>
-CC: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Lior Amsalem <alior@marvell.com>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Andrew Lunn <andrew@lunn.ch>
-Subject: Re: [PATCH v6 01/19] clocksource: orion: Use atomic access for shared
- registers
-References: <1391707226-18258-1-git-send-email-ezequiel.garcia@free-electrons.com> <1391707226-18258-2-git-send-email-ezequiel.garcia@free-electrons.com>
-In-Reply-To: <1391707226-18258-2-git-send-email-ezequiel.garcia@free-electrons.com>
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+	Tue, 11 Feb 2014 01:58:51 -0500
+Received: from epcpsbgr2.samsung.com
+ (u142.gpu120.samsung.co.kr [203.254.230.142])
+ by mailout3.samsung.com (Oracle Communications Messaging Server 7u4-24.01
+ (7.0.4.24.0) 64bit (built Nov 17 2011))
+ with ESMTP id <0N0T00623KPYJ130@mailout3.samsung.com> for
+ linux-watchdog@vger.kernel.org; Tue, 11 Feb 2014 15:58:46 +0900 (KST)
+From: Jingoo Han <jg1.han@samsung.com>
+To: 'Wim Van Sebroeck' <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org,
+	'Guenter Roeck' <linux@roeck-us.net>,
+	'Jingoo Han' <jg1.han@samsung.com>
+References: <000101cf26f5$06c21760$14464620$%han@samsung.com>
+In-reply-to: <000101cf26f5$06c21760$14464620$%han@samsung.com>
+Subject: Re: [PATCH 0/8] watchdog: Remove unnecessary OOM messages
+Date: Tue, 11 Feb 2014 15:58:44 +0900
+Message-id: <001901cf26f6$b4915f30$1db41d90$%han@samsung.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-language: ko
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/06/2014 06:20 PM, Ezequiel Garcia wrote:
-> Replace the driver-specific thread-safe shared register API
-> by the recently introduced atomic_io_clear_set().
->
-> Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
-> Tested-by: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-> Tested-by: Willy Tarreau <w@1wt.eu>
-> Acked-by: Jason Cooper <jason@lakedaemon.net>
-> Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+On Tuesday, February 11, 2014 3:47 PM, Jingoo Han wrote:
+> 
+> The site-specific OOM messages are unnecessary, because they
+> duplicate the MM subsystem generic OOM message. For example,
+> k.alloc and v.alloc failures use dump_stack().
+> 
+> Jingoo Han (8):
+>       watchdog: at32ap700x: Remove unnecessary OOM messages
+>       watchdog: ts72xx_wdt: make 'ts72xx_wdt_pdev' static
 
-The patch looks good for me.
+There is a mistake. The followings are right.
 
-Acked-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Jingoo Han (8):
+      watchdog: at32ap700x: Remove unnecessary OOM messages
+      watchdog: bcm2835: Remove unnecessary OOM messages
+      watchdog: da9052: Remove unnecessary OOM messages
+      watchdog: da9055: Remove unnecessary OOM messages
+      watchdog: pcwd_usb: Remove unnecessary OOM messages
+      watchdog: sp805_wdt: Remove unnecessary OOM messages
+      watchdog: ts72xx_wdt: Remove unnecessary OOM messages
+      watchdog: wm831x: Remove unnecessary OOM messages
 
+Best regards,
+Jingoo Han
 
+>       watchdog: bcm2835: Remove unnecessary OOM messages
+>       watchdog: da9052: Remove unnecessary OOM messages
+>       watchdog: da9055: Remove unnecessary OOM messages
+>       watchdog: pcwd_usb: Remove unnecessary OOM messages
+>       watchdog: sp805_wdt: Remove unnecessary OOM messages
+>       watchdog: ts72xx_wdt: Remove unnecessary OOM messages
+>       watchdog: wm831x: Remove unnecessary OOM messages
+> 
+> ---
+>  drivers/watchdog/at32ap700x_wdt.c |    4 +---
+>  drivers/watchdog/bcm2835_wdt.c    |    4 +---
+>  drivers/watchdog/da9052_wdt.c     |    1 -
+>  drivers/watchdog/da9055_wdt.c     |    4 +---
+>  drivers/watchdog/pcwd_usb.c       |    4 +---
+>  drivers/watchdog/sp805_wdt.c      |    1 -
+>  drivers/watchdog/ts72xx_wdt.c     |    6 ++----
+>  drivers/watchdog/wm831x_wdt.c     |    1 -
+>  8 files changed, 6 insertions(+), 19 deletions(-)
 
---=20
-  <http://www.linaro.org/> Linaro.org =E2=94=82 Open source software fo=
-r ARM SoCs
-
-=46ollow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
-<http://twitter.com/#!/linaroorg> Twitter |
-<http://www.linaro.org/linaro-blog/> Blog
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
