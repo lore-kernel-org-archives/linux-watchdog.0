@@ -1,50 +1,23 @@
-Return-Path: <ezequiel.garcia@free-electrons.com>
-Date: Tue, 11 Feb 2014 05:31:23 -0300
-From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Jason Cooper <jason@lakedaemon.net>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Lior Amsalem <alior@marvell.com>,
-	Tawfik Bayouk <tawfik@marvell.com>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v7 00/18] Armada 370/XP watchdog
-Message-ID: <20140211083122.GB3687@localhost>
-References: <1392073237-2554-1-git-send-email-ezequiel.garcia@free-electrons.com>
+Return-Path: <mika.westerberg@linux.intel.com>
+Date: Tue, 11 Feb 2014 12:09:06 +0200
+From: 'Mika Westerberg' <mika.westerberg@linux.intel.com>
+To: Jingoo Han <jg1.han@samsung.com>
+Cc: 'Wim Van Sebroeck' <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	'Guenter Roeck' <linux@roeck-us.net>
+Subject: Re: [PATCH 7/8] watchdog: ts72xx_wdt: Remove unnecessary OOM messages
+Message-ID: <20140211100906.GB18029@intel.com>
+References: <000101cf26f5$06c21760$14464620$%han@samsung.com>
+ <000801cf26f6$2c18d930$844a8b90$%han@samsung.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1392073237-2554-1-git-send-email-ezequiel.garcia@free-electrons.com>
+In-Reply-To: <000801cf26f6$2c18d930$844a8b90$%han@samsung.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Mon, Feb 10, 2014 at 08:00:19PM -0300, Ezequiel Garcia wrote:
-> Yet another round. This time, addressing Guenter's comment about the nowayout
-> parameter. So, to allow for proper nowayout behavior, we now restrict the
-> initial watchdog stop; which is only done if the watchdog is not properly
-> enabled.
+On Tue, Feb 11, 2014 at 03:54:56PM +0900, Jingoo Han wrote:
+> The site-specific OOM messages are unnecessary, because they
+> duplicate the MM subsystem generic OOM message.
 > 
-> I've dropped the clocksource patch which was previously part of the series.
-> The patch is independent and will be merged through the subsystem maintainer,
-> Daniel Lezcano.
-> 
-> Also, I've updated the multi_v7_defconfig, as per Jason Cooper request.
-> 
-> This series depends on Sebastian's irqchip fixes to clear the bridge irqs
-> cause, which Jason picked here:
-> 
->   http://git.infradead.org/linux-mvebu.git mvebu-next/irqchip-fixes
-> 
-> Wim: Can we take all the watchdog changes through mvebu, with your Ack?
-> This way, we can sort out the irqchip dependency.
-> 
+> Signed-off-by: Jingoo Han <jg1.han@samsung.com>
 
-Wim: Do you have any comments about these patches?
-
--- 
-Ezequiel García, Free Electrons
-Embedded Linux, Kernel and Android Engineering
-http://free-electrons.com
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
