@@ -1,42 +1,39 @@
-Return-Path: <ezequiel.garcia@free-electrons.com>
-From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-To: <linux-arm-kernel@lists.infradead.org>,
-	<linux-watchdog@vger.kernel.org>
-Cc: Jason Cooper <jason@lakedaemon.net>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Lior Amsalem <alior@marvell.com>,
-	Tawfik Bayouk <tawfik@marvell.com>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-Subject: [PATCH v7 18/18] ARM: dove: Enable watchdog support in the defconfig
-Date: Mon, 10 Feb 2014 20:00:37 -0300
-Message-Id: <1392073237-2554-19-git-send-email-ezequiel.garcia@free-electrons.com>
-In-Reply-To: <1392073237-2554-1-git-send-email-ezequiel.garcia@free-electrons.com>
-References: <1392073237-2554-1-git-send-email-ezequiel.garcia@free-electrons.com>
+Return-Path: <jg1.han@samsung.com>
+From: Jingoo Han <jg1.han@samsung.com>
+To: 'Wim Van Sebroeck' <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org, 'Guenter Roeck' <linux@roeck-us.net>,
+ 'Jingoo Han' <jg1.han@samsung.com>
+Subject: [PATCH 0/8] watchdog: Remove unnecessary OOM messages
+Date: Tue, 11 Feb 2014 15:46:43 +0900
+Message-id: <000101cf26f5$06c21760$14464620$%han@samsung.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-language: ko
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Now that we have watchdog support, let's add it to the defconfig.
+The site-specific OOM messages are unnecessary, because they
+duplicate the MM subsystem generic OOM message. For example,
+k.alloc and v.alloc failures use dump_stack().
 
-Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+Jingoo Han (8):
+      watchdog: at32ap700x: Remove unnecessary OOM messages
+      watchdog: ts72xx_wdt: make 'ts72xx_wdt_pdev' static
+      watchdog: bcm2835: Remove unnecessary OOM messages
+      watchdog: da9052: Remove unnecessary OOM messages
+      watchdog: da9055: Remove unnecessary OOM messages
+      watchdog: pcwd_usb: Remove unnecessary OOM messages
+      watchdog: sp805_wdt: Remove unnecessary OOM messages
+      watchdog: ts72xx_wdt: Remove unnecessary OOM messages
+      watchdog: wm831x: Remove unnecessary OOM messages
+
 ---
- arch/arm/configs/dove_defconfig | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/arch/arm/configs/dove_defconfig b/arch/arm/configs/dove_defconfig
-index 1101054..a330690 100644
---- a/arch/arm/configs/dove_defconfig
-+++ b/arch/arm/configs/dove_defconfig
-@@ -80,6 +80,8 @@ CONFIG_SPI_ORION=y
- # CONFIG_HWMON is not set
- CONFIG_THERMAL=y
- CONFIG_DOVE_THERMAL=y
-+CONFIG_WATCHDOG=y
-+CONFIG_ORION_WATCHDOG=y
- CONFIG_USB=y
- CONFIG_USB_XHCI_HCD=y
- CONFIG_USB_EHCI_HCD=y
--- 
-1.8.1.5
+ drivers/watchdog/at32ap700x_wdt.c |    4 +---
+ drivers/watchdog/bcm2835_wdt.c    |    4 +---
+ drivers/watchdog/da9052_wdt.c     |    1 -
+ drivers/watchdog/da9055_wdt.c     |    4 +---
+ drivers/watchdog/pcwd_usb.c       |    4 +---
+ drivers/watchdog/sp805_wdt.c      |    1 -
+ drivers/watchdog/ts72xx_wdt.c     |    6 ++----
+ drivers/watchdog/wm831x_wdt.c     |    1 -
+ 8 files changed, 6 insertions(+), 19 deletions(-)
