@@ -1,22 +1,24 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ea0-f178.google.com ([209.85.215.178]:46452 "EHLO
-	mail-ea0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751065AbaBLNlm (ORCPT
+Received: from mail-ee0-f43.google.com ([74.125.83.43]:37520 "EHLO
+	mail-ee0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752256AbaBLNmN (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 12 Feb 2014 08:41:42 -0500
-Received: by mail-ea0-f178.google.com with SMTP id a15so4394344eae.23
-        for <linux-watchdog@vger.kernel.org>; Wed, 12 Feb 2014 05:41:41 -0800 (PST)
+	Wed, 12 Feb 2014 08:42:13 -0500
+Received: by mail-ee0-f43.google.com with SMTP id c41so4321431eek.16
+        for <linux-watchdog@vger.kernel.org>; Wed, 12 Feb 2014 05:42:12 -0800 (PST)
 From: Michal Simek <michal.simek@xilinx.com>
 To: linux-kernel@vger.kernel.org, monstr@monstr.eu
 Cc: linux@roeck-us.net, wim@iguana.be, linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org
-Subject: [PATCH v3 05/11] watchdog: xilinx: Allocate private structure per device
-Date: Wed, 12 Feb 2014 14:41:19 +0100
-Message-Id: <bdd7c2c78dd491d02d1c1ae8a59b92b7a1a17ec6.1392212059.git.michal.simek@xilinx.com>
+Subject: [PATCH v3 08/11] watchdog: xilinx: Use correct comment indentation
+Date: Wed, 12 Feb 2014 14:41:22 +0100
+Message-Id: <96c6acc9bf5f41b0fc37c6b17b2d07239c5b6101.1392212059.git.michal.simek@xilinx.com>
+In-Reply-To: <bdd7c2c78dd491d02d1c1ae8a59b92b7a1a17ec6.1392212059.git.michal.simek@xilinx.com>
+References: <bdd7c2c78dd491d02d1c1ae8a59b92b7a1a17ec6.1392212059.git.michal.simek@xilinx.com>
 In-Reply-To: <cover.1392212059.git.michal.simek@xilinx.com>
 References: <cover.1392212059.git.michal.simek@xilinx.com>
 Content-Type: multipart/signed;
-    boundary="=_mimegpg-monstr-desktop-12327-1392212485-0001";
+    boundary="=_mimegpg-monstr-desktop-12497-1392212528-0001";
     micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
@@ -27,11 +29,9 @@ The Internet standard for MIME PGP messages, RFC 2015, was published in 1996.
 To open this message correctly you will need to install E-mail or Usenet
 software that supports modern Internet standards.
 
---=_mimegpg-monstr-desktop-12327-1392212485-0001
+--=_mimegpg-monstr-desktop-12497-1392212528-0001
 
-Only one watchdog could be used by this driver.
-Create driver private data structure and move there
-all variables for one instance.
+No functional changes.
 
 Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
@@ -40,234 +40,42 @@ Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Changes in v3: None
 Changes in v2: None
 
- drivers/watchdog/of_xilinx_wdt.c | 97 +++++++++++++++++++++++-----------------
- 1 file changed, 55 insertions(+), 42 deletions(-)
+ drivers/watchdog/of_xilinx_wdt.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/watchdog/of_xilinx_wdt.c b/drivers/watchdog/of_xilinx_wdt.c
-index 1f7ad91..d28bd3f 100644
+index 7deea21..9dd16cf 100644
 --- a/drivers/watchdog/of_xilinx_wdt.c
 +++ b/drivers/watchdog/of_xilinx_wdt.c
-@@ -47,30 +47,27 @@
- struct xwdt_device {
- 	void __iomem *base;
- 	u32 wdt_interval;
-+	spinlock_t spinlock;
-+	struct watchdog_device xilinx_wdt_wdd;
- };
+@@ -190,10 +190,10 @@ static int xwdt_probe(struct platform_device *pdev)
 
--static struct xwdt_device xdev;
--
--static  u32 timeout;
--
--static  DEFINE_SPINLOCK(spinlock);
--
- static int xilinx_wdt_start(struct watchdog_device *wdd)
- {
- 	u32 control_status_reg;
-+	struct xwdt_device *xdev = watchdog_get_drvdata(wdd);
+ 	watchdog_set_nowayout(xilinx_wdt_wdd, enable_once);
 
--	spin_lock(&spinlock);
-+	spin_lock(&xdev->spinlock);
-
- 	/* Clean previous status and enable the watchdog timer */
--	control_status_reg = ioread32(xdev.base + XWT_TWCSR0_OFFSET);
-+	control_status_reg = ioread32(xdev->base + XWT_TWCSR0_OFFSET);
- 	control_status_reg |= (XWT_CSR0_WRS_MASK | XWT_CSR0_WDS_MASK);
-
- 	iowrite32((control_status_reg | XWT_CSR0_EWDT1_MASK),
--				xdev.base + XWT_TWCSR0_OFFSET);
-+		  xdev->base + XWT_TWCSR0_OFFSET);
-
--	iowrite32(XWT_CSRX_EWDT2_MASK, xdev.base + XWT_TWCSR1_OFFSET);
-+	iowrite32(XWT_CSRX_EWDT2_MASK, xdev->base + XWT_TWCSR1_OFFSET);
-
--	spin_unlock(&spinlock);
-+	spin_unlock(&xdev->spinlock);
-
- 	return 0;
- }
-@@ -78,17 +75,18 @@ static int xilinx_wdt_start(struct watchdog_device *wdd)
- static int xilinx_wdt_stop(struct watchdog_device *wdd)
- {
- 	u32 control_status_reg;
-+	struct xwdt_device *xdev = watchdog_get_drvdata(wdd);
-
--	spin_lock(&spinlock);
-+	spin_lock(&xdev->spinlock);
-
--	control_status_reg = ioread32(xdev.base + XWT_TWCSR0_OFFSET);
-+	control_status_reg = ioread32(xdev->base + XWT_TWCSR0_OFFSET);
-
- 	iowrite32((control_status_reg & ~XWT_CSR0_EWDT1_MASK),
--				xdev.base + XWT_TWCSR0_OFFSET);
-+		  xdev->base + XWT_TWCSR0_OFFSET);
-
--	iowrite32(0, xdev.base + XWT_TWCSR1_OFFSET);
-+	iowrite32(0, xdev->base + XWT_TWCSR1_OFFSET);
-
--	spin_unlock(&spinlock);
-+	spin_unlock(&xdev->spinlock);
- 	pr_info("Stopped!\n");
-
- 	return 0;
-@@ -97,14 +95,15 @@ static int xilinx_wdt_stop(struct watchdog_device *wdd)
- static int xilinx_wdt_keepalive(struct watchdog_device *wdd)
- {
- 	u32 control_status_reg;
-+	struct xwdt_device *xdev = watchdog_get_drvdata(wdd);
-
--	spin_lock(&spinlock);
-+	spin_lock(&xdev->spinlock);
-
--	control_status_reg = ioread32(xdev.base + XWT_TWCSR0_OFFSET);
-+	control_status_reg = ioread32(xdev->base + XWT_TWCSR0_OFFSET);
- 	control_status_reg |= (XWT_CSR0_WRS_MASK | XWT_CSR0_WDS_MASK);
--	iowrite32(control_status_reg, xdev.base + XWT_TWCSR0_OFFSET);
-+	iowrite32(control_status_reg, xdev->base + XWT_TWCSR0_OFFSET);
-
--	spin_unlock(&spinlock);
-+	spin_unlock(&xdev->spinlock);
-
- 	return 0;
- }
-@@ -123,29 +122,24 @@ static const struct watchdog_ops xilinx_wdt_ops = {
- 	.ping = xilinx_wdt_keepalive,
- };
-
--static struct watchdog_device xilinx_wdt_wdd = {
--	.info = &xilinx_wdt_ident,
--	.ops = &xilinx_wdt_ops,
--};
--
--static u32 xwdt_selftest(void)
-+static u32 xwdt_selftest(struct xwdt_device *xdev)
- {
- 	int i;
- 	u32 timer_value1;
- 	u32 timer_value2;
-
--	spin_lock(&spinlock);
-+	spin_lock(&xdev->spinlock);
-
--	timer_value1 = ioread32(xdev.base + XWT_TBR_OFFSET);
--	timer_value2 = ioread32(xdev.base + XWT_TBR_OFFSET);
-+	timer_value1 = ioread32(xdev->base + XWT_TBR_OFFSET);
-+	timer_value2 = ioread32(xdev->base + XWT_TBR_OFFSET);
-
- 	for (i = 0;
- 		((i <= XWT_MAX_SELFTEST_LOOP_COUNT) &&
- 			(timer_value2 == timer_value1)); i++) {
--		timer_value2 = ioread32(xdev.base + XWT_TBR_OFFSET);
-+		timer_value2 = ioread32(xdev->base + XWT_TBR_OFFSET);
- 	}
-
--	spin_unlock(&spinlock);
-+	spin_unlock(&xdev->spinlock);
-
- 	if (timer_value2 != timer_value1)
- 		return ~XWT_TIMER_FAILED;
-@@ -159,12 +153,23 @@ static int xwdt_probe(struct platform_device *pdev)
- 	u32 *tmptr;
- 	u32 *pfreq;
- 	struct resource *res;
-+	struct xwdt_device *xdev;
- 	bool no_timeout = false;
-+	struct watchdog_device *xilinx_wdt_wdd;
-+
-+	xdev = devm_kzalloc(&pdev->dev, sizeof(*xdev), GFP_KERNEL);
-+	if (!xdev)
-+		return -ENOMEM;
-+
-+	xilinx_wdt_wdd = &xdev->xilinx_wdt_wdd;
-+	xilinx_wdt_wdd->info = &xilinx_wdt_ident;
-+	xilinx_wdt_wdd->ops = &xilinx_wdt_ops;
-+	xilinx_wdt_wdd->parent = &pdev->dev;
-
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	xdev.base = devm_ioremap_resource(&pdev->dev, res);
--	if (IS_ERR(xdev.base))
--		return PTR_ERR(xdev.base);
-+	xdev->base = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(xdev->base))
-+		return PTR_ERR(xdev->base);
-
- 	pfreq = (u32 *)of_get_property(pdev->dev.of_node,
- 					"clock-frequency", NULL);
-@@ -180,14 +185,14 @@ static int xwdt_probe(struct platform_device *pdev)
- 		pr_warn("Parameter \"xlnx,wdt-interval\" not found in device tree!\n");
- 		no_timeout = true;
- 	} else {
--		xdev.wdt_interval = *tmptr;
-+		xdev->wdt_interval = *tmptr;
- 	}
-
- 	tmptr = (u32 *)of_get_property(pdev->dev.of_node,
- 					"xlnx,wdt-enable-once", NULL);
- 	if (tmptr == NULL) {
- 		pr_warn("Parameter \"xlnx,wdt-enable-once\" not found in device tree!\n");
--		watchdog_set_nowayout(&xilinx_wdt_wdd, true);
-+		watchdog_set_nowayout(xilinx_wdt_wdd, true);
- 	}
-
- /*
-@@ -195,29 +200,37 @@ static int xwdt_probe(struct platform_device *pdev)
-  *  ignored (interrupt), reset is only generated at second wdt overflow
-  */
+-/*
+- *  Twice of the 2^wdt_interval / freq  because the first wdt overflow is
+- *  ignored (interrupt), reset is only generated at second wdt overflow
+- */
++	/*
++	 * Twice of the 2^wdt_interval / freq  because the first wdt overflow is
++	 * ignored (interrupt), reset is only generated at second wdt overflow
++	 */
  	if (!no_timeout)
--		timeout = 2 * ((1<<xdev.wdt_interval) / *pfreq);
-+		xilinx_wdt_wdd->timeout = 2 * ((1 << xdev->wdt_interval) /
-+					  *pfreq);
-+
-+	spin_lock_init(&xdev->spinlock);
-+	watchdog_set_drvdata(xilinx_wdt_wdd, xdev);
-
--	rc = xwdt_selftest();
-+	rc = xwdt_selftest(xdev);
- 	if (rc == XWT_TIMER_FAILED) {
- 		pr_err("SelfTest routine error!\n");
- 		return rc;
- 	}
-
--	rc = watchdog_register_device(&xilinx_wdt_wdd);
-+	rc = watchdog_register_device(xilinx_wdt_wdd);
- 	if (rc) {
- 		pr_err("cannot register watchdog (err=%d)\n", rc);
- 		return rc;
- 	}
-
- 	dev_info(&pdev->dev, "Xilinx Watchdog Timer at %p with timeout %ds\n",
--		 xdev.base, timeout);
-+		 xdev->base, xilinx_wdt_wdd->timeout);
-+
-+	platform_set_drvdata(pdev, xdev);
-
- 	return 0;
- }
-
--static int xwdt_remove(struct platform_device *dev)
-+static int xwdt_remove(struct platform_device *pdev)
- {
--	watchdog_unregister_device(&xilinx_wdt_wdd);
-+	struct xwdt_device *xdev = platform_get_drvdata(pdev);
-+
-+	watchdog_unregister_device(&xdev->xilinx_wdt_wdd);
-
- 	return 0;
- }
+ 		xilinx_wdt_wdd->timeout = 2 * ((1 << xdev->wdt_interval) /
+ 					  pfreq);
 --
 1.8.2.3
 
 
---=_mimegpg-monstr-desktop-12327-1392212485-0001
+--=_mimegpg-monstr-desktop-12497-1392212528-0001
 Content-Type: application/pgp-signature
 Content-Transfer-Encoding: 7bit
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.10 (GNU/Linux)
 
-iEYEABECAAYFAlL7egUACgkQykllyylKDCGgDACeNT8tYYqMPGvsvn6Tq1948muj
-l+EAnREtFcVeCLunF0vFO/YtBnUXPIRY
-=2gfP
+iEYEABECAAYFAlL7ejAACgkQykllyylKDCFNkgCdHhD+ZtAzdJM1GfVDIh53eYMU
+24QAn20i4AlWBfoP5MBn/e1tGv3ayh6U
+=Oafx
 -----END PGP SIGNATURE-----
 
---=_mimegpg-monstr-desktop-12327-1392212485-0001--
+--=_mimegpg-monstr-desktop-12497-1392212528-0001--
