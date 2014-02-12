@@ -1,29 +1,85 @@
-Return-Path: <aaro.koskinen@iki.fi>
-Date: Tue, 11 Feb 2014 22:58:06 +0200
-From: Aaro Koskinen <aaro.koskinen@iki.fi>
-To: Jingoo Han <jg1.han@samsung.com>
-Cc: 'Wim Van Sebroeck' <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	'Guenter Roeck' <linux@roeck-us.net>
-Subject: Re: [PATCH 2/3] watchdog: omap_wdt: Use devm_ioremap_resource()
-Message-ID: <20140211205806.GH573@drone.musicnaut.iki.fi>
-References: <000e01cf2726$a511a030$ef34e090$%han@samsung.com>
- <000f01cf2726$f7500210$e5f00630$%han@samsung.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pa0-f48.google.com ([209.85.220.48]:53594 "EHLO
+	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751966AbaBLRPO (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 12 Feb 2014 12:15:14 -0500
+Date: Wed, 12 Feb 2014 09:15:09 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: Michal Simek <michal.simek@xilinx.com>
+Cc: linux-kernel@vger.kernel.org, monstr@monstr.eu, wim@iguana.be,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v3 07/11] watchdog: xilinx: Use of_property_read_u32
+Message-ID: <20140212171509.GB20012@roeck-us.net>
+References: <cover.1392212059.git.michal.simek@xilinx.com>
+ <7cbb10853a343c9d488346596f604909ab0668b9.1392212059.git.michal.simek@xilinx.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <000f01cf2726$f7500210$e5f00630$%han@samsung.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+In-Reply-To: <7cbb10853a343c9d488346596f604909ab0668b9.1392212059.git.michal.simek@xilinx.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Feb 11, 2014 at 09:44:12PM +0900, Jingoo Han wrote:
-> Use devm_ioremap_resource() in order to make the code simpler,
-> and remove 'struct resource *mem' from 'struct omap_wdt_dev'
-> and omap_wdt_probe(), resplectively. because the 'mem' variables
-> are not used anymore. Also the redundant return value check of
-> platform_get_resource() is removed, because the value is checked
-> by devm_ioremap_resource().
+Hi Michal,
+
+On Wed, Feb 12, 2014 at 02:41:21PM +0100, Michal Simek wrote:
+> Use of_property_read_u32 functions to clean probe function.
 > 
-> Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> ---
+> 
+> Changes in v3:
+> - Remove one if checking and use variable directly
+> 
 
-Acked-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+Looks good.
 
-A.
+Another comment/remark.
+
+> 
+> -	pfreq = (u32 *)of_get_property(pdev->dev.of_node,
+> -					"clock-frequency", NULL);
+> -
+> -	if (pfreq == NULL) {
+> +	rc = of_property_read_u32(pdev->dev.of_node, "clock-frequency", &pfreq);
+> +	if (rc) {
+>  		dev_warn(&pdev->dev,
+>  			 "The watchdog clock frequency cannot be obtained\n");
+>  		no_timeout = true;
+>  	}
+> 
+> -	tmptr = (u32 *)of_get_property(pdev->dev.of_node,
+> -					"xlnx,wdt-interval", NULL);
+> -	if (tmptr == NULL) {
+> +	rc = of_property_read_u32(pdev->dev.of_node, "xlnx,wdt-interval",
+> +				  &xdev->wdt_interval);
+> +	if (rc) {
+>  		dev_warn(&pdev->dev,
+>  			 "Parameter \"xlnx,wdt-interval\" not found\n");
+>  		no_timeout = true;
+> -	} else {
+> -		xdev->wdt_interval = *tmptr;
+>  	}
+> 
+> -	tmptr = (u32 *)of_get_property(pdev->dev.of_node,
+> -					"xlnx,wdt-enable-once", NULL);
+> -	if (tmptr == NULL) {
+> +	rc = of_property_read_u32(pdev->dev.of_node, "xlnx,wdt-enable-once",
+> +				  &enable_once);
+> +	if (rc)
+>  		dev_warn(&pdev->dev,
+>  			 "Parameter \"xlnx,wdt-enable-once\" not found\n");
+> -		watchdog_set_nowayout(xilinx_wdt_wdd, true);
+> -	}
+
+All the above properties are optional. Is a warning really
+warranted in this case ? I usually associate a warning with
+something that is wrong, which is not the case here.
+
+I would encourage you to drop those warnings, but that should be
+a separate patch.
+
+Thanks,
+Guenter
