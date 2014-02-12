@@ -1,54 +1,95 @@
-Return-Path: <swarren@wwwdotorg.org>
-Message-ID: <52FBC2EF.4020000@wwwdotorg.org>
-Date: Wed, 12 Feb 2014 11:52:31 -0700
-From: Stephen Warren <swarren@wwwdotorg.org>
-MIME-Version: 1.0
-To: Andrew Chew <achew@nvidia.com>, linux@roeck-us.net, wim@iguana.be,
- rob@landley.net, thierry.reding@gmail.com, grant.likely@linaro.org,
- robh+dt@kernel.org, abrestic@chromium.org, dgreid@chromium.org,
- katierh@chromium.org
-CC: linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org,
- linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org
-Subject: Re: [PATCH v5 1/1] watchdog: Add tegra watchdog
-References: <1391738086-29142-1-git-send-email-achew@nvidia.com>
-In-Reply-To: <1391738086-29142-1-git-send-email-achew@nvidia.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-ea0-f176.google.com ([209.85.215.176]:43088 "EHLO
+	mail-ea0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751041AbaBLNfI (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 12 Feb 2014 08:35:08 -0500
+Received: by mail-ea0-f176.google.com with SMTP id b10so390139eae.7
+        for <linux-watchdog@vger.kernel.org>; Wed, 12 Feb 2014 05:35:06 -0800 (PST)
+From: Michal Simek <michal.simek@xilinx.com>
+To: linux-kernel@vger.kernel.org, monstr@monstr.eu
+Cc: Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org,
+	Kumar Gala <galak@codeaurora.org>,
+	Rob Landley <rob@landley.net>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Grant Likely <grant.likely@linaro.org>,
+	linux-arm-kernel@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH v3 0/11] Xilinx watchdog changes
+Date: Wed, 12 Feb 2014 14:34:31 +0100
+Message-Id: <cover.1392212059.git.michal.simek@xilinx.com>
+Content-Type: multipart/signed;
+    boundary="=_mimegpg-monstr-desktop-11813-1392212082-0001";
+    micalg=pgp-sha1; protocol="application/pgp-signature"
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
+
+This is a MIME GnuPG-signed message.  If you see this text, it means that
+your E-mail or Usenet software does not support MIME signed messages.
+The Internet standard for MIME PGP messages, RFC 2015, was published in 1996.
+To open this message correctly you will need to install E-mail or Usenet
+software that supports modern Internet standards.
+
+--=_mimegpg-monstr-desktop-11813-1392212082-0001
+
+Hi,
+
+This series contains changes for Xilinx watchdog.
+The whole code series have been reviewed by Guenter
+and device-tree binding was acked by Arnd.
+
+I have also pushed this v3 to git repo
+for easier pulling here:
+git://git.monstr.eu/linux-2.6-microblaze.git watchdog
+
+Thanks,
+Michal
+
+Changes in v3:
+- Remove one if checking and use variable directly
+
+Changes in v2:
+- Fix enable_once logic
+- Change patch subject
+- New patch in this series
+
+Michal Simek (11):
+  watchdog: xilinx: Convert driver to the watchdog framework
+  watchdog: xilinx: Move control_status_reg to functions
+  watchdog: xilinx: Simplify probe and remove functions
+  watchdog: xilinx: Move no_timeout to probe function
+  watchdog: xilinx: Allocate private structure per device
+  watchdog: xilinx: Fix all printk messages
+  watchdog: xilinx: Use of_property_read_u32
+  watchdog: xilinx: Use correct comment indentation
+  watchdog: xilinx: Add missing binding
+  watchdog: xilinx: Enable this driver for Zynq
+  watchdog: xilinx: Remove no_timeout variable
+
+ .../devicetree/bindings/watchdog/of-xilinx-wdt.txt |  23 ++
+ drivers/watchdog/Kconfig                           |  21 +-
+ drivers/watchdog/of_xilinx_wdt.c                   | 389 ++++++---------------
+ 3 files changed, 148 insertions(+), 285 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/of-xilinx-wdt.txt
+
+--
+1.8.2.3
+
+
+--=_mimegpg-monstr-desktop-11813-1392212082-0001
+Content-Type: application/pgp-signature
 Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
 
-On 02/06/2014 06:54 PM, Andrew Chew wrote:
-> Add a driver for the hardware watchdogs in NVIDIA Tegra SoCs (Tegra30 and
-> later).  This driver will configure one watchdog timer that will reset the
-> system in the case of a watchdog timeout.
-> 
-> This driver binds to the nvidia,tegra30-timer device node and gets its
-> register base from there.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
 
-Tested-by: Stephen Warren <swarren@nvidia.com>
+iEYEABECAAYFAlL7eHIACgkQykllyylKDCGYTwCfUU55kYNt9V5oEXsFda27HqgV
+lqAAoIYkTIAh/gOIUZlnIAjxLSQymP5O
+=M1ne
+-----END PGP SIGNATURE-----
 
-Briefly,
-Reviewed-by: Stephen Warren <swarren@nvidia.com>
-
-Just a couple small comments though.
-
-> diff --git a/drivers/watchdog/tegra_wdt.c b/drivers/watchdog/tegra_wdt.c
-
-> +static void tegra_wdt_ref(struct watchdog_device *wdd)
-> +{
-> +	struct tegra_wdt *wdt = watchdog_get_drvdata(wdd);
-> +
-> +	kref_get(&wdt->kref);
-> +}
-> +
-> +static void tegra_wdt_unref(struct watchdog_device *wdd)
-> +{
-> +	struct tegra_wdt *wdt = watchdog_get_drvdata(wdd);
-> +
-> +	kref_put(&wdt->kref, tegra_wdt_release_resources);
-> +}
-
-I forget why these were needed; they seem to do nothing.
-
-> +MODULE_LICENSE("GPL");
-
-That should be "GPL v2" according to the license header in the file.
+--=_mimegpg-monstr-desktop-11813-1392212082-0001--
