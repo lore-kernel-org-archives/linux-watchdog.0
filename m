@@ -1,85 +1,51 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f48.google.com ([209.85.220.48]:53594 "EHLO
-	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751966AbaBLRPO (ORCPT
+Received: from mail-pd0-f170.google.com ([209.85.192.170]:43269 "EHLO
+	mail-pd0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751803AbaBLVuB (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 12 Feb 2014 12:15:14 -0500
-Date: Wed, 12 Feb 2014 09:15:09 -0800
+	Wed, 12 Feb 2014 16:50:01 -0500
+Date: Wed, 12 Feb 2014 13:49:56 -0800
 From: Guenter Roeck <linux@roeck-us.net>
-To: Michal Simek <michal.simek@xilinx.com>
-Cc: linux-kernel@vger.kernel.org, monstr@monstr.eu, wim@iguana.be,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v3 07/11] watchdog: xilinx: Use of_property_read_u32
-Message-ID: <20140212171509.GB20012@roeck-us.net>
-References: <cover.1392212059.git.michal.simek@xilinx.com>
- <7cbb10853a343c9d488346596f604909ab0668b9.1392212059.git.michal.simek@xilinx.com>
+To: Andrew Chew <AChew@nvidia.com>
+Cc: Stephen Warren <swarren@wwwdotorg.org>,
+	"wim@iguana.be" <wim@iguana.be>,
+	"rob@landley.net" <rob@landley.net>,
+	"thierry.reding@gmail.com" <thierry.reding@gmail.com>,
+	"grant.likely@linaro.org" <grant.likely@linaro.org>,
+	"robh+dt@kernel.org" <robh+dt@kernel.org>,
+	"abrestic@chromium.org" <abrestic@chromium.org>,
+	"dgreid@chromium.org" <dgreid@chromium.org>,
+	"katierh@chromium.org" <katierh@chromium.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>
+Subject: Re: [PATCH v5 1/1] watchdog: Add tegra watchdog
+Message-ID: <20140212214956.GA30463@roeck-us.net>
+References: <1391738086-29142-1-git-send-email-achew@nvidia.com>
+ <52FBC2EF.4020000@wwwdotorg.org>
+ <643E69AA4436674C8F39DCC2C05F76386319AB3891@HQMAIL03.nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <7cbb10853a343c9d488346596f604909ab0668b9.1392212059.git.michal.simek@xilinx.com>
+In-Reply-To: <643E69AA4436674C8F39DCC2C05F76386319AB3891@HQMAIL03.nvidia.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Michal,
-
-On Wed, Feb 12, 2014 at 02:41:21PM +0100, Michal Simek wrote:
-> Use of_property_read_u32 functions to clean probe function.
+On Wed, Feb 12, 2014 at 01:43:37PM -0800, Andrew Chew wrote:
+> > > +static void tegra_wdt_unref(struct watchdog_device *wdd) {
+> > > +	struct tegra_wdt *wdt = watchdog_get_drvdata(wdd);
+> > > +
+> > > +	kref_put(&wdt->kref, tegra_wdt_release_resources); }
+> > 
+> > I forget why these were needed; they seem to do nothing.
 > 
-> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-> ---
+> The reason I did the whole kref thing was by following the guidance
+> in Documentation/watchdog/watchdog-kernel-api.txt, which says
+> that if the watchdog_device struct is dynamically allocated, then
+> one needs this.
 > 
-> Changes in v3:
-> - Remove one if checking and use variable directly
-> 
+I read that too, but I could not follow the logic behind it,
+nor the explanation provided with the commit introducing it ;-)
 
-Looks good.
-
-Another comment/remark.
-
-> 
-> -	pfreq = (u32 *)of_get_property(pdev->dev.of_node,
-> -					"clock-frequency", NULL);
-> -
-> -	if (pfreq == NULL) {
-> +	rc = of_property_read_u32(pdev->dev.of_node, "clock-frequency", &pfreq);
-> +	if (rc) {
->  		dev_warn(&pdev->dev,
->  			 "The watchdog clock frequency cannot be obtained\n");
->  		no_timeout = true;
->  	}
-> 
-> -	tmptr = (u32 *)of_get_property(pdev->dev.of_node,
-> -					"xlnx,wdt-interval", NULL);
-> -	if (tmptr == NULL) {
-> +	rc = of_property_read_u32(pdev->dev.of_node, "xlnx,wdt-interval",
-> +				  &xdev->wdt_interval);
-> +	if (rc) {
->  		dev_warn(&pdev->dev,
->  			 "Parameter \"xlnx,wdt-interval\" not found\n");
->  		no_timeout = true;
-> -	} else {
-> -		xdev->wdt_interval = *tmptr;
->  	}
-> 
-> -	tmptr = (u32 *)of_get_property(pdev->dev.of_node,
-> -					"xlnx,wdt-enable-once", NULL);
-> -	if (tmptr == NULL) {
-> +	rc = of_property_read_u32(pdev->dev.of_node, "xlnx,wdt-enable-once",
-> +				  &enable_once);
-> +	if (rc)
->  		dev_warn(&pdev->dev,
->  			 "Parameter \"xlnx,wdt-enable-once\" not found\n");
-> -		watchdog_set_nowayout(xilinx_wdt_wdd, true);
-> -	}
-
-All the above properties are optional. Is a warning really
-warranted in this case ? I usually associate a warning with
-something that is wrong, which is not the case here.
-
-I would encourage you to drop those warnings, but that should be
-a separate patch.
-
-Thanks,
 Guenter
