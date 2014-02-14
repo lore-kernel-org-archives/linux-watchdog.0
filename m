@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:59360 "EHLO
+Received: from top.free-electrons.com ([176.31.233.9]:59368 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753032AbaBNWZd (ORCPT
+	with ESMTP id S1753032AbaBNWZh (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 14 Feb 2014 17:25:33 -0500
+	Fri, 14 Feb 2014 17:25:37 -0500
 From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 To: Andrew Morton <akpm@linux-foundation.org>,
 	Jason Cooper <jason@lakedaemon.net>,
@@ -14,37 +14,49 @@ Cc: <linux-watchdog@vger.kernel.org>,
 	Lior Amsalem <alior@marvell.com>,
 	Tawfik Bayouk <tawfik@marvell.com>,
 	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-Subject: [RESEND/PATCH v7 16/18] watchdog: orion: Enable the build on ARCH_MVEBU
-Date: Fri, 14 Feb 2014 19:24:16 -0300
-Message-Id: <1392416658-2780-17-git-send-email-ezequiel.garcia@free-electrons.com>
+Subject: [RESEND/PATCH v7 17/18] ARM: mvebu: Enable watchdog support in defconfig
+Date: Fri, 14 Feb 2014 19:24:17 -0300
+Message-Id: <1392416658-2780-18-git-send-email-ezequiel.garcia@free-electrons.com>
 In-Reply-To: <1392416658-2780-1-git-send-email-ezequiel.garcia@free-electrons.com>
 References: <1392416658-2780-1-git-send-email-ezequiel.garcia@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-After adding support for Armada 370/XP SoC let's enable the build on
-these platforms.
+Now that we have proper support for Armada 370/XP watchdog
+let's enable it in mvebu_defconfig and multi_v7_defconfig.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Tested-by: Willy Tarreau <w@1wt.eu>
 Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 ---
- drivers/watchdog/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/configs/multi_v7_defconfig | 2 ++
+ arch/arm/configs/mvebu_defconfig    | 2 ++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 4c4c566..2dda6c0 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -291,7 +291,7 @@ config DAVINCI_WATCHDOG
- 
- config ORION_WATCHDOG
- 	tristate "Orion watchdog"
--	depends on ARCH_ORION5X || ARCH_KIRKWOOD || ARCH_DOVE
-+	depends on ARCH_ORION5X || ARCH_KIRKWOOD || ARCH_DOVE || ARCH_MVEBU
- 	select WATCHDOG_CORE
- 	help
- 	  Say Y here if to include support for the watchdog timer
+diff --git a/arch/arm/configs/multi_v7_defconfig b/arch/arm/configs/multi_v7_defconfig
+index 845bc74..51cee83 100644
+--- a/arch/arm/configs/multi_v7_defconfig
++++ b/arch/arm/configs/multi_v7_defconfig
+@@ -187,6 +187,8 @@ CONFIG_POWER_RESET_GPIO=y
+ CONFIG_SENSORS_LM90=y
+ CONFIG_THERMAL=y
+ CONFIG_ARMADA_THERMAL=y
++CONFIG_WATCHDOG=y
++CONFIG_ORION_WATCHDOG=y
+ CONFIG_MFD_AS3722=y
+ CONFIG_MFD_CROS_EC=y
+ CONFIG_MFD_CROS_EC_SPI=y
+diff --git a/arch/arm/configs/mvebu_defconfig b/arch/arm/configs/mvebu_defconfig
+index 0f4511d..31bdc6f 100644
+--- a/arch/arm/configs/mvebu_defconfig
++++ b/arch/arm/configs/mvebu_defconfig
+@@ -62,6 +62,8 @@ CONFIG_GPIOLIB=y
+ CONFIG_GPIO_SYSFS=y
+ CONFIG_THERMAL=y
+ CONFIG_ARMADA_THERMAL=y
++CONFIG_WATCHDOG=y
++CONFIG_ORION_WATCHDOG=y
+ CONFIG_USB_SUPPORT=y
+ CONFIG_USB=y
+ CONFIG_USB_EHCI_HCD=y
 -- 
 1.8.1.5
 
