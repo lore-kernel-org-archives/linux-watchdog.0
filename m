@@ -1,61 +1,28 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f180.google.com ([209.85.192.180]:39439 "EHLO
-	mail-pd0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753438AbaBORxi (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 15 Feb 2014 12:53:38 -0500
-Received: by mail-pd0-f180.google.com with SMTP id x10so13161821pdj.25
-        for <linux-watchdog@vger.kernel.org>; Sat, 15 Feb 2014 09:53:38 -0800 (PST)
-Date: Sat, 15 Feb 2014 09:53:34 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Alexander Shiyan <shc_work@mail.ru>
-Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [PATCH] watchdog: wdt285: Fix variable type
-Message-ID: <20140215175334.GG19001@roeck-us.net>
-References: <1392456205-30121-1-git-send-email-shc_work@mail.ru>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1392456205-30121-1-git-send-email-shc_work@mail.ru>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <shc_work@mail.ru>
+From: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
+To: =?UTF-8?B?R3VlbnRlciBSb2Vjaw==?= <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org,
+	=?UTF-8?B?V2ltIFZhbiBTZWJyb2Vjaw==?= <wim@iguana.be>
+Subject: =?UTF-8?B?UmU6IFtQQVRDSF0gd2F0Y2hkb2c6IHNod2R0OiBSZW1vdmUgdW51c2VkIHZh?=
+ =?UTF-8?B?cmlhYmxl?=
+Mime-Version: 1.0
+Date: Sat, 15 Feb 2014 21:57:49 +0400
+Reply-To: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
+Message-ID: <1392487069.212365970@f89.i.mail.ru>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+In-Reply-To: <20140215175204.GF19001@roeck-us.net>
+References: <1392456187-30082-1-git-send-email-shc_work@mail.ru>
+ <20140215175204.GF19001@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Sat, Feb 15, 2014 at 01:23:25PM +0400, Alexander Shiyan wrote:
-> Variable "new_margin" is checked in the function watchdog_ioctl()
-> to be positive, so change its type to "int".
-
-non-negative, really.
-
-Other than that,
-
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
-> 
-> Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
-> ---
->  drivers/watchdog/wdt285.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-> diff --git a/drivers/watchdog/wdt285.c b/drivers/watchdog/wdt285.c
-> index 7355ddd0..ebbb183 100644
-> --- a/drivers/watchdog/wdt285.c
-> +++ b/drivers/watchdog/wdt285.c
-> @@ -139,9 +139,8 @@ static const struct watchdog_info ident = {
->  static long watchdog_ioctl(struct file *file, unsigned int cmd,
->  			   unsigned long arg)
->  {
-> -	unsigned int new_margin;
->  	int __user *int_arg = (int __user *)arg;
-> -	int ret = -ENOTTY;
-> +	int new_margin, ret = -ENOTTY;
->  
->  	switch (cmd) {
->  	case WDIOC_GETSUPPORT:
-> -- 
-> 1.8.3.2
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+0KHRg9Cx0LHQvtGC0LAsIDE1INGE0LXQstGA0LDQu9GPIDIwMTQsIDk6NTIgLTA4OjAwINC+0YIg
+R3VlbnRlciBSb2VjayA8bGludXhAcm9lY2stdXMubmV0PjoKPiBPbiBTYXQsIEZlYiAxNSwgMjAx
+NCBhdCAwMToyMzowN1BNICswNDAwLCBBbGV4YW5kZXIgU2hpeWFuIHdyb3RlOgo+ID4gVmFyaWFi
+bGUgIndkdCIgaXMgbm90IHVzZWQgYW55d2hlcmUgaW4gdGhlIGZ1bmN0aW9uIHNoX3dkdF9yZW1v
+dmUoKS4KPiA+IFRoaXMgcGF0Y2ggcmVtb3ZlcyB0aGlzIHZhcmlhYmxlLgo+ID4gCj4gPiBTaWdu
+ZWQtb2ZmLWJ5OiBBbGV4YW5kZXIgU2hpeWFuIDxzaGNfd29ya0BtYWlsLnJ1Pgo+IAo+IFJldmll
+d2VkLWJ5OiBHdWVudGVyIFJvZWNrIDxsaW51eEByb2Vjay11cy5uZXQ+Cj4gCj4gVGhvdWdoIHlv
+dSBtaWdodCBhcyB3ZWxsIHJlbW92ZSB0aGUgbWF0Y2hpbmcgcGxhdGZvcm1fc2V0X2RydmRhdGEo
+KQo+IHdoaWNoIGlzIGFsc28gdW5uZWNlc3NhcnkuCgpJbmRlZWQuIEknbGwgZG8gaXQgaW4gdGhl
+IG5leHQgc2VyaWVzLiBUaGFua3MuCgotLS0K
