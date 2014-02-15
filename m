@@ -1,68 +1,60 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f175.google.com ([209.85.192.175]:58055 "EHLO
-	mail-pd0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753494AbaBORo6 (ORCPT
+Received: from mail-pb0-f41.google.com ([209.85.160.41]:36779 "EHLO
+	mail-pb0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753660AbaBORqL (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 15 Feb 2014 12:44:58 -0500
-Received: by mail-pd0-f175.google.com with SMTP id w10so13130697pde.6
-        for <linux-watchdog@vger.kernel.org>; Sat, 15 Feb 2014 09:44:57 -0800 (PST)
-Date: Sat, 15 Feb 2014 09:44:55 -0800
+	Sat, 15 Feb 2014 12:46:11 -0500
+Received: by mail-pb0-f41.google.com with SMTP id up15so13726559pbc.0
+        for <linux-watchdog@vger.kernel.org>; Sat, 15 Feb 2014 09:46:11 -0800 (PST)
+Date: Sat, 15 Feb 2014 09:46:08 -0800
 From: Guenter Roeck <linux@roeck-us.net>
 To: Alexander Shiyan <shc_work@mail.ru>
 Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [PATCH] watchdog: indydog: Simplify indydog_{start,stop}
-Message-ID: <20140215174455.GC19001@roeck-us.net>
-References: <1392456111-29962-1-git-send-email-shc_work@mail.ru>
+Subject: Re: [PATCH] watchdog: intel_scu_watchdog: Remove unused variable
+Message-ID: <20140215174608.GD19001@roeck-us.net>
+References: <1392456138-30003-1-git-send-email-shc_work@mail.ru>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1392456111-29962-1-git-send-email-shc_work@mail.ru>
+In-Reply-To: <1392456138-30003-1-git-send-email-shc_work@mail.ru>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sat, Feb 15, 2014 at 01:21:51PM +0400, Alexander Shiyan wrote:
-> This patch simplify functions indydog_start() and indydog_stop()
-> a bit and removes excess intermediate variable.
+On Sat, Feb 15, 2014 at 01:22:18PM +0400, Alexander Shiyan wrote:
+> Variable "hw_pre_value" is not used anywhere in the
+> function intel_scu_set_heartbeat().
+> This patch removes this variable.
 > 
 > Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->  drivers/watchdog/indydog.c | 13 ++-----------
->  1 file changed, 2 insertions(+), 11 deletions(-)
+>  drivers/watchdog/intel_scu_watchdog.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
 > 
-> diff --git a/drivers/watchdog/indydog.c b/drivers/watchdog/indydog.c
-> index 1b5c25a..5d20cdd 100644
-> --- a/drivers/watchdog/indydog.c
-> +++ b/drivers/watchdog/indydog.c
-> @@ -41,24 +41,15 @@ MODULE_PARM_DESC(nowayout,
+> diff --git a/drivers/watchdog/intel_scu_watchdog.c b/drivers/watchdog/intel_scu_watchdog.c
+> index e13e65e..0caab62 100644
+> --- a/drivers/watchdog/intel_scu_watchdog.c
+> +++ b/drivers/watchdog/intel_scu_watchdog.c
+> @@ -211,7 +211,6 @@ static int intel_scu_set_heartbeat(u32 t)
+>  	int			 ipc_ret;
+>  	int			 retry_count;
+>  	u32			 soft_value;
+> -	u32			 hw_pre_value;
+>  	u32			 hw_value;
 >  
->  static void indydog_start(void)
->  {
-> -	u32 mc_ctrl0;
-> -
->  	spin_lock(&indydog_lock);
-> -	mc_ctrl0 = sgimc->cpuctrl0;
-> -	mc_ctrl0 = sgimc->cpuctrl0 | SGIMC_CCTRL0_WDOG;
-> -	sgimc->cpuctrl0 = mc_ctrl0;
-> +	sgimc->cpuctrl0 |= SGIMC_CCTRL0_WDOG;
->  	spin_unlock(&indydog_lock);
->  }
+>  	watchdog_device.timer_set = t;
+> @@ -273,8 +272,7 @@ static int intel_scu_set_heartbeat(u32 t)
+>  			watchdog_device.timer_load_count_addr);
 >  
->  static void indydog_stop(void)
->  {
-> -	u32 mc_ctrl0;
-> -
->  	spin_lock(&indydog_lock);
-> -
-> -	mc_ctrl0 = sgimc->cpuctrl0;
-> -	mc_ctrl0 &= ~SGIMC_CCTRL0_WDOG;
-> -	sgimc->cpuctrl0 = mc_ctrl0;
-> +	sgimc->cpuctrl0 &= ~SGIMC_CCTRL0_WDOG;
->  	spin_unlock(&indydog_lock);
+>  		/* read count value before starting timer */
+> -		hw_pre_value = ioread32(watchdog_device.timer_load_count_addr);
+> -		hw_pre_value = hw_pre_value & 0xFFFF0000;
+> +		ioread32(watchdog_device.timer_load_count_addr);
 >  
->  	pr_info("Stopped watchdog timer\n");
+>  		/* Start the timer */
+>  		iowrite32(0x00000003, watchdog_device.timer_control_addr);
 > -- 
 > 1.8.3.2
 > 
