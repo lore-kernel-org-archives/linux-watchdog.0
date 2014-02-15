@@ -1,45 +1,55 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from fallback7.mail.ru ([94.100.176.135]:58104 "EHLO
-	fallback7.mail.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751585AbaBOJXp (ORCPT
+Received: from mail-pa0-f45.google.com ([209.85.220.45]:55971 "EHLO
+	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753476AbaBORnM (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 15 Feb 2014 04:23:45 -0500
-Received: from smtp35.i.mail.ru (smtp35.i.mail.ru [94.100.177.95])
-	by fallback7.mail.ru (mPOP.Fallback_MX) with ESMTP id 313ADF8AE188
-	for <linux-watchdog@vger.kernel.org>; Sat, 15 Feb 2014 13:23:44 +0400 (MSK)
-From: Alexander Shiyan <shc_work@mail.ru>
-To: linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Alexander Shiyan <shc_work@mail.ru>
-Subject: [PATCH] watchdog: wdt285: Fix variable type
-Date: Sat, 15 Feb 2014 13:23:25 +0400
-Message-Id: <1392456205-30121-1-git-send-email-shc_work@mail.ru>
+	Sat, 15 Feb 2014 12:43:12 -0500
+Received: by mail-pa0-f45.google.com with SMTP id lf10so13590436pab.4
+        for <linux-watchdog@vger.kernel.org>; Sat, 15 Feb 2014 09:43:12 -0800 (PST)
+Date: Sat, 15 Feb 2014 09:43:09 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: Alexander Shiyan <shc_work@mail.ru>
+Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: [PATCH] watchdog: bcm63xx_wdt: Remove unused field from
+ bcm63xx_wdt_device
+Message-ID: <20140215174309.GB19001@roeck-us.net>
+References: <1392456063-29918-1-git-send-email-shc_work@mail.ru>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1392456063-29918-1-git-send-email-shc_work@mail.ru>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Variable "new_margin" is checked in the function watchdog_ioctl()
-to be positive, so change its type to "int".
+On Sat, Feb 15, 2014 at 01:21:03PM +0400, Alexander Shiyan wrote:
+> Field "default_ticks" is not used anywhere in the driver code.
+> This patch removes this field.
+> 
+> Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
 
-Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
----
- drivers/watchdog/wdt285.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-diff --git a/drivers/watchdog/wdt285.c b/drivers/watchdog/wdt285.c
-index 7355ddd0..ebbb183 100644
---- a/drivers/watchdog/wdt285.c
-+++ b/drivers/watchdog/wdt285.c
-@@ -139,9 +139,8 @@ static const struct watchdog_info ident = {
- static long watchdog_ioctl(struct file *file, unsigned int cmd,
- 			   unsigned long arg)
- {
--	unsigned int new_margin;
- 	int __user *int_arg = (int __user *)arg;
--	int ret = -ENOTTY;
-+	int new_margin, ret = -ENOTTY;
- 
- 	switch (cmd) {
- 	case WDIOC_GETSUPPORT:
--- 
-1.8.3.2
-
+> ---
+>  drivers/watchdog/bcm63xx_wdt.c | 1 -
+>  1 file changed, 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/bcm63xx_wdt.c b/drivers/watchdog/bcm63xx_wdt.c
+> index 4eb188b..d055e3c 100644
+> --- a/drivers/watchdog/bcm63xx_wdt.c
+> +++ b/drivers/watchdog/bcm63xx_wdt.c
+> @@ -45,7 +45,6 @@
+>  static struct {
+>  	void __iomem *regs;
+>  	struct timer_list timer;
+> -	int default_ticks;
+>  	unsigned long inuse;
+>  	atomic_t ticks;
+>  } bcm63xx_wdt_device;
+> -- 
+> 1.8.3.2
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
