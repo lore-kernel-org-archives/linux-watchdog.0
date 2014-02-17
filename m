@@ -1,96 +1,98 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:40975 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753238AbaBQTt1 (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 17 Feb 2014 14:49:27 -0500
-Date: Mon, 17 Feb 2014 16:49:19 -0300
-From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-To: Jason Cooper <jason@lakedaemon.net>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	linux-watchdog@vger.kernel.org,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
+Return-Path: <jason@lakedaemon.net>
+Date: Mon, 17 Feb 2014 17:09:48 -0500
+From: Jason Cooper <jason@lakedaemon.net>
+To: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-watchdog@vger.kernel.org,
 	Lior Amsalem <alior@marvell.com>,
-	Tawfik Bayouk <tawfik@marvell.com>
-Subject: Re: [RESEND/PATCH v7 00/18] Armada 370/XP SoC watchdog support
-Message-ID: <20140217194918.GA23046@localhost>
-References: <1392416658-2780-1-git-send-email-ezequiel.garcia@free-electrons.com>
- <20140217192948.GK1484@spo001.leaseweb.com>
- <20140217193325.GX7862@titan.lakedaemon.net>
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	Tawfik Bayouk <tawfik@marvell.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH v7 00/18] Armada 370/XP watchdog
+Message-ID: <20140217220948.GF7862@titan.lakedaemon.net>
+References: <1392073237-2554-1-git-send-email-ezequiel.garcia@free-electrons.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20140217193325.GX7862@titan.lakedaemon.net>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <1392073237-2554-1-git-send-email-ezequiel.garcia@free-electrons.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Mon, Feb 17, 2014 at 02:33:25PM -0500, Jason Cooper wrote:
-> On Mon, Feb 17, 2014 at 08:29:48PM +0100, Wim Van Sebroeck wrote:
-> > Hi All,
-> > 
-> > > Hi Jason, Andrew,
-> > > 
-> > > This patchset adds watchdog support for the Armada 370/XP ARM SoCs.
-> > > The series was sent seven times:
-> > > 
-> > > [v1] http://archive.arm.linux.org.uk/lurker/message/20130827.143424.4e961f2b.ca.html
-> > > [v2] http://www.spinics.net/lists/arm-kernel/msg302104.html
-> > > [v3] http://www.spinics.net/lists/arm-kernel/msg302245.html
-> > > [v4] http://www.spinics.net/lists/arm-kernel/msg302602.html
-> > > [v5] http://www.spinics.net/lists/arm-kernel/msg303349.html
-> > > [v6] http://www.spinics.net/lists/arm-kernel/msg305547.html
-> > > [v7] http://www.spinics.net/lists/arm-kernel/msg306534.html
-> > > 
-> > > As you can see, it received numerous feedback, testing and reviews;
-> > > we've finally reached agreement and so we'd like to merge this series for
-> > > v3.15, if at all possible.
-> > > 
-> > > However, the watchdog subsystem maintainer remained completely silent through
-> > > the *entire* life of this patchset, and so we've no idea what are his plans
-> > > about it.
-> > > 
-> > > Do you think this can be merged through Andrew's tree? Or maybe through
-> > > Jason Cooper's so the irqchip dependency is easily handled?
-> > > 
-> > > Thanks a lot!
-> > > 
-> > > Original cover letter
-> > > =====================
-> > > 
-> > > Yet another round. This time, addressing Guenter's comment about the nowayout
-> > > parameter. So, to allow for proper nowayout behavior, we now restrict the
-> > > initial watchdog stop; which is only done if the watchdog is not properly
-> > > enabled.
-> > > 
-> > > I've dropped the clocksource patch which was previously part of the series.
-> > > The patch is independent and will be merged through the subsystem maintainer,
-> > > Daniel Lezcano.
-> > > 
-> > > Also, I've updated the multi_v7_defconfig, as per Jason Cooper request.
-> > > 
-> > > This series depends on Sebastian's irqchip fixes to clear the bridge irqs
-> > > cause, which Jason picked here:
-> > > 
-> > >   http://git.infradead.org/linux-mvebu.git mvebu-next/irqchip-fixes
-> > > 
-> > > Wim: Can we take all the watchdog changes through mvebu, with your Ack?
-> > > This way, we can sort out the irqchip dependency.
-> > 
-> > I reviewed all patches and you have an Acked-by from me on all of them.
+On Mon, Feb 10, 2014 at 08:00:19PM -0300, Ezequiel Garcia wrote:
+> Yet another round. This time, addressing Guenter's comment about the nowayout
+> parameter. So, to allow for proper nowayout behavior, we now restrict the
+> initial watchdog stop; which is only done if the watchdog is not properly
+> enabled.
 > 
-> Thanks, Wim!
+> I've dropped the clocksource patch which was previously part of the series.
+> The patch is independent and will be merged through the subsystem maintainer,
+> Daniel Lezcano.
+> 
+> Also, I've updated the multi_v7_defconfig, as per Jason Cooper request.
+> 
+> This series depends on Sebastian's irqchip fixes to clear the bridge irqs
+> cause, which Jason picked here:
+> 
+>   http://git.infradead.org/linux-mvebu.git mvebu-next/irqchip-fixes
+> 
+> Wim: Can we take all the watchdog changes through mvebu, with your Ack?
+> This way, we can sort out the irqchip dependency.
 > 
 
-Thanks a lot Wim!
+Whole series applied as follows (with Wim's Acks):
 
-> 
-> Jason.
+> Ezequiel Garcia (18):
+>   watchdog: orion: Add clock error handling
+>   watchdog: orion: Use atomic access for shared registers
+>   watchdog: orion: Remove unused macros
+>   watchdog: orion: Make sure the watchdog is initially stopped
+>   watchdog: orion: Handle the interrupt so it's properly acked
+>   watchdog: orion: Make RSTOUT register a separate resource
+>   watchdog: orion: Remove unneeded BRIDGE_CAUSE clear
+>   watchdog: orion: Introduce an orion_watchdog device structure
+>   watchdog: orion: Introduce per-compatible of_device_id data
+>   watchdog: orion: Add per-compatible clock initialization
+>   watchdog: orion: Add per-compatible watchdog start implementation
+>   watchdog: orion: Add support for Armada 370 and Armada XP SoC
 
-Jason: I'm leaving this in your hands then, take good care of it ;-)
--- 
-Ezequiel García, Free Electrons
-Embedded Linux, Kernel and Android Engineering
-http://free-electrons.com
+to mvebu/watchdog (deps on mvebu/irqchip-fixes (renamed))
+
+>   ARM: mvebu: Enable Armada 370/XP watchdog in the devicetree
+>   ARM: kirkwood: Add RSTOUT 'reg' entry to devicetree
+>   ARM: dove: Enable Dove watchdog in the devicetree
+
+to mvebu/dt
+
+>   watchdog: orion: Enable the build on ARCH_MVEBU
+
+to mvebu/watchdog
+
+>   ARM: mvebu: Enable watchdog support in defconfig
+>   ARM: dove: Enable watchdog support in the defconfig
+
+to mvebu/defconfig
+
+>  .../devicetree/bindings/watchdog/marvel.txt        |  11 +-
+>  arch/arm/boot/dts/armada-370-xp.dtsi               |   4 +
+>  arch/arm/boot/dts/armada-370.dtsi                  |   5 +
+>  arch/arm/boot/dts/armada-xp.dtsi                   |   6 +
+>  arch/arm/boot/dts/dove.dtsi                        |   8 +
+>  arch/arm/boot/dts/kirkwood.dtsi                    |   2 +-
+>  arch/arm/configs/dove_defconfig                    |   2 +
+>  arch/arm/configs/multi_v7_defconfig                |   2 +
+>  arch/arm/configs/mvebu_defconfig                   |   2 +
+>  arch/arm/mach-dove/include/mach/bridge-regs.h      |   1 +
+>  arch/arm/mach-kirkwood/include/mach/bridge-regs.h  |   1 +
+>  arch/arm/mach-mv78xx0/include/mach/bridge-regs.h   |   1 +
+>  arch/arm/mach-orion5x/include/mach/bridge-regs.h   |   1 +
+>  arch/arm/plat-orion/common.c                       |  10 +-
+>  drivers/watchdog/Kconfig                           |   2 +-
+>  drivers/watchdog/orion_wdt.c                       | 381 ++++++++++++++++-----
+>  16 files changed, 352 insertions(+), 87 deletions(-)
+
+Great work, Ezequiel!
+
+thx,
+
+Jason.
