@@ -1,77 +1,85 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from qmta11.emeryville.ca.mail.comcast.net ([76.96.27.211]:51938
-	"EHLO qmta11.emeryville.ca.mail.comcast.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753213AbaBNUUD (ORCPT
+Received: from mho-02-ewr.mailhop.org ([204.13.248.72]:34655 "EHLO
+	mho-02-ewr.mailhop.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754437AbaBQTda (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 14 Feb 2014 15:20:03 -0500
-Message-Id: <20140214201906.598482740@linux.com>
-Date: Fri, 14 Feb 2014 14:19:06 -0600
-From: Christoph Lameter <cl@linux.com>
-To: Tejun Heo <tj@kernel.org>
-Cc: akpm@linuxfoundation.org, rostedt@goodmis.org,
-	linux-kernel@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org
-Subject: [PATCH 25/48] watchdog: Replace __raw_get_cpu_var uses
-References: <20140214201841.826179349@linux.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline; filename=this_watchdog
+	Mon, 17 Feb 2014 14:33:30 -0500
+Date: Mon, 17 Feb 2014 14:33:25 -0500
+From: Jason Cooper <jason@lakedaemon.net>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	linux-watchdog@vger.kernel.org,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Lior Amsalem <alior@marvell.com>,
+	Tawfik Bayouk <tawfik@marvell.com>
+Subject: Re: [RESEND/PATCH v7 00/18] Armada 370/XP SoC watchdog support
+Message-ID: <20140217193325.GX7862@titan.lakedaemon.net>
+References: <1392416658-2780-1-git-send-email-ezequiel.garcia@free-electrons.com>
+ <20140217192948.GK1484@spo001.leaseweb.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20140217192948.GK1484@spo001.leaseweb.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-[Patch depends on another patch in this series that introduces raw_cpu_ops]
+On Mon, Feb 17, 2014 at 08:29:48PM +0100, Wim Van Sebroeck wrote:
+> Hi All,
+> 
+> > Hi Jason, Andrew,
+> > 
+> > This patchset adds watchdog support for the Armada 370/XP ARM SoCs.
+> > The series was sent seven times:
+> > 
+> > [v1] http://archive.arm.linux.org.uk/lurker/message/20130827.143424.4e961f2b.ca.html
+> > [v2] http://www.spinics.net/lists/arm-kernel/msg302104.html
+> > [v3] http://www.spinics.net/lists/arm-kernel/msg302245.html
+> > [v4] http://www.spinics.net/lists/arm-kernel/msg302602.html
+> > [v5] http://www.spinics.net/lists/arm-kernel/msg303349.html
+> > [v6] http://www.spinics.net/lists/arm-kernel/msg305547.html
+> > [v7] http://www.spinics.net/lists/arm-kernel/msg306534.html
+> > 
+> > As you can see, it received numerous feedback, testing and reviews;
+> > we've finally reached agreement and so we'd like to merge this series for
+> > v3.15, if at all possible.
+> > 
+> > However, the watchdog subsystem maintainer remained completely silent through
+> > the *entire* life of this patchset, and so we've no idea what are his plans
+> > about it.
+> > 
+> > Do you think this can be merged through Andrew's tree? Or maybe through
+> > Jason Cooper's so the irqchip dependency is easily handled?
+> > 
+> > Thanks a lot!
+> > 
+> > Original cover letter
+> > =====================
+> > 
+> > Yet another round. This time, addressing Guenter's comment about the nowayout
+> > parameter. So, to allow for proper nowayout behavior, we now restrict the
+> > initial watchdog stop; which is only done if the watchdog is not properly
+> > enabled.
+> > 
+> > I've dropped the clocksource patch which was previously part of the series.
+> > The patch is independent and will be merged through the subsystem maintainer,
+> > Daniel Lezcano.
+> > 
+> > Also, I've updated the multi_v7_defconfig, as per Jason Cooper request.
+> > 
+> > This series depends on Sebastian's irqchip fixes to clear the bridge irqs
+> > cause, which Jason picked here:
+> > 
+> >   http://git.infradead.org/linux-mvebu.git mvebu-next/irqchip-fixes
+> > 
+> > Wim: Can we take all the watchdog changes through mvebu, with your Ack?
+> > This way, we can sort out the irqchip dependency.
+> 
+> I reviewed all patches and you have an Acked-by from me on all of them.
 
-Most of these are the uses of &__raw_get_cpu_var for address calculation.
+Thanks, Wim!
 
-touch_softlockup_watchdog_sync() uses __raw_get_cpu_var to write to
-per cpu variables. Use __this_cpu_write instead.
+thx,
 
-Cc: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org
-Signed-off-by: Christoph Lameter <cl@linux.com>
-
-Index: linux/kernel/watchdog.c
-===================================================================
---- linux.orig/kernel/watchdog.c	2013-12-02 16:07:54.234510172 -0600
-+++ linux/kernel/watchdog.c	2013-12-02 16:07:54.234510172 -0600
-@@ -174,8 +174,8 @@ EXPORT_SYMBOL(touch_nmi_watchdog);
- 
- void touch_softlockup_watchdog_sync(void)
- {
--	__raw_get_cpu_var(softlockup_touch_sync) = true;
--	__raw_get_cpu_var(watchdog_touch_ts) = 0;
-+	__this_cpu_write(softlockup_touch_sync, true);
-+	__this_cpu_write(watchdog_touch_ts, 0);
- }
- 
- #ifdef CONFIG_HARDLOCKUP_DETECTOR
-@@ -341,7 +341,7 @@ static void watchdog_set_prio(unsigned i
- 
- static void watchdog_enable(unsigned int cpu)
- {
--	struct hrtimer *hrtimer = &__raw_get_cpu_var(watchdog_hrtimer);
-+	struct hrtimer *hrtimer = raw_cpu_ptr(&watchdog_hrtimer);
- 
- 	/* kick off the timer for the hardlockup detector */
- 	hrtimer_init(hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-@@ -361,7 +361,7 @@ static void watchdog_enable(unsigned int
- 
- static void watchdog_disable(unsigned int cpu)
- {
--	struct hrtimer *hrtimer = &__raw_get_cpu_var(watchdog_hrtimer);
-+	struct hrtimer *hrtimer = raw_cpu_ptr(&watchdog_hrtimer);
- 
- 	watchdog_set_prio(SCHED_NORMAL, 0);
- 	hrtimer_cancel(hrtimer);
-@@ -488,7 +488,7 @@ static struct smp_hotplug_thread watchdo
- 
- static void restart_watchdog_hrtimer(void *info)
- {
--	struct hrtimer *hrtimer = &__raw_get_cpu_var(watchdog_hrtimer);
-+	struct hrtimer *hrtimer = raw_cpu_ptr(&watchdog_hrtimer);
- 	int ret;
- 
- 	/*
-
+Jason.
