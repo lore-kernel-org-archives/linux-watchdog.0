@@ -1,98 +1,49 @@
-Return-Path: <jason@lakedaemon.net>
-Date: Mon, 17 Feb 2014 17:09:48 -0500
-From: Jason Cooper <jason@lakedaemon.net>
-To: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-watchdog@vger.kernel.org,
-	Lior Amsalem <alior@marvell.com>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	Tawfik Bayouk <tawfik@marvell.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH v7 00/18] Armada 370/XP watchdog
-Message-ID: <20140217220948.GF7862@titan.lakedaemon.net>
-References: <1392073237-2554-1-git-send-email-ezequiel.garcia@free-electrons.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from ch1ehsobe006.messaging.microsoft.com ([216.32.181.186]:20814
+	"EHLO ch1outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754609AbaBRMYK (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 18 Feb 2014 07:24:10 -0500
+From: Fabio Estevam <fabio.estevam@freescale.com>
+To: <wim@iguana.be>
+CC: <olof@lixom.net>, <festevam@gmail.com>,
+	<linux-watchdog@vger.kernel.org>,
+	Fabio Estevam <fabio.estevam@freescale.com>
+Subject: [PATCH] watchdog: orion_wdt: Use %pa to print 'phys_addr_t'
+Date: Tue, 18 Feb 2014 09:23:54 -0300
+Message-ID: <1392726234-16977-1-git-send-email-fabio.estevam@freescale.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1392073237-2554-1-git-send-email-ezequiel.garcia@free-electrons.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Feb 10, 2014 at 08:00:19PM -0300, Ezequiel Garcia wrote:
-> Yet another round. This time, addressing Guenter's comment about the nowayout
-> parameter. So, to allow for proper nowayout behavior, we now restrict the
-> initial watchdog stop; which is only done if the watchdog is not properly
-> enabled.
-> 
-> I've dropped the clocksource patch which was previously part of the series.
-> The patch is independent and will be merged through the subsystem maintainer,
-> Daniel Lezcano.
-> 
-> Also, I've updated the multi_v7_defconfig, as per Jason Cooper request.
-> 
-> This series depends on Sebastian's irqchip fixes to clear the bridge irqs
-> cause, which Jason picked here:
-> 
->   http://git.infradead.org/linux-mvebu.git mvebu-next/irqchip-fixes
-> 
-> Wim: Can we take all the watchdog changes through mvebu, with your Ack?
-> This way, we can sort out the irqchip dependency.
-> 
+When building an ARM multi_v7_defconfig with LPAE option selected we get the
+following build warning:
 
-Whole series applied as follows (with Wim's Acks):
+drivers/watchdog/orion_wdt.c:272:2: warning: format '%x' expects argument of type 'unsigned int', but argument 4 has type 'phys_addr_t' [-Wformat=]
 
-> Ezequiel Garcia (18):
->   watchdog: orion: Add clock error handling
->   watchdog: orion: Use atomic access for shared registers
->   watchdog: orion: Remove unused macros
->   watchdog: orion: Make sure the watchdog is initially stopped
->   watchdog: orion: Handle the interrupt so it's properly acked
->   watchdog: orion: Make RSTOUT register a separate resource
->   watchdog: orion: Remove unneeded BRIDGE_CAUSE clear
->   watchdog: orion: Introduce an orion_watchdog device structure
->   watchdog: orion: Introduce per-compatible of_device_id data
->   watchdog: orion: Add per-compatible clock initialization
->   watchdog: orion: Add per-compatible watchdog start implementation
->   watchdog: orion: Add support for Armada 370 and Armada XP SoC
+Fix it by using %pa to print 'phys_addr_t'.
 
-to mvebu/watchdog (deps on mvebu/irqchip-fixes (renamed))
+Reported-by: Olof's autobuilder <build@lixom.net>
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+---
+ drivers/watchdog/orion_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
->   ARM: mvebu: Enable Armada 370/XP watchdog in the devicetree
->   ARM: kirkwood: Add RSTOUT 'reg' entry to devicetree
->   ARM: dove: Enable Dove watchdog in the devicetree
+diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
+index 15321aa..6f9b4c6 100644
+--- a/drivers/watchdog/orion_wdt.c
++++ b/drivers/watchdog/orion_wdt.c
+@@ -269,7 +269,7 @@ static void __iomem *orion_wdt_ioremap_rstout(struct platform_device *pdev,
+ 
+ 	rstout = internal_regs + ORION_RSTOUT_MASK_OFFSET;
+ 
+-	WARN(1, FW_BUG "falling back to harcoded RSTOUT reg 0x%x\n", rstout);
++	WARN(1, FW_BUG "falling back to harcoded RSTOUT reg %pa\n", &rstout);
+ 	return devm_ioremap(&pdev->dev, rstout, 0x4);
+ }
+ 
+-- 
+1.8.1.2
 
-to mvebu/dt
 
->   watchdog: orion: Enable the build on ARCH_MVEBU
-
-to mvebu/watchdog
-
->   ARM: mvebu: Enable watchdog support in defconfig
->   ARM: dove: Enable watchdog support in the defconfig
-
-to mvebu/defconfig
-
->  .../devicetree/bindings/watchdog/marvel.txt        |  11 +-
->  arch/arm/boot/dts/armada-370-xp.dtsi               |   4 +
->  arch/arm/boot/dts/armada-370.dtsi                  |   5 +
->  arch/arm/boot/dts/armada-xp.dtsi                   |   6 +
->  arch/arm/boot/dts/dove.dtsi                        |   8 +
->  arch/arm/boot/dts/kirkwood.dtsi                    |   2 +-
->  arch/arm/configs/dove_defconfig                    |   2 +
->  arch/arm/configs/multi_v7_defconfig                |   2 +
->  arch/arm/configs/mvebu_defconfig                   |   2 +
->  arch/arm/mach-dove/include/mach/bridge-regs.h      |   1 +
->  arch/arm/mach-kirkwood/include/mach/bridge-regs.h  |   1 +
->  arch/arm/mach-mv78xx0/include/mach/bridge-regs.h   |   1 +
->  arch/arm/mach-orion5x/include/mach/bridge-regs.h   |   1 +
->  arch/arm/plat-orion/common.c                       |  10 +-
->  drivers/watchdog/Kconfig                           |   2 +-
->  drivers/watchdog/orion_wdt.c                       | 381 ++++++++++++++++-----
->  16 files changed, 352 insertions(+), 87 deletions(-)
-
-Great work, Ezequiel!
-
-thx,
-
-Jason.
