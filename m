@@ -1,80 +1,60 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:49676 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753667AbaBSPHu (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:58639 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753977AbaBSQ7h (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 19 Feb 2014 10:07:50 -0500
-Date: Wed, 19 Feb 2014 12:01:48 -0300
-From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-To: Daniel Lezcano <daniel.lezcano@linaro.org>
-Cc: devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+	Wed, 19 Feb 2014 11:59:37 -0500
+Date: Wed, 19 Feb 2014 17:59:33 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Fabio Estevam <fabio.estevam@freescale.com>,
 	Jason Cooper <jason@lakedaemon.net>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Lior Amsalem <alior@marvell.com>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Andrew Lunn <andrew@lunn.ch>
-Subject: Re: [PATCH v6 01/19] clocksource: orion: Use atomic access for
- shared registers
-Message-ID: <20140219150147.GA4954@localhost>
-References: <1391707226-18258-1-git-send-email-ezequiel.garcia@free-electrons.com>
- <1391707226-18258-2-git-send-email-ezequiel.garcia@free-electrons.com>
- <52F96993.9090007@linaro.org>
- <20140211083024.GA3687@localhost>
- <52F9E947.5020004@linaro.org>
- <20140211094730.GG3687@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+Cc: olof@lixom.net, festevam@gmail.com, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] watchdog: orion_wdt: Use %pa to print 'phys_addr_t'
+Message-ID: <20140219165933.GM1484@spo001.leaseweb.com>
+References: <1392726234-16977-1-git-send-email-fabio.estevam@freescale.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <20140211094730.GG3687@localhost>
+In-Reply-To: <1392726234-16977-1-git-send-email-fabio.estevam@freescale.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Feb 11, 2014 at 06:47:30AM -0300, Ezequiel Garcia wrote:
-> On Tue, Feb 11, 2014 at 10:11:35AM +0100, Daniel Lezcano wrote:
-> > On 02/11/2014 09:30 AM, Ezequiel Garcia wrote:
-> > > On Tue, Feb 11, 2014 at 01:06:43AM +0100, Daniel Lezcano wrote:
-> > >> On 02/06/2014 06:20 PM, Ezequiel Garcia wrote:
-> > >>> Replace the driver-specific thread-safe shared register API
-> > >>> by the recently introduced atomic_io_clear_set().
-> > >>>
-> > >>> Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
-> > >>> Tested-by: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.c=
-om>
-> > >>> Tested-by: Willy Tarreau <w@1wt.eu>
-> > >>> Acked-by: Jason Cooper <jason@lakedaemon.net>
-> > >>> Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.=
-com>
-> > >>
-> > >> The patch looks good for me.
-> > >>
-> > >> Acked-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-> > >>
-> > >
-> > > Daniel,
-> > >
-> > > Jason acked this patch for you to take it. Or do you prefer that =
-we
-> > > merge it with the rest of the watchdog series?
-> >=20
-> > I can pick it, but doesn't the watchdog series depend on it ?
-> >=20
->=20
-> Nope. It's indepedent of it.
 
-Daniel,
+Hi Ezequiel,
 
-Ping? This patch is independent of the watchdog series, and there won't
-be any conflicts with it, so I think it's safe for you to take it.
+Can you have a look at the below patch?
 
---=20
-Ezequiel Garc=C3=ADa, Free Electrons
-Embedded Linux, Kernel and Android Engineering
-http://free-electrons.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Kind regards,
+Wim.
+
+> When building an ARM multi_v7_defconfig with LPAE option selected we get the
+> following build warning:
+> 
+> drivers/watchdog/orion_wdt.c:272:2: warning: format '%x' expects argument of type 'unsigned int', but argument 4 has type 'phys_addr_t' [-Wformat=]
+> 
+> Fix it by using %pa to print 'phys_addr_t'.
+> 
+> Reported-by: Olof's autobuilder <build@lixom.net>
+> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+> ---
+>  drivers/watchdog/orion_wdt.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
+> index 15321aa..6f9b4c6 100644
+> --- a/drivers/watchdog/orion_wdt.c
+> +++ b/drivers/watchdog/orion_wdt.c
+> @@ -269,7 +269,7 @@ static void __iomem *orion_wdt_ioremap_rstout(struct platform_device *pdev,
+>  
+>  	rstout = internal_regs + ORION_RSTOUT_MASK_OFFSET;
+>  
+> -	WARN(1, FW_BUG "falling back to harcoded RSTOUT reg 0x%x\n", rstout);
+> +	WARN(1, FW_BUG "falling back to harcoded RSTOUT reg %pa\n", &rstout);
+>  	return devm_ioremap(&pdev->dev, rstout, 0x4);
+>  }
+>  
+> -- 
+> 1.8.1.2
+> 
+> 
