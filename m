@@ -1,60 +1,41 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:58639 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753977AbaBSQ7h (ORCPT
+Received: from top.free-electrons.com ([176.31.233.9]:51798 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754402AbaBSSyv (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 19 Feb 2014 11:59:37 -0500
-Date: Wed, 19 Feb 2014 17:59:33 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Fabio Estevam <fabio.estevam@freescale.com>,
-	Jason Cooper <jason@lakedaemon.net>,
-	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-Cc: olof@lixom.net, festevam@gmail.com, linux-watchdog@vger.kernel.org
+	Wed, 19 Feb 2014 13:54:51 -0500
+Date: Wed, 19 Feb 2014 15:54:45 -0300
+From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Fabio Estevam <fabio.estevam@freescale.com>,
+	Jason Cooper <jason@lakedaemon.net>, olof@lixom.net,
+	festevam@gmail.com, linux-watchdog@vger.kernel.org
 Subject: Re: [PATCH] watchdog: orion_wdt: Use %pa to print 'phys_addr_t'
-Message-ID: <20140219165933.GM1484@spo001.leaseweb.com>
+Message-ID: <20140219185427.GA6341@localhost>
 References: <1392726234-16977-1-git-send-email-fabio.estevam@freescale.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+ <20140219165933.GM1484@spo001.leaseweb.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <1392726234-16977-1-git-send-email-fabio.estevam@freescale.com>
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+In-Reply-To: <20140219165933.GM1484@spo001.leaseweb.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On Wed, Feb 19, 2014 at 05:59:33PM +0100, Wim Van Sebroeck wrote:
+>=20
+> Can you have a look at the below patch?
+>=20
 
-Hi Ezequiel,
+I've acked-it yesterday, I think.
 
-Can you have a look at the below patch?
-
-Kind regards,
-Wim.
-
-> When building an ARM multi_v7_defconfig with LPAE option selected we get the
-> following build warning:
-> 
-> drivers/watchdog/orion_wdt.c:272:2: warning: format '%x' expects argument of type 'unsigned int', but argument 4 has type 'phys_addr_t' [-Wformat=]
-> 
-> Fix it by using %pa to print 'phys_addr_t'.
-> 
-> Reported-by: Olof's autobuilder <build@lixom.net>
-> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
-> ---
->  drivers/watchdog/orion_wdt.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
-> index 15321aa..6f9b4c6 100644
-> --- a/drivers/watchdog/orion_wdt.c
-> +++ b/drivers/watchdog/orion_wdt.c
-> @@ -269,7 +269,7 @@ static void __iomem *orion_wdt_ioremap_rstout(struct platform_device *pdev,
->  
->  	rstout = internal_regs + ORION_RSTOUT_MASK_OFFSET;
->  
-> -	WARN(1, FW_BUG "falling back to harcoded RSTOUT reg 0x%x\n", rstout);
-> +	WARN(1, FW_BUG "falling back to harcoded RSTOUT reg %pa\n", &rstout);
->  	return devm_ioremap(&pdev->dev, rstout, 0x4);
->  }
->  
-> -- 
-> 1.8.1.2
-> 
-> 
+Do you want me to re-send the mail?
+--=20
+Ezequiel Garc=C3=ADa, Free Electrons
+Embedded Linux, Kernel and Android Engineering
+http://free-electrons.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
