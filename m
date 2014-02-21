@@ -1,41 +1,69 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:51798 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754402AbaBSSyv (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:58997 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751030AbaBUTlI (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 19 Feb 2014 13:54:51 -0500
-Date: Wed, 19 Feb 2014 15:54:45 -0300
-From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Fabio Estevam <fabio.estevam@freescale.com>,
-	Jason Cooper <jason@lakedaemon.net>, olof@lixom.net,
-	festevam@gmail.com, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: orion_wdt: Use %pa to print 'phys_addr_t'
-Message-ID: <20140219185427.GA6341@localhost>
-References: <1392726234-16977-1-git-send-email-fabio.estevam@freescale.com>
- <20140219165933.GM1484@spo001.leaseweb.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Fri, 21 Feb 2014 14:41:08 -0500
+Date: Fri, 21 Feb 2014 20:41:06 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+	Stanislav Kholmanskikh <stanislav.kholmanskikh@oracle.com>
+Subject: [GIT PULL REQUEST] watchdog - v3.14-rc4 Fixes
+Message-ID: <20140221194106.GN1484@spo001.leaseweb.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <20140219165933.GM1484@spo001.leaseweb.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Feb 19, 2014 at 05:59:33PM +0100, Wim Van Sebroeck wrote:
->=20
-> Can you have a look at the below patch?
->=20
+Hi Linus,
 
-I've acked-it yesterday, I think.
+Please pull from 'master' branch of
+	git://www.linux-watchdog.org/linux-watchdog.git
 
-Do you want me to re-send the mail?
---=20
-Ezequiel Garc=C3=ADa, Free Electrons
-Embedded Linux, Kernel and Android Engineering
-http://free-electrons.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+It corrects the error code when no device was found for w83697hf_wdt.
+
+This will update the following files:
+
+ w83697hf_wdt.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+with these Changes:
+
+commit 0cb1c3e853e0d0f996f4e11863407bf31e6b7343
+Author: Stanislav Kholmanskikh <stanislav.kholmanskikh@oracle.com>
+Date:   Mon Jan 27 11:04:33 2014 +0400
+
+    watchdog: w83697hf_wdt: return ENODEV if no device was found
+    
+    Most WDT driver modules return ENODEV during modprobe if
+    no valid device was found, but w83697hf_wdt returns EIO.
+    
+    Let w83697hf_wdt return ENODEV.
+    
+    Signed-off-by: Stanislav Kholmanskikh <stanislav.kholmanskikh@oracle.com>
+    Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+
+For completeness, I added the overal diff below.
+
+Greetings,
+Wim.
+
+================================================================================
+diff --git a/drivers/watchdog/w83697hf_wdt.c b/drivers/watchdog/w83697hf_wdt.c
+index aaf2995..68b45fc 100644
+--- a/drivers/watchdog/w83697hf_wdt.c
++++ b/drivers/watchdog/w83697hf_wdt.c
+@@ -402,7 +402,7 @@ static int __init wdt_init(void)
+ 
+ 	if (!found) {
+ 		pr_err("No W83697HF/HG could be found\n");
+-		ret = -EIO;
++		ret = -ENODEV;
+ 		goto out;
+ 	}
+ 
