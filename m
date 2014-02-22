@@ -1,94 +1,110 @@
-Return-Path: <acabrera@udio.cujae.edu.cu>
-Message-ID: <53094A15.1080708@udio.cujae.edu.cu>
-Date: Sat, 22 Feb 2014 17:08:37 -0800
-From: Alejandro Cabrera <acabrera@udio.cujae.edu.cu>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail.active-venture.com ([67.228.131.205]:55704 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751394AbaBVXSS (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Sat, 22 Feb 2014 18:18:18 -0500
+Message-ID: <53093038.6000604@roeck-us.net>
+Date: Sat, 22 Feb 2014 15:18:16 -0800
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-To: Wim Van Sebroeck <wim@iguana.be>
-CC: Guenter Roeck <linux@roeck-us.net>,
- Michal Simek <michal.simek@xilinx.com>,
- linux-kernel@vger.kernel.org, monstr@monstr.eu,
- linux-watchdog@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Alejandro Cabrera <acabrera@udio.cujae.edu.cu>,
+	Wim Van Sebroeck <wim@iguana.be>
+CC: Michal Simek <michal.simek@xilinx.com>,
+	linux-kernel@vger.kernel.org, monstr@monstr.eu,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
 Subject: Re: [PATCH v3 07/11] watchdog: xilinx: Use of_property_read_u32
-References: <cover.1392212059.git.michal.simek@xilinx.com>
- <7cbb10853a343c9d488346596f604909ab0668b9.1392212059.git.michal.simek@xilinx.com>
- <20140212171509.GB20012@roeck-us.net>
- <20140222184604.GB21504@spo001.leaseweb.com>
-In-Reply-To: <20140222184604.GB21504@spo001.leaseweb.com>
+References: <cover.1392212059.git.michal.simek@xilinx.com> <7cbb10853a343c9d488346596f604909ab0668b9.1392212059.git.michal.simek@xilinx.com> <20140212171509.GB20012@roeck-us.net> <20140222184604.GB21504@spo001.leaseweb.com> <53094A15.1080708@udio.cujae.edu.cu>
+In-Reply-To: <53094A15.1080708@udio.cujae.edu.cu>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On 22/2/2014 10:46 AM, Wim Van Sebroeck wrote:
-> Hi All,
+On 02/22/2014 05:08 PM, Alejandro Cabrera wrote:
+> On 22/2/2014 10:46 AM, Wim Van Sebroeck wrote:
+>> Hi All,
+>>
+>>> Hi Michal,
+>>>
+>>> On Wed, Feb 12, 2014 at 02:41:21PM +0100, Michal Simek wrote:
+>>>> Use of_property_read_u32 functions to clean probe function.
+>>>>
+>>>> Signed-off-by: Michal Simek<michal.simek@xilinx.com>
+>>>> Reviewed-by: Guenter Roeck<linux@roeck-us.net>
+>>>> ---
+>>>>
+>>>> Changes in v3:
+>>>> - Remove one if checking and use variable directly
+>>>>
+>>> Looks good.
+>>>
+>>> Another comment/remark.
+>>>
+>>>> -    pfreq = (u32 *)of_get_property(pdev->dev.of_node,
+>>>> -                    "clock-frequency", NULL);
+>>>> -
+>>>> -    if (pfreq == NULL) {
+>>>> +    rc = of_property_read_u32(pdev->dev.of_node, "clock-frequency",&pfreq);
+>>>> +    if (rc) {
+>>>>           dev_warn(&pdev->dev,
+>>>>                "The watchdog clock frequency cannot be obtained\n");
+>>>>           no_timeout = true;
+>>>>       }
+>>>>
+>>>> -    tmptr = (u32 *)of_get_property(pdev->dev.of_node,
+>>>> -                    "xlnx,wdt-interval", NULL);
+>>>> -    if (tmptr == NULL) {
+>>>> +    rc = of_property_read_u32(pdev->dev.of_node, "xlnx,wdt-interval",
+>>>> +                &xdev->wdt_interval);
+>>>> +    if (rc) {
+>>>>           dev_warn(&pdev->dev,
+>>>>                "Parameter \"xlnx,wdt-interval\" not found\n");
+>>>>           no_timeout = true;
+>>>> -    } else {
+>>>> -        xdev->wdt_interval = *tmptr;
+>>>>       }
+>>>>
+>>>> -    tmptr = (u32 *)of_get_property(pdev->dev.of_node,
+>>>> -                    "xlnx,wdt-enable-once", NULL);
+>>>> -    if (tmptr == NULL) {
+>>>> +    rc = of_property_read_u32(pdev->dev.of_node, "xlnx,wdt-enable-once",
+>>>> +                &enable_once);
+>>>> +    if (rc)
+>>>>           dev_warn(&pdev->dev,
+>>>>                "Parameter \"xlnx,wdt-enable-once\" not found\n");
+>>>> -        watchdog_set_nowayout(xilinx_wdt_wdd, true);
+>>>> -    }
+>>> All the above properties are optional. Is a warning really
+>>> warranted in this case ? I usually associate a warning with
+>>> something that is wrong, which is not the case here.
+>>>
+>>> I would encourage you to drop those warnings, but that should be
+>>> a separate patch.
+>> I agree with Guenter: these are not really warnings. Seperate patch is thus welcome.
+> Hi
 >
->> Hi Michal,
->>
->> On Wed, Feb 12, 2014 at 02:41:21PM +0100, Michal Simek wrote:
->>> Use of_property_read_u32 functions to clean probe function.
->>>
->>> Signed-off-by: Michal Simek<michal.simek@xilinx.com>
->>> Reviewed-by: Guenter Roeck<linux@roeck-us.net>
->>> ---
->>>
->>> Changes in v3:
->>> - Remove one if checking and use variable directly
->>>
->> Looks good.
->>
->> Another comment/remark.
->>
->>> -	pfreq = (u32 *)of_get_property(pdev->dev.of_node,
->>> -					"clock-frequency", NULL);
->>> -
->>> -	if (pfreq == NULL) {
->>> +	rc = of_property_read_u32(pdev->dev.of_node, "clock-frequency",&pfreq);
->>> +	if (rc) {
->>>   		dev_warn(&pdev->dev,
->>>   			 "The watchdog clock frequency cannot be obtained\n");
->>>   		no_timeout = true;
->>>   	}
->>>
->>> -	tmptr = (u32 *)of_get_property(pdev->dev.of_node,
->>> -					"xlnx,wdt-interval", NULL);
->>> -	if (tmptr == NULL) {
->>> +	rc = of_property_read_u32(pdev->dev.of_node, "xlnx,wdt-interval",
->>> +				&xdev->wdt_interval);
->>> +	if (rc) {
->>>   		dev_warn(&pdev->dev,
->>>   			 "Parameter \"xlnx,wdt-interval\" not found\n");
->>>   		no_timeout = true;
->>> -	} else {
->>> -		xdev->wdt_interval = *tmptr;
->>>   	}
->>>
->>> -	tmptr = (u32 *)of_get_property(pdev->dev.of_node,
->>> -					"xlnx,wdt-enable-once", NULL);
->>> -	if (tmptr == NULL) {
->>> +	rc = of_property_read_u32(pdev->dev.of_node, "xlnx,wdt-enable-once",
->>> +				&enable_once);
->>> +	if (rc)
->>>   		dev_warn(&pdev->dev,
->>>   			 "Parameter \"xlnx,wdt-enable-once\" not found\n");
->>> -		watchdog_set_nowayout(xilinx_wdt_wdd, true);
->>> -	}
->> All the above properties are optional. Is a warning really
->> warranted in this case ? I usually associate a warning with
->> something that is wrong, which is not the case here.
->>
->> I would encourage you to drop those warnings, but that should be
->> a separate patch.
-> I agree with Guenter: these are not really warnings. Seperate patch is thus welcome.
-Hi
+> I support Michal intention, I think it is a warning because device tree blob must have the "xlnx,wdt-enable-once" property specified in order to allow the system to be sure of the real value of this property. In addition to, this warning can be helpful to detect a wrong device tree specification.
+>
 
-I support Michal intention, I think it is a warning because device tree 
-blob must have the "xlnx,wdt-enable-once" property specified in order to 
-allow the system to be sure of the real value of this property. In 
-addition to, this warning can be helpful to detect a wrong device tree 
-specification.
+The dt documentation states that the properties are optional.
 
-Best regards
-Alejandro
+Optional properties:
+- clock-frequency       : Frequency of clock in Hz
+- xlnx,wdt-enable-once  : 0 - Watchdog can be restarted
+                           1 - Watchdog can be enabled just once
+- xlnx,wdt-interval     : Watchdog timeout interval in 2^<val> clock cycles,
+                           <val> is integer from 8 to 31.
+
+This clearly conflicts with your statement. An optional property
+is just that, optional. If it warrants a warning, it must
+not be optional. If you claim that not providing the properties
+would be "wrong", why are they defined as optional ?
+What is your definition of "wrong" and "must have" ?
+How do you expect anyone to know that omitting those
+"optional" properties is by some definition "wrong" ?
+
+Guenter
 
 
-
-50 Aniversario de la Cujae. Inaugurada por Fidel el 2 de diciembre de 1964  http://cujae.edu.cu
