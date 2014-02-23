@@ -1,100 +1,94 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:58237 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752391AbaBVUm2 (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 22 Feb 2014 15:42:28 -0500
-Message-ID: <53090BAF.3080806@roeck-us.net>
-Date: Sat, 22 Feb 2014 12:42:23 -0800
-From: Guenter Roeck <linux@roeck-us.net>
+Return-Path: <acabrera@udio.cujae.edu.cu>
+Message-ID: <53094A15.1080708@udio.cujae.edu.cu>
+Date: Sat, 22 Feb 2014 17:08:37 -0800
+From: Alejandro Cabrera <acabrera@udio.cujae.edu.cu>
 MIME-Version: 1.0
-To: Wim Van Sebroeck <wim@iguana.be>,
-	Michal Simek <michal.simek@xilinx.com>
-CC: linux-kernel@vger.kernel.org, monstr@monstr.eu,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v3 10/11] watchdog: xilinx: Enable this driver for Zynq
-References: <cover.1392212059.git.michal.simek@xilinx.com> <a978b8d0511748e4558f5169896da44c742a49f3.1392212059.git.michal.simek@xilinx.com> <20140222184419.GA21504@spo001.leaseweb.com>
-In-Reply-To: <20140222184419.GA21504@spo001.leaseweb.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+CC: Guenter Roeck <linux@roeck-us.net>,
+ Michal Simek <michal.simek@xilinx.com>,
+ linux-kernel@vger.kernel.org, monstr@monstr.eu,
+ linux-watchdog@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v3 07/11] watchdog: xilinx: Use of_property_read_u32
+References: <cover.1392212059.git.michal.simek@xilinx.com>
+ <7cbb10853a343c9d488346596f604909ab0668b9.1392212059.git.michal.simek@xilinx.com>
+ <20140212171509.GB20012@roeck-us.net>
+ <20140222184604.GB21504@spo001.leaseweb.com>
+In-Reply-To: <20140222184604.GB21504@spo001.leaseweb.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 02/22/2014 10:44 AM, Wim Van Sebroeck wrote:
-> Hi Michal,
+On 22/2/2014 10:46 AM, Wim Van Sebroeck wrote:
+> Hi All,
 >
->> Enable this driver for Zynq.
->> Move it to architecture independent Kconfig part.
+>> Hi Michal,
 >>
->> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
->> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->> ---
+>> On Wed, Feb 12, 2014 at 02:41:21PM +0100, Michal Simek wrote:
+>>> Use of_property_read_u32 functions to clean probe function.
+>>>
+>>> Signed-off-by: Michal Simek<michal.simek@xilinx.com>
+>>> Reviewed-by: Guenter Roeck<linux@roeck-us.net>
+>>> ---
+>>>
+>>> Changes in v3:
+>>> - Remove one if checking and use variable directly
+>>>
+>> Looks good.
 >>
->> Changes in v3: None
->> Changes in v2: None
+>> Another comment/remark.
 >>
->> Build tested by zero day testing system.
->> ---
->>   drivers/watchdog/Kconfig | 22 +++++++++-------------
->>   1 file changed, 9 insertions(+), 13 deletions(-)
+>>> -	pfreq = (u32 *)of_get_property(pdev->dev.of_node,
+>>> -					"clock-frequency", NULL);
+>>> -
+>>> -	if (pfreq == NULL) {
+>>> +	rc = of_property_read_u32(pdev->dev.of_node, "clock-frequency",&pfreq);
+>>> +	if (rc) {
+>>>   		dev_warn(&pdev->dev,
+>>>   			 "The watchdog clock frequency cannot be obtained\n");
+>>>   		no_timeout = true;
+>>>   	}
+>>>
+>>> -	tmptr = (u32 *)of_get_property(pdev->dev.of_node,
+>>> -					"xlnx,wdt-interval", NULL);
+>>> -	if (tmptr == NULL) {
+>>> +	rc = of_property_read_u32(pdev->dev.of_node, "xlnx,wdt-interval",
+>>> +				&xdev->wdt_interval);
+>>> +	if (rc) {
+>>>   		dev_warn(&pdev->dev,
+>>>   			 "Parameter \"xlnx,wdt-interval\" not found\n");
+>>>   		no_timeout = true;
+>>> -	} else {
+>>> -		xdev->wdt_interval = *tmptr;
+>>>   	}
+>>>
+>>> -	tmptr = (u32 *)of_get_property(pdev->dev.of_node,
+>>> -					"xlnx,wdt-enable-once", NULL);
+>>> -	if (tmptr == NULL) {
+>>> +	rc = of_property_read_u32(pdev->dev.of_node, "xlnx,wdt-enable-once",
+>>> +				&enable_once);
+>>> +	if (rc)
+>>>   		dev_warn(&pdev->dev,
+>>>   			 "Parameter \"xlnx,wdt-enable-once\" not found\n");
+>>> -		watchdog_set_nowayout(xilinx_wdt_wdd, true);
+>>> -	}
+>> All the above properties are optional. Is a warning really
+>> warranted in this case ? I usually associate a warning with
+>> something that is wrong, which is not the case here.
 >>
->> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
->> index 9db5d3c..6120403 100644
->> --- a/drivers/watchdog/Kconfig
->> +++ b/drivers/watchdog/Kconfig
->> @@ -111,6 +111,15 @@ config WM8350_WATCHDOG
->>   	  Support for the watchdog in the WM8350 AudioPlus PMIC.  When
->>   	  the watchdog triggers the system will be reset.
->>
->> +config XILINX_WATCHDOG
->> +	tristate "Xilinx Watchdog timer"
->> +	select WATCHDOG_CORE
->> +	help
->> +	  Watchdog driver for the xps_timebase_wdt ip core.
->> +
->> +	  To compile this driver as a module, choose M here: the
->> +	  module will be called of_xilinx_wdt.
->> +
->>   # ALPHA Architecture
->>
->>   # ARM Architecture
->> @@ -1022,19 +1031,6 @@ config M54xx_WATCHDOG
->>
->>   # MicroBlaze Architecture
->>
->> -config XILINX_WATCHDOG
->> -	tristate "Xilinx Watchdog timer"
->> -	depends on MICROBLAZE
->> -	select WATCHDOG_CORE
->> -	---help---
->> -	  Watchdog driver for the xps_timebase_wdt ip core.
->> -
->> -	  IMPORTANT: The xps_timebase_wdt parent must have the property
->> -	  "clock-frequency" at device tree.
->> -
->> -	  To compile this driver as a module, choose M here: the
->> -	  module will be called of_xilinx_wdt.
->> -
->>   # MIPS Architecture
->>
->>   config ATH79_WDT
->> --
->> 1.8.2.3
->>
->
-> Are we sure that we don't need an additional dependancy (like depends on HAS_IOMEM) to not have issues with other architectures?
->
+>> I would encourage you to drop those warnings, but that should be
+>> a separate patch.
+> I agree with Guenter: these are not really warnings. Seperate patch is thus welcome.
+Hi
 
-Hi Wim,
+I support Michal intention, I think it is a warning because device tree 
+blob must have the "xlnx,wdt-enable-once" property specified in order to 
+allow the system to be sure of the real value of this property. In 
+addition to, this warning can be helpful to detect a wrong device tree 
+specification.
 
-Doesn't look like it. I have the series in my build test and did not
-see any failures because of it. See http://server.roeck-us.net:8010/builders,
-branch watchdog-next.
+Best regards
+Alejandro
 
-Which reminds me that I wanted to reparent the branch to 3.14-rc3.
-I just did that; you should be able to see build results in a couple
-of hours.
 
-Guenter
 
+50 Aniversario de la Cujae. Inaugurada por Fidel el 2 de diciembre de 1964  http://cujae.edu.cu
