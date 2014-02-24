@@ -1,62 +1,54 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:59320 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:59325 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753099AbaBXTwY (ORCPT
+	with ESMTP id S1752794AbaBXTx1 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 24 Feb 2014 14:52:24 -0500
-Date: Mon, 24 Feb 2014 20:52:23 +0100
+	Mon, 24 Feb 2014 14:53:27 -0500
+Date: Mon, 24 Feb 2014 20:53:26 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Paul Gortmaker <paul.gortmaker@windriver.com>
-Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 40/73] watchdog: delete non-required instances of include <linux/init.h>
-Message-ID: <20140224195223.GB20712@spo001.leaseweb.com>
-References: <1390339396-3479-1-git-send-email-paul.gortmaker@windriver.com> <1390339396-3479-41-git-send-email-paul.gortmaker@windriver.com>
+To: Jingoo Han <jg1.han@samsung.com>
+Cc: linux-watchdog@vger.kernel.org,
+	'Guenter Roeck' <linux@roeck-us.net>
+Subject: Re: [PATCH 0/8] watchdog: Remove unnecessary OOM messages
+Message-ID: <20140224195326.GC20712@spo001.leaseweb.com>
+References: <000101cf26f5$06c21760$14464620$%han@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1390339396-3479-41-git-send-email-paul.gortmaker@windriver.com>
+In-Reply-To: <000101cf26f5$06c21760$14464620$%han@samsung.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Paul,
+Hi Jingoo,
 
-> None of these files are actually using any __init type directives
-> and hence don't need to include <linux/init.h>.  Most are just a
-> left over from __devinit and __cpuinit removal, or simply due to
-> code getting copied from one driver to the next.
+> The site-specific OOM messages are unnecessary, because they
+> duplicate the MM subsystem generic OOM message. For example,
+> k.alloc and v.alloc failures use dump_stack().
 > 
-> Cc: Wim Van Sebroeck <wim@iguana.be>
-> Cc: linux-watchdog@vger.kernel.org
-> Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+> Jingoo Han (8):
+>       watchdog: at32ap700x: Remove unnecessary OOM messages
+>       watchdog: ts72xx_wdt: make 'ts72xx_wdt_pdev' static
+>       watchdog: bcm2835: Remove unnecessary OOM messages
+>       watchdog: da9052: Remove unnecessary OOM messages
+>       watchdog: da9055: Remove unnecessary OOM messages
+>       watchdog: pcwd_usb: Remove unnecessary OOM messages
+>       watchdog: sp805_wdt: Remove unnecessary OOM messages
+>       watchdog: ts72xx_wdt: Remove unnecessary OOM messages
+>       watchdog: wm831x: Remove unnecessary OOM messages
+> 
 > ---
->  drivers/watchdog/ar7_wdt.c          | 1 -
->  drivers/watchdog/ath79_wdt.c        | 1 -
->  drivers/watchdog/bcm47xx_wdt.c      | 1 -
->  drivers/watchdog/bcm63xx_wdt.c      | 1 -
->  drivers/watchdog/cpu5wdt.c          | 1 -
->  drivers/watchdog/cpwd.c             | 1 -
->  drivers/watchdog/davinci_wdt.c      | 1 -
->  drivers/watchdog/hpwdt.c            | 1 -
->  drivers/watchdog/i6300esb.c         | 1 -
->  drivers/watchdog/jz4740_wdt.c       | 1 -
->  drivers/watchdog/max63xx_wdt.c      | 1 -
->  drivers/watchdog/mtx-1_wdt.c        | 1 -
->  drivers/watchdog/nuc900_wdt.c       | 1 -
->  drivers/watchdog/of_xilinx_wdt.c    | 1 -
->  drivers/watchdog/omap_wdt.c         | 1 -
->  drivers/watchdog/orion_wdt.c        | 1 -
->  drivers/watchdog/pnx4008_wdt.c      | 1 -
->  drivers/watchdog/rdc321x_wdt.c      | 1 -
->  drivers/watchdog/retu_wdt.c         | 1 -
->  drivers/watchdog/riowd.c            | 1 -
->  drivers/watchdog/s3c2410_wdt.c      | 1 -
->  drivers/watchdog/sp805_wdt.c        | 1 -
->  drivers/watchdog/stmp3xxx_rtc_wdt.c | 1 -
->  drivers/watchdog/wdt_pci.c          | 1 -
->  24 files changed, 24 deletions(-)
+>  drivers/watchdog/at32ap700x_wdt.c |    4 +---
+>  drivers/watchdog/bcm2835_wdt.c    |    4 +---
+>  drivers/watchdog/da9052_wdt.c     |    1 -
+>  drivers/watchdog/da9055_wdt.c     |    4 +---
+>  drivers/watchdog/pcwd_usb.c       |    4 +---
+>  drivers/watchdog/sp805_wdt.c      |    1 -
+>  drivers/watchdog/ts72xx_wdt.c     |    6 ++----
+>  drivers/watchdog/wm831x_wdt.c     |    1 -
+>  8 files changed, 6 insertions(+), 19 deletions(-)
+> 
 
-This patch has been added to linux-watchdog-next.
+This has been added as a single patch to linux-watchdog-next.
 
 Kind regards,
 Wim.
