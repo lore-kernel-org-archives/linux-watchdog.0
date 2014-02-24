@@ -1,73 +1,47 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:59340 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:59347 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752768AbaBXTzx (ORCPT
+	with ESMTP id S1753449AbaBXT5H (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 24 Feb 2014 14:55:53 -0500
-Date: Mon, 24 Feb 2014 20:55:52 +0100
+	Mon, 24 Feb 2014 14:57:07 -0500
+Date: Mon, 24 Feb 2014 20:57:06 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Jingoo Han <jg1.han@samsung.com>
-Cc: linux-watchdog@vger.kernel.org,
-	'Guenter Roeck' <linux@roeck-us.net>,
-	'Michal Simek' <michal.simek@xilinx.com>,
-	'Viresh Kumar' <viresh.kumar@linaro.org>
-Subject: Re: [PATCH 3/3] watchdog: sp805_wdt: Use devm_ioremap_resource()
-Message-ID: <20140224195552.GG20712@spo001.leaseweb.com>
-References: <000e01cf2726$a511a030$ef34e090$%han@samsung.com> <001001cf2727$355d2ba0$a01782e0$%han@samsung.com>
+To: Alexander Shiyan <shc_work@mail.ru>
+Cc: linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] watchdog: bcm63xx_wdt: Remove unused field from bcm63xx_wdt_device
+Message-ID: <20140224195706.GH20712@spo001.leaseweb.com>
+References: <1392456063-29918-1-git-send-email-shc_work@mail.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <001001cf2727$355d2ba0$a01782e0$%han@samsung.com>
+In-Reply-To: <1392456063-29918-1-git-send-email-shc_work@mail.ru>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Jingoo,
+Hi Alexander,
 
-> Use devm_ioremap_resource() in order to make the code simpler.
+> Field "default_ticks" is not used anywhere in the driver code.
+> This patch removes this field.
 > 
-> Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+> Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
 > ---
->  drivers/watchdog/sp805_wdt.c |   17 +++--------------
->  1 file changed, 3 insertions(+), 14 deletions(-)
+>  drivers/watchdog/bcm63xx_wdt.c | 1 -
+>  1 file changed, 1 deletion(-)
 > 
-> diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
-> index 3f786ce..cf35036 100644
-> --- a/drivers/watchdog/sp805_wdt.c
-> +++ b/drivers/watchdog/sp805_wdt.c
-> @@ -209,13 +209,6 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
->  	struct sp805_wdt *wdt;
->  	int ret = 0;
->  
-> -	if (!devm_request_mem_region(&adev->dev, adev->res.start,
-> -				resource_size(&adev->res), "sp805_wdt")) {
-> -		dev_warn(&adev->dev, "Failed to get memory region resource\n");
-> -		ret = -ENOENT;
-> -		goto err;
-> -	}
-> -
->  	wdt = devm_kzalloc(&adev->dev, sizeof(*wdt), GFP_KERNEL);
->  	if (!wdt) {
->  		dev_warn(&adev->dev, "Kzalloc failed\n");
-> @@ -223,13 +216,9 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
->  		goto err;
->  	}
->  
-> -	wdt->base = devm_ioremap(&adev->dev, adev->res.start,
-> -			resource_size(&adev->res));
-> -	if (!wdt->base) {
-> -		ret = -ENOMEM;
-> -		dev_warn(&adev->dev, "ioremap fail\n");
-> -		goto err;
-> -	}
-> +	wdt->base = devm_ioremap_resource(&adev->dev, &adev->res);
-> +	if (IS_ERR(wdt->base))
-> +		return PTR_ERR(wdt->base);
->  
->  	wdt->clk = devm_clk_get(&adev->dev, NULL);
->  	if (IS_ERR(wdt->clk)) {
+> diff --git a/drivers/watchdog/bcm63xx_wdt.c b/drivers/watchdog/bcm63xx_wdt.c
+> index 4eb188b..d055e3c 100644
+> --- a/drivers/watchdog/bcm63xx_wdt.c
+> +++ b/drivers/watchdog/bcm63xx_wdt.c
+> @@ -45,7 +45,6 @@
+>  static struct {
+>  	void __iomem *regs;
+>  	struct timer_list timer;
+> -	int default_ticks;
+>  	unsigned long inuse;
+>  	atomic_t ticks;
+>  } bcm63xx_wdt_device;
 > -- 
-> 1.7.10.4
-> 
+> 1.8.3.2
 > 
 
 This patch has been added to linux-watchdog-next.
