@@ -1,46 +1,48 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:59354 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:59357 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753669AbaBXUAJ (ORCPT
+	with ESMTP id S1753690AbaBXUAu (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 24 Feb 2014 15:00:09 -0500
-Date: Mon, 24 Feb 2014 21:00:08 +0100
+	Mon, 24 Feb 2014 15:00:50 -0500
+Date: Mon, 24 Feb 2014 21:00:50 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
 To: Alexander Shiyan <shc_work@mail.ru>
 Cc: linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: shwdt: Remove unused variable
-Message-ID: <20140224200008.GL20712@spo001.leaseweb.com>
-References: <1392456187-30082-1-git-send-email-shc_work@mail.ru>
+Subject: Re: [PATCH] watchdog: wdt285: Fix variable type
+Message-ID: <20140224200050.GM20712@spo001.leaseweb.com>
+References: <1392456205-30121-1-git-send-email-shc_work@mail.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1392456187-30082-1-git-send-email-shc_work@mail.ru>
+In-Reply-To: <1392456205-30121-1-git-send-email-shc_work@mail.ru>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 Hi Alexander,
 
-> Variable "wdt" is not used anywhere in the function sh_wdt_remove().
-> This patch removes this variable.
+> Variable "new_margin" is checked in the function watchdog_ioctl()
+> to be positive, so change its type to "int".
 > 
 > Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
 > ---
->  drivers/watchdog/shwdt.c | 2 --
->  1 file changed, 2 deletions(-)
+>  drivers/watchdog/wdt285.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
 > 
-> diff --git a/drivers/watchdog/shwdt.c b/drivers/watchdog/shwdt.c
-> index af3528f..d04d02b 100644
-> --- a/drivers/watchdog/shwdt.c
-> +++ b/drivers/watchdog/shwdt.c
-> @@ -293,8 +293,6 @@ static int sh_wdt_probe(struct platform_device *pdev)
->  
->  static int sh_wdt_remove(struct platform_device *pdev)
+> diff --git a/drivers/watchdog/wdt285.c b/drivers/watchdog/wdt285.c
+> index 7355ddd0..ebbb183 100644
+> --- a/drivers/watchdog/wdt285.c
+> +++ b/drivers/watchdog/wdt285.c
+> @@ -139,9 +139,8 @@ static const struct watchdog_info ident = {
+>  static long watchdog_ioctl(struct file *file, unsigned int cmd,
+>  			   unsigned long arg)
 >  {
-> -	struct sh_wdt *wdt = platform_get_drvdata(pdev);
-> -
->  	watchdog_unregister_device(&sh_wdt_dev);
+> -	unsigned int new_margin;
+>  	int __user *int_arg = (int __user *)arg;
+> -	int ret = -ENOTTY;
+> +	int new_margin, ret = -ENOTTY;
 >  
->  	pm_runtime_disable(&pdev->dev);
+>  	switch (cmd) {
+>  	case WDIOC_GETSUPPORT:
 > -- 
 > 1.8.3.2
 > 
