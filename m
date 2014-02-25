@@ -1,10 +1,10 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mho-03-ewr.mailhop.org ([204.13.248.66]:17078 "EHLO
+Received: from mho-03-ewr.mailhop.org ([204.13.248.66]:23671 "EHLO
 	mho-01-ewr.mailhop.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752653AbaBYQHh convert rfc822-to-8bit (ORCPT
+	with ESMTP id S1753122AbaBYQKF convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 25 Feb 2014 11:07:37 -0500
-Date: Tue, 25 Feb 2014 11:07:30 -0500
+	Tue, 25 Feb 2014 11:10:05 -0500
+Date: Tue, 25 Feb 2014 11:10:01 -0500
 From: Jason Cooper <jason@lakedaemon.net>
 To: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 Cc: Fabio Estevam <fabio.estevam@freescale.com>, olof@lixom.net,
@@ -12,7 +12,7 @@ Cc: Fabio Estevam <fabio.estevam@freescale.com>, olof@lixom.net,
 	linux-arm-kernel@lists.infradead.org,
 	Wim Van Sebroeck <wim@iguana.be>
 Subject: Re: [PATCH] watchdog: orion_wdt: Use %pa to print 'phys_addr_t'
-Message-ID: <20140225160729.GK1010@titan.lakedaemon.net>
+Message-ID: <20140225161001.GL1010@titan.lakedaemon.net>
 References: <1392726234-16977-1-git-send-email-fabio.estevam@freescale.com>
  <20140224203352.GA21204@spo001.leaseweb.com>
  <20140225150947.GA22740@localhost>
@@ -23,6 +23,8 @@ In-Reply-To: <20140225150947.GA22740@localhost>
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+
+=46abio,
 
 On Tue, Feb 25, 2014 at 12:09:48PM -0300, Ezequiel Garcia wrote:
 > Jason,
@@ -72,7 +74,8 @@ e patch that introduces this is also there=E0?
 >=20
 > Can you pull this too? It's been acked by Wim and me.
 
-Yep, I'll add it onto the stack.
+I don't have a local archive of the watchdog ML, could you resend the
+patch to me?
 
 thx,
 
