@@ -1,59 +1,54 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:59390 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752655AbaBXUdy (ORCPT
+Received: from top.free-electrons.com ([176.31.233.9]:38165 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751432AbaBZMu4 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 24 Feb 2014 15:33:54 -0500
-Date: Mon, 24 Feb 2014 21:33:52 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Fabio Estevam <fabio.estevam@freescale.com>
-Cc: olof@lixom.net, festevam@gmail.com, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: orion_wdt: Use %pa to print 'phys_addr_t'
-Message-ID: <20140224203352.GA21204@spo001.leaseweb.com>
-References: <1392726234-16977-1-git-send-email-fabio.estevam@freescale.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1392726234-16977-1-git-send-email-fabio.estevam@freescale.com>
+	Wed, 26 Feb 2014 07:50:56 -0500
+From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+To: <linux-arm-kernel@lists.infradead.org>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	<linux-watchdog@vger.kernel.org>
+Cc: Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Lior Amsalem <alior@marvell.com>,
+	Tawfik Bayouk <tawfik@marvell.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+Subject: [PATCH 1/2] ARM: mvebu: Enable Armada 375 watchdog in the devicetree
+Date: Wed, 26 Feb 2014 09:50:46 -0300
+Message-Id: <1393419047-10071-2-git-send-email-ezequiel.garcia@free-electrons.com>
+In-Reply-To: <1393419047-10071-1-git-send-email-ezequiel.garcia@free-electrons.com>
+References: <1393419047-10071-1-git-send-email-ezequiel.garcia@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi All,
+Add the DT nodes to enable the watchdog support available on
+Armada 375 SoC.
 
-> When building an ARM multi_v7_defconfig with LPAE option selected we get the
-> following build warning:
-> 
-> drivers/watchdog/orion_wdt.c:272:2: warning: format '%x' expects argument of type 'unsigned int', but argument 4 has type 'phys_addr_t' [-Wformat=]
-> 
-> Fix it by using %pa to print 'phys_addr_t'.
-> 
-> Reported-by: Olof's autobuilder <build@lixom.net>
-> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
-> ---
->  drivers/watchdog/orion_wdt.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
-> index 15321aa..6f9b4c6 100644
-> --- a/drivers/watchdog/orion_wdt.c
-> +++ b/drivers/watchdog/orion_wdt.c
-> @@ -269,7 +269,7 @@ static void __iomem *orion_wdt_ioremap_rstout(struct platform_device *pdev,
->  
->  	rstout = internal_regs + ORION_RSTOUT_MASK_OFFSET;
->  
-> -	WARN(1, FW_BUG "falling back to harcoded RSTOUT reg 0x%x\n", rstout);
-> +	WARN(1, FW_BUG "falling back to harcoded RSTOUT reg %pa\n", &rstout);
->  	return devm_ioremap(&pdev->dev, rstout, 0x4);
->  }
->  
-> -- 
-> 1.8.1.2
-> 
-> 
+Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+---
+ arch/arm/boot/dts/armada-375.dtsi | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-Acked-by me also, but can this also go via the mvebu tree (since the patch that introduces this is also thereà?
-
-Kind regards,
-Wim.
+diff --git a/arch/arm/boot/dts/armada-375.dtsi b/arch/arm/boot/dts/armada-375.dtsi
+index 3877693f..a2003cb 100644
+--- a/arch/arm/boot/dts/armada-375.dtsi
++++ b/arch/arm/boot/dts/armada-375.dtsi
+@@ -320,6 +320,12 @@
+ 				clocks = <&coreclk 0>;
+ 			};
+ 
++			watchdog@20300 {
++				compatible = "marvell,armada-375-wdt", "marvell,armada-370-wdt";
++				reg = <0x20300 0x34>, <0x20704 0x4>;
++				clocks = <&coreclk 0>;
++			};
++
+ 			xor@60800 {
+ 				compatible = "marvell,orion-xor";
+ 				reg = <0x60800 0x100
+-- 
+1.8.1.5
 
