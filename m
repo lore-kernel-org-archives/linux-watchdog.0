@@ -1,106 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
-Subject: [PATCH v2 42/52] octeon,
- watchdog: Fix CPU hotplug callback registration
-To: paulus@samba.org, oleg@redhat.com, mingo@kernel.org, rusty@rustcorp.com.au,
-        peterz@infradead.org, tglx@linutronix.de, akpm@linux-foundation.org
-Cc: paulmck@linux.vnet.ibm.com, tj@kernel.org, walken@google.com,
-        ego@linux.vnet.ibm.com, linux@arm.linux.org.uk, rjw@rjwysocki.net,
-        linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-        srivatsa.bhat@linux.vnet.ibm.com, Wim Van Sebroeck <wim@iguana.be>,
-        Ingo Molnar <mingo@kernel.org>, linux-watchdog@vger.kernel.org,
-        "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
-Date: Fri, 14 Feb 2014 13:28:42 +0530
-Message-ID: <20140214075841.22701.62831.stgit@srivatsabhat.in.ibm.com>
-In-Reply-To: <20140214074750.22701.47330.stgit@srivatsabhat.in.ibm.com>
-References: <20140214074750.22701.47330.stgit@srivatsabhat.in.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+From: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+To: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Cc: Chris Ball <chris@printf.net>, Zhang Rui <rui.zhang@intel.com>,
+        Eduardo Valentin <eduardo.valentin@ti.com>,
+        Wim Van Sebroeck <wim@iguana.be>, Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>, Jason Cooper <jason@lakedaemon.net>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Gregory Clement <gregory.clement@free-electrons.com>,
+        alsa-devel@alsa-project.org, linux-watchdog@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-mmc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 2/4] ARM: dove: prepare new Dove DT Kconfig variable
+Date: Thu, 27 Feb 2014 22:28:03 +0100
+Message-Id: <1393536486-3827-3-git-send-email-sebastian.hesselbarth@gmail.com>
+In-Reply-To: <1393536486-3827-1-git-send-email-sebastian.hesselbarth@gmail.com>
+References: <1393536486-3827-1-git-send-email-sebastian.hesselbarth@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Subsystems that want to register CPU hotplug callbacks, as well as perform
-initialization for the CPUs that are already online, often do it as shown
-below:
+DT-enabled Dove will move over from ARCH_DOVE in mach-dove to MACH_DOVE in
+mach-mvebu. As non-DT ARCH_DOVE will stay to rot for a while, add a new
+DT-only MACH_DOVE to mmc, thermal, wdt, and asoc Kconfigs.
 
-	get_online_cpus();
-
-	for_each_online_cpu(cpu)
-		init_cpu(cpu);
-
-	register_cpu_notifier(&foobar_cpu_notifier);
-
-	put_online_cpus();
-
-This is wrong, since it is prone to ABBA deadlocks involving the
-cpu_add_remove_lock and the cpu_hotplug.lock (when running concurrently
-with CPU hotplug operations).
-
-Instead, the correct and race-free way of performing the callback
-registration is:
-
-	cpu_notifier_register_begin();
-
-	for_each_online_cpu(cpu)
-		init_cpu(cpu);
-
-	/* Note the use of the double underscored version of the API */
-	__register_cpu_notifier(&foobar_cpu_notifier);
-
-	cpu_notifier_register_done();
-
-
-Fix the watchdog code in octeon by using this latter form of callback
-registration.
-
-Cc: Wim Van Sebroeck <wim@iguana.be>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: linux-watchdog@vger.kernel.org
-Signed-off-by: Srivatsa S. Bhat <srivatsa.bhat@linux.vnet.ibm.com>
+Signed-off-by: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
 ---
+Cc: Chris Ball <chris@printf.net>
+Cc: Zhang Rui <rui.zhang@intel.com>
+Cc: Eduardo Valentin <eduardo.valentin@ti.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: Liam Girdwood <lgirdwood@gmail.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Jason Cooper <jason@lakedaemon.net>
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Gregory Clement <gregory.clement@free-electrons.com>
+Cc: alsa-devel@alsa-project.org
+Cc: linux-watchdog@vger.kernel.org
+Cc: linux-pm@vger.kernel.org
+Cc: linux-mmc@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+---
+ drivers/mmc/host/Kconfig   | 2 +-
+ drivers/thermal/Kconfig    | 2 +-
+ drivers/watchdog/Kconfig   | 2 +-
+ sound/soc/kirkwood/Kconfig | 2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
 
- drivers/watchdog/octeon-wdt-main.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/watchdog/octeon-wdt-main.c b/drivers/watchdog/octeon-wdt-main.c
-index 4612088..4baf2d7 100644
---- a/drivers/watchdog/octeon-wdt-main.c
-+++ b/drivers/watchdog/octeon-wdt-main.c
-@@ -708,10 +708,13 @@ static int __init octeon_wdt_init(void)
+diff --git a/drivers/mmc/host/Kconfig b/drivers/mmc/host/Kconfig
+index 1384f67abe21..a69e48b582e5 100644
+--- a/drivers/mmc/host/Kconfig
++++ b/drivers/mmc/host/Kconfig
+@@ -168,7 +168,7 @@ config MMC_SDHCI_ESDHC_IMX
  
- 	cpumask_clear(&irq_enabled_cpus);
+ config MMC_SDHCI_DOVE
+ 	tristate "SDHCI support on Marvell's Dove SoC"
+-	depends on ARCH_DOVE
++	depends on ARCH_DOVE || MACH_DOVE
+ 	depends on MMC_SDHCI_PLTFM
+ 	select MMC_SDHCI_IO_ACCESSORS
+ 	help
+diff --git a/drivers/thermal/Kconfig b/drivers/thermal/Kconfig
+index 35c066489a19..07b5e56e9a97 100644
+--- a/drivers/thermal/Kconfig
++++ b/drivers/thermal/Kconfig
+@@ -150,7 +150,7 @@ config KIRKWOOD_THERMAL
  
-+	cpu_notifier_register_begin();
- 	for_each_online_cpu(cpu)
- 		octeon_wdt_setup_interrupt(cpu);
+ config DOVE_THERMAL
+ 	tristate "Temperature sensor on Marvell Dove SoCs"
+-	depends on ARCH_DOVE
++	depends on ARCH_DOVE || MACH_DOVE
+ 	depends on OF
+ 	help
+ 	  Support for the Dove thermal sensor driver in the Linux thermal
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 79d25894343a..5659c62a175c 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -292,7 +292,7 @@ config DAVINCI_WATCHDOG
  
--	register_hotcpu_notifier(&octeon_wdt_cpu_notifier);
-+	__register_hotcpu_notifier(&octeon_wdt_cpu_notifier);
-+	cpu_notifier_register_done();
-+
- out:
- 	return ret;
- }
-@@ -725,7 +728,8 @@ static void __exit octeon_wdt_cleanup(void)
- 
- 	misc_deregister(&octeon_wdt_miscdev);
- 
--	unregister_hotcpu_notifier(&octeon_wdt_cpu_notifier);
-+	cpu_notifier_register_begin();
-+	__unregister_hotcpu_notifier(&octeon_wdt_cpu_notifier);
- 
- 	for_each_online_cpu(cpu) {
- 		int core = cpu2core(cpu);
-@@ -734,6 +738,9 @@ static void __exit octeon_wdt_cleanup(void)
- 		/* Free the interrupt handler */
- 		free_irq(OCTEON_IRQ_WDOG0 + core, octeon_wdt_poke_irq);
- 	}
-+
-+	cpu_notifier_register_done();
-+
- 	/*
- 	 * Disable the boot-bus memory, the code it points to is soon
- 	 * to go missing.
+ config ORION_WATCHDOG
+ 	tristate "Orion watchdog"
+-	depends on ARCH_ORION5X || ARCH_KIRKWOOD || ARCH_DOVE
++	depends on ARCH_ORION5X || ARCH_KIRKWOOD || ARCH_DOVE || MACH_DOVE
+ 	select WATCHDOG_CORE
+ 	help
+ 	  Say Y here if to include support for the watchdog timer
+diff --git a/sound/soc/kirkwood/Kconfig b/sound/soc/kirkwood/Kconfig
+index 78ed4a42ad21..a1506d57e646 100644
+--- a/sound/soc/kirkwood/Kconfig
++++ b/sound/soc/kirkwood/Kconfig
+@@ -1,6 +1,6 @@
+ config SND_KIRKWOOD_SOC
+ 	tristate "SoC Audio for the Marvell Kirkwood and Dove chips"
+-	depends on ARCH_KIRKWOOD || ARCH_DOVE || COMPILE_TEST
++	depends on ARCH_KIRKWOOD || ARCH_DOVE || MACH_DOVE || COMPILE_TEST
+ 	help
+ 	  Say Y or M if you want to add support for codecs attached to
+ 	  the Kirkwood I2S interface. You will also need to select the
+-- 
+1.8.5.3
