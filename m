@@ -1,68 +1,33 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mezzanine.sirena.org.uk ([106.187.55.193]:53377 "EHLO
-	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750941AbaB1BzW (ORCPT
+Received: from mail.active-venture.com ([67.228.131.205]:56141 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750999AbaB1DUt (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 27 Feb 2014 20:55:22 -0500
-Date: Fri, 28 Feb 2014 10:53:10 +0900
-From: Mark Brown <broonie@kernel.org>
-To: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-Cc: Chris Ball <chris@printf.net>, Zhang Rui <rui.zhang@intel.com>,
-	Eduardo Valentin <eduardo.valentin@ti.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Jason Cooper <jason@lakedaemon.net>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	alsa-devel@alsa-project.org, linux-watchdog@vger.kernel.org,
-	linux-pm@vger.kernel.org, linux-mmc@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Message-ID: <20140228015310.GC9383@sirena.org.uk>
-References: <1393536486-3827-1-git-send-email-sebastian.hesselbarth@gmail.com>
- <1393536486-3827-3-git-send-email-sebastian.hesselbarth@gmail.com>
+	Thu, 27 Feb 2014 22:20:49 -0500
+Message-ID: <5310008F.9020508@roeck-us.net>
+Date: Thu, 27 Feb 2014 19:20:47 -0800
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tUxbtEzdJc4sX0sj"
-Content-Disposition: inline
-In-Reply-To: <1393536486-3827-3-git-send-email-sebastian.hesselbarth@gmail.com>
-Subject: Re: [PATCH 2/4] ARM: dove: prepare new Dove DT Kconfig variable
+To: Jingoo Han <jg1.han@samsung.com>,
+	'Wim Van Sebroeck' <wim@iguana.be>
+CC: linux-watchdog@vger.kernel.org,
+	'H Hartley Sweeten' <hsweeten@visionengravers.com>,
+	'Mika Westerberg' <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH 1/6] watchdog: ep93xx_wdt: split module author names
+References: <004301cf337e$97e7a3f0$c7b6ebd0$%han@samsung.com>
+In-Reply-To: <004301cf337e$97e7a3f0$c7b6ebd0$%han@samsung.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On 02/26/2014 09:41 PM, Jingoo Han wrote:
+> Split module author names in order to fix the following
+> checkpatch warning.
+>
+>    WARNING: quoted string split across lines
+>
+> Signed-off-by: Jingoo Han <jg1.han@samsung.com>
 
---tUxbtEzdJc4sX0sj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-On Thu, Feb 27, 2014 at 10:28:03PM +0100, Sebastian Hesselbarth wrote:
-> DT-enabled Dove will move over from ARCH_DOVE in mach-dove to MACH_DOVE in
-> mach-mvebu. As non-DT ARCH_DOVE will stay to rot for a while, add a new
-> DT-only MACH_DOVE to mmc, thermal, wdt, and asoc Kconfigs.
-
-I'd be much happier merging this sort of stuff individually through the
-subsystems, we already have an annoying conflict here...  Is there some
-bisection problem with doing that?
-
---tUxbtEzdJc4sX0sj
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTD+wCAAoJELSic+t+oim9SEEP/1dJP3BuVMcQbukxUy5f13cO
-42+7SE32MruC+GG4JGjZnatJWYyQJp0kqqrcTSgIMDzeobR+Pw4yKcKuZ+jWOVyO
-Wj4auHvwgNl19l8spX3Un78yUkOxQ9pleauSNz6TnjJwdgYf04LsZD8o4D9bgWIX
-ALbMtaK9wvHZv74gILwTFSS+p9DMNOqaZv8bNh62fU8+beVHNRboYQ9RVeVIoQvR
-AtVHD1eo+LrNjQrsSqEFJ5qWKOpxBdaOXXLzcPjosMjkQBG9nvgGHnG8ttXWHzCl
-9F+6yHVGgKVpD0xbEmk6rv6z8DuJLuTCJYS6OxV4YT1/tOHmcF3ZSsTyxCstxhCb
-iQyH8Apu+OPzHbpBjtgdj1bcQAs+I7IgQgDJ+Y3UJ99tsk3DV3rX6DvaJCzUdUVZ
-SGej68k03AZ1EkP9lwQcjjO529ysu44SYVMH/zK0a0roAcAfbzvzwaE70rlEEmsb
-RQpDhwFc4hDknZJc9JY+FgfyWs7Umxru6bVnycfFL6bQOtEgtFT2N4vpLgybko80
-e+oShZ0VdZSqdUi0DvLDd/O64A0angoiBQ8MzDbQMFoIe4nm0uV1yOR1NO0B1vYu
-cOjFewsTB+FC+mOQCzJ8CARQxdyDaAfLVXhLnFL5BtUn0c/TK3u28hAGItJocAow
-PRSrWqdlY+LRnAJBUtz+
-=XrZQ
------END PGP SIGNATURE-----
-
---tUxbtEzdJc4sX0sj--
