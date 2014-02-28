@@ -1,115 +1,97 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <530FB6C2.8080008@gmail.com>
-Date: Thu, 27 Feb 2014 23:05:54 +0100
-From: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:47485 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752912AbaB1QQb (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 28 Feb 2014 11:16:31 -0500
+From: Markus Pargmann <mpa@pengutronix.de>
 To: Wim Van Sebroeck <wim@iguana.be>
-CC: Chris Ball <chris@printf.net>, Zhang Rui <rui.zhang@intel.com>,
-        Eduardo Valentin <eduardo.valentin@ti.com>,
-        Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>,
-        Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>,
-        Gregory Clement <gregory.clement@free-electrons.com>,
-        alsa-devel@alsa-project.org, linux-watchdog@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-mmc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/4] ARM: dove: prepare new Dove DT Kconfig variable
-References: <1393536486-3827-1-git-send-email-sebastian.hesselbarth@gmail.com> <1393536486-3827-3-git-send-email-sebastian.hesselbarth@gmail.com> <20140227215145.GR1484@spo001.leaseweb.com>
-In-Reply-To: <20140227215145.GR1484@spo001.leaseweb.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-List-ID: <linux-watchdog@vger.kernel.org>
+Cc: linux-watchdog@vger.kernel.org, kernel@pengutronix.de,
+	Markus Pargmann <mpa@pengutronix.de>
+Subject: [PATCH] watchdog: core: module param to activate watchdog
+Date: Fri, 28 Feb 2014 17:16:23 +0100
+Message-Id: <1393604183-8755-1-git-send-email-mpa@pengutronix.de>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On 02/27/2014 10:51 PM, Wim Van Sebroeck wrote:
-> Acked-by me.
+Many watchdog driver reset the watchdog device on initialization. This
+is a problem if the watchdog is activated by the bootloader and should
+be active the whole time until the userspace can write to it.
 
-Thanks Wim,
+This patch adds a module parameter (watchdog.activate_first) that
+activates the first registered watchdog. Using this parameter it is
+possible to have an active watchdog during the whole boot process.
 
-as I forgot to explicitly ask for maintainer Acks: It would be great to
-get Acked-by's from mmc, thermal, and asoc, too.
+Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
+---
+ drivers/watchdog/watchdog_core.c |  4 ++++
+ drivers/watchdog/watchdog_core.h |  4 ++++
+ drivers/watchdog/watchdog_dev.c  | 21 ++++++++++++++++++++-
+ 3 files changed, 28 insertions(+), 1 deletion(-)
 
-Sebastian
+diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+index cec9b55..6db16eb 100644
+--- a/drivers/watchdog/watchdog_core.c
++++ b/drivers/watchdog/watchdog_core.c
+@@ -43,6 +43,10 @@
+ static DEFINE_IDA(watchdog_ida);
+ static struct class *watchdog_class;
+ 
++unsigned int activate_first = 0;
++module_param(activate_first, uint, 0);
++MODULE_PARM_DESC(activate_first, "Activation timeout for first watchdog registered. 0 means no activation.");
++
+ static void watchdog_check_min_max_timeout(struct watchdog_device *wdd)
+ {
+ 	/*
+diff --git a/drivers/watchdog/watchdog_core.h b/drivers/watchdog/watchdog_core.h
+index 6c95141..4526170 100644
+--- a/drivers/watchdog/watchdog_core.h
++++ b/drivers/watchdog/watchdog_core.h
+@@ -28,6 +28,10 @@
+ 
+ #define MAX_DOGS	32	/* Maximum number of watchdog devices */
+ 
++/* Activate first registered watchdog and set this as the timeout value
++ * (only != 0) */
++extern unsigned int activate_first;
++
+ /*
+  *	Functions/procedures to be called by the core
+  */
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 6aaefba..fe60fdc 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -553,8 +553,27 @@ int watchdog_dev_register(struct watchdog_device *watchdog)
+ 			misc_deregister(&watchdog_miscdev);
+ 			old_wdd = NULL;
+ 		}
++
++		return err;
+ 	}
+-	return err;
++
++	if (activate_first && watchdog->id == 0) {
++		err = watchdog_set_timeout(watchdog, activate_first);
++		if (err && err != -EOPNOTSUPP) {
++			pr_err("watchdog%d failed to set timeout for first activation\n",
++					watchdog->id);
++			return err;
++		}
++
++		err = watchdog_start(watchdog);
++		if (err) {
++			pr_err("watchdog%d failed to start first watchdog\n",
++					watchdog->id);
++			return err;
++		}
++	}
++
++	return 0;
+ }
+ 
+ /*
+-- 
+1.8.5.3
 
->> DT-enabled Dove will move over from ARCH_DOVE in mach-dove to MACH_DOVE in
->> mach-mvebu. As non-DT ARCH_DOVE will stay to rot for a while, add a new
->> DT-only MACH_DOVE to mmc, thermal, wdt, and asoc Kconfigs.
->>
->> Signed-off-by: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
->> ---
->> Cc: Chris Ball <chris@printf.net>
->> Cc: Zhang Rui <rui.zhang@intel.com>
->> Cc: Eduardo Valentin <eduardo.valentin@ti.com>
->> Cc: Wim Van Sebroeck <wim@iguana.be>
->> Cc: Liam Girdwood <lgirdwood@gmail.com>
->> Cc: Mark Brown <broonie@kernel.org>
->> Cc: Jason Cooper <jason@lakedaemon.net>
->> Cc: Andrew Lunn <andrew@lunn.ch>
->> Cc: Gregory Clement <gregory.clement@free-electrons.com>
->> Cc: alsa-devel@alsa-project.org
->> Cc: linux-watchdog@vger.kernel.org
->> Cc: linux-pm@vger.kernel.org
->> Cc: linux-mmc@vger.kernel.org
->> Cc: linux-arm-kernel@lists.infradead.org
->> Cc: linux-kernel@vger.kernel.org
->> ---
->>   drivers/mmc/host/Kconfig   | 2 +-
->>   drivers/thermal/Kconfig    | 2 +-
->>   drivers/watchdog/Kconfig   | 2 +-
->>   sound/soc/kirkwood/Kconfig | 2 +-
->>   4 files changed, 4 insertions(+), 4 deletions(-)
->>
->> diff --git a/drivers/mmc/host/Kconfig b/drivers/mmc/host/Kconfig
->> index 1384f67abe21..a69e48b582e5 100644
->> --- a/drivers/mmc/host/Kconfig
->> +++ b/drivers/mmc/host/Kconfig
->> @@ -168,7 +168,7 @@ config MMC_SDHCI_ESDHC_IMX
->>
->>   config MMC_SDHCI_DOVE
->>   	tristate "SDHCI support on Marvell's Dove SoC"
->> -	depends on ARCH_DOVE
->> +	depends on ARCH_DOVE || MACH_DOVE
->>   	depends on MMC_SDHCI_PLTFM
->>   	select MMC_SDHCI_IO_ACCESSORS
->>   	help
->> diff --git a/drivers/thermal/Kconfig b/drivers/thermal/Kconfig
->> index 35c066489a19..07b5e56e9a97 100644
->> --- a/drivers/thermal/Kconfig
->> +++ b/drivers/thermal/Kconfig
->> @@ -150,7 +150,7 @@ config KIRKWOOD_THERMAL
->>
->>   config DOVE_THERMAL
->>   	tristate "Temperature sensor on Marvell Dove SoCs"
->> -	depends on ARCH_DOVE
->> +	depends on ARCH_DOVE || MACH_DOVE
->>   	depends on OF
->>   	help
->>   	  Support for the Dove thermal sensor driver in the Linux thermal
->> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
->> index 79d25894343a..5659c62a175c 100644
->> --- a/drivers/watchdog/Kconfig
->> +++ b/drivers/watchdog/Kconfig
->> @@ -292,7 +292,7 @@ config DAVINCI_WATCHDOG
->>
->>   config ORION_WATCHDOG
->>   	tristate "Orion watchdog"
->> -	depends on ARCH_ORION5X || ARCH_KIRKWOOD || ARCH_DOVE
->> +	depends on ARCH_ORION5X || ARCH_KIRKWOOD || ARCH_DOVE || MACH_DOVE
->>   	select WATCHDOG_CORE
->>   	help
->>   	  Say Y here if to include support for the watchdog timer
->> diff --git a/sound/soc/kirkwood/Kconfig b/sound/soc/kirkwood/Kconfig
->> index 78ed4a42ad21..a1506d57e646 100644
->> --- a/sound/soc/kirkwood/Kconfig
->> +++ b/sound/soc/kirkwood/Kconfig
->> @@ -1,6 +1,6 @@
->>   config SND_KIRKWOOD_SOC
->>   	tristate "SoC Audio for the Marvell Kirkwood and Dove chips"
->> -	depends on ARCH_KIRKWOOD || ARCH_DOVE || COMPILE_TEST
->> +	depends on ARCH_KIRKWOOD || ARCH_DOVE || MACH_DOVE || COMPILE_TEST
->>   	help
->>   	  Say Y or M if you want to add support for codecs attached to
->>   	  the Kirkwood I2S interface. You will also need to select the
->> --
->> 1.8.5.3
->>
