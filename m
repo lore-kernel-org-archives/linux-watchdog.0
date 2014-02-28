@@ -1,77 +1,49 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:52345 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752284AbaB1PJf (ORCPT
+Received: from mho-03-ewr.mailhop.org ([204.13.248.66]:13996 "EHLO
+	mho-01-ewr.mailhop.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751580AbaB1QfW (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 28 Feb 2014 10:09:35 -0500
-Date: Fri, 28 Feb 2014 12:09:26 -0300
-From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-To: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
-Cc: linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org,
-	Jason Cooper <jason@lakedaemon.net>,
+	Fri, 28 Feb 2014 11:35:22 -0500
+Date: Fri, 28 Feb 2014 11:34:48 -0500
+From: Jason Cooper <jason@lakedaemon.net>
+To: Mark Brown <broonie@kernel.org>
+Cc: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Chris Ball <chris@printf.net>, Zhang Rui <rui.zhang@intel.com>,
+	Eduardo Valentin <eduardo.valentin@ti.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Liam Girdwood <lgirdwood@gmail.com>,
 	Andrew Lunn <andrew@lunn.ch>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
 	Gregory Clement <gregory.clement@free-electrons.com>,
-	Lior Amsalem <alior@marvell.com>,
-	Tawfik Bayouk <tawfik@marvell.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [PATCH 0/2] Watchdog on Armada 375 SoC
-Message-ID: <20140228150925.GC24805@localhost>
-References: <1393419047-10071-1-git-send-email-ezequiel.garcia@free-electrons.com>
- <20140226203633.GA24656@obsidianresearch.com>
+	alsa-devel@alsa-project.org, linux-watchdog@vger.kernel.org,
+	linux-pm@vger.kernel.org, linux-mmc@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/4] ARM: dove: prepare new Dove DT Kconfig variable
+Message-ID: <20140228163448.GM1872@titan.lakedaemon.net>
+References: <1393536486-3827-1-git-send-email-sebastian.hesselbarth@gmail.com>
+ <1393536486-3827-3-git-send-email-sebastian.hesselbarth@gmail.com>
+ <20140228015310.GC9383@sirena.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20140226203633.GA24656@obsidianresearch.com>
+In-Reply-To: <20140228015310.GC9383@sirena.org.uk>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, Feb 26, 2014 at 01:36:33PM -0700, Jason Gunthorpe wrote:
-> On Wed, Feb 26, 2014 at 09:50:45AM -0300, Ezequiel Garcia wrote:
-> =20
-> > Here we found both the above RSTOUT:
-> >=20
-> > 1. It has the same dedicated register as A370/XP (0x20704)
-> > 2. Also has a bit in the shared RSTOUT register (0x18254)
->=20
-> Unless you know otherwise I think the same risk exists, RSTOUT could
-> be (or become) internally asserted when you unmask the bit in the
-> control register that drives the pin, which says the watchdog driver
-> should control to it.
->=20
+On Fri, Feb 28, 2014 at 10:53:10AM +0900, Mark Brown wrote:
+> On Thu, Feb 27, 2014 at 10:28:03PM +0100, Sebastian Hesselbarth wrote:
+> > DT-enabled Dove will move over from ARCH_DOVE in mach-dove to MACH_DOVE in
+> > mach-mvebu. As non-DT ARCH_DOVE will stay to rot for a while, add a new
+> > DT-only MACH_DOVE to mmc, thermal, wdt, and asoc Kconfigs.
+> 
+> I'd be much happier merging this sort of stuff individually through the
+> subsystems, we already have an annoying conflict here...  Is there some
+> bisection problem with doing that?
 
-I guess it's also possible to have the system-controller ensure the
-watchdog is fully stopped, before unmasking the shared RSTOUT.
+shouldn't be.  Since these changes || the old with the new config
+symbols.
 
-However, it seems it would be too ugly and hackish.
+Sebastian, can you split this up into individual patches?
 
-> >=20
-> > 	watchdog-timer@20300 {
-> > 		compatible =3D "marvell,orion-wdt";
-> > 		reg =3D <0x20300 0x28
-> > 		       {shared RSOUT} 0x4
-> > 		       0x0 0x0>;
-> > 	};
->=20
-> I wouldn't have the 0x0, if you want to go this way, just make the
-> 375 compatible string require a 3 entry reg.
->=20
+thx,
 
-Yes, this sounds like the right thing to do. It means we need to also
-have per-SoC hooks for stop() and is_enabled(), but it's the price to
-pay for changing the register semantic: the shared RSTOUT has unmask/mask
-semantics on A375, while it's enable/disable on Kirkwood and friends.
-
-Let me cook a new patch.
---=20
-Ezequiel Garc=C3=ADa, Free Electrons
-Embedded Linux, Kernel and Android Engineering
-http://free-electrons.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Jason.
