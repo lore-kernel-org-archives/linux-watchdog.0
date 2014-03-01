@@ -1,52 +1,62 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ea0-f174.google.com ([209.85.215.174]:58003 "EHLO
-	mail-ea0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751763AbaB1SM2 (ORCPT
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-ee0-f47.google.com ([74.125.83.47]:60154 "EHLO
+	mail-ee0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751869AbaCAIdf (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 28 Feb 2014 13:12:28 -0500
-Message-ID: <5310D184.3050905@gmail.com>
-Date: Fri, 28 Feb 2014 19:12:20 +0100
+	Sat, 1 Mar 2014 03:33:35 -0500
 From: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-To: Jason Cooper <jason@lakedaemon.net>,
-	Mark Brown <broonie@kernel.org>
-CC: Chris Ball <chris@printf.net>, Zhang Rui <rui.zhang@intel.com>,
-	Eduardo Valentin <eduardo.valentin@ti.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Liam Girdwood <lgirdwood@gmail.com>,
+To: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Jason Cooper <jason@lakedaemon.net>,
 	Andrew Lunn <andrew@lunn.ch>,
 	Gregory Clement <gregory.clement@free-electrons.com>,
-	alsa-devel@alsa-project.org, linux-watchdog@vger.kernel.org,
-	linux-pm@vger.kernel.org, linux-mmc@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/4] ARM: dove: prepare new Dove DT Kconfig variable
-References: <1393536486-3827-1-git-send-email-sebastian.hesselbarth@gmail.com> <1393536486-3827-3-git-send-email-sebastian.hesselbarth@gmail.com> <20140228015310.GC9383@sirena.org.uk> <20140228163448.GM1872@titan.lakedaemon.net>
-In-Reply-To: <20140228163448.GM1872@titan.lakedaemon.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH v2 2/5] watchdog: orion: prepare new Dove DT Kconfig variable
+Date: Sat,  1 Mar 2014 09:33:18 +0100
+Message-Id: <1393662801-17950-2-git-send-email-sebastian.hesselbarth@gmail.com>
+In-Reply-To: <1393662801-17950-1-git-send-email-sebastian.hesselbarth@gmail.com>
+References: <1393662801-17950-1-git-send-email-sebastian.hesselbarth@gmail.com>
+In-Reply-To: <1393536486-3827-3-git-send-email-sebastian.hesselbarth@gmail.com>
+References: <1393536486-3827-3-git-send-email-sebastian.hesselbarth@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/28/2014 05:34 PM, Jason Cooper wrote:
-> On Fri, Feb 28, 2014 at 10:53:10AM +0900, Mark Brown wrote:
->> On Thu, Feb 27, 2014 at 10:28:03PM +0100, Sebastian Hesselbarth wrote:
->>> DT-enabled Dove will move over from ARCH_DOVE in mach-dove to MACH_DOVE in
->>> mach-mvebu. As non-DT ARCH_DOVE will stay to rot for a while, add a new
->>> DT-only MACH_DOVE to mmc, thermal, wdt, and asoc Kconfigs.
->>
->> I'd be much happier merging this sort of stuff individually through the
->> subsystems, we already have an annoying conflict here...  Is there some
->> bisection problem with doing that?
->
-> shouldn't be.  Since these changes || the old with the new config
-> symbols.
->
-> Sebastian, can you split this up into individual patches?
+DT-enabled Dove will move over from ARCH_DOVE in mach-dove to MACH_DOVE in
+mach-mvebu. As non-DT ARCH_DOVE will stay to rot for a while, add a new
+DT-only MACH_DOVE Kconfig.
 
-Sure, I'll send them in-reply-to this mail soon. I'll also add the SATA
-PHY Kconfig in a bisectable way, i.e. add MACH_DOVE and for now ignore
-that the driver is DT-only. We plan to remove mach-dove in one or two
-cycles anyway, it will go with it then.
+Signed-off-by: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Acked-by: Wim Van Sebroeck <wim@iguana.be>
+---
+Wim, Mark Brown requested to take the corresponding ASoC patch through
+his tree. Therefore, I have split the former patch into individual subsystem
+patches.
 
-Sebastian
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: Jason Cooper <jason@lakedaemon.net>
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Gregory Clement <gregory.clement@free-electrons.com>
+Cc: linux-watchdog@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+---
+ drivers/watchdog/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 79d25894343a..5659c62a175c 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -292,7 +292,7 @@ config DAVINCI_WATCHDOG
+ 
+ config ORION_WATCHDOG
+ 	tristate "Orion watchdog"
+-	depends on ARCH_ORION5X || ARCH_KIRKWOOD || ARCH_DOVE
++	depends on ARCH_ORION5X || ARCH_KIRKWOOD || ARCH_DOVE || MACH_DOVE
+ 	select WATCHDOG_CORE
+ 	help
+ 	  Say Y here if to include support for the watchdog timer
+-- 
+1.8.5.3
 
