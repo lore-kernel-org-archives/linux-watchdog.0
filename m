@@ -1,124 +1,61 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:63835 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750711AbaCBFLU (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:60309 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751622AbaCBJnZ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 2 Mar 2014 00:11:20 -0500
-Message-ID: <5312BD76.2080102@roeck-us.net>
-Date: Sat, 01 Mar 2014 21:11:18 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: Markus Pargmann <mpa@pengutronix.de>,
-	Wim Van Sebroeck <wim@iguana.be>
-CC: linux-watchdog@vger.kernel.org, kernel@pengutronix.de
+	Sun, 2 Mar 2014 04:43:25 -0500
+Date: Sun, 2 Mar 2014 10:43:23 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Markus Pargmann <mpa@pengutronix.de>
+Cc: linux-watchdog@vger.kernel.org, kernel@pengutronix.de
 Subject: Re: [PATCH] watchdog: core: module param to activate watchdog
+Message-ID: <20140302094323.GS1484@spo001.leaseweb.com>
 References: <1393604183-8755-1-git-send-email-mpa@pengutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <1393604183-8755-1-git-send-email-mpa@pengutronix.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/28/2014 08:16 AM, Markus Pargmann wrote:
+Hi Markus,
+
 > Many watchdog driver reset the watchdog device on initialization. This
 > is a problem if the watchdog is activated by the bootloader and should
 > be active the whole time until the userspace can write to it.
->
-
-Shouldn't those watchdog drivers be fixed to keep the watchdog running
-if it was already active ? Otherwise there is still the time between
-driver initialization, which disables the watchdog, and it being re-enabled
-by watchdog registration.
-
-Also, does this affect or impact drivers which _do_ keep the watchdog
-enabled ?
-
+> 
 > This patch adds a module parameter (watchdog.activate_first) that
 > activates the first registered watchdog. Using this parameter it is
 > possible to have an active watchdog during the whole boot process.
->
+> 
 > Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
-> ---
->   drivers/watchdog/watchdog_core.c |  4 ++++
->   drivers/watchdog/watchdog_core.h |  4 ++++
->   drivers/watchdog/watchdog_dev.c  | 21 ++++++++++++++++++++-
->   3 files changed, 28 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-> index cec9b55..6db16eb 100644
-> --- a/drivers/watchdog/watchdog_core.c
-> +++ b/drivers/watchdog/watchdog_core.c
-> @@ -43,6 +43,10 @@
->   static DEFINE_IDA(watchdog_ida);
->   static struct class *watchdog_class;
->
-> +unsigned int activate_first = 0;
 
-Bad variable name for a global variable.
+NAK. It is the responsibility of the watchdog device driver to do this
+and not that of the core. The core can't know which device(s) are 
+running and can't be turned off. So you can have more then 1 device 
+that needs to keep going...
 
-> +module_param(activate_first, uint, 0);
-> +MODULE_PARM_DESC(activate_first, "Activation timeout for first watchdog registered. 0 means no activation.");
-> +
+The normal way do this is by using a timer. Take a look at 
+at91sam9_wdt.c . We have a timer there that pings the watchdog if
+1) the watchdog device is not active for userspace (so before opening
+/dev/watchdog and after clossing /dev/watchdog correctly)
+2) pings 1/2 or 1/4 of the watchdog heartbeat time as long as the
+userspace ping keeps going. (Else it will expire and you trigger a 
+reboot).
+(Note: the heartbeat is the period after which a watchdog hardware
+device will trigger a reboot, timeout is the period for userspace.
+So for most devices heartbeat and timeout are the same, but for 
+devices where a timer is used (we also use it if the heartbeat value
+is too small (i.e. 1 second)) the values have a different meaning.)
 
-Does that _have_ to be in this file ? Would be much easier
-if it was in watchdog_dev.c, where it is used.
+So the logic for a watchdog device driver is:
+at startup the watchdog device driver should make sure that a reboot
+can only occur when /dev/watchdog is open. This means that if a
+watchdog device is active at boot it should either be stopped (that's
+why most drivers have a stop in their init/probe function) or have a 
+timer that pings the watchdog as long as it is not active for 
+userspace (like at91sam9_wdt.c, via_wdt.c, pika_wdt.c, ...)
 
->   static void watchdog_check_min_max_timeout(struct watchdog_device *wdd)
->   {
->   	/*
-> diff --git a/drivers/watchdog/watchdog_core.h b/drivers/watchdog/watchdog_core.h
-> index 6c95141..4526170 100644
-> --- a/drivers/watchdog/watchdog_core.h
-> +++ b/drivers/watchdog/watchdog_core.h
-> @@ -28,6 +28,10 @@
->
->   #define MAX_DOGS	32	/* Maximum number of watchdog devices */
->
-> +/* Activate first registered watchdog and set this as the timeout value
-> + * (only != 0) */
-
-Coding style.
-
-> +extern unsigned int activate_first;
-> +
->   /*
->    *	Functions/procedures to be called by the core
->    */
-> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-> index 6aaefba..fe60fdc 100644
-> --- a/drivers/watchdog/watchdog_dev.c
-> +++ b/drivers/watchdog/watchdog_dev.c
-> @@ -553,8 +553,27 @@ int watchdog_dev_register(struct watchdog_device *watchdog)
->   			misc_deregister(&watchdog_miscdev);
->   			old_wdd = NULL;
->   		}
-> +
-
-Is that extra empty line really necessary ?
-
-> +		return err;
->   	}
-> -	return err;
-> +
-> +	if (activate_first && watchdog->id == 0) {
-> +		err = watchdog_set_timeout(watchdog, activate_first);
-> +		if (err && err != -EOPNOTSUPP) {
-> +			pr_err("watchdog%d failed to set timeout for first activation\n",
-> +					watchdog->id);
-> +			return err;
-> +		}
-> +
-> +		err = watchdog_start(watchdog);
-> +		if (err) {
-> +			pr_err("watchdog%d failed to start first watchdog\n",
-> +					watchdog->id);
-> +			return err;
-> +		}
-> +	}
-> +
-> +	return 0;
->   }
->
->   /*
->
+Kind regards,
+Wim.
 
