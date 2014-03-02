@@ -1,36 +1,36 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:60349 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:60359 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752251AbaCBODa (ORCPT
+	with ESMTP id S1751995AbaCBOZs (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 2 Mar 2014 09:03:30 -0500
-Date: Sun, 2 Mar 2014 15:03:28 +0100
+	Sun, 2 Mar 2014 09:25:48 -0500
+Date: Sun, 2 Mar 2014 15:25:44 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Jingoo Han <jg1.han@samsung.com>
-Cc: linux-watchdog@vger.kernel.org,
-	'Guenter Roeck' <linux@roeck-us.net>,
-	'H Hartley Sweeten' <hsweeten@visionengravers.com>,
-	'Mika Westerberg' <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH 1/6] watchdog: ep93xx_wdt: split module author names
-Message-ID: <20140302140328.GA25529@spo001.leaseweb.com>
-References: <004301cf337e$97e7a3f0$c7b6ebd0$%han@samsung.com>
+To: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Cc: Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 2/5] watchdog: orion: prepare new Dove DT Kconfig variable
+Message-ID: <20140302142544.GU1484@spo001.leaseweb.com>
+References: <1393536486-3827-3-git-send-email-sebastian.hesselbarth@gmail.com> <1393662801-17950-2-git-send-email-sebastian.hesselbarth@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <004301cf337e$97e7a3f0$c7b6ebd0$%han@samsung.com>
+In-Reply-To: <1393662801-17950-2-git-send-email-sebastian.hesselbarth@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Jingoo,
+Hi Sebastian,
 
-> Split module author names in order to fix the following
-> checkpatch warning.
+> DT-enabled Dove will move over from ARCH_DOVE in mach-dove to MACH_DOVE in
+> mach-mvebu. As non-DT ARCH_DOVE will stay to rot for a while, add a new
+> DT-only MACH_DOVE Kconfig.
 > 
->   WARNING: quoted string split across lines
-> 
-> Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+> Signed-off-by: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+> Acked-by: Wim Van Sebroeck <wim@iguana.be>
 
-This series of 6 patches has been added to linux-watchdog-next as a single patch.
+Patch added to linux-watchdog-next.
 
 Kind regards,
 Wim.
