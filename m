@@ -1,93 +1,166 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:46331 "EHLO
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:56441 "EHLO
 	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753482AbaCCJ1v (ORCPT
+	with ESMTP id S1754037AbaCCJjr (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 3 Mar 2014 04:27:51 -0500
-Date: Mon, 3 Mar 2014 10:27:48 +0100
+	Mon, 3 Mar 2014 04:39:47 -0500
+Date: Mon, 3 Mar 2014 10:39:43 +0100
 From: Markus Pargmann <mpa@pengutronix.de>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org, kernel@pengutronix.de
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	kernel@pengutronix.de
 Subject: Re: [PATCH] watchdog: core: module param to activate watchdog
-Message-ID: <20140303092747.GB24953@pengutronix.de>
+Message-ID: <20140303093943.GC24953@pengutronix.de>
 References: <1393604183-8755-1-git-send-email-mpa@pengutronix.de>
- <20140302094323.GS1484@spo001.leaseweb.com>
+ <5312BD76.2080102@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lrZ03NoBR/3+SXJZ"
+	protocol="application/pgp-signature"; boundary="6sX45UoQRIJXqkqR"
 Content-Disposition: inline
-In-Reply-To: <20140302094323.GS1484@spo001.leaseweb.com>
+In-Reply-To: <5312BD76.2080102@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 
---lrZ03NoBR/3+SXJZ
+--6sX45UoQRIJXqkqR
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi Wim,
+Hi,
 
-On Sun, Mar 02, 2014 at 10:43:23AM +0100, Wim Van Sebroeck wrote:
-> Hi Markus,
+On Sat, Mar 01, 2014 at 09:11:18PM -0800, Guenter Roeck wrote:
+> On 02/28/2014 08:16 AM, Markus Pargmann wrote:
+> >Many watchdog driver reset the watchdog device on initialization. This
+> >is a problem if the watchdog is activated by the bootloader and should
+> >be active the whole time until the userspace can write to it.
+> >
 >=20
-> > Many watchdog driver reset the watchdog device on initialization. This
-> > is a problem if the watchdog is activated by the bootloader and should
-> > be active the whole time until the userspace can write to it.
-> >=20
-> > This patch adds a module parameter (watchdog.activate_first) that
-> > activates the first registered watchdog. Using this parameter it is
-> > possible to have an active watchdog during the whole boot process.
-> >=20
-> > Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
->=20
-> NAK. It is the responsibility of the watchdog device driver to do this
-> and not that of the core. The core can't know which device(s) are=20
-> running and can't be turned off. So you can have more then 1 device=20
-> that needs to keep going...
->=20
-> The normal way do this is by using a timer. Take a look at=20
-> at91sam9_wdt.c . We have a timer there that pings the watchdog if
-> 1) the watchdog device is not active for userspace (so before opening
-> /dev/watchdog and after clossing /dev/watchdog correctly)
-> 2) pings 1/2 or 1/4 of the watchdog heartbeat time as long as the
-> userspace ping keeps going. (Else it will expire and you trigger a=20
-> reboot).
-> (Note: the heartbeat is the period after which a watchdog hardware
-> device will trigger a reboot, timeout is the period for userspace.
-> So for most devices heartbeat and timeout are the same, but for=20
-> devices where a timer is used (we also use it if the heartbeat value
-> is too small (i.e. 1 second)) the values have a different meaning.)
->=20
-> So the logic for a watchdog device driver is:
-> at startup the watchdog device driver should make sure that a reboot
-> can only occur when /dev/watchdog is open. This means that if a
-> watchdog device is active at boot it should either be stopped (that's
-> why most drivers have a stop in their init/probe function) or have a=20
-> timer that pings the watchdog as long as it is not active for=20
-> userspace (like at91sam9_wdt.c, via_wdt.c, pika_wdt.c, ...)
+> Shouldn't those watchdog drivers be fixed to keep the watchdog running
+> if it was already active ? Otherwise there is still the time between
+> driver initialization, which disables the watchdog, and it being re-enabl=
+ed
+> by watchdog registration.
 
-My goal is different to those watchdog drivers. I want to use the
-watchdog device to ensure that kernel and userspace work properly. If
-one of them fails I want to reset the system and boot into a fallback
-system. In this case, it doesn't make sense to ping the watchdog
-through the kernel itself. This may work when the kernel is guaranteed
-to boot successfully. But the kernel may as well never reach the
-userspace because of some bug somewhere.
+Yes there is still a time between stopping watchdog and reenabling it.
+But as mentioned in the other mail, I think this should be some generic
+solution. Also the watchdog core would not know that the watchdog device
+is active when the watchdog driver keeps it running.
 
-Of course it is possible to add this behaviour to a single driver that
-is used on this specific hardware. But I think the concept of an
-active watchdog during the whole boot process is not so uncommon. For
-example if you want to update embedded systems, you may want to have a
-fallback kernel and rootfs.
+>=20
+> Also, does this affect or impact drivers which _do_ keep the watchdog
+> enabled ?
 
-Best regards,
+I don't know of such a driver. However those drivers would have to
+expect that they are started at some point through the watchdog core. At
+least when someone opens the watchdog device and pings it.
+
+>=20
+> >This patch adds a module parameter (watchdog.activate_first) that
+> >activates the first registered watchdog. Using this parameter it is
+> >possible to have an active watchdog during the whole boot process.
+> >
+> >Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
+> >---
+> >  drivers/watchdog/watchdog_core.c |  4 ++++
+> >  drivers/watchdog/watchdog_core.h |  4 ++++
+> >  drivers/watchdog/watchdog_dev.c  | 21 ++++++++++++++++++++-
+> >  3 files changed, 28 insertions(+), 1 deletion(-)
+> >
+> >diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdo=
+g_core.c
+> >index cec9b55..6db16eb 100644
+> >--- a/drivers/watchdog/watchdog_core.c
+> >+++ b/drivers/watchdog/watchdog_core.c
+> >@@ -43,6 +43,10 @@
+> >  static DEFINE_IDA(watchdog_ida);
+> >  static struct class *watchdog_class;
+> >
+> >+unsigned int activate_first =3D 0;
+>=20
+> Bad variable name for a global variable.
+>=20
+> >+module_param(activate_first, uint, 0);
+> >+MODULE_PARM_DESC(activate_first, "Activation timeout for first watchdog=
+ registered. 0 means no activation.");
+> >+
+>=20
+> Does that _have_ to be in this file ? Would be much easier
+> if it was in watchdog_dev.c, where it is used.
+
+As far as I know, it has to be in this file, as this is the watchdog
+module. Perhaps I can try to move it to watchdog_dev.c somehow.
+
+I will fix the other comments if there is a second version of this
+patch.
+
+Thanks,
 
 Markus
 
+
 >=20
-> Kind regards,
-> Wim.
+> >  static void watchdog_check_min_max_timeout(struct watchdog_device *wdd)
+> >  {
+> >  	/*
+> >diff --git a/drivers/watchdog/watchdog_core.h b/drivers/watchdog/watchdo=
+g_core.h
+> >index 6c95141..4526170 100644
+> >--- a/drivers/watchdog/watchdog_core.h
+> >+++ b/drivers/watchdog/watchdog_core.h
+> >@@ -28,6 +28,10 @@
+> >
+> >  #define MAX_DOGS	32	/* Maximum number of watchdog devices */
+> >
+> >+/* Activate first registered watchdog and set this as the timeout value
+> >+ * (only !=3D 0) */
+>=20
+> Coding style.
+>=20
+> >+extern unsigned int activate_first;
+> >+
+> >  /*
+> >   *	Functions/procedures to be called by the core
+> >   */
+> >diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog=
+_dev.c
+> >index 6aaefba..fe60fdc 100644
+> >--- a/drivers/watchdog/watchdog_dev.c
+> >+++ b/drivers/watchdog/watchdog_dev.c
+> >@@ -553,8 +553,27 @@ int watchdog_dev_register(struct watchdog_device *w=
+atchdog)
+> >  			misc_deregister(&watchdog_miscdev);
+> >  			old_wdd =3D NULL;
+> >  		}
+> >+
+>=20
+> Is that extra empty line really necessary ?
+>=20
+> >+		return err;
+> >  	}
+> >-	return err;
+> >+
+> >+	if (activate_first && watchdog->id =3D=3D 0) {
+> >+		err =3D watchdog_set_timeout(watchdog, activate_first);
+> >+		if (err && err !=3D -EOPNOTSUPP) {
+> >+			pr_err("watchdog%d failed to set timeout for first activation\n",
+> >+					watchdog->id);
+> >+			return err;
+> >+		}
+> >+
+> >+		err =3D watchdog_start(watchdog);
+> >+		if (err) {
+> >+			pr_err("watchdog%d failed to start first watchdog\n",
+> >+					watchdog->id);
+> >+			return err;
+> >+		}
+> >+	}
+> >+
+> >+	return 0;
+> >  }
+> >
+> >  /*
+> >
 >=20
 >=20
 
@@ -97,26 +170,26 @@ Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
 Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
 
---lrZ03NoBR/3+SXJZ
+--6sX45UoQRIJXqkqR
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTFEsQAAoJEEpcgKtcEGQQCw0QAK0P11xuMz+a0FTtX7Ymx7/5
-UahxbgsYIw4iX/RbI0iQLjGdSdObPbn137/pb+JWVKQIiptILRl8E7ucHs10GY6M
-eIhr7lvmfmJzfjR/4FmdEF5yJRG+hiDdP9VNzyu0a/Qn7M/VNwq/DOVPK6s4tKuV
-e/UaTGKMYnHhKivsnja8zieuiQ7umDWaX4tEhq0XQ7uRrr5zqbxOS+MMaU429uJx
-DJdmWH92uF49+UT/A+Yf7bNJNVAdW2LlnehvGKDbBw/ncFU/gIOelS2jSIslKj3d
-mmcgY3n/K7tKyKX8bS9+UxayyQE9H+qUveZiiTSLMNb3g4KTf7r+4JHymxNDVc0x
-4RjxFzyoOPo5F/JWeKcJnHl/MJWzjEjooLd6bjcsFzCunYmx7z6Rlp9ZMWhx1UhS
-eslUFku5ksEY3+jrkLdfumA3csXbwiLrYO4NCygEcwUWCBdRsI23V+o56+nGNI5k
-LUvZt73rl4gPUJSOb8AWahMyAg6iP8kLdbnCqi9z/XosOidp48M7gXMCnSg6SpkT
-5zqSu23QAehpkdvKAx7mKszci1Ct3YfK7uwxWAwv+CdHGg2TYVlK1q4y6Zhtya+l
-HIKGLxsZoGcSKfNfl3kSMOZb5uuGgNreX1xE7T5dDR0kaMOCm63fs596thNr9x+b
-kWk3FsfTsOA85tllUwq7
-=zYfd
+iQIcBAEBAgAGBQJTFE3fAAoJEEpcgKtcEGQQ8nsP/iQ3tqDUEIpEZpK2Ysel24Cb
+hMPivhINjrbunJds03m00iDXqO88fzN1Gkx8rkikqDznQDnCBDAbdReG/g0A8+d+
+HC0E85jFLk/e7sjQf4QQd2CFemEUVz/dz3gSYi035YjbxBe/mV4hH6tRWa9GF5TF
+3PNzYdm+7HcFdhuckkF5r2K+Hzb3AFTq/MML7Kvs6c83TA7Y8snXNv18qEoZIOKc
+yKZKjAm/UfcXlcRGA6D7b0o2OCDvKVabw/FU0zkeQU9AIIBrGKLYB+RjYQ0iGfTz
+hMEIm01C6weWujkA7ZXQ3j4rIg9Q66Hef445QPV1BhVB99TkOCd/Q3wrewoRjSb8
+snNtjCapine5V0ZEb6+OgW2Ihb0DY4JHLOnb6ahJyuESI2s94gWCiJ+DsMFTQqVn
+AGkS2aN6DiQAdbhCfN6RlpFha40Y+hexYDuKsRtbN+Fsl6w4SgPZKcPSSstrmi7z
+BBBrc109OlokVKtXoIMh2mpFi9EFVv3Ck0E/gQjXVYZuCKXhZDjULzUclnK07xog
+UR1FHgDl0iDzRb5nYnUdkcoFXOXPzVTJPCS6iGE+jYM8zR0CMwB3cKZ+C8qCwAxi
+e2Jm8CpJ2tmquJ80q03uGZDejAOnSm6w2MRWzDZnehhYTbO+q15LZh9ZMep1qHk7
+DTiiUxUYIi94qRmMC8jh
+=kZ0J
 -----END PGP SIGNATURE-----
 
---lrZ03NoBR/3+SXJZ--
+--6sX45UoQRIJXqkqR--
