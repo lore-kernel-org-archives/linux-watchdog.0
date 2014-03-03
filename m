@@ -1,103 +1,47 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:60436 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751427AbaCCKTm (ORCPT
+Received: from mail.active-venture.com ([67.228.131.205]:54619 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754063AbaCCOiK (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 3 Mar 2014 05:19:42 -0500
-Date: Mon, 3 Mar 2014 11:19:40 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Markus Pargmann <mpa@pengutronix.de>
-Cc: linux-watchdog@vger.kernel.org, kernel@pengutronix.de
+	Mon, 3 Mar 2014 09:38:10 -0500
+Message-ID: <531493D0.9000805@roeck-us.net>
+Date: Mon, 03 Mar 2014 06:38:08 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+MIME-Version: 1.0
+To: Markus Pargmann <mpa@pengutronix.de>,
+	Wim Van Sebroeck <wim@iguana.be>
+CC: linux-watchdog@vger.kernel.org, kernel@pengutronix.de
 Subject: Re: [PATCH] watchdog: core: module param to activate watchdog
-Message-ID: <20140303101940.GX1484@spo001.leaseweb.com>
-References: <1393604183-8755-1-git-send-email-mpa@pengutronix.de> <20140302094323.GS1484@spo001.leaseweb.com> <20140303092747.GB24953@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20140303092747.GB24953@pengutronix.de>
+References: <1393604183-8755-1-git-send-email-mpa@pengutronix.de> <20140302094323.GS1484@spo001.leaseweb.com> <20140303092747.GB24953@pengutronix.de> <20140303101940.GX1484@spo001.leaseweb.com> <20140303110932.GD24953@pengutronix.de>
+In-Reply-To: <20140303110932.GD24953@pengutronix.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Markus,
-
-> Hi Wim,
-> 
-> On Sun, Mar 02, 2014 at 10:43:23AM +0100, Wim Van Sebroeck wrote:
-> > Hi Markus,
-> > 
-> > > Many watchdog driver reset the watchdog device on initialization. This
-> > > is a problem if the watchdog is activated by the bootloader and should
-> > > be active the whole time until the userspace can write to it.
-> > > 
-> > > This patch adds a module parameter (watchdog.activate_first) that
-> > > activates the first registered watchdog. Using this parameter it is
-> > > possible to have an active watchdog during the whole boot process.
-> > > 
-> > > Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
-> > 
-> > NAK. It is the responsibility of the watchdog device driver to do this
-> > and not that of the core. The core can't know which device(s) are 
-> > running and can't be turned off. So you can have more then 1 device 
-> > that needs to keep going...
-> > 
-> > The normal way do this is by using a timer. Take a look at 
-> > at91sam9_wdt.c . We have a timer there that pings the watchdog if
-> > 1) the watchdog device is not active for userspace (so before opening
-> > /dev/watchdog and after clossing /dev/watchdog correctly)
-> > 2) pings 1/2 or 1/4 of the watchdog heartbeat time as long as the
-> > userspace ping keeps going. (Else it will expire and you trigger a 
-> > reboot).
-> > (Note: the heartbeat is the period after which a watchdog hardware
-> > device will trigger a reboot, timeout is the period for userspace.
-> > So for most devices heartbeat and timeout are the same, but for 
-> > devices where a timer is used (we also use it if the heartbeat value
-> > is too small (i.e. 1 second)) the values have a different meaning.)
-> > 
-> > So the logic for a watchdog device driver is:
-> > at startup the watchdog device driver should make sure that a reboot
-> > can only occur when /dev/watchdog is open. This means that if a
-> > watchdog device is active at boot it should either be stopped (that's
-> > why most drivers have a stop in their init/probe function) or have a 
-> > timer that pings the watchdog as long as it is not active for 
-> > userspace (like at91sam9_wdt.c, via_wdt.c, pika_wdt.c, ...)
-> 
-> My goal is different to those watchdog drivers. I want to use the
-> watchdog device to ensure that kernel and userspace work properly. If
-> one of them fails I want to reset the system and boot into a fallback
-> system. In this case, it doesn't make sense to ping the watchdog
-> through the kernel itself. This may work when the kernel is guaranteed
-> to boot successfully. But the kernel may as well never reach the
-> userspace because of some bug somewhere.
+>> To achieve what you want you should make sure that your "BIOS" starts
+>> with the watchdog enabled and with a very long watchdog heartbeat (so
+>> that it doesn't need to get pinged). Then the kernel can boot and
+>> userspace can start and then you can do the necessary with the
+>> /dev/watchdog functionality. Only thing you need to take care of is
+>> that you don't stop the watchdog (via a module param or something
+>> similar) during the probe/init of the driver.
+>> I believe we allready have a winbond driver doing that. Just checked:
+>> it's w83697hf_wdt.c with the early_disable module parameter.
+>>
+>> So, this is something that needs to be taken into account during
+>> probe/init of the driver and for each watchdog that needs it.
+>> And thus not for the first watchdog that get's registered.
+>> Furthermore: not all watchdog devices have a heartbeat that is long
+>> enough to achieve this functionality.
 >
-> Of course it is possible to add this behaviour to a single driver that
-> is used on this specific hardware. But I think the concept of an
-> active watchdog during the whole boot process is not so uncommon. For
-> example if you want to update embedded systems, you may want to have a
-> fallback kernel and rootfs.
+> Okay, thanks for the clarification. So I will change the driver and add
+> an appropriate paramter to it instead as the winbond driver does.
+>
 
-The goal of watchdog device drivers is to reboot when your system get's 
-unstable. So when userspace is "up" and the system has booted correctly.
-What you want is something totaly different and not wanted for most 
-systems because you are going to wreck filesystems: think about system
-booting, getting rebooted, fsck starts, system gets rebooted during fsck,
-... 
+Other drivers do the same, but don't even have a module parameter to
+disable it if it is already running. They just ping the watchdog during
+initialization to delay the timeout. w83627hf_wdt.c is an example.
 
-To achieve what you want you should make sure that your "BIOS" starts
-with the watchdog enabled and with a very long watchdog heartbeat (so
-that it doesn't need to get pinged). Then the kernel can boot and 
-userspace can start and then you can do the necessary with the
-/dev/watchdog functionality. Only thing you need to take care of is 
-that you don't stop the watchdog (via a module param or something 
-similar) during the probe/init of the driver.
-I believe we allready have a winbond driver doing that. Just checked:
-it's w83697hf_wdt.c with the early_disable module parameter.
-
-So, this is something that needs to be taken into account during
-probe/init of the driver and for each watchdog that needs it.
-And thus not for the first watchdog that get's registered.
-Furthermore: not all watchdog devices have a heartbeat that is long 
-enough to achieve this functionality.
-
-Kind regards,
-Wim.
+Guenter
 
