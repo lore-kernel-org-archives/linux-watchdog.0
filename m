@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:41796 "EHLO
+Received: from top.free-electrons.com ([176.31.233.9]:41803 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751464AbaCDQHa (ORCPT
+	with ESMTP id S1753990AbaCDQHe (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 4 Mar 2014 11:07:30 -0500
+	Tue, 4 Mar 2014 11:07:34 -0500
 From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 To: <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>
 Cc: Wim Van Sebroeck <wim@iguana.be>,
@@ -15,77 +15,95 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Lior Amsalem <alior@marvell.com>,
 	Tawfik Bayouk <tawfik@marvell.com>,
 	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-Subject: [PATCH v2 1/7] watchdog: orion: Introduce a SoC-specific RSTOUT mapping
-Date: Tue,  4 Mar 2014 13:07:18 -0300
-Message-Id: <1393949244-5011-2-git-send-email-ezequiel.garcia@free-electrons.com>
+Subject: [PATCH v2 2/7] watchdog: orion: Introduce per-SoC stop() function
+Date: Tue,  4 Mar 2014 13:07:19 -0300
+Message-Id: <1393949244-5011-3-git-send-email-ezequiel.garcia@free-electrons.com>
 In-Reply-To: <1393949244-5011-1-git-send-email-ezequiel.garcia@free-electrons.com>
 References: <1393949244-5011-1-git-send-email-ezequiel.garcia@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This commit separates the RSTOUT register mapping for the different
-compatible strings supported by the driver. This is needed as
-preparation work to support other SoCs.
+In order to support other SoCs, it's needed to have a different stop()
+implementation for each SoC. This commit adds no functionality, and it
+consists of preparation work.
 
 Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 ---
- drivers/watchdog/orion_wdt.c | 28 +++++++++++++++++++++-------
- 1 file changed, 21 insertions(+), 7 deletions(-)
+ drivers/watchdog/orion_wdt.c | 26 +++++++++++++++++++++++++-
+ 1 file changed, 25 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
-index 6f9b4c6..383da34 100644
+index 383da34..c3ee305 100644
 --- a/drivers/watchdog/orion_wdt.c
 +++ b/drivers/watchdog/orion_wdt.c
-@@ -263,10 +263,6 @@ static void __iomem *orion_wdt_ioremap_rstout(struct platform_device *pdev,
- 		return devm_ioremap(&pdev->dev, res->start,
- 				    resource_size(res));
+@@ -59,6 +59,7 @@ struct orion_watchdog_data {
+ 	int (*clock_init)(struct platform_device *,
+ 			  struct orion_watchdog *);
+ 	int (*start)(struct watchdog_device *);
++	int (*stop)(struct watchdog_device *);
+ };
  
--	/* This workaround works only for "orion-wdt", DT-enabled */
--	if (!of_device_is_compatible(pdev->dev.of_node, "marvell,orion-wdt"))
--		return NULL;
--
- 	rstout = internal_regs + ORION_RSTOUT_MASK_OFFSET;
+ struct orion_watchdog {
+@@ -190,7 +191,7 @@ static int orion_wdt_start(struct watchdog_device *wdt_dev)
+ 	return dev->data->start(wdt_dev);
+ }
  
- 	WARN(1, FW_BUG "falling back to harcoded RSTOUT reg %pa\n", &rstout);
-@@ -317,6 +313,7 @@ MODULE_DEVICE_TABLE(of, orion_wdt_of_match_table);
- static int orion_wdt_probe(struct platform_device *pdev)
+-static int orion_wdt_stop(struct watchdog_device *wdt_dev)
++static int orion_stop(struct watchdog_device *wdt_dev)
  {
- 	struct orion_watchdog *dev;
-+	struct device_node *node = pdev->dev.of_node;
- 	const struct of_device_id *match;
- 	unsigned int wdt_max_duration;	/* (seconds) */
- 	struct resource *res;
-@@ -346,10 +343,27 @@ static int orion_wdt_probe(struct platform_device *pdev)
- 	if (!dev->reg)
- 		return -ENOMEM;
+ 	struct orion_watchdog *dev = watchdog_get_drvdata(wdt_dev);
  
--	dev->rstout = orion_wdt_ioremap_rstout(pdev, res->start &
--						     INTERNAL_REGS_MASK);
--	if (!dev->rstout)
-+	if (of_device_is_compatible(node, "marvell,orion-wdt")) {
-+
-+		dev->rstout = orion_wdt_ioremap_rstout(pdev, res->start &
-+						       INTERNAL_REGS_MASK);
-+		if (!dev->rstout)
-+			return -ENODEV;
-+
-+	} else if (of_device_is_compatible(node, "marvell,armada-370-wdt") ||
-+		   of_device_is_compatible(node, "marvell,armada-xp-wdt")) {
-+
-+		res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
-+		if (!res)
-+			return -ENODEV;
-+		dev->rstout = devm_ioremap(&pdev->dev, res->start,
-+					   resource_size(res));
-+		if (!dev->rstout)
-+			return -ENOMEM;
-+
-+	} else {
- 		return -ENODEV;
-+	}
+@@ -203,6 +204,26 @@ static int orion_wdt_stop(struct watchdog_device *wdt_dev)
+ 	return 0;
+ }
  
- 	ret = dev->data->clock_init(pdev, dev);
- 	if (ret) {
++static int armada370_stop(struct watchdog_device *wdt_dev)
++{
++	struct orion_watchdog *dev = watchdog_get_drvdata(wdt_dev);
++
++	/* Disable reset on watchdog */
++	atomic_io_modify(dev->rstout, dev->data->rstout_enable_bit, 0);
++
++	/* Disable watchdog timer */
++	atomic_io_modify(dev->reg + TIMER_CTRL, dev->data->wdt_enable_bit, 0);
++
++	return 0;
++}
++
++static int orion_wdt_stop(struct watchdog_device *wdt_dev)
++{
++	struct orion_watchdog *dev = watchdog_get_drvdata(wdt_dev);
++
++	return dev->data->stop(wdt_dev);
++}
++
+ static int orion_wdt_enabled(struct orion_watchdog *dev)
+ {
+ 	bool enabled, running;
+@@ -275,6 +296,7 @@ static const struct orion_watchdog_data orion_data = {
+ 	.wdt_counter_offset = 0x24,
+ 	.clock_init = orion_wdt_clock_init,
+ 	.start = orion_start,
++	.stop = orion_stop,
+ };
+ 
+ static const struct orion_watchdog_data armada370_data = {
+@@ -283,6 +305,7 @@ static const struct orion_watchdog_data armada370_data = {
+ 	.wdt_counter_offset = 0x34,
+ 	.clock_init = armada370_wdt_clock_init,
+ 	.start = armada370_start,
++	.stop = armada370_stop,
+ };
+ 
+ static const struct orion_watchdog_data armadaxp_data = {
+@@ -291,6 +314,7 @@ static const struct orion_watchdog_data armadaxp_data = {
+ 	.wdt_counter_offset = 0x34,
+ 	.clock_init = armadaxp_wdt_clock_init,
+ 	.start = armada370_start,
++	.stop = armada370_stop,
+ };
+ 
+ static const struct of_device_id orion_wdt_of_match_table[] = {
 -- 
 1.8.1.5
 
