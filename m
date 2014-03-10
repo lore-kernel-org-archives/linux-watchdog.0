@@ -1,188 +1,228 @@
-Return-Path: <Li.Xiubo@freescale.com>
-From: "Li.Xiubo@freescale.com" <Li.Xiubo@freescale.com>
-To: Guenter Roeck <linux@roeck-us.net>, "wim@iguana.be" <wim@iguana.be>,
-	"w.sang@pengutronix.de" <w.sang@pengutronix.de>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCHv2 2/2] watchdog: imx2_wdt: Add big-endian support
-Date: Mon, 31 Mar 2014 04:18:33 +0000
-Message-ID: <28375308b05f4cf4bc7d1559f2524c1b@BY2PR03MB505.namprd03.prod.outlook.com>
-References: <1395800500-22655-1-git-send-email-Li.Xiubo@freescale.com>
- <1395800500-22655-3-git-send-email-Li.Xiubo@freescale.com>
- <5338E1E8.4030700@roeck-us.net>
-In-Reply-To: <5338E1E8.4030700@roeck-us.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
+Return-Path: <ptyser@xes-inc.com>
+From: Peter Tyser <ptyser@xes-inc.com>
+To: linux-kernel@vger.kernel.org
+Cc: Peter Tyser <ptyser@xes-inc.com>, Guenter Roeck <linux@roeck-us.net>,
+        James Ralston <james.d.ralston@intel.com>,
+        Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>,
+        Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+Subject: [PATCH 4/8] mfd: lpc_ich: Add support for iTCO v3
+Date: Mon, 10 Mar 2014 16:34:54 -0500
+Message-Id: <1394487298-14459-4-git-send-email-ptyser@xes-inc.com>
+In-Reply-To: <1394487298-14459-1-git-send-email-ptyser@xes-inc.com>
+References: <1394487298-14459-1-git-send-email-ptyser@xes-inc.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
+Some newer Atom CPUs, eg Avoton and Bay Trail, use slightly different
+register layouts for the iTCO than the current v1 and v2 iTCO.
+Differences from previous iTCO versions include:
+- The ACPI space is enabled in the "ACPI base address" register instead
+  of the "ACPI control register"
 
+- The "no reboot" functionality is set in the "Power Management
+  Configuration" register instead of the "General Control and Status"
+  (GCS) register or PCI configuration space.
 
-> Subject: Re: [PATCHv2 2/2] watchdog: imx2_wdt: Add big-endian support
->=20
-> On 03/25/2014 07:21 PM, Xiubo Li wrote:
-> > For the platforms that this IP driver now supports:
-> > SoC        CPU        Watchdog     Need 'big-endian'?
-> > ------------------------------------------------------
-> > Vybird     little     little       No
-> > LS1        little     big          Yes
-> > LS2        little     little       No
-> > IMX+       little     little       No
-> >
-> > So for the LS1 SoCs, we need to do the big endianness converting.
-> >
-> > And this will also support the following case, for example:
-> > SoC        CPU        Watchdog     Need 'big-endian'?
-> > ------------------------------------------------------
-> > PowerPC    big        big          Yes
-> >
-> > Signed-off-by: Xiubo Li <Li.Xiubo@freescale.com>
-> > Cc: Guenter Roeck <linux@roeck-us.net>
->=20
-> Is this patch intended to solve the problem generically ?
->=20
-> http://www.spinics.net/lists/kernel/msg1714375.html
->
+- The "ACPI Control Register" is not present on v3.  The "Power
+  Management Configuration Base Address" register resides at the same
+  address is Avoton/Bay Trail.
 
-It's actually the following ones first, which will support 16-bits
-Values for regmap-mmio:
+To differentiate these newer chipsets create a new v3 iTCO version and
+update the MFD driver to support them.
 
-https://patchwork.kernel.org/patch/3896321/
-https://patchwork.kernel.org/patch/3896331/
-https://patchwork.kernel.org/patch/3901021/
+Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+Tested-by: Rajat Jain <rajatjain@juniper.net>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: James Ralston <james.d.ralston@intel.com>
+Cc: Samuel Ortiz <sameo@linux.intel.com>
+Cc: Lee Jones <lee.jones@linaro.org>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org
+---
+ drivers/mfd/lpc_ich.c       |   81 +++++++++++++++++++++++++++++++++++-------
+ include/linux/mfd/lpc_ich.h |    8 ++--
+ 2 files changed, 71 insertions(+), 18 deletions(-)
 
-And the then the following one, which will support the LE endian:
-http://www.spinics.net/lists/kernel/msg1714375.html
-
-
-Thanks :)
-
-BRs
-Xiubo
-
-
-
-
-=20
-> Guenter
->=20
-> > ---
-> >   drivers/watchdog/imx2_wdt.c | 40 +++++++++++++++++++++++++++++++-----=
-----
-> >   1 file changed, 31 insertions(+), 9 deletions(-)
-> >
-> > diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-> > index 1795922..32f8874 100644
-> > --- a/drivers/watchdog/imx2_wdt.c
-> > +++ b/drivers/watchdog/imx2_wdt.c
-> > @@ -30,6 +30,7 @@
-> >   #include <linux/miscdevice.h>
-> >   #include <linux/module.h>
-> >   #include <linux/moduleparam.h>
-> > +#include <linux/of.h>
-> >   #include <linux/platform_device.h>
-> >   #include <linux/timer.h>
-> >   #include <linux/uaccess.h>
-> > @@ -64,9 +65,26 @@ static struct {
-> >   	void __iomem *base;
-> >   	unsigned timeout;
-> >   	unsigned long status;
-> > +	bool big_endian;
-> >   	struct timer_list timer;	/* Pings the watchdog when closed */
-> >   } imx2_wdt;
-> >
-> > +static inline u16 imx2_wdt_readw(void __iomem *addr)
-> > +{
-> > +	if (imx2_wdt.big_endian)
-> > +		return ioread16be(addr);
-> > +	else
-> > +		return ioread16(addr);
-> > +}
-> > +
-> > +static inline void imx2_wdt_writew(u16 val, void __iomem *addr)
-> > +{
-> > +	if (imx2_wdt.big_endian)
-> > +		iowrite16be(val, addr);
-> > +	else
-> > +		iowrite16(val, addr);
-> > +}
-> > +
-> >   static struct miscdevice imx2_wdt_miscdev;
-> >
-> >   static bool nowayout =3D WATCHDOG_NOWAYOUT;
-> > @@ -87,7 +105,7 @@ static const struct watchdog_info imx2_wdt_info =3D =
-{
-> >
-> >   static inline void imx2_wdt_setup(void)
-> >   {
-> > -	u16 val =3D __raw_readw(imx2_wdt.base + IMX2_WDT_WCR);
-> > +	u16 val =3D imx2_wdt_readw(imx2_wdt.base + IMX2_WDT_WCR);
-> >
-> >   	/* Suspend timer in low power mode, write once-only */
-> >   	val |=3D IMX2_WDT_WCR_WDZST;
-> > @@ -100,17 +118,17 @@ static inline void imx2_wdt_setup(void)
-> >   	/* Set the watchdog's Time-Out value */
-> >   	val |=3D WDOG_SEC_TO_COUNT(imx2_wdt.timeout);
-> >
-> > -	__raw_writew(val, imx2_wdt.base + IMX2_WDT_WCR);
-> > +	imx2_wdt_writew(val, imx2_wdt.base + IMX2_WDT_WCR);
-> >
-> >   	/* enable the watchdog */
-> >   	val |=3D IMX2_WDT_WCR_WDE;
-> > -	__raw_writew(val, imx2_wdt.base + IMX2_WDT_WCR);
-> > +	imx2_wdt_writew(val, imx2_wdt.base + IMX2_WDT_WCR);
-> >   }
-> >
-> >   static inline void imx2_wdt_ping(void)
-> >   {
-> > -	__raw_writew(IMX2_WDT_SEQ1, imx2_wdt.base + IMX2_WDT_WSR);
-> > -	__raw_writew(IMX2_WDT_SEQ2, imx2_wdt.base + IMX2_WDT_WSR);
-> > +	imx2_wdt_writew(IMX2_WDT_SEQ1, imx2_wdt.base + IMX2_WDT_WSR);
-> > +	imx2_wdt_writew(IMX2_WDT_SEQ2, imx2_wdt.base + IMX2_WDT_WSR);
-> >   }
-> >
-> >   static void imx2_wdt_timer_ping(unsigned long arg)
-> > @@ -143,12 +161,12 @@ static void imx2_wdt_stop(void)
-> >
-> >   static void imx2_wdt_set_timeout(int new_timeout)
-> >   {
-> > -	u16 val =3D __raw_readw(imx2_wdt.base + IMX2_WDT_WCR);
-> > +	u16 val =3D imx2_wdt_readw(imx2_wdt.base + IMX2_WDT_WCR);
-> >
-> >   	/* set the new timeout value in the WSR */
-> >   	val &=3D ~IMX2_WDT_WCR_WT;
-> >   	val |=3D WDOG_SEC_TO_COUNT(new_timeout);
-> > -	__raw_writew(val, imx2_wdt.base + IMX2_WDT_WCR);
-> > +	imx2_wdt_writew(val, imx2_wdt.base + IMX2_WDT_WCR);
-> >   }
-> >
-> >   static int imx2_wdt_open(struct inode *inode, struct file *file)
-> > @@ -192,7 +210,7 @@ static long imx2_wdt_ioctl(struct file *file, unsig=
-ned
-> int cmd,
-> >   		return put_user(0, p);
-> >
-> >   	case WDIOC_GETBOOTSTATUS:
-> > -		val =3D __raw_readw(imx2_wdt.base + IMX2_WDT_WRSR);
-> > +		val =3D imx2_wdt_readw(imx2_wdt.base + IMX2_WDT_WRSR);
-> >   		new_value =3D val & IMX2_WDT_WRSR_TOUT ? WDIOF_CARDRESET : 0;
-> >   		return put_user(new_value, p);
-> >
-> > @@ -257,8 +275,12 @@ static struct miscdevice imx2_wdt_miscdev =3D {
-> >
-> >   static int __init imx2_wdt_probe(struct platform_device *pdev)
-> >   {
-> > -	int ret;
-> > +	struct device_node *np =3D pdev->dev.of_node;
-> >   	struct resource *res;
-> > +	int ret;
-> > +
-> > +	if (np)
-> > +		imx2_wdt.big_endian =3D of_property_read_bool(np, "big-endian");
-> >
-> >   	res =3D platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> >   	imx2_wdt.base =3D devm_ioremap_resource(&pdev->dev, res);
-> >
->=20
->=20
+diff --git a/drivers/mfd/lpc_ich.c b/drivers/mfd/lpc_ich.c
+index 2cc052a..b4bfc58 100644
+--- a/drivers/mfd/lpc_ich.c
++++ b/drivers/mfd/lpc_ich.c
+@@ -72,9 +72,11 @@
+ #define ACPIBASE_GPE_END	0x2f
+ #define ACPIBASE_SMI_OFF	0x30
+ #define ACPIBASE_SMI_END	0x33
++#define ACPIBASE_PMC_OFF	0x08
++#define ACPIBASE_PMC_END	0x0c
+ #define ACPIBASE_TCO_OFF	0x60
+ #define ACPIBASE_TCO_END	0x7f
+-#define ACPICTRL		0x44
++#define ACPICTRL_PMCBASE	0x44
+ 
+ #define ACPIBASE_GCS_OFF	0x3410
+ #define ACPIBASE_GCS_END	0x3414
+@@ -94,11 +96,12 @@ struct lpc_ich_priv {
+ 	int chipset;
+ 
+ 	int abase;		/* ACPI base */
+-	int actrl;		/* ACPI control or PMC base */
++	int actrl_pbase;	/* ACPI control or PMC base */
+ 	int gbase;		/* GPIO base */
+ 	int gctrl;		/* GPIO control */
+ 
+-	int actrl_save;		/* Cached ACPI control base value */
++	int abase_save;		/* Cached ACPI base value */
++	int actrl_pbase_save;		/* Cached ACPI control or PMC base value */
+ 	int gctrl_save;		/* Cached GPIO control value */
+ };
+ 
+@@ -111,7 +114,7 @@ static struct resource wdt_ich_res[] = {
+ 	{
+ 		.flags = IORESOURCE_IO,
+ 	},
+-	/* GCS */
++	/* GCS or PMC */
+ 	{
+ 		.flags = IORESOURCE_MEM,
+ 	},
+@@ -742,9 +745,15 @@ static void lpc_ich_restore_config_space(struct pci_dev *dev)
+ {
+ 	struct lpc_ich_priv *priv = pci_get_drvdata(dev);
+ 
+-	if (priv->actrl_save >= 0) {
+-		pci_write_config_byte(dev, priv->actrl, priv->actrl_save);
+-		priv->actrl_save = -1;
++	if (priv->abase_save >= 0) {
++		pci_write_config_byte(dev, priv->abase, priv->abase_save);
++		priv->abase_save = -1;
++	}
++
++	if (priv->actrl_pbase_save >= 0) {
++		pci_write_config_byte(dev, priv->actrl_pbase,
++			priv->actrl_pbase_save);
++		priv->actrl_pbase_save = -1;
+ 	}
+ 
+ 	if (priv->gctrl_save >= 0) {
+@@ -758,9 +767,26 @@ static void lpc_ich_enable_acpi_space(struct pci_dev *dev)
+ 	struct lpc_ich_priv *priv = pci_get_drvdata(dev);
+ 	u8 reg_save;
+ 
+-	pci_read_config_byte(dev, priv->actrl, &reg_save);
+-	pci_write_config_byte(dev, priv->actrl, reg_save | 0x80);
+-	priv->actrl_save = reg_save;
++	switch (lpc_chipset_info[priv->chipset].iTCO_version) {
++	case 3:
++		/*
++		 * Some chipsets (eg Avoton) enable the ACPI space in the
++		 * ACPI BASE register.
++		 */
++		pci_read_config_byte(dev, priv->abase, &reg_save);
++		pci_write_config_byte(dev, priv->abase, reg_save | 0x2);
++		priv->abase_save = reg_save;
++		break;
++	default:
++		/*
++		 * Most chipsets enable the ACPI space in the ACPI control
++		 * register.
++		 */
++		pci_read_config_byte(dev, priv->actrl_pbase, &reg_save);
++		pci_write_config_byte(dev, priv->actrl_pbase, reg_save | 0x80);
++		priv->actrl_pbase_save = reg_save;
++		break;
++	}
+ }
+ 
+ static void lpc_ich_enable_gpio_space(struct pci_dev *dev)
+@@ -773,6 +799,17 @@ static void lpc_ich_enable_gpio_space(struct pci_dev *dev)
+ 	priv->gctrl_save = reg_save;
+ }
+ 
++static void lpc_ich_enable_pmc_space(struct pci_dev *dev)
++{
++	struct lpc_ich_priv *priv = pci_get_drvdata(dev);
++	u8 reg_save;
++
++	pci_read_config_byte(dev, priv->actrl_pbase, &reg_save);
++	pci_write_config_byte(dev, priv->actrl_pbase, reg_save | 0x2);
++
++	priv->actrl_pbase_save = reg_save;
++}
++
+ static void lpc_ich_finalize_cell(struct pci_dev *dev, struct mfd_cell *cell)
+ {
+ 	struct lpc_ich_priv *priv = pci_get_drvdata(dev);
+@@ -910,14 +947,20 @@ static int lpc_ich_init_wdt(struct pci_dev *dev)
+ 	lpc_ich_enable_acpi_space(dev);
+ 
+ 	/*
++	 * iTCO v2:
+ 	 * Get the Memory-Mapped GCS register. To get access to it
+ 	 * we have to read RCBA from PCI Config space 0xf0 and use
+ 	 * it as base. GCS = RCBA + ICH6_GCS(0x3410).
++	 *
++	 * iTCO v3:
++	 * Get the Power Management Configuration register.  To get access
++	 * to it we have to read the PMC BASE from config space and address
++	 * the register at offset 0x8.
+ 	 */
+ 	if (lpc_chipset_info[priv->chipset].iTCO_version == 1) {
+ 		/* Don't register iomem for TCO ver 1 */
+ 		lpc_ich_cells[LPC_WDT].num_resources--;
+-	} else {
++	} else if (lpc_chipset_info[priv->chipset].iTCO_version == 2) {
+ 		pci_read_config_dword(dev, RCBABASE, &base_addr_cfg);
+ 		base_addr = base_addr_cfg & 0xffffc000;
+ 		if (!(base_addr_cfg & 1)) {
+@@ -926,9 +969,17 @@ static int lpc_ich_init_wdt(struct pci_dev *dev)
+ 			ret = -ENODEV;
+ 			goto wdt_done;
+ 		}
+-		res = wdt_mem_res(ICH_RES_MEM_GCS);
++		res = wdt_mem_res(ICH_RES_MEM_GCS_PMC);
+ 		res->start = base_addr + ACPIBASE_GCS_OFF;
+ 		res->end = base_addr + ACPIBASE_GCS_END;
++	} else if (lpc_chipset_info[priv->chipset].iTCO_version == 3) {
++		lpc_ich_enable_pmc_space(dev);
++		pci_read_config_dword(dev, ACPICTRL_PMCBASE, &base_addr_cfg);
++		base_addr = base_addr_cfg & 0xfffffe00;
++
++		res = wdt_mem_res(ICH_RES_MEM_GCS_PMC);
++		res->start = base_addr + ACPIBASE_PMC_OFF;
++		res->end = base_addr + ACPIBASE_PMC_END;
+ 	}
+ 
+ 	lpc_ich_finalize_cell(dev, &lpc_ich_cells[LPC_WDT]);
+@@ -953,9 +1004,11 @@ static int lpc_ich_probe(struct pci_dev *dev,
+ 
+ 	priv->chipset = id->driver_data;
+ 
+-	priv->actrl_save = -1;
++	priv->actrl_pbase_save = -1;
++	priv->abase_save = -1;
++
+ 	priv->abase = ACPIBASE;
+-	priv->actrl = ACPICTRL;
++	priv->actrl_pbase = ACPICTRL_PMCBASE;
+ 
+ 	priv->gctrl_save = -1;
+ 	if (priv->chipset <= LPC_ICH5) {
+diff --git a/include/linux/mfd/lpc_ich.h b/include/linux/mfd/lpc_ich.h
+index 3e1df64..9b29d65 100644
+--- a/include/linux/mfd/lpc_ich.h
++++ b/include/linux/mfd/lpc_ich.h
+@@ -21,10 +21,10 @@
+ #define LPC_ICH_H
+ 
+ /* Watchdog resources */
+-#define ICH_RES_IO_TCO	0
+-#define ICH_RES_IO_SMI	1
+-#define ICH_RES_MEM_OFF	2
+-#define ICH_RES_MEM_GCS	0
++#define ICH_RES_IO_TCO		0
++#define ICH_RES_IO_SMI		1
++#define ICH_RES_MEM_OFF		2
++#define ICH_RES_MEM_GCS_PMC	0
+ 
+ /* GPIO resources */
+ #define ICH_RES_GPIO	0
+-- 
+1.7.7.GIT
