@@ -1,59 +1,47 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:41852 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754292AbaCDQHy (ORCPT
+Received: from mail.active-venture.com ([67.228.131.205]:59843 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752840AbaCJC3S (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 4 Mar 2014 11:07:54 -0500
-From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-To: <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	Lior Amsalem <alior@marvell.com>,
-	Tawfik Bayouk <tawfik@marvell.com>,
-	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-Subject: [PATCH v2 7/7] ARM: mvebu: Add A375/A380 watchdog binding documentation
-Date: Tue,  4 Mar 2014 13:07:24 -0300
-Message-Id: <1393949244-5011-8-git-send-email-ezequiel.garcia@free-electrons.com>
-In-Reply-To: <1393949244-5011-1-git-send-email-ezequiel.garcia@free-electrons.com>
-References: <1393949244-5011-1-git-send-email-ezequiel.garcia@free-electrons.com>
+	Sun, 9 Mar 2014 22:29:18 -0400
+Message-ID: <531D237C.5070400@roeck-us.net>
+Date: Sun, 09 Mar 2014 19:29:16 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+MIME-Version: 1.0
+To: Marc van der Wal <x0r+kernel@x0r.fr>,
+	Wim Van Sebroeck <wim@iguana.be>
+CC: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] it87_wdt: Work around non-working CIR interrupts
+References: <20140306093659.GA24854@freyja>
+In-Reply-To: <20140306093659.GA24854@freyja>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This commit documents the new support for "marvell,armada-{375,380}-wdt"
-compatible strings and the extra 'reg' entry requirement.
+On 03/06/2014 01:36 AM, Marc van der Wal wrote:
+> From: Marc van der Wal <x0r+kernel@x0r.fr>
+>
+> On some hardware platforms, the it87_wdt watchdog resets the machine
+> despite the watchdog daemon running and writing to /dev/watchdog.
+>
+> This is due to Consumer IR buffer underrun interrupts being used as
+> triggers to reset the timer.  On some buggy hardware implementations
+> such as the iEi AFL-12A-N270 single-board computer, this method does
+> not work.
+>
+> However, resetting the timer by writing its original timeout value in
+> its configuration register over and over again suppresses the unwanted
+> reboots.
+>
+> Add a module option (nocir), 0 by default in order not to break existing
+> setups.  Setting it to 1 enables the workaround.
+>
+> Fixes bug #42801 <https://bugzilla.kernel.org/show_bug.cgi?id=42801>.
+> Tested primarily on Linux 3.5.7, applies cleanly on Linux 3.13.5.
+>
+> Signed-off-by: Marc van der Wal <x0r+kernel@x0r.fr>
 
-Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
----
- Documentation/devicetree/bindings/watchdog/marvel.txt | 7 +++++++
- 1 file changed, 7 insertions(+)
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-diff --git a/Documentation/devicetree/bindings/watchdog/marvel.txt b/Documentation/devicetree/bindings/watchdog/marvel.txt
-index de11eb4..97223fd 100644
---- a/Documentation/devicetree/bindings/watchdog/marvel.txt
-+++ b/Documentation/devicetree/bindings/watchdog/marvel.txt
-@@ -5,11 +5,18 @@ Required Properties:
- - Compatibility : "marvell,orion-wdt"
- 		  "marvell,armada-370-wdt"
- 		  "marvell,armada-xp-wdt"
-+		  "marvell,armada-375-wdt"
-+		  "marvell,armada-380-wdt"
- 
- - reg		: Should contain two entries: first one with the
- 		  timer control address, second one with the
- 		  rstout enable address.
- 
-+For "marvell,armada-375-wdt" and "marvell,armada-380-wdt":
-+
-+- reg		: A third entry is mandatory and should contain the
-+                  shared mask/unmask RSTOUT address.
-+
- Optional properties:
- 
- - interrupts	: Contains the IRQ for watchdog expiration
--- 
-1.8.1.5
 
