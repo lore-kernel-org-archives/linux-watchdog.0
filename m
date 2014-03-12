@@ -1,11 +1,7 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:37528 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752762AbaCLVMt (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 12 Mar 2014 17:12:49 -0400
+Return-Path: <ezequiel.garcia@free-electrons.com>
 From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-To: <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>
+To: <linux-watchdog@vger.kernel.org>,
+	<devicetree@vger.kernel.org>
 Cc: Jason Cooper <jason@lakedaemon.net>,
 	Guenter Roeck <linux@roeck-us.net>,
 	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
@@ -17,39 +13,38 @@ Cc: Jason Cooper <jason@lakedaemon.net>,
 	Gregory Clement <gregory.clement@free-electrons.com>,
 	Wim Van Sebroeck <wim@iguana.be>,
 	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-Subject: [PATCH v3 6/8] ARM: mvebu: Enable Armada 375 watchdog in the devicetree
-Date: Wed, 12 Mar 2014 18:11:53 -0300
-Message-Id: <1394658715-2017-7-git-send-email-ezequiel.garcia@free-electrons.com>
+Subject: [PATCH v3 7/8] ARM: mvebu: Enable Armada 380/385 watchdog in the devicetree
+Date: Wed, 12 Mar 2014 18:11:54 -0300
+Message-Id: <1394658715-2017-8-git-send-email-ezequiel.garcia@free-electrons.com>
 In-Reply-To: <1394658715-2017-1-git-send-email-ezequiel.garcia@free-electrons.com>
 References: <1394658715-2017-1-git-send-email-ezequiel.garcia@free-electrons.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+List-ID: <linux-watchdog@vger.kernel.org>
 
 Add the DT nodes to enable the watchdog support available on
-Armada 375 SoC.
+Armada 380/385 SoC.
 
 Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 ---
- arch/arm/boot/dts/armada-375.dtsi | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm/boot/dts/armada-38x.dtsi | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/arm/boot/dts/armada-375.dtsi b/arch/arm/boot/dts/armada-375.dtsi
-index 3877693f..0bfa57b 100644
---- a/arch/arm/boot/dts/armada-375.dtsi
-+++ b/arch/arm/boot/dts/armada-375.dtsi
-@@ -320,6 +320,12 @@
- 				clocks = <&coreclk 0>;
+diff --git a/arch/arm/boot/dts/armada-38x.dtsi b/arch/arm/boot/dts/armada-38x.dtsi
+index 812ce28..2f0ebc6 100644
+--- a/arch/arm/boot/dts/armada-38x.dtsi
++++ b/arch/arm/boot/dts/armada-38x.dtsi
+@@ -267,6 +267,13 @@
+ 				clock-names = "nbclk", "fixed";
  			};
  
 +			watchdog@20300 {
-+				compatible = "marvell,armada-375-wdt";
-+				reg = <0x20300 0x34>, <0x20704 0x4>, <0x18254 0x4>;
-+				clocks = <&coreclk 0>;
++				compatible = "marvell,armada-380-wdt";
++				reg = <0x20300 0x34>, <0x20704 0x4>, <0x18260 0x4>;
++				clocks = <&coreclk 2>, <&refclk>;
++				clock-names = "nbclk", "fixed";
 +			};
 +
- 			xor@60800 {
- 				compatible = "marvell,orion-xor";
- 				reg = <0x60800 0x100
+ 			eth1: ethernet@30000 {
+ 				compatible = "marvell,armada-370-neta";
+ 				reg = <0x30000 0x4000>;
 -- 
 1.9.0
-
