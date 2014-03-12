@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:37469 "EHLO
+Received: from top.free-electrons.com ([176.31.233.9]:37474 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752907AbaCLVMY (ORCPT
+	with ESMTP id S1752924AbaCLVM3 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 12 Mar 2014 17:12:24 -0400
+	Wed, 12 Mar 2014 17:12:29 -0400
 From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 To: <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>
 Cc: Jason Cooper <jason@lakedaemon.net>,
@@ -17,77 +17,48 @@ Cc: Jason Cooper <jason@lakedaemon.net>,
 	Gregory Clement <gregory.clement@free-electrons.com>,
 	Wim Van Sebroeck <wim@iguana.be>,
 	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-Subject: [PATCH v3 1/8] watchdog: orion: Introduce a SoC-specific RSTOUT mapping
-Date: Wed, 12 Mar 2014 18:11:48 -0300
-Message-Id: <1394658715-2017-2-git-send-email-ezequiel.garcia@free-electrons.com>
+Subject: [PATCH v3 2/8] watchdog: orion: Remove unneeded atomic access
+Date: Wed, 12 Mar 2014 18:11:49 -0300
+Message-Id: <1394658715-2017-3-git-send-email-ezequiel.garcia@free-electrons.com>
 In-Reply-To: <1394658715-2017-1-git-send-email-ezequiel.garcia@free-electrons.com>
 References: <1394658715-2017-1-git-send-email-ezequiel.garcia@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Separate the RSTOUT register mapping for the different compatible
-strings supported by the driver. This allows to use devm_ioremap
-on SoC variants that share the RSTOUT register, and devm_ioremap_resource
-(which requests the MMIO region) on SoCs that have a dedicated RSTOUT
-register.
+The RSTOUT register on the Armada 370 SoC variant is a dedicated register
+(not shared across orthogonal subsystems) and so it's not needed to write
+it atomically.
 
 Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 ---
- drivers/watchdog/orion_wdt.c | 26 +++++++++++++++++++-------
- 1 file changed, 19 insertions(+), 7 deletions(-)
+ drivers/watchdog/orion_wdt.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/watchdog/orion_wdt.c b/drivers/watchdog/orion_wdt.c
-index 6f9b4c6..76ebcdd 100644
+index 76ebcdd..9c25012 100644
 --- a/drivers/watchdog/orion_wdt.c
 +++ b/drivers/watchdog/orion_wdt.c
-@@ -263,10 +263,6 @@ static void __iomem *orion_wdt_ioremap_rstout(struct platform_device *pdev,
- 		return devm_ioremap(&pdev->dev, res->start,
- 				    resource_size(res));
- 
--	/* This workaround works only for "orion-wdt", DT-enabled */
--	if (!of_device_is_compatible(pdev->dev.of_node, "marvell,orion-wdt"))
--		return NULL;
--
- 	rstout = internal_regs + ORION_RSTOUT_MASK_OFFSET;
- 
- 	WARN(1, FW_BUG "falling back to harcoded RSTOUT reg %pa\n", &rstout);
-@@ -317,6 +313,7 @@ MODULE_DEVICE_TABLE(of, orion_wdt_of_match_table);
- static int orion_wdt_probe(struct platform_device *pdev)
+@@ -146,6 +146,7 @@ static int orion_wdt_ping(struct watchdog_device *wdt_dev)
+ static int armada370_start(struct watchdog_device *wdt_dev)
  {
- 	struct orion_watchdog *dev;
-+	struct device_node *node = pdev->dev.of_node;
- 	const struct of_device_id *match;
- 	unsigned int wdt_max_duration;	/* (seconds) */
- 	struct resource *res;
-@@ -346,10 +343,25 @@ static int orion_wdt_probe(struct platform_device *pdev)
- 	if (!dev->reg)
- 		return -ENOMEM;
+ 	struct orion_watchdog *dev = watchdog_get_drvdata(wdt_dev);
++	u32 reg;
  
--	dev->rstout = orion_wdt_ioremap_rstout(pdev, res->start &
--						     INTERNAL_REGS_MASK);
--	if (!dev->rstout)
-+	if (of_device_is_compatible(node, "marvell,orion-wdt")) {
-+
-+		dev->rstout = orion_wdt_ioremap_rstout(pdev, res->start &
-+						       INTERNAL_REGS_MASK);
-+		if (!dev->rstout)
-+			return -ENODEV;
-+
-+	} else if (of_device_is_compatible(node, "marvell,armada-370-wdt") ||
-+		   of_device_is_compatible(node, "marvell,armada-xp-wdt")) {
-+
-+		/* Dedicated RSTOUT register, can be requested. */
-+		res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
-+		dev->rstout = devm_ioremap_resource(&pdev->dev, res);
-+		if (IS_ERR(dev->rstout))
-+			return PTR_ERR(dev->rstout);
-+
-+	} else {
- 		return -ENODEV;
-+	}
+ 	/* Set watchdog duration */
+ 	writel(dev->clk_rate * wdt_dev->timeout,
+@@ -158,8 +159,10 @@ static int armada370_start(struct watchdog_device *wdt_dev)
+ 	atomic_io_modify(dev->reg + TIMER_CTRL, dev->data->wdt_enable_bit,
+ 						dev->data->wdt_enable_bit);
  
- 	ret = dev->data->clock_init(pdev, dev);
- 	if (ret) {
+-	atomic_io_modify(dev->rstout, dev->data->rstout_enable_bit,
+-				      dev->data->rstout_enable_bit);
++	/* Enable reset on watchdog */
++	reg = readl(dev->rstout);
++	reg |= dev->data->rstout_enable_bit;
++	writel(reg, dev->rstout);
+ 	return 0;
+ }
+ 
 -- 
 1.9.0
 
