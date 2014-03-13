@@ -1,26 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 10 Mar 2014 18:07:26 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+Date: Thu, 13 Mar 2014 22:47:15 +0000
+From: Lee Jones <lee.jones@linaro.org>
 To: Peter Tyser <ptyser@xes-inc.com>
-Cc: linux-kernel@vger.kernel.org, James Ralston <james.d.ralston@intel.com>,
-        Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>,
-        Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 6/8] mfd: lpc_ich: Change Avoton to iTCO v3
-Message-ID: <20140311010726.GF32676@roeck-us.net>
+Cc: linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        James Ralston <james.d.ralston@intel.com>,
+        Samuel Ortiz <sameo@linux.intel.com>, Wim Van Sebroeck <wim@iguana.be>,
+        linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 4/8] mfd: lpc_ich: Add support for iTCO v3
+Message-ID: <20140313224715.GF28504@lee--X1>
 References: <1394487298-14459-1-git-send-email-ptyser@xes-inc.com>
- <1394487298-14459-6-git-send-email-ptyser@xes-inc.com>
+ <1394487298-14459-4-git-send-email-ptyser@xes-inc.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <1394487298-14459-6-git-send-email-ptyser@xes-inc.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1394487298-14459-4-git-send-email-ptyser@xes-inc.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Mon, Mar 10, 2014 at 04:34:56PM -0500, Peter Tyser wrote:
-> The register layout of the Avoton is compatible with the iTCO v3
-> register layout.
+> Some newer Atom CPUs, eg Avoton and Bay Trail, use slightly different
+> register layouts for the iTCO than the current v1 and v2 iTCO.
+> Differences from previous iTCO versions include:
+> - The ACPI space is enabled in the "ACPI base address" register instead
+>   of the "ACPI control register"
+> 
+> - The "no reboot" functionality is set in the "Power Management
+>   Configuration" register instead of the "General Control and Status"
+>   (GCS) register or PCI configuration space.
+> 
+> - The "ACPI Control Register" is not present on v3.  The "Power
+>   Management Configuration Base Address" register resides at the same
+>   address is Avoton/Bay Trail.
+> 
+> To differentiate these newer chipsets create a new v3 iTCO version and
+> update the MFD driver to support them.
 > 
 > Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
 > Tested-by: Rajat Jain <rajatjain@juniper.net>
@@ -30,5 +45,15 @@ On Mon, Mar 10, 2014 at 04:34:56PM -0500, Peter Tyser wrote:
 > Cc: Lee Jones <lee.jones@linaro.org>
 > Cc: Wim Van Sebroeck <wim@iguana.be>
 > Cc: linux-watchdog@vger.kernel.org
+> ---
+>  drivers/mfd/lpc_ich.c       |   81 +++++++++++++++++++++++++++++++++++-------
+>  include/linux/mfd/lpc_ich.h |    8 ++--
+>  2 files changed, 71 insertions(+), 18 deletions(-)
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Applied with Guenter's Reviewed-by.
+
+-- 
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
