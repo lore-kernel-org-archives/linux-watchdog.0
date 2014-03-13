@@ -1,50 +1,77 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ig0-f175.google.com ([209.85.213.175]:38373 "EHLO
-	mail-ig0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752213AbaCMBlv (ORCPT
+Received: from top.free-electrons.com ([176.31.233.9]:40634 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753565AbaCMLUI (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 12 Mar 2014 21:41:51 -0400
-Received: by mail-ig0-f175.google.com with SMTP id ur14so15838904igb.2
-        for <linux-watchdog@vger.kernel.org>; Wed, 12 Mar 2014 18:41:51 -0700 (PDT)
-Message-ID: <53210CCA.90907@linaro.org>
-Date: Wed, 12 Mar 2014 20:41:30 -0500
-From: Alex Elder <elder@linaro.org>
+	Thu, 13 Mar 2014 07:20:08 -0400
+Date: Thu, 13 Mar 2014 12:15:58 +0100
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v2 0/3] watchdog: sunxi: Change compatible patterns
+Message-ID: <20140313111558.GH2815@lukather>
+References: <1391808566-31008-1-git-send-email-maxime.ripard@free-electrons.com>
+ <20140303104042.GU607@lukather>
+ <20140311205405.GA10228@spo001.leaseweb.com>
+ <20140312091649.GU2815@lukather>
+ <20140312180751.GC1484@spo001.leaseweb.com>
 MIME-Version: 1.0
-To: Guenter Roeck <linux@roeck-us.net>, wim@iguana.be
-CC: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: fix ARCH_BCM_MOBILE dependency
-References: <1394662322-12445-1-git-send-email-elder@linaro.org> <5320F516.5080707@roeck-us.net>
-In-Reply-To: <5320F516.5080707@roeck-us.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="xEruU51OOzV9VdJQ"
+Content-Disposition: inline
+In-Reply-To: <20140312180751.GC1484@spo001.leaseweb.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 03/12/2014 07:00 PM, Guenter Roeck wrote:
-> On 03/12/2014 03:12 PM, Alex Elder wrote:
->> Starting with this commit:
->>      047ef2fa rename ARCH_BCM to ARCH_BCM_MOBILE (clocksource)
->> the meaning of the ARCH_BCM config option is changed to represent
->> all Broadcom chips with code in the mach-bcm directory.
->>
->> Configuration options related to specific Broadcom platforms should
->> now use another symbol (currently ARCH_BCM_MOBILE, ARCH_BCM2835, or
->> ARCH_BCM_5301X).
->>
->> The BCM_KONA_WDT config option indicates a dependency on ARCH_BCM,
->> but it should be ARCH_BCM_MOBILE instead.  Fix that.
->>
->> Signed-off-by: Alex Elder <elder@linaro.org>
-> 
-> Hi Alex,
-> 
-> Markus Mayer already submitted a similar patch:
->     http://patchwork.roeck-us.net/patch/1263/
 
-Yes someone else pointed that out to me shortly
-after I sent mine.  I wasn't aware he had done it.
-I discovered the problem independently today and
-just sent out the fix.  Thanks.
+--xEruU51OOzV9VdJQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-					-Alex
 
+On Wed, Mar 12, 2014 at 07:07:51PM +0100, Wim Van Sebroeck wrote:
+> > > I'm OK with the patches, but what is the preferred way to get them up=
+stream?
+> > > via watchdog tree or via arch/soc tree?
+> >=20
+> > Since it touches the machine restart code, I'd prefer to merge it
+> > myself if it's ok?
+>=20
+> No Problem. You have my Acked-by.
+
+Actually, I only have to keep together patches 2 and 3. Could you
+merge the first one? I'll handle the two others.
+
+Thanks!
+Maxime
+
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--xEruU51OOzV9VdJQ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.14 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTIZNuAAoJEBx+YmzsjxAgWDMP/1EFCGMCOqT+Rt4g4SoVHq6g
+klCg76vY2gaWO/L5SaiMkEDlKJPl8uwWm8wYYtY8jrMMEBLXW8Hp2osITJFZtJ9I
+Qqk9ybXCHKoxXCkSHJ2x4pXOZZ1SvL9ERpgt59CkzmAonVPK4/rUoDr+Ue+GA5iW
+awVCoB4YnmYhpkreWqDykRcovpk7GR/1rV4W9LBk6LBkwUkWvU0u27c4BI4GYIvH
+cLn+zZM+urPflod0oS4TnE8VxOo+ythy09Po+M1TfPVr79uighzts81vGX39bfKX
++LTzBtqAhYaIPTfUJsrqX5suiJlVYwMWH5dywQQZZJUTcXmmPNc74hiK+MkDAX+k
+07ocioWt+omK7rGso0L4ieAQOYr+0zPgc7KUCp3LJuA7MT3t/jQMdyQ8+A1G+mWW
+rdBp8amc2aaJov6dcVgw7smmPZ+7bMz3aTPcCM2LWI8lQliFm1pSwC/8SfduDyMW
+UvwezXDENGDQGQGdVlWqnrAHcuWqtGfSSMtu3Sl1WOfqNacC52xYPvhgu2jr/RMW
+rDIFqqPQQVf/jrcaXzoi0MCmvIcXi+kxS2M+6qO5mk/AUAY8x/wDh70swZz5SSe1
+FiKzpXLK6dIU2FNtyRDzpV5W3awMduOOwLpCkqbxUMz6D9PRxVRDp5e/Luxjvres
+9e5poecue/I5Y0ZRary7
+=DSD3
+-----END PGP SIGNATURE-----
+
+--xEruU51OOzV9VdJQ--
