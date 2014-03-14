@@ -1,77 +1,87 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:40634 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753565AbaCMLUI (ORCPT
+Received: from mail.active-venture.com ([67.228.131.205]:64631 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754843AbaCNWVh (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 13 Mar 2014 07:20:08 -0400
-Date: Thu, 13 Mar 2014 12:15:58 +0100
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v2 0/3] watchdog: sunxi: Change compatible patterns
-Message-ID: <20140313111558.GH2815@lukather>
-References: <1391808566-31008-1-git-send-email-maxime.ripard@free-electrons.com>
- <20140303104042.GU607@lukather>
- <20140311205405.GA10228@spo001.leaseweb.com>
- <20140312091649.GU2815@lukather>
- <20140312180751.GC1484@spo001.leaseweb.com>
+	Fri, 14 Mar 2014 18:21:37 -0400
+Message-ID: <532380EA.7010809@roeck-us.net>
+Date: Fri, 14 Mar 2014 15:21:30 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="xEruU51OOzV9VdJQ"
-Content-Disposition: inline
-In-Reply-To: <20140312180751.GC1484@spo001.leaseweb.com>
+To: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org
+CC: Jason Cooper <jason@lakedaemon.net>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Lior Amsalem <alior@marvell.com>,
+	Tawfik Bayouk <tawfik@marvell.com>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: [PATCH v3 0/8] Watchdog support for Armada 375/38x SoC
+References: <1394658715-2017-1-git-send-email-ezequiel.garcia@free-electrons.com>
+In-Reply-To: <1394658715-2017-1-git-send-email-ezequiel.garcia@free-electrons.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On 03/12/2014 02:11 PM, Ezequiel Garcia wrote:
+> Third round of the patchset adding support for watchdog on Armada 375 and
+> Armada 38x SoCs.
+>
+> The new Armada 375/385 SoCs have two registers for the watchdog RSTOUT:
+>
+>   1. It has a dedicated register (similar to the one in A370/XP)
+>   2. Also has a bit in a shared RSTOUT register.
+>
+> Therefore, in order to support this two-folded RSTOUT, we extend the 'reg'
+> property in the watchdog devicetree and require a new pair of cells to specify
+> the shared RSTOUT.
+>
+> On the driver side, we need to implement per-SoC stop() and enabled()
+> functions. Such somewhat complex infrastructure is needed to ensure the driver
+> performs proper reset of the watchdog timer, by masking and disabling the
+> RSTOUT before the interrupt is enabled.
+>
+> I've pushed a branch so people can test this easily, e.g. ensuring
+> no regressions on Dove, Kirkwood and A370/XP:
+>
+> https://github.com/MISL-EBU-System-SW/mainline-public/tree/wdt_a385_a375_v3
+>
+> Changes from v2:
+>
+>    * Cleaned-up usage of atomic_io_modify(), using it only when needed.
+>      For instance, the RSTOUT dedicated register on Armada 370/375/380/XP
+>      can be safely access without any lock.
+>
+>    * Use devm_ioremap_resource() for the non-shared registers. The shared
+>      registers need to use devm_ioremap(), which does not request the
+>      memory region.
+>
+> Changes from v1:
+>
+>    * Reworked entirely!
+>
+> Ezequiel Garcia (8):
+>    watchdog: orion: Introduce a SoC-specific RSTOUT mapping
+>    watchdog: orion: Remove unneeded atomic access
+>    watchdog: orion: Introduce per-SoC stop() function
+>    watchdog: orion: Introduce per-SoC enabled() function
+>    watchdog: orion: Add Armada 375/380 SoC support
+>    ARM: mvebu: Enable Armada 375 watchdog in the devicetree
+>    ARM: mvebu: Enable Armada 380/385 watchdog in the devicetree
+>    ARM: mvebu: Add A375/A380 watchdog binding documentation
+>
+>   .../devicetree/bindings/watchdog/marvel.txt        |   7 +
+>   arch/arm/boot/dts/armada-375.dtsi                  |   6 +
+>   arch/arm/boot/dts/armada-38x.dtsi                  |   7 +
+>   drivers/watchdog/orion_wdt.c                       | 180 +++++++++++++++++++--
+>   4 files changed, 188 insertions(+), 12 deletions(-)
+>
+For the series:
+	Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
---xEruU51OOzV9VdJQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Guenter
 
-
-On Wed, Mar 12, 2014 at 07:07:51PM +0100, Wim Van Sebroeck wrote:
-> > > I'm OK with the patches, but what is the preferred way to get them up=
-stream?
-> > > via watchdog tree or via arch/soc tree?
-> >=20
-> > Since it touches the machine restart code, I'd prefer to merge it
-> > myself if it's ok?
->=20
-> No Problem. You have my Acked-by.
-
-Actually, I only have to keep together patches 2 and 3. Could you
-merge the first one? I'll handle the two others.
-
-Thanks!
-Maxime
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---xEruU51OOzV9VdJQ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTIZNuAAoJEBx+YmzsjxAgWDMP/1EFCGMCOqT+Rt4g4SoVHq6g
-klCg76vY2gaWO/L5SaiMkEDlKJPl8uwWm8wYYtY8jrMMEBLXW8Hp2osITJFZtJ9I
-Qqk9ybXCHKoxXCkSHJ2x4pXOZZ1SvL9ERpgt59CkzmAonVPK4/rUoDr+Ue+GA5iW
-awVCoB4YnmYhpkreWqDykRcovpk7GR/1rV4W9LBk6LBkwUkWvU0u27c4BI4GYIvH
-cLn+zZM+urPflod0oS4TnE8VxOo+ythy09Po+M1TfPVr79uighzts81vGX39bfKX
-+LTzBtqAhYaIPTfUJsrqX5suiJlVYwMWH5dywQQZZJUTcXmmPNc74hiK+MkDAX+k
-07ocioWt+omK7rGso0L4ieAQOYr+0zPgc7KUCp3LJuA7MT3t/jQMdyQ8+A1G+mWW
-rdBp8amc2aaJov6dcVgw7smmPZ+7bMz3aTPcCM2LWI8lQliFm1pSwC/8SfduDyMW
-UvwezXDENGDQGQGdVlWqnrAHcuWqtGfSSMtu3Sl1WOfqNacC52xYPvhgu2jr/RMW
-rDIFqqPQQVf/jrcaXzoi0MCmvIcXi+kxS2M+6qO5mk/AUAY8x/wDh70swZz5SSe1
-FiKzpXLK6dIU2FNtyRDzpV5W3awMduOOwLpCkqbxUMz6D9PRxVRDp5e/Luxjvres
-9e5poecue/I5Y0ZRary7
-=DSD3
------END PGP SIGNATURE-----
-
---xEruU51OOzV9VdJQ--
