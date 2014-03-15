@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:53068 "EHLO
+Received: from top.free-electrons.com ([176.31.233.9]:53083 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1755095AbaCOSTM (ORCPT
+	with ESMTP id S1755095AbaCOSTR (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 15 Mar 2014 14:19:12 -0400
+	Sat, 15 Mar 2014 14:19:17 -0400
 From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 To: <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
 	<linux-arm-kernel@lists.infradead.org>
@@ -18,41 +18,46 @@ Cc: Jason Cooper <jason@lakedaemon.net>,
 	Lior Amsalem <alior@marvell.com>,
 	Tawfik Bayouk <tawfik@marvell.com>,
 	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-Subject: [PATCH v4 8/9] ARM: mvebu: Enable Armada 380/385 watchdog in the devicetree
-Date: Sat, 15 Mar 2014 15:18:03 -0300
-Message-Id: <1394907484-26002-9-git-send-email-ezequiel.garcia@free-electrons.com>
+Subject: [PATCH v4 9/9] ARM: mvebu: Add A375/A380 watchdog binding documentation
+Date: Sat, 15 Mar 2014 15:18:04 -0300
+Message-Id: <1394907484-26002-10-git-send-email-ezequiel.garcia@free-electrons.com>
 In-Reply-To: <1394907484-26002-1-git-send-email-ezequiel.garcia@free-electrons.com>
 References: <1394907484-26002-1-git-send-email-ezequiel.garcia@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Add the DT nodes to enable the watchdog support available on
-Armada 380/385 SoC.
+This commit documents the new support for "marvell,armada-{375,380}-wdt"
+compatible strings and the extra 'reg' entry requirement.
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 ---
- arch/arm/boot/dts/armada-38x.dtsi | 7 +++++++
+ Documentation/devicetree/bindings/watchdog/marvel.txt | 7 +++++++
  1 file changed, 7 insertions(+)
 
-diff --git a/arch/arm/boot/dts/armada-38x.dtsi b/arch/arm/boot/dts/armada-38x.dtsi
-index a064f59..9a94196 100644
---- a/arch/arm/boot/dts/armada-38x.dtsi
-+++ b/arch/arm/boot/dts/armada-38x.dtsi
-@@ -267,6 +267,13 @@
- 				clock-names = "nbclk", "fixed";
- 			};
+diff --git a/Documentation/devicetree/bindings/watchdog/marvel.txt b/Documentation/devicetree/bindings/watchdog/marvel.txt
+index de11eb4..97223fd 100644
+--- a/Documentation/devicetree/bindings/watchdog/marvel.txt
++++ b/Documentation/devicetree/bindings/watchdog/marvel.txt
+@@ -5,11 +5,18 @@ Required Properties:
+ - Compatibility : "marvell,orion-wdt"
+ 		  "marvell,armada-370-wdt"
+ 		  "marvell,armada-xp-wdt"
++		  "marvell,armada-375-wdt"
++		  "marvell,armada-380-wdt"
  
-+			watchdog@20300 {
-+				compatible = "marvell,armada-380-wdt";
-+				reg = <0x20300 0x34>, <0x20704 0x4>, <0x18260 0x4>;
-+				clocks = <&coreclk 2>, <&refclk>;
-+				clock-names = "nbclk", "fixed";
-+			};
+ - reg		: Should contain two entries: first one with the
+ 		  timer control address, second one with the
+ 		  rstout enable address.
+ 
++For "marvell,armada-375-wdt" and "marvell,armada-380-wdt":
 +
- 			eth1: ethernet@30000 {
- 				compatible = "marvell,armada-370-neta";
- 				reg = <0x30000 0x4000>;
++- reg		: A third entry is mandatory and should contain the
++                  shared mask/unmask RSTOUT address.
++
+ Optional properties:
+ 
+ - interrupts	: Contains the IRQ for watchdog expiration
 -- 
 1.9.0
 
