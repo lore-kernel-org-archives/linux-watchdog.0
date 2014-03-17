@@ -1,83 +1,64 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:59447 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1756787AbaCQQZD (ORCPT
+Received: from mail-ee0-f52.google.com ([74.125.83.52]:41462 "EHLO
+	mail-ee0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750749AbaCQTLG (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 17 Mar 2014 12:25:03 -0400
-Date: Mon, 17 Mar 2014 17:22:43 +0100
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org,
+	Mon, 17 Mar 2014 15:11:06 -0400
+Message-ID: <532748C2.9030009@gmail.com>
+Date: Mon, 17 Mar 2014 20:10:58 +0100
+From: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+To: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v2 0/3] watchdog: sunxi: Change compatible patterns
-Message-ID: <20140317162243.GP27873@lukather>
-References: <1391808566-31008-1-git-send-email-maxime.ripard@free-electrons.com>
- <20140303104042.GU607@lukather>
- <20140311205405.GA10228@spo001.leaseweb.com>
- <20140312091649.GU2815@lukather>
- <20140312180751.GC1484@spo001.leaseweb.com>
- <20140313111558.GH2815@lukather>
- <20140315083711.GA11070@spo001.leaseweb.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="JB7KW7Ey7eB5HOHs"
-Content-Disposition: inline
-In-Reply-To: <20140315083711.GA11070@spo001.leaseweb.com>
+CC: Jason Cooper <jason@lakedaemon.net>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Lior Amsalem <alior@marvell.com>,
+	Tawfik Bayouk <tawfik@marvell.com>
+Subject: Re: [PATCH v4 0/9] Watchdog support for Armada 375/38x SoC
+References: <1394907484-26002-1-git-send-email-ezequiel.garcia@free-electrons.com>
+In-Reply-To: <1394907484-26002-1-git-send-email-ezequiel.garcia@free-electrons.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On 03/15/2014 07:17 PM, Ezequiel Garcia wrote:
+> Fourth round of the patchset adding support for watchdog on Armada 375 and
+> Armada 38x SoCs.
+>
+> The new Armada 375/385 SoCs have two registers for the watchdog RSTOUT:
+>
+>   1. It has a dedicated register (similar to the one in A370/XP)
+>   2. Also has a bit in a shared RSTOUT register.
+>
+> Therefore, in order to support this two-folded RSTOUT, we extend the 'reg'
+> property in the watchdog devicetree and require a new pair of cells to specify
+> the shared RSTOUT.
+>
+> On the driver side, we need to implement per-SoC stop() and enabled()
+> functions. Such somewhat complex infrastructure is needed to ensure the driver
+> performs proper reset of the watchdog timer, by masking and disabling the
+> RSTOUT before the interrupt is enabled.
+>
+> I've pushed a branch so people can test this easily, e.g. ensuring
+> no regressions on Dove, Kirkwood and A370/XP:
 
---JB7KW7Ey7eB5HOHs
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Ezequiel,
 
-On Sat, Mar 15, 2014 at 09:37:11AM +0100, Wim Van Sebroeck wrote:
-> Hi Maxime,
->=20
-> >=20
-> > On Wed, Mar 12, 2014 at 07:07:51PM +0100, Wim Van Sebroeck wrote:
-> > > > > I'm OK with the patches, but what is the preferred way to get the=
-m upstream?
-> > > > > via watchdog tree or via arch/soc tree?
-> > > >=20
-> > > > Since it touches the machine restart code, I'd prefer to merge it
-> > > > myself if it's ok?
-> > >=20
-> > > No Problem. You have my Acked-by.
-> >=20
-> > Actually, I only have to keep together patches 2 and 3. Could you
-> > merge the first one? I'll handle the two others.
->=20
-> First one added to linux-watchdog-next.
+Although, I just saw below that you actually already tested on Dove,
+you can add my
 
-Thanks!
+Tested-by: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
 
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+> https://github.com/MISL-EBU-System-SW/mainline-public/tree/wdt_a385_a375_v4
+>
+> Series based on today's mvebu for-next. Will send a rebased version on top of
+> v3.15-rc1. Tested on A375-DB, A385-DB, A370-RD and Dove Cubox.
 
---JB7KW7Ey7eB5HOHs
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Sebastian
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTJyFTAAoJEBx+YmzsjxAgCowP/2lkcw9jGLp8zI/nlYc5nF3u
-K/Az312TIHgpAHiJ4/2t1UlmintB7VreNGk18XlLLfodmrEcf3RETmRWnxGPqLcv
-BadZPGwzVQA85VKuXhUnE98W4ovbckhw2hteqCojPiXtrmLENSf9bA8Zp6huuGv2
-LM2pTOIn+vMq2ZLpLSTxg0L9JRRjs0wXvgB7ee2TC+e7MAOk7wqe39LGz24BpogO
-U0viEn/CYwqT2g52fTgDAdrQbAxdVxTwSVPu7FWAVDNG55RbzEqGxG4L/5GKWSD+
-/+jHTaMn2QhbYmmlVICtaLLtrZCdFiypYy3BJgDUJ1p/hhgotCIA3cvURKqWFCJ4
-4NCvDpzArRxJYfC6GKUi5KpVxlYhuG4efBiv663qmwJQaoYp+HLK5bdHlGfBz8ZE
-Yxpi4R9qG09e2xsp+BQEM4xp9jFe6ltUw5qAjjRQz/BS1isB6I8qpAReGz19J82t
-h9iiuXSTqAqjKXznAi+b2qKsf45q+nNMZukMIGjq1Tz+p+1Opqs/5ojmpW+cGAZ0
-B1ocGWknnag4fAehMFU2qcMDlR0UnGQnoJL2k0DEhTcNkNROt23k0bAwmvN20h4D
-WY/U6thZDJuXUu+FieAYgPYzWKLtkal/cWJ6wxwNybuQcfpsFauIYAFSvC5HvAGC
-G3ljPR2LviGykB29yoyM
-=+A/v
------END PGP SIGNATURE-----
-
---JB7KW7Ey7eB5HOHs--
