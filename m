@@ -1,34 +1,58 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from tx2ehsobe002.messaging.microsoft.com ([65.55.88.12]:15763 "EHLO
-	tx2outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753090AbaCYKUH (ORCPT
+Received: from va3ehsobe006.messaging.microsoft.com ([216.32.180.16]:41399
+	"EHLO va3outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753085AbaCYKUF (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 25 Mar 2014 06:20:07 -0400
+	Tue, 25 Mar 2014 06:20:05 -0400
 From: Xiubo Li <Li.Xiubo@freescale.com>
 To: <wim@iguana.be>, <w.sang@pengutronix.de>,
 	<linux-watchdog@vger.kernel.org>
 CC: <linux-kernel@vger.kernel.org>, Xiubo Li <Li.Xiubo@freescale.com>
-Subject: [PATCH 0/2] Add big endian support
-Date: Tue, 25 Mar 2014 17:35:30 +0800
-Message-ID: <1395740132-21396-1-git-send-email-Li.Xiubo@freescale.com>
+Subject: [PATCH 1/2] watchdog: imx2_wdt: Sort the header files alphabetically
+Date: Tue, 25 Mar 2014 17:35:31 +0800
+Message-ID: <1395740132-21396-2-git-send-email-Li.Xiubo@freescale.com>
+In-Reply-To: <1395740132-21396-1-git-send-email-Li.Xiubo@freescale.com>
+References: <1395740132-21396-1-git-send-email-Li.Xiubo@freescale.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patches are preparing for Vybird, LS1 and LS2. And on LS1 the IP will
-in BE mode.
+Signed-off-by: Xiubo Li <Li.Xiubo@freescale.com>
+---
+ drivers/watchdog/imx2_wdt.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-And this has been test on Vybird.
-
-
-Xiubo Li (2):
-  watchdog: imx2_wdt: Sort the header files alphabetically
-  watchdog: imx2_wdt: Add big-endian support
-
- drivers/watchdog/imx2_wdt.c | 52 ++++++++++++++++++++++++++++++++-------------
- 1 file changed, 37 insertions(+), 15 deletions(-)
-
+diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+index dd51d95..1795922 100644
+--- a/drivers/watchdog/imx2_wdt.c
++++ b/drivers/watchdog/imx2_wdt.c
+@@ -21,19 +21,19 @@
+  * Halt on suspend:	Manual		Can be automatic
+  */
+ 
++#include <linux/clk.h>
++#include <linux/fs.h>
+ #include <linux/init.h>
++#include <linux/io.h>
++#include <linux/jiffies.h>
+ #include <linux/kernel.h>
+ #include <linux/miscdevice.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/platform_device.h>
+-#include <linux/watchdog.h>
+-#include <linux/clk.h>
+-#include <linux/fs.h>
+-#include <linux/io.h>
+-#include <linux/uaccess.h>
+ #include <linux/timer.h>
+-#include <linux/jiffies.h>
++#include <linux/uaccess.h>
++#include <linux/watchdog.h>
+ 
+ #define DRIVER_NAME "imx2-wdt"
+ 
 -- 
 1.8.4
 
