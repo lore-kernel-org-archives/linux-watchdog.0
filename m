@@ -1,21 +1,22 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ig0-f176.google.com ([209.85.213.176]:33233 "EHLO
-	mail-ig0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751437AbaC1KcN (ORCPT
+Received: from mail-ie0-f169.google.com ([209.85.223.169]:51325 "EHLO
+	mail-ie0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751797AbaC1KgW (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 28 Mar 2014 06:32:13 -0400
+	Fri, 28 Mar 2014 06:36:22 -0400
 From: Harini Katakam <harinik@xilinx.com>
-To: grant.likely@linaro.org, robh+dt@kernel.org, pawel.moll@arm.com,
-	mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
-	galak@codeaurora.org, rob@landley.net
+To: wim@iguana.be, grant.likely@linaro.org, robh+dt@kernel.org,
+	pawel.moll@arm.com, mark.rutland@arm.com,
+	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+	rob@landley.net
 Cc: michals@xilinx.com, linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
 	linux-doc@vger.kernel.org, Harini Katakam <harinik@xilinx.com>
 Subject: [PATCH 2/2] devicetree: Add Cadence WDT devicetree bindings documentation
-Date: Fri, 28 Mar 2014 16:02:00 +0530
-Message-Id: <1396002720-7105-2-git-send-email-harinik@xilinx.com>
-In-Reply-To: <1396002720-7105-1-git-send-email-harinik@xilinx.com>
-References: <1396002720-7105-1-git-send-email-harinik@xilinx.com>
+Date: Fri, 28 Mar 2014 16:06:08 +0530
+Message-Id: <1396002968-7158-2-git-send-email-harinik@xilinx.com>
+In-Reply-To: <1396002968-7158-1-git-send-email-harinik@xilinx.com>
+References: <1396002968-7158-1-git-send-email-harinik@xilinx.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
