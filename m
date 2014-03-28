@@ -1,43 +1,64 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:46685 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751580AbaCZPAE (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 26 Mar 2014 11:00:04 -0400
-Date: Wed, 26 Mar 2014 16:00:01 +0100
-From: Jean Delvare <jdelvare@suse.de>
-To: linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@iguana.be>
-Subject: [PATCH] watchdog: Fix SBC8360 dependencies
-Message-ID: <20140326160001.44271284@endymion.delvare>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Received: from mail-ig0-f176.google.com ([209.85.213.176]:33233 "EHLO
+	mail-ig0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751437AbaC1KcN (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 28 Mar 2014 06:32:13 -0400
+From: Harini Katakam <harinik@xilinx.com>
+To: grant.likely@linaro.org, robh+dt@kernel.org, pawel.moll@arm.com,
+	mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
+	galak@codeaurora.org, rob@landley.net
+Cc: michals@xilinx.com, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-doc@vger.kernel.org, Harini Katakam <harinik@xilinx.com>
+Subject: [PATCH 2/2] devicetree: Add Cadence WDT devicetree bindings documentation
+Date: Fri, 28 Mar 2014 16:02:00 +0530
+Message-Id: <1396002720-7105-2-git-send-email-harinik@xilinx.com>
+In-Reply-To: <1396002720-7105-1-git-send-email-harinik@xilinx.com>
+References: <1396002720-7105-1-git-send-email-harinik@xilinx.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-According to its Kconfig help text, the sbc8360 watchdog driver is
-only used on the Axiomtek SBC8360 single-board computer. This piece of
-hardware is 32-bit x86 so the driver is useless beyond X86_32.
+Add cadence-wdt bindings documentation.
 
-Signed-off-by: Jean Delvare <jdelvare@suse.de>
-Cc: Wim Van Sebroeck <wim@iguana.be>
+Signed-off-by: Harini Katakam <harinik@xilinx.com>
 ---
- drivers/watchdog/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../devicetree/bindings/watchdog/cadence-wdt.txt   |   26 ++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/cadence-wdt.txt
 
---- linux-3.14-rc7.orig/drivers/watchdog/Kconfig	2014-03-25 08:29:55.136283300 +0100
-+++ linux-3.14-rc7/drivers/watchdog/Kconfig	2014-03-26 15:56:35.549231692 +0100
-@@ -815,7 +815,7 @@ config 60XX_WDT
- 
- config SBC8360_WDT
- 	tristate "SBC8360 Watchdog Timer"
--	depends on X86
-+	depends on X86_32
- 	---help---
- 
- 	  This is the driver for the hardware watchdog on the SBC8360 Single
-
-
+diff --git a/Documentation/devicetree/bindings/watchdog/cadence-wdt.txt b/Documentation/devicetree/bindings/watchdog/cadence-wdt.txt
+new file mode 100644
+index 0000000..1f7a732
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/cadence-wdt.txt
+@@ -0,0 +1,26 @@
++Zynq Watchdog Device Tree Bindings
++-------------------------------------------
++
++Required properties:
++- compatible		: Should be "xlnx,zynq-wdt-r1p2" or "cdns,wdt-r1p2".
++- clocks		: Clock phandles (see clock bindings for details).
++- reg			: Physical base address and size of WDT registers map.
++- interrupts		: Property with a value describing the interrupt
++			  number.
++- interrupt-parent	: Must be core interrupt controller.
++
++Optional properties
++- reset			: Reset interrupt.
++- timeout-sec		: Watchdog timeout value (in seconds).
++
++Example:
++
++		wdt@f8005000 {
++			compatible = "xlnx,zynq-wdt-r1p2";
++			clocks = <&clkc 45>;
++			interrupt-parent = <&intc>;
++			interrupts = <0 9 1>;
++			reg = <0xf8005000 0x1000>;
++			reset = <0>;
++			timeout-sec = <10>;
++		} ;
 -- 
-Jean Delvare
-SUSE L3 Support
+1.7.9.5
+
