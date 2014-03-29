@@ -1,52 +1,51 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:55037 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751531AbaCaKam (ORCPT
+Received: from mail-oa0-f51.google.com ([209.85.219.51]:52986 "EHLO
+	mail-oa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751432AbaC2Lyl convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 31 Mar 2014 06:30:42 -0400
-Date: Mon, 31 Mar 2014 11:30:20 +0100
-From: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
-To: Harini Katakam <harinik@xilinx.com>
-Cc: grant.likely@linaro.org, robh+dt@kernel.org, pawel.moll@arm.com,
-	mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
-	galak@codeaurora.org, rob@landley.net, michals@xilinx.com,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-doc@vger.kernel.org
-Subject: Re: [PATCH 1/2] watchdog: Add Cadence WDT driver
-Message-ID: <20140331113020.03be6894@alan.etchedpixels.co.uk>
-In-Reply-To: <1396002720-7105-1-git-send-email-harinik@xilinx.com>
-References: <1396002720-7105-1-git-send-email-harinik@xilinx.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 29 Mar 2014 07:54:41 -0400
+MIME-Version: 1.0
+Date: Sat, 29 Mar 2014 12:54:40 +0100
+Message-ID: <CACna6rwRzw1fo2_DyV3T4fa4+cA3=LTcFHRpRsfZWwR2ugQn_w@mail.gmail.com>
+Subject: Extending wdt-gpio to be used on non-of (no DT) platforms
+From: =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>
+To: linux-watchdog@vger.kernel.org,
+	Alexander Shiyan <shc_work@mail.ru>,
+	Florian Fainelli <florian@openwrt.org>
+Cc: devicetree@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+	Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Stephen Warren <swarren@wwwdotorg.org>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Grant Likely <grant.likely@linaro.org>,
+	Hauke Mehrtens <hauke@hauke-m.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+Hi guys,
 
-> +	wdt->cdns_wdt_notifier.notifier_call = &cdns_wdt_notify_sys;
-> +	/* Register the reboot notifier */
-> +	ret = register_reboot_notifier(&wdt->cdns_wdt_notifier);
-> +	if (ret != 0) {
-> +		dev_err(&pdev->dev, "cannot register reboot notifier err=%d)\n",
-> +			ret);
-> +		return ret;
+I've noticed gpio_wdt was added to the kernel to support some devices
+based on devicetree.
+We used to have our own (not mainlined) gpio_wdt in OpenWrt project:
+http://git.openwrt.org/?p=openwrt.git;a=blob;f=target/linux/generic/patches-3.10/990-gpio_wdt.patch;hb=HEAD
 
-Your ordering is wrong. If the box reboots between here and the spin lock
-in it further down it'll crash in your notifier.
+The main difference is that the mainlined one uses OF, while OpenWrt's
+one uses plain platform API (with struct gpio_wdt_platform_data).
 
-As
+I wanted to bring a topic of mainlining OpenWrt's solution. We
+definitely need that and at the same time our device(s) don't use OF /
+DT.
 
-> +	spin_lock_init(&wdt->io_lock);
+Do you think we should extend wdt-gpio to handle that? Or do you think
+this driver is so small, it's not worth it and we should submit a
+separated one?
 
-is needed before the code your notifier calls will work.
+Apart from API being used, one other difference I see is OpenWrt
+supports different values for "first tick" and "interval". But that
+could be easily handled.
 
-> +	dev_info(&pdev->dev, "Xilinx Watchdog Timer at %p with timeout %ds%s\n",
-> +		 wdt->regs, cdns_wdt_device->timeout,
-> +		 nowayout ? ", nowayout" : "");
-
-dev_dbg
-
-if every driver felt the need to announce itself on boot you'd have pages
-and pages of junk.
-
-Alan
+-- 
+Rafał
