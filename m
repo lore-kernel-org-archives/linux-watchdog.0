@@ -1,54 +1,80 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from fallback8.mail.ru ([94.100.176.136]:36156 "EHLO
-	fallback8.mail.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751424AbaC2MaW (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 29 Mar 2014 08:30:22 -0400
-From: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
-To: =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>
-Cc: devicetree@vger.kernel.org,
-	=?UTF-8?B?V2ltIFZhbiBTZWJyb2Vjaw==?= <wim@iguana.be>,
-	=?UTF-8?B?Um9iIEhlcnJpbmc=?= <robh+dt@kernel.org>,
-	=?UTF-8?B?UGF3ZWwgTW9sbA==?= <pawel.moll@arm.com>,
-	=?UTF-8?B?TWFyayBSdXRsYW5k?= <mark.rutland@arm.com>,
-	=?UTF-8?B?U3RlcGhlbiBXYXJyZW4=?= <swarren@wwwdotorg.org>,
-	=?UTF-8?B?SWFuIENhbXBiZWxs?= <ijc+devicetree@hellion.org.uk>,
-	=?UTF-8?B?R3JhbnQgTGlrZWx5?= <grant.likely@linaro.org>,
-	=?UTF-8?B?SGF1a2UgTWVocnRlbnM=?= <hauke@hauke-m.de>,
+Received: from server19320154104.serverpool.info ([193.201.54.104]:57826 "EHLO
+	hauke-m.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751690AbaC2NQt (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Sat, 29 Mar 2014 09:16:49 -0400
+Message-ID: <5336C7B8.90707@hauke-m.de>
+Date: Sat, 29 Mar 2014 14:16:40 +0100
+From: Hauke Mehrtens <hauke@hauke-m.de>
+MIME-Version: 1.0
+To: Alexander Shiyan <shc_work@mail.ru>,
+	=?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>
+CC: devicetree@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+	Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Stephen Warren <swarren@wwwdotorg.org>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Grant Likely <grant.likely@linaro.org>,
 	linux-watchdog@vger.kernel.org,
-	=?UTF-8?B?RmxvcmlhbiBGYWluZWxsaQ==?= <florian@openwrt.org>
-Subject: =?UTF-8?B?UmU6IEV4dGVuZGluZyB3ZHQtZ3BpbyB0byBiZSB1c2VkIG9uIG5vbi1vZiAo?=
- =?UTF-8?B?bm8gRFQpIHBsYXRmb3Jtcw==?=
-Mime-Version: 1.0
-Date: Sat, 29 Mar 2014 16:29:45 +0400
-Reply-To: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
-Message-ID: <1396096185.560264234@f368.i.mail.ru>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: base64
-In-Reply-To: <CACna6rwRzw1fo2_DyV3T4fa4+cA3=LTcFHRpRsfZWwR2ugQn_w@mail.gmail.com>
-References: <CACna6rwRzw1fo2_DyV3T4fa4+cA3=LTcFHRpRsfZWwR2ugQn_w@mail.gmail.com>
+	Florian Fainelli <florian@openwrt.org>, m.adam--linux@adamis.de
+Subject: Re: Extending wdt-gpio to be used on non-of (no DT) platforms
+References: <CACna6rwRzw1fo2_DyV3T4fa4+cA3=LTcFHRpRsfZWwR2ugQn_w@mail.gmail.com> <1396096185.560264234@f368.i.mail.ru>
+In-Reply-To: <1396096185.560264234@f368.i.mail.ru>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-U2F0LCAyOSBNYXIgMjAxNCAxMjo1NDo0MCArMDEwMCDQvtGCIFJhZmHFgiBNacWCZWNraSA8emFq
-ZWM1QGdtYWlsLmNvbT46Cj4gSGkgZ3V5cywKPiAKPiBJJ3ZlIG5vdGljZWQgZ3Bpb193ZHQgd2Fz
-IGFkZGVkIHRvIHRoZSBrZXJuZWwgdG8gc3VwcG9ydCBzb21lIGRldmljZXMKPiBiYXNlZCBvbiBk
-ZXZpY2V0cmVlLgo+IFdlIHVzZWQgdG8gaGF2ZSBvdXIgb3duIChub3QgbWFpbmxpbmVkKSBncGlv
-X3dkdCBpbiBPcGVuV3J0IHByb2plY3Q6Cj4gaHR0cDovL2dpdC5vcGVud3J0Lm9yZy8/cD1vcGVu
-d3J0LmdpdDthPWJsb2I7Zj10YXJnZXQvbGludXgvZ2VuZXJpYy9wYXRjaGVzLTMuMTAvOTkwLWdw
-aW9fd2R0LnBhdGNoO2hiPUhFQUQKPiAKPiBUaGUgbWFpbiBkaWZmZXJlbmNlIGlzIHRoYXQgdGhl
-IG1haW5saW5lZCBvbmUgdXNlcyBPRiwgd2hpbGUgT3BlbldydCdzCj4gb25lIHVzZXMgcGxhaW4g
-cGxhdGZvcm0gQVBJICh3aXRoIHN0cnVjdCBncGlvX3dkdF9wbGF0Zm9ybV9kYXRhKS4KPiAKPiBJ
-IHdhbnRlZCB0byBicmluZyBhIHRvcGljIG9mIG1haW5saW5pbmcgT3BlbldydCdzIHNvbHV0aW9u
-LiBXZQo+IGRlZmluaXRlbHkgbmVlZCB0aGF0IGFuZCBhdCB0aGUgc2FtZSB0aW1lIG91ciBkZXZp
-Y2UocykgZG9uJ3QgdXNlIE9GIC8KPiBEVC4KPiAKPiBEbyB5b3UgdGhpbmsgd2Ugc2hvdWxkIGV4
-dGVuZCB3ZHQtZ3BpbyB0byBoYW5kbGUgdGhhdD8gT3IgZG8geW91IHRoaW5rCj4gdGhpcyBkcml2
-ZXIgaXMgc28gc21hbGwsIGl0J3Mgbm90IHdvcnRoIGl0IGFuZCB3ZSBzaG91bGQgc3VibWl0IGEK
-PiBzZXBhcmF0ZWQgb25lPwo+IAo+IEFwYXJ0IGZyb20gQVBJIGJlaW5nIHVzZWQsIG9uZSBvdGhl
-ciBkaWZmZXJlbmNlIEkgc2VlIGlzIE9wZW5XcnQKPiBzdXBwb3J0cyBkaWZmZXJlbnQgdmFsdWVz
-IGZvciAiZmlyc3QgdGljayIgYW5kICJpbnRlcnZhbCIuIEJ1dCB0aGF0Cj4gY291bGQgYmUgZWFz
-aWx5IGhhbmRsZWQuCgpJbiBmYWN0LCB0aGlzIGRyaXZlciBjYW4gYmUgZXh0ZW5kZWQgdG8gbm9u
-LURUIHN1cHBvcnQgd2l0aG91dCBhZGRpbmcKYW55IHBsYXRmb3JtX2RhdGEgaGVhZGVycy4gVGhp
-cyBjYW4gYmUgaW1wbGVtZW50ZWQgYnkgY29udmVydCBkcml2ZXIKdG8gdXNpbmcgZGVzY3JpcHRv
-ci1iYXNlZCBHUElPIGZ1bmN0aW9ucyAoZ3Bpb2Rfe30pLgpIVyB0aW1lb3V0IHZhbHVlIGluIHRo
-aXMgY2FzZSBjYW4gYmUgdGFrZW4gd2l0aCBtb2R1bGVfcGFyYW0oKS4KCi0tLQoK
+On 03/29/2014 01:29 PM, Alexander Shiyan wrote:
+> Sat, 29 Mar 2014 12:54:40 +0100 =D0=BE=D1=82 Rafa=C5=82 Mi=C5=82ecki =
+<zajec5@gmail.com>:
+>> Hi guys,
+>>
+>> I've noticed gpio_wdt was added to the kernel to support some device=
+s
+>> based on devicetree.
+>> We used to have our own (not mainlined) gpio_wdt in OpenWrt project:
+>> http://git.openwrt.org/?p=3Dopenwrt.git;a=3Dblob;f=3Dtarget/linux/ge=
+neric/patches-3.10/990-gpio_wdt.patch;hb=3DHEAD
+>>
+>> The main difference is that the mainlined one uses OF, while OpenWrt=
+'s
+>> one uses plain platform API (with struct gpio_wdt_platform_data).
+>>
+>> I wanted to bring a topic of mainlining OpenWrt's solution. We
+>> definitely need that and at the same time our device(s) don't use OF=
+ /
+>> DT.
+>>
+>> Do you think we should extend wdt-gpio to handle that? Or do you thi=
+nk
+>> this driver is so small, it's not worth it and we should submit a
+>> separated one?
+>>
+>> Apart from API being used, one other difference I see is OpenWrt
+>> supports different values for "first tick" and "interval". But that
+>> could be easily handled.
+>=20
+> In fact, this driver can be extended to non-DT support without adding
+> any platform_data headers. This can be implemented by convert driver
+> to using descriptor-based GPIO functions (gpiod_{}).
+> HW timeout value in this case can be taken with module_param().
+
+The Huawei E970, the only device with a bcm47xx SoC which uses this gpi=
+o
+watchdog I know of, needs the gpio driver very early. It is not possibl=
+e
+to deactivate the watchdogs, so it has to get trigged very early in the
+boot process. Module load time is too late. I think wdt-gpio should be
+extended to support the old platform device interface with a own
+platform_data header.
+
+I added Mathias Adam, the author of the patch in OpenWrt.
+
+Hauke
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
