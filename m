@@ -1,84 +1,114 @@
-Return-Path: <Li.Xiubo@freescale.com>
-From: "Li.Xiubo@freescale.com" <Li.Xiubo@freescale.com>
-To: Guenter Roeck <linux@roeck-us.net>, "wim@iguana.be" <wim@iguana.be>,
-	"w.sang@pengutronix.de" <w.sang@pengutronix.de>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"broonie@linaro.org" <broonie@linaro.org>, "broonie@kernel.org"
-	<broonie@kernel.org>, "swarren@nvidia.com" <swarren@nvidia.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCHv2 2/2] watchdog: imx2_wdt: Add big-endian support
-Date: Tue, 1 Apr 2014 02:24:12 +0000
-Message-ID: <1c79a81bbd7b4cc79689cb907e81e893@BY2PR03MB505.namprd03.prod.outlook.com>
-References: <1395800500-22655-1-git-send-email-Li.Xiubo@freescale.com>
- <1395800500-22655-3-git-send-email-Li.Xiubo@freescale.com>
- <5338E1E8.4030700@roeck-us.net>
- <28375308b05f4cf4bc7d1559f2524c1b@BY2PR03MB505.namprd03.prod.outlook.com>
- <533A1A4B.2090503@roeck-us.net>
-In-Reply-To: <533A1A4B.2090503@roeck-us.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Return-Path: <monstr@monstr.eu>
+Return-Path: <monstr@monstr.eu>
+Message-ID: <533AA0F7.2080304@monstr.eu>
+Date: Tue, 01 Apr 2014 13:20:23 +0200
+From: Michal Simek <monstr@monstr.eu>
+Reply-To: monstr@monstr.eu
 MIME-Version: 1.0
+To: Guenter Roeck <linux@roeck-us.net>
+CC: Harini Katakam <harinik@xilinx.com>, grant.likely@linaro.org,
+ robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
+ ijc+devicetree@hellion.org.uk, galak@codeaurora.org, rob@landley.net,
+ michals@xilinx.com, linux-watchdog@vger.kernel.org,
+ linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-doc@vger.kernel.org
+Subject: Re: [PATCH 1/2] watchdog: Add Cadence WDT driver
+References: <1396002720-7105-1-git-send-email-harinik@xilinx.com> <533A0937.9030505@roeck-us.net>
+In-Reply-To: <533A0937.9030505@roeck-us.net>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="1UdlIJ8W0cQa8K6g1X9WRF86iF9EJRsnS"
 List-ID: <linux-watchdog@vger.kernel.org>
 
-> > It's actually the following ones first, which will support 16-bits
-> > Values for regmap-mmio:
-> >
-> > https://patchwork.kernel.org/patch/3896321/
-> > https://patchwork.kernel.org/patch/3896331/
-> > https://patchwork.kernel.org/patch/3901021/
-> >
-> > And the then the following one, which will support the LE endian:
-> > http://www.spinics.net/lists/kernel/msg1714375.html
-> >
-> So what is the plan for this patch ? Seems to me it would make more sense
-> to convert the driver to regmap.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--1UdlIJ8W0cQa8K6g1X9WRF86iF9EJRsnS
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+Hi Guenter,
+
+>> +/**
+>> + * struct cdns_wdt - Watchdog device structure
+>> + * @regs: baseaddress of device
+>> + * @rst: reset flag
+>> + * @clk: struct clk * of a clock source
+>> + * @prescaler: for saving prescaler value
+>> + * @ctrl_clksel: counter clock prescaler selection
+>> + * @io_lock: spinlock for IO register access
+>> + * @cdns_wdt_device: watchdog device structure
+>> + * @cdns_wdt_notifier: notifier structure
+>> + *
+>> + * Structure containing parameters specific to cadence watchdog.
+>> + */
+>> +struct cdns_wdt {
+>> +    void __iomem        *regs;
+>> +    u32            rst;
+>> +    struct clk        *clk;
+>> +    u32            prescaler;
+>> +    u32            ctrl_clksel;
+>> +    spinlock_t        io_lock;
+>> +    struct watchdog_device    cdns_wdt_device;
+>> +    struct notifier_block    cdns_wdt_notifier;
+>> +};
+>> +
+>> +/* Write access to Registers */
+>> +static inline void cdns_wdt_writereg(void __iomem *offset, u32 val)
+>> +{
+>> +    writel_relaxed(val, offset);
+>> +}
+>> +
 >=20
+> Not really sure if this function provides any value.
 
-@Guenter, @Mark,
+I can't see any problem to use this helper IO function
+but maybe we could do it a little bit differently.
+Currently implementation is just passing values to writel_relaxed()
 
-Yes, I do think so too and there has already regmap-mmio version patch
-Series about the IMX2 Watchdog driver, but those regmap patches for
-supporting the 16-bit values are in Mark's tree and the IMX2 Watchdog
-will depend on them.
+What about to do it like this?
 
-How to deal with this situation ?
+static inline void cdns_wdt_writereg(struct cdns_wdt *wdt, u32 offset, u3=
+2 val)
+{
+    writel_relaxed(val, wdt->regs + offset);
+}
 
+This solution was suggested by Mark here too.
+https://lkml.org/lkml/2014/3/17/234
 
-The regmap patches depended by IMX2 Watchdog:
-
-1, https://patchwork.kernel.org/patch/3896321/   =3D=3D=3D> <applied>
-   regmap: mmio: add regmap_mmio_{regsize, count}_check.=20
-   https://patchwork.kernel.org/patch/3896331/   =3D=3D=3D> <applied>
-   regmap: mmio: Add support for 1/2/8 bytes wide register address.
-   https://patchwork.kernel.org/patch/3901021/   =3D=3D=3D> <applied>
-   regmap: mmio: Add regmap_mmio_regbits_check.
-
-
-2, The above three and this one are a must.
-   https://patchwork.kernel.org/patch/3912671/   =3D=3D=3D> <pending>
-   regmap: mmio: Fix the bug of 'offset' value parsing.
-
-
-3, The following ones are not a must, but will make the IMX2
-   Watchdog much simplifier.
-   https://patchwork.kernel.org/patch/3912401/   =3D=3D=3D> <pending>
-   regmap: implement LE formatting/parsing for 16/32-bit values.
-   https://patchwork.kernel.org/patch/3912751/   =3D=3D=3D> <pending>
-   regmap: add DT endianness binding support.
-   https://patchwork.kernel.org/patch/3912741/   =3D=3D=3D> <pending>
-   regmap: Add the DT binding documentation for endianness
-
-
-The above all have been test using SAI(32-bit regmap-mmio),=20
-SGTL5000(codec 16-bit regmap-i2c) and IMX2 Watchdog(16-bit
-regmap-mmio).
-
-
-I'll send the regmap-mmio based patch series for IMX2 Watchdog.
-
+The reason for having one IO helper function is
+1. Simper debugging when you add printks to one location and
+you get full list for accesses
+2. This driver can be also used by BE Linux on Microblaze in PL
+that's why there could be a need to autodetect endianess directly
+on the IP itself. Then using helper function is necessary.
+3. We have met with secure monitor implementation where all these
+io accesses should be done via smc calls and having
+IO helper function is easier for change.
 
 Thanks,
+Michal
 
-Best Regards,
-Xiubo
+--=20
+Michal Simek, Ing. (M.Eng), OpenPGP -> KeyID: FE3D1F91
+w: www.monstr.eu p: +42-0-721842854
+Maintainer of Linux kernel - Microblaze cpu - http://www.monstr.eu/fdt/
+Maintainer of Linux kernel - Xilinx Zynq ARM architecture
+Microblaze U-BOOT custodian and responsible for u-boot arm zynq platform
+
+
+
+--1UdlIJ8W0cQa8K6g1X9WRF86iF9EJRsnS
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+
+iEYEARECAAYFAlM6oPcACgkQykllyylKDCGltwCfark82XZsx3xg6RW1TJZq48xk
+tpkAn0em/Tpp9YxxOa5d8fVlcD7JOtJN
+=ihri
+-----END PGP SIGNATURE-----
+
+--1UdlIJ8W0cQa8K6g1X9WRF86iF9EJRsnS--
