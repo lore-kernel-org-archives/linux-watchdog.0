@@ -1,68 +1,52 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail2-relais-roc.national.inria.fr ([192.134.164.83]:7117 "EHLO
-	mail2-relais-roc.national.inria.fr" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751318AbaDANuL (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 1 Apr 2014 09:50:11 -0400
-From: Julia Lawall <Julia.Lawall@lip6.fr>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: kernel-janitors@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 3/3] watchdog: via_wdt: replace del_timer by del_timer_sync
-Date: Tue,  1 Apr 2014 15:49:19 +0200
-Message-Id: <1396360159-16244-4-git-send-email-Julia.Lawall@lip6.fr>
-In-Reply-To: <1396360159-16244-1-git-send-email-Julia.Lawall@lip6.fr>
-References: <1396360159-16244-1-git-send-email-Julia.Lawall@lip6.fr>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <Li.Xiubo@freescale.com>
+From: Xiubo Li <Li.Xiubo@freescale.com>
+To: <linux@roeck-us.net>, <wim@iguana.be>, <shawn.guo@linaro.org>,
+	<linux-watchdog@vger.kernel.org>
+CC: <linux-kernel@vger.kernel.org>, Xiubo Li <Li.Xiubo@freescale.com>
+Subject: [PATCHv3 1/2] watchdog: imx2_wdt: Sort the header files alphabetically
+Date: Tue, 1 Apr 2014 12:46:37 +0800
+Message-ID: <1396327598-28535-2-git-send-email-Li.Xiubo@freescale.com>
+In-Reply-To: <1396327598-28535-1-git-send-email-Li.Xiubo@freescale.com>
+References: <1396327598-28535-1-git-send-email-Li.Xiubo@freescale.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+Return-Path: Li.Xiubo@freescale.com
+List-ID: <linux-watchdog@vger.kernel.org>
 
-From: Julia Lawall <Julia.Lawall@lip6.fr>
-
-Use del_timer_sync to ensure that the timer is stopped on all CPUs before
-the driver exits.
-
-This change was suggested by Thomas Gleixner.
-
-The semantic patch that makes this change is as follows:
-(http://coccinelle.lip6.fr/)
-
-// <smpl>
-@r@
-identifier i,t,ex;
-@@
-struct t i = { .remove = ex, };
-
-@@
-identifier r.ex;
-@@
-ex(...) {
-  <...
-- del_timer
-+ del_timer_sync
-    (...)
-  ...>
-}
-// </smpl>
-
-Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
-
+Signed-off-by: Xiubo Li <Li.Xiubo@freescale.com>
 ---
-Not tested.
+ drivers/watchdog/imx2_wdt.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
- drivers/watchdog/via_wdt.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/watchdog/via_wdt.c b/drivers/watchdog/via_wdt.c
-index d2cd9f0..56369c4 100644
---- a/drivers/watchdog/via_wdt.c
-+++ b/drivers/watchdog/via_wdt.c
-@@ -232,7 +232,7 @@ err_out_disable_device:
- static void wdt_remove(struct pci_dev *pdev)
- {
- 	watchdog_unregister_device(&wdt_dev);
--	del_timer(&timer);
-+	del_timer_sync(&timer);
- 	iounmap(wdt_mem);
- 	release_mem_region(mmio, VIA_WDT_MMIO_LEN);
- 	release_resource(&wdt_res);
-
+diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+index dd51d95..1795922 100644
+--- a/drivers/watchdog/imx2_wdt.c
++++ b/drivers/watchdog/imx2_wdt.c
+@@ -21,19 +21,19 @@
+  * Halt on suspend:	Manual		Can be automatic
+  */
+ 
++#include <linux/clk.h>
++#include <linux/fs.h>
+ #include <linux/init.h>
++#include <linux/io.h>
++#include <linux/jiffies.h>
+ #include <linux/kernel.h>
+ #include <linux/miscdevice.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/platform_device.h>
+-#include <linux/watchdog.h>
+-#include <linux/clk.h>
+-#include <linux/fs.h>
+-#include <linux/io.h>
+-#include <linux/uaccess.h>
+ #include <linux/timer.h>
+-#include <linux/jiffies.h>
++#include <linux/uaccess.h>
++#include <linux/watchdog.h>
+ 
+ #define DRIVER_NAME "imx2-wdt"
+ 
+-- 
+1.8.4
