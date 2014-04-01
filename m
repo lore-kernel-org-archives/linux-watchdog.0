@@ -1,114 +1,65 @@
-Return-Path: <monstr@monstr.eu>
-Return-Path: <monstr@monstr.eu>
-Message-ID: <533AA0F7.2080304@monstr.eu>
-Date: Tue, 01 Apr 2014 13:20:23 +0200
-From: Michal Simek <monstr@monstr.eu>
-Reply-To: monstr@monstr.eu
+Return-Path: <broonie@sirena.org.uk>
+Date: Tue, 1 Apr 2014 13:24:54 +0100
+From: Mark Brown <broonie@kernel.org>
+To: "Li.Xiubo@freescale.com" <Li.Xiubo@freescale.com>
+Cc: Guenter Roeck <linux@roeck-us.net>, "wim@iguana.be" <wim@iguana.be>,
+	"w.sang@pengutronix.de" <w.sang@pengutronix.de>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"swarren@nvidia.com" <swarren@nvidia.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Message-ID: <20140401122454.GS2269@sirena.org.uk>
+References: <1395800500-22655-1-git-send-email-Li.Xiubo@freescale.com>
+ <1395800500-22655-3-git-send-email-Li.Xiubo@freescale.com>
+ <5338E1E8.4030700@roeck-us.net>
+ <28375308b05f4cf4bc7d1559f2524c1b@BY2PR03MB505.namprd03.prod.outlook.com>
+ <533A1A4B.2090503@roeck-us.net>
+ <1c79a81bbd7b4cc79689cb907e81e893@BY2PR03MB505.namprd03.prod.outlook.com>
 MIME-Version: 1.0
-To: Guenter Roeck <linux@roeck-us.net>
-CC: Harini Katakam <harinik@xilinx.com>, grant.likely@linaro.org,
- robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
- ijc+devicetree@hellion.org.uk, galak@codeaurora.org, rob@landley.net,
- michals@xilinx.com, linux-watchdog@vger.kernel.org,
- linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
- linux-doc@vger.kernel.org
-Subject: Re: [PATCH 1/2] watchdog: Add Cadence WDT driver
-References: <1396002720-7105-1-git-send-email-harinik@xilinx.com> <533A0937.9030505@roeck-us.net>
-In-Reply-To: <533A0937.9030505@roeck-us.net>
 Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="1UdlIJ8W0cQa8K6g1X9WRF86iF9EJRsnS"
+	protocol="application/pgp-signature"; boundary="v98/5hv2LQXhs+5A"
+Content-Disposition: inline
+In-Reply-To: <1c79a81bbd7b4cc79689cb907e81e893@BY2PR03MB505.namprd03.prod.outlook.com>
+Subject: Re: [PATCHv2 2/2] watchdog: imx2_wdt: Add big-endian support
 List-ID: <linux-watchdog@vger.kernel.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---1UdlIJ8W0cQa8K6g1X9WRF86iF9EJRsnS
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
 
-Hi Guenter,
+--v98/5hv2LQXhs+5A
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
->> +/**
->> + * struct cdns_wdt - Watchdog device structure
->> + * @regs: baseaddress of device
->> + * @rst: reset flag
->> + * @clk: struct clk * of a clock source
->> + * @prescaler: for saving prescaler value
->> + * @ctrl_clksel: counter clock prescaler selection
->> + * @io_lock: spinlock for IO register access
->> + * @cdns_wdt_device: watchdog device structure
->> + * @cdns_wdt_notifier: notifier structure
->> + *
->> + * Structure containing parameters specific to cadence watchdog.
->> + */
->> +struct cdns_wdt {
->> +    void __iomem        *regs;
->> +    u32            rst;
->> +    struct clk        *clk;
->> +    u32            prescaler;
->> +    u32            ctrl_clksel;
->> +    spinlock_t        io_lock;
->> +    struct watchdog_device    cdns_wdt_device;
->> +    struct notifier_block    cdns_wdt_notifier;
->> +};
->> +
->> +/* Write access to Registers */
->> +static inline void cdns_wdt_writereg(void __iomem *offset, u32 val)
->> +{
->> +    writel_relaxed(val, offset);
->> +}
->> +
->=20
-> Not really sure if this function provides any value.
+On Tue, Apr 01, 2014 at 02:24:12AM +0000, Li.Xiubo@freescale.com wrote:
 
-I can't see any problem to use this helper IO function
-but maybe we could do it a little bit differently.
-Currently implementation is just passing values to writel_relaxed()
+> Yes, I do think so too and there has already regmap-mmio version patch
+> Series about the IMX2 Watchdog driver, but those regmap patches for
+> supporting the 16-bit values are in Mark's tree and the IMX2 Watchdog
+> will depend on them.
 
-What about to do it like this?
+> How to deal with this situation ?
 
-static inline void cdns_wdt_writereg(struct cdns_wdt *wdt, u32 offset, u3=
-2 val)
-{
-    writel_relaxed(val, wdt->regs + offset);
-}
+Well, anything that's already applied went to Linus already so is in
+-rc1.  Anything else we can either do a cross tree merge or I can apply
+the driver.
 
-This solution was suggested by Mark here too.
-https://lkml.org/lkml/2014/3/17/234
-
-The reason for having one IO helper function is
-1. Simper debugging when you add printks to one location and
-you get full list for accesses
-2. This driver can be also used by BE Linux on Microblaze in PL
-that's why there could be a need to autodetect endianess directly
-on the IP itself. Then using helper function is necessary.
-3. We have met with secure monitor implementation where all these
-io accesses should be done via smc calls and having
-IO helper function is easier for change.
-
-Thanks,
-Michal
-
---=20
-Michal Simek, Ing. (M.Eng), OpenPGP -> KeyID: FE3D1F91
-w: www.monstr.eu p: +42-0-721842854
-Maintainer of Linux kernel - Microblaze cpu - http://www.monstr.eu/fdt/
-Maintainer of Linux kernel - Xilinx Zynq ARM architecture
-Microblaze U-BOOT custodian and responsible for u-boot arm zynq platform
-
-
-
---1UdlIJ8W0cQa8K6g1X9WRF86iF9EJRsnS
+--v98/5hv2LQXhs+5A
 Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+Version: GnuPG v2.0.22 (GNU/Linux)
 
-iEYEARECAAYFAlM6oPcACgkQykllyylKDCGltwCfark82XZsx3xg6RW1TJZq48xk
-tpkAn0em/Tpp9YxxOa5d8fVlcD7JOtJN
-=ihri
+iQIcBAEBAgAGBQJTOrATAAoJELSic+t+oim9fQQP/0eYY8J+plgQNDMK0m8VW4mq
+8EUIYrQegO1CHtTNGd/GWw1WgzQ6MOiTHmwNzx2A0u9jO8DFuPGqJRHTJ8BDdsXu
+byGfpsP55jaDxBA6XVQR4uKKVByLyMGtL4O9bA/22yRDYvcagB7rLki7J/SZDro8
+nkw3Ot+85TnAnaZ96CbwQjHCqP8GiyWSeSsg0R5NAe1MdGuyYZeVROfwaXFNGQoW
+S8VF3aVs6LH+4lH9umfnVTKYWr1gqQJy0/a8RzsR+Q+2i0kxtQGXY2/axZsY4xFE
+bC6abn01S4zpklhF5GkR1fwp7+LE5l/mYMaLB7XTo9hB5mqlZro3iJOI+QIeIH/n
+Cf4m0uVT3SOoR+s9vucIsyY+Op7II8fMbAok2pRKh6uab70C4ehdOGxH6E+aRvQ5
+/L9Okfn/v1qSgCxWSNN3lDqkVmrjZ9OhBs6IAblqtYz/ZU4c6xXPk4U2U8UAmiEk
+6nLpbQ9wAhYeLPRgfMhFft0tD+Cb74Ht7hWHvuAnwwvgI+eIoVsDVM3YHxJodpAJ
+xO5p9itQp4osc4qPcn4D5LidfRJFJCPPvjosm0jnenjEAVbxegRqeJr/Bk20Wifb
+77EG6OxBhn4GAx76p36mRkymNFEK9jHyLDhaLr0pRaXgG4rlLE2cSXTHS/gG0HG5
+eGJy0WZXvVBJUJ6fx+hR
+=CHmZ
 -----END PGP SIGNATURE-----
 
---1UdlIJ8W0cQa8K6g1X9WRF86iF9EJRsnS--
+--v98/5hv2LQXhs+5A--
