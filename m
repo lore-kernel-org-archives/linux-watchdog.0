@@ -1,65 +1,124 @@
-Return-Path: <broonie@sirena.org.uk>
-Date: Tue, 1 Apr 2014 13:24:54 +0100
-From: Mark Brown <broonie@kernel.org>
-To: "Li.Xiubo@freescale.com" <Li.Xiubo@freescale.com>
-Cc: Guenter Roeck <linux@roeck-us.net>, "wim@iguana.be" <wim@iguana.be>,
-	"w.sang@pengutronix.de" <w.sang@pengutronix.de>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"swarren@nvidia.com" <swarren@nvidia.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Message-ID: <20140401122454.GS2269@sirena.org.uk>
-References: <1395800500-22655-1-git-send-email-Li.Xiubo@freescale.com>
- <1395800500-22655-3-git-send-email-Li.Xiubo@freescale.com>
- <5338E1E8.4030700@roeck-us.net>
- <28375308b05f4cf4bc7d1559f2524c1b@BY2PR03MB505.namprd03.prod.outlook.com>
- <533A1A4B.2090503@roeck-us.net>
- <1c79a81bbd7b4cc79689cb907e81e893@BY2PR03MB505.namprd03.prod.outlook.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-yh0-f44.google.com ([209.85.213.44]:56142 "EHLO
+	mail-yh0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751061AbaDAHfy (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 1 Apr 2014 03:35:54 -0400
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="v98/5hv2LQXhs+5A"
-Content-Disposition: inline
-In-Reply-To: <1c79a81bbd7b4cc79689cb907e81e893@BY2PR03MB505.namprd03.prod.outlook.com>
-Subject: Re: [PATCHv2 2/2] watchdog: imx2_wdt: Add big-endian support
-List-ID: <linux-watchdog@vger.kernel.org>
+In-Reply-To: <533A0937.9030505@roeck-us.net>
+References: <1396002720-7105-1-git-send-email-harinik@xilinx.com>
+	<533A0937.9030505@roeck-us.net>
+Date: Tue, 1 Apr 2014 13:05:53 +0530
+Message-ID: <CAFcVECKpcduwJtq7X06NakL8P-aYYoHjS-_nwg+WqF1du7Y8yA@mail.gmail.com>
+Subject: Re: [PATCH 1/2] watchdog: Add Cadence WDT driver
+From: Harini Katakam <harinikatakamlinux@gmail.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Grant Likely <grant.likely@linaro.org>,
+	Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	"ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	Rob Landley <rob@landley.net>, michals@xilinx.com,
+	linux-watchdog@vger.kernel.org,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+	Harini Katakam <harinik@xilinx.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
+Hi,
 
---v98/5hv2LQXhs+5A
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Tue, Apr 1, 2014 at 6:02 AM, Guenter Roeck <linux@roeck-us.net> wrote:
+> On 03/28/2014 03:31 AM, Harini Katakam wrote:
+>>
+>> Add Cadence WDT driver. This is used by Xilinx Zynq.
+>>
+>> Signed-off-by: Harini Katakam <harinik@xilinx.com>
+>> ---
+>>   drivers/watchdog/Kconfig       |    7 +
+>>   drivers/watchdog/Makefile      |    1 +
+>>   drivers/watchdog/cadence_wdt.c |  530
+>> ++++++++++++++++++++++++++++++++++++++++
+>>   3 files changed, 538 insertions(+)
+>>   create mode 100644 drivers/watchdog/cadence_wdt.c
+>>
 
-On Tue, Apr 01, 2014 at 02:24:12AM +0000, Li.Xiubo@freescale.com wrote:
+<snip>
 
-> Yes, I do think so too and there has already regmap-mmio version patch
-> Series about the IMX2 Watchdog driver, but those regmap patches for
-> supporting the 16-bit values are in Mark's tree and the IMX2 Watchdog
-> will depend on them.
+>> +
+>> +       spin_lock(&wdt->io_lock);
+>> +       cdns_wdt_writereg(wdt->regs + CDNS_WDT_ZMR_OFFSET,
+>> +                         CDNS_WDT_ZMR_ZKEY_VAL);
+>> +
+>> +       /* Shift the count value to correct bit positions */
+>> +       count = (count << 2) & CDNS_WDT_CCR_CRV_MASK;
+>> +
+>> +       /* Write counter access key first to be able write to register */
+>> +       data = count | CDNS_WDT_REGISTER_ACCESS_KEY | wdt->ctrl_clksel;
+>> +       cdns_wdt_writereg(wdt->regs + CDNS_WDT_CCR_OFFSET, data);
+>> +       data = CDNS_WDT_ZMR_WDEN_MASK | CDNS_WDT_ZMR_RSTLEN_16 |
+>> +              CDNS_WDT_ZMR_ZKEY_VAL;
+>> +
+>> +       /* Reset on timeout if specified in device tree. */
+>> +       if (wdt->rst) {
+>> +               data |= CDNS_WDT_ZMR_RSTEN_MASK;
+>> +               data &= ~CDNS_WDT_ZMR_IRQEN_MASK;
+>> +       } else {
+>> +               data &= ~CDNS_WDT_ZMR_RSTEN_MASK;
+>> +               data |= CDNS_WDT_ZMR_IRQEN_MASK;
+>> +       }
+>> +       cdns_wdt_writereg(wdt->regs + CDNS_WDT_ZMR_OFFSET, data);
+>> +       spin_unlock(&wdt->io_lock);
+>> +       cdns_wdt_writereg(wdt->regs + CDNS_WDT_RESTART_OFFSET,
+>> +                         CDNS_WDT_RESTART_KEY);
+>> +
+>
+> Sometimes you write into this register with lock protection, here without.
+>
+> How comes (or, in other words, why does the write have to be spinlock
+> protected above but not here) ?
+>
 
-> How to deal with this situation ?
+CDNS_WDT_RESTART_OFFSET needs to be written here with lock protection.
+I missed it because it is in wdt_start, but i realise it should be protected.
+Will correct that.
 
-Well, anything that's already applied went to Linus already so is in
--rc1.  Anything else we can either do a cross tree merge or I can apply
-the driver.
+<snip>
 
---v98/5hv2LQXhs+5A
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+>> +       /* Initialize the members of cdns_wdt structure */
+>> +       cdns_wdt_device->parent = &pdev->dev;
+>> +       of_get_property(pdev->dev.of_node, "timeout-sec",
+>> +                       &cdns_wdt_device->timeout);
+>> +       if (wdt_timeout < CDNS_WDT_MAX_TIMEOUT &&
+>> +           wdt_timeout > CDNS_WDT_MIN_TIMEOUT)
+>
+>
+> Why are CDNS_WDT_MAX_TIMEOUT and CDNS_WDT_MIN_TIMEOUT not acceptable ?
+> Why don't you use watchdog_init_timeout() anyway ?
+>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
+I'll use watchdog_init_timeout.
 
-iQIcBAEBAgAGBQJTOrATAAoJELSic+t+oim9fQQP/0eYY8J+plgQNDMK0m8VW4mq
-8EUIYrQegO1CHtTNGd/GWw1WgzQ6MOiTHmwNzx2A0u9jO8DFuPGqJRHTJ8BDdsXu
-byGfpsP55jaDxBA6XVQR4uKKVByLyMGtL4O9bA/22yRDYvcagB7rLki7J/SZDro8
-nkw3Ot+85TnAnaZ96CbwQjHCqP8GiyWSeSsg0R5NAe1MdGuyYZeVROfwaXFNGQoW
-S8VF3aVs6LH+4lH9umfnVTKYWr1gqQJy0/a8RzsR+Q+2i0kxtQGXY2/axZsY4xFE
-bC6abn01S4zpklhF5GkR1fwp7+LE5l/mYMaLB7XTo9hB5mqlZro3iJOI+QIeIH/n
-Cf4m0uVT3SOoR+s9vucIsyY+Op7II8fMbAok2pRKh6uab70C4ehdOGxH6E+aRvQ5
-/L9Okfn/v1qSgCxWSNN3lDqkVmrjZ9OhBs6IAblqtYz/ZU4c6xXPk4U2U8UAmiEk
-6nLpbQ9wAhYeLPRgfMhFft0tD+Cb74Ht7hWHvuAnwwvgI+eIoVsDVM3YHxJodpAJ
-xO5p9itQp4osc4qPcn4D5LidfRJFJCPPvjosm0jnenjEAVbxegRqeJr/Bk20Wifb
-77EG6OxBhn4GAx76p36mRkymNFEK9jHyLDhaLr0pRaXgG4rlLE2cSXTHS/gG0HG5
-eGJy0WZXvVBJUJ6fx+hR
-=CHmZ
------END PGP SIGNATURE-----
+>
+>> +               cdns_wdt_device->timeout = wdt_timeout;
+>> +       else
+>> +               dev_info(&pdev->dev,
+>> +                        "timeout limited to 1 - %d sec, using
+>> default=%d\n",
+>> +                        CDNS_WDT_MAX_TIMEOUT, CDNS_WDT_DEFAULT_TIMEOUT);
+>> +
+>> +       watchdog_set_nowayout(cdns_wdt_device, nowayout);
+>> +       watchdog_set_drvdata(cdns_wdt_device, wdt);
+>> +
+>
+>
+> Set too late (see other e-mail)
+>
 
---v98/5hv2LQXhs+5A--
+Will correct order in probe as pointed in other mails.
+
+Regards,
+Harini
