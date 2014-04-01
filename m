@@ -1,124 +1,68 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-yh0-f44.google.com ([209.85.213.44]:56142 "EHLO
-	mail-yh0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751061AbaDAHfy (ORCPT
+Received: from mail2-relais-roc.national.inria.fr ([192.134.164.83]:7117 "EHLO
+	mail2-relais-roc.national.inria.fr" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751318AbaDANuL (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 1 Apr 2014 03:35:54 -0400
-MIME-Version: 1.0
-In-Reply-To: <533A0937.9030505@roeck-us.net>
-References: <1396002720-7105-1-git-send-email-harinik@xilinx.com>
-	<533A0937.9030505@roeck-us.net>
-Date: Tue, 1 Apr 2014 13:05:53 +0530
-Message-ID: <CAFcVECKpcduwJtq7X06NakL8P-aYYoHjS-_nwg+WqF1du7Y8yA@mail.gmail.com>
-Subject: Re: [PATCH 1/2] watchdog: Add Cadence WDT driver
-From: Harini Katakam <harinikatakamlinux@gmail.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Grant Likely <grant.likely@linaro.org>,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	"ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Rob Landley <rob@landley.net>, michals@xilinx.com,
-	linux-watchdog@vger.kernel.org,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-	Harini Katakam <harinik@xilinx.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 1 Apr 2014 09:50:11 -0400
+From: Julia Lawall <Julia.Lawall@lip6.fr>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: kernel-janitors@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 3/3] watchdog: via_wdt: replace del_timer by del_timer_sync
+Date: Tue,  1 Apr 2014 15:49:19 +0200
+Message-Id: <1396360159-16244-4-git-send-email-Julia.Lawall@lip6.fr>
+In-Reply-To: <1396360159-16244-1-git-send-email-Julia.Lawall@lip6.fr>
+References: <1396360159-16244-1-git-send-email-Julia.Lawall@lip6.fr>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
+From: Julia Lawall <Julia.Lawall@lip6.fr>
 
-On Tue, Apr 1, 2014 at 6:02 AM, Guenter Roeck <linux@roeck-us.net> wrote:
-> On 03/28/2014 03:31 AM, Harini Katakam wrote:
->>
->> Add Cadence WDT driver. This is used by Xilinx Zynq.
->>
->> Signed-off-by: Harini Katakam <harinik@xilinx.com>
->> ---
->>   drivers/watchdog/Kconfig       |    7 +
->>   drivers/watchdog/Makefile      |    1 +
->>   drivers/watchdog/cadence_wdt.c |  530
->> ++++++++++++++++++++++++++++++++++++++++
->>   3 files changed, 538 insertions(+)
->>   create mode 100644 drivers/watchdog/cadence_wdt.c
->>
+Use del_timer_sync to ensure that the timer is stopped on all CPUs before
+the driver exits.
 
-<snip>
+This change was suggested by Thomas Gleixner.
 
->> +
->> +       spin_lock(&wdt->io_lock);
->> +       cdns_wdt_writereg(wdt->regs + CDNS_WDT_ZMR_OFFSET,
->> +                         CDNS_WDT_ZMR_ZKEY_VAL);
->> +
->> +       /* Shift the count value to correct bit positions */
->> +       count = (count << 2) & CDNS_WDT_CCR_CRV_MASK;
->> +
->> +       /* Write counter access key first to be able write to register */
->> +       data = count | CDNS_WDT_REGISTER_ACCESS_KEY | wdt->ctrl_clksel;
->> +       cdns_wdt_writereg(wdt->regs + CDNS_WDT_CCR_OFFSET, data);
->> +       data = CDNS_WDT_ZMR_WDEN_MASK | CDNS_WDT_ZMR_RSTLEN_16 |
->> +              CDNS_WDT_ZMR_ZKEY_VAL;
->> +
->> +       /* Reset on timeout if specified in device tree. */
->> +       if (wdt->rst) {
->> +               data |= CDNS_WDT_ZMR_RSTEN_MASK;
->> +               data &= ~CDNS_WDT_ZMR_IRQEN_MASK;
->> +       } else {
->> +               data &= ~CDNS_WDT_ZMR_RSTEN_MASK;
->> +               data |= CDNS_WDT_ZMR_IRQEN_MASK;
->> +       }
->> +       cdns_wdt_writereg(wdt->regs + CDNS_WDT_ZMR_OFFSET, data);
->> +       spin_unlock(&wdt->io_lock);
->> +       cdns_wdt_writereg(wdt->regs + CDNS_WDT_RESTART_OFFSET,
->> +                         CDNS_WDT_RESTART_KEY);
->> +
->
-> Sometimes you write into this register with lock protection, here without.
->
-> How comes (or, in other words, why does the write have to be spinlock
-> protected above but not here) ?
->
+The semantic patch that makes this change is as follows:
+(http://coccinelle.lip6.fr/)
 
-CDNS_WDT_RESTART_OFFSET needs to be written here with lock protection.
-I missed it because it is in wdt_start, but i realise it should be protected.
-Will correct that.
+// <smpl>
+@r@
+identifier i,t,ex;
+@@
+struct t i = { .remove = ex, };
 
-<snip>
+@@
+identifier r.ex;
+@@
+ex(...) {
+  <...
+- del_timer
++ del_timer_sync
+    (...)
+  ...>
+}
+// </smpl>
 
->> +       /* Initialize the members of cdns_wdt structure */
->> +       cdns_wdt_device->parent = &pdev->dev;
->> +       of_get_property(pdev->dev.of_node, "timeout-sec",
->> +                       &cdns_wdt_device->timeout);
->> +       if (wdt_timeout < CDNS_WDT_MAX_TIMEOUT &&
->> +           wdt_timeout > CDNS_WDT_MIN_TIMEOUT)
->
->
-> Why are CDNS_WDT_MAX_TIMEOUT and CDNS_WDT_MIN_TIMEOUT not acceptable ?
-> Why don't you use watchdog_init_timeout() anyway ?
->
+Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
 
-I'll use watchdog_init_timeout.
+---
+Not tested.
 
->
->> +               cdns_wdt_device->timeout = wdt_timeout;
->> +       else
->> +               dev_info(&pdev->dev,
->> +                        "timeout limited to 1 - %d sec, using
->> default=%d\n",
->> +                        CDNS_WDT_MAX_TIMEOUT, CDNS_WDT_DEFAULT_TIMEOUT);
->> +
->> +       watchdog_set_nowayout(cdns_wdt_device, nowayout);
->> +       watchdog_set_drvdata(cdns_wdt_device, wdt);
->> +
->
->
-> Set too late (see other e-mail)
->
+ drivers/watchdog/via_wdt.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Will correct order in probe as pointed in other mails.
+diff --git a/drivers/watchdog/via_wdt.c b/drivers/watchdog/via_wdt.c
+index d2cd9f0..56369c4 100644
+--- a/drivers/watchdog/via_wdt.c
++++ b/drivers/watchdog/via_wdt.c
+@@ -232,7 +232,7 @@ err_out_disable_device:
+ static void wdt_remove(struct pci_dev *pdev)
+ {
+ 	watchdog_unregister_device(&wdt_dev);
+-	del_timer(&timer);
++	del_timer_sync(&timer);
+ 	iounmap(wdt_mem);
+ 	release_mem_region(mmio, VIA_WDT_MMIO_LEN);
+ 	release_resource(&wdt_res);
 
-Regards,
-Harini
