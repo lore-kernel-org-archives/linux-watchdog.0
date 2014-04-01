@@ -1,74 +1,145 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ch1ehsobe001.messaging.microsoft.com ([216.32.181.181]:42446
-	"EHLO ch1outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751073AbaDAF3l (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 1 Apr 2014 01:29:41 -0400
+Return-Path: <Li.Xiubo@freescale.com>
 From: Xiubo Li <Li.Xiubo@freescale.com>
 To: <linux@roeck-us.net>, <wim@iguana.be>, <shawn.guo@linaro.org>,
 	<linux-watchdog@vger.kernel.org>
 CC: <linux-kernel@vger.kernel.org>, Xiubo Li <Li.Xiubo@freescale.com>
-Subject: [PATCHv3 0/2] imx2-wdt: Add regmap-mmio support
-Date: Tue, 1 Apr 2014 12:46:36 +0800
-Message-ID: <1396327598-28535-1-git-send-email-Li.Xiubo@freescale.com>
+Subject: [PATCHv3 2/2] watchdog: imx2_wdt: convert to use regmap API.
+Date: Tue, 1 Apr 2014 12:46:38 +0800
+Message-ID: <1396327598-28535-3-git-send-email-Li.Xiubo@freescale.com>
+In-Reply-To: <1396327598-28535-1-git-send-email-Li.Xiubo@freescale.com>
+References: <1396327598-28535-1-git-send-email-Li.Xiubo@freescale.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: Li.Xiubo@freescale.com
+List-ID: <linux-watchdog@vger.kernel.org>
 
+Signed-off-by: Xiubo Li <Li.Xiubo@freescale.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
+---
+ drivers/watchdog/imx2_wdt.c | 50 +++++++++++++++++++++++++++++----------------
+ 1 file changed, 32 insertions(+), 18 deletions(-)
 
-This patches are preparing for Vybird, LS1 and LS2. And on LS1 the IP will
-in BE mode.
-
-And this has been test on Vybird.
-
-This patch series is based the following regmap patches:
-
-1, https://patchwork.kernel.org/patch/3896321/   ===> <applied>
-   regmap: mmio: add regmap_mmio_{regsize, count}_check. 
-   https://patchwork.kernel.org/patch/3896331/   ===> <applied>
-   regmap: mmio: Add support for 1/2/8 bytes wide register address.
-   https://patchwork.kernel.org/patch/3901021/   ===> <applied>
-   regmap: mmio: Add regmap_mmio_regbits_check.
-
-
-2, The above three and this one are a must.
-   https://patchwork.kernel.org/patch/3912671/   ===> <pending>
-   regmap: mmio: Fix the bug of 'offset' value parsing.
-
-
-3, The following ones are not a must, but will make the IMX2
-   watchdog driver much simplifier and easy to use.
-   https://patchwork.kernel.org/patch/3912401/   ===> <pending>
-   regmap: implement LE formatting/parsing for 16/32-bit values.
-   https://patchwork.kernel.org/patch/3912751/   ===> <pending>
-   regmap: add DT endianness binding support.
-   https://patchwork.kernel.org/patch/3912741/   ===> <pending>
-   regmap: Add the DT binding documentation for endianness
-
-
-The above all regmap patches have been test using SAI(32-bit
-regmap-mmio), SGTL5000(codec 16-bit regmap-i2c) and IMX2 Watchdog
-(16-bit regmap-mmio).
-
-
-Changes in V3:
-- convert to use regmap-mmio API.
-
-Changes in V2:
-- Add the detail information in the commit comment.
-- 'big-endians' --> 'big-endian'.
-
-
-
-Xiubo Li (2):
-  watchdog: imx2_wdt: Sort the header files alphabetically
-  watchdog: imx2_wdt: convert to use regmap API.
-
- drivers/watchdog/imx2_wdt.c | 62 +++++++++++++++++++++++++++------------------
- 1 file changed, 38 insertions(+), 24 deletions(-)
-
+diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+index 1795922..76fa724 100644
+--- a/drivers/watchdog/imx2_wdt.c
++++ b/drivers/watchdog/imx2_wdt.c
+@@ -31,6 +31,7 @@
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/platform_device.h>
++#include <linux/regmap.h>
+ #include <linux/timer.h>
+ #include <linux/uaccess.h>
+ #include <linux/watchdog.h>
+@@ -61,7 +62,7 @@
+ 
+ static struct {
+ 	struct clk *clk;
+-	void __iomem *base;
++	struct regmap *regmap;
+ 	unsigned timeout;
+ 	unsigned long status;
+ 	struct timer_list timer;	/* Pings the watchdog when closed */
+@@ -87,7 +88,9 @@ static const struct watchdog_info imx2_wdt_info = {
+ 
+ static inline void imx2_wdt_setup(void)
+ {
+-	u16 val = __raw_readw(imx2_wdt.base + IMX2_WDT_WCR);
++	u32 val;
++
++	regmap_read(imx2_wdt.regmap, IMX2_WDT_WCR, &val);
+ 
+ 	/* Suspend timer in low power mode, write once-only */
+ 	val |= IMX2_WDT_WCR_WDZST;
+@@ -100,17 +103,17 @@ static inline void imx2_wdt_setup(void)
+ 	/* Set the watchdog's Time-Out value */
+ 	val |= WDOG_SEC_TO_COUNT(imx2_wdt.timeout);
+ 
+-	__raw_writew(val, imx2_wdt.base + IMX2_WDT_WCR);
++	regmap_write(imx2_wdt.regmap, IMX2_WDT_WCR, val);
+ 
+ 	/* enable the watchdog */
+ 	val |= IMX2_WDT_WCR_WDE;
+-	__raw_writew(val, imx2_wdt.base + IMX2_WDT_WCR);
++	regmap_write(imx2_wdt.regmap, IMX2_WDT_WCR, val);
+ }
+ 
+ static inline void imx2_wdt_ping(void)
+ {
+-	__raw_writew(IMX2_WDT_SEQ1, imx2_wdt.base + IMX2_WDT_WSR);
+-	__raw_writew(IMX2_WDT_SEQ2, imx2_wdt.base + IMX2_WDT_WSR);
++	regmap_write(imx2_wdt.regmap, IMX2_WDT_WSR, IMX2_WDT_SEQ1);
++	regmap_write(imx2_wdt.regmap, IMX2_WDT_WSR, IMX2_WDT_SEQ2);
+ }
+ 
+ static void imx2_wdt_timer_ping(unsigned long arg)
+@@ -143,12 +146,8 @@ static void imx2_wdt_stop(void)
+ 
+ static void imx2_wdt_set_timeout(int new_timeout)
+ {
+-	u16 val = __raw_readw(imx2_wdt.base + IMX2_WDT_WCR);
+-
+-	/* set the new timeout value in the WSR */
+-	val &= ~IMX2_WDT_WCR_WT;
+-	val |= WDOG_SEC_TO_COUNT(new_timeout);
+-	__raw_writew(val, imx2_wdt.base + IMX2_WDT_WCR);
++	regmap_update_bits(imx2_wdt.regmap, IMX2_WDT_WCR, IMX2_WDT_WCR_WT,
++			   WDOG_SEC_TO_COUNT(new_timeout));
+ }
+ 
+ static int imx2_wdt_open(struct inode *inode, struct file *file)
+@@ -181,7 +180,7 @@ static long imx2_wdt_ioctl(struct file *file, unsigned int cmd,
+ 	void __user *argp = (void __user *)arg;
+ 	int __user *p = argp;
+ 	int new_value;
+-	u16 val;
++	u32 val;
+ 
+ 	switch (cmd) {
+ 	case WDIOC_GETSUPPORT:
+@@ -192,7 +191,7 @@ static long imx2_wdt_ioctl(struct file *file, unsigned int cmd,
+ 		return put_user(0, p);
+ 
+ 	case WDIOC_GETBOOTSTATUS:
+-		val = __raw_readw(imx2_wdt.base + IMX2_WDT_WRSR);
++		regmap_read(imx2_wdt.regmap, IMX2_WDT_WRSR, &val);
+ 		new_value = val & IMX2_WDT_WRSR_TOUT ? WDIOF_CARDRESET : 0;
+ 		return put_user(new_value, p);
+ 
+@@ -255,15 +254,30 @@ static struct miscdevice imx2_wdt_miscdev = {
+ 	.fops = &imx2_wdt_fops,
+ };
+ 
++static struct regmap_config imx2_wdt_regmap_config = {
++	.reg_bits = 16,
++	.reg_stride = 2,
++	.val_bits = 16,
++	.max_register = 0x8,
++};
++
+ static int __init imx2_wdt_probe(struct platform_device *pdev)
+ {
+-	int ret;
+ 	struct resource *res;
++	void __iomem *base;
++	int ret;
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	imx2_wdt.base = devm_ioremap_resource(&pdev->dev, res);
+-	if (IS_ERR(imx2_wdt.base))
+-		return PTR_ERR(imx2_wdt.base);
++	base = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(base))
++		return PTR_ERR(base);
++
++	imx2_wdt.regmap = devm_regmap_init_mmio_clk(&pdev->dev, NULL, base,
++						    &imx2_wdt_regmap_config);
++	if (IS_ERR(imx2_wdt.regmap)) {
++		dev_err(&pdev->dev, "regmap init failed\n");
++		return PTR_ERR(imx2_wdt.regmap);
++	}
+ 
+ 	imx2_wdt.clk = devm_clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(imx2_wdt.clk)) {
 -- 
 1.8.4
-
-
