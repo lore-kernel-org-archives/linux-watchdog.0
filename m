@@ -1,117 +1,54 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wg0-f42.google.com ([74.125.82.42]:43857 "EHLO
-	mail-wg0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756607AbaDBFr6 (ORCPT
+Received: from mail-bn1blp0181.outbound.protection.outlook.com ([207.46.163.181]:55330
+	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1756574AbaDBHdM convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 2 Apr 2014 01:47:58 -0400
-Received: by mail-wg0-f42.google.com with SMTP id y10so8285736wgg.13
-        for <linux-watchdog@vger.kernel.org>; Tue, 01 Apr 2014 22:47:57 -0700 (PDT)
-Message-ID: <533BA48A.6040301@monstr.eu>
-Date: Wed, 02 Apr 2014 07:47:54 +0200
-From: Michal Simek <monstr@monstr.eu>
-Reply-To: monstr@monstr.eu
+	Wed, 2 Apr 2014 03:33:12 -0400
+From: "Li.Xiubo@freescale.com" <Li.Xiubo@freescale.com>
+To: Mark Brown <broonie@kernel.org>
+CC: Guenter Roeck <linux@roeck-us.net>,
+	"wim@iguana.be" <wim@iguana.be>,
+	"w.sang@pengutronix.de" <w.sang@pengutronix.de>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"swarren@nvidia.com" <swarren@nvidia.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCHv2 2/2] watchdog: imx2_wdt: Add big-endian support
+Date: Wed, 2 Apr 2014 07:33:08 +0000
+Message-ID: <52646eae41aa44068a32201ae9c0fff3@BY2PR03MB505.namprd03.prod.outlook.com>
+References: <1395800500-22655-1-git-send-email-Li.Xiubo@freescale.com>
+ <1395800500-22655-3-git-send-email-Li.Xiubo@freescale.com>
+ <5338E1E8.4030700@roeck-us.net>
+ <28375308b05f4cf4bc7d1559f2524c1b@BY2PR03MB505.namprd03.prod.outlook.com>
+ <533A1A4B.2090503@roeck-us.net>
+ <1c79a81bbd7b4cc79689cb907e81e893@BY2PR03MB505.namprd03.prod.outlook.com>
+ <20140401122454.GS2269@sirena.org.uk>
+In-Reply-To: <20140401122454.GS2269@sirena.org.uk>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-To: Guenter Roeck <linux@roeck-us.net>
-CC: Harini Katakam <harinik@xilinx.com>, grant.likely@linaro.org,
-	robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-	rob@landley.net, michals@xilinx.com,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-doc@vger.kernel.org
-Subject: Re: [PATCH 1/2] watchdog: Add Cadence WDT driver
-References: <1396002720-7105-1-git-send-email-harinik@xilinx.com> <533A0937.9030505@roeck-us.net> <533AA0F7.2080304@monstr.eu> <533B5AAA.50707@roeck-us.net>
-In-Reply-To: <533B5AAA.50707@roeck-us.net>
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="BUwk5DcCajPnEjsDNDomLjroC9Ab9oL6K"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---BUwk5DcCajPnEjsDNDomLjroC9Ab9oL6K
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+> Subject: Re: [PATCHv2 2/2] watchdog: imx2_wdt: Add big-endian support
+> 
+> On Tue, Apr 01, 2014 at 02:24:12AM +0000, Li.Xiubo@freescale.com wrote:
+> 
+> > Yes, I do think so too and there has already regmap-mmio version patch
+> > Series about the IMX2 Watchdog driver, but those regmap patches for
+> > supporting the 16-bit values are in Mark's tree and the IMX2 Watchdog
+> > will depend on them.
+> 
+> > How to deal with this situation ?
+> 
+> Well, anything that's already applied went to Linus already so is in
+> -rc1.  Anything else we can either do a cross tree merge or I can apply
+> the driver.
 
-On 04/02/2014 02:32 AM, Guenter Roeck wrote:
-> On 04/01/2014 04:20 AM, Michal Simek wrote:
->> Hi Guenter,
->>
->>>> +/**
->>>> + * struct cdns_wdt - Watchdog device structure
->>>> + * @regs: baseaddress of device
->>>> + * @rst: reset flag
->>>> + * @clk: struct clk * of a clock source
->>>> + * @prescaler: for saving prescaler value
->>>> + * @ctrl_clksel: counter clock prescaler selection
->>>> + * @io_lock: spinlock for IO register access
->>>> + * @cdns_wdt_device: watchdog device structure
->>>> + * @cdns_wdt_notifier: notifier structure
->>>> + *
->>>> + * Structure containing parameters specific to cadence watchdog.
->>>> + */
->>>> +struct cdns_wdt {
->>>> +    void __iomem        *regs;
->>>> +    u32            rst;
->>>> +    struct clk        *clk;
->>>> +    u32            prescaler;
->>>> +    u32            ctrl_clksel;
->>>> +    spinlock_t        io_lock;
->>>> +    struct watchdog_device    cdns_wdt_device;
->>>> +    struct notifier_block    cdns_wdt_notifier;
->>>> +};
->>>> +
->>>> +/* Write access to Registers */
->>>> +static inline void cdns_wdt_writereg(void __iomem *offset, u32 val)=
+That's great.
 
->>>> +{
->>>> +    writel_relaxed(val, offset);
->>>> +}
->>>> +
->>>
->>> Not really sure if this function provides any value.
->>
->> I can't see any problem to use this helper IO function
->> but maybe we could do it a little bit differently.
->> Currently implementation is just passing values to writel_relaxed()
->>
->> What about to do it like this?
->>
->> static inline void cdns_wdt_writereg(struct cdns_wdt *wdt, u32 offset,=
- u32 val)
->> {
->>      writel_relaxed(val, wdt->regs + offset);
->> }
->>
-> Yes, that would make more sense.
+Thanks very much,
 
-ok good.
-Harini: Please use this version instead.
-
-Thanks,
-Michal
-
-
---=20
-Michal Simek, Ing. (M.Eng), OpenPGP -> KeyID: FE3D1F91
-w: www.monstr.eu p: +42-0-721842854
-Maintainer of Linux kernel - Microblaze cpu - http://www.monstr.eu/fdt/
-Maintainer of Linux kernel - Xilinx Zynq ARM architecture
-Microblaze U-BOOT custodian and responsible for u-boot arm zynq platform
-
-
-
---BUwk5DcCajPnEjsDNDomLjroC9Ab9oL6K
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
-
-iEYEARECAAYFAlM7pIoACgkQykllyylKDCFfzACgmEXewZkGV92r6hzodo36fPNO
-kA8AmQFBmOhpM8J/Ad7E3+OYDKTJMb2z
-=jifP
------END PGP SIGNATURE-----
-
---BUwk5DcCajPnEjsDNDomLjroC9Ab9oL6K--
+BRs
+Xiubo
