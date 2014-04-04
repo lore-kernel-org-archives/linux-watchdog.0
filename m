@@ -1,188 +1,79 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f54.google.com ([209.85.220.54]:39700 "EHLO
-	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752801AbaDCQgJ (ORCPT
+Received: from [207.46.163.237] ([207.46.163.237]:6002 "EHLO
+	na01-by2-obe.outbound.protection.outlook.com"
+	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751215AbaDDBOk convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 3 Apr 2014 12:36:09 -0400
-Date: Thu, 3 Apr 2014 09:36:04 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Xiubo Li <Li.Xiubo@freescale.com>
-Cc: wim@iguana.be, shawn.guo@linaro.org,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCHv4 2/2] watchdog: imx2_wdt: convert to use regmap API.
-Message-ID: <20140403163604.GA11832@roeck-us.net>
+	Thu, 3 Apr 2014 21:14:40 -0400
+From: "Li.Xiubo@freescale.com" <Li.Xiubo@freescale.com>
+To: Guenter Roeck <linux@roeck-us.net>
+CC: "wim@iguana.be" <wim@iguana.be>,
+	"shawn.guo@linaro.org" <shawn.guo@linaro.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCHv4 2/2] watchdog: imx2_wdt: convert to use regmap API.
+Date: Fri, 4 Apr 2014 01:13:37 +0000
+Message-ID: <6563b26412a7457ba38e2dcf0bdcb643@BY2PR03MB505.namprd03.prod.outlook.com>
 References: <1396487059-15298-1-git-send-email-Li.Xiubo@freescale.com>
  <1396487059-15298-3-git-send-email-Li.Xiubo@freescale.com>
+ <20140403163604.GA11832@roeck-us.net>
+In-Reply-To: <20140403163604.GA11832@roeck-us.net>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1396487059-15298-3-git-send-email-Li.Xiubo@freescale.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Apr 03, 2014 at 09:04:19AM +0800, Xiubo Li wrote:
-> This watchdog driver will be working on IMX2+, Vybrid, LS1, LS2+
-> platforms, and will be in different endianness mode in those SoCs:
+> > +	base = devm_ioremap_resource(&pdev->dev, res);
+> > +	if (IS_ERR(base))
+> > +		return PTR_ERR(base);
+> > +
+> > +	imx2_wdt.regmap = devm_regmap_init_mmio_clk(&pdev->dev, NULL, base,
+> > +						    &imx2_wdt_regmap_config);
 > 
-> SoCs         CPU endian mode      WDT endian mode
-> ------------------------------------------------
-> IMX2+            LE                    LE
-> Vybird           LE                    LE
-> LS1              LE                    BE
-> LS2              LE                    LE
+> This patch causes the following buiild failure:
 > 
-> Other possible SoCs:
-> SoCs         CPU endian mode      WDT endian mode
-> ------------------------------------------------
-> Soc1             BE                    BE
-> Soc2             BE                    LE
+> Building arm:imx_v4_v5_defconfig ... failed
+> --------------
+> Error log:
+> drivers/built-in.o: In function `imx2_wdt_probe':
+> clk-composite.c:(.init.text+0x82c4): undefined reference to
+> `devm_regmap_init_mmio_clk'
+> make: *** [vmlinux] Error 1
+> --------------
 > 
-> And also the watchdog's registers will be 32-bits for some versions,
-> and though it is 16-bits in IMX2+, Vybird and LS+.
+> This is on top of
 > 
-> Using the regmap APIs, could be more easy to support different
-> endianness and also more easy to support 32-bits version...
+> b33ce44 Merge branch 'for-3.15/drivers' of git://git.kernel.dk/linux-block
 > 
-> Signed-off-by: Xiubo Li <Li.Xiubo@freescale.com>
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-> Cc: Shawn Guo <shawn.guo@linaro.org>
-> ---
->  drivers/watchdog/imx2_wdt.c | 50 +++++++++++++++++++++++++++++----------------
->  1 file changed, 32 insertions(+), 18 deletions(-)
+> Does it have build dependencies on code which is (or was) not yet available
+> in mainline ?
 > 
-> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-> index 1795922..76fa724 100644
-> --- a/drivers/watchdog/imx2_wdt.c
-> +++ b/drivers/watchdog/imx2_wdt.c
-> @@ -31,6 +31,7 @@
->  #include <linux/module.h>
->  #include <linux/moduleparam.h>
->  #include <linux/platform_device.h>
-> +#include <linux/regmap.h>
->  #include <linux/timer.h>
->  #include <linux/uaccess.h>
->  #include <linux/watchdog.h>
-> @@ -61,7 +62,7 @@
->  
->  static struct {
->  	struct clk *clk;
-> -	void __iomem *base;
-> +	struct regmap *regmap;
->  	unsigned timeout;
->  	unsigned long status;
->  	struct timer_list timer;	/* Pings the watchdog when closed */
-> @@ -87,7 +88,9 @@ static const struct watchdog_info imx2_wdt_info = {
->  
->  static inline void imx2_wdt_setup(void)
->  {
-> -	u16 val = __raw_readw(imx2_wdt.base + IMX2_WDT_WCR);
-> +	u32 val;
-> +
-> +	regmap_read(imx2_wdt.regmap, IMX2_WDT_WCR, &val);
->  
->  	/* Suspend timer in low power mode, write once-only */
->  	val |= IMX2_WDT_WCR_WDZST;
-> @@ -100,17 +103,17 @@ static inline void imx2_wdt_setup(void)
->  	/* Set the watchdog's Time-Out value */
->  	val |= WDOG_SEC_TO_COUNT(imx2_wdt.timeout);
->  
-> -	__raw_writew(val, imx2_wdt.base + IMX2_WDT_WCR);
-> +	regmap_write(imx2_wdt.regmap, IMX2_WDT_WCR, val);
->  
->  	/* enable the watchdog */
->  	val |= IMX2_WDT_WCR_WDE;
-> -	__raw_writew(val, imx2_wdt.base + IMX2_WDT_WCR);
-> +	regmap_write(imx2_wdt.regmap, IMX2_WDT_WCR, val);
->  }
->  
->  static inline void imx2_wdt_ping(void)
->  {
-> -	__raw_writew(IMX2_WDT_SEQ1, imx2_wdt.base + IMX2_WDT_WSR);
-> -	__raw_writew(IMX2_WDT_SEQ2, imx2_wdt.base + IMX2_WDT_WSR);
-> +	regmap_write(imx2_wdt.regmap, IMX2_WDT_WSR, IMX2_WDT_SEQ1);
-> +	regmap_write(imx2_wdt.regmap, IMX2_WDT_WSR, IMX2_WDT_SEQ2);
->  }
->  
->  static void imx2_wdt_timer_ping(unsigned long arg)
-> @@ -143,12 +146,8 @@ static void imx2_wdt_stop(void)
->  
->  static void imx2_wdt_set_timeout(int new_timeout)
->  {
-> -	u16 val = __raw_readw(imx2_wdt.base + IMX2_WDT_WCR);
-> -
-> -	/* set the new timeout value in the WSR */
-> -	val &= ~IMX2_WDT_WCR_WT;
-> -	val |= WDOG_SEC_TO_COUNT(new_timeout);
-> -	__raw_writew(val, imx2_wdt.base + IMX2_WDT_WCR);
-> +	regmap_update_bits(imx2_wdt.regmap, IMX2_WDT_WCR, IMX2_WDT_WCR_WT,
-> +			   WDOG_SEC_TO_COUNT(new_timeout));
->  }
->  
->  static int imx2_wdt_open(struct inode *inode, struct file *file)
-> @@ -181,7 +180,7 @@ static long imx2_wdt_ioctl(struct file *file, unsigned int cmd,
->  	void __user *argp = (void __user *)arg;
->  	int __user *p = argp;
->  	int new_value;
-> -	u16 val;
-> +	u32 val;
->  
->  	switch (cmd) {
->  	case WDIOC_GETSUPPORT:
-> @@ -192,7 +191,7 @@ static long imx2_wdt_ioctl(struct file *file, unsigned int cmd,
->  		return put_user(0, p);
->  
->  	case WDIOC_GETBOOTSTATUS:
-> -		val = __raw_readw(imx2_wdt.base + IMX2_WDT_WRSR);
-> +		regmap_read(imx2_wdt.regmap, IMX2_WDT_WRSR, &val);
->  		new_value = val & IMX2_WDT_WRSR_TOUT ? WDIOF_CARDRESET : 0;
->  		return put_user(new_value, p);
->  
-> @@ -255,15 +254,30 @@ static struct miscdevice imx2_wdt_miscdev = {
->  	.fops = &imx2_wdt_fops,
->  };
->  
-> +static struct regmap_config imx2_wdt_regmap_config = {
-> +	.reg_bits = 16,
-> +	.reg_stride = 2,
-> +	.val_bits = 16,
-> +	.max_register = 0x8,
-> +};
-> +
->  static int __init imx2_wdt_probe(struct platform_device *pdev)
->  {
-> -	int ret;
->  	struct resource *res;
-> +	void __iomem *base;
-> +	int ret;
->  
->  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> -	imx2_wdt.base = devm_ioremap_resource(&pdev->dev, res);
-> -	if (IS_ERR(imx2_wdt.base))
-> -		return PTR_ERR(imx2_wdt.base);
-> +	base = devm_ioremap_resource(&pdev->dev, res);
-> +	if (IS_ERR(base))
-> +		return PTR_ERR(base);
-> +
-> +	imx2_wdt.regmap = devm_regmap_init_mmio_clk(&pdev->dev, NULL, base,
-> +						    &imx2_wdt_regmap_config);
 
-This patch causes the following buiild failure:
+This is caused by not compiling the regmap core.
 
-Building arm:imx_v4_v5_defconfig ... failed
---------------
-Error log:
-drivers/built-in.o: In function `imx2_wdt_probe':
-clk-composite.c:(.init.text+0x82c4): undefined reference to
-`devm_regmap_init_mmio_clk'
-make: *** [vmlinux] Error 1
---------------
+Could you add the following patch to have a try ?
+==========================
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 79d2589..3e55fa9 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -369,6 +369,7 @@ config MAX63XX_WATCHDOG
+ config IMX2_WDT
+        tristate "IMX2+ Watchdog"
+        depends on ARCH_MXC
++       select REGMAP_MMIO
+        help
+          This is the driver for the hardware watchdog
+          on the Freescale IMX2 and later processors.
+--------------------------
 
-This is on top of
+If it's okey, I'll sent the v5 series to fix this.
 
-b33ce44 Merge branch 'for-3.15/drivers' of git://git.kernel.dk/linux-block
+Thanks very much,
 
-Does it have build dependencies on code which is (or was) not yet available
-in mainline ?
+BRs
+Xiubo
 
-Thanks,
-Guenter
+
