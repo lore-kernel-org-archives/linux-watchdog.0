@@ -1,47 +1,69 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:58283 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753848AbaDDPll (ORCPT
+Received: from yotta.elopez.com.ar ([31.220.24.173]:41521 "EHLO
+	yotta.elopez.com.ar" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753990AbaDDR1O (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 4 Apr 2014 11:41:41 -0400
-Message-ID: <533ED2AE.9010006@roeck-us.net>
-Date: Fri, 04 Apr 2014 08:41:34 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Fri, 4 Apr 2014 13:27:14 -0400
+From: =?UTF-8?q?Emilio=20L=C3=B3pez?= <emilio@elopez.com.ar>
+To: Maxime Ripard <maxime.ripard@free-electrons.com>, wim@iguana.be,
+	carlo.caione@gmail.com
+Cc: <linux-watchdog@vger.kernel.org>,
+	<linux-arm-kernel@lists.infradead.org>,
+	=?UTF-8?q?Emilio=20L=C3=B3pez?= <emilio@elopez.com.ar>
+Subject: [PATCH] watchdog: sunxi: Fix compilation with C=2
+Date: Fri,  4 Apr 2014 14:24:25 -0300
+Message-Id: <1396632265-16124-1-git-send-email-emilio@elopez.com.ar>
 MIME-Version: 1.0
-To: Wolfram Sang <wsa@the-dreams.de>,
-	Anatolij Gustschin <agust@denx.de>
-CC: linux-arm-kernel@lists.infradead.org, Li.Xiubo@freescale.com,
-	Shawn Guo <shawn.guo@linaro.org>,
-	linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [PATCH] watchdog: imx2_wdt: handle enabled watchdog properly
-References: <1396623242-15234-1-git-send-email-agust@denx.de> <20140404152011.GC5529@katana>
-In-Reply-To: <20140404152011.GC5529@katana>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 04/04/2014 08:20 AM, Wolfram Sang wrote:
-> On Fri, Apr 04, 2014 at 04:54:01PM +0200, Anatolij Gustschin wrote:
->> If the watchdog is already enabled (e.g. started by the boot loader),
->> we need to handle this case properly and start reloading the watchdog
->> time-out counter as frequently as needed.
->>
->> Signed-off-by: Anatolij Gustschin <agust@denx.de>
->> Cc: Wolfram Sang <wsa@the-dreams.de>
->> Cc: Wim Van Sebroeck <wim@iguana.be>
->
-> Uh, this driver has not been converted to use the watchdog framework
-> yet? I'd suggest this should be the first step.
->
+When compiling sunxi_defconfig while using C=2, the following error
+causes the compilation to fail:
 
-Yes, that would make sense at this time, especially given the amount
-of work going into it. There is also a separate patch set pending,
-converting the driver to use regmap [1]; I am copying the author.
-Maybe one of the people working with the driver would be willing
-to do the conversion.
+    drivers/watchdog/sunxi_wdt.c:60:15: error: constant 0b0001 is not a valid number
 
-Guenter
+Fix it by using hex notation instead of the non-standard binary one
 
-[1] http://comments.gmane.org/gmane.linux.kernel/1677735
+Signed-off-by: Emilio López <emilio@elopez.com.ar>
+---
+ drivers/watchdog/sunxi_wdt.c | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
+index cd00a78..693b9d2 100644
+--- a/drivers/watchdog/sunxi_wdt.c
++++ b/drivers/watchdog/sunxi_wdt.c
+@@ -57,17 +57,17 @@ struct sunxi_wdt_dev {
+  */
+ 
+ static const int wdt_timeout_map[] = {
+-	[1] = 0b0001,  /* 1s  */
+-	[2] = 0b0010,  /* 2s  */
+-	[3] = 0b0011,  /* 3s  */
+-	[4] = 0b0100,  /* 4s  */
+-	[5] = 0b0101,  /* 5s  */
+-	[6] = 0b0110,  /* 6s  */
+-	[8] = 0b0111,  /* 8s  */
+-	[10] = 0b1000, /* 10s */
+-	[12] = 0b1001, /* 12s */
+-	[14] = 0b1010, /* 14s */
+-	[16] = 0b1011, /* 16s */
++	[1] = 0x1,  /* 1s  */
++	[2] = 0x2,  /* 2s  */
++	[3] = 0x3,  /* 3s  */
++	[4] = 0x4,  /* 4s  */
++	[5] = 0x5,  /* 5s  */
++	[6] = 0x6,  /* 6s  */
++	[8] = 0x7,  /* 8s  */
++	[10] = 0x8, /* 10s */
++	[12] = 0x9, /* 12s */
++	[14] = 0xA, /* 14s */
++	[16] = 0xB, /* 16s */
+ };
+ 
+ static int sunxi_wdt_ping(struct watchdog_device *wdt_dev)
+-- 
+1.9.1
 
