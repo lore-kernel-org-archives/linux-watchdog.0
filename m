@@ -1,48 +1,59 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from [216.32.180.14] ([216.32.180.14]:4924 "EHLO
-	va3outboundpool.messaging.microsoft.com" rhost-flags-FAIL-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S1752440AbaDDCSu (ORCPT
+Received: from [65.55.88.11] ([65.55.88.11]:10099 "EHLO
+	tx2outboundpool.messaging.microsoft.com" rhost-flags-FAIL-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S1752314AbaDDCSR (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 3 Apr 2014 22:18:50 -0400
+	Thu, 3 Apr 2014 22:18:17 -0400
 From: Xiubo Li <Li.Xiubo@freescale.com>
 To: <wim@iguana.be>, <linux-watchdog@vger.kernel.org>
 CC: <linux-kernel@vger.kernel.org>, Xiubo Li <Li.Xiubo@freescale.com>
-Subject: [PATCHv5 0/2] imx2-wdt: Add regmap-mmio support
-Date: Fri, 4 Apr 2014 09:33:23 +0800
-Message-ID: <1396575205-24394-1-git-send-email-Li.Xiubo@freescale.com>
+Subject: [PATCHv5 1/2] watchdog: imx2_wdt: Sort the header files alphabetically
+Date: Fri, 4 Apr 2014 09:33:24 +0800
+Message-ID: <1396575205-24394-2-git-send-email-Li.Xiubo@freescale.com>
+In-Reply-To: <1396575205-24394-1-git-send-email-Li.Xiubo@freescale.com>
+References: <1396575205-24394-1-git-send-email-Li.Xiubo@freescale.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patches are preparing for Vybird, LS1 and LS2. And on LS1 the IP will
-in BE mode.
+Signed-off-by: Xiubo Li <Li.Xiubo@freescale.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Acked-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ drivers/watchdog/imx2_wdt.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-Changes in V5:
-- Select the REGMAP_MMIO default for IMX2 Watchdog.
-
-Changes in V4:
-- Add the explanation why uing the regmap APIs.
-
-Changes in V3:
-- convert to use regmap-mmio API.
-
-Changes in V2:
-- Add the detail information in the commit comment.
-- 'big-endians' --> 'big-endian'.
-
-
-
-
-
-Xiubo Li (2):
-  watchdog: imx2_wdt: Sort the header files alphabetically
-  watchdog: imx2_wdt: convert to use regmap API.
-
- drivers/watchdog/Kconfig    |  1 +
- drivers/watchdog/imx2_wdt.c | 62 +++++++++++++++++++++++++++------------------
- 2 files changed, 39 insertions(+), 24 deletions(-)
-
+diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+index dd51d95..1795922 100644
+--- a/drivers/watchdog/imx2_wdt.c
++++ b/drivers/watchdog/imx2_wdt.c
+@@ -21,19 +21,19 @@
+  * Halt on suspend:	Manual		Can be automatic
+  */
+ 
++#include <linux/clk.h>
++#include <linux/fs.h>
+ #include <linux/init.h>
++#include <linux/io.h>
++#include <linux/jiffies.h>
+ #include <linux/kernel.h>
+ #include <linux/miscdevice.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/platform_device.h>
+-#include <linux/watchdog.h>
+-#include <linux/clk.h>
+-#include <linux/fs.h>
+-#include <linux/io.h>
+-#include <linux/uaccess.h>
+ #include <linux/timer.h>
+-#include <linux/jiffies.h>
++#include <linux/uaccess.h>
++#include <linux/watchdog.h>
+ 
+ #define DRIVER_NAME "imx2-wdt"
+ 
 -- 
 1.8.4
 
