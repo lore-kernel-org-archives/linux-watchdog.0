@@ -1,86 +1,80 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f50.google.com ([209.85.220.50]:40264 "EHLO
-	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753057AbaDGQsT (ORCPT
+Received: from mail-out.m-online.net ([212.18.0.10]:54889 "EHLO
+	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752971AbaDDOyD (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 7 Apr 2014 12:48:19 -0400
-Received: by mail-pa0-f50.google.com with SMTP id kq14so7039122pab.9
-        for <linux-watchdog@vger.kernel.org>; Mon, 07 Apr 2014 09:48:18 -0700 (PDT)
-Date: Mon, 7 Apr 2014 09:48:11 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Anatolij Gustschin <agust@denx.de>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Xiubo Li <Li.Xiubo@freescale.com>,
-	Shawn Guo <shawn.guo@linaro.org>,
-	Wolfram Sang <wsa@the-dreams.de>,
+	Fri, 4 Apr 2014 10:54:03 -0400
+From: Anatolij Gustschin <agust@denx.de>
+To: linux-arm-kernel@lists.infradead.org,
+	Shawn Guo <shawn.guo@linaro.org>
+Cc: linux-watchdog@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>,
 	Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [PATCH] watchdog: imx2_wdt:  convert to watchdog core api
-Message-ID: <20140407164811.GA28025@roeck-us.net>
-References: <1396722580-7058-1-git-send-email-agust@denx.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1396722580-7058-1-git-send-email-agust@denx.de>
+Subject: [PATCH] watchdog: imx2_wdt: handle enabled watchdog properly
+Date: Fri,  4 Apr 2014 16:54:01 +0200
+Message-Id: <1396623242-15234-1-git-send-email-agust@denx.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sat, Apr 05, 2014 at 08:29:40PM +0200, Anatolij Gustschin wrote:
-> Convert the imx2_wdt driver to the new watchdog core api.
-> 
-> Signed-off-by: Anatolij Gustschin <agust@denx.de>
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> Cc: Wim Van Sebroeck <wim@iguana.be>
+If the watchdog is already enabled (e.g. started by the boot loader),
+we need to handle this case properly and start reloading the watchdog
+time-out counter as frequently as needed.
 
-Looks pretty good, just a couple of nitpicks.
+Signed-off-by: Anatolij Gustschin <agust@denx.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+---
+ drivers/watchdog/imx2_wdt.c |   24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-> ---
-> NOTE: This patch applies on top of the imx2_wdt regmap-mmio support
-> patch series http://comments.gmane.org/gmane.linux.kernel/1677735
-> 
->  drivers/watchdog/Kconfig    |    1 +
->  drivers/watchdog/imx2_wdt.c |  292 ++++++++++++++++++-------------------------
->  2 files changed, 124 insertions(+), 169 deletions(-)
->  
-[ ... ]
+diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+index dd51d95..bef9a9f 100644
+--- a/drivers/watchdog/imx2_wdt.c
++++ b/drivers/watchdog/imx2_wdt.c
+@@ -54,6 +54,7 @@
+ #define IMX2_WDT_DEFAULT_TIME	60		/* in seconds */
+ 
+ #define WDOG_SEC_TO_COUNT(s)	((s * 2 - 1) << 8)
++#define WDOG_COUNT_TO_SEC(c)	((((c) >> 8) + 1) / 2)
+ 
+ #define IMX2_WDT_STATUS_OPEN	0
+ #define IMX2_WDT_STATUS_STARTED	1
+@@ -120,6 +121,27 @@ static void imx2_wdt_timer_ping(unsigned long arg)
+ 	mod_timer(&imx2_wdt.timer, jiffies + imx2_wdt.timeout * HZ / 2);
+ }
+ 
++static inline void imx2_wdt_ping_if_active(void)
++{
++	u16 val = __raw_readw(imx2_wdt.base + IMX2_WDT_WCR);
++
++	if (val & IMX2_WDT_WCR_WDE) {
++		/* Must enable the clock, wdog service doesn't work otherwise */
++		clk_prepare_enable(imx2_wdt.clk);
++
++		set_bit(IMX2_WDT_STATUS_STARTED, &imx2_wdt.status);
++		imx2_wdt.timeout = WDOG_COUNT_TO_SEC(val);
++		if (imx2_wdt.timeout < 2) {
++			imx2_wdt.timeout = 2;
++			/* Set new watchdog time-out value */
++			val &= ~IMX2_WDT_WCR_WT;
++			val |= WDOG_SEC_TO_COUNT(imx2_wdt.timeout);
++			__raw_writew(val, imx2_wdt.base + IMX2_WDT_WCR);
++		}
++		imx2_wdt_timer_ping(0);
++	}
++}
++
+ static void imx2_wdt_start(void)
+ {
+ 	if (!test_and_set_bit(IMX2_WDT_STATUS_STARTED, &imx2_wdt.status)) {
+@@ -283,6 +305,8 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto fail;
+ 
++	imx2_wdt_ping_if_active();
++
+ 	dev_info(&pdev->dev,
+ 		"IMX2+ Watchdog Timer enabled. timeout=%ds (nowayout=%d)\n",
+ 						imx2_wdt.timeout, nowayout);
+-- 
+1.7.9.5
 
-> -static void imx2_wdt_timer_ping(unsigned long arg)
-> -{
-> -	/* ping it every imx2_wdt.timeout / 2 seconds to prevent reboot */
-> -	imx2_wdt_ping();
-> -	mod_timer(&imx2_wdt.timer, jiffies + imx2_wdt.timeout * HZ / 2);
-> +	regmap_read(wdev->regmap, IMX2_WDT_WCR, &val);
-> +
-> +	if (val & IMX2_WDT_WCR_WDE)
-> +		return true;
-> +	return false;
->  }
-
-You can simplyfy this to
-
-	return val & IMX2_WDT_WCR_WDE;
-
-since C auto-converts from int to bool. If you feel fancy and don't
-trust the C compiler, another option would be
-
-	return !!(val & IMX2_WDT_WCR_WDE);
-
-which would at least drop the if statement.
-
-[ ... ]
-
-> +
-> +	wdog->timeout = clamp_t(unsigned, timeout, 1, IMX2_WDT_MAX_TIME);
-> +	if (wdog->timeout != timeout)
->  		dev_warn(&pdev->dev, "Initial timeout out of range! "
-> -			"Clamped from %u to %u\n", timeout, imx2_wdt.timeout);
-> +			"Clamped from %u to %u\n", timeout, wdog->timeout);
-
-Somewhat unrelated, but this results in a checkpatch warning.
-I would suggest to put the string in a single line.
-
-		dev_warn(&pdev->dev,
-			 "Initial timeout out of range! Clamped from %u to %u\n",
-			 timeout, wdog->timeout);
-
-Guenter
