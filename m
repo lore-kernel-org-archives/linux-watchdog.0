@@ -1,460 +1,286 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.10]:56050 "EHLO
-	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753330AbaDES3q (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 5 Apr 2014 14:29:46 -0400
-From: Anatolij Gustschin <agust@denx.de>
-To: linux-watchdog@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org,
-	Xiubo Li <Li.Xiubo@freescale.com>,
-	Shawn Guo <shawn.guo@linaro.org>,
-	Wolfram Sang <wsa@the-dreams.de>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: [PATCH] watchdog: imx2_wdt:  convert to watchdog core api
-Date: Sat,  5 Apr 2014 20:29:40 +0200
-Message-Id: <1396722580-7058-1-git-send-email-agust@denx.de>
+Received: from mga09.intel.com ([134.134.136.24]:37945 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756232AbaDHXo1 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 8 Apr 2014 19:44:27 -0400
+From: David Cohen <david.a.cohen@linux.intel.com>
+To: wim@iguana.be, tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com,
+	x86@kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	gnomes@lxorguk.ukuu.org.uk, david.a.cohen@linux.intel.com,
+	Eric Ernst <eric.ernst@intel.com>
+Subject: [PATCH 1/2] watchdog: add Intel MID watchdog driver support
+Date: Tue,  8 Apr 2014 13:59:03 -0700
+Message-Id: <1396990744-10695-2-git-send-email-david.a.cohen@linux.intel.com>
+In-Reply-To: <1396990744-10695-1-git-send-email-david.a.cohen@linux.intel.com>
+References: <1396990744-10695-1-git-send-email-david.a.cohen@linux.intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Convert the imx2_wdt driver to the new watchdog core api.
+Add initial Intel MID watchdog driver support.
 
-Signed-off-by: Anatolij Gustschin <agust@denx.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Cc: Wim Van Sebroeck <wim@iguana.be>
+This driver is an initial implementation of generic Intel MID watchdog
+driver. Currently it supports Intel Merrifield platform.
+
+Signed-off-by: Eric Ernst <eric.ernst@intel.com>
+Signed-off-by: David Cohen <david.a.cohen@linux.intel.com>
 ---
-NOTE: This patch applies on top of the imx2_wdt regmap-mmio support
-patch series http://comments.gmane.org/gmane.linux.kernel/1677735
-
- drivers/watchdog/Kconfig    |    1 +
- drivers/watchdog/imx2_wdt.c |  292 ++++++++++++++++++-------------------------
- 2 files changed, 124 insertions(+), 169 deletions(-)
+ drivers/watchdog/Kconfig         |  12 +++
+ drivers/watchdog/Makefile        |   1 +
+ drivers/watchdog/intel-mid_wdt.c | 209 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 222 insertions(+)
+ create mode 100644 drivers/watchdog/intel-mid_wdt.c
 
 diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index e1ff4f1..3f14031 100644
+index 79d25894343a..4da09b8b2f11 100644
 --- a/drivers/watchdog/Kconfig
 +++ b/drivers/watchdog/Kconfig
-@@ -379,6 +379,7 @@ config IMX2_WDT
- 	tristate "IMX2+ Watchdog"
- 	depends on ARCH_MXC
- 	select REGMAP_MMIO
-+	select WATCHDOG_CORE
- 	help
- 	  This is the driver for the hardware watchdog
- 	  on the Freescale IMX2 and later processors.
-diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-index 76fa724..c080b76 100644
---- a/drivers/watchdog/imx2_wdt.c
-+++ b/drivers/watchdog/imx2_wdt.c
-@@ -22,18 +22,15 @@
-  */
+@@ -643,6 +643,18 @@ config INTEL_SCU_WATCHDOG
  
- #include <linux/clk.h>
--#include <linux/fs.h>
- #include <linux/init.h>
- #include <linux/io.h>
- #include <linux/jiffies.h>
- #include <linux/kernel.h>
--#include <linux/miscdevice.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
- #include <linux/platform_device.h>
- #include <linux/regmap.h>
- #include <linux/timer.h>
--#include <linux/uaccess.h>
- #include <linux/watchdog.h>
+ 	  To compile this driver as a module, choose M here.
  
- #define DRIVER_NAME "imx2-wdt"
-@@ -56,19 +53,12 @@
++config INTEL_MID_WATCHDOG
++	bool "Intel MID SCU Watchdog Mobile Platforms"
++	depends on X86_INTEL_MID && WATCHDOG_CORE
++	---help---
++	  Watchdog timer driver built into the Intel SCU for Intel MID
++	  Platforms.
++
++	  This driver currently supports only the watchdog evolution
++	  implementation in SCU, available for Merrifield generation.
++
++	  To compile this driver as a module, choose M here.
++
+ config ITCO_WDT
+ 	tristate "Intel TCO Timer/Watchdog"
+ 	depends on (X86 || IA64) && PCI
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 985a66cda76f..b927e7496eb4 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -113,6 +113,7 @@ obj-$(CONFIG_W83977F_WDT) += w83977f_wdt.o
+ obj-$(CONFIG_MACHZ_WDT) += machzwd.o
+ obj-$(CONFIG_SBC_EPX_C3_WATCHDOG) += sbc_epx_c3.o
+ obj-$(CONFIG_INTEL_SCU_WATCHDOG) += intel_scu_watchdog.o
++obj-$(CONFIG_INTEL_MID_WATCHDOG) += intel-mid_wdt.o
  
- #define WDOG_SEC_TO_COUNT(s)	((s * 2 - 1) << 8)
+ # M32R Architecture
  
--#define IMX2_WDT_STATUS_OPEN	0
--#define IMX2_WDT_STATUS_STARTED	1
--#define IMX2_WDT_EXPECT_CLOSE	2
--
--static struct {
-+struct imx2_wdt_device {
- 	struct clk *clk;
- 	struct regmap *regmap;
--	unsigned timeout;
--	unsigned long status;
- 	struct timer_list timer;	/* Pings the watchdog when closed */
--} imx2_wdt;
--
--static struct miscdevice imx2_wdt_miscdev;
-+	struct watchdog_device wdog;
+diff --git a/drivers/watchdog/intel-mid_wdt.c b/drivers/watchdog/intel-mid_wdt.c
+new file mode 100644
+index 000000000000..6339c6351454
+--- /dev/null
++++ b/drivers/watchdog/intel-mid_wdt.c
+@@ -0,0 +1,209 @@
++/*
++ *      intel-mid_wdt: generic Intel MID SCU watchdog driver
++ *
++ *      Platforms supported so far:
++ *      - Merrifield only
++ *
++ *      Copyright (C) 2014 Intel Corporation. All rights reserved.
++ *      Contact: David Cohen <david.a.cohen@linux.intel.com>
++ *
++ *      This program is free software; you can redistribute it and/or
++ *      modify it under the terms of version 2 of the GNU General
++ *      Public License as published by the Free Software Foundation.
++ */
++
++#include <linux/interrupt.h>
++#include <linux/module.h>
++#include <linux/nmi.h>
++#include <linux/platform_device.h>
++#include <linux/watchdog.h>
++
++#include <asm/intel_scu_ipc.h>
++#include <asm/intel-mid.h>
++
++#define IPC_WATCHDOG 0xf8
++
++#define MID_WDT_PRETIMEOUT		15
++#define MID_WDT_TIMEOUT_MIN		(1 + MID_WDT_PRETIMEOUT)
++#define MID_WDT_TIMEOUT_MAX		170
++#define MID_WDT_DEFAULT_TIMEOUT		90
++
++/* SCU watchdog messages */
++enum {
++	SCU_WATCHDOG_START = 0,
++	SCU_WATCHDOG_STOP,
++	SCU_WATCHDOG_KEEPALIVE,
 +};
- 
- static bool nowayout = WATCHDOG_NOWAYOUT;
- module_param(nowayout, bool, 0);
-@@ -86,11 +76,12 @@ static const struct watchdog_info imx2_wdt_info = {
- 	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
- };
- 
--static inline void imx2_wdt_setup(void)
-+static inline void imx2_wdt_setup(struct watchdog_device *wdog)
- {
-+	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
- 	u32 val;
- 
--	regmap_read(imx2_wdt.regmap, IMX2_WDT_WCR, &val);
-+	regmap_read(wdev->regmap, IMX2_WDT_WCR, &val);
- 
- 	/* Suspend timer in low power mode, write once-only */
- 	val |= IMX2_WDT_WCR_WDZST;
-@@ -101,157 +92,95 @@ static inline void imx2_wdt_setup(void)
- 	/* Keep Watchdog Disabled */
- 	val &= ~IMX2_WDT_WCR_WDE;
- 	/* Set the watchdog's Time-Out value */
--	val |= WDOG_SEC_TO_COUNT(imx2_wdt.timeout);
-+	val |= WDOG_SEC_TO_COUNT(wdog->timeout);
- 
--	regmap_write(imx2_wdt.regmap, IMX2_WDT_WCR, val);
-+	regmap_write(wdev->regmap, IMX2_WDT_WCR, val);
- 
- 	/* enable the watchdog */
- 	val |= IMX2_WDT_WCR_WDE;
--	regmap_write(imx2_wdt.regmap, IMX2_WDT_WCR, val);
-+	regmap_write(wdev->regmap, IMX2_WDT_WCR, val);
- }
- 
--static inline void imx2_wdt_ping(void)
-+static inline bool imx2_wdt_is_running(struct imx2_wdt_device *wdev)
- {
--	regmap_write(imx2_wdt.regmap, IMX2_WDT_WSR, IMX2_WDT_SEQ1);
--	regmap_write(imx2_wdt.regmap, IMX2_WDT_WSR, IMX2_WDT_SEQ2);
--}
-+	u32 val;
- 
--static void imx2_wdt_timer_ping(unsigned long arg)
--{
--	/* ping it every imx2_wdt.timeout / 2 seconds to prevent reboot */
--	imx2_wdt_ping();
--	mod_timer(&imx2_wdt.timer, jiffies + imx2_wdt.timeout * HZ / 2);
-+	regmap_read(wdev->regmap, IMX2_WDT_WCR, &val);
 +
-+	if (val & IMX2_WDT_WCR_WDE)
-+		return true;
-+	return false;
- }
- 
--static void imx2_wdt_start(void)
-+static int imx2_wdt_ping(struct watchdog_device *wdog)
- {
--	if (!test_and_set_bit(IMX2_WDT_STATUS_STARTED, &imx2_wdt.status)) {
--		/* at our first start we enable clock and do initialisations */
--		clk_prepare_enable(imx2_wdt.clk);
--
--		imx2_wdt_setup();
--	} else	/* delete the timer that pings the watchdog after close */
--		del_timer_sync(&imx2_wdt.timer);
-+	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
- 
--	/* Watchdog is enabled - time to reload the timeout value */
--	imx2_wdt_ping();
-+	regmap_write(wdev->regmap, IMX2_WDT_WSR, IMX2_WDT_SEQ1);
-+	regmap_write(wdev->regmap, IMX2_WDT_WSR, IMX2_WDT_SEQ2);
-+	return 0;
- }
- 
--static void imx2_wdt_stop(void)
-+static void imx2_wdt_timer_ping(unsigned long arg)
- {
--	/* we don't need a clk_disable, it cannot be disabled once started.
--	 * We use a timer to ping the watchdog while /dev/watchdog is closed */
--	imx2_wdt_timer_ping(0);
-+	struct watchdog_device *wdog = (struct watchdog_device *)arg;
-+	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
++static inline int wdt_command(int sub, u32 *in, int inlen)
++{
++	return intel_scu_ipc_command(IPC_WATCHDOG, sub, in, inlen, NULL, 0);
++}
 +
-+	/* ping it every wdog->timeout / 2 seconds to prevent reboot */
-+	imx2_wdt_ping(wdog);
-+	mod_timer(&wdev->timer, jiffies + wdog->timeout * HZ / 2);
- }
- 
--static void imx2_wdt_set_timeout(int new_timeout)
-+static int imx2_wdt_set_timeout(struct watchdog_device *wdog,
-+				unsigned int new_timeout)
- {
--	regmap_update_bits(imx2_wdt.regmap, IMX2_WDT_WCR, IMX2_WDT_WCR_WT,
-+	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
++static int wdt_start(struct watchdog_device *wd)
++{
++	int ret, in_size;
++	int timeout = wd->timeout;
++	struct ipc_wd_start {
++		u32 pretimeout;
++		u32 timeout;
++	} ipc_wd_start = { timeout - MID_WDT_PRETIMEOUT, timeout };
 +
-+	regmap_update_bits(wdev->regmap, IMX2_WDT_WCR, IMX2_WDT_WCR_WT,
- 			   WDOG_SEC_TO_COUNT(new_timeout));
-+	return 0;
- }
- 
--static int imx2_wdt_open(struct inode *inode, struct file *file)
-+static int imx2_wdt_start(struct watchdog_device *wdog)
- {
--	if (test_and_set_bit(IMX2_WDT_STATUS_OPEN, &imx2_wdt.status))
--		return -EBUSY;
-+	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
- 
--	imx2_wdt_start();
--	return nonseekable_open(inode, file);
-+	if (imx2_wdt_is_running(wdev)) {
-+		/* delete the timer that pings the watchdog after close */
-+		del_timer_sync(&wdev->timer);
-+		imx2_wdt_set_timeout(wdog, wdog->timeout);
-+	} else
-+		imx2_wdt_setup(wdog);
-+
-+	return imx2_wdt_ping(wdog);
- }
- 
--static int imx2_wdt_close(struct inode *inode, struct file *file)
-+static int imx2_wdt_stop(struct watchdog_device *wdog)
- {
--	if (test_bit(IMX2_WDT_EXPECT_CLOSE, &imx2_wdt.status) && !nowayout)
--		imx2_wdt_stop();
--	else {
--		dev_crit(imx2_wdt_miscdev.parent,
--			"Unexpected close: Expect reboot!\n");
--		imx2_wdt_ping();
--	}
--
--	clear_bit(IMX2_WDT_EXPECT_CLOSE, &imx2_wdt.status);
--	clear_bit(IMX2_WDT_STATUS_OPEN, &imx2_wdt.status);
 +	/*
-+	 * We don't need a clk_disable, it cannot be disabled once started.
-+	 * We use a timer to ping the watchdog while /dev/watchdog is closed
++	 * SCU expects the input size for watchdog IPC to
++	 * be based on double-word
 +	 */
-+	imx2_wdt_timer_ping((unsigned long)wdog);
- 	return 0;
- }
- 
--static long imx2_wdt_ioctl(struct file *file, unsigned int cmd,
--							unsigned long arg)
-+static inline void imx2_wdt_ping_if_active(struct watchdog_device *wdog)
- {
--	void __user *argp = (void __user *)arg;
--	int __user *p = argp;
--	int new_value;
--	u32 val;
-+	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
- 
--	switch (cmd) {
--	case WDIOC_GETSUPPORT:
--		return copy_to_user(argp, &imx2_wdt_info,
--			sizeof(struct watchdog_info)) ? -EFAULT : 0;
--
--	case WDIOC_GETSTATUS:
--		return put_user(0, p);
--
--	case WDIOC_GETBOOTSTATUS:
--		regmap_read(imx2_wdt.regmap, IMX2_WDT_WRSR, &val);
--		new_value = val & IMX2_WDT_WRSR_TOUT ? WDIOF_CARDRESET : 0;
--		return put_user(new_value, p);
--
--	case WDIOC_KEEPALIVE:
--		imx2_wdt_ping();
--		return 0;
--
--	case WDIOC_SETTIMEOUT:
--		if (get_user(new_value, p))
--			return -EFAULT;
--		if ((new_value < 1) || (new_value > IMX2_WDT_MAX_TIME))
--			return -EINVAL;
--		imx2_wdt_set_timeout(new_value);
--		imx2_wdt.timeout = new_value;
--		imx2_wdt_ping();
--
--		/* Fallthrough to return current value */
--	case WDIOC_GETTIMEOUT:
--		return put_user(imx2_wdt.timeout, p);
--
--	default:
--		return -ENOTTY;
-+	if (imx2_wdt_is_running(wdev)) {
-+		imx2_wdt_set_timeout(wdog, wdog->timeout);
-+		imx2_wdt_timer_ping((unsigned long)wdog);
- 	}
- }
- 
--static ssize_t imx2_wdt_write(struct file *file, const char __user *data,
--						size_t len, loff_t *ppos)
--{
--	size_t i;
--	char c;
--
--	if (len == 0)	/* Can we see this even ? */
--		return 0;
--
--	clear_bit(IMX2_WDT_EXPECT_CLOSE, &imx2_wdt.status);
--	/* scan to see whether or not we got the magic character */
--	for (i = 0; i != len; i++) {
--		if (get_user(c, data + i))
--			return -EFAULT;
--		if (c == 'V')
--			set_bit(IMX2_WDT_EXPECT_CLOSE, &imx2_wdt.status);
--	}
--
--	imx2_wdt_ping();
--	return len;
--}
--
--static const struct file_operations imx2_wdt_fops = {
-+static struct watchdog_ops imx2_wdt_ops = {
- 	.owner = THIS_MODULE,
--	.llseek = no_llseek,
--	.unlocked_ioctl = imx2_wdt_ioctl,
--	.open = imx2_wdt_open,
--	.release = imx2_wdt_close,
--	.write = imx2_wdt_write,
--};
--
--static struct miscdevice imx2_wdt_miscdev = {
--	.minor = WATCHDOG_MINOR,
--	.name = "watchdog",
--	.fops = &imx2_wdt_fops,
-+	.start = imx2_wdt_start,
-+	.stop = imx2_wdt_stop,
-+	.ping = imx2_wdt_ping,
-+	.set_timeout = imx2_wdt_set_timeout,
- };
- 
- static struct regmap_config imx2_wdt_regmap_config = {
-@@ -263,76 +192,101 @@ static struct regmap_config imx2_wdt_regmap_config = {
- 
- static int __init imx2_wdt_probe(struct platform_device *pdev)
- {
-+	struct imx2_wdt_device *wdev;
-+	struct watchdog_device *wdog;
- 	struct resource *res;
- 	void __iomem *base;
- 	int ret;
-+	u32 val;
++	in_size = (sizeof(ipc_wd_start) + 3) / 4;
 +
-+	wdev = devm_kzalloc(&pdev->dev, sizeof(*wdev), GFP_KERNEL);
-+	if (!wdev)
-+		return -ENOMEM;
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	base = devm_ioremap_resource(&pdev->dev, res);
- 	if (IS_ERR(base))
- 		return PTR_ERR(base);
- 
--	imx2_wdt.regmap = devm_regmap_init_mmio_clk(&pdev->dev, NULL, base,
--						    &imx2_wdt_regmap_config);
--	if (IS_ERR(imx2_wdt.regmap)) {
-+	wdev->regmap = devm_regmap_init_mmio_clk(&pdev->dev, NULL, base,
-+						 &imx2_wdt_regmap_config);
-+	if (IS_ERR(wdev->regmap)) {
- 		dev_err(&pdev->dev, "regmap init failed\n");
--		return PTR_ERR(imx2_wdt.regmap);
-+		return PTR_ERR(wdev->regmap);
- 	}
- 
--	imx2_wdt.clk = devm_clk_get(&pdev->dev, NULL);
--	if (IS_ERR(imx2_wdt.clk)) {
-+	wdev->clk = devm_clk_get(&pdev->dev, NULL);
-+	if (IS_ERR(wdev->clk)) {
- 		dev_err(&pdev->dev, "can't get Watchdog clock\n");
--		return PTR_ERR(imx2_wdt.clk);
-+		return PTR_ERR(wdev->clk);
- 	}
- 
--	imx2_wdt.timeout = clamp_t(unsigned, timeout, 1, IMX2_WDT_MAX_TIME);
--	if (imx2_wdt.timeout != timeout)
-+	wdog			= &wdev->wdog;
-+	wdog->info		= &imx2_wdt_info;
-+	wdog->ops		= &imx2_wdt_ops;
-+	wdog->min_timeout	= 1;
-+	wdog->max_timeout	= IMX2_WDT_MAX_TIME;
-+
-+	clk_prepare_enable(wdev->clk);
-+
-+	regmap_read(wdev->regmap, IMX2_WDT_WRSR, &val);
-+	wdog->bootstatus = val & IMX2_WDT_WRSR_TOUT ? WDIOF_CARDRESET : 0;
-+
-+	wdog->timeout = clamp_t(unsigned, timeout, 1, IMX2_WDT_MAX_TIME);
-+	if (wdog->timeout != timeout)
- 		dev_warn(&pdev->dev, "Initial timeout out of range! "
--			"Clamped from %u to %u\n", timeout, imx2_wdt.timeout);
-+			"Clamped from %u to %u\n", timeout, wdog->timeout);
- 
--	setup_timer(&imx2_wdt.timer, imx2_wdt_timer_ping, 0);
-+	platform_set_drvdata(pdev, wdog);
-+	watchdog_set_drvdata(wdog, wdev);
-+	watchdog_set_nowayout(wdog, nowayout);
-+	watchdog_init_timeout(wdog, timeout, &pdev->dev);
- 
--	imx2_wdt_miscdev.parent = &pdev->dev;
--	ret = misc_register(&imx2_wdt_miscdev);
--	if (ret)
--		goto fail;
-+	setup_timer(&wdev->timer, imx2_wdt_timer_ping, (unsigned long)wdog);
- 
--	dev_info(&pdev->dev,
--		"IMX2+ Watchdog Timer enabled. timeout=%ds (nowayout=%d)\n",
--						imx2_wdt.timeout, nowayout);
--	return 0;
-+	imx2_wdt_ping_if_active(wdog);
- 
--fail:
--	imx2_wdt_miscdev.parent = NULL;
--	return ret;
-+	ret = watchdog_register_device(wdog);
++	ret = wdt_command(SCU_WATCHDOG_START, (u32 *)&ipc_wd_start, in_size);
 +	if (ret) {
-+		dev_err(&pdev->dev, "cannot register watchdog device\n");
++		struct device *dev = watchdog_get_drvdata(wd);
++		dev_crit(dev, "error starting watchdog: %d\n", ret);
++		return -EIO;
++	}
++
++	return 0;
++}
++
++static int wdt_ping(struct watchdog_device *wd)
++{
++	int ret;
++
++	ret = wdt_command(SCU_WATCHDOG_KEEPALIVE, NULL, 0);
++	if (ret) {
++		struct device *dev = watchdog_get_drvdata(wd);
++		dev_crit(dev, "Error executing keepalive: 0x%x\n", ret);
++		return -EIO;
++	}
++
++	return 0;
++}
++
++static int wdt_stop(struct watchdog_device *wd)
++{
++	int ret;
++
++	ret = wdt_command(SCU_WATCHDOG_STOP, NULL, 0);
++	if (ret) {
++		struct device *dev = watchdog_get_drvdata(wd);
++		dev_crit(dev, "Error stopping watchdog: 0x%x\n", ret);
++		return -EIO;
++	}
++
++	return 0;
++}
++
++static irqreturn_t mid_wdt_warning_irq(int irq, void *dev_id)
++{
++	/* Let's dump some data before panic */
++	trigger_all_cpu_backtrace();
++	panic("Kernel Watchdog");
++
++	/* This code should not be reached */
++	return IRQ_HANDLED;
++}
++
++/*
++ * Current driver supports Merrifield only.
++ * This function will get more generic when necessary.
++ */
++static int handle_dev_ioapic(struct device *dev, int irq)
++{
++	int ioapic;
++	struct io_apic_irq_attr irq_attr;
++
++	ioapic = mp_find_ioapic(irq);
++	if (ioapic >= 0) {
++		irq_attr.ioapic = ioapic;
++		irq_attr.ioapic_pin = irq;
++		irq_attr.trigger = 1;
++		irq_attr.polarity = 0; /* Active high */
++		io_apic_set_pci_routing(NULL, irq, &irq_attr);
++	} else {
++		dev_warn(dev, "can not find interrupt %d in ioapic\n", irq);
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
++static const struct watchdog_info mid_wdt_info = {
++	.identity = "Intel MID SCU watchdog",
++	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
++};
++
++static const struct watchdog_ops mid_wdt_ops = {
++	.owner = THIS_MODULE,
++	.start = wdt_start,
++	.stop = wdt_stop,
++	.ping = wdt_ping,
++};
++
++static int mid_wdt_probe(struct platform_device *pdev)
++{
++	struct watchdog_device *wdt_dev;
++	struct resource *res;
++	int ret;
++	int irq;
++
++	wdt_dev = devm_kzalloc(&pdev->dev, sizeof(*wdt_dev), GFP_KERNEL);
++	if (!wdt_dev)
++		return -ENOMEM;
++
++	wdt_dev->info = &mid_wdt_info;
++	wdt_dev->ops = &mid_wdt_ops;
++	wdt_dev->min_timeout = MID_WDT_TIMEOUT_MIN;
++	wdt_dev->max_timeout = MID_WDT_TIMEOUT_MAX;
++	wdt_dev->timeout = MID_WDT_DEFAULT_TIMEOUT;
++
++	watchdog_set_drvdata(wdt_dev, &pdev->dev);
++	platform_set_drvdata(pdev, wdt_dev);
++
++	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
++	if (!res) {
++		dev_err(&pdev->dev, "missing IRQ resource\n");
++		return -EINVAL;
++	}
++	irq = res->start;
++
++	handle_dev_ioapic(&pdev->dev, irq);
++	ret = devm_request_irq(&pdev->dev, irq, mid_wdt_warning_irq,
++			       IRQF_SHARED | IRQF_NO_SUSPEND, "watchdog",
++			       wdt_dev);
++	if (ret) {
++		dev_err(&pdev->dev, "error requesting warning irq %d\n", irq);
 +		return ret;
 +	}
 +
-+	dev_info(&pdev->dev, "timeout %d sec (nowayout=%d)\n",
-+		 wdog->timeout, nowayout);
++	ret = watchdog_register_device(wdt_dev);
++	if (ret) {
++		dev_err(&pdev->dev, "error registering watchdog device\n");
++		return ret;
++	}
++
++	dev_info(&pdev->dev, "Intel MID watchdog device probed\n");
 +
 +	return 0;
- }
- 
- static int __exit imx2_wdt_remove(struct platform_device *pdev)
- {
--	misc_deregister(&imx2_wdt_miscdev);
-+	struct watchdog_device *wdog = platform_get_drvdata(pdev);
-+	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
- 
--	if (test_bit(IMX2_WDT_STATUS_STARTED, &imx2_wdt.status)) {
--		del_timer_sync(&imx2_wdt.timer);
-+	watchdog_unregister_device(wdog);
- 
--		dev_crit(imx2_wdt_miscdev.parent,
--			"Device removed: Expect reboot!\n");
-+	if (imx2_wdt_is_running(wdev)) {
-+		del_timer_sync(&wdev->timer);
-+		imx2_wdt_ping(wdog);
-+		dev_crit(&pdev->dev, "Device removed: Expect reboot!\n");
- 	}
--
--	imx2_wdt_miscdev.parent = NULL;
- 	return 0;
- }
- 
- static void imx2_wdt_shutdown(struct platform_device *pdev)
- {
--	if (test_bit(IMX2_WDT_STATUS_STARTED, &imx2_wdt.status)) {
--		/* we are running, we need to delete the timer but will give
--		 * max timeout before reboot will take place */
--		del_timer_sync(&imx2_wdt.timer);
--		imx2_wdt_set_timeout(IMX2_WDT_MAX_TIME);
--		imx2_wdt_ping();
--
--		dev_crit(imx2_wdt_miscdev.parent,
--			"Device shutdown: Expect reboot!\n");
-+	struct watchdog_device *wdog = platform_get_drvdata(pdev);
-+	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
++}
 +
-+	if (imx2_wdt_is_running(wdev)) {
-+		/*
-+		 * We are running, we need to delete the timer but will
-+		 * give max timeout before reboot will take place
-+		 */
-+		del_timer_sync(&wdev->timer);
-+		imx2_wdt_set_timeout(wdog, IMX2_WDT_MAX_TIME);
-+		imx2_wdt_ping(wdog);
-+		dev_crit(&pdev->dev, "Device shutdown: Expect reboot!\n");
- 	}
- }
- 
++static int mid_wdt_remove(struct platform_device *pdev)
++{
++	struct watchdog_device *wd = platform_get_drvdata(pdev);
++	watchdog_unregister_device(wd);
++	return 0;
++}
++
++static struct platform_driver mid_wdt_driver = {
++	.probe		= mid_wdt_probe,
++	.remove		= mid_wdt_remove,
++	.driver		= {
++		.owner	= THIS_MODULE,
++		.name	= "intel_mid_wdt",
++	},
++};
++
++module_platform_driver(mid_wdt_driver);
++
++MODULE_AUTHOR("David Cohen <david.a.cohen@linux.intel.com>");
++MODULE_DESCRIPTION("Watchdog Driver for Intel MID platform");
++MODULE_LICENSE("GPL");
 -- 
-1.7.9.5
+1.9.0
 
