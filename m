@@ -1,66 +1,83 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:53818 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753864AbaDDSBP (ORCPT
+Received: from webbox1416.server-home.net ([77.236.96.61]:45964 "EHLO
+	webbox1416.server-home.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S933100AbaDIQLY (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 4 Apr 2014 14:01:15 -0400
-Message-ID: <533EF367.9050208@roeck-us.net>
-Date: Fri, 04 Apr 2014 11:01:11 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Wed, 9 Apr 2014 12:11:24 -0400
+From: Alexander Stein <alexander.stein@systec-electronic.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>,
+	David Cohen <david.a.cohen@linux.intel.com>, wim@iguana.be,
+	tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com,
+	x86@kernel.org, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 2/2] x86: intel-mid: add watchdog platform code for Merrifield
+Date: Wed, 09 Apr 2014 18:10:11 +0200
+Message-ID: <3028945.75TnRQEiiW@ws-stein>
+In-Reply-To: <20140409151822.GA21864@roeck-us.net>
+References: <1396990744-10695-1-git-send-email-david.a.cohen@linux.intel.com> <2205089.MXSpGW1NLo@ws-stein> <20140409151822.GA21864@roeck-us.net>
 MIME-Version: 1.0
-To: =?UTF-8?B?RW1pbGlvIEzDs3Bleg==?= <emilio@elopez.com.ar>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	wim@iguana.be, carlo.caione@gmail.com
-CC: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH] watchdog: sunxi: Fix compilation with C=2
-References: <1396632265-16124-1-git-send-email-emilio@elopez.com.ar> <533EED7A.20307@roeck-us.net> <533EF270.9090308@elopez.com.ar>
-In-Reply-To: <533EF270.9090308@elopez.com.ar>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-On 04/04/2014 10:57 AM, Emilio L=C3=B3pez wrote:
-> Hi,
->
-> El 04/04/14 14:35, Guenter Roeck escribi=C3=B3:
->> On 04/04/2014 10:24 AM, Emilio L=C3=B3pez wrote:
->>> When compiling sunxi_defconfig while using C=3D2, the following error
->>> causes the compilation to fail:
->>>
->>>      drivers/watchdog/sunxi_wdt.c:60:15: error: constant 0b0001 is no=
-t
->>> a valid number
->>>
->>> Fix it by using hex notation instead of the non-standard binary one
->>>
->>
->> What defines "non-standard" here ?
->
-> non-standard as not part of the C standard. Binary constant notation is=
- a GCC extension as far as I'm aware:
->
-> http://gcc.gnu.org/bugzilla/show_bug.cgi?id=3D23479
-> http://gcc.gnu.org/onlinedocs/gcc/Binary-constants.html (Note the "C Ex=
-tensions" section)
->
-Ok.
+On Wednesday 09 April 2014 08:18:22, Guenter Roeck wrote:
+> On Wed, Apr 09, 2014 at 04:03:14PM +0200, Alexander Stein wrote:
+> > On Wednesday 09 April 2014 14:58:48, One Thousand Gnomes wrote:
+> > > > I'm getting curious: How can I use device-tree on x86(_64)?
+> > > > Reading the dependencies from CONFIG_OF it can only be used on 32bit systems with some special hardware bases.
+> > > > So, how to use otherwise?
+> > > 
+> > > There isn't any fundamental thing tying device tree to a given
+> > > architecture or 32bitness, it's just that sane PC architectures use ACPI
+> > > to enumerate devices, and/or have a discoverable bus architecture.
+> > > 
+> > > Some of the phones don't so this now becoems a point of consideration. In
+> > > fact it's already also used on CE4100 (which is an embedded media SoC
+> > > found in some TV devices and set-top boxes) and on the OLPC (One laptop
+> > > per child). There is no intrinsic reason it couldn't be used in other x86
+> > > special cases.
+> > > 
+> > > If its PC shaped however it probably has ACPI and ACPI and DT are not a
+> > > 1:1 mapping. ACPI has method invocations, and various firmware provided
+> > > interfaces such as the EC, Device tree is better at some other bits.
+> > 
+> > Yep, like SPI devices on embedded x86 hardware.
+> > 
+> > > Converting the phones to embedded device tree rather than adding a
+> > > billion little platform files on the other hand seems to me like a
+> > > no-brainer.
+> > 
+> > I found http://thread.gmane.org/gmane.linux.drivers.devicetree/4475. Why didn't that get into mainline?
+> > 
+> 
+> Isn't that patch set in mainline ?
 
->> Isn't this a sparse problem that
->> should possibly
->> be fixed in sparse instead ?
->
-> It could be fixed in sparse as well, I don't really mind either way. Th=
-e binary notation doesn't seem to be used much, if at all, on the kernel =
-though; most of the matches I saw when quickly grepping were comments.
->
-Nah, if it is non-standard I don't think that would be a good idea.
+Oh, I see that this patch didn't get included 1:1 as shown in that link. I only checked USE_OF in arch/x86/Kconfig which didn't get included that way :(
 
-Guenter
+> We are working on a patch set to make DT support on x86 more
+> widely available. Thierry Reding did some work on it a while ago.
+> Some of it is upstream, other parts are available in 
+> 	https://github.com/avionic-design/linux/commits/medatom/master
+> 
+> We'll see if and what will be accepted upstream.
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+As far as I can see, CONFIG_OF is only selected if a specific hardware is enabled.
+
+Regards,
+Alexander
+-- 
+Dipl.-Inf. Alexander Stein
+
+SYS TEC electronic GmbH
+Am Windrad 2
+08468 Heinsdorfergrund
+Tel.: 03765 38600-1156
+Fax: 03765 38600-4100
+Email: alexander.stein@systec-electronic.com
+Website: www.systec-electronic.com
+ 
+Managing Director: Dipl.-Phys. Siegmar Schmidt
+Commercial registry: Amtsgericht Chemnitz, HRB 28082
+
