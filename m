@@ -1,80 +1,50 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:18592 "EHLO mga02.intel.com"
+Received: from mga01.intel.com ([192.55.52.88]:20342 "EHLO mga01.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933143AbaDIRv0 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 9 Apr 2014 13:51:26 -0400
-Date: Wed, 9 Apr 2014 10:48:54 -0700
+	id S933458AbaDISHW (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 9 Apr 2014 14:07:22 -0400
+Date: Wed, 9 Apr 2014 11:00:32 -0700
 From: David Cohen <david.a.cohen@linux.intel.com>
-To: Randy Dunlap <rdunlap@infradead.org>
+To: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
 Cc: wim@iguana.be, tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com,
 	x86@kernel.org, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, gnomes@lxorguk.ukuu.org.uk,
-	Eric Ernst <eric.ernst@intel.com>
-Subject: Re: [PATCH 1/2] watchdog: add Intel MID watchdog driver support
-Message-ID: <20140409174854.GC23274@psi-dev26.jf.intel.com>
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 2/2] x86: intel-mid: add watchdog platform code for
+ Merrifield
+Message-ID: <20140409180031.GA23460@psi-dev26.jf.intel.com>
 References: <1396990744-10695-1-git-send-email-david.a.cohen@linux.intel.com>
- <1396990744-10695-2-git-send-email-david.a.cohen@linux.intel.com>
- <53448CB4.6050705@infradead.org>
+ <1396990744-10695-3-git-send-email-david.a.cohen@linux.intel.com>
+ <20140409134223.6444a598@alan.etchedpixels.co.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <53448CB4.6050705@infradead.org>
+In-Reply-To: <20140409134223.6444a598@alan.etchedpixels.co.uk>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Apr 08, 2014 at 04:56:36PM -0700, Randy Dunlap wrote:
-> On 04/08/2014 01:59 PM, David Cohen wrote:
-> > Add initial Intel MID watchdog driver support.
-> > 
-> > This driver is an initial implementation of generic Intel MID watchdog
-> > driver. Currently it supports Intel Merrifield platform.
-> > 
-> > Signed-off-by: Eric Ernst <eric.ernst@intel.com>
-> > Signed-off-by: David Cohen <david.a.cohen@linux.intel.com>
-> > ---
-> >  drivers/watchdog/Kconfig         |  12 +++
-> >  drivers/watchdog/Makefile        |   1 +
-> >  drivers/watchdog/intel-mid_wdt.c | 209 +++++++++++++++++++++++++++++++++++++++
-> >  3 files changed, 222 insertions(+)
-> >  create mode 100644 drivers/watchdog/intel-mid_wdt.c
-> > 
-> > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> > index 79d25894343a..4da09b8b2f11 100644
-> > --- a/drivers/watchdog/Kconfig
-> > +++ b/drivers/watchdog/Kconfig
-> > @@ -643,6 +643,18 @@ config INTEL_SCU_WATCHDOG
-> >  
-> >  	  To compile this driver as a module, choose M here.
-> >  
-> > +config INTEL_MID_WATCHDOG
-> > +	bool "Intel MID SCU Watchdog Mobile Platforms"
-> > +	depends on X86_INTEL_MID && WATCHDOG_CORE
-> > +	---help---
-> > +	  Watchdog timer driver built into the Intel SCU for Intel MID
-> > +	  Platforms.
-> > +
-> > +	  This driver currently supports only the watchdog evolution
-> > +	  implementation in SCU, available for Merrifield generation.
-> > +
-> > +	  To compile this driver as a module, choose M here.
+On Wed, Apr 09, 2014 at 01:42:23PM +0100, One Thousand Gnomes wrote:
+> On Tue,  8 Apr 2014 13:59:04 -0700
+> David Cohen <david.a.cohen@linux.intel.com> wrote:
 > 
-> Does choosing M work when INTEL_MID_WATCHDOG is a bool?
-> and why is INTEL_MID_WATCHDOG a bool?
+> > This patch adds platform code for Intel Merrifield.
+> > Since the watchdog is not part of SFI table, we have no other option but
+> > to manually register watchdog's platform device (argh!).
+> 
+> Before going too far down that path have you considered compiling in a
+> devicetree instead ?
 
-The error here is the left over line from the template I used. There
-should be no mention about choosing M.
-It's bool because the watchdog is started by default on fw. We need this
-driver probed during boot to pet/kick/ping asap. IMHO It makes not much
-sense to compile it as module.
+This is the only device missing from SFI table I am aware of.
+The original implementation is to register the watchdog without a
+device/driver match. i.e. directly from the init call. Then the init
+call has a conditional check if it's Merrifield with
+intel_mid_identify_cpu() to avoid it being registered in !Merrifield
+platforms. But I want to lock this intel_mid_identify_cpu() inside
+intel_mid platform code, since it's too ugly to stay inside drivers.
+
+If we figure out there's more devices missing from SFI table, then we
+could revisit here and consider another approach.
 
 Br, David
 
 > 
-> > +
-> >  config ITCO_WDT
-> >  	tristate "Intel TCO Timer/Watchdog"
-> >  	depends on (X86 || IA64) && PCI
-> 
-> 
-> -- 
-> ~Randy
+> Alan
