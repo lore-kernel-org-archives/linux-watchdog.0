@@ -1,67 +1,80 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f44.google.com ([209.85.220.44]:57521 "EHLO
-	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933836AbaDIPS3 (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 9 Apr 2014 11:18:29 -0400
-Date: Wed, 9 Apr 2014 08:18:22 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Alexander Stein <alexander.stein@systec-electronic.com>
-Cc: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>,
-	David Cohen <david.a.cohen@linux.intel.com>, wim@iguana.be,
-	tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com,
+Received: from mga02.intel.com ([134.134.136.20]:18592 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933143AbaDIRv0 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 9 Apr 2014 13:51:26 -0400
+Date: Wed, 9 Apr 2014 10:48:54 -0700
+From: David Cohen <david.a.cohen@linux.intel.com>
+To: Randy Dunlap <rdunlap@infradead.org>
+Cc: wim@iguana.be, tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com,
 	x86@kernel.org, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 2/2] x86: intel-mid: add watchdog platform code for
- Merrifield
-Message-ID: <20140409151822.GA21864@roeck-us.net>
+	linux-watchdog@vger.kernel.org, gnomes@lxorguk.ukuu.org.uk,
+	Eric Ernst <eric.ernst@intel.com>
+Subject: Re: [PATCH 1/2] watchdog: add Intel MID watchdog driver support
+Message-ID: <20140409174854.GC23274@psi-dev26.jf.intel.com>
 References: <1396990744-10695-1-git-send-email-david.a.cohen@linux.intel.com>
- <3412449.yg5NtfcPeg@ws-stein>
- <20140409145848.4cabbb2f@alan.etchedpixels.co.uk>
- <2205089.MXSpGW1NLo@ws-stein>
+ <1396990744-10695-2-git-send-email-david.a.cohen@linux.intel.com>
+ <53448CB4.6050705@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <2205089.MXSpGW1NLo@ws-stein>
+In-Reply-To: <53448CB4.6050705@infradead.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Apr 09, 2014 at 04:03:14PM +0200, Alexander Stein wrote:
-> On Wednesday 09 April 2014 14:58:48, One Thousand Gnomes wrote:
-> > > I'm getting curious: How can I use device-tree on x86(_64)?
-> > > Reading the dependencies from CONFIG_OF it can only be used on 32bit systems with some special hardware bases.
-> > > So, how to use otherwise?
+On Tue, Apr 08, 2014 at 04:56:36PM -0700, Randy Dunlap wrote:
+> On 04/08/2014 01:59 PM, David Cohen wrote:
+> > Add initial Intel MID watchdog driver support.
 > > 
-> > There isn't any fundamental thing tying device tree to a given
-> > architecture or 32bitness, it's just that sane PC architectures use ACPI
-> > to enumerate devices, and/or have a discoverable bus architecture.
+> > This driver is an initial implementation of generic Intel MID watchdog
+> > driver. Currently it supports Intel Merrifield platform.
 > > 
-> > Some of the phones don't so this now becoems a point of consideration. In
-> > fact it's already also used on CE4100 (which is an embedded media SoC
-> > found in some TV devices and set-top boxes) and on the OLPC (One laptop
-> > per child). There is no intrinsic reason it couldn't be used in other x86
-> > special cases.
+> > Signed-off-by: Eric Ernst <eric.ernst@intel.com>
+> > Signed-off-by: David Cohen <david.a.cohen@linux.intel.com>
+> > ---
+> >  drivers/watchdog/Kconfig         |  12 +++
+> >  drivers/watchdog/Makefile        |   1 +
+> >  drivers/watchdog/intel-mid_wdt.c | 209 +++++++++++++++++++++++++++++++++++++++
+> >  3 files changed, 222 insertions(+)
+> >  create mode 100644 drivers/watchdog/intel-mid_wdt.c
 > > 
-> > If its PC shaped however it probably has ACPI and ACPI and DT are not a
-> > 1:1 mapping. ACPI has method invocations, and various firmware provided
-> > interfaces such as the EC, Device tree is better at some other bits.
+> > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> > index 79d25894343a..4da09b8b2f11 100644
+> > --- a/drivers/watchdog/Kconfig
+> > +++ b/drivers/watchdog/Kconfig
+> > @@ -643,6 +643,18 @@ config INTEL_SCU_WATCHDOG
+> >  
+> >  	  To compile this driver as a module, choose M here.
+> >  
+> > +config INTEL_MID_WATCHDOG
+> > +	bool "Intel MID SCU Watchdog Mobile Platforms"
+> > +	depends on X86_INTEL_MID && WATCHDOG_CORE
+> > +	---help---
+> > +	  Watchdog timer driver built into the Intel SCU for Intel MID
+> > +	  Platforms.
+> > +
+> > +	  This driver currently supports only the watchdog evolution
+> > +	  implementation in SCU, available for Merrifield generation.
+> > +
+> > +	  To compile this driver as a module, choose M here.
 > 
-> Yep, like SPI devices on embedded x86 hardware.
+> Does choosing M work when INTEL_MID_WATCHDOG is a bool?
+> and why is INTEL_MID_WATCHDOG a bool?
+
+The error here is the left over line from the template I used. There
+should be no mention about choosing M.
+It's bool because the watchdog is started by default on fw. We need this
+driver probed during boot to pet/kick/ping asap. IMHO It makes not much
+sense to compile it as module.
+
+Br, David
+
 > 
-> > Converting the phones to embedded device tree rather than adding a
-> > billion little platform files on the other hand seems to me like a
-> > no-brainer.
+> > +
+> >  config ITCO_WDT
+> >  	tristate "Intel TCO Timer/Watchdog"
+> >  	depends on (X86 || IA64) && PCI
 > 
-> I found http://thread.gmane.org/gmane.linux.drivers.devicetree/4475. Why didn't that get into mainline?
 > 
-
-Isn't that patch set in mainline ?
-
-We are working on a patch set to make DT support on x86 more
-widely available. Thierry Reding did some work on it a while ago.
-Some of it is upstream, other parts are available in 
-	https://github.com/avionic-design/linux/commits/medatom/master
-
-We'll see if and what will be accepted upstream.
-
-Guenter
+> -- 
+> ~Randy
