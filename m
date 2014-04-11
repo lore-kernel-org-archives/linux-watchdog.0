@@ -1,77 +1,288 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qc0-f177.google.com ([209.85.216.177]:59401 "EHLO
-	mail-qc0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755638AbaD2BIy (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 28 Apr 2014 21:08:54 -0400
-Received: by mail-qc0-f177.google.com with SMTP id w7so7705761qcr.36
-        for <linux-watchdog@vger.kernel.org>; Mon, 28 Apr 2014 18:08:53 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <1401022774.yKcHJAmPtb@wuerfel>
-References: <1398265476-29373-1-git-send-email-maxime.ripard@free-electrons.com>
-	<1398265476-29373-6-git-send-email-maxime.ripard@free-electrons.com>
-	<1401022774.yKcHJAmPtb@wuerfel>
-Date: Mon, 28 Apr 2014 18:08:53 -0700
-Message-ID: <CAOesGMhgTJugKyfa3QB=Zk1O0bDX9EgBnr4i9KeCD5bBpZ9mVw@mail.gmail.com>
-Subject: Re: [PATCH 5/5] ARM: sunxi: Remove sun4i and sun7i machine definitions
-From: Olof Johansson <olof@lixom.net>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	linux-sunxi@googlegroups.com,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"arm@kernel.org" <arm@kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from mga02.intel.com ([134.134.136.20]:25642 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755485AbaDKUuK (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 11 Apr 2014 16:50:10 -0400
+From: David Cohen <david.a.cohen@linux.intel.com>
+To: wim@iguana.be, tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com,
+	x86@kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	gnomes@lxorguk.ukuu.org.uk, david.a.cohen@linux.intel.com,
+	Eric Ernst <eric.ernst@intel.com>
+Subject: [PATCH v2 1/2] watchdog: add Intel MID watchdog driver support
+Date: Fri, 11 Apr 2014 13:50:06 -0700
+Message-Id: <1397249407-5417-2-git-send-email-david.a.cohen@linux.intel.com>
+In-Reply-To: <1397249407-5417-1-git-send-email-david.a.cohen@linux.intel.com>
+References: <1396990744-10695-1-git-send-email-david.a.cohen@linux.intel.com>
+ <1397249407-5417-1-git-send-email-david.a.cohen@linux.intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Apr 23, 2014 at 9:02 AM, Arnd Bergmann <arnd@arndb.de> wrote:
-> On Wednesday 23 April 2014 17:04:36 Maxime Ripard wrote:
->>
->> -static void __init sunxi_dt_init(void)
->> -{
->> -       of_platform_populate(NULL, of_default_bus_match_table, NULL, NULL);
->> -}
->> -
->> -static const char * const sunxi_board_dt_compat[] = {
->> -       "allwinner,sun4i-a10",
->> -       "allwinner,sun5i-a10s",
->> -       "allwinner,sun5i-a13",
->> -       NULL,
->> -};
->> -
->> -DT_MACHINE_START(SUNXI_DT, "Allwinner A1X (Device Tree)")
->> -       .init_machine   = sunxi_dt_init,
->> -       .dt_compat      = sunxi_board_dt_compat,
->> -MACHINE_END
->> -
->>  static const char * const sun6i_board_dt_compat[] = {
->>         "allwinner,sun6i-a31",
->>         NULL,
->
-> I'd like to hear more opinions on this. We could either rely
-> on the generic code, or we could keep the entry with just
-> the .dt_compat line and the name, so /proc/cpuinfo contains
-> a meaningful platform name.
->
-> Either approach works for me, but I think we should do this
-> consistent across platforms. Olof, do you have an opinion?
+Add initial Intel MID watchdog driver support.
 
-In reality, today, most platforms still need some out-of-tree stuff
-that usually goes into the mach directory on out of tree kernels. It
-also gives a place to stick the Kconfig entries, it's been nice to
-have them split out in per-platform Kconfigs instead of having them
-all modify and conflict the shared one.
+This driver is an initial implementation of generic Intel MID watchdog
+driver. Currently it supports Intel Merrifield platform.
 
-I know those aren't strong arguments to keep it, but given that all
-other things are more or less equal, it's a good a reason as any.
+Signed-off-by: Eric Ernst <eric.ernst@intel.com>
+Signed-off-by: David Cohen <david.a.cohen@linux.intel.com>
+---
+ drivers/watchdog/Kconfig         |  13 +++
+ drivers/watchdog/Makefile        |   1 +
+ drivers/watchdog/intel-mid_wdt.c | 209 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 223 insertions(+)
+ create mode 100644 drivers/watchdog/intel-mid_wdt.c
 
-But, I'm not picky either way.
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 79d25894343a..0e110c37aa5c 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -643,6 +643,19 @@ config INTEL_SCU_WATCHDOG
+ 
+ 	  To compile this driver as a module, choose M here.
+ 
++config INTEL_MID_WATCHDOG
++	tristate "Intel MID Watchdog Timer"
++	depends on X86_INTEL_MID
++	select WATCHDOG_CORE
++	---help---
++	  Watchdog timer driver built into the Intel SCU for Intel MID
++	  Platforms.
++
++	  This driver currently supports only the watchdog evolution
++	  implementation in SCU, available for Merrifield generation.
++
++	  To compile this driver as a module, choose M here.
++
+ config ITCO_WDT
+ 	tristate "Intel TCO Timer/Watchdog"
+ 	depends on (X86 || IA64) && PCI
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 985a66cda76f..b927e7496eb4 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -113,6 +113,7 @@ obj-$(CONFIG_W83977F_WDT) += w83977f_wdt.o
+ obj-$(CONFIG_MACHZ_WDT) += machzwd.o
+ obj-$(CONFIG_SBC_EPX_C3_WATCHDOG) += sbc_epx_c3.o
+ obj-$(CONFIG_INTEL_SCU_WATCHDOG) += intel_scu_watchdog.o
++obj-$(CONFIG_INTEL_MID_WATCHDOG) += intel-mid_wdt.o
+ 
+ # M32R Architecture
+ 
+diff --git a/drivers/watchdog/intel-mid_wdt.c b/drivers/watchdog/intel-mid_wdt.c
+new file mode 100644
+index 000000000000..6339c6351454
+--- /dev/null
++++ b/drivers/watchdog/intel-mid_wdt.c
+@@ -0,0 +1,209 @@
++/*
++ *      intel-mid_wdt: generic Intel MID SCU watchdog driver
++ *
++ *      Platforms supported so far:
++ *      - Merrifield only
++ *
++ *      Copyright (C) 2014 Intel Corporation. All rights reserved.
++ *      Contact: David Cohen <david.a.cohen@linux.intel.com>
++ *
++ *      This program is free software; you can redistribute it and/or
++ *      modify it under the terms of version 2 of the GNU General
++ *      Public License as published by the Free Software Foundation.
++ */
++
++#include <linux/interrupt.h>
++#include <linux/module.h>
++#include <linux/nmi.h>
++#include <linux/platform_device.h>
++#include <linux/watchdog.h>
++
++#include <asm/intel_scu_ipc.h>
++#include <asm/intel-mid.h>
++
++#define IPC_WATCHDOG 0xf8
++
++#define MID_WDT_PRETIMEOUT		15
++#define MID_WDT_TIMEOUT_MIN		(1 + MID_WDT_PRETIMEOUT)
++#define MID_WDT_TIMEOUT_MAX		170
++#define MID_WDT_DEFAULT_TIMEOUT		90
++
++/* SCU watchdog messages */
++enum {
++	SCU_WATCHDOG_START = 0,
++	SCU_WATCHDOG_STOP,
++	SCU_WATCHDOG_KEEPALIVE,
++};
++
++static inline int wdt_command(int sub, u32 *in, int inlen)
++{
++	return intel_scu_ipc_command(IPC_WATCHDOG, sub, in, inlen, NULL, 0);
++}
++
++static int wdt_start(struct watchdog_device *wd)
++{
++	int ret, in_size;
++	int timeout = wd->timeout;
++	struct ipc_wd_start {
++		u32 pretimeout;
++		u32 timeout;
++	} ipc_wd_start = { timeout - MID_WDT_PRETIMEOUT, timeout };
++
++	/*
++	 * SCU expects the input size for watchdog IPC to
++	 * be based on double-word
++	 */
++	in_size = (sizeof(ipc_wd_start) + 3) / 4;
++
++	ret = wdt_command(SCU_WATCHDOG_START, (u32 *)&ipc_wd_start, in_size);
++	if (ret) {
++		struct device *dev = watchdog_get_drvdata(wd);
++		dev_crit(dev, "error starting watchdog: %d\n", ret);
++		return -EIO;
++	}
++
++	return 0;
++}
++
++static int wdt_ping(struct watchdog_device *wd)
++{
++	int ret;
++
++	ret = wdt_command(SCU_WATCHDOG_KEEPALIVE, NULL, 0);
++	if (ret) {
++		struct device *dev = watchdog_get_drvdata(wd);
++		dev_crit(dev, "Error executing keepalive: 0x%x\n", ret);
++		return -EIO;
++	}
++
++	return 0;
++}
++
++static int wdt_stop(struct watchdog_device *wd)
++{
++	int ret;
++
++	ret = wdt_command(SCU_WATCHDOG_STOP, NULL, 0);
++	if (ret) {
++		struct device *dev = watchdog_get_drvdata(wd);
++		dev_crit(dev, "Error stopping watchdog: 0x%x\n", ret);
++		return -EIO;
++	}
++
++	return 0;
++}
++
++static irqreturn_t mid_wdt_warning_irq(int irq, void *dev_id)
++{
++	/* Let's dump some data before panic */
++	trigger_all_cpu_backtrace();
++	panic("Kernel Watchdog");
++
++	/* This code should not be reached */
++	return IRQ_HANDLED;
++}
++
++/*
++ * Current driver supports Merrifield only.
++ * This function will get more generic when necessary.
++ */
++static int handle_dev_ioapic(struct device *dev, int irq)
++{
++	int ioapic;
++	struct io_apic_irq_attr irq_attr;
++
++	ioapic = mp_find_ioapic(irq);
++	if (ioapic >= 0) {
++		irq_attr.ioapic = ioapic;
++		irq_attr.ioapic_pin = irq;
++		irq_attr.trigger = 1;
++		irq_attr.polarity = 0; /* Active high */
++		io_apic_set_pci_routing(NULL, irq, &irq_attr);
++	} else {
++		dev_warn(dev, "can not find interrupt %d in ioapic\n", irq);
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
++static const struct watchdog_info mid_wdt_info = {
++	.identity = "Intel MID SCU watchdog",
++	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
++};
++
++static const struct watchdog_ops mid_wdt_ops = {
++	.owner = THIS_MODULE,
++	.start = wdt_start,
++	.stop = wdt_stop,
++	.ping = wdt_ping,
++};
++
++static int mid_wdt_probe(struct platform_device *pdev)
++{
++	struct watchdog_device *wdt_dev;
++	struct resource *res;
++	int ret;
++	int irq;
++
++	wdt_dev = devm_kzalloc(&pdev->dev, sizeof(*wdt_dev), GFP_KERNEL);
++	if (!wdt_dev)
++		return -ENOMEM;
++
++	wdt_dev->info = &mid_wdt_info;
++	wdt_dev->ops = &mid_wdt_ops;
++	wdt_dev->min_timeout = MID_WDT_TIMEOUT_MIN;
++	wdt_dev->max_timeout = MID_WDT_TIMEOUT_MAX;
++	wdt_dev->timeout = MID_WDT_DEFAULT_TIMEOUT;
++
++	watchdog_set_drvdata(wdt_dev, &pdev->dev);
++	platform_set_drvdata(pdev, wdt_dev);
++
++	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
++	if (!res) {
++		dev_err(&pdev->dev, "missing IRQ resource\n");
++		return -EINVAL;
++	}
++	irq = res->start;
++
++	handle_dev_ioapic(&pdev->dev, irq);
++	ret = devm_request_irq(&pdev->dev, irq, mid_wdt_warning_irq,
++			       IRQF_SHARED | IRQF_NO_SUSPEND, "watchdog",
++			       wdt_dev);
++	if (ret) {
++		dev_err(&pdev->dev, "error requesting warning irq %d\n", irq);
++		return ret;
++	}
++
++	ret = watchdog_register_device(wdt_dev);
++	if (ret) {
++		dev_err(&pdev->dev, "error registering watchdog device\n");
++		return ret;
++	}
++
++	dev_info(&pdev->dev, "Intel MID watchdog device probed\n");
++
++	return 0;
++}
++
++static int mid_wdt_remove(struct platform_device *pdev)
++{
++	struct watchdog_device *wd = platform_get_drvdata(pdev);
++	watchdog_unregister_device(wd);
++	return 0;
++}
++
++static struct platform_driver mid_wdt_driver = {
++	.probe		= mid_wdt_probe,
++	.remove		= mid_wdt_remove,
++	.driver		= {
++		.owner	= THIS_MODULE,
++		.name	= "intel_mid_wdt",
++	},
++};
++
++module_platform_driver(mid_wdt_driver);
++
++MODULE_AUTHOR("David Cohen <david.a.cohen@linux.intel.com>");
++MODULE_DESCRIPTION("Watchdog Driver for Intel MID platform");
++MODULE_LICENSE("GPL");
+-- 
+1.9.1
 
-
--Olof
