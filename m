@@ -1,92 +1,47 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
 Received: from mga02.intel.com ([134.134.136.20]:25642 "EHLO mga02.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755322AbaDKUuK (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 11 Apr 2014 16:50:10 -0400
+	id S1754477AbaDKUuJ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 11 Apr 2014 16:50:09 -0400
 From: David Cohen <david.a.cohen@linux.intel.com>
 To: wim@iguana.be, tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com,
 	x86@kernel.org
 Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
 	gnomes@lxorguk.ukuu.org.uk, david.a.cohen@linux.intel.com
-Subject: [PATCH v2 2/2] x86: intel-mid: add watchdog platform code for Merrifield
-Date: Fri, 11 Apr 2014 13:50:07 -0700
-Message-Id: <1397249407-5417-3-git-send-email-david.a.cohen@linux.intel.com>
-In-Reply-To: <1397249407-5417-1-git-send-email-david.a.cohen@linux.intel.com>
+Subject: [PATCH v2 0/2] Initial implementation of Intel MID watchdog driver
+Date: Fri, 11 Apr 2014 13:50:05 -0700
+Message-Id: <1397249407-5417-1-git-send-email-david.a.cohen@linux.intel.com>
+In-Reply-To: <1396990744-10695-1-git-send-email-david.a.cohen@linux.intel.com>
 References: <1396990744-10695-1-git-send-email-david.a.cohen@linux.intel.com>
- <1397249407-5417-1-git-send-email-david.a.cohen@linux.intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patch adds platform code for Intel Merrifield.
-Since the watchdog is not part of SFI table, we have no other option but
-to manually register watchdog's platform device (argh!).
+Hi,
 
-Change-Id: I920968649847577a0aa1ae0b26f2a3551f77d576
-Signed-off-by: David Cohen <david.a.cohen@linux.intel.com>
----
- arch/x86/platform/intel-mid/device_libs/Makefile   |  1 +
- .../platform/intel-mid/device_libs/platform_wdt.c  | 43 ++++++++++++++++++++++
- 2 files changed, 44 insertions(+)
+This patch set is an initial implementation of a generic Intel MID watchdog
+driver.
+It currently supports Intel Merrifield only, but will extend to other SoCs of
+MID family.
+
+changes from v1 to v2:
+ - Fixed Kconfig entry as per Guenter Roeck suggestion
+
+Br, David
+
+--
+David Cohen (2):
+  watchdog: add Intel MID watchdog driver support
+  x86: intel-mid: add watchdog platform code for Merrifield
+
+ arch/x86/platform/intel-mid/device_libs/Makefile   |   1 +
+ .../platform/intel-mid/device_libs/platform_wdt.c  |  43 +++++
+ drivers/watchdog/Kconfig                           |  13 ++
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/intel-mid_wdt.c                   | 209 +++++++++++++++++++++
+ 5 files changed, 267 insertions(+)
  create mode 100644 arch/x86/platform/intel-mid/device_libs/platform_wdt.c
+ create mode 100644 drivers/watchdog/intel-mid_wdt.c
 
-diff --git a/arch/x86/platform/intel-mid/device_libs/Makefile b/arch/x86/platform/intel-mid/device_libs/Makefile
-index 097e7a7940d8..af9307f2cc28 100644
---- a/arch/x86/platform/intel-mid/device_libs/Makefile
-+++ b/arch/x86/platform/intel-mid/device_libs/Makefile
-@@ -20,3 +20,4 @@ obj-$(subst m,y,$(CONFIG_DRM_MEDFIELD)) += platform_tc35876x.o
- obj-$(subst m,y,$(CONFIG_SERIAL_MRST_MAX3110)) += platform_max3111.o
- # MISC Devices
- obj-$(subst m,y,$(CONFIG_KEYBOARD_GPIO)) += platform_gpio_keys.o
-+obj-$(subst m,y,$(CONFIG_INTEL_MID_WATCHDOG)) += platform_wdt.o
-diff --git a/arch/x86/platform/intel-mid/device_libs/platform_wdt.c b/arch/x86/platform/intel-mid/device_libs/platform_wdt.c
-new file mode 100644
-index 000000000000..be4fc66fbe1b
---- /dev/null
-+++ b/arch/x86/platform/intel-mid/device_libs/platform_wdt.c
-@@ -0,0 +1,43 @@
-+/*
-+ * platform_wdt.c: Watchdog platform library file
-+ *
-+ * (C) Copyright 2014 Intel Corporation
-+ * Author: David Cohen <david.a.cohen@linux.intel.com>
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; version 2
-+ * of the License.
-+ */
-+
-+#include <linux/init.h>
-+#include <linux/platform_device.h>
-+#include <asm/intel-mid.h>
-+
-+#define EXT_TIMER0_MSI 15
-+
-+static const struct resource tangier_wdt_res[] = {
-+	{
-+		.start = EXT_TIMER0_MSI,
-+		.flags = IORESOURCE_IRQ,
-+	},
-+};
-+
-+static struct platform_device mid_wdt_dev = {
-+	.name = "intel_mid_wdt",
-+	.id = -1,
-+};
-+
-+static int __init register_mid_wdt(void)
-+{
-+	if (intel_mid_identify_cpu() == INTEL_MID_CPU_CHIP_TANGIER) {
-+		platform_device_add_resources(&mid_wdt_dev,
-+					      tangier_wdt_res,
-+					      ARRAY_SIZE(tangier_wdt_res));
-+		return platform_device_register(&mid_wdt_dev);
-+	}
-+
-+	return -ENODEV;
-+}
-+
-+rootfs_initcall(register_mid_wdt);
 -- 
 1.9.1
 
