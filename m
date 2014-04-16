@@ -1,31 +1,62 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:56105 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751204AbaDZPfP (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 26 Apr 2014 11:35:15 -0400
-Message-ID: <535BD22E.8070607@roeck-us.net>
-Date: Sat, 26 Apr 2014 08:35:10 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: Gabor Juhos <juhosg@openwrt.org>, Wim Van Sebroeck <wim@iguana.be>
-CC: linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: ath79_wdt: switch to clk_prepare/clk_disable
-References: <1397640950-21859-1-git-send-email-juhosg@openwrt.org>
-In-Reply-To: <1397640950-21859-1-git-send-email-juhosg@openwrt.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Received: from arrakis.dune.hu ([78.24.191.176]:56997 "EHLO arrakis.dune.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751859AbaDPJpA (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 16 Apr 2014 05:45:00 -0400
+From: Gabor Juhos <juhosg@openwrt.org>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org, Gabor Juhos <juhosg@openwrt.org>,
+	<stable@vger.kernel.org>
+Subject: [PATCH] watchdog: ath79_wdt: avoid spurious restarts on AR934x
+Date: Wed, 16 Apr 2014 11:34:41 +0200
+Message-Id: <1397640881-21741-1-git-send-email-juhosg@openwrt.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 04/16/2014 02:35 AM, Gabor Juhos wrote:
-> Replace clk_enable() and clk_disable() calls with
-> clk_prepare_enable() and clk_disable_unprepare()
-> to get ready for the migration to the common clock
-> framework.
->
-> Signed-off-by: Gabor Juhos <juhosg@openwrt.org>
+On some AR934x based systems, where the frequency of
+the AHB bus is relatively high, the built-in watchdog
+causes a spurious restart when it gets enabled.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+The possible cause of these restarts is that the timeout
+value written into the TIMER register does not reaches
+the hardware in time.
 
+Add an explicit delay into the ath79_wdt_enable function
+to avoid the spurious restarts.
 
+Signed-off-by: Gabor Juhos <juhosg@openwrt.org>
+Cc: <stable@vger.kernel.org>
+---
+ drivers/watchdog/ath79_wdt.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/drivers/watchdog/ath79_wdt.c b/drivers/watchdog/ath79_wdt.c
+index 399c3fd..0e67d96 100644
+--- a/drivers/watchdog/ath79_wdt.c
++++ b/drivers/watchdog/ath79_wdt.c
+@@ -20,6 +20,7 @@
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+ 
+ #include <linux/bitops.h>
++#include <linux/delay.h>
+ #include <linux/errno.h>
+ #include <linux/fs.h>
+ #include <linux/io.h>
+@@ -90,6 +91,15 @@ static inline void ath79_wdt_keepalive(void)
+ static inline void ath79_wdt_enable(void)
+ {
+ 	ath79_wdt_keepalive();
++
++	/*
++	 * Updating the TIMER register requires a few microseconds
++	 * on the AR934x SoCs at least. Use a small delay to ensure
++	 * that the TIMER register is updated within the hardware
++	 * before enabling the watchdog.
++	 */
++	udelay(2);
++
+ 	ath79_wdt_wr(WDOG_REG_CTRL, WDOG_CTRL_ACTION_FCR);
+ 	/* flush write */
+ 	ath79_wdt_rr(WDOG_REG_CTRL);
+-- 
+1.7.10
