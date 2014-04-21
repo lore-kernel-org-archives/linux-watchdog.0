@@ -1,121 +1,73 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:62414 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750902AbaDOVj0 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 15 Apr 2014 17:39:26 -0400
-Date: Tue, 15 Apr 2014 14:39:22 -0700
-From: David Cohen <david.a.cohen@linux.intel.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: wim@iguana.be, tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com,
-	x86@kernel.org, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, gnomes@lxorguk.ukuu.org.uk
-Subject: Re: [PATCH v4 2/2] x86: intel-mid: add watchdog platform code for
- Merrifield
-Message-ID: <20140415213922.GA4590@psi-dev26.jf.intel.com>
-References: <1397587272-31152-1-git-send-email-david.a.cohen@linux.intel.com>
- <1397592366-3899-1-git-send-email-david.a.cohen@linux.intel.com>
- <1397592366-3899-3-git-send-email-david.a.cohen@linux.intel.com>
- <20140415200900.GJ5986@psi-dev26.jf.intel.com>
- <20140415211349.GA10245@roeck-us.net>
- <20140415211722.GA4420@psi-dev26.jf.intel.com>
- <20140415213551.GA10569@roeck-us.net>
+Received: from mail-pd0-f172.google.com ([209.85.192.172]:56433 "EHLO
+	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751238AbaDUSQ4 (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 21 Apr 2014 14:16:56 -0400
+Received: by mail-pd0-f172.google.com with SMTP id p10so3916834pdj.17
+        for <linux-watchdog@vger.kernel.org>; Mon, 21 Apr 2014 11:16:56 -0700 (PDT)
+Date: Mon, 21 Apr 2014 11:16:53 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Eric Ernst <eric.ernst@intel.com>
+Cc: linux-watchdog@vger.kernel.org,
+	David Cohen <david.a.cohen@linux.intel.com>,
+	Kuppuswamy Sathyanarayanan
+	<sathyanarayanan.kuppuswamy@linux.intel.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+Subject: Intel MID vs. Intel SCU watchdog
+Message-ID: <20140421181652.GA31616@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20140415213551.GA10569@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Apr 15, 2014 at 02:35:51PM -0700, Guenter Roeck wrote:
-> On Tue, Apr 15, 2014 at 02:17:22PM -0700, David Cohen wrote:
-> > On Tue, Apr 15, 2014 at 02:13:49PM -0700, Guenter Roeck wrote:
-> > > On Tue, Apr 15, 2014 at 01:09:00PM -0700, David Cohen wrote:
-> > > > On Tue, Apr 15, 2014 at 01:06:06PM -0700, David Cohen wrote:
-> > > > > This patch adds platform code for Intel Merrifield.
-> > > > > Since the watchdog is not part of SFI table, we have no other option but
-> > > > > to manually register watchdog's platform device (argh!).
-> > > > > 
-> > > > > Signed-off-by: David Cohen <david.a.cohen@linux.intel.com>
-> > > > > ---
-> > > > >  arch/x86/platform/intel-mid/device_libs/Makefile   |  1 +
-> > > > >  .../platform/intel-mid/device_libs/platform_wdt.c  | 66 ++++++++++++++++++++++
-> > > > >  2 files changed, 67 insertions(+)
-> > > > >  create mode 100644 arch/x86/platform/intel-mid/device_libs/platform_wdt.c
-> > > > > 
-> > > > > diff --git a/arch/x86/platform/intel-mid/device_libs/Makefile b/arch/x86/platform/intel-mid/device_libs/Makefile
-> > > > > index 097e7a7940d8..af9307f2cc28 100644
-> > > > > --- a/arch/x86/platform/intel-mid/device_libs/Makefile
-> > > > > +++ b/arch/x86/platform/intel-mid/device_libs/Makefile
-> > > > > @@ -20,3 +20,4 @@ obj-$(subst m,y,$(CONFIG_DRM_MEDFIELD)) += platform_tc35876x.o
-> > > > >  obj-$(subst m,y,$(CONFIG_SERIAL_MRST_MAX3110)) += platform_max3111.o
-> > > > >  # MISC Devices
-> > > > >  obj-$(subst m,y,$(CONFIG_KEYBOARD_GPIO)) += platform_gpio_keys.o
-> > > > > +obj-$(subst m,y,$(CONFIG_INTEL_MID_WATCHDOG)) += platform_wdt.o
-> > > > > diff --git a/arch/x86/platform/intel-mid/device_libs/platform_wdt.c b/arch/x86/platform/intel-mid/device_libs/platform_wdt.c
-> > > > > new file mode 100644
-> > > > > index 000000000000..4b0434b54aff
-> > > > > --- /dev/null
-> > > > > +++ b/arch/x86/platform/intel-mid/device_libs/platform_wdt.c
-> > > > > @@ -0,0 +1,66 @@
-> > > > > +/*
-> > > > > + * platform_wdt.c: Watchdog platform library file
-> > > > > + *
-> > > > > + * (C) Copyright 2014 Intel Corporation
-> > > > > + * Author: David Cohen <david.a.cohen@linux.intel.com>
-> > > > > + *
-> > > > > + * This program is free software; you can redistribute it and/or
-> > > > > + * modify it under the terms of the GNU General Public License
-> > > > > + * as published by the Free Software Foundation; version 2
-> > > > > + * of the License.
-> > > > > + */
-> > > > > +
-> > > > > +#include <linux/init.h>
-> > > > > +#include <linux/interrupt.h>
-> > > > > +#include <linux/platform_device.h>
-> > > > > +#include <linux/platform_data/intel-mid_wdt.h>
-> > > > > +#include <asm/intel-mid.h>
-> > > > > +
-> > > > > +#define TANGIER_EXT_TIMER0_MSI 15
-> > > > > +
-> > > > > +static struct platform_device wdt_dev = {
-> > > > > +	.name = "intel_mid_wdt",
-> > > > > +	.id = -1,
-> > > > > +};
-> > > > > +
-> > > > > +static int tangier_probe(struct platform_device *pdev)
-> > > > > +{
-> > > > > +	int ioapic;
-> > > > > +	struct io_apic_irq_attr irq_attr = { 0 };
-> > > > > +
-> > > > > +	ioapic = mp_find_ioapic(TANGIER_EXT_TIMER0_MSI);
-> > > > 
-> > > > Forgot remove this hardcoded irq number. I'll send v4.1 of this patch.
-> > > > 
-> > > > BR, David
-> > > > 
-> > > > > +	if (ioapic >= 0) {
-> > > > > +		int ret;
-> > > > > +		irq_attr.ioapic = ioapic;
-> > > > > +		irq_attr.ioapic_pin = TANGIER_EXT_TIMER0_MSI;
-> > > > > +		irq_attr.trigger = 1;
-> > > > > +		irq_attr.polarity = 0; /* Active high */
-> > > > > +		ret = io_apic_set_pci_routing(NULL, TANGIER_EXT_TIMER0_MSI,
-> > > > > +					      &irq_attr);
-> > > 
-> > > Here is another one, just in case you missed it.
-> > 
-> > This one I didn't miss. I checked and it returns dummy error code (-1).
-> > Better to keep the hardcoded value.
-> > 
-> Thanks for letting me know (guess the idea is for mp_find_ioapic to return
-> "invalid irq"), but I meant the second hard-coded irq....
+Hi,
 
-Hm :)
-I am aware about that one. I just tried to be a bit lazy when replying.
+with the recent submission of an Intel MID watchdog driver, we now have
+
+config INTEL_SCU_WATCHDOG
+        bool "Intel SCU Watchdog for Mobile Platforms"
+	depends on X86_INTEL_MID
+	---help---
+	  Hardware driver for the watchdog time built into the Intel SCU
+	  for Intel Mobile Platforms.
+
+
+config INTEL_MID_WATCHDOG
+        tristate "Intel MID Watchdog Timer"
+	depends on X86_INTEL_MID
+	--help--
+	  Watchdog timer driver built into the Intel SCU for Intel MID Platforms.
+
+	  This driver currently supports only the watchdog evolution
+	  implementation in SCU, available for Merrifield generation.
+
+Furthermore, in the SCU watchdog driver initialization code, we have
+
+	...
+	 * If it isn't an intel MID device then it doesn't have this watchdog
+         */
+         if (!intel_mid_identify_cpu())
+                  return -ENODEV;
+
+I must admit I find this very confusing. Both watchdogs have the same
+dependencies. The MID watchdog driver only instantiates for Tangier,
+while the SCU watchdog driver instantiates for all MID CPUs (specfically
+including Tangier, but also Penwell and Cloverview and, from earlier
+commit logs, Moorsetown).
+
+I understand I was told earlier that the supported devices would be
+"sufficiently different" to warrant separate drivers, but this doesn't
+really make sense to me, at least not without further explanation.
+
+Can someone please clarify which driver is supposed to work on which device,
+and why there are now two watchdog drivers for Tangier (or at least two
+watchdog drivers which instantiate on Tangier) ? Does the SCU driver work
+on Tangier, or does it not ? If not, why is there no code in the SCU driver
+which would cause it to fail to instantiate on Tangier, and why is this
+limitation not mentioned in Kconfig ? If yes, why do we need separate drivers
+in the first place ?
 
 Thanks,
-
-David
-
-> 
-> Guenter
+Guenter
