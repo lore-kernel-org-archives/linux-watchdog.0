@@ -1,168 +1,107 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:58594 "EHLO
+Received: from top.free-electrons.com ([176.31.233.9]:58559 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1755931AbaDWPHE (ORCPT
+	with ESMTP id S1753034AbaDWPFZ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 23 Apr 2014 11:07:04 -0400
+	Wed, 23 Apr 2014 11:05:25 -0400
 From: Maxime Ripard <maxime.ripard@free-electrons.com>
 To: Arnd Bergmann <arnd@arndb.de>, wim@iguana.be, dbaryshkov@gmail.com,
 	dwmw2@infradead.org
 Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
 	linux-watchdog@vger.kernel.org, linux-sunxi@googlegroups.com,
 	Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: [PATCH 4/5] ARM: sunxi: Remove reset code from the platform
-Date: Wed, 23 Apr 2014 17:04:35 +0200
-Message-Id: <1398265476-29373-5-git-send-email-maxime.ripard@free-electrons.com>
+Subject: [PATCH 1/5] wdt: sunxi: Move restart code to the watchdog driver
+Date: Wed, 23 Apr 2014 17:04:32 +0200
+Message-Id: <1398265476-29373-2-git-send-email-maxime.ripard@free-electrons.com>
 In-Reply-To: <1398265476-29373-1-git-send-email-maxime.ripard@free-electrons.com>
 References: <1398265476-29373-1-git-send-email-maxime.ripard@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Now that reset is handled either by the watchdog driver for the sun4i, sun5i
-and sun7i, and by a driver of its own for sun6i, we can remove it from the
-platform code.
+Most of the watchdog code is duplicated between the machine restart code and
+the watchdog driver. Add the restart hook to the watchdog driver, to be able to
+remove it from the machine code eventually.
 
 Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
 ---
- arch/arm/mach-sunxi/sunxi.c | 98 ---------------------------------------------
- 1 file changed, 98 deletions(-)
+ drivers/watchdog/sunxi_wdt.c | 33 +++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
 
-diff --git a/arch/arm/mach-sunxi/sunxi.c b/arch/arm/mach-sunxi/sunxi.c
-index 460b5a4962ef..1c62a0a021d7 100644
---- a/arch/arm/mach-sunxi/sunxi.c
-+++ b/arch/arm/mach-sunxi/sunxi.c
-@@ -12,109 +12,14 @@
+diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
+index cd00a7836cdc..0644c45d2b60 100644
+--- a/drivers/watchdog/sunxi_wdt.c
++++ b/drivers/watchdog/sunxi_wdt.c
+@@ -14,6 +14,7 @@
+  */
  
- #include <linux/clk-provider.h>
- #include <linux/clocksource.h>
--#include <linux/delay.h>
--#include <linux/kernel.h>
--#include <linux/init.h>
--#include <linux/of_address.h>
--#include <linux/of_irq.h>
- #include <linux/of_platform.h>
--#include <linux/io.h>
--#include <linux/reboot.h>
+ #include <linux/clk.h>
++#include <linux/delay.h>
+ #include <linux/err.h>
+ #include <linux/init.h>
+ #include <linux/io.h>
+@@ -22,9 +23,12 @@
+ #include <linux/moduleparam.h>
+ #include <linux/of.h>
+ #include <linux/platform_device.h>
++#include <linux/reboot.h>
+ #include <linux/types.h>
+ #include <linux/watchdog.h>
  
- #include <asm/mach/arch.h>
--#include <asm/mach/map.h>
--#include <asm/system_misc.h>
++#include <asm/system_misc.h>
++
+ #define WDT_MAX_TIMEOUT         16
+ #define WDT_MIN_TIMEOUT         1
+ #define WDT_MODE_TIMEOUT(n)     ((n) << 3)
+@@ -70,6 +74,30 @@ static const int wdt_timeout_map[] = {
+ 	[16] = 0b1011, /* 16s */
+ };
  
- #include "common.h"
- 
--#define SUN4I_WATCHDOG_CTRL_REG		0x00
--#define SUN4I_WATCHDOG_CTRL_RESTART		BIT(0)
--#define SUN4I_WATCHDOG_MODE_REG		0x04
--#define SUN4I_WATCHDOG_MODE_ENABLE		BIT(0)
--#define SUN4I_WATCHDOG_MODE_RESET_ENABLE	BIT(1)
--
--#define SUN6I_WATCHDOG1_IRQ_REG		0x00
--#define SUN6I_WATCHDOG1_CTRL_REG	0x10
--#define SUN6I_WATCHDOG1_CTRL_RESTART		BIT(0)
--#define SUN6I_WATCHDOG1_CONFIG_REG	0x14
--#define SUN6I_WATCHDOG1_CONFIG_RESTART		BIT(0)
--#define SUN6I_WATCHDOG1_CONFIG_IRQ		BIT(1)
--#define SUN6I_WATCHDOG1_MODE_REG	0x18
--#define SUN6I_WATCHDOG1_MODE_ENABLE		BIT(0)
--
--static void __iomem *wdt_base;
--
--static void sun4i_restart(enum reboot_mode mode, const char *cmd)
--{
--	if (!wdt_base)
--		return;
--
--	/* Enable timer and set reset bit in the watchdog */
--	writel(SUN4I_WATCHDOG_MODE_ENABLE | SUN4I_WATCHDOG_MODE_RESET_ENABLE,
--	       wdt_base + SUN4I_WATCHDOG_MODE_REG);
--
--	/*
--	 * Restart the watchdog. The default (and lowest) interval
--	 * value for the watchdog is 0.5s.
--	 */
--	writel(SUN4I_WATCHDOG_CTRL_RESTART, wdt_base + SUN4I_WATCHDOG_CTRL_REG);
--
--	while (1) {
--		mdelay(5);
--		writel(SUN4I_WATCHDOG_MODE_ENABLE | SUN4I_WATCHDOG_MODE_RESET_ENABLE,
--		       wdt_base + SUN4I_WATCHDOG_MODE_REG);
--	}
--}
--
--static void sun6i_restart(enum reboot_mode mode, const char *cmd)
--{
--	if (!wdt_base)
--		return;
--
--	/* Disable interrupts */
--	writel(0, wdt_base + SUN6I_WATCHDOG1_IRQ_REG);
--
--	/* We want to disable the IRQ and just reset the whole system */
--	writel(SUN6I_WATCHDOG1_CONFIG_RESTART,
--		wdt_base + SUN6I_WATCHDOG1_CONFIG_REG);
--
--	/* Enable timer. The default and lowest interval value is 0.5s */
--	writel(SUN6I_WATCHDOG1_MODE_ENABLE,
--		wdt_base + SUN6I_WATCHDOG1_MODE_REG);
--
--	/* Restart the watchdog. */
--	writel(SUN6I_WATCHDOG1_CTRL_RESTART,
--		wdt_base + SUN6I_WATCHDOG1_CTRL_REG);
--
--	while (1) {
--		mdelay(5);
--		writel(SUN6I_WATCHDOG1_MODE_ENABLE,
--			wdt_base + SUN6I_WATCHDOG1_MODE_REG);
--	}
--}
--
--static struct of_device_id sunxi_restart_ids[] = {
--	{ .compatible = "allwinner,sun4i-a10-wdt" },
--	{ .compatible = "allwinner,sun6i-a31-wdt" },
--	{ /*sentinel*/ }
--};
--
--static void sunxi_setup_restart(void)
--{
--	struct device_node *np;
--
--	np = of_find_matching_node(NULL, sunxi_restart_ids);
--	if (WARN(!np, "unable to setup watchdog restart"))
--		return;
--
--	wdt_base = of_iomap(np, 0);
--	WARN(!wdt_base, "failed to map watchdog base address");
--}
--
- static void __init sunxi_dt_init(void)
++static struct sunxi_wdt_dev *sunxi_restart_ctx;
++
++static void sun4i_wdt_restart(enum reboot_mode mode, const char *cmd)
++{
++	if (!sunxi_restart_ctx)
++		return;
++
++	/* Enable timer and set reset bit in the watchdog */
++	writel(WDT_MODE_EN | WDT_MODE_RST_EN,
++	       sunxi_restart_ctx->wdt_base + WDT_MODE);
++
++	/*
++	 * Restart the watchdog. The default (and lowest) interval
++	 * value for the watchdog is 0.5s.
++	 */
++	writel(WDT_CTRL_RELOAD, sunxi_restart_ctx->wdt_base + WDT_CTRL);
++
++	while (1) {
++		mdelay(5);
++		writel(WDT_MODE_EN | WDT_MODE_RST_EN,
++		       sunxi_restart_ctx->wdt_base + WDT_MODE);
++	}
++}
++
+ static int sunxi_wdt_ping(struct watchdog_device *wdt_dev)
  {
--	sunxi_setup_restart();
--
- 	of_platform_populate(NULL, of_default_bus_match_table, NULL, NULL);
- }
+ 	struct sunxi_wdt_dev *sunxi_wdt = watchdog_get_drvdata(wdt_dev);
+@@ -181,6 +209,9 @@ static int sunxi_wdt_probe(struct platform_device *pdev)
+ 	if (unlikely(err))
+ 		return err;
  
-@@ -128,7 +33,6 @@ static const char * const sunxi_board_dt_compat[] = {
- DT_MACHINE_START(SUNXI_DT, "Allwinner A1X (Device Tree)")
- 	.init_machine	= sunxi_dt_init,
- 	.dt_compat	= sunxi_board_dt_compat,
--	.restart	= sun4i_restart,
- MACHINE_END
++	sunxi_restart_ctx = sunxi_wdt;
++	arm_pm_restart = sun4i_wdt_restart;
++
+ 	dev_info(&pdev->dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)",
+ 			sunxi_wdt->wdt_dev.timeout, nowayout);
  
- static const char * const sun6i_board_dt_compat[] = {
-@@ -148,7 +52,6 @@ DT_MACHINE_START(SUN6I_DT, "Allwinner sun6i (A31) Family")
- 	.init_machine	= sunxi_dt_init,
- 	.init_time	= sun6i_timer_init,
- 	.dt_compat	= sun6i_board_dt_compat,
--	.restart	= sun6i_restart,
- 	.smp		= smp_ops(sun6i_smp_ops),
- MACHINE_END
+@@ -191,6 +222,8 @@ static int sunxi_wdt_remove(struct platform_device *pdev)
+ {
+ 	struct sunxi_wdt_dev *sunxi_wdt = platform_get_drvdata(pdev);
  
-@@ -160,5 +63,4 @@ static const char * const sun7i_board_dt_compat[] = {
- DT_MACHINE_START(SUN7I_DT, "Allwinner sun7i (A20) Family")
- 	.init_machine	= sunxi_dt_init,
- 	.dt_compat	= sun7i_board_dt_compat,
--	.restart	= sun4i_restart,
- MACHINE_END
++	arm_pm_restart = NULL;
++
+ 	watchdog_unregister_device(&sunxi_wdt->wdt_dev);
+ 	watchdog_set_drvdata(&sunxi_wdt->wdt_dev, NULL);
+ 
 -- 
 1.9.1
 
