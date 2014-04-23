@@ -1,55 +1,34 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.17.24]:56643 "EHLO
+Received: from moutng.kundenserver.de ([212.227.126.130]:56457 "EHLO
 	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754235AbaDWQDe (ORCPT
+	with ESMTP id S1757475AbaDWQBS (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 23 Apr 2014 12:03:34 -0400
+	Wed, 23 Apr 2014 12:01:18 -0400
 From: Arnd Bergmann <arnd@arndb.de>
-To: linux-arm-kernel@lists.infradead.org
-Cc: Maxime Ripard <maxime.ripard@free-electrons.com>, wim@iguana.be,
-	dbaryshkov@gmail.com, dwmw2@infradead.org,
-	linux-sunxi@googlegroups.com, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, arm@kernel.org
-Subject: Re: [PATCH 5/5] ARM: sunxi: Remove sun4i and sun7i machine definitions
-Date: Wed, 23 Apr 2014 18:02:51 +0200
-Message-ID: <1401022774.yKcHJAmPtb@wuerfel>
-In-Reply-To: <1398265476-29373-6-git-send-email-maxime.ripard@free-electrons.com>
-References: <1398265476-29373-1-git-send-email-maxime.ripard@free-electrons.com> <1398265476-29373-6-git-send-email-maxime.ripard@free-electrons.com>
+To: Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: wim@iguana.be, dbaryshkov@gmail.com, dwmw2@infradead.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, linux-sunxi@googlegroups.com
+Subject: Re: [PATCH 4/5] ARM: sunxi: Remove reset code from the platform
+Date: Wed, 23 Apr 2014 18:00:24 +0200
+Message-ID: <10836281.Wx7YzfuubV@wuerfel>
+In-Reply-To: <1398265476-29373-5-git-send-email-maxime.ripard@free-electrons.com>
+References: <1398265476-29373-1-git-send-email-maxime.ripard@free-electrons.com> <1398265476-29373-5-git-send-email-maxime.ripard@free-electrons.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7Bit
 Content-Type: text/plain; charset="us-ascii"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wednesday 23 April 2014 17:04:36 Maxime Ripard wrote:
->  
-> -static void __init sunxi_dt_init(void)
-> -{
-> -       of_platform_populate(NULL, of_default_bus_match_table, NULL, NULL);
-> -}
-> -
-> -static const char * const sunxi_board_dt_compat[] = {
-> -       "allwinner,sun4i-a10",
-> -       "allwinner,sun5i-a10s",
-> -       "allwinner,sun5i-a13",
-> -       NULL,
-> -};
-> -
-> -DT_MACHINE_START(SUNXI_DT, "Allwinner A1X (Device Tree)")
-> -       .init_machine   = sunxi_dt_init,
-> -       .dt_compat      = sunxi_board_dt_compat,
-> -MACHINE_END
-> -
->  static const char * const sun6i_board_dt_compat[] = {
->         "allwinner,sun6i-a31",
->         NULL,
+On Wednesday 23 April 2014 17:04:35 Maxime Ripard wrote:
+> Now that reset is handled either by the watchdog driver for the sun4i, sun5i
+> and sun7i, and by a driver of its own for sun6i, we can remove it from the
+> platform code.
+> 
+> Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+> ---
+>  arch/arm/mach-sunxi/sunxi.c | 98 ---------------------------------------------
+>  1 file changed, 98 deletions(-)
+> 
 
-I'd like to hear more opinions on this. We could either rely
-on the generic code, or we could keep the entry with just
-the .dt_compat line and the name, so /proc/cpuinfo contains
-a meaningful platform name.
-
-Either approach works for me, but I think we should do this
-consistent across platforms. Olof, do you have an opinion?
-
-	Arnd
+Acked-by: Arnd Bergmann <arnd@arndb.de>
