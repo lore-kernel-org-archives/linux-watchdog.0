@@ -1,34 +1,49 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.126.130]:56457 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757475AbaDWQBS (ORCPT
+Received: from top.free-electrons.com ([176.31.233.9]:58603 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1757545AbaDWPHM (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 23 Apr 2014 12:01:18 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: wim@iguana.be, dbaryshkov@gmail.com, dwmw2@infradead.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, linux-sunxi@googlegroups.com
-Subject: Re: [PATCH 4/5] ARM: sunxi: Remove reset code from the platform
-Date: Wed, 23 Apr 2014 18:00:24 +0200
-Message-ID: <10836281.Wx7YzfuubV@wuerfel>
-In-Reply-To: <1398265476-29373-5-git-send-email-maxime.ripard@free-electrons.com>
-References: <1398265476-29373-1-git-send-email-maxime.ripard@free-electrons.com> <1398265476-29373-5-git-send-email-maxime.ripard@free-electrons.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+	Wed, 23 Apr 2014 11:07:12 -0400
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: Arnd Bergmann <arnd@arndb.de>, wim@iguana.be, dbaryshkov@gmail.com,
+	dwmw2@infradead.org
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, linux-sunxi@googlegroups.com,
+	Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: [PATCH 0/5] ARM: sunxi: Machine code cleanup
+Date: Wed, 23 Apr 2014 17:04:31 +0200
+Message-Id: <1398265476-29373-1-git-send-email-maxime.ripard@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wednesday 23 April 2014 17:04:35 Maxime Ripard wrote:
-> Now that reset is handled either by the watchdog driver for the sun4i, sun5i
-> and sun7i, and by a driver of its own for sun6i, we can remove it from the
-> platform code.
-> 
-> Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
-> ---
->  arch/arm/mach-sunxi/sunxi.c | 98 ---------------------------------------------
->  1 file changed, 98 deletions(-)
-> 
+Hi,
 
-Acked-by: Arnd Bergmann <arnd@arndb.de>
+This serie moves the restart code out of the mach-sunxi directory to
+either the watchdog driver or to a new driver in drivers/power/reset.
+
+Since the reset code was pretty much all the code left in the
+mach-sunxi directory for all the SoCs but the A31, we also can remove
+the whole machine definitions, and use the generic machine.
+
+Thanks,
+Maxime
+
+Maxime Ripard (5):
+  wdt: sunxi: Move restart code to the watchdog driver
+  power: reset: Add Allwinner A31 reset code
+  ARM: sunxi: Select restart drivers
+  ARM: sunxi: Remove reset code from the platform
+  ARM: sunxi: Remove sun4i and sun7i machine definitions
+
+ arch/arm/mach-sunxi/Kconfig        |   4 ++
+ arch/arm/mach-sunxi/sunxi.c        | 127 -------------------------------------
+ drivers/power/reset/Kconfig        |   7 ++
+ drivers/power/reset/Makefile       |   1 +
+ drivers/power/reset/sun6i-reboot.c |  85 +++++++++++++++++++++++++
+ drivers/watchdog/sunxi_wdt.c       |  33 ++++++++++
+ 6 files changed, 130 insertions(+), 127 deletions(-)
+ create mode 100644 drivers/power/reset/sun6i-reboot.c
+
+-- 
+1.9.1
+
