@@ -1,43 +1,45 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f179.google.com ([209.85.192.179]:46296 "EHLO
-	mail-pd0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751724AbaDYKwt (ORCPT
+Received: from top.free-electrons.com ([176.31.233.9]:58584 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1757227AbaDWPGe (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 25 Apr 2014 06:52:49 -0400
-From: Masanari Iida <standby24x7@gmail.com>
-To: wim@iguana.be, linux-watchdog@vger.kernel.org,
-	thomas.mingarelli@hp.com, linux-kernel@vger.kernel.org
-Cc: Masanari Iida <standby24x7@gmail.com>
-Subject: [PATCH] doc: watchdog: Add an usage note on hpwdt with hp-asrd
-Date: Fri, 25 Apr 2014 19:52:29 +0900
-Message-Id: <1398423149-5028-1-git-send-email-standby24x7@gmail.com>
+	Wed, 23 Apr 2014 11:06:34 -0400
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: Arnd Bergmann <arnd@arndb.de>, wim@iguana.be, dbaryshkov@gmail.com,
+	dwmw2@infradead.org
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, linux-sunxi@googlegroups.com,
+	Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: [PATCH 3/5] ARM: sunxi: Select restart drivers
+Date: Wed, 23 Apr 2014 17:04:34 +0200
+Message-Id: <1398265476-29373-4-git-send-email-maxime.ripard@free-electrons.com>
+In-Reply-To: <1398265476-29373-1-git-send-email-maxime.ripard@free-electrons.com>
+References: <1398265476-29373-1-git-send-email-maxime.ripard@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-An agent software called hp-asrd from Hewlett Packard
-updates same iLO watchdog timer as hpwdt does update.
-So they can not be uses simultaneously.
-Add this usage note in hpwdt.txt.
+Make sure we have the restart hooks in the kernel by selecting them in Kconfig.
 
-Signed-off-by: Masanari Iida <standby24x7@gmail.com>
+Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
 ---
- Documentation/watchdog/hpwdt.txt | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/mach-sunxi/Kconfig | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/Documentation/watchdog/hpwdt.txt b/Documentation/watchdog/hpwdt.txt
-index 9488078..719c38d 100644
---- a/Documentation/watchdog/hpwdt.txt
-+++ b/Documentation/watchdog/hpwdt.txt
-@@ -89,7 +89,8 @@ Last reviewed: 06/02/2009
- 
- 	Hypertransport/CSI Error       31h
- 
--
-+hpwdt can not work as expected if hp-asrd is running simultaneously.
-+Because both hpwdt and hp-asrd update same iLO watchdog timer.
- 
-  -- Tom Mingarelli
-     (thomas.mingarelli@hp.com)
+diff --git a/arch/arm/mach-sunxi/Kconfig b/arch/arm/mach-sunxi/Kconfig
+index b57d7d53b9d3..5fe80cc9b524 100644
+--- a/arch/arm/mach-sunxi/Kconfig
++++ b/arch/arm/mach-sunxi/Kconfig
+@@ -9,6 +9,10 @@ config ARCH_SUNXI
+ 	select HAVE_ARM_ARCH_TIMER
+ 	select PINCTRL
+ 	select PINCTRL_SUNXI
++	select POWER_RESET
++	select POWER_RESET_SUN6I
++	select POWER_SUPPLY
+ 	select RESET_CONTROLLER
+ 	select SUN4I_TIMER
+ 	select SUN5I_HSTIMER
++	select SUNXI_WATCHDOG
 -- 
-2.0.0.rc0.38.g1697bf3
+1.9.1
 
