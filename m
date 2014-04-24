@@ -1,15 +1,15 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mho-02-ewr.mailhop.org ([204.13.248.72]:39942 "EHLO
-	mho-02-ewr.mailhop.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750703AbaDXEwQ (ORCPT
+Received: from top.free-electrons.com ([176.31.233.9]:37009 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753503AbaDXLHH (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 24 Apr 2014 00:52:16 -0400
-Date: Thu, 24 Apr 2014 00:51:53 -0400
-From: Jason Cooper <jason@lakedaemon.net>
-To: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+	Thu, 24 Apr 2014 07:07:07 -0400
+Date: Thu, 24 Apr 2014 08:06:36 -0300
+From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+To: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
-	Wim Van Sebroeck <wim@iguana.be>,
+	Jason Cooper <jason@lakedaemon.net>,
 	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
 	Andrew Lunn <andrew@lunn.ch>,
 	Tawfik Bayouk <tawfik@marvell.com>,
@@ -19,41 +19,41 @@ Cc: linux-watchdog@vger.kernel.org,
 	Guenter Roeck <linux@roeck-us.net>,
 	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
 Subject: Re: [RESEND/PATCH v4 0/9] Watchdog support for Armada 375/38x SoC
-Message-ID: <20140424045153.GU28159@titan.lakedaemon.net>
+Message-ID: <20140424110636.GA1735@arch.cereza>
 References: <1397481813-4962-1-git-send-email-ezequiel.garcia@free-electrons.com>
+ <20140424045153.GU28159@titan.lakedaemon.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1397481813-4962-1-git-send-email-ezequiel.garcia@free-electrons.com>
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+In-Reply-To: <20140424045153.GU28159@titan.lakedaemon.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Apr 14, 2014 at 10:23:24AM -0300, Ezequiel Garcia wrote:
-> Here's the fourth round of the patchset adding support for watchdog
-> on Armada 375 and Armada 38x SoCs, rebased on v3.15-rc1 and with
-> collected Tested-by's.
-> 
-> The new Armada 375/385 SoCs have two registers for the watchdog RSTOUT:
-> 
->  1. It has a dedicated register (similar to the one in A370/XP)
->  2. Also has a bit in a shared RSTOUT register.
-> 
-> Therefore, in order to support this two-folded RSTOUT, we extend the 'reg'
-> property in the watchdog devicetree and require a new pair of cells to specify
-> the shared RSTOUT.
-> 
-> On the driver side, we need to implement per-SoC stop() and enabled()
-> functions. Such somewhat complex infrastructure is needed to ensure the driver
-> performs proper reset of the watchdog timer, by masking and disabling the
-> RSTOUT before the interrupt is enabled.
-> 
-> Tested on A375-DB, A385-DB, A370-RD and Dove Cubox. Sebastian did more tests
-> on Dove, and Jason Gunthorpe on Kirkwood.
+On Apr 24, Jason Cooper wrote:
+> On Mon, Apr 14, 2014 at 10:23:24AM -0300, Ezequiel Garcia wrote:
+> >=20
+> > Tested on A375-DB, A385-DB, A370-RD and Dove Cubox. Sebastian did m=
+ore tests
+> > on Dove, and Jason Gunthorpe on Kirkwood.
+>=20
+> Applied patches 7 and 8 to mvebu/dt.  For the rest,
+>=20
+> Acked-by: Jason Cooper <jason@lakedaemon.net>
+>=20
 
-Applied patches 7 and 8 to mvebu/dt.  For the rest,
+Wim,
 
-Acked-by: Jason Cooper <jason@lakedaemon.net>
+Can you take the rest of the patches throught your tree, with Jason's a=
+ck?
 
-thx,
-
-Jason.
+Thanks!
+--=20
+Ezequiel Garc=EDa, Free Electrons
+Embedded Linux, Kernel and Android Engineering
+http://free-electrons.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
