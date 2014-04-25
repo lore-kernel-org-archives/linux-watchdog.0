@@ -1,77 +1,57 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wi0-f170.google.com ([209.85.212.170]:34040 "EHLO
-	mail-wi0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754077AbaDYOOz convert rfc822-to-8bit (ORCPT
+Received: from merlin.infradead.org ([205.233.59.134]:42419 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753730AbaDYUix (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 25 Apr 2014 10:14:55 -0400
-Received: by mail-wi0-f170.google.com with SMTP id bs8so2725985wib.1
-        for <linux-watchdog@vger.kernel.org>; Fri, 25 Apr 2014 07:14:54 -0700 (PDT)
+	Fri, 25 Apr 2014 16:38:53 -0400
+Message-ID: <535AC7D2.7030603@infradead.org>
+Date: Fri, 25 Apr 2014 13:38:42 -0700
+From: Randy Dunlap <rdunlap@infradead.org>
 MIME-Version: 1.0
-In-Reply-To: <9774516974AF5F4C8A2C3C69CD3412333C3B8A95@G4W3297.americas.hpqcorp.net>
-References: <1398423149-5028-1-git-send-email-standby24x7@gmail.com>
-	<535A5CEE.40008@roeck-us.net>
-	<9774516974AF5F4C8A2C3C69CD3412333C3B8A95@G4W3297.americas.hpqcorp.net>
-Date: Fri, 25 Apr 2014 23:14:54 +0900
-Message-ID: <CALLJCT0NT_1QYxrxRWyE6TXi84Kg1Bbz=x8jc3FLh93i_OBE3g@mail.gmail.com>
+To: Masanari Iida <standby24x7@gmail.com>, wim@iguana.be,
+	linux-watchdog@vger.kernel.org, thomas.mingarelli@hp.com,
+	linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] doc: watchdog: Add an usage note on hpwdt with hp-asrd
-From: Masanari Iida <standby24x7@gmail.com>
-To: "Mingarelli, Thomas" <Thomas.Mingarelli@hp.com>
-Cc: Guenter Roeck <linux@roeck-us.net>,
-	"wim@iguana.be" <wim@iguana.be>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+References: <1398423149-5028-1-git-send-email-standby24x7@gmail.com>
+In-Reply-To: <1398423149-5028-1-git-send-email-standby24x7@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-I have encountered a symptom that I could not use hpwdt
-with hp-asrd on BL460c Gen8 + RHEL6.4.
+On 04/25/14 03:52, Masanari Iida wrote:
+> An agent software called hp-asrd from Hewlett Packard
+> updates same iLO watchdog timer as hpwdt does update.
+> So they can not be uses simultaneously.
+> Add this usage note in hpwdt.txt.
+> 
+> Signed-off-by: Masanari Iida <standby24x7@gmail.com>
+> ---
+>  Documentation/watchdog/hpwdt.txt | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/Documentation/watchdog/hpwdt.txt b/Documentation/watchdog/hpwdt.txt
+> index 9488078..719c38d 100644
+> --- a/Documentation/watchdog/hpwdt.txt
+> +++ b/Documentation/watchdog/hpwdt.txt
+> @@ -89,7 +89,8 @@ Last reviewed: 06/02/2009
+>  
+>  	Hypertransport/CSI Error       31h
+>  
+> -
+> +hpwdt can not work as expected if hp-asrd is running simultaneously.
 
-How to reproduce
-(1)  Start hp-asrd  with ASR timeout as 600 seconds
-(2)  Load hpwdt  with soft_margin as 30 seconds.
-(3)  # echo 1 > /dev/watchdog  and wait 30 sec to reboot.
+         cannot                                                       ,
 
-Actual Result
-No reboot happen.
+> +Because both hpwdt and hp-asrd update same iLO watchdog timer.
 
-(4)  Stop hp-asrd
-(5)  # echo 1 > /dev/watchdog  and wait 30sec to reboot
+   because                        update the same
 
-Actual Result
-Reboot after 30 sec.
+>  
+>   -- Tom Mingarelli
+>      (thomas.mingarelli@hp.com)
+> 
 
-And my colleague wrote a small tool to send an ioctl to
-/dev/watchdog to get  WDIOC_GETTIMELEFT.
 
-(6)  Run a tool to monitor time left.
-(7)  # echo 1 >  /dev/watchdog
-(8)  Before 30sec timeout expire, start  hp-asrd .
-
-Result
-
-time left=3D22
-time left=3D20
-time left=3D19
-time left=3D19
-time left=3D18
-time left=3D17
-time left=3D16
-time left=3D14
-time left=3D13
-time left=3D13
-time left=3D12
-time left=3D599=E3=80=80=E3=80=80<=3D The time when hp-asrd started
-time left=3D599
-time left=3D599
-time left=3D599
-
-So this is the reason why hp-asrd and hpwdt update the same timer.
-So I conclude they can not run simultaneously.
-
-Masanari
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+~Randy
