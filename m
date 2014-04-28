@@ -1,57 +1,69 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:42419 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753730AbaDYUix (ORCPT
+Received: from mail-bn1blp0181.outbound.protection.outlook.com ([207.46.163.181]:37990
+	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1754070AbaD1J1m convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 25 Apr 2014 16:38:53 -0400
-Message-ID: <535AC7D2.7030603@infradead.org>
-Date: Fri, 25 Apr 2014 13:38:42 -0700
-From: Randy Dunlap <rdunlap@infradead.org>
+	Mon, 28 Apr 2014 05:27:42 -0400
+From: "Li.Xiubo@freescale.com" <Li.Xiubo@freescale.com>
+To: "Li.Xiubo@freescale.com" <Li.Xiubo@freescale.com>,
+	"wim@iguana.be" <wim@iguana.be>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+Subject: RE: [PATCHv5 0/2] imx2-wdt: Add regmap-mmio support
+Date: Mon, 28 Apr 2014 09:27:33 +0000
+Message-ID: <06ce143a167a4945906e241475fd0d86@BY2PR03MB505.namprd03.prod.outlook.com>
+References: <1396575205-24394-1-git-send-email-Li.Xiubo@freescale.com>
+In-Reply-To: <1396575205-24394-1-git-send-email-Li.Xiubo@freescale.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-To: Masanari Iida <standby24x7@gmail.com>, wim@iguana.be,
-	linux-watchdog@vger.kernel.org, thomas.mingarelli@hp.com,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] doc: watchdog: Add an usage note on hpwdt with hp-asrd
-References: <1398423149-5028-1-git-send-email-standby24x7@gmail.com>
-In-Reply-To: <1398423149-5028-1-git-send-email-standby24x7@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 04/25/14 03:52, Masanari Iida wrote:
-> An agent software called hp-asrd from Hewlett Packard
-> updates same iLO watchdog timer as hpwdt does update.
-> So they can not be uses simultaneously.
-> Add this usage note in hpwdt.txt.
+Wim Van Sebroeck,
+
+Ping:)
+
+
+
+> -----Original Message-----
+> From: Xiubo Li [mailto:Li.Xiubo@freescale.com]
+> Sent: Friday, April 04, 2014 9:33 AM
+> To: wim@iguana.be; linux-watchdog@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org; Xiubo Li-B47053
+> Subject: [PATCHv5 0/2] imx2-wdt: Add regmap-mmio support
 > 
-> Signed-off-by: Masanari Iida <standby24x7@gmail.com>
-> ---
->  Documentation/watchdog/hpwdt.txt | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+> This patches are preparing for Vybird, LS1 and LS2. And on LS1 the IP will
+> in BE mode.
 > 
-> diff --git a/Documentation/watchdog/hpwdt.txt b/Documentation/watchdog/hpwdt.txt
-> index 9488078..719c38d 100644
-> --- a/Documentation/watchdog/hpwdt.txt
-> +++ b/Documentation/watchdog/hpwdt.txt
-> @@ -89,7 +89,8 @@ Last reviewed: 06/02/2009
->  
->  	Hypertransport/CSI Error       31h
->  
+> Changes in V5:
+> - Select the REGMAP_MMIO default for IMX2 Watchdog.
+> 
+> Changes in V4:
+> - Add the explanation why uing the regmap APIs.
+> 
+> Changes in V3:
+> - convert to use regmap-mmio API.
+> 
+> Changes in V2:
+> - Add the detail information in the commit comment.
+> - 'big-endians' --> 'big-endian'.
+> 
+> 
+> 
+> 
+> 
+> Xiubo Li (2):
+>   watchdog: imx2_wdt: Sort the header files alphabetically
+>   watchdog: imx2_wdt: convert to use regmap API.
+> 
+>  drivers/watchdog/Kconfig    |  1 +
+>  drivers/watchdog/imx2_wdt.c | 62 +++++++++++++++++++++++++++-----------------
 > -
-> +hpwdt can not work as expected if hp-asrd is running simultaneously.
-
-         cannot                                                       ,
-
-> +Because both hpwdt and hp-asrd update same iLO watchdog timer.
-
-   because                        update the same
-
->  
->   -- Tom Mingarelli
->      (thomas.mingarelli@hp.com)
+>  2 files changed, 39 insertions(+), 24 deletions(-)
+> 
+> --
+> 1.8.4
 > 
 
-
--- 
-~Randy
