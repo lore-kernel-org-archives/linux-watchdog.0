@@ -1,89 +1,77 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:54024 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752002AbaD1XPG (ORCPT
+Received: from mail-qc0-f177.google.com ([209.85.216.177]:59401 "EHLO
+	mail-qc0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755638AbaD2BIy (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 28 Apr 2014 19:15:06 -0400
-Date: Mon, 28 Apr 2014 16:11:08 -0700
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Arnd Bergmann <arnd@arndb.de>, wim@iguana.be, dbaryshkov@gmail.com,
-	dwmw2@infradead.org, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-sunxi@googlegroups.com
-Subject: Re: [PATCH 2/5] power: reset: Add Allwinner A31 reset code
-Message-ID: <20140428231108.GO3134@lukather>
-References: <1398265476-29373-1-git-send-email-maxime.ripard@free-electrons.com>
- <1398265476-29373-3-git-send-email-maxime.ripard@free-electrons.com>
- <535BD18B.2070902@roeck-us.net>
+	Mon, 28 Apr 2014 21:08:54 -0400
+Received: by mail-qc0-f177.google.com with SMTP id w7so7705761qcr.36
+        for <linux-watchdog@vger.kernel.org>; Mon, 28 Apr 2014 18:08:53 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="xn9xNsWbHJd/50IB"
-Content-Disposition: inline
-In-Reply-To: <535BD18B.2070902@roeck-us.net>
+In-Reply-To: <1401022774.yKcHJAmPtb@wuerfel>
+References: <1398265476-29373-1-git-send-email-maxime.ripard@free-electrons.com>
+	<1398265476-29373-6-git-send-email-maxime.ripard@free-electrons.com>
+	<1401022774.yKcHJAmPtb@wuerfel>
+Date: Mon, 28 Apr 2014 18:08:53 -0700
+Message-ID: <CAOesGMhgTJugKyfa3QB=Zk1O0bDX9EgBnr4i9KeCD5bBpZ9mVw@mail.gmail.com>
+Subject: Re: [PATCH 5/5] ARM: sunxi: Remove sun4i and sun7i machine definitions
+From: Olof Johansson <olof@lixom.net>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: "linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	linux-sunxi@googlegroups.com,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"arm@kernel.org" <arm@kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On Wed, Apr 23, 2014 at 9:02 AM, Arnd Bergmann <arnd@arndb.de> wrote:
+> On Wednesday 23 April 2014 17:04:36 Maxime Ripard wrote:
+>>
+>> -static void __init sunxi_dt_init(void)
+>> -{
+>> -       of_platform_populate(NULL, of_default_bus_match_table, NULL, NULL);
+>> -}
+>> -
+>> -static const char * const sunxi_board_dt_compat[] = {
+>> -       "allwinner,sun4i-a10",
+>> -       "allwinner,sun5i-a10s",
+>> -       "allwinner,sun5i-a13",
+>> -       NULL,
+>> -};
+>> -
+>> -DT_MACHINE_START(SUNXI_DT, "Allwinner A1X (Device Tree)")
+>> -       .init_machine   = sunxi_dt_init,
+>> -       .dt_compat      = sunxi_board_dt_compat,
+>> -MACHINE_END
+>> -
+>>  static const char * const sun6i_board_dt_compat[] = {
+>>         "allwinner,sun6i-a31",
+>>         NULL,
+>
+> I'd like to hear more opinions on this. We could either rely
+> on the generic code, or we could keep the entry with just
+> the .dt_compat line and the name, so /proc/cpuinfo contains
+> a meaningful platform name.
+>
+> Either approach works for me, but I think we should do this
+> consistent across platforms. Olof, do you have an opinion?
 
---xn9xNsWbHJd/50IB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In reality, today, most platforms still need some out-of-tree stuff
+that usually goes into the mach directory on out of tree kernels. It
+also gives a place to stick the Kconfig entries, it's been nice to
+have them split out in per-platform Kconfigs instead of having them
+all modify and conflict the shared one.
 
-Hi,
+I know those aren't strong arguments to keep it, but given that all
+other things are more or less equal, it's a good a reason as any.
 
-On Sat, Apr 26, 2014 at 08:32:27AM -0700, Guenter Roeck wrote:
-> On 04/23/2014 08:04 AM, Maxime Ripard wrote:
-> >That code used to be in the machine code, but it's more fit here with ot=
-her
-> >restart hooks.
-> >
-> >That will allow to cleanup the machine directory, while waiting for a pr=
-oper
-> >watchdog driver for the A31.
-> >
-> >Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
->=20
-> I am a bit lost here. Why is this a separate driver, accessing watchdog r=
-egisters,
-> while the other reset functions are being moved into the watchdog code ?
->=20
-> Any chance to handle all platforms the same ? Seems to me that would be l=
-ess messy.
+But, I'm not picky either way.
 
-The A31 watchdog is actually a different watchdog from the one in the
-other Allwinner SoCs, that probably needs a driver of its own, or at
-least, a significant refactoring.
 
-No one did this yet, but eventually this will probably happen.
-
-Maxime
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---xn9xNsWbHJd/50IB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTXuAMAAoJEBx+YmzsjxAgkNkP/1LQT1hZOfuT8L/W6IjZrgfN
-RL1PMivnmDRt2UU0MvBXRV4gRnkafIuwHG0fZK2rruRMF9OsjuKIacA/Xf2l7m/k
-B8CwETTkuufe53KanN56BTB6wJ41+VvufvKn/T/S/gurywjM7Uas1D4lL0TFQ1aF
-9v7tE04P2cjvkJo63UkeMSP0Pl1uM64+RwmifFDsV3MGAQJZbYCCFgTxfhhlD/qV
-QmkWVxql8+OH3GnnVm/ghXfSe82PU7nCtIBaTzKLQMoUpNtaiCGrzXC5SWy9S7Q0
-GsVfUldqAFmWqlM3uOGWC/4Zg7PMRKBIywul2wp8molrebFwknqygl2nu1mjQ9ss
-lObFTuxL/olMUe9O4BnZiZaBOXZolFHIpwiH9AtNpLH04UDw79P1D7h+gIjn6A15
-gSAqV0UfpAYmuqdjz1Lpr4wE52sBqcHkf9JuZB3TiQbaxrRu6+ycadVB1ggk6AaU
-4sVilzzAeaspzssWFeZIu8EfCV/iZNSgm3J9wjHkKZcdrJ5TAN201Fry487SYWV4
-E1YnhVHPNC2YdmucLWQBugmLzqznfxrj/mKPaa/ouEFbC4yLhVPgHKWvXkeHemTB
-nuUFNxDE6a/laijcG/rUD0oZvMxurUtlxWpqdSyCLa5BBDKh43dGNrruVf46erc4
-vh5DWLukgIt3l8AQ4r9t
-=qxiM
------END PGP SIGNATURE-----
-
---xn9xNsWbHJd/50IB--
+-Olof
