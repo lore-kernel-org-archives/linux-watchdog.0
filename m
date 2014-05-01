@@ -1,65 +1,49 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:25030 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753128AbaEAN6n (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 1 May 2014 09:58:43 -0400
-Date: Thu, 1 May 2014 09:58:32 -0400
-From: Don Zickus <dzickus@redhat.com>
-To: minyard@acm.org
-Cc: openipmi-developer@lists.sourceforge.net,
-	linux-watchdog@vger.kernel.org
-Subject: ipmi watchdog questions
-Message-ID: <20140501135832.GE61249@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Received: from mail-pa0-f49.google.com ([209.85.220.49]:55125 "EHLO
+	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751355AbaEAPlp (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 1 May 2014 11:41:45 -0400
+From: Guenter Roeck <linux@roeck-us.net>
+To: linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Will Deacon <will.deacon@arm.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Russell King <linux@arm.linux.org.uk>,
+	Jonas Jensen <jonas.jensen@gmail.com>,
+	linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
+Subject: [RFC PATCH 0/5] watchdog: Add reboot API
+Date: Thu,  1 May 2014 08:41:28 -0700
+Message-Id: <1398958893-30049-1-git-send-email-linux@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Corey,
+Some hardware implements reboot through its watchdog hardware, for example
+by triggering a watchdog timeout or by writing into its watchdog register
+set. Platform specific code starts to spread into watchdog drivers,
+typically by setting pointers to a callback function which is then called
+from the architecture's reset handler.
 
-I stumbled upon an issue with a partner of ours, where they booted their
-machine and tried to load the ipmi_watchdog module by hand and it failed.
+While global and exported callback function pointers (such as arm_pm_restart)
+may be acceptable as long as they are used from platform and/or architecture
+code, using such a mechanism across subsystems and drivers is less than
+desirable. Ultimately, we'll need a better solution.
 
-The reason it failed was that the iTCO watchdog driver was already loaded
-and it registered the misc device /dev/watchdog first.
+This patch series is an attempt to provide such a solution. It extends
+the watchdog subsystem to support reboot functionality, provides an
+API function call to trigger reboots, adds support for the new API
+to arm and arm64, and converts the drivers providing reboot functionality
+to use the new infrastructure.
 
-I looked at the ipmi watchdog driver and realized it was never converted
-to the new watchdog framework where the watchdog_core module manages the
-'/dev/watchdog' misc device.
+The first patch in the series implements the new API. The second and third
+patch modify the arm and arm64 architecture reset handlers to call the
+added API function. The final two patches register the reboot handlers
+in the sunxi and moxart watchdog drivers with the watchdog subsystem.
 
-So being naive and not knowing much about IPMI, I decided to follow the
-helpful document Documentation/watchdog/convert_drivers_to_kernel_api.txt
-and convert the ipmi_watchdog to use the new watchdog framework.
+The sunxi patche depends on the most recent patch series sumitted by
+Maxime Ripard.
 
-I ran into a few issues and then realized the driver itself never really
-binds to any hardware, so it makes the conversion process a little more
-challenging.
-
-So a few questions to you before I waste my time in this area:
-
-- Is there any prior history about why the ipmi_watchdog was never
-  converted to the new watchdog framework?  Lack of interest? Technical
-hurdles?
-
-- Is there a reason why the ipmi_watchdog is a seperate module as opposed
-  to being called by ipmi_si?  It seems there shouldn't be an issue with
-the watchdog always loaded, it just won't do anything until someone opens
-it (from my understanding).  Also you would gain the ability to use the
-shutdown/remove routines properly instead of the reboot/panic notifiers.
-
-  In addition, passing the pointer to the 'struct watchdog_device' would be
-easier if some of those extra pieces were not there (as opposed to making
-it a global reference).
-
-- What does the fasync and poll calls do for a watchdog?
-
-I'll start with that for now.
-
-I appreciate any feedback.  Currently we just implemented blacklisting the
-iTCO watchdog driver to workaround this problem.  I thought we could do
-better, hence my motivation to do work in this area.
-
-Cheers,
-Don
-
+Compile tested only.
