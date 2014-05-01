@@ -1,118 +1,65 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:48860 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1758836AbaD3SfS (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 30 Apr 2014 14:35:18 -0400
-Date: Wed, 30 Apr 2014 11:31:53 -0700
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Olof Johansson <olof@lixom.net>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	linux-sunxi@googlegroups.com,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"arm@kernel.org" <arm@kernel.org>
-Subject: Re: [PATCH 5/5] ARM: sunxi: Remove sun4i and sun7i machine
- definitions
-Message-ID: <20140430183153.GG3000@lukather>
-References: <1398265476-29373-1-git-send-email-maxime.ripard@free-electrons.com>
- <1398265476-29373-6-git-send-email-maxime.ripard@free-electrons.com>
- <1401022774.yKcHJAmPtb@wuerfel>
- <CAOesGMhgTJugKyfa3QB=Zk1O0bDX9EgBnr4i9KeCD5bBpZ9mVw@mail.gmail.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:25030 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753128AbaEAN6n (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 1 May 2014 09:58:43 -0400
+Date: Thu, 1 May 2014 09:58:32 -0400
+From: Don Zickus <dzickus@redhat.com>
+To: minyard@acm.org
+Cc: openipmi-developer@lists.sourceforge.net,
+	linux-watchdog@vger.kernel.org
+Subject: ipmi watchdog questions
+Message-ID: <20140501135832.GE61249@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tcC6YSqBgqqkz7Sb"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAOesGMhgTJugKyfa3QB=Zk1O0bDX9EgBnr4i9KeCD5bBpZ9mVw@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+Hi Corey,
 
---tcC6YSqBgqqkz7Sb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I stumbled upon an issue with a partner of ours, where they booted their
+machine and tried to load the ipmi_watchdog module by hand and it failed.
 
-Hi,
+The reason it failed was that the iTCO watchdog driver was already loaded
+and it registered the misc device /dev/watchdog first.
 
-On Mon, Apr 28, 2014 at 06:08:53PM -0700, Olof Johansson wrote:
-> On Wed, Apr 23, 2014 at 9:02 AM, Arnd Bergmann <arnd@arndb.de> wrote:
-> > On Wednesday 23 April 2014 17:04:36 Maxime Ripard wrote:
-> >>
-> >> -static void __init sunxi_dt_init(void)
-> >> -{
-> >> -       of_platform_populate(NULL, of_default_bus_match_table, NULL, N=
-ULL);
-> >> -}
-> >> -
-> >> -static const char * const sunxi_board_dt_compat[] =3D {
-> >> -       "allwinner,sun4i-a10",
-> >> -       "allwinner,sun5i-a10s",
-> >> -       "allwinner,sun5i-a13",
-> >> -       NULL,
-> >> -};
-> >> -
-> >> -DT_MACHINE_START(SUNXI_DT, "Allwinner A1X (Device Tree)")
-> >> -       .init_machine   =3D sunxi_dt_init,
-> >> -       .dt_compat      =3D sunxi_board_dt_compat,
-> >> -MACHINE_END
-> >> -
-> >>  static const char * const sun6i_board_dt_compat[] =3D {
-> >>         "allwinner,sun6i-a31",
-> >>         NULL,
-> >
-> > I'd like to hear more opinions on this. We could either rely
-> > on the generic code, or we could keep the entry with just
-> > the .dt_compat line and the name, so /proc/cpuinfo contains
-> > a meaningful platform name.
-> >
-> > Either approach works for me, but I think we should do this
-> > consistent across platforms. Olof, do you have an opinion?
->=20
-> In reality, today, most platforms still need some out-of-tree stuff
-> that usually goes into the mach directory on out of tree kernels. It
-> also gives a place to stick the Kconfig entries, it's been nice to
-> have them split out in per-platform Kconfigs instead of having them
-> all modify and conflict the shared one.
->=20
-> I know those aren't strong arguments to keep it, but given that all
-> other things are more or less equal, it's a good a reason as any.
+I looked at the ipmi watchdog driver and realized it was never converted
+to the new watchdog framework where the watchdog_core module manages the
+'/dev/watchdog' misc device.
 
-I guess the /proc/cpuinfo thing just tip the scales to keeping the
-minimal machines. I'll update the patches.
+So being naive and not knowing much about IPMI, I decided to follow the
+helpful document Documentation/watchdog/convert_drivers_to_kernel_api.txt
+and convert the ipmi_watchdog to use the new watchdog framework.
 
-Maxime
+I ran into a few issues and then realized the driver itself never really
+binds to any hardware, so it makes the conversion process a little more
+challenging.
 
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+So a few questions to you before I waste my time in this area:
 
---tcC6YSqBgqqkz7Sb
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+- Is there any prior history about why the ipmi_watchdog was never
+  converted to the new watchdog framework?  Lack of interest? Technical
+hurdles?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
+- Is there a reason why the ipmi_watchdog is a seperate module as opposed
+  to being called by ipmi_si?  It seems there shouldn't be an issue with
+the watchdog always loaded, it just won't do anything until someone opens
+it (from my understanding).  Also you would gain the ability to use the
+shutdown/remove routines properly instead of the reboot/panic notifiers.
 
-iQIcBAEBAgAGBQJTYUGZAAoJEBx+YmzsjxAgcDMP/3jn/SDNmUHvVv8iwM0xXz5+
-d2N4UJ5jVn6GNGzLOsWoBrQiBmHd2Pyo1mQxal03bHtdiNUYjufUMRiRXU49mBNY
-TWGaRjy5v8J9tOPat5PTfyC2xKQR/pOBFcwK6Y0nlNIL0M/f+XaRlfUjTL0y69Wl
-x5EvR2m4fO8pzcfcHrW5VFUJ5/RQZ+Uk6qrIh1EyDe95DCHDVAe53JpVrEMDZOAp
-Z8n2SORk/+UUKWyHR0QTNzKOI9HTZzKZQ6ZEEKqIrC2ReB4DVl5KjpkFgEqOvAa+
-PlEwaWnU5Ea8gPLAZuEWe1xUzm21ioxtAL+2KFxnoPTRpqMd5wWpwOOLSTXs3eDq
-MOvCHYniWkWD+gSnITwfjJW0uVGpBBGHOMaX3icQyyF/Yn5qdJNjP9V74ukdCeAO
-79r6BDDy51oQ+LMzb12LM0TXWIP3q9lSOXJUVA/UDZDrtjJcGXilL1hYQrQ8Mmku
-sCitwv4VvWHLt1c7W0gNdvImGPXP+MddjMj6kXi33rtzmsCwwptEjRZRlPQEWfNu
-uu+9bmk+vlkzc035cOQEWPrGJNa+O2Mk1Y86vDfw5OWih5KFb8Om5QWiiQIKQAFM
-ZGHJ0XamSko6Fw2otY932S0CMuik0PhvxjpU425pzxXCGt7QvE0ItOt9OaFhWpqe
-T11W/o13Z68mAEhXwY0e
-=5d+2
------END PGP SIGNATURE-----
+  In addition, passing the pointer to the 'struct watchdog_device' would be
+easier if some of those extra pieces were not there (as opposed to making
+it a global reference).
 
---tcC6YSqBgqqkz7Sb--
+- What does the fasync and poll calls do for a watchdog?
+
+I'll start with that for now.
+
+I appreciate any feedback.  Currently we just implemented blacklisting the
+iTCO watchdog driver to workaround this problem.  I thought we could do
+better, hence my motivation to do work in this area.
+
+Cheers,
+Don
+
