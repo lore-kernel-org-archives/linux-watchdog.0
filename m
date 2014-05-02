@@ -1,120 +1,81 @@
-Return-Path: <maxime.ripard@free-electrons.com>
-Date: Fri, 2 May 2014 18:22:43 -0700
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:49510 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752121AbaEBRrG (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 2 May 2014 13:47:06 -0400
+Date: Fri, 2 May 2014 13:46:50 -0400
+From: Don Zickus <dzickus@redhat.com>
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will.deacon@arm.com>, Arnd Bergmann <arnd@arndb.de>,
-	Russell King <linux@arm.linux.org.uk>,
-	Jonas Jensen <jonas.jensen@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH 1/5] watchdog: Add API to trigger reboots
-Message-ID: <20140503012243.GG4090@lukather>
-References: <1398958893-30049-1-git-send-email-linux@roeck-us.net>
- <1398958893-30049-2-git-send-email-linux@roeck-us.net>
+Cc: minyard@acm.org, openipmi-developer@lists.sourceforge.net,
+	linux-watchdog@vger.kernel.org
+Subject: Re: ipmi watchdog questions
+Message-ID: <20140502174650.GI198341@redhat.com>
+References: <20140501135832.GE61249@redhat.com>
+ <5362E8FA.9050700@acm.org>
+ <5362F0B0.4030405@roeck-us.net>
+ <5363213D.7060701@acm.org>
+ <53639AFF.40206@roeck-us.net>
+ <20140502164424.GH198341@redhat.com>
+ <5363D34B.9000006@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="GUPx2O/K0ibUojHx"
-Content-Disposition: inline
-In-Reply-To: <1398958893-30049-2-git-send-email-linux@roeck-us.net>
-List-ID: <linux-watchdog@vger.kernel.org>
-
-
---GUPx2O/K0ibUojHx
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <5363D34B.9000006@roeck-us.net>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hi Guenter,
+On Fri, May 02, 2014 at 10:18:03AM -0700, Guenter Roeck wrote:
+> >>>That isn't enough to be able to report the pretimeout to the user.  You
+> >>>can set it and get it with those calls, but it also needs poll, fasync,
+> >>>and read to be able to select on a pretimeout or block on a read.
+> >>>
+> >>
+> >>Ah, but now you are talking about a specific implementation, which is a bit
+> >>different. The question here is what you expect to occur when a pretimeout
+> >>happens, and you have a certain set of expectations. Personally I don't know
+> >>what the best solution is; maybe a sysfs attribute or, yes, some activity
+> >>on the watchdog device entry. Why don't you (or Don) suggest something
+> >>and come up with a patch set for review ?
+> >
+> >I look through the only other two watchdogs that I could find with
+> >pretimeouts (kempld and hpwdt).  hpwdt uses NMI as its pretimeout
+> >notification, while kempld uses a low level configured action (nmi, smi,
+> >sci, delay).  I think ipmi is the only one that chooses a user space
+> >implementation (which raises another question[1]).
+> >
+> >I can try to respectfully copy the ipmi implementation to watchdog_dev.c
+> >and set a wdd->option to indicate its use and in addition add the
+> >pretimeout ioctls to watchdog_dev.c (and struct watchdog_device).
+> >
+> >Otherwise I am not sure if adding read, fasync, and poll wrappers to
+> >watchdog_dev.c looks like a dirty hack.
+> >
+> >Cheers,
+> >Don
+> >
+> >[1] if the system is stuck such that the pretimeout goes off, is it even
+> >possible for userspace to run?  Or guaranteed that it could run reliably?
+> >Just curious behind the history for this addition.
+> >
+> 
+> I would guess it depends. In most cases, I would assume it reflects that the
+> watchdog daemon did not run. This in turn may suggest that userspace is,
+> for all practical purposes, unable to run. Given that, I would suspect that
+> a solution which depends on user space to act will in most cases not be able
+> to fulfil its purpose, and I would not want to depend on it.
 
-On Thu, May 01, 2014 at 08:41:29AM -0700, Guenter Roeck wrote:
-> Some hardware implements reboot through its watchdog hardware,
-> for example by triggering a watchdog timeout. Platform specific
-> code starts to spread into watchdog drivers, typically by setting
-> pointers to a callback functions which is then called from the
-> platform reset handler.
->=20
-> To simplify code and provide a unified API to trigger reboots by
-> watchdog drivers, provide a single API to trigger such reboots
-> through the watchdog subsystem.
->=20
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> ---
->  drivers/watchdog/watchdog_core.c |   17 +++++++++++++++++
->  include/linux/watchdog.h         |   11 +++++++++++
->  2 files changed, 28 insertions(+)
->=20
-> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog=
-_core.c
-> index cec9b55..4ec6e2f 100644
-> --- a/drivers/watchdog/watchdog_core.c
-> +++ b/drivers/watchdog/watchdog_core.c
-> @@ -43,6 +43,17 @@
->  static DEFINE_IDA(watchdog_ida);
->  static struct class *watchdog_class;
-> =20
-> +static struct watchdog_device *wdd_reboot_dev;
-> +
-> +void watchdog_do_reboot(enum reboot_mode mode, const char *cmd)
-> +{
-> +	if (wdd_reboot_dev) {
-> +		if (wdd_reboot_dev->ops->reboot)
-> +			wdd_reboot_dev->ops->reboot(wdd_reboot_dev, mode, cmd);
-> +	}
-> +}
-> +EXPORT_SYMBOL(watchdog_do_reboot);
-> +
->  static void watchdog_check_min_max_timeout(struct watchdog_device *wdd)
->  {
->  	/*
-> @@ -162,6 +173,9 @@ int watchdog_register_device(struct watchdog_device *=
-wdd)
->  		return ret;
->  	}
-> =20
-> +	if (wdd->ops->reboot)
-> +		wdd_reboot_dev =3D wdd;
-> +
+I am sure Corey ran into one vendor who wanted it, hence why he
+implemented it.  But yeah, I am not sure I would depend on it either.
 
-Overall, it looks really great, but I guess we can make it a
-list. Otherwise, we might end up in a situation where we could not
-reboot anymore, like this one for example:
-  - a first watchdog is probed, registers a reboot function
-  - a second watchdog is probed, registers a reboot function that
-    overwrites the first one.
-  - then, the second watchdog disappears for some reason, and the
-    reboot is set to NULL
+> 
+> Note that kempld in practice only implements NMI, though the HW can
+> do more. I can ask Kontron for feedback on their opinion for possible
+> actions (and why they didn't implement other actions in the driver).
 
-Or maybe we can just use the start callback, with the min timeout already
-registered, and prevent the user to kick the watchdog.
+I don't have much interest in it really.  I was just looking at what other
+vendors did as reference.  NMI makes sense.  Though I don't see an NMI
+handler, so I assume they just use the NMI to force a panic (like the
+hpwdt does, sortof)?
 
-Maxime
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---GUPx2O/K0ibUojHx
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTZETjAAoJEBx+YmzsjxAgbD4QAKydo8fb0Xrb90bM/9AiO+Mg
-kGU39UTMbBaJ4wAEQaEyDsdMADCYOzpqXymM2e9mfFHzEdmE9V8zJ6MfXCGNbnpC
-ddXGnXEriNUAzegCmWjVJdizlmrw9R7w0U4u+069MZC0PkbgQymcqcgUGr3WD7Se
-iE2yZTAgZgHspB5baZwdEJ5RD7S4YNN/dU2q2l45Et1vS2mTHMjMd2GaZvOACqFM
-y8F39hf96IVT0IV0rr515x06T6ArQtmZHl7CjKQopeeQO9/Sxm1FpZHcxPJa6K7f
-om1sX0j3cPGpGMb96VqlLYFDLHIhQ0yGLMeTwMFuSmSkhYrJkOcGZMOAjqU8xYdK
-BRRLCmnda0UK4hlWVFTz5xY1jBxi/1avMUoe6goWW3yBYneF6S6L3ScDS/qcOHTN
-PKTgl4pqiRrgXhQ5KPAOin69hL9tT/JURs9Blfg4iUKtyKlsaXZYthGpYS1L5ywu
-haQgNzWZYcKofuNnF8H5JLAIrTFBXpL7g+V0py13ZEV6SXjmi30tufegxVG2U77u
-CaXrO+wqG0H63SbA4RFkhIGkvKkUtW6ZBFoEbunHqq18eHG91agR2USf2Js0rvT4
-ADKF7zRTW+PINQrkFaJqKWY1tLWqZWVTRVTHganaEWnWIqrUKu1Vvol78hqEFdyF
-yhWP93qq2LAyZ3QGaSjc
-=CYOb
------END PGP SIGNATURE-----
-
---GUPx2O/K0ibUojHx--
+Cheers,
+Don
