@@ -1,104 +1,99 @@
-Return-Path: <maxime.ripard@free-electrons.com>
-Date: Sun, 4 May 2014 23:27:26 -0500
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
+Return-Path: <dzickus@redhat.com>
+Date: Fri, 2 May 2014 12:44:24 -0400
+From: Don Zickus <dzickus@redhat.com>
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will.deacon@arm.com>, Arnd Bergmann <arnd@arndb.de>,
-	Russell King <linux@arm.linux.org.uk>,
-	Jonas Jensen <jonas.jensen@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH 1/5] watchdog: Add API to trigger reboots
-Message-ID: <20140505042726.GF11606@lukather>
-References: <1398958893-30049-1-git-send-email-linux@roeck-us.net>
- <1398958893-30049-2-git-send-email-linux@roeck-us.net>
- <20140503012243.GG4090@lukather>
- <20140503042925.GB5882@roeck-us.net>
+Cc: minyard@acm.org, openipmi-developer@lists.sourceforge.net,
+        linux-watchdog@vger.kernel.org
+Subject: Re: ipmi watchdog questions
+Message-ID: <20140502164424.GH198341@redhat.com>
+References: <20140501135832.GE61249@redhat.com>
+ <5362E8FA.9050700@acm.org>
+ <5362F0B0.4030405@roeck-us.net>
+ <5363213D.7060701@acm.org>
+ <53639AFF.40206@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lIrNkN/7tmsD/ALM"
-Content-Disposition: inline
-In-Reply-To: <20140503042925.GB5882@roeck-us.net>
-List-ID: <linux-watchdog@vger.kernel.org>
-
-
---lIrNkN/7tmsD/ALM
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <53639AFF.40206@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Fri, May 02, 2014 at 09:29:25PM -0700, Guenter Roeck wrote:
-> > > +	if (wdd->ops->reboot)
-> > > +		wdd_reboot_dev =3D wdd;
-> > > +
-> >=20
-> > Overall, it looks really great, but I guess we can make it a
-> > list. Otherwise, we might end up in a situation where we could not
-> > reboot anymore, like this one for example:
-> >   - a first watchdog is probed, registers a reboot function
-> >   - a second watchdog is probed, registers a reboot function that
-> >     overwrites the first one.
-> >   - then, the second watchdog disappears for some reason, and the
-> >     reboot is set to NULL
-> >=20
-> I thought about that, but how likely (or unlikely) is that to ever happen=
- ?
-> So I figured it is not worth the effort, and would just add complexity wi=
-thout
-> real gain. We could always add the list later if we ever encounter a situ=
-ation
-> where two watchdogs in the same system provide a reboot callback.
+On Fri, May 02, 2014 at 06:17:51AM -0700, Guenter Roeck wrote:
+> On 05/01/2014 09:38 PM, Corey Minyard wrote:
+> >On 05/01/2014 08:11 PM, Guenter Roeck wrote:
+> >>On 05/01/2014 05:38 PM, Corey Minyard wrote:
+> >>>On 05/01/2014 08:58 AM, Don Zickus wrote:
+> >>>>Hi Corey,
+> >>>>
+> >>>>I stumbled upon an issue with a partner of ours, where they booted
+> >>>>their
+> >>>>machine and tried to load the ipmi_watchdog module by hand and it
+> >>>>failed.
+> >>>>
+> >>>>The reason it failed was that the iTCO watchdog driver was already
+> >>>>loaded
+> >>>>and it registered the misc device /dev/watchdog first.
+> >>>>
+> >>>>I looked at the ipmi watchdog driver and realized it was never
+> >>>>converted
+> >>>>to the new watchdog framework where the watchdog_core module manages
+> >>>>the
+> >>>>'/dev/watchdog' misc device.
+> >>>>
+> >>>>So being naive and not knowing much about IPMI, I decided to follow the
+> >>>>helpful document
+> >>>>Documentation/watchdog/convert_drivers_to_kernel_api.txt
+> >>>>and convert the ipmi_watchdog to use the new watchdog framework.
+> >>>>
+> >>>>I ran into a few issues and then realized the driver itself never
+> >>>>really
+> >>>>binds to any hardware, so it makes the conversion process a little more
+> >>>>challenging.
+> >>>>
+> >>>>So a few questions to you before I waste my time in this area:
+> >>>>
+> >>>>- Is there any prior history about why the ipmi_watchdog was never
+> >>>>    converted to the new watchdog framework?  Lack of interest?
+> >>>>Technical
+> >>>>hurdles?
+> >>>
+> >>>Mostly lack of interest, but there are some technical hurdles.
+> >>>
+> >>>It would be hard to implement some things.  The watchdog framework has
+> >>>no concept of pretimeouts.  And IPMI is message based, you send a
+> >>
+> >>Are you saying that WDIOC_SETPRETIMEOUT and WDIOC_GETPRETIMEOUT don't
+> >>work
+> >>for ipmi ? If so, can you explain ?
+> >>
+> >
+> >That isn't enough to be able to report the pretimeout to the user.  You
+> >can set it and get it with those calls, but it also needs poll, fasync,
+> >and read to be able to select on a pretimeout or block on a read.
+> >
+> 
+> Ah, but now you are talking about a specific implementation, which is a bit
+> different. The question here is what you expect to occur when a pretimeout
+> happens, and you have a certain set of expectations. Personally I don't know
+> what the best solution is; maybe a sysfs attribute or, yes, some activity
+> on the watchdog device entry. Why don't you (or Don) suggest something
+> and come up with a patch set for review ?
 
-The A31 we were discussing about in the other thread that doesn't have
-a watchdog driver yet has four, identical, watchogs. I'm not really
-concerned about the mentionned issue, since they will never be
-removed, but the situation might happen with an on-SoC watchdog and an
-i2c one (if that even exists).
+I look through the only other two watchdogs that I could find with
+pretimeouts (kempld and hpwdt).  hpwdt uses NMI as its pretimeout
+notification, while kempld uses a low level configured action (nmi, smi,
+sci, delay).  I think ipmi is the only one that chooses a user space
+implementation (which raises another question[1]).
 
-But yes, right, that can be postponed.
+I can try to respectfully copy the ipmi implementation to watchdog_dev.c
+and set a wdd->option to indicate its use and in addition add the
+pretimeout ioctls to watchdog_dev.c (and struct watchdog_device).
 
-> > Or maybe we can just use the start callback, with the min timeout alrea=
-dy
-> > registered, and prevent the user to kick the watchdog.
-> >=20
-> Doesn't always work, unfortunately, even now. The moxart driver causes=20
-> an explicit and immediate reset. Also, some watchdogs don't reset the sys=
-tem
-> directly but get an interrupt, which then calls the reset handler. Which,
-> in our case, would call the start callback again, and you would have an e=
-ndless
-> loop.
+Otherwise I am not sure if adding read, fasync, and poll wrappers to
+watchdog_dev.c looks like a dirty hack.
 
-Ok. You have my Acked-by then.
+Cheers,
+Don
 
-Thanks!
-Maxime
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---lIrNkN/7tmsD/ALM
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTZxMuAAoJEBx+YmzsjxAgyb8P/R0wnWr3R5aVKDnkFhoY28CW
-1FdXUsvfG9zZaMyyG+rFoRZiPRJ8y3FjeigohT9KUdLMyBLdMFFLfTUNmmJZVS5N
-/8WskFzua2EtUFPY+VbETrHb0QUX/Swhth+JswYr1g17GeM87bbEDrvZRptEDi7K
-38F3RKDsjsAIQ4KG32eFaUWU5FBZ1aqp0qEXNiAibsVVu7APjCUmr8KTbHbQFBbM
-L2pCMFdt+yEC+bavufTjdImfAEcZD+Pf3tfBdnH5QavdlrL+eRSu35I/ttRINLuN
-9wiS4a0nZ8Sufiy1JyJ3ky3mjv7mnL0jAvV/0/YBVIAYBTHArx+iI6/r0qUFQo0T
-lXLEP9LvRweQgncrAAKjNBrtVyuGj2uynWJobcfO7HmWAcWSZDtB7OqX2/FvL39e
-eZJVgticJLcC6bli//N9YVsdSvLpk4trLgRhRv6XnFLZ97/4sE5FsK8Y5gWw1Yt6
-bicpRfbErs2gPsA/WzYQ4vKza3rpMuUNpn6hPcFjbqD7GfWvSGXAFiKoMxC3lXTn
-wprysQrTUozpphCz1qEqkJVj+DvXF9j/xKPEuvxv8BBcVRYCID50H97C6GMNdXvY
-SWet99rwQJl9VJ5n8/qHARH6+fZaJrbEmsQ9ghWjNXy/D9lHZI+tZ/Oy5ljnZpcK
-3uqCqnrydLZQoP0SRPCR
-=MgzF
------END PGP SIGNATURE-----
-
---lIrNkN/7tmsD/ALM--
+[1] if the system is stuck such that the pretimeout goes off, is it even
+possible for userspace to run?  Or guaranteed that it could run reliably?
+Just curious behind the history for this addition.
