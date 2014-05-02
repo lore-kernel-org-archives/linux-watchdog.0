@@ -1,121 +1,84 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Arnd Bergmann <arnd@arndb.de>
-To: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        bhelgaas@google.com, dwmw2@infradead.org, dmitry.torokhov@gmail.com,
-        balbi@ti.com, gregkh@linuxfoundation.org, plagnioj@jcrosoft.com,
-        jic23@kernel.org, josh.wu@atmel.com, kishon@ti.com,
-        linus.walleij@linaro.org, broonie@kernel.org, mturquette@linaro.org,
-        nicolas.ferre@atmel.com, ohad@wizery.com, linux@arm.linux.org.uk,
-        tony@atomide.com, vinod.koul@intel.com, wim@iguana.be,
-        wsa@the-dreams.de, dmaengine@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-ide@vger.kernel.org,
-        linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-mtd@lists.infradead.org, linux-pci@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org, linux-sh@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH 00/22] Random ARM randconfig fixes in drivers
-Date: Thu,  8 May 2014 16:46:51 +0200
-Message-Id: <1399560433-1402630-1-git-send-email-arnd@arndb.de>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail.active-venture.com ([67.228.131.205]:61581 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751995AbaEBNR4 (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 2 May 2014 09:17:56 -0400
+Message-ID: <53639AFF.40206@roeck-us.net>
+Date: Fri, 02 May 2014 06:17:51 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+MIME-Version: 1.0
+To: minyard@acm.org, Don Zickus <dzickus@redhat.com>
+CC: openipmi-developer@lists.sourceforge.net,
+	linux-watchdog@vger.kernel.org
+Subject: Re: ipmi watchdog questions
+References: <20140501135832.GE61249@redhat.com> <5362E8FA.9050700@acm.org> <5362F0B0.4030405@roeck-us.net> <5363213D.7060701@acm.org>
+In-Reply-To: <5363213D.7060701@acm.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-These are a bunch of fixes I had to do to get all randconfig
-configurations on ARM working. Most of these are really old
-bugs, but there are also some new ones. I don't think any of
-them require a backport to linux-stable.
+On 05/01/2014 09:38 PM, Corey Minyard wrote:
+> On 05/01/2014 08:11 PM, Guenter Roeck wrote:
+>> On 05/01/2014 05:38 PM, Corey Minyard wrote:
+>>> On 05/01/2014 08:58 AM, Don Zickus wrote:
+>>>> Hi Corey,
+>>>>
+>>>> I stumbled upon an issue with a partner of ours, where they booted
+>>>> their
+>>>> machine and tried to load the ipmi_watchdog module by hand and it
+>>>> failed.
+>>>>
+>>>> The reason it failed was that the iTCO watchdog driver was already
+>>>> loaded
+>>>> and it registered the misc device /dev/watchdog first.
+>>>>
+>>>> I looked at the ipmi watchdog driver and realized it was never
+>>>> converted
+>>>> to the new watchdog framework where the watchdog_core module manages
+>>>> the
+>>>> '/dev/watchdog' misc device.
+>>>>
+>>>> So being naive and not knowing much about IPMI, I decided to follow the
+>>>> helpful document
+>>>> Documentation/watchdog/convert_drivers_to_kernel_api.txt
+>>>> and convert the ipmi_watchdog to use the new watchdog framework.
+>>>>
+>>>> I ran into a few issues and then realized the driver itself never
+>>>> really
+>>>> binds to any hardware, so it makes the conversion process a little more
+>>>> challenging.
+>>>>
+>>>> So a few questions to you before I waste my time in this area:
+>>>>
+>>>> - Is there any prior history about why the ipmi_watchdog was never
+>>>>     converted to the new watchdog framework?  Lack of interest?
+>>>> Technical
+>>>> hurdles?
+>>>
+>>> Mostly lack of interest, but there are some technical hurdles.
+>>>
+>>> It would be hard to implement some things.  The watchdog framework has
+>>> no concept of pretimeouts.  And IPMI is message based, you send a
+>>
+>> Are you saying that WDIOC_SETPRETIMEOUT and WDIOC_GETPRETIMEOUT don't
+>> work
+>> for ipmi ? If so, can you explain ?
+>>
+>
+> That isn't enough to be able to report the pretimeout to the user.  You
+> can set it and get it with those calls, but it also needs poll, fasync,
+> and read to be able to select on a pretimeout or block on a read.
+>
 
-I have checked that they are all still required on yesterday's
-linux-next kernel. Please apply on the appropriate trees unless
-there are objections.
+Ah, but now you are talking about a specific implementation, which is a bit
+different. The question here is what you expect to occur when a pretimeout
+happens, and you have a certain set of expectations. Personally I don't know
+what the best solution is; maybe a sysfs attribute or, yes, some activity
+on the watchdog device entry. Why don't you (or Don) suggest something
+and come up with a patch set for review ?
 
-Patch numbers are per subsystem, which I thought is less confusing
-than numbering them 1-22 when they are all totall independent.
+Thanks,
+Guenter
 
-Arnd Bergmann (22):
-  mdio_bus: fix devm_mdiobus_alloc_size export
-  phy: kona2: use 'select GENERIC_PHY' in Kconfig
-  phy: exynos: fix SATA phy license typo
-  dmaengine: omap: hide filter_fn for built-in drivers
-  dmaengine: sa11x0: remove broken #ifdef
-  mtd/onenand: fix build warning for dma type
-  mtd: orion-nand: fix build error with ARMv4
-  clk/versatile: export symbols for impd1
-  bus/omap_l3: avoid sync initcall for modules
-  bus/arm-cci: add dependency on OF && CPU_V7
-  watchdog: iop_wdt only builds for mach-iop13xx
-  mpilib: use 'static inline' for mpi-inline.h
-  ata: pata_at91 only works on sam9
-  i2c/nuc900: fix ancient build error
-  iio: always select ANON_INODES
-  iio:adc: at91 requires the input subsystem
-  pci: rcar host needs OF
-  input: fix ps2/serio module dependency
-  input: atmel-wm97xx: only build for AVR32
-  misc: atmel_pwm: only build for supported platforms
-  remoteproc: da8xx: don't select CMA on no-MMU
-  regulator: arizona-ldo1: add missing #include
-
- drivers/ata/Kconfig               | 2 +-
- drivers/bus/Kconfig               | 2 +-
- drivers/bus/omap_l3_noc.c         | 4 ++++
- drivers/bus/omap_l3_smx.c         | 4 ++++
- drivers/clk/versatile/clk-icst.c  | 1 +
- drivers/clk/versatile/clk-impd1.c | 2 ++
- drivers/dma/sa11x0-dma.c          | 4 ----
- drivers/i2c/busses/i2c-nuc900.c   | 2 +-
- drivers/iio/Kconfig               | 1 +
- drivers/iio/adc/Kconfig           | 1 +
- drivers/input/keyboard/Kconfig    | 2 +-
- drivers/input/mouse/Kconfig       | 2 +-
- drivers/input/touchscreen/Kconfig | 2 +-
- drivers/misc/Kconfig              | 3 ++-
- drivers/mtd/nand/orion_nand.c     | 5 +++++
- drivers/mtd/onenand/samsung.c     | 8 ++++----
- drivers/net/phy/mdio_bus.c        | 2 +-
- drivers/pci/host/Kconfig          | 2 +-
- drivers/phy/Kconfig               | 2 +-
- drivers/phy/phy-exynos5250-sata.c | 2 +-
- drivers/regulator/arizona-ldo1.c  | 1 +
- drivers/remoteproc/Kconfig        | 2 +-
- drivers/watchdog/Kconfig          | 2 +-
- include/linux/omap-dma.h          | 2 +-
- lib/mpi/mpi-inline.h              | 2 +-
- lib/mpi/mpi-internal.h            | 8 --------
- 26 files changed, 39 insertions(+), 31 deletions(-)
-
--- 
-1.8.3.2
-
-Cc: bhelgaas@google.com
-Cc: dwmw2@infradead.org
-Cc: dmitry.torokhov@gmail.com
-Cc: balbi@ti.com
-Cc: gregkh@linuxfoundation.org
-Cc: plagnioj@jcrosoft.com
-Cc: jic23@kernel.org
-Cc: josh.wu@atmel.com
-Cc: kishon@ti.com
-Cc: linus.walleij@linaro.org
-Cc: broonie@kernel.org
-Cc: mturquette@linaro.org
-Cc: nicolas.ferre@atmel.com
-Cc: ohad@wizery.com
-Cc: linux@arm.linux.org.uk
-Cc: tony@atomide.com
-Cc: vinod.koul@intel.com
-Cc: wim@iguana.be
-Cc: wsa@the-dreams.de
-Cc: dmaengine@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org
-Cc: linux-ide@vger.kernel.org
-Cc: linux-iio@vger.kernel.org
-Cc: linux-input@vger.kernel.org
-Cc: linux-mtd@lists.infradead.org
-Cc: linux-pci@vger.kernel.org
-Cc: linux-samsung-soc@vger.kernel.org
-Cc: linux-sh@vger.kernel.org
-Cc: linux-watchdog@vger.kernel.org
-Cc: netdev@vger.kernel.org
