@@ -1,106 +1,106 @@
-Return-Path: <groeck7@gmail.com>
-Return-Path: <groeck7@gmail.com>
-Sender: Guenter Roeck <groeck7@gmail.com>
-From: Guenter Roeck <linux@roeck-us.net>
-To: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Will Deacon <will.deacon@arm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Russell King <linux@arm.linux.org.uk>,
-	Jonas Jensen <jonas.jensen@gmail.com>,
-	linux-kernel@vger.kernel.org,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: [RFC PATCH 5/5] watchdog: sunxi: Register reboot handler with watchdog subsystem
-Date: Thu,  1 May 2014 08:41:33 -0700
-Message-Id: <1398958893-30049-6-git-send-email-linux@roeck-us.net>
-In-Reply-To: <1398958893-30049-1-git-send-email-linux@roeck-us.net>
-References: <1398958893-30049-1-git-send-email-linux@roeck-us.net>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-oa0-f45.google.com ([209.85.219.45]:42852 "EHLO
+	mail-oa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750754AbaEBAiU (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 1 May 2014 20:38:20 -0400
+Received: by mail-oa0-f45.google.com with SMTP id eb12so4366953oac.4
+        for <linux-watchdog@vger.kernel.org>; Thu, 01 May 2014 17:38:20 -0700 (PDT)
+Message-ID: <5362E8FA.9050700@acm.org>
+Date: Thu, 01 May 2014 19:38:18 -0500
+From: Corey Minyard <minyard@acm.org>
+Reply-To: minyard@acm.org
+MIME-Version: 1.0
+To: Don Zickus <dzickus@redhat.com>
+CC: openipmi-developer@lists.sourceforge.net,
+	linux-watchdog@vger.kernel.org
+Subject: Re: ipmi watchdog questions
+References: <20140501135832.GE61249@redhat.com>
+In-Reply-To: <20140501135832.GE61249@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-The watchdog subsystem now provides an API to trigger a system reboot.
-Register with it.
+On 05/01/2014 08:58 AM, Don Zickus wrote:
+> Hi Corey,
+>
+> I stumbled upon an issue with a partner of ours, where they booted their
+> machine and tried to load the ipmi_watchdog module by hand and it failed.
+>
+> The reason it failed was that the iTCO watchdog driver was already loaded
+> and it registered the misc device /dev/watchdog first.
+>
+> I looked at the ipmi watchdog driver and realized it was never converted
+> to the new watchdog framework where the watchdog_core module manages the
+> '/dev/watchdog' misc device.
+>
+> So being naive and not knowing much about IPMI, I decided to follow the
+> helpful document Documentation/watchdog/convert_drivers_to_kernel_api.txt
+> and convert the ipmi_watchdog to use the new watchdog framework.
+>
+> I ran into a few issues and then realized the driver itself never really
+> binds to any hardware, so it makes the conversion process a little more
+> challenging.
+>
+> So a few questions to you before I waste my time in this area:
+>
+> - Is there any prior history about why the ipmi_watchdog was never
+>   converted to the new watchdog framework?  Lack of interest? Technical
+> hurdles?
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
- drivers/watchdog/sunxi_wdt.c |   22 +++++++---------------
- 1 file changed, 7 insertions(+), 15 deletions(-)
+Mostly lack of interest, but there are some technical hurdles.
 
-diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
-index c9ca343..744b6f5 100644
---- a/drivers/watchdog/sunxi_wdt.c
-+++ b/drivers/watchdog/sunxi_wdt.c
-@@ -27,8 +27,6 @@
- #include <linux/types.h>
- #include <linux/watchdog.h>
- 
--#include <asm/system_misc.h>
--
- #define WDT_MAX_TIMEOUT         16
- #define WDT_MIN_TIMEOUT         1
- #define WDT_MODE_TIMEOUT(n)     ((n) << 3)
-@@ -74,27 +72,25 @@ static const int wdt_timeout_map[] = {
- 	[16] = 0xB, /* 16s */
- };
- 
--static struct sunxi_wdt_dev *sunxi_restart_ctx;
--
--static void sun4i_wdt_restart(enum reboot_mode mode, const char *cmd)
-+static void sunxi_wdt_reboot(struct watchdog_device *wdt_dev,
-+			     enum reboot_mode mode, const char *cmd)
- {
--	if (!sunxi_restart_ctx)
--		return;
-+	struct sunxi_wdt_dev *sunxi_wdt = watchdog_get_drvdata(wdt_dev);
- 
- 	/* Enable timer and set reset bit in the watchdog */
- 	writel(WDT_MODE_EN | WDT_MODE_RST_EN,
--	       sunxi_restart_ctx->wdt_base + WDT_MODE);
-+	       sunxi_wdt->wdt_base + WDT_MODE);
- 
- 	/*
- 	 * Restart the watchdog. The default (and lowest) interval
- 	 * value for the watchdog is 0.5s.
- 	 */
--	writel(WDT_CTRL_RELOAD, sunxi_restart_ctx->wdt_base + WDT_CTRL);
-+	writel(WDT_CTRL_RELOAD, sunxi_wdt->wdt_base + WDT_CTRL);
- 
- 	while (1) {
- 		mdelay(5);
- 		writel(WDT_MODE_EN | WDT_MODE_RST_EN,
--		       sunxi_restart_ctx->wdt_base + WDT_MODE);
-+		       sunxi_wdt->wdt_base + WDT_MODE);
- 	}
- }
- 
-@@ -171,6 +167,7 @@ static const struct watchdog_ops sunxi_wdt_ops = {
- 	.start		= sunxi_wdt_start,
- 	.stop		= sunxi_wdt_stop,
- 	.ping		= sunxi_wdt_ping,
-+	.reboot		= sunxi_wdt_reboot,
- 	.set_timeout	= sunxi_wdt_set_timeout,
- };
- 
-@@ -209,9 +206,6 @@ static int sunxi_wdt_probe(struct platform_device *pdev)
- 	if (unlikely(err))
- 		return err;
- 
--	sunxi_restart_ctx = sunxi_wdt;
--	arm_pm_restart = sun4i_wdt_restart;
--
- 	dev_info(&pdev->dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)",
- 			sunxi_wdt->wdt_dev.timeout, nowayout);
- 
-@@ -222,8 +216,6 @@ static int sunxi_wdt_remove(struct platform_device *pdev)
- {
- 	struct sunxi_wdt_dev *sunxi_wdt = platform_get_drvdata(pdev);
- 
--	arm_pm_restart = NULL;
--
- 	watchdog_unregister_device(&sunxi_wdt->wdt_dev);
- 	watchdog_set_drvdata(&sunxi_wdt->wdt_dev, NULL);
- 
--- 
-1.7.9.7
+It would be hard to implement some things.  The watchdog framework has
+no concept of pretimeouts.  And IPMI is message based, you send a
+message to a controller to do anything, and you have to wait for the
+response.  That doesn't work very well with the watchdog interface,
+which assumes you can do everything immediately.
+
+>
+> - Is there a reason why the ipmi_watchdog is a seperate module as opposed
+>   to being called by ipmi_si?  It seems there shouldn't be an issue with
+> the watchdog always loaded, it just won't do anything until someone opens
+> it (from my understanding).  Also you would gain the ability to use the
+> shutdown/remove routines properly instead of the reboot/panic notifiers.
+
+I'm not sure I understand this.  Why would you want it as part of
+ipmi_si?  ipmi_msghandler would be a little more logical, but IMHO still
+doesn't make sense.  It uses the IPMI interface, and the interface is
+designed to have multiple users.  Better to keep it separate because
+it's a separate function.
+
+I also don't understand the comment about shutdown/remove instead of
+reboot/panic.  Can you elaborate on that?
+
+>   In addition, passing the pointer to the 'struct watchdog_device' would be
+> easier if some of those extra pieces were not there (as opposed to making
+> it a global reference).
+>
+> - What does the fasync and poll calls do for a watchdog?
+
+The IPMI watchdog has the ability to report a pretimeout at a specific
+amount of time before the final timeout, presumably to take some action
+before the system reboots.  the fasync and poll (and read) calls let
+this be reported to the user.
+
+>
+> I'll start with that for now.
+>
+> I appreciate any feedback.  Currently we just implemented blacklisting the
+> iTCO watchdog driver to workaround this problem.  I thought we could do
+> better, hence my motivation to do work in this area.
+
+It would be nice, yes.  I'm afraid to get all the functionality would be
+a lot of hacking on the watchdog framework or removal of function from
+the driver.
+
+Thanks,
+
+-corey
+
+>
+> Cheers,
+> Don
+>
+
