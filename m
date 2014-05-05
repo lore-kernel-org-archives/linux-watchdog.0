@@ -1,50 +1,40 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:35283 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752561AbaEEDkH (ORCPT
+Received: from mail-pa0-f45.google.com ([209.85.220.45]:41538 "EHLO
+	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754673AbaEEPvY (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 4 May 2014 23:40:07 -0400
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Arnd Bergmann <arnd@arndb.de>, wim@iguana.be, dbaryshkov@gmail.com,
-	dwmw2@infradead.org
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, linux-sunxi@googlegroups.com,
-	Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: [PATCH 0/6] ARM: sunxi: Machine code cleanup
-Date: Sun,  4 May 2014 22:07:58 -0500
-Message-Id: <1399259284-6282-1-git-send-email-maxime.ripard@free-electrons.com>
+	Mon, 5 May 2014 11:51:24 -0400
+Date: Mon, 5 May 2014 08:51:13 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, wim@iguana.be, dbaryshkov@gmail.com,
+	dwmw2@infradead.org, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	linux-sunxi@googlegroups.com
+Subject: Re: [PATCH 0/6] ARM: sunxi: Machine code cleanup
+Message-ID: <20140505155113.GB25199@roeck-us.net>
+References: <1399259284-6282-1-git-send-email-maxime.ripard@free-electrons.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1399259284-6282-1-git-send-email-maxime.ripard@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
+On Sun, May 04, 2014 at 10:07:58PM -0500, Maxime Ripard wrote:
+> Hi,
+> 
+> This serie moves the restart code out of the mach-sunxi directory to
+> either the watchdog driver or to a new driver in drivers/power/reset.
+> 
+> Since the reset code was pretty much all the code left in the
+> mach-sunxi directory for all the SoCs but the A31, the only thing left
+> into mach-sunxi are empty machine definition.
+> 
+Hi Maxime,
 
-This serie moves the restart code out of the mach-sunxi directory to
-either the watchdog driver or to a new driver in drivers/power/reset.
+what changed in this version of the series compared to the previous
+version ? Is it just the different directory for the reset driver ?
 
-Since the reset code was pretty much all the code left in the
-mach-sunxi directory for all the SoCs but the A31, the only thing left
-into mach-sunxi are empty machine definition.
-
-Thanks, Maxime
-
-Maxime Ripard (6):
-  wdt: sunxi: Move restart code to the watchdog driver
-  power: reset: Add Allwinner A31 reset code
-  ARM: sunxi: Remove reset code from the platform
-  ARM: sunxi: Remove init_machine callback
-  ARM: sunxi: Add A31 reset driver to sunxi_defconfig
-  ARM: multi_v7: Add Allwinner reset drivers to multi_v7_defconfig
-
- arch/arm/configs/multi_v7_defconfig |   2 +
- arch/arm/configs/sunxi_defconfig    |   3 +
- arch/arm/mach-sunxi/sunxi.c         | 107 ------------------------------------
- drivers/power/reset/Kconfig         |   7 +++
- drivers/power/reset/Makefile        |   1 +
- drivers/power/reset/sun6i-reboot.c  |  85 ++++++++++++++++++++++++++++
- drivers/watchdog/sunxi_wdt.c        |  29 ++++++++++
- 7 files changed, 127 insertions(+), 107 deletions(-)
- create mode 100644 drivers/power/reset/sun6i-reboot.c
-
--- 
-1.9.1
-
+Thanks,
+Guenter
