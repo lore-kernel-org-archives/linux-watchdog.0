@@ -1,104 +1,79 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:38048 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750768AbaECE3c (ORCPT
+Received: from top.free-electrons.com ([176.31.233.9]:35139 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752122AbaEEDQa (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 3 May 2014 00:29:32 -0400
-Date: Fri, 2 May 2014 21:29:25 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will.deacon@arm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Russell King <linux@arm.linux.org.uk>,
-	Jonas Jensen <jonas.jensen@gmail.com>,
-	linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH 1/5] watchdog: Add API to trigger reboots
-Message-ID: <20140503042925.GB5882@roeck-us.net>
-References: <1398958893-30049-1-git-send-email-linux@roeck-us.net>
- <1398958893-30049-2-git-send-email-linux@roeck-us.net>
- <20140503012243.GG4090@lukather>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20140503012243.GG4090@lukather>
+	Sun, 4 May 2014 23:16:30 -0400
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: Arnd Bergmann <arnd@arndb.de>, wim@iguana.be, dbaryshkov@gmail.com,
+	dwmw2@infradead.org
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, linux-sunxi@googlegroups.com,
+	Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: [PATCH 4/6] ARM: sunxi: Remove init_machine callback
+Date: Sun,  4 May 2014 22:08:02 -0500
+Message-Id: <1399259284-6282-5-git-send-email-maxime.ripard@free-electrons.com>
+In-Reply-To: <1399259284-6282-1-git-send-email-maxime.ripard@free-electrons.com>
+References: <1399259284-6282-1-git-send-email-maxime.ripard@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, May 02, 2014 at 06:22:43PM -0700, Maxime Ripard wrote:
-> Hi Guenter,
-> 
-> On Thu, May 01, 2014 at 08:41:29AM -0700, Guenter Roeck wrote:
-> > Some hardware implements reboot through its watchdog hardware,
-> > for example by triggering a watchdog timeout. Platform specific
-> > code starts to spread into watchdog drivers, typically by setting
-> > pointers to a callback functions which is then called from the
-> > platform reset handler.
-> > 
-> > To simplify code and provide a unified API to trigger reboots by
-> > watchdog drivers, provide a single API to trigger such reboots
-> > through the watchdog subsystem.
-> > 
-> > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> > ---
-> >  drivers/watchdog/watchdog_core.c |   17 +++++++++++++++++
-> >  include/linux/watchdog.h         |   11 +++++++++++
-> >  2 files changed, 28 insertions(+)
-> > 
-> > diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-> > index cec9b55..4ec6e2f 100644
-> > --- a/drivers/watchdog/watchdog_core.c
-> > +++ b/drivers/watchdog/watchdog_core.c
-> > @@ -43,6 +43,17 @@
-> >  static DEFINE_IDA(watchdog_ida);
-> >  static struct class *watchdog_class;
-> >  
-> > +static struct watchdog_device *wdd_reboot_dev;
-> > +
-> > +void watchdog_do_reboot(enum reboot_mode mode, const char *cmd)
-> > +{
-> > +	if (wdd_reboot_dev) {
-> > +		if (wdd_reboot_dev->ops->reboot)
-> > +			wdd_reboot_dev->ops->reboot(wdd_reboot_dev, mode, cmd);
-> > +	}
-> > +}
-> > +EXPORT_SYMBOL(watchdog_do_reboot);
-> > +
-> >  static void watchdog_check_min_max_timeout(struct watchdog_device *wdd)
-> >  {
-> >  	/*
-> > @@ -162,6 +173,9 @@ int watchdog_register_device(struct watchdog_device *wdd)
-> >  		return ret;
-> >  	}
-> >  
-> > +	if (wdd->ops->reboot)
-> > +		wdd_reboot_dev = wdd;
-> > +
-> 
-> Overall, it looks really great, but I guess we can make it a
-> list. Otherwise, we might end up in a situation where we could not
-> reboot anymore, like this one for example:
->   - a first watchdog is probed, registers a reboot function
->   - a second watchdog is probed, registers a reboot function that
->     overwrites the first one.
->   - then, the second watchdog disappears for some reason, and the
->     reboot is set to NULL
-> 
-I thought about that, but how likely (or unlikely) is that to ever happen ?
-So I figured it is not worth the effort, and would just add complexity without
-real gain. We could always add the list later if we ever encounter a situation
-where two watchdogs in the same system provide a reboot callback.
+The init_machine hook is now at its default value. We can remove it.
 
-> Or maybe we can just use the start callback, with the min timeout already
-> registered, and prevent the user to kick the watchdog.
-> 
-Doesn't always work, unfortunately, even now. The moxart driver causes 
-an explicit and immediate reset. Also, some watchdogs don't reset the system
-directly but get an interrupt, which then calls the reset handler. Which,
-in our case, would call the start callback again, and you would have an endless
-loop.
+Even though the sun4i and sun7i machines are nothing more than generic machines
+now, leave them in so that we won't have to add them back if needed, and so
+that the machine is still displayed in /proc/cpuinfo.
 
-Guenter
+Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+---
+ arch/arm/mach-sunxi/sunxi.c | 9 ---------
+ 1 file changed, 9 deletions(-)
+
+diff --git a/arch/arm/mach-sunxi/sunxi.c b/arch/arm/mach-sunxi/sunxi.c
+index 1c62a0a021d7..efb2f93b02e6 100644
+--- a/arch/arm/mach-sunxi/sunxi.c
++++ b/arch/arm/mach-sunxi/sunxi.c
+@@ -12,17 +12,11 @@
+ 
+ #include <linux/clk-provider.h>
+ #include <linux/clocksource.h>
+-#include <linux/of_platform.h>
+ 
+ #include <asm/mach/arch.h>
+ 
+ #include "common.h"
+ 
+-static void __init sunxi_dt_init(void)
+-{
+-	of_platform_populate(NULL, of_default_bus_match_table, NULL, NULL);
+-}
+-
+ static const char * const sunxi_board_dt_compat[] = {
+ 	"allwinner,sun4i-a10",
+ 	"allwinner,sun5i-a10s",
+@@ -31,7 +25,6 @@ static const char * const sunxi_board_dt_compat[] = {
+ };
+ 
+ DT_MACHINE_START(SUNXI_DT, "Allwinner A1X (Device Tree)")
+-	.init_machine	= sunxi_dt_init,
+ 	.dt_compat	= sunxi_board_dt_compat,
+ MACHINE_END
+ 
+@@ -49,7 +42,6 @@ static void __init sun6i_timer_init(void)
+ }
+ 
+ DT_MACHINE_START(SUN6I_DT, "Allwinner sun6i (A31) Family")
+-	.init_machine	= sunxi_dt_init,
+ 	.init_time	= sun6i_timer_init,
+ 	.dt_compat	= sun6i_board_dt_compat,
+ 	.smp		= smp_ops(sun6i_smp_ops),
+@@ -61,6 +53,5 @@ static const char * const sun7i_board_dt_compat[] = {
+ };
+ 
+ DT_MACHINE_START(SUN7I_DT, "Allwinner sun7i (A20) Family")
+-	.init_machine	= sunxi_dt_init,
+ 	.dt_compat	= sun7i_board_dt_compat,
+ MACHINE_END
+-- 
+1.9.1
+
