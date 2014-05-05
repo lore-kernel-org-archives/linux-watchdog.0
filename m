@@ -1,86 +1,104 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f177.google.com ([209.85.192.177]:37017 "EHLO
-	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752012AbaEETpz (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 5 May 2014 15:45:55 -0400
-Date: Mon, 5 May 2014 12:45:45 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Felipe Balbi <balbi@ti.com>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
+Return-Path: <maxime.ripard@free-electrons.com>
+Date: Sun, 4 May 2014 23:27:26 -0500
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
 	Wim Van Sebroeck <wim@iguana.be>,
 	Catalin Marinas <catalin.marinas@arm.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Will Deacon <will.deacon@arm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
+	Will Deacon <will.deacon@arm.com>, Arnd Bergmann <arnd@arndb.de>,
 	Russell King <linux@arm.linux.org.uk>,
-	Jonas Jensen <jonas.jensen@gmail.com>,
-	linux-kernel@vger.kernel.org
+	Jonas Jensen <jonas.jensen@gmail.com>, linux-kernel@vger.kernel.org
 Subject: Re: [RFC PATCH 1/5] watchdog: Add API to trigger reboots
-Message-ID: <20140505194545.GA30333@roeck-us.net>
+Message-ID: <20140505042726.GF11606@lukather>
 References: <1398958893-30049-1-git-send-email-linux@roeck-us.net>
  <1398958893-30049-2-git-send-email-linux@roeck-us.net>
- <20140505183606.GJ17875@saruman.home>
+ <20140503012243.GG4090@lukather>
+ <20140503042925.GB5882@roeck-us.net>
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="lIrNkN/7tmsD/ALM"
+Content-Disposition: inline
+In-Reply-To: <20140503042925.GB5882@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
+
+
+--lIrNkN/7tmsD/ALM
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20140505183606.GJ17875@saruman.home>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, May 05, 2014 at 01:36:06PM -0500, Felipe Balbi wrote:
-> On Thu, May 01, 2014 at 08:41:29AM -0700, Guenter Roeck wrote:
-> > Some hardware implements reboot through its watchdog hardware,
-> > for example by triggering a watchdog timeout. Platform specific
-> > code starts to spread into watchdog drivers, typically by setting
-> > pointers to a callback functions which is then called from the
-> > platform reset handler.
-> > 
-> > To simplify code and provide a unified API to trigger reboots by
-> > watchdog drivers, provide a single API to trigger such reboots
-> > through the watchdog subsystem.
-> > 
-> > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> > ---
-> >  drivers/watchdog/watchdog_core.c |   17 +++++++++++++++++
-> >  include/linux/watchdog.h         |   11 +++++++++++
-> >  2 files changed, 28 insertions(+)
-> > 
-> > diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-> > index cec9b55..4ec6e2f 100644
-> > --- a/drivers/watchdog/watchdog_core.c
-> > +++ b/drivers/watchdog/watchdog_core.c
-> > @@ -43,6 +43,17 @@
-> >  static DEFINE_IDA(watchdog_ida);
-> >  static struct class *watchdog_class;
-> >  
-> > +static struct watchdog_device *wdd_reboot_dev;
-> > +
-> > +void watchdog_do_reboot(enum reboot_mode mode, const char *cmd)
-> > +{
-> > +	if (wdd_reboot_dev) {
-> > +		if (wdd_reboot_dev->ops->reboot)
-> 
-> you can decrease one level of indentation:
-> 
-> 	if (wdd_reboot_dev && wdd_reboot_dev->ops->reboot)
-> 
-> also, shouldn't you test if 'ops' is valid too ? In that case:
-> 
-> 	if (wdd_reboot_dev && wdd_reboot_dev->ops &&
-> 		wdd_reboot_dev->ops->reboot)
-> 
-Hmmm ... makes me think.
+On Fri, May 02, 2014 at 09:29:25PM -0700, Guenter Roeck wrote:
+> > > +	if (wdd->ops->reboot)
+> > > +		wdd_reboot_dev =3D wdd;
+> > > +
+> >=20
+> > Overall, it looks really great, but I guess we can make it a
+> > list. Otherwise, we might end up in a situation where we could not
+> > reboot anymore, like this one for example:
+> >   - a first watchdog is probed, registers a reboot function
+> >   - a second watchdog is probed, registers a reboot function that
+> >     overwrites the first one.
+> >   - then, the second watchdog disappears for some reason, and the
+> >     reboot is set to NULL
+> >=20
+> I thought about that, but how likely (or unlikely) is that to ever happen=
+ ?
+> So I figured it is not worth the effort, and would just add complexity wi=
+thout
+> real gain. We could always add the list later if we ever encounter a situ=
+ation
+> where two watchdogs in the same system provide a reboot callback.
 
-If ops->reboot is not set, wdd_reboot_dev should be NULL
-to start with, since it is only initialized if ops->reboot
-is not NULL.
+The A31 we were discussing about in the other thread that doesn't have
+a watchdog driver yet has four, identical, watchogs. I'm not really
+concerned about the mentionned issue, since they will never be
+removed, but the situation might happen with an on-SoC watchdog and an
+i2c one (if that even exists).
 
-It is not common in the Linux kernel to re-check pointers
-if the condition can not occur, so I don't think it should
-be done here.
+But yes, right, that can be postponed.
 
-In other words, I should probably remove the ops check as well.
+> > Or maybe we can just use the start callback, with the min timeout alrea=
+dy
+> > registered, and prevent the user to kick the watchdog.
+> >=20
+> Doesn't always work, unfortunately, even now. The moxart driver causes=20
+> an explicit and immediate reset. Also, some watchdogs don't reset the sys=
+tem
+> directly but get an interrupt, which then calls the reset handler. Which,
+> in our case, would call the start callback again, and you would have an e=
+ndless
+> loop.
 
-Guenter
+Ok. You have my Acked-by then.
+
+Thanks!
+Maxime
+
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--lIrNkN/7tmsD/ALM
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.14 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTZxMuAAoJEBx+YmzsjxAgyb8P/R0wnWr3R5aVKDnkFhoY28CW
+1FdXUsvfG9zZaMyyG+rFoRZiPRJ8y3FjeigohT9KUdLMyBLdMFFLfTUNmmJZVS5N
+/8WskFzua2EtUFPY+VbETrHb0QUX/Swhth+JswYr1g17GeM87bbEDrvZRptEDi7K
+38F3RKDsjsAIQ4KG32eFaUWU5FBZ1aqp0qEXNiAibsVVu7APjCUmr8KTbHbQFBbM
+L2pCMFdt+yEC+bavufTjdImfAEcZD+Pf3tfBdnH5QavdlrL+eRSu35I/ttRINLuN
+9wiS4a0nZ8Sufiy1JyJ3ky3mjv7mnL0jAvV/0/YBVIAYBTHArx+iI6/r0qUFQo0T
+lXLEP9LvRweQgncrAAKjNBrtVyuGj2uynWJobcfO7HmWAcWSZDtB7OqX2/FvL39e
+eZJVgticJLcC6bli//N9YVsdSvLpk4trLgRhRv6XnFLZ97/4sE5FsK8Y5gWw1Yt6
+bicpRfbErs2gPsA/WzYQ4vKza3rpMuUNpn6hPcFjbqD7GfWvSGXAFiKoMxC3lXTn
+wprysQrTUozpphCz1qEqkJVj+DvXF9j/xKPEuvxv8BBcVRYCID50H97C6GMNdXvY
+SWet99rwQJl9VJ5n8/qHARH6+fZaJrbEmsQ9ghWjNXy/D9lHZI+tZ/Oy5ljnZpcK
+3uqCqnrydLZQoP0SRPCR
+=MgzF
+-----END PGP SIGNATURE-----
+
+--lIrNkN/7tmsD/ALM--
