@@ -1,98 +1,86 @@
-Return-Path: <balbi@ti.com>
-Date: Mon, 5 May 2014 13:36:06 -0500
-From: Felipe Balbi <balbi@ti.com>
-To: Guenter Roeck <linux@roeck-us.net>
-CC: <linux-watchdog@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Maxime Ripard <maxime.ripard@free-electrons.com>,
-        Will Deacon
-	<will.deacon@arm.com>, Arnd Bergmann <arnd@arndb.de>,
-        Russell King
-	<linux@arm.linux.org.uk>,
-        Jonas Jensen <jonas.jensen@gmail.com>, <linux-kernel@vger.kernel.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pd0-f177.google.com ([209.85.192.177]:37017 "EHLO
+	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752012AbaEETpz (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 5 May 2014 15:45:55 -0400
+Date: Mon, 5 May 2014 12:45:45 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Felipe Balbi <balbi@ti.com>
+Cc: linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Will Deacon <will.deacon@arm.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Russell King <linux@arm.linux.org.uk>,
+	Jonas Jensen <jonas.jensen@gmail.com>,
+	linux-kernel@vger.kernel.org
 Subject: Re: [RFC PATCH 1/5] watchdog: Add API to trigger reboots
-Message-ID: <20140505183606.GJ17875@saruman.home>
-Reply-To: <balbi@ti.com>
+Message-ID: <20140505194545.GA30333@roeck-us.net>
 References: <1398958893-30049-1-git-send-email-linux@roeck-us.net>
  <1398958893-30049-2-git-send-email-linux@roeck-us.net>
+ <20140505183606.GJ17875@saruman.home>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1y6imfT/xHuCvpN0"
-Content-Disposition: inline
-In-Reply-To: <1398958893-30049-2-git-send-email-linux@roeck-us.net>
-List-ID: <linux-watchdog@vger.kernel.org>
-
---1y6imfT/xHuCvpN0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20140505183606.GJ17875@saruman.home>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, May 01, 2014 at 08:41:29AM -0700, Guenter Roeck wrote:
-> Some hardware implements reboot through its watchdog hardware,
-> for example by triggering a watchdog timeout. Platform specific
-> code starts to spread into watchdog drivers, typically by setting
-> pointers to a callback functions which is then called from the
-> platform reset handler.
->=20
-> To simplify code and provide a unified API to trigger reboots by
-> watchdog drivers, provide a single API to trigger such reboots
-> through the watchdog subsystem.
->=20
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> ---
->  drivers/watchdog/watchdog_core.c |   17 +++++++++++++++++
->  include/linux/watchdog.h         |   11 +++++++++++
->  2 files changed, 28 insertions(+)
->=20
-> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog=
-_core.c
-> index cec9b55..4ec6e2f 100644
-> --- a/drivers/watchdog/watchdog_core.c
-> +++ b/drivers/watchdog/watchdog_core.c
-> @@ -43,6 +43,17 @@
->  static DEFINE_IDA(watchdog_ida);
->  static struct class *watchdog_class;
-> =20
-> +static struct watchdog_device *wdd_reboot_dev;
-> +
-> +void watchdog_do_reboot(enum reboot_mode mode, const char *cmd)
-> +{
-> +	if (wdd_reboot_dev) {
-> +		if (wdd_reboot_dev->ops->reboot)
+On Mon, May 05, 2014 at 01:36:06PM -0500, Felipe Balbi wrote:
+> On Thu, May 01, 2014 at 08:41:29AM -0700, Guenter Roeck wrote:
+> > Some hardware implements reboot through its watchdog hardware,
+> > for example by triggering a watchdog timeout. Platform specific
+> > code starts to spread into watchdog drivers, typically by setting
+> > pointers to a callback functions which is then called from the
+> > platform reset handler.
+> > 
+> > To simplify code and provide a unified API to trigger reboots by
+> > watchdog drivers, provide a single API to trigger such reboots
+> > through the watchdog subsystem.
+> > 
+> > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> > ---
+> >  drivers/watchdog/watchdog_core.c |   17 +++++++++++++++++
+> >  include/linux/watchdog.h         |   11 +++++++++++
+> >  2 files changed, 28 insertions(+)
+> > 
+> > diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+> > index cec9b55..4ec6e2f 100644
+> > --- a/drivers/watchdog/watchdog_core.c
+> > +++ b/drivers/watchdog/watchdog_core.c
+> > @@ -43,6 +43,17 @@
+> >  static DEFINE_IDA(watchdog_ida);
+> >  static struct class *watchdog_class;
+> >  
+> > +static struct watchdog_device *wdd_reboot_dev;
+> > +
+> > +void watchdog_do_reboot(enum reboot_mode mode, const char *cmd)
+> > +{
+> > +	if (wdd_reboot_dev) {
+> > +		if (wdd_reboot_dev->ops->reboot)
+> 
+> you can decrease one level of indentation:
+> 
+> 	if (wdd_reboot_dev && wdd_reboot_dev->ops->reboot)
+> 
+> also, shouldn't you test if 'ops' is valid too ? In that case:
+> 
+> 	if (wdd_reboot_dev && wdd_reboot_dev->ops &&
+> 		wdd_reboot_dev->ops->reboot)
+> 
+Hmmm ... makes me think.
 
-you can decrease one level of indentation:
+If ops->reboot is not set, wdd_reboot_dev should be NULL
+to start with, since it is only initialized if ops->reboot
+is not NULL.
 
-	if (wdd_reboot_dev && wdd_reboot_dev->ops->reboot)
+It is not common in the Linux kernel to re-check pointers
+if the condition can not occur, so I don't think it should
+be done here.
 
-also, shouldn't you test if 'ops' is valid too ? In that case:
+In other words, I should probably remove the ops check as well.
 
-	if (wdd_reboot_dev && wdd_reboot_dev->ops &&
-		wdd_reboot_dev->ops->reboot)
-
---=20
-balbi
-
---1y6imfT/xHuCvpN0
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJTZ9oWAAoJEIaOsuA1yqRECIgP/1JKok5Ayi6RiKCJMZIHnDH6
-HeAA8AQgq8d91Lu2AfIhTxJCXTPscg7ANCwko6FSwWNRxwSNMJPtHYBMUrWhY9fC
-en2WuMmXX4K6tSDCZVUocV9/+gTg9K/013La3VyFixV02F4m+0bij9PIvrrZAaoQ
-zq83H0494bkT74X6SrtAkApDRKtgyE9pRZSDQmx1RK8EOSPEFzvggrvXv7D1gq/E
-U/6I7HnmxbrSFB6aagKVJ9nvAPEFHRIe8wF5fIX+7RH5tvD1IEVFVazVsm2Pxf9f
-beEkHxJYMeLStEGmnT3xQ/SoG2adn9BR/HEYw/E9VVTGXgZIC18EGSdE2KrVg4uh
-OSQQaKpUBkFQw2aehC1b0QivXup9YtfKzY+egwql/+2LMWT85ypZe63fAs+6opJc
-8KBCWoJp4jLJ0OVIqu/kf+n0n5/Zj+sEP68fSvU24mjMTkfCrtSvSZlSiqZU/Cww
-SoP0+SJlTpSRGc4rSJXHsgAkVPwzGWTETg38erWrqShmccIefb9Z8EOtBDKpVAyP
-xDs8c5Ojh9FAsUh8X5mB4MkT+KYnkVZMd90JEoJr9qR1Gzp1/D0/3DN01yVDXaqm
-AVXfYkOjT01d/5KKLVMJ4BEmayo4Z+bZX3PVHIJQtozEDi1D9MYTcaNBUdOu1O5s
-XSx+AsgCuZubGgkoOLlT
-=9bGj
------END PGP SIGNATURE-----
-
---1y6imfT/xHuCvpN0--
+Guenter
