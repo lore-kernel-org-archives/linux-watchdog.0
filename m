@@ -1,81 +1,66 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:54600 "EHLO
+Received: from top.free-electrons.com ([176.31.233.9]:54841 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752671AbaEFUFl (ORCPT
+	with ESMTP id S1754480AbaEFUnZ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 6 May 2014 16:05:41 -0400
-Date: Tue, 6 May 2014 13:53:51 -0500
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Arnd Bergmann <arnd@arndb.de>, wim@iguana.be, dbaryshkov@gmail.com,
-	dwmw2@infradead.org, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-sunxi@googlegroups.com
-Subject: Re: [PATCH 0/6] ARM: sunxi: Machine code cleanup
-Message-ID: <20140506185351.GK9464@lukather>
-References: <1399259284-6282-1-git-send-email-maxime.ripard@free-electrons.com>
- <20140505155113.GB25199@roeck-us.net>
+	Tue, 6 May 2014 16:43:25 -0400
+Date: Tue, 6 May 2014 17:42:42 -0300
+From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Jason Cooper <jason@lakedaemon.net>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Tawfik Bayouk <tawfik@marvell.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Lior Amsalem <alior@marvell.com>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Subject: Re: [RESEND/PATCH v4 0/9] Watchdog support for Armada 375/38x SoC
+Message-ID: <20140506204242.GA26972@arch.cereza>
+References: <1397481813-4962-1-git-send-email-ezequiel.garcia@free-electrons.com>
+ <20140424045153.GU28159@titan.lakedaemon.net>
+ <20140424110636.GA1735@arch.cereza>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mPOSj6iWmtyhwOMz"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20140505155113.GB25199@roeck-us.net>
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+In-Reply-To: <20140424110636.GA1735@arch.cereza>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-
---mPOSj6iWmtyhwOMz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, May 05, 2014 at 08:51:13AM -0700, Guenter Roeck wrote:
-> On Sun, May 04, 2014 at 10:07:58PM -0500, Maxime Ripard wrote:
-> > Hi,
+On 24 Apr 08:06 AM, Ezequiel Garcia wrote:
+> On Apr 24, Jason Cooper wrote:
+> > On Mon, Apr 14, 2014 at 10:23:24AM -0300, Ezequiel Garcia wrote:
+> > >=20
+> > > Tested on A375-DB, A385-DB, A370-RD and Dove Cubox. Sebastian did=
+ more tests
+> > > on Dove, and Jason Gunthorpe on Kirkwood.
 > >=20
-> > This serie moves the restart code out of the mach-sunxi directory to
-> > either the watchdog driver or to a new driver in drivers/power/reset.
+> > Applied patches 7 and 8 to mvebu/dt.  For the rest,
 > >=20
-> > Since the reset code was pretty much all the code left in the
-> > mach-sunxi directory for all the SoCs but the A31, the only thing left
-> > into mach-sunxi are empty machine definition.
+> > Acked-by: Jason Cooper <jason@lakedaemon.net>
 > >=20
-> Hi Maxime,
 >=20
-> what changed in this version of the series compared to the previous
-> version ? Is it just the different directory for the reset driver ?
+> Wim,
+>=20
+> Can you take the rest of the patches throught your tree, with Jason's=
+ ack?
+>=20
 
-Gosh, I was really too tired to send patches.
+Hi Wim,
 
-I'll resend.
+Do you have comments about this?
 
-Maxime
-
+Thanks!
 --=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
+Ezequiel Garc=EDa, Free Electrons
+Embedded Linux, Kernel and Android Engineering
 http://free-electrons.com
-
---mPOSj6iWmtyhwOMz
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTaS++AAoJEBx+YmzsjxAghlAQAKBuVmkSVvVwbNFyURuVWVaB
-1SJUCdKLdJYRJalXQI7fOgbq55RaVmflt7nfSM4hh0Wgk52qBpOHXMZfh3JwFYHQ
-2CV1uaR7NV5CBgXmv2MrDdiCF15fJn/uuNKzDS9WuXLtebXWfdawl5YGsNXkrM9+
-bLmUy7Np5XRVUz8LO4Dyt3TZHpCLUVtBdBDxqmrX4zNhrlL4MihpuZItniNvOiyX
-3UT/bnMEpadtUjL7pDXraYdlJFuOlON7OCNAyhVUPx86ti8qFGKzalyKPn5WQZte
-qVNtnKkaeReu84otInxbgmFwMt8YebVbdso3i/sORoV0iRGGJOaIKWuKixF5WJCy
-1iJl8CsZoBy8RX8wMbyTCRcjPAS04LUO2oPTVLLTEG7Z+3pMd+gcTQVDX7qxa9ku
-1Yuq9RPgsPNN9+QobC+lWcy/T1n5YlzBXaV2OU/Gb0Bw6UqXGVidiyn8RCtD5FgL
-jQ7MpRUSPbdXJSYFSRBVGSE2gRAbDmL5wbEgNM/LtYMSXP8WR309+PgRXhtYSLec
-xSgtE4rIiMfT7CDmI1p/xOBEHHJ4v3E4bfxinnInLJJgCPRTb+qtmS+BMIuIo+ba
-DJSI7E1Fv4huM3HBuvh1tp8yRpYpecmuwcBoU+E+w7JikXS/OejtSTbNPrSwyVp8
-I4Vnb/b6zRQFZUw08+y7
-=+qxP
------END PGP SIGNATURE-----
-
---mPOSj6iWmtyhwOMz--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
