@@ -1,34 +1,35 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f173.google.com ([209.85.192.173]:36186 "EHLO
-	mail-pd0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750966AbaEGVd2 (ORCPT
+Received: from mail-ie0-f177.google.com ([209.85.223.177]:63919 "EHLO
+	mail-ie0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752001AbaEFO3O (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 7 May 2014 17:33:28 -0400
-Date: Wed, 7 May 2014 14:33:18 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, wim@iguana.be, dbaryshkov@gmail.com,
-	dwmw2@infradead.org, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-sunxi@googlegroups.com
-Subject: Re: [PATCH v2 1/6] wdt: sunxi: Move restart code to the watchdog
- driver
-Message-ID: <20140507213318.GA2105@roeck-us.net>
-References: <1399430664-29091-1-git-send-email-maxime.ripard@free-electrons.com>
- <1399430664-29091-2-git-send-email-maxime.ripard@free-electrons.com>
+	Tue, 6 May 2014 10:29:14 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1399430664-29091-2-git-send-email-maxime.ripard@free-electrons.com>
+In-Reply-To: <1398958893-30049-1-git-send-email-linux@roeck-us.net>
+References: <1398958893-30049-1-git-send-email-linux@roeck-us.net>
+Date: Tue, 6 May 2014 16:29:14 +0200
+Message-ID: <CACmBeS2xgPtKf7DiGM9FXB6sri-BAUjyWZ3kA8iAD39N1PayTQ@mail.gmail.com>
+Subject: Re: [RFC PATCH 0/5] watchdog: Add reboot API
+From: Jonas Jensen <jonas.jensen@gmail.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Will Deacon <will.deacon@arm.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Russell King <linux@arm.linux.org.uk>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, May 06, 2014 at 09:44:19PM -0500, Maxime Ripard wrote:
-> Most of the watchdog code is duplicated between the machine restart code and
-> the watchdog driver. Add the restart hook to the watchdog driver, to be able to
-> remove it from the machine code eventually.
-> 
-> Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
-> Acked-by: Arnd Bergmann <arnd@arndb.de>
+Thanks,
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Applied in series: 1, 3, and 4
+
+Patches work on moxa UC-7112-LX hardware.
+
+Tested-by: Jonas Jensen <jonas.jensen@gmail.com>
