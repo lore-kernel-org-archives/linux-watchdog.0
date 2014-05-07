@@ -1,120 +1,156 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:39712 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751834AbaEGLxj (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 7 May 2014 07:53:39 -0400
-Message-ID: <1399463549.4536.10.camel@weser.hi.pengutronix.de>
-Subject: Re: [RFC PATCH 1/5] watchdog: Add API to trigger reboots
-From: Lucas Stach <l.stach@pengutronix.de>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Russell King <linux@arm.linux.org.uk>,
-	linux-watchdog@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will.deacon@arm.com>,
+Return-Path: <maxime.ripard@free-electrons.com>
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: Arnd Bergmann <arnd@arndb.de>,
+	wim@iguana.be,
+	dbaryshkov@gmail.com,
+	dwmw2@infradead.org
+Cc: linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org,
-	Jonas Jensen <jonas.jensen@gmail.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-arm-kernel@lists.infradead.org
-Date: Wed, 07 May 2014 13:52:29 +0200
-In-Reply-To: <20140503042925.GB5882@roeck-us.net>
-References: <1398958893-30049-1-git-send-email-linux@roeck-us.net>
-	 <1398958893-30049-2-git-send-email-linux@roeck-us.net>
-	 <20140503012243.GG4090@lukather> <20140503042925.GB5882@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+	linux-watchdog@vger.kernel.org,
+	linux-sunxi@googlegroups.com,
+	linux@roeck-us.net,
+	Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: [PATCH v2 2/6] power: reset: Add Allwinner A31 reset code
+Date: Tue,  6 May 2014 21:44:20 -0500
+Message-Id: <1399430664-29091-3-git-send-email-maxime.ripard@free-electrons.com>
+In-Reply-To: <1399430664-29091-1-git-send-email-maxime.ripard@free-electrons.com>
+References: <1399430664-29091-1-git-send-email-maxime.ripard@free-electrons.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Guenter,
+That code used to be in the machine code, but it's more fit here with other
+restart hooks.
 
-Am Freitag, den 02.05.2014, 21:29 -0700 schrieb Guenter Roeck:
-> On Fri, May 02, 2014 at 06:22:43PM -0700, Maxime Ripard wrote:
-> > Hi Guenter,
-> > 
-> > On Thu, May 01, 2014 at 08:41:29AM -0700, Guenter Roeck wrote:
-> > > Some hardware implements reboot through its watchdog hardware,
-> > > for example by triggering a watchdog timeout. Platform specific
-> > > code starts to spread into watchdog drivers, typically by setting
-> > > pointers to a callback functions which is then called from the
-> > > platform reset handler.
-> > > 
-> > > To simplify code and provide a unified API to trigger reboots by
-> > > watchdog drivers, provide a single API to trigger such reboots
-> > > through the watchdog subsystem.
-> > > 
-> > > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> > > ---
-> > >  drivers/watchdog/watchdog_core.c |   17 +++++++++++++++++
-> > >  include/linux/watchdog.h         |   11 +++++++++++
-> > >  2 files changed, 28 insertions(+)
-> > > 
-> > > diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-> > > index cec9b55..4ec6e2f 100644
-> > > --- a/drivers/watchdog/watchdog_core.c
-> > > +++ b/drivers/watchdog/watchdog_core.c
-> > > @@ -43,6 +43,17 @@
-> > >  static DEFINE_IDA(watchdog_ida);
-> > >  static struct class *watchdog_class;
-> > >  
-> > > +static struct watchdog_device *wdd_reboot_dev;
-> > > +
-> > > +void watchdog_do_reboot(enum reboot_mode mode, const char *cmd)
-> > > +{
-> > > +	if (wdd_reboot_dev) {
-> > > +		if (wdd_reboot_dev->ops->reboot)
-> > > +			wdd_reboot_dev->ops->reboot(wdd_reboot_dev, mode, cmd);
-> > > +	}
-> > > +}
-> > > +EXPORT_SYMBOL(watchdog_do_reboot);
-> > > +
-> > >  static void watchdog_check_min_max_timeout(struct watchdog_device *wdd)
-> > >  {
-> > >  	/*
-> > > @@ -162,6 +173,9 @@ int watchdog_register_device(struct watchdog_device *wdd)
-> > >  		return ret;
-> > >  	}
-> > >  
-> > > +	if (wdd->ops->reboot)
-> > > +		wdd_reboot_dev = wdd;
-> > > +
-> > 
-> > Overall, it looks really great, but I guess we can make it a
-> > list. Otherwise, we might end up in a situation where we could not
-> > reboot anymore, like this one for example:
-> >   - a first watchdog is probed, registers a reboot function
-> >   - a second watchdog is probed, registers a reboot function that
-> >     overwrites the first one.
-> >   - then, the second watchdog disappears for some reason, and the
-> >     reboot is set to NULL
-> > 
-> I thought about that, but how likely (or unlikely) is that to ever happen ?
-> So I figured it is not worth the effort, and would just add complexity without
-> real gain. We could always add the list later if we ever encounter a situation
-> where two watchdogs in the same system provide a reboot callback.
-> 
+That will allow to cleanup the machine directory, while waiting for a proper
+watchdog driver for the A31.
 
-While this is not directly related to the issue you are fixing with this
-series, I would like to have it considered when talking about a watchdog
-system reboot API.
+Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+---
+ drivers/power/reset/Kconfig        |  7 ++++
+ drivers/power/reset/Makefile       |  1 +
+ drivers/power/reset/sun6i-reboot.c | 85 ++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 93 insertions(+)
+ create mode 100644 drivers/power/reset/sun6i-reboot.c
 
-On i.MX we have the same situation where we have to reboot through the
-SoC watchdog. This works, but may leave the external components of the
-system (those not integrated in the SoC) in an undefined state. So if we
-have a PMIC with integrated watchdog we would rather like to this one to
-reboot the system, as it the reset is then much more closer to a
-power-on-reset.
-
-This means we could have multiple watchdogs in the system, where we
-really want a specific one (maybe designated through a DT property) to
-do the reset. This isn't compatible with the "last watchdog that
-registers a handler wins the system reset" logic in your patch.
-
-Regards,
-Lucas
+diff --git a/drivers/power/reset/Kconfig b/drivers/power/reset/Kconfig
+index fa0e4e057b99..67aeb6ec08f9 100644
+--- a/drivers/power/reset/Kconfig
++++ b/drivers/power/reset/Kconfig
+@@ -43,6 +43,13 @@ config POWER_RESET_RESTART
+ 	  Instead they restart, and u-boot holds the SoC until the
+ 	  user presses a key. u-boot then boots into Linux.
+ 
++config POWER_RESET_SUN6I
++	bool "Allwinner A31 SoC reset driver"
++	depends on ARCH_SUNXI
++	depends on POWER_RESET
++	help
++	  Reboot support for the Allwinner A31 SoCs.
++
+ config POWER_RESET_VEXPRESS
+ 	bool "ARM Versatile Express power-off and reset driver"
+ 	depends on ARM || ARM64
+diff --git a/drivers/power/reset/Makefile b/drivers/power/reset/Makefile
+index a5b4a77d1a41..950fdc011c7a 100644
+--- a/drivers/power/reset/Makefile
++++ b/drivers/power/reset/Makefile
+@@ -3,5 +3,6 @@ obj-$(CONFIG_POWER_RESET_GPIO) += gpio-poweroff.o
+ obj-$(CONFIG_POWER_RESET_MSM) += msm-poweroff.o
+ obj-$(CONFIG_POWER_RESET_QNAP) += qnap-poweroff.o
+ obj-$(CONFIG_POWER_RESET_RESTART) += restart-poweroff.o
++obj-$(CONFIG_POWER_RESET_SUN6I) += sun6i-reboot.o
+ obj-$(CONFIG_POWER_RESET_VEXPRESS) += vexpress-poweroff.o
+ obj-$(CONFIG_POWER_RESET_XGENE) += xgene-reboot.o
+diff --git a/drivers/power/reset/sun6i-reboot.c b/drivers/power/reset/sun6i-reboot.c
+new file mode 100644
+index 000000000000..af2cd7ff2fe8
+--- /dev/null
++++ b/drivers/power/reset/sun6i-reboot.c
+@@ -0,0 +1,85 @@
++/*
++ * Allwinner A31 SoCs reset code
++ *
++ * Copyright (C) 2012-2014 Maxime Ripard
++ *
++ * Maxime Ripard <maxime.ripard@free-electrons.com>
++ *
++ * This file is licensed under the terms of the GNU General Public
++ * License version 2.  This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
++ */
++
++#include <linux/delay.h>
++#include <linux/io.h>
++#include <linux/module.h>
++#include <linux/of_address.h>
++#include <linux/platform_device.h>
++#include <linux/reboot.h>
++
++#include <asm/system_misc.h>
++
++#define SUN6I_WATCHDOG1_IRQ_REG		0x00
++#define SUN6I_WATCHDOG1_CTRL_REG	0x10
++#define SUN6I_WATCHDOG1_CTRL_RESTART		BIT(0)
++#define SUN6I_WATCHDOG1_CONFIG_REG	0x14
++#define SUN6I_WATCHDOG1_CONFIG_RESTART		BIT(0)
++#define SUN6I_WATCHDOG1_CONFIG_IRQ		BIT(1)
++#define SUN6I_WATCHDOG1_MODE_REG	0x18
++#define SUN6I_WATCHDOG1_MODE_ENABLE		BIT(0)
++
++static void __iomem *wdt_base;
++
++static void sun6i_wdt_restart(enum reboot_mode mode, const char *cmd)
++{
++	if (!wdt_base)
++		return;
++
++	/* Disable interrupts */
++	writel(0, wdt_base + SUN6I_WATCHDOG1_IRQ_REG);
++
++	/* We want to disable the IRQ and just reset the whole system */
++	writel(SUN6I_WATCHDOG1_CONFIG_RESTART,
++		wdt_base + SUN6I_WATCHDOG1_CONFIG_REG);
++
++	/* Enable timer. The default and lowest interval value is 0.5s */
++	writel(SUN6I_WATCHDOG1_MODE_ENABLE,
++		wdt_base + SUN6I_WATCHDOG1_MODE_REG);
++
++	/* Restart the watchdog. */
++	writel(SUN6I_WATCHDOG1_CTRL_RESTART,
++		wdt_base + SUN6I_WATCHDOG1_CTRL_REG);
++
++	while (1) {
++		mdelay(5);
++		writel(SUN6I_WATCHDOG1_MODE_ENABLE,
++			wdt_base + SUN6I_WATCHDOG1_MODE_REG);
++	}
++}
++
++static int sun6i_reboot_probe(struct platform_device *pdev)
++{
++	wdt_base = of_iomap(pdev->dev.of_node, 0);
++	if (!wdt_base) {
++		WARN(1, "failed to map watchdog base address");
++		return -ENODEV;
++	}
++
++	arm_pm_restart = sun6i_wdt_restart;
++
++	return 0;
++}
++
++static struct of_device_id sun6i_reboot_of_match[] = {
++	{ .compatible = "allwinner,sun6i-a31-wdt" },
++	{}
++};
++
++static struct platform_driver sun6i_reboot_driver = {
++	.probe = sun6i_reboot_probe,
++	.driver = {
++		.name = "sun6i-reboot",
++		.of_match_table = sun6i_reboot_of_match,
++	},
++};
++module_platform_driver(sun6i_reboot_driver);
 -- 
-Pengutronix e.K.             | Lucas Stach                 |
-Industrial Linux Solutions   | http://www.pengutronix.de/  |
-
+1.9.1
