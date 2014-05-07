@@ -1,170 +1,83 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:55896 "EHLO
+Received: from top.free-electrons.com ([176.31.233.9]:33490 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752051AbaEGDAJ (ORCPT
+	with ESMTP id S1750866AbaEGTPK (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 6 May 2014 23:00:09 -0400
+	Wed, 7 May 2014 15:15:10 -0400
+Date: Wed, 7 May 2014 14:15:01 -0500
 From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Arnd Bergmann <arnd@arndb.de>, wim@iguana.be, dbaryshkov@gmail.com,
-	dwmw2@infradead.org
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, linux-sunxi@googlegroups.com,
-	linux@roeck-us.net,
-	Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: [PATCH v2 3/6] ARM: sunxi: Remove reset code from the platform
-Date: Tue,  6 May 2014 21:44:21 -0500
-Message-Id: <1399430664-29091-4-git-send-email-maxime.ripard@free-electrons.com>
-In-Reply-To: <1399430664-29091-1-git-send-email-maxime.ripard@free-electrons.com>
-References: <1399430664-29091-1-git-send-email-maxime.ripard@free-electrons.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Lucas Stach <l.stach@pengutronix.de>,
+	Russell King <linux@arm.linux.org.uk>,
+	linux-watchdog@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will.deacon@arm.com>,
+	linux-kernel@vger.kernel.org,
+	Jonas Jensen <jonas.jensen@gmail.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [RFC PATCH 1/5] watchdog: Add API to trigger reboots
+Message-ID: <20140507191501.GA7047@lukather>
+References: <1398958893-30049-1-git-send-email-linux@roeck-us.net>
+ <1398958893-30049-2-git-send-email-linux@roeck-us.net>
+ <20140503012243.GG4090@lukather>
+ <20140503042925.GB5882@roeck-us.net>
+ <1399463549.4536.10.camel@weser.hi.pengutronix.de>
+ <536A2EAB.4000605@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="uAKRQypu60I7Lcqm"
+Content-Disposition: inline
+In-Reply-To: <536A2EAB.4000605@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Now that reset is handled either by the watchdog driver for the sun4i, sun5i
-and sun7i, and by a driver of its own for sun6i, we can remove it from the
-platform code.
 
-Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
----
- arch/arm/mach-sunxi/sunxi.c | 98 ---------------------------------------------
- 1 file changed, 98 deletions(-)
+--uAKRQypu60I7Lcqm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/arch/arm/mach-sunxi/sunxi.c b/arch/arm/mach-sunxi/sunxi.c
-index 460b5a4962ef..1c62a0a021d7 100644
---- a/arch/arm/mach-sunxi/sunxi.c
-+++ b/arch/arm/mach-sunxi/sunxi.c
-@@ -12,109 +12,14 @@
- 
- #include <linux/clk-provider.h>
- #include <linux/clocksource.h>
--#include <linux/delay.h>
--#include <linux/kernel.h>
--#include <linux/init.h>
--#include <linux/of_address.h>
--#include <linux/of_irq.h>
- #include <linux/of_platform.h>
--#include <linux/io.h>
--#include <linux/reboot.h>
- 
- #include <asm/mach/arch.h>
--#include <asm/mach/map.h>
--#include <asm/system_misc.h>
- 
- #include "common.h"
- 
--#define SUN4I_WATCHDOG_CTRL_REG		0x00
--#define SUN4I_WATCHDOG_CTRL_RESTART		BIT(0)
--#define SUN4I_WATCHDOG_MODE_REG		0x04
--#define SUN4I_WATCHDOG_MODE_ENABLE		BIT(0)
--#define SUN4I_WATCHDOG_MODE_RESET_ENABLE	BIT(1)
--
--#define SUN6I_WATCHDOG1_IRQ_REG		0x00
--#define SUN6I_WATCHDOG1_CTRL_REG	0x10
--#define SUN6I_WATCHDOG1_CTRL_RESTART		BIT(0)
--#define SUN6I_WATCHDOG1_CONFIG_REG	0x14
--#define SUN6I_WATCHDOG1_CONFIG_RESTART		BIT(0)
--#define SUN6I_WATCHDOG1_CONFIG_IRQ		BIT(1)
--#define SUN6I_WATCHDOG1_MODE_REG	0x18
--#define SUN6I_WATCHDOG1_MODE_ENABLE		BIT(0)
--
--static void __iomem *wdt_base;
--
--static void sun4i_restart(enum reboot_mode mode, const char *cmd)
--{
--	if (!wdt_base)
--		return;
--
--	/* Enable timer and set reset bit in the watchdog */
--	writel(SUN4I_WATCHDOG_MODE_ENABLE | SUN4I_WATCHDOG_MODE_RESET_ENABLE,
--	       wdt_base + SUN4I_WATCHDOG_MODE_REG);
--
--	/*
--	 * Restart the watchdog. The default (and lowest) interval
--	 * value for the watchdog is 0.5s.
--	 */
--	writel(SUN4I_WATCHDOG_CTRL_RESTART, wdt_base + SUN4I_WATCHDOG_CTRL_REG);
--
--	while (1) {
--		mdelay(5);
--		writel(SUN4I_WATCHDOG_MODE_ENABLE | SUN4I_WATCHDOG_MODE_RESET_ENABLE,
--		       wdt_base + SUN4I_WATCHDOG_MODE_REG);
--	}
--}
--
--static void sun6i_restart(enum reboot_mode mode, const char *cmd)
--{
--	if (!wdt_base)
--		return;
--
--	/* Disable interrupts */
--	writel(0, wdt_base + SUN6I_WATCHDOG1_IRQ_REG);
--
--	/* We want to disable the IRQ and just reset the whole system */
--	writel(SUN6I_WATCHDOG1_CONFIG_RESTART,
--		wdt_base + SUN6I_WATCHDOG1_CONFIG_REG);
--
--	/* Enable timer. The default and lowest interval value is 0.5s */
--	writel(SUN6I_WATCHDOG1_MODE_ENABLE,
--		wdt_base + SUN6I_WATCHDOG1_MODE_REG);
--
--	/* Restart the watchdog. */
--	writel(SUN6I_WATCHDOG1_CTRL_RESTART,
--		wdt_base + SUN6I_WATCHDOG1_CTRL_REG);
--
--	while (1) {
--		mdelay(5);
--		writel(SUN6I_WATCHDOG1_MODE_ENABLE,
--			wdt_base + SUN6I_WATCHDOG1_MODE_REG);
--	}
--}
--
--static struct of_device_id sunxi_restart_ids[] = {
--	{ .compatible = "allwinner,sun4i-a10-wdt" },
--	{ .compatible = "allwinner,sun6i-a31-wdt" },
--	{ /*sentinel*/ }
--};
--
--static void sunxi_setup_restart(void)
--{
--	struct device_node *np;
--
--	np = of_find_matching_node(NULL, sunxi_restart_ids);
--	if (WARN(!np, "unable to setup watchdog restart"))
--		return;
--
--	wdt_base = of_iomap(np, 0);
--	WARN(!wdt_base, "failed to map watchdog base address");
--}
--
- static void __init sunxi_dt_init(void)
- {
--	sunxi_setup_restart();
--
- 	of_platform_populate(NULL, of_default_bus_match_table, NULL, NULL);
- }
- 
-@@ -128,7 +33,6 @@ static const char * const sunxi_board_dt_compat[] = {
- DT_MACHINE_START(SUNXI_DT, "Allwinner A1X (Device Tree)")
- 	.init_machine	= sunxi_dt_init,
- 	.dt_compat	= sunxi_board_dt_compat,
--	.restart	= sun4i_restart,
- MACHINE_END
- 
- static const char * const sun6i_board_dt_compat[] = {
-@@ -148,7 +52,6 @@ DT_MACHINE_START(SUN6I_DT, "Allwinner sun6i (A31) Family")
- 	.init_machine	= sunxi_dt_init,
- 	.init_time	= sun6i_timer_init,
- 	.dt_compat	= sun6i_board_dt_compat,
--	.restart	= sun6i_restart,
- 	.smp		= smp_ops(sun6i_smp_ops),
- MACHINE_END
- 
-@@ -160,5 +63,4 @@ static const char * const sun7i_board_dt_compat[] = {
- DT_MACHINE_START(SUN7I_DT, "Allwinner sun7i (A20) Family")
- 	.init_machine	= sunxi_dt_init,
- 	.dt_compat	= sun7i_board_dt_compat,
--	.restart	= sun4i_restart,
- MACHINE_END
--- 
-1.9.1
+On Wed, May 07, 2014 at 06:01:31AM -0700, Guenter Roeck wrote:
+> >This means we could have multiple watchdogs in the system, where we
+> >really want a specific one (maybe designated through a DT property) to
+> >do the reset. This isn't compatible with the "last watchdog that
+> >registers a handler wins the system reset" logic in your patch.
+> >
+>=20
+> Wouldn't the order in which watchdogs are configured in dt define that ?
+> The last one wins.
 
+It doesn't work, because the DT nodes are usually ordered by physical
+address.
+
+Maxime
+
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--uAKRQypu60I7Lcqm
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.14 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTaoY1AAoJEBx+YmzsjxAgiuwP/0jLf7SjpjdEk9dCxTYPgt28
+lo6wNcEV84U1M2u4pa2BgPy4CJ7Nc46fXKrhgU/7eGa0Bg1JXEL0hIe8W99bjKWl
+NJOqkkZLgg4reunhAS2WtGC1TstvyTW0TsP8G8U11wmzJyvZ+5bjwl9CAGwnfUxd
+V0yHH9eP4qIVScgNeBqDC7xNP7bx6oJsRbklO5yvIvWVHhiV6ohwEQ/IWb6LP0cA
+ic298YLfpuKPKagxrHdkgTC4u3HO0j7MxSR46gceok8shlk2YcJgXfTO84UR7GdO
+FqwaJ7ACt1sfcM8gjtWehwwfHp7TwIWC0rt9QP++eyj6ivz9XIwgDiOBMlQIZ+3K
+mk7qj/uWZldZE61d5E8V+b7/TeEK5OydIBbMMLKxffno915+1Ey3A9H3Z7E6yCxM
+ADWPbFaaIpmXvToJ4bTL78GjtVMPxngq8q6TaQxrUjc4eMSJaNBif4gz8C6LYxVe
+MmaA8l4Gxe22CysniMdade4uZs9kEK1d2r2wS7g4z+3xs8NIpSLjXOCaGfrL1F9i
+3uRUVIsordpgLdlGunEGIilspXCGbU9duD4FieZ80X2XMpRRqK0XITVDDK5JW9x7
+Cra9q4cYO8iT8fF/92Jk4i2c4J4VBQkewtAfFXp14vyGLA/dT+meZYT5nuszu3w2
+bnPrk1UsH2Y9gv2TIDCJ
+=bhWV
+-----END PGP SIGNATURE-----
+
+--uAKRQypu60I7Lcqm--
