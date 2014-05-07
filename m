@@ -1,44 +1,34 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mout.gmx.net ([212.227.15.19]:59380 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751111AbaEGUTv (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 7 May 2014 16:19:51 -0400
-Date: Wed, 7 May 2014 22:19:41 +0200
-From: Michael Brunner <mibru@gmx.de>
-To: gundberg <per.gundberg@icomera.com>
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: kempld-wdt: Use the correct value when
- configuring the prescaler with the watchdog
-Message-ID: <20140507221941.2d6468ae@mail.gmx.de>
-In-Reply-To: <5359165F.5040102@icomera.com>
-References: <5359165F.5040102@icomera.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Received: from mail-pd0-f173.google.com ([209.85.192.173]:36186 "EHLO
+	mail-pd0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750966AbaEGVd2 (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 7 May 2014 17:33:28 -0400
+Date: Wed, 7 May 2014 14:33:18 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, wim@iguana.be, dbaryshkov@gmail.com,
+	dwmw2@infradead.org, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	linux-sunxi@googlegroups.com
+Subject: Re: [PATCH v2 1/6] wdt: sunxi: Move restart code to the watchdog
+ driver
+Message-ID: <20140507213318.GA2105@roeck-us.net>
+References: <1399430664-29091-1-git-send-email-maxime.ripard@free-electrons.com>
+ <1399430664-29091-2-git-send-email-maxime.ripard@free-electrons.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1399430664-29091-2-git-send-email-maxime.ripard@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, 24 Apr 2014 08:15:40 -0700, Guenter Roeck <linux@roeck-us.net>
-wrote:
-> On Thu, Apr 24, 2014 at 03:49:19PM +0200, gundberg wrote:
-> > Use the prescaler index, rather than its value, to configure the
-> > watchdog. This will prevent a mismatch with the prescaler used to
-> > calculate the cycles.
-> > 
-> > Signed-off-by: Per Gundberg <per.gundberg@icomera.com>
+On Tue, May 06, 2014 at 09:44:19PM -0500, Maxime Ripard wrote:
+> Most of the watchdog code is duplicated between the machine restart code and
+> the watchdog driver. Add the restart hook to the watchdog driver, to be able to
+> remove it from the machine code eventually.
 > 
-> Good catch. Looks correct to me. Michael, any comments ?
-> 
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+> Acked-by: Arnd Bergmann <arnd@arndb.de>
 
-Setting the prescaler incorrectly this way can cause the system to
-reboot nearly immediately when activating the watchdog - not good.
-This should also be applied to the stable revisions as this code is
-included since 3.11.
-
-Reviewed-by: Michael Brunner <michael.brunner@kontron.com>
-Tested-by: Michael Brunner <michael.brunner@kontron.com>
-
-Thanks,
-Michael
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
