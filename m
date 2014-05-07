@@ -1,120 +1,69 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:62563 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755400AbaEGNBj (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:36195 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932770AbaEGO1I (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 7 May 2014 09:01:39 -0400
-Message-ID: <536A2EAB.4000605@roeck-us.net>
-Date: Wed, 07 May 2014 06:01:31 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: Lucas Stach <l.stach@pengutronix.de>
-CC: Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Russell King <linux@arm.linux.org.uk>,
-	linux-watchdog@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will.deacon@arm.com>,
-	linux-kernel@vger.kernel.org,
-	Jonas Jensen <jonas.jensen@gmail.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [RFC PATCH 1/5] watchdog: Add API to trigger reboots
-References: <1398958893-30049-1-git-send-email-linux@roeck-us.net>	 <1398958893-30049-2-git-send-email-linux@roeck-us.net>	 <20140503012243.GG4090@lukather> <20140503042925.GB5882@roeck-us.net> <1399463549.4536.10.camel@weser.hi.pengutronix.de>
-In-Reply-To: <1399463549.4536.10.camel@weser.hi.pengutronix.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 7 May 2014 10:27:08 -0400
+Date: Wed, 7 May 2014 16:27:05 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+Cc: linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Jason Cooper <jason@lakedaemon.net>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Tawfik Bayouk <tawfik@marvell.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Lior Amsalem <alior@marvell.com>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Subject: Re: [RESEND/PATCH v4 0/9] Watchdog support for Armada 375/38x SoC
+Message-ID: <20140507142705.GE1484@spo001.leaseweb.com>
+References: <1397481813-4962-1-git-send-email-ezequiel.garcia@free-electrons.com> <20140424045153.GU28159@titan.lakedaemon.net> <20140424110636.GA1735@arch.cereza> <20140506204242.GA26972@arch.cereza>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+In-Reply-To: <20140506204242.GA26972@arch.cereza>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 05/07/2014 04:52 AM, Lucas Stach wrote:
-> Hi Guenter,
->
-> Am Freitag, den 02.05.2014, 21:29 -0700 schrieb Guenter Roeck:
->> On Fri, May 02, 2014 at 06:22:43PM -0700, Maxime Ripard wrote:
->>> Hi Guenter,
->>>
->>> On Thu, May 01, 2014 at 08:41:29AM -0700, Guenter Roeck wrote:
->>>> Some hardware implements reboot through its watchdog hardware,
->>>> for example by triggering a watchdog timeout. Platform specific
->>>> code starts to spread into watchdog drivers, typically by setting
->>>> pointers to a callback functions which is then called from the
->>>> platform reset handler.
->>>>
->>>> To simplify code and provide a unified API to trigger reboots by
->>>> watchdog drivers, provide a single API to trigger such reboots
->>>> through the watchdog subsystem.
->>>>
->>>> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
->>>> ---
->>>>   drivers/watchdog/watchdog_core.c |   17 +++++++++++++++++
->>>>   include/linux/watchdog.h         |   11 +++++++++++
->>>>   2 files changed, 28 insertions(+)
->>>>
->>>> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
->>>> index cec9b55..4ec6e2f 100644
->>>> --- a/drivers/watchdog/watchdog_core.c
->>>> +++ b/drivers/watchdog/watchdog_core.c
->>>> @@ -43,6 +43,17 @@
->>>>   static DEFINE_IDA(watchdog_ida);
->>>>   static struct class *watchdog_class;
->>>>
->>>> +static struct watchdog_device *wdd_reboot_dev;
->>>> +
->>>> +void watchdog_do_reboot(enum reboot_mode mode, const char *cmd)
->>>> +{
->>>> +	if (wdd_reboot_dev) {
->>>> +		if (wdd_reboot_dev->ops->reboot)
->>>> +			wdd_reboot_dev->ops->reboot(wdd_reboot_dev, mode, cmd);
->>>> +	}
->>>> +}
->>>> +EXPORT_SYMBOL(watchdog_do_reboot);
->>>> +
->>>>   static void watchdog_check_min_max_timeout(struct watchdog_device *wdd)
->>>>   {
->>>>   	/*
->>>> @@ -162,6 +173,9 @@ int watchdog_register_device(struct watchdog_device *wdd)
->>>>   		return ret;
->>>>   	}
->>>>
->>>> +	if (wdd->ops->reboot)
->>>> +		wdd_reboot_dev = wdd;
->>>> +
->>>
->>> Overall, it looks really great, but I guess we can make it a
->>> list. Otherwise, we might end up in a situation where we could not
->>> reboot anymore, like this one for example:
->>>    - a first watchdog is probed, registers a reboot function
->>>    - a second watchdog is probed, registers a reboot function that
->>>      overwrites the first one.
->>>    - then, the second watchdog disappears for some reason, and the
->>>      reboot is set to NULL
->>>
->> I thought about that, but how likely (or unlikely) is that to ever happen ?
->> So I figured it is not worth the effort, and would just add complexity without
->> real gain. We could always add the list later if we ever encounter a situation
->> where two watchdogs in the same system provide a reboot callback.
->>
->
-> While this is not directly related to the issue you are fixing with this
-> series, I would like to have it considered when talking about a watchdog
-> system reboot API.
->
-> On i.MX we have the same situation where we have to reboot through the
-> SoC watchdog. This works, but may leave the external components of the
-> system (those not integrated in the SoC) in an undefined state. So if we
-> have a PMIC with integrated watchdog we would rather like to this one to
-> reboot the system, as it the reset is then much more closer to a
-> power-on-reset.
->
-> This means we could have multiple watchdogs in the system, where we
-> really want a specific one (maybe designated through a DT property) to
-> do the reset. This isn't compatible with the "last watchdog that
-> registers a handler wins the system reset" logic in your patch.
->
+I'll do the necessary this weekend.
 
-Wouldn't the order in which watchdogs are configured in dt define that ?
-The last one wins.
+Sorry,
+Wim.
 
-Thanks,
-Guenter
-
+> On 24 Apr 08:06 AM, Ezequiel Garcia wrote:
+> > On Apr 24, Jason Cooper wrote:
+> > > On Mon, Apr 14, 2014 at 10:23:24AM -0300, Ezequiel Garcia wrote:
+> > > >=20
+> > > > Tested on A375-DB, A385-DB, A370-RD and Dove Cubox. Sebastian d=
+id more tests
+> > > > on Dove, and Jason Gunthorpe on Kirkwood.
+> > >=20
+> > > Applied patches 7 and 8 to mvebu/dt.  For the rest,
+> > >=20
+> > > Acked-by: Jason Cooper <jason@lakedaemon.net>
+> > >=20
+> >=20
+> > Wim,
+> >=20
+> > Can you take the rest of the patches throught your tree, with Jason=
+'s ack?
+> >=20
+>=20
+> Hi Wim,
+>=20
+> Do you have comments about this?
+>=20
+> Thanks!
+> --=20
+> Ezequiel Garc=EDa, Free Electrons
+> Embedded Linux, Kernel and Android Engineering
+> http://free-electrons.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
