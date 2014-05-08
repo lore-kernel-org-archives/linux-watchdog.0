@@ -1,49 +1,47 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:59693 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751108AbaEGOg4 (ORCPT
+Received: from mail-pd0-f180.google.com ([209.85.192.180]:60044 "EHLO
+	mail-pd0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754196AbaEHQmJ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 7 May 2014 10:36:56 -0400
-Date: Wed, 7 May 2014 11:36:18 -0300
-From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Jason Cooper <jason@lakedaemon.net>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Tawfik Bayouk <tawfik@marvell.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Lior Amsalem <alior@marvell.com>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-Subject: Re: [RESEND/PATCH v4 0/9] Watchdog support for Armada 375/38x SoC
-Message-ID: <20140507143618.GA2383@arch.cereza>
-References: <1397481813-4962-1-git-send-email-ezequiel.garcia@free-electrons.com>
- <20140424045153.GU28159@titan.lakedaemon.net>
- <20140424110636.GA1735@arch.cereza>
- <20140506204242.GA26972@arch.cereza>
- <20140507142705.GE1484@spo001.leaseweb.com>
+	Thu, 8 May 2014 12:42:09 -0400
+Date: Thu, 8 May 2014 09:41:57 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	bhelgaas@google.com, dwmw2@infradead.org,
+	dmitry.torokhov@gmail.com, balbi@ti.com,
+	gregkh@linuxfoundation.org, plagnioj@jcrosoft.com,
+	jic23@kernel.org, josh.wu@atmel.com, kishon@ti.com,
+	linus.walleij@linaro.org, broonie@kernel.org,
+	mturquette@linaro.org, nicolas.ferre@atmel.com, ohad@wizery.com,
+	linux@arm.linux.org.uk, tony@atomide.com, vinod.koul@intel.com,
+	wim@iguana.be, wsa@the-dreams.de, dmaengine@vger.kernel.org,
+	linux-i2c@vger.kernel.org, linux-ide@vger.kernel.org,
+	linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
+	linux-mtd@lists.infradead.org, linux-pci@vger.kernel.org,
+	linux-samsung-soc@vger.kernel.org, linux-sh@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH 00/22] Random ARM randconfig fixes in drivers
+Message-ID: <20140508164157.GA22224@roeck-us.net>
+References: <1399560433-1402630-1-git-send-email-arnd@arndb.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <20140507142705.GE1484@spo001.leaseweb.com>
+In-Reply-To: <1399560433-1402630-1-git-send-email-arnd@arndb.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 07 May 04:27 PM, Wim Van Sebroeck wrote:
-> I'll do the necessary this weekend.
->=20
+On Thu, May 08, 2014 at 04:46:51PM +0200, Arnd Bergmann wrote:
+> These are a bunch of fixes I had to do to get all randconfig
+> configurations on ARM working. Most of these are really old
+> bugs, but there are also some new ones. I don't think any of
+> them require a backport to linux-stable.
+> 
+> I have checked that they are all still required on yesterday's
+> linux-next kernel. Please apply on the appropriate trees unless
+> there are objections.
+> 
+Is this series of patches also going to fix arm:allmodconfig ?
 
-Great! Thanks a lot,
---=20
-Ezequiel Garc=EDa, Free Electrons
-Embedded Linux, Kernel and Android Engineering
-http://free-electrons.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks,
+Guenter
