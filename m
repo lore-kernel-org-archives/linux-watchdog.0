@@ -1,56 +1,40 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.126.187]:55621 "EHLO
-	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751070AbaEILwp (ORCPT
+Received: from mail-pd0-f175.google.com ([209.85.192.175]:47130 "EHLO
+	mail-pd0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754353AbaEIRo1 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 9 May 2014 07:52:45 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 00/22] Random ARM randconfig fixes in drivers
-Date: Fri, 9 May 2014 13:48:49 +0200
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	bhelgaas@google.com, dwmw2@infradead.org,
-	dmitry.torokhov@gmail.com, balbi@ti.com,
-	gregkh@linuxfoundation.org, plagnioj@jcrosoft.com,
-	jic23@kernel.org, josh.wu@atmel.com, kishon@ti.com,
-	linus.walleij@linaro.org, broonie@kernel.org,
-	mturquette@linaro.org, nicolas.ferre@atmel.com, ohad@wizery.com,
-	linux@arm.linux.org.uk, tony@atomide.com, vinod.koul@intel.com,
-	wim@iguana.be, wsa@the-dreams.de, dmaengine@vger.kernel.org,
-	linux-i2c@vger.kernel.org, linux-ide@vger.kernel.org,
-	linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
-	linux-mtd@lists.infradead.org, linux-pci@vger.kernel.org,
-	linux-samsung-soc@vger.kernel.org, linux-sh@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, netdev@vger.kernel.org
-References: <1399560433-1402630-1-git-send-email-arnd@arndb.de> <20140508164157.GA22224@roeck-us.net>
-In-Reply-To: <20140508164157.GA22224@roeck-us.net>
+	Fri, 9 May 2014 13:44:27 -0400
+Received: by mail-pd0-f175.google.com with SMTP id x10so3930276pdj.20
+        for <linux-watchdog@vger.kernel.org>; Fri, 09 May 2014 10:44:26 -0700 (PDT)
+Date: Fri, 9 May 2014 10:44:16 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Yuantian.Tang@freescale.com
+Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, scottwood@freescale.com
+Subject: Re: [PATCH 1/1] booke/watchdog: refine and clean up the codes
+Message-ID: <20140509174415.GA5009@roeck-us.net>
+References: <1399514666-2572-1-git-send-email-Yuantian.Tang@freescale.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <201405091348.49713.arnd@arndb.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1399514666-2572-1-git-send-email-Yuantian.Tang@freescale.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thursday 08 May 2014, Guenter Roeck wrote:
-> On Thu, May 08, 2014 at 04:46:51PM +0200, Arnd Bergmann wrote:
-> > These are a bunch of fixes I had to do to get all randconfig
-> > configurations on ARM working. Most of these are really old
-> > bugs, but there are also some new ones. I don't think any of
-> > them require a backport to linux-stable.
-> > 
-> > I have checked that they are all still required on yesterday's
-> > linux-next kernel. Please apply on the appropriate trees unless
-> > there are objections.
-> > 
-> Is this series of patches also going to fix arm:allmodconfig ?
+On Thu, May 08, 2014 at 10:04:26AM +0800, Yuantian.Tang@freescale.com wrote:
+> From: Tang Yuantian <yuantian.tang@freescale.com>
+> 
+> Basically, this patch does the following:
+> 1. Move the codes of parsing boot parameters from setup-common.c
+>    to driver. In this way, code reader can know directly that
+>    there are boot parameters that can change the timeout.
+> 2. Make boot parameter 'booke_wdt_period' effective.
+>    currently, when driver is loaded, default timeout is always
+>    being used in stead of booke_wdt_period.
+> 3. Wrap up the watchdog timeout in device struct and clean up
+>    unnecessary codes.
+> 
+> Signed-off-by: Tang Yuantian <yuantian.tang@freescale.com>
+> Acked-by: Scott Wood <scottwood@freescale.com>
 
-Possibly, I haven't checked in a while. I'm unfortunately sitting on
-about 200 other patches in the same branch, which together fix all
-build errors in any configuration I encountered.
-
-I should really do some allmodconfig/allnoconfig/allyesconfig
-builds without my series again, and prioritize sending out the
-ones required for that.
-
-	Arnd
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
