@@ -1,77 +1,40 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f171.google.com ([209.85.192.171]:49101 "EHLO
-	mail-pd0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754699AbaEJQXk (ORCPT
+Received: from mail-la0-f53.google.com ([209.85.215.53]:36544 "EHLO
+	mail-la0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751298AbaEIIbt (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 10 May 2014 12:23:40 -0400
-Date: Sat, 10 May 2014 09:23:29 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Randy Dunlap <rdunlap@infradead.org>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Will Deacon <will.deacon@arm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Heiko Stuebner <heiko@sntech.de>,
-	Russell King <linux@arm.linux.org.uk>,
-	Jonas Jensen <jonas.jensen@gmail.com>,
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
-Subject: [PATCH 6/5] watchdog: Document reboot API
-Message-ID: <20140510162329.GA19884@roeck-us.net>
-References: <1399681883-891-1-git-send-email-linux@roeck-us.net>
- <536D74E3.8010609@infradead.org>
+	Fri, 9 May 2014 04:31:49 -0400
+Received: by mail-la0-f53.google.com with SMTP id ec20so204233lab.12
+        for <linux-watchdog@vger.kernel.org>; Fri, 09 May 2014 01:31:47 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <536D74E3.8010609@infradead.org>
+In-Reply-To: <1399514666-2572-1-git-send-email-Yuantian.Tang@freescale.com>
+References: <1399514666-2572-1-git-send-email-Yuantian.Tang@freescale.com>
+Date: Fri, 9 May 2014 16:31:47 +0800
+Message-ID: <CADRPPNSPwiveWEH++ZqDXH5u=mQxAiuh+Ci=1hBH1g6qz4-2dw@mail.gmail.com>
+Subject: Re: [PATCH 1/1] booke/watchdog: refine and clean up the codes
+From: Leo Li <pku.leo@gmail.com>
+To: Yuantian.Tang@freescale.com
+Cc: wim@iguana.be, Scott Wood <scottwood@freescale.com>,
+	linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+	linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Document the new reboot API functionality.
+On Thu, May 8, 2014 at 10:04 AM,  <Yuantian.Tang@freescale.com> wrote:
+> From: Tang Yuantian <yuantian.tang@freescale.com>
+>
+> Basically, this patch does the following:
+> 1. Move the codes of parsing boot parameters from setup-common.c
+>    to driver. In this way, code reader can know directly that
+>    there are boot parameters that can change the timeout.
+> 2. Make boot parameter 'booke_wdt_period' effective.
+>    currently, when driver is loaded, default timeout is always
+>    being used in stead of booke_wdt_period.
+> 3. Wrap up the watchdog timeout in device struct and clean up
+>    unnecessary codes.
+>
+> Signed-off-by: Tang Yuantian <yuantian.tang@freescale.com>
+> Acked-by: Scott Wood <scottwood@freescale.com>
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
- Documentation/watchdog/watchdog-kernel-api.txt | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
-
-diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
-index a0438f3..f8f0f18 100644
---- a/Documentation/watchdog/watchdog-kernel-api.txt
-+++ b/Documentation/watchdog/watchdog-kernel-api.txt
-@@ -90,6 +90,8 @@ struct watchdog_ops {
- 	int (*stop)(struct watchdog_device *);
- 	/* optional operations */
- 	int (*ping)(struct watchdog_device *);
-+	void (*reboot)(struct watchdog_device *, enum reboot_mode,
-+		       const char *);
- 	unsigned int (*status)(struct watchdog_device *);
- 	int (*set_timeout)(struct watchdog_device *, unsigned int);
- 	unsigned int (*get_timeleft)(struct watchdog_device *);
-@@ -148,6 +150,10 @@ they are supported. These optional routines/operations are:
-   info structure).
- * status: this routine checks the status of the watchdog timer device. The
-   status of the device is reported with watchdog WDIOF_* status flags/bits.
-+* reboot: if this routine is present, it may be called to reboot the system.
-+  Parameters are the pointer to the watchdog device, the reboot mode, and a
-+  command string. The latter two parameters are the system reboot mode
-+  and the cmd parameter passed to machine_restart().
- * set_timeout: this routine checks and changes the timeout of the watchdog
-   timer device. It returns 0 on success, -EINVAL for "parameter out of range"
-   and -EIO for "could not write value to the watchdog". On success this
-@@ -224,3 +230,11 @@ the device tree (if the module timeout parameter is invalid). Best practice is
- to set the default timeout value as timeout value in the watchdog_device and
- then use this function to set the user "preferred" timeout value.
- This routine returns zero on success and a negative errno code for failure.
-+
-+The watchdog_do_reboot function can be used reboot the system. This is intended
-+to be used in systems which do not have an explicit reboot capability, but
-+implement reboot by programming the watchdog to expire immediately. If the
-+function is called, and a watchdog driver with reboot functionality was
-+previously registered, the reboot function of that driver will be called.
-+Architecture code should call watchdog_do_reboot from its machine_reboot
-+function after other means to reboot the system failed.
--- 
-1.9.1
-
+Reviewed-by: Li Yang <leoli@freescale.com>
