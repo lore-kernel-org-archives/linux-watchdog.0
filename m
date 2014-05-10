@@ -1,203 +1,58 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-bl2lp0209.outbound.protection.outlook.com ([207.46.163.209]:50911
-	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751542AbaEHCHz (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 7 May 2014 22:07:55 -0400
-From: <Yuantian.Tang@freescale.com>
-To: <wim@iguana.be>
-CC: <linux-watchdog@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>,
-	<scottwood@freescale.com>,
-	Tang Yuantian <yuantian.tang@freescale.com>
-Subject: [PATCH 1/1] booke/watchdog: refine and clean up the codes
-Date: Thu, 8 May 2014 10:04:26 +0800
-Message-ID: <1399514666-2572-1-git-send-email-Yuantian.Tang@freescale.com>
-MIME-Version: 1.0
-Content-Type: text/plain
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <groeck7@gmail.com>
+Return-Path: <groeck7@gmail.com>
+Sender: Guenter Roeck <groeck7@gmail.com>
+From: Guenter Roeck <linux@roeck-us.net>
+To: linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Will Deacon <will.deacon@arm.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Heiko Stuebner <heiko@sntech.de>,
+	Russell King <linux@arm.linux.org.uk>,
+	Jonas Jensen <jonas.jensen@gmail.com>,
+	linux-kernel@vger.kernel.org,
+	Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH v2 0/5] watchdog: Add reboot API
+Date: Fri,  9 May 2014 17:31:18 -0700
+Message-Id: <1399681883-891-1-git-send-email-linux@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-From: Tang Yuantian <yuantian.tang@freescale.com>
+Some hardware implements reboot through its watchdog hardware, for example
+by triggering a watchdog timeout or by writing into its watchdog register
+set. Platform specific code starts to spread into watchdog drivers,
+typically by setting pointers to a callback function which is then called
+from the architecture's reset handler.
 
-Basically, this patch does the following:
-1. Move the codes of parsing boot parameters from setup-common.c
-   to driver. In this way, code reader can know directly that
-   there are boot parameters that can change the timeout.
-2. Make boot parameter 'booke_wdt_period' effective.
-   currently, when driver is loaded, default timeout is always
-   being used in stead of booke_wdt_period.
-3. Wrap up the watchdog timeout in device struct and clean up
-   unnecessary codes.
+While global and exported callback function pointers (such as arm_pm_restart)
+may be acceptable as long as they are used from platform and/or architecture
+code, using such a mechanism across subsystems and drivers is less than
+desirable. Ultimately, we'll need a better solution.
 
-Signed-off-by: Tang Yuantian <yuantian.tang@freescale.com>
-Acked-by: Scott Wood <scottwood@freescale.com>
----
-resend to watchdog maintainer
+This patch series provides such a solution. It extends the watchdog
+subsystem to support reboot functionality, provides an API function
+call to trigger reboots, adds support for the new API to arm and arm64,
+and converts the drivers providing reboot functionality to use the new
+infrastructure.
 
- arch/powerpc/kernel/setup-common.c | 27 --------------------
- drivers/watchdog/booke_wdt.c       | 51 ++++++++++++++++++++++++--------------
- 2 files changed, 33 insertions(+), 45 deletions(-)
+The first patch in the series implements the new API. The second and third
+patch modify the arm and arm64 architecture reset handlers to call the
+added API function. The final two patches register the reboot handlers
+in the sunxi and moxart watchdog drivers with the watchdog subsystem.
 
-diff --git a/arch/powerpc/kernel/setup-common.c b/arch/powerpc/kernel/setup-common.c
-index bc76cc6..5874aef 100644
---- a/arch/powerpc/kernel/setup-common.c
-+++ b/arch/powerpc/kernel/setup-common.c
-@@ -715,33 +715,6 @@ static int powerpc_debugfs_init(void)
- arch_initcall(powerpc_debugfs_init);
- #endif
- 
--#ifdef CONFIG_BOOKE_WDT
--extern u32 booke_wdt_enabled;
--extern u32 booke_wdt_period;
--
--/* Checks wdt=x and wdt_period=xx command-line option */
--notrace int __init early_parse_wdt(char *p)
--{
--	if (p && strncmp(p, "0", 1) != 0)
--		booke_wdt_enabled = 1;
--
--	return 0;
--}
--early_param("wdt", early_parse_wdt);
--
--int __init early_parse_wdt_period(char *p)
--{
--	unsigned long ret;
--	if (p) {
--		if (!kstrtol(p, 0, &ret))
--			booke_wdt_period = ret;
--	}
--
--	return 0;
--}
--early_param("wdt_period", early_parse_wdt_period);
--#endif	/* CONFIG_BOOKE_WDT */
--
- void ppc_printk_progress(char *s, unsigned short hex)
- {
- 	pr_info("%s\n", s);
-diff --git a/drivers/watchdog/booke_wdt.c b/drivers/watchdog/booke_wdt.c
-index a8dbceb3..08a7853 100644
---- a/drivers/watchdog/booke_wdt.c
-+++ b/drivers/watchdog/booke_wdt.c
-@@ -41,6 +41,28 @@ u32 booke_wdt_period = CONFIG_BOOKE_WDT_DEFAULT_TIMEOUT;
- #define WDTP_MASK	(TCR_WP_MASK)
- #endif
- 
-+/* Checks wdt=x and wdt_period=xx command-line option */
-+notrace int __init early_parse_wdt(char *p)
-+{
-+	if (p && strncmp(p, "0", 1) != 0)
-+		booke_wdt_enabled = 1;
-+
-+	return 0;
-+}
-+early_param("wdt", early_parse_wdt);
-+
-+int __init early_parse_wdt_period(char *p)
-+{
-+	unsigned long ret;
-+	if (p) {
-+		if (!kstrtol(p, 0, &ret))
-+			booke_wdt_period = ret;
-+	}
-+
-+	return 0;
-+}
-+early_param("wdt_period", early_parse_wdt_period);
-+
- #ifdef CONFIG_PPC_FSL_BOOK3E
- 
- /* For the specified period, determine the number of seconds
-@@ -103,17 +125,18 @@ static unsigned int sec_to_period(unsigned int secs)
- static void __booke_wdt_set(void *data)
- {
- 	u32 val;
-+	struct watchdog_device *wdog = data;
- 
- 	val = mfspr(SPRN_TCR);
- 	val &= ~WDTP_MASK;
--	val |= WDTP(booke_wdt_period);
-+	val |= WDTP(sec_to_period(wdog->timeout));
- 
- 	mtspr(SPRN_TCR, val);
- }
- 
--static void booke_wdt_set(void)
-+static void booke_wdt_set(void *data)
- {
--	on_each_cpu(__booke_wdt_set, NULL, 0);
-+	on_each_cpu(__booke_wdt_set, data, 0);
- }
- 
- static void __booke_wdt_ping(void *data)
-@@ -131,12 +154,13 @@ static int booke_wdt_ping(struct watchdog_device *wdog)
- static void __booke_wdt_enable(void *data)
- {
- 	u32 val;
-+	struct watchdog_device *wdog = data;
- 
- 	/* clear status before enabling watchdog */
- 	__booke_wdt_ping(NULL);
- 	val = mfspr(SPRN_TCR);
- 	val &= ~WDTP_MASK;
--	val |= (TCR_WIE|TCR_WRC(WRC_CHIP)|WDTP(booke_wdt_period));
-+	val |= (TCR_WIE|TCR_WRC(WRC_CHIP)|WDTP(sec_to_period(wdog->timeout)));
- 
- 	mtspr(SPRN_TCR, val);
- }
-@@ -162,25 +186,17 @@ static void __booke_wdt_disable(void *data)
- 
- }
- 
--static void __booke_wdt_start(struct watchdog_device *wdog)
-+static int booke_wdt_start(struct watchdog_device *wdog)
- {
--	on_each_cpu(__booke_wdt_enable, NULL, 0);
-+	on_each_cpu(__booke_wdt_enable, wdog, 0);
- 	pr_debug("watchdog enabled (timeout = %u sec)\n", wdog->timeout);
--}
- 
--static int booke_wdt_start(struct watchdog_device *wdog)
--{
--	if (booke_wdt_enabled == 0) {
--		booke_wdt_enabled = 1;
--		__booke_wdt_start(wdog);
--	}
- 	return 0;
- }
- 
- static int booke_wdt_stop(struct watchdog_device *wdog)
- {
- 	on_each_cpu(__booke_wdt_disable, NULL, 0);
--	booke_wdt_enabled = 0;
- 	pr_debug("watchdog disabled\n");
- 
- 	return 0;
-@@ -191,9 +207,8 @@ static int booke_wdt_set_timeout(struct watchdog_device *wdt_dev,
- {
- 	if (timeout > MAX_WDT_TIMEOUT)
- 		return -EINVAL;
--	booke_wdt_period = sec_to_period(timeout);
- 	wdt_dev->timeout = timeout;
--	booke_wdt_set();
-+	booke_wdt_set(wdt_dev);
- 
- 	return 0;
- }
-@@ -231,10 +246,10 @@ static int __init booke_wdt_init(void)
- 	pr_info("powerpc book-e watchdog driver loaded\n");
- 	booke_wdt_info.firmware_version = cur_cpu_spec->pvr_value;
- 	booke_wdt_set_timeout(&booke_wdt_dev,
--			      period_to_sec(CONFIG_BOOKE_WDT_DEFAULT_TIMEOUT));
-+			      period_to_sec(booke_wdt_period));
- 	watchdog_set_nowayout(&booke_wdt_dev, nowayout);
- 	if (booke_wdt_enabled)
--		__booke_wdt_start(&booke_wdt_dev);
-+		booke_wdt_start(&booke_wdt_dev);
- 
- 	ret = watchdog_register_device(&booke_wdt_dev);
- 
--- 
-1.8.5
+The sunxi patch depends on the most recent patch series sumitted by
+Maxime Ripard.
 
+Note that I did not address the comments asking for support of multiple
+watchdogs with reset handlers, nor the request to add a flag to provide
+'preferential' treatment for one of those watchdogs. This will require
+additional discussion and needs to be addressed with a later patch if needed.
+Key questions are how to add such support for non-DT systems, and if the
+scope of restart handling is a function of the driver or of the system.
+Also, if one of the watchdogs does not result in a complete system reset
+but another one does, it is not clear to me why the less-than-perfect
+watchdog would be configured in the first place (or how this situation
+would be handled today).
+
+Compile tested only for arm64. Tested on arm/moxart by Jonas Jensen.
