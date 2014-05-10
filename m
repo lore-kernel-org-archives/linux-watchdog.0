@@ -1,41 +1,40 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f50.google.com ([209.85.220.50]:43056 "EHLO
-	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754159AbaEHQm4 (ORCPT
+Received: from merlin.infradead.org ([205.233.59.134]:54699 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754716AbaEJAiD (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 8 May 2014 12:42:56 -0400
-Date: Thu, 8 May 2014 09:42:47 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: iop_wdt only builds for mach-iop13xx
-Message-ID: <20140508164247.GB22224@roeck-us.net>
-References: <1399560433-1402630-1-git-send-email-arnd@arndb.de>
- <1399560990-1402858-1-git-send-email-arnd@arndb.de>
- <1399560990-1402858-8-git-send-email-arnd@arndb.de>
+	Fri, 9 May 2014 20:38:03 -0400
+Message-ID: <536D74E3.8010609@infradead.org>
+Date: Fri, 09 May 2014 17:37:55 -0700
+From: Randy Dunlap <rdunlap@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1399560990-1402858-8-git-send-email-arnd@arndb.de>
+To: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+CC: Wim Van Sebroeck <wim@iguana.be>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Will Deacon <will.deacon@arm.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Heiko Stuebner <heiko@sntech.de>,
+	Russell King <linux@arm.linux.org.uk>,
+	Jonas Jensen <jonas.jensen@gmail.com>,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 0/5] watchdog: Add reboot API
+References: <1399681883-891-1-git-send-email-linux@roeck-us.net>
+In-Reply-To: <1399681883-891-1-git-send-email-linux@roeck-us.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, May 08, 2014 at 04:56:19PM +0200, Arnd Bergmann wrote:
-> All three iop variants we support in Linux (iop32x, iop33x and
-> iop13xx) seem to have support for the watchdog hardware, but this
-> driver fails to build for the first two of these because it
-> uses the IOP13XX_WDTCR_IB_RESET macro that is only defined for
-> iop13xx.
-> 
-> This clarifies the dependency in Kconfig to avoid randconfig
-> build errors. It is unlikely that anyone will ever miss support
-> for this driver on the ancient iop3xx platforms, so we don't
-> need to bother trying to fix it properly.
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> Cc: Wim Van Sebroeck <wim@iguana.be>
-> Cc: linux-watchdog@vger.kernel.org
+On 05/09/2014 05:31 PM, Guenter Roeck wrote:
+> Some hardware implements reboot through its watchdog hardware, for example
+> by triggering a watchdog timeout or by writing into its watchdog register
+> set. Platform specific code starts to spread into watchdog drivers,
+> typically by setting pointers to a callback function which is then called
+> from the architecture's reset handler.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+No updates to Documentation/watchdog/ ?
+
+-- 
+~Randy
