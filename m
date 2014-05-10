@@ -1,40 +1,47 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f175.google.com ([209.85.192.175]:47130 "EHLO
-	mail-pd0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754353AbaEIRo1 (ORCPT
+Received: from mail-pd0-f182.google.com ([209.85.192.182]:50420 "EHLO
+	mail-pd0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757797AbaEJAxa (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 9 May 2014 13:44:27 -0400
-Received: by mail-pd0-f175.google.com with SMTP id x10so3930276pdj.20
-        for <linux-watchdog@vger.kernel.org>; Fri, 09 May 2014 10:44:26 -0700 (PDT)
-Date: Fri, 9 May 2014 10:44:16 -0700
+	Fri, 9 May 2014 20:53:30 -0400
+Date: Fri, 9 May 2014 17:53:20 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Yuantian.Tang@freescale.com
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, scottwood@freescale.com
-Subject: Re: [PATCH 1/1] booke/watchdog: refine and clean up the codes
-Message-ID: <20140509174415.GA5009@roeck-us.net>
-References: <1399514666-2572-1-git-send-email-Yuantian.Tang@freescale.com>
+To: Randy Dunlap <rdunlap@infradead.org>
+Cc: linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Will Deacon <will.deacon@arm.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Heiko Stuebner <heiko@sntech.de>,
+	Russell King <linux@arm.linux.org.uk>,
+	Jonas Jensen <jonas.jensen@gmail.com>,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 0/5] watchdog: Add reboot API
+Message-ID: <20140510005320.GA1319@roeck-us.net>
+References: <1399681883-891-1-git-send-email-linux@roeck-us.net>
+ <536D74E3.8010609@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1399514666-2572-1-git-send-email-Yuantian.Tang@freescale.com>
+In-Reply-To: <536D74E3.8010609@infradead.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, May 08, 2014 at 10:04:26AM +0800, Yuantian.Tang@freescale.com wrote:
-> From: Tang Yuantian <yuantian.tang@freescale.com>
+On Fri, May 09, 2014 at 05:37:55PM -0700, Randy Dunlap wrote:
+> On 05/09/2014 05:31 PM, Guenter Roeck wrote:
+> > Some hardware implements reboot through its watchdog hardware, for example
+> > by triggering a watchdog timeout or by writing into its watchdog register
+> > set. Platform specific code starts to spread into watchdog drivers,
+> > typically by setting pointers to a callback function which is then called
+> > from the architecture's reset handler.
 > 
-> Basically, this patch does the following:
-> 1. Move the codes of parsing boot parameters from setup-common.c
->    to driver. In this way, code reader can know directly that
->    there are boot parameters that can change the timeout.
-> 2. Make boot parameter 'booke_wdt_period' effective.
->    currently, when driver is loaded, default timeout is always
->    being used in stead of booke_wdt_period.
-> 3. Wrap up the watchdog timeout in device struct and clean up
->    unnecessary codes.
+> No updates to Documentation/watchdog/ ?
 > 
-> Signed-off-by: Tang Yuantian <yuantian.tang@freescale.com>
-> Acked-by: Scott Wood <scottwood@freescale.com>
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+You are absolutely right, I missed that completely.
+Will follow in v3.
+
+Thanks,
+Guenter
