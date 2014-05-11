@@ -1,47 +1,51 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f182.google.com ([209.85.192.182]:50420 "EHLO
-	mail-pd0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757797AbaEJAxa (ORCPT
+Received: from yotta.elopez.com.ar ([31.220.24.173]:51958 "EHLO
+	yotta.elopez.com.ar" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933905AbaEKTrJ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 9 May 2014 20:53:30 -0400
-Date: Fri, 9 May 2014 17:53:20 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Randy Dunlap <rdunlap@infradead.org>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Will Deacon <will.deacon@arm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Heiko Stuebner <heiko@sntech.de>,
-	Russell King <linux@arm.linux.org.uk>,
-	Jonas Jensen <jonas.jensen@gmail.com>,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 0/5] watchdog: Add reboot API
-Message-ID: <20140510005320.GA1319@roeck-us.net>
-References: <1399681883-891-1-git-send-email-linux@roeck-us.net>
- <536D74E3.8010609@infradead.org>
+	Sun, 11 May 2014 15:47:09 -0400
+Message-ID: <536FD3B3.3030100@elopez.com.ar>
+Date: Sun, 11 May 2014 16:46:59 -0300
+From: =?UTF-8?B?RW1pbGlvIEzDs3Bleg==?= <emilio@elopez.com.ar>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <536D74E3.8010609@infradead.org>
+To: Guenter Roeck <linux@roeck-us.net>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	wim@iguana.be, carlo.caione@gmail.com
+CC: linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH] watchdog: sunxi: Fix compilation with C=2
+References: <1396632265-16124-1-git-send-email-emilio@elopez.com.ar> <533EF39D.6090907@roeck-us.net>
+In-Reply-To: <533EF39D.6090907@roeck-us.net>
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, May 09, 2014 at 05:37:55PM -0700, Randy Dunlap wrote:
-> On 05/09/2014 05:31 PM, Guenter Roeck wrote:
-> > Some hardware implements reboot through its watchdog hardware, for example
-> > by triggering a watchdog timeout or by writing into its watchdog register
-> > set. Platform specific code starts to spread into watchdog drivers,
-> > typically by setting pointers to a callback function which is then called
-> > from the architecture's reset handler.
-> 
-> No updates to Documentation/watchdog/ ?
-> 
+El 04/04/14 15:02, Guenter Roeck escribi=C3=B3:
+> On 04/04/2014 10:24 AM, Emilio L=C3=B3pez wrote:
+>> When compiling sunxi_defconfig while using C=3D2, the following erro=
+r
+>> causes the compilation to fail:
+>>
+>>      drivers/watchdog/sunxi_wdt.c:60:15: error: constant 0b0001 is n=
+ot
+>> a valid number
+>>
+>> Fix it by using hex notation instead of the non-standard binary one
+>>
+>> Signed-off-by: Emilio L=C3=B3pez <emilio@elopez.com.ar>
+>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+>
 
-You are absolutely right, I missed that completely.
-Will follow in v3.
+Wim, Maxime, any comments on this?
 
-Thanks,
-Guenter
+Cheers,
+
+Emilio
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
