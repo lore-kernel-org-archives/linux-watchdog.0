@@ -1,10 +1,15 @@
-Return-Path: <groeck7@gmail.com>
-Return-Path: <groeck7@gmail.com>
-Sender: Guenter Roeck <groeck7@gmail.com>
-From: Guenter Roeck <linux@roeck-us.net>
-To: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Cc: Wim Van Sebroeck <wim@iguana.be>,
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:56717 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751871AbaEOUvm (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 15 May 2014 16:51:42 -0400
+Date: Thu, 15 May 2014 21:50:20 +0100
+From: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Wim Van Sebroeck <wim@iguana.be>,
 	Catalin Marinas <catalin.marinas@arm.com>,
 	Maxime Ripard <maxime.ripard@free-electrons.com>,
 	Will Deacon <will.deacon@arm.com>,
@@ -13,103 +18,45 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Russell King <linux@arm.linux.org.uk>,
 	Jonas Jensen <jonas.jensen@gmail.com>,
 	Randy Dunlap <rdunlap@infradead.org>,
-	linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v3 6/6] watchdog: sunxi: Register reboot handler with watchdog subsystem
-Date: Thu, 15 May 2014 13:38:24 -0700
-Message-Id: <1400186304-1691-7-git-send-email-linux@roeck-us.net>
-In-Reply-To: <1400186304-1691-1-git-send-email-linux@roeck-us.net>
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 1/6] watchdog: Add API to trigger reboots
+Message-ID: <20140515215020.38f03ab1@alan.etchedpixels.co.uk>
+In-Reply-To: <1400186304-1691-2-git-send-email-linux@roeck-us.net>
 References: <1400186304-1691-1-git-send-email-linux@roeck-us.net>
-List-ID: <linux-watchdog@vger.kernel.org>
+	<1400186304-1691-2-git-send-email-linux@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-The watchdog subsystem now provides an API to trigger a system reboot.
-Register with it.
+> +void watchdog_do_reboot(void)
+> +{
+> +	if (wdd_reboot_dev)
+> +		wdd_reboot_dev->ops->reboot(wdd_reboot_dev);
+> +}
+> +EXPORT_SYMBOL(watchdog_do_reboot);
 
-Acked-by: Maxime Ripard <maxime.ripard@free-electrons.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
-v3: Drop reboot mode and cmd string parameters from API
-v2: Rebased to v2 of Maxime's patch adding reboot support
-    to the sunxi watchdog driver.
+Crashes and burns if you are unloading a watchdog just as you try to
+reboot. Yes its wildly unlikely but it's still conceptually wrong.
 
- drivers/watchdog/sunxi_wdt.c | 22 ++++++++--------------
- 1 file changed, 8 insertions(+), 14 deletions(-)
+>  
+> +	if (wdd->ops->reboot)
+> +		wdd_reboot_dev = wdd;
+> +
 
-diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
-index 60deb9d..d8d4f8c 100644
---- a/drivers/watchdog/sunxi_wdt.c
-+++ b/drivers/watchdog/sunxi_wdt.c
-@@ -23,12 +23,9 @@
- #include <linux/moduleparam.h>
- #include <linux/of.h>
- #include <linux/platform_device.h>
--#include <linux/reboot.h>
- #include <linux/types.h>
- #include <linux/watchdog.h>
- 
--#include <asm/system_misc.h>
--
- #define WDT_MAX_TIMEOUT         16
- #define WDT_MIN_TIMEOUT         1
- #define WDT_MODE_TIMEOUT(n)     ((n) << 3)
-@@ -74,23 +71,24 @@ static const int wdt_timeout_map[] = {
- 	[16] = 0xB, /* 16s */
- };
- 
--static void __iomem *reboot_wdt_base;
--
--static void sun4i_wdt_restart(enum reboot_mode mode, const char *cmd)
-+static void sunxi_wdt_reboot(struct watchdog_device *wdt_dev)
- {
-+	struct sunxi_wdt_dev *sunxi_wdt = watchdog_get_drvdata(wdt_dev);
-+
- 	/* Enable timer and set reset bit in the watchdog */
--	writel(WDT_MODE_EN | WDT_MODE_RST_EN, reboot_wdt_base + WDT_MODE);
-+	writel(WDT_MODE_EN | WDT_MODE_RST_EN,
-+	       sunxi_wdt->wdt_base + WDT_MODE);
- 
- 	/*
- 	 * Restart the watchdog. The default (and lowest) interval
- 	 * value for the watchdog is 0.5s.
- 	 */
--	writel(WDT_CTRL_RELOAD, reboot_wdt_base + WDT_CTRL);
-+	writel(WDT_CTRL_RELOAD, sunxi_wdt->wdt_base + WDT_CTRL);
- 
- 	while (1) {
- 		mdelay(5);
- 		writel(WDT_MODE_EN | WDT_MODE_RST_EN,
--		       reboot_wdt_base + WDT_MODE);
-+		       sunxi_wdt->wdt_base + WDT_MODE);
- 	}
- }
- 
-@@ -167,6 +165,7 @@ static const struct watchdog_ops sunxi_wdt_ops = {
- 	.start		= sunxi_wdt_start,
- 	.stop		= sunxi_wdt_stop,
- 	.ping		= sunxi_wdt_ping,
-+	.reboot		= sunxi_wdt_reboot,
- 	.set_timeout	= sunxi_wdt_set_timeout,
- };
- 
-@@ -205,9 +204,6 @@ static int sunxi_wdt_probe(struct platform_device *pdev)
- 	if (unlikely(err))
- 		return err;
- 
--	reboot_wdt_base = sunxi_wdt->wdt_base;
--	arm_pm_restart = sun4i_wdt_restart;
--
- 	dev_info(&pdev->dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)",
- 			sunxi_wdt->wdt_dev.timeout, nowayout);
- 
-@@ -218,8 +214,6 @@ static int sunxi_wdt_remove(struct platform_device *pdev)
- {
- 	struct sunxi_wdt_dev *sunxi_wdt = platform_get_drvdata(pdev);
- 
--	arm_pm_restart = NULL;
--
- 	watchdog_unregister_device(&sunxi_wdt->wdt_dev);
- 	watchdog_set_drvdata(&sunxi_wdt->wdt_dev, NULL);
- 
--- 
-1.9.1
+Two parallel registers from different bus types, parallel
+register/unregister ?
+
+This feels to me like a backward step. We've gone from various device
+bits leaking into the core code (where they can work all the time) to
+various core code leaking into the devices which is asking for init order
+problems and other races.
+
+Given we are talking about stuff of the order of 10-20 instructions I
+think duplication is not only the lesser evil it's also smaller, more
+reliable and easier to maintain.
+
+IMHO this is a solution looking for a problem.
+
+Alan
