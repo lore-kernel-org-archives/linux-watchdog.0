@@ -1,75 +1,69 @@
-Return-Path: <rdunlap@infradead.org>
-Message-ID: <536E9390.5060404@infradead.org>
-Date: Sat, 10 May 2014 14:01:04 -0700
-From: Randy Dunlap <rdunlap@infradead.org>
-MIME-Version: 1.0
-To: Guenter Roeck <linux@roeck-us.net>
-CC: linux-watchdog@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- Wim Van Sebroeck <wim@iguana.be>,
- Catalin Marinas <catalin.marinas@arm.com>,
- Maxime Ripard <maxime.ripard@free-electrons.com>,
- Will Deacon <will.deacon@arm.com>, Arnd Bergmann <arnd@arndb.de>,
- Heiko Stuebner <heiko@sntech.de>,
- Russell King <linux@arm.linux.org.uk>,
- Jonas Jensen <jonas.jensen@gmail.com>,
- linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
-Subject: Re: [PATCH 6/5] watchdog: Document reboot API
-References: <1399681883-891-1-git-send-email-linux@roeck-us.net> <536D74E3.8010609@infradead.org> <20140510162329.GA19884@roeck-us.net>
-In-Reply-To: <20140510162329.GA19884@roeck-us.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-wi0-f181.google.com ([209.85.212.181]:37419 "EHLO
+	mail-wi0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750733AbaEOEc3 (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 15 May 2014 00:32:29 -0400
+Received: by mail-wi0-f181.google.com with SMTP id n15so3484137wiw.14
+        for <linux-watchdog@vger.kernel.org>; Wed, 14 May 2014 21:32:28 -0700 (PDT)
+From: Viresh Kumar <viresh.kumar@linaro.org>
+To: wim@iguana.be
+Cc: linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, arun.ramamurthy@broadcom.com,
+	Viresh Kumar <viresh.kumar@linaro.org>,
+	<stable@vger.kernel.org>
+Subject: [PATCH] watchdog: sp805: Set watchdog_device->timeout from ->set_timeout()
+Date: Thu, 15 May 2014 10:01:59 +0530
+Message-Id: <c78a7ad282aff9bd1b88c55c2590438e17ef95e1.1400127943.git.viresh.kumar@linaro.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On 05/10/2014 09:23 AM, Guenter Roeck wrote:
-> Document the new reboot API functionality.
-> 
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> ---
->  Documentation/watchdog/watchdog-kernel-api.txt | 14 ++++++++++++++
->  1 file changed, 14 insertions(+)
-> 
-> diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
-> index a0438f3..f8f0f18 100644
-> --- a/Documentation/watchdog/watchdog-kernel-api.txt
-> +++ b/Documentation/watchdog/watchdog-kernel-api.txt
-> @@ -90,6 +90,8 @@ struct watchdog_ops {
->  	int (*stop)(struct watchdog_device *);
->  	/* optional operations */
->  	int (*ping)(struct watchdog_device *);
-> +	void (*reboot)(struct watchdog_device *, enum reboot_mode,
-> +		       const char *);
->  	unsigned int (*status)(struct watchdog_device *);
->  	int (*set_timeout)(struct watchdog_device *, unsigned int);
->  	unsigned int (*get_timeleft)(struct watchdog_device *);
-> @@ -148,6 +150,10 @@ they are supported. These optional routines/operations are:
->    info structure).
->  * status: this routine checks the status of the watchdog timer device. The
->    status of the device is reported with watchdog WDIOF_* status flags/bits.
-> +* reboot: if this routine is present, it may be called to reboot the system.
-> +  Parameters are the pointer to the watchdog device, the reboot mode, and a
-> +  command string. The latter two parameters are the system reboot mode
-> +  and the cmd parameter passed to machine_restart().
->  * set_timeout: this routine checks and changes the timeout of the watchdog
->    timer device. It returns 0 on success, -EINVAL for "parameter out of range"
->    and -EIO for "could not write value to the watchdog". On success this
-> @@ -224,3 +230,11 @@ the device tree (if the module timeout parameter is invalid). Best practice is
->  to set the default timeout value as timeout value in the watchdog_device and
->  then use this function to set the user "preferred" timeout value.
->  This routine returns zero on success and a negative errno code for failure.
-> +
-> +The watchdog_do_reboot function can be used reboot the system. This is intended
+Implementation of ->set_timeout() is supposed to set 'timeout' field of 'struct
+watchdog_device' passed to it. sp805 was rather setting this in a local
+variable. Fix it.
 
-                                               to reboot
+Cc: <stable@vger.kernel.org> # 2.6.36+
+Reported-by: Arun Ramamurthy <arun.ramamurthy@broadcom.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+---
+Greg,
 
-> +to be used in systems which do not have an explicit reboot capability, but
-> +implement reboot by programming the watchdog to expire immediately. If the
-> +function is called, and a watchdog driver with reboot functionality was
-> +previously registered, the reboot function of that driver will be called.
-> +Architecture code should call watchdog_do_reboot from its machine_reboot
-> +function after other means to reboot the system failed.
-> 
+This driver was introduced in 2.6.36 and WDIOC_GETTIMEOUT is broken since then.
+So added it for such an old stable release. Not sure if it should only be worth
+applying to 3.0+
 
-Thanks for the Doc patch.
+ drivers/watchdog/sp805_wdt.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
+diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
+index 47629d2..c1b03f4 100644
+--- a/drivers/watchdog/sp805_wdt.c
++++ b/drivers/watchdog/sp805_wdt.c
+@@ -59,7 +59,6 @@
+  * @adev: amba device structure of wdt
+  * @status: current status of wdt
+  * @load_val: load value to be set for current timeout
+- * @timeout: current programmed timeout
+  */
+ struct sp805_wdt {
+ 	struct watchdog_device		wdd;
+@@ -68,7 +67,6 @@ struct sp805_wdt {
+ 	struct clk			*clk;
+ 	struct amba_device		*adev;
+ 	unsigned int			load_val;
+-	unsigned int			timeout;
+ };
+ 
+ static bool nowayout = WATCHDOG_NOWAYOUT;
+@@ -98,7 +96,7 @@ static int wdt_setload(struct watchdog_device *wdd, unsigned int timeout)
+ 	spin_lock(&wdt->lock);
+ 	wdt->load_val = load;
+ 	/* roundup timeout to closest positive integer value */
+-	wdt->timeout = div_u64((load + 1) * 2 + (rate / 2), rate);
++	wdd->timeout = div_u64((load + 1) * 2 + (rate / 2), rate);
+ 	spin_unlock(&wdt->lock);
+ 
+ 	return 0;
 -- 
-~Randy
+2.0.0.rc2
+
