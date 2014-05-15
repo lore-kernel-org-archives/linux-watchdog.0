@@ -1,33 +1,61 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:63099 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751081AbaEOEor (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 15 May 2014 00:44:47 -0400
-Message-ID: <53744636.8080104@roeck-us.net>
-Date: Wed, 14 May 2014 21:44:38 -0700
+Return-Path: <groeck7@gmail.com>
+Return-Path: <groeck7@gmail.com>
+Sender: Guenter Roeck <groeck7@gmail.com>
 From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: Viresh Kumar <viresh.kumar@linaro.org>, wim@iguana.be
-CC: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, arun.ramamurthy@broadcom.com,
-	stable@vger.kernel.org
-Subject: Re: [PATCH] watchdog: sp805: Set watchdog_device->timeout from ->set_timeout()
-References: <c78a7ad282aff9bd1b88c55c2590438e17ef95e1.1400127943.git.viresh.kumar@linaro.org>
-In-Reply-To: <c78a7ad282aff9bd1b88c55c2590438e17ef95e1.1400127943.git.viresh.kumar@linaro.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+To: linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Will Deacon <will.deacon@arm.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Heiko Stuebner <heiko@sntech.de>,
+	Russell King <linux@arm.linux.org.uk>,
+	Jonas Jensen <jonas.jensen@gmail.com>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH v3 0/6] watchdog: Add reboot API
+Date: Thu, 15 May 2014 13:38:18 -0700
+Message-Id: <1400186304-1691-1-git-send-email-linux@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 05/14/2014 09:31 PM, Viresh Kumar wrote:
-> Implementation of ->set_timeout() is supposed to set 'timeout' field of 'struct
-> watchdog_device' passed to it. sp805 was rather setting this in a local
-> variable. Fix it.
->
-> Cc: <stable@vger.kernel.org> # 2.6.36+
-> Reported-by: Arun Ramamurthy <arun.ramamurthy@broadcom.com>
-> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Some hardware implements reboot through its watchdog hardware, for example
+by triggering a watchdog timeout or by writing into its watchdog register
+set. Platform specific code starts to spread into watchdog drivers,
+typically by setting pointers to a callback function which is then called
+from the architecture's reset handler.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+While global and exported callback function pointers (such as arm_pm_restart)
+may be acceptable as long as they are used from platform and/or architecture
+code, using such a mechanism across subsystems and drivers is less than
+desirable. Ultimately, we'll need a better solution.
 
+This patch series provides such a solution. It extends the watchdog
+subsystem to support reboot functionality, provides an API function
+call to trigger reboots, adds support for the new API to arm and arm64,
+and converts the drivers providing reboot functionality to use the new
+infrastructure.
+
+The first patch in the series implements the new API. The second patch
+documents it. The third and fourth patch modify the arm and arm64
+architecture reset handlers to call the added API function. The final
+two patches register the reboot handlers in the sunxi and moxart watchdog
+drivers with the watchdog subsystem.
+
+The sunxi patch depends on the most recent patch series sumitted by
+Maxime Ripard.
+
+Note that I did not address the comments asking for support of multiple
+watchdogs with reset handlers, nor the request to add a flag to provide
+'preferential' treatment for one of those watchdogs. This will require
+additional discussion and needs to be addressed with a later patch if needed.
+Key questions are how to add such support for non-DT systems, and if the
+scope of restart handling is a function of the driver or of the system.
+Also, if one of the watchdogs does not result in a complete system reset
+but another one does, it is not clear to me why the less-than-perfect
+watchdog would be configured in the first place (or how this situation
+would be handled today).
+
+Compile tested only for arm64. Tested on arm/moxart by Jonas Jensen.
