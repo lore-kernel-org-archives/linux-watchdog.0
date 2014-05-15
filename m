@@ -1,53 +1,43 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:55820 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751361AbaEOMn3 (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 15 May 2014 08:43:29 -0400
-Date: Thu, 15 May 2014 09:42:52 -0300
-From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Jason Cooper <jason@lakedaemon.net>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Tawfik Bayouk <tawfik@marvell.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Lior Amsalem <alior@marvell.com>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-Subject: Re: [RESEND/PATCH v4 0/9] Watchdog support for Armada 375/38x SoC
-Message-ID: <20140515124252.GA1893@arch.cereza>
-References: <1397481813-4962-1-git-send-email-ezequiel.garcia@free-electrons.com>
- <20140424045153.GU28159@titan.lakedaemon.net>
- <20140424110636.GA1735@arch.cereza>
- <20140506204242.GA26972@arch.cereza>
- <20140507142705.GE1484@spo001.leaseweb.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <20140507142705.GE1484@spo001.leaseweb.com>
+Received: from vps0.lunn.ch ([178.209.37.122]:44717 "EHLO vps0.lunn.ch"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754104AbaEOO1w (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 15 May 2014 10:27:52 -0400
+From: Andrew Lunn <andrew@lunn.ch>
+To: linux ARM <linux-arm-kernel@lists.infradead.org>,
+	Jason Cooper <jason@lakedaemon.net>
+Cc: Andrew Lunn <andrew@lunn.ch>, Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH RFC 11/11] watchdog: Remove ARCH_KIRKWOOD dependency
+Date: Thu, 15 May 2014 16:23:56 +0200
+Message-Id: <1400163836-9831-16-git-send-email-andrew@lunn.ch>
+In-Reply-To: <1400163836-9831-1-git-send-email-andrew@lunn.ch>
+References: <1400163836-9831-1-git-send-email-andrew@lunn.ch>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 07 May 04:27 PM, Wim Van Sebroeck wrote:
-> I'll do the necessary this weekend.
->=20
+mach-kirkwood has been removed, now that kirkwood lives in mach-mvebu.
 
-Hello Wim,
+Signed-off-by: Andrew Lunn <andrew@lunn.ch>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org
+---
+ drivers/watchdog/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Any news on this series?
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 74ec8fc5cc03..e68f2b9a3b31 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -301,7 +301,7 @@ config DAVINCI_WATCHDOG
+ 
+ config ORION_WATCHDOG
+ 	tristate "Orion watchdog"
+-	depends on ARCH_ORION5X || ARCH_KIRKWOOD || ARCH_DOVE || MACH_DOVE || ARCH_MVEBU
++	depends on ARCH_ORION5X || ARCH_DOVE || MACH_DOVE || ARCH_MVEBU
+ 	select WATCHDOG_CORE
+ 	help
+ 	  Say Y here if to include support for the watchdog timer
+-- 
+2.0.0.rc2
 
-Thanks a lot,
---=20
-Ezequiel Garc=EDa, Free Electrons
-Embedded Linux, Kernel and Android Engineering
-http://free-electrons.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
