@@ -1,76 +1,83 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:62302 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751380AbaEOBiE (ORCPT
+Received: from top.free-electrons.com ([176.31.233.9]:53309 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751853AbaEOIzD (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 14 May 2014 21:38:04 -0400
-Message-ID: <53741A70.8090606@roeck-us.net>
-Date: Wed, 14 May 2014 18:37:52 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: linux-watchdog@vger.kernel.org,
+	Thu, 15 May 2014 04:55:03 -0400
+Date: Thu, 15 May 2014 10:52:14 +0200
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: Emilio =?iso-8859-1?Q?L=F3pez?= <emilio@elopez.com.ar>
+Cc: Guenter Roeck <linux@roeck-us.net>, wim@iguana.be,
+	carlo.caione@gmail.com, linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org
-CC: Wim Van Sebroeck <wim@iguana.be>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Will Deacon <will.deacon@arm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Heiko Stuebner <heiko@sntech.de>,
-	Russell King <linux@arm.linux.org.uk>,
-	Jonas Jensen <jonas.jensen@gmail.com>,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 3/5] arm: Support reboot through watchdog subsystem
-References: <1399681883-891-1-git-send-email-linux@roeck-us.net> <1399681883-891-4-git-send-email-linux@roeck-us.net>
-In-Reply-To: <1399681883-891-4-git-send-email-linux@roeck-us.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] watchdog: sunxi: Fix compilation with C=2
+Message-ID: <20140515085214.GP29258@lukather>
+References: <1396632265-16124-1-git-send-email-emilio@elopez.com.ar>
+ <533EF39D.6090907@roeck-us.net>
+ <536FD3B3.3030100@elopez.com.ar>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="XQ/JOjNzrAcf1KaA"
+Content-Disposition: inline
+In-Reply-To: <536FD3B3.3030100@elopez.com.ar>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 05/09/2014 05:31 PM, Guenter Roeck wrote:
-> The watchdog subsystem provides an API to perform a system reboot.
-> Use it.
->
-> With this change, the arm_pm_restart callback is now optional,
-> so check if it is set before calling it.
->
-> Tested-by: Jonas Jensen <jonas.jensen@gmail.com>
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 
-Any comments / ack from the arm maintainers ?
+--XQ/JOjNzrAcf1KaA
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Sun, May 11, 2014 at 04:46:59PM -0300, Emilio L=F3pez wrote:
+> El 04/04/14 15:02, Guenter Roeck escribi=F3:
+> >On 04/04/2014 10:24 AM, Emilio L=F3pez wrote:
+> >>When compiling sunxi_defconfig while using C=3D2, the following error
+> >>causes the compilation to fail:
+> >>
+> >>     drivers/watchdog/sunxi_wdt.c:60:15: error: constant 0b0001 is not
+> >>a valid number
+> >>
+> >>Fix it by using hex notation instead of the non-standard binary one
+> >>
+> >>Signed-off-by: Emilio L=F3pez <emilio@elopez.com.ar>
+> >
+> >Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> >
+>=20
+> Wim, Maxime, any comments on this?
+
+I'm fine with this. Wim? Do you want to take this patch, or can we
+have an Acked-by?
 
 Thanks,
-Guenter
+Maxime
 
-> ---
-> v2: No change
->
->   arch/arm/kernel/process.c | 6 +++++-
->   1 file changed, 5 insertions(+), 1 deletion(-)
->
-> diff --git a/arch/arm/kernel/process.c b/arch/arm/kernel/process.c
-> index 81ef686..c3b7b5e 100644
-> --- a/arch/arm/kernel/process.c
-> +++ b/arch/arm/kernel/process.c
-> @@ -32,6 +32,7 @@
->   #include <linux/hw_breakpoint.h>
->   #include <linux/leds.h>
->   #include <linux/reboot.h>
-> +#include <linux/watchdog.h>
->
->   #include <asm/cacheflush.h>
->   #include <asm/idmap.h>
-> @@ -230,7 +231,10 @@ void machine_restart(char *cmd)
->   	local_irq_disable();
->   	smp_send_stop();
->
-> -	arm_pm_restart(reboot_mode, cmd);
-> +	if (arm_pm_restart)
-> +		arm_pm_restart(reboot_mode, cmd);
-> +
-> +	watchdog_do_reboot(reboot_mode, cmd);
->
->   	/* Give a grace period for failure to restart of 1s */
->   	mdelay(1000);
->
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
+--XQ/JOjNzrAcf1KaA
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJTdIA+AAoJEBx+YmzsjxAgzK8QAJoySaHN4AnZYvJGKwwi6lCI
+Fn4mMEROIa9glTbBdOGw0qF7ltQcaq/pp3lG8N1+IyJTTxmB2luBOsGG23kqSOMU
+BYkD3B05qQHawjvIXRwa3ctKf5a26GIDRU0Mdk8nIGT7ExM9HIx0z4ilve/omLHV
+pzFQW7DpxMH6qrm1TbVWIWNVtGWnNsvvqa+AzFkhPnhI8LnG/yR/fUudzoS5GA2W
+SDiDddtQvIs2s5scKN4XWVdBAGwkDBPGP7mN5hlN2NERmbv9JjCnZkfdGLuVTHpT
+76CEJqyb21kWBOhDckhFP7KheYdvZIeSmgPT5fCnX0naH7V7KXDEcAvXYjSNM7EB
+RBj+DZeSpN3e8AdKAgAWQ7SL7z/yMokM4YJAxsJi2wtQt2dQqcjJoasRLhdBNL9f
+iIoffLDu57rI78JXV+cagP+ZJK5GwsjQboFFaNk4gS3PF9JIfsSVNgGmzTGcRu5w
+Xk2WOmLEzTMvwcQCgXAEoo4Z8VdEVVu2NW0mWB6PSmmLq4f6UaIv2Ss/7qDUStv/
+xh+wchofyItzOHV/T87wHycdoGxdC6B8tuaF0kxqk/iwzSMkIUVKeGJmqRGC0UKg
+IfPTjDHM1GtXukKiz/LsTbmLTHxs4MvfeM2up+R1K7IIB0DitcXM8NE5PBC84f2c
+DEIwOigkKYaAJ9aMGJUt
+=eBSb
+-----END PGP SIGNATURE-----
+
+--XQ/JOjNzrAcf1KaA--
