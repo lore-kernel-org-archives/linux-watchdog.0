@@ -16,9 +16,9 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	linux-doc@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v3 5/6] watchdog: moxart: Register reboot handler with watchdog subsystem
-Date: Thu, 15 May 2014 13:38:23 -0700
-Message-Id: <1400186304-1691-6-git-send-email-linux@roeck-us.net>
+Subject: [PATCH v3 6/6] watchdog: sunxi: Register reboot handler with watchdog subsystem
+Date: Thu, 15 May 2014 13:38:24 -0700
+Message-Id: <1400186304-1691-7-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1400186304-1691-1-git-send-email-linux@roeck-us.net>
 References: <1400186304-1691-1-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
@@ -26,75 +26,90 @@ List-ID: <linux-watchdog@vger.kernel.org>
 The watchdog subsystem now provides an API to trigger a system reboot.
 Register with it.
 
-Tested-by: Jonas Jensen <jonas.jensen@gmail.com>
+Acked-by: Maxime Ripard <maxime.ripard@free-electrons.com>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
 v3: Drop reboot mode and cmd string parameters from API
-v2: No change
+v2: Rebased to v2 of Maxime's patch adding reboot support
+    to the sunxi watchdog driver.
 
- drivers/watchdog/moxart_wdt.c | 19 +++++++------------
- 1 file changed, 7 insertions(+), 12 deletions(-)
+ drivers/watchdog/sunxi_wdt.c | 22 ++++++++--------------
+ 1 file changed, 8 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/watchdog/moxart_wdt.c b/drivers/watchdog/moxart_wdt.c
-index 4aa3a8a..9698c83 100644
---- a/drivers/watchdog/moxart_wdt.c
-+++ b/drivers/watchdog/moxart_wdt.c
-@@ -19,8 +19,6 @@
- #include <linux/watchdog.h>
+diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
+index 60deb9d..d8d4f8c 100644
+--- a/drivers/watchdog/sunxi_wdt.c
++++ b/drivers/watchdog/sunxi_wdt.c
+@@ -23,12 +23,9 @@
  #include <linux/moduleparam.h>
+ #include <linux/of.h>
+ #include <linux/platform_device.h>
+-#include <linux/reboot.h>
+ #include <linux/types.h>
+ #include <linux/watchdog.h>
  
 -#include <asm/system_misc.h>
 -
- #define REG_COUNT			0x4
- #define REG_MODE			0x8
- #define REG_ENABLE			0xC
-@@ -31,15 +29,15 @@ struct moxart_wdt_dev {
- 	unsigned int clock_frequency;
+ #define WDT_MAX_TIMEOUT         16
+ #define WDT_MIN_TIMEOUT         1
+ #define WDT_MODE_TIMEOUT(n)     ((n) << 3)
+@@ -74,23 +71,24 @@ static const int wdt_timeout_map[] = {
+ 	[16] = 0xB, /* 16s */
  };
  
--static struct moxart_wdt_dev *moxart_restart_ctx;
+-static void __iomem *reboot_wdt_base;
 -
- static int heartbeat;
- 
--static void moxart_wdt_restart(enum reboot_mode reboot_mode, const char *cmd)
-+static void moxart_wdt_reboot(struct watchdog_device *wdt_dev)
+-static void sun4i_wdt_restart(enum reboot_mode mode, const char *cmd)
++static void sunxi_wdt_reboot(struct watchdog_device *wdt_dev)
  {
--	writel(1, moxart_restart_ctx->base + REG_COUNT);
--	writel(0x5ab9, moxart_restart_ctx->base + REG_MODE);
--	writel(0x03, moxart_restart_ctx->base + REG_ENABLE);
-+	struct moxart_wdt_dev *moxart_wdt = watchdog_get_drvdata(wdt_dev);
++	struct sunxi_wdt_dev *sunxi_wdt = watchdog_get_drvdata(wdt_dev);
 +
-+	writel(1, moxart_wdt->base + REG_COUNT);
-+	writel(0x5ab9, moxart_wdt->base + REG_MODE);
-+	writel(0x03, moxart_wdt->base + REG_ENABLE);
+ 	/* Enable timer and set reset bit in the watchdog */
+-	writel(WDT_MODE_EN | WDT_MODE_RST_EN, reboot_wdt_base + WDT_MODE);
++	writel(WDT_MODE_EN | WDT_MODE_RST_EN,
++	       sunxi_wdt->wdt_base + WDT_MODE);
+ 
+ 	/*
+ 	 * Restart the watchdog. The default (and lowest) interval
+ 	 * value for the watchdog is 0.5s.
+ 	 */
+-	writel(WDT_CTRL_RELOAD, reboot_wdt_base + WDT_CTRL);
++	writel(WDT_CTRL_RELOAD, sunxi_wdt->wdt_base + WDT_CTRL);
+ 
+ 	while (1) {
+ 		mdelay(5);
+ 		writel(WDT_MODE_EN | WDT_MODE_RST_EN,
+-		       reboot_wdt_base + WDT_MODE);
++		       sunxi_wdt->wdt_base + WDT_MODE);
+ 	}
  }
  
- static int moxart_wdt_stop(struct watchdog_device *wdt_dev)
-@@ -81,6 +79,7 @@ static const struct watchdog_ops moxart_wdt_ops = {
- 	.owner          = THIS_MODULE,
- 	.start          = moxart_wdt_start,
- 	.stop           = moxart_wdt_stop,
-+	.reboot		= moxart_wdt_reboot,
- 	.set_timeout    = moxart_wdt_set_timeout,
+@@ -167,6 +165,7 @@ static const struct watchdog_ops sunxi_wdt_ops = {
+ 	.start		= sunxi_wdt_start,
+ 	.stop		= sunxi_wdt_stop,
+ 	.ping		= sunxi_wdt_ping,
++	.reboot		= sunxi_wdt_reboot,
+ 	.set_timeout	= sunxi_wdt_set_timeout,
  };
  
-@@ -136,9 +135,6 @@ static int moxart_wdt_probe(struct platform_device *pdev)
- 	if (err)
+@@ -205,9 +204,6 @@ static int sunxi_wdt_probe(struct platform_device *pdev)
+ 	if (unlikely(err))
  		return err;
  
--	moxart_restart_ctx = moxart_wdt;
--	arm_pm_restart = moxart_wdt_restart;
+-	reboot_wdt_base = sunxi_wdt->wdt_base;
+-	arm_pm_restart = sun4i_wdt_restart;
 -
- 	dev_dbg(dev, "Watchdog enabled (heartbeat=%d sec, nowayout=%d)\n",
- 		moxart_wdt->dev.timeout, nowayout);
+ 	dev_info(&pdev->dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)",
+ 			sunxi_wdt->wdt_dev.timeout, nowayout);
  
-@@ -149,7 +145,6 @@ static int moxart_wdt_remove(struct platform_device *pdev)
+@@ -218,8 +214,6 @@ static int sunxi_wdt_remove(struct platform_device *pdev)
  {
- 	struct moxart_wdt_dev *moxart_wdt = platform_get_drvdata(pdev);
+ 	struct sunxi_wdt_dev *sunxi_wdt = platform_get_drvdata(pdev);
  
 -	arm_pm_restart = NULL;
- 	moxart_wdt_stop(&moxart_wdt->dev);
- 	watchdog_unregister_device(&moxart_wdt->dev);
+-
+ 	watchdog_unregister_device(&sunxi_wdt->wdt_dev);
+ 	watchdog_set_drvdata(&sunxi_wdt->wdt_dev, NULL);
  
 -- 
 1.9.1
