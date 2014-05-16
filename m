@@ -1,15 +1,14 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pb0-f45.google.com ([209.85.160.45]:50745 "EHLO
-	mail-pb0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752719AbaEOVr4 (ORCPT
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:42065 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750809AbaEPBWt (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 15 May 2014 17:47:56 -0400
-Date: Thu, 15 May 2014 14:47:43 -0700
+	Thu, 15 May 2014 21:22:49 -0400
+Date: Thu, 15 May 2014 18:22:34 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Wim Van Sebroeck <wim@iguana.be>,
+To: linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Catalin Marinas <catalin.marinas@arm.com>,
 	Maxime Ripard <maxime.ripard@free-electrons.com>,
 	Will Deacon <will.deacon@arm.com>,
@@ -19,64 +18,140 @@ Cc: linux-watchdog@vger.kernel.org,
 	Jonas Jensen <jonas.jensen@gmail.com>,
 	Randy Dunlap <rdunlap@infradead.org>,
 	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 1/6] watchdog: Add API to trigger reboots
-Message-ID: <20140515214743.GA15577@roeck-us.net>
+Subject: [PATCH v4 1/6] watchdog: Add API to trigger reboots
+Message-ID: <20140516012234.GA16592@roeck-us.net>
 References: <1400186304-1691-1-git-send-email-linux@roeck-us.net>
  <1400186304-1691-2-git-send-email-linux@roeck-us.net>
- <20140515215020.38f03ab1@alan.etchedpixels.co.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20140515215020.38f03ab1@alan.etchedpixels.co.uk>
+In-Reply-To: <1400186304-1691-2-git-send-email-linux@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, May 15, 2014 at 09:50:20PM +0100, One Thousand Gnomes wrote:
-> > +void watchdog_do_reboot(void)
-> > +{
-> > +	if (wdd_reboot_dev)
-> > +		wdd_reboot_dev->ops->reboot(wdd_reboot_dev);
-> > +}
-> > +EXPORT_SYMBOL(watchdog_do_reboot);
-> 
-> Crashes and burns if you are unloading a watchdog just as you try to
-> reboot. Yes its wildly unlikely but it's still conceptually wrong.
-> 
-Possibly, but how is it different to the code it replaces ?
+Some hardware implements reboot through its watchdog hardware,
+for example by triggering a watchdog timeout. Platform specific
+code starts to spread into watchdog drivers, typically by setting
+pointers to a callback functions which is then called from the
+platform reset handler.
 
-> >  
-> > +	if (wdd->ops->reboot)
-> > +		wdd_reboot_dev = wdd;
-> > +
-> 
-> Two parallel registers from different bus types, parallel
-> register/unregister ?
-> 
-Sorry, you lost me. What different bus types ?
+To simplify code and provide a unified API to trigger reboots by
+watchdog drivers, provide a single API to trigger such reboots
+through the watchdog subsystem.
 
-> This feels to me like a backward step. We've gone from various device
-> bits leaking into the core code (where they can work all the time) to
-> various core code leaking into the devices which is asking for init order
-> problems and other races.
-> 
-> Given we are talking about stuff of the order of 10-20 instructions I
-> think duplication is not only the lesser evil it's also smaller, more
-> reliable and easier to maintain.
-> 
-> IMHO this is a solution looking for a problem.
-> 
-Really ?  To me it seems to be much cleaner than setting the pointer to
-arm_pm_restart directly from individual watchdog drivers. Also, and I was
-told that other HW may benefit from it as well.
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+v4: Protect accesses to wdd_reboot_dev with spinlock to avoid potential
+    race conditions.
+    Drop Acked-by and Tested-by tags because changes are too significant
+    and warrant re-evaluation and re-testing.
+v3: Drop reboot mode and cmd string parameters from API
+v2: Remove unnecessary check for ops in reboot function
 
-Do I understand it correctly that you prefer watchdog drivers to set
-arm_pm_restart directly ? Maybe you can explain a bit why you believe
-that to be a superior solution.
+ drivers/watchdog/watchdog_core.c | 27 +++++++++++++++++++++++++++
+ include/linux/watchdog.h         |  8 ++++++++
+ 2 files changed, 35 insertions(+)
 
-In addition to that, while I could obviously add some locking around access to
-wdd_reboot_dev, existing code doesn't lock any changes to arm_pm_restart. I am
-somewhat at loss why setting or clearing arm_pm_restart is less of a problem
-that setting wdd_reboot_dev.
+diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+index cec9b55..e61f4ed 100644
+--- a/drivers/watchdog/watchdog_core.c
++++ b/drivers/watchdog/watchdog_core.c
+@@ -37,12 +37,27 @@
+ #include <linux/idr.h>		/* For ida_* macros */
+ #include <linux/err.h>		/* For IS_ERR macros */
+ #include <linux/of.h>		/* For of_get_timeout_sec */
++#include <linux/spinlock.h>	/* For spinlock */
+ 
+ #include "watchdog_core.h"	/* For watchdog_dev_register/... */
+ 
+ static DEFINE_IDA(watchdog_ida);
+ static struct class *watchdog_class;
+ 
++static DEFINE_SPINLOCK(wdd_reboot_lock);
++static struct watchdog_device *wdd_reboot_dev;
++
++void watchdog_do_reboot(void)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&wdd_reboot_lock, flags);
++	if (wdd_reboot_dev)
++		wdd_reboot_dev->ops->reboot(wdd_reboot_dev);
++	spin_unlock_irqrestore(&wdd_reboot_lock, flags);
++}
++EXPORT_SYMBOL(watchdog_do_reboot);
++
+ static void watchdog_check_min_max_timeout(struct watchdog_device *wdd)
+ {
+ 	/*
+@@ -111,6 +126,7 @@ EXPORT_SYMBOL_GPL(watchdog_init_timeout);
+ int watchdog_register_device(struct watchdog_device *wdd)
+ {
+ 	int ret, id, devno;
++	unsigned long flags;
+ 
+ 	if (wdd == NULL || wdd->info == NULL || wdd->ops == NULL)
+ 		return -EINVAL;
+@@ -162,6 +178,11 @@ int watchdog_register_device(struct watchdog_device *wdd)
+ 		return ret;
+ 	}
+ 
++	spin_lock_irqsave(&wdd_reboot_lock, flags);
++	if (wdd->ops->reboot && !wdd_reboot_dev)
++		wdd_reboot_dev = wdd;
++	spin_unlock_irqrestore(&wdd_reboot_lock, flags);
++
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(watchdog_register_device);
+@@ -177,10 +198,16 @@ void watchdog_unregister_device(struct watchdog_device *wdd)
+ {
+ 	int ret;
+ 	int devno;
++	unsigned long flags;
+ 
+ 	if (wdd == NULL)
+ 		return;
+ 
++	spin_lock_irqsave(&wdd_reboot_lock, flags);
++	if (wdd == wdd_reboot_dev)
++		wdd_reboot_dev = NULL;
++	spin_unlock_irqrestore(&wdd_reboot_lock, flags);
++
+ 	devno = wdd->cdev.dev;
+ 	ret = watchdog_dev_unregister(wdd);
+ 	if (ret)
+diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+index 2a3038e..1e9da0a 100644
+--- a/include/linux/watchdog.h
++++ b/include/linux/watchdog.h
+@@ -23,6 +23,7 @@ struct watchdog_device;
+  * @start:	The routine for starting the watchdog device.
+  * @stop:	The routine for stopping the watchdog device.
+  * @ping:	The routine that sends a keepalive ping to the watchdog device.
++ * @reboot:	The routine for rebooting the system
+  * @status:	The routine that shows the status of the watchdog device.
+  * @set_timeout:The routine for setting the watchdog devices timeout value.
+  * @get_timeleft:The routine that get's the time that's left before a reset.
+@@ -42,6 +43,7 @@ struct watchdog_ops {
+ 	int (*stop)(struct watchdog_device *);
+ 	/* optional operations */
+ 	int (*ping)(struct watchdog_device *);
++	void (*reboot)(struct watchdog_device *);
+ 	unsigned int (*status)(struct watchdog_device *);
+ 	int (*set_timeout)(struct watchdog_device *, unsigned int);
+ 	unsigned int (*get_timeleft)(struct watchdog_device *);
+@@ -142,4 +144,10 @@ extern int watchdog_init_timeout(struct watchdog_device *wdd,
+ extern int watchdog_register_device(struct watchdog_device *);
+ extern void watchdog_unregister_device(struct watchdog_device *);
+ 
++#ifdef CONFIG_WATCHDOG_CORE
++extern void watchdog_do_reboot(void);
++#else
++static inline void watchdog_do_reboot(void) { }
++#endif
++
+ #endif  /* ifndef _LINUX_WATCHDOG_H */
+-- 
+1.9.1
 
-Thanks,
-Guenter
