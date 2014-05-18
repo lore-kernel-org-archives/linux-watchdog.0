@@ -1,49 +1,50 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pb0-f53.google.com ([209.85.160.53]:36546 "EHLO
-	mail-pb0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751671AbaEOQvE (ORCPT
+Received: from mail.active-venture.com ([67.228.131.205]:49891 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750876AbaERE6L (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 15 May 2014 12:51:04 -0400
-Date: Thu, 15 May 2014 09:50:50 -0700
+	Sun, 18 May 2014 00:58:11 -0400
+Message-ID: <53783DD8.6070908@roeck-us.net>
+Date: Sat, 17 May 2014 21:58:00 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Will Deacon <will.deacon@arm.com>
-Cc: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Catalin Marinas <Catalin.Marinas@arm.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Heiko Stuebner <heiko@sntech.de>,
-	Russell King <linux@arm.linux.org.uk>,
-	Jonas Jensen <jonas.jensen@gmail.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2 2/5] arm64: Support reboot through watchdog subsystem
-Message-ID: <20140515165050.GA24903@roeck-us.net>
-References: <1399681883-891-1-git-send-email-linux@roeck-us.net>
- <1399681883-891-3-git-send-email-linux@roeck-us.net>
- <53741A5A.7070503@roeck-us.net>
- <20140515090952.GC27594@arm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20140515090952.GC27594@arm.com>
+To: David Cohen <david.a.cohen@linux.intel.com>
+CC: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: [hwmon:watchdog-next 18/34] arch/x86/platform/intel-mid/device_libs/platform_wdt.c:37:2:
+ error: implicit declaration of function 'mp_find_ioapic'
+References: <5374a77f.J4+vnB3mNfBZ172K%fengguang.wu@intel.com> <20140515171947.GA18562@roeck-us.net> <20140515174221.GA3237@psi-dev26.jf.intel.com> <20140518032052.GA545@psi-dev26.jf.intel.com>
+In-Reply-To: <20140518032052.GA545@psi-dev26.jf.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, May 15, 2014 at 10:09:52AM +0100, Will Deacon wrote:
-> On Thu, May 15, 2014 at 02:37:30AM +0100, Guenter Roeck wrote:
-> > On 05/09/2014 05:31 PM, Guenter Roeck wrote:
-> > > The watchdog subsystem provides an API to perform a system reboot.
-> > > Use it.
-> > >
-> > > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> > 
-> > Any comments / Ack from the arm maintainers ?
-> 
-> I'm fine with the arm/arm64 changes, but I still reckon the parameters
-> should be dropped unless you have a use for them.
+On 05/17/2014 08:20 PM, David Cohen wrote:
+> On Thu, May 15, 2014 at 10:42:21AM -0700, David Cohen wrote:
+>> On Thu, May 15, 2014 at 10:19:47AM -0700, Guenter Roeck wrote:
+>>> Hi David,
+>>
+>> Hi Guenter,
+>>
+>>>
+>>> can you look into this ? This is from your patch 'x86: intel-mid: add watchdog
+>>> platform code for Merrifield'.
+>>
+>> Thanks for the info.
+>>
+>>>
+>>> Maybe the code should depend on X86_IO_APIC,
+>>> or include asm/io_apic.h explicitly (which might be appropriate anyway).
+>>
+>> I'll send a fix.
+>
+> Do you prefer an incremental patch fixing this issue or a replacement
+> for the first one?
+>
 
-Ok, I'll drop the parameters and send a new version.
+I would suggest incremental; Wim can then decide if he wants to merge the two patches
+into one or keep them separate.
 
 Guenter
+
+
