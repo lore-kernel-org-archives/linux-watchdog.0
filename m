@@ -1,176 +1,46 @@
-Return-Path: <lee.jones@linaro.org>
-Return-Path: <lee.jones@linaro.org>
-Date: Mon, 19 May 2014 18:39:53 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Andreas Werner <andreas.werner@men.de>, linux-kernel@vger.kernel.org,
-	sameo@linux.intel.com, wim@iguana.be,
-	linux-watchdog@vger.kernel.org, cooloney@gmail.com,
-	rpurdie@rpsys.net, linux-leds@vger.kernel.org,
-	johannes.thumshirn@men.de, thomas.schnuerer@men.de,
-	wernerandy@gmx.de
-Subject: Re: [PATCH 1/3] drivers/mfd/menf21bmc: introduce MEN 14F021P00 BMC
- MFD Core driver
-Message-ID: <20140519173953.GA20874@lee--X1>
-References: <cover.1400258021.git.andreas.werner@men.de>
- <58de41a38511a107941d9c3b2cea314c0becfff7.1400258021.git.andreas.werner@men.de>
- <5377849E.7020001@roeck-us.net>
- <20140519124324.GB398@awelinux>
- <537A05D4.6080308@roeck-us.net>
+Return-Path: <ezequiel.garcia@free-electrons.com>
+Date: Wed, 21 May 2014 19:47:32 -0300
+From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	Jason Cooper <jason@lakedaemon.net>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	Andrew Lunn <andrew@lunn.ch>, Tawfik Bayouk <tawfik@marvell.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Lior Amsalem <alior@marvell.com>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Subject: Re: [RESEND/PATCH v4 0/9] Watchdog support for Armada 375/38x SoC
+Message-ID: <20140521224732.GA24803@arch.cereza>
+References: <1397481813-4962-1-git-send-email-ezequiel.garcia@free-electrons.com>
+ <20140424045153.GU28159@titan.lakedaemon.net>
+ <20140424110636.GA1735@arch.cereza>
+ <20140506204242.GA26972@arch.cereza>
+ <20140507142705.GE1484@spo001.leaseweb.com>
+ <20140515124252.GA1893@arch.cereza>
+ <20140519123723.GB698@arch.cereza>
+ <20140519130429.GP1484@spo001.leaseweb.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <537A05D4.6080308@roeck-us.net>
+In-Reply-To: <20140519130429.GP1484@spo001.leaseweb.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Mon, 19 May 2014, Guenter Roeck wrote:
+Hi Wim,
 
-> On 05/19/2014 05:43 AM, Andreas Werner wrote:
-> >aOn Sat, May 17, 2014 at 08:47:42AM -0700, Guenter Roeck wrote:
-> >>On 05/16/2014 09:37 AM, Andreas Werner wrote:
-> >>>The MEN 14F021P00 Board Management Controller provides an
-> >>>I2C interface to the host to access the feature implemented in the BMC.
-> >>>The BMC is a PIC Microntroller assembled on CPCI Card from MEN Mikroelektronik
-> >>>and on a few Box/Display Computer.
-> >>>
-> >>>Added MFD Core driver, supporting the I2C communication to the device.
-> >>>
-> >>>The MFD driver currently supports the following features:
-> >>>	- Watchdog
-> >>>	- LEDs
-> >>>
-> >>>Signed-off-by: Andreas Werner <andreas.werner@men.de>
-> >>>---
-> >>>  drivers/mfd/Kconfig           |  12 +++
-> >>>  drivers/mfd/Makefile          |   1 +
-> >>>  drivers/mfd/menf21bmc.c       | 193 ++++++++++++++++++++++++++++++++++++++++++
-> >>>  include/linux/mfd/menf21bmc.h |  32 +++++++
-> >>>  4 files changed, 238 insertions(+)
-> >>>  create mode 100644 drivers/mfd/menf21bmc.c
-> >>>  create mode 100644 include/linux/mfd/menf21bmc.h
-> >>>
-> >>>diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-> >>>index ab5a43c..7c2e8d2 100644
-> >>>--- a/drivers/mfd/Kconfig
-> >>>+++ b/drivers/mfd/Kconfig
-> >>>@@ -427,6 +427,18 @@ config MFD_MAX8998
-> >>>  	  additional drivers must be enabled in order to use the functionality
-> >>>  	  of the device.
-> >>>
-> >>>+config MFD_MENF21BMC
-> >>>+	tristate "MEN 14F021P00 Board Management Controller Support"
-> >>>+	depends on I2C=y
-> >>>+	select MFD_CORE
-> >>>+	help
-> >>>+	  Say yes here to add support for the MEN 14F021P00 BMC
-> >>>+	  which is a Board Management Controller connected to the I2C bus.
-> >>>+	  This driver provides common support for accessing the devices;
-> >>>+	  additional drivers must be enabled in order to use the
-> >>>+	  functionality of the BMC device.
-> >>>+
-> >>>+
-> >>>  config EZX_PCAP
-> >>>  	bool "Motorola EZXPCAP Support"
-> >>>  	depends on SPI_MASTER
-> >>>diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-> >>>index 5913208..8f2be38 100644
-> >>>--- a/drivers/mfd/Makefile
-> >>>+++ b/drivers/mfd/Makefile
-> >>>@@ -167,3 +167,4 @@ obj-$(CONFIG_MFD_AS3711)	+= as3711.o
-> >>>  obj-$(CONFIG_MFD_AS3722)	+= as3722.o
-> >>>  obj-$(CONFIG_MFD_STW481X)	+= stw481x.o
-> >>>  obj-$(CONFIG_MFD_IPAQ_MICRO)	+= ipaq-micro.o
-> >>>+obj-$(CONFIG_MFD_MENF21BMC)	+= menf21bmc.o
-> >>>diff --git a/drivers/mfd/menf21bmc.c b/drivers/mfd/menf21bmc.c
-> >>>new file mode 100644
-> >>>index 0000000..77de1a8
-> >>>--- /dev/null
-> >>>+++ b/drivers/mfd/menf21bmc.c
-> >>>@@ -0,0 +1,193 @@
-> >>>+/*
-> >>>+ *  MEN 14F021P00 Board Management Controller (BMC) MFD Core Driver.
-> >>>+ *
-> >>>+ *  Copyright (C) 2014 MEN Mikro Elektronik Nuernberg GmbH
-> >>>+ *  Author: Andreas Werner <andreas.werner@men.de>
-> >>>+ *  All rights reserved.
-> >>>+ *
-> >>>+ *  This program is free software; you can redistribute  it and/or modify it
-> >>>+ *  under  the terms of  the GNU General  Public License as published by the
-> >>>+ *  Free Software Foundation;  either version 2 of the  License, or (at your
-> >>>+ *  option) any later version.
-> >>>+ *
-> >>>+ */
-> >>>+
-> >>>+#include <linux/kernel.h>
-> >>>+#include <linux/device.h>
-> >>>+#include <linux/module.h>
-> >>>+#include <linux/i2c.h>
-> >>>+#include <linux/mfd/core.h>
-> >>>+#include <linux/mfd/menf21bmc.h>
-> >>>+
-> >>>+#define BMC_CMD_REV_MAJOR	0x80
-> >>>+#define BMC_CMD_REV_MINOR	0x81
-> >>>+#define BMC_CMD_REV_MAIN	0x82
-> >>>+#define BMC_CMD_REV_BUILD	0x83
-> >>>+#define BMC_CMD_REV_VERI	0x84
-> >>>+
-> >>>+static struct mfd_cell menf21bmc_cell[] = {
-> >>>+	{
-> >>>+		.name = "menf21bmc_wd",
-> >>>+	},
-> >>>+	{
-> >>>+		.name = "menf21bmc_led",
-> >>>+	},
-> >>>+};
-> >>>+
-> >>>+static int
-> >>>+menf21bmc_read_byte_data(struct i2c_client *client, u8 reg, uint8_t *val)
-> >>>+{
-> >>>+	int ret;
-> >>>+	struct menf21bmc *data = i2c_get_clientdata(client);
-> >>>+
-> >>>+	mutex_lock(&data->lock);
-> >>>+	ret = i2c_smbus_read_byte_data(client, reg);
-> >>>+	mutex_unlock(&data->lock);
-> >>>+
-> >>>+	if (ret < 0) {
-> >>>+		dev_err(&client->dev, "failed to read byte at 0x%02x\n", reg);
-> >>>+		return ret;
-> >>>+	}
-> >>>+
-> >>>+	*val = (uint8_t)ret;
-> >>>+
-> >>>+	return 0;
-> >>>+}
-> >>>+
-> >>I personally would prefer if you would retain the original API, which returns both value
-> >>and error code as return value. I don't see the benefit of changing the API as you did -
-> >>it just complicates the code.
-> >>
-> >>Thanks,
-> >>Guenter
-> >>
-> >I think it is ok for a wrapper like this because it does not really change an API because
-> >it is menf21bmc related.
-> >
-> >I did the same in rtc-rx8581, and it was already done in rtc_ds1307.c.
-> >
-> >I personally prefer this way because the return of the function and the return
-> >value of the i2c_smbus_read - which is the value read from the device - are seperated.
-> >
-> >If it is a no go for the mfd/wdt core i can change it back to the original i2c_smbus API.
-> >If it is ok on your side for a wrapper like this, we can let it as it is.
-> >
+On 19 May 03:04 PM, Wim Van Sebroeck wrote:
 > 
-> Not my call to make; depends on the mfd maintainer. I would not accept it, as I see it
-> as unnecessary, adding complexity, and pointless. Sure, you can always find examples
-> for everything somewhere in the kernel, but that doesn't make it better.
+> will be added in the coming days, but I have 2 other deadlines to catch first...
+> 
 
-I'm inclined to agree with Guenter, this patch is just noise.
+Sure, no problem. However, I must admit it worries me a bit not seeing this in
+linux-next, given -rc6 is already out. If you think we won't make it, don't
+hesitate to let me know and I'll try to find another route for the patches.
 
+Thanks a lot,
 -- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org â”‚ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Ezequiel García, Free Electrons
+Embedded Linux, Kernel and Android Engineering
+http://free-electrons.com
