@@ -1,61 +1,93 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ig0-f171.google.com ([209.85.213.171]:48851 "EHLO
-	mail-ig0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751842AbaETHGu (ORCPT
+Received: from top.free-electrons.com ([176.31.233.9]:49028 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751377AbaEVUfF (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 20 May 2014 03:06:50 -0400
-Received: by mail-ig0-f171.google.com with SMTP id c1so4495899igq.4
-        for <linux-watchdog@vger.kernel.org>; Tue, 20 May 2014 00:06:49 -0700 (PDT)
-Date: Tue, 20 May 2014 08:06:44 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Andreas Werner <andreas.werner@men.de>
-Cc: Guenter Roeck <linux@roeck-us.net>, linux-kernel@vger.kernel.org,
-	sameo@linux.intel.com, wim@iguana.be,
-	linux-watchdog@vger.kernel.org, cooloney@gmail.com,
-	rpurdie@rpsys.net, linux-leds@vger.kernel.org,
-	johannes.thumshirn@men.de, thomas.schnuerer@men.de,
-	wernerandy@gmx.de
-Subject: Re: [PATCH 1/3] drivers/mfd/menf21bmc: introduce MEN 14F021P00 BMC
- MFD Core driver
-Message-ID: <20140520070644.GB20874@lee--X1>
-References: <cover.1400258021.git.andreas.werner@men.de>
- <58de41a38511a107941d9c3b2cea314c0becfff7.1400258021.git.andreas.werner@men.de>
- <5377849E.7020001@roeck-us.net>
- <20140519124324.GB398@awelinux>
- <537A05D4.6080308@roeck-us.net>
- <20140519173953.GA20874@lee--X1>
- <20140520074748.GC398@awelinux>
+	Thu, 22 May 2014 16:35:05 -0400
+Date: Thu, 22 May 2014 22:34:44 +0200
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: wim@iguana.be, Guenter Roeck <linux@roeck-us.net>
+Cc: Arnd Bergmann <arnd@arndb.de>, dbaryshkov@gmail.com,
+	dwmw2@infradead.org, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	linux-sunxi@googlegroups.com
+Subject: Re: [PATCH v2 1/6] wdt: sunxi: Move restart code to the watchdog
+ driver
+Message-ID: <20140522203444.GE27329@lukather>
+References: <1399430664-29091-1-git-send-email-maxime.ripard@free-electrons.com>
+ <1399430664-29091-2-git-send-email-maxime.ripard@free-electrons.com>
+ <20140507213318.GA2105@roeck-us.net>
+ <20140515091123.GQ29258@lukather>
+ <20140519150422.GA27329@lukather>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="CCAbHT5wTCfICpGW"
 Content-Disposition: inline
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <20140520074748.GC398@awelinux>
+In-Reply-To: <20140519150422.GA27329@lukather>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-> > > Not my call to make; depends on the mfd maintainer. I would not a=
-ccept it, as I see it
-> > > as unnecessary, adding complexity, and pointless. Sure, you can a=
-lways find examples
-> > > for everything somewhere in the kernel, but that doesn't make it =
-better.
-> >=20
-> > I'm inclined to agree with Guenter, this patch is just noise.
->=20
-> Ok no problem, i will fix it and resend the patch.
-> For now I know it for the future :-)
->=20
-> Any other comments about the patch series?
 
-If you submit a v2, I'll re-review the bits you leave in.
+--CCAbHT5wTCfICpGW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, May 19, 2014 at 05:04:22PM +0200, Maxime Ripard wrote:
+> On Thu, May 15, 2014 at 11:11:23AM +0200, Maxime Ripard wrote:
+> > On Wed, May 07, 2014 at 02:33:18PM -0700, Guenter Roeck wrote:
+> > > On Tue, May 06, 2014 at 09:44:19PM -0500, Maxime Ripard wrote:
+> > > > Most of the watchdog code is duplicated between the machine restart=
+ code and
+> > > > the watchdog driver. Add the restart hook to the watchdog driver, t=
+o be able to
+> > > > remove it from the machine code eventually.
+> > > >=20
+> > > > Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+> > > > Acked-by: Arnd Bergmann <arnd@arndb.de>
+> > >=20
+> > > Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> >=20
+> > Wim, do you have any comment on this one?
+>=20
+> Ping?
+>=20
+> It would be really great to see this in 3.16, and we get quite close
+> to the end of ARM's merge window.
+
+Ping?
+
+Guenter, since you seem to be the only responsive, may I suggest that
+you start merging patches and do a pull request to either Wim or Linus
+directly during the merge window?
+
+Maxime
 
 --=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--CCAbHT5wTCfICpGW
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJTfl9kAAoJEBx+YmzsjxAg1ZMP/iiR/jK1qscwk/XaOPSi+Lkk
+gEQS3PiozzBeNrPuu8AEm9g5Be7FN8aCyss0veTpvAqlIlZnI8gSX1e51TZgFJeW
+cQ3gH1jm6ksBVmpjsOwwn1jfVIvT9H1u0fKNXV4mfdVtjwLPmEdkvaH0W86Wr1pQ
+T99pwrOy2i1/WKIOVjN0YfMGBndOI956cNtq8Jh563EannDBWixFqm4bTgpBJjW1
+2X0RbOlQzMCOahpJQ50UMOd6mhLJEWXKuEzH6OTE8rd0sFQm6JU1HYm8Il7Sun45
+o2oVSaMqXGrZ4xhCVdG17O35HODDiZifVNpzsb04jH4ZqstfbWOvHox7soB031uC
+B/F+Ey8ckRndcNUk+a6l1DjEvoelfVOtKcG80mDXCdqs4ECPQ5aC4N1VYDdvhfch
+kwYb8p6rHeh8/w89c0sMGXOUuTHZqJLiTr5vNRazYcFazPqjG3S69GPwVieWyZjp
+KsDQ3VyGprSTCJJj+q5sHsrkO95sUKGfnNEUhld3B0nYdBaesKF1aqm6KjeGN0Bk
+nznA7/o0TcjrEl/8nRzcjYOcTykuEDQySFuuAp0KPk/ENmI81xoWVarlJQOvrKv5
+qUANb/Xeukjtl0WYOQStYtpiDTpiUvtRX7tsKmFJVLan/4Z1A1/doMMQNHDhcT5I
+/6KO3NlZAhxl0FPdHM+2
+=1b1s
+-----END PGP SIGNATURE-----
+
+--CCAbHT5wTCfICpGW--
