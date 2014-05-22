@@ -1,46 +1,70 @@
-Return-Path: <ezequiel.garcia@free-electrons.com>
-Date: Wed, 21 May 2014 19:47:32 -0300
-From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	Jason Cooper <jason@lakedaemon.net>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	Andrew Lunn <andrew@lunn.ch>, Tawfik Bayouk <tawfik@marvell.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Lior Amsalem <alior@marvell.com>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-Subject: Re: [RESEND/PATCH v4 0/9] Watchdog support for Armada 375/38x SoC
-Message-ID: <20140521224732.GA24803@arch.cereza>
-References: <1397481813-4962-1-git-send-email-ezequiel.garcia@free-electrons.com>
- <20140424045153.GU28159@titan.lakedaemon.net>
- <20140424110636.GA1735@arch.cereza>
- <20140506204242.GA26972@arch.cereza>
- <20140507142705.GE1484@spo001.leaseweb.com>
- <20140515124252.GA1893@arch.cereza>
- <20140519123723.GB698@arch.cereza>
- <20140519130429.GP1484@spo001.leaseweb.com>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pa0-f47.google.com ([209.85.220.47]:38334 "EHLO
+	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750996AbaEVVMZ (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 22 May 2014 17:12:25 -0400
+Date: Thu, 22 May 2014 14:12:07 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: wim@iguana.be, Arnd Bergmann <arnd@arndb.de>, dbaryshkov@gmail.com,
+	dwmw2@infradead.org, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	linux-sunxi@googlegroups.com
+Subject: Re: [PATCH v2 1/6] wdt: sunxi: Move restart code to the watchdog
+ driver
+Message-ID: <20140522211207.GA28704@roeck-us.net>
+References: <1399430664-29091-1-git-send-email-maxime.ripard@free-electrons.com>
+ <1399430664-29091-2-git-send-email-maxime.ripard@free-electrons.com>
+ <20140507213318.GA2105@roeck-us.net>
+ <20140515091123.GQ29258@lukather>
+ <20140519150422.GA27329@lukather>
+ <20140522203444.GE27329@lukather>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20140519130429.GP1484@spo001.leaseweb.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+In-Reply-To: <20140522203444.GE27329@lukather>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hi Wim,
-
-On 19 May 03:04 PM, Wim Van Sebroeck wrote:
+On Thu, May 22, 2014 at 10:34:44PM +0200, Maxime Ripard wrote:
+> On Mon, May 19, 2014 at 05:04:22PM +0200, Maxime Ripard wrote:
+> > On Thu, May 15, 2014 at 11:11:23AM +0200, Maxime Ripard wrote:
+> > > On Wed, May 07, 2014 at 02:33:18PM -0700, Guenter Roeck wrote:
+> > > > On Tue, May 06, 2014 at 09:44:19PM -0500, Maxime Ripard wrote:
+> > > > > Most of the watchdog code is duplicated between the machine restart code and
+> > > > > the watchdog driver. Add the restart hook to the watchdog driver, to be able to
+> > > > > remove it from the machine code eventually.
+> > > > > 
+> > > > > Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+> > > > > Acked-by: Arnd Bergmann <arnd@arndb.de>
+> > > > 
+> > > > Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> > > 
+> > > Wim, do you have any comment on this one?
+> > 
+> > Ping?
+> > 
+> > It would be really great to see this in 3.16, and we get quite close
+> > to the end of ARM's merge window.
 > 
-> will be added in the coming days, but I have 2 other deadlines to catch first...
+> Ping?
 > 
+> Guenter, since you seem to be the only responsive, may I suggest that
+> you start merging patches and do a pull request to either Wim or Linus
+> directly during the merge window?
+> 
+I had prepared a pull request for Wim last weekend or so, but then there
+were more patches piling in and I got distracted, so I didn't have time
+to actually send it. I'll try again this weekend ... the kids should be
+busy learning for their finals, and I'll have Friday and Monday off
+from work, so I should be able to find the time.
 
-Sure, no problem. However, I must admit it worries me a bit not seeing this in
-linux-next, given -rc6 is already out. If you think we won't make it, don't
-hesitate to let me know and I'll try to find another route for the patches.
+As for sending patches to Linus directly, well, Wim is the watchdog maintainer.
+I manage to upset enough people, and would not want to add Wim to the list.
 
-Thanks a lot,
--- 
-Ezequiel García, Free Electrons
-Embedded Linux, Kernel and Android Engineering
-http://free-electrons.com
+The patches _are_ in my watchdog-next branch and get some coverage from
+both my auto-builders and from Fenguang's build robots, so while they are
+not in linux-next, they are not completely in the dark either.
+
+Guenter
