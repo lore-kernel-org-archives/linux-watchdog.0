@@ -1,60 +1,58 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:56554 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751232AbaEZVCN (ORCPT
+Received: from top.free-electrons.com ([176.31.233.9]:39763 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751706AbaEZVFK (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 26 May 2014 17:02:13 -0400
-Date: Mon, 26 May 2014 23:02:11 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: iop_wdt only builds for mach-iop13xx
-Message-ID: <20140526210211.GA23548@spo001.leaseweb.com>
-References: <1399560433-1402630-1-git-send-email-arnd@arndb.de> <1399560990-1402858-1-git-send-email-arnd@arndb.de> <1399560990-1402858-8-git-send-email-arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 26 May 2014 17:05:10 -0400
+Date: Mon, 26 May 2014 18:04:28 -0300
+From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Jason Cooper <jason@lakedaemon.net>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Tawfik Bayouk <tawfik@marvell.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Lior Amsalem <alior@marvell.com>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Subject: Re: [RESEND/PATCH v4 0/9] Watchdog support for Armada 375/38x SoC
+Message-ID: <20140526210428.GA14190@arch.cereza>
+References: <1397481813-4962-1-git-send-email-ezequiel.garcia@free-electrons.com>
+ <20140424045153.GU28159@titan.lakedaemon.net>
+ <20140424110636.GA1735@arch.cereza>
+ <20140526205305.GA23347@spo001.leaseweb.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1399560990-1402858-8-git-send-email-arnd@arndb.de>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20140526205305.GA23347@spo001.leaseweb.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Arnd,
-
-> All three iop variants we support in Linux (iop32x, iop33x and
-> iop13xx) seem to have support for the watchdog hardware, but this
-> driver fails to build for the first two of these because it
-> uses the IOP13XX_WDTCR_IB_RESET macro that is only defined for
-> iop13xx.
+On 26 May 10:53 PM, Wim Van Sebroeck wrote:
+> > On Apr 24, Jason Cooper wrote:
+> > > On Mon, Apr 14, 2014 at 10:23:24AM -0300, Ezequiel Garcia wrote:
+> > > > 
+> > > > Tested on A375-DB, A385-DB, A370-RD and Dove Cubox. Sebastian did more tests
+> > > > on Dove, and Jason Gunthorpe on Kirkwood.
+> > > 
+> > > Applied patches 7 and 8 to mvebu/dt.  For the rest,
+> > > 
+> > > Acked-by: Jason Cooper <jason@lakedaemon.net>
+> > > 
+> > 
+> > Wim,
+> > 
+> > Can you take the rest of the patches throught your tree, with Jason's ack?
 > 
-> This clarifies the dependency in Kconfig to avoid randconfig
-> build errors. It is unlikely that anyone will ever miss support
-> for this driver on the ancient iop3xx platforms, so we don't
-> need to bother trying to fix it properly.
+> Done. It's in linux-watchdog-next now.
 > 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> Cc: Wim Van Sebroeck <wim@iguana.be>
-> Cc: linux-watchdog@vger.kernel.org
-> ---
->  drivers/watchdog/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 2b4c1fc..e244548 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -272,7 +272,7 @@ config PNX4008_WATCHDOG
->  
->  config IOP_WATCHDOG
->  	tristate "IOP Watchdog"
-> -	depends on PLAT_IOP
-> +	depends on ARCH_IOP13XX
->  	select WATCHDOG_NOWAYOUT if (ARCH_IOP32X || ARCH_IOP33X)
->  	help
->  	  Say Y here if to include support for the watchdog timer
 
-Patch has been added to linux-watchdog-next.
-
-Kind regards,
-Wim.
-
+Great. Much appreciated!
+-- 
+Ezequiel García, Free Electrons
+Embedded Linux, Kernel and Android Engineering
+http://free-electrons.com
