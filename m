@@ -1,46 +1,43 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:56556 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:56561 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751659AbaEZVFp (ORCPT
+	with ESMTP id S1751624AbaEZVKY (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 26 May 2014 17:05:45 -0400
-Date: Mon, 26 May 2014 23:05:40 +0200
+	Mon, 26 May 2014 17:10:24 -0400
+Date: Mon, 26 May 2014 23:10:22 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Yuantian.Tang@freescale.com
-Cc: linux-watchdog@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	scottwood@freescale.com
-Subject: Re: [PATCH 1/1] booke/watchdog: refine and clean up the codes
-Message-ID: <20140526210540.GA23641@spo001.leaseweb.com>
-References: <1399514666-2572-1-git-send-email-Yuantian.Tang@freescale.com>
+To: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, arun.ramamurthy@broadcom.com,
+	stable@vger.kernel.org
+Subject: Re: [PATCH] watchdog: sp805: Set watchdog_device->timeout from ->set_timeout()
+Message-ID: <20140526211022.GA23751@spo001.leaseweb.com>
+References: <c78a7ad282aff9bd1b88c55c2590438e17ef95e1.1400127943.git.viresh.kumar@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1399514666-2572-1-git-send-email-Yuantian.Tang@freescale.com>
+In-Reply-To: <c78a7ad282aff9bd1b88c55c2590438e17ef95e1.1400127943.git.viresh.kumar@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Tang,
+Hi Viresh,
 
-> From: Tang Yuantian <yuantian.tang@freescale.com>
+> Implementation of ->set_timeout() is supposed to set 'timeout' field of 'struct
+> watchdog_device' passed to it. sp805 was rather setting this in a local
+> variable. Fix it.
 > 
-> Basically, this patch does the following:
-> 1. Move the codes of parsing boot parameters from setup-common.c
->    to driver. In this way, code reader can know directly that
->    there are boot parameters that can change the timeout.
-> 2. Make boot parameter 'booke_wdt_period' effective.
->    currently, when driver is loaded, default timeout is always
->    being used in stead of booke_wdt_period.
-> 3. Wrap up the watchdog timeout in device struct and clean up
->    unnecessary codes.
-> 
-> Signed-off-by: Tang Yuantian <yuantian.tang@freescale.com>
-> Acked-by: Scott Wood <scottwood@freescale.com>
+> Cc: <stable@vger.kernel.org> # 2.6.36+
+> Reported-by: Arun Ramamurthy <arun.ramamurthy@broadcom.com>
+> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 > ---
-> resend to watchdog maintainer
+> Greg,
 > 
->  arch/powerpc/kernel/setup-common.c | 27 --------------------
->  drivers/watchdog/booke_wdt.c       | 51 ++++++++++++++++++++++++--------------
->  2 files changed, 33 insertions(+), 45 deletions(-)
+> This driver was introduced in 2.6.36 and WDIOC_GETTIMEOUT is broken since then.
+> So added it for such an old stable release. Not sure if it should only be worth
+> applying to 3.0+
+> 
+>  drivers/watchdog/sp805_wdt.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
 
 Patch has been added to linux-watchdog-next.
 
