@@ -1,54 +1,44 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:56490 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:56496 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751308AbaEZTMt (ORCPT
+	with ESMTP id S1752067AbaEZTPc (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 26 May 2014 15:12:49 -0400
-Date: Mon, 26 May 2014 21:12:46 +0200
+	Mon, 26 May 2014 15:15:32 -0400
+Date: Mon, 26 May 2014 21:15:23 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Xiubo Li <Li.Xiubo@freescale.com>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCHv5 0/2] imx2-wdt: Add regmap-mmio support
-Message-ID: <20140526191246.GA21870@spo001.leaseweb.com>
-References: <1396575205-24394-1-git-send-email-Li.Xiubo@freescale.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Anatolij Gustschin <agust@denx.de>,
+	linux-arm-kernel@lists.infradead.org,
+	Shawn Guo <shawn.guo@linaro.org>,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] watchdog: imx2_wdt: handle enabled watchdog properly
+Message-ID: <20140526191523.GB21870@spo001.leaseweb.com>
+References: <1396623242-15234-1-git-send-email-agust@denx.de> <20140404152011.GC5529@katana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1396575205-24394-1-git-send-email-Li.Xiubo@freescale.com>
+In-Reply-To: <20140404152011.GC5529@katana>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Xiubo,
+Hi Wolfram,
 
-> This patches are preparing for Vybird, LS1 and LS2. And on LS1 the IP will
-> in BE mode.
+> On Fri, Apr 04, 2014 at 04:54:01PM +0200, Anatolij Gustschin wrote:
+> > If the watchdog is already enabled (e.g. started by the boot loader),
+> > we need to handle this case properly and start reloading the watchdog
+> > time-out counter as frequently as needed.
+> > 
+> > Signed-off-by: Anatolij Gustschin <agust@denx.de>
+> > Cc: Wolfram Sang <wsa@the-dreams.de>
+> > Cc: Wim Van Sebroeck <wim@iguana.be>
 > 
-> Changes in V5:
-> - Select the REGMAP_MMIO default for IMX2 Watchdog.
+> Uh, this driver has not been converted to use the watchdog framework
+> yet? I'd suggest this should be the first step.
 > 
-> Changes in V4:
-> - Add the explanation why uing the regmap APIs.
-> 
-> Changes in V3:
-> - convert to use regmap-mmio API.
-> 
-> Changes in V2:
-> - Add the detail information in the commit comment.
-> - 'big-endians' --> 'big-endian'.
-> 
-> 
-> 
-> 
-> 
-> Xiubo Li (2):
->   watchdog: imx2_wdt: Sort the header files alphabetically
->   watchdog: imx2_wdt: convert to use regmap API.
-> 
->  drivers/watchdog/Kconfig    |  1 +
->  drivers/watchdog/imx2_wdt.c | 62 +++++++++++++++++++++++++++------------------
->  2 files changed, 39 insertions(+), 24 deletions(-)
+> @Wim: Does the watchdog core already handle the case that the wdt might
+> have been started by the bootloader?
 
-both patches have been added to linux-watchdog-next.
+No, not yet.
 
 Kind regards,
 Wim.
