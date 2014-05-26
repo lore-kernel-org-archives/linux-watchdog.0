@@ -1,79 +1,60 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:56447 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:56463 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751359AbaEZStH (ORCPT
+	with ESMTP id S1751359AbaEZSup (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 26 May 2014 14:49:07 -0400
-Date: Mon, 26 May 2014 20:49:04 +0200
+	Mon, 26 May 2014 14:50:45 -0400
+Date: Mon, 26 May 2014 20:50:41 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Julia Lawall <Julia.Lawall@lip6.fr>
-Cc: kernel-janitors@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/3] watchdog: via_wdt: replace del_timer by del_timer_sync
-Message-ID: <20140526184904.GA21259@spo001.leaseweb.com>
-References: <1396360159-16244-1-git-send-email-Julia.Lawall@lip6.fr> <1396360159-16244-4-git-send-email-Julia.Lawall@lip6.fr>
+To: Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: Emilio =?iso-8859-1?Q?L=F3pez?= <emilio@elopez.com.ar>,
+	Guenter Roeck <linux@roeck-us.net>, carlo.caione@gmail.com,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH] watchdog: sunxi: Fix compilation with C=2
+Message-ID: <20140526185041.GA21283@spo001.leaseweb.com>
+References: <1396632265-16124-1-git-send-email-emilio@elopez.com.ar> <533EF39D.6090907@roeck-us.net> <536FD3B3.3030100@elopez.com.ar> <20140515085214.GP29258@lukather>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1396360159-16244-4-git-send-email-Julia.Lawall@lip6.fr>
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+In-Reply-To: <20140515085214.GP29258@lukather>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Julia,
+Hi Maxime,
 
-> From: Julia Lawall <Julia.Lawall@lip6.fr>
-> 
-> Use del_timer_sync to ensure that the timer is stopped on all CPUs before
-> the driver exits.
-> 
-> This change was suggested by Thomas Gleixner.
-> 
-> The semantic patch that makes this change is as follows:
-> (http://coccinelle.lip6.fr/)
-> 
-> // <smpl>
-> @r@
-> identifier i,t,ex;
-> @@
-> struct t i = { .remove = ex, };
-> 
-> @@
-> identifier r.ex;
-> @@
-> ex(...) {
->   <...
-> - del_timer
-> + del_timer_sync
->     (...)
->   ...>
-> }
-> // </smpl>
-> 
-> Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
-> 
-> ---
-> Not tested.
-> 
->  drivers/watchdog/via_wdt.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/watchdog/via_wdt.c b/drivers/watchdog/via_wdt.c
-> index d2cd9f0..56369c4 100644
-> --- a/drivers/watchdog/via_wdt.c
-> +++ b/drivers/watchdog/via_wdt.c
-> @@ -232,7 +232,7 @@ err_out_disable_device:
->  static void wdt_remove(struct pci_dev *pdev)
->  {
->  	watchdog_unregister_device(&wdt_dev);
-> -	del_timer(&timer);
-> +	del_timer_sync(&timer);
->  	iounmap(wdt_mem);
->  	release_mem_region(mmio, VIA_WDT_MMIO_LEN);
->  	release_resource(&wdt_res);
-> 
+> On Sun, May 11, 2014 at 04:46:59PM -0300, Emilio L=F3pez wrote:
+> > El 04/04/14 15:02, Guenter Roeck escribi=F3:
+> > >On 04/04/2014 10:24 AM, Emilio L=F3pez wrote:
+> > >>When compiling sunxi_defconfig while using C=3D2, the following e=
+rror
+> > >>causes the compilation to fail:
+> > >>
+> > >>     drivers/watchdog/sunxi_wdt.c:60:15: error: constant 0b0001 i=
+s not
+> > >>a valid number
+> > >>
+> > >>Fix it by using hex notation instead of the non-standard binary o=
+ne
+> > >>
+> > >>Signed-off-by: Emilio L=F3pez <emilio@elopez.com.ar>
+> > >
+> > >Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> > >
+> >=20
+> > Wim, Maxime, any comments on this?
+>=20
+> I'm fine with this. Wim? Do you want to take this patch, or can we
+> have an Acked-by?
 
-This was added 2 or 3 weeks ago to linux-watchdog-next.
+I'm taking the patch.
 
 Kind regards,
 Wim.
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
