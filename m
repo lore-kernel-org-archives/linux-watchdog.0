@@ -1,83 +1,49 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:56468 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:56474 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751218AbaEZSv1 (ORCPT
+	with ESMTP id S1751359AbaEZTAB (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 26 May 2014 14:51:27 -0400
-Date: Mon, 26 May 2014 20:51:23 +0200
+	Mon, 26 May 2014 15:00:01 -0400
+Date: Mon, 26 May 2014 20:59:59 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Emilio =?iso-8859-1?Q?L=F3pez?= <emilio@elopez.com.ar>
-Cc: Maxime Ripard <maxime.ripard@free-electrons.com>,
-	carlo.caione@gmail.com, linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH] watchdog: sunxi: Fix compilation with C=2
-Message-ID: <20140526185123.GB21283@spo001.leaseweb.com>
-References: <1396632265-16124-1-git-send-email-emilio@elopez.com.ar>
+To: Per Gundberg <per.gundberg@icomera.com>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] watchdog: kempld-wdt: Use the correct value when configuring the prescaler with the watchdog
+Message-ID: <20140526185959.GA21481@spo001.leaseweb.com>
+References: <CAKUdnSzO2ixCOvvxAwz3duXsPEpExVND7VA_DVPAYpwQGTwYdQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <1396632265-16124-1-git-send-email-emilio@elopez.com.ar>
+In-Reply-To: <CAKUdnSzO2ixCOvvxAwz3duXsPEpExVND7VA_DVPAYpwQGTwYdQ@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Emilio,
+Hi Per,
 
-> When compiling sunxi_defconfig while using C=3D2, the following error
-> causes the compilation to fail:
->=20
->     drivers/watchdog/sunxi_wdt.c:60:15: error: constant 0b0001 is not=
- a valid number
->=20
-> Fix it by using hex notation instead of the non-standard binary one
->=20
-> Signed-off-by: Emilio L=F3pez <emilio@elopez.com.ar>
+> Use the prescaler index, rather than its value, to configure the watchdog.
+> This will prevent a mismatch with the prescaler used to calculate the
+> cycles.
+> 
+> Signed-off-by: Per Gundberg <per.gundberg@icomera.com>
 > ---
->  drivers/watchdog/sunxi_wdt.c | 22 +++++++++++-----------
->  1 file changed, 11 insertions(+), 11 deletions(-)
->=20
-> diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wd=
-t.c
-> index cd00a78..693b9d2 100644
-> --- a/drivers/watchdog/sunxi_wdt.c
-> +++ b/drivers/watchdog/sunxi_wdt.c
-> @@ -57,17 +57,17 @@ struct sunxi_wdt_dev {
->   */
-> =20
->  static const int wdt_timeout_map[] =3D {
-> -	[1] =3D 0b0001,  /* 1s  */
-> -	[2] =3D 0b0010,  /* 2s  */
-> -	[3] =3D 0b0011,  /* 3s  */
-> -	[4] =3D 0b0100,  /* 4s  */
-> -	[5] =3D 0b0101,  /* 5s  */
-> -	[6] =3D 0b0110,  /* 6s  */
-> -	[8] =3D 0b0111,  /* 8s  */
-> -	[10] =3D 0b1000, /* 10s */
-> -	[12] =3D 0b1001, /* 12s */
-> -	[14] =3D 0b1010, /* 14s */
-> -	[16] =3D 0b1011, /* 16s */
-> +	[1] =3D 0x1,  /* 1s  */
-> +	[2] =3D 0x2,  /* 2s  */
-> +	[3] =3D 0x3,  /* 3s  */
-> +	[4] =3D 0x4,  /* 4s  */
-> +	[5] =3D 0x5,  /* 5s  */
-> +	[6] =3D 0x6,  /* 6s  */
-> +	[8] =3D 0x7,  /* 8s  */
-> +	[10] =3D 0x8, /* 10s */
-> +	[12] =3D 0x9, /* 12s */
-> +	[14] =3D 0xA, /* 14s */
-> +	[16] =3D 0xB, /* 16s */
->  };
-> =20
->  static int sunxi_wdt_ping(struct watchdog_device *wdt_dev)
+>  drivers/watchdog/kempld_wdt.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> --- src/drivers/watchdog/kempld_wdt.c.orig    2014-04-24 07:32:08.463745055
+> +0000
+> +++ src/drivers/watchdog/kempld_wdt.c    2014-04-24 07:34:09.839739808 +0000
+> @@ -163,7 +163,7 @@ static int kempld_wdt_set_stage_timeout(
+>      kempld_get_mutex(pld);
+>      stage_cfg = kempld_read8(pld, KEMPLD_WDT_STAGE_CFG(stage->id));
+>      stage_cfg &= ~STAGE_CFG_PRESCALER_MASK;
+> -    stage_cfg |= STAGE_CFG_SET_PRESCALER(prescaler);
+> +    stage_cfg |= STAGE_CFG_SET_PRESCALER(PRESCALER_21);
+>      kempld_write8(pld, KEMPLD_WDT_STAGE_CFG(stage->id), stage_cfg);
+>      kempld_write32(pld, KEMPLD_WDT_STAGE_TIMEOUT(stage->id),
+>              stage_timeout);
 
-This has been added to linux-watchdog-next.
+This patch has been added to linux-watchdog-next.
 
 Kind regards,
 Wim.
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
