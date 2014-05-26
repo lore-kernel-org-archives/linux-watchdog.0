@@ -1,58 +1,49 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:39763 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751706AbaEZVFK (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:56556 "EHLO
+	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751659AbaEZVFp (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 26 May 2014 17:05:10 -0400
-Date: Mon, 26 May 2014 18:04:28 -0300
-From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Jason Cooper <jason@lakedaemon.net>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Tawfik Bayouk <tawfik@marvell.com>,
-	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-	Lior Amsalem <alior@marvell.com>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-Subject: Re: [RESEND/PATCH v4 0/9] Watchdog support for Armada 375/38x SoC
-Message-ID: <20140526210428.GA14190@arch.cereza>
-References: <1397481813-4962-1-git-send-email-ezequiel.garcia@free-electrons.com>
- <20140424045153.GU28159@titan.lakedaemon.net>
- <20140424110636.GA1735@arch.cereza>
- <20140526205305.GA23347@spo001.leaseweb.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Mon, 26 May 2014 17:05:45 -0400
+Date: Mon, 26 May 2014 23:05:40 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Yuantian.Tang@freescale.com
+Cc: linux-watchdog@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	scottwood@freescale.com
+Subject: Re: [PATCH 1/1] booke/watchdog: refine and clean up the codes
+Message-ID: <20140526210540.GA23641@spo001.leaseweb.com>
+References: <1399514666-2572-1-git-send-email-Yuantian.Tang@freescale.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20140526205305.GA23347@spo001.leaseweb.com>
+In-Reply-To: <1399514666-2572-1-git-send-email-Yuantian.Tang@freescale.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 26 May 10:53 PM, Wim Van Sebroeck wrote:
-> > On Apr 24, Jason Cooper wrote:
-> > > On Mon, Apr 14, 2014 at 10:23:24AM -0300, Ezequiel Garcia wrote:
-> > > > 
-> > > > Tested on A375-DB, A385-DB, A370-RD and Dove Cubox. Sebastian did more tests
-> > > > on Dove, and Jason Gunthorpe on Kirkwood.
-> > > 
-> > > Applied patches 7 and 8 to mvebu/dt.  For the rest,
-> > > 
-> > > Acked-by: Jason Cooper <jason@lakedaemon.net>
-> > > 
-> > 
-> > Wim,
-> > 
-> > Can you take the rest of the patches throught your tree, with Jason's ack?
-> 
-> Done. It's in linux-watchdog-next now.
-> 
+Hi Tang,
 
-Great. Much appreciated!
--- 
-Ezequiel García, Free Electrons
-Embedded Linux, Kernel and Android Engineering
-http://free-electrons.com
+> From: Tang Yuantian <yuantian.tang@freescale.com>
+> 
+> Basically, this patch does the following:
+> 1. Move the codes of parsing boot parameters from setup-common.c
+>    to driver. In this way, code reader can know directly that
+>    there are boot parameters that can change the timeout.
+> 2. Make boot parameter 'booke_wdt_period' effective.
+>    currently, when driver is loaded, default timeout is always
+>    being used in stead of booke_wdt_period.
+> 3. Wrap up the watchdog timeout in device struct and clean up
+>    unnecessary codes.
+> 
+> Signed-off-by: Tang Yuantian <yuantian.tang@freescale.com>
+> Acked-by: Scott Wood <scottwood@freescale.com>
+> ---
+> resend to watchdog maintainer
+> 
+>  arch/powerpc/kernel/setup-common.c | 27 --------------------
+>  drivers/watchdog/booke_wdt.c       | 51 ++++++++++++++++++++++++--------------
+>  2 files changed, 33 insertions(+), 45 deletions(-)
+
+Patch has been added to linux-watchdog-next.
+
+Kind regards,
+Wim.
+
