@@ -1,46 +1,63 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:56561 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751624AbaEZVKY (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 26 May 2014 17:10:24 -0400
-Date: Mon, 26 May 2014 23:10:22 +0200
+Return-Path: <wimvs@spo001.leaseweb.com>
+Date: Mon, 26 May 2014 23:26:06 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, arun.ramamurthy@broadcom.com,
-	stable@vger.kernel.org
-Subject: Re: [PATCH] watchdog: sp805: Set watchdog_device->timeout from ->set_timeout()
-Message-ID: <20140526211022.GA23751@spo001.leaseweb.com>
-References: <c78a7ad282aff9bd1b88c55c2590438e17ef95e1.1400127943.git.viresh.kumar@linaro.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] watchdog: w83627hf_wdt: Add early_disable module parameter
+Message-ID: <20140526212606.GA23827@spo001.leaseweb.com>
+References: <1396722457-8275-1-git-send-email-linux@roeck-us.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <c78a7ad282aff9bd1b88c55c2590438e17ef95e1.1400127943.git.viresh.kumar@linaro.org>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <1396722457-8275-1-git-send-email-linux@roeck-us.net>
+Sender: <wimvs@spo001.leaseweb.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Viresh,
+Hi Guenter,
 
-> Implementation of ->set_timeout() is supposed to set 'timeout' field of 'struct
-> watchdog_device' passed to it. sp805 was rather setting this in a local
-> variable. Fix it.
+> Add early_disable module parameter to match functionality previously
+> available in the w83697hf_wdt driver.
 > 
-> Cc: <stable@vger.kernel.org> # 2.6.36+
-> Reported-by: Arun Ramamurthy <arun.ramamurthy@broadcom.com>
-> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 > ---
-> Greg,
+>  drivers/watchdog/w83627hf_wdt.c |   15 ++++++++++++---
+>  1 file changed, 12 insertions(+), 3 deletions(-)
 > 
-> This driver was introduced in 2.6.36 and WDIOC_GETTIMEOUT is broken since then.
-> So added it for such an old stable release. Not sure if it should only be worth
-> applying to 3.0+
-> 
->  drivers/watchdog/sp805_wdt.c | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
+> diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
+> index b1da0c1..7165704 100644
+> --- a/drivers/watchdog/w83627hf_wdt.c
+> +++ b/drivers/watchdog/w83627hf_wdt.c
+> @@ -64,6 +64,10 @@ MODULE_PARM_DESC(nowayout,
+>  		"Watchdog cannot be stopped once started (default="
+>  				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+>  
+> +static int early_disable;
+> +module_param(early_disable, int, 0);
+> +MODULE_PARM_DESC(early_disable, "Disable watchdog at boot time (default=0)");
+> +
+>  /*
+>   *	Kernel methods.
+>   */
+> @@ -208,9 +212,14 @@ static int w83627hf_init(struct watchdog_device *wdog, enum chips chip)
+>  
+>  	t = superio_inb(cr_wdt_timeout);
+>  	if (t != 0) {
+> -		pr_info("Watchdog already running. Resetting timeout to %d sec\n",
+> -			wdog->timeout);
+> -		superio_outb(cr_wdt_timeout, wdog->timeout);
+> +		if (early_disable) {
+> +			pr_warn("Stopping previously enabled watchdog until userland kicks in\n");
+> +			superio_outb(cr_wdt_timeout, 0);
+> +		} else {
+> +			pr_info("Watchdog already running. Resetting timeout to %d sec\n",
+> +				wdog->timeout);
+> +			superio_outb(cr_wdt_timeout, wdog->timeout);
+> +		}
+>  	}
+>  
+>  	/* set second mode & disable keyboard turning off watchdog */
 
-Patch has been added to linux-watchdog-next.
+Has been added to linux-watchdog-next.
 
 Kind regards,
 Wim.
-
