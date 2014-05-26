@@ -1,46 +1,46 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:56474 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:56477 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751359AbaEZTAB (ORCPT
+	with ESMTP id S1751200AbaEZTBI (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 26 May 2014 15:00:01 -0400
-Date: Mon, 26 May 2014 20:59:59 +0200
+	Mon, 26 May 2014 15:01:08 -0400
+Date: Mon, 26 May 2014 21:01:06 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Per Gundberg <per.gundberg@icomera.com>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: kempld-wdt: Use the correct value when configuring the prescaler with the watchdog
-Message-ID: <20140526185959.GA21481@spo001.leaseweb.com>
-References: <CAKUdnSzO2ixCOvvxAwz3duXsPEpExVND7VA_DVPAYpwQGTwYdQ@mail.gmail.com>
+To: Alexander Shiyan <shc_work@mail.ru>
+Cc: linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] watchdog: shwdt: Remove unused platform_set_drvdata()
+Message-ID: <20140526190106.GB21481@spo001.leaseweb.com>
+References: <1396088940-9224-1-git-send-email-shc_work@mail.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAKUdnSzO2ixCOvvxAwz3duXsPEpExVND7VA_DVPAYpwQGTwYdQ@mail.gmail.com>
+In-Reply-To: <1396088940-9224-1-git-send-email-shc_work@mail.ru>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Per,
+Hi Alexander,
 
-> Use the prescaler index, rather than its value, to configure the watchdog.
-> This will prevent a mismatch with the prescaler used to calculate the
-> cycles.
+> This patch removes platform_set_drvdata() which is not used in
+> the driver.
 > 
-> Signed-off-by: Per Gundberg <per.gundberg@icomera.com>
+> Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
 > ---
->  drivers/watchdog/kempld_wdt.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/watchdog/shwdt.c | 2 --
+>  1 file changed, 2 deletions(-)
 > 
-> --- src/drivers/watchdog/kempld_wdt.c.orig    2014-04-24 07:32:08.463745055
-> +0000
-> +++ src/drivers/watchdog/kempld_wdt.c    2014-04-24 07:34:09.839739808 +0000
-> @@ -163,7 +163,7 @@ static int kempld_wdt_set_stage_timeout(
->      kempld_get_mutex(pld);
->      stage_cfg = kempld_read8(pld, KEMPLD_WDT_STAGE_CFG(stage->id));
->      stage_cfg &= ~STAGE_CFG_PRESCALER_MASK;
-> -    stage_cfg |= STAGE_CFG_SET_PRESCALER(prescaler);
-> +    stage_cfg |= STAGE_CFG_SET_PRESCALER(PRESCALER_21);
->      kempld_write8(pld, KEMPLD_WDT_STAGE_CFG(stage->id), stage_cfg);
->      kempld_write32(pld, KEMPLD_WDT_STAGE_TIMEOUT(stage->id),
->              stage_timeout);
+> diff --git a/drivers/watchdog/shwdt.c b/drivers/watchdog/shwdt.c
+> index d04d02b..061756e 100644
+> --- a/drivers/watchdog/shwdt.c
+> +++ b/drivers/watchdog/shwdt.c
+> @@ -282,8 +282,6 @@ static int sh_wdt_probe(struct platform_device *pdev)
+>  	wdt->timer.data		= (unsigned long)wdt;
+>  	wdt->timer.expires	= next_ping_period(clock_division_ratio);
+>  
+> -	platform_set_drvdata(pdev, wdt);
+> -
+>  	dev_info(&pdev->dev, "initialized.\n");
+>  
+>  	pm_runtime_enable(&pdev->dev);
 
 This patch has been added to linux-watchdog-next.
 
