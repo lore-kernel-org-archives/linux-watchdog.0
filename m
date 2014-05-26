@@ -1,49 +1,44 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:56498 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751392AbaEZTRi (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 26 May 2014 15:17:38 -0400
-Date: Mon, 26 May 2014 21:17:34 +0200
+Return-Path: <wimvs@spo001.leaseweb.com>
+Date: Mon, 26 May 2014 22:53:05 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Anatolij Gustschin <agust@denx.de>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Xiubo Li <Li.Xiubo@freescale.com>,
-	Shawn Guo <shawn.guo@linaro.org>,
-	Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] watchdog: imx2_wdt: convert to watchdog core api
-Message-ID: <20140526191734.GA21962@spo001.leaseweb.com>
-References: <1397199434-6551-1-git-send-email-agust@denx.de>
+To: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+Cc: linux-watchdog@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	Jason Cooper <jason@lakedaemon.net>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	Andrew Lunn <andrew@lunn.ch>, Tawfik Bayouk <tawfik@marvell.com>,
+	Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+	Lior Amsalem <alior@marvell.com>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Subject: Re: [RESEND/PATCH v4 0/9] Watchdog support for Armada 375/38x SoC
+Message-ID: <20140526205305.GA23347@spo001.leaseweb.com>
+References: <1397481813-4962-1-git-send-email-ezequiel.garcia@free-electrons.com> <20140424045153.GU28159@titan.lakedaemon.net> <20140424110636.GA1735@arch.cereza>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1397199434-6551-1-git-send-email-agust@denx.de>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <20140424110636.GA1735@arch.cereza>
+Sender: <wimvs@spo001.leaseweb.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Anatolij
+Hi Ezequiel,
 
-> Convert the imx2_wdt driver to the new watchdog core api.
+> On Apr 24, Jason Cooper wrote:
+> > On Mon, Apr 14, 2014 at 10:23:24AM -0300, Ezequiel Garcia wrote:
+> > > 
+> > > Tested on A375-DB, A385-DB, A370-RD and Dove Cubox. Sebastian did more tests
+> > > on Dove, and Jason Gunthorpe on Kirkwood.
+> > 
+> > Applied patches 7 and 8 to mvebu/dt.  For the rest,
+> > 
+> > Acked-by: Jason Cooper <jason@lakedaemon.net>
+> > 
 > 
-> Signed-off-by: Anatolij Gustschin <agust@denx.de>
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> Cc: Wim Van Sebroeck <wim@iguana.be>
-> ---
-> NOTE: This patch applies on top of the imx2_wdt regmap-mmio support
-> patch series http://comments.gmane.org/gmane.linux.kernel/1677735
+> Wim,
 > 
-> Changes since first version:
->  - simplify return in imx2_wdt_is_running()
->  - fix "WARNING: quoted string split across lines"
-> 
->  drivers/watchdog/Kconfig    |    1 +
->  drivers/watchdog/imx2_wdt.c |  292 ++++++++++++++++++-------------------------
->  2 files changed, 123 insertions(+), 170 deletions(-)
-> 
+> Can you take the rest of the patches throught your tree, with Jason's ack?
 
-This patch has been added to linux-watchog-next.
+Done. It's in linux-watchdog-next now.
 
 Kind regards,
 Wim.
-
