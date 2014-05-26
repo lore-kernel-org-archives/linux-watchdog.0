@@ -1,44 +1,48 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:56496 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:56498 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752067AbaEZTPc (ORCPT
+	with ESMTP id S1751392AbaEZTRi (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 26 May 2014 15:15:32 -0400
-Date: Mon, 26 May 2014 21:15:23 +0200
+	Mon, 26 May 2014 15:17:38 -0400
+Date: Mon, 26 May 2014 21:17:34 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Anatolij Gustschin <agust@denx.de>,
+To: Anatolij Gustschin <agust@denx.de>
+Cc: linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
+	Xiubo Li <Li.Xiubo@freescale.com>,
 	Shawn Guo <shawn.guo@linaro.org>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: imx2_wdt: handle enabled watchdog properly
-Message-ID: <20140526191523.GB21870@spo001.leaseweb.com>
-References: <1396623242-15234-1-git-send-email-agust@denx.de> <20140404152011.GC5529@katana>
+	Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2] watchdog: imx2_wdt: convert to watchdog core api
+Message-ID: <20140526191734.GA21962@spo001.leaseweb.com>
+References: <1397199434-6551-1-git-send-email-agust@denx.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20140404152011.GC5529@katana>
+In-Reply-To: <1397199434-6551-1-git-send-email-agust@denx.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Wolfram,
+Hi Anatolij
 
-> On Fri, Apr 04, 2014 at 04:54:01PM +0200, Anatolij Gustschin wrote:
-> > If the watchdog is already enabled (e.g. started by the boot loader),
-> > we need to handle this case properly and start reloading the watchdog
-> > time-out counter as frequently as needed.
-> > 
-> > Signed-off-by: Anatolij Gustschin <agust@denx.de>
-> > Cc: Wolfram Sang <wsa@the-dreams.de>
-> > Cc: Wim Van Sebroeck <wim@iguana.be>
+> Convert the imx2_wdt driver to the new watchdog core api.
 > 
-> Uh, this driver has not been converted to use the watchdog framework
-> yet? I'd suggest this should be the first step.
+> Signed-off-by: Anatolij Gustschin <agust@denx.de>
+> Cc: Wolfram Sang <wsa@the-dreams.de>
+> Cc: Wim Van Sebroeck <wim@iguana.be>
+> ---
+> NOTE: This patch applies on top of the imx2_wdt regmap-mmio support
+> patch series http://comments.gmane.org/gmane.linux.kernel/1677735
 > 
-> @Wim: Does the watchdog core already handle the case that the wdt might
-> have been started by the bootloader?
+> Changes since first version:
+>  - simplify return in imx2_wdt_is_running()
+>  - fix "WARNING: quoted string split across lines"
+> 
+>  drivers/watchdog/Kconfig    |    1 +
+>  drivers/watchdog/imx2_wdt.c |  292 ++++++++++++++++++-------------------------
+>  2 files changed, 123 insertions(+), 170 deletions(-)
+> 
 
-No, not yet.
+This patch has been added to linux-watchog-next.
 
 Kind regards,
 Wim.
