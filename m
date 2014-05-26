@@ -1,46 +1,76 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:56445 "EHLO
+Received: from ns1.pc-advies.be ([83.149.101.17]:56447 "EHLO
 	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751359AbaEZSr7 (ORCPT
+	with ESMTP id S1751359AbaEZStH (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 26 May 2014 14:47:59 -0400
-Date: Mon, 26 May 2014 20:47:58 +0200
+	Mon, 26 May 2014 14:49:07 -0400
+Date: Mon, 26 May 2014 20:49:04 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Jean Delvare <jdelvare@suse.de>
-Cc: linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: Fix SBC8360 dependencies
-Message-ID: <20140526184758.GA21233@spo001.leaseweb.com>
-References: <20140326160001.44271284@endymion.delvare>
+To: Julia Lawall <Julia.Lawall@lip6.fr>
+Cc: kernel-janitors@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/3] watchdog: via_wdt: replace del_timer by del_timer_sync
+Message-ID: <20140526184904.GA21259@spo001.leaseweb.com>
+References: <1396360159-16244-1-git-send-email-Julia.Lawall@lip6.fr> <1396360159-16244-4-git-send-email-Julia.Lawall@lip6.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20140326160001.44271284@endymion.delvare>
+In-Reply-To: <1396360159-16244-4-git-send-email-Julia.Lawall@lip6.fr>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Jean,
+Hi Julia,
 
-> According to its Kconfig help text, the sbc8360 watchdog driver is
-> only used on the Axiomtek SBC8360 single-board computer. This piece of
-> hardware is 32-bit x86 so the driver is useless beyond X86_32.
+> From: Julia Lawall <Julia.Lawall@lip6.fr>
 > 
-> Signed-off-by: Jean Delvare <jdelvare@suse.de>
-> Cc: Wim Van Sebroeck <wim@iguana.be>
+> Use del_timer_sync to ensure that the timer is stopped on all CPUs before
+> the driver exits.
+> 
+> This change was suggested by Thomas Gleixner.
+> 
+> The semantic patch that makes this change is as follows:
+> (http://coccinelle.lip6.fr/)
+> 
+> // <smpl>
+> @r@
+> identifier i,t,ex;
+> @@
+> struct t i = { .remove = ex, };
+> 
+> @@
+> identifier r.ex;
+> @@
+> ex(...) {
+>   <...
+> - del_timer
+> + del_timer_sync
+>     (...)
+>   ...>
+> }
+> // </smpl>
+> 
+> Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+> 
 > ---
->  drivers/watchdog/Kconfig |    2 +-
+> Not tested.
+> 
+>  drivers/watchdog/via_wdt.c |    2 +-
 >  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> --- linux-3.14-rc7.orig/drivers/watchdog/Kconfig	2014-03-25 08:29:55.136283300 +0100
-> +++ linux-3.14-rc7/drivers/watchdog/Kconfig	2014-03-26 15:56:35.549231692 +0100
-> @@ -815,7 +815,7 @@ config 60XX_WDT
->  
->  config SBC8360_WDT
->  	tristate "SBC8360 Watchdog Timer"
-> -	depends on X86
-> +	depends on X86_32
->  	---help---
->  
->  	  This is the driver for the hardware watchdog on the SBC8360 Single
+> diff --git a/drivers/watchdog/via_wdt.c b/drivers/watchdog/via_wdt.c
+> index d2cd9f0..56369c4 100644
+> --- a/drivers/watchdog/via_wdt.c
+> +++ b/drivers/watchdog/via_wdt.c
+> @@ -232,7 +232,7 @@ err_out_disable_device:
+>  static void wdt_remove(struct pci_dev *pdev)
+>  {
+>  	watchdog_unregister_device(&wdt_dev);
+> -	del_timer(&timer);
+> +	del_timer_sync(&timer);
+>  	iounmap(wdt_mem);
+>  	release_mem_region(mmio, VIA_WDT_MMIO_LEN);
+>  	release_resource(&wdt_res);
+> 
 
 This was added 2 or 3 weeks ago to linux-watchdog-next.
 
