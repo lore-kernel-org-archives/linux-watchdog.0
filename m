@@ -1,44 +1,67 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-by2lp0239.outbound.protection.outlook.com ([207.46.163.239]:19389
-	"EHLO na01-by2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751575AbaE0BZ1 convert rfc822-to-8bit (ORCPT
+Received: from mail1.bemta5.messagelabs.com ([195.245.231.149]:28991 "EHLO
+	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752916AbaE0INK (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 26 May 2014 21:25:27 -0400
-From: "Li.Xiubo@freescale.com" <Li.Xiubo@freescale.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCHv5 0/2] imx2-wdt: Add regmap-mmio support
-Date: Tue, 27 May 2014 01:25:23 +0000
-Message-ID: <1714222ba73043c68f026799a43dce41@BY2PR03MB505.namprd03.prod.outlook.com>
-References: <1396575205-24394-1-git-send-email-Li.Xiubo@freescale.com>
- <20140526191246.GA21870@spo001.leaseweb.com>
-In-Reply-To: <20140526191246.GA21870@spo001.leaseweb.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+	Tue, 27 May 2014 04:13:10 -0400
+Date: Tue, 27 May 2014 11:05:37 +0200
+From: Andreas Werner <andreas.werner@men.de>
+To: <linux-kernel@vger.kernel.org>
+CC: <sameo@linux.intel.com>, <lee.jones@linaro.org>, <wim@iguana.be>,
+	<linux-watchdog@vger.kernel.org>, <cooloney@gmail.com>,
+	<rpurdie@rpsys.net>, <linux-leds@vger.kernel.org>,
+	<johannes.thumshirn@men.de>, <andreas.werner@men.de>
+Subject: [PATCH v2 0/3] Introduce MEN 14F02100 BMC driver series
+Message-ID: <cover.1401181010.git.andreas.werner@men.de>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+This patch set add support for the MEN 14F021P00 Board Management called BMC.
 
-> > Xiubo Li (2):
-> >   watchdog: imx2_wdt: Sort the header files alphabetically
-> >   watchdog: imx2_wdt: convert to use regmap API.
-> >
-> >  drivers/watchdog/Kconfig    |  1 +
-> >  drivers/watchdog/imx2_wdt.c | 62 +++++++++++++++++++++++++++---------------
-> ---
-> >  2 files changed, 39 insertions(+), 24 deletions(-)
-> 
-> both patches have been added to linux-watchdog-next.
-> 
+The BMC is a PIC Mikrocontroller which assembled on almost all of our
+3U Compact PCI CPU board and a few Box PCs.
+The main part of the BMC is to start and monitor the board, but there are a
+lot more features which can be accessed using an I2C Host interface
 
-Thanks very much,
+Features supported in this Patchset:
+        - Watchdog
+        - LEDs
 
-BRs
-Xiubo
+The Patchset includes a MFD Core driver, Watchdog and LEDs driver.
 
 
+Changes in v2:
+	- changed i2c_smbus_read wrapper function to return both, value
+	  and error.
+	- moved "leave production mode" from Watchdog driver to mfd core.
+	- fixed some return values in the watchdog driver to return the original
+	  error value instead of -EIO.
+
+Andreas Werner (3):
+  drivers/mfd/menf21bmc: introduce MEN 14F021P00 BMC MFD Core driver
+  drivers/watchdog/menf21bmc_wd: introduce MEN 14F021P00 BMC Watchdog
+    driver
+  drivers/leds/leds-menf21bmc: introduce MEN 14F021P00 BMC LED driver
+
+ drivers/leds/Kconfig            |   6 ++
+ drivers/leds/Makefile           |   2 +-
+ drivers/leds/leds-menf21bmc.c   | 136 +++++++++++++++++++++++++
+ drivers/mfd/Kconfig             |  12 +++
+ drivers/mfd/Makefile            |   1 +
+ drivers/mfd/menf21bmc.c         | 220 ++++++++++++++++++++++++++++++++++++++++
+ drivers/watchdog/Kconfig        |   7 ++
+ drivers/watchdog/Makefile       |   1 +
+ drivers/watchdog/menf21bmc_wd.c | 217 +++++++++++++++++++++++++++++++++++++++
+ include/linux/mfd/menf21bmc.h   |  31 ++++++
+ 10 files changed, 632 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/leds/leds-menf21bmc.c
+ create mode 100644 drivers/mfd/menf21bmc.c
+ create mode 100644 drivers/watchdog/menf21bmc_wd.c
+ create mode 100644 include/linux/mfd/menf21bmc.h
+
+-- 
+1.9.3
 
