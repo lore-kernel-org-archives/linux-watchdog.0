@@ -1,38 +1,51 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:53847 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753255AbaE0Xex (ORCPT
+Received: from mail-la0-f48.google.com ([209.85.215.48]:59692 "EHLO
+	mail-la0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752909AbaE1PAT (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 27 May 2014 19:34:53 -0400
-Message-ID: <5385210F.4030205@roeck-us.net>
-Date: Tue, 27 May 2014 16:34:39 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: David Cohen <david.a.cohen@linux.intel.com>, wim@iguana.be,
-	tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, x86@kernel.org
-CC: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	gnomes@lxorguk.ukuu.org.uk
-Subject: Re: [PATCH] x86: intel-mid: fix watchdog platform code
-References: <1401225066-28786-1-git-send-email-david.a.cohen@intel.com> <1401225670-28959-1-git-send-email-david.a.cohen@linux.intel.com>
-In-Reply-To: <1401225670-28959-1-git-send-email-david.a.cohen@linux.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 28 May 2014 11:00:19 -0400
+From: Tord Andersson <tord.o.andersson@gmail.com>
+To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	Tord Andersson <tord.andersson@endian.se>
+Subject: [PATCH 1/1] watchdog: imx2: Added ioctl options to enable/disable watchdog as wanted by systemd.
+Date: Wed, 28 May 2014 16:59:56 +0200
+Message-Id: <1401289196-27567-1-git-send-email-tord.andersson@endian.se>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 05/27/2014 02:21 PM, David Cohen wrote:
-> This patch fixes missing include asm/io_apic.h which may lead to
-> following error:
->
->     arch/x86/platform/intel-mid/device_libs/platform_wdt.c: In function 'tangier_probe':
->>> arch/x86/platform/intel-mid/device_libs/platform_wdt.c:37:2: error: implicit declaration of function 'mp_find_ioapic' [-Werror=implicit-function-declaration]
->       ioapic = mp_find_ioapic(irq);
->       ^
->>> arch/x86/platform/intel-mid/device_libs/platform_wdt.c:44:3: error: implicit declaration of function 'io_apic_set_pci_routing' [-Werror=implicit-function-declaration]
->        ret = io_apic_set_pci_routing(NULL, irq, &irq_attr);
->        ^
-> Signed-off-by: David Cohen <david.a.cohen@linux.intel.com>
-> Reported-by: kbuild test robot <fengguang.wu@intel.com>
+When the current imx2 watchdog driver is used with the systemd watchdog feature,
+we get "Failed to enable hardware watchdog: Inappropriate ioctl for device".
+This is caused by missing ioctl setoptions to enable the watchdog.
+This patch will add WDIOC_SETOPTIONS for WDIOS_ENABLECARD and WDIOS_DISABLECARD.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Tord Andersson <tord.andersson@endian.se>
+---
+ drivers/watchdog/imx2_wdt.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+index dd51d95..180c6a5 100644
+--- a/drivers/watchdog/imx2_wdt.c
++++ b/drivers/watchdog/imx2_wdt.c
+@@ -196,6 +196,17 @@ static long imx2_wdt_ioctl(struct file *file, unsigned int cmd,
+ 		new_value = val & IMX2_WDT_WRSR_TOUT ? WDIOF_CARDRESET : 0;
+ 		return put_user(new_value, p);
+ 
++	case WDIOC_SETOPTIONS:
++		if (get_user(new_value, p))
++			return -EFAULT;
++		if (new_value & WDIOS_ENABLECARD)
++			imx2_wdt_start();
++		else if (new_value & WDIOS_DISABLECARD)
++			imx2_wdt_stop();
++		else
++			return -EINVAL;
++		return 0;
++
+ 	case WDIOC_KEEPALIVE:
+ 		imx2_wdt_ping();
+ 		return 0;
+-- 
+1.9.1
 
