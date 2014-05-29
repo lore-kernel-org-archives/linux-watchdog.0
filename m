@@ -1,19 +1,19 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-yh0-f50.google.com ([209.85.213.50]:48186 "EHLO
-	mail-yh0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756069AbaE2Jim (ORCPT
+Received: from mail-pb0-f51.google.com ([209.85.160.51]:47619 "EHLO
+	mail-pb0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756180AbaE2JnM (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 29 May 2014 05:38:42 -0400
+	Thu, 29 May 2014 05:43:12 -0400
+Received: by mail-pb0-f51.google.com with SMTP id ma3so98484pbc.24
+        for <linux-watchdog@vger.kernel.org>; Thu, 29 May 2014 02:43:11 -0700 (PDT)
+Message-ID: <53870129.5010505@monstr.eu>
+Date: Thu, 29 May 2014 11:43:05 +0200
+From: Michal Simek <monstr@monstr.eu>
+Reply-To: monstr@monstr.eu
 MIME-Version: 1.0
-In-Reply-To: <20140529092106.GC24233@leverpostej>
-References: <1401185895-3677-1-git-send-email-harinik@xilinx.com>
-	<20140529092106.GC24233@leverpostej>
-Date: Thu, 29 May 2014 15:08:41 +0530
-Message-ID: <CAFcVEC+X1NVZHubRWa4qUfEPiugBrp0ewZkjhrcdK1zrht+FXw@mail.gmail.com>
-Subject: Re: [PATCH v2 1/2] watchdog: Add Cadence WDT driver
-From: Harini Katakam <harinikatakamlinux@gmail.com>
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: "wim@iguana.be" <wim@iguana.be>,
+To: Mark Rutland <mark.rutland@arm.com>,
+	Harini Katakam <harinik@xilinx.com>
+CC: "wim@iguana.be" <wim@iguana.be>,
 	"grant.likely@linaro.org" <grant.likely@linaro.org>,
 	"robh+dt@kernel.org" <robh+dt@kernel.org>,
 	Pawel Moll <Pawel.Moll@arm.com>,
@@ -25,42 +25,68 @@ Cc: "wim@iguana.be" <wim@iguana.be>,
 	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
 	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
 	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Subject: Re: [PATCH v2 1/2] watchdog: Add Cadence WDT driver
+References: <1401185895-3677-1-git-send-email-harinik@xilinx.com> <20140529092106.GC24233@leverpostej>
+In-Reply-To: <20140529092106.GC24233@leverpostej>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="lMOK2oNEsjMuSaeX4mDQc4TLT8TPkNpNn"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--lMOK2oNEsjMuSaeX4mDQc4TLT8TPkNpNn
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
 Hi Mark,
 
-On Thu, May 29, 2014 at 2:51 PM, Mark Rutland <mark.rutland@arm.com> wrote:
-> On Tue, May 27, 2014 at 11:18:14AM +0100, Harini Katakam wrote:
->> Add Cadence WDT driver. This is used by Xilinx Zynq.
->>
->> Signed-off-by: Harini Katakam <harinik@xilinx.com>
->> ---
->>
->> Sorry for the delay in sending v2.
->> v2 changes:
->> - Update IO helpers.
->> - Use dev_dbg instead of dev_info where possible.
->> - Use watchdog_init_timeout
->> - Spinlock for restart register where missing.
->> - Change order of probe to move reboot notifier register to the end
->> - Remove unecessary comments
->> - Do clk_prepare_enabel and clk_disable_unprepare in resume/suspend
->>   respectively.
->> - There is an input from dts to decide whether internal reset should be
->>   enabled or not. When this is enabled, reset happens wutomatically when
->>   counter reaches zero. In case this is not enabled, a message is disaplayed
->>   to indicate that the watchdog has timed out. Elaborated this message
->>   to describe the above.
->
-> When is that useful?
->
+>> +static struct of_device_id cdns_wdt_of_match[] =3D {
+>> +       { .compatible =3D "xlnx,zynq-wdt-r1p2", },
+>> +       { .compatible =3D "cdns,wdt-r1p2", },
+>=20
+> If these can currently be handled identically, why not just have
+> "cdns,wdt-r1p2" in the driver and in your dts have:
+>=20
+> compatible =3D "xlnx,zynq-wdt-r1p2", "cdns,wdt-r1p2";
+>=20
+> If we need to distinguish the two for some reason later we can always
+> add the "xlnx,zynq-wdt-r1p2" string to the driver.
 
-Automatic reset enable is an option. When it's not selected, this is a generic
-way of giving some indication. If some other action is preferred
-instead of reset,
-then that can be added here.
+I would prefer to have 2 compatible strings just because
+of that we don't know what is different compare to origin cadence
+version. We have done the same for spi-cadence.c that's why
+it shouldn't be any problem to keep it as is.
+Having zynq compatible property here and using it give us option
+that if another SoC vendor come with new configuration or clean
+cadence one we can simple handle it without changing compatible
+property for us.
 
-Regards,
-Harini
+thanks,
+Michal
+
+
+--=20
+Michal Simek, Ing. (M.Eng), OpenPGP -> KeyID: FE3D1F91
+w: www.monstr.eu p: +42-0-721842854
+Maintainer of Linux kernel - Microblaze cpu - http://www.monstr.eu/fdt/
+Maintainer of Linux kernel - Xilinx Zynq ARM architecture
+Microblaze U-BOOT custodian and responsible for u-boot arm zynq platform
+
+
+
+--lMOK2oNEsjMuSaeX4mDQc4TLT8TPkNpNn
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+
+iEYEARECAAYFAlOHASkACgkQykllyylKDCG8gwCeL6kJMQbQxry99bkhop6MTcJk
+KbUAn0/EQdJPou+FGxg28m65l3X4Jipb
+=riNy
+-----END PGP SIGNATURE-----
+
+--lMOK2oNEsjMuSaeX4mDQc4TLT8TPkNpNn--
