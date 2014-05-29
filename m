@@ -1,105 +1,107 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:61837 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751466AbaE1NxN (ORCPT
+Received: from cam-admin0.cambridge.arm.com ([217.140.96.50]:39689 "EHLO
+	cam-admin0.cambridge.arm.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932814AbaE2JNN (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 28 May 2014 09:53:13 -0400
-Message-ID: <5385EA38.9090200@roeck-us.net>
-Date: Wed, 28 May 2014 06:52:56 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Thu, 29 May 2014 05:13:13 -0400
+Date: Thu, 29 May 2014 10:12:55 +0100
+From: Mark Rutland <mark.rutland@arm.com>
+To: Harini Katakam <harinik@xilinx.com>
+Cc: "wim@iguana.be" <wim@iguana.be>,
+	"grant.likely@linaro.org" <grant.likely@linaro.org>,
+	"robh+dt@kernel.org" <robh+dt@kernel.org>,
+	Pawel Moll <Pawel.Moll@arm.com>,
+	"ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>,
+	"galak@codeaurora.org" <galak@codeaurora.org>,
+	"rob@landley.net" <rob@landley.net>,
+	"michals@xilinx.com" <michals@xilinx.com>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>
+Subject: Re: [PATCH v2 2/2] devicetree: Add Cadence WDT devicetree bindings
+ documentation
+Message-ID: <20140529091255.GB24233@leverpostej>
+References: <1401185895-3677-1-git-send-email-harinik@xilinx.com>
+ <1401185895-3677-2-git-send-email-harinik@xilinx.com>
 MIME-Version: 1.0
-To: Andreas Werner <andreas.werner@men.de>,
-	Lee Jones <lee.jones@linaro.org>
-CC: Johannes Thumshirn <johannes.thumshirn@men.de>,
-	linux-kernel@vger.kernel.org, sameo@linux.intel.com, wim@iguana.be,
-	linux-watchdog@vger.kernel.org, cooloney@gmail.com,
-	rpurdie@rpsys.net, linux-leds@vger.kernel.org
-Subject: Re: [PATCH v2 1/3] drivers/mfd/menf21bmc: introduce MEN 14F021P00
- BMC MFD Core driver
-References: <cover.1401181010.git.andreas.werner@men.de> <a3cd43562effd2580d0174c56eff5584791217ac.1401181010.git.andreas.werner@men.de> <20140527150547.GA4227@lee--X1> <20140528070222.GA24101@jtlinux> <20140528082404.GA10803@lee--X1> <20140528115159.GA2090@awelinux> <5385E4C9.2010204@roeck-us.net>
-In-Reply-To: <5385E4C9.2010204@roeck-us.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1401185895-3677-2-git-send-email-harinik@xilinx.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 05/28/2014 06:29 AM, Guenter Roeck wrote:
-> On 05/28/2014 04:51 AM, Andreas Werner wrote:
->> aOn Wed, May 28, 2014 at 09:24:05AM +0100, Lee Jones wrote:
->>>>>> The MEN 14F021P00 Board Management Controller provides an
->>>>>> I2C interface to the host to access the feature implemented in the BMC.
->>>>>> The BMC is a PIC Microntroller assembled on CPCI Card from MEN Mikroelektronik
->>>>>> and on a few Box/Display Computer.
->>>>>>
->>>>>> Added MFD Core driver, supporting the I2C communication to the device.
->>>>>>
->>>>>> The MFD driver currently supports the following features:
->>>>>>     - Watchdog
->>>>>>     - LEDs
->>>>>>
->>>>>> Signed-off-by: Andreas Werner <andreas.werner@men.de>
->>>>>> ---
->>>>>>   drivers/mfd/Kconfig           |  12 +++
->>>>>>   drivers/mfd/Makefile          |   1 +
->>>>>>   drivers/mfd/menf21bmc.c       | 220 ++++++++++++++++++++++++++++++++++++++++++
->>>>>>   include/linux/mfd/menf21bmc.h |  31 ++++++
->>>>>>   4 files changed, 264 insertions(+)
->>>>>>   create mode 100644 drivers/mfd/menf21bmc.c
->>>>>>   create mode 100644 include/linux/mfd/menf21bmc.h
->>>
->>> [...]
->>>
->>>>>> +static int menf21bmc_write_byte(struct i2c_client *client, u8 val)
->>>>>> +{
->>>>>> +    int ret;
->>>>>> +    struct menf21bmc *data = i2c_get_clientdata(client);
->>>>>> +
->>>>>> +    mutex_lock(&data->lock);
->>>>>> +    ret = i2c_smbus_write_byte(client, val);
->>>>>> +    mutex_unlock(&data->lock);
->>>>>> +
->>>>>> +    return ret;
->>>>>> +}
->>>>>
->>>>> Didn't we ask you to remove these?  Just make the i2c_smbus_* calls
->>>>> from within the driver.  The I2C subsystem conducts its own locking.
->>>>> I'm really starting to frown on aggregation for the sake of
->>>>> aggregation.  It's just overhead.
->>>>>
->>>>
->>>> Correct me if I'm wrong but as far as I remember Guenther asked to retain the
->>>> original API, not the remove the "abstraction layer". Once we build a board with
->>>> one of these BMCs attached via e.g. SPI we would have to reintroduce it anyways,
->>>> in order to re-use these drivers.
->>>
->>> If there are two or more possible interfaces then I agree, these
->>> aggregations would be the best approach.  However, as it stands, that's
->>> not currently the case.
->>>
->>> Genuine question; are Men on the verge of building such a board, or
->>> are we talking about 'ifs' and 'maybes'?
->>>
->>
->> I think it was a missunderstanding. I also thought that i just
->> have to adapt the wrapper to the original API, that is what I did in the patch,
->> and not to delete the functions completly.
->>
->> Anayway, we currently have another project which use a STM32 MCR connected to USB.
->> A nice feature of this STM is to update the firmware using the USB interface.
->> This is easy to implement and fast.
->>
->> We want to use such a functionality in all of our MCRs to easily update the firmware
->> at the customer if we found a bug.
->>
->> We also plan to have a BMC connected to USB. Then we have i2c and USB.
->>
->
-> Even more likely that you would have to change the API in that case to be less
-> I2C centric.
->
+On Tue, May 27, 2014 at 11:18:15AM +0100, Harini Katakam wrote:
+> Add cadence-wdt bindings documentation.
+> 
+> Signed-off-by: Harini Katakam <harinik@xilinx.com>
+> ---
+> 
+> v2:
+> No changes
+> 
+> ---
+>  .../devicetree/bindings/watchdog/cadence-wdt.txt   |   26 ++++++++++++++++++++
+>  1 file changed, 26 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/cadence-wdt.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/cadence-wdt.txt b/Documentation/devicetree/bindings/watchdog/cadence-wdt.txt
+> new file mode 100644
+> index 0000000..1f7a732
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/watchdog/cadence-wdt.txt
+> @@ -0,0 +1,26 @@
+> +Zynq Watchdog Device Tree Bindings
+> +-------------------------------------------
+> +
+> +Required properties:
+> +- compatible		: Should be "xlnx,zynq-wdt-r1p2" or "cdns,wdt-r1p2".
 
-... especially since you have "struct i2c_client *client" in your API function.
+What's the difference? Can "cdns,wdt-r1p2" be a fallback for
+"xlnx,zynq-wdt-r1p2"?
 
-Guenter
+> +- clocks		: Clock phandles (see clock bindings for details).
 
+Nit: Clocks aren't just phandles.
 
+How many clocks? This implies several, the example shows one.
+
+> +- reg			: Physical base address and size of WDT registers map.
+> +- interrupts		: Property with a value describing the interrupt
+> +			  number.
+
+We know this is a property with a value. Describe what it logically is
+(and optionally, the type is interrupt-sepcifier, though that gets
+fuzzier with the interrupts-extended property).
+
+> +- interrupt-parent	: Must be core interrupt controller.
+> +
+> +Optional properties
+> +- reset			: Reset interrupt.
+
+What does this mean? What type is this?
+
+I have no idea if this is a boolean telling the OS to reset the
+interrupt initially, or an index describing which interrupt is the reset
+interrupt in either the interrupts property or some HW registers.
+
+Cheers,
+Mark.
+
+> +- timeout-sec		: Watchdog timeout value (in seconds).
+> +
+> +Example:
+> +
+> +		wdt@f8005000 {
+> +			compatible = "xlnx,zynq-wdt-r1p2";
+> +			clocks = <&clkc 45>;
+> +			interrupt-parent = <&intc>;
+> +			interrupts = <0 9 1>;
+> +			reg = <0xf8005000 0x1000>;
+> +			reset = <0>;
+> +			timeout-sec = <10>;
+> +		} ;
+> -- 
+> 1.7.9.5
+> 
+> 
