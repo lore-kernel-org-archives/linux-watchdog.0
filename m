@@ -1,10 +1,10 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from cam-admin0.cambridge.arm.com ([217.140.96.50]:39689 "EHLO
+Received: from cam-admin0.cambridge.arm.com ([217.140.96.50]:39807 "EHLO
 	cam-admin0.cambridge.arm.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932814AbaE2JNN (ORCPT
+	by vger.kernel.org with ESMTP id S932373AbaE2JVW (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 29 May 2014 05:13:13 -0400
-Date: Thu, 29 May 2014 10:12:55 +0100
+	Thu, 29 May 2014 05:21:22 -0400
+Date: Thu, 29 May 2014 10:21:06 +0100
 From: Mark Rutland <mark.rutland@arm.com>
 To: Harini Katakam <harinik@xilinx.com>
 Cc: "wim@iguana.be" <wim@iguana.be>,
@@ -19,89 +19,59 @@ Cc: "wim@iguana.be" <wim@iguana.be>,
 	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
 	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
 	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>
-Subject: Re: [PATCH v2 2/2] devicetree: Add Cadence WDT devicetree bindings
- documentation
-Message-ID: <20140529091255.GB24233@leverpostej>
+Subject: Re: [PATCH v2 1/2] watchdog: Add Cadence WDT driver
+Message-ID: <20140529092106.GC24233@leverpostej>
 References: <1401185895-3677-1-git-send-email-harinik@xilinx.com>
- <1401185895-3677-2-git-send-email-harinik@xilinx.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1401185895-3677-2-git-send-email-harinik@xilinx.com>
+In-Reply-To: <1401185895-3677-1-git-send-email-harinik@xilinx.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, May 27, 2014 at 11:18:15AM +0100, Harini Katakam wrote:
-> Add cadence-wdt bindings documentation.
+On Tue, May 27, 2014 at 11:18:14AM +0100, Harini Katakam wrote:
+> Add Cadence WDT driver. This is used by Xilinx Zynq.
 > 
 > Signed-off-by: Harini Katakam <harinik@xilinx.com>
 > ---
 > 
-> v2:
-> No changes
-> 
-> ---
->  .../devicetree/bindings/watchdog/cadence-wdt.txt   |   26 ++++++++++++++++++++
->  1 file changed, 26 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/watchdog/cadence-wdt.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/watchdog/cadence-wdt.txt b/Documentation/devicetree/bindings/watchdog/cadence-wdt.txt
-> new file mode 100644
-> index 0000000..1f7a732
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/watchdog/cadence-wdt.txt
-> @@ -0,0 +1,26 @@
-> +Zynq Watchdog Device Tree Bindings
-> +-------------------------------------------
-> +
-> +Required properties:
-> +- compatible		: Should be "xlnx,zynq-wdt-r1p2" or "cdns,wdt-r1p2".
+> Sorry for the delay in sending v2.
+> v2 changes:
+> - Update IO helpers.
+> - Use dev_dbg instead of dev_info where possible.
+> - Use watchdog_init_timeout
+> - Spinlock for restart register where missing.
+> - Change order of probe to move reboot notifier register to the end
+> - Remove unecessary comments
+> - Do clk_prepare_enabel and clk_disable_unprepare in resume/suspend
+>   respectively.
+> - There is an input from dts to decide whether internal reset should be
+>   enabled or not. When this is enabled, reset happens wutomatically when
+>   counter reaches zero. In case this is not enabled, a message is disaplayed
+>   to indicate that the watchdog has timed out. Elaborated this message
+>   to describe the above.
 
-What's the difference? Can "cdns,wdt-r1p2" be a fallback for
-"xlnx,zynq-wdt-r1p2"?
+When is that useful?
 
-> +- clocks		: Clock phandles (see clock bindings for details).
+[...]
 
-Nit: Clocks aren't just phandles.
+> +       of_property_read_u32(pdev->dev.of_node, "reset", &wdt->rst);
 
-How many clocks? This implies several, the example shows one.
+For booleans use an empty property and of_property_read_bool.
 
-> +- reg			: Physical base address and size of WDT registers map.
-> +- interrupts		: Property with a value describing the interrupt
-> +			  number.
+[...]
 
-We know this is a property with a value. Describe what it logically is
-(and optionally, the type is interrupt-sepcifier, though that gets
-fuzzier with the interrupts-extended property).
+> +static struct of_device_id cdns_wdt_of_match[] = {
+> +       { .compatible = "xlnx,zynq-wdt-r1p2", },
+> +       { .compatible = "cdns,wdt-r1p2", },
 
-> +- interrupt-parent	: Must be core interrupt controller.
-> +
-> +Optional properties
-> +- reset			: Reset interrupt.
+If these can currently be handled identically, why not just have
+"cdns,wdt-r1p2" in the driver and in your dts have:
 
-What does this mean? What type is this?
+compatible = "xlnx,zynq-wdt-r1p2", "cdns,wdt-r1p2";
 
-I have no idea if this is a boolean telling the OS to reset the
-interrupt initially, or an index describing which interrupt is the reset
-interrupt in either the interrupts property or some HW registers.
+If we need to distinguish the two for some reason later we can always
+add the "xlnx,zynq-wdt-r1p2" string to the driver.
 
 Cheers,
 Mark.
-
-> +- timeout-sec		: Watchdog timeout value (in seconds).
-> +
-> +Example:
-> +
-> +		wdt@f8005000 {
-> +			compatible = "xlnx,zynq-wdt-r1p2";
-> +			clocks = <&clkc 45>;
-> +			interrupt-parent = <&intc>;
-> +			interrupts = <0 9 1>;
-> +			reg = <0xf8005000 0x1000>;
-> +			reset = <0>;
-> +			timeout-sec = <10>;
-> +		} ;
-> -- 
-> 1.7.9.5
-> 
-> 
