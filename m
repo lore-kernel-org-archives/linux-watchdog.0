@@ -1,12 +1,19 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from cam-admin0.cambridge.arm.com ([217.140.96.50]:39807 "EHLO
-	cam-admin0.cambridge.arm.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932373AbaE2JVW (ORCPT
+Received: from mail-yh0-f51.google.com ([209.85.213.51]:57676 "EHLO
+	mail-yh0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932814AbaE2J1Q (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 29 May 2014 05:21:22 -0400
-Date: Thu, 29 May 2014 10:21:06 +0100
-From: Mark Rutland <mark.rutland@arm.com>
-To: Harini Katakam <harinik@xilinx.com>
+	Thu, 29 May 2014 05:27:16 -0400
+MIME-Version: 1.0
+In-Reply-To: <20140529091255.GB24233@leverpostej>
+References: <1401185895-3677-1-git-send-email-harinik@xilinx.com>
+	<1401185895-3677-2-git-send-email-harinik@xilinx.com>
+	<20140529091255.GB24233@leverpostej>
+Date: Thu, 29 May 2014 14:57:15 +0530
+Message-ID: <CAFcVECJXK4fFGV1iDm79Y6=xvPnPvzqWzL_XHMYuP_PTv7CZHw@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] devicetree: Add Cadence WDT devicetree bindings documentation
+From: Harini Katakam <harinikatakamlinux@gmail.com>
+To: Mark Rutland <mark.rutland@arm.com>
 Cc: "wim@iguana.be" <wim@iguana.be>,
 	"grant.likely@linaro.org" <grant.likely@linaro.org>,
 	"robh+dt@kernel.org" <robh+dt@kernel.org>,
@@ -19,59 +26,38 @@ Cc: "wim@iguana.be" <wim@iguana.be>,
 	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
 	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
 	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>
-Subject: Re: [PATCH v2 1/2] watchdog: Add Cadence WDT driver
-Message-ID: <20140529092106.GC24233@leverpostej>
-References: <1401185895-3677-1-git-send-email-harinik@xilinx.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1401185895-3677-1-git-send-email-harinik@xilinx.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, May 27, 2014 at 11:18:14AM +0100, Harini Katakam wrote:
-> Add Cadence WDT driver. This is used by Xilinx Zynq.
-> 
-> Signed-off-by: Harini Katakam <harinik@xilinx.com>
-> ---
-> 
-> Sorry for the delay in sending v2.
-> v2 changes:
-> - Update IO helpers.
-> - Use dev_dbg instead of dev_info where possible.
-> - Use watchdog_init_timeout
-> - Spinlock for restart register where missing.
-> - Change order of probe to move reboot notifier register to the end
-> - Remove unecessary comments
-> - Do clk_prepare_enabel and clk_disable_unprepare in resume/suspend
->   respectively.
-> - There is an input from dts to decide whether internal reset should be
->   enabled or not. When this is enabled, reset happens wutomatically when
->   counter reaches zero. In case this is not enabled, a message is disaplayed
->   to indicate that the watchdog has timed out. Elaborated this message
->   to describe the above.
+Hi Mark,
 
-When is that useful?
+On Thu, May 29, 2014 at 2:42 PM, Mark Rutland <mark.rutland@arm.com> wrote:
+> On Tue, May 27, 2014 at 11:18:15AM +0100, Harini Katakam wrote:
+>> Add cadence-wdt bindings documentation.
+>>
+>> Signed-off-by: Harini Katakam <harinik@xilinx.com>
+>> ---
+>>
+>> v2:
+>> No changes
 
-[...]
+<snip>
 
-> +       of_property_read_u32(pdev->dev.of_node, "reset", &wdt->rst);
+>> +Optional properties
+>> +- reset                      : Reset interrupt.
+>
+> What does this mean? What type is this?
+>
+> I have no idea if this is a boolean telling the OS to reset the
+> interrupt initially, or an index describing which interrupt is the reset
+> interrupt in either the interrupts property or some HW registers.
+>
 
-For booleans use an empty property and of_property_read_bool.
+The watchdog has an option to automatically reset when the counter
+reaches zero. This property is an input based on which this automatic
+reset is enabled or disabled.
+I will improve the description of this property.
 
-[...]
-
-> +static struct of_device_id cdns_wdt_of_match[] = {
-> +       { .compatible = "xlnx,zynq-wdt-r1p2", },
-> +       { .compatible = "cdns,wdt-r1p2", },
-
-If these can currently be handled identically, why not just have
-"cdns,wdt-r1p2" in the driver and in your dts have:
-
-compatible = "xlnx,zynq-wdt-r1p2", "cdns,wdt-r1p2";
-
-If we need to distinguish the two for some reason later we can always
-add the "xlnx,zynq-wdt-r1p2" string to the driver.
-
-Cheers,
-Mark.
+Regards,
+Harini
