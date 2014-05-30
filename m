@@ -1,70 +1,72 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-yk0-f175.google.com ([209.85.160.175]:62546 "EHLO
-	mail-yk0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752153AbaE0KSt (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 27 May 2014 06:18:49 -0400
-From: Harini Katakam <harinik@xilinx.com>
-To: wim@iguana.be, grant.likely@linaro.org, robh+dt@kernel.org,
-	pawel.moll@arm.com, mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-	rob@landley.net
-Cc: michals@xilinx.com, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-doc@vger.kernel.org, Harini Katakam <harinik@xilinx.com>
-Subject: [PATCH v2 2/2] devicetree: Add Cadence WDT devicetree bindings documentation
-Date: Tue, 27 May 2014 15:48:15 +0530
-Message-Id: <1401185895-3677-2-git-send-email-harinik@xilinx.com>
-In-Reply-To: <1401185895-3677-1-git-send-email-harinik@xilinx.com>
-References: <1401185895-3677-1-git-send-email-harinik@xilinx.com>
+Received: from [207.46.163.140] ([207.46.163.140]:13666 "EHLO
+	na01-bn1-obe.outbound.protection.outlook.com"
+	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932378AbaE3Gxn (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 30 May 2014 02:53:43 -0400
+From: Xiubo Li <Li.Xiubo@freescale.com>
+To: <wim@iguana.be>, <linux-watchdog@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>
+CC: Xiubo Li <Li.Xiubo@freescale.com>
+Subject: [PATCH] watchdog: imx2_wdt: adds big endianness support.
+Date: Fri, 30 May 2014 14:10:17 +0800
+Message-ID: <1401430217-29543-1-git-send-email-Li.Xiubo@freescale.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Add cadence-wdt bindings documentation.
+This watchdog driver will be working on IMX2+, Vybrid, LS1, LS2+
+platforms, and will be in different endianness mode in those SoCs:
 
-Signed-off-by: Harini Katakam <harinik@xilinx.com>
+SoCs         CPU endian mode      WDT endian mode
+------------------------------------------------
+IMX2+            LE                    LE
+Vybird           LE                    LE
+LS1              LE                    BE
+LS2              LE                    LE
+
+Signed-off-by: Xiubo Li <Li.Xiubo@freescale.com>
 ---
+ drivers/watchdog/imx2_wdt.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-v2:
-No changes
-
----
- .../devicetree/bindings/watchdog/cadence-wdt.txt   |   26 ++++++++++++++++++++
- 1 file changed, 26 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/cadence-wdt.txt
-
-diff --git a/Documentation/devicetree/bindings/watchdog/cadence-wdt.txt b/Documentation/devicetree/bindings/watchdog/cadence-wdt.txt
-new file mode 100644
-index 0000000..1f7a732
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/cadence-wdt.txt
-@@ -0,0 +1,26 @@
-+Zynq Watchdog Device Tree Bindings
-+-------------------------------------------
+diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+index 9d4874f..68c3d37 100644
+--- a/drivers/watchdog/imx2_wdt.c
++++ b/drivers/watchdog/imx2_wdt.c
+@@ -28,6 +28,7 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
++#include <linux/of_address.h>
+ #include <linux/platform_device.h>
+ #include <linux/regmap.h>
+ #include <linux/timer.h>
+@@ -190,10 +191,12 @@ static struct regmap_config imx2_wdt_regmap_config = {
+ 
+ static int __init imx2_wdt_probe(struct platform_device *pdev)
+ {
++	struct device_node *np = pdev->dev.of_node;
+ 	struct imx2_wdt_device *wdev;
+ 	struct watchdog_device *wdog;
+ 	struct resource *res;
+ 	void __iomem *base;
++	bool big_endian;
+ 	int ret;
+ 	u32 val;
+ 
+@@ -201,6 +204,10 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
+ 	if (!wdev)
+ 		return -ENOMEM;
+ 
++	big_endian = of_property_read_bool(np, "big-endian");
++	if (big_endian)
++		imx2_wdt_regmap_config.val_format_endian = REGMAP_ENDIAN_BIG;
 +
-+Required properties:
-+- compatible		: Should be "xlnx,zynq-wdt-r1p2" or "cdns,wdt-r1p2".
-+- clocks		: Clock phandles (see clock bindings for details).
-+- reg			: Physical base address and size of WDT registers map.
-+- interrupts		: Property with a value describing the interrupt
-+			  number.
-+- interrupt-parent	: Must be core interrupt controller.
-+
-+Optional properties
-+- reset			: Reset interrupt.
-+- timeout-sec		: Watchdog timeout value (in seconds).
-+
-+Example:
-+
-+		wdt@f8005000 {
-+			compatible = "xlnx,zynq-wdt-r1p2";
-+			clocks = <&clkc 45>;
-+			interrupt-parent = <&intc>;
-+			interrupts = <0 9 1>;
-+			reg = <0xf8005000 0x1000>;
-+			reset = <0>;
-+			timeout-sec = <10>;
-+		} ;
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	base = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(base))
 -- 
-1.7.9.5
+1.8.4
 
