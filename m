@@ -1,77 +1,80 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f47.google.com ([209.85.220.47]:59950 "EHLO
-	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752074AbaE1QLc (ORCPT
+Received: from mail.active-venture.com ([67.228.131.205]:56807 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755692AbaE3Og0 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 28 May 2014 12:11:32 -0400
-Date: Wed, 28 May 2014 09:11:15 -0700
+	Fri, 30 May 2014 10:36:26 -0400
+Message-ID: <5388975A.7040109@roeck-us.net>
+Date: Fri, 30 May 2014 07:36:10 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Tord Andersson <tord.o.andersson@gmail.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Tord Andersson <tord.andersson@endian.se>
-Subject: Re: [PATCH 1/1] watchdog: imx2: Added ioctl options to
- enable/disable watchdog as wanted by systemd.
-Message-ID: <20140528161115.GB22194@roeck-us.net>
-References: <1401289196-27567-1-git-send-email-tord.andersson@endian.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1401289196-27567-1-git-send-email-tord.andersson@endian.se>
+To: Xiubo Li <Li.Xiubo@freescale.com>, wim@iguana.be,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] watchdog: imx2_wdt: adds big endianness support.
+References: <1401430217-29543-1-git-send-email-Li.Xiubo@freescale.com>
+In-Reply-To: <1401430217-29543-1-git-send-email-Li.Xiubo@freescale.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, May 28, 2014 at 04:59:56PM +0200, Tord Andersson wrote:
-> When the current imx2 watchdog driver is used with the systemd watchdog feature,
-> we get "Failed to enable hardware watchdog: Inappropriate ioctl for device".
-> This is caused by missing ioctl setoptions to enable the watchdog.
-> This patch will add WDIOC_SETOPTIONS for WDIOS_ENABLECARD and WDIOS_DISABLECARD.
-> 
-> Signed-off-by: Tord Andersson <tord.andersson@endian.se>
+On 05/29/2014 11:10 PM, Xiubo Li wrote:
+> This watchdog driver will be working on IMX2+, Vybrid, LS1, LS2+
+> platforms, and will be in different endianness mode in those SoCs:
+>
+> SoCs         CPU endian mode      WDT endian mode
+> ------------------------------------------------
+> IMX2+            LE                    LE
+> Vybird           LE                    LE
+> LS1              LE                    BE
+> LS2              LE                    LE
+>
+> Signed-off-by: Xiubo Li <Li.Xiubo@freescale.com>
 > ---
+>   drivers/watchdog/imx2_wdt.c | 7 +++++++
+>   1 file changed, 7 insertions(+)
+>
+> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+> index 9d4874f..68c3d37 100644
+> --- a/drivers/watchdog/imx2_wdt.c
+> +++ b/drivers/watchdog/imx2_wdt.c
+> @@ -28,6 +28,7 @@
+>   #include <linux/kernel.h>
+>   #include <linux/module.h>
+>   #include <linux/moduleparam.h>
+> +#include <linux/of_address.h>
+>   #include <linux/platform_device.h>
+>   #include <linux/regmap.h>
+>   #include <linux/timer.h>
+> @@ -190,10 +191,12 @@ static struct regmap_config imx2_wdt_regmap_config = {
+>
+>   static int __init imx2_wdt_probe(struct platform_device *pdev)
+>   {
+> +	struct device_node *np = pdev->dev.of_node;
+>   	struct imx2_wdt_device *wdev;
+>   	struct watchdog_device *wdog;
+>   	struct resource *res;
+>   	void __iomem *base;
+> +	bool big_endian;
+>   	int ret;
+>   	u32 val;
+>
+> @@ -201,6 +204,10 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
+>   	if (!wdev)
+>   		return -ENOMEM;
+>
+> +	big_endian = of_property_read_bool(np, "big-endian");
+> +	if (big_endian)
+> +		imx2_wdt_regmap_config.val_format_endian = REGMAP_ENDIAN_BIG;
+> +
 
-Hi Tord,
-
-This driver is in the process of being concerted to use the watchdog
-core API. See 'watchdog: imx2_wdt: convert to watchdog core api' [1]
-from Anatolij Gustschin.
-
-With this update, this patch becomes unnecessary.
+You'll need to document the use of this property in
+Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt.
 
 Guenter
 
-[1] http://patchwork.roeck-us.net/patch/1340/
+>   	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>   	base = devm_ioremap_resource(&pdev->dev, res);
+>   	if (IS_ERR(base))
+>
 
->  drivers/watchdog/imx2_wdt.c | 11 +++++++++++
->  1 file changed, 11 insertions(+)
-> 
-> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-> index dd51d95..180c6a5 100644
-> --- a/drivers/watchdog/imx2_wdt.c
-> +++ b/drivers/watchdog/imx2_wdt.c
-> @@ -196,6 +196,17 @@ static long imx2_wdt_ioctl(struct file *file, unsigned int cmd,
->  		new_value = val & IMX2_WDT_WRSR_TOUT ? WDIOF_CARDRESET : 0;
->  		return put_user(new_value, p);
->  
-> +	case WDIOC_SETOPTIONS:
-> +		if (get_user(new_value, p))
-> +			return -EFAULT;
-> +		if (new_value & WDIOS_ENABLECARD)
-> +			imx2_wdt_start();
-> +		else if (new_value & WDIOS_DISABLECARD)
-> +			imx2_wdt_stop();
-> +		else
-> +			return -EINVAL;
-> +		return 0;
-> +
->  	case WDIOC_KEEPALIVE:
->  		imx2_wdt_ping();
->  		return 0;
-> -- 
-> 1.9.1
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
