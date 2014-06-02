@@ -1,172 +1,102 @@
-Message-ID: <53A0C40F.4020604@gmail.com>
-Date: Tue, 17 Jun 2014 15:41:19 -0700
-From: David Daney <ddaney.cavm@gmail.com>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:48054 "EHLO
+	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751251AbaFBGZd (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 2 Jun 2014 02:25:33 -0400
+Received: by mail-pa0-f43.google.com with SMTP id kp14so1609477pab.30
+        for <linux-watchdog@vger.kernel.org>; Sun, 01 Jun 2014 23:25:32 -0700 (PDT)
+Message-ID: <538C18CC.6040105@monstr.eu>
+Date: Mon, 02 Jun 2014 08:25:16 +0200
+From: Michal Simek <monstr@monstr.eu>
+Reply-To: monstr@monstr.eu
 MIME-Version: 1.0
-To: Aaro Koskinen <aaro.koskinen@iki.fi>
-CC: linux-mips@linux-mips.org, Ralf Baechle <ralf@linux-mips.org>,
-        linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 2/3] MIPS: OCTEON: support disabling HOTPLUG_CPU run-time
-References: <1402949190-28182-1-git-send-email-aaro.koskinen@iki.fi> <1402949190-28182-2-git-send-email-aaro.koskinen@iki.fi>
-In-Reply-To: <1402949190-28182-2-git-send-email-aaro.koskinen@iki.fi>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-Path: <ddaney.cavm@gmail.com>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
-List-Archive: <https://lore.kernel.org/linux-mips/>
-List-Post: <mailto:linux-mips@vger.kernel.org>
-List-ID: <linux-watchdog@vger.kernel.org>
+To: Mark Rutland <mark.rutland@arm.com>
+CC: Harini Katakam <harinik@xilinx.com>,
+	"wim@iguana.be" <wim@iguana.be>,
+	"grant.likely@linaro.org" <grant.likely@linaro.org>,
+	"robh+dt@kernel.org" <robh+dt@kernel.org>,
+	Pawel Moll <Pawel.Moll@arm.com>,
+	"ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>,
+	"galak@codeaurora.org" <galak@codeaurora.org>,
+	"rob@landley.net" <rob@landley.net>,
+	"michals@xilinx.com" <michals@xilinx.com>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>
+Subject: Re: [PATCH v2 1/2] watchdog: Add Cadence WDT driver
+References: <1401185895-3677-1-git-send-email-harinik@xilinx.com> <20140529092106.GC24233@leverpostej> <53870129.5010505@monstr.eu> <20140529131940.GG24233@leverpostej>
+In-Reply-To: <20140529131940.GG24233@leverpostej>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="BiKsBpnhxs5kiiEJnDCpQBMnWbjuGLFVp"
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On 06/16/2014 01:06 PM, Aaro Koskinen wrote:
-> If nosmp kernel option given, we can assume HOTPLUG_CPU is disabled.
-> This is needed in order to be able to run the same kernel binary on
-> single core OCTEONs with older/incompatible bootloaders.
->
-> Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
-> Cc: linux-watchdog@vger.kernel.org
-> ---
->   arch/mips/cavium-octeon/smp.c      |  5 ++-
->   drivers/watchdog/octeon-wdt-main.c | 62 +++++++++++++++++++++-----------------
->   2 files changed, 38 insertions(+), 29 deletions(-)
->
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--BiKsBpnhxs5kiiEJnDCpQBMnWbjuGLFVp
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-The changes to these two files are almost unrelated, they really need to 
-be in separate patches.
+On 05/29/2014 03:19 PM, Mark Rutland wrote:
+> On Thu, May 29, 2014 at 10:43:05AM +0100, Michal Simek wrote:
+>> Hi Mark,
+>>
+>>>> +static struct of_device_id cdns_wdt_of_match[] =3D {
+>>>> +       { .compatible =3D "xlnx,zynq-wdt-r1p2", },
+>>>> +       { .compatible =3D "cdns,wdt-r1p2", },
+>>>
+>>> If these can currently be handled identically, why not just have
+>>> "cdns,wdt-r1p2" in the driver and in your dts have:
+>>>
+>>> compatible =3D "xlnx,zynq-wdt-r1p2", "cdns,wdt-r1p2";
+>>>
+>>> If we need to distinguish the two for some reason later we can always=
 
+>>> add the "xlnx,zynq-wdt-r1p2" string to the driver.
+>>
+>> I would prefer to have 2 compatible strings just because
+>> of that we don't know what is different compare to origin cadence
+>> version. We have done the same for spi-cadence.c that's why
+>> it shouldn't be any problem to keep it as is.
+>> Having zynq compatible property here and using it give us option
+>> that if another SoC vendor come with new configuration or clean
+>> cadence one we can simple handle it without changing compatible
+>> property for us.
+>=20
+> Sure, we can have two documented strings. But as I mention for the
+> moment the driver only needs to support the one string so long as a
+> given dts has both. Then we can later distinguish the zynq variant (or
+> any other) as necessary.
 
+ok then. Let's use just "xlnx,zynq-wdt-r1p2" compatible string here
+and remove "cdns,wdt-r1p2"
 
-> diff --git a/arch/mips/cavium-octeon/smp.c b/arch/mips/cavium-octeon/smp.c
-> index 2c8d156..ea96930 100644
-> --- a/arch/mips/cavium-octeon/smp.c
-> +++ b/arch/mips/cavium-octeon/smp.c
-> @@ -84,6 +84,9 @@ static void octeon_smp_hotplug_setup(void)
->   #ifdef CONFIG_HOTPLUG_CPU
->   	struct linux_app_boot_info *labi;
->
-> +	if (!setup_max_cpus)
-> +		return;
-> +
->   	labi = (struct linux_app_boot_info *)PHYS_TO_XKSEG_CACHED(LABI_ADDR_IN_BOOTLOADER);
->   	if (labi->labi_signature != LABI_SIGNATURE)
->   		panic("The bootloader version on this board is incorrect.");
-> @@ -129,7 +132,7 @@ static void octeon_smp_setup(void)
->   	 * will assign CPU numbers for possible cores as well.	Cores
->   	 * are always consecutively numberd from 0.
->   	 */
-> -	for (id = 0; id < num_cores && id < NR_CPUS; id++) {
-> +	for (id = 0; setup_max_cpus && id < num_cores && id < NR_CPUS; id++) {
->   		if (!(core_mask & (1 << id))) {
->   			set_cpu_possible(cpus, true);
->   			__cpu_number_map[id] = cpus;
+Thanks,
+Michal
 
-
-This arch/mips/cavium-octeon/smp.c part seems plausible, so for it only 
-you can add ...
-
-Acked-by: David Daney <david.daney@cavium.com>
-
-
-> diff --git a/drivers/watchdog/octeon-wdt-main.c b/drivers/watchdog/octeon-wdt-main.c
-> index 4baf2d7..c5aee12 100644
-> --- a/drivers/watchdog/octeon-wdt-main.c
-> +++ b/drivers/watchdog/octeon-wdt-main.c
-> @@ -145,35 +145,39 @@ static void __init octeon_wdt_build_stage1(void)
->
->   	uasm_i_mfc0(&p, K0, C0_STATUS);
->   #ifdef CONFIG_HOTPLUG_CPU
-> -	uasm_il_bbit0(&p, &r, K0, ilog2(ST0_NMI), label_enter_bootloader);
-> +	if (setup_max_cpus)
+--=20
+Michal Simek, Ing. (M.Eng), OpenPGP -> KeyID: FE3D1F91
+w: www.monstr.eu p: +42-0-721842854
+Maintainer of Linux kernel - Microblaze cpu - http://www.monstr.eu/fdt/
+Maintainer of Linux kernel - Xilinx Zynq ARM architecture
+Microblaze U-BOOT custodian and responsible for u-boot arm zynq platform
 
 
-This bit has nothing to do with setup_max_cpus, but rather if 
-hot-plugging CPUs is possible.
 
-There should be a separate variable to indicate if hot-plugging CPUs is 
-possible which would be used here instead.
+--BiKsBpnhxs5kiiEJnDCpQBMnWbjuGLFVp
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-See my comments in patch 3/3 also.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-> +		uasm_il_bbit0(&p, &r, K0, ilog2(ST0_NMI),
-> +			      label_enter_bootloader);
->   #endif
->   	/* Force 64-bit addressing enabled */
->   	uasm_i_ori(&p, K0, K0, ST0_UX | ST0_SX | ST0_KX);
->   	uasm_i_mtc0(&p, K0, C0_STATUS);
->
->   #ifdef CONFIG_HOTPLUG_CPU
-> -	uasm_i_mfc0(&p, K0, C0_EBASE);
-> -	/* Coreid number in K0 */
-> -	uasm_i_andi(&p, K0, K0, 0xf);
-> -	/* 8 * coreid in bits 16-31 */
-> -	uasm_i_dsll_safe(&p, K0, K0, 3 + 16);
-> -	uasm_i_ori(&p, K0, K0, 0x8001);
-> -	uasm_i_dsll_safe(&p, K0, K0, 16);
-> -	uasm_i_ori(&p, K0, K0, 0x0700);
-> -	uasm_i_drotr_safe(&p, K0, K0, 32);
-> -	/*
-> -	 * Should result in: 0x8001,0700,0000,8*coreid which is
-> -	 * CVMX_CIU_WDOGX(coreid) - 0x0500
-> -	 *
-> -	 * Now ld K0, CVMX_CIU_WDOGX(coreid)
-> -	 */
-> -	uasm_i_ld(&p, K0, 0x500, K0);
-> -	/*
-> -	 * If bit one set handle the NMI as a watchdog event.
-> -	 * otherwise transfer control to bootloader.
-> -	 */
-> -	uasm_il_bbit0(&p, &r, K0, 1, label_enter_bootloader);
-> -	uasm_i_nop(&p);
-> +	if (setup_max_cpus) {
-> +		uasm_i_mfc0(&p, K0, C0_EBASE);
-> +		/* Coreid number in K0 */
-> +		uasm_i_andi(&p, K0, K0, 0xf);
-> +		/* 8 * coreid in bits 16-31 */
-> +		uasm_i_dsll_safe(&p, K0, K0, 3 + 16);
-> +		uasm_i_ori(&p, K0, K0, 0x8001);
-> +		uasm_i_dsll_safe(&p, K0, K0, 16);
-> +		uasm_i_ori(&p, K0, K0, 0x0700);
-> +		uasm_i_drotr_safe(&p, K0, K0, 32);
-> +		/*
-> +		 * Should result in: 0x8001,0700,0000,8*coreid which is
-> +		 * CVMX_CIU_WDOGX(coreid) - 0x0500
-> +		 *
-> +		 * Now ld K0, CVMX_CIU_WDOGX(coreid)
-> +		 */
-> +		uasm_i_ld(&p, K0, 0x500, K0);
-> +		/*
-> +		 * If bit one set handle the NMI as a watchdog event.
-> +		 * otherwise transfer control to bootloader.
-> +		 */
-> +		uasm_il_bbit0(&p, &r, K0, 1, label_enter_bootloader);
-> +		uasm_i_nop(&p);
-> +	}
->   #endif
->
->   	/* Clear Dcache so cvmseg works right. */
-> @@ -194,11 +198,13 @@ static void __init octeon_wdt_build_stage1(void)
->   	uasm_i_dmfc0(&p, K0, C0_DESAVE);
->
->   #ifdef CONFIG_HOTPLUG_CPU
-> -	uasm_build_label(&l, p, label_enter_bootloader);
-> -	/* Jump to the bootloader and restore K0 */
-> -	UASM_i_LA(&p, K0, (long)octeon_bootloader_entry_addr);
-> -	uasm_i_jr(&p, K0);
-> -	uasm_i_dmfc0(&p, K0, C0_DESAVE);
-> +	if (setup_max_cpus) {
-> +		uasm_build_label(&l, p, label_enter_bootloader);
-> +		/* Jump to the bootloader and restore K0 */
-> +		UASM_i_LA(&p, K0, (long)octeon_bootloader_entry_addr);
-> +		uasm_i_jr(&p, K0);
-> +		uasm_i_dmfc0(&p, K0, C0_DESAVE);
-> +	}
->   #endif
->   	uasm_resolve_relocs(relocs, labels);
->
->
+iEYEARECAAYFAlOMGMwACgkQykllyylKDCGpTgCeI7dlKUifRZbCVGPXZJ905Fb2
+qfUAn0ReQS9Wp7Gz9Gfl9Mg/T3JbdEma
+=pVbY
+-----END PGP SIGNATURE-----
+
+--BiKsBpnhxs5kiiEJnDCpQBMnWbjuGLFVp--
