@@ -1,35 +1,102 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from filtteri6.pp.htv.fi ([213.243.153.189]:35075 "EHLO
-	filtteri6.pp.htv.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753724AbaFRTMt (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 18 Jun 2014 15:12:49 -0400
-Date: Wed, 18 Jun 2014 22:04:48 +0300
-From: Aaro Koskinen <aaro.koskinen@iki.fi>
-To: David Daney <ddaney.cavm@gmail.com>
-Cc: linux-mips@linux-mips.org, Ralf Baechle <ralf@linux-mips.org>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 2/3] MIPS: OCTEON: support disabling HOTPLUG_CPU run-time
-Message-ID: <20140618190447.GA558@drone.musicnaut.iki.fi>
-References: <1402949190-28182-1-git-send-email-aaro.koskinen@iki.fi>
- <1402949190-28182-2-git-send-email-aaro.koskinen@iki.fi>
- <53A0C40F.4020604@gmail.com>
+Received: from mail-bn1blp0188.outbound.protection.outlook.com ([207.46.163.188]:16350
+	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752013AbaFCD2j (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 2 Jun 2014 23:28:39 -0400
+From: Xiubo Li <Li.Xiubo@freescale.com>
+To: <wim@iguana.be>, <linux-watchdog@vger.kernel.org>
+CC: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
+	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
+	Xiubo Li <Li.Xiubo@freescale.com>
+Subject: [PATCH v2] watchdog: imx2_wdt: adds big endianness support.
+Date: Tue, 3 Jun 2014 10:45:14 +0800
+Message-ID: <1401763514-32589-1-git-send-email-Li.Xiubo@freescale.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <53A0C40F.4020604@gmail.com>
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
+This watchdog driver will be working on IMX2+, Vybrid, LS1, LS2+
+platforms, and will be in different endianness mode in those SoCs:
 
-On Tue, Jun 17, 2014 at 03:41:19PM -0700, David Daney wrote:
-> There should be a separate variable to indicate if hot-plugging CPUs is
-> possible which would be used here instead.
-> 
-> See my comments in patch 3/3 also.
+    SoCs       WDT endian mode
+------------------------------------
+    IMX2+           LE
+    Vybird          LE
+    LS1             BE
+    LS2             LE
 
-OK, thanks for comments. I will revisit this after the Finnish
-midsummer celebrations, i.e. it will take a couple of weeks.
+Signed-off-by: Xiubo Li <Li.Xiubo@freescale.com>
+---
 
-A.
+
+Changes in V2:
+- Document the use of the 'big-endian' property.
+
+
+
+
+ Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt | 5 +++++
+ drivers/watchdog/imx2_wdt.c                                | 7 +++++++
+ 2 files changed, 12 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+index 2144af1..e52ba2d 100644
+--- a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+@@ -5,10 +5,15 @@ Required properties:
+ - reg : Should contain WDT registers location and length
+ - interrupts : Should contain WDT interrupt
+ 
++Optional property:
++- big-endian: If present the watchdog device's registers are implemented
++  in big endian mode, otherwise in little mode.
++
+ Examples:
+ 
+ wdt@73f98000 {
+ 	compatible = "fsl,imx51-wdt", "fsl,imx21-wdt";
+ 	reg = <0x73f98000 0x4000>;
+ 	interrupts = <58>;
++	big-endian;
+ };
+diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+index 9d4874f..68c3d37 100644
+--- a/drivers/watchdog/imx2_wdt.c
++++ b/drivers/watchdog/imx2_wdt.c
+@@ -28,6 +28,7 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
++#include <linux/of_address.h>
+ #include <linux/platform_device.h>
+ #include <linux/regmap.h>
+ #include <linux/timer.h>
+@@ -190,10 +191,12 @@ static struct regmap_config imx2_wdt_regmap_config = {
+ 
+ static int __init imx2_wdt_probe(struct platform_device *pdev)
+ {
++	struct device_node *np = pdev->dev.of_node;
+ 	struct imx2_wdt_device *wdev;
+ 	struct watchdog_device *wdog;
+ 	struct resource *res;
+ 	void __iomem *base;
++	bool big_endian;
+ 	int ret;
+ 	u32 val;
+ 
+@@ -201,6 +204,10 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
+ 	if (!wdev)
+ 		return -ENOMEM;
+ 
++	big_endian = of_property_read_bool(np, "big-endian");
++	if (big_endian)
++		imx2_wdt_regmap_config.val_format_endian = REGMAP_ENDIAN_BIG;
++
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	base = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(base))
+-- 
+1.8.4
+
