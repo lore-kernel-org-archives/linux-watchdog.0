@@ -1,38 +1,62 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f45.google.com ([209.85.220.45]:64565 "EHLO
-	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751758AbaFJT02 (ORCPT
+Received: from mail-ve0-f181.google.com ([209.85.128.181]:63300 "EHLO
+	mail-ve0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754333AbaFKCEp (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 10 Jun 2014 15:26:28 -0400
-Received: by mail-pa0-f45.google.com with SMTP id hz1so1036909pad.32
-        for <linux-watchdog@vger.kernel.org>; Tue, 10 Jun 2014 12:26:27 -0700 (PDT)
-Date: Tue, 10 Jun 2014 12:26:19 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Xiubo Li <Li.Xiubo@freescale.com>
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org, robh+dt@kernel.org,
-	pawel.moll@arm.com, mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk, galak@codeaurora.org
-Subject: Re: [PATCH v2] watchdog: imx2_wdt: adds big endianness support.
-Message-ID: <20140610192619.GD7773@roeck-us.net>
-References: <1401763514-32589-1-git-send-email-Li.Xiubo@freescale.com>
+	Tue, 10 Jun 2014 22:04:45 -0400
+Received: by mail-ve0-f181.google.com with SMTP id db11so4230263veb.12
+        for <linux-watchdog@vger.kernel.org>; Tue, 10 Jun 2014 19:04:44 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1401763514-32589-1-git-send-email-Li.Xiubo@freescale.com>
+In-Reply-To: <20140610200549.GW22347@spo001.leaseweb.com>
+References: <20140610200549.GW22347@spo001.leaseweb.com>
+Date: Tue, 10 Jun 2014 19:04:44 -0700
+Message-ID: <CAADWXX_U7PsJ7J8zks8yB4KiVd3TfdH9g2tn7pD_4R0ZGOvYEw@mail.gmail.com>
+Subject: Re: [GIT PULL REQUEST] watchdog - v3.16 merge window
+From: Linus Torvalds <torvalds@linux-foundation.org>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+	David Cohen <david.a.cohen@linux.intel.com>,
+	Viresh Kumar <viresh.kumar@linaro.org>,
+	Tang Yuantian <yuantian.tang@freescale.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>,
+	Jingoo Han <jg1.han@samsung.com>,
+	Anatolij Gustschin <agust@denx.de>,
+	Xiubo Li <Li.Xiubo@freescale.com>,
+	Gabor Juhos <juhosg@openwrt.org>,
+	Alexander Shiyan <shc_work@mail.ru>,
+	gundberg <per.gundberg@icomera.com>,
+	=?UTF-8?Q?Emilio_L=C3=B3pez?= <emilio@elopez.com.ar>,
+	Julia Lawall <Julia.Lawall@lip6.fr>,
+	Jean Delvare <jdelvare@suse.de>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Jun 03, 2014 at 10:45:14AM +0800, Xiubo Li wrote:
-> This watchdog driver will be working on IMX2+, Vybrid, LS1, LS2+
-> platforms, and will be in different endianness mode in those SoCs:
-> 
->     SoCs       WDT endian mode
-> ------------------------------------
->     IMX2+           LE
->     Vybird          LE
->     LS1             BE
->     LS2             LE
-> 
-> Signed-off-by: Xiubo Li <Li.Xiubo@freescale.com>
+On Tue, Jun 10, 2014 at 1:05 PM, Wim Van Sebroeck <wim@iguana.be> wrote:
+> Hi Linus,
+>
+> Please pull from 'master' branch of
+>         git://www.linux-watchdog.org/linux-watchdog.git
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+gmail has decided that you are a spammer, and the only reason I saw
+this email was that BenH had the same fate and emailed me from another
+account to check.
+
+You and BenH have something in common: no SPF records. That tends to
+be one of the things that makes gmail unhappy, and look closer at
+emails and make it more likely to consider things spam:
+
+  Received-SPF: none (google.com: wimvs@spo001.leaseweb.com does not
+designate permitted sender hosts) client-ip=83.149.101.17;
+  Authentication-Results: mx.google.com;
+         spf=neutral (google.com: wimvs@spo001.leaseweb.com does not
+designate permitted sender hosts) smtp.mail=wimvs@spo001.leaseweb.com
+
+Anyway, no need to resend since I found it, but you might want to talk
+to your email provider about your SPF records...
+
+               Linus
