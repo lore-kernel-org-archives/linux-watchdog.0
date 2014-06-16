@@ -1,58 +1,66 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:43207 "EHLO mx1.redhat.com"
+Received: from lekensteyn.nl ([178.21.112.251]:44603 "EHLO lekensteyn.nl"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755830AbaFPUwv (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 16 Jun 2014 16:52:51 -0400
-Date: Mon, 16 Jun 2014 16:52:45 -0400
-From: Don Zickus <dzickus@redhat.com>
-To: Peter Wu <peter@lekensteyn.nl>, mhocko@suse.cz
-Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: Re: Writing watchdog_thresh triggers BUG: sleeping function called
- from invalid context
-Message-ID: <20140616205245.GQ177152@redhat.com>
-References: <5704608.v8oGzytBA3@al>
+	id S1755677AbaFPU6t (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 16 Jun 2014 16:58:49 -0400
+From: Peter Wu <peter@lekensteyn.nl>
+To: Don Zickus <dzickus@redhat.com>
+Cc: mhocko@suse.cz, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+Subject: Re: Writing watchdog_thresh triggers BUG: sleeping function called from invalid context
+Date: Mon, 16 Jun 2014 22:58:44 +0200
+Message-ID: <1583331.cjuWMhE6Gz@al>
+In-Reply-To: <20140616205245.GQ177152@redhat.com>
+References: <5704608.v8oGzytBA3@al> <20140616205245.GQ177152@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5704608.v8oGzytBA3@al>
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Jun 16, 2014 at 04:12:44PM +0200, Peter Wu wrote:
-> Hi,
+On Monday 16 June 2014 16:52:45 Don Zickus wrote:
+> On Mon, Jun 16, 2014 at 04:12:44PM +0200, Peter Wu wrote:
+> > Hi,
+> > 
+> > Writing to /proc/sys/kernel/watchdog_thresh causes the following BUG in
+> > at least v3.13-rc2-625-g06151db, v3.15 and v3.16-rc1. Kernel config is
+> > attached.
+> > 
+> > It was originally found on bare metal, since then reproduced in QEMU in
+> > init, and when directly executing it.
+> > 
+> > Regards,
+> > Peter
 > 
-> Writing to /proc/sys/kernel/watchdog_thresh causes the following BUG in
-> at least v3.13-rc2-625-g06151db, v3.15 and v3.16-rc1. Kernel config is
-> attached.
+> Hi Peter,
 > 
-> It was originally found on bare metal, since then reproduced in QEMU in
-> init, and when directly executing it.
+> I assume the following patch will work?
+
+Yes, the patch works (no more BUG). No idea whether it is
+(in)correct though.
+
+Regards,
+Peter
+
+> Michal, do you remember why we needed preempt here?  I wouldn't think it
+> mattered as we are not doing anything per-cpu specific.
 > 
-> Regards,
-> Peter
+> Cheers,
+> Don
+> 
+> diff --git a/kernel/watchdog.c b/kernel/watchdog.c
+> index 516203e..30e4822 100644
+> --- a/kernel/watchdog.c
+> +++ b/kernel/watchdog.c
+> @@ -527,10 +527,8 @@ static void update_timers_all_cpus(void)
+>  	int cpu;
+>  
+>  	get_online_cpus();
+> -	preempt_disable();
+>  	for_each_online_cpu(cpu)
+>  		update_timers(cpu);
+> -	preempt_enable();
+>  	put_online_cpus();
+>  }
+>  
 
-Hi Peter,
-
-I assume the following patch will work?
-
-Michal, do you remember why we needed preempt here?  I wouldn't think it
-mattered as we are not doing anything per-cpu specific.
-
-Cheers,
-Don
-
-diff --git a/kernel/watchdog.c b/kernel/watchdog.c
-index 516203e..30e4822 100644
---- a/kernel/watchdog.c
-+++ b/kernel/watchdog.c
-@@ -527,10 +527,8 @@ static void update_timers_all_cpus(void)
- 	int cpu;
- 
- 	get_online_cpus();
--	preempt_disable();
- 	for_each_online_cpu(cpu)
- 		update_timers(cpu);
--	preempt_enable();
- 	put_online_cpus();
- }
- 
