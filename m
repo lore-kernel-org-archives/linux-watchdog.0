@@ -1,50 +1,33 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from lekensteyn.nl ([178.21.112.251]:44603 "EHLO lekensteyn.nl"
+Received: from cantor2.suse.de ([195.135.220.15]:45733 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755677AbaFPU6t (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 16 Jun 2014 16:58:49 -0400
-From: Peter Wu <peter@lekensteyn.nl>
+	id S932185AbaFQI7o (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 17 Jun 2014 04:59:44 -0400
+Date: Tue, 17 Jun 2014 10:59:43 +0200
+From: Michal Hocko <mhocko@suse.cz>
 To: Don Zickus <dzickus@redhat.com>
-Cc: mhocko@suse.cz, linux-kernel@vger.kernel.org,
+Cc: Peter Wu <peter@lekensteyn.nl>, linux-kernel@vger.kernel.org,
 	linux-watchdog@vger.kernel.org
-Subject: Re: Writing watchdog_thresh triggers BUG: sleeping function called from invalid context
-Date: Mon, 16 Jun 2014 22:58:44 +0200
-Message-ID: <1583331.cjuWMhE6Gz@al>
-In-Reply-To: <20140616205245.GQ177152@redhat.com>
-References: <5704608.v8oGzytBA3@al> <20140616205245.GQ177152@redhat.com>
+Subject: Re: Writing watchdog_thresh triggers BUG: sleeping function called
+ from invalid context
+Message-ID: <20140617085943.GA19886@dhcp22.suse.cz>
+References: <5704608.v8oGzytBA3@al>
+ <20140616205245.GQ177152@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20140616205245.GQ177152@redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Monday 16 June 2014 16:52:45 Don Zickus wrote:
-> On Mon, Jun 16, 2014 at 04:12:44PM +0200, Peter Wu wrote:
-> > Hi,
-> > 
-> > Writing to /proc/sys/kernel/watchdog_thresh causes the following BUG in
-> > at least v3.13-rc2-625-g06151db, v3.15 and v3.16-rc1. Kernel config is
-> > attached.
-> > 
-> > It was originally found on bare metal, since then reproduced in QEMU in
-> > init, and when directly executing it.
-> > 
-> > Regards,
-> > Peter
-> 
-> Hi Peter,
-> 
-> I assume the following patch will work?
-
-Yes, the patch works (no more BUG). No idea whether it is
-(in)correct though.
-
-Regards,
-Peter
-
+On Mon 16-06-14 16:52:45, Don Zickus wrote:
+[...]
 > Michal, do you remember why we needed preempt here?  I wouldn't think it
 > mattered as we are not doing anything per-cpu specific.
-> 
+
+Yes, you are right. Preempt can be enabled because we are always
+accessing watchdog_ev on a specific cpu so reschedule doesn't matter.
+
 > Cheers,
 > Don
 > 
@@ -64,3 +47,6 @@ Peter
 >  }
 >  
 
+-- 
+Michal Hocko
+SUSE Labs
