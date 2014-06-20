@@ -1,123 +1,79 @@
-Return-Path: <groeck7@gmail.com>
-Return-Path: <groeck7@gmail.com>
-Sender: Guenter Roeck <groeck7@gmail.com>
-From: Guenter Roeck <linux@roeck-us.net>
-To: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Will Deacon <will.deacon@arm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Heiko Stuebner <heiko@sntech.de>,
-	Russell King <linux@arm.linux.org.uk>,
-	Jonas Jensen <jonas.jensen@gmail.com>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Ingo Molnar <mingo@kernel.org>,
-	linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: [RFC PATCH 5/6] watchdog: alim7101: Register restart handler with restart notifier
-Date: Mon, 30 Jun 2014 12:11:38 -0700
-Message-Id: <1404155499-21177-6-git-send-email-linux@roeck-us.net>
-In-Reply-To: <1404155499-21177-1-git-send-email-linux@roeck-us.net>
-References: <1404155499-21177-1-git-send-email-linux@roeck-us.net>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Message-Id: <20140620193126.037585841@linux.com>
+Date: Fri, 20 Jun 2014 14:31:25 -0500
+From: Christoph Lameter <cl@linux.com>
+To: Tejun Heo <tj@kernel.org>
+Cc: akpm@linuxfoundation.org, rostedt@goodmis.org,
+        linux-kernel@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>, Wim Van Sebroeck <wim@iguana.be>,
+        linux-watchdog@vger.kernel.org
+Subject: [PATCH 10/31] watchdog: Replace __raw_get_cpu_var uses
+References: <20140620193115.547427118@linux.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline; filename=this_watchdog
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-The kernel core now provides an API to trigger a system restart.
-Register with it to restart the system instead of misusing the
-reboot notifier.
+Most of these are the uses of &__raw_get_cpu_var for address calculation.
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
- drivers/watchdog/alim7101_wdt.c | 41 +++++++++++++++++++++++++++++++----------
- 1 file changed, 31 insertions(+), 10 deletions(-)
+touch_softlockup_watchdog_sync() uses __raw_get_cpu_var to write to
+per cpu variables. Use __this_cpu_write instead.
 
-diff --git a/drivers/watchdog/alim7101_wdt.c b/drivers/watchdog/alim7101_wdt.c
-index 996b2f7..239d6b2 100644
---- a/drivers/watchdog/alim7101_wdt.c
-+++ b/drivers/watchdog/alim7101_wdt.c
-@@ -301,6 +301,27 @@ static struct miscdevice wdt_miscdev = {
- 	.fops	=	&wdt_fops,
- };
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org
+Signed-off-by: Christoph Lameter <cl@linux.com>
+
+Index: linux/kernel/watchdog.c
+===================================================================
+--- linux.orig/kernel/watchdog.c	2014-06-16 15:39:29.772852391 -0500
++++ linux/kernel/watchdog.c	2014-06-16 15:39:34.296768126 -0500
+@@ -169,7 +169,7 @@
+ 	 * case we shouldn't have to worry about the watchdog
+ 	 * going off.
+ 	 */
+-	__raw_get_cpu_var(watchdog_nmi_touch) = true;
++	raw_cpu_write(watchdog_nmi_touch, true);
+ 	touch_softlockup_watchdog();
+ }
+ EXPORT_SYMBOL(touch_nmi_watchdog);
+@@ -178,8 +178,8 @@
  
-+static int wdt_restart_notify(struct notifier_block *this, unsigned long mode,
-+			      void *cmd)
-+{
-+	/*
-+	 * Cobalt devices have no way of rebooting themselves other
-+	 * than getting the watchdog to pull reset, so we restart the
-+	 * watchdog on reboot with no heartbeat.
-+	 */
-+	wdt_change(WDT_ENABLE);
-+
-+	/* loop until the watchdog fires */
-+	while (true)
-+		;
-+
-+	return NOTIFY_DONE;
-+}
-+
-+static struct notifier_block wdt_restart_notifier = {
-+	.notifier_call = wdt_restart_notify,
-+};
-+
- /*
-  *	Notifier for system down
-  */
-@@ -311,15 +332,6 @@ static int wdt_notify_sys(struct notifier_block *this,
- 	if (code == SYS_DOWN || code == SYS_HALT)
- 		wdt_turnoff();
- 
--	if (code == SYS_RESTART) {
--		/*
--		 * Cobalt devices have no way of rebooting themselves other
--		 * than getting the watchdog to pull reset, so we restart the
--		 * watchdog on reboot with no heartbeat
--		 */
--		wdt_change(WDT_ENABLE);
--		pr_info("Watchdog timer is now enabled with no heartbeat - should reboot in ~1 second\n");
--	}
- 	return NOTIFY_DONE;
+ void touch_softlockup_watchdog_sync(void)
+ {
+-	__raw_get_cpu_var(softlockup_touch_sync) = true;
+-	__raw_get_cpu_var(watchdog_touch_ts) = 0;
++	__this_cpu_write(softlockup_touch_sync, true);
++	__this_cpu_write(watchdog_touch_ts, 0);
  }
  
-@@ -338,6 +350,7 @@ static void __exit alim7101_wdt_unload(void)
- 	/* Deregister */
- 	misc_deregister(&wdt_miscdev);
- 	unregister_reboot_notifier(&wdt_notifier);
-+	unregister_restart_notifier(&wdt_restart_notifier);
- 	pci_dev_put(alim7101_pmu);
- }
+ #ifdef CONFIG_HARDLOCKUP_DETECTOR
+@@ -345,7 +345,7 @@
  
-@@ -390,11 +403,17 @@ static int __init alim7101_wdt_init(void)
- 		goto err_out;
- 	}
+ static void watchdog_enable(unsigned int cpu)
+ {
+-	struct hrtimer *hrtimer = &__raw_get_cpu_var(watchdog_hrtimer);
++	struct hrtimer *hrtimer = raw_cpu_ptr(&watchdog_hrtimer);
  
-+	rc = register_restart_notifier(&wdt_restart_notifier);
-+	if (rc) {
-+		pr_err("cannot register reboot notifier (err=%d)\n", rc);
-+		goto err_out_reboot;
-+	}
-+
- 	rc = misc_register(&wdt_miscdev);
- 	if (rc) {
- 		pr_err("cannot register miscdev on minor=%d (err=%d)\n",
- 		       wdt_miscdev.minor, rc);
--		goto err_out_reboot;
-+		goto err_out_restart;
- 	}
+ 	/* kick off the timer for the hardlockup detector */
+ 	hrtimer_init(hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+@@ -365,7 +365,7 @@
  
- 	if (nowayout)
-@@ -404,6 +423,8 @@ static int __init alim7101_wdt_init(void)
- 		timeout, nowayout);
- 	return 0;
+ static void watchdog_disable(unsigned int cpu)
+ {
+-	struct hrtimer *hrtimer = &__raw_get_cpu_var(watchdog_hrtimer);
++	struct hrtimer *hrtimer = raw_cpu_ptr(&watchdog_hrtimer);
  
-+err_out_restart:
-+	unregister_restart_notifier(&wdt_restart_notifier);
- err_out_reboot:
- 	unregister_reboot_notifier(&wdt_notifier);
- err_out:
--- 
-1.9.1
+ 	watchdog_set_prio(SCHED_NORMAL, 0);
+ 	hrtimer_cancel(hrtimer);
+@@ -492,7 +492,7 @@
+ 
+ static void restart_watchdog_hrtimer(void *info)
+ {
+-	struct hrtimer *hrtimer = &__raw_get_cpu_var(watchdog_hrtimer);
++	struct hrtimer *hrtimer = raw_cpu_ptr(&watchdog_hrtimer);
+ 	int ret;
+ 
+ 	/*
