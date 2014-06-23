@@ -1,111 +1,54 @@
-Return-Path: <maxime.ripard@free-electrons.com>
-Date: Mon, 23 Jun 2014 17:49:34 +0200
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: wim@iguana.be, Arnd Bergmann <arnd@arndb.de>, dbaryshkov@gmail.com,
-	dwmw2@infradead.org, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-sunxi@googlegroups.com
-Subject: Re: [PATCH v2 1/6] wdt: sunxi: Move restart code to the watchdog
- driver
-Message-ID: <20140623154934.GG19730@lukather>
-References: <1399430664-29091-1-git-send-email-maxime.ripard@free-electrons.com>
- <1399430664-29091-2-git-send-email-maxime.ripard@free-electrons.com>
- <20140507213318.GA2105@roeck-us.net>
- <20140515091123.GQ29258@lukather>
- <20140519150422.GA27329@lukather>
- <20140522203444.GE27329@lukather>
- <20140522211207.GA28704@roeck-us.net>
- <20140623103142.GB19730@lukather>
- <53A83A20.6090800@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HkfZ6fDZyisrdUtK"
-Content-Disposition: inline
-In-Reply-To: <53A83A20.6090800@roeck-us.net>
-List-ID: <linux-watchdog@vger.kernel.org>
-
-
---HkfZ6fDZyisrdUtK
+Return-Path: <wimvs@spo001.leaseweb.com>
+Date: Mon, 23 Jun 2014 23:13:24 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: Guenter Roeck <linux@roeck-us.net>, Arnd Bergmann <arnd@arndb.de>,
+	dbaryshkov@gmail.com, dwmw2@infradead.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, linux-sunxi@googlegroups.com
+Subject: Re: [PATCH v2 1/6] wdt: sunxi: Move restart code to the watchdog driver
+Message-ID: <20140623211323.GA28120@spo001.leaseweb.com>
+References: <1399430664-29091-1-git-send-email-maxime.ripard@free-electrons.com> <1399430664-29091-2-git-send-email-maxime.ripard@free-electrons.com> <20140507213318.GA2105@roeck-us.net> <20140515091123.GQ29258@lukather> <20140519150422.GA27329@lukather> <20140522203444.GE27329@lukather> <20140522211207.GA28704@roeck-us.net> <20140623103142.GB19730@lukather>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20140623103142.GB19730@lukather>
+Sender: <wimvs@spo001.leaseweb.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Mon, Jun 23, 2014 at 07:30:56AM -0700, Guenter Roeck wrote:
-> >>The patches _are_ in my watchdog-next branch and get some coverage from
-> >>both my auto-builders and from Fenguang's build robots, so while they a=
-re
-> >>not in linux-next, they are not completely in the dark either.
-> >
-> >So, this patch finally didn't make it into 3.16. Great. Now, we can't
-> >even reboot the boards.
-> >
-> >Given how it's just impossible to get something merged reliably
-> >through the watchdog tree, I guess I should just start merging the
-> >patches through mine?
-> >
->=20
-> You can not really blame Wim here.
->=20
-> In this case, I suspect the major reason for not accepting the patch
-> is that I tried to provide a clean method / API for "reset through watchd=
-og
-> subsystem", which went nowhere, in my understanding because someone objec=
-ted
-> that it would be the wrong thing to do [1] and it didn't get approval /
-> acceptance from the arm maintainers. If it is wrong to reset the board
-> from the watchdog subsystem in a clean way, it is for sure even more wrong
-> to do it as you proposed in your patch.
->=20
-> My conclusion therefore is that all board reset code should move back out
-> of the watchdog subsystem, and that we should not accept such code in the
-> future. This is not my personal preference, but I do believe that we shou=
-ld
-> do it in a clean way or not at all.
+Hi Maxime,
 
-Well, considering that this patch isn't depending on your reboot API
-set, and that Wim never either commented on this patch, your reboot
-API patchset or your pull request to say that he was not willing to
-merge this, there's still a huge failure to communicate.
+> > > Guenter, since you seem to be the only responsive, may I suggest that
+> > > you start merging patches and do a pull request to either Wim or Linus
+> > > directly during the merge window?
+> > > 
+> > I had prepared a pull request for Wim last weekend or so, but then there
+> > were more patches piling in and I got distracted, so I didn't have time
+> > to actually send it. I'll try again this weekend ... the kids should be
+> > busy learning for their finals, and I'll have Friday and Monday off
+> > from work, so I should be able to find the time.
+> > 
+> > As for sending patches to Linus directly, well, Wim is the watchdog maintainer.
+> > I manage to upset enough people, and would not want to add Wim to the list.
+> > 
+> > The patches _are_ in my watchdog-next branch and get some coverage from
+> > both my auto-builders and from Fenguang's build robots, so while they are
+> > not in linux-next, they are not completely in the dark either.
+> 
+> So, this patch finally didn't make it into 3.16. Great. Now, we can't
+> even reboot the boards.
 
-I'm fine with any technical reason, let's debate on that. But the
-point is there has been no debate at all, only silence from his side.
+1) For me the discussion was not ended and needs further thinking. (And I just read some good ideas about it).
+2) You never mentioned you needed this in for 3.16 and that things would break because of it.
 
-I have been told some patches would be merged and I merged through my
-tree some patches that were depending on this one based on that
-assumption.
+So based on these 2 points why would I have to have put this in allready?
 
-And now, we have a regression.
+> Given how it's just impossible to get something merged reliably
+> through the watchdog tree, I guess I should just start merging the
+> patches through mine?
 
-Anyway... I guess I should just revert some commits now.
+I agree that I have the problem of having only 24 hours in a day and that I lack time to communicate and that I am not good at communicating either, but I checked all sunxi related e-mails and you never mentioned the constraint to have it in for 3.16...
+But I do understand your frustration.
 
-Maxime
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---HkfZ6fDZyisrdUtK
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJTqEyOAAoJEBx+YmzsjxAg77QP/1zJd1jlu929H8oX+wfrF0sk
-bsjm/c0w4Z18EkL8vIlzhisz6HJMl9FHw/Un+kO6zKkOnHDetr64xYGjitzc3ySR
-+gSY9vrGwE9hY+0mkuzgxvvZwBEqyKQTywxb/K8XAZFPiZEFY6+6RBpw+ukolkx4
-MFbABXONF8HPmdKkIAeoTpzU/CCpw268P2RgGWQ2CB4luqW2IHnahPbzQ330XpS4
-1GJB1D+D77sI0pDtYSq4Zh6tY5TcCiCJ8kZh3EBFgLYC4aLwns1987d6LRhRNwKJ
-PGgyUiFRdx3RKBTmy1a1BpdPkLpcPAvo3FtwzBXrre7QDF7fTBMRItOmtR61ibjs
-9FxOHgH/yy/rpuMVHM4UHEpRKAAAW+PDWMWCspTl9XKMcY7c07yRUorkHBwOuuwM
-PbeJank8wz32M2suRt+LPCOzoP9W8S0D276GNceWGn8J8fs5h4PQ6vE2iX7H9kDS
-1Jz34LjZ26K1J0ryUksdWjnY+VsjVSF7VBssf6OIe5TCcBb8nhYdTC+fScMUVMFQ
-24WnWg4JUKYDZycP2PgnlZqxqYPyS3Ch98VrE7bOEUwecTzY0q8eDhm4jD8Tm6av
-EDqofh251Qk7DZnZ3+uyPKJEX1iJ48Ma9pihYoTLm2fA+LqVhMnnmFvEZG/Jo4Vm
-Iy5Dhr/Xk6RLZEDfiTyp
-=KVeb
------END PGP SIGNATURE-----
-
---HkfZ6fDZyisrdUtK--
+Kind regards,
+Wim.
