@@ -1,132 +1,119 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-bl2lp0209.outbound.protection.outlook.com ([207.46.163.209]:19877
-	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932189AbaFTIBA convert rfc822-to-8bit (ORCPT
+Received: from top.free-electrons.com ([176.31.233.9]:47865 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752335AbaFWKfP (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 20 Jun 2014 04:01:00 -0400
-From: "Li.Xiubo@freescale.com" <Li.Xiubo@freescale.com>
-To: "wim@iguana.be" <wim@iguana.be>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-CC: "robh+dt@kernel.org" <robh+dt@kernel.org>,
-	"pawel.moll@arm.com" <pawel.moll@arm.com>,
-	"mark.rutland@arm.com" <mark.rutland@arm.com>,
-	"ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>,
-	"galak@codeaurora.org" <galak@codeaurora.org>,
-	"Li.Xiubo@freescale.com" <Li.Xiubo@freescale.com>
-Subject: RE: [PATCH v2] watchdog: imx2_wdt: adds big endianness support.
-Date: Fri, 20 Jun 2014 07:58:45 +0000
-Message-ID: <af580b419cb54df38ac8fcf08fc22d1e@BY2PR03MB505.namprd03.prod.outlook.com>
-References: <1401763514-32589-1-git-send-email-Li.Xiubo@freescale.com>
-In-Reply-To: <1401763514-32589-1-git-send-email-Li.Xiubo@freescale.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+	Mon, 23 Jun 2014 06:35:15 -0400
+Date: Mon, 23 Jun 2014 12:31:42 +0200
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: wim@iguana.be, Guenter Roeck <linux@roeck-us.net>
+Cc: Arnd Bergmann <arnd@arndb.de>, dbaryshkov@gmail.com,
+	dwmw2@infradead.org, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	linux-sunxi@googlegroups.com
+Subject: Re: [PATCH v2 1/6] wdt: sunxi: Move restart code to the watchdog
+ driver
+Message-ID: <20140623103142.GB19730@lukather>
+References: <1399430664-29091-1-git-send-email-maxime.ripard@free-electrons.com>
+ <1399430664-29091-2-git-send-email-maxime.ripard@free-electrons.com>
+ <20140507213318.GA2105@roeck-us.net>
+ <20140515091123.GQ29258@lukather>
+ <20140519150422.GA27329@lukather>
+ <20140522203444.GE27329@lukather>
+ <20140522211207.GA28704@roeck-us.net>
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="rsGyAQ90QqnfMsmV"
+Content-Disposition: inline
+In-Reply-To: <20140522211207.GA28704@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
 
-I'd like to know the state of this patch.
-:)
+--rsGyAQ90QqnfMsmV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks,
+On Thu, May 22, 2014 at 02:12:07PM -0700, Guenter Roeck wrote:
+> On Thu, May 22, 2014 at 10:34:44PM +0200, Maxime Ripard wrote:
+> > On Mon, May 19, 2014 at 05:04:22PM +0200, Maxime Ripard wrote:
+> > > On Thu, May 15, 2014 at 11:11:23AM +0200, Maxime Ripard wrote:
+> > > > On Wed, May 07, 2014 at 02:33:18PM -0700, Guenter Roeck wrote:
+> > > > > On Tue, May 06, 2014 at 09:44:19PM -0500, Maxime Ripard wrote:
+> > > > > > Most of the watchdog code is duplicated between the machine res=
+tart code and
+> > > > > > the watchdog driver. Add the restart hook to the watchdog drive=
+r, to be able to
+> > > > > > remove it from the machine code eventually.
+> > > > > >=20
+> > > > > > Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+> > > > > > Acked-by: Arnd Bergmann <arnd@arndb.de>
+> > > > >=20
+> > > > > Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> > > >=20
+> > > > Wim, do you have any comment on this one?
+> > >=20
+> > > Ping?
+> > >=20
+> > > It would be really great to see this in 3.16, and we get quite close
+> > > to the end of ARM's merge window.
+> >=20
+> > Ping?
+> >=20
+> > Guenter, since you seem to be the only responsive, may I suggest that
+> > you start merging patches and do a pull request to either Wim or Linus
+> > directly during the merge window?
+> >=20
+> I had prepared a pull request for Wim last weekend or so, but then there
+> were more patches piling in and I got distracted, so I didn't have time
+> to actually send it. I'll try again this weekend ... the kids should be
+> busy learning for their finals, and I'll have Friday and Monday off
+> from work, so I should be able to find the time.
+>=20
+> As for sending patches to Linus directly, well, Wim is the watchdog maint=
+ainer.
+> I manage to upset enough people, and would not want to add Wim to the lis=
+t.
+>=20
+> The patches _are_ in my watchdog-next branch and get some coverage from
+> both my auto-builders and from Fenguang's build robots, so while they are
+> not in linux-next, they are not completely in the dark either.
 
-BRs
-Xiubo
+So, this patch finally didn't make it into 3.16. Great. Now, we can't
+even reboot the boards.
 
+Given how it's just impossible to get something merged reliably
+through the watchdog tree, I guess I should just start merging the
+patches through mine?
 
-> -----Original Message-----
-> From: Xiubo Li [mailto:Li.Xiubo@freescale.com]
-> Sent: Tuesday, June 03, 2014 10:45 AM
-> To: wim@iguana.be; linux-watchdog@vger.kernel.org
-> Cc: robh+dt@kernel.org; pawel.moll@arm.com; mark.rutland@arm.com;
-> ijc+devicetree@hellion.org.uk; galak@codeaurora.org; Xiubo Li-B47053
-> Subject: [PATCH v2] watchdog: imx2_wdt: adds big endianness support.
-> 
-> This watchdog driver will be working on IMX2+, Vybrid, LS1, LS2+
-> platforms, and will be in different endianness mode in those SoCs:
-> 
->     SoCs       WDT endian mode
-> ------------------------------------
->     IMX2+           LE
->     Vybird          LE
->     LS1             BE
->     LS2             LE
-> 
-> Signed-off-by: Xiubo Li <Li.Xiubo@freescale.com>
-> ---
-> 
-> 
-> Changes in V2:
-> - Document the use of the 'big-endian' property.
-> 
-> 
-> 
-> 
->  Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt | 5 +++++
->  drivers/watchdog/imx2_wdt.c                                | 7 +++++++
->  2 files changed, 12 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
-> b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
-> index 2144af1..e52ba2d 100644
-> --- a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
-> +++ b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
-> @@ -5,10 +5,15 @@ Required properties:
->  - reg : Should contain WDT registers location and length
->  - interrupts : Should contain WDT interrupt
-> 
-> +Optional property:
-> +- big-endian: If present the watchdog device's registers are implemented
-> +  in big endian mode, otherwise in little mode.
-> +
->  Examples:
-> 
->  wdt@73f98000 {
->  	compatible = "fsl,imx51-wdt", "fsl,imx21-wdt";
->  	reg = <0x73f98000 0x4000>;
->  	interrupts = <58>;
-> +	big-endian;
->  };
-> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-> index 9d4874f..68c3d37 100644
-> --- a/drivers/watchdog/imx2_wdt.c
-> +++ b/drivers/watchdog/imx2_wdt.c
-> @@ -28,6 +28,7 @@
->  #include <linux/kernel.h>
->  #include <linux/module.h>
->  #include <linux/moduleparam.h>
-> +#include <linux/of_address.h>
->  #include <linux/platform_device.h>
->  #include <linux/regmap.h>
->  #include <linux/timer.h>
-> @@ -190,10 +191,12 @@ static struct regmap_config imx2_wdt_regmap_config = {
-> 
->  static int __init imx2_wdt_probe(struct platform_device *pdev)
->  {
-> +	struct device_node *np = pdev->dev.of_node;
->  	struct imx2_wdt_device *wdev;
->  	struct watchdog_device *wdog;
->  	struct resource *res;
->  	void __iomem *base;
-> +	bool big_endian;
->  	int ret;
->  	u32 val;
-> 
-> @@ -201,6 +204,10 @@ static int __init imx2_wdt_probe(struct platform_device
-> *pdev)
->  	if (!wdev)
->  		return -ENOMEM;
-> 
-> +	big_endian = of_property_read_bool(np, "big-endian");
-> +	if (big_endian)
-> +		imx2_wdt_regmap_config.val_format_endian = REGMAP_ENDIAN_BIG;
-> +
->  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->  	base = devm_ioremap_resource(&pdev->dev, res);
->  	if (IS_ERR(base))
-> --
-> 1.8.4
+Maxime
 
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--rsGyAQ90QqnfMsmV
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJTqAIOAAoJEBx+YmzsjxAgMVcP/0+y55rqc1cy3QDovncKP+S/
+CIGgk14dF+sgBuE/3KDsDTElb81Qi0htwFJaGic5wpN1AT+LzsGvsKmGvLa3rfCI
+OSniWkDBlWMDTjE/sUdaquxVffiH0tRoOUkJgsviNDm46rN02oWYeUXTGAi+p6cp
+gCwLH8Y4XepAtvNtwedEbbScRB1T/WdMYEXwXwnozB1mEZ/Al8jnn53I9NoZtNWb
+vmPfsJuCsV8rA2rHBmPP8XcWqdokLcP0UixXTb5nsXaRBUuNym14qbP1WZLnNu44
+UdWkJVcHhQLLrd0edMISeh9hAPtJYCbdRwQExFojROeFtlbIwWa0l8Jix27dQBPH
+JsfFoWURcKsRXs5pLaU2Dnpftw1+mXRopLgxoige6USpeiXicoQskylDtbjMPW/Z
+sHgVyj5Q/4xUe5DUN4zEPy1aKxWtS8enSZpPYGDWkXcHXfE60bglw9/lm52wJ4eu
+kUNar9O7khCd+ziw4w1su4HpbmwlNapFcMl8r5yz0YYznOTwSFeY+D/ROYcQOQ3H
+pBATD+DaEM3btqK/zZsIORl7QaDD6Fji2H/QQ6ux9cxri940Oei1xn1OAP0iWQj/
+bh3fKqI6n6M/4Qda+gxtf6hPZhGLSK+vDcERi+okMdT4BkxuwwJuWOZVBByr1B7x
+jawKxeY//RrfWAhMK+Xq
+=ptEC
+-----END PGP SIGNATURE-----
+
+--rsGyAQ90QqnfMsmV--
