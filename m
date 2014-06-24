@@ -1,95 +1,62 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:64968 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756102AbaFXQBb (ORCPT
+Received: from mout.kundenserver.de ([212.227.126.131]:53620 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751407AbaFXJ2r (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 24 Jun 2014 12:01:31 -0400
-Message-ID: <53A9A0CB.1020607@roeck-us.net>
-Date: Tue, 24 Jun 2014 09:01:15 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Tue, 24 Jun 2014 05:28:47 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: linux-arm-kernel@lists.infradead.org
+Cc: Guenter Roeck <linux@roeck-us.net>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	linux-watchdog@vger.kernel.org, dbaryshkov@gmail.com,
+	linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com,
+	dwmw2@infradead.org
+Subject: Re: [PATCH v2 1/6] wdt: sunxi: Move restart code to the watchdog driver
+Date: Tue, 24 Jun 2014 11:27:45 +0200
+Message-ID: <20298828.cYNPnTRxWX@wuerfel>
+In-Reply-To: <53A8A084.3000005@roeck-us.net>
+References: <1399430664-29091-1-git-send-email-maxime.ripard@free-electrons.com> <20140623213046.GR22347@spo001.leaseweb.com> <53A8A084.3000005@roeck-us.net>
 MIME-Version: 1.0
-To: Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-CC: Arnd Bergmann <arnd@arndb.de>, dbaryshkov@gmail.com,
-	dwmw2@infradead.org, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-sunxi@googlegroups.com
-Subject: Re: [PATCH v2 1/6] wdt: sunxi: Move restart code to the watchdog
- driver
-References: <1399430664-29091-1-git-send-email-maxime.ripard@free-electrons.com> <1399430664-29091-2-git-send-email-maxime.ripard@free-electrons.com> <20140507213318.GA2105@roeck-us.net> <20140515091123.GQ29258@lukather> <20140519150422.GA27329@lukather> <20140522203444.GE27329@lukather> <20140522211207.GA28704@roeck-us.net> <20140623103142.GB19730@lukather> <20140623211323.GA28120@spo001.leaseweb.com> <20140624144954.GP19730@lukather>
-In-Reply-To: <20140624144954.GP19730@lukather>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 06/24/2014 07:49 AM, Maxime Ripard wrote:
-> On Mon, Jun 23, 2014 at 11:13:24PM +0200, Wim Van Sebroeck wrote:
->> Hi Maxime,
->>
->>>>> Guenter, since you seem to be the only responsive, may I suggest that
->>>>> you start merging patches and do a pull request to either Wim or Linus
->>>>> directly during the merge window?
->>>>>
->>>> I had prepared a pull request for Wim last weekend or so, but then there
->>>> were more patches piling in and I got distracted, so I didn't have time
->>>> to actually send it. I'll try again this weekend ... the kids should be
->>>> busy learning for their finals, and I'll have Friday and Monday off
->>>> from work, so I should be able to find the time.
->>>>
->>>> As for sending patches to Linus directly, well, Wim is the watchdog maintainer.
->>>> I manage to upset enough people, and would not want to add Wim to the list.
->>>>
->>>> The patches _are_ in my watchdog-next branch and get some coverage from
->>>> both my auto-builders and from Fenguang's build robots, so while they are
->>>> not in linux-next, they are not completely in the dark either.
->>>
->>> So, this patch finally didn't make it into 3.16. Great. Now, we can't
->>> even reboot the boards.
->>
->> 1) For me the discussion was not ended and needs further
->> thinking. (And I just read some good ideas about it).
->
-> It would have been great for you to mention it then.
->
->> 2) You never mentioned you needed this in for 3.16 and that things
->> would break because of it.
->
-> http://lists.infradead.org/pipermail/linux-arm-kernel/2014-May/257690.html
-> http://lists.infradead.org/pipermail/linux-arm-kernel/2014-May/259109.html
->
-> I thought it was pretty clear.
->
->>
->> So based on these 2 points why would I have to have put this in allready?
->>
->>> Given how it's just impossible to get something merged reliably
->>> through the watchdog tree, I guess I should just start merging the
->>> patches through mine?
->>
->> I agree that I have the problem of having only 24 hours in a day and
->> that I lack time to communicate and that I am not good at
->> communicating either, but I checked all sunxi related e-mails and
->> you never mentioned the constraint to have it in for 3.16...  But I
->> do understand your frustration.
->
-> I totally understand the lack of time. A good way to ease your burden
-> and solve this situation is usually to take a co-maintainer. And given
-> that Guenter already reviews patches, maintains some branch, and is
-> developping some part of the framework, he seems up to the task.
->
+On Monday 23 June 2014 14:47:48 Guenter Roeck wrote:
+> > To continue the discussion: I would like to add an excerpt from drivers/watchdog/alim7101_wdt.c
+> > /*
+> >   *      Notifier for system down
+> >   */
+> >
+> > static int wdt_notify_sys(struct notifier_block *this,
+> >                                          unsigned long code, void *unused)
+> > {
+> >          if (code == SYS_DOWN || code == SYS_HALT)
+> >                  wdt_turnoff();
+> >
+> >          if (code == SYS_RESTART) {
+> >                  /*
+> >                   * Cobalt devices have no way of rebooting themselves other
+> >                   * than getting the watchdog to pull reset, so we restart the
+> >                   * watchdog on reboot with no heartbeat
+> >                   */
+> >                  wdt_change(WDT_ENABLE);
+> >                  pr_info("Watchdog timer is now enabled with no heartbeat - should reboot in ~1 second\n");
+> >          }
+> >          return NOTIFY_DONE;
+> > }
+> >
+> > For some systems the watchdog is the only way to reboot... So where we should put it, is not trivial neither...
+> >
+> 
+> Agreed. The above definitely doesn't look like a good solution to me.
+> 
 
-Let's focus on the problem at hand. I prepared a set of patches to add a
-kernel restart notifier, quite similar to the existing reboot notifier.
-Only question is where it should reside. So far it is in parallel
-to the reboot notifier, ie in kernel/notifier.c and kernel/reboot.c.
-Before I send it out for review, I'd like to get a notion if this is
-the right approach, or if it is going to create heat from other sides.
-Thoughts, anyone ?
+Right, at the very least, it should be a separate notifier: the existing
+reboot_notifier is meant for things that need to happen /before/ reboot,
+so adding something in there to actually trigger the reboot is by definition
+racy against the other notifiers that may or may not get called after
+this one.
 
-On the plus side, this might have the potential of replacing arm_pm_restart,
-which I think would be a good thing.
-
-Thanks,
-Guenter
-
+	Arnd
