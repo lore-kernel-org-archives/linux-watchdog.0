@@ -1,103 +1,223 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:58063 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753924AbaFWVr7 (ORCPT
+Received: from mail-lb0-f180.google.com ([209.85.217.180]:60239 "EHLO
+	mail-lb0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753356AbaFYXLR (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 23 Jun 2014 17:47:59 -0400
-Message-ID: <53A8A084.3000005@roeck-us.net>
-Date: Mon, 23 Jun 2014 14:47:48 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Wed, 25 Jun 2014 19:11:17 -0400
 MIME-Version: 1.0
-To: Wim Van Sebroeck <wim@iguana.be>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>
-CC: Arnd Bergmann <arnd@arndb.de>, dbaryshkov@gmail.com,
-	dwmw2@infradead.org, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-sunxi@googlegroups.com
-Subject: Re: [PATCH v2 1/6] wdt: sunxi: Move restart code to the watchdog
- driver
-References: <1399430664-29091-1-git-send-email-maxime.ripard@free-electrons.com> <1399430664-29091-2-git-send-email-maxime.ripard@free-electrons.com> <20140507213318.GA2105@roeck-us.net> <20140515091123.GQ29258@lukather> <20140519150422.GA27329@lukather> <20140522203444.GE27329@lukather> <20140522211207.GA28704@roeck-us.net> <20140623103142.GB19730@lukather> <53A83A20.6090800@roeck-us.net> <20140623154934.GG19730@lukather> <20140623213046.GR22347@spo001.leaseweb.com>
-In-Reply-To: <20140623213046.GR22347@spo001.leaseweb.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <d06aca002784396a95beac921f296d812e1eeb4b.1401181010.git.andreas.werner@men.de>
+References: <cover.1401181010.git.andreas.werner@men.de> <d06aca002784396a95beac921f296d812e1eeb4b.1401181010.git.andreas.werner@men.de>
+From: Bryan Wu <cooloney@gmail.com>
+Date: Wed, 25 Jun 2014 16:10:55 -0700
+Message-ID: <CAK5ve-LaiqT8xy_LN7O6FeUSvCcJj3kGu1u5AQz2OH2Q4gGMyQ@mail.gmail.com>
+Subject: Re: [PATCH v2 3/3] drivers/leds/leds-menf21bmc: introduce MEN
+ 14F021P00 BMC LED driver
+To: Andreas Werner <andreas.werner@men.de>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Lee Jones <lee.jones@linaro.org>, wim@iguana.be,
+	linux-watchdog@vger.kernel.org,
+	"rpurdie@rpsys.net" <rpurdie@rpsys.net>,
+	Linux LED Subsystem <linux-leds@vger.kernel.org>,
+	johannes.thumshirn@men.de
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 06/23/2014 02:30 PM, Wim Van Sebroeck wrote:
-> Hi All,
+On Tue, May 27, 2014 at 2:08 AM, Andreas Werner <andreas.werner@men.de> wrote:
+> Added driver to support the 14F021P00 BMC LEDs.
+> The BMC is a Board Management Controll include four LEDs which
+> can be switched on and off.
 >
->> On Mon, Jun 23, 2014 at 07:30:56AM -0700, Guenter Roeck wrote:
->>>>> The patches _are_ in my watchdog-next branch and get some coverage from
->>>>> both my auto-builders and from Fenguang's build robots, so while they are
->>>>> not in linux-next, they are not completely in the dark either.
->>>>
->>>> So, this patch finally didn't make it into 3.16. Great. Now, we can't
->>>> even reboot the boards.
->>>>
->>>> Given how it's just impossible to get something merged reliably
->>>> through the watchdog tree, I guess I should just start merging the
->>>> patches through mine?
->>>>
->>>
->>> You can not really blame Wim here.
->>>
->>> In this case, I suspect the major reason for not accepting the patch
->>> is that I tried to provide a clean method / API for "reset through watchdog
->>> subsystem", which went nowhere, in my understanding because someone objected
->>> that it would be the wrong thing to do [1] and it didn't get approval /
->>> acceptance from the arm maintainers. If it is wrong to reset the board
->>> from the watchdog subsystem in a clean way, it is for sure even more wrong
->>> to do it as you proposed in your patch.
->>>
->>> My conclusion therefore is that all board reset code should move back out
->>> of the watchdog subsystem, and that we should not accept such code in the
->>> future. This is not my personal preference, but I do believe that we should
->>> do it in a clean way or not at all.
->>
->> Well, considering that this patch isn't depending on your reboot API
->> set, and that Wim never either commented on this patch, your reboot
->> API patchset or your pull request to say that he was not willing to
->> merge this, there's still a huge failure to communicate.
->>
->> I'm fine with any technical reason, let's debate on that. But the
->> point is there has been no debate at all, only silence from his side.
->>
->> I have been told some patches would be merged and I merged through my
->> tree some patches that were depending on this one based on that
->> assumption.
->>
->> And now, we have a regression.
->>
->> Anyway... I guess I should just revert some commits now.
->>
->
-> To continue the discussion: I would like to add an excerpt from drivers/watchdog/alim7101_wdt.c
-> /*
->   *      Notifier for system down
->   */
->
-> static int wdt_notify_sys(struct notifier_block *this,
->                                          unsigned long code, void *unused)
-> {
->          if (code == SYS_DOWN || code == SYS_HALT)
->                  wdt_turnoff();
->
->          if (code == SYS_RESTART) {
->                  /*
->                   * Cobalt devices have no way of rebooting themselves other
->                   * than getting the watchdog to pull reset, so we restart the
->                   * watchdog on reboot with no heartbeat
->                   */
->                  wdt_change(WDT_ENABLE);
->                  pr_info("Watchdog timer is now enabled with no heartbeat - should reboot in ~1 second\n");
->          }
->          return NOTIFY_DONE;
-> }
->
-> For some systems the watchdog is the only way to reboot... So where we should put it, is not trivial neither...
+> This driver use the I2C interface to the BMC using the menf21bmc MFD Core driver.
 >
 
-Agreed. The above definitely doesn't look like a good solution to me.
+Will you submit v2 patch based on Lee and others' review? I prefer to
+review the new one.
 
-Guenter
+Thanks,
+-Bryan
 
+> Signed-off-by: Andreas Werner <andreas.werner@men.de>
+> ---
+>  drivers/leds/Kconfig          |   6 ++
+>  drivers/leds/Makefile         |   2 +-
+>  drivers/leds/leds-menf21bmc.c | 136 ++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 143 insertions(+), 1 deletion(-)
+>  create mode 100644 drivers/leds/leds-menf21bmc.c
+>
+> diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
+> index 1e81d7a..8f98e0f 100644
+> --- a/drivers/leds/Kconfig
+> +++ b/drivers/leds/Kconfig
+> @@ -466,6 +466,12 @@ config LEDS_OT200
+>           This option enables support for the LEDs on the Bachmann OT200.
+>           Say Y to enable LEDs on the Bachmann OT200.
+>
+> +config LEDS_MENF21BMC
+> +       tristate "LED support for the MEN 14F021P00 BMC"
+> +       depends on LEDS_CLASS && MFD_MENF21BMC
+> +       help
+> +         Say Y here to include support for the MEN 14F021P00 BMC LEDs.
+> +
+>  comment "LED driver for blink(1) USB RGB LED is under Special HID drivers (HID_THINGM)"
+>
+>  config LEDS_BLINKM
+> diff --git a/drivers/leds/Makefile b/drivers/leds/Makefile
+> index 79c5155..1c465fe 100644
+> --- a/drivers/leds/Makefile
+> +++ b/drivers/leds/Makefile
+> @@ -54,7 +54,7 @@ obj-$(CONFIG_LEDS_MAX8997)            += leds-max8997.o
+>  obj-$(CONFIG_LEDS_LM355x)              += leds-lm355x.o
+>  obj-$(CONFIG_LEDS_BLINKM)              += leds-blinkm.o
+>  obj-$(CONFIG_LEDS_VERSATILE)           += leds-versatile.o
+> -
+> +obj-$(CONFIG_LEDS_MENF21BMC)           += leds-menf21bmc.o
+>  # LED SPI Drivers
+>  obj-$(CONFIG_LEDS_DAC124S085)          += leds-dac124s085.o
+>
+> diff --git a/drivers/leds/leds-menf21bmc.c b/drivers/leds/leds-menf21bmc.c
+> new file mode 100644
+> index 0000000..6099524
+> --- /dev/null
+> +++ b/drivers/leds/leds-menf21bmc.c
+> @@ -0,0 +1,136 @@
+> +/*
+> + *  MEN 14F021P00 Board Management Controller (BMC) LEDs Driver.
+> + *
+> + *  This is the core LED driver of the MEN 14F021P00 BMC.
+> + *  There are four LEDs available which can be switched on and off.
+> + *  STATUS LED, HOT SWAP LED, USER LED 1, USER LED 2
+> + *
+> + *  Copyright (C) 2014 MEN Mikro Elektronik Nuernberg GmbH
+> + *  Author: Andreas Werner <andreas.werner@men.de>
+> + *  All rights reserved.
+> + *
+> + *  This program is free software; you can redistribute  it and/or modify it
+> + *  under  the terms of  the GNU General  Public License as published by the
+> + *  Free Software Foundation;  either version 2 of the  License, or (at your
+> + *  option) any later version.
+> + *
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/kernel.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/leds.h>
+> +#include <linux/mfd/menf21bmc.h>
+> +
+> +#define BMC_CMD_LED_GET_SET    0xA0
+> +#define BMC_BIT_LED_STATUS     BIT(0)
+> +#define BMC_BIT_LED_HOTSWAP    BIT(1)
+> +#define BMC_BIT_LED_USER1      BIT(2)
+> +#define BMC_BIT_LED_USER2      BIT(3)
+> +
+> +struct menf21bmc_led_data {
+> +       struct led_classdev cdev;
+> +       struct menf21bmc *menf21bmc;
+> +       u8 led_bit;
+> +       const char *name;
+> +};
+> +
+> +static struct menf21bmc_led_data leds[] = {
+> +       {
+> +               .name = "menf21bmc:led_status",
+> +               .led_bit = BMC_BIT_LED_STATUS,
+> +       },
+> +       {
+> +               .name = "menf21bmc:led_hotswap",
+> +               .led_bit = BMC_BIT_LED_HOTSWAP,
+> +       },
+> +       {
+> +               .name = "menf21bmc:led_user1",
+> +               .led_bit = BMC_BIT_LED_USER1,
+> +       },
+> +       {
+> +               .name = "menf21bmc:led_user2",
+> +               .led_bit = BMC_BIT_LED_USER2,
+> +       }
+> +};
+> +
+> +static DEFINE_MUTEX(led_lock);
+> +
+> +static void
+> +menf21bmc_led_set(struct led_classdev *led_cdev, enum led_brightness value)
+> +{
+> +       int led_val;
+> +       struct menf21bmc_led_data *led = container_of(led_cdev,
+> +                                       struct menf21bmc_led_data, cdev);
+> +       struct menf21bmc *menf21bmc = led->menf21bmc;
+> +
+> +       mutex_lock(&led_lock);
+> +       led_val = menf21bmc->read_byte_data(menf21bmc->client,
+> +                                               BMC_CMD_LED_GET_SET);
+> +       if (led_val < 0)
+> +               goto err_out;
+> +
+> +       if (value == LED_OFF)
+> +               led_val &= ~led->led_bit;
+> +       else
+> +               led_val |= led->led_bit;
+> +
+> +       menf21bmc->write_byte_data(menf21bmc->client,
+> +                                       BMC_CMD_LED_GET_SET, led_val);
+> +err_out:
+> +       mutex_unlock(&led_lock);
+> +}
+> +
+> +static int menf21bmc_led_probe(struct platform_device *pdev)
+> +{
+> +       int i;
+> +       int ret;
+> +       struct menf21bmc *menf21bmc = dev_get_drvdata(pdev->dev.parent);
+> +
+> +       for (i = 0; i < ARRAY_SIZE(leds); i++) {
+> +               leds[i].cdev.name = leds[i].name;
+> +               leds[i].cdev.brightness_set = menf21bmc_led_set;
+> +               leds[i].menf21bmc = menf21bmc;
+> +
+> +               ret = led_classdev_register(&pdev->dev, &leds[i].cdev);
+> +               if (ret < 0)
+> +                       goto err_free_leds;
+> +       }
+> +       dev_info(&pdev->dev, "MEN 140F21P00 BMC LED device enabled\n");
+> +
+> +       return 0;
+> +
+> +err_free_leds:
+> +       dev_err(&pdev->dev, "failed to register LED devicei\n");
+> +
+> +       for (i = i - 1; i >= 0; i--)
+> +               led_classdev_unregister(&leds[i].cdev);
+> +
+> +       return ret;
+> +}
+> +
+> +static int menf21bmc_led_remove(struct platform_device *pdev)
+> +{
+> +       int i;
+> +
+> +       for (i = 0; i < ARRAY_SIZE(leds); i++)
+> +               led_classdev_unregister(&leds[i].cdev);
+> +
+> +       return 0;
+> +}
+> +
+> +static struct platform_driver menf21bmc_led = {
+> +       .probe          = menf21bmc_led_probe,
+> +       .remove         = menf21bmc_led_remove,
+> +       .driver         = {
+> +               .name           = "menf21bmc_led",
+> +               .owner          = THIS_MODULE,
+> +       },
+> +};
+> +
+> +module_platform_driver(menf21bmc_led);
+> +
+> +MODULE_AUTHOR("Andreas Werner <andreas.werner@men.de>");
+> +MODULE_DESCRIPTION("MEN 14F021P00 BMC led driver");
+> +MODULE_LICENSE("GPL");
+> +MODULE_ALIAS("platform:menf21bmc_led");
+> --
+> 1.9.3
+>
