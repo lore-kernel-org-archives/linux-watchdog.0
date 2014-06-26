@@ -1,79 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-Id: <20140620193126.037585841@linux.com>
-Date: Fri, 20 Jun 2014 14:31:25 -0500
-From: Christoph Lameter <cl@linux.com>
-To: Tejun Heo <tj@kernel.org>
-Cc: akpm@linuxfoundation.org, rostedt@goodmis.org,
-        linux-kernel@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>, Wim Van Sebroeck <wim@iguana.be>,
-        linux-watchdog@vger.kernel.org
-Subject: [PATCH 10/31] watchdog: Replace __raw_get_cpu_var uses
-References: <20140620193115.547427118@linux.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline; filename=this_watchdog
+From: "Thumshirn, Johannes Tobias" <Johannes.Thumshirn@men.de>
+To: Bryan Wu <cooloney@gmail.com>, "Werner, Andreas" <Andreas.Werner@men.de>
+CC: lkml <linux-kernel@vger.kernel.org>, Samuel Ortiz <sameo@linux.intel.com>,
+        Lee Jones <lee.jones@linaro.org>, "wim@iguana.be" <wim@iguana.be>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "rpurdie@rpsys.net" <rpurdie@rpsys.net>,
+        Linux LED Subsystem <linux-leds@vger.kernel.org>
+Subject: AW: [PATCH v2 3/3] drivers/leds/leds-menf21bmc: introduce MEN
+ 14F021P00 BMC LED driver
+Date: Thu, 26 Jun 2014 07:34:12 +0000
+Message-ID: <c122906fd903476dac6c64041ca512c4@MEN-EX01.intra.men.de>
+References: <cover.1401181010.git.andreas.werner@men.de>
+ <d06aca002784396a95beac921f296d812e1eeb4b.1401181010.git.andreas.werner@men.de>
+ <CAK5ve-LaiqT8xy_LN7O6FeUSvCcJj3kGu1u5AQz2OH2Q4gGMyQ@mail.gmail.com>
+In-Reply-To: <CAK5ve-LaiqT8xy_LN7O6FeUSvCcJj3kGu1u5AQz2OH2Q4gGMyQ@mail.gmail.com>
+Content-Language: de-DE
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Most of these are the uses of &__raw_get_cpu_var for address calculation.
+> Von: Bryan Wu [mailto:cooloney@gmail.com]
+> Gesendet: Donnerstag, 26. Juni 2014 01:11
+> An: Werner, Andreas
+> Cc: lkml; Samuel Ortiz; Lee Jones; wim@iguana.be; linux-
+> watchdog@vger.kernel.org; rpurdie@rpsys.net; Linux LED Subsystem;
+> Thumshirn, Johannes Tobias
+> Betreff: Re: [PATCH v2 3/3] drivers/leds/leds-menf21bmc: introduce MEN
+> 14F021P00 BMC LED driver
+> 
+> On Tue, May 27, 2014 at 2:08 AM, Andreas Werner
+> <andreas.werner@men.de> wrote:
+> > Added driver to support the 14F021P00 BMC LEDs.
+> > The BMC is a Board Management Controll include four LEDs which
+> > can be switched on and off.
+> >
+> > This driver use the I2C interface to the BMC using the menf21bmc MFD Core
+> driver.
+> >
+> 
+> Will you submit v2 patch based on Lee and others' review? I prefer to
+> review the new one.
+> 
+> Thanks,
+> -Bryan
 
-touch_softlockup_watchdog_sync() uses __raw_get_cpu_var to write to
-per cpu variables. Use __this_cpu_write instead.
+Hi,
+Andreas is currently on vacation, but he'll send a v3 as soon as he's back.
 
-Cc: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org
-Signed-off-by: Christoph Lameter <cl@linux.com>
-
-Index: linux/kernel/watchdog.c
-===================================================================
---- linux.orig/kernel/watchdog.c	2014-06-16 15:39:29.772852391 -0500
-+++ linux/kernel/watchdog.c	2014-06-16 15:39:34.296768126 -0500
-@@ -169,7 +169,7 @@
- 	 * case we shouldn't have to worry about the watchdog
- 	 * going off.
- 	 */
--	__raw_get_cpu_var(watchdog_nmi_touch) = true;
-+	raw_cpu_write(watchdog_nmi_touch, true);
- 	touch_softlockup_watchdog();
- }
- EXPORT_SYMBOL(touch_nmi_watchdog);
-@@ -178,8 +178,8 @@
- 
- void touch_softlockup_watchdog_sync(void)
- {
--	__raw_get_cpu_var(softlockup_touch_sync) = true;
--	__raw_get_cpu_var(watchdog_touch_ts) = 0;
-+	__this_cpu_write(softlockup_touch_sync, true);
-+	__this_cpu_write(watchdog_touch_ts, 0);
- }
- 
- #ifdef CONFIG_HARDLOCKUP_DETECTOR
-@@ -345,7 +345,7 @@
- 
- static void watchdog_enable(unsigned int cpu)
- {
--	struct hrtimer *hrtimer = &__raw_get_cpu_var(watchdog_hrtimer);
-+	struct hrtimer *hrtimer = raw_cpu_ptr(&watchdog_hrtimer);
- 
- 	/* kick off the timer for the hardlockup detector */
- 	hrtimer_init(hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-@@ -365,7 +365,7 @@
- 
- static void watchdog_disable(unsigned int cpu)
- {
--	struct hrtimer *hrtimer = &__raw_get_cpu_var(watchdog_hrtimer);
-+	struct hrtimer *hrtimer = raw_cpu_ptr(&watchdog_hrtimer);
- 
- 	watchdog_set_prio(SCHED_NORMAL, 0);
- 	hrtimer_cancel(hrtimer);
-@@ -492,7 +492,7 @@
- 
- static void restart_watchdog_hrtimer(void *info)
- {
--	struct hrtimer *hrtimer = &__raw_get_cpu_var(watchdog_hrtimer);
-+	struct hrtimer *hrtimer = raw_cpu_ptr(&watchdog_hrtimer);
- 	int ret;
- 
- 	/*
+Johannes
+ÿôèº{.nÇ+‰·Ÿ®‰­†+%ŠËÿ±éİ¶¥Šwÿº{.nÇ+‰·¥Š{±şG«éÿŠ{ayº
+Ê‡Ú™ë,j­¢f£¢·hšïêÿ‘êçz_è®(­éšŠİ¢j"ú¶m§ÿÿ¾«şG«éÿ¢¸?™¨è­Ú&£ø§~á¶iO•æ¬z·švØ^¶m§ÿÿÃ
+ÿ¶ìÿ¢¸?–I¥
