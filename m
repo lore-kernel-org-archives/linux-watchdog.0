@@ -1,126 +1,198 @@
-Return-Path: <maxime.ripard@free-electrons.com>
-Date: Tue, 24 Jun 2014 16:49:54 +0200
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Guenter Roeck <linux@roeck-us.net>, Arnd Bergmann <arnd@arndb.de>,
-	dbaryshkov@gmail.com, dwmw2@infradead.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, linux-sunxi@googlegroups.com
-Subject: Re: [PATCH v2 1/6] wdt: sunxi: Move restart code to the watchdog
- driver
-Message-ID: <20140624144954.GP19730@lukather>
-References: <1399430664-29091-1-git-send-email-maxime.ripard@free-electrons.com>
- <1399430664-29091-2-git-send-email-maxime.ripard@free-electrons.com>
- <20140507213318.GA2105@roeck-us.net>
- <20140515091123.GQ29258@lukather>
- <20140519150422.GA27329@lukather>
- <20140522203444.GE27329@lukather>
- <20140522211207.GA28704@roeck-us.net>
- <20140623103142.GB19730@lukather>
- <20140623211323.GA28120@spo001.leaseweb.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="o6HUWsywbRjTg5uW"
-Content-Disposition: inline
-In-Reply-To: <20140623211323.GA28120@spo001.leaseweb.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from vps0.lunn.ch ([178.209.37.122]:38851 "EHLO vps0.lunn.ch"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753583AbaF2VFG (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Sun, 29 Jun 2014 17:05:06 -0400
+From: Andrew Lunn <andrew@lunn.ch>
+To: Jason Cooper <jason@lakedaemon.net>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@googlemail.com>
+Cc: Gregory Clement <gregory.clement@free-electrons.com>,
+	rmk+kernel@arm.linux.org.uk, Andrew Lunn <andrew@lunn.ch>,
+	Mark Brown <broonie@kernel.org>, alsa-devel@alsa-project.org,
+	Daniel Lezcano <daniel.lezcano@linaro.org>,
+	"Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-pm@vger.kernel.org,
+	Tejun Heo <tj@kernel.org>, linux-ide@vger.kernel.org,
+	Zhang Rui <rui.zhang@intel.com>, Bryan Wu <cooloney@gmail.com>,
+	Richard Purdie <rpurdie@rpsys.net>, linux-leds@vger.kernel.org,
+	Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
+	Kishon Vijay Abraham I <kishon@ti.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com, Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH 00/13] Remove mach-kirkwood and mach-dove
+Date: Sun, 29 Jun 2014 22:59:47 +0200
+Message-Id: <1404075603-31838-1-git-send-email-andrew@lunn.ch>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
+
+This patchset removes arch/arm/mach-kirkwood and arch/arm/mach-dove.
+These SoCs are now supported in arch/arm/mach-mvebu using device tree.
+
+Change the dependencies for a number of drivers, either to use
+ARCH_MVEBU where the drivers are generic, or MACH_KIRKWOOD and
+MACH_DOVE where the drivers are specific to a SoC.
 
 
---o6HUWsywbRjTg5uW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Andrew Lunn (13):
+  ARM: Kirkwood: Remove mach-kirkwood
+  ARM: Dove: Remove mach-dove
+  sound: ASoC: kirkwood: Remove unused drivers
+  sound: ASoC: kirkwood: Remove ARCH_KIRKWOOD and ARCH_DOVE dependency
+  cpuidle: kirkwood: Replace ARCH_KIRKWOOD dependency
+  ata: Remove ARCH_KIRKWOOD and ARCH_DOVE dependency
+  thermal: Replace ARCH_KIRKWOOD and ARCH_DOVE dependency
+  leds: Replace ARCH_KIRKWOOD dependency
+  PCI: Remove ARCH_KIRKWOOD and ARCH_DOVE dependency
+  phy: Replace ARCH_KIRKWOOD and ARCH_DOVE dependency
+  rtc: Remove ARCH_KIRKWOOD and ARCH_DOVE dependency
+  watchdog: Remove ARCH_KIRKWOOD and ARCH_DOVE dependency
+  Remove ARCH_DOVE dependency
 
-On Mon, Jun 23, 2014 at 11:13:24PM +0200, Wim Van Sebroeck wrote:
-> Hi Maxime,
->=20
-> > > > Guenter, since you seem to be the only responsive, may I suggest th=
-at
-> > > > you start merging patches and do a pull request to either Wim or Li=
-nus
-> > > > directly during the merge window?
-> > > >=20
-> > > I had prepared a pull request for Wim last weekend or so, but then th=
-ere
-> > > were more patches piling in and I got distracted, so I didn't have ti=
-me
-> > > to actually send it. I'll try again this weekend ... the kids should =
-be
-> > > busy learning for their finals, and I'll have Friday and Monday off
-> > > from work, so I should be able to find the time.
-> > >=20
-> > > As for sending patches to Linus directly, well, Wim is the watchdog m=
-aintainer.
-> > > I manage to upset enough people, and would not want to add Wim to the=
- list.
-> > >=20
-> > > The patches _are_ in my watchdog-next branch and get some coverage fr=
-om
-> > > both my auto-builders and from Fenguang's build robots, so while they=
- are
-> > > not in linux-next, they are not completely in the dark either.
-> >=20
-> > So, this patch finally didn't make it into 3.16. Great. Now, we can't
-> > even reboot the boards.
->=20
-> 1) For me the discussion was not ended and needs further
-> thinking. (And I just read some good ideas about it).
+ arch/arm/Kconfig                                  |  32 -
+ arch/arm/Kconfig.debug                            |  10 +-
+ arch/arm/Makefile                                 |   2 -
+ arch/arm/boot/dts/Makefile                        |   5 +-
+ arch/arm/configs/dove_defconfig                   | 146 -----
+ arch/arm/configs/kirkwood_defconfig               | 181 ------
+ arch/arm/mach-dove/Kconfig                        |  25 -
+ arch/arm/mach-dove/Makefile                       |   5 -
+ arch/arm/mach-dove/Makefile.boot                  |   3 -
+ arch/arm/mach-dove/cm-a510.c                      |  97 ---
+ arch/arm/mach-dove/common.c                       | 411 ------------
+ arch/arm/mach-dove/common.h                       |  49 --
+ arch/arm/mach-dove/dove-db-setup.c                | 103 ---
+ arch/arm/mach-dove/include/mach/bridge-regs.h     |  57 --
+ arch/arm/mach-dove/include/mach/dove.h            | 190 ------
+ arch/arm/mach-dove/include/mach/entry-macro.S     |  33 -
+ arch/arm/mach-dove/include/mach/hardware.h        |  19 -
+ arch/arm/mach-dove/include/mach/irqs.h            |  96 ---
+ arch/arm/mach-dove/include/mach/pm.h              |  72 ---
+ arch/arm/mach-dove/include/mach/uncompress.h      |  36 --
+ arch/arm/mach-dove/irq.c                          | 178 ------
+ arch/arm/mach-dove/mpp.c                          | 162 -----
+ arch/arm/mach-dove/mpp.h                          | 196 ------
+ arch/arm/mach-dove/pcie.c                         | 220 -------
+ arch/arm/mach-kirkwood/Kconfig                    | 111 ----
+ arch/arm/mach-kirkwood/Makefile                   |  14 -
+ arch/arm/mach-kirkwood/Makefile.boot              |   3 -
+ arch/arm/mach-kirkwood/board-dt.c                 | 223 -------
+ arch/arm/mach-kirkwood/common.c                   | 746 ----------------------
+ arch/arm/mach-kirkwood/common.h                   |  74 ---
+ arch/arm/mach-kirkwood/d2net_v2-setup.c           | 231 -------
+ arch/arm/mach-kirkwood/include/mach/bridge-regs.h |  86 ---
+ arch/arm/mach-kirkwood/include/mach/entry-macro.S |  34 -
+ arch/arm/mach-kirkwood/include/mach/hardware.h    |  14 -
+ arch/arm/mach-kirkwood/include/mach/irqs.h        |  65 --
+ arch/arm/mach-kirkwood/include/mach/kirkwood.h    | 142 ----
+ arch/arm/mach-kirkwood/include/mach/uncompress.h  |  46 --
+ arch/arm/mach-kirkwood/irq.c                      |  82 ---
+ arch/arm/mach-kirkwood/lacie_v2-common.c          | 114 ----
+ arch/arm/mach-kirkwood/lacie_v2-common.h          |  16 -
+ arch/arm/mach-kirkwood/mpp.c                      |  43 --
+ arch/arm/mach-kirkwood/mpp.h                      | 348 ----------
+ arch/arm/mach-kirkwood/netxbig_v2-setup.c         | 422 ------------
+ arch/arm/mach-kirkwood/openrd-setup.c             | 255 --------
+ arch/arm/mach-kirkwood/pcie.c                     | 296 ---------
+ arch/arm/mach-kirkwood/pm.c                       |  76 ---
+ arch/arm/mach-kirkwood/pm.h                       |  26 -
+ arch/arm/mach-kirkwood/rd88f6192-nas-setup.c      |  89 ---
+ arch/arm/mach-kirkwood/rd88f6281-setup.c          | 128 ----
+ arch/arm/mach-kirkwood/t5325-setup.c              | 216 -------
+ arch/arm/mach-kirkwood/ts219-setup.c              | 142 ----
+ arch/arm/mach-kirkwood/ts41x-setup.c              | 186 ------
+ arch/arm/mach-kirkwood/tsx1x-common.c             | 113 ----
+ arch/arm/mach-kirkwood/tsx1x-common.h             |   7 -
+ arch/arm/mm/Kconfig                               |   2 +-
+ drivers/ata/Kconfig                               |   4 +-
+ drivers/cpuidle/Kconfig.arm                       |   2 +-
+ drivers/leds/Kconfig                              |   4 +-
+ drivers/mmc/host/Kconfig                          |   2 +-
+ drivers/pci/host/Kconfig                          |   2 +-
+ drivers/phy/Kconfig                               |   2 +-
+ drivers/rtc/Kconfig                               |   2 +-
+ drivers/thermal/Kconfig                           |   4 +-
+ drivers/watchdog/Kconfig                          |   2 +-
+ sound/soc/kirkwood/Kconfig                        |  19 +-
+ sound/soc/kirkwood/Makefile                       |   4 -
+ sound/soc/kirkwood/kirkwood-openrd.c              | 109 ----
+ sound/soc/kirkwood/kirkwood-t5325.c               | 116 ----
+ 68 files changed, 20 insertions(+), 6930 deletions(-)
+ delete mode 100644 arch/arm/configs/dove_defconfig
+ delete mode 100644 arch/arm/configs/kirkwood_defconfig
+ delete mode 100644 arch/arm/mach-dove/Kconfig
+ delete mode 100644 arch/arm/mach-dove/Makefile
+ delete mode 100644 arch/arm/mach-dove/Makefile.boot
+ delete mode 100644 arch/arm/mach-dove/cm-a510.c
+ delete mode 100644 arch/arm/mach-dove/common.c
+ delete mode 100644 arch/arm/mach-dove/common.h
+ delete mode 100644 arch/arm/mach-dove/dove-db-setup.c
+ delete mode 100644 arch/arm/mach-dove/include/mach/bridge-regs.h
+ delete mode 100644 arch/arm/mach-dove/include/mach/dove.h
+ delete mode 100644 arch/arm/mach-dove/include/mach/entry-macro.S
+ delete mode 100644 arch/arm/mach-dove/include/mach/hardware.h
+ delete mode 100644 arch/arm/mach-dove/include/mach/irqs.h
+ delete mode 100644 arch/arm/mach-dove/include/mach/pm.h
+ delete mode 100644 arch/arm/mach-dove/include/mach/uncompress.h
+ delete mode 100644 arch/arm/mach-dove/irq.c
+ delete mode 100644 arch/arm/mach-dove/mpp.c
+ delete mode 100644 arch/arm/mach-dove/mpp.h
+ delete mode 100644 arch/arm/mach-dove/pcie.c
+ delete mode 100644 arch/arm/mach-kirkwood/Kconfig
+ delete mode 100644 arch/arm/mach-kirkwood/Makefile
+ delete mode 100644 arch/arm/mach-kirkwood/Makefile.boot
+ delete mode 100644 arch/arm/mach-kirkwood/board-dt.c
+ delete mode 100644 arch/arm/mach-kirkwood/common.c
+ delete mode 100644 arch/arm/mach-kirkwood/common.h
+ delete mode 100644 arch/arm/mach-kirkwood/d2net_v2-setup.c
+ delete mode 100644 arch/arm/mach-kirkwood/include/mach/bridge-regs.h
+ delete mode 100644 arch/arm/mach-kirkwood/include/mach/entry-macro.S
+ delete mode 100644 arch/arm/mach-kirkwood/include/mach/hardware.h
+ delete mode 100644 arch/arm/mach-kirkwood/include/mach/irqs.h
+ delete mode 100644 arch/arm/mach-kirkwood/include/mach/kirkwood.h
+ delete mode 100644 arch/arm/mach-kirkwood/include/mach/uncompress.h
+ delete mode 100644 arch/arm/mach-kirkwood/irq.c
+ delete mode 100644 arch/arm/mach-kirkwood/lacie_v2-common.c
+ delete mode 100644 arch/arm/mach-kirkwood/lacie_v2-common.h
+ delete mode 100644 arch/arm/mach-kirkwood/mpp.c
+ delete mode 100644 arch/arm/mach-kirkwood/mpp.h
+ delete mode 100644 arch/arm/mach-kirkwood/netxbig_v2-setup.c
+ delete mode 100644 arch/arm/mach-kirkwood/openrd-setup.c
+ delete mode 100644 arch/arm/mach-kirkwood/pcie.c
+ delete mode 100644 arch/arm/mach-kirkwood/pm.c
+ delete mode 100644 arch/arm/mach-kirkwood/pm.h
+ delete mode 100644 arch/arm/mach-kirkwood/rd88f6192-nas-setup.c
+ delete mode 100644 arch/arm/mach-kirkwood/rd88f6281-setup.c
+ delete mode 100644 arch/arm/mach-kirkwood/t5325-setup.c
+ delete mode 100644 arch/arm/mach-kirkwood/ts219-setup.c
+ delete mode 100644 arch/arm/mach-kirkwood/ts41x-setup.c
+ delete mode 100644 arch/arm/mach-kirkwood/tsx1x-common.c
+ delete mode 100644 arch/arm/mach-kirkwood/tsx1x-common.h
+ delete mode 100644 sound/soc/kirkwood/kirkwood-openrd.c
+ delete mode 100644 sound/soc/kirkwood/kirkwood-t5325.c
 
-It would have been great for you to mention it then.
 
-> 2) You never mentioned you needed this in for 3.16 and that things
-> would break because of it.
+Cc: Mark Brown <broonie@kernel.org>
+Cc: alsa-devel@alsa-project.org
+Cc: Mark Brown <broonie@kernel.org>
+Cc: alsa-devel@alsa-project.org
+Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
+Cc: Rafael J. Wysocki <rjw@rjwysocki.net>
+Cc: linux-pm@vger.kernel.org
+Cc: Tejun Heo <tj@kernel.org>
+Cc: linux-ide@vger.kernel.org
+Cc: Zhang Rui <rui.zhang@intel.com>
+Cc: linux-pm@vger.kernel.org
+Cc: Bryan Wu <cooloney@gmail.com>
+Cc: Richard Purdie <rpurdie@rpsys.net>
+Cc: linux-leds@vger.kernel.org
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Cc: linux-pci@vger.kernel.org
+Cc: Kishon Vijay Abraham I <kishon@ti.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: rtc-linux@googlegroups.com
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org
 
-http://lists.infradead.org/pipermail/linux-arm-kernel/2014-May/257690.html
-http://lists.infradead.org/pipermail/linux-arm-kernel/2014-May/259109.html
+-- 
+2.0.0
 
-I thought it was pretty clear.
-
->=20
-> So based on these 2 points why would I have to have put this in allready?
->=20
-> > Given how it's just impossible to get something merged reliably
-> > through the watchdog tree, I guess I should just start merging the
-> > patches through mine?
->=20
-> I agree that I have the problem of having only 24 hours in a day and
-> that I lack time to communicate and that I am not good at
-> communicating either, but I checked all sunxi related e-mails and
-> you never mentioned the constraint to have it in for 3.16...  But I
-> do understand your frustration.
-
-I totally understand the lack of time. A good way to ease your burden
-and solve this situation is usually to take a co-maintainer. And given
-that Guenter already reviews patches, maintains some branch, and is
-developping some part of the framework, he seems up to the task.
-
-Maxime
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---o6HUWsywbRjTg5uW
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJTqZASAAoJEBx+YmzsjxAgd9sP/RaSQVG5177Yzvi5H8pURzbW
-uVdoLywiJ32l2GU9eX2onm6CKRyLn1uZoJ+VfAjYiooQ1j01Qj91jkb+MO4nLpEv
-x1dDjjJ0/aN/ytjNKkYf0LJwWtek02DwyHOgrhLu5tVezgc7d79VP+lVq7D8scGC
-ZSTPBC/E7XLGvVWxAIi+rNtrVUl2mdF3oS8PcPqipAjFmCjNJ6bzR74/08Wy0shP
-q4WLcIbXVW8zuKMLI6LdfrklGAqYNWcWYk5YzMGCgePJ2e8vbq3Iq030+x7i42qW
-jzIpdWmO+DhXLei01dD2BZQIC5nNfOCOYxmOnSQnxOqYo7BbunnWUc6DWhBxBOrz
-X//YAwNLu+8BSSC9015XFUIzU6EpC5gPff/389RuUQYYHwoxUZKfK/IBSoJHHU5Q
-F7KJgsxC5CT6oanPCUXTHEiLRJvbSMxIN/waH3HQSV84IRy8JbnO351JFY3gWz21
-iZUp4etsHw+bJLwsxT9pIyrOzN7M53BWSmcA691Dna6yw5DyE0yVWVqW3TkRy0mp
-YoeKr7EFeOwGoByKMtHqtxZ2A2zx6PKqU98yGLYo4mUa6M6sK0QohTRLGhBf90DR
-PLCyS1h/GaA2yf5iY+NAVe0vrhrL1RdY/RNTyhlq/RGO11nP+6A8Rful4ddn3xjo
-b8JgfEH11j0RBrjFzuZk
-=d6l+
------END PGP SIGNATURE-----
-
---o6HUWsywbRjTg5uW--
