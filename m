@@ -1,61 +1,61 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from gw-1.arm.linux.org.uk ([78.32.30.217]:46660 "EHLO
-	pandora.arm.linux.org.uk" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1753376AbaF2Vfr (ORCPT
+Received: from smtp1-g21.free.fr ([212.27.42.1]:64891 "EHLO smtp1-g21.free.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752497AbaF3HPQ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 29 Jun 2014 17:35:47 -0400
-Date: Sun, 29 Jun 2014 22:35:11 +0100
-From: Russell King - ARM Linux <linux@arm.linux.org.uk>
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Jason Cooper <jason@lakedaemon.net>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@googlemail.com>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Mark Brown <broonie@kernel.org>, alsa-devel@alsa-project.org,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	"Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-pm@vger.kernel.org,
-	Tejun Heo <tj@kernel.org>, linux-ide@vger.kernel.org,
-	Zhang Rui <rui.zhang@intel.com>, Bryan Wu <cooloney@gmail.com>,
-	Richard Purdie <rpurdie@rpsys.net>, linux-leds@vger.kernel.org,
-	Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
-	Kishon Vijay Abraham I <kishon@ti.com>,
+	Mon, 30 Jun 2014 03:15:16 -0400
+Date: Mon, 30 Jun 2014 09:16:43 +0200
+From: Jean-Francois Moine <moinejf@free.fr>
+To: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Cc: Andrew Lunn <andrew@lunn.ch>, linux-ide@vger.kernel.org,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com, Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 00/13] Remove mach-kirkwood and mach-dove
-Message-ID: <20140629213510.GR32514@n2100.arm.linux.org.uk>
+	alsa-devel@alsa-project.org, Bryan Wu <cooloney@gmail.com>,
+	Jason Cooper <jason@lakedaemon.net>,
+	rtc-linux@googlegroups.com, linux-pm@vger.kernel.org,
+	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
+	Daniel Lezcano <daniel.lezcano@linaro.org>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@googlemail.com>,
+	Kishon Vijay Abraham I <kishon@ti.com>,
+	Tejun Heo <tj@kernel.org>, Wim Van Sebroeck <wim@iguana.be>,
+	Mark Brown <broonie@kernel.org>,
+	Richard Purdie <rpurdie@rpsys.net>, linux-pci@vger.kernel.org,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Zhang Rui <rui.zhang@intel.com>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	linux-leds@vger.kernel.org, linux-watchdog@vger.kernel.org
+Subject: Re: [alsa-devel] [PATCH 00/13] Remove mach-kirkwood and mach-dove
+Message-ID: <20140630091643.2df3b0fb@armhf>
+In-Reply-To: <20140629213510.GR32514@n2100.arm.linux.org.uk>
 References: <1404075603-31838-1-git-send-email-andrew@lunn.ch>
+	<20140629213510.GR32514@n2100.arm.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1404075603-31838-1-git-send-email-andrew@lunn.ch>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sun, Jun 29, 2014 at 10:59:47PM +0200, Andrew Lunn wrote:
-> This patchset removes arch/arm/mach-kirkwood and arch/arm/mach-dove.
-> These SoCs are now supported in arch/arm/mach-mvebu using device tree.
-> 
-> Change the dependencies for a number of drivers, either to use
-> ARCH_MVEBU where the drivers are generic, or MACH_KIRKWOOD and
-> MACH_DOVE where the drivers are specific to a SoC.
-> 
-> 
-> Andrew Lunn (13):
->   ARM: Kirkwood: Remove mach-kirkwood
->   ARM: Dove: Remove mach-dove
+On Sun, 29 Jun 2014 22:35:11 +0100
+Russell King - ARM Linux <linux@arm.linux.org.uk> wrote:
 
-There is actually a cubox regression which has yet to be tracked down.
-Running with my kernel (which is not-DT based) runs perfectly.  With
-DT, HDMI output can be unstable.
+> There is actually a cubox regression which has yet to be tracked down=
+=2E
+> Running with my kernel (which is not-DT based) runs perfectly.  With
+> DT, HDMI output can be unstable.
 
-One of the problems is that it's /very/ difficult to reproduce, but it
-is reproducable.  I've seen it on two days over many reboots, and I've
-proved it by switching back and forth.  DT sometimes suffers from the
-problem, whereas non-DT /never/ does.
+Russell,
 
-Sebastian is aware of this, and as yet we haven't found a solution,
-nor have we found a way to reliably reproduce it.
+What is this HDMI problem with DT?
 
--- 
-FTTC broadband for 0.8mile line: now at 9.7Mbps down 460kbps up... slowly
-improving, and getting towards what was expected from it.
+I am running a DT based kernel on my Cubox for more than 1 year and the
+only problem I have is a random black screen at startup time, and this
+black screen problem also exists with the old non-DT kernels from
+SolidRun.
+
+--=20
+Ken ar c'henta=C3=B1	|	      ** Breizh ha Linux atav! **
+Jef		|		http://moinejf.free.fr/
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
