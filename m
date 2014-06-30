@@ -1,14 +1,13 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:52494 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752175AbaF3Pf4 (ORCPT
+Received: from gw-1.arm.linux.org.uk ([78.32.30.217]:47671 "EHLO
+	pandora.arm.linux.org.uk" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1756225AbaF3Q4s (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 30 Jun 2014 11:35:56 -0400
-Message-ID: <53B183D5.8020708@gmail.com>
-Date: Mon, 30 Jun 2014 17:35:49 +0200
-From: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>
-CC: Andrew Lunn <andrew@lunn.ch>, Jason Cooper <jason@lakedaemon.net>,
+	Mon, 30 Jun 2014 12:56:48 -0400
+Date: Mon, 30 Jun 2014 17:56:15 +0100
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+To: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Cc: Andrew Lunn <andrew@lunn.ch>, Jason Cooper <jason@lakedaemon.net>,
 	Sebastian Hesselbarth <sebastian.hesselbarth@googlemail.com>,
 	Gregory Clement <gregory.clement@free-electrons.com>,
 	Mark Brown <broonie@kernel.org>, alsa-devel@alsa-project.org,
@@ -23,126 +22,189 @@ CC: Andrew Lunn <andrew@lunn.ch>, Jason Cooper <jason@lakedaemon.net>,
 	rtc-linux@googlegroups.com, Wim Van Sebroeck <wim@iguana.be>,
 	linux-watchdog@vger.kernel.org
 Subject: Re: [PATCH 00/13] Remove mach-kirkwood and mach-dove
-References: <1404075603-31838-1-git-send-email-andrew@lunn.ch> <20140629213510.GR32514@n2100.arm.linux.org.uk> <53B154FE.80804@gmail.com> <20140630124320.GZ32514@n2100.arm.linux.org.uk> <53B164B2.7090902@gmail.com> <20140630142516.GA32514@n2100.arm.linux.org.uk>
-In-Reply-To: <20140630142516.GA32514@n2100.arm.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20140630165615.GE32514@n2100.arm.linux.org.uk>
+References: <1404075603-31838-1-git-send-email-andrew@lunn.ch> <20140629213510.GR32514@n2100.arm.linux.org.uk> <53B154FE.80804@gmail.com> <20140630124320.GZ32514@n2100.arm.linux.org.uk> <53B164B2.7090902@gmail.com> <20140630142516.GA32514@n2100.arm.linux.org.uk> <53B183D5.8020708@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <53B183D5.8020708@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 06/30/2014 04:25 PM, Russell King - ARM Linux wrote:
-> On Mon, Jun 30, 2014 at 03:22:58PM +0200, Sebastian Hesselbarth wrote:
->> Of course we thought about it. But as you are dealing with different
->> SoCs at a time, we also have to care about some more SoCs than just
->> Dove. And, of course, we also run out of spare time to prepare proper
->> patches over and over again. I really /know/ that if you send patches,
->> they are well thought and well tested, so I basically postpone work
->> on that if I know you are working on it.
->>
->> My current idea of PMU register space is to have a DT provided regmap
->> but again, there are patches floating around but currently that regmap
->> helpers are still WIP. FWIW, if you look at dove pinctrl, we did a
->> last-minute patch for the PMU regs - just because you mentioned a
->> concern, so we really care about your opinion. The fact that it is not
->> solved is pure lack of time.
+On Mon, Jun 30, 2014 at 05:35:49PM +0200, Sebastian Hesselbarth wrote:
+> On 06/30/2014 04:25 PM, Russell King - ARM Linux wrote:
+>> Nothing has changed on the PMU patches since I posted them, because
+>> they're based on 3.15 and there's been no changes there.
 >
-> Nothing has changed on the PMU patches since I posted them, because
-> they're based on 3.15 and there's been no changes there.
-
-I offered to deal with mainlining them end of April, you never replied.
-I know that if you dislike something you answer, but it is hard to tell
-if silence means agreement.
-
-I am not going to waste any time preparing patches just to get a NAK.
-
->> Exactly that increasing amount of (valuable) patches makes it more
->> and more difficult for you and us to reproduce any issues. All I am
->> asking for is: if you don't push that branch for good reason, try to
->> split off at least some patches. Hunting issues like the HDMI thing
->> with 250 patches off, really isn't going to work well.
+> I offered to deal with mainlining them end of April, you never replied.
+> I know that if you dislike something you answer, but it is hard to tell
+> if silence means agreement.
 >
-> Right, so what I have against mainline right now in my tree is:
+> I am not going to waste any time preparing patches just to get a NAK.
+
+That's because I am quite prepared to work on them _if_ there is a way
+forward.  You've already said that changing things like hwmon and rtc
+is a work in progress to convert them to regmap.  That's great, but
+in order to progress these myself, I need *visibility* of that work,
+and there is zero visibility of that.
+
+>> As for the ASoC stuff which you avoided commenting on, let me repeat
+>> that _that_ stuff is now totally dead and can /never/ be merged into
+>> mainline without breaking the existing ASoC kirkwood support.  In
+>> that case, it's not like I wasn't sending the patches out, because
+>> I had been... so everyone was aware of what was going on there,
+>> but I guess converting stuff to DT in ways that totally fuck over
+>> other patches is what now happens in the kernel.
 >
-> * two SPI patches, which have been taken by Mark
-> * one long term core ARM patch adding optimised memset/memcpy IO operations
-> * the PMU stuff
-> * BMM (already published in git form)
-> * Vmeta (already published in git form)
-> * ASoC cleanup patches, which Mark took last week.
+> If you are talking about "Kirkwood ASoC updates", you got a Tested-by
+> from Andrew even before I read your patches. And besides, just because
+> I am interested in Dove does not mean I just swallowed the whole Linux
+> API knowledge. I simply avoided commenting on it, because there is
+> /nothing/ I can add to it.
+
+No I am not - and those are the patches which I referred to as having
+been already taken by Mark into his tree.  The patch I'm referring to
+which can never be merged now is the one which I replied to Jean
+Francois just now - and if you read through it, you'll understand
+why - that's because it /totally/ breaks the simple DT bindings that
+are now established - independently - for Kirkwood stuff.
+
+>> What I think you're missing is that for those of us who want to have
+>> a platform fully supported, the choice has been non-DT until relatively
+>> recently.  We're now at the point where the DT support on Dove has
+>> matured to the point where it's relatively easy to end up with a fully
+>> functional (but not necessarily bug free) setup with DT.  It's at the
+>> sweet spot where you can switch between DT and non-DT and preserve
+>> that functionality... but as soon as we get there we want to rip out
+>> the old stuff.
 >
-> What isn't visible is the stuff which converts Armada DRM to component
-> support, along with the TDA998x driver (and it sounds like the TI LCDC
-> people may end up blocking that effort).  This is necessary to convert
-> it to DT support.  However, this depends on the component helper, and
-> that's where there's a blocking problem.
+> Oh, ok.. you think it is "me" and "us"? It is you who actually want to
+> use Dove and me just wanting a DT representation for it?
 >
-> I sent out a bunch of patches last week, with a request for help from
-> the Exynos people.  So far, that has only attracted one relatively minor
-> comment from the iMX people.  I can't move forwards with the Armada
-> DRM until this is sorted.  Neither can I move forward with the TDA998x
-> driver.
+> It is not my fault that your patches are blocked by others. I can offer
+> help to track down the issue, but I am not going to be your scapegoat.
+
+Right, and removing the non-DT support and screwing people like me
+who have out of tree patches is good for MVEBU development because...
+(complete the sentence with a damned good reason.)
+
+>> What I'm trying to get you to understand is that leaving the old stuff
+>> behind for a little while longer is beneficial - while those who have
+>> been running crippled DT based setups for the last year don't care
+>> about having full support, there are those who do.
 >
-> As for the ASoC stuff which you avoided commenting on, let me repeat
-> that _that_ stuff is now totally dead and can /never/ be merged into
-> mainline without breaking the existing ASoC kirkwood support.  In
-> that case, it's not like I wasn't sending the patches out, because
-> I had been... so everyone was aware of what was going on there,
-> but I guess converting stuff to DT in ways that totally fuck over
-> other patches is what now happens in the kernel.
+> Ok, let's have mach-dove for a little longer, fine with me.
 
-If you are talking about "Kirkwood ASoC updates", you got a Tested-by
-from Andrew even before I read your patches. And besides, just because
-I am interested in Dove does not mean I just swallowed the whole Linux
-API knowledge. I simply avoided commenting on it, because there is
-/nothing/ I can add to it.
+Great, that's all I ask.  I'm trying as fast as I can to push stuff
+out - I'm not being anywhere close to idle about it - but it takes time
+to deal with the updates from each merge window and such like, work out
+what has been accepted, which patches need to be revised, and do all the
+testing that's necessary before trying to get some more out.  Oh, and
+port some more of the patches over to be mainline-based.
 
-Really, I know you do dig down to the bottom of every subsystem you
-are working with but I simply cannot. Just because I don't have the
-time for it.
+I would've preferred to be clear of the ASoC stuff 12 months ago, and
+we all know why that was a big problem.
 
-> What I think you're missing is that for those of us who want to have
-> a platform fully supported, the choice has been non-DT until relatively
-> recently.  We're now at the point where the DT support on Dove has
-> matured to the point where it's relatively easy to end up with a fully
-> functional (but not necessarily bug free) setup with DT.  It's at the
-> sweet spot where you can switch between DT and non-DT and preserve
-> that functionality... but as soon as we get there we want to rip out
-> the old stuff.
+> What I really want is to stop that blackmailing with giving up on
+> sending patches. It will be a huge loss if you do and many have said
+> that in the past.
 
-Oh, ok.. you think it is "me" and "us"? It is you who actually want to
-use Dove and me just wanting a DT representation for it?
+It's not blackmail.  It's reality.  If the kernel becomes too much
+hassle to deal with, then volunteers will walk away from it - that's
+almost a fact of life.
 
-It is not my fault that your patches are blocked by others. I can offer
-help to track down the issue, but I am not going to be your scapegoat.
+Even with DT support, I'm nowhere near being "DT clean" on the Cubox -
+I need this as a minimum to do "special" stuff there:
 
-> Let me put that another way: it's at the point where those of us who
-> have been using non-DT support can start moving the remaining drivers
-> over to a DT environment without any functional loss.
->
-> What I'm trying to get you to understand is that leaving the old stuff
-> behind for a little while longer is beneficial - while those who have
-> been running crippled DT based setups for the last year don't care
-> about having full support, there are those who do.
+#include <linux/of_platform.h>
+#include <asm/hardware/cache-tauros2.h>
+#include "clock.h"
 
-Ok, let's have mach-dove for a little longer, fine with me.
+static struct resource armada_drm_resources[] = {
+        DEFINE_RES_MEM(0, 0),
+};
 
-> Of course, there's another solution to this.  I stay with my present
-> 3.15 kernel for ever.  That basically bars me from sending any further
-> patches.  It also means that I stop maintaining TDA998x and Armada DRM,
-> and you will have to take those over, which means you get the additional
-> workload from those.  Is that what you really want?
+static const char *armada_drm_devices[4];
 
-What I really want is to stop that blackmailing with giving up on
-sending patches. It will be a huge loss if you do and many have said
-that in the past.
+static const struct platform_device_info armada_drm_dev_info __initconst = {
+        .name = "armada-drm",
+        .id = -1,
+        .res = armada_drm_resources,
+        .num_res = ARRAY_SIZE(armada_drm_resources),
+        .data = armada_drm_devices,
+        .size_data = sizeof(armada_drm_devices),
+};
 
-If it is really me who upsets you because you feel I am blocking your
-patches, just ignore my comments. Jason will happily pick them up
-just because you signed them off.
+static struct platform_device cubox_spdif = {
+        .name   = "kirkwood-spdif-audio",
+        .id     = 1,
+};
 
-Sebastian
+static const struct platform_device_info cubox_spdif_dit __initconst = {
+        .name = "spdif-dit",
+        .id = -1,
+};
 
-> The Cubox is the /only/ ARM platform I have which is a capable media
-> player, and I'm trying not to have it screwed by this kind of crap.
->
+static void __init cubox_reserve(void)
+{
+        phys_addr_t phys;
 
+        dove_reserve();
+
+        /* Steal 32MB for the drm framebuffers */
+        phys = arm_memblock_steal(SZ_32M, SZ_2M);
+        armada_drm_resources[0].start = phys;
+        armada_drm_resources[0].end = phys + SZ_32M - 1;
+}
+
+static void __init cubox_dt_init(void)
+{
+        struct device_node *node;
+        struct platform_device *pdev;
+        int i;
+
+        pr_info("Dove 88AP510 SoC\n");
+
+#ifdef CONFIG_CACHE_TAUROS2
+        tauros2_init(0);
+#endif
+        dove_init_pmu();
+
+        BUG_ON(mvebu_mbus_dt_init());
+        of_platform_populate(NULL, of_default_bus_match_table, NULL, NULL);
+
+        dove_devclks_init();
+        dove_gpu_init();
+        dove_bmm_init();
+
+        for (i = 0, node = NULL; (node = of_find_compatible_node(node, NULL, "marvell,dove-lcd")) != NULL; ) {
+                if (!of_device_is_available(node))
+                        continue;
+                pdev = of_find_device_by_node(node);
+                if (pdev)
+                        armada_drm_devices[i++] = dev_name(&pdev->dev);
+        }
+        armada_drm_devices[i++] = NULL;
+        platform_device_register_full(&armada_drm_dev_info);
+
+        platform_device_register_full(&cubox_spdif_dit);
+        platform_device_register(&cubox_spdif);
+}
+
+static const char * const cubox_dt_compat[] = {
+        "solidrun,cubox",
+        NULL
+};
+
+DT_MACHINE_START(DOVE_DT, "Marvell Dove (Cubox)")
+        .dt_compat      = cubox_dt_compat,
+        .reserve        = cubox_reserve,
+        .map_io         = dove_map_io,
+        .init_machine   = cubox_dt_init,
+        .restart        = dove_restart,
+};
+
+
+-- 
+FTTC broadband for 0.8mile line: now at 9.7Mbps down 460kbps up... slowly
+improving, and getting towards what was expected from it.
