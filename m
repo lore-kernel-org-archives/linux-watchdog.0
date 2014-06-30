@@ -1,104 +1,100 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:54088 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751957AbaGANp2 (ORCPT
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from top.free-electrons.com ([176.31.233.9]:59174 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751671AbaF3WWq (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 1 Jul 2014 09:45:28 -0400
-Message-ID: <53B2BB74.7050300@roeck-us.net>
-Date: Tue, 01 Jul 2014 06:45:24 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Mon, 30 Jun 2014 18:22:46 -0400
+Date: Mon, 30 Jun 2014 19:21:45 -0300
+From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+To: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Cc: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Jason Cooper <jason@lakedaemon.net>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@googlemail.com>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Mark Brown <broonie@kernel.org>, alsa-devel@alsa-project.org,
+	Daniel Lezcano <daniel.lezcano@linaro.org>,
+	"Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-pm@vger.kernel.org,
+	Tejun Heo <tj@kernel.org>, linux-ide@vger.kernel.org,
+	Zhang Rui <rui.zhang@intel.com>, Bryan Wu <cooloney@gmail.com>,
+	Richard Purdie <rpurdie@rpsys.net>, linux-leds@vger.kernel.org,
+	Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
+	Kishon Vijay Abraham I <kishon@ti.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com, Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 00/13] Remove mach-kirkwood and mach-dove
+Message-ID: <20140630222145.GA8789@arch.cereza>
+References: <1404075603-31838-1-git-send-email-andrew@lunn.ch>
+ <20140629213510.GR32514@n2100.arm.linux.org.uk>
+ <53B154FE.80804@gmail.com>
+ <20140630124320.GZ32514@n2100.arm.linux.org.uk>
+ <53B164B2.7090902@gmail.com>
+ <20140630142516.GA32514@n2100.arm.linux.org.uk>
 MIME-Version: 1.0
-To: Catalin Marinas <catalin.marinas@arm.com>
-CC: Russell King - ARM Linux <linux@arm.linux.org.uk>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Will Deacon <Will.Deacon@arm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Heiko Stuebner <heiko@sntech.de>,
-	Jonas Jensen <jonas.jensen@gmail.com>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Ingo Molnar <mingo@kernel.org>,
-	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
-	David Woodhouse <dwmw2@infradead.org>
-Subject: Re: [RFC PATCH 0/6] kernel: Add support for restart notifier call
- chain
-References: <1404155499-21177-1-git-send-email-linux@roeck-us.net> <20140630195946.GI32514@n2100.arm.linux.org.uk> <20140630202851.GA12888@roeck-us.net> <20140701112413.GQ18313@arm.com>
-In-Reply-To: <20140701112413.GQ18313@arm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+In-Reply-To: <20140630142516.GA32514@n2100.arm.linux.org.uk>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 07/01/2014 04:24 AM, Catalin Marinas wrote:
-> On Mon, Jun 30, 2014 at 09:28:51PM +0100, Guenter Roeck wrote:
->> On Mon, Jun 30, 2014 at 08:59:47PM +0100, Russell King - ARM Linux wrote:
->>> On Mon, Jun 30, 2014 at 12:11:33PM -0700, Guenter Roeck wrote:
->>>> Various drivers implement architecture and/or device specific means
->>>> to restart (reset) the system. Various mechanisms have been implemented
->>>> to support those schemes. The best known mechanism is arm_pm_restart,
->>>> which is a function pointer to be set either from platform specific code
->>>> or from drivers. Another mechanism is to use hardware watchdogs to issue
->>>> a reset; this mechanism is used if there is no other method available
->>>> to reset a board or system. Two examples are alim7101_wdt, which currently
->>>> uses the reboot notifier to trigger a reset, and moxart_wdt, which registers
->>>> the arm_pm_restart function.
->>>>
->>>> The existing mechanisms have a number of drawbacks. Typically only one scheme
->>>> to restart the system is supported (at least if arm_pm_restart is used).
->>>> At least in theory there can be mutliple means to restart the system, some of
->>>> which may be less desirable (for example one mechanism may only reset the CPU,
->>>> while another may reset the entire system). Using arm_pm_restart can also be
->>>> racy if the function pointer is set from a driver, as the driver may be in
->>>> the process of being unloaded when arm_pm_restart is called.
->>>> Using the reboot notifier is always racy, as it is unknown if and when
->>>> other functions using the reboot notifier have completed execution
->>>> by the time the watchdog fires.
->>>>
->>>> To solve the problem, introduce a system restart notifier. This notifier
->>>> is expected to be called from the architecture specific machine_restart()
->>>> function. Drivers providing system restart functionality (such as the watchdog
->>>> drivers mentioned above) are expected to register with this notifier.
->>>>
->>>> Patch 1 of this series implements the notifier function. Patches 2 and 3
->>>> implement calling the notifier chain from arm and arm64 restart code.
->>>> Patch 4 and 5 convert existing restart handlers in the watchdog subsystem
->>>> to use the restart notifier. Patch 6 unexports arm_pm_restart to ensure
->>>> that no one gets the idea to implement a restart handler as module.
->>>
->>> I think you need to restructure stuff somewhat, because I think
->>> you've missed drivers/power/reset/ entirely, or at least you've
->>> missed drivers/power/reset/restart-poweroff.c which calls
->>> arm_pm_restart directly.  I'm not quite sure how we ended up with
->>> that...
->>
->> Yes, guess I missed (and did not really expect) that arm_pm_restart
->> is called from multiple places.
->
-> Most of the ARM-specific code in drivers/power/reset/ consists of SoC
-> power-off/restart back-ends (e.g. vexpress-poweroff.c). Since there is
-> no generic pm_restart, we continued to use arm_pm_restart (also for
-> arm64 since we share some of the drivers). Maybe some driver model here
-> would help.
->
->> What is restart-poweroff supposed to do in the first place, and why
->> doesn't it call machine_restart() ? If it is what I think it is, ie
->> a fallback for pm_power_off, it could be made generic and does not
->> really have to depend on ARM.
->
-> I think this one pretends to do a power-off via restart. It could call
-> machine_restart() but this only passes the default reboot_mode to
-> arm_pm_restart().
->
+On 30 Jun 03:25 PM, Russell King - ARM Linux wrote:
+[..]
+>=20
+> Right, so what I have against mainline right now in my tree is:
+>=20
+> * two SPI patches, which have been taken by Mark
+> * one long term core ARM patch adding optimised memset/memcpy IO oper=
+ations
+> * the PMU stuff
+> * BMM (already published in git form)
+> * Vmeta (already published in git form)
+> * ASoC cleanup patches, which Mark took last week.
+>=20
+> What isn't visible is the stuff which converts Armada DRM to componen=
+t
+> support, along with the TDA998x driver (and it sounds like the TI LCD=
+C
+> people may end up blocking that effort).  This is necessary to conver=
+t
+> it to DT support.  However, this depends on the component helper, and
+> that's where there's a blocking problem.
+>=20
+> I sent out a bunch of patches last week, with a request for help from
+> the Exynos people.  So far, that has only attracted one relatively mi=
+nor
+> comment from the iMX people.  I can't move forwards with the Armada
+> DRM until this is sorted.  Neither can I move forward with the TDA998=
+x
+> driver.
+>=20
 
-Unless one sets reboot_mode first. See my proposed patch in
-https://lkml.org/lkml/2014/6/30/792.
+I'm not sure I understand why tilcdc people are an obstacle for the
+component stuff, other than the lack of responsiveness. In any case, if
+you have some tilcdc or tda998x patches and you need help with the main=
+line
+process, feel free to ask.
 
-Guenter
+I've been doing some tilcdc work lately, and I'd be happy to help you w=
+ith
+that.
 
+Do you plan to change the devicetree binding? While the current one wor=
+ks fine,
+it has several deficiencies, and it would be great to sort them out bef=
+ore
+the whole platform becomes obsolete.
+
+Really, if you need help and if you think I can handle it, just drop me=
+ a line
+and I'll see what I can do.
+--=20
+Ezequiel Garc=EDa, Free Electrons
+Embedded Linux, Kernel and Android Engineering
+http://free-electrons.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
