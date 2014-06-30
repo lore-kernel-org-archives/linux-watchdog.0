@@ -1,15 +1,13 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wi0-f181.google.com ([209.85.212.181]:46603 "EHLO
-	mail-wi0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754630AbaF3MQG (ORCPT
+Received: from gw-1.arm.linux.org.uk ([78.32.30.217]:47225 "EHLO
+	pandora.arm.linux.org.uk" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751314AbaF3MoA (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 30 Jun 2014 08:16:06 -0400
-Message-ID: <53B154FE.80804@gmail.com>
-Date: Mon, 30 Jun 2014 14:15:58 +0200
-From: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>,
-	Andrew Lunn <andrew@lunn.ch>
-CC: Jason Cooper <jason@lakedaemon.net>,
+	Mon, 30 Jun 2014 08:44:00 -0400
+Date: Mon, 30 Jun 2014 13:43:20 +0100
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+To: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Cc: Andrew Lunn <andrew@lunn.ch>, Jason Cooper <jason@lakedaemon.net>,
 	Sebastian Hesselbarth <sebastian.hesselbarth@googlemail.com>,
 	Gregory Clement <gregory.clement@free-electrons.com>,
 	Mark Brown <broonie@kernel.org>, alsa-devel@alsa-project.org,
@@ -24,55 +22,58 @@ CC: Jason Cooper <jason@lakedaemon.net>,
 	rtc-linux@googlegroups.com, Wim Van Sebroeck <wim@iguana.be>,
 	linux-watchdog@vger.kernel.org
 Subject: Re: [PATCH 00/13] Remove mach-kirkwood and mach-dove
-References: <1404075603-31838-1-git-send-email-andrew@lunn.ch> <20140629213510.GR32514@n2100.arm.linux.org.uk>
-In-Reply-To: <20140629213510.GR32514@n2100.arm.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20140630124320.GZ32514@n2100.arm.linux.org.uk>
+References: <1404075603-31838-1-git-send-email-andrew@lunn.ch> <20140629213510.GR32514@n2100.arm.linux.org.uk> <53B154FE.80804@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <53B154FE.80804@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 06/29/2014 11:35 PM, Russell King - ARM Linux wrote:
-> On Sun, Jun 29, 2014 at 10:59:47PM +0200, Andrew Lunn wrote:
->> This patchset removes arch/arm/mach-kirkwood and arch/arm/mach-dove.
->> These SoCs are now supported in arch/arm/mach-mvebu using device tree.
->>
->> Change the dependencies for a number of drivers, either to use
->> ARCH_MVEBU where the drivers are generic, or MACH_KIRKWOOD and
->> MACH_DOVE where the drivers are specific to a SoC.
->>
->>
->> Andrew Lunn (13):
->>    ARM: Kirkwood: Remove mach-kirkwood
->>    ARM: Dove: Remove mach-dove
->
-> There is actually a cubox regression which has yet to be tracked down.
-> Running with my kernel (which is not-DT based) runs perfectly.  With
-> DT, HDMI output can be unstable.
->
-> One of the problems is that it's /very/ difficult to reproduce, but it
-> is reproducable.  I've seen it on two days over many reboots, and I've
-> proved it by switching back and forth.  DT sometimes suffers from the
-> problem, whereas non-DT /never/ does.
->
-> Sebastian is aware of this, and as yet we haven't found a solution,
-> nor have we found a way to reliably reproduce it.
+On Mon, Jun 30, 2014 at 02:15:58PM +0200, Sebastian Hesselbarth wrote:
+> Can you give a /rough/ schedule for your plans to sort out your private
+> branches? If we can all investigate the issue with the same code basis,
+> I am sure we can make DT dove behave the same way non-DT dove seems to
+> be.
 
-I am aware of the issue but have not been able to reproduce it. Also,
-we have no /official/ non-DT CuBox support in mainline Linux at all.
-I understand that removing non-DT mach-dove currently is not your
-most preferred patch but from a mainline POV, mach-dove isn't actively
-used. The three officially supported boards have been converted to DT
-months ago and haven't received any TLC since then, so I doubt they are
-used by anyone.
+As you will be aware, that is an unreasonable question.  I have no
+idea what so ever how long it will take to sort out my private
+branches, because it doesn't depend all that much on me.
 
-My current impression of the issue is that it is more related with
-driver load order/missing delays for clocks/ignoring IP behavior on
-clock rate change or something like it.
+For example, I've had fully working audio on the Cubox for 18+ months,
+but there's a big problem getting it into mainline.  First it was the
+lack of co-operation from the ASoC maintainers.  Then it was the ASoC
+maintainers accepting Jean-Francois patches (which really torpedoed
+my efforts.)  And the final problem which makes it totally impossible
+is that pushing the DPCM stuff will completely break the DT based
+kirkwood ASoC stuff which got pushed in.
 
-Can you give a /rough/ schedule for your plans to sort out your private
-branches? If we can all investigate the issue with the same code basis,
-I am sure we can make DT dove behave the same way non-DT dove seems to
-be.
+I suspect that the PMU work I did has also been torpedoed because of
+no one in the mvebu circles has really thought about how to deal
+properly with the overlapping registers for the PMU, hwmon and RTC.
 
-Sebastian
+Right now, I have 250 patches in my Cubox tree against a base of
+3.15 plus the original set of changes.  And no, I'm *not* going
+to be stupid enough to publish the tree because of the non-GPL
+license header(s) on various files in the Vivante code base.
 
+I'm actually on the point of just giving up with mainlike on the Cubox
+because of this kind of crap, and the extreme difficulty to get any
+kind of progress on this stuff - and I'm seeing a growing number of
+patches on the Cubox-i side of things, the mainline churn on mach-dove
+is becoming a /big/ problem.
+
+So... if you want to remove mach-dove, then I'll just add to my
+cubox tree an entire revert of it.  Especially as DT does not work
+properly here and non-DT does.
+
+And I really don't buy your "it's down to the timing" explanation -
+because (a) switching from 720p to 1080p reprograms the clock chain
+right from the Si5351, which is no different to what happens on
+initial bring up, and (b) I've measured the HDMI clock which is
+derived from this chain and it is correct and unmodulated.
+
+-- 
+FTTC broadband for 0.8mile line: now at 9.7Mbps down 460kbps up... slowly
+improving, and getting towards what was expected from it.
