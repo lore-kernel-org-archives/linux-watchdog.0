@@ -1,73 +1,85 @@
-Return-Path: <groeck7@gmail.com>
-Return-Path: <groeck7@gmail.com>
-Sender: Guenter Roeck <groeck7@gmail.com>
-From: Guenter Roeck <linux@roeck-us.net>
-To: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Cc: Wim Van Sebroeck <wim@iguana.be>,
+Return-Path: <maxime.ripard@free-electrons.com>
+Date: Tue, 1 Jul 2014 09:26:47 +0200
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	Wim Van Sebroeck <wim@iguana.be>,
 	Catalin Marinas <catalin.marinas@arm.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Will Deacon <will.deacon@arm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
+	Will Deacon <will.deacon@arm.com>, Arnd Bergmann <arnd@arndb.de>,
 	Heiko Stuebner <heiko@sntech.de>,
 	Russell King <linux@arm.linux.org.uk>,
 	Jonas Jensen <jonas.jensen@gmail.com>,
 	Randy Dunlap <rdunlap@infradead.org>,
 	Andrew Morton <akpm@linux-foundation.org>,
 	Steven Rostedt <rostedt@goodmis.org>,
-	Ingo Molnar <mingo@kernel.org>,
-	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Tomasz Figa <t.figa@samsung.com>,
-	linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v5 7/7] arm/arm64: Unexport restart handlers
-Date: Fri, 18 Jul 2014 00:34:16 -0700
-Message-Id: <1405668856-13738-8-git-send-email-linux@roeck-us.net>
-In-Reply-To: <1405668856-13738-1-git-send-email-linux@roeck-us.net>
-References: <1405668856-13738-1-git-send-email-linux@roeck-us.net>
+	Ingo Molnar <mingo@kernel.org>, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH 2/6] arm64: Support restart through restart notifier
+ call chain
+Message-ID: <20140701072647.GI28647@lukather>
+References: <1404155499-21177-1-git-send-email-linux@roeck-us.net>
+ <1404155499-21177-3-git-send-email-linux@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BghK6+krpKHjj+jk"
+Content-Disposition: inline
+In-Reply-To: <1404155499-21177-3-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Implementing a restart handler in a module don't make sense
-as there would be no guarantee that the module is loaded when
-a restart is needed. Unexport arm_pm_restart to ensure that
-no one gets the idea to do it anyway.
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
-v5: No change
-v4: No change
-v3: No change
-v2: No change
+--BghK6+krpKHjj+jk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- arch/arm/kernel/process.c   | 1 -
- arch/arm64/kernel/process.c | 1 -
- 2 files changed, 2 deletions(-)
+On Mon, Jun 30, 2014 at 12:11:35PM -0700, Guenter Roeck wrote:
+> The kernel core now supports a notifier call chain to restart the system.
+>=20
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> ---
+>  arch/arm64/kernel/process.c | 3 +++
+>  1 file changed, 3 insertions(+)
+>=20
+> diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
+> index 43b7c34..9dd2abd 100644
+> --- a/arch/arm64/kernel/process.c
+> +++ b/arch/arm64/kernel/process.c
+> @@ -43,6 +43,7 @@
+>  #include <linux/hw_breakpoint.h>
+>  #include <linux/personality.h>
+>  #include <linux/notifier.h>
+> +#include <linux/watchdog.h>
 
-diff --git a/arch/arm/kernel/process.c b/arch/arm/kernel/process.c
-index 84ca0d5..27bdf11 100644
---- a/arch/arm/kernel/process.c
-+++ b/arch/arm/kernel/process.c
-@@ -125,7 +125,6 @@ void (*pm_power_off)(void);
- EXPORT_SYMBOL(pm_power_off);
- 
- void (*arm_pm_restart)(enum reboot_mode reboot_mode, const char *cmd) = null_restart;
--EXPORT_SYMBOL_GPL(arm_pm_restart);
- 
- /*
-  * This is our default idle handler.
-diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
-index 9591e60..f5fddff 100644
---- a/arch/arm64/kernel/process.c
-+++ b/arch/arm64/kernel/process.c
-@@ -92,7 +92,6 @@ void (*pm_power_off)(void);
- EXPORT_SYMBOL_GPL(pm_power_off);
- 
- void (*arm_pm_restart)(enum reboot_mode reboot_mode, const char *cmd);
--EXPORT_SYMBOL_GPL(arm_pm_restart);
- 
- /*
-  * This is our default idle handler.
--- 
-1.9.1
+I don't think you need this include, or shouldn't it be reboot.h
+instead?
+
+Maxime
+
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--BghK6+krpKHjj+jk
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJTsmK3AAoJEBx+YmzsjxAg1yQP/2dBQ6t2CgNiPdeK1O4Za6R0
+9bDGZytwBJ9dDcOBH5j6r+VX6u4yChMRb+ZvI5QCoSftVTHRwMcavpXSJygWEgwt
+lIBTTgehDWCT64YWY0AUpXmxXNb1ZfGqsuVgQqlloN6p8NDBTITQnD6nZbHiwNPx
+HvhOuYbzs/KMXAYDydukVSO8TB3vzltZxQcHCOKtf3IZJeKI84FEI8ga2sHIycXr
+N2hVIDWz5htfKA1028u6KSxROnQgOhEb+oXp9QQNfDLLmSna8nF/3CD0lRH1y2L3
+CrVdwBpXXbY6yHAarrTUihrvR0HWBlMy3MSy5y1fAEzGktNxNKqba6JQ6p8emAm0
+m3sRzTWOwHwhDw01OP9PeKF/KTa4hHSbjd9wd0VKGEhCcj8QB+qubTEukGLPsNvy
+QrB4XOFmeT0Rf1CCNKetrS0vWuhYvfauajpGi65eZsxTu96NKllfQSo8FgW8bznG
+Gr8FtISOa26jFlbMUuGD4uHDI0RguDM3izMM+RQCzVabD9y+o4kzTnMgsSQjamVu
+2+e5R42iCrvFwKwz3dYsG8POd/RraZfnNggudaCdk31SSz0zUhaKAl3T0J5xoxM9
+G/oF0JbGntLG8vVlrXFK39P7nvRV+QaoWorBtkUEXUWHJz3rO/Y9wKFlyfLznSpo
+7GQ+PndJmbibczTQdLP5
+=4rRR
+-----END PGP SIGNATURE-----
+
+--BghK6+krpKHjj+jk--
