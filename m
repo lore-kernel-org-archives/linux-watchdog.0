@@ -1,49 +1,57 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:39450 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751366AbaGAUiL (ORCPT
+Received: from gw-1.arm.linux.org.uk ([78.32.30.217]:50497 "EHLO
+	pandora.arm.linux.org.uk" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752959AbaGAWOl (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 1 Jul 2014 16:38:11 -0400
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
+	Tue, 1 Jul 2014 18:14:41 -0400
+Date: Tue, 1 Jul 2014 23:14:28 +0100
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
 	<u.kleine-koenig@pengutronix.de>
-To: Russell King <linux@arm.linux.org.uk>
 Cc: kernel@pengutronix.de, linux-arm-kernel@lists.infradead.org,
 	Wim Van Sebroeck <wim@iguana.be>,
 	linux-watchdog@vger.kernel.org,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	linux-serial@vger.kernel.org
-Subject: [PATCH 0/3] s/FOOTBRIDGE/ARCH_FOOTBRIDGE/
-Date: Tue,  1 Jul 2014 22:37:03 +0200
-Message-Id: <1404247026-379-1-git-send-email-u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH 0/3] s/FOOTBRIDGE/ARCH_FOOTBRIDGE/
+Message-ID: <20140701221428.GC32514@n2100.arm.linux.org.uk>
+References: <1404247026-379-1-git-send-email-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: QUOTED-PRINTABLE
+In-Reply-To: <1404247026-379-1-git-send-email-u.kleine-koenig@pengutronix.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello Russell,
+On Tue, Jul 01, 2014 at 10:37:03PM +0200, Uwe Kleine-K=F6nig wrote:
+> Hello Russell,
+>=20
+> I'm not sure that FOOTBRIDGE and ARCH_FOOTBRIDGE are semantically
+> identical; if not, feel free to nack this series.
 
-I'm not sure that FOOTBRIDGE and ARCH_FOOTBRIDGE are semantically
-identical; if not, feel free to nack this series.
+CONFIG_FOOTBRIDGE means that we have a DC21285 in the system.  We
+used to have ARCH_FOOTBRIDGE and ARCH_CO285 which both selected
+CONFIG_FOOTBRIDGE.
 
-Best regards
-Uwe
+ARCH_FOOTBRIDGE was for either host or addin mode using a PAGE_OFFSET
+of 0xc0000000.  ARCH_CO285 had a PAGE_OFFSET of 0x80000000 as they
+wanted to be able to map almost all of PCI memory space.
 
-Uwe Kleine-K=C3=B6nig (3):
-  serial: DC21285: depend on ARCH_FOOTBRIDGE instead of FOOTBRIDGE
-  watchdog: get rid of FOOTBRIDGE in dependencies
-  ARM: drop Kconfig symbol FOOTBRIDGE
+So think of CONFIG_FOOTBRIDGE as meaning that we have the physical
+device, and CONFIG_ARCH_FOOTBRIDGE meaning that we want to support
+boards with the device on.
 
- arch/arm/Kconfig                 |  1 -
- arch/arm/Kconfig.debug           | 14 +++++++-------
- arch/arm/mach-footbridge/Kconfig |  4 ----
- drivers/tty/serial/Kconfig       |  2 +-
- drivers/watchdog/Kconfig         |  4 ++--
- 5 files changed, 10 insertions(+), 15 deletions(-)
+So, it may make sense to rename CONFIG_FOOTBRIDGE to CONFIG_DC21285
+if that makes the configuration symbol intention clearer.
+
+This is why I prefer even hidden symbols to have a help text - having
+the help text explains why they exist...
 
 --=20
-2.0.0
-
+=46TTC broadband for 0.8mile line: now at 9.7Mbps down 460kbps up... sl=
+owly
+improving, and getting towards what was expected from it.
 --
 To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
 g" in
