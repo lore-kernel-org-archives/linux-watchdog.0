@@ -1,63 +1,53 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:58342 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754955AbaGANjR (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 1 Jul 2014 09:39:17 -0400
-Message-ID: <53B2B9FC.8000600@roeck-us.net>
-Date: Tue, 01 Jul 2014 06:39:08 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: Maxime Ripard <maxime.ripard@free-electrons.com>
-CC: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
+Return-Path: <catalin.marinas@arm.com>
+Date: Tue, 1 Jul 2014 18:08:53 +0100
+From: Catalin Marinas <catalin.marinas@arm.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
 	Wim Van Sebroeck <wim@iguana.be>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will.deacon@arm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Will Deacon <Will.Deacon@arm.com>, Arnd Bergmann <arnd@arndb.de>,
 	Heiko Stuebner <heiko@sntech.de>,
-	Russell King <linux@arm.linux.org.uk>,
 	Jonas Jensen <jonas.jensen@gmail.com>,
 	Randy Dunlap <rdunlap@infradead.org>,
 	Andrew Morton <akpm@linux-foundation.org>,
 	Steven Rostedt <rostedt@goodmis.org>,
-	Ingo Molnar <mingo@kernel.org>, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH 2/6] arm64: Support restart through restart notifier
- call chain
-References: <1404155499-21177-1-git-send-email-linux@roeck-us.net> <1404155499-21177-3-git-send-email-linux@roeck-us.net> <20140701072647.GI28647@lukather>
-In-Reply-To: <20140701072647.GI28647@lukather>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+	Ingo Molnar <mingo@kernel.org>,
+	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+	David Woodhouse <dwmw2@infradead.org>
+Subject: Re: [RFC PATCH 0/6] kernel: Add support for restart notifier call
+ chain
+Message-ID: <20140701170853.GX18313@arm.com>
+References: <1404155499-21177-1-git-send-email-linux@roeck-us.net>
+ <20140630195946.GI32514@n2100.arm.linux.org.uk>
+ <20140630202851.GA12888@roeck-us.net>
+ <20140701112413.GQ18313@arm.com>
+ <53B2BB74.7050300@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <53B2BB74.7050300@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 07/01/2014 12:26 AM, Maxime Ripard wrote:
-> On Mon, Jun 30, 2014 at 12:11:35PM -0700, Guenter Roeck wrote:
->> The kernel core now supports a notifier call chain to restart the system.
->>
->> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
->> ---
->>   arch/arm64/kernel/process.c | 3 +++
->>   1 file changed, 3 insertions(+)
->>
->> diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
->> index 43b7c34..9dd2abd 100644
->> --- a/arch/arm64/kernel/process.c
->> +++ b/arch/arm64/kernel/process.c
->> @@ -43,6 +43,7 @@
->>   #include <linux/hw_breakpoint.h>
->>   #include <linux/personality.h>
->>   #include <linux/notifier.h>
->> +#include <linux/watchdog.h>
->
-> I don't think you need this include, or shouldn't it be reboot.h
-> instead?
->
+On Tue, Jul 01, 2014 at 02:45:24PM +0100, Guenter Roeck wrote:
+> On 07/01/2014 04:24 AM, Catalin Marinas wrote:
+> > On Mon, Jun 30, 2014 at 09:28:51PM +0100, Guenter Roeck wrote:
+> >> What is restart-poweroff supposed to do in the first place, and why
+> >> doesn't it call machine_restart() ? If it is what I think it is, ie
+> >> a fallback for pm_power_off, it could be made generic and does not
+> >> really have to depend on ARM.
+> >
+> > I think this one pretends to do a power-off via restart. It could call
+> > machine_restart() but this only passes the default reboot_mode to
+> > arm_pm_restart().
+> 
+> Unless one sets reboot_mode first. See my proposed patch in
+> https://lkml.org/lkml/2014/6/30/792.
 
-Yes, that will be removed in the next version of the patch.
+It looks fine to me.
 
-Thanks,
-Guenter
-
-
+-- 
+Catalin
