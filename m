@@ -1,77 +1,57 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from gw-1.arm.linux.org.uk ([78.32.30.217]:51647 "EHLO
-	pandora.arm.linux.org.uk" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751491AbaGBQ0s (ORCPT
+Received: from h1446028.stratoserver.net ([85.214.92.142]:43572 "EHLO
+	mail.ahsoftware.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750736AbaGFJuh (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 2 Jul 2014 12:26:48 -0400
-Date: Wed, 2 Jul 2014 17:26:37 +0100
-From: Russell King - ARM Linux <linux@arm.linux.org.uk>
-To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-Cc: kernel@pengutronix.de, linux-arm-kernel@lists.infradead.org,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	linux-serial@vger.kernel.org
-Subject: Re: [PATCH 0/3] s/FOOTBRIDGE/ARCH_FOOTBRIDGE/
-Message-ID: <20140702162636.GP32514@n2100.arm.linux.org.uk>
-References: <1404247026-379-1-git-send-email-u.kleine-koenig@pengutronix.de> <20140701221428.GC32514@n2100.arm.linux.org.uk> <20140702071312.GO14781@pengutronix.de>
+	Sun, 6 Jul 2014 05:50:37 -0400
+Message-ID: <53B91BB2.3090005@ahsoftware.de>
+Date: Sun, 06 Jul 2014 11:49:38 +0200
+From: Alexander Holler <holler@ahsoftware.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <20140702071312.GO14781@pengutronix.de>
+To: rtc-linux@googlegroups.com,
+	Russell King - ARM Linux <linux@arm.linux.org.uk>
+CC: Andrew Lunn <andrew@lunn.ch>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Jason Cooper <jason@lakedaemon.net>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@googlemail.com>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Mark Brown <broonie@kernel.org>, alsa-devel@alsa-project.org,
+	Daniel Lezcano <daniel.lezcano@linaro.org>,
+	"Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-pm@vger.kernel.org,
+	Tejun Heo <tj@kernel.org>, linux-ide@vger.kernel.org,
+	Zhang Rui <rui.zhang@intel.com>, Bryan Wu <cooloney@gmail.com>,
+	Richard Purdie <rpurdie@rpsys.net>, linux-leds@vger.kernel.org,
+	Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
+	Kishon Vijay Abraham I <kishon@ti.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [rtc-linux] Re: [PATCH 00/13] Remove mach-kirkwood and mach-dove
+References: <1404075603-31838-1-git-send-email-andrew@lunn.ch> <20140629213510.GR32514@n2100.arm.linux.org.uk> <53B154FE.80804@gmail.com> <20140630124320.GZ32514@n2100.arm.linux.org.uk> <53B164B2.7090902@gmail.com> <20140630142516.GA32514@n2100.arm.linux.org.uk> <53B183D5.8020708@gmail.com> <20140630165615.GE32514@n2100.arm.linux.org.uk> <20140630174351.GI18520@lunn.ch> <20140630180853.GF32514@n2100.arm.linux.org.uk> <20140630181640.GL18520@lunn.ch>
+In-Reply-To: <20140630181640.GL18520@lunn.ch>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Jul 02, 2014 at 09:13:12AM +0200, Uwe Kleine-K=F6nig wrote:
-> I expected something like that. Is it possible to "have" the device o=
-n a
-> cpu !=3D StrongARM? If so I wonder why ARCH_FOOTBRIDGE is a "ARM syst=
-em
-> type". And if not, wouldn't it be possible and better to have all
-> platforms which select CPU_SA110 (ARCH_EBSA110, ARCH_FOOTBRIDGE; what
-> about RPC?) in a single mach dir and make FOOTBRIDGE an option there?
->=20
-> It's hard to find information on the net about these chips, even
-> http://developer.intel.com/design/strong/sa110.htm only talks about x=
-86
-> stuff only, so please excuse my unknowingness.
+Am 30.06.2014 20:16, schrieb Andrew Lunn:
+>> So, what do we do now with support for compressed audio streams via
+>> SPDIF on kirkwood hardware?  As far as I can see, it's no longer
+>> possible and mainline kernels will never support this.  Please tell
+>> me I'm wrong...
+> 
+> Well, it would of been nice if you had made a comment to either v1 or
+> v2 of my patchset saying this is going to cause problems for some
+> devices.
+> 
+> So i will go look at your patch to add frontend and backend and see
+> what it means for the current DT binding. The nice thing about
+> kirkwood (and Dove) is, there is no uboot with DT support. Hence
+> nobody is flashing there DT blob. They are always using appended DT.
+> So i'm not against changing the binding. And it has only been in the
+> kernel for one cycle, so i doubt there are too many users at the
+> moment.
 
-The Footbridge is a companion device to the StrongARM - the two are
-designed to work together.  It probably is possible that the Footbridge
-could have been connected to another CPU with appropriate interfacing,
-but that never happened.
+And most people just don't care if some DT-binding changes as they can
+change the provided DT themself. At least on every sane device.
 
-The thing to realise is that the Footbridge is a little more than just
-a pure PCI bridge.  It's also the SDRAM controller, UART port and
-provides support for a non-PCI expansion bus.
-
-Probably the best model which represents it is in actual fact the x86
-PC in years gone by.  The separate processor (StrongARM) with the PCI
-northbridge (Footbridge) which couples the processor to the rest of
-the system.  Some Footbridge systems really do approximate the x86
-PC with a southbridge attached (eg, Netwinder did this, with a real
-southbridge providing keyboard, mouse, bridge to the ISA bus, IDE etc).
-
-You could also think of it as an early SoC which hasn't quite integrate=
-d
-the CPU, as the Footbridge defines quite a lot about how the physical
-system memory map looks.
-
-The difference between the CO285 and the EBSA285 is that CO285 was
-exclusively add-in mode (in other words, CO285 was Linux running on
-a DC21285 based card you could plug into your PC and wanted to map
-large spaces of PCI memory space) whereas the EBSA285 was the much
-smaller end of the add-in mode, and also host mode (StrongARM being
-responsible for PCI configuration etc.)
-
---=20
-=46TTC broadband for 0.8mile line: now at 9.7Mbps down 460kbps up... sl=
-owly
-improving, and getting towards what was expected from it.
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
