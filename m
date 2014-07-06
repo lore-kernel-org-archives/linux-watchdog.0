@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f169.google.com ([209.85.192.169]:65429 "EHLO
-	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752174AbaGFXis (ORCPT
+Received: from mail-pa0-f47.google.com ([209.85.220.47]:61983 "EHLO
+	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752175AbaGFXih (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 6 Jul 2014 19:38:48 -0400
+	Sun, 6 Jul 2014 19:38:37 -0400
 From: Guenter Roeck <linux@roeck-us.net>
 To: linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org
@@ -23,40 +23,39 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	David Woodhouse <dwmw2@infradead.org>,
 	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v2 4/7] power/restart: Call machine_restart instead of arm_pm_restart
-Date: Sun,  6 Jul 2014 16:38:17 -0700
-Message-Id: <1404689900-27421-5-git-send-email-linux@roeck-us.net>
+Subject: [PATCH v2 2/7] arm64: Support restart through restart notifier call chain
+Date: Sun,  6 Jul 2014 16:38:15 -0700
+Message-Id: <1404689900-27421-3-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1404689900-27421-1-git-send-email-linux@roeck-us.net>
 References: <1404689900-27421-1-git-send-email-linux@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-machine_restart is supported on non-ARM platforms, and and ultimately calls
-arm_pm_restart, so dont call arm_pm_restart directly but use the more
-generic function.
+The kernel core now supports a notifier call chain to restart
+the system. Call it if arm_pm_restart is not set.
 
-Cc: Russell King <linux@arm.linux.org.uk>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
-v2: Added patch.
+v2: Only call notifier call chain if arm_pm_restart is not set
+    Do not include linux/watchdog.h
 
- drivers/power/reset/restart-poweroff.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm64/kernel/process.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/power/reset/restart-poweroff.c b/drivers/power/reset/restart-poweroff.c
-index 5758033..47f10eb 100644
---- a/drivers/power/reset/restart-poweroff.c
-+++ b/drivers/power/reset/restart-poweroff.c
-@@ -20,7 +20,8 @@
+diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
+index 43b7c34..585ebe2 100644
+--- a/arch/arm64/kernel/process.c
++++ b/arch/arm64/kernel/process.c
+@@ -174,6 +174,9 @@ void machine_restart(char *cmd)
+ 	/* Now call the architecture specific reboot code. */
+ 	if (arm_pm_restart)
+ 		arm_pm_restart(reboot_mode, cmd);
++	else
++		blocking_notifier_call_chain(&restart_notifier_list,
++					     reboot_mode, cmd);
  
- static void restart_poweroff_do_poweroff(void)
- {
--	arm_pm_restart(REBOOT_HARD, NULL);
-+	reboot_mode = REBOOT_HARD;
-+	machine_restart(NULL);
- }
- 
- static int restart_poweroff_probe(struct platform_device *pdev)
+ 	/*
+ 	 * Whoops - the architecture was unable to reboot.
 -- 
 1.9.1
 
