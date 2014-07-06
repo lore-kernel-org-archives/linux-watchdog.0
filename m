@@ -1,53 +1,41 @@
-Return-Path: <catalin.marinas@arm.com>
-Date: Tue, 1 Jul 2014 18:08:53 +0100
-From: Catalin Marinas <catalin.marinas@arm.com>
+Return-Path: <heiko@sntech.de>
+From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Will Deacon <Will.Deacon@arm.com>, Arnd Bergmann <arnd@arndb.de>,
-	Heiko Stuebner <heiko@sntech.de>,
-	Jonas Jensen <jonas.jensen@gmail.com>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Ingo Molnar <mingo@kernel.org>,
-	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
-	David Woodhouse <dwmw2@infradead.org>
-Subject: Re: [RFC PATCH 0/6] kernel: Add support for restart notifier call
- chain
-Message-ID: <20140701170853.GX18313@arm.com>
-References: <1404155499-21177-1-git-send-email-linux@roeck-us.net>
- <20140630195946.GI32514@n2100.arm.linux.org.uk>
- <20140630202851.GA12888@roeck-us.net>
- <20140701112413.GQ18313@arm.com>
- <53B2BB74.7050300@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Wim Van Sebroeck <wim@iguana.be>, linux-samsung-soc@vger.kernel.org, Tomasz Figa <t.figa@samsung.com>, Mike Turquette <mturquette@linaro.org>
+Subject: [RFC PATCH 0/3] ARM: restart-notifier support for some architectures
+Date: Sun, 06 Jul 2014 20:42:16 +0200
+Message-ID: <1531376.ijR0PPyvmJ@diego>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <53B2BB74.7050300@roeck-us.net>
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Tue, Jul 01, 2014 at 02:45:24PM +0100, Guenter Roeck wrote:
-> On 07/01/2014 04:24 AM, Catalin Marinas wrote:
-> > On Mon, Jun 30, 2014 at 09:28:51PM +0100, Guenter Roeck wrote:
-> >> What is restart-poweroff supposed to do in the first place, and why
-> >> doesn't it call machine_restart() ? If it is what I think it is, ie
-> >> a fallback for pm_power_off, it could be made generic and does not
-> >> really have to depend on ARM.
-> >
-> > I think this one pretends to do a power-off via restart. It could call
-> > machine_restart() but this only passes the default reboot_mode to
-> > arm_pm_restart().
-> 
-> Unless one sets reboot_mode first. See my proposed patch in
-> https://lkml.org/lkml/2014/6/30/792.
+This series provides restart-notifier integration for the architectures
+I care about - S3C24XX and Rockchip.
 
-It looks fine to me.
+It of course depends on "kernel: Add support for restart notifier call chain"
+from Guenter Roeck.
+
+Samsung machines can generally be reset using their watchdog, but some
+also provide a special software-reset register in their system controller.
+
+The rockchip reset integration of course also depends on the core clock
+support series, currently still under review.
+
+
+Heiko Stuebner (3):
+  watchdog: s3c2410: add restart notifier
+  clk: samsung: register restart notifiers for s3c2412 and s3c2443
+  clk: rockchip: add restart notifier
+
+ drivers/clk/rockchip/clk-rk3188.c |  2 ++
+ drivers/clk/rockchip/clk-rk3288.c |  2 ++
+ drivers/clk/rockchip/clk.c        | 23 +++++++++++++++++++++++
+ drivers/clk/rockchip/clk.h        |  1 +
+ drivers/clk/samsung/clk-s3c2412.c | 28 ++++++++++++++++++++++++++++
+ drivers/clk/samsung/clk-s3c2443.c | 18 ++++++++++++++++++
+ drivers/watchdog/s3c2410_wdt.c    | 33 +++++++++++++++++++++++++++++++++
+ 7 files changed, 107 insertions(+)
 
 -- 
-Catalin
+1.9.0
