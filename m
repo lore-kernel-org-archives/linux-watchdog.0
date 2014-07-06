@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f53.google.com ([209.85.220.53]:48269 "EHLO
-	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751303AbaGFXi2 (ORCPT
+Received: from mail-pd0-f176.google.com ([209.85.192.176]:42731 "EHLO
+	mail-pd0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752283AbaGFXiv (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 6 Jul 2014 19:38:28 -0400
+	Sun, 6 Jul 2014 19:38:51 -0400
 From: Guenter Roeck <linux@roeck-us.net>
 To: linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org
@@ -23,50 +23,87 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	David Woodhouse <dwmw2@infradead.org>,
 	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [RFC PATCH v2 0/7] kernel: Add support for restart notifier call chain
-Date: Sun,  6 Jul 2014 16:38:13 -0700
-Message-Id: <1404689900-27421-1-git-send-email-linux@roeck-us.net>
+Subject: [PATCH v2 5/7] watchdog: moxart: Register restart handler with restart notifier
+Date: Sun,  6 Jul 2014 16:38:18 -0700
+Message-Id: <1404689900-27421-6-git-send-email-linux@roeck-us.net>
+In-Reply-To: <1404689900-27421-1-git-send-email-linux@roeck-us.net>
+References: <1404689900-27421-1-git-send-email-linux@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Various drivers implement architecture and/or device specific means
-to restart (reset) the system. Various mechanisms have been implemented
-to support those schemes. The best known mechanism is arm_pm_restart,
-which is a function pointer to be set either from platform specific code
-or from drivers. Another mechanism is to use hardware watchdogs to issue
-a reset; this mechanism is used if there is no other method available
-to reset a board or system. Two examples are alim7101_wdt, which currently
-uses the reboot notifier to trigger a reset, and moxart_wdt, which registers
-the arm_pm_restart function.
+The kernel now provides an API to trigger a system restart.
+Register with it instead of setting arm_pm_restart.
 
-The existing mechanisms have a number of drawbacks. Typically only one scheme
-to restart the system is supported (at least if arm_pm_restart is used).
-At least in theory there can be mutliple means to restart the system, some of
-which may be less desirable (for example one mechanism may only reset the CPU,
-while another may reset the entire system). Using arm_pm_restart can also be
-racy if the function pointer is set from a driver, as the driver may be in
-the process of being unloaded when arm_pm_restart is called.
-Using the reboot notifier is always racy, as it is unknown if and when
-other functions using the reboot notifier have completed execution
-by the time the watchdog fires.
-
-To solve the problem, introduce a system restart notifier. This notifier
-is expected to be called from the architecture specific machine_restart()
-function. Drivers providing system restart functionality (such as the watchdog
-drivers mentioned above) are expected to register with this notifier.
-
-Patch 1 of this series implements the notifier function. Patches 2 and 3
-implement calling the notifier chain from arm and arm64 restart code.
-
-Patch 4 modifies the restart-poweroff driver to no longer call arm_pm_restart
-directly but machine_restart. This is done to avoid calling arm_pm_restart
-from more than one place. The change makes the driver architecture independent,
-so it would be possible to drop the arm dependency from its Kconfig entry.
-
-Patch 5 and 6 convert existing restart handlers in the watchdog subsystem
-to use the restart notifier. Patch 7 unexports arm_pm_restart to ensure
-that no one gets the idea to implement a restart handler as module.
-
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
-v2: Add patch 4
-    Only call blocking notifier call chain if arm_pm_restart was not set.
+v2: No change
+
+ drivers/watchdog/moxart_wdt.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/watchdog/moxart_wdt.c b/drivers/watchdog/moxart_wdt.c
+index 4aa3a8a..aef1121 100644
+--- a/drivers/watchdog/moxart_wdt.c
++++ b/drivers/watchdog/moxart_wdt.c
+@@ -15,12 +15,12 @@
+ #include <linux/module.h>
+ #include <linux/err.h>
+ #include <linux/kernel.h>
++#include <linux/notifier.h>
+ #include <linux/platform_device.h>
++#include <linux/reboot.h>
+ #include <linux/watchdog.h>
+ #include <linux/moduleparam.h>
+ 
+-#include <asm/system_misc.h>
+-
+ #define REG_COUNT			0x4
+ #define REG_MODE			0x8
+ #define REG_ENABLE			0xC
+@@ -35,13 +35,20 @@ static struct moxart_wdt_dev *moxart_restart_ctx;
+ 
+ static int heartbeat;
+ 
+-static void moxart_wdt_restart(enum reboot_mode reboot_mode, const char *cmd)
++static int moxart_restart_notify(struct notifier_block *this,
++				 unsigned long mode, void *cmd)
+ {
+ 	writel(1, moxart_restart_ctx->base + REG_COUNT);
+ 	writel(0x5ab9, moxart_restart_ctx->base + REG_MODE);
+ 	writel(0x03, moxart_restart_ctx->base + REG_ENABLE);
++
++	return NOTIFY_DONE;
+ }
+ 
++static struct notifier_block moxart_restart_notifier = {
++	.notifier_call = moxart_restart_notify,
++};
++
+ static int moxart_wdt_stop(struct watchdog_device *wdt_dev)
+ {
+ 	struct moxart_wdt_dev *moxart_wdt = watchdog_get_drvdata(wdt_dev);
+@@ -137,7 +144,9 @@ static int moxart_wdt_probe(struct platform_device *pdev)
+ 		return err;
+ 
+ 	moxart_restart_ctx = moxart_wdt;
+-	arm_pm_restart = moxart_wdt_restart;
++	err = register_restart_notifier(&moxart_restart_notifier);
++	if (err)
++		dev_err(dev, "cannot register reset notifier (err=%d)\n", err);
+ 
+ 	dev_dbg(dev, "Watchdog enabled (heartbeat=%d sec, nowayout=%d)\n",
+ 		moxart_wdt->dev.timeout, nowayout);
+@@ -149,9 +158,8 @@ static int moxart_wdt_remove(struct platform_device *pdev)
+ {
+ 	struct moxart_wdt_dev *moxart_wdt = platform_get_drvdata(pdev);
+ 
+-	arm_pm_restart = NULL;
++	unregister_restart_notifier(&moxart_restart_notifier);
+ 	moxart_wdt_stop(&moxart_wdt->dev);
+-	watchdog_unregister_device(&moxart_wdt->dev);
+ 
+ 	return 0;
+ }
+-- 
+1.9.1
+
