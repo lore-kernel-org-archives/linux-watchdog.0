@@ -1,21 +1,16 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from h1446028.stratoserver.net ([85.214.92.142]:43572 "EHLO
-	mail.ahsoftware.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750736AbaGFJuh (ORCPT
+Received: from mho-03-ewr.mailhop.org ([204.13.248.66]:63780 "EHLO
+	mho-01-ewr.mailhop.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753322AbaGHMNV (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 6 Jul 2014 05:50:37 -0400
-Message-ID: <53B91BB2.3090005@ahsoftware.de>
-Date: Sun, 06 Jul 2014 11:49:38 +0200
-From: Alexander Holler <holler@ahsoftware.de>
-MIME-Version: 1.0
-To: rtc-linux@googlegroups.com,
-	Russell King - ARM Linux <linux@arm.linux.org.uk>
-CC: Andrew Lunn <andrew@lunn.ch>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Jason Cooper <jason@lakedaemon.net>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@googlemail.com>,
+	Tue, 8 Jul 2014 08:13:21 -0400
+Date: Tue, 8 Jul 2014 08:13:01 -0400
+From: Jason Cooper <jason@lakedaemon.net>
+To: Andrew Lunn <andrew@lunn.ch>
+Cc: Sebastian Hesselbarth <sebastian.hesselbarth@googlemail.com>,
 	Gregory Clement <gregory.clement@free-electrons.com>,
-	Mark Brown <broonie@kernel.org>, alsa-devel@alsa-project.org,
+	rmk+kernel@arm.linux.org.uk, Mark Brown <broonie@kernel.org>,
+	alsa-devel@alsa-project.org,
 	Daniel Lezcano <daniel.lezcano@linaro.org>,
 	"Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-pm@vger.kernel.org,
 	Tejun Heo <tj@kernel.org>, linux-ide@vger.kernel.org,
@@ -24,34 +19,47 @@ CC: Andrew Lunn <andrew@lunn.ch>,
 	Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
 	Kishon Vijay Abraham I <kishon@ti.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	Wim Van Sebroeck <wim@iguana.be>,
+	rtc-linux@googlegroups.com, Wim Van Sebroeck <wim@iguana.be>,
 	linux-watchdog@vger.kernel.org
-Subject: Re: [rtc-linux] Re: [PATCH 00/13] Remove mach-kirkwood and mach-dove
-References: <1404075603-31838-1-git-send-email-andrew@lunn.ch> <20140629213510.GR32514@n2100.arm.linux.org.uk> <53B154FE.80804@gmail.com> <20140630124320.GZ32514@n2100.arm.linux.org.uk> <53B164B2.7090902@gmail.com> <20140630142516.GA32514@n2100.arm.linux.org.uk> <53B183D5.8020708@gmail.com> <20140630165615.GE32514@n2100.arm.linux.org.uk> <20140630174351.GI18520@lunn.ch> <20140630180853.GF32514@n2100.arm.linux.org.uk> <20140630181640.GL18520@lunn.ch>
-In-Reply-To: <20140630181640.GL18520@lunn.ch>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH 00/13] Remove mach-kirkwood and mach-dove
+Message-ID: <20140708121301.GU23978@titan.lakedaemon.net>
+References: <1404075603-31838-1-git-send-email-andrew@lunn.ch>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1404075603-31838-1-git-send-email-andrew@lunn.ch>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Am 30.06.2014 20:16, schrieb Andrew Lunn:
->> So, what do we do now with support for compressed audio streams via
->> SPDIF on kirkwood hardware?  As far as I can see, it's no longer
->> possible and mainline kernels will never support this.  Please tell
->> me I'm wrong...
-> 
-> Well, it would of been nice if you had made a comment to either v1 or
-> v2 of my patchset saying this is going to cause problems for some
-> devices.
-> 
-> So i will go look at your patch to add frontend and backend and see
-> what it means for the current DT binding. The nice thing about
-> kirkwood (and Dove) is, there is no uboot with DT support. Hence
-> nobody is flashing there DT blob. They are always using appended DT.
-> So i'm not against changing the binding. And it has only been in the
-> kernel for one cycle, so i doubt there are too many users at the
-> moment.
+Andrew,
 
-And most people just don't care if some DT-binding changes as they can
-change the provided DT themself. At least on every sane device.
+On Sun, Jun 29, 2014 at 10:59:47PM +0200, Andrew Lunn wrote:
+> This patchset removes arch/arm/mach-kirkwood and arch/arm/mach-dove.
+> These SoCs are now supported in arch/arm/mach-mvebu using device tree.
+> 
+> Change the dependencies for a number of drivers, either to use
+> ARCH_MVEBU where the drivers are generic, or MACH_KIRKWOOD and
+> MACH_DOVE where the drivers are specific to a SoC.
+> 
+> 
+> Andrew Lunn (13):
+>   ARM: Kirkwood: Remove mach-kirkwood
+>   ARM: Dove: Remove mach-dove
+>   sound: ASoC: kirkwood: Remove unused drivers
+>   sound: ASoC: kirkwood: Remove ARCH_KIRKWOOD and ARCH_DOVE dependency
+>   cpuidle: kirkwood: Replace ARCH_KIRKWOOD dependency
+>   ata: Remove ARCH_KIRKWOOD and ARCH_DOVE dependency
+>   thermal: Replace ARCH_KIRKWOOD and ARCH_DOVE dependency
+>   leds: Replace ARCH_KIRKWOOD dependency
+>   PCI: Remove ARCH_KIRKWOOD and ARCH_DOVE dependency
+>   phy: Replace ARCH_KIRKWOOD and ARCH_DOVE dependency
+>   rtc: Remove ARCH_KIRKWOOD and ARCH_DOVE dependency
+>   watchdog: Remove ARCH_KIRKWOOD and ARCH_DOVE dependency
+>   Remove ARCH_DOVE dependency
 
+Let's just do mach-kirkwood/ removal this time around and we'll
+re-address mach-dove next window.
+
+thx,
+
+Jason.
