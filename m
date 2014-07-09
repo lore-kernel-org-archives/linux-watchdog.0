@@ -1,9 +1,9 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:41550 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754356AbaGIDiZ (ORCPT
+Received: from mail-pa0-f51.google.com ([209.85.220.51]:33335 "EHLO
+	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752996AbaGIDig (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 8 Jul 2014 23:38:25 -0400
+	Tue, 8 Jul 2014 23:38:36 -0400
 From: Guenter Roeck <linux@roeck-us.net>
 To: linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org
@@ -23,41 +23,52 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	David Woodhouse <dwmw2@infradead.org>,
 	Tomasz Figa <t.figa@samsung.com>, linux-doc@vger.kernel.org,
 	linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v3 4/7] power/restart: Call machine_restart instead of arm_pm_restart
-Date: Tue,  8 Jul 2014 20:38:00 -0700
-Message-Id: <1404877083-6552-5-git-send-email-linux@roeck-us.net>
+Subject: [PATCH v3 7/7] arm/arm64: Unexport restart handlers
+Date: Tue,  8 Jul 2014 20:38:03 -0700
+Message-Id: <1404877083-6552-8-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1404877083-6552-1-git-send-email-linux@roeck-us.net>
 References: <1404877083-6552-1-git-send-email-linux@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-machine_restart is supported on non-ARM platforms, and and ultimately calls
-arm_pm_restart, so dont call arm_pm_restart directly but use the more
-generic function.
+Implementing a restart handler in a module don't make sense
+as there would be no guarantee that the module is loaded when
+a restart is needed. Unexport arm_pm_restart to ensure that
+no one gets the idea to do it anyway.
 
-Cc: Russell King <linux@arm.linux.org.uk>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
-v3: No change.
-v2: Added patch.
+v3: No change
+v2: No change
 
- drivers/power/reset/restart-poweroff.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/kernel/process.c   | 1 -
+ arch/arm64/kernel/process.c | 1 -
+ 2 files changed, 2 deletions(-)
 
-diff --git a/drivers/power/reset/restart-poweroff.c b/drivers/power/reset/restart-poweroff.c
-index 5758033..47f10eb 100644
---- a/drivers/power/reset/restart-poweroff.c
-+++ b/drivers/power/reset/restart-poweroff.c
-@@ -20,7 +20,8 @@
+diff --git a/arch/arm/kernel/process.c b/arch/arm/kernel/process.c
+index 5d191e3..25c7f00 100644
+--- a/arch/arm/kernel/process.c
++++ b/arch/arm/kernel/process.c
+@@ -125,7 +125,6 @@ void (*pm_power_off)(void);
+ EXPORT_SYMBOL(pm_power_off);
  
- static void restart_poweroff_do_poweroff(void)
- {
--	arm_pm_restart(REBOOT_HARD, NULL);
-+	reboot_mode = REBOOT_HARD;
-+	machine_restart(NULL);
- }
+ void (*arm_pm_restart)(enum reboot_mode reboot_mode, const char *cmd) = null_restart;
+-EXPORT_SYMBOL_GPL(arm_pm_restart);
  
- static int restart_poweroff_probe(struct platform_device *pdev)
+ /*
+  * This is our default idle handler.
+diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
+index b2da6d5..5b07396 100644
+--- a/arch/arm64/kernel/process.c
++++ b/arch/arm64/kernel/process.c
+@@ -92,7 +92,6 @@ void (*pm_power_off)(void);
+ EXPORT_SYMBOL_GPL(pm_power_off);
+ 
+ void (*arm_pm_restart)(enum reboot_mode reboot_mode, const char *cmd);
+-EXPORT_SYMBOL_GPL(arm_pm_restart);
+ 
+ /*
+  * This is our default idle handler.
 -- 
 1.9.1
 
