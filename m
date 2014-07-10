@@ -1,15 +1,13 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:60702 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754162AbaGHBMZ (ORCPT
+Received: from mail.linuxfoundation.org ([140.211.169.12]:60355 "EHLO
+	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750823AbaGJXJJ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 7 Jul 2014 21:12:25 -0400
-Message-ID: <53BB4577.3020601@roeck-us.net>
-Date: Mon, 07 Jul 2014 18:12:23 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: Andrew Morton <akpm@linux-foundation.org>
-CC: linux-watchdog@vger.kernel.org,
+	Thu, 10 Jul 2014 19:09:09 -0400
+Date: Thu, 10 Jul 2014 16:09:07 -0700
+From: Andrew Morton <akpm@linux-foundation.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
 	Wim Van Sebroeck <wim@iguana.be>,
 	Catalin Marinas <catalin.marinas@arm.com>,
@@ -24,44 +22,53 @@ CC: linux-watchdog@vger.kernel.org,
 	Ingo Molnar <mingo@kernel.org>,
 	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
 	David Woodhouse <dwmw2@infradead.org>,
-	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 2/7] arm64: Support restart through restart notifier
- call chain
-References: <1404689900-27421-1-git-send-email-linux@roeck-us.net>	<1404689900-27421-3-git-send-email-linux@roeck-us.net> <20140707141654.d7fb9f8839cdf58822cd43b9@linux-foundation.org>
-In-Reply-To: <20140707141654.d7fb9f8839cdf58822cd43b9@linux-foundation.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tomasz Figa <t.figa@samsung.com>, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 0/7] kernel: Add support for restart notifier call
+ chain
+Message-Id: <20140710160907.da1024914366de947ebdf384@linux-foundation.org>
+In-Reply-To: <1404877083-6552-1-git-send-email-linux@roeck-us.net>
+References: <1404877083-6552-1-git-send-email-linux@roeck-us.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 07/07/2014 02:16 PM, Andrew Morton wrote:
-> On Sun,  6 Jul 2014 16:38:15 -0700 Guenter Roeck <linux@roeck-us.net> wrote:
->
->> The kernel core now supports a notifier call chain to restart
->> the system. Call it if arm_pm_restart is not set.
->>
->> ...
->>
->> --- a/arch/arm64/kernel/process.c
->> +++ b/arch/arm64/kernel/process.c
->> @@ -174,6 +174,9 @@ void machine_restart(char *cmd)
->>   	/* Now call the architecture specific reboot code. */
->>   	if (arm_pm_restart)
->>   		arm_pm_restart(reboot_mode, cmd);
->> +	else
->> +		blocking_notifier_call_chain(&restart_notifier_list,
->> +					     reboot_mode, cmd);
->
-> It would be a bit neater to have a helper function to perform the call,
-> rather than directly accessing the notifier list.  Apart from anything
-> else, this hides the fact that the core code (presently!) uses the
-> blocking_ style notifiers.
->
+On Tue,  8 Jul 2014 20:37:56 -0700 Guenter Roeck <linux@roeck-us.net> wrote:
 
-Introduced kernel_restart_notify (proposals for better names welcome).
-As a side effect, moved restart_notifier_list into kernel/reboot.c and
-made it static.
+> The existing mechanisms have a number of drawbacks. Typically only one scheme
+> to restart the system is supported (at least if arm_pm_restart is used).
+> At least in theory there can be mutliple means to restart the system, some of
+> which may be less desirable (for example one mechanism may only reset the CPU,
+> while another may reset the entire system).
 
-Thanks,
-Guenter
+So the callbacks need to be prioritized.
 
+> Using arm_pm_restart can also be
+> racy if the function pointer is set from a driver, as the driver may be in
+> the process of being unloaded when arm_pm_restart is called.
+> Using the reboot notifier is always racy, as it is unknown if and when
+> other functions using the reboot notifier have completed execution
+> by the time the watchdog fires.
+> 
+> To solve the problem, introduce a system restart notifier. This notifier
+> is expected to be called from the architecture specific machine_restart()
+> function. Drivers providing system restart functionality (such as the watchdog
+> drivers mentioned above) are expected to register with this notifier.
+
+It's worth mentioning here that the notifier_block priority scheme is
+used to address the problem which was identified in the previous
+paragraph.
+
+If this scheme is to be successful we will need to set in place some
+protocol for specifying how the priorities are managed.  If someone
+sits down and writes a new restart handler, how is that person to
+decide how to prioritize it against other handlers, both present and
+future?
+
+Also, looking at the patches, you don't appear to have actually *used*
+the prioritization - everything is left at zero.  So we'll end up using
+the most-recently-registered handler to restart the system.  The
+patches don't actually solve the problem which was identified in the
+above paragraph?
