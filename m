@@ -1,65 +1,56 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mho-03-ewr.mailhop.org ([204.13.248.66]:63780 "EHLO
-	mho-01-ewr.mailhop.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753322AbaGHMNV (ORCPT
+Received: from mail-qc0-f170.google.com ([209.85.216.170]:38835 "EHLO
+	mail-qc0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752377AbaGKOwH (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 8 Jul 2014 08:13:21 -0400
-Date: Tue, 8 Jul 2014 08:13:01 -0400
-From: Jason Cooper <jason@lakedaemon.net>
+	Fri, 11 Jul 2014 10:52:07 -0400
+Date: Fri, 11 Jul 2014 10:52:03 -0400
+From: Tejun Heo <tj@kernel.org>
 To: Andrew Lunn <andrew@lunn.ch>
-Cc: Sebastian Hesselbarth <sebastian.hesselbarth@googlemail.com>,
+Cc: Jason Cooper <jason@lakedaemon.net>,
+	linux ARM <linux-arm-kernel@lists.infradead.org>,
 	Gregory Clement <gregory.clement@free-electrons.com>,
-	rmk+kernel@arm.linux.org.uk, Mark Brown <broonie@kernel.org>,
-	alsa-devel@alsa-project.org,
+	Sebastian Hesselbarth <sebastian.hesselbarth@googlemail.com>,
+	Mark Brown <broonie@kernel.org>, alsa-devel@alsa-project.org,
 	Daniel Lezcano <daniel.lezcano@linaro.org>,
 	"Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-pm@vger.kernel.org,
-	Tejun Heo <tj@kernel.org>, linux-ide@vger.kernel.org,
-	Zhang Rui <rui.zhang@intel.com>, Bryan Wu <cooloney@gmail.com>,
+	linux-ide@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>,
+	Bryan Wu <cooloney@gmail.com>,
 	Richard Purdie <rpurdie@rpsys.net>, linux-leds@vger.kernel.org,
 	Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
 	Kishon Vijay Abraham I <kishon@ti.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	rtc-linux@googlegroups.com, Wim Van Sebroeck <wim@iguana.be>,
 	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 00/13] Remove mach-kirkwood and mach-dove
-Message-ID: <20140708121301.GU23978@titan.lakedaemon.net>
-References: <1404075603-31838-1-git-send-email-andrew@lunn.ch>
+Subject: Re: [PATCH v2 00/12] Remove mach-kirkwood
+Message-ID: <20140711145203.GD27706@htj.dyndns.org>
+References: <1405028192-9623-1-git-send-email-andrew@lunn.ch>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1404075603-31838-1-git-send-email-andrew@lunn.ch>
+In-Reply-To: <1405028192-9623-1-git-send-email-andrew@lunn.ch>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Andrew,
-
-On Sun, Jun 29, 2014 at 10:59:47PM +0200, Andrew Lunn wrote:
-> This patchset removes arch/arm/mach-kirkwood and arch/arm/mach-dove.
-> These SoCs are now supported in arch/arm/mach-mvebu using device tree.
+On Thu, Jul 10, 2014 at 11:36:20PM +0200, Andrew Lunn wrote:
+> This patchset removes arch/arm/mach-kirkwood.  This SoCs is now
+> supported in arch/arm/mach-mvebu using device tree.
 > 
+> V1 of this patchset also removed mach-dove. However it has been
+> decided to leave it alone for a while to aid some developers get out
+> of tree patches merged.
+>                                                                          
 > Change the dependencies for a number of drivers, either to use
-> ARCH_MVEBU where the drivers are generic, or MACH_KIRKWOOD and
-> MACH_DOVE where the drivers are specific to a SoC.
+> ARCH_MVEBU where the drivers are generic, or MACH_KIRKWOOD and where
+> the drivers are specific to the SoC.
 > 
-> 
-> Andrew Lunn (13):
->   ARM: Kirkwood: Remove mach-kirkwood
->   ARM: Dove: Remove mach-dove
->   sound: ASoC: kirkwood: Remove unused drivers
->   sound: ASoC: kirkwood: Remove ARCH_KIRKWOOD and ARCH_DOVE dependency
->   cpuidle: kirkwood: Replace ARCH_KIRKWOOD dependency
->   ata: Remove ARCH_KIRKWOOD and ARCH_DOVE dependency
->   thermal: Replace ARCH_KIRKWOOD and ARCH_DOVE dependency
->   leds: Replace ARCH_KIRKWOOD dependency
->   PCI: Remove ARCH_KIRKWOOD and ARCH_DOVE dependency
->   phy: Replace ARCH_KIRKWOOD and ARCH_DOVE dependency
->   rtc: Remove ARCH_KIRKWOOD and ARCH_DOVE dependency
->   watchdog: Remove ARCH_KIRKWOOD and ARCH_DOVE dependency
->   Remove ARCH_DOVE dependency
+> Once Jason Cooper has Acked these patches, we would prefer that
+> individual subsystem maintainers take these patches through their own
+> trees.
 
-Let's just do mach-kirkwood/ removal this time around and we'll
-re-address mach-dove next window.
+Please let me know when I can take the libata part.
 
-thx,
+Thanks.
 
-Jason.
+-- 
+tejun
