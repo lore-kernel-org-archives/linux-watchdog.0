@@ -1,14 +1,15 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from a.ns.miles-group.at ([95.130.255.143]:65278 "EHLO radon.swed.at"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753236AbaGMJwo (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 13 Jul 2014 05:52:44 -0400
-Message-ID: <53C25551.1050909@nod.at>
-Date: Sun, 13 Jul 2014 11:45:53 +0200
-From: Richard Weinberger <richard@nod.at>
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:34732 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752526AbaGMKGx (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Sun, 13 Jul 2014 06:06:53 -0400
+Message-ID: <53C25A36.3040207@gmail.com>
+Date: Sun, 13 Jul 2014 18:06:46 +0800
+From: Chen Gang <gang.chen.5i5j@gmail.com>
 MIME-Version: 1.0
-To: Lennox Wu <lennox.wu@gmail.com>, Marek Vasut <marex@denx.de>
-CC: Chen Gang <gang.chen.5i5j@gmail.com>,
+To: Richard Weinberger <richard@nod.at>
+CC: Lennox Wu <lennox.wu@gmail.com>, Marek Vasut <marex@denx.de>,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
 	dmitry.torokhov@gmail.com, thierry.reding@gmail.com,
@@ -22,18 +23,27 @@ CC: Chen Gang <gang.chen.5i5j@gmail.com>,
 	linux-watchdog@vger.kernel.org, Liqin Chen <liqin.linux@gmail.com>
 Subject: Re: [PATCH] drivers: Let several drivers depends on HAS_IOMEM for
  'devm_ioremap_resource'
-References: <53C1F7DE.3060102@gmail.com>	<201407130545.23004.marex@denx.de> <CAF0htA60juBVkPo2HQKMDGcEr-wRzRVL_6JgHAa+7WVE_E8M0Q@mail.gmail.com>
-In-Reply-To: <CAF0htA60juBVkPo2HQKMDGcEr-wRzRVL_6JgHAa+7WVE_E8M0Q@mail.gmail.com>
+References: <53C1F7DE.3060102@gmail.com>	<201407130545.23004.marex@denx.de> <CAF0htA60juBVkPo2HQKMDGcEr-wRzRVL_6JgHAa+7WVE_E8M0Q@mail.gmail.com> <53C25551.1050909@nod.at>
+In-Reply-To: <53C25551.1050909@nod.at>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Am 13.07.2014 11:27, schrieb Lennox Wu:
-> As I said before, some configurations don't make sense.
+On 07/13/2014 05:45 PM, Richard Weinberger wrote:
+> Am 13.07.2014 11:27, schrieb Lennox Wu:
+>> As I said before, some configurations don't make sense.
+> 
+> If such a configuration can be achieved using allmod/yesconfig it has to be fixed.
+> Chen's fixes seem reasonable as not all architectures support iomem.
+>
 
-If such a configuration can be achieved using allmod/yesconfig it has to be fixed.
-Chen's fixes seem reasonable as not all architectures support iomem.
+OK, thanks. And I shall split them into several patches, although we can
+understand that score may not need them.
 
-Thanks,
-//richard
+
+Thanks.
+-- 
+Chen Gang
+
+Open share and attitude like air water and life which God blessed
