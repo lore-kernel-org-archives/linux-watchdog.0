@@ -1,72 +1,59 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:50739 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754730AbaGNOlR (ORCPT
+Received: from mail-pa0-f47.google.com ([209.85.220.47]:45531 "EHLO
+	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752271AbaGMLym (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 14 Jul 2014 10:41:17 -0400
-Message-ID: <53C3EC0B.7090702@roeck-us.net>
-Date: Mon, 14 Jul 2014 07:41:15 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Sun, 13 Jul 2014 07:54:42 -0400
+Message-ID: <53C27380.2060009@gmail.com>
+Date: Sun, 13 Jul 2014 19:54:40 +0800
+From: Chen Gang <gang.chen.5i5j@gmail.com>
 MIME-Version: 1.0
-To: Catalin Marinas <catalin.marinas@arm.com>
-CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Will Deacon <Will.Deacon@arm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Heiko Stuebner <heiko@sntech.de>,
-	Russell King <linux@arm.linux.org.uk>,
-	Jonas Jensen <jonas.jensen@gmail.com>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Ingo Molnar <mingo@kernel.org>,
-	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Tomasz Figa <t.figa@samsung.com>,
-	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v4 5/7] watchdog: moxart: Register restart handler with
- restart notifier
-References: <1405265431-4561-1-git-send-email-linux@roeck-us.net> <1405265431-4561-6-git-send-email-linux@roeck-us.net> <20140714141904.GA1112@arm.com>
-In-Reply-To: <20140714141904.GA1112@arm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: wim@iguana.be
+CC: linux-watchdog@vger.kernel.org,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Richard Weinberger <richard@nod.at>,
+	Liqin Chen <liqin.linux@gmail.com>,
+	Lennox Wu <lennox.wu@gmail.com>
+Subject: [PATCH] drivers/watchdog/Kconfig: Let XILINX_WATCHDOG and TEGRA_WATCHDOG
+ depend on HAS_IOMEM
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 07/14/2014 07:19 AM, Catalin Marinas wrote:
-> On Sun, Jul 13, 2014 at 04:30:29PM +0100, Guenter Roeck wrote:
->> diff --git a/drivers/watchdog/moxart_wdt.c b/drivers/watchdog/moxart_wdt.c
->> index 4aa3a8a..5080b50 100644
->> --- a/drivers/watchdog/moxart_wdt.c
->> +++ b/drivers/watchdog/moxart_wdt.c
-> [...]
->> -static void moxart_wdt_restart(enum reboot_mode reboot_mode, const char *cmd)
->> +static int moxart_restart_notify(struct notifier_block *this,
->> +				 unsigned long mode, void *cmd)
->>   {
->> -	writel(1, moxart_restart_ctx->base + REG_COUNT);
->> -	writel(0x5ab9, moxart_restart_ctx->base + REG_MODE);
->> -	writel(0x03, moxart_restart_ctx->base + REG_ENABLE);
->> +	struct moxart_wdt_dev *moxart_wdt = container_of(this,
->> +							 struct moxart_wdt_dev,
->> +							 restart_notifier);
->> +	writel(1, moxart_wdt->base + REG_COUNT);
->> +	writel(0x5ab9, moxart_wdt->base + REG_MODE);
->> +	writel(0x03, moxart_wdt->base + REG_ENABLE);
->> +
->> +	return NOTIFY_DONE;
->>   }
->
-> Wondering whether NOTIFY_OK or even NOTIFY_STOP_MASK is better here.
->
+XILINX_WATCHDOG and TEGRA_WATCHDOG need HAS_IOMEM, so let them depend on
+HAS_IOMEM. The related error (with allmodconfig under score):
 
-Personally I would rather call all of them if more than one notifier is
-registered to ensure that (at least) one does what it is intended to do,
-but I am open to suggestions.
+    MODPOST 1365 modules
+  ERROR: "devm_ioremap_resource" [drivers/watchdog/tegra_wdt.ko] undefined!
+  ERROR: "devm_ioremap_resource" [drivers/watchdog/of_xilinx_wdt.ko] undefined!
 
-Guenter
 
+Signed-off-by: Chen Gang <gang.chen.5i5j@gmail.com>
+---
+ drivers/watchdog/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 76dd541..0e4abb2 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -113,6 +113,7 @@ config WM8350_WATCHDOG
+ 
+ config XILINX_WATCHDOG
+ 	tristate "Xilinx Watchdog timer"
++	depends on HAS_IOMEM
+ 	select WATCHDOG_CORE
+ 	help
+ 	  Watchdog driver for the xps_timebase_wdt ip core.
+@@ -434,7 +435,7 @@ config SIRFSOC_WATCHDOG
+ 
+ config TEGRA_WATCHDOG
+ 	tristate "Tegra watchdog"
+-	depends on ARCH_TEGRA || COMPILE_TEST
++	depends on (ARCH_TEGRA || COMPILE_TEST) && HAS_IOMEM
+ 	select WATCHDOG_CORE
+ 	help
+ 	  Say Y here to include support for the watchdog timer
+-- 
+1.7.11.7
