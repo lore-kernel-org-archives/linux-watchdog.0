@@ -22,160 +22,38 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	linux-doc@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v4 1/7] kernel: Add support for restart notifier call chain
-Date: Sun, 13 Jul 2014 08:30:25 -0700
-Message-Id: <1405265431-4561-2-git-send-email-linux@roeck-us.net>
+Subject: [PATCH v4 2/7] arm64: Support restart through restart notifier call chain
+Date: Sun, 13 Jul 2014 08:30:26 -0700
+Message-Id: <1405265431-4561-3-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1405265431-4561-1-git-send-email-linux@roeck-us.net>
 References: <1405265431-4561-1-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Various drivers implement architecture and/or device specific means
-to restart (reset) the system. Various mechanisms have been implemented
-to support those schemes. The best known mechanism is arm_pm_restart,
-which is a function pointer to be set either from platform specific code
-or from drivers. Another mechanism is to use hardware watchdogs to issue
-a reset; this mechanism is used if there is no other method available
-to reset a board or system. Two examples are alim7101_wdt, which currently
-uses the reboot notifier to trigger a reset, and moxart_wdt, which registers
-the arm_pm_restart function.
-
-The existing mechanisms have a number of drawbacks. Typically only one scheme
-to restart the system is supported (at least if arm_pm_restart is used).
-At least in theory there can be multiple means to restart the system, some of
-which may be less desirable (for example one mechanism may only reset the CPU,
-while another may reset the entire system). Using arm_pm_restart can also be
-racy if the function pointer is set from a driver, as the driver may be in
-the process of being unloaded when arm_pm_restart is called.
-Using the reboot notifier is always racy, as it is unknown if and when
-other functions using the reboot notifier have completed execution
-by the time the watchdog fires.
-
-Introduce a system restart notifier to solve the described problems.
-This notifier is expected to be called from the architecture specific
-machine_restart() function. Drivers providing system restart functionality
-(such as the watchdog drivers mentioned above) are expected to register
-with this notifier. By using the priority field in the notifier block,
-callers can control notifier execution sequence and thus ensure that the
-notifier with the optimal restart capabilities for a given system
-is called first.
+The kernel core now supports a notifier call chain to restart
+the system. Call it if arm_pm_restart is not set.
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
-v4: Document and suggest values for notifier priorities
-v3: Add kernel_restart_notify wrapper function to execute notifier.
-    Improve documentation.
-    Move restart_notifier_list into kernel/reboot.c and make it static.
-v2: No change.
+v4: No change.
+v3: Use wrapper function to execute notifier call chain.
+v2: Only call notifier call chain if arm_pm_restart is not set.
+    Do not include linux/watchdog.h.
 
- include/linux/reboot.h |  3 ++
- kernel/reboot.c        | 81 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 84 insertions(+)
+ arch/arm64/kernel/process.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/include/linux/reboot.h b/include/linux/reboot.h
-index 48bf152..120db73 100644
---- a/include/linux/reboot.h
-+++ b/include/linux/reboot.h
-@@ -38,6 +38,9 @@ extern int reboot_force;
- extern int register_reboot_notifier(struct notifier_block *);
- extern int unregister_reboot_notifier(struct notifier_block *);
+diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
+index 43b7c34..b2da6d5 100644
+--- a/arch/arm64/kernel/process.c
++++ b/arch/arm64/kernel/process.c
+@@ -174,6 +174,8 @@ void machine_restart(char *cmd)
+ 	/* Now call the architecture specific reboot code. */
+ 	if (arm_pm_restart)
+ 		arm_pm_restart(reboot_mode, cmd);
++	else
++		kernel_restart_notify(cmd);
  
-+extern int register_restart_notifier(struct notifier_block *);
-+extern int unregister_restart_notifier(struct notifier_block *);
-+extern void kernel_restart_notify(char *cmd);
- 
- /*
-  * Architecture-specific implementations of sys_reboot commands.
-diff --git a/kernel/reboot.c b/kernel/reboot.c
-index a3a9e24..1bc9bf2 100644
---- a/kernel/reboot.c
-+++ b/kernel/reboot.c
-@@ -104,6 +104,87 @@ int unregister_reboot_notifier(struct notifier_block *nb)
- }
- EXPORT_SYMBOL(unregister_reboot_notifier);
- 
-+/*
-+ *	Notifier list for kernel code which wants to be called
-+ *	to restart the system.
-+ */
-+static BLOCKING_NOTIFIER_HEAD(restart_notifier_list);
-+
-+/**
-+ *	register_restart_notifier - Register function to be called to reset
-+ *				    the system
-+ *	@nb: Info about notifier function to be called
-+ *	@nb->priority:	Notifier priority. Notifiers should follow the
-+ *			following guidelines for setting priorities.
-+ *			0:	Restart notifier of last resort,
-+ *				with limited restart capabilities
-+ *			128:	Default notifier; use if no other
-+ *				notifier is expected to be available,
-+ *				and/or if restart functionality is
-+ *				sufficient to restart the entire system
-+ *			255:	Highest priority notifier, will preempt
-+ *				all other notifier functions
-+ *
-+ *	Registers a function with the list of functions
-+ *	to be called to restart the system.
-+ *
-+ *	Registered functions will be called from machine_restart as last
-+ *	step of the restart sequence (if the architecture specific
-+ *	machine_restart function calls kernel_restart_notify - see below
-+ *	for details).
-+ *	Registered functions are expected to restart the system immediately.
-+ *	If more than one function is registered, the notifier priority
-+ *	selects which function will be called first.
-+ *
-+ *	Restart notifiers are expected to be registered from non-architecture
-+ *	code, typically from drivers. A typical use case would be a system
-+ *	where restart functionality is provided through a watchdog. Multiple
-+ *	restart handlers may exist; for example, one restart handler might
-+ *	restart the entire system, while another only restarts the CPU.
-+ *	In such cases, the restart handler which only restarts part of the
-+ *	hardware is expected to register with low priority to ensure that
-+ *	it only runs if no other means to restart the system is available.
-+ *
-+ *	Currently always returns zero, as blocking_notifier_chain_register()
-+ *	always returns zero.
-+ */
-+int register_restart_notifier(struct notifier_block *nb)
-+{
-+	return blocking_notifier_chain_register(&restart_notifier_list, nb);
-+}
-+EXPORT_SYMBOL(register_restart_notifier);
-+
-+/**
-+ *	unregister_restart_notifier - Unregister previously registered
-+ *				      restart notifier
-+ *	@nb: Hook to be unregistered
-+ *
-+ *	Unregisters a previously registered restart notifier function.
-+ *
-+ *	Returns zero on success, or %-ENOENT on failure.
-+ */
-+int unregister_restart_notifier(struct notifier_block *nb)
-+{
-+	return blocking_notifier_chain_unregister(&restart_notifier_list, nb);
-+}
-+EXPORT_SYMBOL(unregister_restart_notifier);
-+
-+/**
-+ *	kernel_restart_notify - Execute kernel restart handler call chain
-+ *
-+ *	Calls functions registered with register_restart_notifier.
-+ *
-+ *	Expected to be called from machine_restart as last step of the restart
-+ *	sequence.
-+ *
-+ *	Restarts the system immediately if a restart notifier function has been
-+ *	registered. Otherwise does nothing.
-+ */
-+void kernel_restart_notify(char *cmd)
-+{
-+	blocking_notifier_call_chain(&restart_notifier_list, reboot_mode, cmd);
-+}
-+
- void migrate_to_reboot_cpu(void)
- {
- 	/* The boot cpu is always logical cpu 0 */
+ 	/*
+ 	 * Whoops - the architecture was unable to reboot.
 -- 
 1.9.1
