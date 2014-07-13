@@ -1,96 +1,158 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.linuxfoundation.org ([140.211.169.12]:54061 "EHLO
-	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752059AbaGMUNX (ORCPT
+Received: from mho-03-ewr.mailhop.org ([204.13.248.66]:62313 "EHLO
+	mho-01-ewr.mailhop.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752204AbaGMV76 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 13 Jul 2014 16:13:23 -0400
-Date: Sun, 13 Jul 2014 13:17:53 -0700
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Richard Weinberger <richard@nod.at>
-Cc: Lars-Peter Clausen <lars@metafoo.de>, dmitry.torokhov@gmail.com,
-	linux-iio@vger.kernel.org,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>, teg@jklm.no,
-	thierry.reding@gmail.com, Lennox Wu <lennox.wu@gmail.com>,
-	Chen Gang <gang.chen.5i5j@gmail.com>,
-	Marek Vasut <marex@denx.de>,
-	Liqin Chen <liqin.linux@gmail.com>, msalter@redhat.com,
-	linux-pwm@vger.kernel.org, devel@driverdev.osuosl.org,
-	linux-watchdog@vger.kernel.org, linux-input@vger.kernel.org,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	knaack.h@gmx.de, Martin Schwidefsky <schwidefsky@de.ibm.com>,
-	Mischa.Jonker@synopsys.com, jic23@kernel.org
-Subject: Re: [PATCH] drivers: Let several drivers depends on HAS_IOMEM for
- 'devm_ioremap_resource'
-Message-ID: <20140713201753.GA29955@kroah.com>
-References: <201407130545.23004.marex@denx.de>
- <CAF0htA60juBVkPo2HQKMDGcEr-wRzRVL_6JgHAa+7WVE_E8M0Q@mail.gmail.com>
- <53C25551.1050909@nod.at>
- <53C288F0.3070001@metafoo.de>
- <53C28C4A.70907@nod.at>
- <53C29015.5070607@metafoo.de>
- <53C291C8.6050303@nod.at>
- <53C296C2.30304@metafoo.de>
- <20140713192202.GA19090@kroah.com>
- <53C2DF12.6040507@nod.at>
+	Sun, 13 Jul 2014 17:59:58 -0400
+Date: Sun, 13 Jul 2014 17:59:24 -0400
+From: Jason Cooper <jason@lakedaemon.net>
+To: Andrew Lunn <andrew@lunn.ch>
+Cc: linux ARM <linux-arm-kernel@lists.infradead.org>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@googlemail.com>,
+	Mark Brown <broonie@kernel.org>, alsa-devel@alsa-project.org,
+	Daniel Lezcano <daniel.lezcano@linaro.org>,
+	"Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-pm@vger.kernel.org,
+	Tejun Heo <tj@kernel.org>, linux-ide@vger.kernel.org,
+	Zhang Rui <rui.zhang@intel.com>, Bryan Wu <cooloney@gmail.com>,
+	Richard Purdie <rpurdie@rpsys.net>, linux-leds@vger.kernel.org,
+	Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
+	Kishon Vijay Abraham I <kishon@ti.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com, Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v2 00/12] Remove mach-kirkwood
+Message-ID: <20140713215924.GG13108@titan.lakedaemon.net>
+References: <1405028192-9623-1-git-send-email-andrew@lunn.ch>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <53C2DF12.6040507@nod.at>
+In-Reply-To: <1405028192-9623-1-git-send-email-andrew@lunn.ch>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sun, Jul 13, 2014 at 09:33:38PM +0200, Richard Weinberger wrote:
-> Am 13.07.2014 21:22, schrieb Greg Kroah-Hartman:
-> > On Sun, Jul 13, 2014 at 04:25:06PM +0200, Lars-Peter Clausen wrote:
-> >> On 07/13/2014 04:03 PM, Richard Weinberger wrote:
-> >>> Am 13.07.2014 15:56, schrieb Lars-Peter Clausen:
-> >>>> On 07/13/2014 03:40 PM, Richard Weinberger wrote:
-> >>>>> Am 13.07.2014 15:26, schrieb Lars-Peter Clausen:
-> >>>>>> On 07/13/2014 11:45 AM, Richard Weinberger wrote:
-> >>>>>>> Am 13.07.2014 11:27, schrieb Lennox Wu:
-> >>>>>>>> As I said before, some configurations don't make sense.
-> >>>>>>>
-> >>>>>>> If such a configuration can be achieved using allmod/yesconfig it has to be fixed.
-> >>>>>>> Chen's fixes seem reasonable as not all architectures support iomem.
-> >>>>>>
-> >>>>>> Maybe we should stub out ioremap() and friends when COMPILE_TEST is enabled to avoid these linker errors. That's in my opinion better than turning most of the 'depends on
-> >>>>>> COMPILE_TEST' into 'depends on COMPILE_TEST && HAS_IOMEM'. The issue comes up quite a lot and it is often overlooked when adding a driver that can be build when COMPILE_TEST is
-> >>>>>> enabled.
-> >>>>>
-> >>>>> And what should this stub do?
-> >>>>> Except calling BUG()...
-> >>>>
-> >>>> return NULL;
-> >>>>
-> >>>> It's for compile testing, it's not meant to work at runtime.
-> >>>
-> >>> Hm, I really don't like the idea of having a non-working kernel.
-> >>> IMHO either it should build _and_ run and nothing else.
-> >>> Greg, what do you think?
-> >>
-> >> The kernel will still be working fine and you can run it on a system. The
-> >> drivers which use ioremap() or similar are probably not instantiated on a
-> >> system that does not provide HAS_IOMEM. But even if it was the driver should
-> >> handle ioremap() returning NULL gracefully and abort the driver probe. That
-> >> said you'll probably not run a kernel that was built with COMPILE_TEST on
-> >> your real hardware since it contains so many drivers that are completely
-> >> useless on your hardware. The idea of COMPILE_TEST is to have as much
-> >> compile test exposure as possible to the code that is enabled by
-> >> COMPILE_TEST. Stubbing out ioremap() and friends when HAS_IOMEM is not set
-> >> and COMPILE_TEST is set makes it easier to get there.
-> > 
-> > I run my kernels with COMPILE_TEST enabled as I need to build test
-> > things that I don't happen to use.
-> > 
-> > I like the 'return NULL' option for this, it hits us all the time, might
-> > as well fix it properly like this so that we don't have to deal with
-> > Kconfig changes everywhere.
-> > 
-> > Also put a big "This platform does not support IOMEM" error printk in
-> > there, so that people have a chance to figure out what is going on if
-> > they happen to run such a driver on a platform that can't support it.
-> 
-> Maybe we could add COMPILE_TEST to the version string too?
-> Just to detect such kernels fast in user bug reports...
+All driver/sub-system maintainers:
 
-What kind of bug report are you going to get?
+On Thu, Jul 10, 2014 at 11:36:20PM +0200, Andrew Lunn wrote:
+> This patchset removes arch/arm/mach-kirkwood.  This SoCs is now
+> supported in arch/arm/mach-mvebu using device tree.
+> 
+> V1 of this patchset also removed mach-dove. However it has been
+> decided to leave it alone for a while to aid some developers get out
+> of tree patches merged.
+>                                                                          
+> Change the dependencies for a number of drivers, either to use
+> ARCH_MVEBU where the drivers are generic, or MACH_KIRKWOOD and where
+> the drivers are specific to the SoC.
+> 
+> Once Jason Cooper has Acked these patches, we would prefer that
+> individual subsystem maintainers take these patches through their own
+> trees.
+> 
+> Thanks
+> 	Andrew
+> 
+> Andrew Lunn (12):
+>   ARM: Kirkwood: Remove mach-kirkwood
+>   ARM: Kirkwood: Remove kirkwood_defconfig
+>   ASoC: kirkwood: Remove unused drivers
+>   ASoC: kirkwood: Remove ARCH_KIRKWOOD dependency
+>   cpuidle: kirkwood: Remove ARCH_KIRKWOOD dependency
+>   ata: Remove ARCH_KIRKWOOD dependency
+>   thermal: Remove ARCH_KIRKWOOD dependency
+>   leds: Remove ARCH_KIRKWOOD dependency
+>   PCI: Remove ARCH_KIRKWOOD dependency
+>   phy: Remove ARCH_KIRKWOOD dependency
+>   rtc: Remove ARCH_KIRKWOOD dependency
+>   watchdog: Remove ARCH_KIRKWOOD dependency
+> 
+>  arch/arm/Kconfig                                  |  18 -
+>  arch/arm/Kconfig.debug                            |   6 +-
+>  arch/arm/Makefile                                 |   1 -
+>  arch/arm/boot/dts/Makefile                        |   5 +-
+>  arch/arm/configs/kirkwood_defconfig               | 181 ------
+>  arch/arm/mach-kirkwood/Kconfig                    | 111 ----
+>  arch/arm/mach-kirkwood/Makefile                   |  14 -
+>  arch/arm/mach-kirkwood/Makefile.boot              |   3 -
+>  arch/arm/mach-kirkwood/board-dt.c                 | 223 -------
+>  arch/arm/mach-kirkwood/common.c                   | 746 ----------------------
+>  arch/arm/mach-kirkwood/common.h                   |  74 ---
+>  arch/arm/mach-kirkwood/d2net_v2-setup.c           | 231 -------
+>  arch/arm/mach-kirkwood/include/mach/bridge-regs.h |  86 ---
+>  arch/arm/mach-kirkwood/include/mach/entry-macro.S |  34 -
+>  arch/arm/mach-kirkwood/include/mach/hardware.h    |  14 -
+>  arch/arm/mach-kirkwood/include/mach/irqs.h        |  65 --
+>  arch/arm/mach-kirkwood/include/mach/kirkwood.h    | 142 ----
+>  arch/arm/mach-kirkwood/include/mach/uncompress.h  |  46 --
+>  arch/arm/mach-kirkwood/irq.c                      |  82 ---
+>  arch/arm/mach-kirkwood/lacie_v2-common.c          | 114 ----
+>  arch/arm/mach-kirkwood/lacie_v2-common.h          |  16 -
+>  arch/arm/mach-kirkwood/mpp.c                      |  43 --
+>  arch/arm/mach-kirkwood/mpp.h                      | 348 ----------
+>  arch/arm/mach-kirkwood/netxbig_v2-setup.c         | 422 ------------
+>  arch/arm/mach-kirkwood/openrd-setup.c             | 255 --------
+>  arch/arm/mach-kirkwood/pcie.c                     | 296 ---------
+>  arch/arm/mach-kirkwood/pm.c                       |  76 ---
+>  arch/arm/mach-kirkwood/pm.h                       |  26 -
+>  arch/arm/mach-kirkwood/rd88f6192-nas-setup.c      |  89 ---
+>  arch/arm/mach-kirkwood/rd88f6281-setup.c          | 128 ----
+>  arch/arm/mach-kirkwood/t5325-setup.c              | 216 -------
+>  arch/arm/mach-kirkwood/ts219-setup.c              | 142 ----
+>  arch/arm/mach-kirkwood/ts41x-setup.c              | 186 ------
+>  arch/arm/mach-kirkwood/tsx1x-common.c             | 113 ----
+>  arch/arm/mach-kirkwood/tsx1x-common.h             |   7 -
+>  arch/arm/mm/Kconfig                               |   2 +-
+>  drivers/ata/Kconfig                               |   2 +-
+>  drivers/cpuidle/Kconfig.arm                       |   2 +-
+>  drivers/leds/Kconfig                              |   4 +-
+>  drivers/pci/host/Kconfig                          |   2 +-
+>  drivers/phy/Kconfig                               |   2 +-
+>  drivers/rtc/Kconfig                               |   2 +-
+>  drivers/thermal/Kconfig                           |   2 +-
+>  drivers/watchdog/Kconfig                          |   2 +-
+>  sound/soc/kirkwood/Kconfig                        |  19 +-
+>  sound/soc/kirkwood/Makefile                       |   4 -
+>  sound/soc/kirkwood/kirkwood-openrd.c              | 109 ----
+>  sound/soc/kirkwood/kirkwood-t5325.c               | 116 ----
+>  48 files changed, 14 insertions(+), 4813 deletions(-)
+>  delete mode 100644 arch/arm/configs/kirkwood_defconfig
+>  delete mode 100644 arch/arm/mach-kirkwood/Kconfig
+>  delete mode 100644 arch/arm/mach-kirkwood/Makefile
+>  delete mode 100644 arch/arm/mach-kirkwood/Makefile.boot
+>  delete mode 100644 arch/arm/mach-kirkwood/board-dt.c
+>  delete mode 100644 arch/arm/mach-kirkwood/common.c
+>  delete mode 100644 arch/arm/mach-kirkwood/common.h
+>  delete mode 100644 arch/arm/mach-kirkwood/d2net_v2-setup.c
+>  delete mode 100644 arch/arm/mach-kirkwood/include/mach/bridge-regs.h
+>  delete mode 100644 arch/arm/mach-kirkwood/include/mach/entry-macro.S
+>  delete mode 100644 arch/arm/mach-kirkwood/include/mach/hardware.h
+>  delete mode 100644 arch/arm/mach-kirkwood/include/mach/irqs.h
+>  delete mode 100644 arch/arm/mach-kirkwood/include/mach/kirkwood.h
+>  delete mode 100644 arch/arm/mach-kirkwood/include/mach/uncompress.h
+>  delete mode 100644 arch/arm/mach-kirkwood/irq.c
+>  delete mode 100644 arch/arm/mach-kirkwood/lacie_v2-common.c
+>  delete mode 100644 arch/arm/mach-kirkwood/lacie_v2-common.h
+>  delete mode 100644 arch/arm/mach-kirkwood/mpp.c
+>  delete mode 100644 arch/arm/mach-kirkwood/mpp.h
+>  delete mode 100644 arch/arm/mach-kirkwood/netxbig_v2-setup.c
+>  delete mode 100644 arch/arm/mach-kirkwood/openrd-setup.c
+>  delete mode 100644 arch/arm/mach-kirkwood/pcie.c
+>  delete mode 100644 arch/arm/mach-kirkwood/pm.c
+>  delete mode 100644 arch/arm/mach-kirkwood/pm.h
+>  delete mode 100644 arch/arm/mach-kirkwood/rd88f6192-nas-setup.c
+>  delete mode 100644 arch/arm/mach-kirkwood/rd88f6281-setup.c
+>  delete mode 100644 arch/arm/mach-kirkwood/t5325-setup.c
+>  delete mode 100644 arch/arm/mach-kirkwood/ts219-setup.c
+>  delete mode 100644 arch/arm/mach-kirkwood/ts41x-setup.c
+>  delete mode 100644 arch/arm/mach-kirkwood/tsx1x-common.c
+>  delete mode 100644 arch/arm/mach-kirkwood/tsx1x-common.h
+>  delete mode 100644 sound/soc/kirkwood/kirkwood-openrd.c
+>  delete mode 100644 sound/soc/kirkwood/kirkwood-t5325.c
+
+For all the driver changes:
+
+Acked-by: Jason Cooper <jason@lakedaemon.net>
+
+thx,
+
+Jason.
