@@ -1,47 +1,92 @@
-Return-Path: <akpm@linux-foundation.org>
-Date: Thu, 10 Jul 2014 17:44:25 -0700
-From: Andrew Morton <akpm@linux-foundation.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- Wim Van Sebroeck <wim@iguana.be>, Catalin Marinas
- <catalin.marinas@arm.com>, Maxime Ripard
- <maxime.ripard@free-electrons.com>, Will Deacon <will.deacon@arm.com>, Arnd
- Bergmann <arnd@arndb.de>, Heiko Stuebner <heiko@sntech.de>, Russell King
- <linux@arm.linux.org.uk>, Jonas Jensen <jonas.jensen@gmail.com>, Randy
- Dunlap <rdunlap@infradead.org>, Steven Rostedt <rostedt@goodmis.org>, Ingo
- Molnar <mingo@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
- David Woodhouse <dwmw2@infradead.org>, Tomasz Figa <t.figa@samsung.com>,
- linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 0/7] kernel: Add support for restart notifier call
- chain
-Message-Id: <20140710174425.2f3fea98.akpm@linux-foundation.org>
-In-Reply-To: <53BF2CB5.5080602@roeck-us.net>
-References: <1404877083-6552-1-git-send-email-linux@roeck-us.net>
-	<20140710160907.da1024914366de947ebdf384@linux-foundation.org>
-	<53BF2CB5.5080602@roeck-us.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail.linuxfoundation.org ([140.211.169.12]:53696 "EHLO
+	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751313AbaGMTRc (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Sun, 13 Jul 2014 15:17:32 -0400
+Date: Sun, 13 Jul 2014 12:22:02 -0700
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Lars-Peter Clausen <lars@metafoo.de>
+Cc: Richard Weinberger <richard@nod.at>, dmitry.torokhov@gmail.com,
+	linux-iio@vger.kernel.org,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>, teg@jklm.no,
+	thierry.reding@gmail.com, Lennox Wu <lennox.wu@gmail.com>,
+	Chen Gang <gang.chen.5i5j@gmail.com>,
+	Marek Vasut <marex@denx.de>,
+	Liqin Chen <liqin.linux@gmail.com>, msalter@redhat.com,
+	linux-pwm@vger.kernel.org, devel@driverdev.osuosl.org,
+	linux-watchdog@vger.kernel.org, linux-input@vger.kernel.org,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	knaack.h@gmx.de, Martin Schwidefsky <schwidefsky@de.ibm.com>,
+	Mischa.Jonker@synopsys.com, jic23@kernel.org
+Subject: Re: [PATCH] drivers: Let several drivers depends on HAS_IOMEM for
+ 'devm_ioremap_resource'
+Message-ID: <20140713192202.GA19090@kroah.com>
+References: <53C1F7DE.3060102@gmail.com>
+ <201407130545.23004.marex@denx.de>
+ <CAF0htA60juBVkPo2HQKMDGcEr-wRzRVL_6JgHAa+7WVE_E8M0Q@mail.gmail.com>
+ <53C25551.1050909@nod.at>
+ <53C288F0.3070001@metafoo.de>
+ <53C28C4A.70907@nod.at>
+ <53C29015.5070607@metafoo.de>
+ <53C291C8.6050303@nod.at>
+ <53C296C2.30304@metafoo.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <53C296C2.30304@metafoo.de>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, 10 Jul 2014 17:15:49 -0700 Guenter Roeck <linux@roeck-us.net> wrote:
-
-> Error on my part - I thought lower numbers would
-> have higher priority, but after looking into the code again that
-> is wrong.
-
-You shouldn't have needed to look into the code :( Maybe a
-documentation patch for notifier_block.priority for the next person?
-
-> To avoid making things too complicated, maybe it would make sense to
-> specify guidelines for notifier priorities, such as
-> 0   - restart notifier of last resort, with least reset capabilities
-> 128 - default; use if no other notifier is expected to be available
->        and/or if restart functionality is acceptable
-> 255 - highest priority notifier which _must_ be used
+On Sun, Jul 13, 2014 at 04:25:06PM +0200, Lars-Peter Clausen wrote:
+> On 07/13/2014 04:03 PM, Richard Weinberger wrote:
+> >Am 13.07.2014 15:56, schrieb Lars-Peter Clausen:
+> >>On 07/13/2014 03:40 PM, Richard Weinberger wrote:
+> >>>Am 13.07.2014 15:26, schrieb Lars-Peter Clausen:
+> >>>>On 07/13/2014 11:45 AM, Richard Weinberger wrote:
+> >>>>>Am 13.07.2014 11:27, schrieb Lennox Wu:
+> >>>>>>As I said before, some configurations don't make sense.
+> >>>>>
+> >>>>>If such a configuration can be achieved using allmod/yesconfig it has to be fixed.
+> >>>>>Chen's fixes seem reasonable as not all architectures support iomem.
+> >>>>
+> >>>>Maybe we should stub out ioremap() and friends when COMPILE_TEST is enabled to avoid these linker errors. That's in my opinion better than turning most of the 'depends on
+> >>>>COMPILE_TEST' into 'depends on COMPILE_TEST && HAS_IOMEM'. The issue comes up quite a lot and it is often overlooked when adding a driver that can be build when COMPILE_TEST is
+> >>>>enabled.
+> >>>
+> >>>And what should this stub do?
+> >>>Except calling BUG()...
+> >>
+> >>return NULL;
+> >>
+> >>It's for compile testing, it's not meant to work at runtime.
+> >
+> >Hm, I really don't like the idea of having a non-working kernel.
+> >IMHO either it should build _and_ run and nothing else.
+> >Greg, what do you think?
 > 
-> Would that make sense and be acceptable ? In this context, I would then
-> set the notifier priorities for the callers in the patch set to 128.
+> The kernel will still be working fine and you can run it on a system. The
+> drivers which use ioremap() or similar are probably not instantiated on a
+> system that does not provide HAS_IOMEM. But even if it was the driver should
+> handle ioremap() returning NULL gracefully and abort the driver probe. That
+> said you'll probably not run a kernel that was built with COMPILE_TEST on
+> your real hardware since it contains so many drivers that are completely
+> useless on your hardware. The idea of COMPILE_TEST is to have as much
+> compile test exposure as possible to the code that is enabled by
+> COMPILE_TEST. Stubbing out ioremap() and friends when HAS_IOMEM is not set
+> and COMPILE_TEST is set makes it easier to get there.
 
-Yep, that sounds nice.  It's unlikely to see a lot of use, but at least
-we showed we thought about it ;)
+I run my kernels with COMPILE_TEST enabled as I need to build test
+things that I don't happen to use.
+
+I like the 'return NULL' option for this, it hits us all the time, might
+as well fix it properly like this so that we don't have to deal with
+Kconfig changes everywhere.
+
+Also put a big "This platform does not support IOMEM" error printk in
+there, so that people have a chance to figure out what is going on if
+they happen to run such a driver on a platform that can't support it.
+
+thanks,
+
+greg k-h
