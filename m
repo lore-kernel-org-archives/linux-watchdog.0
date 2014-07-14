@@ -1,92 +1,91 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.linuxfoundation.org ([140.211.169.12]:53696 "EHLO
-	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751313AbaGMTRc (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 13 Jul 2014 15:17:32 -0400
-Date: Sun, 13 Jul 2014 12:22:02 -0700
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Lars-Peter Clausen <lars@metafoo.de>
-Cc: Richard Weinberger <richard@nod.at>, dmitry.torokhov@gmail.com,
-	linux-iio@vger.kernel.org,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>, teg@jklm.no,
-	thierry.reding@gmail.com, Lennox Wu <lennox.wu@gmail.com>,
-	Chen Gang <gang.chen.5i5j@gmail.com>,
-	Marek Vasut <marex@denx.de>,
-	Liqin Chen <liqin.linux@gmail.com>, msalter@redhat.com,
-	linux-pwm@vger.kernel.org, devel@driverdev.osuosl.org,
-	linux-watchdog@vger.kernel.org, linux-input@vger.kernel.org,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	knaack.h@gmx.de, Martin Schwidefsky <schwidefsky@de.ibm.com>,
-	Mischa.Jonker@synopsys.com, jic23@kernel.org
-Subject: Re: [PATCH] drivers: Let several drivers depends on HAS_IOMEM for
- 'devm_ioremap_resource'
-Message-ID: <20140713192202.GA19090@kroah.com>
-References: <53C1F7DE.3060102@gmail.com>
- <201407130545.23004.marex@denx.de>
- <CAF0htA60juBVkPo2HQKMDGcEr-wRzRVL_6JgHAa+7WVE_E8M0Q@mail.gmail.com>
- <53C25551.1050909@nod.at>
- <53C288F0.3070001@metafoo.de>
- <53C28C4A.70907@nod.at>
- <53C29015.5070607@metafoo.de>
- <53C291C8.6050303@nod.at>
- <53C296C2.30304@metafoo.de>
+Return-Path: <catalin.marinas@arm.com>
+Date: Mon, 14 Jul 2014 15:53:11 +0100
+From: Catalin Marinas <catalin.marinas@arm.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Will Deacon <Will.Deacon@arm.com>, Arnd Bergmann <arnd@arndb.de>,
+	Heiko Stuebner <heiko@sntech.de>,
+	Russell King <linux@arm.linux.org.uk>,
+	Jonas Jensen <jonas.jensen@gmail.com>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Ingo Molnar <mingo@kernel.org>,
+	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Tomasz Figa <t.figa@samsung.com>,
+	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v4 1/7] kernel: Add support for restart notifier call
+ chain
+Message-ID: <20140714145311.GC1112@arm.com>
+References: <1405265431-4561-1-git-send-email-linux@roeck-us.net>
+ <1405265431-4561-2-git-send-email-linux@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <53C296C2.30304@metafoo.de>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <1405265431-4561-2-git-send-email-linux@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Sun, Jul 13, 2014 at 04:25:06PM +0200, Lars-Peter Clausen wrote:
-> On 07/13/2014 04:03 PM, Richard Weinberger wrote:
-> >Am 13.07.2014 15:56, schrieb Lars-Peter Clausen:
-> >>On 07/13/2014 03:40 PM, Richard Weinberger wrote:
-> >>>Am 13.07.2014 15:26, schrieb Lars-Peter Clausen:
-> >>>>On 07/13/2014 11:45 AM, Richard Weinberger wrote:
-> >>>>>Am 13.07.2014 11:27, schrieb Lennox Wu:
-> >>>>>>As I said before, some configurations don't make sense.
-> >>>>>
-> >>>>>If such a configuration can be achieved using allmod/yesconfig it has to be fixed.
-> >>>>>Chen's fixes seem reasonable as not all architectures support iomem.
-> >>>>
-> >>>>Maybe we should stub out ioremap() and friends when COMPILE_TEST is enabled to avoid these linker errors. That's in my opinion better than turning most of the 'depends on
-> >>>>COMPILE_TEST' into 'depends on COMPILE_TEST && HAS_IOMEM'. The issue comes up quite a lot and it is often overlooked when adding a driver that can be build when COMPILE_TEST is
-> >>>>enabled.
-> >>>
-> >>>And what should this stub do?
-> >>>Except calling BUG()...
-> >>
-> >>return NULL;
-> >>
-> >>It's for compile testing, it's not meant to work at runtime.
-> >
-> >Hm, I really don't like the idea of having a non-working kernel.
-> >IMHO either it should build _and_ run and nothing else.
-> >Greg, what do you think?
-> 
-> The kernel will still be working fine and you can run it on a system. The
-> drivers which use ioremap() or similar are probably not instantiated on a
-> system that does not provide HAS_IOMEM. But even if it was the driver should
-> handle ioremap() returning NULL gracefully and abort the driver probe. That
-> said you'll probably not run a kernel that was built with COMPILE_TEST on
-> your real hardware since it contains so many drivers that are completely
-> useless on your hardware. The idea of COMPILE_TEST is to have as much
-> compile test exposure as possible to the code that is enabled by
-> COMPILE_TEST. Stubbing out ioremap() and friends when HAS_IOMEM is not set
-> and COMPILE_TEST is set makes it easier to get there.
+On Sun, Jul 13, 2014 at 04:30:25PM +0100, Guenter Roeck wrote:
+> diff --git a/include/linux/reboot.h b/include/linux/reboot.h
+> index 48bf152..120db73 100644
+> --- a/include/linux/reboot.h
+> +++ b/include/linux/reboot.h
+> @@ -38,6 +38,9 @@ extern int reboot_force;
+>  extern int register_reboot_notifier(struct notifier_block *);
+>  extern int unregister_reboot_notifier(struct notifier_block *);
+>  
+> +extern int register_restart_notifier(struct notifier_block *);
+> +extern int unregister_restart_notifier(struct notifier_block *);
+> +extern void kernel_restart_notify(char *cmd);
+>  
+>  /*
+>   * Architecture-specific implementations of sys_reboot commands.
+> diff --git a/kernel/reboot.c b/kernel/reboot.c
+> index a3a9e24..1bc9bf2 100644
+> --- a/kernel/reboot.c
+> +++ b/kernel/reboot.c
+> @@ -104,6 +104,87 @@ int unregister_reboot_notifier(struct notifier_block *nb)
+>  }
+>  EXPORT_SYMBOL(unregister_reboot_notifier);
+>  
+> +/*
+> + *	Notifier list for kernel code which wants to be called
+> + *	to restart the system.
+> + */
+> +static BLOCKING_NOTIFIER_HEAD(restart_notifier_list);
+> +
+> +/**
+> + *	register_restart_notifier - Register function to be called to reset
+> + *				    the system
+> + *	@nb: Info about notifier function to be called
+> + *	@nb->priority:	Notifier priority. Notifiers should follow the
+> + *			following guidelines for setting priorities.
+> + *			0:	Restart notifier of last resort,
+> + *				with limited restart capabilities
+> + *			128:	Default notifier; use if no other
+> + *				notifier is expected to be available,
+> + *				and/or if restart functionality is
+> + *				sufficient to restart the entire system
+> + *			255:	Highest priority notifier, will preempt
+> + *				all other notifier functions
 
-I run my kernels with COMPILE_TEST enabled as I need to build test
-things that I don't happen to use.
+I'm not fully convinced implying a 'notifier' is the right approach
+here. By analogy with the reboot notifier, this is something drivers
+would want to know about and do some work before the actual system
+restart (e.g. disable watchdogs as in the reboot notifier case). The
+restart notifier here is meant to perform the actual system restart.
+Arguably, the actual restart should be handled by priority 0 with some
+preparation before but we have reboot notifier already, so I don't think
+it's worth another notifier.
 
-I like the 'return NULL' option for this, it hits us all the time, might
-as well fix it properly like this so that we don't have to deal with
-Kconfig changes everywhere.
+While re-using the notifier mechanism behind the scene is fine, I think
+we should at least rename the functions to something like
+(un)register_restart_handler().
 
-Also put a big "This platform does not support IOMEM" error printk in
-there, so that people have a chance to figure out what is going on if
-they happen to run such a driver on a platform that can't support it.
-
-thanks,
-
-greg k-h
+-- 
+Catalin
