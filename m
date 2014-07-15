@@ -1,104 +1,101 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f173.google.com ([209.85.192.173]:42830 "EHLO
-	mail-pd0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753690AbaGOBL2 (ORCPT
+Received: from mail-qg0-f50.google.com ([209.85.192.50]:56446 "EHLO
+	mail-qg0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757689AbaGOGjl (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 14 Jul 2014 21:11:28 -0400
-Message-ID: <53C47FB7.6080304@gmail.com>
-Date: Tue, 15 Jul 2014 09:11:19 +0800
-From: Chen Gang <gang.chen.5i5j@gmail.com>
+	Tue, 15 Jul 2014 02:39:41 -0400
 MIME-Version: 1.0
-To: Guenter Roeck <linux@roeck-us.net>,
-	Richard Weinberger <richard@nod.at>
-CC: Lars-Peter Clausen <lars@metafoo.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	dmitry.torokhov@gmail.com, linux-iio@vger.kernel.org,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>, teg@jklm.no,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Lennox Wu <lennox.wu@gmail.com>, Marek Vasut <marex@denx.de>,
-	Liqin Chen <liqin.linux@gmail.com>, msalter@redhat.com,
-	linux-pwm@vger.kernel.org, devel@driverdev.osuosl.org,
-	linux-watchdog@vger.kernel.org, linux-input@vger.kernel.org,
+In-Reply-To: <20140714150749.GH26465@leverpostej>
+References: <1405340169-2820-1-git-send-email-harinik@xilinx.com>
+	<1405340169-2820-2-git-send-email-harinik@xilinx.com>
+	<20140714150749.GH26465@leverpostej>
+Date: Tue, 15 Jul 2014 12:09:40 +0530
+Message-ID: <CAFcVECK9U_3+3htTAu7r-agi43mC9Z2pqHeS9TpHTbZ3=o-o8w@mail.gmail.com>
+Subject: Re: [PATCH v3 2/2] devicetree: Add Cadence WDT devicetree bindings documentation
+From: Harini Katakam <harinikatakamlinux@gmail.com>
+To: Mark Rutland <mark.rutland@arm.com>
+Cc: "wim@iguana.be" <wim@iguana.be>,
+	"grant.likely@linaro.org" <grant.likely@linaro.org>,
+	"robh+dt@kernel.org" <robh+dt@kernel.org>,
+	Pawel Moll <Pawel.Moll@arm.com>,
+	"ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>,
+	"galak@codeaurora.org" <galak@codeaurora.org>,
+	"rob@landley.net" <rob@landley.net>,
+	"michals@xilinx.com" <michals@xilinx.com>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
 	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	knaack.h@gmx.de, Martin Schwidefsky <schwidefsky@de.ibm.com>,
-	Mischa.Jonker@synopsys.com, jic23@kernel.org, arnd@arndb.de,
-	Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH] drivers: Let several drivers depends on HAS_IOMEM for
- 'devm_ioremap_resource'
-References: <201407130545.23004.marex@denx.de> <CAF0htA60juBVkPo2HQKMDGcEr-wRzRVL_6JgHAa+7WVE_E8M0Q@mail.gmail.com> <53C25551.1050909@nod.at> <53C288F0.3070001@metafoo.de> <53C28C4A.70907@nod.at> <53C29015.5070607@metafoo.de> <53C291C8.6050303@nod.at> <53C296C2.30304@metafoo.de> <20140713192202.GA19090@kroah.com> <53C2DF12.6040507@nod.at> <20140713201753.GA29955@kroah.com> <53C39569.9020802@nod.at> <53C3994C.1010309@metafoo.de> <53C39B66.4060500@nod.at> <5A40E1FC-CA61-4AFF-B205-4BAC175AA7AC@gmail.com> <53C47725.8000005@gmail.com> <53C47B76.4080306@roeck-us.net>
-In-Reply-To: <53C47B76.4080306@roeck-us.net>
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+	"harini.katakam@xilinx.com" <harini.katakam@xilinx.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+Hi Mark,
 
-
-On 07/15/2014 08:53 AM, Guenter Roeck wrote:
-> On 07/14/2014 05:34 PM, Chen Gang wrote:
->> On 07/14/2014 05:22 PM, Chen Gang wrote:
->>>
->>> =E5=9C=A8 2014=E5=B9=B47=E6=9C=8814=E6=97=A5=EF=BC=8C=E4=B8=8B=E5=8D=
-=884:57=EF=BC=8CRichard Weinberger <richard@nod.at> =E5=86=99=E9=81=93=EF=
-=BC=9A
->>>
->>>> Am 14.07.2014 10:48, schrieb Lars-Peter Clausen:
->>>>> On 07/14/2014 10:31 AM, Richard Weinberger wrote:
->>>>>> Am 13.07.2014 22:17, schrieb Greg Kroah-Hartman:
->>>>>>> On Sun, Jul 13, 2014 at 09:33:38PM +0200, Richard Weinberger wr=
-ote:
->>>>>>>> Maybe we could add COMPILE_TEST to the version string too?
->>>>>>>> Just to detect such kernels fast in user bug reports...
->>>>>>>
->>>>>>> What kind of bug report are you going to get?
->>>>>>
->>>>>> User manages to enable CONFIG_FOO by selecting COMPILE_TEST and
->>>>>> complains that it does not work. :)
->>>>>
->>>>> These drivers are typically drivers for some SoC peripheral and t=
-he
->>>>> device will simply physically not exist on a platform that does n=
-ot
->>>>> provide HAS_IOMEM. This is not really any
->>>>> different from making the driver selectable via COMPILE_TEST for
->>>>> any other platform. To hit the issue you'd have to instantiate a
->>>>> device driver instance for a device that
->>>>> physically does not exist. This will always result in a failure.
->>>>
->>>> Okay, you have convinced me. :)
->>>>
+On Mon, Jul 14, 2014 at 8:37 PM, Mark Rutland <mark.rutland@arm.com> wrote:
+> On Mon, Jul 14, 2014 at 01:16:09PM +0100, Harini Katakam wrote:
+>> Add cadence-wdt bindings documentation.
 >>
->> After search the history patches, I found one related patch which ma=
-de
->> by myself (when I am in Asianux):
+>> Signed-off-by: Harini Katakam <harinik@xilinx.com>
+>> ---
 >>
->>    "https://lkml.org/lkml/2013/7/1/641"
+>> v3 changes:
+>> - Change reset property type and improve description.
+>> - Improve description of clocks and interrupts.
+>> - Use watchdog@ in the example.
+>> - Use only cdns compatible string for now.
 >>
->> For me, it is a long discussion, and forced many members have to joi=
-n
->> in. Please help check again.
+>> v2:
+>> No changes
 >>
->=20
-> One thing you could try would be to return NULL (or where appropriate
-> an error) in the #else case of CONFIG_HAS_IOMEM and CONFIG_HAS_IOPORT=
-,
-> ie dont take COMPILE_TEST into account at all. Obviously that means
-> you won't be able to dump a warning message in the COMPILE_TEST
-> case, but at least the code would compile. The rejection of above pat=
-ch
-> would make a good case for this approach.
->=20
+>> ---
+>>  .../devicetree/bindings/watchdog/cadence-wdt.txt   |   27 ++++++++++++++++++++
+>>  1 file changed, 27 insertions(+)
+>>  create mode 100644 Documentation/devicetree/bindings/watchdog/cadence-wdt.txt
+>>
+>> diff --git a/Documentation/devicetree/bindings/watchdog/cadence-wdt.txt b/Documentation/devicetree/bindings/watchdog/cadence-wdt.txt
+>> new file mode 100644
+>> index 0000000..ab23e38
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/watchdog/cadence-wdt.txt
+>> @@ -0,0 +1,27 @@
+>> +Zynq Watchdog Device Tree Bindings
+>> +-------------------------------------------
+>> +
+>> +Required properties:
+>> +- compatible         : Should be "cdns,wdt-r1p2".
+>> +- clocks             : Input clock specifier. This should be the ref clk.
+>
+> This wording makes it sound like the watchdog block has more than one
+> clock input. Does it?
 
-OK, thanks: at least, it can be improved.  But still welcome any other
-opinions of another related members.
+It doesn't. It has one APB clock - named pclk.
 
-Thanks.
---=20
-Chen Gang
+>
+>> +- reg                        : Physical base address and size of WDT registers map.
+>> +- interrupts         : Property with a value describing the interrupt
+>> +                       number. This interrupt is used for indication
+>> +                       when the watchdog times out.
+>
+> Just say "the watchdog timeout interrupt", or (better) use the name of
+> the interrupt from the documentation.
 
-Open, share, and attitude like air, water, and life which God blessed
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+OK. Yeah I'll do that. The interrupt name is wd_irq.
+
+>
+>> +- interrupt-parent   : Must be core interrupt controller.
+>> +
+>> +Optional properties
+>> +- reset                      : If this property exists, then a reset is done
+>> +                       when watchdog times out.
+>
+> That's a bit of an ambiguous name (too easy to misconstrue as a reset
+> device reference). Do any other watchdogs have similar properties?
+
+I could change it to "reset-on-timeout" if that better.
+>From the documentation of other drivers, there seems to be a reset-type
+property in atmel. Dint find any other reset related properties.
+
+Regards,
+Harini
