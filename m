@@ -1,12 +1,21 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from cam-admin0.cambridge.arm.com ([217.140.96.50]:49979 "EHLO
-	cam-admin0.cambridge.arm.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751256AbaGOI7Z (ORCPT
+Received: from mail-yk0-f173.google.com ([209.85.160.173]:52338 "EHLO
+	mail-yk0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758057AbaGOJEH (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 15 Jul 2014 04:59:25 -0400
-Date: Tue, 15 Jul 2014 09:59:14 +0100
-From: Mark Rutland <mark.rutland@arm.com>
-To: Harini Katakam <harinikatakamlinux@gmail.com>
+	Tue, 15 Jul 2014 05:04:07 -0400
+MIME-Version: 1.0
+In-Reply-To: <20140715085914.GT26465@leverpostej>
+References: <1405340169-2820-1-git-send-email-harinik@xilinx.com>
+	<1405340169-2820-2-git-send-email-harinik@xilinx.com>
+	<20140714150749.GH26465@leverpostej>
+	<CAFcVECK9U_3+3htTAu7r-agi43mC9Z2pqHeS9TpHTbZ3=o-o8w@mail.gmail.com>
+	<20140715085914.GT26465@leverpostej>
+Date: Tue, 15 Jul 2014 14:34:06 +0530
+Message-ID: <CAFcVECJ+tO4U5H2QvuY8xpkh5FrX_PtCvrH8FsZQ28bJwYRckA@mail.gmail.com>
+Subject: Re: [PATCH v3 2/2] devicetree: Add Cadence WDT devicetree bindings documentation
+From: Harini Katakam <harinikatakamlinux@gmail.com>
+To: Mark Rutland <mark.rutland@arm.com>
 Cc: "wim@iguana.be" <wim@iguana.be>,
 	"grant.likely@linaro.org" <grant.likely@linaro.org>,
 	"robh+dt@kernel.org" <robh+dt@kernel.org>,
@@ -20,100 +29,61 @@ Cc: "wim@iguana.be" <wim@iguana.be>,
 	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
 	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
 	"harini.katakam@xilinx.com" <harini.katakam@xilinx.com>
-Subject: Re: [PATCH v3 2/2] devicetree: Add Cadence WDT devicetree bindings
- documentation
-Message-ID: <20140715085914.GT26465@leverpostej>
-References: <1405340169-2820-1-git-send-email-harinik@xilinx.com>
- <1405340169-2820-2-git-send-email-harinik@xilinx.com>
- <20140714150749.GH26465@leverpostej>
- <CAFcVECK9U_3+3htTAu7r-agi43mC9Z2pqHeS9TpHTbZ3=o-o8w@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAFcVECK9U_3+3htTAu7r-agi43mC9Z2pqHeS9TpHTbZ3=o-o8w@mail.gmail.com>
-Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Jul 15, 2014 at 07:39:40AM +0100, Harini Katakam wrote:
-> Hi Mark,
-> 
-> On Mon, Jul 14, 2014 at 8:37 PM, Mark Rutland <mark.rutland@arm.com> wrote:
-> > On Mon, Jul 14, 2014 at 01:16:09PM +0100, Harini Katakam wrote:
-> >> Add cadence-wdt bindings documentation.
-> >>
-> >> Signed-off-by: Harini Katakam <harinik@xilinx.com>
-> >> ---
-> >>
-> >> v3 changes:
-> >> - Change reset property type and improve description.
-> >> - Improve description of clocks and interrupts.
-> >> - Use watchdog@ in the example.
-> >> - Use only cdns compatible string for now.
-> >>
-> >> v2:
-> >> No changes
-> >>
-> >> ---
-> >>  .../devicetree/bindings/watchdog/cadence-wdt.txt   |   27 ++++++++++++++++++++
-> >>  1 file changed, 27 insertions(+)
-> >>  create mode 100644 Documentation/devicetree/bindings/watchdog/cadence-wdt.txt
-> >>
-> >> diff --git a/Documentation/devicetree/bindings/watchdog/cadence-wdt.txt b/Documentation/devicetree/bindings/watchdog/cadence-wdt.txt
-> >> new file mode 100644
-> >> index 0000000..ab23e38
-> >> --- /dev/null
-> >> +++ b/Documentation/devicetree/bindings/watchdog/cadence-wdt.txt
-> >> @@ -0,0 +1,27 @@
-> >> +Zynq Watchdog Device Tree Bindings
-> >> +-------------------------------------------
-> >> +
-> >> +Required properties:
-> >> +- compatible         : Should be "cdns,wdt-r1p2".
-> >> +- clocks             : Input clock specifier. This should be the ref clk.
-> >
-> > This wording makes it sound like the watchdog block has more than one
-> > clock input. Does it?
-> 
-> It doesn't. It has one APB clock - named pclk.
+Hi Mark,
 
-Ok. Could we refer to that by name in the description then? The phrase
-"This should be the ref clk" makes it sound like there are other clocks
-we aren't describing.
+On Tue, Jul 15, 2014 at 2:29 PM, Mark Rutland <mark.rutland@arm.com> wrote:
+> On Tue, Jul 15, 2014 at 07:39:40AM +0100, Harini Katakam wrote:
+>> Hi Mark,
+>>
+>> On Mon, Jul 14, 2014 at 8:37 PM, Mark Rutland <mark.rutland@arm.com> wrote:
+>> > On Mon, Jul 14, 2014 at 01:16:09PM +0100, Harini Katakam wrote:
+>> >> Add cadence-wdt bindings documentation.
+>> >>
+>> >> Signed-off-by: Harini Katakam <harinik@xilinx.com>
+>> >> ---
+>> >>
+>> >> v3 changes:
+>> >> - Change reset property type and improve description.
+>> >> - Improve description of clocks and interrupts.
+>> >> - Use watchdog@ in the example.
+>> >> - Use only cdns compatible string for now.
+>> >>
+>> >> v2:
+>> >> No changes
+>> >>
+>> >> ---
+>> >>  .../devicetree/bindings/watchdog/cadence-wdt.txt   |   27 ++++++++++++++++++++
+>> >>  1 file changed, 27 insertions(+)
+>> >>  create mode 100644 Documentation/devicetree/bindings/watchdog/cadence-wdt.txt
+>> >>
 
-> >
-> >> +- reg                        : Physical base address and size of WDT registers map.
-> >> +- interrupts         : Property with a value describing the interrupt
-> >> +                       number. This interrupt is used for indication
-> >> +                       when the watchdog times out.
-> >
-> > Just say "the watchdog timeout interrupt", or (better) use the name of
-> > the interrupt from the documentation.
-> 
-> OK. Yeah I'll do that. The interrupt name is wd_irq.
+<snip>
 
-That sounds good to me.
- 
-> >
-> >> +- interrupt-parent   : Must be core interrupt controller.
-> >> +
-> >> +Optional properties
-> >> +- reset                      : If this property exists, then a reset is done
-> >> +                       when watchdog times out.
-> >
-> > That's a bit of an ambiguous name (too easy to misconstrue as a reset
-> > device reference). Do any other watchdogs have similar properties?
-> 
-> I could change it to "reset-on-timeout" if that better.
-> From the documentation of other drivers, there seems to be a reset-type
-> property in atmel. Dint find any other reset related properties.
-> 
+>> >> +Optional properties
+>> >> +- reset                      : If this property exists, then a reset is done
+>> >> +                       when watchdog times out.
+>> >
+>> > That's a bit of an ambiguous name (too easy to misconstrue as a reset
+>> > device reference). Do any other watchdogs have similar properties?
+>>
+>> I could change it to "reset-on-timeout" if that better.
+>> From the documentation of other drivers, there seems to be a reset-type
+>> property in atmel. Dint find any other reset related properties.
+>>
+>
+> Ok. reset-on-timeout sounds like a better property name to avoid
+> possible confusion.
+>
+> That said, what happens if we don't specify the device should reset the
+> system (but have a timeout-sec property)?
+>
 
-Ok. reset-on-timeout sounds like a better property name to avoid
-possible confusion.
+A reset wont be done but a message will be printed when the watchdog times out
+just as an indication.
 
-That said, what happens if we don't specify the device should reset the
-system (but have a timeout-sec property)?
-
-Thanks,
-Mark.
+Regards,
+Harini
