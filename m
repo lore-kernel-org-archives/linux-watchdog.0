@@ -1,14 +1,15 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f172.google.com ([209.85.192.172]:49487 "EHLO
-	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753280AbaGOAfc (ORCPT
+Received: from mail.active-venture.com ([67.228.131.205]:60869 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753577AbaGOAxN (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 14 Jul 2014 20:35:32 -0400
-Message-ID: <53C4774D.6040900@gmail.com>
-Date: Tue, 15 Jul 2014 08:35:25 +0800
-From: Chen Gang <gang.chen.5i5j@gmail.com>
+	Mon, 14 Jul 2014 20:53:13 -0400
+Message-ID: <53C47B76.4080306@roeck-us.net>
+Date: Mon, 14 Jul 2014 17:53:10 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-To: Richard Weinberger <richard@nod.at>
+To: Chen Gang <gang.chen.5i5j@gmail.com>,
+	Richard Weinberger <richard@nod.at>
 CC: Lars-Peter Clausen <lars@metafoo.de>,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	dmitry.torokhov@gmail.com, linux-iio@vger.kernel.org,
@@ -24,63 +25,64 @@ CC: Lars-Peter Clausen <lars@metafoo.de>,
 	Geert Uytterhoeven <geert@linux-m68k.org>
 Subject: Re: [PATCH] drivers: Let several drivers depends on HAS_IOMEM for
  'devm_ioremap_resource'
-References: <201407130545.23004.marex@denx.de> <CAF0htA60juBVkPo2HQKMDGcEr-wRzRVL_6JgHAa+7WVE_E8M0Q@mail.gmail.com> <53C25551.1050909@nod.at> <53C288F0.3070001@metafoo.de> <53C28C4A.70907@nod.at> <53C29015.5070607@metafoo.de> <53C291C8.6050303@nod.at> <53C296C2.30304@metafoo.de> <20140713192202.GA19090@kroah.com> <53C2DF12.6040507@nod.at> <20140713201753.GA29955@kroah.com> <53C39569.9020802@nod.at> <53C3994C.1010309@metafoo.de> <53C39B66.4060500@nod.at> <5A40E1FC-CA61-4AFF-B205-4BAC175AA7AC@gmail.com>
-In-Reply-To: <5A40E1FC-CA61-4AFF-B205-4BAC175AA7AC@gmail.com>
-Content-Type: text/plain; charset=UTF-8
+References: <201407130545.23004.marex@denx.de> <CAF0htA60juBVkPo2HQKMDGcEr-wRzRVL_6JgHAa+7WVE_E8M0Q@mail.gmail.com> <53C25551.1050909@nod.at> <53C288F0.3070001@metafoo.de> <53C28C4A.70907@nod.at> <53C29015.5070607@metafoo.de> <53C291C8.6050303@nod.at> <53C296C2.30304@metafoo.de> <20140713192202.GA19090@kroah.com> <53C2DF12.6040507@nod.at> <20140713201753.GA29955@kroah.com> <53C39569.9020802@nod.at> <53C3994C.1010309@metafoo.de> <53C39B66.4060500@nod.at> <5A40E1FC-CA61-4AFF-B205-4BAC175AA7AC@gmail.com> <53C47725.8000005@gmail.com>
+In-Reply-To: <53C47725.8000005@gmail.com>
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 07/14/2014 05:22 PM, Chen Gang wrote:
->=20
-> =E5=9C=A8 2014=E5=B9=B47=E6=9C=8814=E6=97=A5=EF=BC=8C=E4=B8=8B=E5=8D=88=
-4:57=EF=BC=8CRichard Weinberger <richard@nod.at> =E5=86=99=E9=81=93=EF=BC=
-=9A
->=20
->> Am 14.07.2014 10:48, schrieb Lars-Peter Clausen:
->>> On 07/14/2014 10:31 AM, Richard Weinberger wrote:
->>>> Am 13.07.2014 22:17, schrieb Greg Kroah-Hartman:
->>>>> On Sun, Jul 13, 2014 at 09:33:38PM +0200, Richard Weinberger wrot=
-e:
->>>>>> Maybe we could add COMPILE_TEST to the version string too?
->>>>>> Just to detect such kernels fast in user bug reports...
+On 07/14/2014 05:34 PM, Chen Gang wrote:
+> On 07/14/2014 05:22 PM, Chen Gang wrote:
+>>
+>> =E5=9C=A8 2014=E5=B9=B47=E6=9C=8814=E6=97=A5=EF=BC=8C=E4=B8=8B=E5=8D=
+=884:57=EF=BC=8CRichard Weinberger <richard@nod.at> =E5=86=99=E9=81=93=EF=
+=BC=9A
+>>
+>>> Am 14.07.2014 10:48, schrieb Lars-Peter Clausen:
+>>>> On 07/14/2014 10:31 AM, Richard Weinberger wrote:
+>>>>> Am 13.07.2014 22:17, schrieb Greg Kroah-Hartman:
+>>>>>> On Sun, Jul 13, 2014 at 09:33:38PM +0200, Richard Weinberger wro=
+te:
+>>>>>>> Maybe we could add COMPILE_TEST to the version string too?
+>>>>>>> Just to detect such kernels fast in user bug reports...
+>>>>>>
+>>>>>> What kind of bug report are you going to get?
 >>>>>
->>>>> What kind of bug report are you going to get?
+>>>>> User manages to enable CONFIG_FOO by selecting COMPILE_TEST and
+>>>>> complains that it does not work. :)
 >>>>
->>>> User manages to enable CONFIG_FOO by selecting COMPILE_TEST and
->>>> complains that it does not work. :)
+>>>> These drivers are typically drivers for some SoC peripheral and th=
+e device will simply physically not exist on a platform that does not p=
+rovide HAS_IOMEM. This is not really any
+>>>> different from making the driver selectable via COMPILE_TEST for a=
+ny other platform. To hit the issue you'd have to instantiate a device =
+driver instance for a device that
+>>>> physically does not exist. This will always result in a failure.
 >>>
->>> These drivers are typically drivers for some SoC peripheral and the=
- device will simply physically not exist on a platform that does not pr=
-ovide HAS_IOMEM. This is not really any
->>> different from making the driver selectable via COMPILE_TEST for an=
-y other platform. To hit the issue you'd have to instantiate a device d=
-river instance for a device that
->>> physically does not exist. This will always result in a failure.
->>
->> Okay, you have convinced me. :)
->>
+>>> Okay, you have convinced me. :)
+>>>
+>
+> After search the history patches, I found one related patch which mad=
+e
+> by myself (when I am in Asianux):
+>
+>    "https://lkml.org/lkml/2013/7/1/641"
+>
+> For me, it is a long discussion, and forced many members have to join
+> in. Please help check again.
+>
 
-After search the history patches, I found one related patch which made
-by myself (when I am in Asianux):
+One thing you could try would be to return NULL (or where appropriate
+an error) in the #else case of CONFIG_HAS_IOMEM and CONFIG_HAS_IOPORT,
+ie dont take COMPILE_TEST into account at all. Obviously that means
+you won't be able to dump a warning message in the COMPILE_TEST
+case, but at least the code would compile. The rejection of above patch
+would make a good case for this approach.
 
-  "https://lkml.org/lkml/2013/7/1/641"
+Guenter
 
-=46or me, it is a long discussion, and forced many members have to join
-in. Please help check again.
-
-Thanks.
-
->=20
-> OK, thank all of you, and I shall send the related patch for it.=20
->=20
-> I will try to finish it within this week.
->=20
-
---=20
-Chen Gang
-
-Open, share, and attitude like air, water, and life which God blessed
 --
 To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
 g" in
