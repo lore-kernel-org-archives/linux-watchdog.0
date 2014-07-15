@@ -1,59 +1,119 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f47.google.com ([209.85.220.47]:45531 "EHLO
-	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752271AbaGMLym (ORCPT
+Received: from cam-admin0.cambridge.arm.com ([217.140.96.50]:49979 "EHLO
+	cam-admin0.cambridge.arm.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751256AbaGOI7Z (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 13 Jul 2014 07:54:42 -0400
-Message-ID: <53C27380.2060009@gmail.com>
-Date: Sun, 13 Jul 2014 19:54:40 +0800
-From: Chen Gang <gang.chen.5i5j@gmail.com>
-MIME-Version: 1.0
-To: wim@iguana.be
-CC: linux-watchdog@vger.kernel.org,
+	Tue, 15 Jul 2014 04:59:25 -0400
+Date: Tue, 15 Jul 2014 09:59:14 +0100
+From: Mark Rutland <mark.rutland@arm.com>
+To: Harini Katakam <harinikatakamlinux@gmail.com>
+Cc: "wim@iguana.be" <wim@iguana.be>,
+	"grant.likely@linaro.org" <grant.likely@linaro.org>,
+	"robh+dt@kernel.org" <robh+dt@kernel.org>,
+	Pawel Moll <Pawel.Moll@arm.com>,
+	"ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>,
+	"galak@codeaurora.org" <galak@codeaurora.org>,
+	"rob@landley.net" <rob@landley.net>,
+	"michals@xilinx.com" <michals@xilinx.com>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
 	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Richard Weinberger <richard@nod.at>,
-	Liqin Chen <liqin.linux@gmail.com>,
-	Lennox Wu <lennox.wu@gmail.com>
-Subject: [PATCH] drivers/watchdog/Kconfig: Let XILINX_WATCHDOG and TEGRA_WATCHDOG
- depend on HAS_IOMEM
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+	"harini.katakam@xilinx.com" <harini.katakam@xilinx.com>
+Subject: Re: [PATCH v3 2/2] devicetree: Add Cadence WDT devicetree bindings
+ documentation
+Message-ID: <20140715085914.GT26465@leverpostej>
+References: <1405340169-2820-1-git-send-email-harinik@xilinx.com>
+ <1405340169-2820-2-git-send-email-harinik@xilinx.com>
+ <20140714150749.GH26465@leverpostej>
+ <CAFcVECK9U_3+3htTAu7r-agi43mC9Z2pqHeS9TpHTbZ3=o-o8w@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAFcVECK9U_3+3htTAu7r-agi43mC9Z2pqHeS9TpHTbZ3=o-o8w@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-XILINX_WATCHDOG and TEGRA_WATCHDOG need HAS_IOMEM, so let them depend on
-HAS_IOMEM. The related error (with allmodconfig under score):
+On Tue, Jul 15, 2014 at 07:39:40AM +0100, Harini Katakam wrote:
+> Hi Mark,
+> 
+> On Mon, Jul 14, 2014 at 8:37 PM, Mark Rutland <mark.rutland@arm.com> wrote:
+> > On Mon, Jul 14, 2014 at 01:16:09PM +0100, Harini Katakam wrote:
+> >> Add cadence-wdt bindings documentation.
+> >>
+> >> Signed-off-by: Harini Katakam <harinik@xilinx.com>
+> >> ---
+> >>
+> >> v3 changes:
+> >> - Change reset property type and improve description.
+> >> - Improve description of clocks and interrupts.
+> >> - Use watchdog@ in the example.
+> >> - Use only cdns compatible string for now.
+> >>
+> >> v2:
+> >> No changes
+> >>
+> >> ---
+> >>  .../devicetree/bindings/watchdog/cadence-wdt.txt   |   27 ++++++++++++++++++++
+> >>  1 file changed, 27 insertions(+)
+> >>  create mode 100644 Documentation/devicetree/bindings/watchdog/cadence-wdt.txt
+> >>
+> >> diff --git a/Documentation/devicetree/bindings/watchdog/cadence-wdt.txt b/Documentation/devicetree/bindings/watchdog/cadence-wdt.txt
+> >> new file mode 100644
+> >> index 0000000..ab23e38
+> >> --- /dev/null
+> >> +++ b/Documentation/devicetree/bindings/watchdog/cadence-wdt.txt
+> >> @@ -0,0 +1,27 @@
+> >> +Zynq Watchdog Device Tree Bindings
+> >> +-------------------------------------------
+> >> +
+> >> +Required properties:
+> >> +- compatible         : Should be "cdns,wdt-r1p2".
+> >> +- clocks             : Input clock specifier. This should be the ref clk.
+> >
+> > This wording makes it sound like the watchdog block has more than one
+> > clock input. Does it?
+> 
+> It doesn't. It has one APB clock - named pclk.
 
-    MODPOST 1365 modules
-  ERROR: "devm_ioremap_resource" [drivers/watchdog/tegra_wdt.ko] undefined!
-  ERROR: "devm_ioremap_resource" [drivers/watchdog/of_xilinx_wdt.ko] undefined!
+Ok. Could we refer to that by name in the description then? The phrase
+"This should be the ref clk" makes it sound like there are other clocks
+we aren't describing.
 
+> >
+> >> +- reg                        : Physical base address and size of WDT registers map.
+> >> +- interrupts         : Property with a value describing the interrupt
+> >> +                       number. This interrupt is used for indication
+> >> +                       when the watchdog times out.
+> >
+> > Just say "the watchdog timeout interrupt", or (better) use the name of
+> > the interrupt from the documentation.
+> 
+> OK. Yeah I'll do that. The interrupt name is wd_irq.
 
-Signed-off-by: Chen Gang <gang.chen.5i5j@gmail.com>
----
- drivers/watchdog/Kconfig | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 76dd541..0e4abb2 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -113,6 +113,7 @@ config WM8350_WATCHDOG
+That sounds good to me.
  
- config XILINX_WATCHDOG
- 	tristate "Xilinx Watchdog timer"
-+	depends on HAS_IOMEM
- 	select WATCHDOG_CORE
- 	help
- 	  Watchdog driver for the xps_timebase_wdt ip core.
-@@ -434,7 +435,7 @@ config SIRFSOC_WATCHDOG
- 
- config TEGRA_WATCHDOG
- 	tristate "Tegra watchdog"
--	depends on ARCH_TEGRA || COMPILE_TEST
-+	depends on (ARCH_TEGRA || COMPILE_TEST) && HAS_IOMEM
- 	select WATCHDOG_CORE
- 	help
- 	  Say Y here to include support for the watchdog timer
--- 
-1.7.11.7
+> >
+> >> +- interrupt-parent   : Must be core interrupt controller.
+> >> +
+> >> +Optional properties
+> >> +- reset                      : If this property exists, then a reset is done
+> >> +                       when watchdog times out.
+> >
+> > That's a bit of an ambiguous name (too easy to misconstrue as a reset
+> > device reference). Do any other watchdogs have similar properties?
+> 
+> I could change it to "reset-on-timeout" if that better.
+> From the documentation of other drivers, there seems to be a reset-type
+> property in atmel. Dint find any other reset related properties.
+> 
+
+Ok. reset-on-timeout sounds like a better property name to avoid
+possible confusion.
+
+That said, what happens if we don't specify the device should reset the
+system (but have a timeout-sec property)?
+
+Thanks,
+Mark.
