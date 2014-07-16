@@ -1,14 +1,16 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:56477 "EHLO bear.ext.ti.com"
+Received: from bear.ext.ti.com ([192.94.94.41]:56479 "EHLO bear.ext.ti.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932591AbaGPNVB (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 16 Jul 2014 09:21:01 -0400
+	id S933182AbaGPNVC (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 16 Jul 2014 09:21:02 -0400
 From: George Cherian <george.cherian@ti.com>
 To: <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>
 CC: <wim@iguana.be>, George Cherian <george.cherian@ti.com>
-Subject: [RESEND PATCH 1/3] watchdog: dw_wdt: Remove the un-necessary check after platform_get_resource()
-Date: Wed, 16 Jul 2014 18:49:02 +0530
-Message-ID: <1405516744-29333-1-git-send-email-george.cherian@ti.com>
+Subject: [RESEND PATCH 2/3] watchdog: lantiq_wdt: Remove the un-necessary check of resource after platform_get_resource()
+Date: Wed, 16 Jul 2014 18:49:03 +0530
+Message-ID: <1405516744-29333-2-git-send-email-george.cherian@ti.com>
+In-Reply-To: <1405516744-29333-1-git-send-email-george.cherian@ti.com>
+References: <1405516744-29333-1-git-send-email-george.cherian@ti.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -20,23 +22,25 @@ Remove the un-necessary check after platform_get_resource().
 Signed-off-by: George Cherian <george.cherian@ti.com>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/dw_wdt.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/watchdog/lantiq_wdt.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-index ee4f86b..9f21029 100644
---- a/drivers/watchdog/dw_wdt.c
-+++ b/drivers/watchdog/dw_wdt.c
-@@ -296,9 +296,6 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
- 	int ret;
- 	struct resource *mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+diff --git a/drivers/watchdog/lantiq_wdt.c b/drivers/watchdog/lantiq_wdt.c
+index 3b3148c..021e84e 100644
+--- a/drivers/watchdog/lantiq_wdt.c
++++ b/drivers/watchdog/lantiq_wdt.c
+@@ -192,11 +192,6 @@ ltq_wdt_probe(struct platform_device *pdev)
+ 	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	struct clk *clk;
  
--	if (!mem)
--		return -EINVAL;
+-	if (!res) {
+-		dev_err(&pdev->dev, "cannot obtain I/O memory region");
+-		return -ENOENT;
+-	}
 -
- 	dw_wdt.regs = devm_ioremap_resource(&pdev->dev, mem);
- 	if (IS_ERR(dw_wdt.regs))
- 		return PTR_ERR(dw_wdt.regs);
+ 	ltq_wdt_membase = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(ltq_wdt_membase))
+ 		return PTR_ERR(ltq_wdt_membase);
 -- 
 1.8.3.1
 
