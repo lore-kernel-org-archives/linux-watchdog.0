@@ -1,77 +1,45 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:56162 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932622AbaGPN2d (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 16 Jul 2014 09:28:33 -0400
-Message-ID: <53C67DFF.5010008@roeck-us.net>
-Date: Wed, 16 Jul 2014 06:28:31 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+Received: from bear.ext.ti.com ([192.94.94.41]:57025 "EHLO bear.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932902AbaGPNeY (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 16 Jul 2014 09:34:24 -0400
+Message-ID: <53C67F5A.6070500@ti.com>
+Date: Wed, 16 Jul 2014 19:04:18 +0530
+From: George Cherian <george.cherian@ti.com>
 MIME-Version: 1.0
-To: "Li.Xiubo@freescale.com" <Li.Xiubo@freescale.com>,
-	"wim@iguana.be" <wim@iguana.be>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-CC: "robh+dt@kernel.org" <robh+dt@kernel.org>,
-	"pawel.moll@arm.com" <pawel.moll@arm.com>,
-	"mark.rutland@arm.com" <mark.rutland@arm.com>,
-	"ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>,
-	"galak@codeaurora.org" <galak@codeaurora.org>
-Subject: Re: [PATCH v2] watchdog: imx2_wdt: adds big endianness support.
-References: <1401763514-32589-1-git-send-email-Li.Xiubo@freescale.com> <20140610192619.GD7773@roeck-us.net> <f79bb471224b4b54bce631818b3a802b@BY2PR0301MB0613.namprd03.prod.outlook.com>
-In-Reply-To: <f79bb471224b4b54bce631818b3a802b@BY2PR0301MB0613.namprd03.prod.outlook.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Guenter Roeck <linux@roeck-us.net>,
+	<linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+CC: <wim@iguana.be>
+Subject: Re: [RESEND PATCH 1/3] watchdog: dw_wdt: Remove the un-necessary
+ check after platform_get_resource()
+References: <1405516744-29333-1-git-send-email-george.cherian@ti.com> <53C67D7A.4040705@roeck-us.net>
+In-Reply-To: <53C67D7A.4040705@roeck-us.net>
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 07/14/2014 07:15 PM, Li.Xiubo@freescale.com wrote:
-> Hi,
->
-> I'd like to know the status of this patch series.
->
-I reviewed it, and it is in my watchdog-next branch, so it is quite likely
-that Wim is going to pick it up for the next kernel.
+Hi Guenter,
 
-Guenter
-
-
-> :)
->
-> Thanks,
->
-> BRs
-> Xiubo
->
->
->
->
->> -----Original Message-----
->> From: Guenter Roeck [mailto:groeck7@gmail.com] On Behalf Of Guenter Roeck
->> Sent: Wednesday, June 11, 2014 3:26 AM
->> To: Xiubo Li-B47053
->> Cc: wim@iguana.be; linux-watchdog@vger.kernel.org; robh+dt@kernel.org;
->> pawel.moll@arm.com; mark.rutland@arm.com; ijc+devicetree@hellion.org.uk;
->> galak@codeaurora.org
->> Subject: Re: [PATCH v2] watchdog: imx2_wdt: adds big endianness support.
+On 7/16/2014 6:56 PM, Guenter Roeck wrote:
+> On 07/16/2014 06:19 AM, George Cherian wrote:
+>> devm_ioremap_resource() checks for valid resource.
+>> Remove the un-necessary check after platform_get_resource().
 >>
->> On Tue, Jun 03, 2014 at 10:45:14AM +0800, Xiubo Li wrote:
->>> This watchdog driver will be working on IMX2+, Vybrid, LS1, LS2+
->>> platforms, and will be in different endianness mode in those SoCs:
->>>
->>>      SoCs       WDT endian mode
->>> ------------------------------------
->>>      IMX2+           LE
->>>      Vybird          LE
->>>      LS1             BE
->>>      LS2             LE
->>>
->>> Signed-off-by: Xiubo Li <Li.Xiubo@freescale.com>
->>
+>> Signed-off-by: George Cherian <george.cherian@ti.com>
 >> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 >
+> All three patches have my Reviewed-by: tag and are in my watchdog-next 
+> branch.
+> Of course that does not guarantee that Wim will pick them up, but it 
+> is quite
+> likely.
+Thanks for the update.
 >
+> Guenter
+>
+
+
+-- 
+-George
 
