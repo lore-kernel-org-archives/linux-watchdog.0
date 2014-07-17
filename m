@@ -1,14 +1,16 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.126.131]:63696 "EHLO
-	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756779AbaGQKtP (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 17 Jul 2014 06:49:15 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Lars-Peter Clausen <lars@metafoo.de>
-Cc: Chen Gang <gang.chen.5i5j@gmail.com>,
+Received: from a.ns.miles-group.at ([95.130.255.143]:65279 "EHLO radon.swed.at"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756705AbaGQK7C (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 17 Jul 2014 06:59:02 -0400
+Message-ID: <53C7AC6F.1070001@nod.at>
+Date: Thu, 17 Jul 2014 12:58:55 +0200
+From: Richard Weinberger <richard@nod.at>
+MIME-Version: 1.0
+To: Arnd Bergmann <arnd@arndb.de>
+CC: Chen Gang <gang.chen.5i5j@gmail.com>,
 	Guenter Roeck <linux@roeck-us.net>,
-	Richard Weinberger <richard@nod.at>,
+	Lars-Peter Clausen <lars@metafoo.de>,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	dmitry.torokhov@gmail.com, linux-iio@vger.kernel.org,
 	Benjamin Herrenschmidt <benh@kernel.crashing.org>, teg@jklm.no,
@@ -21,70 +23,93 @@ Cc: Chen Gang <gang.chen.5i5j@gmail.com>,
 	knaack.h@gmx.de, Martin Schwidefsky <schwidefsky@de.ibm.com>,
 	Mischa.Jonker@synopsys.com, jic23@kernel.org,
 	Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH] drivers: Let several drivers depends on HAS_IOMEM for 'devm_ioremap_resource'
-Date: Thu, 17 Jul 2014 12:48:57 +0200
-Message-ID: <6485666.LVFO2YCEQx@wuerfel>
-In-Reply-To: <53C7A819.40403@metafoo.de>
-References: <201407130545.23004.marex@denx.de> <6823014.2plXDE9VA9@wuerfel> <53C7A819.40403@metafoo.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+Subject: Re: [PATCH] drivers: Let several drivers depends on HAS_IOMEM for
+ 'devm_ioremap_resource'
+References: <201407130545.23004.marex@denx.de> <6823014.2plXDE9VA9@wuerfel> <53C796E1.8080708@nod.at> <8453588.VVyODXRso0@wuerfel>
+In-Reply-To: <8453588.VVyODXRso0@wuerfel>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thursday 17 July 2014 12:40:25 Lars-Peter Clausen wrote:
-> On 07/17/2014 11:20 AM, Arnd Bergmann wrote:
-> > On Thursday 17 July 2014 09:27:58 Chen Gang wrote:
-> >>                                           gfp_t gfp_mask, unsigned int order);
-> >>   extern void devm_free_pages(struct device *dev, unsigned long addr);
-> >>
-> >> +#ifdef CONFIG_HAS_IOMEM
-> >>   void __iomem *devm_ioremap_resource(struct device *dev, struct resource *res);
-> >> +#elif defined(CONFIG_COMPILE_TEST)
-> >> +static inline void __iomem *devm_ioremap_resource(struct device *dev,
-> >> +                                               struct resource *res)
-> >> +{
-> >> +       pr_warn("no hardware io memory, only for COMPILE_TEST\n");
-> >> +       return (__force void __iomem *)ERR_PTR(-ENXIO);
-> >> +}
-> >> +#endif /* CONFIG_HAS_IOMEM || CONFIG_COMPILE_TEST */
-> >>
-> >>   /* allows to add/remove a custom action to devres stack */
-> >
-> > To be honest, I think it's a bad idea to introduce wrappers functions
-> > that are only available when CONFIG_COMPILE_TEST is set.
-> >
-> > COMPILE_TEST is a great tool in general, but it has its limits.
-> > In particular, the case for !CONFIG_IOMEM is completely obscure
-> > and we won't find any bugs by allowing more drivers to be built
-> > in those configurations, but attempting to do it would cause
-> > endless churn by changing each instance of 'depends on HAS_IOMEM'
-> > to 'depends on HAS_IOMEM || COMPILE_TEST'.
-> 
-> The point of this exercise is that we do not have to replace a good chunk of 
-> 'depends on COMPILE_TEST' with 'depends on COMPILE_TEST && HAS_IOMEM'
+Am 17.07.2014 12:28, schrieb Arnd Bergmann:
+> On Thursday 17 July 2014 11:26:57 Richard Weinberger wrote:
+>> Am 17.07.2014 11:20, schrieb Arnd Bergmann:
+>>> On Thursday 17 July 2014 09:27:58 Chen Gang wrote:
+>>>>                                          gfp_t gfp_mask, unsigned =
+int order);
+>>>>  extern void devm_free_pages(struct device *dev, unsigned long add=
+r);
+>>>> =20
+>>>> +#ifdef CONFIG_HAS_IOMEM
+>>>>  void __iomem *devm_ioremap_resource(struct device *dev, struct re=
+source *res);
+>>>> +#elif defined(CONFIG_COMPILE_TEST)
+>>>> +static inline void __iomem *devm_ioremap_resource(struct device *=
+dev,
+>>>> +                                               struct resource *r=
+es)
+>>>> +{
+>>>> +       pr_warn("no hardware io memory, only for COMPILE_TEST\n");
+>>>> +       return (__force void __iomem *)ERR_PTR(-ENXIO);
+>>>> +}
+>>>> +#endif /* CONFIG_HAS_IOMEM || CONFIG_COMPILE_TEST */
+>>>> =20
+>>>>  /* allows to add/remove a custom action to devres stack */
+>>>
+>>> To be honest, I think it's a bad idea to introduce wrappers functio=
+ns
+>>> that are only available when CONFIG_COMPILE_TEST is set.
+>>>
+>>> COMPILE_TEST is a great tool in general, but it has its limits.
+>>> In particular, the case for !CONFIG_IOMEM is completely obscure
+>>> and we won't find any bugs by allowing more drivers to be built
+>>> in those configurations, but attempting to do it would cause
+>>> endless churn by changing each instance of 'depends on HAS_IOMEM'
+>>> to 'depends on HAS_IOMEM || COMPILE_TEST'.
+>>>
+>>> Note that s390 no has gained support for IOMEM, tile has it most
+>>> of the time (when PCI is enabled, so you get it in half the
+>>> test builds already), score should set HAS_IOMEM and doesn't
+>>> even have public compilers, and uml doesn't even compile in
+>>> latest mainline. Nothing else ever sets NO_IOMEM.
+>>
+>> Huh? UML (v3.16-rc5-143-gb6603fe) builds fine here. What build issue=
+ are you facing?
+>=20
+> This is what I got upon trying earlier. I have not attempted to look =
+into
+> why this is happening. Note this is on linux-next from yesterday,
+> not mainline as I incorrectly stated above.
+>=20
+> In file included from ../arch/um/include/asm/fixmap.h:58:0,
+>                  from ../arch/um/include/asm/pgtable.h:11,
+>                  from ../include/linux/mm.h:51,
+>                  from ../kernel/uid16.c:6:
+> ../include/asm-generic/fixmap.h: In function 'fix_to_virt':
+> ../include/asm-generic/fixmap.h:31:2: error: size of unnamed array is=
+ negative
+>   BUILD_BUG_ON(idx >=3D __end_of_fixed_addresses);
 
-Ok, I see.
+So, this is next-20140716?
+I don't see the fixmap issue you're reporting, also not on the most rec=
+ent next.
 
-> E.g. the typical Kconfig entry for your random SoC peripheral driver looks like
-> 
-> config ARCH_FOOBAR_DRIVER
->         depends on ARCH_FOOBAR || COMPILE_TEST
->         ...
-> 
-> Now when COMPILE_TEST is not set there is a implicit dependency on HAS_IOMEM 
-> since the architecture will provide it. If COMPILE_TEST is selected the 
-> driver will also be build-able on architectures that do no have HAS_IOMEM 
-> and hence linking the driver fails. One way to fix this is of course to 
-> replace the COMPILE_TEST with (COMPILE_TEST && HAS_IOMEM). But this is very 
-> often overlooked and only noticed later on when somebody actually builds a 
-> allyesconfig on an architecture that does not provide HAS_IOMEM. To avoid 
-> these kinds of build errors and tedious fixup patches the idea is to provide 
-> a stub function when HAS_IOMEM is not enabled, but COMPILE_TEST is enabled.
+All I see is the known ext4 issue with CONFIG_SMP=3Dn:
 
-AFAICT, NO_IOMEM only has a real purpose on UML these days. Could we take
-a shortcut here and make COMPILE_TEST depend on !UML? Getting random stuff
-to build on UML seems pointless to me and we special-case it in a number of
-places already.
+fs/ext4/super.c: In function =91ext4_commit_super=92:
+fs/ext4/super.c:4547:41: error: =91struct percpu_counter=92 has no memb=
+er named =91counters=92
+  if (EXT4_SB(sb)->s_freeclusters_counter.counters)
+                                         ^
+fs/ext4/super.c:4551:39: error: =91struct percpu_counter=92 has no memb=
+er named =91counters=92
+  if (EXT4_SB(sb)->s_freeinodes_counter.counters)
 
-	Arnd
+Thanks,
+//richard
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
