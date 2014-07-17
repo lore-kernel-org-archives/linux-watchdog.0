@@ -1,93 +1,245 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-bn1blp0190.outbound.protection.outlook.com ([207.46.163.190]:17187
-	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752409AbaGQBTt convert rfc822-to-8bit (ORCPT
+Received: from mail-pd0-f173.google.com ([209.85.192.173]:52992 "EHLO
+	mail-pd0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750891AbaGQB23 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 16 Jul 2014 21:19:49 -0400
-From: "Li.Xiubo@freescale.com" <Li.Xiubo@freescale.com>
-To: Guenter Roeck <linux@roeck-us.net>,
-	"wim@iguana.be" <wim@iguana.be>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-CC: "robh+dt@kernel.org" <robh+dt@kernel.org>,
-	"pawel.moll@arm.com" <pawel.moll@arm.com>,
-	"mark.rutland@arm.com" <mark.rutland@arm.com>,
-	"ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>,
-	"galak@codeaurora.org" <galak@codeaurora.org>
-Subject: RE: [PATCH v2] watchdog: imx2_wdt: adds big endianness support.
-Date: Thu, 17 Jul 2014 01:19:44 +0000
-Message-ID: <6e98cb0eb870412f98a91a9eb28e2055@BY2PR0301MB0613.namprd03.prod.outlook.com>
-References: <1401763514-32589-1-git-send-email-Li.Xiubo@freescale.com>
- <20140610192619.GD7773@roeck-us.net>
- <f79bb471224b4b54bce631818b3a802b@BY2PR0301MB0613.namprd03.prod.outlook.com>
- <53C67DFF.5010008@roeck-us.net>
-In-Reply-To: <53C67DFF.5010008@roeck-us.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+	Wed, 16 Jul 2014 21:28:29 -0400
+Message-ID: <53C7269E.4010702@gmail.com>
+Date: Thu, 17 Jul 2014 09:27:58 +0800
+From: Chen Gang <gang.chen.5i5j@gmail.com>
 MIME-Version: 1.0
+To: Guenter Roeck <linux@roeck-us.net>,
+	Richard Weinberger <richard@nod.at>
+CC: Lars-Peter Clausen <lars@metafoo.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	dmitry.torokhov@gmail.com, linux-iio@vger.kernel.org,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>, teg@jklm.no,
+	Thierry Reding <thierry.reding@gmail.com>,
+	Lennox Wu <lennox.wu@gmail.com>, Marek Vasut <marex@denx.de>,
+	Liqin Chen <liqin.linux@gmail.com>, msalter@redhat.com,
+	linux-pwm@vger.kernel.org, devel@driverdev.osuosl.org,
+	linux-watchdog@vger.kernel.org, linux-input@vger.kernel.org,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	knaack.h@gmx.de, Martin Schwidefsky <schwidefsky@de.ibm.com>,
+	Mischa.Jonker@synopsys.com, jic23@kernel.org, arnd@arndb.de,
+	Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH] drivers: Let several drivers depends on HAS_IOMEM for
+ 'devm_ioremap_resource'
+References: <201407130545.23004.marex@denx.de> <CAF0htA60juBVkPo2HQKMDGcEr-wRzRVL_6JgHAa+7WVE_E8M0Q@mail.gmail.com> <53C25551.1050909@nod.at> <53C288F0.3070001@metafoo.de> <53C28C4A.70907@nod.at> <53C29015.5070607@metafoo.de> <53C291C8.6050303@nod.at> <53C296C2.30304@metafoo.de> <20140713192202.GA19090@kroah.com> <53C2DF12.6040507@nod.at> <20140713201753.GA29955@kroah.com> <53C39569.9020802@nod.at> <53C3994C.1010309@metafoo.de> <53C39B66.4060500@nod.at> <5A40E1FC-CA61-4AFF-B205-4BAC175AA7AC@gmail.com> <53C47725.8000005@gmail.com> <53C47B76.4080306@roeck-us.net> <53C47FB7.6080304@gmail.com> <53C53CE1.4090803@gmail.com>
+In-Reply-To: <53C53CE1.4090803@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-> Subject: Re: [PATCH v2] watchdog: imx2_wdt: adds big endianness support.
-> 
-> On 07/14/2014 07:15 PM, Li.Xiubo@freescale.com wrote:
-> > Hi,
-> >
-> > I'd like to know the status of this patch series.
-> >
-> I reviewed it, and it is in my watchdog-next branch, so it is quite likely
-> that Wim is going to pick it up for the next kernel.
-> 
-> Guenter
->
 
-That's great.
 
-Thanks very much.
+On 07/15/2014 10:38 PM, Chen Gang wrote:
+> On 07/15/2014 09:11 AM, Chen Gang wrote:
+>>
+>>
+>> On 07/15/2014 08:53 AM, Guenter Roeck wrote:
+>>> On 07/14/2014 05:34 PM, Chen Gang wrote:
+>>>> On 07/14/2014 05:22 PM, Chen Gang wrote:
+>>>>>
+>>>>> =E5=9C=A8 2014=E5=B9=B47=E6=9C=8814=E6=97=A5=EF=BC=8C=E4=B8=8B=E5=
+=8D=884:57=EF=BC=8CRichard Weinberger <richard@nod.at> =E5=86=99=E9=81=93=
+=EF=BC=9A
+>>>>>
+>>>>>> Am 14.07.2014 10:48, schrieb Lars-Peter Clausen:
+>>>>>>> On 07/14/2014 10:31 AM, Richard Weinberger wrote:
+>>>>>>>> Am 13.07.2014 22:17, schrieb Greg Kroah-Hartman:
+>>>>>>>>> On Sun, Jul 13, 2014 at 09:33:38PM +0200, Richard Weinberger =
+wrote:
+>>>>>>>>>> Maybe we could add COMPILE_TEST to the version string too?
+>>>>>>>>>> Just to detect such kernels fast in user bug reports...
+>>>>>>>>>
+>>>>>>>>> What kind of bug report are you going to get?
+>>>>>>>>
+>>>>>>>> User manages to enable CONFIG_FOO by selecting COMPILE_TEST an=
+d
+>>>>>>>> complains that it does not work. :)
+>>>>>>>
+>>>>>>> These drivers are typically drivers for some SoC peripheral and=
+ the
+>>>>>>> device will simply physically not exist on a platform that does=
+ not
+>>>>>>> provide HAS_IOMEM. This is not really any
+>>>>>>> different from making the driver selectable via COMPILE_TEST fo=
+r
+>>>>>>> any other platform. To hit the issue you'd have to instantiate =
+a
+>>>>>>> device driver instance for a device that
+>>>>>>> physically does not exist. This will always result in a failure=
+=2E
+>>>>>>
+>>>>>> Okay, you have convinced me. :)
+>>>>>>
+>>>>
+>>>> After search the history patches, I found one related patch which =
+made
+>>>> by myself (when I am in Asianux):
+>>>>
+>>>>    "https://lkml.org/lkml/2013/7/1/641"
+>>>>
+>>>> For me, it is a long discussion, and forced many members have to j=
+oin
+>>>> in. Please help check again.
+>>>>
+>>>
+>>> One thing you could try would be to return NULL (or where appropria=
+te
+>>> an error) in the #else case of CONFIG_HAS_IOMEM and CONFIG_HAS_IOPO=
+RT,
+>>> ie dont take COMPILE_TEST into account at all. Obviously that means
+>>> you won't be able to dump a warning message in the COMPILE_TEST
+>>> case, but at least the code would compile. The rejection of above p=
+atch
+>>> would make a good case for this approach.
+>>>
 
-BRs
-Xiubo
+=46or me, only let 'devm_io*map*' support COMPILE_TEST is OK, that can =
+fix
+all related issues:
 
- 
-> 
-> > :)
-> >
-> > Thanks,
-> >
-> > BRs
-> > Xiubo
-> >
-> >
-> >
-> >
-> >> -----Original Message-----
-> >> From: Guenter Roeck [mailto:groeck7@gmail.com] On Behalf Of Guenter Roeck
-> >> Sent: Wednesday, June 11, 2014 3:26 AM
-> >> To: Xiubo Li-B47053
-> >> Cc: wim@iguana.be; linux-watchdog@vger.kernel.org; robh+dt@kernel.org;
-> >> pawel.moll@arm.com; mark.rutland@arm.com; ijc+devicetree@hellion.org.uk;
-> >> galak@codeaurora.org
-> >> Subject: Re: [PATCH v2] watchdog: imx2_wdt: adds big endianness support.
-> >>
-> >> On Tue, Jun 03, 2014 at 10:45:14AM +0800, Xiubo Li wrote:
-> >>> This watchdog driver will be working on IMX2+, Vybrid, LS1, LS2+
-> >>> platforms, and will be in different endianness mode in those SoCs:
-> >>>
-> >>>      SoCs       WDT endian mode
-> >>> ------------------------------------
-> >>>      IMX2+           LE
-> >>>      Vybird          LE
-> >>>      LS1             BE
-> >>>      LS2             LE
-> >>>
-> >>> Signed-off-by: Xiubo Li <Li.Xiubo@freescale.com>
-> >>
-> >> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >
-> >
 
+[PATCH] lib: devres: Add dumy functions to support COMPILE_TEST when no=
+ IOMEM
+
+=46or some architectures which no IOMEM, 'devres' will be skipped. But
+many drivers may still want COMPILE_TEST, so let 'devres' support it.
+
+The related error (with allmodconfig under score):
+
+    MODPOST 1365 modules
+  ERROR: "devm_ioremap_resource" [drivers/watchdog/tegra_wdt.ko] undefi=
+ned!
+  ERROR: "devm_ioremap_resource" [drivers/watchdog/of_xilinx_wdt.ko] un=
+defined!
+  ERROR: "devm_ioremap_resource" [drivers/staging/iio/adc/mxs-lradc.ko]=
+ undefined!
+  ERROR: "devm_ioremap_resource" [drivers/pwm/pwm-clps711x.ko] undefine=
+d!
+  ERROR: "devm_ioremap_resource" [drivers/input/serio/olpc_apsp.ko] und=
+efined!
+  ERROR: "devm_ioremap_resource" [drivers/input/serio/arc_ps2.ko] undef=
+ined!
+  ERROR: "devm_ioremap_resource" [drivers/rtc/rtc-xgene.ko] undefined!
+  ERROR: "devm_ioremap_resource" [drivers/rtc/rtc-stk17ta8.ko] undefine=
+d!
+  ERROR: "devm_ioremap_resource" [drivers/rtc/rtc-ds1742.ko] undefined!
+  ERROR: "devm_ioremap_resource" [drivers/rtc/rtc-ds1553.ko] undefined!
+  ERROR: "devm_ioremap_resource" [drivers/rtc/rtc-ds1511.ko] undefined!
+  ERROR: "devm_ioremap_resource" [drivers/rtc/rtc-ds1286.ko] undefined!
+  ERROR: "devm_ioremap" [drivers/rtc/rtc-rp5c01.ko] undefined!
+  ERROR: "devm_ioremap" [drivers/rtc/rtc-msm6242.ko] undefined!
+  ERROR: "devm_ioremap" [drivers/rtc/rtc-m48t59.ko] undefined!
+  ERROR: "devm_ioremap" [drivers/rtc/rtc-m48t35.ko] undefined!
+  ERROR: "devm_ioremap" [drivers/rtc/rtc-bq4802.ko] undefined!
+
+
+Signed-off-by: Chen Gang <gang.chen.5i5j@gmail.com>
+---
+ include/linux/device.h |  9 +++++++++
+ include/linux/io.h     | 30 +++++++++++++++++++++++++++++-
+ 2 files changed, 38 insertions(+), 1 deletion(-)
+
+diff --git a/include/linux/device.h b/include/linux/device.h
+index c2421e0..a7500c3 100644
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -630,7 +630,16 @@ extern unsigned long devm_get_free_pages(struct de=
+vice *dev,
+ 					 gfp_t gfp_mask, unsigned int order);
+ extern void devm_free_pages(struct device *dev, unsigned long addr);
+=20
++#ifdef CONFIG_HAS_IOMEM
+ void __iomem *devm_ioremap_resource(struct device *dev, struct resourc=
+e *res);
++#elif defined(CONFIG_COMPILE_TEST)
++static inline void __iomem *devm_ioremap_resource(struct device *dev,
++						struct resource *res)
++{
++	pr_warn("no hardware io memory, only for COMPILE_TEST\n");
++	return (__force void __iomem *)ERR_PTR(-ENXIO);
++}
++#endif /* CONFIG_HAS_IOMEM || CONFIG_COMPILE_TEST */
+=20
+ /* allows to add/remove a custom action to devres stack */
+ int devm_add_action(struct device *dev, void (*action)(void *), void *=
+data);
+diff --git a/include/linux/io.h b/include/linux/io.h
+index b76e6e5..59128aa 100644
+--- a/include/linux/io.h
++++ b/include/linux/io.h
+@@ -58,14 +58,42 @@ static inline void devm_ioport_unmap(struct device =
+*dev, void __iomem *addr)
+ }
+ #endif
+=20
++#ifdef CONFIG_HAS_IOMEM
++
+ void __iomem *devm_ioremap(struct device *dev, resource_size_t offset,
+ 			    unsigned long size);
+ void __iomem *devm_ioremap_nocache(struct device *dev, resource_size_t=
+ offset,
+ 				    unsigned long size);
+ void devm_iounmap(struct device *dev, void __iomem *addr);
++void devm_ioremap_release(struct device *dev, void *res);
++
++#elif defined(CONFIG_COMPILE_TEST)
++
++static inline void __iomem *devm_ioremap(struct device *dev,
++				resource_size_t offset, unsigned long size)
++{
++	pr_warn("no hardware io memory, only for COMPILE_TEST\n");
++	return NULL;
++}
++static inline void __iomem *devm_ioremap_nocache(struct device *dev,
++				resource_size_t offset, unsigned long size)
++{
++	pr_warn("no hardware io memory, only for COMPILE_TEST\n");
++	return NULL;
++}
++
++static inline void devm_iounmap(struct device *dev, void __iomem *addr=
+)
++{
++}
++
++static inline void devm_ioremap_release(struct device *dev, void *res)
++{
++}
++
++#endif /* CONFIG_HAS_IOMEM || CONFIG_COMPILE_TEST */
++
+ int check_signature(const volatile void __iomem *io_addr,
+ 			const unsigned char *signature, int length);
+-void devm_ioremap_release(struct device *dev, void *res);
+=20
+ /*
+  * Some systems do not have legacy ISA devices.
+--=20
+1.9.2.459.g68773ac
+
+>>
+>> OK, thanks: at least, it can be improved.  But still welcome any oth=
+er
+>> opinions of another related members.
+>>
+>=20
+> If no reply within 3 days (2014-07-18), I shall try to send related
+> patch for it within this week end (2014-07-20).
+>=20
+> Thanks.
+>=20
+
+--=20
+Chen Gang
+
+Open, share, and attitude like air, water, and life which God blessed
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
