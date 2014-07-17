@@ -1,14 +1,16 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from a.ns.miles-group.at ([95.130.255.143]:65279 "EHLO radon.swed.at"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754778AbaGQJ1I (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 17 Jul 2014 05:27:08 -0400
-Message-ID: <53C796E1.8080708@nod.at>
-Date: Thu, 17 Jul 2014 11:26:57 +0200
-From: Richard Weinberger <richard@nod.at>
+Received: from mail-pa0-f41.google.com ([209.85.220.41]:37289 "EHLO
+	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755515AbaGQJ3m (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 17 Jul 2014 05:29:42 -0400
+Message-ID: <53C7977B.9090903@gmail.com>
+Date: Thu, 17 Jul 2014 17:29:31 +0800
+From: Chen Gang <gang.chen.5i5j@gmail.com>
 MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>, Chen Gang <gang.chen.5i5j@gmail.com>
+To: Arnd Bergmann <arnd@arndb.de>
 CC: Guenter Roeck <linux@roeck-us.net>,
+	Richard Weinberger <richard@nod.at>,
 	Lars-Peter Clausen <lars@metafoo.de>,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	dmitry.torokhov@gmail.com, linux-iio@vger.kernel.org,
@@ -31,7 +33,9 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Am 17.07.2014 11:20, schrieb Arnd Bergmann:
+
+
+On 07/17/2014 05:20 PM, Arnd Bergmann wrote:
 > On Thursday 17 July 2014 09:27:58 Chen Gang wrote:
 >>                                          gfp_t gfp_mask, unsigned int order);
 >>  extern void devm_free_pages(struct device *dev, unsigned long addr);
@@ -58,14 +62,31 @@ Am 17.07.2014 11:20, schrieb Arnd Bergmann:
 > in those configurations, but attempting to do it would cause
 > endless churn by changing each instance of 'depends on HAS_IOMEM'
 > to 'depends on HAS_IOMEM || COMPILE_TEST'.
-> 
+>
+
+Architecture members and driver members really have different tastes,
+they are different roles. It really need additional discussion.
+
+For me, I only want to change devm_io*map*, not touch so much.
+
+Welcome any other members' idea or suggestions.
+
 > Note that s390 no has gained support for IOMEM, tile has it most
 > of the time (when PCI is enabled, so you get it in half the
 > test builds already), score should set HAS_IOMEM and doesn't
 > even have public compilers, and uml doesn't even compile in
 > latest mainline. Nothing else ever sets NO_IOMEM.
+> 
 
-Huh? UML (v3.16-rc5-143-gb6603fe) builds fine here. What build issue are you facing?
+In latest gcc and binutils, can compile score cross compiler
+successfully for building kernel (but I am not quite sure whether the
+compiling result are really OK, but I guess so).
 
-Thanks,
-//richard
+And next (maybe after finish allmodconfig for microblaze), I shall try
+to let uml pass allmodconfig for linux-next tree.
+
+Thanks.
+-- 
+Chen Gang
+
+Open, share, and attitude like air, water, and life which God blessed
