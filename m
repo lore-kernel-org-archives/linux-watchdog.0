@@ -1,20 +1,18 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:51546 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751267AbaGQB6X (ORCPT
+Received: from mail-wi0-f175.google.com ([209.85.212.175]:42799 "EHLO
+	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755463AbaGQIn1 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 16 Jul 2014 21:58:23 -0400
-Message-ID: <53C72DBC.5020900@roeck-us.net>
-Date: Wed, 16 Jul 2014 18:58:20 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: Chen Gang <gang.chen.5i5j@gmail.com>,
-	Richard Weinberger <richard@nod.at>
-CC: Lars-Peter Clausen <lars@metafoo.de>,
+	Thu, 17 Jul 2014 04:43:27 -0400
+Date: Thu, 17 Jul 2014 10:37:57 +0200
+From: Thierry Reding <thierry.reding@gmail.com>
+To: Chen Gang <gang.chen.5i5j@gmail.com>
+Cc: Guenter Roeck <linux@roeck-us.net>,
+	Richard Weinberger <richard@nod.at>,
+	Lars-Peter Clausen <lars@metafoo.de>,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	dmitry.torokhov@gmail.com, linux-iio@vger.kernel.org,
 	Benjamin Herrenschmidt <benh@kernel.crashing.org>, teg@jklm.no,
-	Thierry Reding <thierry.reding@gmail.com>,
 	Lennox Wu <lennox.wu@gmail.com>, Marek Vasut <marex@denx.de>,
 	Liqin Chen <liqin.linux@gmail.com>, msalter@redhat.com,
 	linux-pwm@vger.kernel.org, devel@driverdev.osuosl.org,
@@ -25,192 +23,97 @@ CC: Lars-Peter Clausen <lars@metafoo.de>,
 	Geert Uytterhoeven <geert@linux-m68k.org>
 Subject: Re: [PATCH] drivers: Let several drivers depends on HAS_IOMEM for
  'devm_ioremap_resource'
-References: <201407130545.23004.marex@denx.de> <CAF0htA60juBVkPo2HQKMDGcEr-wRzRVL_6JgHAa+7WVE_E8M0Q@mail.gmail.com> <53C25551.1050909@nod.at> <53C288F0.3070001@metafoo.de> <53C28C4A.70907@nod.at> <53C29015.5070607@metafoo.de> <53C291C8.6050303@nod.at> <53C296C2.30304@metafoo.de> <20140713192202.GA19090@kroah.com> <53C2DF12.6040507@nod.at> <20140713201753.GA29955@kroah.com> <53C39569.9020802@nod.at> <53C3994C.1010309@metafoo.de> <53C39B66.4060500@nod.at> <5A40E1FC-CA61-4AFF-B205-4BAC175AA7AC@gmail.com> <53C47725.8000005@gmail.com> <53C47B76.4080306@roeck-us.net> <53C47FB7.6080304@gmail.com> <53C53CE1.4090803@gmail.com> <53C7269E.4010702@gmail.com>
+Message-ID: <20140717083756.GA19686@ulmo>
+References: <20140713201753.GA29955@kroah.com>
+ <53C39569.9020802@nod.at>
+ <53C3994C.1010309@metafoo.de>
+ <53C39B66.4060500@nod.at>
+ <5A40E1FC-CA61-4AFF-B205-4BAC175AA7AC@gmail.com>
+ <53C47725.8000005@gmail.com>
+ <53C47B76.4080306@roeck-us.net>
+ <53C47FB7.6080304@gmail.com>
+ <53C53CE1.4090803@gmail.com>
+ <53C7269E.4010702@gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="HcAYCG3uE/tztfnV"
+Content-Disposition: inline
 In-Reply-To: <53C7269E.4010702@gmail.com>
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 07/16/2014 06:27 PM, Chen Gang wrote:
->
->
-> On 07/15/2014 10:38 PM, Chen Gang wrote:
->> On 07/15/2014 09:11 AM, Chen Gang wrote:
->>>
->>>
->>> On 07/15/2014 08:53 AM, Guenter Roeck wrote:
->>>> On 07/14/2014 05:34 PM, Chen Gang wrote:
->>>>> On 07/14/2014 05:22 PM, Chen Gang wrote:
->>>>>>
->>>>>> =E5=9C=A8 2014=E5=B9=B47=E6=9C=8814=E6=97=A5=EF=BC=8C=E4=B8=8B=E5=
-=8D=884:57=EF=BC=8CRichard Weinberger <richard@nod.at> =E5=86=99=E9=81=93=
-=EF=BC=9A
->>>>>>
->>>>>>> Am 14.07.2014 10:48, schrieb Lars-Peter Clausen:
->>>>>>>> On 07/14/2014 10:31 AM, Richard Weinberger wrote:
->>>>>>>>> Am 13.07.2014 22:17, schrieb Greg Kroah-Hartman:
->>>>>>>>>> On Sun, Jul 13, 2014 at 09:33:38PM +0200, Richard Weinberger=
- wrote:
->>>>>>>>>>> Maybe we could add COMPILE_TEST to the version string too?
->>>>>>>>>>> Just to detect such kernels fast in user bug reports...
->>>>>>>>>>
->>>>>>>>>> What kind of bug report are you going to get?
->>>>>>>>>
->>>>>>>>> User manages to enable CONFIG_FOO by selecting COMPILE_TEST a=
-nd
->>>>>>>>> complains that it does not work. :)
->>>>>>>>
->>>>>>>> These drivers are typically drivers for some SoC peripheral an=
-d the
->>>>>>>> device will simply physically not exist on a platform that doe=
-s not
->>>>>>>> provide HAS_IOMEM. This is not really any
->>>>>>>> different from making the driver selectable via COMPILE_TEST f=
-or
->>>>>>>> any other platform. To hit the issue you'd have to instantiate=
- a
->>>>>>>> device driver instance for a device that
->>>>>>>> physically does not exist. This will always result in a failur=
-e.
->>>>>>>
->>>>>>> Okay, you have convinced me. :)
->>>>>>>
->>>>>
->>>>> After search the history patches, I found one related patch which=
- made
->>>>> by myself (when I am in Asianux):
->>>>>
->>>>>     "https://lkml.org/lkml/2013/7/1/641"
->>>>>
->>>>> For me, it is a long discussion, and forced many members have to =
-join
->>>>> in. Please help check again.
->>>>>
->>>>
->>>> One thing you could try would be to return NULL (or where appropri=
-ate
->>>> an error) in the #else case of CONFIG_HAS_IOMEM and CONFIG_HAS_IOP=
-ORT,
->>>> ie dont take COMPILE_TEST into account at all. Obviously that mean=
-s
->>>> you won't be able to dump a warning message in the COMPILE_TEST
->>>> case, but at least the code would compile. The rejection of above =
-patch
->>>> would make a good case for this approach.
->>>>
->
-> For me, only let 'devm_io*map*' support COMPILE_TEST is OK, that can =
-fix
-> all related issues:
->
->
-> [PATCH] lib: devres: Add dumy functions to support COMPILE_TEST when =
-no IOMEM
->
-> For some architectures which no IOMEM, 'devres' will be skipped. But
-> many drivers may still want COMPILE_TEST, so let 'devres' support it.
->
-> The related error (with allmodconfig under score):
->
->      MODPOST 1365 modules
->    ERROR: "devm_ioremap_resource" [drivers/watchdog/tegra_wdt.ko] und=
-efined!
->    ERROR: "devm_ioremap_resource" [drivers/watchdog/of_xilinx_wdt.ko]=
- undefined!
->    ERROR: "devm_ioremap_resource" [drivers/staging/iio/adc/mxs-lradc.=
-ko] undefined!
->    ERROR: "devm_ioremap_resource" [drivers/pwm/pwm-clps711x.ko] undef=
-ined!
->    ERROR: "devm_ioremap_resource" [drivers/input/serio/olpc_apsp.ko] =
-undefined!
->    ERROR: "devm_ioremap_resource" [drivers/input/serio/arc_ps2.ko] un=
-defined!
->    ERROR: "devm_ioremap_resource" [drivers/rtc/rtc-xgene.ko] undefine=
-d!
->    ERROR: "devm_ioremap_resource" [drivers/rtc/rtc-stk17ta8.ko] undef=
-ined!
->    ERROR: "devm_ioremap_resource" [drivers/rtc/rtc-ds1742.ko] undefin=
-ed!
->    ERROR: "devm_ioremap_resource" [drivers/rtc/rtc-ds1553.ko] undefin=
-ed!
->    ERROR: "devm_ioremap_resource" [drivers/rtc/rtc-ds1511.ko] undefin=
-ed!
->    ERROR: "devm_ioremap_resource" [drivers/rtc/rtc-ds1286.ko] undefin=
-ed!
->    ERROR: "devm_ioremap" [drivers/rtc/rtc-rp5c01.ko] undefined!
->    ERROR: "devm_ioremap" [drivers/rtc/rtc-msm6242.ko] undefined!
->    ERROR: "devm_ioremap" [drivers/rtc/rtc-m48t59.ko] undefined!
->    ERROR: "devm_ioremap" [drivers/rtc/rtc-m48t35.ko] undefined!
->    ERROR: "devm_ioremap" [drivers/rtc/rtc-bq4802.ko] undefined!
->
->
-> Signed-off-by: Chen Gang <gang.chen.5i5j@gmail.com>
-> ---
->   include/linux/device.h |  9 +++++++++
->   include/linux/io.h     | 30 +++++++++++++++++++++++++++++-
->   2 files changed, 38 insertions(+), 1 deletion(-)
->
+
+--HcAYCG3uE/tztfnV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Jul 17, 2014 at 09:27:58AM +0800, Chen Gang wrote:
+[...]
 > diff --git a/include/linux/device.h b/include/linux/device.h
 > index c2421e0..a7500c3 100644
 > --- a/include/linux/device.h
 > +++ b/include/linux/device.h
-> @@ -630,7 +630,16 @@ extern unsigned long devm_get_free_pages(struct =
-device *dev,
->   					 gfp_t gfp_mask, unsigned int order);
->   extern void devm_free_pages(struct device *dev, unsigned long addr)=
-;
->
+> @@ -630,7 +630,16 @@ extern unsigned long devm_get_free_pages(struct devi=
+ce *dev,
+>  					 gfp_t gfp_mask, unsigned int order);
+>  extern void devm_free_pages(struct device *dev, unsigned long addr);
+> =20
 > +#ifdef CONFIG_HAS_IOMEM
->   void __iomem *devm_ioremap_resource(struct device *dev, struct reso=
-urce *res);
+>  void __iomem *devm_ioremap_resource(struct device *dev, struct resource =
+*res);
 > +#elif defined(CONFIG_COMPILE_TEST)
-
-I would make it #else
-
-> +static inline void __iomem *devm_ioremap_resource(struct device *dev=
-,
+> +static inline void __iomem *devm_ioremap_resource(struct device *dev,
 > +						struct resource *res)
 > +{
 > +	pr_warn("no hardware io memory, only for COMPILE_TEST\n");
 
-dev_warn
+Maybe: "Hardware doesn't support memory-mapped I/O"? I'm not sure if
+it's useful to include the reference to COMPILE_TEST, especially since
+the #elif will be dropped in favour of a simple #else.
 
 > +	return (__force void __iomem *)ERR_PTR(-ENXIO);
+
+There's apparently an IOMEM_ERR_PTR() for this nowadays...
+
 > +}
 > +#endif /* CONFIG_HAS_IOMEM || CONFIG_COMPILE_TEST */
->
->   /* allows to add/remove a custom action to devres stack */
->   int devm_add_action(struct device *dev, void (*action)(void *), voi=
-d *data);
+> =20
+>  /* allows to add/remove a custom action to devres stack */
+>  int devm_add_action(struct device *dev, void (*action)(void *), void *da=
+ta);
 > diff --git a/include/linux/io.h b/include/linux/io.h
 > index b76e6e5..59128aa 100644
 > --- a/include/linux/io.h
 > +++ b/include/linux/io.h
-> @@ -58,14 +58,42 @@ static inline void devm_ioport_unmap(struct devic=
-e *dev, void __iomem *addr)
->   }
->   #endif
->
+> @@ -58,14 +58,42 @@ static inline void devm_ioport_unmap(struct device *d=
+ev, void __iomem *addr)
+>  }
+>  #endif
+> =20
 > +#ifdef CONFIG_HAS_IOMEM
 > +
->   void __iomem *devm_ioremap(struct device *dev, resource_size_t offs=
-et,
->   			    unsigned long size);
->   void __iomem *devm_ioremap_nocache(struct device *dev, resource_siz=
-e_t offset,
->   				    unsigned long size);
->   void devm_iounmap(struct device *dev, void __iomem *addr);
+>  void __iomem *devm_ioremap(struct device *dev, resource_size_t offset,
+>  			    unsigned long size);
+>  void __iomem *devm_ioremap_nocache(struct device *dev, resource_size_t o=
+ffset,
+>  				    unsigned long size);
+>  void devm_iounmap(struct device *dev, void __iomem *addr);
 > +void devm_ioremap_release(struct device *dev, void *res);
 > +
 > +#elif defined(CONFIG_COMPILE_TEST)
 > +
-
-Same as above - I would suggest to use #else.
-
 > +static inline void __iomem *devm_ioremap(struct device *dev,
 > +				resource_size_t offset, unsigned long size)
+
+For consistency with other functions above, please keep arguments on
+subsequent lines aligned with the first argument on the first line, like
+so:
+
+static inline void __iomem *devm_ioremap(struct device *dev,
+					 resource_size_t offset,
+					 unsigned long size)
+
 > +{
 > +	pr_warn("no hardware io memory, only for COMPILE_TEST\n");
 > +	return NULL;
@@ -219,36 +122,37 @@ Same as above - I would suggest to use #else.
 > +				resource_size_t offset, unsigned long size)
 > +{
 > +	pr_warn("no hardware io memory, only for COMPILE_TEST\n");
-
-dev_warn
-
-Guenter
-
 > +	return NULL;
 > +}
-> +
-> +static inline void devm_iounmap(struct device *dev, void __iomem *ad=
-dr)
-> +{
-> +}
-> +
-> +static inline void devm_ioremap_release(struct device *dev, void *re=
-s)
-> +{
-> +}
-> +
-> +#endif /* CONFIG_HAS_IOMEM || CONFIG_COMPILE_TEST */
-> +
->   int check_signature(const volatile void __iomem *io_addr,
->   			const unsigned char *signature, int length);
-> -void devm_ioremap_release(struct device *dev, void *res);
->
->   /*
->    * Some systems do not have legacy ISA devices.
->
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Perhaps this should call devm_ioremap() so we don't have to repeat the
+same error message? Or maybe make it:
+
+	#define devm_ioremap_nocache devm_ioremap
+
+?
+
+Thierry
+
+--HcAYCG3uE/tztfnV
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBAgAGBQJTx4tkAAoJEN0jrNd/PrOhPFsP/RtP+U7gdFVyMKLDo+VHJhfM
+jUloIvPcehSqMA6dMW8RY5HcbHi4cDgtRSzTD+PsP+xmOmhsYyljZo8zRQUWUEzj
+/oQ0/EGapQssJVPDzlwcw5hM1aIgMJ6Prte4JXDgNG0a/HtJYszSRCrjuqydFHgX
+2nR7cJwABSAmCauB0ZciqyePMlIFArNeUzIIN6DvfnAhAsBC2IMSpHaa20Fd+9En
+/nv2pN21Rkzis/521g6ECEdivS5SkIBuDMAa9bHvU7tRzae08Gdoa/MhAW8bP4SA
+vh09U76m3W+eyvSiNAmrJ5ROIZBFTxewmDIxYFgdk1JCr5J/QyUTERPWNqxdiQG1
+Ur6oPZ0C/j/Xi25w2oXSIojc1hMofYRIKVX3dDoRScjG1ylOtyW8gP3fjaHUW2gR
+whwAJYkEWnRebJqpCBLlE2vu3DjNlDSMmAs9oYk9FO1dHxKdtucl0jw9YMRHaRHz
+9KK5MnWwDune9dZM1MJYL6xGcPSrpCruW26Af4i9xMYjzlGiOJPE3FD8Ppu6R/iN
+Jo8bF5N8Q38mqwetLRGaR36tdu+sfc2xhWi7O1CXrBzYq96hm62JIILTTdAFhHkZ
+0kZ/OY9zudihO3kRAmTHGU1VcBfAc0COzjQMlCAtuFbXBBYnby2U8AvLwLiMdKb9
+k/sXMgNrAeZRiM8ThB8D
+=enXN
+-----END PGP SIGNATURE-----
+
+--HcAYCG3uE/tztfnV--
