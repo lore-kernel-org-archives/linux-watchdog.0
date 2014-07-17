@@ -1,102 +1,288 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f169.google.com ([209.85.192.169]:48543 "EHLO
-	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754898AbaGQLrE (ORCPT
+Received: from mail1.bemta5.messagelabs.com ([195.245.231.141]:61319 "EHLO
+	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756027AbaGQNOr (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 17 Jul 2014 07:47:04 -0400
-Message-ID: <53C7B7AF.3070103@gmail.com>
-Date: Thu, 17 Jul 2014 19:46:55 +0800
-From: Chen Gang <gang.chen.5i5j@gmail.com>
+	Thu, 17 Jul 2014 09:14:47 -0400
+Date: Thu, 17 Jul 2014 16:06:53 +0200
+From: Andreas Werner <andreas.werner@men.de>
+To: Lee Jones <lee.jones@linaro.org>
+CC: Andreas Werner <andreas.werner@men.de>,
+	<linux-kernel@vger.kernel.org>, <sameo@linux.intel.com>,
+	<cooloney@gmail.com>, <rpurdie@rpsys.net>,
+	<linux-leds@vger.kernel.org>, <wim@iguana.be>,
+	<linux-watchdog@vger.kernel.org>
+Subject: Re: [PATCH v3 1/3] drivers/mfd/menf21bmc: introduce MEN 14F021P00
+ BMC MFD Core driver
+Message-ID: <20140717140653.GA8468@awelinux>
+References: <cover.1405602280.git.andreas.werner@men.de>
+ <e035a8a5211769e610a1337dc786f2fcc8dfd14d.1405602280.git.andreas.werner@men.de>
+ <20140717124156.GF30888@lee--X1>
 MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: Guenter Roeck <linux@roeck-us.net>,
-	Richard Weinberger <richard@nod.at>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	dmitry.torokhov@gmail.com, linux-iio@vger.kernel.org,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>, teg@jklm.no,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Lennox Wu <lennox.wu@gmail.com>, Marek Vasut <marex@denx.de>,
-	Liqin Chen <liqin.linux@gmail.com>, msalter@redhat.com,
-	linux-pwm@vger.kernel.org, devel@driverdev.osuosl.org,
-	linux-watchdog@vger.kernel.org, linux-input@vger.kernel.org,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	knaack.h@gmx.de, Martin Schwidefsky <schwidefsky@de.ibm.com>,
-	jic23@kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-	Liqin Chen <liqin.linux@gmail.com>,
-	Lennox Wu <lennox.wu@gmail.com>
-Subject: Re: [PATCH] drivers: Let several drivers depends on HAS_IOMEM for
- 'devm_ioremap_resource'
-References: <201407130545.23004.marex@denx.de> <6823014.2plXDE9VA9@wuerfel> <53C7977B.9090903@gmail.com> <7018119.hVYUML2rzD@wuerfel>
-In-Reply-To: <7018119.hVYUML2rzD@wuerfel>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+In-Reply-To: <20140717124156.GF30888@lee--X1>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On Thu, Jul 17, 2014 at 01:41:56PM +0100, Lee Jones wrote:
+> On Thu, 17 Jul 2014, Andreas Werner wrote:
+> > The MEN 14F021P00 Board Management Controller provides an
+> > I2C interface to the host to access the feature implemented in the =
+BMC.
+> > The BMC is a PIC Microntroller assembled on CPCI Card from MEN Mikr=
+oelektronik
+> > and on a few Box/Display Computer.
+> >=20
+> > Added MFD Core driver, supporting the I2C communication to the devi=
+ce.
+> >=20
+> > The MFD driver currently supports the following features:
+> >  	- Watchdog
+> >  	- LEDs
+> >=20
+> > Signed-off-by: Andreas Werner <andreas.werner@men.de>
+> > ---
+> >  drivers/mfd/Kconfig     |  12 +++++
+> >  drivers/mfd/Makefile    |   1 +
+> >  drivers/mfd/menf21bmc.c | 136 ++++++++++++++++++++++++++++++++++++=
+++++++++++++
+> >  3 files changed, 149 insertions(+)
+> >  create mode 100644 drivers/mfd/menf21bmc.c
+> >=20
+> > diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+> > index b8d9ca0..6e2cd14 100644
+> > --- a/drivers/mfd/Kconfig
+> > +++ b/drivers/mfd/Kconfig
+> > @@ -453,6 +453,18 @@ config MFD_MAX8998
+> >  	  additional drivers must be enabled in order to use the function=
+ality
+> >  	  of the device.
+> > =20
+> > +config MFD_MENF21BMC
+> > +	tristate "MEN 14F021P00 Board Management Controller Support"
+> > +	depends on I2C=3Dy
+> > +	select MFD_CORE
+> > +	help
+> > +	  Say yes here to add support for the MEN 14F021P00 BMC
+> > +	  which is a Board Management Controller connected to the I2C bus=
+=2E
+> > +	  The device supports multiple sub-devices like LED and WDT.
+> > +	  This driver provides common support for accessing the devices;
+> > +	  additional drivers must be enabled in order to use the
+> > +	  functionality of the BMC device.
+>=20
+> Can you mention what those devices are here in the help text?
+>
 
+I've mentioned the sub-devices "LED" and "WDT" but i can also write
+the name to the help text like "menf21bmc_wdt" and "leds-menf21bmc".
+=20
+> >  config EZX_PCAP
+> >  	bool "Motorola EZXPCAP Support"
+> >  	depends on SPI_MASTER
+> > diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+> > index 4e2bc25..37bf336 100644
+> > --- a/drivers/mfd/Makefile
+> > +++ b/drivers/mfd/Makefile
+> > @@ -169,6 +169,7 @@ obj-$(CONFIG_MFD_AS3711)	+=3D as3711.o
+> >  obj-$(CONFIG_MFD_AS3722)	+=3D as3722.o
+> >  obj-$(CONFIG_MFD_STW481X)	+=3D stw481x.o
+> >  obj-$(CONFIG_MFD_IPAQ_MICRO)	+=3D ipaq-micro.o
+> > +obj-$(CONFIG_MFD_MENF21BMC)	+=3D menf21bmc.o
+> > =20
+> >  intel-soc-pmic-objs		:=3D intel_soc_pmic_core.o intel_soc_pmic_crc=
+=2Eo
+> >  obj-$(CONFIG_INTEL_SOC_PMIC)	+=3D intel-soc-pmic.o
+> > diff --git a/drivers/mfd/menf21bmc.c b/drivers/mfd/menf21bmc.c
+> > new file mode 100644
+> > index 0000000..76f94cd
+> > --- /dev/null
+> > +++ b/drivers/mfd/menf21bmc.c
+> > @@ -0,0 +1,136 @@
+> > +/*
+> > + *  MEN 14F021P00 Board Management Controller (BMC) MFD Core Drive=
+r.
+> > + *
+> > + *  Copyright (C) 2014 MEN Mikro Elektronik Nuernberg GmbH
+> > + *  Author: Andreas Werner <andreas.werner@men.de>
+> > + *  All rights reserved.
+>=20
+> This normally resides wit the company, rather than the author.
 
-On 07/17/2014 06:38 PM, Arnd Bergmann wrote:
-> On Thursday 17 July 2014 17:29:31 Chen Gang wrote:
->>>
->>> COMPILE_TEST is a great tool in general, but it has its limits.
->>> In particular, the case for !CONFIG_IOMEM is completely obscure
->>> and we won't find any bugs by allowing more drivers to be built
->>> in those configurations, but attempting to do it would cause
->>> endless churn by changing each instance of 'depends on HAS_IOMEM'
->>> to 'depends on HAS_IOMEM || COMPILE_TEST'.
->>>
->>
->> Architecture members and driver members really have different tastes,
->> they are different roles. It really need additional discussion.
->>
->> For me, I only want to change devm_io*map*, not touch so much.
-> 
-> But what do you gain from that? All drivers that need these
-> functions should already 'depends on HAS_IOMEM' and if they don't,
-> we should fix /that/ instead. I don't see this dependency as any
-> different from a lot of others (PCI, DMAENGINE, HAVE_CLK, ...)
-> that we use to intentionally annotate drivers that need a particular
-> feature to be present for compilation. Do you want to do the
-> same hack to those?
-> 
->> Welcome any other members' idea or suggestions.
-> 
->>> Note that s390 no has gained support for IOMEM, tile has it most
->>> of the time (when PCI is enabled, so you get it in half the
->>> test builds already), score should set HAS_IOMEM and doesn't
->>> even have public compilers, and uml doesn't even compile in
->>> latest mainline. Nothing else ever sets NO_IOMEM.
->>>
->>
+Ok, i'w=C3=ADll the author suff.
 
-I guess, we are just discussing about them in another threads, so I skip
-them. If it is still necessary to reply (e.g. I misunderstand), please
-let me know, thanks.
+>=20
+> > + *  This program is free software; you can redistribute  it and/or=
+ modify it
+> > + *  under  the terms of  the GNU General  Public License as publis=
+hed by the
+> > + *  Free Software Foundation;  either version 2 of the  License, o=
+r (at your
+> > + *  option) any later version.
+> > + *
+>=20
+> Remove this line.
+>=20
+> > + */
+> > +
+> > +#include <linux/kernel.h>
+> > +#include <linux/device.h>
+> > +#include <linux/module.h>
+> > +#include <linux/i2c.h>
+> > +#include <linux/mfd/core.h>
+> > +
+> > +#define BMC_CMD_REV_MAJOR	0x80
+> > +#define BMC_CMD_REV_MINOR	0x81
+> > +#define BMC_CMD_REV_MAIN	0x82
+> > +#define BMC_CMD_WDT_EXIT_PROD	0x18
+> > +#define BMC_CMD_WDT_PROD_STAT	0x19
+>=20
+> If these are in the same address space, can you order them by number.
 
->> In latest gcc and binutils, can compile score cross compiler
->> successfully for building kernel (but I am not quite sure whether the
->> compiling result are really OK, but I guess so).
-> 
-> Ok. Would you mind sending a patch that enables HAS_IOMEM on
-> score?
->  
+No problem, i will order them, they are in the same space.
 
-For me, welcome the score related maintainers' idea and suggestions.
+>=20
+> > +static struct mfd_cell menf21bmc_cell[] =3D {
+> > +	{ .name =3D "menf21bmc_wdt", },
+> > +	{ .name =3D "menf21bmc_led", },
+> > +};
+> > +
+> > +static int menf21bmc_wdt_exit_prod_mode(struct i2c_client *client)
+> > +{
+> > +	int val, ret;
+> > +
+> > +	val =3D i2c_smbus_read_byte_data(client, BMC_CMD_WDT_PROD_STAT);
+> > +	if (val < 0)
+> > +		return val;
+> > +
+> > +	/*
+> > +	 * Production mode should be not active after delivery of the Boa=
+rd.
+> > +	 * To be sure we check it, inform the user and exit the mode
+> > +	 * if active.
+> > +	 */
+> > +	if (val =3D=3D 0x00) {
+> > +		dev_info(&client->dev,
+> > +			"BMC in production mode. Exit production mode\n");
+> > +
+> > +		ret =3D i2c_smbus_write_byte(client, BMC_CMD_WDT_EXIT_PROD);
+> > +		if (ret < 0)
+> > +			return ret;
+> > +	}
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static int
+> > +menf21bmc_probe(struct i2c_client *client, const struct i2c_device=
+_id *ids)
+> > +{
+> > +	int ret;
+> > +	int rev_major, rev_minor, rev_main;
+> > +
+> > +	if (!i2c_check_functionality(client->adapter,
+> > +				     I2C_FUNC_SMBUS_BYTE_DATA |
+> > +				     I2C_FUNC_SMBUS_WORD_DATA |
+> > +				     I2C_FUNC_SMBUS_BYTE))
+>=20
+> Can you take the function call out of the if() please?
 
->> And next (maybe after finish allmodconfig for microblaze), I shall try
->> to let uml pass allmodconfig for linux-next tree.
-> 
-> That is a fair goal, but it seems better to do that by ensuring
-> we don't build any code that tries to call the MMIO functions
-> rather than trying to make them build.
-> 
+Yes I can do it.
 
-When I am performing uml, I will try and also communicate with the
-related maintainers for it (their suggestions and ideas are valuable).
+>=20
+> > +		return -ENODEV;
+> > +
+> > +	rev_major =3D i2c_smbus_read_word_data(client, BMC_CMD_REV_MAJOR)=
+;
+> > +	if (rev_major < 0) {
+> > +		dev_err(&client->dev, "failed to get BMC major revision\n");
+> > +		return rev_major;
+> > +	}
+> > +
+> > +	rev_minor =3D i2c_smbus_read_word_data(client, BMC_CMD_REV_MINOR)=
+;
+> > +	if (rev_minor < 0) {
+> > +		dev_err(&client->dev, "failed to get BMC minor revision\n");
+> > +		return rev_minor;
+> > +	}
+> > +
+> > +	rev_main =3D i2c_smbus_read_word_data(client, BMC_CMD_REV_MAIN);
+> > +	if (rev_main < 0) {
+> > +		dev_err(&client->dev, "failed to get BMC main revision\n");
+> > +		return rev_main;
+> > +	}
+> > +
+> > +	dev_info(&client->dev, "FW Revision: %02d.%02d.%02d\n",
+> > +					rev_major, rev_minor, rev_main);
+> > +
+> > +	/*
+> > +	 * We have to exit the Production Mode of the BMC to activate the
+> > +	 * Watchdog functionality and the BIOS life sign monitoring.
+> > +	 */
+> > +	ret =3D menf21bmc_wdt_exit_prod_mode(client);
+> > +	if (ret < 0) {
+> > +		dev_err(&client->dev, "failed to leave production mode\n");
+> > +		return ret;
+> > +	}
+> > +
+> > +	ret =3D mfd_add_devices(&client->dev, 0, menf21bmc_cell,
+> > +				ARRAY_SIZE(menf21bmc_cell), NULL, 0, NULL);
+> > +	if (ret < 0) {
+> > +		dev_err(&client->dev, "failed to add BMC sub-devices\n");
+> > +		return ret;
+> > +	}
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static int menf21bmc_remove(struct i2c_client *client)
+> > +{
+> > +	mfd_remove_devices(&client->dev);
+> > +	return 0;
+> > +}
+> > +
+> > +static const struct i2c_device_id menf21bmc_id_table[] =3D {
+> > +	{ "menf21bmc", 0 },
+> > +	{ }
+> > +};
+> > +MODULE_DEVICE_TABLE(i2c, menf21bmc_id_table);
+> > +
+> > +static struct i2c_driver menf21bmc_driver =3D {
+> > +	.driver		=3D {
+> > +		.name	=3D "menf21bmc",
+> > +		.owner	=3D THIS_MODULE,
+>=20
+> Remove this line, it's handled elsewhere.
 
-Thanks.
--- 
-Chen Gang
+Which line? the ".owner" line?
 
-Open, share, and attitude like air, water, and life which God blessed
+>=20
+> > +	},
+> > +	.id_table	=3D menf21bmc_id_table,
+> > +	.probe		=3D menf21bmc_probe,
+> > +	.remove		=3D menf21bmc_remove,
+> > +};
+> > +
+> > +module_i2c_driver(menf21bmc_driver);
+> > +
+> > +MODULE_DESCRIPTION("MEN 14F021P00 BMC mfd core driver");
+> > +MODULE_AUTHOR("Andreas Werner <andreas.werner@men.de>");
+> > +MODULE_LICENSE("GPL");
+>=20
+> The header says that this is GPL v2.
+
+Will change that.
+
+>=20
+> --=20
+> Lee Jones
+> Linaro STMicroelectronics Landing Team Lead
+> Linaro.org =E2=94=82 Open source software for ARM SoCs
+> Follow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
