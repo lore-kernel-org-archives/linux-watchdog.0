@@ -1,107 +1,294 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from cam-admin0.cambridge.arm.com ([217.140.96.50]:40344 "EHLO
-	cam-admin0.cambridge.arm.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755944AbaGNPIB (ORCPT
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:56224 "EHLO
+	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1761432AbaGROEx (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 14 Jul 2014 11:08:01 -0400
-Date: Mon, 14 Jul 2014 16:07:49 +0100
-From: Mark Rutland <mark.rutland@arm.com>
-To: Harini Katakam <harinik@xilinx.com>
-Cc: "wim@iguana.be" <wim@iguana.be>,
-	"grant.likely@linaro.org" <grant.likely@linaro.org>,
-	"robh+dt@kernel.org" <robh+dt@kernel.org>,
-	Pawel Moll <Pawel.Moll@arm.com>,
-	"ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>,
-	"galak@codeaurora.org" <galak@codeaurora.org>,
-	"rob@landley.net" <rob@landley.net>,
-	"michals@xilinx.com" <michals@xilinx.com>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-	"harinikatakamlinux@gmail.com" <harinikatakamlinux@gmail.com>,
-	"harini.katakam@xilinx.com" <harini.katakam@xilinx.com>
-Subject: Re: [PATCH v3 2/2] devicetree: Add Cadence WDT devicetree bindings
- documentation
-Message-ID: <20140714150749.GH26465@leverpostej>
-References: <1405340169-2820-1-git-send-email-harinik@xilinx.com>
- <1405340169-2820-2-git-send-email-harinik@xilinx.com>
+	Fri, 18 Jul 2014 10:04:53 -0400
+Date: Fri, 18 Jul 2014 07:04:47 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Andreas Werner <andreas.werner@men.de>
+Cc: linux-kernel@vger.kernel.org, sameo@linux.intel.com,
+	lee.jones@linaro.org, cooloney@gmail.com, rpurdie@rpsys.net,
+	linux-leds@vger.kernel.org, wim@iguana.be,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v3 2/3] drivers/watchdog/menf21bmc_wdt: introduce MEN
+ 14F021P00 BMC Watchdog driver
+Message-ID: <20140718140447.GA19013@roeck-us.net>
+References: <cover.1405602280.git.andreas.werner@men.de>
+ <5cfec77647c86edae480ce7654af472106162ff2.1405602280.git.andreas.werner@men.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1405340169-2820-2-git-send-email-harinik@xilinx.com>
+In-Reply-To: <5cfec77647c86edae480ce7654af472106162ff2.1405602280.git.andreas.werner@men.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Jul 14, 2014 at 01:16:09PM +0100, Harini Katakam wrote:
-> Add cadence-wdt bindings documentation.
+On Thu, Jul 17, 2014 at 03:18:31PM +0200, Andreas Werner wrote:
+> Added driver to support the 14F021P00 BMC Watchdog.
+> The BMC is a Board Management Controller including watchdog functionality.
 > 
-> Signed-off-by: Harini Katakam <harinik@xilinx.com>
+> This driver use the I2C interface to the BMC using the menf21bmc MFD Core driver.
+> 
+> Signed-off-by: Andreas Werner <andreas.werner@men.de>
+
+Only thing I dislike is continuation line alignment, where I really prefer
+the 'official' style. That doesn't raise to the level of objection, though.
+
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
+Guenter
+
 > ---
+>  drivers/watchdog/Kconfig         |   7 ++
+>  drivers/watchdog/Makefile        |   1 +
+>  drivers/watchdog/menf21bmc_wdt.c | 206 +++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 214 insertions(+)
+>  create mode 100644 drivers/watchdog/menf21bmc_wdt.c
 > 
-> v3 changes:
-> - Change reset property type and improve description.
-> - Improve description of clocks and interrupts.
-> - Use watchdog@ in the example.
-> - Use only cdns compatible string for now.
-> 
-> v2:
-> No changes
-> 
-> ---
->  .../devicetree/bindings/watchdog/cadence-wdt.txt   |   27 ++++++++++++++++++++
->  1 file changed, 27 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/watchdog/cadence-wdt.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/watchdog/cadence-wdt.txt b/Documentation/devicetree/bindings/watchdog/cadence-wdt.txt
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index 76dd541..f96431d 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -95,6 +95,13 @@ config GPIO_WATCHDOG
+>  	  If you say yes here you get support for watchdog device
+>  	  controlled through GPIO-line.
+>  
+> +config MENF21BMC_WATCHDOG
+> +	tristate "MEN 14F021P00 BMC Watchdog"
+> +	depends on MFD_MENF21BMC
+> +	select WATCHDOG_CORE
+> +	help
+> +	  Say Y here to include support for the MEN 14F021P00 BMC Watchdog.
+> +
+>  config WM831X_WATCHDOG
+>  	tristate "WM831x watchdog"
+>  	depends on MFD_WM831X
+> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> index 468c320..de17014 100644
+> --- a/drivers/watchdog/Makefile
+> +++ b/drivers/watchdog/Makefile
+> @@ -178,3 +178,4 @@ obj-$(CONFIG_WM831X_WATCHDOG) += wm831x_wdt.o
+>  obj-$(CONFIG_WM8350_WATCHDOG) += wm8350_wdt.o
+>  obj-$(CONFIG_MAX63XX_WATCHDOG) += max63xx_wdt.o
+>  obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
+> +obj-$(CONFIG_MENF21BMC_WATCHDOG) += menf21bmc_wdt.o
+> diff --git a/drivers/watchdog/menf21bmc_wdt.c b/drivers/watchdog/menf21bmc_wdt.c
 > new file mode 100644
-> index 0000000..ab23e38
+> index 0000000..b46ee92
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/watchdog/cadence-wdt.txt
-> @@ -0,0 +1,27 @@
-> +Zynq Watchdog Device Tree Bindings
-> +-------------------------------------------
+> +++ b/drivers/watchdog/menf21bmc_wdt.c
+> @@ -0,0 +1,206 @@
+> +/*
+> + *  MEN 14F021P00 Board Management Controller (BMC) Watchdog Driver.
+> + *
+> + *  Copyright (C) 2014 MEN Mikro Elektronik Nuernberg GmbH
+> + *  Author: Andreas Werner <andreas.werner@men.de>
+> + *  All rights reserved.
+> + *
+> + *  This program is free software; you can redistribute  it and/or modify it
+> + *  under  the terms of  the GNU General  Public License as published by the
+> + *  Free Software Foundation;  either version 2 of the  License, or (at your
+> + *  option) any later version.
+> + *
+> + */
 > +
-> +Required properties:
-> +- compatible		: Should be "cdns,wdt-r1p2".
-> +- clocks		: Input clock specifier. This should be the ref clk.
-
-This wording makes it sound like the watchdog block has more than one
-clock input. Does it?
-
-> +- reg			: Physical base address and size of WDT registers map.
-> +- interrupts		: Property with a value describing the interrupt
-> +			  number. This interrupt is used for indication
-> +			  when the watchdog times out.
-
-Just say "the watchdog timeout interrupt", or (better) use the name of
-the interrupt from the documentation.
-
-> +- interrupt-parent	: Must be core interrupt controller.
+> +#include <linux/kernel.h>
+> +#include <linux/device.h>
+> +#include <linux/module.h>
+> +#include <linux/watchdog.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/i2c.h>
 > +
-> +Optional properties
-> +- reset			: If this property exists, then a reset is done
-> +			  when watchdog times out.
-
-That's a bit of an ambiguous name (too easy to misconstrue as a reset
-device reference). Do any other watchdogs have similar properties?
-
-Thanks,
-Mark.
-
-> +- timeout-sec		: Watchdog timeout value (in seconds).
+> +#define DEVNAME "menf21bmc_wdt"
 > +
-> +Example:
-> +	watchdog@f8005000 {
-> +		compatible = "xlnx,zynq-wdt-r1p2";
-> +		clocks = <&clkc 45>;
-> +		interrupt-parent = <&intc>;
-> +		interrupts = <0 9 1>;
-> +		reg = <0xf8005000 0x1000>;
-> +		reset;
-> +		timeout-sec = <10>;
-> +	};
+> +#define BMC_CMD_WD_ON		0x11
+> +#define BMC_CMD_WD_OFF		0x12
+> +#define BMC_CMD_WD_TRIG		0x13
+> +#define BMC_CMD_WD_TIME		0x14
+> +#define BMC_CMD_WD_STATE	0x17
+> +#define BMC_WD_OFF_VAL		0x69
+> +#define BMC_CMD_RST_RSN		0x92
+> +
+> +#define BMC_WD_TIMEOUT_MIN	1	/* in sec */
+> +#define BMC_WD_TIMEOUT_MAX	6553	/* in sec */
+> +
+> +static bool nowayout = WATCHDOG_NOWAYOUT;
+> +module_param(nowayout, bool, 0);
+> +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+> +				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+> +
+> +struct menf21bmc_wdt {
+> +	struct watchdog_device wdt;
+> +	struct i2c_client *i2c_client;
+> +};
+> +
+> +static int menf21bmc_wdt_set_bootstatus(struct menf21bmc_wdt *data)
+> +{
+> +	int rst_rsn;
+> +
+> +	rst_rsn = i2c_smbus_read_byte_data(data->i2c_client, BMC_CMD_RST_RSN);
+> +	if (rst_rsn < 0)
+> +		return rst_rsn;
+> +
+> +	if (rst_rsn == 0x02)
+> +		data->wdt.bootstatus |= WDIOF_CARDRESET;
+> +	else if (rst_rsn == 0x05)
+> +		data->wdt.bootstatus |= WDIOF_EXTERN1;
+> +	else if (rst_rsn == 0x06)
+> +		data->wdt.bootstatus |= WDIOF_EXTERN2;
+> +	else if (rst_rsn == 0x0A)
+> +		data->wdt.bootstatus |= WDIOF_POWERUNDER;
+> +
+> +	return 0;
+> +}
+> +
+> +static int menf21bmc_wdt_start(struct watchdog_device *wdt)
+> +{
+> +	struct menf21bmc_wdt *drv_data = watchdog_get_drvdata(wdt);
+> +
+> +	return i2c_smbus_write_byte(drv_data->i2c_client, BMC_CMD_WD_ON);
+> +}
+> +
+> +static int menf21bmc_wdt_stop(struct watchdog_device *wdt)
+> +{
+> +	struct menf21bmc_wdt *drv_data = watchdog_get_drvdata(wdt);
+> +
+> +	return i2c_smbus_write_byte_data(drv_data->i2c_client,
+> +					BMC_CMD_WD_OFF, BMC_WD_OFF_VAL);
+> +}
+> +
+> +static int
+> +menf21bmc_wdt_settimeout(struct watchdog_device *wdt, unsigned int timeout)
+> +{
+> +	int ret;
+> +	struct menf21bmc_wdt *drv_data = watchdog_get_drvdata(wdt);
+> +
+> +	/*
+> +	 *  BMC Watchdog does have a resolution of 100ms.
+> +	 *  Watchdog API defines the timeout in seconds, so we have to
+> +	 *  multiply the value.
+> +	 */
+> +	ret = i2c_smbus_write_word_data(drv_data->i2c_client,
+> +						BMC_CMD_WD_TIME, timeout * 10);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	wdt->timeout = timeout;
+> +
+> +	return 0;
+> +}
+> +
+> +static int menf21bmc_wdt_ping(struct watchdog_device *wdt)
+> +{
+> +	struct menf21bmc_wdt *drv_data = watchdog_get_drvdata(wdt);
+> +
+> +	return i2c_smbus_write_byte(drv_data->i2c_client, BMC_CMD_WD_TRIG);
+> +}
+> +
+> +static const struct watchdog_info menf21bmc_wdt_info = {
+> +	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
+> +	.identity = DEVNAME,
+> +};
+> +
+> +static const struct watchdog_ops menf21bmc_wdt_ops = {
+> +	.owner		= THIS_MODULE,
+> +	.start		= menf21bmc_wdt_start,
+> +	.stop		= menf21bmc_wdt_stop,
+> +	.ping		= menf21bmc_wdt_ping,
+> +	.set_timeout	= menf21bmc_wdt_settimeout,
+> +};
+> +
+> +static int menf21bmc_wdt_probe(struct platform_device *pdev)
+> +{
+> +	int ret, bmc_timeout;
+> +	struct menf21bmc_wdt *drv_data;
+> +	struct i2c_client *i2c_client = to_i2c_client(pdev->dev.parent);
+> +
+> +	drv_data = devm_kzalloc(&pdev->dev,
+> +				sizeof(struct menf21bmc_wdt), GFP_KERNEL);
+> +	if (!drv_data)
+> +		return -ENOMEM;
+> +
+> +	drv_data->wdt.ops = &menf21bmc_wdt_ops;
+> +	drv_data->wdt.info = &menf21bmc_wdt_info;
+> +	drv_data->wdt.min_timeout = BMC_WD_TIMEOUT_MIN;
+> +	drv_data->wdt.max_timeout = BMC_WD_TIMEOUT_MAX;
+> +	drv_data->i2c_client = i2c_client;
+> +
+> +	/*
+> +	 * Get the current wdt timeout value from the BMC because
+> +	 * the BMC will save the value set before if the system restarts.
+> +	 */
+> +	bmc_timeout = i2c_smbus_read_word_data(drv_data->i2c_client,
+> +							BMC_CMD_WD_TIME);
+> +	if (bmc_timeout < 0) {
+> +		dev_err(&pdev->dev, "failed to get current WDT timeout\n");
+> +		return bmc_timeout;
+> +	}
+> +
+> +	watchdog_init_timeout(&drv_data->wdt, bmc_timeout / 10, &pdev->dev);
+> +	watchdog_set_nowayout(&drv_data->wdt, nowayout);
+> +	watchdog_set_drvdata(&drv_data->wdt, drv_data);
+> +	platform_set_drvdata(pdev, drv_data);
+> +
+> +	ret = menf21bmc_wdt_set_bootstatus(drv_data);
+> +	if (ret < 0) {
+> +		dev_err(&pdev->dev, "failed to set Watchdog bootstatus\n");
+> +		return ret;
+> +	}
+> +
+> +	ret = watchdog_register_device(&drv_data->wdt);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "failed to register Watchdog device\n");
+> +		return ret;
+> +	}
+> +
+> +	dev_info(&pdev->dev, "MEN 14F021P00 BMC Watchdog device enabled\n");
+> +
+> +	return 0;
+> +}
+> +
+> +static int menf21bmc_wdt_remove(struct platform_device *pdev)
+> +{
+> +	struct menf21bmc_wdt *drv_data = platform_get_drvdata(pdev);
+> +
+> +	dev_warn(&pdev->dev,
+> +		"Unregister MEN 14F021P00 BMC Watchdog device, board may reset\n");
+> +
+> +	watchdog_unregister_device(&drv_data->wdt);
+> +
+> +	return 0;
+> +}
+> +
+> +static void menf21bmc_wdt_shutdown(struct platform_device *pdev)
+> +{
+> +	struct menf21bmc_wdt *drv_data = platform_get_drvdata(pdev);
+> +
+> +	i2c_smbus_write_word_data(drv_data->i2c_client,
+> +					BMC_CMD_WD_OFF, BMC_WD_OFF_VAL);
+> +}
+> +
+> +static struct  platform_driver menf21bmc_wdt = {
+> +	.driver		= {
+> +		.owner = THIS_MODULE,
+> +		.name	= DEVNAME,
+> +	},
+> +	.probe		= menf21bmc_wdt_probe,
+> +	.remove		= menf21bmc_wdt_remove,
+> +	.shutdown	= menf21bmc_wdt_shutdown,
+> +};
+> +
+> +module_platform_driver(menf21bmc_wdt);
+> +
+> +MODULE_DESCRIPTION("MEN 14F021P00 BMC Watchdog driver");
+> +MODULE_AUTHOR("Andreas Werner <andreas.werner@men.de>");
+> +MODULE_LICENSE("GPL");
+> +MODULE_ALIAS("platform:menf21bmc_wdt");
 > -- 
-> 1.7.9.5
+> 2.0.1
 > 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > 
