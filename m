@@ -1,79 +1,64 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:57320 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932229AbaGUMvG (ORCPT
+Received: from mout.kundenserver.de ([212.227.126.130]:56664 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754504AbaGVKcR (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 21 Jul 2014 08:51:06 -0400
-Message-ID: <53CD0CB6.1050803@roeck-us.net>
-Date: Mon, 21 Jul 2014 05:51:02 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Tue, 22 Jul 2014 06:32:17 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Chen Gang <gang.chen.5i5j@gmail.com>
+Cc: Lennox Wu <lennox.wu@gmail.com>,
+	Richard Weinberger <richard@nod.at>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	linux-iio@vger.kernel.org,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Tom Gundersen <teg@jklm.no>,
+	Thierry Reding <thierry.reding@gmail.com>,
+	Marek Vasut <marex@denx.de>,
+	Liqin Chen <liqin.linux@gmail.com>, msalter@redhat.com,
+	linux-pwm@vger.kernel.org, devel@driverdev.osuosl.org,
+	linux-watchdog@vger.kernel.org, linux-input@vger.kernel.org,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	knaack.h@gmx.de, Martin Schwidefsky <schwidefsky@de.ibm.com>,
+	jic23@kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+	cmetcalf@tilera.com, heiko.carstens@de.ibm.com
+Subject: Re: [PATCH] drivers: Let several drivers depends on HAS_IOMEM for 'devm_ioremap_resource'
+Date: Tue, 22 Jul 2014 12:32:06 +0200
+Message-ID: <179292068.QXZf3Zcqzf@wuerfel>
+In-Reply-To: <53CB8FC4.4050009@gmail.com>
+References: <201407130545.23004.marex@denx.de> <53CB801D.1030603@gmail.com> <53CB8FC4.4050009@gmail.com>
 MIME-Version: 1.0
-To: Catalin Marinas <catalin.marinas@arm.com>
-CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Will Deacon <Will.Deacon@arm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Heiko Stuebner <heiko@sntech.de>,
-	Russell King <linux@arm.linux.org.uk>,
-	Jonas Jensen <jonas.jensen@gmail.com>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Ingo Molnar <mingo@kernel.org>,
-	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Tomasz Figa <t.figa@samsung.com>,
-	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v5 0/7] kernel: Add support for restart handler call chain
-References: <1405668856-13738-1-git-send-email-linux@roeck-us.net> <20140721123056.GF12817@arm.com>
-In-Reply-To: <20140721123056.GF12817@arm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Catalin,
+On Sunday 20 July 2014 17:45:40 Chen Gang wrote:
+> > 
+> > Next, I shall:
+> > 
+> >  - Remove HAS_IOMEM and NO_IOMEM from kernel, firstly.
+> > 
+> >  - Try to make dummy IOMEM functions for score architecture.
+> > 
+> >  - Continue discussing with UML for it.
+> >
+>  
+> Oh, sorry, I forgot, after remove IOMEM from kernel, also s390 and tile
+> need implement dummy IOMEM if !PCI.
+> 
+> If possible, I shall try to implement the dummy IOMEM in 'asm-generic',
+> and let uml, score, s390 and tile use them when they need.
 
-On 07/21/2014 05:30 AM, Catalin Marinas wrote:
-> On Fri, Jul 18, 2014 at 08:34:09AM +0100, Guenter Roeck wrote:
->> Patch 1 of this series implements the restart handler function. Patches 2 and 3
->> implement calling the restart handler chain from arm and arm64 restart code.
->>
->> Patch 4 modifies the restart-poweroff driver to no longer call arm_pm_restart
->> directly but machine_restart. This is done to avoid calling arm_pm_restart
->> from more than one place. The change makes the driver architecture independent,
->> so it would be possible to drop the arm dependency from its Kconfig entry.
->>
->> Patch 5 and 6 convert existing restart handlers in the watchdog subsystem
->> to use the restart handler. Patch 7 unexports arm_pm_restart to ensure
->> that no one gets the idea to implement a restart handler as module.
->
-> For the current patches:
->
-> Acked-by: Catalin Marinas <catalin.marinas@arm.com>
->
-> Do you plan to convert more of the power/drivers/reset/ code?
->
+Sorry for going round in circles, but looking back at the original patches,
+adding the extra 'depends on HAS_IOMEM' does seem much better than the
+other suggestions that came afterwards.
 
-Once this series has been accepted, I at least wanted to give it a try.
+In particular, removing HAS_IOMEM and NO_IOMEM sounds like an awful idea
+to me. I'd rather add a HAS_IOPORT in addition to also catch architectures
+that have no support for PC-style PIO.
 
-> BTW, is it worth doing something similar for pm_power_off (there is
-> generic code calling it directly, so slightly more complicated than
-> pm_restart)?
-
-I have not thought about it yet.
-
-A quick glance suggests it is much more widely used than the reset handler.
-It looks like the original idea, like with machine_restart, was to have
-one function per architecture, but it seems that is widely abused.
-
-Looks pretty messy to me. Maybe after this one is done, if there is interest
-and, more importantly, the need to do something about it.
-
-Thanks,
-Guenter
+	Arnd
 
