@@ -1,36 +1,34 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f53.google.com ([209.85.220.53]:35821 "EHLO
-	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751253AbaGVL3r (ORCPT
+Received: from mail-pd0-f178.google.com ([209.85.192.178]:33167 "EHLO
+	mail-pd0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752242AbaGWLJg (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 22 Jul 2014 07:29:47 -0400
-Message-ID: <53CE4B1F.9080701@gmail.com>
-Date: Tue, 22 Jul 2014 19:29:35 +0800
+	Wed, 23 Jul 2014 07:09:36 -0400
+Message-ID: <53CF97E2.9000906@gmail.com>
+Date: Wed, 23 Jul 2014 19:09:22 +0800
 From: Chen Gang <gang.chen.5i5j@gmail.com>
 MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: Lennox Wu <lennox.wu@gmail.com>,
-	Richard Weinberger <richard@nod.at>,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+To: Dan Carpenter <dan.carpenter@oracle.com>
+CC: Thierry Reding <thierry.reding@gmail.com>,
 	linux-iio@vger.kernel.org,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Tom Gundersen <teg@jklm.no>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Marek Vasut <marex@denx.de>,
-	Liqin Chen <liqin.linux@gmail.com>, msalter@redhat.com,
-	linux-pwm@vger.kernel.org, devel@driverdev.osuosl.org,
-	linux-watchdog@vger.kernel.org, linux-input@vger.kernel.org,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>, teg@jklm.no,
+	Lennox Wu <lennox.wu@gmail.com>, Marek Vasut <marex@denx.de>,
+	Liqin Chen <liqin.linux@gmail.com>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Richard Weinberger <richard@nod.at>,
+	Geert Uytterhoeven <geert@linux-m68k.org>, msalter@redhat.com,
+	Guenter Roeck <linux@roeck-us.net>, linux-pwm@vger.kernel.org,
+	devel@driverdev.osuosl.org, linux-watchdog@vger.kernel.org,
+	arnd@arndb.de, linux-input@vger.kernel.org,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	dmitry.torokhov@gmail.com,
 	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
 	knaack.h@gmx.de, Martin Schwidefsky <schwidefsky@de.ibm.com>,
-	jic23@kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-	cmetcalf@tilera.com, heiko.carstens@de.ibm.com
+	Mischa.Jonker@synopsys.com, jic23@kernel.org
 Subject: Re: [PATCH] drivers: Let several drivers depends on HAS_IOMEM for
  'devm_ioremap_resource'
-References: <201407130545.23004.marex@denx.de> <53CB801D.1030603@gmail.com> <53CB8FC4.4050009@gmail.com> <179292068.QXZf3Zcqzf@wuerfel>
-In-Reply-To: <179292068.QXZf3Zcqzf@wuerfel>
+References: <53C3994C.1010309@metafoo.de> <53C39B66.4060500@nod.at> <5A40E1FC-CA61-4AFF-B205-4BAC175AA7AC@gmail.com> <53C47725.8000005@gmail.com> <53C47B76.4080306@roeck-us.net> <53C47FB7.6080304@gmail.com> <53C53CE1.4090803@gmail.com> <53C7269E.4010702@gmail.com> <20140717083756.GA19686@ulmo> <53C7905D.9090003@gmail.com> <20140717091601.GF25880@mwanda> <53C7951F.6000906@gmail.com>
+In-Reply-To: <53C7951F.6000906@gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -38,41 +36,39 @@ List-Id: linux-watchdog@vger.kernel.org
 
 
 
-On 07/22/2014 06:32 PM, Arnd Bergmann wrote:
-> On Sunday 20 July 2014 17:45:40 Chen Gang wrote:
+On 07/17/2014 05:19 PM, Chen Gang wrote:
+> 
+> 
+> On 07/17/2014 05:16 PM, Dan Carpenter wrote:
+>> On Thu, Jul 17, 2014 at 04:59:09PM +0800, Chen Gang wrote:
+>>>>> +	return (__force void __iomem *)ERR_PTR(-ENXIO);
+>>>>
+>>>> There's apparently an IOMEM_ERR_PTR() for this nowadays...
+>>>>
 >>>
->>> Next, I shall:
+>>> IOMEM_ERR_PTR() is defined within "lib/devres.c", not in "./include".
+>>> But may we move it from "lib/devres.c" to "./include/linux/err.h"?
 >>>
->>>  - Remove HAS_IOMEM and NO_IOMEM from kernel, firstly.
->>>
->>>  - Try to make dummy IOMEM functions for score architecture.
->>>
->>>  - Continue discussing with UML for it.
->>>
->>  
->> Oh, sorry, I forgot, after remove IOMEM from kernel, also s390 and tile
->> need implement dummy IOMEM if !PCI.
+>>> For me, I am not quite sure, it may need additional discussion, but at
+>>> least, that will be another patch.
 >>
->> If possible, I shall try to implement the dummy IOMEM in 'asm-generic',
->> and let uml, score, s390 and tile use them when they need.
-> 
-> Sorry for going round in circles, but looking back at the original patches,
-> adding the extra 'depends on HAS_IOMEM' does seem much better than the
-> other suggestions that came afterwards.
-> 
-> In particular, removing HAS_IOMEM and NO_IOMEM sounds like an awful idea
-> to me. I'd rather add a HAS_IOPORT in addition to also catch architectures
-> that have no support for PC-style PIO.
-> 
+>> Yes.  Move it there.  That is the right place.
+>>
 
-Welcome any other members (especially driver members) ideas and
-suggestions -- driver members and architecture members have different
-tastes and different roles.
+Sorry for replying late about IOMEM_ERR_PTR().
 
-For me, if no additional reply, I prefer to keep current status, and
-still add 'depends on HAS_IOMEM' for each driver which need it, but I am
-not sure whether driver members can bear it.
+Although no objections within 2 days, for me, when move something to
+generic header file, it is not only for future using, but also for
+solving current issue, or it has to be suspended for waiting 'trigger'.
 
+So for me, the patch about IOMEM_ERR_PTR() need be suspended, until some
+member find an issue which may be related with IOMEM_ERR_PTR(), more or
+less.
+
+> 
+> OK, thanks, if no another objections within 2 days, I shall send another
+> related patch for it.
+> 
 
 Thanks.
 -- 
