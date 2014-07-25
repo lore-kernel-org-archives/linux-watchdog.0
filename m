@@ -1,242 +1,113 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta14.messagelabs.com ([193.109.254.108]:17296 "EHLO
-	mail1.bemta14.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752640AbaGYIpU (ORCPT
+Received: from mail-pa0-f47.google.com ([209.85.220.47]:33219 "EHLO
+	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751565AbaGYSxS (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 25 Jul 2014 04:45:20 -0400
-Date: Fri, 25 Jul 2014 11:37:29 +0200
-From: Andreas Werner <andreas.werner@men.de>
-To: Bryan Wu <cooloney@gmail.com>
-CC: Andreas Werner <andreas.werner@men.de>,
-	lkml <linux-kernel@vger.kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Lee Jones <lee.jones@linaro.org>,
-	"rpurdie@rpsys.net" <rpurdie@rpsys.net>,
-	Linux LED Subsystem <linux-leds@vger.kernel.org>,
-	<wim@iguana.be>, <linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH v3 3/3] drivers/leds/leds-menf21bmc: introduce MEN
- 14F021P00 BMC LED driver
-Message-ID: <20140725093728.GA1371@awelinux>
-References: <cover.1405602280.git.andreas.werner@men.de>
- <fec81db0dd6e08e1e07d3b7c00cb933b2ab63ab3.1405602280.git.andreas.werner@men.de>
- <CAK5ve-KG=dBgrBLQ2ejZ3XZip-gk2_5PfmpdKi6d6=B9hMDH1g@mail.gmail.com>
+	Fri, 25 Jul 2014 14:53:18 -0400
+Date: Fri, 25 Jul 2014 11:53:14 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Will Deacon <will.deacon@arm.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Heiko Stuebner <heiko@sntech.de>,
+	Russell King <linux@arm.linux.org.uk>,
+	Jonas Jensen <jonas.jensen@gmail.com>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Ingo Molnar <mingo@kernel.org>,
+	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Tomasz Figa <t.figa@samsung.com>, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v5 0/7] kernel: Add support for restart handler call chain
+Message-ID: <20140725185314.GA4788@roeck-us.net>
+References: <1405668856-13738-1-git-send-email-linux@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAK5ve-KG=dBgrBLQ2ejZ3XZip-gk2_5PfmpdKi6d6=B9hMDH1g@mail.gmail.com>
+In-Reply-To: <1405668856-13738-1-git-send-email-linux@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-aOn Thu, Jul 24, 2014 at 03:00:09PM -0700, Bryan Wu wrote:
-> On Thu, Jul 17, 2014 at 6:18 AM, Andreas Werner <andreas.werner@men.de> wrote:
-> > Added driver to support the 14F021P00 BMC LEDs.
-> > The BMC is a Board Management Controll include four LEDs which
-> > can be switched on and off.
-> >
-> > This driver use the I2C interface to the BMC using the menf21bmc MFD Core driver.
-> >
-> > Signed-off-by: Andreas Werner <andreas.werner@men.de>
-> > ---
-> >  drivers/leds/Kconfig          |   6 ++
-> >  drivers/leds/Makefile         |   1 +
-> >  drivers/leds/leds-menf21bmc.c | 134 ++++++++++++++++++++++++++++++++++++++++++
-> >  3 files changed, 141 insertions(+)
-> >  create mode 100644 drivers/leds/leds-menf21bmc.c
-> >
-> > diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
-> > index 27cf0cd..d38ff3f 100644
-> > --- a/drivers/leds/Kconfig
-> > +++ b/drivers/leds/Kconfig
-> > @@ -458,6 +458,12 @@ config LEDS_OT200
-> >           This option enables support for the LEDs on the Bachmann OT200.
-> >           Say Y to enable LEDs on the Bachmann OT200.
-> >
-> > +config LEDS_MENF21BMC
-> > +       tristate "LED support for the MEN 14F021P00 BMC"
-> > +       depends on LEDS_CLASS && MFD_MENF21BMC
-> 
-> I think it also depends on I2C.
+Any idea, anyone, what might be necessary to get this series accepted ?
 
-Yes you are right.
+Guenter
 
+On Fri, Jul 18, 2014 at 12:34:09AM -0700, Guenter Roeck wrote:
+> Various drivers implement architecture and/or device specific means
+> to restart (reset) the system. Various mechanisms have been implemented
+> to support those schemes. The best known mechanism is arm_pm_restart,
+> which is a function pointer to be set either from platform specific code
+> or from drivers. Another mechanism is to use hardware watchdogs to issue
+> a reset; this mechanism is used if there is no other method available
+> to reset a board or system. Two examples are alim7101_wdt, which currently
+> uses the reboot notifier to trigger a reset, and moxart_wdt, which registers
+> the arm_pm_restart function. Several other restart drivers for arm, all
+> directly calling arm_pm_restart, are in the process of being integrated
+> into the kernel. All those drivers would benefit from the new API.
 > 
-> > +       help
-> > +         Say Y here to include support for the MEN 14F021P00 BMC LEDs.
-> > +
-> >  comment "LED driver for blink(1) USB RGB LED is under Special HID drivers (HID_THINGM)"
-> >
-> >  config LEDS_BLINKM
-> > diff --git a/drivers/leds/Makefile b/drivers/leds/Makefile
-> > index 3c03666..cadc433 100644
-> > --- a/drivers/leds/Makefile
-> > +++ b/drivers/leds/Makefile
-> > @@ -53,6 +53,7 @@ obj-$(CONFIG_LEDS_MAX8997)            += leds-max8997.o
-> >  obj-$(CONFIG_LEDS_LM355x)              += leds-lm355x.o
-> >  obj-$(CONFIG_LEDS_BLINKM)              += leds-blinkm.o
-> >  obj-$(CONFIG_LEDS_VERSATILE)           += leds-versatile.o
-> > +obj-$(CONFIG_LEDS_MENF21BMC)           += leds-menf21bmc.o
-> >
-> >  # LED SPI Drivers
-> >  obj-$(CONFIG_LEDS_DAC124S085)          += leds-dac124s085.o
-> > diff --git a/drivers/leds/leds-menf21bmc.c b/drivers/leds/leds-menf21bmc.c
-> > new file mode 100644
-> > index 0000000..5eaa119
-> > --- /dev/null
-> > +++ b/drivers/leds/leds-menf21bmc.c
-> > @@ -0,0 +1,134 @@
-> > +/*
-> > + *  MEN 14F021P00 Board Management Controller (BMC) LEDs Driver.
-> > + *
-> > + *  This is the core LED driver of the MEN 14F021P00 BMC.
-> > + *  There are four LEDs available which can be switched on and off.
-> > + *  STATUS LED, HOT SWAP LED, USER LED 1, USER LED 2
-> > + *
-> > + *  Copyright (C) 2014 MEN Mikro Elektronik Nuernberg GmbH
-> > + *  Author: Andreas Werner <andreas.werner@men.de>
-> > + *  All rights reserved.
-> > + *
-> > + *  This program is free software; you can redistribute  it and/or modify it
-> > + *  under  the terms of  the GNU General  Public License as published by the
-> > + *  Free Software Foundation;  either version 2 of the  License, or (at your
-> > + *  option) any later version.
-> > + *
-> > + */
-> > +
-> > +#include <linux/module.h>
-> > +#include <linux/kernel.h>
-> > +#include <linux/platform_device.h>
-> > +#include <linux/leds.h>
-> > +#include <linux/i2c.h>
-> > +
-> > +#define BMC_CMD_LED_GET_SET    0xA0
-> > +#define BMC_BIT_LED_STATUS     BIT(0)
-> > +#define BMC_BIT_LED_HOTSWAP    BIT(1)
-> > +#define BMC_BIT_LED_USER1      BIT(2)
-> > +#define BMC_BIT_LED_USER2      BIT(3)
-> > +
-> > +struct menf21bmc_led {
-> > +       struct led_classdev cdev;
-> > +       u8 led_bit;
-> > +       const char *name;
-> > +       struct i2c_client *i2c_client;
-> > +};
-> > +
-> > +static struct menf21bmc_led leds[] = {
-> > +       {
-> > +               .name = "menf21bmc:led_status",
-> > +               .led_bit = BMC_BIT_LED_STATUS,
-> > +       },
-> > +       {
-> > +               .name = "menf21bmc:led_hotswap",
-> > +               .led_bit = BMC_BIT_LED_HOTSWAP,
-> > +       },
-> > +       {
-> > +               .name = "menf21bmc:led_user1",
-> > +               .led_bit = BMC_BIT_LED_USER1,
-> > +       },
-> > +       {
-> > +               .name = "menf21bmc:led_user2",
-> > +               .led_bit = BMC_BIT_LED_USER2,
-> > +       }
-> > +};
-> > +
-> > +static DEFINE_MUTEX(led_lock);
-> > +
-> > +static void
-> > +menf21bmc_led_set(struct led_classdev *led_cdev, enum led_brightness value)
-> > +{
-> > +       int led_val;
-> > +       struct menf21bmc_led *led = container_of(led_cdev,
-> > +                                       struct menf21bmc_led, cdev);
-> > +
-> > +       mutex_lock(&led_lock);
-> > +       led_val = i2c_smbus_read_byte_data(led->i2c_client,
-> > +                                               BMC_CMD_LED_GET_SET);
-> > +       if (led_val < 0)
-> > +               goto err_out;
-> > +
-> > +       if (value == LED_OFF)
-> > +               led_val &= ~led->led_bit;
-> > +       else
-> > +               led_val |= led->led_bit;
-> > +
-> > +       i2c_smbus_write_byte_data(led->i2c_client,
-> > +                                       BMC_CMD_LED_GET_SET, led_val);
-> > +err_out:
-> > +       mutex_unlock(&led_lock);
-> > +}
-> > +
-> > +static int menf21bmc_led_probe(struct platform_device *pdev)
-> > +{
-> > +       int i;
-> > +       int ret;
-> > +       struct i2c_client *i2c_client = to_i2c_client(pdev->dev.parent);
-> > +
-> > +       for (i = 0; i < ARRAY_SIZE(leds); i++) {
-> > +               leds[i].cdev.name = leds[i].name;
-> > +               leds[i].cdev.brightness_set = menf21bmc_led_set;
-> > +               leds[i].i2c_client = i2c_client;
-> > +               ret = led_classdev_register(&pdev->dev, &leds[i].cdev);
-> > +               if (ret < 0)
-> > +                       goto err_free_leds;
-> > +       }
-> > +       dev_info(&pdev->dev, "MEN 140F21P00 BMC LED device enabled\n");
-> > +
-> > +       return 0;
-> > +
-> > +err_free_leds:
-> > +       dev_err(&pdev->dev, "failed to register LED device\n");
-> > +
-> > +       for (i = i - 1; i >= 0; i--)
-> > +               led_classdev_unregister(&leds[i].cdev);
-> > +
-> > +       return ret;
-> > +}
-> > +
-> > +static int menf21bmc_led_remove(struct platform_device *pdev)
-> > +{
-> > +       int i;
-> > +
-> > +       for (i = 0; i < ARRAY_SIZE(leds); i++)
-> > +               led_classdev_unregister(&leds[i].cdev);
-> > +
-> > +       return 0;
-> > +}
-> > +
-> > +static struct platform_driver menf21bmc_led = {
-> > +       .probe          = menf21bmc_led_probe,
-> > +       .remove         = menf21bmc_led_remove,
-> > +       .driver         = {
-> > +               .name           = "menf21bmc_led",
-> > +               .owner          = THIS_MODULE,
-> > +       },
-> > +};
-> > +
+> The existing mechanisms have a number of drawbacks. Typically only one scheme
+> to restart the system is supported (at least if arm_pm_restart is used).
+> At least in theory there can be multiple means to restart the system, some of
+> which may be less desirable (for example one mechanism may only reset the CPU,
+> while another may reset the entire system). Using arm_pm_restart can also be
+> racy if the function pointer is set from a driver, as the driver may be in
+> the process of being unloaded when arm_pm_restart is called.
+> Using the reboot notifier is always racy, as it is unknown if and when
+> other functions using the reboot notifier have completed execution
+> by the time the watchdog fires.
 > 
-> This is not a normal platform driver, it should be a I2C driver.
+> Introduce a system restart handler call chain to solve the described problems.
+> This call chain is expected to be executed from the architecture specific
+> machine_restart() function. Drivers providing system restart functionality
+> (such as the watchdog drivers mentioned above) are expected to register
+> with this call chain. By using the priority field in the notifier block,
+> callers can control restart handler execution sequence and thus ensure that
+> the restart handler with the optimal restart capabilities for a given system
+> is called first.
 > 
-> > +module_platform_driver(menf21bmc_led);
+> Since the first revision of this patchset, a number of separate patch
+> submissions have been made which either depend on it or could make use of it.
 > 
-> So please move to use module_i2c_driver.
-
-Ok, but then I have to change that in the watchdog driver too, which
-is quite the same as here.
-
-Lee, Guenther what do you think regarding the watchdog driver?
-
+> http://www.spinics.net/linux/lists/arm-kernel/msg344796.html
+> 	registers three notifiers.
+> https://lkml.org/lkml/2014/7/8/962
+> 	would benefit from it.
 > 
-> Thanks,
-> -Bryan
+> Patch 1 of this series implements the restart handler function. Patches 2 and 3
+> implement calling the restart handler chain from arm and arm64 restart code.
 > 
-> > +
-> > +MODULE_AUTHOR("Andreas Werner <andreas.werner@men.de>");
-> > +MODULE_DESCRIPTION("MEN 14F021P00 BMC led driver");
-> > +MODULE_LICENSE("GPL");
-> > +MODULE_ALIAS("platform:menf21bmc_led");
-> > --
-> > 2.0.1
-> >
-
-Thanks for review.
-
-Andy
+> Patch 4 modifies the restart-poweroff driver to no longer call arm_pm_restart
+> directly but machine_restart. This is done to avoid calling arm_pm_restart
+> from more than one place. The change makes the driver architecture independent,
+> so it would be possible to drop the arm dependency from its Kconfig entry.
+> 
+> Patch 5 and 6 convert existing restart handlers in the watchdog subsystem
+> to use the restart handler. Patch 7 unexports arm_pm_restart to ensure
+> that no one gets the idea to implement a restart handler as module.
+> 
+> ---
+> v5: Rebased series to v3.16-rc5
+>     Function renames:
+>     register_restart_notifier -> register_restart_handler
+>     unregister_restart_notifier -> unregister_restart_handler
+>     kernel_restart_notify -> do_kernel_restart
+> v4: Document restart notifier priorities
+>     Select 128 as default priority for newly introduced notifiers
+>     Fix checkpatch warning (line too long) in moxart patch
+> v3: Drop RFC.
+>     Add kernel_restart_notify wrapper function to execute notifier
+>     Improve documentation.
+>     Move restart_notifier_list into kernel/reboot.c and make it static.
+> v2: Add patch 4.
+>     Only call blocking notifier call chain if arm_pm_restart was not set.
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
