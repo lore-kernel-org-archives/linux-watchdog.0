@@ -1,70 +1,71 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:58521 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751372AbaG3UxG (ORCPT
+Received: from usmamail.tilera.com ([12.216.194.151]:39877 "EHLO
+	USMAMAIL.TILERA.COM" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750945AbaGaUJu (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 30 Jul 2014 16:53:06 -0400
-Message-ID: <53D95B2E.6040308@roeck-us.net>
-Date: Wed, 30 Jul 2014 13:53:02 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Thu, 31 Jul 2014 16:09:50 -0400
+Message-ID: <53DAA28C.508@tilera.com>
+Date: Thu, 31 Jul 2014 16:09:48 -0400
+From: Chris Metcalf <cmetcalf@tilera.com>
 MIME-Version: 1.0
-To: Stephen Boyd <sboyd@codeaurora.org>
-CC: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Ingo Molnar <mingo@kernel.org>,
-	Russell King <linux@arm.linux.org.uk>,
-	Heiko Stuebner <heiko@sntech.de>,
-	Arnd Bergmann <arnd@arndb.de>, linux-doc@vger.kernel.org,
-	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Tomasz Figa <t.figa@samsung.com>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Will Deacon <will.deacon@arm.com>,
-	linux-kernel@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
-	Jonas Jensen <jonas.jensen@gmail.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH v5 1/7] kernel: Add support for kernel restart handler
- call chain
-References: <1405668856-13738-1-git-send-email-linux@roeck-us.net> <1405668856-13738-2-git-send-email-linux@roeck-us.net> <53D95330.1050904@codeaurora.org>
-In-Reply-To: <53D95330.1050904@codeaurora.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+To: Arnd Bergmann <arnd@arndb.de>
+CC: Chen Gang <gang.chen.5i5j@gmail.com>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Richard Weinberger <richard@nod.at>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	<dmitry.torokhov@gmail.com>, <linux-iio@vger.kernel.org>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	<teg@jklm.no>, Thierry Reding <thierry.reding@gmail.com>,
+	Lennox Wu <lennox.wu@gmail.com>, Marek Vasut <marex@denx.de>,
+	Liqin Chen <liqin.linux@gmail.com>, <msalter@redhat.com>,
+	<linux-pwm@vger.kernel.org>, <devel@driverdev.osuosl.org>,
+	<linux-watchdog@vger.kernel.org>, <linux-input@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	<knaack.h@gmx.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>,
+	<Mischa.Jonker@synopsys.com>, <jic23@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH] drivers: Let several drivers depends on HAS_IOMEM for
+ 'devm_ioremap_resource'
+References: <201407130545.23004.marex@denx.de> <53C7B365.4080000@gmail.com> <53C834EA.5030605@tilera.com> <5190668.jExaFa8pKn@wuerfel>
+In-Reply-To: <5190668.jExaFa8pKn@wuerfel>
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 07/30/2014 01:18 PM, Stephen Boyd wrote:
-> On 07/18/14 00:34, Guenter Roeck wrote:
->> +/**
->> + *	do_kernel_restart - Execute kernel restart handler call chain
->> + *
->> + *	Calls functions registered with register_restart_handler.
->> + *
->> + *	Expected to be called from machine_restart as last step of the restart
->> + *	sequence.
->> + *
->> + *	Restarts the system immediately if a restart handler function has been
->> + *	registered. Otherwise does nothing.
->> + */
->> +void do_kernel_restart(char *cmd)
->> +{
->> +	blocking_notifier_call_chain(&restart_handler_list, reboot_mode, cmd);
->> +}
->
-> Has this been tested with scheduling while atomic checking
-> (CONFIG_DEBUG_ATOMIC_SLEEP) or lockdep (CONFIG_PROVE_LOCKING)? ARM would
-> call this with irqs disabled and blocking_notifier_call_chain() would
-> spit out a warning when it tries to down_read() on it's semaphore. This
-> should probably be an atomic notifier chain instead.
->
+On 7/17/2014 5:05 PM, Arnd Bergmann wrote:
+> On Thursday 17 July 2014 16:41:14 Chris Metcalf wrote:
+>> On 7/17/2014 7:28 AM, Chen Gang wrote:
+>>> According to current source code, tile still has chance to choose
+>>> NO_IOMEM, for me, welcome the tile's maintainer's ideas or suggestions.
+>> I'm not really sure.  It's true that on tile, if you don't enable PCI
+>> support there's no other I/O memory (or I/O port) space you can use.
+>> We pretty much always enable PCI support in our kernel, though.  I'm
+>> kind of surprised that other architectures don't also have the model
+>> that IOMEM requires PCI, but perhaps most architectures just don't
+>> encode that in the Kconfig file?
+> Only s390 as far as I know. Most architectures have integrated
+> peripherals that use MMIO without PCI.
 
-Good point. I'll update the code accordingly.
+Yes, and tilegx has these too (quite a few of them).  The memory-mapped
+devices are accessed by specifying a shim x,y coordinate in the high bits
+of the physical address, in conjunction with an MMIO type in the TLB entry.
+Various tilegx drivers set up these kinds of mappings in the page table.
 
-I'll wait for additional comments until early next week to avoid unnecessary
-churn.
+The issue with ioremap() is that it takes a generic resource_size_t
+"physical address", and we don't have any general-purpose layer that maps
+particular PAs to shim coordinates, other than for TRIO (our PCI peripheral).
+Right now we just check the PCI root complexes that we have configured in
+the kernel, and if the pseudo physical address requested is in a range that
+we're associating with one of the root complexes, we will use the appropriate
+mapping against the appropriate TRIO shim to set up its x,y coordinate in
+the page table.
 
-Thanks,
-Guenter
+So it makes some kind of sense to condition HAS_IOMEM on PCI, even though
+naively it seems like it shouldn't be strictly related.
+
+-- 
+Chris Metcalf, Tilera Corp.
+http://www.tilera.com
 
