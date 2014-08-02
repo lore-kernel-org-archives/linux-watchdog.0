@@ -1,110 +1,110 @@
 Return-Path: <heiko@sntech.de>
 From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-To: Guenter Roeck <linux@roeck-us.net>, mturquette@linaro.org
+To: Guenter Roeck <linux@roeck-us.net>
 Cc: linux-watchdog@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Wim Van Sebroeck <wim@iguana.be>, Catalin Marinas <catalin.marinas@arm.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, Will Deacon <will.deacon@arm.com>, Arnd Bergmann <arnd@arndb.de>, Russell King <linux@arm.linux.org.uk>, Jonas Jensen <jonas.jensen@gmail.com>, Randy Dunlap <rdunlap@infradead.org>, Andrew Morton <akpm@linux-foundation.org>, Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Tomasz Figa <t.figa@samsung.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v2] clk: rockchip: add restart handler
-Date: Sat, 09 Aug 2014 22:25:12 +0200
-Message-ID: <1812271.NdMZDbhgpa@diego>
-In-Reply-To: <1407203338-12915-1-git-send-email-linux@roeck-us.net>
-References: <1407203338-12915-1-git-send-email-linux@roeck-us.net>
+Subject: [PATCH v5.1 9/7] watchdog: s3c2410: add restart handler
+Date: Sat, 02 Aug 2014 21:51:42 +0200
+Message-ID: <1701800.eiHDUvPYI3@diego>
+In-Reply-To: <53D9010B.7070700@roeck-us.net>
+References: <1405668856-13738-1-git-send-email-linux@roeck-us.net> <53D8FCEA.9020506@roeck-us.net> <53D9010B.7070700@roeck-us.net>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7Bit
 Content-Type: text/plain; charset="us-ascii"
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Add infrastructure to write the correct value to the restart register and
-register the restart notifier for both rk3188 (including rk3066) and rk3288.
+On a lot of Samsung systems the watchdog is responsible for restarting the
+system and until now this code was contained in plat-samsung/watchdog-reset.c .
 
+With the introduction of the restart handlers, this code can now move into
+driver itself, removing the need for arch-specific code.
+
+Tested on a S3C2442 based GTA02
 Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+[Guenter Roeck: Update to latest API; do not require static context variable]
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Acked-by: Heiko Stuebner <heiko@sntech.de>
 ---
-This of course needs the restart generalization from Guenter Roeck
-and would need to go with that series.
+changes since v5:
+- reintroduce the mdelay(500) from the platform code, to make sure the
+  watchdog has time to assert, as suggested by Tomasz Figa
 
-changes since v1:
-- adapt to changed restart notifier handling
+ drivers/watchdog/s3c2410_wdt.c | 36 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 36 insertions(+)
 
- drivers/clk/rockchip/clk-rk3188.c |  2 ++
- drivers/clk/rockchip/clk-rk3288.c |  2 ++
- drivers/clk/rockchip/clk.c        | 25 +++++++++++++++++++++++++
- drivers/clk/rockchip/clk.h        |  1 +
- 4 files changed, 30 insertions(+)
-
-diff --git a/drivers/clk/rockchip/clk-rk3188.c b/drivers/clk/rockchip/clk-rk3188.c
-index a83a6d8..71b661a 100644
---- a/drivers/clk/rockchip/clk-rk3188.c
-+++ b/drivers/clk/rockchip/clk-rk3188.c
-@@ -631,6 +631,8 @@ static void __init rk3188_common_clk_init(struct device_node *np)
- 
- 	rockchip_register_softrst(np, 9, reg_base + RK2928_SOFTRST_CON(0),
- 				  ROCKCHIP_SOFTRST_HIWORD_MASK);
-+
-+	rockchip_register_restart_notifier(RK2928_GLB_SRST_FST);
- }
- 
- static void __init rk3066a_clk_init(struct device_node *np)
-diff --git a/drivers/clk/rockchip/clk-rk3288.c b/drivers/clk/rockchip/clk-rk3288.c
-index 0d8c6c5..b604217 100644
---- a/drivers/clk/rockchip/clk-rk3288.c
-+++ b/drivers/clk/rockchip/clk-rk3288.c
-@@ -713,5 +713,7 @@ static void __init rk3288_clk_init(struct device_node *np)
- 
- 	rockchip_register_softrst(np, 9, reg_base + RK3288_SOFTRST_CON(0),
- 				  ROCKCHIP_SOFTRST_HIWORD_MASK);
-+
-+	rockchip_register_restart_notifier(RK3288_GLB_SRST_FST);
- }
- CLK_OF_DECLARE(rk3288_cru, "rockchip,rk3288-cru", rk3288_clk_init);
-diff --git a/drivers/clk/rockchip/clk.c b/drivers/clk/rockchip/clk.c
-index 278cf9d..aa41433 100644
---- a/drivers/clk/rockchip/clk.c
-+++ b/drivers/clk/rockchip/clk.c
-@@ -25,6 +25,7 @@
- #include <linux/clk-provider.h>
+diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+index 7c6ccd0..2955aef 100644
+--- a/drivers/watchdog/s3c2410_wdt.c
++++ b/drivers/watchdog/s3c2410_wdt.c
+@@ -41,6 +41,8 @@
+ #include <linux/of.h>
  #include <linux/mfd/syscon.h>
  #include <linux/regmap.h>
 +#include <linux/reboot.h>
- #include "clk.h"
++#include <linux/delay.h>
  
- /**
-@@ -242,3 +243,27 @@ void __init rockchip_clk_register_branches(
- 		rockchip_clk_add_lookup(clk, list->id);
- 	}
+ #define S3C2410_WTCON		0x00
+ #define S3C2410_WTDAT		0x04
+@@ -128,6 +130,7 @@ struct s3c2410_wdt {
+ 	unsigned long		wtdat_save;
+ 	struct watchdog_device	wdt_device;
+ 	struct notifier_block	freq_transition;
++	struct notifier_block	restart_handler;
+ 	struct s3c2410_wdt_variant *drv_data;
+ 	struct regmap *pmureg;
+ };
+@@ -438,6 +441,31 @@ static inline void s3c2410wdt_cpufreq_deregister(struct s3c2410_wdt *wdt)
  }
-+
-+static unsigned int reg_restart;
-+static int rockchip_restart_notify(struct notifier_block *this,
-+				   unsigned long mode, void *cmd)
+ #endif
+ 
++static int s3c2410wdt_restart(struct notifier_block *this,
++			      unsigned long mode, void *cmd)
 +{
-+	writel(0xfdb9, reg_base + reg_restart);
++	struct s3c2410_wdt *wdt = container_of(this, struct s3c2410_wdt,
++					       restart_handler);
++	void __iomem *wdt_base = wdt->reg_base;
++
++	/* disable watchdog, to be safe  */
++	writel(0, wdt_base + S3C2410_WTCON);
++
++	/* put initial values into count and data */
++	writel(0x80, wdt_base + S3C2410_WTCNT);
++	writel(0x80, wdt_base + S3C2410_WTDAT);
++
++	/* set the watchdog to go and reset... */
++	writel(S3C2410_WTCON_ENABLE | S3C2410_WTCON_DIV16 |
++		S3C2410_WTCON_RSTEN | S3C2410_WTCON_PRESCALE(0x20),
++		wdt_base + S3C2410_WTCON);
++
++	/* wait for reset to assert... */
++	mdelay(500);
++
 +	return NOTIFY_DONE;
 +}
 +
-+static struct notifier_block rockchip_restart_handler = {
-+	.notifier_call = rockchip_restart_notify,
-+	.priority = 128,
-+};
-+
-+void __init rockchip_register_restart_notifier(unsigned int reg)
-+{
-+	int ret;
-+
-+	reg_restart = reg;
-+	ret = register_restart_handler(&rockchip_restart_handler);
+ static inline unsigned int s3c2410wdt_get_bootstatus(struct s3c2410_wdt *wdt)
+ {
+ 	unsigned int rst_stat;
+@@ -592,6 +620,12 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, wdt);
+ 
++	wdt->restart_handler.notifier_call = s3c2410wdt_restart;
++	wdt->restart_handler.priority = 128;
++	ret = register_restart_handler(&wdt->restart_handler);
 +	if (ret)
-+		pr_err("%s: cannot register restart handler, %d\n",
-+		       __func__, ret);
-+}
-diff --git a/drivers/clk/rockchip/clk.h b/drivers/clk/rockchip/clk.h
-index 887cbde..0b5eab5 100644
---- a/drivers/clk/rockchip/clk.h
-+++ b/drivers/clk/rockchip/clk.h
-@@ -329,6 +329,7 @@ void rockchip_clk_register_branches(struct rockchip_clk_branch *clk_list,
- 				    unsigned int nr_clk);
- void rockchip_clk_register_plls(struct rockchip_pll_clock *pll_list,
- 				unsigned int nr_pll, int grf_lock_offset);
-+void rockchip_register_restart_notifier(unsigned int reg);
++		pr_err("cannot register restart handler, %d\n", ret);
++
+ 	/* print out a statement of readiness */
  
- #define ROCKCHIP_SOFTRST_HIWORD_MASK	BIT(0)
+ 	wtcon = readl(wdt->reg_base + S3C2410_WTCON);
+@@ -621,6 +655,8 @@ static int s3c2410wdt_remove(struct platform_device *dev)
+ 	int ret;
+ 	struct s3c2410_wdt *wdt = platform_get_drvdata(dev);
  
++	unregister_restart_handler(&wdt->restart_handler);
++
+ 	ret = s3c2410wdt_mask_and_disable_reset(wdt, true);
+ 	if (ret < 0)
+ 		return ret;
 -- 
 2.0.1
