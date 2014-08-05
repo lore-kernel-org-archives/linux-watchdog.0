@@ -1,96 +1,66 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:48139 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754675AbaHBSfF (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 2 Aug 2014 14:35:05 -0400
-Date: Sat, 2 Aug 2014 17:17:08 +0200
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Guenter Roeck <linux@roeck-us.net>, Arnd Bergmann <arnd@arndb.de>,
-	dbaryshkov@gmail.com, dwmw2@infradead.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, linux-sunxi@googlegroups.com
-Subject: Re: [PATCH v2 1/6] wdt: sunxi: Move restart code to the watchdog
- driver
-Message-ID: <20140802151708.GM3952@lukather>
-References: <1399430664-29091-2-git-send-email-maxime.ripard@free-electrons.com>
- <20140507213318.GA2105@roeck-us.net>
- <20140515091123.GQ29258@lukather>
- <20140519150422.GA27329@lukather>
- <20140522203444.GE27329@lukather>
- <20140522211207.GA28704@roeck-us.net>
- <20140623103142.GB19730@lukather>
- <20140623211323.GA28120@spo001.leaseweb.com>
- <20140624144954.GP19730@lukather>
- <20140802080208.GA22804@spo001.leaseweb.com>
+Received: from ozlabs.org ([103.22.144.67]:60506 "EHLO ozlabs.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751053AbaHEXLR (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 5 Aug 2014 19:11:17 -0400
+Date: Wed, 6 Aug 2014 09:11:07 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Wim Van Sebroeck <wim.vansebroeck@linux-watchdog.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	George Cherian <george.cherian@ti.com>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Sangjung Woo <sangjung.woo@samsung.com>,
+	Xiubo Li <Li.Xiubo@freescale.com>
+Subject: Re: [GIT PULL REQUEST] watchdog - v3.17-rc1 merge window
+Message-ID: <20140806091107.447325c4@canb.auug.org.au>
+In-Reply-To: <20140805205547.GK11710@spo001.leaseweb.com>
+References: <20140805205547.GK11710@spo001.leaseweb.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ngshnjhd05HsCES+"
-Content-Disposition: inline
-In-Reply-To: <20140802080208.GA22804@spo001.leaseweb.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ boundary="Sig_/CJF5ebCdSeZjjl6Imell0j_"; protocol="application/pgp-signature"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-
---ngshnjhd05HsCES+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--Sig_/CJF5ebCdSeZjjl6Imell0j_
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Aug 02, 2014 at 10:02:08AM +0200, Wim Van Sebroeck wrote:
-> Maxime, All,
->=20
-> > > 1) For me the discussion was not ended and needs further
-> > > thinking. (And I just read some good ideas about it).
-> >=20
-> > It would have been great for you to mention it then.
-> >=20
-> > > 2) You never mentioned you needed this in for 3.16 and that things
-> > > would break because of it.
-> >=20
-> > http://lists.infradead.org/pipermail/linux-arm-kernel/2014-May/257690.h=
-tml
-> > http://lists.infradead.org/pipermail/linux-arm-kernel/2014-May/259109.h=
-tml
-> >=20
-> > I thought it was pretty clear.
-> >=20
->=20
-> I will put it in now as step in between before going over to the new rest=
-art system.
-> Anyone objections?
+On Tue, 5 Aug 2014 22:55:47 +0200 Wim Van Sebroeck <wim.vansebroeck@linux-w=
+atchdog.org> wrote:
+>
+> Please pull from 'master' branch of
+> 	git://www.linux-watchdog.org/linux-watchdog.git
 
-Yeah, go ahead, I'll send a patch to remove the reset code from
-mach-sunxi in a later -rc.
-
-Maxime
+This has been rebased onto v3.16, but none of the patches changed.
 
 --=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
 
---ngshnjhd05HsCES+
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+--Sig_/CJF5ebCdSeZjjl6Imell0j_
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Disposition: attachment; filename=signature.asc
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Version: GnuPG v2
 
-iQIcBAEBAgAGBQJT3QD0AAoJEBx+YmzsjxAgtUIP/j7iCO2gnzMwu4nsHACpRjxv
-0crg+F7QH79V+RcDnnGIbTfI7fa/jCYMO/PS50viTpynE6Z8vkCX9xLBNYlyZxOP
-r4ZnYZ3aXzjqX+8a52GEQF+SkemEkCbIC24FeLmviaNB0XD/SoOfBIcfyd/c9819
-+W85kQ3cVxFA9+cGbfmCSr880BM2K0wlXZmuCQL8nXO+WflroE2QuH07R6b5Oq5n
-Un8n14PrKky0ZFyEoedAshzJLtArzhZo1uyj2miUI9diSnEL6bHFujpr6v8JUGY5
-5T5Uk1CxL6Dtxat/U9kZnCAPLg+4ae5bpPNvTo612jlox34wfUm8QLpBGLXg2WV5
-8LdARdTpSupSJc1ap805nvl5y9bXnxMk63aW34I4vPBDOiZ08qUsTSegjfBgUrTo
-w27umtaQEvqKvPw+D7cfn5OMA9wyJ4WtoFY5lgLPkUnCAPuCWAMoli3XP/daOD5+
-6P1jQ0Nmuu5+vBDZTySLkII0F+euvTXGPW4a1+4QBXsvVTli3Z/S6P3HQOt096FZ
-C7SOa3kQ1YhanwtS+JxGIpTC1G/exi69Xr+iETENmRrFbLAM6uiY7ptTR3F1C1iL
-/TCrnhIvomyWcvjslIMA4e3E7/xevaRh6qPOm317g8UqJdDQux33uMLgI1xKBkIE
-STzoRb0gYVG4dBWNjpgr
-=OMrJ
+iQIcBAEBCAAGBQJT4WSSAAoJEMDTa8Ir7ZwVhjwP/jB25S8mYKdGKVzPKaOyGUAv
+M+1cqiUtMogiJhOC2IGZYILrVByNkxsPvFVJdShgdk1HKCYiAcjzrUNv+EswKTZ6
+E2+Zw/aVI7psfxbwqMw/LGEnKGrh80Ald/qbM+iaKeRxeFlwCuV6emJk6HfW0wYE
+8I9LCUymhjwrthrr8/QmSmYoDKUdOplYSD1c3J78O6MTHl2NKpMsGVyPYopPr5WE
+ZJRx6P1o1bds41c9LSZZtG7CmsGRpzC+BUfYkL6jKI4f1M00PAtGgk2vvz809VBo
+EIORQbz5cYGrVQPT5zt7tArdaCcaFiFzgmJRhEZ8oe/qdOZ4uGSrNICjsEPWP0Og
+MoWopTPxbPNnXeF2vYbjMZkqNB2fnN55DWTHc90v/sUHjmJCfbZjPtVmYuh3Mcsa
+WIP2ki72QusFgJXmZZ46fjW+20bRJxlRQuSN4tlDYRAuILQTmDEaTzAsK+nYmKGn
+/LV3hy3TXFMQIHOrlZqOdFFQjboRBwupXv/cuq/N3O21dbk8YKibgmk48O+c6EzO
+IFFJ/NJOl9opDx60X9TPJVybzqlnlHWm8AG5JPElJYeD16Zwwb+iRTov2k+ketO2
+cL2QhCc0oK1UwudQAnq8yu7HNcxYSxWtOgN8pwjdwO4UGVZB07U8oCJcFwO0EFge
+/JeFeYqfq3kR69ZChVPF
+=fKaw
 -----END PGP SIGNATURE-----
 
---ngshnjhd05HsCES+--
+--Sig_/CJF5ebCdSeZjjl6Imell0j_--
