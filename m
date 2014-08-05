@@ -1,79 +1,108 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:33558 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751080AbaH3MvY (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 30 Aug 2014 08:51:24 -0400
-From: Beniamino Galvani <b.galvani@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: Lee Jones <lee.jones@linaro.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Mark Brown <broonie@kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Grant Likely <grant.likely@linaro.org>,
-	Carlo Caione <carlo@caione.org>,
-	Beniamino Galvani <b.galvani@gmail.com>
-Subject: [PATCH v2 0/4] Add support for Ricoh RN5T618 PMIC
-Date: Sat, 30 Aug 2014 14:50:22 +0200
-Message-Id: <1409403026-28818-1-git-send-email-b.galvani@gmail.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-Path: <groeck7@gmail.com>
+Return-Path: <groeck7@gmail.com>
+Sender: Guenter Roeck <groeck7@gmail.com>
+From: Guenter Roeck <linux@roeck-us.net>
+To: linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Will Deacon <will.deacon@arm.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Heiko Stuebner <heiko@sntech.de>,
+	Russell King <linux@arm.linux.org.uk>,
+	Jonas Jensen <jonas.jensen@gmail.com>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Ingo Molnar <mingo@kernel.org>,
+	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Tomasz Figa <t.figa@samsung.com>,
+	linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH v6 0/7] kernel: Add support for restart handler call chain
+Date: Mon,  4 Aug 2014 18:48:51 -0700
+Message-Id: <1407203338-12915-1-git-send-email-linux@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Ricoh RN5T618 is a power management IC which includes 3 step-down DCDC
-converters, 7 low-dropout regulators, a Li-ion battery charger, fuel
-gauge, ADC, GPIOs and a watchdog timer.
+Various drivers implement architecture and/or device specific means
+to restart (reset) the system. Various mechanisms have been implemented
+to support those schemes. The best known mechanism is arm_pm_restart,
+which is a function pointer to be set either from platform specific code
+or from drivers. Another mechanism is to use hardware watchdogs to issue
+a reset; this mechanism is used if there is no other method available
+to reset a board or system. Two examples are alim7101_wdt, which currently
+uses the reboot notifier to trigger a reset, and moxart_wdt, which registers
+the arm_pm_restart function. Several other restart drivers for arm, all
+directly calling arm_pm_restart, are in the process of being integrated
+into the kernel. All those drivers would benefit from the new API.
 
-This series adds a MFD core driver and separate drivers to support the
-regulator and watchdog functionalities.
+The existing mechanisms have a number of drawbacks. Typically only one scheme
+to restart the system is supported (at least if arm_pm_restart is used).
+At least in theory there can be multiple means to restart the system, some of
+which may be less desirable (for example one mechanism may only reset the CPU,
+while another may reset the entire system). Using arm_pm_restart can also be
+racy if the function pointer is set from a driver, as the driver may be in
+the process of being unloaded when arm_pm_restart is called.
+Using the reboot notifier is always racy, as it is unknown if and when
+other functions using the reboot notifier have completed execution
+by the time the watchdog fires.
 
-The patchset has been tested on a Tronsmart Vega S89 Elite TV box on
-top of other patches needed to support the Amlogic Meson SoC. The tree
-with all the changes is available at:
+Introduce a system restart handler call chain to solve the described problems.
+This call chain is expected to be executed from the architecture specific
+machine_restart() function. Drivers providing system restart functionality
+(such as the watchdog drivers mentioned above) are expected to register
+with this call chain. By using the priority field in the notifier block,
+callers can control restart handler execution sequence and thus ensure that
+the restart handler with the optimal restart capabilities for a given system
+is called first.
 
-  https://github.com/bengal/linux/tree/rn5t618-v2
+Since the first revision of this patchset, a number of separate patch
+submissions have been made which either depend on it or could make use of it.
 
-Changes since v1:
-  - moved all header file changes to the first patch
-  - mfd: allow modular build
-  - mfd: removed printk after mfd registration
-  - regulator: rebased on regulator/for-next
-  - wdt: initialized heartbeat parameter to 0 instead of -1
-  - wdt: simplified code path in set_timeout function
-  - wdt: fixed module unloading
-  - wdt: made 'time' unsigned in struct rn5t618_wdt_map
+http://www.spinics.net/linux/lists/arm-kernel/msg344796.html
+	registers three notifiers.
+https://lkml.org/lkml/2014/7/8/962
+	would benefit from it.
 
-Beniamino Galvani (4):
-  mfd: Add Ricoh RN5T618 PMIC core driver
-  regulator: add driver for Ricoh RN5T618 regulators
-  watchdog: add driver for Ricoh RN5T618 watchdog
-  mfd: rn5t618: document device tree bindings
+Patch 1 of this series implements the restart handler function. Patches 2 and 3
+implement calling the restart handler chain from arm and arm64 restart code.
 
- Documentation/devicetree/bindings/mfd/rn5t618.txt |   36 ++++
- drivers/mfd/Kconfig                               |   11 +
- drivers/mfd/Makefile                              |    1 +
- drivers/mfd/rn5t618.c                             |  134 ++++++++++++
- drivers/regulator/Kconfig                         |    6 +
- drivers/regulator/Makefile                        |    1 +
- drivers/regulator/rn5t618-regulator.c             |  143 +++++++++++++
- drivers/watchdog/Kconfig                          |   11 +
- drivers/watchdog/Makefile                         |    1 +
- drivers/watchdog/rn5t618_wdt.c                    |  198 ++++++++++++++++++
- include/linux/mfd/rn5t618.h                       |  228 +++++++++++++++++++++
- 11 files changed, 770 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/rn5t618.txt
- create mode 100644 drivers/mfd/rn5t618.c
- create mode 100644 drivers/regulator/rn5t618-regulator.c
- create mode 100644 drivers/watchdog/rn5t618_wdt.c
- create mode 100644 include/linux/mfd/rn5t618.h
+Patch 4 modifies the restart-poweroff driver to no longer call arm_pm_restart
+directly but machine_restart. This is done to avoid calling arm_pm_restart
+from more than one place. The change makes the driver architecture independent,
+so it would be possible to drop the arm dependency from its Kconfig entry.
 
--- 
-1.7.10.4
+Patch 5 and 6 convert existing restart handlers in the watchdog subsystem
+to use the restart handler. Patch 7 unexports arm_pm_restart to ensure
+that no one gets the idea to implement a restart handler as module.
 
+The entire patch series, including additional patches depending on it,
+is available from
+https://git.kernel.org/cgit/linux/kernel/git/groeck/linux-staging.git/
+in branch 'restart-staging'.
+
+On a side note, I realize that the timing for sending this series is less
+than optimal, given that we have an open commit window. Letting it sit for
+two weeks collecting dust isn't optimal either, so I figure it may as well
+collect dust in public.
+
+---
+v6: Use atomic notifier call chain 
+    Rebased series to v3.16
+v5: Rebased series to v3.16-rc5
+    Function renames:
+    register_restart_notifier -> register_restart_handler
+    unregister_restart_notifier -> unregister_restart_handler
+    kernel_restart_notify -> do_kernel_restart
+v4: Document restart notifier priorities
+    Select 128 as default priority for newly introduced notifiers
+    Fix checkpatch warning (line too long) in moxart patch
+v3: Drop RFC.
+    Add kernel_restart_notify wrapper function to execute notifier
+    Improve documentation.
+    Move restart_notifier_list into kernel/reboot.c and make it static.
+v2: Add patch 4.
+    Only call blocking notifier call chain if arm_pm_restart was not set.
