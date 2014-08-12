@@ -1,337 +1,315 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:54710 "EHLO
-	spo001.leaseweb.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751329AbaHEUzv (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:42876 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751731AbaHLIbt (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 5 Aug 2014 16:55:51 -0400
-Date: Tue, 5 Aug 2014 22:55:47 +0200
-From: Wim Van Sebroeck <wim.vansebroeck@linux-watchdog.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	George Cherian <george.cherian@ti.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Sangjung Woo <sangjung.woo@samsung.com>,
-	Xiubo Li <Li.Xiubo@freescale.com>
-Subject: [GIT PULL REQUEST] watchdog - v3.17-rc1 merge window
-Message-ID: <20140805205547.GK11710@spo001.leaseweb.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Tue, 12 Aug 2014 04:31:49 -0400
+From: Markus Pargmann <mpa@pengutronix.de>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Support Opensource <support.opensource@diasemi.com>,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, kernel@pengutronix.de,
+	Krystian Garbaciak <krystian.garbaciak@diasemi.com>,
+	Philipp Zabel <p.zabel@pengutronix.de>,
+	Markus Pargmann <mpa@pengutronix.de>
+Subject: [PATCH] watchdog: Add DA906x PMIC watchdog driver.
+Date: Tue, 12 Aug 2014 10:31:23 +0200
+Message-Id: <1407832283-26444-1-git-send-email-mpa@pengutronix.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Linus,
+From: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
 
-Please pull from 'master' branch of
-	git://www.linux-watchdog.org/linux-watchdog.git
+This driver supports watchdog device inside DA906x PMIC.
 
-It contains the following changes:
-* Remove un-necessary checks after platform_get_resource()
-* fix watchdog api documentation typo's
-* imx2_wdt: adds big endianness support
-* Move restart code to the sunxi watchdog driver
+Signed-off-by: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
+---
+ drivers/watchdog/Kconfig             |   7 ++
+ drivers/watchdog/Makefile            |   1 +
+ drivers/watchdog/da9063_wdt.c        | 229 +++++++++++++++++++++++++++++++++++
+ include/linux/mfd/da9063/registers.h |   1 +
+ 4 files changed, 238 insertions(+)
+ create mode 100644 drivers/watchdog/da9063_wdt.c
 
-This will update the following files:
-
- Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt |    5 ++
- Documentation/watchdog/watchdog-api.txt                    |    2 
- drivers/watchdog/dw_wdt.c                                  |    3 -
- drivers/watchdog/imx2_wdt.c                                |    7 +++
- drivers/watchdog/lantiq_wdt.c                              |    5 --
- drivers/watchdog/shwdt.c                                   |    5 --
- drivers/watchdog/sunxi_wdt.c                               |   29 +++++++++++++
- 7 files changed, 43 insertions(+), 13 deletions(-)
-
-with these Changes:
-
-commit 440e96bc770eb98b17a763defb9641c77f9a7755
-Author: Maxime Ripard <maxime.ripard@free-electrons.com>
-Date:   Tue May 6 21:44:19 2014 -0500
-
-    wdt: sunxi: Move restart code to the watchdog driver
-    
-    Most of the watchdog code is duplicated between the machine restart code and
-    the watchdog driver. Add the restart hook to the watchdog driver, to be able to
-    remove it from the machine code eventually.
-    
-    Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
-    Acked-by: Arnd Bergmann <arnd@arndb.de>
-    Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-commit 5be876cf7e6feeca6dc2bbdb3f1fa0167e13621d
-Author: Sangjung Woo <sangjung.woo@samsung.com>
-Date:   Wed Jul 30 09:56:21 2014 +0900
-
-    Documentation: fix two typos in watchdog-api.txt
-    
-    This patch changes 'go of' to 'go off' and 'pretimout' to
-    'pretimeout'.
-    
-    Signed-off-by: Sangjung Woo <sangjung.woo@samsung.com>
-    Acked-by: Randy Dunlap <rdunlap@infradead.org>
-    Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-commit f728f4bfc495a588abda4661c09595112677be25
-Author: Xiubo Li <Li.Xiubo@freescale.com>
-Date:   Tue Jun 3 10:45:14 2014 +0800
-
-    watchdog: imx2_wdt: adds big endianness support.
-    
-    This watchdog driver will be working on IMX2+, Vybrid, LS1, LS2+
-    platforms, and will be in different endianness mode in those SoCs:
-    
-        SoCs       WDT endian mode
-    ------------------------------------
-        IMX2+           LE
-        Vybird          LE
-        LS1             BE
-        LS2             LE
-    
-    Signed-off-by: Xiubo Li <Li.Xiubo@freescale.com>
-    Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-commit 2cdf25bb574c20efde0340ffa90f08d1609ef97c
-Author: George Cherian <george.cherian@ti.com>
-Date:   Tue Jun 10 10:10:08 2014 +0530
-
-    watchdog: shwdt: Remove the unnecessary check of resource after platform_get_resource()
-    
-    devm_ioremap_resource check for a valid resource. Remove the unnecessary check.
-    Also group platform_get_resource and devm_ioremap_resource together for better
-    readability.
-    
-    Signed-off-by: George Cherian <george.cherian@ti.com>
-    Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-commit 37f152915fba723de7e5bf43ade3bd971977b724
-Author: George Cherian <george.cherian@ti.com>
-Date:   Tue Jun 10 10:10:07 2014 +0530
-
-    watchdog: lantiq_wdt: Remove the un-necessary check of resource after platform_get_resource()
-    
-    devm_ioremap_resource() checks for valid resource.
-    Remove the un-necessary check after platform_get_resource().
-    
-    Signed-off-by: George Cherian <george.cherian@ti.com>
-    Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-commit 4bba08dda402172727c14d8e363a3dda38293548
-Author: George Cherian <george.cherian@ti.com>
-Date:   Tue Jun 10 10:10:06 2014 +0530
-
-    watchdog: dw_wdt: Remove the un-necessary check after platform_get_resource()
-    
-    devm_ioremap_resource() checks for valid resource.
-    Remove the un-necessary check after platform_get_resource().
-    
-    Signed-off-by: George Cherian <george.cherian@ti.com>
-    Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-For completeness, I added the overal diff below.
-
-Greetings,
-Wim.
-
-================================================================================
-diff --git a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
-index 2144af1..e52ba2d 100644
---- a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
-@@ -5,10 +5,15 @@ Required properties:
- - reg : Should contain WDT registers location and length
- - interrupts : Should contain WDT interrupt
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index c845527b503a..8d5c9b33552a 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -87,6 +87,13 @@ config DA9055_WATCHDOG
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called da9055_wdt.
  
-+Optional property:
-+- big-endian: If present the watchdog device's registers are implemented
-+  in big endian mode, otherwise in little mode.
++config DA9063_WATCHDOG
++	tristate "Dialog DA9063 Watchdog"
++	depends on MFD_DA9063
++	select WATCHDOG_CORE
++	help
++	  Support for the watchdog in the DA9063 PMIC.
 +
- Examples:
- 
- wdt@73f98000 {
- 	compatible = "fsl,imx51-wdt", "fsl,imx21-wdt";
- 	reg = <0x73f98000 0x4000>;
- 	interrupts = <58>;
-+	big-endian;
- };
-diff --git a/Documentation/watchdog/watchdog-api.txt b/Documentation/watchdog/watchdog-api.txt
-index eb7132e..b3a701f 100644
---- a/Documentation/watchdog/watchdog-api.txt
-+++ b/Documentation/watchdog/watchdog-api.txt
-@@ -118,7 +118,7 @@ resets.
- Note that the pretimeout is the number of seconds before the time
- when the timeout will go off.  It is not the number of seconds until
- the pretimeout.  So, for instance, if you set the timeout to 60 seconds
--and the pretimeout to 10 seconds, the pretimout will go of in 50
-+and the pretimeout to 10 seconds, the pretimeout will go off in 50
- seconds.  Setting a pretimeout to zero disables it.
- 
- There is also a get function for getting the pretimeout:
-diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-index ee4f86b..9f21029 100644
---- a/drivers/watchdog/dw_wdt.c
-+++ b/drivers/watchdog/dw_wdt.c
-@@ -296,9 +296,6 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
- 	int ret;
- 	struct resource *mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 
--	if (!mem)
--		return -EINVAL;
--
- 	dw_wdt.regs = devm_ioremap_resource(&pdev->dev, mem);
- 	if (IS_ERR(dw_wdt.regs))
- 		return PTR_ERR(dw_wdt.regs);
-diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-index 9d4874f..68c3d37 100644
---- a/drivers/watchdog/imx2_wdt.c
-+++ b/drivers/watchdog/imx2_wdt.c
-@@ -28,6 +28,7 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
-+#include <linux/of_address.h>
- #include <linux/platform_device.h>
- #include <linux/regmap.h>
- #include <linux/timer.h>
-@@ -190,10 +191,12 @@ static struct regmap_config imx2_wdt_regmap_config = {
- 
- static int __init imx2_wdt_probe(struct platform_device *pdev)
- {
-+	struct device_node *np = pdev->dev.of_node;
- 	struct imx2_wdt_device *wdev;
- 	struct watchdog_device *wdog;
- 	struct resource *res;
- 	void __iomem *base;
-+	bool big_endian;
- 	int ret;
- 	u32 val;
- 
-@@ -201,6 +204,10 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
- 	if (!wdev)
- 		return -ENOMEM;
- 
-+	big_endian = of_property_read_bool(np, "big-endian");
-+	if (big_endian)
-+		imx2_wdt_regmap_config.val_format_endian = REGMAP_ENDIAN_BIG;
+ config GPIO_WATCHDOG
+ 	tristate "Watchdog device controlled through GPIO-line"
+ 	depends on OF_GPIO
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 7b8a91ed20e7..ce4a7632d863 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -172,6 +172,7 @@ obj-$(CONFIG_XEN_WDT) += xen_wdt.o
+ # Architecture Independent
+ obj-$(CONFIG_DA9052_WATCHDOG) += da9052_wdt.o
+ obj-$(CONFIG_DA9055_WATCHDOG) += da9055_wdt.o
++obj-$(CONFIG_DA9063_WATCHDOG) += da9063_wdt.o
+ obj-$(CONFIG_GPIO_WATCHDOG)	+= gpio_wdt.o
+ obj-$(CONFIG_WM831X_WATCHDOG) += wm831x_wdt.o
+ obj-$(CONFIG_WM8350_WATCHDOG) += wm8350_wdt.o
+diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
+new file mode 100644
+index 000000000000..cd32de6c5e9d
+--- /dev/null
++++ b/drivers/watchdog/da9063_wdt.c
+@@ -0,0 +1,229 @@
++/*
++ * Watchdog driver for DA9063 PMICs.
++ *
++ * Copyright(c) 2012 Dialog Semiconductor Ltd.
++ *
++ * Author: Mariusz Wojtasik <mariusz.garbaciak@diasemi.com>
++ *
++ *  This program is free software; you can redistribute  it and/or modify it
++ *  under  the terms of  the GNU General  Public License as published by the
++ *  Free Software Foundation;  either version 2 of the  License, or (at your
++ *  option) any later version.
++ *
++ */
 +
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	base = devm_ioremap_resource(&pdev->dev, res);
- 	if (IS_ERR(base))
-diff --git a/drivers/watchdog/lantiq_wdt.c b/drivers/watchdog/lantiq_wdt.c
-index 3b3148c..021e84e 100644
---- a/drivers/watchdog/lantiq_wdt.c
-+++ b/drivers/watchdog/lantiq_wdt.c
-@@ -192,11 +192,6 @@ ltq_wdt_probe(struct platform_device *pdev)
- 	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	struct clk *clk;
- 
--	if (!res) {
--		dev_err(&pdev->dev, "cannot obtain I/O memory region");
--		return -ENOENT;
--	}
--
- 	ltq_wdt_membase = devm_ioremap_resource(&pdev->dev, res);
- 	if (IS_ERR(ltq_wdt_membase))
- 		return PTR_ERR(ltq_wdt_membase);
-diff --git a/drivers/watchdog/shwdt.c b/drivers/watchdog/shwdt.c
-index 061756e..fa89bb3 100644
---- a/drivers/watchdog/shwdt.c
-+++ b/drivers/watchdog/shwdt.c
-@@ -230,10 +230,6 @@ static int sh_wdt_probe(struct platform_device *pdev)
- 	if (pdev->id != -1)
- 		return -EINVAL;
- 
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	if (unlikely(!res))
--		return -EINVAL;
--
- 	wdt = devm_kzalloc(&pdev->dev, sizeof(struct sh_wdt), GFP_KERNEL);
- 	if (unlikely(!wdt))
- 		return -ENOMEM;
-@@ -249,6 +245,7 @@ static int sh_wdt_probe(struct platform_device *pdev)
- 		wdt->clk = NULL;
- 	}
- 
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	wdt->base = devm_ioremap_resource(wdt->dev, res);
- 	if (IS_ERR(wdt->base))
- 		return PTR_ERR(wdt->base);
-diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
-index 693b9d2..60deb9d 100644
---- a/drivers/watchdog/sunxi_wdt.c
-+++ b/drivers/watchdog/sunxi_wdt.c
-@@ -14,6 +14,7 @@
-  */
- 
- #include <linux/clk.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/watchdog.h>
++#include <linux/platform_device.h>
++#include <linux/uaccess.h>
++#include <linux/slab.h>
 +#include <linux/delay.h>
- #include <linux/err.h>
- #include <linux/init.h>
- #include <linux/io.h>
-@@ -22,9 +23,12 @@
- #include <linux/moduleparam.h>
- #include <linux/of.h>
- #include <linux/platform_device.h>
-+#include <linux/reboot.h>
- #include <linux/types.h>
- #include <linux/watchdog.h>
- 
-+#include <asm/system_misc.h>
++#include <linux/mfd/da9063/registers.h>
++#include <linux/mfd/da9063/core.h>
++#include <linux/regmap.h>
 +
- #define WDT_MAX_TIMEOUT         16
- #define WDT_MIN_TIMEOUT         1
- #define WDT_MODE_TIMEOUT(n)     ((n) << 3)
-@@ -70,6 +74,26 @@ static const int wdt_timeout_map[] = {
- 	[16] = 0xB, /* 16s */
- };
- 
-+static void __iomem *reboot_wdt_base;
++#define	DA9063_SUPPORTED_TIMEOUTS_STR		"2, 4, 8, 16, 32, 65, 131"
 +
-+static void sun4i_wdt_restart(enum reboot_mode mode, const char *cmd)
++/* Watchdog selector to timeout in seconds.
++   0: WDT disabled;
++   others: timeout = 2048 ms * 2^(TWDSCALE-1). */
++static const int wdt_timeout[] = { 0, 2, 4, 8, 16, 32, 65, 131 };
++#define DA9063_TWDSCALE_DISABLE		0
++#define DA9063_TWDSCALE_MIN		1
++#define DA9063_TWDSCALE_MAX		(ARRAY_SIZE(wdt_timeout) - 1)
++#define DA9063_WDT_MIN_TIMEOUT		wdt_timeout[DA9063_TWDSCALE_MIN]
++#define DA9063_WDT_MAX_TIMEOUT		wdt_timeout[DA9063_TWDSCALE_MAX]
++#define DA9063_WDG_TIMEOUT		wdt_timeout[3]
++
++
++struct da9063_watchdog {
++	struct da9063 *da9063;
++	struct watchdog_device *wdtdev;
++	struct mutex lock;
++};
++
++static int _da9063_wdt_timeout_to_sel(int secs)
 +{
-+	/* Enable timer and set reset bit in the watchdog */
-+	writel(WDT_MODE_EN | WDT_MODE_RST_EN, reboot_wdt_base + WDT_MODE);
++	int i;
 +
-+	/*
-+	 * Restart the watchdog. The default (and lowest) interval
-+	 * value for the watchdog is 0.5s.
-+	 */
-+	writel(WDT_CTRL_RELOAD, reboot_wdt_base + WDT_CTRL);
-+
-+	while (1) {
-+		mdelay(5);
-+		writel(WDT_MODE_EN | WDT_MODE_RST_EN,
-+		       reboot_wdt_base + WDT_MODE);
++	for (i = DA9063_TWDSCALE_MIN; i <= DA9063_TWDSCALE_MAX; i++) {
++		if (wdt_timeout[i] >= secs)
++			return i;
 +	}
++
++	return 0;
 +}
 +
- static int sunxi_wdt_ping(struct watchdog_device *wdt_dev)
- {
- 	struct sunxi_wdt_dev *sunxi_wdt = watchdog_get_drvdata(wdt_dev);
-@@ -181,6 +205,9 @@ static int sunxi_wdt_probe(struct platform_device *pdev)
- 	if (unlikely(err))
- 		return err;
- 
-+	reboot_wdt_base = sunxi_wdt->wdt_base;
-+	arm_pm_restart = sun4i_wdt_restart;
++static int _da9063_wdt_disable(struct da9063 *da9063)
++{
++	return regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
++			DA9063_TWDSCALE_MASK,
++			DA9063_TWDSCALE_DISABLE << DA9063_TWDSCALE_SHIFT);
++}
 +
- 	dev_info(&pdev->dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)",
- 			sunxi_wdt->wdt_dev.timeout, nowayout);
- 
-@@ -191,6 +218,8 @@ static int sunxi_wdt_remove(struct platform_device *pdev)
- {
- 	struct sunxi_wdt_dev *sunxi_wdt = platform_get_drvdata(pdev);
- 
-+	arm_pm_restart = NULL;
++static int _da9063_wdt_set_timeout(struct da9063 *da9063, unsigned int regval)
++{
++	if (regval < DA9063_TWDSCALE_MIN || regval > DA9063_TWDSCALE_MAX)
++		return -EINVAL;
 +
- 	watchdog_unregister_device(&sunxi_wdt->wdt_dev);
- 	watchdog_set_drvdata(&sunxi_wdt->wdt_dev, NULL);
++	return regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
++			DA9063_TWDSCALE_MASK, regval << DA9063_TWDSCALE_SHIFT);
++}
++
++static int _da9063_wdt_kick(struct da9063 *da9063)
++{
++	return regmap_write(da9063->regmap, DA9063_REG_CONTROL_F,
++			DA9063_WATCHDOG);
++}
++
++static int da9063_wdt_start(struct watchdog_device *wdd)
++{
++	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
++	unsigned int selector;
++	int ret = 0;
++
++	mutex_lock(&wdt->lock);
++	selector = _da9063_wdt_timeout_to_sel(wdt->wdtdev->timeout);
++	ret = _da9063_wdt_set_timeout(wdt->da9063, selector);
++	if (ret) {
++		dev_err(wdt->da9063->dev, "Watchdog failed to start (err = %d)\n",
++				ret);
++	}
++	mutex_unlock(&wdt->lock);
++
++	return ret;
++}
++
++static int da9063_wdt_stop(struct watchdog_device *wdd)
++{
++	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
++	int ret = 0;
++
++	mutex_lock(&wdt->lock);
++	ret = _da9063_wdt_disable(wdt->da9063);
++	if (ret)
++		dev_alert(wdt->da9063->dev,
++			  "Watchdog failed to stop (err = %d)\n", ret);
++	mutex_unlock(&wdt->lock);
++
++	return ret;
++}
++
++static int da9063_wdt_ping(struct watchdog_device *wdd)
++{
++	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
++	int ret = 0;
++
++	mutex_lock(&wdt->lock);
++	ret = _da9063_wdt_kick(wdt->da9063);
++	if (ret)
++		dev_alert(wdt->da9063->dev, "Failed to ping the watchdog (err = %d)\n",
++				ret);
++	mutex_unlock(&wdt->lock);
++
++	return ret;
++}
++
++static int da9063_wdt_set_timeout(struct watchdog_device *wdd,
++							unsigned int timeout)
++{
++	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
++	unsigned int selector;
++	int ret;
++
++	selector = _da9063_wdt_timeout_to_sel(timeout);
++	if (selector == 0) {
++		dev_err(wdt->da9063->dev, "Unsupported watchdog timeout (select from: "
++				DA9063_SUPPORTED_TIMEOUTS_STR ")\n");
++		return -EINVAL;
++	}
++
++	mutex_lock(&wdt->lock);
++
++	ret = _da9063_wdt_set_timeout(wdt->da9063, selector);
++	if (ret)
++		dev_err(wdt->da9063->dev, "Failed to set watchdog timeout (err = %d)\n",
++				ret);
++	else
++		wdd->timeout = wdt_timeout[selector];
++
++	mutex_unlock(&wdt->lock);
++
++	return ret;
++}
++
++static struct watchdog_info da9063_watchdog_info = {
++	.options	= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
++	.identity	= "DA9063 Watchdog",
++};
++
++static struct watchdog_ops da9063_watchdog_ops = {
++	.owner		= THIS_MODULE,
++	.start		= da9063_wdt_start,
++	.stop		= da9063_wdt_stop,
++	.ping		= da9063_wdt_ping,
++	.set_timeout	= da9063_wdt_set_timeout,
++};
++
++static struct watchdog_device da9063_watchdog_device = {
++	.info	= &da9063_watchdog_info,
++	.ops	= &da9063_watchdog_ops,
++};
++
++static int da9063_wdt_probe(struct platform_device *pdev)
++{
++	int ret;
++	struct da9063 *da9063 = dev_get_drvdata(pdev->dev.parent);
++	struct da9063_watchdog *wdt;
++
++	if (!da9063)
++		return -EPROBE_DEFER;
++
++	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
++	if (!wdt)
++		return -ENOMEM;
++
++	wdt->da9063 = da9063;
++	wdt->wdtdev = &da9063_watchdog_device;
++	mutex_init(&wdt->lock);
++
++	if (IS_ENABLED(CONFIG_WATCHDOG_NOWAYOUT))
++		set_bit(WDOG_NO_WAY_OUT, &wdt->wdtdev->status);
++
++	wdt->wdtdev->min_timeout = DA9063_WDT_MIN_TIMEOUT;
++	wdt->wdtdev->max_timeout = DA9063_WDT_MAX_TIMEOUT;
++	wdt->wdtdev->timeout = DA9063_WDG_TIMEOUT;
++
++	ret = watchdog_register_device(wdt->wdtdev);
++	if (ret) {
++		dev_err(da9063->dev, "da9063-watchdog registration failed (err = %d)",
++				ret);
++		return ret;
++	}
++
++	watchdog_set_drvdata(wdt->wdtdev, wdt);
++
++	return 0;
++}
++
++static int da9063_wdt_remove(struct platform_device *pdev)
++{
++	watchdog_unregister_device(&da9063_watchdog_device);
++
++	return 0;
++}
++
++static struct platform_driver da9063_wdt_driver = {
++	.probe = da9063_wdt_probe,
++	.remove = da9063_wdt_remove,
++	.driver = {
++		.name	= DA9063_DRVNAME_WATCHDOG,
++	},
++};
++module_platform_driver(da9063_wdt_driver);
++
++MODULE_AUTHOR("Mariusz Wojtasik <mariusz.garbaciak@diasemi.com>");
++MODULE_DESCRIPTION("Watchdog driver for Dialog DA9063");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:" DA9063_DRVNAME_WATCHDOG);
+diff --git a/include/linux/mfd/da9063/registers.h b/include/linux/mfd/da9063/registers.h
+index 09a85c699da1..cc73f5d76cc8 100644
+--- a/include/linux/mfd/da9063/registers.h
++++ b/include/linux/mfd/da9063/registers.h
+@@ -431,6 +431,7 @@
  
+ /* DA9063_REG_CONTROL_D (addr=0x11) */
+ #define	DA9063_TWDSCALE_MASK			0x07
++#define DA9063_TWDSCALE_SHIFT			0x00
+ #define	DA9063_BLINK_FRQ_MASK			0x38
+ #define		DA9063_BLINK_FRQ_OFF		0x00
+ #define		DA9063_BLINK_FRQ_1S0		0x08
+-- 
+2.0.1
+
