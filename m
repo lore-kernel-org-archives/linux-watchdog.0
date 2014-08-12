@@ -1,310 +1,346 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:43636 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751299AbaHLJ4q (ORCPT
+Received: from mail.active-venture.com ([67.228.131.205]:57127 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753414AbaHLQM5 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 12 Aug 2014 05:56:46 -0400
-From: Markus Pargmann <mpa@pengutronix.de>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Support Opensource <support.opensource@diasemi.com>,
+	Tue, 12 Aug 2014 12:12:57 -0400
+Message-ID: <53EA3D05.8000408@roeck-us.net>
+Date: Tue, 12 Aug 2014 09:12:53 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+MIME-Version: 1.0
+To: Markus Pargmann <mpa@pengutronix.de>,
+	Wim Van Sebroeck <wim@iguana.be>
+CC: Support Opensource <support.opensource@diasemi.com>,
 	Philipp Zabel <p.zabel@pengutronix.de>,
 	linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org, kernel@pengutronix.de
-Subject: [PATCH v2] watchdog: Add DA906x PMIC watchdog driver.
-Date: Tue, 12 Aug 2014 11:56:43 +0200
-Message-Id: <1407837403-15863-1-git-send-email-mpa@pengutronix.de>
+Subject: Re: [PATCH v2] watchdog: Add DA906x PMIC watchdog driver.
+References: <1407837403-15863-1-git-send-email-mpa@pengutronix.de>
+In-Reply-To: <1407837403-15863-1-git-send-email-mpa@pengutronix.de>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
+On 08/12/2014 02:56 AM, Markus Pargmann wrote:
+> From: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
+>
+> This driver supports watchdog device inside DA906x PMIC.
+>
+> Signed-off-by: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
+> Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+> Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
 
-This driver supports watchdog device inside DA906x PMIC.
+What is different to v1 ?
 
-Signed-off-by: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
----
- drivers/watchdog/Kconfig             |   7 ++
- drivers/watchdog/Makefile            |   1 +
- drivers/watchdog/da9063_wdt.c        | 226 +++++++++++++++++++++++++++++++++++
- include/linux/mfd/da9063/registers.h |   1 +
- 4 files changed, 235 insertions(+)
- create mode 100644 drivers/watchdog/da9063_wdt.c
+> ---
+>   drivers/watchdog/Kconfig             |   7 ++
+>   drivers/watchdog/Makefile            |   1 +
+>   drivers/watchdog/da9063_wdt.c        | 226 +++++++++++++++++++++++++++++++++++
+>   include/linux/mfd/da9063/registers.h |   1 +
+>   4 files changed, 235 insertions(+)
+>   create mode 100644 drivers/watchdog/da9063_wdt.c
+>
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index c845527b503a..8d5c9b33552a 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -87,6 +87,13 @@ config DA9055_WATCHDOG
+>   	  This driver can also be built as a module.  If so, the module
+>   	  will be called da9055_wdt.
+>
+> +config DA9063_WATCHDOG
+> +	tristate "Dialog DA9063 Watchdog"
+> +	depends on MFD_DA9063
+> +	select WATCHDOG_CORE
+> +	help
+> +	  Support for the watchdog in the DA9063 PMIC.
+> +
+>   config GPIO_WATCHDOG
+>   	tristate "Watchdog device controlled through GPIO-line"
+>   	depends on OF_GPIO
+> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> index 7b8a91ed20e7..ce4a7632d863 100644
+> --- a/drivers/watchdog/Makefile
+> +++ b/drivers/watchdog/Makefile
+> @@ -172,6 +172,7 @@ obj-$(CONFIG_XEN_WDT) += xen_wdt.o
+>   # Architecture Independent
+>   obj-$(CONFIG_DA9052_WATCHDOG) += da9052_wdt.o
+>   obj-$(CONFIG_DA9055_WATCHDOG) += da9055_wdt.o
+> +obj-$(CONFIG_DA9063_WATCHDOG) += da9063_wdt.o
+>   obj-$(CONFIG_GPIO_WATCHDOG)	+= gpio_wdt.o
+>   obj-$(CONFIG_WM831X_WATCHDOG) += wm831x_wdt.o
+>   obj-$(CONFIG_WM8350_WATCHDOG) += wm8350_wdt.o
+> diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
+> new file mode 100644
+> index 000000000000..befd6314f3f4
+> --- /dev/null
+> +++ b/drivers/watchdog/da9063_wdt.c
+> @@ -0,0 +1,226 @@
+> +/*
+> + * Watchdog driver for DA9063 PMICs.
+> + *
+> + * Copyright(c) 2012 Dialog Semiconductor Ltd.
+> + *
+> + * Author: Mariusz Wojtasik <mariusz.wojtasik@diasemi.com>
+> + *
+> + * This program is free software; you can redistribute  it and/or modify it
+> + * under  the terms of  the GNU General  Public License as published by the
+> + * Free Software Foundation;  either version 2 of the  License, or (at your
+> + * option) any later version.
+> + */
+> +
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/watchdog.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/uaccess.h>
+> +#include <linux/slab.h>
+> +#include <linux/delay.h>
+> +#include <linux/mfd/da9063/registers.h>
+> +#include <linux/mfd/da9063/core.h>
+> +#include <linux/regmap.h>
+> +
+> +/*
+> + * Watchdog selector to timeout in seconds.
+> + *   0: WDT disabled;
+> + *   others: timeout = 2048 ms * 2^(TWDSCALE-1).
+> + */
+> +static const int wdt_timeout[] = { 0, 2, 4, 8, 16, 32, 65, 131 };
+> +#define DA9063_TWDSCALE_DISABLE		0
+> +#define DA9063_TWDSCALE_MIN		1
+> +#define DA9063_TWDSCALE_MAX		(ARRAY_SIZE(wdt_timeout) - 1)
+> +#define DA9063_WDT_MIN_TIMEOUT		wdt_timeout[DA9063_TWDSCALE_MIN]
+> +#define DA9063_WDT_MAX_TIMEOUT		wdt_timeout[DA9063_TWDSCALE_MAX]
+> +#define DA9063_WDG_TIMEOUT		wdt_timeout[3]
+> +
+> +struct da9063_watchdog {
+> +	struct da9063 *da9063;
+> +	struct watchdog_device *wdtdev;
+> +	struct mutex lock;
+> +};
+> +
+> +static int da9063_wdt_timeout_to_sel(int secs)
+> +{
+> +	int i;
+> +
+> +	for (i = DA9063_TWDSCALE_MIN; i <= DA9063_TWDSCALE_MAX; i++) {
+> +		if (wdt_timeout[i] >= secs)
+> +			return i;
+> +	}
+> +
+> +	return 0;
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index c845527b503a..8d5c9b33552a 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -87,6 +87,13 @@ config DA9055_WATCHDOG
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called da9055_wdt.
- 
-+config DA9063_WATCHDOG
-+	tristate "Dialog DA9063 Watchdog"
-+	depends on MFD_DA9063
-+	select WATCHDOG_CORE
-+	help
-+	  Support for the watchdog in the DA9063 PMIC.
-+
- config GPIO_WATCHDOG
- 	tristate "Watchdog device controlled through GPIO-line"
- 	depends on OF_GPIO
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 7b8a91ed20e7..ce4a7632d863 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -172,6 +172,7 @@ obj-$(CONFIG_XEN_WDT) += xen_wdt.o
- # Architecture Independent
- obj-$(CONFIG_DA9052_WATCHDOG) += da9052_wdt.o
- obj-$(CONFIG_DA9055_WATCHDOG) += da9055_wdt.o
-+obj-$(CONFIG_DA9063_WATCHDOG) += da9063_wdt.o
- obj-$(CONFIG_GPIO_WATCHDOG)	+= gpio_wdt.o
- obj-$(CONFIG_WM831X_WATCHDOG) += wm831x_wdt.o
- obj-$(CONFIG_WM8350_WATCHDOG) += wm8350_wdt.o
-diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
-new file mode 100644
-index 000000000000..befd6314f3f4
---- /dev/null
-+++ b/drivers/watchdog/da9063_wdt.c
-@@ -0,0 +1,226 @@
-+/*
-+ * Watchdog driver for DA9063 PMICs.
-+ *
-+ * Copyright(c) 2012 Dialog Semiconductor Ltd.
-+ *
-+ * Author: Mariusz Wojtasik <mariusz.wojtasik@diasemi.com>
-+ *
-+ * This program is free software; you can redistribute  it and/or modify it
-+ * under  the terms of  the GNU General  Public License as published by the
-+ * Free Software Foundation;  either version 2 of the  License, or (at your
-+ * option) any later version.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/watchdog.h>
-+#include <linux/platform_device.h>
-+#include <linux/uaccess.h>
-+#include <linux/slab.h>
-+#include <linux/delay.h>
-+#include <linux/mfd/da9063/registers.h>
-+#include <linux/mfd/da9063/core.h>
-+#include <linux/regmap.h>
-+
-+/*
-+ * Watchdog selector to timeout in seconds.
-+ *   0: WDT disabled;
-+ *   others: timeout = 2048 ms * 2^(TWDSCALE-1).
-+ */
-+static const int wdt_timeout[] = { 0, 2, 4, 8, 16, 32, 65, 131 };
-+#define DA9063_TWDSCALE_DISABLE		0
-+#define DA9063_TWDSCALE_MIN		1
-+#define DA9063_TWDSCALE_MAX		(ARRAY_SIZE(wdt_timeout) - 1)
-+#define DA9063_WDT_MIN_TIMEOUT		wdt_timeout[DA9063_TWDSCALE_MIN]
-+#define DA9063_WDT_MAX_TIMEOUT		wdt_timeout[DA9063_TWDSCALE_MAX]
-+#define DA9063_WDG_TIMEOUT		wdt_timeout[3]
-+
-+struct da9063_watchdog {
-+	struct da9063 *da9063;
-+	struct watchdog_device *wdtdev;
-+	struct mutex lock;
-+};
-+
-+static int da9063_wdt_timeout_to_sel(int secs)
-+{
-+	int i;
-+
-+	for (i = DA9063_TWDSCALE_MIN; i <= DA9063_TWDSCALE_MAX; i++) {
-+		if (wdt_timeout[i] >= secs)
-+			return i;
-+	}
-+
-+	return 0;
-+}
-+
-+static int da9063_wdt_disable(struct da9063 *da9063)
-+{
-+	return regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
-+			DA9063_TWDSCALE_MASK,
-+			DA9063_TWDSCALE_DISABLE << DA9063_TWDSCALE_SHIFT);
-+}
-+
-+static int _da9063_wdt_set_timeout(struct da9063 *da9063, unsigned int regval)
-+{
-+	if (regval < DA9063_TWDSCALE_MIN || regval > DA9063_TWDSCALE_MAX)
-+		return -EINVAL;
-+
-+	return regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
-+			DA9063_TWDSCALE_MASK, regval << DA9063_TWDSCALE_SHIFT);
-+}
-+
-+static int _da9063_wdt_kick(struct da9063 *da9063)
-+{
-+	return regmap_write(da9063->regmap, DA9063_REG_CONTROL_F,
-+			DA9063_WATCHDOG);
-+}
-+
-+static int da9063_wdt_start(struct watchdog_device *wdd)
-+{
-+	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
-+	unsigned int selector;
-+	int ret = 0;
-+
-+	mutex_lock(&wdt->lock);
-+	selector = da9063_wdt_timeout_to_sel(wdt->wdtdev->timeout);
-+	ret = _da9063_wdt_set_timeout(wdt->da9063, selector);
-+	if (ret) {
-+		dev_err(wdt->da9063->dev, "Watchdog failed to start (err = %d)\n",
-+				ret);
-+	}
-+	mutex_unlock(&wdt->lock);
-+
-+	return ret;
-+}
-+
-+static int da9063_wdt_stop(struct watchdog_device *wdd)
-+{
-+	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
-+	int ret = 0;
-+
-+	mutex_lock(&wdt->lock);
-+	ret = da9063_wdt_disable(wdt->da9063);
-+	if (ret)
-+		dev_alert(wdt->da9063->dev,
-+			  "Watchdog failed to stop (err = %d)\n", ret);
-+	mutex_unlock(&wdt->lock);
-+
-+	return ret;
-+}
-+
-+static int da9063_wdt_ping(struct watchdog_device *wdd)
-+{
-+	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
-+	int ret = 0;
-+
-+	mutex_lock(&wdt->lock);
-+	ret = _da9063_wdt_kick(wdt->da9063);
-+	if (ret)
-+		dev_alert(wdt->da9063->dev, "Failed to ping the watchdog (err = %d)\n",
-+				ret);
-+	mutex_unlock(&wdt->lock);
-+
-+	return ret;
-+}
-+
-+static int da9063_wdt_set_timeout(struct watchdog_device *wdd,
-+							unsigned int timeout)
-+{
-+	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
-+	unsigned int selector;
-+	int ret;
-+
-+	selector = da9063_wdt_timeout_to_sel(timeout);
-+	if (selector == 0) {
-+		dev_err(wdt->da9063->dev, "Unsupported watchdog timeout (select from: 2, 4, 8, 16, 32, 65, 131)\n");
-+		return -EINVAL;
-+	}
-+
-+	mutex_lock(&wdt->lock);
-+
-+	ret = _da9063_wdt_set_timeout(wdt->da9063, selector);
-+	if (ret)
-+		dev_err(wdt->da9063->dev, "Failed to set watchdog timeout (err = %d)\n",
-+				ret);
-+	else
-+		wdd->timeout = wdt_timeout[selector];
-+
-+	mutex_unlock(&wdt->lock);
-+
-+	return ret;
-+}
-+
-+static const struct watchdog_info da9063_watchdog_info = {
-+	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-+	.identity = "DA9063 Watchdog",
-+};
-+
-+static const struct watchdog_ops da9063_watchdog_ops = {
-+	.owner = THIS_MODULE,
-+	.start = da9063_wdt_start,
-+	.stop = da9063_wdt_stop,
-+	.ping = da9063_wdt_ping,
-+	.set_timeout = da9063_wdt_set_timeout,
-+};
-+
-+static struct watchdog_device da9063_watchdog_device = {
-+	.info = &da9063_watchdog_info,
-+	.ops = &da9063_watchdog_ops,
-+};
-+
-+static int da9063_wdt_probe(struct platform_device *pdev)
-+{
-+	int ret;
-+	struct da9063 *da9063 = dev_get_drvdata(pdev->dev.parent);
-+	struct da9063_watchdog *wdt;
-+
-+	if (!da9063)
-+		return -EPROBE_DEFER;
-+
-+	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
-+	if (!wdt)
-+		return -ENOMEM;
-+
-+	wdt->da9063 = da9063;
-+	wdt->wdtdev = &da9063_watchdog_device;
-+	mutex_init(&wdt->lock);
-+
-+	if (IS_ENABLED(CONFIG_WATCHDOG_NOWAYOUT))
-+		set_bit(WDOG_NO_WAY_OUT, &wdt->wdtdev->status);
-+
-+	wdt->wdtdev->min_timeout = DA9063_WDT_MIN_TIMEOUT;
-+	wdt->wdtdev->max_timeout = DA9063_WDT_MAX_TIMEOUT;
-+	wdt->wdtdev->timeout = DA9063_WDG_TIMEOUT;
-+
-+	ret = watchdog_register_device(wdt->wdtdev);
-+	if (ret) {
-+		dev_err(da9063->dev, "da9063-watchdog registration failed (err = %d)",
-+				ret);
-+		return ret;
-+	}
-+
-+	watchdog_set_drvdata(wdt->wdtdev, wdt);
-+
-+	return 0;
-+}
-+
-+static int da9063_wdt_remove(struct platform_device *pdev)
-+{
-+	watchdog_unregister_device(&da9063_watchdog_device);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver da9063_wdt_driver = {
-+	.probe = da9063_wdt_probe,
-+	.remove = da9063_wdt_remove,
-+	.driver = {
-+		.name = DA9063_DRVNAME_WATCHDOG,
-+	},
-+};
-+module_platform_driver(da9063_wdt_driver);
-+
-+MODULE_AUTHOR("Mariusz Wojtasik <mariusz.wojtasik@diasemi.com>");
-+MODULE_DESCRIPTION("Watchdog driver for Dialog DA9063");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:" DA9063_DRVNAME_WATCHDOG);
-diff --git a/include/linux/mfd/da9063/registers.h b/include/linux/mfd/da9063/registers.h
-index 09a85c699da1..e11a66894afc 100644
---- a/include/linux/mfd/da9063/registers.h
-+++ b/include/linux/mfd/da9063/registers.h
-@@ -431,6 +431,7 @@
- 
- /* DA9063_REG_CONTROL_D (addr=0x11) */
- #define	DA9063_TWDSCALE_MASK			0x07
-+#define	DA9063_TWDSCALE_SHIFT			0x00
- #define	DA9063_BLINK_FRQ_MASK			0x38
- #define		DA9063_BLINK_FRQ_OFF		0x00
- #define		DA9063_BLINK_FRQ_1S0		0x08
--- 
-2.0.1
+It might be better to return -EINVAL and use it in the calling code.
+
+> +}
+> +
+> +static int da9063_wdt_disable(struct da9063 *da9063)
+> +{
+> +	return regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
+> +			DA9063_TWDSCALE_MASK,
+> +			DA9063_TWDSCALE_DISABLE << DA9063_TWDSCALE_SHIFT);
+> +}
+> +
+> +static int _da9063_wdt_set_timeout(struct da9063 *da9063, unsigned int regval)
+> +{
+> +	if (regval < DA9063_TWDSCALE_MIN || regval > DA9063_TWDSCALE_MAX)
+> +		return -EINVAL;
+> +
+> +	return regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
+> +			DA9063_TWDSCALE_MASK, regval << DA9063_TWDSCALE_SHIFT);
+> +}
+> +
+> +static int _da9063_wdt_kick(struct da9063 *da9063)
+> +{
+> +	return regmap_write(da9063->regmap, DA9063_REG_CONTROL_F,
+> +			DA9063_WATCHDOG);
+> +}
+> +
+> +static int da9063_wdt_start(struct watchdog_device *wdd)
+> +{
+> +	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
+> +	unsigned int selector;
+> +	int ret = 0;
+> +
+> +	mutex_lock(&wdt->lock);
+> +	selector = da9063_wdt_timeout_to_sel(wdt->wdtdev->timeout);
+> +	ret = _da9063_wdt_set_timeout(wdt->da9063, selector);
+> +	if (ret) {
+> +		dev_err(wdt->da9063->dev, "Watchdog failed to start (err = %d)\n",
+> +				ret);
+> +	}
+> +	mutex_unlock(&wdt->lock);
+> +
+> +	return ret;
+> +}
+> +
+> +static int da9063_wdt_stop(struct watchdog_device *wdd)
+> +{
+> +	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
+> +	int ret = 0;
+> +
+> +	mutex_lock(&wdt->lock);
+> +	ret = da9063_wdt_disable(wdt->da9063);
+> +	if (ret)
+> +		dev_alert(wdt->da9063->dev,
+> +			  "Watchdog failed to stop (err = %d)\n", ret);
+> +	mutex_unlock(&wdt->lock);
+> +
+> +	return ret;
+> +}
+> +
+> +static int da9063_wdt_ping(struct watchdog_device *wdd)
+> +{
+> +	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
+> +	int ret = 0;
+> +
+> +	mutex_lock(&wdt->lock);
+> +	ret = _da9063_wdt_kick(wdt->da9063);
+> +	if (ret)
+> +		dev_alert(wdt->da9063->dev, "Failed to ping the watchdog (err = %d)\n",
+> +				ret);
+> +	mutex_unlock(&wdt->lock);
+> +
+> +	return ret;
+> +}
+> +
+> +static int da9063_wdt_set_timeout(struct watchdog_device *wdd,
+> +							unsigned int timeout)
+> +{
+> +	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
+> +	unsigned int selector;
+> +	int ret;
+> +
+> +	selector = da9063_wdt_timeout_to_sel(timeout);
+> +	if (selector == 0) {
+> +		dev_err(wdt->da9063->dev, "Unsupported watchdog timeout (select from: 2, 4, 8, 16, 32, 65, 131)\n");
+
+This error case should never happen, since the range is checked by the calling code.
+Besides, the error message is wrong. You do accept the entire range of [1 .. 131],
+not just selected values.
+
+Overall the error checking is inconsistent. Above you don't check the return code
+but depend on _da9063_wdt_set_timeout to detect a range error.
+
+> +		return -EINVAL;
+> +	}
+> +
+> +	mutex_lock(&wdt->lock);
+> +
+> +	ret = _da9063_wdt_set_timeout(wdt->da9063, selector);
+> +	if (ret)
+> +		dev_err(wdt->da9063->dev, "Failed to set watchdog timeout (err = %d)\n",
+> +				ret);
+> +	else
+> +		wdd->timeout = wdt_timeout[selector];
+> +
+> +	mutex_unlock(&wdt->lock);
+> +
+> +	return ret;
+> +}
+> +
+> +static const struct watchdog_info da9063_watchdog_info = {
+> +	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
+> +	.identity = "DA9063 Watchdog",
+> +};
+> +
+> +static const struct watchdog_ops da9063_watchdog_ops = {
+> +	.owner = THIS_MODULE,
+> +	.start = da9063_wdt_start,
+> +	.stop = da9063_wdt_stop,
+> +	.ping = da9063_wdt_ping,
+> +	.set_timeout = da9063_wdt_set_timeout,
+> +};
+> +
+> +static struct watchdog_device da9063_watchdog_device = {
+> +	.info = &da9063_watchdog_info,
+> +	.ops = &da9063_watchdog_ops,
+> +};
+> +
+> +static int da9063_wdt_probe(struct platform_device *pdev)
+> +{
+> +	int ret;
+> +	struct da9063 *da9063 = dev_get_drvdata(pdev->dev.parent);
+> +	struct da9063_watchdog *wdt;
+> +
+> +	if (!da9063)
+> +		return -EPROBE_DEFER;
+> +
+> +	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+> +	if (!wdt)
+> +		return -ENOMEM;
+> +
+> +	wdt->da9063 = da9063;
+> +	wdt->wdtdev = &da9063_watchdog_device;
+> +	mutex_init(&wdt->lock);
+> +
+> +	if (IS_ENABLED(CONFIG_WATCHDOG_NOWAYOUT))
+> +		set_bit(WDOG_NO_WAY_OUT, &wdt->wdtdev->status);
+> +
+Why not use watchdog_set_nowayout, or initialize .status with
+WATCHDOG_NOWAYOUT_INIT_STATUS, as suggested in the API documentation ?
+
+> +	wdt->wdtdev->min_timeout = DA9063_WDT_MIN_TIMEOUT;
+> +	wdt->wdtdev->max_timeout = DA9063_WDT_MAX_TIMEOUT;
+> +	wdt->wdtdev->timeout = DA9063_WDG_TIMEOUT;
+> +
+
+Why don't you set those variables directly in da9063_watchdog_device ?
+If you want to set it here, you might as well set ops and info
+and get rid of the static variable (by including the entire structure
+in wdt, not just a pointer to it).
+
+> +	ret = watchdog_register_device(wdt->wdtdev);
+> +	if (ret) {
+> +		dev_err(da9063->dev, "da9063-watchdog registration failed (err = %d)",
+> +				ret);
+> +		return ret;
+> +	}
+> +
+> +	watchdog_set_drvdata(wdt->wdtdev, wdt);
+> +
+This creates a race condition, because at least in theory an access could
+already occur between the watchdog registration above and this code.
+
+> +	return 0;
+> +}
+> +
+> +static int da9063_wdt_remove(struct platform_device *pdev)
+> +{
+> +	watchdog_unregister_device(&da9063_watchdog_device);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver da9063_wdt_driver = {
+> +	.probe = da9063_wdt_probe,
+> +	.remove = da9063_wdt_remove,
+> +	.driver = {
+> +		.name = DA9063_DRVNAME_WATCHDOG,
+> +	},
+> +};
+> +module_platform_driver(da9063_wdt_driver);
+> +
+> +MODULE_AUTHOR("Mariusz Wojtasik <mariusz.wojtasik@diasemi.com>");
+> +MODULE_DESCRIPTION("Watchdog driver for Dialog DA9063");
+> +MODULE_LICENSE("GPL");
+> +MODULE_ALIAS("platform:" DA9063_DRVNAME_WATCHDOG);
+> diff --git a/include/linux/mfd/da9063/registers.h b/include/linux/mfd/da9063/registers.h
+> index 09a85c699da1..e11a66894afc 100644
+> --- a/include/linux/mfd/da9063/registers.h
+> +++ b/include/linux/mfd/da9063/registers.h
+> @@ -431,6 +431,7 @@
+>
+>   /* DA9063_REG_CONTROL_D (addr=0x11) */
+>   #define	DA9063_TWDSCALE_MASK			0x07
+> +#define	DA9063_TWDSCALE_SHIFT			0x00
+
+That is unnecessary. Why shift if there is nothing to shift ?
+It just adds unnecessary complexity to the code.
+
+>   #define	DA9063_BLINK_FRQ_MASK			0x38
+>   #define		DA9063_BLINK_FRQ_OFF		0x00
+>   #define		DA9063_BLINK_FRQ_1S0		0x08
+>
 
