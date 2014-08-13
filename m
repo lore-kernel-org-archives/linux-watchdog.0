@@ -1,332 +1,425 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta3.messagelabs.com ([195.245.230.171]:52673 "EHLO
-	mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752030AbaHKH2A (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:59581 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750772AbaHMJwP (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 11 Aug 2014 03:28:00 -0400
-Date: Mon, 11 Aug 2014 10:19:49 +0200
-From: Andreas Werner <andreas.werner@men.de>
-To: Wim Van Sebroeck <wim@iguana.be>
-CC: Guenter Roeck <linux@roeck-us.net>,
-	Andreas Werner <andreas.werner@men.de>,
-	Bryan Wu <cooloney@gmail.com>,
-	lkml <linux-kernel@vger.kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Lee Jones <lee.jones@linaro.org>,
-	"rpurdie@rpsys.net" <rpurdie@rpsys.net>,
-	Linux LED Subsystem <linux-leds@vger.kernel.org>,
-	<linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH v3 3/3] drivers/leds/leds-menf21bmc: introduce MEN
- 14F021P00 BMC LED driver
-Message-ID: <20140811081948.GA527@awelinux>
-References: <fec81db0dd6e08e1e07d3b7c00cb933b2ab63ab3.1405602280.git.andreas.werner@men.de>
- <CAK5ve-KG=dBgrBLQ2ejZ3XZip-gk2_5PfmpdKi6d6=B9hMDH1g@mail.gmail.com>
- <20140725093728.GA1371@awelinux>
- <20140729211256.GB30849@spo001.leaseweb.com>
- <53D8165C.6000302@roeck-us.net>
- <20140730080839.GA455@awelinux>
- <53D8F9DA.2090607@roeck-us.net>
- <20140808074939.GA451@awelinux>
- <53E4DBDD.1060805@roeck-us.net>
- <20140808143655.GV11710@spo001.leaseweb.com>
+	Wed, 13 Aug 2014 05:52:15 -0400
+Date: Wed, 13 Aug 2014 11:52:09 +0200
+From: Markus Pargmann <mpa@pengutronix.de>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Support Opensource <support.opensource@diasemi.com>,
+	Philipp Zabel <p.zabel@pengutronix.de>,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, kernel@pengutronix.de
+Subject: Re: [PATCH v2] watchdog: Add DA906x PMIC watchdog driver.
+Message-ID: <20140813095209.GE17027@pengutronix.de>
+References: <1407837403-15863-1-git-send-email-mpa@pengutronix.de>
+ <53EA3D05.8000408@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="maH1Gajj2nflutpK"
 Content-Disposition: inline
-In-Reply-To: <20140808143655.GV11710@spo001.leaseweb.com>
+In-Reply-To: <53EA3D05.8000408@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Aug 08, 2014 at 04:36:55PM +0200, Wim Van Sebroeck wrote:
-> > On 08/08/2014 12:49 AM, Andreas Werner wrote:
-> > >On Wed, Jul 30, 2014 at 06:57:46AM -0700, Guenter Roeck wrote:
-> > >>On 07/30/2014 01:08 AM, Andreas Werner wrote:
-> > >>>On Tue, Jul 29, 2014 at 02:47:08PM -0700, Guenter Roeck wrote:
-> > >>>>On 07/29/2014 02:12 PM, Wim Van Sebroeck wrote:
-> > >>>>>Hi Andreas,
-> > >>>>>
-> > >>>>>>aOn Thu, Jul 24, 2014 at 03:00:09PM -0700, Bryan Wu wrote:
-> > >>>>>>>On Thu, Jul 17, 2014 at 6:18 AM, Andreas Werner 
-> > >>>>>>><andreas.werner@men.de> wrote:
-> > >>>>>>>>Added driver to support the 14F021P00 BMC LEDs.
-> > >>>>>>>>The BMC is a Board Management Controll include four LEDs which
-> > >>>>>>>>can be switched on and off.
-> > >>>>>>>>
-> > >>>>>>>>This driver use the I2C interface to the BMC using the menf21bmc 
-> > >>>>>>>>MFD Core driver.
-> > >>>>>>>>
-> > >>>>>>>>Signed-off-by: Andreas Werner <andreas.werner@men.de>
-> > >>>>>>>>---
-> > >>>>>>>>  drivers/leds/Kconfig          |   6 ++
-> > >>>>>>>>  drivers/leds/Makefile         |   1 +
-> > >>>>>>>>  drivers/leds/leds-menf21bmc.c | 134 
-> > >>>>>>>>  ++++++++++++++++++++++++++++++++++++++++++
-> > >>>>>>>>  3 files changed, 141 insertions(+)
-> > >>>>>>>>  create mode 100644 drivers/leds/leds-menf21bmc.c
-> > >>>>>>>>
-> > >>>>>>>>diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
-> > >>>>>>>>index 27cf0cd..d38ff3f 100644
-> > >>>>>>>>--- a/drivers/leds/Kconfig
-> > >>>>>>>>+++ b/drivers/leds/Kconfig
-> > >>>>>>>>@@ -458,6 +458,12 @@ config LEDS_OT200
-> > >>>>>>>>           This option enables support for the LEDs on the Bachmann 
-> > >>>>>>>>           OT200.
-> > >>>>>>>>           Say Y to enable LEDs on the Bachmann OT200.
-> > >>>>>>>>
-> > >>>>>>>>+config LEDS_MENF21BMC
-> > >>>>>>>>+       tristate "LED support for the MEN 14F021P00 BMC"
-> > >>>>>>>>+       depends on LEDS_CLASS && MFD_MENF21BMC
-> > >>>>>>>
-> > >>>>>>>I think it also depends on I2C.
-> > >>>>>>
-> > >>>>>>Yes you are right.
-> > >>>>>>
-> > >>>>>>>
-> > >>>>>>>>+       help
-> > >>>>>>>>+         Say Y here to include support for the MEN 14F021P00 BMC 
-> > >>>>>>>>LEDs.
-> > >>>>>>>>+
-> > >>>>>>>>  comment "LED driver for blink(1) USB RGB LED is under Special HID 
-> > >>>>>>>>  drivers (HID_THINGM)"
-> > >>>>>>>>
-> > >>>>>>>>  config LEDS_BLINKM
-> > >>>>>>>>diff --git a/drivers/leds/Makefile b/drivers/leds/Makefile
-> > >>>>>>>>index 3c03666..cadc433 100644
-> > >>>>>>>>--- a/drivers/leds/Makefile
-> > >>>>>>>>+++ b/drivers/leds/Makefile
-> > >>>>>>>>@@ -53,6 +53,7 @@ obj-$(CONFIG_LEDS_MAX8997)            += 
-> > >>>>>>>>leds-max8997.o
-> > >>>>>>>>  obj-$(CONFIG_LEDS_LM355x)              += leds-lm355x.o
-> > >>>>>>>>  obj-$(CONFIG_LEDS_BLINKM)              += leds-blinkm.o
-> > >>>>>>>>  obj-$(CONFIG_LEDS_VERSATILE)           += leds-versatile.o
-> > >>>>>>>>+obj-$(CONFIG_LEDS_MENF21BMC)           += leds-menf21bmc.o
-> > >>>>>>>>
-> > >>>>>>>>  # LED SPI Drivers
-> > >>>>>>>>  obj-$(CONFIG_LEDS_DAC124S085)          += leds-dac124s085.o
-> > >>>>>>>>diff --git a/drivers/leds/leds-menf21bmc.c 
-> > >>>>>>>>b/drivers/leds/leds-menf21bmc.c
-> > >>>>>>>>new file mode 100644
-> > >>>>>>>>index 0000000..5eaa119
-> > >>>>>>>>--- /dev/null
-> > >>>>>>>>+++ b/drivers/leds/leds-menf21bmc.c
-> > >>>>>>>>@@ -0,0 +1,134 @@
-> > >>>>>>>>+/*
-> > >>>>>>>>+ *  MEN 14F021P00 Board Management Controller (BMC) LEDs Driver.
-> > >>>>>>>>+ *
-> > >>>>>>>>+ *  This is the core LED driver of the MEN 14F021P00 BMC.
-> > >>>>>>>>+ *  There are four LEDs available which can be switched on and off.
-> > >>>>>>>>+ *  STATUS LED, HOT SWAP LED, USER LED 1, USER LED 2
-> > >>>>>>>>+ *
-> > >>>>>>>>+ *  Copyright (C) 2014 MEN Mikro Elektronik Nuernberg GmbH
-> > >>>>>>>>+ *  Author: Andreas Werner <andreas.werner@men.de>
-> > >>>>>>>>+ *  All rights reserved.
-> > >>>>>>>>+ *
-> > >>>>>>>>+ *  This program is free software; you can redistribute  it and/or 
-> > >>>>>>>>modify it
-> > >>>>>>>>+ *  under  the terms of  the GNU General  Public License as 
-> > >>>>>>>>published by the
-> > >>>>>>>>+ *  Free Software Foundation;  either version 2 of the  License, 
-> > >>>>>>>>or (at your
-> > >>>>>>>>+ *  option) any later version.
-> > >>>>>>>>+ *
-> > >>>>>>>>+ */
-> > >>>>>>>>+
-> > >>>>>>>>+#include <linux/module.h>
-> > >>>>>>>>+#include <linux/kernel.h>
-> > >>>>>>>>+#include <linux/platform_device.h>
-> > >>>>>>>>+#include <linux/leds.h>
-> > >>>>>>>>+#include <linux/i2c.h>
-> > >>>>>>>>+
-> > >>>>>>>>+#define BMC_CMD_LED_GET_SET    0xA0
-> > >>>>>>>>+#define BMC_BIT_LED_STATUS     BIT(0)
-> > >>>>>>>>+#define BMC_BIT_LED_HOTSWAP    BIT(1)
-> > >>>>>>>>+#define BMC_BIT_LED_USER1      BIT(2)
-> > >>>>>>>>+#define BMC_BIT_LED_USER2      BIT(3)
-> > >>>>>>>>+
-> > >>>>>>>>+struct menf21bmc_led {
-> > >>>>>>>>+       struct led_classdev cdev;
-> > >>>>>>>>+       u8 led_bit;
-> > >>>>>>>>+       const char *name;
-> > >>>>>>>>+       struct i2c_client *i2c_client;
-> > >>>>>>>>+};
-> > >>>>>>>>+
-> > >>>>>>>>+static struct menf21bmc_led leds[] = {
-> > >>>>>>>>+       {
-> > >>>>>>>>+               .name = "menf21bmc:led_status",
-> > >>>>>>>>+               .led_bit = BMC_BIT_LED_STATUS,
-> > >>>>>>>>+       },
-> > >>>>>>>>+       {
-> > >>>>>>>>+               .name = "menf21bmc:led_hotswap",
-> > >>>>>>>>+               .led_bit = BMC_BIT_LED_HOTSWAP,
-> > >>>>>>>>+       },
-> > >>>>>>>>+       {
-> > >>>>>>>>+               .name = "menf21bmc:led_user1",
-> > >>>>>>>>+               .led_bit = BMC_BIT_LED_USER1,
-> > >>>>>>>>+       },
-> > >>>>>>>>+       {
-> > >>>>>>>>+               .name = "menf21bmc:led_user2",
-> > >>>>>>>>+               .led_bit = BMC_BIT_LED_USER2,
-> > >>>>>>>>+       }
-> > >>>>>>>>+};
-> > >>>>>>>>+
-> > >>>>>>>>+static DEFINE_MUTEX(led_lock);
-> > >>>>>>>>+
-> > >>>>>>>>+static void
-> > >>>>>>>>+menf21bmc_led_set(struct led_classdev *led_cdev, enum 
-> > >>>>>>>>led_brightness value)
-> > >>>>>>>>+{
-> > >>>>>>>>+       int led_val;
-> > >>>>>>>>+       struct menf21bmc_led *led = container_of(led_cdev,
-> > >>>>>>>>+                                       struct menf21bmc_led, cdev);
-> > >>>>>>>>+
-> > >>>>>>>>+       mutex_lock(&led_lock);
-> > >>>>>>>>+       led_val = i2c_smbus_read_byte_data(led->i2c_client,
-> > >>>>>>>>+                                               
-> > >>>>>>>>BMC_CMD_LED_GET_SET);
-> > >>>>>>>>+       if (led_val < 0)
-> > >>>>>>>>+               goto err_out;
-> > >>>>>>>>+
-> > >>>>>>>>+       if (value == LED_OFF)
-> > >>>>>>>>+               led_val &= ~led->led_bit;
-> > >>>>>>>>+       else
-> > >>>>>>>>+               led_val |= led->led_bit;
-> > >>>>>>>>+
-> > >>>>>>>>+       i2c_smbus_write_byte_data(led->i2c_client,
-> > >>>>>>>>+                                       BMC_CMD_LED_GET_SET, 
-> > >>>>>>>>led_val);
-> > >>>>>>>>+err_out:
-> > >>>>>>>>+       mutex_unlock(&led_lock);
-> > >>>>>>>>+}
-> > >>>>>>>>+
-> > >>>>>>>>+static int menf21bmc_led_probe(struct platform_device *pdev)
-> > >>>>>>>>+{
-> > >>>>>>>>+       int i;
-> > >>>>>>>>+       int ret;
-> > >>>>>>>>+       struct i2c_client *i2c_client = 
-> > >>>>>>>>to_i2c_client(pdev->dev.parent);
-> > >>>>>>>>+
-> > >>>>>>>>+       for (i = 0; i < ARRAY_SIZE(leds); i++) {
-> > >>>>>>>>+               leds[i].cdev.name = leds[i].name;
-> > >>>>>>>>+               leds[i].cdev.brightness_set = menf21bmc_led_set;
-> > >>>>>>>>+               leds[i].i2c_client = i2c_client;
-> > >>>>>>>>+               ret = led_classdev_register(&pdev->dev, 
-> > >>>>>>>>&leds[i].cdev);
-> > >>>>>>>>+               if (ret < 0)
-> > >>>>>>>>+                       goto err_free_leds;
-> > >>>>>>>>+       }
-> > >>>>>>>>+       dev_info(&pdev->dev, "MEN 140F21P00 BMC LED device 
-> > >>>>>>>>enabled\n");
-> > >>>>>>>>+
-> > >>>>>>>>+       return 0;
-> > >>>>>>>>+
-> > >>>>>>>>+err_free_leds:
-> > >>>>>>>>+       dev_err(&pdev->dev, "failed to register LED device\n");
-> > >>>>>>>>+
-> > >>>>>>>>+       for (i = i - 1; i >= 0; i--)
-> > >>>>>>>>+               led_classdev_unregister(&leds[i].cdev);
-> > >>>>>>>>+
-> > >>>>>>>>+       return ret;
-> > >>>>>>>>+}
-> > >>>>>>>>+
-> > >>>>>>>>+static int menf21bmc_led_remove(struct platform_device *pdev)
-> > >>>>>>>>+{
-> > >>>>>>>>+       int i;
-> > >>>>>>>>+
-> > >>>>>>>>+       for (i = 0; i < ARRAY_SIZE(leds); i++)
-> > >>>>>>>>+               led_classdev_unregister(&leds[i].cdev);
-> > >>>>>>>>+
-> > >>>>>>>>+       return 0;
-> > >>>>>>>>+}
-> > >>>>>>>>+
-> > >>>>>>>>+static struct platform_driver menf21bmc_led = {
-> > >>>>>>>>+       .probe          = menf21bmc_led_probe,
-> > >>>>>>>>+       .remove         = menf21bmc_led_remove,
-> > >>>>>>>>+       .driver         = {
-> > >>>>>>>>+               .name           = "menf21bmc_led",
-> > >>>>>>>>+               .owner          = THIS_MODULE,
-> > >>>>>>>>+       },
-> > >>>>>>>>+};
-> > >>>>>>>>+
-> > >>>>>>>
-> > >>>>>>>This is not a normal platform driver, it should be a I2C driver.
-> > >>>>>>>
-> > >>>>>>>>+module_platform_driver(menf21bmc_led);
-> > >>>>>>>
-> > >>>>>>>So please move to use module_i2c_driver.
-> > >>>>>>
-> > >>>>>>Ok, but then I have to change that in the watchdog driver too, which
-> > >>>>>>is quite the same as here.
-> > >>>>>>
-> > >>>>>>Lee, Guenther what do you think regarding the watchdog driver?
-> > >>>>>
-> > >>>>>If the watchdog part is indeed also i2c alike device then the watchdog 
-> > >>>>>part should also be an i2c driver...
-> > >>>>>
-> > >>>>
-> > >>>>Isn't this all the same chip ? If so, there should be only one i2c 
-> > >>>>driver.
-> > >>>>Unless the i2c access is too complicated, it might make sense to use 
-> > >>>>regmap
-> > >>>>to access the chip, and pass the regmap pointer to the mfd slave drivers
-> > >>>>to handle the actual communication with the chip.
-> > >>>>
-> > >>>>Guenter
-> > >>>>
-> > >>>
-> > >>>Yes this is all the same chip which has different features like LEDs and 
-> > >>>Watchdog.
-> > >>>This is why the mfd is the i2c_driver which instantiates the slave 
-> > >>>devices which
-> > >>>are platform drivers.
-> > >>>
-> > >>>Is that not the normal way to handle those device?
-> > >>>Is it really necessary to handle this to regmap?
-> > >>>
-> > >>
-> > >>Not really sure if 'necessary' is the right term, it is just convenient.
-> > >>Regmap takes care of register caching, for example, so you would not have 
-> > >>to
-> > >>re-read register values again and again from the chip just to modify a bit
-> > >>of a register.
-> > >>You can pass the regmap pointer in the platform data, or you can pass the
-> > >>pointer to the i2c client. Using regmap makes the client driver 
-> > >>independent
-> > >>of the i2c subsystem. The one thing you can _not_ do is to declare the 
-> > >>client
-> > >>drivers to be i2c drivers.
-> > >>
-> > >>Guenter
-> > >>
-> > >I've checked out the regmap and it really sounds good.
-> > >Before I will made those changes which is almost a complete replacement
-> > >of the interface, i would like to know exactly why the slaves are no 
-> > >platform
-> > >devices.
-> > >
-> > Did I say that ?
-> 
-> What we wanted to say was:
-> 1) if your multifunctional device is working as entity's of its own and these "standalone" devices are an i2c device then they should be configured as a i2c device driver.
-> 2) is the multifunctional device has different functionality (like watchdog, gpio, ...) and it works as a block (thus there are overlaps) and you have no clean i2c or pci or usb boundaries then you normally use platform device drivers.
-> 
-> Apart from that it would in this case also be nice to use the regmap api.
-> 
-> Sorry that it got "complicated".
-> 
-> Kind regards,
-> Wim.
-> 
 
-The chip is like you described in 2). This is why the slaves are platform device.
-It is not "complicated" it was just a little confuse.
-Thanks for the nice explanation.
+--maH1Gajj2nflutpK
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Next time if i develope a driver like this, i will use regmap but for the bmc i
-will let it as it is.
+Hi,
 
-I will send a v4 with the little remarks from your guys, in the next days.
+On Tue, Aug 12, 2014 at 09:12:53AM -0700, Guenter Roeck wrote:
+> On 08/12/2014 02:56 AM, Markus Pargmann wrote:
+> >From: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
+> >
+> >This driver supports watchdog device inside DA906x PMIC.
+> >
+> >Signed-off-by: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
+> >Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+> >Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
+>=20
+> What is different to v1 ?
 
-Thanks.
+I made some style fixes like removing strange indention, removing the
+"_" function prefixes and so on.
 
-Regards
-Andy
+>=20
+> >---
+> >  drivers/watchdog/Kconfig             |   7 ++
+> >  drivers/watchdog/Makefile            |   1 +
+> >  drivers/watchdog/da9063_wdt.c        | 226 +++++++++++++++++++++++++++=
+++++++++
+> >  include/linux/mfd/da9063/registers.h |   1 +
+> >  4 files changed, 235 insertions(+)
+> >  create mode 100644 drivers/watchdog/da9063_wdt.c
+> >
+> >diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> >index c845527b503a..8d5c9b33552a 100644
+> >--- a/drivers/watchdog/Kconfig
+> >+++ b/drivers/watchdog/Kconfig
+> >@@ -87,6 +87,13 @@ config DA9055_WATCHDOG
+> >  	  This driver can also be built as a module.  If so, the module
+> >  	  will be called da9055_wdt.
+> >
+> >+config DA9063_WATCHDOG
+> >+	tristate "Dialog DA9063 Watchdog"
+> >+	depends on MFD_DA9063
+> >+	select WATCHDOG_CORE
+> >+	help
+> >+	  Support for the watchdog in the DA9063 PMIC.
+> >+
+> >  config GPIO_WATCHDOG
+> >  	tristate "Watchdog device controlled through GPIO-line"
+> >  	depends on OF_GPIO
+> >diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> >index 7b8a91ed20e7..ce4a7632d863 100644
+> >--- a/drivers/watchdog/Makefile
+> >+++ b/drivers/watchdog/Makefile
+> >@@ -172,6 +172,7 @@ obj-$(CONFIG_XEN_WDT) +=3D xen_wdt.o
+> >  # Architecture Independent
+> >  obj-$(CONFIG_DA9052_WATCHDOG) +=3D da9052_wdt.o
+> >  obj-$(CONFIG_DA9055_WATCHDOG) +=3D da9055_wdt.o
+> >+obj-$(CONFIG_DA9063_WATCHDOG) +=3D da9063_wdt.o
+> >  obj-$(CONFIG_GPIO_WATCHDOG)	+=3D gpio_wdt.o
+> >  obj-$(CONFIG_WM831X_WATCHDOG) +=3D wm831x_wdt.o
+> >  obj-$(CONFIG_WM8350_WATCHDOG) +=3D wm8350_wdt.o
+> >diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt=
+=2Ec
+> >new file mode 100644
+> >index 000000000000..befd6314f3f4
+> >--- /dev/null
+> >+++ b/drivers/watchdog/da9063_wdt.c
+> >@@ -0,0 +1,226 @@
+> >+/*
+> >+ * Watchdog driver for DA9063 PMICs.
+> >+ *
+> >+ * Copyright(c) 2012 Dialog Semiconductor Ltd.
+> >+ *
+> >+ * Author: Mariusz Wojtasik <mariusz.wojtasik@diasemi.com>
+> >+ *
+> >+ * This program is free software; you can redistribute  it and/or modif=
+y it
+> >+ * under  the terms of  the GNU General  Public License as published by=
+ the
+> >+ * Free Software Foundation;  either version 2 of the  License, or (at =
+your
+> >+ * option) any later version.
+> >+ */
+> >+
+> >+#include <linux/kernel.h>
+> >+#include <linux/module.h>
+> >+#include <linux/watchdog.h>
+> >+#include <linux/platform_device.h>
+> >+#include <linux/uaccess.h>
+> >+#include <linux/slab.h>
+> >+#include <linux/delay.h>
+> >+#include <linux/mfd/da9063/registers.h>
+> >+#include <linux/mfd/da9063/core.h>
+> >+#include <linux/regmap.h>
+> >+
+> >+/*
+> >+ * Watchdog selector to timeout in seconds.
+> >+ *   0: WDT disabled;
+> >+ *   others: timeout =3D 2048 ms * 2^(TWDSCALE-1).
+> >+ */
+> >+static const int wdt_timeout[] =3D { 0, 2, 4, 8, 16, 32, 65, 131 };
+> >+#define DA9063_TWDSCALE_DISABLE		0
+> >+#define DA9063_TWDSCALE_MIN		1
+> >+#define DA9063_TWDSCALE_MAX		(ARRAY_SIZE(wdt_timeout) - 1)
+> >+#define DA9063_WDT_MIN_TIMEOUT		wdt_timeout[DA9063_TWDSCALE_MIN]
+> >+#define DA9063_WDT_MAX_TIMEOUT		wdt_timeout[DA9063_TWDSCALE_MAX]
+> >+#define DA9063_WDG_TIMEOUT		wdt_timeout[3]
+> >+
+> >+struct da9063_watchdog {
+> >+	struct da9063 *da9063;
+> >+	struct watchdog_device *wdtdev;
+> >+	struct mutex lock;
+> >+};
+> >+
+> >+static int da9063_wdt_timeout_to_sel(int secs)
+> >+{
+> >+	int i;
+> >+
+> >+	for (i =3D DA9063_TWDSCALE_MIN; i <=3D DA9063_TWDSCALE_MAX; i++) {
+> >+		if (wdt_timeout[i] >=3D secs)
+> >+			return i;
+> >+	}
+> >+
+> >+	return 0;
+>=20
+> It might be better to return -EINVAL and use it in the calling code.
 
+Right, will fix that.
+
+>=20
+> >+}
+> >+
+> >+static int da9063_wdt_disable(struct da9063 *da9063)
+> >+{
+> >+	return regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
+> >+			DA9063_TWDSCALE_MASK,
+> >+			DA9063_TWDSCALE_DISABLE << DA9063_TWDSCALE_SHIFT);
+> >+}
+> >+
+> >+static int _da9063_wdt_set_timeout(struct da9063 *da9063, unsigned int =
+regval)
+> >+{
+> >+	if (regval < DA9063_TWDSCALE_MIN || regval > DA9063_TWDSCALE_MAX)
+> >+		return -EINVAL;
+> >+
+> >+	return regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
+> >+			DA9063_TWDSCALE_MASK, regval << DA9063_TWDSCALE_SHIFT);
+> >+}
+> >+
+> >+static int _da9063_wdt_kick(struct da9063 *da9063)
+> >+{
+> >+	return regmap_write(da9063->regmap, DA9063_REG_CONTROL_F,
+> >+			DA9063_WATCHDOG);
+> >+}
+> >+
+> >+static int da9063_wdt_start(struct watchdog_device *wdd)
+> >+{
+> >+	struct da9063_watchdog *wdt =3D watchdog_get_drvdata(wdd);
+> >+	unsigned int selector;
+> >+	int ret =3D 0;
+> >+
+> >+	mutex_lock(&wdt->lock);
+> >+	selector =3D da9063_wdt_timeout_to_sel(wdt->wdtdev->timeout);
+> >+	ret =3D _da9063_wdt_set_timeout(wdt->da9063, selector);
+> >+	if (ret) {
+> >+		dev_err(wdt->da9063->dev, "Watchdog failed to start (err =3D %d)\n",
+> >+				ret);
+> >+	}
+> >+	mutex_unlock(&wdt->lock);
+> >+
+> >+	return ret;
+> >+}
+> >+
+> >+static int da9063_wdt_stop(struct watchdog_device *wdd)
+> >+{
+> >+	struct da9063_watchdog *wdt =3D watchdog_get_drvdata(wdd);
+> >+	int ret =3D 0;
+> >+
+> >+	mutex_lock(&wdt->lock);
+> >+	ret =3D da9063_wdt_disable(wdt->da9063);
+> >+	if (ret)
+> >+		dev_alert(wdt->da9063->dev,
+> >+			  "Watchdog failed to stop (err =3D %d)\n", ret);
+> >+	mutex_unlock(&wdt->lock);
+> >+
+> >+	return ret;
+> >+}
+> >+
+> >+static int da9063_wdt_ping(struct watchdog_device *wdd)
+> >+{
+> >+	struct da9063_watchdog *wdt =3D watchdog_get_drvdata(wdd);
+> >+	int ret =3D 0;
+> >+
+> >+	mutex_lock(&wdt->lock);
+> >+	ret =3D _da9063_wdt_kick(wdt->da9063);
+> >+	if (ret)
+> >+		dev_alert(wdt->da9063->dev, "Failed to ping the watchdog (err =3D %d)=
+\n",
+> >+				ret);
+> >+	mutex_unlock(&wdt->lock);
+> >+
+> >+	return ret;
+> >+}
+> >+
+> >+static int da9063_wdt_set_timeout(struct watchdog_device *wdd,
+> >+							unsigned int timeout)
+> >+{
+> >+	struct da9063_watchdog *wdt =3D watchdog_get_drvdata(wdd);
+> >+	unsigned int selector;
+> >+	int ret;
+> >+
+> >+	selector =3D da9063_wdt_timeout_to_sel(timeout);
+> >+	if (selector =3D=3D 0) {
+> >+		dev_err(wdt->da9063->dev, "Unsupported watchdog timeout (select from:=
+ 2, 4, 8, 16, 32, 65, 131)\n");
+>=20
+> This error case should never happen, since the range is checked by the ca=
+lling code.
+> Besides, the error message is wrong. You do accept the entire range of [1=
+ .. 131],
+> not just selected values.
+>=20
+> Overall the error checking is inconsistent. Above you don't check the ret=
+urn code
+> but depend on _da9063_wdt_set_timeout to detect a range error.
+
+Right I will fix the error handling.
+
+>=20
+> >+		return -EINVAL;
+> >+	}
+> >+
+> >+	mutex_lock(&wdt->lock);
+> >+
+> >+	ret =3D _da9063_wdt_set_timeout(wdt->da9063, selector);
+> >+	if (ret)
+> >+		dev_err(wdt->da9063->dev, "Failed to set watchdog timeout (err =3D %d=
+)\n",
+> >+				ret);
+> >+	else
+> >+		wdd->timeout =3D wdt_timeout[selector];
+> >+
+> >+	mutex_unlock(&wdt->lock);
+> >+
+> >+	return ret;
+> >+}
+> >+
+> >+static const struct watchdog_info da9063_watchdog_info =3D {
+> >+	.options =3D WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
+> >+	.identity =3D "DA9063 Watchdog",
+> >+};
+> >+
+> >+static const struct watchdog_ops da9063_watchdog_ops =3D {
+> >+	.owner =3D THIS_MODULE,
+> >+	.start =3D da9063_wdt_start,
+> >+	.stop =3D da9063_wdt_stop,
+> >+	.ping =3D da9063_wdt_ping,
+> >+	.set_timeout =3D da9063_wdt_set_timeout,
+> >+};
+> >+
+> >+static struct watchdog_device da9063_watchdog_device =3D {
+> >+	.info =3D &da9063_watchdog_info,
+> >+	.ops =3D &da9063_watchdog_ops,
+> >+};
+> >+
+> >+static int da9063_wdt_probe(struct platform_device *pdev)
+> >+{
+> >+	int ret;
+> >+	struct da9063 *da9063 =3D dev_get_drvdata(pdev->dev.parent);
+> >+	struct da9063_watchdog *wdt;
+> >+
+> >+	if (!da9063)
+> >+		return -EPROBE_DEFER;
+> >+
+> >+	wdt =3D devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+> >+	if (!wdt)
+> >+		return -ENOMEM;
+> >+
+> >+	wdt->da9063 =3D da9063;
+> >+	wdt->wdtdev =3D &da9063_watchdog_device;
+> >+	mutex_init(&wdt->lock);
+> >+
+> >+	if (IS_ENABLED(CONFIG_WATCHDOG_NOWAYOUT))
+> >+		set_bit(WDOG_NO_WAY_OUT, &wdt->wdtdev->status);
+> >+
+> Why not use watchdog_set_nowayout, or initialize .status with
+> WATCHDOG_NOWAYOUT_INIT_STATUS, as suggested in the API documentation ?
+
+No specific reason for that, WATCHDOG_NOWAYOUT_INIT_STATUS seems better.
+
+>=20
+> >+	wdt->wdtdev->min_timeout =3D DA9063_WDT_MIN_TIMEOUT;
+> >+	wdt->wdtdev->max_timeout =3D DA9063_WDT_MAX_TIMEOUT;
+> >+	wdt->wdtdev->timeout =3D DA9063_WDG_TIMEOUT;
+> >+
+>=20
+> Why don't you set those variables directly in da9063_watchdog_device ?
+> If you want to set it here, you might as well set ops and info
+> and get rid of the static variable (by including the entire structure
+> in wdt, not just a pointer to it).
+
+Especially as watchdog_register_device is directly altering the struct,
+it seems better to also assign ops and info here.
+
+>=20
+> >+	ret =3D watchdog_register_device(wdt->wdtdev);
+> >+	if (ret) {
+> >+		dev_err(da9063->dev, "da9063-watchdog registration failed (err =3D %d=
+)",
+> >+				ret);
+> >+		return ret;
+> >+	}
+> >+
+> >+	watchdog_set_drvdata(wdt->wdtdev, wdt);
+> >+
+> This creates a race condition, because at least in theory an access could
+> already occur between the watchdog registration above and this code.
+
+Yes, I will move it above the registration code.
+
+>=20
+> >+	return 0;
+> >+}
+> >+
+> >+static int da9063_wdt_remove(struct platform_device *pdev)
+> >+{
+> >+	watchdog_unregister_device(&da9063_watchdog_device);
+> >+
+> >+	return 0;
+> >+}
+> >+
+> >+static struct platform_driver da9063_wdt_driver =3D {
+> >+	.probe =3D da9063_wdt_probe,
+> >+	.remove =3D da9063_wdt_remove,
+> >+	.driver =3D {
+> >+		.name =3D DA9063_DRVNAME_WATCHDOG,
+> >+	},
+> >+};
+> >+module_platform_driver(da9063_wdt_driver);
+> >+
+> >+MODULE_AUTHOR("Mariusz Wojtasik <mariusz.wojtasik@diasemi.com>");
+> >+MODULE_DESCRIPTION("Watchdog driver for Dialog DA9063");
+> >+MODULE_LICENSE("GPL");
+> >+MODULE_ALIAS("platform:" DA9063_DRVNAME_WATCHDOG);
+> >diff --git a/include/linux/mfd/da9063/registers.h b/include/linux/mfd/da=
+9063/registers.h
+> >index 09a85c699da1..e11a66894afc 100644
+> >--- a/include/linux/mfd/da9063/registers.h
+> >+++ b/include/linux/mfd/da9063/registers.h
+> >@@ -431,6 +431,7 @@
+> >
+> >  /* DA9063_REG_CONTROL_D (addr=3D0x11) */
+> >  #define	DA9063_TWDSCALE_MASK			0x07
+> >+#define	DA9063_TWDSCALE_SHIFT			0x00
+>=20
+> That is unnecessary. Why shift if there is nothing to shift ?
+> It just adds unnecessary complexity to the code.
+
+I thought it would be a bit nicer to see directly that it is shifted to
+the correct location in the code. But I don't have any problem removing
+it.
+
+Thanks for your review.
+
+Best regards,
+
+Markus Pargmann
+
+--=20
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+
+--maH1Gajj2nflutpK
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJT6zVJAAoJEEpcgKtcEGQQtXMQAKuzxwGDT0oUZOmSFlVlvSdT
+2/9sNe9txxeMdX5ZIDarZE/CaSmtWFznrgHI1Db9pft1sMzjhK9p+X5ufD4TEQZo
+jZ+Srqkiml6i/KETHIzkCaMECgvYJwRir6EC1o8mqWvJ3gMbYtQv7q/GjNbhpv+y
+ZRj0KGSbZSMhy3YJeoOlCHyAiaSoXw7PAVVUH+fNGfmVDKOsEnrsj79AqtZ+AP/s
+0u/ZlHDyQqGm3Xxqj0G0vvPVS2QJrWVswmYY8WIQsd39NgkBDrNk+eHpCoCFpj4H
+JznO/m4SIKsOMfofo5q104j2TpexAzvI4F04a3O4/APioZ7OZdk35ZnUtzq3FOvU
+jTLctO0TAnRMdBQ4853eDhQ97Pr8vm2Q7As8Uu01W2x2OJ8ec8Uk2QRnyXM3jrFR
+xPBwDcXLTQWtkmZnCU4wU7tryFoFKGQbmfpc7Vx2Yer0y9zns4rTZD1XDJ/PEMew
+befSTykJH4/FpY/D24JsjBT7BPYMD2/ls3K+EpQHfa4Tf4TWb8q7xORfNlQfvRxH
+zDcXQkghz/fZQi5pNLRRZWNqofH03+/+rqPvSE0bDPKemGcgvfuU8kO/vNpdoI5m
+AyIwshr5G4m0kNepjI9TdsKazz6pjECNpRyUmakwp0zFMV3Ez+KHTgF4NBXKjiPQ
+Xjls53ulk2CyvVPHSoBR
+=QAPf
+-----END PGP SIGNATURE-----
+
+--maH1Gajj2nflutpK--
