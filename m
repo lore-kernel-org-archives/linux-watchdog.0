@@ -1,73 +1,38 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wi0-f179.google.com ([209.85.212.179]:45574 "EHLO
-	mail-wi0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750772AbaHMLvf (ORCPT
+Received: from mail-pd0-f182.google.com ([209.85.192.182]:58470 "EHLO
+	mail-pd0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750913AbaHMR6V (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 13 Aug 2014 07:51:35 -0400
-Received: by mail-wi0-f179.google.com with SMTP id f8so655324wiw.12
-        for <linux-watchdog@vger.kernel.org>; Wed, 13 Aug 2014 04:51:34 -0700 (PDT)
-From: Michal Simek <michal.simek@xilinx.com>
-To: linux-kernel@vger.kernel.org, monstr@monstr.eu
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	Wed, 13 Aug 2014 13:58:21 -0400
+Date: Wed, 13 Aug 2014 10:58:16 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Michal Simek <michal.simek@xilinx.com>
+Cc: linux-kernel@vger.kernel.org, monstr@monstr.eu,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org
-Subject: [PATCH] watchdog: xilinx: Remove .owner field for driver
-Date: Wed, 13 Aug 2014 13:51:28 +0200
-Message-Id: <e8e4f914035bfd055525e224da9d3e62e70edb1b.1407930684.git.michal.simek@xilinx.com>
-Content-Type: multipart/signed;
-    boundary="=_mimegpg-monstr-desktop-17974-1407930688-0001";
-    micalg=pgp-sha1; protocol="application/pgp-signature"
+Subject: Re: [PATCH] watchdog: xilinx: Remove .owner field for driver
+Message-ID: <20140813175816.GA16662@roeck-us.net>
+References: <e8e4f914035bfd055525e224da9d3e62e70edb1b.1407930684.git.michal.simek@xilinx.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e8e4f914035bfd055525e224da9d3e62e70edb1b.1407930684.git.michal.simek@xilinx.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This is a MIME GnuPG-signed message.  If you see this text, it means that
-your E-mail or Usenet software does not support MIME signed messages.
-The Internet standard for MIME PGP messages, RFC 2015, was published in 1996.
-To open this message correctly you will need to install E-mail or Usenet
-software that supports modern Internet standards.
+On Wed, Aug 13, 2014 at 01:51:28PM +0200, Michal Simek wrote:
+> There is no need to init .owner field.
+> 
+> Based on the patch from Peter Griffin <peter.griffin@linaro.org>
+> "mmc: remove .owner field for drivers using module_platform_driver"
+> 
+> This patch removes the superflous .owner field for drivers which
+> use the module_platform_driver API, as this is overriden in
+> platform_driver_register anyway."
+> 
+> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 
---=_mimegpg-monstr-desktop-17974-1407930688-0001
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-There is no need to init .owner field.
-
-Based on the patch from Peter Griffin <peter.griffin@linaro.org>
-"mmc: remove .owner field for drivers using module_platform_driver"
-
-This patch removes the superflous .owner field for drivers which
-use the module_platform_driver API, as this is overriden in
-platform_driver_register anyway."
-
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
----
-
- drivers/watchdog/of_xilinx_wdt.c | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/drivers/watchdog/of_xilinx_wdt.c b/drivers/watchdog/of_xilinx_wdt.c
-index 1e6e28df5d7b..b2e1b4cbbdc1 100644
---- a/drivers/watchdog/of_xilinx_wdt.c
-+++ b/drivers/watchdog/of_xilinx_wdt.c
-@@ -236,7 +236,6 @@ static struct platform_driver xwdt_driver = {
- 	.probe       = xwdt_probe,
- 	.remove      = xwdt_remove,
- 	.driver = {
--		.owner = THIS_MODULE,
- 		.name  = WATCHDOG_NAME,
- 		.of_match_table = xwdt_of_match,
- 	},
---
-1.8.2.3
-
-
---=_mimegpg-monstr-desktop-17974-1407930688-0001
-Content-Type: application/pgp-signature
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEABECAAYFAlPrUUAACgkQykllyylKDCH1fgCeNP2mOB2kT+bXTac4FqTlQG99
-F00AnjSBIxTZrQDNjIeViBdBlnPCgsWJ
-=mpMi
------END PGP SIGNATURE-----
-
---=_mimegpg-monstr-desktop-17974-1407930688-0001--
+Guenter
