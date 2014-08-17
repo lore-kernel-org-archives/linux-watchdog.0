@@ -1,124 +1,167 @@
-Return-Path: <stwiss.opensource@diasemi.com>
-Return-Path: <stwiss.opensource@diasemi.com>
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-To: Markus Pargmann <mpa@pengutronix.de>, Wim Van Sebroeck <wim@iguana.be>
-CC: Support Opensource <Support.Opensource@diasemi.com>, Philipp Zabel
-	<p.zabel@pengutronix.de>, Guenter Roeck <linux@roeck-us.net>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, "kernel@pengutronix.de"
-	<kernel@pengutronix.de>
-Subject: RE: [PATCH v4] watchdog: Add DA906x PMIC watchdog driver.
-Date: Fri, 22 Aug 2014 15:47:48 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7D0B39421@SW-EX-MBX02.diasemi.com>
-References: <1408192545-23987-1-git-send-email-mpa@pengutronix.de>
-In-Reply-To: <1408192545-23987-1-git-send-email-mpa@pengutronix.de>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-la0-f42.google.com ([209.85.215.42]:47263 "EHLO
+	mail-la0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751486AbaHQApq (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Sat, 16 Aug 2014 20:45:46 -0400
+Received: by mail-la0-f42.google.com with SMTP id pv20so3445244lab.15
+        for <linux-watchdog@vger.kernel.org>; Sat, 16 Aug 2014 17:45:44 -0700 (PDT)
+From: Evgeny Boger <boger@contactless.ru>
+To: linux-watchdog@vger.kernel.org,
+	Alexander Shiyan <shc_work@mail.ru>,
+	linux-kernel@vger.kernel.org
+Cc: Evgeny Boger <boger@contactless.ru>
+Subject: [PATCH] Add support for always enabled watchdog timers
+Date: Sun, 17 Aug 2014 04:45:38 +0400
+Message-Id: <1408236338-12555-1-git-send-email-boger@contactless.ru>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On 16 August 2014 13:36, Markus Pargmann [mailto:mpa@pengutronix.de] wrote:
+From: Evgeny Boger <boger@contactless.ru>
 
-> Subject: [PATCH v4] watchdog: Add DA906x PMIC watchdog driver.
+Add option to use with watchdog timers which are always enabled 
+in hardware, i.e. there is no way to enable/disable it via GPIO pin.
+The driver will start pinging WDT immediately upon loading
+and will continue to do so even after stopping the watchdog.
 
-Hi Markus,
+Signed-off-by: Evgeny Boger <boger@contactless.ru>
+---
+ .../devicetree/bindings/watchdog/gpio-wdt.txt      | 14 ++++++-
+ drivers/watchdog/gpio_wdt.c                        | 45 +++++++++++++++++-----
+ 2 files changed, 48 insertions(+), 11 deletions(-)
 
->=20
-> From: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
->=20
-> This driver supports the watchdog device inside the DA906x PMIC.
->=20
+diff --git a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
+index 37afec1..1f8ca46 100644
+--- a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
+@@ -12,8 +12,11 @@ Required Properties:
+     the opposite level disables the WDT. Active level is determined
+     by the GPIO flags.
+ - hw_margin_ms: Maximum time to reset watchdog circuit (milliseconds).
++- always-enabled: Use with wathdog timer which is always enabled
++  in hardware, i.e. there is no way to enable/disable it via GPIO pin.
++  Driver will start pinging WDT immediately upon loading.
+ 
+-Example:
++Examples:
+ 	watchdog: watchdog {
+ 		/* ADM706 */
+ 		compatible = "linux,wdt-gpio";
+@@ -21,3 +24,12 @@ Example:
+ 		hw_algo = "toggle";
+ 		hw_margin_ms = <1600>;
+ 	};
++
++	watchdog: watchdog {
++		/* TPS3813 */
++		compatible = "linux,wdt-gpio";
++		gpios = <&gpio3 9 GPIO_ACTIVE_LOW>;
++		hw_algo = "toggle";
++		hw_margin_ms = <10000>;
++		always-enabled;
++	};
+diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
+index 220a9e0..29f9bff 100644
+--- a/drivers/watchdog/gpio_wdt.c
++++ b/drivers/watchdog/gpio_wdt.c
+@@ -37,6 +37,8 @@ struct gpio_wdt_priv {
+ 	struct notifier_block	notifier;
+ 	struct timer_list	timer;
+ 	struct watchdog_device	wdd;
++	bool		always_enabled;
++	bool		started;
+ };
+ 
+ static void gpio_wdt_disable(struct gpio_wdt_priv *priv)
+@@ -48,10 +50,8 @@ static void gpio_wdt_disable(struct gpio_wdt_priv *priv)
+ 		gpio_direction_input(priv->gpio);
+ }
+ 
+-static int gpio_wdt_start(struct watchdog_device *wdd)
++static int gpio_wdt_start_timer(struct gpio_wdt_priv *priv)
+ {
+-	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
+-
+ 	priv->state = priv->active_low;
+ 	gpio_direction_output(priv->gpio, priv->state);
+ 	priv->last_jiffies = jiffies;
+@@ -60,12 +60,28 @@ static int gpio_wdt_start(struct watchdog_device *wdd)
+ 	return 0;
+ }
+ 
+-static int gpio_wdt_stop(struct watchdog_device *wdd)
++static int gpio_wdt_start(struct watchdog_device *wdd)
+ {
+ 	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
++	priv->started = true;
++	if (priv->always_enabled) {
++		/* harware ping timer is already enabled */
++		priv->last_jiffies = jiffies;
++	} else {
++		gpio_wdt_start_timer(priv);
++	}
+ 
+-	mod_timer(&priv->timer, 0);
+-	gpio_wdt_disable(priv);
++	return 0;
++}
++
++static int gpio_wdt_stop(struct watchdog_device *wdd)
++{
++	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
++	priv->started = false;
++	if (!priv->always_enabled) {
++		mod_timer(&priv->timer, 0);
++		gpio_wdt_disable(priv);
++	}
+ 
+ 	return 0;
+ }
+@@ -91,10 +107,12 @@ static void gpio_wdt_hwping(unsigned long data)
+ 	struct watchdog_device *wdd = (struct watchdog_device *)data;
+ 	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
+ 
+-	if (time_after(jiffies, priv->last_jiffies +
+-		       msecs_to_jiffies(wdd->timeout * 1000))) {
+-		dev_crit(wdd->dev, "Timer expired. System will reboot soon!\n");
+-		return;
++	if (priv->started) {
++		if (time_after(jiffies, priv->last_jiffies +
++			       msecs_to_jiffies(wdd->timeout * 1000))) {
++			dev_crit(wdd->dev, "Timer expired. System will reboot soon!\n");
++			return;
++		}
+ 	}
+ 
+ 	/* Restart timer */
+@@ -197,6 +215,9 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+ 	/* Use safe value (1/2 of real timeout) */
+ 	priv->hw_margin = msecs_to_jiffies(hw_margin / 2);
+ 
++	priv->always_enabled = of_property_read_bool(pdev->dev.of_node,
++						"always-enabled");
++
+ 	watchdog_set_drvdata(&priv->wdd, priv);
+ 
+ 	priv->wdd.info		= &gpio_wdt_ident;
+@@ -207,6 +228,7 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+ 	if (watchdog_init_timeout(&priv->wdd, 0, &pdev->dev) < 0)
+ 		priv->wdd.timeout = SOFT_TIMEOUT_DEF;
+ 
++	priv->started = false;
+ 	setup_timer(&priv->timer, gpio_wdt_hwping, (unsigned long)&priv->wdd);
+ 
+ 	ret = watchdog_register_device(&priv->wdd);
+@@ -218,6 +240,9 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		watchdog_unregister_device(&priv->wdd);
+ 
++	if (priv->always_enabled)
++		gpio_wdt_start_timer(priv);
++
+ 	return ret;
+ }
+ 
+-- 
+1.9.1
 
-There is only DA9063 , in this case there is no "x". Thanks.
-
-[...]
-
-> +
-> +/*
-> + * Watchdog selector to timeout in seconds.
-> + *   0: WDT disabled;
-> + *   others: timeout =3D 2048 ms * 2^(TWDSCALE-1).
-> + */
-> +static const int wdt_timeout[] =3D { 0, 2, 4, 8, 16, 32, 65, 131 };
-
-This table is just an approximation of the real times provided by the PMIC.=
-=20
-
-The first three bits in the CONTROL_D register at 0x11 define a scaling val=
-ue
-for the nominal maximum time TWDMAX. The 7 values specifying the timeout
-of the watchdog are:
-
-001 =3D 1 =3D 1x =3D 2048ms=20
-010 =3D 2 =3D 2x =3D 4096ms
-011 =3D 3 =3D 4x =3D 8192ms
-100 =3D 4 =3D 8x =3D 16384ms
-101 =3D 5 =3D 16x =3D 32768ms
-110 =3D 6 =3D 32x =3D 65536ms
-111 =3D 7 =3D 64x =3D 131072ms
-
- [...]
-
-> +
-> +static int da9063_wdt_disable(struct da9063 *da9063)
-> +{
-> +	return regmap_update_bits(da9063->regmap,
-> DA9063_REG_CONTROL_D,
-> +			DA9063_TWDSCALE_MASK,
-> +			DA9063_TWDSCALE_DISABLE);
-> +}
-> +
-> +static int _da9063_wdt_set_timeout(struct da9063 *da9063, unsigned int
-> regval)
-> +{
-> +	return regmap_update_bits(da9063->regmap,
-> DA9063_REG_CONTROL_D,
-> +			DA9063_TWDSCALE_MASK, regval);
-> +}
-> +
-> +static int _da9063_wdt_kick(struct da9063 *da9063)
-> +{
-> +	return regmap_write(da9063->regmap, DA9063_REG_CONTROL_F,
-> +			DA9063_WATCHDOG);
-> +}
-> +
-
-The _da9063_wdt_kick() and da9063_wdt_disable() functions are only used onc=
-e
-throughout the code -- in the watchdog_ops functions da9063_wdt_ping() and
-da9063_wdt_stop() respectively.=20
-Since these are just simple regmap calls, could they be added at those plac=
-es
-directly and therefore remove the function calls?
-
-[...]
-
-> +static int da9063_wdt_start(struct watchdog_device *wdd)
-> +{
-> +	struct da9063_watchdog *wdt =3D watchdog_get_drvdata(wdd);
-> +	unsigned int selector;
-> +	int ret;
-> +
-> +	selector =3D da9063_wdt_timeout_to_sel(wdt->wdtdev.timeout);
-> +	if (selector < 0) {
-
-Unsigned if < 0
-
- [...]
-
-> +static int da9063_wdt_set_timeout(struct watchdog_device *wdd,
-> +		unsigned int timeout)
-> +{
-> +	struct da9063_watchdog *wdt =3D watchdog_get_drvdata(wdd);
-> +	unsigned int selector;
-> +	int ret;
-> +
-> +	selector =3D da9063_wdt_timeout_to_sel(timeout);
-> +	if (selector < 0) {
-
-And again
-
-Regards,
-Steve
