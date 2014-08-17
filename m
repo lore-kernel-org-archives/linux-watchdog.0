@@ -1,106 +1,82 @@
-Return-Path: <heiko@sntech.de>
-From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Russell King <linux@arm.linux.org.uk>, Wim Van Sebroeck <wim@iguana.be>, Catalin Marinas <catalin.marinas@arm.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, linux-watchdog@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Will Deacon <will.deacon@arm.com>, Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v7 00/11] kernel: Add support for restart handler call chain
-Date: Sun, 24 Aug 2014 01:00:33 +0200
-Message-ID: <1868939.JnM9WCSHq4@diego>
-In-Reply-To: <20140823163505.GA25900@roeck-us.net>
-References: <1408495538-27480-1-git-send-email-linux@roeck-us.net> <20140823163505.GA25900@roeck-us.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Message-Id: <20140817173034.662853063@linux.com>
+Date: Sun, 17 Aug 2014 12:30:34 -0500
+From: Christoph Lameter <cl@linux.com>
+To: Tejun Heo <tj@kernel.org>
+Cc: akpm@linuxfoundation.org, rostedt@goodmis.org,
+        linux-kernel@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>, Wim Van Sebroeck <wim@iguana.be>,
+        linux-watchdog@vger.kernel.org
+Subject: [PATCH 11/35] [PATCH 11/36] watchdog: Replace __raw_get_cpu_var uses
+References: <20140817173023.439660246@linux.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline; filename=0011-watchdog-Replace-__raw_get_cpu_var-uses.patch
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Am Samstag, 23. August 2014, 09:35:05 schrieb Guenter Roeck:
-> On Tue, Aug 19, 2014 at 05:45:27PM -0700, Guenter Roeck wrote:
-> > Various drivers implement architecture and/or device specific means
-> > to restart (reset) the system. Various mechanisms have been implemented
-> > to support those schemes. The best known mechanism is arm_pm_restart,
-> > which is a function pointer to be set either from platform specific code
-> > or from drivers. Another mechanism is to use hardware watchdogs to issue
-> > a reset; this mechanism is used if there is no other method available
-> > to reset a board or system. Two examples are alim7101_wdt, which currently
-> > uses the reboot notifier to trigger a reset, and moxart_wdt, which
-> > registers the arm_pm_restart function. Several other restart drivers for
-> > arm, all directly calling arm_pm_restart, are in the process of being
-> > integrated into the kernel. All those drivers would benefit from the new
-> > API.
-> > 
-> > The existing mechanisms have a number of drawbacks. Typically only one
-> > scheme to restart the system is supported (at least if arm_pm_restart is
-> > used). At least in theory there can be multiple means to restart the
-> > system, some of which may be less desirable (for example one mechanism
-> > may only reset the CPU, while another may reset the entire system). Using
-> > arm_pm_restart can also be racy if the function pointer is set from a
-> > driver, as the driver may be in the process of being unloaded when
-> > arm_pm_restart is called.
-> > Using the reboot notifier is always racy, as it is unknown if and when
-> > other functions using the reboot notifier have completed execution
-> > by the time the watchdog fires.
-> > 
-> > Introduce a system restart handler call chain to solve the described
-> > problems. This call chain is expected to be executed from the
-> > architecture specific machine_restart() function. Drivers providing
-> > system restart functionality (such as the watchdog drivers mentioned
-> > above) are expected to register with this call chain. By using the
-> > priority field in the notifier block, callers can control restart handler
-> > execution sequence and thus ensure that the restart handler with the
-> > optimal restart capabilities for a given system is called first.
-> > 
-> > Since the first revision of this patchset, a number of separate patch
-> > submissions have been made which either depend on it or could make use of
-> > it.
-> > 
-> > http://www.spinics.net/linux/lists/arm-kernel/msg344796.html
-> > 
-> > 	registers three notifiers.
-> > 
-> > https://lkml.org/lkml/2014/7/8/962
-> > 
-> > 	would benefit from it.
-> > 
-> > Patch 1 of this series implements the restart handler function. Patches 2
-> > and 3 implement calling the restart handler chain from arm and arm64
-> > restart code.
-> > 
-> > Patch 4 modifies the restart-poweroff driver to no longer call
-> > arm_pm_restart directly but machine_restart. This is done to avoid
-> > calling arm_pm_restart from more than one place. The change makes the
-> > driver architecture independent, so it would be possible to drop the arm
-> > dependency from its Kconfig entry.
-> > 
-> > Patch 5 and 6 convert existing restart handlers in the watchdog subsystem
-> > to use the restart handler. Patch 7 unexports arm_pm_restart to ensure
-> > that no one gets the idea to implement a restart handler as module.
-> > 
-> > The entire patch series, including additional patches depending on it,
-> > is available from
-> > https://git.kernel.org/cgit/linux/kernel/git/groeck/linux-staging.git/
-> > in branch 'restart-staging'.
-> 
-> Hi Andrew,
-> 
-> I think this series is ready for upstream integration. Question now
-> is how we should proceed to get it actually integrated.
-> 
-> I can see a number of options:
-> - You take patch #1, the rest goes in through maintainer trees.
+Most of these are the uses of &__raw_get_cpu_var for address calculation.
 
-I don't think you can split the patches like this. Patch1 introduces 
-(un)register_restart_handler functions used by later patches in the series. 
-You therefore cannot really split the series, as otherwise you would get build 
-failures in the individual trees.
+touch_softlockup_watchdog_sync() uses __raw_get_cpu_var to write to
+per cpu variables. Use __this_cpu_write instead.
 
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org
+Signed-off-by: Christoph Lameter <cl@linux.com>
+---
+ kernel/watchdog.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-Heiko
-
-
-> - You take all patches after we get missing maintainer Acks.
-> - I send a pull request directly to Linus after we get missing
->   maintainer Acks.
-> 
-> What do you think would be the best way to proceed ?
-> 
-> Thanks,
-> Guenter
+Index: linux/kernel/watchdog.c
+===================================================================
+--- linux.orig/kernel/watchdog.c
++++ linux/kernel/watchdog.c
+@@ -185,7 +185,7 @@ void touch_nmi_watchdog(void)
+ 	 * case we shouldn't have to worry about the watchdog
+ 	 * going off.
+ 	 */
+-	__raw_get_cpu_var(watchdog_nmi_touch) = true;
++	raw_cpu_write(watchdog_nmi_touch, true);
+ 	touch_softlockup_watchdog();
+ }
+ EXPORT_SYMBOL(touch_nmi_watchdog);
+@@ -194,8 +194,8 @@ EXPORT_SYMBOL(touch_nmi_watchdog);
+ 
+ void touch_softlockup_watchdog_sync(void)
+ {
+-	__raw_get_cpu_var(softlockup_touch_sync) = true;
+-	__raw_get_cpu_var(watchdog_touch_ts) = 0;
++	__this_cpu_write(softlockup_touch_sync, true);
++	__this_cpu_write(watchdog_touch_ts, 0);
+ }
+ 
+ #ifdef CONFIG_HARDLOCKUP_DETECTOR
+@@ -387,7 +387,7 @@ static void watchdog_set_prio(unsigned i
+ 
+ static void watchdog_enable(unsigned int cpu)
+ {
+-	struct hrtimer *hrtimer = &__raw_get_cpu_var(watchdog_hrtimer);
++	struct hrtimer *hrtimer = raw_cpu_ptr(&watchdog_hrtimer);
+ 
+ 	/* kick off the timer for the hardlockup detector */
+ 	hrtimer_init(hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+@@ -407,7 +407,7 @@ static void watchdog_enable(unsigned int
+ 
+ static void watchdog_disable(unsigned int cpu)
+ {
+-	struct hrtimer *hrtimer = &__raw_get_cpu_var(watchdog_hrtimer);
++	struct hrtimer *hrtimer = raw_cpu_ptr(&watchdog_hrtimer);
+ 
+ 	watchdog_set_prio(SCHED_NORMAL, 0);
+ 	hrtimer_cancel(hrtimer);
+@@ -534,7 +534,7 @@ static struct smp_hotplug_thread watchdo
+ 
+ static void restart_watchdog_hrtimer(void *info)
+ {
+-	struct hrtimer *hrtimer = &__raw_get_cpu_var(watchdog_hrtimer);
++	struct hrtimer *hrtimer = raw_cpu_ptr(&watchdog_hrtimer);
+ 	int ret;
+ 
+ 	/*
