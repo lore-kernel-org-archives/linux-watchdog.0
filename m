@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f53.google.com ([209.85.220.53]:46567 "EHLO
-	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752100AbaHTAqI (ORCPT
+Received: from mail-pa0-f48.google.com ([209.85.220.48]:61901 "EHLO
+	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751647AbaHTAqF (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 19 Aug 2014 20:46:08 -0400
+	Tue, 19 Aug 2014 20:46:05 -0400
 From: Guenter Roeck <linux@roeck-us.net>
 To: Russell King <linux@arm.linux.org.uk>,
 	Wim Van Sebroeck <wim@iguana.be>,
@@ -24,107 +24,71 @@ Cc: linux-watchdog@vger.kernel.org,
 	David Woodhouse <dwmw2@infradead.org>,
 	Tomasz Figa <t.figa@samsung.com>, linux-doc@vger.kernel.org,
 	linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v7 05/11] watchdog: moxart: Register restart handler with kernel restart handler
-Date: Tue, 19 Aug 2014 17:45:32 -0700
-Message-Id: <1408495538-27480-6-git-send-email-linux@roeck-us.net>
+Subject: [PATCH v7 04/11] arm: Support restart through restart handler call chain
+Date: Tue, 19 Aug 2014 17:45:31 -0700
+Message-Id: <1408495538-27480-5-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1408495538-27480-1-git-send-email-linux@roeck-us.net>
 References: <1408495538-27480-1-git-send-email-linux@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The kernel now provides an API to trigger a system restart.
-Register with it instead of setting arm_pm_restart.
+The kernel core now supports a restart handler call chain for system
+restart functions.
+
+With this change, the arm_pm_restart callback is now optional, so
+drop its initialization and check if it is set before calling it.
+Only call the kernel restart handler if arm_pm_restart is not set.
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Acked-by: Catalin Marinas <catalin.marinas@arm.com>
 Acked-by: Heiko Stuebner <heiko@sntech.de>
 ---
-v7: No change.
+v7: Dropped null_restart and made arm_pm_restart truly optional.
 v6: No change.
-v5: Functions and variables renamed: *notifier -> *handler
-v4: Set notifier priority to 128.
-v3: Move struct notifier_block into struct moxart_wdt_dev.
-    Drop static variable previously needed to access struct moxart_wdt_dev
-    from notifier function; use container_of instead.
-v2: No change.
+v5: Renamed restart function to do_kernel_restart
+v4: No change.
+v3: Use wrapper function to execute notifier call chain.
+v2: Only call notifier call chain if arm_pm_restart is not set.
+    Do not include linux/watchdog.h.
 
- drivers/watchdog/moxart_wdt.c | 32 ++++++++++++++++++++------------
- 1 file changed, 20 insertions(+), 12 deletions(-)
+ arch/arm/kernel/process.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/watchdog/moxart_wdt.c b/drivers/watchdog/moxart_wdt.c
-index 4aa3a8a..a64405b 100644
---- a/drivers/watchdog/moxart_wdt.c
-+++ b/drivers/watchdog/moxart_wdt.c
-@@ -15,12 +15,12 @@
- #include <linux/module.h>
- #include <linux/err.h>
- #include <linux/kernel.h>
-+#include <linux/notifier.h>
- #include <linux/platform_device.h>
-+#include <linux/reboot.h>
- #include <linux/watchdog.h>
- #include <linux/moduleparam.h>
- 
--#include <asm/system_misc.h>
--
- #define REG_COUNT			0x4
- #define REG_MODE			0x8
- #define REG_ENABLE			0xC
-@@ -29,17 +29,22 @@ struct moxart_wdt_dev {
- 	struct watchdog_device dev;
- 	void __iomem *base;
- 	unsigned int clock_frequency;
-+	struct notifier_block restart_handler;
- };
- 
--static struct moxart_wdt_dev *moxart_restart_ctx;
--
- static int heartbeat;
- 
--static void moxart_wdt_restart(enum reboot_mode reboot_mode, const char *cmd)
-+static int moxart_restart_handle(struct notifier_block *this,
-+				 unsigned long mode, void *cmd)
- {
--	writel(1, moxart_restart_ctx->base + REG_COUNT);
--	writel(0x5ab9, moxart_restart_ctx->base + REG_MODE);
--	writel(0x03, moxart_restart_ctx->base + REG_ENABLE);
-+	struct moxart_wdt_dev *moxart_wdt = container_of(this,
-+							 struct moxart_wdt_dev,
-+							 restart_handler);
-+	writel(1, moxart_wdt->base + REG_COUNT);
-+	writel(0x5ab9, moxart_wdt->base + REG_MODE);
-+	writel(0x03, moxart_wdt->base + REG_ENABLE);
-+
-+	return NOTIFY_DONE;
+diff --git a/arch/arm/kernel/process.c b/arch/arm/kernel/process.c
+index 81ef686..ea279f7 100644
+--- a/arch/arm/kernel/process.c
++++ b/arch/arm/kernel/process.c
+@@ -114,17 +114,13 @@ void soft_restart(unsigned long addr)
+ 	BUG();
  }
  
- static int moxart_wdt_stop(struct watchdog_device *wdt_dev)
-@@ -136,8 +141,12 @@ static int moxart_wdt_probe(struct platform_device *pdev)
- 	if (err)
- 		return err;
+-static void null_restart(enum reboot_mode reboot_mode, const char *cmd)
+-{
+-}
+-
+ /*
+  * Function pointers to optional machine specific functions
+  */
+ void (*pm_power_off)(void);
+ EXPORT_SYMBOL(pm_power_off);
  
--	moxart_restart_ctx = moxart_wdt;
--	arm_pm_restart = moxart_wdt_restart;
-+	moxart_wdt->restart_handler.notifier_call = moxart_restart_handle;
-+	moxart_wdt->restart_handler.priority = 128;
-+	err = register_restart_handler(&moxart_wdt->restart_handler);
-+	if (err)
-+		dev_err(dev, "cannot register restart notifier (err=%d)\n",
-+			err);
+-void (*arm_pm_restart)(enum reboot_mode reboot_mode, const char *cmd) = null_restart;
++void (*arm_pm_restart)(enum reboot_mode reboot_mode, const char *cmd);
+ EXPORT_SYMBOL_GPL(arm_pm_restart);
  
- 	dev_dbg(dev, "Watchdog enabled (heartbeat=%d sec, nowayout=%d)\n",
- 		moxart_wdt->dev.timeout, nowayout);
-@@ -149,9 +158,8 @@ static int moxart_wdt_remove(struct platform_device *pdev)
- {
- 	struct moxart_wdt_dev *moxart_wdt = platform_get_drvdata(pdev);
+ /*
+@@ -230,7 +226,10 @@ void machine_restart(char *cmd)
+ 	local_irq_disable();
+ 	smp_send_stop();
  
--	arm_pm_restart = NULL;
-+	unregister_restart_handler(&moxart_wdt->restart_handler);
- 	moxart_wdt_stop(&moxart_wdt->dev);
--	watchdog_unregister_device(&moxart_wdt->dev);
+-	arm_pm_restart(reboot_mode, cmd);
++	if (arm_pm_restart)
++		arm_pm_restart(reboot_mode, cmd);
++	else
++		do_kernel_restart(cmd);
  
- 	return 0;
- }
+ 	/* Give a grace period for failure to restart of 1s */
+ 	mdelay(1000);
 -- 
 1.9.1
 
