@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f53.google.com ([209.85.220.53]:35489 "EHLO
-	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751728AbaHTAqW (ORCPT
+Received: from mail-pa0-f41.google.com ([209.85.220.41]:46869 "EHLO
+	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752202AbaHTAq0 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 19 Aug 2014 20:46:22 -0400
+	Tue, 19 Aug 2014 20:46:26 -0400
 From: Guenter Roeck <linux@roeck-us.net>
 To: Russell King <linux@arm.linux.org.uk>,
 	Wim Van Sebroeck <wim@iguana.be>,
@@ -24,9 +24,9 @@ Cc: linux-watchdog@vger.kernel.org,
 	David Woodhouse <dwmw2@infradead.org>,
 	Tomasz Figa <t.figa@samsung.com>, linux-doc@vger.kernel.org,
 	linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v7 09/11] watchdog: s3c2410: add restart handler
-Date: Tue, 19 Aug 2014 17:45:36 -0700
-Message-Id: <1408495538-27480-10-git-send-email-linux@roeck-us.net>
+Subject: [PATCH v7 10/11] clk: samsung: register restart handlers for s3c2412 and s3c2443
+Date: Tue, 19 Aug 2014 17:45:37 -0700
+Message-Id: <1408495538-27480-11-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1408495538-27480-1-git-send-email-linux@roeck-us.net>
 References: <1408495538-27480-1-git-send-email-linux@roeck-us.net>
 MIME-Version: 1.0
@@ -37,106 +37,156 @@ List-Id: linux-watchdog@vger.kernel.org
 
 =46rom: Heiko St=C3=BCbner <heiko@sntech.de>
 
-On a lot of Samsung systems the watchdog is responsible for restarting =
-the
-system and until now this code was contained in plat-samsung/watchdog-r=
-eset.c.
+S3C2412, S3C2443 and their derivatives contain a special software-reset
+register in their system-controller.
 
-With the introduction of the restart handlers, this code can now move i=
-nto
-driver itself, removing the need for arch-specific code.
+Therefore register a restart handler for those.
 
-Tested on a S3C2442 based GTA02
+Tested on a s3c2416-based board, s3c2412 compile-tested.
 
 Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
 v7: Added patch to series.
 
- drivers/watchdog/s3c2410_wdt.c | 36 ++++++++++++++++++++++++++++++++++=
-++
- 1 file changed, 36 insertions(+)
+ drivers/clk/samsung/clk-s3c2412.c | 29 +++++++++++++++++++++++++++++
+ drivers/clk/samsung/clk-s3c2443.c | 19 +++++++++++++++++++
+ 2 files changed, 48 insertions(+)
 
-diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_=
-wdt.c
-index 7c6ccd0..2955aef 100644
---- a/drivers/watchdog/s3c2410_wdt.c
-+++ b/drivers/watchdog/s3c2410_wdt.c
-@@ -41,6 +41,8 @@
+diff --git a/drivers/clk/samsung/clk-s3c2412.c b/drivers/clk/samsung/cl=
+k-s3c2412.c
+index 34af09f..2ceedaf 100644
+--- a/drivers/clk/samsung/clk-s3c2412.c
++++ b/drivers/clk/samsung/clk-s3c2412.c
+@@ -14,6 +14,7 @@
  #include <linux/of.h>
- #include <linux/mfd/syscon.h>
- #include <linux/regmap.h>
+ #include <linux/of_address.h>
+ #include <linux/syscore_ops.h>
 +#include <linux/reboot.h>
-+#include <linux/delay.h>
 =20
- #define S3C2410_WTCON		0x00
- #define S3C2410_WTDAT		0x04
-@@ -128,6 +130,7 @@ struct s3c2410_wdt {
- 	unsigned long		wtdat_save;
- 	struct watchdog_device	wdt_device;
- 	struct notifier_block	freq_transition;
-+	struct notifier_block	restart_handler;
- 	struct s3c2410_wdt_variant *drv_data;
- 	struct regmap *pmureg;
+ #include <dt-bindings/clock/s3c2412.h>
+=20
+@@ -26,6 +27,7 @@
+ #define CLKCON		0x0c
+ #define CLKDIVN		0x14
+ #define CLKSRC		0x1c
++#define SWRST		0x30
+=20
+ /* list of PLLs to be registered */
+ enum s3c2412_plls {
+@@ -204,6 +206,28 @@ struct samsung_clock_alias s3c2412_aliases[] __ini=
+tdata =3D {
+ 	ALIAS(MSYSCLK, NULL, "fclk"),
  };
-@@ -438,6 +441,31 @@ static inline void s3c2410wdt_cpufreq_deregister(s=
-truct s3c2410_wdt *wdt)
- }
- #endif
 =20
-+static int s3c2410wdt_restart(struct notifier_block *this,
-+			      unsigned long mode, void *cmd)
++static int s3c2412_restart(struct notifier_block *this,
++			   unsigned long mode, void *cmd)
 +{
-+	struct s3c2410_wdt *wdt =3D container_of(this, struct s3c2410_wdt,
-+					       restart_handler);
-+	void __iomem *wdt_base =3D wdt->reg_base;
++	/* errata "Watch-dog/Software Reset Problem" specifies that
++	 * this reset must be done with the SYSCLK sourced from
++	 * EXTCLK instead of FOUT to avoid a glitch in the reset
++	 * mechanism.
++	 *
++	 * See the watchdog section of the S3C2412 manual for more
++	 * information on this fix.
++	 */
 +
-+	/* disable watchdog, to be safe  */
-+	writel(0, wdt_base + S3C2410_WTCON);
-+
-+	/* put initial values into count and data */
-+	writel(0x80, wdt_base + S3C2410_WTCNT);
-+	writel(0x80, wdt_base + S3C2410_WTDAT);
-+
-+	/* set the watchdog to go and reset... */
-+	writel(S3C2410_WTCON_ENABLE | S3C2410_WTCON_DIV16 |
-+		S3C2410_WTCON_RSTEN | S3C2410_WTCON_PRESCALE(0x20),
-+		wdt_base + S3C2410_WTCON);
-+
-+	/* wait for reset to assert... */
-+	mdelay(500);
-+
++	__raw_writel(0x00, reg_base + CLKSRC);
++	__raw_writel(0x533C2412, reg_base + SWRST);
 +	return NOTIFY_DONE;
 +}
 +
- static inline unsigned int s3c2410wdt_get_bootstatus(struct s3c2410_wd=
-t *wdt)
++static struct notifier_block s3c2412_restart_handler =3D {
++	.notifier_call =3D s3c2412_restart,
++	.priority =3D 129,
++};
++
+ /*
+  * fixed rate clocks generated outside the soc
+  * Only necessary until the devicetree-move is complete
+@@ -233,6 +257,7 @@ void __init s3c2412_common_clk_init(struct device_n=
+ode *np, unsigned long xti_f,
+ 				    unsigned long ext_f, void __iomem *base)
  {
- 	unsigned int rst_stat;
-@@ -592,6 +620,12 @@ static int s3c2410wdt_probe(struct platform_device=
- *pdev)
+ 	struct samsung_clk_provider *ctx;
++	int ret;
+ 	reg_base =3D base;
 =20
- 	platform_set_drvdata(pdev, wdt);
+ 	if (np) {
+@@ -267,6 +292,10 @@ void __init s3c2412_common_clk_init(struct device_=
+node *np, unsigned long xti_f,
+ 	s3c2412_clk_sleep_init();
 =20
-+	wdt->restart_handler.notifier_call =3D s3c2410wdt_restart;
-+	wdt->restart_handler.priority =3D 128;
-+	ret =3D register_restart_handler(&wdt->restart_handler);
+ 	samsung_clk_of_add_provider(np, ctx);
++
++	ret =3D register_restart_handler(&s3c2412_restart_handler);
 +	if (ret)
-+		pr_err("cannot register restart handler, %d\n", ret);
-+
- 	/* print out a statement of readiness */
++		pr_warn("cannot register restart handler, %d\n", ret);
+ }
 =20
- 	wtcon =3D readl(wdt->reg_base + S3C2410_WTCON);
-@@ -621,6 +655,8 @@ static int s3c2410wdt_remove(struct platform_device=
- *dev)
- 	int ret;
- 	struct s3c2410_wdt *wdt =3D platform_get_drvdata(dev);
+ static void __init s3c2412_clk_init(struct device_node *np)
+diff --git a/drivers/clk/samsung/clk-s3c2443.c b/drivers/clk/samsung/cl=
+k-s3c2443.c
+index c92f853..0c3c182 100644
+--- a/drivers/clk/samsung/clk-s3c2443.c
++++ b/drivers/clk/samsung/clk-s3c2443.c
+@@ -14,6 +14,7 @@
+ #include <linux/of.h>
+ #include <linux/of_address.h>
+ #include <linux/syscore_ops.h>
++#include <linux/reboot.h>
 =20
-+	unregister_restart_handler(&wdt->restart_handler);
+ #include <dt-bindings/clock/s3c2443.h>
+=20
+@@ -33,6 +34,7 @@
+ #define HCLKCON		0x30
+ #define PCLKCON		0x34
+ #define SCLKCON		0x38
++#define SWRST		0x44
+=20
+ /* the soc types */
+ enum supported_socs {
+@@ -354,6 +356,18 @@ struct samsung_clock_alias s3c2450_aliases[] __ini=
+tdata =3D {
+ 	ALIAS(PCLK_I2C1, "s3c2410-i2c.1", "i2c"),
+ };
+=20
++static int s3c2443_restart(struct notifier_block *this,
++			   unsigned long mode, void *cmd)
++{
++	__raw_writel(0x533c2443, reg_base + SWRST);
++	return NOTIFY_DONE;
++}
 +
- 	ret =3D s3c2410wdt_mask_and_disable_reset(wdt, true);
- 	if (ret < 0)
- 		return ret;
++static struct notifier_block s3c2443_restart_handler =3D {
++	.notifier_call =3D s3c2443_restart,
++	.priority =3D 129,
++};
++
+ /*
+  * fixed rate clocks generated outside the soc
+  * Only necessary until the devicetree-move is complete
+@@ -378,6 +392,7 @@ void __init s3c2443_common_clk_init(struct device_n=
+ode *np, unsigned long xti_f,
+ 				    void __iomem *base)
+ {
+ 	struct samsung_clk_provider *ctx;
++	int ret;
+ 	reg_base =3D base;
+=20
+ 	if (np) {
+@@ -447,6 +462,10 @@ void __init s3c2443_common_clk_init(struct device_=
+node *np, unsigned long xti_f,
+ 	s3c2443_clk_sleep_init();
+=20
+ 	samsung_clk_of_add_provider(np, ctx);
++
++	ret =3D register_restart_handler(&s3c2443_restart_handler);
++	if (ret)
++		pr_warn("cannot register restart handler, %d\n", ret);
+ }
+=20
+ static void __init s3c2416_clk_init(struct device_node *np)
 --=20
 1.9.1
 
