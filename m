@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f45.google.com ([209.85.220.45]:65196 "EHLO
-	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751647AbaHTApr (ORCPT
+Received: from mail-pa0-f47.google.com ([209.85.220.47]:36631 "EHLO
+	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751647AbaHTAqP (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 19 Aug 2014 20:45:47 -0400
+	Tue, 19 Aug 2014 20:46:15 -0400
 From: Guenter Roeck <linux@roeck-us.net>
 To: Russell King <linux@arm.linux.org.uk>,
 	Wim Van Sebroeck <wim@iguana.be>,
@@ -24,88 +24,114 @@ Cc: linux-watchdog@vger.kernel.org,
 	David Woodhouse <dwmw2@infradead.org>,
 	Tomasz Figa <t.figa@samsung.com>, linux-doc@vger.kernel.org,
 	linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v7 00/11] kernel: Add support for restart handler call chain
-Date: Tue, 19 Aug 2014 17:45:27 -0700
-Message-Id: <1408495538-27480-1-git-send-email-linux@roeck-us.net>
+Subject: [PATCH v7 07/11] watchdog: sunxi: Register restart handler with kernel restart handler
+Date: Tue, 19 Aug 2014 17:45:34 -0700
+Message-Id: <1408495538-27480-8-git-send-email-linux@roeck-us.net>
+In-Reply-To: <1408495538-27480-1-git-send-email-linux@roeck-us.net>
+References: <1408495538-27480-1-git-send-email-linux@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Various drivers implement architecture and/or device specific means
-to restart (reset) the system. Various mechanisms have been implemented
-to support those schemes. The best known mechanism is arm_pm_restart,
-which is a function pointer to be set either from platform specific code
-or from drivers. Another mechanism is to use hardware watchdogs to issue
-a reset; this mechanism is used if there is no other method available
-to reset a board or system. Two examples are alim7101_wdt, which currently
-uses the reboot notifier to trigger a reset, and moxart_wdt, which registers
-the arm_pm_restart function. Several other restart drivers for arm, all
-directly calling arm_pm_restart, are in the process of being integrated
-into the kernel. All those drivers would benefit from the new API.
+The kernel core now provides an API to trigger a system restart.
+Register with it instead of setting arm_pm_restart.
 
-The existing mechanisms have a number of drawbacks. Typically only one scheme
-to restart the system is supported (at least if arm_pm_restart is used).
-At least in theory there can be multiple means to restart the system, some of
-which may be less desirable (for example one mechanism may only reset the CPU,
-while another may reset the entire system). Using arm_pm_restart can also be
-racy if the function pointer is set from a driver, as the driver may be in
-the process of being unloaded when arm_pm_restart is called.
-Using the reboot notifier is always racy, as it is unknown if and when
-other functions using the reboot notifier have completed execution
-by the time the watchdog fires.
-
-Introduce a system restart handler call chain to solve the described problems.
-This call chain is expected to be executed from the architecture specific
-machine_restart() function. Drivers providing system restart functionality
-(such as the watchdog drivers mentioned above) are expected to register
-with this call chain. By using the priority field in the notifier block,
-callers can control restart handler execution sequence and thus ensure that
-the restart handler with the optimal restart capabilities for a given system
-is called first.
-
-Since the first revision of this patchset, a number of separate patch
-submissions have been made which either depend on it or could make use of it.
-
-http://www.spinics.net/linux/lists/arm-kernel/msg344796.html
-	registers three notifiers.
-https://lkml.org/lkml/2014/7/8/962
-	would benefit from it.
-
-Patch 1 of this series implements the restart handler function. Patches 2 and 3
-implement calling the restart handler chain from arm and arm64 restart code.
-
-Patch 4 modifies the restart-poweroff driver to no longer call arm_pm_restart
-directly but machine_restart. This is done to avoid calling arm_pm_restart
-from more than one place. The change makes the driver architecture independent,
-so it would be possible to drop the arm dependency from its Kconfig entry.
-
-Patch 5 and 6 convert existing restart handlers in the watchdog subsystem
-to use the restart handler. Patch 7 unexports arm_pm_restart to ensure
-that no one gets the idea to implement a restart handler as module.
-
-The entire patch series, including additional patches depending on it,
-is available from
-https://git.kernel.org/cgit/linux/kernel/git/groeck/linux-staging.git/
-in branch 'restart-staging'.
-
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Acked-by: Heiko Stuebner <heiko@sntech.de>
 ---
-v7: Rebased to v3.17-rc1
-    Dropped null_restart from arm code to make arm_pm_restart truly optional
-    Reordered series. power/restart must be patched to not use arm_pm_restart
-    prior to making arm_pm_restart optional.
-    Added all pending patches to series
-v6: Use atomic notifier call chain 
-    Rebased series to v3.16
-v5: Rebased series to v3.16-rc5
-    Function renames:
-    register_restart_notifier -> register_restart_handler
-    unregister_restart_notifier -> unregister_restart_handler
-    kernel_restart_notify -> do_kernel_restart
-v4: Document restart notifier priorities
-    Select 128 as default priority for newly introduced notifiers
-    Fix checkpatch warning (line too long) in moxart patch
-v3: Drop RFC.
-    Add kernel_restart_notify wrapper function to execute notifier
-    Improve documentation.
-    Move restart_notifier_list into kernel/reboot.c and make it static.
-v2: Add patch 4.
-    Only call blocking notifier call chain if arm_pm_restart was not set.
+v7: Added patch to series. Necessary since the restart handler in the driver
+    is now available upstream.
+
+ drivers/watchdog/sunxi_wdt.c | 31 ++++++++++++++++++++-----------
+ 1 file changed, 20 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
+index 60deb9d..480bb55 100644
+--- a/drivers/watchdog/sunxi_wdt.c
++++ b/drivers/watchdog/sunxi_wdt.c
+@@ -21,14 +21,13 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
++#include <linux/notifier.h>
+ #include <linux/of.h>
+ #include <linux/platform_device.h>
+ #include <linux/reboot.h>
+ #include <linux/types.h>
+ #include <linux/watchdog.h>
+ 
+-#include <asm/system_misc.h>
+-
+ #define WDT_MAX_TIMEOUT         16
+ #define WDT_MIN_TIMEOUT         1
+ #define WDT_MODE_TIMEOUT(n)     ((n) << 3)
+@@ -50,6 +49,7 @@ static unsigned int timeout = WDT_MAX_TIMEOUT;
+ struct sunxi_wdt_dev {
+ 	struct watchdog_device wdt_dev;
+ 	void __iomem *wdt_base;
++	struct notifier_block restart_handler;
+ };
+ 
+ /*
+@@ -74,24 +74,29 @@ static const int wdt_timeout_map[] = {
+ 	[16] = 0xB, /* 16s */
+ };
+ 
+-static void __iomem *reboot_wdt_base;
+ 
+-static void sun4i_wdt_restart(enum reboot_mode mode, const char *cmd)
++static int sunxi_restart_handle(struct notifier_block *this, unsigned long mode,
++				void *cmd)
+ {
++	struct sunxi_wdt_dev *sunxi_wdt = container_of(this,
++						       struct sunxi_wdt_dev,
++						       restart_handler);
++	void __iomem *wdt_base = sunxi_wdt->wdt_base;
++
+ 	/* Enable timer and set reset bit in the watchdog */
+-	writel(WDT_MODE_EN | WDT_MODE_RST_EN, reboot_wdt_base + WDT_MODE);
++	writel(WDT_MODE_EN | WDT_MODE_RST_EN, wdt_base + WDT_MODE);
+ 
+ 	/*
+ 	 * Restart the watchdog. The default (and lowest) interval
+ 	 * value for the watchdog is 0.5s.
+ 	 */
+-	writel(WDT_CTRL_RELOAD, reboot_wdt_base + WDT_CTRL);
++	writel(WDT_CTRL_RELOAD, wdt_base + WDT_CTRL);
+ 
+ 	while (1) {
+ 		mdelay(5);
+-		writel(WDT_MODE_EN | WDT_MODE_RST_EN,
+-		       reboot_wdt_base + WDT_MODE);
++		writel(WDT_MODE_EN | WDT_MODE_RST_EN, wdt_base + WDT_MODE);
+ 	}
++	return NOTIFY_DONE;
+ }
+ 
+ static int sunxi_wdt_ping(struct watchdog_device *wdt_dev)
+@@ -205,8 +210,12 @@ static int sunxi_wdt_probe(struct platform_device *pdev)
+ 	if (unlikely(err))
+ 		return err;
+ 
+-	reboot_wdt_base = sunxi_wdt->wdt_base;
+-	arm_pm_restart = sun4i_wdt_restart;
++	sunxi_wdt->restart_handler.notifier_call = sunxi_restart_handle;
++	sunxi_wdt->restart_handler.priority = 128;
++	err = register_restart_handler(&sunxi_wdt->restart_handler);
++	if (err)
++		dev_err(&pdev->dev,
++			"cannot register restart handler (err=%d)\n", err);
+ 
+ 	dev_info(&pdev->dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)",
+ 			sunxi_wdt->wdt_dev.timeout, nowayout);
+@@ -218,7 +227,7 @@ static int sunxi_wdt_remove(struct platform_device *pdev)
+ {
+ 	struct sunxi_wdt_dev *sunxi_wdt = platform_get_drvdata(pdev);
+ 
+-	arm_pm_restart = NULL;
++	unregister_restart_handler(&sunxi_wdt->restart_handler);
+ 
+ 	watchdog_unregister_device(&sunxi_wdt->wdt_dev);
+ 	watchdog_set_drvdata(&sunxi_wdt->wdt_dev, NULL);
+-- 
+1.9.1
+
