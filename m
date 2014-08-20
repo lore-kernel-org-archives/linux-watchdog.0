@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f47.google.com ([209.85.220.47]:36631 "EHLO
-	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751647AbaHTAqP (ORCPT
+Received: from mail-pa0-f42.google.com ([209.85.220.42]:34550 "EHLO
+	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751728AbaHTAqa (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 19 Aug 2014 20:46:15 -0400
+	Tue, 19 Aug 2014 20:46:30 -0400
 From: Guenter Roeck <linux@roeck-us.net>
 To: Russell King <linux@arm.linux.org.uk>,
 	Wim Van Sebroeck <wim@iguana.be>,
@@ -24,114 +24,122 @@ Cc: linux-watchdog@vger.kernel.org,
 	David Woodhouse <dwmw2@infradead.org>,
 	Tomasz Figa <t.figa@samsung.com>, linux-doc@vger.kernel.org,
 	linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v7 07/11] watchdog: sunxi: Register restart handler with kernel restart handler
-Date: Tue, 19 Aug 2014 17:45:34 -0700
-Message-Id: <1408495538-27480-8-git-send-email-linux@roeck-us.net>
+Subject: [PATCH v7 11/11] clk: rockchip: add restart handler
+Date: Tue, 19 Aug 2014 17:45:38 -0700
+Message-Id: <1408495538-27480-12-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1408495538-27480-1-git-send-email-linux@roeck-us.net>
 References: <1408495538-27480-1-git-send-email-linux@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The kernel core now provides an API to trigger a system restart.
-Register with it instead of setting arm_pm_restart.
+=46rom: Heiko St=C3=BCbner <heiko@sntech.de>
 
+Add infrastructure to write the correct value to the restart register a=
+nd
+register the restart notifier for both rk3188 (including rk3066) and rk=
+3288.
+
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Acked-by: Heiko Stuebner <heiko@sntech.de>
 ---
-v7: Added patch to series. Necessary since the restart handler in the driver
-    is now available upstream.
+v7: Added patch to series.
 
- drivers/watchdog/sunxi_wdt.c | 31 ++++++++++++++++++++-----------
- 1 file changed, 20 insertions(+), 11 deletions(-)
+ drivers/clk/rockchip/clk-rk3188.c |  2 ++
+ drivers/clk/rockchip/clk-rk3288.c |  2 ++
+ drivers/clk/rockchip/clk.c        | 25 +++++++++++++++++++++++++
+ drivers/clk/rockchip/clk.h        |  1 +
+ 4 files changed, 30 insertions(+)
 
-diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
-index 60deb9d..480bb55 100644
---- a/drivers/watchdog/sunxi_wdt.c
-+++ b/drivers/watchdog/sunxi_wdt.c
-@@ -21,14 +21,13 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
-+#include <linux/notifier.h>
- #include <linux/of.h>
- #include <linux/platform_device.h>
- #include <linux/reboot.h>
- #include <linux/types.h>
- #include <linux/watchdog.h>
- 
--#include <asm/system_misc.h>
--
- #define WDT_MAX_TIMEOUT         16
- #define WDT_MIN_TIMEOUT         1
- #define WDT_MODE_TIMEOUT(n)     ((n) << 3)
-@@ -50,6 +49,7 @@ static unsigned int timeout = WDT_MAX_TIMEOUT;
- struct sunxi_wdt_dev {
- 	struct watchdog_device wdt_dev;
- 	void __iomem *wdt_base;
-+	struct notifier_block restart_handler;
- };
- 
- /*
-@@ -74,24 +74,29 @@ static const int wdt_timeout_map[] = {
- 	[16] = 0xB, /* 16s */
- };
- 
--static void __iomem *reboot_wdt_base;
- 
--static void sun4i_wdt_restart(enum reboot_mode mode, const char *cmd)
-+static int sunxi_restart_handle(struct notifier_block *this, unsigned long mode,
-+				void *cmd)
- {
-+	struct sunxi_wdt_dev *sunxi_wdt = container_of(this,
-+						       struct sunxi_wdt_dev,
-+						       restart_handler);
-+	void __iomem *wdt_base = sunxi_wdt->wdt_base;
+diff --git a/drivers/clk/rockchip/clk-rk3188.c b/drivers/clk/rockchip/c=
+lk-rk3188.c
+index a83a6d8..71b661a 100644
+--- a/drivers/clk/rockchip/clk-rk3188.c
++++ b/drivers/clk/rockchip/clk-rk3188.c
+@@ -631,6 +631,8 @@ static void __init rk3188_common_clk_init(struct de=
+vice_node *np)
+=20
+ 	rockchip_register_softrst(np, 9, reg_base + RK2928_SOFTRST_CON(0),
+ 				  ROCKCHIP_SOFTRST_HIWORD_MASK);
 +
- 	/* Enable timer and set reset bit in the watchdog */
--	writel(WDT_MODE_EN | WDT_MODE_RST_EN, reboot_wdt_base + WDT_MODE);
-+	writel(WDT_MODE_EN | WDT_MODE_RST_EN, wdt_base + WDT_MODE);
- 
- 	/*
- 	 * Restart the watchdog. The default (and lowest) interval
- 	 * value for the watchdog is 0.5s.
- 	 */
--	writel(WDT_CTRL_RELOAD, reboot_wdt_base + WDT_CTRL);
-+	writel(WDT_CTRL_RELOAD, wdt_base + WDT_CTRL);
- 
- 	while (1) {
- 		mdelay(5);
--		writel(WDT_MODE_EN | WDT_MODE_RST_EN,
--		       reboot_wdt_base + WDT_MODE);
-+		writel(WDT_MODE_EN | WDT_MODE_RST_EN, wdt_base + WDT_MODE);
- 	}
-+	return NOTIFY_DONE;
++	rockchip_register_restart_notifier(RK2928_GLB_SRST_FST);
  }
- 
- static int sunxi_wdt_ping(struct watchdog_device *wdt_dev)
-@@ -205,8 +210,12 @@ static int sunxi_wdt_probe(struct platform_device *pdev)
- 	if (unlikely(err))
- 		return err;
- 
--	reboot_wdt_base = sunxi_wdt->wdt_base;
--	arm_pm_restart = sun4i_wdt_restart;
-+	sunxi_wdt->restart_handler.notifier_call = sunxi_restart_handle;
-+	sunxi_wdt->restart_handler.priority = 128;
-+	err = register_restart_handler(&sunxi_wdt->restart_handler);
-+	if (err)
-+		dev_err(&pdev->dev,
-+			"cannot register restart handler (err=%d)\n", err);
- 
- 	dev_info(&pdev->dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)",
- 			sunxi_wdt->wdt_dev.timeout, nowayout);
-@@ -218,7 +227,7 @@ static int sunxi_wdt_remove(struct platform_device *pdev)
- {
- 	struct sunxi_wdt_dev *sunxi_wdt = platform_get_drvdata(pdev);
- 
--	arm_pm_restart = NULL;
-+	unregister_restart_handler(&sunxi_wdt->restart_handler);
- 
- 	watchdog_unregister_device(&sunxi_wdt->wdt_dev);
- 	watchdog_set_drvdata(&sunxi_wdt->wdt_dev, NULL);
--- 
+=20
+ static void __init rk3066a_clk_init(struct device_node *np)
+diff --git a/drivers/clk/rockchip/clk-rk3288.c b/drivers/clk/rockchip/c=
+lk-rk3288.c
+index 0d8c6c5..b604217 100644
+--- a/drivers/clk/rockchip/clk-rk3288.c
++++ b/drivers/clk/rockchip/clk-rk3288.c
+@@ -713,5 +713,7 @@ static void __init rk3288_clk_init(struct device_no=
+de *np)
+=20
+ 	rockchip_register_softrst(np, 9, reg_base + RK3288_SOFTRST_CON(0),
+ 				  ROCKCHIP_SOFTRST_HIWORD_MASK);
++
++	rockchip_register_restart_notifier(RK3288_GLB_SRST_FST);
+ }
+ CLK_OF_DECLARE(rk3288_cru, "rockchip,rk3288-cru", rk3288_clk_init);
+diff --git a/drivers/clk/rockchip/clk.c b/drivers/clk/rockchip/clk.c
+index 278cf9d..aa41433 100644
+--- a/drivers/clk/rockchip/clk.c
++++ b/drivers/clk/rockchip/clk.c
+@@ -25,6 +25,7 @@
+ #include <linux/clk-provider.h>
+ #include <linux/mfd/syscon.h>
+ #include <linux/regmap.h>
++#include <linux/reboot.h>
+ #include "clk.h"
+=20
+ /**
+@@ -242,3 +243,27 @@ void __init rockchip_clk_register_branches(
+ 		rockchip_clk_add_lookup(clk, list->id);
+ 	}
+ }
++
++static unsigned int reg_restart;
++static int rockchip_restart_notify(struct notifier_block *this,
++				   unsigned long mode, void *cmd)
++{
++	writel(0xfdb9, reg_base + reg_restart);
++	return NOTIFY_DONE;
++}
++
++static struct notifier_block rockchip_restart_handler =3D {
++	.notifier_call =3D rockchip_restart_notify,
++	.priority =3D 128,
++};
++
++void __init rockchip_register_restart_notifier(unsigned int reg)
++{
++	int ret;
++
++	reg_restart =3D reg;
++	ret =3D register_restart_handler(&rockchip_restart_handler);
++	if (ret)
++		pr_err("%s: cannot register restart handler, %d\n",
++		       __func__, ret);
++}
+diff --git a/drivers/clk/rockchip/clk.h b/drivers/clk/rockchip/clk.h
+index 887cbde..0b5eab5 100644
+--- a/drivers/clk/rockchip/clk.h
++++ b/drivers/clk/rockchip/clk.h
+@@ -329,6 +329,7 @@ void rockchip_clk_register_branches(struct rockchip=
+_clk_branch *clk_list,
+ 				    unsigned int nr_clk);
+ void rockchip_clk_register_plls(struct rockchip_pll_clock *pll_list,
+ 				unsigned int nr_pll, int grf_lock_offset);
++void rockchip_register_restart_notifier(unsigned int reg);
+=20
+ #define ROCKCHIP_SOFTRST_HIWORD_MASK	BIT(0)
+=20
+--=20
 1.9.1
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
