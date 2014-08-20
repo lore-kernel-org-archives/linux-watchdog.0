@@ -1,52 +1,30 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-la0-f52.google.com ([209.85.215.52]:43996 "EHLO
-	mail-la0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753099AbaHTUUQ (ORCPT
+Received: from mail-pd0-f182.google.com ([209.85.192.182]:60220 "EHLO
+	mail-pd0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752736AbaHTVbk (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 20 Aug 2014 16:20:16 -0400
-MIME-Version: 1.0
-In-Reply-To: <20140820201051.GA1745@roeck-us.net>
-References: <1408562806-22950-1-git-send-email-bobby.prani@gmail.com> <20140820201051.GA1745@roeck-us.net>
-From: Pranith Kumar <bobby.prani@gmail.com>
-Date: Wed, 20 Aug 2014 16:19:44 -0400
-Message-ID: <CAJhHMCAnda9rL6zrK2a7w1vjx_TbtFCab_C25jYf+XYAPGxJeg@mail.gmail.com>
-Subject: Re: [PATCH v2] powerpc: booke_wdt: Fix build error as a module
-To: Guenter Roeck <linux@roeck-us.net>
+	Wed, 20 Aug 2014 17:31:40 -0400
+Date: Wed, 20 Aug 2014 14:31:33 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Pranith Kumar <bobby.prani@gmail.com>
 Cc: Wim Van Sebroeck <wim@iguana.be>,
 	"open list:WATCHDOG DEVICE D..." <linux-watchdog@vger.kernel.org>,
 	open list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Subject: Re: [PATCH v2] powerpc: booke_wdt: Fix build error as a module
+Message-ID: <20140820213133.GA3738@roeck-us.net>
+References: <1408562806-22950-1-git-send-email-bobby.prani@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1408562806-22950-1-git-send-email-bobby.prani@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Aug 20, 2014 at 4:10 PM, Guenter Roeck <linux@roeck-us.net> wrote:
-> On Wed, Aug 20, 2014 at 03:26:46PM -0400, Pranith Kumar wrote:
->> Building booke_wdt fails when trying to build as a module as there is no
->> early_param() in module. Fix by using module_param() instead of early_param().
->>
->> Signed-off-by: Pranith Kumar <bobby.prani@gmail.com>
->> CC: Guenter Roeck <linux@roeck-us.net>
->
-> Looks good as far as I can see. One question though:
->
->> +MODULE_ALIAS("booke_wdt");
->
-> Is this necessary ? If yes, shouldn't it be a separate patch to be applied
-> to -stable ?
+On Wed, Aug 20, 2014 at 03:26:46PM -0400, Pranith Kumar wrote:
+> Building booke_wdt fails when trying to build as a module as there is no
+> early_param() in module. Fix by using module_param() instead of early_param().
+> 
+> Signed-off-by: Pranith Kumar <bobby.prani@gmail.com>
+> CC: Guenter Roeck <linux@roeck-us.net>
 
-Suppose this was actually built as a module. How do you pass the
-module parameters to this module? Only ways I know of are
-
-./insmod booke_wdt booke_wdt_enabled=1 booke_wdt_period=3
-
-or pass booke_wdt.booke_wdt_enabled=1 on the kernel boot params list.
-
-So the alias is necessary to refer to this module to pass params.
-
-About separate patch, I think it is only with conversion to
-module_param() that we need this alias.
-
-Am I missing something?
-
--- 
-Pranith
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
