@@ -1,10 +1,10 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f171.google.com ([209.85.192.171]:45963 "EHLO
-	mail-pd0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752475AbaHUSm6 (ORCPT
+Received: from mail-pa0-f54.google.com ([209.85.220.54]:50885 "EHLO
+	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753863AbaHUSpF (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 21 Aug 2014 14:42:58 -0400
-Date: Thu, 21 Aug 2014 11:42:54 -0700
+	Thu, 21 Aug 2014 14:45:05 -0400
+Date: Thu, 21 Aug 2014 11:45:01 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 To: Andreas Werner <andreas.werner@men.de>
 Cc: linux-kernel@vger.kernel.org, sameo@linux.intel.com,
@@ -12,22 +12,30 @@ Cc: linux-kernel@vger.kernel.org, sameo@linux.intel.com,
 	linux-watchdog@vger.kernel.org, cooloney@gmail.com,
 	rpurdie@rpsys.net, linux-leds@vger.kernel.org, jdelvare@suse.de,
 	lm-sensors@lm-sensors.org
-Subject: Re: [PATCH v4 2/4] drivers/watchdog/menf21bmc_wdt: introduce MEN
- 14F021P00 BMC Watchdog driver
-Message-ID: <20140821184254.GB16045@roeck-us.net>
+Subject: Re: [PATCH v4 4/4] drivers/hwmon/menf21bmc_hwmon: introduce
+ MEN14F021P00 BMC HWMON driver
+Message-ID: <20140821184501.GC16045@roeck-us.net>
 References: <cover.1407918792.git.andreas.werner@men.de>
- <af461d35d8e7e6300fd3bd2cb4e94f78d5445132.1407918792.git.andreas.werner@men.de>
+ <cf0593273cbadcb16b094b7bc3bd9d3b5a93f7ed.1407918792.git.andreas.werner@men.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <af461d35d8e7e6300fd3bd2cb4e94f78d5445132.1407918792.git.andreas.werner@men.de>
+In-Reply-To: <cf0593273cbadcb16b094b7bc3bd9d3b5a93f7ed.1407918792.git.andreas.werner@men.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Aug 13, 2014 at 10:39:59AM +0200, Andreas Werner wrote:
-> Added driver to support the 14F021P00 BMC Watchdog.
-> The BMC is a Board Management Controller including watchdog functionality.
+On Wed, Aug 13, 2014 at 10:40:37AM +0200, Andreas Werner wrote:
+> Added driver to support the 14F021P00 BMC Hardware Monitoring.
+> The BMC is a Board Management Controller including monitoring of the
+> board voltages.
 > 
 > Signed-off-by: Andreas Werner <andreas.werner@men.de>
+> ---
+>  drivers/hwmon/Kconfig           |   7 ++
+>  drivers/hwmon/Makefile          |   1 +
+>  drivers/hwmon/menf21bmc_hwmon.c | 238 ++++++++++++++++++++++++++++++++++++++++
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Forgot: Please also provide Documentation/hwmon/menf21bmc.
+
+Thanks,
+Guenter
