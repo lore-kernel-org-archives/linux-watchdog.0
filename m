@@ -1,39 +1,26 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f45.google.com ([209.85.220.45]:58178 "EHLO
+Received: from mail-pa0-f45.google.com ([209.85.220.45]:33283 "EHLO
 	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753239AbaHUTAp (ORCPT
+	with ESMTP id S1753800AbaHUTC3 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 21 Aug 2014 15:00:45 -0400
-Date: Thu, 21 Aug 2014 12:00:40 -0700
+	Thu, 21 Aug 2014 15:02:29 -0400
+Date: Thu, 21 Aug 2014 12:02:25 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Harini Katakam <harinik@xilinx.com>
-Cc: wim@iguana.be, grant.likely@linaro.org, robh+dt@kernel.org,
-	pawel.moll@arm.com, mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-	rob@landley.net, michals@xilinx.com,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-doc@vger.kernel.org,
-	harinikatakamlinux@gmail.com, svemula@xilinx.com,
-	anirudh@xilinx.com
-Subject: Re: [PATCH v4 2/2] devicetree: Add Cadence WDT devicetree bindings
- documentation
-Message-ID: <20140821190040.GB17481@roeck-us.net>
-References: <1406788855-19074-1-git-send-email-harinik@xilinx.com>
- <1406788855-19074-2-git-send-email-harinik@xilinx.com>
+To: Xiubo Li <Li.Xiubo@freescale.com>
+Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org
+Subject: Re: [PATCH] watchdog: imx2_wdt: Convert to use regmap framework's
+ endianness method.
+Message-ID: <20140821190225.GA8311@roeck-us.net>
+References: <1408349570-13979-1-git-send-email-Li.Xiubo@freescale.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1406788855-19074-2-git-send-email-harinik@xilinx.com>
+In-Reply-To: <1408349570-13979-1-git-send-email-Li.Xiubo@freescale.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Jul 31, 2014 at 12:10:55PM +0530, Harini Katakam wrote:
-> Add cadence-wdt bindings documentation.
-> 
-> Signed-off-by: Harini Katakam <harinik@xilinx.com>
+On Mon, Aug 18, 2014 at 04:12:50PM +0800, Xiubo Li wrote:
+> Signed-off-by: Xiubo Li <Li.Xiubo@freescale.com>
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
-I assume this will require an Ack from a DT maintainer.
-
-Guenter
