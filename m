@@ -1,41 +1,33 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f54.google.com ([209.85.220.54]:50885 "EHLO
-	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753863AbaHUSpF (ORCPT
+Received: from mail-pa0-f48.google.com ([209.85.220.48]:52616 "EHLO
+	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753302AbaHUS51 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 21 Aug 2014 14:45:05 -0400
-Date: Thu, 21 Aug 2014 11:45:01 -0700
+	Thu, 21 Aug 2014 14:57:27 -0400
+Date: Thu, 21 Aug 2014 11:57:22 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Andreas Werner <andreas.werner@men.de>
-Cc: linux-kernel@vger.kernel.org, sameo@linux.intel.com,
-	lee.jones@linaro.org, wim@iguana.be,
-	linux-watchdog@vger.kernel.org, cooloney@gmail.com,
-	rpurdie@rpsys.net, linux-leds@vger.kernel.org, jdelvare@suse.de,
-	lm-sensors@lm-sensors.org
-Subject: Re: [PATCH v4 4/4] drivers/hwmon/menf21bmc_hwmon: introduce
- MEN14F021P00 BMC HWMON driver
-Message-ID: <20140821184501.GC16045@roeck-us.net>
-References: <cover.1407918792.git.andreas.werner@men.de>
- <cf0593273cbadcb16b094b7bc3bd9d3b5a93f7ed.1407918792.git.andreas.werner@men.de>
+To: Harini Katakam <harinik@xilinx.com>
+Cc: wim@iguana.be, grant.likely@linaro.org, robh+dt@kernel.org,
+	pawel.moll@arm.com, mark.rutland@arm.com,
+	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+	rob@landley.net, michals@xilinx.com,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-doc@vger.kernel.org,
+	harinikatakamlinux@gmail.com, svemula@xilinx.com,
+	anirudh@xilinx.com
+Subject: Re: [PATCH v4 1/2] watchdog: Add Cadence WDT driver
+Message-ID: <20140821185722.GA17481@roeck-us.net>
+References: <1406788855-19074-1-git-send-email-harinik@xilinx.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <cf0593273cbadcb16b094b7bc3bd9d3b5a93f7ed.1407918792.git.andreas.werner@men.de>
+In-Reply-To: <1406788855-19074-1-git-send-email-harinik@xilinx.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Aug 13, 2014 at 10:40:37AM +0200, Andreas Werner wrote:
-> Added driver to support the 14F021P00 BMC Hardware Monitoring.
-> The BMC is a Board Management Controller including monitoring of the
-> board voltages.
+On Thu, Jul 31, 2014 at 12:10:54PM +0530, Harini Katakam wrote:
+> Add Cadence WDT driver. This is used by Xilinx Zynq.
 > 
-> Signed-off-by: Andreas Werner <andreas.werner@men.de>
-> ---
->  drivers/hwmon/Kconfig           |   7 ++
->  drivers/hwmon/Makefile          |   1 +
->  drivers/hwmon/menf21bmc_hwmon.c | 238 ++++++++++++++++++++++++++++++++++++++++
+> Signed-off-by: Harini Katakam <harinik@xilinx.com>
 
-Forgot: Please also provide Documentation/hwmon/menf21bmc.
-
-Thanks,
-Guenter
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
