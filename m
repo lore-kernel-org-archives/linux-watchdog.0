@@ -1,21 +1,12 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-vc0-f180.google.com ([209.85.220.180]:47468 "EHLO
-	mail-vc0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750769AbaHUEPL convert rfc822-to-8bit (ORCPT
+Received: from mail-pd0-f172.google.com ([209.85.192.172]:45620 "EHLO
+	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750982AbaHUEmg (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 21 Aug 2014 00:15:11 -0400
-Received: by mail-vc0-f180.google.com with SMTP id ij19so9942930vcb.25
-        for <linux-watchdog@vger.kernel.org>; Wed, 20 Aug 2014 21:15:10 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <1408495538-27480-12-git-send-email-linux@roeck-us.net>
-References: <1408495538-27480-1-git-send-email-linux@roeck-us.net>
-	<1408495538-27480-12-git-send-email-linux@roeck-us.net>
-Date: Wed, 20 Aug 2014 21:15:10 -0700
-Message-ID: <CAD=FV=U+WbodSLyQVQieiKkWNTBROCktJLgR9B8eOWZhGWYxgg@mail.gmail.com>
-Subject: Re: [PATCH v7 11/11] clk: rockchip: add restart handler
-From: Doug Anderson <dianders@chromium.org>
-To: Guenter Roeck <linux@roeck-us.net>,
-	Heiko Stuebner <heiko@sntech.de>
+	Thu, 21 Aug 2014 00:42:36 -0400
+Date: Wed, 20 Aug 2014 21:42:30 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Doug Anderson <dianders@chromium.org>
 Cc: Russell King <linux@arm.linux.org.uk>,
 	Wim Van Sebroeck <wim@iguana.be>,
 	Catalin Marinas <catalin.marinas@arm.com>,
@@ -28,6 +19,7 @@ Cc: Russell King <linux@arm.linux.org.uk>,
 	linux-samsung-soc <linux-samsung-soc@vger.kernel.org>,
 	Will Deacon <will.deacon@arm.com>,
 	Arnd Bergmann <arnd@arndb.de>,
+	Heiko Stuebner <heiko@sntech.de>,
 	Jonas Jensen <jonas.jensen@gmail.com>,
 	Randy Dunlap <rdunlap@infradead.org>,
 	Steven Rostedt <rostedt@goodmis.org>,
@@ -37,44 +29,39 @@ Cc: Russell King <linux@arm.linux.org.uk>,
 	Tomasz Figa <t.figa@samsung.com>,
 	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
 	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Subject: Re: [PATCH v7 02/11] power/restart: Call machine_restart instead of
+ arm_pm_restart
+Message-ID: <20140821044230.GA14609@roeck-us.net>
+References: <1408495538-27480-1-git-send-email-linux@roeck-us.net>
+ <1408495538-27480-3-git-send-email-linux@roeck-us.net>
+ <CAD=FV=Va8UrpDCLjFQJ6j-K0C3v7NPfifaJGtReCkUEu3x0mLg@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAD=FV=Va8UrpDCLjFQJ6j-K0C3v7NPfifaJGtReCkUEu3x0mLg@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Guenter / Heiko,
+On Wed, Aug 20, 2014 at 09:10:31PM -0700, Doug Anderson wrote:
+> Guenter,
+> 
+> On Tue, Aug 19, 2014 at 5:45 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+> > machine_restart is supported on non-ARM platforms, and and ultimately calls
+> > arm_pm_restart, so dont call arm_pm_restart directly but use the more
+> > generic function.
+> >
+> > Cc: Russell King <linux@arm.linux.org.uk>
+> 
+> Do you need to submit this to his patch tracker to get him to pick it
+> up?  How are you envisioning that this series land?  It crosses a lot
+> of boundaries so I guess will need a reasonable amount of coordination
+> between maintainers...
+> 
+> 
+If I get an Acked-by: from all maintainers, I could send a pull request
+to Linus directly. How do I send a patch to Russell's patch tracker ?
+I thought I copied all mailing lists suggested by get_maintainer.pl,
+but maybe I missed one.
 
-On Tue, Aug 19, 2014 at 5:45 PM, Guenter Roeck <linux@roeck-us.net> wro=
-te:
-> From: Heiko St=C3=BCbner <heiko@sntech.de>
->
-> Add infrastructure to write the correct value to the restart register=
- and
-> register the restart notifier for both rk3188 (including rk3066) and =
-rk3288.
->
-> Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> ---
-> v7: Added patch to series.
->
->  drivers/clk/rockchip/clk-rk3188.c |  2 ++
->  drivers/clk/rockchip/clk-rk3288.c |  2 ++
->  drivers/clk/rockchip/clk.c        | 25 +++++++++++++++++++++++++
->  drivers/clk/rockchip/clk.h        |  1 +
->  4 files changed, 30 insertions(+)
-
-This patch doesn't apply cleanly with the in-flight (clk: rockchip:
-protect critical clocks from getting disabled) patch from Heiko.  It's
-trivial to resolve and unclear which will land first, so I think it's
-fine...
-
-Reviewed-by: Doug Anderson <dianders@chromium.org>
-Tested-by: Doug Anderson <dianders@chromium.org>
-
-(FYI: all patches tested by me were tested on rk3288-evb)
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks,
+Guenter
