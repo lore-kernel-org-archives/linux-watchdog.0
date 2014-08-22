@@ -1,32 +1,22 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-vc0-f174.google.com ([209.85.220.174]:54677 "EHLO
-	mail-vc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753665AbaHUTap (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 21 Aug 2014 15:30:45 -0400
-Received: by mail-vc0-f174.google.com with SMTP id la4so11279349vcb.19
-        for <linux-watchdog@vger.kernel.org>; Thu, 21 Aug 2014 12:30:44 -0700 (PDT)
+Received: from cantor2.suse.de ([195.135.220.15]:51431 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755420AbaHVBcu (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 21 Aug 2014 21:32:50 -0400
+Message-ID: <53F69DBA.4070806@suse.de>
+Date: Fri, 22 Aug 2014 03:32:42 +0200
+From: =?ISO-8859-15?Q?Andreas_F=E4rber?= <afaerber@suse.de>
 MIME-Version: 1.0
-In-Reply-To: <20140821044230.GA14609@roeck-us.net>
-References: <1408495538-27480-1-git-send-email-linux@roeck-us.net>
-	<1408495538-27480-3-git-send-email-linux@roeck-us.net>
-	<CAD=FV=Va8UrpDCLjFQJ6j-K0C3v7NPfifaJGtReCkUEu3x0mLg@mail.gmail.com>
-	<20140821044230.GA14609@roeck-us.net>
-Date: Thu, 21 Aug 2014 12:30:44 -0700
-Message-ID: <CAD=FV=XMBegDcPWM+sG4S64ZC6KEzKA-ykpEJrcGo2db+P0VLg@mail.gmail.com>
-Subject: Re: [PATCH v7 02/11] power/restart: Call machine_restart instead of arm_pm_restart
-From: Doug Anderson <dianders@chromium.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Russell King <linux@arm.linux.org.uk>,
+To: Guenter Roeck <linux@roeck-us.net>,
+	Doug Anderson <dianders@chromium.org>
+CC: Russell King <linux@arm.linux.org.uk>,
 	Wim Van Sebroeck <wim@iguana.be>,
 	Catalin Marinas <catalin.marinas@arm.com>,
 	Maxime Ripard <maxime.ripard@free-electrons.com>,
 	Andrew Morton <akpm@linux-foundation.org>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-	linux-samsung-soc <linux-samsung-soc@vger.kernel.org>,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org,
+	linux-samsung-soc@vger.kernel.org,
 	Will Deacon <will.deacon@arm.com>,
 	Arnd Bergmann <arnd@arndb.de>,
 	Heiko Stuebner <heiko@sntech.de>,
@@ -36,39 +26,91 @@ Cc: Russell King <linux@arm.linux.org.uk>,
 	Ingo Molnar <mingo@kernel.org>,
 	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
 	David Woodhouse <dwmw2@infradead.org>,
-	Tomasz Figa <t.figa@samsung.com>,
-	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
+	Tomasz Figa <t.figa@samsung.com>, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v7 04/11] arm: Support restart through restart handler
+ call chain
+References: <1408495538-27480-1-git-send-email-linux@roeck-us.net> <1408495538-27480-5-git-send-email-linux@roeck-us.net>
+In-Reply-To: <1408495538-27480-5-git-send-email-linux@roeck-us.net>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Guenter,
+Hi,
 
-On Wed, Aug 20, 2014 at 9:42 PM, Guenter Roeck <linux@roeck-us.net> wrote:
-> On Wed, Aug 20, 2014 at 09:10:31PM -0700, Doug Anderson wrote:
->> Guenter,
->>
->> On Tue, Aug 19, 2014 at 5:45 PM, Guenter Roeck <linux@roeck-us.net> wrote:
->> > machine_restart is supported on non-ARM platforms, and and ultimately calls
->> > arm_pm_restart, so dont call arm_pm_restart directly but use the more
->> > generic function.
->> >
->> > Cc: Russell King <linux@arm.linux.org.uk>
->>
->> Do you need to submit this to his patch tracker to get him to pick it
->> up?  How are you envisioning that this series land?  It crosses a lot
->> of boundaries so I guess will need a reasonable amount of coordination
->> between maintainers...
->>
->>
-> If I get an Acked-by: from all maintainers, I could send a pull request
-> to Linus directly. How do I send a patch to Russell's patch tracker ?
-> I thought I copied all mailing lists suggested by get_maintainer.pl,
-> but maybe I missed one.
+Am 20.08.2014 02:45, schrieb Guenter Roeck:
+> The kernel core now supports a restart handler call chain for system
+> restart functions.
+>=20
+> With this change, the arm_pm_restart callback is now optional, so
+> drop its initialization and check if it is set before calling it.
+> Only call the kernel restart handler if arm_pm_restart is not set.
+[...]
+> diff --git a/arch/arm/kernel/process.c b/arch/arm/kernel/process.c
+> index 81ef686..ea279f7 100644
+> --- a/arch/arm/kernel/process.c
+> +++ b/arch/arm/kernel/process.c
+> @@ -114,17 +114,13 @@ void soft_restart(unsigned long addr)
+>  	BUG();
+>  }
+> =20
+> -static void null_restart(enum reboot_mode reboot_mode, const char *c=
+md)
+> -{
+> -}
+> -
+>  /*
+>   * Function pointers to optional machine specific functions
+>   */
+>  void (*pm_power_off)(void);
+>  EXPORT_SYMBOL(pm_power_off);
+> =20
+> -void (*arm_pm_restart)(enum reboot_mode reboot_mode, const char *cmd=
+) =3D null_restart;
+> +void (*arm_pm_restart)(enum reboot_mode reboot_mode, const char *cmd=
+);
 
-Ah, OK.  Perhaps it's best to ignore me, then.  ;)  FYI: Russell's
-Patch System is at <http://www.arm.linux.org.uk/developer/patches/>
-and is used for getting individual patches into branches maintained by
-Russel.  If you're just going to send a pull request for the series
-then I don't think you need it.
+Stupid newbie question maybe, but isn't this variable uninitialized now=
+,
+like any non-static variable in C99? Or does the kernel assure that all
+such "fields" are zero-initialized?
+
+>  EXPORT_SYMBOL_GPL(arm_pm_restart);
+
+(This doesn't seem to be affecting the value of arm_pm_restart, just
+redeclaring it extern and adding further derived symbols.)
+
+> =20
+>  /*
+> @@ -230,7 +226,10 @@ void machine_restart(char *cmd)
+>  	local_irq_disable();
+>  	smp_send_stop();
+> =20
+> -	arm_pm_restart(reboot_mode, cmd);
+> +	if (arm_pm_restart)
+
+Here we seem to be relying on arm_pm_restart to be NULL when not
+callable. I.e., wondering whether it's ruled out that the following lin=
+e
+is triggered due to non-zero garbage in arm_pm_restart?
+
+Thanks,
+Andreas
+
+> +		arm_pm_restart(reboot_mode, cmd);
+> +	else
+> +		do_kernel_restart(cmd);
+> =20
+>  	/* Give a grace period for failure to restart of 1s */
+>  	mdelay(1000);
+
+--=20
+SUSE LINUX Products GmbH, Maxfeldstr. 5, 90409 N=FCrnberg, Germany
+GF: Jeff Hawn, Jennifer Guild, Felix Imend=F6rffer; HRB 16746 AG N=FCrn=
+berg
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
