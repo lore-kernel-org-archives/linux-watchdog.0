@@ -1,85 +1,66 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:50058 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750957AbaHWRL4 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 23 Aug 2014 13:11:56 -0400
-Message-ID: <53F8CB55.5030209@suse.de>
-Date: Sat, 23 Aug 2014 19:11:49 +0200
-From: =?ISO-8859-1?Q?Andreas_F=E4rber?= <afaerber@suse.de>
+Received: from mail.active-venture.com ([67.228.131.205]:50231 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751373AbaHWRUV (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Sat, 23 Aug 2014 13:20:21 -0400
+Message-ID: <53F8CD4F.7030609@roeck-us.net>
+Date: Sat, 23 Aug 2014 10:20:15 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-To: Guenter Roeck <linux@roeck-us.net>
-CC: Heiko Stuebner <heiko@sntech.de>, linux-doc@vger.kernel.org,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Tomasz Figa <t.figa@samsung.com>,
-	Will Deacon <will.deacon@arm.com>,
-	Doug Anderson <dianders@chromium.org>,
+To: Sebastian Reichel <sre@kernel.org>
+CC: Russell King <linux@arm.linux.org.uk>,
 	Wim Van Sebroeck <wim@iguana.be>,
-	Ingo Molnar <mingo@kernel.org>,
-	linux-samsung-soc@vger.kernel.org,
-	Russell King <linux@arm.linux.org.uk>,
-	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
-	linux-watchdog@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-	linux-pm@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
 	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	linux-arm-kernel@lists.infradead.org,
-	Randy Dunlap <rdunlap@infradead.org>,
-	linux-kernel@vger.kernel.org,
-	Jonas Jensen <jonas.jensen@gmail.com>,
 	Andrew Morton <akpm@linux-foundation.org>,
-	David Woodhouse <dwmw2@infradead.org>
-Subject: Re: [PATCH v7 04/11] arm: Support restart through restart handler
- call chain
-References: <1408495538-27480-1-git-send-email-linux@roeck-us.net> <1408495538-27480-5-git-send-email-linux@roeck-us.net> <53F69DBA.4070806@suse.de> <20140822021947.GA17788@roeck-us.net>
-In-Reply-To: <20140822021947.GA17788@roeck-us.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org,
+	linux-samsung-soc@vger.kernel.org,
+	Will Deacon <will.deacon@arm.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Heiko Stuebner <heiko@sntech.de>,
+	Jonas Jensen <jonas.jensen@gmail.com>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Ingo Molnar <mingo@kernel.org>,
+	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Tomasz Figa <t.figa@samsung.com>, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v7 02/11] power/restart: Call machine_restart instead
+ of arm_pm_restart
+References: <1408495538-27480-1-git-send-email-linux@roeck-us.net> <1408495538-27480-3-git-send-email-linux@roeck-us.net> <20140821203904.GA26620@earth.universe>
+In-Reply-To: <20140821203904.GA26620@earth.universe>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Am 22.08.2014 04:19, schrieb Guenter Roeck:
-> On Fri, Aug 22, 2014 at 03:32:42AM +0200, Andreas Färber wrote:
->> Am 20.08.2014 02:45, schrieb Guenter Roeck:
->>> The kernel core now supports a restart handler call chain for system
->>> restart functions.
->>>
->>> With this change, the arm_pm_restart callback is now optional, so
->>> drop its initialization and check if it is set before calling it.
->>> Only call the kernel restart handler if arm_pm_restart is not set.
->> [...]
->>> diff --git a/arch/arm/kernel/process.c b/arch/arm/kernel/process.c
->>> index 81ef686..ea279f7 100644
->>> --- a/arch/arm/kernel/process.c
->>> +++ b/arch/arm/kernel/process.c
->>> @@ -114,17 +114,13 @@ void soft_restart(unsigned long addr)
->>>  	BUG();
->>>  }
->>>  
->>> -static void null_restart(enum reboot_mode reboot_mode, const char *cmd)
->>> -{
->>> -}
->>> -
->>>  /*
->>>   * Function pointers to optional machine specific functions
->>>   */
->>>  void (*pm_power_off)(void);
->>>  EXPORT_SYMBOL(pm_power_off);
->>>  
->>> -void (*arm_pm_restart)(enum reboot_mode reboot_mode, const char *cmd) = null_restart;
->>> +void (*arm_pm_restart)(enum reboot_mode reboot_mode, const char *cmd);
+On 08/21/2014 01:39 PM, Sebastian Reichel wrote:
+> Hi,
+>
+> On Tue, Aug 19, 2014 at 05:45:29PM -0700, Guenter Roeck wrote:
+>> machine_restart is supported on non-ARM platforms, and and ultimately calls
+>> arm_pm_restart, so dont call arm_pm_restart directly but use the more
+>> generic function.
 >>
->> Stupid newbie question maybe, but isn't this variable uninitialized now,
->> like any non-static variable in C99? Or does the kernel assure that all
->> such "fields" are zero-initialized?
->>
-> It is initialized with NULL, like all other global and static variables in the
-> kernel (and like pm_power_off a few lines above).
+>> Cc: Russell King <linux@arm.linux.org.uk>
+>> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+>> Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+>> Acked-by: Heiko Stuebner <heiko@sntech.de>
+>
+> Acked-by: Sebastian Reichel <sre@kernel.org>
+>
+> Do you want me to take the patch via battery-2.6.git?
+>
 
-Thanks for the explanation. In that case FWIW
+Hi Sebastian,
 
-Reviewed-by: Andreas Färber <afaerber@suse.de>
+thanks a lot for the Ack. I am not sure if it is better to submit all
+patches together or through individual maintainer trees. Let's wait for
+Andrew's suggestion how we should proceed.
 
-Andreas
+Thanks,
+Guenter
 
--- 
-SUSE LINUX Products GmbH, Maxfeldstr. 5, 90409 Nürnberg, Germany
-GF: Jeff Hawn, Jennifer Guild, Felix Imendörffer; HRB 16746 AG Nürnberg
