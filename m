@@ -1,45 +1,60 @@
-Return-Path: <shc_work@mail.ru>
-From: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
-To: =?UTF-8?B?R3VlbnRlciBSb2Vjaw==?= <linux@roeck-us.net>
-Cc: =?UTF-8?B?RXZnZW55IEJvZ2Vy?= <boger@contactless.ru>,
-	linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: =?UTF-8?B?UmU6IFtQQVRDSF0gQWRkIHN1cHBvcnQgZm9yIGFsd2F5cyBlbmFibGVkIHdh?=
- =?UTF-8?B?dGNoZG9nIHRpbWVycw==?=
-Mime-Version: 1.0
-Date: Sat, 23 Aug 2014 21:25:02 +0400
-Reply-To: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
-Message-ID: <1408814702.730436497@f133.i.mail.ru>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: base64
-In-Reply-To: <53F8CC58.2030406@roeck-us.net>
-References: <1408236338-12555-1-git-send-email-boger@contactless.ru>
- <53F8CC58.2030406@roeck-us.net>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-Path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail.active-venture.com ([67.228.131.205]:65021 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751141AbaHWRdJ (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Sat, 23 Aug 2014 13:33:09 -0400
+Message-ID: <53F8D052.6060705@roeck-us.net>
+Date: Sat, 23 Aug 2014 10:33:06 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+MIME-Version: 1.0
+To: Alexander Shiyan <shc_work@mail.ru>
+CC: Evgeny Boger <boger@contactless.ru>,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add support for always enabled watchdog timers
+References: <1408236338-12555-1-git-send-email-boger@contactless.ru> <53F8CC58.2030406@roeck-us.net> <1408814702.730436497@f133.i.mail.ru>
+In-Reply-To: <1408814702.730436497@f133.i.mail.ru>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-U2F0LCAyMyBBdWcgMjAxNCAxMDoxNjowOCAtMDcwMCDQvtGCIEd1ZW50ZXIgUm9lY2sgPGxpbnV4
-QHJvZWNrLXVzLm5ldD46Cj4gT24gMDgvMTYvMjAxNCAwNTo0NSBQTSwgRXZnZW55IEJvZ2VyIHdy
-b3RlOgo+ID4gRnJvbTogRXZnZW55IEJvZ2VyIDxib2dlckBjb250YWN0bGVzcy5ydT4KPiA+Cj4g
-PiBBZGQgb3B0aW9uIHRvIHVzZSB3aXRoIHdhdGNoZG9nIHRpbWVycyB3aGljaCBhcmUgYWx3YXlz
-IGVuYWJsZWQKPiA+IGluIGhhcmR3YXJlLCBpLmUuIHRoZXJlIGlzIG5vIHdheSB0byBlbmFibGUv
-ZGlzYWJsZSBpdCB2aWEgR1BJTyBwaW4uCj4gPiBUaGUgZHJpdmVyIHdpbGwgc3RhcnQgcGluZ2lu
-ZyBXRFQgaW1tZWRpYXRlbHkgdXBvbiBsb2FkaW5nCj4gPiBhbmQgd2lsbCBjb250aW51ZSB0byBk
-byBzbyBldmVuIGFmdGVyIHN0b3BwaW5nIHRoZSB3YXRjaGRvZy4KPiA+Cj4gVGhlIGhlYWRsaW5l
-IG5lZWRzIGEgcmVmZXJlbmNlIHRvIHRoZSBhZmZlY3RlZCBkcml2ZXIuCj4gCj4gQWxzbywgcGxl
-YXNlIGNvcHkgdGhlIGR0IG1haWxpbmcgbGlzdCBhbmQgbWFpbnRhaW5lcnMuCj4gCj4gPiBTaWdu
-ZWQtb2ZmLWJ5OiBFdmdlbnkgQm9nZXIgPGJvZ2VyQGNvbnRhY3RsZXNzLnJ1Pgo+ID4gLS0tCj4g
-PiAgIC4uLi9kZXZpY2V0cmVlL2JpbmRpbmdzL3dhdGNoZG9nL2dwaW8td2R0LnR4dCAgICAgIHwg
-MTQgKysrKysrLQo+ID4gICBkcml2ZXJzL3dhdGNoZG9nL2dwaW9fd2R0LmMgICAgICAgICAgICAg
-ICAgICAgICAgICB8IDQ1ICsrKysrKysrKysrKysrKysrLS0tLS0KPiA+ICAgMiBmaWxlcyBjaGFu
-Z2VkLCA0OCBpbnNlcnRpb25zKCspLCAxMSBkZWxldGlvbnMoLSkKPiA+Cj4gPiBkaWZmIC0tZ2l0
-IGEvRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL3dhdGNoZG9nL2dwaW8td2R0LnR4
-dCBiL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy93YXRjaGRvZy9ncGlvLXdkdC50
-eHQKPiA+IGluZGV4IDM3YWZlYzEuLjFmOGNhNDYgMTAwNjQ0Cj4gPiAtLS0gYS9Eb2N1bWVudGF0
-aW9uL2RldmljZXRyZWUvYmluZGluZ3Mvd2F0Y2hkb2cvZ3Bpby13ZHQudHh0Cj4gPiArKysgYi9E
-b2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3Mvd2F0Y2hkb2cvZ3Bpby13ZHQudHh0Cj4g
-PiBAQCAtMTIsOCArMTIsMTEgQEAgUmVxdWlyZWQgUHJvcGVydGllczoKPiA+ICAgICAgIHRoZSBv
-cHBvc2l0ZSBsZXZlbCBkaXNhYmxlcyB0aGUgV0RULiBBY3RpdmUgbGV2ZWwgaXMgZGV0ZXJtaW5l
-ZAo+ID4gICAgICAgYnkgdGhlIEdQSU8gZmxhZ3MuCj4gPiAgIC0gaHdfbWFyZ2luX21zOiBNYXhp
-bXVtIHRpbWUgdG8gcmVzZXQgd2F0Y2hkb2cgY2lyY3VpdCAobWlsbGlzZWNvbmRzKS4KPiA+ICst
-IGFsd2F5cy1lbmFibGVkOiBVc2Ugd2l0aCB3YXRoZG9nIHRpbWVyIHdoaWNoIGlzIGFsd2F5cyBl
-bmFibGVkCiAKU2ltaWxhciB0byBOT1dBWU9VVD8KCi0tLQoK
+On 08/23/2014 10:25 AM, Alexander Shiyan wrote:
+> Sat, 23 Aug 2014 10:16:08 -0700 от Guenter Roeck <linux@roeck-us.net>:
+>> On 08/16/2014 05:45 PM, Evgeny Boger wrote:
+>>> From: Evgeny Boger <boger@contactless.ru>
+>>>
+>>> Add option to use with watchdog timers which are always enabled
+>>> in hardware, i.e. there is no way to enable/disable it via GPIO pin.
+>>> The driver will start pinging WDT immediately upon loading
+>>> and will continue to do so even after stopping the watchdog.
+>>>
+>> The headline needs a reference to the affected driver.
+>>
+>> Also, please copy the dt mailing list and maintainers.
+>>
+>>> Signed-off-by: Evgeny Boger <boger@contactless.ru>
+>>> ---
+>>>    .../devicetree/bindings/watchdog/gpio-wdt.txt      | 14 ++++++-
+>>>    drivers/watchdog/gpio_wdt.c                        | 45 +++++++++++++++++-----
+>>>    2 files changed, 48 insertions(+), 11 deletions(-)
+>>>
+>>> diff --git a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
+>>> index 37afec1..1f8ca46 100644
+>>> --- a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
+>>> +++ b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
+>>> @@ -12,8 +12,11 @@ Required Properties:
+>>>        the opposite level disables the WDT. Active level is determined
+>>>        by the GPIO flags.
+>>>    - hw_margin_ms: Maximum time to reset watchdog circuit (milliseconds).
+>>> +- always-enabled: Use with wathdog timer which is always enabled
+>
+> Similar to NOWAYOUT?
+>
+I think this one is different. NOWAYOUT is a software flag, while
+the flag here is supposed to mean that the hardware watchdog
+is always enabled and running, and can not be disabled. Or at least
+this is my understanding.
+
+Guenter
+
