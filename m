@@ -1,185 +1,118 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from gloria.sntech.de ([95.129.55.99]:42166 "EHLO gloria.sntech.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755263AbaHBUIZ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 2 Aug 2014 16:08:25 -0400
-From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
+Received: from mail.active-venture.com ([67.228.131.205]:61218 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751834AbaHXAR7 (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Sat, 23 Aug 2014 20:17:59 -0400
+Message-ID: <53F92F33.3040704@roeck-us.net>
+Date: Sat, 23 Aug 2014 17:17:55 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+MIME-Version: 1.0
+To: =?windows-1252?Q?Heiko_St=FCbner?= <heiko@sntech.de>
+CC: Andrew Morton <akpm@linux-foundation.org>,
+	Russell King <linux@arm.linux.org.uk>,
 	Wim Van Sebroeck <wim@iguana.be>,
 	Catalin Marinas <catalin.marinas@arm.com>,
 	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org,
+	linux-samsung-soc@vger.kernel.org,
 	Will Deacon <will.deacon@arm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Russell King <linux@arm.linux.org.uk>,
-	Jonas Jensen <jonas.jensen@gmail.com>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Ingo Molnar <mingo@kernel.org>,
-	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Tomasz Figa <t.figa@samsung.com>, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v5.1 10/7] clk: samsung: register restart handlers for s3c2412 and s3c2443
-Date: Sat, 02 Aug 2014 22:09:21 +0200
-Message-ID: <1958744.vT6OfYnboi@diego>
-In-Reply-To: <53D9010B.7070700@roeck-us.net>
-References: <1405668856-13738-1-git-send-email-linux@roeck-us.net> <53D8FCEA.9020506@roeck-us.net> <53D9010B.7070700@roeck-us.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+	Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v7 00/11] kernel: Add support for restart handler call
+ chain
+References: <1408495538-27480-1-git-send-email-linux@roeck-us.net> <20140823163505.GA25900@roeck-us.net> <1868939.JnM9WCSHq4@diego>
+In-Reply-To: <1868939.JnM9WCSHq4@diego>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-S3C2412, S3C2443 and their derivatives contain a special software-reset
-register in their system-controller.
+On 08/23/2014 04:00 PM, Heiko Stübner wrote:
+> Am Samstag, 23. August 2014, 09:35:05 schrieb Guenter Roeck:
+>> On Tue, Aug 19, 2014 at 05:45:27PM -0700, Guenter Roeck wrote:
+>>> Various drivers implement architecture and/or device specific means
+>>> to restart (reset) the system. Various mechanisms have been implemented
+>>> to support those schemes. The best known mechanism is arm_pm_restart,
+>>> which is a function pointer to be set either from platform specific code
+>>> or from drivers. Another mechanism is to use hardware watchdogs to issue
+>>> a reset; this mechanism is used if there is no other method available
+>>> to reset a board or system. Two examples are alim7101_wdt, which currently
+>>> uses the reboot notifier to trigger a reset, and moxart_wdt, which
+>>> registers the arm_pm_restart function. Several other restart drivers for
+>>> arm, all directly calling arm_pm_restart, are in the process of being
+>>> integrated into the kernel. All those drivers would benefit from the new
+>>> API.
+>>>
+>>> The existing mechanisms have a number of drawbacks. Typically only one
+>>> scheme to restart the system is supported (at least if arm_pm_restart is
+>>> used). At least in theory there can be multiple means to restart the
+>>> system, some of which may be less desirable (for example one mechanism
+>>> may only reset the CPU, while another may reset the entire system). Using
+>>> arm_pm_restart can also be racy if the function pointer is set from a
+>>> driver, as the driver may be in the process of being unloaded when
+>>> arm_pm_restart is called.
+>>> Using the reboot notifier is always racy, as it is unknown if and when
+>>> other functions using the reboot notifier have completed execution
+>>> by the time the watchdog fires.
+>>>
+>>> Introduce a system restart handler call chain to solve the described
+>>> problems. This call chain is expected to be executed from the
+>>> architecture specific machine_restart() function. Drivers providing
+>>> system restart functionality (such as the watchdog drivers mentioned
+>>> above) are expected to register with this call chain. By using the
+>>> priority field in the notifier block, callers can control restart handler
+>>> execution sequence and thus ensure that the restart handler with the
+>>> optimal restart capabilities for a given system is called first.
+>>>
+>>> Since the first revision of this patchset, a number of separate patch
+>>> submissions have been made which either depend on it or could make use of
+>>> it.
+>>>
+>>> http://www.spinics.net/linux/lists/arm-kernel/msg344796.html
+>>>
+>>> 	registers three notifiers.
+>>>
+>>> https://lkml.org/lkml/2014/7/8/962
+>>>
+>>> 	would benefit from it.
+>>>
+>>> Patch 1 of this series implements the restart handler function. Patches 2
+>>> and 3 implement calling the restart handler chain from arm and arm64
+>>> restart code.
+>>>
+>>> Patch 4 modifies the restart-poweroff driver to no longer call
+>>> arm_pm_restart directly but machine_restart. This is done to avoid
+>>> calling arm_pm_restart from more than one place. The change makes the
+>>> driver architecture independent, so it would be possible to drop the arm
+>>> dependency from its Kconfig entry.
+>>>
+>>> Patch 5 and 6 convert existing restart handlers in the watchdog subsystem
+>>> to use the restart handler. Patch 7 unexports arm_pm_restart to ensure
+>>> that no one gets the idea to implement a restart handler as module.
+>>>
+>>> The entire patch series, including additional patches depending on it,
+>>> is available from
+>>> https://git.kernel.org/cgit/linux/kernel/git/groeck/linux-staging.git/
+>>> in branch 'restart-staging'.
+>>
+>> Hi Andrew,
+>>
+>> I think this series is ready for upstream integration. Question now
+>> is how we should proceed to get it actually integrated.
+>>
+>> I can see a number of options:
+>> - You take patch #1, the rest goes in through maintainer trees.
+>
+> I don't think you can split the patches like this. Patch1 introduces
+> (un)register_restart_handler functions used by later patches in the series.
+> You therefore cannot really split the series, as otherwise you would get build
+> failures in the individual trees.
+>
+No, it would simply delay integration of the entire series by a release
+or two. First two patches go in first, then #3 and #4, then the rest.
 
-Therefore register a restart handler for those.
+I don't like that option too much either, but it is better than nothing.
 
-Tested on a s3c2416-based board, s3c2412 compile-tested.
-
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-[ Guenter Roeck: Updated to latest API version]
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
-changes since v5:
-- increase priority to 129, as all Samsung platforms can use the watchdog
-  reset, but it might be nice to use the more specialized reset method
-  where it is available.
-
- drivers/clk/samsung/clk-s3c2412.c | 29 +++++++++++++++++++++++++++++
- drivers/clk/samsung/clk-s3c2443.c | 19 +++++++++++++++++++
- 2 files changed, 48 insertions(+)
-
-diff --git a/drivers/clk/samsung/clk-s3c2412.c b/drivers/clk/samsung/clk-s3c2412.c
-index 23e4313..456439d 100644
---- a/drivers/clk/samsung/clk-s3c2412.c
-+++ b/drivers/clk/samsung/clk-s3c2412.c
-@@ -14,6 +14,7 @@
- #include <linux/of.h>
- #include <linux/of_address.h>
- #include <linux/syscore_ops.h>
-+#include <linux/reboot.h>
- 
- #include <dt-bindings/clock/s3c2412.h>
- 
-@@ -26,6 +27,7 @@
- #define CLKCON		0x0c
- #define CLKDIVN		0x14
- #define CLKSRC		0x1c
-+#define SWRST		0x30
- 
- /* list of PLLs to be registered */
- enum s3c2412_plls {
-@@ -204,6 +206,28 @@ struct samsung_clock_alias s3c2412_aliases[] __initdata = {
- 	ALIAS(MSYSCLK, NULL, "fclk"),
- };
- 
-+static int s3c2412_restart(struct notifier_block *this,
-+			   unsigned long mode, void *cmd)
-+{
-+	/* errata "Watch-dog/Software Reset Problem" specifies that
-+	 * this reset must be done with the SYSCLK sourced from
-+	 * EXTCLK instead of FOUT to avoid a glitch in the reset
-+	 * mechanism.
-+	 *
-+	 * See the watchdog section of the S3C2412 manual for more
-+	 * information on this fix.
-+	 */
-+
-+	__raw_writel(0x00, reg_base + CLKSRC);
-+	__raw_writel(0x533C2412, reg_base + SWRST);
-+	return NOTIFY_DONE;
-+}
-+
-+static struct notifier_block s3c2412_restart_handler = {
-+	.notifier_call = s3c2412_restart,
-+	.priority = 129,
-+};
-+
- /*
-  * fixed rate clocks generated outside the soc
-  * Only necessary until the devicetree-move is complete
-@@ -233,6 +257,7 @@ void __init s3c2412_common_clk_init(struct device_node *np, unsigned long xti_f,
- 				    unsigned long ext_f, void __iomem *base)
- {
- 	struct samsung_clk_provider *ctx;
-+	int ret;
- 	reg_base = base;
- 
- 	if (np) {
-@@ -265,6 +290,10 @@ void __init s3c2412_common_clk_init(struct device_node *np, unsigned long xti_f,
- 				   ARRAY_SIZE(s3c2412_aliases));
- 
- 	s3c2412_clk_sleep_init();
-+
-+	ret = register_restart_handler(&s3c2412_restart_handler);
-+	if (ret)
-+		pr_warn("cannot register restart handler, %d\n", ret);
- }
- 
- static void __init s3c2412_clk_init(struct device_node *np)
-diff --git a/drivers/clk/samsung/clk-s3c2443.c b/drivers/clk/samsung/clk-s3c2443.c
-index c4bbdab..3c35db7 100644
---- a/drivers/clk/samsung/clk-s3c2443.c
-+++ b/drivers/clk/samsung/clk-s3c2443.c
-@@ -14,6 +14,7 @@
- #include <linux/of.h>
- #include <linux/of_address.h>
- #include <linux/syscore_ops.h>
-+#include <linux/reboot.h>
- 
- #include <dt-bindings/clock/s3c2443.h>
- 
-@@ -33,6 +34,7 @@
- #define HCLKCON		0x30
- #define PCLKCON		0x34
- #define SCLKCON		0x38
-+#define SWRST		0x44
- 
- /* the soc types */
- enum supported_socs {
-@@ -354,6 +356,18 @@ struct samsung_clock_alias s3c2450_aliases[] __initdata = {
- 	ALIAS(PCLK_I2C1, "s3c2410-i2c.1", "i2c"),
- };
- 
-+static int s3c2443_restart(struct notifier_block *this,
-+			   unsigned long mode, void *cmd)
-+{
-+	__raw_writel(0x533c2443, reg_base + SWRST);
-+	return NOTIFY_DONE;
-+}
-+
-+static struct notifier_block s3c2443_restart_handler = {
-+	.notifier_call = s3c2443_restart,
-+	.priority = 129,
-+};
-+
- /*
-  * fixed rate clocks generated outside the soc
-  * Only necessary until the devicetree-move is complete
-@@ -378,6 +392,7 @@ void __init s3c2443_common_clk_init(struct device_node *np, unsigned long xti_f,
- 				    void __iomem *base)
- {
- 	struct samsung_clk_provider *ctx;
-+	int ret;
- 	reg_base = base;
- 
- 	if (np) {
-@@ -445,6 +460,10 @@ void __init s3c2443_common_clk_init(struct device_node *np, unsigned long xti_f,
- 	}
- 
- 	s3c2443_clk_sleep_init();
-+
-+	ret = register_restart_handler(&s3c2443_restart_handler);
-+	if (ret)
-+		pr_warn("cannot register restart handler, %d\n", ret);
- }
- 
- static void __init s3c2416_clk_init(struct device_node *np)
--- 
-2.0.1
-
+Guenter
 
