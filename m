@@ -1,113 +1,94 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-bn1blp0184.outbound.protection.outlook.com ([207.46.163.184]:26199
-	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1753519AbaHYHCE convert rfc822-to-8bit (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:35851 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753774AbaHYHZI (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 25 Aug 2014 03:02:04 -0400
-From: "Li.Xiubo@freescale.com" <Li.Xiubo@freescale.com>
-To: Markus Pargmann <mpa@pengutronix.de>,
-	Wim Van Sebroeck <wim@iguana.be>
-CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	Mon, 25 Aug 2014 03:25:08 -0400
+Date: Mon, 25 Aug 2014 09:24:55 +0200
+From: Markus Pargmann <mpa@pengutronix.de>
+To: "Li.Xiubo@freescale.com" <Li.Xiubo@freescale.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
 	"linux-arm-kernel@lists.infradead.org"
 	<linux-arm-kernel@lists.infradead.org>,
 	"kernel@pengutronix.de" <kernel@pengutronix.de>
-Subject: RE: [PATCH] watchdog: imx2_wdt: Remove seperate big endian handling
-Date: Mon, 25 Aug 2014 07:01:57 +0000
-Message-ID: <4b9a55951535433aada42332b08f664f@BY2PR0301MB0613.namprd03.prod.outlook.com>
+Subject: Re: [PATCH] watchdog: imx2_wdt: Remove seperate big endian handling
+Message-ID: <20140825072455.GB11914@pengutronix.de>
 References: <1408949015-28759-1-git-send-email-mpa@pengutronix.de>
-In-Reply-To: <1408949015-28759-1-git-send-email-mpa@pengutronix.de>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+ <4b9a55951535433aada42332b08f664f@BY2PR0301MB0613.namprd03.prod.outlook.com>
+ <20140825070550.GA11914@pengutronix.de>
+ <5d35f7c722e14022ba7db0221b9cfdb1@BY2PR0301MB0613.namprd03.prod.outlook.com>
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="WhfpMioaduB5tiZL"
+Content-Disposition: inline
+In-Reply-To: <5d35f7c722e14022ba7db0221b9cfdb1@BY2PR0301MB0613.namprd03.prod.outlook.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Markus,
 
-Thanks for your work.
+--WhfpMioaduB5tiZL
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-And there has already one patch for this:
+On Mon, Aug 25, 2014 at 07:11:36AM +0000, Li.Xiubo@freescale.com wrote:
+> > On Mon, Aug 25, 2014 at 07:01:57AM +0000, Li.Xiubo@freescale.com wrote:
+> > > Hi Markus,
+> > >
+> > > Thanks for your work.
+> > >
+> > > And there has already one patch for this:
+> > >
+> > > "watchdog: imx2_wdt: Convert to use regmap framework's endianness met=
+hod."
+> >=20
+> > Thanks didn't see this one.
+> >=20
+> > Best regards,
+> >=20
+> > Markus
+> >=20
+>=20
+> I also hoping for your comments about it if there has any problem.
 
-"watchdog: imx2_wdt: Convert to use regmap framework's endianness method."
+I just noticed that you added an include of of_address.h in your
+original patch:
+f728f4bfc495 (watchdog: imx2_wdt: adds big endianness support.)
 
-Thanks,
+But you don't remove the include in your current patch. Was the include
+missing in the driver?
 
-BRs
-Xiubo
+Best regards,
 
+Markus
 
+--=20
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
 
-> -----Original Message-----
-> From: Markus Pargmann [mailto:mpa@pengutronix.de]
-> Sent: Monday, August 25, 2014 2:44 PM
-> To: Wim Van Sebroeck
-> Cc: linux-watchdog@vger.kernel.org; linux-arm-kernel@lists.infradead.org;
-> kernel@pengutronix.de; Markus Pargmann; Xiubo Li-B47053
-> Subject: [PATCH] watchdog: imx2_wdt: Remove seperate big endian handling
-> 
-> 3.18 will contain a patch that handles endianess within the regmap
-> framework. It does not need any parsing of DT properties within the
-> driver, so we can savely remove it here.
-> The required mainline patch is
-> 	(regmap: add DT endianness binding support.)
-> 
-> Cc: Xiubo Li <Li.Xiubo@freescale.com>
-> Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
-> ---
-> Hi,
-> 
-> This is the topic branch with the patches which replace the functionality of
-> this code.
-> https://git.kernel.org/cgit/linux/kernel/git/broonie/regmap.git/log/?h=topic/d
-> t-endian
-> 
-> Best regards,
-> 
-> Markus
-> 
-> 
->  drivers/watchdog/imx2_wdt.c | 7 -------
->  1 file changed, 7 deletions(-)
-> 
-> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-> index 68c3d379ffa8..9d4874f09948 100644
-> --- a/drivers/watchdog/imx2_wdt.c
-> +++ b/drivers/watchdog/imx2_wdt.c
-> @@ -28,7 +28,6 @@
->  #include <linux/kernel.h>
->  #include <linux/module.h>
->  #include <linux/moduleparam.h>
-> -#include <linux/of_address.h>
->  #include <linux/platform_device.h>
->  #include <linux/regmap.h>
->  #include <linux/timer.h>
-> @@ -191,12 +190,10 @@ static struct regmap_config imx2_wdt_regmap_config = {
-> 
->  static int __init imx2_wdt_probe(struct platform_device *pdev)
->  {
-> -	struct device_node *np = pdev->dev.of_node;
->  	struct imx2_wdt_device *wdev;
->  	struct watchdog_device *wdog;
->  	struct resource *res;
->  	void __iomem *base;
-> -	bool big_endian;
->  	int ret;
->  	u32 val;
-> 
-> @@ -204,10 +201,6 @@ static int __init imx2_wdt_probe(struct platform_device
-> *pdev)
->  	if (!wdev)
->  		return -ENOMEM;
-> 
-> -	big_endian = of_property_read_bool(np, "big-endian");
-> -	if (big_endian)
-> -		imx2_wdt_regmap_config.val_format_endian = REGMAP_ENDIAN_BIG;
-> -
->  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->  	base = devm_ioremap_resource(&pdev->dev, res);
->  	if (IS_ERR(base))
-> --
-> 2.1.0.rc1
+--WhfpMioaduB5tiZL
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJT+uTGAAoJEEpcgKtcEGQQTyQQALhR0OFIybIueobYWT6ZBVlE
+gJEOulQpTwZ3TrtEmltkcJqAiqVGtW9xmDNDJIZ64P2fhaJdNYZT9wbj2sZceBMt
+xVgVwq3IU3ya2s7I69oGk94x7Me8BN+tRWSiAjK8NQBxHcoDyAhBqecSnu6OwaKH
+q5X6kpo0QJvNfeIL3gvENzWD/SPpJSeugBW1CW9h4JlTgxCgqMlu31MKCG/qJLHM
+HDMmy8GR8aoVYY+mN5tB34lkDx6y8Sncvp+fHZ8e8wTxzIhWImIG969hX5e1ruLS
+mdaR7CW5hKKAcTzzf6JiGrLdGwU2IHKlFVLUSE9PGRhCox0oULREbvPevgMjC1r3
+P1amJpFELc54v6EpzSDsrLXYPRH4Xh2EzNNShISSmVDCt5LkQgrBl/uVnZxkMepq
+CcpftuYP3qxzobd3GwDBbg/PlJX4iSW1P8geMfOE4ZY4UjSBJZ1YdvB6yzI2OX4Q
+3uwhNH8qeAEXQX49D2utUlPCOr0OuRBVLfNm8EbT3TqgguUwJ+g9wxEuAS+y7Bni
+ZuHu47Ubyi3aH9bdvy+wHrxcF8m2gDCOG+p8wFYQzoy7wdOl1bPXtbdtEM4ygLcm
+CRIMzIgY9d1t8FJGgBRu91QVNLeWGDb5fCC8NLUD4XAPIJzW7ojG25deLkgeDfv0
+3FSwSm34aGI6JxBRxPoq
+=i8iL
+-----END PGP SIGNATURE-----
+
+--WhfpMioaduB5tiZL--
