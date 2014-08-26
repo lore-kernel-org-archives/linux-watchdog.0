@@ -1,214 +1,313 @@
-Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f179.google.com ([209.85.192.179]:33801 "EHLO
-	mail-pd0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753068AbaHYTGE (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 25 Aug 2014 15:06:04 -0400
-Date: Mon, 25 Aug 2014 12:05:59 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Bryan Wu <cooloney@gmail.com>
-Cc: Andreas Werner <andreas.werner@men.de>,
-	lkml <linux-kernel@vger.kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Lee Jones <lee.jones@linaro.org>, wim@iguana.be,
+Return-Path: <mpa@pengutronix.de>
+From: Markus Pargmann <mpa@pengutronix.de>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Support Opensource <support.opensource@diasemi.com>,
+	Philipp Zabel <p.zabel@pengutronix.de>,
+	Guenter Roeck <linux@roeck-us.net>,
 	linux-watchdog@vger.kernel.org,
-	"rpurdie@rpsys.net" <rpurdie@rpsys.net>,
-	Linux LED Subsystem <linux-leds@vger.kernel.org>,
-	Jean Delvare <jdelvare@suse.de>, lm-sensors@lm-sensors.org
-Subject: Re: [PATCH v4 3/4] drivers/leds/leds-menf21bmc: introduce MEN
- 14F021P00 BMC LED driver
-Message-ID: <20140825190559.GA29112@roeck-us.net>
-References: <cover.1407918792.git.andreas.werner@men.de>
- <b3c6bc75345ba821572b22e05432960f7867bdbb.1407918792.git.andreas.werner@men.de>
- <CAK5ve-KCv=kfkJK-x5m1sFiSBVH9FMUys_tLw5Cup=3rHLZxYQ@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAK5ve-KCv=kfkJK-x5m1sFiSBVH9FMUys_tLw5Cup=3rHLZxYQ@mail.gmail.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+	linux-arm-kernel@lists.infradead.org,
+	kernel@pengutronix.de
+Subject: [PATCH v5] watchdog: Add DA9063 PMIC watchdog driver.
+Date: Tue, 26 Aug 2014 08:26:07 +0200
+Message-Id: <1409034367-15228-1-git-send-email-mpa@pengutronix.de>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Mon, Aug 25, 2014 at 11:53:32AM -0700, Bryan Wu wrote:
-> On Wed, Aug 13, 2014 at 1:40 AM, Andreas Werner <andreas.werner@men.de> wrote:
-> > Added driver to support the 14F021P00 BMC LEDs.
-> > The BMC is a Board Management Controller including four LEDs which
-> > can be switched on and off.
-> >
-> > Signed-off-by: Andreas Werner <andreas.werner@men.de>
-> > ---
-> >  drivers/leds/Kconfig          |   6 ++
-> >  drivers/leds/Makefile         |   1 +
-> >  drivers/leds/leds-menf21bmc.c | 131 ++++++++++++++++++++++++++++++++++++++++++
-> >  3 files changed, 138 insertions(+)
-> >  create mode 100644 drivers/leds/leds-menf21bmc.c
-> >
-> > diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
-> > index 27cf0cd..d38ff3f 100644
-> > --- a/drivers/leds/Kconfig
-> > +++ b/drivers/leds/Kconfig
-> > @@ -458,6 +458,12 @@ config LEDS_OT200
-> >           This option enables support for the LEDs on the Bachmann OT200.
-> >           Say Y to enable LEDs on the Bachmann OT200.
-> >
-> > +config LEDS_MENF21BMC
-> > +       tristate "LED support for the MEN 14F021P00 BMC"
-> > +       depends on LEDS_CLASS && MFD_MENF21BMC
-> > +       help
-> > +         Say Y here to include support for the MEN 14F021P00 BMC LEDs.
-> > +
-> >  comment "LED driver for blink(1) USB RGB LED is under Special HID drivers (HID_THINGM)"
-> >
-> >  config LEDS_BLINKM
-> > diff --git a/drivers/leds/Makefile b/drivers/leds/Makefile
-> > index 3c03666..cadc433 100644
-> > --- a/drivers/leds/Makefile
-> > +++ b/drivers/leds/Makefile
-> > @@ -53,6 +53,7 @@ obj-$(CONFIG_LEDS_MAX8997)            += leds-max8997.o
-> >  obj-$(CONFIG_LEDS_LM355x)              += leds-lm355x.o
-> >  obj-$(CONFIG_LEDS_BLINKM)              += leds-blinkm.o
-> >  obj-$(CONFIG_LEDS_VERSATILE)           += leds-versatile.o
-> > +obj-$(CONFIG_LEDS_MENF21BMC)           += leds-menf21bmc.o
-> >
-> >  # LED SPI Drivers
-> >  obj-$(CONFIG_LEDS_DAC124S085)          += leds-dac124s085.o
-> > diff --git a/drivers/leds/leds-menf21bmc.c b/drivers/leds/leds-menf21bmc.c
-> > new file mode 100644
-> > index 0000000..4621f72
-> > --- /dev/null
-> > +++ b/drivers/leds/leds-menf21bmc.c
-> > @@ -0,0 +1,131 @@
-> > +/*
-> > + *  MEN 14F021P00 Board Management Controller (BMC) LEDs Driver.
-> > + *
-> > + *  This is the core LED driver of the MEN 14F021P00 BMC.
-> > + *  There are four LEDs available which can be switched on and off.
-> > + *  STATUS LED, HOT SWAP LED, USER LED 1, USER LED 2
-> > + *
-> > + *  Copyright (C) 2014 MEN Mikro Elektronik Nuernberg GmbH
-> > + *
-> > + *  This program is free software; you can redistribute  it and/or modify it
-> > + *  under  the terms of  the GNU General  Public License as published by the
-> > + *  Free Software Foundation;  either version 2 of the  License, or (at your
-> > + *  option) any later version.
-> > + */
-> > +
-> > +#include <linux/module.h>
-> > +#include <linux/kernel.h>
-> > +#include <linux/platform_device.h>
-> > +#include <linux/leds.h>
-> > +#include <linux/i2c.h>
-> > +
-> > +#define BMC_CMD_LED_GET_SET    0xA0
-> > +#define BMC_BIT_LED_STATUS     BIT(0)
-> > +#define BMC_BIT_LED_HOTSWAP    BIT(1)
-> > +#define BMC_BIT_LED_USER1      BIT(2)
-> > +#define BMC_BIT_LED_USER2      BIT(3)
-> > +
-> > +struct menf21bmc_led {
-> > +       struct led_classdev cdev;
-> > +       u8 led_bit;
-> > +       const char *name;
-> > +       struct i2c_client *i2c_client;
-> > +};
-> > +
-> > +static struct menf21bmc_led leds[] = {
-> > +       {
-> > +               .name = "menf21bmc:led_status",
-> > +               .led_bit = BMC_BIT_LED_STATUS,
-> > +       },
-> > +       {
-> > +               .name = "menf21bmc:led_hotswap",
-> > +               .led_bit = BMC_BIT_LED_HOTSWAP,
-> > +       },
-> > +       {
-> > +               .name = "menf21bmc:led_user1",
-> > +               .led_bit = BMC_BIT_LED_USER1,
-> > +       },
-> > +       {
-> > +               .name = "menf21bmc:led_user2",
-> > +               .led_bit = BMC_BIT_LED_USER2,
-> > +       }
-> > +};
-> > +
-> > +static DEFINE_MUTEX(led_lock);
-> > +
-> > +static void
-> > +menf21bmc_led_set(struct led_classdev *led_cdev, enum led_brightness value)
-> > +{
-> > +       int led_val;
-> > +       struct menf21bmc_led *led = container_of(led_cdev,
-> > +                                       struct menf21bmc_led, cdev);
-> > +
-> > +       mutex_lock(&led_lock);
-> > +       led_val = i2c_smbus_read_byte_data(led->i2c_client,
-> > +                                               BMC_CMD_LED_GET_SET);
-> > +       if (led_val < 0)
-> > +               goto err_out;
-> > +
-> > +       if (value == LED_OFF)
-> > +               led_val &= ~led->led_bit;
-> > +       else
-> > +               led_val |= led->led_bit;
-> > +
-> > +       i2c_smbus_write_byte_data(led->i2c_client,
-> > +                                       BMC_CMD_LED_GET_SET, led_val);
-> > +err_out:
-> > +       mutex_unlock(&led_lock);
-> > +}
-> > +
-> > +static int menf21bmc_led_probe(struct platform_device *pdev)
-> > +{
-> > +       int i;
-> > +       int ret;
-> > +       struct i2c_client *i2c_client = to_i2c_client(pdev->dev.parent);
-> > +
-> > +       for (i = 0; i < ARRAY_SIZE(leds); i++) {
-> > +               leds[i].cdev.name = leds[i].name;
-> > +               leds[i].cdev.brightness_set = menf21bmc_led_set;
-> > +               leds[i].i2c_client = i2c_client;
-> > +               ret = led_classdev_register(&pdev->dev, &leds[i].cdev);
-> > +               if (ret < 0)
-> > +                       goto err_free_leds;
-> > +       }
-> > +       dev_info(&pdev->dev, "MEN 140F21P00 BMC LED device enabled\n");
-> > +
-> > +       return 0;
-> > +
-> > +err_free_leds:
-> > +       dev_err(&pdev->dev, "failed to register LED device\n");
-> > +
-> > +       for (i = i - 1; i >= 0; i--)
-> > +               led_classdev_unregister(&leds[i].cdev);
-> > +
-> > +       return ret;
-> > +}
-> > +
-> > +static int menf21bmc_led_remove(struct platform_device *pdev)
-> > +{
-> > +       int i;
-> > +
-> > +       for (i = 0; i < ARRAY_SIZE(leds); i++)
-> > +               led_classdev_unregister(&leds[i].cdev);
-> > +
-> > +       return 0;
-> > +}
-> > +
-> > +static struct platform_driver menf21bmc_led = {
-> > +       .probe          = menf21bmc_led_probe,
-> > +       .remove         = menf21bmc_led_remove,
-> > +       .driver         = {
-> > +               .name           = "menf21bmc_led",
-> > +               .owner          = THIS_MODULE,
-> > +       },
-> > +};
-> > +
-> 
-> I still think this driver should be an I2C driver which is simply than
-> a platform driver.
-> Did I miss some discussion about this in our email?
-> 
-It is not possible to instantiate multiple drivers (watchdog, hwmon, led
-in this case) with a single i2c chip.
+From: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
 
-Thanks,
-Guenter
+This driver supports the watchdog device inside the DA9063 PMIC.
+
+Signed-off-by: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
+---
+
+Notes:
+    Changes in v5:
+     - Kconfig: Add note about the module name.
+     - Change selector variables to int
+     - Style fixes
+     - use unsigned int to remove gcc verbose warning
+     - Integrate _kick() and _disable() into the calling functions
+    
+    Changes in v4:
+     - Fixed indentation
+     - Fixed lock without unlock
+     - Check for parent device and device driver data in probe(). If not present,
+       this is an invalid prober initialization, return -EINVAL.
+    
+    Changes in v3:
+     - Cleanup error handling for timeout selection and setting
+     - Fix race condition due to late wdt drvdata setup
+     - Remove static struct watchdog_device. It is not initialized in the probe
+       function
+     - Use WATCHDOG_NOWAYOUT_INIT_STATUS for the status
+     - Remove 0 shift using DA9063_TWDSCALE_SHIFT
+
+ drivers/watchdog/Kconfig      |   9 ++
+ drivers/watchdog/Makefile     |   1 +
+ drivers/watchdog/da9063_wdt.c | 222 ++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 232 insertions(+)
+ create mode 100644 drivers/watchdog/da9063_wdt.c
+
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index c845527b503a..a92cbd7dce87 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -87,6 +87,15 @@ config DA9055_WATCHDOG
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called da9055_wdt.
+ 
++config DA9063_WATCHDOG
++	tristate "Dialog DA9063 Watchdog"
++	depends on MFD_DA9063
++	select WATCHDOG_CORE
++	help
++	  Support for the watchdog in the DA9063 PMIC.
++
++	  This driver can be built as a module. The module name is da9063_wdt.
++
+ config GPIO_WATCHDOG
+ 	tristate "Watchdog device controlled through GPIO-line"
+ 	depends on OF_GPIO
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 7b8a91ed20e7..ce4a7632d863 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -172,6 +172,7 @@ obj-$(CONFIG_XEN_WDT) += xen_wdt.o
+ # Architecture Independent
+ obj-$(CONFIG_DA9052_WATCHDOG) += da9052_wdt.o
+ obj-$(CONFIG_DA9055_WATCHDOG) += da9055_wdt.o
++obj-$(CONFIG_DA9063_WATCHDOG) += da9063_wdt.o
+ obj-$(CONFIG_GPIO_WATCHDOG)	+= gpio_wdt.o
+ obj-$(CONFIG_WM831X_WATCHDOG) += wm831x_wdt.o
+ obj-$(CONFIG_WM8350_WATCHDOG) += wm8350_wdt.o
+diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
+new file mode 100644
+index 000000000000..b03b0a5b6f8b
+--- /dev/null
++++ b/drivers/watchdog/da9063_wdt.c
+@@ -0,0 +1,222 @@
++/*
++ * Watchdog driver for DA9063 PMICs.
++ *
++ * Copyright(c) 2012 Dialog Semiconductor Ltd.
++ *
++ * Author: Mariusz Wojtasik <mariusz.wojtasik@diasemi.com>
++ *
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/watchdog.h>
++#include <linux/platform_device.h>
++#include <linux/uaccess.h>
++#include <linux/slab.h>
++#include <linux/delay.h>
++#include <linux/mfd/da9063/registers.h>
++#include <linux/mfd/da9063/core.h>
++#include <linux/regmap.h>
++
++/*
++ * Watchdog selector to timeout in seconds.
++ *   0: WDT disabled;
++ *   others: timeout = 2048 ms * 2^(TWDSCALE-1).
++ */
++static const int wdt_timeout[] = { 0, 2, 4, 8, 16, 32, 65, 131 };
++#define DA9063_TWDSCALE_DISABLE		0
++#define DA9063_TWDSCALE_MIN		1
++#define DA9063_TWDSCALE_MAX		(ARRAY_SIZE(wdt_timeout) - 1)
++#define DA9063_WDT_MIN_TIMEOUT		wdt_timeout[DA9063_TWDSCALE_MIN]
++#define DA9063_WDT_MAX_TIMEOUT		wdt_timeout[DA9063_TWDSCALE_MAX]
++#define DA9063_WDG_TIMEOUT		wdt_timeout[3]
++
++struct da9063_watchdog {
++	struct da9063 *da9063;
++	struct watchdog_device wdtdev;
++	struct mutex lock;
++};
++
++static int da9063_wdt_timeout_to_sel(int secs)
++{
++	unsigned int i;
++
++	for (i = DA9063_TWDSCALE_MIN; i <= DA9063_TWDSCALE_MAX; i++) {
++		if (wdt_timeout[i] >= secs)
++			return i;
++	}
++
++	return -EINVAL;
++}
++
++static int _da9063_wdt_set_timeout(struct da9063 *da9063, unsigned int regval)
++{
++	return regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
++			DA9063_TWDSCALE_MASK, regval);
++}
++
++static int da9063_wdt_start(struct watchdog_device *wdd)
++{
++	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
++	int selector;
++	int ret;
++
++	selector = da9063_wdt_timeout_to_sel(wdt->wdtdev.timeout);
++	if (selector < 0) {
++		dev_err(wdt->da9063->dev, "Timeout out of range (timeout=%d)\n",
++				wdt->wdtdev.timeout);
++		return selector;
++	}
++
++	mutex_lock(&wdt->lock);
++	ret = _da9063_wdt_set_timeout(wdt->da9063, selector);
++	if (ret) {
++		dev_err(wdt->da9063->dev, "Watchdog failed to start (err = %d)\n",
++				ret);
++	}
++	mutex_unlock(&wdt->lock);
++
++	return ret;
++}
++
++static int da9063_wdt_stop(struct watchdog_device *wdd)
++{
++	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
++	int ret;
++
++	mutex_lock(&wdt->lock);
++	ret = regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
++			DA9063_TWDSCALE_MASK,
++			DA9063_TWDSCALE_DISABLE);
++	if (ret)
++		dev_alert(wdt->da9063->dev, "Watchdog failed to stop (err = %d)\n",
++				ret);
++	mutex_unlock(&wdt->lock);
++
++	return ret;
++}
++
++static int da9063_wdt_ping(struct watchdog_device *wdd)
++{
++	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
++	int ret;
++
++	mutex_lock(&wdt->lock);
++	ret = regmap_write(wdt->da9063->regmap, DA9063_REG_CONTROL_F,
++			DA9063_WATCHDOG);
++	if (ret)
++		dev_alert(wdt->da9063->dev, "Failed to ping the watchdog (err = %d)\n",
++				ret);
++	mutex_unlock(&wdt->lock);
++
++	return ret;
++}
++
++static int da9063_wdt_set_timeout(struct watchdog_device *wdd,
++		unsigned int timeout)
++{
++	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
++	int selector;
++	int ret;
++
++	selector = da9063_wdt_timeout_to_sel(timeout);
++	if (selector < 0) {
++		dev_err(wdt->da9063->dev,
++				"Unsupported watchdog timeout, should be between 2 and 131\n");
++		return -EINVAL;
++	}
++
++	mutex_lock(&wdt->lock);
++
++	ret = _da9063_wdt_set_timeout(wdt->da9063, selector);
++	if (ret)
++		dev_err(wdt->da9063->dev, "Failed to set watchdog timeout (err = %d)\n",
++				ret);
++	else
++		wdd->timeout = wdt_timeout[selector];
++
++	mutex_unlock(&wdt->lock);
++
++	return ret;
++}
++
++static const struct watchdog_info da9063_watchdog_info = {
++	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
++	.identity = "DA9063 Watchdog",
++};
++
++static const struct watchdog_ops da9063_watchdog_ops = {
++	.owner = THIS_MODULE,
++	.start = da9063_wdt_start,
++	.stop = da9063_wdt_stop,
++	.ping = da9063_wdt_ping,
++	.set_timeout = da9063_wdt_set_timeout,
++};
++
++static int da9063_wdt_probe(struct platform_device *pdev)
++{
++	int ret;
++	struct da9063 *da9063;
++	struct da9063_watchdog *wdt;
++
++	if (!pdev->dev.parent)
++		return -EINVAL;
++
++	da9063 = dev_get_drvdata(pdev->dev.parent);
++	if (!da9063)
++		return -EINVAL;
++
++	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
++	if (!wdt)
++		return -ENOMEM;
++
++	wdt->da9063 = da9063;
++	mutex_init(&wdt->lock);
++
++	wdt->wdtdev.info = &da9063_watchdog_info;
++	wdt->wdtdev.ops = &da9063_watchdog_ops;
++	wdt->wdtdev.min_timeout = DA9063_WDT_MIN_TIMEOUT;
++	wdt->wdtdev.max_timeout = DA9063_WDT_MAX_TIMEOUT;
++	wdt->wdtdev.timeout = DA9063_WDG_TIMEOUT;
++
++	wdt->wdtdev.status = WATCHDOG_NOWAYOUT_INIT_STATUS;
++
++	watchdog_set_drvdata(&wdt->wdtdev, wdt);
++	dev_set_drvdata(&pdev->dev, wdt);
++
++	ret = watchdog_register_device(&wdt->wdtdev);
++	if (ret) {
++		dev_err(da9063->dev, "da9063-watchdog registration failed (err = %d)",
++				ret);
++		return ret;
++	}
++
++	return 0;
++}
++
++static int da9063_wdt_remove(struct platform_device *pdev)
++{
++	struct da9063_watchdog *wdt = dev_get_drvdata(&pdev->dev);
++
++	watchdog_unregister_device(&wdt->wdtdev);
++
++	return 0;
++}
++
++static struct platform_driver da9063_wdt_driver = {
++	.probe = da9063_wdt_probe,
++	.remove = da9063_wdt_remove,
++	.driver = {
++		.name = DA9063_DRVNAME_WATCHDOG,
++	},
++};
++module_platform_driver(da9063_wdt_driver);
++
++MODULE_AUTHOR("Mariusz Wojtasik <mariusz.wojtasik@diasemi.com>");
++MODULE_DESCRIPTION("Watchdog driver for Dialog DA9063");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:" DA9063_DRVNAME_WATCHDOG);
+-- 
+2.1.0.rc1
