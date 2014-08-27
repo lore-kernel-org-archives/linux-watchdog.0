@@ -1,10 +1,10 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mezzanine.sirena.org.uk ([106.187.55.193]:35416 "EHLO
+Received: from mezzanine.sirena.org.uk ([106.187.55.193]:35449 "EHLO
 	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751421AbaH0HIj (ORCPT
+	with ESMTP id S1751085AbaH0HZm (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 27 Aug 2014 03:08:39 -0400
-Date: Wed, 27 Aug 2014 08:08:26 +0100
+	Wed, 27 Aug 2014 03:25:42 -0400
+Date: Wed, 27 Aug 2014 08:25:25 +0100
 From: Mark Brown <broonie@kernel.org>
 To: Beniamino Galvani <b.galvani@gmail.com>
 Cc: linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
@@ -19,48 +19,54 @@ Cc: linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
 	Kumar Gala <galak@codeaurora.org>,
 	Grant Likely <grant.likely@linaro.org>,
 	Carlo Caione <carlo@caione.org>
-Message-ID: <20140827070826.GP17528@sirena.org.uk>
+Message-ID: <20140827072525.GR17528@sirena.org.uk>
 References: <1409091237-16722-1-git-send-email-b.galvani@gmail.com>
- <1409091237-16722-5-git-send-email-b.galvani@gmail.com>
+ <1409091237-16722-3-git-send-email-b.galvani@gmail.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="U0u+fYXQgj+TwTlT"
+	protocol="application/pgp-signature"; boundary="u1od66ChgEppm9WP"
 Content-Disposition: inline
-In-Reply-To: <1409091237-16722-5-git-send-email-b.galvani@gmail.com>
-Subject: Re: [PATCH 4/4] mfd: rn5t618: document device tree bindings
+In-Reply-To: <1409091237-16722-3-git-send-email-b.galvani@gmail.com>
+Subject: Re: [PATCH 2/4] regulator: add driver for Ricoh RN5T618 regulators
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 
---U0u+fYXQgj+TwTlT
+--u1od66ChgEppm9WP
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Wed, Aug 27, 2014 at 12:13:57AM +0200, Beniamino Galvani wrote:
-> This adds the device tree bindings documentation for Ricoh RN5T618.
+On Wed, Aug 27, 2014 at 12:13:55AM +0200, Beniamino Galvani wrote:
+> This driver supports the 3 DCDC and 7 LDO regulators available on
+> Ricoh RN5T618 PMIC.
 
-Reviwed-by: Mark Brown <broonie@linaro.org>
+>  drivers/regulator/rn5t618-regulator.c |  143 +++++++++++++++++++++++++++++++++
+>  include/linux/mfd/rn5t618.h           |   14 ++++
 
---U0u+fYXQgj+TwTlT
+This is fine but I can't apply it since you're patching the MFD header
+which you added in the first patch.  It'd be better to include those
+changes in the first patch, making the second patch independant.
+
+--u1od66ChgEppm9WP
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQIcBAEBAgAGBQJT/YPnAAoJELSic+t+oim9MwAP/RzNc6KnqhRzLiMqYnbx4jC7
-tszSrfdesKDpy/zscgShMKgZjeOFDwbQ204KjjnAaTB1wj7mORYIGRxQf+UivH1P
-odV19lAu6P7O3AxNz7zb2tinyr9z1Ms+gqxoN/L/FPtVuBGABwW2GJ8JlmE7ehKQ
-BvQY6U3yJusBTfsAgSXb+e5C5mNIp+YV3uA7XGSjjHD++gngEsFq8HcSL9eURpNY
-RlCaBboIO+MqJ/hWtWf3wUaTt9rY6vg5XlIDxQvIscku4DZx/o4lJOBMqB7UVtYe
-xdLMN/Cny2mWWkjgkT1IxCNFQ8osCYWbmPiHlxJymYArD8UaFmtK3LvNSBC27VjJ
-i5F9qM+W0TfXej0+NrHhJmq4Mv6K3UJiDwdDpEyxSauVdQutDAkhsZ/UVlM0u7tR
-so1HfKh//CvsFR7ImMj+1y2ZC4+Kx172t2yjaWQXLCvnWQz4RVsC0fbBmPndw2yz
-b/2OqalXkMr3IOZNWO53Bj4J0+FYzZNIvZKA3PCQbi+mjUTGf/q/D5c9CzoiqImb
-fmklufTNbncCAQgNjRq8O/C/aFEJjqYWrVr1v9+xR6BAA/duCmkV2yUAyGSgrTlm
-6XPROOTqWQChRe589hqwA/zarYCTia9bcm8psCaPd+AdZ+WHj+y8EkJOnFy6Y2kj
-hoIylNRT5xi97H5dyTVk
-=AUjw
+iQIcBAEBAgAGBQJT/YfhAAoJELSic+t+oim9VUMQAJ5PilvsShTs6PycuR9zTE8V
+cD/MTuo0RGBCyn00HMiE61CfZiwPZaQtzzKOS/52eU65uc/gfZDXLkqVF4niUUOm
+zARbBwdBlHnIx48rHs2g/gwg6A7zQG6Wud+m+0OsDnSPwy2z5mjwRckx/P/pZAin
+VJaU2BlRBjIyvzyTJd21CsENAC3Z2mVWP5Xd0sCcoGlGZzSqNGvhxBp2jsMeJ+hQ
+YoEIbrMwKt6d0Wl7H7KslY5YWRDZ+aGIgMaYAa5fNrWA8dBg/fGjPUkrVUNVyMVx
+5GPknhnBqngl1GR7mnRwAuZZ9Ndu3EDBVcVNMDawtmLHA0l42xJqyAMqlbgn+u5n
+xbmN/aSv4MLgTixAX44T+LvX3vvptBgaFFhFUoAeeULOvym0xozXO8R/C+cj/8we
+Cf3Rj8bnQV03T3WH41++D7po6C8tMSyQl5C8z2oES3abZzy80HVYnW5BzXab1PnR
+hfLSp7W/KDLyObFXf33aOh/W4rmywPJc58I3M0T2P84rzCYtWFWh8eTuv4zuS1KH
+hzVDq2/pSTUJu4IA5yJPKz5E6Q6hshDeJCVYb6mAXk59zqgAF4dnXue5HyngjvcV
+z3xvZr+T65DwTDHY38jPXVIuIo8lOl7QZN1XYtu+ku5iTiHb3glMRT0MnOh2OwXK
+zY33P6OWWM0MNhrRCylE
+=pe5C
 -----END PGP SIGNATURE-----
 
---U0u+fYXQgj+TwTlT--
+--u1od66ChgEppm9WP--
