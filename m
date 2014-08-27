@@ -1,15 +1,15 @@
 Return-Path: <Andreas.Werner@men.de>
 Return-Path: <Andreas.Werner@men.de>
-Date: Wed, 27 Aug 2014 19:53:06 +0200
+Date: Wed, 27 Aug 2014 19:52:06 +0200
 From: Andreas Werner <andreas.werner@men.de>
 To: <linux-kernel@vger.kernel.org>
 CC: <sameo@linux.intel.com>, <lee.jones@linaro.org>, <linux@roeck-us.net>,
 	<lm-sensors@lm-sensors.org>, <wim@iguana.be>,
 	<linux-watchdog@vger.kernel.org>, <cooloney@gmail.com>, <rpurdie@rpsys.net>,
 	<linux-leds@vger.kernel.org>
-Subject: [PATCH v6 4/4] drivers/hwmon/menf21bmc_hwmon: introduce MEN14F021P00
- BMC HWMON driver
-Message-ID: <65074740dfc6363134384b45fcd3acf5f2b4254f.1409161615.git.andreas.werner@men.de>
+Subject: [PATCH v6 2/4] drivers/watchdog/menf21bmc_wdt: introduce MEN
+ 14F021P00 BMC Watchdog driver
+Message-ID: <f21b275c79866e0aa9bbc59e195ae5424e538300.1409161615.git.andreas.werner@men.de>
 References: <cover.1409161615.git.andreas.werner@men.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -17,121 +17,55 @@ Content-Disposition: inline
 In-Reply-To: <cover.1409161615.git.andreas.werner@men.de>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Added driver to support the 14F021P00 BMC Hardware Monitoring.
-The BMC is a Board Management Controller including monitoring of the
-board voltages.
+Added driver to support the 14F021P00 BMC Watchdog.
+The BMC is a Board Management Controller including watchdog functionality.
 
 Signed-off-by: Andreas Werner <andreas.werner@men.de>
 ---
- Documentation/hwmon/menf21bmc   |  50 +++++++++
- drivers/hwmon/Kconfig           |  10 ++
- drivers/hwmon/Makefile          |   1 +
- drivers/hwmon/menf21bmc_hwmon.c | 230 ++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 291 insertions(+)
- create mode 100644 Documentation/hwmon/menf21bmc
- create mode 100644 drivers/hwmon/menf21bmc_hwmon.c
+ drivers/watchdog/Kconfig         |  10 ++
+ drivers/watchdog/Makefile        |   1 +
+ drivers/watchdog/menf21bmc_wdt.c | 203 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 214 insertions(+)
+ create mode 100644 drivers/watchdog/menf21bmc_wdt.c
 
-diff --git a/Documentation/hwmon/menf21bmc b/Documentation/hwmon/menf21bmc
-new file mode 100644
-index 0000000..2a273a0
---- /dev/null
-+++ b/Documentation/hwmon/menf21bmc
-@@ -0,0 +1,50 @@
-+Kernel driver menf21bmc_hwmon
-+=============================
-+
-+Supported chips:
-+	* MEN 14F021P00
-+	  Prefix: 'menf21bmc_hwmon'
-+	  Adresses scanned: -
-+
-+Author: Andreas Werner <andreas.werner@men.de>
-+
-+Description
-+-----------
-+
-+The menf21bmc is a Board Management Controller (BMC) which provides an I2C
-+interface to the host to access the features implemented in the BMC.
-+
-+This driver gives access to the voltage monitoring feature of the main
-+voltages of the board.
-+The voltage sensors are connected to the ADC inputs of the BMC which is
-+a PIC16F917 Mikrocontroller.
-+
-+Usage Notes
-+-----------
-+
-+This driver is part of the MFD driver named "menf21bmc" and does
-+not auto-detect devices.
-+You will have to instantiate the MFD driver explicitly.
-+Please see Documentation/i2c/instantiating-devices for
-+details.
-+
-+Sysfs entries
-+-------------
-+
-+The following attributes are supported. All attributes are read only
-+The Limits are read once by the driver.
-+
-+in0_input	+3.3V input voltage
-+in1_input	+5.0V input voltage
-+in2_input	+12.0V input voltage
-+in3_input	+5V Standby input voltage
-+in4_input	VBAT (on board battery)
-+
-+in[0-4]_min	Minimum voltage limit
-+in[0-4]_max	Maximum voltage limit
-+
-+in0_label	"MON_3_3V"
-+in1_label	"MON_5V"
-+in2_label	"MON_12V"
-+in3_label	"5V_STANDBY"
-+in4_label	"VBAT"
-diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
-index 37908ff..1063d73 100644
---- a/drivers/hwmon/Kconfig
-+++ b/drivers/hwmon/Kconfig
-@@ -828,6 +828,16 @@ config SENSORS_MCP3021
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called mcp3021.
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 76dd541..96d72c2 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -95,6 +95,16 @@ config GPIO_WATCHDOG
+ 	  If you say yes here you get support for watchdog device
+ 	  controlled through GPIO-line.
  
-+config SENSORS_MENF21BMC_HWMON
-+	tristate "MEN 14F021P00 BMC Hardware Monitoring"
++config MENF21BMC_WATCHDOG
++	tristate "MEN 14F021P00 BMC Watchdog"
 +	depends on MFD_MENF21BMC
++	select WATCHDOG_CORE
 +	help
-+	  Say Y here to include support for the MEN 14F021P00 BMC
-+	  hardware monitoring.
++	  Say Y here to include support for the MEN 14F021P00 BMC Watchdog.
 +
 +	  This driver can also be built as a module. If so the module
-+	  will be called menf21bmc_hwmon.
++	  will be called menf21bmc_wdt.
 +
- config SENSORS_ADCXX
- 	tristate "National Semiconductor ADCxxxSxxx"
- 	depends on SPI_MASTER
-diff --git a/drivers/hwmon/Makefile b/drivers/hwmon/Makefile
-index 1362382..56ab872 100644
---- a/drivers/hwmon/Makefile
-+++ b/drivers/hwmon/Makefile
-@@ -114,6 +114,7 @@ obj-$(CONFIG_SENSORS_MAX6650)	+= max6650.o
- obj-$(CONFIG_SENSORS_MAX6697)	+= max6697.o
- obj-$(CONFIG_SENSORS_MC13783_ADC)+= mc13783-adc.o
- obj-$(CONFIG_SENSORS_MCP3021)	+= mcp3021.o
-+obj-$(CONFIG_SENSORS_MENF21BMC_HWMON) += menf21bmc_hwmon.o
- obj-$(CONFIG_SENSORS_NCT6683)	+= nct6683.o
- obj-$(CONFIG_SENSORS_NCT6775)	+= nct6775.o
- obj-$(CONFIG_SENSORS_NTC_THERMISTOR)	+= ntc_thermistor.o
-diff --git a/drivers/hwmon/menf21bmc_hwmon.c b/drivers/hwmon/menf21bmc_hwmon.c
+ config WM831X_WATCHDOG
+ 	tristate "WM831x watchdog"
+ 	depends on MFD_WM831X
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 468c320..de17014 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -178,3 +178,4 @@ obj-$(CONFIG_WM831X_WATCHDOG) += wm831x_wdt.o
+ obj-$(CONFIG_WM8350_WATCHDOG) += wm8350_wdt.o
+ obj-$(CONFIG_MAX63XX_WATCHDOG) += max63xx_wdt.o
+ obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
++obj-$(CONFIG_MENF21BMC_WATCHDOG) += menf21bmc_wdt.o
+diff --git a/drivers/watchdog/menf21bmc_wdt.c b/drivers/watchdog/menf21bmc_wdt.c
 new file mode 100644
-index 0000000..c92229d
+index 0000000..2042874
 --- /dev/null
-+++ b/drivers/hwmon/menf21bmc_hwmon.c
-@@ -0,0 +1,230 @@
++++ b/drivers/watchdog/menf21bmc_wdt.c
+@@ -0,0 +1,203 @@
 +/*
-+ *  MEN 14F021P00 Board Management Controller (BMC) hwmon driver.
-+ *
-+ *  This is the core hwmon driver of the MEN 14F021P00 BMC.
-+ *  The BMC monitors the board voltages which can be access with this
-+ *  driver through sysfs.
++ *  MEN 14F021P00 Board Management Controller (BMC) Watchdog Driver.
 + *
 + *  Copyright (C) 2014 MEN Mikro Elektronik Nuernberg GmbH
 + *
@@ -141,220 +75,197 @@ index 0000000..c92229d
 + *  option) any later version.
 + */
 +
-+#include <linux/module.h>
 +#include <linux/kernel.h>
++#include <linux/device.h>
++#include <linux/module.h>
++#include <linux/watchdog.h>
 +#include <linux/platform_device.h>
-+#include <linux/hwmon.h>
-+#include <linux/hwmon-sysfs.h>
-+#include <linux/jiffies.h>
-+#include <linux/slab.h>
 +#include <linux/i2c.h>
 +
-+#define DRV_NAME  "menf21bmc_hwmon"
++#define DEVNAME "menf21bmc_wdt"
 +
-+#define BMC_VOLT_COUNT	5
-+#define MENF21BMC_V33	0
-+#define MENF21BMC_V5	1
-+#define MENF21BMC_V12	2
-+#define MENF21BMC_V5_SB	3
-+#define MENF21BMC_VBAT	4
++#define BMC_CMD_WD_ON		0x11
++#define BMC_CMD_WD_OFF		0x12
++#define BMC_CMD_WD_TRIG		0x13
++#define BMC_CMD_WD_TIME		0x14
++#define BMC_CMD_WD_STATE	0x17
++#define BMC_WD_OFF_VAL		0x69
++#define BMC_CMD_RST_RSN		0x92
 +
-+#define IDX_TO_VOLT_MIN_CMD(idx) (0x40 + idx)
-+#define IDX_TO_VOLT_MAX_CMD(idx) (0x50 + idx)
-+#define IDX_TO_VOLT_INP_CMD(idx) (0x60 + idx)
++#define BMC_WD_TIMEOUT_MIN	1	/* in sec */
++#define BMC_WD_TIMEOUT_MAX	6553	/* in sec */
 +
-+struct menf21bmc_hwmon {
-+	bool valid;
++static bool nowayout = WATCHDOG_NOWAYOUT;
++module_param(nowayout, bool, 0);
++MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
++				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++
++struct menf21bmc_wdt {
++	struct watchdog_device wdt;
 +	struct i2c_client *i2c_client;
-+	unsigned long last_update;
-+	int in_val[BMC_VOLT_COUNT];
-+	int in_min[BMC_VOLT_COUNT];
-+	int in_max[BMC_VOLT_COUNT];
 +};
 +
-+static const char *const input_names[] = {
-+	[MENF21BMC_V33]		= "MON_3_3V",
-+	[MENF21BMC_V5]		= "MON_5V",
-+	[MENF21BMC_V12]		= "MON_12V",
-+	[MENF21BMC_V5_SB]	= "5V_STANDBY",
-+	[MENF21BMC_VBAT]	= "VBAT"
-+};
-+
-+static struct menf21bmc_hwmon *menf21bmc_hwmon_update(struct device *dev)
++static int menf21bmc_wdt_set_bootstatus(struct menf21bmc_wdt *data)
 +{
-+	int i;
-+	int val;
-+	struct menf21bmc_hwmon *drv_data = dev_get_drvdata(dev);
-+	struct menf21bmc_hwmon *data_ret = drv_data;
++	int rst_rsn;
 +
-+	if (time_after(jiffies, drv_data->last_update + HZ)
-+	    || !drv_data->valid) {
-+		for (i = 0; i < BMC_VOLT_COUNT; i++) {
-+			val = i2c_smbus_read_word_data(drv_data->i2c_client,
-+						       IDX_TO_VOLT_INP_CMD(i));
-+			if (val < 0) {
-+				data_ret = ERR_PTR(val);
-+				goto abort;
-+			}
-+			drv_data->in_val[i] = val;
-+		}
-+		drv_data->last_update = jiffies;
-+		drv_data->valid = true;
-+	}
-+abort:
-+	return data_ret;
-+}
++	rst_rsn = i2c_smbus_read_byte_data(data->i2c_client, BMC_CMD_RST_RSN);
++	if (rst_rsn < 0)
++		return rst_rsn;
 +
-+static int menf21bmc_hwmon_get_volt_limits(struct menf21bmc_hwmon *drv_data)
-+{
-+	int i, val;
++	if (rst_rsn == 0x02)
++		data->wdt.bootstatus |= WDIOF_CARDRESET;
++	else if (rst_rsn == 0x05)
++		data->wdt.bootstatus |= WDIOF_EXTERN1;
++	else if (rst_rsn == 0x06)
++		data->wdt.bootstatus |= WDIOF_EXTERN2;
++	else if (rst_rsn == 0x0A)
++		data->wdt.bootstatus |= WDIOF_POWERUNDER;
 +
-+	for (i = 0; i < BMC_VOLT_COUNT; i++) {
-+		val = i2c_smbus_read_word_data(drv_data->i2c_client,
-+					       IDX_TO_VOLT_MIN_CMD(i));
-+		if (val < 0)
-+			return val;
-+
-+		drv_data->in_min[i] = val;
-+
-+		val = i2c_smbus_read_word_data(drv_data->i2c_client,
-+					       IDX_TO_VOLT_MAX_CMD(i));
-+		if (val < 0)
-+			return val;
-+
-+		drv_data->in_max[i] = val;
-+	}
 +	return 0;
 +}
 +
-+static ssize_t
-+show_label(struct device *dev, struct device_attribute *devattr, char *buf)
++static int menf21bmc_wdt_start(struct watchdog_device *wdt)
 +{
-+	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
++	struct menf21bmc_wdt *drv_data = watchdog_get_drvdata(wdt);
 +
-+	return sprintf(buf, "%s\n", input_names[attr->index]);
++	return i2c_smbus_write_byte(drv_data->i2c_client, BMC_CMD_WD_ON);
 +}
 +
-+static ssize_t
-+show_in(struct device *dev, struct device_attribute *devattr, char *buf)
++static int menf21bmc_wdt_stop(struct watchdog_device *wdt)
 +{
-+	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
-+	struct menf21bmc_hwmon *drv_data = menf21bmc_hwmon_update(dev);
++	struct menf21bmc_wdt *drv_data = watchdog_get_drvdata(wdt);
 +
-+	if (IS_ERR(drv_data))
-+		return PTR_ERR(drv_data);
-+
-+	return sprintf(buf, "%d\n", drv_data->in_val[attr->index]);
++	return i2c_smbus_write_byte_data(drv_data->i2c_client,
++					 BMC_CMD_WD_OFF, BMC_WD_OFF_VAL);
 +}
 +
-+static ssize_t
-+show_min(struct device *dev, struct device_attribute *devattr, char *buf)
-+{
-+	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
-+	struct menf21bmc_hwmon *drv_data = dev_get_drvdata(dev);
-+
-+	return sprintf(buf, "%d\n", drv_data->in_min[attr->index]);
-+}
-+
-+static ssize_t
-+show_max(struct device *dev, struct device_attribute *devattr, char *buf)
-+{
-+	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
-+	struct menf21bmc_hwmon *drv_data = dev_get_drvdata(dev);
-+
-+	return sprintf(buf, "%d\n", drv_data->in_max[attr->index]);
-+}
-+
-+#define create_voltage_sysfs(idx)			\
-+static SENSOR_DEVICE_ATTR(in##idx##_input, S_IRUGO,	\
-+			show_in, NULL, idx);		\
-+static SENSOR_DEVICE_ATTR(in##idx##_min, S_IRUGO,	\
-+			show_min, NULL, idx);		\
-+static SENSOR_DEVICE_ATTR(in##idx##_max, S_IRUGO,	\
-+			show_max, NULL, idx);		\
-+static SENSOR_DEVICE_ATTR(in##idx##_label, S_IRUGO,	\
-+			show_label, NULL, idx);
-+
-+create_voltage_sysfs(0);
-+create_voltage_sysfs(1);
-+create_voltage_sysfs(2);
-+create_voltage_sysfs(3);
-+create_voltage_sysfs(4);
-+
-+static struct attribute *menf21bmc_hwmon_attrs[] = {
-+	&sensor_dev_attr_in0_input.dev_attr.attr,
-+	&sensor_dev_attr_in0_min.dev_attr.attr,
-+	&sensor_dev_attr_in0_max.dev_attr.attr,
-+	&sensor_dev_attr_in0_label.dev_attr.attr,
-+
-+	&sensor_dev_attr_in1_input.dev_attr.attr,
-+	&sensor_dev_attr_in1_min.dev_attr.attr,
-+	&sensor_dev_attr_in1_max.dev_attr.attr,
-+	&sensor_dev_attr_in1_label.dev_attr.attr,
-+
-+	&sensor_dev_attr_in2_input.dev_attr.attr,
-+	&sensor_dev_attr_in2_min.dev_attr.attr,
-+	&sensor_dev_attr_in2_max.dev_attr.attr,
-+	&sensor_dev_attr_in2_label.dev_attr.attr,
-+
-+	&sensor_dev_attr_in3_input.dev_attr.attr,
-+	&sensor_dev_attr_in3_min.dev_attr.attr,
-+	&sensor_dev_attr_in3_max.dev_attr.attr,
-+	&sensor_dev_attr_in3_label.dev_attr.attr,
-+
-+	&sensor_dev_attr_in4_input.dev_attr.attr,
-+	&sensor_dev_attr_in4_min.dev_attr.attr,
-+	&sensor_dev_attr_in4_max.dev_attr.attr,
-+	&sensor_dev_attr_in4_label.dev_attr.attr,
-+	NULL
-+};
-+
-+ATTRIBUTE_GROUPS(menf21bmc_hwmon);
-+
-+static int menf21bmc_hwmon_probe(struct platform_device *pdev)
++static int
++menf21bmc_wdt_settimeout(struct watchdog_device *wdt, unsigned int timeout)
 +{
 +	int ret;
-+	struct menf21bmc_hwmon *drv_data;
-+	struct i2c_client *i2c_client = to_i2c_client(pdev->dev.parent);
-+	struct device *hwmon_dev;
++	struct menf21bmc_wdt *drv_data = watchdog_get_drvdata(wdt);
 +
-+	drv_data = devm_kzalloc(&pdev->dev, sizeof(struct menf21bmc_hwmon),
-+				GFP_KERNEL);
++	/*
++	 *  BMC Watchdog does have a resolution of 100ms.
++	 *  Watchdog API defines the timeout in seconds, so we have to
++	 *  multiply the value.
++	 */
++	ret = i2c_smbus_write_word_data(drv_data->i2c_client,
++					BMC_CMD_WD_TIME, timeout * 10);
++	if (ret < 0)
++		return ret;
++
++	wdt->timeout = timeout;
++
++	return 0;
++}
++
++static int menf21bmc_wdt_ping(struct watchdog_device *wdt)
++{
++	struct menf21bmc_wdt *drv_data = watchdog_get_drvdata(wdt);
++
++	return i2c_smbus_write_byte(drv_data->i2c_client, BMC_CMD_WD_TRIG);
++}
++
++static const struct watchdog_info menf21bmc_wdt_info = {
++	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
++	.identity = DEVNAME,
++};
++
++static const struct watchdog_ops menf21bmc_wdt_ops = {
++	.owner		= THIS_MODULE,
++	.start		= menf21bmc_wdt_start,
++	.stop		= menf21bmc_wdt_stop,
++	.ping		= menf21bmc_wdt_ping,
++	.set_timeout	= menf21bmc_wdt_settimeout,
++};
++
++static int menf21bmc_wdt_probe(struct platform_device *pdev)
++{
++	int ret, bmc_timeout;
++	struct menf21bmc_wdt *drv_data;
++	struct i2c_client *i2c_client = to_i2c_client(pdev->dev.parent);
++
++	drv_data = devm_kzalloc(&pdev->dev,
++				sizeof(struct menf21bmc_wdt), GFP_KERNEL);
 +	if (!drv_data)
 +		return -ENOMEM;
 +
++	drv_data->wdt.ops = &menf21bmc_wdt_ops;
++	drv_data->wdt.info = &menf21bmc_wdt_info;
++	drv_data->wdt.min_timeout = BMC_WD_TIMEOUT_MIN;
++	drv_data->wdt.max_timeout = BMC_WD_TIMEOUT_MAX;
 +	drv_data->i2c_client = i2c_client;
 +
-+	ret = menf21bmc_hwmon_get_volt_limits(drv_data);
-+	if (ret) {
-+		dev_err(&pdev->dev, "failed to read sensor limits");
++	/*
++	 * Get the current wdt timeout value from the BMC because
++	 * the BMC will save the value set before if the system restarts.
++	 */
++	bmc_timeout = i2c_smbus_read_word_data(drv_data->i2c_client,
++					       BMC_CMD_WD_TIME);
++	if (bmc_timeout < 0) {
++		dev_err(&pdev->dev, "failed to get current WDT timeout\n");
++		return bmc_timeout;
++	}
++
++	watchdog_init_timeout(&drv_data->wdt, bmc_timeout / 10, &pdev->dev);
++	watchdog_set_nowayout(&drv_data->wdt, nowayout);
++	watchdog_set_drvdata(&drv_data->wdt, drv_data);
++	platform_set_drvdata(pdev, drv_data);
++
++	ret = menf21bmc_wdt_set_bootstatus(drv_data);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "failed to set Watchdog bootstatus\n");
 +		return ret;
 +	}
 +
-+	hwmon_dev = devm_hwmon_device_register_with_groups(&pdev->dev,
-+						   "menf21bmc", drv_data,
-+						   menf21bmc_hwmon_groups);
-+	if (IS_ERR(hwmon_dev))
-+		return PTR_ERR(hwmon_dev);
++	ret = watchdog_register_device(&drv_data->wdt);
++	if (ret) {
++		dev_err(&pdev->dev, "failed to register Watchdog device\n");
++		return ret;
++	}
 +
-+	dev_info(&pdev->dev, "MEN 14F021P00 BMC hwmon device enabled");
++	dev_info(&pdev->dev, "MEN 14F021P00 BMC Watchdog device enabled\n");
 +
 +	return 0;
 +}
 +
-+static struct platform_driver menf21bmc_hwmon = {
-+	.probe		= menf21bmc_hwmon_probe,
++static int menf21bmc_wdt_remove(struct platform_device *pdev)
++{
++	struct menf21bmc_wdt *drv_data = platform_get_drvdata(pdev);
++
++	dev_warn(&pdev->dev,
++		 "Unregister MEN 14F021P00 BMC Watchdog device, board may reset\n");
++
++	watchdog_unregister_device(&drv_data->wdt);
++
++	return 0;
++}
++
++static void menf21bmc_wdt_shutdown(struct platform_device *pdev)
++{
++	struct menf21bmc_wdt *drv_data = platform_get_drvdata(pdev);
++
++	i2c_smbus_write_word_data(drv_data->i2c_client,
++				  BMC_CMD_WD_OFF, BMC_WD_OFF_VAL);
++}
++
++static struct  platform_driver menf21bmc_wdt = {
 +	.driver		= {
-+		.name		= DRV_NAME,
-+		.owner		= THIS_MODULE,
++		.owner = THIS_MODULE,
++		.name	= DEVNAME,
 +	},
++	.probe		= menf21bmc_wdt_probe,
++	.remove		= menf21bmc_wdt_remove,
++	.shutdown	= menf21bmc_wdt_shutdown,
 +};
 +
-+module_platform_driver(menf21bmc_hwmon);
++module_platform_driver(menf21bmc_wdt);
 +
++MODULE_DESCRIPTION("MEN 14F021P00 BMC Watchdog driver");
 +MODULE_AUTHOR("Andreas Werner <andreas.werner@men.de>");
-+MODULE_DESCRIPTION("MEN 14F021P00 BMC hwmon");
 +MODULE_LICENSE("GPL v2");
-+MODULE_ALIAS("platform:menf21bmc_hwmon");
++MODULE_ALIAS("platform:menf21bmc_wdt");
 -- 
 2.0.4
