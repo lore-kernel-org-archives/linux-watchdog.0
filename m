@@ -1,114 +1,72 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qa0-f41.google.com ([209.85.216.41]:36808 "EHLO
-	mail-qa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752561AbaH0H4V (ORCPT
+Received: from mailout1.samsung.com ([203.254.224.24]:50223 "EHLO
+	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932642AbaH0Jvd (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 27 Aug 2014 03:56:21 -0400
-Received: by mail-qa0-f41.google.com with SMTP id j7so15201206qaq.28
-        for <linux-watchdog@vger.kernel.org>; Wed, 27 Aug 2014 00:56:20 -0700 (PDT)
-Date: Wed, 27 Aug 2014 08:56:14 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Beniamino Galvani <b.galvani@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>,
-	Mark Brown <broonie@kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Grant Likely <grant.likely@linaro.org>,
-	Carlo Caione <carlo@caione.org>
-Subject: Re: [PATCH 1/4] mfd: Add Ricoh RN5T618 PMIC core driver
-Message-ID: <20140827075614.GZ26707@lee--X1>
-References: <1409091237-16722-1-git-send-email-b.galvani@gmail.com>
- <1409091237-16722-2-git-send-email-b.galvani@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1409091237-16722-2-git-send-email-b.galvani@gmail.com>
+	Wed, 27 Aug 2014 05:51:33 -0400
+From: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
+To: linux-watchdog@vger.kernel.org
+Cc: naveenkrishna.ch@gmail.com, linux-arm-kernel@lists.infradead.org,
+	linux-samsung-soc@vger.kernel.org, cpgs@samsung.com,
+	Wim Van Sebroeck <wim@iguana.be>
+Subject: [PATCH 09/14] watchdog: s3c2410_wdt: Add support for Watchdog device
+ on Exynos7
+Date: Wed, 27 Aug 2014 15:17:11 +0530
+Message-id: <1409132831-2032-1-git-send-email-ch.naveen@samsung.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, 27 Aug 2014, Beniamino Galvani wrote:
-> Ricoh RN5T618 is a power management IC which integrates 3 step-down
-> DCDC converters, 7 low-dropout regulators, a Li-ion battery charger,
-> fuel gauge, ADC, GPIOs and a watchdog timer.
-> 
-> This commit adds a MFD core driver to support the I2C communication
-> with the device.
-> 
-> Signed-off-by: Beniamino Galvani <b.galvani@gmail.com>
-> ---
->  drivers/mfd/Kconfig         |   11 +++
->  drivers/mfd/Makefile        |    1 +
->  drivers/mfd/rn5t618.c       |  129 ++++++++++++++++++++++++++
->  include/linux/mfd/rn5t618.h |  210 +++++++++++++++++++++++++++++++++++++++++++
->  4 files changed, 351 insertions(+)
->  create mode 100644 drivers/mfd/rn5t618.c
->  create mode 100644 include/linux/mfd/rn5t618.h
+Exynos7 SoC has a Watchdog for Atlas (A57) cores
+This patch adds support for the Atlas watchdog.
 
-Really nicely done.  We don't normally get many first submissions at
-this quality level.
+Signed-off-by: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+---
+ .../devicetree/bindings/watchdog/samsung-wdt.txt   |    1 +
+ drivers/watchdog/s3c2410_wdt.c                     |   11 +++++++++++
+ 2 files changed, 12 insertions(+)
 
-One question and a _really_ small nit though.
-
-> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-> index 8d5fad2..fae8c5b 100644
-> --- a/drivers/mfd/Kconfig
-> +++ b/drivers/mfd/Kconfig
-> @@ -582,6 +582,17 @@ config MFD_RC5T583
->  	  Additional drivers must be enabled in order to use the
->  	  different functionality of the device.
->  
-> +config MFD_RN5T618
-> +	bool "Ricoh RN5T5618 PMIC"
-
-Shouldn't this be tristate?
-
-> +	depends on I2C=y
-
-If so, this should be:
-
-  depends on I2C
-
-> +	select MFD_CORE
-> +	select REGMAP_I2C
-> +	help
-> +	  Say yes here to add support for the Ricoh RN5T618 PMIC. This
-> +	  driver provides common support for accessing the device,
-> +	  additional drivers must be enabled in order to use the
-> +	  functionality of the device.
-
-[...]
-
-> +++ b/drivers/mfd/rn5t618.c
-> @@ -0,0 +1,129 @@
-
-[...]
-
-> +static int rn5t618_i2c_probe(struct i2c_client *i2c,
-> +			     const struct i2c_device_id *id)
-> +{
-
-[...]
-
-> +	dev_info(&i2c->dev, "RN5T618 MFD driver loaded");
-
-Can you remove this line?  We normally only print things when
-information is gathered from a chip i.e. version information and the
-like.
-
-> +	return 0;
-> +}
-
-[...]
-
+diff --git a/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt b/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
+index cfff375..8f3d96a 100644
+--- a/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/samsung-wdt.txt
+@@ -9,6 +9,7 @@ Required properties:
+ 	(a) "samsung,s3c2410-wdt" for Exynos4 and previous SoCs
+ 	(b) "samsung,exynos5250-wdt" for Exynos5250
+ 	(c) "samsung,exynos5420-wdt" for Exynos5420
++	(c) "samsung,exynos7-wdt" for Exynos7
+ 
+ - reg : base physical address of the controller and length of memory mapped
+ 	region.
+diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+index 7c6ccd0..015256e 100644
+--- a/drivers/watchdog/s3c2410_wdt.c
++++ b/drivers/watchdog/s3c2410_wdt.c
+@@ -155,6 +155,15 @@ static const struct s3c2410_wdt_variant drv_data_exynos5420 = {
+ 	.quirks = QUIRK_HAS_PMU_CONFIG | QUIRK_HAS_RST_STAT,
+ };
+ 
++static const struct s3c2410_wdt_variant drv_data_exynos7 = {
++	.disable_reg = EXYNOS5_WDT_DISABLE_REG_OFFSET,
++	.mask_reset_reg = EXYNOS5_WDT_MASK_RESET_REG_OFFSET,
++	.mask_bit = 0,
++	.rst_stat_reg = EXYNOS5_RST_STAT_REG_OFFSET,
++	.rst_stat_bit = 23,	/* A57 WDTRESET */
++	.quirks = QUIRK_HAS_PMU_CONFIG | QUIRK_HAS_RST_STAT,
++};
++
+ static const struct of_device_id s3c2410_wdt_match[] = {
+ 	{ .compatible = "samsung,s3c2410-wdt",
+ 	  .data = &drv_data_s3c2410 },
+@@ -162,6 +171,8 @@ static const struct of_device_id s3c2410_wdt_match[] = {
+ 	  .data = &drv_data_exynos5250 },
+ 	{ .compatible = "samsung,exynos5420-wdt",
+ 	  .data = &drv_data_exynos5420 },
++	{ .compatible = "samsung,exynos7-wdt",
++	  .data = &drv_data_exynos7 },
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, s3c2410_wdt_match);
 -- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+1.7.9.5
+
