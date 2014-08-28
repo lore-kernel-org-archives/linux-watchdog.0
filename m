@@ -1,137 +1,225 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ie0-f173.google.com ([209.85.223.173]:49668 "EHLO
-	mail-ie0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751008AbaH1MoM (ORCPT
+Received: from mail-lb0-f181.google.com ([209.85.217.181]:51851 "EHLO
+	mail-lb0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751127AbaH1RzU (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 28 Aug 2014 08:44:12 -0400
-Received: by mail-ie0-f173.google.com with SMTP id lx4so858526iec.32
-        for <linux-watchdog@vger.kernel.org>; Thu, 28 Aug 2014 05:44:11 -0700 (PDT)
-Date: Thu, 28 Aug 2014 13:44:05 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Beniamino Galvani <b.galvani@gmail.com>,
-	linux-kernel@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>,
-	Mark Brown <broonie@kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Grant Likely <grant.likely@linaro.org>,
-	Carlo Caione <carlo@caione.org>
-Subject: Re: [PATCH 3/4] watchdog: add driver for Ricoh RN5T618 watchdog
-Message-ID: <20140828124405.GT24579@lee--X1>
-References: <1409091237-16722-1-git-send-email-b.galvani@gmail.com>
- <1409091237-16722-4-git-send-email-b.galvani@gmail.com>
- <20140827190135.GA18849@roeck-us.net>
- <20140828071946.GF24579@lee--X1>
- <53FF1C58.3070006@roeck-us.net>
+	Thu, 28 Aug 2014 13:55:20 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <53FF1C58.3070006@roeck-us.net>
+In-Reply-To: <e91e4f47cda55c03fa1d0a54c0891341d73adfa6.1409161615.git.andreas.werner@men.de>
+References: <cover.1409161615.git.andreas.werner@men.de> <e91e4f47cda55c03fa1d0a54c0891341d73adfa6.1409161615.git.andreas.werner@men.de>
+From: Bryan Wu <cooloney@gmail.com>
+Date: Thu, 28 Aug 2014 10:54:58 -0700
+Message-ID: <CAK5ve-+zjZBw_HXWm9kGE5Vbv=R2SO4P2dB_0opzLHTAV-BQ0Q@mail.gmail.com>
+Subject: Re: [PATCH v6 3/4] drivers/leds/leds-menf21bmc: introduce MEN
+ 14F021P00 BMC LED driver
+To: Andreas Werner <andreas.werner@men.de>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Lee Jones <lee.jones@linaro.org>, linux@roeck-us.net,
+	lm-sensors@lm-sensors.org, wim@iguana.be,
+	linux-watchdog@vger.kernel.org,
+	"rpurdie@rpsys.net" <rpurdie@rpsys.net>,
+	Linux LED Subsystem <linux-leds@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, 28 Aug 2014, Guenter Roeck wrote:
+On Wed, Aug 27, 2014 at 10:52 AM, Andreas Werner <andreas.werner@men.de> wrote:
+> Added driver to support the 14F021P00 BMC LEDs.
+> The BMC is a Board Management Controller including four LEDs which
+> can be switched on and off.
+>
 
-> On 08/28/2014 12:19 AM, Lee Jones wrote:
-> >On Wed, 27 Aug 2014, Guenter Roeck wrote:
-> >>On Wed, Aug 27, 2014 at 12:13:56AM +0200, Beniamino Galvani wrote:
-> >>>This adds a driver for the watchdog timer available in Ricoh RN5T6=
-18
-> >>>PMIC. The device supports a programmable expiration time of 1, 8, =
-32
-> >>>or 128 seconds.
-> >>>
-> >>>Signed-off-by: Beniamino Galvani <b.galvani@gmail.com>
-> >>>---
-> >>>  drivers/watchdog/Kconfig       |   11 +++
-> >>>  drivers/watchdog/Makefile      |    1 +
-> >>>  drivers/watchdog/rn5t618_wdt.c |  196 ++++++++++++++++++++++++++=
-++++++++++++++
-> >>>  include/linux/mfd/rn5t618.h    |    4 +
-> >>>  4 files changed, 212 insertions(+)
-> >>>  create mode 100644 drivers/watchdog/rn5t618_wdt.c
-> >
-> >[...]
-> >
-> >>>+++ b/drivers/watchdog/rn5t618_wdt.c
-> >>>@@ -0,0 +1,196 @@
-> >
-> >[...]
-> >
-> >>>+static int rn5t618_wdt_set_timeout(struct watchdog_device *wdt_de=
-v,
-> >>>+				   unsigned int timeout)
-> >>>+{
-> >>>+	struct rn5t618_wdt *wdt =3D watchdog_get_drvdata(wdt_dev);
-> >>>+	int ret, i;
-> >>>+
-> >>>+	for (i =3D 0; i < ARRAY_SIZE(rn5t618_wdt_map); i++) {
-> >>>+		if (rn5t618_wdt_map[i].time + 1 >=3D timeout)
-> >>>+			break;
-> >>>+	}
-> >>>+
-> >>>+	if (i =3D=3D ARRAY_SIZE(rn5t618_wdt_map))
-> >>>+		ret =3D -EINVAL;
-> >>
-> >>Can you simplify this a bit ? If you use
-> >>
-> >>	if (i =3D=3D ARRAY_SIZE(rn5t618_wdt_map))
-> >>		return -EINVAL;
-> >
-> >This changes the semantics.
-> >
-> How so ? If ret is set to -EINVAL, the rest of the function won't do =
-anything
-> but eventually return -EINVAL. I don't see why returning -EINVAL imme=
-diately
-> would change that.
+Please go ahead with my Ack
+Acked-by: Bryan Wu <cooloney@gmail.com>
 
-Ah, you're right.
+Lee, will you merge this through your tree? I think we do that in one
+shot is better.
 
-I read:
+Thanks,
+-Bryan
 
-  if (!ret)
-    wdt_dev->timeout =3D rn5t618_wdt_map[i].time;
-
-As:
-
-  if (ret)
-    wdt_dev->timeout =3D rn5t618_wdt_map[i].time;
-
-My bad - withdrawn.
-
-> >>>+	else
-> >>
-> >>You can drop this else statement.
-> >>
-> >>>+		ret =3D regmap_update_bits(wdt->rn5t618->regmap, RN5T618_WATCHD=
-OG,
-> >>>+					 RN5T618_WATCHDOG_WDOGTIM_M,
-> >>>+					 rn5t618_wdt_map[i].reg_val);
-> >>>+	if (!ret)
-> >>>+		wdt_dev->timeout =3D rn5t618_wdt_map[i].time;
-> >
-> >... Isn't this important?
-> >
-> >>>+	return ret;
-> >>>+}
-> >
->=20
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Signed-off-by: Andreas Werner <andreas.werner@men.de>
+> ---
+>  drivers/leds/Kconfig          |   9 +++
+>  drivers/leds/Makefile         |   1 +
+>  drivers/leds/leds-menf21bmc.c | 131 ++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 141 insertions(+)
+>  create mode 100644 drivers/leds/leds-menf21bmc.c
+>
+> diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
+> index 27cf0cd..ec03457 100644
+> --- a/drivers/leds/Kconfig
+> +++ b/drivers/leds/Kconfig
+> @@ -458,6 +458,15 @@ config LEDS_OT200
+>           This option enables support for the LEDs on the Bachmann OT200.
+>           Say Y to enable LEDs on the Bachmann OT200.
+>
+> +config LEDS_MENF21BMC
+> +       tristate "LED support for the MEN 14F021P00 BMC"
+> +       depends on LEDS_CLASS && MFD_MENF21BMC
+> +       help
+> +         Say Y here to include support for the MEN 14F021P00 BMC LEDs.
+> +
+> +         This driver can also be built as a module. If so the module
+> +         will be called leds-menf21bmc.
+> +
+>  comment "LED driver for blink(1) USB RGB LED is under Special HID drivers (HID_THINGM)"
+>
+>  config LEDS_BLINKM
+> diff --git a/drivers/leds/Makefile b/drivers/leds/Makefile
+> index 3c03666..cadc433 100644
+> --- a/drivers/leds/Makefile
+> +++ b/drivers/leds/Makefile
+> @@ -53,6 +53,7 @@ obj-$(CONFIG_LEDS_MAX8997)            += leds-max8997.o
+>  obj-$(CONFIG_LEDS_LM355x)              += leds-lm355x.o
+>  obj-$(CONFIG_LEDS_BLINKM)              += leds-blinkm.o
+>  obj-$(CONFIG_LEDS_VERSATILE)           += leds-versatile.o
+> +obj-$(CONFIG_LEDS_MENF21BMC)           += leds-menf21bmc.o
+>
+>  # LED SPI Drivers
+>  obj-$(CONFIG_LEDS_DAC124S085)          += leds-dac124s085.o
+> diff --git a/drivers/leds/leds-menf21bmc.c b/drivers/leds/leds-menf21bmc.c
+> new file mode 100644
+> index 0000000..89dd577
+> --- /dev/null
+> +++ b/drivers/leds/leds-menf21bmc.c
+> @@ -0,0 +1,131 @@
+> +/*
+> + *  MEN 14F021P00 Board Management Controller (BMC) LEDs Driver.
+> + *
+> + *  This is the core LED driver of the MEN 14F021P00 BMC.
+> + *  There are four LEDs available which can be switched on and off.
+> + *  STATUS LED, HOT SWAP LED, USER LED 1, USER LED 2
+> + *
+> + *  Copyright (C) 2014 MEN Mikro Elektronik Nuernberg GmbH
+> + *
+> + *  This program is free software; you can redistribute  it and/or modify it
+> + *  under  the terms of  the GNU General  Public License as published by the
+> + *  Free Software Foundation;  either version 2 of the  License, or (at your
+> + *  option) any later version.
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/kernel.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/leds.h>
+> +#include <linux/i2c.h>
+> +
+> +#define BMC_CMD_LED_GET_SET    0xA0
+> +#define BMC_BIT_LED_STATUS     BIT(0)
+> +#define BMC_BIT_LED_HOTSWAP    BIT(1)
+> +#define BMC_BIT_LED_USER1      BIT(2)
+> +#define BMC_BIT_LED_USER2      BIT(3)
+> +
+> +struct menf21bmc_led {
+> +       struct led_classdev cdev;
+> +       u8 led_bit;
+> +       const char *name;
+> +       struct i2c_client *i2c_client;
+> +};
+> +
+> +static struct menf21bmc_led leds[] = {
+> +       {
+> +               .name = "menf21bmc:led_status",
+> +               .led_bit = BMC_BIT_LED_STATUS,
+> +       },
+> +       {
+> +               .name = "menf21bmc:led_hotswap",
+> +               .led_bit = BMC_BIT_LED_HOTSWAP,
+> +       },
+> +       {
+> +               .name = "menf21bmc:led_user1",
+> +               .led_bit = BMC_BIT_LED_USER1,
+> +       },
+> +       {
+> +               .name = "menf21bmc:led_user2",
+> +               .led_bit = BMC_BIT_LED_USER2,
+> +       }
+> +};
+> +
+> +static DEFINE_MUTEX(led_lock);
+> +
+> +static void
+> +menf21bmc_led_set(struct led_classdev *led_cdev, enum led_brightness value)
+> +{
+> +       int led_val;
+> +       struct menf21bmc_led *led = container_of(led_cdev,
+> +                                       struct menf21bmc_led, cdev);
+> +
+> +       mutex_lock(&led_lock);
+> +       led_val = i2c_smbus_read_byte_data(led->i2c_client,
+> +                                          BMC_CMD_LED_GET_SET);
+> +       if (led_val < 0)
+> +               goto err_out;
+> +
+> +       if (value == LED_OFF)
+> +               led_val &= ~led->led_bit;
+> +       else
+> +               led_val |= led->led_bit;
+> +
+> +       i2c_smbus_write_byte_data(led->i2c_client,
+> +                                 BMC_CMD_LED_GET_SET, led_val);
+> +err_out:
+> +       mutex_unlock(&led_lock);
+> +}
+> +
+> +static int menf21bmc_led_probe(struct platform_device *pdev)
+> +{
+> +       int i;
+> +       int ret;
+> +       struct i2c_client *i2c_client = to_i2c_client(pdev->dev.parent);
+> +
+> +       for (i = 0; i < ARRAY_SIZE(leds); i++) {
+> +               leds[i].cdev.name = leds[i].name;
+> +               leds[i].cdev.brightness_set = menf21bmc_led_set;
+> +               leds[i].i2c_client = i2c_client;
+> +               ret = led_classdev_register(&pdev->dev, &leds[i].cdev);
+> +               if (ret < 0)
+> +                       goto err_free_leds;
+> +       }
+> +       dev_info(&pdev->dev, "MEN 140F21P00 BMC LED device enabled\n");
+> +
+> +       return 0;
+> +
+> +err_free_leds:
+> +       dev_err(&pdev->dev, "failed to register LED device\n");
+> +
+> +       for (i = i - 1; i >= 0; i--)
+> +               led_classdev_unregister(&leds[i].cdev);
+> +
+> +       return ret;
+> +}
+> +
+> +static int menf21bmc_led_remove(struct platform_device *pdev)
+> +{
+> +       int i;
+> +
+> +       for (i = 0; i < ARRAY_SIZE(leds); i++)
+> +               led_classdev_unregister(&leds[i].cdev);
+> +
+> +       return 0;
+> +}
+> +
+> +static struct platform_driver menf21bmc_led = {
+> +       .probe          = menf21bmc_led_probe,
+> +       .remove         = menf21bmc_led_remove,
+> +       .driver         = {
+> +               .name           = "menf21bmc_led",
+> +               .owner          = THIS_MODULE,
+> +       },
+> +};
+> +
+> +module_platform_driver(menf21bmc_led);
+> +
+> +MODULE_AUTHOR("Andreas Werner <andreas.werner@men.de>");
+> +MODULE_DESCRIPTION("MEN 14F021P00 BMC led driver");
+> +MODULE_LICENSE("GPL v2");
+> +MODULE_ALIAS("platform:menf21bmc_led");
+> --
+> 2.0.4
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-leds" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
