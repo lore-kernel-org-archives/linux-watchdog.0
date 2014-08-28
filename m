@@ -1,9 +1,9 @@
-Return-Path: <b.galvani@gmail.com>
-Return-Path: <b.galvani@gmail.com>
-Date: Thu, 28 Aug 2014 00:12:10 +0200
-From: Beniamino Galvani <b.galvani@gmail.com>
+Return-Path: <lee.jones@linaro.org>
+Return-Path: <lee.jones@linaro.org>
+Date: Thu, 28 Aug 2014 08:19:46 +0100
+From: Lee Jones <lee.jones@linaro.org>
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
+Cc: Beniamino Galvani <b.galvani@gmail.com>, linux-kernel@vger.kernel.org,
 	Samuel Ortiz <sameo@linux.intel.com>,
 	Mark Brown <broonie@kernel.org>,
 	Liam Girdwood <lgirdwood@gmail.com>,
@@ -16,55 +16,38 @@ Cc: linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
 	Grant Likely <grant.likely@linaro.org>,
 	Carlo Caione <carlo@caione.org>
 Subject: Re: [PATCH 3/4] watchdog: add driver for Ricoh RN5T618 watchdog
-Message-ID: <20140827221209.GA24987@gmail.com>
+Message-ID: <20140828071946.GF24579@lee--X1>
 References: <1409091237-16722-1-git-send-email-b.galvani@gmail.com>
  <1409091237-16722-4-git-send-email-b.galvani@gmail.com>
  <20140827190135.GA18849@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 In-Reply-To: <20140827190135.GA18849@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Wed, Aug 27, 2014 at 12:01:35PM -0700, Guenter Roeck wrote:
+On Wed, 27 Aug 2014, Guenter Roeck wrote:
+> On Wed, Aug 27, 2014 at 12:13:56AM +0200, Beniamino Galvani wrote:
+> > This adds a driver for the watchdog timer available in Ricoh RN5T618
+> > PMIC. The device supports a programmable expiration time of 1, 8, 32
+> > or 128 seconds.
+> > 
+> > Signed-off-by: Beniamino Galvani <b.galvani@gmail.com>
+> > ---
+> >  drivers/watchdog/Kconfig       |   11 +++
+> >  drivers/watchdog/Makefile      |    1 +
+> >  drivers/watchdog/rn5t618_wdt.c |  196 ++++++++++++++++++++++++++++++++++++++++
+> >  include/linux/mfd/rn5t618.h    |    4 +
+> >  4 files changed, 212 insertions(+)
+> >  create mode 100644 drivers/watchdog/rn5t618_wdt.c
+
 [...]
-> > +#include <linux/device.h>
-> > +#include <linux/mfd/rn5t618.h>
-> > +#include <linux/module.h>
-> > +#include <linux/platform_device.h>
-> > +#include <linux/watchdog.h>
-> > +
-> > +#define DRIVER_NAME "rn5t618-wdt"
-> > +
-> > +static bool nowayout = WATCHDOG_NOWAYOUT;
-> > +static unsigned int heartbeat = -1;
-> 
-> I'd be surprised if this doesn't cause a compiler warning.
-> Why not just initialize the variable with 0 ?
 
-The idea was to initialize the variable with an invalid value that has
-no effect when watchdog_init_timeout() is called during probe, thus
-leaving the watchdog timeout to the maximum value.
+> > +++ b/drivers/watchdog/rn5t618_wdt.c
+> > @@ -0,0 +1,196 @@
 
-You are right, the same effect can be achieved in a cleaner way
-leaving the variable to zero (by the way, the above assignment doesn't
-seem to generate warnings).
-
-> 
-> > +
-> > +module_param(heartbeat, int, 0);
-> > +MODULE_PARM_DESC(heartbeat, "Initial watchdog heartbeat in seconds");
-> > +
-> > +module_param(nowayout, bool, 0);
-> > +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
-> > +		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-> > +
-> > +struct rn5t618_wdt {
-> > +	struct watchdog_device wdt_dev;
-> > +	struct rn5t618 *rn5t618;
-> > +};
-
-[..]
+[...]
 
 > > +static int rn5t618_wdt_set_timeout(struct watchdog_device *wdt_dev,
 > > +				   unsigned int timeout)
@@ -84,11 +67,26 @@ seem to generate warnings).
 > 
 > 	if (i == ARRAY_SIZE(rn5t618_wdt_map))
 > 		return -EINVAL;
-> 
+
+This changes the semantics.
+
 > > +	else
 > 
 > You can drop this else statement.
+> 
+> > +		ret = regmap_update_bits(wdt->rn5t618->regmap, RN5T618_WATCHDOG,
+> > +					 RN5T618_WATCHDOG_WDOGTIM_M,
+> > +					 rn5t618_wdt_map[i].reg_val);
+> > +	if (!ret)
+> > +		wdt_dev->timeout = rn5t618_wdt_map[i].time;
 
-Will do, thanks.
+... Isn't this important?
 
-Beniamino
+> > +	return ret;
+> > +}
+
+-- 
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
