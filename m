@@ -1,20 +1,17 @@
 Return-Path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:60465 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751912AbaHaRv1 (ORCPT
+Received: from mail-wi0-f176.google.com ([209.85.212.176]:46645 "EHLO
+	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751080AbaH3Mv3 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 31 Aug 2014 13:51:27 -0400
-Message-ID: <54036099.2030506@roeck-us.net>
-Date: Sun, 31 Aug 2014 10:51:21 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: Beniamino Galvani <b.galvani@gmail.com>,
-	linux-kernel@vger.kernel.org
-CC: Lee Jones <lee.jones@linaro.org>,
+	Sat, 30 Aug 2014 08:51:29 -0400
+From: Beniamino Galvani <b.galvani@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Lee Jones <lee.jones@linaro.org>,
 	Samuel Ortiz <sameo@linux.intel.com>,
 	Mark Brown <broonie@kernel.org>,
 	Liam Girdwood <lgirdwood@gmail.com>,
 	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
 	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
 	Rob Herring <robh+dt@kernel.org>,
 	Pawel Moll <pawel.moll@arm.com>,
@@ -22,268 +19,205 @@ CC: Lee Jones <lee.jones@linaro.org>,
 	Ian Campbell <ijc+devicetree@hellion.org.uk>,
 	Kumar Gala <galak@codeaurora.org>,
 	Grant Likely <grant.likely@linaro.org>,
-	Carlo Caione <carlo@caione.org>
-Subject: Re: [PATCH v2 3/4] watchdog: add driver for Ricoh RN5T618 watchdog
-References: <1409403026-28818-1-git-send-email-b.galvani@gmail.com> <1409403026-28818-4-git-send-email-b.galvani@gmail.com>
-In-Reply-To: <1409403026-28818-4-git-send-email-b.galvani@gmail.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+	Carlo Caione <carlo@caione.org>,
+	Beniamino Galvani <b.galvani@gmail.com>
+Subject: [PATCH v2 2/4] regulator: add driver for Ricoh RN5T618 regulators
+Date: Sat, 30 Aug 2014 14:50:24 +0200
+Message-Id: <1409403026-28818-3-git-send-email-b.galvani@gmail.com>
+In-Reply-To: <1409403026-28818-1-git-send-email-b.galvani@gmail.com>
+References: <1409403026-28818-1-git-send-email-b.galvani@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 08/30/2014 05:50 AM, Beniamino Galvani wrote:
-> This adds a driver for the watchdog timer available in Ricoh RN5T618
-> PMIC. The device supports a programmable expiration time of 1, 8, 32
-> or 128 seconds.
->
-> Signed-off-by: Beniamino Galvani <b.galvani@gmail.com>
+This driver supports the 3 DCDC and 7 LDO regulators available on
+Ricoh RN5T618 PMIC.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Beniamino Galvani <b.galvani@gmail.com>
+---
+ drivers/regulator/Kconfig             |    6 ++
+ drivers/regulator/Makefile            |    1 +
+ drivers/regulator/rn5t618-regulator.c |  143 +++++++++++++++++++++++++++++++++
+ 3 files changed, 150 insertions(+)
+ create mode 100644 drivers/regulator/rn5t618-regulator.c
 
-> ---
->   drivers/watchdog/Kconfig       |   11 +++
->   drivers/watchdog/Makefile      |    1 +
->   drivers/watchdog/rn5t618_wdt.c |  198 ++++++++++++++++++++++++++++++++++++++++
->   3 files changed, 210 insertions(+)
->   create mode 100644 drivers/watchdog/rn5t618_wdt.c
->
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index f57312f..9eba6af 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -309,6 +309,17 @@ config ORION_WATCHDOG
->   	  To compile this driver as a module, choose M here: the
->   	  module will be called orion_wdt.
->
-> +config RN5T618_WATCHDOG
-> +	tristate "Ricoh RN5T618 watchdog"
-> +	depends on MFD_RN5T618
-> +	select WATCHDOG_CORE
-> +	help
-> +	  If you say yes here you get support for watchdog on the Ricoh
-> +	  RN5T618 PMIC.
-> +
-> +	  This driver can also be built as a module.  If so, the module
-> +	  will be called rn5t618_wdt.
-> +
->   config SUNXI_WATCHDOG
->   	tristate "Allwinner SoCs watchdog support"
->   	depends on ARCH_SUNXI
-> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index 468c320..0afa343 100644
-> --- a/drivers/watchdog/Makefile
-> +++ b/drivers/watchdog/Makefile
-> @@ -47,6 +47,7 @@ obj-$(CONFIG_IOP_WATCHDOG) += iop_wdt.o
->   obj-$(CONFIG_DAVINCI_WATCHDOG) += davinci_wdt.o
->   obj-$(CONFIG_ORION_WATCHDOG) += orion_wdt.o
->   obj-$(CONFIG_SUNXI_WATCHDOG) += sunxi_wdt.o
-> +obj-$(CONFIG_RN5T618_WATCHDOG) += rn5t618_wdt.o
->   obj-$(CONFIG_COH901327_WATCHDOG) += coh901327_wdt.o
->   obj-$(CONFIG_STMP3XXX_RTC_WATCHDOG) += stmp3xxx_rtc_wdt.o
->   obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
-> diff --git a/drivers/watchdog/rn5t618_wdt.c b/drivers/watchdog/rn5t618_wdt.c
-> new file mode 100644
-> index 0000000..b6d62ac
-> --- /dev/null
-> +++ b/drivers/watchdog/rn5t618_wdt.c
-> @@ -0,0 +1,198 @@
-> +/*
-> + * Watchdog driver for Ricoh RN5T618 PMIC
-> + *
-> + * Copyright (C) 2014 Beniamino Galvani <b.galvani@gmail.com>
-> + *
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License
-> + * version 2 as published by the Free Software Foundation.
-> + *
-> + * You should have received a copy of the GNU General Public License
-> + * along with this program. If not, see <http://www.gnu.org/licenses/>.
-> + */
-> +
-> +#include <linux/device.h>
-> +#include <linux/mfd/rn5t618.h>
-> +#include <linux/module.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/watchdog.h>
-> +
-> +#define DRIVER_NAME "rn5t618-wdt"
-> +
-> +static bool nowayout = WATCHDOG_NOWAYOUT;
-> +static unsigned int heartbeat;
-> +
-> +module_param(heartbeat, int, 0);
-> +MODULE_PARM_DESC(heartbeat, "Initial watchdog heartbeat in seconds");
-> +
-> +module_param(nowayout, bool, 0);
-> +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
-> +		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-> +
-> +struct rn5t618_wdt {
-> +	struct watchdog_device wdt_dev;
-> +	struct rn5t618 *rn5t618;
-> +};
-> +
-> +/*
-> + * This array encodes the values of WDOGTIM field for the supported
-> + * watchdog expiration times. If the watchdog is not accessed before
-> + * the timer expiration, the PMU generates an interrupt and if the CPU
-> + * doesn't clear it within one second the system is restarted.
-> + */
-> +static const struct {
-> +	u8 reg_val;
-> +	unsigned int time;
-> +} rn5t618_wdt_map[] = {
-> +	{ 0, 1 },
-> +	{ 1, 8 },
-> +	{ 2, 32 },
-> +	{ 3, 128 },
-> +};
-> +
-> +static int rn5t618_wdt_set_timeout(struct watchdog_device *wdt_dev,
-> +				   unsigned int timeout)
-> +{
-> +	struct rn5t618_wdt *wdt = watchdog_get_drvdata(wdt_dev);
-> +	int ret, i;
-> +
-> +	for (i = 0; i < ARRAY_SIZE(rn5t618_wdt_map); i++) {
-> +		if (rn5t618_wdt_map[i].time + 1 >= timeout)
-> +			break;
-> +	}
-> +
-> +	if (i == ARRAY_SIZE(rn5t618_wdt_map))
-> +		return -EINVAL;
-> +
-> +	ret = regmap_update_bits(wdt->rn5t618->regmap, RN5T618_WATCHDOG,
-> +				 RN5T618_WATCHDOG_WDOGTIM_M,
-> +				 rn5t618_wdt_map[i].reg_val);
-> +	if (!ret)
-> +		wdt_dev->timeout = rn5t618_wdt_map[i].time;
-> +
-> +	return ret;
-> +}
-> +
-> +static int rn5t618_wdt_start(struct watchdog_device *wdt_dev)
-> +{
-> +	struct rn5t618_wdt *wdt = watchdog_get_drvdata(wdt_dev);
-> +	int ret;
-> +
-> +	ret = rn5t618_wdt_set_timeout(wdt_dev, wdt_dev->timeout);
-> +	if (ret)
-> +		return ret;
-> +
-> +	/* enable repower-on */
-> +	ret = regmap_update_bits(wdt->rn5t618->regmap, RN5T618_REPCNT,
-> +				 RN5T618_REPCNT_REPWRON,
-> +				 RN5T618_REPCNT_REPWRON);
-> +	if (ret)
-> +		return ret;
-> +
-> +	/* enable watchdog */
-> +	ret = regmap_update_bits(wdt->rn5t618->regmap, RN5T618_WATCHDOG,
-> +				 RN5T618_WATCHDOG_WDOGEN,
-> +				 RN5T618_WATCHDOG_WDOGEN);
-> +	if (ret)
-> +		return ret;
-> +
-> +	/* enable watchdog interrupt */
-> +	return regmap_update_bits(wdt->rn5t618->regmap, RN5T618_PWRIREN,
-> +				  RN5T618_PWRIRQ_IR_WDOG,
-> +				  RN5T618_PWRIRQ_IR_WDOG);
-> +}
-> +
-> +static int rn5t618_wdt_stop(struct watchdog_device *wdt_dev)
-> +{
-> +	struct rn5t618_wdt *wdt = watchdog_get_drvdata(wdt_dev);
-> +
-> +	return regmap_update_bits(wdt->rn5t618->regmap, RN5T618_WATCHDOG,
-> +				  RN5T618_WATCHDOG_WDOGEN, 0);
-> +}
-> +
-> +static int rn5t618_wdt_ping(struct watchdog_device *wdt_dev)
-> +{
-> +	struct rn5t618_wdt *wdt = watchdog_get_drvdata(wdt_dev);
-> +	unsigned int val;
-> +	int ret;
-> +
-> +	/* The counter is restarted after a R/W access to watchdog register */
-> +	ret = regmap_read(wdt->rn5t618->regmap, RN5T618_WATCHDOG, &val);
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret = regmap_write(wdt->rn5t618->regmap, RN5T618_WATCHDOG, val);
-> +	if (ret)
-> +		return ret;
-> +
-> +	/* Clear pending watchdog interrupt */
-> +	return regmap_update_bits(wdt->rn5t618->regmap, RN5T618_PWRIRQ,
-> +				  RN5T618_PWRIRQ_IR_WDOG, 0);
-> +}
-> +
-> +static struct watchdog_info rn5t618_wdt_info = {
-> +	.options	= WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE |
-> +			  WDIOF_KEEPALIVEPING,
-> +	.identity	= DRIVER_NAME,
-> +};
-> +
-> +static struct watchdog_ops rn5t618_wdt_ops = {
-> +	.owner          = THIS_MODULE,
-> +	.start          = rn5t618_wdt_start,
-> +	.stop           = rn5t618_wdt_stop,
-> +	.ping           = rn5t618_wdt_ping,
-> +	.set_timeout    = rn5t618_wdt_set_timeout,
-> +};
-> +
-> +static int rn5t618_wdt_probe(struct platform_device *pdev)
-> +{
-> +	struct rn5t618 *rn5t618 = dev_get_drvdata(pdev->dev.parent);
-> +	struct rn5t618_wdt *wdt;
-> +	int min_timeout, max_timeout;
-> +
-> +	wdt = devm_kzalloc(&pdev->dev, sizeof(struct rn5t618_wdt), GFP_KERNEL);
-> +	if (!wdt)
-> +		return -ENOMEM;
-> +
-> +	min_timeout = rn5t618_wdt_map[0].time;
-> +	max_timeout = rn5t618_wdt_map[ARRAY_SIZE(rn5t618_wdt_map) - 1].time;
-> +
-> +	wdt->rn5t618 = rn5t618;
-> +	wdt->wdt_dev.info = &rn5t618_wdt_info;
-> +	wdt->wdt_dev.ops = &rn5t618_wdt_ops;
-> +	wdt->wdt_dev.min_timeout = min_timeout;
-> +	wdt->wdt_dev.max_timeout = max_timeout;
-> +	wdt->wdt_dev.timeout = max_timeout;
-> +	wdt->wdt_dev.parent = &pdev->dev;
-> +
-> +	watchdog_set_drvdata(&wdt->wdt_dev, wdt);
-> +	watchdog_init_timeout(&wdt->wdt_dev, heartbeat, &pdev->dev);
-> +	watchdog_set_nowayout(&wdt->wdt_dev, nowayout);
-> +
-> +	platform_set_drvdata(pdev, wdt);
-> +
-> +	return watchdog_register_device(&wdt->wdt_dev);
-> +}
-> +
-> +static int rn5t618_wdt_remove(struct platform_device *pdev)
-> +{
-> +	struct rn5t618_wdt *wdt = platform_get_drvdata(pdev);
-> +
-> +	watchdog_unregister_device(&wdt->wdt_dev);
-> +
-> +	return 0;
-> +}
-> +
-> +static struct platform_driver rn5t618_wdt_driver = {
-> +	.probe = rn5t618_wdt_probe,
-> +	.remove = rn5t618_wdt_remove,
-> +	.driver = {
-> +		.name	= DRIVER_NAME,
-> +	},
-> +};
-> +
-> +module_platform_driver(rn5t618_wdt_driver);
-> +
-> +MODULE_AUTHOR("Beniamino Galvani <b.galvani@gmail.com>");
-> +MODULE_DESCRIPTION("RN5T618 watchdog driver");
-> +MODULE_LICENSE("GPL v2");
->
+diff --git a/drivers/regulator/Kconfig b/drivers/regulator/Kconfig
+index fb32bab..ac0e643 100644
+--- a/drivers/regulator/Kconfig
++++ b/drivers/regulator/Kconfig
+@@ -469,6 +469,12 @@ config REGULATOR_RK808
+ 	  through regulator interface. The device supports multiple DCDC/LDO
+ 	  outputs which can be controlled by i2c communication.
+ 
++config REGULATOR_RN5T618
++	tristate "Ricoh RN5T618 voltage regulators"
++	depends on MFD_RN5T618
++	help
++	  Say y here to support the regulators found on Ricoh RN5T618 PMIC.
++
+ config REGULATOR_S2MPA01
+ 	tristate "Samsung S2MPA01 voltage regulator"
+ 	depends on MFD_SEC_CORE
+diff --git a/drivers/regulator/Makefile b/drivers/regulator/Makefile
+index 236fdbb..3b767c6 100644
+--- a/drivers/regulator/Makefile
++++ b/drivers/regulator/Makefile
+@@ -63,6 +63,7 @@ obj-$(CONFIG_REGULATOR_PCAP) += pcap-regulator.o
+ obj-$(CONFIG_REGULATOR_PCF50633) += pcf50633-regulator.o
+ obj-$(CONFIG_REGULATOR_RC5T583)  += rc5t583-regulator.o
+ obj-$(CONFIG_REGULATOR_RK808)   += rk808-regulator.o
++obj-$(CONFIG_REGULATOR_RN5T618) += rn5t618-regulator.o
+ obj-$(CONFIG_REGULATOR_S2MPA01) += s2mpa01.o
+ obj-$(CONFIG_REGULATOR_S2MPS11) += s2mps11.o
+ obj-$(CONFIG_REGULATOR_S5M8767) += s5m8767.o
+diff --git a/drivers/regulator/rn5t618-regulator.c b/drivers/regulator/rn5t618-regulator.c
+new file mode 100644
+index 0000000..e58d79a
+--- /dev/null
++++ b/drivers/regulator/rn5t618-regulator.c
+@@ -0,0 +1,143 @@
++/*
++ * Regulator driver for Ricoh RN5T618 PMIC
++ *
++ * Copyright (C) 2014 Beniamino Galvani <b.galvani@gmail.com>
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * version 2 as published by the Free Software Foundation.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program. If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include <linux/mfd/rn5t618.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/regmap.h>
++#include <linux/regulator/driver.h>
++#include <linux/regulator/of_regulator.h>
++
++static struct regulator_ops rn5t618_reg_ops = {
++	.enable			= regulator_enable_regmap,
++	.disable		= regulator_disable_regmap,
++	.is_enabled		= regulator_is_enabled_regmap,
++	.set_voltage_sel	= regulator_set_voltage_sel_regmap,
++	.get_voltage_sel	= regulator_get_voltage_sel_regmap,
++	.list_voltage		= regulator_list_voltage_linear,
++};
++
++#define REG(rid, ereg, emask, vreg, vmask, min, max, step)		\
++	[RN5T618_##rid] = {						\
++		.name		= #rid,					\
++		.id		= RN5T618_##rid,			\
++		.type		= REGULATOR_VOLTAGE,			\
++		.owner		= THIS_MODULE,				\
++		.ops		= &rn5t618_reg_ops,			\
++		.n_voltages	= ((max) - (min)) / (step) + 1,		\
++		.min_uV		= (min),				\
++		.uV_step	= (step),				\
++		.enable_reg	= RN5T618_##ereg,			\
++		.enable_mask	= (emask),				\
++		.vsel_reg	= RN5T618_##vreg,			\
++		.vsel_mask	= (vmask),				\
++	}
++
++static struct regulator_desc rn5t618_regulators[] = {
++	/* DCDC */
++	REG(DCDC1, DC1CTL, BIT(0), DC1DAC, 0xff, 600000, 3500000, 12500),
++	REG(DCDC2, DC2CTL, BIT(0), DC2DAC, 0xff, 600000, 3500000, 12500),
++	REG(DCDC3, DC3CTL, BIT(0), DC3DAC, 0xff, 600000, 3500000, 12500),
++	/* LDO */
++	REG(LDO1, LDOEN1, BIT(0), LDO1DAC, 0x7f, 900000, 3500000, 25000),
++	REG(LDO2, LDOEN1, BIT(1), LDO2DAC, 0x7f, 900000, 3500000, 25000),
++	REG(LDO3, LDOEN1, BIT(2), LDO3DAC, 0x7f, 600000, 3500000, 25000),
++	REG(LDO4, LDOEN1, BIT(3), LDO4DAC, 0x7f, 900000, 3500000, 25000),
++	REG(LDO5, LDOEN1, BIT(4), LDO5DAC, 0x7f, 900000, 3500000, 25000),
++	/* LDO RTC */
++	REG(LDORTC1, LDOEN2, BIT(4), LDORTCDAC, 0x7f, 1700000, 3500000, 25000),
++	REG(LDORTC2, LDOEN2, BIT(5), LDORTC2DAC, 0x7f, 900000, 3500000, 25000),
++};
++
++static struct of_regulator_match rn5t618_matches[] = {
++	[RN5T618_DCDC1]		= { .name = "DCDC1" },
++	[RN5T618_DCDC2]		= { .name = "DCDC2" },
++	[RN5T618_DCDC3]		= { .name = "DCDC3" },
++	[RN5T618_LDO1]		= { .name = "LDO1" },
++	[RN5T618_LDO2]		= { .name = "LDO2" },
++	[RN5T618_LDO3]		= { .name = "LDO3" },
++	[RN5T618_LDO4]		= { .name = "LDO4" },
++	[RN5T618_LDO5]		= { .name = "LDO5" },
++	[RN5T618_LDORTC1]	= { .name = "LDORTC1" },
++	[RN5T618_LDORTC2]	= { .name = "LDORTC2" },
++};
++
++static int rn5t618_regulator_parse_dt(struct platform_device *pdev)
++{
++	struct device_node *np, *regulators;
++	int ret;
++
++	np = of_node_get(pdev->dev.parent->of_node);
++	if (!np)
++		return 0;
++
++	regulators = of_get_child_by_name(np, "regulators");
++	if (!regulators) {
++		dev_err(&pdev->dev, "regulators node not found\n");
++		return -EINVAL;
++	}
++
++	ret = of_regulator_match(&pdev->dev, regulators, rn5t618_matches,
++				 ARRAY_SIZE(rn5t618_matches));
++	of_node_put(regulators);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "error parsing regulator init data: %d\n",
++			ret);
++	}
++
++	return 0;
++}
++
++static int rn5t618_regulator_probe(struct platform_device *pdev)
++{
++	struct rn5t618 *rn5t618 = dev_get_drvdata(pdev->dev.parent);
++	struct regulator_config config = { };
++	struct regulator_dev *rdev;
++	int ret, i;
++
++	ret = rn5t618_regulator_parse_dt(pdev);
++	if (ret)
++		return ret;
++
++	for (i = 0; i < RN5T618_REG_NUM; i++) {
++		config.dev = &pdev->dev;
++		config.init_data = rn5t618_matches[i].init_data;
++		config.of_node = rn5t618_matches[i].of_node;
++		config.regmap = rn5t618->regmap;
++
++		rdev = devm_regulator_register(&pdev->dev,
++					       &rn5t618_regulators[i],
++					       &config);
++		if (IS_ERR(rdev)) {
++			dev_err(&pdev->dev, "failed to register %s regulator\n",
++				rn5t618_regulators[i].name);
++			return PTR_ERR(rdev);
++		}
++	}
++
++	return 0;
++}
++
++static struct platform_driver rn5t618_regulator_driver = {
++	.probe = rn5t618_regulator_probe,
++	.driver = {
++		.name	= "rn5t618-regulator",
++	},
++};
++
++module_platform_driver(rn5t618_regulator_driver);
++
++MODULE_AUTHOR("Beniamino Galvani <b.galvani@gmail.com>");
++MODULE_DESCRIPTION("RN5T618 regulator driver");
++MODULE_LICENSE("GPL v2");
+-- 
+1.7.10.4
 
