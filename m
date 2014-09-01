@@ -1,109 +1,55 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qa0-f41.google.com ([209.85.216.41]:42656 "EHLO
-	mail-qa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752605AbaIAI1T (ORCPT
+Received: from v094114.home.net.pl ([79.96.170.134]:57645 "HELO
+	v094114.home.net.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751500AbaIANh1 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 1 Sep 2014 04:27:19 -0400
-Received: by mail-qa0-f41.google.com with SMTP id m5so4766677qaj.28
-        for <linux-watchdog@vger.kernel.org>; Mon, 01 Sep 2014 01:27:19 -0700 (PDT)
-Date: Mon, 1 Sep 2014 09:27:12 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Beniamino Galvani <b.galvani@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>,
-	Mark Brown <broonie@kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Grant Likely <grant.likely@linaro.org>,
-	Carlo Caione <carlo@caione.org>
-Subject: Re: [PATCH v2 4/4] mfd: rn5t618: document device tree bindings
-Message-ID: <20140901082712.GB7374@lee--X1>
-References: <1409403026-28818-1-git-send-email-b.galvani@gmail.com>
- <1409403026-28818-5-git-send-email-b.galvani@gmail.com>
+	Mon, 1 Sep 2014 09:37:27 -0400
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+To: Andrew Lunn <andrew@lunn.ch>
+Cc: Jason Cooper <jason@lakedaemon.net>,
+	linux ARM <linux-arm-kernel@lists.infradead.org>,
+	Daniel Lezcano <daniel.lezcano@linaro.org>,
+	linux-pm@vger.kernel.org, Tejun Heo <tj@kernel.org>,
+	linux-ide@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>,
+	Richard Purdie <rpurdie@rpsys.net>, linux-leds@vger.kernel.org,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com, Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org,
+	Viresh Kumar <viresh.kumar@linaro.org>
+Subject: Re: [Patch v3] 0/7] Remove mach-kirkwood
+Date: Mon, 01 Sep 2014 15:56:43 +0200
+Message-ID: <1997148.5Fa3W8ZmXx@vostro.rjw.lan>
+In-Reply-To: <1409417172-6846-1-git-send-email-andrew@lunn.ch>
+References: <1409417172-6846-1-git-send-email-andrew@lunn.ch>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <1409403026-28818-5-git-send-email-b.galvani@gmail.com>
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sat, 30 Aug 2014, Beniamino Galvani wrote:
+On Saturday, August 30, 2014 06:46:05 PM Andrew Lunn wrote:
+> This is mostly a resend of these patches, removing mach-kirkwood.  Not
+> all maintainers picked up there patches, which has resulted in some
+> dead kernel configuration in v3.17-rcX.
+> 
+> The patch set has been rebased on v3.17-rc2, and it is intended that
+> Jason Cooper will submit them for inclusion in an RC. Subsystem
+> maintainers do not need to do anything.
+> 
+> The last patch "cpufreq: Remove ARCH_KIRKWOOD dependency" is new,
+> since what it is removing was added during v3.16-rcX. It follows the
+> pattern of all the other patches.
+> 
+> Andrew Lunn (7):
+>   cpuidle: kirkwood: Remove ARCH_KIRKWOOD dependency
+>   ata: Remove ARCH_KIRKWOOD dependency
+>   thermal: Remove ARCH_KIRKWOOD dependency
+>   leds: Remove ARCH_KIRKWOOD dependency
+>   rtc: Remove ARCH_KIRKWOOD dependency
+>   watchdog: Remove ARCH_KIRKWOOD dependency
+>   cpufreq: Remove ARCH_KIRKWOOD dependency
 
-> This adds the device tree bindings documentation for Ricoh RN5T618.
->=20
-> Signed-off-by: Beniamino Galvani <b.galvani@gmail.com>
-> Reviewed-by: Mark Brown <broonie@linaro.org>
-> ---
->  Documentation/devicetree/bindings/mfd/rn5t618.txt |   36 +++++++++++=
-++++++++++
->  1 file changed, 36 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/mfd/rn5t618.txt
+I have no problems with these changes, but what exactly am I supposed to do?
 
-Whoops, should have replied to this one instead of the other one
-twice.
+Rafael
 
-Applied, thanks.
-
-> diff --git a/Documentation/devicetree/bindings/mfd/rn5t618.txt b/Docu=
-mentation/devicetree/bindings/mfd/rn5t618.txt
-> new file mode 100644
-> index 0000000..937785a
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mfd/rn5t618.txt
-> @@ -0,0 +1,36 @@
-> +* Ricoh RN5T618 PMIC
-> +
-> +Ricoh RN5T618 is a power management IC which integrates 3 step-down
-> +DCDC converters, 7 low-dropout regulators, a Li-ion battery charger,
-> +fuel gauge, ADC, GPIOs and a watchdog timer. It can be controlled
-> +through a I2C interface.
-> +
-> +Required properties:
-> + - compatible: should be "ricoh,rn5t618"
-> + - reg: the I2C slave address of the device
-> +
-> +Sub-nodes:
-> + - regulators: the node is required if the regulator functionality i=
-s
-> +   needed. The valid regulator names are: DCDC1, DCDC2, DCDC3, LDO1,
-> +   LDO2, LDO3, LDO4, LDO5, LDORTC1 and LDORTC2.
-> +   The common bindings for each individual regulator can be found in=
-:
-> +   Documentation/devicetree/bindings/regulator/regulator.txt
-> +
-> +Example:
-> +
-> +	pmic@32 {
-> +		compatible =3D "ricoh,rn5t618";
-> +		reg =3D <0x32>;
-> +
-> +		regulators {
-> +			DCDC1 {
-> +				regulator-min-microvolt =3D <1050000>;
-> +				regulator-max-microvolt =3D <1050000>;
-> +			};
-> +
-> +			DCDC2 {
-> +				regulator-min-microvolt =3D <1175000>;
-> +				regulator-max-microvolt =3D <1175000>;
-> +			};
-> +		};
-> +	};
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
