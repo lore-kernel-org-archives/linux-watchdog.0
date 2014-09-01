@@ -1,12 +1,12 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from vps0.lunn.ch ([178.209.37.122]:42704 "EHLO vps0.lunn.ch"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753398AbaIAOKF (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 1 Sep 2014 10:10:05 -0400
-Date: Mon, 1 Sep 2014 16:03:20 +0200
-From: Andrew Lunn <andrew@lunn.ch>
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Andrew Lunn <andrew@lunn.ch>, Jason Cooper <jason@lakedaemon.net>,
+Received: from v094114.home.net.pl ([79.96.170.134]:61624 "HELO
+	v094114.home.net.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1752250AbaIAX1T (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 1 Sep 2014 19:27:19 -0400
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+To: Andrew Lunn <andrew@lunn.ch>
+Cc: Jason Cooper <jason@lakedaemon.net>,
 	linux ARM <linux-arm-kernel@lists.infradead.org>,
 	Daniel Lezcano <daniel.lezcano@linaro.org>,
 	linux-pm@vger.kernel.org, Tejun Heo <tj@kernel.org>,
@@ -17,41 +17,45 @@ Cc: Andrew Lunn <andrew@lunn.ch>, Jason Cooper <jason@lakedaemon.net>,
 	linux-watchdog@vger.kernel.org,
 	Viresh Kumar <viresh.kumar@linaro.org>
 Subject: Re: [Patch v3] 0/7] Remove mach-kirkwood
-Message-ID: <20140901140320.GE11312@lunn.ch>
-References: <1409417172-6846-1-git-send-email-andrew@lunn.ch>
- <1997148.5Fa3W8ZmXx@vostro.rjw.lan>
+Date: Tue, 02 Sep 2014 01:46:36 +0200
+Message-ID: <21386976.Th3DhM7uPl@vostro.rjw.lan>
+In-Reply-To: <20140901140320.GE11312@lunn.ch>
+References: <1409417172-6846-1-git-send-email-andrew@lunn.ch> <1997148.5Fa3W8ZmXx@vostro.rjw.lan> <20140901140320.GE11312@lunn.ch>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1997148.5Fa3W8ZmXx@vostro.rjw.lan>
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Sep 01, 2014 at 03:56:43PM +0200, Rafael J. Wysocki wrote:
-> On Saturday, August 30, 2014 06:46:05 PM Andrew Lunn wrote:
-> > This is mostly a resend of these patches, removing mach-kirkwood.  Not
-> > all maintainers picked up there patches, which has resulted in some
-> > dead kernel configuration in v3.17-rcX.
+On Monday, September 01, 2014 04:03:20 PM Andrew Lunn wrote:
+> On Mon, Sep 01, 2014 at 03:56:43PM +0200, Rafael J. Wysocki wrote:
+> > On Saturday, August 30, 2014 06:46:05 PM Andrew Lunn wrote:
+> > > This is mostly a resend of these patches, removing mach-kirkwood.  Not
+> > > all maintainers picked up there patches, which has resulted in some
+> > > dead kernel configuration in v3.17-rcX.
+> > > 
+> > > The patch set has been rebased on v3.17-rc2, and it is intended that
+> > > Jason Cooper will submit them for inclusion in an RC. Subsystem
+> > > maintainers do not need to do anything.
+> > > 
+> > > The last patch "cpufreq: Remove ARCH_KIRKWOOD dependency" is new,
+> > > since what it is removing was added during v3.16-rcX. It follows the
+> > > pattern of all the other patches.
+> > > 
+> > > Andrew Lunn (7):
+> > >   cpuidle: kirkwood: Remove ARCH_KIRKWOOD dependency
+> > >   ata: Remove ARCH_KIRKWOOD dependency
+> > >   thermal: Remove ARCH_KIRKWOOD dependency
+> > >   leds: Remove ARCH_KIRKWOOD dependency
+> > >   rtc: Remove ARCH_KIRKWOOD dependency
+> > >   watchdog: Remove ARCH_KIRKWOOD dependency
+> > >   cpufreq: Remove ARCH_KIRKWOOD dependency
 > > 
-> > The patch set has been rebased on v3.17-rc2, and it is intended that
-> > Jason Cooper will submit them for inclusion in an RC. Subsystem
-> > maintainers do not need to do anything.
-> > 
-> > The last patch "cpufreq: Remove ARCH_KIRKWOOD dependency" is new,
-> > since what it is removing was added during v3.16-rcX. It follows the
-> > pattern of all the other patches.
-> > 
-> > Andrew Lunn (7):
-> >   cpuidle: kirkwood: Remove ARCH_KIRKWOOD dependency
-> >   ata: Remove ARCH_KIRKWOOD dependency
-> >   thermal: Remove ARCH_KIRKWOOD dependency
-> >   leds: Remove ARCH_KIRKWOOD dependency
-> >   rtc: Remove ARCH_KIRKWOOD dependency
-> >   watchdog: Remove ARCH_KIRKWOOD dependency
-> >   cpufreq: Remove ARCH_KIRKWOOD dependency
+> > I have no problems with these changes, but what exactly am I supposed to do?
 > 
-> I have no problems with these changes, but what exactly am I supposed to do?
+> Jason will submit the whole series. So an Acked-by: would be nice.
 
-Jason will submit the whole series. So an Acked-by: would be nice.
+OK, so please regard the cpuidle and cpufreq patches as ACKed.
 
-      Andrew
+Rafael
+
