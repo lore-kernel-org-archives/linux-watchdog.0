@@ -1,203 +1,217 @@
-Return-path: <j.uzycki@elproma.com.pl>
-Message-ID: <542AA8E7.3030804@elproma.com.pl>
-Date: Tue, 30 Sep 2014 14:58:15 +0200
-From: =?UTF-8?B?SmFudXN6IFXFvHlja2k=?= <j.uzycki@elproma.com.pl>
+Return-Path: <mturquette@linaro.org>
+Return-Path: <mturquette@linaro.org>
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-To: Guenter Roeck <linux@roeck-us.net>
-CC: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 1/6] watchdog: watchdog_dev: WATCHDOG_KEEP_ON feature
-References: <542A3392.8020903@roeck-us.net> <1412081190-30699-1-git-send-email-j.uzycki@elproma.com.pl> <1412081190-30699-2-git-send-email-j.uzycki@elproma.com.pl>
-In-Reply-To: <1412081190-30699-2-git-send-email-j.uzycki@elproma.com.pl>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+To: Guenter Roeck <linux@roeck-us.net>, "Russell King" <linux@arm.linux.org.uk>,
+ "Wim Van Sebroeck" <wim@iguana.be>,
+ "Catalin Marinas" <catalin.marinas@arm.com>,
+ "Maxime Ripard" <maxime.ripard@free-electrons.com>,
+ "Andrew Morton" <akpm@linux-foundation.org>
+From: Mike Turquette <mturquette@linaro.org>
+In-Reply-To: <1408495538-27480-11-git-send-email-linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-pm@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
+ "Will Deacon" <will.deacon@arm.com>, "Arnd Bergmann" <arnd@arndb.de>,
+ "Heiko Stuebner" <heiko@sntech.de>, "Jonas Jensen" <jonas.jensen@gmail.com>,
+ "Randy Dunlap" <rdunlap@infradead.org>,
+ "Steven Rostedt" <rostedt@goodmis.org>, "Ingo Molnar" <mingo@kernel.org>,
+ "Dmitry Eremin-Solenikov" <dbaryshkov@gmail.com>,
+ "David Woodhouse" <dwmw2@infradead.org>, "Tomasz Figa" <t.figa@samsung.com>,
+ linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ "Guenter Roeck" <linux@roeck-us.net>
+References: <1408495538-27480-1-git-send-email-linux@roeck-us.net>
+ <1408495538-27480-11-git-send-email-linux@roeck-us.net>
+Message-ID: <20140903190526.11368.71063@quantum>
+Subject: Re: [PATCH v7 10/11] clk: samsung: register restart handlers for s3c2412 and
+ s3c2443
+Date: Wed, 03 Sep 2014 12:05:26 -0700
 List-ID: <linux-watchdog@vger.kernel.org>
 
-I sent also the changelog:
-[PATCH 1/6] watchdog: watchdog_dev: WATCHDOG_KEEP_ON feature
-* clean up old comments
-* watchdog_keepon_start() renamed to watchdog_timer_start()
-* watchdog_keepon_stop() renamed to watchdog_timer_stop()
-* watchdog_timer_register() added
-* watchdog_timer_unregister() added
-* watchdog_timer_register() is the last action
-   in watchdog_dev_register().
-   FIXME: Really should be in probe()?
-* TODO: should watchdog_timer_start() call watchdog_start()?
-* watchdog_release() uses watchdog_timer_restart() helper function
+Quoting Guenter Roeck (2014-08-19 17:45:37)
+> From: Heiko St=C3=BCbner <heiko@sntech.de>
+> =
 
-* TODO: change WDOG_KEEP_ON to autostart module parameter
-Here I am still not sure about module parameters.
- > autostart:
- >     Set to 0 to disable, -1 to enable with unlimited timeout,
- >     or <n> for an initial timeout of <n> seconds.
-[1/6]: support of 0 and -1, where -1 is instead of WDOG_KEEP_ON?
-[2/6]: support of <n> instead of boottime
+> S3C2412, S3C2443 and their derivatives contain a special software-reset
+> register in their system-controller.
+> =
 
-what about:
-* int init_timeout;    /* initial timeout in seconds */
-   It looks as <n> so why duplicate the autostart parameter?
-* keep_running
-   It looks like -1 without watchdog_start()
-* this_watchdog_is_running()
-  Where defined?
-* watchdog_set_autostart()
-How to split new patches?
+> Therefore register a restart handler for those.
+> =
 
-Janusz
+> Tested on a s3c2416-based board, s3c2412 compile-tested.
+> =
 
-W dniu 2014-09-30 14:46, Janusz Uzycki pisze:
-> Some applications require to start watchdog before userspace software.
-> This patch enables such feature. Only the flag is necessary
-> to enable it.
-> Moreover kernel's ping is re-enabled when userspace software closed
-> watchdog using the magic character. The features improves kernel's
-> reliability if hardware watchdog is available.
->
-> Signed-off-by: Janusz Uzycki <j.uzycki@elproma.com.pl>
+> Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+
+Acked-by: Mike Turquette <mturquette@linaro.org>
+
 > ---
->   drivers/watchdog/watchdog_dev.c | 65 ++++++++++++++++++++++++++-
->   include/linux/watchdog.h        |  4 ++
->   2 files changed, 68 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-> index 6aaefba..afc14f7 100644
-> --- a/drivers/watchdog/watchdog_dev.c
-> +++ b/drivers/watchdog/watchdog_dev.c
-> @@ -41,6 +41,7 @@
->   #include <linux/miscdevice.h>	/* For handling misc devices */
->   #include <linux/init.h>		/* For __init/__exit/... */
->   #include <linux/uaccess.h>	/* For copy_to_user/put_user/... */
-> +#include <linux/jiffies.h>	/* for ping timer */
->   
->   #include "watchdog_core.h"
->   
-> @@ -277,6 +278,60 @@ out_ioctl:
->   	return err;
->   }
->   
-> +static void watchdog_ping_timer_cb(unsigned long data)
+> v7: Added patch to series.
+> =
+
+>  drivers/clk/samsung/clk-s3c2412.c | 29 +++++++++++++++++++++++++++++
+>  drivers/clk/samsung/clk-s3c2443.c | 19 +++++++++++++++++++
+>  2 files changed, 48 insertions(+)
+> =
+
+> diff --git a/drivers/clk/samsung/clk-s3c2412.c b/drivers/clk/samsung/clk-=
+s3c2412.c
+> index 34af09f..2ceedaf 100644
+> --- a/drivers/clk/samsung/clk-s3c2412.c
+> +++ b/drivers/clk/samsung/clk-s3c2412.c
+> @@ -14,6 +14,7 @@
+>  #include <linux/of.h>
+>  #include <linux/of_address.h>
+>  #include <linux/syscore_ops.h>
+> +#include <linux/reboot.h>
+>  =
+
+>  #include <dt-bindings/clock/s3c2412.h>
+>  =
+
+> @@ -26,6 +27,7 @@
+>  #define CLKCON         0x0c
+>  #define CLKDIVN                0x14
+>  #define CLKSRC         0x1c
+> +#define SWRST          0x30
+>  =
+
+>  /* list of PLLs to be registered */
+>  enum s3c2412_plls {
+> @@ -204,6 +206,28 @@ struct samsung_clock_alias s3c2412_aliases[] __initd=
+ata =3D {
+>         ALIAS(MSYSCLK, NULL, "fclk"),
+>  };
+>  =
+
+> +static int s3c2412_restart(struct notifier_block *this,
+> +                          unsigned long mode, void *cmd)
 > +{
-> +	struct watchdog_device *wdd = (struct watchdog_device *)data;
-> +	watchdog_ping(wdd);
-> +	/* call next ping half the timeout value */
-> +	mod_timer(&wdd->ping_timer,
-> +			jiffies + msecs_to_jiffies(wdd->timeout * 500));
+> +       /* errata "Watch-dog/Software Reset Problem" specifies that
+> +        * this reset must be done with the SYSCLK sourced from
+> +        * EXTCLK instead of FOUT to avoid a glitch in the reset
+> +        * mechanism.
+> +        *
+> +        * See the watchdog section of the S3C2412 manual for more
+> +        * information on this fix.
+> +        */
+> +
+> +       __raw_writel(0x00, reg_base + CLKSRC);
+> +       __raw_writel(0x533C2412, reg_base + SWRST);
+> +       return NOTIFY_DONE;
 > +}
 > +
-> +static void watchdog_timer_start(struct watchdog_device *wdd)
+> +static struct notifier_block s3c2412_restart_handler =3D {
+> +       .notifier_call =3D s3c2412_restart,
+> +       .priority =3D 129,
+> +};
+> +
+>  /*
+>   * fixed rate clocks generated outside the soc
+>   * Only necessary until the devicetree-move is complete
+> @@ -233,6 +257,7 @@ void __init s3c2412_common_clk_init(struct device_nod=
+e *np, unsigned long xti_f,
+>                                     unsigned long ext_f, void __iomem *ba=
+se)
+>  {
+>         struct samsung_clk_provider *ctx;
+> +       int ret;
+>         reg_base =3D base;
+>  =
+
+>         if (np) {
+> @@ -267,6 +292,10 @@ void __init s3c2412_common_clk_init(struct device_no=
+de *np, unsigned long xti_f,
+>         s3c2412_clk_sleep_init();
+>  =
+
+>         samsung_clk_of_add_provider(np, ctx);
+> +
+> +       ret =3D register_restart_handler(&s3c2412_restart_handler);
+> +       if (ret)
+> +               pr_warn("cannot register restart handler, %d\n", ret);
+>  }
+>  =
+
+>  static void __init s3c2412_clk_init(struct device_node *np)
+> diff --git a/drivers/clk/samsung/clk-s3c2443.c b/drivers/clk/samsung/clk-=
+s3c2443.c
+> index c92f853..0c3c182 100644
+> --- a/drivers/clk/samsung/clk-s3c2443.c
+> +++ b/drivers/clk/samsung/clk-s3c2443.c
+> @@ -14,6 +14,7 @@
+>  #include <linux/of.h>
+>  #include <linux/of_address.h>
+>  #include <linux/syscore_ops.h>
+> +#include <linux/reboot.h>
+>  =
+
+>  #include <dt-bindings/clock/s3c2443.h>
+>  =
+
+> @@ -33,6 +34,7 @@
+>  #define HCLKCON                0x30
+>  #define PCLKCON                0x34
+>  #define SCLKCON                0x38
+> +#define SWRST          0x44
+>  =
+
+>  /* the soc types */
+>  enum supported_socs {
+> @@ -354,6 +356,18 @@ struct samsung_clock_alias s3c2450_aliases[] __initd=
+ata =3D {
+>         ALIAS(PCLK_I2C1, "s3c2410-i2c.1", "i2c"),
+>  };
+>  =
+
+> +static int s3c2443_restart(struct notifier_block *this,
+> +                          unsigned long mode, void *cmd)
 > +{
-> +	/* TODO: watchdog_start():
-> +	 * it should probably be handled by the caller, to let us separate
-> +	 * cases where the watchdog is already running (for example on close). */
-> +	watchdog_start(wdd);
-> +	watchdog_ping_timer_cb((unsigned long)wdd);
+> +       __raw_writel(0x533c2443, reg_base + SWRST);
+> +       return NOTIFY_DONE;
 > +}
 > +
-> +static void watchdog_timer_stop(struct watchdog_device *wdd)
-> +{
-> +	del_timer_sync(&wdd->ping_timer);
-> +}
+> +static struct notifier_block s3c2443_restart_handler =3D {
+> +       .notifier_call =3D s3c2443_restart,
+> +       .priority =3D 129,
+> +};
 > +
-> +static int watchdog_timer_restart(struct watchdog_device *wdd)
-> +{
-> +	if (test_bit(WDOG_KEEP_ON, &wdd->status)) {
-> +		watchdog_timer_start(wdd);
-> +		return 0;
-> +	}
-> +	return watchdog_stop(wdd);
-> +}
+>  /*
+>   * fixed rate clocks generated outside the soc
+>   * Only necessary until the devicetree-move is complete
+> @@ -378,6 +392,7 @@ void __init s3c2443_common_clk_init(struct device_nod=
+e *np, unsigned long xti_f,
+>                                     void __iomem *base)
+>  {
+>         struct samsung_clk_provider *ctx;
+> +       int ret;
+>         reg_base =3D base;
+>  =
+
+>         if (np) {
+> @@ -447,6 +462,10 @@ void __init s3c2443_common_clk_init(struct device_no=
+de *np, unsigned long xti_f,
+>         s3c2443_clk_sleep_init();
+>  =
+
+>         samsung_clk_of_add_provider(np, ctx);
 > +
-> +static int watchdog_timer_register(struct watchdog_device *wdd)
-> +{
-> +	if (test_bit(WDOG_KEEP_ON, &wdd->status)) {
-> +		if (!try_module_get(wdd->ops->owner))
-> +			return -ENODEV;
-> +		setup_timer(&wdd->ping_timer, watchdog_ping_timer_cb,
-> +				(unsigned long)wdd);
-> +		watchdog_timer_start(wdd);
-> +	}
-> +	return 0;
-> +}
-> +
-> +static int watchdog_timer_unregister(struct watchdog_device *wdd)
-> +{
-> +	if (test_bit(WDOG_KEEP_ON, &wdd->status)) {
-> +		watchdog_timer_stop(wdd);
-> +		watchdog_stop(wdd);
-> +		module_put(wdd->ops->owner);
-> +	}
-> +	return 0;
-> +}
-> +
->   /*
->    *	watchdog_write: writes to the watchdog.
->    *	@file: file from VFS
-> @@ -430,6 +485,9 @@ static int watchdog_open(struct inode *inode, struct file *file)
->   	if (!try_module_get(wdd->ops->owner))
->   		goto out;
->   
-> +	if (test_bit(WDOG_KEEP_ON, &wdd->status))
-> +		watchdog_timer_stop(wdd);
-> +
->   	err = watchdog_start(wdd);
->   	if (err < 0)
->   		goto out_mod;
-> @@ -473,7 +531,7 @@ static int watchdog_release(struct inode *inode, struct file *file)
->   		err = 0;
->   	else if (test_and_clear_bit(WDOG_ALLOW_RELEASE, &wdd->status) ||
->   		 !(wdd->info->options & WDIOF_MAGICCLOSE))
-> -		err = watchdog_stop(wdd);
-> +		err = watchdog_timer_restart(wdd);
->   
->   	/* If the watchdog was not stopped, send a keepalive ping */
->   	if (err < 0) {
-> @@ -553,7 +611,10 @@ int watchdog_dev_register(struct watchdog_device *watchdog)
->   			misc_deregister(&watchdog_miscdev);
->   			old_wdd = NULL;
->   		}
-> +		return err;
->   	}
-> +
-> +	err = watchdog_timer_register(watchdog);
->   	return err;
->   }
->   
-> @@ -575,6 +636,8 @@ int watchdog_dev_unregister(struct watchdog_device *watchdog)
->   		misc_deregister(&watchdog_miscdev);
->   		old_wdd = NULL;
->   	}
-> +
-> +	watchdog_timer_unregister(watchdog);
->   	return 0;
->   }
->   
-> diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
-> index 2a3038e..0afeabd 100644
-> --- a/include/linux/watchdog.h
-> +++ b/include/linux/watchdog.h
-> @@ -12,6 +12,7 @@
->   #include <linux/bitops.h>
->   #include <linux/device.h>
->   #include <linux/cdev.h>
-> +#include <linux/timer.h>		/* for ping timer */
->   #include <uapi/linux/watchdog.h>
->   
->   struct watchdog_ops;
-> @@ -95,6 +96,8 @@ struct watchdog_device {
->   #define WDOG_ALLOW_RELEASE	2	/* Did we receive the magic char ? */
->   #define WDOG_NO_WAY_OUT		3	/* Is 'nowayout' feature set ? */
->   #define WDOG_UNREGISTERED	4	/* Has the device been unregistered */
-> +#define WDOG_KEEP_ON		5	/* Is 'keep on' feature set? */
-> +	struct timer_list ping_timer;	/* timer to keep on hardware ping */
->   };
->   
->   #ifdef CONFIG_WATCHDOG_NOWAYOUT
-> @@ -104,6 +107,7 @@ struct watchdog_device {
->   #define WATCHDOG_NOWAYOUT		0
->   #define WATCHDOG_NOWAYOUT_INIT_STATUS	0
->   #endif
-> +#define WATCHDOG_KEEP_ON		(1 << WDOG_KEEP_ON)
->   
->   /* Use the following function to check whether or not the watchdog is active */
->   static inline bool watchdog_active(struct watchdog_device *wdd)
+> +       ret =3D register_restart_handler(&s3c2443_restart_handler);
+> +       if (ret)
+> +               pr_warn("cannot register restart handler, %d\n", ret);
+>  }
+>  =
+
+>  static void __init s3c2416_clk_init(struct device_node *np)
+> -- =
+
+> 1.9.1
+> =
+
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
