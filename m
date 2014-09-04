@@ -1,61 +1,63 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from v094114.home.net.pl ([79.96.170.134]:61624 "HELO
-	v094114.home.net.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1752250AbaIAX1T (ORCPT
+Received: from mail-yh0-f42.google.com ([209.85.213.42]:44108 "EHLO
+	mail-yh0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753055AbaIDOkv (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 1 Sep 2014 19:27:19 -0400
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Jason Cooper <jason@lakedaemon.net>,
-	linux ARM <linux-arm-kernel@lists.infradead.org>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	linux-pm@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-	linux-ide@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>,
-	Richard Purdie <rpurdie@rpsys.net>, linux-leds@vger.kernel.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com, Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org,
-	Viresh Kumar <viresh.kumar@linaro.org>
-Subject: Re: [Patch v3] 0/7] Remove mach-kirkwood
-Date: Tue, 02 Sep 2014 01:46:36 +0200
-Message-ID: <21386976.Th3DhM7uPl@vostro.rjw.lan>
-In-Reply-To: <20140901140320.GE11312@lunn.ch>
-References: <1409417172-6846-1-git-send-email-andrew@lunn.ch> <1997148.5Fa3W8ZmXx@vostro.rjw.lan> <20140901140320.GE11312@lunn.ch>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="utf-8"
+	Thu, 4 Sep 2014 10:40:51 -0400
+Received: by mail-yh0-f42.google.com with SMTP id v1so6488243yhn.29
+        for <linux-watchdog@vger.kernel.org>; Thu, 04 Sep 2014 07:40:51 -0700 (PDT)
+From: Lee Jones <lee.jones@linaro.org>
+To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: lee.jones@linaro.org, kernel@stlinux.com, wim@iguana.be,
+	linux-watchdog@vger.kernel.org, David Paris <david.paris@st.com>
+Subject: [PATCH 3/4] watchdog: st_wdt: Provide binding documentation for ST's LPC Watchdog driver
+Date: Thu,  4 Sep 2014 15:39:51 +0100
+Message-Id: <1409841592-18890-5-git-send-email-lee.jones@linaro.org>
+In-Reply-To: <1409841592-18890-1-git-send-email-lee.jones@linaro.org>
+References: <1409841592-18890-1-git-send-email-lee.jones@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Monday, September 01, 2014 04:03:20 PM Andrew Lunn wrote:
-> On Mon, Sep 01, 2014 at 03:56:43PM +0200, Rafael J. Wysocki wrote:
-> > On Saturday, August 30, 2014 06:46:05 PM Andrew Lunn wrote:
-> > > This is mostly a resend of these patches, removing mach-kirkwood.  Not
-> > > all maintainers picked up there patches, which has resulted in some
-> > > dead kernel configuration in v3.17-rcX.
-> > > 
-> > > The patch set has been rebased on v3.17-rc2, and it is intended that
-> > > Jason Cooper will submit them for inclusion in an RC. Subsystem
-> > > maintainers do not need to do anything.
-> > > 
-> > > The last patch "cpufreq: Remove ARCH_KIRKWOOD dependency" is new,
-> > > since what it is removing was added during v3.16-rcX. It follows the
-> > > pattern of all the other patches.
-> > > 
-> > > Andrew Lunn (7):
-> > >   cpuidle: kirkwood: Remove ARCH_KIRKWOOD dependency
-> > >   ata: Remove ARCH_KIRKWOOD dependency
-> > >   thermal: Remove ARCH_KIRKWOOD dependency
-> > >   leds: Remove ARCH_KIRKWOOD dependency
-> > >   rtc: Remove ARCH_KIRKWOOD dependency
-> > >   watchdog: Remove ARCH_KIRKWOOD dependency
-> > >   cpufreq: Remove ARCH_KIRKWOOD dependency
-> > 
-> > I have no problems with these changes, but what exactly am I supposed to do?
-> 
-> Jason will submit the whole series. So an Acked-by: would be nice.
+Signed-off-by: David Paris <david.paris@st.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ .../devicetree/bindings/watchdog/st-lpc-wdt.txt    | 27 ++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/st-lpc-wdt.txt
 
-OK, so please regard the cpuidle and cpufreq patches as ACKed.
-
-Rafael
+diff --git a/Documentation/devicetree/bindings/watchdog/st-lpc-wdt.txt b/Documentation/devicetree/bindings/watchdog/st-lpc-wdt.txt
+new file mode 100644
+index 0000000..f0e57ba
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/st-lpc-wdt.txt
+@@ -0,0 +1,27 @@
++STMicroelectronics LPC Watchdog
++===============================
++
++Required properties
++
++- compatible 	: "st,<soc>-watchdog"
++- reg		: LPC registers base address + range
++- reg-names	: Register map "base" and "syscfg-en" are compulsory "type" is
++		  platform dependent and not required for the STiH407.
++- clock-names 	: Should be "lpc_wdt"
++- clocks	: Clock used by LPC device
++- timeout-sec	: Qatchdog timeout in seconds
++- st,syscfg	: Syscfg node used to configure cpu reset type and mask
++- st,warm_reset	: If present, reset type will be 'warm'. If not, it will be cold
++
++Example:
++	watchdog@fde05000 {
++		compatible	= "st,stih416-lpc-watchdog";
++		reg		= <0xfde05000 0x1000> <0x204 0x4>;
++		reg-names	= "base", "syscfg-en"
++		clock-names	= "lpc_wdt";
++		clocks 		= <&clk_s_d3_flexgen CLK_LPC_0>;
++		timeout-sec	= <600>;
++		st,syscfg	= <&syscfg_core>;
++		st,warm_reset;
++	};
++
+-- 
+1.9.1
 
