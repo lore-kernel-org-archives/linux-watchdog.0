@@ -1,206 +1,335 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from v032797.home.net.pl ([89.161.177.31]:63503 "HELO
-	v032797.home.net.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1754328AbaIDRXZ (ORCPT
+Received: from mail-pa0-f51.google.com ([209.85.220.51]:58997 "EHLO
+	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751764AbaIDRZK (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 4 Sep 2014 13:23:25 -0400
-Message-ID: <5408A00F.50400@elproma.com.pl>
-Date: Thu, 04 Sep 2014 19:23:27 +0200
-From: =?windows-1250?Q?Janusz_U=BFycki?= <j.uzycki@elproma.com.pl>
+	Thu, 4 Sep 2014 13:25:10 -0400
+Date: Thu, 4 Sep 2014 10:25:03 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Beniamino Galvani <b.galvani@gmail.com>,
+	linux-kernel@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>,
+	Mark Brown <broonie@kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	Grant Likely <grant.likely@linaro.org>,
+	Carlo Caione <carlo@caione.org>
+Subject: Re: [PATCH 3/4] watchdog: add driver for Ricoh RN5T618 watchdog
+Message-ID: <20140904172503.GA25404@roeck-us.net>
+References: <1409091237-16722-1-git-send-email-b.galvani@gmail.com>
+ <1409091237-16722-4-git-send-email-b.galvani@gmail.com>
+ <20140904091917.GA1397@lee--X1>
 MIME-Version: 1.0
-To: linux-watchdog@vger.kernel.org
-Subject: Fwd: watchdog: WatchDog Timer Driver Core: ping a hardware watchdog
- in kernel's space [proposal]
-References: <54089252.9060803@elproma.com.pl>
-In-Reply-To: <54089252.9060803@elproma.com.pl>
-Content-Type: multipart/mixed;
- boundary="------------030006030703060609090804"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20140904091917.GA1397@lee--X1>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-This is a multi-part message in MIME format.
---------------030006030703060609090804
-Content-Type: text/plain; charset=windows-1250; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, Sep 04, 2014 at 10:19:17AM +0100, Lee Jones wrote:
+> Wim,
+>=20
+> Still waiting on a Watchdog Ack, so I can take this set in.
+>=20
+Wasn't there a more recent version of this patch ?
 
+Thanks,
+Guenter
 
-
-Hi,
-
-Some applications require to start watchdog before userspace software.
-This patch enables such feature. Only WATCHDOG_KERNEL_PING flag is necessary to enable it (attached example for stmp3xxx_rtc_wdt.c).
-Moreover kernel's ping is re-enabled when userspace software closed watchdog using the magic character.
-The features improves kernel's reliable if hardware watchdog is available.
-
-* Can you comment the proposed patch?
-* Shoud dynamic or static timer_list be used (small structure...)?
-* I also added wdd->ops->ref/unref calls but I'm afraid that even original code is buggy in watchdog_dev.c.
-Is any driver that uses the pointers?
-In my opinion watchdog_open() should call wdd->ops->ref() before watchdog_start() and watchdog_release() should call wdd->ops->unref() before module_put().
-Otherwise fault is possible if watchdog module is unloaded.
-* I noticed that current watchdog core does not support suspend/resume case.
-If you want to use suspend without the patch you need to close a watchdog in userspace using the magic character before suspend command.
-With the patch you must to use WDIOC_SETOPTIONS ioctl and WDIOS_DISABLECARD/WDIOS_ENABLECARD.
-Is there any other method to suspend with watchdog?
-
-best regards
-Janusz Uzycki
-
-
-
-
-
---------------030006030703060609090804
-Content-Type: text/plain; charset=windows-1250;
- name="wdt_kernel_ping.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="wdt_kernel_ping.diff"
-
-Signed-off-by: Janusz Uzycki <j.uzycki@elproma.com.pl>
-
-diff --git a/linux-3.14.17/drivers/watchdog/stmp3xxx_rtc_wdt.c b/linux-3.14.17/drivers/watchdog/stmp3xxx_rtc_wdt.c
-index b4d6b34..52c5f1c 100644
---- a/linux-3.14.17/drivers/watchdog/stmp3xxx_rtc_wdt.c
-+++ b/linux-3.14.17/drivers/watchdog/stmp3xxx_rtc_wdt.c
-@@ -78,6 +78,7 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
- 
- 	stmp3xxx_wdd.timeout = clamp_t(unsigned, heartbeat, 1, STMP3XXX_MAX_TIMEOUT);
- 
-+	stmp3xxx_wdd.status |= WATCHDOG_KERNEL_PING;
- 	ret = watchdog_register_device(&stmp3xxx_wdd);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "cannot register watchdog device\n");
-diff --git a/linux-3.14.17/drivers/watchdog/watchdog_dev.c b/linux-3.14.17/drivers/watchdog/watchdog_dev.c
-index 6aaefba..d4fae2c 100644
---- a/linux-3.14.17/drivers/watchdog/watchdog_dev.c
-+++ b/linux-3.14.17/drivers/watchdog/watchdog_dev.c
-@@ -41,6 +41,8 @@
- #include <linux/miscdevice.h>	/* For handling misc devices */
- #include <linux/init.h>		/* For __init/__exit/... */
- #include <linux/uaccess.h>	/* For copy_to_user/put_user/... */
-+#include <linux/slab.h>		/* for kernel ping timer (dynamic) */
-+#include <linux/jiffies.h>	/* for kernel ping timer */
- 
- #include "watchdog_core.h"
- 
-@@ -277,6 +279,34 @@ out_ioctl:
- 	return err;
- }
- 
-+/* kernel ping feature */
-+static void watchdog_kping_timer_cb(unsigned long data)
-+{
-+	struct watchdog_device *wdd = (struct watchdog_device *)data;
-+	if (test_bit(WDOG_KERNEL_PING, &wdd->status) && !test_bit(WDOG_DEV_OPEN, &wdd->status)) {
-+		watchdog_ping(wdd);
-+		/* call next ping a second or 0.5s before hardware timeout */
-+		mod_timer(wdd->kping_timer, wdd->timeout > 1 ?
-+				jiffies + (wdd->timeout - 1) * HZ : jiffies + HZ/2);
-+	}
-+}
-+
-+static void watchdog_kping_start(struct watchdog_device *wdd)
-+{
-+	if (wdd->ops->ref)
-+		wdd->ops->ref(wdd);
-+	watchdog_start(wdd);
-+	watchdog_ping(wdd);
-+	mod_timer(wdd->kping_timer, jiffies + HZ/2);
-+}
-+
-+static void watchdog_kping_stop(struct watchdog_device *wdd)
-+{
-+	del_timer_sync(wdd->kping_timer);
-+	if (wdd->ops->unref)
-+		wdd->ops->unref(wdd);
-+}
-+
- /*
-  *	watchdog_write: writes to the watchdog.
-  *	@file: file from VFS
-@@ -430,6 +460,9 @@ static int watchdog_open(struct inode *inode, struct file *file)
- 	if (!try_module_get(wdd->ops->owner))
- 		goto out;
- 
-+	if (test_bit(WDOG_KERNEL_PING, &wdd->status))
-+		watchdog_kping_stop(wdd);
-+
- 	err = watchdog_start(wdd);
- 	if (err < 0)
- 		goto out_mod;
-@@ -472,8 +505,13 @@ static int watchdog_release(struct inode *inode, struct file *file)
- 	if (!test_bit(WDOG_ACTIVE, &wdd->status))
- 		err = 0;
- 	else if (test_and_clear_bit(WDOG_ALLOW_RELEASE, &wdd->status) ||
--		 !(wdd->info->options & WDIOF_MAGICCLOSE))
--		err = watchdog_stop(wdd);
-+		 !(wdd->info->options & WDIOF_MAGICCLOSE)) {
-+		if (test_bit(WDOG_KERNEL_PING, &wdd->status)) {
-+			watchdog_kping_start(wdd);
-+			err = 0;
-+		} else
-+			err = watchdog_stop(wdd);
-+	}
- 
- 	/* If the watchdog was not stopped, send a keepalive ping */
- 	if (err < 0) {
-@@ -524,6 +562,16 @@ int watchdog_dev_register(struct watchdog_device *watchdog)
- {
- 	int err, devno;
- 
-+	if (test_bit(WDOG_KERNEL_PING, &watchdog->status)) {
-+		if (!try_module_get(watchdog->ops->owner))
-+			return -ENODEV;
-+		watchdog->kping_timer = kzalloc(sizeof(*watchdog->kping_timer), GFP_KERNEL);
-+		if (!watchdog->kping_timer)
-+			return -ENOMEM;
-+		setup_timer(watchdog->kping_timer, watchdog_kping_timer_cb, (unsigned long)watchdog);
-+		watchdog_kping_start(watchdog);
-+	}
-+
- 	if (watchdog->id == 0) {
- 		old_wdd = watchdog;
- 		watchdog_miscdev.parent = watchdog->parent;
-@@ -575,6 +623,15 @@ int watchdog_dev_unregister(struct watchdog_device *watchdog)
- 		misc_deregister(&watchdog_miscdev);
- 		old_wdd = NULL;
- 	}
-+
-+	if (test_bit(WDOG_KERNEL_PING, &watchdog->status) || watchdog->kping_timer) {
-+		watchdog_kping_stop(watchdog);
-+		watchdog_stop(watchdog);
-+		kfree(watchdog->kping_timer);
-+		watchdog->kping_timer = NULL;
-+		watchdog_stop(watchdog);
-+		module_put(watchdog->ops->owner);
-+	}
- 	return 0;
- }
- 
-diff --git a/linux-3.14.17/include/linux/watchdog.h b/linux-3.14.17/include/linux/watchdog.h
-index 2a3038e..8cf9148 100644
---- a/linux-3.14.17/include/linux/watchdog.h
-+++ b/linux-3.14.17/include/linux/watchdog.h
-@@ -12,6 +12,7 @@
- #include <linux/bitops.h>
- #include <linux/device.h>
- #include <linux/cdev.h>
-+#include <linux/timer.h>		/* for kernel ping timer */
- #include <uapi/linux/watchdog.h>
- 
- struct watchdog_ops;
-@@ -95,6 +96,9 @@ struct watchdog_device {
- #define WDOG_ALLOW_RELEASE	2	/* Did we receive the magic char ? */
- #define WDOG_NO_WAY_OUT		3	/* Is 'nowayout' feature set ? */
- #define WDOG_UNREGISTERED	4	/* Has the device been unregistered */
-+#define WDOG_KERNEL_PING	5	/* Ping is done by kernel if device not opened by userland */
-+	struct timer_list *kping_timer;	/* kernel ping timer */
-+#define WATCHDOG_KERNEL_PING	(1 << WDOG_KERNEL_PING)
- };
- 
- #ifdef CONFIG_WATCHDOG_NOWAYOUT
-
-
-
---------------030006030703060609090804--
+> > This adds a driver for the watchdog timer available in Ricoh RN5T618
+> > PMIC. The device supports a programmable expiration time of 1, 8, 32
+> > or 128 seconds.
+> >=20
+> > Signed-off-by: Beniamino Galvani <b.galvani@gmail.com>
+> > ---
+> >  drivers/watchdog/Kconfig       |   11 +++
+> >  drivers/watchdog/Makefile      |    1 +
+> >  drivers/watchdog/rn5t618_wdt.c |  196 ++++++++++++++++++++++++++++++=
+++++++++++
+> >  include/linux/mfd/rn5t618.h    |    4 +
+> >  4 files changed, 212 insertions(+)
+> >  create mode 100644 drivers/watchdog/rn5t618_wdt.c
+> >=20
+> > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> > index f57312f..9eba6af 100644
+> > --- a/drivers/watchdog/Kconfig
+> > +++ b/drivers/watchdog/Kconfig
+> > @@ -309,6 +309,17 @@ config ORION_WATCHDOG
+> >  	  To compile this driver as a module, choose M here: the
+> >  	  module will be called orion_wdt.
+> > =20
+> > +config RN5T618_WATCHDOG
+> > +	tristate "Ricoh RN5T618 watchdog"
+> > +	depends on MFD_RN5T618
+> > +	select WATCHDOG_CORE
+> > +	help
+> > +	  If you say yes here you get support for watchdog on the Ricoh
+> > +	  RN5T618 PMIC.
+> > +
+> > +	  This driver can also be built as a module.  If so, the module
+> > +	  will be called rn5t618_wdt.
+> > +
+> >  config SUNXI_WATCHDOG
+> >  	tristate "Allwinner SoCs watchdog support"
+> >  	depends on ARCH_SUNXI
+> > diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> > index 468c320..0afa343 100644
+> > --- a/drivers/watchdog/Makefile
+> > +++ b/drivers/watchdog/Makefile
+> > @@ -47,6 +47,7 @@ obj-$(CONFIG_IOP_WATCHDOG) +=3D iop_wdt.o
+> >  obj-$(CONFIG_DAVINCI_WATCHDOG) +=3D davinci_wdt.o
+> >  obj-$(CONFIG_ORION_WATCHDOG) +=3D orion_wdt.o
+> >  obj-$(CONFIG_SUNXI_WATCHDOG) +=3D sunxi_wdt.o
+> > +obj-$(CONFIG_RN5T618_WATCHDOG) +=3D rn5t618_wdt.o
+> >  obj-$(CONFIG_COH901327_WATCHDOG) +=3D coh901327_wdt.o
+> >  obj-$(CONFIG_STMP3XXX_RTC_WATCHDOG) +=3D stmp3xxx_rtc_wdt.o
+> >  obj-$(CONFIG_NUC900_WATCHDOG) +=3D nuc900_wdt.o
+> > diff --git a/drivers/watchdog/rn5t618_wdt.c b/drivers/watchdog/rn5t61=
+8_wdt.c
+> > new file mode 100644
+> > index 0000000..3a76ad7
+> > --- /dev/null
+> > +++ b/drivers/watchdog/rn5t618_wdt.c
+> > @@ -0,0 +1,196 @@
+> > +/*
+> > + * Watchdog driver for Ricoh RN5T618 PMIC
+> > + *
+> > + * Copyright (C) 2014 Beniamino Galvani <b.galvani@gmail.com>
+> > + *
+> > + * This program is free software; you can redistribute it and/or
+> > + * modify it under the terms of the GNU General Public License
+> > + * version 2 as published by the Free Software Foundation.
+> > + *
+> > + * You should have received a copy of the GNU General Public License
+> > + * along with this program. If not, see <http://www.gnu.org/licenses=
+/>.
+> > + */
+> > +
+> > +#include <linux/device.h>
+> > +#include <linux/mfd/rn5t618.h>
+> > +#include <linux/module.h>
+> > +#include <linux/platform_device.h>
+> > +#include <linux/watchdog.h>
+> > +
+> > +#define DRIVER_NAME "rn5t618-wdt"
+> > +
+> > +static bool nowayout =3D WATCHDOG_NOWAYOUT;
+> > +static unsigned int heartbeat =3D -1;
+> > +
+> > +module_param(heartbeat, int, 0);
+> > +MODULE_PARM_DESC(heartbeat, "Initial watchdog heartbeat in seconds")=
+;
+> > +
+> > +module_param(nowayout, bool, 0);
+> > +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started =
+(default=3D"
+> > +		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+> > +
+> > +struct rn5t618_wdt {
+> > +	struct watchdog_device wdt_dev;
+> > +	struct rn5t618 *rn5t618;
+> > +};
+> > +
+> > +/*
+> > + * This array encodes the values of WDOGTIM field for the supported
+> > + * watchdog expiration times. If the watchdog is not accessed before
+> > + * the timer expiration, the PMU generates an interrupt and if the C=
+PU
+> > + * doesn't clear it within one second the system is restarted.
+> > + */
+> > +static const struct {
+> > +	u8 reg_val;
+> > +	int time;
+> > +} rn5t618_wdt_map[] =3D {
+> > +	{ 0, 1 },
+> > +	{ 1, 8 },
+> > +	{ 2, 32 },
+> > +	{ 3, 128 },
+> > +};
+> > +
+> > +static int rn5t618_wdt_set_timeout(struct watchdog_device *wdt_dev,
+> > +				   unsigned int timeout)
+> > +{
+> > +	struct rn5t618_wdt *wdt =3D watchdog_get_drvdata(wdt_dev);
+> > +	int ret, i;
+> > +
+> > +	for (i =3D 0; i < ARRAY_SIZE(rn5t618_wdt_map); i++) {
+> > +		if (rn5t618_wdt_map[i].time + 1 >=3D timeout)
+> > +			break;
+> > +	}
+> > +
+> > +	if (i =3D=3D ARRAY_SIZE(rn5t618_wdt_map))
+> > +		ret =3D -EINVAL;
+> > +	else
+> > +		ret =3D regmap_update_bits(wdt->rn5t618->regmap, RN5T618_WATCHDOG,
+> > +					 RN5T618_WATCHDOG_WDOGTIM_M,
+> > +					 rn5t618_wdt_map[i].reg_val);
+> > +	if (!ret)
+> > +		wdt_dev->timeout =3D rn5t618_wdt_map[i].time;
+> > +
+> > +	return ret;
+> > +}
+> > +
+> > +static int rn5t618_wdt_start(struct watchdog_device *wdt_dev)
+> > +{
+> > +	struct rn5t618_wdt *wdt =3D watchdog_get_drvdata(wdt_dev);
+> > +	int ret;
+> > +
+> > +	ret =3D rn5t618_wdt_set_timeout(wdt_dev, wdt_dev->timeout);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	/* enable repower-on */
+> > +	ret =3D regmap_update_bits(wdt->rn5t618->regmap, RN5T618_REPCNT,
+> > +				 RN5T618_REPCNT_REPWRON,
+> > +				 RN5T618_REPCNT_REPWRON);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	/* enable watchdog */
+> > +	ret =3D regmap_update_bits(wdt->rn5t618->regmap, RN5T618_WATCHDOG,
+> > +				 RN5T618_WATCHDOG_WDOGEN,
+> > +				 RN5T618_WATCHDOG_WDOGEN);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	/* enable watchdog interrupt */
+> > +	return regmap_update_bits(wdt->rn5t618->regmap, RN5T618_PWRIREN,
+> > +				  RN5T618_PWRIRQ_IR_WDOG,
+> > +				  RN5T618_PWRIRQ_IR_WDOG);
+> > +}
+> > +
+> > +static int rn5t618_wdt_stop(struct watchdog_device *wdt_dev)
+> > +{
+> > +	struct rn5t618_wdt *wdt =3D watchdog_get_drvdata(wdt_dev);
+> > +
+> > +	return regmap_update_bits(wdt->rn5t618->regmap, RN5T618_WATCHDOG,
+> > +				  RN5T618_WATCHDOG_WDOGEN, 0);
+> > +}
+> > +
+> > +static int rn5t618_wdt_ping(struct watchdog_device *wdt_dev)
+> > +{
+> > +	struct rn5t618_wdt *wdt =3D watchdog_get_drvdata(wdt_dev);
+> > +	unsigned int val;
+> > +	int ret;
+> > +
+> > +	/* The counter is restarted after a R/W access to watchdog register=
+ */
+> > +	ret =3D regmap_read(wdt->rn5t618->regmap, RN5T618_WATCHDOG, &val);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	ret =3D regmap_write(wdt->rn5t618->regmap, RN5T618_WATCHDOG, val);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	/* Clear pending watchdog interrupt */
+> > +	return regmap_update_bits(wdt->rn5t618->regmap, RN5T618_PWRIRQ,
+> > +				  RN5T618_PWRIRQ_IR_WDOG, 0);
+> > +}
+> > +
+> > +static struct watchdog_info rn5t618_wdt_info =3D {
+> > +	.options	=3D WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE |
+> > +			  WDIOF_KEEPALIVEPING,
+> > +	.identity	=3D DRIVER_NAME,
+> > +};
+> > +
+> > +static struct watchdog_ops rn5t618_wdt_ops =3D {
+> > +	.owner          =3D THIS_MODULE,
+> > +	.start          =3D rn5t618_wdt_start,
+> > +	.stop           =3D rn5t618_wdt_stop,
+> > +	.ping           =3D rn5t618_wdt_ping,
+> > +	.set_timeout    =3D rn5t618_wdt_set_timeout,
+> > +};
+> > +
+> > +static int rn5t618_wdt_probe(struct platform_device *pdev)
+> > +{
+> > +	struct rn5t618 *rn5t618 =3D dev_get_drvdata(pdev->dev.parent);
+> > +	struct rn5t618_wdt *wdt;
+> > +	int min_timeout, max_timeout;
+> > +
+> > +	wdt =3D devm_kzalloc(&pdev->dev, sizeof(struct rn5t618_wdt), GFP_KE=
+RNEL);
+> > +	if (!wdt)
+> > +		return -ENOMEM;
+> > +
+> > +	min_timeout =3D rn5t618_wdt_map[0].time;
+> > +	max_timeout =3D rn5t618_wdt_map[ARRAY_SIZE(rn5t618_wdt_map) - 1].ti=
+me;
+> > +
+> > +	wdt->rn5t618 =3D rn5t618;
+> > +	wdt->wdt_dev.info =3D &rn5t618_wdt_info;
+> > +	wdt->wdt_dev.ops =3D &rn5t618_wdt_ops;
+> > +	wdt->wdt_dev.min_timeout =3D min_timeout;
+> > +	wdt->wdt_dev.max_timeout =3D max_timeout;
+> > +	wdt->wdt_dev.timeout =3D max_timeout;
+> > +	wdt->wdt_dev.parent =3D &pdev->dev;
+> > +
+> > +	watchdog_set_drvdata(&wdt->wdt_dev, wdt);
+> > +	watchdog_init_timeout(&wdt->wdt_dev, heartbeat, &pdev->dev);
+> > +	watchdog_set_nowayout(&wdt->wdt_dev, nowayout);
+> > +
+> > +	return watchdog_register_device(&wdt->wdt_dev);
+> > +}
+> > +
+> > +static int rn5t618_wdt_remove(struct platform_device *pdev)
+> > +{
+> > +	struct watchdog_device *wdt_dev =3D platform_get_drvdata(pdev);
+> > +
+> > +	watchdog_unregister_device(wdt_dev);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static struct platform_driver rn5t618_wdt_driver =3D {
+> > +	.probe =3D rn5t618_wdt_probe,
+> > +	.remove =3D rn5t618_wdt_remove,
+> > +	.driver =3D {
+> > +		.name	=3D DRIVER_NAME,
+> > +	},
+> > +};
+> > +
+> > +module_platform_driver(rn5t618_wdt_driver);
+> > +
+> > +MODULE_AUTHOR("Beniamino Galvani <b.galvani@gmail.com>");
+> > +MODULE_DESCRIPTION("RN5T618 watchdog driver");
+> > +MODULE_LICENSE("GPL v2");
+> > diff --git a/include/linux/mfd/rn5t618.h b/include/linux/mfd/rn5t618.=
+h
+> > index e3571d1..c72d534 100644
+> > --- a/include/linux/mfd/rn5t618.h
+> > +++ b/include/linux/mfd/rn5t618.h
+> > @@ -202,6 +202,10 @@
+> > =20
+> >  #define RN5T618_REPCNT_REPWRON		BIT(0)
+> >  #define RN5T618_SLPCNT_SWPWROFF		BIT(0)
+> > +#define RN5T618_WATCHDOG_WDOGEN		BIT(2)
+> > +#define RN5T618_WATCHDOG_WDOGTIM_M	(BIT(0) | BIT(1))
+> > +#define RN5T618_WATCHDOG_WDOGTIM_S	0
+> > +#define RN5T618_PWRIRQ_IR_WDOG		BIT(6)
+> > =20
+> >  enum {
+> >  	RN5T618_DCDC1,
+>=20
+> --=20
+> Lee Jones
+> Linaro STMicroelectronics Landing Team Lead
+> Linaro.org =E2=94=82 Open source software for ARM SoCs
+> Follow Linaro: Facebook | Twitter | Blog
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
