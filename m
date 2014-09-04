@@ -1,130 +1,153 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-bn1bon0115.outbound.protection.outlook.com ([157.56.111.115]:54098
-	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1756489AbaIEJq3 convert rfc822-to-8bit (ORCPT
+Received: from v032797.home.net.pl ([89.161.177.31]:57301 "HELO
+	v032797.home.net.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751214AbaIDPyM (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 5 Sep 2014 05:46:29 -0400
-From: "Li.Xiubo@freescale.com" <Li.Xiubo@freescale.com>
-To: "wim@iguana.be" <wim@iguana.be>,
-	"linux@roeck-us.net" <linux@roeck-us.net>,
-	"mpa@pengutronix.de" <mpa@pengutronix.de>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
-Subject: RE: [PATCHv2] watchdog: imx2_wdt: Convert to use regmap framework's
- endianness method.
-Date: Fri, 5 Sep 2014 07:11:31 +0000
-Message-ID: <54446636ab294eed83c4a4e3d405dfe7@BY2PR0301MB0613.namprd03.prod.outlook.com>
-References: <1408953277-2069-1-git-send-email-Li.Xiubo@freescale.com>
-In-Reply-To: <1408953277-2069-1-git-send-email-Li.Xiubo@freescale.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+	Thu, 4 Sep 2014 11:54:12 -0400
+Message-ID: <54088996.4040500@elproma.com.pl>
+Date: Thu, 04 Sep 2014 17:47:34 +0200
+From: =?UTF-8?B?SmFudXN6IFXFvHlja2k=?= <j.uzycki@elproma.com.pl>
 MIME-Version: 1.0
+To: linux-watchdog@vger.kernel.org
+CC: Wim Van Sebroeck <wim@iguana.be>
+Subject: watchdog: WatchDog Timer Driver Core: ping a hardware watchdog in
+ kernel's space
+References: <S1751381AbaIDOwq/20140904145246Z+988@vger.kernel.org>
+In-Reply-To: <S1751381AbaIDOwq/20140904145246Z+988@vger.kernel.org>
+Content-Type: multipart/mixed;
+ boundary="------------020709000206070209000407"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------020709000206070209000407
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+
 Hi,
 
-Ping :)
+Some applications require to start watchdog before userspace software. 
+This patch enables such feature. Only WATCHDOG_KERNEL_PING flag is 
+necessary to enable it (attached example for stmp3xxx_rtc_wdt.c). 
+Moreover kernel's ping is re-enabled when userspace software closed 
+watchdog using the magic character. The features improves kernel's 
+reliable if hardware watchdog is available.
+* Can you comment the proposed patch?
+* Shoud dynamic or static timer_list be used (small structure...)?
+* I also added wdd->ops->ref/unref calls but I'm afraid that even 
+original code is buggy in watchdog_dev.c. Is any driver that uses the 
+pointers? In my opinion watchdog_open() should call wdd->ops->ref() 
+before watchdog_start() and watchdog_release() should call  
+wdd->ops->unref() before module_put(). Otherwise fault is possible if 
+watchdog module is unloaded.
+* I noticed that current watchdog core does not support suspend/resume 
+case. If you want to use suspend without the patch you need to close a 
+watchdog in userspace using the magic character before suspend command. 
+With the patch you must to use WDIOC_SETOPTIONS ioctl and 
+WDIOS_DISABLECARD/WDIOS_ENABLECARD. Is there any other method to suspend 
+with watchdog?
 
-Thanks,
-
-BRs
-Xiubo
+best regards
+Janusz Uzycki
 
 
-> -----Original Message-----
-> From: Xiubo Li [mailto:Li.Xiubo@freescale.com]
-> Sent: Monday, August 25, 2014 3:55 PM
-> To: wim@iguana.be; linux@roeck-us.net; mpa@pengutronix.de; linux-
-> watchdog@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org; devicetree@vger.kernel.org; Xiubo Li-B47053
-> Subject: [PATCHv2] watchdog: imx2_wdt: Convert to use regmap framework's
-> endianness method.
-> 
-> Regmap framework will contain some patches to handle endianess, and there
-> does not need any parsing of endianness DT properties of individual driver,
-> so we can savely remove it here.
-> 
-> Signed-off-by: Xiubo Li <Li.Xiubo@freescale.com>
-> Cc: Markus Pargmann <mpa@pengutronix.de>
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-> ---
-> 
-> Changes in v2:
-> - Remove useless header file.
-> 
-> 
-> 
-> 
->  Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt | 4 ++--
->  drivers/watchdog/imx2_wdt.c                                | 9 +--------
->  2 files changed, 3 insertions(+), 10 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
-> b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
-> index e52ba2d..9e1ebe2 100644
-> --- a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
-> +++ b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
-> @@ -6,8 +6,8 @@ Required properties:
->  - interrupts : Should contain WDT interrupt
-> 
->  Optional property:
-> -- big-endian: If present the watchdog device's registers are implemented
-> -  in big endian mode, otherwise in little mode.
-> +- big-endian: Boolean property, required if all the i.MX WDT registers
-> +  are big-endian rather than little-endian.
-> 
->  Examples:
-> 
-> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-> index 68c3d37..afc8738 100644
-> --- a/drivers/watchdog/imx2_wdt.c
-> +++ b/drivers/watchdog/imx2_wdt.c
-> @@ -28,7 +28,6 @@
->  #include <linux/kernel.h>
->  #include <linux/module.h>
->  #include <linux/moduleparam.h>
-> -#include <linux/of_address.h>
->  #include <linux/platform_device.h>
->  #include <linux/regmap.h>
->  #include <linux/timer.h>
-> @@ -182,7 +181,7 @@ static struct watchdog_ops imx2_wdt_ops = {
->  	.set_timeout = imx2_wdt_set_timeout,
->  };
-> 
-> -static struct regmap_config imx2_wdt_regmap_config = {
-> +static const struct regmap_config imx2_wdt_regmap_config = {
->  	.reg_bits = 16,
->  	.reg_stride = 2,
->  	.val_bits = 16,
-> @@ -191,12 +190,10 @@ static struct regmap_config imx2_wdt_regmap_config = {
-> 
->  static int __init imx2_wdt_probe(struct platform_device *pdev)
->  {
-> -	struct device_node *np = pdev->dev.of_node;
->  	struct imx2_wdt_device *wdev;
->  	struct watchdog_device *wdog;
->  	struct resource *res;
->  	void __iomem *base;
-> -	bool big_endian;
->  	int ret;
->  	u32 val;
-> 
-> @@ -204,10 +201,6 @@ static int __init imx2_wdt_probe(struct platform_device
-> *pdev)
->  	if (!wdev)
->  		return -ENOMEM;
-> 
-> -	big_endian = of_property_read_bool(np, "big-endian");
-> -	if (big_endian)
-> -		imx2_wdt_regmap_config.val_format_endian = REGMAP_ENDIAN_BIG;
-> -
->  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->  	base = devm_ioremap_resource(&pdev->dev, res);
->  	if (IS_ERR(base))
-> --
-> 1.8.5
+--------------020709000206070209000407
+Content-Type: text/plain; charset=windows-1250;
+ name="wdt_kernel_ping.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="wdt_kernel_ping.diff"
 
+U2lnbmVkLW9mZi1ieTogSmFudXN6IFV6eWNraSA8ai51enlja2lAZWxwcm9tYS5jb20ucGw+
+CgpkaWZmIC0tZ2l0IGEvbGludXgtMy4xNC4xNy9kcml2ZXJzL3dhdGNoZG9nL3N0bXAzeHh4
+X3J0Y193ZHQuYyBiL2xpbnV4LTMuMTQuMTcvZHJpdmVycy93YXRjaGRvZy9zdG1wM3h4eF9y
+dGNfd2R0LmMKaW5kZXggYjRkNmIzNC4uNTJjNWYxYyAxMDA2NDQKLS0tIGEvbGludXgtMy4x
+NC4xNy9kcml2ZXJzL3dhdGNoZG9nL3N0bXAzeHh4X3J0Y193ZHQuYworKysgYi9saW51eC0z
+LjE0LjE3L2RyaXZlcnMvd2F0Y2hkb2cvc3RtcDN4eHhfcnRjX3dkdC5jCkBAIC03OCw2ICs3
+OCw3IEBAIHN0YXRpYyBpbnQgc3RtcDN4eHhfd2R0X3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9k
+ZXZpY2UgKnBkZXYpCiAKIAlzdG1wM3h4eF93ZGQudGltZW91dCA9IGNsYW1wX3QodW5zaWdu
+ZWQsIGhlYXJ0YmVhdCwgMSwgU1RNUDNYWFhfTUFYX1RJTUVPVVQpOwogCisJc3RtcDN4eHhf
+d2RkLnN0YXR1cyB8PSBXQVRDSERPR19LRVJORUxfUElORzsKIAlyZXQgPSB3YXRjaGRvZ19y
+ZWdpc3Rlcl9kZXZpY2UoJnN0bXAzeHh4X3dkZCk7CiAJaWYgKHJldCA8IDApIHsKIAkJZGV2
+X2VycigmcGRldi0+ZGV2LCAiY2Fubm90IHJlZ2lzdGVyIHdhdGNoZG9nIGRldmljZVxuIik7
+CmRpZmYgLS1naXQgYS9saW51eC0zLjE0LjE3L2RyaXZlcnMvd2F0Y2hkb2cvd2F0Y2hkb2df
+ZGV2LmMgYi9saW51eC0zLjE0LjE3L2RyaXZlcnMvd2F0Y2hkb2cvd2F0Y2hkb2dfZGV2LmMK
+aW5kZXggNmFhZWZiYS4uZDRmYWUyYyAxMDA2NDQKLS0tIGEvbGludXgtMy4xNC4xNy9kcml2
+ZXJzL3dhdGNoZG9nL3dhdGNoZG9nX2Rldi5jCisrKyBiL2xpbnV4LTMuMTQuMTcvZHJpdmVy
+cy93YXRjaGRvZy93YXRjaGRvZ19kZXYuYwpAQCAtNDEsNiArNDEsOCBAQAogI2luY2x1ZGUg
+PGxpbnV4L21pc2NkZXZpY2UuaD4JLyogRm9yIGhhbmRsaW5nIG1pc2MgZGV2aWNlcyAqLwog
+I2luY2x1ZGUgPGxpbnV4L2luaXQuaD4JCS8qIEZvciBfX2luaXQvX19leGl0Ly4uLiAqLwog
+I2luY2x1ZGUgPGxpbnV4L3VhY2Nlc3MuaD4JLyogRm9yIGNvcHlfdG9fdXNlci9wdXRfdXNl
+ci8uLi4gKi8KKyNpbmNsdWRlIDxsaW51eC9zbGFiLmg+CQkvKiBmb3Iga2VybmVsIHBpbmcg
+dGltZXIgKGR5bmFtaWMpICovCisjaW5jbHVkZSA8bGludXgvamlmZmllcy5oPgkvKiBmb3Ig
+a2VybmVsIHBpbmcgdGltZXIgKi8KIAogI2luY2x1ZGUgIndhdGNoZG9nX2NvcmUuaCIKIApA
+QCAtMjc3LDYgKzI3OSwzNCBAQCBvdXRfaW9jdGw6CiAJcmV0dXJuIGVycjsKIH0KIAorLyog
+a2VybmVsIHBpbmcgZmVhdHVyZSAqLworc3RhdGljIHZvaWQgd2F0Y2hkb2dfa3BpbmdfdGlt
+ZXJfY2IodW5zaWduZWQgbG9uZyBkYXRhKQoreworCXN0cnVjdCB3YXRjaGRvZ19kZXZpY2Ug
+KndkZCA9IChzdHJ1Y3Qgd2F0Y2hkb2dfZGV2aWNlICopZGF0YTsKKwlpZiAodGVzdF9iaXQo
+V0RPR19LRVJORUxfUElORywgJndkZC0+c3RhdHVzKSAmJiAhdGVzdF9iaXQoV0RPR19ERVZf
+T1BFTiwgJndkZC0+c3RhdHVzKSkgeworCQl3YXRjaGRvZ19waW5nKHdkZCk7CisJCS8qIGNh
+bGwgbmV4dCBwaW5nIGEgc2Vjb25kIG9yIDAuNXMgYmVmb3JlIGhhcmR3YXJlIHRpbWVvdXQg
+Ki8KKwkJbW9kX3RpbWVyKHdkZC0+a3BpbmdfdGltZXIsIHdkZC0+dGltZW91dCA+IDEgPwor
+CQkJCWppZmZpZXMgKyAod2RkLT50aW1lb3V0IC0gMSkgKiBIWiA6IGppZmZpZXMgKyBIWi8y
+KTsKKwl9Cit9CisKK3N0YXRpYyB2b2lkIHdhdGNoZG9nX2twaW5nX3N0YXJ0KHN0cnVjdCB3
+YXRjaGRvZ19kZXZpY2UgKndkZCkKK3sKKwlpZiAod2RkLT5vcHMtPnJlZikKKwkJd2RkLT5v
+cHMtPnJlZih3ZGQpOworCXdhdGNoZG9nX3N0YXJ0KHdkZCk7CisJd2F0Y2hkb2dfcGluZyh3
+ZGQpOworCW1vZF90aW1lcih3ZGQtPmtwaW5nX3RpbWVyLCBqaWZmaWVzICsgSFovMik7Cit9
+CisKK3N0YXRpYyB2b2lkIHdhdGNoZG9nX2twaW5nX3N0b3Aoc3RydWN0IHdhdGNoZG9nX2Rl
+dmljZSAqd2RkKQoreworCWRlbF90aW1lcl9zeW5jKHdkZC0+a3BpbmdfdGltZXIpOworCWlm
+ICh3ZGQtPm9wcy0+dW5yZWYpCisJCXdkZC0+b3BzLT51bnJlZih3ZGQpOworfQorCiAvKgog
+ICoJd2F0Y2hkb2dfd3JpdGU6IHdyaXRlcyB0byB0aGUgd2F0Y2hkb2cuCiAgKglAZmlsZTog
+ZmlsZSBmcm9tIFZGUwpAQCAtNDMwLDYgKzQ2MCw5IEBAIHN0YXRpYyBpbnQgd2F0Y2hkb2df
+b3BlbihzdHJ1Y3QgaW5vZGUgKmlub2RlLCBzdHJ1Y3QgZmlsZSAqZmlsZSkKIAlpZiAoIXRy
+eV9tb2R1bGVfZ2V0KHdkZC0+b3BzLT5vd25lcikpCiAJCWdvdG8gb3V0OwogCisJaWYgKHRl
+c3RfYml0KFdET0dfS0VSTkVMX1BJTkcsICZ3ZGQtPnN0YXR1cykpCisJCXdhdGNoZG9nX2tw
+aW5nX3N0b3Aod2RkKTsKKwogCWVyciA9IHdhdGNoZG9nX3N0YXJ0KHdkZCk7CiAJaWYgKGVy
+ciA8IDApCiAJCWdvdG8gb3V0X21vZDsKQEAgLTQ3Miw4ICs1MDUsMTMgQEAgc3RhdGljIGlu
+dCB3YXRjaGRvZ19yZWxlYXNlKHN0cnVjdCBpbm9kZSAqaW5vZGUsIHN0cnVjdCBmaWxlICpm
+aWxlKQogCWlmICghdGVzdF9iaXQoV0RPR19BQ1RJVkUsICZ3ZGQtPnN0YXR1cykpCiAJCWVy
+ciA9IDA7CiAJZWxzZSBpZiAodGVzdF9hbmRfY2xlYXJfYml0KFdET0dfQUxMT1dfUkVMRUFT
+RSwgJndkZC0+c3RhdHVzKSB8fAotCQkgISh3ZGQtPmluZm8tPm9wdGlvbnMgJiBXRElPRl9N
+QUdJQ0NMT1NFKSkKLQkJZXJyID0gd2F0Y2hkb2dfc3RvcCh3ZGQpOworCQkgISh3ZGQtPmlu
+Zm8tPm9wdGlvbnMgJiBXRElPRl9NQUdJQ0NMT1NFKSkgeworCQlpZiAodGVzdF9iaXQoV0RP
+R19LRVJORUxfUElORywgJndkZC0+c3RhdHVzKSkgeworCQkJd2F0Y2hkb2dfa3Bpbmdfc3Rh
+cnQod2RkKTsKKwkJCWVyciA9IDA7CisJCX0gZWxzZQorCQkJZXJyID0gd2F0Y2hkb2dfc3Rv
+cCh3ZGQpOworCX0KIAogCS8qIElmIHRoZSB3YXRjaGRvZyB3YXMgbm90IHN0b3BwZWQsIHNl
+bmQgYSBrZWVwYWxpdmUgcGluZyAqLwogCWlmIChlcnIgPCAwKSB7CkBAIC01MjQsNiArNTYy
+LDE2IEBAIGludCB3YXRjaGRvZ19kZXZfcmVnaXN0ZXIoc3RydWN0IHdhdGNoZG9nX2Rldmlj
+ZSAqd2F0Y2hkb2cpCiB7CiAJaW50IGVyciwgZGV2bm87CiAKKwlpZiAodGVzdF9iaXQoV0RP
+R19LRVJORUxfUElORywgJndhdGNoZG9nLT5zdGF0dXMpKSB7CisJCWlmICghdHJ5X21vZHVs
+ZV9nZXQod2F0Y2hkb2ctPm9wcy0+b3duZXIpKQorCQkJcmV0dXJuIC1FTk9ERVY7CisJCXdh
+dGNoZG9nLT5rcGluZ190aW1lciA9IGt6YWxsb2Moc2l6ZW9mKCp3YXRjaGRvZy0+a3Bpbmdf
+dGltZXIpLCBHRlBfS0VSTkVMKTsKKwkJaWYgKCF3YXRjaGRvZy0+a3BpbmdfdGltZXIpCisJ
+CQlyZXR1cm4gLUVOT01FTTsKKwkJc2V0dXBfdGltZXIod2F0Y2hkb2ctPmtwaW5nX3RpbWVy
+LCB3YXRjaGRvZ19rcGluZ190aW1lcl9jYiwgKHVuc2lnbmVkIGxvbmcpd2F0Y2hkb2cpOwor
+CQl3YXRjaGRvZ19rcGluZ19zdGFydCh3YXRjaGRvZyk7CisJfQorCiAJaWYgKHdhdGNoZG9n
+LT5pZCA9PSAwKSB7CiAJCW9sZF93ZGQgPSB3YXRjaGRvZzsKIAkJd2F0Y2hkb2dfbWlzY2Rl
+di5wYXJlbnQgPSB3YXRjaGRvZy0+cGFyZW50OwpAQCAtNTc1LDYgKzYyMywxNSBAQCBpbnQg
+d2F0Y2hkb2dfZGV2X3VucmVnaXN0ZXIoc3RydWN0IHdhdGNoZG9nX2RldmljZSAqd2F0Y2hk
+b2cpCiAJCW1pc2NfZGVyZWdpc3Rlcigmd2F0Y2hkb2dfbWlzY2Rldik7CiAJCW9sZF93ZGQg
+PSBOVUxMOwogCX0KKworCWlmICh0ZXN0X2JpdChXRE9HX0tFUk5FTF9QSU5HLCAmd2F0Y2hk
+b2ctPnN0YXR1cykgfHwgd2F0Y2hkb2ctPmtwaW5nX3RpbWVyKSB7CisJCXdhdGNoZG9nX2tw
+aW5nX3N0b3Aod2F0Y2hkb2cpOworCQl3YXRjaGRvZ19zdG9wKHdhdGNoZG9nKTsKKwkJa2Zy
+ZWUod2F0Y2hkb2ctPmtwaW5nX3RpbWVyKTsKKwkJd2F0Y2hkb2ctPmtwaW5nX3RpbWVyID0g
+TlVMTDsKKwkJd2F0Y2hkb2dfc3RvcCh3YXRjaGRvZyk7CisJCW1vZHVsZV9wdXQod2F0Y2hk
+b2ctPm9wcy0+b3duZXIpOworCX0KIAlyZXR1cm4gMDsKIH0KIApkaWZmIC0tZ2l0IGEvbGlu
+dXgtMy4xNC4xNy9pbmNsdWRlL2xpbnV4L3dhdGNoZG9nLmggYi9saW51eC0zLjE0LjE3L2lu
+Y2x1ZGUvbGludXgvd2F0Y2hkb2cuaAppbmRleCAyYTMwMzhlLi44Y2Y5MTQ4IDEwMDY0NAot
+LS0gYS9saW51eC0zLjE0LjE3L2luY2x1ZGUvbGludXgvd2F0Y2hkb2cuaAorKysgYi9saW51
+eC0zLjE0LjE3L2luY2x1ZGUvbGludXgvd2F0Y2hkb2cuaApAQCAtMTIsNiArMTIsNyBAQAog
+I2luY2x1ZGUgPGxpbnV4L2JpdG9wcy5oPgogI2luY2x1ZGUgPGxpbnV4L2RldmljZS5oPgog
+I2luY2x1ZGUgPGxpbnV4L2NkZXYuaD4KKyNpbmNsdWRlIDxsaW51eC90aW1lci5oPgkJLyog
+Zm9yIGtlcm5lbCBwaW5nIHRpbWVyICovCiAjaW5jbHVkZSA8dWFwaS9saW51eC93YXRjaGRv
+Zy5oPgogCiBzdHJ1Y3Qgd2F0Y2hkb2dfb3BzOwpAQCAtOTUsNiArOTYsOSBAQCBzdHJ1Y3Qg
+d2F0Y2hkb2dfZGV2aWNlIHsKICNkZWZpbmUgV0RPR19BTExPV19SRUxFQVNFCTIJLyogRGlk
+IHdlIHJlY2VpdmUgdGhlIG1hZ2ljIGNoYXIgPyAqLwogI2RlZmluZSBXRE9HX05PX1dBWV9P
+VVQJCTMJLyogSXMgJ25vd2F5b3V0JyBmZWF0dXJlIHNldCA/ICovCiAjZGVmaW5lIFdET0df
+VU5SRUdJU1RFUkVECTQJLyogSGFzIHRoZSBkZXZpY2UgYmVlbiB1bnJlZ2lzdGVyZWQgKi8K
+KyNkZWZpbmUgV0RPR19LRVJORUxfUElORwk1CS8qIFBpbmcgaXMgZG9uZSBieSBrZXJuZWwg
+aWYgZGV2aWNlIG5vdCBvcGVuZWQgYnkgdXNlcmxhbmQgKi8KKwlzdHJ1Y3QgdGltZXJfbGlz
+dCAqa3BpbmdfdGltZXI7CS8qIGtlcm5lbCBwaW5nIHRpbWVyICovCisjZGVmaW5lIFdBVENI
+RE9HX0tFUk5FTF9QSU5HCSgxIDw8IFdET0dfS0VSTkVMX1BJTkcpCiB9OwogCiAjaWZkZWYg
+Q09ORklHX1dBVENIRE9HX05PV0FZT1VUCg==
+--------------020709000206070209000407--
