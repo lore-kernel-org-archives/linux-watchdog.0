@@ -1,28 +1,29 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from v032797.home.net.pl ([89.161.177.31]:53965 "HELO
+Received: from v032797.home.net.pl ([89.161.177.31]:63503 "HELO
 	v032797.home.net.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1750980AbaIDQYq (ORCPT
+	with SMTP id S1754328AbaIDRXZ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 4 Sep 2014 12:24:46 -0400
-Message-ID: <54089252.9060803@elproma.com.pl>
-Date: Thu, 04 Sep 2014 18:24:50 +0200
+	Thu, 4 Sep 2014 13:23:25 -0400
+Message-ID: <5408A00F.50400@elproma.com.pl>
+Date: Thu, 04 Sep 2014 19:23:27 +0200
 From: =?windows-1250?Q?Janusz_U=BFycki?= <j.uzycki@elproma.com.pl>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
-CC: Wim Van Sebroeck <wim@iguana.be>
-Subject: watchdog: WatchDog Timer Driver Core: ping a hardware watchdog in
- kernel's space [proposal]
-References: <54088DC4.4020808@elproma.com.pl>
-In-Reply-To: <54088DC4.4020808@elproma.com.pl>
+To: linux-watchdog@vger.kernel.org
+Subject: Fwd: watchdog: WatchDog Timer Driver Core: ping a hardware watchdog
+ in kernel's space [proposal]
+References: <54089252.9060803@elproma.com.pl>
+In-Reply-To: <54089252.9060803@elproma.com.pl>
 Content-Type: multipart/mixed;
- boundary="------------090204090207000004040208"
+ boundary="------------030006030703060609090804"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------090204090207000004040208
+--------------030006030703060609090804
 Content-Type: text/plain; charset=windows-1250; format=flowed
 Content-Transfer-Encoding: 7bit
+
+
 
 Hi,
 
@@ -46,7 +47,10 @@ best regards
 Janusz Uzycki
 
 
---------------090204090207000004040208
+
+
+
+--------------030006030703060609090804
 Content-Type: text/plain; charset=windows-1250;
  name="wdt_kernel_ping.diff"
 Content-Transfer-Encoding: 7bit
@@ -198,4 +202,5 @@ index 2a3038e..8cf9148 100644
  #ifdef CONFIG_WATCHDOG_NOWAYOUT
 
 
---------------090204090207000004040208--
+
+--------------030006030703060609090804--
