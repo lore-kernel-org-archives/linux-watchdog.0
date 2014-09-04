@@ -1,285 +1,306 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ie0-f170.google.com ([209.85.223.170]:48102 "EHLO
-	mail-ie0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752288AbaIDJOZ (ORCPT
+Received: from mail-ig0-f176.google.com ([209.85.213.176]:50785 "EHLO
+	mail-ig0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754748AbaIDJTY (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 4 Sep 2014 05:14:25 -0400
-Received: by mail-ie0-f170.google.com with SMTP id rl12so11344202iec.15
-        for <linux-watchdog@vger.kernel.org>; Thu, 04 Sep 2014 02:14:24 -0700 (PDT)
-Date: Thu, 4 Sep 2014 10:14:18 +0100
+	Thu, 4 Sep 2014 05:19:24 -0400
+Received: by mail-ig0-f176.google.com with SMTP id hn18so728608igb.9
+        for <linux-watchdog@vger.kernel.org>; Thu, 04 Sep 2014 02:19:24 -0700 (PDT)
+Date: Thu, 4 Sep 2014 10:19:17 +0100
 From: Lee Jones <lee.jones@linaro.org>
-To: Andreas Werner <andreas.werner@men.de>
-Cc: linux-kernel@vger.kernel.org, sameo@linux.intel.com,
-	linux@roeck-us.net, lm-sensors@lm-sensors.org, wim@iguana.be,
-	linux-watchdog@vger.kernel.org, cooloney@gmail.com,
-	rpurdie@rpsys.net, linux-leds@vger.kernel.org
-Subject: Re: [PATCH v6 2/4] drivers/watchdog/menf21bmc_wdt: introduce MEN
- 14F021P00 BMC Watchdog driver
-Message-ID: <20140904091418.GD29612@lee--X1>
-References: <cover.1409161615.git.andreas.werner@men.de>
- <f21b275c79866e0aa9bbc59e195ae5424e538300.1409161615.git.andreas.werner@men.de>
+To: Beniamino Galvani <b.galvani@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>,
+	Mark Brown <broonie@kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	Grant Likely <grant.likely@linaro.org>,
+	Carlo Caione <carlo@caione.org>
+Subject: Re: [PATCH 3/4] watchdog: add driver for Ricoh RN5T618 watchdog
+Message-ID: <20140904091917.GA1397@lee--X1>
+References: <1409091237-16722-1-git-send-email-b.galvani@gmail.com>
+ <1409091237-16722-4-git-send-email-b.galvani@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <f21b275c79866e0aa9bbc59e195ae5424e538300.1409161615.git.andreas.werner@men.de>
+In-Reply-To: <1409091237-16722-4-git-send-email-b.galvani@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 Wim,
 
-We're still waiting on your Ack?
+Still waiting on a Watchdog Ack, so I can take this set in.
 
-> Added driver to support the 14F021P00 BMC Watchdog.
-> The BMC is a Board Management Controller including watchdog functionality.
+> This adds a driver for the watchdog timer available in Ricoh RN5T618
+> PMIC. The device supports a programmable expiration time of 1, 8, 32
+> or 128 seconds.
 > 
-> Signed-off-by: Andreas Werner <andreas.werner@men.de>
+> Signed-off-by: Beniamino Galvani <b.galvani@gmail.com>
 > ---
->  drivers/watchdog/Kconfig         |  10 ++
->  drivers/watchdog/Makefile        |   1 +
->  drivers/watchdog/menf21bmc_wdt.c | 203 +++++++++++++++++++++++++++++++++++++++
->  3 files changed, 214 insertions(+)
->  create mode 100644 drivers/watchdog/menf21bmc_wdt.c
+>  drivers/watchdog/Kconfig       |   11 +++
+>  drivers/watchdog/Makefile      |    1 +
+>  drivers/watchdog/rn5t618_wdt.c |  196 ++++++++++++++++++++++++++++++++++++++++
+>  include/linux/mfd/rn5t618.h    |    4 +
+>  4 files changed, 212 insertions(+)
+>  create mode 100644 drivers/watchdog/rn5t618_wdt.c
 > 
 > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 76dd541..96d72c2 100644
+> index f57312f..9eba6af 100644
 > --- a/drivers/watchdog/Kconfig
 > +++ b/drivers/watchdog/Kconfig
-> @@ -95,6 +95,16 @@ config GPIO_WATCHDOG
->  	  If you say yes here you get support for watchdog device
->  	  controlled through GPIO-line.
+> @@ -309,6 +309,17 @@ config ORION_WATCHDOG
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called orion_wdt.
 >  
-> +config MENF21BMC_WATCHDOG
-> +	tristate "MEN 14F021P00 BMC Watchdog"
-> +	depends on MFD_MENF21BMC
+> +config RN5T618_WATCHDOG
+> +	tristate "Ricoh RN5T618 watchdog"
+> +	depends on MFD_RN5T618
 > +	select WATCHDOG_CORE
 > +	help
-> +	  Say Y here to include support for the MEN 14F021P00 BMC Watchdog.
+> +	  If you say yes here you get support for watchdog on the Ricoh
+> +	  RN5T618 PMIC.
 > +
-> +	  This driver can also be built as a module. If so the module
-> +	  will be called menf21bmc_wdt.
+> +	  This driver can also be built as a module.  If so, the module
+> +	  will be called rn5t618_wdt.
 > +
->  config WM831X_WATCHDOG
->  	tristate "WM831x watchdog"
->  	depends on MFD_WM831X
+>  config SUNXI_WATCHDOG
+>  	tristate "Allwinner SoCs watchdog support"
+>  	depends on ARCH_SUNXI
 > diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index 468c320..de17014 100644
+> index 468c320..0afa343 100644
 > --- a/drivers/watchdog/Makefile
 > +++ b/drivers/watchdog/Makefile
-> @@ -178,3 +178,4 @@ obj-$(CONFIG_WM831X_WATCHDOG) += wm831x_wdt.o
->  obj-$(CONFIG_WM8350_WATCHDOG) += wm8350_wdt.o
->  obj-$(CONFIG_MAX63XX_WATCHDOG) += max63xx_wdt.o
->  obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
-> +obj-$(CONFIG_MENF21BMC_WATCHDOG) += menf21bmc_wdt.o
-> diff --git a/drivers/watchdog/menf21bmc_wdt.c b/drivers/watchdog/menf21bmc_wdt.c
+> @@ -47,6 +47,7 @@ obj-$(CONFIG_IOP_WATCHDOG) += iop_wdt.o
+>  obj-$(CONFIG_DAVINCI_WATCHDOG) += davinci_wdt.o
+>  obj-$(CONFIG_ORION_WATCHDOG) += orion_wdt.o
+>  obj-$(CONFIG_SUNXI_WATCHDOG) += sunxi_wdt.o
+> +obj-$(CONFIG_RN5T618_WATCHDOG) += rn5t618_wdt.o
+>  obj-$(CONFIG_COH901327_WATCHDOG) += coh901327_wdt.o
+>  obj-$(CONFIG_STMP3XXX_RTC_WATCHDOG) += stmp3xxx_rtc_wdt.o
+>  obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
+> diff --git a/drivers/watchdog/rn5t618_wdt.c b/drivers/watchdog/rn5t618_wdt.c
 > new file mode 100644
-> index 0000000..2042874
+> index 0000000..3a76ad7
 > --- /dev/null
-> +++ b/drivers/watchdog/menf21bmc_wdt.c
-> @@ -0,0 +1,203 @@
+> +++ b/drivers/watchdog/rn5t618_wdt.c
+> @@ -0,0 +1,196 @@
 > +/*
-> + *  MEN 14F021P00 Board Management Controller (BMC) Watchdog Driver.
+> + * Watchdog driver for Ricoh RN5T618 PMIC
 > + *
-> + *  Copyright (C) 2014 MEN Mikro Elektronik Nuernberg GmbH
+> + * Copyright (C) 2014 Beniamino Galvani <b.galvani@gmail.com>
 > + *
-> + *  This program is free software; you can redistribute  it and/or modify it
-> + *  under  the terms of  the GNU General  Public License as published by the
-> + *  Free Software Foundation;  either version 2 of the  License, or (at your
-> + *  option) any later version.
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License
+> + * version 2 as published by the Free Software Foundation.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program. If not, see <http://www.gnu.org/licenses/>.
 > + */
 > +
-> +#include <linux/kernel.h>
 > +#include <linux/device.h>
+> +#include <linux/mfd/rn5t618.h>
 > +#include <linux/module.h>
-> +#include <linux/watchdog.h>
 > +#include <linux/platform_device.h>
-> +#include <linux/i2c.h>
+> +#include <linux/watchdog.h>
 > +
-> +#define DEVNAME "menf21bmc_wdt"
-> +
-> +#define BMC_CMD_WD_ON		0x11
-> +#define BMC_CMD_WD_OFF		0x12
-> +#define BMC_CMD_WD_TRIG		0x13
-> +#define BMC_CMD_WD_TIME		0x14
-> +#define BMC_CMD_WD_STATE	0x17
-> +#define BMC_WD_OFF_VAL		0x69
-> +#define BMC_CMD_RST_RSN		0x92
-> +
-> +#define BMC_WD_TIMEOUT_MIN	1	/* in sec */
-> +#define BMC_WD_TIMEOUT_MAX	6553	/* in sec */
+> +#define DRIVER_NAME "rn5t618-wdt"
 > +
 > +static bool nowayout = WATCHDOG_NOWAYOUT;
+> +static unsigned int heartbeat = -1;
+> +
+> +module_param(heartbeat, int, 0);
+> +MODULE_PARM_DESC(heartbeat, "Initial watchdog heartbeat in seconds");
+> +
 > +module_param(nowayout, bool, 0);
 > +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
-> +				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+> +		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
 > +
-> +struct menf21bmc_wdt {
-> +	struct watchdog_device wdt;
-> +	struct i2c_client *i2c_client;
+> +struct rn5t618_wdt {
+> +	struct watchdog_device wdt_dev;
+> +	struct rn5t618 *rn5t618;
 > +};
 > +
-> +static int menf21bmc_wdt_set_bootstatus(struct menf21bmc_wdt *data)
+> +/*
+> + * This array encodes the values of WDOGTIM field for the supported
+> + * watchdog expiration times. If the watchdog is not accessed before
+> + * the timer expiration, the PMU generates an interrupt and if the CPU
+> + * doesn't clear it within one second the system is restarted.
+> + */
+> +static const struct {
+> +	u8 reg_val;
+> +	int time;
+> +} rn5t618_wdt_map[] = {
+> +	{ 0, 1 },
+> +	{ 1, 8 },
+> +	{ 2, 32 },
+> +	{ 3, 128 },
+> +};
+> +
+> +static int rn5t618_wdt_set_timeout(struct watchdog_device *wdt_dev,
+> +				   unsigned int timeout)
 > +{
-> +	int rst_rsn;
+> +	struct rn5t618_wdt *wdt = watchdog_get_drvdata(wdt_dev);
+> +	int ret, i;
 > +
-> +	rst_rsn = i2c_smbus_read_byte_data(data->i2c_client, BMC_CMD_RST_RSN);
-> +	if (rst_rsn < 0)
-> +		return rst_rsn;
+> +	for (i = 0; i < ARRAY_SIZE(rn5t618_wdt_map); i++) {
+> +		if (rn5t618_wdt_map[i].time + 1 >= timeout)
+> +			break;
+> +	}
 > +
-> +	if (rst_rsn == 0x02)
-> +		data->wdt.bootstatus |= WDIOF_CARDRESET;
-> +	else if (rst_rsn == 0x05)
-> +		data->wdt.bootstatus |= WDIOF_EXTERN1;
-> +	else if (rst_rsn == 0x06)
-> +		data->wdt.bootstatus |= WDIOF_EXTERN2;
-> +	else if (rst_rsn == 0x0A)
-> +		data->wdt.bootstatus |= WDIOF_POWERUNDER;
+> +	if (i == ARRAY_SIZE(rn5t618_wdt_map))
+> +		ret = -EINVAL;
+> +	else
+> +		ret = regmap_update_bits(wdt->rn5t618->regmap, RN5T618_WATCHDOG,
+> +					 RN5T618_WATCHDOG_WDOGTIM_M,
+> +					 rn5t618_wdt_map[i].reg_val);
+> +	if (!ret)
+> +		wdt_dev->timeout = rn5t618_wdt_map[i].time;
 > +
-> +	return 0;
+> +	return ret;
 > +}
 > +
-> +static int menf21bmc_wdt_start(struct watchdog_device *wdt)
+> +static int rn5t618_wdt_start(struct watchdog_device *wdt_dev)
 > +{
-> +	struct menf21bmc_wdt *drv_data = watchdog_get_drvdata(wdt);
-> +
-> +	return i2c_smbus_write_byte(drv_data->i2c_client, BMC_CMD_WD_ON);
-> +}
-> +
-> +static int menf21bmc_wdt_stop(struct watchdog_device *wdt)
-> +{
-> +	struct menf21bmc_wdt *drv_data = watchdog_get_drvdata(wdt);
-> +
-> +	return i2c_smbus_write_byte_data(drv_data->i2c_client,
-> +					 BMC_CMD_WD_OFF, BMC_WD_OFF_VAL);
-> +}
-> +
-> +static int
-> +menf21bmc_wdt_settimeout(struct watchdog_device *wdt, unsigned int timeout)
-> +{
+> +	struct rn5t618_wdt *wdt = watchdog_get_drvdata(wdt_dev);
 > +	int ret;
-> +	struct menf21bmc_wdt *drv_data = watchdog_get_drvdata(wdt);
 > +
-> +	/*
-> +	 *  BMC Watchdog does have a resolution of 100ms.
-> +	 *  Watchdog API defines the timeout in seconds, so we have to
-> +	 *  multiply the value.
-> +	 */
-> +	ret = i2c_smbus_write_word_data(drv_data->i2c_client,
-> +					BMC_CMD_WD_TIME, timeout * 10);
-> +	if (ret < 0)
+> +	ret = rn5t618_wdt_set_timeout(wdt_dev, wdt_dev->timeout);
+> +	if (ret)
 > +		return ret;
 > +
-> +	wdt->timeout = timeout;
+> +	/* enable repower-on */
+> +	ret = regmap_update_bits(wdt->rn5t618->regmap, RN5T618_REPCNT,
+> +				 RN5T618_REPCNT_REPWRON,
+> +				 RN5T618_REPCNT_REPWRON);
+> +	if (ret)
+> +		return ret;
 > +
-> +	return 0;
+> +	/* enable watchdog */
+> +	ret = regmap_update_bits(wdt->rn5t618->regmap, RN5T618_WATCHDOG,
+> +				 RN5T618_WATCHDOG_WDOGEN,
+> +				 RN5T618_WATCHDOG_WDOGEN);
+> +	if (ret)
+> +		return ret;
+> +
+> +	/* enable watchdog interrupt */
+> +	return regmap_update_bits(wdt->rn5t618->regmap, RN5T618_PWRIREN,
+> +				  RN5T618_PWRIRQ_IR_WDOG,
+> +				  RN5T618_PWRIRQ_IR_WDOG);
 > +}
 > +
-> +static int menf21bmc_wdt_ping(struct watchdog_device *wdt)
+> +static int rn5t618_wdt_stop(struct watchdog_device *wdt_dev)
 > +{
-> +	struct menf21bmc_wdt *drv_data = watchdog_get_drvdata(wdt);
+> +	struct rn5t618_wdt *wdt = watchdog_get_drvdata(wdt_dev);
 > +
-> +	return i2c_smbus_write_byte(drv_data->i2c_client, BMC_CMD_WD_TRIG);
+> +	return regmap_update_bits(wdt->rn5t618->regmap, RN5T618_WATCHDOG,
+> +				  RN5T618_WATCHDOG_WDOGEN, 0);
 > +}
 > +
-> +static const struct watchdog_info menf21bmc_wdt_info = {
-> +	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-> +	.identity = DEVNAME,
-> +};
-> +
-> +static const struct watchdog_ops menf21bmc_wdt_ops = {
-> +	.owner		= THIS_MODULE,
-> +	.start		= menf21bmc_wdt_start,
-> +	.stop		= menf21bmc_wdt_stop,
-> +	.ping		= menf21bmc_wdt_ping,
-> +	.set_timeout	= menf21bmc_wdt_settimeout,
-> +};
-> +
-> +static int menf21bmc_wdt_probe(struct platform_device *pdev)
+> +static int rn5t618_wdt_ping(struct watchdog_device *wdt_dev)
 > +{
-> +	int ret, bmc_timeout;
-> +	struct menf21bmc_wdt *drv_data;
-> +	struct i2c_client *i2c_client = to_i2c_client(pdev->dev.parent);
+> +	struct rn5t618_wdt *wdt = watchdog_get_drvdata(wdt_dev);
+> +	unsigned int val;
+> +	int ret;
 > +
-> +	drv_data = devm_kzalloc(&pdev->dev,
-> +				sizeof(struct menf21bmc_wdt), GFP_KERNEL);
-> +	if (!drv_data)
+> +	/* The counter is restarted after a R/W access to watchdog register */
+> +	ret = regmap_read(wdt->rn5t618->regmap, RN5T618_WATCHDOG, &val);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = regmap_write(wdt->rn5t618->regmap, RN5T618_WATCHDOG, val);
+> +	if (ret)
+> +		return ret;
+> +
+> +	/* Clear pending watchdog interrupt */
+> +	return regmap_update_bits(wdt->rn5t618->regmap, RN5T618_PWRIRQ,
+> +				  RN5T618_PWRIRQ_IR_WDOG, 0);
+> +}
+> +
+> +static struct watchdog_info rn5t618_wdt_info = {
+> +	.options	= WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE |
+> +			  WDIOF_KEEPALIVEPING,
+> +	.identity	= DRIVER_NAME,
+> +};
+> +
+> +static struct watchdog_ops rn5t618_wdt_ops = {
+> +	.owner          = THIS_MODULE,
+> +	.start          = rn5t618_wdt_start,
+> +	.stop           = rn5t618_wdt_stop,
+> +	.ping           = rn5t618_wdt_ping,
+> +	.set_timeout    = rn5t618_wdt_set_timeout,
+> +};
+> +
+> +static int rn5t618_wdt_probe(struct platform_device *pdev)
+> +{
+> +	struct rn5t618 *rn5t618 = dev_get_drvdata(pdev->dev.parent);
+> +	struct rn5t618_wdt *wdt;
+> +	int min_timeout, max_timeout;
+> +
+> +	wdt = devm_kzalloc(&pdev->dev, sizeof(struct rn5t618_wdt), GFP_KERNEL);
+> +	if (!wdt)
 > +		return -ENOMEM;
 > +
-> +	drv_data->wdt.ops = &menf21bmc_wdt_ops;
-> +	drv_data->wdt.info = &menf21bmc_wdt_info;
-> +	drv_data->wdt.min_timeout = BMC_WD_TIMEOUT_MIN;
-> +	drv_data->wdt.max_timeout = BMC_WD_TIMEOUT_MAX;
-> +	drv_data->i2c_client = i2c_client;
+> +	min_timeout = rn5t618_wdt_map[0].time;
+> +	max_timeout = rn5t618_wdt_map[ARRAY_SIZE(rn5t618_wdt_map) - 1].time;
 > +
-> +	/*
-> +	 * Get the current wdt timeout value from the BMC because
-> +	 * the BMC will save the value set before if the system restarts.
-> +	 */
-> +	bmc_timeout = i2c_smbus_read_word_data(drv_data->i2c_client,
-> +					       BMC_CMD_WD_TIME);
-> +	if (bmc_timeout < 0) {
-> +		dev_err(&pdev->dev, "failed to get current WDT timeout\n");
-> +		return bmc_timeout;
-> +	}
+> +	wdt->rn5t618 = rn5t618;
+> +	wdt->wdt_dev.info = &rn5t618_wdt_info;
+> +	wdt->wdt_dev.ops = &rn5t618_wdt_ops;
+> +	wdt->wdt_dev.min_timeout = min_timeout;
+> +	wdt->wdt_dev.max_timeout = max_timeout;
+> +	wdt->wdt_dev.timeout = max_timeout;
+> +	wdt->wdt_dev.parent = &pdev->dev;
 > +
-> +	watchdog_init_timeout(&drv_data->wdt, bmc_timeout / 10, &pdev->dev);
-> +	watchdog_set_nowayout(&drv_data->wdt, nowayout);
-> +	watchdog_set_drvdata(&drv_data->wdt, drv_data);
-> +	platform_set_drvdata(pdev, drv_data);
+> +	watchdog_set_drvdata(&wdt->wdt_dev, wdt);
+> +	watchdog_init_timeout(&wdt->wdt_dev, heartbeat, &pdev->dev);
+> +	watchdog_set_nowayout(&wdt->wdt_dev, nowayout);
 > +
-> +	ret = menf21bmc_wdt_set_bootstatus(drv_data);
-> +	if (ret < 0) {
-> +		dev_err(&pdev->dev, "failed to set Watchdog bootstatus\n");
-> +		return ret;
-> +	}
+> +	return watchdog_register_device(&wdt->wdt_dev);
+> +}
 > +
-> +	ret = watchdog_register_device(&drv_data->wdt);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "failed to register Watchdog device\n");
-> +		return ret;
-> +	}
+> +static int rn5t618_wdt_remove(struct platform_device *pdev)
+> +{
+> +	struct watchdog_device *wdt_dev = platform_get_drvdata(pdev);
 > +
-> +	dev_info(&pdev->dev, "MEN 14F021P00 BMC Watchdog device enabled\n");
+> +	watchdog_unregister_device(wdt_dev);
 > +
 > +	return 0;
 > +}
 > +
-> +static int menf21bmc_wdt_remove(struct platform_device *pdev)
-> +{
-> +	struct menf21bmc_wdt *drv_data = platform_get_drvdata(pdev);
-> +
-> +	dev_warn(&pdev->dev,
-> +		 "Unregister MEN 14F021P00 BMC Watchdog device, board may reset\n");
-> +
-> +	watchdog_unregister_device(&drv_data->wdt);
-> +
-> +	return 0;
-> +}
-> +
-> +static void menf21bmc_wdt_shutdown(struct platform_device *pdev)
-> +{
-> +	struct menf21bmc_wdt *drv_data = platform_get_drvdata(pdev);
-> +
-> +	i2c_smbus_write_word_data(drv_data->i2c_client,
-> +				  BMC_CMD_WD_OFF, BMC_WD_OFF_VAL);
-> +}
-> +
-> +static struct  platform_driver menf21bmc_wdt = {
-> +	.driver		= {
-> +		.owner = THIS_MODULE,
-> +		.name	= DEVNAME,
+> +static struct platform_driver rn5t618_wdt_driver = {
+> +	.probe = rn5t618_wdt_probe,
+> +	.remove = rn5t618_wdt_remove,
+> +	.driver = {
+> +		.name	= DRIVER_NAME,
 > +	},
-> +	.probe		= menf21bmc_wdt_probe,
-> +	.remove		= menf21bmc_wdt_remove,
-> +	.shutdown	= menf21bmc_wdt_shutdown,
 > +};
 > +
-> +module_platform_driver(menf21bmc_wdt);
+> +module_platform_driver(rn5t618_wdt_driver);
 > +
-> +MODULE_DESCRIPTION("MEN 14F021P00 BMC Watchdog driver");
-> +MODULE_AUTHOR("Andreas Werner <andreas.werner@men.de>");
+> +MODULE_AUTHOR("Beniamino Galvani <b.galvani@gmail.com>");
+> +MODULE_DESCRIPTION("RN5T618 watchdog driver");
 > +MODULE_LICENSE("GPL v2");
-> +MODULE_ALIAS("platform:menf21bmc_wdt");
+> diff --git a/include/linux/mfd/rn5t618.h b/include/linux/mfd/rn5t618.h
+> index e3571d1..c72d534 100644
+> --- a/include/linux/mfd/rn5t618.h
+> +++ b/include/linux/mfd/rn5t618.h
+> @@ -202,6 +202,10 @@
+>  
+>  #define RN5T618_REPCNT_REPWRON		BIT(0)
+>  #define RN5T618_SLPCNT_SWPWROFF		BIT(0)
+> +#define RN5T618_WATCHDOG_WDOGEN		BIT(2)
+> +#define RN5T618_WATCHDOG_WDOGTIM_M	(BIT(0) | BIT(1))
+> +#define RN5T618_WATCHDOG_WDOGTIM_S	0
+> +#define RN5T618_PWRIRQ_IR_WDOG		BIT(6)
+>  
+>  enum {
+>  	RN5T618_DCDC1,
 
 -- 
 Lee Jones
