@@ -1,56 +1,130 @@
-Return-path: <peter.griffin@linaro.org>
-Date: Fri, 5 Sep 2014 19:25:31 +0100
-From: Peter Griffin <peter.griffin@linaro.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Lee Jones <lee.jones@linaro.org>, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org, wim@iguana.be,
-	linux-arm-kernel@lists.infradead.org, kernel@stlinux.com
-Subject: Re: [STLinux Kernel] [PATCH 4/4] watchdog: st_wdt: Add new driver
- for ST's LPC Watchdog
-Message-ID: <20140905182531.GA2383@griffinp-ThinkPad-X1-Carbon-2nd>
-References: <1409841592-18890-1-git-send-email-lee.jones@linaro.org>
- <1409841592-18890-6-git-send-email-lee.jones@linaro.org>
- <20140905155811.GA12374@roeck-us.net>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-bn1bon0115.outbound.protection.outlook.com ([157.56.111.115]:54098
+	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1756489AbaIEJq3 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 5 Sep 2014 05:46:29 -0400
+From: "Li.Xiubo@freescale.com" <Li.Xiubo@freescale.com>
+To: "wim@iguana.be" <wim@iguana.be>,
+	"linux@roeck-us.net" <linux@roeck-us.net>,
+	"mpa@pengutronix.de" <mpa@pengutronix.de>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+Subject: RE: [PATCHv2] watchdog: imx2_wdt: Convert to use regmap framework's
+ endianness method.
+Date: Fri, 5 Sep 2014 07:11:31 +0000
+Message-ID: <54446636ab294eed83c4a4e3d405dfe7@BY2PR0301MB0613.namprd03.prod.outlook.com>
+References: <1408953277-2069-1-git-send-email-Li.Xiubo@freescale.com>
+In-Reply-To: <1408953277-2069-1-git-send-email-Li.Xiubo@freescale.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20140905155811.GA12374@roeck-us.net>
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
 Hi,
 
-> > +static int st_wdog_remove(struct platform_device *pdev)
-> > +{
-> > +	struct st_wdog *st_wdog = watchdog_get_drvdata(&st_wdog_dev);
-> > +
-> > +	if (watchdog_active(&st_wdog_dev))
-> > +		st_wdog_stop(&st_wdog_dev);
-> > +
-> > +	st_wdog_setup(st_wdog, WDT_DISABLE);
-> > +
-> > +	watchdog_unregister_device(&st_wdog_dev);
-> > +
-> No clk_disable_unprepare ?
+Ping :)
+
+Thanks,
+
+BRs
+Xiubo
+
+
+> -----Original Message-----
+> From: Xiubo Li [mailto:Li.Xiubo@freescale.com]
+> Sent: Monday, August 25, 2014 3:55 PM
+> To: wim@iguana.be; linux@roeck-us.net; mpa@pengutronix.de; linux-
+> watchdog@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org; devicetree@vger.kernel.org; Xiubo Li-B47053
+> Subject: [PATCHv2] watchdog: imx2_wdt: Convert to use regmap framework's
+> endianness method.
 > 
-> Maye it is not necessary, but then I wonder why you have it above.
-
-I think your right it should have a clk_disable_unprepare. Otherwise you will end up leaking a clock
-reference each time you insmod / rmmod the driver.
+> Regmap framework will contain some patches to handle endianess, and there
+> does not need any parsing of endianness DT properties of individual driver,
+> so we can savely remove it here.
 > 
-> > +	return 0;
-> > +}
-> > +
-> > +#ifdef CONFIG_PM
-> > +static int st_wdog_suspend(struct device *dev)
-> > +{
-> > +	if (watchdog_active(&st_wdog_dev))
-> > +		st_wdog_stop(&st_wdog_dev);
-> > +
+> Signed-off-by: Xiubo Li <Li.Xiubo@freescale.com>
+> Cc: Markus Pargmann <mpa@pengutronix.de>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> ---
 > 
-> Is any clock activity necessary here ? Just asking, I don't really have an idea.
+> Changes in v2:
+> - Remove useless header file.
+> 
+> 
+> 
+> 
+>  Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt | 4 ++--
+>  drivers/watchdog/imx2_wdt.c                                | 9 +--------
+>  2 files changed, 3 insertions(+), 10 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+> b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+> index e52ba2d..9e1ebe2 100644
+> --- a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+> +++ b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+> @@ -6,8 +6,8 @@ Required properties:
+>  - interrupts : Should contain WDT interrupt
+> 
+>  Optional property:
+> -- big-endian: If present the watchdog device's registers are implemented
+> -  in big endian mode, otherwise in little mode.
+> +- big-endian: Boolean property, required if all the i.MX WDT registers
+> +  are big-endian rather than little-endian.
+> 
+>  Examples:
+> 
+> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+> index 68c3d37..afc8738 100644
+> --- a/drivers/watchdog/imx2_wdt.c
+> +++ b/drivers/watchdog/imx2_wdt.c
+> @@ -28,7 +28,6 @@
+>  #include <linux/kernel.h>
+>  #include <linux/module.h>
+>  #include <linux/moduleparam.h>
+> -#include <linux/of_address.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/regmap.h>
+>  #include <linux/timer.h>
+> @@ -182,7 +181,7 @@ static struct watchdog_ops imx2_wdt_ops = {
+>  	.set_timeout = imx2_wdt_set_timeout,
+>  };
+> 
+> -static struct regmap_config imx2_wdt_regmap_config = {
+> +static const struct regmap_config imx2_wdt_regmap_config = {
+>  	.reg_bits = 16,
+>  	.reg_stride = 2,
+>  	.val_bits = 16,
+> @@ -191,12 +190,10 @@ static struct regmap_config imx2_wdt_regmap_config = {
+> 
+>  static int __init imx2_wdt_probe(struct platform_device *pdev)
+>  {
+> -	struct device_node *np = pdev->dev.of_node;
+>  	struct imx2_wdt_device *wdev;
+>  	struct watchdog_device *wdog;
+>  	struct resource *res;
+>  	void __iomem *base;
+> -	bool big_endian;
+>  	int ret;
+>  	u32 val;
+> 
+> @@ -204,10 +201,6 @@ static int __init imx2_wdt_probe(struct platform_device
+> *pdev)
+>  	if (!wdev)
+>  		return -ENOMEM;
+> 
+> -	big_endian = of_property_read_bool(np, "big-endian");
+> -	if (big_endian)
+> -		imx2_wdt_regmap_config.val_format_endian = REGMAP_ENDIAN_BIG;
+> -
+>  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>  	base = devm_ioremap_resource(&pdev->dev, res);
+>  	if (IS_ERR(base))
+> --
+> 1.8.5
 
-I would also expect the clock to be managed in suspend / resume callbacks.
-
-regards,
-
-Peter.
