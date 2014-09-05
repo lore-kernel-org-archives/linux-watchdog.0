@@ -1,113 +1,143 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ozlabs.org ([103.22.144.67]:54747 "EHLO ozlabs.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750760AbaI3XkO (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 30 Sep 2014 19:40:14 -0400
-Date: Wed, 1 Oct 2014 09:40:01 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	Russell King <linux@arm.linux.org.uk>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org,
-	linux-samsung-soc@vger.kernel.org,
-	Will Deacon <will.deacon@arm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Heiko Stuebner <heiko@sntech.de>,
-	Jonas Jensen <jonas.jensen@gmail.com>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Ingo Molnar <mingo@kernel.org>,
-	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Tomasz Figa <t.figa@samsung.com>, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Sebastian Reichel <sre@kernel.org>,
-	Mike Turquette <mturquette@linaro.org>
-Subject: Re: [PATCH v7 00/11] kernel: Add support for restart handler call
- chain
-Message-ID: <20141001094001.2b85f54c@canb.auug.org.au>
-In-Reply-To: <20140930223000.GA20946@roeck-us.net>
-References: <1408495538-27480-1-git-send-email-linux@roeck-us.net>
-	<20140930142002.e09ef32392a2b5a7c81e5e57@linux-foundation.org>
-	<20140930223000.GA20946@roeck-us.net>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Fri, 5 Sep 2014 09:06:40 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: "Li.Xiubo@freescale.com" <Li.Xiubo@freescale.com>
+Cc: "wim@iguana.be" <wim@iguana.be>, "mpa@pengutronix.de" <mpa@pengutronix.de>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+Subject: Re: [PATCHv2] watchdog: imx2_wdt: Convert to use regmap framework's
+ endianness method.
+Message-ID: <20140905160640.GB12374@roeck-us.net>
+References: <1408953277-2069-1-git-send-email-Li.Xiubo@freescale.com>
+ <54446636ab294eed83c4a4e3d405dfe7@BY2PR0301MB0613.namprd03.prod.outlook.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- boundary="Sig_/Gy42xwtiNT+p6PE05f0+fRy"; protocol="application/pgp-signature"
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <54446636ab294eed83c4a4e3d405dfe7@BY2PR0301MB0613.namprd03.prod.outlook.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+List-ID: <linux-watchdog@vger.kernel.org>
 
---Sig_/Gy42xwtiNT+p6PE05f0+fRy
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+On Fri, Sep 05, 2014 at 07:11:31AM +0000, Li.Xiubo@freescale.com wrote:
+> Hi,
+> 
+> Ping :)
+> 
+Wim usually picks up patches shortly before the next release window opens.
 
-Hi Guenter,
+It is in my watchdog-next branch, so it is not forgotten. I'll send a pull
+request to Wim after -rc5.
 
-On Tue, 30 Sep 2014 15:30:00 -0700 Guenter Roeck <linux@roeck-us.net> wrote:
->
-> On Tue, Sep 30, 2014 at 02:20:02PM -0700, Andrew Morton wrote:
-> > On Tue, 19 Aug 2014 17:45:27 -0700 Guenter Roeck <linux@roeck-us.net> w=
-rote:
-> >=20
-> > > Introduce a system restart handler call chain to solve the described =
-problems.
-> >=20
-> > So someone has merged eight of these patches into linux-next but these
-> > three:
-> >=20
-> > watchdog-s3c2410-add-restart-handler.patch
-> > clk-samsung-register-restart-handlers-for-s3c2412-and-s3c2443.patch
-> > clk-rockchip-add-restart-handler.patch
-> >=20
-> > were omitted.  What's up?
->=20
-> Most likely PBKC on my side; Looks like I forgot to add those when I crea=
-ted
-> the immutable branch for others to merge. Sorry for that :-(.
->=20
-> Having said that, I somehow thought that the clock patches would go in th=
-rough
-> the clock tree. Heiko, did I get that wrong ? Separately, I sent a pull r=
-equest
-> that includes the watchdog patch to Wim.
+Wim, I am wondering - should I ask Stephen to add my watchdog-next branch to
+linux-next ? I know it isn't really perfect, and there is no guarantee that
+you will accept the patches in my branch, but it would expose the pending
+patches to earlier visibility in -next.
 
-So far, that immutable branch has been merged into the battery tree
-(and thus into linux-next) by Sebastian in order to add (I assume):
+Thanks,
+Guenter
 
-18a702e0de98 power: reset: use restart_notifier mechanism for msm-poweroff
-371bb20d6927 power: Add simple gpio-restart driver
-
-on top of it.
-
-So, I guess the watchdog and clk trees also need to merge that
-immutable branch and then add their respective patches from the mmotm
-series to their trees.
---=20
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-
---Sig_/Gy42xwtiNT+p6PE05f0+fRy
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBCAAGBQJUKz9aAAoJEMDTa8Ir7ZwVTDQQAI8iUdIp+v4VeTxn/6FbuhOZ
-e1n1OJBjeRwYkHjg831LF14VnUhesMmVm5/NavwyjFIzlhnSN1wSfkdZpfQ4j4G+
-K0aYCUBo5OQ6A4umtuH249dw6kHbTyxf0p3hxaHyebma+WCwsJK3RHQXzSYqwP+D
-57LpKTIWd5psPNWvNwYO4zL51VfpjakC+NeO/jAVB/XvSTOvCFk/Ds296QKsHPyJ
-NkZzozaEUDXbglfHk7FvtJYQmJfW3aim0j2B/bYs5Syx6Pt0OqkaESRW6jNJ+dzl
-l/InzIT5tQAS26JiZvyOP2U3BbTFP98qjlpGG9VHYh+fWcO4oYVMU0otZV8QFnA4
-mjnxsxTnpY1e0EXddyIM2ofyNG3sgkUGlcUL0oHwUYjOkvqaH2jplPm7ZFTkuRKM
-AQWwMAtHi6mdUFmVhaTOj5abwoedeWSjXnKWXLMhBhSBn/sL3CKqxNI8Na930Nk5
-rxDEn71ifyNOp++gxNt/kP0bjGh17mvtbvsX7vejd5u1QAseUpVVwhzdcDtbNe3q
-WfCfrP+Skbvuymeky62Q/95JWrp4URYunqbcx2w/K3MBvtoesaHWrSNgdEeNmKQZ
-kzLe0MrFz1FNHe0rk1x1OIcl9zhdOGafax5Nft2lZY/rxRdbBcUUCECHHBtzA41x
-BhiA2DCmhTYk9na6KlaB
-=4F6P
------END PGP SIGNATURE-----
-
---Sig_/Gy42xwtiNT+p6PE05f0+fRy--
+> Thanks,
+> 
+> BRs
+> Xiubo
+> 
+> 
+> > -----Original Message-----
+> > From: Xiubo Li [mailto:Li.Xiubo@freescale.com]
+> > Sent: Monday, August 25, 2014 3:55 PM
+> > To: wim@iguana.be; linux@roeck-us.net; mpa@pengutronix.de; linux-
+> > watchdog@vger.kernel.org
+> > Cc: linux-kernel@vger.kernel.org; devicetree@vger.kernel.org; Xiubo Li-B47053
+> > Subject: [PATCHv2] watchdog: imx2_wdt: Convert to use regmap framework's
+> > endianness method.
+> > 
+> > Regmap framework will contain some patches to handle endianess, and there
+> > does not need any parsing of endianness DT properties of individual driver,
+> > so we can savely remove it here.
+> > 
+> > Signed-off-by: Xiubo Li <Li.Xiubo@freescale.com>
+> > Cc: Markus Pargmann <mpa@pengutronix.de>
+> > Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> > ---
+> > 
+> > Changes in v2:
+> > - Remove useless header file.
+> > 
+> > 
+> > 
+> > 
+> >  Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt | 4 ++--
+> >  drivers/watchdog/imx2_wdt.c                                | 9 +--------
+> >  2 files changed, 3 insertions(+), 10 deletions(-)
+> > 
+> > diff --git a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+> > b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+> > index e52ba2d..9e1ebe2 100644
+> > --- a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+> > +++ b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+> > @@ -6,8 +6,8 @@ Required properties:
+> >  - interrupts : Should contain WDT interrupt
+> > 
+> >  Optional property:
+> > -- big-endian: If present the watchdog device's registers are implemented
+> > -  in big endian mode, otherwise in little mode.
+> > +- big-endian: Boolean property, required if all the i.MX WDT registers
+> > +  are big-endian rather than little-endian.
+> > 
+> >  Examples:
+> > 
+> > diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+> > index 68c3d37..afc8738 100644
+> > --- a/drivers/watchdog/imx2_wdt.c
+> > +++ b/drivers/watchdog/imx2_wdt.c
+> > @@ -28,7 +28,6 @@
+> >  #include <linux/kernel.h>
+> >  #include <linux/module.h>
+> >  #include <linux/moduleparam.h>
+> > -#include <linux/of_address.h>
+> >  #include <linux/platform_device.h>
+> >  #include <linux/regmap.h>
+> >  #include <linux/timer.h>
+> > @@ -182,7 +181,7 @@ static struct watchdog_ops imx2_wdt_ops = {
+> >  	.set_timeout = imx2_wdt_set_timeout,
+> >  };
+> > 
+> > -static struct regmap_config imx2_wdt_regmap_config = {
+> > +static const struct regmap_config imx2_wdt_regmap_config = {
+> >  	.reg_bits = 16,
+> >  	.reg_stride = 2,
+> >  	.val_bits = 16,
+> > @@ -191,12 +190,10 @@ static struct regmap_config imx2_wdt_regmap_config = {
+> > 
+> >  static int __init imx2_wdt_probe(struct platform_device *pdev)
+> >  {
+> > -	struct device_node *np = pdev->dev.of_node;
+> >  	struct imx2_wdt_device *wdev;
+> >  	struct watchdog_device *wdog;
+> >  	struct resource *res;
+> >  	void __iomem *base;
+> > -	bool big_endian;
+> >  	int ret;
+> >  	u32 val;
+> > 
+> > @@ -204,10 +201,6 @@ static int __init imx2_wdt_probe(struct platform_device
+> > *pdev)
+> >  	if (!wdev)
+> >  		return -ENOMEM;
+> > 
+> > -	big_endian = of_property_read_bool(np, "big-endian");
+> > -	if (big_endian)
+> > -		imx2_wdt_regmap_config.val_format_endian = REGMAP_ENDIAN_BIG;
+> > -
+> >  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> >  	base = devm_ioremap_resource(&pdev->dev, res);
+> >  	if (IS_ERR(base))
+> > --
+> > 1.8.5
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
