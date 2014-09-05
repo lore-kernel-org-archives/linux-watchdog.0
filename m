@@ -1,46 +1,85 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:59829 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754479AbaIDRfw (ORCPT
+Received: from mail-pd0-f174.google.com ([209.85.192.174]:59098 "EHLO
+	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751123AbaIEP2I (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 4 Sep 2014 13:35:52 -0400
-Date: Thu, 4 Sep 2014 19:35:01 +0200
-From: Beniamino Galvani <b.galvani@gmail.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Mark Brown <broonie@kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Grant Likely <grant.likely@linaro.org>,
-	Carlo Caione <carlo@caione.org>
-Subject: Re: [PATCH 3/4] watchdog: add driver for Ricoh RN5T618 watchdog
-Message-ID: <20140904173501.GA14583@gmail.com>
-References: <1409091237-16722-1-git-send-email-b.galvani@gmail.com>
- <1409091237-16722-4-git-send-email-b.galvani@gmail.com>
- <20140904091917.GA1397@lee--X1>
- <20140904172503.GA25404@roeck-us.net>
+	Fri, 5 Sep 2014 11:28:08 -0400
+Date: Fri, 5 Sep 2014 08:27:58 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	kernel@stlinux.com, wim@iguana.be, linux-watchdog@vger.kernel.org,
+	David Paris <david.paris@st.com>
+Subject: Re: [PATCH 3/4] watchdog: st_wdt: Provide binding documentation for
+ ST's LPC Watchdog driver
+Message-ID: <20140905152758.GA10670@roeck-us.net>
+References: <1409841592-18890-1-git-send-email-lee.jones@linaro.org>
+ <1409841592-18890-5-git-send-email-lee.jones@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20140904172503.GA25404@roeck-us.net>
+In-Reply-To: <1409841592-18890-5-git-send-email-lee.jones@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Sep 04, 2014 at 10:25:03AM -0700, Guenter Roeck wrote:
-> On Thu, Sep 04, 2014 at 10:19:17AM +0100, Lee Jones wrote:
-> > Wim,
-> > 
-> > Still waiting on a Watchdog Ack, so I can take this set in.
-> > 
-> Wasn't there a more recent version of this patch ?
+On Thu, Sep 04, 2014 at 03:39:51PM +0100, Lee Jones wrote:
+> Signed-off-by: David Paris <david.paris@st.com>
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
 
-Yes, this is superseded by v2.
+You might want to copy the devicetree mailing list for bindings approval.
 
-Beniamino
+> ---
+>  .../devicetree/bindings/watchdog/st-lpc-wdt.txt    | 27 ++++++++++++++++++++++
+>  1 file changed, 27 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/st-lpc-wdt.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/st-lpc-wdt.txt b/Documentation/devicetree/bindings/watchdog/st-lpc-wdt.txt
+> new file mode 100644
+> index 0000000..f0e57ba
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/watchdog/st-lpc-wdt.txt
+> @@ -0,0 +1,27 @@
+> +STMicroelectronics LPC Watchdog
+> +===============================
+> +
+> +Required properties
+> +
+> +- compatible 	: "st,<soc>-watchdog"
+
+Is this acceptable ? I thought the supported bindings have to be listed
+explicitly.
+
+> +- reg		: LPC registers base address + range
+> +- reg-names	: Register map "base" and "syscfg-en" are compulsory "type" is
+
+'.' after compulsory ?
+
+> +		  platform dependent and not required for the STiH407.
+> +- clock-names 	: Should be "lpc_wdt"
+> +- clocks	: Clock used by LPC device
+> +- timeout-sec	: Qatchdog timeout in seconds
+
+Watchdog
+
+> +- st,syscfg	: Syscfg node used to configure cpu reset type and mask
+> +- st,warm_reset	: If present, reset type will be 'warm'. If not, it will be cold
+
+s/cold/cold./ ?
+
+> +
+> +Example:
+> +	watchdog@fde05000 {
+> +		compatible	= "st,stih416-lpc-watchdog";
+> +		reg		= <0xfde05000 0x1000> <0x204 0x4>;
+> +		reg-names	= "base", "syscfg-en"
+> +		clock-names	= "lpc_wdt";
+> +		clocks 		= <&clk_s_d3_flexgen CLK_LPC_0>;
+> +		timeout-sec	= <600>;
+> +		st,syscfg	= <&syscfg_core>;
+> +		st,warm_reset;
+> +	};
+> +
+
+Empty line at the end results in a whitespace error when applying.
+
+Guenter
