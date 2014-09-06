@@ -1,103 +1,182 @@
-Return-path: <lee.jones@linaro.org>
-Date: Mon, 8 Sep 2014 12:57:35 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	kernel@stlinux.com, wim@iguana.be, linux-watchdog@vger.kernel.org,
-	David Paris <david.paris@st.com>
-Subject: Re: [PATCH 3/4] watchdog: st_wdt: Provide binding documentation for
- ST's LPC Watchdog driver
-Message-ID: <20140908115735.GA26284@lee--X1>
-References: <1409841592-18890-1-git-send-email-lee.jones@linaro.org>
- <1409841592-18890-5-git-send-email-lee.jones@linaro.org>
- <20140905152758.GA10670@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20140905152758.GA10670@roeck-us.net>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-la0-f52.google.com ([209.85.215.52]:47532 "EHLO
+	mail-la0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751352AbaIFQsU (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Sat, 6 Sep 2014 12:48:20 -0400
+Received: by mail-la0-f52.google.com with SMTP id b8so4300061lan.11
+        for <linux-watchdog@vger.kernel.org>; Sat, 06 Sep 2014 09:48:18 -0700 (PDT)
+From: Evgeny Boger <boger@contactless.ru>
+To: linux-watchdog@vger.kernel.org,
+	Alexander Shiyan <shc_work@mail.ru>,
+	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+Cc: Evgeny Boger <boger@contactless.ru>
+Subject: [PATCH v2] Add support for always enabled watchdog timers to gpio_wdt driver
+Date: Sat,  6 Sep 2014 20:47:44 +0400
+Message-Id: <1410022064-15308-1-git-send-email-boger@contactless.ru>
+In-Reply-To: <53F8CC58.2030406@roeck-us.net>
+References: <53F8CC58.2030406@roeck-us.net>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, 05 Sep 2014, Guenter Roeck wrote:
-> On Thu, Sep 04, 2014 at 03:39:51PM +0100, Lee Jones wrote:
-> > Signed-off-by: David Paris <david.paris@st.com>
-> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> 
-> You might want to copy the devicetree mailing list for bindings approval.
+From: Evgeny Boger <boger@contactless.ru>
 
-This is strange.  There are two emails, exactly the same send 1 second
-apart.  Once has the DT ML CC'ed, the other does not.  I think `git
-send-email` picked up the *~ file left over by Emacs.  I'll endeavour
-to remove those in future.
+Add option to use with watchdog timers which are always enabled
+in hardware, i.e. there is no way to enable/disable it via GPIO pin.
+The driver will start pinging WDT immediately upon loading
+and will continue to do so even after stopping the watchdog.
 
-> > ---
-> >  .../devicetree/bindings/watchdog/st-lpc-wdt.txt    | 27 ++++++++++++++++++++++
-> >  1 file changed, 27 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/watchdog/st-lpc-wdt.txt
-> > 
-> > diff --git a/Documentation/devicetree/bindings/watchdog/st-lpc-wdt.txt b/Documentation/devicetree/bindings/watchdog/st-lpc-wdt.txt
-> > new file mode 100644
-> > index 0000000..f0e57ba
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/watchdog/st-lpc-wdt.txt
-> > @@ -0,0 +1,27 @@
-> > +STMicroelectronics LPC Watchdog
-> > +===============================
-> > +
-> > +Required properties
-> > +
-> > +- compatible 	: "st,<soc>-watchdog"
-> 
-> Is this acceptable ? I thought the supported bindings have to be listed
-> explicitly.
+Signed-off-by: Evgeny Boger <boger@contactless.ru>
+---
 
-I can do that.
+Changes since v1:
+* fixed typos and indentation
+* gpio_wdt_start_timer renamed to gpio_wdt_start_hwping. 
+  This function actually starts the timer to ping hardware.
+  I personally find both proposed gpio_wdt_enable and __gpio_wdt_start 
+  names discouraging in this context.
+* fixed broken error handling for register_reboot_notifier
 
-> > +- reg		: LPC registers base address + range
-> > +- reg-names	: Register map "base" and "syscfg-en" are compulsory "type" is
-> 
-> '.' after compulsory ?
+ .../devicetree/bindings/watchdog/gpio-wdt.txt      | 14 ++++++-
+ drivers/watchdog/gpio_wdt.c                        | 46 +++++++++++++++++-----
+ 2 files changed, 50 insertions(+), 10 deletions(-)
 
-Sure. :)
-
-> > +		  platform dependent and not required for the STiH407.
-> > +- clock-names 	: Should be "lpc_wdt"
-> > +- clocks	: Clock used by LPC device
-> > +- timeout-sec	: Qatchdog timeout in seconds
-> 
-> Watchdog
-
-
-
-> > +- st,syscfg	: Syscfg node used to configure cpu reset type and mask
-> > +- st,warm_reset	: If present, reset type will be 'warm'. If not, it will be cold
-> 
-> s/cold/cold./ ?
-
-There shouldn't be any full stops.
-
-Will change s/STiH407./STiH407/ above.
-
-> > +
-> > +Example:
-> > +	watchdog@fde05000 {
-> > +		compatible	= "st,stih416-lpc-watchdog";
-> > +		reg		= <0xfde05000 0x1000> <0x204 0x4>;
-> > +		reg-names	= "base", "syscfg-en"
-> > +		clock-names	= "lpc_wdt";
-> > +		clocks 		= <&clk_s_d3_flexgen CLK_LPC_0>;
-> > +		timeout-sec	= <600>;
-> > +		st,syscfg	= <&syscfg_core>;
-> > +		st,warm_reset;
-> > +	};
-> > +
-> 
-> Empty line at the end results in a whitespace error when applying.
-
-Will fix.
-
+diff --git a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
+index 37afec1..047fe3f 100644
+--- a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
+@@ -12,8 +12,11 @@ Required Properties:
+     the opposite level disables the WDT. Active level is determined
+     by the GPIO flags.
+ - hw_margin_ms: Maximum time to reset watchdog circuit (milliseconds).
++- always-enabled: Use with watchdog timer which is always enabled
++  in hardware, i.e. there is no way to enable/disable it via GPIO pin.
++  Driver will start pinging WDT immediately upon loading.
+ 
+-Example:
++Examples:
+ 	watchdog: watchdog {
+ 		/* ADM706 */
+ 		compatible = "linux,wdt-gpio";
+@@ -21,3 +24,12 @@ Example:
+ 		hw_algo = "toggle";
+ 		hw_margin_ms = <1600>;
+ 	};
++
++	watchdog: watchdog {
++		/* TPS3813 */
++		compatible = "linux,wdt-gpio";
++		gpios = <&gpio3 9 GPIO_ACTIVE_LOW>;
++		hw_algo = "toggle";
++		hw_margin_ms = <10000>;
++		always-enabled;
++	};
+diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
+index 220a9e0..b6ab6e7 100644
+--- a/drivers/watchdog/gpio_wdt.c
++++ b/drivers/watchdog/gpio_wdt.c
+@@ -37,6 +37,8 @@ struct gpio_wdt_priv {
+ 	struct notifier_block	notifier;
+ 	struct timer_list	timer;
+ 	struct watchdog_device	wdd;
++	bool		always_enabled;
++	bool		started;
+ };
+ 
+ static void gpio_wdt_disable(struct gpio_wdt_priv *priv)
+@@ -48,10 +50,8 @@ static void gpio_wdt_disable(struct gpio_wdt_priv *priv)
+ 		gpio_direction_input(priv->gpio);
+ }
+ 
+-static int gpio_wdt_start(struct watchdog_device *wdd)
++static int gpio_wdt_start_hwping(struct gpio_wdt_priv *priv)
+ {
+-	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
+-
+ 	priv->state = priv->active_low;
+ 	gpio_direction_output(priv->gpio, priv->state);
+ 	priv->last_jiffies = jiffies;
+@@ -60,12 +60,30 @@ static int gpio_wdt_start(struct watchdog_device *wdd)
+ 	return 0;
+ }
+ 
++static int gpio_wdt_start(struct watchdog_device *wdd)
++{
++	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
++
++	priv->started = true;
++	if (priv->always_enabled) {
++		/* hardware ping timer is already enabled */
++		priv->last_jiffies = jiffies;
++	} else {
++		gpio_wdt_start_hwping(priv);
++	}
++
++	return 0;
++}
++
+ static int gpio_wdt_stop(struct watchdog_device *wdd)
+ {
+ 	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
+ 
+-	mod_timer(&priv->timer, 0);
+-	gpio_wdt_disable(priv);
++	priv->started = false;
++	if (!priv->always_enabled) {
++		mod_timer(&priv->timer, 0);
++		gpio_wdt_disable(priv);
++	}
+ 
+ 	return 0;
+ }
+@@ -91,8 +109,9 @@ static void gpio_wdt_hwping(unsigned long data)
+ 	struct watchdog_device *wdd = (struct watchdog_device *)data;
+ 	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
+ 
+-	if (time_after(jiffies, priv->last_jiffies +
+-		       msecs_to_jiffies(wdd->timeout * 1000))) {
++	if (priv->started &&
++		time_after(jiffies, priv->last_jiffies +
++			       msecs_to_jiffies(wdd->timeout * 1000))) {
+ 		dev_crit(wdd->dev, "Timer expired. System will reboot soon!\n");
+ 		return;
+ 	}
+@@ -197,6 +216,9 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+ 	/* Use safe value (1/2 of real timeout) */
+ 	priv->hw_margin = msecs_to_jiffies(hw_margin / 2);
+ 
++	priv->always_enabled = of_property_read_bool(pdev->dev.of_node,
++						"always-enabled");
++
+ 	watchdog_set_drvdata(&priv->wdd, priv);
+ 
+ 	priv->wdd.info		= &gpio_wdt_ident;
+@@ -207,6 +229,7 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+ 	if (watchdog_init_timeout(&priv->wdd, 0, &pdev->dev) < 0)
+ 		priv->wdd.timeout = SOFT_TIMEOUT_DEF;
+ 
++	priv->started = false;
+ 	setup_timer(&priv->timer, gpio_wdt_hwping, (unsigned long)&priv->wdd);
+ 
+ 	ret = watchdog_register_device(&priv->wdd);
+@@ -215,10 +238,15 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+ 
+ 	priv->notifier.notifier_call = gpio_wdt_notify_sys;
+ 	ret = register_reboot_notifier(&priv->notifier);
+-	if (ret)
++	if (ret) {
+ 		watchdog_unregister_device(&priv->wdd);
++		return ret;
++	}
+ 
+-	return ret;
++	if (priv->always_enabled)
++		gpio_wdt_start_hwping(priv);
++
++	return 0;
+ }
+ 
+ static int gpio_wdt_remove(struct platform_device *pdev)
 -- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+1.9.1
+
