@@ -1,153 +1,200 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from v032797.home.net.pl ([89.161.177.31]:57301 "HELO
-	v032797.home.net.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751214AbaIDPyM (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:59018 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752542AbaIGRrB (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 4 Sep 2014 11:54:12 -0400
-Message-ID: <54088996.4040500@elproma.com.pl>
-Date: Thu, 04 Sep 2014 17:47:34 +0200
-From: =?UTF-8?B?SmFudXN6IFXFvHlja2k=?= <j.uzycki@elproma.com.pl>
+	Sun, 7 Sep 2014 13:47:01 -0400
+Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
+	(envelope-from <linux@roeck-us.net>)
+	id 1XQgC0-003Cnk-7p
+	for linux-watchdog@vger.kernel.org; Sun, 07 Sep 2014 17:24:00 +0000
+Message-ID: <540C94A5.3030603@roeck-us.net>
+Date: Sun, 07 Sep 2014 10:23:49 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-To: linux-watchdog@vger.kernel.org
-CC: Wim Van Sebroeck <wim@iguana.be>
-Subject: watchdog: WatchDog Timer Driver Core: ping a hardware watchdog in
- kernel's space
-References: <S1751381AbaIDOwq/20140904145246Z+988@vger.kernel.org>
-In-Reply-To: <S1751381AbaIDOwq/20140904145246Z+988@vger.kernel.org>
-Content-Type: multipart/mixed;
- boundary="------------020709000206070209000407"
+To: Evgeny Boger <boger@contactless.ru>,
+	linux-watchdog@vger.kernel.org,
+	Alexander Shiyan <shc_work@mail.ru>,
+	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+Subject: Re: [PATCH v2] Add support for always enabled watchdog timers to
+ gpio_wdt driver
+References: <53F8CC58.2030406@roeck-us.net> <1410022064-15308-1-git-send-email-boger@contactless.ru>
+In-Reply-To: <1410022064-15308-1-git-send-email-boger@contactless.ru>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020709000206070209000407
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+On 09/06/2014 09:47 AM, Evgeny Boger wrote:
+> From: Evgeny Boger <boger@contactless.ru>
+>
+> Add option to use with watchdog timers which are always enabled
+> in hardware, i.e. there is no way to enable/disable it via GPIO pin.
+> The driver will start pinging WDT immediately upon loading
+> and will continue to do so even after stopping the watchdog.
+>
+> Signed-off-by: Evgeny Boger <boger@contactless.ru>
+> ---
+>
 
-Hi,
+Overall looks good to me, though we really need feedback from the DT folks
+on the binding. There is a parallel effort to add this functionality into
+the watchdog core, meaning the proposed binding "'always-enabled' will
+very likely find its way into other drivers. We'll also need a separate
+binding to express "watchdog can not be stopped after started once".
+That is a separate issue, but important to keep in mind when discussing
+the bindings.
 
-Some applications require to start watchdog before userspace software. 
-This patch enables such feature. Only WATCHDOG_KERNEL_PING flag is 
-necessary to enable it (attached example for stmp3xxx_rtc_wdt.c). 
-Moreover kernel's ping is re-enabled when userspace software closed 
-watchdog using the magic character. The features improves kernel's 
-reliable if hardware watchdog is available.
-* Can you comment the proposed patch?
-* Shoud dynamic or static timer_list be used (small structure...)?
-* I also added wdd->ops->ref/unref calls but I'm afraid that even 
-original code is buggy in watchdog_dev.c. Is any driver that uses the 
-pointers? In my opinion watchdog_open() should call wdd->ops->ref() 
-before watchdog_start() and watchdog_release() should call  
-wdd->ops->unref() before module_put(). Otherwise fault is possible if 
-watchdog module is unloaded.
-* I noticed that current watchdog core does not support suspend/resume 
-case. If you want to use suspend without the patch you need to close a 
-watchdog in userspace using the magic character before suspend command. 
-With the patch you must to use WDIOC_SETOPTIONS ioctl and 
-WDIOS_DISABLECARD/WDIOS_ENABLECARD. Is there any other method to suspend 
-with watchdog?
+Thanks,
+Guenter
 
-best regards
-Janusz Uzycki
+> Changes since v1:
+> * fixed typos and indentation
+> * gpio_wdt_start_timer renamed to gpio_wdt_start_hwping.
+>    This function actually starts the timer to ping hardware.
+>    I personally find both proposed gpio_wdt_enable and __gpio_wdt_start
+>    names discouraging in this context.
+> * fixed broken error handling for register_reboot_notifier
+>
+>   .../devicetree/bindings/watchdog/gpio-wdt.txt      | 14 ++++++-
+>   drivers/watchdog/gpio_wdt.c                        | 46 +++++++++++++++++-----
+>   2 files changed, 50 insertions(+), 10 deletions(-)
+>
+> diff --git a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
+> index 37afec1..047fe3f 100644
+> --- a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
+> +++ b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
+> @@ -12,8 +12,11 @@ Required Properties:
+>       the opposite level disables the WDT. Active level is determined
+>       by the GPIO flags.
+>   - hw_margin_ms: Maximum time to reset watchdog circuit (milliseconds).
+> +- always-enabled: Use with watchdog timer which is always enabled
+> +  in hardware, i.e. there is no way to enable/disable it via GPIO pin.
+> +  Driver will start pinging WDT immediately upon loading.
+>
+> -Example:
+> +Examples:
+>   	watchdog: watchdog {
+>   		/* ADM706 */
+>   		compatible = "linux,wdt-gpio";
+> @@ -21,3 +24,12 @@ Example:
+>   		hw_algo = "toggle";
+>   		hw_margin_ms = <1600>;
+>   	};
+> +
+> +	watchdog: watchdog {
+> +		/* TPS3813 */
+> +		compatible = "linux,wdt-gpio";
+> +		gpios = <&gpio3 9 GPIO_ACTIVE_LOW>;
+> +		hw_algo = "toggle";
+> +		hw_margin_ms = <10000>;
+> +		always-enabled;
+> +	};
+> diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
+> index 220a9e0..b6ab6e7 100644
+> --- a/drivers/watchdog/gpio_wdt.c
+> +++ b/drivers/watchdog/gpio_wdt.c
+> @@ -37,6 +37,8 @@ struct gpio_wdt_priv {
+>   	struct notifier_block	notifier;
+>   	struct timer_list	timer;
+>   	struct watchdog_device	wdd;
+> +	bool		always_enabled;
+> +	bool		started;
+>   };
+>
+>   static void gpio_wdt_disable(struct gpio_wdt_priv *priv)
+> @@ -48,10 +50,8 @@ static void gpio_wdt_disable(struct gpio_wdt_priv *priv)
+>   		gpio_direction_input(priv->gpio);
+>   }
+>
+> -static int gpio_wdt_start(struct watchdog_device *wdd)
+> +static int gpio_wdt_start_hwping(struct gpio_wdt_priv *priv)
+>   {
+> -	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
+> -
+>   	priv->state = priv->active_low;
+>   	gpio_direction_output(priv->gpio, priv->state);
+>   	priv->last_jiffies = jiffies;
+> @@ -60,12 +60,30 @@ static int gpio_wdt_start(struct watchdog_device *wdd)
+>   	return 0;
+>   }
+>
+> +static int gpio_wdt_start(struct watchdog_device *wdd)
+> +{
+> +	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
+> +
+> +	priv->started = true;
+> +	if (priv->always_enabled) {
+> +		/* hardware ping timer is already enabled */
+> +		priv->last_jiffies = jiffies;
+> +	} else {
+> +		gpio_wdt_start_hwping(priv);
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+>   static int gpio_wdt_stop(struct watchdog_device *wdd)
+>   {
+>   	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
+>
+> -	mod_timer(&priv->timer, 0);
+> -	gpio_wdt_disable(priv);
+> +	priv->started = false;
+> +	if (!priv->always_enabled) {
+> +		mod_timer(&priv->timer, 0);
+> +		gpio_wdt_disable(priv);
+> +	}
+>
+>   	return 0;
+>   }
+> @@ -91,8 +109,9 @@ static void gpio_wdt_hwping(unsigned long data)
+>   	struct watchdog_device *wdd = (struct watchdog_device *)data;
+>   	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
+>
+> -	if (time_after(jiffies, priv->last_jiffies +
+> -		       msecs_to_jiffies(wdd->timeout * 1000))) {
+> +	if (priv->started &&
+> +		time_after(jiffies, priv->last_jiffies +
+> +			       msecs_to_jiffies(wdd->timeout * 1000))) {
+>   		dev_crit(wdd->dev, "Timer expired. System will reboot soon!\n");
+>   		return;
+>   	}
+> @@ -197,6 +216,9 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+>   	/* Use safe value (1/2 of real timeout) */
+>   	priv->hw_margin = msecs_to_jiffies(hw_margin / 2);
+>
+> +	priv->always_enabled = of_property_read_bool(pdev->dev.of_node,
+> +						"always-enabled");
+> +
+>   	watchdog_set_drvdata(&priv->wdd, priv);
+>
+>   	priv->wdd.info		= &gpio_wdt_ident;
+> @@ -207,6 +229,7 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+>   	if (watchdog_init_timeout(&priv->wdd, 0, &pdev->dev) < 0)
+>   		priv->wdd.timeout = SOFT_TIMEOUT_DEF;
+>
+> +	priv->started = false;
+>   	setup_timer(&priv->timer, gpio_wdt_hwping, (unsigned long)&priv->wdd);
+>
+>   	ret = watchdog_register_device(&priv->wdd);
+> @@ -215,10 +238,15 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+>
+>   	priv->notifier.notifier_call = gpio_wdt_notify_sys;
+>   	ret = register_reboot_notifier(&priv->notifier);
+> -	if (ret)
+> +	if (ret) {
+>   		watchdog_unregister_device(&priv->wdd);
+> +		return ret;
+> +	}
+>
+> -	return ret;
+> +	if (priv->always_enabled)
+> +		gpio_wdt_start_hwping(priv);
+> +
+> +	return 0;
+>   }
+>
+>   static int gpio_wdt_remove(struct platform_device *pdev)
+>
 
-
---------------020709000206070209000407
-Content-Type: text/plain; charset=windows-1250;
- name="wdt_kernel_ping.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="wdt_kernel_ping.diff"
-
-U2lnbmVkLW9mZi1ieTogSmFudXN6IFV6eWNraSA8ai51enlja2lAZWxwcm9tYS5jb20ucGw+
-CgpkaWZmIC0tZ2l0IGEvbGludXgtMy4xNC4xNy9kcml2ZXJzL3dhdGNoZG9nL3N0bXAzeHh4
-X3J0Y193ZHQuYyBiL2xpbnV4LTMuMTQuMTcvZHJpdmVycy93YXRjaGRvZy9zdG1wM3h4eF9y
-dGNfd2R0LmMKaW5kZXggYjRkNmIzNC4uNTJjNWYxYyAxMDA2NDQKLS0tIGEvbGludXgtMy4x
-NC4xNy9kcml2ZXJzL3dhdGNoZG9nL3N0bXAzeHh4X3J0Y193ZHQuYworKysgYi9saW51eC0z
-LjE0LjE3L2RyaXZlcnMvd2F0Y2hkb2cvc3RtcDN4eHhfcnRjX3dkdC5jCkBAIC03OCw2ICs3
-OCw3IEBAIHN0YXRpYyBpbnQgc3RtcDN4eHhfd2R0X3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9k
-ZXZpY2UgKnBkZXYpCiAKIAlzdG1wM3h4eF93ZGQudGltZW91dCA9IGNsYW1wX3QodW5zaWdu
-ZWQsIGhlYXJ0YmVhdCwgMSwgU1RNUDNYWFhfTUFYX1RJTUVPVVQpOwogCisJc3RtcDN4eHhf
-d2RkLnN0YXR1cyB8PSBXQVRDSERPR19LRVJORUxfUElORzsKIAlyZXQgPSB3YXRjaGRvZ19y
-ZWdpc3Rlcl9kZXZpY2UoJnN0bXAzeHh4X3dkZCk7CiAJaWYgKHJldCA8IDApIHsKIAkJZGV2
-X2VycigmcGRldi0+ZGV2LCAiY2Fubm90IHJlZ2lzdGVyIHdhdGNoZG9nIGRldmljZVxuIik7
-CmRpZmYgLS1naXQgYS9saW51eC0zLjE0LjE3L2RyaXZlcnMvd2F0Y2hkb2cvd2F0Y2hkb2df
-ZGV2LmMgYi9saW51eC0zLjE0LjE3L2RyaXZlcnMvd2F0Y2hkb2cvd2F0Y2hkb2dfZGV2LmMK
-aW5kZXggNmFhZWZiYS4uZDRmYWUyYyAxMDA2NDQKLS0tIGEvbGludXgtMy4xNC4xNy9kcml2
-ZXJzL3dhdGNoZG9nL3dhdGNoZG9nX2Rldi5jCisrKyBiL2xpbnV4LTMuMTQuMTcvZHJpdmVy
-cy93YXRjaGRvZy93YXRjaGRvZ19kZXYuYwpAQCAtNDEsNiArNDEsOCBAQAogI2luY2x1ZGUg
-PGxpbnV4L21pc2NkZXZpY2UuaD4JLyogRm9yIGhhbmRsaW5nIG1pc2MgZGV2aWNlcyAqLwog
-I2luY2x1ZGUgPGxpbnV4L2luaXQuaD4JCS8qIEZvciBfX2luaXQvX19leGl0Ly4uLiAqLwog
-I2luY2x1ZGUgPGxpbnV4L3VhY2Nlc3MuaD4JLyogRm9yIGNvcHlfdG9fdXNlci9wdXRfdXNl
-ci8uLi4gKi8KKyNpbmNsdWRlIDxsaW51eC9zbGFiLmg+CQkvKiBmb3Iga2VybmVsIHBpbmcg
-dGltZXIgKGR5bmFtaWMpICovCisjaW5jbHVkZSA8bGludXgvamlmZmllcy5oPgkvKiBmb3Ig
-a2VybmVsIHBpbmcgdGltZXIgKi8KIAogI2luY2x1ZGUgIndhdGNoZG9nX2NvcmUuaCIKIApA
-QCAtMjc3LDYgKzI3OSwzNCBAQCBvdXRfaW9jdGw6CiAJcmV0dXJuIGVycjsKIH0KIAorLyog
-a2VybmVsIHBpbmcgZmVhdHVyZSAqLworc3RhdGljIHZvaWQgd2F0Y2hkb2dfa3BpbmdfdGlt
-ZXJfY2IodW5zaWduZWQgbG9uZyBkYXRhKQoreworCXN0cnVjdCB3YXRjaGRvZ19kZXZpY2Ug
-KndkZCA9IChzdHJ1Y3Qgd2F0Y2hkb2dfZGV2aWNlICopZGF0YTsKKwlpZiAodGVzdF9iaXQo
-V0RPR19LRVJORUxfUElORywgJndkZC0+c3RhdHVzKSAmJiAhdGVzdF9iaXQoV0RPR19ERVZf
-T1BFTiwgJndkZC0+c3RhdHVzKSkgeworCQl3YXRjaGRvZ19waW5nKHdkZCk7CisJCS8qIGNh
-bGwgbmV4dCBwaW5nIGEgc2Vjb25kIG9yIDAuNXMgYmVmb3JlIGhhcmR3YXJlIHRpbWVvdXQg
-Ki8KKwkJbW9kX3RpbWVyKHdkZC0+a3BpbmdfdGltZXIsIHdkZC0+dGltZW91dCA+IDEgPwor
-CQkJCWppZmZpZXMgKyAod2RkLT50aW1lb3V0IC0gMSkgKiBIWiA6IGppZmZpZXMgKyBIWi8y
-KTsKKwl9Cit9CisKK3N0YXRpYyB2b2lkIHdhdGNoZG9nX2twaW5nX3N0YXJ0KHN0cnVjdCB3
-YXRjaGRvZ19kZXZpY2UgKndkZCkKK3sKKwlpZiAod2RkLT5vcHMtPnJlZikKKwkJd2RkLT5v
-cHMtPnJlZih3ZGQpOworCXdhdGNoZG9nX3N0YXJ0KHdkZCk7CisJd2F0Y2hkb2dfcGluZyh3
-ZGQpOworCW1vZF90aW1lcih3ZGQtPmtwaW5nX3RpbWVyLCBqaWZmaWVzICsgSFovMik7Cit9
-CisKK3N0YXRpYyB2b2lkIHdhdGNoZG9nX2twaW5nX3N0b3Aoc3RydWN0IHdhdGNoZG9nX2Rl
-dmljZSAqd2RkKQoreworCWRlbF90aW1lcl9zeW5jKHdkZC0+a3BpbmdfdGltZXIpOworCWlm
-ICh3ZGQtPm9wcy0+dW5yZWYpCisJCXdkZC0+b3BzLT51bnJlZih3ZGQpOworfQorCiAvKgog
-ICoJd2F0Y2hkb2dfd3JpdGU6IHdyaXRlcyB0byB0aGUgd2F0Y2hkb2cuCiAgKglAZmlsZTog
-ZmlsZSBmcm9tIFZGUwpAQCAtNDMwLDYgKzQ2MCw5IEBAIHN0YXRpYyBpbnQgd2F0Y2hkb2df
-b3BlbihzdHJ1Y3QgaW5vZGUgKmlub2RlLCBzdHJ1Y3QgZmlsZSAqZmlsZSkKIAlpZiAoIXRy
-eV9tb2R1bGVfZ2V0KHdkZC0+b3BzLT5vd25lcikpCiAJCWdvdG8gb3V0OwogCisJaWYgKHRl
-c3RfYml0KFdET0dfS0VSTkVMX1BJTkcsICZ3ZGQtPnN0YXR1cykpCisJCXdhdGNoZG9nX2tw
-aW5nX3N0b3Aod2RkKTsKKwogCWVyciA9IHdhdGNoZG9nX3N0YXJ0KHdkZCk7CiAJaWYgKGVy
-ciA8IDApCiAJCWdvdG8gb3V0X21vZDsKQEAgLTQ3Miw4ICs1MDUsMTMgQEAgc3RhdGljIGlu
-dCB3YXRjaGRvZ19yZWxlYXNlKHN0cnVjdCBpbm9kZSAqaW5vZGUsIHN0cnVjdCBmaWxlICpm
-aWxlKQogCWlmICghdGVzdF9iaXQoV0RPR19BQ1RJVkUsICZ3ZGQtPnN0YXR1cykpCiAJCWVy
-ciA9IDA7CiAJZWxzZSBpZiAodGVzdF9hbmRfY2xlYXJfYml0KFdET0dfQUxMT1dfUkVMRUFT
-RSwgJndkZC0+c3RhdHVzKSB8fAotCQkgISh3ZGQtPmluZm8tPm9wdGlvbnMgJiBXRElPRl9N
-QUdJQ0NMT1NFKSkKLQkJZXJyID0gd2F0Y2hkb2dfc3RvcCh3ZGQpOworCQkgISh3ZGQtPmlu
-Zm8tPm9wdGlvbnMgJiBXRElPRl9NQUdJQ0NMT1NFKSkgeworCQlpZiAodGVzdF9iaXQoV0RP
-R19LRVJORUxfUElORywgJndkZC0+c3RhdHVzKSkgeworCQkJd2F0Y2hkb2dfa3Bpbmdfc3Rh
-cnQod2RkKTsKKwkJCWVyciA9IDA7CisJCX0gZWxzZQorCQkJZXJyID0gd2F0Y2hkb2dfc3Rv
-cCh3ZGQpOworCX0KIAogCS8qIElmIHRoZSB3YXRjaGRvZyB3YXMgbm90IHN0b3BwZWQsIHNl
-bmQgYSBrZWVwYWxpdmUgcGluZyAqLwogCWlmIChlcnIgPCAwKSB7CkBAIC01MjQsNiArNTYy
-LDE2IEBAIGludCB3YXRjaGRvZ19kZXZfcmVnaXN0ZXIoc3RydWN0IHdhdGNoZG9nX2Rldmlj
-ZSAqd2F0Y2hkb2cpCiB7CiAJaW50IGVyciwgZGV2bm87CiAKKwlpZiAodGVzdF9iaXQoV0RP
-R19LRVJORUxfUElORywgJndhdGNoZG9nLT5zdGF0dXMpKSB7CisJCWlmICghdHJ5X21vZHVs
-ZV9nZXQod2F0Y2hkb2ctPm9wcy0+b3duZXIpKQorCQkJcmV0dXJuIC1FTk9ERVY7CisJCXdh
-dGNoZG9nLT5rcGluZ190aW1lciA9IGt6YWxsb2Moc2l6ZW9mKCp3YXRjaGRvZy0+a3Bpbmdf
-dGltZXIpLCBHRlBfS0VSTkVMKTsKKwkJaWYgKCF3YXRjaGRvZy0+a3BpbmdfdGltZXIpCisJ
-CQlyZXR1cm4gLUVOT01FTTsKKwkJc2V0dXBfdGltZXIod2F0Y2hkb2ctPmtwaW5nX3RpbWVy
-LCB3YXRjaGRvZ19rcGluZ190aW1lcl9jYiwgKHVuc2lnbmVkIGxvbmcpd2F0Y2hkb2cpOwor
-CQl3YXRjaGRvZ19rcGluZ19zdGFydCh3YXRjaGRvZyk7CisJfQorCiAJaWYgKHdhdGNoZG9n
-LT5pZCA9PSAwKSB7CiAJCW9sZF93ZGQgPSB3YXRjaGRvZzsKIAkJd2F0Y2hkb2dfbWlzY2Rl
-di5wYXJlbnQgPSB3YXRjaGRvZy0+cGFyZW50OwpAQCAtNTc1LDYgKzYyMywxNSBAQCBpbnQg
-d2F0Y2hkb2dfZGV2X3VucmVnaXN0ZXIoc3RydWN0IHdhdGNoZG9nX2RldmljZSAqd2F0Y2hk
-b2cpCiAJCW1pc2NfZGVyZWdpc3Rlcigmd2F0Y2hkb2dfbWlzY2Rldik7CiAJCW9sZF93ZGQg
-PSBOVUxMOwogCX0KKworCWlmICh0ZXN0X2JpdChXRE9HX0tFUk5FTF9QSU5HLCAmd2F0Y2hk
-b2ctPnN0YXR1cykgfHwgd2F0Y2hkb2ctPmtwaW5nX3RpbWVyKSB7CisJCXdhdGNoZG9nX2tw
-aW5nX3N0b3Aod2F0Y2hkb2cpOworCQl3YXRjaGRvZ19zdG9wKHdhdGNoZG9nKTsKKwkJa2Zy
-ZWUod2F0Y2hkb2ctPmtwaW5nX3RpbWVyKTsKKwkJd2F0Y2hkb2ctPmtwaW5nX3RpbWVyID0g
-TlVMTDsKKwkJd2F0Y2hkb2dfc3RvcCh3YXRjaGRvZyk7CisJCW1vZHVsZV9wdXQod2F0Y2hk
-b2ctPm9wcy0+b3duZXIpOworCX0KIAlyZXR1cm4gMDsKIH0KIApkaWZmIC0tZ2l0IGEvbGlu
-dXgtMy4xNC4xNy9pbmNsdWRlL2xpbnV4L3dhdGNoZG9nLmggYi9saW51eC0zLjE0LjE3L2lu
-Y2x1ZGUvbGludXgvd2F0Y2hkb2cuaAppbmRleCAyYTMwMzhlLi44Y2Y5MTQ4IDEwMDY0NAot
-LS0gYS9saW51eC0zLjE0LjE3L2luY2x1ZGUvbGludXgvd2F0Y2hkb2cuaAorKysgYi9saW51
-eC0zLjE0LjE3L2luY2x1ZGUvbGludXgvd2F0Y2hkb2cuaApAQCAtMTIsNiArMTIsNyBAQAog
-I2luY2x1ZGUgPGxpbnV4L2JpdG9wcy5oPgogI2luY2x1ZGUgPGxpbnV4L2RldmljZS5oPgog
-I2luY2x1ZGUgPGxpbnV4L2NkZXYuaD4KKyNpbmNsdWRlIDxsaW51eC90aW1lci5oPgkJLyog
-Zm9yIGtlcm5lbCBwaW5nIHRpbWVyICovCiAjaW5jbHVkZSA8dWFwaS9saW51eC93YXRjaGRv
-Zy5oPgogCiBzdHJ1Y3Qgd2F0Y2hkb2dfb3BzOwpAQCAtOTUsNiArOTYsOSBAQCBzdHJ1Y3Qg
-d2F0Y2hkb2dfZGV2aWNlIHsKICNkZWZpbmUgV0RPR19BTExPV19SRUxFQVNFCTIJLyogRGlk
-IHdlIHJlY2VpdmUgdGhlIG1hZ2ljIGNoYXIgPyAqLwogI2RlZmluZSBXRE9HX05PX1dBWV9P
-VVQJCTMJLyogSXMgJ25vd2F5b3V0JyBmZWF0dXJlIHNldCA/ICovCiAjZGVmaW5lIFdET0df
-VU5SRUdJU1RFUkVECTQJLyogSGFzIHRoZSBkZXZpY2UgYmVlbiB1bnJlZ2lzdGVyZWQgKi8K
-KyNkZWZpbmUgV0RPR19LRVJORUxfUElORwk1CS8qIFBpbmcgaXMgZG9uZSBieSBrZXJuZWwg
-aWYgZGV2aWNlIG5vdCBvcGVuZWQgYnkgdXNlcmxhbmQgKi8KKwlzdHJ1Y3QgdGltZXJfbGlz
-dCAqa3BpbmdfdGltZXI7CS8qIGtlcm5lbCBwaW5nIHRpbWVyICovCisjZGVmaW5lIFdBVENI
-RE9HX0tFUk5FTF9QSU5HCSgxIDw8IFdET0dfS0VSTkVMX1BJTkcpCiB9OwogCiAjaWZkZWYg
-Q09ORklHX1dBVENIRE9HX05PV0FZT1VUCg==
---------------020709000206070209000407--
