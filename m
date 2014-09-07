@@ -1,200 +1,87 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:59018 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:59050 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752542AbaIGRrB (ORCPT
+	with ESMTP id S1752542AbaIGRrD (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 7 Sep 2014 13:47:01 -0400
+	Sun, 7 Sep 2014 13:47:03 -0400
 Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
 	(envelope-from <linux@roeck-us.net>)
-	id 1XQgC0-003Cnk-7p
-	for linux-watchdog@vger.kernel.org; Sun, 07 Sep 2014 17:24:00 +0000
-Message-ID: <540C94A5.3030603@roeck-us.net>
-Date: Sun, 07 Sep 2014 10:23:49 -0700
+	id 1XQg7H-0038C2-QS
+	for linux-watchdog@vger.kernel.org; Sun, 07 Sep 2014 17:19:07 +0000
+Message-ID: <540C9383.9050307@roeck-us.net>
+Date: Sun, 07 Sep 2014 10:18:59 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-To: Evgeny Boger <boger@contactless.ru>,
-	linux-watchdog@vger.kernel.org,
-	Alexander Shiyan <shc_work@mail.ru>,
-	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
-Subject: Re: [PATCH v2] Add support for always enabled watchdog timers to
- gpio_wdt driver
-References: <53F8CC58.2030406@roeck-us.net> <1410022064-15308-1-git-send-email-boger@contactless.ru>
-In-Reply-To: <1410022064-15308-1-git-send-email-boger@contactless.ru>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+To: =?windows-1250?Q?Janusz_U=BFycki?= <j.uzycki@elproma.com.pl>,
+	linux-watchdog@vger.kernel.org
+CC: Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: watchdog: WatchDog Timer Driver Core: ping a hardware watchdog
+ in kernel's space
+References: <S1751381AbaIDOwq/20140904145246Z+988@vger.kernel.org> <54088996.4040500@elproma.com.pl>
+In-Reply-To: <54088996.4040500@elproma.com.pl>
+Content-Type: text/plain; charset=windows-1250; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 09/06/2014 09:47 AM, Evgeny Boger wrote:
-> From: Evgeny Boger <boger@contactless.ru>
+On 09/04/2014 08:47 AM, Janusz U¿ycki wrote:
+> Hi,
 >
-> Add option to use with watchdog timers which are always enabled
-> in hardware, i.e. there is no way to enable/disable it via GPIO pin.
-> The driver will start pinging WDT immediately upon loading
-> and will continue to do so even after stopping the watchdog.
+> Some applications require to start watchdog before userspace software. This patch enables such feature. Only WATCHDOG_KERNEL_PING flag is necessary to enable it (attached example for stmp3xxx_rtc_wdt.c). Moreover kernel's ping is re-enabled when userspace software closed watchdog using the magic character. The features improves kernel's reliable if hardware watchdog is available.
+> * Can you comment the proposed patch?
+> * Shoud dynamic or static timer_list be used (small structure...)?
+> * I also added wdd->ops->ref/unref calls but I'm afraid that even original code is buggy in watchdog_dev.c. Is any driver that uses the pointers? In my opinion watchdog_open() should call wdd->ops->ref() before watchdog_start() and watchdog_release() should call wdd->ops->unref() before module_put(). Otherwise fault is possible if watchdog module is unloaded.
+> * I noticed that current watchdog core does not support suspend/resume case. If you want to use suspend without the patch you need to close a watchdog in userspace using the magic character before suspend command. With the patch you must to use WDIOC_SETOPTIONS ioctl and WDIOS_DISABLECARD/WDIOS_ENABLECARD. Is there any other method to suspend with watchdog?
 >
-> Signed-off-by: Evgeny Boger <boger@contactless.ru>
-> ---
+> best regards
+> Janusz Uzycki
 >
+I like the basic idea. Couple of comments.
 
-Overall looks good to me, though we really need feedback from the DT folks
-on the binding. There is a parallel effort to add this functionality into
-the watchdog core, meaning the proposed binding "'always-enabled' will
-very likely find its way into other drivers. We'll also need a separate
-binding to express "watchdog can not be stopped after started once".
-That is a separate issue, but important to keep in mind when discussing
-the bindings.
+Please read and follow Documentation/SubmittingPatches.
+Long lines as above are discouraged, as is sending patches
+as attachment. As you can see, the patch disappears in the
+reply, making it very hard to comment on it.
 
-Thanks,
+I would suggest to just modify the timer to half the timeout value,
+and then just ping the watchdog unconditionally whenever the callback
+runs. The timer should stop when the watchdog is opened, so there
+should not be a need to check its open status in the callback.
+
+I don't think there is a need to manipulate the driver reference
+count when the kernel timer starts and stops. You already run
+module_get and module_put during registration / unregistration.
+
+I would not call this "kernel ping". We'll need to find a better
+name. Proposals welcome. Something indicating the status, ie something
+indicating that the wdt is always running and can not be stopped.
+
+You would not update the status in the affected driver(s) by
+setting the flag in the probe function. You can use the status
+flag initialization for that purpose. Also, we'll need to know if
+the driver you changed is always affected or only in your system.
+Either case, driver patches need to be submitted separately.
+
+We'll need to tie this functionality with parallel efforts
+to add similar code into individual drivers. There is one patch
+along that line pending right now [1], and I think there is similar
+support in other drivers. dw_wdt is one example where the wdt can
+not be stopped after it was started, of_xilinx_wdt is another.
+
+Given that, there are two use states to consider: WDT is always running,
+and WDT can not be stopped after it was started once. We should cover
+both cases.
+
+The feature should have DT support from the beginning if possible,
+though it should be added as a separate patch in case there is
+a hiccup with the DT folks.
+
+It might be worthwhile exploring if the same mechanism can be used
+to augment user space pinging with kernel ping if the maximum timeout
+is too short to be handled by user space alone. That should be a
+separate patch, but we need to keep this use case in mind.
+
 Guenter
 
-> Changes since v1:
-> * fixed typos and indentation
-> * gpio_wdt_start_timer renamed to gpio_wdt_start_hwping.
->    This function actually starts the timer to ping hardware.
->    I personally find both proposed gpio_wdt_enable and __gpio_wdt_start
->    names discouraging in this context.
-> * fixed broken error handling for register_reboot_notifier
->
->   .../devicetree/bindings/watchdog/gpio-wdt.txt      | 14 ++++++-
->   drivers/watchdog/gpio_wdt.c                        | 46 +++++++++++++++++-----
->   2 files changed, 50 insertions(+), 10 deletions(-)
->
-> diff --git a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
-> index 37afec1..047fe3f 100644
-> --- a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
-> +++ b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
-> @@ -12,8 +12,11 @@ Required Properties:
->       the opposite level disables the WDT. Active level is determined
->       by the GPIO flags.
->   - hw_margin_ms: Maximum time to reset watchdog circuit (milliseconds).
-> +- always-enabled: Use with watchdog timer which is always enabled
-> +  in hardware, i.e. there is no way to enable/disable it via GPIO pin.
-> +  Driver will start pinging WDT immediately upon loading.
->
-> -Example:
-> +Examples:
->   	watchdog: watchdog {
->   		/* ADM706 */
->   		compatible = "linux,wdt-gpio";
-> @@ -21,3 +24,12 @@ Example:
->   		hw_algo = "toggle";
->   		hw_margin_ms = <1600>;
->   	};
-> +
-> +	watchdog: watchdog {
-> +		/* TPS3813 */
-> +		compatible = "linux,wdt-gpio";
-> +		gpios = <&gpio3 9 GPIO_ACTIVE_LOW>;
-> +		hw_algo = "toggle";
-> +		hw_margin_ms = <10000>;
-> +		always-enabled;
-> +	};
-> diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
-> index 220a9e0..b6ab6e7 100644
-> --- a/drivers/watchdog/gpio_wdt.c
-> +++ b/drivers/watchdog/gpio_wdt.c
-> @@ -37,6 +37,8 @@ struct gpio_wdt_priv {
->   	struct notifier_block	notifier;
->   	struct timer_list	timer;
->   	struct watchdog_device	wdd;
-> +	bool		always_enabled;
-> +	bool		started;
->   };
->
->   static void gpio_wdt_disable(struct gpio_wdt_priv *priv)
-> @@ -48,10 +50,8 @@ static void gpio_wdt_disable(struct gpio_wdt_priv *priv)
->   		gpio_direction_input(priv->gpio);
->   }
->
-> -static int gpio_wdt_start(struct watchdog_device *wdd)
-> +static int gpio_wdt_start_hwping(struct gpio_wdt_priv *priv)
->   {
-> -	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
-> -
->   	priv->state = priv->active_low;
->   	gpio_direction_output(priv->gpio, priv->state);
->   	priv->last_jiffies = jiffies;
-> @@ -60,12 +60,30 @@ static int gpio_wdt_start(struct watchdog_device *wdd)
->   	return 0;
->   }
->
-> +static int gpio_wdt_start(struct watchdog_device *wdd)
-> +{
-> +	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
-> +
-> +	priv->started = true;
-> +	if (priv->always_enabled) {
-> +		/* hardware ping timer is already enabled */
-> +		priv->last_jiffies = jiffies;
-> +	} else {
-> +		gpio_wdt_start_hwping(priv);
-> +	}
-> +
-> +	return 0;
-> +}
-> +
->   static int gpio_wdt_stop(struct watchdog_device *wdd)
->   {
->   	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
->
-> -	mod_timer(&priv->timer, 0);
-> -	gpio_wdt_disable(priv);
-> +	priv->started = false;
-> +	if (!priv->always_enabled) {
-> +		mod_timer(&priv->timer, 0);
-> +		gpio_wdt_disable(priv);
-> +	}
->
->   	return 0;
->   }
-> @@ -91,8 +109,9 @@ static void gpio_wdt_hwping(unsigned long data)
->   	struct watchdog_device *wdd = (struct watchdog_device *)data;
->   	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
->
-> -	if (time_after(jiffies, priv->last_jiffies +
-> -		       msecs_to_jiffies(wdd->timeout * 1000))) {
-> +	if (priv->started &&
-> +		time_after(jiffies, priv->last_jiffies +
-> +			       msecs_to_jiffies(wdd->timeout * 1000))) {
->   		dev_crit(wdd->dev, "Timer expired. System will reboot soon!\n");
->   		return;
->   	}
-> @@ -197,6 +216,9 @@ static int gpio_wdt_probe(struct platform_device *pdev)
->   	/* Use safe value (1/2 of real timeout) */
->   	priv->hw_margin = msecs_to_jiffies(hw_margin / 2);
->
-> +	priv->always_enabled = of_property_read_bool(pdev->dev.of_node,
-> +						"always-enabled");
-> +
->   	watchdog_set_drvdata(&priv->wdd, priv);
->
->   	priv->wdd.info		= &gpio_wdt_ident;
-> @@ -207,6 +229,7 @@ static int gpio_wdt_probe(struct platform_device *pdev)
->   	if (watchdog_init_timeout(&priv->wdd, 0, &pdev->dev) < 0)
->   		priv->wdd.timeout = SOFT_TIMEOUT_DEF;
->
-> +	priv->started = false;
->   	setup_timer(&priv->timer, gpio_wdt_hwping, (unsigned long)&priv->wdd);
->
->   	ret = watchdog_register_device(&priv->wdd);
-> @@ -215,10 +238,15 @@ static int gpio_wdt_probe(struct platform_device *pdev)
->
->   	priv->notifier.notifier_call = gpio_wdt_notify_sys;
->   	ret = register_reboot_notifier(&priv->notifier);
-> -	if (ret)
-> +	if (ret) {
->   		watchdog_unregister_device(&priv->wdd);
-> +		return ret;
-> +	}
->
-> -	return ret;
-> +	if (priv->always_enabled)
-> +		gpio_wdt_start_hwping(priv);
-> +
-> +	return 0;
->   }
->
->   static int gpio_wdt_remove(struct platform_device *pdev)
->
-
+---
+[1] http://patchwork.roeck-us.net/patch/1890/
