@@ -1,485 +1,523 @@
-Return-path: <david.paris@st.com>
-Message-ID: <541FF8E4.7050606@st.com>
-Date: Mon, 22 Sep 2014 12:24:36 +0200
-From: David Paris <david.paris@st.com>
+Return-path: <j.uzycki@elproma.com.pl>
+Message-ID: <540D9DBD.5050105@elproma.com.pl>
+Date: Mon, 08 Sep 2014 14:14:53 +0200
+From: =?windows-1250?Q?Janusz_U=BFycki?= <j.uzycki@elproma.com.pl>
 MIME-Version: 1.0
-To: Lee Jones <lee.jones@linaro.org>, Guenter Roeck <linux@roeck-us.net>
-Cc: <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-        <kernel@stlinux.com>, <wim@iguana.be>,
-        <linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH 4/4] watchdog: st_wdt: Add new driver for ST's LPC Watchdog
-References: <1409841592-18890-1-git-send-email-lee.jones@linaro.org> <1409841592-18890-6-git-send-email-lee.jones@linaro.org> <20140905155811.GA12374@roeck-us.net> <20140908123246.GB26284@lee--X1>
-In-Reply-To: <20140908123246.GB26284@lee--X1>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org
+CC: Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: watchdog: watchdog_dev: WATCHDOG_KEEP_ON feature
+References: <S1751381AbaIDOwq/20140904145246Z+988@vger.kernel.org> <54088996.4040500@elproma.com.pl> <540C9383.9050307@roeck-us.net> <540D02E1.90403@elproma.com.pl> <540D1F8F.2080802@roeck-us.net>
+In-Reply-To: <540D1F8F.2080802@roeck-us.net>
+Content-Type: multipart/mixed;
+ boundary="------------000907000909070102010203"
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi,
+This is a multi-part message in MIME format.
+--------------000907000909070102010203
+Content-Type: text/plain; charset=windows-1250; format=flowed
+Content-Transfer-Encoding: 7bit
 
-See my below comments,
-David
+W dniu 2014-09-08 05:16, Guenter Roeck pisze:
+>>>> * Shoud dynamic or static timer_list be used (small structure...)?
+>> dynamic or static timer?
+> I am fine with dynamic, though I would probably make it static.
+> It is not as if there are dozens or hundreds of watchdogs
+> in the system where it would make much of a difference.
+> The code itself is already much larger than the size of
+> the data structure.
+ok, switched to static
 
-On 09/08/2014 02:32 PM, Lee Jones wrote:
-> On Fri, 05 Sep 2014, Guenter Roeck wrote:
->> On Thu, Sep 04, 2014 at 03:39:52PM +0100, Lee Jones wrote:
->>
->> Some text may be useful here.
-> There is nothing to say about this Watchdog driver.  It's as simple as
-> they come.
->
->>> Signed-off-by: David Paris <david.paris@st.com>
->>> Signed-off-by: Lee Jones <lee.jones@linaro.org>
->>> ---
->>>   drivers/watchdog/Kconfig  |  16 +++
->>>   drivers/watchdog/Makefile |   1 +
->>>   drivers/watchdog/st_wdt.c | 314 ++++++++++++++++++++++++++++++++++++++++++++++
->>>   3 files changed, 331 insertions(+)
->>>   create mode 100644 drivers/watchdog/st_wdt.c
->>>
->>> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
->>> index f57312f..c8abf57 100644
->>> --- a/drivers/watchdog/Kconfig
->>> +++ b/drivers/watchdog/Kconfig
->>> @@ -432,6 +432,22 @@ config SIRFSOC_WATCHDOG
->>>   	  Support for CSR SiRFprimaII and SiRFatlasVI watchdog. When
->>>   	  the watchdog triggers the system will be reset.
->>>   
->>> +config ST_WATCHDOG
->>> +       tristate "STMicroelectronics LPC Watchdog"
->>> +       depends on ARCH_STI && OF
->>> +       depends on !RTC_DRV_ST_LPC
->>> +       select WATCHDOG_CORE
->>> +       help
->>> +	 Say Y here to include Watchdog timer support for the watchdog
->>> +	 existing in the LPC of STMicroelectronics SOCs.
->>> +	 !!! BE CARREFUL !!!
->>> +	 This driver shares hardware resources with RTC Alarm part of the
->>> +	 LPC. Both LPC Watchdog driver and LPC RTC driver cannot be
->>> +	 used together.
->>> +
->> Is this mandatory or an implementation choice ?
->> Or, in other words, could the resources be shared among drivers ?
-> David?
-No, resources cannot be shared between among drivers. If one is used, 
-the other one should be disabled.
->
->>> +	 To compile this driver as a module, choose M here: the
->>> +	 module will be called st-wdt.
->>> +
->>>   config TEGRA_WATCHDOG
->>>   	tristate "Tegra watchdog"
->>>   	depends on ARCH_TEGRA || COMPILE_TEST
->>> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
->>> index 468c320..eb19937 100644
->>> --- a/drivers/watchdog/Makefile
->>> +++ b/drivers/watchdog/Makefile
->>> @@ -57,6 +57,7 @@ obj-$(CONFIG_RETU_WATCHDOG) += retu_wdt.o
->>>   obj-$(CONFIG_BCM2835_WDT) += bcm2835_wdt.o
->>>   obj-$(CONFIG_MOXART_WDT) += moxart_wdt.o
->>>   obj-$(CONFIG_SIRFSOC_WATCHDOG) += sirfsoc_wdt.o
->>> +obj-$(CONFIG_ST_WATCHDOG) += st_wdt.o
->>>   obj-$(CONFIG_BCM_KONA_WDT) += bcm_kona_wdt.o
->>>   obj-$(CONFIG_TEGRA_WATCHDOG) += tegra_wdt.o
->>>   
->>> diff --git a/drivers/watchdog/st_wdt.c b/drivers/watchdog/st_wdt.c
->>> new file mode 100644
->>> index 0000000..b5dbc7d
->>> --- /dev/null
->>> +++ b/drivers/watchdog/st_wdt.c
->>> @@ -0,0 +1,314 @@
->>> +/*
->>> + * st-wdt.c -- ST's LPC Watchdog
->>> + *
->>> + * Copyright (C) 2014 STMicroelectronics -- All Rights Reserved
->>> + *
->>> + * Author: David Paris <david.paris@st.com> for STMicroelectronics
->>> + * Contributor: Lee Jones <lee.jones@linaro.org> for STMicroelectronics
->>> + *
->>> + * This program is free software; you can redistribute it and/or
->>> + * modify it under the terms of the GNU General Public Licence
->>> + * as published by the Free Software Foundation; either version
->>> + * 2 of the Licence, or (at your option) any later version.
->> MODULE_LICENSE says GPL v2 explicitly. No idea if that is relevant, though.
-> We initially had "GPL" in MODULE_LICENCE(), but was asked to change it.
->
-> I've seen a few of these reviews on the list recently.  Do we have
-> some definitive guidelines on them?  Does "or (at your option) any
-> later version" then mean that we should have "GPL" instead of "GPL
-> v2"?
->
->>> + */
->>> +
->>> +#include <linux/clk.h>
->>> +#include <linux/init.h>
->>> +#include <linux/io.h>
->>> +#include <linux/kernel.h>
->>> +#include <linux/mfd/syscon.h>
->>> +#include <linux/module.h>
->>> +#include <linux/of.h>
->>> +#include <linux/of_platform.h>
->>> +#include <linux/platform_device.h>
->>> +#include <linux/regmap.h>
->>> +#include <linux/watchdog.h>
->>> +
->>> +/* Low Power Alarm */
->>> +#define LPC_LPA_LSB_OFF			0x410
->>> +#define LPC_LPA_START_OFF		0x418
->>> +
->>> +/* LPC as WDT */
->>> +#define LPC_WDT_OFF			0x510
->>> +
->>> +#define WATCHDOG_MIN			1
->>> +#define WATCHDOG_MAX32			4294967 /* 32bit resolution */
->> Nitpick, but the '32' is really unnecessary here since you don't
->> have a separate define for a different resolution.
->>
->>> +
->>> +#define WDT_ENABLE			1
->>> +#define WDT_DISABLE			0
->>> +
->>> +struct st_wdog_syscfg {
->>> +	struct regmap *regmap;
->>> +	unsigned int type_reg;
->>> +	unsigned int type_mask;
->>> +	unsigned int enable_reg;
->>> +	unsigned int enable_mask;
->> Wondering ... why do you have regmap, type_reg, and enable_reg here
->> and not in the st_wdog structure ?
->>
->> Logically all values in this structure could (should) be const,
->> and it doesn't really make sense to allocate static memory for it.
->> I can see the argument of having 'nice' looking code and retrieve,
->> say, enable_reg and enable_mask from the same structure, but that
->> doesn't really make much sense from a practical perspective.
->> If you want that you could as well copy type_mask and enable_mask
->> into st_wdog.
-> Makes little difference to me.  I don't mind the separation or for
-> them to be bundled in with the main container.
->
-> David, do you have a strong opinion either way?
-At the beginning, type_reg and enable_reg were also defined in the 
-"$soc"_syscfg structure. But now, it makes sense to copy type_mask and 
-enable_mask in the st_wdog structure.
+>> Can kernel suspend a started (stoppable) watchdog? It dissapeared in 
+>> 3.x. Now userland reaction seems to be required.
+> Really ? I see a number of watchdog drivers implementing it.
+I thought it was discarded and PM in other watchdog drivers is deprecated
+when I didn't find it for not so old stmp3xxx_rtc_wdt.c.
+For suspend/resume drivers call own stop/start functions and use 
+watchdog_active() - good
+but it could be likely unified.
+Some drivers duplicate active flag, eg. omap_wdt.c: omap_wdt_users.
 
->
->>> +};
->>> +
->>> +struct st_wdog {
->>> +	void __iomem *base;
->>> +	struct st_wdog_syscfg *syscfg;
->>> +	struct clk *clk;
->>> +	int warm_reset;
->> unsigned int ? Also see below.
-> Sounds resonable.
->
->>> +};
->>> +
->>> +static struct st_wdog_syscfg stid127_syscfg = {
->>> +	.type_mask	= BIT(2),
->>> +	.enable_mask	= BIT(2),
->>> +};
->>> +
->>> +static struct st_wdog_syscfg stih415_syscfg = {
->>> +	.type_mask	= BIT(6),
->>> +	.enable_mask	= BIT(7),
->>> +};
->>> +
->>> +static struct st_wdog_syscfg stih416_syscfg = {
->>> +	.type_mask	= BIT(6),
->>> +	.enable_mask	= BIT(7),
->>> +};
->>> +
->>> +static struct st_wdog_syscfg stih407_syscfg = {
->>> +	.enable_mask	= BIT(19),
->>> +};
->>> +
->>> +static struct of_device_id st_wdog_match[] = {
->>> +	{
->>> +		.compatible = "st,stih407-watchdog",
->>> +		.data = (void *)&stih407_syscfg,
->>> +	},
->>> +	{
->>> +		.compatible = "st,stih416-watchdog",
->>> +		.data = (void *)&stih416_syscfg,
->>> +	},
->>> +	{
->>> +		.compatible = "st,stih415-watchdog",
->>> +		.data = (void *)&stih415_syscfg,
->>> +	},
->>> +	{
->>> +		.compatible = "st,stid127-watchdog",
->>> +		.data = (void *)&stid127_syscfg,
->>> +	},
->>> +	{},
->>> +};
->>> +MODULE_DEVICE_TABLE(of, st_wdog_match);
->>> +
->>> +static void st_wdog_setup(struct st_wdog *st_wdog, bool enable)
->>> +{
->>> +	/* Type of watchdog reset - 0: Cold 1: Warm */
->>> +	if (st_wdog->syscfg->type_reg)
->>> +		regmap_update_bits(st_wdog->syscfg->regmap,
->>> +				   st_wdog->syscfg->type_reg,
->>> +				   st_wdog->syscfg->type_mask,
->>> +				   st_wdog->warm_reset);
->>> +
->>> +	/* Mask/unmask watchdog reset */
->>> +	regmap_update_bits(st_wdog->syscfg->regmap,
->>> +			   st_wdog->syscfg->enable_reg,
->>> +			   st_wdog->syscfg->enable_mask,
->>> +			   !enable);
->> enable is a bool, but is supposed to provide the value to be put into the
->> register, masked with enable_mask. Unless I am missing something, the value
->> is not shifted in regmap_update_bits. So I don't think this can work, but
->> effectively always writes zero into the mask unless the mask happens to be
->> at bit position 0 - which never happens.
->>
->> Same is true for warm_reset above, which also has values 0 or 1.
->>
->> I know it does not really matter in C (at least when it comes to handling
->> 0 and 1), but I would suggest to avoid mixing booleans with bit masks.
-> You're right of course, great spot.
->
-> How about?
->
->    !enable << ffs(st_wdog->syscfg->enable_mask).
->
->>> +}
->>> +
->>> +static void st_wdog_load_timer(struct st_wdog *st_wdog, unsigned int timeout)
->>> +{
->>> +	timeout *= clk_get_rate(st_wdog->clk);
->>> +
->>> +	/* Write only LSB as timeout in Watchdog framework is 32bits only */
->> I don't entirely understand the logic here. timeout may be 32 bit,
->> but that doesn't mean that timeout * clk_get_rate(st_wdog->clk)
->> has to be 32 bit.
->>
->> Also, what happens if MSB happens to be set to a nonzero value ?
->> Is that guaranteed to never happen ?
-> David?
-Right,
+>> I also attached the patch file - I don't trust email client in text 
+>> formatting (tabs)
+> You'll have to sort that out. Try using git send-email, for example.
+I found Thunderbird is accepted but I'm not sure.
 
-Actually the watchdog_device has a .max_timeout field, used to check if 
-timeout is in the correct range. But I realize that the max timeout I 
-set in the .max_timeout should be WATCHDOG_MAX32 / 
-clk_get_rate(st_wdog->clk);
->>> +	writel_relaxed(timeout, st_wdog->base + LPC_LPA_LSB_OFF);
->>> +	writel_relaxed(1, st_wdog->base + LPC_LPA_START_OFF);
->>> +}
->>> +
->>> +static int st_wdog_start(struct watchdog_device *wdd)
->>> +{
->>> +	struct st_wdog *st_wdog = watchdog_get_drvdata(wdd);
->>> +
->>> +	writel_relaxed(1, st_wdog->base + LPC_WDT_OFF);
->>> +
->>> +	return 0;
->>> +}
->>> +
->>> +static int st_wdog_stop(struct watchdog_device *wdd)
->>> +{
->>> +	struct st_wdog *st_wdog = watchdog_get_drvdata(wdd);
->>> +
->>> +	writel_relaxed(0, st_wdog->base + LPC_WDT_OFF);
->>> +
->>> +	return 0;
->>> +}
->>> +
->>> +static int st_wdog_set_timeout(struct watchdog_device *wdd,
->>> +			       unsigned int timeout)
->>> +{
->>> +	struct st_wdog *st_wdog = watchdog_get_drvdata(wdd);
->>> +
->>> +	wdd->timeout = timeout;
->>> +	st_wdog_load_timer(st_wdog, timeout);
->>> +
->>> +	return 0;
->>> +}
->>> +
->>> +static int st_wdog_keepalive(struct watchdog_device *wdd)
->>> +{
->>> +	struct st_wdog *st_wdog = watchdog_get_drvdata(wdd);
->>> +
->>> +	st_wdog_load_timer(st_wdog, wdd->timeout);
->>> +
->>> +	return 0;
->>> +}
->>> +
->>> +static const struct watchdog_info st_wdog_info = {
->>> +	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
->>> +	.identity = "ST LPC WDT",
->>> +};
->>> +
->>> +static const struct watchdog_ops st_wdog_ops = {
->>> +	.owner		= THIS_MODULE,
->>> +	.start		= st_wdog_start,
->>> +	.stop		= st_wdog_stop,
->>> +	.ping		= st_wdog_keepalive,
->>> +	.set_timeout	= st_wdog_set_timeout,
->>> +};
->>> +
->>> +static struct watchdog_device st_wdog_dev = {
->>> +	.info		= &st_wdog_info,
->>> +	.ops		= &st_wdog_ops,
->>> +	.min_timeout	= WATCHDOG_MIN,
->>> +	.max_timeout	= WATCHDOG_MAX32,
->>> +};
->>> +
->>> +static int st_wdog_probe(struct platform_device *pdev)
->>> +{
->>> +	const struct of_device_id *match;
->>> +	struct device_node *np = pdev->dev.of_node;
->>> +	struct st_wdog *st_wdog;
->>> +	struct regmap *regmap;
->>> +	struct resource *res;
->>> +	struct clk *clk;
->>> +	void __iomem *base;
->>> +	int ret;
->>> +
->>> +	st_wdog = devm_kzalloc(&pdev->dev, sizeof(*st_wdog), GFP_KERNEL);
->>> +	if (!st_wdog)
->>> +		return -ENOMEM;
->>> +
->>> +	match = of_match_device(st_wdog_match, &pdev->dev);
->>> +	if (!match) {
->>> +		dev_err(&pdev->dev, "Couldn't match device\n");
->>> +		return -ENODEV;
->>> +	}
->>> +	st_wdog->syscfg	= (struct st_wdog_syscfg *)match->data;
->>> +
->>> +	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "base");
->>> +	base = devm_ioremap_resource(&pdev->dev, res);
->>> +	if (IS_ERR(base)) {
->>> +		dev_err(&pdev->dev, "Failed to ioremap base\n");
->> devm_ioremap_resource already creates an error message, so this should be
->> unnecessary.
-> Absolutely.  Will fix.
+>>> I would not call this "kernel ping". We'll need to find a better
+>>> name. Proposals welcome. Something indicating the status, ie something
+>>> indicating that the wdt is always running and can not be stopped.
+>> "keep on" proposed (I changed the subject also)
 >
->>> +		return PTR_ERR(base);
->>> +	}
->>> +
->>> +	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "syscfg-en");
->>> +	if (!res) {
->>> +		dev_err(&pdev->dev, "Failed to get enable register address\n");
->>> +		return -EINVAL;
->>> +	}
->>> +	st_wdog->syscfg->enable_reg = res->start;
->>> +
->>> +	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "syscfg-type");
->>> +	if (res)
->>> +		st_wdog->syscfg->type_reg = res->start;
->>> +
->>> +	regmap = syscon_regmap_lookup_by_phandle(np, "st,syscfg");
->>> +	if (IS_ERR(regmap)) {
->>> +		dev_err(&pdev->dev, "No syscfg phandle specified\n");
->>> +		return PTR_ERR(regmap);
->>> +	}
->>> +
->>> +	clk = of_clk_get_by_name(np, "st_wdog");
->>> +	if (IS_ERR(clk)) {
->>> +		dev_err(&pdev->dev, "Unable to request clock\n");
->>> +		return PTR_ERR(clk);
->>> +	}
->>> +	clk_prepare_enable(st_wdog->clk);
->>> +
->>> +	st_wdog->base 		= base;
->>> +	st_wdog->clk		= clk;
->>> +	st_wdog->warm_reset 	= of_property_read_bool(np, "st,warm_reset");
->>> +	st_wdog->syscfg->regmap = regmap;
->>> +
->>> +	watchdog_set_drvdata(&st_wdog_dev, st_wdog);
->>> +	watchdog_set_nowayout(&st_wdog_dev, WATCHDOG_NOWAYOUT);
->>> +
->>> +	ret = watchdog_register_device(&st_wdog_dev);
->>> +	if (ret) {
->>> +		dev_err(&pdev->dev, "Unable to register watchdog\n");
->>> +		clk_disable_unprepare(clk);
->>> +		return ret;
->>> +	}
->>> +
->>> +	/* Init Watchdog timeout with value in DT */
->>> +	ret = watchdog_init_timeout(&st_wdog_dev, 0, &pdev->dev);
->>> +	if (ret) {
->>> +		dev_err(&pdev->dev, "Unable to initialise watchdog timeout\n");
->> No clk_disable_unprepare here ?
-> clk_disable_unprepare() should be in the error path.
-Right
+> Hmm ... but that isn't right either. It should reflect that the watchdog
+> is always active / running.
+I can't fully agree here.
+"Always active / running" means for me hardware watchdog's attribute.
+stmp3xxx allows to stop the watchdog and it can be stopped even the 
+feature is set.
+This case happens on suspend for example.
+Therefore "always running" / WATCHDOG_ALWAYS_ACTIVE seems to be confusing.
+
+> You still have trouble with your line length. Makes it hard for
+> me (and everyone else) to read your text.
+Clear. Now I split lines manually.
+
+>>> Given that, there are two use states to consider: WDT is always 
+>>> running,
+>>> and WDT can not be stopped after it was started once. We should cover
+>>> both cases.
+>> and third: ability to stop watchdog (if possible) for suspend
 >
->>> +		return ret;
->>> +	}
->>> +
->>> +	st_wdog_setup(st_wdog, WDT_ENABLE);
->>> +
->>> +	dev_info(&pdev->dev, "LPC Watchdog driver registered, reset type is %s",
->>> +		 st_wdog->warm_reset ? "warm" : "cold");
->>> +
->>> +	return ret;
->>> +}
->>> +
->>> +static int st_wdog_remove(struct platform_device *pdev)
->>> +{
->>> +	struct st_wdog *st_wdog = watchdog_get_drvdata(&st_wdog_dev);
->>> +
->>> +	if (watchdog_active(&st_wdog_dev))
->>> +		st_wdog_stop(&st_wdog_dev);
->>> +
->>> +	st_wdog_setup(st_wdog, WDT_DISABLE);
->>> +
->>> +	watchdog_unregister_device(&st_wdog_dev);
->>> +
->> No clk_disable_unprepare ?
+> Today that is handled by individual drivers. I have no idea though how
+> that would or could be handled if the watchdog can not be stopped at all.
+> Seems to be a contradiction to me.
+>
+> Anyway, you'll probably need some code which suspends pinging the
+> watchdog in suspend. But that assumes that the watchdog can be stopped
+> after all, at least during suspend.
+If watchdog can't be stopped it is rather impossible to suspend machine 
+without a reset.
+Maybe long timeout value has a sense then but it depends on hardware, is 
+complex,
+and requires RTC wake up event or watchdog pre-timeout interrupt support.
+
+>>> The feature should have DT support from the beginning if possible,
+>>> though it should be added as a separate patch in case there is
+>>> a hiccup with the DT folks.
+>> Can you give more details?
 >>
->> Maye it is not necessary, but then I wonder why you have it above.
-> I think it is necessary.
-Confirm
+> We'll have to determine bindings which are acceptable for DT.
+separate patch - next step
+
+>> +/* 'keep on' feature */
+>> +static void watchdog_keepon_timer_cb(unsigned long data)
 >
->>> +	return 0;
->>> +}
->>> +
->>> +#ifdef CONFIG_PM
->>> +static int st_wdog_suspend(struct device *dev)
->>> +{
->>> +	if (watchdog_active(&st_wdog_dev))
->>> +		st_wdog_stop(&st_wdog_dev);
->>> +
->> Is any clock activity necessary here ? Just asking, I don't really have an idea.
-> I would guess that it would need disabling, but not familiar with the h/w.
+> No problem calling this 'ping'. That describes what the function
+> is doing. 'k' in 'kping' is redundant, though - presumably all
+> kernel code runs in the kernel ;-).
+right :)
+
+>> +    /* call next ping half the timeout value */
+>> +    mod_timer(wdd->keepon_timer,
+>> +            jiffies + wdd->timeout * (HZ/2));
 >
-> David?
-Right, clock can be disabled in suspend an enabled in resume.
+> Watch out for coding style (spaces befor and after operators).
+> Better use something like
+>         jiffies + msecs_to_jiffies(wdd->timeout * 1000)
+fixed
+
+>> +static void watchdog_keepon_start(struct watchdog_device *wdd)
+>>   {
+>>       watchdog_start(wdd);
+>> +    /* watchdog_keepon_timer_cb((unsigned long)wdd); or the code 
+>> below: */
+>>       watchdog_ping(wdd);
+>> +    mod_timer(wdd->keepon_timer, jiffies + HZ/2);
+> Why only 500ms timeout here ?
+fixed by calling timer callback function
+
+>>   struct watchdog_ops;
+>> @@ -96,9 +96,9 @@ struct watchdog_device {
+>>   #define WDOG_ALLOW_RELEASE    2    /* Did we receive the magic char 
+>> ? */
+>>   #define WDOG_NO_WAY_OUT        3    /* Is 'nowayout' feature set ? */
+>>   #define WDOG_UNREGISTERED    4    /* Has the device been 
+>> unregistered */
+>> -#define WDOG_KERNEL_PING    5    /* Ping is done by kernel if device 
+>> not opened by userland */
+>> -    struct timer_list *kping_timer;    /* kernel ping timer */
+>> -#define WATCHDOG_KERNEL_PING    (1 << WDOG_KERNEL_PING)
+>> +#define WDOG_KEEP_ON        5    /* Is 'keep on' feature set? */
+>> +    struct timer_list *keepon_timer;/* 'keep on' timer */
+>> +#define WATCHDOG_KEEP_ON    (1 << WDOG_KEEP_ON)
 >
->>> +	return 0;
->>> +}
->>> +
->>> +static int st_wdog_resume(struct device *dev)
->>> +{
->>> +	struct st_wdog *st_wdog = watchdog_get_drvdata(&st_wdog_dev);
->>> +
->>> +	if (watchdog_active(&st_wdog_dev)) {
->>> +		st_wdog_load_timer(st_wdog, st_wdog_dev.timeout);
->>> +		st_wdog_start(&st_wdog_dev);
->>> +	}
->>> +
->>> +	return 0;
->>> +}
->>> +#endif
->>> +
->>> +static SIMPLE_DEV_PM_OPS(st_wdog_pm_ops,
->>> +			 st_wdog_suspend,
->>> +			 st_wdog_resume);
->>> +
->>> +static struct platform_driver st_wdog_driver = {
->>> +	.driver	= {
->>> +		.name = "st-wdt",
->>> +		.pm = &st_wdog_pm_ops,
->>> +		.of_match_table = st_wdog_match,
->>> +	},
->>> +	.probe = st_wdog_probe,
->>> +	.remove = st_wdog_remove,
->>> +};
->>> +module_platform_driver(st_wdog_driver);
->>> +
->>> +MODULE_AUTHOR("David PARIS <david.paris@st.com>");
->>> +MODULE_DESCRIPTION("ST LPC Watchdog Driver");
->>> +MODULE_LICENSE("GPL v2");
+> Move this define out of the struct, please.
+done
+
+>> +/* 'keep on' feature */
+>> +static void watchdog_keepon_timer_cb(unsigned long data)
+>> +{
+>> +    struct watchdog_device *wdd = (struct watchdog_device *)data;
+>> +    watchdog_ping(wdd);
+>
+> I don't think this works. It bails out if the watchdog is not
+> active, and active means opened from user space. Correct me
+> if I am wrong.
+It works (tested) because watchdog is activated in watchdog_keepon_start()
+
+>> +    if (test_bit(WDOG_KEEP_ON, &watchdog->status)) {
+>> +        if (!try_module_get(watchdog->ops->owner))
+>> +            return -ENODEV;
+>> +        watchdog->keepon_timer =
+>> +            kzalloc(sizeof(*watchdog->keepon_timer), GFP_KERNEL);
+>> +        if (!watchdog->keepon_timer)
+>> +            return -ENOMEM;
+> This really suggests it should be static, to avoid such complexity
+> and potential errors. Also, you leak at least the module reference
+> on errors (here and later).
+changed above
+
+>> + setup_timer(watchdog->keepon_timer, watchdog_keepon_timer_cb,
+>> +                (unsigned long)watchdog);
+>> +        watchdog_keepon_start(watchdog);
+>
+> By setting the timer here prior to completing registration you risk 
+> leaking
+> the timer on error. Also, there is strictly speaking no guarantee that 
+> the
+> timer doesn't fire before registration is complete, so this results
+> in a race condition.
+Is there race condition really issue?
+I wanted to start the timer before userspace access is possible.
+I rather see not handled error path for the ping timer.
+I fixed it but I guess it requires more common code.
+
+Below the fixed patch.
+Janusz
+
+Signed-off-by: Janusz Uzycki <j.uzycki@elproma.com.pl>
+
+diff --git a/linux-3.14.17/drivers/watchdog/stmp3xxx_rtc_wdt.c 
+b/linux-3.14.17/drivers/watchdog/stmp3xxx_rtc_wdt.c
+index b4d6b34..3546f03 100644
+--- a/linux-3.14.17/drivers/watchdog/stmp3xxx_rtc_wdt.c
++++ b/linux-3.14.17/drivers/watchdog/stmp3xxx_rtc_wdt.c
+@@ -67,7 +67,7 @@ static struct watchdog_device stmp3xxx_wdd = {
+      .ops = &stmp3xxx_wdt_ops,
+      .min_timeout = 1,
+      .max_timeout = STMP3XXX_MAX_TIMEOUT,
+-    .status = WATCHDOG_NOWAYOUT_INIT_STATUS,
++    .status = WATCHDOG_NOWAYOUT_INIT_STATUS | WATCHDOG_KEEP_ON,
+  };
+
+  static int stmp3xxx_wdt_probe(struct platform_device *pdev)
+diff --git a/linux-3.14.17/drivers/watchdog/watchdog_dev.c 
+b/linux-3.14.17/drivers/watchdog/watchdog_dev.c
+index 6aaefba..51a65f6 100644
+--- a/linux-3.14.17/drivers/watchdog/watchdog_dev.c
++++ b/linux-3.14.17/drivers/watchdog/watchdog_dev.c
+@@ -41,6 +41,7 @@
+  #include <linux/miscdevice.h>    /* For handling misc devices */
+  #include <linux/init.h>        /* For __init/__exit/... */
+  #include <linux/uaccess.h>    /* For copy_to_user/put_user/... */
++#include <linux/jiffies.h>    /* for ping timer */
+
+  #include "watchdog_core.h"
+
+@@ -277,6 +278,27 @@ out_ioctl:
+      return err;
+  }
+
++/* 'keep on' feature */
++static void watchdog_ping_timer_cb(unsigned long data)
++{
++    struct watchdog_device *wdd = (struct watchdog_device *)data;
++    watchdog_ping(wdd);
++    /* call next ping half the timeout value */
++    mod_timer(&wdd->ping_timer,
++            jiffies + msecs_to_jiffies(wdd->timeout * 500));
++}
++
++static void watchdog_keepon_start(struct watchdog_device *wdd)
++{
++    watchdog_start(wdd);
++    watchdog_ping_timer_cb((unsigned long)wdd);
++}
++
++static void watchdog_keepon_stop(struct watchdog_device *wdd)
++{
++    del_timer_sync(&wdd->ping_timer);
++}
++
+  /*
+   *    watchdog_write: writes to the watchdog.
+   *    @file: file from VFS
+@@ -430,6 +452,9 @@ static int watchdog_open(struct inode *inode, struct 
+file *file)
+      if (!try_module_get(wdd->ops->owner))
+          goto out;
+
++    if (test_bit(WDOG_KEEP_ON, &wdd->status))
++        watchdog_keepon_stop(wdd);
++
+      err = watchdog_start(wdd);
+      if (err < 0)
+          goto out_mod;
+@@ -472,8 +497,13 @@ static int watchdog_release(struct inode *inode, 
+struct file *file)
+      if (!test_bit(WDOG_ACTIVE, &wdd->status))
+          err = 0;
+      else if (test_and_clear_bit(WDOG_ALLOW_RELEASE, &wdd->status) ||
+-         !(wdd->info->options & WDIOF_MAGICCLOSE))
+-        err = watchdog_stop(wdd);
++         !(wdd->info->options & WDIOF_MAGICCLOSE)) {
++        if (test_bit(WDOG_KEEP_ON, &wdd->status)) {
++            watchdog_keepon_start(wdd);
++            err = 0;
++        } else
++            err = watchdog_stop(wdd);
++    }
+
+      /* If the watchdog was not stopped, send a keepalive ping */
+      if (err < 0) {
+@@ -524,6 +554,14 @@ int watchdog_dev_register(struct watchdog_device 
+*watchdog)
+  {
+      int err, devno;
+
++    if (test_bit(WDOG_KEEP_ON, &watchdog->status)) {
++        if (!try_module_get(watchdog->ops->owner))
++            return -ENODEV;
++        setup_timer(&watchdog->ping_timer, watchdog_ping_timer_cb,
++                (unsigned long)watchdog);
++        watchdog_keepon_start(watchdog);
++    }
++
+      if (watchdog->id == 0) {
+          old_wdd = watchdog;
+          watchdog_miscdev.parent = watchdog->parent;
+@@ -535,6 +573,11 @@ int watchdog_dev_register(struct watchdog_device 
+*watchdog)
+                  pr_err("%s: a legacy watchdog module is probably 
+present.\n",
+                      watchdog->info->identity);
+              old_wdd = NULL;
++            if (test_bit(WDOG_KEEP_ON, &watchdog->status)) {
++                watchdog_keepon_stop(watchdog);
++                watchdog_stop(watchdog);
++                module_put(watchdog->ops->owner);
++            }
+              return err;
+          }
+      }
+@@ -553,6 +596,11 @@ int watchdog_dev_register(struct watchdog_device 
+*watchdog)
+              misc_deregister(&watchdog_miscdev);
+              old_wdd = NULL;
+          }
++        if (test_bit(WDOG_KEEP_ON, &watchdog->status)) {
++            watchdog_keepon_stop(watchdog);
++            watchdog_stop(watchdog);
++            module_put(watchdog->ops->owner);
++        }
+      }
+      return err;
+  }
+@@ -575,6 +623,12 @@ int watchdog_dev_unregister(struct watchdog_device 
+*watchdog)
+          misc_deregister(&watchdog_miscdev);
+          old_wdd = NULL;
+      }
++
++    if (test_bit(WDOG_KEEP_ON, &watchdog->status)) {
++        watchdog_keepon_stop(watchdog);
++        watchdog_stop(watchdog);
++        module_put(watchdog->ops->owner);
++    }
+      return 0;
+  }
+
+diff --git a/linux-3.14.17/include/linux/watchdog.h 
+b/linux-3.14.17/include/linux/watchdog.h
+index 2a3038e..650e0d5 100644
+--- a/linux-3.14.17/include/linux/watchdog.h
++++ b/linux-3.14.17/include/linux/watchdog.h
+@@ -12,6 +12,7 @@
+  #include <linux/bitops.h>
+  #include <linux/device.h>
+  #include <linux/cdev.h>
++#include <linux/timer.h>        /* for ping timer */
+  #include <uapi/linux/watchdog.h>
+
+  struct watchdog_ops;
+@@ -95,6 +96,8 @@ struct watchdog_device {
+  #define WDOG_ALLOW_RELEASE    2    /* Did we receive the magic char ? */
+  #define WDOG_NO_WAY_OUT        3    /* Is 'nowayout' feature set ? */
+  #define WDOG_UNREGISTERED    4    /* Has the device been unregistered */
++#define WDOG_KEEP_ON        5    /* Is 'keep on' feature set? */
++    struct timer_list ping_timer;    /* timer to keep on hardware ping */
+  };
+
+  #ifdef CONFIG_WATCHDOG_NOWAYOUT
+@@ -104,6 +107,8 @@ struct watchdog_device {
+  #define WATCHDOG_NOWAYOUT        0
+  #define WATCHDOG_NOWAYOUT_INIT_STATUS    0
+  #endif
++/* other proposal: WATCHDOG_ALWAYS_ACTIVE */
++#define WATCHDOG_KEEP_ON        (1 << WDOG_KEEP_ON)
+
+  /* Use the following function to check whether or not the watchdog is 
+active */
+  static inline bool watchdog_active(struct watchdog_device *wdd)
+
+
+--------------000907000909070102010203
+Content-Type: text/plain; charset=windows-1250;
+ name="watchdog_dev.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="watchdog_dev.patch"
+
+Signed-off-by: Janusz Uzycki <j.uzycki@elproma.com.pl>
+
+diff --git a/linux-3.14.17/drivers/watchdog/stmp3xxx_rtc_wdt.c b/linux-3.14.17/drivers/watchdog/stmp3xxx_rtc_wdt.c
+index b4d6b34..3546f03 100644
+--- a/linux-3.14.17/drivers/watchdog/stmp3xxx_rtc_wdt.c
++++ b/linux-3.14.17/drivers/watchdog/stmp3xxx_rtc_wdt.c
+@@ -67,7 +67,7 @@ static struct watchdog_device stmp3xxx_wdd = {
+ 	.ops = &stmp3xxx_wdt_ops,
+ 	.min_timeout = 1,
+ 	.max_timeout = STMP3XXX_MAX_TIMEOUT,
+-	.status = WATCHDOG_NOWAYOUT_INIT_STATUS,
++	.status = WATCHDOG_NOWAYOUT_INIT_STATUS | WATCHDOG_KEEP_ON,
+ };
+ 
+ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
+diff --git a/linux-3.14.17/drivers/watchdog/watchdog_dev.c b/linux-3.14.17/drivers/watchdog/watchdog_dev.c
+index 6aaefba..51a65f6 100644
+--- a/linux-3.14.17/drivers/watchdog/watchdog_dev.c
++++ b/linux-3.14.17/drivers/watchdog/watchdog_dev.c
+@@ -41,6 +41,7 @@
+ #include <linux/miscdevice.h>	/* For handling misc devices */
+ #include <linux/init.h>		/* For __init/__exit/... */
+ #include <linux/uaccess.h>	/* For copy_to_user/put_user/... */
++#include <linux/jiffies.h>	/* for ping timer */
+ 
+ #include "watchdog_core.h"
+ 
+@@ -277,6 +278,27 @@ out_ioctl:
+ 	return err;
+ }
+ 
++/* 'keep on' feature */
++static void watchdog_ping_timer_cb(unsigned long data)
++{
++	struct watchdog_device *wdd = (struct watchdog_device *)data;
++	watchdog_ping(wdd);
++	/* call next ping half the timeout value */
++	mod_timer(&wdd->ping_timer,
++			jiffies + msecs_to_jiffies(wdd->timeout * 500));
++}
++
++static void watchdog_keepon_start(struct watchdog_device *wdd)
++{
++	watchdog_start(wdd);
++	watchdog_ping_timer_cb((unsigned long)wdd);
++}
++
++static void watchdog_keepon_stop(struct watchdog_device *wdd)
++{
++	del_timer_sync(&wdd->ping_timer);
++}
++
+ /*
+  *	watchdog_write: writes to the watchdog.
+  *	@file: file from VFS
+@@ -430,6 +452,9 @@ static int watchdog_open(struct inode *inode, struct file *file)
+ 	if (!try_module_get(wdd->ops->owner))
+ 		goto out;
+ 
++	if (test_bit(WDOG_KEEP_ON, &wdd->status))
++		watchdog_keepon_stop(wdd);
++
+ 	err = watchdog_start(wdd);
+ 	if (err < 0)
+ 		goto out_mod;
+@@ -472,8 +497,13 @@ static int watchdog_release(struct inode *inode, struct file *file)
+ 	if (!test_bit(WDOG_ACTIVE, &wdd->status))
+ 		err = 0;
+ 	else if (test_and_clear_bit(WDOG_ALLOW_RELEASE, &wdd->status) ||
+-		 !(wdd->info->options & WDIOF_MAGICCLOSE))
+-		err = watchdog_stop(wdd);
++		 !(wdd->info->options & WDIOF_MAGICCLOSE)) {
++		if (test_bit(WDOG_KEEP_ON, &wdd->status)) {
++			watchdog_keepon_start(wdd);
++			err = 0;
++		} else
++			err = watchdog_stop(wdd);
++	}
+ 
+ 	/* If the watchdog was not stopped, send a keepalive ping */
+ 	if (err < 0) {
+@@ -524,6 +554,14 @@ int watchdog_dev_register(struct watchdog_device *watchdog)
+ {
+ 	int err, devno;
+ 
++	if (test_bit(WDOG_KEEP_ON, &watchdog->status)) {
++		if (!try_module_get(watchdog->ops->owner))
++			return -ENODEV;
++		setup_timer(&watchdog->ping_timer, watchdog_ping_timer_cb,
++				(unsigned long)watchdog);
++		watchdog_keepon_start(watchdog);
++	}
++
+ 	if (watchdog->id == 0) {
+ 		old_wdd = watchdog;
+ 		watchdog_miscdev.parent = watchdog->parent;
+@@ -535,6 +573,11 @@ int watchdog_dev_register(struct watchdog_device *watchdog)
+ 				pr_err("%s: a legacy watchdog module is probably present.\n",
+ 					watchdog->info->identity);
+ 			old_wdd = NULL;
++			if (test_bit(WDOG_KEEP_ON, &watchdog->status)) {
++				watchdog_keepon_stop(watchdog);
++				watchdog_stop(watchdog);
++				module_put(watchdog->ops->owner);
++			}
+ 			return err;
+ 		}
+ 	}
+@@ -553,6 +596,11 @@ int watchdog_dev_register(struct watchdog_device *watchdog)
+ 			misc_deregister(&watchdog_miscdev);
+ 			old_wdd = NULL;
+ 		}
++		if (test_bit(WDOG_KEEP_ON, &watchdog->status)) {
++			watchdog_keepon_stop(watchdog);
++			watchdog_stop(watchdog);
++			module_put(watchdog->ops->owner);
++		}
+ 	}
+ 	return err;
+ }
+@@ -575,6 +623,12 @@ int watchdog_dev_unregister(struct watchdog_device *watchdog)
+ 		misc_deregister(&watchdog_miscdev);
+ 		old_wdd = NULL;
+ 	}
++
++	if (test_bit(WDOG_KEEP_ON, &watchdog->status)) {
++		watchdog_keepon_stop(watchdog);
++		watchdog_stop(watchdog);
++		module_put(watchdog->ops->owner);
++	}
+ 	return 0;
+ }
+ 
+diff --git a/linux-3.14.17/include/linux/watchdog.h b/linux-3.14.17/include/linux/watchdog.h
+index 2a3038e..650e0d5 100644
+--- a/linux-3.14.17/include/linux/watchdog.h
++++ b/linux-3.14.17/include/linux/watchdog.h
+@@ -12,6 +12,7 @@
+ #include <linux/bitops.h>
+ #include <linux/device.h>
+ #include <linux/cdev.h>
++#include <linux/timer.h>		/* for ping timer */
+ #include <uapi/linux/watchdog.h>
+ 
+ struct watchdog_ops;
+@@ -95,6 +96,8 @@ struct watchdog_device {
+ #define WDOG_ALLOW_RELEASE	2	/* Did we receive the magic char ? */
+ #define WDOG_NO_WAY_OUT		3	/* Is 'nowayout' feature set ? */
+ #define WDOG_UNREGISTERED	4	/* Has the device been unregistered */
++#define WDOG_KEEP_ON		5	/* Is 'keep on' feature set? */
++	struct timer_list ping_timer;	/* timer to keep on hardware ping */
+ };
+ 
+ #ifdef CONFIG_WATCHDOG_NOWAYOUT
+@@ -104,6 +107,8 @@ struct watchdog_device {
+ #define WATCHDOG_NOWAYOUT		0
+ #define WATCHDOG_NOWAYOUT_INIT_STATUS	0
+ #endif
++/* other proposal: WATCHDOG_ALWAYS_ACTIVE */
++#define WATCHDOG_KEEP_ON		(1 << WDOG_KEEP_ON)
+ 
+ /* Use the following function to check whether or not the watchdog is active */
+ static inline bool watchdog_active(struct watchdog_device *wdd)
+
+--------------000907000909070102010203--
