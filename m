@@ -1,91 +1,70 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-la0-f46.google.com ([209.85.215.46]:50807 "EHLO
-	mail-la0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751793AbaIFQtR (ORCPT
+Received: from mho-03-ewr.mailhop.org ([204.13.248.66]:12812 "EHLO
+	mho-01-ewr.mailhop.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754073AbaIIPK5 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 6 Sep 2014 12:49:17 -0400
-Received: by mail-la0-f46.google.com with SMTP id pv20so15447544lab.19
-        for <linux-watchdog@vger.kernel.org>; Sat, 06 Sep 2014 09:49:16 -0700 (PDT)
-Message-ID: <540B3B0A.5040307@contactless.ru>
-Date: Sat, 06 Sep 2014 20:49:14 +0400
-From: Evgeny Boger <boger@contactless.ru>
+	Tue, 9 Sep 2014 11:10:57 -0400
+Date: Tue, 9 Sep 2014 11:10:22 -0400
+From: Jason Cooper <jason@lakedaemon.net>
+To: Andrew Lunn <andrew@lunn.ch>
+Cc: linux ARM <linux-arm-kernel@lists.infradead.org>,
+	Daniel Lezcano <daniel.lezcano@linaro.org>,
+	"Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-pm@vger.kernel.org,
+	Tejun Heo <tj@kernel.org>, linux-ide@vger.kernel.org,
+	Zhang Rui <rui.zhang@intel.com>,
+	Richard Purdie <rpurdie@rpsys.net>, linux-leds@vger.kernel.org,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com, Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org,
+	Viresh Kumar <viresh.kumar@linaro.org>
+Subject: Re: [Patch v3] 0/7] Remove mach-kirkwood
+Message-ID: <20140909151022.GM30828@titan.lakedaemon.net>
+References: <1409417172-6846-1-git-send-email-andrew@lunn.ch>
 MIME-Version: 1.0
-To: Guenter Roeck <linux@roeck-us.net>,
-	Alexander Shiyan <shc_work@mail.ru>
-CC: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add support for always enabled watchdog timers
-References: <1408236338-12555-1-git-send-email-boger@contactless.ru> <53F8CC58.2030406@roeck-us.net> <1408814702.730436497@f133.i.mail.ru> <53F8D052.6060705@roeck-us.net>
-In-Reply-To: <53F8D052.6060705@roeck-us.net>
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1409417172-6846-1-git-send-email-andrew@lunn.ch>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 08/23/2014 09:33 PM, Guenter Roeck wrote:
-> On 08/23/2014 10:25 AM, Alexander Shiyan wrote:
->> Sat, 23 Aug 2014 10:16:08 -0700 =D0=BE=D1=82 Guenter Roeck <linux@ro=
-eck-us.net>:
->>> On 08/16/2014 05:45 PM, Evgeny Boger wrote:
->>>> From: Evgeny Boger <boger@contactless.ru>
->>>>
->>>> Add option to use with watchdog timers which are always enabled
->>>> in hardware, i.e. there is no way to enable/disable it via GPIO pi=
-n.
->>>> The driver will start pinging WDT immediately upon loading
->>>> and will continue to do so even after stopping the watchdog.
->>>>
->>> The headline needs a reference to the affected driver.
->>>
->>> Also, please copy the dt mailing list and maintainers.
->>>
->>>> Signed-off-by: Evgeny Boger <boger@contactless.ru>
->>>> ---
->>>>    .../devicetree/bindings/watchdog/gpio-wdt.txt      | 14 ++++++-
->>>>    drivers/watchdog/gpio_wdt.c                        | 45=20
->>>> +++++++++++++++++-----
->>>>    2 files changed, 48 insertions(+), 11 deletions(-)
->>>>
->>>> diff --git=20
->>>> a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt=20
->>>> b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
->>>> index 37afec1..1f8ca46 100644
->>>> --- a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
->>>> +++ b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
->>>> @@ -12,8 +12,11 @@ Required Properties:
->>>>        the opposite level disables the WDT. Active level is determ=
-ined
->>>>        by the GPIO flags.
->>>>    - hw_margin_ms: Maximum time to reset watchdog circuit=20
->>>> (milliseconds).
->>>> +- always-enabled: Use with wathdog timer which is always enabled
->>
->> Similar to NOWAYOUT?
->>
-> I think this one is different. NOWAYOUT is a software flag, while
-> the flag here is supposed to mean that the hardware watchdog
-> is always enabled and running, and can not be disabled. Or at least
-> this is my understanding.
+Andrew,
 
-exactly
+On Sat, Aug 30, 2014 at 06:46:05PM +0200, Andrew Lunn wrote:
+> This is mostly a resend of these patches, removing mach-kirkwood.  Not
+> all maintainers picked up there patches, which has resulted in some
+> dead kernel configuration in v3.17-rcX.
+> 
+> The patch set has been rebased on v3.17-rc2, and it is intended that
+> Jason Cooper will submit them for inclusion in an RC. Subsystem
+> maintainers do not need to do anything.
+> 
+> The last patch "cpufreq: Remove ARCH_KIRKWOOD dependency" is new,
+> since what it is removing was added during v3.16-rcX. It follows the
+> pattern of all the other patches.
+> 
+> Andrew Lunn (7):
+>   cpuidle: kirkwood: Remove ARCH_KIRKWOOD dependency
+>   ata: Remove ARCH_KIRKWOOD dependency
+>   thermal: Remove ARCH_KIRKWOOD dependency
+>   leds: Remove ARCH_KIRKWOOD dependency
+>   rtc: Remove ARCH_KIRKWOOD dependency
+>   watchdog: Remove ARCH_KIRKWOOD dependency
+>   cpufreq: Remove ARCH_KIRKWOOD dependency
+> 
+>  drivers/ata/Kconfig         | 2 +-
+>  drivers/cpufreq/Kconfig.arm | 2 +-
+>  drivers/cpuidle/Kconfig.arm | 2 +-
+>  drivers/leds/Kconfig        | 4 ++--
+>  drivers/rtc/Kconfig         | 2 +-
+>  drivers/thermal/Kconfig     | 2 +-
+>  drivers/watchdog/Kconfig    | 2 +-
+>  7 files changed, 8 insertions(+), 8 deletions(-)
 
->
-> Guenter
->
+Applied to mvebu/fixes for v3.17 with all the various Acks.  Also,
+please don't add the extra ']' in the Subject lines, 'git am' threw a
+gasket on that so I had to manually edit before applying.  Not a big
+deal, just an fyi.
 
+thx,
 
---=20
-=D0=A1 =D1=83=D0=B2=D0=B0=D0=B6=D0=B5=D0=BD=D0=B8=D0=B5=D0=BC,
-     =D0=95=D0=B2=D0=B3=D0=B5=D0=BD=D0=B8=D0=B9 =D0=91=D0=BE=D0=B3=D0=B5=
-=D1=80
-     =D0=9E=D0=9E=D0=9E =D0=91=D0=B5=D1=81=D0=BA=D0=BE=D0=BD=D1=82=D0=B0=
-=D0=BA=D1=82=D0=BD=D1=8B=D0=B5 =D1=83=D1=81=D1=82=D1=80=D0=BE=D0=B9=D1=81=
-=D1=82=D0=B2=D0=B0
-     http://contactless.ru
-     +7 (919) 965 88 36
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Jason.
