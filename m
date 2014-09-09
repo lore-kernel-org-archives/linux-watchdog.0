@@ -1,87 +1,76 @@
-Return-path: <jingchang.lu@freescale.com>
-From: Jingchang Lu <jingchang.lu@freescale.com>
-To: Jingchang Lu <jingchang.lu@freescale.com>, Guenter Roeck
-	<linux@roeck-us.net>
-CC: "wim@iguana.be" <wim@iguana.be>, Shengchao Guo <Shawn.Guo@freescale.com>,
-	"arnd@arndb.de" <arnd@arndb.de>, "linux@roeck-us.net" <linux@roeck-us.net>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
-Subject: RE: [PATCHv2] watchdog: imx2_wdt: add restart handler support
-Date: Wed, 17 Sep 2014 07:40:01 +0000
-Message-ID: <4d89bf404e934cbd8e27c5adf4d29420@BLUPR03MB472.namprd03.prod.outlook.com>
-References: <1410506676-24205-1-git-send-email-jingchang.lu@freescale.com>
-In-Reply-To: <1410506676-24205-1-git-send-email-jingchang.lu@freescale.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-we0-f179.google.com ([74.125.82.179]:44835 "EHLO
+	mail-we0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756188AbaIINHn (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 9 Sep 2014 09:07:43 -0400
+From: Rostislav Lisovy <lisovy@gmail.com>
+To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: sojkam1@fel.cvut.cz, michal.vokac@comap.cz, lisovy@gmail.com,
+	Rostislav Lisovy <lisovy@merica.cz>
+Subject: [PATCH] watchdog: omap_wdt: Add 'early_disable' module parameter
+Date: Tue,  9 Sep 2014 15:07:37 +0200
+Message-Id: <1410268057-8851-1-git-send-email-lisovy@merica.cz>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-SGksIEd1ZW50ZXIsDQoNCiAgQ291bGQgeW91IHBsZWFzZSBoZWxwIHJldmlldyB0aGlzIHYyIHBh
-dGNoLCBUaGFua3MuDQoNCkJlc3QgUmVnYXJkcywNCkppbmdjaGFuZw0KDQo+LS0tLS1PcmlnaW5h
-bCBNZXNzYWdlLS0tLS0NCj5Gcm9tOiBKaW5nY2hhbmcgTHUgW21haWx0bzpqaW5nY2hhbmcubHVA
-ZnJlZXNjYWxlLmNvbV0NCj5TZW50OiBGcmlkYXksIFNlcHRlbWJlciAxMiwgMjAxNCAzOjI1IFBN
-DQo+VG86IHdpbUBpZ3VhbmEuYmUNCj5DYzogR3VvIFNoYXduLVI2NTA3MzsgYXJuZEBhcm5kYi5k
-ZTsgbGludXhAcm9lY2stdXMubmV0OyBsaW51eC0NCj53YXRjaGRvZ0B2Z2VyLmtlcm5lbC5vcmc7
-IGxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZzsgTHUNCj5KaW5nY2hhbmctQjM1
-MDgzDQo+U3ViamVjdDogW1BBVENIdjJdIHdhdGNoZG9nOiBpbXgyX3dkdDogYWRkIHJlc3RhcnQg
-aGFuZGxlciBzdXBwb3J0DQo+DQo+ICBSZWdpc3RlciB0aGUgd2F0Y2hkb2cgYXMgdGhlIHN5c3Rl
-bSByZXN0YXJ0IGZ1bmN0aW9uDQo+dG8gdGhlIG5ldyBpbnRyb2R1Y2luZyBrZXJuZWwgcmVzdGFy
-dCBjYWxsIGNoYWluIGluIHRoZQ0KPmRyaXZlciBpbnN0ZWFkIG9mIHByb3ZpZGluZyB0aGUgcmVz
-dGFydCBpbiBtYWNoaW5lIGRlc2MuDQo+ICBUaGlzIHJlc3RhcnQgaGFuZGxlciBmdW5jdGlvbiBp
-cyBmcm9tIHRoZSBteGNfcmVzdGFydCgpDQo+aW4gYXJjaC9hcm0vbWFjaC1pbXgvc3lzdGVtLmMN
-Cj4NCj5TaWduZWQtb2ZmLWJ5OiBKaW5nY2hhbmcgTHUgPGppbmdjaGFuZy5sdUBmcmVlc2NhbGUu
-Y29tPg0KPi0tLQ0KPiBkcml2ZXJzL3dhdGNoZG9nL2lteDJfd2R0LmMgfCAzNyArKysrKysrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKysrDQo+IDEgZmlsZSBjaGFuZ2VkLCAzNyBpbnNlcnRp
-b25zKCspDQo+DQo+ZGlmZiAtLWdpdCBhL2RyaXZlcnMvd2F0Y2hkb2cvaW14Ml93ZHQuYyBiL2Ry
-aXZlcnMvd2F0Y2hkb2cvaW14Ml93ZHQuYw0KPmluZGV4IDY4YzNkMzcuLmQzMjQ3MGUgMTAwNjQ0
-DQo+LS0tIGEvZHJpdmVycy93YXRjaGRvZy9pbXgyX3dkdC5jDQo+KysrIGIvZHJpdmVycy93YXRj
-aGRvZy9pbXgyX3dkdC5jDQo+QEAgLTIyLDE0ICsyMiwxNyBAQA0KPiAgKi8NCj4NCj4gI2luY2x1
-ZGUgPGxpbnV4L2Nsay5oPg0KPisjaW5jbHVkZSA8bGludXgvZGVsYXkuaD4NCj4gI2luY2x1ZGUg
-PGxpbnV4L2luaXQuaD4NCj4gI2luY2x1ZGUgPGxpbnV4L2lvLmg+DQo+ICNpbmNsdWRlIDxsaW51
-eC9qaWZmaWVzLmg+DQo+ICNpbmNsdWRlIDxsaW51eC9rZXJuZWwuaD4NCj4gI2luY2x1ZGUgPGxp
-bnV4L21vZHVsZS5oPg0KPiAjaW5jbHVkZSA8bGludXgvbW9kdWxlcGFyYW0uaD4NCj4rI2luY2x1
-ZGUgPGxpbnV4L25vdGlmaWVyLmg+DQo+ICNpbmNsdWRlIDxsaW51eC9vZl9hZGRyZXNzLmg+DQo+
-ICNpbmNsdWRlIDxsaW51eC9wbGF0Zm9ybV9kZXZpY2UuaD4NCj4rI2luY2x1ZGUgPGxpbnV4L3Jl
-Ym9vdC5oPg0KPiAjaW5jbHVkZSA8bGludXgvcmVnbWFwLmg+DQo+ICNpbmNsdWRlIDxsaW51eC90
-aW1lci5oPg0KPiAjaW5jbHVkZSA8bGludXgvd2F0Y2hkb2cuaD4NCj5AQCAtNTksNiArNjIsNyBA
-QCBzdHJ1Y3QgaW14Ml93ZHRfZGV2aWNlIHsNCj4gCXN0cnVjdCByZWdtYXAgKnJlZ21hcDsNCj4g
-CXN0cnVjdCB0aW1lcl9saXN0IHRpbWVyOwkvKiBQaW5ncyB0aGUgd2F0Y2hkb2cgd2hlbiBjbG9z
-ZWQgKi8NCj4gCXN0cnVjdCB3YXRjaGRvZ19kZXZpY2Ugd2RvZzsNCj4rCXN0cnVjdCBub3RpZmll
-cl9ibG9jayByZXN0YXJ0X2hhbmRsZXI7DQo+IH07DQo+DQo+IHN0YXRpYyBib29sIG5vd2F5b3V0
-ID0gV0FUQ0hET0dfTk9XQVlPVVQ7DQo+QEAgLTc3LDYgKzgxLDMxIEBAIHN0YXRpYyBjb25zdCBz
-dHJ1Y3Qgd2F0Y2hkb2dfaW5mbyBpbXgyX3dkdF9pbmZvID0gew0KPiAJLm9wdGlvbnMgPSBXRElP
-Rl9LRUVQQUxJVkVQSU5HIHwgV0RJT0ZfU0VUVElNRU9VVCB8IFdESU9GX01BR0lDQ0xPU0UsDQo+
-IH07DQo+DQo+K3N0YXRpYyBpbnQgaW14Ml9yZXN0YXJ0X2hhbmRsZXIoc3RydWN0IG5vdGlmaWVy
-X2Jsb2NrICp0aGlzLCB1bnNpZ25lZA0KPmxvbmcgbW9kZSwNCj4rCQkJCXZvaWQgKmNtZCkNCj4r
-ew0KPisJdW5zaWduZWQgaW50IHdjcl9lbmFibGUgPSBJTVgyX1dEVF9XQ1JfV0RFOw0KPisJc3Ry
-dWN0IGlteDJfd2R0X2RldmljZSAqd2RldiA9IGNvbnRhaW5lcl9vZih0aGlzLA0KPisJCQkJCQkg
-ICAgc3RydWN0IGlteDJfd2R0X2RldmljZSwNCj4rCQkJCQkJICAgIHJlc3RhcnRfaGFuZGxlcik7
-DQo+KwkvKiBBc3NlcnQgU1JTIHNpZ25hbCAqLw0KPisJcmVnbWFwX3dyaXRlKHdkZXYtPnJlZ21h
-cCwgMCwgd2NyX2VuYWJsZSk7DQo+KwkvKg0KPisJICogRHVlIHRvIGlteDZxIGVycmF0YSBFUlIw
-MDQzNDYgKFdET0c6IFdET0cgU1JTIGJpdCByZXF1aXJlcyB0byBiZQ0KPisJICogd3JpdHRlbiB0
-d2ljZSksIHdlIGFkZCBhbm90aGVyIHR3byB3cml0ZXMgdG8gZW5zdXJlIHRoZXJlIG11c3QgYmUN
-Cj5hdA0KPisJICogbGVhc3QgdHdvIHdyaXRlcyBoYXBwZW4gaW4gdGhlIHNhbWUgb25lIDMya0h6
-IGNsb2NrIHBlcmlvZC4gIFdlDQo+c2F2ZQ0KPisJICogdGhlIHRhcmdldCBjaGVjayBoZXJlLCBz
-aW5jZSB0aGUgd3JpdGVzIHNob3VsZG4ndCBiZSBhIGh1Z2UNCj5idXJkZW4NCj4rCSAqIGZvciBv
-dGhlciBwbGF0Zm9ybXMuDQo+KwkgKi8NCj4rCXJlZ21hcF93cml0ZSh3ZGV2LT5yZWdtYXAsIDAs
-IHdjcl9lbmFibGUpOw0KPisJcmVnbWFwX3dyaXRlKHdkZXYtPnJlZ21hcCwgMCwgd2NyX2VuYWJs
-ZSk7DQo+Kw0KPisJLyogd2FpdCBmb3IgcmVzZXQgdG8gYXNzZXJ0Li4uICovDQo+KwltZGVsYXko
-NTAwKTsNCj4rDQo+KwlyZXR1cm4gTk9USUZZX0RPTkU7DQo+K30NCj4rDQo+IHN0YXRpYyBpbmxp
-bmUgdm9pZCBpbXgyX3dkdF9zZXR1cChzdHJ1Y3Qgd2F0Y2hkb2dfZGV2aWNlICp3ZG9nKQ0KPiB7
-DQo+IAlzdHJ1Y3QgaW14Ml93ZHRfZGV2aWNlICp3ZGV2ID0gd2F0Y2hkb2dfZ2V0X2RydmRhdGEo
-d2RvZyk7DQo+QEAgLTI1Nyw2ICsyODYsMTIgQEAgc3RhdGljIGludCBfX2luaXQgaW14Ml93ZHRf
-cHJvYmUoc3RydWN0DQo+cGxhdGZvcm1fZGV2aWNlICpwZGV2KQ0KPiAJCXJldHVybiByZXQ7DQo+
-IAl9DQo+DQo+Kwl3ZGV2LT5yZXN0YXJ0X2hhbmRsZXIubm90aWZpZXJfY2FsbCA9IGlteDJfcmVz
-dGFydF9oYW5kbGVyOw0KPisJd2Rldi0+cmVzdGFydF9oYW5kbGVyLnByaW9yaXR5ID0gMTI4Ow0K
-PisJcmV0ID0gcmVnaXN0ZXJfcmVzdGFydF9oYW5kbGVyKCZ3ZGV2LT5yZXN0YXJ0X2hhbmRsZXIp
-Ow0KPisJaWYgKHJldCkNCj4rCQlkZXZfZXJyKCZwZGV2LT5kZXYsICJjYW5ub3QgcmVnaXN0ZXIg
-cmVzdGFydCBoYW5kbGVyXG4iKTsNCj4rDQo+IAlkZXZfaW5mbygmcGRldi0+ZGV2LCAidGltZW91
-dCAlZCBzZWMgKG5vd2F5b3V0PSVkKVxuIiwNCj4gCQkgd2RvZy0+dGltZW91dCwgbm93YXlvdXQp
-Ow0KPg0KPkBAIC0yNjgsNiArMzAzLDggQEAgc3RhdGljIGludCBfX2V4aXQgaW14Ml93ZHRfcmVt
-b3ZlKHN0cnVjdA0KPnBsYXRmb3JtX2RldmljZSAqcGRldikNCj4gCXN0cnVjdCB3YXRjaGRvZ19k
-ZXZpY2UgKndkb2cgPSBwbGF0Zm9ybV9nZXRfZHJ2ZGF0YShwZGV2KTsNCj4gCXN0cnVjdCBpbXgy
-X3dkdF9kZXZpY2UgKndkZXYgPSB3YXRjaGRvZ19nZXRfZHJ2ZGF0YSh3ZG9nKTsNCj4NCj4rCXVu
-cmVnaXN0ZXJfcmVzdGFydF9oYW5kbGVyKCZ3ZGV2LT5yZXN0YXJ0X2hhbmRsZXIpOw0KPisNCj4g
-CXdhdGNoZG9nX3VucmVnaXN0ZXJfZGV2aWNlKHdkb2cpOw0KPg0KPiAJaWYgKGlteDJfd2R0X2lz
-X3J1bm5pbmcod2RldikpIHsNCj4tLQ0KPjEuOC4wDQoNCg==
+This parameter makes it possible to control if the watchdog
+is being disabled during initialization or will stay enabled
+in case it was previously initialized in the bootloader.
+
+To maintain the existing behavior, the default value is 'true',
+thus the watchdog is disabled during initialization.
+
+This new feature is highly inspired by the w83627hf_wdt.c
+
+Signed-off-by: Rostislav Lisovy <lisovy@merica.cz>
+---
+ drivers/watchdog/omap_wdt.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
+index 3691b15..8f4cabe 100644
+--- a/drivers/watchdog/omap_wdt.c
++++ b/drivers/watchdog/omap_wdt.c
+@@ -53,6 +53,10 @@ static unsigned timer_margin;
+ module_param(timer_margin, uint, 0);
+ MODULE_PARM_DESC(timer_margin, "initial watchdog timeout (in seconds)");
+ 
++static bool early_disable = true;
++module_param(early_disable, bool, 0);
++MODULE_PARM_DESC(early_disable, "Disable watchdog at boot time (default=1)");
++
+ struct omap_wdt_dev {
+ 	void __iomem    *base;          /* physical */
+ 	struct device   *dev;
+@@ -255,7 +259,15 @@ static int omap_wdt_probe(struct platform_device *pdev)
+ 	omap_wdt->bootstatus = (rs & (1 << OMAP_MPU_WD_RST_SRC_ID_SHIFT)) ?
+ 				WDIOF_CARDRESET : 0;
+ 
+-	omap_wdt_disable(wdev);
++	if (early_disable) {
++		pr_warn("Stopping previously enabled watchdog until userland kicks in\n");
++		omap_wdt_disable(wdev);
++	} else {
++		pr_info("Watchdog already running. Resetting timeout to %d sec\n",
++			omap_wdt->timeout);
++		omap_wdt_set_timeout(omap_wdt, omap_wdt->timeout);
++		omap_wdt_ping(omap_wdt);
++	}
+ 
+ 	ret = watchdog_register_device(omap_wdt);
+ 	if (ret) {
+@@ -267,7 +279,8 @@ static int omap_wdt_probe(struct platform_device *pdev)
+ 		readl_relaxed(wdev->base + OMAP_WATCHDOG_REV) & 0xFF,
+ 		omap_wdt->timeout);
+ 
+-	pm_runtime_put_sync(wdev->dev);
++	if (early_disable)
++		pm_runtime_put_sync(wdev->dev);
+ 
+ 	return 0;
+ }
+-- 
+1.9.1
+
