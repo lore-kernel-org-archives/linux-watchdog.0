@@ -1,105 +1,88 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:47522 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751109AbaILCte (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 11 Sep 2014 22:49:34 -0400
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
-	(envelope-from <linux@roeck-us.net>)
-	id 1XSGvV-001KH2-Q8
-	for linux-watchdog@vger.kernel.org; Fri, 12 Sep 2014 02:49:34 +0000
-Message-ID: <54125F1E.3050605@roeck-us.net>
-Date: Thu, 11 Sep 2014 19:49:02 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: Jingchang Lu <jingchang.lu@freescale.com>
-CC: "wim@iguana.be" <wim@iguana.be>,
-	Shawn Guo <Shawn.Guo@freescale.com>,
-	"arnd@arndb.de" <arnd@arndb.de>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org"
+Return-path: <jingchang.lu@freescale.com>
+From: Jingchang Lu <jingchang.lu@freescale.com>
+To: Guenter Roeck <linux@roeck-us.net>
+CC: "wim@iguana.be" <wim@iguana.be>, Shawn Guo <Shawn.Guo@freescale.com>,
+	"arnd@arndb.de" <arnd@arndb.de>, "linux-watchdog@vger.kernel.org"
+	<linux-watchdog@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org"
 	<linux-arm-kernel@lists.infradead.org>
-Subject: Re: [PATCH] watchdog: imx2_wdt: add restart handler support
-References: <1410421661-15298-1-git-send-email-jingchang.lu@freescale.com> <20140911155522.GB13052@roeck-us.net> <299ae9bd88c049ea833e964e4b5f54a0@BL2PR03MB467.namprd03.prod.outlook.com>
-In-Reply-To: <299ae9bd88c049ea833e964e4b5f54a0@BL2PR03MB467.namprd03.prod.outlook.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Subject: RE: [PATCH] watchdog: imx2_wdt: add restart handler support
+Date: Fri, 12 Sep 2014 03:12:33 +0000
+Message-ID: <acdcac2e7fe3468aac8c97aafff47103@BL2PR03MB467.namprd03.prod.outlook.com>
+References: <1410421661-15298-1-git-send-email-jingchang.lu@freescale.com>
+ <20140911155522.GB13052@roeck-us.net>
+ <299ae9bd88c049ea833e964e4b5f54a0@BL2PR03MB467.namprd03.prod.outlook.com>
+ <54125F1E.3050605@roeck-us.net>
+In-Reply-To: <54125F1E.3050605@roeck-us.net>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 09/11/2014 07:42 PM, Jingchang Lu wrote:
->> -----Original Message-----
->> From: Guenter Roeck [mailto:groeck7@gmail.com] On Behalf Of Guenter Roeck
->> Sent: Thursday, September 11, 2014 11:55 PM
->> To: Lu Jingchang-B35083
->> Cc: wim@iguana.be; Guo Shawn-R65073; arnd@arndb.de; linux-
->> watchdog@vger.kernel.org; linux-arm-kernel@lists.infradead.org
->> Subject: Re: [PATCH] watchdog: imx2_wdt: add restart handler support
->>
->> On Thu, Sep 11, 2014 at 03:47:41PM +0800, Jingchang Lu wrote:
->>>    Register the watchdog as the system restart function
->>> to the new introducing kernel restart call chain in the
->>> driver instead of providing the restart in machine desc.
->>>    This restart handler function is from the mxc_restart()
->>> in arch/arm/mach-imx/system.c
->>>
->>> Signed-off-by: Jingchang Lu <jingchang.lu@freescale.com>
->>> ---
->>>   drivers/watchdog/imx2_wdt.c | 37 +++++++++++++++++++++++++++++++++++++
->>>   1 file changed, 37 insertions(+)
->>>
->>> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
->>> index 68c3d37..fa723e8 100644
->>> --- a/drivers/watchdog/imx2_wdt.c
->>> +++ b/drivers/watchdog/imx2_wdt.c
->>> @@ -22,14 +22,17 @@
->>>    */
->>>
->>>   #include <linux/clk.h>
->>> +#include <linux/delay.h>
->>>   #include <linux/init.h>
->>>   #include <linux/io.h>
->>>   #include <linux/jiffies.h>
->>>   #include <linux/kernel.h>
->>>   #include <linux/module.h>
->>>   #include <linux/moduleparam.h>
->>> +#include <linux/notifier.h>
->>>   #include <linux/of_address.h>
->>>   #include <linux/platform_device.h>
->>> +#include <linux/reboot.h>
->>>   #include <linux/regmap.h>
->>>   #include <linux/timer.h>
->>>   #include <linux/watchdog.h>
->>> @@ -59,6 +62,7 @@ struct imx2_wdt_device {
->>>   	struct regmap *regmap;
->>>   	struct timer_list timer;	/* Pings the watchdog when closed */
->>>   	struct watchdog_device wdog;
->>> +	struct notifier_block restart_handler;
->>>   };
->>>
->>>   static bool nowayout = WATCHDOG_NOWAYOUT;
->>> @@ -77,6 +81,31 @@ static const struct watchdog_info imx2_wdt_info = {
->>>   	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
->>>   };
->>>
->>> +static int imx2_restart_handler(struct notifier_block *this, unsigned
->> long mode,
->>> +				void *cmd)
->>> +{
->>> +	unsigned int wcr_enable = IMX2_WDT_WCR_WDE;
->>
->> In the original code this value is conditional depending on cpu_is_mx1().
->> Are there any implications for this reset mechanism ? Does mx1 have a
->> different watchdog driver ?
->>
-> Hi, Shawn, is this driver also used by the mx1 SoC?
-> The imx2_wdt.c says it is for IMX2 and later processors, so when moving the
-> restart function, I removed the cpu_is_mx1() condition determination, Thanks.
->
-I assumed that the original code would be removed. If you have to keep it
-around for mx1, the conversion doesn't seem to make much sense as you
-just end up having the code twice. Am I missing something ?
-
-Thanks,
-Guenter
-
+DQoNCj4tLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPkZyb206IEd1ZW50ZXIgUm9lY2sgW21h
+aWx0bzpsaW51eEByb2Vjay11cy5uZXRdDQo+U2VudDogRnJpZGF5LCBTZXB0ZW1iZXIgMTIsIDIw
+MTQgMTA6NDkgQU0NCj5UbzogTHUgSmluZ2NoYW5nLUIzNTA4Mw0KPkNjOiB3aW1AaWd1YW5hLmJl
+OyBHdW8gU2hhd24tUjY1MDczOyBhcm5kQGFybmRiLmRlOyBsaW51eC0NCj53YXRjaGRvZ0B2Z2Vy
+Lmtlcm5lbC5vcmc7IGxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZw0KPlN1Ympl
+Y3Q6IFJlOiBbUEFUQ0hdIHdhdGNoZG9nOiBpbXgyX3dkdDogYWRkIHJlc3RhcnQgaGFuZGxlciBz
+dXBwb3J0DQo+DQo+T24gMDkvMTEvMjAxNCAwNzo0MiBQTSwgSmluZ2NoYW5nIEx1IHdyb3RlOg0K
+Pj4+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+Pj4gRnJvbTogR3VlbnRlciBSb2VjayBb
+bWFpbHRvOmdyb2VjazdAZ21haWwuY29tXSBPbiBCZWhhbGYgT2YgR3VlbnRlcg0KPj4+IFJvZWNr
+DQo+Pj4gU2VudDogVGh1cnNkYXksIFNlcHRlbWJlciAxMSwgMjAxNCAxMTo1NSBQTQ0KPj4+IFRv
+OiBMdSBKaW5nY2hhbmctQjM1MDgzDQo+Pj4gQ2M6IHdpbUBpZ3VhbmEuYmU7IEd1byBTaGF3bi1S
+NjUwNzM7IGFybmRAYXJuZGIuZGU7IGxpbnV4LQ0KPj4+IHdhdGNoZG9nQHZnZXIua2VybmVsLm9y
+ZzsgbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnDQo+Pj4gU3ViamVjdDogUmU6
+IFtQQVRDSF0gd2F0Y2hkb2c6IGlteDJfd2R0OiBhZGQgcmVzdGFydCBoYW5kbGVyIHN1cHBvcnQN
+Cj4+Pg0KPj4+IE9uIFRodSwgU2VwIDExLCAyMDE0IGF0IDAzOjQ3OjQxUE0gKzA4MDAsIEppbmdj
+aGFuZyBMdSB3cm90ZToNCj4+Pj4gICAgUmVnaXN0ZXIgdGhlIHdhdGNoZG9nIGFzIHRoZSBzeXN0
+ZW0gcmVzdGFydCBmdW5jdGlvbiB0byB0aGUgbmV3DQo+Pj4+IGludHJvZHVjaW5nIGtlcm5lbCBy
+ZXN0YXJ0IGNhbGwgY2hhaW4gaW4gdGhlIGRyaXZlciBpbnN0ZWFkIG9mDQo+Pj4+IHByb3ZpZGlu
+ZyB0aGUgcmVzdGFydCBpbiBtYWNoaW5lIGRlc2MuDQo+Pj4+ICAgIFRoaXMgcmVzdGFydCBoYW5k
+bGVyIGZ1bmN0aW9uIGlzIGZyb20gdGhlIG14Y19yZXN0YXJ0KCkgaW4NCj4+Pj4gYXJjaC9hcm0v
+bWFjaC1pbXgvc3lzdGVtLmMNCj4+Pj4NCj4+Pj4gU2lnbmVkLW9mZi1ieTogSmluZ2NoYW5nIEx1
+IDxqaW5nY2hhbmcubHVAZnJlZXNjYWxlLmNvbT4NCj4+Pj4gLS0tDQo+Pj4+ICAgZHJpdmVycy93
+YXRjaGRvZy9pbXgyX3dkdC5jIHwgMzcNCj4rKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrDQo+Pj4+ICAgMSBmaWxlIGNoYW5nZWQsIDM3IGluc2VydGlvbnMoKykNCj4+Pj4NCj4+
+Pj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvd2F0Y2hkb2cvaW14Ml93ZHQuYw0KPj4+PiBiL2RyaXZl
+cnMvd2F0Y2hkb2cvaW14Ml93ZHQuYyBpbmRleCA2OGMzZDM3Li5mYTcyM2U4IDEwMDY0NA0KPj4+
+PiAtLS0gYS9kcml2ZXJzL3dhdGNoZG9nL2lteDJfd2R0LmMNCj4+Pj4gKysrIGIvZHJpdmVycy93
+YXRjaGRvZy9pbXgyX3dkdC5jDQo+Pj4+IEBAIC0yMiwxNCArMjIsMTcgQEANCj4+Pj4gICAgKi8N
+Cj4+Pj4NCj4+Pj4gICAjaW5jbHVkZSA8bGludXgvY2xrLmg+DQo+Pj4+ICsjaW5jbHVkZSA8bGlu
+dXgvZGVsYXkuaD4NCj4+Pj4gICAjaW5jbHVkZSA8bGludXgvaW5pdC5oPg0KPj4+PiAgICNpbmNs
+dWRlIDxsaW51eC9pby5oPg0KPj4+PiAgICNpbmNsdWRlIDxsaW51eC9qaWZmaWVzLmg+DQo+Pj4+
+ICAgI2luY2x1ZGUgPGxpbnV4L2tlcm5lbC5oPg0KPj4+PiAgICNpbmNsdWRlIDxsaW51eC9tb2R1
+bGUuaD4NCj4+Pj4gICAjaW5jbHVkZSA8bGludXgvbW9kdWxlcGFyYW0uaD4NCj4+Pj4gKyNpbmNs
+dWRlIDxsaW51eC9ub3RpZmllci5oPg0KPj4+PiAgICNpbmNsdWRlIDxsaW51eC9vZl9hZGRyZXNz
+Lmg+DQo+Pj4+ICAgI2luY2x1ZGUgPGxpbnV4L3BsYXRmb3JtX2RldmljZS5oPg0KPj4+PiArI2lu
+Y2x1ZGUgPGxpbnV4L3JlYm9vdC5oPg0KPj4+PiAgICNpbmNsdWRlIDxsaW51eC9yZWdtYXAuaD4N
+Cj4+Pj4gICAjaW5jbHVkZSA8bGludXgvdGltZXIuaD4NCj4+Pj4gICAjaW5jbHVkZSA8bGludXgv
+d2F0Y2hkb2cuaD4NCj4+Pj4gQEAgLTU5LDYgKzYyLDcgQEAgc3RydWN0IGlteDJfd2R0X2Rldmlj
+ZSB7DQo+Pj4+ICAgCXN0cnVjdCByZWdtYXAgKnJlZ21hcDsNCj4+Pj4gICAJc3RydWN0IHRpbWVy
+X2xpc3QgdGltZXI7CS8qIFBpbmdzIHRoZSB3YXRjaGRvZyB3aGVuDQo+Y2xvc2VkICovDQo+Pj4+
+ICAgCXN0cnVjdCB3YXRjaGRvZ19kZXZpY2Ugd2RvZzsNCj4+Pj4gKwlzdHJ1Y3Qgbm90aWZpZXJf
+YmxvY2sgcmVzdGFydF9oYW5kbGVyOw0KPj4+PiAgIH07DQo+Pj4+DQo+Pj4+ICAgc3RhdGljIGJv
+b2wgbm93YXlvdXQgPSBXQVRDSERPR19OT1dBWU9VVDsgQEAgLTc3LDYgKzgxLDMxIEBADQo+Pj4+
+IHN0YXRpYyBjb25zdCBzdHJ1Y3Qgd2F0Y2hkb2dfaW5mbyBpbXgyX3dkdF9pbmZvID0gew0KPj4+
+PiAgIAkub3B0aW9ucyA9IFdESU9GX0tFRVBBTElWRVBJTkcgfCBXRElPRl9TRVRUSU1FT1VUIHwN
+Cj5XRElPRl9NQUdJQ0NMT1NFLA0KPj4+PiAgIH07DQo+Pj4+DQo+Pj4+ICtzdGF0aWMgaW50IGlt
+eDJfcmVzdGFydF9oYW5kbGVyKHN0cnVjdCBub3RpZmllcl9ibG9jayAqdGhpcywNCj4+Pj4gK3Vu
+c2lnbmVkDQo+Pj4gbG9uZyBtb2RlLA0KPj4+PiArCQkJCXZvaWQgKmNtZCkNCj4+Pj4gK3sNCj4+
+Pj4gKwl1bnNpZ25lZCBpbnQgd2NyX2VuYWJsZSA9IElNWDJfV0RUX1dDUl9XREU7DQo+Pj4NCj4+
+PiBJbiB0aGUgb3JpZ2luYWwgY29kZSB0aGlzIHZhbHVlIGlzIGNvbmRpdGlvbmFsIGRlcGVuZGlu
+ZyBvbg0KPmNwdV9pc19teDEoKS4NCj4+PiBBcmUgdGhlcmUgYW55IGltcGxpY2F0aW9ucyBmb3Ig
+dGhpcyByZXNldCBtZWNoYW5pc20gPyBEb2VzIG14MSBoYXZlIGENCj4+PiBkaWZmZXJlbnQgd2F0
+Y2hkb2cgZHJpdmVyID8NCj4+Pg0KPj4gSGksIFNoYXduLCBpcyB0aGlzIGRyaXZlciBhbHNvIHVz
+ZWQgYnkgdGhlIG14MSBTb0M/DQo+PiBUaGUgaW14Ml93ZHQuYyBzYXlzIGl0IGlzIGZvciBJTVgy
+IGFuZCBsYXRlciBwcm9jZXNzb3JzLCBzbyB3aGVuDQo+PiBtb3ZpbmcgdGhlIHJlc3RhcnQgZnVu
+Y3Rpb24sIEkgcmVtb3ZlZCB0aGUgY3B1X2lzX214MSgpIGNvbmRpdGlvbg0KPmRldGVybWluYXRp
+b24sIFRoYW5rcy4NCj4+DQo+SSBhc3N1bWVkIHRoYXQgdGhlIG9yaWdpbmFsIGNvZGUgd291bGQg
+YmUgcmVtb3ZlZC4gSWYgeW91IGhhdmUgdG8ga2VlcCBpdA0KPmFyb3VuZCBmb3IgbXgxLCB0aGUg
+Y29udmVyc2lvbiBkb2Vzbid0IHNlZW0gdG8gbWFrZSBtdWNoIHNlbnNlIGFzIHlvdSBqdXN0DQo+
+ZW5kIHVwIGhhdmluZyB0aGUgY29kZSB0d2ljZS4gQW0gSSBtaXNzaW5nIHNvbWV0aGluZyA/DQo+
+DQo+VGhhbmtzLA0KPkd1ZW50ZXINCiANCkRvIHlvdSBtZWFuIHJlbW92aW5nIHRoZSBjb2RlIG9m
+IG14Y19yZXN0YXJ0KCkgaW4gYXJjaC9hcm0vbWFjaC1pbXgvc3lzdGVtLmMgPw0KWWVzLCB3aGVu
+IHRoaXMgcGF0Y2ggaXMgYWNjZXB0ZWQsIGFsbCBwbGF0Zm9ybSBjb21wYXRpYmxlIHdpdGggdGhl
+IGlteDJfd2R0IGNhbg0KbWlncmF0ZSB0byB0aGUgcmVzdGFydCBoYW5kbGVyLiBJIG9ubHkgYWRk
+IHRoZSByZXN0YXJ0IGhhbmRsZXIgZm9yIGlteDJfd2R0IGFuZA0KcmVzZXJ2ZSB0aGUgb3JpZ2lu
+YWwgY29kZSBmb3IgdGhhdCBzdGlsbCB1c2VzIGl0IGN1cnJlbnRseS4gVGhhbmtzLg0KDQpCZXN0
+IFJlZ2FyZHMsDQpKaW5nY2hhbmcNCg0K
