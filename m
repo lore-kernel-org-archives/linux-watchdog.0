@@ -1,110 +1,71 @@
-Return-path: <jingchang.lu@freescale.com>
-From: Jingchang Lu <jingchang.lu@freescale.com>
-To: <wim@iguana.be>
-CC: <shawn.guo@freescale.com>, <arnd@arndb.de>, <linux@roeck-us.net>,
-	<linux-watchdog@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
-	Jingchang Lu <jingchang.lu@freescale.com>
-Subject: [PATCHv2] watchdog: imx2_wdt: add restart handler support
-Date: Fri, 12 Sep 2014 15:24:36 +0800
-Message-ID: <1410506676-24205-1-git-send-email-jingchang.lu@freescale.com>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:38204 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754486AbaIPPt6 (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 16 Sep 2014 11:49:58 -0400
+Date: Tue, 16 Sep 2014 17:49:55 +0200
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org, kernel@pengutronix.de
+Subject: Re: [PATCH] watchdog: simplify definitions of
+ WATCHDOG_NOWAYOUT(_INIT_STATUS)?
+Message-ID: <20140916154955.GI3755@pengutronix.de>
+References: <1410293911-18392-1-git-send-email-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1410293911-18392-1-git-send-email-u.kleine-koenig@pengutronix.de>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-  Register the watchdog as the system restart function
-to the new introducing kernel restart call chain in the
-driver instead of providing the restart in machine desc.
-  This restart handler function is from the mxc_restart()
-in arch/arm/mach-imx/system.c
+Hello Wim,
 
-Signed-off-by: Jingchang Lu <jingchang.lu@freescale.com>
----
- drivers/watchdog/imx2_wdt.c | 37 +++++++++++++++++++++++++++++++++++++
- 1 file changed, 37 insertions(+)
+On Tue, Sep 09, 2014 at 10:18:31PM +0200, Uwe Kleine-König wrote:
+> Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+> ---
+> Hello,
+> 
+> maybe it's arguable if the newly introduced way to define
+> WATCHDOG_NOWAYOUT and WATCHDOG_NOWAYOUT_INIT_STATUS is really simpler.
+> But at least it's five lines shorter and makes the questionable naming
+> of cpp symbols more obvious. (Who can tell the difference between
+> the semantic of WATCHDOG_NOWAYOUT and WDOG_NO_WAY_OUT without further
+> checking?)
+Do you consider applying this patch?
 
-diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-index 68c3d37..d32470e 100644
---- a/drivers/watchdog/imx2_wdt.c
-+++ b/drivers/watchdog/imx2_wdt.c
-@@ -22,14 +22,17 @@
-  */
- 
- #include <linux/clk.h>
-+#include <linux/delay.h>
- #include <linux/init.h>
- #include <linux/io.h>
- #include <linux/jiffies.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
-+#include <linux/notifier.h>
- #include <linux/of_address.h>
- #include <linux/platform_device.h>
-+#include <linux/reboot.h>
- #include <linux/regmap.h>
- #include <linux/timer.h>
- #include <linux/watchdog.h>
-@@ -59,6 +62,7 @@ struct imx2_wdt_device {
- 	struct regmap *regmap;
- 	struct timer_list timer;	/* Pings the watchdog when closed */
- 	struct watchdog_device wdog;
-+	struct notifier_block restart_handler;
- };
- 
- static bool nowayout = WATCHDOG_NOWAYOUT;
-@@ -77,6 +81,31 @@ static const struct watchdog_info imx2_wdt_info = {
- 	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
- };
- 
-+static int imx2_restart_handler(struct notifier_block *this, unsigned long mode,
-+				void *cmd)
-+{
-+	unsigned int wcr_enable = IMX2_WDT_WCR_WDE;
-+	struct imx2_wdt_device *wdev = container_of(this,
-+						    struct imx2_wdt_device,
-+						    restart_handler);
-+	/* Assert SRS signal */
-+	regmap_write(wdev->regmap, 0, wcr_enable);
-+	/*
-+	 * Due to imx6q errata ERR004346 (WDOG: WDOG SRS bit requires to be
-+	 * written twice), we add another two writes to ensure there must be at
-+	 * least two writes happen in the same one 32kHz clock period.  We save
-+	 * the target check here, since the writes shouldn't be a huge burden
-+	 * for other platforms.
-+	 */
-+	regmap_write(wdev->regmap, 0, wcr_enable);
-+	regmap_write(wdev->regmap, 0, wcr_enable);
-+
-+	/* wait for reset to assert... */
-+	mdelay(500);
-+
-+	return NOTIFY_DONE;
-+}
-+
- static inline void imx2_wdt_setup(struct watchdog_device *wdog)
- {
- 	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
-@@ -257,6 +286,12 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
-+	wdev->restart_handler.notifier_call = imx2_restart_handler;
-+	wdev->restart_handler.priority = 128;
-+	ret = register_restart_handler(&wdev->restart_handler);
-+	if (ret)
-+		dev_err(&pdev->dev, "cannot register restart handler\n");
-+
- 	dev_info(&pdev->dev, "timeout %d sec (nowayout=%d)\n",
- 		 wdog->timeout, nowayout);
- 
-@@ -268,6 +303,8 @@ static int __exit imx2_wdt_remove(struct platform_device *pdev)
- 	struct watchdog_device *wdog = platform_get_drvdata(pdev);
- 	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
- 
-+	unregister_restart_handler(&wdev->restart_handler);
-+
- 	watchdog_unregister_device(wdog);
- 
- 	if (imx2_wdt_is_running(wdev)) {
+Uwe
+
+>  include/linux/watchdog.h | 9 ++-------
+>  1 file changed, 2 insertions(+), 7 deletions(-)
+> 
+> diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+> index 2a3038ee17a3..395b70e0eccf 100644
+> --- a/include/linux/watchdog.h
+> +++ b/include/linux/watchdog.h
+> @@ -97,13 +97,8 @@ struct watchdog_device {
+>  #define WDOG_UNREGISTERED	4	/* Has the device been unregistered */
+>  };
+>  
+> -#ifdef CONFIG_WATCHDOG_NOWAYOUT
+> -#define WATCHDOG_NOWAYOUT		1
+> -#define WATCHDOG_NOWAYOUT_INIT_STATUS	(1 << WDOG_NO_WAY_OUT)
+> -#else
+> -#define WATCHDOG_NOWAYOUT		0
+> -#define WATCHDOG_NOWAYOUT_INIT_STATUS	0
+> -#endif
+> +#define WATCHDOG_NOWAYOUT		IS_BUILTIN(CONFIG_WATCHDOG_NOWAYOUT)
+> +#define WATCHDOG_NOWAYOUT_INIT_STATUS	(WATCHDOG_NOWAYOUT << WDOG_NO_WAY_OUT)
+>  
+>  /* Use the following function to check whether or not the watchdog is active */
+>  static inline bool watchdog_active(struct watchdog_device *wdd)
+> -- 
+> 2.1.0
+> 
+> 
+
 -- 
-1.8.0
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
