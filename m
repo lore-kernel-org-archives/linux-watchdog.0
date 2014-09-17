@@ -1,40 +1,55 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wg0-f42.google.com ([74.125.82.42]:48142 "EHLO
-	mail-wg0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755877AbaIQPWv (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 17 Sep 2014 11:22:51 -0400
-Message-ID: <1410967369.5542.2.camel@lp-lvrv.comap.cz>
-Subject: Re: [PATCH v2] watchdog: omap_wdt: Add 'early_disable' module
- parameter
-From: Rostislav Lisovy <lisovy@gmail.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org, sojkam1@fel.cvut.cz,
-	michal.vokac@comap.cz, Rostislav Lisovy <lisovy@merica.cz>
-Date: Wed, 17 Sep 2014 17:22:49 +0200
-In-Reply-To: <20140916154921.GA14725@roeck-us.net>
-References: <1410877228-20925-1-git-send-email-lisovy@merica.cz>
-	 <20140916154921.GA14725@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <b.galvani@gmail.com>
+Date: Wed, 17 Sep 2014 22:58:27 +0200
+From: Beniamino Galvani <b.galvani@gmail.com>
+To: Carlo Caione <carlo@caione.org>
+Cc: linux@roeck-us.net, wim@iguana.be, linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, robh+dt@kernel.org,
+	maxime.ripard@free-electrons.com, linux@arm.linux.org.uk
+Subject: Re: [PATCH v2 1/4] ARM: docs: add documentation binding for meson
+ watchdog
+Message-ID: <20140917205827.GA5269@gmail.com>
+References: <1410984726-18944-1-git-send-email-carlo@caione.org>
+ <1410984726-18944-2-git-send-email-carlo@caione.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1410984726-18944-2-git-send-email-carlo@caione.org>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Hello Guenter;
-Thanks for the review.
+On Wed, Sep 17, 2014 at 10:12:03PM +0200, Carlo Caione wrote:
+> Signed-off-by: Carlo Caione <carlo@caione.org>
+> ---
+>  Documentation/devicetree/bindings/watchdog/meson-wdt.txt | 13 +++++++++++++
+>  1 file changed, 13 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/meson-wdt.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/meson-wdt.txt b/Documentation/devicetree/bindings/watchdog/meson-wdt.txt
+> new file mode 100644
+> index 0000000..e66c0c3
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/watchdog/meson-wdt.txt
+> @@ -0,0 +1,13 @@
+> +Meson SoCs Watchdog timer
+> +
+> +Required properties:
+> +
+> +- compatible : should be "amlogic,meson-wdt"
 
-On Út, 2014-09-16 at 08:49 -0700, Guenter Roeck wrote:
-> How do you know that the watchdog was already running ?
-> Seems to me you are just making an assumption that it is running
-> without really knowing for sure.
+Hi Carlo,
 
-You are definitely right, however the OMAP Watchdog seems to be such a
-sophisticated piece of hardware that there is no possible way how to
-determine if it is running or not (sampling timer counter twice and
-comparing both values is they differ is stupid).
+the compatible property should describe a specific version of the
+device, so maybe "amlogic,meson6-wdt" would be more appropriate.
 
-Best regards;
-Rostislav
+Beniamino
 
+> +- reg : Specifies base physical address and size of the registers.
+> +
+> +Example:
+> +
+> +wdt: watchdog@c1109900 {
+> +	compatible = "amlogic,meson-wdt";
+> +	reg = <0xc1109900 0x8>;
+> +};
+> -- 
+> 1.9.1
+> 
