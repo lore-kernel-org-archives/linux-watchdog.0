@@ -1,54 +1,38 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f182.google.com ([209.85.192.182]:47653 "EHLO
-	mail-pd0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932363AbaIRPc7 (ORCPT
+Received: from mail-pd0-f180.google.com ([209.85.192.180]:51418 "EHLO
+	mail-pd0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932224AbaIRPfP (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 18 Sep 2014 11:32:59 -0400
-Received: by mail-pd0-f182.google.com with SMTP id w10so1631925pde.13
-        for <linux-watchdog@vger.kernel.org>; Thu, 18 Sep 2014 08:32:58 -0700 (PDT)
-Date: Thu, 18 Sep 2014 08:32:53 -0700
+	Thu, 18 Sep 2014 11:35:15 -0400
+Received: by mail-pd0-f180.google.com with SMTP id ft15so1643947pdb.39
+        for <linux-watchdog@vger.kernel.org>; Thu, 18 Sep 2014 08:35:14 -0700 (PDT)
+Date: Thu, 18 Sep 2014 08:35:10 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	kernel@pengutronix.de
-Subject: Re: [PATCH] watchdog: simplify definitions of
- WATCHDOG_NOWAYOUT(_INIT_STATUS)?
-Message-ID: <20140918153253.GB11881@roeck-us.net>
-References: <1410293911-18392-1-git-send-email-u.kleine-koenig@pengutronix.de>
- <20140916154955.GI3755@pengutronix.de>
+To: Jingchang Lu <jingchang.lu@freescale.com>
+Cc: wim@iguana.be, shawn.guo@freescale.com, arnd@arndb.de,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCHv2] watchdog: imx2_wdt: add restart handler support
+Message-ID: <20140918153510.GC11881@roeck-us.net>
+References: <1410506676-24205-1-git-send-email-jingchang.lu@freescale.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <20140916154955.GI3755@pengutronix.de>
+In-Reply-To: <1410506676-24205-1-git-send-email-jingchang.lu@freescale.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Sep 16, 2014 at 05:49:55PM +0200, Uwe Kleine-K=F6nig wrote:
-> Hello Wim,
->=20
-> On Tue, Sep 09, 2014 at 10:18:31PM +0200, Uwe Kleine-K=F6nig wrote:
-> > Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
-> > ---
-> > Hello,
-> >=20
-> > maybe it's arguable if the newly introduced way to define
-> > WATCHDOG_NOWAYOUT and WATCHDOG_NOWAYOUT_INIT_STATUS is really simpl=
-er.
-> > But at least it's five lines shorter and makes the questionable nam=
-ing
-> > of cpp symbols more obvious. (Who can tell the difference between
-> > the semantic of WATCHDOG_NOWAYOUT and WDOG_NO_WAY_OUT without furth=
-er
-> > checking?)
-> Do you consider applying this patch?
->=20
-At least I have it in my watchdog-next branch.
+On Fri, Sep 12, 2014 at 03:24:36PM +0800, Jingchang Lu wrote:
+>   Register the watchdog as the system restart function
+> to the new introducing kernel restart call chain in the
+> driver instead of providing the restart in machine desc.
+>   This restart handler function is from the mxc_restart()
+> in arch/arm/mach-imx/system.c
+> 
+> Signed-off-by: Jingchang Lu <jingchang.lu@freescale.com>
+
+Looks good to me.
+
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 Guenter
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
