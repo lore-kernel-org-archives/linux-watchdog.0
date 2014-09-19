@@ -1,83 +1,64 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f41.google.com ([209.85.220.41]:39550 "EHLO
-	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756002AbaISQ4g (ORCPT
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:56064 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757413AbaISR1h (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 19 Sep 2014 12:56:36 -0400
-Date: Fri, 19 Sep 2014 09:56:31 -0700
+	Fri, 19 Sep 2014 13:27:37 -0400
+Date: Fri, 19 Sep 2014 10:27:32 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Josh Cartwright <joshc@codeaurora.org>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Grant Likely <grant.likely@linaro.org>,
-	Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Kumar Gala <galak@codeaurora.org>,
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 1/3] watchdog: qcom: add support for KPSS WDT
-Message-ID: <20140919165631.GA32457@roeck-us.net>
-References: <cover.1411078425.git.joshc@codeaurora.org>
- <32d17907ad1dfdcafe4e76f33adc2ff22631cd28.1411078425.git.joshc@codeaurora.org>
- <541B97CD.60400@roeck-us.net>
- <20140919032416.GE3749@joshc.qualcomm.com>
- <541BA5F7.1030704@roeck-us.net>
- <20140919162550.GI3749@joshc.qualcomm.com>
+To: Jisheng Zhang <jszhang@marvell.com>
+Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH 1/2] watchdog: dw_wdt: restart the counter immediately
+ after enabling WDT
+Message-ID: <20140919172732.GA716@roeck-us.net>
+References: <1411108199-1280-1-git-send-email-jszhang@marvell.com>
+ <1411108199-1280-2-git-send-email-jszhang@marvell.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20140919162550.GI3749@joshc.qualcomm.com>
+In-Reply-To: <1411108199-1280-2-git-send-email-jszhang@marvell.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Sep 19, 2014 at 11:25:50AM -0500, Josh Cartwright wrote:
-> On Thu, Sep 18, 2014 at 08:41:43PM -0700, Guenter Roeck wrote:
-> > On 09/18/2014 08:24 PM, Josh Cartwright wrote:
-> > >On Thu, Sep 18, 2014 at 07:41:17PM -0700, Guenter Roeck wrote:
-> > >>On 09/18/2014 03:26 PM, Josh Cartwright wrote:
-> > >>>Add a driver for the watchdog timer block found in the Krait Processor
-> > >>>Subsystem (KPSS) on the MSM8960, APQ8064, and IPQ8064.
-> > >>>
-> > >>>Signed-off-by: Josh Cartwright <joshc@codeaurora.org>
-> > >>
-> > >>Hi Josh,
-> > >>
-> > >>comments inline.
-> > >
-> > >Thanks for taking a look!
-> > >
-> [..]
-> > >>>+	watchdog_init_timeout(&wdt->wdd, 0, &pdev->dev);
-> > >>
-> > >>That leaves you with no default timeout if timeout-sec is not set in devicetree,
-> > >>which if I understand the code correctly might result in an immediate reset.
-> > >>Is this really what you want to happen ?
-> > >
-> > >I think I'd like to handle timeout-sec being unspecified as an error at
-> > >probe.  If someone explicitly sets timeout-sec = <0>, then they get what
-> > >they ask for.  I'll take another look to see how to make this happen.
-> > >
-> > 
-> > Hmm.. kind of unusual. Usual would be to initialize the timeout together
-> > with min_timeout / max_timeout above and only force the user to specify
-> > a value if the default timeout is not desirable. You don't really gain
-> > anything by making timeout-sec mandatory.
-> 
-> Making timeout-sec mandatory makes it so I don't have to decide what a
-> "sane default" is. :)
-> 
-Bad excuse ;-). You just force others to make the decision for you.
+On Fri, Sep 19, 2014 at 02:29:58PM +0800, Jisheng Zhang wrote:
+> The TOP_INIT may be zero, so the timeout period may be very short after
 
-> It's even less clear about what a sane default is looking at the other
-> watchdog drivers.  From the drivers I looked at, it ranges any where
-> from 30s to 2mins.  Am I just to choose?  Why do these even differ
-> between all of the drivers?
+What is TOP_INIT ?
+
+> initialization is done, thus the system may be reset soon after enabling.
+> We fix this problem by restarting the counter immediately after enabling
+> WDT.
 > 
-Sanity is defined as the majority opinion, as expressed quite nicely in
-"Everyone is insane but me".
+> Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
+> ---
+>  drivers/watchdog/dw_wdt.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+> index 9f21029..ad0619d 100644
+> --- a/drivers/watchdog/dw_wdt.c
+> +++ b/drivers/watchdog/dw_wdt.c
+> @@ -146,6 +146,7 @@ static int dw_wdt_open(struct inode *inode, struct file *filp)
+>  		dw_wdt_set_top(DW_WDT_MAX_TOP);
 
-Just pick something in between. If you don't want to make a decision, pick
-30 seconds and blame it on me.
+This sets the timeout to the maximum, so I guess there must be some other
+event/register (TOP_INIT ?) which can be zero.
 
-Maybe someone at some point finds a common ground. Until then it is per driver.
+>  		writel(WDOG_CONTROL_REG_WDT_EN_MASK,
+>  		       dw_wdt.regs + WDOG_CONTROL_REG_OFFSET);
+
+What guarantees that the reset didn't already happen by the time
+the keepalive call is executed ? Does this change fix the problem,
+or does it just make it more unlikely to be seen ?
 
 Thanks,
 Guenter
+
+> +		dw_wdt_keepalive();
+>  	}
+>  
+>  	dw_wdt_set_next_heartbeat();
+> -- 
+> 2.1.0
+> 
