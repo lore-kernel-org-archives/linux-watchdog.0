@@ -1,71 +1,40 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.11.231]:60941 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756107AbaISQcF (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 19 Sep 2014 12:32:05 -0400
-Date: Fri, 19 Sep 2014 11:25:50 -0500
+Return-path: <joshc@codeaurora.org>
+Date: Fri, 19 Sep 2014 11:29:17 -0500
 From: Josh Cartwright <joshc@codeaurora.org>
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Grant Likely <grant.likely@linaro.org>,
-	Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Kumar Gala <galak@codeaurora.org>,
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 1/3] watchdog: qcom: add support for KPSS WDT
-Message-ID: <20140919162550.GI3749@joshc.qualcomm.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-arm-msm@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Kumar Gala <galak@codeaurora.org>, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/3] watchdog: qcom: register a restart notifier
+Message-ID: <20140919162917.GJ3749@joshc.qualcomm.com>
 References: <cover.1411078425.git.joshc@codeaurora.org>
- <32d17907ad1dfdcafe4e76f33adc2ff22631cd28.1411078425.git.joshc@codeaurora.org>
- <541B97CD.60400@roeck-us.net>
- <20140919032416.GE3749@joshc.qualcomm.com>
- <541BA5F7.1030704@roeck-us.net>
+ <d0f4cd93ad3f6690d637413b1171ac3c71aba861.1411078426.git.joshc@codeaurora.org>
+ <541B995A.6000609@roeck-us.net>
+ <20140919033202.GF3749@joshc.qualcomm.com>
+ <541BAB06.7040502@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <541BA5F7.1030704@roeck-us.net>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <541BAB06.7040502@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Thu, Sep 18, 2014 at 08:41:43PM -0700, Guenter Roeck wrote:
-> On 09/18/2014 08:24 PM, Josh Cartwright wrote:
-> >On Thu, Sep 18, 2014 at 07:41:17PM -0700, Guenter Roeck wrote:
-> >>On 09/18/2014 03:26 PM, Josh Cartwright wrote:
-> >>>Add a driver for the watchdog timer block found in the Krait Processor
-> >>>Subsystem (KPSS) on the MSM8960, APQ8064, and IPQ8064.
-> >>>
-> >>>Signed-off-by: Josh Cartwright <joshc@codeaurora.org>
-> >>
-> >>Hi Josh,
-> >>
-> >>comments inline.
-> >
-> >Thanks for taking a look!
-> >
+On Thu, Sep 18, 2014 at 09:03:18PM -0700, Guenter Roeck wrote:
+> On 09/18/2014 08:32 PM, Josh Cartwright wrote:
+> >On Thu, Sep 18, 2014 at 07:47:54PM -0700, Guenter Roeck wrote:
+> >>On 09/18/2014 03:27 PM, Josh Cartwright wrote:
 [..]
-> >>>+	watchdog_init_timeout(&wdt->wdd, 0, &pdev->dev);
-> >>
-> >>That leaves you with no default timeout if timeout-sec is not set in devicetree,
-> >>which if I understand the code correctly might result in an immediate reset.
-> >>Is this really what you want to happen ?
 > >
-> >I think I'd like to handle timeout-sec being unspecified as an error at
-> >probe.  If someone explicitly sets timeout-sec = <0>, then they get what
-> >they ask for.  I'll take another look to see how to make this happen.
+> >Nothing magic, it's just a reasonably low value to set the bite time
+> >counter at.  It also happens to be the value at reset.
 > >
-> 
-> Hmm.. kind of unusual. Usual would be to initialize the timeout together
-> with min_timeout / max_timeout above and only force the user to specify
-> a value if the default timeout is not desirable. You don't really gain
-> anything by making timeout-sec mandatory.
+> Can you add a note explaining that this reflects a reset delay of <n>
+> milliseconds or whatever it is ?
 
-Making timeout-sec mandatory makes it so I don't have to decide what a
-"sane default" is. :)
+Certainly.  Will do.
 
-It's even less clear about what a sane default is looking at the other
-watchdog drivers.  From the drivers I looked at, it ranges any where
-from 30s to 2mins.  Am I just to choose?  Why do these even differ
-between all of the drivers?
+Thanks,
+  Josh
 
 -- 
 Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
