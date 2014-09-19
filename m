@@ -1,11 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wg0-f45.google.com ([74.125.82.45]:45279 "EHLO
-	mail-wg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757658AbaISUgn (ORCPT
+Received: from mail-we0-f180.google.com ([74.125.82.180]:58597 "EHLO
+	mail-we0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757739AbaISUgp (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 19 Sep 2014 16:36:43 -0400
-Received: by mail-wg0-f45.google.com with SMTP id l18so242568wgh.28
-        for <linux-watchdog@vger.kernel.org>; Fri, 19 Sep 2014 13:36:42 -0700 (PDT)
+	Fri, 19 Sep 2014 16:36:45 -0400
+Received: by mail-we0-f180.google.com with SMTP id u56so326043wes.39
+        for <linux-watchdog@vger.kernel.org>; Fri, 19 Sep 2014 13:36:44 -0700 (PDT)
 From: Carlo Caione <carlo@caione.org>
 To: linux@roeck-us.net, wim@iguana.be, linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org, robh+dt@kernel.org,
@@ -13,51 +13,39 @@ To: linux@roeck-us.net, wim@iguana.be, linux-watchdog@vger.kernel.org,
 	linux@arm.linux.org.uk, jerry.cao@amlogic.com,
 	victor.wan@amlogic.com
 Cc: Carlo Caione <carlo@caione.org>
-Subject: [PATCH v3 0/4] ARM: meson: watchdog driver
-Date: Fri, 19 Sep 2014 22:36:25 +0200
-Message-Id: <1411158989-8075-1-git-send-email-carlo@caione.org>
+Subject: [PATCH v3 1/4] ARM: docs: add documentation binding for meson watchdog
+Date: Fri, 19 Sep 2014 22:36:26 +0200
+Message-Id: <1411158989-8075-2-git-send-email-carlo@caione.org>
+In-Reply-To: <1411158989-8075-1-git-send-email-carlo@caione.org>
+References: <1411158989-8075-1-git-send-email-carlo@caione.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patchset adds support for the watchdog found on Amlogic MesonX SoCs. The
-watchdog is used also to reboot the device.
-
-DTSI and multi_v7_defconfig are updated and proper documentation is added.
-
-No documentation is provided by Amlogic, the code is reverse-engineered by the
-code available at http://openlinux.amlogic.com:8000/download/
-
-This patchset depends on:
-[1] [PATCH 0/6] ARM: meson: initial support for MesonX SoCs
-[2] [PATCH 0/2] ARM: meson: add clocksource support
-
-Changes since v2:
-* changed compatible to "amlogic,meson6-wdt"
-* removed useless code
-* code refactored
-
-Changes since v1:
-* added restart handler support
-
-[1] http://www.spinics.net/lists/arm-kernel/msg362521.html
-[2] http://www.spinics.net/lists/arm-kernel/msg362483.html
-
-Carlo Caione (4):
-  ARM: docs: add documentation binding for meson watchdog
-  ARM: meson: add watchdog driver
-  ARM: DTS: meson: update DTSI to add watchdog node
-  ARM: defconfig: update multi_v7_defconfig
-
- .../devicetree/bindings/watchdog/meson6-wdt.txt    |  13 ++
- arch/arm/boot/dts/meson.dtsi                       |   5 +
- arch/arm/configs/multi_v7_defconfig                |   1 +
- drivers/watchdog/Kconfig                           |  10 +
- drivers/watchdog/Makefile                          |   1 +
- drivers/watchdog/meson_wdt.c                       | 235 +++++++++++++++++++++
- 6 files changed, 265 insertions(+)
+Signed-off-by: Carlo Caione <carlo@caione.org>
+---
+ Documentation/devicetree/bindings/watchdog/meson6-wdt.txt | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/watchdog/meson6-wdt.txt
- create mode 100644 drivers/watchdog/meson_wdt.c
 
+diff --git a/Documentation/devicetree/bindings/watchdog/meson6-wdt.txt b/Documentation/devicetree/bindings/watchdog/meson6-wdt.txt
+new file mode 100644
+index 0000000..9200fc2
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/meson6-wdt.txt
+@@ -0,0 +1,13 @@
++Meson SoCs Watchdog timer
++
++Required properties:
++
++- compatible : should be "amlogic,meson6-wdt"
++- reg : Specifies base physical address and size of the registers.
++
++Example:
++
++wdt: watchdog@c1109900 {
++	compatible = "amlogic,meson6-wdt";
++	reg = <0xc1109900 0x8>;
++};
 -- 
 1.9.1
 
