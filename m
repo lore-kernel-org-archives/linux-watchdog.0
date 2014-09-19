@@ -1,186 +1,94 @@
-Return-path: <j.uzycki@elproma.com.pl>
-Message-ID: <541B5684.7000809@elproma.com.pl>
-Date: Fri, 19 Sep 2014 00:02:44 +0200
-From: =?windows-1250?Q?Janusz_U=BFycki?= <j.uzycki@elproma.com.pl>
+Return-path: <joshc@codeaurora.org>
+Date: Thu, 18 Sep 2014 22:32:02 -0500
+From: Josh Cartwright <joshc@codeaurora.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-arm-msm@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Kumar Gala <galak@codeaurora.org>, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/3] watchdog: qcom: register a restart notifier
+Message-ID: <20140919033202.GF3749@joshc.qualcomm.com>
+References: <cover.1411078425.git.joshc@codeaurora.org>
+ <d0f4cd93ad3f6690d637413b1171ac3c71aba861.1411078426.git.joshc@codeaurora.org>
+ <541B995A.6000609@roeck-us.net>
 MIME-Version: 1.0
-To: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
- Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: watchdog's pm support preffered implementation
-References: <S1751381AbaIDOwq/20140904145246Z+988@vger.kernel.org> <54088996.4040500@elproma.com.pl> <540C9383.9050307@roeck-us.net> <540D02E1.90403@elproma.com.pl> <540D1F8F.2080802@roeck-us.net> <54196BE2.2010800@elproma.com.pl> <541ABD07.5090407@elproma.com.pl> <541B5156.803@elproma.com.pl>
-In-Reply-To: <541B5156.803@elproma.com.pl>
-Content-Type: text/plain; charset=windows-1250; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <541B995A.6000609@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Small fix below in the second implementation.
+On Thu, Sep 18, 2014 at 07:47:54PM -0700, Guenter Roeck wrote:
+> On 09/18/2014 03:27 PM, Josh Cartwright wrote:
+> >The WDT's BITE_TIME warm-reset behavior can be leveraged as a last
+> >resort mechanism for triggering chip reset.  Usually, other restart
+> >methods (such as PS_HOLD) are preferrable for issuing a more complete
+> >reset of the chip.  As such, keep the priority of the watchdog notifier
+> >low.
+> >
+> >Signed-off-by: Josh Cartwright <joshc@codeaurora.org>
+[..]
+> >+static int qcom_wdt_restart(struct notifier_block *nb, unsigned long action,
+> >+			    void *data)
+> >+{
+> >+	struct qcom_wdt *wdt = container_of(nb, struct qcom_wdt, restart_nb);
+> >+
+> >+	/*
+> >+	 * Trigger watchdog bite:
+> >+	 *    Setup BITE_TIME to be very low, and enable WDT.
+> >+	 */
+> >+	mutex_lock(&wdt->wdd.lock);
+> 
+> At this time you don't need to worry about locks.
+> 
+> Actually, this might be dangerous if the lock happens to be taken,
+> as it won't be released (there is no other code running anymore
+> when this function is called).
 
-best regards
-Janusz
+Ah, great.  I'll drop the locking.
 
-W dniu 2014-09-18 23:40, Janusz U¿ycki pisze:
-> Hi again,
->
-> This is the second implementation. Which do you prefer?
->
-> Subject: [PATCH] stmp3xxx_rtc_wdt: Add suspend/resume PM support
->
->
-> Signed-off-by: Janusz Uzycki <j.uzycki@elproma.com.pl>
-> ---
->  drivers/watchdog/stmp3xxx_rtc_wdt.c | 39 +++++++++++++++++++++++
->  1 file changed, 39 insertions(+)
->
-> diff --git a/drivers/watchdog/stmp3xxx_rtc_wdt.c 
-> b/drivers/watchdog/stmp3xxx_rtc_wdt.c
-> index 3546f03..1946277 100644
-> --- a/drivers/watchdog/stmp3xxx_rtc_wdt.c
-> +++ b/drivers/watchdog/stmp3xxx_rtc_wdt.c
-> @@ -95,9 +95,48 @@ static int stmp3xxx_wdt_remove(struct 
-> platform_device *pdev)
->         return 0;
->  }
->
-> +#ifdef CONFIG_PM_SLEEP
-> +/* There is no conflict with rtc/rtc-stmp3xxx.c parent
-> + * because modified registers in PM functions are different */
-> +static int __maybe_unused stmp3xxx_wdt_suspend(struct device *dev)
-> +{
-> +       struct watchdog_device *wdd = dev_get_drvdata(dev);
+> >+	writel_relaxed(0, wdt->base + WDT_EN);
+> >+	writel_relaxed(1, wdt->base + WDT_RST);
+> >+	writel_relaxed(0x31F3, wdt->base + WDT_BITE_TIME);
+> 
+> What is the magic here, ie what does 0x31F3 stand for ?
 
-drvdata is NULL, too fast,
-+       struct watchdog_device *wdd = &stmp3xxx_wdd;
+Nothing magic, it's just a reasonably low value to set the bite time
+counter at.  It also happens to be the value at reset.
 
-> +
-> +       /* Is keep-on/ping timer suspended before?
-> +        * or additional driver-specific flag must be added
-> +        *  to block watchdog ping in the timer?
-> +        * or disable WATCHDOG_KEEP_ON before wdt_stop
-> +        *  and restore it in resume? */
-> +       if (watchdog_active(wdd)) {
-> +               dev_info(wdd->dev, "%s: wdt was active\n", __func__);
-> +               return wdt_stop(wdd);
-> +       }
-> +       /* should we use pm_runtime like omap_wdt.c does? */
-> +
-> +       return 0;
-> +}
-> +
-> +static int __maybe_unused stmp3xxx_wdt_resume(struct device *dev)
-> +{
-> +       struct watchdog_device *wdd = dev_get_drvdata(dev);
-+       struct watchdog_device *wdd = &stmp3xxx_wdd;
+> >+	writel_relaxed(1, wdt->base + WDT_EN);
+> >+	mutex_unlock(&wdt->wdd.lock);
+> >+	return NOTIFY_DONE;
+> >+}
+> >+
+> >  static int qcom_watchdog_probe(struct platform_device *pdev)
+> >  {
+> >  	struct qcom_wdt *wdt;
+> >@@ -121,6 +141,17 @@ static int qcom_watchdog_probe(struct platform_device *pdev)
+> >  		return ret;
+> >  	}
+> >
+> >+	/*
+> >+	 * WDT restart notifier has priority 0 (use as a last resort)
+> >+	 */
+> >+	wdt->restart_nb.notifier_call = qcom_wdt_restart;
+> >+	ret = register_restart_handler(&wdt->restart_nb);
+> >+	if (ret) {
+> >+		dev_err(&pdev->dev, "failed to setup restart handler\n");
+> >+		watchdog_unregister_device(&wdt->wdd);
+> >+		return ret;
+> 
+> Sure you want to return an error here ? The watchdog itself is still working,
+> and this is supposed to be a restart method of last resort. Causing the driver
+> to fail loading because it can not register its restart handler seems to be
+> a bit aggressive.
 
-> +
-> +       if (watchdog_active(wdd)) {
-> +               dev_info(wdd->dev, "%s: wdt was active\n", __func__);
-> +               return wdt_start(wdd);
-> +       }
-> +
-> +       return 0;
-> +}
-> +#endif /* CONFIG_PM_SLEEP */
-> +
-> +static SIMPLE_DEV_PM_OPS(stmp3xxx_wdt_pm_ops,
-> +               stmp3xxx_wdt_suspend, stmp3xxx_wdt_resume);
-> +
->  static struct platform_driver stmp3xxx_wdt_driver = {
->         .driver = {
->                 .name = "stmp3xxx_rtc_wdt",
-> +               .owner = THIS_MODULE,
-> +               .pm = &stmp3xxx_wdt_pm_ops,
->         },
->         .probe = stmp3xxx_wdt_probe,
->         .remove = stmp3xxx_wdt_remove,
-> -- 
-> 1.7.11.3
->
->
-> W dniu 2014-09-18 13:07, Janusz U¿ycki pisze:
->>
->> I work under suspend/resume PM support for stmp3xxx driver.
->>
->> Most of them use suspend() with struct platform_device and CONFIG_PM.
->> Only sp805, sirfsoc, s3c2410, dw drivers use suspend() with struct 
->> device
->> and SIMPLE_DEV_PM_OPS.
->> Which implementation is preffered today?
->>
->> best regards
->> Janusz
->>
->> P.S. Patch on the moment:
->> Signed-off-by: Janusz Uzycki <j.uzycki@elproma.com.pl>
->> ---
->>  drivers/watchdog/stmp3xxx_rtc_wdt.c | 41 +++++++++++++++++++++++
->>  1 file changed, 41 insertions(+)
->>
->> diff --git a/drivers/watchdog/stmp3xxx_rtc_wdt.c 
->> b/drivers/watchdog/stmp3xxx_rtc_wdt.c
->> index 3546f03..12060ab 100644
->> --- a/drivers/watchdog/stmp3xxx_rtc_wdt.c
->> +++ b/drivers/watchdog/stmp3xxx_rtc_wdt.c
->> @@ -74,6 +74,7 @@ static int stmp3xxx_wdt_probe(struct 
->> platform_device *pdev)
->>  {
->>         int ret;
->>
->> +       platform_set_drvdata(pdev, &stmp3xxx_wdd);
->>         watchdog_set_drvdata(&stmp3xxx_wdd, &pdev->dev);
->>
->>         stmp3xxx_wdd.timeout = clamp_t(unsigned, heartbeat, 1, 
->> STMP3XXX_MAX_TIMEOUT);
->> @@ -95,12 +96,52 @@ static int stmp3xxx_wdt_remove(struct 
->> platform_device *pdev)
->>         return 0;
->>  }
->>
->> +#ifdef CONFIG_PM
->> +/* There is no conflict with rtc/rtc-stmp3xxx.c parent
->> + * because modified registers in PM functions are different */
->> +static int stmp3xxx_wdt_suspend(struct platform_device *pdev,
->> +                                       pm_message_t state)
->> +{
->> +       struct watchdog_device *wdd = platform_get_drvdata(pdev);
->> +
->> +       /* Is keep-on/ping timer suspended before?
->> +        * or additional driver-specific flag must be added
->> +        *  to block watchdog ping in the timer?
->> +        * or disable WATCHDOG_KEEP_ON before wdt_stop
->> +        *  and restore it in resume? */
->> +       if (watchdog_active(wdd)) {
->> +               dev_info(wdd->dev, "%s: wdt was active\n", __func__);
->> +               return wdt_stop(wdd);
->> +       }
->> +       /* should we use pm_runtime like omap_wdt.c does? */
->> +
->> +       return 0;
->> +}
->> +
->> +static int stmp3xxx_wdt_resume(struct platform_device *pdev)
->> +{
->> +       struct watchdog_device *wdd = platform_get_drvdata(pdev);
->> +
->> +       if (watchdog_active(wdd)) {
->> +               dev_info(wdd->dev, "%s: wdt was active\n", __func__);
->> +               return wdt_start(wdd);
->> +       }
->> +
->> +       return 0;
->> +}
->> +#else
->> +#define stmp3xxx_wdt_suspend   NULL
->> +#define stmp3xxx_wdt_resume    NULL
->> +#endif
->> +
->>  static struct platform_driver stmp3xxx_wdt_driver = {
->>         .driver = {
->>                 .name = "stmp3xxx_rtc_wdt",
->>         },
->>         .probe = stmp3xxx_wdt_probe,
->>         .remove = stmp3xxx_wdt_remove,
->> +       .suspend = stmp3xxx_wdt_suspend,
->> +       .resume = stmp3xxx_wdt_resume,
->>  };
->>  module_platform_driver(stmp3xxx_wdt_driver);
->>
->
+It is a bit aggressive.  I'll at least drop it to a dev_warn(); even
+though it is a "last resort", on some boards it's the only available
+mechanism for reliable restart.
+
+Thanks!
+  Josh
+
+-- 
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+hosted by The Linux Foundation
