@@ -1,125 +1,110 @@
-Return-path: <pramod.gurav@smartplayin.com>
-Message-ID: <541C279E.2000602@smartplayin.com>
-Date: Fri, 19 Sep 2014 18:24:54 +0530
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from smtp69.ord1c.emailsrvr.com ([108.166.43.69]:59193 "EHLO
+	smtp69.ord1c.emailsrvr.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756522AbaISMvi (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 19 Sep 2014 08:51:38 -0400
+Message-ID: <541C25E5.6080601@smartplayin.com>
+Date: Fri, 19 Sep 2014 18:17:33 +0530
 From: Pramod Gurav <pramod.gurav@smartplayin.com>
 MIME-Version: 1.0
-To: Guenter Roeck <linux@roeck-us.net>
-CC: Russell King <linux@arm.linux.org.uk>,
- Wim Van Sebroeck <wim@iguana.be>,
- Catalin Marinas <catalin.marinas@arm.com>,
- Maxime Ripard <maxime.ripard@free-electrons.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- linux-watchdog@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-pm@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
- Will Deacon <will.deacon@arm.com>,
- Arnd Bergmann <arnd@arndb.de>, Heiko Stuebner <heiko@sntech.de>,
- Jonas Jensen <jonas.jensen@gmail.com>,
- Randy Dunlap <rdunlap@infradead.org>,
- Steven Rostedt <rostedt@goodmis.org>,
- Ingo Molnar <mingo@kernel.org>,
- Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
- David Woodhouse <dwmw2@infradead.org>, Tomasz Figa <t.figa@samsung.com>,
- linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v7 00/11] kernel: Add support for restart handler call
- chain
-References: <1408495538-27480-1-git-send-email-linux@roeck-us.net>
-In-Reply-To: <1408495538-27480-1-git-send-email-linux@roeck-us.net>
+To: Josh Cartwright <joshc@codeaurora.org>
+CC: Wim Van Sebroeck <wim@iguana.be>, linux-arm-msm@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Kumar Gala <galak@codeaurora.org>,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/3] watchdog: qcom: register a restart notifier
+References: <cover.1411078425.git.joshc@codeaurora.org> <d0f4cd93ad3f6690d637413b1171ac3c71aba861.1411078426.git.joshc@codeaurora.org>
+In-Reply-To: <d0f4cd93ad3f6690d637413b1171ac3c71aba861.1411078426.git.joshc@codeaurora.org>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hello Guenter,
+Hi Josh,
 
-Thanks for the patches.
-Tested patches 1,2 & 4 from this series on qcom apq8064 based IFC6410
-with Josh's patches which replace arm restart with restart notifier for
-this target.
+Tested this patch on IFC6410 by disabling pinctrl ps_hold reset
+implementation and on top of Guenter's patchset for restart_notifier.
 
 Tested-by: pramod.gurav@smartplayin.com
 
-On Wednesday 20 August 2014 06:15 AM, Guenter Roeck wrote:
-> Various drivers implement architecture and/or device specific means
-> to restart (reset) the system. Various mechanisms have been implemented
-> to support those schemes. The best known mechanism is arm_pm_restart,
-> which is a function pointer to be set either from platform specific code
-> or from drivers. Another mechanism is to use hardware watchdogs to issue
-> a reset; this mechanism is used if there is no other method available
-> to reset a board or system. Two examples are alim7101_wdt, which currently
-> uses the reboot notifier to trigger a reset, and moxart_wdt, which registers
-> the arm_pm_restart function. Several other restart drivers for arm, all
-> directly calling arm_pm_restart, are in the process of being integrated
-> into the kernel. All those drivers would benefit from the new API.
+I picked up DT changes from bindings as they are from this patchset.
+
+Thanks
+Pramod
+On Friday 19 September 2014 03:57 AM, Josh Cartwright wrote:
+> The WDT's BITE_TIME warm-reset behavior can be leveraged as a last
+> resort mechanism for triggering chip reset.  Usually, other restart
+> methods (such as PS_HOLD) are preferrable for issuing a more complete
+> reset of the chip.  As such, keep the priority of the watchdog notifier
+> low.
 > 
-> The existing mechanisms have a number of drawbacks. Typically only one scheme
-> to restart the system is supported (at least if arm_pm_restart is used).
-> At least in theory there can be multiple means to restart the system, some of
-> which may be less desirable (for example one mechanism may only reset the CPU,
-> while another may reset the entire system). Using arm_pm_restart can also be
-> racy if the function pointer is set from a driver, as the driver may be in
-> the process of being unloaded when arm_pm_restart is called.
-> Using the reboot notifier is always racy, as it is unknown if and when
-> other functions using the reboot notifier have completed execution
-> by the time the watchdog fires.
-> 
-> Introduce a system restart handler call chain to solve the described problems.
-> This call chain is expected to be executed from the architecture specific
-> machine_restart() function. Drivers providing system restart functionality
-> (such as the watchdog drivers mentioned above) are expected to register
-> with this call chain. By using the priority field in the notifier block,
-> callers can control restart handler execution sequence and thus ensure that
-> the restart handler with the optimal restart capabilities for a given system
-> is called first.
-> 
-> Since the first revision of this patchset, a number of separate patch
-> submissions have been made which either depend on it or could make use of it.
-> 
-> http://www.spinics.net/linux/lists/arm-kernel/msg344796.html
-> 	registers three notifiers.
-> https://lkml.org/lkml/2014/7/8/962
-> 	would benefit from it.
-> 
-> Patch 1 of this series implements the restart handler function. Patches 2 and 3
-> implement calling the restart handler chain from arm and arm64 restart code.
-> 
-> Patch 4 modifies the restart-poweroff driver to no longer call arm_pm_restart
-> directly but machine_restart. This is done to avoid calling arm_pm_restart
-> from more than one place. The change makes the driver architecture independent,
-> so it would be possible to drop the arm dependency from its Kconfig entry.
-> 
-> Patch 5 and 6 convert existing restart handlers in the watchdog subsystem
-> to use the restart handler. Patch 7 unexports arm_pm_restart to ensure
-> that no one gets the idea to implement a restart handler as module.
-> 
-> The entire patch series, including additional patches depending on it,
-> is available from
-> https://git.kernel.org/cgit/linux/kernel/git/groeck/linux-staging.git/
-> in branch 'restart-staging'.
-> 
+> Signed-off-by: Josh Cartwright <joshc@codeaurora.org>
 > ---
-> v7: Rebased to v3.17-rc1
->     Dropped null_restart from arm code to make arm_pm_restart truly optional
->     Reordered series. power/restart must be patched to not use arm_pm_restart
->     prior to making arm_pm_restart optional.
->     Added all pending patches to series
-> v6: Use atomic notifier call chain 
->     Rebased series to v3.16
-> v5: Rebased series to v3.16-rc5
->     Function renames:
->     register_restart_notifier -> register_restart_handler
->     unregister_restart_notifier -> unregister_restart_handler
->     kernel_restart_notify -> do_kernel_restart
-> v4: Document restart notifier priorities
->     Select 128 as default priority for newly introduced notifiers
->     Fix checkpatch warning (line too long) in moxart patch
-> v3: Drop RFC.
->     Add kernel_restart_notify wrapper function to execute notifier
->     Improve documentation.
->     Move restart_notifier_list into kernel/reboot.c and make it static.
-> v2: Add patch 4.
->     Only call blocking notifier call chain if arm_pm_restart was not set.
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>  drivers/watchdog/qcom-wdt.c | 31 +++++++++++++++++++++++++++++++
+>  1 file changed, 31 insertions(+)
+> 
+> diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
+> index e9409f5..710ab43 100644
+> --- a/drivers/watchdog/qcom-wdt.c
+> +++ b/drivers/watchdog/qcom-wdt.c
+> @@ -15,6 +15,7 @@
+>  #include <linux/module.h>
+>  #include <linux/of.h>
+>  #include <linux/platform_device.h>
+> +#include <linux/reboot.h>
+>  #include <linux/watchdog.h>
+>  
+>  #define WDT_RST		0x0
+> @@ -24,6 +25,7 @@
+>  struct qcom_wdt {
+>  	struct watchdog_device	wdd;
+>  	unsigned long		freq;
+> +	struct notifier_block	restart_nb;
+>  	void __iomem		*base;
+>  };
+>  
+> @@ -82,6 +84,24 @@ static const struct watchdog_info qcom_wdt_info = {
+>  	.identity	= KBUILD_MODNAME,
+>  };
+>  
+> +static int qcom_wdt_restart(struct notifier_block *nb, unsigned long action,
+> +			    void *data)
+> +{
+> +	struct qcom_wdt *wdt = container_of(nb, struct qcom_wdt, restart_nb);
+> +
+> +	/*
+> +	 * Trigger watchdog bite:
+> +	 *    Setup BITE_TIME to be very low, and enable WDT.
+> +	 */
+> +	mutex_lock(&wdt->wdd.lock);
+> +	writel_relaxed(0, wdt->base + WDT_EN);
+> +	writel_relaxed(1, wdt->base + WDT_RST);
+> +	writel_relaxed(0x31F3, wdt->base + WDT_BITE_TIME);
+> +	writel_relaxed(1, wdt->base + WDT_EN);
+> +	mutex_unlock(&wdt->wdd.lock);
+> +	return NOTIFY_DONE;
+> +}
+> +
+>  static int qcom_watchdog_probe(struct platform_device *pdev)
+>  {
+>  	struct qcom_wdt *wdt;
+> @@ -121,6 +141,17 @@ static int qcom_watchdog_probe(struct platform_device *pdev)
+>  		return ret;
+>  	}
+>  
+> +	/*
+> +	 * WDT restart notifier has priority 0 (use as a last resort)
+> +	 */
+> +	wdt->restart_nb.notifier_call = qcom_wdt_restart;
+> +	ret = register_restart_handler(&wdt->restart_nb);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "failed to setup restart handler\n");
+> +		watchdog_unregister_device(&wdt->wdd);
+> +		return ret;
+> +	}
+> +
+>  	return 0;
+>  }
+>  
 > 
