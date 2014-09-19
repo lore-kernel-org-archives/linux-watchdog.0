@@ -1,316 +1,110 @@
-Return-path: <mpa@pengutronix.de>
-From: Markus Pargmann <mpa@pengutronix.de>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Support Opensource <support.opensource@diasemi.com>,
-	Philipp Zabel <p.zabel@pengutronix.de>,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-watchdog@vger.kernel.org,
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:33804 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750749AbaISEDX (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 19 Sep 2014 00:03:23 -0400
+Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
+	(envelope-from <linux@roeck-us.net>)
+	id 1XUpPm-001GaA-40
+	for linux-watchdog@vger.kernel.org; Fri, 19 Sep 2014 04:03:22 +0000
+Message-ID: <541BAB06.7040502@roeck-us.net>
+Date: Thu, 18 Sep 2014 21:03:18 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+MIME-Version: 1.0
+To: Josh Cartwright <joshc@codeaurora.org>
+CC: Wim Van Sebroeck <wim@iguana.be>, linux-arm-msm@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
-	kernel@pengutronix.de
-Subject: [PATCH v6] watchdog: Add DA9063 PMIC watchdog driver.
-Date: Mon,  8 Sep 2014 15:58:33 +0200
-Message-Id: <1410184713-6436-1-git-send-email-mpa@pengutronix.de>
-List-ID: <linux-watchdog@vger.kernel.org>
+	Kumar Gala <galak@codeaurora.org>,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/3] watchdog: qcom: register a restart notifier
+References: <cover.1411078425.git.joshc@codeaurora.org> <d0f4cd93ad3f6690d637413b1171ac3c71aba861.1411078426.git.joshc@codeaurora.org> <541B995A.6000609@roeck-us.net> <20140919033202.GF3749@joshc.qualcomm.com>
+In-Reply-To: <20140919033202.GF3749@joshc.qualcomm.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-From: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
+On 09/18/2014 08:32 PM, Josh Cartwright wrote:
+> On Thu, Sep 18, 2014 at 07:47:54PM -0700, Guenter Roeck wrote:
+>> On 09/18/2014 03:27 PM, Josh Cartwright wrote:
+>>> The WDT's BITE_TIME warm-reset behavior can be leveraged as a last
+>>> resort mechanism for triggering chip reset.  Usually, other restart
+>>> methods (such as PS_HOLD) are preferrable for issuing a more complete
+>>> reset of the chip.  As such, keep the priority of the watchdog notifier
+>>> low.
+>>>
+>>> Signed-off-by: Josh Cartwright <joshc@codeaurora.org>
+> [..]
+>>> +static int qcom_wdt_restart(struct notifier_block *nb, unsigned long action,
+>>> +			    void *data)
+>>> +{
+>>> +	struct qcom_wdt *wdt = container_of(nb, struct qcom_wdt, restart_nb);
+>>> +
+>>> +	/*
+>>> +	 * Trigger watchdog bite:
+>>> +	 *    Setup BITE_TIME to be very low, and enable WDT.
+>>> +	 */
+>>> +	mutex_lock(&wdt->wdd.lock);
+>>
+>> At this time you don't need to worry about locks.
+>>
+>> Actually, this might be dangerous if the lock happens to be taken,
+>> as it won't be released (there is no other code running anymore
+>> when this function is called).
+>
+> Ah, great.  I'll drop the locking.
+>
+>>> +	writel_relaxed(0, wdt->base + WDT_EN);
+>>> +	writel_relaxed(1, wdt->base + WDT_RST);
+>>> +	writel_relaxed(0x31F3, wdt->base + WDT_BITE_TIME);
+>>
+>> What is the magic here, ie what does 0x31F3 stand for ?
+>
+> Nothing magic, it's just a reasonably low value to set the bite time
+> counter at.  It also happens to be the value at reset.
+>
+Can you add a note explaining that this reflects a reset delay of <n>
+milliseconds or whatever it is ?
 
-This driver supports the watchdog device inside the DA9063 PMIC.
+>>> +	writel_relaxed(1, wdt->base + WDT_EN);
+>>> +	mutex_unlock(&wdt->wdd.lock);
+>>> +	return NOTIFY_DONE;
+>>> +}
+>>> +
+>>>   static int qcom_watchdog_probe(struct platform_device *pdev)
+>>>   {
+>>>   	struct qcom_wdt *wdt;
+>>> @@ -121,6 +141,17 @@ static int qcom_watchdog_probe(struct platform_device *pdev)
+>>>   		return ret;
+>>>   	}
+>>>
+>>> +	/*
+>>> +	 * WDT restart notifier has priority 0 (use as a last resort)
+>>> +	 */
+>>> +	wdt->restart_nb.notifier_call = qcom_wdt_restart;
+>>> +	ret = register_restart_handler(&wdt->restart_nb);
+>>> +	if (ret) {
+>>> +		dev_err(&pdev->dev, "failed to setup restart handler\n");
+>>> +		watchdog_unregister_device(&wdt->wdd);
+>>> +		return ret;
+>>
+>> Sure you want to return an error here ? The watchdog itself is still working,
+>> and this is supposed to be a restart method of last resort. Causing the driver
+>> to fail loading because it can not register its restart handler seems to be
+>> a bit aggressive.
+>
+> It is a bit aggressive.  I'll at least drop it to a dev_warn(); even
+> though it is a "last resort", on some boards it's the only available
+> mechanism for reliable restart.
+>
+Sure, but the problem is that you don't let people use the watchdog just
+because restart handler registration failed. dev_err or dev_warn is fine,
+my concern was not the message but that you abort watchdog registration
+in this case.
 
-Signed-off-by: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
----
+Kind of letting people not use their car just because one of its lights
+failed.
 
-Notes:
-    Changes in v6:
-     - Fix compile error
-    
-    Changes in v5:
-     - Kconfig: Add note about the module name.
-     - Change selector variables to int
-     - Style fixes
-     - use unsigned int to remove gcc verbose warning
-     - Integrate _kick() and _disable() into the calling functions
-    
-    Changes in v4:
-     - Fixed indentation
-     - Fixed lock without unlock
-     - Check for parent device and device driver data in probe(). If not present,
-       this is an invalid prober initialization, return -EINVAL.
-    
-    Changes in v3:
-     - Cleanup error handling for timeout selection and setting
-     - Fix race condition due to late wdt drvdata setup
-     - Remove static struct watchdog_device. It is not initialized in the probe
-       function
-     - Use WATCHDOG_NOWAYOUT_INIT_STATUS for the status
-     - Remove 0 shift using DA9063_TWDSCALE_SHIFT
+Guenter
 
- drivers/watchdog/Kconfig      |   9 ++
- drivers/watchdog/Makefile     |   1 +
- drivers/watchdog/da9063_wdt.c | 222 ++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 232 insertions(+)
- create mode 100644 drivers/watchdog/da9063_wdt.c
-
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index f57312fced80..669de63a7a48 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -87,6 +87,15 @@ config DA9055_WATCHDOG
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called da9055_wdt.
- 
-+config DA9063_WATCHDOG
-+	tristate "Dialog DA9063 Watchdog"
-+	depends on MFD_DA9063
-+	select WATCHDOG_CORE
-+	help
-+	  Support for the watchdog in the DA9063 PMIC.
-+
-+	  This driver can be built as a module. The module name is da9063_wdt.
-+
- config GPIO_WATCHDOG
- 	tristate "Watchdog device controlled through GPIO-line"
- 	depends on OF_GPIO
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 468c3204c3b1..6c467a9821fe 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -173,6 +173,7 @@ obj-$(CONFIG_XEN_WDT) += xen_wdt.o
- # Architecture Independent
- obj-$(CONFIG_DA9052_WATCHDOG) += da9052_wdt.o
- obj-$(CONFIG_DA9055_WATCHDOG) += da9055_wdt.o
-+obj-$(CONFIG_DA9063_WATCHDOG) += da9063_wdt.o
- obj-$(CONFIG_GPIO_WATCHDOG)	+= gpio_wdt.o
- obj-$(CONFIG_WM831X_WATCHDOG) += wm831x_wdt.o
- obj-$(CONFIG_WM8350_WATCHDOG) += wm8350_wdt.o
-diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
-new file mode 100644
-index 000000000000..88441bdd2d1b
---- /dev/null
-+++ b/drivers/watchdog/da9063_wdt.c
-@@ -0,0 +1,222 @@
-+/*
-+ * Watchdog driver for DA9063 PMICs.
-+ *
-+ * Copyright(c) 2012 Dialog Semiconductor Ltd.
-+ *
-+ * Author: Mariusz Wojtasik <mariusz.wojtasik@diasemi.com>
-+ *
-+ * This program is free software; you can redistribute  it and/or modify it
-+ * under  the terms of  the GNU General  Public License as published by the
-+ * Free Software Foundation;  either version 2 of the  License, or (at your
-+ * option) any later version.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/watchdog.h>
-+#include <linux/platform_device.h>
-+#include <linux/uaccess.h>
-+#include <linux/slab.h>
-+#include <linux/delay.h>
-+#include <linux/mfd/da9063/registers.h>
-+#include <linux/mfd/da9063/core.h>
-+#include <linux/regmap.h>
-+
-+/*
-+ * Watchdog selector to timeout in seconds.
-+ *   0: WDT disabled;
-+ *   others: timeout = 2048 ms * 2^(TWDSCALE-1).
-+ */
-+static const int wdt_timeout[] = { 0, 2, 4, 8, 16, 32, 65, 131 };
-+#define DA9063_TWDSCALE_DISABLE		0
-+#define DA9063_TWDSCALE_MIN		1
-+#define DA9063_TWDSCALE_MAX		(ARRAY_SIZE(wdt_timeout) - 1)
-+#define DA9063_WDT_MIN_TIMEOUT		wdt_timeout[DA9063_TWDSCALE_MIN]
-+#define DA9063_WDT_MAX_TIMEOUT		wdt_timeout[DA9063_TWDSCALE_MAX]
-+#define DA9063_WDG_TIMEOUT		wdt_timeout[3]
-+
-+struct da9063_watchdog {
-+	struct da9063 *da9063;
-+	struct watchdog_device wdtdev;
-+	struct mutex lock;
-+};
-+
-+static int da9063_wdt_timeout_to_sel(int secs)
-+{
-+	unsigned int i;
-+
-+	for (i = DA9063_TWDSCALE_MIN; i <= DA9063_TWDSCALE_MAX; i++) {
-+		if (wdt_timeout[i] >= secs)
-+			return i;
-+	}
-+
-+	return -EINVAL;
-+}
-+
-+static int _da9063_wdt_set_timeout(struct da9063 *da9063, unsigned int regval)
-+{
-+	return regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
-+			DA9063_TWDSCALE_MASK, regval);
-+}
-+
-+static int da9063_wdt_start(struct watchdog_device *wdd)
-+{
-+	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
-+	int selector;
-+	int ret;
-+
-+	selector = da9063_wdt_timeout_to_sel(wdt->wdtdev.timeout);
-+	if (selector < 0) {
-+		dev_err(wdt->da9063->dev, "Timeout out of range (timeout=%d)\n",
-+				wdt->wdtdev.timeout);
-+		return selector;
-+	}
-+
-+	mutex_lock(&wdt->lock);
-+	ret = _da9063_wdt_set_timeout(wdt->da9063, selector);
-+	if (ret) {
-+		dev_err(wdt->da9063->dev, "Watchdog failed to start (err = %d)\n",
-+				ret);
-+	}
-+	mutex_unlock(&wdt->lock);
-+
-+	return ret;
-+}
-+
-+static int da9063_wdt_stop(struct watchdog_device *wdd)
-+{
-+	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
-+	int ret;
-+
-+	mutex_lock(&wdt->lock);
-+	ret = regmap_update_bits(wdt->da9063->regmap, DA9063_REG_CONTROL_D,
-+			DA9063_TWDSCALE_MASK,
-+			DA9063_TWDSCALE_DISABLE);
-+	if (ret)
-+		dev_alert(wdt->da9063->dev, "Watchdog failed to stop (err = %d)\n",
-+				ret);
-+	mutex_unlock(&wdt->lock);
-+
-+	return ret;
-+}
-+
-+static int da9063_wdt_ping(struct watchdog_device *wdd)
-+{
-+	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
-+	int ret;
-+
-+	mutex_lock(&wdt->lock);
-+	ret = regmap_write(wdt->da9063->regmap, DA9063_REG_CONTROL_F,
-+			DA9063_WATCHDOG);
-+	if (ret)
-+		dev_alert(wdt->da9063->dev, "Failed to ping the watchdog (err = %d)\n",
-+				ret);
-+	mutex_unlock(&wdt->lock);
-+
-+	return ret;
-+}
-+
-+static int da9063_wdt_set_timeout(struct watchdog_device *wdd,
-+		unsigned int timeout)
-+{
-+	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
-+	int selector;
-+	int ret;
-+
-+	selector = da9063_wdt_timeout_to_sel(timeout);
-+	if (selector < 0) {
-+		dev_err(wdt->da9063->dev,
-+				"Unsupported watchdog timeout, should be between 2 and 131\n");
-+		return -EINVAL;
-+	}
-+
-+	mutex_lock(&wdt->lock);
-+
-+	ret = _da9063_wdt_set_timeout(wdt->da9063, selector);
-+	if (ret)
-+		dev_err(wdt->da9063->dev, "Failed to set watchdog timeout (err = %d)\n",
-+				ret);
-+	else
-+		wdd->timeout = wdt_timeout[selector];
-+
-+	mutex_unlock(&wdt->lock);
-+
-+	return ret;
-+}
-+
-+static const struct watchdog_info da9063_watchdog_info = {
-+	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-+	.identity = "DA9063 Watchdog",
-+};
-+
-+static const struct watchdog_ops da9063_watchdog_ops = {
-+	.owner = THIS_MODULE,
-+	.start = da9063_wdt_start,
-+	.stop = da9063_wdt_stop,
-+	.ping = da9063_wdt_ping,
-+	.set_timeout = da9063_wdt_set_timeout,
-+};
-+
-+static int da9063_wdt_probe(struct platform_device *pdev)
-+{
-+	int ret;
-+	struct da9063 *da9063;
-+	struct da9063_watchdog *wdt;
-+
-+	if (!pdev->dev.parent)
-+		return -EINVAL;
-+
-+	da9063 = dev_get_drvdata(pdev->dev.parent);
-+	if (!da9063)
-+		return -EINVAL;
-+
-+	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
-+	if (!wdt)
-+		return -ENOMEM;
-+
-+	wdt->da9063 = da9063;
-+	mutex_init(&wdt->lock);
-+
-+	wdt->wdtdev.info = &da9063_watchdog_info;
-+	wdt->wdtdev.ops = &da9063_watchdog_ops;
-+	wdt->wdtdev.min_timeout = DA9063_WDT_MIN_TIMEOUT;
-+	wdt->wdtdev.max_timeout = DA9063_WDT_MAX_TIMEOUT;
-+	wdt->wdtdev.timeout = DA9063_WDG_TIMEOUT;
-+
-+	wdt->wdtdev.status = WATCHDOG_NOWAYOUT_INIT_STATUS;
-+
-+	watchdog_set_drvdata(&wdt->wdtdev, wdt);
-+	dev_set_drvdata(&pdev->dev, wdt);
-+
-+	ret = watchdog_register_device(&wdt->wdtdev);
-+	if (ret) {
-+		dev_err(da9063->dev, "da9063-watchdog registration failed (err = %d)",
-+				ret);
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static int da9063_wdt_remove(struct platform_device *pdev)
-+{
-+	struct da9063_watchdog *wdt = dev_get_drvdata(&pdev->dev);
-+
-+	watchdog_unregister_device(&wdt->wdtdev);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver da9063_wdt_driver = {
-+	.probe = da9063_wdt_probe,
-+	.remove = da9063_wdt_remove,
-+	.driver = {
-+		.name = DA9063_DRVNAME_WATCHDOG,
-+	},
-+};
-+module_platform_driver(da9063_wdt_driver);
-+
-+MODULE_AUTHOR("Mariusz Wojtasik <mariusz.wojtasik@diasemi.com>");
-+MODULE_DESCRIPTION("Watchdog driver for Dialog DA9063");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:" DA9063_DRVNAME_WATCHDOG);
--- 
-2.1.0
