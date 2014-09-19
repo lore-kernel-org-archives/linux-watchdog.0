@@ -1,225 +1,135 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:56167 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754532AbaISDL5 (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 18 Sep 2014 23:11:57 -0400
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
-	(envelope-from <linux@roeck-us.net>)
-	id 1XUobz-004Id8-UW
-	for linux-watchdog@vger.kernel.org; Fri, 19 Sep 2014 03:11:56 +0000
-Message-ID: <541B9EF7.4030702@roeck-us.net>
-Date: Thu, 18 Sep 2014 20:11:51 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+Return-path: <joshc@codeaurora.org>
+Date: Thu, 18 Sep 2014 22:24:16 -0500
+From: Josh Cartwright <joshc@codeaurora.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Grant Likely <grant.likely@linaro.org>,
+	Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Kumar Gala <galak@codeaurora.org>,
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH 1/3] watchdog: qcom: add support for KPSS WDT
+Message-ID: <20140919032416.GE3749@joshc.qualcomm.com>
+References: <cover.1411078425.git.joshc@codeaurora.org>
+ <32d17907ad1dfdcafe4e76f33adc2ff22631cd28.1411078425.git.joshc@codeaurora.org>
+ <541B97CD.60400@roeck-us.net>
 MIME-Version: 1.0
-To: =?windows-1250?Q?Janusz_U=BFycki?= <j.uzycki@elproma.com.pl>,
-	linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: watchdog's pm support preffered implementation
-References: <S1751381AbaIDOwq/20140904145246Z+988@vger.kernel.org> <54088996.4040500@elproma.com.pl> <540C9383.9050307@roeck-us.net> <540D02E1.90403@elproma.com.pl> <540D1F8F.2080802@roeck-us.net> <54196BE2.2010800@elproma.com.pl> <541ABD07.5090407@elproma.com.pl> <541B5156.803@elproma.com.pl> <541B5684.7000809@elproma.com.pl>
-In-Reply-To: <541B5684.7000809@elproma.com.pl>
-Content-Type: text/plain; charset=windows-1250; format=flowed
-Content-Transfer-Encoding: 8bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <541B97CD.60400@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 09/18/2014 03:02 PM, Janusz U¿ycki wrote:
-> Small fix below in the second implementation.
+On Thu, Sep 18, 2014 at 07:41:17PM -0700, Guenter Roeck wrote:
+> On 09/18/2014 03:26 PM, Josh Cartwright wrote:
+> >Add a driver for the watchdog timer block found in the Krait Processor
+> >Subsystem (KPSS) on the MSM8960, APQ8064, and IPQ8064.
+> >
+> >Signed-off-by: Josh Cartwright <joshc@codeaurora.org>
+> 
+> Hi Josh,
+> 
+> comments inline.
+
+Thanks for taking a look!
+
+[..]
+> >+static int qcom_watchdog_probe(struct platform_device *pdev)
+> >+{
+> >+	struct qcom_wdt *wdt;
+> >+	struct resource *res;
+> >+	u32 tmp;
+> >+	int ret;
+> >+
+> >+	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+> >+	if (!wdt)
+> >+		return -ENOMEM;
+> >+
+> >+	platform_set_drvdata(pdev, wdt);
+> >+
+> >+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> >+	wdt->base = devm_ioremap_resource(&pdev->dev, res);
+> >+	if (IS_ERR(wdt->base))
+> >+		return PTR_ERR(wdt->base);
+> >+
+> >+	ret = of_property_read_u32(pdev->dev.of_node, "clock-frequency", &tmp);
+> >+	if (ret) {
+> >+		dev_err(&pdev->dev, "unable to get clock-frequency\n");
+> >+		return ret;
+> >+	}
+> >+
 >
-> best regards
-> Janusz
+> You might want to use a clock property here, and the complete sequence of
+> 	devm_clk_get
+> 	clk_prepare_enable
+> 	clk_disable_unprepare
+> 	clk_get_rate
+
+Agreed.  I think this would be ideal.  I'll need to take a closer look
+at how this thing is clocked, and how/if the clocks are currently
+being modelled.
+
+> >+	wdt->freq = tmp;
+> >+
+> >+	wdt->wdd.dev = &pdev->dev;
+> >+	wdt->wdd.info = &qcom_wdt_info;
+> >+	wdt->wdd.ops = &qcom_wdt_ops;
+> >+	wdt->wdd.min_timeout = 1;
+> >+	wdt->wdd.max_timeout = 0x10000000U / wdt->freq;
 >
-> W dniu 2014-09-18 23:40, Janusz U¿ycki pisze:
->> Hi again,
->>
->> This is the second implementation. Which do you prefer?
->>
-This one
+> As written, wdt->freq can be 0, which results in a nice division by zero here.
 
->> Subject: [PATCH] stmp3xxx_rtc_wdt: Add suspend/resume PM support
->>
->>
->> Signed-off-by: Janusz Uzycki <j.uzycki@elproma.com.pl>
->> ---
->>  drivers/watchdog/stmp3xxx_rtc_wdt.c | 39 +++++++++++++++++++++++
->>  1 file changed, 39 insertions(+)
->>
->> diff --git a/drivers/watchdog/stmp3xxx_rtc_wdt.c b/drivers/watchdog/stmp3xxx_rtc_wdt.c
->> index 3546f03..1946277 100644
->> --- a/drivers/watchdog/stmp3xxx_rtc_wdt.c
->> +++ b/drivers/watchdog/stmp3xxx_rtc_wdt.c
->> @@ -95,9 +95,48 @@ static int stmp3xxx_wdt_remove(struct platform_device *pdev)
->>         return 0;
->>  }
->>
->> +#ifdef CONFIG_PM_SLEEP
->> +/* There is no conflict with rtc/rtc-stmp3xxx.c parent
->> + * because modified registers in PM functions are different */
+Indeed.  I'll add a check.
 
-Coding style, and what does this comment mean ? To me it is just confusing.
-
->> +static int __maybe_unused stmp3xxx_wdt_suspend(struct device *dev)
->> +{
->> +       struct watchdog_device *wdd = dev_get_drvdata(dev);
+> >+	watchdog_init_timeout(&wdt->wdd, 0, &pdev->dev);
 >
-> drvdata is NULL, too fast,
-> +       struct watchdog_device *wdd = &stmp3xxx_wdd;
+> That leaves you with no default timeout if timeout-sec is not set in devicetree,
+> which if I understand the code correctly might result in an immediate reset.
+> Is this really what you want to happen ?
+
+I think I'd like to handle timeout-sec being unspecified as an error at
+probe.  If someone explicitly sets timeout-sec = <0>, then they get what
+they ask for.  I'll take another look to see how to make this happen.
+
+> >+
+> >+	ret = watchdog_register_device(&wdt->wdd);
+> >+	if (ret) {
+> >+		dev_err(&pdev->dev, "failed to register watchdog\n");
+> >+		return ret;
+> >+	}
+> >+
+> >+	return 0;
+> >+}
+> >+
+> >+static const struct of_device_id qcom_wdt_of_table[] = {
+> >+	{ .compatible = "qcom,kpss-wdt-msm8960", },
+> >+	{ .compatible = "qcom,kpss-wdt-apq8064", },
+> >+	{ .compatible = "qcom,kpss-wdt-ipq8064", },
+> >+	{ },
+> >+};
+> >+MODULE_DEVICE_TABLE(of, qcom_wdt_of_table);
+> >+
+> >+static struct platform_driver qcom_watchdog_driver = {
+> >+	.probe	= qcom_watchdog_probe,
 >
->> +
->> +       /* Is keep-on/ping timer suspended before?
->> +        * or additional driver-specific flag must be added
->> +        *  to block watchdog ping in the timer?
->> +        * or disable WATCHDOG_KEEP_ON before wdt_stop
->> +        *  and restore it in resume? */
-
-You'll have to answer those questions.
-
->> +       if (watchdog_active(wdd)) {
->> +               dev_info(wdd->dev, "%s: wdt was active\n", __func__);
-
-Does this message add any value ?
-
->> +               return wdt_stop(wdd);
->> +       }
->> +       /* should we use pm_runtime like omap_wdt.c does? */
-
-Isn't that what you do here ?
-
->> +
->> +       return 0;
->> +}
->> +
->> +static int __maybe_unused stmp3xxx_wdt_resume(struct device *dev)
-
-Does the __maybe_unused really apply ?
-
->> +{
->> +       struct watchdog_device *wdd = dev_get_drvdata(dev);
-> +       struct watchdog_device *wdd = &stmp3xxx_wdd;
-
-One of those lines needs to go.
-
-Do you have indentation problems ? Do you use space for indentations, maybe ?
-
+> No remove function ?
 >
->> +
->> +       if (watchdog_active(wdd)) {
->> +               dev_info(wdd->dev, "%s: wdt was active\n", __func__);
-
-Does this message add any value ?
-
->> +               return wdt_start(wdd);
->> +       }
->> +
->> +       return 0;
->> +}
->> +#endif /* CONFIG_PM_SLEEP */
->> +
->> +static SIMPLE_DEV_PM_OPS(stmp3xxx_wdt_pm_ops,
->> +               stmp3xxx_wdt_suspend, stmp3xxx_wdt_resume);
-
-Please align second line with (
-
->> +
->>  static struct platform_driver stmp3xxx_wdt_driver = {
->>         .driver = {
->>                 .name = "stmp3xxx_rtc_wdt",
->> +               .owner = THIS_MODULE,
-
-Is this needed ? I have seen the .owner assignment being removed
-in other drivers recently.
-
->> +               .pm = &stmp3xxx_wdt_pm_ops,
->>         },
->>         .probe = stmp3xxx_wdt_probe,
->>         .remove = stmp3xxx_wdt_remove,
->> --
->> 1.7.11.3
->>
->>
->> W dniu 2014-09-18 13:07, Janusz U¿ycki pisze:
->>>
->>> I work under suspend/resume PM support for stmp3xxx driver.
->>>
->>> Most of them use suspend() with struct platform_device and CONFIG_PM.
->>> Only sp805, sirfsoc, s3c2410, dw drivers use suspend() with struct device
->>> and SIMPLE_DEV_PM_OPS.
->>> Which implementation is preffered today?
->>>
->>> best regards
->>> Janusz
->>>
->>> P.S. Patch on the moment:
->>> Signed-off-by: Janusz Uzycki <j.uzycki@elproma.com.pl>
->>> ---
->>>  drivers/watchdog/stmp3xxx_rtc_wdt.c | 41 +++++++++++++++++++++++
->>>  1 file changed, 41 insertions(+)
->>>
->>> diff --git a/drivers/watchdog/stmp3xxx_rtc_wdt.c b/drivers/watchdog/stmp3xxx_rtc_wdt.c
->>> index 3546f03..12060ab 100644
->>> --- a/drivers/watchdog/stmp3xxx_rtc_wdt.c
->>> +++ b/drivers/watchdog/stmp3xxx_rtc_wdt.c
->>> @@ -74,6 +74,7 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
->>>  {
->>>         int ret;
->>>
->>> +       platform_set_drvdata(pdev, &stmp3xxx_wdd);
->>>         watchdog_set_drvdata(&stmp3xxx_wdd, &pdev->dev);
->>>
->>>         stmp3xxx_wdd.timeout = clamp_t(unsigned, heartbeat, 1, STMP3XXX_MAX_TIMEOUT);
->>> @@ -95,12 +96,52 @@ static int stmp3xxx_wdt_remove(struct platform_device *pdev)
->>>         return 0;
->>>  }
->>>
->>> +#ifdef CONFIG_PM
->>> +/* There is no conflict with rtc/rtc-stmp3xxx.c parent
->>> + * because modified registers in PM functions are different */
->>> +static int stmp3xxx_wdt_suspend(struct platform_device *pdev,
->>> +                                       pm_message_t state)
->>> +{
->>> +       struct watchdog_device *wdd = platform_get_drvdata(pdev);
->>> +
->>> +       /* Is keep-on/ping timer suspended before?
->>> +        * or additional driver-specific flag must be added
->>> +        *  to block watchdog ping in the timer?
->>> +        * or disable WATCHDOG_KEEP_ON before wdt_stop
->>> +        *  and restore it in resume? */
->>> +       if (watchdog_active(wdd)) {
->>> +               dev_info(wdd->dev, "%s: wdt was active\n", __func__);
->>> +               return wdt_stop(wdd);
->>> +       }
->>> +       /* should we use pm_runtime like omap_wdt.c does? */
->>> +
->>> +       return 0;
->>> +}
->>> +
->>> +static int stmp3xxx_wdt_resume(struct platform_device *pdev)
->>> +{
->>> +       struct watchdog_device *wdd = platform_get_drvdata(pdev);
->>> +
->>> +       if (watchdog_active(wdd)) {
->>> +               dev_info(wdd->dev, "%s: wdt was active\n", __func__);
->>> +               return wdt_start(wdd);
->>> +       }
->>> +
->>> +       return 0;
->>> +}
->>> +#else
->>> +#define stmp3xxx_wdt_suspend   NULL
->>> +#define stmp3xxx_wdt_resume    NULL
->>> +#endif
->>> +
->>>  static struct platform_driver stmp3xxx_wdt_driver = {
->>>         .driver = {
->>>                 .name = "stmp3xxx_rtc_wdt",
->>>         },
->>>         .probe = stmp3xxx_wdt_probe,
->>>         .remove = stmp3xxx_wdt_remove,
->>> +       .suspend = stmp3xxx_wdt_suspend,
->>> +       .resume = stmp3xxx_wdt_resume,
->>>  };
->>>  module_platform_driver(stmp3xxx_wdt_driver);
->>>
->>
+> Yes, you don't need it, because the driver can only be built into the kernel,
+> but there is a practical impact: It means the driver must always be built
+> into the kernel even if the image is supposed to be used on different systems,
+> some of which may not support this specific watchdog.
 >
->
+> Sure, you might say that you don't care about images supporting more than one
+> hardware, but the tendency seems to be multi-target images nowadays.
 
+This was motivated by the addition of the restart_handler bits in patch
+3.  For some reason I was thinking there were race conditions between
+module unloading/the restart_handler mechanism, but looking at it again,
+I'm not so sure.  Is it safe to implement these handlers in modules?  If
+so, I'll revisit this.
+
+Thanks again,
+  Josh
+
+-- 
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+hosted by The Linux Foundation
