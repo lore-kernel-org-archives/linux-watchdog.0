@@ -1,310 +1,81 @@
-Return-path: <carlo.caione@gmail.com>
-Sender: Carlo Caione <carlo.caione@gmail.com>
-From: Carlo Caione <carlo@caione.org>
-To: linux@roeck-us.net,
-	wim@iguana.be,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	robh+dt@kernel.org,
-	maxime.ripard@free-electrons.com,
-	b.galvani@gmail.com,
-	linux@arm.linux.org.uk,
-	jerry.cao@amlogic.com,
-	victor.wan@amlogic.com
-Cc: Carlo Caione <carlo@caione.org>
-Subject: [PATCH v4 2/4] ARM: meson: add watchdog driver
-Date: Sat, 20 Sep 2014 19:06:50 +0200
-Message-Id: <1411232812-11594-3-git-send-email-carlo@caione.org>
-In-Reply-To: <1411232812-11594-1-git-send-email-carlo@caione.org>
-References: <1411232812-11594-1-git-send-email-carlo@caione.org>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:41868 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756399AbaITVJn (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Sat, 20 Sep 2014 17:09:43 -0400
+Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
+	(envelope-from <linux@roeck-us.net>)
+	id 1XVRuY-003Gdi-Jg
+	for linux-watchdog@vger.kernel.org; Sat, 20 Sep 2014 21:09:42 +0000
+Message-ID: <541DECF8.5020503@roeck-us.net>
+Date: Sat, 20 Sep 2014 14:09:12 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+MIME-Version: 1.0
+To: Jisheng Zhang <jszhang@marvell.com>, wim@iguana.be
+CC: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH 2/2] watchdog: dw_wdt: add restart handler support
+References: <1411108199-1280-1-git-send-email-jszhang@marvell.com> <1411108199-1280-3-git-send-email-jszhang@marvell.com>
+In-Reply-To: <1411108199-1280-3-git-send-email-jszhang@marvell.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-This patch adds the watchdog driver for the Amlogic Meson SoCs used also
-to reboot the device.
+On 09/18/2014 11:29 PM, Jisheng Zhang wrote:
+> The kernel core now provides an API to trigger a system restart.
+> Register with it to support restarting the system via. watchdog.
+>
+> Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
+> ---
+>   drivers/watchdog/dw_wdt.c | 27 +++++++++++++++++++++++++++
+>   1 file changed, 27 insertions(+)
+>
+> diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+> index ad0619d..4ca41e9 100644
+> --- a/drivers/watchdog/dw_wdt.c
+> +++ b/drivers/watchdog/dw_wdt.c
+> @@ -29,9 +29,11 @@
+>   #include <linux/miscdevice.h>
+>   #include <linux/module.h>
+>   #include <linux/moduleparam.h>
+> +#include <linux/notifier.h>
+>   #include <linux/of.h>
+>   #include <linux/pm.h>
+>   #include <linux/platform_device.h>
+> +#include <linux/reboot.h>
+>   #include <linux/spinlock.h>
+>   #include <linux/timer.h>
+>   #include <linux/uaccess.h>
+> @@ -62,6 +64,7 @@ static struct {
+>   	unsigned long		next_heartbeat;
+>   	struct timer_list	timer;
+>   	int			expect_close;
+> +	struct notifier_block	restart_handler;
+>   } dw_wdt;
+>
+>   static inline int dw_wdt_is_enabled(void)
+> @@ -119,6 +122,22 @@ static void dw_wdt_keepalive(void)
+>   	       WDOG_COUNTER_RESTART_REG_OFFSET);
+>   }
+>
+> +static int dw_wdt_restart_handle(struct notifier_block *this,
+> +				unsigned long mode, void *cmd)
+> +{
+> +	u32 val;
+> +
+> +	writel(0, dw_wdt.regs + WDOG_TIMEOUT_RANGE_REG_OFFSET);
+> +	val = readl(dw_wdt.regs + WDOG_CONTROL_REG_OFFSET);
+> +	if (val & WDOG_CONTROL_REG_WDT_EN_MASK)
+> +		writel(WDOG_COUNTER_RESTART_KICK_VALUE, dw_wdt.regs +
+> +			WDOG_COUNTER_RESTART_REG_OFFSET);
+> +	else
+> +		writel(WDOG_CONTROL_REG_WDT_EN_MASK,
+> +		       dw_wdt.regs + WDOG_CONTROL_REG_OFFSET);
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Carlo Caione <carlo@caione.org>
----
- drivers/watchdog/Kconfig     |  10 ++
- drivers/watchdog/Makefile    |   1 +
- drivers/watchdog/meson_wdt.c | 236 +++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 247 insertions(+)
- create mode 100644 drivers/watchdog/meson_wdt.c
+Another comment: You should probably wait here for a bit to let the reset catch.
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index f57312f..836cb00 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -443,6 +443,16 @@ config TEGRA_WATCHDOG
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called tegra_wdt.
- 
-+config MESON_WATCHDOG
-+	tristate "Amlogic Meson SoCs watchdog support"
-+	depends on ARCH_MESON
-+	select WATCHDOG_CORE
-+	help
-+	  Say Y here to include support for the watchdog timer
-+	  in Amlogic Meson SoCs.
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called meson_wdt.
-+
- # AVR32 Architecture
- 
- config AT32AP700X_WDT
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 468c320..e7a9259 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -59,6 +59,7 @@ obj-$(CONFIG_MOXART_WDT) += moxart_wdt.o
- obj-$(CONFIG_SIRFSOC_WATCHDOG) += sirfsoc_wdt.o
- obj-$(CONFIG_BCM_KONA_WDT) += bcm_kona_wdt.o
- obj-$(CONFIG_TEGRA_WATCHDOG) += tegra_wdt.o
-+obj-$(CONFIG_MESON_WATCHDOG) += meson_wdt.o
- 
- # AVR32 Architecture
- obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
-diff --git a/drivers/watchdog/meson_wdt.c b/drivers/watchdog/meson_wdt.c
-new file mode 100644
-index 0000000..37f9f5ec
---- /dev/null
-+++ b/drivers/watchdog/meson_wdt.c
-@@ -0,0 +1,236 @@
-+/*
-+ *      Meson Watchdog Driver
-+ *
-+ *      Copyright (c) 2014 Carlo Caione
-+ *
-+ *      This program is free software; you can redistribute it and/or
-+ *      modify it under the terms of the GNU General Public License
-+ *      as published by the Free Software Foundation; either version
-+ *      2 of the License, or (at your option) any later version.
-+ */
-+
-+#include <linux/clk.h>
-+#include <linux/delay.h>
-+#include <linux/err.h>
-+#include <linux/init.h>
-+#include <linux/io.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/moduleparam.h>
-+#include <linux/notifier.h>
-+#include <linux/of.h>
-+#include <linux/platform_device.h>
-+#include <linux/reboot.h>
-+#include <linux/types.h>
-+#include <linux/watchdog.h>
-+
-+#define DRV_NAME		"meson_wdt"
-+
-+#define MESON_WDT_TC		0x00
-+#define MESON_WDT_TC_EN		BIT(22)
-+#define MESON_WDT_TC_TM_MASK	0x3fffff
-+#define MESON_WDT_DC_RESET	(3 << 24)
-+
-+#define MESON_WDT_RESET		0x04
-+
-+#define MESON_WDT_TIMEOUT	30
-+#define MESON_WDT_MIN_TIMEOUT	1
-+#define MESON_WDT_MAX_TIMEOUT	(MESON_WDT_TC_TM_MASK / 100000)
-+
-+#define MESON_SEC_TO_TC(s)	((s) * 100000)
-+
-+static bool nowayout = WATCHDOG_NOWAYOUT;
-+static unsigned int timeout = MESON_WDT_TIMEOUT;
-+
-+struct meson_wdt_dev {
-+	struct watchdog_device wdt_dev;
-+	void __iomem *wdt_base;
-+	struct notifier_block restart_handler;
-+};
-+
-+static int meson_restart_handle(struct notifier_block *this, unsigned long mode,
-+				void *cmd)
-+{
-+	u32 tc_reboot = MESON_WDT_DC_RESET | MESON_WDT_TC_EN | 100;
-+	struct meson_wdt_dev *meson_wdt = container_of(this,
-+						       struct meson_wdt_dev,
-+						       restart_handler);
-+
-+	while (1) {
-+		writel(tc_reboot, meson_wdt->wdt_base + MESON_WDT_TC);
-+		mdelay(5);
-+	}
-+
-+	return NOTIFY_DONE;
-+}
-+
-+static int meson_wdt_ping(struct watchdog_device *wdt_dev)
-+{
-+	struct meson_wdt_dev *meson_wdt = watchdog_get_drvdata(wdt_dev);
-+
-+	writel(0, meson_wdt->wdt_base + MESON_WDT_RESET);
-+
-+	return 0;
-+}
-+
-+static void meson_wdt_change_timeout(struct watchdog_device *wdt_dev,
-+				     unsigned int timeout)
-+{
-+	struct meson_wdt_dev *meson_wdt = watchdog_get_drvdata(wdt_dev);
-+	u32 reg;
-+
-+	reg = readl(meson_wdt->wdt_base + MESON_WDT_TC);
-+	reg &= ~MESON_WDT_TC_TM_MASK;
-+	reg |= MESON_SEC_TO_TC(timeout);
-+	writel(reg, meson_wdt->wdt_base + MESON_WDT_TC);
-+}
-+
-+static int meson_wdt_set_timeout(struct watchdog_device *wdt_dev,
-+				 unsigned int timeout)
-+{
-+	wdt_dev->timeout = timeout;
-+
-+	meson_wdt_change_timeout(wdt_dev, timeout);
-+	meson_wdt_ping(wdt_dev);
-+
-+	return 0;
-+}
-+
-+static int meson_wdt_stop(struct watchdog_device *wdt_dev)
-+{
-+	struct meson_wdt_dev *meson_wdt = watchdog_get_drvdata(wdt_dev);
-+	u32 reg;
-+
-+	reg = readl(meson_wdt->wdt_base + MESON_WDT_TC);
-+	reg &= ~MESON_WDT_TC_EN;
-+	writel(reg, meson_wdt->wdt_base + MESON_WDT_TC);
-+
-+	return 0;
-+}
-+
-+static int meson_wdt_start(struct watchdog_device *wdt_dev)
-+{
-+	struct meson_wdt_dev *meson_wdt = watchdog_get_drvdata(wdt_dev);
-+	u32 reg;
-+
-+	meson_wdt_change_timeout(wdt_dev, meson_wdt->wdt_dev.timeout);
-+	meson_wdt_ping(wdt_dev);
-+
-+	reg = readl(meson_wdt->wdt_base + MESON_WDT_TC);
-+	reg |= MESON_WDT_TC_EN;
-+	writel(reg, meson_wdt->wdt_base + MESON_WDT_TC);
-+
-+	return 0;
-+}
-+
-+static const struct watchdog_info meson_wdt_info = {
-+	.identity	= DRV_NAME,
-+	.options	= WDIOF_SETTIMEOUT |
-+			  WDIOF_KEEPALIVEPING |
-+			  WDIOF_MAGICCLOSE,
-+};
-+
-+static const struct watchdog_ops meson_wdt_ops = {
-+	.owner		= THIS_MODULE,
-+	.start		= meson_wdt_start,
-+	.stop		= meson_wdt_stop,
-+	.ping		= meson_wdt_ping,
-+	.set_timeout	= meson_wdt_set_timeout,
-+};
-+
-+static int meson_wdt_probe(struct platform_device *pdev)
-+{
-+	struct resource *res;
-+	struct meson_wdt_dev *meson_wdt;
-+	int err;
-+
-+	meson_wdt = devm_kzalloc(&pdev->dev, sizeof(*meson_wdt), GFP_KERNEL);
-+	if (!meson_wdt)
-+		return -ENOMEM;
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	meson_wdt->wdt_base = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(meson_wdt->wdt_base))
-+		return PTR_ERR(meson_wdt->wdt_base);
-+
-+	meson_wdt->wdt_dev.parent = &pdev->dev;
-+	meson_wdt->wdt_dev.info = &meson_wdt_info;
-+	meson_wdt->wdt_dev.ops = &meson_wdt_ops;
-+	meson_wdt->wdt_dev.timeout = MESON_WDT_TIMEOUT;
-+	meson_wdt->wdt_dev.max_timeout = MESON_WDT_MAX_TIMEOUT;
-+	meson_wdt->wdt_dev.min_timeout = MESON_WDT_MIN_TIMEOUT;
-+
-+	watchdog_set_drvdata(&meson_wdt->wdt_dev, meson_wdt);
-+
-+	watchdog_init_timeout(&meson_wdt->wdt_dev, timeout, &pdev->dev);
-+	watchdog_set_nowayout(&meson_wdt->wdt_dev, nowayout);
-+
-+	meson_wdt_stop(&meson_wdt->wdt_dev);
-+
-+	err = watchdog_register_device(&meson_wdt->wdt_dev);
-+	if (err)
-+		return err;
-+
-+	platform_set_drvdata(pdev, meson_wdt);
-+
-+	meson_wdt->restart_handler.notifier_call = meson_restart_handle;
-+	meson_wdt->restart_handler.priority = 128;
-+	err = register_restart_handler(&meson_wdt->restart_handler);
-+	if (err)
-+		dev_err(&pdev->dev,
-+			"cannot register restart handler (err=%d)\n", err);
-+
-+	dev_info(&pdev->dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)",
-+		 meson_wdt->wdt_dev.timeout, nowayout);
-+
-+	return 0;
-+}
-+
-+static int meson_wdt_remove(struct platform_device *pdev)
-+{
-+	struct meson_wdt_dev *meson_wdt = platform_get_drvdata(pdev);
-+
-+	unregister_restart_handler(&meson_wdt->restart_handler);
-+
-+	watchdog_unregister_device(&meson_wdt->wdt_dev);
-+
-+	return 0;
-+}
-+
-+static void meson_wdt_shutdown(struct platform_device *pdev)
-+{
-+	struct meson_wdt_dev *meson_wdt = platform_get_drvdata(pdev);
-+
-+	meson_wdt_stop(&meson_wdt->wdt_dev);
-+}
-+
-+static const struct of_device_id meson_wdt_dt_ids[] = {
-+	{ .compatible = "amlogic,meson6-wdt" },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, meson_wdt_dt_ids);
-+
-+static struct platform_driver meson_wdt_driver = {
-+	.probe		= meson_wdt_probe,
-+	.remove		= meson_wdt_remove,
-+	.shutdown	= meson_wdt_shutdown,
-+	.driver		= {
-+		.owner		= THIS_MODULE,
-+		.name		= DRV_NAME,
-+		.of_match_table	= meson_wdt_dt_ids,
-+	},
-+};
-+
-+module_platform_driver(meson_wdt_driver);
-+
-+module_param(timeout, uint, 0);
-+MODULE_PARM_DESC(timeout, "Watchdog heartbeat in seconds");
-+
-+module_param(nowayout, bool, 0);
-+MODULE_PARM_DESC(nowayout,
-+		 "Watchdog cannot be stopped once started (default="
-+		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Carlo Caione <carlo@caione.org>");
-+MODULE_DESCRIPTION("Meson Watchdog Timer Driver");
--- 
-1.9.1
+Thanks,
+Guenter
+
