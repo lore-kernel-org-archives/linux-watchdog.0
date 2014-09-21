@@ -1,73 +1,90 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:39543 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751850AbaITQaA (ORCPT
+Received: from mail-ig0-f178.google.com ([209.85.213.178]:46009 "EHLO
+	mail-ig0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751188AbaIUPta (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 20 Sep 2014 12:30:00 -0400
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
-	(envelope-from <linux@roeck-us.net>)
-	id 1XVNXs-003iKb-8G
-	for linux-watchdog@vger.kernel.org; Sat, 20 Sep 2014 16:30:00 +0000
-Message-ID: <541DAB63.4010108@roeck-us.net>
-Date: Sat, 20 Sep 2014 09:29:23 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Sun, 21 Sep 2014 11:49:30 -0400
+Received: by mail-ig0-f178.google.com with SMTP id r10so1486225igi.11
+        for <linux-watchdog@vger.kernel.org>; Sun, 21 Sep 2014 08:49:30 -0700 (PDT)
 MIME-Version: 1.0
-To: Carlo Caione <carlo@caione.org>
-CC: wim@iguana.be, linux-watchdog@vger.kernel.org,
-	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-	"robh+dt@kernel.org" <robh+dt@kernel.org>,
+In-Reply-To: <20140919154036.GA30723@roeck-us.net>
+References: <1410878523-4924-1-git-send-email-wens@csie.org>
+ <1410878523-4924-2-git-send-email-wens@csie.org> <541BB712.6020607@roeck-us.net>
+ <CAGb2v67vB-mr1-fM7inWq7wntt31mYroEj-Hq7sMUfWDwV878w@mail.gmail.com> <20140919154036.GA30723@roeck-us.net>
+From: Chen-Yu Tsai <wens@csie.org>
+Date: Sun, 21 Sep 2014 23:49:09 +0800
+Message-ID: <CAGb2v65X45dT91No-y8a9k-R557aGjXhbR4jTSdPhGE7FFTB1A@mail.gmail.com>
+Subject: Re: [PATCH 1/2] watchdog: sunxi: support parameterized compatible strings
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Beniamino Galvani <b.galvani@gmail.com>,
-	Russell King - ARM Linux <linux@arm.linux.org.uk>,
-	Jerry Cao <jerry.cao@amlogic.com>,
-	Victor Wan <victor.wan@amlogic.com>
-Subject: Re: [PATCH v3 2/4] ARM: meson: add watchdog driver
-References: <1411158989-8075-1-git-send-email-carlo@caione.org>	<1411158989-8075-3-git-send-email-carlo@caione.org>	<541D9D94.2010400@roeck-us.net> <CAOQ7t2a09zB2=qyDfsnJN94Wrj9Zu1c33R1bG5NC2QwzndtmcA@mail.gmail.com>
-In-Reply-To: <CAOQ7t2a09zB2=qyDfsnJN94Wrj9Zu1c33R1bG5NC2QwzndtmcA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 09/20/2014 09:15 AM, Carlo Caione wrote:
-> On Sat, Sep 20, 2014 at 5:30 PM, Guenter Roeck <linux@roeck-us.net> wrote:
->> On 09/19/2014 01:36 PM, Carlo Caione wrote:
->>>
->>> This patch adds the watchdog driver for the Amlogic Meson SoCs used also
->>> to reboot the device.
->>>
->>> Signed-off-by: Carlo Caione <carlo@caione.org>
->>> ---
+On Fri, Sep 19, 2014 at 11:40 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+> On Fri, Sep 19, 2014 at 10:00:36PM +0800, Chen-Yu Tsai wrote:
+>> Hi,
 >>
->> [ ... ]
->>>
->>> +module_param(nowayout, bool, 0);
->>> +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
->>> +               "(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
->>> +
+>> On Fri, Sep 19, 2014 at 12:54 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+>> > On 09/16/2014 07:42 AM, Chen-Yu Tsai wrote:
+>> >>
+>> >> This patch adds support for hardware parameters tied to compatible
+>> >> strings, so similar hardware can reuse the driver.
+>> >>
+>> >> This will be used to support the newer watchdog found in A31 and
+>> >> later SoCs. Differences in the new hardware include separate
+>> >> interrupt lines for each watchdog, and corresponding interrupt
+>> >> control/status registers. Watchdog control registers were also
+>> >> slightly rearranged.
+>> >>
+>> > You might also mention that you replace some iowrite32 with writel.
 >>
+>> Ah.... Had that in mind, but forgot about it when finishing the series :(
 >>
->> Checkpatch says:
+>> >> Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+>> >
+>> >
+>> > Have you considered using regmap ? Seems to be an ideal candidate.
 >>
->> WARNING: quoted string split across lines
->> #295: FILE: drivers/watchdog/meson_wdt.c:231:
->> +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
->> +               "(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+>> I don't follow. Do you mean using regmap to share the interrupt registers
+>> with the timer on sun4i? Otherwise I don't really see a difference.
+>>
+> Use regmap instead of direct writel. Nice thing about it is that regmap offers
+> bit manipulation functions, so you could replace the read / mask / modify /write
+> in a single regmap function call. See imx2_wdt.c for an example how it is used.
 >
-> Thought that it was "somehow tolerated" :)
+>> Am I missing something?
+>>
+> Not really. Just a suggestion.
 
-Not me, at least not in this case.
+As the register range and offsets are configurable, using regmap might add
+more code than it saves. I'll keep the it the way it is for now.
 
-> But since I'm wrong I'll submit a v4.
->
+>> >>
+>> >> -       /* Enable timer and set reset bit in the watchdog */
+>> >> -       writel(WDT_MODE_EN | WDT_MODE_RST_EN, wdt_base + WDT_MODE);
+>> >> +       /* Set lowest timeout and enable watchdog */
+>> >> +       val = readl(wdt_base + regs->wdt_mode);
+>> >> +       val &= ~(WDT_TIMEOUT_MASK << regs->wdt_timeout_shift);
+>> >> +       val |= WDT_MODE_EN;
+>> >
+>> >
+>> > I think it would make sense to also define WDT_MODE_EN and
+>> > WDT_TIMEOUT_MASK as configurable, even if not currently needed.
+>> > It is odd to have the shift configurable but not the mask,
+>> > and to have the mode register configurable but not the mode value.
+>>
+>> I think keeping these values constants clearly shows that they are
+>> the same and shared among the hardware. Making them configurable
+>> shouldn't impose much penalty, but I'd prefer to keep them as is
+>> until we need to change them.
+>>
+> Ok, guess we have a different philosophy ;-). I'll leave it up to you.
 
-MODULE_PARAM_DESC(nowayout,
-                   "Watchdog cannot be stopped once started (default="
-                   __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+:)
 
-is a really simple way of ensuring that you meet both the 80-column limit
-and avoid the warning. The idea should not be to try to get away with
-as many checkpatch warnings as possible ;-).
-
-Guenter
-
+Thanks!
+ChenYu
