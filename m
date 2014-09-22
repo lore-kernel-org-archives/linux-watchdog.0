@@ -1,97 +1,474 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from top.free-electrons.com ([176.31.233.9]:44195 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751621AbaIUQuF (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 21 Sep 2014 12:50:05 -0400
-Date: Sun, 21 Sep 2014 18:46:29 +0200
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Chen-Yu Tsai <wens@csie.org>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v2 0/2] watchdog: sunxi: Add A31 watchdog support
-Message-ID: <20140921164629.GB15315@lukather>
-References: <1411315519-26257-1-git-send-email-wens@csie.org>
+Return-path: <david.paris@st.com>
+Message-ID: <541FD18E.3010300@st.com>
+Date: Mon, 22 Sep 2014 09:36:46 +0200
+From: David Paris <david.paris@st.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="l76fUT7nc3MelDdI"
-Content-Disposition: inline
-In-Reply-To: <1411315519-26257-1-git-send-email-wens@csie.org>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>, Guenter Roeck <linux@roeck-us.net>
+Cc: <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+        <kernel@stlinux.com>, <wim@iguana.be>,
+        <linux-watchdog@vger.kernel.org>
+Subject: Re: [PATCH 4/4] watchdog: st_wdt: Add new driver for ST's LPC Watchdog
+References: <1409841592-18890-1-git-send-email-lee.jones@linaro.org> <1409841592-18890-6-git-send-email-lee.jones@linaro.org> <20140905155811.GA12374@roeck-us.net> <20140908123246.GB26284@lee--X1>
+In-Reply-To: <20140908123246.GB26284@lee--X1>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+List-ID: <linux-watchdog@vger.kernel.org>
 
+Hi Lee,
 
---l76fUT7nc3MelDdI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Come back from holidays, let me take time to read my emails and come 
+back to this one to answer your question.
 
-Hi,
+Thanks,
+David
 
-On Mon, Sep 22, 2014 at 12:05:17AM +0800, Chen-Yu Tsai wrote:
-> Hi,
->=20
-> This is v2 of the Allwinner A31 watchdog support series. This series adds
-> support for the watchdog hardware found in Allwinner A31 and later SoCs.
-> These new chips have multiple watchdogs, with separate interrupt lines
-> and registers, but the basic layout and operation is the same. This series
-> is based on Guenter's restart handler series.
->=20
-> Patch 1 prepares the sunxi-wdt driver for varying register offsets tied to
-> compatible strings. Various ioread32/iowrite32 calls have been replaced w=
-ith
-> readl/writel as well.
->=20
-> Patch 2 adds the sun6i compatible string with accompanying register offset
-> data.
->=20
-> I tested this series on my Cubieboard (sun4i) and A23 tablet (sun8i), whi=
-ch
-> has the same watchdog hardware as the A31 (sun6i). This covers the 2 clas=
-ses
-> of hardware supported.
->=20
-> After this series is merged, we can remove the power/reset driver for sun=
-6i.
->=20
->=20
-> Changes since v1:
->   - Mention replacing ioread32/iowrite32 calls in patch 1 commit message.
-
-On the whole series,
-
-Acked-by: Maxime Ripard <maxime.ripard@free-electrons.com>
-
-Thanks!
-Maxime
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---l76fUT7nc3MelDdI
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUHwDlAAoJEBx+YmzsjxAgE7AP/jrcRvxZRYBpfCTIk75mIrhE
-mYvqpdHW6gaSblR4ec7nIc797xmKPZ6yapyfMOR+PluTdiSN8Q7NaWnaofJ055jF
-0rc6N2a8TMwwfnkweDL2sz5og8ZKsM37/Uo6ngAPF0Epo8nLertguKI+aJKL0aaW
-DipUtHzeknn0unO0igUuOOs1/ZasRvUKa3qnIZV4OwLbVPAcpBLDoRTELv2odjp/
-Ew0q/b7siGqSytleQy3t+sqJywJK+8g+pcxH6G+EEBD+UCeWRBjDnGgf0G3xBfrr
-+lqwHh6p4oajD/ks9yQI1FRlgAA3gecK2fEqKsMbLN6nhNuzzT0ARCCiT06sC2Yq
-KGCQQDwqECVDCDV2lP4GeaOWJ07ajezlT93cuK4fnqdxC99xpO1xH2NYRW2EXqgz
-Q1XBgsZOeX5XPbrGsvq142ePzQqRZgeuwaazw3dqYEYSS/uyCWNS4/r9sWXpiF5t
-X7yn+K7f7LWrXPDYB6wbWU28H6lS9tlm4dg1zVBMVGbRdqrv7dq7xyn+02eWraYR
-rNZALXJRExjqzrF5ltbvmzv4oJlFyNwOXdl/DadV7xvmo+2+PrpAYinQXj/BCZmC
-DVTm481a+ICx6FbWy7KU8IzJp9dwRCacZyac18h3s9vDfadAp6wt8gH31KnqeCtl
-luCRYa6OVI+EvVGWG/T1
-=SihT
------END PGP SIGNATURE-----
-
---l76fUT7nc3MelDdI--
+On 09/08/2014 02:32 PM, Lee Jones wrote:
+> On Fri, 05 Sep 2014, Guenter Roeck wrote:
+>> On Thu, Sep 04, 2014 at 03:39:52PM +0100, Lee Jones wrote:
+>>
+>> Some text may be useful here.
+> There is nothing to say about this Watchdog driver.  It's as simple as
+> they come.
+>
+>>> Signed-off-by: David Paris <david.paris@st.com>
+>>> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+>>> ---
+>>>   drivers/watchdog/Kconfig  |  16 +++
+>>>   drivers/watchdog/Makefile |   1 +
+>>>   drivers/watchdog/st_wdt.c | 314 ++++++++++++++++++++++++++++++++++++++++++++++
+>>>   3 files changed, 331 insertions(+)
+>>>   create mode 100644 drivers/watchdog/st_wdt.c
+>>>
+>>> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+>>> index f57312f..c8abf57 100644
+>>> --- a/drivers/watchdog/Kconfig
+>>> +++ b/drivers/watchdog/Kconfig
+>>> @@ -432,6 +432,22 @@ config SIRFSOC_WATCHDOG
+>>>   	  Support for CSR SiRFprimaII and SiRFatlasVI watchdog. When
+>>>   	  the watchdog triggers the system will be reset.
+>>>   
+>>> +config ST_WATCHDOG
+>>> +       tristate "STMicroelectronics LPC Watchdog"
+>>> +       depends on ARCH_STI && OF
+>>> +       depends on !RTC_DRV_ST_LPC
+>>> +       select WATCHDOG_CORE
+>>> +       help
+>>> +	 Say Y here to include Watchdog timer support for the watchdog
+>>> +	 existing in the LPC of STMicroelectronics SOCs.
+>>> +	 !!! BE CARREFUL !!!
+>>> +	 This driver shares hardware resources with RTC Alarm part of the
+>>> +	 LPC. Both LPC Watchdog driver and LPC RTC driver cannot be
+>>> +	 used together.
+>>> +
+>> Is this mandatory or an implementation choice ?
+>> Or, in other words, could the resources be shared among drivers ?
+> David?
+>
+>>> +	 To compile this driver as a module, choose M here: the
+>>> +	 module will be called st-wdt.
+>>> +
+>>>   config TEGRA_WATCHDOG
+>>>   	tristate "Tegra watchdog"
+>>>   	depends on ARCH_TEGRA || COMPILE_TEST
+>>> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+>>> index 468c320..eb19937 100644
+>>> --- a/drivers/watchdog/Makefile
+>>> +++ b/drivers/watchdog/Makefile
+>>> @@ -57,6 +57,7 @@ obj-$(CONFIG_RETU_WATCHDOG) += retu_wdt.o
+>>>   obj-$(CONFIG_BCM2835_WDT) += bcm2835_wdt.o
+>>>   obj-$(CONFIG_MOXART_WDT) += moxart_wdt.o
+>>>   obj-$(CONFIG_SIRFSOC_WATCHDOG) += sirfsoc_wdt.o
+>>> +obj-$(CONFIG_ST_WATCHDOG) += st_wdt.o
+>>>   obj-$(CONFIG_BCM_KONA_WDT) += bcm_kona_wdt.o
+>>>   obj-$(CONFIG_TEGRA_WATCHDOG) += tegra_wdt.o
+>>>   
+>>> diff --git a/drivers/watchdog/st_wdt.c b/drivers/watchdog/st_wdt.c
+>>> new file mode 100644
+>>> index 0000000..b5dbc7d
+>>> --- /dev/null
+>>> +++ b/drivers/watchdog/st_wdt.c
+>>> @@ -0,0 +1,314 @@
+>>> +/*
+>>> + * st-wdt.c -- ST's LPC Watchdog
+>>> + *
+>>> + * Copyright (C) 2014 STMicroelectronics -- All Rights Reserved
+>>> + *
+>>> + * Author: David Paris <david.paris@st.com> for STMicroelectronics
+>>> + * Contributor: Lee Jones <lee.jones@linaro.org> for STMicroelectronics
+>>> + *
+>>> + * This program is free software; you can redistribute it and/or
+>>> + * modify it under the terms of the GNU General Public Licence
+>>> + * as published by the Free Software Foundation; either version
+>>> + * 2 of the Licence, or (at your option) any later version.
+>> MODULE_LICENSE says GPL v2 explicitly. No idea if that is relevant, though.
+> We initially had "GPL" in MODULE_LICENCE(), but was asked to change it.
+>
+> I've seen a few of these reviews on the list recently.  Do we have
+> some definitive guidelines on them?  Does "or (at your option) any
+> later version" then mean that we should have "GPL" instead of "GPL
+> v2"?
+>
+>>> + */
+>>> +
+>>> +#include <linux/clk.h>
+>>> +#include <linux/init.h>
+>>> +#include <linux/io.h>
+>>> +#include <linux/kernel.h>
+>>> +#include <linux/mfd/syscon.h>
+>>> +#include <linux/module.h>
+>>> +#include <linux/of.h>
+>>> +#include <linux/of_platform.h>
+>>> +#include <linux/platform_device.h>
+>>> +#include <linux/regmap.h>
+>>> +#include <linux/watchdog.h>
+>>> +
+>>> +/* Low Power Alarm */
+>>> +#define LPC_LPA_LSB_OFF			0x410
+>>> +#define LPC_LPA_START_OFF		0x418
+>>> +
+>>> +/* LPC as WDT */
+>>> +#define LPC_WDT_OFF			0x510
+>>> +
+>>> +#define WATCHDOG_MIN			1
+>>> +#define WATCHDOG_MAX32			4294967 /* 32bit resolution */
+>> Nitpick, but the '32' is really unnecessary here since you don't
+>> have a separate define for a different resolution.
+>>
+>>> +
+>>> +#define WDT_ENABLE			1
+>>> +#define WDT_DISABLE			0
+>>> +
+>>> +struct st_wdog_syscfg {
+>>> +	struct regmap *regmap;
+>>> +	unsigned int type_reg;
+>>> +	unsigned int type_mask;
+>>> +	unsigned int enable_reg;
+>>> +	unsigned int enable_mask;
+>> Wondering ... why do you have regmap, type_reg, and enable_reg here
+>> and not in the st_wdog structure ?
+>>
+>> Logically all values in this structure could (should) be const,
+>> and it doesn't really make sense to allocate static memory for it.
+>> I can see the argument of having 'nice' looking code and retrieve,
+>> say, enable_reg and enable_mask from the same structure, but that
+>> doesn't really make much sense from a practical perspective.
+>> If you want that you could as well copy type_mask and enable_mask
+>> into st_wdog.
+> Makes little difference to me.  I don't mind the separation or for
+> them to be bundled in with the main container.
+>
+> David, do you have a strong opinion either way?
+>
+>>> +};
+>>> +
+>>> +struct st_wdog {
+>>> +	void __iomem *base;
+>>> +	struct st_wdog_syscfg *syscfg;
+>>> +	struct clk *clk;
+>>> +	int warm_reset;
+>> unsigned int ? Also see below.
+> Sounds resonable.
+>
+>>> +};
+>>> +
+>>> +static struct st_wdog_syscfg stid127_syscfg = {
+>>> +	.type_mask	= BIT(2),
+>>> +	.enable_mask	= BIT(2),
+>>> +};
+>>> +
+>>> +static struct st_wdog_syscfg stih415_syscfg = {
+>>> +	.type_mask	= BIT(6),
+>>> +	.enable_mask	= BIT(7),
+>>> +};
+>>> +
+>>> +static struct st_wdog_syscfg stih416_syscfg = {
+>>> +	.type_mask	= BIT(6),
+>>> +	.enable_mask	= BIT(7),
+>>> +};
+>>> +
+>>> +static struct st_wdog_syscfg stih407_syscfg = {
+>>> +	.enable_mask	= BIT(19),
+>>> +};
+>>> +
+>>> +static struct of_device_id st_wdog_match[] = {
+>>> +	{
+>>> +		.compatible = "st,stih407-watchdog",
+>>> +		.data = (void *)&stih407_syscfg,
+>>> +	},
+>>> +	{
+>>> +		.compatible = "st,stih416-watchdog",
+>>> +		.data = (void *)&stih416_syscfg,
+>>> +	},
+>>> +	{
+>>> +		.compatible = "st,stih415-watchdog",
+>>> +		.data = (void *)&stih415_syscfg,
+>>> +	},
+>>> +	{
+>>> +		.compatible = "st,stid127-watchdog",
+>>> +		.data = (void *)&stid127_syscfg,
+>>> +	},
+>>> +	{},
+>>> +};
+>>> +MODULE_DEVICE_TABLE(of, st_wdog_match);
+>>> +
+>>> +static void st_wdog_setup(struct st_wdog *st_wdog, bool enable)
+>>> +{
+>>> +	/* Type of watchdog reset - 0: Cold 1: Warm */
+>>> +	if (st_wdog->syscfg->type_reg)
+>>> +		regmap_update_bits(st_wdog->syscfg->regmap,
+>>> +				   st_wdog->syscfg->type_reg,
+>>> +				   st_wdog->syscfg->type_mask,
+>>> +				   st_wdog->warm_reset);
+>>> +
+>>> +	/* Mask/unmask watchdog reset */
+>>> +	regmap_update_bits(st_wdog->syscfg->regmap,
+>>> +			   st_wdog->syscfg->enable_reg,
+>>> +			   st_wdog->syscfg->enable_mask,
+>>> +			   !enable);
+>> enable is a bool, but is supposed to provide the value to be put into the
+>> register, masked with enable_mask. Unless I am missing something, the value
+>> is not shifted in regmap_update_bits. So I don't think this can work, but
+>> effectively always writes zero into the mask unless the mask happens to be
+>> at bit position 0 - which never happens.
+>>
+>> Same is true for warm_reset above, which also has values 0 or 1.
+>>
+>> I know it does not really matter in C (at least when it comes to handling
+>> 0 and 1), but I would suggest to avoid mixing booleans with bit masks.
+> You're right of course, great spot.
+>
+> How about?
+>
+>    !enable << ffs(st_wdog->syscfg->enable_mask).
+>
+>>> +}
+>>> +
+>>> +static void st_wdog_load_timer(struct st_wdog *st_wdog, unsigned int timeout)
+>>> +{
+>>> +	timeout *= clk_get_rate(st_wdog->clk);
+>>> +
+>>> +	/* Write only LSB as timeout in Watchdog framework is 32bits only */
+>> I don't entirely understand the logic here. timeout may be 32 bit,
+>> but that doesn't mean that timeout * clk_get_rate(st_wdog->clk)
+>> has to be 32 bit.
+>>
+>> Also, what happens if MSB happens to be set to a nonzero value ?
+>> Is that guaranteed to never happen ?
+> David?
+>
+>>> +	writel_relaxed(timeout, st_wdog->base + LPC_LPA_LSB_OFF);
+>>> +	writel_relaxed(1, st_wdog->base + LPC_LPA_START_OFF);
+>>> +}
+>>> +
+>>> +static int st_wdog_start(struct watchdog_device *wdd)
+>>> +{
+>>> +	struct st_wdog *st_wdog = watchdog_get_drvdata(wdd);
+>>> +
+>>> +	writel_relaxed(1, st_wdog->base + LPC_WDT_OFF);
+>>> +
+>>> +	return 0;
+>>> +}
+>>> +
+>>> +static int st_wdog_stop(struct watchdog_device *wdd)
+>>> +{
+>>> +	struct st_wdog *st_wdog = watchdog_get_drvdata(wdd);
+>>> +
+>>> +	writel_relaxed(0, st_wdog->base + LPC_WDT_OFF);
+>>> +
+>>> +	return 0;
+>>> +}
+>>> +
+>>> +static int st_wdog_set_timeout(struct watchdog_device *wdd,
+>>> +			       unsigned int timeout)
+>>> +{
+>>> +	struct st_wdog *st_wdog = watchdog_get_drvdata(wdd);
+>>> +
+>>> +	wdd->timeout = timeout;
+>>> +	st_wdog_load_timer(st_wdog, timeout);
+>>> +
+>>> +	return 0;
+>>> +}
+>>> +
+>>> +static int st_wdog_keepalive(struct watchdog_device *wdd)
+>>> +{
+>>> +	struct st_wdog *st_wdog = watchdog_get_drvdata(wdd);
+>>> +
+>>> +	st_wdog_load_timer(st_wdog, wdd->timeout);
+>>> +
+>>> +	return 0;
+>>> +}
+>>> +
+>>> +static const struct watchdog_info st_wdog_info = {
+>>> +	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
+>>> +	.identity = "ST LPC WDT",
+>>> +};
+>>> +
+>>> +static const struct watchdog_ops st_wdog_ops = {
+>>> +	.owner		= THIS_MODULE,
+>>> +	.start		= st_wdog_start,
+>>> +	.stop		= st_wdog_stop,
+>>> +	.ping		= st_wdog_keepalive,
+>>> +	.set_timeout	= st_wdog_set_timeout,
+>>> +};
+>>> +
+>>> +static struct watchdog_device st_wdog_dev = {
+>>> +	.info		= &st_wdog_info,
+>>> +	.ops		= &st_wdog_ops,
+>>> +	.min_timeout	= WATCHDOG_MIN,
+>>> +	.max_timeout	= WATCHDOG_MAX32,
+>>> +};
+>>> +
+>>> +static int st_wdog_probe(struct platform_device *pdev)
+>>> +{
+>>> +	const struct of_device_id *match;
+>>> +	struct device_node *np = pdev->dev.of_node;
+>>> +	struct st_wdog *st_wdog;
+>>> +	struct regmap *regmap;
+>>> +	struct resource *res;
+>>> +	struct clk *clk;
+>>> +	void __iomem *base;
+>>> +	int ret;
+>>> +
+>>> +	st_wdog = devm_kzalloc(&pdev->dev, sizeof(*st_wdog), GFP_KERNEL);
+>>> +	if (!st_wdog)
+>>> +		return -ENOMEM;
+>>> +
+>>> +	match = of_match_device(st_wdog_match, &pdev->dev);
+>>> +	if (!match) {
+>>> +		dev_err(&pdev->dev, "Couldn't match device\n");
+>>> +		return -ENODEV;
+>>> +	}
+>>> +	st_wdog->syscfg	= (struct st_wdog_syscfg *)match->data;
+>>> +
+>>> +	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "base");
+>>> +	base = devm_ioremap_resource(&pdev->dev, res);
+>>> +	if (IS_ERR(base)) {
+>>> +		dev_err(&pdev->dev, "Failed to ioremap base\n");
+>> devm_ioremap_resource already creates an error message, so this should be
+>> unnecessary.
+> Absolutely.  Will fix.
+>
+>>> +		return PTR_ERR(base);
+>>> +	}
+>>> +
+>>> +	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "syscfg-en");
+>>> +	if (!res) {
+>>> +		dev_err(&pdev->dev, "Failed to get enable register address\n");
+>>> +		return -EINVAL;
+>>> +	}
+>>> +	st_wdog->syscfg->enable_reg = res->start;
+>>> +
+>>> +	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "syscfg-type");
+>>> +	if (res)
+>>> +		st_wdog->syscfg->type_reg = res->start;
+>>> +
+>>> +	regmap = syscon_regmap_lookup_by_phandle(np, "st,syscfg");
+>>> +	if (IS_ERR(regmap)) {
+>>> +		dev_err(&pdev->dev, "No syscfg phandle specified\n");
+>>> +		return PTR_ERR(regmap);
+>>> +	}
+>>> +
+>>> +	clk = of_clk_get_by_name(np, "st_wdog");
+>>> +	if (IS_ERR(clk)) {
+>>> +		dev_err(&pdev->dev, "Unable to request clock\n");
+>>> +		return PTR_ERR(clk);
+>>> +	}
+>>> +	clk_prepare_enable(st_wdog->clk);
+>>> +
+>>> +	st_wdog->base 		= base;
+>>> +	st_wdog->clk		= clk;
+>>> +	st_wdog->warm_reset 	= of_property_read_bool(np, "st,warm_reset");
+>>> +	st_wdog->syscfg->regmap = regmap;
+>>> +
+>>> +	watchdog_set_drvdata(&st_wdog_dev, st_wdog);
+>>> +	watchdog_set_nowayout(&st_wdog_dev, WATCHDOG_NOWAYOUT);
+>>> +
+>>> +	ret = watchdog_register_device(&st_wdog_dev);
+>>> +	if (ret) {
+>>> +		dev_err(&pdev->dev, "Unable to register watchdog\n");
+>>> +		clk_disable_unprepare(clk);
+>>> +		return ret;
+>>> +	}
+>>> +
+>>> +	/* Init Watchdog timeout with value in DT */
+>>> +	ret = watchdog_init_timeout(&st_wdog_dev, 0, &pdev->dev);
+>>> +	if (ret) {
+>>> +		dev_err(&pdev->dev, "Unable to initialise watchdog timeout\n");
+>> No clk_disable_unprepare here ?
+> clk_disable_unprepare() should be in the error path.
+>
+>>> +		return ret;
+>>> +	}
+>>> +
+>>> +	st_wdog_setup(st_wdog, WDT_ENABLE);
+>>> +
+>>> +	dev_info(&pdev->dev, "LPC Watchdog driver registered, reset type is %s",
+>>> +		 st_wdog->warm_reset ? "warm" : "cold");
+>>> +
+>>> +	return ret;
+>>> +}
+>>> +
+>>> +static int st_wdog_remove(struct platform_device *pdev)
+>>> +{
+>>> +	struct st_wdog *st_wdog = watchdog_get_drvdata(&st_wdog_dev);
+>>> +
+>>> +	if (watchdog_active(&st_wdog_dev))
+>>> +		st_wdog_stop(&st_wdog_dev);
+>>> +
+>>> +	st_wdog_setup(st_wdog, WDT_DISABLE);
+>>> +
+>>> +	watchdog_unregister_device(&st_wdog_dev);
+>>> +
+>> No clk_disable_unprepare ?
+>>
+>> Maye it is not necessary, but then I wonder why you have it above.
+> I think it is necessary.
+>
+>>> +	return 0;
+>>> +}
+>>> +
+>>> +#ifdef CONFIG_PM
+>>> +static int st_wdog_suspend(struct device *dev)
+>>> +{
+>>> +	if (watchdog_active(&st_wdog_dev))
+>>> +		st_wdog_stop(&st_wdog_dev);
+>>> +
+>> Is any clock activity necessary here ? Just asking, I don't really have an idea.
+> I would guess that it would need disabling, but not familiar with the h/w.
+>
+> David?
+>
+>>> +	return 0;
+>>> +}
+>>> +
+>>> +static int st_wdog_resume(struct device *dev)
+>>> +{
+>>> +	struct st_wdog *st_wdog = watchdog_get_drvdata(&st_wdog_dev);
+>>> +
+>>> +	if (watchdog_active(&st_wdog_dev)) {
+>>> +		st_wdog_load_timer(st_wdog, st_wdog_dev.timeout);
+>>> +		st_wdog_start(&st_wdog_dev);
+>>> +	}
+>>> +
+>>> +	return 0;
+>>> +}
+>>> +#endif
+>>> +
+>>> +static SIMPLE_DEV_PM_OPS(st_wdog_pm_ops,
+>>> +			 st_wdog_suspend,
+>>> +			 st_wdog_resume);
+>>> +
+>>> +static struct platform_driver st_wdog_driver = {
+>>> +	.driver	= {
+>>> +		.name = "st-wdt",
+>>> +		.pm = &st_wdog_pm_ops,
+>>> +		.of_match_table = st_wdog_match,
+>>> +	},
+>>> +	.probe = st_wdog_probe,
+>>> +	.remove = st_wdog_remove,
+>>> +};
+>>> +module_platform_driver(st_wdog_driver);
+>>> +
+>>> +MODULE_AUTHOR("David PARIS <david.paris@st.com>");
+>>> +MODULE_DESCRIPTION("ST LPC Watchdog Driver");
+>>> +MODULE_LICENSE("GPL v2");
