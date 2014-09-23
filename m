@@ -1,23 +1,17 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.11.231]:40536 "EHLO
+Received: from smtp.codeaurora.org ([198.145.11.231]:40541 "EHLO
 	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756861AbaIWXKM (ORCPT
+	with ESMTP id S1757187AbaIWXKM (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
 	Tue, 23 Sep 2014 19:10:12 -0400
 From: Josh Cartwright <joshc@codeaurora.org>
-To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
+To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
 Cc: linux-arm-msm@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
-	Kumar Gala <galak@codeaurora.org>,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	devicetree@vger.kernel.org
-Subject: [PATCH v2 2/3] watchdog: qcom: document device tree bindings
-Date: Tue, 23 Sep 2014 18:04:37 -0500
-Message-Id: <337231c0fc8b16b4f37e1e3b85cb0246f357a64d.1411513109.git.joshc@codeaurora.org>
+	Kumar Gala <galak@codeaurora.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH v2 3/3] watchdog: qcom: register a restart notifier
+Date: Tue, 23 Sep 2014 18:04:38 -0500
+Message-Id: <2d539bc944f3e8fc70f39728b0f61fd171b2e5bf.1411513109.git.joshc@codeaurora.org>
 In-Reply-To: <cover.1411513109.git.joshc@codeaurora.org>
 References: <cover.1411513109.git.joshc@codeaurora.org>
 In-Reply-To: <cover.1411513109.git.joshc@codeaurora.org>
@@ -25,44 +19,84 @@ References: <cover.1411513109.git.joshc@codeaurora.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The Qualcomm Krait Processor Sub-system (KPSS) contains one or more
-instances of the WDT.  Provide documentation on how to describe these in
-the device tree.
+The WDT's BITE_TIME warm-reset behavior can be leveraged as a last
+resort mechanism for triggering chip reset.  Usually, other restart
+methods (such as PS_HOLD) are preferrable for issuing a more complete
+reset of the chip.  As such, keep the priority of the watchdog notifier
+low.
 
 Signed-off-by: Josh Cartwright <joshc@codeaurora.org>
 ---
- .../devicetree/bindings/watchdog/qcom-wdt.txt      | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
+ drivers/watchdog/qcom-wdt.c | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt b/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
-new file mode 100644
-index 0000000..6a1d758
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
-@@ -0,0 +1,22 @@
-+Qualcomm Krait Processor Sub-system (KPSS) Watchdog
-+---------------------------------------------------
+diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
+index d5e46e2..eba92ef 100644
+--- a/drivers/watchdog/qcom-wdt.c
++++ b/drivers/watchdog/qcom-wdt.c
+@@ -16,6 +16,7 @@
+ #include <linux/module.h>
+ #include <linux/of.h>
+ #include <linux/platform_device.h>
++#include <linux/reboot.h>
+ #include <linux/watchdog.h>
+ 
+ #define WDT_RST		0x0
+@@ -25,6 +26,7 @@
+ struct qcom_wdt {
+ 	struct watchdog_device	wdd;
+ 	struct clk		*clk;
++	struct notifier_block	restart_nb;
+ 	void __iomem		*base;
+ };
+ 
+@@ -86,6 +88,23 @@ static const struct watchdog_info qcom_wdt_info = {
+ 	.identity	= KBUILD_MODNAME,
+ };
+ 
++static int qcom_wdt_restart(struct notifier_block *nb, unsigned long action,
++			    void *data)
++{
++	struct qcom_wdt *wdt = container_of(nb, struct qcom_wdt, restart_nb);
 +
-+Required properties :
-+- compatible : shall contain only one of the following:
++	/*
++	 * Trigger watchdog bite:
++	 *    Setup BITE_TIME to be very low, and enable WDT.
++	 *      0x31F3 => 390ms @ 32kHz, also value at reset
++	 */
++	writel(0, wdt->base + WDT_EN);
++	writel(1, wdt->base + WDT_RST);
++	writel(0x31F3, wdt->base + WDT_BITE_TIME);
++	writel(1, wdt->base + WDT_EN);
++	return NOTIFY_DONE;
++}
 +
-+			"qcom,kpss-wdt-msm8960"
-+			"qcom,kpss-wdt-apq8064"
-+			"qcom,kpss-wdt-ipq8064"
+ static int qcom_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct qcom_wdt *wdt;
+@@ -141,6 +160,14 @@ static int qcom_wdt_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
++	/*
++	 * WDT restart notifier has priority 0 (use as a last resort)
++	 */
++	wdt->restart_nb.notifier_call = qcom_wdt_restart;
++	ret = register_restart_handler(&wdt->restart_nb);
++	if (ret)
++		dev_err(&pdev->dev, "failed to setup restart handler\n");
 +
-+- reg : shall contain base register location and length
-+- clocks : shall contain the input clock phandle
-+- timeout-sec : shall contain the default watchdog timeout in seconds,
-+                if unset, the default timeout is 30 seconds
-+
-+Example:
-+	watchdog@208a038 {
-+		compatible = "qcom,kpss-wdt-ipq8064";
-+		reg = <0x0208a038 0x40>;
-+		clocks = <&sleep_clk>;
-+		timeout-sec = <10>;
-+	};
+ 	platform_set_drvdata(pdev, wdt);
+ 	return 0;
+ }
+@@ -149,6 +176,7 @@ static int qcom_wdt_remove(struct platform_device *pdev)
+ {
+ 	struct qcom_wdt *wdt = platform_get_drvdata(pdev);
+ 
++	unregister_restart_handler(&wdt->restart_nb);
+ 	watchdog_unregister_device(&wdt->wdd);
+ 	clk_disable_unprepare(wdt->clk);
+ 	return 0;
 -- 
 Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
 hosted by The Linux Foundation
