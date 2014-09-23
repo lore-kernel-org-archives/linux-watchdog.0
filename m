@@ -1,7 +1,7 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx0b-0016f401.pphosted.com ([67.231.156.173]:64539 "EHLO
+Received: from mx0b-0016f401.pphosted.com ([67.231.156.173]:42913 "EHLO
 	mx0b-0016f401.pphosted.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754321AbaIWHoz (ORCPT
+	by vger.kernel.org with ESMTP id S1754316AbaIWHoz (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
 	Tue, 23 Sep 2014 03:44:55 -0400
 From: Jisheng Zhang <jszhang@marvell.com>
@@ -9,9 +9,9 @@ To: <wim@iguana.be>, <linux@roeck-us.net>
 CC: <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
 	<linux-arm-kernel@lists.infradead.org>,
 	Jisheng Zhang <jszhang@marvell.com>
-Subject: [PATCH v2 2/2] watchdog: dw_wdt: add restart handler support
-Date: Tue, 23 Sep 2014 15:42:12 +0800
-Message-ID: <1411458132-5410-3-git-send-email-jszhang@marvell.com>
+Subject: [PATCH v2 1/2] watchdog: dw_wdt: initialise TOP_INIT in dw_wdt_set_top()
+Date: Tue, 23 Sep 2014 15:42:11 +0800
+Message-ID: <1411458132-5410-2-git-send-email-jszhang@marvell.com>
 In-Reply-To: <1411458132-5410-1-git-send-email-jszhang@marvell.com>
 References: <1411458132-5410-1-git-send-email-jszhang@marvell.com>
 MIME-Version: 1.0
@@ -19,95 +19,39 @@ Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The kernel core now provides an API to trigger a system restart.
-Register with it to support restarting the system via. watchdog.
+The TOP_INIT, ie bit 4-7 of the WDOG_TIMEOUT_RANGE_REG_OFFSET register
+may be zero, so the timeout period may be very short after initialization
+is done, thus the system may be reset soon after enabling. We fix this
+problem by also initialising the TOP_INIT when setting TOP in function
+dw_wdt_set_top().
 
 Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
 ---
- drivers/watchdog/dw_wdt.c | 32 ++++++++++++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
+ drivers/watchdog/dw_wdt.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-index 449c885..9e577a6 100644
+index 9f21029..449c885 100644
 --- a/drivers/watchdog/dw_wdt.c
 +++ b/drivers/watchdog/dw_wdt.c
-@@ -21,6 +21,7 @@
+@@ -40,6 +40,7 @@
+ #define WDOG_CONTROL_REG_OFFSET		    0x00
+ #define WDOG_CONTROL_REG_WDT_EN_MASK	    0x01
+ #define WDOG_TIMEOUT_RANGE_REG_OFFSET	    0x04
++#define WDOG_TIMEOUT_RANGE_TOPINIT_SHIFT    4
+ #define WDOG_CURRENT_COUNT_REG_OFFSET	    0x08
+ #define WDOG_COUNTER_RESTART_REG_OFFSET     0x0c
+ #define WDOG_COUNTER_RESTART_KICK_VALUE	    0x76
+@@ -106,7 +107,8 @@ static int dw_wdt_set_top(unsigned top_s)
+ 		}
  
- #include <linux/bitops.h>
- #include <linux/clk.h>
-+#include <linux/delay.h>
- #include <linux/device.h>
- #include <linux/err.h>
- #include <linux/fs.h>
-@@ -29,9 +30,11 @@
- #include <linux/miscdevice.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
-+#include <linux/notifier.h>
- #include <linux/of.h>
- #include <linux/pm.h>
- #include <linux/platform_device.h>
-+#include <linux/reboot.h>
- #include <linux/spinlock.h>
- #include <linux/timer.h>
- #include <linux/uaccess.h>
-@@ -63,6 +66,7 @@ static struct {
- 	unsigned long		next_heartbeat;
- 	struct timer_list	timer;
- 	int			expect_close;
-+	struct notifier_block	restart_handler;
- } dw_wdt;
+ 	/* Set the new value in the watchdog. */
+-	writel(top_val, dw_wdt.regs + WDOG_TIMEOUT_RANGE_REG_OFFSET);
++	writel(top_val | top_val << WDOG_TIMEOUT_RANGE_TOPINIT_SHIFT,
++		dw_wdt.regs + WDOG_TIMEOUT_RANGE_REG_OFFSET);
  
- static inline int dw_wdt_is_enabled(void)
-@@ -121,6 +125,26 @@ static void dw_wdt_keepalive(void)
- 	       WDOG_COUNTER_RESTART_REG_OFFSET);
- }
- 
-+static int dw_wdt_restart_handle(struct notifier_block *this,
-+				unsigned long mode, void *cmd)
-+{
-+	u32 val;
-+
-+	writel(0, dw_wdt.regs + WDOG_TIMEOUT_RANGE_REG_OFFSET);
-+	val = readl(dw_wdt.regs + WDOG_CONTROL_REG_OFFSET);
-+	if (val & WDOG_CONTROL_REG_WDT_EN_MASK)
-+		writel(WDOG_COUNTER_RESTART_KICK_VALUE, dw_wdt.regs +
-+			WDOG_COUNTER_RESTART_REG_OFFSET);
-+	else
-+		writel(WDOG_CONTROL_REG_WDT_EN_MASK,
-+		       dw_wdt.regs + WDOG_CONTROL_REG_OFFSET);
-+
-+	/* wait for reset to assert... */
-+	mdelay(500);
-+
-+	return NOTIFY_DONE;
-+}
-+
- static void dw_wdt_ping(unsigned long data)
- {
- 	if (time_before(jiffies, dw_wdt.next_heartbeat) ||
-@@ -316,6 +340,12 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto out_disable_clk;
- 
-+	dw_wdt.restart_handler.notifier_call = dw_wdt_restart_handle;
-+	dw_wdt.restart_handler.priority = 128;
-+	ret = register_restart_handler(&dw_wdt.restart_handler);
-+	if (ret)
-+		pr_warn("cannot register restart handler\n");
-+
  	dw_wdt_set_next_heartbeat();
- 	setup_timer(&dw_wdt.timer, dw_wdt_ping, 0);
- 	mod_timer(&dw_wdt.timer, jiffies + WDT_TIMEOUT);
-@@ -330,6 +360,8 @@ out_disable_clk:
  
- static int dw_wdt_drv_remove(struct platform_device *pdev)
- {
-+	unregister_restart_handler(&dw_wdt.restart_handler);
-+
- 	misc_deregister(&dw_wdt_miscdev);
- 
- 	clk_disable_unprepare(dw_wdt.clk);
 -- 
 2.1.0
 
