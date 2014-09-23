@@ -1,69 +1,69 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f170.google.com ([209.85.192.170]:64236 "EHLO
+Received: from mail-pd0-f170.google.com ([209.85.192.170]:54104 "EHLO
 	mail-pd0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756050AbaIWQOq (ORCPT
+	with ESMTP id S1754282AbaIWS14 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 23 Sep 2014 12:14:46 -0400
-Date: Tue, 23 Sep 2014 09:14:40 -0700
+	Tue, 23 Sep 2014 14:27:56 -0400
+Date: Tue, 23 Sep 2014 11:27:51 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Rostislav Lisovy <lisovy@gmail.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org, sojkam1@fel.cvut.cz,
-	michal.vokac@comap.cz, Rostislav Lisovy <lisovy@merica.cz>
-Subject: Re: [PATCH v2] watchdog: omap_wdt: Add 'early_disable' module
- parameter
-Message-ID: <20140923161440.GC20591@roeck-us.net>
-References: <1410877228-20925-1-git-send-email-lisovy@merica.cz>
- <20140916154921.GA14725@roeck-us.net>
- <1410967369.5542.2.camel@lp-lvrv.comap.cz>
- <541BAD2C.8080902@roeck-us.net>
- <1411469087.32524.6.camel@lp-lvrv.comap.cz>
+To: Jisheng Zhang <jszhang@marvell.com>
+Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v2 1/2] watchdog: dw_wdt: initialise TOP_INIT in
+ dw_wdt_set_top()
+Message-ID: <20140923182751.GA24930@roeck-us.net>
+References: <1411458132-5410-1-git-send-email-jszhang@marvell.com>
+ <1411458132-5410-2-git-send-email-jszhang@marvell.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1411469087.32524.6.camel@lp-lvrv.comap.cz>
+In-Reply-To: <1411458132-5410-2-git-send-email-jszhang@marvell.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Sep 23, 2014 at 12:44:47PM +0200, Rostislav Lisovy wrote:
-> On =C4=8Ct, 2014-09-18 at 21:12 -0700, Guenter Roeck wrote:
-> > How about reading the OMAP_WATCHDOG_SPR register ?
->=20
-> Unfortunately this would be not only extremely fragile (someone writes
-> correct start sequence followed by some garbage -- WD is running and we
-> are reading garbage) but according to some experiments seems not to wor=
-k
-> at all (I am reading "0" even for a running WD probably as a result to
-> the pm_runtime_get_sync() call).
->=20
-> One of the TI employees on the TI forum confirmed (I know this is not a
-> rock-solid information) that it is not possible to safely determine if
-> the WD is running or not.
->=20
-Annoying, but I guess we'll have to live with that.
+On Tue, Sep 23, 2014 at 03:42:11PM +0800, Jisheng Zhang wrote:
+> The TOP_INIT, ie bit 4-7 of the WDOG_TIMEOUT_RANGE_REG_OFFSET register
+> may be zero, so the timeout period may be very short after initialization
+> is done, thus the system may be reset soon after enabling. We fix this
+> problem by also initialising the TOP_INIT when setting TOP in function
+> dw_wdt_set_top().
+> 
+> Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
 
->=20
-> > Either case, you can not issue a message about the watchdog being
-> > stopped or started if you don't know if it was actually stopped
-> > or started. Also, if you don't really know if the watchdog was
-> > stopped or started, all you can do is to either stop or start it,
-> > without judgment about its previous condition.
->=20
-> You are right. I was blinded by our use case where the watchdog is
-> always started by the bootloader.
-> I will wait to see if the WATCHDOG_KEEP_ON will be integrated and then =
-I
-> will add the feature for the omap_wdt.
->=20
-I would predict that it will be accepted. For my part I am not happy
-with the name, though, and I'll have to find the time to thoroughly revie=
-w
-and, if possible, test it.
+That should do it.
 
-Guenter
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
+> ---
+>  drivers/watchdog/dw_wdt.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+> index 9f21029..449c885 100644
+> --- a/drivers/watchdog/dw_wdt.c
+> +++ b/drivers/watchdog/dw_wdt.c
+> @@ -40,6 +40,7 @@
+>  #define WDOG_CONTROL_REG_OFFSET		    0x00
+>  #define WDOG_CONTROL_REG_WDT_EN_MASK	    0x01
+>  #define WDOG_TIMEOUT_RANGE_REG_OFFSET	    0x04
+> +#define WDOG_TIMEOUT_RANGE_TOPINIT_SHIFT    4
+>  #define WDOG_CURRENT_COUNT_REG_OFFSET	    0x08
+>  #define WDOG_COUNTER_RESTART_REG_OFFSET     0x0c
+>  #define WDOG_COUNTER_RESTART_KICK_VALUE	    0x76
+> @@ -106,7 +107,8 @@ static int dw_wdt_set_top(unsigned top_s)
+>  		}
+>  
+>  	/* Set the new value in the watchdog. */
+> -	writel(top_val, dw_wdt.regs + WDOG_TIMEOUT_RANGE_REG_OFFSET);
+> +	writel(top_val | top_val << WDOG_TIMEOUT_RANGE_TOPINIT_SHIFT,
+> +		dw_wdt.regs + WDOG_TIMEOUT_RANGE_REG_OFFSET);
+>  
+>  	dw_wdt_set_next_heartbeat();
+>  
+> -- 
+> 2.1.0
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
