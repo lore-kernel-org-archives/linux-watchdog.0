@@ -1,90 +1,164 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ig0-f178.google.com ([209.85.213.178]:46009 "EHLO
-	mail-ig0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751188AbaIUPta (ORCPT
+Received: from mail-pd0-f172.google.com ([209.85.192.172]:36280 "EHLO
+	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755890AbaIWQKD (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 21 Sep 2014 11:49:30 -0400
-Received: by mail-ig0-f178.google.com with SMTP id r10so1486225igi.11
-        for <linux-watchdog@vger.kernel.org>; Sun, 21 Sep 2014 08:49:30 -0700 (PDT)
+	Tue, 23 Sep 2014 12:10:03 -0400
+Date: Tue, 23 Sep 2014 09:09:57 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Xiubo Li <Li.Xiubo@freescale.com>
+Cc: linux-watchdog@vger.kernel.org, wim@iguana.be,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] watchdog: imx2_wdt: Add power management support.
+Message-ID: <20140923160957.GB20591@roeck-us.net>
+References: <1411475513-2576-1-git-send-email-Li.Xiubo@freescale.com>
 MIME-Version: 1.0
-In-Reply-To: <20140919154036.GA30723@roeck-us.net>
-References: <1410878523-4924-1-git-send-email-wens@csie.org>
- <1410878523-4924-2-git-send-email-wens@csie.org> <541BB712.6020607@roeck-us.net>
- <CAGb2v67vB-mr1-fM7inWq7wntt31mYroEj-Hq7sMUfWDwV878w@mail.gmail.com> <20140919154036.GA30723@roeck-us.net>
-From: Chen-Yu Tsai <wens@csie.org>
-Date: Sun, 21 Sep 2014 23:49:09 +0800
-Message-ID: <CAGb2v65X45dT91No-y8a9k-R557aGjXhbR4jTSdPhGE7FFTB1A@mail.gmail.com>
-Subject: Re: [PATCH 1/2] watchdog: sunxi: support parameterized compatible strings
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1411475513-2576-1-git-send-email-Li.Xiubo@freescale.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Sep 19, 2014 at 11:40 PM, Guenter Roeck <linux@roeck-us.net> wrote:
-> On Fri, Sep 19, 2014 at 10:00:36PM +0800, Chen-Yu Tsai wrote:
->> Hi,
->>
->> On Fri, Sep 19, 2014 at 12:54 PM, Guenter Roeck <linux@roeck-us.net> wrote:
->> > On 09/16/2014 07:42 AM, Chen-Yu Tsai wrote:
->> >>
->> >> This patch adds support for hardware parameters tied to compatible
->> >> strings, so similar hardware can reuse the driver.
->> >>
->> >> This will be used to support the newer watchdog found in A31 and
->> >> later SoCs. Differences in the new hardware include separate
->> >> interrupt lines for each watchdog, and corresponding interrupt
->> >> control/status registers. Watchdog control registers were also
->> >> slightly rearranged.
->> >>
->> > You might also mention that you replace some iowrite32 with writel.
->>
->> Ah.... Had that in mind, but forgot about it when finishing the series :(
->>
->> >> Signed-off-by: Chen-Yu Tsai <wens@csie.org>
->> >
->> >
->> > Have you considered using regmap ? Seems to be an ideal candidate.
->>
->> I don't follow. Do you mean using regmap to share the interrupt registers
->> with the timer on sun4i? Otherwise I don't really see a difference.
->>
-> Use regmap instead of direct writel. Nice thing about it is that regmap offers
-> bit manipulation functions, so you could replace the read / mask / modify /write
-> in a single regmap function call. See imx2_wdt.c for an example how it is used.
->
->> Am I missing something?
->>
-> Not really. Just a suggestion.
+On Tue, Sep 23, 2014 at 08:31:53PM +0800, Xiubo Li wrote:
+> Add power management operations(suspend and resume) as part of
+> dev_pm_ops for IMX2 watchdog driver.
+> 
+> If PM will be supported, please make sure that the wdev->clk
+> could disable the watchdog's counter input clock source or can
+> mask watchdog's reset request to the core.
+> 
+> If watchdog is still used by consumers and resumes from deep
+> sleep state, we need to restart the watchdog again without
+> enabling the timer.
+> 
+> If watchdog been has started --> stopped by the consumers and
+> resumes from non-deep sleep state, then start the timer again.
+> 
+> If watchdog has been started --> stopped by the consumers and
+> resumes from deep sleep state, will do nothing. The watchdog
+> will be restarted by consumers next time to be used.
+> 
+> Signed-off-by: Xiubo Li <Li.Xiubo@freescale.com>
+> ---
+> 
+> Hi,
+> 
+> I have pulled all the patches since Linux kernel v3.12 to v3.12, and
+> test the PM on my LS1021A QDS board again.
+> It works fine for now.
+> 
+> Change in v2:
+> - Fix one bug with another small change.
+> - Adjust the comments.
+> 
+> 
+> 
+>  drivers/watchdog/imx2_wdt.c | 66 +++++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 66 insertions(+)
+> 
+> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+> index 68c3d37..b9c81c9 100644
+> --- a/drivers/watchdog/imx2_wdt.c
+> +++ b/drivers/watchdog/imx2_wdt.c
+> @@ -295,6 +295,71 @@ static void imx2_wdt_shutdown(struct platform_device *pdev)
+>  	}
+>  }
+>  
+> +#ifdef CONFIG_PM_SLEEP
+> +/* Disable watchdog if it is active or non-active but still running */
+> +static int imx2_wdt_suspend(struct device *dev)
+> +{
+> +	struct watchdog_device *wdog = dev_get_drvdata(dev);
+> +	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
+> +
+> +	imx2_wdt_set_timeout(wdog, IMX2_WDT_MAX_TIME);
+> +	imx2_wdt_ping(wdog);
 
-As the register range and offsets are configurable, using regmap might add
-more code than it saves. I'll keep the it the way it is for now.
+I am a bit concerned about this one. Why ping the watchdog if it is
+not running ? Shouldn't this only be done if the watchdog is running ?
 
->> >>
->> >> -       /* Enable timer and set reset bit in the watchdog */
->> >> -       writel(WDT_MODE_EN | WDT_MODE_RST_EN, wdt_base + WDT_MODE);
->> >> +       /* Set lowest timeout and enable watchdog */
->> >> +       val = readl(wdt_base + regs->wdt_mode);
->> >> +       val &= ~(WDT_TIMEOUT_MASK << regs->wdt_timeout_shift);
->> >> +       val |= WDT_MODE_EN;
->> >
->> >
->> > I think it would make sense to also define WDT_MODE_EN and
->> > WDT_TIMEOUT_MASK as configurable, even if not currently needed.
->> > It is odd to have the shift configurable but not the mask,
->> > and to have the mode register configurable but not the mode value.
->>
->> I think keeping these values constants clearly shows that they are
->> the same and shared among the hardware. Making them configurable
->> shouldn't impose much penalty, but I'd prefer to keep them as is
->> until we need to change them.
->>
-> Ok, guess we have a different philosophy ;-). I'll leave it up to you.
+> +
+> +	/* Watchdog has been stopped but IP block is still running */
+> +	if (!watchdog_active(wdog) && imx2_wdt_is_running(wdev))
+> +		del_timer_sync(&wdev->timer);
+> +
+> +	/* If PM will be supported using imx2_wdt, please
+> +	 * make sure that the wdev->clk could disable the
+> +	 * watchdog's counter input clock source or can mask
+> +	 * watchdog's reset request to the core.
+> +	 */
 
-:)
+As far as I know, the watchdog subsystem uses standard multi-line comments.
 
-Thanks!
-ChenYu
+I am not sure if such a comment in the code will help. People don't usually
+read code to find out why the watchdog resets the board in suspend even
+if it should not.
+
+Can you detect this condition programmatically (presumably that the clock
+was stopped if I understand correctly) to ensure that it is met ?
+
+> +	clk_disable_unprepare(wdev->clk);
+> +
+> +	return 0;
+> +}
+> +
+> +/* Enable watchdog and configure it if necessary */
+> +static int imx2_wdt_resume(struct device *dev)
+> +{
+> +	struct watchdog_device *wdog = dev_get_drvdata(dev);
+> +	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
+> +
+> +	clk_prepare_enable(wdev->clk);
+> +
+> +	if (watchdog_active(wdog) && !imx2_wdt_is_running(wdev)) {
+> +		/* If watchdog is still used by consumers and
+> +		 * resumes from deep sleep state, need to
+> +		 * restart the watchdog again.
+> +		 */
+> +		imx2_wdt_setup(wdog);
+> +		imx2_wdt_set_timeout(wdog, wdog->timeout);
+> +		imx2_wdt_ping(wdog);
+> +	} else if (imx2_wdt_is_running(wdev)) {
+> +		imx2_wdt_set_timeout(wdog, wdog->timeout);
+> +		imx2_wdt_ping(wdog);
+> +		/* If watchdog has started --> stopped by the
+> +		 * consumers and resumes from non-deep sleep state,
+> +		 * then start the timer again.
+> +		 */
+> +		if (!watchdog_active(wdog))
+> +			mod_timer(&wdev->timer,
+> +				  jiffies + wdog->timeout * HZ / 2);
+> +	} else {
+> +		/* If watchdog has been started --> stopped by
+> +		 * the consumers and resumes from deep sleep state,
+> +		 * will do nothing. The watchdog will be restarted
+> +		 * by consumers next time to be used.
+> +		 */
+
+I really dislike the notion of an else case just for a comment.
+It should be obvious that nothing needs to be done here if the watchdog
+is not running.
+
+> +	}
+> +
+> +	return 0;
+> +}
+> +#endif
+> +
+> +static SIMPLE_DEV_PM_OPS(imx2_wdt_pm_ops, imx2_wdt_suspend,
+> +			 imx2_wdt_resume);
+> +
+>  static const struct of_device_id imx2_wdt_dt_ids[] = {
+>  	{ .compatible = "fsl,imx21-wdt", },
+>  	{ /* sentinel */ }
+> @@ -307,6 +372,7 @@ static struct platform_driver imx2_wdt_driver = {
+>  	.driver		= {
+>  		.name	= DRIVER_NAME,
+>  		.owner	= THIS_MODULE,
+> +		.pm     = &imx2_wdt_pm_ops,
+>  		.of_match_table = imx2_wdt_dt_ids,
+>  	},
+>  };
+> -- 
+> 2.1.0.27.g96db324
+> 
