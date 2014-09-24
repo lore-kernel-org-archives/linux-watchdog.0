@@ -1,125 +1,59 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f52.google.com ([209.85.220.52]:52600 "EHLO
-	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753752AbaIWScD (ORCPT
+Received: from mail-ie0-f171.google.com ([209.85.223.171]:55726 "EHLO
+	mail-ie0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751182AbaIXMfy (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 23 Sep 2014 14:32:03 -0400
-Date: Tue, 23 Sep 2014 11:31:59 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Jisheng Zhang <jszhang@marvell.com>
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v2 2/2] watchdog: dw_wdt: add restart handler support
-Message-ID: <20140923183159.GB24930@roeck-us.net>
-References: <1411458132-5410-1-git-send-email-jszhang@marvell.com>
- <1411458132-5410-3-git-send-email-jszhang@marvell.com>
+	Wed, 24 Sep 2014 08:35:54 -0400
+Received: by mail-ie0-f171.google.com with SMTP id rd18so6639558iec.16
+        for <linux-watchdog@vger.kernel.org>; Wed, 24 Sep 2014 05:35:54 -0700 (PDT)
+Date: Wed, 24 Sep 2014 13:35:48 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Andreas Werner <andreas.werner@men.de>
+Cc: linux-kernel@vger.kernel.org, sameo@linux.intel.com,
+	linux@roeck-us.net, lm-sensors@lm-sensors.org, wim@iguana.be,
+	linux-watchdog@vger.kernel.org, cooloney@gmail.com,
+	rpurdie@rpsys.net, linux-leds@vger.kernel.org
+Subject: Re: [PATCH v6 2/4] drivers/watchdog/menf21bmc_wdt: introduce MEN
+ 14F021P00 BMC Watchdog driver
+Message-ID: <20140924123548.GE32069@lee--X1>
+References: <cover.1409161615.git.andreas.werner@men.de>
+ <f21b275c79866e0aa9bbc59e195ae5424e538300.1409161615.git.andreas.werner@men.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <1411458132-5410-3-git-send-email-jszhang@marvell.com>
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+In-Reply-To: <f21b275c79866e0aa9bbc59e195ae5424e538300.1409161615.git.andreas.werner@men.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Sep 23, 2014 at 03:42:12PM +0800, Jisheng Zhang wrote:
-> The kernel core now provides an API to trigger a system restart.
-> Register with it to support restarting the system via. watchdog.
-> 
-> Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
+On Wed, 27 Aug 2014, Andreas Werner wrote:
+
+> Added driver to support the 14F021P00 BMC Watchdog.
+> The BMC is a Board Management Controller including watchdog functiona=
+lity.
+>=20
+> Signed-off-by: Andreas Werner <andreas.werner@men.de>
 > ---
->  drivers/watchdog/dw_wdt.c | 32 ++++++++++++++++++++++++++++++++
->  1 file changed, 32 insertions(+)
-> 
-> diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-> index 449c885..9e577a6 100644
-> --- a/drivers/watchdog/dw_wdt.c
-> +++ b/drivers/watchdog/dw_wdt.c
-> @@ -21,6 +21,7 @@
->  
->  #include <linux/bitops.h>
->  #include <linux/clk.h>
-> +#include <linux/delay.h>
->  #include <linux/device.h>
->  #include <linux/err.h>
->  #include <linux/fs.h>
-> @@ -29,9 +30,11 @@
->  #include <linux/miscdevice.h>
->  #include <linux/module.h>
->  #include <linux/moduleparam.h>
-> +#include <linux/notifier.h>
->  #include <linux/of.h>
->  #include <linux/pm.h>
->  #include <linux/platform_device.h>
-> +#include <linux/reboot.h>
->  #include <linux/spinlock.h>
->  #include <linux/timer.h>
->  #include <linux/uaccess.h>
-> @@ -63,6 +66,7 @@ static struct {
->  	unsigned long		next_heartbeat;
->  	struct timer_list	timer;
->  	int			expect_close;
-> +	struct notifier_block	restart_handler;
->  } dw_wdt;
->  
->  static inline int dw_wdt_is_enabled(void)
-> @@ -121,6 +125,26 @@ static void dw_wdt_keepalive(void)
->  	       WDOG_COUNTER_RESTART_REG_OFFSET);
->  }
->  
-> +static int dw_wdt_restart_handle(struct notifier_block *this,
-> +				unsigned long mode, void *cmd)
-> +{
-> +	u32 val;
-> +
-> +	writel(0, dw_wdt.regs + WDOG_TIMEOUT_RANGE_REG_OFFSET);
-> +	val = readl(dw_wdt.regs + WDOG_CONTROL_REG_OFFSET);
-> +	if (val & WDOG_CONTROL_REG_WDT_EN_MASK)
-> +		writel(WDOG_COUNTER_RESTART_KICK_VALUE, dw_wdt.regs +
-> +			WDOG_COUNTER_RESTART_REG_OFFSET);
-> +	else
-> +		writel(WDOG_CONTROL_REG_WDT_EN_MASK,
-> +		       dw_wdt.regs + WDOG_CONTROL_REG_OFFSET);
-> +
-> +	/* wait for reset to assert... */
-> +	mdelay(500);
-> +
-> +	return NOTIFY_DONE;
-> +}
-> +
->  static void dw_wdt_ping(unsigned long data)
->  {
->  	if (time_before(jiffies, dw_wdt.next_heartbeat) ||
-> @@ -316,6 +340,12 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
->  	if (ret)
->  		goto out_disable_clk;
->  
-> +	dw_wdt.restart_handler.notifier_call = dw_wdt_restart_handle;
-> +	dw_wdt.restart_handler.priority = 128;
-> +	ret = register_restart_handler(&dw_wdt.restart_handler);
-> +	if (ret)
-> +		pr_warn("cannot register restart handler\n");
+>  drivers/watchdog/Kconfig         |  10 ++
+>  drivers/watchdog/Makefile        |   1 +
+>  drivers/watchdog/menf21bmc_wdt.c | 203 +++++++++++++++++++++++++++++=
+++++++++++
+>  3 files changed, 214 insertions(+)
+>  create mode 100644 drivers/watchdog/menf21bmc_wdt.c
 
-Please use dev_warn(&pdev->dev, ...).
+I see no reason to keep this dragging on.  I'm going to apply this
+along with the remainder of the set and send a pull-request to all the
+other Maintainers.  This branch is currently under test.
 
-Thanks,
-Guenter
+Any fix-ups for review comments can go in subsequently.
 
-> +
->  	dw_wdt_set_next_heartbeat();
->  	setup_timer(&dw_wdt.timer, dw_wdt_ping, 0);
->  	mod_timer(&dw_wdt.timer, jiffies + WDT_TIMEOUT);
-> @@ -330,6 +360,8 @@ out_disable_clk:
->  
->  static int dw_wdt_drv_remove(struct platform_device *pdev)
->  {
-> +	unregister_restart_handler(&dw_wdt.restart_handler);
-> +
->  	misc_deregister(&dw_wdt_miscdev);
->  
->  	clk_disable_unprepare(dw_wdt.clk);
-> -- 
-> 2.1.0
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
