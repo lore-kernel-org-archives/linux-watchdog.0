@@ -1,117 +1,125 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-lb0-f171.google.com ([209.85.217.171]:42479 "EHLO
-	mail-lb0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753161AbaIXQdy convert rfc822-to-8bit (ORCPT
+Received: from mail-pa0-f41.google.com ([209.85.220.41]:39635 "EHLO
+	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751568AbaIXRF1 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 24 Sep 2014 12:33:54 -0400
+	Wed, 24 Sep 2014 13:05:27 -0400
+Date: Wed, 24 Sep 2014 10:05:21 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Josh Cartwright <joshc@codeaurora.org>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Kumar Gala <galak@codeaurora.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 3/3] watchdog: qcom: register a restart notifier
+Message-ID: <20140924170521.GB31578@roeck-us.net>
+References: <cover.1411513109.git.joshc@codeaurora.org>
+ <2d539bc944f3e8fc70f39728b0f61fd171b2e5bf.1411513109.git.joshc@codeaurora.org>
 MIME-Version: 1.0
-In-Reply-To: <20140924161837.GA7113@lee--X1>
-References: <cover.1409161615.git.andreas.werner@men.de> <20140924144829.GK32069@lee--X1>
- <20140924154503.GA12403@roeck-us.net> <20140924161837.GA7113@lee--X1>
-From: Bryan Wu <cooloney@gmail.com>
-Date: Wed, 24 Sep 2014 09:33:32 -0700
-Message-ID: <CAK5ve-+79oMf0vD-_gzWLPbvFi4ygd1q9pzTCHzzpsXVkjqP9Q@mail.gmail.com>
-Subject: Re: [PATCH v6 0/4] Introduce MEN 14F021P00 BMC driver series
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Guenter Roeck <linux@roeck-us.net>,
-	Andreas Werner <andreas.werner@men.de>,
-	lkml <linux-kernel@vger.kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	lm-sensors@lm-sensors.org, wim@iguana.be,
-	linux-watchdog@vger.kernel.org,
-	"rpurdie@rpsys.net" <rpurdie@rpsys.net>,
-	Linux LED Subsystem <linux-leds@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2d539bc944f3e8fc70f39728b0f61fd171b2e5bf.1411513109.git.joshc@codeaurora.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Sep 24, 2014 at 9:18 AM, Lee Jones <lee.jones@linaro.org> wrote=
-:
-> On Wed, 24 Sep 2014, Guenter Roeck wrote:
->
->> On Wed, Sep 24, 2014 at 03:48:29PM +0100, Lee Jones wrote:
->> > Guenter, Bryan, Wim,
->> >
->> > The following changes since commit 52addcf9d6669fa439387610bc65c92=
-fa0980cef:
->> >
->> >   Linux 3.17-rc2 (2014-08-25 15:36:20 -0700)
->> >
->> > are available in the git repository at:
->> >
->> >   git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git tags/m=
-fd-hwmon-leds-watchdog-v3.18
->> >
->> > for you to fetch changes up to 964356938fcd3c0001a786f55b9f0a0fbe4=
-7656a:
->> >
->> >   hwmon: (menf21bmc) Introduce MEN14F021P00 BMC HWMON driver (2014=
--09-24 15:36:33 +0100)
->> >
->> > ----------------------------------------------------------------
->> > Immutable branch between MFD, HWMON, LEDs and Watchdog for v3.18
->> >
->> I assume you'll push it all through mfd, correct ?
->
-> The idea is for all the affected Maintainers to pull this branch in t=
-o
-> their own trees.  If you guys don't, there will be a good chance of
-> conflict during the merge-window, which will subsequently upset Linus=
-=2E
->
-> So in answer to your question; yes I'll be taking this, but so should
-> each of you.
->
+On Tue, Sep 23, 2014 at 06:04:38PM -0500, Josh Cartwright wrote:
+> The WDT's BITE_TIME warm-reset behavior can be leveraged as a last
+> resort mechanism for triggering chip reset.  Usually, other restart
+> methods (such as PS_HOLD) are preferrable for issuing a more complete
+> reset of the chip.  As such, keep the priority of the watchdog notifier
+> low.
+> 
+> Signed-off-by: Josh Cartwright <joshc@codeaurora.org>
+> ---
+>  drivers/watchdog/qcom-wdt.c | 28 ++++++++++++++++++++++++++++
+>  1 file changed, 28 insertions(+)
+> 
+> diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
+> index d5e46e2..eba92ef 100644
+> --- a/drivers/watchdog/qcom-wdt.c
+> +++ b/drivers/watchdog/qcom-wdt.c
+> @@ -16,6 +16,7 @@
+>  #include <linux/module.h>
+>  #include <linux/of.h>
+>  #include <linux/platform_device.h>
+> +#include <linux/reboot.h>
+>  #include <linux/watchdog.h>
+>  
+>  #define WDT_RST		0x0
+> @@ -25,6 +26,7 @@
+>  struct qcom_wdt {
+>  	struct watchdog_device	wdd;
+>  	struct clk		*clk;
+> +	struct notifier_block	restart_nb;
+>  	void __iomem		*base;
+>  };
+>  
+> @@ -86,6 +88,23 @@ static const struct watchdog_info qcom_wdt_info = {
+>  	.identity	= KBUILD_MODNAME,
+>  };
+>  
+> +static int qcom_wdt_restart(struct notifier_block *nb, unsigned long action,
+> +			    void *data)
+> +{
+> +	struct qcom_wdt *wdt = container_of(nb, struct qcom_wdt, restart_nb);
+> +
+> +	/*
+> +	 * Trigger watchdog bite:
+> +	 *    Setup BITE_TIME to be very low, and enable WDT.
+> +	 *      0x31F3 => 390ms @ 32kHz, also value at reset
 
-Thanks for this, man. What am I going to do here? Need I pull in all
-the patches here into my LED tree or just one LED patch? I think if
-you push this for Linus through MFD tree, I don't need to pull it into
-my tree, right?
+What happens if you set it to a lower value ? If you set it to, say,
+0x100, would the timeout be ~8ms ? Wouldn't that make more sense ?
+Or at least something like 0x800, which should make it around 64 ms,
+or 0x400 for 32 ms.
 
-I was confused, sorry.
+[ In other words, I don't really see the point for a 390 ms wait here ]
 
--Bryan
+> +	 */
+> +	writel(0, wdt->base + WDT_EN);
+> +	writel(1, wdt->base + WDT_RST);
+> +	writel(0x31F3, wdt->base + WDT_BITE_TIME);
+> +	writel(1, wdt->base + WDT_EN);
 
+You should have some mdelay() here, larger than the expected timeout.
 
->> > ----------------------------------------------------------------
->> > Andreas Werner (4):
->> >       mfd: menf21bmc: Introduce MEN 14F021P00 BMC MFD Core driver
->> >       watchdog: menf21bmc_wdt: Introduce MEN 14F021P00 BMC Watchdo=
-g driver
->> >       leds: leds-menf21bmc: Introduce MEN 14F021P00 BMC LED driver
->> >       hwmon: (menf21bmc) Introduce MEN14F021P00 BMC HWMON driver
->> >
->> >  Documentation/hwmon/menf21bmc    |  50 +++++++++
->> >  drivers/hwmon/Kconfig            |  10 ++
->> >  drivers/hwmon/Makefile           |   1 +
->> >  drivers/hwmon/menf21bmc_hwmon.c  | 230 ++++++++++++++++++++++++++=
-+++++++++++++
->> >  drivers/leds/Kconfig             |   9 ++
->> >  drivers/leds/Makefile            |   1 +
->> >  drivers/leds/leds-menf21bmc.c    | 131 ++++++++++++++++++++++
->> >  drivers/mfd/Kconfig              |  15 +++
->> >  drivers/mfd/Makefile             |   1 +
->> >  drivers/mfd/menf21bmc.c          | 132 ++++++++++++++++++++++
->> >  drivers/watchdog/Kconfig         |  10 ++
->> >  drivers/watchdog/Makefile        |   1 +
->> >  drivers/watchdog/menf21bmc_wdt.c | 203 ++++++++++++++++++++++++++=
-++++++++
->> >  13 files changed, 794 insertions(+)
->> >  create mode 100644 Documentation/hwmon/menf21bmc
->> >  create mode 100644 drivers/hwmon/menf21bmc_hwmon.c
->> >  create mode 100644 drivers/leds/leds-menf21bmc.c
->> >  create mode 100644 drivers/mfd/menf21bmc.c
->> >  create mode 100644 drivers/watchdog/menf21bmc_wdt.c
->> >
->
+Thanks,
+Guenter
+
+> +	return NOTIFY_DONE;
+> +}
+> +
+>  static int qcom_wdt_probe(struct platform_device *pdev)
+>  {
+>  	struct qcom_wdt *wdt;
+> @@ -141,6 +160,14 @@ static int qcom_wdt_probe(struct platform_device *pdev)
+>  		return ret;
+>  	}
+>  
+> +	/*
+> +	 * WDT restart notifier has priority 0 (use as a last resort)
+> +	 */
+> +	wdt->restart_nb.notifier_call = qcom_wdt_restart;
+> +	ret = register_restart_handler(&wdt->restart_nb);
+> +	if (ret)
+> +		dev_err(&pdev->dev, "failed to setup restart handler\n");
+> +
+>  	platform_set_drvdata(pdev, wdt);
+>  	return 0;
+>  }
+> @@ -149,6 +176,7 @@ static int qcom_wdt_remove(struct platform_device *pdev)
+>  {
+>  	struct qcom_wdt *wdt = platform_get_drvdata(pdev);
+>  
+> +	unregister_restart_handler(&wdt->restart_nb);
+>  	watchdog_unregister_device(&wdt->wdd);
+>  	clk_disable_unprepare(wdt->clk);
+>  	return 0;
+> -- 
+> Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+> hosted by The Linux Foundation
+> 
 > --
-> Lee Jones
-> Linaro STMicroelectronics Landing Team Lead
-> Linaro.org =E2=94=82 Open source software for ARM SoCs
-> Follow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
