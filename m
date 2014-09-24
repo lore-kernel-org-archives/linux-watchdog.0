@@ -1,20 +1,20 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ig0-f182.google.com ([209.85.213.182]:53006 "EHLO
-	mail-ig0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752561AbaIXOsi (ORCPT
+Received: from mail-ie0-f176.google.com ([209.85.223.176]:62637 "EHLO
+	mail-ie0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750994AbaIXOtn (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 24 Sep 2014 10:48:38 -0400
-Received: by mail-ig0-f182.google.com with SMTP id hn15so6627306igb.15
-        for <linux-watchdog@vger.kernel.org>; Wed, 24 Sep 2014 07:48:37 -0700 (PDT)
-Date: Wed, 24 Sep 2014 15:48:29 +0100
+	Wed, 24 Sep 2014 10:49:43 -0400
+Received: by mail-ie0-f176.google.com with SMTP id ar1so11728275iec.21
+        for <linux-watchdog@vger.kernel.org>; Wed, 24 Sep 2014 07:49:42 -0700 (PDT)
+Date: Wed, 24 Sep 2014 15:49:36 +0100
 From: Lee Jones <lee.jones@linaro.org>
 To: Andreas Werner <andreas.werner@men.de>
 Cc: linux-kernel@vger.kernel.org, sameo@linux.intel.com,
 	linux@roeck-us.net, lm-sensors@lm-sensors.org, wim@iguana.be,
 	linux-watchdog@vger.kernel.org, cooloney@gmail.com,
 	rpurdie@rpsys.net, linux-leds@vger.kernel.org
-Subject: Re: [PATCH v6 0/4] Introduce MEN 14F021P00 BMC driver series
-Message-ID: <20140924144829.GK32069@lee--X1>
+Subject: [GIT PULL] MFD: Immutable branch between HWMON, LEDs and Watchdog
+Message-ID: <20140924144936.GL32069@lee--X1>
 References: <cover.1409161615.git.andreas.werner@men.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
@@ -28,11 +28,11 @@ Guenter, Bryan, Wim,
 
 The following changes since commit 52addcf9d6669fa439387610bc65c92fa0980c=
 ef:
-
+ =20
   Linux 3.17-rc2 (2014-08-25 15:36:20 -0700)
-
+ =20
 are available in the git repository at:
-
+ =20
   git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git tags/mfd-hwmo=
 n-leds-watchdog-v3.18
 
