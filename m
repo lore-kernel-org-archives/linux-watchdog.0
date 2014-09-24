@@ -1,13 +1,15 @@
 Return-path: <lm-sensors-bounces@lm-sensors.org>
-Date: Wed, 24 Sep 2014 08:45:03 -0700
+Date: Wed, 24 Sep 2014 09:28:24 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 To: Lee Jones <lee.jones@linaro.org>
-Message-ID: <20140924154503.GA12403@roeck-us.net>
+Message-ID: <20140924162824.GA13363@roeck-us.net>
 References: <cover.1409161615.git.andreas.werner@men.de>
 	<20140924144829.GK32069@lee--X1>
+	<20140924154503.GA12403@roeck-us.net>
+	<20140924161837.GA7113@lee--X1>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20140924144829.GK32069@lee--X1>
+In-Reply-To: <20140924161837.GA7113@lee--X1>
 Cc: sameo@linux.intel.com, Andreas Werner <andreas.werner@men.de>,
 	cooloney@gmail.com, linux-kernel@vger.kernel.org,
 	lm-sensors@lm-sensors.org, wim@iguana.be, rpurdie@rpsys.net,
@@ -21,52 +23,47 @@ List-Post: <mailto:lm-sensors@lm-sensors.org>
 List-Help: <mailto:lm-sensors-request@lm-sensors.org?subject=help>
 List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/lm-sensors>,
 	<mailto:lm-sensors-request@lm-sensors.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: lm-sensors-bounces@lm-sensors.org
 Errors-To: lm-sensors-bounces@lm-sensors.org
 List-ID: <linux-watchdog@vger.kernel.org>
 
-T24gV2VkLCBTZXAgMjQsIDIwMTQgYXQgMDM6NDg6MjlQTSArMDEwMCwgTGVlIEpvbmVzIHdyb3Rl
-Ogo+IEd1ZW50ZXIsIEJyeWFuLCBXaW0sCj4gCj4gVGhlIGZvbGxvd2luZyBjaGFuZ2VzIHNpbmNl
-IGNvbW1pdCA1MmFkZGNmOWQ2NjY5ZmE0MzkzODc2MTBiYzY1YzkyZmEwOTgwY2VmOgo+IAo+ICAg
-TGludXggMy4xNy1yYzIgKDIwMTQtMDgtMjUgMTU6MzY6MjAgLTA3MDApCj4gCj4gYXJlIGF2YWls
-YWJsZSBpbiB0aGUgZ2l0IHJlcG9zaXRvcnkgYXQ6Cj4gCj4gICBnaXQ6Ly9naXQua2VybmVsLm9y
-Zy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9naXQvbGVlL21mZC5naXQgdGFncy9tZmQtaHdtb24tbGVk
-cy13YXRjaGRvZy12My4xOAo+IAo+IGZvciB5b3UgdG8gZmV0Y2ggY2hhbmdlcyB1cCB0byA5NjQz
-NTY5MzhmY2QzYzAwMDFhNzg2ZjU1YjlmMGEwZmJlNDc2NTZhOgo+IAo+ICAgaHdtb246IChtZW5m
-MjFibWMpIEludHJvZHVjZSBNRU4xNEYwMjFQMDAgQk1DIEhXTU9OIGRyaXZlciAoMjAxNC0wOS0y
-NCAxNTozNjozMyArMDEwMCkKPiAKPiAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCj4gSW1tdXRhYmxlIGJyYW5jaCBiZXR3ZWVu
-IE1GRCwgSFdNT04sIExFRHMgYW5kIFdhdGNoZG9nIGZvciB2My4xOAo+IApJIGFzc3VtZSB5b3Un
-bGwgcHVzaCBpdCBhbGwgdGhyb3VnaCBtZmQsIGNvcnJlY3QgPwoKVGhhbmtzLApHdWVudGVyCgo+
-IC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0KPiBBbmRyZWFzIFdlcm5lciAoNCk6Cj4gICAgICAgbWZkOiBtZW5mMjFibWM6IElu
-dHJvZHVjZSBNRU4gMTRGMDIxUDAwIEJNQyBNRkQgQ29yZSBkcml2ZXIKPiAgICAgICB3YXRjaGRv
-ZzogbWVuZjIxYm1jX3dkdDogSW50cm9kdWNlIE1FTiAxNEYwMjFQMDAgQk1DIFdhdGNoZG9nIGRy
-aXZlcgo+ICAgICAgIGxlZHM6IGxlZHMtbWVuZjIxYm1jOiBJbnRyb2R1Y2UgTUVOIDE0RjAyMVAw
-MCBCTUMgTEVEIGRyaXZlcgo+ICAgICAgIGh3bW9uOiAobWVuZjIxYm1jKSBJbnRyb2R1Y2UgTUVO
-MTRGMDIxUDAwIEJNQyBIV01PTiBkcml2ZXIKPiAKPiAgRG9jdW1lbnRhdGlvbi9od21vbi9tZW5m
-MjFibWMgICAgfCAgNTAgKysrKysrKysrCj4gIGRyaXZlcnMvaHdtb24vS2NvbmZpZyAgICAgICAg
-ICAgIHwgIDEwICsrCj4gIGRyaXZlcnMvaHdtb24vTWFrZWZpbGUgICAgICAgICAgIHwgICAxICsK
-PiAgZHJpdmVycy9od21vbi9tZW5mMjFibWNfaHdtb24uYyAgfCAyMzAgKysrKysrKysrKysrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrCj4gIGRyaXZlcnMvbGVkcy9LY29uZmlnICAgICAgICAg
-ICAgIHwgICA5ICsrCj4gIGRyaXZlcnMvbGVkcy9NYWtlZmlsZSAgICAgICAgICAgIHwgICAxICsK
-PiAgZHJpdmVycy9sZWRzL2xlZHMtbWVuZjIxYm1jLmMgICAgfCAxMzEgKysrKysrKysrKysrKysr
-KysrKysrKwo+ICBkcml2ZXJzL21mZC9LY29uZmlnICAgICAgICAgICAgICB8ICAxNSArKysKPiAg
-ZHJpdmVycy9tZmQvTWFrZWZpbGUgICAgICAgICAgICAgfCAgIDEgKwo+ICBkcml2ZXJzL21mZC9t
-ZW5mMjFibWMuYyAgICAgICAgICB8IDEzMiArKysrKysrKysrKysrKysrKysrKysrCj4gIGRyaXZl
-cnMvd2F0Y2hkb2cvS2NvbmZpZyAgICAgICAgIHwgIDEwICsrCj4gIGRyaXZlcnMvd2F0Y2hkb2cv
-TWFrZWZpbGUgICAgICAgIHwgICAxICsKPiAgZHJpdmVycy93YXRjaGRvZy9tZW5mMjFibWNfd2R0
-LmMgfCAyMDMgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKwo+ICAxMyBmaWxlcyBj
-aGFuZ2VkLCA3OTQgaW5zZXJ0aW9ucygrKQo+ICBjcmVhdGUgbW9kZSAxMDA2NDQgRG9jdW1lbnRh
-dGlvbi9od21vbi9tZW5mMjFibWMKPiAgY3JlYXRlIG1vZGUgMTAwNjQ0IGRyaXZlcnMvaHdtb24v
-bWVuZjIxYm1jX2h3bW9uLmMKPiAgY3JlYXRlIG1vZGUgMTAwNjQ0IGRyaXZlcnMvbGVkcy9sZWRz
-LW1lbmYyMWJtYy5jCj4gIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL21mZC9tZW5mMjFibWMu
-Ywo+ICBjcmVhdGUgbW9kZSAxMDA2NDQgZHJpdmVycy93YXRjaGRvZy9tZW5mMjFibWNfd2R0LmMK
-PiAKPiAtLSAKPiBMZWUgSm9uZXMKPiBMaW5hcm8gU1RNaWNyb2VsZWN0cm9uaWNzIExhbmRpbmcg
-VGVhbSBMZWFkCj4gTGluYXJvLm9yZyDilIIgT3BlbiBzb3VyY2Ugc29mdHdhcmUgZm9yIEFSTSBT
-b0NzCj4gRm9sbG93IExpbmFybzogRmFjZWJvb2sgfCBUd2l0dGVyIHwgQmxvZwoKX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KbG0tc2Vuc29ycyBtYWlsaW5n
-IGxpc3QKbG0tc2Vuc29yc0BsbS1zZW5zb3JzLm9yZwpodHRwOi8vbGlzdHMubG0tc2Vuc29ycy5v
-cmcvbWFpbG1hbi9saXN0aW5mby9sbS1zZW5zb3Jz
+On Wed, Sep 24, 2014 at 05:18:37PM +0100, Lee Jones wrote:
+> On Wed, 24 Sep 2014, Guenter Roeck wrote:
+> 
+> > On Wed, Sep 24, 2014 at 03:48:29PM +0100, Lee Jones wrote:
+> > > Guenter, Bryan, Wim,
+> > > 
+> > > The following changes since commit 52addcf9d6669fa439387610bc65c92fa0980cef:
+> > > 
+> > >   Linux 3.17-rc2 (2014-08-25 15:36:20 -0700)
+> > > 
+> > > are available in the git repository at:
+> > > 
+> > >   git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git tags/mfd-hwmon-leds-watchdog-v3.18
+> > > 
+> > > for you to fetch changes up to 964356938fcd3c0001a786f55b9f0a0fbe47656a:
+> > > 
+> > >   hwmon: (menf21bmc) Introduce MEN14F021P00 BMC HWMON driver (2014-09-24 15:36:33 +0100)
+> > > 
+> > > ----------------------------------------------------------------
+> > > Immutable branch between MFD, HWMON, LEDs and Watchdog for v3.18
+> > > 
+> > I assume you'll push it all through mfd, correct ?
+> 
+> The idea is for all the affected Maintainers to pull this branch in to
+> their own trees.  If you guys don't, there will be a good chance of
+> conflict during the merge-window, which will subsequently upset Linus.
+> 
+> So in answer to your question; yes I'll be taking this, but so should
+> each of you.
+> 
+No problem with me. Let's see how it goes.
+
+Guenter
+
+_______________________________________________
+lm-sensors mailing list
+lm-sensors@lm-sensors.org
+http://lists.lm-sensors.org/mailman/listinfo/lm-sensors
