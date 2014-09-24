@@ -1,136 +1,72 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wi0-f180.google.com ([209.85.212.180]:59031 "EHLO
-	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751465AbaI1Wva (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 28 Sep 2014 18:51:30 -0400
-Date: Mon, 29 Sep 2014 00:50:16 +0200
-From: Beniamino Galvani <b.galvani@gmail.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Mark Brown <broonie@kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Grant Likely <grant.likely@linaro.org>,
-	Carlo Caione <carlo@caione.org>
-Subject: Re: [PATCH 3/4] watchdog: add driver for Ricoh RN5T618 watchdog
-Message-ID: <20140928225016.GA30777@gmail.com>
-References: <1409091237-16722-1-git-send-email-b.galvani@gmail.com>
- <1409091237-16722-4-git-send-email-b.galvani@gmail.com>
- <20140904091917.GA1397@lee--X1>
- <20140928203646.GB571@spo001.leaseweb.nl>
+Return-path: <lm-sensors-bounces@lm-sensors.org>
+Date: Wed, 24 Sep 2014 08:45:03 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Lee Jones <lee.jones@linaro.org>
+Message-ID: <20140924154503.GA12403@roeck-us.net>
+References: <cover.1409161615.git.andreas.werner@men.de>
+	<20140924144829.GK32069@lee--X1>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20140928203646.GB571@spo001.leaseweb.nl>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <20140924144829.GK32069@lee--X1>
+Cc: sameo@linux.intel.com, Andreas Werner <andreas.werner@men.de>,
+	cooloney@gmail.com, linux-kernel@vger.kernel.org,
+	lm-sensors@lm-sensors.org, wim@iguana.be, rpurdie@rpsys.net,
+	linux-leds@vger.kernel.org, linux-watchdog@vger.kernel.org
+Subject: Re: [lm-sensors] [PATCH v6 0/4] Introduce MEN 14F021P00 BMC driver
+	series
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/options/lm-sensors>,
+	<mailto:lm-sensors-request@lm-sensors.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/lm-sensors/>
+List-Post: <mailto:lm-sensors@lm-sensors.org>
+List-Help: <mailto:lm-sensors-request@lm-sensors.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/lm-sensors>,
+	<mailto:lm-sensors-request@lm-sensors.org?subject=subscribe>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Sender: lm-sensors-bounces@lm-sensors.org
+Errors-To: lm-sensors-bounces@lm-sensors.org
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Sun, Sep 28, 2014 at 10:36:46PM +0200, Wim Van Sebroeck wrote:
-> Hi Lee,
-> 
-> > Still waiting on a Watchdog Ack, so I can take this set in.
-> > 
-> > > This adds a driver for the watchdog timer available in Ricoh RN5T618
-> > > PMIC. The device supports a programmable expiration time of 1, 8, 32
-> > > or 128 seconds.
-> > > 
-> > > Signed-off-by: Beniamino Galvani <b.galvani@gmail.com>
-> > > ---
-> > >  drivers/watchdog/Kconfig       |   11 +++
-> > >  drivers/watchdog/Makefile      |    1 +
-> > >  drivers/watchdog/rn5t618_wdt.c |  196 ++++++++++++++++++++++++++++++++++++++++
-> > >  include/linux/mfd/rn5t618.h    |    4 +
-> > >  4 files changed, 212 insertions(+)
-> > >  create mode 100644 drivers/watchdog/rn5t618_wdt.c
-> > > 
-> > > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> > > index f57312f..9eba6af 100644
-> > > --- a/drivers/watchdog/Kconfig
-> > > +++ b/drivers/watchdog/Kconfig
-> > > @@ -309,6 +309,17 @@ config ORION_WATCHDOG
-> > >  	  To compile this driver as a module, choose M here: the
-> > >  	  module will be called orion_wdt.
-> > >  
-> > > +config RN5T618_WATCHDOG
-> > > +	tristate "Ricoh RN5T618 watchdog"
-> > > +	depends on MFD_RN5T618
-> > > +	select WATCHDOG_CORE
-> > > +	help
-> > > +	  If you say yes here you get support for watchdog on the Ricoh
-> > > +	  RN5T618 PMIC.
-> > > +
-> > > +	  This driver can also be built as a module.  If so, the module
-> > > +	  will be called rn5t618_wdt.
-> > > +
-> > >  config SUNXI_WATCHDOG
-> > >  	tristate "Allwinner SoCs watchdog support"
-> > >  	depends on ARCH_SUNXI
-> > > diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> > > index 468c320..0afa343 100644
-> > > --- a/drivers/watchdog/Makefile
-> > > +++ b/drivers/watchdog/Makefile
-> > > @@ -47,6 +47,7 @@ obj-$(CONFIG_IOP_WATCHDOG) += iop_wdt.o
-> > >  obj-$(CONFIG_DAVINCI_WATCHDOG) += davinci_wdt.o
-> > >  obj-$(CONFIG_ORION_WATCHDOG) += orion_wdt.o
-> > >  obj-$(CONFIG_SUNXI_WATCHDOG) += sunxi_wdt.o
-> > > +obj-$(CONFIG_RN5T618_WATCHDOG) += rn5t618_wdt.o
-> > >  obj-$(CONFIG_COH901327_WATCHDOG) += coh901327_wdt.o
-> > >  obj-$(CONFIG_STMP3XXX_RTC_WATCHDOG) += stmp3xxx_rtc_wdt.o
-> > >  obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
-> > > diff --git a/drivers/watchdog/rn5t618_wdt.c b/drivers/watchdog/rn5t618_wdt.c
-> > > new file mode 100644
-> > > index 0000000..3a76ad7
-> > > --- /dev/null
-> > > +++ b/drivers/watchdog/rn5t618_wdt.c
-> > > @@ -0,0 +1,196 @@
-> > > +/*
-> > > + * Watchdog driver for Ricoh RN5T618 PMIC
-> > > + *
-> > > + * Copyright (C) 2014 Beniamino Galvani <b.galvani@gmail.com>
-> > > + *
-> > > + * This program is free software; you can redistribute it and/or
-> > > + * modify it under the terms of the GNU General Public License
-> > > + * version 2 as published by the Free Software Foundation.
-> > > + *
-> > > + * You should have received a copy of the GNU General Public License
-> > > + * along with this program. If not, see <http://www.gnu.org/licenses/>.
-> > > + */
-> > > +
-> > > +#include <linux/device.h>
-> > > +#include <linux/mfd/rn5t618.h>
-> > > +#include <linux/module.h>
-> > > +#include <linux/platform_device.h>
-> > > +#include <linux/watchdog.h>
-> > > +
-> > > +#define DRIVER_NAME "rn5t618-wdt"
-> > > +
-> > > +static bool nowayout = WATCHDOG_NOWAYOUT;
-> > > +static unsigned int heartbeat = -1;
-> > > +
-> > > +module_param(heartbeat, int, 0);
-> > > +MODULE_PARM_DESC(heartbeat, "Initial watchdog heartbeat in seconds");
-> > > +
-> 
-> These are the comments I just mailed:
-> 1) this is actually a timeout value and not the same as the heartbeat of the watchdog device.
-> So I prefer this also to be called as timeout and not heartbeat.
-> 2) this actually is an unsigned int.
-> 
-> For the rest OK by me.
-
-Hi Wim,
-
-there was a more recent version of the patch [1] , but your comments
-were still valid. I addressed your suggestions in v3 of the patch [2].
-
-Beniamino
-
-[1] http://lwn.net/Articles/610000/
-[2] https://lkml.org/lkml/2014/9/28/173
+T24gV2VkLCBTZXAgMjQsIDIwMTQgYXQgMDM6NDg6MjlQTSArMDEwMCwgTGVlIEpvbmVzIHdyb3Rl
+Ogo+IEd1ZW50ZXIsIEJyeWFuLCBXaW0sCj4gCj4gVGhlIGZvbGxvd2luZyBjaGFuZ2VzIHNpbmNl
+IGNvbW1pdCA1MmFkZGNmOWQ2NjY5ZmE0MzkzODc2MTBiYzY1YzkyZmEwOTgwY2VmOgo+IAo+ICAg
+TGludXggMy4xNy1yYzIgKDIwMTQtMDgtMjUgMTU6MzY6MjAgLTA3MDApCj4gCj4gYXJlIGF2YWls
+YWJsZSBpbiB0aGUgZ2l0IHJlcG9zaXRvcnkgYXQ6Cj4gCj4gICBnaXQ6Ly9naXQua2VybmVsLm9y
+Zy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9naXQvbGVlL21mZC5naXQgdGFncy9tZmQtaHdtb24tbGVk
+cy13YXRjaGRvZy12My4xOAo+IAo+IGZvciB5b3UgdG8gZmV0Y2ggY2hhbmdlcyB1cCB0byA5NjQz
+NTY5MzhmY2QzYzAwMDFhNzg2ZjU1YjlmMGEwZmJlNDc2NTZhOgo+IAo+ICAgaHdtb246IChtZW5m
+MjFibWMpIEludHJvZHVjZSBNRU4xNEYwMjFQMDAgQk1DIEhXTU9OIGRyaXZlciAoMjAxNC0wOS0y
+NCAxNTozNjozMyArMDEwMCkKPiAKPiAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCj4gSW1tdXRhYmxlIGJyYW5jaCBiZXR3ZWVu
+IE1GRCwgSFdNT04sIExFRHMgYW5kIFdhdGNoZG9nIGZvciB2My4xOAo+IApJIGFzc3VtZSB5b3Un
+bGwgcHVzaCBpdCBhbGwgdGhyb3VnaCBtZmQsIGNvcnJlY3QgPwoKVGhhbmtzLApHdWVudGVyCgo+
+IC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0KPiBBbmRyZWFzIFdlcm5lciAoNCk6Cj4gICAgICAgbWZkOiBtZW5mMjFibWM6IElu
+dHJvZHVjZSBNRU4gMTRGMDIxUDAwIEJNQyBNRkQgQ29yZSBkcml2ZXIKPiAgICAgICB3YXRjaGRv
+ZzogbWVuZjIxYm1jX3dkdDogSW50cm9kdWNlIE1FTiAxNEYwMjFQMDAgQk1DIFdhdGNoZG9nIGRy
+aXZlcgo+ICAgICAgIGxlZHM6IGxlZHMtbWVuZjIxYm1jOiBJbnRyb2R1Y2UgTUVOIDE0RjAyMVAw
+MCBCTUMgTEVEIGRyaXZlcgo+ICAgICAgIGh3bW9uOiAobWVuZjIxYm1jKSBJbnRyb2R1Y2UgTUVO
+MTRGMDIxUDAwIEJNQyBIV01PTiBkcml2ZXIKPiAKPiAgRG9jdW1lbnRhdGlvbi9od21vbi9tZW5m
+MjFibWMgICAgfCAgNTAgKysrKysrKysrCj4gIGRyaXZlcnMvaHdtb24vS2NvbmZpZyAgICAgICAg
+ICAgIHwgIDEwICsrCj4gIGRyaXZlcnMvaHdtb24vTWFrZWZpbGUgICAgICAgICAgIHwgICAxICsK
+PiAgZHJpdmVycy9od21vbi9tZW5mMjFibWNfaHdtb24uYyAgfCAyMzAgKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKysrKysrKysrCj4gIGRyaXZlcnMvbGVkcy9LY29uZmlnICAgICAgICAg
+ICAgIHwgICA5ICsrCj4gIGRyaXZlcnMvbGVkcy9NYWtlZmlsZSAgICAgICAgICAgIHwgICAxICsK
+PiAgZHJpdmVycy9sZWRzL2xlZHMtbWVuZjIxYm1jLmMgICAgfCAxMzEgKysrKysrKysrKysrKysr
+KysrKysrKwo+ICBkcml2ZXJzL21mZC9LY29uZmlnICAgICAgICAgICAgICB8ICAxNSArKysKPiAg
+ZHJpdmVycy9tZmQvTWFrZWZpbGUgICAgICAgICAgICAgfCAgIDEgKwo+ICBkcml2ZXJzL21mZC9t
+ZW5mMjFibWMuYyAgICAgICAgICB8IDEzMiArKysrKysrKysrKysrKysrKysrKysrCj4gIGRyaXZl
+cnMvd2F0Y2hkb2cvS2NvbmZpZyAgICAgICAgIHwgIDEwICsrCj4gIGRyaXZlcnMvd2F0Y2hkb2cv
+TWFrZWZpbGUgICAgICAgIHwgICAxICsKPiAgZHJpdmVycy93YXRjaGRvZy9tZW5mMjFibWNfd2R0
+LmMgfCAyMDMgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKwo+ICAxMyBmaWxlcyBj
+aGFuZ2VkLCA3OTQgaW5zZXJ0aW9ucygrKQo+ICBjcmVhdGUgbW9kZSAxMDA2NDQgRG9jdW1lbnRh
+dGlvbi9od21vbi9tZW5mMjFibWMKPiAgY3JlYXRlIG1vZGUgMTAwNjQ0IGRyaXZlcnMvaHdtb24v
+bWVuZjIxYm1jX2h3bW9uLmMKPiAgY3JlYXRlIG1vZGUgMTAwNjQ0IGRyaXZlcnMvbGVkcy9sZWRz
+LW1lbmYyMWJtYy5jCj4gIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL21mZC9tZW5mMjFibWMu
+Ywo+ICBjcmVhdGUgbW9kZSAxMDA2NDQgZHJpdmVycy93YXRjaGRvZy9tZW5mMjFibWNfd2R0LmMK
+PiAKPiAtLSAKPiBMZWUgSm9uZXMKPiBMaW5hcm8gU1RNaWNyb2VsZWN0cm9uaWNzIExhbmRpbmcg
+VGVhbSBMZWFkCj4gTGluYXJvLm9yZyDilIIgT3BlbiBzb3VyY2Ugc29mdHdhcmUgZm9yIEFSTSBT
+b0NzCj4gRm9sbG93IExpbmFybzogRmFjZWJvb2sgfCBUd2l0dGVyIHwgQmxvZwoKX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KbG0tc2Vuc29ycyBtYWlsaW5n
+IGxpc3QKbG0tc2Vuc29yc0BsbS1zZW5zb3JzLm9yZwpodHRwOi8vbGlzdHMubG0tc2Vuc29ycy5v
+cmcvbWFpbG1hbi9saXN0aW5mby9sbS1zZW5zb3Jz
