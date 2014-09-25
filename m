@@ -1,196 +1,121 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f170.google.com ([209.85.192.170]:52562 "EHLO
-	mail-pd0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753214AbaIYQS4 (ORCPT
+Received: from smtp.codeaurora.org ([198.145.11.231]:51111 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753964AbaIYRya (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 25 Sep 2014 12:18:56 -0400
-Received: by mail-pd0-f170.google.com with SMTP id y13so11174734pdi.29
-        for <linux-watchdog@vger.kernel.org>; Thu, 25 Sep 2014 09:18:56 -0700 (PDT)
-From: Guenter Roeck <linux@roeck-us.net>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org
-Subject: [GIT PULL] watchdog updates for Linux 3.18
-Date: Thu, 25 Sep 2014 09:18:50 -0700
-Message-Id: <1411661930-8038-1-git-send-email-linux@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+	Thu, 25 Sep 2014 13:54:30 -0400
+From: Josh Cartwright <joshc@codeaurora.org>
+To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+Cc: linux-arm-msm@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Kumar Gala <galak@codeaurora.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v3 3/3] watchdog: qcom: register a restart notifier
+Date: Thu, 25 Sep 2014 12:48:53 -0500
+Message-Id: <2dc54244e755eeacf8265a484819e0c2e2393221.1411667144.git.joshc@codeaurora.org>
+In-Reply-To: <cover.1411667144.git.joshc@codeaurora.org>
+References: <cover.1411667144.git.joshc@codeaurora.org>
+In-Reply-To: <cover.1411667144.git.joshc@codeaurora.org>
+References: <cover.1411667144.git.joshc@codeaurora.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Wim,
+The WDT's BITE_TIME warm-reset behavior can be leveraged as a last
+resort mechanism for triggering chip reset.  Usually, other restart
+methods (such as PS_HOLD) are preferrable for issuing a more complete
+reset of the chip.  As such, keep the priority of the watchdog notifier
+low.
 
-This is my watchdog pull request for 3.18. The branch is currently base=
-d
-on v3.17-rc3.
+Signed-off-by: Josh Cartwright <joshc@codeaurora.org>
+---
+ drivers/watchdog/qcom-wdt.c | 38 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 38 insertions(+)
 
-Please consider pulling watchdog updates for Linux 3.18 from signed tag=
-:
+diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
+index 0f56ca3..8ce339f 100644
+--- a/drivers/watchdog/qcom-wdt.c
++++ b/drivers/watchdog/qcom-wdt.c
+@@ -10,12 +10,14 @@
+  * GNU General Public License for more details.
+  *
+  */
++#include <linux/delay.h>
+ #include <linux/clk.h>
+ #include <linux/io.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
+ #include <linux/platform_device.h>
++#include <linux/reboot.h>
+ #include <linux/watchdog.h>
+ 
+ #define WDT_RST		0x0
+@@ -26,6 +28,7 @@ struct qcom_wdt {
+ 	struct watchdog_device	wdd;
+ 	struct clk		*clk;
+ 	unsigned long		rate;
++	struct notifier_block	restart_nb;
+ 	void __iomem		*base;
+ };
+ 
+@@ -84,6 +87,32 @@ static const struct watchdog_info qcom_wdt_info = {
+ 	.identity	= KBUILD_MODNAME,
+ };
+ 
++static int qcom_wdt_restart(struct notifier_block *nb, unsigned long action,
++			    void *data)
++{
++	struct qcom_wdt *wdt = container_of(nb, struct qcom_wdt, restart_nb);
++	u32 timeout;
++
++	/*
++	 * Trigger watchdog bite:
++	 *    Setup BITE_TIME to be 128ms, and enable WDT.
++	 */
++	timeout = 128 * wdt->rate / 1000;
++
++	writel(0, wdt->base + WDT_EN);
++	writel(1, wdt->base + WDT_RST);
++	writel(timeout, wdt->base + WDT_BITE_TIME);
++	writel(1, wdt->base + WDT_EN);
++
++	/*
++	 * Actually make sure the above sequence hits hardware before sleeping.
++	 */
++	wmb();
++
++	msleep(150);
++	return NOTIFY_DONE;
++}
++
+ static int qcom_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct qcom_wdt *wdt;
+@@ -149,6 +178,14 @@ static int qcom_wdt_probe(struct platform_device *pdev)
+ 		goto err_clk_unprepare;
+ 	}
+ 
++	/*
++	 * WDT restart notifier has priority 0 (use as a last resort)
++	 */
++	wdt->restart_nb.notifier_call = qcom_wdt_restart;
++	ret = register_restart_handler(&wdt->restart_nb);
++	if (ret)
++		dev_err(&pdev->dev, "failed to setup restart handler\n");
++
+ 	platform_set_drvdata(pdev, wdt);
+ 	return 0;
+ 
+@@ -162,6 +199,7 @@ static int qcom_wdt_remove(struct platform_device *pdev)
+ {
+ 	struct qcom_wdt *wdt = platform_get_drvdata(pdev);
+ 
++	unregister_restart_handler(&wdt->restart_nb);
+ 	watchdog_unregister_device(&wdt->wdd);
+ 	clk_disable_unprepare(wdt->clk);
+ 	return 0;
+-- 
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+hosted by The Linux Foundation
 
-    git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.=
-git watchdog-for-wim-3.18
-
-The tag has been applied on top of the watchdog-next branch. The branch=
- includes
-a number of patches I collected over the last few months. It does not i=
-nclude
-all submitted patches; only the ones I reviewed and felt comfortable wi=
-th are
-included. Some may already be in your -next branch.
-
-I reviewed all patches and ran build tests as well as source verificati=
-on tests
-with both smatch and spatch. The branch has been on my Linux repository=
- for a
-while, so presumably Fenguang's robot will have built the code as well.=
- The most
-recent build results are available at http://server.roeck-us.net:8010/b=
-uilders.
-
-If you don't want to apply the entire series, please consider applying =
-whatever
-subset you might feel comfortable with.
-
-Note that there are a few more patches which I believe are ready to be =
-applied,
-but are not included in this pull request because they depend on the re=
-start
-handler patch series. Those patches are
-
-	watchdog: sunxi: Add A31 watchdog support
-	watchdog: sunxi: support parameterized compatible strings
-	watchdog: imx2_wdt: add restart handler support
-	watchdog: dw_wdt: add restart handler support
-
-Not really sure how to handle those. One possibility would be to wait u=
-ntil
-the restart handler series has been applied. Another possibility would =
-be to
-send two separate pull requests to Linus.
-
-Thanks,
-Guenter
-
-------
-The following changes since commit 69e273c0b0a3c337a521d083374c918dc52c=
-666f:
-
-  Linux 3.17-rc3 (2014-08-31 18:23:04 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.gi=
-t tags/watchdog-for-wim-3.18
-
-for you to fetch changes up to 50861760efa296cc652725313a65e3c9b03156f1=
-:
-
-  Merge tag 'mfd-hwmon-leds-watchdog-v3.18' into watchdog-next (2014-09=
--24 09:28:45 -0700)
-
-----------------------------------------------------------------
-
-This tag includes the following commits.
-
-5086176 Merge tag 'mfd-hwmon-leds-watchdog-v3.18' into watchdog-next
-9643569 hwmon: (menf21bmc) Introduce MEN14F021P00 BMC HWMON driver
-3843363 leds: leds-menf21bmc: Introduce MEN 14F021P00 BMC LED driver
-5033263 watchdog: menf21bmc_wdt: Introduce MEN 14F021P00 BMC Watchdog d=
-river
-dfbdcd7 mfd: menf21bmc: Introduce MEN 14F021P00 BMC MFD Core driver
-826899b watchdog: dw_wdt: initialise TOP_INIT in dw_wdt_set_top()
-8ee1313 ARM: meson: add watchdog driver
-3136087 ARM: defconfig: update multi_v7_defconfig
-b9d2f85 ARM: docs: add documentation binding for meson watchdog
-45804ec watchdog: simplify definitions of WATCHDOG_NOWAYOUT(_INIT_STATU=
-S)
-d9a9e55 watchdog: imx2_wdt: Convert to use regmap framework's endiannes=
-s method.
-ce495d4 devicetree: Add Cadence WDT devicetree bindings documentation
-064a052 watchdog: Add Cadence WDT driver
-0a03e7d watchdog: ts72xx_wdt: Kill superfluous variable in remove
-6f14d37 powerpc: booke_wdt: Fix build error as a module
-a672e8e watchdog: xilinx: Remove .owner field for driver
-
-----------------------------------------------------------------
-Andreas Werner (4):
-      mfd: menf21bmc: Introduce MEN 14F021P00 BMC MFD Core driver
-      watchdog: menf21bmc_wdt: Introduce MEN 14F021P00 BMC Watchdog dri=
-ver
-      leds: leds-menf21bmc: Introduce MEN 14F021P00 BMC LED driver
-      hwmon: (menf21bmc) Introduce MEN14F021P00 BMC HWMON driver
-
-Carlo Caione (3):
-      ARM: docs: add documentation binding for meson watchdog
-      ARM: defconfig: update multi_v7_defconfig
-      ARM: meson: add watchdog driver
-
-Guenter Roeck (1):
-      Merge tag 'mfd-hwmon-leds-watchdog-v3.18' into watchdog-next
-
-Harini Katakam (2):
-      watchdog: Add Cadence WDT driver
-      devicetree: Add Cadence WDT devicetree bindings documentation
-
-Jisheng Zhang (1):
-      watchdog: dw_wdt: initialise TOP_INIT in dw_wdt_set_top()
-
-Michal Simek (1):
-      watchdog: xilinx: Remove .owner field for driver
-
-Mika Westerberg (1):
-      watchdog: ts72xx_wdt: Kill superfluous variable in remove
-
-Pranith Kumar (1):
-      powerpc: booke_wdt: Fix build error as a module
-
-Uwe Kleine-K=C3=B6nig (1):
-      watchdog: simplify definitions of WATCHDOG_NOWAYOUT(_INIT_STATUS)
-
-Xiubo Li (1):
-      watchdog: imx2_wdt: Convert to use regmap framework's endianness =
-method.
-
- .../devicetree/bindings/watchdog/cadence-wdt.txt   |  24 +
- .../devicetree/bindings/watchdog/fsl-imx-wdt.txt   |   4 +-
- .../devicetree/bindings/watchdog/meson6-wdt.txt    |  13 +
- Documentation/hwmon/menf21bmc                      |  50 ++
- arch/arm/configs/multi_v7_defconfig                |   1 +
- drivers/hwmon/Kconfig                              |  10 +
- drivers/hwmon/Makefile                             |   1 +
- drivers/hwmon/menf21bmc_hwmon.c                    | 230 +++++++++
- drivers/leds/Kconfig                               |   9 +
- drivers/leds/Makefile                              |   1 +
- drivers/leds/leds-menf21bmc.c                      | 131 ++++++
- drivers/mfd/Kconfig                                |  15 +
- drivers/mfd/Makefile                               |   1 +
- drivers/mfd/menf21bmc.c                            | 132 ++++++
- drivers/watchdog/Kconfig                           |  28 ++
- drivers/watchdog/Makefile                          |   3 +
- drivers/watchdog/booke_wdt.c                       |  28 +-
- drivers/watchdog/cadence_wdt.c                     | 516 +++++++++++++=
-++++++++
- drivers/watchdog/dw_wdt.c                          |   4 +-
- drivers/watchdog/imx2_wdt.c                        |   9 +-
- drivers/watchdog/menf21bmc_wdt.c                   | 203 ++++++++
- drivers/watchdog/meson_wdt.c                       | 236 ++++++++++
- drivers/watchdog/of_xilinx_wdt.c                   |   1 -
- drivers/watchdog/ts72xx_wdt.c                      |   6 +-
- include/linux/watchdog.h                           |   9 +-
- 25 files changed, 1618 insertions(+), 47 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/watchdog/cadence-=
-wdt.txt
- create mode 100644 Documentation/devicetree/bindings/watchdog/meson6-w=
-dt.txt
- create mode 100644 Documentation/hwmon/menf21bmc
- create mode 100644 drivers/hwmon/menf21bmc_hwmon.c
- create mode 100644 drivers/leds/leds-menf21bmc.c
- create mode 100644 drivers/mfd/menf21bmc.c
- create mode 100644 drivers/watchdog/cadence_wdt.c
- create mode 100644 drivers/watchdog/menf21bmc_wdt.c
- create mode 100644 drivers/watchdog/meson_wdt.c
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
