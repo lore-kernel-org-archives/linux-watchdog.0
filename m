@@ -1,81 +1,92 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f42.google.com ([209.85.220.42]:55878 "EHLO
-	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751883AbaIYSnS (ORCPT
+Received: from smtp.codeaurora.org ([198.145.11.231]:56629 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751895AbaIYTG3 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 25 Sep 2014 14:43:18 -0400
-Date: Thu, 25 Sep 2014 11:43:14 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Josh Cartwright <joshc@codeaurora.org>
+	Thu, 25 Sep 2014 15:06:29 -0400
+Date: Thu, 25 Sep 2014 14:00:54 -0500
+From: Josh Cartwright <joshc@codeaurora.org>
+To: Guenter Roeck <linux@roeck-us.net>
 Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+	Grant Likely <grant.likely@linaro.org>,
+	Rob Herring <robh+dt@kernel.org>,
+	linux-arm-msm@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
 	Kumar Gala <galak@codeaurora.org>,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	devicetree@vger.kernel.org, linux-doc@vger.kernel.org
-Subject: Re: [PATCH v3 2/3] watchdog: qcom: document device tree bindings
-Message-ID: <20140925184314.GC12340@roeck-us.net>
+	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+Subject: Re: [PATCH v3 1/3] watchdog: qcom: add support for KPSS WDT
+Message-ID: <20140925190054.GJ868@joshc.qualcomm.com>
 References: <cover.1411667144.git.joshc@codeaurora.org>
- <f49033de078aff9112fb8fa6fa4331e16998edf2.1411667144.git.joshc@codeaurora.org>
+ <ae171484ae036b331f06814251872c7602a54996.1411667144.git.joshc@codeaurora.org>
+ <20140925183857.GA12340@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <f49033de078aff9112fb8fa6fa4331e16998edf2.1411667144.git.joshc@codeaurora.org>
+In-Reply-To: <20140925183857.GA12340@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Sep 25, 2014 at 12:48:52PM -0500, Josh Cartwright wrote:
-> The Qualcomm Krait Processor Sub-system (KPSS) contains one or more
-> instances of the WDT.  Provide documentation on how to describe these in
-> the device tree.
+On Thu, Sep 25, 2014 at 11:38:57AM -0700, Guenter Roeck wrote:
+> On Thu, Sep 25, 2014 at 12:48:51PM -0500, Josh Cartwright wrote:
+> > Add a driver for the watchdog timer block found in the Krait Processor
+> > Subsystem (KPSS) on the MSM8960, APQ8064, and IPQ8064.
+> > 
+> > Signed-off-by: Josh Cartwright <joshc@codeaurora.org>
 > 
-> Signed-off-by: Josh Cartwright <joshc@codeaurora.org>
-> ---
->  .../devicetree/bindings/watchdog/qcom-wdt.txt      | 22 ++++++++++++++++++++++
->  1 file changed, 22 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
+> Hi Josh,
 > 
-> diff --git a/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt b/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
-> new file mode 100644
-> index 0000000..c75566e
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
-> @@ -0,0 +1,22 @@
-> +Qualcomm Krait Processor Sub-system (KPSS) Watchdog
-> +---------------------------------------------------
-> +
-> +Required properties :
-> +- compatible : shall contain only one of the following:
-> +
-> +			"qcom,kpss-wdt-msm8960"
-> +			"qcom,kpss-wdt-apq8064"
-> +			"qcom,kpss-wdt-ipq8064"
-> +
-> +- reg : shall contain base register location and length
-> +- clocks : shall contain the input clock
-> +- timeout-sec : shall contain the default watchdog timeout in seconds,
-> +                if unset, the default timeout is 30 seconds
+> just a couple of minor comments this time (yes, I know,
+> I am being difficult ;-).
 
-Hi Josh,
+Difficult, maybe, but at least someone's taking a look!  Thanks, again.
 
-timeout-sec is optional, not mandatory.
-
-Thanks,
-Guenter
-
-> +
-> +Example:
-> +	watchdog@208a038 {
-> +		compatible = "qcom,kpss-wdt-ipq8064";
-> +		reg = <0x0208a038 0x40>;
-> +		clocks = <&sleep_clk>;
-> +		timeout-sec = <10>;
-> +	};
-> -- 
-> Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-> hosted by The Linux Foundation
+[..]
+> > +++ b/drivers/watchdog/qcom-wdt.c
+[..]
+> > +static int qcom_wdt_probe(struct platform_device *pdev)
+> > +{
+> > +	struct qcom_wdt *wdt;
+> > +	struct resource *res;
+> > +	int ret;
+> > +
+> > +	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+> > +	if (!wdt)
+> > +		return -ENOMEM;
+> > +
+> > +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> > +	wdt->base = devm_ioremap_resource(&pdev->dev, res);
+> > +	if (IS_ERR(wdt->base)) {
+> > +		ret = PTR_ERR(wdt->base);
+> > +		goto err_out;
 > 
+> This is really unnecessary. Just return PTR_ERR((wdt->base) as you did before.
+> No need to make the code more complicated than necessary.
+> 
+> Basic rule is: If you can return immediately, do it. Otherwise use goto
+> and have a single error handler.
+> 
+> > +	}
+> > +
+> > +	wdt->clk = devm_clk_get(&pdev->dev, NULL);
+> > +	if (IS_ERR(wdt->clk)) {
+> > +		ret = PTR_ERR(wdt->clk);
+> > +		goto err_out;
+> 
+> Same here.
+> 
+> > +	}
+> > +
+> > +	ret = clk_prepare_enable(wdt->clk);
+> > +	if (ret) {
+> > +		dev_err(&pdev->dev, "failed to setup clock\n");
+> > +		goto err_out;
+> 
+> and here.
+
+Okay, I can fix these up.
+
+  Josh
+
+-- 
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+hosted by The Linux Foundation
