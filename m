@@ -1,93 +1,136 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:44856 "EHLO
-	spo001.leaseweb.nl" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750871AbaIYHPN (ORCPT
+Received: from mail1.bemta3.messagelabs.com ([195.245.230.174]:18258 "EHLO
+	mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751533AbaIYHem (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 25 Sep 2014 03:15:13 -0400
-Date: Thu, 25 Sep 2014 08:58:05 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
+	Thu, 25 Sep 2014 03:34:42 -0400
+Date: Thu, 25 Sep 2014 10:26:12 +0200
+From: Andreas Werner <andreas.werner@men.de>
 To: Lee Jones <lee.jones@linaro.org>
-Cc: Guenter Roeck <linux@roeck-us.net>, Bryan Wu <cooloney@gmail.com>,
+CC: Guenter Roeck <linux@roeck-us.net>, Bryan Wu <cooloney@gmail.com>,
 	Andreas Werner <andreas.werner@men.de>,
 	lkml <linux-kernel@vger.kernel.org>,
 	Samuel Ortiz <sameo@linux.intel.com>,
-	lm-sensors@lm-sensors.org, linux-watchdog@vger.kernel.org,
+	<lm-sensors@lm-sensors.org>, <wim@iguana.be>,
+	<linux-watchdog@vger.kernel.org>,
 	"rpurdie@rpsys.net" <rpurdie@rpsys.net>,
 	Linux LED Subsystem <linux-leds@vger.kernel.org>
 Subject: Re: [PATCH v6 0/4] Introduce MEN 14F021P00 BMC driver series
-Message-ID: <20140925065805.GB6989@spo001.leaseweb.nl>
-References: <cover.1409161615.git.andreas.werner@men.de> <20140924144829.GK32069@lee--X1> <20140924154503.GA12403@roeck-us.net> <20140924161837.GA7113@lee--X1> <CAK5ve-+79oMf0vD-_gzWLPbvFi4ygd1q9pzTCHzzpsXVkjqP9Q@mail.gmail.com> <20140924165739.GA31578@roeck-us.net> <20140924184143.GC7113@lee--X1>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-ID: <20140925082611.GA967@awelinux>
+References: <cover.1409161615.git.andreas.werner@men.de>
+ <20140924144829.GK32069@lee--X1>
+ <20140924154503.GA12403@roeck-us.net>
+ <20140924161837.GA7113@lee--X1>
+ <CAK5ve-+79oMf0vD-_gzWLPbvFi4ygd1q9pzTCHzzpsXVkjqP9Q@mail.gmail.com>
+ <20140924165739.GA31578@roeck-us.net>
+ <20140924184143.GC7113@lee--X1>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 In-Reply-To: <20140924184143.GC7113@lee--X1>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi All,
-
+On Wed, Sep 24, 2014 at 07:41:43PM +0100, Lee Jones wrote:
 > On Wed, 24 Sep 2014, Guenter Roeck wrote:
-> 
+>=20
 > > On Wed, Sep 24, 2014 at 09:33:32AM -0700, Bryan Wu wrote:
-> > > On Wed, Sep 24, 2014 at 9:18 AM, Lee Jones <lee.jones@linaro.org> wrote:
+> > > On Wed, Sep 24, 2014 at 9:18 AM, Lee Jones <lee.jones@linaro.org>=
+ wrote:
 > > > > On Wed, 24 Sep 2014, Guenter Roeck wrote:
 > > > >
 > > > >> On Wed, Sep 24, 2014 at 03:48:29PM +0100, Lee Jones wrote:
 > > > >> > Guenter, Bryan, Wim,
 > > > >> >
-> > > >> > The following changes since commit 52addcf9d6669fa439387610bc65c92fa0980cef:
+> > > >> > The following changes since commit 52addcf9d6669fa439387610b=
+c65c92fa0980cef:
 > > > >> >
 > > > >> >   Linux 3.17-rc2 (2014-08-25 15:36:20 -0700)
 > > > >> >
 > > > >> > are available in the git repository at:
 > > > >> >
-> > > >> >   git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git tags/mfd-hwmon-leds-watchdog-v3.18
+> > > >> >   git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git =
+tags/mfd-hwmon-leds-watchdog-v3.18
 > > > >> >
-> > > >> > for you to fetch changes up to 964356938fcd3c0001a786f55b9f0a0fbe47656a:
+> > > >> > for you to fetch changes up to 964356938fcd3c0001a786f55b9f0=
+a0fbe47656a:
 > > > >> >
-> > > >> >   hwmon: (menf21bmc) Introduce MEN14F021P00 BMC HWMON driver (2014-09-24 15:36:33 +0100)
+> > > >> >   hwmon: (menf21bmc) Introduce MEN14F021P00 BMC HWMON driver=
+ (2014-09-24 15:36:33 +0100)
 > > > >> >
-> > > >> > ----------------------------------------------------------------
-> > > >> > Immutable branch between MFD, HWMON, LEDs and Watchdog for v3.18
+> > > >> > ------------------------------------------------------------=
+----
+> > > >> > Immutable branch between MFD, HWMON, LEDs and Watchdog for v=
+3.18
 > > > >> >
 > > > >> I assume you'll push it all through mfd, correct ?
 > > > >
-> > > > The idea is for all the affected Maintainers to pull this branch in to
-> > > > their own trees.  If you guys don't, there will be a good chance of
-> > > > conflict during the merge-window, which will subsequently upset Linus.
+> > > > The idea is for all the affected Maintainers to pull this branc=
+h in to
+> > > > their own trees.  If you guys don't, there will be a good chanc=
+e of
+> > > > conflict during the merge-window, which will subsequently upset=
+ Linus.
 > > > >
-> > > > So in answer to your question; yes I'll be taking this, but so should
+> > > > So in answer to your question; yes I'll be taking this, but so =
+should
 > > > > each of you.
 > > > >
-> > > 
-> > > Thanks for this, man. What am I going to do here? Need I pull in all
-> > > the patches here into my LED tree or just one LED patch? I think if
-> > > you push this for Linus through MFD tree, I don't need to pull it into
+> > >=20
+> > > Thanks for this, man. What am I going to do here? Need I pull in =
+all
+> > > the patches here into my LED tree or just one LED patch? I think =
+if
+> > > you push this for Linus through MFD tree, I don't need to pull it=
+ into
 > > > my tree, right?
-> > > 
+> > >=20
 > > I did
-> > 
-> > git remote add mfd git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git
+> >=20
+> > git remote add mfd git://git.kernel.org/pub/scm/linux/kernel/git/le=
+e/mfd.git
 > > git fetch --tags mfd
 > > git merge mfd-hwmon-leds-watchdog-v3.18
-> > 
-> > in both my hwmon-next and watchdog-next branches. Both are currently building,
+> >=20
+> > in both my hwmon-next and watchdog-next branches. Both are currentl=
+y building,
 > > and already pushed into to my repository at kernel.org.
-> > 
-> > So, effectively, when I send my pull request to Linus, all patches from
-> > mfd-hwmon-leds-watchdog-v3.18 will be included, ie the entire series.
-> > The same will happen when Lee sends his pull request, and Wim, and you. 
+> >=20
+> > So, effectively, when I send my pull request to Linus, all patches =
+from
+> > mfd-hwmon-leds-watchdog-v3.18 will be included, ie the entire serie=
+s.
+> > The same will happen when Lee sends his pull request, and Wim, and =
+you.=20
 > > I believe that is what Lee is asking for.
-> 
+>=20
 > That's right.  It's not okay to break this branch up.  If it was, we
 > would have been able to apply our respective components into our own
-> trees from the beginning, but as there are interdependencies, breaking
+> trees from the beginning, but as there are interdependencies, breakin=
+g
 > up the branch could have nasty consequences depending on the order in
 > which they land in Mainline.  Most likely bisectability will be
 > broken, which is not allowed.
+>=20
 
-Added to linux-watchdog-next.
+Hi,
+please do not forget the MAINTAINERS Patch for this series.
+I have send it last week attached to this series.
 
-Kind regards,
-Wim.
+Thanks
 
+Regards
+Andy
+
+> --=20
+> Lee Jones
+> Linaro STMicroelectronics Landing Team Lead
+> Linaro.org =E2=94=82 Open source software for ARM SoCs
+> Follow Linaro: Facebook | Twitter | Blog
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
