@@ -1,47 +1,59 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.11.231]:56738 "EHLO
+Received: from smtp.codeaurora.org ([198.145.11.231]:57291 "EHLO
 	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750843AbaIYTHK (ORCPT
+	with ESMTP id S1750793AbaIYTKJ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 25 Sep 2014 15:07:10 -0400
-Date: Thu, 25 Sep 2014 14:01:35 -0500
+	Thu, 25 Sep 2014 15:10:09 -0400
+Date: Thu, 25 Sep 2014 14:04:34 -0500
 From: Josh Cartwright <joshc@codeaurora.org>
 To: Guenter Roeck <linux@roeck-us.net>
 Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
-	Kumar Gala <galak@codeaurora.org>,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	devicetree@vger.kernel.org, linux-doc@vger.kernel.org
-Subject: Re: [PATCH v3 2/3] watchdog: qcom: document device tree bindings
-Message-ID: <20140925190135.GK868@joshc.qualcomm.com>
+	Kumar Gala <galak@codeaurora.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 3/3] watchdog: qcom: register a restart notifier
+Message-ID: <20140925190434.GL868@joshc.qualcomm.com>
 References: <cover.1411667144.git.joshc@codeaurora.org>
- <f49033de078aff9112fb8fa6fa4331e16998edf2.1411667144.git.joshc@codeaurora.org>
- <20140925184314.GC12340@roeck-us.net>
+ <2dc54244e755eeacf8265a484819e0c2e2393221.1411667144.git.joshc@codeaurora.org>
+ <20140925184149.GB12340@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20140925184314.GC12340@roeck-us.net>
+In-Reply-To: <20140925184149.GB12340@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Sep 25, 2014 at 11:43:14AM -0700, Guenter Roeck wrote:
-> On Thu, Sep 25, 2014 at 12:48:52PM -0500, Josh Cartwright wrote:
-[..]
-> > +- timeout-sec : shall contain the default watchdog timeout in seconds,
-> > +                if unset, the default timeout is 30 seconds
+On Thu, Sep 25, 2014 at 11:41:49AM -0700, Guenter Roeck wrote:
+> On Thu, Sep 25, 2014 at 12:48:53PM -0500, Josh Cartwright wrote:
+> > The WDT's BITE_TIME warm-reset behavior can be leveraged as a last
+> > resort mechanism for triggering chip reset.  Usually, other restart
+> > methods (such as PS_HOLD) are preferrable for issuing a more complete
+> > reset of the chip.  As such, keep the priority of the watchdog notifier
+> > low.
+> > 
+> > Signed-off-by: Josh Cartwright <joshc@codeaurora.org>
+> > ---
+> >  drivers/watchdog/qcom-wdt.c | 38 ++++++++++++++++++++++++++++++++++++++
+> >  1 file changed, 38 insertions(+)
+> > 
+> > diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
+> > index 0f56ca3..8ce339f 100644
+> > --- a/drivers/watchdog/qcom-wdt.c
+> > +++ b/drivers/watchdog/qcom-wdt.c
+> > @@ -10,12 +10,14 @@
+> >   * GNU General Public License for more details.
+> >   *
+> >   */
+> > +#include <linux/delay.h>
 > 
-> Hi Josh,
-> 
-> timeout-sec is optional, not mandatory.
+> Nitpick: Please keep alphabetical order of include files.
+> That makes it easier to identify include files later on.
 
-Indeed, I made this change in v2, but didn't reflect it in the document.
-Good catch. Will fix.
+That was my intent, but apparently I fail at the alphabet :).  Normally
+instead of thinking I pipe the #include list through 'sort'.  Not sure
+why I didn't do so this time around.
 
+Thanks,
   Josh
 
 -- 
