@@ -1,50 +1,70 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ob0-f173.google.com ([209.85.214.173]:54190 "EHLO
-	mail-ob0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753122AbaIZJ0L (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:47066 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751753AbaIZN6k (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 26 Sep 2014 05:26:11 -0400
-Received: by mail-ob0-f173.google.com with SMTP id wm4so6643944obc.18
-        for <linux-watchdog@vger.kernel.org>; Fri, 26 Sep 2014 02:26:10 -0700 (PDT)
+	Fri, 26 Sep 2014 09:58:40 -0400
+Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
+	(envelope-from <linux@roeck-us.net>)
+	id 1XXW2h-001Zcm-Hu
+	for linux-watchdog@vger.kernel.org; Fri, 26 Sep 2014 13:58:39 +0000
+Message-ID: <542570F2.4090908@roeck-us.net>
+Date: Fri, 26 Sep 2014 06:58:10 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-In-Reply-To: <43154094.zHJetoiMJ3@wuerfel>
-References: <1411232812-11594-1-git-send-email-carlo@caione.org>
-	<1411232812-11594-4-git-send-email-carlo@caione.org>
-	<CAOQ7t2Z9LBmsYRRdutAnsmK-VN58XjiS9i1m-HC7T8Aku_tBQg@mail.gmail.com>
-	<43154094.zHJetoiMJ3@wuerfel>
-Date: Fri, 26 Sep 2014 11:26:10 +0200
-Message-ID: <CAOQ7t2abP=fVK9atW0E70_u2pBENxe1qLA9jhUCzkQbJrZag0w@mail.gmail.com>
-Subject: Re: [PATCH v4 3/4] ARM: DTS: meson: update DTSI to add watchdog node
-From: Carlo Caione <carlo@caione.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-	Carlo Caione <carlo@caione.org>,
-	Russell King - ARM Linux <linux@arm.linux.org.uk>,
+To: Chen-Yu Tsai <wens@csie.org>
+CC: Wim Van Sebroeck <wim@iguana.be>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
 	linux-watchdog@vger.kernel.org,
-	Victor Wan <victor.wan@amlogic.com>,
-	Beniamino Galvani <b.galvani@gmail.com>, wim@iguana.be,
-	"robh+dt@kernel.org" <robh+dt@kernel.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Jerry Cao <jerry.cao@amlogic.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>
-Content-Type: text/plain; charset=UTF-8
+	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH v2 1/2] watchdog: sunxi: support parameterized compatible
+ strings
+References: <1411315519-26257-1-git-send-email-wens@csie.org> <1411315519-26257-2-git-send-email-wens@csie.org> <541EFD9A.2000406@roeck-us.net> <CAGb2v66dv4TRKB3LDksTudYPQThOV9NaEZDByZVSqedDOjekwQ@mail.gmail.com>
+In-Reply-To: <CAGb2v66dv4TRKB3LDksTudYPQThOV9NaEZDByZVSqedDOjekwQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Sep 26, 2014 at 11:16 AM, Arnd Bergmann <arnd@arndb.de> wrote:
-> On Friday 26 September 2014 10:04:45 Carlo Caione wrote:
->> Hi Arnd and Guenter,
->> who is supposed to take in this patch? The basic support for the SoC
->> is already in the arm-soc tree (thanks Arnd) and the other three
->> patches of this patchset are going in through Guenter tree (thanks
->> Guenter).
+On 09/26/2014 01:29 AM, Chen-Yu Tsai wrote:
+> On Mon, Sep 22, 2014 at 12:32 AM, Guenter Roeck <linux@roeck-us.net> wrote:
+>> On 09/21/2014 09:05 AM, Chen-Yu Tsai wrote:
+>>>
+>>> This patch adds support for hardware parameters tied to compatible
+>>> strings, so similar hardware can reuse the driver.
+>>>
+>>> This will be used to support the newer watchdog found in A31 and
+>>> later SoCs. Differences in the new hardware include separate
+>>> interrupt lines for each watchdog, and corresponding interrupt
+>>> control/status registers. Watchdog control registers were also
+>>> slightly rearranged.
+>>>
+>>> Also replace ioread32()/iowrite32() with readl()/writel() in various
+>>> places changed.
+>>>
+>>> Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+>>
+>>
+>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 >>
 >
-> It should go through the arm-soc tree.
+> Hi Guenter,
+>
+> Are you submitting the restart handler patches for inclusion in 3.18?
 
-Could you take it?
+Yes, should go in through Andrew's tree or through one of the branches
+depending on it.
+
+> If so, are you taking any related patches or patches depending on
+> that series?
+>
+In general no, but I just sent a pull request pointing to an immutable branch
+containing the series. Affected maintainers should merge this branch into
+the affected subject branch(es).
+
+I do have a number of related patches in my watchdog-next branch. I'll send
+an updated pull request with those to Wim later today.
 
 Thanks,
+Guenter
 
--- 
-Carlo Caione
