@@ -1,47 +1,73 @@
-Return-path: <wens213@gmail.com>
-MIME-Version: 1.0
-Sender: wens213@gmail.com
-In-Reply-To: <541EFD9A.2000406@roeck-us.net>
-References: <1411315519-26257-1-git-send-email-wens@csie.org>
- <1411315519-26257-2-git-send-email-wens@csie.org> <541EFD9A.2000406@roeck-us.net>
-From: Chen-Yu Tsai <wens@csie.org>
-Date: Fri, 26 Sep 2014 16:29:18 +0800
-Message-ID: <CAGb2v66dv4TRKB3LDksTudYPQThOV9NaEZDByZVSqedDOjekwQ@mail.gmail.com>
-Subject: Re: [PATCH v2 1/2] watchdog: sunxi: support parameterized compatible strings
+Return-path: <mpa@pengutronix.de>
+Date: Sun, 28 Sep 2014 19:27:11 +0200
+From: Markus Pargmann <mpa@pengutronix.de>
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@iguana.be>, Maxime Ripard <maxime.ripard@free-electrons.com>,
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Support Opensource <support.opensource@diasemi.com>,
+	Philipp Zabel <p.zabel@pengutronix.de>,
 	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
-Content-Type: text/plain; charset=UTF-8
+	linux-arm-kernel@lists.infradead.org, kernel@pengutronix.de
+Subject: Re: [PATCH v7] watchdog: Add DA9063 PMIC watchdog driver.
+Message-ID: <20140928172711.GL25366@pengutronix.de>
+References: <1411923945-3538-1-git-send-email-mpa@pengutronix.de>
+ <5428433C.6060901@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="sClP8c1IaQxyux9v"
+Content-Disposition: inline
+In-Reply-To: <5428433C.6060901@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Mon, Sep 22, 2014 at 12:32 AM, Guenter Roeck <linux@roeck-us.net> wrote:
-> On 09/21/2014 09:05 AM, Chen-Yu Tsai wrote:
->>
->> This patch adds support for hardware parameters tied to compatible
->> strings, so similar hardware can reuse the driver.
->>
->> This will be used to support the newer watchdog found in A31 and
->> later SoCs. Differences in the new hardware include separate
->> interrupt lines for each watchdog, and corresponding interrupt
->> control/status registers. Watchdog control registers were also
->> slightly rearranged.
->>
->> Also replace ioread32()/iowrite32() with readl()/writel() in various
->> places changed.
->>
->> Signed-off-by: Chen-Yu Tsai <wens@csie.org>
->
->
+
+--sClP8c1IaQxyux9v
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Sun, Sep 28, 2014 at 10:19:56AM -0700, Guenter Roeck wrote:
+> On 09/28/2014 10:05 AM, Markus Pargmann wrote:
+> >From: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
+> >
+> >This driver supports the watchdog device inside the DA9063 PMIC.
+> >
+> >Signed-off-by: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
+> >Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+> >Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
+>=20
 > Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->
 
-Hi Guenter,
+Thanks for your reviews.
 
-Are you submitting the restart handler patches for inclusion in 3.18?
-If so, are you taking any related patches or patches depending on
-that series?
+Best regards,
 
+Markus
 
-Thanks
-ChenYu
+--=20
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+
+--sClP8c1IaQxyux9v
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJUKETvAAoJEEpcgKtcEGQQqq0P/in/mt9kVyCGfkRDskIkGNu9
+lNMAUHhx7+7mrhWRJEClur2JV3Lt+2dpn8fJzFtCvawnnRLsEkHfnitmlld0U/1S
+G3o3idF5IX/NHq9yILxuhL9W3BzMLu2ypvCribOXIGWY9sH1n4z5tr1FvKB9C0IY
+uzbOPXuueY0lKxh2TQ+q+oKNtVI5fEd+2JBeQprKO3qhBJ3op2o9faORESsiJbrR
+b8DiU2SwluDITYH3SwVeWtOk3QkHtRLAip9UBhlzeN7D+k2fCA+MbfxeSwFbcXyz
+vEAd2BNqZmMBC1xdkrWzuEKllc2AnmZS112laDUNc7RHlwEqrmMaTCn8S6x4A5An
+sAQwzZ0sM26Bxzc8SLWbVWlma2IZvoVY+l+AFVZLEcJBeTU7O1A1Zd+k6OEFGcdE
+90xL3SOHmzd7cUgpb7+PMI04cLXZimv8wXLmFWnM7TV3bZYWa9/WMn9g1a/ljmw4
+zCJPDTKnXCAU/BgwiVLMivTn3G15IjgTPVBllYpY4XpUf2RxUr2Q0BeOfTI8dFNL
+agwD6L6QbD2hU+ICAdgPdaDqJMsJwzHUFS8l66g3d0Mhja907lTkY6WZSCbsvfm4
+pqAq5Qhfa5MiBsQp1iQPWMnnVqqYfG8RjFifdWLNghdDPVUXY0g+VVRhcxOPgcAK
+w2r+ChduwUUuVxyJp8kP
+=6sFl
+-----END PGP SIGNATURE-----
+
+--sClP8c1IaQxyux9v--
