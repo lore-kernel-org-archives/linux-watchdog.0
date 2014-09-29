@@ -1,300 +1,353 @@
-Return-path: <ryazanov.s.a@gmail.com>
+Return-path: <j.uzycki@elproma.com.pl>
+Message-ID: <542987F9.2080907@elproma.com.pl>
+Date: Mon, 29 Sep 2014 18:25:29 +0200
+From: =?UTF-8?B?SmFudXN6IFXFvHlja2k=?= <j.uzycki@elproma.com.pl>
 MIME-Version: 1.0
-In-Reply-To: <20140929204619.GA32273@roeck-us.net>
-References: <1411929195-23775-1-git-send-email-ryazanov.s.a@gmail.com>
- <1411929195-23775-13-git-send-email-ryazanov.s.a@gmail.com>
- <54287F13.3080509@roeck-us.net> <CAHNKnsRCsz=m1bJX+LmAOh8CLUuuAvGmva8NpYvQSa4VK1L=PA@mail.gmail.com>
- <20140929204619.GA32273@roeck-us.net>
-From: Sergey Ryazanov <ryazanov.s.a@gmail.com>
-Date: Tue, 30 Sep 2014 01:01:05 +0400
-Message-ID: <CAHNKnsRrwtyWywK4n-vmK5ebNjDVhd-FjigLheBmGF2qabdYTQ@mail.gmail.com>
-Subject: Re: [PATCH 12/16] watchdog: add Atheros AR2315 watchdog driver
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: Ralf Baechle <ralf@linux-mips.org>, Linux MIPS <linux-mips@linux-mips.org>,
-	Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
+CC: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH 1/6] watchdog: watchdog_dev: WATCHDOG_KEEP_ON feature
+References: <1411419350-1297-1-git-send-email-j.uzycki@elproma.com.pl> <5424E535.7060009@roeck-us.net>
+In-Reply-To: <5424E535.7060009@roeck-us.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
-2014-09-30 0:46 GMT+04:00 Guenter Roeck <linux@roeck-us.net>:
-> On Tue, Sep 30, 2014 at 12:14:58AM +0400, Sergey Ryazanov wrote:
->> 2014-09-29 1:35 GMT+04:00 Guenter Roeck <linux@roeck-us.net>:
->> > On 09/28/2014 11:33 AM, Sergey Ryazanov wrote:
->> >>
->> >> Signed-off-by: Sergey Ryazanov <ryazanov.s.a@gmail.com>
->> >> Cc: Wim Van Sebroeck <wim@iguana.be>
->> >> Cc: linux-watchdog@vger.kernel.org
->> >> ---
->> >>
->> >> Changes since RFC:
->> >>    - use watchdog infrastructure
->> >>    - remove deprecated IRQF_DISABLED flag
->> >>    - move device registration to separate patch
->> >>
->> >>   drivers/watchdog/Kconfig      |   8 ++
->> >>   drivers/watchdog/Makefile     |   1 +
->> >>   drivers/watchdog/ar2315-wtd.c | 167
->> >> ++++++++++++++++++++++++++++++++++++++++++
->> >>   3 files changed, 176 insertions(+)
->> >>   create mode 100644 drivers/watchdog/ar2315-wtd.c
->> >>
->> >> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
->> >> index f57312f..dbace99 100644
->> >> --- a/drivers/watchdog/Kconfig
->> >> +++ b/drivers/watchdog/Kconfig
->> >> @@ -1186,6 +1186,14 @@ config RALINK_WDT
->> >>         help
->> >>           Hardware driver for the Ralink SoC Watchdog Timer.
->> >>
->> >> +config AR2315_WDT
->> >> +       tristate "Atheros AR2315+ WiSoCs Watchdog Timer"
->> >> +       select WATCHDOG_CORE
->> >> +       depends on SOC_AR2315
->> >> +       help
->> >> +         Hardware driver for the built-in watchdog timer on the Atheros
->> >> +         AR2315/AR2316 WiSoCs.
->> >> +
->> >>   # PARISC Architecture
->> >>
->> >>   # POWERPC Architecture
->> >> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
->> >> index 468c320..ef7f83b 100644
->> >> --- a/drivers/watchdog/Makefile
->> >> +++ b/drivers/watchdog/Makefile
->> >> @@ -133,6 +133,7 @@ obj-$(CONFIG_WDT_MTX1) += mtx-1_wdt.o
->> >>   obj-$(CONFIG_PNX833X_WDT) += pnx833x_wdt.o
->> >>   obj-$(CONFIG_SIBYTE_WDOG) += sb_wdog.o
->> >>   obj-$(CONFIG_AR7_WDT) += ar7_wdt.o
->> >> +obj-$(CONFIG_AR2315_WDT) += ar2315-wtd.o
->> >>   obj-$(CONFIG_TXX9_WDT) += txx9wdt.o
->> >>   obj-$(CONFIG_OCTEON_WDT) += octeon-wdt.o
->> >>   octeon-wdt-y := octeon-wdt-main.o octeon-wdt-nmi.o
->> >> diff --git a/drivers/watchdog/ar2315-wtd.c b/drivers/watchdog/ar2315-wtd.c
->> >> new file mode 100644
->> >> index 0000000..4fd34d2
->> >> --- /dev/null
->> >> +++ b/drivers/watchdog/ar2315-wtd.c
->> >> @@ -0,0 +1,167 @@
->> >> +/*
->> >> + * This program is free software; you can redistribute it and/or modify
->> >> + * it under the terms of the GNU General Public License as published by
->> >> + * the Free Software Foundation; either version 2 of the License, or
->> >> + * (at your option) any later version.
->> >> + *
->> >> + * This program is distributed in the hope that it will be useful,
->> >> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
->> >> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
->> >> + * GNU General Public License for more details.
->> >> + *
->> >> + * You should have received a copy of the GNU General Public License
->> >> + * along with this program; if not, see <http://www.gnu.org/licenses/>.
->> >> + *
->> >> + * Copyright (C) 2008 John Crispin <blogic@openwrt.org>
->> >> + * Based on EP93xx and ifxmips wdt driver
->> >> + */
->> >> +
->> >> +#include <linux/interrupt.h>
->> >> +#include <linux/module.h>
->> >> +#include <linux/watchdog.h>
->> >> +#include <linux/reboot.h>
->> >> +#include <linux/init.h>
->> >> +#include <linux/platform_device.h>
->> >> +#include <linux/io.h>
->> >> +
->> >> +#define DRIVER_NAME    "ar2315-wdt"
->> >> +
->> >> +#define CLOCK_RATE 40000000
->> >> +
->> >> +#define WDT_REG_TIMER          0x00
->> >> +#define WDT_REG_CTRL           0x04
->> >> +
->> >> +#define WDT_CTRL_ACT_NONE      0x00000000      /* No action */
->> >> +#define WDT_CTRL_ACT_NMI       0x00000001      /* NMI on watchdog */
->> >> +#define WDT_CTRL_ACT_RESET     0x00000002      /* reset on watchdog */
->> >> +
->> >
->> > What are those defines for ? They don't seem to be used.
->> >
->> This defines for reference. There no documentation for this chips, so
->> I left this defines as some kind of documentation.
->>
-> If they are not used, please drop those defines. They only create unnecessary
-> confusion if unused.
->
-Ok.
 
->> > If the watchdog can result in an immediate restart, as
->> > this define suggests, why don't you use it but rely on
->> > the interrupt handler instead ?
->> >
->> AFAIK some of chips have a HW bug in restarting unit, so chip specific
->> restart routine (in arch code) use a lot of hacks to reset chip. So we
->> use interrupt to call reset function, which should reliably reset
->> chip.
+W dniu 2014-09-26 06:01, Guenter Roeck pisze:
+> On 09/22/2014 01:55 PM, Janusz Uzycki wrote:
+>> Some applications require to start watchdog before userspace software.
+>> This patch enables such feature. Only the flag is necessary
+>> to enable it.
+>> Moreover kernel's ping is re-enabled when userspace software closed
+>> watchdog using the magic character. The features improves kernel's
+>> reliability if hardware watchdog is available.
 >>
->> > This means the watchdog won't really fire if it times out, but depend
->> > on the interrupt handler to work. Which it won't if there is a real
->> > problem and interrupts are disabled (or if the system hangs entirely).
->> >
->> Sure. But without reset function call from the interrupt handler we
->> can not reliable reset chip (see above).
->>
->> >> +static int started;
->> >> +static void __iomem *wdt_base;
->> >> +
->> >> +static inline void ar2315_wdt_wr(unsigned reg, u32 val)
->> >> +{
->> >> +       iowrite32(val, wdt_base + reg);
->> >> +}
->> >> +
->> >> +static void ar2315_wdt_enable(struct watchdog_device *wdd)
->> >> +{
->> >> +       ar2315_wdt_wr(WDT_REG_TIMER, wdd->timeout * CLOCK_RATE);
->> >> +}
->> >> +
->> >> +static int ar2315_wdt_start(struct watchdog_device *wdd)
->> >> +{
->> >> +       ar2315_wdt_enable(wdd);
->> >> +       started = 1;
->> >
->> >
->> > I don't really see why you would need this variable.
->> >
->> To protect against spurious interrupts, since the watchdog timer could
->> be started by bootloader.
->>
-> Then it would be appropriate to stop it in the probe function.
+>> Signed-off-by: Janusz Uzycki <j.uzycki@elproma.com.pl>
 >
-Yes sure.
 
->> >
->> >> +       return 0;
->> >> +}
->> >> +
->> >> +static int ar2315_wdt_stop(struct watchdog_device *wdd)
->> >> +{
->> >> +       return 0;
->> >> +}
->> >> +
->> >> +static int ar2315_wdt_ping(struct watchdog_device *wdd)
->> >> +{
->> >> +       ar2315_wdt_enable(wdd);
->> >> +       return 0;
->> >> +}
->> >> +
->> >> +static int ar2315_wdt_set_timeout(struct watchdog_device *wdd, unsigned
->> >> val)
->> >> +{
->> >> +       wdd->timeout = val;
->> >> +       return 0;
->> >> +}
->> >> +
->> >> +static irqreturn_t ar2315_wdt_interrupt(int irq, void *dev)
->> >> +{
->> >> +       struct platform_device *pdev = (struct platform_device *)dev;
->> >> +
->> >> +       if (started) {
->> >> +               dev_crit(&pdev->dev, "watchdog expired, rebooting
->> >> system\n");
->> >> +               emergency_restart();
->> >> +       } else {
->> >> +               ar2315_wdt_wr(WDT_REG_CTRL, 0);
->> >> +               ar2315_wdt_wr(WDT_REG_TIMER, 0);
->> >> +       }
->> >
->> >
->> > This is quite unusual.
->> > Why not stop the watchdog in the stop function ? Quite apparently
->> > it can be stopped, or at least this is what it looks like.
->> >
->> The started variable is set to true inside the watchdog start routine,
->> but it never reset to false. This code only disable the watchdog when
->> it was started by bootloader.
->>
->> > When do you expect this function to be called in the first place
->> > with started == 1 ?
->> >
->> > If the idea is to stop the watchdog if it was already enabled
->> > when probing the driver, why don't you stop it there ?
->> >
->> Sure, I will try to do that.
->>
->> >> +       return IRQ_HANDLED;
->> >> +}
->> >> +
->> >> +static const struct watchdog_info ar2315_wdt_info = {
->> >> +       .identity = "ar2315 Watchdog",
->> >> +       .options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
->> >> +};
->> >> +
->> >> +static const struct watchdog_ops ar2315_wdt_ops = {
->> >> +       .owner = THIS_MODULE,
->> >> +       .start = ar2315_wdt_start,
->> >> +       .stop = ar2315_wdt_stop,
->> >> +       .ping = ar2315_wdt_ping,
->> >> +       .set_timeout = ar2315_wdt_set_timeout,
->> >> +};
->> >> +
->> >> +static struct watchdog_device ar2315_wdt_dev = {
->> >> +       .info = &ar2315_wdt_info,
->> >> +       .ops = &ar2315_wdt_ops,
->> >> +       .min_timeout = 1,
->> >> +       .max_timeout = 90,
->> >> +       .timeout = 20,
->> >> +};
->> >> +
->> >> +static int ar2315_wdt_probe(struct platform_device *pdev)
->> >> +{
->> >> +       struct device *dev = &pdev->dev;
->> >> +       struct resource *res;
->> >> +       int ret = 0;
->> >> +
->> >> +       if (wdt_base)
->> >> +               return -EBUSY;
->> >> +
->> >> +       res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->> >> +       wdt_base = devm_ioremap_resource(dev, res);
->> >> +       if (IS_ERR(wdt_base))
->> >> +               return PTR_ERR(wdt_base);
->> >> +
->> >> +       res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
->> >> +       if (!res) {
->> >> +               dev_err(dev, "no IRQ resource\n");
->> >> +               return -ENOENT;
->> >> +       }
->> >> +
->> >> +       ret = devm_request_irq(dev, res->start, ar2315_wdt_interrupt, 0,
->> >> +                              DRIVER_NAME, pdev);
->> >> +       if (ret) {
->> >> +               dev_err(dev, "failed to register inetrrupt\n");
->> >> +               return ret;
->> >> +       }
->> >> +
->> >> +       ar2315_wdt_dev.parent = dev;
->> >> +       ret = watchdog_register_device(&ar2315_wdt_dev);
->> >> +       if (ret) {
->> >> +               dev_err(dev, "failed to register watchdog device\n");
->> >> +               return ret;
->> >> +       }
->> >> +
->> >> +       return 0;
->> >> +}
->> >> +
->> >> +static int ar2315_wdt_remove(struct platform_device *pdev)
->> >> +{
->> >> +       watchdog_unregister_device(&ar2315_wdt_dev);
->> >
->> >
->> > Why don't you stop the watchdog on remove ?
->> >
->> While the watchdog is running, the watchdog core prevents the module
->> unloading, so this routine could not be called while the watchdog is
->> running. Isn't it?
->>
-> Only you never stop the watchdog nor disable the chip interrupt,
-> even on close (the stop function above does nothing).
+Hi Guenter,
+
 >
-Oops. I really forget to disable interrupt. Thank you!
+> This patch set is trying to solve four problems at once:
+>
+> 1) Auto-start watchdog when its driver registers
+> 2) Keep watchdog running when its driver registers until userspace 
+> opens it
+> 3) Handle watchdogs which can not be stopped after being started
+> 4) Keep watchdog running with kernel timer after it has been closed,
+>    even if it can be stopped.
+>
+> The next time adds 'boot time protection', which is really another term
+> for an initial timeout, and case 5).
+>
+> That is a bit too much for a single patch and, even more so, a single 
+> flag.
 
--- 
-BR,
-Sergey
+OK, but I think [PATCH 3/6] could be applied.
+Do you agree? Should I resent it separately?
+I omited in the comment
+"The patch adds suspend/resume PM support to stmp3xxx_rtc_wdt
+watchdog driver" because the subject is almost the same.
+
+> Let's look at one case after another.
+>
+> Auto-start watchdog when its driver registers - this makes sense as a
+> feature just by itself. A good name for its flag might be something like
+> WDT_AUTOSTART. A matching module parameter might also make sense.
+>
+> autostart:
+>     Set to 0 to disable, -1 to enable with unlimited timeout,
+>     or <n> for an initial timeout of <n> seconds.
+
+Current start(1) + keep-on(2,3,4) + boottime(5) combined. It looks OK.
+
+>
+> This could be accompanied by a variable in watchdog_device:
+>     int init_timeout;    /* initial timeout in seconds */
+
+As the module parameter, instead of "boottime" in watchdog_core?
+
+>
+> An API function such as watchdog_set_autostart() with the initial timeout
+> as parameter would also be helpful. This function could then be used to
+> implement 2).
+>
+>     if (autostart || (keep_running && this_watchdog_is_running())
+>         watchdog_set_autostart(&wdd, autostart ? : keep_running);
+>
+I don't understand the difference exactly and why to check the watchdog
+is running? This means watchdog is active or something new?
+
+> keep_running could then be a another module parameter with the same 
+> meaning
+> as autostart.
+But autostart and keep_running aren't in conflict.
+So I don't understand also "autostart ? : keep_running".
+
+>
+> Together this would also solve problem 5) while at the same time keeping
+> the use cases separate.
+
+It is solved by current code.
+
+>
+> For 3) we really need another flag. Actually, it might be sufficient 
+> to have
+> watchdog drivers with this condition simply not provide a 'stop' 
+> function.
+or use "NOT SUPPORTED" error code in stop,
+Stop could be called on register and new flag is set.
+
+> If we use a flag, something like WDOG_HW_NO_WAY_OUT with matching
+> WATCHDOG_HW_NOWAYOUT might make sense. Its functionality is slightly
+
+What is difference between WDOG_HW_NO_WAY_OUT
+and WATCHDOG_HW_NOWAYOUT?
+
+> different to the other conditions: It would not auto-start a watchdog,
+> but keep it running with the internal timer when the watchdog file is 
+> closed.
+>
+> As for 4), I don't really know if it makes sense to have this 
+> functionality.
+
+Yes, it is rootfs specific need. Script based code runs watchdog before
+critical function and after exit the watchdog using magic char.
+Critical section has timeout equal watchdog timeout value.
+The feature allow to avoid userland application for watchdog
+and does not cost much in the kernel.
+
+>
+> Does this all make sense ?
+
+I need more details because not all is clear for me.
+
+>
+> Some more comments below.
+thanks
+
+>
+> Thanks,
+> Guenter
+>
+>> ---
+>>   drivers/watchdog/watchdog_dev.c | 58 ++++++++++++++++++++++++++-
+>>   include/linux/watchdog.h        |  5 +++
+>>   2 files changed, 61 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/watchdog/watchdog_dev.c 
+>> b/drivers/watchdog/watchdog_dev.c
+>> index 6aaefba..51a65f6 100644
+>> --- a/drivers/watchdog/watchdog_dev.c
+>> +++ b/drivers/watchdog/watchdog_dev.c
+>> @@ -41,6 +41,7 @@
+>>   #include <linux/miscdevice.h>    /* For handling misc devices */
+>>   #include <linux/init.h>        /* For __init/__exit/... */
+>>   #include <linux/uaccess.h>    /* For copy_to_user/put_user/... */
+>> +#include <linux/jiffies.h>    /* for ping timer */
+>>
+>>   #include "watchdog_core.h"
+>>
+>> @@ -277,6 +278,27 @@ out_ioctl:
+>>       return err;
+>>   }
+>>
+>> +/* 'keep on' feature */
+>> +static void watchdog_ping_timer_cb(unsigned long data)
+>> +{
+>> +    struct watchdog_device *wdd = (struct watchdog_device *)data;
+>> +    watchdog_ping(wdd);
+>> +    /* call next ping half the timeout value */
+>> +    mod_timer(&wdd->ping_timer,
+>> +            jiffies + msecs_to_jiffies(wdd->timeout * 500));
+>> +}
+>> +
+>> +static void watchdog_keepon_start(struct watchdog_device *wdd)
+>
+> This name reflects the intended use case, but not the functionality.
+> Something like "watchdog_timer_start" might make more sense here.
+
+I see
+
+>
+>> +{
+>> +    watchdog_start(wdd);
+>
+> This should probably be handled by the caller, to let us separate
+> cases where the watchdog is already running (for example on close).
+
+The goal is to have watchdog always enabled.
+This option could be disabled only if watchdog can't be stopped
+because then suspend is also impossible.
+
+>
+>> +    watchdog_ping_timer_cb((unsigned long)wdd);
+>> +}
+>> +
+>> +static void watchdog_keepon_stop(struct watchdog_device *wdd)
+>
+> Same name comment as above. keepon -> timer.
+
+sure
+
+>
+>> +{
+>> +    del_timer_sync(&wdd->ping_timer);
+>> +}
+>> +
+>>   /*
+>>    *    watchdog_write: writes to the watchdog.
+>>    *    @file: file from VFS
+>> @@ -430,6 +452,9 @@ static int watchdog_open(struct inode *inode, 
+>> struct file *file)
+>>       if (!try_module_get(wdd->ops->owner))
+>>           goto out;
+>>
+>> +    if (test_bit(WDOG_KEEP_ON, &wdd->status))
+>> +        watchdog_keepon_stop(wdd);
+>> +
+>>       err = watchdog_start(wdd);
+>>       if (err < 0)
+>>           goto out_mod;
+>> @@ -472,8 +497,13 @@ static int watchdog_release(struct inode *inode, 
+>> struct file *file)
+>>       if (!test_bit(WDOG_ACTIVE, &wdd->status))
+>>           err = 0;
+>>       else if (test_and_clear_bit(WDOG_ALLOW_RELEASE, &wdd->status) ||
+>> -         !(wdd->info->options & WDIOF_MAGICCLOSE))
+>> -        err = watchdog_stop(wdd);
+>> +         !(wdd->info->options & WDIOF_MAGICCLOSE)) {
+>> +        if (test_bit(WDOG_KEEP_ON, &wdd->status)) {
+>> +            watchdog_keepon_start(wdd);
+>> +            err = 0;
+>> +        } else
+>> +            err = watchdog_stop(wdd);
+>> +    }
+>
+> I think this all should probably go into some helper function.
+> The conditions here are getting a bit complicated.
+
+I will think about.
+
+>
+>>
+>>       /* If the watchdog was not stopped, send a keepalive ping */
+>>       if (err < 0) {
+>> @@ -524,6 +554,14 @@ int watchdog_dev_register(struct watchdog_device 
+>> *watchdog)
+>>   {
+>>       int err, devno;
+>>
+>> +    if (test_bit(WDOG_KEEP_ON, &watchdog->status)) {
+>> +        if (!try_module_get(watchdog->ops->owner))
+>> +            return -ENODEV;
+>> +        setup_timer(&watchdog->ping_timer, watchdog_ping_timer_cb,
+>> +                (unsigned long)watchdog);
+>> +        watchdog_keepon_start(watchdog);
+>> +    }
+>> +
+> This should be the last action in the probe function.
+> Reason is that we might have a watchdog which can not be stopped after
+> it was started once. If one of the error cases below happens, we would
+> be stuck with a running watchdog and no means to stop it or to keep
+> it alive.
+Right. But why not the last in the register function?
+Isn't the register function the last in the probe?
+
+>
+>>       if (watchdog->id == 0) {
+>>           old_wdd = watchdog;
+>>           watchdog_miscdev.parent = watchdog->parent;
+>> @@ -535,6 +573,11 @@ int watchdog_dev_register(struct watchdog_device 
+>> *watchdog)
+>>                   pr_err("%s: a legacy watchdog module is probably 
+>> present.\n",
+>>                       watchdog->info->identity);
+>>               old_wdd = NULL;
+>> +            if (test_bit(WDOG_KEEP_ON, &watchdog->status)) {
+>> +                watchdog_keepon_stop(watchdog);
+>> +                watchdog_stop(watchdog);
+>> +                module_put(watchdog->ops->owner);
+>> +            }
+>
+> Won't apply after moving above functions, but in general
+> complex error cleanup like this should be handled with a goto
+> to an error handler at the end of the function.
+
+OK
+
+>
+>>               return err;
+>>           }
+>>       }
+>> @@ -553,6 +596,11 @@ int watchdog_dev_register(struct watchdog_device 
+>> *watchdog)
+>>               misc_deregister(&watchdog_miscdev);
+>>               old_wdd = NULL;
+>>           }
+>> +        if (test_bit(WDOG_KEEP_ON, &watchdog->status)) {
+>> +            watchdog_keepon_stop(watchdog);
+>> +            watchdog_stop(watchdog);
+>> +            module_put(watchdog->ops->owner);
+>> +        }
+>
+> ... to avoid situations with duplicated error handling code like this,
+> but also to make code easier to read. See CodingStyle.
+
+of course
+
+>
+>>       }
+>>       return err;
+>>   }
+>> @@ -575,6 +623,12 @@ int watchdog_dev_unregister(struct 
+>> watchdog_device *watchdog)
+>>           misc_deregister(&watchdog_miscdev);
+>>           old_wdd = NULL;
+>>       }
+>> +
+>> +    if (test_bit(WDOG_KEEP_ON, &watchdog->status)) {
+>> +        watchdog_keepon_stop(watchdog);
+>> +        watchdog_stop(watchdog);
+>> +        module_put(watchdog->ops->owner);
+>> +    }
+>>       return 0;
+>>   }
+>>
+>> diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+>> index 2a3038e..650e0d5 100644
+>> --- a/include/linux/watchdog.h
+>> +++ b/include/linux/watchdog.h
+>> @@ -12,6 +12,7 @@
+>>   #include <linux/bitops.h>
+>>   #include <linux/device.h>
+>>   #include <linux/cdev.h>
+>> +#include <linux/timer.h>        /* for ping timer */
+>>   #include <uapi/linux/watchdog.h>
+>>
+>>   struct watchdog_ops;
+>> @@ -95,6 +96,8 @@ struct watchdog_device {
+>>   #define WDOG_ALLOW_RELEASE    2    /* Did we receive the magic char 
+>> ? */
+>>   #define WDOG_NO_WAY_OUT        3    /* Is 'nowayout' feature set ? */
+>>   #define WDOG_UNREGISTERED    4    /* Has the device been 
+>> unregistered */
+>> +#define WDOG_KEEP_ON        5    /* Is 'keep on' feature set? */
+>> +    struct timer_list ping_timer;    /* timer to keep on hardware 
+>> ping */
+>>   };
+>>
+>>   #ifdef CONFIG_WATCHDOG_NOWAYOUT
+>> @@ -104,6 +107,8 @@ struct watchdog_device {
+>>   #define WATCHDOG_NOWAYOUT        0
+>>   #define WATCHDOG_NOWAYOUT_INIT_STATUS    0
+>>   #endif
+>> +/* other proposal: WATCHDOG_ALWAYS_ACTIVE */
+>> +#define WATCHDOG_KEEP_ON        (1 << WDOG_KEEP_ON)
+>>
+>>   /* Use the following function to check whether or not the watchdog 
+>> is active */
+>>   static inline bool watchdog_active(struct watchdog_device *wdd)
+>>
+>
