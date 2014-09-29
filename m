@@ -1,295 +1,36 @@
-Return-path: <wimvs@spo001.leaseweb.nl>
-Date: Mon, 29 Sep 2014 08:34:07 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Beniamino Galvani <b.galvani@gmail.com>
-Cc: Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH v3] watchdog: add driver for Ricoh RN5T618 watchdog
-Message-ID: <20140929063407.GQ26868@spo001.leaseweb.com>
-References: <1411943987-30738-1-git-send-email-b.galvani@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1411943987-30738-1-git-send-email-b.galvani@gmail.com>
-Sender: <wimvs@spo001.leaseweb.nl>
+Return-path: <stwiss.opensource@diasemi.com>
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+To: Markus Pargmann <mpa@pengutronix.de>, Wim Van Sebroeck <wim@iguana.be>
+CC: Support Opensource <Support.Opensource@diasemi.com>, Philipp Zabel
+	<p.zabel@pengutronix.de>, Guenter Roeck <linux@roeck-us.net>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>, "kernel@pengutronix.de"
+	<kernel@pengutronix.de>
+Subject: RE: [PATCH v7] watchdog: Add DA9063 PMIC watchdog driver.
+Date: Mon, 29 Sep 2014 07:55:31 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7D0B4097F@SW-EX-MBX02.diasemi.com>
+References: <1411923945-3538-1-git-send-email-mpa@pengutronix.de>
+In-Reply-To: <1411923945-3538-1-git-send-email-mpa@pengutronix.de>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Beniamino,
+On 28 September 2014 18:06 Markus Pargmann wrote:
 
-You have my Acked-by or Signbed-off-by on this one.
-I believe this goes via the mfd tree.
-
-Kind regards,
-Wim.
-
-> This adds a driver for the watchdog timer available in Ricoh RN5T618
-> PMIC. The device supports a programmable expiration time of 1, 8, 32
-> or 128 seconds.
-> 
-> Signed-off-by: Beniamino Galvani <b.galvani@gmail.com>
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> From: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
+>=20
+> This driver supports the watchdog device inside the DA9063 PMIC.
+>=20
+> Signed-off-by: Krystian Garbaciak <krystian.garbaciak@diasemi.com>
+> Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+> Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
 > ---
-> 
-> Hi,
-> 
-> this is the third version of Ricoh RN5T618 watchdog driver. The other
-> patches of the original series adding MFD and regulator support have
-> already been merged.
-> 
-> Changes since v2 (http://lwn.net/Articles/610000/ ):
->   - rename 'heartbeat' module parameter to 'timeout'
->   - change parameter type to uint
-> 
-> Changes since v1:
->   - initialized heartbeat parameter to 0 instead of -1
->   - simplified code path in set_timeout function
->   - fixed module unloading
->   - made 'time' unsigned in struct rn5t618_wdt_map
-> 
->  drivers/watchdog/Kconfig       |  11 +++
->  drivers/watchdog/Makefile      |   1 +
->  drivers/watchdog/rn5t618_wdt.c | 198 +++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 210 insertions(+)
->  create mode 100644 drivers/watchdog/rn5t618_wdt.c
-> 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 3ee951b..6fd5a87 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -327,6 +327,17 @@ config ORION_WATCHDOG
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called orion_wdt.
->  
-> +config RN5T618_WATCHDOG
-> +	tristate "Ricoh RN5T618 watchdog"
-> +	depends on MFD_RN5T618
-> +	select WATCHDOG_CORE
-> +	help
-> +	  If you say yes here you get support for watchdog on the Ricoh
-> +	  RN5T618 PMIC.
-> +
-> +	  This driver can also be built as a module.  If so, the module
-> +	  will be called rn5t618_wdt.
-> +
->  config SUNXI_WATCHDOG
->  	tristate "Allwinner SoCs watchdog support"
->  	depends on ARCH_SUNXI
-> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index 44f5d68..f105999 100644
-> --- a/drivers/watchdog/Makefile
-> +++ b/drivers/watchdog/Makefile
-> @@ -48,6 +48,7 @@ obj-$(CONFIG_IOP_WATCHDOG) += iop_wdt.o
->  obj-$(CONFIG_DAVINCI_WATCHDOG) += davinci_wdt.o
->  obj-$(CONFIG_ORION_WATCHDOG) += orion_wdt.o
->  obj-$(CONFIG_SUNXI_WATCHDOG) += sunxi_wdt.o
-> +obj-$(CONFIG_RN5T618_WATCHDOG) += rn5t618_wdt.o
->  obj-$(CONFIG_COH901327_WATCHDOG) += coh901327_wdt.o
->  obj-$(CONFIG_STMP3XXX_RTC_WATCHDOG) += stmp3xxx_rtc_wdt.o
->  obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
-> diff --git a/drivers/watchdog/rn5t618_wdt.c b/drivers/watchdog/rn5t618_wdt.c
-> new file mode 100644
-> index 0000000..d1c1227
-> --- /dev/null
-> +++ b/drivers/watchdog/rn5t618_wdt.c
-> @@ -0,0 +1,198 @@
-> +/*
-> + * Watchdog driver for Ricoh RN5T618 PMIC
-> + *
-> + * Copyright (C) 2014 Beniamino Galvani <b.galvani@gmail.com>
-> + *
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License
-> + * version 2 as published by the Free Software Foundation.
-> + *
-> + * You should have received a copy of the GNU General Public License
-> + * along with this program. If not, see <http://www.gnu.org/licenses/>.
-> + */
-> +
-> +#include <linux/device.h>
-> +#include <linux/mfd/rn5t618.h>
-> +#include <linux/module.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/watchdog.h>
-> +
-> +#define DRIVER_NAME "rn5t618-wdt"
-> +
-> +static bool nowayout = WATCHDOG_NOWAYOUT;
-> +static unsigned int timeout;
-> +
-> +module_param(timeout, uint, 0);
-> +MODULE_PARM_DESC(timeout, "Initial watchdog timeout in seconds");
-> +
-> +module_param(nowayout, bool, 0);
-> +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
-> +		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-> +
-> +struct rn5t618_wdt {
-> +	struct watchdog_device wdt_dev;
-> +	struct rn5t618 *rn5t618;
-> +};
-> +
-> +/*
-> + * This array encodes the values of WDOGTIM field for the supported
-> + * watchdog expiration times. If the watchdog is not accessed before
-> + * the timer expiration, the PMU generates an interrupt and if the CPU
-> + * doesn't clear it within one second the system is restarted.
-> + */
-> +static const struct {
-> +	u8 reg_val;
-> +	unsigned int time;
-> +} rn5t618_wdt_map[] = {
-> +	{ 0, 1 },
-> +	{ 1, 8 },
-> +	{ 2, 32 },
-> +	{ 3, 128 },
-> +};
-> +
-> +static int rn5t618_wdt_set_timeout(struct watchdog_device *wdt_dev,
-> +				   unsigned int t)
-> +{
-> +	struct rn5t618_wdt *wdt = watchdog_get_drvdata(wdt_dev);
-> +	int ret, i;
-> +
-> +	for (i = 0; i < ARRAY_SIZE(rn5t618_wdt_map); i++) {
-> +		if (rn5t618_wdt_map[i].time + 1 >= t)
-> +			break;
-> +	}
-> +
-> +	if (i == ARRAY_SIZE(rn5t618_wdt_map))
-> +		return -EINVAL;
-> +
-> +	ret = regmap_update_bits(wdt->rn5t618->regmap, RN5T618_WATCHDOG,
-> +				 RN5T618_WATCHDOG_WDOGTIM_M,
-> +				 rn5t618_wdt_map[i].reg_val);
-> +	if (!ret)
-> +		wdt_dev->timeout = rn5t618_wdt_map[i].time;
-> +
-> +	return ret;
-> +}
-> +
-> +static int rn5t618_wdt_start(struct watchdog_device *wdt_dev)
-> +{
-> +	struct rn5t618_wdt *wdt = watchdog_get_drvdata(wdt_dev);
-> +	int ret;
-> +
-> +	ret = rn5t618_wdt_set_timeout(wdt_dev, wdt_dev->timeout);
-> +	if (ret)
-> +		return ret;
-> +
-> +	/* enable repower-on */
-> +	ret = regmap_update_bits(wdt->rn5t618->regmap, RN5T618_REPCNT,
-> +				 RN5T618_REPCNT_REPWRON,
-> +				 RN5T618_REPCNT_REPWRON);
-> +	if (ret)
-> +		return ret;
-> +
-> +	/* enable watchdog */
-> +	ret = regmap_update_bits(wdt->rn5t618->regmap, RN5T618_WATCHDOG,
-> +				 RN5T618_WATCHDOG_WDOGEN,
-> +				 RN5T618_WATCHDOG_WDOGEN);
-> +	if (ret)
-> +		return ret;
-> +
-> +	/* enable watchdog interrupt */
-> +	return regmap_update_bits(wdt->rn5t618->regmap, RN5T618_PWRIREN,
-> +				  RN5T618_PWRIRQ_IR_WDOG,
-> +				  RN5T618_PWRIRQ_IR_WDOG);
-> +}
-> +
-> +static int rn5t618_wdt_stop(struct watchdog_device *wdt_dev)
-> +{
-> +	struct rn5t618_wdt *wdt = watchdog_get_drvdata(wdt_dev);
-> +
-> +	return regmap_update_bits(wdt->rn5t618->regmap, RN5T618_WATCHDOG,
-> +				  RN5T618_WATCHDOG_WDOGEN, 0);
-> +}
-> +
-> +static int rn5t618_wdt_ping(struct watchdog_device *wdt_dev)
-> +{
-> +	struct rn5t618_wdt *wdt = watchdog_get_drvdata(wdt_dev);
-> +	unsigned int val;
-> +	int ret;
-> +
-> +	/* The counter is restarted after a R/W access to watchdog register */
-> +	ret = regmap_read(wdt->rn5t618->regmap, RN5T618_WATCHDOG, &val);
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret = regmap_write(wdt->rn5t618->regmap, RN5T618_WATCHDOG, val);
-> +	if (ret)
-> +		return ret;
-> +
-> +	/* Clear pending watchdog interrupt */
-> +	return regmap_update_bits(wdt->rn5t618->regmap, RN5T618_PWRIRQ,
-> +				  RN5T618_PWRIRQ_IR_WDOG, 0);
-> +}
-> +
-> +static struct watchdog_info rn5t618_wdt_info = {
-> +	.options	= WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE |
-> +			  WDIOF_KEEPALIVEPING,
-> +	.identity	= DRIVER_NAME,
-> +};
-> +
-> +static struct watchdog_ops rn5t618_wdt_ops = {
-> +	.owner          = THIS_MODULE,
-> +	.start          = rn5t618_wdt_start,
-> +	.stop           = rn5t618_wdt_stop,
-> +	.ping           = rn5t618_wdt_ping,
-> +	.set_timeout    = rn5t618_wdt_set_timeout,
-> +};
-> +
-> +static int rn5t618_wdt_probe(struct platform_device *pdev)
-> +{
-> +	struct rn5t618 *rn5t618 = dev_get_drvdata(pdev->dev.parent);
-> +	struct rn5t618_wdt *wdt;
-> +	int min_timeout, max_timeout;
-> +
-> +	wdt = devm_kzalloc(&pdev->dev, sizeof(struct rn5t618_wdt), GFP_KERNEL);
-> +	if (!wdt)
-> +		return -ENOMEM;
-> +
-> +	min_timeout = rn5t618_wdt_map[0].time;
-> +	max_timeout = rn5t618_wdt_map[ARRAY_SIZE(rn5t618_wdt_map) - 1].time;
-> +
-> +	wdt->rn5t618 = rn5t618;
-> +	wdt->wdt_dev.info = &rn5t618_wdt_info;
-> +	wdt->wdt_dev.ops = &rn5t618_wdt_ops;
-> +	wdt->wdt_dev.min_timeout = min_timeout;
-> +	wdt->wdt_dev.max_timeout = max_timeout;
-> +	wdt->wdt_dev.timeout = max_timeout;
-> +	wdt->wdt_dev.parent = &pdev->dev;
-> +
-> +	watchdog_set_drvdata(&wdt->wdt_dev, wdt);
-> +	watchdog_init_timeout(&wdt->wdt_dev, timeout, &pdev->dev);
-> +	watchdog_set_nowayout(&wdt->wdt_dev, nowayout);
-> +
-> +	platform_set_drvdata(pdev, wdt);
-> +
-> +	return watchdog_register_device(&wdt->wdt_dev);
-> +}
-> +
-> +static int rn5t618_wdt_remove(struct platform_device *pdev)
-> +{
-> +	struct rn5t618_wdt *wdt = platform_get_drvdata(pdev);
-> +
-> +	watchdog_unregister_device(&wdt->wdt_dev);
-> +
-> +	return 0;
-> +}
-> +
-> +static struct platform_driver rn5t618_wdt_driver = {
-> +	.probe = rn5t618_wdt_probe,
-> +	.remove = rn5t618_wdt_remove,
-> +	.driver = {
-> +		.name	= DRIVER_NAME,
-> +	},
-> +};
-> +
-> +module_platform_driver(rn5t618_wdt_driver);
-> +
-> +MODULE_AUTHOR("Beniamino Galvani <b.galvani@gmail.com>");
-> +MODULE_DESCRIPTION("RN5T618 watchdog driver");
-> +MODULE_LICENSE("GPL v2");
-> -- 
-> 1.9.1
-> 
+>=20
+
+Thank you Markus,
+I'll get a reply back to you as soon as I can ...
+Regards,
+Steve
