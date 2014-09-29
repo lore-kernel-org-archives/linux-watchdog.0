@@ -1,278 +1,295 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:53579 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753943AbaI1VfV (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 28 Sep 2014 17:35:21 -0400
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
-	(envelope-from <linux@roeck-us.net>)
-	id 1XYM7k-003meY-Nc
-	for linux-watchdog@vger.kernel.org; Sun, 28 Sep 2014 21:35:20 +0000
-Message-ID: <54287F13.3080509@roeck-us.net>
-Date: Sun, 28 Sep 2014 14:35:15 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: Sergey Ryazanov <ryazanov.s.a@gmail.com>,
-	Ralf Baechle <ralf@linux-mips.org>
-CC: Linux MIPS <linux-mips@linux-mips.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 12/16] watchdog: add Atheros AR2315 watchdog driver
-References: <1411929195-23775-1-git-send-email-ryazanov.s.a@gmail.com> <1411929195-23775-13-git-send-email-ryazanov.s.a@gmail.com>
-In-Reply-To: <1411929195-23775-13-git-send-email-ryazanov.s.a@gmail.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <wimvs@spo001.leaseweb.nl>
+Date: Mon, 29 Sep 2014 08:34:07 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Beniamino Galvani <b.galvani@gmail.com>
+Cc: Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH v3] watchdog: add driver for Ricoh RN5T618 watchdog
+Message-ID: <20140929063407.GQ26868@spo001.leaseweb.com>
+References: <1411943987-30738-1-git-send-email-b.galvani@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1411943987-30738-1-git-send-email-b.galvani@gmail.com>
+Sender: <wimvs@spo001.leaseweb.nl>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 09/28/2014 11:33 AM, Sergey Ryazanov wrote:
-> Signed-off-by: Sergey Ryazanov <ryazanov.s.a@gmail.com>
-> Cc: Wim Van Sebroeck <wim@iguana.be>
-> Cc: linux-watchdog@vger.kernel.org
+Hi Beniamino,
+
+You have my Acked-by or Signbed-off-by on this one.
+I believe this goes via the mfd tree.
+
+Kind regards,
+Wim.
+
+> This adds a driver for the watchdog timer available in Ricoh RN5T618
+> PMIC. The device supports a programmable expiration time of 1, 8, 32
+> or 128 seconds.
+> 
+> Signed-off-by: Beniamino Galvani <b.galvani@gmail.com>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 > ---
->
-> Changes since RFC:
->    - use watchdog infrastructure
->    - remove deprecated IRQF_DISABLED flag
->    - move device registration to separate patch
->
->   drivers/watchdog/Kconfig      |   8 ++
->   drivers/watchdog/Makefile     |   1 +
->   drivers/watchdog/ar2315-wtd.c | 167 ++++++++++++++++++++++++++++++++++++++++++
->   3 files changed, 176 insertions(+)
->   create mode 100644 drivers/watchdog/ar2315-wtd.c
->
+> 
+> Hi,
+> 
+> this is the third version of Ricoh RN5T618 watchdog driver. The other
+> patches of the original series adding MFD and regulator support have
+> already been merged.
+> 
+> Changes since v2 (http://lwn.net/Articles/610000/ ):
+>   - rename 'heartbeat' module parameter to 'timeout'
+>   - change parameter type to uint
+> 
+> Changes since v1:
+>   - initialized heartbeat parameter to 0 instead of -1
+>   - simplified code path in set_timeout function
+>   - fixed module unloading
+>   - made 'time' unsigned in struct rn5t618_wdt_map
+> 
+>  drivers/watchdog/Kconfig       |  11 +++
+>  drivers/watchdog/Makefile      |   1 +
+>  drivers/watchdog/rn5t618_wdt.c | 198 +++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 210 insertions(+)
+>  create mode 100644 drivers/watchdog/rn5t618_wdt.c
+> 
 > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index f57312f..dbace99 100644
+> index 3ee951b..6fd5a87 100644
 > --- a/drivers/watchdog/Kconfig
 > +++ b/drivers/watchdog/Kconfig
-> @@ -1186,6 +1186,14 @@ config RALINK_WDT
->   	help
->   	  Hardware driver for the Ralink SoC Watchdog Timer.
->
-> +config AR2315_WDT
-> +	tristate "Atheros AR2315+ WiSoCs Watchdog Timer"
+> @@ -327,6 +327,17 @@ config ORION_WATCHDOG
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called orion_wdt.
+>  
+> +config RN5T618_WATCHDOG
+> +	tristate "Ricoh RN5T618 watchdog"
+> +	depends on MFD_RN5T618
 > +	select WATCHDOG_CORE
-> +	depends on SOC_AR2315
 > +	help
-> +	  Hardware driver for the built-in watchdog timer on the Atheros
-> +	  AR2315/AR2316 WiSoCs.
+> +	  If you say yes here you get support for watchdog on the Ricoh
+> +	  RN5T618 PMIC.
 > +
->   # PARISC Architecture
->
->   # POWERPC Architecture
+> +	  This driver can also be built as a module.  If so, the module
+> +	  will be called rn5t618_wdt.
+> +
+>  config SUNXI_WATCHDOG
+>  	tristate "Allwinner SoCs watchdog support"
+>  	depends on ARCH_SUNXI
 > diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index 468c320..ef7f83b 100644
+> index 44f5d68..f105999 100644
 > --- a/drivers/watchdog/Makefile
 > +++ b/drivers/watchdog/Makefile
-> @@ -133,6 +133,7 @@ obj-$(CONFIG_WDT_MTX1) += mtx-1_wdt.o
->   obj-$(CONFIG_PNX833X_WDT) += pnx833x_wdt.o
->   obj-$(CONFIG_SIBYTE_WDOG) += sb_wdog.o
->   obj-$(CONFIG_AR7_WDT) += ar7_wdt.o
-> +obj-$(CONFIG_AR2315_WDT) += ar2315-wtd.o
->   obj-$(CONFIG_TXX9_WDT) += txx9wdt.o
->   obj-$(CONFIG_OCTEON_WDT) += octeon-wdt.o
->   octeon-wdt-y := octeon-wdt-main.o octeon-wdt-nmi.o
-> diff --git a/drivers/watchdog/ar2315-wtd.c b/drivers/watchdog/ar2315-wtd.c
+> @@ -48,6 +48,7 @@ obj-$(CONFIG_IOP_WATCHDOG) += iop_wdt.o
+>  obj-$(CONFIG_DAVINCI_WATCHDOG) += davinci_wdt.o
+>  obj-$(CONFIG_ORION_WATCHDOG) += orion_wdt.o
+>  obj-$(CONFIG_SUNXI_WATCHDOG) += sunxi_wdt.o
+> +obj-$(CONFIG_RN5T618_WATCHDOG) += rn5t618_wdt.o
+>  obj-$(CONFIG_COH901327_WATCHDOG) += coh901327_wdt.o
+>  obj-$(CONFIG_STMP3XXX_RTC_WATCHDOG) += stmp3xxx_rtc_wdt.o
+>  obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
+> diff --git a/drivers/watchdog/rn5t618_wdt.c b/drivers/watchdog/rn5t618_wdt.c
 > new file mode 100644
-> index 0000000..4fd34d2
+> index 0000000..d1c1227
 > --- /dev/null
-> +++ b/drivers/watchdog/ar2315-wtd.c
-> @@ -0,0 +1,167 @@
+> +++ b/drivers/watchdog/rn5t618_wdt.c
+> @@ -0,0 +1,198 @@
 > +/*
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
+> + * Watchdog driver for Ricoh RN5T618 PMIC
 > + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
+> + * Copyright (C) 2014 Beniamino Galvani <b.galvani@gmail.com>
+> + *
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License
+> + * version 2 as published by the Free Software Foundation.
 > + *
 > + * You should have received a copy of the GNU General Public License
-> + * along with this program; if not, see <http://www.gnu.org/licenses/>.
-> + *
-> + * Copyright (C) 2008 John Crispin <blogic@openwrt.org>
-> + * Based on EP93xx and ifxmips wdt driver
+> + * along with this program. If not, see <http://www.gnu.org/licenses/>.
 > + */
 > +
-> +#include <linux/interrupt.h>
+> +#include <linux/device.h>
+> +#include <linux/mfd/rn5t618.h>
 > +#include <linux/module.h>
-> +#include <linux/watchdog.h>
-> +#include <linux/reboot.h>
-> +#include <linux/init.h>
 > +#include <linux/platform_device.h>
-> +#include <linux/io.h>
+> +#include <linux/watchdog.h>
 > +
-> +#define DRIVER_NAME	"ar2315-wdt"
+> +#define DRIVER_NAME "rn5t618-wdt"
 > +
-> +#define CLOCK_RATE 40000000
+> +static bool nowayout = WATCHDOG_NOWAYOUT;
+> +static unsigned int timeout;
 > +
-> +#define WDT_REG_TIMER		0x00
-> +#define WDT_REG_CTRL		0x04
+> +module_param(timeout, uint, 0);
+> +MODULE_PARM_DESC(timeout, "Initial watchdog timeout in seconds");
 > +
-> +#define WDT_CTRL_ACT_NONE	0x00000000	/* No action */
-> +#define WDT_CTRL_ACT_NMI	0x00000001	/* NMI on watchdog */
-> +#define WDT_CTRL_ACT_RESET	0x00000002	/* reset on watchdog */
+> +module_param(nowayout, bool, 0);
+> +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+> +		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
 > +
-What are those defines for ? They don't seem to be used.
-
-If the watchdog can result in an immediate restart, as
-this define suggests, why don't you use it but rely on
-the interrupt handler instead ?
-
-This means the watchdog won't really fire if it times out, but depend
-on the interrupt handler to work. Which it won't if there is a real
-problem and interrupts are disabled (or if the system hangs entirely).
-
-> +static int started;
-> +static void __iomem *wdt_base;
-> +
-> +static inline void ar2315_wdt_wr(unsigned reg, u32 val)
-> +{
-> +	iowrite32(val, wdt_base + reg);
-> +}
-> +
-> +static void ar2315_wdt_enable(struct watchdog_device *wdd)
-> +{
-> +	ar2315_wdt_wr(WDT_REG_TIMER, wdd->timeout * CLOCK_RATE);
-> +}
-> +
-> +static int ar2315_wdt_start(struct watchdog_device *wdd)
-> +{
-> +	ar2315_wdt_enable(wdd);
-> +	started = 1;
-
-I don't really see why you would need this variable.
-
-> +	return 0;
-> +}
-> +
-> +static int ar2315_wdt_stop(struct watchdog_device *wdd)
-> +{
-> +	return 0;
-> +}
-> +
-> +static int ar2315_wdt_ping(struct watchdog_device *wdd)
-> +{
-> +	ar2315_wdt_enable(wdd);
-> +	return 0;
-> +}
-> +
-> +static int ar2315_wdt_set_timeout(struct watchdog_device *wdd, unsigned val)
-> +{
-> +	wdd->timeout = val;
-> +	return 0;
-> +}
-> +
-> +static irqreturn_t ar2315_wdt_interrupt(int irq, void *dev)
-> +{
-> +	struct platform_device *pdev = (struct platform_device *)dev;
-> +
-> +	if (started) {
-> +		dev_crit(&pdev->dev, "watchdog expired, rebooting system\n");
-> +		emergency_restart();
-> +	} else {
-> +		ar2315_wdt_wr(WDT_REG_CTRL, 0);
-> +		ar2315_wdt_wr(WDT_REG_TIMER, 0);
-> +	}
-
-This is quite unusual.
-Why not stop the watchdog in the stop function ? Quite apparently
-it can be stopped, or at least this is what it looks like.
-
-When do you expect this function to be called in the first place
-with started == 1 ?
-
-If the idea is to stop the watchdog if it was already enabled
-when probing the driver, why don't you stop it there ?
-
-
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static const struct watchdog_info ar2315_wdt_info = {
-> +	.identity = "ar2315 Watchdog",
-> +	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
+> +struct rn5t618_wdt {
+> +	struct watchdog_device wdt_dev;
+> +	struct rn5t618 *rn5t618;
 > +};
 > +
-> +static const struct watchdog_ops ar2315_wdt_ops = {
-> +	.owner = THIS_MODULE,
-> +	.start = ar2315_wdt_start,
-> +	.stop = ar2315_wdt_stop,
-> +	.ping = ar2315_wdt_ping,
-> +	.set_timeout = ar2315_wdt_set_timeout,
+> +/*
+> + * This array encodes the values of WDOGTIM field for the supported
+> + * watchdog expiration times. If the watchdog is not accessed before
+> + * the timer expiration, the PMU generates an interrupt and if the CPU
+> + * doesn't clear it within one second the system is restarted.
+> + */
+> +static const struct {
+> +	u8 reg_val;
+> +	unsigned int time;
+> +} rn5t618_wdt_map[] = {
+> +	{ 0, 1 },
+> +	{ 1, 8 },
+> +	{ 2, 32 },
+> +	{ 3, 128 },
 > +};
 > +
-> +static struct watchdog_device ar2315_wdt_dev = {
-> +	.info = &ar2315_wdt_info,
-> +	.ops = &ar2315_wdt_ops,
-> +	.min_timeout = 1,
-> +	.max_timeout = 90,
-> +	.timeout = 20,
-> +};
-> +
-> +static int ar2315_wdt_probe(struct platform_device *pdev)
+> +static int rn5t618_wdt_set_timeout(struct watchdog_device *wdt_dev,
+> +				   unsigned int t)
 > +{
-> +	struct device *dev = &pdev->dev;
-> +	struct resource *res;
-> +	int ret = 0;
+> +	struct rn5t618_wdt *wdt = watchdog_get_drvdata(wdt_dev);
+> +	int ret, i;
 > +
-> +	if (wdt_base)
-> +		return -EBUSY;
-> +
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	wdt_base = devm_ioremap_resource(dev, res);
-> +	if (IS_ERR(wdt_base))
-> +		return PTR_ERR(wdt_base);
-> +
-> +	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
-> +	if (!res) {
-> +		dev_err(dev, "no IRQ resource\n");
-> +		return -ENOENT;
+> +	for (i = 0; i < ARRAY_SIZE(rn5t618_wdt_map); i++) {
+> +		if (rn5t618_wdt_map[i].time + 1 >= t)
+> +			break;
 > +	}
 > +
-> +	ret = devm_request_irq(dev, res->start, ar2315_wdt_interrupt, 0,
-> +			       DRIVER_NAME, pdev);
-> +	if (ret) {
-> +		dev_err(dev, "failed to register inetrrupt\n");
+> +	if (i == ARRAY_SIZE(rn5t618_wdt_map))
+> +		return -EINVAL;
+> +
+> +	ret = regmap_update_bits(wdt->rn5t618->regmap, RN5T618_WATCHDOG,
+> +				 RN5T618_WATCHDOG_WDOGTIM_M,
+> +				 rn5t618_wdt_map[i].reg_val);
+> +	if (!ret)
+> +		wdt_dev->timeout = rn5t618_wdt_map[i].time;
+> +
+> +	return ret;
+> +}
+> +
+> +static int rn5t618_wdt_start(struct watchdog_device *wdt_dev)
+> +{
+> +	struct rn5t618_wdt *wdt = watchdog_get_drvdata(wdt_dev);
+> +	int ret;
+> +
+> +	ret = rn5t618_wdt_set_timeout(wdt_dev, wdt_dev->timeout);
+> +	if (ret)
 > +		return ret;
-> +	}
 > +
-> +	ar2315_wdt_dev.parent = dev;
-> +	ret = watchdog_register_device(&ar2315_wdt_dev);
-> +	if (ret) {
-> +		dev_err(dev, "failed to register watchdog device\n");
+> +	/* enable repower-on */
+> +	ret = regmap_update_bits(wdt->rn5t618->regmap, RN5T618_REPCNT,
+> +				 RN5T618_REPCNT_REPWRON,
+> +				 RN5T618_REPCNT_REPWRON);
+> +	if (ret)
 > +		return ret;
-> +	}
 > +
-> +	return 0;
+> +	/* enable watchdog */
+> +	ret = regmap_update_bits(wdt->rn5t618->regmap, RN5T618_WATCHDOG,
+> +				 RN5T618_WATCHDOG_WDOGEN,
+> +				 RN5T618_WATCHDOG_WDOGEN);
+> +	if (ret)
+> +		return ret;
+> +
+> +	/* enable watchdog interrupt */
+> +	return regmap_update_bits(wdt->rn5t618->regmap, RN5T618_PWRIREN,
+> +				  RN5T618_PWRIRQ_IR_WDOG,
+> +				  RN5T618_PWRIRQ_IR_WDOG);
 > +}
 > +
-> +static int ar2315_wdt_remove(struct platform_device *pdev)
+> +static int rn5t618_wdt_stop(struct watchdog_device *wdt_dev)
 > +{
-> +	watchdog_unregister_device(&ar2315_wdt_dev);
-
-Why don't you stop the watchdog on remove ?
-
+> +	struct rn5t618_wdt *wdt = watchdog_get_drvdata(wdt_dev);
+> +
+> +	return regmap_update_bits(wdt->rn5t618->regmap, RN5T618_WATCHDOG,
+> +				  RN5T618_WATCHDOG_WDOGEN, 0);
+> +}
+> +
+> +static int rn5t618_wdt_ping(struct watchdog_device *wdt_dev)
+> +{
+> +	struct rn5t618_wdt *wdt = watchdog_get_drvdata(wdt_dev);
+> +	unsigned int val;
+> +	int ret;
+> +
+> +	/* The counter is restarted after a R/W access to watchdog register */
+> +	ret = regmap_read(wdt->rn5t618->regmap, RN5T618_WATCHDOG, &val);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = regmap_write(wdt->rn5t618->regmap, RN5T618_WATCHDOG, val);
+> +	if (ret)
+> +		return ret;
+> +
+> +	/* Clear pending watchdog interrupt */
+> +	return regmap_update_bits(wdt->rn5t618->regmap, RN5T618_PWRIRQ,
+> +				  RN5T618_PWRIRQ_IR_WDOG, 0);
+> +}
+> +
+> +static struct watchdog_info rn5t618_wdt_info = {
+> +	.options	= WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE |
+> +			  WDIOF_KEEPALIVEPING,
+> +	.identity	= DRIVER_NAME,
+> +};
+> +
+> +static struct watchdog_ops rn5t618_wdt_ops = {
+> +	.owner          = THIS_MODULE,
+> +	.start          = rn5t618_wdt_start,
+> +	.stop           = rn5t618_wdt_stop,
+> +	.ping           = rn5t618_wdt_ping,
+> +	.set_timeout    = rn5t618_wdt_set_timeout,
+> +};
+> +
+> +static int rn5t618_wdt_probe(struct platform_device *pdev)
+> +{
+> +	struct rn5t618 *rn5t618 = dev_get_drvdata(pdev->dev.parent);
+> +	struct rn5t618_wdt *wdt;
+> +	int min_timeout, max_timeout;
+> +
+> +	wdt = devm_kzalloc(&pdev->dev, sizeof(struct rn5t618_wdt), GFP_KERNEL);
+> +	if (!wdt)
+> +		return -ENOMEM;
+> +
+> +	min_timeout = rn5t618_wdt_map[0].time;
+> +	max_timeout = rn5t618_wdt_map[ARRAY_SIZE(rn5t618_wdt_map) - 1].time;
+> +
+> +	wdt->rn5t618 = rn5t618;
+> +	wdt->wdt_dev.info = &rn5t618_wdt_info;
+> +	wdt->wdt_dev.ops = &rn5t618_wdt_ops;
+> +	wdt->wdt_dev.min_timeout = min_timeout;
+> +	wdt->wdt_dev.max_timeout = max_timeout;
+> +	wdt->wdt_dev.timeout = max_timeout;
+> +	wdt->wdt_dev.parent = &pdev->dev;
+> +
+> +	watchdog_set_drvdata(&wdt->wdt_dev, wdt);
+> +	watchdog_init_timeout(&wdt->wdt_dev, timeout, &pdev->dev);
+> +	watchdog_set_nowayout(&wdt->wdt_dev, nowayout);
+> +
+> +	platform_set_drvdata(pdev, wdt);
+> +
+> +	return watchdog_register_device(&wdt->wdt_dev);
+> +}
+> +
+> +static int rn5t618_wdt_remove(struct platform_device *pdev)
+> +{
+> +	struct rn5t618_wdt *wdt = platform_get_drvdata(pdev);
+> +
+> +	watchdog_unregister_device(&wdt->wdt_dev);
+> +
 > +	return 0;
 > +}
 > +
-> +static struct platform_driver ar2315_wdt_driver = {
-> +	.probe = ar2315_wdt_probe,
-> +	.remove = ar2315_wdt_remove,
+> +static struct platform_driver rn5t618_wdt_driver = {
+> +	.probe = rn5t618_wdt_probe,
+> +	.remove = rn5t618_wdt_remove,
 > +	.driver = {
-> +		.name = DRIVER_NAME,
-> +		.owner = THIS_MODULE,
+> +		.name	= DRIVER_NAME,
 > +	},
 > +};
 > +
-> +module_platform_driver(ar2315_wdt_driver);
+> +module_platform_driver(rn5t618_wdt_driver);
 > +
-> +MODULE_DESCRIPTION("Atheros AR2315 hardware watchdog driver");
-> +MODULE_AUTHOR("John Crispin <blogic@openwrt.org>");
-> +MODULE_LICENSE("GPL");
-> +MODULE_ALIAS("platform:" DRIVER_NAME);
->
-
+> +MODULE_AUTHOR("Beniamino Galvani <b.galvani@gmail.com>");
+> +MODULE_DESCRIPTION("RN5T618 watchdog driver");
+> +MODULE_LICENSE("GPL v2");
+> -- 
+> 1.9.1
+> 
