@@ -1,152 +1,113 @@
-Return-Path: <mturquette@linaro.org>
-Return-Path: <mturquette@linaro.org>
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-To: Guenter Roeck <linux@roeck-us.net>, "Russell King" <linux@arm.linux.org.uk>,
- "Wim Van Sebroeck" <wim@iguana.be>,
- "Catalin Marinas" <catalin.marinas@arm.com>,
- "Maxime Ripard" <maxime.ripard@free-electrons.com>,
- "Andrew Morton" <akpm@linux-foundation.org>
-From: Mike Turquette <mturquette@linaro.org>
-In-Reply-To: <1408495538-27480-12-git-send-email-linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-pm@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
- "Will Deacon" <will.deacon@arm.com>, "Arnd Bergmann" <arnd@arndb.de>,
- "Heiko Stuebner" <heiko@sntech.de>, "Jonas Jensen" <jonas.jensen@gmail.com>,
- "Randy Dunlap" <rdunlap@infradead.org>,
- "Steven Rostedt" <rostedt@goodmis.org>, "Ingo Molnar" <mingo@kernel.org>,
- "Dmitry Eremin-Solenikov" <dbaryshkov@gmail.com>,
- "David Woodhouse" <dwmw2@infradead.org>, "Tomasz Figa" <t.figa@samsung.com>,
- linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
- "Guenter Roeck" <linux@roeck-us.net>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from ozlabs.org ([103.22.144.67]:54747 "EHLO ozlabs.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750760AbaI3XkO (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 30 Sep 2014 19:40:14 -0400
+Date: Wed, 1 Oct 2014 09:40:01 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	Russell King <linux@arm.linux.org.uk>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org,
+	linux-samsung-soc@vger.kernel.org,
+	Will Deacon <will.deacon@arm.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Heiko Stuebner <heiko@sntech.de>,
+	Jonas Jensen <jonas.jensen@gmail.com>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Ingo Molnar <mingo@kernel.org>,
+	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Tomasz Figa <t.figa@samsung.com>, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Sebastian Reichel <sre@kernel.org>,
+	Mike Turquette <mturquette@linaro.org>
+Subject: Re: [PATCH v7 00/11] kernel: Add support for restart handler call
+ chain
+Message-ID: <20141001094001.2b85f54c@canb.auug.org.au>
+In-Reply-To: <20140930223000.GA20946@roeck-us.net>
 References: <1408495538-27480-1-git-send-email-linux@roeck-us.net>
- <1408495538-27480-12-git-send-email-linux@roeck-us.net>
-Message-ID: <20140903190542.11368.20755@quantum>
-Subject: Re: [PATCH v7 11/11] clk: rockchip: add restart handler
-Date: Wed, 03 Sep 2014 12:05:42 -0700
-List-ID: <linux-watchdog@vger.kernel.org>
+	<20140930142002.e09ef32392a2b5a7c81e5e57@linux-foundation.org>
+	<20140930223000.GA20946@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ boundary="Sig_/Gy42xwtiNT+p6PE05f0+fRy"; protocol="application/pgp-signature"
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Quoting Guenter Roeck (2014-08-19 17:45:38)
-> From: Heiko St=C3=BCbner <heiko@sntech.de>
-> =
+--Sig_/Gy42xwtiNT+p6PE05f0+fRy
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-> Add infrastructure to write the correct value to the restart register and
-> register the restart notifier for both rk3188 (including rk3066) and rk32=
-88.
-> =
+Hi Guenter,
 
-> Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+On Tue, 30 Sep 2014 15:30:00 -0700 Guenter Roeck <linux@roeck-us.net> wrote:
+>
+> On Tue, Sep 30, 2014 at 02:20:02PM -0700, Andrew Morton wrote:
+> > On Tue, 19 Aug 2014 17:45:27 -0700 Guenter Roeck <linux@roeck-us.net> w=
+rote:
+> >=20
+> > > Introduce a system restart handler call chain to solve the described =
+problems.
+> >=20
+> > So someone has merged eight of these patches into linux-next but these
+> > three:
+> >=20
+> > watchdog-s3c2410-add-restart-handler.patch
+> > clk-samsung-register-restart-handlers-for-s3c2412-and-s3c2443.patch
+> > clk-rockchip-add-restart-handler.patch
+> >=20
+> > were omitted.  What's up?
+>=20
+> Most likely PBKC on my side; Looks like I forgot to add those when I crea=
+ted
+> the immutable branch for others to merge. Sorry for that :-(.
+>=20
+> Having said that, I somehow thought that the clock patches would go in th=
+rough
+> the clock tree. Heiko, did I get that wrong ? Separately, I sent a pull r=
+equest
+> that includes the watchdog patch to Wim.
 
-Acked-by: Mike Turquette <mturquette@linaro.org>
+So far, that immutable branch has been merged into the battery tree
+(and thus into linux-next) by Sebastian in order to add (I assume):
 
-> ---
-> v7: Added patch to series.
-> =
+18a702e0de98 power: reset: use restart_notifier mechanism for msm-poweroff
+371bb20d6927 power: Add simple gpio-restart driver
 
->  drivers/clk/rockchip/clk-rk3188.c |  2 ++
->  drivers/clk/rockchip/clk-rk3288.c |  2 ++
->  drivers/clk/rockchip/clk.c        | 25 +++++++++++++++++++++++++
->  drivers/clk/rockchip/clk.h        |  1 +
->  4 files changed, 30 insertions(+)
-> =
+on top of it.
 
-> diff --git a/drivers/clk/rockchip/clk-rk3188.c b/drivers/clk/rockchip/clk=
--rk3188.c
-> index a83a6d8..71b661a 100644
-> --- a/drivers/clk/rockchip/clk-rk3188.c
-> +++ b/drivers/clk/rockchip/clk-rk3188.c
-> @@ -631,6 +631,8 @@ static void __init rk3188_common_clk_init(struct devi=
-ce_node *np)
->  =
+So, I guess the watchdog and clk trees also need to merge that
+immutable branch and then add their respective patches from the mmotm
+series to their trees.
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
 
->         rockchip_register_softrst(np, 9, reg_base + RK2928_SOFTRST_CON(0),
->                                   ROCKCHIP_SOFTRST_HIWORD_MASK);
-> +
-> +       rockchip_register_restart_notifier(RK2928_GLB_SRST_FST);
->  }
->  =
+--Sig_/Gy42xwtiNT+p6PE05f0+fRy
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Disposition: attachment; filename=signature.asc
 
->  static void __init rk3066a_clk_init(struct device_node *np)
-> diff --git a/drivers/clk/rockchip/clk-rk3288.c b/drivers/clk/rockchip/clk=
--rk3288.c
-> index 0d8c6c5..b604217 100644
-> --- a/drivers/clk/rockchip/clk-rk3288.c
-> +++ b/drivers/clk/rockchip/clk-rk3288.c
-> @@ -713,5 +713,7 @@ static void __init rk3288_clk_init(struct device_node=
- *np)
->  =
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
 
->         rockchip_register_softrst(np, 9, reg_base + RK3288_SOFTRST_CON(0),
->                                   ROCKCHIP_SOFTRST_HIWORD_MASK);
-> +
-> +       rockchip_register_restart_notifier(RK3288_GLB_SRST_FST);
->  }
->  CLK_OF_DECLARE(rk3288_cru, "rockchip,rk3288-cru", rk3288_clk_init);
-> diff --git a/drivers/clk/rockchip/clk.c b/drivers/clk/rockchip/clk.c
-> index 278cf9d..aa41433 100644
-> --- a/drivers/clk/rockchip/clk.c
-> +++ b/drivers/clk/rockchip/clk.c
-> @@ -25,6 +25,7 @@
->  #include <linux/clk-provider.h>
->  #include <linux/mfd/syscon.h>
->  #include <linux/regmap.h>
-> +#include <linux/reboot.h>
->  #include "clk.h"
->  =
+iQIcBAEBCAAGBQJUKz9aAAoJEMDTa8Ir7ZwVTDQQAI8iUdIp+v4VeTxn/6FbuhOZ
+e1n1OJBjeRwYkHjg831LF14VnUhesMmVm5/NavwyjFIzlhnSN1wSfkdZpfQ4j4G+
+K0aYCUBo5OQ6A4umtuH249dw6kHbTyxf0p3hxaHyebma+WCwsJK3RHQXzSYqwP+D
+57LpKTIWd5psPNWvNwYO4zL51VfpjakC+NeO/jAVB/XvSTOvCFk/Ds296QKsHPyJ
+NkZzozaEUDXbglfHk7FvtJYQmJfW3aim0j2B/bYs5Syx6Pt0OqkaESRW6jNJ+dzl
+l/InzIT5tQAS26JiZvyOP2U3BbTFP98qjlpGG9VHYh+fWcO4oYVMU0otZV8QFnA4
+mjnxsxTnpY1e0EXddyIM2ofyNG3sgkUGlcUL0oHwUYjOkvqaH2jplPm7ZFTkuRKM
+AQWwMAtHi6mdUFmVhaTOj5abwoedeWSjXnKWXLMhBhSBn/sL3CKqxNI8Na930Nk5
+rxDEn71ifyNOp++gxNt/kP0bjGh17mvtbvsX7vejd5u1QAseUpVVwhzdcDtbNe3q
+WfCfrP+Skbvuymeky62Q/95JWrp4URYunqbcx2w/K3MBvtoesaHWrSNgdEeNmKQZ
+kzLe0MrFz1FNHe0rk1x1OIcl9zhdOGafax5Nft2lZY/rxRdbBcUUCECHHBtzA41x
+BhiA2DCmhTYk9na6KlaB
+=4F6P
+-----END PGP SIGNATURE-----
 
->  /**
-> @@ -242,3 +243,27 @@ void __init rockchip_clk_register_branches(
->                 rockchip_clk_add_lookup(clk, list->id);
->         }
->  }
-> +
-> +static unsigned int reg_restart;
-> +static int rockchip_restart_notify(struct notifier_block *this,
-> +                                  unsigned long mode, void *cmd)
-> +{
-> +       writel(0xfdb9, reg_base + reg_restart);
-> +       return NOTIFY_DONE;
-> +}
-> +
-> +static struct notifier_block rockchip_restart_handler =3D {
-> +       .notifier_call =3D rockchip_restart_notify,
-> +       .priority =3D 128,
-> +};
-> +
-> +void __init rockchip_register_restart_notifier(unsigned int reg)
-> +{
-> +       int ret;
-> +
-> +       reg_restart =3D reg;
-> +       ret =3D register_restart_handler(&rockchip_restart_handler);
-> +       if (ret)
-> +               pr_err("%s: cannot register restart handler, %d\n",
-> +                      __func__, ret);
-> +}
-> diff --git a/drivers/clk/rockchip/clk.h b/drivers/clk/rockchip/clk.h
-> index 887cbde..0b5eab5 100644
-> --- a/drivers/clk/rockchip/clk.h
-> +++ b/drivers/clk/rockchip/clk.h
-> @@ -329,6 +329,7 @@ void rockchip_clk_register_branches(struct rockchip_c=
-lk_branch *clk_list,
->                                     unsigned int nr_clk);
->  void rockchip_clk_register_plls(struct rockchip_pll_clock *pll_list,
->                                 unsigned int nr_pll, int grf_lock_offset);
-> +void rockchip_register_restart_notifier(unsigned int reg);
->  =
-
->  #define ROCKCHIP_SOFTRST_HIWORD_MASK   BIT(0)
->  =
-
-> -- =
-
-> 1.9.1
-> =
-
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--Sig_/Gy42xwtiNT+p6PE05f0+fRy--
