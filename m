@@ -1,93 +1,80 @@
-Return-path: <lm-sensors-bounces@lm-sensors.org>
-Date: Wed, 24 Sep 2014 09:57:39 -0700
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:33693 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750937AbaI3NsO (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 30 Sep 2014 09:48:14 -0400
+Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
+	(envelope-from <linux@roeck-us.net>)
+	id 1XYxmo-0021Md-4r
+	for linux-watchdog@vger.kernel.org; Tue, 30 Sep 2014 13:48:14 +0000
+Message-ID: <542AB482.5060102@roeck-us.net>
+Date: Tue, 30 Sep 2014 06:47:46 -0700
 From: Guenter Roeck <linux@roeck-us.net>
-To: Bryan Wu <cooloney@gmail.com>
-Message-ID: <20140924165739.GA31578@roeck-us.net>
-References: <cover.1409161615.git.andreas.werner@men.de>
-	<20140924144829.GK32069@lee--X1>
-	<20140924154503.GA12403@roeck-us.net>
-	<20140924161837.GA7113@lee--X1>
-	<CAK5ve-+79oMf0vD-_gzWLPbvFi4ygd1q9pzTCHzzpsXVkjqP9Q@mail.gmail.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <CAK5ve-+79oMf0vD-_gzWLPbvFi4ygd1q9pzTCHzzpsXVkjqP9Q@mail.gmail.com>
-Cc: Samuel Ortiz <sameo@linux.intel.com>,
-	Andreas Werner <andreas.werner@men.de>,
-	lkml <linux-kernel@vger.kernel.org>, lm-sensors@lm-sensors.org,
-	wim@iguana.be, "rpurdie@rpsys.net" <rpurdie@rpsys.net>,
-	Lee Jones <lee.jones@linaro.org>,
-	Linux LED Subsystem <linux-leds@vger.kernel.org>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [lm-sensors] [PATCH v6 0/4] Introduce MEN 14F021P00 BMC driver
-	series
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/options/lm-sensors>,
-	<mailto:lm-sensors-request@lm-sensors.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/lm-sensors/>
-List-Post: <mailto:lm-sensors@lm-sensors.org>
-List-Help: <mailto:lm-sensors-request@lm-sensors.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/lm-sensors>,
-	<mailto:lm-sensors-request@lm-sensors.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Sender: lm-sensors-bounces@lm-sensors.org
-Errors-To: lm-sensors-bounces@lm-sensors.org
-List-ID: <linux-watchdog@vger.kernel.org>
+To: =?UTF-8?B?SmFudXN6IFXFvHlja2k=?= <j.uzycki@elproma.com.pl>
+CC: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH 1/6] watchdog: watchdog_dev: WATCHDOG_KEEP_ON feature
+References: <1411419350-1297-1-git-send-email-j.uzycki@elproma.com.pl> <5424E535.7060009@roeck-us.net> <542987F9.2080907@elproma.com.pl> <542A3392.8020903@roeck-us.net> <542A8471.8060401@elproma.com.pl>
+In-Reply-To: <542A8471.8060401@elproma.com.pl>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Sep 24, 2014 at 09:33:32AM -0700, Bryan Wu wrote:
-> On Wed, Sep 24, 2014 at 9:18 AM, Lee Jones <lee.jones@linaro.org> wrote:
-> > On Wed, 24 Sep 2014, Guenter Roeck wrote:
-> >
-> >> On Wed, Sep 24, 2014 at 03:48:29PM +0100, Lee Jones wrote:
-> >> > Guenter, Bryan, Wim,
-> >> >
-> >> > The following changes since commit 52addcf9d6669fa439387610bc65c92fa0980cef:
-> >> >
-> >> >   Linux 3.17-rc2 (2014-08-25 15:36:20 -0700)
-> >> >
-> >> > are available in the git repository at:
-> >> >
-> >> >   git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git tags/mfd-hwmon-leds-watchdog-v3.18
-> >> >
-> >> > for you to fetch changes up to 964356938fcd3c0001a786f55b9f0a0fbe47656a:
-> >> >
-> >> >   hwmon: (menf21bmc) Introduce MEN14F021P00 BMC HWMON driver (2014-09-24 15:36:33 +0100)
-> >> >
-> >> > ----------------------------------------------------------------
-> >> > Immutable branch between MFD, HWMON, LEDs and Watchdog for v3.18
-> >> >
-> >> I assume you'll push it all through mfd, correct ?
-> >
-> > The idea is for all the affected Maintainers to pull this branch in to
-> > their own trees.  If you guys don't, there will be a good chance of
-> > conflict during the merge-window, which will subsequently upset Linus.
-> >
-> > So in answer to your question; yes I'll be taking this, but so should
-> > each of you.
-> >
-> 
-> Thanks for this, man. What am I going to do here? Need I pull in all
-> the patches here into my LED tree or just one LED patch? I think if
-> you push this for Linus through MFD tree, I don't need to pull it into
-> my tree, right?
-> 
-I did
+On 09/30/2014 03:22 AM, Janusz Użycki wrote:
+>
+> W dniu 2014-09-30 06:37, Guenter Roeck pisze:
+>> On 09/29/2014 09:25 AM, Janusz Użycki wrote:
+>>>
+>>>> This patch set is trying to solve four problems at once:
+>>>>
+>>>> 1) Auto-start watchdog when its driver registers
+>>>> 2) Keep watchdog running when its driver registers until userspace opens it
+>>>> 3) Handle watchdogs which can not be stopped after being started
+>>>> 4) Keep watchdog running with kernel timer after it has been closed,
+>>>>    even if it can be stopped.
+>>>>
+>>>> The next time adds 'boot time protection', which is really another term
+>>>> for an initial timeout, and case 5).
+>>>>
+>>>> That is a bit too much for a single patch and, even more so, a single flag.
+>>>
+>>> OK, but I think [PATCH 3/6] could be applied.
+>>> Do you agree? Should I resent it separately?
+>>
+>> Yes, it looks ok.
+>
+> Can you apply it?
+>
+I don't apply watchdog patches; I only provide review feedback.
 
-git remote add mfd git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git
-git fetch --tags mfd
-git merge mfd-hwmon-leds-watchdog-v3.18
+>>
+>>> I omited in the comment
+>>> "The patch adds suspend/resume PM support to stmp3xxx_rtc_wdt
+>>> watchdog driver" because the subject is almost the same.
+>>>
+>>>> Let's look at one case after another.
+>>>>
+>>>> Auto-start watchdog when its driver registers - this makes sense as a
+>>>> feature just by itself. A good name for its flag might be something like
+>>>> WDT_AUTOSTART. A matching module parameter might also make sense.
+>>>>
+>>>> autostart:
+>>>>     Set to 0 to disable, -1 to enable with unlimited timeout,
+>>>>     or <n> for an initial timeout of <n> seconds.
+>>>
+>>> Current start(1) + keep-on(2,3,4) + boottime(5) combined. It looks OK.
+>>>
+>> Maybe for you. For me they are different cases.
+>
+> They are different. I missed some words in the first sentence :)
+> However autostart automatically combine them together again :)
+> The problem is common timer so the patches are dependent.
+> There is no reason to use more timers.
+>
+I did not say use multiple timers. I said use multiple flags.
 
-in both my hwmon-next and watchdog-next branches. Both are currently building,
-and already pushed into to my repository at kernel.org.
-
-So, effectively, when I send my pull request to Linus, all patches from
-mfd-hwmon-leds-watchdog-v3.18 will be included, ie the entire series.
-The same will happen when Lee sends his pull request, and Wim, and you. 
-I believe that is what Lee is asking for.
-
-Thanks,
 Guenter
 
-_______________________________________________
-lm-sensors mailing list
-lm-sensors@lm-sensors.org
-http://lists.lm-sensors.org/mailman/listinfo/lm-sensors
