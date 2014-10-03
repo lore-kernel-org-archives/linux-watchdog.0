@@ -1,50 +1,239 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.linuxfoundation.org ([140.211.169.12]:54713 "EHLO
-	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750760AbaI3VUE (ORCPT
+Received: from mail-pd0-f179.google.com ([209.85.192.179]:36997 "EHLO
+	mail-pd0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752489AbaJCPth (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 30 Sep 2014 17:20:04 -0400
-Date: Tue, 30 Sep 2014 14:20:02 -0700
-From: Andrew Morton <akpm@linux-foundation.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Russell King <linux@arm.linux.org.uk>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org,
-	linux-samsung-soc@vger.kernel.org,
-	Will Deacon <will.deacon@arm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Heiko Stuebner <heiko@sntech.de>,
-	Jonas Jensen <jonas.jensen@gmail.com>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Ingo Molnar <mingo@kernel.org>,
-	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Tomasz Figa <t.figa@samsung.com>, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v7 00/11] kernel: Add support for restart handler call
- chain
-Message-Id: <20140930142002.e09ef32392a2b5a7c81e5e57@linux-foundation.org>
-In-Reply-To: <1408495538-27480-1-git-send-email-linux@roeck-us.net>
-References: <1408495538-27480-1-git-send-email-linux@roeck-us.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Oct 2014 11:49:37 -0400
+Received: by mail-pd0-f179.google.com with SMTP id r10so2725211pdi.38
+        for <linux-watchdog@vger.kernel.org>; Fri, 03 Oct 2014 08:49:37 -0700 (PDT)
+From: Guenter Roeck <linux@roeck-us.net>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org
+Subject: [GIT PULL] watchdog updates for Linux 3.18 (#4)
+Date: Fri,  3 Oct 2014 08:49:32 -0700
+Message-Id: <1412351372-4840-1-git-send-email-linux@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, 19 Aug 2014 17:45:27 -0700 Guenter Roeck <linux@roeck-us.net> wrote:
+Hi Wim,
 
-> Introduce a system restart handler call chain to solve the described problems.
+Ok, the third pull request was not the last one after all. Lots of activity this
+time around.
 
-So someone has merged eight of these patches into linux-next but these
-three:
+This is my fourth watchdog pull request for 3.18. The branch is currently based
+on v3.17-rc3. Since v3 I added two more patches which I think are ready for
+upstream integration. Also, the Ricoh patch is now the updated version reflecting
+your feedback.
 
-watchdog-s3c2410-add-restart-handler.patch
-clk-samsung-register-restart-handlers-for-s3c2412-and-s3c2443.patch
-clk-rockchip-add-restart-handler.patch
+Please consider pulling watchdog updates for Linux 3.18 from signed tag:
 
-were omitted.  What's up?
+    git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git watchdog-for-wim-3.18-v4
+
+The tag has been applied on top of the watchdog-next branch. The branch includes
+a number of patches I collected over the last few months. It does not include
+all submitted patches; only the ones I reviewed and felt comfortable with are
+included. Some may already be in your -next branch.
+
+The pull request includes merges with two immutable branches; this was necessary
+to resolve dependencies. Please see the merge messages for details.
+
+I reviewed all patches and ran build tests as well as source verification tests
+with both smatch and spatch. Most recent build results are available at
+http://server.roeck-us.net:8010/builders.
+
+The latest version of this branch has been on my public Linux repository for only
+a short period of time, so it may take a day or so for Fengguang's build bot
+to catch problems if there are any. I'll let you know if that is the case.
+
+If you don't want to apply the entire series, please consider applying whatever
+subset you might feel comfortable with.
+
+Thanks,
+Guenter
+
+------
+The following changes since commit 69e273c0b0a3c337a521d083374c918dc52c666f:
+
+  Linux 3.17-rc3 (2014-08-31 18:23:04 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git tags/watchdog-for-wim-3.18-v4
+
+for you to fetch changes up to da45a840cb0853c72079a329b583f353dfebdd76:
+
+  stmp3xxx_rtc_wdt: Add suspend/resume PM support (2014-09-30 06:45:16 -0700)
+
+----------------------------------------------------------------
+Note that two immutable branches with required functionality have been merged.
+See the related merge messages below.
+
+da45a84 stmp3xxx_rtc_wdt: Add suspend/resume PM support
+781e543 watchdog: add driver for Ricoh RN5T618 watchdog
+cb2d24b watchdog: Add DA9063 PMIC watchdog driver.
+d77481b watchdog: s3c2410_wdt: Add support for Watchdog device on Exynos7
+68fa4d7 watchdog: sunxi: Add A31 watchdog support
+a3b7089 watchdog: sunxi: support parameterized compatible strings
+c883b8c watchdog: imx2_wdt: add restart handler support
+a1afe15 watchdog: qcom: register a restart notifier
+8c5fd24 watchdog: s3c2410: add restart handler
+8c87929 watchdog: dw_wdt: add restart handler support
+d0d3d2b Merge tag 'restart-handler-for-v3.18' into watchdog-next
+6cd6d94 arm/arm64: unexport restart handlers
+d20a1d9 watchdog: sunxi: register restart handler with kernel restart handler
+87ffc69 watchdog: alim7101: register restart handler with kernel restart handler
+ad0e0e6 watchdog: moxart: register restart handler with kernel restart handler
+1a9607a arm: support restart through restart handler call chain
+1c7ffc3 arm64: support restart through restart handler call chain
+0713e14 power/restart: call machine_restart instead of arm_pm_restart
+b63adb9 kernel: add support for kernel restart handler call chain
+584ea96 watchdog: qcom: document device tree bindings
+c79a4a3 watchdog: qcom: add support for KPSS WDT
+5086176 Merge tag 'mfd-hwmon-leds-watchdog-v3.18' into watchdog-next
+9643569 hwmon: (menf21bmc) Introduce MEN14F021P00 BMC HWMON driver
+3843363 leds: leds-menf21bmc: Introduce MEN 14F021P00 BMC LED driver
+5033263 watchdog: menf21bmc_wdt: Introduce MEN 14F021P00 BMC Watchdog driver
+dfbdcd7 mfd: menf21bmc: Introduce MEN 14F021P00 BMC MFD Core driver
+826899b watchdog: dw_wdt: initialise TOP_INIT in dw_wdt_set_top()
+8ee1313 ARM: meson: add watchdog driver
+3136087 ARM: defconfig: update multi_v7_defconfig
+b9d2f85 ARM: docs: add documentation binding for meson watchdog
+45804ec watchdog: simplify definitions of WATCHDOG_NOWAYOUT(_INIT_STATUS)
+d9a9e55 watchdog: imx2_wdt: Convert to use regmap framework's endianness method.
+ce495d4 devicetree: Add Cadence WDT devicetree bindings documentation
+064a052 watchdog: Add Cadence WDT driver
+0a03e7d watchdog: ts72xx_wdt: Kill superfluous variable in remove
+6f14d37 powerpc: booke_wdt: Fix build error as a module
+a672e8e watchdog: xilinx: Remove .owner field for driver
+
+----------------------------------------------------------------
+Andreas Werner (4):
+      mfd: menf21bmc: Introduce MEN 14F021P00 BMC MFD Core driver
+      watchdog: menf21bmc_wdt: Introduce MEN 14F021P00 BMC Watchdog driver
+      leds: leds-menf21bmc: Introduce MEN 14F021P00 BMC LED driver
+      hwmon: (menf21bmc) Introduce MEN14F021P00 BMC HWMON driver
+
+Beniamino Galvani (1):
+      watchdog: add driver for Ricoh RN5T618 watchdog
+
+Carlo Caione (3):
+      ARM: docs: add documentation binding for meson watchdog
+      ARM: defconfig: update multi_v7_defconfig
+      ARM: meson: add watchdog driver
+
+Chen-Yu Tsai (2):
+      watchdog: sunxi: support parameterized compatible strings
+      watchdog: sunxi: Add A31 watchdog support
+
+Guenter Roeck (10):
+      Merge tag 'mfd-hwmon-leds-watchdog-v3.18' into watchdog-next
+      kernel: add support for kernel restart handler call chain
+      power/restart: call machine_restart instead of arm_pm_restart
+      arm64: support restart through restart handler call chain
+      arm: support restart through restart handler call chain
+      watchdog: moxart: register restart handler with kernel restart handler
+      watchdog: alim7101: register restart handler with kernel restart handler
+      watchdog: sunxi: register restart handler with kernel restart handler
+      arm/arm64: unexport restart handlers
+      Merge tag 'restart-handler-for-v3.18' into watchdog-next
+
+Harini Katakam (2):
+      watchdog: Add Cadence WDT driver
+      devicetree: Add Cadence WDT devicetree bindings documentation
+
+Heiko Stübner (1):
+      watchdog: s3c2410: add restart handler
+
+Janusz Użycki (1):
+      stmp3xxx_rtc_wdt: Add suspend/resume PM support
+
+Jingchang Lu (1):
+      watchdog: imx2_wdt: add restart handler support
+
+Jisheng Zhang (2):
+      watchdog: dw_wdt: initialise TOP_INIT in dw_wdt_set_top()
+      watchdog: dw_wdt: add restart handler support
+
+Josh Cartwright (3):
+      watchdog: qcom: add support for KPSS WDT
+      watchdog: qcom: document device tree bindings
+      watchdog: qcom: register a restart notifier
+
+Krystian Garbaciak (1):
+      watchdog: Add DA9063 PMIC watchdog driver.
+
+Michal Simek (1):
+      watchdog: xilinx: Remove .owner field for driver
+
+Mika Westerberg (1):
+      watchdog: ts72xx_wdt: Kill superfluous variable in remove
+
+Naveen Krishna Chatradhi (1):
+      watchdog: s3c2410_wdt: Add support for Watchdog device on Exynos7
+
+Pranith Kumar (1):
+      powerpc: booke_wdt: Fix build error as a module
+
+Uwe Kleine-König (1):
+      watchdog: simplify definitions of WATCHDOG_NOWAYOUT(_INIT_STATUS)
+
+Xiubo Li (1):
+      watchdog: imx2_wdt: Convert to use regmap framework's endianness method.
+
+ .../devicetree/bindings/watchdog/cadence-wdt.txt   |  24 +
+ .../devicetree/bindings/watchdog/fsl-imx-wdt.txt   |   4 +-
+ .../devicetree/bindings/watchdog/meson6-wdt.txt    |  13 +
+ .../devicetree/bindings/watchdog/qcom-wdt.txt      |  24 +
+ .../devicetree/bindings/watchdog/samsung-wdt.txt   |   1 +
+ Documentation/hwmon/menf21bmc                      |  50 ++
+ arch/arm/configs/multi_v7_defconfig                |   1 +
+ arch/arm/kernel/process.c                          |  12 +-
+ arch/arm64/kernel/process.c                        |   3 +-
+ drivers/hwmon/Kconfig                              |  10 +
+ drivers/hwmon/Makefile                             |   1 +
+ drivers/hwmon/menf21bmc_hwmon.c                    | 230 +++++++++
+ drivers/leds/Kconfig                               |   9 +
+ drivers/leds/Makefile                              |   1 +
+ drivers/leds/leds-menf21bmc.c                      | 131 ++++++
+ drivers/mfd/Kconfig                                |  15 +
+ drivers/mfd/Makefile                               |   1 +
+ drivers/mfd/menf21bmc.c                            | 132 ++++++
+ drivers/power/reset/restart-poweroff.c             |   3 +-
+ drivers/watchdog/Kconfig                           |  61 +++
+ drivers/watchdog/Makefile                          |   6 +
+ drivers/watchdog/alim7101_wdt.c                    |  42 +-
+ drivers/watchdog/booke_wdt.c                       |  28 +-
+ drivers/watchdog/cadence_wdt.c                     | 516 +++++++++++++++++++++
+ drivers/watchdog/da9063_wdt.c                      | 191 ++++++++
+ drivers/watchdog/dw_wdt.c                          |  36 +-
+ drivers/watchdog/imx2_wdt.c                        |  46 +-
+ drivers/watchdog/menf21bmc_wdt.c                   | 203 ++++++++
+ drivers/watchdog/meson_wdt.c                       | 236 ++++++++++
+ drivers/watchdog/moxart_wdt.c                      |  32 +-
+ drivers/watchdog/of_xilinx_wdt.c                   |   1 -
+ drivers/watchdog/qcom-wdt.c                        | 224 +++++++++
+ drivers/watchdog/rn5t618_wdt.c                     | 198 ++++++++
+ drivers/watchdog/s3c2410_wdt.c                     |  47 ++
+ drivers/watchdog/stmp3xxx_rtc_wdt.c                |  24 +
+ drivers/watchdog/sunxi_wdt.c                       | 136 ++++--
+ drivers/watchdog/ts72xx_wdt.c                      |   6 +-
+ include/linux/reboot.h                             |   3 +
+ include/linux/watchdog.h                           |   9 +-
+ kernel/reboot.c                                    |  81 ++++
+ 40 files changed, 2680 insertions(+), 111 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/cadence-wdt.txt
+ create mode 100644 Documentation/devicetree/bindings/watchdog/meson6-wdt.txt
+ create mode 100644 Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
+ create mode 100644 Documentation/hwmon/menf21bmc
+ create mode 100644 drivers/hwmon/menf21bmc_hwmon.c
+ create mode 100644 drivers/leds/leds-menf21bmc.c
+ create mode 100644 drivers/mfd/menf21bmc.c
+ create mode 100644 drivers/watchdog/cadence_wdt.c
+ create mode 100644 drivers/watchdog/da9063_wdt.c
+ create mode 100644 drivers/watchdog/menf21bmc_wdt.c
+ create mode 100644 drivers/watchdog/meson_wdt.c
+ create mode 100644 drivers/watchdog/qcom-wdt.c
+ create mode 100644 drivers/watchdog/rn5t618_wdt.c
