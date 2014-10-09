@@ -1,38 +1,50 @@
-Return-path: <carlo.caione@gmail.com>
-Sender: Carlo Caione <carlo.caione@gmail.com>
-From: Carlo Caione <carlo@caione.org>
-To: wim@iguana.be,
-	linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux@roeck-us.net,
-	b.galvani@gmail.com
-Cc: Carlo Caione <carlo@caione.org>
-Subject: [PATCH] ARM: meson: watchdog: remove magic value for reboot
-Date: Thu,  9 Oct 2014 21:59:16 +0200
-Message-Id: <1412884756-20943-1-git-send-email-carlo@caione.org>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pd0-f182.google.com ([209.85.192.182]:37733 "EHLO
+	mail-pd0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751081AbaJIUOg (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 9 Oct 2014 16:14:36 -0400
+Date: Thu, 9 Oct 2014 13:14:31 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Carlo Caione <carlo@caione.org>
+Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org, b.galvani@gmail.com
+Subject: Re: [PATCH] ARM: meson: watchdog: remove magic value for reboot
+Message-ID: <20141009201431.GA23397@roeck-us.net>
+References: <1412884756-20943-1-git-send-email-carlo@caione.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1412884756-20943-1-git-send-email-carlo@caione.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-This patch removes the magic value used for rebooting the board. This
-value is useless and leads to a static checker warning as reported by
-Dan Carpenter.
+On Thu, Oct 09, 2014 at 09:59:16PM +0200, Carlo Caione wrote:
+> This patch removes the magic value used for rebooting the board. This
+> value is useless and leads to a static checker warning as reported by
+> Dan Carpenter.
+> 
+> Signed-off-by: Carlo Caione <carlo@caione.org>
 
-Signed-off-by: Carlo Caione <carlo@caione.org>
----
- drivers/watchdog/meson_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-diff --git a/drivers/watchdog/meson_wdt.c b/drivers/watchdog/meson_wdt.c
-index 37f9f5ec..ef6a298 100644
---- a/drivers/watchdog/meson_wdt.c
-+++ b/drivers/watchdog/meson_wdt.c
-@@ -51,7 +51,7 @@ struct meson_wdt_dev {
- static int meson_restart_handle(struct notifier_block *this, unsigned long mode,
- 				void *cmd)
- {
--	u32 tc_reboot = MESON_WDT_DC_RESET | MESON_WDT_TC_EN | 100;
-+	u32 tc_reboot = MESON_WDT_DC_RESET | MESON_WDT_TC_EN;
- 	struct meson_wdt_dev *meson_wdt = container_of(this,
- 						       struct meson_wdt_dev,
- 						       restart_handler);
--- 
-1.9.1
+> ---
+>  drivers/watchdog/meson_wdt.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/watchdog/meson_wdt.c b/drivers/watchdog/meson_wdt.c
+> index 37f9f5ec..ef6a298 100644
+> --- a/drivers/watchdog/meson_wdt.c
+> +++ b/drivers/watchdog/meson_wdt.c
+> @@ -51,7 +51,7 @@ struct meson_wdt_dev {
+>  static int meson_restart_handle(struct notifier_block *this, unsigned long mode,
+>  				void *cmd)
+>  {
+> -	u32 tc_reboot = MESON_WDT_DC_RESET | MESON_WDT_TC_EN | 100;
+> +	u32 tc_reboot = MESON_WDT_DC_RESET | MESON_WDT_TC_EN;
+>  	struct meson_wdt_dev *meson_wdt = container_of(this,
+>  						       struct meson_wdt_dev,
+>  						       restart_handler);
+> -- 
+> 1.9.1
+> 
