@@ -1,67 +1,98 @@
-Return-path: <lee.jones@linaro.org>
-Date: Thu, 9 Oct 2014 08:17:40 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	kernel@stlinux.com, wim@iguana.be, linux-watchdog@vger.kernel.org,
-	David Paris <david.paris@st.com>
-Subject: Re: [PATCH 4/4] watchdog: st_wdt: Add new driver for ST's LPC
- Watchdog
-Message-ID: <20141009071740.GK20647@lee--X1>
+Return-path: <mark.rutland@arm.com>
+Date: Thu, 9 Oct 2014 10:56:49 +0100
+From: Mark Rutland <mark.rutland@arm.com>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+   "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+   "kernel@stlinux.com" <kernel@stlinux.com>, "wim@iguana.be" <wim@iguana.be>,
+   "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+   "linux@roeck-us.net" <linux@roeck-us.net>,
+   "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+   David Paris <david.paris@st.com>
+Subject: Re: [PATCH 3/4] watchdog: st_wdt: Provide binding documentation for
+ ST's LPC Watchdog driver
+Message-ID: <20141009095649.GC3869@leverpostej>
 References: <1412760810-23199-1-git-send-email-lee.jones@linaro.org>
- <1412760810-23199-5-git-send-email-lee.jones@linaro.org>
- <20141008155756.GA17676@roeck-us.net>
+ <1412760810-23199-4-git-send-email-lee.jones@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20141008155756.GA17676@roeck-us.net>
+In-Reply-To: <1412760810-23199-4-git-send-email-lee.jones@linaro.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Wed, 08 Oct 2014, Guenter Roeck wrote:
+On Wed, Oct 08, 2014 at 10:33:29AM +0100, Lee Jones wrote:
+> Cc: devicetree@vger.kernel.org
+> Signed-off-by: David Paris <david.paris@st.com>
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> ---
+>  .../devicetree/bindings/watchdog/st-lpc-wdt.txt    | 30 ++++++++++++++++++++++
+>  1 file changed, 30 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/st-lpc-wdt.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/st-lpc-wdt.txt b/Documentation/devicetree/bindings/watchdog/st-lpc-wdt.txt
+> new file mode 100644
+> index 0000000..520ce90
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/watchdog/st-lpc-wdt.txt
+> @@ -0,0 +1,30 @@
+> +STMicroelectronics LPC Watchdog
+> +===============================
+> +
+> +Required properties
+> +
+> +- compatible 	: Must be one of:
+> +			"st,stih407-watchdog"
+> +			"st,stih416-watchdog"
+> +			"st,stih415-watchdog"
+> +			"st,stid127-watchdog"
+> +- reg		: LPC registers base address + range
 
-> On Wed, Oct 08, 2014 at 10:33:30AM +0100, Lee Jones wrote:
-> > Signed-off-by: David Paris <david.paris@st.com>
-> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> > ---
-> >  drivers/watchdog/Kconfig  |  16 +++
-> >  drivers/watchdog/Makefile |   1 +
-> >  drivers/watchdog/st_wdt.c | 317 ++++++++++++++++++++++++++++++++++++++++++++++
-> >  3 files changed, 334 insertions(+)
-> >  create mode 100644 drivers/watchdog/st_wdt.c
-> > 
-> 
-> Unfortunately (built with W=1):
-> 
-> drivers/watchdog/st_wdt.c: In function 'st_wdog_load_timer':
-> drivers/watchdog/st_wdt.c:114:14: warning: comparison between signed and
-> unsigned integer expressions [-Wsign-compare]
-> drivers/watchdog/st_wdt.c: In function 'st_wdog_remove':
-> drivers/watchdog/st_wdt.c:273:24: error: 'clk' undeclared (first use in this
-> function)
-> 
-> and checkpatch complains a bit: 
-> 
-> WARNING: please, no space before tabs
-> #303: FILE: drivers/watchdog/st_wdt.c:236:
-> +^Ist_wdog->dev ^I^I= &pdev->dev;$
-> 
-> WARNING: please, no space before tabs
-> #304: FILE: drivers/watchdog/st_wdt.c:237:
-> +^Ist_wdog->base ^I^I= base;$
-> 
-> WARNING: please, no space before tabs
-> #306: FILE: drivers/watchdog/st_wdt.c:239:
-> +^Ist_wdog->warm_reset ^I= of_property_read_bool(np, "st,warm_reset");$
+s/range/size/
 
-Thanks for taking the time to build this Guenter.  I must profess, the
-recent submissions were delivered hastily, due to other pressing tasks
-and a mountain of email to peruse.  The next submission will be
-subject extensive; build, static analysis and execution testing.
-Sorry to waste your time.
+Please append something like "one entryfor each entry in reg-names".
 
--- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+> +- reg-names	: Register map "base" and "syscfg-en" are compulsory. "type" is
+> +		  platform dependent and not required for the STiH407
+
+I don't understand the mention of "type".
+
+Additionally, "syscfg-en" looks to be a portion of another device
+(shared system controller?), and probably should be described by
+reference.
+
+> +- clock-names 	: Should be "lpc_wdt"
+> +- clocks	: Clock used by LPC device
+> +- timeout-sec	: Watchdog timeout in seconds
+> +- st,syscfg	: Syscfg node used to configure CPU reset type and mask
+
+Does this relate to the syscfg-en entry in the reg proeprty?
+
+> +- st,warm_reset	: If present, reset type will be 'warm'. If not, it will be cold
+
+s/_/-/ in property names.
+
+Why does this need to be in the binding? It seems like a choice rather
+than a property of the system.
+
+Mark.
+
+> +
+> +Example:
+> +	watchdog@fde05000 {
+> +		compatible	= "st,stih416-lpc-watchdog";
+> +		reg		= <0xfde05000 0x1000> <0x204 0x4>;
+> +		reg-names	= "base", "syscfg-en"
+> +		clock-names	= "lpc_wdt";
+> +		clocks 		= <&clk_s_d3_flexgen CLK_LPC_0>;
+> +		timeout-sec	= <600>;
+> +		st,syscfg	= <&syscfg_core>;
+> +		st,warm_reset;
+> +	};
+> -- 
+> 1.9.1
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe devicetree" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
