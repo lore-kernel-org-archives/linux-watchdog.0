@@ -1,37 +1,72 @@
-Return-path: <lee.jones@linaro.org>
-Date: Thu, 9 Oct 2014 11:50:07 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"kernel@stlinux.com" <kernel@stlinux.com>,
-	David Paris <david.paris@st.com>, "wim@iguana.be" <wim@iguana.be>,
-	"linux@roeck-us.net" <linux@roeck-us.net>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pa0-f41.google.com ([209.85.220.41]:59175 "EHLO
+	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751372AbaJIP7X (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 9 Oct 2014 11:59:23 -0400
+Date: Thu, 9 Oct 2014 08:59:18 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	kernel@stlinux.com, wim@iguana.be, linux-watchdog@vger.kernel.org,
+	David Paris <david.paris@st.com>
 Subject: Re: [PATCH 4/4] watchdog: st_wdt: Add new driver for ST's LPC
  Watchdog
-Message-ID: <20141009105007.GO20647@lee--X1>
+Message-ID: <20141009155918.GD31987@roeck-us.net>
 References: <1412760810-23199-1-git-send-email-lee.jones@linaro.org>
  <1412760810-23199-5-git-send-email-lee.jones@linaro.org>
- <20141009100115.GD3869@leverpostej>
+ <20141008155756.GA17676@roeck-us.net>
+ <20141009071740.GK20647@lee--X1>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20141009100115.GD3869@leverpostej>
-List-ID: <linux-watchdog@vger.kernel.org>
+In-Reply-To: <20141009071740.GK20647@lee--X1>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, 09 Oct 2014, Mark Rutland wrote:
-
-> > +       res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "syscfg-type");
+On Thu, Oct 09, 2014 at 08:17:40AM +0100, Lee Jones wrote:
+> On Wed, 08 Oct 2014, Guenter Roeck wrote:
 > 
-> This wasn't mentioned in the binding. A comment mentioned "type", but
-> there was no explicit mention of "syscfg-type" in reg-names.
+> > On Wed, Oct 08, 2014 at 10:33:30AM +0100, Lee Jones wrote:
+> > > Signed-off-by: David Paris <david.paris@st.com>
+> > > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> > > ---
+> > >  drivers/watchdog/Kconfig  |  16 +++
+> > >  drivers/watchdog/Makefile |   1 +
+> > >  drivers/watchdog/st_wdt.c | 317 ++++++++++++++++++++++++++++++++++++++++++++++
+> > >  3 files changed, 334 insertions(+)
+> > >  create mode 100644 drivers/watchdog/st_wdt.c
+> > > 
+> > 
+> > Unfortunately (built with W=1):
+> > 
+> > drivers/watchdog/st_wdt.c: In function 'st_wdog_load_timer':
+> > drivers/watchdog/st_wdt.c:114:14: warning: comparison between signed and
+> > unsigned integer expressions [-Wsign-compare]
+> > drivers/watchdog/st_wdt.c: In function 'st_wdog_remove':
+> > drivers/watchdog/st_wdt.c:273:24: error: 'clk' undeclared (first use in this
+> > function)
+> > 
+> > and checkpatch complains a bit: 
+> > 
+> > WARNING: please, no space before tabs
+> > #303: FILE: drivers/watchdog/st_wdt.c:236:
+> > +^Ist_wdog->dev ^I^I= &pdev->dev;$
+> > 
+> > WARNING: please, no space before tabs
+> > #304: FILE: drivers/watchdog/st_wdt.c:237:
+> > +^Ist_wdog->base ^I^I= base;$
+> > 
+> > WARNING: please, no space before tabs
+> > #306: FILE: drivers/watchdog/st_wdt.c:239:
+> > +^Ist_wdog->warm_reset ^I= of_property_read_bool(np, "st,warm_reset");$
+> 
+> Thanks for taking the time to build this Guenter.  I must profess, the
+> recent submissions were delivered hastily, due to other pressing tasks
+> and a mountain of email to peruse.  The next submission will be
+> subject extensive; build, static analysis and execution testing.
+> Sorry to waste your time.
+> 
+No worries. This is just part of my workflow, and it can happen to all of us.
 
-Thanks Mark, I'll fixup.
-
--- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Guenter
