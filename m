@@ -1,60 +1,70 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:48314 "EHLO
-	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754166AbaJNTAb (ORCPT
+Received: from mail-pa0-f45.google.com ([209.85.220.45]:50010 "EHLO
+	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932479AbaJNUCB (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 14 Oct 2014 15:00:31 -0400
-Message-ID: <543D72DD.4000501@wwwdotorg.org>
-Date: Tue, 14 Oct 2014 13:00:45 -0600
-From: Stephen Warren <swarren@wwwdotorg.org>
+	Tue, 14 Oct 2014 16:02:01 -0400
+Date: Tue, 14 Oct 2014 13:01:55 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Tony Lindgren <tony@atomide.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	linux-omap@vger.kernel.org, Thomas Dziedzic <gostrc@gmail.com>
+Subject: Re: [PATCH] watchdog: Fix omap watchdogs to enable the magic close
+ bit
+Message-ID: <20141014200155.GA19184@roeck-us.net>
+References: <20141014192518.GH4972@atomide.com>
 MIME-Version: 1.0
-To: Thierry Reding <thierry.reding@gmail.com>,
-	Guenter Roeck <linux@roeck-us.net>
-CC: Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Alexandre Courbot <gnurou@gmail.com>,
-	linux-watchdog@vger.kernel.org, linux-tegra@vger.kernel.org
-Subject: Re: [PATCH 2/2] clocksource: tegra: Register watchdog device
-References: <1413201922-4210-1-git-send-email-thierry.reding@gmail.com> <1413201922-4210-2-git-send-email-thierry.reding@gmail.com> <543C00E2.2090806@roeck-us.net> <20141014104218.GG18993@ulmo>
-In-Reply-To: <20141014104218.GG18993@ulmo>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20141014192518.GH4972@atomide.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 10/14/2014 04:42 AM, Thierry Reding wrote:
-> On Mon, Oct 13, 2014 at 09:42:10AM -0700, Guenter Roeck wrote:
->> On 10/13/2014 05:05 AM, Thierry Reding wrote:
->>> From: Thierry Reding <treding@nvidia.com>
->>>
->>> The watchdog timer is part of the timer controller block on Tegra. In
->>> order to avoid access to the same registers from two drivers, register
->>> the watchdog device from the clocksource driver.
->>>
->>> Signed-off-by: Thierry Reding <treding@nvidia.com>
->>
->> Does that really make sense ?
->>
->> A couple of callbacks into the clock driver to implement register accesses
->> might be a better approach.
->
-> I guess that would be a valid approach as well. It has the downside of
-> requiring the addition of at least two globally visible symbols to the
-> kernel. It also means that we'd need to somehow pass around a struct
-> device for diagnostic messages and so on. Dealing with all of that seems
-> like much more of a burden than this.
->
-> Also if you look at the diffstat this approach allows us to get rid of
-> 80 lines of code. Adding a custom mechanism to share the register space
-> would be more likely to result in a positive diffstat.
+On Tue, Oct 14, 2014 at 12:25:19PM -0700, Tony Lindgren wrote:
+> This allows testing the watchdog easily with distros just by
+> doing pkill -9 watchdog.
+> 
+> Reported-by: Thomas Dziedzic <gostrc@gmail.com>
+> Signed-off-by: Tony Lindgren <tony@atomide.com>
+> 
+Good catch.
 
-FWIW, (although I haven't read the patches), the general idea of 
-registering a single driver for each HW block makes sense to me. While 
-we've split up HW blocks into separate drivers in the past, I think 
-that's just made things more complex without much benefit, so I think 
-those decisions were a mistake in retrospect. If we do actually need to 
-split things up into separate drivers, we should use MFD rather than 
-multiple unrelated top-level drivers. That way, we will have a single 
-top-level driver that gets instantiated from a single DT node (or 
-platform device in a board file or ACPI thing or ...)
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
+> --- a/drivers/watchdog/omap_wdt.c
+> +++ b/drivers/watchdog/omap_wdt.c
+> @@ -189,7 +189,7 @@ static int omap_wdt_set_timeout(struct watchdog_device *wdog,
+>  }
+>  
+>  static const struct watchdog_info omap_wdt_info = {
+> -	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
+> +	.options = WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING,
+>  	.identity = "OMAP Watchdog",
+>  };
+>  
+> --- a/drivers/watchdog/retu_wdt.c
+> +++ b/drivers/watchdog/retu_wdt.c
+> @@ -94,7 +94,7 @@ static int retu_wdt_set_timeout(struct watchdog_device *wdog,
+>  }
+>  
+>  static const struct watchdog_info retu_wdt_info = {
+> -	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
+> +	.options = WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING,
+>  	.identity = "Retu watchdog",
+>  };
+>  
+> --- a/drivers/watchdog/twl4030_wdt.c
+> +++ b/drivers/watchdog/twl4030_wdt.c
+> @@ -57,7 +57,7 @@ static int twl4030_wdt_set_timeout(struct watchdog_device *wdt,
+>  }
+>  
+>  static const struct watchdog_info twl4030_wdt_info = {
+> -	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
+> +	.options = WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING,
+>  	.identity = "TWL4030 Watchdog",
+>  };
+>  
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
