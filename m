@@ -1,106 +1,105 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:52438 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751183AbaJONZp (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 15 Oct 2014 09:25:45 -0400
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
-	(envelope-from <linux@roeck-us.net>)
-	id 1XeOaH-002uGi-Dj
-	for linux-watchdog@vger.kernel.org; Wed, 15 Oct 2014 13:25:45 +0000
-Message-ID: <543E75D3.5010907@roeck-us.net>
-Date: Wed, 15 Oct 2014 06:25:39 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+Received: from comal.ext.ti.com ([198.47.26.152]:59200 "EHLO comal.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751447AbaJOOmg (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 15 Oct 2014 10:42:36 -0400
+Date: Wed, 15 Oct 2014 09:42:24 -0500
+From: Felipe Balbi <balbi@ti.com>
+To: Tony Lindgren <tony@atomide.com>
+CC: Wim Van Sebroeck <wim@iguana.be>, <linux-watchdog@vger.kernel.org>,
+	<linux-omap@vger.kernel.org>, Thomas Dziedzic <gostrc@gmail.com>
+Subject: Re: [PATCH] watchdog: Fix omap watchdogs to enable the magic close
+ bit
+Message-ID: <20141015144224.GE10888@saruman>
+Reply-To: <balbi@ti.com>
+References: <20141014192518.GH4972@atomide.com>
 MIME-Version: 1.0
-To: Thierry Reding <thierry.reding@gmail.com>,
-	Stephen Warren <swarren@wwwdotorg.org>
-CC: Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Alexandre Courbot <gnurou@gmail.com>,
-	linux-watchdog@vger.kernel.org, linux-tegra@vger.kernel.org
-Subject: Re: [PATCH 2/2] clocksource: tegra: Register watchdog device
-References: <1413201922-4210-1-git-send-email-thierry.reding@gmail.com> <1413201922-4210-2-git-send-email-thierry.reding@gmail.com> <543C00E2.2090806@roeck-us.net> <20141014104218.GG18993@ulmo> <543D72DD.4000501@wwwdotorg.org> <20141015080425.GB12807@ulmo>
-In-Reply-To: <20141015080425.GB12807@ulmo>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wTWi5aaYRw9ix9vO"
+Content-Disposition: inline
+In-Reply-To: <20141014192518.GH4972@atomide.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 10/15/2014 01:04 AM, Thierry Reding wrote:
-> On Tue, Oct 14, 2014 at 01:00:45PM -0600, Stephen Warren wrote:
->> On 10/14/2014 04:42 AM, Thierry Reding wrote:
->>> On Mon, Oct 13, 2014 at 09:42:10AM -0700, Guenter Roeck wrote:
->>>> On 10/13/2014 05:05 AM, Thierry Reding wrote:
->>>>> From: Thierry Reding <treding@nvidia.com>
->>>>>
->>>>> The watchdog timer is part of the timer controller block on Tegra. In
->>>>> order to avoid access to the same registers from two drivers, register
->>>>> the watchdog device from the clocksource driver.
->>>>>
->>>>> Signed-off-by: Thierry Reding <treding@nvidia.com>
->>>>
->>>> Does that really make sense ?
->>>>
->>>> A couple of callbacks into the clock driver to implement register accesses
->>>> might be a better approach.
->>>
->>> I guess that would be a valid approach as well. It has the downside of
->>> requiring the addition of at least two globally visible symbols to the
->>> kernel. It also means that we'd need to somehow pass around a struct
->>> device for diagnostic messages and so on. Dealing with all of that seems
->>> like much more of a burden than this.
->>>
->>> Also if you look at the diffstat this approach allows us to get rid of
->>> 80 lines of code. Adding a custom mechanism to share the register space
->>> would be more likely to result in a positive diffstat.
->>
->> FWIW, (although I haven't read the patches), the general idea of registering
->> a single driver for each HW block makes sense to me. While we've split up HW
->> blocks into separate drivers in the past, I think that's just made things
->> more complex without much benefit, so I think those decisions were a mistake
->> in retrospect. If we do actually need to split things up into separate
->> drivers, we should use MFD rather than multiple unrelated top-level drivers.
->> That way, we will have a single top-level driver that gets instantiated from
->> a single DT node (or platform device in a board file or ACPI thing or ...)
->
-> MFD isn't fundamentally different from what Guenter proposed. While it
-> gives us a framework to work with rather than having to roll our own, it
-> comes with its own set of problems. One of the bigger problems that I
-> can imagine is that if we rigorously apply this split to every device
-> that exposes more than one subsystem interface, drivers/mfd is going to
-> explode.
->
-> Obviously the downside of exposing multiple interfaces in one driver is
-> that we spread drivers all over the kernel, so it becomes harder to deal
-> with API changes and such. On the other hand we do have good tools
-> available for that (coccinelle) and we already have that situation right
-> now at least for things that are in drivers/staging.
->
-> One other problem with having one driver expose multiple interfaces is
-> how to choose which tree to merge it through. Often I guess the logical
-> choice would be the primary functionality of the block. Usually this
-> would be the one that occupies the majority of the code. One recent
-> example is a display controller that contains registers to control a PWM
-> output typically used for backlight.
->
+--wTWi5aaYRw9ix9vO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-It is always a trade-off. Upside of using the same driver for multiple
-functions is that it reduces code size, as you point out (though most of it
-is boilerplate). Downside is that it takes visibility away from the subsystem
-maintainer, and will result in the maintainer not reviewing related code changes.
-Worst case that can result in non-working code, as I have seen multiple times
-with hwmon driver registrations from outside the hwmon subsystem.
+On Tue, Oct 14, 2014 at 12:25:19PM -0700, Tony Lindgren wrote:
+> This allows testing the watchdog easily with distros just by
+> doing pkill -9 watchdog.
+>=20
+> Reported-by: Thomas Dziedzic <gostrc@gmail.com>
+> Signed-off-by: Tony Lindgren <tony@atomide.com>
 
-Ultimately the question for me is how much the actual code is intertwined
-with the other code in the driver. If there is little interaction,
-I prefer a separate driver. If the code is heavily intertwined, ie if there
-lots of calls from one block to the other, I prefer one driver. I tend
-to use mfd if a piece of hardware has clearly separate functional blocks.
+Reviewed-by: Felipe Balbi <balbi@ti.com>
 
-It is really a case-by-case call. In the given case, I would either leave
-things alone (didn't hurt us so far) or at best to use exported function
-calls, as I suggested earlier.
+>=20
+> --- a/drivers/watchdog/omap_wdt.c
+> +++ b/drivers/watchdog/omap_wdt.c
+> @@ -189,7 +189,7 @@ static int omap_wdt_set_timeout(struct watchdog_devic=
+e *wdog,
+>  }
+> =20
+>  static const struct watchdog_info omap_wdt_info =3D {
+> -	.options =3D WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
+> +	.options =3D WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING,
+>  	.identity =3D "OMAP Watchdog",
+>  };
+> =20
+> --- a/drivers/watchdog/retu_wdt.c
+> +++ b/drivers/watchdog/retu_wdt.c
+> @@ -94,7 +94,7 @@ static int retu_wdt_set_timeout(struct watchdog_device =
+*wdog,
+>  }
+> =20
+>  static const struct watchdog_info retu_wdt_info =3D {
+> -	.options =3D WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
+> +	.options =3D WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING,
+>  	.identity =3D "Retu watchdog",
+>  };
+> =20
+> --- a/drivers/watchdog/twl4030_wdt.c
+> +++ b/drivers/watchdog/twl4030_wdt.c
+> @@ -57,7 +57,7 @@ static int twl4030_wdt_set_timeout(struct watchdog_devi=
+ce *wdt,
+>  }
+> =20
+>  static const struct watchdog_info twl4030_wdt_info =3D {
+> -	.options =3D WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
+> +	.options =3D WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING,
+>  	.identity =3D "TWL4030 Watchdog",
+>  };
+> =20
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-omap" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Guenter
+--=20
+balbi
 
+--wTWi5aaYRw9ix9vO
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUPofQAAoJEIaOsuA1yqRE7hoQAK41KMk+fbksOoVtu8i+x9zH
+a8FBV0OsvmIl7qe5D4eVI7bqEy2Cp6JvACOyJB9fLoc7HWkn05BT+PAIMyI+y4fp
+QXe7RLV3iZa3DX5Ao04uBoG3j5yEhBXizo0RvouS77pYSm7GGyhN2QOnVU5I/0yR
+Y6Y11Aq7Sne0HeNJJ0r7A5C/Deej1vj2Sc/GM9RmEZ4F0PyCKvxAXoYQLVcBiV74
+wLNyQbQsBVL6IedsdzR926k1op1v7as5ylyLjbA2BobpBT8zF6oJMXj99UXNz8XN
+7Y8mKAl2a/lvrv7IpMBq8hSTpK2ljIwPc42kV5A+Ghm95yuNRVdVBlizjOuiV9BQ
+dA4gmL2jstbl2AqmWPR7BHl/HCt3d8bQ9JfImdLr5HPdBufBWqjrKLDkOxNC3Von
+wEjZlgYEMoMv8iXiKg6mDsezNahPvloLug3hoSB+v+x9v0ruaoLxyioJJCbgTk1m
+cAcDTCjJ9tbSo6NcaYvLebeYBrF4xdqf+5f97oEOTpwUKIi/doNZ3RRRxpBTpVX6
+U4bhmfyKJbiHqyFq7S0+BNEg6HU8QRSJYzKCCcVhUcjhSzYOUhFJs37b7iWzSFHi
+kWpKbIkOOX4TiSD8LNrfoEzvN7gK7UYos2rRZBCJt6qpJ0RWLKZWg/YFuHpcvYIM
+RdIPTBOAQZQe+E34bd+d
+=qGCA
+-----END PGP SIGNATURE-----
+
+--wTWi5aaYRw9ix9vO--
