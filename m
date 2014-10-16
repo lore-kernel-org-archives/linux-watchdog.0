@@ -1,15 +1,15 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from static.88-198-24-112.clients.your-server.de ([88.198.24.112]:40097
+Received: from static.88-198-24-112.clients.your-server.de ([88.198.24.112]:51796
 	"EHLO nbd.name" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751595AbaJPKIZ (ORCPT
+	with ESMTP id S1751636AbaJPUBU (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 16 Oct 2014 06:08:25 -0400
+	Thu, 16 Oct 2014 16:01:20 -0400
 From: John Crispin <blogic@openwrt.org>
 To: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org, linux-mips@linux-mips.org
-Subject: [PATCH V2] watchdog: add MT7621 watchdog support
-Date: Thu, 16 Oct 2014 12:08:19 +0200
-Message-Id: <1413454099-2836-1-git-send-email-blogic@openwrt.org>
+Subject: [PATCH V3] watchdog: add MT7621 watchdog support
+Date: Thu, 16 Oct 2014 22:01:04 +0200
+Message-Id: <1413489665-52342-1-git-send-email-blogic@openwrt.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
@@ -18,19 +18,26 @@ Wifi SoCs.
 
 Signed-off-by: John Crispin <blogic@openwrt.org>
 ---
-Changes since V1
+This patch is for 3.18 and is part of a larger number of mediatek/ralink
+patches. Ideally this patch can go upstream with the rest via the linux-mips
+tree once it has been Ack'ed to avoid merge order problems.
 
+Changes since V2
+* specify the SoCs in the Kconfig help text
+
+Changes since V1
 * fix the comments identifying the driver
 * add a comment to the code setting the prescaler
 * use watchdog_init_timeout
 * use devm_reset_control_get
 * get rid of the miscdev code
 
+
  .../devicetree/bindings/watchdog/mt7621-wdt.txt    |   12 ++
  drivers/watchdog/Kconfig                           |    7 +
  drivers/watchdog/Makefile                          |    1 +
- drivers/watchdog/mt7621_wdt.c                      |  186 ++++++++++++++++++++
- 4 files changed, 206 insertions(+)
+ drivers/watchdog/mt7621_wdt.c                      |  187 ++++++++++++++++++++
+ 4 files changed, 207 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/watchdog/mt7621-wdt.txt
  create mode 100644 drivers/watchdog/mt7621_wdt.c
 
@@ -53,7 +60,7 @@ index 0000000..c15ef0e
 +		reg = <0x100 0x10>;
 +	};
 diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index f57312f..9ee0d32 100644
+index f57312f..19eda1a 100644
 --- a/drivers/watchdog/Kconfig
 +++ b/drivers/watchdog/Kconfig
 @@ -1186,6 +1186,13 @@ config RALINK_WDT
@@ -65,7 +72,7 @@ index f57312f..9ee0d32 100644
 +	select WATCHDOG_CORE
 +	depends on SOC_MT7620 || SOC_MT7621
 +	help
-+	  Hardware driver for the Mediatek/Ralink SoC Watchdog Timer.
++	  Hardware driver for the Mediatek/Ralink MT7621/8 SoC Watchdog Timer.
 +
  # PARISC Architecture
  
@@ -84,10 +91,10 @@ index 468c320..5b2031e 100644
  
 diff --git a/drivers/watchdog/mt7621_wdt.c b/drivers/watchdog/mt7621_wdt.c
 new file mode 100644
-index 0000000..0cb9e0b
+index 0000000..342027e
 --- /dev/null
 +++ b/drivers/watchdog/mt7621_wdt.c
-@@ -0,0 +1,186 @@
+@@ -0,0 +1,187 @@
 +/*
 + * Ralink MT7621/MT7628 built-in hardware watchdog timer
 + *
@@ -232,7 +239,8 @@ index 0000000..0cb9e0b
 +	mt7621_wdt_dev.dev = &pdev->dev;
 +	mt7621_wdt_dev.bootstatus = mt7621_wdt_bootcause();
 +
-+	watchdog_init_timeout(&mt7621_wdt_dev, mt7621_wdt_dev.max_timeout, &pdev->dev);
++	watchdog_init_timeout(&mt7621_wdt_dev, mt7621_wdt_dev.max_timeout,
++			      &pdev->dev);
 +	watchdog_set_nowayout(&mt7621_wdt_dev, nowayout);
 +
 +	ret = watchdog_register_device(&mt7621_wdt_dev);
