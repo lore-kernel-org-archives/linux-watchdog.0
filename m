@@ -1,47 +1,45 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:53712 "EHLO
+Received: from down.free-electrons.com ([37.187.137.238]:53725 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753594AbaJVPaq (ORCPT
+	with ESMTP id S1753019AbaJVPaw (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 22 Oct 2014 11:30:46 -0400
-Message-ID: <5447CCEA.7010109@free-electrons.com>
-Date: Wed, 22 Oct 2014 12:27:38 -0300
+	Wed, 22 Oct 2014 11:30:52 -0400
+Message-ID: <5447CD42.4040906@free-electrons.com>
+Date: Wed, 22 Oct 2014 12:29:06 -0300
 From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 MIME-Version: 1.0
-To: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-CC: Jason Cooper <jason@lakedaemon.net>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Nadav Haklai <nadavh@marvell.com>,
+To: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	Andrew Lunn <andrew@lunn.ch>
+CC: Lior Amsalem <alior@marvell.com>,
+	Jason Cooper <jason@lakedaemon.net>,
 	Tawfik Bayouk <tawfik@marvell.com>,
-	Lior Amsalem <alior@marvell.com>,
-	Gregory Clement <gregory.clement@free-electrons.com>
-Subject: Re: [PATCH 4/4] ARM: dts: Enable the reference clock for timer and
- watchdog on Armada 375 SoC
-References: <1413984884-20273-1-git-send-email-ezequiel.garcia@free-electrons.com>	<1413984884-20273-5-git-send-email-ezequiel.garcia@free-electrons.com> <20141022155510.5fee5f8e@free-electrons.com>
-In-Reply-To: <20141022155510.5fee5f8e@free-electrons.com>
+	Daniel Lezcano <daniel.lezcano@linaro.org>,
+	Nadav Haklai <nadavh@marvell.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 0/4] Make Armada 375 use the reference clock when possible
+References: <1413984884-20273-1-git-send-email-ezequiel.garcia@free-electrons.com>	<20141022155614.04d33791@free-electrons.com>	<20141022140847.GQ9845@lunn.ch> <20141022162528.67d5d750@free-electrons.com>
+In-Reply-To: <20141022162528.67d5d750@free-electrons.com>
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 10/22/2014 10:55 AM, Thomas Petazzoni wrote:
-> Dear Ezequiel Garcia,
+On 10/22/2014 11:25 AM, Thomas Petazzoni wrote:
+> Dear Andrew Lunn,
 >=20
-> On Wed, 22 Oct 2014 10:34:44 -0300, Ezequiel Garcia wrote:
+> On Wed, 22 Oct 2014 16:08:47 +0200, Andrew Lunn wrote:
 >=20
->> -				clocks =3D <&coreclk 0>;
->> +				clocks =3D <&refclk>;
->> +				clock-names =3D "fixed";
+>> How bad is it if you run these patches on a Z1? Is it worth adding a
+>> revision check and calling BUG()?
 >=20
-> Why not do like we do on Armada XP, and actually represent the
-> hardware, by showing that it takes two clocks as input:
+> To be tested, I don't have the answer off-hand.
 >=20
 
-Yes, I guess that would work.
+Right, I'll take a look.
 --=20
 Ezequiel Garc=EDa, Free Electrons
 Embedded Linux, Kernel and Android Engineering
