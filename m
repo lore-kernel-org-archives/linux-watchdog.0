@@ -1,15 +1,10 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:47902 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932743AbaJVWzc (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 22 Oct 2014 18:55:32 -0400
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
-	(envelope-from <linux@roeck-us.net>)
-	id 1Xh4oV-000MSd-KJ
-	for linux-watchdog@vger.kernel.org; Wed, 22 Oct 2014 22:55:31 +0000
-Date: Wed, 22 Oct 2014 15:54:59 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+Received: from vps0.lunn.ch ([178.209.37.122]:42347 "EHLO vps0.lunn.ch"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754354AbaJVX7w (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 22 Oct 2014 19:59:52 -0400
+Date: Thu, 23 Oct 2014 01:59:00 +0200
+From: Andrew Lunn <andrew@lunn.ch>
 To: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 Cc: Andrew Lunn <andrew@lunn.ch>, Jason Cooper <jason@lakedaemon.net>,
 	Daniel Lezcano <daniel.lezcano@linaro.org>,
@@ -23,7 +18,7 @@ Cc: Andrew Lunn <andrew@lunn.ch>, Jason Cooper <jason@lakedaemon.net>,
 	linux-arm-kernel@lists.infradead.org
 Subject: Re: [PATCH 2/4] watchdog: orion: Use the reference clock on Armada
  375 SoC
-Message-ID: <20141022225459.GB20733@roeck-us.net>
+Message-ID: <20141022235900.GA20968@lunn.ch>
 References: <1413984884-20273-1-git-send-email-ezequiel.garcia@free-electrons.com>
  <1413984884-20273-3-git-send-email-ezequiel.garcia@free-electrons.com>
  <20141022140221.GP9845@lunn.ch>
@@ -62,10 +57,20 @@ On Wed, Oct 22, 2014 at 07:41:27PM -0300, Ezequiel Garcia wrote:
 > orion_enabled                                 68      60      -8
 > orion_start                                  120      88     -32
 > orion_wdt_ping                                80      44     -36
-> 
-> To be honest, I don't think it's worth the ugliness.
 
-I agree, especially since each #ifdef means that some code may not be compiled
-and errors are easier to creep into the code.
+Hi Ezequiel
 
-Guenter
+I did a similar test:
+
+size drivers/watchdog/orion_wdt.o-*
+   text	   data	    bss	    dec	    hex	filename
+   4428	    100       1    4529    11b1	drivers/watchdog/orion_wdt.o-full-fat
+   2324	    100	      1    2425	    979	drivers/watchdog/orion_wdt.o-skimmed
+
+So for v5 kirkwood/orion5x, there is about 90% overhead from the v7
+code, in the text section. This is for -rc1 code, before adding any
+more v7 code in this patchset.
+
+I don't think the #ifdef's look that scary.
+
+  Andrew
