@@ -1,10 +1,10 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:52760 "EHLO
+Received: from down.free-electrons.com ([37.187.137.238]:52779 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752057AbaJVNyN (ORCPT
+	with ESMTP id S1751786AbaJVNzO (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 22 Oct 2014 09:54:13 -0400
-Date: Wed, 22 Oct 2014 15:54:10 +0200
+	Wed, 22 Oct 2014 09:55:14 -0400
+Date: Wed, 22 Oct 2014 15:55:10 +0200
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 To: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 Cc: Jason Cooper <jason@lakedaemon.net>,
@@ -17,12 +17,12 @@ Cc: Jason Cooper <jason@lakedaemon.net>,
 	Tawfik Bayouk <tawfik@marvell.com>,
 	Lior Amsalem <alior@marvell.com>,
 	Gregory Clement <gregory.clement@free-electrons.com>
-Subject: Re: [PATCH 3/4] clocksource: armada-370-xp: Use the reference clock
- on A375 SoC
-Message-ID: <20141022155410.0cc36e4c@free-electrons.com>
-In-Reply-To: <1413984884-20273-4-git-send-email-ezequiel.garcia@free-electrons.com>
+Subject: Re: [PATCH 4/4] ARM: dts: Enable the reference clock for timer and
+ watchdog on Armada 375 SoC
+Message-ID: <20141022155510.5fee5f8e@free-electrons.com>
+In-Reply-To: <1413984884-20273-5-git-send-email-ezequiel.garcia@free-electrons.com>
 References: <1413984884-20273-1-git-send-email-ezequiel.garcia@free-electrons.com>
-	<1413984884-20273-4-git-send-email-ezequiel.garcia@free-electrons.com>
+	<1413984884-20273-5-git-send-email-ezequiel.garcia@free-electrons.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -31,41 +31,32 @@ List-Id: linux-watchdog@vger.kernel.org
 
 Dear Ezequiel Garcia,
 
-On Wed, 22 Oct 2014 10:34:43 -0300, Ezequiel Garcia wrote:
+On Wed, 22 Oct 2014 10:34:44 -0300, Ezequiel Garcia wrote:
 
-> +static void __init armada_375_timer_init(struct device_node *np)
-> +{
-> +	struct clk *clk;
-> +
-> +	clk = of_clk_get_by_name(np, "fixed");
-> +	if (!IS_ERR(clk)) {
-> +		clk_prepare_enable(clk);
-> +		timer_clk = clk_get_rate(clk);
-> +	} else {
-> +
-> +		/*
-> +		 * This fallback is required in order to retain proper
-> +		 * devicetree backwards compatibility.
-> +		 */
-> +		clk = of_clk_get(np, 0);
-> +
-> +		/* Must have at least a clock */
-> +		BUG_ON(IS_ERR(clk));
-> +		clk_prepare_enable(clk);
-> +		timer_clk = clk_get_rate(clk) / TIMER_DIVIDER;
-> +		timer25Mhz = false;
-> +	}
+> -				clocks = <&coreclk 0>;
+> +				clocks = <&refclk>;
+> +				clock-names = "fixed";
 
-Maybe we could re-use a bit more existing code, don't know if it makes
-things clearer though:
+Why not do like we do on Armada XP, and actually represent the
+hardware, by showing that it takes two clocks as input:
 
-	clk = of_clk_get_by_name(np, "fixed");
-	if (!IS_ERR(clk))
-		armada_xp_timer_init(np);
-	else
-		armada_370_timer_init(np);
+                        timer@20300 {
+                                compatible = "marvell,armada-xp-timer";
+                                clocks = <&coreclk 2>, <&refclk>;
+                                clock-names = "nbclk", "fixed";
+                        };
 
-Best regards,
+
+
+>  			watchdog@20300 {
+>  				compatible = "marvell,armada-375-wdt";
+>  				reg = <0x20300 0x34>, <0x20704 0x4>, <0x18254 0x4>;
+> -				clocks = <&coreclk 0>;
+> +				clocks = <&refclk>;
+> +				clock-names = "fixed";
+>  			};
+
+Ditto.
 
 Thomas
 -- 
