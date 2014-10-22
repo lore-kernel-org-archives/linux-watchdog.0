@@ -1,69 +1,51 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qc0-f178.google.com ([209.85.216.178]:39663 "EHLO
-	mail-qc0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752907AbaJTNmB (ORCPT
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:37263 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932785AbaJVLYt (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 20 Oct 2014 09:42:01 -0400
-Received: by mail-qc0-f178.google.com with SMTP id c9so3585951qcz.23
-        for <linux-watchdog@vger.kernel.org>; Mon, 20 Oct 2014 06:41:59 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <544158B7.5090000@roeck-us.net>
-References: <1413562373-12734-1-git-send-email-a.kesavan@samsung.com> <544158B7.5090000@roeck-us.net>
-From: Naveen Krishna Ch <naveenkrishna.ch@gmail.com>
-Date: Mon, 20 Oct 2014 19:11:39 +0530
-Message-ID: <CAHfPSqDctPDGsXQ3PUBPv_c+UCtEut-DGVmN0AtY1kb13vFzwg@mail.gmail.com>
-Subject: Re: [PATCH] watchdog: s3c2410_wdt: Fix the mask bit offset for Exynos7
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Abhilash Kesavan <a.kesavan@samsung.com>,
-	linux-watchdog@vger.kernel.org, wim@iguana.be,
-	Naveen Krishna Chatradhi <ch.naveen@samsung.com>
-Content-Type: text/plain; charset=UTF-8
+	Wed, 22 Oct 2014 07:24:49 -0400
+From: Masanari Iida <standby24x7@gmail.com>
+To: wim@iguana.be, thomas.mingarelli@hp.com,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
+Cc: Masanari Iida <standby24x7@gmail.com>
+Subject: [PATCH] watchdog: hpwdt: Fix initialization message in hpwdt.c
+Date: Wed, 22 Oct 2014 20:24:35 +0900
+Message-Id: <1413977075-8938-1-git-send-email-standby24x7@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello Guenter,
+allow_kdump was enabled as default since following commit.
 
-On 17 October 2014 23:28, Guenter Roeck <linux@roeck-us.net> wrote:
-> On 10/17/2014 09:12 AM, Abhilash Kesavan wrote:
->>
->> The watchdog mask bit offset listed for Exynos7 is incorrect.
->> Fix this.
->>
->> Signed-off-by: Abhilash Kesavan <a.kesavan@samsung.com>
->> ---
->>   drivers/watchdog/s3c2410_wdt.c |    2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/drivers/watchdog/s3c2410_wdt.c
->> b/drivers/watchdog/s3c2410_wdt.c
->> index 8532c3e..1626dc6 100644
->> --- a/drivers/watchdog/s3c2410_wdt.c
->> +++ b/drivers/watchdog/s3c2410_wdt.c
->> @@ -161,7 +161,7 @@ static const struct s3c2410_wdt_variant
->> drv_data_exynos5420 = {
->>   static const struct s3c2410_wdt_variant drv_data_exynos7 = {
->>         .disable_reg = EXYNOS5_WDT_DISABLE_REG_OFFSET,
->>         .mask_reset_reg = EXYNOS5_WDT_MASK_RESET_REG_OFFSET,
->> -       .mask_bit = 0,
->> +       .mask_bit = 23,
->>         .rst_stat_reg = EXYNOS5_RST_STAT_REG_OFFSET,
->>         .rst_stat_bit = 23,     /* A57 WDTRESET */
->>         .quirks = QUIRK_HAS_PMU_CONFIG | QUIRK_HAS_RST_STAT,
->>
->
-> Naveen, can you confirm / Ack ?
+commit a089361cf5f1d6a5295aa5385238bd044998e1e9,
+watchdog: hpwdt: Unregister NMI events on exit.
 
-Sorry for the delay.
+But the initialization message was not modified.
+So it still shows
 
-Acked-by: Naveen Krishna Chatradhi <naveenkrishna.ch@gmail.com
+  HP Watchdog Timer Driver: NMI decoding initialized,
+  allow kernel dump: ON (default = 0/OFF)    <=
 
->
-> Thanks,
-> Guenter
->
+This "default = 0/OFF" message may confuse users.
+Fix it as "default = 1/ON".
 
+Signed-off-by: Masanari Iida <standby24x7@gmail.com>
+---
+ drivers/watchdog/hpwdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-
+diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
+index 75d2243..ada3e44 100644
+--- a/drivers/watchdog/hpwdt.c
++++ b/drivers/watchdog/hpwdt.c
+@@ -745,7 +745,7 @@ static int hpwdt_init_nmi_decoding(struct pci_dev *dev)
+ 
+ 	dev_info(&dev->dev,
+ 			"HP Watchdog Timer Driver: NMI decoding initialized"
+-			", allow kernel dump: %s (default = 0/OFF)\n",
++			", allow kernel dump: %s (default = 1/ON)\n",
+ 			(allow_kdump == 0) ? "OFF" : "ON");
+ 	return 0;
+ 
 -- 
-Shine bright,
-(: Nav :)
+2.1.2.451.g98349e5
+
