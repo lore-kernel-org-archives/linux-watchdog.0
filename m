@@ -1,76 +1,58 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:51299 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754193AbaJUGnD (ORCPT
+Received: from down.free-electrons.com ([37.187.137.238]:52472 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751673AbaJVNge (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 21 Oct 2014 02:43:03 -0400
-Date: Tue, 21 Oct 2014 08:42:50 +0200
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Carlo Caione <carlo@caione.org>,
-	Chen Gang <gang.chen.5i5j@gmail.com>,
-	Chen-Yu Tsai <wens@csie.org>,
-	Jingchang Lu <jingchang.lu@freescale.com>,
-	Josh Cartwright <joshc@codeaurora.org>,
-	Heiko Stuebner <heiko@sntech.de>,
-	Jisheng Zhang <jszhang@marvell.com>,
-	Janusz Uzycki <j.uzycki@elproma.com.pl>,
-	Krystian Garbaciak <krystian.garbaciak@diasemi.com>,
-	Beniamino Galvani <b.galvani@gmail.com>,
-	Naveen Krishna Chatradhi <ch.naveen@samsung.com>,
-	Harini Katakam <harinik@xilinx.com>,
-	Xiubo Li <Li.Xiubo@freescale.com>,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Pranith Kumar <bobby.prani@gmail.com>,
-	Michal Simek <michal.simek@xilinx.com>
-Subject: Re: [GIT PULL REQUEST] watchdog - v3.18 Merge window
-Message-ID: <20141021064250.GC8316@pengutronix.de>
-References: <20141020195319.GA27879@spo001.leaseweb.nl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <20141020195319.GA27879@spo001.leaseweb.nl>
+	Wed, 22 Oct 2014 09:36:34 -0400
+From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+To: Jason Cooper <jason@lakedaemon.net>,
+	Daniel Lezcano <daniel.lezcano@linaro.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Wim Van Sebroeck <wim@iguana.be>
+Cc: <linux-watchdog@vger.kernel.org>,
+	<linux-arm-kernel@lists.infradead.org>,
+	Nadav Haklai <nadavh@marvell.com>,
+	Tawfik Bayouk <tawfik@marvell.com>,
+	Lior Amsalem <alior@marvell.com>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+Subject: [PATCH 0/4] Make Armada 375 use the reference clock when possible
+Date: Wed, 22 Oct 2014 10:34:40 -0300
+Message-Id: <1413984884-20273-1-git-send-email-ezequiel.garcia@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello Wim,
+This series adds support for the 25 MHz reference clock available on
+Armada 375 SoC to use on the timer and watchdog drivers. It is
+similar to the one present in Armada XP SoC.
 
-On Mon, Oct 20, 2014 at 09:53:20PM +0200, Wim Van Sebroeck wrote:
-> commit 4846e3784585173f48e267b76f968bcb4a12d3b2
-> Author: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
-> Date:   Tue Sep 9 22:18:31 2014 +0200
->=20
->     watchdog: simplify definitions of WATCHDOG_NOWAYOUT(_INIT_STATUS)=
-?
->    =20
->     Signed-off-by: Uwe Kleine-K=3DC3=3DB6nig <u.kleine-koenig@pengutr=
-onix.de>
-I guess it's too late, but somehow my name got mangled here ...
+Given we initially had access to only a very early SoC revision (A375 Z0)
+and due to a hardware issue, the timer and watchdog support was originally
+submitted to use the core clock.
 
-If you consider fixing it (assuming an utf-8 locale):
+Now that the A0 SoC revision is out, we can fix this and use the reference
+clock. The reason for this change is that the core clock is subject to the
+SSCG, so boards where SSCG is enabled exhibit a very large timer drift.
 
-	git filter-branch --msg-filter 'sed s/=3DC3=3DB6/=F6/' linus/master..m=
-aster
+To prevent any compatibility issues when booting with an older devicetree,
+this series provides proper fall backs in each case.
 
-Best regards
-Uwe
+The series applies on v3.18-rc1. As usual, any feedback is well received!
 
->     Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->     Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+Ezequiel Garcia (4):
+  clocksource: armada-370-xp: Add missing clock enable
+  watchdog: orion: Use the reference clock on Armada 375 SoC
+  clocksource: armada-370-xp: Use the reference clock on A375 SoC
+  ARM: dts: Enable the reference clock for timer and watchdog on Armada
+    375 SoC
 
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ .../bindings/timer/marvell,armada-370-xp-timer.txt |  9 +++--
+ arch/arm/boot/dts/armada-375.dtsi                  | 12 +++++--
+ drivers/clocksource/time-armada-370-xp.c           | 30 ++++++++++++++++
+ drivers/watchdog/orion_wdt.c                       | 40 +++++++++++++++++++++-
+ 4 files changed, 86 insertions(+), 5 deletions(-)
+
+-- 
+2.1.0
+
