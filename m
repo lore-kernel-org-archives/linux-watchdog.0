@@ -1,47 +1,76 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:53095 "EHLO
+Received: from down.free-electrons.com ([37.187.137.238]:53290 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751850AbaJVOZc (ORCPT
+	with ESMTP id S1751177AbaJVOlK (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 22 Oct 2014 10:25:32 -0400
-Date: Wed, 22 Oct 2014 16:25:28 +0200
-From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>,
-	Lior Amsalem <alior@marvell.com>,
-	Jason Cooper <jason@lakedaemon.net>,
-	Tawfik Bayouk <tawfik@marvell.com>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Nadav Haklai <nadavh@marvell.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 0/4] Make Armada 375 use the reference clock when
- possible
-Message-ID: <20141022162528.67d5d750@free-electrons.com>
-In-Reply-To: <20141022140847.GQ9845@lunn.ch>
-References: <1413984884-20273-1-git-send-email-ezequiel.garcia@free-electrons.com>
-	<20141022155614.04d33791@free-electrons.com>
-	<20141022140847.GQ9845@lunn.ch>
+	Wed, 22 Oct 2014 10:41:10 -0400
+Message-ID: <5447C13B.6030608@free-electrons.com>
+Date: Wed, 22 Oct 2014 16:37:47 +0200
+From: Gregory CLEMENT <gregory.clement@free-electrons.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+CC: Jason Cooper <jason@lakedaemon.net>,
+	Daniel Lezcano <daniel.lezcano@linaro.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Nadav Haklai <nadavh@marvell.com>,
+	Tawfik Bayouk <tawfik@marvell.com>,
+	Lior Amsalem <alior@marvell.com>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Subject: Re: [PATCH 1/4] clocksource: armada-370-xp: Add missing clock enable
+References: <1413984884-20273-1-git-send-email-ezequiel.garcia@free-electrons.com> <1413984884-20273-2-git-send-email-ezequiel.garcia@free-electrons.com>
+In-Reply-To: <1413984884-20273-2-git-send-email-ezequiel.garcia@free-electrons.com>
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Dear Andrew Lunn,
+Hi Ezequiel,
 
-On Wed, 22 Oct 2014 16:08:47 +0200, Andrew Lunn wrote:
+On 22/10/2014 15:34, Ezequiel Garcia wrote:
+> This commit makes sure the timer clock is prepared and enabled
+> before retrieving its rate.
 
-> How bad is it if you run these patches on a Z1? Is it worth adding a
-> revision check and calling BUG()?
+Acked-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
 
-To be tested, I don't have the answer off-hand.
 
-Thomas
+Thanks,
+
+Gregory
+
+> 
+> Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+> ---
+>  drivers/clocksource/time-armada-370-xp.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/clocksource/time-armada-370-xp.c b/drivers/clocksource/time-armada-370-xp.c
+> index 0451e62..d8555f9 100644
+> --- a/drivers/clocksource/time-armada-370-xp.c
+> +++ b/drivers/clocksource/time-armada-370-xp.c
+> @@ -293,6 +293,7 @@ static void __init armada_xp_timer_init(struct device_node *np)
+>  
+>  	/* The 25Mhz fixed clock is mandatory, and must always be available */
+>  	BUG_ON(IS_ERR(clk));
+> +	clk_prepare_enable(clk);
+>  	timer_clk = clk_get_rate(clk);
+>  
+>  	armada_370_xp_timer_common_init(np);
+> @@ -305,6 +306,7 @@ static void __init armada_370_timer_init(struct device_node *np)
+>  	struct clk *clk = of_clk_get(np, 0);
+>  
+>  	BUG_ON(IS_ERR(clk));
+> +	clk_prepare_enable(clk);
+>  	timer_clk = clk_get_rate(clk) / TIMER_DIVIDER;
+>  	timer25Mhz = false;
+>  
+> 
+
+
 -- 
-Thomas Petazzoni, CTO, Free Electrons
-Embedded Linux, Kernel and Android engineering
+Gregory Clement, Free Electrons
+Kernel, drivers, real-time and embedded Linux
+development, consulting, training and support.
 http://free-electrons.com
