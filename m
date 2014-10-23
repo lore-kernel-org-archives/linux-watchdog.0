@@ -1,87 +1,112 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from oul135-36.netplaza.fi ([80.75.100.36]:56828 "EHLO
-	lime.offcode.fi" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754813AbaJWKrc (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 23 Oct 2014 06:47:32 -0400
-From: Timo Kokkonen <timo.kokkonen@offcode.fi>
-To: linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org
-Cc: Timo Kokkonen <timo.kokkonen@offcode.fi>
-Subject: [PATCH] at91sam9_wdt: Allow watchdog to reset device at early boot
-Date: Thu, 23 Oct 2014 13:40:46 +0300
-Message-Id: <1414060846-17306-1-git-send-email-timo.kokkonen@offcode.fi>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <lee.jones@linaro.org>
+Date: Thu, 23 Oct 2014 16:02:01 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Mark Rutland <mark.rutland@arm.com>
+Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"kernel@stlinux.com" <kernel@stlinux.com>,
+	"wim@iguana.be" <wim@iguana.be>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux@roeck-us.net" <linux@roeck-us.net>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	David Paris <david.paris@st.com>
+Subject: Re: [PATCH 3/4] watchdog: st_wdt: Provide binding documentation for
+ ST's LPC Watchdog driver
+Message-ID: <20141023150201.GD10395@x1>
+References: <1412760810-23199-1-git-send-email-lee.jones@linaro.org>
+ <1412760810-23199-4-git-send-email-lee.jones@linaro.org>
+ <20141009095649.GC3869@leverpostej>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20141009095649.GC3869@leverpostej>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-By default the driver will start a kernel timer which keeps on kicking
-the watchdog HW until user space has opened the watchdog
-device. Usually this is desirable as the watchdog HW is running by
-default and the user space may not have any watchdog daemon running at
-all.
+On Thu, 09 Oct 2014, Mark Rutland wrote:
 
-However, on production systems it may be mandatory that also early
-crashes and lockups will lead to a watchdog reset, even if they happen
-before the user space has opened the watchdog device.
+> On Wed, Oct 08, 2014 at 10:33:29AM +0100, Lee Jones wrote:
+> > Cc: devicetree@vger.kernel.org
+> > Signed-off-by: David Paris <david.paris@st.com>
+> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> > ---
+> >  .../devicetree/bindings/watchdog/st-lpc-wdt.txt    | 30 ++++++++++++++++++++++
+> >  1 file changed, 30 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/watchdog/st-lpc-wdt.txt
+> > 
+> > diff --git a/Documentation/devicetree/bindings/watchdog/st-lpc-wdt.txt b/Documentation/devicetree/bindings/watchdog/st-lpc-wdt.txt
+> > new file mode 100644
+> > index 0000000..520ce90
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/watchdog/st-lpc-wdt.txt
+> > @@ -0,0 +1,30 @@
+> > +STMicroelectronics LPC Watchdog
+> > +===============================
+> > +
+> > +Required properties
+> > +
+> > +- compatible 	: Must be one of:
+> > +			"st,stih407-watchdog"
+> > +			"st,stih416-watchdog"
+> > +			"st,stih415-watchdog"
+> > +			"st,stid127-watchdog"
+> > +- reg		: LPC registers base address + range
+> 
+> s/range/size/
+> 
+> Please append something like "one entryfor each entry in reg-names".
+> 
+> > +- reg-names	: Register map "base" and "syscfg-en" are compulsory. "type" is
+> > +		  platform dependent and not required for the STiH407
+> 
+> I don't understand the mention of "type".
 
-To resolve the issue, add a new device tree property
-"atmel,no-early-timer" which will prevent the kernel timer from
-pinging the watchdog HW on behalf of user space. The default is still
-to use kernel timer, but more strict behavior can be enabled via the
-device tree property.
+This is a typo.  It should be "syscfg-type".
 
-Signed-off-by: Timo Kokkonen <timo.kokkonen@offcode.fi>
----
- Documentation/devicetree/bindings/watchdog/atmel-wdt.txt | 4 ++++
- drivers/watchdog/at91sam9_wdt.c                          | 6 +++++-
- 2 files changed, 9 insertions(+), 1 deletion(-)
+> Additionally, "syscfg-en" looks to be a portion of another device
+> (shared system controller?), and probably should be described by
+> reference.
 
-diff --git a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
-index f90e294..1b9289e 100644
---- a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
-@@ -28,6 +28,10 @@ Optional properties:
- 	entering idle state.
- - atmel,dbg-halt : Should be present if you want to stop the watchdog when
- 	entering debug state.
-+- atmel,no-early-timer : Should be present if you want to let the
-+	watchdog timer to expire even before user space has opened the
-+	device. If not set, a kernel timer will keep on pinging the
-+	watchdog until it is opened.
+Answer below.
+
+> > +- clock-names 	: Should be "lpc_wdt"
+> > +- clocks	: Clock used by LPC device
+> > +- timeout-sec	: Watchdog timeout in seconds
+> > +- st,syscfg	: Syscfg node used to configure CPU reset type and mask
+> 
+> Does this relate to the syscfg-en entry in the reg proeprty?
  
- Example:
- 	watchdog@fffffd40 {
-diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
-index 489729b..8cac712 100644
---- a/drivers/watchdog/at91sam9_wdt.c
-+++ b/drivers/watchdog/at91sam9_wdt.c
-@@ -89,6 +89,7 @@ struct at91wdt {
- 	u32 mr_mask;
- 	unsigned long heartbeat;	/* WDT heartbeat in jiffies */
- 	bool nowayout;
-+	bool no_early_timer;
- 	unsigned int irq;
- };
- 
-@@ -122,7 +123,7 @@ static void at91_ping(unsigned long data)
- {
- 	struct at91wdt *wdt = (struct at91wdt *)data;
- 	if (time_before(jiffies, wdt->next_heartbeat) ||
--	    !watchdog_active(&wdt->wdd)) {
-+		(!watchdog_active(&wdt->wdd) && !wdt->no_early_timer)) {
- 		at91_wdt_reset(wdt);
- 		mod_timer(&wdt->timer, jiffies + wdt->heartbeat);
- 	} else {
-@@ -316,6 +317,9 @@ static int of_at91wdt_init(struct device_node *np, struct at91wdt *wdt)
- 
- 	wdt->mr |= max | ((max - min) << 16);
- 
-+	if (of_property_read_bool(np, "atmel,no-early-timer"))
-+		wdt->no_early_timer = 1;
-+
- 	return 0;
- }
- #else
+Yes.  We map these registers with regmap and use the read-in register
+values of syscfg-en and syscfg-type to manipulate them.  It's either
+that or supplying a property for each read-in, which I like less.
+
+> > +- st,warm_reset	: If present, reset type will be 'warm'. If not, it will be cold
+> 
+> s/_/-/ in property names.
+
+You're right.  This slipped my gaze.
+
+> Why does this need to be in the binding? It seems like a choice rather
+> than a property of the system.
+
+What do you mean?  It's something which needs to be configured at
+initialisation time.  If we provide it here, it means that we don't
+have to re-complie to change the config.
+
+> > +Example:
+> > +	watchdog@fde05000 {
+> > +		compatible	= "st,stih416-lpc-watchdog";
+> > +		reg		= <0xfde05000 0x1000> <0x204 0x4>;
+> > +		reg-names	= "base", "syscfg-en"
+> > +		clock-names	= "lpc_wdt";
+> > +		clocks 		= <&clk_s_d3_flexgen CLK_LPC_0>;
+> > +		timeout-sec	= <600>;
+> > +		st,syscfg	= <&syscfg_core>;
+> > +		st,warm_reset;
+> > +	};
+
 -- 
-1.9.1
-
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
