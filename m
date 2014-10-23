@@ -1,112 +1,53 @@
 Return-path: <lee.jones@linaro.org>
-Date: Thu, 23 Oct 2014 16:02:01 +0100
 From: Lee Jones <lee.jones@linaro.org>
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"kernel@stlinux.com" <kernel@stlinux.com>,
-	"wim@iguana.be" <wim@iguana.be>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux@roeck-us.net" <linux@roeck-us.net>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	David Paris <david.paris@st.com>
-Subject: Re: [PATCH 3/4] watchdog: st_wdt: Provide binding documentation for
- ST's LPC Watchdog driver
-Message-ID: <20141023150201.GD10395@x1>
-References: <1412760810-23199-1-git-send-email-lee.jones@linaro.org>
- <1412760810-23199-4-git-send-email-lee.jones@linaro.org>
- <20141009095649.GC3869@leverpostej>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20141009095649.GC3869@leverpostej>
+To: linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	wim@iguana.be,
+	linux-watchdog@vger.kernel.org,
+	linux@roeck-us.net
+Cc: lee.jones@linaro.org,
+	kernel@stlinux.com
+Subject: [PATCH v4 0/4] watchdog: Introduce new driver to support ST's Watchdog
+Date: Thu, 23 Oct 2014 16:18:40 +0100
+Message-Id: <1414077524-6469-1-git-send-email-lee.jones@linaro.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Thu, 09 Oct 2014, Mark Rutland wrote:
+Hi Wim,
+  
+Basic driver to support ST's LPC Watchdog device.
 
-> On Wed, Oct 08, 2014 at 10:33:29AM +0100, Lee Jones wrote:
-> > Cc: devicetree@vger.kernel.org
-> > Signed-off-by: David Paris <david.paris@st.com>
-> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> > ---
-> >  .../devicetree/bindings/watchdog/st-lpc-wdt.txt    | 30 ++++++++++++++++++++++
-> >  1 file changed, 30 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/watchdog/st-lpc-wdt.txt
-> > 
-> > diff --git a/Documentation/devicetree/bindings/watchdog/st-lpc-wdt.txt b/Documentation/devicetree/bindings/watchdog/st-lpc-wdt.txt
-> > new file mode 100644
-> > index 0000000..520ce90
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/watchdog/st-lpc-wdt.txt
-> > @@ -0,0 +1,30 @@
-> > +STMicroelectronics LPC Watchdog
-> > +===============================
-> > +
-> > +Required properties
-> > +
-> > +- compatible 	: Must be one of:
-> > +			"st,stih407-watchdog"
-> > +			"st,stih416-watchdog"
-> > +			"st,stih415-watchdog"
-> > +			"st,stid127-watchdog"
-> > +- reg		: LPC registers base address + range
-> 
-> s/range/size/
-> 
-> Please append something like "one entryfor each entry in reg-names".
-> 
-> > +- reg-names	: Register map "base" and "syscfg-en" are compulsory. "type" is
-> > +		  platform dependent and not required for the STiH407
-> 
-> I don't understand the mention of "type".
+Kind regards,
+Lee
+  
+v3 => v4:
+ - Fixed undefined 'clk' error (caused my rushing)
+ - Fixed up Mark's DT Doc comments
 
-This is a typo.  It should be "syscfg-type".
+v2 => v3:
+ - Don't stop Watchdog during .remove()
+ - Remove superflous {EN,DIS}ABLE defines
+ - Add missing clk_disable_unprepare()
+  
+v1 => v2:
+ - Fixed reset enable masks
+ - Fixed DT documentation
 
-> Additionally, "syscfg-en" looks to be a portion of another device
-> (shared system controller?), and probably should be described by
-> reference.
+Lee Jones (4):
+  ARM: STi: DT: STiH407: Add Device Tree node for LPC Watchdog
+  ARM: multi_v7_defconfig: Enable support for ST's LPC Watchdog
+  watchdog: st_wdt: Provide binding documentation for ST's LPC Watchdog
+    driver
+  watchdog: st_wdt: Add new driver for ST's LPC Watchdog
 
-Answer below.
-
-> > +- clock-names 	: Should be "lpc_wdt"
-> > +- clocks	: Clock used by LPC device
-> > +- timeout-sec	: Watchdog timeout in seconds
-> > +- st,syscfg	: Syscfg node used to configure CPU reset type and mask
-> 
-> Does this relate to the syscfg-en entry in the reg proeprty?
- 
-Yes.  We map these registers with regmap and use the read-in register
-values of syscfg-en and syscfg-type to manipulate them.  It's either
-that or supplying a property for each read-in, which I like less.
-
-> > +- st,warm_reset	: If present, reset type will be 'warm'. If not, it will be cold
-> 
-> s/_/-/ in property names.
-
-You're right.  This slipped my gaze.
-
-> Why does this need to be in the binding? It seems like a choice rather
-> than a property of the system.
-
-What do you mean?  It's something which needs to be configured at
-initialisation time.  If we provide it here, it means that we don't
-have to re-complie to change the config.
-
-> > +Example:
-> > +	watchdog@fde05000 {
-> > +		compatible	= "st,stih416-lpc-watchdog";
-> > +		reg		= <0xfde05000 0x1000> <0x204 0x4>;
-> > +		reg-names	= "base", "syscfg-en"
-> > +		clock-names	= "lpc_wdt";
-> > +		clocks 		= <&clk_s_d3_flexgen CLK_LPC_0>;
-> > +		timeout-sec	= <600>;
-> > +		st,syscfg	= <&syscfg_core>;
-> > +		st,warm_reset;
-> > +	};
+ .../devicetree/bindings/watchdog/st-lpc-wdt.txt    |  31 ++
+ arch/arm/boot/dts/stih407.dtsi                     |  10 +
+ arch/arm/configs/multi_v7_defconfig                |   1 +
+ drivers/watchdog/Kconfig                           |  16 ++
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/st_wdt.c                          | 317 +++++++++++++++++++++
+ 6 files changed, 376 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/st-lpc-wdt.txt
+ create mode 100644 drivers/watchdog/st_wdt.c
 
 -- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+1.9.1
