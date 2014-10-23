@@ -1,69 +1,70 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:60341 "EHLO
+Received: from down.free-electrons.com ([37.187.137.238]:60387 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754781AbaJWM1K (ORCPT
+	with ESMTP id S1755294AbaJWMiS (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 23 Oct 2014 08:27:10 -0400
-Date: Thu, 23 Oct 2014 14:26:57 +0200
-From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-To: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-Cc: Jason Cooper <jason@lakedaemon.net>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Nadav Haklai <nadavh@marvell.com>,
-	Tawfik Bayouk <tawfik@marvell.com>,
-	Lior Amsalem <alior@marvell.com>,
-	Gregory Clement <gregory.clement@free-electrons.com>
-Subject: Re: [PATCH 0/4] Make Armada 375 use the reference clock when
- possible
-Message-ID: <20141023142657.6b4d61fb@free-electrons.com>
-In-Reply-To: <5448F1A1.9040404@free-electrons.com>
-References: <1413984884-20273-1-git-send-email-ezequiel.garcia@free-electrons.com>
-	<20141022155614.04d33791@free-electrons.com>
-	<5448F1A1.9040404@free-electrons.com>
+	Thu, 23 Oct 2014 08:38:18 -0400
+Message-ID: <5448F653.5070206@free-electrons.com>
+Date: Thu, 23 Oct 2014 09:36:35 -0300
+From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+To: Andrew Lunn <andrew@lunn.ch>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+CC: Lior Amsalem <alior@marvell.com>,
+	Jason Cooper <jason@lakedaemon.net>,
+	Tawfik Bayouk <tawfik@marvell.com>,
+	Daniel Lezcano <daniel.lezcano@linaro.org>,
+	Nadav Haklai <nadavh@marvell.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 0/4] Make Armada 375 use the reference clock when possible
+References: <1413984884-20273-1-git-send-email-ezequiel.garcia@free-electrons.com> <20141022155614.04d33791@free-electrons.com> <20141022140847.GQ9845@lunn.ch>
+In-Reply-To: <20141022140847.GQ9845@lunn.ch>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Dear Ezequiel Garcia,
+On 10/22/2014 11:08 AM, Andrew Lunn wrote:
+>> You don't clearly state whether your patch series keep compatibility
+>> with the 375 Z1 or not. And in fact, it doesn't keep compatibility w=
+ith
+>> Z1.
+>=20
+> Hi Thomas
+>=20
+> That answers my question. Thanks
+>=20
+>> I'm fine with that, but then it means we should officially declare
+>> the Z1 support in mainline as dead, and get rid of the workarounds t=
+hat
+>> applied only to 375 Z1.
+>=20
+> A big ACK.
+>=20
+> How bad is it if you run these patches on a Z1? Is it worth adding a
+> revision check and calling BUG()?
+>=20
 
-On Thu, 23 Oct 2014 09:16:33 -0300, Ezequiel Garcia wrote:
+So, I just tried this on a Z1. Here's the result:
 
-> > You don't clearly state whether your patch series keep compatibility
-> > with the 375 Z1 or not. And in fact, it doesn't keep compatibility with
-> > Z1. I'm fine with that, but then it means we should officially declare
-> > the Z1 support in mainline as dead, and get rid of the workarounds that
-> > applied only to 375 Z1.
-> 
-> How many people have Z1 boards? And is someone actually using one for
-> something? Do we have any other reason to support Z1?
-> 
-> FWIW, a v3.18-rc1 kernel built with mvebu_v7_defconfig, silently stalls
-> in the middle of the boot on Z1. Had to remove lots of compile time
-> options to make it boot.
-> 
-> Before I start digging into this, maybe we can discuss your suggestion
-> to drop it. If nobody is booting this often enough, maybe nobody cares
-> about this, and it makes sense to drop the support?
+sleep 3 -> sleeps for 6 seconds
 
-Marvell has always said they are not interested in having Z1 supported
-in mainline, except as a first step to start getting the 375 support in
-mainline. I have been waiting for everyone of us to have access to 375
-A0 platforms, which is now the case. So I believe we can probably get
-rid of the 375 Z1 support entirely.
+Configuring the watchdog for 3 seconds and:
 
-It saddens me to know that a shiny development board in the office will
-no longer be useful for anything else but its own physical beauty, but
-I believe that's a normal retirement strategy for a very early
-development platform :-)
+echo "barf" > /dev/watchdog -> resets after 6 seconds
 
-Thomas
--- 
-Thomas Petazzoni, CTO, Free Electrons
-Embedded Linux, Kernel and Android engineering
+So using the 25 MHz reference clock is broken on Z1, but the point at
+least boots; it will "just" keep track of time wrongly.
+--=20
+Ezequiel Garc=EDa, Free Electrons
+Embedded Linux, Kernel and Android Engineering
 http://free-electrons.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
