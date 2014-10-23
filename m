@@ -1,51 +1,87 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:37263 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932785AbaJVLYt (ORCPT
+Received: from oul135-36.netplaza.fi ([80.75.100.36]:56828 "EHLO
+	lime.offcode.fi" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754813AbaJWKrc (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 22 Oct 2014 07:24:49 -0400
-From: Masanari Iida <standby24x7@gmail.com>
-To: wim@iguana.be, thomas.mingarelli@hp.com,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org
-Cc: Masanari Iida <standby24x7@gmail.com>
-Subject: [PATCH] watchdog: hpwdt: Fix initialization message in hpwdt.c
-Date: Wed, 22 Oct 2014 20:24:35 +0900
-Message-Id: <1413977075-8938-1-git-send-email-standby24x7@gmail.com>
+	Thu, 23 Oct 2014 06:47:32 -0400
+From: Timo Kokkonen <timo.kokkonen@offcode.fi>
+To: linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org
+Cc: Timo Kokkonen <timo.kokkonen@offcode.fi>
+Subject: [PATCH] at91sam9_wdt: Allow watchdog to reset device at early boot
+Date: Thu, 23 Oct 2014 13:40:46 +0300
+Message-Id: <1414060846-17306-1-git-send-email-timo.kokkonen@offcode.fi>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-allow_kdump was enabled as default since following commit.
+By default the driver will start a kernel timer which keeps on kicking
+the watchdog HW until user space has opened the watchdog
+device. Usually this is desirable as the watchdog HW is running by
+default and the user space may not have any watchdog daemon running at
+all.
 
-commit a089361cf5f1d6a5295aa5385238bd044998e1e9,
-watchdog: hpwdt: Unregister NMI events on exit.
+However, on production systems it may be mandatory that also early
+crashes and lockups will lead to a watchdog reset, even if they happen
+before the user space has opened the watchdog device.
 
-But the initialization message was not modified.
-So it still shows
+To resolve the issue, add a new device tree property
+"atmel,no-early-timer" which will prevent the kernel timer from
+pinging the watchdog HW on behalf of user space. The default is still
+to use kernel timer, but more strict behavior can be enabled via the
+device tree property.
 
-  HP Watchdog Timer Driver: NMI decoding initialized,
-  allow kernel dump: ON (default = 0/OFF)    <=
-
-This "default = 0/OFF" message may confuse users.
-Fix it as "default = 1/ON".
-
-Signed-off-by: Masanari Iida <standby24x7@gmail.com>
+Signed-off-by: Timo Kokkonen <timo.kokkonen@offcode.fi>
 ---
- drivers/watchdog/hpwdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/devicetree/bindings/watchdog/atmel-wdt.txt | 4 ++++
+ drivers/watchdog/at91sam9_wdt.c                          | 6 +++++-
+ 2 files changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/hpwdt.c b/drivers/watchdog/hpwdt.c
-index 75d2243..ada3e44 100644
---- a/drivers/watchdog/hpwdt.c
-+++ b/drivers/watchdog/hpwdt.c
-@@ -745,7 +745,7 @@ static int hpwdt_init_nmi_decoding(struct pci_dev *dev)
+diff --git a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+index f90e294..1b9289e 100644
+--- a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+@@ -28,6 +28,10 @@ Optional properties:
+ 	entering idle state.
+ - atmel,dbg-halt : Should be present if you want to stop the watchdog when
+ 	entering debug state.
++- atmel,no-early-timer : Should be present if you want to let the
++	watchdog timer to expire even before user space has opened the
++	device. If not set, a kernel timer will keep on pinging the
++	watchdog until it is opened.
  
- 	dev_info(&dev->dev,
- 			"HP Watchdog Timer Driver: NMI decoding initialized"
--			", allow kernel dump: %s (default = 0/OFF)\n",
-+			", allow kernel dump: %s (default = 1/ON)\n",
- 			(allow_kdump == 0) ? "OFF" : "ON");
+ Example:
+ 	watchdog@fffffd40 {
+diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
+index 489729b..8cac712 100644
+--- a/drivers/watchdog/at91sam9_wdt.c
++++ b/drivers/watchdog/at91sam9_wdt.c
+@@ -89,6 +89,7 @@ struct at91wdt {
+ 	u32 mr_mask;
+ 	unsigned long heartbeat;	/* WDT heartbeat in jiffies */
+ 	bool nowayout;
++	bool no_early_timer;
+ 	unsigned int irq;
+ };
+ 
+@@ -122,7 +123,7 @@ static void at91_ping(unsigned long data)
+ {
+ 	struct at91wdt *wdt = (struct at91wdt *)data;
+ 	if (time_before(jiffies, wdt->next_heartbeat) ||
+-	    !watchdog_active(&wdt->wdd)) {
++		(!watchdog_active(&wdt->wdd) && !wdt->no_early_timer)) {
+ 		at91_wdt_reset(wdt);
+ 		mod_timer(&wdt->timer, jiffies + wdt->heartbeat);
+ 	} else {
+@@ -316,6 +317,9 @@ static int of_at91wdt_init(struct device_node *np, struct at91wdt *wdt)
+ 
+ 	wdt->mr |= max | ((max - min) << 16);
+ 
++	if (of_property_read_bool(np, "atmel,no-early-timer"))
++		wdt->no_early_timer = 1;
++
  	return 0;
- 
+ }
+ #else
 -- 
-2.1.2.451.g98349e5
+1.9.1
 
