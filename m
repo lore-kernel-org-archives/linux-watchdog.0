@@ -1,51 +1,50 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.126.130]:59029 "EHLO
-	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752478AbaJaVh0 (ORCPT
+Received: from mail-wi0-f174.google.com ([209.85.212.174]:54498 "EHLO
+	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752619AbaJ0Qlo (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 31 Oct 2014 17:37:26 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 1/2] ARM: at91: rm9200 add system timer resources to watchdog
-Date: Fri, 31 Oct 2014 22:36:55 +0100
-Message-ID: <3833756.aJxOhkuG91@wuerfel>
-In-Reply-To: <20141031205756.GB11327@piout.net>
-References: <1414788359-15759-1-git-send-email-alexandre.belloni@free-electrons.com> <3170633.12AsIiHlY5@wuerfel> <20141031205756.GB11327@piout.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+	Mon, 27 Oct 2014 12:41:44 -0400
+From: Matthias Brugger <matthias.bgg@gmail.com>
+To: wim@iguana.be, robh+dt@kernel.org, pawel.moll@arm.com,
+	mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
+	galak@codeaurora.org, grant.likely@linaro.org
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, heiko@sntech.de,
+	yingjoe.chen@gmail.com, ibanezchen@gmail.com,
+	matthias.bgg@gmail.com
+Subject: [PATCH 2/2] ARM: mediatek: dts: Add bindings for watchdog
+Date: Mon, 27 Oct 2014 17:41:32 +0100
+Message-Id: <1414428092-20725-3-git-send-email-matthias.bgg@gmail.com>
+In-Reply-To: <1414428092-20725-1-git-send-email-matthias.bgg@gmail.com>
+References: <1414428092-20725-1-git-send-email-matthias.bgg@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Friday 31 October 2014 21:57:56 Alexandre Belloni wrote:
-> On 31/10/2014 at 21:50:05 +0100, Arnd Bergmann wrote :
-> > On Friday 31 October 2014 21:45:58 Alexandre Belloni wrote:
-> > > To be able to make the watchdog driver independent from the mach/ includes, pass
-> > > the system timer register space as a resource.
-> > > 
-> > > Also, change the name to avoid conflicting with the at91sam9 watchdog driver.
-> > > 
-> > > Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> > > 
-> > 
-> > Doing this change as a separate patch breaks bisection because now the device
-> > name no longer matches untile the other patch is applied too.
-> > 
-> 
-> Yeah, I was not sure how important that was as there is no user of the
-> watchdog in the kernel. My thinking was that both patch can then go
-> through different trees.
-> 
-> I can definitely squash them.
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+---
+ Documentation/devicetree/bindings/watchdog/mtk-wdt.txt | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
 
-AFAICT, arch/arm/configs/at91rm9200_defconfig enables the device and it
-gets registered through at91_add_standard_devices. You definitely have
-my Ack to merge the mach-at91 patch through the watchdog tree.
+diff --git a/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
+new file mode 100644
+index 0000000..af9eb5b
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
+@@ -0,0 +1,13 @@
++Mediatek SoCs Watchdog timer
++
++Required properties:
++
++- compatible : should be "mediatek,mt6589-wdt"
++- reg : Specifies base physical address and size of the registers.
++
++Example:
++
++wdt: watchdog@010000000 {
++	compatible = "mediatek,mt6589-wdt";
++	reg = <0x10000000 0x18>;
++};
+-- 
+1.9.1
 
-	Arnd
