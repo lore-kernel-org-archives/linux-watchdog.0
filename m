@@ -1,73 +1,53 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:44420 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751120AbaJYSaI (ORCPT
+Received: from mail-qc0-f176.google.com ([209.85.216.176]:54034 "EHLO
+	mail-qc0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760357AbaJ1G4f (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 25 Oct 2014 14:30:08 -0400
-From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-To: Jason Cooper <jason@lakedaemon.net>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Wim Van Sebroeck <wim@iguana.be>
-Cc: <linux-watchdog@vger.kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>,
-	Nadav Haklai <nadavh@marvell.com>,
-	Tawfik Bayouk <tawfik@marvell.com>,
-	Lior Amsalem <alior@marvell.com>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-Subject: [PATCH v2 0/4] Make Armada 375 use the reference clock when possible
-Date: Sat, 25 Oct 2014 11:48:38 -0300
-Message-Id: <1414248522-16055-1-git-send-email-ezequiel.garcia@free-electrons.com>
+	Tue, 28 Oct 2014 02:56:35 -0400
+Received: by mail-qc0-f176.google.com with SMTP id x3so23067qcv.35
+        for <linux-watchdog@vger.kernel.org>; Mon, 27 Oct 2014 23:56:34 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <1413562373-12734-1-git-send-email-a.kesavan@samsung.com>
+References: <1413562373-12734-1-git-send-email-a.kesavan@samsung.com>
+Date: Tue, 28 Oct 2014 12:26:34 +0530
+Message-ID: <CAM4voa=qwp09OJgmyM+YnYMLeAOMEV9R_2QMoLtuGDywrwqOZA@mail.gmail.com>
+Subject: Re: [PATCH] watchdog: s3c2410_wdt: Fix the mask bit offset for Exynos7
+From: Abhilash Kesavan <kesavan.abhilash@gmail.com>
+To: linux-watchdog@vger.kernel.org, wim@iguana.be, linux@roeck-us.net
+Cc: Naveen Krishna <naveenkrishna.ch@gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Changes from v1:
+Hi Wim and Guenter,
 
-  * Make the A375 timer and watchdog devicetree binding match the hardware
-    and require the two available clocks: core and reference clock.
+On Fri, Oct 17, 2014 at 9:42 PM, Abhilash Kesavan <a.kesavan@samsung.com> wrote:
+> The watchdog mask bit offset listed for Exynos7 is incorrect.
+> Fix this.
+>
+> Signed-off-by: Abhilash Kesavan <a.kesavan@samsung.com>
+> ---
+>  drivers/watchdog/s3c2410_wdt.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+> index 8532c3e..1626dc6 100644
+> --- a/drivers/watchdog/s3c2410_wdt.c
+> +++ b/drivers/watchdog/s3c2410_wdt.c
+> @@ -161,7 +161,7 @@ static const struct s3c2410_wdt_variant drv_data_exynos5420 = {
+>  static const struct s3c2410_wdt_variant drv_data_exynos7 = {
+>         .disable_reg = EXYNOS5_WDT_DISABLE_REG_OFFSET,
+>         .mask_reset_reg = EXYNOS5_WDT_MASK_RESET_REG_OFFSET,
+> -       .mask_bit = 0,
+> +       .mask_bit = 23,
+>         .rst_stat_reg = EXYNOS5_RST_STAT_REG_OFFSET,
+>         .rst_stat_bit = 23,     /* A57 WDTRESET */
+>         .quirks = QUIRK_HAS_PMU_CONFIG | QUIRK_HAS_RST_STAT,
 
-This series adds support for the 25 MHz reference clock available on
-Armada 375 SoC to be used on the timer and watchdog drivers. It is
-similar to the one present in Armada XP SoC.
+Naveen reviewed and ack'ed this fix. Can it be applied ?
 
-Given we initially had access to only a very early SoC revision (A375 Z1)
-and due to a hardware issue, the timer and watchdog support was originally
-submitted to use the core clock.
-
-Now that the A0 SoC revision is out, we can fix this and use the reference
-clock. The reason for this change is that the core clock is subject to the
-SSCG (Spread Spectrum Clock Generator), so boards where SSCG is enabled
-exhibit a very large timer drift.
-
-Notice that this change will produce unpleseant results on A375 Z1, given the
-reference 25 MHz clock doesn't work properly on that SoC revision.
-
-But since the Z1 revision is not supported by the recently submitted A375
-network driver (mvpp2), and therefore nobody is expected to run mainline
-(if there are users at all of this early revision), the support might be
-dropped entirely in a near future.
-
-To prevent any compatibility issues when booting with an older devicetree,
-this series provides proper fall backs in each case.
-
-The series applies on v3.18-rc1.
-
-Ezequiel Garcia (4):
-  clocksource: armada-370-xp: Add missing clock enable
-  watchdog: orion: Use the reference clock on Armada 375 SoC
-  clocksource: armada-370-xp: Use the reference clock on A375 SoC
-  ARM: mvebu: Enable the reference clock for timer and watchdog on
-    Armada 375 SoC
-
- .../bindings/timer/marvell,armada-370-xp-timer.txt |  9 +++--
- .../devicetree/bindings/watchdog/marvel.txt        | 13 +++++++
- arch/arm/boot/dts/armada-375.dtsi                  | 12 +++++--
- drivers/clocksource/time-armada-370-xp.c           | 30 ++++++++++++++++
- drivers/watchdog/orion_wdt.c                       | 40 +++++++++++++++++++++-
- 5 files changed, 98 insertions(+), 6 deletions(-)
-
--- 
-2.1.0
-
+Regards,
+Abhilash
+> --
+> 1.7.9.5
+>
