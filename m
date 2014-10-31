@@ -1,10 +1,10 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:42285 "EHLO
+Received: from down.free-electrons.com ([37.187.137.238]:42365 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1758758AbaJaMuQ (ORCPT
+	with ESMTP id S1758615AbaJaNG1 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 31 Oct 2014 08:50:16 -0400
-Date: Fri, 31 Oct 2014 13:50:02 +0100
+	Fri, 31 Oct 2014 09:06:27 -0400
+Date: Fri, 31 Oct 2014 14:06:12 +0100
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 To: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 Cc: Jason Cooper <jason@lakedaemon.net>,
@@ -16,12 +16,12 @@ Cc: Jason Cooper <jason@lakedaemon.net>,
 	Nadav Haklai <nadavh@marvell.com>,
 	Tawfik Bayouk <tawfik@marvell.com>,
 	Lior Amsalem <alior@marvell.com>, Andrew Lunn <andrew@lunn.ch>
-Subject: Re: [PATCH v2 2/4] watchdog: orion: Use the reference clock on
- Armada 375 SoC
-Message-ID: <20141031135002.17526d50@free-electrons.com>
-In-Reply-To: <1414248522-16055-3-git-send-email-ezequiel.garcia@free-electrons.com>
+Subject: Re: [PATCH v2 3/4] clocksource: armada-370-xp: Use the reference
+ clock on A375 SoC
+Message-ID: <20141031140612.0818eae6@free-electrons.com>
+In-Reply-To: <1414248522-16055-4-git-send-email-ezequiel.garcia@free-electrons.com>
 References: <1414248522-16055-1-git-send-email-ezequiel.garcia@free-electrons.com>
-	<1414248522-16055-3-git-send-email-ezequiel.garcia@free-electrons.com>
+	<1414248522-16055-4-git-send-email-ezequiel.garcia@free-electrons.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -30,61 +30,26 @@ List-Id: linux-watchdog@vger.kernel.org
 
 Dear Ezequiel Garcia,
 
-It's really nitpicking, but I find the usage of empty newlines rather
-unfortunate in the below function.
-
-On Sat, 25 Oct 2014 11:48:40 -0300, Ezequiel Garcia wrote:
-
-> +static int armada375_wdt_clock_init(struct platform_device *pdev,
-> +				    struct orion_watchdog *dev)
-> +{
-> +	int ret;
-> +
-> +	dev->clk = of_clk_get_by_name(pdev->dev.of_node, "fixed");
-> +	if (!IS_ERR(dev->clk)) {
-> +
-
-This empty new line seems not needed.
-
-> +		ret = clk_prepare_enable(dev->clk);
-> +		if (ret) {
-> +			clk_put(dev->clk);
-> +			return ret;
-> +		}
-> +
-> +		atomic_io_modify(dev->reg + TIMER_CTRL,
-> +				WDT_AXP_FIXED_ENABLE_BIT,
-> +				WDT_AXP_FIXED_ENABLE_BIT);
-> +		dev->clk_rate = clk_get_rate(dev->clk);
-> +		return 0;
-
-But one empty new line before the return would be good.
-
-> +	}
-> +
-> +	/* Mandatory fallback for proper devicetree backward compatibility */
-> +	dev->clk = clk_get(&pdev->dev, NULL);
-> +	if (IS_ERR(dev->clk))
-> +		return PTR_ERR(dev->clk);
-
-An empty newline would be good here as well.
-
-> +	ret = clk_prepare_enable(dev->clk);
-> +	if (ret) {
-> +		clk_put(dev->clk);
-> +		return ret;
-> +	}
-> +
-> +	atomic_io_modify(dev->reg + TIMER_CTRL,
-> +			WDT_A370_RATIO_MASK(WDT_A370_RATIO_SHIFT),
-> +			WDT_A370_RATIO_MASK(WDT_A370_RATIO_SHIFT));
-> +	dev->clk_rate = clk_get_rate(dev->clk) / WDT_A370_RATIO;
-
-And here.
-
-With this fixed:
+On Sat, 25 Oct 2014 11:48:41 -0300, Ezequiel Garcia wrote:
+> The 25 MHz reference clock has better stability so its use is preferred over the
+> core clock.
+> 
+> This commit takes advantage of the already introduced Armada 375 devicetree
+> compatible string and adds a new timer initialization. If available, the timer
+> will use the reference clock (named as 'fixed'). Otherwise, it falls back to the
+> previous behavior.
+> 
+> Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+> ---
+>  .../bindings/timer/marvell,armada-370-xp-timer.txt |  9 ++++---
+>  drivers/clocksource/time-armada-370-xp.c           | 28 ++++++++++++++++++++++
+>  2 files changed, 34 insertions(+), 3 deletions(-)
 
 Reviewed-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+
+Thanks,
+
+Thomas
 -- 
 Thomas Petazzoni, CTO, Free Electrons
 Embedded Linux, Kernel and Android engineering
