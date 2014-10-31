@@ -1,53 +1,91 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ns1.pc-advies.be ([83.149.101.17]:57814 "EHLO
-	spo001.leaseweb.nl" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750857AbaJ1W6x (ORCPT
+Received: from down.free-electrons.com ([37.187.137.238]:42285 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1758758AbaJaMuQ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 28 Oct 2014 18:58:53 -0400
-Date: Tue, 28 Oct 2014 23:58:46 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Abhilash Kesavan <kesavan.abhilash@gmail.com>
-Cc: linux-watchdog@vger.kernel.org, linux@roeck-us.net,
-	Naveen Krishna <naveenkrishna.ch@gmail.com>
-Subject: Re: [PATCH] watchdog: s3c2410_wdt: Fix the mask bit offset for Exynos7
-Message-ID: <20141028225846.GA2083@spo001.leaseweb.nl>
-References: <1413562373-12734-1-git-send-email-a.kesavan@samsung.com> <CAM4voa=qwp09OJgmyM+YnYMLeAOMEV9R_2QMoLtuGDywrwqOZA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAM4voa=qwp09OJgmyM+YnYMLeAOMEV9R_2QMoLtuGDywrwqOZA@mail.gmail.com>
+	Fri, 31 Oct 2014 08:50:16 -0400
+Date: Fri, 31 Oct 2014 13:50:02 +0100
+From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+To: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+Cc: Jason Cooper <jason@lakedaemon.net>,
+	Daniel Lezcano <daniel.lezcano@linaro.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	<linux-watchdog@vger.kernel.org>,
+	<linux-arm-kernel@lists.infradead.org>,
+	Nadav Haklai <nadavh@marvell.com>,
+	Tawfik Bayouk <tawfik@marvell.com>,
+	Lior Amsalem <alior@marvell.com>, Andrew Lunn <andrew@lunn.ch>
+Subject: Re: [PATCH v2 2/4] watchdog: orion: Use the reference clock on
+ Armada 375 SoC
+Message-ID: <20141031135002.17526d50@free-electrons.com>
+In-Reply-To: <1414248522-16055-3-git-send-email-ezequiel.garcia@free-electrons.com>
+References: <1414248522-16055-1-git-send-email-ezequiel.garcia@free-electrons.com>
+	<1414248522-16055-3-git-send-email-ezequiel.garcia@free-electrons.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Abhilash,
+Dear Ezequiel Garcia,
 
-> On Fri, Oct 17, 2014 at 9:42 PM, Abhilash Kesavan <a.kesavan@samsung.com> wrote:
-> > The watchdog mask bit offset listed for Exynos7 is incorrect.
-> > Fix this.
-> >
-> > Signed-off-by: Abhilash Kesavan <a.kesavan@samsung.com>
-> > ---
-> >  drivers/watchdog/s3c2410_wdt.c |    2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
-> > index 8532c3e..1626dc6 100644
-> > --- a/drivers/watchdog/s3c2410_wdt.c
-> > +++ b/drivers/watchdog/s3c2410_wdt.c
-> > @@ -161,7 +161,7 @@ static const struct s3c2410_wdt_variant drv_data_exynos5420 = {
-> >  static const struct s3c2410_wdt_variant drv_data_exynos7 = {
-> >         .disable_reg = EXYNOS5_WDT_DISABLE_REG_OFFSET,
-> >         .mask_reset_reg = EXYNOS5_WDT_MASK_RESET_REG_OFFSET,
-> > -       .mask_bit = 0,
-> > +       .mask_bit = 23,
-> >         .rst_stat_reg = EXYNOS5_RST_STAT_REG_OFFSET,
-> >         .rst_stat_bit = 23,     /* A57 WDTRESET */
-> >         .quirks = QUIRK_HAS_PMU_CONFIG | QUIRK_HAS_RST_STAT,
-> 
-> Naveen reviewed and ack'ed this fix. Can it be applied ?
+It's really nitpicking, but I find the usage of empty newlines rather
+unfortunate in the below function.
 
-Added to linux-watchdog-next.
+On Sat, 25 Oct 2014 11:48:40 -0300, Ezequiel Garcia wrote:
 
-Kind regards,
-Wim.
+> +static int armada375_wdt_clock_init(struct platform_device *pdev,
+> +				    struct orion_watchdog *dev)
+> +{
+> +	int ret;
+> +
+> +	dev->clk = of_clk_get_by_name(pdev->dev.of_node, "fixed");
+> +	if (!IS_ERR(dev->clk)) {
+> +
 
+This empty new line seems not needed.
+
+> +		ret = clk_prepare_enable(dev->clk);
+> +		if (ret) {
+> +			clk_put(dev->clk);
+> +			return ret;
+> +		}
+> +
+> +		atomic_io_modify(dev->reg + TIMER_CTRL,
+> +				WDT_AXP_FIXED_ENABLE_BIT,
+> +				WDT_AXP_FIXED_ENABLE_BIT);
+> +		dev->clk_rate = clk_get_rate(dev->clk);
+> +		return 0;
+
+But one empty new line before the return would be good.
+
+> +	}
+> +
+> +	/* Mandatory fallback for proper devicetree backward compatibility */
+> +	dev->clk = clk_get(&pdev->dev, NULL);
+> +	if (IS_ERR(dev->clk))
+> +		return PTR_ERR(dev->clk);
+
+An empty newline would be good here as well.
+
+> +	ret = clk_prepare_enable(dev->clk);
+> +	if (ret) {
+> +		clk_put(dev->clk);
+> +		return ret;
+> +	}
+> +
+> +	atomic_io_modify(dev->reg + TIMER_CTRL,
+> +			WDT_A370_RATIO_MASK(WDT_A370_RATIO_SHIFT),
+> +			WDT_A370_RATIO_MASK(WDT_A370_RATIO_SHIFT));
+> +	dev->clk_rate = clk_get_rate(dev->clk) / WDT_A370_RATIO;
+
+And here.
+
+With this fixed:
+
+Reviewed-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+-- 
+Thomas Petazzoni, CTO, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
