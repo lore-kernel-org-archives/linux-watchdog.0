@@ -1,113 +1,67 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:34806 "EHLO
+Received: from down.free-electrons.com ([37.187.137.238]:38142 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750985AbaKDNXW (ORCPT
+	with ESMTP id S1751447AbaKDWla (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 4 Nov 2014 08:23:22 -0500
-From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-To: Wim Van Sebroeck <wim@iguana.be>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>
-Cc: <linux-watchdog@vger.kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>,
-	Jason Cooper <jason@lakedaemon.net>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	Tawfik Bayouk <tawfik@marvell.com>,
-	Lior Amsalem <alior@marvell.com>, Andrew Lunn <andrew@lunn.ch>,
-	Nadav Haklai <nadavh@marvell.com>,
-	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-Subject: [PATCH v3 3/3] clocksource: armada-370-xp: Use the reference clock on A375 SoC
-Date: Tue,  4 Nov 2014 10:21:33 -0300
-Message-Id: <1415107293-19258-4-git-send-email-ezequiel.garcia@free-electrons.com>
-In-Reply-To: <1415107293-19258-1-git-send-email-ezequiel.garcia@free-electrons.com>
-References: <1415107293-19258-1-git-send-email-ezequiel.garcia@free-electrons.com>
+	Tue, 4 Nov 2014 17:41:30 -0500
+Date: Tue, 4 Nov 2014 23:41:26 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 1/2] ARM: at91: rm9200 add system timer resources to
+ watchdog
+Message-ID: <20141104224126.GD22928@piout.net>
+References: <1414788359-15759-1-git-send-email-alexandre.belloni@free-electrons.com>
+ <3170633.12AsIiHlY5@wuerfel>
+ <20141031205756.GB11327@piout.net>
+ <3833756.aJxOhkuG91@wuerfel>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3833756.aJxOhkuG91@wuerfel>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The 25 MHz reference clock has better stability so its use is preferred over the
-core clock.
+On 31/10/2014 at 22:36:55 +0100, Arnd Bergmann wrote :
+> On Friday 31 October 2014 21:57:56 Alexandre Belloni wrote:
+> > On 31/10/2014 at 21:50:05 +0100, Arnd Bergmann wrote :
+> > > On Friday 31 October 2014 21:45:58 Alexandre Belloni wrote:
+> > > > To be able to make the watchdog driver independent from the mach/ includes, pass
+> > > > the system timer register space as a resource.
+> > > > 
+> > > > Also, change the name to avoid conflicting with the at91sam9 watchdog driver.
+> > > > 
+> > > > Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> > > > 
+> > > 
+> > > Doing this change as a separate patch breaks bisection because now the device
+> > > name no longer matches untile the other patch is applied too.
+> > > 
+> > 
+> > Yeah, I was not sure how important that was as there is no user of the
+> > watchdog in the kernel. My thinking was that both patch can then go
+> > through different trees.
+> > 
+> > I can definitely squash them.
+> 
+> AFAICT, arch/arm/configs/at91rm9200_defconfig enables the device and it
+> gets registered through at91_add_standard_devices. You definitely have
+> my Ack to merge the mach-at91 patch through the watchdog tree.
+> 
 
-This commit takes advantage of the already introduced Armada 375 devicetree
-compatible string and adds a new timer initialization. If available, the timer
-will use the reference clock (named as 'fixed'). Otherwise, it falls back to the
-previous behavior.
+You're right, I missed that one. I was expecting it to be called from
+board files.
 
-Acked-by: Jason Cooper <jason@lakedaemon.net>
-Acked-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
-Reviewed-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-Tested-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
----
- .../bindings/timer/marvell,armada-370-xp-timer.txt |  9 ++++---
- drivers/clocksource/time-armada-370-xp.c           | 28 ++++++++++++++++++++++
- 2 files changed, 34 insertions(+), 3 deletions(-)
+So, I'll squash both patches, add your SoB and your Ack and get it
+merged through the watchdog tree, tell me if that is not what you
+expect.
 
-diff --git a/Documentation/devicetree/bindings/timer/marvell,armada-370-xp-timer.txt b/Documentation/devicetree/bindings/timer/marvell,armada-370-xp-timer.txt
-index f455182..e9c78ce 100644
---- a/Documentation/devicetree/bindings/timer/marvell,armada-370-xp-timer.txt
-+++ b/Documentation/devicetree/bindings/timer/marvell,armada-370-xp-timer.txt
-@@ -2,8 +2,10 @@ Marvell Armada 370 and Armada XP Timers
- ---------------------------------------
- 
- Required properties:
--- compatible: Should be either "marvell,armada-370-timer" or
--  "marvell,armada-xp-timer" as appropriate.
-+- compatible: Should be one of the following
-+              "marvell,armada-370-timer",
-+	      "marvell,armada-375-timer",
-+	      "marvell,armada-xp-timer".
- - interrupts: Should contain the list of Global Timer interrupts and
-   then local timer interrupts
- - reg: Should contain location and length for timers register. First
-@@ -13,7 +15,8 @@ Required properties:
- Clocks required for compatible = "marvell,armada-370-timer":
- - clocks : Must contain a single entry describing the clock input
- 
--Clocks required for compatible = "marvell,armada-xp-timer":
-+Clocks required for compatibles = "marvell,armada-xp-timer",
-+				  "marvell,armada-375-timer":
- - clocks : Must contain an entry for each entry in clock-names.
- - clock-names : Must include the following entries:
-   "nbclk" (L2/coherency fabric clock),
-diff --git a/drivers/clocksource/time-armada-370-xp.c b/drivers/clocksource/time-armada-370-xp.c
-index d8555f9..3a0704b 100644
---- a/drivers/clocksource/time-armada-370-xp.c
-+++ b/drivers/clocksource/time-armada-370-xp.c
-@@ -301,6 +301,34 @@ static void __init armada_xp_timer_init(struct device_node *np)
- CLOCKSOURCE_OF_DECLARE(armada_xp, "marvell,armada-xp-timer",
- 		       armada_xp_timer_init);
- 
-+static void __init armada_375_timer_init(struct device_node *np)
-+{
-+	struct clk *clk;
-+
-+	clk = of_clk_get_by_name(np, "fixed");
-+	if (!IS_ERR(clk)) {
-+		clk_prepare_enable(clk);
-+		timer_clk = clk_get_rate(clk);
-+	} else {
-+
-+		/*
-+		 * This fallback is required in order to retain proper
-+		 * devicetree backwards compatibility.
-+		 */
-+		clk = of_clk_get(np, 0);
-+
-+		/* Must have at least a clock */
-+		BUG_ON(IS_ERR(clk));
-+		clk_prepare_enable(clk);
-+		timer_clk = clk_get_rate(clk) / TIMER_DIVIDER;
-+		timer25Mhz = false;
-+	}
-+
-+	armada_370_xp_timer_common_init(np);
-+}
-+CLOCKSOURCE_OF_DECLARE(armada_375, "marvell,armada-375-timer",
-+		       armada_375_timer_init);
-+
- static void __init armada_370_timer_init(struct device_node *np)
- {
- 	struct clk *clk = of_clk_get(np, 0);
 -- 
-2.1.0
-
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
