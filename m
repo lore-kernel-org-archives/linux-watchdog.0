@@ -1,67 +1,78 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:56962 "EHLO
+Received: from down.free-electrons.com ([37.187.137.238]:34778 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752772AbaKCV3g (ORCPT
+	with ESMTP id S1750985AbaKDNXL (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 3 Nov 2014 16:29:36 -0500
-Date: Mon, 3 Nov 2014 22:29:23 +0100
-From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-To: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-Cc: Jason Cooper <jason@lakedaemon.net>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Nadav Haklai <nadavh@marvell.com>,
+	Tue, 4 Nov 2014 08:23:11 -0500
+From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+To: Wim Van Sebroeck <wim@iguana.be>,
+	Daniel Lezcano <daniel.lezcano@linaro.org>
+Cc: <linux-watchdog@vger.kernel.org>,
+	<linux-arm-kernel@lists.infradead.org>,
+	Jason Cooper <jason@lakedaemon.net>,
+	Gregory Clement <gregory.clement@free-electrons.com>,
+	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
 	Tawfik Bayouk <tawfik@marvell.com>,
-	Lior Amsalem <alior@marvell.com>,
-	Gregory Clement <gregory.clement@free-electrons.com>
-Subject: Re: [PATCH 0/4] Make Armada 375 use the reference clock when
- possible
-Message-ID: <20141103222923.53b2870b@free-electrons.com>
-In-Reply-To: <5448F7F1.1080509@free-electrons.com>
-References: <1413984884-20273-1-git-send-email-ezequiel.garcia@free-electrons.com>
-	<20141022155614.04d33791@free-electrons.com>
-	<5448F1A1.9040404@free-electrons.com>
-	<20141023142657.6b4d61fb@free-electrons.com>
-	<5448F7F1.1080509@free-electrons.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Lior Amsalem <alior@marvell.com>, Andrew Lunn <andrew@lunn.ch>,
+	Nadav Haklai <nadavh@marvell.com>,
+	Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+Subject: [PATCH v3 0/3] Make Armada 375 use the reference clock when possible
+Date: Tue,  4 Nov 2014 10:21:30 -0300
+Message-Id: <1415107293-19258-1-git-send-email-ezequiel.garcia@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Dear Ezequiel Garcia,
+Hi Daniel, Wim:
 
-On Thu, 23 Oct 2014 09:43:29 -0300, Ezequiel Garcia wrote:
+Seems we are ready to merge these, unless some objection raises. Do you think
+you can take the patches through your trees?
 
-> > Marvell has always said they are not interested in having Z1 supported
-> > in mainline, except as a first step to start getting the 375 support in
-> > mainline. I have been waiting for everyone of us to have access to 375
-> > A0 platforms, which is now the case. So I believe we can probably get
-> > rid of the 375 Z1 support entirely.
-> > 
-> > It saddens me to know that a shiny development board in the office will
-> > no longer be useful for anything else but its own physical beauty, but
-> > I believe that's a normal retirement strategy for a very early
-> > development platform :-)
-> > 
-> 
-> I'm afraid I have news for you. Even now, the board is almost unusable,
-> as the mvpp2 network driver only supports A0 (Z1 support was never even
-> planned).
-> 
-> So you have a NAS development board without network... sounds pretty
-> useless to me :)
+Changes from v2:
 
-Who needs network these days? :-)
+  * Fix messed up empty lines, as suggested by Thomas Petazzoni.
 
-Well, joke aside, I'm fine with seeing the Armada 375 Z1 support go
-away.
+Changes from v1:
 
-Thomas
+  * Make the A375 timer and watchdog devicetree binding match the hardware
+    and require the two available clocks: core and reference clock.
+
+This series adds support for the 25 MHz reference clock available on
+Armada 375 SoC to be used on the timer and watchdog drivers. It is
+similar to the one present in Armada XP SoC.
+
+Given we initially had access to only a very early SoC revision (A375 Z1)
+and due to a hardware issue, the timer and watchdog support was originally
+submitted to use the core clock.
+
+Now that the A0 SoC revision is out, we can fix this and use the reference
+clock. The reason for this change is that the core clock is subject to the
+SSCG (Spread Spectrum Clock Generator), so boards where SSCG is enabled
+exhibit a very large timer drift.
+
+Notice that this change will produce unpleseant results on A375 Z1, given the
+reference 25 MHz clock doesn't work properly on that SoC revision.
+
+But since the Z1 revision is not supported by the recently submitted A375
+network driver (mvpp2), and therefore nobody is expected to run mainline
+(if there are users at all of this early revision), the support will be
+dropped entirely in a near future.
+
+To prevent any compatibility issues when booting with an older devicetree,
+this series provides proper fall backs in each case.
+
+The series applies on v3.18-rc2.
+
+Ezequiel Garcia (3):
+  clocksource: armada-370-xp: Add missing clock enable
+  watchdog: orion: Use the reference clock on Armada 375 SoC
+  clocksource: armada-370-xp: Use the reference clock on A375 SoC
+
+ .../bindings/timer/marvell,armada-370-xp-timer.txt |  9 +++--
+ .../devicetree/bindings/watchdog/marvel.txt        | 13 +++++++
+ drivers/clocksource/time-armada-370-xp.c           | 30 ++++++++++++++++
+ drivers/watchdog/orion_wdt.c                       | 42 +++++++++++++++++++++-
+ 4 files changed, 90 insertions(+), 4 deletions(-)
+
 -- 
-Thomas Petazzoni, CTO, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.1.0
+
