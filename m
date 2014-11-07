@@ -1,102 +1,174 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mho-02-ewr.mailhop.org ([204.13.248.72]:18664 "EHLO
-	mho-02-ewr.mailhop.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751617AbaKAXHn (ORCPT
+Received: from down.free-electrons.com ([37.187.137.238]:58503 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752326AbaKGNXB (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 1 Nov 2014 19:07:43 -0400
-Date: Sat, 1 Nov 2014 19:07:25 -0400
-From: Jason Cooper <jason@lakedaemon.net>
-To: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-Cc: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Wim Van Sebroeck <wim@iguana.be>,
+	Fri, 7 Nov 2014 08:23:01 -0500
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Wim Van Sebroeck <wim@iguana.be>,
+	Nicolas Ferre <nicolas.ferre@atmel.com>
+Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
 	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Nadav Haklai <nadavh@marvell.com>,
-	Tawfik Bayouk <tawfik@marvell.com>,
-	Lior Amsalem <alior@marvell.com>, Andrew Lunn <andrew@lunn.ch>
-Subject: Re: [PATCH v2 2/4] watchdog: orion: Use the reference clock on
- Armada 375 SoC
-Message-ID: <20141101230725.GI3698@titan.lakedaemon.net>
-References: <1414248522-16055-1-git-send-email-ezequiel.garcia@free-electrons.com>
- <1414248522-16055-3-git-send-email-ezequiel.garcia@free-electrons.com>
- <20141031135002.17526d50@free-electrons.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20141031135002.17526d50@free-electrons.com>
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [PATCH v2] watchdog: at91rm9200 remove mach/ header dependency
+Date: Fri,  7 Nov 2014 14:22:44 +0100
+Message-Id: <1415366564-25408-1-git-send-email-alexandre.belloni@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Ezequiel, Wim,
+Remove the mach/ header dependency by including the necessary macros and taking
+the appropriate resources from the system timer.
 
-On Fri, Oct 31, 2014 at 01:50:02PM +0100, Thomas Petazzoni wrote:
-> Dear Ezequiel Garcia,
-> 
-> It's really nitpicking, but I find the usage of empty newlines rather
-> unfortunate in the below function.
+Also change the name to avoid conflicting with the at91sam9 watchdog driver and
+allow to compile both the at91rm920 and at91sam9 watchdog drivers at the same
+time.
 
-oops, I thought this was against patch #3.  Ezequiel, please feel free
-to add my Ack once these changes are made.
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+---
 
-thx,
+Changes in v2:
+ - squashed both patches in one
+ - added suggested-by and acked-by Arnd
 
-Jason.
+ arch/arm/mach-at91/at91rm9200_devices.c | 13 ++++++++--
+ drivers/watchdog/Kconfig                |  4 +--
+ drivers/watchdog/at91rm9200_wdt.c       | 45 +++++++++++++++++++++++++++++++--
+ 3 files changed, 56 insertions(+), 6 deletions(-)
 
-> On Sat, 25 Oct 2014 11:48:40 -0300, Ezequiel Garcia wrote:
-> 
-> > +static int armada375_wdt_clock_init(struct platform_device *pdev,
-> > +				    struct orion_watchdog *dev)
-> > +{
-> > +	int ret;
-> > +
-> > +	dev->clk = of_clk_get_by_name(pdev->dev.of_node, "fixed");
-> > +	if (!IS_ERR(dev->clk)) {
-> > +
-> 
-> This empty new line seems not needed.
-> 
-> > +		ret = clk_prepare_enable(dev->clk);
-> > +		if (ret) {
-> > +			clk_put(dev->clk);
-> > +			return ret;
-> > +		}
-> > +
-> > +		atomic_io_modify(dev->reg + TIMER_CTRL,
-> > +				WDT_AXP_FIXED_ENABLE_BIT,
-> > +				WDT_AXP_FIXED_ENABLE_BIT);
-> > +		dev->clk_rate = clk_get_rate(dev->clk);
-> > +		return 0;
-> 
-> But one empty new line before the return would be good.
-> 
-> > +	}
-> > +
-> > +	/* Mandatory fallback for proper devicetree backward compatibility */
-> > +	dev->clk = clk_get(&pdev->dev, NULL);
-> > +	if (IS_ERR(dev->clk))
-> > +		return PTR_ERR(dev->clk);
-> 
-> An empty newline would be good here as well.
-> 
-> > +	ret = clk_prepare_enable(dev->clk);
-> > +	if (ret) {
-> > +		clk_put(dev->clk);
-> > +		return ret;
-> > +	}
-> > +
-> > +	atomic_io_modify(dev->reg + TIMER_CTRL,
-> > +			WDT_A370_RATIO_MASK(WDT_A370_RATIO_SHIFT),
-> > +			WDT_A370_RATIO_MASK(WDT_A370_RATIO_SHIFT));
-> > +	dev->clk_rate = clk_get_rate(dev->clk) / WDT_A370_RATIO;
-> 
-> And here.
-> 
-> With this fixed:
-> 
-> Reviewed-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-> -- 
-> Thomas Petazzoni, CTO, Free Electrons
-> Embedded Linux, Kernel and Android engineering
-> http://free-electrons.com
+diff --git a/arch/arm/mach-at91/at91rm9200_devices.c b/arch/arm/mach-at91/at91rm9200_devices.c
+index 74f1eaf97801..4add0481adab 100644
+--- a/arch/arm/mach-at91/at91rm9200_devices.c
++++ b/arch/arm/mach-at91/at91rm9200_devices.c
+@@ -719,10 +719,19 @@ static void __init at91_add_device_rtc(void) {}
+  * -------------------------------------------------------------------- */
+ 
+ #if defined(CONFIG_AT91RM9200_WATCHDOG) || defined(CONFIG_AT91RM9200_WATCHDOG_MODULE)
++static struct resource wdt_resources[] = {
++	[0] = {
++		.start	= AT91RM9200_BASE_ST,
++		.end	= AT91RM9200_BASE_ST + SZ_256 - 1,
++		.flags	= IORESOURCE_MEM,
++	},
++};
++
+ static struct platform_device at91rm9200_wdt_device = {
+-	.name		= "at91_wdt",
++	.name		= "at91rm9200_wdt",
+ 	.id		= -1,
+-	.num_resources	= 0,
++	.resource	= wdt_resources,
++	.num_resources	= 1,
+ };
+ 
+ static void __init at91_add_device_watchdog(void)
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index d0107d424ee4..0592db68f3a8 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -154,14 +154,14 @@ config ARM_SP805_WATCHDOG
+ 
+ config AT91RM9200_WATCHDOG
+ 	tristate "AT91RM9200 watchdog"
+-	depends on ARCH_AT91RM9200
++	depends on ARCH_AT91 || COMPILE_TEST
+ 	help
+ 	  Watchdog timer embedded into AT91RM9200 chips. This will reboot your
+ 	  system when the timeout is reached.
+ 
+ config AT91SAM9X_WATCHDOG
+ 	tristate "AT91SAM9X / AT91CAP9 watchdog"
+-	depends on ARCH_AT91 && !ARCH_AT91RM9200
++	depends on ARCH_AT91
+ 	select WATCHDOG_CORE
+ 	help
+ 	  Watchdog timer embedded into AT91SAM9X and AT91CAP9 chips. This will
+diff --git a/drivers/watchdog/at91rm9200_wdt.c b/drivers/watchdog/at91rm9200_wdt.c
+index dee6cc21d270..776cb3b313d9 100644
+--- a/drivers/watchdog/at91rm9200_wdt.c
++++ b/drivers/watchdog/at91rm9200_wdt.c
+@@ -26,11 +26,28 @@
+ #include <linux/uaccess.h>
+ #include <linux/of.h>
+ #include <linux/of_device.h>
+-#include <mach/at91_st.h>
++#include <linux/of_address.h>
+ 
+ #define WDT_DEFAULT_TIME	5	/* seconds */
+ #define WDT_MAX_TIME		256	/* seconds */
+ 
++static void __iomem *at91_st_base;
++
++#define at91_st_read(field) \
++	readl(at91_st_base + field)
++
++#define at91_st_write(field, value) \
++	writel(value, at91_st_base + field)
++
++#define AT91_ST_CR	0x00		/* Control Register */
++#define AT91_ST_WDRST	(1 << 0)	/* Watchdog Timer Restart */
++
++#define AT91_ST_WDMR	0x08		/* Watchdog Mode Register */
++#define AT91_ST_WDV	(0xffff <<  0)	/* Watchdog Counter Value */
++#define AT91_ST_RSTEN	(1	<< 16)	/* Reset Enable */
++#define AT91_ST_EXTEN	(1	<< 17)	/* External Signal Assertion Enable */
++
++
+ static int wdt_time = WDT_DEFAULT_TIME;
+ static bool nowayout = WATCHDOG_NOWAYOUT;
+ 
+@@ -201,14 +218,38 @@ static struct miscdevice at91wdt_miscdev = {
+ 	.fops		= &at91wdt_fops,
+ };
+ 
++static struct of_device_id at91rm9200_st_timer_ids[] = {
++	{ .compatible = "atmel,at91rm9200-st" },
++	{ /* sentinel */ }
++};
++
+ static int at91wdt_probe(struct platform_device *pdev)
+ {
++	struct resource *regs;
++	struct resource _regs;
+ 	int res;
+ 
+ 	if (at91wdt_miscdev.parent)
+ 		return -EBUSY;
+ 	at91wdt_miscdev.parent = &pdev->dev;
+ 
++	if (pdev->dev.of_node) {
++		struct device_node *np;
++
++		np = of_find_matching_node(NULL, at91rm9200_st_timer_ids);
++		if (!np)
++			return -ENXIO;
++		if (of_address_to_resource(np, 0, &_regs))
++			return -ENXIO;
++		regs = &_regs;
++	} else {
++		regs = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	}
++
++	at91_st_base = devm_ioremap_resource(&pdev->dev, regs);
++	if (!at91_st_base)
++		return -ENXIO;
++
+ 	res = misc_register(&at91wdt_miscdev);
+ 	if (res)
+ 		return res;
+@@ -267,7 +308,7 @@ static struct platform_driver at91wdt_driver = {
+ 	.suspend	= at91wdt_suspend,
+ 	.resume		= at91wdt_resume,
+ 	.driver		= {
+-		.name	= "at91_wdt",
++		.name	= "at91rm9200_wdt",
+ 		.owner	= THIS_MODULE,
+ 		.of_match_table = at91_wdt_dt_ids,
+ 	},
+-- 
+2.1.0
+
