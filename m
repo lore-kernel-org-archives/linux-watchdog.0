@@ -1,174 +1,361 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:58503 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752326AbaKGNXB (ORCPT
+Received: from mailgw01.mediatek.com ([210.61.82.183]:53369 "EHLO
+	mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750814AbaKKL31 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 7 Nov 2014 08:23:01 -0500
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Wim Van Sebroeck <wim@iguana.be>,
-	Nicolas Ferre <nicolas.ferre@atmel.com>
-Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH v2] watchdog: at91rm9200 remove mach/ header dependency
-Date: Fri,  7 Nov 2014 14:22:44 +0100
-Message-Id: <1415366564-25408-1-git-send-email-alexandre.belloni@free-electrons.com>
+	Tue, 11 Nov 2014 06:29:27 -0500
+Subject: Re: [PATCH 1/2] watchdog: Add driver for Mediatek mt6589 watchdog
+From: Eddie Huang <eddie.huang@mediatek.com>
+To: Matthias Brugger <matthias.bgg@gmail.com>
+CC: "wim@iguana.be" <wim@iguana.be>,
+	"robh+dt@kernel.org" <robh+dt@kernel.org>,
+	"pawel.moll@arm.com" <pawel.moll@arm.com>,
+	"mark.rutland@arm.com" <mark.rutland@arm.com>,
+	"ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>,
+	"galak@codeaurora.org" <galak@codeaurora.org>,
+	"grant.likely@linaro.org" <grant.likely@linaro.org>,
+	"heiko@sntech.de" <heiko@sntech.de>,
+	"yingjoe.chen@gmail.com" <yingjoe.chen@gmail.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"ibanezchen@gmail.com" <ibanezchen@gmail.com>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	<greta.zhang@mediatek.com>, <yingjoe.chen@mediatek.com>
+In-Reply-To: <1414428092-20725-2-git-send-email-matthias.bgg@gmail.com>
+References: <1414428092-20725-1-git-send-email-matthias.bgg@gmail.com>
+	 <1414428092-20725-2-git-send-email-matthias.bgg@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 11 Nov 2014 19:29:17 +0800
+Message-ID: <1415705357.1776.11.camel@mtksdaap41>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Remove the mach/ header dependency by including the necessary macros and taking
-the appropriate resources from the system timer.
+On Tue, 2014-10-28 at 00:41 +0800, Matthias Brugger wrote:
+> This patch adds a driver for the Mediatek mt6589 SoC integrated
+> watchdog.
+> 
+> Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+> ---
+>  drivers/watchdog/Kconfig   |  10 ++
+>  drivers/watchdog/Makefile  |   1 +
+>  drivers/watchdog/mtk_wdt.c | 264 +++++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 275 insertions(+)
+>  create mode 100644 drivers/watchdog/mtk_wdt.c
+> 
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index d0107d4..fcbca1b 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -505,6 +505,16 @@ config MESON_WATCHDOG
+>           To compile this driver as a module, choose M here: the
+>           module will be called meson_wdt.
+> 
+> +config MEDIATEK_WATCHDOG
+> +       tristate "Mediatek SoCs watchdog support"
+> +       depends on ARCH_MEDIATEK
+> +       select WATCHDOG_CORE
+> +       help
+> +         Say Y here to include support for the watchdog timer
+> +         in Mediatek SoCs.
+> +         To compile this driver as a module, choose M here: the
+> +         module will be called mtk_wdt.
+> +
+>  # AVR32 Architecture
+> 
+>  config AT32AP700X_WDT
+> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> index c569ec8..0d4821f 100644
+> --- a/drivers/watchdog/Makefile
+> +++ b/drivers/watchdog/Makefile
+> @@ -63,6 +63,7 @@ obj-$(CONFIG_QCOM_WDT) += qcom-wdt.o
+>  obj-$(CONFIG_BCM_KONA_WDT) += bcm_kona_wdt.o
+>  obj-$(CONFIG_TEGRA_WATCHDOG) += tegra_wdt.o
+>  obj-$(CONFIG_MESON_WATCHDOG) += meson_wdt.o
+> +obj-$(CONFIG_MEDIATEK_WATCHDOG) += mtk_wdt.o
+> 
+>  # AVR32 Architecture
+>  obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
+> diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
+> new file mode 100644
+> index 0000000..4624821
+> --- /dev/null
+> +++ b/drivers/watchdog/mtk_wdt.c
+> @@ -0,0 +1,264 @@
+> +/*
+> + * Mediatek Watchdog Driver
+> + *
+> + * Copyright (C) 2014 Matthias Brugger
+> + *
+> + * Matthias Brugger <matthias.bgg@gmail.com>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * Based on mtk_wdt.c
+> + */
+> +
+> +#include <linux/clk.h>
+> +#include <linux/err.h>
+> +#include <linux/init.h>
+> +#include <linux/io.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/moduleparam.h>
+> +#include <linux/of.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/types.h>
+> +#include <linux/watchdog.h>
+> +#include <linux/notifier.h>
+> +#include <linux/reboot.h>
+> +#include <linux/delay.h>
+> +
+> +#define WDT_MAX_TIMEOUT                31
+> +#define WDT_MIN_TIMEOUT                1
+> +#define WDT_LENGTH_TIMEOUT(n)  ((n) << 5)
+> +
+> +#define WDT_LENGTH             0x04
+> +#define WDT_LENGTH_KEY         0x8
+> +
+> +#define WDT_RST                        0x08
+> +#define WDT_RST_RELOAD         0x1971
+> +
+> +#define WDT_MODE               0x00
+> +#define WDT_MODE_EN            (1 << 0)
+> +#define WDT_MODE_EXT_POL_LOW   (0 << 1)
+> +#define WDT_MODE_EXT_POL_HIGH  (1 << 1)
+> +#define WDT_MODE_EXRST_EN      (1 << 2)
+> +#define WDT_MODE_IRQ_EN                (1 << 3)
+> +#define WDT_MODE_AUTO_START    (1 << 4)
+> +#define WDT_MODE_DUAL_EN       (1 << 6)
+> +#define WDT_MODE_KEY           0x22000000
+> +
+> +#define WDT_SWRST              0x14
+> +#define WDT_SWRST_KEY          0x1209
+> +
+> +#define DRV_NAME               "mtk-wdt"
+> +#define DRV_VERSION            "1.0"
+> +
+> +static bool nowayout = WATCHDOG_NOWAYOUT;
+> +static unsigned int timeout = WDT_MAX_TIMEOUT;
+> +
+> +struct mtk_wdt_dev {
+> +       struct watchdog_device wdt_dev;
+> +       void __iomem *wdt_base;
+> +       struct notifier_block restart_handler;
+> +};
+> +
+> +static int mtk_reset_handler(struct notifier_block *this, unsigned long mode,
+> +                               void *cmd)
+> +{
+> +       struct mtk_wdt_dev *mtk_wdt = container_of(this,
+> +                                                      struct mtk_wdt_dev,
+> +                                                      restart_handler);
+> +       void __iomem *wdt_base = mtk_wdt->wdt_base;
+> +       u32 reg;
+> +
+> +       /* Enable watchdog */
+> +       reg = readl(wdt_base + WDT_MODE);
+> +       reg |= WDT_MODE_EN;
+> +       writel(reg, wdt_base + WDT_MODE);
+> +
+> +       /* Reload counter */
+> +       writel(WDT_RST_RELOAD, wdt_base + WDT_RST);
+> +
+> +       /* Reset system */
+> +       writel(WDT_SWRST_KEY, wdt_base + WDT_SWRST);
+> +
+> +       while (1) {
+> +               mdelay(5);
+> +               writel(WDT_SWRST_KEY, wdt_base + WDT_SWRST);
+> +       }
+> +       return NOTIFY_DONE;
+> +
+> +}
+> +
+> +static int mtk_wdt_ping(struct watchdog_device *wdt_dev)
+> +{
+> +       struct mtk_wdt_dev *mtk_wdt = watchdog_get_drvdata(wdt_dev);
+> +       void __iomem *wdt_base = mtk_wdt->wdt_base;
+> +
+> +       iowrite32(WDT_RST_RELOAD, wdt_base + WDT_RST);
+> +
+> +       return 0;
+> +}
+> +
+> +static int mtk_wdt_set_timeout(struct watchdog_device *wdt_dev,
+> +               unsigned int timeout)
+> +{
+> +       struct mtk_wdt_dev *mtk_wdt = watchdog_get_drvdata(wdt_dev);
+> +       void __iomem *wdt_base = mtk_wdt->wdt_base;
+> +       u32 reg;
+> +
+> +       mtk_wdt->wdt_dev.timeout = timeout;
+> +
+> +       /* One bit is the value of 512 ticks
+> +        * The clock has 32 KHz
+> +        */
+> +       reg = WDT_LENGTH_TIMEOUT(timeout << 6) | WDT_LENGTH_KEY;
+> +       iowrite32(reg, wdt_base + WDT_LENGTH);
+> +
+> +       mtk_wdt_ping(wdt_dev);
+> +
+> +       return 0;
+> +}
+> +
+> +static int mtk_wdt_stop(struct watchdog_device *wdt_dev)
+> +{
+> +       struct mtk_wdt_dev *mtk_wdt = watchdog_get_drvdata(wdt_dev);
+> +       void __iomem *wdt_base = mtk_wdt->wdt_base;
+> +       u32 reg;
+> +
+> +       reg = readl(wdt_base + WDT_MODE);
+> +       reg &= ~(WDT_MODE_EN);
+> +       iowrite32(reg, wdt_base + WDT_MODE);
+> +
+> +       return 0;
+> +}
+> +
+> +static int mtk_wdt_start(struct watchdog_device *wdt_dev)
+> +{
+> +       u32 reg;
+> +       struct mtk_wdt_dev *mtk_wdt = watchdog_get_drvdata(wdt_dev);
+> +       void __iomem *wdt_base = mtk_wdt->wdt_base;
+> +       u32 ret;
+> +
+> +       ret = mtk_wdt_set_timeout(&mtk_wdt->wdt_dev,
+> +                       mtk_wdt->wdt_dev.timeout);
+> +       if (ret < 0)
+> +               return ret;
+> +
+> +       reg = ioread32(wdt_base + WDT_MODE);
+> +       reg |= (WDT_MODE_EN | WDT_MODE_KEY);
 
-Also change the name to avoid conflicting with the at91sam9 watchdog driver and
-allow to compile both the at91rm920 and at91sam9 watchdog drivers at the same
-time.
+According to datasheet, default value of register WDT_MODE bit6 is 1.
+Which means when reach timeout, still need another timeout time to
+restart the system. Should clear this bit to disable dual mode:
+        reg &= ~(WDT_MODE_DUAL_EN);
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
----
+> +       iowrite32(reg, wdt_base + WDT_MODE);
+> +
+> +       return 0;
+> +}
+> +
+> +static const struct watchdog_info mtk_wdt_info = {
+> +       .identity       = DRV_NAME,
+> +       .options        = WDIOF_SETTIMEOUT |
+> +                         WDIOF_KEEPALIVEPING |
+> +                         WDIOF_MAGICCLOSE,
+> +};
+> +
+> +static const struct watchdog_ops mtk_wdt_ops = {
+> +       .owner          = THIS_MODULE,
+> +       .start          = mtk_wdt_start,
+> +       .stop           = mtk_wdt_stop,
+> +       .ping           = mtk_wdt_ping,
+> +       .set_timeout    = mtk_wdt_set_timeout,
+> +};
+> +
+> +static int mtk_wdt_probe(struct platform_device *pdev)
+> +{
+> +       struct mtk_wdt_dev *mtk_wdt;
+> +       struct resource *res;
+> +       int err;
+> +
+> +       mtk_wdt = devm_kzalloc(&pdev->dev, sizeof(*mtk_wdt), GFP_KERNEL);
+> +       if (!mtk_wdt)
+> +               return -EINVAL;
+> +
+> +       platform_set_drvdata(pdev, mtk_wdt);
+> +
+> +       res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +       mtk_wdt->wdt_base = devm_ioremap_resource(&pdev->dev, res);
+> +       if (IS_ERR(mtk_wdt->wdt_base))
+> +               return PTR_ERR(mtk_wdt->wdt_base);
+> +
+> +       mtk_wdt->wdt_dev.info = &mtk_wdt_info;
+> +       mtk_wdt->wdt_dev.ops = &mtk_wdt_ops;
+> +       mtk_wdt->wdt_dev.timeout = WDT_MAX_TIMEOUT;
+> +       mtk_wdt->wdt_dev.max_timeout = WDT_MAX_TIMEOUT;
+> +       mtk_wdt->wdt_dev.min_timeout = WDT_MIN_TIMEOUT;
+> +       mtk_wdt->wdt_dev.parent = &pdev->dev;
+> +
+> +       watchdog_init_timeout(&mtk_wdt->wdt_dev, timeout, &pdev->dev);
+> +       watchdog_set_nowayout(&mtk_wdt->wdt_dev, nowayout);
+> +
+> +       watchdog_set_drvdata(&mtk_wdt->wdt_dev, mtk_wdt);
+> +
+> +       mtk_wdt_stop(&mtk_wdt->wdt_dev);
+> +
+> +       err = watchdog_register_device(&mtk_wdt->wdt_dev);
+> +       if (unlikely(err))
+> +               return err;
+> +
+> +       mtk_wdt->restart_handler.notifier_call = mtk_reset_handler;
+> +       mtk_wdt->restart_handler.priority = 128;
+> +       err = register_restart_handler(&mtk_wdt->restart_handler);
+> +       if (err)
+> +               dev_err(&pdev->dev,
+> +                       "cannot register restart handler (err=%d)\n", err);
+> +
+> +       dev_info(&pdev->dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)",
+> +                       mtk_wdt->wdt_dev.timeout, nowayout);
+> +
+> +       return 0;
+> +}
+> +
+> +static int mtk_wdt_remove(struct platform_device *pdev)
+> +{
+> +       struct mtk_wdt_dev *mtk_wdt = platform_get_drvdata(pdev);
+> +
+> +       unregister_restart_handler(&mtk_wdt->restart_handler);
+> +
+> +       watchdog_unregister_device(&mtk_wdt->wdt_dev);
+> +       watchdog_set_drvdata(&mtk_wdt->wdt_dev, NULL);
+> +
+> +       return 0;
+> +}
+> +
+> +static const struct of_device_id mtk_wdt_dt_ids[] = {
+> +       { .compatible = "mediatek,mt6589-wdt" },
+> +       { /* sentinel */ }
+> +};
+> +MODULE_DEVICE_TABLE(of, mtk_wdt_dt_ids);
+> +
+> +static struct platform_driver mtk_wdt_driver = {
+> +       .probe          = mtk_wdt_probe,
+> +       .remove         = mtk_wdt_remove,
+> +       .driver         = {
+> +               .owner          = THIS_MODULE,
+> +               .name           = DRV_NAME,
+> +               .of_match_table = mtk_wdt_dt_ids,
+> +       },
+> +};
+> +
+> +module_platform_driver(mtk_wdt_driver);
+> +
+> +module_param(timeout, uint, 0);
+> +MODULE_PARM_DESC(timeout, "Watchdog heartbeat in seconds");
+> +
+> +module_param(nowayout, bool, 0);
+> +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+> +                       __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+> +
+> +MODULE_LICENSE("GPL");
+> +MODULE_AUTHOR("Matthias Brugger <matthias.bgg@gmail.com>");
+> +MODULE_DESCRIPTION("Mediatek WatchDog Timer Driver");
+> +MODULE_VERSION(DRV_VERSION);
+> --
+> 1.9.1
+> 
 
-Changes in v2:
- - squashed both patches in one
- - added suggested-by and acked-by Arnd
-
- arch/arm/mach-at91/at91rm9200_devices.c | 13 ++++++++--
- drivers/watchdog/Kconfig                |  4 +--
- drivers/watchdog/at91rm9200_wdt.c       | 45 +++++++++++++++++++++++++++++++--
- 3 files changed, 56 insertions(+), 6 deletions(-)
-
-diff --git a/arch/arm/mach-at91/at91rm9200_devices.c b/arch/arm/mach-at91/at91rm9200_devices.c
-index 74f1eaf97801..4add0481adab 100644
---- a/arch/arm/mach-at91/at91rm9200_devices.c
-+++ b/arch/arm/mach-at91/at91rm9200_devices.c
-@@ -719,10 +719,19 @@ static void __init at91_add_device_rtc(void) {}
-  * -------------------------------------------------------------------- */
- 
- #if defined(CONFIG_AT91RM9200_WATCHDOG) || defined(CONFIG_AT91RM9200_WATCHDOG_MODULE)
-+static struct resource wdt_resources[] = {
-+	[0] = {
-+		.start	= AT91RM9200_BASE_ST,
-+		.end	= AT91RM9200_BASE_ST + SZ_256 - 1,
-+		.flags	= IORESOURCE_MEM,
-+	},
-+};
-+
- static struct platform_device at91rm9200_wdt_device = {
--	.name		= "at91_wdt",
-+	.name		= "at91rm9200_wdt",
- 	.id		= -1,
--	.num_resources	= 0,
-+	.resource	= wdt_resources,
-+	.num_resources	= 1,
- };
- 
- static void __init at91_add_device_watchdog(void)
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index d0107d424ee4..0592db68f3a8 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -154,14 +154,14 @@ config ARM_SP805_WATCHDOG
- 
- config AT91RM9200_WATCHDOG
- 	tristate "AT91RM9200 watchdog"
--	depends on ARCH_AT91RM9200
-+	depends on ARCH_AT91 || COMPILE_TEST
- 	help
- 	  Watchdog timer embedded into AT91RM9200 chips. This will reboot your
- 	  system when the timeout is reached.
- 
- config AT91SAM9X_WATCHDOG
- 	tristate "AT91SAM9X / AT91CAP9 watchdog"
--	depends on ARCH_AT91 && !ARCH_AT91RM9200
-+	depends on ARCH_AT91
- 	select WATCHDOG_CORE
- 	help
- 	  Watchdog timer embedded into AT91SAM9X and AT91CAP9 chips. This will
-diff --git a/drivers/watchdog/at91rm9200_wdt.c b/drivers/watchdog/at91rm9200_wdt.c
-index dee6cc21d270..776cb3b313d9 100644
---- a/drivers/watchdog/at91rm9200_wdt.c
-+++ b/drivers/watchdog/at91rm9200_wdt.c
-@@ -26,11 +26,28 @@
- #include <linux/uaccess.h>
- #include <linux/of.h>
- #include <linux/of_device.h>
--#include <mach/at91_st.h>
-+#include <linux/of_address.h>
- 
- #define WDT_DEFAULT_TIME	5	/* seconds */
- #define WDT_MAX_TIME		256	/* seconds */
- 
-+static void __iomem *at91_st_base;
-+
-+#define at91_st_read(field) \
-+	readl(at91_st_base + field)
-+
-+#define at91_st_write(field, value) \
-+	writel(value, at91_st_base + field)
-+
-+#define AT91_ST_CR	0x00		/* Control Register */
-+#define AT91_ST_WDRST	(1 << 0)	/* Watchdog Timer Restart */
-+
-+#define AT91_ST_WDMR	0x08		/* Watchdog Mode Register */
-+#define AT91_ST_WDV	(0xffff <<  0)	/* Watchdog Counter Value */
-+#define AT91_ST_RSTEN	(1	<< 16)	/* Reset Enable */
-+#define AT91_ST_EXTEN	(1	<< 17)	/* External Signal Assertion Enable */
-+
-+
- static int wdt_time = WDT_DEFAULT_TIME;
- static bool nowayout = WATCHDOG_NOWAYOUT;
- 
-@@ -201,14 +218,38 @@ static struct miscdevice at91wdt_miscdev = {
- 	.fops		= &at91wdt_fops,
- };
- 
-+static struct of_device_id at91rm9200_st_timer_ids[] = {
-+	{ .compatible = "atmel,at91rm9200-st" },
-+	{ /* sentinel */ }
-+};
-+
- static int at91wdt_probe(struct platform_device *pdev)
- {
-+	struct resource *regs;
-+	struct resource _regs;
- 	int res;
- 
- 	if (at91wdt_miscdev.parent)
- 		return -EBUSY;
- 	at91wdt_miscdev.parent = &pdev->dev;
- 
-+	if (pdev->dev.of_node) {
-+		struct device_node *np;
-+
-+		np = of_find_matching_node(NULL, at91rm9200_st_timer_ids);
-+		if (!np)
-+			return -ENXIO;
-+		if (of_address_to_resource(np, 0, &_regs))
-+			return -ENXIO;
-+		regs = &_regs;
-+	} else {
-+		regs = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	}
-+
-+	at91_st_base = devm_ioremap_resource(&pdev->dev, regs);
-+	if (!at91_st_base)
-+		return -ENXIO;
-+
- 	res = misc_register(&at91wdt_miscdev);
- 	if (res)
- 		return res;
-@@ -267,7 +308,7 @@ static struct platform_driver at91wdt_driver = {
- 	.suspend	= at91wdt_suspend,
- 	.resume		= at91wdt_resume,
- 	.driver		= {
--		.name	= "at91_wdt",
-+		.name	= "at91rm9200_wdt",
- 		.owner	= THIS_MODULE,
- 		.of_match_table = at91_wdt_dt_ids,
- 	},
--- 
-2.1.0
 
