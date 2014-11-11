@@ -1,61 +1,64 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mezzanine.sirena.org.uk ([106.187.55.193]:58923 "EHLO
-	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750799AbaKKAeb (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 10 Nov 2014 19:34:31 -0500
-Date: Tue, 11 Nov 2014 00:32:36 +0000
-From: Mark Brown <broonie@kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:40750 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750829AbaKKNii (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 11 Nov 2014 08:38:38 -0500
+Date: Tue, 11 Nov 2014 14:38:51 +0100
+From: Petr Mladek <pmladek@suse.cz>
 To: Joe Perches <joe@perches.com>
 Cc: Steven Rostedt <rostedt@goodmis.org>,
 	"James E.J. Bottomley" <jejb@parisc-linux.org>,
 	Helge Deller <deller@gmx.de>,
 	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
 	Wim Van Sebroeck <wim@iguana.be>,
 	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Petr Mladek <pmladek@suse.cz>, Felipe Balbi <balbi@ti.com>,
+	Felipe Balbi <balbi@ti.com>,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	linux-parisc@vger.kernel.org, linux-kernel@vger.kernel.org,
 	linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org,
 	linux-fsdevel@vger.kernel.org
-Message-ID: <20141111003236.GS3815@sirena.org.uk>
+Subject: Re: [PATCH -next 1/2] seq_puts: Convert to return void and convert
+ uses too.
+Message-ID: <20141111133851.GA2567@pathway.suse.cz>
 References: <cover.1415645476.git.joe@perches.com>
  <c8249a5c6504275a0e22704dda83b34002a89eac.1415645476.git.joe@perches.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="YW0vl6bOwYQ/J4Ih"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <c8249a5c6504275a0e22704dda83b34002a89eac.1415645476.git.joe@perches.com>
-Subject: Re: [PATCH -next 1/2] seq_puts: Convert to return void and convert
- uses too.
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On Mon 2014-11-10 10:58:56, Joe Perches wrote:
+> diff --git a/ipc/util.c b/ipc/util.c
+> index 106bed0..4f726b7 100644
+> --- a/ipc/util.c
+> +++ b/ipc/util.c
+> @@ -837,8 +837,10 @@ static int sysvipc_proc_show(struct seq_file *s, void *it)
+>  	struct ipc_proc_iter *iter = s->private;
+>  	struct ipc_proc_iface *iface = iter->iface;
+>  
+> -	if (it == SEQ_START_TOKEN)
+> -		return seq_puts(s, iface->header);
+> +	if (it == SEQ_START_TOKEN) {
+> +		seq_puts(s, iface->header);
+> +		return seq_has_overflowed(s);
 
---YW0vl6bOwYQ/J4Ih
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+It should return 0. The overflow is detected by traverse() that is
+called from seq_read(). If the overflow happens, the size of the
+buffer is increased and show() is called again.
 
-On Mon, Nov 10, 2014 at 10:58:56AM -0800, Joe Perches wrote:
-> Using the return value of seq_puts is error-prone, so
-> make it return void instead.
+> +	}
+>  
+>  	return iface->show(s, it);
 
-Acked-by: Mark Brown <broonie@kernel.org>
+This should stay as is. It seems that the show() function might also
+return negative value in case of some other failure. See the error
+handling of "error = m->op->show(m, p);" in traverse() in fs/seq_file.c
 
---YW0vl6bOwYQ/J4Ih
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+The rest of the patch looks fine.
 
-iQEcBAEBAgAGBQJUYVkjAAoJECTWi3JdVIfQpMYH/2Kbn9+gPddauhOdQJ0BGVz8
-85A17JrLFg6lHJwNli66Oht8PMGCs4gKsdkG7+rfLr4SurZsBH//g8mym6ohWkr9
-8tvBo1z74oJDu1JuzDIgRA9uMlKFIJjb3ClhgnGjDWTNCAqzuOwrdf243/+7KlJ4
-gvHAi3mASlkI6uh3qCgmIHcIsDT8mcK8hY+I9TnDB0KusBTmNsyOaloEF9iOHs+A
-UJHCH/gpq2nI/RAr77B1sJwgf7QlqW7zd6M0CllstDQIlqH5LCms73wXXBGdzSxs
-6dFtTlH5ccibzhTYVa/n21WM3RLiPIV6PKzQQwV12GMmMxuHreH/AJcP1RZdmzE=
-=8knI
------END PGP SIGNATURE-----
-
---YW0vl6bOwYQ/J4Ih--
+Best Regards,
+Petr
