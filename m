@@ -1,57 +1,52 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailapp01.imgtec.com ([195.59.15.196]:7577 "EHLO
-	mailapp01.imgtec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932651AbaKMN0o (ORCPT
+Received: from mail-vc0-f180.google.com ([209.85.220.180]:43929 "EHLO
+	mail-vc0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754023AbaKMTHx (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 13 Nov 2014 08:26:44 -0500
-Message-ID: <5464B191.9020401@imgtec.com>
-Date: Thu, 13 Nov 2014 13:26:41 +0000
-From: James Hogan <james.hogan@imgtec.com>
+	Thu, 13 Nov 2014 14:07:53 -0500
+Received: by mail-vc0-f180.google.com with SMTP id im6so1381148vcb.11
+        for <linux-watchdog@vger.kernel.org>; Thu, 13 Nov 2014 11:07:52 -0800 (PST)
 MIME-Version: 1.0
-To: Jude Abraham <Jude.Abraham@imgtec.com>,
-	Andrew Bresticker <abrestic@chromium.org>,
-	Naidu Tellapati <Naidu.Tellapati@imgtec.com>
-CC: "wim@iguana.be" <wim@iguana.be>,
+In-Reply-To: <5464AD4B.1000509@imgtec.com>
+References: <1415805483-26268-1-git-send-email-Naidu.Tellapati@imgtec.com>
+	<1415805483-26268-3-git-send-email-Naidu.Tellapati@imgtec.com>
+	<CAL1qeaHrjccd4KYAUMvWEKqhM9DFNyKWE=-2k0ux+76XR+Q5tQ@mail.gmail.com>
+	<89F3BC60EA3A0141B1F6C2A661D95E5E3F192BAA@hbmail01.hb.imgtec.org>
+	<5464AD4B.1000509@imgtec.com>
+Date: Thu, 13 Nov 2014 11:07:52 -0800
+Message-ID: <CAL1qeaHEGZWs8PPrX5cNpUWXDL3D_5Y2w772eKBEO0G+5q_p-g@mail.gmail.com>
+Subject: Re: [PATCH 2/2] DT: watchdog: Add ImgTec PDC Watchdog Timer binding documentation
+From: Andrew Bresticker <abrestic@chromium.org>
+To: James Hogan <james.hogan@imgtec.com>
+Cc: Jude Abraham <Jude.Abraham@imgtec.com>,
+	Naidu Tellapati <Naidu.Tellapati@imgtec.com>,
+	"wim@iguana.be" <wim@iguana.be>,
 	"linux@roeck-us.net" <linux@roeck-us.net>,
 	James Hartley <James.Hartley@imgtec.com>,
-	"Ezequiel Garcia" <Ezequiel.Garcia@imgtec.com>,
+	Ezequiel Garcia <Ezequiel.Garcia@imgtec.com>,
 	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
 	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
-Subject: Re: [PATCH 1/2] watchdog: ImgTec PDC Watchdog Timer Driver
-References: <1415805483-26268-1-git-send-email-Naidu.Tellapati@imgtec.com>	<1415805483-26268-2-git-send-email-Naidu.Tellapati@imgtec.com> <CAL1qeaHt14p3cjk7hLx_E2qKdqR+qHne-BJmHvVrgBF-4AyU=A@mail.gmail.com> <89F3BC60EA3A0141B1F6C2A661D95E5E3F192BB4@hbmail01.hb.imgtec.org>
-In-Reply-To: <89F3BC60EA3A0141B1F6C2A661D95E5E3F192BB4@hbmail01.hb.imgtec.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 13/11/14 12:58, Jude Abraham wrote:
->>>  +/* timeout in seconds */
->>>  +#define PDC_WD_MIN_TIMEOUT             1
->>>  +#define PDC_WD_MAX_TIMEOUT             131072
->>> +#define PDC_WD_DEFAULT_TIMEOUT         64
->>>  +#define PDC_WD_DEFAULT_PRETIMEOUT      PDC_WD_MAX_TIMEOUT
->>>  +#define MIN_TIMEOUT_SHIFT              14  /* Clock rate 32768Hz=2^(14+1)*/
-> 
->> The input clock is not fixed at 32kHz.  I believe it can be configured to run at a different rate.
-> 
-> I think it is  a 32 Khz fixed clock to the block. We are speaking to my hardware team for confirmation.
-> We will address the review comment after receive feedback from  my hardware team.
+On Thu, Nov 13, 2014 at 5:08 AM, James Hogan <james.hogan@imgtec.com> wrote:
+> Hi,
+>
+> On 13/11/14 12:58, Jude Abraham wrote:
+>> On Wed, Nov 12, 2014 at 7:18 AM,  <Naidu.Tellapati@imgtec.com> wrote:
+>>>> diff --git a/Documentation/devicetree/bindings/watchdog/imgpdc-wdt.txt
+>
+>>>> +- interrupts : Should contain WDT interrupt
+>>
+>>>  Not sure the interrupt will really be necessary.
+>>
+>> Ok, We will remove the interrupt.
+>
+> Regardless, there is still an interrupt line coming out of the WDT and
+> interrupt status/clear/enable registers for the single reminder
+> interrupt. IMO it makes sense to describe it in DT even if the driver
+> doesn't [yet] make use it.
 
-It should ideally be 32KHz, but that doesn't mean it will be guaranteed
-to be. The input clock rate is still dependent on the SoC clock setup to
-provide the clock, and that can usually be reconfigured i.e. from a
-dedicated external oscillator on the board if provided (hopefully
-providing the right frequency), or derived from a shared oscillator of
-some other frequency.
-
-For TZ1090 SoC with this IP block, powering down the rest of the SoC
-happened to reset the low power clock configuration and it would switch
-clock source to the main oscillator with a fixed divide, which certainly
-wasn't 32khz most of the time. Each of the low power drivers had to then
-take this into account in their configuration (img-ir for IR timings,
-wdt to a lesser extent, and most importantly rtc so as not to lose time
-or wake up at the wrong time!).
-
-Cheers
-James
+Yes, you're right.  Even if we don't currently use the interrupt, it's
+a correct description of the hardware.
