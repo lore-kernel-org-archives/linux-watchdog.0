@@ -1,64 +1,66 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:40750 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750829AbaKKNii (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 11 Nov 2014 08:38:38 -0500
-Date: Tue, 11 Nov 2014 14:38:51 +0100
-From: Petr Mladek <pmladek@suse.cz>
-To: Joe Perches <joe@perches.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>,
-	"James E.J. Bottomley" <jejb@parisc-linux.org>,
-	Helge Deller <deller@gmx.de>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Felipe Balbi <balbi@ti.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	linux-parisc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH -next 1/2] seq_puts: Convert to return void and convert
- uses too.
-Message-ID: <20141111133851.GA2567@pathway.suse.cz>
-References: <cover.1415645476.git.joe@perches.com>
- <c8249a5c6504275a0e22704dda83b34002a89eac.1415645476.git.joe@perches.com>
+Received: from mailapp01.imgtec.com ([195.59.15.196]:20017 "EHLO
+	mailapp01.imgtec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933004AbaKMM6e (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 13 Nov 2014 07:58:34 -0500
+From: Jude Abraham <Jude.Abraham@imgtec.com>
+To: Andrew Bresticker <abrestic@chromium.org>,
+	Naidu Tellapati <Naidu.Tellapati@imgtec.com>
+CC: "wim@iguana.be" <wim@iguana.be>,
+	"linux@roeck-us.net" <linux@roeck-us.net>,
+	James Hartley <James.Hartley@imgtec.com>,
+	"Ezequiel Garcia" <Ezequiel.Garcia@imgtec.com>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	James Hogan <James.Hogan@imgtec.com>
+Subject: RE: [PATCH 2/2] DT: watchdog: Add ImgTec PDC Watchdog Timer binding
+ documentation
+Date: Thu, 13 Nov 2014 12:58:29 +0000
+Message-ID: <89F3BC60EA3A0141B1F6C2A661D95E5E3F192BAA@hbmail01.hb.imgtec.org>
+References: <1415805483-26268-1-git-send-email-Naidu.Tellapati@imgtec.com>
+	<1415805483-26268-3-git-send-email-Naidu.Tellapati@imgtec.com>
+ <CAL1qeaHrjccd4KYAUMvWEKqhM9DFNyKWE=-2k0ux+76XR+Q5tQ@mail.gmail.com>
+In-Reply-To: <CAL1qeaHrjccd4KYAUMvWEKqhM9DFNyKWE=-2k0ux+76XR+Q5tQ@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c8249a5c6504275a0e22704dda83b34002a89eac.1415645476.git.joe@perches.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon 2014-11-10 10:58:56, Joe Perches wrote:
-> diff --git a/ipc/util.c b/ipc/util.c
-> index 106bed0..4f726b7 100644
-> --- a/ipc/util.c
-> +++ b/ipc/util.c
-> @@ -837,8 +837,10 @@ static int sysvipc_proc_show(struct seq_file *s, void *it)
->  	struct ipc_proc_iter *iter = s->private;
->  	struct ipc_proc_iface *iface = iter->iface;
->  
-> -	if (it == SEQ_START_TOKEN)
-> -		return seq_puts(s, iface->header);
-> +	if (it == SEQ_START_TOKEN) {
-> +		seq_puts(s, iface->header);
-> +		return seq_has_overflowed(s);
-
-It should return 0. The overflow is detected by traverse() that is
-called from seq_read(). If the overflow happens, the size of the
-buffer is increased and show() is called again.
-
-> +	}
->  
->  	return iface->show(s, it);
-
-This should stay as is. It seems that the show() function might also
-return negative value in case of some other failure. See the error
-handling of "error = m->op->show(m, p);" in traverse() in fs/seq_file.c
-
-
-The rest of the patch looks fine.
-
-Best Regards,
-Petr
+SGkgQW5kcmV3LA0KDQpNYW55IHRoYW5rcyBmb3IgcmV2aWV3aW5nLiBQbGVhc2Ugc2VlIG15IGlu
+bGluZSBjb21tZW50cyBiZWxvdy4NCg0KDQpPbiBXZWQsIE5vdiAxMiwgMjAxNCBhdCA3OjE4IEFN
+LCAgPE5haWR1LlRlbGxhcGF0aUBpbWd0ZWMuY29tPiB3cm90ZToNCj4gPiBGcm9tOiBOYWlkdSBU
+ZWxsYXBhdGkgPE5haWR1LlRlbGxhcGF0aUBpbWd0ZWMuY29tPg0KPiA+DQo+ID4gQWRkIHRoZSBk
+ZXZpY2V0cmVlIGJpbmRpbmcgZG9jdW1lbnQgZm9yIEltZ1RlYyBQREMgV2F0Y2hkb2cgVGltZXIu
+DQo+ID4NCj4gPiBTaWduZWQtb2ZmLWJ5OiBKdWRlIEFicmFoYW0gPEp1ZGUuQWJyYWhhbUBpbWd0
+ZWMuY29tPg0KPiA+IFNpZ25lZC1vZmYtYnk6IE5haWR1IFRlbGxhcGF0aSA8TmFpZHUuVGVsbGFw
+YXRpQGltZ3RlYy5jb20+DQoNCj4gPiBkaWZmIC0tZ2l0IGEvRG9jdW1lbnRhdGlvbi9kZXZpY2V0
+cmVlL2JpbmRpbmdzL3dhdGNoZG9nL2ltZ3BkYy13ZHQudHh0IA0KPiA+IGIvRG9jdW1lbnRhdGlv
+bi9kZXZpY2V0cmVlL2JpbmRpbmdzL3dhdGNoZG9nL2ltZ3BkYy13ZHQudHh0DQo+ID4gbmV3IGZp
+bGUgbW9kZSAxMDA2NDQNCj4gPiBpbmRleCAwMDAwMDAwLi4yZjEzODk2DQo+ID4gLS0tIC9kZXYv
+bnVsbA0KPiA+ICsrKyBiL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy93YXRjaGRv
+Zy9pbWdwZGMtd2R0LnR4dA0KPiA+QEAgLTAsMCArMSwxOCBAQA0KPiA+ICsqSW1nVGVjIFBvd2Vy
+RG93biBDb250cm9sbGVyIChQREMpIFdhdGNoZG9nIFRpbWVyIChXRFQpDQo+ID4gKw0KPiA+ICtS
+ZXF1aXJlZCBwcm9wZXJ0aWVzOg0KPiA+ICArLSBjb21wYXRpYmxlIDogU2hvdWxkIGJlICJpbWcs
+cGlzdGFjaGlvLXBkYy13ZHQiDQoNCj4gIEkgZG9uJ3Qgc2VlIGFueXRoaW5nIFBpc3RhY2hpby1z
+cGVjaWZpYyBhYm91dCB0aGlzIGRyaXZlciBvciBiaW5kaW5nIGFuZCBpdCBsb29rcyBsaWtlIElQ
+IHJldmlzaW9uIGlzIHByb2JhYmxlDQo+ICB2aWEgdGhlIFdEX0NPUkVfUkVWIHJlZ2lzdGVyLCBz
+byBJIHRoaW5rIHlvdSBjYW4gZHJvcCB0aGUgInBpc3RhY2hpbyIuDQoNCk9rLiBXZSB3aWxsIHJl
+bW92ZSBwaXN0YWNoaW8uDQoNCj4gPiArLSByZWcgOiBTaG91bGQgY29udGFpbiBXRFQgcmVnaXN0
+ZXJzIGxvY2F0aW9uIGFuZCBsZW5ndGgNCj4gPiArLSBjbG9jay1uYW1lczogU2hvdWxkIGNvbnRh
+aW4gIndkdCINCg0KPiAgSSBiZWxpZXZlIHRoZXJlIGFyZSB0d28gY2xvY2tzOiB0aGUgMzJrSHog
+d2F0Y2hkb2cgdGltZXIgb3BlcmF0aW5nIGNsb2NrIGFuZCB0aGUgc3lzdGVtIGludGVyZmFjZSBn
+YXRlIGNsb2NrLiAgUGVyaGFwcyBjYWxsIHRoZW0gIndkdCINCj4gYW5kICJzeXMiPw0KDQpPaywg
+V2Ugd2lsbCBhZGQgc3lzIGNsb2NrIC4NCg0KPiA+ICstIGNsb2NrczogcGhhbmRsZXMgdG8gaW5w
+dXQgY2xvY2tzDQo+ID4gKy0gaW50ZXJydXB0cyA6IFNob3VsZCBjb250YWluIFdEVCBpbnRlcnJ1
+cHQNCg0KPiAgTm90IHN1cmUgdGhlIGludGVycnVwdCB3aWxsIHJlYWxseSBiZSBuZWNlc3Nhcnku
+DQoNCk9rLCBXZSB3aWxsIHJlbW92ZSB0aGUgaW50ZXJydXB0Lg0KDQo+ID4gK0V4YW1wbGVzOg0K
+PiA+ICsNCj4gPiArd2R0QDE4MTAyMTAwIHsNCj4gPiAgKyAgICAgICBjb21wYXRpYmxlID0gImlt
+ZyxwaXN0YWNoaW8tcGRjLXdkdCI7DQo+ID4gICsgICAgICAgcmVnID0gPDB4MTgxMDIxMDAgMHgy
+MD47DQoNCj4gVGhlIFRSTSBJIGhhdmUgc2hvd3MgdGhlIHdhdGNoZG9nIHJlZ2lzdGVycyBvY2N1
+cHlpbmcgYSBmdWxsIDI1NiBieXRlcy4NCg0KT0ssIHdpbGwgY29ycmVjdCBpdC4NCg0KPiArICAg
+ICAgIGNsb2NrcyA9IDwmcGRjX3dkdF9jbGs+Ow0KPiArICAgICAgIGNsb2NrLW5hbWVzID0gIndk
+dCI7DQo+ICsgICAgICAgaW50ZXJydXB0cyA9IDwwIDUyIElSUV9UWVBFX0xFVkVMX0hJR0g+OyB9
+Ow0KPiAtLQ0KPiAxLjcuMC40DQo+DQoNClRoYW5rcyBhbmQgcmVnYXJkcywNCkp1ZGUuDQo=
