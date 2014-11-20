@@ -1,56 +1,117 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailapp01.imgtec.com ([195.59.15.196]:50278 "EHLO
-	mailapp01.imgtec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755979AbaKSTlc convert rfc822-to-8bit (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:55108 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757411AbaKTRXq (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 19 Nov 2014 14:41:32 -0500
-From: Naidu Tellapati <Naidu.Tellapati@imgtec.com>
-To: Andrew Bresticker <abrestic@chromium.org>,
-	Ezequiel Garcia <Ezequiel.Garcia@imgtec.com>
-CC: "wim@iguana.be" <wim@iguana.be>,
-	"linux@roeck-us.net" <linux@roeck-us.net>,
-	James Hartley <James.Hartley@imgtec.com>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	Jude Abraham <Jude.Abraham@imgtec.com>
-Subject: RE: [PATCH v3 1/2] watchdog: ImgTec PDC Watchdog Timer Driver
-Date: Wed, 19 Nov 2014 19:41:25 +0000
-Message-ID: <27E62D98F903554192E3C13AFCC91C3C2F509194@hbmail01.hb.imgtec.org>
-References: <1416312442-15688-1-git-send-email-Naidu.Tellapati@imgtec.com>
-	<1416312442-15688-2-git-send-email-Naidu.Tellapati@imgtec.com>
-	<CAL1qeaGgs0CrWdUV8kYVxbJ-=46+Xhx__pZy390iX0OXTF1bHw@mail.gmail.com>
-	<546CEF0C.1090204@imgtec.com>,<CAL1qeaFD735-BNC6r5fFMw=Ggnk22rCPp=Tc5iOjSwdJWscUMg@mail.gmail.com>
-In-Reply-To: <CAL1qeaFD735-BNC6r5fFMw=Ggnk22rCPp=Tc5iOjSwdJWscUMg@mail.gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+	Thu, 20 Nov 2014 12:23:46 -0500
+Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
+	(envelope-from <linux@roeck-us.net>)
+	id 1XrVSL-002vlM-Lb
+	for linux-watchdog@vger.kernel.org; Thu, 20 Nov 2014 17:23:45 +0000
+Date: Thu, 20 Nov 2014 09:23:29 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: Mike Looijmans <mike.looijmans@topic.nl>
+Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] gpio_wdt: Add "always_running" feature to GPIO watchdog
+Message-ID: <20141120172329.GA10673@roeck-us.net>
+References: <1416489377-13633-1-git-send-email-mike.looijmans@topic.nl>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1416489377-13633-1-git-send-email-mike.looijmans@topic.nl>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Andrew & Ezequiel,
+On Thu, Nov 20, 2014 at 02:16:17PM +0100, Mike Looijmans wrote:
+> On some chips, like the TPS386000, the trigger cannot be disabled
+> and the CPU must keep toggling the line at all times. Add a switch
+> "always_running" to keep toggling the GPIO line regardless of the
+> state of the soft part of the watchdog. The "armed" member keeps
+> track of whether a timeout must also cause a reset.
+> 
+> Signed-off-by: Mike Looijmans <mike.looijmans@topic.nl>
+> ---
+>  drivers/watchdog/gpio_wdt.c |   20 +++++++++++++++++---
+>  1 file changed, 17 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
+> index 220a9e0..921ee67 100644
+> --- a/drivers/watchdog/gpio_wdt.c
+> +++ b/drivers/watchdog/gpio_wdt.c
+> @@ -31,6 +31,8 @@ struct gpio_wdt_priv {
+>  	int			gpio;
+>  	bool			active_low;
+>  	bool			state;
+> +	bool		always_running;
+> +	bool		armed;
+>  	unsigned int		hw_algo;
+>  	unsigned int		hw_margin;
+>  	unsigned long		last_jiffies;
+> @@ -56,6 +58,7 @@ static int gpio_wdt_start(struct watchdog_device *wdd)
+>  	gpio_direction_output(priv->gpio, priv->state);
+>  	priv->last_jiffies = jiffies;
+>  	mod_timer(&priv->timer, priv->last_jiffies + priv->hw_margin);
+> +	priv->armed = true;
+>  
+>  	return 0;
+>  }
+> @@ -64,8 +67,11 @@ static int gpio_wdt_stop(struct watchdog_device *wdd)
+>  {
+>  	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
+>  
+> -	mod_timer(&priv->timer, 0);
+> -	gpio_wdt_disable(priv);
+> +	priv->armed = false;
+> +	if (!priv->always_running) {
+> +		mod_timer(&priv->timer, 0);
+> +		gpio_wdt_disable(priv);
+> +	}
+>  
+>  	return 0;
+>  }
+> @@ -91,7 +97,7 @@ static void gpio_wdt_hwping(unsigned long data)
+>  	struct watchdog_device *wdd = (struct watchdog_device *)data;
+>  	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
+>  
+> -	if (time_after(jiffies, priv->last_jiffies +
+> +	if (priv->armed && time_after(jiffies, priv->last_jiffies +
+>  		       msecs_to_jiffies(wdd->timeout * 1000))) {
+>  		dev_crit(wdd->dev, "Timer expired. System will reboot soon!\n");
+>  		return;
+> @@ -197,6 +203,9 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+>  	/* Use safe value (1/2 of real timeout) */
+>  	priv->hw_margin = msecs_to_jiffies(hw_margin / 2);
+>  
+> +	priv->always_running = of_property_read_bool(pdev->dev.of_node,
+> +				"always_running");
 
->>>>
->>>> Signed-off-by: Jude Abraham <Jude.Abraham@imgtec.com>
->>>> Signed-off-by: Naidu Tellapati <Naidu.Tellapati@imgtec.com>
->>>
->>> checkpatch reports that there's trailing whitespace and that you're
->>> using DOS line endings.  Please be sure to fix that with this and your
->>> other patches.
->>>
->>
->> Andrew,
->>
->> Saving this patch with mutt as mbox and running checkpatch on it,
->> doesn't report any problems with it.
->>
->> Maybe it's your client?
+That will need to be documented in a devicetree bindings document, and be
+reviewed by the fdt maintainers. I may be wrong, but I think devicetree
+properties commonly use '-', not '_'.
 
-> Oops, yes, you're right - my gmail settings have gotten screwed up somehow...
+Guenter
 
-I am little relieved now. It was a day of experimentation with my mail clients today.
-
-Thanks and regards,
-Naidu.
-
-
+> +
+>  	watchdog_set_drvdata(&priv->wdd, priv);
+>  
+>  	priv->wdd.info		= &gpio_wdt_ident;
+> @@ -218,6 +227,11 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+>  	if (ret)
+>  		watchdog_unregister_device(&priv->wdd);
+>  
+> +	if (priv->always_running) {
+> +		gpio_wdt_start(&priv->wdd);
+> +		priv->armed = false;
+> +	}
+> +
+>  	return ret;
+>  }
+>  
+> -- 
+> 1.7.9.5
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
