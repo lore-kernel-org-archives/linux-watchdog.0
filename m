@@ -1,86 +1,91 @@
-Return-path: <Ezequiel.Garcia@imgtec.com>
-Message-ID: <5473439E.4000901@imgtec.com>
-Date: Mon, 24 Nov 2014 11:41:34 -0300
-From: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
-MIME-Version: 1.0
-To: <naidu.tellapati@gmail.com>, <wim@iguana.be>, <linux@roeck-us.net>,
-	<abrestic@chromium.org>, <james.hartley@imgtec.com>, <james.hogan@imgtec.com>
-CC: <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
-	<arul.ramasamy@imgtec.com>, Jude Abraham <Jude.Abraham@imgtec.com>, "Naidu
- Tellapati" <Naidu.Tellapati@imgtec.com>
-Subject: Re: [PATCH RESEND v5 1/2] watchdog: ImgTec PDC Watchdog Timer Driver
-References: <1416597957-10516-1-git-send-email-Naidu.Tellapati@gmail.com> <1416597957-10516-2-git-send-email-Naidu.Tellapati@gmail.com>
-In-Reply-To: <1416597957-10516-2-git-send-email-Naidu.Tellapati@gmail.com>
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-wi0-f171.google.com ([209.85.212.171]:55937 "EHLO
+	mail-wi0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750755AbaKUT0k (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 21 Nov 2014 14:26:40 -0500
+From: naidu.tellapati@gmail.com
+To: wim@iguana.be, linux@roeck-us.net, abrestic@chromium.org,
+	ezequiel.garcia@imgtec.com, james.hartley@imgtec.com,
+	james.hogan@imgtec.com
+Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	arul.ramasamy@imgtec.com, Jude Abraham <Jude.Abraham@imgtec.com>
+Subject: [PATCH RESEND v5 0/2] watchdog: Add support for ImgTec PowerDown Controller Watchdog Timer
+Date: Sat, 22 Nov 2014 00:55:55 +0530
+Message-Id: <1416597957-10516-1-git-send-email-Naidu.Tellapati@gmail.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
+From: Jude Abraham <Jude.Abraham@imgtec.com>
 
-Hi Naidu,
+This patchset provides support for the PowerDown Controller (PDC) Watchdog Timer
+found on Pistachio SOC from Imagination Technologies (ImgTec).
 
-Just a few nitpicks on my side. See below.
+The series is based on 3.18-rc5.
 
-On 11/21/2014 04:25 PM, naidu.tellapati@gmail.com wrote:
-> From: Jude Abraham <Jude.Abraham@imgtec.com>
-> 
-> This commit adds support for ImgTec PowerDown Controller Watchdog Timer.
-> 
-> Signed-off-by: Jude Abraham <Jude.Abraham@imgtec.com>
-> Signed-off-by: Naidu Tellapati <Naidu.Tellapati@imgtec.com>
-> Reviewed-by: Andrew Bresticker <abrestic@chromium.org>
-[..]
-> +
-> +struct pdc_wdt_dev {
-> +	struct device *dev;
+I am re-sending the series with gmail SMTP as we had some problems with
+the mail server we used in the previous rounds.
 
-'dev' is unused.
+Please review and provide your comments.
 
-> +	struct watchdog_device wdt_dev;
-> +	struct clk *wdt_clk;
-> +	struct clk *sys_clk;
-> +	unsigned long clk_rate;
+Changes from v4:
 
-'clk_rate' is unused.
+ * Added warning message if initial timeout is invalid.
 
-> +	int min_delay;
-> +	void __iomem *base;
-> +};
-> +
-[..]
-> +
-> +/* Start the watchdog timer (delay should already be set */
+Changes from v3:
 
-Typo here: missing closing parenthesis.
+ * Removed PDC_WD_MAX_DELAY.
 
-[..]
-> +
-> +static int pdc_wdt_probe(struct platform_device *pdev)
-> +{
-> +	int ret, val;
-> +	struct resource *res;
-> +	struct pdc_wdt_dev *pdc_wdt;
-> +
-> +	pdc_wdt = devm_kzalloc(&pdev->dev, sizeof(*pdc_wdt), GFP_KERNEL);
-> +	if (!pdc_wdt)
-> +		return -ENOMEM;
-> +
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	pdc_wdt->base = devm_ioremap_resource(&pdev->dev, res);
-> +	if (IS_ERR(pdc_wdt->base))
-> +		return PTR_ERR(pdc_wdt->base);
-> +
-> +	pdc_wdt->sys_clk = devm_clk_get(&pdev->dev, "sys");
-> +	if (IS_ERR(pdc_wdt->sys_clk)) {
-> +		dev_err(&pdev->dev, "failed to get the sys clock.\n");
-> +		ret = PTR_ERR(pdc_wdt->wdt_clk);
-> +		goto out_wdt;
+ * Removed spinlock.
 
-I'd say remove all uses of the out_wdt label and just return ret.
+ * Removed timeout check inside pdc_wdt_set_timeout function.
 
-Reviewed-by: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
+ * Changed identity to IMG PDC Watchdog.
 
-Wim: Any comments? We're aiming at having this driver merged for v3.19.
+ * Removed pdc_wdt_set_timeout call from the probe function.
 
-Thanks!
--- 
-Ezequiel
+ * Removed pdc_wdt_shutdown function call from pdc_wdt_remove function
+   and added pdc_wdt_stop function call instead.
+
+Changes from v2:
+
+ * Removed interrupt.h header file.
+
+ * Removed clock rate-change notifier callback.
+
+Changes from v1:
+
+ * Arranged all include files in alphabetical order.
+
+ * Arranged register field masks/shifts defines next to their
+   corresponding register
+
+ * Registered clock rate-change notifier callback.
+
+ * Removed all references to 32 kHz fixed clock rate.
+   Now the clock rate is read dynamically using clk_get_rate().
+
+ * Defined a macro PDC_WD_CONFIG_ENABLE.
+
+ * Added code for getting system clock.
+
+ * Moved module_param stuffs next to the corresponding variable defines.
+
+ * Added code in the function pdc_wdt_remove for stopping watchdog.
+
+ * Removed MODULE_ALIAS.
+
+ * Removed few unwanted spaces and unwanted blank lines.
+
+Jude Abraham (2):
+  watchdog: ImgTec PDC Watchdog Timer Driver
+  DT: watchdog: Add ImgTec PDC Watchdog Timer binding documentation
+
+ .../devicetree/bindings/watchdog/imgpdc-wdt.txt    |   18 ++
+ drivers/watchdog/Kconfig                           |   11 +
+ drivers/watchdog/Makefile                          |    1 +
+ drivers/watchdog/imgpdc_wdt.c                      |  301 ++++++++++++++++++++
+ 4 files changed, 331 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/imgpdc-wdt.txt
+ create mode 100644 drivers/watchdog/imgpdc_wdt.c
+
