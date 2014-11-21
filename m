@@ -1,22 +1,21 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from atl4mhfb03.myregisteredsite.com ([209.17.115.61]:53128 "EHLO
-	atl4mhfb03.myregisteredsite.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751575AbaKTNQe (ORCPT
+Received: from atl4mhob01.myregisteredsite.com ([209.17.115.39]:47696 "EHLO
+	atl4mhob01.myregisteredsite.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750876AbaKUGx5 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 20 Nov 2014 08:16:34 -0500
-Received: from atl4mhob06.myregisteredsite.com (atl4mhob06.myregisteredsite.com [209.17.115.44])
-	by atl4mhfb03.myregisteredsite.com (8.14.4/8.14.4) with ESMTP id sAKDGVC5020655
-	for <linux-watchdog@vger.kernel.org>; Thu, 20 Nov 2014 08:16:32 -0500
-Received: from mailpod.hostingplatform.com ([10.30.71.205])
-	by atl4mhob06.myregisteredsite.com (8.14.4/8.14.4) with ESMTP id sAKDGSNE007605
-	for <linux-watchdog@vger.kernel.org>; Thu, 20 Nov 2014 08:16:28 -0500
+	Fri, 21 Nov 2014 01:53:57 -0500
+Received: from mailpod.hostingplatform.com ([10.30.71.206])
+	by atl4mhob01.myregisteredsite.com (8.14.4/8.14.4) with ESMTP id sAL6rrCl013680
+	for <linux-watchdog@vger.kernel.org>; Fri, 21 Nov 2014 01:53:53 -0500
 From: Mike Looijmans <mike.looijmans@topic.nl>
 To: wim@iguana.be
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
 	Mike Looijmans <mike.looijmans@topic.nl>
-Subject: [PATCH] gpio_wdt: Add "always_running" feature to GPIO watchdog
-Date: Thu, 20 Nov 2014 14:16:17 +0100
-Message-Id: <1416489377-13633-1-git-send-email-mike.looijmans@topic.nl>
+Subject: [PATCH v2] gpio_wdt: Add "always_running" feature to GPIO watchdog
+Date: Fri, 21 Nov 2014 07:53:48 +0100
+Message-Id: <1416552828-3589-1-git-send-email-mike.looijmans@topic.nl>
+In-Reply-To: <20141120172329.GA10673@roeck-us.net>
+References: <20141120172329.GA10673@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
@@ -28,11 +27,32 @@ track of whether a timeout must also cause a reset.
 
 Signed-off-by: Mike Looijmans <mike.looijmans@topic.nl>
 ---
- drivers/watchdog/gpio_wdt.c |   20 +++++++++++++++++---
- 1 file changed, 17 insertions(+), 3 deletions(-)
 
+v2: Rename property "always_running" to "always-running" and add devicetree
+documentation
+
+ .../devicetree/bindings/watchdog/gpio-wdt.txt      |    5 +++++
+ drivers/watchdog/gpio_wdt.c                        |   20 +++++++++++++++++---
+ 2 files changed, 22 insertions(+), 3 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
+index 37afec1..1987949 100644
+--- a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
+@@ -13,6 +13,11 @@ Required Properties:
+     by the GPIO flags.
+ - hw_margin_ms: Maximum time to reset watchdog circuit (milliseconds).
+ 
++Optional Properties:
++- always-running: If the watchdog timer cannot be disabled, add this flag to
++  have the driver keep toggling the signal without a client. It will only cease
++  to toggle the signal when the device is open and the timeout elapsed.
++
+ Example:
+ 	watchdog: watchdog {
+ 		/* ADM706 */
 diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
-index 220a9e0..921ee67 100644
+index 220a9e0..3266215 100644
 --- a/drivers/watchdog/gpio_wdt.c
 +++ b/drivers/watchdog/gpio_wdt.c
 @@ -31,6 +31,8 @@ struct gpio_wdt_priv {
@@ -80,7 +100,7 @@ index 220a9e0..921ee67 100644
  	priv->hw_margin = msecs_to_jiffies(hw_margin / 2);
  
 +	priv->always_running = of_property_read_bool(pdev->dev.of_node,
-+				"always_running");
++				"always-running");
 +
  	watchdog_set_drvdata(&priv->wdd, priv);
  
