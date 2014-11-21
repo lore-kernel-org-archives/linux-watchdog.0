@@ -1,118 +1,147 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from eusmtp01.atmel.com ([212.144.249.242]:20287 "EHLO
-	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751761AbaK0JWQ (ORCPT
+Received: from atl4mhob05.myregisteredsite.com ([209.17.115.43]:47749 "EHLO
+	atl4mhob05.myregisteredsite.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752639AbaKUJkf (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 27 Nov 2014 04:22:16 -0500
-Message-ID: <5476ED44.603@atmel.com>
-Date: Thu, 27 Nov 2014 10:22:12 +0100
-From: Nicolas Ferre <nicolas.ferre@atmel.com>
-MIME-Version: 1.0
-To: Timo Kokkonen <timo.kokkonen@offcode.fi>,
-	<linux-arm-kernel@lists.infradead.org>,
-	<linux-watchdog@vger.kernel.org>,
-	<alexandre.belloni@free-electrons.com>,
-	<boris.brezillon@free-electrons.com>
-Subject: Re: [PATCH] at91sam9_wdt: Allow watchdog to reset device at early
- boot
-References: <5465C00E.4030808@offcode.fi> <1416572610-1770-1-git-send-email-timo.kokkonen@offcode.fi> <5476CA7F.4000802@offcode.fi>
-In-Reply-To: <5476CA7F.4000802@offcode.fi>
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
+	Fri, 21 Nov 2014 04:40:35 -0500
+Received: from mailpod.hostingplatform.com ([10.30.71.211])
+	by atl4mhob05.myregisteredsite.com (8.14.4/8.14.4) with ESMTP id sAL9eWdV028567
+	for <linux-watchdog@vger.kernel.org>; Fri, 21 Nov 2014 04:40:32 -0500
+From: Mike Looijmans <mike.looijmans@topic.nl>
+To: wim@iguana.be
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Mike Looijmans <mike.looijmans@topic.nl>
+Subject: [PATCH v3] gpio_wdt: Add "always_running" feature to GPIO watchdog
+Date: Fri, 21 Nov 2014 10:40:28 +0100
+Message-Id: <1416562828-3978-1-git-send-email-mike.looijmans@topic.nl>
+In-Reply-To: <546EE991.1080704@roeck-us.net>
+References: <546EE991.1080704@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 27/11/2014 07:53, Timo Kokkonen wrote:
-> Hi,
-> 
-> On 21.11.2014 14:23, Timo Kokkonen wrote:
->> By default the driver will start a kernel timer which keeps on kicking
->> the watchdog HW until user space has opened the watchdog
->> device. Usually this is desirable as the watchdog HW is running by
->> default and the user space may not have any watchdog daemon running at
->> all.
->>
->> However, on production systems it may be mandatory that also early
->> crashes and lockups will lead to a watchdog reset, even if they happen
->> before the user space has opened the watchdog device.
->>
->> To resolve the issue, add a new device tree property
->> "enable-early-reset" which will prevent the kernel timer from pinging
->> the watchdog HW on behalf of user space. The default is still to use
->> kernel timer, but more strict behavior can be enabled via the device
->> tree property.
->>
->> Signed-off-by: Timo Kokkonen <timo.kokkonen@offcode.fi>
-> 
-> I forgot to put the PATCHv2 on the subject line.. But anyway, any 
-> thoughts about it? Is there something that should be done to get it forward?
+On some chips, like the TPS386000, the trigger cannot be disabled
+and the CPU must keep toggling the line at all times. Add a switch
+"always_running" to keep toggling the GPIO line regardless of the
+state of the soft part of the watchdog. The "armed" member keeps
+track of whether a timeout must also cause a reset.
 
-Sorry for not having come back to you quickly.
+Signed-off-by: Mike Looijmans <mike.looijmans@topic.nl>
+---
+v3: Indentation adjusted to match
+Fix error path in probe when notification registration fails
+Prevent double assignment of "armed" variable
 
-The only thing that tend to prevent me from taking this patch is the
-fact that this DT property is mostly a software, Linux-specific one...
-Which is somehow not covered by the DT.
-This might explain as well why this property is not present on other SoCs.
+ .../devicetree/bindings/watchdog/gpio-wdt.txt      |    5 +++
+ drivers/watchdog/gpio_wdt.c                        |   39 ++++++++++++++++----
+ 2 files changed, 36 insertions(+), 8 deletions(-)
 
-Can we have other people's advices?
-
-Bye,
-
->> ---
->>   Documentation/devicetree/bindings/watchdog/atmel-wdt.txt | 4 ++++
->>   drivers/watchdog/at91sam9_wdt.c                          | 6 +++++-
->>   2 files changed, 9 insertions(+), 1 deletion(-)
->>
->> diff --git a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
->> index f90e294..a0b7b75 100644
->> --- a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
->> +++ b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
->> @@ -28,6 +28,10 @@ Optional properties:
->>   	entering idle state.
->>   - atmel,dbg-halt : Should be present if you want to stop the watchdog when
->>   	entering debug state.
->> +- enable-early-reset : Should be present if you want to let the
->> +	watchdog timer to expire even before user space has opened the
->> +	device. If not set, a kernel timer will keep on pinging the
->> +	watchdog until it is opened.
->>
->>   Example:
->>   	watchdog@fffffd40 {
->> diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
->> index 489729b..78b1977 100644
->> --- a/drivers/watchdog/at91sam9_wdt.c
->> +++ b/drivers/watchdog/at91sam9_wdt.c
->> @@ -89,6 +89,7 @@ struct at91wdt {
->>   	u32 mr_mask;
->>   	unsigned long heartbeat;	/* WDT heartbeat in jiffies */
->>   	bool nowayout;
->> +	bool no_early_timer;
->>   	unsigned int irq;
->>   };
->>
->> @@ -122,7 +123,7 @@ static void at91_ping(unsigned long data)
->>   {
->>   	struct at91wdt *wdt = (struct at91wdt *)data;
->>   	if (time_before(jiffies, wdt->next_heartbeat) ||
->> -	    !watchdog_active(&wdt->wdd)) {
->> +		(!watchdog_active(&wdt->wdd) && !wdt->no_early_timer)) {
->>   		at91_wdt_reset(wdt);
->>   		mod_timer(&wdt->timer, jiffies + wdt->heartbeat);
->>   	} else {
->> @@ -316,6 +317,9 @@ static int of_at91wdt_init(struct device_node *np, struct at91wdt *wdt)
->>
->>   	wdt->mr |= max | ((max - min) << 16);
->>
->> +	if (of_property_read_bool(np, "enable-early-reset"))
->> +		wdt->no_early_timer = 1;
->> +
->>   	return 0;
->>   }
->>   #else
->>
-> 
-> 
-
-
+diff --git a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
+index 37afec1..1987949 100644
+--- a/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/gpio-wdt.txt
+@@ -13,6 +13,11 @@ Required Properties:
+     by the GPIO flags.
+ - hw_margin_ms: Maximum time to reset watchdog circuit (milliseconds).
+ 
++Optional Properties:
++- always-running: If the watchdog timer cannot be disabled, add this flag to
++  have the driver keep toggling the signal without a client. It will only cease
++  to toggle the signal when the device is open and the timeout elapsed.
++
+ Example:
+ 	watchdog: watchdog {
+ 		/* ADM706 */
+diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
+index 220a9e0..9bfbd73 100644
+--- a/drivers/watchdog/gpio_wdt.c
++++ b/drivers/watchdog/gpio_wdt.c
+@@ -31,6 +31,8 @@ struct gpio_wdt_priv {
+ 	int			gpio;
+ 	bool			active_low;
+ 	bool			state;
++	bool			always_running;
++	bool			armed;
+ 	unsigned int		hw_algo;
+ 	unsigned int		hw_margin;
+ 	unsigned long		last_jiffies;
+@@ -48,10 +50,8 @@ static void gpio_wdt_disable(struct gpio_wdt_priv *priv)
+ 		gpio_direction_input(priv->gpio);
+ }
+ 
+-static int gpio_wdt_start(struct watchdog_device *wdd)
++static void gpio_wdt_start_impl(struct gpio_wdt_priv *priv)
+ {
+-	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
+-
+ 	priv->state = priv->active_low;
+ 	gpio_direction_output(priv->gpio, priv->state);
+ 	priv->last_jiffies = jiffies;
+@@ -60,12 +60,25 @@ static int gpio_wdt_start(struct watchdog_device *wdd)
+ 	return 0;
+ }
+ 
++static int gpio_wdt_start(struct watchdog_device *wdd)
++{
++	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
++
++	gpio_wdt_start_impl(priv);
++	priv->armed = true;
++
++	return 0;
++}
++
+ static int gpio_wdt_stop(struct watchdog_device *wdd)
+ {
+ 	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
+ 
+-	mod_timer(&priv->timer, 0);
+-	gpio_wdt_disable(priv);
++	priv->armed = false;
++	if (!priv->always_running) {
++		mod_timer(&priv->timer, 0);
++		gpio_wdt_disable(priv);
++	}
+ 
+ 	return 0;
+ }
+@@ -91,8 +104,8 @@ static void gpio_wdt_hwping(unsigned long data)
+ 	struct watchdog_device *wdd = (struct watchdog_device *)data;
+ 	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
+ 
+-	if (time_after(jiffies, priv->last_jiffies +
+-		       msecs_to_jiffies(wdd->timeout * 1000))) {
++	if (priv->armed && time_after(jiffies, priv->last_jiffies +
++				      msecs_to_jiffies(wdd->timeout * 1000))) {
+ 		dev_crit(wdd->dev, "Timer expired. System will reboot soon!\n");
+ 		return;
+ 	}
+@@ -197,6 +210,9 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+ 	/* Use safe value (1/2 of real timeout) */
+ 	priv->hw_margin = msecs_to_jiffies(hw_margin / 2);
+ 
++	priv->always_running = of_property_read_bool(pdev->dev.of_node,
++						     "always-running");
++
+ 	watchdog_set_drvdata(&priv->wdd, priv);
+ 
+ 	priv->wdd.info		= &gpio_wdt_ident;
+@@ -216,8 +232,15 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+ 	priv->notifier.notifier_call = gpio_wdt_notify_sys;
+ 	ret = register_reboot_notifier(&priv->notifier);
+ 	if (ret)
+-		watchdog_unregister_device(&priv->wdd);
++		goto error_unregister;
+ 
++	if (priv->always_running)
++		gpio_wdt_start_impl(priv);
++
++	return 0;
++
++error_unregister:
++	watchdog_unregister_device(&priv->wdd);
+ 	return ret;
+ }
+ 
 -- 
-Nicolas Ferre
+1.7.9.5
+
