@@ -1,129 +1,86 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wg0-f49.google.com ([74.125.82.49]:44517 "EHLO
-	mail-wg0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751414AbaKXJEU (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 24 Nov 2014 04:04:20 -0500
-Received: by mail-wg0-f49.google.com with SMTP id x12so11558557wgg.36
-        for <linux-watchdog@vger.kernel.org>; Mon, 24 Nov 2014 01:04:17 -0800 (PST)
-Message-ID: <5472F48E.40802@linaro.org>
-Date: Mon, 24 Nov 2014 10:04:14 +0100
-From: Daniel Lezcano <daniel.lezcano@linaro.org>
+Return-path: <Ezequiel.Garcia@imgtec.com>
+Message-ID: <5473439E.4000901@imgtec.com>
+Date: Mon, 24 Nov 2014 11:41:34 -0300
+From: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
 MIME-Version: 1.0
-To: Wim Van Sebroeck <wim@iguana.be>
-CC: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Jason Cooper <jason@lakedaemon.net>,
-	Gregory Clement <gregory.clement@free-electrons.com>,
-	Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-	Tawfik Bayouk <tawfik@marvell.com>,
-	Lior Amsalem <alior@marvell.com>, Andrew Lunn <andrew@lunn.ch>,
-	Nadav Haklai <nadavh@marvell.com>
-Subject: Re: [PATCH v3 0/3] Make Armada 375 use the reference clock when possible
-References: <1415107293-19258-1-git-send-email-ezequiel.garcia@free-electrons.com> <546C6226.5000900@linaro.org> <20141119104535.GB8973@spo001.leaseweb.nl>
-In-Reply-To: <20141119104535.GB8973@spo001.leaseweb.nl>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
-
-On 11/19/2014 11:45 AM, Wim Van Sebroeck wrote:
-> Hi Daniel,
->
-> I'll review before the weekend and will let you know something.
-> But everything through one tree is fine by me.
-
-Hi Wim,
-
-did you have time to review this patchset ? I would like to send my PR 
-for tglx as soon as possible.
-
-Thanks
-   -- Daniel
-
->
-> Kind regards,
-> Wim.
->
->> On 11/04/2014 02:21 PM, Ezequiel Garcia wrote:
->>> Hi Daniel, Wim:
->>>
->>> Seems we are ready to merge these, unless some objection raises. Do you
->>> think
->>> you can take the patches through your trees?
->>
->> Hi Wim,
->>
->> I can take through my tree the entire patchset if you want but I need
->> your blessing for the watchdog part.
->>
->> Thanks
->>    -- Daniel
->>
->>> Changes from v2:
->>>
->>>    * Fix messed up empty lines, as suggested by Thomas Petazzoni.
->>>
->>> Changes from v1:
->>>
->>>    * Make the A375 timer and watchdog devicetree binding match the hardware
->>>      and require the two available clocks: core and reference clock.
->>>
->>> This series adds support for the 25 MHz reference clock available on
->>> Armada 375 SoC to be used on the timer and watchdog drivers. It is
->>> similar to the one present in Armada XP SoC.
->>>
->>> Given we initially had access to only a very early SoC revision (A375 Z1)
->>> and due to a hardware issue, the timer and watchdog support was originally
->>> submitted to use the core clock.
->>>
->>> Now that the A0 SoC revision is out, we can fix this and use the reference
->>> clock. The reason for this change is that the core clock is subject to the
->>> SSCG (Spread Spectrum Clock Generator), so boards where SSCG is enabled
->>> exhibit a very large timer drift.
->>>
->>> Notice that this change will produce unpleseant results on A375 Z1, given
->>> the
->>> reference 25 MHz clock doesn't work properly on that SoC revision.
->>>
->>> But since the Z1 revision is not supported by the recently submitted A375
->>> network driver (mvpp2), and therefore nobody is expected to run mainline
->>> (if there are users at all of this early revision), the support will be
->>> dropped entirely in a near future.
->>>
->>> To prevent any compatibility issues when booting with an older devicetree,
->>> this series provides proper fall backs in each case.
->>>
->>> The series applies on v3.18-rc2.
->>>
->>> Ezequiel Garcia (3):
->>>    clocksource: armada-370-xp: Add missing clock enable
->>>    watchdog: orion: Use the reference clock on Armada 375 SoC
->>>    clocksource: armada-370-xp: Use the reference clock on A375 SoC
->>>
->>>   .../bindings/timer/marvell,armada-370-xp-timer.txt |  9 +++--
->>>   .../devicetree/bindings/watchdog/marvel.txt        | 13 +++++++
->>>   drivers/clocksource/time-armada-370-xp.c           | 30 ++++++++++++++++
->>>   drivers/watchdog/orion_wdt.c                       | 42
->>>   +++++++++++++++++++++-
->>>   4 files changed, 90 insertions(+), 4 deletions(-)
->>>
->>
->>
->> --
->>   <http://www.linaro.org/> Linaro.org │ Open source software for ARM SoCs
->>
->> Follow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
->> <http://twitter.com/#!/linaroorg> Twitter |
->> <http://www.linaro.org/linaro-blog/> Blog
->>
+To: <naidu.tellapati@gmail.com>, <wim@iguana.be>, <linux@roeck-us.net>,
+	<abrestic@chromium.org>, <james.hartley@imgtec.com>, <james.hogan@imgtec.com>
+CC: <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>,
+	<arul.ramasamy@imgtec.com>, Jude Abraham <Jude.Abraham@imgtec.com>, "Naidu
+ Tellapati" <Naidu.Tellapati@imgtec.com>
+Subject: Re: [PATCH RESEND v5 1/2] watchdog: ImgTec PDC Watchdog Timer Driver
+References: <1416597957-10516-1-git-send-email-Naidu.Tellapati@gmail.com> <1416597957-10516-2-git-send-email-Naidu.Tellapati@gmail.com>
+In-Reply-To: <1416597957-10516-2-git-send-email-Naidu.Tellapati@gmail.com>
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+List-ID: <linux-watchdog@vger.kernel.org>
 
 
+Hi Naidu,
+
+Just a few nitpicks on my side. See below.
+
+On 11/21/2014 04:25 PM, naidu.tellapati@gmail.com wrote:
+> From: Jude Abraham <Jude.Abraham@imgtec.com>
+> 
+> This commit adds support for ImgTec PowerDown Controller Watchdog Timer.
+> 
+> Signed-off-by: Jude Abraham <Jude.Abraham@imgtec.com>
+> Signed-off-by: Naidu Tellapati <Naidu.Tellapati@imgtec.com>
+> Reviewed-by: Andrew Bresticker <abrestic@chromium.org>
+[..]
+> +
+> +struct pdc_wdt_dev {
+> +	struct device *dev;
+
+'dev' is unused.
+
+> +	struct watchdog_device wdt_dev;
+> +	struct clk *wdt_clk;
+> +	struct clk *sys_clk;
+> +	unsigned long clk_rate;
+
+'clk_rate' is unused.
+
+> +	int min_delay;
+> +	void __iomem *base;
+> +};
+> +
+[..]
+> +
+> +/* Start the watchdog timer (delay should already be set */
+
+Typo here: missing closing parenthesis.
+
+[..]
+> +
+> +static int pdc_wdt_probe(struct platform_device *pdev)
+> +{
+> +	int ret, val;
+> +	struct resource *res;
+> +	struct pdc_wdt_dev *pdc_wdt;
+> +
+> +	pdc_wdt = devm_kzalloc(&pdev->dev, sizeof(*pdc_wdt), GFP_KERNEL);
+> +	if (!pdc_wdt)
+> +		return -ENOMEM;
+> +
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	pdc_wdt->base = devm_ioremap_resource(&pdev->dev, res);
+> +	if (IS_ERR(pdc_wdt->base))
+> +		return PTR_ERR(pdc_wdt->base);
+> +
+> +	pdc_wdt->sys_clk = devm_clk_get(&pdev->dev, "sys");
+> +	if (IS_ERR(pdc_wdt->sys_clk)) {
+> +		dev_err(&pdev->dev, "failed to get the sys clock.\n");
+> +		ret = PTR_ERR(pdc_wdt->wdt_clk);
+> +		goto out_wdt;
+
+I'd say remove all uses of the out_wdt label and just return ret.
+
+Reviewed-by: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
+
+Wim: Any comments? We're aiming at having this driver merged for v3.19.
+
+Thanks!
 -- 
-  <http://www.linaro.org/> Linaro.org │ Open source software for ARM SoCs
-
-Follow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
-<http://twitter.com/#!/linaroorg> Twitter |
-<http://www.linaro.org/linaro-blog/> Blog
-
+Ezequiel
