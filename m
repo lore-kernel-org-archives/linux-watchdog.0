@@ -1,60 +1,103 @@
-Return-path: <naidu.tellapati@gmail.com>
-From: Naidu Tellapati <naidu.tellapati@gmail.com>
-To: wim@iguana.be,
-	linux@roeck-us.net,
-	abrestic@chromium.org,
-	ezequiel.garcia@imgtec.com,
-	james.hartley@imgtec.com,
-	james.hogan@imgtec.com
-Cc: naidu.tellapati@imgtec.com,
-	arul.ramasamy@imgtec.com,
-	linux-watchdog@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	Naidu Tellapati <Naidu.Tellapati@gmail.com>,
-	Naidu Tellapati <Naidu.Tellapati@imgtec.com>,
-	Jude Abraham <Jude.Abraham@gmail.com>
-Subject: [PATCH RESEND v6 2/2] DT: watchdog: Add ImgTec PDC Watchdog Timer binding documentation
-Date: Thu, 27 Nov 2014 10:24:05 +0530
-Message-Id: <1417064045-13274-3-git-send-email-Naidu.Tellapati@gmail.com>
-In-Reply-To: <1417064045-13274-1-git-send-email-Naidu.Tellapati@gmail.com>
-References: <1417064045-13274-1-git-send-email-Naidu.Tellapati@gmail.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from oul135-36.netplaza.fi ([80.75.100.36]:36739 "EHLO
+	lime.offcode.fi" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750812AbaK0Gx4 (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 27 Nov 2014 01:53:56 -0500
+Message-ID: <5476CA7F.4000802@offcode.fi>
+Date: Thu, 27 Nov 2014 08:53:51 +0200
+From: Timo Kokkonen <timo.kokkonen@offcode.fi>
+MIME-Version: 1.0
+To: linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org, nicolas.ferre@atmel.com
+CC: alexandre.belloni@free-electrons.com,
+	boris.brezillon@free-electrons.com
+Subject: Re: [PATCH] at91sam9_wdt: Allow watchdog to reset device at early
+ boot
+References: <5465C00E.4030808@offcode.fi> <1416572610-1770-1-git-send-email-timo.kokkonen@offcode.fi>
+In-Reply-To: <1416572610-1770-1-git-send-email-timo.kokkonen@offcode.fi>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Add the devicetree binding document for ImgTec PDC Watchdog Timer.
+Hi,
 
-Signed-off-by: Naidu Tellapati <Naidu.Tellapati@imgtec.com>
-Signed-off-by: Jude Abraham <Jude.Abraham@gmail.com>
-Reviewed-by: Andrew Bresticker <abrestic@chromium.org>
----
-No changes from v5.
----
- .../devicetree/bindings/watchdog/imgpdc-wdt.txt    |   18 ++++++++++++++++++
- 1 files changed, 18 insertions(+), 0 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/watchdog/imgpdc-wdt.txt
+On 21.11.2014 14:23, Timo Kokkonen wrote:
+> By default the driver will start a kernel timer which keeps on kicking
+> the watchdog HW until user space has opened the watchdog
+> device. Usually this is desirable as the watchdog HW is running by
+> default and the user space may not have any watchdog daemon running at
+> all.
+>
+> However, on production systems it may be mandatory that also early
+> crashes and lockups will lead to a watchdog reset, even if they happen
+> before the user space has opened the watchdog device.
+>
+> To resolve the issue, add a new device tree property
+> "enable-early-reset" which will prevent the kernel timer from pinging
+> the watchdog HW on behalf of user space. The default is still to use
+> kernel timer, but more strict behavior can be enabled via the device
+> tree property.
+>
+> Signed-off-by: Timo Kokkonen <timo.kokkonen@offcode.fi>
 
-diff --git a/Documentation/devicetree/bindings/watchdog/imgpdc-wdt.txt b/Documentation/devicetree/bindings/watchdog/imgpdc-wdt.txt
-new file mode 100644
-index 0000000..2f9ba77
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/imgpdc-wdt.txt
-@@ -0,0 +1,18 @@
-+*ImgTec PowerDown Controller (PDC) Watchdog Timer (WDT)
-+
-+Required properties:
-+- compatible : Should be "img,pdc-wdt"
-+- reg : Should contain WDT registers location and length
-+- clocks: Must contain an entry for each entry in clock-names.
-+- clock-names: Should contain "wdt" and "sys"
-+- interrupts : Should contain WDT interrupt
-+
-+Examples:
-+
-+wdt@18102100 {
-+	compatible = "img,pdc-wdt";
-+	reg = <0x18102100 0x100>;
-+	clocks = <&pdc_wdt_clk>, <&sys_clk>;
-+	clock-names = "wdt", "sys";
-+	interrupts = <0 52 IRQ_TYPE_LEVEL_HIGH>;
-+};
--- 
-1.7.0.4
+I forgot to put the PATCHv2 on the subject line.. But anyway, any 
+thoughts about it? Is there something that should be done to get it forward?
+
+Thanks,
+-Timo
+
+> ---
+>   Documentation/devicetree/bindings/watchdog/atmel-wdt.txt | 4 ++++
+>   drivers/watchdog/at91sam9_wdt.c                          | 6 +++++-
+>   2 files changed, 9 insertions(+), 1 deletion(-)
+>
+> diff --git a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+> index f90e294..a0b7b75 100644
+> --- a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+> +++ b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+> @@ -28,6 +28,10 @@ Optional properties:
+>   	entering idle state.
+>   - atmel,dbg-halt : Should be present if you want to stop the watchdog when
+>   	entering debug state.
+> +- enable-early-reset : Should be present if you want to let the
+> +	watchdog timer to expire even before user space has opened the
+> +	device. If not set, a kernel timer will keep on pinging the
+> +	watchdog until it is opened.
+>
+>   Example:
+>   	watchdog@fffffd40 {
+> diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
+> index 489729b..78b1977 100644
+> --- a/drivers/watchdog/at91sam9_wdt.c
+> +++ b/drivers/watchdog/at91sam9_wdt.c
+> @@ -89,6 +89,7 @@ struct at91wdt {
+>   	u32 mr_mask;
+>   	unsigned long heartbeat;	/* WDT heartbeat in jiffies */
+>   	bool nowayout;
+> +	bool no_early_timer;
+>   	unsigned int irq;
+>   };
+>
+> @@ -122,7 +123,7 @@ static void at91_ping(unsigned long data)
+>   {
+>   	struct at91wdt *wdt = (struct at91wdt *)data;
+>   	if (time_before(jiffies, wdt->next_heartbeat) ||
+> -	    !watchdog_active(&wdt->wdd)) {
+> +		(!watchdog_active(&wdt->wdd) && !wdt->no_early_timer)) {
+>   		at91_wdt_reset(wdt);
+>   		mod_timer(&wdt->timer, jiffies + wdt->heartbeat);
+>   	} else {
+> @@ -316,6 +317,9 @@ static int of_at91wdt_init(struct device_node *np, struct at91wdt *wdt)
+>
+>   	wdt->mr |= max | ((max - min) << 16);
+>
+> +	if (of_property_read_bool(np, "enable-early-reset"))
+> +		wdt->no_early_timer = 1;
+> +
+>   	return 0;
+>   }
+>   #else
+>
+
