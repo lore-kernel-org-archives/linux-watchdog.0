@@ -1,91 +1,91 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from oul135-36.netplaza.fi ([80.75.100.36]:33314 "EHLO
-	lime.offcode.fi" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1755349AbaKUMYl (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 21 Nov 2014 07:24:41 -0500
-From: Timo Kokkonen <timo.kokkonen@offcode.fi>
-To: linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org, nicolas.ferre@atmel.com
-Cc: alexandre.belloni@free-electrons.com,
-	boris.brezillon@free-electrons.com,
-	Timo Kokkonen <timo.kokkonen@offcode.fi>
-Subject: [PATCH] at91sam9_wdt: Allow watchdog to reset device at early boot
-Date: Fri, 21 Nov 2014 14:23:30 +0200
-Message-Id: <1416572610-1770-1-git-send-email-timo.kokkonen@offcode.fi>
-In-Reply-To: <5465C00E.4030808@offcode.fi>
-References: <5465C00E.4030808@offcode.fi>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <naidu.tellapati@gmail.com>
+From: Naidu Tellapati <naidu.tellapati@gmail.com>
+To: wim@iguana.be,
+	linux@roeck-us.net,
+	abrestic@chromium.org,
+	ezequiel.garcia@imgtec.com,
+	james.hartley@imgtec.com,
+	james.hogan@imgtec.com
+Cc: naidu.tellapati@imgtec.com,
+	arul.ramasamy@imgtec.com,
+	linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	Naidu Tellapati <Naidu.Tellapati@gmail.com>
+Subject: [PATCH  RESEND v6 0/2] watchdog: Add support for ImgTec PowerDown Controller Watchdog Timer
+Date: Thu, 27 Nov 2014 10:24:03 +0530
+Message-Id: <1417064045-13274-1-git-send-email-Naidu.Tellapati@gmail.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-By default the driver will start a kernel timer which keeps on kicking
-the watchdog HW until user space has opened the watchdog
-device. Usually this is desirable as the watchdog HW is running by
-default and the user space may not have any watchdog daemon running at
-all.
+This patchset provides support for the PowerDown Controller (PDC) Watchdog Timer
+found on Pistachio SOC from Imagination Technologies (ImgTec).
 
-However, on production systems it may be mandatory that also early
-crashes and lockups will lead to a watchdog reset, even if they happen
-before the user space has opened the watchdog device.
+The series is based on 3.18-rc5.
 
-To resolve the issue, add a new device tree property
-"enable-early-reset" which will prevent the kernel timer from pinging
-the watchdog HW on behalf of user space. The default is still to use
-kernel timer, but more strict behavior can be enabled via the device
-tree property.
+I am re-sending the series with correct Signed-off-by headers.
 
-Signed-off-by: Timo Kokkonen <timo.kokkonen@offcode.fi>
----
- Documentation/devicetree/bindings/watchdog/atmel-wdt.txt | 4 ++++
- drivers/watchdog/at91sam9_wdt.c                          | 6 +++++-
- 2 files changed, 9 insertions(+), 1 deletion(-)
+Changes from v5:
 
-diff --git a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
-index f90e294..a0b7b75 100644
---- a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
-@@ -28,6 +28,10 @@ Optional properties:
- 	entering idle state.
- - atmel,dbg-halt : Should be present if you want to stop the watchdog when
- 	entering debug state.
-+- enable-early-reset : Should be present if you want to let the
-+	watchdog timer to expire even before user space has opened the
-+	device. If not set, a kernel timer will keep on pinging the
-+	watchdog until it is opened.
- 
- Example:
- 	watchdog@fffffd40 {
-diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
-index 489729b..78b1977 100644
---- a/drivers/watchdog/at91sam9_wdt.c
-+++ b/drivers/watchdog/at91sam9_wdt.c
-@@ -89,6 +89,7 @@ struct at91wdt {
- 	u32 mr_mask;
- 	unsigned long heartbeat;	/* WDT heartbeat in jiffies */
- 	bool nowayout;
-+	bool no_early_timer;
- 	unsigned int irq;
- };
- 
-@@ -122,7 +123,7 @@ static void at91_ping(unsigned long data)
- {
- 	struct at91wdt *wdt = (struct at91wdt *)data;
- 	if (time_before(jiffies, wdt->next_heartbeat) ||
--	    !watchdog_active(&wdt->wdd)) {
-+		(!watchdog_active(&wdt->wdd) && !wdt->no_early_timer)) {
- 		at91_wdt_reset(wdt);
- 		mod_timer(&wdt->timer, jiffies + wdt->heartbeat);
- 	} else {
-@@ -316,6 +317,9 @@ static int of_at91wdt_init(struct device_node *np, struct at91wdt *wdt)
- 
- 	wdt->mr |= max | ((max - min) << 16);
- 
-+	if (of_property_read_bool(np, "enable-early-reset"))
-+		wdt->no_early_timer = 1;
-+
- 	return 0;
- }
- #else
--- 
-2.1.0
+ * Removed unused struct pdc_wdt_dev variables.
 
+ * Removed out_wdt label in probe function.
+
+Changes from v4:
+
+ * Added warning message if initial timeout value exceeds maximum timeout.
+
+Changes from v3:
+
+ * Removed PDC_WD_MAX_DELAY.
+
+ * Removed spinlock.
+
+ * Removed timeout check inside pdc_wdt_set_timeout function.
+
+ * Changed identity to IMG PDC Watchdog.
+
+ * Removed pdc_wdt_set_timeout call from the probe function.
+
+ * Removed pdc_wdt_shutdown function call from pdc_wdt_remove function
+   and added pdc_wdt_stop function call instead.
+
+Changes from v2:
+
+ * Removed interrupt.h header file.
+
+ * Removed clock rate-change notifier callback.
+
+Changes from v1:
+
+ * Arranged all include files in alphabetical order.
+
+ * Arranged register field masks/shifts defines next to their
+   corresponding register
+
+ * Registered clock rate-change notifier callback.
+
+ * Removed all references to 32 kHz fixed clock rate.
+   Now the clock rate is read dynamically using clk_get_rate().
+
+ * Defined a macro PDC_WD_CONFIG_ENABLE.
+
+ * Added code for getting system clock.
+
+ * Moved module_param stuffs next to the corresponding variable defines.
+
+ * Added code in the function pdc_wdt_remove for stopping watchdog.
+
+ * Removed MODULE_ALIAS.
+
+ * Removed few unwanted spaces and unwanted blank lines.
+
+Naidu Tellapati (2):
+  watchdog: ImgTec PDC Watchdog Timer Driver
+  DT: watchdog: Add ImgTec PDC Watchdog Timer binding documentation
+
+ .../devicetree/bindings/watchdog/imgpdc-wdt.txt    |   18 ++
+ drivers/watchdog/Kconfig                           |   11 +
+ drivers/watchdog/Makefile                          |    1 +
+ drivers/watchdog/imgpdc_wdt.c                      |  298 ++++++++++++++++++++
+ 4 files changed, 328 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/imgpdc-wdt.txt
+ create mode 100644 drivers/watchdog/imgpdc_wdt.c
