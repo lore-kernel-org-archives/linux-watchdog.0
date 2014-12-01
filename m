@@ -1,53 +1,127 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from xavier.telenet-ops.be ([195.130.132.52]:42560 "EHLO
-	xavier.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756653AbaLILW5 (ORCPT
+Received: from mailgw01.mediatek.com ([210.61.82.183]:46638 "EHLO
+	mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752983AbaLAQ6c (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 9 Dec 2014 06:22:57 -0500
-From: Geert Uytterhoeven <geert+renesas@glider.be>
-To: Wim Van Sebroeck <wim@iguana.be>, Wolfram Sang <wsa@the-dreams.de>,
-	Simon Horman <horms@verge.net.au>,
-	Magnus Damm <magnus.damm@gmail.com>
-Cc: Support Opensource <support.opensource@diasemi.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Lee Jones <lee.jones@linaro.org>,
-	linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org,
-	linux-sh@vger.kernel.org,
-	Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH 4/4] ARM: shmobile: Enable DA9063 watchdog in multiplatform defconfig
-Date: Tue,  9 Dec 2014 12:22:49 +0100
-Message-Id: <1418124169-7123-5-git-send-email-geert+renesas@glider.be>
-In-Reply-To: <1418124169-7123-1-git-send-email-geert+renesas@glider.be>
-References: <1418124169-7123-1-git-send-email-geert+renesas@glider.be>
+	Mon, 1 Dec 2014 11:58:32 -0500
+Subject: Re: [PATCH 1/2] watchdog: Add driver for Mediatek mt6589 watchdog
+From: Eddie Huang <eddie.huang@mediatek.com>
+To: Matthias Brugger <matthias.bgg@gmail.com>
+CC: "mark.rutland@arm.com" <mark.rutland@arm.com>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"heiko@sntech.de" <heiko@sntech.de>,
+	"pawel.moll@arm.com" <pawel.moll@arm.com>,
+	"ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"wim@iguana.be" <wim@iguana.be>,
+	"robh+dt@kernel.org" <robh+dt@kernel.org>,
+	"galak@codeaurora.org" <galak@codeaurora.org>,
+	"grant.likely@linaro.org" <grant.likely@linaro.org>,
+	<yingjoe.chen@mediatek.com>, <greta.zhang@mediatek.com>,
+	"yingjoe.chen@gmail.com" <yingjoe.chen@gmail.com>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>,
+	"ibanezchen@gmail.com" <ibanezchen@gmail.com>
+In-Reply-To: <1415705357.1776.11.camel@mtksdaap41>
+References: <1414428092-20725-1-git-send-email-matthias.bgg@gmail.com>
+	 <1414428092-20725-2-git-send-email-matthias.bgg@gmail.com>
+	 <1415705357.1776.11.camel@mtksdaap41>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 2 Dec 2014 00:58:29 +0800
+Message-ID: <1417453109.10558.38.camel@mtksdaap41>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This allows to restart koelsch on watchdog timeout or manual system
-restart request.
+On Tue, 2014-11-11 at 19:29 +0800, Eddie Huang wrote:
+> On Tue, 2014-10-28 at 00:41 +0800, Matthias Brugger wrote:
+> > This patch adds a driver for the Mediatek mt6589 SoC integrated
+> > watchdog.
+> > 
+> > Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+> > ---
+> >  drivers/watchdog/Kconfig   |  10 ++
+> >  drivers/watchdog/Makefile  |   1 +
+> >  drivers/watchdog/mtk_wdt.c | 264 +++++++++++++++++++++++++++++++++++++++++++++
+> >  3 files changed, 275 insertions(+)
+> >  create mode 100644 drivers/watchdog/mtk_wdt.c
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
----
-Restart by watchdog timeout is working now.
-Manual system restart depends on "[PATCH 1/4] watchdog: da9063: Add restart
-handler support".
----
- arch/arm/configs/shmobile_defconfig | 3 +++
- 1 file changed, 3 insertions(+)
+> > +
+> > +static int mtk_reset_handler(struct notifier_block *this, unsigned long mode,
+> > +                               void *cmd)
+> > +{
+> > +       struct mtk_wdt_dev *mtk_wdt = container_of(this,
+> > +                                                      struct mtk_wdt_dev,
+> > +                                                      restart_handler);
+> > +       void __iomem *wdt_base = mtk_wdt->wdt_base;
+> > +       u32 reg;
+> > +
+> > +       /* Enable watchdog */
+> > +       reg = readl(wdt_base + WDT_MODE);
+> > +       reg |= WDT_MODE_EN;
+> > +       writel(reg, wdt_base + WDT_MODE);
+> > +
+> > +       /* Reload counter */
+> > +       writel(WDT_RST_RELOAD, wdt_base + WDT_RST);
+> > +
+> > +       /* Reset system */
+> > +       writel(WDT_SWRST_KEY, wdt_base + WDT_SWRST);
+> > +
+> > +       while (1) {
+> > +               mdelay(5);
+> > +               writel(WDT_SWRST_KEY, wdt_base + WDT_SWRST);
+> > +       }
+> > +       return NOTIFY_DONE;
+> > +
+> > +}
+> > +
 
-diff --git a/arch/arm/configs/shmobile_defconfig b/arch/arm/configs/shmobile_defconfig
-index dfc1efcb4a866ef3..5863128b06be8551 100644
---- a/arch/arm/configs/shmobile_defconfig
-+++ b/arch/arm/configs/shmobile_defconfig
-@@ -106,6 +106,9 @@ CONFIG_GPIO_RCAR=y
- CONFIG_THERMAL=y
- CONFIG_CPU_THERMAL=y
- CONFIG_RCAR_THERMAL=y
-+CONFIG_WATCHDOG=y
-+CONFIG_DA9063_WATCHDOG=y
-+CONFIG_MFD_DA9063=y
- CONFIG_REGULATOR=y
- CONFIG_REGULATOR_DA9210=y
- CONFIG_REGULATOR_GPIO=y
--- 
-1.9.1
+you can use "WDT_SWRST_KEY" to trigger reset signal. It is unnecessary
+to enable watchdog and reload counter.
+
+> +
+> > +static int mtk_wdt_start(struct watchdog_device *wdt_dev)
+> > +{
+> > +       u32 reg;
+> > +       struct mtk_wdt_dev *mtk_wdt = watchdog_get_drvdata(wdt_dev);
+> > +       void __iomem *wdt_base = mtk_wdt->wdt_base;
+> > +       u32 ret;
+> > +
+> > +       ret = mtk_wdt_set_timeout(&mtk_wdt->wdt_dev,
+> > +                       mtk_wdt->wdt_dev.timeout);
+> > +       if (ret < 0)
+> > +               return ret;
+> > +
+> > +       reg = ioread32(wdt_base + WDT_MODE);
+> > +       reg |= (WDT_MODE_EN | WDT_MODE_KEY);
+> 
+> According to datasheet, default value of register WDT_MODE bit6 is 1.
+> Which means when reach timeout, still need another timeout time to
+> restart the system. Should clear this bit to disable dual mode:
+>         reg &= ~(WDT_MODE_DUAL_EN);
+> 
+> > +       iowrite32(reg, wdt_base + WDT_MODE);
+> > +
+> > +       return 0;
+> > +}
+
+According to datasheet, default value of register WDT_MODE bit3 and bit
+6 is 1, 1'bit3 means trigger irq instead of reset, bit6 means open
+dual_mode or not.
+
+If you just set bit0 to 1 to enable watchdog, it will be irq +
+dual_mode, which means it will trigger irq first when reach timeout,
+still need another timeout time to trigger reset signal.
+
+If you set bit bit6 to 0, it will be irq only, and when timeout
+reaches,only irq happens, never reset.
+
+So if want to trigger reset only,should clear bit3 and bit6 to disable
+irq or dual_mode.
+       reg &= ~(WDT_MODE_IRQ_EN | WDT_MODE_DUAL_EN);   
+
+I test this patch with above comment ok on my mt8135 tablet platform.
+
+
 
