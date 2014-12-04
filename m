@@ -1,110 +1,96 @@
-Return-path: <francois-nicolas.muller@intel.com>
-From: "Muller, Francois-nicolas" <francois-nicolas.muller@intel.com>
-To: Darren Hart <dvhart@infradead.org>, Guenter Roeck <linux@roeck-us.net>
-CC: "'platform-driver-x86@vger.kernel.org'"
-	<platform-driver-x86@vger.kernel.org>, Rafael Wysocki <rjw@rjwysocki.net>,
-	Linux ACPI Mailing List <linux-acpi@vger.kernel.org>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "Wim Van
- Sebroeck" <wim@iguana.be>
-Subject: RE: [PATCH] TCO Watchdog warning interrupt driver creation
-Date: Mon, 22 Dec 2014 16:07:30 +0000
-Message-ID: <B9C02DB17496AC4197F41A146D371B9B075C6189@hasmsx107.ger.corp.intel.com>
-References: <B9C02DB17496AC4197F41A146D371B9B075AF9DE@hasmsx107.ger.corp.intel.com>
- <20141211040404.GA28797@vmdeb7> <5489AA6B.9080802@roeck-us.net>
- <B9C02DB17496AC4197F41A146D371B9B075C5FE3@hasmsx107.ger.corp.intel.com>
- <E73BFCB9-87CB-447D-839C-9ED4031FC6E2@infradead.org>
-In-Reply-To: <E73BFCB9-87CB-447D-839C-9ED4031FC6E2@infradead.org>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-path: <geert.uytterhoeven@gmail.com>
 MIME-Version: 1.0
+Sender: geert.uytterhoeven@gmail.com
+In-Reply-To: <1408495538-27480-9-git-send-email-linux@roeck-us.net>
+References: <1408495538-27480-1-git-send-email-linux@roeck-us.net>
+	<1408495538-27480-9-git-send-email-linux@roeck-us.net>
+Date: Thu, 4 Dec 2014 14:36:27 +0100
+Message-ID: <CAMuHMdVqCa+m1oMkuRHcTZKw2CWNHJVotWBwfTnfBNT11UPEjw@mail.gmail.com>
+Subject: Re: [PATCH v7 08/11] arm/arm64: Unexport restart handlers
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Russell King <linux@arm.linux.org.uk>, Wim Van Sebroeck <wim@iguana.be>,
+	Catalin Marinas <catalin.marinas@arm.com>, Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	"linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+	Linux PM list <linux-pm@vger.kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+	Tomasz Figa <t.figa@samsung.com>, Randy Dunlap <rdunlap@infradead.org>,
+	Will Deacon <will.deacon@arm.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>,
+	Jonas Jensen <jonas.jensen@gmail.com>,
+	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, David Woodhouse <dwmw2@infradead.org>,
+	Ingo Molnar <mingo@kernel.org>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Heiko Stuebner <heiko@sntech.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 List-ID: <linux-watchdog@vger.kernel.org>
 
-U3ViamVjdDogW1BBVENIXSBUQ08gd2F0Y2hkb2cgd2FybmluZyBpbnRlcnJ1cHQgaGFuZGxlcg0K
-DQpBZGRpbmcgVENPIHdhdGNoZG9nIHdhcm5pbmcgaW50ZXJydXB0IGhhbmRsaW5nLg0KDQpUaGlz
-IGZlYXR1cmUgaXMgdXNlZnVsIHRvIHJvb3QgY2F1c2Ugd2F0Y2hkb2cgZXhwaXJhdGlvbi4NCkl0
-IGlzIGFjdGl2YXRlZCBieSBib290IHBhcmFtZXRlciAnd2Fybl9pcnEnIChkaXNhYmxlZCBieSBk
-ZWZhdWx0KS4NCg0KVXBvbiBmaXJzdCBleHBpcmF0aW9uIG9mIHRoZSBUQ08gd2F0Y2hkb2csIGEg
-d2FybmluZyBpbnRlcnJ1cHQgaXMNCmZpcmVkIGFuZCB0aGUgZHJpdmVyIGNhbGxzIHBhbmljKCkg
-dG8gZHVtcCBkZWJ1ZyBpbmZvcm1hdGlvbiAocmVnaXN0ZXJzIGFuZA0KY2FsbCBzdGFja3MpLg0K
-DQpBdCB0aGUgc2FtZSB0aW1lLCB0aGUgVENPIHdhdGNoZG9nIHJlbG9hZHMgd2l0aCAyLjQgc2Vj
-b25kcyB0aW1lb3V0DQp2YWx1ZSBhbmQgcnVucyB1bnRpbCB0aGUgc2Vjb25kIGV4cGlyYXRpb24u
-DQoNClNpZ25lZC1vZmYtYnk6IEZyYW5jb2lzLU5pY29sYXMgTXVsbGVyIDxmcmFuY29pcy1uaWNv
-bGFzLm11bGxlckBpbnRlbC5jb20+DQotLS0NCiBkcml2ZXJzL3dhdGNoZG9nL2lUQ09fd2R0LmMg
-fCAgIDY2ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysNCiAxIGZp
-bGUgY2hhbmdlZCwgNjYgaW5zZXJ0aW9ucygrKQ0KDQpkaWZmIC0tZ2l0IGEvZHJpdmVycy93YXRj
-aGRvZy9pVENPX3dkdC5jIGIvZHJpdmVycy93YXRjaGRvZy9pVENPX3dkdC5jIGluZGV4IGU4MDJh
-NTQuLjFjZTlhZDggMTAwNjQ0DQotLS0gYS9kcml2ZXJzL3dhdGNoZG9nL2lUQ09fd2R0LmMNCisr
-KyBiL2RyaXZlcnMvd2F0Y2hkb2cvaVRDT193ZHQuYw0KQEAgLTQ5LDYgKzQ5LDggQEANCiAvKiBN
-b2R1bGUgYW5kIHZlcnNpb24gaW5mb3JtYXRpb24gKi8NCiAjZGVmaW5lIERSVl9OQU1FCSJpVENP
-X3dkdCINCiAjZGVmaW5lIERSVl9WRVJTSU9OCSIxLjExIg0KKyNkZWZpbmUgRFJWX05BTUVfQUNQ
-SQkiaVRDT193ZHRfd2lycSINCisjZGVmaW5lIFRDT19DTEFTUwlEUlZfTkFNRQ0KIA0KIC8qIElu
-Y2x1ZGVzICovDQogI2luY2x1ZGUgPGxpbnV4L21vZHVsZS5oPgkJLyogRm9yIG1vZHVsZSBzcGVj
-aWZpYyBpdGVtcyAqLw0KQEAgLTY4LDYgKzcwLDkgQEANCiAjaW5jbHVkZSA8bGludXgvcG0uaD4J
-CQkvKiBGb3Igc3VzcGVuZC9yZXN1bWUgKi8NCiAjaW5jbHVkZSA8bGludXgvbWZkL2NvcmUuaD4N
-CiAjaW5jbHVkZSA8bGludXgvbWZkL2xwY19pY2guaD4NCisjaW5jbHVkZSA8bGludXgvbm1pLmg+
-DQorI2luY2x1ZGUgPGxpbnV4L2FjcGkuaD4NCisjaW5jbHVkZSA8YWNwaS9hY3R5cGVzLmg+DQog
-DQogI2luY2x1ZGUgImlUQ09fdmVuZG9yLmgiDQogDQpAQCAtMTA3LDYgKzExMiwxMiBAQCBzdGF0
-aWMgc3RydWN0IHsJCS8qIHRoaXMgaXMgcHJpdmF0ZSBkYXRhIGZvciB0aGUgaVRDT193ZHQgZGV2
-aWNlICovDQogCWJvb2wgc3RhcnRlZDsNCiB9IGlUQ09fd2R0X3ByaXZhdGU7DQogDQorc3RhdGlj
-IGNvbnN0IHN0cnVjdCBhY3BpX2RldmljZV9pZCBpVENPX3dkdF9pZHNbXSA9IHsNCisJeyI4MDg2
-MjI5QyIsIDB9LA0KKwl7IiIsIDB9LA0KK307DQorTU9EVUxFX0RFVklDRV9UQUJMRShhY3BpLCBp
-VENPX3dkdF9pZHMpOw0KKw0KIC8qIG1vZHVsZSBwYXJhbWV0ZXJzICovDQogI2RlZmluZSBXQVRD
-SERPR19USU1FT1VUIDMwCS8qIDMwIHNlYyBkZWZhdWx0IGhlYXJ0YmVhdCAqLw0KIHN0YXRpYyBp
-bnQgaGVhcnRiZWF0ID0gV0FUQ0hET0dfVElNRU9VVDsgIC8qIGluIHNlY29uZHMgKi8gQEAgLTEy
-Niw2ICsxMzcsMTEgQEAgbW9kdWxlX3BhcmFtKHR1cm5fU01JX3dhdGNoZG9nX2NsZWFyX29mZiwg
-aW50LCAwKTsgIE1PRFVMRV9QQVJNX0RFU0ModHVybl9TTUlfd2F0Y2hkb2dfY2xlYXJfb2ZmLA0K
-IAkiVHVybiBvZmYgU01JIGNsZWFyaW5nIHdhdGNoZG9nIChkZXBlbmRzIG9uIFRDTy12ZXJzaW9u
-KShkZWZhdWx0PTEpIik7DQogDQorc3RhdGljIGJvb2wgd2Fybl9pcnE7DQorbW9kdWxlX3BhcmFt
-KHdhcm5faXJxLCBib29sLCAwKTsNCitNT0RVTEVfUEFSTV9ERVNDKHdhcm5faXJxLA0KKwkiV2F0
-Y2hkb2cgdHJpZ3MgYSBwYW5pYyBhdCBmaXJzdCBleHBpcmF0aW9uIChkZWZhdWx0PTApIik7DQor
-DQogLyoNCiAgKiBTb21lIFRDTyBzcGVjaWZpYyBmdW5jdGlvbnMNCiAgKi8NCkBAIC0yMDAsNiAr
-MjE2LDM3IEBAIHN0YXRpYyBpbnQgaVRDT193ZHRfdW5zZXRfTk9fUkVCT09UX2JpdCh2b2lkKQ0K
-IAlyZXR1cm4gcmV0OyAvKiByZXR1cm5zOiAwID0gT0ssIC1FSU8gPSBFcnJvciAqLyAgfQ0KIA0K
-K3N0YXRpYyB1MzIgaVRDT193ZHRfd2lycShhY3BpX2hhbmRsZSBncGVfZGV2aWNlLCB1MzIgZ3Bl
-LCB2b2lkIA0KKypjb250ZXh0KSB7DQorCXByX3dhcm4oIltTSFREV05dICVzLCBXQVRDSERPRyBU
-SU1FT1VUIEhBTkRMRVIhXG4iLCBfX2Z1bmNfXyk7DQorDQorCXRyaWdnZXJfYWxsX2NwdV9iYWNr
-dHJhY2UoKTsNCisJcGFuaWMoIktlcm5lbCBXYXRjaGRvZyIpOw0KKw0KKwkvKiBUaGlzIGNvZGUg
-c2hvdWxkIG5vdCBiZSByZWFjaGVkICovDQorCXJldHVybiBJUlFfSEFORExFRDsNCit9DQorDQor
-c3RhdGljIGludCBpVENPX3dkdF9hY3BpX2FkZChzdHJ1Y3QgYWNwaV9kZXZpY2UgKmRldmljZSkg
-ew0KKwl1bnNpZ25lZCBsb25nIGxvbmcgZ3BlOw0KKwlhY3BpX3N0YXR1cyBzdGF0dXM7DQorDQor
-CXN0YXR1cyA9IGFjcGlfZXZhbHVhdGVfaW50ZWdlcihkZXZpY2UtPmhhbmRsZSwgIl9HUEUiLCBO
-VUxMLCAmZ3BlKTsNCisJaWYgKEFDUElfRkFJTFVSRShzdGF0dXMpKQ0KKwkJcmV0dXJuIC1FSU5W
-QUw7DQorDQorCXN0YXR1cyA9IGFjcGlfaW5zdGFsbF9ncGVfaGFuZGxlcihOVUxMLCBncGUsIEFD
-UElfR1BFX0VER0VfVFJJR0dFUkVELA0KKwkJCQkJICBpVENPX3dkdF93aXJxLCBOVUxMKTsNCisJ
-aWYgKEFDUElfRkFJTFVSRShzdGF0dXMpKQ0KKwkJcmV0dXJuIC1FTk9ERVY7DQorDQorCWFjcGlf
-ZW5hYmxlX2dwZShOVUxMLCBncGUpOw0KKw0KKwlwcl9pbmZvKCJpbnRlcnJ1cHQ9U0NJIEdQRT0w
-eCUwMmxseCIsIGdwZSk7DQorCXJldHVybiAwOw0KK30NCisNCiBzdGF0aWMgaW50IGlUQ09fd2R0
-X3N0YXJ0KHN0cnVjdCB3YXRjaGRvZ19kZXZpY2UgKndkX2RldikgIHsNCiAJdW5zaWduZWQgaW50
-IHZhbDsNCkBAIC02MjgsNiArNjc1LDE1IEBAIHN0YXRpYyBzdHJ1Y3QgcGxhdGZvcm1fZHJpdmVy
-IGlUQ09fd2R0X2RyaXZlciA9IHsNCiAJfSwNCiB9Ow0KIA0KK3N0YXRpYyBzdHJ1Y3QgYWNwaV9k
-cml2ZXIgaVRDT193ZHRfYWNwaV9kcml2ZXIgPSB7DQorCS5uYW1lID0gRFJWX05BTUVfQUNQSSwN
-CisJLmNsYXNzID0gVENPX0NMQVNTLA0KKwkuaWRzID0gaVRDT193ZHRfaWRzLA0KKwkub3BzID0g
-ew0KKwkJLmFkZCA9IGlUQ09fd2R0X2FjcGlfYWRkLA0KKwl9LA0KK307DQorDQogc3RhdGljIGlu
-dCBfX2luaXQgaVRDT193ZHRfaW5pdF9tb2R1bGUodm9pZCkgIHsNCiAJaW50IGVycjsNCkBAIC02
-MzgsMTIgKzY5NCwyMiBAQCBzdGF0aWMgaW50IF9faW5pdCBpVENPX3dkdF9pbml0X21vZHVsZSh2
-b2lkKQ0KIAlpZiAoZXJyKQ0KIAkJcmV0dXJuIGVycjsNCiANCisJaWYgKHdhcm5faXJxKSB7DQor
-CQllcnIgPSBhY3BpX2J1c19yZWdpc3Rlcl9kcml2ZXIoJmlUQ09fd2R0X2FjcGlfZHJpdmVyKTsN
-CisJCWlmIChlcnIpIHsNCisJCQlwbGF0Zm9ybV9kcml2ZXJfdW5yZWdpc3RlcigmaVRDT193ZHRf
-ZHJpdmVyKTsNCisJCQlyZXR1cm4gZXJyOw0KKwkJfQ0KKwl9DQorDQogCXJldHVybiAwOw0KIH0N
-CiANCiBzdGF0aWMgdm9pZCBfX2V4aXQgaVRDT193ZHRfY2xlYW51cF9tb2R1bGUodm9pZCkgIHsN
-CiAJcGxhdGZvcm1fZHJpdmVyX3VucmVnaXN0ZXIoJmlUQ09fd2R0X2RyaXZlcik7DQorCWlmICh3
-YXJuX2lycSkNCisJCWFjcGlfYnVzX3VucmVnaXN0ZXJfZHJpdmVyKCZpVENPX3dkdF9hY3BpX2Ry
-aXZlcik7DQogCXByX2luZm8oIldhdGNoZG9nIE1vZHVsZSBVbmxvYWRlZFxuIik7ICB9DQogDQot
-LQ0KMS43LjkuNQ0KDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBEYXJyZW4g
-SGFydCBbbWFpbHRvOmR2aGFydEBpbmZyYWRlYWQub3JnXSANClNlbnQ6IE1vbmRheSwgRGVjZW1i
-ZXIgMjIsIDIwMTQgNDo0MSBQTQ0KVG86IE11bGxlciwgRnJhbmNvaXMtbmljb2xhczsgR3VlbnRl
-ciBSb2Vjaw0KQ2M6ICdwbGF0Zm9ybS1kcml2ZXIteDg2QHZnZXIua2VybmVsLm9yZyc7IFJhZmFl
-bCBXeXNvY2tpOyBMaW51eCBBQ1BJIE1haWxpbmcgTGlzdDsgbGludXgtd2F0Y2hkb2dAdmdlci5r
-ZXJuZWwub3JnOyBXaW0gVmFuIFNlYnJvZWNrDQpTdWJqZWN0OiBSRTogW1BBVENIXSBUQ08gV2F0
-Y2hkb2cgd2FybmluZyBpbnRlcnJ1cHQgZHJpdmVyIGNyZWF0aW9uDQoNCg0KDQpPbiBEZWNlbWJl
-ciAyMiwgMjAxNCA1OjE4OjMzIEFNIFBTVCwgIk11bGxlciwgRnJhbmNvaXMtbmljb2xhcyIgPGZy
-YW5jb2lzLW5pY29sYXMubXVsbGVyQGludGVsLmNvbT4gd3JvdGU6DQo+VGhhbmtzIERhcnJlbiBh
-bmQgR3VlbnRlciBmb3IgeW91ciByZXZpZXcuDQo+SGVyZSBpcyBhIG5ldyBwYXRjaHNldCwgaW5j
-bHVkaW5nIHRoZSBmZWF0dXJlIGluIHRoZSB3YXRjaGRvZyBkcml2ZXIgDQo+YW5kIHVzaW5nIGEg
-Ym9vdCBwYXJhbWV0ZXIgdG8gYmUgZW5hYmxlZC4NCj5GcmFuw6dvaXMtTmljb2xhcw0KPg0KPlN1
-YmplY3Q6IFtQQVRDSF0gVENPIHdhdGNoZG9nIHdhcm5pbmcgaW50ZXJydXB0IGhhbmRsZXINCj4N
-Cg0KUGxlYXNlIHByb3ZpZGUgYSBjb21wbGV0ZSBjb21taXQgbWVzc2FnZS4NCg0KPlNpZ25lZC1v
-ZmYtYnk6IEZyYW5jb2lzLU5pY29sYXMgTXVsbGVyDQo+PGZyYW5jb2lzLW5pY29sYXMubXVsbGVy
-QGludGVsLmNvbT4NCg0KLS0NCkRhcnJlbiBIYXJ0DQpTZW50IGZyb20gbXkgQW5kcm9pZCBkZXZp
-Y2Ugd2l0aCBLLTkgTWFpbC4gUGxlYXNlIGV4Y3VzZSBteSBicmV2aXR5Lg0K
+Hi G=C3=BCnther,
+
+On Wed, Aug 20, 2014 at 2:45 AM, Guenter Roeck <linux@roeck-us.net> wrote:
+> Implementing a restart handler in a module don't make sense
+> as there would be no guarantee that the module is loaded when
+> a restart is needed. Unexport arm_pm_restart to ensure that
+> no one gets the idea to do it anyway.
+
+Why not? I was just going to do that, but I got greeted by:
+
+ERROR: "arm_pm_restart" [drivers/power/reset/rmobile-reset.ko] undefined!
+
+So now we have to make sure all reset drivers for a zillion different
+hardware devices are builtin, and can't be modular?
+
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+> Acked-by: Heiko Stuebner <heiko@sntech.de>
+> ---
+> v7: No change
+> v6: No change
+> v5: No change
+> v4: No change
+> v3: No change
+> v2: No change
+>
+>  arch/arm/kernel/process.c   | 1 -
+>  arch/arm64/kernel/process.c | 1 -
+>  2 files changed, 2 deletions(-)
+>
+> diff --git a/arch/arm/kernel/process.c b/arch/arm/kernel/process.c
+> index ea279f7..250b6f6 100644
+> --- a/arch/arm/kernel/process.c
+> +++ b/arch/arm/kernel/process.c
+> @@ -121,7 +121,6 @@ void (*pm_power_off)(void);
+>  EXPORT_SYMBOL(pm_power_off);
+>
+>  void (*arm_pm_restart)(enum reboot_mode reboot_mode, const char *cmd);
+> -EXPORT_SYMBOL_GPL(arm_pm_restart);
+>
+>  /*
+>   * This is our default idle handler.
+> diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
+> index 0d3fb9f..398ab05 100644
+> --- a/arch/arm64/kernel/process.c
+> +++ b/arch/arm64/kernel/process.c
+> @@ -98,7 +98,6 @@ void (*pm_power_off)(void);
+>  EXPORT_SYMBOL_GPL(pm_power_off);
+>
+>  void (*arm_pm_restart)(enum reboot_mode reboot_mode, const char *cmd);
+> -EXPORT_SYMBOL_GPL(arm_pm_restart);
+>
+>  /*
+>   * This is our default idle handler.
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
+.org
+
+In personal conversations with technical people, I call myself a hacker. Bu=
+t
+when I'm talking to journalists I just say "programmer" or something like t=
+hat.
+                                -- Linus Torvalds
