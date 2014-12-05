@@ -1,99 +1,101 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailapp01.imgtec.com ([195.59.15.196]:56901 "EHLO
-	mailapp01.imgtec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750872AbaLEL4D (ORCPT
+Received: from oul135-36.netplaza.fi ([80.75.100.36]:56397 "EHLO
+	lime.offcode.fi" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751591AbaLEM5U (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 5 Dec 2014 06:56:03 -0500
-Message-ID: <54819CE3.9050807@imgtec.com>
-Date: Fri, 5 Dec 2014 08:54:11 -0300
-From: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
+	Fri, 5 Dec 2014 07:57:20 -0500
+Message-ID: <5481ABA1.9030408@offcode.fi>
+Date: Fri, 05 Dec 2014 14:57:05 +0200
+From: Timo Kokkonen <timo.kokkonen@offcode.fi>
 MIME-Version: 1.0
-To: Naidu Tellapati <naidu.tellapati@gmail.com>, <wim@iguana.be>,
-	<linux@roeck-us.net>, <abrestic@chromium.org>,
-	<james.hartley@imgtec.com>, <james.hogan@imgtec.com>
-CC: <naidu.tellapati@imgtec.com>, <arul.ramasamy@imgtec.com>,
-	<linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>
-Subject: Re: [PATCH  RESEND v6 0/2] watchdog: Add support for ImgTec PowerDown
- Controller Watchdog Timer
-References: <1417064045-13274-1-git-send-email-Naidu.Tellapati@gmail.com>
-In-Reply-To: <1417064045-13274-1-git-send-email-Naidu.Tellapati@gmail.com>
-Content-Type: text/plain; charset="windows-1252"
+To: Boris Brezillon <boris.brezillon@free-electrons.com>
+CC: linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org, nicolas.ferre@atmel.com,
+	alexandre.belloni@free-electrons.com
+Subject: Re: [PATCH] at91sam9_wdt: Allow watchdog to reset device at early
+ boot
+References: <5465C00E.4030808@offcode.fi>	<1416572610-1770-1-git-send-email-timo.kokkonen@offcode.fi> <20141127200036.2c65df62@bbrezillon>
+In-Reply-To: <20141127200036.2c65df62@bbrezillon>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Wim,
+On 27.11.2014 21:00, Boris Brezillon wrote:
+> Hi Timo,
+>
+> Sorry for the late reply.
+>
+> On Fri, 21 Nov 2014 14:23:30 +0200
+> Timo Kokkonen <timo.kokkonen@offcode.fi> wrote:
+>
+>> By default the driver will start a kernel timer which keeps on kicking
+>> the watchdog HW until user space has opened the watchdog
+>> device. Usually this is desirable as the watchdog HW is running by
+>> default and the user space may not have any watchdog daemon running at
+>> all.
+>>
+>> However, on production systems it may be mandatory that also early
+>> crashes and lockups will lead to a watchdog reset, even if they happen
+>> before the user space has opened the watchdog device.
+>>
+>> To resolve the issue, add a new device tree property
+>> "enable-early-reset" which will prevent the kernel timer from pinging
+>> the watchdog HW on behalf of user space. The default is still to use
+>> kernel timer, but more strict behavior can be enabled via the device
+>> tree property.
+>>
+>> Signed-off-by: Timo Kokkonen <timo.kokkonen@offcode.fi>
+>> ---
+>>   Documentation/devicetree/bindings/watchdog/atmel-wdt.txt | 4 ++++
+>>   drivers/watchdog/at91sam9_wdt.c                          | 6 +++++-
+>>   2 files changed, 9 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+>> index f90e294..a0b7b75 100644
+>> --- a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+>> +++ b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+>> @@ -28,6 +28,10 @@ Optional properties:
+>>   	entering idle state.
+>>   - atmel,dbg-halt : Should be present if you want to stop the watchdog when
+>>   	entering debug state.
+>> +- enable-early-reset : Should be present if you want to let the
+>> +	watchdog timer to expire even before user space has opened the
+>> +	device. If not set, a kernel timer will keep on pinging the
+>> +	watchdog until it is opened.
+>
+> If you want to make this property generic, maybe you should document it
+> in a generic binding doc
+> (Documentation/devicetree/bindings/watchdog/watchdog.txt ?).
+> Once you're at it, maybe you could document the generic timeout-sec
+> property in this file.
+> Moreover, you might want to parse this property in watchdog_core.c and
+> store the information in the watchdog_device struct.
 
-On 11/27/2014 01:54 AM, Naidu Tellapati wrote:
-> This patchset provides support for the PowerDown Controller (PDC) Watchdog Timer
-> found on Pistachio SOC from Imagination Technologies (ImgTec).
-> 
-> The series is based on 3.18-rc5.
-> 
-> I am re-sending the series with correct Signed-off-by headers.
-> 
-> Changes from v5:
-> 
->  * Removed unused struct pdc_wdt_dev variables.
-> 
->  * Removed out_wdt label in probe function.
-> 
-> Changes from v4:
-> 
->  * Added warning message if initial timeout value exceeds maximum timeout.
-> 
-> Changes from v3:
-> 
->  * Removed PDC_WD_MAX_DELAY.
-> 
->  * Removed spinlock.
-> 
->  * Removed timeout check inside pdc_wdt_set_timeout function.
-> 
->  * Changed identity to IMG PDC Watchdog.
-> 
->  * Removed pdc_wdt_set_timeout call from the probe function.
-> 
->  * Removed pdc_wdt_shutdown function call from pdc_wdt_remove function
->    and added pdc_wdt_stop function call instead.
-> 
-> Changes from v2:
-> 
->  * Removed interrupt.h header file.
-> 
->  * Removed clock rate-change notifier callback.
-> 
-> Changes from v1:
-> 
->  * Arranged all include files in alphabetical order.
-> 
->  * Arranged register field masks/shifts defines next to their
->    corresponding register
-> 
->  * Registered clock rate-change notifier callback.
-> 
->  * Removed all references to 32 kHz fixed clock rate.
->    Now the clock rate is read dynamically using clk_get_rate().
-> 
->  * Defined a macro PDC_WD_CONFIG_ENABLE.
-> 
->  * Added code for getting system clock.
-> 
->  * Moved module_param stuffs next to the corresponding variable defines.
-> 
->  * Added code in the function pdc_wdt_remove for stopping watchdog.
-> 
->  * Removed MODULE_ALIAS.
-> 
->  * Removed few unwanted spaces and unwanted blank lines.
-> 
-> Naidu Tellapati (2):
->   watchdog: ImgTec PDC Watchdog Timer Driver
->   DT: watchdog: Add ImgTec PDC Watchdog Timer binding documentation
-> 
+I gave a little thought about this today and we could maybe have it like 
+watchdog_init_timeout() is today. But I can't really think of any 
+generic handling for this property, anything else except storing the 
+parsed value to a variable in watchdog_device struct. Everything else is 
+HW specific, except how we read the variable.. If we had some logic or 
+checking for this variable (other than to check it is not negative) 
+maybe then it would make sense.
 
-Do you think it's possible to merge this series in time for v3.19?
+So I could write a patch to document generic watchdog properties in 
+Documentation/devicetree/bindings/watchdog/watchdog.txt (anything else 
+generic that would go there except timeout-sec and enable-early-reset?) 
+and change this patch so that it doesn't document anything in 
+atmel-wdt.txt as we already have it documented in generic watchdog.txt.
 
-Thanks!
--- 
-Ezequiel
+Sounds good?
+
+Thanks,
+-Timo
+
+> Apart from that, I'm not opposed to the approach, and I'm fine with the
+> current implementation.
+>
+> Regards,
+>
+> Boris
+>
+
