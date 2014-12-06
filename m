@@ -1,39 +1,66 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f175.google.com ([209.85.192.175]:40251 "EHLO
-	mail-pd0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751252AbaLENny (ORCPT
+Received: from mailrelay007.isp.belgacom.be ([195.238.6.173]:3169 "EHLO
+	mailrelay007.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752393AbaLFPKt (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 5 Dec 2014 08:43:54 -0500
-From: Athira Lekshmi <andnlnbn18@gmail.com>
-To: wim@iguana.be
-Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	Athira Lekshmi <andnlnbn18@gmail.com>
-Subject: [PATCH] watchdog: Fixed missing blank line warning
-Date: Fri,  5 Dec 2014 19:13:54 +0530
-Message-Id: <1417787034-7833-1-git-send-email-andnlnbn18@gmail.com>
+	Sat, 6 Dec 2014 10:10:49 -0500
+Message-Id: <681c51$omkd8a@relay.skynet.be>
+Date: 06 Dec 2014 16:09:36 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
+	Abhilash Kesavan <a.kesavan@samsung.com>
+Subject: [GIT PULL REQUEST] watchdog - v3.18-rc7 Fixes
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Fixed the checkpatch warning:
-Missing a blank line after declarations
+Hi Linus,
 
-Signed-off-by: Athira Lekshmi <andnlnbn18@gmail.com>
----
- drivers/watchdog/mixcomwd.c |    1 +
- 1 file changed, 1 insertion(+)
+Please pull from 'master' branch of
+        git://www.linux-watchdog.org/linux-watchdog.git
 
-diff --git a/drivers/watchdog/mixcomwd.c b/drivers/watchdog/mixcomwd.c
-index be86ea3..03b7612e 100644
---- a/drivers/watchdog/mixcomwd.c
-+++ b/drivers/watchdog/mixcomwd.c
-@@ -183,6 +183,7 @@ static ssize_t mixcomwd_write(struct file *file, const char __user *data,
- 
- 			for (i = 0; i != len; i++) {
- 				char c;
-+
- 				if (get_user(c, data + i))
- 					return -EFAULT;
- 				if (c == 'V')
--- 
-1.7.9.5
+It will fix the watchdog mask bit offset for Exynos7.
+
+This will update the following files:
+
+ s3c2410_wdt.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+with these Changes:
+
+commit 5476b2b77dae50c88aa6a85f21abeac38dde590f
+Author: Abhilash Kesavan <a.kesavan@samsung.com>
+Date:   Fri Oct 17 21:42:53 2014 +0530
+
+    watchdog: s3c2410_wdt: Fix the mask bit offset for Exynos7
+
+    The watchdog mask bit offset listed for Exynos7 is incorrect.
+    Fix this.
+
+    Signed-off-by: Abhilash Kesavan <a.kesavan@samsung.com>
+    Acked-by: Naveen Krishna Chatradhi <naveenkrishna.ch@gmail.com
+    Reviewd-by: Guenter Roeck <linux@roeck-us.net>
+    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+
+For completeness, I added the overal diff below.
+
+Greetings,
+Wim.
+
+================================================================================
+diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+index 8532c3e..1626dc6 100644
+--- a/drivers/watchdog/s3c2410_wdt.c
++++ b/drivers/watchdog/s3c2410_wdt.c
+@@ -161,7 +161,7 @@ static const struct s3c2410_wdt_variant drv_data_exynos5420 = {
+ static const struct s3c2410_wdt_variant drv_data_exynos7 = {
+        .disable_reg = EXYNOS5_WDT_DISABLE_REG_OFFSET,
+        .mask_reset_reg = EXYNOS5_WDT_MASK_RESET_REG_OFFSET,
+-       .mask_bit = 0,
++       .mask_bit = 23,
+        .rst_stat_reg = EXYNOS5_RST_STAT_REG_OFFSET,
+        .rst_stat_bit = 23,     /* A57 WDTRESET */
+        .quirks = QUIRK_HAS_PMU_CONFIG | QUIRK_HAS_RST_STAT,
 
