@@ -10,37 +10,58 @@ Cc: Support Opensource <support.opensource@diasemi.com>,
 	linux-watchdog@vger.kernel.org,
 	linux-i2c@vger.kernel.org,
 	linux-sh@vger.kernel.org,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	devicetree@vger.kernel.org
-Subject: [PATCH 2/4] DT: i2c: Add devices handled by the da9063 MFD driver
-Date: Tue,  9 Dec 2014 12:22:47 +0100
-Message-Id: <1418124169-7123-3-git-send-email-geert+renesas@glider.be>
-In-Reply-To: <1418124169-7123-1-git-send-email-geert+renesas@glider.be>
-References: <1418124169-7123-1-git-send-email-geert+renesas@glider.be>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH 0/4] ARM: shmobile: koelsch: Add DA9063 watchdog restart support
+Date: Tue,  9 Dec 2014 12:22:45 +0100
+Message-Id: <1418124169-7123-1-git-send-email-geert+renesas@glider.be>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-This allows checkpatch to validate more DTSes.
+	Hi Wim, Wolfram, Simon, Magnus,
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: devicetree@vger.kernel.org
----
- Documentation/devicetree/bindings/i2c/trivial-devices.txt | 1 +
- 1 file changed, 1 insertion(+)
+This patch series add restart support for r8a7791/koelsch through the watchdog
+in the DA9063 PMIC. Restart can be triggered in two ways:
+  1. Timeout of the watchdog timer,
+  2. Manual system restart, shutting down the DA9063.
 
-diff --git a/Documentation/devicetree/bindings/i2c/trivial-devices.txt b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-index e0beef4f8cff5cdf..3bc4ea3c5c4842ff 100644
---- a/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-+++ b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-@@ -47,6 +47,7 @@ dallas,ds3232		Extremely Accurate I²C RTC with Integrated Crystal and SRAM
- dallas,ds4510		CPU Supervisor with Nonvolatile Memory and Programmable I/O
- dallas,ds75		Digital Thermometer and Thermostat
- dlg,da9053		DA9053: flexible system level PMIC with multicore support
-+dlg,da9063		DA9063: system PMIC for quad-core application processors
- epson,rx8025		High-Stability. I2C-Bus INTERFACE REAL TIME CLOCK MODULE
- epson,rx8581		I2C-BUS INTERFACE REAL TIME CLOCK MODULE
- fsl,mag3110		MAG3110: Xtrinsic High Accuracy, 3D Magnetometer
+Dependencies:
+  - There are no strict merge order dependencies,
+  - While manual restart depends on patch 1, patches 3 and 4 can be merged
+    now, as restart on watchdog timeout works without patch 1.
+
+Patches:
+  - Patch 1 is intended for the watchdog tree (based on watchdog/next),
+  - Patch 2 is intended for the i2c tree (based on i2c/next),
+  - Patches 3 and 4 are intended for the shmobile tree (based on
+    renesas-devel-20141209-v3.18).
+
+This was tested on r8a7791/koelsch.
+I expect this restart method to be usable on r8a7791/lager and r8a7794/alt,
+too.
+
+Thanks!
+
+Geert Uytterhoeven (4):
+  watchdog: da9063: Add restart handler support
+  DT: i2c: Add devices handled by the da9063 MFD driver
+  ARM: shmobile: koelsch: Add DA9063 PMIC device node for system restart
+  ARM: shmobile: Enable DA9063 watchdog in multiplatform defconfig
+
+ .../devicetree/bindings/i2c/trivial-devices.txt    |  1 +
+ arch/arm/boot/dts/r8a7791-koelsch.dts              |  7 +++++
+ arch/arm/configs/shmobile_defconfig                |  3 ++
+ drivers/watchdog/da9063_wdt.c                      | 32 +++++++++++++++++++++-
+ 4 files changed, 42 insertions(+), 1 deletion(-)
+
 -- 
 1.9.1
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
