@@ -1,96 +1,117 @@
-Return-path: <geert.uytterhoeven@gmail.com>
-MIME-Version: 1.0
-Sender: geert.uytterhoeven@gmail.com
-In-Reply-To: <1408495538-27480-9-git-send-email-linux@roeck-us.net>
-References: <1408495538-27480-1-git-send-email-linux@roeck-us.net>
-	<1408495538-27480-9-git-send-email-linux@roeck-us.net>
-Date: Thu, 4 Dec 2014 14:36:27 +0100
-Message-ID: <CAMuHMdVqCa+m1oMkuRHcTZKw2CWNHJVotWBwfTnfBNT11UPEjw@mail.gmail.com>
-Subject: Re: [PATCH v7 08/11] arm/arm64: Unexport restart handlers
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Russell King <linux@arm.linux.org.uk>, Wim Van Sebroeck <wim@iguana.be>,
-	Catalin Marinas <catalin.marinas@arm.com>, Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	"linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-	Linux PM list <linux-pm@vger.kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
-	Tomasz Figa <t.figa@samsung.com>, Randy Dunlap <rdunlap@infradead.org>,
-	Will Deacon <will.deacon@arm.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>,
-	Jonas Jensen <jonas.jensen@gmail.com>,
-	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, David Woodhouse <dwmw2@infradead.org>,
-	Ingo Molnar <mingo@kernel.org>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Heiko Stuebner <heiko@sntech.de>
-Content-Type: text/plain; charset=UTF-8
+Return-path: <stwiss.opensource@diasemi.com>
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+To: Geert Uytterhoeven <geert+renesas@glider.be>, Wim Van Sebroeck
+	<wim@iguana.be>, Wolfram Sang <wsa@the-dreams.de>, Simon Horman
+	<horms@verge.net.au>, Magnus Damm <magnus.damm@gmail.com>
+CC: Support Opensource <Support.Opensource@diasemi.com>, Guenter Roeck
+	<linux@roeck-us.net>, Lee Jones <lee.jones@linaro.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+	"linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>
+Subject: RE: [PATCH 1/4] watchdog: da9063: Add restart handler support
+Date: Tue, 9 Dec 2014 12:37:15 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7D0B4C115@SW-EX-MBX02.diasemi.com>
+References: <1418124169-7123-1-git-send-email-geert+renesas@glider.be>
+ <1418124169-7123-2-git-send-email-geert+renesas@glider.be>
+In-Reply-To: <1418124169-7123-2-git-send-email-geert+renesas@glider.be>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi G=C3=BCnther,
+On 09 December 2014 11:23 Geert Uytterhoeven wrote:
 
-On Wed, Aug 20, 2014 at 2:45 AM, Guenter Roeck <linux@roeck-us.net> wrote:
-> Implementing a restart handler in a module don't make sense
-> as there would be no guarantee that the module is loaded when
-> a restart is needed. Unexport arm_pm_restart to ensure that
-> no one gets the idea to do it anyway.
+Hi Geert,
 
-Why not? I was just going to do that, but I got greeted by:
-
-ERROR: "arm_pm_restart" [drivers/power/reset/rmobile-reset.ko] undefined!
-
-So now we have to make sure all reset drivers for a zillion different
-hardware devices are builtin, and can't be modular?
-
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-> Acked-by: Heiko Stuebner <heiko@sntech.de>
+> Subject: [PATCH 1/4] watchdog: da9063: Add restart handler support
+>=20
+> Register a restart handler for the da9063 watchdog.  System restart is
+> triggered by sending the shutdown command to the PMIC.
+> As more-suitable restart handlers may exist, the priority of the
+> watchdog restart handler is set to 128.
+>=20
+> The actual restart method was inspired by a platform-specific patch from
+> the BSP by Hisashi Nakamura <hisashi.nakamura.ak@renesas.com>.
+>=20
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 > ---
-> v7: No change
-> v6: No change
-> v5: No change
-> v4: No change
-> v3: No change
-> v2: No change
->
->  arch/arm/kernel/process.c   | 1 -
->  arch/arm64/kernel/process.c | 1 -
->  2 files changed, 2 deletions(-)
->
-> diff --git a/arch/arm/kernel/process.c b/arch/arm/kernel/process.c
-> index ea279f7..250b6f6 100644
-> --- a/arch/arm/kernel/process.c
-> +++ b/arch/arm/kernel/process.c
-> @@ -121,7 +121,6 @@ void (*pm_power_off)(void);
->  EXPORT_SYMBOL(pm_power_off);
->
->  void (*arm_pm_restart)(enum reboot_mode reboot_mode, const char *cmd);
-> -EXPORT_SYMBOL_GPL(arm_pm_restart);
->
->  /*
->   * This is our default idle handler.
-> diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
-> index 0d3fb9f..398ab05 100644
-> --- a/arch/arm64/kernel/process.c
-> +++ b/arch/arm64/kernel/process.c
-> @@ -98,7 +98,6 @@ void (*pm_power_off)(void);
->  EXPORT_SYMBOL_GPL(pm_power_off);
->
->  void (*arm_pm_restart)(enum reboot_mode reboot_mode, const char *cmd);
-> -EXPORT_SYMBOL_GPL(arm_pm_restart);
->
->  /*
->   * This is our default idle handler.
+> Tested on r8a7791/koelsch
+> ---
 
-Gr{oetje,eeting}s,
+[...]
 
-                        Geert
++static int da9063_wdt_restart_handler(struct notifier_block *this,
++				      unsigned long mode, void *cmd)
++{
++	struct da9063_watchdog *wdt =3D container_of(this,
++						   struct da9063_watchdog,
++						   restart_handler);
++	int ret;
++
++	ret =3D regmap_write(wdt->da9063->regmap, DA9063_REG_CONTROL_F,
++			   DA9063_SHUTDOWN);
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
-.org
+I am stating the obvious here.
 
-In personal conversations with technical people, I call myself a hacker. Bu=
-t
-when I'm talking to journalists I just say "programmer" or something like t=
-hat.
-                                -- Linus Torvalds
+DA9063_REG_CONTROL_F, DA9063_SHUTDOWN will cause the sequencer to
+power down to RESET Mode -- which means if this I2C command succeeds=20
+there will be a sudden loss of power and any unsaved information will be=20
+lost after this point.
+
+This is exactly how I have done it in the past.
+
++	if (ret)
++		dev_alert(wdt->da9063->dev, "Failed to shutdown (err =3D %d)\n",
++			  ret);
++
++	return NOTIFY_DONE;
++}
++
+
+[...]
+
+>  static const struct watchdog_info da9063_watchdog_info =3D {
+>  	.options =3D WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
+>  	.identity =3D "DA9063 Watchdog",
+> @@ -163,14 +182,25 @@ static int da9063_wdt_probe(struct
+> platform_device *pdev)
+>  	dev_set_drvdata(&pdev->dev, wdt);
+>=20
+>  	ret =3D watchdog_register_device(&wdt->wdtdev);
+> +	if (ret)
+> +		return ret;
+>=20
+> -	return ret;
+> +	wdt->restart_handler.notifier_call =3D da9063_wdt_restart_handler;
+> +	wdt->restart_handler.priority =3D 128;
+> +	ret =3D register_restart_handler(&wdt->restart_handler);
+> +	if (ret)
+> +		dev_err(wdt->da9063->dev,
+> +			"Failed to register restart handler (err =3D %d)\n", ret);
+
+ (I guess this is intentional).. if the restart handler doesn't get registe=
+red then
+this problem is just ignored and not counted as a real error.
+
+> +
+> +	return 0;
+>  }
+>=20
+>  static int da9063_wdt_remove(struct platform_device *pdev)
+>  {
+>  	struct da9063_watchdog *wdt =3D dev_get_drvdata(&pdev->dev);
+>=20
+> +	unregister_restart_handler(&wdt->restart_handler);
+> +
+>  	watchdog_unregister_device(&wdt->wdtdev);
+>=20
+>  	return 0;
+
+Despite the above, these are just my comments.
+It all looks fine to me.
+
+Acked-by: Steve Twiss <stwiss.opensource@diasemi.com>
+
+Regards,
+Steve
