@@ -11,57 +11,98 @@ Cc: Support Opensource <support.opensource@diasemi.com>,
 	linux-i2c@vger.kernel.org,
 	linux-sh@vger.kernel.org,
 	Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH 0/4] ARM: shmobile: koelsch: Add DA9063 watchdog restart support
-Date: Tue,  9 Dec 2014 12:22:45 +0100
-Message-Id: <1418124169-7123-1-git-send-email-geert+renesas@glider.be>
+Subject: [PATCH 1/4] watchdog: da9063: Add restart handler support
+Date: Tue,  9 Dec 2014 12:22:46 +0100
+Message-Id: <1418124169-7123-2-git-send-email-geert+renesas@glider.be>
+In-Reply-To: <1418124169-7123-1-git-send-email-geert+renesas@glider.be>
+References: <1418124169-7123-1-git-send-email-geert+renesas@glider.be>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-	Hi Wim, Wolfram, Simon, Magnus,
+Register a restart handler for the da9063 watchdog.  System restart is
+triggered by sending the shutdown command to the PMIC.
+As more-suitable restart handlers may exist, the priority of the
+watchdog restart handler is set to 128.
 
-This patch series add restart support for r8a7791/koelsch through the watchdog
-in the DA9063 PMIC. Restart can be triggered in two ways:
-  1. Timeout of the watchdog timer,
-  2. Manual system restart, shutting down the DA9063.
+The actual restart method was inspired by a platform-specific patch from
+the BSP by Hisashi Nakamura <hisashi.nakamura.ak@renesas.com>.
 
-Dependencies:
-  - There are no strict merge order dependencies,
-  - While manual restart depends on patch 1, patches 3 and 4 can be merged
-    now, as restart on watchdog timeout works without patch 1.
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
+Tested on r8a7791/koelsch
+---
+ drivers/watchdog/da9063_wdt.c | 32 +++++++++++++++++++++++++++++++-
+ 1 file changed, 31 insertions(+), 1 deletion(-)
 
-Patches:
-  - Patch 1 is intended for the watchdog tree (based on watchdog/next),
-  - Patch 2 is intended for the i2c tree (based on i2c/next),
-  - Patches 3 and 4 are intended for the shmobile tree (based on
-    renesas-devel-20141209-v3.18).
-
-This was tested on r8a7791/koelsch.
-I expect this restart method to be usable on r8a7791/lager and r8a7794/alt,
-too.
-
-Thanks!
-
-Geert Uytterhoeven (4):
-  watchdog: da9063: Add restart handler support
-  DT: i2c: Add devices handled by the da9063 MFD driver
-  ARM: shmobile: koelsch: Add DA9063 PMIC device node for system restart
-  ARM: shmobile: Enable DA9063 watchdog in multiplatform defconfig
-
- .../devicetree/bindings/i2c/trivial-devices.txt    |  1 +
- arch/arm/boot/dts/r8a7791-koelsch.dts              |  7 +++++
- arch/arm/configs/shmobile_defconfig                |  3 ++
- drivers/watchdog/da9063_wdt.c                      | 32 +++++++++++++++++++++-
- 4 files changed, 42 insertions(+), 1 deletion(-)
-
+diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
+index 2cd6b2c2dd2a6980..e2fe2ebdebd4d6bb 100644
+--- a/drivers/watchdog/da9063_wdt.c
++++ b/drivers/watchdog/da9063_wdt.c
+@@ -20,6 +20,7 @@
+ #include <linux/delay.h>
+ #include <linux/mfd/da9063/registers.h>
+ #include <linux/mfd/da9063/core.h>
++#include <linux/reboot.h>
+ #include <linux/regmap.h>
+ 
+ /*
+@@ -38,6 +39,7 @@ static const unsigned int wdt_timeout[] = { 0, 2, 4, 8, 16, 32, 65, 131 };
+ struct da9063_watchdog {
+ 	struct da9063 *da9063;
+ 	struct watchdog_device wdtdev;
++	struct notifier_block restart_handler;
+ };
+ 
+ static unsigned int da9063_wdt_timeout_to_sel(unsigned int secs)
+@@ -119,6 +121,23 @@ static int da9063_wdt_set_timeout(struct watchdog_device *wdd,
+ 	return ret;
+ }
+ 
++static int da9063_wdt_restart_handler(struct notifier_block *this,
++				      unsigned long mode, void *cmd)
++{
++	struct da9063_watchdog *wdt = container_of(this,
++						   struct da9063_watchdog,
++						   restart_handler);
++	int ret;
++
++	ret = regmap_write(wdt->da9063->regmap, DA9063_REG_CONTROL_F,
++			   DA9063_SHUTDOWN);
++	if (ret)
++		dev_alert(wdt->da9063->dev, "Failed to shutdown (err = %d)\n",
++			  ret);
++
++	return NOTIFY_DONE;
++}
++
+ static const struct watchdog_info da9063_watchdog_info = {
+ 	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
+ 	.identity = "DA9063 Watchdog",
+@@ -163,14 +182,25 @@ static int da9063_wdt_probe(struct platform_device *pdev)
+ 	dev_set_drvdata(&pdev->dev, wdt);
+ 
+ 	ret = watchdog_register_device(&wdt->wdtdev);
++	if (ret)
++		return ret;
+ 
+-	return ret;
++	wdt->restart_handler.notifier_call = da9063_wdt_restart_handler;
++	wdt->restart_handler.priority = 128;
++	ret = register_restart_handler(&wdt->restart_handler);
++	if (ret)
++		dev_err(wdt->da9063->dev,
++			"Failed to register restart handler (err = %d)\n", ret);
++
++	return 0;
+ }
+ 
+ static int da9063_wdt_remove(struct platform_device *pdev)
+ {
+ 	struct da9063_watchdog *wdt = dev_get_drvdata(&pdev->dev);
+ 
++	unregister_restart_handler(&wdt->restart_handler);
++
+ 	watchdog_unregister_device(&wdt->wdtdev);
+ 
+ 	return 0;
 -- 
 1.9.1
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
