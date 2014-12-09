@@ -1,40 +1,57 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-yh0-f50.google.com ([209.85.213.50]:59291 "EHLO
-	mail-yh0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755011AbaLHRpk (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:38348 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753971AbaLIQWz (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 8 Dec 2014 12:45:40 -0500
-From: Robert Yang <hachyang@gmail.com>
-To: Wim Van Seroeck <wim@iguana.be>, <linux-watchdog@vger.kernel.org>
-Cc: linux-kernel@vger.kernel.org, ryang <ryang@hach.com>
-Subject: [PATCH 1/1] Watchdog: Fixed the watchdog close/stop logic - only close the watchdog if the magic character was received and the magic close is supported.
-Date: Mon,  8 Dec 2014 10:45:11 -0700
-Message-Id: <1418060711-47872-1-git-send-email-hachyang@gmail.com>
+	Tue, 9 Dec 2014 11:22:55 -0500
+Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
+	(envelope-from <linux@roeck-us.net>)
+	id 1XyNYt-003hB1-C3
+	for linux-watchdog@vger.kernel.org; Tue, 09 Dec 2014 16:22:55 +0000
+Date: Tue, 9 Dec 2014 08:22:22 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Wolfram Sang <wsa@the-dreams.de>,
+	Simon Horman <horms@verge.net.au>,
+	Magnus Damm <magnus.damm@gmail.com>,
+	Support Opensource <Support.Opensource@diasemi.com>,
+	Lee Jones <lee.jones@linaro.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+	"linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>
+Subject: Re: [PATCH 1/4] watchdog: da9063: Add restart handler support
+Message-ID: <20141209162222.GA19663@roeck-us.net>
+References: <1418124169-7123-1-git-send-email-geert+renesas@glider.be>
+ <1418124169-7123-2-git-send-email-geert+renesas@glider.be>
+ <6ED8E3B22081A4459DAC7699F3695FB7D0B4C115@SW-EX-MBX02.diasemi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7D0B4C115@SW-EX-MBX02.diasemi.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: ryang <ryang@hach.com>
+On Tue, Dec 09, 2014 at 12:37:15PM +0000, Opensource [Steve Twiss] wrote:
+> On 09 December 2014 11:23 Geert Uytterhoeven wrote:
+> 
+[ ... ]
 
-Signed-off-by: ryang <ryang@hach.com>
----
- drivers/watchdog/watchdog_dev.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+> > +	ret = register_restart_handler(&wdt->restart_handler);
+> > +	if (ret)
+> > +		dev_err(wdt->da9063->dev,
+> > +			"Failed to register restart handler (err = %d)\n", ret);
+> 
+>  (I guess this is intentional).. if the restart handler doesn't get registered then
+> this problem is just ignored and not counted as a real error.
+> 
+This makes sense, since one doesn't want the watchdog driver to fail
+loading just because the restart handler failed to register.
+One option might be to make the message dev_warn instead of dev_err,
+but that is really a nitpick.
 
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 6aaefba..73793d8 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -471,8 +471,8 @@ static int watchdog_release(struct inode *inode, struct file *file)
- 	 */
- 	if (!test_bit(WDOG_ACTIVE, &wdd->status))
- 		err = 0;
--	else if (test_and_clear_bit(WDOG_ALLOW_RELEASE, &wdd->status) ||
--		 !(wdd->info->options & WDIOF_MAGICCLOSE))
-+	else if (test_and_clear_bit(WDOG_ALLOW_RELEASE, &wdd->status) &&
-+		(wdd->info->options & WDIOF_MAGICCLOSE))
- 		err = watchdog_stop(wdd);
- 
- 	/* If the watchdog was not stopped, send a keepalive ping */
--- 
-1.9.1
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
+Thanks,
+Guenter
