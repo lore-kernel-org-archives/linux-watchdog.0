@@ -1,31 +1,26 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:35070 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753287AbaLHUMG (ORCPT
+Received: from ns1.pc-advies.be ([83.149.101.17]:45179 "EHLO
+	spo001.leaseweb.nl" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751013AbaLIITg (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 8 Dec 2014 15:12:06 -0500
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
-	(envelope-from <linux@roeck-us.net>)
-	id 1Xy4f7-003sxW-6O
-	for linux-watchdog@vger.kernel.org; Mon, 08 Dec 2014 20:12:05 +0000
-Date: Mon, 8 Dec 2014 12:11:58 -0800
-From: Guenter Roeck <linux@roeck-us.net>
+	Tue, 9 Dec 2014 03:19:36 -0500
+Date: Tue, 9 Dec 2014 09:19:34 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
 To: Robert Yang <hachyang@gmail.com>
-Cc: Wim Van Seroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org, ryang <ryang@hach.com>
-Subject: Re: [PATCH 1/1] Watchdog: Fixed the watchdog close/stop logic - only
- close the watchdog if the magic character was received and the magic close
- is supported.
-Message-ID: <20141208201158.GA29618@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	ryang <ryang@hach.com>
+Subject: Re: [PATCH 1/1] Watchdog: Fixed the watchdog close/stop logic - only close the watchdog if the magic character was received and the magic close is supported.
+Message-ID: <20141209081934.GN8811@spo001.leaseweb.nl>
 References: <1418060711-47872-1-git-send-email-hachyang@gmail.com>
-MIME-Version: 1.0
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <1418060711-47872-1-git-send-email-hachyang@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Dec 08, 2014 at 10:45:11AM -0700, Robert Yang wrote:
+Hi Ryang,
+
 > From: ryang <ryang@hach.com>
 > 
 > Signed-off-by: ryang <ryang@hach.com>
@@ -47,6 +42,13 @@ On Mon, Dec 08, 2014 at 10:45:11AM -0700, Robert Yang wrote:
 > +		(wdd->info->options & WDIOF_MAGICCLOSE))
 >  		err = watchdog_stop(wdd);
 >  
-Why ?
+>  	/* If the watchdog was not stopped, send a keepalive ping */
+> -- 
 
-Guenter
+There is no reason for this change; you either have:
+1) WDIOF_MAGICCLOSE is not supported and thus watchog may be stopped.
+2) If a watchdog daemon crashes and thus closes the watchdog device (and thus it did not sent a Magic Char) then the watchdog should not be stopped but needs to reboot the system.
+
+Kind regards,
+Wim.
+
