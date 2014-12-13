@@ -1,249 +1,356 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:35926 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933460AbaLKEEa (ORCPT
+Received: from mail-ig0-f179.google.com ([209.85.213.179]:46422 "EHLO
+	mail-ig0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753313AbaLMCIb (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 10 Dec 2014 23:04:30 -0500
-Date: Wed, 10 Dec 2014 20:04:05 -0800
-From: Darren Hart <dvhart@infradead.org>
-To: "Muller, Francois-nicolas" <francois-nicolas.muller@intel.com>
-Cc: "'platform-driver-x86@vger.kernel.org'"
-	<platform-driver-x86@vger.kernel.org>,
-	Rafael Wysocki <rjw@rjwysocki.net>,
-	Linux ACPI Mailing List <linux-acpi@vger.kernel.org>,
-	linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [PATCH] TCO Watchdog warning interrupt driver creation
-Message-ID: <20141211040404.GA28797@vmdeb7>
-References: <B9C02DB17496AC4197F41A146D371B9B075AF9DE@hasmsx107.ger.corp.intel.com>
+	Fri, 12 Dec 2014 21:08:31 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <B9C02DB17496AC4197F41A146D371B9B075AF9DE@hasmsx107.ger.corp.intel.com>
+In-Reply-To: <1418395859-32209-2-git-send-email-matthias.bgg@gmail.com>
+References: <1418395859-32209-1-git-send-email-matthias.bgg@gmail.com> <1418395859-32209-2-git-send-email-matthias.bgg@gmail.com>
+From: Chen-Yu Tsai <wens@csie.org>
+Date: Sat, 13 Dec 2014 10:08:10 +0800
+Message-ID: <CAGb2v65uM_-Mi9_X5XxMGtOznRa7a5qRcFJQ3zg7t6z6tOhPAA@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] watchdog: Add driver for Mediatek watchdog
+To: Matthias Brugger <matthias.bgg@gmail.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	Grant Likely <grant.likely@linaro.org>,
+	=?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>,
+	yingjoe.chen@gmail.com,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	ibanezchen@gmail.com, greta.zhang@mediatek.com,
+	eddie.huang@mediatek.com,
+	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+	linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Dec 05, 2014 at 10:08:45AM +0000, Muller, Francois-nicolas wrote:
-> This driver provides support for TCO watchdog warning interrupt.
-> 
+Hi,
 
-Hi Francois,
-
-Cc: Rafael and linux-acpi per his request on ACPI drivers (even if they are for
-platform/drivers/x86).
-
-> This feature is useful to root cause watchdog expiration.
-
-Would this not be better suited as a debug option to the iTCO_wdt.c driver under
-drivers/watchdog?
-
-Cc: Wim Van Sebroeck and linux-watchdog
-
-> Upon first expiration of the TCO watchdog, a warning interrupt is fired
-> to this driver, which calls panic() function and dumps debug information
-> (registers and call stacks).
-
-Nit: Newlines between paragraphs for legibility here and in comments please.
-
-> This implies TCO watchdog driver has enabled the interrupt (SCI) and ACPI
-> tables contain GPE mapping information.
-> After the interrupt has been fired, TCO watchdog reloads automatically and
-> upon second expiration it trigs a reset of the platform.
-
-triggers
-
-> 
-> Change-Id: I39b615b59dd4336bf208454f08b3e9eac9eb2880
-
-Please run through checkpatch.pl (Gerrit change-id's should be removed).
-
-> Signed-off-by: Francois-Nicolas Muller <francois-nicolas.muller@intel.com>
+On Fri, Dec 12, 2014 at 10:50 PM, Matthias Brugger
+<matthias.bgg@gmail.com> wrote:
+> This patch adds a driver for the Mediatek SoC integrated
+> watchdog. This driver supports watchdog and software reset
+> for mt65xx and mt81xx SoCs.
+>
+> Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 > ---
-> drivers/platform/x86/Kconfig          |   13 +++++
-> drivers/platform/x86/Makefile         |    1 +
-> drivers/platform/x86/intel_warn_int.c |   98 +++++++++++++++++++++++++++++++++
-> 3 files changed, 112 insertions(+)
-> create mode 100644 drivers/platform/x86/intel_warn_int.c
-> 
-> diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
-> index 5ae65c1..79cba16 100644
-> --- a/drivers/platform/x86/Kconfig
-> +++ b/drivers/platform/x86/Kconfig
-> @@ -827,4 +827,17 @@ config INTEL_BAYTRAIL_MBI
->                  Interface. This is a requirement for systems that need to configure
->                  the PUNIT for power management features such as RAPL.
-> +config INTEL_WARN_INT
-> +             tristate "TCO Watchdog warning interrupt"
-> +             depends on ITCO_WDT
-> +             ---help---
-> +               This driver provides support for TCO watchdog warning interrupt.
-> +               Upon first expiration of the TCO watchdog, a warning interrupt is
-> +               fired and the driver calls panic() function to dump debug information
-
-s/function//
-
-> +               (registers and call stacks).
-
-newline
-
-> +               At the same time, the TCO watchdog reloads with 2.4 seconds timeout
-> +               value and runs till the second expiration. At the second expiration of
-
-s/till/until/
-
-> +               the TCO watchdog, the platform resets (the dump is supposed to last less
-> +               than 2.4 seconds).
+>  drivers/watchdog/Kconfig   |  10 ++
+>  drivers/watchdog/Makefile  |   1 +
+>  drivers/watchdog/mtk_wdt.c | 257 +++++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 268 insertions(+)
+>  create mode 100644 drivers/watchdog/mtk_wdt.c
+>
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index d0107d4..fcbca1b 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -505,6 +505,16 @@ config MESON_WATCHDOG
+>           To compile this driver as a module, choose M here: the
+>           module will be called meson_wdt.
+>
+> +config MEDIATEK_WATCHDOG
+> +       tristate "Mediatek SoCs watchdog support"
+> +       depends on ARCH_MEDIATEK
+> +       select WATCHDOG_CORE
+> +       help
+> +         Say Y here to include support for the watchdog timer
+> +         in Mediatek SoCs.
+> +         To compile this driver as a module, choose M here: the
+> +         module will be called mtk_wdt.
 > +
-> endif # X86_PLATFORM_DEVICES
-> diff --git a/drivers/platform/x86/Makefile b/drivers/platform/x86/Makefile
-> index 32caae3..2d47b4d 100644
-> --- a/drivers/platform/x86/Makefile
-> +++ b/drivers/platform/x86/Makefile
-> @@ -58,3 +58,4 @@ obj-$(CONFIG_PVPANIC)                               += pvpanic.o
-> obj-$(CONFIG_INTEL_BAYTRAIL_MBI)                += intel_baytrail.o
-> obj-$(CONFIG_INTEL_SOC_PMIC)        += dc_ti_cc.o
-> obj-$(CONFIG_ACPI)                   += intel_em_config.o
-> +obj-$(CONFIG_INTEL_WARN_INT)      += intel_warn_int.o
-> diff --git a/drivers/platform/x86/intel_warn_int.c b/drivers/platform/x86/intel_warn_int.c
+>  # AVR32 Architecture
+>
+>  config AT32AP700X_WDT
+> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> index c569ec8..0d4821f 100644
+> --- a/drivers/watchdog/Makefile
+> +++ b/drivers/watchdog/Makefile
+> @@ -63,6 +63,7 @@ obj-$(CONFIG_QCOM_WDT) += qcom-wdt.o
+>  obj-$(CONFIG_BCM_KONA_WDT) += bcm_kona_wdt.o
+>  obj-$(CONFIG_TEGRA_WATCHDOG) += tegra_wdt.o
+>  obj-$(CONFIG_MESON_WATCHDOG) += meson_wdt.o
+> +obj-$(CONFIG_MEDIATEK_WATCHDOG) += mtk_wdt.o
+>
+>  # AVR32 Architecture
+>  obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
+> diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
 > new file mode 100644
-> index 0000000..7ec8b73
+> index 0000000..5f75442
 > --- /dev/null
-> +++ b/drivers/platform/x86/intel_warn_int.c
-> @@ -0,0 +1,98 @@
+> +++ b/drivers/watchdog/mtk_wdt.c
+> @@ -0,0 +1,257 @@
 > +/*
-> + * intel_warn_int.c - This driver provides support for TCO watchdog warning
-> + * interrupt.
-
-Newlines between paragraphs in this section too.
-
-> + * This feature is useful to root cause watchdog expiration.
-> + * Upon first expiration of the TCO watchdog, a warning interrupt is fired
-> + * to this driver, which calls panic() function and dumps debug information
-
-s/function//
-
-> + * (registers and call stacks).
-> + * This implies TCO watchdog driver has enabled the interrupt (SCI) and ACPI
-
-the ACPI...
-
-> + * tables contain GPE mapping information.
-
-the GPE...
-
-> + * After the interrupt has been fired, TCO watchdog reloads automatically and
-> + * upon second expiration it trigs a reset of the platform.
-
-triggers
-
-> + * Copyright (c) 2014, Intel Corporation.
-
-All rights reserved.
-
+> + * Mediatek Watchdog Driver
 > + *
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms and conditions of the GNU General Public License,
-> + * version 2, as published by the Free Software Foundation.
+> + * Copyright (C) 2014 Matthias Brugger
 > + *
-> + * This program is distributed in the hope it will be useful, but WITHOUT
-> + * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-> + * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-> + * more details.
+> + * Matthias Brugger <matthias.bgg@gmail.com>
 > + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * Based on mtk_wdt.c
 
-extra * line, can remove.
+Did you base your code on itself from the future? :)
+
+ChenYu
 
 > + */
 > +
-> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-> +
-> +#include <linux/module.h>
-> +#include <linux/types.h>
-> +#include <linux/errno.h>
-> +#include <linux/kernel.h>
+> +#include <linux/clk.h>
+> +#include <linux/err.h>
 > +#include <linux/init.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/acpi.h>
-> +#include <linux/nmi.h>
-> +#include <acpi/actypes.h>
+> +#include <linux/io.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/moduleparam.h>
+> +#include <linux/of.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/types.h>
+> +#include <linux/watchdog.h>
+> +#include <linux/notifier.h>
+> +#include <linux/reboot.h>
+> +#include <linux/delay.h>
 > +
-> +#define DRV_NAME "warn_int"
-> +#define TCO_CLASS DRV_NAME
+> +#define WDT_MAX_TIMEOUT                31
+> +#define WDT_MIN_TIMEOUT                1
+> +#define WDT_LENGTH_TIMEOUT(n)  ((n) << 5)
 > +
-> +static const struct acpi_device_id tco_device_ids[] = {
-> +             {"8086229C", 0},
-
-What is this device ID? Is it specific to a debug ID for the WDT? If not, will
-this eventually conflict with a non-debug driver for this WDT?
-
-> +             {"", 0},
-> +};
-> +MODULE_DEVICE_TABLE(acpi, tco_device_ids);
+> +#define WDT_LENGTH             0x04
+> +#define WDT_LENGTH_KEY         0x8
 > +
-> +static u32 warn_irq_handler(acpi_handle gpe_device, u32 gpe, void *context)
-> +{
-> +             pr_warn("[SHTDWN] %s, WATCHDOG TIMEOUT HANDLER!\n", __func__);
-
-Indenting with 13 spaces? Please review Documentation/CodingStyle and update the
-patch. Rather than point out all these sorts of errors, I'm goign to stop here -
-please read the doc and correct throughout.
-
+> +#define WDT_RST                        0x08
+> +#define WDT_RST_RELOAD         0x1971
 > +
-> +             trigger_all_cpu_backtrace();
-> +             panic("Kernel Watchdog");
+> +#define WDT_MODE               0x00
+> +#define WDT_MODE_EN            (1 << 0)
+> +#define WDT_MODE_EXT_POL_LOW   (0 << 1)
+> +#define WDT_MODE_EXT_POL_HIGH  (1 << 1)
+> +#define WDT_MODE_EXRST_EN      (1 << 2)
+> +#define WDT_MODE_IRQ_EN                (1 << 3)
+> +#define WDT_MODE_AUTO_START    (1 << 4)
+> +#define WDT_MODE_DUAL_EN       (1 << 6)
+> +#define WDT_MODE_KEY           0x22000000
 > +
-> +             /* This code should not be reached */
-> +             return IRQ_HANDLED;
-> +}
+> +#define WDT_SWRST              0x14
+> +#define WDT_SWRST_KEY          0x1209
 > +
-> +static int acpi_tco_add(struct acpi_device *device)
-> +{
-> +             acpi_status status;
-> +             unsigned long long tco_gpe;
-
-Declare variables in decreasing line length order.
-
+> +#define DRV_NAME               "mtk-wdt"
+> +#define DRV_VERSION            "1.0"
 > +
-> +             status = acpi_evaluate_integer(device->handle, "_GPE", NULL, &tco_gpe);
-> +             if (ACPI_FAILURE(status))
-> +                             return -EINVAL;
+> +static bool nowayout = WATCHDOG_NOWAYOUT;
+> +static unsigned int timeout = WDT_MAX_TIMEOUT;
 > +
-> +             status = acpi_install_gpe_handler(NULL, tco_gpe,
-> +                                                                              ACPI_GPE_EDGE_TRIGGERED,
-> +                                                                              warn_irq_handler, NULL);
-> +             if (ACPI_FAILURE(status))
-> +                             return -ENODEV;
-> +
-> +             acpi_enable_gpe(NULL, tco_gpe);
-> +
-> +             pr_info("initialized. Interrupt=SCI GPE 0x%02llx", tco_gpe);
-> +             return 0;
-> +}
-> +
-> +static struct acpi_driver tco_driver = {
-> +             .name = "warn_int",
-> +             .class = TCO_CLASS,
-> +             .ids = tco_device_ids,
-> +             .ops = {
-> +                             .add = acpi_tco_add,
-> +             },
+> +struct mtk_wdt_dev {
+> +       struct watchdog_device wdt_dev;
+> +       void __iomem *wdt_base;
+> +       struct notifier_block restart_handler;
 > +};
 > +
-> +static int __init warn_int_init(void)
+> +static int mtk_reset_handler(struct notifier_block *this, unsigned long mode,
+> +                               void *cmd)
 > +{
-> +             return acpi_bus_register_driver(&tco_driver);
+> +       struct mtk_wdt_dev *mtk_wdt = container_of(this,
+> +                                                      struct mtk_wdt_dev,
+> +                                                      restart_handler);
+> +       void __iomem *wdt_base = mtk_wdt->wdt_base;
+> +       u32 reg;
+> +
+> +       /* Reset system */
+> +       writel(WDT_SWRST_KEY, wdt_base + WDT_SWRST);
+> +
+> +       while (1) {
+> +               mdelay(5);
+> +               writel(WDT_SWRST_KEY, wdt_base + WDT_SWRST);
+> +       }
+> +       return NOTIFY_DONE;
+> +
 > +}
 > +
-> +module_init(warn_int_init);
-> +/* no module_exit, this driver shouldn't be unloaded */
+> +static int mtk_wdt_ping(struct watchdog_device *wdt_dev)
+> +{
+> +       struct mtk_wdt_dev *mtk_wdt = watchdog_get_drvdata(wdt_dev);
+> +       void __iomem *wdt_base = mtk_wdt->wdt_base;
 > +
-> +MODULE_AUTHOR("Francois-Nicolas Muller <francois-nicolas.muller@intel.com>");
-> +MODULE_DESCRIPTION("Intel TCO WatchDog Warning Interrupt");
+> +       iowrite32(WDT_RST_RELOAD, wdt_base + WDT_RST);
+> +
+> +       return 0;
+> +}
+> +
+> +static int mtk_wdt_set_timeout(struct watchdog_device *wdt_dev,
+> +               unsigned int timeout)
+> +{
+> +       struct mtk_wdt_dev *mtk_wdt = watchdog_get_drvdata(wdt_dev);
+> +       void __iomem *wdt_base = mtk_wdt->wdt_base;
+> +       u32 reg;
+> +
+> +       mtk_wdt->wdt_dev.timeout = timeout;
+> +
+> +       /* One bit is the value of 512 ticks
+> +        * The clock has 32 KHz
+> +        */
+> +       reg = WDT_LENGTH_TIMEOUT(timeout << 6) | WDT_LENGTH_KEY;
+> +       iowrite32(reg, wdt_base + WDT_LENGTH);
+> +
+> +       mtk_wdt_ping(wdt_dev);
+> +
+> +       return 0;
+> +}
+> +
+> +static int mtk_wdt_stop(struct watchdog_device *wdt_dev)
+> +{
+> +       struct mtk_wdt_dev *mtk_wdt = watchdog_get_drvdata(wdt_dev);
+> +       void __iomem *wdt_base = mtk_wdt->wdt_base;
+> +       u32 reg;
+> +
+> +       reg = readl(wdt_base + WDT_MODE);
+> +       reg &= ~(WDT_MODE_EN);
+> +       iowrite32(reg, wdt_base + WDT_MODE);
+> +
+> +       return 0;
+> +}
+> +
+> +static int mtk_wdt_start(struct watchdog_device *wdt_dev)
+> +{
+> +       u32 reg;
+> +       struct mtk_wdt_dev *mtk_wdt = watchdog_get_drvdata(wdt_dev);
+> +       void __iomem *wdt_base = mtk_wdt->wdt_base;
+> +       u32 ret;
+> +
+> +       ret = mtk_wdt_set_timeout(&mtk_wdt->wdt_dev,
+> +                       mtk_wdt->wdt_dev.timeout);
+> +       if (ret < 0)
+> +               return ret;
+> +
+> +       reg = ioread32(wdt_base + WDT_MODE);
+> +       reg &= ~(WDT_MODE_IRQ_EN | WDT_MODE_DUAL_EN);
+> +       reg |= (WDT_MODE_EN | WDT_MODE_KEY);
+> +       iowrite32(reg, wdt_base + WDT_MODE);
+> +
+> +       return 0;
+> +}
+> +
+> +static const struct watchdog_info mtk_wdt_info = {
+> +       .identity       = DRV_NAME,
+> +       .options        = WDIOF_SETTIMEOUT |
+> +                         WDIOF_KEEPALIVEPING |
+> +                         WDIOF_MAGICCLOSE,
+> +};
+> +
+> +static const struct watchdog_ops mtk_wdt_ops = {
+> +       .owner          = THIS_MODULE,
+> +       .start          = mtk_wdt_start,
+> +       .stop           = mtk_wdt_stop,
+> +       .ping           = mtk_wdt_ping,
+> +       .set_timeout    = mtk_wdt_set_timeout,
+> +};
+> +
+> +static int mtk_wdt_probe(struct platform_device *pdev)
+> +{
+> +       struct mtk_wdt_dev *mtk_wdt;
+> +       struct resource *res;
+> +       int err;
+> +
+> +       mtk_wdt = devm_kzalloc(&pdev->dev, sizeof(*mtk_wdt), GFP_KERNEL);
+> +       if (!mtk_wdt)
+> +               return -EINVAL;
+> +
+> +       platform_set_drvdata(pdev, mtk_wdt);
+> +
+> +       res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +       mtk_wdt->wdt_base = devm_ioremap_resource(&pdev->dev, res);
+> +       if (IS_ERR(mtk_wdt->wdt_base))
+> +               return PTR_ERR(mtk_wdt->wdt_base);
+> +
+> +       mtk_wdt->wdt_dev.info = &mtk_wdt_info;
+> +       mtk_wdt->wdt_dev.ops = &mtk_wdt_ops;
+> +       mtk_wdt->wdt_dev.timeout = WDT_MAX_TIMEOUT;
+> +       mtk_wdt->wdt_dev.max_timeout = WDT_MAX_TIMEOUT;
+> +       mtk_wdt->wdt_dev.min_timeout = WDT_MIN_TIMEOUT;
+> +       mtk_wdt->wdt_dev.parent = &pdev->dev;
+> +
+> +       watchdog_init_timeout(&mtk_wdt->wdt_dev, timeout, &pdev->dev);
+> +       watchdog_set_nowayout(&mtk_wdt->wdt_dev, nowayout);
+> +
+> +       watchdog_set_drvdata(&mtk_wdt->wdt_dev, mtk_wdt);
+> +
+> +       mtk_wdt_stop(&mtk_wdt->wdt_dev);
+> +
+> +       err = watchdog_register_device(&mtk_wdt->wdt_dev);
+> +       if (unlikely(err))
+> +               return err;
+> +
+> +       mtk_wdt->restart_handler.notifier_call = mtk_reset_handler;
+> +       mtk_wdt->restart_handler.priority = 128;
+> +       err = register_restart_handler(&mtk_wdt->restart_handler);
+> +       if (err)
+> +               dev_err(&pdev->dev,
+> +                       "cannot register restart handler (err=%d)\n", err);
+> +
+> +       dev_info(&pdev->dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)",
+> +                       mtk_wdt->wdt_dev.timeout, nowayout);
+> +
+> +       return 0;
+> +}
+> +
+> +static int mtk_wdt_remove(struct platform_device *pdev)
+> +{
+> +       struct mtk_wdt_dev *mtk_wdt = platform_get_drvdata(pdev);
+> +
+> +       unregister_restart_handler(&mtk_wdt->restart_handler);
+> +
+> +       watchdog_unregister_device(&mtk_wdt->wdt_dev);
+> +       watchdog_set_drvdata(&mtk_wdt->wdt_dev, NULL);
+> +
+> +       return 0;
+> +}
+> +
+> +static const struct of_device_id mtk_wdt_dt_ids[] = {
+> +       { .compatible = "mediatek,mt6589-wdt" },
+> +       { /* sentinel */ }
+> +};
+> +MODULE_DEVICE_TABLE(of, mtk_wdt_dt_ids);
+> +
+> +static struct platform_driver mtk_wdt_driver = {
+> +       .probe          = mtk_wdt_probe,
+> +       .remove         = mtk_wdt_remove,
+> +       .driver         = {
+> +               .owner          = THIS_MODULE,
+> +               .name           = DRV_NAME,
+> +               .of_match_table = mtk_wdt_dt_ids,
+> +       },
+> +};
+> +
+> +module_platform_driver(mtk_wdt_driver);
+> +
+> +module_param(timeout, uint, 0);
+> +MODULE_PARM_DESC(timeout, "Watchdog heartbeat in seconds");
+> +
+> +module_param(nowayout, bool, 0);
+> +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+> +                       __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+> +
 > +MODULE_LICENSE("GPL");
-> +MODULE_ALIAS("platform:" DRV_NAME);
+> +MODULE_AUTHOR("Matthias Brugger <matthias.bgg@gmail.com>");
+> +MODULE_DESCRIPTION("Mediatek WatchDog Timer Driver");
+> +MODULE_VERSION(DRV_VERSION);
 > --
-> 1.7.9.5
-> 
-
--- 
-Darren Hart
-Intel Open Source Technology Center
+> 1.9.1
+>
+>
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
