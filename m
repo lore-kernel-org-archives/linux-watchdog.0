@@ -1,60 +1,76 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([210.61.82.184]:52886 "EHLO
-	mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750917AbaLODhl (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:34502 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750722AbaLOOSG (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 14 Dec 2014 22:37:41 -0500
-Subject: Re: [PATCH v2 1/2] watchdog: Add driver for Mediatek watchdog
-From: Eddie Huang <eddie.huang@mediatek.com>
-To: Matthias Brugger <matthias.bgg@gmail.com>
-CC: <wim@iguana.be>, <robh+dt@kernel.org>, <pawel.moll@arm.com>,
-	<mark.rutland@arm.com>, <ijc+devicetree@hellion.org.uk>,
-	<galak@codeaurora.org>, <grant.likely@linaro.org>,
-	<heiko@sntech.de>, <yingjoe.chen@gmail.com>,
-	<linux-kernel@vger.kernel.org>, <ibanezchen@gmail.com>,
-	<greta.zhang@mediatek.com>, <linux-arm-kernel@lists.infradead.org>,
-	<linux-watchdog@vger.kernel.org>
-In-Reply-To: <1418395859-32209-2-git-send-email-matthias.bgg@gmail.com>
-References: <1418395859-32209-1-git-send-email-matthias.bgg@gmail.com>
-	 <1418395859-32209-2-git-send-email-matthias.bgg@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Mon, 15 Dec 2014 11:37:31 +0800
-Message-ID: <1418614651.18671.3.camel@mtksdaap41>
+	Mon, 15 Dec 2014 09:18:06 -0500
+Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
+	(envelope-from <linux@roeck-us.net>)
+	id 1Y0WTO-003URJ-Ed
+	for linux-watchdog@vger.kernel.org; Mon, 15 Dec 2014 14:18:06 +0000
+Message-ID: <548EED97.60604@roeck-us.net>
+Date: Mon, 15 Dec 2014 06:17:59 -0800
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
+To: Lee Jones <lee.jones@linaro.org>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+CC: kernel@stlinux.com, a.zummo@towertech.it,
+	rtc-linux@googlegroups.com, wim@iguana.be,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org
+Subject: Re: [PATCH 7/8] rtc: st: add new driver for ST's LPC RTC
+References: <1418642738-17407-1-git-send-email-lee.jones@linaro.org> <1418642738-17407-8-git-send-email-lee.jones@linaro.org>
+In-Reply-To: <1418642738-17407-8-git-send-email-lee.jones@linaro.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
-
-On Fri, 2014-12-12 at 15:50 +0100, Matthias Brugger wrote:
-> This patch adds a driver for the Mediatek SoC integrated
-> watchdog. This driver supports watchdog and software reset
-> for mt65xx and mt81xx SoCs.
-> 
-> Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
-
-> +static int mtk_reset_handler(struct notifier_block *this, unsigned long mode,
-> +				void *cmd)
-> +{
-> +	struct mtk_wdt_dev *mtk_wdt = container_of(this,
-> +						       struct mtk_wdt_dev,
-> +						       restart_handler);
-> +	void __iomem *wdt_base = mtk_wdt->wdt_base;
-> +	u32 reg;
+On 12/15/2014 03:25 AM, Lee Jones wrote:
+> ST's Low Power Controller (LPC) controls two devices; watchdog and RTC.
+> Only one of the devices can be used at any one time.  This is enforced
+> by the correlating MFD driver.  This portion of the driver-set controls
+> the Real Time Clock.
+>
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> ---
+>   drivers/rtc/Kconfig      |  13 ++
+>   drivers/rtc/Makefile     |   1 +
+>   drivers/rtc/rtc-st-lpc.c | 330 +++++++++++++++++++++++++++++++++++++++++++++++
+>   3 files changed, 344 insertions(+)
+>   create mode 100644 drivers/rtc/rtc-st-lpc.c
+>
+> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+> index a168e96..aa4bd90 100644
+> --- a/drivers/rtc/Kconfig
+> +++ b/drivers/rtc/Kconfig
+> @@ -1355,6 +1355,18 @@ config RTC_DRV_SIRFSOC
+>   	  Say "yes" here to support the real time clock on SiRF SOC chips.
+>   	  This driver can also be built as a module called rtc-sirfsoc.
+>
+> +config RTC_DRV_ST_LPC
+> +	tristate "STMicroelectronics LPC RTC"
+> +	depends on ARCH_STI
+> +	depends on OF
+> +	select MFD_ST_LPC
+> +	help
+> +	  Say Y here to include STMicroelectronics Low Power Controller
+> +	  (LPC) based RTC support.
 > +
-> +	/* Reset system */
-> +	writel(WDT_SWRST_KEY, wdt_base + WDT_SWRST);
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called rtc-st-lpc.
 > +
-> +	while (1) {
-> +		mdelay(5);
-> +		writel(WDT_SWRST_KEY, wdt_base + WDT_SWRST);
-> +	}
-> +	return NOTIFY_DONE;
+>   config RTC_DRV_MOXART
+>   	tristate "MOXA ART RTC"
+>   	depends on ARCH_MOXART || COMPILE_TEST
+> @@ -1390,4 +1402,5 @@ config RTC_DRV_HID_SENSOR_TIME
+>   	  rtc-hid-sensor-time.
+>
+>
 > +
-> +}
 
-Build warning
-../drivers/watchdog/mtk_wdt.c:78:6: warning: unused variable
-'reg' [-Wunused-variable]
+Hi Lee,
+
+Yet another empty line ?
+
+Guenter
 
