@@ -1,60 +1,41 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-yk0-f178.google.com ([209.85.160.178]:63678 "EHLO
-	mail-yk0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751022AbaLOLZq (ORCPT
+Received: from mail-yh0-f53.google.com ([209.85.213.53]:47759 "EHLO
+	mail-yh0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751367AbaLOLZv (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 15 Dec 2014 06:25:46 -0500
-Received: by mail-yk0-f178.google.com with SMTP id 20so4823232yks.37
-        for <linux-watchdog@vger.kernel.org>; Mon, 15 Dec 2014 03:25:45 -0800 (PST)
+	Mon, 15 Dec 2014 06:25:51 -0500
+Received: by mail-yh0-f53.google.com with SMTP id i57so5003980yha.40
+        for <linux-watchdog@vger.kernel.org>; Mon, 15 Dec 2014 03:25:50 -0800 (PST)
 From: Lee Jones <lee.jones@linaro.org>
 To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 Cc: lee.jones@linaro.org, kernel@stlinux.com, a.zummo@towertech.it,
 	rtc-linux@googlegroups.com, wim@iguana.be,
 	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org
-Subject: [PATCH 0/8] mfd: watchdog: rtc: New driver for ST's LPC IP
-Date: Mon, 15 Dec 2014 11:25:30 +0000
-Message-Id: <1418642738-17407-1-git-send-email-lee.jones@linaro.org>
+Subject: [PATCH 1/8] ARM: multi_v7_defconfig: Enable support for ST's LPC Watchdog
+Date: Mon, 15 Dec 2014 11:25:31 +0000
+Message-Id: <1418642738-17407-2-git-send-email-lee.jones@linaro.org>
+In-Reply-To: <1418642738-17407-1-git-send-email-lee.jones@linaro.org>
+References: <1418642738-17407-1-git-send-email-lee.jones@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-ST's Low Power Controller (LPC) controls two devices; watchdog and RTC.
-Only one of the devices can be used at any one time, which is enforced
-by the correlating MFD driver.
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ arch/arm/configs/multi_v7_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-This driver set provides everything you need to choose one (and only
-one) of the LPC devices to run per I/P block, of which there are two
-on the enabled STiH407 h/w.
-
-Lee Jones (8):
-  ARM: multi_v7_defconfig: Enable support for ST's LPC Watchdog
-  ARM: multi_v7_defconfig: Enable support for ST's LPC RTC
-  mfd: bindings: Provide ST bindings for ST's LPC device
-  mfd: dt-bindings: Provide human readable defines for LPC mode choosing
-  mfd: Add ST's Low Power Controller driver
-  watchdog: st_wdt: Add new driver for ST's LPC Watchdog
-  rtc: st: add new driver for ST's LPC RTC
-  ARM: STi: DT: STiH407: Add Device Tree node for the LPC
-
- Documentation/devicetree/bindings/mfd/st-lpc.txt |  36 +++
- arch/arm/boot/dts/stih407.dtsi                   |  20 ++
- arch/arm/configs/multi_v7_defconfig              |   2 +
- drivers/mfd/Kconfig                              |   8 +
- drivers/mfd/Makefile                             |   1 +
- drivers/mfd/st-lpc.c                             |  88 ++++++
- drivers/rtc/Kconfig                              |  13 +
- drivers/rtc/Makefile                             |   1 +
- drivers/rtc/rtc-st-lpc.c                         | 330 +++++++++++++++++++++++
- drivers/watchdog/Kconfig                         |  13 +
- drivers/watchdog/Makefile                        |   1 +
- drivers/watchdog/st_wdt.c                        | 312 +++++++++++++++++++++
- include/dt-bindings/mfd/st-lpc.h                 |  15 ++
- 13 files changed, 840 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/st-lpc.txt
- create mode 100644 drivers/mfd/st-lpc.c
- create mode 100644 drivers/rtc/rtc-st-lpc.c
- create mode 100644 drivers/watchdog/st_wdt.c
- create mode 100644 include/dt-bindings/mfd/st-lpc.h
-
+diff --git a/arch/arm/configs/multi_v7_defconfig b/arch/arm/configs/multi_v7_defconfig
+index 99a8a4a..e34d5c6 100644
+--- a/arch/arm/configs/multi_v7_defconfig
++++ b/arch/arm/configs/multi_v7_defconfig
+@@ -238,6 +238,7 @@ CONFIG_ST_THERMAL_SYSCFG=y
+ CONFIG_ST_THERMAL_MEMMAP=y
+ CONFIG_WATCHDOG=y
+ CONFIG_ORION_WATCHDOG=y
++CONFIG_ST_WATCHDOG=y
+ CONFIG_SUNXI_WATCHDOG=y
+ CONFIG_MFD_AS3722=y
+ CONFIG_MFD_BCM590XX=y
 -- 
 1.9.1
 
