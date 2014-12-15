@@ -1,11 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx08-00178001.pphosted.com ([91.207.212.93]:59469 "EHLO
-	mx08-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750714AbaLOMat (ORCPT
+Received: from mx07-00178001.pphosted.com ([62.209.51.94]:36959 "EHLO
+	mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751905AbaLOMxe (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 15 Dec 2014 07:30:49 -0500
-Message-ID: <548ED446.8000908@st.com>
-Date: Mon, 15 Dec 2014 13:29:58 +0100
+	Mon, 15 Dec 2014 07:53:34 -0500
+Message-ID: <548ED9A2.5060403@st.com>
+Date: Mon, 15 Dec 2014 13:52:50 +0100
 From: David Paris <david.paris@st.com>
 MIME-Version: 1.0
 To: Lee Jones <lee.jones@linaro.org>,
@@ -24,11 +24,15 @@ List-Id: linux-watchdog@vger.kernel.org
 
 Hi Lee,
 
-     1. During resume stage the st_wdog_setup should be called again to 
-reconfigure LPC RTC as watchdog.
-     2. For Suspend/resume API, is CONFIG_PM necessary, CONFIG_PM_SLEEP 
-is enough as no PM_RUNTIME in this driver ! This will results in a 
-compilation warning if CONFIG_PM_SLEEP is unset for PM_RUNTIME not.
+     Something I didn't pointed out before, this driver is only supposed 
+to support LPC_0 for stih407. The enable mask is only coded for LPC_0. 
+Is it a wanted behavior ?
+
+     In our current implementation here in ST is that LPC_0 is for A9 
+Watchdog and LPC_1 for A9 global timer. This has been translated in the 
+driver by hardcoding enable mask of LPC watchdog to only support LPC_0. 
+But do we want to have a more generic driver to be applicable both for 
+LPC_0 and LPC_1 ?
 
      David
 
