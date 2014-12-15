@@ -1,65 +1,60 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from kirsty.vergenet.net ([202.4.237.240]:41228 "EHLO
-	kirsty.vergenet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933176AbaLKBFC (ORCPT
+Received: from mailgw02.mediatek.com ([210.61.82.184]:52886 "EHLO
+	mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750917AbaLODhl (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 10 Dec 2014 20:05:02 -0500
-Date: Thu, 11 Dec 2014 10:04:57 +0900
-From: Simon Horman <horms@verge.net.au>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Wolfram Sang <wsa@the-dreams.de>,
-	Magnus Damm <magnus.damm@gmail.com>,
-	Support Opensource <support.opensource@diasemi.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Lee Jones <lee.jones@linaro.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Linux I2C <linux-i2c@vger.kernel.org>,
-	Linux-sh list <linux-sh@vger.kernel.org>
-Subject: Re: [PATCH 0/4] ARM: shmobile: koelsch: Add DA9063 watchdog restart
- support
-Message-ID: <20141211010456.GA28633@verge.net.au>
-References: <1418124169-7123-1-git-send-email-geert+renesas@glider.be>
- <20141210003352.GH9690@verge.net.au>
- <CAMuHMdWY_1OsjFvT35Lg23ytzPz0MSCmcT7diGk1ughxNnmtVg@mail.gmail.com>
+	Sun, 14 Dec 2014 22:37:41 -0500
+Subject: Re: [PATCH v2 1/2] watchdog: Add driver for Mediatek watchdog
+From: Eddie Huang <eddie.huang@mediatek.com>
+To: Matthias Brugger <matthias.bgg@gmail.com>
+CC: <wim@iguana.be>, <robh+dt@kernel.org>, <pawel.moll@arm.com>,
+	<mark.rutland@arm.com>, <ijc+devicetree@hellion.org.uk>,
+	<galak@codeaurora.org>, <grant.likely@linaro.org>,
+	<heiko@sntech.de>, <yingjoe.chen@gmail.com>,
+	<linux-kernel@vger.kernel.org>, <ibanezchen@gmail.com>,
+	<greta.zhang@mediatek.com>, <linux-arm-kernel@lists.infradead.org>,
+	<linux-watchdog@vger.kernel.org>
+In-Reply-To: <1418395859-32209-2-git-send-email-matthias.bgg@gmail.com>
+References: <1418395859-32209-1-git-send-email-matthias.bgg@gmail.com>
+	 <1418395859-32209-2-git-send-email-matthias.bgg@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Mon, 15 Dec 2014 11:37:31 +0800
+Message-ID: <1418614651.18671.3.camel@mtksdaap41>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdWY_1OsjFvT35Lg23ytzPz0MSCmcT7diGk1ughxNnmtVg@mail.gmail.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Dec 10, 2014 at 11:06:25AM +0100, Geert Uytterhoeven wrote:
-> Hi Simon,
-> 
-> On Wed, Dec 10, 2014 at 1:33 AM, Simon Horman <horms@verge.net.au> wrote:
-> > On Tue, Dec 09, 2014 at 12:22:45PM +0100, Geert Uytterhoeven wrote:
-> >> This patch series add restart support for r8a7791/koelsch through the watchdog
-> >> in the DA9063 PMIC. Restart can be triggered in two ways:
-> >>   1. Timeout of the watchdog timer,
-> >>   2. Manual system restart, shutting down the DA9063.
-> >>
-> >> Dependencies:
-> >>   - There are no strict merge order dependencies,
-> >>   - While manual restart depends on patch 1, patches 3 and 4 can be merged
-> >>     now, as restart on watchdog timeout works without patch 1.
-> >>
-> >> Patches:
-> >>   - Patch 1 is intended for the watchdog tree (based on watchdog/next),
-> >>   - Patch 2 is intended for the i2c tree (based on i2c/next),
-> >>   - Patches 3 and 4 are intended for the shmobile tree (based on
-> >>     renesas-devel-20141209-v3.18).
-> >
-> > Patches 3 and 4 look like they could be queued up for v3.20 now.
-> > Shall I do so?
-> 
-> Please do so.
-> 
-> You can easily test restart on watchdog timeout using:
-> 
-> $ cat > /dev/watchdog0
-> 
-> Koelsch should restart 8 seconds after you stop typing.
+Hi,
 
-Thanks, I have queued them up.
+On Fri, 2014-12-12 at 15:50 +0100, Matthias Brugger wrote:
+> This patch adds a driver for the Mediatek SoC integrated
+> watchdog. This driver supports watchdog and software reset
+> for mt65xx and mt81xx SoCs.
+> 
+> Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+
+> +static int mtk_reset_handler(struct notifier_block *this, unsigned long mode,
+> +				void *cmd)
+> +{
+> +	struct mtk_wdt_dev *mtk_wdt = container_of(this,
+> +						       struct mtk_wdt_dev,
+> +						       restart_handler);
+> +	void __iomem *wdt_base = mtk_wdt->wdt_base;
+> +	u32 reg;
+> +
+> +	/* Reset system */
+> +	writel(WDT_SWRST_KEY, wdt_base + WDT_SWRST);
+> +
+> +	while (1) {
+> +		mdelay(5);
+> +		writel(WDT_SWRST_KEY, wdt_base + WDT_SWRST);
+> +	}
+> +	return NOTIFY_DONE;
+> +
+> +}
+
+Build warning
+../drivers/watchdog/mtk_wdt.c:78:6: warning: unused variable
+'reg' [-Wunused-variable]
+
