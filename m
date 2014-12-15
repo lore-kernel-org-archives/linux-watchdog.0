@@ -1,64 +1,60 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:55476 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752927AbaLMPp4 (ORCPT
+Received: from mail-yk0-f178.google.com ([209.85.160.178]:63678 "EHLO
+	mail-yk0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751022AbaLOLZq (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 13 Dec 2014 10:45:56 -0500
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
-	(envelope-from <linux@roeck-us.net>)
-	id 1XzotI-000eH3-FJ
-	for linux-watchdog@vger.kernel.org; Sat, 13 Dec 2014 15:45:56 +0000
-Message-ID: <548C5F1F.8070804@roeck-us.net>
-Date: Sat, 13 Dec 2014 07:45:35 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: Matthias Brugger <matthias.bgg@gmail.com>, wim@iguana.be,
-	robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-	grant.likely@linaro.org
-CC: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, heiko@sntech.de,
-	yingjoe.chen@gmail.com, ibanezchen@gmail.com,
-	greta.zhang@mediatek.com, eddie.huang@mediatek.com
-Subject: Re: [PATCH v2 2/2] ARM: mediatek: dts: Add bindings for watchdog
-References: <1418395859-32209-1-git-send-email-matthias.bgg@gmail.com> <1418395859-32209-3-git-send-email-matthias.bgg@gmail.com>
-In-Reply-To: <1418395859-32209-3-git-send-email-matthias.bgg@gmail.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Dec 2014 06:25:46 -0500
+Received: by mail-yk0-f178.google.com with SMTP id 20so4823232yks.37
+        for <linux-watchdog@vger.kernel.org>; Mon, 15 Dec 2014 03:25:45 -0800 (PST)
+From: Lee Jones <lee.jones@linaro.org>
+To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: lee.jones@linaro.org, kernel@stlinux.com, a.zummo@towertech.it,
+	rtc-linux@googlegroups.com, wim@iguana.be,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org
+Subject: [PATCH 0/8] mfd: watchdog: rtc: New driver for ST's LPC IP
+Date: Mon, 15 Dec 2014 11:25:30 +0000
+Message-Id: <1418642738-17407-1-git-send-email-lee.jones@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 12/12/2014 06:50 AM, Matthias Brugger wrote:
-> Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
-> ---
->   Documentation/devicetree/bindings/watchdog/mtk-wdt.txt | 13 +++++++++++++
->   1 file changed, 13 insertions(+)
->   create mode 100644 Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
->
-> diff --git a/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
-> new file mode 100644
-> index 0000000..af9eb5b
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
-> @@ -0,0 +1,13 @@
-> +Mediatek SoCs Watchdog timer
-> +
-> +Required properties:
-> +
-> +- compatible : should be "mediatek,mt6589-wdt"
+ST's Low Power Controller (LPC) controls two devices; watchdog and RTC.
+Only one of the devices can be used at any one time, which is enforced
+by the correlating MFD driver.
 
-"mediatek" is undefined as vendor prefix in the current upstream code.
-Is this vendor prefix coming in from another patch set ?
+This driver set provides everything you need to choose one (and only
+one) of the LPC devices to run per I/P block, of which there are two
+on the enabled STiH407 h/w.
 
-Guenter
+Lee Jones (8):
+  ARM: multi_v7_defconfig: Enable support for ST's LPC Watchdog
+  ARM: multi_v7_defconfig: Enable support for ST's LPC RTC
+  mfd: bindings: Provide ST bindings for ST's LPC device
+  mfd: dt-bindings: Provide human readable defines for LPC mode choosing
+  mfd: Add ST's Low Power Controller driver
+  watchdog: st_wdt: Add new driver for ST's LPC Watchdog
+  rtc: st: add new driver for ST's LPC RTC
+  ARM: STi: DT: STiH407: Add Device Tree node for the LPC
 
-> +- reg : Specifies base physical address and size of the registers.
-> +
-> +Example:
-> +
-> +wdt: watchdog@010000000 {
-> +	compatible = "mediatek,mt6589-wdt";
-> +	reg = <0x10000000 0x18>;
-> +};
->
+ Documentation/devicetree/bindings/mfd/st-lpc.txt |  36 +++
+ arch/arm/boot/dts/stih407.dtsi                   |  20 ++
+ arch/arm/configs/multi_v7_defconfig              |   2 +
+ drivers/mfd/Kconfig                              |   8 +
+ drivers/mfd/Makefile                             |   1 +
+ drivers/mfd/st-lpc.c                             |  88 ++++++
+ drivers/rtc/Kconfig                              |  13 +
+ drivers/rtc/Makefile                             |   1 +
+ drivers/rtc/rtc-st-lpc.c                         | 330 +++++++++++++++++++++++
+ drivers/watchdog/Kconfig                         |  13 +
+ drivers/watchdog/Makefile                        |   1 +
+ drivers/watchdog/st_wdt.c                        | 312 +++++++++++++++++++++
+ include/dt-bindings/mfd/st-lpc.h                 |  15 ++
+ 13 files changed, 840 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/st-lpc.txt
+ create mode 100644 drivers/mfd/st-lpc.c
+ create mode 100644 drivers/rtc/rtc-st-lpc.c
+ create mode 100644 drivers/watchdog/st_wdt.c
+ create mode 100644 include/dt-bindings/mfd/st-lpc.h
+
+-- 
+1.9.1
 
