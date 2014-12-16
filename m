@@ -1,60 +1,89 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:40433 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751014AbaLPB6W (ORCPT
+Received: from mail-lb0-f173.google.com ([209.85.217.173]:65327 "EHLO
+	mail-lb0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751118AbaLPQOh (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 15 Dec 2014 20:58:22 -0500
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
-	(envelope-from <linux@roeck-us.net>)
-	id 1Y0hP4-004426-5M
-	for linux-watchdog@vger.kernel.org; Tue, 16 Dec 2014 01:58:22 +0000
-Message-ID: <548F91B9.7000705@roeck-us.net>
-Date: Mon, 15 Dec 2014 17:58:17 -0800
-From: Guenter Roeck <linux@roeck-us.net>
+	Tue, 16 Dec 2014 11:14:37 -0500
 MIME-Version: 1.0
-To: Fabio Estevam <festevam@gmail.com>, wim@iguana.be
-CC: linux-watchdog@vger.kernel.org,
-	Fabio Estevam <fabio.estevam@freescale.com>
-Subject: Re: [PATCH] watchdog: imx2_wdt: Fix the argument of watchdog_active()
-References: <1418690999-28294-1-git-send-email-festevam@gmail.com>
-In-Reply-To: <1418690999-28294-1-git-send-email-festevam@gmail.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <548C5F1F.8070804@roeck-us.net>
+References: <1418395859-32209-1-git-send-email-matthias.bgg@gmail.com>
+	<1418395859-32209-3-git-send-email-matthias.bgg@gmail.com>
+	<548C5F1F.8070804@roeck-us.net>
+Date: Tue, 16 Dec 2014 17:14:35 +0100
+Message-ID: <CABuKBe+=PaJ2BuhoGGwn8V20207QU3zzWb4UGgXzwwF-AvBEPw@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] ARM: mediatek: dts: Add bindings for watchdog
+From: Matthias Brugger <matthias.bgg@gmail.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: wim@iguana.be, Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	Grant Likely <grant.likely@linaro.org>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	linux-watchdog@vger.kernel.org,
+	=?ISO-8859-1?Q?Heiko_St=FCbner?= <heiko@sntech.de>,
+	Yingjoe Chen <yingjoe.chen@gmail.com>,
+	Howard Chen <ibanezchen@gmail.com>, greta.zhang@mediatek.com,
+	huang eddie <eddie.huang@mediatek.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 12/15/2014 04:49 PM, Fabio Estevam wrote:
-> From: Fabio Estevam <fabio.estevam@freescale.com>
+2014-12-13 16:45 GMT+01:00 Guenter Roeck <linux@roeck-us.net>:
+> On 12/12/2014 06:50 AM, Matthias Brugger wrote:
+>>
+>> Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+>> ---
+>>   Documentation/devicetree/bindings/watchdog/mtk-wdt.txt | 13
+>> +++++++++++++
+>>   1 file changed, 13 insertions(+)
+>>   create mode 100644
+>> Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
+>>
+>> diff --git a/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
+>> b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
+>> new file mode 100644
+>> index 0000000..af9eb5b
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
+>> @@ -0,0 +1,13 @@
+>> +Mediatek SoCs Watchdog timer
+>> +
+>> +Required properties:
+>> +
+>> +- compatible : should be "mediatek,mt6589-wdt"
 >
-> Fix the following build warning by passing the expected argument type to
-> watchdog_active():
 >
-> drivers/watchdog/imx2_wdt.c: In function 'imx2_wdt_suspend':
-> drivers/watchdog/imx2_wdt.c:340:2: warning: passing argument 1 of 'watchdog_active' from incompatible pointer type [enabled by default]
-> In file included from drivers/watchdog/imx2_wdt.c:38:0:
-> include/linux/watchdog.h:104:20: note: expected 'struct watchdog_device *' but argument is of type 'struct watchdog_device **'
->
-> Reported-by: Olof's autobuilder <build@lixom.net>
-> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+> "mediatek" is undefined as vendor prefix in the current upstream code.
+> Is this vendor prefix coming in from another patch set ?
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Strange, should be in vendor-prefix.txt [1].
+Please double check.
 
-> ---
->   drivers/watchdog/imx2_wdt.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
+Thanks,
+Matthias
+
+[1] https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/Documentation/devicetree/bindings/vendor-prefixes.txt?id=refs/tags/v3.18#n93
+
 >
-> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-> index 51d940b..d6add51 100644
-> --- a/drivers/watchdog/imx2_wdt.c
-> +++ b/drivers/watchdog/imx2_wdt.c
-> @@ -337,7 +337,7 @@ static int imx2_wdt_suspend(struct device *dev)
->   	imx2_wdt_ping(wdog);
+> Guenter
 >
->   	/* Watchdog has been stopped but IP block is still running */
-> -	if (!watchdog_active(&wdog) && imx2_wdt_is_running(wdev))
-> +	if (!watchdog_active(wdog) && imx2_wdt_is_running(wdev))
->   		del_timer_sync(&wdev->timer);
 >
->   	clk_disable_unprepare(wdev->clk);
+>> +- reg : Specifies base physical address and size of the registers.
+>> +
+>> +Example:
+>> +
+>> +wdt: watchdog@010000000 {
+>> +       compatible = "mediatek,mt6589-wdt";
+>> +       reg = <0x10000000 0x18>;
+>> +};
+>>
 >
 
+
+
+-- 
+motzblog.wordpress.com
