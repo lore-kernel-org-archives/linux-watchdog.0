@@ -1,16 +1,16 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f49.google.com ([209.85.220.49]:64932 "EHLO
-	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751800AbaLPQ0N (ORCPT
+Received: from mail-pd0-f175.google.com ([209.85.192.175]:45588 "EHLO
+	mail-pd0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751674AbaLPQ0U (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 16 Dec 2014 11:26:13 -0500
+	Tue, 16 Dec 2014 11:26:20 -0500
 From: Athira Lekshmi <andnlnbn18@gmail.com>
 To: wim@iguana.be
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
 	Athira Lekshmi <andnlnbn18@gmail.com>
-Subject: [PATCH 7/8] drivers: watchdog: Fixed missing blank line warning
-Date: Tue, 16 Dec 2014 21:55:28 +0530
-Message-Id: <1418747129-3766-7-git-send-email-andnlnbn18@gmail.com>
+Subject: [PATCH 8/8] drivers: watchdog: Fixed missing blank line warning
+Date: Tue, 16 Dec 2014 21:55:29 +0530
+Message-Id: <1418747129-3766-8-git-send-email-andnlnbn18@gmail.com>
 In-Reply-To: <1418747129-3766-1-git-send-email-andnlnbn18@gmail.com>
 References: <1418747129-3766-1-git-send-email-andnlnbn18@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -21,37 +21,21 @@ Added a blank line after declarations to remove the warning:
 
 Signed-off-by: Athira Lekshmi <andnlnbn18@gmail.com>
 ---
- drivers/watchdog/at91sam9_wdt.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/watchdog/eurotechwdt.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
-index 489729b..794a34a 100644
---- a/drivers/watchdog/at91sam9_wdt.c
-+++ b/drivers/watchdog/at91sam9_wdt.c
-@@ -82,6 +82,7 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
- #define to_wdt(wdd) container_of(wdd, struct at91wdt, wdd)
- struct at91wdt {
- 	struct watchdog_device wdd;
-+
- 	void __iomem *base;
- 	unsigned long next_heartbeat;	/* the next_heartbeat for the timer */
- 	struct timer_list timer;	/* The timer that pings the watchdog */
-@@ -121,6 +122,7 @@ static inline void at91_wdt_reset(struct at91wdt *wdt)
- static void at91_ping(unsigned long data)
- {
- 	struct at91wdt *wdt = (struct at91wdt *)data;
-+
- 	if (time_before(jiffies, wdt->next_heartbeat) ||
- 	    !watchdog_active(&wdt->wdd)) {
- 		at91_wdt_reset(wdt);
-@@ -372,6 +374,7 @@ static int __init at91wdt_probe(struct platform_device *pdev)
- static int __exit at91wdt_remove(struct platform_device *pdev)
- {
- 	struct at91wdt *wdt = platform_get_drvdata(pdev);
-+
- 	watchdog_unregister_device(&wdt->wdd);
+diff --git a/drivers/watchdog/eurotechwdt.c b/drivers/watchdog/eurotechwdt.c
+index 23ee532..86b19ee 100644
+--- a/drivers/watchdog/eurotechwdt.c
++++ b/drivers/watchdog/eurotechwdt.c
+@@ -210,6 +210,7 @@ size_t count, loff_t *ppos)
  
- 	pr_warn("I quit now, hardware will probably reboot!\n");
+ 			for (i = 0; i != count; i++) {
+ 				char c;
++
+ 				if (get_user(c, buf + i))
+ 					return -EFAULT;
+ 				if (c == 'V')
 -- 
 1.7.9.5
 
