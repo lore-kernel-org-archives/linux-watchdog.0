@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wg0-f54.google.com ([74.125.82.54]:57526 "EHLO
-	mail-wg0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751084AbaLQVSU (ORCPT
+Received: from mail-wg0-f50.google.com ([74.125.82.50]:54198 "EHLO
+	mail-wg0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751709AbaLQVSa (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 17 Dec 2014 16:18:20 -0500
+	Wed, 17 Dec 2014 16:18:30 -0500
 From: Matthias Brugger <matthias.bgg@gmail.com>
 To: wim@iguana.be, robh+dt@kernel.org, pawel.moll@arm.com,
 	mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
@@ -13,39 +13,39 @@ Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
 	yingjoe.chen@gmail.com, ibanezchen@gmail.com,
 	matthias.bgg@gmail.com, greta.zhang@mediatek.com,
 	eddie.huang@mediatek.com, wens@csie.org, linux@roeck-us.net
-Subject: [PATCH v3 0/2] ARM: mediatek: Add watchdog driver
-Date: Wed, 17 Dec 2014 22:18:03 +0100
-Message-Id: <1418851085-17787-1-git-send-email-matthias.bgg@gmail.com>
+Subject: [PATCH v3 2/2] ARM: mediatek: dts: Add bindings for watchdog
+Date: Wed, 17 Dec 2014 22:18:05 +0100
+Message-Id: <1418851085-17787-3-git-send-email-matthias.bgg@gmail.com>
+In-Reply-To: <1418851085-17787-1-git-send-email-matthias.bgg@gmail.com>
+References: <1418851085-17787-1-git-send-email-matthias.bgg@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Mediatek SoCs have a watchdog driver. This patch set adds driver and DTS
-binding. The driver also implements a restart handler to reboot the SoC.
-
-Changes for v3:
-- fix based on file name
-- fix style problems
-- fix error return value and warning message
-- delete unnecessary watchdog_set_drvdata
-- delete unused variable
-
-Changes for v2:
-- we don't need to have the watchdog enabled to do a sotware reset
-- disable dual mode and irq mode when starting the watchdog
-- update commit message to name the SoCs the driver supports
-
-Matthias Brugger (2):
-  watchdog: Add driver for Mediatek watchdog
-  ARM: mediatek: dts: Add bindings for watchdog
-
- .../devicetree/bindings/watchdog/mtk-wdt.txt       |  13 ++
- drivers/watchdog/Kconfig                           |  10 +
- drivers/watchdog/Makefile                          |   1 +
- drivers/watchdog/mtk_wdt.c                         | 256 +++++++++++++++++++++
- 4 files changed, 280 insertions(+)
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+---
+ Documentation/devicetree/bindings/watchdog/mtk-wdt.txt | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
- create mode 100644 drivers/watchdog/mtk_wdt.c
 
+diff --git a/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
+new file mode 100644
+index 0000000..af9eb5b
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
+@@ -0,0 +1,13 @@
++Mediatek SoCs Watchdog timer
++
++Required properties:
++
++- compatible : should be "mediatek,mt6589-wdt"
++- reg : Specifies base physical address and size of the registers.
++
++Example:
++
++wdt: watchdog@010000000 {
++	compatible = "mediatek,mt6589-wdt";
++	reg = <0x10000000 0x18>;
++};
 -- 
 1.9.1
 
