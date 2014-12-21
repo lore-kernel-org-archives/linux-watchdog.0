@@ -1,84 +1,89 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ob0-f169.google.com ([209.85.214.169]:64001 "EHLO
-	mail-ob0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751133AbaLRRUU (ORCPT
+Received: from kirsty.vergenet.net ([202.4.237.240]:34994 "EHLO
+	kirsty.vergenet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751298AbaLUKw0 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 18 Dec 2014 12:20:20 -0500
-Received: by mail-ob0-f169.google.com with SMTP id vb8so4403275obc.0
-        for <linux-watchdog@vger.kernel.org>; Thu, 18 Dec 2014 09:20:19 -0800 (PST)
-Date: Thu, 18 Dec 2014 17:20:12 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	kernel@stlinux.com, a.zummo@towertech.it,
-	rtc-linux@googlegroups.com, wim@iguana.be,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	arnd@arndb.de, David Paris <david.paris@st.com>
-Subject: Re: [PATCH 6/8] watchdog: st_wdt: Add new driver for ST's LPC
- Watchdog
-Message-ID: <20141218172012.GC4525@x1>
-References: <1418834727-1602-1-git-send-email-lee.jones@linaro.org>
- <1418834727-1602-7-git-send-email-lee.jones@linaro.org>
- <20141217180251.GA29914@roeck-us.net>
- <20141218082652.GP13885@x1>
- <20141218160014.GA16015@roeck-us.net>
+	Sun, 21 Dec 2014 05:52:26 -0500
+Date: Sun, 21 Dec 2014 19:52:20 +0900
+From: Simon Horman <horms@verge.net.au>
+To: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Wim Van Sebroeck <wim@iguana.be>, Wolfram Sang <wsa@the-dreams.de>,
+	Magnus Damm <magnus.damm@gmail.com>,
+	Support Opensource <support.opensource@diasemi.com>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Lee Jones <lee.jones@linaro.org>,
+	linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org,
+	linux-sh@vger.kernel.org, devicetree@vger.kernel.org
+Subject: Re: [PATCH 3/4] ARM: shmobile: koelsch: Add DA9063 PMIC device node
+ for system restart
+Message-ID: <20141221105133.GA30697@verge.net.au>
+References: <1418124169-7123-1-git-send-email-geert+renesas@glider.be>
+ <1418124169-7123-4-git-send-email-geert+renesas@glider.be>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20141218160014.GA16015@roeck-us.net>
+In-Reply-To: <1418124169-7123-4-git-send-email-geert+renesas@glider.be>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, 18 Dec 2014, Guenter Roeck wrote:
+On Tue, Dec 09, 2014 at 12:22:48PM +0100, Geert Uytterhoeven wrote:
+> Add a minimal device node for the DA9063 PMIC, which is connected to i2c6.
+> This allows the system to be restarted when the watchdog timer times
+> out, or when a system restart is requested.
+> 
+> Regulator support is not yet included, as no DT support code nor DT
+> binding documentation exists for the regulator functionality.
+> 
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> Cc: devicetree@vger.kernel.org
 
-> On Thu, Dec 18, 2014 at 08:26:52AM +0000, Lee Jones wrote:
-> > On Wed, 17 Dec 2014, Guenter Roeck wrote:
-> > > On Wed, Dec 17, 2014 at 04:45:25PM +0000, Lee Jones wrote:
-> > > > Signed-off-by: David Paris <david.paris@st.com>
-> > > > Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> > >=20
-> > > Hi Lee and David,
-> > >=20
-> > > I still have a couple of comments below. Sorry I didn't catch those=
- earlier.
-> > >=20
-> > > Thanks,
-> > > Guenter
-> > >=20
-> > > > ---
-> > > >  drivers/watchdog/Kconfig  |  13 ++
-> > > >  drivers/watchdog/Makefile |   1 +
-> > > >  drivers/watchdog/st_wdt.c | 323 ++++++++++++++++++++++++++++++++=
-++++++++++++++
-> > > >  3 files changed, 337 insertions(+)
-> > > >  create mode 100644 drivers/watchdog/st_wdt.c
-> >=20
-> > Chopping all the crud.
-> >=20
-> > [...]
-> >=20
-> > > > +static struct of_device_id st_wdog_match[] =3D {
-> > > > +	{
-> > > > +		.compatible =3D "st,stih407-lpc",
-> > > > +		.data =3D (void *)&stih407_syscfg,
-> > >=20
-> > > Nitpick: typecast to and from void * is not necessary.
-> >=20
-> > Actually that's not true, but it is superfluous in this case.
-> >=20
-> Point taken. Would you agree to a more detailed "typecasting a pointer
-> to and from void * is not necessary" ?
+Hi,
 
-Sure, why not? ;)
+I had this queued up for v3.20, however, when rebasing on top
+of v3.19-rca (previous base was v3.18) I noticed that this patch
+appears to cause booting koelsch with shmobile_defconfig to
+stop at:
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+rcar_sound ec500000.rcar_sound: can't get dma channel
+rcar_sound ec500000.rcar_sound: src[3] (Gen2) failed
+rcar_sound ec500000.rcar_sound: ssi[1] fallback to PIO mode
+rcar_sound ec500000.rcar_sound: probed
+TCP: cubic registered
+NET: Registered protocol family 10
+da9063 6-0058: Failed to read IRQ status: -6
+sit: IPv6 over IPv4 tunneling driver
+NET: Registered protocol family 17
+Key type dns_resolver registered
+random: nonblocking pool is initialized
+
+I have (hopefully temporarily) dropped this patch accordingly.
+
+> ---
+> Restart by watchdog timeout is working now.
+> Manual system restart depends on "[PATCH 1/4] watchdog: da9063: Add restart
+> handler support".
+> ---
+>  arch/arm/boot/dts/r8a7791-koelsch.dts | 7 +++++++
+>  1 file changed, 7 insertions(+)
+> 
+> diff --git a/arch/arm/boot/dts/r8a7791-koelsch.dts b/arch/arm/boot/dts/r8a7791-koelsch.dts
+> index 6938377d3798644b..a400c27a813f1a8b 100644
+> --- a/arch/arm/boot/dts/r8a7791-koelsch.dts
+> +++ b/arch/arm/boot/dts/r8a7791-koelsch.dts
+> @@ -524,6 +524,13 @@
+>  		regulator-boot-on;
+>  		regulator-always-on;
+>  	};
+> +
+> +	pmic@58 {
+> +		compatible = "dlg,da9063";
+> +		reg = <0x58>;
+> +		interrupt-parent = <&irqc0>;
+> +		interrupts = <2 IRQ_TYPE_LEVEL_LOW>;
+> +	};
+>  };
+>  
+>  &pci0 {
+> -- 
+> 1.9.1
+> 
