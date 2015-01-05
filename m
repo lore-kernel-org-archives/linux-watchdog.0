@@ -1,11 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from eusmtp01.atmel.com ([212.144.249.243]:32230 "EHLO
+Received: from eusmtp01.atmel.com ([212.144.249.242]:59435 "EHLO
 	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753708AbbAEO2o (ORCPT
+	with ESMTP id S1753305AbbAEO2x (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 5 Jan 2015 09:28:44 -0500
-Message-ID: <54AA9FA5.3000706@atmel.com>
-Date: Mon, 5 Jan 2015 15:28:53 +0100
+	Mon, 5 Jan 2015 09:28:53 -0500
+Message-ID: <54AA9FB1.1090603@atmel.com>
+Date: Mon, 5 Jan 2015 15:29:05 +0100
 From: Nicolas Ferre <nicolas.ferre@atmel.com>
 MIME-Version: 1.0
 To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
@@ -18,214 +18,140 @@ CC: Boris Brezillon <boris.brezillon@free-electrons.com>,
 	"Wim Van Sebroeck" <wim@iguana.be>, <linux-kernel@vger.kernel.org>,
 	<linux-arm-kernel@lists.infradead.org>,
 	<linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH 2/8] mfd: Add atmel-st driver
-References: <1420459605-24561-1-git-send-email-alexandre.belloni@free-electrons.com> <1420459605-24561-3-git-send-email-alexandre.belloni@free-electrons.com>
-In-Reply-To: <1420459605-24561-3-git-send-email-alexandre.belloni@free-electrons.com>
+Subject: Re: [PATCH 3/8] watchdog: at91rm9200: use the regmap from mfd
+References: <1420459605-24561-1-git-send-email-alexandre.belloni@free-electrons.com> <1420459605-24561-4-git-send-email-alexandre.belloni@free-electrons.com>
+In-Reply-To: <1420459605-24561-4-git-send-email-alexandre.belloni@free-electrons.com>
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 Le 05/01/2015 13:06, Alexandre Belloni a =E9crit :
-> The Atmel System Timer IP available on the at91rm9200 exposes both a =
-timer and a
-> watchdog.
+> The system timer MFD driver is providing a regmap. Use it to access t=
+he
+> registers.
 >=20
 > Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.co=
 m>
 > ---
->  drivers/mfd/Kconfig          |  7 ++++
->  drivers/mfd/Makefile         |  1 +
->  drivers/mfd/atmel-st.c       | 77 ++++++++++++++++++++++++++++++++++=
-++++++++++
->  include/linux/mfd/atmel-st.h | 47 +++++++++++++++++++++++++++
->  4 files changed, 132 insertions(+)
->  create mode 100644 drivers/mfd/atmel-st.c
->  create mode 100644 include/linux/mfd/atmel-st.h
+>  drivers/watchdog/Kconfig          |  2 +-
+>  drivers/watchdog/at91rm9200_wdt.c | 22 +++++++++-------------
+>  2 files changed, 10 insertions(+), 14 deletions(-)
 >=20
-> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-> index 2e6b7311fabc..3c5185c0cf06 100644
-> --- a/drivers/mfd/Kconfig
-> +++ b/drivers/mfd/Kconfig
-> @@ -78,6 +78,13 @@ config MFD_BCM590XX
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index 08f41add1461..18c73bc159fc 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -154,7 +154,7 @@ config ARM_SP805_WATCHDOG
+> =20
+>  config AT91RM9200_WATCHDOG
+>  	tristate "AT91RM9200 watchdog"
+> -	depends on SOC_AT91RM9200
+> +	depends on SOC_AT91RM9200 && MFD_ATMEL_ST
 >  	help
->  	  Support for the BCM590xx PMUs from Broadcom
-> =20
-> +config MFD_ATMEL_ST
-> +	bool "Atmel System Timer"
-> +	select MFD_CORE
-> +	default SOC_AT91RM9200
-> +	help
-> +	  If you say Y here you get support for the Atmel System Timer.
-> +
->  config MFD_AXP20X
->  	bool "X-Powers AXP20X"
->  	select MFD_CORE
-> diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-> index 53467e211381..1ecd416f25c5 100644
-> --- a/drivers/mfd/Makefile
-> +++ b/drivers/mfd/Makefile
-> @@ -104,6 +104,7 @@ obj-$(CONFIG_PMIC_DA9052)	+=3D da9052-core.o
->  obj-$(CONFIG_MFD_DA9052_SPI)	+=3D da9052-spi.o
->  obj-$(CONFIG_MFD_DA9052_I2C)	+=3D da9052-i2c.o
->  obj-$(CONFIG_MFD_AXP20X)	+=3D axp20x.o
-> +obj-$(CONFIG_MFD_ATMEL_ST)	+=3D atmel-st.o
-> =20
->  obj-$(CONFIG_MFD_LP3943)	+=3D lp3943.o
->  obj-$(CONFIG_MFD_LP8788)	+=3D lp8788.o lp8788-irq.o
-> diff --git a/drivers/mfd/atmel-st.c b/drivers/mfd/atmel-st.c
-> new file mode 100644
-> index 000000000000..54106fcfe898
-> --- /dev/null
-> +++ b/drivers/mfd/atmel-st.c
-> @@ -0,0 +1,77 @@
-> +/*
-> + * Copyright (C) 2014 Free Electrons
-> + * Copyright (C) 2014 Atmel
-> + *
-> + * Author: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> + *
-> + * This program is free software; you can redistribute it and/or mod=
-ify it
-> + * under the terms of the GNU General Public License version 2 as pu=
-blished by
-> + * the Free Software Foundation.
-> + *
-> + * This program is distributed in the hope that it will be useful, b=
-ut WITHOUT
-> + * ANY WARRANTY; without even the implied warranty of MERCHANTABILIT=
-Y or
-> + * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public Lic=
-ense for
-> + * more details.
-> + *
-> + * You should have received a copy of the GNU General Public License=
- along with
-> + * this program.  If not, see <http://www.gnu.org/licenses/>.
-> + */
-> +
+>  	  Watchdog timer embedded into AT91RM9200 chips. This will reboot y=
+our
+>  	  system when the timeout is reached.
+> diff --git a/drivers/watchdog/at91rm9200_wdt.c b/drivers/watchdog/at9=
+1rm9200_wdt.c
+> index d244112d5b6f..6d6f36652112 100644
+> --- a/drivers/watchdog/at91rm9200_wdt.c
+> +++ b/drivers/watchdog/at91rm9200_wdt.c
+> @@ -17,22 +17,24 @@
+>  #include <linux/init.h>
+>  #include <linux/io.h>
+>  #include <linux/kernel.h>
 > +#include <linux/mfd/atmel-st.h>
-> +#include <linux/mfd/core.h>
-> +#include <linux/mfd/syscon.h>
-> +#include <linux/module.h>
-> +#include <linux/platform_device.h>
+>  #include <linux/miscdevice.h>
+>  #include <linux/module.h>
+>  #include <linux/moduleparam.h>
+>  #include <linux/platform_device.h>
 > +#include <linux/regmap.h>
-> +
-> +static const struct mfd_cell atmel_st_cells[] =3D {
-> +	{
-> +		.name =3D "atmel_st_timer",
-> +	},
-> +	{
-> +		.name =3D "atmel_st_watchdog",
-> +	},
-> +};
-> +
-> +static int atmel_st_probe(struct platform_device *pdev)
-> +{
-> +	struct device *dev =3D &pdev->dev;
-> +	struct regmap *regmap_st;
-> +
-> +	regmap_st =3D syscon_node_to_regmap(dev->of_node);
-> +	if (IS_ERR(regmap_st))
-> +		return PTR_ERR(regmap_st);
-> +	dev_set_drvdata(dev, regmap_st);
-> +
-> +	return mfd_add_devices(dev, -1, atmel_st_cells,
-> +			       ARRAY_SIZE(atmel_st_cells),
-> +			       NULL, 0, NULL);
-> +}
-> +
-> +static int atmel_st_remove(struct platform_device *pdev)
-> +{
-> +	mfd_remove_devices(&pdev->dev);
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct of_device_id atmel_st_match[] =3D {
-> +	{ .compatible =3D "atmel,at91rm9200-st" },
-> +	{ /* sentinel */ },
-> +};
-> +
-> +static struct platform_driver atmel_st_driver =3D {
-> +	.probe =3D atmel_st_probe,
-> +	.remove =3D atmel_st_remove,
-> +	.driver =3D {
-> +		.name =3D "atmel-system-timer",
-> +		.owner =3D THIS_MODULE,
+>  #include <linux/types.h>
+>  #include <linux/watchdog.h>
+>  #include <linux/uaccess.h>
+>  #include <linux/of.h>
+>  #include <linux/of_device.h>
+> -#include <mach/at91_st.h>
+> =20
+>  #define WDT_DEFAULT_TIME	5	/* seconds */
+>  #define WDT_MAX_TIME		256	/* seconds */
+> =20
+>  static int wdt_time =3D WDT_DEFAULT_TIME;
+>  static bool nowayout =3D WATCHDOG_NOWAYOUT;
+> +static struct regmap *regmap_st;
+> =20
+>  module_param(wdt_time, int, 0);
+>  MODULE_PARM_DESC(wdt_time, "Watchdog time in seconds. (default=3D"
+> @@ -55,7 +57,7 @@ static unsigned long at91wdt_busy;
+>   */
+>  static inline void at91_wdt_stop(void)
+>  {
+> -	at91_st_write(AT91_ST_WDMR, AT91_ST_EXTEN);
+> +	regmap_write(regmap_st, AT91_ST_WDMR, AT91_ST_EXTEN);
+>  }
+> =20
+>  /*
+> @@ -63,9 +65,9 @@ static inline void at91_wdt_stop(void)
+>   */
+>  static inline void at91_wdt_start(void)
+>  {
+> -	at91_st_write(AT91_ST_WDMR, AT91_ST_EXTEN | AT91_ST_RSTEN |
+> +	regmap_write(regmap_st, AT91_ST_WDMR, AT91_ST_EXTEN | AT91_ST_RSTEN=
+ |
+>  				(((65536 * wdt_time) >> 8) & AT91_ST_WDV));
+> -	at91_st_write(AT91_ST_CR, AT91_ST_WDRST);
+> +	regmap_write(regmap_st, AT91_ST_CR, AT91_ST_WDRST);
+>  }
+> =20
+>  /*
+> @@ -73,7 +75,7 @@ static inline void at91_wdt_start(void)
+>   */
+>  static inline void at91_wdt_reload(void)
+>  {
+> -	at91_st_write(AT91_ST_CR, AT91_ST_WDRST);
+> +	regmap_write(regmap_st, AT91_ST_CR, AT91_ST_WDRST);
+>  }
+> =20
+>  /* .................................................................=
+=2E....... */
+> @@ -204,6 +206,7 @@ static struct miscdevice at91wdt_miscdev =3D {
+>  static int at91wdt_probe(struct platform_device *pdev)
+>  {
+>  	int res;
+> +	regmap_st =3D dev_get_drvdata(pdev->dev.parent);
+> =20
+>  	if (at91wdt_miscdev.parent)
+>  		return -EBUSY;
+> @@ -254,12 +257,6 @@ static int at91wdt_resume(struct platform_device=
+ *pdev)
+>  #define at91wdt_resume	NULL
+>  #endif
+> =20
+> -static const struct of_device_id at91_wdt_dt_ids[] =3D {
+> -	{ .compatible =3D "atmel,at91rm9200-wdt" },
+> -	{ /* sentinel */ }
+> -};
+> -MODULE_DEVICE_TABLE(of, at91_wdt_dt_ids);
+> -
+>  static struct platform_driver at91wdt_driver =3D {
+>  	.probe		=3D at91wdt_probe,
+>  	.remove		=3D at91wdt_remove,
+> @@ -267,8 +264,7 @@ static struct platform_driver at91wdt_driver =3D =
+{
+>  	.suspend	=3D at91wdt_suspend,
+>  	.resume		=3D at91wdt_resume,
+>  	.driver		=3D {
+> -		.name	=3D "at91_wdt",
+> -		.of_match_table =3D at91_wdt_dt_ids,
 
-Isn't this field supposed to be removed soon?
-(Cf. recent series by Wolfram: (remove .owner for most platform_drivers=
-: the missing bits)).
+As we remove all the DT specific bits in this driver, don't we have the
+opportunity to remove some #include directives?
 
-> +		.of_match_table =3D atmel_st_match,
-> +	},
-> +};
-> +module_platform_driver(atmel_st_driver);
-> +
-> +MODULE_ALIAS("platform:atmel-st");
-> +MODULE_AUTHOR("Alexandre Belloni <alexandre.belloni@free-electrons.c=
-om>");
-> +MODULE_DESCRIPTION("Atmel ST (System Timer) driver");
-> +MODULE_LICENSE("GPL");
-> diff --git a/include/linux/mfd/atmel-st.h b/include/linux/mfd/atmel-s=
-t.h
-> new file mode 100644
-> index 000000000000..88c6cf8eeb2b
-> --- /dev/null
-> +++ b/include/linux/mfd/atmel-st.h
-> @@ -0,0 +1,47 @@
-> +/*
-> + * Copyright (C) 2005 Ivan Kokshaysky
-> + * Copyright (C) SAN People
-> + *
-> + * System Timer (ST) - System peripherals registers.
-> + * Based on AT91RM9200 datasheet revision E.
-> + *
-> + * This program is free software; you can redistribute it and/or mod=
-ify
-> + * it under the terms of the GNU General Public License as published=
- by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-> + */
-> +
-> +#ifndef __LINUX_MFD_ATMEL_ST_H
-> +#define __LINUX_MFD_ATMEL_ST_H
-> +
-> +#define	AT91_ST_CR		0x00			/* Control Register */
-> +#define 	AT91_ST_WDRST		(1 << 0)		/* Watchdog Timer Restart */
-> +
-> +#define	AT91_ST_PIMR		0x04			/* Period Interval Mode Register */
-> +#define		AT91_ST_PIV		(0xffff <<  0)		/* Period Interval Value */
-> +
-> +#define	AT91_ST_WDMR		0x08			/* Watchdog Mode Register */
-> +#define		AT91_ST_WDV		(0xffff <<  0)		/* Watchdog Counter Value */
-> +#define		AT91_ST_RSTEN		(1	<< 16)		/* Reset Enable */
-> +#define		AT91_ST_EXTEN		(1	<< 17)		/* External Signal Assertion Enab=
-le */
-> +
-> +#define	AT91_ST_RTMR		0x0c			/* Real-time Mode Register */
-> +#define		AT91_ST_RTPRES		(0xffff <<  0)		/* Real-time Prescalar Valu=
-e */
-> +
-> +#define	AT91_ST_SR		0x10			/* Status Register */
-> +#define		AT91_ST_PITS		(1 << 0)		/* Period Interval Timer Status */
-> +#define		AT91_ST_WDOVF		(1 << 1) 		/* Watchdog Overflow */
-> +#define		AT91_ST_RTTINC		(1 << 2) 		/* Real-time Timer Increment */
-> +#define		AT91_ST_ALMS		(1 << 3) 		/* Alarm Status */
-> +
-> +#define	AT91_ST_IER		0x14			/* Interrupt Enable Register */
-> +#define	AT91_ST_IDR		0x18			/* Interrupt Disable Register */
-> +#define	AT91_ST_IMR		0x1c			/* Interrupt Mask Register */
-> +
-> +#define	AT91_ST_RTAR		0x20			/* Real-time Alarm Register */
-> +#define		AT91_ST_ALMV		(0xfffff << 0)		/* Alarm Value */
-> +
-> +#define	AT91_ST_CRTR		0x24			/* Current Real-time Register */
-> +#define		AT91_ST_CRTV		(0xfffff << 0)		/* Current Real-Time Value */
-> +
-> +#endif /* __LINUX_MFD_ATMEL_ST_H */
+> +		.name	=3D "atmel_st_watchdog",
+>  	},
+>  };
+> =20
 >=20
 
 
