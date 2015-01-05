@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:44515 "EHLO
+Received: from down.free-electrons.com ([37.187.137.238]:44543 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753258AbbAEMGt (ORCPT
+	with ESMTP id S1753347AbbAEMGu (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 5 Jan 2015 07:06:49 -0500
+	Mon, 5 Jan 2015 07:06:50 -0500
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 To: Nicolas Ferre <nicolas.ferre@atmel.com>
 Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
@@ -16,49 +16,69 @@ Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
 	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
 	linux-watchdog@vger.kernel.org,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH 1/8] ARM: at91/dt: declare atmel,at91rm9200-st as a syscon
-Date: Mon,  5 Jan 2015 13:06:38 +0100
-Message-Id: <1420459605-24561-2-git-send-email-alexandre.belloni@free-electrons.com>
+Subject: [PATCH 4/8] ARM: at91: time: move the system timer driver to drivers/clocksource
+Date: Mon,  5 Jan 2015 13:06:41 +0100
+Message-Id: <1420459605-24561-5-git-send-email-alexandre.belloni@free-electrons.com>
 In-Reply-To: <1420459605-24561-1-git-send-email-alexandre.belloni@free-electrons.com>
 References: <1420459605-24561-1-git-send-email-alexandre.belloni@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The system timer register range is also used for the watchdog. Declare it as a
-syscon to be able to get a regmap early enough in the boot process
+Import at91rm9200_time.c from mach-at91 as timer-atmel-st.c. Further cleanup is
+required to get rid of the mach-at91 headers.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
- Documentation/devicetree/bindings/arm/atmel-at91.txt | 2 +-
- arch/arm/boot/dts/at91rm9200.dtsi                    | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/mach-at91/Makefile                                           | 2 +-
+ drivers/clocksource/Kconfig                                           | 4 ++++
+ drivers/clocksource/Makefile                                          | 1 +
+ .../at91rm9200_time.c => drivers/clocksource/timer-atmel-st.c         | 0
+ 4 files changed, 6 insertions(+), 1 deletion(-)
+ rename arch/arm/mach-at91/at91rm9200_time.c => drivers/clocksource/timer-atmel-st.c (100%)
 
-diff --git a/Documentation/devicetree/bindings/arm/atmel-at91.txt b/Documentation/devicetree/bindings/arm/atmel-at91.txt
-index 562cda9d86d9..938592a3c4e2 100644
---- a/Documentation/devicetree/bindings/arm/atmel-at91.txt
-+++ b/Documentation/devicetree/bindings/arm/atmel-at91.txt
-@@ -45,7 +45,7 @@ PIT Timer required properties:
-   shared across all System Controller members.
+diff --git a/arch/arm/mach-at91/Makefile b/arch/arm/mach-at91/Makefile
+index 7b6424d40764..5d1ee3a6f115 100644
+--- a/arch/arm/mach-at91/Makefile
++++ b/arch/arm/mach-at91/Makefile
+@@ -7,7 +7,7 @@ obj-y		:= setup.o sysirq_mask.o
+ obj-$(CONFIG_SOC_AT91SAM9)	+= sam9_smc.o
  
- System Timer (ST) required properties:
--- compatible: Should be "atmel,at91rm9200-st"
-+- compatible: Should be "atmel,at91rm9200-st", "syscon"
- - reg: Should contain registers location and length
- - interrupts: Should contain interrupt for the ST which is the IRQ line
-   shared across all System Controller members.
-diff --git a/arch/arm/boot/dts/at91rm9200.dtsi b/arch/arm/boot/dts/at91rm9200.dtsi
-index 6c97d4af61ee..f77b15c0b1d1 100644
---- a/arch/arm/boot/dts/at91rm9200.dtsi
-+++ b/arch/arm/boot/dts/at91rm9200.dtsi
-@@ -351,7 +351,7 @@
- 			};
+ # CPU-specific support
+-obj-$(CONFIG_SOC_AT91RM9200)	+= at91rm9200.o at91rm9200_time.o
++obj-$(CONFIG_SOC_AT91RM9200)	+= at91rm9200.o
+ obj-$(CONFIG_SOC_AT91SAM9260)	+= at91sam9260.o
+ obj-$(CONFIG_SOC_AT91SAM9261)	+= at91sam9261.o
+ obj-$(CONFIG_SOC_AT91SAM9263)	+= at91sam9263.o
+diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfig
+index fc01ec27d3c8..ebc6dd77136e 100644
+--- a/drivers/clocksource/Kconfig
++++ b/drivers/clocksource/Kconfig
+@@ -128,6 +128,10 @@ config ATMEL_PIT
+ 	select CLKSRC_OF if OF
+ 	def_bool SOC_AT91SAM9 || SOC_SAMA5
  
- 			st: timer@fffffd00 {
--				compatible = "atmel,at91rm9200-st";
-+				compatible = "atmel,at91rm9200-st", "syscon";
- 				reg = <0xfffffd00 0x100>;
- 				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
- 			};
++config ATMEL_ST
++	select CLKSRC_OF if OF
++	def_bool SOC_AT91RM9200
++
+ config CLKSRC_METAG_GENERIC
+ 	def_bool y if METAG
+ 	help
+diff --git a/drivers/clocksource/Makefile b/drivers/clocksource/Makefile
+index 94d90b24b56b..b7380ded4e4c 100644
+--- a/drivers/clocksource/Makefile
++++ b/drivers/clocksource/Makefile
+@@ -1,5 +1,6 @@
+ obj-$(CONFIG_CLKSRC_OF)	+= clksrc-of.o
+ obj-$(CONFIG_ATMEL_PIT)		+= timer-atmel-pit.o
++obj-$(CONFIG_ATMEL_ST)		+= timer-atmel-st.o
+ obj-$(CONFIG_ATMEL_TCB_CLKSRC)	+= tcb_clksrc.o
+ obj-$(CONFIG_X86_PM_TIMER)	+= acpi_pm.o
+ obj-$(CONFIG_SCx200HR_TIMER)	+= scx200_hrt.o
+diff --git a/arch/arm/mach-at91/at91rm9200_time.c b/drivers/clocksource/timer-atmel-st.c
+similarity index 100%
+rename from arch/arm/mach-at91/at91rm9200_time.c
+rename to drivers/clocksource/timer-atmel-st.c
 -- 
 2.1.0
 
