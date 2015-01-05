@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:44555 "EHLO
+Received: from down.free-electrons.com ([37.187.137.238]:44515 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752979AbbAEMGw (ORCPT
+	with ESMTP id S1753258AbbAEMGt (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 5 Jan 2015 07:06:52 -0500
+	Mon, 5 Jan 2015 07:06:49 -0500
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 To: Nicolas Ferre <nicolas.ferre@atmel.com>
 Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
@@ -16,81 +16,49 @@ Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
 	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
 	linux-watchdog@vger.kernel.org,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH 6/8] clocksource: atmel-st: properly initialize driver
-Date: Mon,  5 Jan 2015 13:06:43 +0100
-Message-Id: <1420459605-24561-7-git-send-email-alexandre.belloni@free-electrons.com>
+Subject: [PATCH 1/8] ARM: at91/dt: declare atmel,at91rm9200-st as a syscon
+Date: Mon,  5 Jan 2015 13:06:38 +0100
+Message-Id: <1420459605-24561-2-git-send-email-alexandre.belloni@free-electrons.com>
 In-Reply-To: <1420459605-24561-1-git-send-email-alexandre.belloni@free-electrons.com>
 References: <1420459605-24561-1-git-send-email-alexandre.belloni@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Use clocksource_of_init to initialize the system timer instead of relying on a
-custom function.
+The system timer register range is also used for the watchdog. Declare it as a
+syscon to be able to get a regmap early enough in the boot process
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
- arch/arm/mach-at91/board-dt-rm9200.c | 7 -------
- arch/arm/mach-at91/generic.h         | 3 ---
- drivers/clocksource/timer-atmel-st.c | 4 +++-
- 3 files changed, 3 insertions(+), 11 deletions(-)
+ Documentation/devicetree/bindings/arm/atmel-at91.txt | 2 +-
+ arch/arm/boot/dts/at91rm9200.dtsi                    | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/mach-at91/board-dt-rm9200.c b/arch/arm/mach-at91/board-dt-rm9200.c
-index 76dfe8f9af50..d9a45f49c208 100644
---- a/arch/arm/mach-at91/board-dt-rm9200.c
-+++ b/arch/arm/mach-at91/board-dt-rm9200.c
-@@ -24,19 +24,12 @@
+diff --git a/Documentation/devicetree/bindings/arm/atmel-at91.txt b/Documentation/devicetree/bindings/arm/atmel-at91.txt
+index 562cda9d86d9..938592a3c4e2 100644
+--- a/Documentation/devicetree/bindings/arm/atmel-at91.txt
++++ b/Documentation/devicetree/bindings/arm/atmel-at91.txt
+@@ -45,7 +45,7 @@ PIT Timer required properties:
+   shared across all System Controller members.
  
- #include "generic.h"
+ System Timer (ST) required properties:
+-- compatible: Should be "atmel,at91rm9200-st"
++- compatible: Should be "atmel,at91rm9200-st", "syscon"
+ - reg: Should contain registers location and length
+ - interrupts: Should contain interrupt for the ST which is the IRQ line
+   shared across all System Controller members.
+diff --git a/arch/arm/boot/dts/at91rm9200.dtsi b/arch/arm/boot/dts/at91rm9200.dtsi
+index 6c97d4af61ee..f77b15c0b1d1 100644
+--- a/arch/arm/boot/dts/at91rm9200.dtsi
++++ b/arch/arm/boot/dts/at91rm9200.dtsi
+@@ -351,7 +351,7 @@
+ 			};
  
--static void __init at91rm9200_dt_timer_init(void)
--{
--	of_clk_init(NULL);
--	at91rm9200_timer_init();
--}
--
- static const char *at91rm9200_dt_board_compat[] __initdata = {
- 	"atmel,at91rm9200",
- 	NULL
- };
- 
- DT_MACHINE_START(at91rm9200_dt, "Atmel AT91RM9200 (Device Tree)")
--	.init_time      = at91rm9200_dt_timer_init,
- 	.map_io		= at91_map_io,
- 	.init_early	= at91rm9200_dt_initialize,
- 	.dt_compat	= at91rm9200_dt_board_compat,
-diff --git a/arch/arm/mach-at91/generic.h b/arch/arm/mach-at91/generic.h
-index d53324210adf..fc12f3d4b93c 100644
---- a/arch/arm/mach-at91/generic.h
-+++ b/arch/arm/mach-at91/generic.h
-@@ -29,9 +29,6 @@ extern void __init at91_dt_initialize(void);
- extern void __init at91_sysirq_mask_rtc(u32 rtc_base);
- extern void __init at91_sysirq_mask_rtt(u32 rtt_base);
- 
-- /* Timer */
--extern void at91rm9200_timer_init(void);
--
- /* idle */
- extern void at91sam9_idle(void);
- 
-diff --git a/drivers/clocksource/timer-atmel-st.c b/drivers/clocksource/timer-atmel-st.c
-index 522583d6cc78..ed0267f1c892 100644
---- a/drivers/clocksource/timer-atmel-st.c
-+++ b/drivers/clocksource/timer-atmel-st.c
-@@ -232,7 +232,7 @@ err:
- /*
-  * ST (system timer) module supports both clockevents and clocksource.
-  */
--void __init at91rm9200_timer_init(void)
-+static void __init atmel_st_timer_init(struct device_node *node)
- {
- 	/* For device tree enabled device: initialize here */
- 	of_at91rm9200_st_init();
-@@ -261,3 +261,5 @@ void __init at91rm9200_timer_init(void)
- 
- 	arm_pm_restart = at91rm9200_restart;
- }
-+CLOCKSOURCE_OF_DECLARE(atmel_st_timer, "atmel,at91rm9200-st",
-+		       atmel_st_timer_init);
+ 			st: timer@fffffd00 {
+-				compatible = "atmel,at91rm9200-st";
++				compatible = "atmel,at91rm9200-st", "syscon";
+ 				reg = <0xfffffd00 0x100>;
+ 				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
+ 			};
 -- 
 2.1.0
 
