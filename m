@@ -1,36 +1,77 @@
-Return-path: <joe@perches.com>
-Message-ID: <1421116962.9233.17.camel@perches.com>
-Subject: Re: [PATCH v4 1/2] watchdog: Add driver for Mediatek watchdog
-From: Joe Perches <joe@perches.com>
-To: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: wim@iguana.be, robh+dt@kernel.org, pawel.moll@arm.com,
- mark.rutland@arm.com,  ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
- grant.likely@linaro.org,  linux-arm-kernel@lists.infradead.org,
- linux-kernel@vger.kernel.org,  linux-watchdog@vger.kernel.org,
- heiko@sntech.de, yingjoe.chen@gmail.com,  ibanezchen@gmail.com,
- greta.zhang@mediatek.com, eddie.huang@mediatek.com,  wens@csie.org,
- linux@roeck-us.net
-Date: Mon, 12 Jan 2015 18:42:42 -0800
-In-Reply-To: <1421076884-15860-2-git-send-email-matthias.bgg@gmail.com>
-References: <1421076884-15860-1-git-send-email-matthias.bgg@gmail.com>
-	 <1421076884-15860-2-git-send-email-matthias.bgg@gmail.com>
-Content-Type: text/plain; charset="ISO-8859-1"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Return-path: <Ezequiel.Garcia@imgtec.com>
+From: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
+To: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
+	James Hartley <james.hartley@imgtec.com>, Andrew Bresticker
+	<abrestic@chromium.org>, James Hogan <james.hogan@imgtec.com>
+CC: <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>, "Ezequiel
+ Garcia" <ezequiel.garcia@imgtec.com>
+Subject: [PATCH v7 0/2] watchdog: ImgTec PDC Watchdog Timer Driver
+Date: Tue, 6 Jan 2015 10:19:33 -0300
+Message-ID: <1420550375-22867-1-git-send-email-ezequiel.garcia@imgtec.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Mon, 2015-01-12 at 16:34 +0100, Matthias Brugger wrote:
-> This patch adds a driver for the Mediatek SoC integrated
-> watchdog. This driver supports watchdog and software reset
-> for mt65xx and mt81xx SoCs.
+Here's the seventh round for IMG PDC Watchdog driver.
+The series is based on v3.19-rc3.
 
-trivia:
+Thanks!
 
-> diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
-[]
-> +static int mtk_wdt_probe(struct platform_device *pdev)
-> +{
-[]
-> +	dev_info(&pdev->dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)",
+Changes from v6:
 
-missing terminating \n newline
+  * Reworked set_timeout function to get rid of the min_delay field.
+  * Addressed a few comments made by Guenter Roeck.
+  * Added a description of the clocks to the devicetree binding doc.
+
+Changes from v5:
+
+ * Removed unused struct pdc_wdt_dev variables.
+ * Removed out_wdt label in probe function.
+
+Changes from v4:
+
+ * Added warning message if initial timeout value exceeds maximum timeout.
+
+Changes from v3:
+
+ * Removed PDC_WD_MAX_DELAY.
+ * Removed spinlock.
+ * Removed timeout check inside pdc_wdt_set_timeout function.
+ * Changed identity to IMG PDC Watchdog.
+ * Removed pdc_wdt_set_timeout call from the probe function.
+ * Removed pdc_wdt_shutdown function call from pdc_wdt_remove function
+   and added pdc_wdt_stop function call instead.
+
+Changes from v2:
+
+ * Removed interrupt.h header file.
+
+Changes from v1:
+
+ * Arranged all include files in alphabetical order.
+ * Arranged register field masks/shifts defines next to their
+   corresponding register
+ * Registered clock rate-change notifier callback.
+ * Removed all references to 32 kHz fixed clock rate.
+   Now the clock rate is read dynamically using clk_get_rate().
+ * Defined a macro PDC_WD_CONFIG_ENABLE.
+ * Added code for getting system clock.
+ * Moved module_param stuffs next to the corresponding variable defines.
+ * Added code in the function pdc_wdt_remove for stopping watchdog.
+ * Removed MODULE_ALIAS.
+ * Removed few unwanted spaces and unwanted blank lines.
+
+Naidu Tellapati (2):
+  watchdog: ImgTec PDC Watchdog Timer Driver
+  DT: watchdog: Add ImgTec PDC Watchdog Timer binding documentation
+
+ .../devicetree/bindings/watchdog/imgpdc-wdt.txt    |  19 ++
+ drivers/watchdog/Kconfig                           |  11 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/imgpdc_wdt.c                      | 289 +++++++++++++++++++++
+ 4 files changed, 320 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/imgpdc-wdt.txt
+ create mode 100644 drivers/watchdog/imgpdc_wdt.c
+
+-- 
+2.2.1
