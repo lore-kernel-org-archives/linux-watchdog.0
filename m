@@ -1,142 +1,411 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:44535 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753282AbbAEMGu (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 5 Jan 2015 07:06:50 -0500
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Nicolas Ferre <nicolas.ferre@atmel.com>
-Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Lee Jones <lee.jones@linaro.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH 3/8] watchdog: at91rm9200: use the regmap from mfd
-Date: Mon,  5 Jan 2015 13:06:40 +0100
-Message-Id: <1420459605-24561-4-git-send-email-alexandre.belloni@free-electrons.com>
-In-Reply-To: <1420459605-24561-1-git-send-email-alexandre.belloni@free-electrons.com>
-References: <1420459605-24561-1-git-send-email-alexandre.belloni@free-electrons.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <Ezequiel.Garcia@imgtec.com>
+Message-ID: <54ABDC9A.8070802@imgtec.com>
+Date: Tue, 6 Jan 2015 10:01:14 -0300
+From: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
+MIME-Version: 1.0
+To: Guenter Roeck <linux@roeck-us.net>, Naidu Tellapati
+	<naidu.tellapati@gmail.com>
+CC: <wim@iguana.be>, <abrestic@chromium.org>, <james.hartley@imgtec.com>,
+	<james.hogan@imgtec.com>, <naidu.tellapati@imgtec.com>,
+	<arul.ramasamy@imgtec.com>, <linux-watchdog@vger.kernel.org>,
+	<devicetree@vger.kernel.org>, Jude.Abraham <Jude.Abraham@imgtec.com>
+Subject: Re: [PATCH RESEND v6 1/2] watchdog: ImgTec PDC Watchdog Timer Driver
+References: <1417064045-13274-1-git-send-email-Naidu.Tellapati@gmail.com> <1417064045-13274-2-git-send-email-Naidu.Tellapati@gmail.com> <20141215171744.GA16516@roeck-us.net>
+In-Reply-To: <20141215171744.GA16516@roeck-us.net>
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+List-ID: <linux-watchdog@vger.kernel.org>
 
-The system timer MFD driver is providing a regmap. Use it to access the
-registers.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
----
- drivers/watchdog/Kconfig          |  2 +-
- drivers/watchdog/at91rm9200_wdt.c | 22 +++++++++-------------
- 2 files changed, 10 insertions(+), 14 deletions(-)
+Hi Guenter,
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 08f41add1461..18c73bc159fc 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -154,7 +154,7 @@ config ARM_SP805_WATCHDOG
- 
- config AT91RM9200_WATCHDOG
- 	tristate "AT91RM9200 watchdog"
--	depends on SOC_AT91RM9200
-+	depends on SOC_AT91RM9200 && MFD_ATMEL_ST
- 	help
- 	  Watchdog timer embedded into AT91RM9200 chips. This will reboot your
- 	  system when the timeout is reached.
-diff --git a/drivers/watchdog/at91rm9200_wdt.c b/drivers/watchdog/at91rm9200_wdt.c
-index d244112d5b6f..6d6f36652112 100644
---- a/drivers/watchdog/at91rm9200_wdt.c
-+++ b/drivers/watchdog/at91rm9200_wdt.c
-@@ -17,22 +17,24 @@
- #include <linux/init.h>
- #include <linux/io.h>
- #include <linux/kernel.h>
-+#include <linux/mfd/atmel-st.h>
- #include <linux/miscdevice.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
- #include <linux/platform_device.h>
-+#include <linux/regmap.h>
- #include <linux/types.h>
- #include <linux/watchdog.h>
- #include <linux/uaccess.h>
- #include <linux/of.h>
- #include <linux/of_device.h>
--#include <mach/at91_st.h>
- 
- #define WDT_DEFAULT_TIME	5	/* seconds */
- #define WDT_MAX_TIME		256	/* seconds */
- 
- static int wdt_time = WDT_DEFAULT_TIME;
- static bool nowayout = WATCHDOG_NOWAYOUT;
-+static struct regmap *regmap_st;
- 
- module_param(wdt_time, int, 0);
- MODULE_PARM_DESC(wdt_time, "Watchdog time in seconds. (default="
-@@ -55,7 +57,7 @@ static unsigned long at91wdt_busy;
-  */
- static inline void at91_wdt_stop(void)
- {
--	at91_st_write(AT91_ST_WDMR, AT91_ST_EXTEN);
-+	regmap_write(regmap_st, AT91_ST_WDMR, AT91_ST_EXTEN);
- }
- 
- /*
-@@ -63,9 +65,9 @@ static inline void at91_wdt_stop(void)
-  */
- static inline void at91_wdt_start(void)
- {
--	at91_st_write(AT91_ST_WDMR, AT91_ST_EXTEN | AT91_ST_RSTEN |
-+	regmap_write(regmap_st, AT91_ST_WDMR, AT91_ST_EXTEN | AT91_ST_RSTEN |
- 				(((65536 * wdt_time) >> 8) & AT91_ST_WDV));
--	at91_st_write(AT91_ST_CR, AT91_ST_WDRST);
-+	regmap_write(regmap_st, AT91_ST_CR, AT91_ST_WDRST);
- }
- 
- /*
-@@ -73,7 +75,7 @@ static inline void at91_wdt_start(void)
-  */
- static inline void at91_wdt_reload(void)
- {
--	at91_st_write(AT91_ST_CR, AT91_ST_WDRST);
-+	regmap_write(regmap_st, AT91_ST_CR, AT91_ST_WDRST);
- }
- 
- /* ......................................................................... */
-@@ -204,6 +206,7 @@ static struct miscdevice at91wdt_miscdev = {
- static int at91wdt_probe(struct platform_device *pdev)
- {
- 	int res;
-+	regmap_st = dev_get_drvdata(pdev->dev.parent);
- 
- 	if (at91wdt_miscdev.parent)
- 		return -EBUSY;
-@@ -254,12 +257,6 @@ static int at91wdt_resume(struct platform_device *pdev)
- #define at91wdt_resume	NULL
- #endif
- 
--static const struct of_device_id at91_wdt_dt_ids[] = {
--	{ .compatible = "atmel,at91rm9200-wdt" },
--	{ /* sentinel */ }
--};
--MODULE_DEVICE_TABLE(of, at91_wdt_dt_ids);
--
- static struct platform_driver at91wdt_driver = {
- 	.probe		= at91wdt_probe,
- 	.remove		= at91wdt_remove,
-@@ -267,8 +264,7 @@ static struct platform_driver at91wdt_driver = {
- 	.suspend	= at91wdt_suspend,
- 	.resume		= at91wdt_resume,
- 	.driver		= {
--		.name	= "at91_wdt",
--		.of_match_table = at91_wdt_dt_ids,
-+		.name	= "atmel_st_watchdog",
- 	},
- };
- 
+Thanks for the review!
+
+On 12/15/2014 02:17 PM, Guenter Roeck wrote:
+> On Thu, Nov 27, 2014 at 10:24:04AM +0530, Naidu Tellapati wrote:
+>> This commit adds support for ImgTec PowerDown Controller Watchdog Timer.
+>>
+>> Signed-off-by: Naidu Tellapati <Naidu.Tellapati@imgtec.com>
+>> Signed-off-by: Jude.Abraham <Jude.Abraham@imgtec.com>
+>> Reviewed-by: Andrew Bresticker <abrestic@chromium.org>
+>> Reviewed-by: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
+>> ---
+>>  drivers/watchdog/Kconfig      |   11 ++
+>>  drivers/watchdog/Makefile     |    1 +
+>>  drivers/watchdog/imgpdc_wdt.c |  298 +++++++++++++++++++++++++++++++++++++++++
+>>  3 files changed, 310 insertions(+), 0 deletions(-)
+>>  create mode 100644 drivers/watchdog/imgpdc_wdt.c
+>>
+>> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+>> index d0107d4..a184f23 100644
+>> --- a/drivers/watchdog/Kconfig
+>> +++ b/drivers/watchdog/Kconfig
+>> @@ -1235,6 +1235,17 @@ config BCM_KONA_WDT_DEBUG
+>>  
+>>  	  If in doubt, say 'N'.
+>>  
+>> +config IMGPDC_WDT
+>> +	tristate "Imagination Technologies PDC Watchdog Timer"
+>> +	depends on HAS_IOMEM
+>> +	depends on METAG || MIPS || COMPILE_TEST
+>> +	help
+>> +	  Driver for Imagination Technologies PowerDown Controller
+>> +	  Watchdog Timer.
+>> +
+>> +	  To compile this driver as a loadable module, choose M here.
+>> +	  The module will be called imgpdc_wdt.
+>> +
+>>  config LANTIQ_WDT
+>>  	tristate "Lantiq SoC watchdog"
+>>  	depends on LANTIQ
+>> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+>> index c569ec8..d4dfbb4 100644
+>> --- a/drivers/watchdog/Makefile
+>> +++ b/drivers/watchdog/Makefile
+>> @@ -142,6 +142,7 @@ obj-$(CONFIG_OCTEON_WDT) += octeon-wdt.o
+>>  octeon-wdt-y := octeon-wdt-main.o octeon-wdt-nmi.o
+>>  obj-$(CONFIG_LANTIQ_WDT) += lantiq_wdt.o
+>>  obj-$(CONFIG_RALINK_WDT) += rt2880_wdt.o
+>> +obj-$(CONFIG_IMGPDC_WDT) += imgpdc_wdt.o
+>>  
+>>  # PARISC Architecture
+>>  
+>> diff --git a/drivers/watchdog/imgpdc_wdt.c b/drivers/watchdog/imgpdc_wdt.c
+>> new file mode 100644
+>> index 0000000..efb00b5
+>> --- /dev/null
+>> +++ b/drivers/watchdog/imgpdc_wdt.c
+>> @@ -0,0 +1,298 @@
+>> +/*
+>> + * Imagination Technologies PowerDown Controller Watchdog Timer.
+>> + *
+>> + * Copyright (c) 2014 Imagination Technologies Ltd.
+>> + *
+>> + * This program is free software; you can redistribute it and/or modify it
+>> + * under the terms of the GNU General Public License version 2 as published by
+>> + * the Free Software Foundation.
+>> + *
+>> + * Based on drivers/watchdog/sunxi_wdt.c Copyright (c) 2013 Carlo Caione
+>> + *                                                     2012 Henrik Nordstrom
+>> + */
+>> +
+>> +#include <linux/clk.h>
+>> +#include <linux/io.h>
+>> +#include <linux/log2.h>
+>> +#include <linux/module.h>
+>> +#include <linux/platform_device.h>
+>> +#include <linux/slab.h>
+>> +#include <linux/watchdog.h>
+>> +
+>> +/* registers */
+>> +#define PDC_WD_SW_RESET			0x000
+>> +
+>> +#define PDC_WD_CONFIG			0x004
+>> +#define PDC_WD_CONFIG_ENABLE		BIT(31)
+>> +#define PDC_WD_CONFIG_DELAY_MASK	0x0000001f
+>> +#define PDC_WD_CONFIG_DELAY_SHIFT	0
+>> +
+>> +#define PDC_WD_TICKLE1			0x008
+>> +#define PDC_WD_TICKLE1_MAGIC		0xabcd1234
+>> +
+>> +#define PDC_WD_TICKLE2			0x00c
+>> +#define PDC_WD_TICKLE2_MAGIC		0x4321dcba
+>> +
+>> +#define PDC_WD_TICKLE_STATUS_MASK	0x00000007
+>> +#define PDC_WD_TICKLE_STATUS_SHIFT	0
+>> +#define PDC_WD_TICKLE_STATUS_HRESET     0x0  /* Hard reset */
+>> +#define PDC_WD_TICKLE_STATUS_TIMEOUT    0x1  /* Timeout */
+>> +#define PDC_WD_TICKLE_STATUS_TICKLE     0x2  /* Tickled incorrectly */
+>> +#define PDC_WD_TICKLE_STATUS_SRESET     0x3  /* Soft reset */
+>> +#define PDC_WD_TICKLE_STATUS_USER       0x4  /* User reset */
+>> +
+>> +/* timeout in seconds */
+>> +#define PDC_WD_MIN_TIMEOUT		1
+>> +#define PDC_WD_DEFAULT_TIMEOUT		64
+>> +
+>> +static int timeout = PDC_WD_DEFAULT_TIMEOUT;
+>> +module_param(timeout, int, 0);
+>> +MODULE_PARM_DESC(timeout, "PDC watchdog delay in seconds (default 64s)");
+> 
+> It might be better to use  __MODULE_STRING(PDC_WD_DEFAULT_TIMEOUT)
+> to encode the default timeout.
+> 
+
+Done.
+
+>> +
+>> +static bool nowayout = WATCHDOG_NOWAYOUT;
+>> +module_param(nowayout, bool, 0);
+>> +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started");
+>> +
+>> +struct pdc_wdt_dev {
+>> +	struct watchdog_device wdt_dev;
+>> +	struct clk *wdt_clk;
+>> +	struct clk *sys_clk;
+>> +	int min_delay;
+>> +	void __iomem *base;
+>> +};
+>> +
+>> +static int pdc_wdt_keepalive(struct watchdog_device *wdt_dev)
+>> +{
+>> +	struct pdc_wdt_dev *wdt = watchdog_get_drvdata(wdt_dev);
+>> +
+>> +	writel(PDC_WD_TICKLE1_MAGIC, wdt->base + PDC_WD_TICKLE1);
+>> +	writel(PDC_WD_TICKLE2_MAGIC, wdt->base + PDC_WD_TICKLE2);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static int pdc_wdt_stop(struct watchdog_device *wdt_dev)
+>> +{
+>> +	unsigned int val;
+>> +	struct pdc_wdt_dev *wdt = watchdog_get_drvdata(wdt_dev);
+>> +
+>> +	val = readl(wdt->base + PDC_WD_CONFIG);
+>> +	val &= ~PDC_WD_CONFIG_ENABLE;
+>> +	writel(val, wdt->base + PDC_WD_CONFIG);
+>> +
+>> +	/* Must tickle to finish the stop */
+>> +	pdc_wdt_keepalive(wdt_dev);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static int pdc_wdt_set_timeout(struct watchdog_device *wdt_dev,
+>> +			       unsigned int new_timeout)
+>> +{
+>> +	unsigned int val;
+>> +	struct pdc_wdt_dev *wdt = watchdog_get_drvdata(wdt_dev);
+>> +
+>> +	wdt->wdt_dev.timeout = new_timeout;
+>> +	/* round up to the next power of 2 */
+>> +	new_timeout = order_base_2(new_timeout);
+>> +	val = readl(wdt->base + PDC_WD_CONFIG);
+>> +	val &= ~PDC_WD_CONFIG_DELAY_MASK;
+>> +	val |= (new_timeout + wdt->min_delay) << PDC_WD_CONFIG_DELAY_SHIFT;
+>> +	writel(val, wdt->base + PDC_WD_CONFIG);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +/* Start the watchdog timer (delay should already be set) */
+>> +static int pdc_wdt_start(struct watchdog_device *wdt_dev)
+>> +{
+>> +	unsigned int val;
+>> +	struct pdc_wdt_dev *wdt = watchdog_get_drvdata(wdt_dev);
+>> +
+>> +	val = readl(wdt->base + PDC_WD_CONFIG);
+>> +	val |= PDC_WD_CONFIG_ENABLE;
+>> +	writel(val, wdt->base + PDC_WD_CONFIG);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static struct watchdog_info pdc_wdt_info = {
+>> +	.identity	= "IMG PDC Watchdog",
+>> +	.options	= WDIOF_SETTIMEOUT |
+>> +			  WDIOF_KEEPALIVEPING |
+>> +			  WDIOF_MAGICCLOSE,
+>> +};
+>> +
+>> +/* Kernel interface */
+>> +static const struct watchdog_ops pdc_wdt_ops = {
+>> +	.owner		= THIS_MODULE,
+>> +	.start		= pdc_wdt_start,
+>> +	.stop		= pdc_wdt_stop,
+>> +	.ping		= pdc_wdt_keepalive,
+>> +	.set_timeout	= pdc_wdt_set_timeout,
+>> +};
+>> +
+>> +static int pdc_wdt_probe(struct platform_device *pdev)
+>> +{
+>> +	int ret, val;
+>> +	unsigned long clk_rate;
+>> +	struct resource *res;
+>> +	struct pdc_wdt_dev *pdc_wdt;
+>> +
+>> +	pdc_wdt = devm_kzalloc(&pdev->dev, sizeof(*pdc_wdt), GFP_KERNEL);
+>> +	if (!pdc_wdt)
+>> +		return -ENOMEM;
+>> +
+>> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>> +	pdc_wdt->base = devm_ioremap_resource(&pdev->dev, res);
+>> +	if (IS_ERR(pdc_wdt->base))
+>> +		return PTR_ERR(pdc_wdt->base);
+>> +
+>> +	pdc_wdt->sys_clk = devm_clk_get(&pdev->dev, "sys");
+>> +	if (IS_ERR(pdc_wdt->sys_clk)) {
+>> +		dev_err(&pdev->dev, "failed to get the sys clock.\n");
+>> +		ret = PTR_ERR(pdc_wdt->wdt_clk);
+> 
+> 					sys_clk
+>> +		return ret;
+> 
+> 		return PTR_ERR(pdc_wdt->sys_clk);
+> 
+> On a higher level, what is sys_clk needed and used for in the first place ?
+> The need for wdt_clk is obvious, but there is no explanation for the need
+> of sys_clk, and the bindings file doesn't give a hint either.
+> 
+
+OK, I'll add a description to the binding doc.
+
+>> +	}
+>> +
+>> +	pdc_wdt->wdt_clk = devm_clk_get(&pdev->dev, "wdt");
+>> +	if (IS_ERR(pdc_wdt->wdt_clk)) {
+>> +		dev_err(&pdev->dev, "failed to get the wdt clock.\n");
+>> +		ret = PTR_ERR(pdc_wdt->wdt_clk);
+>> +		return ret;
+> 
+> 		return PTR_ERR(pdc_wdt->wdt_clk);
+> 
+
+Done.
+
+>> +	}
+>> +
+>> +	ret = clk_prepare_enable(pdc_wdt->sys_clk);
+>> +	if (ret) {
+>> +		dev_err(&pdev->dev, "could not prepare or enable sys clock.\n");
+>> +		return ret;
+>> +	}
+>> +
+>> +	ret = clk_prepare_enable(pdc_wdt->wdt_clk);
+>> +	if (ret) {
+>> +		dev_err(&pdev->dev, "could not prepare or enable wdt clock.\n");
+>> +		goto disable_sys_clk;
+> 
+> I would suggest to drop the '.' in those messages.
+> 
+
+OK.
+
+>> +	}
+>> +
+>> +	/* We use the clock rate to calculate the max timeout */
+>> +	clk_rate = clk_get_rate(pdc_wdt->wdt_clk);
+>> +	if (clk_rate == 0) {
+>> +		dev_err(&pdev->dev, "failed to get clock rate\n");
+>> +		ret = -EINVAL;
+>> +		goto disable_wdt_clk;
+>> +	}
+>> +
+>> +	if (order_base_2(clk_rate) > PDC_WD_CONFIG_DELAY_MASK + 1) {
+>> +		dev_err(&pdev->dev, "invalid clock rate\n");
+>> +		ret = -EINVAL;
+>> +		goto disable_wdt_clk;
+>> +	}
+>> +
+>> +	if (order_base_2(clk_rate) == 0)
+>> +		pdc_wdt->wdt_dev.min_timeout = PDC_WD_MIN_TIMEOUT + 1;
+>> +	else
+>> +		pdc_wdt->wdt_dev.min_timeout = PDC_WD_MIN_TIMEOUT;
+>> +
+>> +	pdc_wdt->min_delay = order_base_2(clk_rate) - 1;
+> 
+> Ultimately this means that min_delay can be smaller than 0,
+> which makes it quite difficult to validate the rest of the code
+> to ensure that it handles this case correctly.
+> 
+> Give that a clock rate of 1 is somewhere between highly unlikely and
+> unreasonable, wouldn't it be much easier to consider it to be invalid
+> and not try to handle it ?
+> 
+
+After discussing this with Naidu, we revisited the specs and found the
+min_delay field can be dropped entirely, and the set_timeout formula
+can be simplified.
+
+>> +
+>> +	pdc_wdt->wdt_dev.info = &pdc_wdt_info;
+>> +	pdc_wdt->wdt_dev.ops = &pdc_wdt_ops;
+>> +	pdc_wdt->wdt_dev.max_timeout =
+>> +			(1 << (PDC_WD_CONFIG_DELAY_MASK - pdc_wdt->min_delay));
+>> +	pdc_wdt->wdt_dev.parent = &pdev->dev;
+>> +
+>> +	ret = watchdog_init_timeout(&pdc_wdt->wdt_dev, timeout, &pdev->dev);
+>> +	if (ret < 0) {
+>> +		pdc_wdt->wdt_dev.timeout = pdc_wdt->wdt_dev.max_timeout;
+>> +		dev_warn(&pdev->dev,
+>> +			 "Initial timeout out of range! setting max timeout\n");
+>> +	}
+>> +
+>> +	pdc_wdt_stop(&pdc_wdt->wdt_dev);
+>> +
+>> +	/* Find what caused the last reset */
+>> +	val = readl(pdc_wdt->base + PDC_WD_TICKLE1);
+>> +	val = (val & PDC_WD_TICKLE_STATUS_MASK) >> PDC_WD_TICKLE_STATUS_SHIFT;
+>> +	switch (val) {
+>> +	case PDC_WD_TICKLE_STATUS_TICKLE:
+>> +	case PDC_WD_TICKLE_STATUS_TIMEOUT:
+>> +		pdc_wdt->wdt_dev.bootstatus |= WDIOF_CARDRESET;
+>> +		dev_info(&pdev->dev,
+>> +			 "watchdog module last reset due to timeout\n");
+>> +		break;
+>> +	case PDC_WD_TICKLE_STATUS_HRESET:
+>> +		dev_info(&pdev->dev,
+>> +			 "watchdog module last reset due to hard reset\n");
+>> +		break;
+>> +	case PDC_WD_TICKLE_STATUS_SRESET:
+>> +		dev_info(&pdev->dev,
+>> +			 "watchdog module last reset due to soft reset\n");
+>> +		break;
+>> +	case PDC_WD_TICKLE_STATUS_USER:
+>> +		dev_info(&pdev->dev,
+>> +			 "watchdog module last reset due to user reset\n");
+>> +		break;
+>> +	default:
+>> +		dev_info(&pdev->dev,
+>> +			 "contains an illegal status code (%08x)\n", val);
+>> +		break;
+>> +	}
+>> +
+>> +	watchdog_set_nowayout(&pdc_wdt->wdt_dev, nowayout);
+>> +
+>> +	platform_set_drvdata(pdev, pdc_wdt);
+>> +	watchdog_set_drvdata(&pdc_wdt->wdt_dev, pdc_wdt);
+>> +
+>> +	ret = watchdog_register_device(&pdc_wdt->wdt_dev);
+>> +	if (ret)
+>> +		goto disable_wdt_clk;
+>> +
+>> +	return 0;
+>> +
+>> +disable_wdt_clk:
+>> +	clk_disable_unprepare(pdc_wdt->wdt_clk);
+>> +disable_sys_clk:
+>> +	clk_disable_unprepare(pdc_wdt->sys_clk);
+>> +	return ret;
+>> +}
+>> +
+>> +static void pdc_wdt_shutdown(struct platform_device *pdev)
+>> +{
+>> +	struct pdc_wdt_dev *pdc_wdt = platform_get_drvdata(pdev);
+>> +
+>> +	pdc_wdt_stop(&pdc_wdt->wdt_dev);
+>> +}
+>> +
+>> +static int pdc_wdt_remove(struct platform_device *pdev)
+>> +{
+>> +	struct pdc_wdt_dev *pdc_wdt = platform_get_drvdata(pdev);
+>> +
+>> +	pdc_wdt_stop(&pdc_wdt->wdt_dev);
+>> +	watchdog_unregister_device(&pdc_wdt->wdt_dev);
+>> +	clk_disable_unprepare(pdc_wdt->wdt_clk);
+>> +	clk_disable_unprepare(pdc_wdt->sys_clk);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static const struct of_device_id pdc_wdt_match[] = {
+>> +	{ .compatible = "img,pdc-wdt" },
+> 
+> Will "img" be added to the list of vendor prefixes with some other patch ?
+> 
+
+It's already there.
+
+Thanks,
 -- 
-2.1.0
-
+Ezequiel
