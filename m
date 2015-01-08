@@ -1,73 +1,53 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mho-03-ewr.mailhop.org ([204.13.248.66]:54083 "EHLO
-	mho-01-ewr.mailhop.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753348AbbAETCy (ORCPT
+Received: from down.free-electrons.com ([37.187.137.238]:58479 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752686AbbAHIQ6 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 5 Jan 2015 14:02:54 -0500
-Date: Mon, 5 Jan 2015 10:59:02 -0800
-From: Tony Lindgren <tony@atomide.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org, linux-omap@vger.kernel.org,
-	Thomas Dziedzic <gostrc@gmail.com>
-Subject: Re: [PATCH] watchdog: Fix omap watchdogs to enable the magic close
- bit
-Message-ID: <20150105185902.GH4081@atomide.com>
-References: <20141014192518.GH4972@atomide.com>
+	Thu, 8 Jan 2015 03:16:58 -0500
+Date: Thu, 8 Jan 2015 09:16:55 +0100
+From: Boris Brezillon <boris.brezillon@free-electrons.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	Daniel Lezcano <daniel.lezcano@linaro.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Lee Jones <lee.jones@linaro.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 0/8] Atmel System Timer cleanups
+Message-ID: <20150108091655.0dfebcff@bbrezillon>
+In-Reply-To: <1420459605-24561-1-git-send-email-alexandre.belloni@free-electrons.com>
+References: <1420459605-24561-1-git-send-email-alexandre.belloni@free-electrons.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20141014192518.GH4972@atomide.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-* Tony Lindgren <tony@atomide.com> [141014 12:27]:
-> This allows testing the watchdog easily with distros just by
-> doing pkill -9 watchdog.
-> 
-> Reported-by: Thomas Dziedzic <gostrc@gmail.com>
-> Signed-off-by: Tony Lindgren <tony@atomide.com>
+Hi Alexandre,
 
-Wim, still not seeing this applied, did you forget about this one?
+On Mon,  5 Jan 2015 13:06:37 +0100
+Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
+
+> This patch sets cleans up the system timer driver.
+> 
+> The main goal is to get rid of the mach/ headers dependency. At the same time,
+> it introduces proper probing and locking (using a regmap) for the watchdog
+> driver.
+
+Thanks for this rework!
+
+You can add my:
+
+Acked-by: Boris Brezillon <boris.brezillon@free-electrons.com>
 
 Regards,
 
-Tony
- 
-> --- a/drivers/watchdog/omap_wdt.c
-> +++ b/drivers/watchdog/omap_wdt.c
-> @@ -189,7 +189,7 @@ static int omap_wdt_set_timeout(struct watchdog_device *wdog,
->  }
->  
->  static const struct watchdog_info omap_wdt_info = {
-> -	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-> +	.options = WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING,
->  	.identity = "OMAP Watchdog",
->  };
->  
-> --- a/drivers/watchdog/retu_wdt.c
-> +++ b/drivers/watchdog/retu_wdt.c
-> @@ -94,7 +94,7 @@ static int retu_wdt_set_timeout(struct watchdog_device *wdog,
->  }
->  
->  static const struct watchdog_info retu_wdt_info = {
-> -	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-> +	.options = WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING,
->  	.identity = "Retu watchdog",
->  };
->  
-> --- a/drivers/watchdog/twl4030_wdt.c
-> +++ b/drivers/watchdog/twl4030_wdt.c
-> @@ -57,7 +57,7 @@ static int twl4030_wdt_set_timeout(struct watchdog_device *wdt,
->  }
->  
->  static const struct watchdog_info twl4030_wdt_info = {
-> -	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-> +	.options = WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING,
->  	.identity = "TWL4030 Watchdog",
->  };
->  
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-omap" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+Boris
+
+-- 
+Boris Brezillon, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
