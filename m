@@ -1,161 +1,171 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:53770 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:58450 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753526AbbAJAjZ (ORCPT
+	with ESMTP id S1751141AbbAKBSG (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 9 Jan 2015 19:39:25 -0500
+	Sat, 10 Jan 2015 20:18:06 -0500
 Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
 	(envelope-from <linux@roeck-us.net>)
-	id 1Y9k5M-003Cow-F4
-	for linux-watchdog@vger.kernel.org; Sat, 10 Jan 2015 00:39:24 +0000
-Message-ID: <54B074B9.2090704@roeck-us.net>
-Date: Fri, 09 Jan 2015 16:39:21 -0800
+	id 1YA7AM-004IOH-F0
+	for linux-watchdog@vger.kernel.org; Sun, 11 Jan 2015 01:18:06 +0000
+Message-ID: <54B1CF4B.3070503@roeck-us.net>
+Date: Sat, 10 Jan 2015 17:18:03 -0800
 From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Nicolas Ferre <nicolas.ferre@atmel.com>
-CC: Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Lee Jones <lee.jones@linaro.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v2 3/8] watchdog: at91rm9200: use the regmap from mfd
-References: <1420797094-9444-1-git-send-email-alexandre.belloni@free-electrons.com> <1420797094-9444-4-git-send-email-alexandre.belloni@free-electrons.com>
-In-Reply-To: <1420797094-9444-4-git-send-email-alexandre.belloni@free-electrons.com>
+To: Lars-Peter Clausen <lars@metafoo.de>,
+	Ralf Baechle <ralf@linux-mips.org>
+CC: Wim Van Sebroeck <wim@iguana.be>,
+	Paul Burton <paul.burton@imgtec.com>,
+	Paul Cercueil <paul@crapouillou.net>,
+	Maarten ter Huurne <maarten@treewalker.org>,
+	linux-mips@linux-mips.org, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 3/3] MIPS: jz4740: Move reset code to the watchdog driver
+References: <1420914550-18335-1-git-send-email-lars@metafoo.de> <1420914550-18335-3-git-send-email-lars@metafoo.de>
+In-Reply-To: <1420914550-18335-3-git-send-email-lars@metafoo.de>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 01/09/2015 01:51 AM, Alexandre Belloni wrote:
-> The system timer MFD driver is providing a regmap. Use it to access the
-> registers.
+On 01/10/2015 10:29 AM, Lars-Peter Clausen wrote:
+> On JZ4740 reset is handled by the watchdog peripheral. This patch moves the
+> reset handler code from a architecture specific file to the watchdog peripheral
+> driver and registers it as a generic reset handler. This will allow it to be
+> reused by other SoCs that use the same watchdog peripheral.
 >
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
 > ---
->   drivers/watchdog/Kconfig          |  2 +-
->   drivers/watchdog/at91rm9200_wdt.c | 27 +++++++++------------------
->   2 files changed, 10 insertions(+), 19 deletions(-)
+>   arch/mips/jz4740/reset.c      |   22 ----------------------
+>   drivers/watchdog/jz4740_wdt.c |   34 ++++++++++++++++++++++++++++++++++
+>   2 files changed, 34 insertions(+), 22 deletions(-)
 >
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 08f41add1461..18c73bc159fc 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -154,7 +154,7 @@ config ARM_SP805_WATCHDOG
->
->   config AT91RM9200_WATCHDOG
->   	tristate "AT91RM9200 watchdog"
-> -	depends on SOC_AT91RM9200
-> +	depends on SOC_AT91RM9200 && MFD_ATMEL_ST
->   	help
->   	  Watchdog timer embedded into AT91RM9200 chips. This will reboot your
->   	  system when the timeout is reached.
-> diff --git a/drivers/watchdog/at91rm9200_wdt.c b/drivers/watchdog/at91rm9200_wdt.c
-> index d244112d5b6f..a493fe4b0dfc 100644
-> --- a/drivers/watchdog/at91rm9200_wdt.c
-> +++ b/drivers/watchdog/at91rm9200_wdt.c
-> @@ -14,25 +14,22 @@
->   #include <linux/bitops.h>
->   #include <linux/errno.h>
->   #include <linux/fs.h>
-> -#include <linux/init.h>
-> -#include <linux/io.h>
->   #include <linux/kernel.h>
-> +#include <linux/mfd/atmel-st.h>
->   #include <linux/miscdevice.h>
->   #include <linux/module.h>
->   #include <linux/moduleparam.h>
->   #include <linux/platform_device.h>
-> -#include <linux/types.h>
-> +#include <linux/regmap.h>
->   #include <linux/watchdog.h>
->   #include <linux/uaccess.h>
-> -#include <linux/of.h>
-> -#include <linux/of_device.h>
-> -#include <mach/at91_st.h>
->
->   #define WDT_DEFAULT_TIME	5	/* seconds */
->   #define WDT_MAX_TIME		256	/* seconds */
->
->   static int wdt_time = WDT_DEFAULT_TIME;
->   static bool nowayout = WATCHDOG_NOWAYOUT;
-> +static struct regmap *regmap_st;
->
->   module_param(wdt_time, int, 0);
->   MODULE_PARM_DESC(wdt_time, "Watchdog time in seconds. (default="
-> @@ -55,7 +52,7 @@ static unsigned long at91wdt_busy;
->    */
->   static inline void at91_wdt_stop(void)
->   {
-> -	at91_st_write(AT91_ST_WDMR, AT91_ST_EXTEN);
-> +	regmap_write(regmap_st, AT91_ST_WDMR, AT91_ST_EXTEN);
+> diff --git a/arch/mips/jz4740/reset.c b/arch/mips/jz4740/reset.c
+> index b6c6343..0871b94 100644
+> --- a/arch/mips/jz4740/reset.c
+> +++ b/arch/mips/jz4740/reset.c
+> @@ -35,27 +35,6 @@ static void jz4740_halt(void)
+>   	}
 >   }
 >
->   /*
-> @@ -63,9 +60,9 @@ static inline void at91_wdt_stop(void)
->    */
->   static inline void at91_wdt_start(void)
->   {
-> -	at91_st_write(AT91_ST_WDMR, AT91_ST_EXTEN | AT91_ST_RSTEN |
-> +	regmap_write(regmap_st, AT91_ST_WDMR, AT91_ST_EXTEN | AT91_ST_RSTEN |
->   				(((65536 * wdt_time) >> 8) & AT91_ST_WDV));
-> -	at91_st_write(AT91_ST_CR, AT91_ST_WDRST);
-> +	regmap_write(regmap_st, AT91_ST_CR, AT91_ST_WDRST);
->   }
->
->   /*
-> @@ -73,7 +70,7 @@ static inline void at91_wdt_start(void)
->    */
->   static inline void at91_wdt_reload(void)
->   {
-> -	at91_st_write(AT91_ST_CR, AT91_ST_WDRST);
-> +	regmap_write(regmap_st, AT91_ST_CR, AT91_ST_WDRST);
->   }
->
->   /* ......................................................................... */
-> @@ -204,6 +201,7 @@ static struct miscdevice at91wdt_miscdev = {
->   static int at91wdt_probe(struct platform_device *pdev)
->   {
->   	int res;
-> +	regmap_st = dev_get_drvdata(pdev->dev.parent);
->
-
-Is it guaranteed that parent is never NULL, and that the parent's
-drvdata is always set ?
-
-Also, it seems that regmap_st will be overwritten if the device
-is already open (see code below). That may not be a good idea.
-
-Guenter
-
->   	if (at91wdt_miscdev.parent)
->   		return -EBUSY;
-> @@ -254,12 +252,6 @@ static int at91wdt_resume(struct platform_device *pdev)
->   #define at91wdt_resume	NULL
->   #endif
->
-> -static const struct of_device_id at91_wdt_dt_ids[] = {
-> -	{ .compatible = "atmel,at91rm9200-wdt" },
-> -	{ /* sentinel */ }
-> -};
-> -MODULE_DEVICE_TABLE(of, at91_wdt_dt_ids);
+> -#define JZ_REG_WDT_DATA 0x00
+> -#define JZ_REG_WDT_COUNTER_ENABLE 0x04
+> -#define JZ_REG_WDT_COUNTER 0x08
+> -#define JZ_REG_WDT_CTRL 0x0c
 > -
->   static struct platform_driver at91wdt_driver = {
->   	.probe		= at91wdt_probe,
->   	.remove		= at91wdt_remove,
-> @@ -267,8 +259,7 @@ static struct platform_driver at91wdt_driver = {
->   	.suspend	= at91wdt_suspend,
->   	.resume		= at91wdt_resume,
->   	.driver		= {
-> -		.name	= "at91_wdt",
-> -		.of_match_table = at91_wdt_dt_ids,
-> +		.name	= "atmel_st_watchdog",
->   	},
+> -static void jz4740_restart(char *command)
+> -{
+> -	void __iomem *wdt_base = ioremap(JZ4740_WDT_BASE_ADDR, 0x0f);
+> -
+> -	jz4740_timer_enable_watchdog();
+> -
+> -	writeb(0, wdt_base + JZ_REG_WDT_COUNTER_ENABLE);
+> -
+> -	writew(0, wdt_base + JZ_REG_WDT_COUNTER);
+> -	writew(0, wdt_base + JZ_REG_WDT_DATA);
+> -	writew(BIT(2), wdt_base + JZ_REG_WDT_CTRL);
+> -
+> -	writeb(1, wdt_base + JZ_REG_WDT_COUNTER_ENABLE);
+> -	jz4740_halt();
+> -}
+> -
+>   #define JZ_REG_RTC_CTRL			0x00
+>   #define JZ_REG_RTC_HIBERNATE		0x20
+>   #define JZ_REG_RTC_WAKEUP_FILTER	0x24
+> @@ -112,7 +91,6 @@ static void jz4740_power_off(void)
+>
+>   void jz4740_reset_init(void)
+>   {
+> -	_machine_restart = jz4740_restart;
+>   	_machine_halt = jz4740_halt;
+>   	pm_power_off = jz4740_power_off;
+>   }
+> diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
+> index 18e41af..86a4c55 100644
+> --- a/drivers/watchdog/jz4740_wdt.c
+> +++ b/drivers/watchdog/jz4740_wdt.c
+> @@ -24,6 +24,7 @@
+>   #include <linux/clk.h>
+>   #include <linux/slab.h>
+>   #include <linux/err.h>
+> +#include <linux/reboot.h>
+>
+>   #include <asm/mach-jz4740/timer.h>
+>
+> @@ -65,6 +66,8 @@ struct jz4740_wdt_drvdata {
+>   	struct watchdog_device wdt;
+>   	void __iomem *base;
+>   	struct clk *rtc_clk;
+> +
+> +	struct notifier_block restart_handler;
 >   };
 >
+>   static int jz4740_wdt_ping(struct watchdog_device *wdt_dev)
+> @@ -142,6 +145,25 @@ static const struct watchdog_ops jz4740_wdt_ops = {
+>   	.set_timeout = jz4740_wdt_set_timeout,
+>   };
+>
+> +static int jz4740_wdt_restart(struct notifier_block *nb,
+> +	unsigned long mode, void *cmd)
+> +{
+> +	struct jz4740_wdt_drvdata *drvdata = container_of(nb,
+> +		struct jz4740_wdt_drvdata, restart_handler);
+> +
+> +	jz4740_timer_enable_watchdog();
+> +
+> +	writeb(0, drvdata->base + JZ_REG_WDT_COUNTER_ENABLE);
+> +
+> +	writew(0, drvdata->base + JZ_REG_WDT_TIMER_COUNTER);
+> +	writew(0, drvdata->base + JZ_REG_WDT_TIMER_DATA);
+> +	writew(JZ_WDT_CLOCK_EXT, drvdata->base + JZ_REG_WDT_TIMER_CONTROL);
+> +
+> +	writeb(1, drvdata->base + JZ_REG_WDT_COUNTER_ENABLE);
+> +
+> +	return NOTIFY_DONE;
+> +}
+> +
+>   static int jz4740_wdt_probe(struct platform_device *pdev)
+>   {
+>   	struct jz4740_wdt_drvdata *drvdata;
+> @@ -186,9 +208,20 @@ static int jz4740_wdt_probe(struct platform_device *pdev)
+>   	if (ret < 0)
+>   		goto err_disable_clk;
+>
+> +	drvdata->restart_handler.notifier_call = jz4740_wdt_restart;
+> +	drvdata->restart_handler.priority = 128;
+> +	ret = register_restart_handler(&drvdata->restart_handler);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "cannot register restart handler, %d\n",
+> +			ret);
+> +		goto err_unregister_watchdog;
+
+Are you sure you want to abort in this case ?
+After all, the watchdog would still work.
+
+This is pretty theoretic, since the registration does in practice never fail,
+so
+
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
+Thanks,
+Guenter
+
+> +	}
+> +
+>   	platform_set_drvdata(pdev, drvdata);
+>   	return 0;
+>
+> +err_unregister_watchdog:
+> +	watchdog_unregister_device(&drvdata->wdt);
+>   err_disable_clk:
+>   	clk_put(drvdata->rtc_clk);
+>   err_out:
+> @@ -199,6 +232,7 @@ static int jz4740_wdt_remove(struct platform_device *pdev)
+>   {
+>   	struct jz4740_wdt_drvdata *drvdata = platform_get_drvdata(pdev);
+>
+> +	unregister_restart_handler(&drvdata->restart_handler);
+>   	jz4740_wdt_stop(&drvdata->wdt);
+>   	watchdog_unregister_device(&drvdata->wdt);
+>   	clk_put(drvdata->rtc_clk);
 >
 
