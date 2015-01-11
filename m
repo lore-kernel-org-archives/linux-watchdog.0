@@ -1,77 +1,101 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:59127 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750866AbbAKBY5 (ORCPT
+Received: from unicorn.mansr.com ([81.2.72.234]:60193 "EHLO unicorn.mansr.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750922AbbAKMao convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 10 Jan 2015 20:24:57 -0500
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
-	(envelope-from <linux@roeck-us.net>)
-	id 1YA7Gy-0009BA-SL
-	for linux-watchdog@vger.kernel.org; Sun, 11 Jan 2015 01:24:57 +0000
-Message-ID: <54B1D0E5.3010904@roeck-us.net>
-Date: Sat, 10 Jan 2015 17:24:53 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: Lars-Peter Clausen <lars@metafoo.de>,
-	Ralf Baechle <ralf@linux-mips.org>
-CC: Wim Van Sebroeck <wim@iguana.be>,
+	Sun, 11 Jan 2015 07:30:44 -0500
+From: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mans@mansr.com>
+To: Lars-Peter Clausen <lars@metafoo.de>
+Cc: Guenter Roeck <linux@roeck-us.net>,
+	Ralf Baechle <ralf@linux-mips.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
 	Paul Burton <paul.burton@imgtec.com>,
 	Paul Cercueil <paul@crapouillou.net>,
 	Maarten ter Huurne <maarten@treewalker.org>,
 	linux-mips@linux-mips.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 2/3] MIPS: qi_lb60: Register watchdog device
-References: <1420914550-18335-1-git-send-email-lars@metafoo.de> <1420914550-18335-2-git-send-email-lars@metafoo.de>
-In-Reply-To: <1420914550-18335-2-git-send-email-lars@metafoo.de>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH 1/3] MIPS: Use do_kernel_restart() as the default restart handler
+References: <1420914550-18335-1-git-send-email-lars@metafoo.de>
+	<yw1xh9vyflfw.fsf@unicorn.mansr.com> <54B1CF9B.3060606@roeck-us.net>
+	<yw1xd26lfr93.fsf@unicorn.mansr.com> <54B26BB4.50707@metafoo.de>
+Date: Sun, 11 Jan 2015 12:30:42 +0000
+In-Reply-To: <54B26BB4.50707@metafoo.de> (Lars-Peter Clausen's message of
+	"Sun, 11 Jan 2015 13:25:24 +0100")
+Message-ID: <yw1x8uh9fqj1.fsf@unicorn.mansr.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 01/10/2015 10:29 AM, Lars-Peter Clausen wrote:
-> The next commit will move the restart code to the watchdog driver. So for
-> restart to continue to work we need to register the watchdog device.
->
-> Also enable the watchdog driver in the default config.
->
-> Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-> ---
->   arch/mips/configs/qi_lb60_defconfig |    2 ++
->   arch/mips/jz4740/board-qi_lb60.c    |    1 +
->   2 files changed, 3 insertions(+)
->
-> diff --git a/arch/mips/configs/qi_lb60_defconfig b/arch/mips/configs/qi_lb60_defconfig
-> index 2b96547..ce06a92 100644
-> --- a/arch/mips/configs/qi_lb60_defconfig
-> +++ b/arch/mips/configs/qi_lb60_defconfig
-> @@ -73,6 +73,8 @@ CONFIG_POWER_SUPPLY=y
->   CONFIG_BATTERY_JZ4740=y
->   CONFIG_CHARGER_GPIO=y
->   # CONFIG_HWMON is not set
-> +CONFIG_WATCHDOG=y
-> +CONFIG_JZ4740_WDT=y
+Lars-Peter Clausen <lars@metafoo.de> writes:
 
-Shouldn't JZ4740_WDT be selected from MACH_JZ4740 ?
-
-Guess it doesn't really matter if there is just one board, but if there
-is ever another board the reset handler would not automatically be enabled.
-
-Thanks,
-Guenter
-
->   CONFIG_MFD_JZ4740_ADC=y
->   CONFIG_REGULATOR=y
->   CONFIG_REGULATOR_FIXED_VOLTAGE=y
-> diff --git a/arch/mips/jz4740/board-qi_lb60.c b/arch/mips/jz4740/board-qi_lb60.c
-> index c454525..a00f134 100644
-> --- a/arch/mips/jz4740/board-qi_lb60.c
-> +++ b/arch/mips/jz4740/board-qi_lb60.c
-> @@ -436,6 +436,7 @@ static struct gpiod_lookup_table qi_lb60_audio_gpio_table = {
->   };
+> On 01/11/2015 01:15 PM, M=E5ns Rullg=E5rd wrote:
+>> Guenter Roeck <linux@roeck-us.net> writes:
+>>
+>>> On 01/10/2015 12:08 PM, M=E5ns Rullg=E5rd wrote:
+>>>> Lars-Peter Clausen <lars@metafoo.de> writes:
+>>>>
+>>>>> Use the recently introduced do_kernel_restart() function as the d=
+efault restart
+>>>>> handler if the platform did not explicitly provide a restart hand=
+ler. This
+>>>>> allows use restart handler that have been registered by device dr=
+ivers to
+>>>>> restart the machine.
+>>>>>
+>>>>> Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+>>>>> ---
+>>>>>    arch/mips/kernel/reset.c |    2 +-
+>>>>>    1 file changed, 1 insertion(+), 1 deletion(-)
+>>>>>
+>>>>> diff --git a/arch/mips/kernel/reset.c b/arch/mips/kernel/reset.c
+>>>>> index 07fc524..36cd80c 100644
+>>>>> --- a/arch/mips/kernel/reset.c
+>>>>> +++ b/arch/mips/kernel/reset.c
+>>>>> @@ -19,7 +19,7 @@
+>>>>>     * So handle all using function pointers to machine specific
+>>>>>     * functions.
+>>>>>     */
+>>>>> -void (*_machine_restart)(char *command);
+>>>>> +void (*_machine_restart)(char *command) =3D do_kernel_restart;
+>>>>>    void (*_machine_halt)(void);
+>>>>>    void (*pm_power_off)(void);
+>>>>
+>>>> There is already a similar patch posted by Kevin Cernekee:
+>>>> http://www.linux-mips.org/archives/linux-mips/2014-12/msg00410.htm=
+l
+>>>>
+>>> Personally I prefer the earlier patch, though I guess that is perso=
+nal
+>>> preference.
+>>
+>> They both achieve the same thing, though Kevin's is more in line wit=
+h
+>> what ARM does.  Missing from both is a fallback while(1) loop in cas=
+e no
+>> restart handlers are registered.  With the restart moved to the watc=
+hdog
+>> driver, there's a possibility that this might happen.
+>>
 >
->   static struct platform_device *jz_platform_devices[] __initdata = {
-> +	&jz4740_wdt_device,
->   	&jz4740_udc_device,
->   	&jz4740_udc_xceiv_device,
->   	&jz4740_mmc_device,
+> In my opinion if such a fallback is needed it should be put into the
+> kernel core reboot implementation and not into individual restart
+> handler implementations.
 >
+> My first version of this patch was do_kernel_restart() followed by a
+> machine_halt() (so it goes to sleep instead of busy looping) as a
+> fallback. But I couldn't find a good reason why that should be done a=
+t
+> the individual restart handler level, so I dropped it.
 
+ARM does it its arch machine_restart() function.  MIPS should probably
+follow suit.
+
+--=20
+M=E5ns Rullg=E5rd
+mans@mansr.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
