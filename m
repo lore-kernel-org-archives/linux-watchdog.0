@@ -1,83 +1,70 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.savoirfairelinux.com ([209.172.62.77]:64129 "EHLO
-	mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752524AbbA2RWa (ORCPT
+Received: from unicorn.mansr.com ([81.2.72.234]:60162 "EHLO unicorn.mansr.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750773AbbAKMPO convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 29 Jan 2015 12:22:30 -0500
-From: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
-To: linux-watchdog@vger.kernel.org
-Cc: Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
+	Sun, 11 Jan 2015 07:15:14 -0500
+From: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mans@mansr.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Lars-Peter Clausen <lars@metafoo.de>,
+	Ralf Baechle <ralf@linux-mips.org>,
 	Wim Van Sebroeck <wim@iguana.be>,
-	linux-kernel@vger.kernel.org, kernel@savoirfairelinux.com
-Subject: [PATCH 4/4] watchdog: max63xx: add heartbeat to platform data
-Date: Thu, 29 Jan 2015 12:15:45 -0500
-Message-Id: <1422551745-29101-5-git-send-email-vivien.didelot@savoirfairelinux.com>
-In-Reply-To: <1422551745-29101-1-git-send-email-vivien.didelot@savoirfairelinux.com>
-References: <1422551745-29101-1-git-send-email-vivien.didelot@savoirfairelinux.com>
+	Paul Burton <paul.burton@imgtec.com>,
+	Paul Cercueil <paul@crapouillou.net>,
+	Maarten ter Huurne <maarten@treewalker.org>,
+	linux-mips@linux-mips.org, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 1/3] MIPS: Use do_kernel_restart() as the default restart handler
+References: <1420914550-18335-1-git-send-email-lars@metafoo.de>
+	<yw1xh9vyflfw.fsf@unicorn.mansr.com> <54B1CF9B.3060606@roeck-us.net>
+Date: Sun, 11 Jan 2015 12:15:04 +0000
+In-Reply-To: <54B1CF9B.3060606@roeck-us.net> (Guenter Roeck's message of "Sat,
+	10 Jan 2015 17:19:23 -0800")
+Message-ID: <yw1xd26lfr93.fsf@unicorn.mansr.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Actually, there is no way but the module parameter to set the desired
-heartbeat. This patch allows a platform code to set it in the device
-platform data. This is convenient for platforms and built-in drivers.
+Guenter Roeck <linux@roeck-us.net> writes:
 
-To do so, initialize heartbeat to zero to allow the module parameter to
-takes precedence over the platform setting. If not set, it will still
-default to DEFAULT_HEARTBEAT.
+> On 01/10/2015 12:08 PM, Måns Rullgård wrote:
+>> Lars-Peter Clausen <lars@metafoo.de> writes:
+>>
+>>> Use the recently introduced do_kernel_restart() function as the default restart
+>>> handler if the platform did not explicitly provide a restart handler. This
+>>> allows use restart handler that have been registered by device drivers to
+>>> restart the machine.
+>>>
+>>> Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+>>> ---
+>>>   arch/mips/kernel/reset.c |    2 +-
+>>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>>
+>>> diff --git a/arch/mips/kernel/reset.c b/arch/mips/kernel/reset.c
+>>> index 07fc524..36cd80c 100644
+>>> --- a/arch/mips/kernel/reset.c
+>>> +++ b/arch/mips/kernel/reset.c
+>>> @@ -19,7 +19,7 @@
+>>>    * So handle all using function pointers to machine specific
+>>>    * functions.
+>>>    */
+>>> -void (*_machine_restart)(char *command);
+>>> +void (*_machine_restart)(char *command) = do_kernel_restart;
+>>>   void (*_machine_halt)(void);
+>>>   void (*pm_power_off)(void);
+>>
+>> There is already a similar patch posted by Kevin Cernekee:
+>> http://www.linux-mips.org/archives/linux-mips/2014-12/msg00410.html
+>>
+> Personally I prefer the earlier patch, though I guess that is personal
+> preference.
 
-Signed-off-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
----
- drivers/watchdog/max63xx_wdt.c            | 8 ++++++--
- include/linux/platform_data/max63xx_wdt.h | 2 ++
- 2 files changed, 8 insertions(+), 2 deletions(-)
+They both achieve the same thing, though Kevin's is more in line with
+what ARM does.  Missing from both is a fallback while(1) loop in case no
+restart handlers are registered.  With the restart moved to the watchdog
+driver, there's a possibility that this might happen.
 
-diff --git a/drivers/watchdog/max63xx_wdt.c b/drivers/watchdog/max63xx_wdt.c
-index bfa7ee3..e6ac163 100644
---- a/drivers/watchdog/max63xx_wdt.c
-+++ b/drivers/watchdog/max63xx_wdt.c
-@@ -30,10 +30,10 @@
- 
- #define MAX63XX_DISABLED	3
- 
--static unsigned int heartbeat = DEFAULT_HEARTBEAT;
-+static unsigned int heartbeat;
- module_param(heartbeat, int, 0);
- MODULE_PARM_DESC(heartbeat, "Watchdog heartbeat period in seconds from 1 to "
--		 __MODULE_STRING(MAX_HEARTBEAT) ", default "
-+		 __MODULE_STRING(MAX_HEARTBEAT) ", default will be "
- 		 __MODULE_STRING(DEFAULT_HEARTBEAT));
- 
- static bool nowayout = WATCHDOG_NOWAYOUT;
-@@ -239,6 +239,10 @@ static int max63xx_wdt_probe(struct platform_device *pdev)
- 
- 	data->pdata = dev_get_platdata(&pdev->dev);
- 
-+	/* The module parameter takes precedence over the platform setting */
-+	if (!heartbeat && data->pdata && data->pdata->heartbeat)
-+		heartbeat = data->pdata->heartbeat;
-+
- 	if (heartbeat < 1 || heartbeat > MAX_HEARTBEAT)
- 		heartbeat = DEFAULT_HEARTBEAT;
- 
-diff --git a/include/linux/platform_data/max63xx_wdt.h b/include/linux/platform_data/max63xx_wdt.h
-index ae28024..8127b1a 100644
---- a/include/linux/platform_data/max63xx_wdt.h
-+++ b/include/linux/platform_data/max63xx_wdt.h
-@@ -14,12 +14,14 @@
- 
- /**
-  * struct max63xx_platform_data - MAX63xx connectivity info
-+ * @heartbeat:	Watchdog heartbeat period in seconds.
-  * @wdi:	Watchdog Input GPIO number.
-  * @set0:	Watchdog SET0 GPIO number.
-  * @set1:	Watchdog SET1 GPIO number.
-  * @set2:	Watchdog SET2 GPIO number.
-  */
- struct max63xx_platform_data {
-+	unsigned int heartbeat;
- 	unsigned int wdi;
- 	unsigned int set0, set1, set2;
- };
 -- 
-2.2.2
-
+Måns Rullgård
+mans@mansr.com
