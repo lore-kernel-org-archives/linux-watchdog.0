@@ -1,56 +1,44 @@
-Return-path: <maarten@treewalker.org>
-From: Maarten ter Huurne <maarten@treewalker.org>
+Return-path: <alexandre.belloni@free-electrons.com>
+Date: Mon, 12 Jan 2015 15:08:36 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: Lars-Peter Clausen <lars@metafoo.de>, Ralf Baechle <ralf@linux-mips.org>, Wim Van Sebroeck <wim@iguana.be>, Paul Burton <paul.burton@imgtec.com>, Paul Cercueil <paul@crapouillou.net>, linux-mips@linux-mips.org, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 2/3] MIPS: qi_lb60: Register watchdog device
-Date: Sun, 11 Jan 2015 02:37:24 +0100
-Message-ID: <2955853.HTsalEGzQa@hyperion>
-In-Reply-To: <54B1D0E5.3010904@roeck-us.net>
-References: <1420914550-18335-1-git-send-email-lars@metafoo.de> <1420914550-18335-2-git-send-email-lars@metafoo.de> <54B1D0E5.3010904@roeck-us.net>
+Cc: Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	Daniel Lezcano <daniel.lezcano@linaro.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Lee Jones <lee.jones@linaro.org>, Wim Van Sebroeck <wim@iguana.be>,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v2 3/8] watchdog: at91rm9200: use the regmap from mfd
+Message-ID: <20150112140836.GL2447@piout.net>
+References: <1420797094-9444-1-git-send-email-alexandre.belloni@free-electrons.com>
+ <1420797094-9444-4-git-send-email-alexandre.belloni@free-electrons.com>
+ <54B074B9.2090704@roeck-us.net>
+ <20150110184146.GH2447@piout.net>
+ <54B1CE58.4040407@roeck-us.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <54B1CE58.4040407@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Saturday 10 January 2015 17:24:53 Guenter Roeck wrote:
-> On 01/10/2015 10:29 AM, Lars-Peter Clausen wrote:
-> > The next commit will move the restart code to the watchdog driver. So
-> > for
-> > restart to continue to work we need to register the watchdog device.
-> > 
-> > Also enable the watchdog driver in the default config.
-> > 
-> > Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-> > ---
-> > 
-> >   arch/mips/configs/qi_lb60_defconfig |    2 ++
-> >   arch/mips/jz4740/board-qi_lb60.c    |    1 +
-> >   2 files changed, 3 insertions(+)
-> > 
-> > diff --git a/arch/mips/configs/qi_lb60_defconfig
-> > b/arch/mips/configs/qi_lb60_defconfig index 2b96547..ce06a92 100644
-> > --- a/arch/mips/configs/qi_lb60_defconfig
-> > +++ b/arch/mips/configs/qi_lb60_defconfig
-> > @@ -73,6 +73,8 @@ CONFIG_POWER_SUPPLY=y
-> > 
-> >   CONFIG_BATTERY_JZ4740=y
-> >   CONFIG_CHARGER_GPIO=y
-> >   # CONFIG_HWMON is not set
-> > 
-> > +CONFIG_WATCHDOG=y
-> > +CONFIG_JZ4740_WDT=y
+On 10/01/2015 at 17:14:00 -0800, Guenter Roeck wrote :
+> Not sure I understand what my comment has to do with 'parent'.
 > 
-> Shouldn't JZ4740_WDT be selected from MACH_JZ4740 ?
+> The fact that the code checks if it has already been instantiated
+> suggests that the original author of the driver was concerned about
+> that case. Since you did not remove that check I have to assume that
+> this can still happen. If so, the second instantiation attempt will
+> overwrite regmap_st, since that variable is written prior to checking
+> for the dual instantiation.
 > 
-> Guess it doesn't really matter if there is just one board, but if there
-> is ever another board the reset handler would not automatically be
-> enabled.
 
-There is only one board in the mainline kernel, but Paul Cercueil and me did 
-maintain a kernel for the Dingoo A320 for a while which is also JZ4740-
-based. Also, a lot of the JZ4740 drivers can be used as-is or with small 
-adaptations on later SoC generations. For example, we're using a slightly 
-modified version of this watchdog driver on the JZ4770-based GCW Zero.
+I'll move the regmap_st assignment after the check. But I really believe
+it will never be probed more than once.
 
-Bye,
-		Maarten
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
