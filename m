@@ -13,48 +13,129 @@ Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
 	linux-arm-kernel@lists.infradead.org,
 	linux-watchdog@vger.kernel.org,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH v3 1/8] ARM: at91/dt: declare atmel,at91rm9200-st as a syscon
-Date: Mon, 12 Jan 2015 16:36:56 +0100
-Message-Id: <1421077023-30954-2-git-send-email-alexandre.belloni@free-electrons.com>
+Subject: [PATCH v3 3/8] watchdog: at91rm9200: use the regmap from mfd
+Date: Mon, 12 Jan 2015 16:36:58 +0100
+Message-Id: <1421077023-30954-4-git-send-email-alexandre.belloni@free-electrons.com>
 In-Reply-To: <1421077023-30954-1-git-send-email-alexandre.belloni@free-electrons.com>
 References: <1421077023-30954-1-git-send-email-alexandre.belloni@free-electrons.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-The system timer register range is also used for the watchdog. Declare it as a
-syscon to be able to get a regmap early enough in the boot process
+The system timer MFD driver is providing a regmap. Use it to access the
+registers.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 Acked-by: Boris Brezillon <boris.brezillon@free-electrons.com>
 ---
- Documentation/devicetree/bindings/arm/atmel-at91.txt | 2 +-
- arch/arm/boot/dts/at91rm9200.dtsi                    | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/watchdog/Kconfig          |  2 +-
+ drivers/watchdog/at91rm9200_wdt.c | 25 ++++++++++++-------------
+ 2 files changed, 13 insertions(+), 14 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/arm/atmel-at91.txt b/Documentation/devicetree/bindings/arm/atmel-at91.txt
-index 562cda9d86d9..938592a3c4e2 100644
---- a/Documentation/devicetree/bindings/arm/atmel-at91.txt
-+++ b/Documentation/devicetree/bindings/arm/atmel-at91.txt
-@@ -45,7 +45,7 @@ PIT Timer required properties:
-   shared across all System Controller members.
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 08f41add1461..18c73bc159fc 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -154,7 +154,7 @@ config ARM_SP805_WATCHDOG
  
- System Timer (ST) required properties:
--- compatible: Should be "atmel,at91rm9200-st"
-+- compatible: Should be "atmel,at91rm9200-st", "syscon"
- - reg: Should contain registers location and length
- - interrupts: Should contain interrupt for the ST which is the IRQ line
-   shared across all System Controller members.
-diff --git a/arch/arm/boot/dts/at91rm9200.dtsi b/arch/arm/boot/dts/at91rm9200.dtsi
-index 6c97d4af61ee..f77b15c0b1d1 100644
---- a/arch/arm/boot/dts/at91rm9200.dtsi
-+++ b/arch/arm/boot/dts/at91rm9200.dtsi
-@@ -351,7 +351,7 @@
- 			};
+ config AT91RM9200_WATCHDOG
+ 	tristate "AT91RM9200 watchdog"
+-	depends on SOC_AT91RM9200
++	depends on SOC_AT91RM9200 && MFD_ATMEL_ST
+ 	help
+ 	  Watchdog timer embedded into AT91RM9200 chips. This will reboot your
+ 	  system when the timeout is reached.
+diff --git a/drivers/watchdog/at91rm9200_wdt.c b/drivers/watchdog/at91rm9200_wdt.c
+index d244112d5b6f..a4ac88e450a2 100644
+--- a/drivers/watchdog/at91rm9200_wdt.c
++++ b/drivers/watchdog/at91rm9200_wdt.c
+@@ -17,22 +17,24 @@
+ #include <linux/init.h>
+ #include <linux/io.h>
+ #include <linux/kernel.h>
++#include <linux/mfd/atmel-st.h>
+ #include <linux/miscdevice.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/platform_device.h>
++#include <linux/regmap.h>
+ #include <linux/types.h>
+ #include <linux/watchdog.h>
+ #include <linux/uaccess.h>
+ #include <linux/of.h>
+ #include <linux/of_device.h>
+-#include <mach/at91_st.h>
  
- 			st: timer@fffffd00 {
--				compatible = "atmel,at91rm9200-st";
-+				compatible = "atmel,at91rm9200-st", "syscon";
- 				reg = <0xfffffd00 0x100>;
- 				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
- 			};
+ #define WDT_DEFAULT_TIME	5	/* seconds */
+ #define WDT_MAX_TIME		256	/* seconds */
+ 
+ static int wdt_time = WDT_DEFAULT_TIME;
+ static bool nowayout = WATCHDOG_NOWAYOUT;
++static struct regmap *regmap_st;
+ 
+ module_param(wdt_time, int, 0);
+ MODULE_PARM_DESC(wdt_time, "Watchdog time in seconds. (default="
+@@ -55,7 +57,7 @@ static unsigned long at91wdt_busy;
+  */
+ static inline void at91_wdt_stop(void)
+ {
+-	at91_st_write(AT91_ST_WDMR, AT91_ST_EXTEN);
++	regmap_write(regmap_st, AT91_ST_WDMR, AT91_ST_EXTEN);
+ }
+ 
+ /*
+@@ -63,9 +65,9 @@ static inline void at91_wdt_stop(void)
+  */
+ static inline void at91_wdt_start(void)
+ {
+-	at91_st_write(AT91_ST_WDMR, AT91_ST_EXTEN | AT91_ST_RSTEN |
++	regmap_write(regmap_st, AT91_ST_WDMR, AT91_ST_EXTEN | AT91_ST_RSTEN |
+ 				(((65536 * wdt_time) >> 8) & AT91_ST_WDV));
+-	at91_st_write(AT91_ST_CR, AT91_ST_WDRST);
++	regmap_write(regmap_st, AT91_ST_CR, AT91_ST_WDRST);
+ }
+ 
+ /*
+@@ -73,7 +75,7 @@ static inline void at91_wdt_start(void)
+  */
+ static inline void at91_wdt_reload(void)
+ {
+-	at91_st_write(AT91_ST_CR, AT91_ST_WDRST);
++	regmap_write(regmap_st, AT91_ST_CR, AT91_ST_WDRST);
+ }
+ 
+ /* ......................................................................... */
+@@ -209,6 +211,10 @@ static int at91wdt_probe(struct platform_device *pdev)
+ 		return -EBUSY;
+ 	at91wdt_miscdev.parent = &pdev->dev;
+ 
++	regmap_st = dev_get_drvdata(pdev->dev.parent);
++	if (!regmap_st)
++		return -ENODEV;
++
+ 	res = misc_register(&at91wdt_miscdev);
+ 	if (res)
+ 		return res;
+@@ -254,12 +260,6 @@ static int at91wdt_resume(struct platform_device *pdev)
+ #define at91wdt_resume	NULL
+ #endif
+ 
+-static const struct of_device_id at91_wdt_dt_ids[] = {
+-	{ .compatible = "atmel,at91rm9200-wdt" },
+-	{ /* sentinel */ }
+-};
+-MODULE_DEVICE_TABLE(of, at91_wdt_dt_ids);
+-
+ static struct platform_driver at91wdt_driver = {
+ 	.probe		= at91wdt_probe,
+ 	.remove		= at91wdt_remove,
+@@ -267,8 +267,7 @@ static struct platform_driver at91wdt_driver = {
+ 	.suspend	= at91wdt_suspend,
+ 	.resume		= at91wdt_resume,
+ 	.driver		= {
+-		.name	= "at91_wdt",
+-		.of_match_table = at91_wdt_dt_ids,
++		.name	= "atmel_st_watchdog",
+ 	},
+ };
+ 
 -- 
 2.1.0
