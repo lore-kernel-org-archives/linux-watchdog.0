@@ -1,44 +1,34 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:44107 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:44456 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751949AbbAMMIp (ORCPT
+	with ESMTP id S1751347AbbAMMKM (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 13 Jan 2015 07:08:45 -0500
+	Tue, 13 Jan 2015 07:10:12 -0500
 Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
 	(envelope-from <linux@roeck-us.net>)
-	id 1YB0H7-001UMN-BC
-	for linux-watchdog@vger.kernel.org; Tue, 13 Jan 2015 12:08:45 +0000
-Message-ID: <54B50AC2.7050808@roeck-us.net>
-Date: Tue, 13 Jan 2015 04:08:34 -0800
+	id 1YB0IX-001XnJ-21
+	for linux-watchdog@vger.kernel.org; Tue, 13 Jan 2015 12:10:13 +0000
+Message-ID: <54B50B20.9010602@roeck-us.net>
+Date: Tue, 13 Jan 2015 04:10:08 -0800
 From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-To: Ezequiel Garcia <ezequiel.garcia@imgtec.com>,
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>,
 	Wim Van Sebroeck <wim@iguana.be>,
-	James Hartley <james.hartley@imgtec.com>,
-	Andrew Bresticker <abrestic@chromium.org>,
-	James Hogan <james.hogan@imgtec.com>
-CC: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	Naidu Tellapati <naidu.tellapati@gmail.com>,
-	Naidu Tellapati <Naidu.Tellapati@imgtec.com>,
-	Jude Abraham <Jude.Abraham@gmail.com>
-Subject: Re: [PATCH v7 2/2] DT: watchdog: Add ImgTec PDC Watchdog Timer binding
- documentation
-References: <1420550375-22867-1-git-send-email-ezequiel.garcia@imgtec.com> <1420550375-22867-3-git-send-email-ezequiel.garcia@imgtec.com>
-In-Reply-To: <1420550375-22867-3-git-send-email-ezequiel.garcia@imgtec.com>
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] watchdog: imx2: Constify struct regmap_config and watchdog_ops
+References: <1420448957-10106-1-git-send-email-k.kozlowski@samsung.com>
+In-Reply-To: <1420448957-10106-1-git-send-email-k.kozlowski@samsung.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 01/06/2015 05:19 AM, Ezequiel Garcia wrote:
-> From: Naidu Tellapati <naidu.tellapati@gmail.com>
+On 01/05/2015 01:09 AM, Krzysztof Kozlowski wrote:
+> The regmap_config struct may be const because it is not modified by the
+> driver and regmap_init() accepts pointer to const. Make struct
+> watchdog_ops const as well.
 >
-> Add the devicetree binding document for ImgTec PDC Watchdog Timer.
->
-> Reviewed-by: Andrew Bresticker <abrestic@chromium.org>
-> Signed-off-by: Naidu Tellapati <Naidu.Tellapati@imgtec.com>
-> Signed-off-by: Jude Abraham <Jude.Abraham@gmail.com>
-> Signed-off-by: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
+> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
