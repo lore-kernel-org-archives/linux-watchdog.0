@@ -1,158 +1,66 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:56289 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752306AbbALR3q (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 12 Jan 2015 12:29:46 -0500
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
-	(envelope-from <linux@roeck-us.net>)
-	id 1YAioE-003HRp-Lm
-	for linux-watchdog@vger.kernel.org; Mon, 12 Jan 2015 17:29:47 +0000
-Date: Mon, 12 Jan 2015 09:28:49 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Samuel Ortiz <sameo@linux.intel.com>,
+Received: from sauhun.de ([89.238.76.85]:34907 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751127AbbAMKPw (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 13 Jan 2015 05:15:52 -0500
+Date: Tue, 13 Jan 2015 11:15:41 +0100
+From: Wolfram Sang <wsa@the-dreams.de>
+To: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Simon Horman <horms@verge.net.au>,
+	Magnus Damm <magnus.damm@gmail.com>,
+	Support Opensource <support.opensource@diasemi.com>,
+	Guenter Roeck <linux@roeck-us.net>,
 	Lee Jones <lee.jones@linaro.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v3 3/8] watchdog: at91rm9200: use the regmap from mfd
-Message-ID: <20150112172849.GB19868@roeck-us.net>
-References: <1421077023-30954-1-git-send-email-alexandre.belloni@free-electrons.com>
- <1421077023-30954-4-git-send-email-alexandre.belloni@free-electrons.com>
+	linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org,
+	linux-sh@vger.kernel.org, devicetree@vger.kernel.org
+Subject: Re: [PATCH 2/4] DT: i2c: Add devices handled by the da9063 MFD driver
+Message-ID: <20150113101541.GH1059@katana>
+References: <1418124169-7123-1-git-send-email-geert+renesas@glider.be>
+ <1418124169-7123-3-git-send-email-geert+renesas@glider.be>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="boAH8PqvUi1v1f55"
 Content-Disposition: inline
-In-Reply-To: <1421077023-30954-4-git-send-email-alexandre.belloni@free-electrons.com>
+In-Reply-To: <1418124169-7123-3-git-send-email-geert+renesas@glider.be>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Jan 12, 2015 at 04:36:58PM +0100, Alexandre Belloni wrote:
-> The system timer MFD driver is providing a regmap. Use it to access the
-> registers.
-> 
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> Acked-by: Boris Brezillon <boris.brezillon@free-electrons.com>
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+--boAH8PqvUi1v1f55
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> ---
->  drivers/watchdog/Kconfig          |  2 +-
->  drivers/watchdog/at91rm9200_wdt.c | 25 ++++++++++++-------------
->  2 files changed, 13 insertions(+), 14 deletions(-)
-> 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 08f41add1461..18c73bc159fc 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -154,7 +154,7 @@ config ARM_SP805_WATCHDOG
->  
->  config AT91RM9200_WATCHDOG
->  	tristate "AT91RM9200 watchdog"
-> -	depends on SOC_AT91RM9200
-> +	depends on SOC_AT91RM9200 && MFD_ATMEL_ST
->  	help
->  	  Watchdog timer embedded into AT91RM9200 chips. This will reboot your
->  	  system when the timeout is reached.
-> diff --git a/drivers/watchdog/at91rm9200_wdt.c b/drivers/watchdog/at91rm9200_wdt.c
-> index d244112d5b6f..a4ac88e450a2 100644
-> --- a/drivers/watchdog/at91rm9200_wdt.c
-> +++ b/drivers/watchdog/at91rm9200_wdt.c
-> @@ -17,22 +17,24 @@
->  #include <linux/init.h>
->  #include <linux/io.h>
->  #include <linux/kernel.h>
-> +#include <linux/mfd/atmel-st.h>
->  #include <linux/miscdevice.h>
->  #include <linux/module.h>
->  #include <linux/moduleparam.h>
->  #include <linux/platform_device.h>
-> +#include <linux/regmap.h>
->  #include <linux/types.h>
->  #include <linux/watchdog.h>
->  #include <linux/uaccess.h>
->  #include <linux/of.h>
->  #include <linux/of_device.h>
-> -#include <mach/at91_st.h>
->  
->  #define WDT_DEFAULT_TIME	5	/* seconds */
->  #define WDT_MAX_TIME		256	/* seconds */
->  
->  static int wdt_time = WDT_DEFAULT_TIME;
->  static bool nowayout = WATCHDOG_NOWAYOUT;
-> +static struct regmap *regmap_st;
->  
->  module_param(wdt_time, int, 0);
->  MODULE_PARM_DESC(wdt_time, "Watchdog time in seconds. (default="
-> @@ -55,7 +57,7 @@ static unsigned long at91wdt_busy;
->   */
->  static inline void at91_wdt_stop(void)
->  {
-> -	at91_st_write(AT91_ST_WDMR, AT91_ST_EXTEN);
-> +	regmap_write(regmap_st, AT91_ST_WDMR, AT91_ST_EXTEN);
->  }
->  
->  /*
-> @@ -63,9 +65,9 @@ static inline void at91_wdt_stop(void)
->   */
->  static inline void at91_wdt_start(void)
->  {
-> -	at91_st_write(AT91_ST_WDMR, AT91_ST_EXTEN | AT91_ST_RSTEN |
-> +	regmap_write(regmap_st, AT91_ST_WDMR, AT91_ST_EXTEN | AT91_ST_RSTEN |
->  				(((65536 * wdt_time) >> 8) & AT91_ST_WDV));
-> -	at91_st_write(AT91_ST_CR, AT91_ST_WDRST);
-> +	regmap_write(regmap_st, AT91_ST_CR, AT91_ST_WDRST);
->  }
->  
->  /*
-> @@ -73,7 +75,7 @@ static inline void at91_wdt_start(void)
->   */
->  static inline void at91_wdt_reload(void)
->  {
-> -	at91_st_write(AT91_ST_CR, AT91_ST_WDRST);
-> +	regmap_write(regmap_st, AT91_ST_CR, AT91_ST_WDRST);
->  }
->  
->  /* ......................................................................... */
-> @@ -209,6 +211,10 @@ static int at91wdt_probe(struct platform_device *pdev)
->  		return -EBUSY;
->  	at91wdt_miscdev.parent = &pdev->dev;
->  
-> +	regmap_st = dev_get_drvdata(pdev->dev.parent);
-> +	if (!regmap_st)
-> +		return -ENODEV;
-> +
->  	res = misc_register(&at91wdt_miscdev);
->  	if (res)
->  		return res;
-> @@ -254,12 +260,6 @@ static int at91wdt_resume(struct platform_device *pdev)
->  #define at91wdt_resume	NULL
->  #endif
->  
-> -static const struct of_device_id at91_wdt_dt_ids[] = {
-> -	{ .compatible = "atmel,at91rm9200-wdt" },
-> -	{ /* sentinel */ }
-> -};
-> -MODULE_DEVICE_TABLE(of, at91_wdt_dt_ids);
-> -
->  static struct platform_driver at91wdt_driver = {
->  	.probe		= at91wdt_probe,
->  	.remove		= at91wdt_remove,
-> @@ -267,8 +267,7 @@ static struct platform_driver at91wdt_driver = {
->  	.suspend	= at91wdt_suspend,
->  	.resume		= at91wdt_resume,
->  	.driver		= {
-> -		.name	= "at91_wdt",
-> -		.of_match_table = at91_wdt_dt_ids,
-> +		.name	= "atmel_st_watchdog",
->  	},
->  };
->  
-> -- 
-> 2.1.0
-> 
+On Tue, Dec 09, 2014 at 12:22:47PM +0100, Geert Uytterhoeven wrote:
+> This allows checkpatch to validate more DTSes.
+>=20
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> Cc: devicetree@vger.kernel.org
+
+Applied to for-next, thanks!
+
+
+--boAH8PqvUi1v1f55
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUtPBNAAoJEBQN5MwUoCm2iNsP/AjtlWEndXDssxKgZY9COUGo
+hsqZakcXbQYM1HkFdVQ6ZVXSGzyy7BnzY1a/Z+v6TLtxlvFykhgVAC9ds311xi8u
+w/6Aei0eMPdJKJWnXSzkDx23B/fViQ6SbOyudZQdw/sm6XVVvoqx8RA7Mg0KyCg9
+Wh+rYYIBezK5/YkLtKqEgXQu4mopd6eMs4rniTsi0WnNJjKA5Dgjc7SSRwol/NLp
+N1j33IEFaI7h6SkMLXOYcwee/Bp94Q4ND/RRIsBgpYV7LK6p3CiM84JgAVuJ+36E
+dwFOOSR3Tv/n5L68z9ykhmdGKbhnnUARoaCRaagFUM4PguSDgGETQ/BRDvlE137m
+PuXz/1FBg+W4XjMDMIiEIiLrvYa0dyC68WLXQqhjcCkvFZdlNyh9jEkurOWv0WEM
+7EVL3rA5eblWb64PmgINL+XjMU8xusR5Lo/4vyaQEX7E1hj5KJXweq5+r7P/gtcM
+m1HO2eHUtTrtOyOlQ1c+7faIpZJbjO5avB3f+0EyXxxCp+T4A4RlGx5d2vOxqGql
+7j5AmPlhMPEqfV2eLUZdyOJbDLgGMaIW+UXt7VJKS2VJ89HECrMftdB2YjsDVe7Q
+cpxH+HM2F805OAZ6808S7NxwfofyYIN2S8n3Rs1mr7ZeTTV2aRxawbQbnExWr/dw
+IzIgeh7PHP3K0Vt8zyM9
+=bqzf
+-----END PGP SIGNATURE-----
+
+--boAH8PqvUi1v1f55--
