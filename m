@@ -1,13 +1,13 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-we0-f173.google.com ([74.125.82.173]:44635 "EHLO
-	mail-we0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752057AbbAOQF6 (ORCPT
+Received: from mail-wg0-f47.google.com ([74.125.82.47]:32994 "EHLO
+	mail-wg0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752164AbbAOQRP (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 15 Jan 2015 11:05:58 -0500
-Received: by mail-we0-f173.google.com with SMTP id q58so15570390wes.4
-        for <linux-watchdog@vger.kernel.org>; Thu, 15 Jan 2015 08:05:57 -0800 (PST)
-Message-ID: <54B7E561.8090008@linaro.org>
-Date: Thu, 15 Jan 2015 17:05:53 +0100
+	Thu, 15 Jan 2015 11:17:15 -0500
+Received: by mail-wg0-f47.google.com with SMTP id n12so15893423wgh.6
+        for <linux-watchdog@vger.kernel.org>; Thu, 15 Jan 2015 08:17:14 -0800 (PST)
+Message-ID: <54B7E807.4050301@linaro.org>
+Date: Thu, 15 Jan 2015 17:17:11 +0100
 From: Daniel Lezcano <daniel.lezcano@linaro.org>
 MIME-Version: 1.0
 To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
@@ -21,19 +21,20 @@ CC: Boris Brezillon <boris.brezillon@free-electrons.com>,
 	Guenter Roeck <linux@roeck-us.net>,
 	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
 	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v3 6/8] clocksource: atmel-st: properly initialize driver
-References: <1421077023-30954-1-git-send-email-alexandre.belloni@free-electrons.com> <1421077023-30954-7-git-send-email-alexandre.belloni@free-electrons.com>
-In-Reply-To: <1421077023-30954-7-git-send-email-alexandre.belloni@free-electrons.com>
+Subject: Re: [PATCH v3 4/8] ARM: at91: time: move the system timer driver
+ to drivers/clocksource
+References: <1421077023-30954-1-git-send-email-alexandre.belloni@free-electrons.com> <1421077023-30954-5-git-send-email-alexandre.belloni@free-electrons.com>
+In-Reply-To: <1421077023-30954-5-git-send-email-alexandre.belloni@free-electrons.com>
 Content-Type: text/plain; charset=UTF-8;
 	format=flowed
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 01/12/2015 04:37 PM, Alexandre Belloni wrote:
-> Use clocksource_of_init to initialize the system timer instead of rel=
-ying on a
-> custom function.
+On 01/12/2015 04:36 PM, Alexandre Belloni wrote:
+> Import at91rm9200_time.c from mach-at91 as timer-atmel-st.c. Further =
+cleanup is
+> required to get rid of the mach-at91 headers.
 >
 > Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.co=
 m>
@@ -42,72 +43,65 @@ m>
 Acked-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 
 > ---
->   arch/arm/mach-at91/board-dt-rm9200.c | 7 -------
->   arch/arm/mach-at91/generic.h         | 3 ---
->   drivers/clocksource/timer-atmel-st.c | 4 +++-
->   3 files changed, 3 insertions(+), 11 deletions(-)
+>   arch/arm/mach-at91/Makefile                                        =
+   | 2 +-
+>   drivers/clocksource/Kconfig                                        =
+   | 4 ++++
+>   drivers/clocksource/Makefile                                       =
+   | 1 +
+>   .../at91rm9200_time.c =3D> drivers/clocksource/timer-atmel-st.c    =
+     | 0
+>   4 files changed, 6 insertions(+), 1 deletion(-)
+>   rename arch/arm/mach-at91/at91rm9200_time.c =3D> drivers/clocksourc=
+e/timer-atmel-st.c (100%)
 >
-> diff --git a/arch/arm/mach-at91/board-dt-rm9200.c b/arch/arm/mach-at9=
-1/board-dt-rm9200.c
-> index 76dfe8f9af50..d9a45f49c208 100644
-> --- a/arch/arm/mach-at91/board-dt-rm9200.c
-> +++ b/arch/arm/mach-at91/board-dt-rm9200.c
-> @@ -24,19 +24,12 @@
+> diff --git a/arch/arm/mach-at91/Makefile b/arch/arm/mach-at91/Makefil=
+e
+> index 7b6424d40764..5d1ee3a6f115 100644
+> --- a/arch/arm/mach-at91/Makefile
+> +++ b/arch/arm/mach-at91/Makefile
+> @@ -7,7 +7,7 @@ obj-y		:=3D setup.o sysirq_mask.o
+>   obj-$(CONFIG_SOC_AT91SAM9)	+=3D sam9_smc.o
 >
->   #include "generic.h"
+>   # CPU-specific support
+> -obj-$(CONFIG_SOC_AT91RM9200)	+=3D at91rm9200.o at91rm9200_time.o
+> +obj-$(CONFIG_SOC_AT91RM9200)	+=3D at91rm9200.o
+>   obj-$(CONFIG_SOC_AT91SAM9260)	+=3D at91sam9260.o
+>   obj-$(CONFIG_SOC_AT91SAM9261)	+=3D at91sam9261.o
+>   obj-$(CONFIG_SOC_AT91SAM9263)	+=3D at91sam9263.o
+> diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfi=
+g
+> index fc01ec27d3c8..ebc6dd77136e 100644
+> --- a/drivers/clocksource/Kconfig
+> +++ b/drivers/clocksource/Kconfig
+> @@ -128,6 +128,10 @@ config ATMEL_PIT
+>   	select CLKSRC_OF if OF
+>   	def_bool SOC_AT91SAM9 || SOC_SAMA5
 >
-> -static void __init at91rm9200_dt_timer_init(void)
-> -{
-> -	of_clk_init(NULL);
-> -	at91rm9200_timer_init();
-> -}
-> -
->   static const char *at91rm9200_dt_board_compat[] __initdata =3D {
->   	"atmel,at91rm9200",
->   	NULL
->   };
->
->   DT_MACHINE_START(at91rm9200_dt, "Atmel AT91RM9200 (Device Tree)")
-> -	.init_time      =3D at91rm9200_dt_timer_init,
->   	.map_io		=3D at91_map_io,
->   	.init_early	=3D at91rm9200_dt_initialize,
->   	.dt_compat	=3D at91rm9200_dt_board_compat,
-> diff --git a/arch/arm/mach-at91/generic.h b/arch/arm/mach-at91/generi=
-c.h
-> index d53324210adf..fc12f3d4b93c 100644
-> --- a/arch/arm/mach-at91/generic.h
-> +++ b/arch/arm/mach-at91/generic.h
-> @@ -29,9 +29,6 @@ extern void __init at91_dt_initialize(void);
->   extern void __init at91_sysirq_mask_rtc(u32 rtc_base);
->   extern void __init at91_sysirq_mask_rtt(u32 rtt_base);
->
-> - /* Timer */
-> -extern void at91rm9200_timer_init(void);
-> -
->   /* idle */
->   extern void at91sam9_idle(void);
->
-> diff --git a/drivers/clocksource/timer-atmel-st.c b/drivers/clocksour=
+> +config ATMEL_ST
+> +	select CLKSRC_OF if OF
+> +	def_bool SOC_AT91RM9200
+> +
+>   config CLKSRC_METAG_GENERIC
+>   	def_bool y if METAG
+>   	help
+> diff --git a/drivers/clocksource/Makefile b/drivers/clocksource/Makef=
+ile
+> index 94d90b24b56b..b7380ded4e4c 100644
+> --- a/drivers/clocksource/Makefile
+> +++ b/drivers/clocksource/Makefile
+> @@ -1,5 +1,6 @@
+>   obj-$(CONFIG_CLKSRC_OF)	+=3D clksrc-of.o
+>   obj-$(CONFIG_ATMEL_PIT)		+=3D timer-atmel-pit.o
+> +obj-$(CONFIG_ATMEL_ST)		+=3D timer-atmel-st.o
+>   obj-$(CONFIG_ATMEL_TCB_CLKSRC)	+=3D tcb_clksrc.o
+>   obj-$(CONFIG_X86_PM_TIMER)	+=3D acpi_pm.o
+>   obj-$(CONFIG_SCx200HR_TIMER)	+=3D scx200_hrt.o
+> diff --git a/arch/arm/mach-at91/at91rm9200_time.c b/drivers/clocksour=
 ce/timer-atmel-st.c
-> index 522583d6cc78..ed0267f1c892 100644
-> --- a/drivers/clocksource/timer-atmel-st.c
-> +++ b/drivers/clocksource/timer-atmel-st.c
-> @@ -232,7 +232,7 @@ err:
->   /*
->    * ST (system timer) module supports both clockevents and clocksour=
-ce.
->    */
-> -void __init at91rm9200_timer_init(void)
-> +static void __init atmel_st_timer_init(struct device_node *node)
->   {
->   	/* For device tree enabled device: initialize here */
->   	of_at91rm9200_st_init();
-> @@ -261,3 +261,5 @@ void __init at91rm9200_timer_init(void)
->
->   	arm_pm_restart =3D at91rm9200_restart;
->   }
-> +CLOCKSOURCE_OF_DECLARE(atmel_st_timer, "atmel,at91rm9200-st",
-> +		       atmel_st_timer_init);
+> similarity index 100%
+> rename from arch/arm/mach-at91/at91rm9200_time.c
+> rename to drivers/clocksource/timer-atmel-st.c
 >
 
 
