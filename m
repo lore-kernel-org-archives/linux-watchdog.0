@@ -1,36 +1,50 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:33971 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750934AbbAPFBv (ORCPT
+Received: from mail-pd0-f177.google.com ([209.85.192.177]:47357 "EHLO
+	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755170AbbAOPb6 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 16 Jan 2015 00:01:51 -0500
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
-	(envelope-from <linux@roeck-us.net>)
-	id 1YBz2c-001uEo-MQ
-	for linux-watchdog@vger.kernel.org; Fri, 16 Jan 2015 05:01:51 +0000
-Message-ID: <54B89B35.2010209@roeck-us.net>
-Date: Thu, 15 Jan 2015 21:01:41 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: Mike Looijmans <mike.looijmans@topic.nl>
-CC: wim@iguana.be, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4] gpio_wdt: Add "always_running" feature to GPIO watchdog
-References: <20150113215212.GA12804@roeck-us.net> <1421216909-3109-1-git-send-email-mike.looijmans@topic.nl>
-In-Reply-To: <1421216909-3109-1-git-send-email-mike.looijmans@topic.nl>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 15 Jan 2015 10:31:58 -0500
+From: Athira Lekshmi <andnlnbn18@gmail.com>
+To: wim@iguana.be
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Athira Lekshmi <andnlnbn18@gmail.com>
+Subject: [PATCH v2 1/8] watchdog: wdt_pci: Fixed missing blank line warning
+Date: Thu, 15 Jan 2015 21:01:59 +0530
+Message-Id: <1421335926-3321-1-git-send-email-andnlnbn18@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 01/13/2015 10:28 PM, Mike Looijmans wrote:
-> On some chips, like the TPS386000, the trigger cannot be disabled
-> and the CPU must keep toggling the line at all times. Add a switch
-> "always_running" to keep toggling the GPIO line regardless of the
-> state of the soft part of the watchdog. The "armed" member keeps
-> track of whether a timeout must also cause a reset.
->
-> Signed-off-by: Mike Looijmans <mike.looijmans@topic.nl>
+Add a new line after declarations to remove the checkpatch warning:
+'Missing blank line after declarations'
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Athira Lekshmi <andnlnbn18@gmail.com>
+---
+Changes in v2:
+  -  Make the commit message more clearer.
+
+ drivers/watchdog/wdt_pci.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/watchdog/wdt_pci.c b/drivers/watchdog/wdt_pci.c
+index 48b2c05..b84a180 100644
+--- a/drivers/watchdog/wdt_pci.c
++++ b/drivers/watchdog/wdt_pci.c
+@@ -279,6 +279,7 @@ static int wdtpci_get_temperature(int *temperature)
+ {
+ 	unsigned short c;
+ 	unsigned long flags;
++
+ 	spin_lock_irqsave(&wdtpci_lock, flags);
+ 	c = inb(WDT_RT);
+ 	udelay(8);
+@@ -366,6 +367,7 @@ static ssize_t wdtpci_write(struct file *file, const char __user *buf,
+ 
+ 			for (i = 0; i != count; i++) {
+ 				char c;
++
+ 				if (get_user(c, buf + i))
+ 					return -EFAULT;
+ 				if (c == 'V')
+-- 
+1.7.9.5
 
