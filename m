@@ -1,16 +1,16 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f169.google.com ([209.85.192.169]:47697 "EHLO
-	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932081AbbAOPdr (ORCPT
+Received: from mail-pa0-f48.google.com ([209.85.220.48]:43731 "EHLO
+	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754366AbbAOPdO (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 15 Jan 2015 10:33:47 -0500
+	Thu, 15 Jan 2015 10:33:14 -0500
 From: Athira Lekshmi <andnlnbn18@gmail.com>
 To: wim@iguana.be
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
 	Athira Lekshmi <andnlnbn18@gmail.com>
-Subject: [PATCH v2 8/8] watchdog: eurotechwdt: Fixed missing blank line warning
-Date: Thu, 15 Jan 2015 21:02:06 +0530
-Message-Id: <1421335926-3321-8-git-send-email-andnlnbn18@gmail.com>
+Subject: [PATCH v2 6/8] watchdog: ar7_wdt: Fixed missing blank line warning
+Date: Thu, 15 Jan 2015 21:02:04 +0530
+Message-Id: <1421335926-3321-6-git-send-email-andnlnbn18@gmail.com>
 In-Reply-To: <1421335926-3321-1-git-send-email-andnlnbn18@gmail.com>
 References: <1421335926-3321-1-git-send-email-andnlnbn18@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -24,21 +24,21 @@ Signed-off-by: Athira Lekshmi <andnlnbn18@gmail.com>
 Changes in v2:
   - Make the commit message more clearer.
 
- drivers/watchdog/eurotechwdt.c |    1 +
+ drivers/watchdog/ar7_wdt.c |    1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/watchdog/eurotechwdt.c b/drivers/watchdog/eurotechwdt.c
-index 23ee532..86b19ee 100644
---- a/drivers/watchdog/eurotechwdt.c
-+++ b/drivers/watchdog/eurotechwdt.c
-@@ -210,6 +210,7 @@ size_t count, loff_t *ppos)
- 
- 			for (i = 0; i != count; i++) {
- 				char c;
+diff --git a/drivers/watchdog/ar7_wdt.c b/drivers/watchdog/ar7_wdt.c
+index ae6c287..d001365 100644
+--- a/drivers/watchdog/ar7_wdt.c
++++ b/drivers/watchdog/ar7_wdt.c
+@@ -202,6 +202,7 @@ static ssize_t ar7_wdt_write(struct file *file, const char *data,
+ 		expect_close = 0;
+ 		for (i = 0; i < len; ++i) {
+ 			char c;
 +
- 				if (get_user(c, buf + i))
- 					return -EFAULT;
- 				if (c == 'V')
+ 			if (get_user(c, data + i))
+ 				return -EFAULT;
+ 			if (c == 'V')
 -- 
 1.7.9.5
 
