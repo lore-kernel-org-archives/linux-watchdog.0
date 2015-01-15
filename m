@@ -1,38 +1,67 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:43506 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751566AbbAOOww (ORCPT
+Received: from mail-wi0-f181.google.com ([209.85.212.181]:60744 "EHLO
+	mail-wi0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753771AbbAOMmy (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 15 Jan 2015 09:52:52 -0500
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
-	(envelope-from <linux@roeck-us.net>)
-	id 1YBln3-0015Md-7j
-	for linux-watchdog@vger.kernel.org; Thu, 15 Jan 2015 14:52:53 +0000
-Message-ID: <54B7D442.4060103@roeck-us.net>
-Date: Thu, 15 Jan 2015 06:52:50 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: Michal Simek <michal.simek@xilinx.com>,
-	linux-kernel@vger.kernel.org, monstr@monstr.eu
-CC: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: Remove .owner field from cadence driver
-References: <204239650e5bf19ea11cb4b9f41937552324e931.1421325759.git.michal.simek@xilinx.com>
-In-Reply-To: <204239650e5bf19ea11cb4b9f41937552324e931.1421325759.git.michal.simek@xilinx.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 15 Jan 2015 07:42:54 -0500
+Received: by mail-wi0-f181.google.com with SMTP id hi2so17498744wib.2
+        for <linux-watchdog@vger.kernel.org>; Thu, 15 Jan 2015 04:42:53 -0800 (PST)
+From: Michal Simek <michal.simek@xilinx.com>
+To: linux-kernel@vger.kernel.org, monstr@monstr.eu
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+Subject: [PATCH] watchdog: Remove .owner field from cadence driver
+Date: Thu, 15 Jan 2015 13:42:41 +0100
+Message-Id: <204239650e5bf19ea11cb4b9f41937552324e931.1421325759.git.michal.simek@xilinx.com>
+Content-Type: multipart/signed;
+    boundary="=_mimegpg-monstr-desktop-6879-1421325761-0001";
+    micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 01/15/2015 04:42 AM, Michal Simek wrote:
-> .owner files is filled by module_platform_driver().
->
-> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
-> ---
->
-> Big cleanup was done and this new driver was missed.
+This is a MIME GnuPG-signed message.  If you see this text, it means that
+your E-mail or Usenet software does not support MIME signed messages.
+The Internet standard for MIME PGP messages, RFC 2015, was published in 1996.
+To open this message correctly you will need to install E-mail or Usenet
+software that supports modern Internet standards.
 
-Actually, it was included in 'watchdog: drop owner assignment from platform_drivers'
-by Wolfram Sang. It just hasn't been applied yet.
+--=_mimegpg-monstr-desktop-6879-1421325761-0001
 
-Guenter
+.owner files is filled by module_platform_driver().
 
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+---
+
+Big cleanup was done and this new driver was missed.
+---
+ drivers/watchdog/cadence_wdt.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/watchdog/cadence_wdt.c b/drivers/watchdog/cadence_wdt.c
+index 5927c0a98a74..bcfd2a22208f 100644
+--- a/drivers/watchdog/cadence_wdt.c
++++ b/drivers/watchdog/cadence_wdt.c
+@@ -503,7 +503,6 @@ static struct platform_driver cdns_wdt_driver = {
+ 	.shutdown	= cdns_wdt_shutdown,
+ 	.driver		= {
+ 		.name	= "cdns-wdt",
+-		.owner	= THIS_MODULE,
+ 		.of_match_table = cdns_wdt_of_match,
+ 		.pm	= &cdns_wdt_pm_ops,
+ 	},
+--
+1.8.2.3
+
+
+--=_mimegpg-monstr-desktop-6879-1421325761-0001
+Content-Type: application/pgp-signature
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEABECAAYFAlS3tcEACgkQykllyylKDCHuvQCfZ7Q3sjtx9ibYAyccgf/PsWbs
+TmQAnAjMMxA57OWGrdWXcTfGU4nHWp7x
+=McdT
+-----END PGP SIGNATURE-----
+
+--=_mimegpg-monstr-desktop-6879-1421325761-0001--
