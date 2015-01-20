@@ -1,44 +1,31 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f49.google.com ([209.85.220.49]:35818 "EHLO
-	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753395AbbAOPcn (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 15 Jan 2015 10:32:43 -0500
-From: Athira Lekshmi <andnlnbn18@gmail.com>
-To: wim@iguana.be
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Athira Lekshmi <andnlnbn18@gmail.com>
-Subject: [PATCH v2 4/8] watchdog: advantechwdt: Fixed missing blank line warning
-Date: Thu, 15 Jan 2015 21:02:02 +0530
-Message-Id: <1421335926-3321-4-git-send-email-andnlnbn18@gmail.com>
-In-Reply-To: <1421335926-3321-1-git-send-email-andnlnbn18@gmail.com>
-References: <1421335926-3321-1-git-send-email-andnlnbn18@gmail.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <Ezequiel.Garcia@imgtec.com>
+Message-ID: <54BE383F.6050209@imgtec.com>
+Date: Tue, 20 Jan 2015 08:13:03 -0300
+From: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
+MIME-Version: 1.0
+To: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>,
+	James Hartley <james.hartley@imgtec.com>, Andrew Bresticker
+	<abrestic@chromium.org>, James Hogan <james.hogan@imgtec.com>
+CC: <linux-watchdog@vger.kernel.org>, <devicetree@vger.kernel.org>
+Subject: Re: [PATCH v7 0/2] watchdog: ImgTec PDC Watchdog Timer Driver
+References: <1420550375-22867-1-git-send-email-ezequiel.garcia@imgtec.com>
+In-Reply-To: <1420550375-22867-1-git-send-email-ezequiel.garcia@imgtec.com>
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Add a blank line after declarations to remove the checkpatch warning:
-'Missing line after declarations'
+Hi Wim,
 
-Signed-off-by: Athira Lekshmi <andnlnbn18@gmail.com>
----
-Changes in v2:
-  - Make the commit message more clearer.
+On 01/06/2015 10:19 AM, Ezequiel Garcia wrote:
+> Here's the seventh round for IMG PDC Watchdog driver.
+> The series is based on v3.19-rc3.
+> 
 
- drivers/watchdog/advantechwdt.c |    1 +
- 1 file changed, 1 insertion(+)
+Guenter has reviewed both patches. Do you think you can review this
+soonishly and let me know if you have more comments?
 
-diff --git a/drivers/watchdog/advantechwdt.c b/drivers/watchdog/advantechwdt.c
-index 7796db7..74e49ed 100644
---- a/drivers/watchdog/advantechwdt.c
-+++ b/drivers/watchdog/advantechwdt.c
-@@ -121,6 +121,7 @@ static ssize_t advwdt_write(struct file *file, const char __user *buf,
- 
- 			for (i = 0; i != count; i++) {
- 				char c;
-+
- 				if (get_user(c, buf + i))
- 					return -EFAULT;
- 				if (c == 'V')
+We are near the merge window and I wouldn't like to miss it this time.
+
+Thanks a lot!
 -- 
-1.7.9.5
-
+Ezequiel
