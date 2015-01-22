@@ -1,77 +1,56 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx0a-0016f401.pphosted.com ([67.231.148.174]:49422 "EHLO
-	mx0a-0016f401.pphosted.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753569AbbAVFZZ (ORCPT
+Received: from mail-ig0-f178.google.com ([209.85.213.178]:33987 "EHLO
+	mail-ig0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750953AbbAVL4i (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 22 Jan 2015 00:25:25 -0500
-Date: Thu, 22 Jan 2015 13:22:00 +0800
-From: Jisheng Zhang <jszhang@marvell.com>
-To: Doug Anderson <dianders@chromium.org>, <linux@roeck-us.net>
-CC: Wim Van Sebroeck <wim@iguana.be>, Heiko Stuebner <heiko@sntech.de>,
-	Lunxue Dai <lunxue.dai@rock-chips.com>,
-	Dinh Nguyen <dinguyen@altera.com>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/2] watchdog: dw_wdt: pat the watchdog before enabling
- it
-Message-ID: <20150122132200.4729d38b@xhacker>
-In-Reply-To: <1421882243-3631-1-git-send-email-dianders@chromium.org>
-References: <1421882243-3631-1-git-send-email-dianders@chromium.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Jan 2015 06:56:38 -0500
+Received: by mail-ig0-f178.google.com with SMTP id hl2so1899301igb.5
+        for <linux-watchdog@vger.kernel.org>; Thu, 22 Jan 2015 03:56:37 -0800 (PST)
+From: Lee Jones <lee.jones@linaro.org>
+To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: lee.jones@linaro.org, kernel@stlinux.com,
+	rtc-linux@googlegroups.com, wim@iguana.be,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	linux@roeck-us.net, david.paris@st.com
+Subject: [PATCH v2 1/9] mfd: dt-bindings: Provide human readable defines for LPC mode choosing
+Date: Thu, 22 Jan 2015 11:55:59 +0000
+Message-Id: <1421927767-28889-2-git-send-email-lee.jones@linaro.org>
+In-Reply-To: <1421927767-28889-1-git-send-email-lee.jones@linaro.org>
+References: <1421927767-28889-1-git-send-email-lee.jones@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Dear Doug,
+ST's Low Power Controller can currently operate in two supported modes;
+Watchdog and Real Time Clock.  These defines will aid engineers to easily
+identify the selected mode.
 
-On Wed, 21 Jan 2015 15:17:22 -0800
-Doug Anderson <dianders@chromium.org> wrote:
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ include/dt-bindings/mfd/st-lpc.h | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+ create mode 100644 include/dt-bindings/mfd/st-lpc.h
 
-> On some dw_wdt implementations the "top" register may be initted to 0
-> at bootup.  In such a case, each "pat" of the watchdog will reset the
-> timer to 0xffff.  That's pretty short.
-
-+ Guenter Roeck
-
-This should have been fixed by dfa07141e7a792("watchdog: dw_wdt: initialise
-TOP_INIT in dw_wdt_set_top()")
-
-In fact, my original fix is as similar as your patch
-
-http://www.spinics.net/lists/arm-kernel/msg363658.html
-
-Then Guenter Roeck suggest one elegant solution which is the base of
-commit dfa07141e7a792.
-
-http://www.spinics.net/lists/arm-kernel/msg363908.html
-
-> 
-> The input clock of the wdt can be any of a wide range of values.  On
-> an rk3288 system, I've seen the wdt clock be 24.75 MHz.  That means
-> each tick is ~40ns and we'll count to 0xffff in ~2.6ms.
-> 
-> Because of the above two facts, it's a really good idea to pat the
-> watchdog after initting the "top" register properly and before
-> enabling the watchdog.  If you don't then there's no way we'll get the
-> next heartbeat in time.
-> 
-> Signed-off-by: Doug Anderson <dianders@chromium.org>
-> ---
->  drivers/watchdog/dw_wdt.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-> index b34a2e4..fc92bea 100644
-> --- a/drivers/watchdog/dw_wdt.c
-> +++ b/drivers/watchdog/dw_wdt.c
-> @@ -170,6 +170,7 @@ static int dw_wdt_open(struct inode *inode, struct file
-> *filp)
->  		 * the maximum and then start it.
->  		 */
->  		dw_wdt_set_top(DW_WDT_MAX_TOP);
-> +		dw_wdt_keepalive();
->  		writel(WDOG_CONTROL_REG_WDT_EN_MASK,
->  		       dw_wdt.regs + WDOG_CONTROL_REG_OFFSET);
->  	}
+diff --git a/include/dt-bindings/mfd/st-lpc.h b/include/dt-bindings/mfd/st-lpc.h
+new file mode 100644
+index 0000000..e3e6c75
+--- /dev/null
++++ b/include/dt-bindings/mfd/st-lpc.h
+@@ -0,0 +1,15 @@
++/*
++ * This header provides shared DT/Driver defines for ST's LPC device
++ *
++ * Copyright (C) 2014 STMicroelectronics -- All Rights Reserved
++ *
++ * Author: Lee Jones <lee.jones@linaro.org> for STMicroelectronics
++ */
++
++#ifndef __DT_BINDINGS_ST_LPC_H__
++#define __DT_BINDINGS_ST_LPC_H__
++
++#define ST_LPC_MODE_RTC		0
++#define ST_LPC_MODE_WDT		1
++
++#endif /* __DT_BINDINGS_ST_LPC_H__ */
+-- 
+1.9.1
 
