@@ -1,52 +1,57 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:40321 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755769AbbAWRBv (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 23 Jan 2015 12:01:51 -0500
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
-	(envelope-from <linux@roeck-us.net>)
-	id 1YEhcD-001k1R-Mw
-	for linux-watchdog@vger.kernel.org; Fri, 23 Jan 2015 17:01:50 +0000
-Message-ID: <54C27E4D.1010108@roeck-us.net>
-Date: Fri, 23 Jan 2015 09:01:01 -0800
-From: Guenter Roeck <linux@roeck-us.net>
+Return-path: <dianders@google.com>
 MIME-Version: 1.0
-To: Matthias Brugger <matthias.bgg@gmail.com>, wim@iguana.be,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Grant Likely <grant.likely@linaro.org>
-CC: "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	linux-watchdog@vger.kernel.org,
-	=?windows-1252?Q?Heiko_St=FCbner?= <heiko@sntech.de>,
-	Yingjoe Chen <yingjoe.chen@gmail.com>,
-	Howard Chen <ibanezchen@gmail.com>, greta.zhang@mediatek.com,
-	huang eddie <eddie.huang@mediatek.com>,
-	Chen-Yu Tsai <wens@csie.org>, joe@perches.com
-Subject: Re: [PATCH v5 0/2] ARM: mediatek: Add watchdog driver
-References: <1421152136-5007-1-git-send-email-matthias.bgg@gmail.com> <CABuKBeKWU=wGuyT2u1Ndori1e8B7vAzFAmCafwLDPfAyLHkYBQ@mail.gmail.com>
-In-Reply-To: <CABuKBeKWU=wGuyT2u1Ndori1e8B7vAzFAmCafwLDPfAyLHkYBQ@mail.gmail.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Sender: dianders@google.com
+In-Reply-To: <20150122132200.4729d38b@xhacker>
+References: <1421882243-3631-1-git-send-email-dianders@chromium.org>
+	<20150122132200.4729d38b@xhacker>
+Date: Thu, 22 Jan 2015 09:09:28 -0800
+Message-ID: <CAD=FV=UMmfNAEQVKCxTBapwO=pgno+cWUJNiMS7_uFK7NPevkw@mail.gmail.com>
+Subject: Re: [PATCH 1/2] watchdog: dw_wdt: pat the watchdog before enabling it
+From: Doug Anderson <dianders@chromium.org>
+To: Jisheng Zhang <jszhang@marvell.com>
+Cc: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck <wim@iguana.be>, Heiko Stuebner <heiko@sntech.de>,
+	Lunxue Dai <lunxue.dai@rock-chips.com>, Dinh Nguyen <dinguyen@altera.com>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 01/23/2015 06:20 AM, Matthias Brugger wrote:
-> Hi all,
->
-> 2015-01-13 13:28 GMT+01:00 Matthias Brugger <matthias.bgg@gmail.com>:
->> Mediatek SoCs have a watchdog driver. This patch set adds driver and DTS
->> binding. The driver also implements a restart handler to reboot the SoC.
->
-> Any comments on this patch set?
->
-I have it included in the set of patches that I am going to send to Wim,
-hopefully this weekend.
+Jisheng,
 
-Guenter
+On Wed, Jan 21, 2015 at 9:22 PM, Jisheng Zhang <jszhang@marvell.com> wrote:
+> Dear Doug,
+>
+> On Wed, 21 Jan 2015 15:17:22 -0800
+> Doug Anderson <dianders@chromium.org> wrote:
+>
+>> On some dw_wdt implementations the "top" register may be initted to 0
+>> at bootup.  In such a case, each "pat" of the watchdog will reset the
+>> timer to 0xffff.  That's pretty short.
+>
+> + Guenter Roeck
+>
+> This should have been fixed by dfa07141e7a792("watchdog: dw_wdt: initialise
+> TOP_INIT in dw_wdt_set_top()")
 
+I will admit that I'm testing on a tree that doesn't have your patch
+(I'm on a 3.14 kernel with lots of backports).  ...but I did try
+cherry-picking your patch before I wrote up mine and it didn't fix my
+problem.  I believe that the watchdog that's in Rockchip rk3288 must
+be a slightly different version of the IP block than you're working
+with.
+
+Specifically I see the register WDT_TORR that has an offset of 0x4.
+That's the RANGE_REG in your code.  It shows bits 3:0 set the timeout
+period (0 = 0xffff and 15 = 0x7fffffff).  It shows bits 31:4 as
+"reserved".
+
+
+> In fact, my original fix is as similar as your patch
+>
+> http://www.spinics.net/lists/arm-kernel/msg363658.html
+
+Yup, except that I pat the watchdog before enabling it and you pat it
+after...  It probably doesn't matter as long as the two instructions
+are within 2.5ms of each other, but it seems nice to be safer.
+
+-Doug
