@@ -1,42 +1,79 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ie0-f182.google.com ([209.85.223.182]:59596 "EHLO
-	mail-ie0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751906AbbAVL4r (ORCPT
+Received: from mail-ie0-f170.google.com ([209.85.223.170]:33546 "EHLO
+	mail-ie0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752164AbbAVL47 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 22 Jan 2015 06:56:47 -0500
-Received: by mail-ie0-f182.google.com with SMTP id ar1so894694iec.13
-        for <linux-watchdog@vger.kernel.org>; Thu, 22 Jan 2015 03:56:46 -0800 (PST)
+	Thu, 22 Jan 2015 06:56:59 -0500
+Received: by mail-ie0-f170.google.com with SMTP id y20so935086ier.1
+        for <linux-watchdog@vger.kernel.org>; Thu, 22 Jan 2015 03:56:58 -0800 (PST)
 From: Lee Jones <lee.jones@linaro.org>
 To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 Cc: lee.jones@linaro.org, kernel@stlinux.com,
 	rtc-linux@googlegroups.com, wim@iguana.be,
 	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
 	linux@roeck-us.net, david.paris@st.com
-Subject: [PATCH v2 3/9] ARM: multi_v7_defconfig: Enable support for ST's LPC RTC
-Date: Thu, 22 Jan 2015 11:56:01 +0000
-Message-Id: <1421927767-28889-4-git-send-email-lee.jones@linaro.org>
+Subject: [PATCH v2 5/9] watchdog: bindings: Provide ST bindings for ST's LPC Watchdog device
+Date: Thu, 22 Jan 2015 11:56:03 +0000
+Message-Id: <1421927767-28889-6-git-send-email-lee.jones@linaro.org>
 In-Reply-To: <1421927767-28889-1-git-send-email-lee.jones@linaro.org>
 References: <1421927767-28889-1-git-send-email-lee.jones@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On current ST platforms the LPC controls a number of functions including
+Watchdog and Real Time Clock.  This patch provides the bindings used to
+configure LPC in Watchdog mode.
+
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- arch/arm/configs/multi_v7_defconfig | 1 +
- 1 file changed, 1 insertion(+)
+ .../devicetree/bindings/watchdog/st_lpc_wdt.txt    | 38 ++++++++++++++++++++++
+ 1 file changed, 38 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
 
-diff --git a/arch/arm/configs/multi_v7_defconfig b/arch/arm/configs/multi_v7_defconfig
-index 561ca4f..4e45e53 100644
---- a/arch/arm/configs/multi_v7_defconfig
-+++ b/arch/arm/configs/multi_v7_defconfig
-@@ -405,6 +405,7 @@ CONFIG_RTC_DRV_DS1307=y
- CONFIG_RTC_DRV_MAX8907=y
- CONFIG_RTC_DRV_MAX77686=y
- CONFIG_RTC_DRV_PALMAS=y
-+CONFIG_RTC_DRV_ST_LPC=y
- CONFIG_RTC_DRV_TWL4030=y
- CONFIG_RTC_DRV_TPS6586X=y
- CONFIG_RTC_DRV_TPS65910=y
+diff --git a/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt b/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
+new file mode 100644
+index 0000000..1bdf023
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
+@@ -0,0 +1,38 @@
++STMicroelectronics Low Power Controller (LPC) - Watchdog
++========================================================
++
++LPC currently supports Watchdog OR Real Time Clock functionality.
++
++[See: ../rtc/rtc-st-lpc.txt for RTC options]
++
++Required properties
++
++- compatible 	: Must be one of: "st,stih407-lpc" "st,stih416-lpc"
++				  "st,stih415-lpc" "st,stid127-lpc"
++- reg		: LPC registers base address + size
++- interrupts    : LPC interrupt line number and associated flags
++- clocks	: Clock used by LPC device (See: ../clock/clock-bindings.txt)
++- st,lpc-mode	: The LPC can run either one of two modes ST_LPC_MODE_RTC [0] or
++		  ST_LPC_MODE_WDT [1].  One (and only one) mode must be
++		  selected.
++
++Required properties [watchdog mode]
++
++- st,syscfg	: Phandle to syscfg node used to enable watchdog and configure
++		  CPU reset type.
++- timeout-sec	: Watchdog timeout in seconds
++
++Optional properties [watchdog mode]
++
++- st,warm-reset	: If present reset type will be 'warm' - if not it will be cold
++
++Example:
++	lpc@fde05000 {
++		compatible	= "st,stih416-lpc-watchdog";
++		reg		= <0xfde05000 0x1000>;
++		clocks 		= <&clk_s_d3_flexgen CLK_LPC_0>;
++		st,syscfg	= <&syscfg_core>;
++		timeout-sec	= <120>;
++		st,lpc-mode	= <ST_LPC_MODE_WDT>;
++		st,warm-reset;
++	};
 -- 
 1.9.1
 
