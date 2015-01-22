@@ -1,53 +1,77 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:39707 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752730AbbAUXgL (ORCPT
+Received: from mx0a-0016f401.pphosted.com ([67.231.148.174]:49422 "EHLO
+	mx0a-0016f401.pphosted.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753569AbbAVFZZ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 21 Jan 2015 18:36:11 -0500
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
-	(envelope-from <linux@roeck-us.net>)
-	id 1YE4ol-001FwI-DO
-	for linux-watchdog@vger.kernel.org; Wed, 21 Jan 2015 23:36:11 +0000
-Message-ID: <54C037E6.1000208@roeck-us.net>
-Date: Wed, 21 Jan 2015 15:36:06 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: Doug Anderson <dianders@chromium.org>,
-	Wim Van Sebroeck <wim@iguana.be>
-CC: Heiko Stuebner <heiko@sntech.de>,
+	Thu, 22 Jan 2015 00:25:25 -0500
+Date: Thu, 22 Jan 2015 13:22:00 +0800
+From: Jisheng Zhang <jszhang@marvell.com>
+To: Doug Anderson <dianders@chromium.org>, <linux@roeck-us.net>
+CC: Wim Van Sebroeck <wim@iguana.be>, Heiko Stuebner <heiko@sntech.de>,
 	Lunxue Dai <lunxue.dai@rock-chips.com>,
-	Jisheng Zhang <jszhang@marvell.com>,
 	Dinh Nguyen <dinguyen@altera.com>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] watchdog: dw_wdt: Try to get a 30 second watchdog
- by default
-References: <1421882243-3631-1-git-send-email-dianders@chromium.org> <1421882243-3631-2-git-send-email-dianders@chromium.org>
-In-Reply-To: <1421882243-3631-2-git-send-email-dianders@chromium.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/2] watchdog: dw_wdt: pat the watchdog before enabling
+ it
+Message-ID: <20150122132200.4729d38b@xhacker>
+In-Reply-To: <1421882243-3631-1-git-send-email-dianders@chromium.org>
+References: <1421882243-3631-1-git-send-email-dianders@chromium.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 01/21/2015 03:17 PM, Doug Anderson wrote:
-> The dw_wdt_set_top() function takes in a value in seconds.  In
-> dw_wdt_open() we were calling it with a value that's supposed to
-> represent the maximum value programmed into the "top" register with a
-> comment saying that we were trying to set the watchdog to its maximum
-> value.  Instead we ended up setting the watchdog to ~15 seconds.
->
-> Let's fix this.  However, setting things to the "max" gives me an 86
-> second watchdog in the system I'm looking at.  86 seconds feels a
-> little too long.  We'll explicitly choose 30 seconds as a more
-> reasonable value.
->
-> NOTE: Ideally this driver should be transitioned to be a real watchdog
-> driver.  Then we could use "watchdog_init_timeout" and let the timeout
-> be specified in a number of ways (device tree, module parameter, etc).
-> This patch should be considered a bit of a stopgap solution.
->
+Dear Doug,
+
+On Wed, 21 Jan 2015 15:17:22 -0800
+Doug Anderson <dianders@chromium.org> wrote:
+
+> On some dw_wdt implementations the "top" register may be initted to 0
+> at bootup.  In such a case, each "pat" of the watchdog will reset the
+> timer to 0xffff.  That's pretty short.
+
++ Guenter Roeck
+
+This should have been fixed by dfa07141e7a792("watchdog: dw_wdt: initialise
+TOP_INIT in dw_wdt_set_top()")
+
+In fact, my original fix is as similar as your patch
+
+http://www.spinics.net/lists/arm-kernel/msg363658.html
+
+Then Guenter Roeck suggest one elegant solution which is the base of
+commit dfa07141e7a792.
+
+http://www.spinics.net/lists/arm-kernel/msg363908.html
+
+> 
+> The input clock of the wdt can be any of a wide range of values.  On
+> an rk3288 system, I've seen the wdt clock be 24.75 MHz.  That means
+> each tick is ~40ns and we'll count to 0xffff in ~2.6ms.
+> 
+> Because of the above two facts, it's a really good idea to pat the
+> watchdog after initting the "top" register properly and before
+> enabling the watchdog.  If you don't then there's no way we'll get the
+> next heartbeat in time.
+> 
 > Signed-off-by: Doug Anderson <dianders@chromium.org>
 > ---
-
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
+>  drivers/watchdog/dw_wdt.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+> index b34a2e4..fc92bea 100644
+> --- a/drivers/watchdog/dw_wdt.c
+> +++ b/drivers/watchdog/dw_wdt.c
+> @@ -170,6 +170,7 @@ static int dw_wdt_open(struct inode *inode, struct file
+> *filp)
+>  		 * the maximum and then start it.
+>  		 */
+>  		dw_wdt_set_top(DW_WDT_MAX_TOP);
+> +		dw_wdt_keepalive();
+>  		writel(WDOG_CONTROL_REG_WDT_EN_MASK,
+>  		       dw_wdt.regs + WDOG_CONTROL_REG_OFFSET);
+>  	}
 
