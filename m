@@ -1,71 +1,74 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:33815 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752847AbbAVTbw (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 22 Jan 2015 14:31:52 -0500
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
-	(envelope-from <linux@roeck-us.net>)
-	id 1YENTs-000e6n-QI
-	for linux-watchdog@vger.kernel.org; Thu, 22 Jan 2015 19:31:53 +0000
-Message-ID: <54C15021.4060907@roeck-us.net>
-Date: Thu, 22 Jan 2015 11:31:45 -0800
-From: Guenter Roeck <linux@roeck-us.net>
+Return-path: <matthias.bgg@gmail.com>
 MIME-Version: 1.0
-To: Lee Jones <lee.jones@linaro.org>
-CC: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	kernel@stlinux.com, rtc-linux@googlegroups.com, wim@iguana.be,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	david.paris@st.com
-Subject: Re: [PATCH v2 6/9] watchdog: st_wdt: Add new driver for ST's LPC
- Watchdog
-References: <1421927767-28889-1-git-send-email-lee.jones@linaro.org> <1421927767-28889-7-git-send-email-lee.jones@linaro.org> <54C12F10.4090901@roeck-us.net> <20150122172100.GF9129@x1>
-In-Reply-To: <20150122172100.GF9129@x1>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <1421152136-5007-1-git-send-email-matthias.bgg@gmail.com>
+References: <1421152136-5007-1-git-send-email-matthias.bgg@gmail.com>
+Date: Fri, 23 Jan 2015 15:20:45 +0100
+Message-ID: <CABuKBeKWU=wGuyT2u1Ndori1e8B7vAzFAmCafwLDPfAyLHkYBQ@mail.gmail.com>
+Subject: Re: [PATCH v5 0/2] ARM: mediatek: Add watchdog driver
+From: Matthias Brugger <matthias.bgg@gmail.com>
+To: wim@iguana.be, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>, Grant Likely <grant.likely@linaro.org>
+Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-watchdog@vger.kernel.org,
+	=?ISO-8859-1?Q?Heiko_St=FCbner?= <heiko@sntech.de>,
+	Yingjoe Chen <yingjoe.chen@gmail.com>, Howard Chen <ibanezchen@gmail.com>,
+	Matthias Brugger <matthias.bgg@gmail.com>, greta.zhang@mediatek.com,
+	huang eddie <eddie.huang@mediatek.com>, Chen-Yu Tsai <wens@csie.org>,
+	Guenter Roeck <linux@roeck-us.net>, joe@perches.com
+Content-Type: text/plain; charset=ISO-8859-1
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 01/22/2015 09:21 AM, Lee Jones wrote:
-> On Thu, 22 Jan 2015, Guenter Roeck wrote:
->
->> On 01/22/2015 03:56 AM, Lee Jones wrote:
->>> Signed-off-by: David Paris <david.paris@st.com>
->>> Signed-off-by: Lee Jones <lee.jones@linaro.org>
->>> ---
->>>   drivers/watchdog/Kconfig      |  13 ++
->>>   drivers/watchdog/Makefile     |   1 +
->>>   drivers/watchdog/st_lpc_wdt.c | 335 ++++++++++++++++++++++++++++++++++++++++++
->>>   3 files changed, 349 insertions(+)
->>>   create mode 100644 drivers/watchdog/st_lpc_wdt.c
->
-> [...]
->
->>> +struct st_wdog_syscfg {
->>> +	struct regmap *regmap;
->>
->> Hi David & Lee,
->>
->> Why did you add the regmap pointer to this structure and not to st_wdog ?
->> It is not a configuration value, after all, and it is always dereferenced
->> through wt_wdog->syscfg. So all it does is to make the code more complicated.
->>
->> Am I missing something ?
->
-> I guess it was just to group it all together, as it will all be used
-> at the same time:
->
-> 	regmap_update_bits(st_wdog->syscfg->regmap,
-> 			   st_wdog->syscfg->reset_type_reg,
-> 			   st_wdog->syscfg->reset_type_mask,
-> 			   st_wdog->warm_reset);
->
-> It really doesn't matter to me either way.
->
-Having it in syscfg means it is stored in the static configuration data instead
-of the allocated data, which is at least conceptually wrong. So I think it should
-be in st_wdog.
+Hi all,
 
-Thanks,
-Guenter
+2015-01-13 13:28 GMT+01:00 Matthias Brugger <matthias.bgg@gmail.com>:
+> Mediatek SoCs have a watchdog driver. This patch set adds driver and DTS
+> binding. The driver also implements a restart handler to reboot the SoC.
 
+Any comments on this patch set?
+
+>
+> Changes for v5:
+> - add newline in dev_info message
+> - add tested-by and reviewed-by
+>
+> Changes for v4:
+> - fix indentation errors
+> - delete unused include
+> - reorganize while loop to eliminate code duplication
+> - eliminate indirection to watchdog_device structure
+> - delete unnecessary brackets
+>
+> Changes for v3:
+> - fix based on file name
+> - fix style problems
+> - fix error return value and warning message
+> - delete unnecessary watchdog_set_drvdata
+> - delete unused variable
+>
+> Changes for v2:
+> - we don't need to have the watchdog enabled to do a software reset
+> - disable dual mode and irq mode when starting the watchdog
+> - update commit message to name the SoCs the driver supports
+>
+>
+> Matthias Brugger (2):
+>   watchdog: Add driver for Mediatek watchdog
+>   ARM: mediatek: dts: Add bindings for watchdog
+>
+>  .../devicetree/bindings/watchdog/mtk-wdt.txt       |  13 ++
+>  drivers/watchdog/Kconfig                           |  10 +
+>  drivers/watchdog/Makefile                          |   1 +
+>  drivers/watchdog/mtk_wdt.c                         | 252 +++++++++++++++++++++
+>  4 files changed, 276 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/mtk-wdt.txt
+>  create mode 100644 drivers/watchdog/mtk_wdt.c
+>
+> --
+> 1.9.1
+>
+
+
+
+-- 
+motzblog.wordpress.com
