@@ -1,18 +1,20 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wg0-f51.google.com ([74.125.82.51]:41560 "EHLO
-	mail-wg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752473AbbAXNre (ORCPT
+Received: from mail-la0-f54.google.com ([209.85.215.54]:61013 "EHLO
+	mail-la0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752114AbbAXN6t (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 24 Jan 2015 08:47:34 -0500
-Received: by mail-wg0-f51.google.com with SMTP id k14so2048465wgh.10
-        for <linux-watchdog@vger.kernel.org>; Sat, 24 Jan 2015 05:47:33 -0800 (PST)
+	Sat, 24 Jan 2015 08:58:49 -0500
+Received: by mail-la0-f54.google.com with SMTP id hv19so1787013lab.13
+        for <linux-watchdog@vger.kernel.org>; Sat, 24 Jan 2015 05:58:48 -0800 (PST)
 From: =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <zajec5@gmail.com>
 To: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org, Hauke Mehrtens <hauke@hauke-m.de>,
 	=?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <zajec5@gmail.com>
-Subject: [PATCH] watchdog: bcm47xx_wdt.c: add restart handler support
-Date: Sat, 24 Jan 2015 14:47:24 +0100
-Message-Id: <1422107244-32097-1-git-send-email-zajec5@gmail.com>
+Subject: [PATCH V2] watchdog: bcm47xx_wdt.c: add restart handler support
+Date: Sat, 24 Jan 2015 14:58:38 +0100
+Message-Id: <1422107918-8043-1-git-send-email-zajec5@gmail.com>
+In-Reply-To: <1422107244-32097-1-git-send-email-zajec5@gmail.com>
+References: <1422107244-32097-1-git-send-email-zajec5@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -24,8 +26,11 @@ API to provide restart support.
 
 Signed-off-by: Rafał Miłecki <zajec5@gmail.com>
 ---
+V2: Include changes to include/linux/bcm47xx_wdt.h
+---
  drivers/watchdog/bcm47xx_wdt.c | 22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ include/linux/bcm47xx_wdt.h    |  1 +
+ 2 files changed, 21 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/watchdog/bcm47xx_wdt.c b/drivers/watchdog/bcm47xx_wdt.c
 index 9816485..dac3c5d 100644
@@ -79,6 +84,18 @@ index 9816485..dac3c5d 100644
  err_notifier:
  	unregister_reboot_notifier(&wdt->notifier);
  err_timer:
+diff --git a/include/linux/bcm47xx_wdt.h b/include/linux/bcm47xx_wdt.h
+index b708786..5582c21 100644
+--- a/include/linux/bcm47xx_wdt.h
++++ b/include/linux/bcm47xx_wdt.h
+@@ -16,6 +16,7 @@ struct bcm47xx_wdt {
+ 
+ 	struct watchdog_device wdd;
+ 	struct notifier_block notifier;
++	struct notifier_block restart_handler;
+ 
+ 	struct timer_list soft_timer;
+ 	atomic_t soft_ticks;
 -- 
 1.8.4.5
 
