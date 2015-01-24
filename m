@@ -1,39 +1,42 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:38126 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:38516 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752397AbbAXQy0 (ORCPT
+	with ESMTP id S1752397AbbAXQ6d (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 24 Jan 2015 11:54:26 -0500
+	Sat, 24 Jan 2015 11:58:33 -0500
 Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
 	(envelope-from <linux@roeck-us.net>)
-	id 1YF3yc-001wsS-7c
-	for linux-watchdog@vger.kernel.org; Sat, 24 Jan 2015 16:54:26 +0000
-Message-ID: <54C3CE2C.1000107@roeck-us.net>
-Date: Sat, 24 Jan 2015 08:54:04 -0800
+	id 1YF42Z-001yIw-8D
+	for linux-watchdog@vger.kernel.org; Sat, 24 Jan 2015 16:58:32 +0000
+Message-ID: <54C3CF23.5040404@roeck-us.net>
+Date: Sat, 24 Jan 2015 08:58:11 -0800
 From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
 To: =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>
 CC: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
 	Hauke Mehrtens <hauke@hauke-m.de>
-Subject: Re: [PATCH] watchdog: bcm47xx_wdt.c: add restart handler support
-References: <1422107244-32097-1-git-send-email-zajec5@gmail.com>	<54C3C90B.1060503@roeck-us.net> <CACna6rwZN0XcdhCcUMef-=awk_FUG+z7LWt5t2xsLT5L6ddT4A@mail.gmail.com>
-In-Reply-To: <CACna6rwZN0XcdhCcUMef-=awk_FUG+z7LWt5t2xsLT5L6ddT4A@mail.gmail.com>
+Subject: Re: [PATCH V2] watchdog: bcm47xx_wdt.c: add restart handler support
+References: <1422107244-32097-1-git-send-email-zajec5@gmail.com>	<1422107918-8043-1-git-send-email-zajec5@gmail.com>	<54C3C950.3060001@roeck-us.net> <CACna6rzT7uPONFAh=utv3r+JyJ3r1-NanmyPF4joERt+X+Rqog@mail.gmail.com>
+In-Reply-To: <CACna6rzT7uPONFAh=utv3r+JyJ3r1-NanmyPF4joERt+X+Rqog@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 01/24/2015 08:45 AM, Rafał Miłecki wrote:
-> On 24 January 2015 at 17:32, Guenter Roeck <linux@roeck-us.net> wrote:
->> On 01/24/2015 05:47 AM, Rafał Miłecki wrote:
+On 01/24/2015 08:48 AM, Rafał Miłecki wrote:
+> On 24 January 2015 at 17:33, Guenter Roeck <linux@roeck-us.net> wrote:
+>> On 01/24/2015 05:58 AM, Rafał Miłecki wrote:
 >>>
 >>> Just like in case of other watchdog drivers, use the new kernel core
 >>> API to provide restart support.
 >>>
 >>> Signed-off-by: Rafał Miłecki <zajec5@gmail.com>
 >>> ---
+>>> V2: Include changes to include/linux/bcm47xx_wdt.h
+>>> ---
 >>>    drivers/watchdog/bcm47xx_wdt.c | 22 ++++++++++++++++++++--
->>>    1 file changed, 20 insertions(+), 2 deletions(-)
+>>>    include/linux/bcm47xx_wdt.h    |  1 +
+>>>    2 files changed, 21 insertions(+), 2 deletions(-)
 >>>
 >>> diff --git a/drivers/watchdog/bcm47xx_wdt.c
 >>> b/drivers/watchdog/bcm47xx_wdt.c
@@ -66,27 +69,25 @@ On 01/24/2015 08:45 AM, Rafał Miłecki wrote:
 >>>
 >>>          wdt->notifier.notifier_call = &bcm47xx_wdt_notify_sys;
 >>> -
->>>          ret = register_reboot_notifier(&wdt->notifier);
->>>          if (ret)
->>>                  goto err_timer;
->>>
->>> -       ret = watchdog_register_device(&wdt->wdd);
->>> +       wdt->restart_handler.notifier_call = &bcm47xx_wdt_restart;
->>> +       wdt->restart_handler.priority = 128;
 >>
 >>
->> This should be low priority since it doesn't immediately restart the system
->> but uses a watchdog timeout.
+>> Unnecessary whitespace change.
 >
-> I think this is also the only way to reboot Broadcom device. Is there
-> some howto on values I should use? Should I change it to sth like 64?
-> Or what number?
+> I changed it to improve code readability. Now you have two seprated
+> code blocks. First one setups notification and registers it. Second
+> setups handler and registers it.
 >
 
-64 is fine.
+That is not how it works; this is a logically separate change,
+which should be submitted as separate patch if at all.
 
-You never know if someone using that chip implements, for example, reset
-with a gpio pin.
+Keep in mind though that this is a personal preference; if we accept
+this change, someone else may come along tomorrow asking to change it
+back "to improve readability by removing unnecessary empty lines".
+Normally I would leave that alone unless you get a checkpatch
+warning or error, and even then it is advisable to know the maintainer's
+position on accepting coding style changes.
 
+Thanks,
 Guenter
 
