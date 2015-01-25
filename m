@@ -1,209 +1,98 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from spo001.leaseweb.nl ([83.149.101.17]:50647 "EHLO
-	spo001.leaseweb.nl" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753368AbbAXRiH (ORCPT
+Received: from mail-we0-f178.google.com ([74.125.82.178]:37844 "EHLO
+	mail-we0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752488AbbAYKlG (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 24 Jan 2015 12:38:07 -0500
-Date: Sat, 24 Jan 2015 18:38:04 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: linus@spo001.leaseweb.nl,
-	Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Wolfram Sang <wsa@the-dreams.de>,
-	Markus Pargmann <mpa@pengutronix.de>,
-	Xiubo Li <Li.Xiubo@freescale.com>
-Subject: [GIT PULL REQUEST] watchdog - v3.19-rc5 Fixes
-Message-ID: <20150124173803.GA24710@spo001.leaseweb.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Sun, 25 Jan 2015 05:41:06 -0500
+Received: by mail-we0-f178.google.com with SMTP id k48so4540818wev.9
+        for <linux-watchdog@vger.kernel.org>; Sun, 25 Jan 2015 02:41:04 -0800 (PST)
+From: =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <zajec5@gmail.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org, Hauke Mehrtens <hauke@hauke-m.de>,
+	=?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <zajec5@gmail.com>
+Subject: [PATCH V3] watchdog: bcm47xx_wdt.c: add restart handler support
+Date: Sun, 25 Jan 2015 11:40:57 +0100
+Message-Id: <1422182457-9876-1-git-send-email-zajec5@gmail.com>
+In-Reply-To: <1422107918-8043-1-git-send-email-zajec5@gmail.com>
+References: <1422107918-8043-1-git-send-email-zajec5@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Linus,
+Just like in case of other watchdog drivers, use the new kernel core
+API to provide restart support.
 
-Please pull from 'master' branch of
-	git://www.linux-watchdog.org/linux-watchdog.git
+Signed-off-by: Rafał Miłecki <zajec5@gmail.com>
+---
+V2: Include changes to include/linux/bcm47xx_wdt.h
+V3: Don't drop some empty line
+    Use lower priority (64 instead of 128)
+---
+ drivers/watchdog/bcm47xx_wdt.c | 21 ++++++++++++++++++++-
+ include/linux/bcm47xx_wdt.h    |  1 +
+ 2 files changed, 21 insertions(+), 1 deletion(-)
 
-It will fix reboot issues with the imx2_wdt driver and it also 
-drops some forgotten owner assignments from platform_drivers.
-
-This will update the following files:
-
- cadence_wdt.c |    1 -
- imx2_wdt.c    |   40 +++++++++++++++++++++++++++++++---------
- meson_wdt.c   |    1 -
- 3 files changed, 31 insertions(+), 11 deletions(-)
-
-with these Changes:
-
-commit 7a32757eda68a53626f003018733d09f94138334
-Author: Wolfram Sang <wsa@the-dreams.de>
-Date:   Sun Dec 21 22:14:43 2014 +0100
-
-    watchdog: drop owner assignment from platform_drivers
-    
-    This platform_driver does not need to set an owner, it will be populated by the
-    driver core.
-    
-    Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-commit 5fe65ce7ccbb47b16e17a88bcdac73cffadb80fa
-Author: Markus Pargmann <mpa@pengutronix.de>
-Date:   Mon Sep 8 09:14:07 2014 +0200
-
-    watchdog: imx2_wdt: Disable power down counter on boot
-    
-    Disable power down counter of the watchdog to avoid system resets. The
-    watchdog power down counter is set automatically by the chip. If it is
-    not set to 0 in the driver, the system resets.
-    
-    Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
-    Acked-by: Shawn Guo <shawn.guo@linaro.org>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-commit bbd5900935be8755b6344386373174b20cd474a2
-Author: Xiubo Li <Li.Xiubo@freescale.com>
-Date:   Thu Oct 16 11:44:15 2014 +0800
-
-    watchdog: imx2_wdt: Improve power management support.
-    
-    Improve power management operations(suspend and resume) as part of
-    dev_pm_ops for IMX2 watchdog driver.
-    
-    If PM will be supported, please make sure that the wdev->clk
-    could disable the watchdog's counter input clock source or can
-    mask watchdog's reset request to the core.
-    
-    If watchdog is still used by consumers and resumes from deep
-    sleep state, we need to restart the watchdog again without
-    enabling the timer.
-    
-    If watchdog been has started --> stopped by the consumers and
-    resumes from non-deep sleep state, then start the timer again.
-    
-    If watchdog has been started --> stopped by the consumers and
-    resumes from deep sleep state, will do nothing. The watchdog
-    will be restarted by consumers next time to be used.
-    
-    Signed-off-by: Xiubo Li <Li.Xiubo@freescale.com>
-    Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-For completeness, I added the overal diff below.
-
-Greetings,
-Wim.
-
-================================================================================
-diff --git a/drivers/watchdog/cadence_wdt.c b/drivers/watchdog/cadence_wdt.c
-index 5927c0a..bcfd2a2 100644
---- a/drivers/watchdog/cadence_wdt.c
-+++ b/drivers/watchdog/cadence_wdt.c
-@@ -503,7 +503,6 @@ static struct platform_driver cdns_wdt_driver = {
- 	.shutdown	= cdns_wdt_shutdown,
- 	.driver		= {
- 		.name	= "cdns-wdt",
--		.owner	= THIS_MODULE,
- 		.of_match_table = cdns_wdt_of_match,
- 		.pm	= &cdns_wdt_pm_ops,
- 	},
-diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-index d6add51..5142bba 100644
---- a/drivers/watchdog/imx2_wdt.c
-+++ b/drivers/watchdog/imx2_wdt.c
-@@ -52,6 +52,8 @@
- #define IMX2_WDT_WRSR		0x04		/* Reset Status Register */
- #define IMX2_WDT_WRSR_TOUT	(1 << 1)	/* -> Reset due to Timeout */
- 
-+#define IMX2_WDT_WMCR		0x08		/* Misc Register */
-+
- #define IMX2_WDT_MAX_TIME	128
- #define IMX2_WDT_DEFAULT_TIME	60		/* in seconds */
- 
-@@ -274,6 +276,13 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
- 
- 	imx2_wdt_ping_if_active(wdog);
- 
-+	/*
-+	 * Disable the watchdog power down counter at boot. Otherwise the power
-+	 * down counter will pull down the #WDOG interrupt line for one clock
-+	 * cycle.
-+	 */
-+	regmap_write(wdev->regmap, IMX2_WDT_WMCR, 0);
-+
- 	ret = watchdog_register_device(wdog);
- 	if (ret) {
- 		dev_err(&pdev->dev, "cannot register watchdog device\n");
-@@ -327,18 +336,21 @@ static void imx2_wdt_shutdown(struct platform_device *pdev)
+diff --git a/drivers/watchdog/bcm47xx_wdt.c b/drivers/watchdog/bcm47xx_wdt.c
+index 9816485..b28a072 100644
+--- a/drivers/watchdog/bcm47xx_wdt.c
++++ b/drivers/watchdog/bcm47xx_wdt.c
+@@ -169,6 +169,17 @@ static int bcm47xx_wdt_notify_sys(struct notifier_block *this,
+ 	return NOTIFY_DONE;
  }
  
- #ifdef CONFIG_PM_SLEEP
--/* Disable watchdog if it is active during suspend */
-+/* Disable watchdog if it is active or non-active but still running */
- static int imx2_wdt_suspend(struct device *dev)
- {
- 	struct watchdog_device *wdog = dev_get_drvdata(dev);
- 	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
++static int bcm47xx_wdt_restart(struct notifier_block *this, unsigned long mode,
++			       void *cmd)
++{
++	struct bcm47xx_wdt *wdt;
++
++	wdt = container_of(this, struct bcm47xx_wdt, restart_handler);
++	wdt->timer_set(wdt, 1);
++
++	return NOTIFY_DONE;
++}
++
+ static struct watchdog_ops bcm47xx_wdt_soft_ops = {
+ 	.owner		= THIS_MODULE,
+ 	.start		= bcm47xx_wdt_soft_start,
+@@ -209,15 +220,23 @@ static int bcm47xx_wdt_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto err_timer;
  
--	imx2_wdt_set_timeout(wdog, IMX2_WDT_MAX_TIME);
--	imx2_wdt_ping(wdog);
-+	/* The watchdog IP block is running */
-+	if (imx2_wdt_is_running(wdev)) {
-+		imx2_wdt_set_timeout(wdog, IMX2_WDT_MAX_TIME);
-+		imx2_wdt_ping(wdog);
+-	ret = watchdog_register_device(&wdt->wdd);
++	wdt->restart_handler.notifier_call = &bcm47xx_wdt_restart;
++	wdt->restart_handler.priority = 64;
++	ret = register_restart_handler(&wdt->restart_handler);
+ 	if (ret)
+ 		goto err_notifier;
  
--	/* Watchdog has been stopped but IP block is still running */
--	if (!watchdog_active(wdog) && imx2_wdt_is_running(wdev))
--		del_timer_sync(&wdev->timer);
-+		/* The watchdog is not active */
-+		if (!watchdog_active(wdog))
-+			del_timer_sync(&wdev->timer);
-+	}
- 
- 	clk_disable_unprepare(wdev->clk);
- 
-@@ -354,15 +366,25 @@ static int imx2_wdt_resume(struct device *dev)
- 	clk_prepare_enable(wdev->clk);
- 
- 	if (watchdog_active(wdog) && !imx2_wdt_is_running(wdev)) {
--		/* Resumes from deep sleep we need restart
--		 * the watchdog again.
-+		/*
-+		 * If the watchdog is still active and resumes
-+		 * from deep sleep state, need to restart the
-+		 * watchdog again.
- 		 */
- 		imx2_wdt_setup(wdog);
- 		imx2_wdt_set_timeout(wdog, wdog->timeout);
- 		imx2_wdt_ping(wdog);
- 	} else if (imx2_wdt_is_running(wdev)) {
-+		/* Resuming from non-deep sleep state. */
-+		imx2_wdt_set_timeout(wdog, wdog->timeout);
- 		imx2_wdt_ping(wdog);
--		mod_timer(&wdev->timer, jiffies + wdog->timeout * HZ / 2);
-+		/*
-+		 * But the watchdog is not active, then start
-+		 * the timer again.
-+		 */
-+		if (!watchdog_active(wdog))
-+			mod_timer(&wdev->timer,
-+				  jiffies + wdog->timeout * HZ / 2);
- 	}
- 
++	ret = watchdog_register_device(&wdt->wdd);
++	if (ret)
++		goto err_handler;
++
+ 	dev_info(&pdev->dev, "BCM47xx Watchdog Timer enabled (%d seconds%s%s)\n",
+ 		timeout, nowayout ? ", nowayout" : "",
+ 		soft ? ", Software Timer" : "");
  	return 0;
-diff --git a/drivers/watchdog/meson_wdt.c b/drivers/watchdog/meson_wdt.c
-index ef6a298..1f4155e 100644
---- a/drivers/watchdog/meson_wdt.c
-+++ b/drivers/watchdog/meson_wdt.c
-@@ -215,7 +215,6 @@ static struct platform_driver meson_wdt_driver = {
- 	.remove		= meson_wdt_remove,
- 	.shutdown	= meson_wdt_shutdown,
- 	.driver		= {
--		.owner		= THIS_MODULE,
- 		.name		= DRV_NAME,
- 		.of_match_table	= meson_wdt_dt_ids,
- 	},
+ 
++err_handler:
++	unregister_restart_handler(&wdt->restart_handler);
+ err_notifier:
+ 	unregister_reboot_notifier(&wdt->notifier);
+ err_timer:
+diff --git a/include/linux/bcm47xx_wdt.h b/include/linux/bcm47xx_wdt.h
+index b708786..5582c21 100644
+--- a/include/linux/bcm47xx_wdt.h
++++ b/include/linux/bcm47xx_wdt.h
+@@ -16,6 +16,7 @@ struct bcm47xx_wdt {
+ 
+ 	struct watchdog_device wdd;
+ 	struct notifier_block notifier;
++	struct notifier_block restart_handler;
+ 
+ 	struct timer_list soft_timer;
+ 	atomic_t soft_ticks;
+-- 
+1.8.4.5
+
