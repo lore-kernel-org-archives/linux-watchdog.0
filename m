@@ -1,74 +1,89 @@
-Return-path: <jszhang@marvell.com>
-Date: Mon, 26 Jan 2015 14:22:10 +0800
-From: Jisheng Zhang <jszhang@marvell.com>
-To: Doug Anderson <dianders@chromium.org>
-CC: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck <wim@iguana.be>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Lunxue Dai <lunxue.dai@rock-chips.com>,
-        Dinh Nguyen <dinguyen@altera.com>,
-        "linux-watchdog@vger.kernel.org"
-	<linux-watchdog@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/2] watchdog: dw_wdt: pat the watchdog before enabling
- it
-Message-ID: <20150126142210.4cd0b33f@xhacker>
-In-Reply-To: <CAD=FV=UMmfNAEQVKCxTBapwO=pgno+cWUJNiMS7_uFK7NPevkw@mail.gmail.com>
-References: <1421882243-3631-1-git-send-email-dianders@chromium.org>
-	<20150122132200.4729d38b@xhacker>
-	<CAD=FV=UMmfNAEQVKCxTBapwO=pgno+cWUJNiMS7_uFK7NPevkw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
+Return-path: <linux@roeck-us.net>
+From: Guenter Roeck <linux@roeck-us.net>
+To: linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	linux-kernel@vger.kernel.org,
+	Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH] watchdog: w83627hf_wdt: Add support for NCT6791 and NCT6792
+Date: Mon, 26 Jan 2015 08:53:56 -0800
+Message-Id: <1422291236-13326-1-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Dear Doug,
+The watchdog functionality in both chips is almost identical to NCT6779.
 
-On Thu, 22 Jan 2015 09:09:28 -0800
-Doug Anderson <dianders@chromium.org> wrote:
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+Tested on system with NCT6792.
 
-> Jisheng,
-> 
-> On Wed, Jan 21, 2015 at 9:22 PM, Jisheng Zhang <jszhang@marvell.com> wrote:
-> > Dear Doug,
-> >
-> > On Wed, 21 Jan 2015 15:17:22 -0800
-> > Doug Anderson <dianders@chromium.org> wrote:
-> >
-> >> On some dw_wdt implementations the "top" register may be initted to 0
-> >> at bootup.  In such a case, each "pat" of the watchdog will reset the
-> >> timer to 0xffff.  That's pretty short.
-> >
-> > + Guenter Roeck
-> >
-> > This should have been fixed by dfa07141e7a792("watchdog: dw_wdt:
-> > initialise TOP_INIT in dw_wdt_set_top()")
-> 
-> I will admit that I'm testing on a tree that doesn't have your patch
-> (I'm on a 3.14 kernel with lots of backports).  ...but I did try
-> cherry-picking your patch before I wrote up mine and it didn't fix my
-> problem.  I believe that the watchdog that's in Rockchip rk3288 must
-> be a slightly different version of the IP block than you're working
-> with.
-> 
-> Specifically I see the register WDT_TORR that has an offset of 0x4.
-> That's the RANGE_REG in your code.  It shows bits 3:0 set the timeout
-> period (0 = 0xffff and 15 = 0x7fffffff).  It shows bits 31:4 as
-> "reserved".
+ drivers/watchdog/Kconfig        |  2 ++
+ drivers/watchdog/w83627hf_wdt.c | 14 +++++++++++++-
+ 2 files changed, 15 insertions(+), 1 deletion(-)
 
-Could you please dump registers' value at offset 0xf4 and 0xf8 if you don't mind?
-
-Thanks,
-Jisheng
-
-> 
-> 
-> > In fact, my original fix is as similar as your patch
-> >
-> > http://www.spinics.net/lists/arm-kernel/msg363658.html
-> 
-> Yup, except that I pat the watchdog before enabling it and you pat it
-> after...  It probably doesn't matter as long as the two instructions
-> are within 2.5ms of each other, but it seems nice to be safer.
-> 
-> -Doug
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 08f41ad..97ac488 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1005,6 +1005,8 @@ config W83627HF_WDT
+ 		NCT6775
+ 		NCT6776
+ 		NCT6779
++		NCT6791
++		NCT6792
+ 
+ 	  This watchdog simply watches your kernel to make sure it doesn't
+ 	  freeze, and if it does, it reboots your computer after a certain
+diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
+index 7165704..5824e25 100644
+--- a/drivers/watchdog/w83627hf_wdt.c
++++ b/drivers/watchdog/w83627hf_wdt.c
+@@ -50,7 +50,7 @@ static int cr_wdt_control;	/* WDT control register */
+ 
+ enum chips { w83627hf, w83627s, w83697hf, w83697ug, w83637hf, w83627thf,
+ 	     w83687thf, w83627ehf, w83627dhg, w83627uhg, w83667hg, w83627dhg_p,
+-	     w83667hg_b, nct6775, nct6776, nct6779 };
++	     w83667hg_b, nct6775, nct6776, nct6779, nct6791, nct6792 };
+ 
+ static int timeout;			/* in seconds */
+ module_param(timeout, int, 0);
+@@ -95,6 +95,8 @@ MODULE_PARM_DESC(early_disable, "Disable watchdog at boot time (default=0)");
+ #define NCT6775_ID		0xb4
+ #define NCT6776_ID		0xc3
+ #define NCT6779_ID		0xc5
++#define NCT6791_ID		0xc8
++#define NCT6792_ID		0xc9
+ 
+ #define W83627HF_WDT_TIMEOUT	0xf6
+ #define W83697HF_WDT_TIMEOUT	0xf4
+@@ -195,6 +197,8 @@ static int w83627hf_init(struct watchdog_device *wdog, enum chips chip)
+ 	case nct6775:
+ 	case nct6776:
+ 	case nct6779:
++	case nct6791:
++	case nct6792:
+ 		/*
+ 		 * These chips have a fixed WDTO# output pin (W83627UHG),
+ 		 * or support more than one WDTO# output pin.
+@@ -395,6 +399,12 @@ static int wdt_find(int addr)
+ 	case NCT6779_ID:
+ 		ret = nct6779;
+ 		break;
++	case NCT6791_ID:
++		ret = nct6791;
++		break;
++	case NCT6792_ID:
++		ret = nct6792;
++		break;
+ 	case 0xff:
+ 		ret = -ENODEV;
+ 		break;
+@@ -428,6 +438,8 @@ static int __init wdt_init(void)
+ 		"NCT6775",
+ 		"NCT6776",
+ 		"NCT6779",
++		"NCT6791",
++		"NCT6792",
+ 	};
+ 
+ 	wdt_io = 0x2e;
+-- 
+2.1.0
