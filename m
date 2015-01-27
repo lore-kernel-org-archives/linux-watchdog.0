@@ -1,37 +1,44 @@
-Return-path: <arnd@arndb.de>
-From: Arnd Bergmann <arnd@arndb.de>
-To: Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>
-Cc: Guenter Roeck <linux@roeck-us.net>, wim@iguana.be, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org, paul@crapouillou.net
-Subject: Re: [PATCH 1/2] dt: watchdog: Add DT binding documentation for jz47xx watchdog timer
-Date: Wed, 28 Jan 2015 12:23:48 +0100
-Message-ID: <9831838.T0biTLFe1N@wuerfel>
-In-Reply-To: <54C8B974.8030703@imgtec.com>
-References: <1422371490-44402-1-git-send-email-Zubair.Kakakhel@imgtec.com> <9081741.fTg5kD1W54@wuerfel> <54C8B974.8030703@imgtec.com>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mailapp01.imgtec.com ([195.59.15.196]:51854 "EHLO
+	mailapp01.imgtec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751793AbbA0PLm (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 27 Jan 2015 10:11:42 -0500
+From: Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>
+To: <wim@iguana.be>
+CC: <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<linux-watchdog@vger.kernel.org>, <Zubair.Kakakhel@imgtec.com>,
+	<paul@crapouillou.net>
+Subject: [PATCH 0/2] watchdog: jz4740: Add DT support
+Date: Tue, 27 Jan 2015 15:11:28 +0000
+Message-ID: <1422371490-44402-1-git-send-email-Zubair.Kakakhel@imgtec.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Wednesday 28 January 2015 10:27:00 Zubair Lutfullah Kakakhel wrote:
-> 
-> There is on-going work to fix jz4740, add jz4780 and shake the entire clock tree as well.
-> 
-> Patch 14 onwards in this series
-> http://patchwork.linux-mips.org/bundle/paulburton/ci20-v3.20/
+Hi,
 
-Right, that looks good.
- 
-> Instead of lumping things out in huge changesets, I intended to push out the minor patches that are disjoint.
-> 
-> That was the purpose of sending these two patches.
-> 
-> Current binding requires the clock-name to be "rtc". Hence the name at the moment.
+Here are two simple patches that add DT support to the jz4740 watchdog driver.
 
-The problem with the binding is that once you've established it, it
-is very hard to change. One possible solution would be to try
-'of_clk_get(dev->of_node, 0)' in the driver first, and only then
-call clk_get(dev, "rtc"). Doing that, you can have an anonymous clock
-in the DT without waiting for the clock driver to get merged first
-or breaking the existing setup.
+Patches are based on 3.19-rc6. Quite disjoint and stay within jz4740
+so should apply easily on other trees.
 
-	Arnd
+If you would like to have them rebased to a different tree, please tell.
+
+Thank-you
+
+ZubairLK
+
+Zubair Lutfullah Kakakhel (2):
+  dt: watchdog: Add DT binding documentation for jz47xx watchdog timer
+  watchdog: jz4740: Add DT support
+
+ .../devicetree/bindings/watchdog/ingenic,jz47xx-wdt.txt | 17 +++++++++++++++++
+ drivers/watchdog/jz4740_wdt.c                           |  9 +++++++++
+ 2 files changed, 26 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/ingenic,jz47xx-wdt.txt
+
+-- 
+1.9.1
+
