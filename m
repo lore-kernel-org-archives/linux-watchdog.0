@@ -1,17 +1,17 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailapp01.imgtec.com ([195.59.15.196]:3921 "EHLO
+Received: from mailapp01.imgtec.com ([195.59.15.196]:40006 "EHLO
 	mailapp01.imgtec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752957AbbA0PLn (ORCPT
+	with ESMTP id S1752487AbbA0PLm (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 27 Jan 2015 10:11:43 -0500
+	Tue, 27 Jan 2015 10:11:42 -0500
 From: Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>
 To: <wim@iguana.be>
 CC: <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
 	<linux-watchdog@vger.kernel.org>, <Zubair.Kakakhel@imgtec.com>,
 	<paul@crapouillou.net>
-Subject: [PATCH 2/2] watchdog: jz4740: Add DT support
-Date: Tue, 27 Jan 2015 15:11:30 +0000
-Message-ID: <1422371490-44402-3-git-send-email-Zubair.Kakakhel@imgtec.com>
+Subject: [PATCH 1/2] dt: watchdog: Add DT binding documentation for jz47xx watchdog timer
+Date: Tue, 27 Jan 2015 15:11:29 +0000
+Message-ID: <1422371490-44402-2-git-send-email-Zubair.Kakakhel@imgtec.com>
 In-Reply-To: <1422371490-44402-1-git-send-email-Zubair.Kakakhel@imgtec.com>
 References: <1422371490-44402-1-git-send-email-Zubair.Kakakhel@imgtec.com>
 MIME-Version: 1.0
@@ -19,48 +19,47 @@ Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Add DT support to the jz4740 driver. Simple of_match_ptr. No other
-modification for probe needed
+Add binding for jz47xx watchdog timer. It is a simple watchdog timer.
+Needs rtc clock and register addresses
 
 Signed-off-by: Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>
----
- drivers/watchdog/jz4740_wdt.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
-index 18e41af..4420ec3 100644
---- a/drivers/watchdog/jz4740_wdt.c
-+++ b/drivers/watchdog/jz4740_wdt.c
-@@ -24,6 +24,7 @@
- #include <linux/clk.h>
- #include <linux/slab.h>
- #include <linux/err.h>
-+#include <linux/of.h>
- 
- #include <asm/mach-jz4740/timer.h>
- 
-@@ -142,6 +143,13 @@ static const struct watchdog_ops jz4740_wdt_ops = {
- 	.set_timeout = jz4740_wdt_set_timeout,
- };
- 
-+#ifdef CONFIG_OF
-+static const struct of_device_id jz4740_of_matches[] = {
-+	{ .compatible = "ingenic,jz4740-watchdog", },
-+	{ /* sentinel */ }
-+};
-+#endif
+---
+The jz4740 is platform only at the moment.
+
+But DT support is being added
+
+See http://patchwork.linux-mips.org/bundle/paulburton/ci20-v3.20/
+
+jz47xx is used because jz4780 will also use this driver
+---
+ .../devicetree/bindings/watchdog/ingenic,jz47xx-wdt.txt | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/ingenic,jz47xx-wdt.txt
+
+diff --git a/Documentation/devicetree/bindings/watchdog/ingenic,jz47xx-wdt.txt b/Documentation/devicetree/bindings/watchdog/ingenic,jz47xx-wdt.txt
+new file mode 100644
+index 0000000..bf4c404
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/ingenic,jz47xx-wdt.txt
+@@ -0,0 +1,17 @@
++Ingenic Watchdog Timer (WDT) Controller for JZ47XX
 +
- static int jz4740_wdt_probe(struct platform_device *pdev)
- {
- 	struct jz4740_wdt_drvdata *drvdata;
-@@ -211,6 +219,7 @@ static struct platform_driver jz4740_wdt_driver = {
- 	.remove = jz4740_wdt_remove,
- 	.driver = {
- 		.name = "jz4740-wdt",
-+		.of_match_table = of_match_ptr(jz4740_of_matches),
- 	},
- };
- 
++Required properties:
++compatible: "ingenic,jz4740-watchdog"
++reg: Register address and length for watchdog registers
++clocks: phandle to rtcclk
++clock-names: must be "rtc"
++
++Example:
++
++watchdog: jz47xx-watchdog@0x10002000 {
++	compatible = "ingenic,jz4780-watchdog";
++	reg = <0x10002000 0x100>;
++
++	clocks = <&rtclk>;
++	clock-names = "rtc";
++};
 -- 
 1.9.1
 
