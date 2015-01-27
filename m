@@ -1,93 +1,50 @@
-Return-path: <jszhang@marvell.com>
-Date: Tue, 27 Jan 2015 12:52:02 +0800
-From: Jisheng Zhang <jszhang@marvell.com>
-To: Guenter Roeck <linux@roeck-us.net>
-CC: Doug Anderson <dianders@chromium.org>, Wim Van Sebroeck <wim@iguana.be>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Lunxue Dai <lunxue.dai@rock-chips.com>,
-        Dinh Nguyen <dinguyen@altera.com>,
-        "linux-watchdog@vger.kernel.org"
-	<linux-watchdog@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2 1/2] watchdog: dw_wdt: pat the watchdog before
- enabling it
-Message-ID: <20150127125202.59dbd37d@xhacker>
-In-Reply-To: <54C70F24.5080100@roeck-us.net>
-References: <1422314836-30516-1-git-send-email-dianders@chromium.org>
-	<20150127114909.204eeee0@xhacker>
-	<54C70F24.5080100@roeck-us.net>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mout.kundenserver.de ([212.227.126.131]:61716 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758754AbbA0UPq (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 27 Jan 2015 15:15:46 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>
+Cc: wim@iguana.be, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	paul@crapouillou.net
+Subject: Re: [PATCH 2/2] watchdog: jz4740: Add DT support
+Date: Tue, 27 Jan 2015 21:15:37 +0100
+Message-ID: <2690526.hgsE0j4AZc@wuerfel>
+In-Reply-To: <1422371490-44402-3-git-send-email-Zubair.Kakakhel@imgtec.com>
+References: <1422371490-44402-1-git-send-email-Zubair.Kakakhel@imgtec.com> <1422371490-44402-3-git-send-email-Zubair.Kakakhel@imgtec.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Dear Guenter,
+On Tuesday 27 January 2015 15:11:30 Zubair Lutfullah Kakakhel wrote:
+>  };
+>  
+> +#ifdef CONFIG_OF
+> +static const struct of_device_id jz4740_of_matches[] = {
+> +       { .compatible = "ingenic,jz4740-watchdog", },
+> +       { /* sentinel */ }
+> +};
+> +#endif
+> +
+>  static int jz4740_wdt_probe(struct platform_device *pdev)
+>  {
+>         struct jz4740_wdt_drvdata *drvdata;
+> @@ -211,6 +219,7 @@ static struct platform_driver jz4740_wdt_driver = {
+>         .remove = jz4740_wdt_remove,
+>         .driver = {
+>                 .name = "jz4740-wdt",
+> +               .of_match_table = of_match_ptr(jz4740_of_matches),
+>         },
+> 
 
-On Mon, 26 Jan 2015 20:08:04 -0800
-Guenter Roeck <linux@roeck-us.net> wrote:
+Why the #ifdef? Presumably we want to move over jz4740 to DT-only in the
+long run, so you could just remove the #ifdef and the of_match_ptr()
+wrapper.
 
-> On 01/26/2015 07:49 PM, Jisheng Zhang wrote:
-> > Dear Doug,
-> >
-> > On Mon, 26 Jan 2015 15:27:15 -0800
-> > Doug Anderson <dianders@chromium.org> wrote:
-> >
-> >> On some dw_wdt implementations the "top" register may be initted to 0
-> >> at bootup.  In such a case, each "pat" of the watchdog will reset the
-> >> timer to 0xffff.  That's pretty short.
-> >>
-> >> The input clock of the wdt can be any of a wide range of values.  On
-> >> an rk3288 system, I've seen the wdt clock be 24.75 MHz.  That means
-> >> each tick is ~40ns and we'll count to 0xffff in ~2.6ms.
-> >>
-> >> Because of the above two facts, it's a really good idea to pat the
-> >> watchdog after initting the "top" register properly and before
-> >> enabling the watchdog.  If you don't then there's no way we'll get the
-> >> next heartbeat in time.
-> >>
-> >> Jisheng Zhang fixed this problem on some dw_mmc versions by using the
-> >
-> > s/dw_mmc/dw_wdt
-> >
-> >> TOP_INIT feature.  However, the dw_wdt on rk3288 doesn't have TOP_INIT
-> >> so it's a good idea to also pat the watchdog manually.
-> >
-> > Based on your register dumping, I see the following configurations on
-> > rk3288:
-> >
-> > WDT_DUAL_TOP is configured as false, so there's no TOP_INIT
-> >
-> > WDT_DFLT_TOP is configured as 0, so it will timeout soon.
-> >
-> >
-> > So an extra pat is a must on such platforms with similar configurations.
-> > And it doesn't hurt anything if we have an extra pat before enabling the
-> > WDT
-> >
-> > All in all, except the "dw_mmc" typo above, the patch looks good to me.
-> >
-> 
-> Jisheng,
-> 
-> it would be great if you can provide configuration information shown in
-> the (undocumented) registers.
+Also, you should add a MODULE_DEVICE_TABLE() entry.
 
-The wdt in rk3288 is a bit old, so I'm not sure whether the meaning is the same
-or not. The key related configuration here is the so called CP_WDT_DUAL_TOP, bit[2]
-of WDT_COMP_PARAMS_1 (0xf4), which indicates whether the TOP_INIT bits exist or
-fixed as zero.
-
-Thanks,
-Jisheng
-
-> 
-> Doug,
-> 
-> can you send another version with this information added as comment
-> to the code ? This will help others to understand what is going on
-> (and why) later on.
-> 
-> Thanks,
-> Guenter
-> 
+	Arnd
