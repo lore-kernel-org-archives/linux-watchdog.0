@@ -1,152 +1,50 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:34690 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:35060 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755855AbbA1Uqk (ORCPT
+	with ESMTP id S1754414AbbA1UsX (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 28 Jan 2015 15:46:40 -0500
+	Wed, 28 Jan 2015 15:48:23 -0500
 Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
 	(envelope-from <linux@roeck-us.net>)
-	id 1YGXq4-002EBs-JW
-	for linux-watchdog@vger.kernel.org; Wed, 28 Jan 2015 18:59:44 +0000
+	id 1YGXpP-002DuR-ER
+	for linux-watchdog@vger.kernel.org; Wed, 28 Jan 2015 18:59:03 +0000
+Date: Wed, 28 Jan 2015 10:58:43 -0800
 From: Guenter Roeck <linux@roeck-us.net>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org
-Subject: [GIT PULL] watchdog updates for Linux 3.20
-Date: Wed, 28 Jan 2015 10:59:38 -0800
-Message-Id: <1422471578-6925-1-git-send-email-linux@roeck-us.net>
+To: Doug Anderson <dianders@chromium.org>
+Cc: Wim Van Sebroeck <wim@iguana.be>, Heiko Stuebner <heiko@sntech.de>,
+	Lunxue Dai <lunxue.dai@rock-chips.com>,
+	Jisheng Zhang <jszhang@marvell.com>,
+	Dinh Nguyen <dinguyen@altera.com>,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 1/2] watchdog: dw_wdt: pat the watchdog before
+ enabling it
+Message-ID: <20150128185843.GB6730@roeck-us.net>
+References: <1422397517-20426-1-git-send-email-dianders@chromium.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1422397517-20426-1-git-send-email-dianders@chromium.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-Hi Wim,
+On Tue, Jan 27, 2015 at 02:25:16PM -0800, Doug Anderson wrote:
+> On some dw_wdt implementations the "top" register may be initted to 0
+> at bootup.  In such a case, each "pat" of the watchdog will reset the
+> timer to 0xffff.  That's pretty short.
+> 
+> The input clock of the wdt can be any of a wide range of values.  On
+> an rk3288 system, I've seen the wdt clock be 24.75 MHz.  That means
+> each tick is ~40ns and we'll count to 0xffff in ~2.6ms.
+> 
+> Because of the above two facts, it's a really good idea to pat the
+> watchdog after initting the "top" register properly and before
+> enabling the watchdog.  If you don't then there's no way we'll get the
+> next heartbeat in time.
+> 
+> Jisheng Zhang fixed this problem on some dw_wdt versions by using the
+> TOP_INIT feature.  However, the dw_wdt on rk3288 doesn't have TOP_INIT
+> so it's a good idea to also pat the watchdog manually.
+> 
+> Signed-off-by: Doug Anderson <dianders@chromium.org>
 
-This is my watchdog pull request for 3.20. The branch is currently based
-on v3.19-rc6.
-
-Please consider pulling watchdog updates for Linux 3.20 from signed tag:
-
-    git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.gi=
-t watchdog-for-wim-3.20
-
-The tag has been applied on top of the watchdog-next branch. The branch i=
-ncludes
-a number of patches I collected over the last few months. It does not inc=
-lude
-all submitted patches; only the ones I reviewed and felt comfortable with=
- are
-included. Some may already be in your -next branch.
-
-I reviewed all patches and ran build tests as well as source verification=
- tests
-with both smatch and spatch. The branch has been on my Linux repository f=
-or a
-while, so presumably Fenguang's robot will have built the code as well. T=
-he most
-recent build results are available at http://server.roeck-us.net:8010/bui=
-lders.
-
-If you don't want to apply the entire series, please consider applying wh=
-atever
-subset you might feel comfortable with.
-
-Thanks,
-Guenter
-------
-
-The following changes since commit 26bc420b59a38e4e6685a73345a0def461136d=
-ce:
-
-  Linux 3.19-rc6 (2015-01-25 20:04:41 -0800)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git =
-watchdog-next
-
-for you to fetch changes up to e98f3f4aff1d5f576566abb99f5e0965ccc68d32:
-
-  watchdog: dw_wdt: Try to get a 30 second watchdog by default (2015-01-2=
-8 10:51:57 -0800)
-
-----------------------------------------------------------------
-Doug Anderson (2):
-      watchdog: dw_wdt: pat the watchdog before enabling it
-      watchdog: dw_wdt: Try to get a 30 second watchdog by default
-
-Geert Uytterhoeven (1):
-      watchdog: da9063: Add restart handler support
-
-Guenter Roeck (1):
-      watchdog: w83627hf_wdt: Add support for NCT6791 and NCT6792
-
-John Crispin (2):
-      watchdog: rt2880_wdt: minor clean up
-      watchdog: add MT7621 watchdog support
-
-Krzysztof Kozlowski (1):
-      watchdog: imx2: Constify struct regmap_config and watchdog_ops
-
-Masanari Iida (1):
-      watchdog: hpwdt: Fix initialization message in hpwdt.c
-
-Matthias Brugger (2):
-      watchdog: Add driver for Mediatek watchdog
-      ARM: mediatek: dts: Add bindings for watchdog
-
-Mike Looijmans (1):
-      gpio_wdt: Add "always_running" feature to GPIO watchdog
-
-Naidu Tellapati (2):
-      watchdog: ImgTec PDC Watchdog Timer Driver
-      DT: watchdog: Add ImgTec PDC Watchdog Timer binding documentation
-
-Paolo Teti (1):
-      WD: add IT8783 ID
-
-Rafa=C5=82 Mi=C5=82ecki (1):
-      watchdog: bcm47xx_wdt.c: add restart handler support
-
-Tony Lindgren (1):
-      watchdog: Fix omap watchdogs to enable the magic close bit
-
- .../devicetree/bindings/watchdog/gpio-wdt.txt      |   5 +
- .../devicetree/bindings/watchdog/imgpdc-wdt.txt    |  19 ++
- .../devicetree/bindings/watchdog/mt7621-wdt.txt    |  12 +
- .../devicetree/bindings/watchdog/mtk-wdt.txt       |  13 +
- drivers/watchdog/Kconfig                           |  30 +++
- drivers/watchdog/Makefile                          |   3 +
- drivers/watchdog/bcm47xx_wdt.c                     |  21 +-
- drivers/watchdog/da9063_wdt.c                      |  32 ++-
- drivers/watchdog/dw_wdt.c                          |  32 ++-
- drivers/watchdog/gpio_wdt.c                        |  37 ++-
- drivers/watchdog/hpwdt.c                           |   2 +-
- drivers/watchdog/imgpdc_wdt.c                      | 289 +++++++++++++++=
-++++++
- drivers/watchdog/imx2_wdt.c                        |   4 +-
- drivers/watchdog/it87_wdt.c                        |   6 +-
- drivers/watchdog/mt7621_wdt.c                      | 187 +++++++++++++
- drivers/watchdog/mtk_wdt.c                         | 252 +++++++++++++++=
-+++
- drivers/watchdog/omap_wdt.c                        |   2 +-
- drivers/watchdog/retu_wdt.c                        |   2 +-
- drivers/watchdog/rt2880_wdt.c                      |   9 +-
- drivers/watchdog/twl4030_wdt.c                     |   2 +-
- drivers/watchdog/w83627hf_wdt.c                    |  14 +-
- include/linux/bcm47xx_wdt.h                        |   1 +
- 22 files changed, 943 insertions(+), 31 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/watchdog/imgpdc-wdt=
-.txt
- create mode 100644 Documentation/devicetree/bindings/watchdog/mt7621-wdt=
-.txt
- create mode 100644 Documentation/devicetree/bindings/watchdog/mtk-wdt.tx=
-t
- create mode 100644 drivers/watchdog/imgpdc_wdt.c
- create mode 100644 drivers/watchdog/mt7621_wdt.c
- create mode 100644 drivers/watchdog/mtk_wdt.c
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
