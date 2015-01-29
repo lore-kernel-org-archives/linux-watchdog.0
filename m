@@ -1,70 +1,111 @@
-Return-path: <dianders@chromium.org>
-From: Doug Anderson <dianders@chromium.org>
-To: Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>
-Cc: Heiko Stuebner <heiko@sntech.de>,
-	Lunxue Dai <lunxue.dai@rock-chips.com>,
-	Jisheng Zhang <jszhang@marvell.com>,
-	Dinh Nguyen <dinguyen@altera.com>,
-	Doug Anderson <dianders@chromium.org>,
-	linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v3 2/2] watchdog: dw_wdt: Try to get a 30 second watchdog by default
-Date: Tue, 27 Jan 2015 14:25:17 -0800
-Message-Id: <1422397517-20426-2-git-send-email-dianders@chromium.org>
-In-Reply-To: <1422397517-20426-1-git-send-email-dianders@chromium.org>
-References: <1422397517-20426-1-git-send-email-dianders@chromium.org>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from andre.telenet-ops.be ([195.130.132.53]:57692 "EHLO
+	andre.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754545AbbA2O0W (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 29 Jan 2015 09:26:22 -0500
+From: Geert Uytterhoeven <geert+renesas@glider.be>
+To: Support Opensource <support.opensource@diasemi.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org, linux-sh@vger.kernel.org,
+	Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH v2] watchdog: da9063: Add restart handler support
+Date: Thu, 29 Jan 2015 15:26:05 +0100
+Message-Id: <1422541565-19792-1-git-send-email-geert+renesas@glider.be>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-The dw_wdt_set_top() function takes in a value in seconds.  In
-dw_wdt_open() we were calling it with a value that's supposed to
-represent the maximum value programmed into the "top" register with a
-comment saying that we were trying to set the watchdog to its maximum
-value.  Instead we ended up setting the watchdog to ~15 seconds.
+Register a restart handler for the da9063 watchdog.  System restart is
+triggered by sending the shutdown command to the PMIC.
+As more-suitable restart handlers may exist, the priority of the
+watchdog restart handler is set to 128.
 
-Let's fix this.  However, setting things to the "max" gives me an 86
-second watchdog in the system I'm looking at.  86 seconds feels a
-little too long.  We'll explicitly choose 30 seconds as a more
-reasonable value.
+The actual restart method was inspired by a platform-specific patch from
+the BSP by Hisashi Nakamura <hisashi.nakamura.ak@renesas.com>.
 
-NOTE: Ideally this driver should be transitioned to be a real watchdog
-driver.  Then we could use "watchdog_init_timeout" and let the timeout
-be specified in a number of ways (device tree, module parameter, etc).
-This patch should be considered a bit of a stopgap solution.
-
-Signed-off-by: Doug Anderson <dianders@chromium.org>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Acked-by: Steve Twiss <stwiss.opensource@diasemi.com>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 ---
-Changes in v3: None
-Changes in v2: None
+Tested on r8a7791/koelsch
 
- drivers/watchdog/dw_wdt.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+v2:
+  - Add Acked-by, Reviewed-by
+---
+ drivers/watchdog/da9063_wdt.c | 32 +++++++++++++++++++++++++++++++-
+ 1 file changed, 31 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-index 3dde6de..d0bb949 100644
---- a/drivers/watchdog/dw_wdt.c
-+++ b/drivers/watchdog/dw_wdt.c
-@@ -51,6 +51,8 @@
- /* The maximum TOP (timeout period) value that can be set in the watchdog. */
- #define DW_WDT_MAX_TOP		15
+diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
+index 2cd6b2c2dd2a6980..e2fe2ebdebd4d6bb 100644
+--- a/drivers/watchdog/da9063_wdt.c
++++ b/drivers/watchdog/da9063_wdt.c
+@@ -20,6 +20,7 @@
+ #include <linux/delay.h>
+ #include <linux/mfd/da9063/registers.h>
+ #include <linux/mfd/da9063/core.h>
++#include <linux/reboot.h>
+ #include <linux/regmap.h>
  
-+#define DW_WDT_DEFAULT_SECONDS	30
+ /*
+@@ -38,6 +39,7 @@ static const unsigned int wdt_timeout[] = { 0, 2, 4, 8, 16, 32, 65, 131 };
+ struct da9063_watchdog {
+ 	struct da9063 *da9063;
+ 	struct watchdog_device wdtdev;
++	struct notifier_block restart_handler;
+ };
+ 
+ static unsigned int da9063_wdt_timeout_to_sel(unsigned int secs)
+@@ -119,6 +121,23 @@ static int da9063_wdt_set_timeout(struct watchdog_device *wdd,
+ 	return ret;
+ }
+ 
++static int da9063_wdt_restart_handler(struct notifier_block *this,
++				      unsigned long mode, void *cmd)
++{
++	struct da9063_watchdog *wdt = container_of(this,
++						   struct da9063_watchdog,
++						   restart_handler);
++	int ret;
 +
- static bool nowayout = WATCHDOG_NOWAYOUT;
- module_param(nowayout, bool, 0);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
-@@ -179,9 +181,9 @@ static int dw_wdt_open(struct inode *inode, struct file *filp)
- 	if (!dw_wdt_is_enabled()) {
- 		/*
- 		 * The watchdog is not currently enabled. Set the timeout to
--		 * the maximum and then start it.
-+		 * something reasonable and then start it.
- 		 */
--		dw_wdt_set_top(DW_WDT_MAX_TOP);
-+		dw_wdt_set_top(DW_WDT_DEFAULT_SECONDS);
- 		writel(WDOG_CONTROL_REG_WDT_EN_MASK,
- 		       dw_wdt.regs + WDOG_CONTROL_REG_OFFSET);
- 	}
++	ret = regmap_write(wdt->da9063->regmap, DA9063_REG_CONTROL_F,
++			   DA9063_SHUTDOWN);
++	if (ret)
++		dev_alert(wdt->da9063->dev, "Failed to shutdown (err = %d)\n",
++			  ret);
++
++	return NOTIFY_DONE;
++}
++
+ static const struct watchdog_info da9063_watchdog_info = {
+ 	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
+ 	.identity = "DA9063 Watchdog",
+@@ -163,14 +182,25 @@ static int da9063_wdt_probe(struct platform_device *pdev)
+ 	dev_set_drvdata(&pdev->dev, wdt);
+ 
+ 	ret = watchdog_register_device(&wdt->wdtdev);
++	if (ret)
++		return ret;
+ 
+-	return ret;
++	wdt->restart_handler.notifier_call = da9063_wdt_restart_handler;
++	wdt->restart_handler.priority = 128;
++	ret = register_restart_handler(&wdt->restart_handler);
++	if (ret)
++		dev_err(wdt->da9063->dev,
++			"Failed to register restart handler (err = %d)\n", ret);
++
++	return 0;
+ }
+ 
+ static int da9063_wdt_remove(struct platform_device *pdev)
+ {
+ 	struct da9063_watchdog *wdt = dev_get_drvdata(&pdev->dev);
+ 
++	unregister_restart_handler(&wdt->restart_handler);
++
+ 	watchdog_unregister_device(&wdt->wdtdev);
+ 
+ 	return 0;
 -- 
-2.2.0.rc0.207.ga3a616c
+1.9.1
+
