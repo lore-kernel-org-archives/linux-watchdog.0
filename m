@@ -1,40 +1,42 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from spo001.leaseweb.nl ([83.149.101.17]:57891 "EHLO
-	spo001.leaseweb.nl" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752461AbbBCAIV (ORCPT
+Received: from smtp3.ore.mailhop.org ([54.149.88.251]:34801 "EHLO
+	smtp3.ore.mailhop.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754569AbbBCAXY (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 2 Feb 2015 19:08:21 -0500
-Date: Tue, 3 Feb 2015 01:08:11 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Support Opensource <support.opensource@diasemi.com>,
-	linux-watchdog@vger.kernel.org, linux-sh@vger.kernel.org
-Subject: Re: [PATCH v2] watchdog: da9063: Add restart handler support
-Message-ID: <20150203000810.GA18245@spo001.leaseweb.nl>
-References: <1422541565-19792-1-git-send-email-geert+renesas@glider.be>
-Mime-Version: 1.0
+	Mon, 2 Feb 2015 19:23:24 -0500
+Date: Mon, 2 Feb 2015 15:40:15 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org, linux-omap@vger.kernel.org,
+	Thomas Dziedzic <gostrc@gmail.com>
+Subject: Re: [PATCH] watchdog: Fix omap watchdogs to enable the magic close
+ bit
+Message-ID: <20150202234015.GJ9418@atomide.com>
+References: <20141014192518.GH4972@atomide.com>
+ <20150105185902.GH4081@atomide.com>
+ <20150202234126.GA17515@spo001.leaseweb.nl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1422541565-19792-1-git-send-email-geert+renesas@glider.be>
+In-Reply-To: <20150202234126.GA17515@spo001.leaseweb.nl>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello Geert,
-
-> Register a restart handler for the da9063 watchdog.  System restart is
-> triggered by sending the shutdown command to the PMIC.
-> As more-suitable restart handlers may exist, the priority of the
-> watchdog restart handler is set to 128.
+* Wim Van Sebroeck <wim@iguana.be> [150202 15:44]:
+> Hi Tony,
 > 
-> The actual restart method was inspired by a platform-specific patch from
-> the BSP by Hisashi Nakamura <hisashi.nakamura.ak@renesas.com>.
+> > * Tony Lindgren <tony@atomide.com> [141014 12:27]:
+> > > This allows testing the watchdog easily with distros just by
+> > > doing pkill -9 watchdog.
+> > > 
+> > > Reported-by: Thomas Dziedzic <gostrc@gmail.com>
+> > > Signed-off-by: Tony Lindgren <tony@atomide.com>
+> > 
+> > Wim, still not seeing this applied, did you forget about this one?
 > 
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> Acked-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> I just applied it to linux-watchdog-next.
+> Didn't forgot about it, just didn't had the time yet.
 
-Added to linux-watchdog-next.
+OK thanks!
 
-Kind regards,
-Wim.
-
+Tony
