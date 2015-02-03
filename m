@@ -1,42 +1,56 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp3.ore.mailhop.org ([54.149.88.251]:34801 "EHLO
-	smtp3.ore.mailhop.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754569AbbBCAXY (ORCPT
+Received: from mailapp01.imgtec.com ([195.59.15.196]:9315 "EHLO
+	mailapp01.imgtec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751591AbbBCK0H (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 2 Feb 2015 19:23:24 -0500
-Date: Mon, 2 Feb 2015 15:40:15 -0800
-From: Tony Lindgren <tony@atomide.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org, linux-omap@vger.kernel.org,
-	Thomas Dziedzic <gostrc@gmail.com>
-Subject: Re: [PATCH] watchdog: Fix omap watchdogs to enable the magic close
- bit
-Message-ID: <20150202234015.GJ9418@atomide.com>
-References: <20141014192518.GH4972@atomide.com>
- <20150105185902.GH4081@atomide.com>
- <20150202234126.GA17515@spo001.leaseweb.nl>
+	Tue, 3 Feb 2015 05:26:07 -0500
+From: Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>
+To: <wim@iguana.be>
+CC: <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<linux-watchdog@vger.kernel.org>, <Zubair.Kakakhel@imgtec.com>,
+	<paul@crapouillou.net>
+Subject: [PATCH_V3 0/2] watchdog: jz4740: Add DT support
+Date: Tue, 3 Feb 2015 10:25:46 +0000
+Message-ID: <1422959148-38075-1-git-send-email-Zubair.Kakakhel@imgtec.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20150202234126.GA17515@spo001.leaseweb.nl>
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-* Wim Van Sebroeck <wim@iguana.be> [150202 15:44]:
-> Hi Tony,
-> 
-> > * Tony Lindgren <tony@atomide.com> [141014 12:27]:
-> > > This allows testing the watchdog easily with distros just by
-> > > doing pkill -9 watchdog.
-> > > 
-> > > Reported-by: Thomas Dziedzic <gostrc@gmail.com>
-> > > Signed-off-by: Tony Lindgren <tony@atomide.com>
-> > 
-> > Wim, still not seeing this applied, did you forget about this one?
-> 
-> I just applied it to linux-watchdog-next.
-> Didn't forgot about it, just didn't had the time yet.
+Hi,
 
-OK thanks!
+Here are two simple patches that add DT support to the jz4740 watchdog driver.
 
-Tony
+Patches are based on 3.19-rc7. Quite disjoint and stay within jz4740
+so should apply easily on other trees.
+
+If you would like to have them rebased to a different tree, please tell.
+
+V3 Changed
+Added Reviewed-by: Guenter Roeck <linux@roeck-us.net> 
+Typo in commit message.
+Rebased to rc7
+
+V2 Changes
+Renamed binding to jz4740 instead of jz47xx
+Removed clk bindings. They can be added later when the clock tree is fixed.
+Rather than add bindings now and change later.
+
+Added MODULE_DEVICE_TABLE()
+
+Thank-you
+
+ZubairLK
+
+Zubair Lutfullah Kakakhel (2):
+  dt: watchdog: Add DT binding documentation for jz4740 watchdog timer
+  watchdog: jz4740: Add DT support
+
+ .../devicetree/bindings/watchdog/ingenic,jz4740-wdt.txt      | 12 ++++++++++++
+ drivers/watchdog/jz4740_wdt.c                                | 10 ++++++++++
+ 2 files changed, 22 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/ingenic,jz4740-wdt.txt
+
+-- 
+1.9.1
+
