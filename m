@@ -1,60 +1,50 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-we0-f176.google.com ([74.125.82.176]:42361 "EHLO
-	mail-we0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752120AbbBYO2L (ORCPT
+Received: from cpsmtpb-ews06.kpnxchange.com ([213.75.39.9]:63237 "EHLO
+	cpsmtpb-ews06.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754891AbbBDLE4 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 25 Feb 2015 09:28:11 -0500
-Received: by wesw62 with SMTP id w62so3935788wes.9
-        for <linux-watchdog@vger.kernel.org>; Wed, 25 Feb 2015 06:28:09 -0800 (PST)
-Date: Wed, 25 Feb 2015 14:28:06 +0000
-From: Peter Griffin <peter.griffin@linaro.org>
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Cc: Lee Jones <lee.jones@linaro.org>, devicetree@vger.kernel.org,
-	kernel@stlinux.com, rtc-linux@googlegroups.com,
-	linux-kernel@vger.kernel.org, wim@iguana.be, linux@roeck-us.net,
-	linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [STLinux Kernel] [PATCH v3 7/8] rtc: st: add new driver for ST's
- LPC RTC
-Message-ID: <20150225142806.GA2160@griffinp-ThinkPad-X1-Carbon-2nd>
-References: <1424260154-12868-1-git-send-email-lee.jones@linaro.org>
- <1424260154-12868-8-git-send-email-lee.jones@linaro.org>
- <20150223101223.GA14142@griffinp-ThinkPad-X1-Carbon-2nd>
- <20150225111910.GX8656@n2100.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20150225111910.GX8656@n2100.arm.linux.org.uk>
+	Wed, 4 Feb 2015 06:04:56 -0500
+Message-ID: <1423047893.23022.13.camel@x220>
+Subject: Re: watchdog: SOC_MT7621?
+From: Paul Bolle <pebolle@tiscali.nl>
+To: John Crispin <blogic@openwrt.org>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Ralf Baechle <ralf@linux-mips.org>,
+	Valentin Rothberg <valentinrothberg@gmail.com>,
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-watchdog@vger.kernel.org, linux-mips@linux-mips.org,
+	linux-kernel@vger.kernel.org
+Date: Wed, 04 Feb 2015 12:04:53 +0100
+In-Reply-To: <54D1F248.4090406@openwrt.org>
+References: <1423044809.23894.65.camel@x220> <54D1F248.4090406@openwrt.org>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Russell,
-
-On Wed, 25 Feb 2015, Russell King - ARM Linux wrote:
-
-> On Mon, Feb 23, 2015 at 10:12:23AM +0000, Peter Griffin wrote:
-> > I think all the writel IO accessors in this driver can be replaced
-> > with the *_relaxed variant. This will avoid the overhead of taking a
-> > spinlock in the l2 outer cache part of writel.
+On Wed, 2015-02-04 at 11:19 +0100, John Crispin wrote:
+> On 04/02/2015 11:13, Paul Bolle wrote:
+> > Is SOC_MT7621 still being worked on?
 > 
-> You're really operating on old information.  With much improved L2 cache
-> support code which went in a year or so ago, for the popular L2 cache
-> controllers, we don't take a spinlock anymore - we just write to the
-> register directly.
-> 
-> The spinlock is only present for L2C-220 controllers, which are rare.
-> 
-> Moreover, taking the spinlock is only expensive if you have things like
-> lockdep enabled, otherwise it should be inline and will be fast.
-> 
-> However, using the _relaxed variants where we can get away with weaker
-> ordering of the writes to the device is a good thing nevertheless.  I'm
-> just pointing out that your reasoning above is wrong.
+> yes we dropped the series as it collided with the gic rework that
+> chromiun.org was working on. i hope to push it during the next merge
+> window. the 1004k support has just been flaky till now as there was
+> never any real silicon to test it on. the chromium people really did a
+> good job at making the gic code nicer.
 
-Thanks for pointing this out, I wasn't aware until now that the spinlock
-had been removed.
+Thanks for explaining this. Unless SOC_MT7621 takes a long time to land
+in linux-next I won't be bothering you again about this. (I think I'll
+use "by the end of the v3.20 series" as a definition of a long time.)
 
-regards
+> quite an impressive Cc list you have there
 
-Peter.
+Yes, that's the way it works with problems that span two (or more)
+subsystems (in this case watchdog and MIPS). Actually, much longer CC
+lists are used regularly on lkml.
+
+Thanks!
+
+
+Paul Bolle
 
