@@ -1,33 +1,38 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:59217 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757071AbbBGRLT (ORCPT
+Received: from aserp1040.oracle.com ([141.146.126.69]:20003 "EHLO
+	aserp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751504AbbBKKZe (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 7 Feb 2015 12:11:19 -0500
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
-	(envelope-from <linux@roeck-us.net>)
-	id 1YK8uc-001EbO-5d
-	for linux-watchdog@vger.kernel.org; Sat, 07 Feb 2015 17:11:18 +0000
-Message-ID: <54D64723.8010402@roeck-us.net>
-Date: Sat, 07 Feb 2015 09:10:59 -0800
-From: Guenter Roeck <linux@roeck-us.net>
+	Wed, 11 Feb 2015 05:25:34 -0500
+Date: Wed, 11 Feb 2015 13:26:21 +0300
+From: Dan Carpenter <dan.carpenter@oracle.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>,
+	linux-watchdog@vger.kernel.org, kernel-janitors@vger.kernel.org
+Subject: [patch] watchdog: mtk_wdt: signedness bug in mtk_wdt_start()
+Message-ID: <20150211102621.GC18515@mwanda>
 MIME-Version: 1.0
-To: =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-CC: linux-watchdog@vger.kernel.org, Hauke Mehrtens <hauke@hauke-m.de>
-Subject: Re: [PATCH] watchdog: bcm47xx_wdt.c: allow enabling on BCM5301X arch
-References: <1423328650-2894-1-git-send-email-zajec5@gmail.com>
-In-Reply-To: <1423328650-2894-1-git-send-email-zajec5@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 02/07/2015 09:04 AM, Rafał Miłecki wrote:
-> BCM5301X (ARCH_BCM_5301X) is a new Broadcom architecture using the same
-> SoC bus driver (bcma) as BCM47XX but based on ARM instead of MIPS.
->
-> Signed-off-by: Rafał Miłecki <zajec5@gmail.com>
+"ret" should be signed for the error handling to work correctly.  This
+doesn't matter much in real life since mtk_wdt_set_timeout() always
+succeeds.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
+diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
+index a87f6df..938b987 100644
+--- a/drivers/watchdog/mtk_wdt.c
++++ b/drivers/watchdog/mtk_wdt.c
+@@ -133,7 +133,7 @@ static int mtk_wdt_start(struct watchdog_device *wdt_dev)
+ 	u32 reg;
+ 	struct mtk_wdt_dev *mtk_wdt = watchdog_get_drvdata(wdt_dev);
+ 	void __iomem *wdt_base = mtk_wdt->wdt_base;
+-	u32 ret;
++	int ret;
+ 
+ 	ret = mtk_wdt_set_timeout(wdt_dev, wdt_dev->timeout);
+ 	if (ret < 0)
