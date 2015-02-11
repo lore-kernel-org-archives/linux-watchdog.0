@@ -1,47 +1,48 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailapp01.imgtec.com ([195.59.15.196]:58328 "EHLO
-	mailapp01.imgtec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751803AbbBEIzH (ORCPT
+Received: from mail-lb0-f175.google.com ([209.85.217.175]:36399 "EHLO
+	mail-lb0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751927AbbBKKrw (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 5 Feb 2015 03:55:07 -0500
-Message-ID: <54D32FD7.2060503@imgtec.com>
-Date: Thu, 5 Feb 2015 08:54:47 +0000
-From: Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>
+	Wed, 11 Feb 2015 05:47:52 -0500
 MIME-Version: 1.0
-To: Wim Van Sebroeck <wim@iguana.be>
-CC: <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<linux-watchdog@vger.kernel.org>, <paul@crapouillou.net>
-Subject: Re: [PATCH_V3 0/2] watchdog: jz4740: Add DT support
-References: <1422959148-38075-1-git-send-email-Zubair.Kakakhel@imgtec.com> <20150203190449.GF2875@spo001.leaseweb.nl>
-In-Reply-To: <20150203190449.GF2875@spo001.leaseweb.nl>
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20150211102621.GC18515@mwanda>
+References: <20150211102621.GC18515@mwanda>
+Date: Wed, 11 Feb 2015 11:47:50 +0100
+Message-ID: <CABuKBeLJ6T=ZCgu3Ves-5PdbCOPUL1L6z3Y5xqYEvgOrLFVumw@mail.gmail.com>
+Subject: Re: [patch] watchdog: mtk_wdt: signedness bug in mtk_wdt_start()
+From: Matthias Brugger <matthias.bgg@gmail.com>
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	kernel-janitors@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+2015-02-11 11:26 GMT+01:00 Dan Carpenter <dan.carpenter@oracle.com>:
+> "ret" should be signed for the error handling to work correctly.  This
+> doesn't matter much in real life since mtk_wdt_set_timeout() always
+> succeeds.
+>
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+
+Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
+
+>
+> diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
+> index a87f6df..938b987 100644
+> --- a/drivers/watchdog/mtk_wdt.c
+> +++ b/drivers/watchdog/mtk_wdt.c
+> @@ -133,7 +133,7 @@ static int mtk_wdt_start(struct watchdog_device *wdt_dev)
+>         u32 reg;
+>         struct mtk_wdt_dev *mtk_wdt = watchdog_get_drvdata(wdt_dev);
+>         void __iomem *wdt_base = mtk_wdt->wdt_base;
+> -       u32 ret;
+> +       int ret;
+>
+>         ret = mtk_wdt_set_timeout(wdt_dev, wdt_dev->timeout);
+>         if (ret < 0)
 
 
-On 03/02/15 19:04, Wim Van Sebroeck wrote:
-> Hi Zubair,
-...
->> Zubair Lutfullah Kakakhel (2):
->>   dt: watchdog: Add DT binding documentation for jz4740 watchdog timer
->>   watchdog: jz4740: Add DT support
->>
->>  .../devicetree/bindings/watchdog/ingenic,jz4740-wdt.txt      | 12 ++++++++++++
->>  drivers/watchdog/jz4740_wdt.c                                | 10 ++++++++++
->>  2 files changed, 22 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/watchdog/ingenic,jz4740-wdt.txt
-> 
-> Both patches have been added to linux-watchdog-next.
-> 
 
-Thank-you very much.
-
-Regards
-ZubairLK
-
-> Kind regards,
-> Wim.
-> 
-> 
+-- 
+motzblog.wordpress.com
