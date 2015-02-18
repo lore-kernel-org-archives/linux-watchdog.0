@@ -1,7 +1,7 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from oul135-36.netplaza.fi ([80.75.100.36]:52831 "EHLO
+Received: from oul135-36.netplaza.fi ([80.75.100.36]:52832 "EHLO
 	lime.offcode.fi" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751674AbbBRNEM (ORCPT
+	with ESMTP id S1751136AbbBRNEM (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
 	Wed, 18 Feb 2015 08:04:12 -0500
 From: Timo Kokkonen <timo.kokkonen@offcode.fi>
@@ -10,46 +10,44 @@ To: boris.brezillon@free-electrons.com,
 	linux-watchdog@vger.kernel.org, nicolas.ferre@atmel.com,
 	alexandre.belloni@free-electrons.com
 Cc: Timo Kokkonen <timo.kokkonen@offcode.fi>
-Subject: [PATCH 1/2] devicetree: Document generic watchdog properties
-Date: Wed, 18 Feb 2015 14:57:21 +0200
-Message-Id: <ede7fa9a2116ad8df2dca184d70fb16d1245d6a3.1424262664.git.timo.kokkonen@offcode.fi>
-In-Reply-To: <cover.1424262664.git.timo.kokkonen@offcode.fi>
+Subject: [PATCHv3 0/2] watchdog: Introduce "early-timeout-sec" property
+Date: Wed, 18 Feb 2015 14:57:20 +0200
+Message-Id: <cover.1424262664.git.timo.kokkonen@offcode.fi>
+In-Reply-To: <54B53160.6060309@roeck-us.net>
 References: <54B53160.6060309@roeck-us.net>
- <cover.1424262664.git.timo.kokkonen@offcode.fi>
-In-Reply-To: <cover.1424262664.git.timo.kokkonen@offcode.fi>
-References: <cover.1424262664.git.timo.kokkonen@offcode.fi>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-There is no documentation for the watchdog properties that are common
-among most of the watchdog drivers. Add document where these generic
-properties can be described and told how they should be used in
-drivers. Start from the "timeout-sec" property.
+Currently we have no means to adjust the watchdog behavior on early
+start up before user space has opened the device. The generic behavior
+among the watchdog drivers is to not start the watchdog at all (or
+disable it, if possible, or in case at91sam9_wdt, start a kernel timer
+that keeps on pinging the watchdog on behalf of user space until a
+watchdog daemon opens it). This unfortunately opens a time window
+between starting the driver and starting the user space watchdog
+daemon where a crash of the kernel or user space might prevent the
+watchdog from ever resetting the device at all. This is obviously bad
+on production systems.
 
-Signed-off-by: Timo Kokkonen <timo.kokkonen@offcode.fi>
----
- Documentation/devicetree/bindings/watchdog/watchdog.txt | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+Introduce a new device tree property that, when set, changes the
+watchdog driver behavior in such way that there no longer is any
+window where crash is not caught by the watchdog.
+
+This is the third version of this patch. Previous versions of the
+patch were using an atmel specific property name. This patch uses a
+generic name instead as the functionality itself has nothing atmel
+related. I am also introducing watchdog.txt for describing the generic
+watchdog device tree bindings as there was no such file before.
+
+Timo Kokkonen (2):
+  devicetree: Document generic watchdog properties
+  at91sam9_wdt: Allow watchdog to reset device at early boot
+
+ .../devicetree/bindings/watchdog/watchdog.txt         | 19 +++++++++++++++++++
+ drivers/watchdog/at91sam9_wdt.c                       |  9 ++++++++-
+ 2 files changed, 27 insertions(+), 1 deletion(-)
  create mode 100644 Documentation/devicetree/bindings/watchdog/watchdog.txt
 
-diff --git a/Documentation/devicetree/bindings/watchdog/watchdog.txt b/Documentation/devicetree/bindings/watchdog/watchdog.txt
-new file mode 100644
-index 0000000..7e3686c
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/watchdog.txt
-@@ -0,0 +1,12 @@
-+These properties are common among most watchdog drivers. Any driver
-+that requires the functionality listed below should implement them
-+using these definitions.
-+
-+Optional properties:
-+- timeout-sec: Contains the watchdog timeout in seconds.
-+
-+Example:
-+
-+watchdog {
-+	 timeout-sec = <60>;
-+};
 -- 
 2.1.0
 
