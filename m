@@ -1,109 +1,98 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mezzanine.sirena.org.uk ([106.187.55.193]:42078 "EHLO
-	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932322AbbBQN6B (ORCPT
+Received: from mail-wi0-f182.google.com ([209.85.212.182]:48619 "EHLO
+	mail-wi0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752429AbbBRJeL (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 17 Feb 2015 08:58:01 -0500
-Date: Tue, 17 Feb 2015 22:56:49 +0900
-From: Mark Brown <broonie@kernel.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Simon Horman <horms@verge.net.au>,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Wolfram Sang <wsa@the-dreams.de>,
-	Magnus Damm <magnus.damm@gmail.com>,
-	Support Opensource <support.opensource@diasemi.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Lee Jones <lee.jones@linaro.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Linux I2C <linux-i2c@vger.kernel.org>,
-	Linux-sh list <linux-sh@vger.kernel.org>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	Steve Twiss <stwiss.opensource@diasemi.com>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Message-ID: <20150217135649.GU9110@finisterre.sirena.org.uk>
-References: <CAMuHMdUasUmnHRi5t3GStrt-WKw0Das4noTmZPNtcbqA7nmDvQ@mail.gmail.com>
+	Wed, 18 Feb 2015 04:34:11 -0500
+Received: by mail-wi0-f182.google.com with SMTP id l15so738244wiw.3
+        for <linux-watchdog@vger.kernel.org>; Wed, 18 Feb 2015 01:34:10 -0800 (PST)
+Date: Wed, 18 Feb 2015 09:34:03 +0000
+From: Lee Jones <lee.jones@linaro.org>
+To: David Paris <david.paris@st.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	kernel@stlinux.com, rtc-linux@googlegroups.com, wim@iguana.be,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	linux@roeck-us.net
+Subject: Re: [PATCH v2 4/9] ARM: STi: DT: STiH407: Add Device Tree node for
+ the LPC
+Message-ID: <20150218093403.GB18042@x1>
+References: <1421927767-28889-1-git-send-email-lee.jones@linaro.org>
+ <1421927767-28889-5-git-send-email-lee.jones@linaro.org>
+ <54C208D9.6050006@st.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="Q43QQdzFtqSKgsg+"
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <CAMuHMdUasUmnHRi5t3GStrt-WKw0Das4noTmZPNtcbqA7nmDvQ@mail.gmail.com>
-Subject: Re: ARM: shmobile: koelsch: da9210/da9063 interrupt storm (was: Re:
- [PATCH 3/4] ARM: shmobile: koelsch: Add DA9063 PMIC device node for system
- restart)
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+In-Reply-To: <54C208D9.6050006@st.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On Fri, 23 Jan 2015, David Paris wrote:
+> On 01/22/2015 12:56 PM, Lee Jones wrote:
+> >On current ST platforms the LPC controls a number of functions.  Thi=
+s
+> >patch enables support for the LPC Watchdog and LPC RTC devices on LP=
+C1
+> >and LPC2 respectively.
+> >
+> >Signed-off-by: David Paris <david.paris@st.com>
+> >Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> >---
+> >  arch/arm/boot/dts/stih407-family.dtsi | 20 ++++++++++++++++++++
+> >  1 file changed, 20 insertions(+)
+> >
+> >diff --git a/arch/arm/boot/dts/stih407-family.dtsi b/arch/arm/boot/d=
+ts/stih407-family.dtsi
+> >index 3e31d32..04448a7 100644
+> >--- a/arch/arm/boot/dts/stih407-family.dtsi
+> >+++ b/arch/arm/boot/dts/stih407-family.dtsi
+> >@@ -7,6 +7,7 @@
+> >   * publishhed by the Free Software Foundation.
+> >   */
+> >  #include "stih407-pinctrl.dtsi"
+> >+#include <dt-bindings/mfd/st-lpc.h>
+> >  #include <dt-bindings/reset-controller/stih407-resets.h>
+> >  / {
+> >  	#address-cells =3D <1>;
+> >@@ -274,5 +275,24 @@
+> >  			status =3D "disabled";
+> >  		};
+> >+
+> >+		/* Watchdog and Real-Time Clock */
+> >+		lpc@8787000 {
+> >+			compatible =3D "st,stih407-lpc";
+> >+			reg =3D <0x8787000 0x1000>;
+> >+			interrupts =3D <GIC_SPI 129 IRQ_TYPE_EDGE_RISING>;
+> In case of Watchdog, "interrupt" property is not used. So I think we
+> can remove it ?
 
---Q43QQdzFtqSKgsg+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Although we don't use it, this still accurately describes the h/w, so
+unless there are any severe objections, I think it can stay.
 
-On Tue, Feb 17, 2015 at 01:05:07PM +0100, Geert Uytterhoeven wrote:
+> >+			clocks =3D <&clk_s_d3_flexgen CLK_LPC_0>;
+> >+			timeout-sec =3D <120>;
+> >+			st,syscfg =3D <&syscfg_core>;
+> >+			st,lpc-mode =3D <ST_LPC_MODE_WDT>;
+> >+		};
+> >+
+> >+		lpc@8788000 {
+> >+			compatible =3D "st,stih407-lpc";
+> >+			reg =3D <0x8788000 0x1000>;
+> >+			interrupts =3D <GIC_SPI 130 IRQ_TYPE_EDGE_RISING>;
+> >+			clocks =3D <&clk_s_d3_flexgen CLK_LPC_1>;
+> >+			st,lpc-mode =3D <ST_LPC_MODE_RTC>;
+> >+		};
+> >  	};
+> >  };
+>=20
 
-> However, as soon as the da9210 driver will get interrupt support (I wrote
-> something, based on the da9211 driver) and the da9210 will have an interr=
-upts
-> property in DTS, the interrupt storm will reappear, irrespectively of the=
- order
-> in which the two drivers are initialized.
-
-Well, there's another problem there - unless things changed since I last
-looked we don't support shared threaded IRQs.
-
-> So far I see only two solutions:
->   - Add platform code that matches against "renesas,koelsch" (and
->     "renesas,lager"), and mask the interrupts in both the da9210 and da90=
-63.
->     This code has to run after the i2c master driver has been initialized,
->     but before the i2c slave drivers are initialized.
->   - Handle the masking in the bootloader (u-boot), which already knows ho=
-w to
->     reset the board by kicking the da9063. This requires everybody to upg=
-rade
->     his bootloader, though.
-
-> Does anyone have a better solution?
-
-We could try to make the code that masks interrupts on error handle
-screaming shared interrupts a bit more gracefully during bootstrap by
-shutting things up a bit more aggressively and retrying when something
-else registers but that just feels like it's going to open up a
-particularly messy rabbit hole. =20
-
-Of the options you list above the platform code sounds the most
-palatable.
-
-> Question: Is it really the default state of the regulator to not mask
-> any interrupts?
-> Or could this have been changed by the bootloader? I couldn't find code r=
-elated
-> to that in U-Boot, but as I didn't compile the bootloader myself, I can't=
- be
-> 100% certain about the source code.
-
-It wouldn't surprise me, having talked with designers of analogue chips
-they can at times have some innovative ideas about interaction with the
-processor and interrupts in particular.  It's also possible that there's
-some transient condition that occurs during startup that causes the
-interrupts to be flagged.
-
---Q43QQdzFtqSKgsg+
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJU40icAAoJECTWi3JdVIfQaqMH/A+XEE0puUZvRgRzYukFQoCM
-J0zLRFq2WaIMykXpVnZ7RZTB0vSG4OkWoEZFlydE/cUxq9HmffXkTUFh0JSxuu44
-tLHw4crwegcQ/FvnaCIiENEKEkMc783Xw9TSUPC5pOGawXZVWhzAxcP4WP1vvStD
-9H/MLVzm0G6F1e3S0+rDFbDgSPeGqfuWa6QfIXLAZEJqXRWauPvT+k+sYbU+bjql
-XaJU/G2KizCCRom6b/U0LA0Hptsox/WmT+XelSMQi7DJJYJaXlMzOcjE5YdHaa/O
-Zv05Q5rCgDQFQtMcEMl3uXnJX9mOaqGQSV6qGk6S70ZneJu6dqLSTR7dum+Karg=
-=DxLE
------END PGP SIGNATURE-----
-
---Q43QQdzFtqSKgsg+--
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
