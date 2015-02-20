@@ -1,109 +1,121 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:38140 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:53063 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932407AbbBTSHF (ORCPT
+	with ESMTP id S1754771AbbBTUFQ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 20 Feb 2015 13:07:05 -0500
+	Fri, 20 Feb 2015 15:05:16 -0500
 Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
 	(envelope-from <linux@roeck-us.net>)
-	id 1YOryi-002YXU-NC
-	for linux-watchdog@vger.kernel.org; Fri, 20 Feb 2015 18:07:04 +0000
-Date: Fri, 20 Feb 2015 10:06:46 -0800
+	id 1YOtp5-003UIq-5I
+	for linux-watchdog@vger.kernel.org; Fri, 20 Feb 2015 20:05:15 +0000
+Date: Fri, 20 Feb 2015 12:04:57 -0800
 From: Guenter Roeck <linux@roeck-us.net>
 To: Boris Brezillon <boris.brezillon@free-electrons.com>
-Cc: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
-	Nicolas FERRE <nicolas.ferre@atmel.com>,
-	alexandre.belloni@free-electrons.com,
+Cc: Rob Herring <robherring2@gmail.com>,
 	Timo Kokkonen <timo.kokkonen@offcode.fi>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
 	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>
 Subject: Re: [PATCH 2/2] at91sam9_wdt: Allow watchdog to reset device at
  early boot
-Message-ID: <20150220180646.GA26698@roeck-us.net>
-References: <54B53160.6060309@roeck-us.net>
- <cover.1424262664.git.timo.kokkonen@offcode.fi>
- <cover.1424262664.git.timo.kokkonen@offcode.fi>
- <6c0a3a5bcd93d18437eeed04712b4aeff201a16f.1424262664.git.timo.kokkonen@offcode.fi>
- <00B1658F-2F3A-4B90-ADCA-275770832180@jcrosoft.com>
- <20150220085151.3b599de8@bbrezillon>
- <E7DD67EB-CA34-48EA-838D-3EBBF74CAEBD@jcrosoft.com>
- <20150220181640.57b21432@bbrezillon>
+Message-ID: <20150220200457.GB29730@roeck-us.net>
+References: <6c0a3a5bcd93d18437eeed04712b4aeff201a16f.1424262664.git.timo.kokkonen@offcode.fi>
+ <54E49AA5.40008@roeck-us.net>
+ <20150218151713.7a718311@bbrezillon>
+ <54E4A6C4.4070706@roeck-us.net>
+ <20150218160033.GK11529@piout.net>
+ <CAL_JsqLj=bGTWr1aUMRNMjC+xmftMLjUHnGu5M337jNdDDOsZA@mail.gmail.com>
+ <54E57F4F.5040300@offcode.fi>
+ <CAL_Jsq+p=dEE0hz3B+nMG_Y1zNeZiJhfQXzDQ6b8xyKcc2VBJg@mail.gmail.com>
+ <20150220162855.GB22752@roeck-us.net>
+ <20150220204358.775a9967@bbrezillon>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20150220181640.57b21432@bbrezillon>
+In-Reply-To: <20150220204358.775a9967@bbrezillon>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Feb 20, 2015 at 06:16:40PM +0100, Boris Brezillon wrote:
-> Hi Jean-Christophe,
+On Fri, Feb 20, 2015 at 08:43:58PM +0100, Boris Brezillon wrote:
+> On Fri, 20 Feb 2015 08:28:55 -0800
+> Guenter Roeck <linux@roeck-us.net> wrote:
 > 
-> On Sat, 21 Feb 2015 00:33:17 +0800
-> Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com> wrote:
+> > On Fri, Feb 20, 2015 at 08:06:23AM -0600, Rob Herring wrote:
+> > > On Thu, Feb 19, 2015 at 12:14 AM, Timo Kokkonen
+> > > <timo.kokkonen@offcode.fi> wrote:
+> > > > Hi,
+> > > >
 > 
+> [...]
+> 
+> > > > What I am proposing here is a way to solve this without hacking. I was told
+> > > > to think also a way to defer starting the watchdog for a given timeout so
+> > > > that user space would have more time to wake up, which sounded like a good
+> > > > idea. And this obviously needs to be implemented so that the watchdog is
+> > > > guaranteed to reset the device should there be a crash of any kind that
+> > > > prevents the watchdog daemon from starting up. There are a lot of details
+> > > > that need to be taken care of properly and therefore watchdog core can't do
+> > > > much about it, which is why I thought there is no much point trying to do it
+> > > > in watchdog core.
+> > > 
+> > > Deferring would assume that the watchdog is not already enabled.
+> > > 
+> > > Putting in how long the kernel should service the watchdog in DT is
+> > > like putting soft or hard lockup detection times into DT. These are
+> > > kernel settings. If you need to change this, you should update your
+> > > kernel or kernel settings, not the DT.
+> > > 
+> > The time to userspace handover may differ from HW variant to HW variant.
+> > Some may load faster, some may load slower.
 > > 
-> > > On Feb 20, 2015, at 3:51 PM, Boris Brezillon <boris.brezillon@free-electrons.com> wrote:
-> > > 
-> > > Hi Jean-Christophe,
-> > > 
-> > > On Fri, 20 Feb 2015 15:48:22 +0800
-> > > Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com> wrote:
-> > > 
-> > >> 
-> > >>> On Feb 18, 2015, at 8:57 PM, Timo Kokkonen <timo.kokkonen@offcode.fi> wrote:
-> > >>> 
-> > >>> By default the driver will start a kernel timer which keeps on kicking
-> > >>> the watchdog HW until user space has opened the watchdog
-> > >>> device. Usually this is desirable as the watchdog HW is running by
-> > >>> default and the user space may not have any watchdog daemon running at
-> > >>> all.
-> > >>> 
-> > >>> However, on production systems it may be mandatory that also early
-> > >>> crashes and lockups will lead to a watchdog reset, even if they happen
-> > >>> before the user space has opened the watchdog device.
-> > >>> 
-> > >>> To resolve the issue, add a new device tree property
-> > >>> "early-timeout-sec" which will let the kernel timer to ping the
-> > >>> watchdog HW only as long as the specified timeout permits. The default
-> > >>> is still to use kernel timer, but more strict behavior can be enabled
-> > >>> via the device tree property.
-> > >>> 
-> > >>> Signed-off-by: Timo Kokkonen <timo.kokkonen@offcode.fi>
-> > >>> ---
-> > >>> Documentation/devicetree/bindings/watchdog/watchdog.txt | 7 +++++++
-> > >>> drivers/watchdog/at91sam9_wdt.c                         | 9 ++++++++-
-> > >> 
-> > >> This should not be handled by the driver but the kernel in a generic way
-> > > 
-> > > Could you detail a bit more what you have in mind ?
+> > Similar, the runtime watchdog timeout may be different from system
+> > to system.  On a system with faster CPU, and/or one with faster io,
+> > one may want (or need) a faster watchdog timeout. I assumed that
+> > was accepted and understood when the timeout-sec property was
+> > introduced a long time ago, but maybe not.
 > > 
-> > move this timeout on the linux thread that keep alive the watchdog not in the driver
+> > Yes, the problem should be resolved in a generic way. This has been
+> > on my mind for a long time, including the problem if a watchdog should
+> > or should not stay or become enabled during early boot. All those are
+> > system properties which should be addressed generically, and there
+> > should be a means to express those properties in devicetree.
+> > 
+> > Problem goes back into the old back-and-forth of what can be in devicetree
+> > or not. Sorting that out always takes a long time and a substantial amount
+> > of effort. Unfortunately, I don't have that time (writing the code would
+> > probably be trivial in comparison).
 > 
-> AFAIK there's no such thing (if there is, could you point me to the
-> source file where this thread is defined ?), and each driver are
-> registering their own timer (if they need one).
-> If you're suggesting to add such common logic to watchdog core, why
-> don't you propose something ?
+> I once promised myself to propose this stupid idea, so here it is:
+> How about creating a new concept called CT (for Config Tree), that
+> would reuse the DT syntax and tree representation and add system config
+> information to the appropriate devices (something like an overlay
+> you'll put on top of your DT).
 > 
-> Timo's need is quite generic, but nobody seemed to bother with that
-> before.
 
-The problem has been discussed before. There are even some patches,
-but they were too specific and limited in scope for my liking.
+We actually use that approach at work - essentially a system configuration
+using dt syntax. It even uses the dt compiler to create dtb files,
+only the dtb files are kept as part of the application software.
 
-As I said in my other reply, to move forward we would need
-someone who has the time and energy to get an agreement with the
-DT folks about an acceptable means to express the properties needed
-for a specific hardware, and to actually implement the necessary code.
+Problem here though is that we are not talking about configuration,
+but about system properties. Secondary problem is that those system
+properties can be abused, and "it can be abused, let's reject it"
+is always easy. This is made more complicated by the fact that very
+few people are willing or even able to go through the exercise of
+clearly distinguishing system configuration vs. system properties
+when proposing new dt properties, especially since this can be a very
+tricky slope and may require 90% communication skills and 10% engineering
+skills (use the term 'configuration' once and you are out). Not really
+sure how to solve that problem, or if it is even possible to solve it.
 
-> Moreover, using an at91 specific implementation does not prevent
-> migrating to a more generic implementation when it's available.
-> Actually, it's rather difficult to design a generic infrastructure until
-> you have dealt with several devices requiring the same feature, and
-> that's obviously not the case here.
+> Joke apart, I've had the same kind of discussion quite often lately.
+> While I understand DT guys concern to control which property should go
+> into the DT which ones should not, some system config are better
+> described next to the device they are attached to rather than in the
+> cmdline.
 > 
-Absolutely agree. If we can not even get a property like the one suggested
-here accepted, it is completely pointless to even think about a more
-generic solution that would work for all watchdog drivers.
+I think we are very much in agreement here.
 
+Thanks,
 Guenter
