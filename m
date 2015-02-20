@@ -1,11 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wi0-f175.google.com ([209.85.212.175]:61111 "EHLO
-	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755000AbbBTXp5 (ORCPT
+Received: from mail-wg0-f51.google.com ([74.125.82.51]:44283 "EHLO
+	mail-wg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755010AbbBTXp7 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 20 Feb 2015 18:45:57 -0500
-Received: by mail-wi0-f175.google.com with SMTP id r20so6238888wiv.2
-        for <linux-watchdog@vger.kernel.org>; Fri, 20 Feb 2015 15:45:56 -0800 (PST)
+	Fri, 20 Feb 2015 18:45:59 -0500
+Received: by mail-wg0-f51.google.com with SMTP id y19so15847624wgg.10
+        for <linux-watchdog@vger.kernel.org>; Fri, 20 Feb 2015 15:45:58 -0800 (PST)
 From: James Hogan <james.hogan@imgtec.com>
 To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
 Cc: James Hogan <james@albanarts.com>,
@@ -13,21 +13,24 @@ Cc: James Hogan <james@albanarts.com>,
 	Ezequiel Garcia <ezequiel.garcia@imgtec.com>,
 	Naidu Tellapati <Naidu.Tellapati@imgtec.com>,
 	Jude Abraham <Jude.Abraham@imgtec.com>
-Subject: [PATCH 1/2] watchdog: imgpdc: Fix probe NULL pointer dereference
-Date: Fri, 20 Feb 2015 23:45:44 +0000
-Message-Id: <1424475945-30009-2-git-send-email-james.hogan@imgtec.com>
+Subject: [PATCH 2/2] watchdog: imgpdc: Fix default heartbeat
+Date: Fri, 20 Feb 2015 23:45:45 +0000
+Message-Id: <1424475945-30009-3-git-send-email-james.hogan@imgtec.com>
 In-Reply-To: <1424475945-30009-1-git-send-email-james.hogan@imgtec.com>
 References: <1424475945-30009-1-git-send-email-james.hogan@imgtec.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The IMG PDC watchdog probe function calls pdc_wdt_stop() prior to
-watchdog_set_drvdata(), causing a NULL pointer dereference when
-pdc_wdt_stop() retrieves the struct pdc_wdt_dev pointer using
-watchdog_get_drvdata() and reads the register base address through it.
+The IMG PDC watchdog driver heartbeat module parameter has no default so
+it is initialised to zero. This results in the following warning during
+probe:
 
-Fix by moving the watchdog_set_drvdata() call earlier, to where various
-other pdc_wdt->wdt_dev fields are initialised.
+imgpdc-wdt 2006000.wdt: Initial timeout out of range! setting max timeout
+
+The module parameter description implies that the default value should
+be PDC_WDT_DEF_TIMEOUT, which isn't yet used, so initialise it to that.
+
+Also tweak the heartbeat module parameter description for consistency.
 
 Fixes: 93937669e9b5 ("watchdog: ImgTec PDC Watchdog Timer Driver")
 Signed-off-by: James Hogan <james.hogan@imgtec.com>
@@ -37,29 +40,27 @@ Cc: Naidu Tellapati <Naidu.Tellapati@imgtec.com>
 Cc: Jude Abraham <Jude.Abraham@imgtec.com>
 Cc: linux-watchdog@vger.kernel.org
 ---
- drivers/watchdog/imgpdc_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/watchdog/imgpdc_wdt.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/watchdog/imgpdc_wdt.c b/drivers/watchdog/imgpdc_wdt.c
-index c8def68..32c35eb 100644
+index 32c35eb..0deaa4f 100644
 --- a/drivers/watchdog/imgpdc_wdt.c
 +++ b/drivers/watchdog/imgpdc_wdt.c
-@@ -191,6 +191,7 @@ static int pdc_wdt_probe(struct platform_device *pdev)
- 	pdc_wdt->wdt_dev.ops = &pdc_wdt_ops;
- 	pdc_wdt->wdt_dev.max_timeout = 1 << PDC_WDT_CONFIG_DELAY_MASK;
- 	pdc_wdt->wdt_dev.parent = &pdev->dev;
-+	watchdog_set_drvdata(&pdc_wdt->wdt_dev, pdc_wdt);
+@@ -42,10 +42,10 @@
+ #define PDC_WDT_MIN_TIMEOUT		1
+ #define PDC_WDT_DEF_TIMEOUT		64
  
- 	ret = watchdog_init_timeout(&pdc_wdt->wdt_dev, heartbeat, &pdev->dev);
- 	if (ret < 0) {
-@@ -232,7 +233,6 @@ static int pdc_wdt_probe(struct platform_device *pdev)
- 	watchdog_set_nowayout(&pdc_wdt->wdt_dev, nowayout);
+-static int heartbeat;
++static int heartbeat = PDC_WDT_DEF_TIMEOUT;
+ module_param(heartbeat, int, 0);
+-MODULE_PARM_DESC(heartbeat, "Watchdog heartbeats in seconds. "
+-	"(default = " __MODULE_STRING(PDC_WDT_DEF_TIMEOUT) ")");
++MODULE_PARM_DESC(heartbeat, "Watchdog heartbeats in seconds "
++	"(default=" __MODULE_STRING(PDC_WDT_DEF_TIMEOUT) ")");
  
- 	platform_set_drvdata(pdev, pdc_wdt);
--	watchdog_set_drvdata(&pdc_wdt->wdt_dev, pdc_wdt);
- 
- 	ret = watchdog_register_device(&pdc_wdt->wdt_dev);
- 	if (ret)
+ static bool nowayout = WATCHDOG_NOWAYOUT;
+ module_param(nowayout, bool, 0);
 -- 
 2.0.5
 
