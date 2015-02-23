@@ -1,36 +1,38 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:33587 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:34078 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752135AbbBWT3W (ORCPT
+	with ESMTP id S1751591AbbBWTeK (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 23 Feb 2015 14:29:22 -0500
+	Mon, 23 Feb 2015 14:34:10 -0500
 Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
 	(envelope-from <linux@roeck-us.net>)
-	id 1YPygz-003a9I-Js
-	for linux-watchdog@vger.kernel.org; Mon, 23 Feb 2015 19:29:21 +0000
-Date: Mon, 23 Feb 2015 11:29:14 -0800
+	id 1YPyld-003eMG-F4
+	for linux-watchdog@vger.kernel.org; Mon, 23 Feb 2015 19:34:09 +0000
+Date: Mon, 23 Feb 2015 11:33:23 -0800
 From: Guenter Roeck <linux@roeck-us.net>
-To: Joe Perches <joe@perches.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [21/27] watchdog: bcm281xx: Remove use of seq_printf return value
-Message-ID: <20150223192914.GA26468@roeck-us.net>
-References: <e370a587d7aa9f2bf7b409129a2283a10a134885.1424573328.git.joe@perches.com>
+To: Mathieu Olivari <mathieu@codeaurora.org>
+Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
+	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+	linux@arm.linux.org.uk, wim@iguana.be, corbet@lwn.net,
+	standby24x7@gmail.com, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 3/3] ARM: msm: add watchdog entries to DT timer binding
+ doc
+Message-ID: <20150223193323.GE26070@roeck-us.net>
+References: <1424485176-8348-1-git-send-email-mathieu@codeaurora.org>
+ <1424485176-8348-4-git-send-email-mathieu@codeaurora.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <e370a587d7aa9f2bf7b409129a2283a10a134885.1424573328.git.joe@perches.com>
+In-Reply-To: <1424485176-8348-4-git-send-email-mathieu@codeaurora.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sat, Feb 21, 2015 at 06:53:48PM -0800, Joe Perches wrote:
-> The seq_printf return value, because it's frequently misused,
-> will eventually be converted to void.
+On Fri, Feb 20, 2015 at 06:19:36PM -0800, Mathieu Olivari wrote:
+> The watchdog has been reworked to use the same DT node as the timer.
+> This change is updating the device tree doc accordingly.
 > 
-> See: commit 1f33c41c03da ("seq_file: Rename seq_overflow() to
->      seq_has_overflowed() and make public")
-> 
-> Signed-off-by: Joe Perches <joe@perches.com>
+> Signed-off-by: Mathieu Olivari <mathieu@codeaurora.org>
 
-Acked-by: Guenter Roeck <linux~roeck-us.net>
+Acked-by: Guenter Roeck <linux@roeck-us.net>
