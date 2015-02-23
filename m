@@ -1,42 +1,79 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:50248 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755143AbbBUCUz (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:38361 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751071AbbBWQUE (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 20 Feb 2015 21:20:55 -0500
-From: Mathieu Olivari <mathieu@codeaurora.org>
-To: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-	linux@arm.linux.org.uk, wim@iguana.be, corbet@lwn.net,
-	standby24x7@gmail.com, mathieu@codeaurora.org
-Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Mon, 23 Feb 2015 11:20:04 -0500
+Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
+	(envelope-from <linux@roeck-us.net>)
+	id 1YPvjn-001t7W-6R
+	for linux-watchdog@vger.kernel.org; Mon, 23 Feb 2015 16:20:03 +0000
+Date: Mon, 23 Feb 2015 08:19:48 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: Timo Kokkonen <timo.kokkonen@offcode.fi>
+Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
+	Nicolas FERRE <nicolas.ferre@atmel.com>,
+	alexandre.belloni@free-electrons.com,
+	linux-watchdog@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org
-Subject: [PATCH 0/3] arm: msm: Use timer DT node for qcom watchdog config
-Date: Fri, 20 Feb 2015 18:19:33 -0800
-Message-Id: <1424485176-8348-1-git-send-email-mathieu@codeaurora.org>
+	Rob Herring <robherring2@gmail.com>
+Subject: Re: [PATCH 2/2] at91sam9_wdt: Allow watchdog to reset device at
+ early boot
+Message-ID: <20150223161948.GA2165@roeck-us.net>
+References: <cover.1424262664.git.timo.kokkonen@offcode.fi>
+ <6c0a3a5bcd93d18437eeed04712b4aeff201a16f.1424262664.git.timo.kokkonen@offcode.fi>
+ <00B1658F-2F3A-4B90-ADCA-275770832180@jcrosoft.com>
+ <20150220085151.3b599de8@bbrezillon>
+ <E7DD67EB-CA34-48EA-838D-3EBBF74CAEBD@jcrosoft.com>
+ <20150220181640.57b21432@bbrezillon>
+ <20150220180646.GA26698@roeck-us.net>
+ <54EAD6E5.8090104@offcode.fi>
+ <20150223095154.63218331@bbrezillon>
+ <54EAEECA.80803@offcode.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <54EAEECA.80803@offcode.fi>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This change is done as a follow-up to the following thread:
-https://lkml.org/lkml/2014/10/1/436
+On Mon, Feb 23, 2015 at 11:11:38AM +0200, Timo Kokkonen wrote:
+[ ... ]
 
-qcom-wdt is currently assuming the presence of a dedicated node in DT
-to gets its configuration. However, on msm architecture, the watchdog is
-usually part of the timer block. So this patch-set is changing the driver
-and slightly enhancing the timer DT bindings to provide the relevant clocks
-and interrupts.
+> 
+> After all, we do have already watchdog_init_timeout function that parses the
+> watchdog timeout argument from either device tree or from command line. How
+> about if we expanded that interface? Maybe have a more generic
+> watchdog_init_parmas() or something that parses the generic watchdog
+> arguments, either from command line, device tree or ACPI or something. The
+> device driver could replace call from watchdog_init_timeout() to
+> watchdog_init_params() once it is ready to support other generic parameters,
+> such as early-timeout-sec. Then the watchdog driver could do the right thing
+> about whether watchdog should be left running or stopped and how long time
+> should be given.
+> 
+Good idea.
 
-Mathieu Olivari (3):
-  watchdog: qcom: use timer devicetree binding
-  ARM: qcom: add description of KPSS WDT for IPQ8064
-  ARM: msm: add watchdog entries to DT timer binding doc
+> Alternatively, we could also let the watchdog core know a little more about
+> the actual watchdog hardware, such as whether the HW is stoppable, whether
+> it needs manual pinging by the kernel until user space has taken over. Or
 
- Documentation/devicetree/bindings/arm/msm/timer.txt | 16 +++++++++++++---
- arch/arm/boot/dts/qcom-ipq8064.dtsi                 | 14 +++++++++++++-
- drivers/watchdog/qcom-wdt.c                         | 21 +++++++++++++++------
- 3 files changed, 41 insertions(+), 10 deletions(-)
+Yes, all that will be needed. But, still, the stop-gap is that we'll need to
+get buyin from the DT folks for the necessary properties. I have had the
+outline for the necessary watchdog core implementation in my mind for a long
+time, but I just don't have the time (nor the patience, quite frankly)
+to get DT buyin.
 
--- 
-1.9.1
+> maybe we can just extend the timeout values until the user space has first
+> opened it and then shorten the timeout automatically so that it doesn't take
+> that long for the device to reset after a crash. Or some other behaviour
+> that is common to many users. Suggestions are welcome.
+> 
+> Anyway, that is something that needs to be done to make watchdog core take
+> more control over more of the generic watchdog behaviour. It just needs to
+> be done so that we don't need to convert all drivers at once.
+> 
+Correct. It should not be that difficult do do that if designed properly.
 
+Guenter
