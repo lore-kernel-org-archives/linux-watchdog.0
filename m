@@ -1,172 +1,47 @@
-Return-path: <timo.kokkonen@offcode.fi>
-Message-ID: <54EAEECA.80803@offcode.fi>
-Date: Mon, 23 Feb 2015 11:11:38 +0200
-From: Timo Kokkonen <timo.kokkonen@offcode.fi>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:33198 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751601AbbBWT0q (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 23 Feb 2015 14:26:46 -0500
+Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
+	(envelope-from <linux@roeck-us.net>)
+	id 1YPyeU-003ZFI-4Q
+	for linux-watchdog@vger.kernel.org; Mon, 23 Feb 2015 19:26:46 +0000
+Date: Mon, 23 Feb 2015 11:26:34 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: James Hogan <james.hogan@imgtec.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	James Hogan <james@albanarts.com>,
+	Ezequiel Garcia <ezequiel.garcia@imgtec.com>,
+	Naidu Tellapati <Naidu.Tellapati@imgtec.com>,
+	Jude Abraham <Jude.Abraham@imgtec.com>
+Subject: Re: [PATCH 1/2] watchdog: imgpdc: Fix probe NULL pointer dereference
+Message-ID: <20150223192634.GA26070@roeck-us.net>
+References: <1424475945-30009-1-git-send-email-james.hogan@imgtec.com>
+ <1424475945-30009-2-git-send-email-james.hogan@imgtec.com>
 MIME-Version: 1.0
-To: Boris Brezillon <boris.brezillon@free-electrons.com>
-CC: Guenter Roeck <linux@roeck-us.net>,
- Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
- Nicolas FERRE <nicolas.ferre@atmel.com>,
- alexandre.belloni@free-electrons.com, linux-watchdog@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org,
- Rob Herring <robherring2@gmail.com>
-Subject: Re: [PATCH 2/2] at91sam9_wdt: Allow watchdog to reset device at early
- boot
-References: <54B53160.6060309@roeck-us.net>	<cover.1424262664.git.timo.kokkonen@offcode.fi>	<cover.1424262664.git.timo.kokkonen@offcode.fi>	<6c0a3a5bcd93d18437eeed04712b4aeff201a16f.1424262664.git.timo.kokkonen@offcode.fi>	<00B1658F-2F3A-4B90-ADCA-275770832180@jcrosoft.com>	<20150220085151.3b599de8@bbrezillon>	<E7DD67EB-CA34-48EA-838D-3EBBF74CAEBD@jcrosoft.com>	<20150220181640.57b21432@bbrezillon>	<20150220180646.GA26698@roeck-us.net>	<54EAD6E5.8090104@offcode.fi> <20150223095154.63218331@bbrezillon>
-In-Reply-To: <20150223095154.63218331@bbrezillon>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1424475945-30009-2-git-send-email-james.hogan@imgtec.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On 23.02.2015 10:51, Boris Brezillon wrote:
-> Hi Timo,
->
-> On Mon, 23 Feb 2015 09:29:41 +0200
-> Timo Kokkonen <timo.kokkonen@offcode.fi> wrote:
->
->> Hi,
->>
->> On 20.02.2015 20:06, Guenter Roeck wrote:
->>> On Fri, Feb 20, 2015 at 06:16:40PM +0100, Boris Brezillon wrote:
->>>> Hi Jean-Christophe,
->>>>
->>>> On Sat, 21 Feb 2015 00:33:17 +0800
->>>> Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com> wrote:
->>>>
->>>>
->>>> Timo's need is quite generic, but nobody seemed to bother with that
->>>> before.
->>>
->>> The problem has been discussed before. There are even some patches,
->>> but they were too specific and limited in scope for my liking.
->>>
->>> As I said in my other reply, to move forward we would need
->>> someone who has the time and energy to get an agreement with the
->>> DT folks about an acceptable means to express the properties needed
->>> for a specific hardware, and to actually implement the necessary code.
->>>
->>>> Moreover, using an at91 specific implementation does not prevent
->>>> migrating to a more generic implementation when it's available.
->>>> Actually, it's rather difficult to design a generic infrastructure until
->>>> you have dealt with several devices requiring the same feature, and
->>>> that's obviously not the case here.
->>>>
->>> Absolutely agree. If we can not even get a property like the one suggested
->>> here accepted, it is completely pointless to even think about a more
->>> generic solution that would work for all watchdog drivers.
->>>
->>
->> I'm not really sure that I understand what we are really arguing here,
->> but seems that this is not getting any forward unless we get in touch
->> with the DT people who get to decide whether this kind of property
->> belongs to device tree or not. Who are these people anyway? Which list
->> should I write an email to get in touch with them? Why are we not CC'ing
->> them already?
->
-> I thought they were in the recipient list, but they are not.
-> If you want to be sure to include all the relevant maintainers and MLs
-> you can use scripts/get_maintainer.pl, this would have given you the DT
-> maintainers and DT ML.
->
-> BTW, the discussion has already started (Rob is a DT maintainer) ;-).
->
+On Fri, Feb 20, 2015 at 11:45:44PM +0000, James Hogan wrote:
+> The IMG PDC watchdog probe function calls pdc_wdt_stop() prior to
+> watchdog_set_drvdata(), causing a NULL pointer dereference when
+> pdc_wdt_stop() retrieves the struct pdc_wdt_dev pointer using
+> watchdog_get_drvdata() and reads the register base address through it.
+> 
+> Fix by moving the watchdog_set_drvdata() call earlier, to where various
+> other pdc_wdt->wdt_dev fields are initialised.
+> 
+> Fixes: 93937669e9b5 ("watchdog: ImgTec PDC Watchdog Timer Driver")
+> Signed-off-by: James Hogan <james.hogan@imgtec.com>
+> Cc: Wim Van Sebroeck <wim@iguana.be>
+> Cc: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
+> Cc: Naidu Tellapati <Naidu.Tellapati@imgtec.com>
+> Cc: Jude Abraham <Jude.Abraham@imgtec.com>
+> Cc: linux-watchdog@vger.kernel.org
 
-Right, indeed. Good. :)
-
->>
->> Anyway, the way I tried to express it in the v4 patch set, we have a
->> generic device tree property that does not try to imply any sort of
->> implementation or HW details. The description in watchdog.txt tries to
->> state the purpose of the property clearly so that other driver writers
->> could make other drivers to support it correctly. And then there is at91
->> specific implementation because that's the only watchdog hardware
->> currently on my desk that I can easily test it with.
->
-> The debate here is not whether the property is generic enough or not,
-> but whether it is hardware or software related.
-> DTs are supposed to describe HW and not the use you make of it (HW
-> configuration), the problem is: sometime you have to describe that to
-> get your hardware to work properly.
->
->>
->> I can't think of how I could make this more generic, not without making
->> more changes to the way drivers initialize itself with the watchdog
->> core. And that would require changing a lot of drivers, at least if we
->> intend to make it work so that the watchdog core takes care of this
->> instead of the driver. It's a nice idea but I think it's overly complex
->> given the amount of functionality there needs to be in different drivers
->> and the diversity between drivers.
->>
->> To me there is nothing wrong with having this done also via a kernel
->> configuration option. We could simply have
->> CONFIG_WATCHDOG_EARLY_TIMEOUT_SEC option that works exactly the same way
->> as the proposed device tree property. To make it clear only some drivers
->> support this option, we could let each driver select an enabler config
->> option CONFIG_WATCHDOG_HAS_DEFERRABLE_EARLY_RESET or such that is used
->> to hide the config option unless we are building a watchdog that
->> supports the given option. Or something like that. But that would be
->> less flexible, as if we want to run the same kernel binary on different
->> arm boards we can't make these values per board any more. The use case I
->> am dealing with doesn't care about this, but I was thinking someone else
->> might care. Which is why I thought it should be run time configurable
->> via device tree instead of a compile time option.
->
-> IMHO, a viable alternative to the early-timeout-sec property would be a
-> module parameter passed through the kernel cmdline.
-> But as I said, attaching such parameters to the appropriate watchdog
-> device (say you have several watchdogs in your system) is not as easy as
-> using the DT representation.
->
-> Is early-timeout-sec generic enough to be global to the watchdog
-> framework ?
->
-
-If we have multiple watchdogs running, each of the watchdog might have 
-different meaning, so it may not be enough to have one global watchdog 
-property that is global to all watchdogs. We'd need someone to comment 
-who has multiple watchdogs..
-
->>
->> But now that I have mentioned arm boards, I noticed we are talking about
->> generic behaviour and there are also watchdogs running on architectures
->> where device trees are not supported. That said, it might be better to
->> make it compile time configurable now and add other configuration
->> options later.
->
-> As long as the early_timeout_sec is part of the generic watchdog
-> struct, your driver shouldn't care where the value comes from (pdata,
-> DT, ACPI, ...), this is why making DT parsing code part of the core is
-> a better approach IMO.
->
->>
->> Any thoughts about that?
->
-> As I said, the Kconfig option does not seem the right approach to
-> me, using a module parameter would be more appropriate IMO.
->
-
-After all, we do have already watchdog_init_timeout function that parses 
-the watchdog timeout argument from either device tree or from command 
-line. How about if we expanded that interface? Maybe have a more generic 
-watchdog_init_parmas() or something that parses the generic watchdog 
-arguments, either from command line, device tree or ACPI or something. 
-The device driver could replace call from watchdog_init_timeout() to 
-watchdog_init_params() once it is ready to support other generic 
-parameters, such as early-timeout-sec. Then the watchdog driver could do 
-the right thing about whether watchdog should be left running or stopped 
-and how long time should be given.
-
-Alternatively, we could also let the watchdog core know a little more 
-about the actual watchdog hardware, such as whether the HW is stoppable, 
-whether it needs manual pinging by the kernel until user space has taken 
-over. Or maybe we can just extend the timeout values until the user 
-space has first opened it and then shorten the timeout automatically so 
-that it doesn't take that long for the device to reset after a crash. Or 
-some other behaviour that is common to many users. Suggestions are welcome.
-
-Anyway, that is something that needs to be done to make watchdog core 
-take more control over more of the generic watchdog behaviour. It just 
-needs to be done so that we don't need to convert all drivers at once.
-
-Thanks,
--Timo
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
