@@ -1,79 +1,74 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:38361 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751071AbbBWQUE (ORCPT
+Received: from mail-we0-f170.google.com ([74.125.82.170]:42889 "EHLO
+	mail-we0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752160AbbBWKMa (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 23 Feb 2015 11:20:04 -0500
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
-	(envelope-from <linux@roeck-us.net>)
-	id 1YPvjn-001t7W-6R
-	for linux-watchdog@vger.kernel.org; Mon, 23 Feb 2015 16:20:03 +0000
-Date: Mon, 23 Feb 2015 08:19:48 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Timo Kokkonen <timo.kokkonen@offcode.fi>
-Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
-	Nicolas FERRE <nicolas.ferre@atmel.com>,
-	alexandre.belloni@free-electrons.com,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Rob Herring <robherring2@gmail.com>
-Subject: Re: [PATCH 2/2] at91sam9_wdt: Allow watchdog to reset device at
- early boot
-Message-ID: <20150223161948.GA2165@roeck-us.net>
-References: <cover.1424262664.git.timo.kokkonen@offcode.fi>
- <6c0a3a5bcd93d18437eeed04712b4aeff201a16f.1424262664.git.timo.kokkonen@offcode.fi>
- <00B1658F-2F3A-4B90-ADCA-275770832180@jcrosoft.com>
- <20150220085151.3b599de8@bbrezillon>
- <E7DD67EB-CA34-48EA-838D-3EBBF74CAEBD@jcrosoft.com>
- <20150220181640.57b21432@bbrezillon>
- <20150220180646.GA26698@roeck-us.net>
- <54EAD6E5.8090104@offcode.fi>
- <20150223095154.63218331@bbrezillon>
- <54EAEECA.80803@offcode.fi>
+	Mon, 23 Feb 2015 05:12:30 -0500
+Received: by wesw62 with SMTP id w62so16892400wes.9
+        for <linux-watchdog@vger.kernel.org>; Mon, 23 Feb 2015 02:12:29 -0800 (PST)
+Date: Mon, 23 Feb 2015 10:12:23 +0000
+From: Peter Griffin <peter.griffin@linaro.org>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org, kernel@stlinux.com,
+	rtc-linux@googlegroups.com, wim@iguana.be, linux@roeck-us.net,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [STLinux Kernel] [PATCH v3 7/8] rtc: st: add new driver for ST's
+ LPC RTC
+Message-ID: <20150223101223.GA14142@griffinp-ThinkPad-X1-Carbon-2nd>
+References: <1424260154-12868-1-git-send-email-lee.jones@linaro.org>
+ <1424260154-12868-8-git-send-email-lee.jones@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <54EAEECA.80803@offcode.fi>
+In-Reply-To: <1424260154-12868-8-git-send-email-lee.jones@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Feb 23, 2015 at 11:11:38AM +0200, Timo Kokkonen wrote:
-[ ... ]
+Hi Lee,
 
-> 
-> After all, we do have already watchdog_init_timeout function that parses the
-> watchdog timeout argument from either device tree or from command line. How
-> about if we expanded that interface? Maybe have a more generic
-> watchdog_init_parmas() or something that parses the generic watchdog
-> arguments, either from command line, device tree or ACPI or something. The
-> device driver could replace call from watchdog_init_timeout() to
-> watchdog_init_params() once it is ready to support other generic parameters,
-> such as early-timeout-sec. Then the watchdog driver could do the right thing
-> about whether watchdog should be left running or stopped and how long time
-> should be given.
-> 
-Good idea.
+On Wed, 18 Feb 2015, Lee Jones wrote:
 
-> Alternatively, we could also let the watchdog core know a little more about
-> the actual watchdog hardware, such as whether the HW is stoppable, whether
-> it needs manual pinging by the kernel until user space has taken over. Or
+> ST's Low Power Controller (LPC) controls two devices; watchdog and RTC.
+> Only one of the devices can be used at any one time.  This is enforced
+> by the correlating MFD driver.  This portion of the driver-set controls
+> the Real Time Clock.
 
-Yes, all that will be needed. But, still, the stop-gap is that we'll need to
-get buyin from the DT folks for the necessary properties. I have had the
-outline for the necessary watchdog core implementation in my mind for a long
-time, but I just don't have the time (nor the patience, quite frankly)
-to get DT buyin.
+<snip>
 
-> maybe we can just extend the timeout values until the user space has first
-> opened it and then shorten the timeout automatically so that it doesn't take
-> that long for the device to reset after a crash. Or some other behaviour
-> that is common to many users. Suggestions are welcome.
-> 
-> Anyway, that is something that needs to be done to make watchdog core take
-> more control over more of the generic watchdog behaviour. It just needs to
-> be done so that we don't need to convert all drivers at once.
-> 
-Correct. It should not be that difficult do do that if designed properly.
+> +{
+> +	unsigned long flags;
+> +
+> +	spin_lock_irqsave(&rtc->lock, flags);
+> +
+> +	writel(1, rtc->ioaddr + LPC_WDT_OFF);
+> +
+> +	writel(msb, rtc->ioaddr + LPC_LPA_MSB_OFF);
+> +	writel(lsb, rtc->ioaddr + LPC_LPA_LSB_OFF);
+> +	writel(1, rtc->ioaddr + LPC_LPA_START_OFF);
+> +
+> +	writel(0, rtc->ioaddr + LPC_WDT_OFF);
 
-Guenter
+I think all the writel IO accessors in this driver can be replaced
+with the *_relaxed variant. This will avoid the overhead of taking a
+spinlock in the l2 outer cache part of writel.
+
+<snip>
+
+> +#ifdef CONFIG_PM_SLEEP
+> +static int st_rtc_suspend(struct device *dev)
+> +{
+> +	struct st_rtc *rtc = dev_get_drvdata(dev);
+> +
+> +	if (device_may_wakeup(dev))
+> +		return 0;
+> +
+> +	writel(1, rtc->ioaddr + LPC_WDT_OFF);
+> +	writel(0, rtc->ioaddr + LPC_LPA_START_OFF);
+> +	writel(0, rtc->ioaddr + LPC_WDT_OFF);
+
+Is there a reason for not disabling the IP clock in suspend / resume functions?
+
+regards,
+
+Peter.
