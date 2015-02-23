@@ -1,32 +1,51 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:36983 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752206AbbBWTvU (ORCPT
+Received: from mout.kundenserver.de ([212.227.17.24]:50075 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752126AbbBWVfT (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 23 Feb 2015 14:51:20 -0500
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
-	(envelope-from <linux@roeck-us.net>)
-	id 1YPz2G-003mcG-Cx
-	for linux-watchdog@vger.kernel.org; Mon, 23 Feb 2015 19:51:20 +0000
-Date: Mon, 23 Feb 2015 11:50:43 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Lee Jones <lee.jones@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	kernel@stlinux.com, rtc-linux@googlegroups.com, wim@iguana.be,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	david.paris@st.com
-Subject: Re: [v3,5/8] watchdog: st_wdt: Add new driver for ST's LPC Watchdog
-Message-ID: <20150223195043.GA28125@roeck-us.net>
-References: <1424260154-12868-6-git-send-email-lee.jones@linaro.org>
+	Mon, 23 Feb 2015 16:35:19 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Mathieu Olivari <mathieu@codeaurora.org>
+Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
+	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+	linux@arm.linux.org.uk, wim@iguana.be, corbet@lwn.net,
+	standby24x7@gmail.com, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 0/3] arm: msm: Use timer DT node for qcom watchdog config
+Date: Mon, 23 Feb 2015 22:35:04 +0100
+Message-ID: <5879121.Ud0l5ICsCF@wuerfel>
+In-Reply-To: <1424485176-8348-1-git-send-email-mathieu@codeaurora.org>
+References: <1424485176-8348-1-git-send-email-mathieu@codeaurora.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1424260154-12868-6-git-send-email-lee.jones@linaro.org>
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Feb 18, 2015 at 11:49:11AM +0000, Lee Jones wrote:
-> Signed-off-by: David Paris <david.paris@st.com>
-> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+On Friday 20 February 2015 18:19:33 Mathieu Olivari wrote:
+> This change is done as a follow-up to the following thread:
+> https://lkml.org/lkml/2014/10/1/436
+> 
+> qcom-wdt is currently assuming the presence of a dedicated node in DT
+> to gets its configuration. However, on msm architecture, the watchdog is
+> usually part of the timer block. So this patch-set is changing the driver
+> and slightly enhancing the timer DT bindings to provide the relevant clocks
+> and interrupts.
+> 
+> Mathieu Olivari (3):
+>   watchdog: qcom: use timer devicetree binding
+>   ARM: qcom: add description of KPSS WDT for IPQ8064
+>   ARM: msm: add watchdog entries to DT timer binding doc
+> 
+>  Documentation/devicetree/bindings/arm/msm/timer.txt | 16 +++++++++++++---
+>  arch/arm/boot/dts/qcom-ipq8064.dtsi                 | 14 +++++++++++++-
+>  drivers/watchdog/qcom-wdt.c                         | 21 +++++++++++++++------
+>  3 files changed, 41 insertions(+), 10 deletions(-)
+> 
+> 
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+What about the binding document in
+Documentation/devicetree/bindings/watchdog/qcom-wdt.txt?
+
+	Arnd
