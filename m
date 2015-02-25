@@ -1,79 +1,42 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-we0-f179.google.com ([74.125.82.179]:40959 "EHLO
-	mail-we0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752913AbbBYNwt (ORCPT
+Received: from mail-we0-f174.google.com ([74.125.82.174]:44808 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752783AbbBYNwo (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 25 Feb 2015 08:52:49 -0500
-Received: by wesx3 with SMTP id x3so3739074wes.7
-        for <linux-watchdog@vger.kernel.org>; Wed, 25 Feb 2015 05:52:48 -0800 (PST)
+	Wed, 25 Feb 2015 08:52:44 -0500
+Received: by wesk11 with SMTP id k11so3698629wes.11
+        for <linux-watchdog@vger.kernel.org>; Wed, 25 Feb 2015 05:52:43 -0800 (PST)
 From: Lee Jones <lee.jones@linaro.org>
 To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
 	rtc-linux@googlegroups.com, wim@iguana.be,
 	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
 	linux@roeck-us.net, david.paris@st.com, a.zummo@towertech.it
 Cc: lee.jones@linaro.org, kernel@stlinux.com
-Subject: [PATCH v4 5/9] watchdog: bindings: Provide ST bindings for ST's LPC Watchdog device
-Date: Wed, 25 Feb 2015 13:52:25 +0000
-Message-Id: <1424872349-4155-6-git-send-email-lee.jones@linaro.org>
+Subject: [PATCH v4 2/9] ARM: multi_v7_defconfig: Enable support for ST's LPC Watchdog
+Date: Wed, 25 Feb 2015 13:52:22 +0000
+Message-Id: <1424872349-4155-3-git-send-email-lee.jones@linaro.org>
 In-Reply-To: <1424872349-4155-1-git-send-email-lee.jones@linaro.org>
 References: <1424872349-4155-1-git-send-email-lee.jones@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On current ST platforms the LPC controls a number of functions including
-Watchdog and Real Time Clock.  This patch provides the bindings used to
-configure LPC in Watchdog mode.
-
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- .../devicetree/bindings/watchdog/st_lpc_wdt.txt    | 38 ++++++++++++++++++++++
- 1 file changed, 38 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
+ arch/arm/configs/multi_v7_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt b/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
-new file mode 100644
-index 0000000..1bdf023
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
-@@ -0,0 +1,38 @@
-+STMicroelectronics Low Power Controller (LPC) - Watchdog
-+========================================================
-+
-+LPC currently supports Watchdog OR Real Time Clock functionality.
-+
-+[See: ../rtc/rtc-st-lpc.txt for RTC options]
-+
-+Required properties
-+
-+- compatible 	: Must be one of: "st,stih407-lpc" "st,stih416-lpc"
-+				  "st,stih415-lpc" "st,stid127-lpc"
-+- reg		: LPC registers base address + size
-+- interrupts    : LPC interrupt line number and associated flags
-+- clocks	: Clock used by LPC device (See: ../clock/clock-bindings.txt)
-+- st,lpc-mode	: The LPC can run either one of two modes ST_LPC_MODE_RTC [0] or
-+		  ST_LPC_MODE_WDT [1].  One (and only one) mode must be
-+		  selected.
-+
-+Required properties [watchdog mode]
-+
-+- st,syscfg	: Phandle to syscfg node used to enable watchdog and configure
-+		  CPU reset type.
-+- timeout-sec	: Watchdog timeout in seconds
-+
-+Optional properties [watchdog mode]
-+
-+- st,warm-reset	: If present reset type will be 'warm' - if not it will be cold
-+
-+Example:
-+	lpc@fde05000 {
-+		compatible	= "st,stih416-lpc-watchdog";
-+		reg		= <0xfde05000 0x1000>;
-+		clocks 		= <&clk_s_d3_flexgen CLK_LPC_0>;
-+		st,syscfg	= <&syscfg_core>;
-+		timeout-sec	= <120>;
-+		st,lpc-mode	= <ST_LPC_MODE_WDT>;
-+		st,warm-reset;
-+	};
+diff --git a/arch/arm/configs/multi_v7_defconfig b/arch/arm/configs/multi_v7_defconfig
+index e8a4c95..0f172f8 100644
+--- a/arch/arm/configs/multi_v7_defconfig
++++ b/arch/arm/configs/multi_v7_defconfig
+@@ -288,6 +288,7 @@ CONFIG_WATCHDOG=y
+ CONFIG_XILINX_WATCHDOG=y
+ CONFIG_ARM_SP805_WATCHDOG=y
+ CONFIG_ORION_WATCHDOG=y
++CONFIG_ST_LPC_WATCHDOG=y
+ CONFIG_SUNXI_WATCHDOG=y
+ CONFIG_MESON_WATCHDOG=y
+ CONFIG_MFD_AS3722=y
 -- 
 1.9.1
 
