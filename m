@@ -1,113 +1,89 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:47155 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752155AbbBWWHd (ORCPT
+Received: from mail-wg0-f46.google.com ([74.125.82.46]:44846 "EHLO
+	mail-wg0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753032AbbBYLIU (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 23 Feb 2015 17:07:33 -0500
-Message-ID: <54EBA4A2.1050607@codeaurora.org>
-Date: Mon, 23 Feb 2015 14:07:30 -0800
-From: Stephen Boyd <sboyd@codeaurora.org>
+	Wed, 25 Feb 2015 06:08:20 -0500
+Received: by wggx12 with SMTP id x12so2844298wgg.11
+        for <linux-watchdog@vger.kernel.org>; Wed, 25 Feb 2015 03:08:19 -0800 (PST)
+Date: Wed, 25 Feb 2015 11:08:09 +0000
+From: Lee Jones <lee.jones@linaro.org>
+To: Peter Griffin <peter.griffin@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org, kernel@stlinux.com,
+	rtc-linux@googlegroups.com, wim@iguana.be, linux@roeck-us.net,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [STLinux Kernel] [PATCH v3 7/8] rtc: st: add new driver for ST's
+ LPC RTC
+Message-ID: <20150225110809.GH21323@x1>
+References: <1424260154-12868-1-git-send-email-lee.jones@linaro.org>
+ <1424260154-12868-8-git-send-email-lee.jones@linaro.org>
+ <20150223101223.GA14142@griffinp-ThinkPad-X1-Carbon-2nd>
 MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>,
-	Mathieu Olivari <mathieu@codeaurora.org>
-CC: mark.rutland@arm.com, devicetree@vger.kernel.org,
-	linux@arm.linux.org.uk, linux-watchdog@vger.kernel.org,
-	pawel.moll@arm.com, ijc+devicetree@hellion.org.uk, corbet@lwn.net,
-	linux-kernel@vger.kernel.org, standby24x7@gmail.com, wim@iguana.be,
-	robh+dt@kernel.org, galak@codeaurora.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 0/3] arm: msm: Use timer DT node for qcom watchdog config
-References: <1424485176-8348-1-git-send-email-mathieu@codeaurora.org> <5879121.Ud0l5ICsCF@wuerfel>
-In-Reply-To: <5879121.Ud0l5ICsCF@wuerfel>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20150223101223.GA14142@griffinp-ThinkPad-X1-Carbon-2nd>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-On 02/23/15 13:35, Arnd Bergmann wrote:
-> On Friday 20 February 2015 18:19:33 Mathieu Olivari wrote:
->> This change is done as a follow-up to the following thread:
->> https://lkml.org/lkml/2014/10/1/436
->>
->> qcom-wdt is currently assuming the presence of a dedicated node in DT
->> to gets its configuration. However, on msm architecture, the watchdog is
->> usually part of the timer block. So this patch-set is changing the driver
->> and slightly enhancing the timer DT bindings to provide the relevant clocks
->> and interrupts.
->>
->> Mathieu Olivari (3):
->>   watchdog: qcom: use timer devicetree binding
->>   ARM: qcom: add description of KPSS WDT for IPQ8064
->>   ARM: msm: add watchdog entries to DT timer binding doc
->>
->>  Documentation/devicetree/bindings/arm/msm/timer.txt | 16 +++++++++++++---
->>  arch/arm/boot/dts/qcom-ipq8064.dtsi                 | 14 +++++++++++++-
->>  drivers/watchdog/qcom-wdt.c                         | 21 +++++++++++++++------
->>  3 files changed, 41 insertions(+), 10 deletions(-)
->>
->>
-> What about the binding document in
-> Documentation/devicetree/bindings/watchdog/qcom-wdt.txt?
->
->
+On Mon, 23 Feb 2015, Peter Griffin wrote:
+> On Wed, 18 Feb 2015, Lee Jones wrote:
+>=20
+> > ST's Low Power Controller (LPC) controls two devices; watchdog and RT=
+C.
+> > Only one of the devices can be used at any one time.  This is enforce=
+d
+> > by the correlating MFD driver.  This portion of the driver-set contro=
+ls
+> > the Real Time Clock.
+>=20
+> <snip>
+>=20
+> > +{
+> > +	unsigned long flags;
+> > +
+> > +	spin_lock_irqsave(&rtc->lock, flags);
+> > +
+> > +	writel(1, rtc->ioaddr + LPC_WDT_OFF);
+> > +
+> > +	writel(msb, rtc->ioaddr + LPC_LPA_MSB_OFF);
+> > +	writel(lsb, rtc->ioaddr + LPC_LPA_LSB_OFF);
+> > +	writel(1, rtc->ioaddr + LPC_LPA_START_OFF);
+> > +
+> > +	writel(0, rtc->ioaddr + LPC_WDT_OFF);
+>=20
+> I think all the writel IO accessors in this driver can be replaced
+> with the *_relaxed variant. This will avoid the overhead of taking a
+> spinlock in the l2 outer cache part of writel.
 
-We can rewrite it for platforms starting with msm8974 and beyond or
-delete it and write a new binding. It's a similar hardware block split
-out from the timers and then made to use a SPI instead of a PPI for the
-interrupt sources. We also lost the CPU remapping feature so there is
-really only one watchdog instead of 2 per cpu. Oh and the register
-offsets are different, but otherwise the registers are the same.
+Yes, there is no technical reason why we can't use the relaxed
+variants.  Will fix.
 
----8<-----
+> > +#ifdef CONFIG_PM_SLEEP
+> > +static int st_rtc_suspend(struct device *dev)
+> > +{
+> > +	struct st_rtc *rtc =3D dev_get_drvdata(dev);
+> > +
+> > +	if (device_may_wakeup(dev))
+> > +		return 0;
+> > +
+> > +	writel(1, rtc->ioaddr + LPC_WDT_OFF);
+> > +	writel(0, rtc->ioaddr + LPC_LPA_START_OFF);
+> > +	writel(0, rtc->ioaddr + LPC_WDT_OFF);
+>=20
+> Is there a reason for not disabling the IP clock in suspend / resume fu=
+nctions?
 
-From: Stephen Boyd <sboyd@codeaurora.org>
-Subject: [PATCH] Documentation: qcom-wdt: Update binding for individual block
+There is.  It will stop the alarm timer, which is undesirable.
 
-On msm8974 and beyond the KPSS watchdog is split out of the timer
-block and made to be a single instance instead of per-cpu. Let's
-update the binding to reflect this and replace the binding that
-is handled by the qcom,kpss-timer binding.
-
-Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
----
- Documentation/devicetree/bindings/watchdog/qcom-wdt.txt | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
-
-diff --git a/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt b/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
-index 4726924d034e..78b92bec4c3a 100644
---- a/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/qcom-wdt.txt
-@@ -2,14 +2,10 @@ Qualcomm Krait Processor Sub-system (KPSS) Watchdog
- ---------------------------------------------------
- 
- Required properties :
--- compatible : shall contain only one of the following:
--
--			"qcom,kpss-wdt-msm8960"
--			"qcom,kpss-wdt-apq8064"
--			"qcom,kpss-wdt-ipq8064"
--
-+- compatible : shall contain "qcom,kpss-wdt"
- - reg : shall contain base register location and length
- - clocks : shall contain the input clock
-+- interrupts : shall contain the bark and bite interrupts in that order
- 
- Optional properties :
- - timeout-sec : shall contain the default watchdog timeout in seconds,
-@@ -17,8 +13,9 @@ Optional properties :
- 
- Example:
- 	watchdog@208a038 {
--		compatible = "qcom,kpss-wdt-ipq8064";
--		reg = <0x0208a038 0x40>;
-+		compatible = "qcom,kpss-wdt";
-+		reg = <0xf9017000 0x1000>;
-+		interrupts = <0 3 0>, <0 4 0>;
- 		clocks = <&sleep_clk>;
- 		timeout-sec = <10>;
- 	};
-
--- 
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-a Linux Foundation Collaborative Project
-
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
