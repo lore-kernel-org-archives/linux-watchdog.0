@@ -1,50 +1,62 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from cpsmtpb-ews06.kpnxchange.com ([213.75.39.9]:63237 "EHLO
-	cpsmtpb-ews06.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754891AbbBDLE4 (ORCPT
+Received: from down.free-electrons.com ([37.187.137.238]:51228 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750824AbbCBJSY (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 4 Feb 2015 06:04:56 -0500
-Message-ID: <1423047893.23022.13.camel@x220>
-Subject: Re: watchdog: SOC_MT7621?
-From: Paul Bolle <pebolle@tiscali.nl>
-To: John Crispin <blogic@openwrt.org>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Ralf Baechle <ralf@linux-mips.org>,
-	Valentin Rothberg <valentinrothberg@gmail.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-watchdog@vger.kernel.org, linux-mips@linux-mips.org,
-	linux-kernel@vger.kernel.org
-Date: Wed, 04 Feb 2015 12:04:53 +0100
-In-Reply-To: <54D1F248.4090406@openwrt.org>
-References: <1423044809.23894.65.camel@x220> <54D1F248.4090406@openwrt.org>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+	Mon, 2 Mar 2015 04:18:24 -0500
+From: Boris Brezillon <boris.brezillon@free-electrons.com>
+To: Thomas Gleixner <tglx@linutronix.de>,
+	Jason Cooper <jason@lakedaemon.net>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	"Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
+	linux-pm@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	rtc-linux@googlegroups.com,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jiri Slaby <jslaby@suse.cz>, linux-serial@vger.kernel.org,
+	Mike Turquette <mturquette@linaro.org>,
+	linux-kernel@vger.kernel.org,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	linux-arm-kernel@lists.infradead.org,
+	Boris Brezillon <boris.brezillon@free-electrons.com>
+Subject: [PATCH v2 1/6] PM / wakeup: export pm_system_wakeup symbol
+Date: Mon,  2 Mar 2015 10:18:13 +0100
+Message-Id: <1425287898-15093-2-git-send-email-boris.brezillon@free-electrons.com>
+In-Reply-To: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
+References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, 2015-02-04 at 11:19 +0100, John Crispin wrote:
-> On 04/02/2015 11:13, Paul Bolle wrote:
-> > Is SOC_MT7621 still being worked on?
-> 
-> yes we dropped the series as it collided with the gic rework that
-> chromiun.org was working on. i hope to push it during the next merge
-> window. the 1004k support has just been flaky till now as there was
-> never any real silicon to test it on. the chromium people really did a
-> good job at making the gic code nicer.
+Export pm_system_wakeup function to allow irq handlers to deal with system
+wakeup.
+This is needed for shared IRQ lines where one of the handler is registered
+with IRQF_NO_SUSPEND, while the other ones want to configure it as a wakeup
+source.
+In this specific case, irq core does not handle the wakeup process and
+leave the decision to each irq handler.
 
-Thanks for explaining this. Unless SOC_MT7621 takes a long time to land
-in linux-next I won't be bothering you again about this. (I think I'll
-use "by the end of the v3.20 series" as a definition of a long time.)
+Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
+---
+ drivers/base/power/wakeup.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-> quite an impressive Cc list you have there
-
-Yes, that's the way it works with problems that span two (or more)
-subsystems (in this case watchdog and MIPS). Actually, much longer CC
-lists are used regularly on lkml.
-
-Thanks!
-
-
-Paul Bolle
+diff --git a/drivers/base/power/wakeup.c b/drivers/base/power/wakeup.c
+index c2744b3..aab7158 100644
+--- a/drivers/base/power/wakeup.c
++++ b/drivers/base/power/wakeup.c
+@@ -730,6 +730,7 @@ void pm_system_wakeup(void)
+ 	pm_abort_suspend = true;
+ 	freeze_wake();
+ }
++EXPORT_SYMBOL_GPL(pm_system_wakeup);
+ 
+ void pm_wakeup_clear(void)
+ {
+-- 
+1.9.1
 
