@@ -1,59 +1,67 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wg0-f48.google.com ([74.125.82.48]:39381 "EHLO
-	mail-wg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751088AbbCBHty (ORCPT
+Received: from mail-wi0-f173.google.com ([209.85.212.173]:41320 "EHLO
+	mail-wi0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750870AbbCBH4q (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 2 Mar 2015 02:49:54 -0500
-Received: by wggx12 with SMTP id x12so31626425wgg.6
-        for <linux-watchdog@vger.kernel.org>; Sun, 01 Mar 2015 23:49:51 -0800 (PST)
-Date: Mon, 2 Mar 2015 07:49:44 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Paul Bolle <pebolle@tiscali.nl>
+	Mon, 2 Mar 2015 02:56:46 -0500
+Received: by widex7 with SMTP id ex7so12652868wid.0
+        for <linux-watchdog@vger.kernel.org>; Sun, 01 Mar 2015 23:56:45 -0800 (PST)
+Date: Mon, 2 Mar 2015 07:56:41 +0000
+From: Peter Griffin <peter.griffin@linaro.org>
+To: Lee Jones <lee.jones@linaro.org>
 Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com, wim@iguana.be,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	linux@roeck-us.net, david.paris@st.com, a.zummo@towertech.it,
-	kernel@stlinux.com
-Subject: Re: [PATCH v4 6/9] watchdog: st_wdt: Add new driver for ST's LPC
- Watchdog
-Message-ID: <20150302074944.GD12821@x1>
-References: <1424872349-4155-1-git-send-email-lee.jones@linaro.org>
- <1424872349-4155-7-git-send-email-lee.jones@linaro.org>
- <1425137789.24292.44.camel@x220>
+	devicetree@vger.kernel.org, kernel@stlinux.com,
+	rtc-linux@googlegroups.com, wim@iguana.be, linux@roeck-us.net,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [STLinux Kernel] [PATCH v3 5/8] watchdog: st_wdt: Add new driver
+ for ST's LPC Watchdog
+Message-ID: <20150302075641.GA17486@griffinp-ThinkPad-X1-Carbon-2nd>
+References: <1424260154-12868-1-git-send-email-lee.jones@linaro.org>
+ <1424260154-12868-6-git-send-email-lee.jones@linaro.org>
+ <20150223102526.GB14142@griffinp-ThinkPad-X1-Carbon-2nd>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <1425137789.24292.44.camel@x220>
+In-Reply-To: <20150223102526.GB14142@griffinp-ThinkPad-X1-Carbon-2nd>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sat, 28 Feb 2015, Paul Bolle wrote:
-> On Wed, 2015-02-25 at 13:52 +0000, Lee Jones wrote:
-> > Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-> > Signed-off-by: David Paris <david.paris@st.com>
-> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> > ---
-> >  drivers/watchdog/Kconfig      |  13 ++
-> >  drivers/watchdog/Makefile     |   1 +
-> >  drivers/watchdog/st_lpc_wdt.c | 333 ++++++++++++++++++++++++++++++=
-++++++++++++
-> >  3 files changed, 347 insertions(+)
-> >  create mode 100644 drivers/watchdog/st_lpc_wdt.c
->=20
-> A few nits follow.
+Hi Lee,
 
-Thanks Paul, will fix.
+On Mon, 23 Feb 2015, Peter Griffin wrote:
 
-[...]
+> Hi Lee,
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I noticed you sent another version, but I didn't see a reply on this point below.
+
+As your now doing a re-spin for Pauls comments, I thought I would send a reminder
+just in case you hadn't seen it.
+
+regards,
+
+Peter.
+
+> 
+> <snip>
+> 
+> > +#ifdef CONFIG_PM_SLEEP
+> > +static int st_wdog_suspend(struct device *dev)
+> > +{
+> > +	struct st_wdog *st_wdog = watchdog_get_drvdata(&st_wdog_dev);
+> > +
+> > +	if (watchdog_active(&st_wdog_dev))
+> > +		st_wdog_stop(&st_wdog_dev);
+> > +
+> > +	st_wdog_setup(st_wdog, false);
+> 
+> I was expecting the suspend / resume callbacks would be disabling / enabling
+> the IP clock.
+> 
+> Is there a reason why it doesn't?
+> 
+> From looking at the code by this point the watchdog has already been disabled so gating
+> the IP seems reasonable.
+> 
+> regards,
+> 
+> Peter
