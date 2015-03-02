@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:51248 "EHLO
+Received: from down.free-electrons.com ([37.187.137.238]:51265 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750929AbbCBJSZ (ORCPT
+	with ESMTP id S1751237AbbCBJS0 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 2 Mar 2015 04:18:25 -0500
+	Mon, 2 Mar 2015 04:18:26 -0500
 From: Boris Brezillon <boris.brezillon@free-electrons.com>
 To: Thomas Gleixner <tglx@linutronix.de>,
 	Jason Cooper <jason@lakedaemon.net>,
@@ -24,168 +24,157 @@ Cc: Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	linux-arm-kernel@lists.infradead.org,
 	Boris Brezillon <boris.brezillon@free-electrons.com>
-Subject: [PATCH v2 2/6] rtc: at91sam9: rework wakeup and interrupt handling
-Date: Mon,  2 Mar 2015 10:18:14 +0100
-Message-Id: <1425287898-15093-3-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v2 3/6] rtc: at91rm9200: rework wakeup and interrupt handling
+Date: Mon,  2 Mar 2015 10:18:15 +0100
+Message-Id: <1425287898-15093-4-git-send-email-boris.brezillon@free-electrons.com>
 In-Reply-To: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
 References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The IRQ line used by the RTC device is usually shared with the system timer
-(PIT) on at91 platforms.
-Since timers are registering their handlers with IRQF_NO_SUSPEND, we should
-expect being called in suspended state, and properly wake the system up
-when this is the case.
+The IRQ line used by the RTC device is usually shared with the system
+timer (PIT) on at91 platforms.
+Since timers are registering their handlers with IRQF_NO_SUSPEND, we
+should expect being called in suspended state, and properly wake the
+system up when this is the case.
 
 Set IRQF_COND_SUSPEND flag when registering the IRQ handler to inform
 irq core that it can safely be called while the system is suspended.
 
 Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
 ---
- drivers/rtc/rtc-at91sam9.c | 73 ++++++++++++++++++++++++++++++++++++++--------
- 1 file changed, 61 insertions(+), 12 deletions(-)
+ drivers/rtc/rtc-at91rm9200.c | 62 ++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 48 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-index 2183fd2..5ccaee3 100644
---- a/drivers/rtc/rtc-at91sam9.c
-+++ b/drivers/rtc/rtc-at91sam9.c
-@@ -23,6 +23,7 @@
+diff --git a/drivers/rtc/rtc-at91rm9200.c b/drivers/rtc/rtc-at91rm9200.c
+index 70a5d94..b4f7744 100644
+--- a/drivers/rtc/rtc-at91rm9200.c
++++ b/drivers/rtc/rtc-at91rm9200.c
+@@ -31,6 +31,7 @@
  #include <linux/io.h>
- #include <linux/mfd/syscon.h>
- #include <linux/regmap.h>
+ #include <linux/of.h>
+ #include <linux/of_device.h>
 +#include <linux/suspend.h>
- #include <linux/clk.h>
+ #include <linux/uaccess.h>
  
- /*
-@@ -77,6 +78,9 @@ struct sam9_rtc {
- 	unsigned int		gpbr_offset;
- 	int 			irq;
- 	struct clk		*sclk;
-+	bool			suspended;
-+	unsigned long		events;
-+	spinlock_t		lock;
- };
+ #include "rtc-at91rm9200.h"
+@@ -54,6 +55,10 @@ static void __iomem *at91_rtc_regs;
+ static int irq;
+ static DEFINE_SPINLOCK(at91_rtc_lock);
+ static u32 at91_rtc_shadow_imr;
++static bool suspended;
++static DEFINE_SPINLOCK(suspended_lock);
++static unsigned long cached_events;
++static u32 at91_rtc_imr;
  
- #define rtt_readl(rtc, field) \
-@@ -271,14 +275,9 @@ static int at91_rtc_proc(struct device *dev, struct seq_file *seq)
- 	return 0;
- }
- 
--/*
-- * IRQ handler for the RTC
-- */
--static irqreturn_t at91_rtc_interrupt(int irq, void *_rtc)
-+static irqreturn_t at91_rtc_cache_events(struct sam9_rtc *rtc)
+ static void at91_rtc_write_ier(u32 mask)
  {
--	struct sam9_rtc *rtc = _rtc;
- 	u32 sr, mr;
--	unsigned long events = 0;
+@@ -290,7 +295,9 @@ static irqreturn_t at91_rtc_interrupt(int irq, void *dev_id)
+ 	struct rtc_device *rtc = platform_get_drvdata(pdev);
+ 	unsigned int rtsr;
+ 	unsigned long events = 0;
++	int ret = IRQ_NONE;
  
- 	/* Shared interrupt may be for another device.  Note: reading
- 	 * SR clears it, so we must only read it in this irq handler!
-@@ -290,18 +289,54 @@ static irqreturn_t at91_rtc_interrupt(int irq, void *_rtc)
++	spin_lock(&suspended_lock);
+ 	rtsr = at91_rtc_read(AT91_RTC_SR) & at91_rtc_read_imr();
+ 	if (rtsr) {		/* this interrupt is shared!  Is it ours? */
+ 		if (rtsr & AT91_RTC_ALARM)
+@@ -304,14 +311,22 @@ static irqreturn_t at91_rtc_interrupt(int irq, void *dev_id)
  
- 	/* alarm status */
- 	if (sr & AT91_RTT_ALMS)
--		events |= (RTC_AF | RTC_IRQF);
-+		rtc->events |= (RTC_AF | RTC_IRQF);
+ 		at91_rtc_write(AT91_RTC_SCCR, rtsr);	/* clear status reg */
  
- 	/* timer update/increment */
- 	if (sr & AT91_RTT_RTTINC)
--		events |= (RTC_UF | RTC_IRQF);
-+		rtc->events |= (RTC_UF | RTC_IRQF);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static void at91_rtc_flush_events(struct sam9_rtc *rtc)
-+{
-+	if (!rtc->events)
-+		return;
+-		rtc_update_irq(rtc, 1, events);
++		if (!suspended) {
++			rtc_update_irq(rtc, 1, events);
  
--	rtc_update_irq(rtc->rtcdev, 1, events);
-+	rtc_update_irq(rtc->rtcdev, 1, rtc->events);
-+	rtc->events = 0;
+-		dev_dbg(&pdev->dev, "%s(): num=%ld, events=0x%02lx\n", __func__,
+-			events >> 8, events & 0x000000FF);
++			dev_dbg(&pdev->dev, "%s(): num=%ld, events=0x%02lx\n",
++				__func__, events >> 8, events & 0x000000FF);
++		} else {
++			cached_events |= events;
++			at91_rtc_write_idr(at91_rtc_imr);
++			pm_system_wakeup();
++		}
  
- 	pr_debug("%s: num=%ld, events=0x%02lx\n", __func__,
--		events >> 8, events & 0x000000FF);
-+		rtc->events >> 8, rtc->events & 0x000000FF);
-+}
- 
--	return IRQ_HANDLED;
-+/*
-+ * IRQ handler for the RTC
-+ */
-+static irqreturn_t at91_rtc_interrupt(int irq, void *_rtc)
-+{
-+	struct sam9_rtc *rtc = _rtc;
-+	int ret;
-+
-+	spin_lock(&rtc->lock);
-+
-+	ret = at91_rtc_cache_events(rtc);
-+
-+	/* We're called in suspended state */
-+	if (rtc->suspended) {
-+		/* Mask irqs coming from this peripheral */
-+		rtt_writel(rtc, MR,
-+			   rtt_readl(rtc, MR) &
-+			   ~(AT91_RTT_ALMIEN | AT91_RTT_RTTINCIEN));
-+		/* Trigger a system wakeup */
-+		pm_system_wakeup();
-+	} else {
-+		at91_rtc_flush_events(rtc);
-+	}
-+
-+	spin_unlock(&rtc->lock);
+-		return IRQ_HANDLED;
++		ret = IRQ_HANDLED;
+ 	}
+-	return IRQ_NONE;		/* not handled */
++	spin_lock(&suspended_lock);
 +
 +	return ret;
  }
  
- static const struct rtc_class_ops at91_rtc_ops = {
-@@ -421,7 +456,8 @@ static int at91_rtc_probe(struct platform_device *pdev)
+ static const struct at91_rtc_config at91rm9200_config = {
+@@ -401,8 +416,8 @@ static int __init at91_rtc_probe(struct platform_device *pdev)
+ 					AT91_RTC_CALEV);
  
- 	/* register irq handler after we know what name we'll use */
- 	ret = devm_request_irq(&pdev->dev, rtc->irq, at91_rtc_interrupt,
--				IRQF_SHARED, dev_name(&rtc->rtcdev->dev), rtc);
+ 	ret = devm_request_irq(&pdev->dev, irq, at91_rtc_interrupt,
+-				IRQF_SHARED,
+-				"at91_rtc", pdev);
 +			       IRQF_SHARED | IRQF_COND_SUSPEND,
-+			       dev_name(&rtc->rtcdev->dev), rtc);
++			       "at91_rtc", pdev);
  	if (ret) {
- 		dev_dbg(&pdev->dev, "can't share IRQ %d?\n", rtc->irq);
+ 		dev_err(&pdev->dev, "IRQ %d already in use.\n", irq);
  		return ret;
-@@ -482,7 +518,12 @@ static int at91_rtc_suspend(struct device *dev)
- 	rtc->imr = mr & (AT91_RTT_ALMIEN | AT91_RTT_RTTINCIEN);
- 	if (rtc->imr) {
- 		if (device_may_wakeup(dev) && (mr & AT91_RTT_ALMIEN)) {
+@@ -454,8 +469,6 @@ static void at91_rtc_shutdown(struct platform_device *pdev)
+ 
+ /* AT91RM9200 RTC Power management control */
+ 
+-static u32 at91_rtc_imr;
+-
+ static int at91_rtc_suspend(struct device *dev)
+ {
+ 	/* this IRQ is shared with DBGU and other hardware which isn't
+@@ -464,21 +477,42 @@ static int at91_rtc_suspend(struct device *dev)
+ 	at91_rtc_imr = at91_rtc_read_imr()
+ 			& (AT91_RTC_ALARM|AT91_RTC_SECEV);
+ 	if (at91_rtc_imr) {
+-		if (device_may_wakeup(dev))
++		if (device_may_wakeup(dev)) {
 +			unsigned long flags;
 +
- 			enable_irq_wake(rtc->irq);
-+			spin_lock_irqsave(&rtc->lock, flags);
-+			rtc->suspended = true;
-+			spin_unlock_irqrestore(&rtc->lock, flags);
- 			/* don't let RTTINC cause wakeups */
- 			if (mr & AT91_RTT_RTTINCIEN)
- 				rtt_writel(rtc, MR, mr & ~AT91_RTT_RTTINCIEN);
-@@ -499,10 +540,18 @@ static int at91_rtc_resume(struct device *dev)
- 	u32		mr;
- 
- 	if (rtc->imr) {
-+		unsigned long flags;
+ 			enable_irq_wake(irq);
+-		else
 +
- 		if (device_may_wakeup(dev))
- 			disable_irq_wake(rtc->irq);
- 		mr = rtt_readl(rtc, MR);
- 		rtt_writel(rtc, MR, mr | rtc->imr);
-+
-+		spin_lock_irqsave(&rtc->lock, flags);
-+		rtc->suspended = false;
-+		at91_rtc_cache_events(rtc);
-+		at91_rtc_flush_events(rtc);
-+		spin_unlock_irqrestore(&rtc->lock, flags);
++			spin_lock_irqsave(&suspended_lock, flags);
++			suspended = true;
++			spin_unlock_irqrestore(&suspended_lock, flags);
++		} else {
+ 			at91_rtc_write_idr(at91_rtc_imr);
++		}
  	}
- 
  	return 0;
+ }
+ 
+ static int at91_rtc_resume(struct device *dev)
+ {
++	struct rtc_device *rtc = dev_get_drvdata(dev);
++
+ 	if (at91_rtc_imr) {
+-		if (device_may_wakeup(dev))
++		if (device_may_wakeup(dev)) {
++			unsigned long flags;
++
++			spin_lock_irqsave(&suspended_lock, flags);
++
++			if (cached_events) {
++				rtc_update_irq(rtc, 1, cached_events);
++				cached_events = 0;
++			}
++
++			suspended = false;
++			spin_unlock_irqrestore(&suspended_lock, flags);
++
+ 			disable_irq_wake(irq);
+-		else
+-			at91_rtc_write_ier(at91_rtc_imr);
++		}
++		at91_rtc_write_ier(at91_rtc_imr);
+ 	}
+ 	return 0;
+ }
 -- 
 1.9.1
 
