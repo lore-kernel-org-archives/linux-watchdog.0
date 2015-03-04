@@ -1,72 +1,42 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wg0-f44.google.com ([74.125.82.44]:47061 "EHLO
-	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758417AbbCDSGw (ORCPT
+Received: from mail-we0-f169.google.com ([74.125.82.169]:41525 "EHLO
+	mail-we0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758407AbbCDSGu (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 4 Mar 2015 13:06:52 -0500
-Received: by wggy19 with SMTP id y19so48297450wgg.13
-        for <linux-watchdog@vger.kernel.org>; Wed, 04 Mar 2015 10:06:51 -0800 (PST)
+	Wed, 4 Mar 2015 13:06:50 -0500
+Received: by wevm14 with SMTP id m14so48037831wev.8
+        for <linux-watchdog@vger.kernel.org>; Wed, 04 Mar 2015 10:06:49 -0800 (PST)
 From: Lee Jones <lee.jones@linaro.org>
 To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 Cc: lee.jones@linaro.org, kernel@stlinux.com,
 	rtc-linux@googlegroups.com, wim@iguana.be,
 	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
 	linux@roeck-us.net, david.paris@st.com, a.zummo@towertech.it
-Subject: [PATCH v5 4/9] ARM: STi: DT: STiH407: Add Device Tree node for the LPC
-Date: Wed,  4 Mar 2015 18:06:33 +0000
-Message-Id: <1425492398-27340-5-git-send-email-lee.jones@linaro.org>
+Subject: [PATCH v5 3/9] ARM: multi_v7_defconfig: Enable support for ST's LPC RTC
+Date: Wed,  4 Mar 2015 18:06:32 +0000
+Message-Id: <1425492398-27340-4-git-send-email-lee.jones@linaro.org>
 In-Reply-To: <1425492398-27340-1-git-send-email-lee.jones@linaro.org>
 References: <1425492398-27340-1-git-send-email-lee.jones@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On current ST platforms the LPC controls a number of functions.  This
-patch enables support for the LPC Watchdog and LPC RTC devices on LPC1
-and LPC2 respectively.
-
-Signed-off-by: David Paris <david.paris@st.com>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- arch/arm/boot/dts/stih407-family.dtsi | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ arch/arm/configs/multi_v7_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/stih407-family.dtsi b/arch/arm/boot/dts/stih407-family.dtsi
-index c06a546..2b2315d 100644
---- a/arch/arm/boot/dts/stih407-family.dtsi
-+++ b/arch/arm/boot/dts/stih407-family.dtsi
-@@ -7,6 +7,7 @@
-  * publishhed by the Free Software Foundation.
-  */
- #include "stih407-pinctrl.dtsi"
-+#include <dt-bindings/mfd/st-lpc.h>
- #include <dt-bindings/reset-controller/stih407-resets.h>
- / {
- 	#address-cells = <1>;
-@@ -336,5 +337,24 @@
- 				resets = <&softreset STIH407_MIPHY2_SOFTRESET>;
- 			};
- 		};
-+
-+		/* Watchdog and Real-Time Clock */
-+		lpc@8787000 {
-+			compatible = "st,stih407-lpc";
-+			reg = <0x8787000 0x1000>;
-+			interrupts = <GIC_SPI 129 IRQ_TYPE_EDGE_RISING>;
-+			clocks = <&clk_s_d3_flexgen CLK_LPC_0>;
-+			timeout-sec = <120>;
-+			st,syscfg = <&syscfg_core>;
-+			st,lpc-mode = <ST_LPC_MODE_WDT>;
-+		};
-+
-+		lpc@8788000 {
-+			compatible = "st,stih407-lpc";
-+			reg = <0x8788000 0x1000>;
-+			interrupts = <GIC_SPI 130 IRQ_TYPE_EDGE_RISING>;
-+			clocks = <&clk_s_d3_flexgen CLK_LPC_1>;
-+			st,lpc-mode = <ST_LPC_MODE_RTC>;
-+		};
- 	};
- };
+diff --git a/arch/arm/configs/multi_v7_defconfig b/arch/arm/configs/multi_v7_defconfig
+index 0f172f8..1a861c9 100644
+--- a/arch/arm/configs/multi_v7_defconfig
++++ b/arch/arm/configs/multi_v7_defconfig
+@@ -423,6 +423,7 @@ CONFIG_RTC_DRV_DS1307=y
+ CONFIG_RTC_DRV_MAX8907=y
+ CONFIG_RTC_DRV_MAX77686=y
+ CONFIG_RTC_DRV_PALMAS=y
++CONFIG_RTC_DRV_ST_LPC=y
+ CONFIG_RTC_DRV_TWL4030=y
+ CONFIG_RTC_DRV_TPS6586X=y
+ CONFIG_RTC_DRV_TPS65910=y
 -- 
 1.9.1
 
