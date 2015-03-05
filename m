@@ -1,77 +1,92 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-we0-f176.google.com ([74.125.82.176]:44988 "EHLO
-	mail-we0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754433AbbCEICu (ORCPT
+Received: from down.free-electrons.com ([37.187.137.238]:55284 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751846AbbCEIxL (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 5 Mar 2015 03:02:50 -0500
-Received: by wesk11 with SMTP id k11so51193279wes.11
-        for <linux-watchdog@vger.kernel.org>; Thu, 05 Mar 2015 00:02:49 -0800 (PST)
-Date: Thu, 5 Mar 2015 08:02:45 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Paul Bolle <pebolle@tiscali.nl>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	kernel@stlinux.com, rtc-linux@googlegroups.com, wim@iguana.be,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	linux@roeck-us.net, david.paris@st.com, a.zummo@towertech.it
-Subject: Re: [PATCH v5 8/9] rtc: st: add new driver for ST's LPC RTC
-Message-ID: <20150305080245.GA31098@x1>
-References: <1425492398-27340-1-git-send-email-lee.jones@linaro.org>
- <1425492398-27340-9-git-send-email-lee.jones@linaro.org>
- <1425497072.2090.4.camel@tiscali.nl>
+	Thu, 5 Mar 2015 03:53:11 -0500
+Date: Thu, 5 Mar 2015 09:53:06 +0100
+From: Boris Brezillon <boris.brezillon@free-electrons.com>
+To: Mark Rutland <mark.rutland@arm.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>,
+	Jason Cooper <jason@lakedaemon.net>,
+	Peter Zijlstra <peterz@infradead.org>,
+	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
+	Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
+	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jiri Slaby <jslaby@suse.cz>,
+	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
+	Mike Turquette <mturquette@linaro.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with
+ IRQF_NO_SUSPEND
+Message-ID: <20150305095306.3db98ac8@bbrezillon>
+In-Reply-To: <20150304183809.GD22156@leverpostej>
+References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
+ <1425287898-15093-6-git-send-email-boris.brezillon@free-electrons.com>
+ <20150304183809.GD22156@leverpostej>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <1425497072.2090.4.camel@tiscali.nl>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, 04 Mar 2015, Paul Bolle wrote:
+Hi Mark,
 
-> Lee Jones schreef op wo 04-03-2015 om 18:06 [+0000]:
-> > --- /dev/null
-> > +++ b/drivers/rtc/rtc-st-lpc.c
-> > @@ -0,0 +1,354 @@
-> > +/*
-> > + * rtc-st-lpc.c - ST's LPC RTC, powered by the Low Power Timer
-> > + *
-> > + * Copyright (C) 2014 STMicroelectronics Limited
-> > + *
-> > + * Author: David Paris <david.paris@st.com> for STMicroelectronics
-> > + *         Lee Jones <lee.jones@linaro.org> for STMicroelectronics
-> > + *
-> > + * Based on the original driver written by Stuart Menefy.
-> > + *
-> > + * This program is free software; you can redistribute it and/or
-> > + * modify it under the terms of the GNU General Public Licence
-> > + * as published by the Free Software Foundation; either version
-> > + * 2 of the Licence, or (at your option) any later version.
-> > + */
->=20
-> This states the license is GPL v2 or later.
->=20
-> > +MODULE_LICENSE("GPLv2");
->=20
-> This will taint the kernel at module load, won't it? You probably mea=
-nt
-> "GPL v2", but only
->     MODULE_LICENSE("GPL");
->=20
-> correctly matches the license in the comment at the top of this file.=
-=20
->=20
-> (I assume I missed all this when looking at the v4 series.)
+On Wed, 4 Mar 2015 18:38:09 +0000
+Mark Rutland <mark.rutland@arm.com> wrote:
 
-Actually, I've already fixed this along with another typo I found
-after resubmitting.  Always the way sadly.
+> Hi Boris,
+> 
+> On Mon, Mar 02, 2015 at 09:18:17AM +0000, Boris Brezillon wrote:
+> > The watchdog interrupt (only used when activating software watchdog)
+> > shouldn't be suspended when entering suspend mode, because it is shared
+> > with a timer device (which request the line with IRQF_NO_SUSPEND) and once
+> > the watchdog "Mode Register" has been written, it cannot be changed (which
+> > means we cannot disable the watchdog interrupt when entering suspend).
+> > 
+> > Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
+> > ---
+> >  drivers/watchdog/at91sam9_wdt.c | 3 ++-
+> >  1 file changed, 2 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
+> > index 6df9405..1443b3c 100644
+> > --- a/drivers/watchdog/at91sam9_wdt.c
+> > +++ b/drivers/watchdog/at91sam9_wdt.c
+> > @@ -208,7 +208,8 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
+> >  
+> >  	if ((tmp & AT91_WDT_WDFIEN) && wdt->irq) {
+> >  		err = request_irq(wdt->irq, wdt_interrupt,
+> > -				  IRQF_SHARED | IRQF_IRQPOLL,
+> > +				  IRQF_SHARED | IRQF_IRQPOLL |
+> > +				  IRQF_NO_SUSPEND,
+> 
+> I'm a little confused by this. What happens if the watchdog fires when
+> we're actually in the suspended state (when IRQF_NO_SUSPEND interrupts
+> aren't guaranteed to be delivered).
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+It reboot the system.
+
+> 
+> Does this rely on the watchdog IRQ being taken while in the actual
+> suspended state (but not waking up the system while handling it)?
+
+Actually this interrupt handler is just here to reboot the system if the
+user didn't refresh the watchdog.
+Do we really have to wake up the system to then call emergency_restart ?
+
+
+-- 
+Boris Brezillon, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
