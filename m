@@ -1,106 +1,59 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.101.70]:57765 "EHLO foss.arm.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751057AbbCEQc7 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 5 Mar 2015 11:32:59 -0500
-Date: Thu, 5 Mar 2015 16:32:27 +0000
-From: Mark Rutland <mark.rutland@arm.com>
-To: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+Received: from cpsmtpb-ews01.kpnxchange.com ([213.75.39.4]:57749 "EHLO
+	cpsmtpb-ews01.kpnxchange.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751878AbbCETlg (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 5 Mar 2015 14:41:36 -0500
+Message-ID: <1425584493.24292.236.camel@x220>
+Subject: Re: [PATCH v4 6/9] ARM: at91: time: move the system timer driver to
+ drivers/clocksource
+From: Paul Bolle <pebolle@tiscali.nl>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Daniel Lezcano <daniel.lezcano@linaro.org>,
 	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Jason Cooper <jason@lakedaemon.net>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
-	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Jiri Slaby <jslaby@suse.cz>,
-	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
-	Mike Turquette <mturquette@linaro.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>
-Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with
- IRQF_NO_SUSPEND
-Message-ID: <20150305163227.GF14093@leverpostej>
-References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
- <1425287898-15093-6-git-send-email-boris.brezillon@free-electrons.com>
- <20150304183809.GD22156@leverpostej>
- <14143668.0aRkeVrc3Q@vostro.rjw.lan>
- <20150305105729.GB13617@leverpostej>
- <CAJZ5v0h8vn26BeWPVhC4e_KNhBu15-mshnbq0K=OQ1M36vPQEQ@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAJZ5v0h8vn26BeWPVhC4e_KNhBu15-mshnbq0K=OQ1M36vPQEQ@mail.gmail.com>
+	Thomas Gleixner <tglx@linutronix.de>,
+	Lee Jones <lee.jones@linaro.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Sebastian Reichel <sre@kernel.org>,
+	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org, linux-pm@vger.kernel.org
+Date: Thu, 05 Mar 2015 20:41:33 +0100
+In-Reply-To: <1425570594-13124-7-git-send-email-alexandre.belloni@free-electrons.com>
+References: <1425570594-13124-1-git-send-email-alexandre.belloni@free-electrons.com>
+	 <1425570594-13124-7-git-send-email-alexandre.belloni@free-electrons.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Rafael,
+On Thu, 2015-03-05 at 16:49 +0100, Alexandre Belloni wrote:
+> diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfig
+> index 1c2506f68122..d1d15985a4ec 100644
+> --- a/drivers/clocksource/Kconfig
+> +++ b/drivers/clocksource/Kconfig
+> @@ -138,6 +138,10 @@ config ATMEL_PIT
+>  	select CLKSRC_OF if OF
+>  	def_bool SOC_AT91SAM9 || SOC_SAMA5
+>  
+> +config ATMEL_ST
+> +	select CLKSRC_OF if OF
+> +	def_bool SOC_AT91RM9200
 
-> enable_irq_wake() has no effect on IRQF_NO_SUSPEND interrupts, so if the
-> driver uses IRQF_NO_SUSPEND, it does not need to use enable_irq_wake()
-> in addition to that.
+If you swap these two lines you'll make the set of people that probably
+only includes me a bit happier.
 
-That's not generally true -- certainly not for irq_chips without the
-IRQCHIP_SKIP_SET_WAKE flag.
-
-Consider systems where the suspended state results in power to the CPU
-being cut, and we rely on an external piece of logic attached to the
-irq_chip to detect wakeup IRQs and restore power.
-
-In those cases irq_chip::irq_set_wake() must be called to ensure that
-the wakeup logic is configured. If the wakeup logic is not configured to
-look out for an IRQ, then when the IRQ is asserted by a device the
-wakeup logic may not trigger. Thus the CPU power never gets restored, so
-the CPU cannot handle the interrupt.
-
-This is handled in enable_irq_wake() -- either the chip has the
-IRQCHIP_SKIP_SET_WAKE flag set or chip->irq_set_wake() must succeed. If
-neither is true enable_irq_wake() will return an error code to indicate
-we can't use the IRQ for wakeup.
-
-The request_irq path never results in a call to chip->irq_set_wake(),
-even with the IRQF_NO_SUSPEND flag. So requesting an irq with
-IRQF_NO_SUSPEND does not guarantee wakeup; it only guarantees that the
-CPU can take the interrupt _around_ the suspended state, not necessarily
-while _in_ the suspended state.
-
-> Drivers using IRQF_COND_SUSPEND generally should use enable_irq_wake() too
-> in case they end up in a situation without sharing a NO_SUSPEND interrupt, in
-> which case their interrupt handlers won't be called after suspend_device_irqs(),
-> so they need to rely on the core to do the wakeup.
-> 
-> > I agree that if problematic, it's an existing bug. Given Boris's
-> > comments in the other thread this may just a minor semantic issue w.r.t.
-> > IRQF_NO_SUSPEND vs IRQF_COND_SUSPEND.
-> 
-> It depends on whether or not the watchdog's interrupt handler has to be
-> called immediately after receiving an interrupt (IRQF_NO_SUSPEND is
-> better then) or it can be deferred till the resume_device_irqs() time.
-
-We seem to be conflating some related properties:
-
-[a] The IRQ will be left unmasked.
-[b] The IRQ will be handled immediately when taken.
-[c] The IRQ will wake the system from suspend.
-
-Requesting an IRQ with IRQF_NO_SUSPEND guarantees [a,b], but does not
-guarantee [c].
-
-A successful enable_irq_wake() on an IRQ guarantees [a,c], but usually
-does not give [b] unless the IRQ was requested with IRQF_COND_SUSPEND
-and happens to be shared with an IRQF_NO_SUSPEND user.
-
-It sounds like for this kind of watchdog device we want [a,b,c], even if
-the IRQ is not shared with an IRQF_NO_SUSPEND user.
+> +
+>  config CLKSRC_METAG_GENERIC
+>  	def_bool y if METAG
+>  	help
 
 Thanks,
-Mark.
+
+
+Paul Bolle
+
