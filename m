@@ -1,15 +1,15 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.101.70]:56554 "EHLO foss.arm.com"
+Received: from foss.arm.com ([217.140.101.70]:56593 "EHLO foss.arm.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754908AbbCEKxj (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 5 Mar 2015 05:53:39 -0500
-Date: Thu, 5 Mar 2015 10:53:08 +0000
+	id S1755066AbbCEK6A (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 5 Mar 2015 05:58:00 -0500
+Date: Thu, 5 Mar 2015 10:57:29 +0000
 From: Mark Rutland <mark.rutland@arm.com>
-To: Boris Brezillon <boris.brezillon@free-electrons.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>,
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
 	Jason Cooper <jason@lakedaemon.net>,
 	Peter Zijlstra <peterz@infradead.org>,
-	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
 	Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
 	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
 	Wim Van Sebroeck <wim@iguana.be>,
@@ -28,22 +28,17 @@ Cc: Thomas Gleixner <tglx@linutronix.de>,
 	<linux-arm-kernel@lists.infradead.org>
 Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with
  IRQF_NO_SUSPEND
-Message-ID: <20150305105308.GA13617@leverpostej>
+Message-ID: <20150305105729.GB13617@leverpostej>
 References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
  <1425287898-15093-6-git-send-email-boris.brezillon@free-electrons.com>
  <20150304183809.GD22156@leverpostej>
- <20150305095306.3db98ac8@bbrezillon>
+ <14143668.0aRkeVrc3Q@vostro.rjw.lan>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20150305095306.3db98ac8@bbrezillon>
+In-Reply-To: <14143668.0aRkeVrc3Q@vostro.rjw.lan>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-
-Hi Boris,
-
-I'd missed the fact that this was for SW watchdog as opposed to HW
-watchdog, which may explain my confusion.
 
 [...]
 
@@ -56,18 +51,20 @@ watchdog, which may explain my confusion.
 > > we're actually in the suspended state (when IRQF_NO_SUSPEND interrupts
 > > aren't guaranteed to be delivered).
 > 
-> It reboot the system.
+> Why wouldn't they be delivered?
+> 
+> If that's suspend-to-idle, we'll handle them normally.  If that's full suspend,
+> they may not be handled at the last stage (when we run on one CPU with interrupts
+> off), but that was the case before the wakeup interrupts rework already and I'd
+> expect it to be taken into account somehow in the existing code (or if it isn't
+> taken into account, we have a bug, but it is not related to this series).
 
-Is the timer we use to ping the watchdog guaranted to result in a wakeup
-before an interrupt will be triggered? If so, then I think we're ok.
+There's no enable_irq_wake(wdt->irq), and I was under the impression this
+is for full suspend.
 
-If not, then don't we need to clear a potentially pending watchdog irq
-at resume time so at to not immediately reboot the machine? I couldn't
-see any logic to that effect in the driver.
-
-Regardless, if the only reason we care about taking the interrupt during
-the suspend/resume phases is due to the timer sharing the IRQ, then
-shouldn't we be using IRQF_COND_SUSPEND?
+I agree that if problematic, it's an existing bug. Given Boris's
+comments in the other thread this may just a minor semantic issue w.r.t.
+IRQF_NO_SUSPEND vs IRQF_COND_SUSPEND.
 
 Thanks,
 Mark.
