@@ -1,23 +1,12 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oi0-f51.google.com ([209.85.218.51]:41335 "EHLO
-	mail-oi0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751076AbbCFMjP (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 6 Mar 2015 07:39:15 -0500
-MIME-Version: 1.0
-In-Reply-To: <20150306110618.GC8700@leverpostej>
-References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
-	<CAJZ5v0h8vn26BeWPVhC4e_KNhBu15-mshnbq0K=OQ1M36vPQEQ@mail.gmail.com>
-	<20150305163227.GF14093@leverpostej>
-	<1696230.CygTkv53VA@vostro.rjw.lan>
-	<20150306110618.GC8700@leverpostej>
-Date: Fri, 6 Mar 2015 13:39:14 +0100
-Message-ID: <CAJZ5v0jA-hRUnP_+mOdFw7vN7CGZ4o0FjUVu81rq7foi92f63g@mail.gmail.com>
-Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with IRQF_NO_SUSPEND
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-To: Mark Rutland <mark.rutland@arm.com>
+Received: from foss.arm.com ([217.140.101.70]:59920 "EHLO foss.arm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751275AbbCFNK5 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 6 Mar 2015 08:10:57 -0500
+Date: Fri, 6 Mar 2015 13:10:26 +0000
+From: Mark Rutland <mark.rutland@arm.com>
+To: "Rafael J. Wysocki" <rafael@kernel.org>
 Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
 	Boris Brezillon <boris.brezillon@free-electrons.com>,
 	Thomas Gleixner <tglx@linutronix.de>,
 	Jason Cooper <jason@lakedaemon.net>,
@@ -38,77 +27,52 @@ Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	"linux-arm-kernel@lists.infradead.org"
 	<linux-arm-kernel@lists.infradead.org>
-Content-Type: text/plain; charset=UTF-8
+Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with
+ IRQF_NO_SUSPEND
+Message-ID: <20150306131025.GH8700@leverpostej>
+References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
+ <CAJZ5v0h8vn26BeWPVhC4e_KNhBu15-mshnbq0K=OQ1M36vPQEQ@mail.gmail.com>
+ <20150305163227.GF14093@leverpostej>
+ <1696230.CygTkv53VA@vostro.rjw.lan>
+ <20150306110618.GC8700@leverpostej>
+ <CAJZ5v0jA-hRUnP_+mOdFw7vN7CGZ4o0FjUVu81rq7foi92f63g@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAJZ5v0jA-hRUnP_+mOdFw7vN7CGZ4o0FjUVu81rq7foi92f63g@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Mar 6, 2015 at 12:06 PM, Mark Rutland <mark.rutland@arm.com> wrote:
-> [...]
->
->> > The request_irq path never results in a call to chip->irq_set_wake(),
->> > even with the IRQF_NO_SUSPEND flag. So requesting an irq with
->> > IRQF_NO_SUSPEND does not guarantee wakeup; it only guarantees that the
->> > CPU can take the interrupt _around_ the suspended state, not necessarily
->> > while _in_ the suspended state.
->>
->> Right.  "Suspended state" meaning full suspend here I suppose?
->
-> Yes; any state deeper than suspend-to-idle.
->
-> [...]
->
->> > We seem to be conflating some related properties:
->> >
->> > [a] The IRQ will be left unmasked.
->> > [b] The IRQ will be handled immediately when taken.
->> > [c] The IRQ will wake the system from suspend.
->> >
->> > Requesting an IRQ with IRQF_NO_SUSPEND guarantees [a,b], but does not
->> > guarantee [c].
->>
->> That's correct.  IRQF_NO_SUSPEND does not guarantee that interrupts from
->> that IRQ will have any effect after arch_suspend_disable_irqs() in
->> suspend_enter().
->
-> [...]
->
->> > It sounds like for this kind of watchdog device we want [a,b,c], even if
->> > the IRQ is not shared with an IRQF_NO_SUSPEND user.
->>
->> We can't guarantee that, though.  arch_suspend_disable_irqs() disables
->> interrupts on the last working CPU and it won't get any.  It may be
->> brought out of a low-power state by a pending interrupt, but it won't act
->> upon that interrupt immediately anyway, only after the arch_suspend_enable_irqs()
->> in suspend_enter().
->
-> Ok, so [b] needs the caveat that it's only handled "immediately" outside
-> of the arch_suspend_disable_irqs() ... arch_suspend_enable_irqs()
-> section.
->
->> But then it might as well be deferred until after
->> resume_device_irqs().
->
-> That was my original line of thinking, in which case the watchdog driver
-> should use IRQF_COND_SUSPEND rather than IRQF_NO_SUSPEND, with
-> enable_irq_wake() if we care about the watchdog during suspend. I'm
-> happy with this.
->
-> Considering that the use-case of a watchdog is to alert us to something
-> going hideously wrong in the kernel, we want to handle the IRQ after
-> executing the smallest amount of kernel code possible. For that, they
-> need to have their handlers to be called "immediately" outside of the
-> arch_suspend_disable_irqs() ... arch_suspend_enable_irqs() window, and
-> need to be enabled during suspend to attempt to catch bad wakeup device
-> configuration.
->
-> I think it's possible (assuming the caveats on [b] above) to provide
-> [a,b,c] for this case.
+> >> > We seem to be conflating some related properties:
+> >> >
+> >> > [a] The IRQ will be left unmasked.
+> >> > [b] The IRQ will be handled immediately when taken.
+> >> > [c] The IRQ will wake the system from suspend.
 
-OK
+[...]
 
-But in this case the request_irq() passing IRQF_NO_SUSPEND *and* requiring
-enable_irq_wake() in addition to that needs a big fat comment explaining the
-whole thing or we'll forget about the gory details at one point and no one will
-know what's going on in there.
+> > Considering that the use-case of a watchdog is to alert us to something
+> > going hideously wrong in the kernel, we want to handle the IRQ after
+> > executing the smallest amount of kernel code possible. For that, they
+> > need to have their handlers to be called "immediately" outside of the
+> > arch_suspend_disable_irqs() ... arch_suspend_enable_irqs() window, and
+> > need to be enabled during suspend to attempt to catch bad wakeup device
+> > configuration.
+> >
+> > I think it's possible (assuming the caveats on [b] above) to provide
+> > [a,b,c] for this case.
+> 
+> OK
+> 
+> But in this case the request_irq() passing IRQF_NO_SUSPEND *and* requiring
+> enable_irq_wake() in addition to that needs a big fat comment explaining the
+> whole thing or we'll forget about the gory details at one point and no one will
+> know what's going on in there.
 
-Rafael
+Agreed.
+
+I'd expect an IRQF_SW_WATCHDOG or something to that effect should also
+be required for that case.
+
+Thanks,
+Mark.
