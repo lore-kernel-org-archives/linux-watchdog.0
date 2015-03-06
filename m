@@ -1,122 +1,132 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:35352 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750728AbbCFIra (ORCPT
+Received: from mail-wg0-f46.google.com ([74.125.82.46]:33906 "EHLO
+	mail-wg0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755851AbbCFK6S (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 6 Mar 2015 03:47:30 -0500
-Date: Fri, 6 Mar 2015 09:47:27 +0100
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Daniel Lezcano <daniel.lezcano@linaro.org>
+	Fri, 6 Mar 2015 05:58:18 -0500
+Received: by wgha1 with SMTP id a1so8578427wgh.1
+        for <linux-watchdog@vger.kernel.org>; Fri, 06 Mar 2015 02:58:17 -0800 (PST)
+Date: Fri, 6 Mar 2015 10:58:11 +0000
+From: Lee Jones <lee.jones@linaro.org>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 Cc: Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Daniel Lezcano <daniel.lezcano@linaro.org>,
 	Boris Brezillon <boris.brezillon@free-electrons.com>,
 	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
 	Thomas Gleixner <tglx@linutronix.de>,
-	Lee Jones <lee.jones@linaro.org>,
 	Wim Van Sebroeck <wim@iguana.be>,
 	Guenter Roeck <linux@roeck-us.net>,
 	Sebastian Reichel <sre@kernel.org>,
 	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
 	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
 	linux-watchdog@vger.kernel.org, linux-pm@vger.kernel.org
-Subject: Re: [PATCH v4 8/9] clocksource: atmel-st: use syscon/regmap
-Message-ID: <20150306084727.GH3989@piout.net>
+Subject: Re: [PATCH v4 2/9] mfd: syscon: Add atmel system timer registers
+ definition
+Message-ID: <20150306105811.GC3318@x1>
 References: <1425570594-13124-1-git-send-email-alexandre.belloni@free-electrons.com>
- <1425570594-13124-9-git-send-email-alexandre.belloni@free-electrons.com>
- <54F96896.6040204@linaro.org>
+ <1425570594-13124-3-git-send-email-alexandre.belloni@free-electrons.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <54F96896.6040204@linaro.org>
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+In-Reply-To: <1425570594-13124-3-git-send-email-alexandre.belloni@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 06/03/2015 at 09:43:02 +0100, Daniel Lezcano wrote :
-> On 03/05/2015 04:49 PM, Alexandre Belloni wrote:
-> >The register range from the system timer is also used by the watchdog driver.
-> >Use a regmap to handle concurrent accesses.
-> >
-> >Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> >Acked-by: Boris Brezillon <boris.brezillon@free-electrons.com>
-> >---
-> >  drivers/clocksource/timer-atmel-st.c | 99 ++++++++++++++----------------------
-> >  1 file changed, 37 insertions(+), 62 deletions(-)
-> >
-> >diff --git a/drivers/clocksource/timer-atmel-st.c b/drivers/clocksource/timer-atmel-st.c
-> >index 7d062ab32674..c4a52e32675e 100644
-> >--- a/drivers/clocksource/timer-atmel-st.c
-> >+++ b/drivers/clocksource/timer-atmel-st.c
-> >@@ -24,19 +24,19 @@
-> >  #include <linux/irq.h>
-> >  #include <linux/clockchips.h>
-> >  #include <linux/export.h>
-> >-#include <linux/of.h>
-> >-#include <linux/of_address.h>
-> >+#include <linux/mfd/syscon.h>
-> >+#include <linux/mfd/syscon/atmel-st.h>
-> >  #include <linux/of_irq.h>
-> >+#include <linux/regmap.h>
-> >
-> >  #include <asm/mach/time.h>
-> >
-> >-#include <mach/at91_st.h>
-> >-#include <mach/hardware.h>
-> >-
-> >  static unsigned long last_crtr;
-> >  static u32 irqmask;
-> >  static struct clock_event_device clkevt;
-> >+static struct regmap *regmap_st;
-> >
-> >+#define AT91_SLOW_CLOCK		32768
-> >  #define RM9200_TIMER_LATCH	((AT91_SLOW_CLOCK + HZ/2) / HZ)
-> >
-> >  /*
-> >@@ -46,11 +46,11 @@ static struct clock_event_device clkevt;
-> >   */
-> >  static inline unsigned long read_CRTR(void)
-> >  {
-> >-	unsigned long x1, x2;
-> >+	unsigned int x1, x2;
-> >
-> >-	x1 = at91_st_read(AT91_ST_CRTR);
-> >+	regmap_read(regmap_st, AT91_ST_CRTR, &x1);
-> >  	do {
-> >-		x2 = at91_st_read(AT91_ST_CRTR);
-> >+		regmap_read(regmap_st, AT91_ST_CRTR, &x2);
-> >  		if (x1 == x2)
-> >  			break;
-> >  		x1 = x2;
-> >@@ -63,7 +63,10 @@ static inline unsigned long read_CRTR(void)
-> >   */
-> >  static irqreturn_t at91rm9200_timer_interrupt(int irq, void *dev_id)
-> >  {
-> >-	u32	sr = at91_st_read(AT91_ST_SR) & irqmask;
-> >+	u32 sr;
-> >+
-> >+	regmap_read(regmap_st, AT91_ST_SR, &sr);
-> >+	sr &= irqmask;
-> >
-> >  	/*
-> >  	 * irqs should be disabled here, but as the irq is shared they are only
-> >@@ -96,7 +99,7 @@ static struct irqaction at91rm9200_timer_irq = {
-> >  	.name		= "at91_tick",
-> >  	.flags		= IRQF_SHARED | IRQF_TIMER | IRQF_IRQPOLL,
-> >  	.handler	= at91rm9200_timer_interrupt,
-> >-	.irq		= NR_IRQS_LEGACY + AT91_ID_SYS,
-> >+	.irq		= 0,
-> 
-> Is this change related to regmap ?
-> 
+On Thu, 05 Mar 2015, Alexandre Belloni wrote:
 
-It is related to the removing of hardware.h. I can do that in a separate
-patch if you prefer.
+> AT91RM920 has a memory range reserved for timer and watchdog configur=
+ation.
+> Expose those registers so that drivers can make use of the system tim=
+er syscon
+> declared in at91 DTs.
+>=20
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.co=
+m>
+> ---
+>  include/linux/mfd/syscon/atmel-st.h | 49 +++++++++++++++++++++++++++=
+++++++++++
+>  1 file changed, 49 insertions(+)
+>  create mode 100644 include/linux/mfd/syscon/atmel-st.h
+>=20
+> diff --git a/include/linux/mfd/syscon/atmel-st.h b/include/linux/mfd/=
+syscon/atmel-st.h
+> new file mode 100644
+> index 000000000000..93c7affc2809
+> --- /dev/null
+> +++ b/include/linux/mfd/syscon/atmel-st.h
+> @@ -0,0 +1,49 @@
+> +/*
+> + * Copyright (C) 2005 Ivan Kokshaysky
+> + * Copyright (C) SAN People
+> + *
+> + * System Timer (ST) - System peripherals registers.
+> + * Based on AT91RM9200 datasheet revision E.
+> + *
+> + * This program is free software; you can redistribute it and/or mod=
+ify
+> + * it under the terms of the GNU General Public License as published=
+ by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + */
+> +
+> +#ifndef _LINUX_MFD_SYSCON_ATMEL_ST_H
+> +#define _LINUX_MFD_SYSCON_ATMEL_ST_H
+> +
+> +#include <linux/bitops.h>
+> +
+> +#define	AT91_ST_CR	0x00	/* Control Register */
+> +#define		AT91_ST_WDRST	BIT(0)	/* Watchdog Timer Restart */
 
-> By the way, perhaps take the opportunity to replace setup_irq by request_irq
-> (and check the return value) ?
-> 
+Sorry for the incremental reviews, I'm exceptionally busy of late.
 
-I tried and it fails, I didn't investigate yet.
+The next white space character after #define should be a humble space.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+=2E.. at least for the register defines.  The bit assignments can be
+tabbed out to denote what they are.
+
+Once fixed, please resend with my:
+
+Acked-by: Lee Jones <lee.jones@linaro.org>
+
+> +#define	AT91_ST_PIMR	0x04	/* Period Interval Mode Register */
+> +#define		AT91_ST_PIV	0xffff	/* Period Interval Value */
+> +
+> +#define	AT91_ST_WDMR	0x08	/* Watchdog Mode Register */
+> +#define		AT91_ST_WDV	0xffff	/* Watchdog Counter Value */
+> +#define		AT91_ST_RSTEN	BIT(16)	/* Reset Enable */
+> +#define		AT91_ST_EXTEN	BIT(17)	/* External Signal Assertion Enable *=
+/
+> +
+> +#define	AT91_ST_RTMR	0x0c	/* Real-time Mode Register */
+> +#define		AT91_ST_RTPRES	0xffff	/* Real-time Prescalar Value */
+> +
+> +#define	AT91_ST_SR	0x10	/* Status Register */
+> +#define		AT91_ST_PITS	BIT(0)	/* Period Interval Timer Status */
+> +#define		AT91_ST_WDOVF	BIT(1)	/* Watchdog Overflow */
+> +#define		AT91_ST_RTTINC	BIT(2)	/* Real-time Timer Increment */
+> +#define		AT91_ST_ALMS	BIT(3)	/* Alarm Status */
+> +
+> +#define	AT91_ST_IER	0x14	/* Interrupt Enable Register */
+> +#define	AT91_ST_IDR	0x18	/* Interrupt Disable Register */
+> +#define	AT91_ST_IMR	0x1c	/* Interrupt Mask Register */
+> +
+> +#define	AT91_ST_RTAR	0x20	/* Real-time Alarm Register */
+> +#define		AT91_ST_ALMV	0xfffff	/* Alarm Value */
+> +
+> +#define	AT91_ST_CRTR	0x24	/* Current Real-time Register */
+> +#define		AT91_ST_CRTV	0xfffff	/* Current Real-Time Value */
+> +
+> +#endif /* _LINUX_MFD_SYSCON_ATMEL_ST_H */
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
