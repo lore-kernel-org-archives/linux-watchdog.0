@@ -1,106 +1,119 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:51283 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751258AbbCBJS1 (ORCPT
+Received: from v094114.home.net.pl ([79.96.170.134]:62270 "HELO
+	v094114.home.net.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1752189AbbCFAF2 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 2 Mar 2015 04:18:27 -0500
-From: Boris Brezillon <boris.brezillon@free-electrons.com>
-To: Thomas Gleixner <tglx@linutronix.de>,
+	Thu, 5 Mar 2015 19:05:28 -0500
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+To: Mark Rutland <mark.rutland@arm.com>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
 	Jason Cooper <jason@lakedaemon.net>,
 	Peter Zijlstra <peterz@infradead.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	"Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
-	linux-pm@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org,
+	Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
+	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
 	Alessandro Zummo <a.zummo@towertech.it>,
-	rtc-linux@googlegroups.com,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Jiri Slaby <jslaby@suse.cz>, linux-serial@vger.kernel.org,
+	Jiri Slaby <jslaby@suse.cz>,
+	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
 	Mike Turquette <mturquette@linaro.org>,
-	linux-kernel@vger.kernel.org,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
 	Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	linux-arm-kernel@lists.infradead.org,
-	Boris Brezillon <boris.brezillon@free-electrons.com>
-Subject: [PATCH v2 4/6] clk: at91: implement suspend/resume for the PMC irqchip
-Date: Mon,  2 Mar 2015 10:18:16 +0100
-Message-Id: <1425287898-15093-5-git-send-email-boris.brezillon@free-electrons.com>
-In-Reply-To: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
-References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with IRQF_NO_SUSPEND
+Date: Fri, 06 Mar 2015 01:29:03 +0100
+Message-ID: <1696230.CygTkv53VA@vostro.rjw.lan>
+In-Reply-To: <20150305163227.GF14093@leverpostej>
+References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com> <CAJZ5v0h8vn26BeWPVhC4e_KNhBu15-mshnbq0K=OQ1M36vPQEQ@mail.gmail.com> <20150305163227.GF14093@leverpostej>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The irq line used by the PMC block is shared with several peripherals
-including the init timer which is registering its handler with
-IRQF_NO_SUSPEND.
-Implement the appropriate suspend/resume callback for the PMC irqchip,
-and inform irq core that PMC irq handler can be safely called while
-the system is suspended by setting IRQF_COND_SUSPEND.
+On Thursday, March 05, 2015 04:32:27 PM Mark Rutland wrote:
+> Hi Rafael,
+> 
+> > enable_irq_wake() has no effect on IRQF_NO_SUSPEND interrupts, so if the
+> > driver uses IRQF_NO_SUSPEND, it does not need to use enable_irq_wake()
+> > in addition to that.
+> 
+> That's not generally true -- certainly not for irq_chips without the
+> IRQCHIP_SKIP_SET_WAKE flag.
+> 
+> Consider systems where the suspended state results in power to the CPU
+> being cut, and we rely on an external piece of logic attached to the
+> irq_chip to detect wakeup IRQs and restore power.
+> 
+> In those cases irq_chip::irq_set_wake() must be called to ensure that
+> the wakeup logic is configured. If the wakeup logic is not configured to
+> look out for an IRQ, then when the IRQ is asserted by a device the
+> wakeup logic may not trigger. Thus the CPU power never gets restored, so
+> the CPU cannot handle the interrupt.
+> 
+> This is handled in enable_irq_wake() -- either the chip has the
+> IRQCHIP_SKIP_SET_WAKE flag set or chip->irq_set_wake() must succeed. If
+> neither is true enable_irq_wake() will return an error code to indicate
+> we can't use the IRQ for wakeup.
 
-Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
----
- drivers/clk/at91/pmc.c | 20 +++++++++++++++++++-
- drivers/clk/at91/pmc.h |  1 +
- 2 files changed, 20 insertions(+), 1 deletion(-)
+Right.  I forgot about that part.
 
-diff --git a/drivers/clk/at91/pmc.c b/drivers/clk/at91/pmc.c
-index f07c815..3f27d21 100644
---- a/drivers/clk/at91/pmc.c
-+++ b/drivers/clk/at91/pmc.c
-@@ -89,12 +89,29 @@ static int pmc_irq_set_type(struct irq_data *d, unsigned type)
- 	return 0;
- }
- 
-+static void pmc_irq_suspend(struct irq_data *d)
-+{
-+	struct at91_pmc *pmc = irq_data_get_irq_chip_data(d);
-+
-+	pmc->imr = pmc_read(pmc, AT91_PMC_IMR);
-+	pmc_write(pmc, AT91_PMC_IDR, pmc->imr);
-+}
-+
-+static void pmc_irq_resume(struct irq_data *d)
-+{
-+	struct at91_pmc *pmc = irq_data_get_irq_chip_data(d);
-+
-+	pmc_write(pmc, AT91_PMC_IER, pmc->imr);
-+}
-+
- static struct irq_chip pmc_irq = {
- 	.name = "PMC",
- 	.irq_disable = pmc_irq_mask,
- 	.irq_mask = pmc_irq_mask,
- 	.irq_unmask = pmc_irq_unmask,
- 	.irq_set_type = pmc_irq_set_type,
-+	.irq_suspend = pmc_irq_suspend,
-+	.irq_resume = pmc_irq_resume,
- };
- 
- static struct lock_class_key pmc_lock_class;
-@@ -224,7 +241,8 @@ static struct at91_pmc *__init at91_pmc_init(struct device_node *np,
- 		goto out_free_pmc;
- 
- 	pmc_write(pmc, AT91_PMC_IDR, 0xffffffff);
--	if (request_irq(pmc->virq, pmc_irq_handler, IRQF_SHARED, "pmc", pmc))
-+	if (request_irq(pmc->virq, pmc_irq_handler,
-+			IRQF_SHARED | IRQF_COND_SUSPEND, "pmc", pmc))
- 		goto out_remove_irqdomain;
- 
- 	return pmc;
-diff --git a/drivers/clk/at91/pmc.h b/drivers/clk/at91/pmc.h
-index 52d2041..69abb08 100644
---- a/drivers/clk/at91/pmc.h
-+++ b/drivers/clk/at91/pmc.h
-@@ -33,6 +33,7 @@ struct at91_pmc {
- 	spinlock_t lock;
- 	const struct at91_pmc_caps *caps;
- 	struct irq_domain *irqdomain;
-+	u32 imr;
- };
- 
- static inline void pmc_lock(struct at91_pmc *pmc)
--- 
-1.9.1
+> The request_irq path never results in a call to chip->irq_set_wake(),
+> even with the IRQF_NO_SUSPEND flag. So requesting an irq with
+> IRQF_NO_SUSPEND does not guarantee wakeup; it only guarantees that the
+> CPU can take the interrupt _around_ the suspended state, not necessarily
+> while _in_ the suspended state.
+
+Right.  "Suspended state" meaning full suspend here I suppose?
+
+> > Drivers using IRQF_COND_SUSPEND generally should use enable_irq_wake() too
+> > in case they end up in a situation without sharing a NO_SUSPEND interrupt, in
+> > which case their interrupt handlers won't be called after suspend_device_irqs(),
+> > so they need to rely on the core to do the wakeup.
+> > 
+> > > I agree that if problematic, it's an existing bug. Given Boris's
+> > > comments in the other thread this may just a minor semantic issue w.r.t.
+> > > IRQF_NO_SUSPEND vs IRQF_COND_SUSPEND.
+> > 
+> > It depends on whether or not the watchdog's interrupt handler has to be
+> > called immediately after receiving an interrupt (IRQF_NO_SUSPEND is
+> > better then) or it can be deferred till the resume_device_irqs() time.
+> 
+> We seem to be conflating some related properties:
+> 
+> [a] The IRQ will be left unmasked.
+> [b] The IRQ will be handled immediately when taken.
+> [c] The IRQ will wake the system from suspend.
+> 
+> Requesting an IRQ with IRQF_NO_SUSPEND guarantees [a,b], but does not
+> guarantee [c].
+
+That's correct.  IRQF_NO_SUSPEND does not guarantee that interrupts from
+that IRQ will have any effect after arch_suspend_disable_irqs() in
+suspend_enter().
+
+> A successful enable_irq_wake() on an IRQ guarantees [a,c], but usually
+> does not give [b] unless the IRQ was requested with IRQF_COND_SUSPEND
+> and happens to be shared with an IRQF_NO_SUSPEND user.
+
+That's correct too.
+
+> It sounds like for this kind of watchdog device we want [a,b,c], even if
+> the IRQ is not shared with an IRQF_NO_SUSPEND user.
+
+We can't guarantee that, though.  arch_suspend_disable_irqs() disables
+interrupts on the last working CPU and it won't get any.  It may be
+brought out of a low-power state by a pending interrupt, but it won't act
+upon that interrupt immediately anyway, only after the arch_suspend_enable_irqs()
+in suspend_enter().  But then it might as well be deferred until after
+resume_device_irqs().
+
+Rafael
 
