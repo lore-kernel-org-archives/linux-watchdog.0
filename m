@@ -1,13 +1,14 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from [212.85.155.42] ([212.85.155.42]:41635 "EHLO
-	atreides.gradator.net" rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org
-	with ESMTP id S1753060AbbCGLAy (ORCPT
+Received: from down.free-electrons.com ([37.187.137.238]:43106 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1755025AbbCGLGs (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 7 Mar 2015 06:00:54 -0500
-Date: Sat, 7 Mar 2015 11:59:53 +0100
-From: Sylvain Rochet <gradator@gradator.net>
+	Sat, 7 Mar 2015 06:06:48 -0500
+Date: Sat, 7 Mar 2015 12:06:45 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 To: Pavel Machek <pavel@ucw.cz>
-Cc: Peter Zijlstra <peterz@infradead.org>,
+Cc: Sylvain Rochet <gradator@gradator.net>,
+	Peter Zijlstra <peterz@infradead.org>,
 	Mark Rutland <mark.rutland@arm.com>,
 	Boris Brezillon <boris.brezillon@free-electrons.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
@@ -21,7 +22,6 @@ Cc: Peter Zijlstra <peterz@infradead.org>,
 	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
 	Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Wim Van Sebroeck <wim@iguana.be>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
 	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
 	Thomas Gleixner <tglx@linutronix.de>,
@@ -29,7 +29,9 @@ Cc: Peter Zijlstra <peterz@infradead.org>,
 	"linux-arm-kernel@lists.infradead.org"
 	<linux-arm-kernel@lists.infradead.org>,
 	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Message-ID: <20150307105953.GC28436@gradator.net>
+Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with
+ IRQF_NO_SUSPEND
+Message-ID: <20150307110645.GW3989@piout.net>
 References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
  <1425287898-15093-6-git-send-email-boris.brezillon@free-electrons.com>
  <20150304183809.GD22156@leverpostej>
@@ -41,92 +43,37 @@ References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.co
  <20150307102056.GA28436@gradator.net>
  <20150307103939.GA17964@amd>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="da4uJneut+ArUgXk"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20150307103939.GA17964@amd>
-Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with
- IRQF_NO_SUSPEND
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-
---da4uJneut+ArUgXk
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hello,
-
-
-On Sat, Mar 07, 2015 at 11:39:39AM +0100, Pavel Machek wrote:
-> On Sat 2015-03-07 11:20:56, Sylvain Rochet wrote:
-> > Hello,
-> >=20
-> > On Sat, Mar 07, 2015 at 10:18:46AM +0100, Peter Zijlstra wrote:
-> > > On Thu, Mar 05, 2015 at 11:53:08AM +0000, Mark Rutland wrote:
-> > > > If everyone else is happy with this using IRQF_NO_SUSPEND for now t=
-hen
-> > > > don't let my comments above block this patch.
-> > >=20
-> > > Yeah, I'm really not happy with NO_SUSPEND + enable_irq_wake().
-> > >=20
-> > > I really want that combo to BUG/WARN -- esp. since there's so much ca=
-rgo
-> > > culted crap out there.
-> > >=20
-> > > We should make robust interfaces, not randomly toggle flags until it
-> > > mostly works by accident rather than by design -- which is what this
-> > > feels like.
-> > >=20
-> > > And while I appreciate the watchdog use-case; I think the easiest
-> > > solution for now is to simply disable the wathdog over suspend until
-> > > we've come up with something that makes sense.
-> > >=20
-> > > As it is, you need to 'suspend' the watchdog at some point anyhow; you
-> > > don't want that thing to wake you from whatever suspend state you're =
-in.
-> >=20
-> > The Atmel watchdog can't be stopped once it's started. This is actually=
-=20
-> > very useful so we can reset if suspend or resume failed, the only=20
-> > drawback is that you have to wake up from time to time (e.g. by using=
-=20
+On 07/03/2015 at 11:39:39 +0100, Pavel Machek wrote :
+> > The Atmel watchdog can't be stopped once it's started. This is actually 
+> > very useful so we can reset if suspend or resume failed, the only 
+> > drawback is that you have to wake up from time to time (e.g. by using 
 > > the RTC/RTT) to clear the watchdog and then go back to sleep ASAP.
->=20
+> 
 > Yeah. So you do "echo mem > /sys/power/state", and few seconds/minutes
 > after watchdog kills the system. But you did not ask for dead system,
 > you asked for suspend.
-
-Yeah, that's why I'm setting the RTC/RTT in the pm_enter() callback on=20
-our products. On wake-up I'm checking if we woke up using the RTC/RTT in=20
-the pm_suspend_again() callback, if true we clear the watchdog and we go=20
-back to sleep. This can't easily be mainlined because it adds=20
-RTC/RTT/WDT calls from PM code, which will not be accepted anyway.
-
-
+> 
 > And while that behaviour is useful for you, I don't think it is
 > exactly useful behaviour, nor it is the behaviour user would expect.
+> 
 
-I agree, but it still can't be stopped, IMHO users wanting to suspend=20
-without being protected by the watchdog during suspend and resume should=20
-just don't use the hardware watchdog at all, they are already missing=20
-the watchdog in a tricky area where the kernel can fail more than=20
-anywhere else, the software watchdog should be fine as well for them.
+I think you misunderstood, that is exactly the expected behaviour. This
+is hardware defined. Once the watchdog is started, nobody can stop it.
+Trying to change the mode register will result in a reset of the SoC.
 
+It is documented in the datasheet and any user wanting another behaviour
+is out of luck.
 
-Sylvain
+So basically, when using a watchdog, you have to wake up every 15-16s to
+restart it.
 
---da4uJneut+ArUgXk
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAlT62ikACgkQDFub3qtEsS/wPQCeOF4qjzwkFNmeJHOyXcEP6TOc
-4ywAn3dhXsiUQQrDnEqjIUCMMrAIAf3b
-=LBGl
------END PGP SIGNATURE-----
-
---da4uJneut+ArUgXk--
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
