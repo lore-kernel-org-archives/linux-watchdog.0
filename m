@@ -1,13 +1,15 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from [212.85.155.42] ([212.85.155.42]:41756 "EHLO
-	atreides.gradator.net" rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org
-	with ESMTP id S1753416AbbCGLNV (ORCPT
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:58765 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751026AbbCGL3g (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 7 Mar 2015 06:13:21 -0500
-Date: Sat, 7 Mar 2015 11:20:56 +0100
-From: Sylvain Rochet <gradator@gradator.net>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Mark Rutland <mark.rutland@arm.com>,
+	Sat, 7 Mar 2015 06:29:36 -0500
+Date: Sat, 7 Mar 2015 12:29:33 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Sylvain Rochet <gradator@gradator.net>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Mark Rutland <mark.rutland@arm.com>,
 	Boris Brezillon <boris.brezillon@free-electrons.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	Mike Turquette <mturquette@linaro.org>,
@@ -20,8 +22,6 @@ Cc: Mark Rutland <mark.rutland@arm.com>,
 	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
 	Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Wim Van Sebroeck <wim@iguana.be>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Pavel Machek <pavel@ucw.cz>,
 	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
 	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
 	Thomas Gleixner <tglx@linutronix.de>,
@@ -29,86 +29,58 @@ Cc: Mark Rutland <mark.rutland@arm.com>,
 	"linux-arm-kernel@lists.infradead.org"
 	<linux-arm-kernel@lists.infradead.org>,
 	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Message-ID: <20150307102056.GA28436@gradator.net>
-References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>
- <1425287898-15093-6-git-send-email-boris.brezillon@free-electrons.com>
+Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with
+ IRQF_NO_SUSPEND
+Message-ID: <20150307112932.GA1372@amd>
+References: <1425287898-15093-6-git-send-email-boris.brezillon@free-electrons.com>
  <20150304183809.GD22156@leverpostej>
  <20150305095306.3db98ac8@bbrezillon>
  <20150305105308.GA13617@leverpostej>
  <20150305121723.1da0d016@bbrezillon>
  <20150305115307.GA14093@leverpostej>
  <20150307091846.GN23367@worktop.ger.corp.intel.com>
+ <20150307102056.GA28436@gradator.net>
+ <20150307103939.GA17964@amd>
+ <20150307110645.GW3989@piout.net>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20150307091846.GN23367@worktop.ger.corp.intel.com>
-Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with
- IRQF_NO_SUSPEND
+In-Reply-To: <20150307110645.GW3989@piout.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On Sat 2015-03-07 12:06:45, Alexandre Belloni wrote:
+> On 07/03/2015 at 11:39:39 +0100, Pavel Machek wrote :
+> > > The Atmel watchdog can't be stopped once it's started. This is actually 
+> > > very useful so we can reset if suspend or resume failed, the only 
+> > > drawback is that you have to wake up from time to time (e.g. by using 
+> > > the RTC/RTT) to clear the watchdog and then go back to sleep ASAP.
+> > 
+> > Yeah. So you do "echo mem > /sys/power/state", and few seconds/minutes
+> > after watchdog kills the system. But you did not ask for dead system,
+> > you asked for suspend.
+> > 
+> > And while that behaviour is useful for you, I don't think it is
+> > exactly useful behaviour, nor it is the behaviour user would expect.
+> > 
+> 
+> I think you misunderstood, that is exactly the expected behaviour. This
+> is hardware defined. Once the watchdog is started, nobody can stop it.
+> Trying to change the mode register will result in a reset of the
+> SoC.
 
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Well, it boils down to "what is stronger". Desire to suspend the
+system, or desire to reboot the system.
 
-Hello,
+It is "echo mem > state", not "echo reboot > state".
 
-On Sat, Mar 07, 2015 at 10:18:46AM +0100, Peter Zijlstra wrote:
-> On Thu, Mar 05, 2015 at 11:53:08AM +0000, Mark Rutland wrote:
-> > If everyone else is happy with this using IRQF_NO_SUSPEND for now then
-> > don't let my comments above block this patch.
->=20
-> Yeah, I'm really not happy with NO_SUSPEND + enable_irq_wake().
->=20
-> I really want that combo to BUG/WARN -- esp. since there's so much cargo
-> culted crap out there.
->=20
-> We should make robust interfaces, not randomly toggle flags until it
-> mostly works by accident rather than by design -- which is what this
-> feels like.
->=20
-> And while I appreciate the watchdog use-case; I think the easiest
-> solution for now is to simply disable the wathdog over suspend until
-> we've come up with something that makes sense.
->=20
-> As it is, you need to 'suspend' the watchdog at some point anyhow; you
-> don't want that thing to wake you from whatever suspend state you're in.
+> It is documented in the datasheet and any user wanting another behaviour
+> is out of luck.
 
-The Atmel watchdog can't be stopped once it's started. This is actually=20
-very useful so we can reset if suspend or resume failed, the only=20
-drawback is that you have to wake up from time to time (e.g. by using=20
-the RTC/RTT) to clear the watchdog and then go back to sleep ASAP.
+Actaully, your platform should just refuse to enter suspend-to-RAM
+when hw watchdog is enabled.
 
-I am working on safety products and keeping the watchdog running=20
-whatever the state is almost mandatory, one of the test on those=20
-products is about unsoldering all the crystals live from your product=20
-and the product should detect the general fault and power on a buzzer=20
-and a yellow fault LED. This is usually done with a watchdog clocked=20
-=66rom an internal RC of the =C2=B5C/SoC (so it can't be unsoldered ;-) and=
- a=20
-GPIO with a reset state in input/pull-up, the device clamps the GPIO to=20
-ground, if the watchdog resets the system the GPIO is going to switch=20
-back to input therefore changing its state.
-
-This can of course be done with an external watchdog circuitry, but it=20
-costs more and will consume much more than using =C3=A0 1 =C2=B5A RC=20
-oscillator/watchdog already present in the =C2=B5C/SoC.
-
-Sylvain
-
---Q68bSM7Ycu6FN28Q
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAlT60QgACgkQDFub3qtEsS/NewCeMBqzyALPaZlNeLBf16zLi+sm
-VE8AnAg3e1VUru9FutDq3F/4YMdJN4z9
-=99rC
------END PGP SIGNATURE-----
-
---Q68bSM7Ycu6FN28Q--
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
