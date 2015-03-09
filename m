@@ -1,59 +1,79 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:51152 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753207AbbCINKI (ORCPT
+Received: from v094114.home.net.pl ([79.96.170.134]:55938 "HELO
+	v094114.home.net.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1753685AbbCIOGU (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 9 Mar 2015 09:10:08 -0400
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
-	(envelope-from <linux@roeck-us.net>)
-	id 1YUxRf-0041AT-Ld
-	for linux-watchdog@vger.kernel.org; Mon, 09 Mar 2015 13:10:07 +0000
-Message-ID: <54FD9BAE.4040306@roeck-us.net>
-Date: Mon, 09 Mar 2015 06:10:06 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Mon, 9 Mar 2015 10:06:20 -0400
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Pavel Machek <pavel@ucw.cz>,
+	Sylvain Rochet <gradator@gradator.net>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Mike Turquette <mturquette@linaro.org>,
+	Jason Cooper <jason@lakedaemon.net>,
+	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
+	Len Brown <len.brown@intel.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Jiri Slaby <jslaby@suse.cz>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with IRQF_NO_SUSPEND
+Date: Mon, 09 Mar 2015 15:30:01 +0100
+Message-ID: <1592385.fqRVVyPSPE@vostro.rjw.lan>
+In-Reply-To: <20150309075546.GY3989@piout.net>
+References: <1425287898-15093-6-git-send-email-boris.brezillon@free-electrons.com> <1615214.0rkGfM1gZL@vostro.rjw.lan> <20150309075546.GY3989@piout.net>
 MIME-Version: 1.0
-To: Michal Simek <michal.simek@xilinx.com>,
-	linux-kernel@vger.kernel.org, monstr@monstr.eu
-CC: Zach Pfeffer <zachp@xilinx.com>, Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: cadence: Remove Kconfig dependency on ARCH
-References: <491e97be16decb4901fa2b0be4b530774501b5c1.1425891008.git.michal.simek@xilinx.com>
-In-Reply-To: <491e97be16decb4901fa2b0be4b530774501b5c1.1425891008.git.michal.simek@xilinx.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="utf-8"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 03/09/2015 01:50 AM, Michal Simek wrote:
-> Remove Kconfig dependency and enable driver for
-> all ARCHs.
->
-> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
-> ---
->
-> Test for all archs done by Kbuild test robot without any problem.
+On Monday, March 09, 2015 08:55:46 AM Alexandre Belloni wrote:
+> Hi,
+> 
+> On 08/03/2015 at 02:12:53 +0100, Rafael J. Wysocki wrote :
+> > > > I think you misunderstood, that is exactly the expected behaviour. This
+> > > > is hardware defined. Once the watchdog is started, nobody can stop it.
+> > > > Trying to change the mode register will result in a reset of the
+> > > > SoC.
+> > > 
+> > > Well, it boils down to "what is stronger". Desire to suspend the
+> > > system, or desire to reboot the system.
+> > > 
+> > > It is "echo mem > state", not "echo reboot > state".
+> > > 
+> > > > It is documented in the datasheet and any user wanting another behaviour
+> > > > is out of luck.
+> > > 
+> > > Actaully, your platform should just refuse to enter suspend-to-RAM
+> > > when hw watchdog is enabled.
+> > 
+> > Quite likely, depending on how exactly the suspend is implemented.
+> >
+> 
+> We've had absolutely zero complain on that. It is quite clear in the
+> datasheet that failing to refresh the watchdog once started will lead to
+> a reset and that it is impossible to stop.
+> It is actually quite convenient to also ensure that you can actually
+> wake up from suspend because that can obviously go wrong.
 
-Looks ok. To be sure, I'll run it through my test farm as well.
+I gather then that the suspend implementation is such that touching the
+watchdog periodically while suspended is not a problem.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Again, can you please tell me how suspend is implemented on at91?
 
-Guenter
 
-> ---
->   drivers/watchdog/Kconfig | 1 -
->   1 file changed, 1 deletion(-)
->
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 16f202350997..6442412377a4 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -169,7 +169,6 @@ config AT91SAM9X_WATCHDOG
->
->   config CADENCE_WATCHDOG
->   	tristate "Cadence Watchdog Timer"
-> -	depends on ARM
->   	select WATCHDOG_CORE
->   	help
->   	  Say Y here if you want to include support for the watchdog
->
-
+-- 
+I speak only for myself.
+Rafael J. Wysocki, Intel Open Source Technology Center.
