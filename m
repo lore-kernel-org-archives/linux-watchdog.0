@@ -1,12 +1,13 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from v094114.home.net.pl ([79.96.170.134]:56893 "HELO
-	v094114.home.net.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1750931AbbCHAtO (ORCPT
+Received: from down.free-electrons.com ([37.187.137.238]:47987 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750872AbbCIHzt (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 7 Mar 2015 19:49:14 -0500
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Mon, 9 Mar 2015 03:55:49 -0400
+Date: Mon, 9 Mar 2015 08:55:46 +0100
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Pavel Machek <pavel@ucw.cz>,
 	Sylvain Rochet <gradator@gradator.net>,
 	Peter Zijlstra <peterz@infradead.org>,
 	Mark Rutland <mark.rutland@arm.com>,
@@ -28,52 +29,49 @@ Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	"linux-arm-kernel@lists.infradead.org"
 	<linux-arm-kernel@lists.infradead.org>,
 	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with IRQF_NO_SUSPEND
-Date: Sun, 08 Mar 2015 02:12:53 +0100
-Message-ID: <1615214.0rkGfM1gZL@vostro.rjw.lan>
-In-Reply-To: <20150307112932.GA1372@amd>
-References: <1425287898-15093-6-git-send-email-boris.brezillon@free-electrons.com> <20150307110645.GW3989@piout.net> <20150307112932.GA1372@amd>
+Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with
+ IRQF_NO_SUSPEND
+Message-ID: <20150309075546.GY3989@piout.net>
+References: <1425287898-15093-6-git-send-email-boris.brezillon@free-electrons.com>
+ <20150307110645.GW3989@piout.net>
+ <20150307112932.GA1372@amd>
+ <1615214.0rkGfM1gZL@vostro.rjw.lan>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1615214.0rkGfM1gZL@vostro.rjw.lan>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Saturday, March 07, 2015 12:29:33 PM Pavel Machek wrote:
-> On Sat 2015-03-07 12:06:45, Alexandre Belloni wrote:
-> > On 07/03/2015 at 11:39:39 +0100, Pavel Machek wrote :
-> > > > The Atmel watchdog can't be stopped once it's started. This is actually 
-> > > > very useful so we can reset if suspend or resume failed, the only 
-> > > > drawback is that you have to wake up from time to time (e.g. by using 
-> > > > the RTC/RTT) to clear the watchdog and then go back to sleep ASAP.
-> > > 
-> > > Yeah. So you do "echo mem > /sys/power/state", and few seconds/minutes
-> > > after watchdog kills the system. But you did not ask for dead system,
-> > > you asked for suspend.
-> > > 
-> > > And while that behaviour is useful for you, I don't think it is
-> > > exactly useful behaviour, nor it is the behaviour user would expect.
-> > > 
+Hi,
+
+On 08/03/2015 at 02:12:53 +0100, Rafael J. Wysocki wrote :
+> > > I think you misunderstood, that is exactly the expected behaviour. This
+> > > is hardware defined. Once the watchdog is started, nobody can stop it.
+> > > Trying to change the mode register will result in a reset of the
+> > > SoC.
 > > 
-> > I think you misunderstood, that is exactly the expected behaviour. This
-> > is hardware defined. Once the watchdog is started, nobody can stop it.
-> > Trying to change the mode register will result in a reset of the
-> > SoC.
+> > Well, it boils down to "what is stronger". Desire to suspend the
+> > system, or desire to reboot the system.
+> > 
+> > It is "echo mem > state", not "echo reboot > state".
+> > 
+> > > It is documented in the datasheet and any user wanting another behaviour
+> > > is out of luck.
+> > 
+> > Actaully, your platform should just refuse to enter suspend-to-RAM
+> > when hw watchdog is enabled.
 > 
-> Well, it boils down to "what is stronger". Desire to suspend the
-> system, or desire to reboot the system.
-> 
-> It is "echo mem > state", not "echo reboot > state".
-> 
-> > It is documented in the datasheet and any user wanting another behaviour
-> > is out of luck.
-> 
-> Actaully, your platform should just refuse to enter suspend-to-RAM
-> when hw watchdog is enabled.
+> Quite likely, depending on how exactly the suspend is implemented.
+>
 
-Quite likely, depending on how exactly the suspend is implemented.
-
+We've had absolutely zero complain on that. It is quite clear in the
+datasheet that failing to refresh the watchdog once started will lead to
+a reset and that it is impossible to stop.
+It is actually quite convenient to also ensure that you can actually
+wake up from suspend because that can obviously go wrong.
 
 -- 
-I speak only for myself.
-Rafael J. Wysocki, Intel Open Source Technology Center.
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
