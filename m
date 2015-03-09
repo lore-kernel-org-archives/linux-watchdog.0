@@ -1,43 +1,44 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:44995 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751318AbbCIPeZ (ORCPT
+Received: from mail-ob0-f172.google.com ([209.85.214.172]:35067 "EHLO
+	mail-ob0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753146AbbCIIuR (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 9 Mar 2015 11:34:25 -0400
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
-	(envelope-from <linux@roeck-us.net>)
-	id 1YUzhJ-001zLq-4j
-	for linux-watchdog@vger.kernel.org; Mon, 09 Mar 2015 15:34:25 +0000
-Date: Mon, 9 Mar 2015 08:33:31 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Lee Jones <lee.jones@linaro.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Sebastian Reichel <sre@kernel.org>,
-	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org, linux-pm@vger.kernel.org
-Subject: Re: [v4,3/9] watchdog: at91rm9200: use the system timer syscon
-Message-ID: <20150309153331.GA7875@roeck-us.net>
-References: <1425570594-13124-4-git-send-email-alexandre.belloni@free-electrons.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1425570594-13124-4-git-send-email-alexandre.belloni@free-electrons.com>
+	Mon, 9 Mar 2015 04:50:17 -0400
+Received: by obbgq1 with SMTP id gq1so32079528obb.2
+        for <linux-watchdog@vger.kernel.org>; Mon, 09 Mar 2015 01:50:16 -0700 (PDT)
+From: Michal Simek <michal.simek@xilinx.com>
+To: linux-kernel@vger.kernel.org, monstr@monstr.eu
+Cc: Zach Pfeffer <zachp@xilinx.com>, Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH] watchdog: cadence: Remove Kconfig dependency on ARCH
+Date: Mon,  9 Mar 2015 09:50:12 +0100
+Message-Id: <491e97be16decb4901fa2b0be4b530774501b5c1.1425891008.git.michal.simek@xilinx.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Mar 05, 2015 at 04:49:48PM +0100, Alexandre Belloni wrote:
-> Use a syscon regmap to access the system timer registers.
-> 
-> Also, rename the driver atmel_st_watchdog to stop conflicting with
-> at91sam9_wdt.c
-> 
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Remove Kconfig dependency and enable driver for
+all ARCHs.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+---
+
+Test for all archs done by Kbuild test robot without any problem.
+---
+ drivers/watchdog/Kconfig | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 16f202350997..6442412377a4 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -169,7 +169,6 @@ config AT91SAM9X_WATCHDOG
+ 
+ config CADENCE_WATCHDOG
+ 	tristate "Cadence Watchdog Timer"
+-	depends on ARM
+ 	select WATCHDOG_CORE
+ 	help
+ 	  Say Y here if you want to include support for the watchdog
+-- 
+1.8.2.3
+
