@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:40623 "EHLO
+Received: from down.free-electrons.com ([37.187.137.238]:40615 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753787AbbCLMIP (ORCPT
+	with ESMTP id S1753960AbbCLMIO (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 12 Mar 2015 08:08:15 -0400
+	Thu, 12 Mar 2015 08:08:14 -0400
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 To: Nicolas Ferre <nicolas.ferre@atmel.com>,
 	Daniel Lezcano <daniel.lezcano@linaro.org>
@@ -14,53 +14,95 @@ Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
 	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
 	linux-watchdog@vger.kernel.org,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH v5 05/10] ARM: at91: at91rm9200: remove deprecated arm_pm_restart
-Date: Thu, 12 Mar 2015 13:07:29 +0100
-Message-Id: <1426162054-9987-6-git-send-email-alexandre.belloni@free-electrons.com>
+Subject: [PATCH v5 04/10] watchdog: at91rm9200: implement restart handler
+Date: Thu, 12 Mar 2015 13:07:28 +0100
+Message-Id: <1426162054-9987-5-git-send-email-alexandre.belloni@free-electrons.com>
 In-Reply-To: <1426162054-9987-1-git-send-email-alexandre.belloni@free-electrons.com>
 References: <1426162054-9987-1-git-send-email-alexandre.belloni@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Now that a proper driver is available, remove at91rm9200_restart.
+Restarting the at91rm9200 is done through programming the watchdog and waiting
+for it to reset.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
- arch/arm/mach-at91/at91rm9200.c | 12 ------------
- 1 file changed, 12 deletions(-)
+ drivers/watchdog/at91rm9200_wdt.c | 32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
 
-diff --git a/arch/arm/mach-at91/at91rm9200.c b/arch/arm/mach-at91/at91rm9200.c
-index 8fcfb70f7124..2386d08d65e8 100644
---- a/arch/arm/mach-at91/at91rm9200.c
-+++ b/arch/arm/mach-at91/at91rm9200.c
-@@ -24,19 +24,8 @@
- #include <asm/mach/irq.h>
- #include <asm/system_misc.h>
+diff --git a/drivers/watchdog/at91rm9200_wdt.c b/drivers/watchdog/at91rm9200_wdt.c
+index e6fa87d85de3..41cecb55766c 100644
+--- a/drivers/watchdog/at91rm9200_wdt.c
++++ b/drivers/watchdog/at91rm9200_wdt.c
+@@ -12,6 +12,7 @@
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
  
--#include <mach/at91_st.h>
--
- #include "generic.h"
+ #include <linux/bitops.h>
++#include <linux/delay.h>
+ #include <linux/errno.h>
+ #include <linux/fs.h>
+ #include <linux/init.h>
+@@ -23,6 +24,7 @@
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/platform_device.h>
++#include <linux/reboot.h>
+ #include <linux/regmap.h>
+ #include <linux/types.h>
+ #include <linux/watchdog.h>
+@@ -53,6 +55,27 @@ static unsigned long at91wdt_busy;
  
--static void at91rm9200_restart(enum reboot_mode reboot_mode, const char *cmd)
--{
--	/*
--	 * Perform a hardware reset with the use of the Watchdog timer.
--	 */
--	at91_st_write(AT91_ST_WDMR, AT91_ST_RSTEN | AT91_ST_EXTEN | 1);
--	at91_st_write(AT91_ST_CR, AT91_ST_WDRST);
--}
--
- static void __init at91rm9200_dt_timer_init(void)
+ /* ......................................................................... */
+ 
++static int at91rm9200_restart(struct notifier_block *this,
++					unsigned long mode, void *cmd)
++{
++	/*
++	 * Perform a hardware reset with the use of the Watchdog timer.
++	 */
++	regmap_write(regmap_st, AT91_ST_WDMR,
++		     AT91_ST_RSTEN | AT91_ST_EXTEN | 1);
++	regmap_write(regmap_st, AT91_ST_CR, AT91_ST_WDRST);
++
++	mdelay(2000);
++
++	pr_emerg("Unable to restart system\n");
++	return NOTIFY_DONE;
++}
++
++static struct notifier_block at91rm9200_restart_nb = {
++	.notifier_call = at91rm9200_restart,
++	.priority = 192,
++};
++
+ /*
+  * Disable the watchdog.
+  */
+@@ -228,6 +251,10 @@ static int at91wdt_probe(struct platform_device *pdev)
+ 	if (res)
+ 		return res;
+ 
++	res = register_restart_handler(&at91rm9200_restart_nb);
++	if (res)
++		dev_warn(dev, "failed to register restart handler\n");
++
+ 	pr_info("AT91 Watchdog Timer enabled (%d seconds%s)\n",
+ 		wdt_time, nowayout ? ", nowayout" : "");
+ 	return 0;
+@@ -235,8 +262,13 @@ static int at91wdt_probe(struct platform_device *pdev)
+ 
+ static int at91wdt_remove(struct platform_device *pdev)
  {
- 	of_clk_init(NULL);
-@@ -48,7 +37,6 @@ static void __init at91rm9200_dt_device_init(void)
- 	of_platform_populate(NULL, of_default_bus_match_table, NULL, NULL);
++	struct device *dev = &pdev->dev;
+ 	int res;
  
- 	arm_pm_idle = at91rm9200_idle;
--	arm_pm_restart = at91rm9200_restart;
- 	at91rm9200_pm_init();
- }
- 
++	res = unregister_restart_handler(&at91rm9200_restart_nb);
++	if (res)
++		dev_warn(dev, "failed to unregister restart handler\n");
++
+ 	res = misc_deregister(&at91wdt_miscdev);
+ 	if (!res)
+ 		at91wdt_miscdev.parent = NULL;
 -- 
 2.1.0
 
