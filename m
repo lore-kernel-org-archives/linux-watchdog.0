@@ -1,121 +1,104 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from eusmtp01.atmel.com ([212.144.249.242]:11442 "EHLO
-	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752441AbbCKLRK (ORCPT
+Received: from down.free-electrons.com ([37.187.137.238]:40626 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754077AbbCLMIS (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 11 Mar 2015 07:17:10 -0400
-Message-ID: <5500242D.3080605@atmel.com>
-Date: Wed, 11 Mar 2015 12:17:01 +0100
-From: Nicolas Ferre <nicolas.ferre@atmel.com>
-MIME-Version: 1.0
-To: Boris Brezillon <boris.brezillon@free-electrons.com>,
-	"Rafael J. Wysocki" <rjw@rjwysocki.net>
-CC: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Pavel Machek <pavel@ucw.cz>,
-	Sylvain Rochet <gradator@gradator.net>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Mike Turquette <mturquette@linaro.org>,
-	Jason Cooper <jason@lakedaemon.net>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	Len Brown <len.brown@intel.com>,
-	"Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
+	Thu, 12 Mar 2015 08:08:18 -0400
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Daniel Lezcano <daniel.lezcano@linaro.org>
+Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
 	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Jiri Slaby <jslaby@suse.cz>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with IRQF_NO_SUSPEND
-References: <1425287898-15093-1-git-send-email-boris.brezillon@free-electrons.com>	<20150307103939.GA17964@amd>	<20150307110645.GW3989@piout.net>	<2616799.fRG1k0Q6sR@vostro.rjw.lan> <20150311093848.2b23a027@bbrezillon>
-In-Reply-To: <20150311093848.2b23a027@bbrezillon>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [PATCH v5 10/10] ARM: at91: remove useless include
+Date: Thu, 12 Mar 2015 13:07:34 +0100
+Message-Id: <1426162054-9987-11-git-send-email-alexandre.belloni@free-electrons.com>
+In-Reply-To: <1426162054-9987-1-git-send-email-alexandre.belloni@free-electrons.com>
+References: <1426162054-9987-1-git-send-email-alexandre.belloni@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Le 11/03/2015 09:38, Boris Brezillon a =E9crit :
-> On Sun, 08 Mar 2015 02:11:45 +0100
-> "Rafael J. Wysocki" <rjw@rjwysocki.net> wrote:
->=20
->> On Saturday, March 07, 2015 12:06:45 PM Alexandre Belloni wrote:
->>> On 07/03/2015 at 11:39:39 +0100, Pavel Machek wrote :
->>>>> The Atmel watchdog can't be stopped once it's started. This is ac=
-tually=20
->>>>> very useful so we can reset if suspend or resume failed, the only=
-=20
->>>>> drawback is that you have to wake up from time to time (e.g. by u=
-sing=20
->>>>> the RTC/RTT) to clear the watchdog and then go back to sleep ASAP=
-=2E
->>>>
->>>> Yeah. So you do "echo mem > /sys/power/state", and few seconds/min=
-utes
->>>> after watchdog kills the system. But you did not ask for dead syst=
-em,
->>>> you asked for suspend.
->>>>
->>>> And while that behaviour is useful for you, I don't think it is
->>>> exactly useful behaviour, nor it is the behaviour user would expec=
-t.
->>>>
->>>
->>> I think you misunderstood, that is exactly the expected behaviour. =
-This
->>> is hardware defined. Once the watchdog is started, nobody can stop =
-it.
->>> Trying to change the mode register will result in a reset of the So=
-C.
->>>
->>> It is documented in the datasheet and any user wanting another beha=
-viour
->>> is out of luck.
->>>
->>> So basically, when using a watchdog, you have to wake up every 15-1=
-6s to
->>> restart it.
->>
->> So question is if we need a separate interrupt handler for that, exp=
-ecially
->> since it is shared with the PIT timer anyway.
->>
->> Seems to me that the simplest way out of this conundrum would be to =
-simply
->> make the timer's interrupt handler kick the watchdog every once a wh=
-ile and
->> get rid of the separate watchdog interrupt handler entirely.
->=20
-> The watchdog interrupt handler is not here to ping the watchdog, it's
-> here to reset the platform if the watchdog hasn't been refreshed
-> appropriately.
->=20
-> IOW, it's a software watchdog using at91 WDT capabilities to determin=
-e
-> when it should reboot the system.
-> IIRC, we need this on some at91 platforms to fix a HW bug (maybe
-> Nicolas can confirm this).
+Both drivers using the system timer are now converted to an MFD. mach/at91_st.h
+is now useless.
 
-Yes, the HW bug that we address in these functions:
-at91sam9260_restart() and at91sam9g45_restart().
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Acked-by: Boris Brezillon <boris.brezillon@free-electrons.com>
+---
+ arch/arm/mach-at91/include/mach/at91_st.h | 61 -------------------------------
+ 1 file changed, 61 deletions(-)
+ delete mode 100644 arch/arm/mach-at91/include/mach/at91_st.h
 
-We have this issue because of NAND flash lines shared with DDR that are
-driven during product reboot on old products (Cf. these functions
-comments). This bug would kick-in when doing "software reset"/"watchdog
-reset"/"push button reset". Only the "software reset" is handled by the
-functions above.
+diff --git a/arch/arm/mach-at91/include/mach/at91_st.h b/arch/arm/mach-at91/include/mach/at91_st.h
+deleted file mode 100644
+index 67fdbd13c3ed..000000000000
+--- a/arch/arm/mach-at91/include/mach/at91_st.h
++++ /dev/null
+@@ -1,61 +0,0 @@
+-/*
+- * arch/arm/mach-at91/include/mach/at91_st.h
+- *
+- * Copyright (C) 2005 Ivan Kokshaysky
+- * Copyright (C) SAN People
+- *
+- * System Timer (ST) - System peripherals registers.
+- * Based on AT91RM9200 datasheet revision E.
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- */
+-
+-#ifndef AT91_ST_H
+-#define AT91_ST_H
+-
+-#ifndef __ASSEMBLY__
+-extern void __iomem *at91_st_base;
+-
+-#define at91_st_read(field) \
+-	__raw_readl(at91_st_base + field)
+-
+-#define at91_st_write(field, value) \
+-	__raw_writel(value, at91_st_base + field)
+-#else
+-.extern at91_st_base
+-#endif
+-
+-#define	AT91_ST_CR		0x00			/* Control Register */
+-#define 	AT91_ST_WDRST		(1 << 0)		/* Watchdog Timer Restart */
+-
+-#define	AT91_ST_PIMR		0x04			/* Period Interval Mode Register */
+-#define		AT91_ST_PIV		(0xffff <<  0)		/* Period Interval Value */
+-
+-#define	AT91_ST_WDMR		0x08			/* Watchdog Mode Register */
+-#define		AT91_ST_WDV		(0xffff <<  0)		/* Watchdog Counter Value */
+-#define		AT91_ST_RSTEN		(1	<< 16)		/* Reset Enable */
+-#define		AT91_ST_EXTEN		(1	<< 17)		/* External Signal Assertion Enable */
+-
+-#define	AT91_ST_RTMR		0x0c			/* Real-time Mode Register */
+-#define		AT91_ST_RTPRES		(0xffff <<  0)		/* Real-time Prescalar Value */
+-
+-#define	AT91_ST_SR		0x10			/* Status Register */
+-#define		AT91_ST_PITS		(1 << 0)		/* Period Interval Timer Status */
+-#define		AT91_ST_WDOVF		(1 << 1) 		/* Watchdog Overflow */
+-#define		AT91_ST_RTTINC		(1 << 2) 		/* Real-time Timer Increment */
+-#define		AT91_ST_ALMS		(1 << 3) 		/* Alarm Status */
+-
+-#define	AT91_ST_IER		0x14			/* Interrupt Enable Register */
+-#define	AT91_ST_IDR		0x18			/* Interrupt Disable Register */
+-#define	AT91_ST_IMR		0x1c			/* Interrupt Mask Register */
+-
+-#define	AT91_ST_RTAR		0x20			/* Real-time Alarm Register */
+-#define		AT91_ST_ALMV		(0xfffff << 0)		/* Alarm Value */
+-
+-#define	AT91_ST_CRTR		0x24			/* Current Real-time Register */
+-#define		AT91_ST_CRTV		(0xfffff << 0)		/* Current Real-Time Value */
+-
+-#endif
+-- 
+2.1.0
 
-So, yes, this "software watchdog" is there for this purpose IIRC.
-
-Bye,
---=20
-Nicolas Ferre
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
