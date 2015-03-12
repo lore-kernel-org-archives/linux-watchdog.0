@@ -1,87 +1,79 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:44512 "EHLO
+Received: from down.free-electrons.com ([37.187.137.238]:40590 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750920AbbCJWdJ (ORCPT
+	with ESMTP id S1753304AbbCLMIM (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 10 Mar 2015 18:33:09 -0400
-Date: Tue, 10 Mar 2015 23:33:05 +0100
+	Thu, 12 Mar 2015 08:08:12 -0400
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Pavel Machek <pavel@ucw.cz>,
-	Sylvain Rochet <gradator@gradator.net>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Mike Turquette <mturquette@linaro.org>,
-	Jason Cooper <jason@lakedaemon.net>,
-	"rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>,
-	Len Brown <len.brown@intel.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
+To: Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Daniel Lezcano <daniel.lezcano@linaro.org>
+Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
 	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Jiri Slaby <jslaby@suse.cz>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH v2 5/6] watchdog: at91sam9: request the irq with
- IRQF_NO_SUSPEND
-Message-ID: <20150310223305.GN9188@piout.net>
-References: <1425287898-15093-6-git-send-email-boris.brezillon@free-electrons.com>
- <1592385.fqRVVyPSPE@vostro.rjw.lan>
- <20150310213317.GK9188@piout.net>
- <1901056.Mqyykpv3e9@vostro.rjw.lan>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1901056.Mqyykpv3e9@vostro.rjw.lan>
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [PATCH v5 01/10] ARM: at91/dt: declare atmel,at91rm9200-st as a syscon
+Date: Thu, 12 Mar 2015 13:07:25 +0100
+Message-Id: <1426162054-9987-2-git-send-email-alexandre.belloni@free-electrons.com>
+In-Reply-To: <1426162054-9987-1-git-send-email-alexandre.belloni@free-electrons.com>
+References: <1426162054-9987-1-git-send-email-alexandre.belloni@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 10/03/2015 at 23:31:52 +0100, Rafael J. Wysocki wrote :
-> On Tuesday, March 10, 2015 10:33:17 PM Alexandre Belloni wrote:
-> > Hi,
-> > 
-> > On 09/03/2015 at 15:30:01 +0100, Rafael J. Wysocki wrote :
-> > > > > > Actaully, your platform should just refuse to enter suspend-to-RAM
-> > > > > > when hw watchdog is enabled.
-> > > > > 
-> > > > > Quite likely, depending on how exactly the suspend is implemented.
-> > > > >
-> > > > 
-> > > > We've had absolutely zero complain on that. It is quite clear in the
-> > > > datasheet that failing to refresh the watchdog once started will lead to
-> > > > a reset and that it is impossible to stop.
-> > > > It is actually quite convenient to also ensure that you can actually
-> > > > wake up from suspend because that can obviously go wrong.
-> > > 
-> > > I gather then that the suspend implementation is such that touching the
-> > > watchdog periodically while suspended is not a problem.
-> > > 
-> > > Again, can you please tell me how suspend is implemented on at91?
-> > > 
-> > 
-> > It actually depends on the architecture (at91rm9200, at91sam9 or sama5)
-> > but basically, the clocks are switched off in almost all the peripheral
-> > drivers then the ram self refresh activated, the master clock is
-> > switched off using code running from SRAM and the core is then waiting
-> > for interrupt.
-> 
-> OK, so it looks like enable_irq_wake() doesn't actually affect the hardware
-> on those platforms, is that correct?
-> 
+The system timer register range is used to handle three different
+functionalities: Periodic Interval Timer, Real Time Timer and watchdog. Declare
+it as a syscon to be able to get a regmap.
+Also declare it as a simple-mfd and its watchdog subnode.
 
-I didn't exactly look in details but apart from the wakeup from gpio
-handling (keeping the pio controller clocked in the case one of its gpio
-has wakeup enabled), I don't think it does much more. It uses
-irq_gc_set_wake().
+Finally, document the watchdog compatible string.
 
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+
+fixup! ARM: at91/dt: declare atmel,at91rm9200-st as a syscon
+---
+ Documentation/devicetree/bindings/arm/atmel-at91.txt | 4 +++-
+ arch/arm/boot/dts/at91rm9200.dtsi                    | 6 +++++-
+ 2 files changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/arm/atmel-at91.txt b/Documentation/devicetree/bindings/arm/atmel-at91.txt
+index ad319f84f560..2e99b5b57350 100644
+--- a/Documentation/devicetree/bindings/arm/atmel-at91.txt
++++ b/Documentation/devicetree/bindings/arm/atmel-at91.txt
+@@ -46,10 +46,12 @@ PIT Timer required properties:
+   shared across all System Controller members.
+ 
+ System Timer (ST) required properties:
+-- compatible: Should be "atmel,at91rm9200-st"
++- compatible: Should be "atmel,at91rm9200-st", "syscon", "simple-mfd"
+ - reg: Should contain registers location and length
+ - interrupts: Should contain interrupt for the ST which is the IRQ line
+   shared across all System Controller members.
++Its subnodes can be:
++- watchdog: compatible should be "atmel,at91rm9200-wdt"
+ 
+ TC/TCLIB Timer required properties:
+ - compatible: Should be "atmel,<chip>-tcb".
+diff --git a/arch/arm/boot/dts/at91rm9200.dtsi b/arch/arm/boot/dts/at91rm9200.dtsi
+index 21c2b504f977..b777d21b8a7c 100644
+--- a/arch/arm/boot/dts/at91rm9200.dtsi
++++ b/arch/arm/boot/dts/at91rm9200.dtsi
+@@ -356,9 +356,13 @@
+ 			};
+ 
+ 			st: timer@fffffd00 {
+-				compatible = "atmel,at91rm9200-st";
++				compatible = "atmel,at91rm9200-st", "syscon", "simple-mfd";
+ 				reg = <0xfffffd00 0x100>;
+ 				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
++
++				watchdog {
++					compatible = "atmel,at91rm9200-wdt";
++				};
+ 			};
+ 
+ 			rtc: rtc@fffffe00 {
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+2.1.0
+
