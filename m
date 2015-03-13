@@ -1,54 +1,59 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:48552 "EHLO
+Received: from down.free-electrons.com ([37.187.137.238]:48593 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752280AbbCMKke (ORCPT
+	with ESMTP id S1751295AbbCMKow (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 13 Mar 2015 06:40:34 -0400
-Date: Fri, 13 Mar 2015 11:40:32 +0100
+	Fri, 13 Mar 2015 06:44:52 -0400
+Date: Fri, 13 Mar 2015 11:44:50 +0100
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: Lee Jones <lee.jones@linaro.org>
+To: Daniel Lezcano <daniel.lezcano@linaro.org>
 Cc: Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
 	Boris Brezillon <boris.brezillon@free-electrons.com>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
 	Wim Van Sebroeck <wim@iguana.be>,
 	Guenter Roeck <linux@roeck-us.net>,
-	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v5 02/10] mfd: syscon: Add atmel system timer registers
- definition
-Message-ID: <20150313104032.GG4329@piout.net>
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v5 09/10] clocksource: atmel-st: remove mach/hardware
+ dependency
+Message-ID: <20150313104450.GH4329@piout.net>
 References: <1426162054-9987-1-git-send-email-alexandre.belloni@free-electrons.com>
- <1426162054-9987-3-git-send-email-alexandre.belloni@free-electrons.com>
- <20150313080315.GC3383@x1>
+ <1426162054-9987-10-git-send-email-alexandre.belloni@free-electrons.com>
+ <5502BA2F.4040600@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20150313080315.GC3383@x1>
+In-Reply-To: <5502BA2F.4040600@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
+On 13/03/2015 at 11:21:35 +0100, Daniel Lezcano wrote :
+> On 03/12/2015 01:07 PM, Alexandre Belloni wrote:
+> >Remove the mach/hardware dependency to prepare the driver for multiplatform
+> >support.
+> >Also switch from setup_irq() to request_irq()
+> >
+> >Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> >---
+> >  drivers/clocksource/timer-atmel-st.c | 21 +++++++++------------
+> >  1 file changed, 9 insertions(+), 12 deletions(-)
+> >
+> >diff --git a/drivers/clocksource/timer-atmel-st.c b/drivers/clocksource/timer-atmel-st.c
+> >index 674ef2519d6b..91d6cbb7a56b 100644
+> >--- a/drivers/clocksource/timer-atmel-st.c
+> >+++ b/drivers/clocksource/timer-atmel-st.c
+> >@@ -31,13 +31,12 @@
+> >
+> >  #include <asm/mach/time.h>
+> 
+> Couldn't the header above be removed ?
+> 
 
-On 13/03/2015 at 08:03:15 +0000, Lee Jones wrote :
-> On Thu, 12 Mar 2015, Alexandre Belloni wrote:
-> 
-> > AT91RM920 has a memory range reserved for timer and watchdog configuration.
-> > Expose those registers so that drivers can make use of the system timer syscon
-> > declared in at91 DTs.
-> > 
-> > Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> > Acked-by: Lee Jones <lee.jones@linaro.org>
-> > ---
-> >  include/linux/mfd/syscon/atmel-st.h | 49 +++++++++++++++++++++++++++++++++++++
-> >  1 file changed, 49 insertions(+)
-> >  create mode 100644 include/linux/mfd/syscon/atmel-st.h
-> 
-> Applied, thanks.
-> 
+Indeed, it can but that is starting to be further cleanup than I
+intended ;)
 
-Actually, I was thinking this could go through the at91 to avoid
-depending on your branch.
+I'll send a v6 of that patch for Nicolas to pick.
+
 
 -- 
 Alexandre Belloni, Free Electrons
