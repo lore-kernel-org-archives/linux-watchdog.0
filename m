@@ -1,72 +1,71 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from eusmtp01.atmel.com ([212.144.249.243]:12982 "EHLO
+Received: from eusmtp01.atmel.com ([212.144.249.243]:15446 "EHLO
 	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756500AbbCMQgT (ORCPT
+	with ESMTP id S1756893AbbCMQwd (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 13 Mar 2015 12:36:19 -0400
-Message-ID: <550311FA.9000908@atmel.com>
-Date: Fri, 13 Mar 2015 17:36:10 +0100
+	Fri, 13 Mar 2015 12:52:33 -0400
+Message-ID: <550315C7.7010403@atmel.com>
+Date: Fri, 13 Mar 2015 17:52:23 +0100
 From: Nicolas Ferre <nicolas.ferre@atmel.com>
 MIME-Version: 1.0
-To: Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Guenter Roeck <linux@roeck-us.net>,
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	Lee Jones <lee.jones@linaro.org>
-CC: Boris Brezillon <boris.brezillon@free-electrons.com>,
-	"Jean-Christophe Plagniol-Villard" <plagnioj@jcrosoft.com>,
+CC: Daniel Lezcano <daniel.lezcano@linaro.org>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	<linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
 	Wim Van Sebroeck <wim@iguana.be>,
-	<linux-kernel@vger.kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>,
-	<linux-watchdog@vger.kernel.org>
-Subject: Re: [PATCH v5 00/10] Atmel System Timer cleanups
-References: <1426162054-9987-1-git-send-email-alexandre.belloni@free-electrons.com> <5502BA89.8020100@linaro.org> <20150313103329.GF4329@piout.net> <5502BD17.6030509@linaro.org>
-In-Reply-To: <5502BD17.6030509@linaro.org>
-Content-Type: text/plain; charset="utf-8"
+	"Guenter Roeck" <linux@roeck-us.net>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	<linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH v5 02/10] mfd: syscon: Add atmel system timer registers
+ definition
+References: <1426162054-9987-1-git-send-email-alexandre.belloni@free-electrons.com> <1426162054-9987-3-git-send-email-alexandre.belloni@free-electrons.com> <20150313080315.GC3383@x1> <20150313104032.GG4329@piout.net>
+In-Reply-To: <20150313104032.GG4329@piout.net>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-Le 13/03/2015 11:33, Daniel Lezcano a =C3=A9crit :
-> On 03/13/2015 11:33 AM, Alexandre Belloni wrote:
->> On 13/03/2015 at 11:23:05 +0100, Daniel Lezcano wrote :
->>> On 03/12/2015 01:07 PM, Alexandre Belloni wrote:
->>>> This patch set cleans up the system timer driver.
->>>>
->>>> The main goal is to get rid of the mach/ headers dependency. At the =
-same time,
->>>> it introduces proper probing and locking (using a regmap) for the wa=
-tchdog
->>>> driver.
->>>>
->>>> This is based on 4.0-rc1 and will have two merge conflicts with my c=
-leanup #1 in
->>>> mach-at91/at91rm9200.c
->>>>
->>>> It also needs this patch to probe the watchdog properly:
->>>> http://lists.infradead.org/pipermail/linux-arm-kernel/2015-March/327=
-274.html
->>>
->>>
->>> Hi Alexandre,
->>>
->>> through which tree do you want this patchset to be merged ?
->>>
->>
->> I'd say through the at91 tree as I have another series that depend on
->> that one
+Le 13/03/2015 11:40, Alexandre Belloni a =E9crit :
+> Hi,
 >=20
-> Ok.
+> On 13/03/2015 at 08:03:15 +0000, Lee Jones wrote :
+>> On Thu, 12 Mar 2015, Alexandre Belloni wrote:
+>>
+>>> AT91RM920 has a memory range reserved for timer and watchdog config=
+uration.
+>>> Expose those registers so that drivers can make use of the system t=
+imer syscon
+>>> declared in at91 DTs.
+>>>
+>>> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.=
+com>
+>>> Acked-by: Lee Jones <lee.jones@linaro.org>
+>>> ---
+>>>  include/linux/mfd/syscon/atmel-st.h | 49 +++++++++++++++++++++++++=
+++++++++++++
+>>>  1 file changed, 49 insertions(+)
+>>>  create mode 100644 include/linux/mfd/syscon/atmel-st.h
+>>
+>> Applied, thanks.
 
-Absolutely. To the whole series:
-Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
+> Actually, I was thinking this could go through the at91 to avoid
+> depending on your branch.
 
-And I stack it on at91-4.1-cleanup right now.
+Lee,
 
-Bye,
+I was planning to take the whole series with me to limit the number of
+merge conflicts and dependencies.
+Do you mind if I take this patch with the other AT91 cleanup patches
+through the arm-soc tree?
+If you are okay, can you remove this patch already applied on your tree=
+?
+
+Thanks, bye.
 --=20
 Nicolas Ferre
 --
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
 the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html
