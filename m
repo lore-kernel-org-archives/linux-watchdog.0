@@ -1,13 +1,13 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wi0-f174.google.com ([209.85.212.174]:43281 "EHLO
-	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750996AbbCMKVj (ORCPT
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:45920 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751941AbbCMKWU (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 13 Mar 2015 06:21:39 -0400
-Received: by widem10 with SMTP id em10so4694169wid.2
-        for <linux-watchdog@vger.kernel.org>; Fri, 13 Mar 2015 03:21:38 -0700 (PDT)
-Message-ID: <5502BA2F.4040600@linaro.org>
-Date: Fri, 13 Mar 2015 11:21:35 +0100
+	Fri, 13 Mar 2015 06:22:20 -0400
+Received: by wggx13 with SMTP id x13so22158743wgg.12
+        for <linux-watchdog@vger.kernel.org>; Fri, 13 Mar 2015 03:22:19 -0700 (PDT)
+Message-ID: <5502BA58.10805@linaro.org>
+Date: Fri, 13 Mar 2015 11:22:16 +0100
 From: Daniel Lezcano <daniel.lezcano@linaro.org>
 MIME-Version: 1.0
 To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
@@ -18,113 +18,115 @@ CC: Boris Brezillon <boris.brezillon@free-electrons.com>,
 	Guenter Roeck <linux@roeck-us.net>,
 	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
 	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v5 09/10] clocksource: atmel-st: remove mach/hardware
- dependency
-References: <1426162054-9987-1-git-send-email-alexandre.belloni@free-electrons.com> <1426162054-9987-10-git-send-email-alexandre.belloni@free-electrons.com>
-In-Reply-To: <1426162054-9987-10-git-send-email-alexandre.belloni@free-electrons.com>
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Subject: Re: [PATCH v5 10/10] ARM: at91: remove useless include
+References: <1426162054-9987-1-git-send-email-alexandre.belloni@free-electrons.com> <1426162054-9987-11-git-send-email-alexandre.belloni@free-electrons.com>
+In-Reply-To: <1426162054-9987-11-git-send-email-alexandre.belloni@free-electrons.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
 On 03/12/2015 01:07 PM, Alexandre Belloni wrote:
-> Remove the mach/hardware dependency to prepare the driver for multipl=
-atform
-> support.
-> Also switch from setup_irq() to request_irq()
+> Both drivers using the system timer are now converted to an MFD. mach/a=
+t91_st.h
+> is now useless.
 >
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.co=
-m>
-> ---
->   drivers/clocksource/timer-atmel-st.c | 21 +++++++++------------
->   1 file changed, 9 insertions(+), 12 deletions(-)
->
-> diff --git a/drivers/clocksource/timer-atmel-st.c b/drivers/clocksour=
-ce/timer-atmel-st.c
-> index 674ef2519d6b..91d6cbb7a56b 100644
-> --- a/drivers/clocksource/timer-atmel-st.c
-> +++ b/drivers/clocksource/timer-atmel-st.c
-> @@ -31,13 +31,12 @@
->
->   #include <asm/mach/time.h>
-
-Couldn't the header above be removed ?
-
-Other than that:
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> Acked-by: Boris Brezillon <boris.brezillon@free-electrons.com>
 
 Acked-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 
-> -#include <mach/hardware.h>
+> ---
+>   arch/arm/mach-at91/include/mach/at91_st.h | 61 ----------------------=
+---------
+>   1 file changed, 61 deletions(-)
+>   delete mode 100644 arch/arm/mach-at91/include/mach/at91_st.h
+>
+> diff --git a/arch/arm/mach-at91/include/mach/at91_st.h b/arch/arm/mach-=
+at91/include/mach/at91_st.h
+> deleted file mode 100644
+> index 67fdbd13c3ed..000000000000
+> --- a/arch/arm/mach-at91/include/mach/at91_st.h
+> +++ /dev/null
+> @@ -1,61 +0,0 @@
+> -/*
+> - * arch/arm/mach-at91/include/mach/at91_st.h
+> - *
+> - * Copyright (C) 2005 Ivan Kokshaysky
+> - * Copyright (C) SAN People
+> - *
+> - * System Timer (ST) - System peripherals registers.
+> - * Based on AT91RM9200 datasheet revision E.
+> - *
+> - * This program is free software; you can redistribute it and/or modif=
+y
+> - * it under the terms of the GNU General Public License as published b=
+y
+> - * the Free Software Foundation; either version 2 of the License, or
+> - * (at your option) any later version.
+> - */
 > -
->   static unsigned long last_crtr;
->   static u32 irqmask;
->   static struct clock_event_device clkevt;
->   static struct regmap *regmap_st;
->
-> +#define AT91_SLOW_CLOCK		32768
->   #define RM9200_TIMER_LATCH	((AT91_SLOW_CLOCK + HZ/2) / HZ)
->
->   /*
-> @@ -96,13 +95,6 @@ static irqreturn_t at91rm9200_timer_interrupt(int =
-irq, void *dev_id)
->   	return IRQ_NONE;
->   }
->
-> -static struct irqaction at91rm9200_timer_irq =3D {
-> -	.name		=3D "at91_tick",
-> -	.flags		=3D IRQF_SHARED | IRQF_TIMER | IRQF_IRQPOLL,
-> -	.handler	=3D at91rm9200_timer_interrupt,
-> -	.irq		=3D NR_IRQS_LEGACY + AT91_ID_SYS,
-> -};
+> -#ifndef AT91_ST_H
+> -#define AT91_ST_H
 > -
->   static cycle_t read_clk32k(struct clocksource *cs)
->   {
->   	return read_CRTR();
-> @@ -193,6 +185,7 @@ static struct clock_event_device clkevt =3D {
->   static void __init atmel_st_timer_init(struct device_node *node)
->   {
->   	unsigned int val;
-> +	int irq, ret;
->
->   	regmap_st =3D syscon_node_to_regmap(node);
->   	if (IS_ERR(regmap_st))
-> @@ -204,12 +197,16 @@ static void __init atmel_st_timer_init(struct d=
-evice_node *node)
->   	regmap_read(regmap_st, AT91_ST_SR, &val);
->
->   	/* Get the interrupts property */
-> -	at91rm9200_timer_irq.irq  =3D irq_of_parse_and_map(node, 0);
-> -	if (!at91rm9200_timer_irq.irq)
-> +	irq  =3D irq_of_parse_and_map(node, 0);
-> +	if (!irq)
->   		panic(pr_fmt("Unable to get IRQ from DT\n"));
->
->   	/* Make IRQs happen for the system timer */
-> -	setup_irq(at91rm9200_timer_irq.irq, &at91rm9200_timer_irq);
-> +	ret =3D request_irq(irq, at91rm9200_timer_interrupt,
-> +			  IRQF_SHARED | IRQF_TIMER | IRQF_IRQPOLL,
-> +			  "at91_tick", regmap_st);
-> +	if (ret)
-> +		panic(pr_fmt("Unable to setup IRQ\n"));
->
->   	/* The 32KiHz "Slow Clock" (tick every 30517.58 nanoseconds) is us=
-ed
->   	 * directly for the clocksource and all clockevents, after adjusti=
-ng
+> -#ifndef __ASSEMBLY__
+> -extern void __iomem *at91_st_base;
+> -
+> -#define at91_st_read(field) \
+> -	__raw_readl(at91_st_base + field)
+> -
+> -#define at91_st_write(field, value) \
+> -	__raw_writel(value, at91_st_base + field)
+> -#else
+> -.extern at91_st_base
+> -#endif
+> -
+> -#define	AT91_ST_CR		0x00			/* Control Register */
+> -#define 	AT91_ST_WDRST		(1 << 0)		/* Watchdog Timer Restart */
+> -
+> -#define	AT91_ST_PIMR		0x04			/* Period Interval Mode Register */
+> -#define		AT91_ST_PIV		(0xffff <<  0)		/* Period Interval Value */
+> -
+> -#define	AT91_ST_WDMR		0x08			/* Watchdog Mode Register */
+> -#define		AT91_ST_WDV		(0xffff <<  0)		/* Watchdog Counter Value */
+> -#define		AT91_ST_RSTEN		(1	<< 16)		/* Reset Enable */
+> -#define		AT91_ST_EXTEN		(1	<< 17)		/* External Signal Assertion Enable=
+ */
+> -
+> -#define	AT91_ST_RTMR		0x0c			/* Real-time Mode Register */
+> -#define		AT91_ST_RTPRES		(0xffff <<  0)		/* Real-time Prescalar Value =
+*/
+> -
+> -#define	AT91_ST_SR		0x10			/* Status Register */
+> -#define		AT91_ST_PITS		(1 << 0)		/* Period Interval Timer Status */
+> -#define		AT91_ST_WDOVF		(1 << 1) 		/* Watchdog Overflow */
+> -#define		AT91_ST_RTTINC		(1 << 2) 		/* Real-time Timer Increment */
+> -#define		AT91_ST_ALMS		(1 << 3) 		/* Alarm Status */
+> -
+> -#define	AT91_ST_IER		0x14			/* Interrupt Enable Register */
+> -#define	AT91_ST_IDR		0x18			/* Interrupt Disable Register */
+> -#define	AT91_ST_IMR		0x1c			/* Interrupt Mask Register */
+> -
+> -#define	AT91_ST_RTAR		0x20			/* Real-time Alarm Register */
+> -#define		AT91_ST_ALMV		(0xfffff << 0)		/* Alarm Value */
+> -
+> -#define	AT91_ST_CRTR		0x24			/* Current Real-time Register */
+> -#define		AT91_ST_CRTV		(0xfffff << 0)		/* Current Real-Time Value */
+> -
+> -#endif
 >
 
 
 --=20
-  <http://www.linaro.org/> Linaro.org =E2=94=82 Open source software fo=
-r ARM SoCs
+  <http://www.linaro.org/> Linaro.org =E2=94=82 Open source software for =
+ARM SoCs
 
-=46ollow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
+Follow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
 <http://twitter.com/#!/linaroorg> Twitter |
 <http://www.linaro.org/linaro-blog/> Blog
 
 --
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
 the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html
