@@ -1,282 +1,89 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from guitar.tcltek.co.il ([192.115.133.116]:56668 "EHLO
-	mx.tkos.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751661AbbCVMks (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 22 Mar 2015 08:40:48 -0400
-From: Baruch Siach <baruch@tkos.co.il>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Baruch Siach <baruch@tkos.co.il>
-Subject: [PATCH 2/2] watchdog: digicolor: driver for Conexant Digicolor CX92755 SoC
-Date: Sun, 22 Mar 2015 14:40:36 +0200
-Message-Id: <409ece75204d3911dc526a9bc0c908fc30893b26.1427028036.git.baruch@tkos.co.il>
-In-Reply-To: <6bc6e867b500cd3cfc629b96f90442f5c0aced3a.1427028036.git.baruch@tkos.co.il>
-References: <6bc6e867b500cd3cfc629b96f90442f5c0aced3a.1427028036.git.baruch@tkos.co.il>
+Received: from mailapp01.imgtec.com ([195.59.15.196]:41771 "EHLO
+	imgpgp01.kl.imgtec.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751107AbbCTUxS (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 20 Mar 2015 16:53:18 -0400
+Date: Fri, 20 Mar 2015 20:53:15 +0000
+From: James Hogan <james.hogan@imgtec.com>
+To: Wim Van Sebroeck <wim@iguana.be>, <linux-watchdog@vger.kernel.org>
+CC: James Hogan <james@albanarts.com>,
+	Ezequiel Garcia <ezequiel.garcia@imgtec.com>,
+	Naidu Tellapati <Naidu.Tellapati@imgtec.com>,
+	Jude Abraham <Jude.Abraham@imgtec.com>,
+	Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH 0/2] watchdog: imgpdc: Runtime fixes
+Message-ID: <20150320205315.GB22574@jhogan-linux.le.imgtec.org>
+References: <1424475945-30009-1-git-send-email-james.hogan@imgtec.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="oC1+HKm2/end4ao3"
+Content-Disposition: inline
+In-Reply-To: <1424475945-30009-1-git-send-email-james.hogan@imgtec.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This commit add a driver for the watchdog functionality of the Conexant CX92755
-SoC, from the Digicolor series of SoCs. Of 8 system timers provided by the
-CX92755, the first one, timer A, can reset the chip when its counter reaches
-zero. This driver uses this capability to provide userspace with a standard
-watchdog, using the watchdog timer driver core framework. This driver also
-implements a reboot handler for the reboot(2) system call.
+--oC1+HKm2/end4ao3
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The watchdog driver shares the timer registers with the CX92755 timer driver
-(drivers/clocksource/timer-digicolor.c). The timer driver, however, uses only
-timers other than A, so both drivers should coexist.
+Hi,
 
-Signed-off-by: Baruch Siach <baruch@tkos.co.il>
----
- drivers/watchdog/Kconfig         |  10 ++
- drivers/watchdog/Makefile        |   1 +
- drivers/watchdog/digicolor_wdt.c | 203 +++++++++++++++++++++++++++++++++++++++
- 3 files changed, 214 insertions(+)
- create mode 100644 drivers/watchdog/digicolor_wdt.c
+On Fri, Feb 20, 2015 at 11:45:43PM +0000, James Hogan wrote:
+> A couple of basic runtime fixes for the IMG PDC watchdog driver. These
+> were found by attempting to enable the driver for TZ1090 and running
+> under Meta QEMU. Note that QEMU doesn't emulate the actual watchdog
+> functionality beyond the soft reset register, so I cannot claim to have
+> tested the driver's watchdog timer functionality yet.
+>=20
+> James Hogan (2):
+>   watchdog: imgpdc: Fix probe NULL pointer dereference
+>   watchdog: imgpdc: Fix default heartbeat
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 16f202350997..7d73d6c78cf6 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -515,6 +515,16 @@ config MEDIATEK_WATCHDOG
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called mtk_wdt.
- 
-+config DIGICOLOR_WATCHDOG
-+	tristate "Conexant Digicolor SoCs watchdog support"
-+	depends on ARCH_DIGICOLOR
-+	select WATCHDOG_CORE
-+	help
-+	  Say Y here to include support for the watchdog timer
-+	  in Conexant Digicolor SoCs.
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called digicolor_wdt.
-+
- # AVR32 Architecture
- 
- config AT32AP700X_WDT
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 5c19294d1c30..0721f10e8d13 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -64,6 +64,7 @@ obj-$(CONFIG_BCM_KONA_WDT) += bcm_kona_wdt.o
- obj-$(CONFIG_TEGRA_WATCHDOG) += tegra_wdt.o
- obj-$(CONFIG_MESON_WATCHDOG) += meson_wdt.o
- obj-$(CONFIG_MEDIATEK_WATCHDOG) += mtk_wdt.o
-+obj-$(CONFIG_DIGICOLOR_WATCHDOG) += digicolor_wdt.o
- 
- # AVR32 Architecture
- obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
-diff --git a/drivers/watchdog/digicolor_wdt.c b/drivers/watchdog/digicolor_wdt.c
-new file mode 100644
-index 000000000000..260cc4495370
---- /dev/null
-+++ b/drivers/watchdog/digicolor_wdt.c
-@@ -0,0 +1,203 @@
-+/*
-+ * Watchdog driver for Conexant Digicolor
-+ *
-+ * Copyright (C) 2015 Paradox Innovation Ltd.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the
-+ * Free Software Foundation; either version 2 of the License, or (at your
-+ * option) any later version.
-+ */
-+
-+#include <linux/types.h>
-+#include <linux/module.h>
-+#include <linux/io.h>
-+#include <linux/delay.h>
-+#include <linux/clk.h>
-+#include <linux/watchdog.h>
-+#include <linux/reboot.h>
-+#include <linux/platform_device.h>
-+#include <linux/of_address.h>
-+
-+#define TIMER_A_CONTROL		0
-+#define TIMER_A_COUNT		4
-+
-+#define TIMER_A_ENABLE_COUNT	BIT(0)
-+#define TIMER_A_ENABLE_WATCHDOG	BIT(1)
-+
-+#define DC_WDT_DEFAULT_TIME	5
-+
-+struct dc_wdt {
-+	void __iomem		*base;
-+	struct clk		*clk;
-+	struct notifier_block	restart_handler;
-+	spinlock_t		lock;
-+};
-+
-+static unsigned timeout;
-+module_param(timeout, uint, 0);
-+MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds");
-+
-+static int dc_restart_handler(struct notifier_block *this, unsigned long mode,
-+			      void *cmd)
-+{
-+	struct dc_wdt *wdt = container_of(this, struct dc_wdt, restart_handler);
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&wdt->lock, flags);
-+
-+	writel_relaxed(0, wdt->base + TIMER_A_CONTROL);
-+	writel_relaxed(1, wdt->base + TIMER_A_COUNT);
-+	writel_relaxed(TIMER_A_ENABLE_COUNT | TIMER_A_ENABLE_WATCHDOG,
-+		       wdt->base + TIMER_A_CONTROL);
-+
-+	spin_unlock_irqrestore(&wdt->lock, flags);
-+
-+	/* wait for reset to assert... */
-+	mdelay(500);
-+
-+	return NOTIFY_DONE;
-+}
-+
-+static int dc_wdt_start(struct watchdog_device *wdog)
-+{
-+	struct dc_wdt *wdt = watchdog_get_drvdata(wdog);
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&wdt->lock, flags);
-+
-+	writel_relaxed(0, wdt->base + TIMER_A_CONTROL);
-+	writel_relaxed(wdog->timeout * clk_get_rate(wdt->clk),
-+		       wdt->base + TIMER_A_COUNT);
-+	writel_relaxed(TIMER_A_ENABLE_COUNT | TIMER_A_ENABLE_WATCHDOG,
-+		       wdt->base + TIMER_A_CONTROL);
-+
-+	spin_unlock_irqrestore(&wdt->lock, flags);
-+
-+	return 0;
-+}
-+
-+static int dc_wdt_stop(struct watchdog_device *wdog)
-+{
-+	struct dc_wdt *wdt = watchdog_get_drvdata(wdog);
-+
-+	writel_relaxed(0, wdt->base + TIMER_A_CONTROL);
-+
-+	return 0;
-+}
-+
-+static int dc_wdt_set_timeout(struct watchdog_device *wdog, unsigned int t)
-+{
-+	wdog->timeout = t;
-+
-+	return 0;
-+}
-+
-+static unsigned int dc_wdt_get_timeleft(struct watchdog_device *wdog)
-+{
-+	struct dc_wdt *wdt = watchdog_get_drvdata(wdog);
-+	uint32_t count = readl_relaxed(wdt->base + TIMER_A_COUNT);
-+
-+	return (count / clk_get_rate(wdt->clk));
-+}
-+
-+static struct watchdog_ops dc_wdt_ops = {
-+	.owner		= THIS_MODULE,
-+	.start		= dc_wdt_start,
-+	.stop		= dc_wdt_stop,
-+	.set_timeout	= dc_wdt_set_timeout,
-+	.get_timeleft	= dc_wdt_get_timeleft,
-+};
-+
-+static struct watchdog_info dc_wdt_info = {
-+	.options	= WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE
-+			| WDIOF_KEEPALIVEPING,
-+	.identity	= "Conexant Digicolor Watchdog",
-+};
-+
-+static struct watchdog_device dc_wdt_wdd = {
-+	.info		= &dc_wdt_info,
-+	.ops		= &dc_wdt_ops,
-+	.min_timeout	= 1,
-+	.timeout	= DC_WDT_DEFAULT_TIME,
-+};
-+
-+static int dc_wdt_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct device_node *np = dev->of_node;
-+	struct dc_wdt *wdt;
-+	int ret;
-+
-+	wdt = devm_kzalloc(dev, sizeof(struct dc_wdt), GFP_KERNEL);
-+	if (!wdt)
-+		return -ENOMEM;
-+	platform_set_drvdata(pdev, wdt);
-+
-+	wdt->base = of_iomap(np, 0);
-+	if (!wdt->base) {
-+		dev_err(dev, "Failed to remap watchdog regs");
-+		return -ENODEV;
-+	}
-+
-+	wdt->clk = clk_get(&pdev->dev, NULL);
-+	if (IS_ERR(wdt->clk))
-+		return PTR_ERR(wdt->clk);
-+	dc_wdt_wdd.max_timeout = U32_MAX / clk_get_rate(wdt->clk);
-+
-+	spin_lock_init(&wdt->lock);
-+
-+	watchdog_set_drvdata(&dc_wdt_wdd, wdt);
-+	watchdog_init_timeout(&dc_wdt_wdd, timeout, dev);
-+	ret = watchdog_register_device(&dc_wdt_wdd);
-+	if (ret) {
-+		dev_err(dev, "Failed to register watchdog device");
-+		iounmap(wdt->base);
-+		return ret;
-+	}
-+
-+	wdt->restart_handler.notifier_call = dc_restart_handler;
-+	wdt->restart_handler.priority = 128;
-+	ret = register_restart_handler(&wdt->restart_handler);
-+	if (ret)
-+		dev_err(&pdev->dev, "cannot register restart handler\n");
-+
-+	return 0;
-+}
-+
-+static int dc_wdt_remove(struct platform_device *pdev)
-+{
-+	struct dc_wdt *wdt = platform_get_drvdata(pdev);
-+
-+	unregister_restart_handler(&wdt->restart_handler);
-+	watchdog_unregister_device(&dc_wdt_wdd);
-+	iounmap(wdt->base);
-+
-+	return 0;
-+}
-+
-+static void dc_wdt_shutdown(struct platform_device *pdev)
-+{
-+	dc_wdt_stop(&dc_wdt_wdd);
-+}
-+
-+static const struct of_device_id dc_wdt_of_match[] = {
-+	{ .compatible = "cnxt,cx92755-wdt", },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, dc_wdt_of_match);
-+
-+static struct platform_driver dc_wdt_driver = {
-+	.probe		= dc_wdt_probe,
-+	.remove		= dc_wdt_remove,
-+	.shutdown	= dc_wdt_shutdown,
-+	.driver = {
-+		.name =		"digicolor-wdt",
-+		.of_match_table = dc_wdt_of_match,
-+	},
-+};
-+module_platform_driver(dc_wdt_driver);
-+
-+MODULE_AUTHOR("Baruch Siach <baruch@tkos.co.il>");
-+MODULE_DESCRIPTION("Driver for Conexant Digicolor watchdog timer");
-+MODULE_LICENSE("GPL");
--- 
-2.1.4
+Thanks Guenter for the reviews.
 
+Any chance of these fixes getting merged in time for v4.0?
+
+FWIW I've now tried the driver on real TZ1090 hardware (with these
+patches) and it appears to work as expected.
+
+Cheers
+James
+
+>=20
+>  drivers/watchdog/imgpdc_wdt.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+>=20
+> Cc: Wim Van Sebroeck <wim@iguana.be>
+> Cc: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
+> Cc: Naidu Tellapati <Naidu.Tellapati@imgtec.com>
+> Cc: Jude Abraham <Jude.Abraham@imgtec.com>
+> Cc: linux-watchdog@vger.kernel.org
+> --=20
+> 2.0.5
+>=20
+
+--oC1+HKm2/end4ao3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBAgAGBQJVDIi7AAoJEGwLaZPeOHZ6ZX0P/0O9HUY5XRyAXOsOcubXe4Wo
++3brhaFj+1/wtEPoMtS5Ti76MM+Be0BY5RsbbYmWVgp2CLe4w4JQDAqfPcIYKmQU
+iXF4AqQL0M/89Ad3xJqWMgy6N9jSgeqpp0ci6jCi3ieHykflxCB6nQh+EgvDRNDN
+AgGUQZWItb94WX9+7he2ZxdPEIcDvYqlfxcH5Z2dbRO42W3NEAokNlX5Uevg0k/q
+f+i+UGk1SDXSwnv7j5FduaQG4U3Hs++1nsJDUP/AFPxZwvXw+lHWP9NK8do1/eF+
+Tzw6ZTtWA1PyPVTroC1ZnQ+2imVNm5QPovDFovWvJWwedrB1wSq3LV6Wq0xKvT1I
+sgKTCUr5Gc8afryo8296hsSAZguo472DjrxmMJKt0frUAr4EO4RBDyaN3Jg536E7
+qNmSqNJo9pskdOTeGyiQGxJCBBUe2gaeYM+tRlrBOo6ddvJjSNx4d1x2bOVTxzRc
+9VhG+z1SmBQayp6PBlAzBxYzQyRLgu1VQqWQ+PfGjJIBS8UHAQqYiPS/oOLJ1i0x
+97mhA12qjJi+tE4IKqXQK5RH1EzJB25n0ACnJ7MzM91LaWRjKARmrYSHej7tsGtC
+9lUkzGUl/HbX6ch0ZND865it6VoBzC0GzZapBAnnnxLiaFv3aPks2fAxrBpw8qCk
+TaK6BFbKmVgudayrfH61
+=VDZf
+-----END PGP SIGNATURE-----
+
+--oC1+HKm2/end4ao3--
