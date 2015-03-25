@@ -1,58 +1,95 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailapp01.imgtec.com ([195.59.15.196]:25647 "EHLO
-	mailapp01.imgtec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751814AbbCXIrx convert rfc822-to-8bit (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:55898 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752188AbbCYN2d (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 24 Mar 2015 04:47:53 -0400
-From: Naidu Tellapati <Naidu.Tellapati@imgtec.com>
-To: Wim Van Sebroeck <wim@iguana.be>,
-	James Hogan <James.Hogan@imgtec.com>
-CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"James Hogan" <james@albanarts.com>,
-	Ezequiel Garcia <Ezequiel.Garcia@imgtec.com>,
-	Jude Abraham <Jude.Abraham@imgtec.com>
-Subject: RE: [PATCH 0/2] watchdog: imgpdc: Runtime fixes
-Date: Tue, 24 Mar 2015 08:47:49 +0000
-Message-ID: <27E62D98F903554192E3C13AFCC91C3C2FA85881@hbmail01.hb.imgtec.org>
-References: <1424475945-30009-1-git-send-email-james.hogan@imgtec.com>,<20150324081944.GB1716@spo001.leaseweb.nl>
-In-Reply-To: <20150324081944.GB1716@spo001.leaseweb.nl>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+	Wed, 25 Mar 2015 09:28:33 -0400
+Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
+	(envelope-from <linux@roeck-us.net>)
+	id 1YalMG-000LKB-D8
+	for linux-watchdog@vger.kernel.org; Wed, 25 Mar 2015 13:28:32 +0000
+Message-ID: <5512B7DE.60108@roeck-us.net>
+Date: Wed, 25 Mar 2015 06:27:58 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
+To: Lee Jones <lee.jones@linaro.org>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	rtc-linux@googlegroups.com, wim@iguana.be,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	david.paris@st.com, a.zummo@towertech.it
+CC: kernel@stlinux.com
+Subject: Re: [PATCH v6 5/9] watchdog: bindings: Provide ST bindings for ST's
+ LPC Watchdog device
+References: <1427189140-1935-1-git-send-email-lee.jones@linaro.org> <1427189140-1935-6-git-send-email-lee.jones@linaro.org>
+In-Reply-To: <1427189140-1935-6-git-send-email-lee.jones@linaro.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Wim & James,
+On 03/24/2015 02:25 AM, Lee Jones wrote:
+> On current ST platforms the LPC controls a number of functions including
+> Watchdog and Real Time Clock.  This patch provides the bindings used to
+> configure LPC in Watchdog mode.
+>
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> ---
+>   .../devicetree/bindings/watchdog/st_lpc_wdt.txt    | 38 ++++++++++++++++++++++
+>   1 file changed, 38 insertions(+)
+>   create mode 100644 Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
+>
+> diff --git a/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt b/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
+> new file mode 100644
+> index 0000000..1bdf023
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
+> @@ -0,0 +1,38 @@
+> +STMicroelectronics Low Power Controller (LPC) - Watchdog
+> +========================================================
+> +
+> +LPC currently supports Watchdog OR Real Time Clock functionality.
+> +
+> +[See: ../rtc/rtc-st-lpc.txt for RTC options]
+> +
+> +Required properties
+> +
+> +- compatible 	: Must be one of: "st,stih407-lpc" "st,stih416-lpc"
+> +				  "st,stih415-lpc" "st,stid127-lpc"
+> +- reg		: LPC registers base address + size
+> +- interrupts    : LPC interrupt line number and associated flags
+> +- clocks	: Clock used by LPC device (See: ../clock/clock-bindings.txt)
+> +- st,lpc-mode	: The LPC can run either one of two modes ST_LPC_MODE_RTC [0] or
+> +		  ST_LPC_MODE_WDT [1].  One (and only one) mode must be
+> +		  selected.
+> +
+> +Required properties [watchdog mode]
+> +
+> +- st,syscfg	: Phandle to syscfg node used to enable watchdog and configure
+> +		  CPU reset type.
+> +- timeout-sec	: Watchdog timeout in seconds
+> +
+> +Optional properties [watchdog mode]
+> +
+> +- st,warm-reset	: If present reset type will be 'warm' - if not it will be cold
+> +
+> +Example:
+> +	lpc@fde05000 {
+> +		compatible	= "st,stih416-lpc-watchdog";
 
-> Hi James,
+Hi Lee,
 
->> A couple of basic runtime fixes for the IMG PDC watchdog driver. These
->> were found by attempting to enable the driver for TZ1090 and running
->> under Meta QEMU. Note that QEMU doesn't emulate the actual watchdog
->> functionality beyond the soft reset register, so I cannot claim to have
->> tested the driver's watchdog timer functionality yet.
->>
->> James Hogan (2):
->>   watchdog: imgpdc: Fix probe NULL pointer dereference
->>   watchdog: imgpdc: Fix default heartbeat
->>
->>  drivers/watchdog/imgpdc_wdt.c | 8 ++++----
->>  1 file changed, 4 insertions(+), 4 deletions(-)
->>
->> Cc: Wim Van Sebroeck <wim@iguana.be>
->> Cc: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
->> Cc: Naidu Tellapati <Naidu.Tellapati@imgtec.com>
->> Cc: Jude Abraham <Jude.Abraham@imgtec.com>
->> Cc: linux-watchdog@vger.kernel.org
+Just noticed: That doesn't match the above description, nor the match statement
+in the drivers.
 
-> Both patches added to linux-watchdog-next. Will go upstream in 2 days.
+Guenter
 
-Many thanks for your help in this regard.
 
-> Kind regards,
-> Wim.
-
-Regards,
-Naidu.
+> +		reg		= <0xfde05000 0x1000>;
+> +		clocks 		= <&clk_s_d3_flexgen CLK_LPC_0>;
+> +		st,syscfg	= <&syscfg_core>;
+> +		timeout-sec	= <120>;
+> +		st,lpc-mode	= <ST_LPC_MODE_WDT>;
+> +		st,warm-reset;
+> +	};
+>
 
