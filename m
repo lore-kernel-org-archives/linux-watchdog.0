@@ -1,44 +1,57 @@
-Return-path: <lee.jones@linaro.org>
-From: Lee Jones <lee.jones@linaro.org>
-To: linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com,
-	wim@iguana.be,
-	linux-watchdog@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux@roeck-us.net,
-	david.paris@st.com,
-	a.zummo@towertech.it
-Cc: lee.jones@linaro.org,
-	kernel@stlinux.com
-Subject: [PATCH v6 9/9] MAINTAINERS: Add Watchdog and RTC files to STI's maintainer entry
-Date: Tue, 24 Mar 2015 09:25:40 +0000
-Message-Id: <1427189140-1935-10-git-send-email-lee.jones@linaro.org>
-In-Reply-To: <1427189140-1935-1-git-send-email-lee.jones@linaro.org>
-References: <1427189140-1935-1-git-send-email-lee.jones@linaro.org>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from ducie-dc1.codethink.co.uk ([185.25.241.215]:36876 "EHLO
+	ducie-dc1.codethink.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751541AbbCZOeU (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 26 Mar 2015 10:34:20 -0400
+From: Ben Dooks <ben.dooks@codethink.co.uk>
+To: linux-kernel@lists.codethink.co.uk
+Cc: Ben Dooks <ben.dooks@codethink.co.uk>,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org, Andrew Victor <linux@maxim.org.za>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>
+Subject: [PATCH] watchdog: at91sam9: use endian agnostic IO
+Date: Thu, 26 Mar 2015 14:34:14 +0000
+Message-Id: <1427380454-2002-1-git-send-email-ben.dooks@codethink.co.uk>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Use endian agnostic IO functions for the watchdog driver for when it
+is enabled on ATSAMA5D36 devices running in big endian.
+
+Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
 ---
- MAINTAINERS | 2 ++
- 1 file changed, 2 insertions(+)
+CC: Boris Brezillon <boris.brezillon@free-electrons.com>
+CC: Guenter Roeck <linux@roeck-us.net>
+CC: Nicolas Ferre <nicolas.ferre@atmel.com>
+CC: Wim Van Sebroeck <wim@iguana.be>
+CC: linux-watchdog@vger.kernel.org
+CC: Andrew Victor <linux@maxim.org.za>
+CC: Nicolas Ferre <nicolas.ferre@atmel.com>
+CC: Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>
+---
+ drivers/watchdog/at91sam9_wdt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 6239a30..2bc71e7 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -1461,10 +1461,12 @@ F:	drivers/phy/phy-stih407-usb.c
- F:	drivers/phy/phy-stih41x-usb.c
- F:	drivers/pinctrl/pinctrl-st.c
- F:	drivers/reset/sti/
-+F:	drivers/rtc/rtc-st-lpc.c
- F:	drivers/tty/serial/st-asc.c
- F:	drivers/usb/dwc3/dwc3-st.c
- F:	drivers/usb/host/ehci-st.c
- F:	drivers/usb/host/ohci-st.c
-+F:	drivers/watchdog/st_lpc_wdt.c
- F:	drivers/ata/ahci_st.c
+diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
+index 1443b3c..e4698f7 100644
+--- a/drivers/watchdog/at91sam9_wdt.c
++++ b/drivers/watchdog/at91sam9_wdt.c
+@@ -40,9 +40,9 @@
+ #define DRV_NAME "AT91SAM9 Watchdog"
  
- ARM/TECHNOLOGIC SYSTEMS TS7250 MACHINE SUPPORT
+ #define wdt_read(wdt, field) \
+-	__raw_readl((wdt)->base + (field))
++	readl_relaxed((wdt)->base + (field))
+ #define wdt_write(wtd, field, val) \
+-	__raw_writel((val), (wdt)->base + (field))
++	writel_relaxed((val), (wdt)->base + (field))
+ 
+ /* AT91SAM9 watchdog runs a 12bit counter @ 256Hz,
+  * use this to convert a watchdog
 -- 
-1.9.1
+2.1.4
+
