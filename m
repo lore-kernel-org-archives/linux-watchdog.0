@@ -1,29 +1,39 @@
-Return-path: <boris.brezillon@free-electrons.com>
-Date: Fri, 27 Mar 2015 00:59:58 +0100
-From: Boris Brezillon <boris.brezillon@free-electrons.com>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:56815 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751552AbbCZP3h (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 26 Mar 2015 11:29:37 -0400
+Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
+	(envelope-from <linux@roeck-us.net>)
+	id 1Yb9iy-000jXy-3l
+	for linux-watchdog@vger.kernel.org; Thu, 26 Mar 2015 15:29:36 +0000
+Date: Thu, 26 Mar 2015 08:29:10 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 To: Ben Dooks <ben.dooks@codethink.co.uk>
-Cc: linux-kernel@lists.codethink.co.uk, Guenter Roeck <linux@roeck-us.net>,
- Nicolas Ferre <nicolas.ferre@atmel.com>, Wim Van Sebroeck <wim@iguana.be>,
- linux-watchdog@vger.kernel.org, Andrew Victor <linux@maxim.org.za>,
- Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>
+Cc: linux-kernel@lists.codethink.co.uk,
+	Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Nicolas Ferre <nicolas.ferre@atmel.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org, Andrew Victor <linux@maxim.org.za>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>
 Subject: Re: [PATCH] watchdog: at91sam9: use endian agnostic IO
-Message-ID: <20150327005958.3edc8276@bbrezillon>
-In-Reply-To: <1427380454-2002-1-git-send-email-ben.dooks@codethink.co.uk>
+Message-ID: <20150326152910.GA1115@roeck-us.net>
 References: <1427380454-2002-1-git-send-email-ben.dooks@codethink.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1427380454-2002-1-git-send-email-ben.dooks@codethink.co.uk>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, 26 Mar 2015 14:34:14 +0000
-Ben Dooks <ben.dooks@codethink.co.uk> wrote:
-
+On Thu, Mar 26, 2015 at 02:34:14PM +0000, Ben Dooks wrote:
 > Use endian agnostic IO functions for the watchdog driver for when it
 > is enabled on ATSAMA5D36 devices running in big endian.
 > 
 > Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
 
-Acked-by: Boris Brezillon <boris.brezillon@free-electrons.com>
+Acked-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
 > CC: Boris Brezillon <boris.brezillon@free-electrons.com>
@@ -54,10 +64,6 @@ Acked-by: Boris Brezillon <boris.brezillon@free-electrons.com>
 >  
 >  /* AT91SAM9 watchdog runs a 12bit counter @ 256Hz,
 >   * use this to convert a watchdog
-
-
-
--- 
-Boris Brezillon, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+> -- 
+> 2.1.4
+> 
