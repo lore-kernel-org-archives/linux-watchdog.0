@@ -1,52 +1,53 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from spo001.leaseweb.nl ([83.149.101.17]:56622 "EHLO
-	spo001.leaseweb.nl" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752624AbbC0ICp (ORCPT
+Received: from smtp.codeaurora.org ([198.145.29.96]:44313 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751690AbbC0FzZ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 27 Mar 2015 04:02:45 -0400
-Date: Fri, 27 Mar 2015 09:02:43 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Michal Simek <michal.simek@xilinx.com>
-Cc: linux-kernel@vger.kernel.org, monstr@monstr.eu,
-	Zach Pfeffer <zachp@xilinx.com>, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: cadence: Remove Kconfig dependency on ARCH
-Message-ID: <20150327080243.GE24918@spo001.leaseweb.nl>
-References: <491e97be16decb4901fa2b0be4b530774501b5c1.1425891008.git.michal.simek@xilinx.com>
-Mime-Version: 1.0
+	Fri, 27 Mar 2015 01:55:25 -0400
+Date: Thu, 26 Mar 2015 22:55:23 -0700
+From: Stephen Boyd <sboyd@codeaurora.org>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Mathieu Olivari <mathieu@codeaurora.org>, robh+dt@kernel.org,
+	pawel.moll@arm.com, mark.rutland@arm.com,
+	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+	linux@arm.linux.org.uk, corbet@lwn.net, standby24x7@gmail.com,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 0/3] arm: msm: Use timer DT node for qcom watchdog config
+Message-ID: <20150327055523.GC5625@codeaurora.org>
+References: <1424485176-8348-1-git-send-email-mathieu@codeaurora.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <491e97be16decb4901fa2b0be4b530774501b5c1.1425891008.git.michal.simek@xilinx.com>
+In-Reply-To: <1424485176-8348-1-git-send-email-mathieu@codeaurora.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Michal,
-
-> Remove Kconfig dependency and enable driver for
-> all ARCHs.
+On 02/20, Mathieu Olivari wrote:
+> This change is done as a follow-up to the following thread:
+> https://lkml.org/lkml/2014/10/1/436
 > 
-> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
-> ---
+> qcom-wdt is currently assuming the presence of a dedicated node in DT
+> to gets its configuration. However, on msm architecture, the watchdog is
+> usually part of the timer block. So this patch-set is changing the driver
+> and slightly enhancing the timer DT bindings to provide the relevant clocks
+> and interrupts.
 > 
-> Test for all archs done by Kbuild test robot without any problem.
-> ---
->  drivers/watchdog/Kconfig | 1 -
->  1 file changed, 1 deletion(-)
+> Mathieu Olivari (3):
+>   watchdog: qcom: use timer devicetree binding
+>   ARM: qcom: add description of KPSS WDT for IPQ8064
+>   ARM: msm: add watchdog entries to DT timer binding doc
 > 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 16f202350997..6442412377a4 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -169,7 +169,6 @@ config AT91SAM9X_WATCHDOG
->  
->  config CADENCE_WATCHDOG
->  	tristate "Cadence Watchdog Timer"
-> -	depends on ARM
->  	select WATCHDOG_CORE
->  	help
->  	  Say Y here if you want to include support for the watchdog
+>  Documentation/devicetree/bindings/arm/msm/timer.txt | 16 +++++++++++++---
+>  arch/arm/boot/dts/qcom-ipq8064.dtsi                 | 14 +++++++++++++-
+>  drivers/watchdog/qcom-wdt.c                         | 21 +++++++++++++++------
+>  3 files changed, 41 insertions(+), 10 deletions(-)
+> 
 
-This patch has been added to linux-watchdog-next.
+Can this patchset be applied? Or should we resend with collected
+acks?
 
-Kind regards,
-Wim.
-
+-- 
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+a Linux Foundation Collaborative Project
