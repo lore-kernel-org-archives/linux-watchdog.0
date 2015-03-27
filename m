@@ -1,78 +1,50 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:56038 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:42156 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752225AbbCYN3W (ORCPT
+	with ESMTP id S1751443AbbC0Fsq (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 25 Mar 2015 09:29:22 -0400
+	Fri, 27 Mar 2015 01:48:46 -0400
 Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
 	(envelope-from <linux@roeck-us.net>)
-	id 1YalN4-000Lln-4n
-	for linux-watchdog@vger.kernel.org; Wed, 25 Mar 2015 13:29:22 +0000
-Message-ID: <5512B81B.9090306@roeck-us.net>
-Date: Wed, 25 Mar 2015 06:28:59 -0700
+	id 1YbN8P-000D37-Fj
+	for linux-watchdog@vger.kernel.org; Fri, 27 Mar 2015 05:48:45 +0000
+Message-ID: <5514EF25.4000400@roeck-us.net>
+Date: Thu, 26 Mar 2015 22:48:21 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-To: Lee Jones <lee.jones@linaro.org>,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	rtc-linux@googlegroups.com, wim@iguana.be,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	david.paris@st.com, a.zummo@towertech.it
-CC: kernel@stlinux.com
-Subject: Re: [PATCH v6 7/9] rtc: bindings: Provide ST bindings for ST's LPC
- RTC device
-References: <1427189140-1935-1-git-send-email-lee.jones@linaro.org> <1427189140-1935-8-git-send-email-lee.jones@linaro.org>
-In-Reply-To: <1427189140-1935-8-git-send-email-lee.jones@linaro.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+To: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>,
+	Baruch Siach <baruch@tkos.co.il>
+CC: Wim Van Sebroeck <wim@iguana.be>, devicetree@vger.kernel.org,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH v2 2/2] watchdog: digicolor: driver for Conexant Digicolor
+ CX92755 SoC
+References: <a4554d0a61c62b85a7d66b6e3d16d07f8a498025.1427356791.git.baruch@tkos.co.il>	<148dd2d6912211bc468c30acf85a463192576039.1427356791.git.baruch@tkos.co.il> <CAM=Q2ctS6_=pzW2H+Yd3nEBgF269vfdh8yV3NbnWFP7b-MWLbA@mail.gmail.com>
+In-Reply-To: <CAM=Q2ctS6_=pzW2H+Yd3nEBgF269vfdh8yV3NbnWFP7b-MWLbA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 03/24/2015 02:25 AM, Lee Jones wrote:
-> On current ST platforms the LPC controls a number of functions including
-> Watchdog and Real Time Clock.  This patch provides the bindings used to
-> configure LPC in RTC mode.
+On 03/26/2015 10:40 PM, Shubhrajyoti Datta wrote:
 >
-> Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> ---
->   .../devicetree/bindings/rtc/rtc-st-lpc.txt         | 25 ++++++++++++++++++++++
->   1 file changed, 25 insertions(+)
->   create mode 100644 Documentation/devicetree/bindings/rtc/rtc-st-lpc.txt
+>     +
+>     +static int dc_restart_handler(struct notifier_block *this, unsigned long mode,
+>     +                             void *cmd)
+>     +{
+>     +       struct dc_wdt *wdt = container_of(this, struct dc_wdt, restart_handler);
+>     +
+>     +       dc_wdt_set(wdt, 1);
+>     +       /* wait for reset to assert... */
+>     +       mdelay(500);
 >
-> diff --git a/Documentation/devicetree/bindings/rtc/rtc-st-lpc.txt b/Documentation/devicetree/bindings/rtc/rtc-st-lpc.txt
-> new file mode 100644
-> index 0000000..aaf9855
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/rtc-st-lpc.txt
-> @@ -0,0 +1,25 @@
-> +STMicroelectronics Low Power Controller (LPC) - RTC
-> +===================================================
-> +
-> +LPC currently supports Watchdog OR Real Time Clock functionality.
-> +
-> +[See: ../watchdog/st_lpc_wdt.txt for Watchdog options]
-> +
-> +Required properties
-> +
-> +- compatible 	: Must be one of: "st,stih407-lpc" "st,stih416-lpc"
-> +				  "st,stih415-lpc" "st,stid127-lpc"
-> +- reg		: LPC registers base address + size
-> +- interrupts    : LPC interrupt line number and associated flags
-> +- clocks	: Clock used by LPC device (See: ../clock/clock-bindings.txt)
-> +- st,lpc-mode	: The LPC can run either one of two modes ST_LPC_MODE_RTC [0] or
-> +		  ST_LPC_MODE_WDT [1].  One (and only one) mode must be
-> +		  selected.
-> +
-> +Example:
-> +	lpc@fde05000 {
-> +		compatible	= "st,stih416-lpc-watchdog";
-
-Name mismatch here as well.
+>
+> How is the 500 calculated ?
+> Also is it possible to sleep here?
+>
+sleep: No. It would also be pretty pointless, since this is after all the very last step
+of rebooting the system.
 
 Guenter
-
-> +		reg		= <0xfde05000 0x1000>;
-> +		clocks 		= <&clk_s_d3_flexgen CLK_LPC_0>;
-> +		st,lpc-mode	= <ST_LPC_MODE_RTC>;
-> +	};
->
 
