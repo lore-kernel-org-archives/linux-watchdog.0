@@ -1,50 +1,51 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from spo001.leaseweb.nl ([83.149.101.17]:56618 "EHLO
+Received: from spo001.leaseweb.nl ([83.149.101.17]:56622 "EHLO
 	spo001.leaseweb.nl" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751638AbbC0H7l (ORCPT
+	with ESMTP id S1752624AbbC0ICp (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 27 Mar 2015 03:59:41 -0400
-Date: Fri, 27 Mar 2015 08:59:31 +0100
+	Fri, 27 Mar 2015 04:02:45 -0400
+Date: Fri, 27 Mar 2015 09:02:43 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Mathieu Olivari <mathieu@codeaurora.org>
-Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-	linux@arm.linux.org.uk, corbet@lwn.net, standby24x7@gmail.com,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 0/3] arm: msm: Use timer DT node for qcom watchdog config
-Message-ID: <20150327075931.GC24918@spo001.leaseweb.nl>
-References: <1424485176-8348-1-git-send-email-mathieu@codeaurora.org>
+To: Michal Simek <michal.simek@xilinx.com>
+Cc: linux-kernel@vger.kernel.org, monstr@monstr.eu,
+	Zach Pfeffer <zachp@xilinx.com>, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH] watchdog: cadence: Remove Kconfig dependency on ARCH
+Message-ID: <20150327080243.GE24918@spo001.leaseweb.nl>
+References: <491e97be16decb4901fa2b0be4b530774501b5c1.1425891008.git.michal.simek@xilinx.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1424485176-8348-1-git-send-email-mathieu@codeaurora.org>
+In-Reply-To: <491e97be16decb4901fa2b0be4b530774501b5c1.1425891008.git.michal.simek@xilinx.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Mathieu,
+Hi Michal,
 
-> This change is done as a follow-up to the following thread:
-> https://lkml.org/lkml/2014/10/1/436
+> Remove Kconfig dependency and enable driver for
+> all ARCHs.
 > 
-> qcom-wdt is currently assuming the presence of a dedicated node in DT
-> to gets its configuration. However, on msm architecture, the watchdog is
-> usually part of the timer block. So this patch-set is changing the driver
-> and slightly enhancing the timer DT bindings to provide the relevant clocks
-> and interrupts.
+> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+> ---
 > 
-> Mathieu Olivari (3):
->   watchdog: qcom: use timer devicetree binding
->   ARM: qcom: add description of KPSS WDT for IPQ8064
->   ARM: msm: add watchdog entries to DT timer binding doc
+> Test for all archs done by Kbuild test robot without any problem.
+> ---
+>  drivers/watchdog/Kconfig | 1 -
+>  1 file changed, 1 deletion(-)
 > 
->  Documentation/devicetree/bindings/arm/msm/timer.txt | 16 +++++++++++++---
->  arch/arm/boot/dts/qcom-ipq8064.dtsi                 | 14 +++++++++++++-
->  drivers/watchdog/qcom-wdt.c                         | 21 +++++++++++++++------
->  3 files changed, 41 insertions(+), 10 deletions(-)
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index 16f202350997..6442412377a4 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -169,7 +169,6 @@ config AT91SAM9X_WATCHDOG
+>  
+>  config CADENCE_WATCHDOG
+>  	tristate "Cadence Watchdog Timer"
+> -	depends on ARM
+>  	select WATCHDOG_CORE
+>  	help
+>  	  Say Y here if you want to include support for the watchdog
 
-This patchset has been added to linux-watchdog-next.
+This patch has been added to linux-watchdog-next.
 
 Kind regards,
 Wim.
