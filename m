@@ -1,96 +1,152 @@
-Return-path: <omaplinuxkernel@gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <148dd2d6912211bc468c30acf85a463192576039.1427356791.git.baruch@tkos.co.il>
-References: <a4554d0a61c62b85a7d66b6e3d16d07f8a498025.1427356791.git.baruch@tkos.co.il>
-	<148dd2d6912211bc468c30acf85a463192576039.1427356791.git.baruch@tkos.co.il>
-Date: Fri, 27 Mar 2015 11:10:32 +0530
-Message-ID: <CAM=Q2ctS6_=pzW2H+Yd3nEBgF269vfdh8yV3NbnWFP7b-MWLbA@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] watchdog: digicolor: driver for Conexant Digicolor
- CX92755 SoC
-From: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
-To: Baruch Siach <baruch@tkos.co.il>
-Cc: Wim Van Sebroeck <wim@iguana.be>, devicetree@vger.kernel.org,
+Return-path: <wimvs@spo001.leaseweb.nl>
+Date: Fri, 27 Mar 2015 08:53:26 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
 	Guenter Roeck <linux@roeck-us.net>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
-Content-Type: multipart/alternative; boundary=089e0122aa561d41c905123e925d
+	Dan Carpenter <dan.carpenter@oracle.com>,
+	James Hogan <james.hogan@imgtec.com>
+Subject: [GIT PULL REQUEST] watchdog - v4.0-rc5 Fixes
+Message-ID: <20150327075326.GA24918@spo001.leaseweb.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Sender: <wimvs@spo001.leaseweb.nl>
 List-ID: <linux-watchdog@vger.kernel.org>
 
---089e0122aa561d41c905123e925d
-Content-Type: text/plain; charset=UTF-8
+Hi Linus,
 
->
->
-> +
-> +static int dc_restart_handler(struct notifier_block *this, unsigned long
-> mode,
-> +                             void *cmd)
-> +{
-> +       struct dc_wdt *wdt = container_of(this, struct dc_wdt,
-> restart_handler);
-> +
-> +       dc_wdt_set(wdt, 1);
-> +       /* wait for reset to assert... */
-> +       mdelay(500);
->
+Please pull from 'master' branch of
+	git://www.linux-watchdog.org/linux-watchdog.git
 
-How is the 500 calculated ?
-Also is it possible to sleep here?
+It will fix the following issues:
+* mtk_wdt: signedness bug in mtk_wdt_start()
+* imgpdc: Fix probe NULL pointer dereference during probe and fix the default heartbeat
 
+This will update the following files:
 
-> +
-> +       return NOTIFY_DONE;
-> +}
-> +
-> +static int dc_wdt_start(struct watchdog_device *wdog)
-> +{
-> +       struct dc_wdt *wdt = watchdog_get_drvdata(wdog);
-> +
-> +       dc_wdt_set(wdt, wdog->timeout * clk_get_rate(wdt->clk));
-> +
-> +       return 0;
-> +}
-> +
->
->
+ imgpdc_wdt.c |    8 ++++----
+ mtk_wdt.c    |    2 +-
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
---089e0122aa561d41c905123e925d
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+with these Changes:
 
-<div dir=3D"ltr"><div class=3D"gmail_extra"><div class=3D"gmail_quote"><blo=
-ckquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #c=
-cc solid;padding-left:1ex"><br>
-+<br>
-+static int dc_restart_handler(struct notifier_block *this, unsigned long m=
-ode,<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0void *cmd)<br>
-+{<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0struct dc_wdt *wdt =3D container_of(this, struc=
-t dc_wdt, restart_handler);<br>
-+<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0dc_wdt_set(wdt, 1);<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0/* wait for reset to assert... */<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0mdelay(500);<br>
-</blockquote><div><br></div><div>How is the 500 calculated ?</div><div>Also=
- is it possible to sleep here?</div><div>=C2=A0</div><blockquote class=3D"g=
-mail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-l=
-eft:1ex">+<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0return NOTIFY_DONE;<br>
-+}<br>
-+<br>
-+static int dc_wdt_start(struct watchdog_device *wdog)<br>
-+{<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0struct dc_wdt *wdt =3D watchdog_get_drvdata(wdo=
-g);<br>
-+<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0dc_wdt_set(wdt, wdog-&gt;timeout * clk_get_rate=
-(wdt-&gt;clk));<br>
-+<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0return 0;<br>
-+}<br>
-+<br><span class=3D"HOEnZb"><font color=3D"#888888"><br>
-</font></span></blockquote></div><br></div></div>
+commit ae6ee2fd47f76db5a1cd02c23378057bd21c2c8d
+Author: James Hogan <james.hogan@imgtec.com>
+Date:   Fri Feb 20 23:45:45 2015 +0000
 
---089e0122aa561d41c905123e925d--
+    watchdog: imgpdc: Fix default heartbeat
+    
+    The IMG PDC watchdog driver heartbeat module parameter has no default so
+    it is initialised to zero. This results in the following warning during
+    probe:
+    
+    imgpdc-wdt 2006000.wdt: Initial timeout out of range! setting max timeout
+    
+    The module parameter description implies that the default value should
+    be PDC_WDT_DEF_TIMEOUT, which isn't yet used, so initialise it to that.
+    
+    Also tweak the heartbeat module parameter description for consistency.
+    
+    Fixes: 93937669e9b5 ("watchdog: ImgTec PDC Watchdog Timer Driver")
+    Signed-off-by: James Hogan <james.hogan@imgtec.com>
+    Cc: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
+    Cc: Naidu Tellapati <Naidu.Tellapati@imgtec.com>
+    Cc: Jude Abraham <Jude.Abraham@imgtec.com>
+    Cc: linux-watchdog@vger.kernel.org
+    Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+
+commit a629c08fdb98ebb184d745553af9dda4f05941bf
+Author: James Hogan <james.hogan@imgtec.com>
+Date:   Fri Feb 20 23:45:44 2015 +0000
+
+    watchdog: imgpdc: Fix probe NULL pointer dereference
+    
+    The IMG PDC watchdog probe function calls pdc_wdt_stop() prior to
+    watchdog_set_drvdata(), causing a NULL pointer dereference when
+    pdc_wdt_stop() retrieves the struct pdc_wdt_dev pointer using
+    watchdog_get_drvdata() and reads the register base address through it.
+    
+    Fix by moving the watchdog_set_drvdata() call earlier, to where various
+    other pdc_wdt->wdt_dev fields are initialised.
+    
+    Fixes: 93937669e9b5 ("watchdog: ImgTec PDC Watchdog Timer Driver")
+    Signed-off-by: James Hogan <james.hogan@imgtec.com>
+    Cc: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
+    Cc: Naidu Tellapati <Naidu.Tellapati@imgtec.com>
+    Cc: Jude Abraham <Jude.Abraham@imgtec.com>
+    Cc: linux-watchdog@vger.kernel.org
+    Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+
+commit 9ffd906d9a6e50c958bd99971d762a426a12a36a
+Author: Dan Carpenter <dan.carpenter@oracle.com>
+Date:   Wed Feb 11 13:26:21 2015 +0300
+
+    watchdog: mtk_wdt: signedness bug in mtk_wdt_start()
+    
+    "ret" should be signed for the error handling to work correctly.  This
+    doesn't matter much in real life since mtk_wdt_set_timeout() always
+    succeeds.
+    
+    Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+    Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
+    Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+
+For completeness, I added the overal diff below.
+
+Greetings,
+Wim.
+
+================================================================================
+diff --git a/drivers/watchdog/imgpdc_wdt.c b/drivers/watchdog/imgpdc_wdt.c
+index c8def68..0deaa4f 100644
+--- a/drivers/watchdog/imgpdc_wdt.c
++++ b/drivers/watchdog/imgpdc_wdt.c
+@@ -42,10 +42,10 @@
+ #define PDC_WDT_MIN_TIMEOUT		1
+ #define PDC_WDT_DEF_TIMEOUT		64
+ 
+-static int heartbeat;
++static int heartbeat = PDC_WDT_DEF_TIMEOUT;
+ module_param(heartbeat, int, 0);
+-MODULE_PARM_DESC(heartbeat, "Watchdog heartbeats in seconds. "
+-	"(default = " __MODULE_STRING(PDC_WDT_DEF_TIMEOUT) ")");
++MODULE_PARM_DESC(heartbeat, "Watchdog heartbeats in seconds "
++	"(default=" __MODULE_STRING(PDC_WDT_DEF_TIMEOUT) ")");
+ 
+ static bool nowayout = WATCHDOG_NOWAYOUT;
+ module_param(nowayout, bool, 0);
+@@ -191,6 +191,7 @@ static int pdc_wdt_probe(struct platform_device *pdev)
+ 	pdc_wdt->wdt_dev.ops = &pdc_wdt_ops;
+ 	pdc_wdt->wdt_dev.max_timeout = 1 << PDC_WDT_CONFIG_DELAY_MASK;
+ 	pdc_wdt->wdt_dev.parent = &pdev->dev;
++	watchdog_set_drvdata(&pdc_wdt->wdt_dev, pdc_wdt);
+ 
+ 	ret = watchdog_init_timeout(&pdc_wdt->wdt_dev, heartbeat, &pdev->dev);
+ 	if (ret < 0) {
+@@ -232,7 +233,6 @@ static int pdc_wdt_probe(struct platform_device *pdev)
+ 	watchdog_set_nowayout(&pdc_wdt->wdt_dev, nowayout);
+ 
+ 	platform_set_drvdata(pdev, pdc_wdt);
+-	watchdog_set_drvdata(&pdc_wdt->wdt_dev, pdc_wdt);
+ 
+ 	ret = watchdog_register_device(&pdc_wdt->wdt_dev);
+ 	if (ret)
+diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
+index a87f6df..938b987 100644
+--- a/drivers/watchdog/mtk_wdt.c
++++ b/drivers/watchdog/mtk_wdt.c
+@@ -133,7 +133,7 @@ static int mtk_wdt_start(struct watchdog_device *wdt_dev)
+ 	u32 reg;
+ 	struct mtk_wdt_dev *mtk_wdt = watchdog_get_drvdata(wdt_dev);
+ 	void __iomem *wdt_base = mtk_wdt->wdt_base;
+-	u32 ret;
++	int ret;
+ 
+ 	ret = mtk_wdt_set_timeout(wdt_dev, wdt_dev->timeout);
+ 	if (ret < 0)
