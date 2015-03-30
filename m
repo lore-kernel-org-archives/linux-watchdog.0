@@ -1,44 +1,46 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wi0-f176.google.com ([209.85.212.176]:37040 "EHLO
-	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752241AbbC3MPk (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 30 Mar 2015 08:15:40 -0400
-Received: by wiaa2 with SMTP id a2so126753431wia.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 30 Mar 2015 05:15:39 -0700 (PDT)
+Received: from mail-bn1on0076.outbound.protection.outlook.com ([157.56.110.76]:31520
+	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1753495AbbC3Tcr (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 30 Mar 2015 15:32:47 -0400
+Message-ID: <55199CFC.5070307@caviumnetworks.com>
+Date: Mon, 30 Mar 2015 11:59:08 -0700
+From: David Daney <ddaney@caviumnetworks.com>
 MIME-Version: 1.0
-Date: Mon, 30 Mar 2015 08:15:38 -0400
-Message-ID: <CALah4NdwMPmu=iu=JaRyCYZQCb7nsJ_AWcXiT83v-wMNAA6hxQ@mail.gmail.com>
-Subject: NMI watchdog
-From: Justin Keller <justincompsci@gmail.com>
-To: linux-watchdog@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+To: Aaro Koskinen <aaro.koskinen@iki.fi>
+CC: David Daney <ddaney.cavm@gmail.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	David Daney <david.daney@cavium.com>,
+	<linux-watchdog@vger.kernel.org>, <linux-mips@linux-mips.org>
+Subject: Re: [PATCH 1/3] watchdog: octeon: convert to WATCHDOG_CORE API
+References: <1427565940-22951-1-git-send-email-aaro.koskinen@iki.fi> <551992F0.5050809@gmail.com> <20150330185150.GD571@fuloong-minipc.musicnaut.iki.fi>
+In-Reply-To: <20150330185150.GD571@fuloong-minipc.musicnaut.iki.fi>
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello,
-Although not running a vanilla kernel on this machine, I have reported the
-issue to the distribution's bug tracking system. It has been almost a week
-with no response, so I am sending this email.
+On 03/30/2015 11:51 AM, Aaro Koskinen wrote:
+[...]
+>
+>> Thanks for doing this, I had been meaning to make the conversion myself.
+>
+> One further improvement idea would be to get the register dump logged
+> also with printk() or panic() so that it could be captured with netconsole
+> or mtdoops (at least in some cases). Not sure what it would require.
+> Calling printk() or panic() from the NMI handler didn't quite produce
+> an expected result...
 
-Multiple times, when I return to my computer from being away for a little
-while, I noticed:
-Message from syslogd@redacted at Mar 23 XX:XX:XX ...
-kernel:[1059322.470817] NMI watchdog: BUG: soft lockup - CPU#1 stuck for
-22s! [kswapd0:31]
+In the handler we are running with a private stack, and at 
+CP0_Status[ERL].  The result is that no access to the current task 
+structure is possible, and interrupts are disabled.  So there is very 
+little you can do.
 
-Dmesg | grep NMI produced:
-[1151200.727734] sending NMI to all CPUs:
-[1151200.727812] NMI backtrace for cpu 0
-[1151200.764129] INFO: NMI handler (arch_trigger_all_cpu_backtrace_handler)
-took too long to run: 36.262 msecs
-[1151200.764198] NMI backtrace for cpu 1
-[1151216.700893] sending NMI to all CPUs:
-[1151216.700984] NMI backtrace for cpu 1
-[1151216.706524] NMI backtrace for cpu 0
-[1723994.455161] <NMI> [<ffffffff81554a5e>] ? dump_stack+0x41/0x51
+Polling characters out of the UART works fine though.
 
-I didn't have time to grep for kswapd or to investigate further. Long story
-short, the machine was shutdown shortly afterwords.
 
-Justin
+>
+> A.
+>
+
