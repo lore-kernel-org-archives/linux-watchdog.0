@@ -7,36 +7,37 @@ Cc: linux-watchdog@vger.kernel.org,
 	Naidu Tellapati <naidu.tellapati@imgtec.com>,
 	Andrew Bresticker <abrestic@chromium.org>,
 	Ezequiel Garcia <ezequiel.garcia@imgtec.com>
-Subject: [PATCH 3/4] watchdog: imgpdc: Set timeout before starting watchdog
-Date: Tue, 31 Mar 2015 11:49:10 -0700
-Message-Id: <1427827751-19705-3-git-send-email-abrestic@chromium.org>
+Subject: [PATCH 2/4] watchdog: imgpdc: Intialize timeout to default value
+Date: Tue, 31 Mar 2015 11:49:09 -0700
+Message-Id: <1427827751-19705-2-git-send-email-abrestic@chromium.org>
 In-Reply-To: <1427827751-19705-1-git-send-email-abrestic@chromium.org>
 References: <1427827751-19705-1-git-send-email-abrestic@chromium.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 From: Naidu Tellapati <naidu.tellapati@imgtec.com>
 
-Set up the watchdog for the specified timeout before attempting to start it.
+Currently the watchdog timeout is initialized to 0.  Initialize it to
+its default value instead.
 
 Signed-off-by: Naidu Tellapati <naidu.tellapati@imgtec.com>
 Signed-off-by: Andrew Bresticker <abrestic@chromium.org>
 Cc: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
 ---
- drivers/watchdog/imgpdc_wdt.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/watchdog/imgpdc_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/watchdog/imgpdc_wdt.c b/drivers/watchdog/imgpdc_wdt.c
-index f3f65ac..aef3596 100644
+index c4151cd..f3f65ac 100644
 --- a/drivers/watchdog/imgpdc_wdt.c
 +++ b/drivers/watchdog/imgpdc_wdt.c
-@@ -106,6 +106,8 @@ static int pdc_wdt_start(struct watchdog_device *wdt_dev)
- 	unsigned int val;
- 	struct pdc_wdt_dev *wdt = watchdog_get_drvdata(wdt_dev);
+@@ -42,7 +42,7 @@
+ #define PDC_WDT_MIN_TIMEOUT		1
+ #define PDC_WDT_DEF_TIMEOUT		64
  
-+	pdc_wdt_set_timeout(&wdt->wdt_dev, wdt->wdt_dev.timeout);
-+
- 	val = readl(wdt->base + PDC_WDT_CONFIG);
- 	val |= PDC_WDT_CONFIG_ENABLE;
- 	writel(val, wdt->base + PDC_WDT_CONFIG);
+-static int heartbeat;
++static int heartbeat = PDC_WDT_DEF_TIMEOUT;
+ module_param(heartbeat, int, 0);
+ MODULE_PARM_DESC(heartbeat, "Watchdog heartbeats in seconds. "
+ 	"(default = " __MODULE_STRING(PDC_WDT_DEF_TIMEOUT) ")");
 -- 
 2.2.0.rc0.207.ga3a616c
