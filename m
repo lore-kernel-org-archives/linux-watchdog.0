@@ -1,59 +1,59 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qg0-f54.google.com ([209.85.192.54]:35485 "EHLO
-	mail-qg0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751533AbbCaTh2 (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:53494 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751899AbbDADut (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 31 Mar 2015 15:37:28 -0400
-Received: by qgh3 with SMTP id 3so24262823qgh.2
-        for <linux-watchdog@vger.kernel.org>; Tue, 31 Mar 2015 12:37:28 -0700 (PDT)
+	Tue, 31 Mar 2015 23:50:49 -0400
+Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
+	(envelope-from <linux@roeck-us.net>)
+	id 1Yd9g0-003q3r-C8
+	for linux-watchdog@vger.kernel.org; Wed, 01 Apr 2015 03:50:48 +0000
+Message-ID: <551B6B04.1090507@roeck-us.net>
+Date: Tue, 31 Mar 2015 20:50:28 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-In-Reply-To: <1427827751-19705-1-git-send-email-abrestic@chromium.org>
-References: <1427827751-19705-1-git-send-email-abrestic@chromium.org>
-Date: Tue, 31 Mar 2015 12:37:27 -0700
-Message-ID: <CAL1qeaG6A99tOXnU8DPze3VwxMRSpyoDt30=OpT5=nAFVrNujg@mail.gmail.com>
-Subject: Re: [PATCH 1/4] watchdog: imgpdc: Fix NULL pointer dereference on probe
-From: Andrew Bresticker <abrestic@chromium.org>
-To: Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>
-Cc: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+To: Andrew Bresticker <abrestic@chromium.org>,
+	Wim Van Sebroeck <wim@iguana.be>
+CC: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
 	Naidu Tellapati <naidu.tellapati@imgtec.com>,
-	Andrew Bresticker <abrestic@chromium.org>,
 	Ezequiel Garcia <ezequiel.garcia@imgtec.com>
-Content-Type: text/plain; charset=UTF-8
+Subject: Re: [PATCH 3/4] watchdog: imgpdc: Set timeout before starting watchdog
+References: <1427827751-19705-1-git-send-email-abrestic@chromium.org> <1427827751-19705-3-git-send-email-abrestic@chromium.org>
+In-Reply-To: <1427827751-19705-3-git-send-email-abrestic@chromium.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Mar 31, 2015 at 11:49 AM, Andrew Bresticker
-<abrestic@chromium.org> wrote:
+On 03/31/2015 11:49 AM, Andrew Bresticker wrote:
 > From: Naidu Tellapati <naidu.tellapati@imgtec.com>
 >
-> pdc_wdt_probe() called pdc_wdt_stop() before watchdog_set_drvdata(),
-> resulting in the following NULL pointer dereference:
+> Set up the watchdog for the specified timeout before attempting to start it.
 >
->   CPU 0 Unable to handle kernel paging request at virtual address 0000008c, epc == 8082a2b8, ra == 8082a914
->   Oops[#1]:
->   CPU: 0 PID: 1 Comm: swapper/0 Not tainted 4.0.0-rc5+ #102
->   task: 8f8c0000 ti: 8f89e000 task.ti: 8f89e000
->   $ 0   : 00000000 8082a914 00000000 dc8ba200
->   $ 4   : 8faf9418 80ac0000 8f9cdc10 00008012
->   $ 8   : 00000000 806e2350 00000001 8f001880
->   $12   : 8f89fd14 00000000 00000000 65646f4d
->   $16   : 8faf9418 8f9cdc10 8f001880 8f9cdc00
->   $20   : 00000000 80c20000 00000000 80bc0000
->   $24   : 00000002 00000000
->   $28   : 8f89e000 8f89fd00 00000000 8082a914
->   Hi    : 0000006b
->   Lo    : 00008013
->   epc   : 8082a2b8 pdc_wdt_stop+0x1c/0x44
->       Not tainted
->   ra    : 8082a914 pdc_wdt_probe+0x404/0x550
->   Status: 11000403      KERNEL EXL IE
->   Cause : 00800008
->   BadVA : 0000008c
->   PrId  : 0001a120 (MIPS interAptiv (multi))
+> Signed-off-by: Naidu Tellapati <naidu.tellapati@imgtec.com>
+> Signed-off-by: Andrew Bresticker <abrestic@chromium.org>
+> Cc: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
+> ---
+>   drivers/watchdog/imgpdc_wdt.c | 2 ++
+>   1 file changed, 2 insertions(+)
 >
-> Fix it by moving the call to pdc_wdt_stop() after we've set drvdata.
+> diff --git a/drivers/watchdog/imgpdc_wdt.c b/drivers/watchdog/imgpdc_wdt.c
+> index f3f65ac..aef3596 100644
+> --- a/drivers/watchdog/imgpdc_wdt.c
+> +++ b/drivers/watchdog/imgpdc_wdt.c
+> @@ -106,6 +106,8 @@ static int pdc_wdt_start(struct watchdog_device *wdt_dev)
+>   	unsigned int val;
+>   	struct pdc_wdt_dev *wdt = watchdog_get_drvdata(wdt_dev);
+>
+> +	pdc_wdt_set_timeout(&wdt->wdt_dev, wdt->wdt_dev.timeout);
+> +
+>   	val = readl(wdt->base + PDC_WDT_CONFIG);
+>   	val |= PDC_WDT_CONFIG_ENABLE;
+>   	writel(val, wdt->base + PDC_WDT_CONFIG);
+>
+It might be better to provide a helper function that doesn't set wdt->wdt_dev.timeout
+again, or to just set the timeout with the write to PDC_WDT_CONFIG when starting
+the watchdog.
 
-Disregard this patch and patch 2 - it looks like James Hogan beat me
-to it :).  Patches 3 and 4 still apply I think.
+Guenter
+
