@@ -1,92 +1,83 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qc0-f201.google.com ([209.85.216.201]:33360 "EHLO
-	mail-qc0-f201.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753248AbbDARnU (ORCPT
+Received: from mail-ie0-f201.google.com ([209.85.223.201]:33635 "EHLO
+	mail-ie0-f201.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753248AbbDARnY (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 1 Apr 2015 13:43:20 -0400
-Received: by qcvp6 with SMTP id p6so3868561qcv.0
-        for <linux-watchdog@vger.kernel.org>; Wed, 01 Apr 2015 10:43:20 -0700 (PDT)
+	Wed, 1 Apr 2015 13:43:24 -0400
+Received: by iebtr6 with SMTP id tr6so7538688ieb.0
+        for <linux-watchdog@vger.kernel.org>; Wed, 01 Apr 2015 10:43:23 -0700 (PDT)
 From: Andrew Bresticker <abrestic@chromium.org>
 To: Wim Van Sebroeck <wim@iguana.be>,
 	Guenter Roeck <linux@roeck-us.net>
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
 	Andrew Bresticker <abrestic@chromium.org>,
+	Naidu Tellapati <naidu.tellapati@imgtec.com>,
 	Ezequiel Garcia <ezequiel.garcia@imgtec.com>,
 	James Hogan <james.hogan@imgtec.com>
-Subject: [PATCH V2 3/3] watchdog: imgpdc: Add reboot support
-Date: Wed,  1 Apr 2015 10:43:16 -0700
-Message-Id: <1427910196-28568-3-git-send-email-abrestic@chromium.org>
+Subject: [PATCH V2 2/3] watchdog: imgpdc: Set timeout before starting watchdog
+Date: Wed,  1 Apr 2015 10:43:15 -0700
+Message-Id: <1427910196-28568-2-git-send-email-abrestic@chromium.org>
 In-Reply-To: <1427910196-28568-1-git-send-email-abrestic@chromium.org>
 References: <1427910196-28568-1-git-send-email-abrestic@chromium.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Register a restart handler that will restart the system by writing
-to the watchdog's SOFT_RESET register.
+Set up the watchdog for the specified timeout before attempting to start it.
 
+Signed-off-by: Naidu Tellapati <naidu.tellapati@imgtec.com>
 Signed-off-by: Andrew Bresticker <abrestic@chromium.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Cc: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
 Cc: James Hogan <james.hogan@imgtec.com>
 ---
-No changes from v1.
+Changes from v1:
+ - Moved setting of timeout to a helper as suggested by Guenter.
 ---
- drivers/watchdog/imgpdc_wdt.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ drivers/watchdog/imgpdc_wdt.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/watchdog/imgpdc_wdt.c b/drivers/watchdog/imgpdc_wdt.c
-index c58b085..99e5ba4 100644
+index 89b2abc..c58b085 100644
 --- a/drivers/watchdog/imgpdc_wdt.c
 +++ b/drivers/watchdog/imgpdc_wdt.c
-@@ -16,6 +16,7 @@
- #include <linux/log2.h>
- #include <linux/module.h>
- #include <linux/platform_device.h>
-+#include <linux/reboot.h>
- #include <linux/slab.h>
- #include <linux/watchdog.h>
+@@ -84,18 +84,24 @@ static int pdc_wdt_stop(struct watchdog_device *wdt_dev)
+ 	return 0;
+ }
  
-@@ -57,6 +58,7 @@ struct pdc_wdt_dev {
- 	struct clk *wdt_clk;
- 	struct clk *sys_clk;
- 	void __iomem *base;
-+	struct notifier_block restart_handler;
- };
- 
- static int pdc_wdt_keepalive(struct watchdog_device *wdt_dev)
-@@ -136,6 +138,18 @@ static const struct watchdog_ops pdc_wdt_ops = {
- 	.set_timeout	= pdc_wdt_set_timeout,
- };
- 
-+static int pdc_wdt_restart(struct notifier_block *this, unsigned long mode,
-+			   void *cmd)
++static void __pdc_wdt_set_timeout(struct pdc_wdt_dev *wdt)
 +{
-+	struct pdc_wdt_dev *wdt = container_of(this, struct pdc_wdt_dev,
-+					       restart_handler);
++	unsigned long clk_rate = clk_get_rate(wdt->wdt_clk);
++	unsigned int val;
 +
-+	/* Assert SOFT_RESET */
-+	writel(0x1, wdt->base + PDC_WDT_SOFT_RESET);
-+
-+	return NOTIFY_OK;
++	val = readl(wdt->base + PDC_WDT_CONFIG) & ~PDC_WDT_CONFIG_DELAY_MASK;
++	val |= order_base_2(wdt->wdt_dev.timeout * clk_rate) - 1;
++	writel(val, wdt->base + PDC_WDT_CONFIG);
 +}
 +
- static int pdc_wdt_probe(struct platform_device *pdev)
+ static int pdc_wdt_set_timeout(struct watchdog_device *wdt_dev,
+ 			       unsigned int new_timeout)
  {
- 	int ret, val;
-@@ -246,6 +260,13 @@ static int pdc_wdt_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto disable_wdt_clk;
+-	unsigned int val;
+ 	struct pdc_wdt_dev *wdt = watchdog_get_drvdata(wdt_dev);
+-	unsigned long clk_rate = clk_get_rate(wdt->wdt_clk);
  
-+	pdc_wdt->restart_handler.notifier_call = pdc_wdt_restart;
-+	pdc_wdt->restart_handler.priority = 128;
-+	ret = register_restart_handler(&pdc_wdt->restart_handler);
-+	if (ret)
-+		dev_warn(&pdev->dev, "failed to register restart handler: %d\n",
-+			 ret);
-+
+ 	wdt->wdt_dev.timeout = new_timeout;
+ 
+-	val = readl(wdt->base + PDC_WDT_CONFIG) & ~PDC_WDT_CONFIG_DELAY_MASK;
+-	val |= order_base_2(new_timeout * clk_rate) - 1;
+-	writel(val, wdt->base + PDC_WDT_CONFIG);
++	__pdc_wdt_set_timeout(wdt);
+ 
  	return 0;
+ }
+@@ -106,6 +112,8 @@ static int pdc_wdt_start(struct watchdog_device *wdt_dev)
+ 	unsigned int val;
+ 	struct pdc_wdt_dev *wdt = watchdog_get_drvdata(wdt_dev);
  
- disable_wdt_clk:
++	__pdc_wdt_set_timeout(wdt);
++
+ 	val = readl(wdt->base + PDC_WDT_CONFIG);
+ 	val |= PDC_WDT_CONFIG_ENABLE;
+ 	writel(val, wdt->base + PDC_WDT_CONFIG);
 -- 
 2.2.0.rc0.207.ga3a616c
 
