@@ -1,90 +1,150 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from oul135-36.netplaza.fi ([80.75.100.36]:33851 "EHLO
-	lime.offcode.fi" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751966AbbDIIE7 (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 9 Apr 2015 04:04:59 -0400
-Message-ID: <552630DD.5070509@offcode.fi>
-Date: Thu, 09 Apr 2015 10:57:17 +0300
-From: Timo Kokkonen <timo.kokkonen@offcode.fi>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Message-ID: <551C973C.3080902@roeck-us.net>
+Date: Wed, 01 Apr 2015 18:11:24 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-To: linux-watchdog@vger.kernel.org,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-	Boris BREZILLON <boris.brezillon@free-electrons.com>,
-	Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>,
-	Nicolas Ferre <nicolas.ferre@atmel.com>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: Early watchdog resets and watchdog kernel API changes
+To: "Fu, Borun" <borun.fu@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux PM list <linux-pm@vger.kernel.org>,
+        Wim Van Sebroeck <wim@iguana.be>, "Li, Aubrey" <aubrey.li@intel.com>,
+        "Wang, Frank" <frank.wang@intel.com>
+Subject: Re: [PATCH] PM / watchdog: iTCO: stop watchdog during system suspend
+References: <2017660.nPaHVT8bW3@vostro.rjw.lan> <48A8D21F3057FE4DB59C829EB7A1638A10EA3254@SHSMSX104.ccr.corp.intel.com>
+In-Reply-To: <48A8D21F3057FE4DB59C829EB7A1638A10EA3254@SHSMSX104.ccr.corp.intel.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi,
+On 04/01/2015 05:52 PM, Fu, Borun wrote:
+> Hi Rafael,
+> watchdog_active() function is not implemented in your patch. Pls. add it.
+>
 
-We had earlier discussion about the "early_timeout_sec" device tree 
-property that we could use to ensure the watchdog HW resets the device 
-after the given timeout at boot up. If user space does not open the 
-watchdog device or if kernel crash prevents user space from opening the 
-device, there would be a reset. The discussion stopped soon after we 
-kind of agreed that a more generic approach should be used instead of 
-implementing the behaviour to each driver. Unfortunately the watchdog 
-core is too limited for that as of now.
+Please explain why using the standard watchdog_active() would not work here.
 
-I now had some spare time and started to look at whether I could come up 
-with a patch. I browsed through several watchdog drivers and quite many 
-of them have the same problem they are working around: The hardware 
-watchdog timeout is way too short to be nice to the user space. That is, 
-the hardware may need petting maybe every 250ms, while 1 second petting 
-interval is quite common. This is worked around similar manned in many 
-drivers. The min_timeout and max_timeout parameters in watchdog_device 
-structure are the timeout limits exposed to the user space. The driver 
-itself uses different timeout limits and kernel timers are used to fill 
-in the gap between user space and what is limited by the hardware.
+Guenter
 
-So, what we could be doing is to change the watchdog kernel API to be 
-more aware of the actual hardware constraints and take over some of the 
-driver functionality that has been implemented over and over again many 
-places. This also makes it easier to implement new features, such as the 
-early_timeout_sec parameter handling discussed earlier.
-
-The way I though it could be done is this: We need to add new 
-hw_timeout_min and hw_timeout_max parameters in watchdog_device 
-structure. These describe the actual hardware limitations. The current 
-min_timeout and max_timeout parameters would then continue serving the 
-user space limits for the watchdog, as it works out right now with a lot 
-of drivers. If user space is using longer watchdog timeouts, the 
-watchdog core would just use generic timer code to ping the watchdog 
-driver to prevent the watchdog from expiring before user space timeout 
-has expired. One question here is that why do we need to limit the user 
-space timeout values if kernel is working around the HW constraints 
-anyway? The watchdog core could simply satisfy any (reasonable?) timeout 
-parameter requested by the user.
-
-For this we would need also a new set of flags that describe the 
-hardware capabilities. We also would need a generic function for parsing 
-the generic watchdog device tree properties so each driver don't need to 
-implement their own parsing for the same stuff. On non-devicetree 
-platforms this function could use some other means for parsing the 
-parameters, such as kernel command line or ACPI.
-
-For this I'm proposing watchdog_init_params() function that would 
-replace watchdog_init_timeout() call from current drivers. This function 
-could also be used for the core to know whether a driver is converted to 
-supply the new information about its HW capabilities and whether core 
-should take over some of the generic watchdog behaviour from the driver. 
-If watchdog_init_params() is not called before 
-watchdog_register_device(), the core knows to treat the driver as 
-before. This way drivers can be converted and cleaned up one by one and 
-not all once. I'd start with at91sam9_wdt as that's what I have the test 
-environment available right now.
-
-I don't have a patch for this yet, but I'm working on it. I just thought 
-writing this email to you will help me clear my thoughts on what I am 
-really doing here and give me some feedback to help ensure this gets 
-generic.
-
-Any thoughts?
-
--Timo
+> static int watchdog_active(struct device *dev)
+> {
+>         unsigned int val;
+>
+>         spin_lock(&iTCO_wdt_private.io_lock);
+>         val = inw(TCO1_CNT);
+>         spin_unlock(&iTCO_wdt_private.io_lock);
+>
+>         /* Bit 11: TCO Timer Halt */
+>         if (val & 0x0800)
+>                 return 0;
+>         else
+>                 return 1;
+> }
+>
+> Regards,
+> Borun
+> -----Original Message-----
+> From: Rafael J. Wysocki [mailto:rjw@rjwysocki.net]
+> Sent: Thursday, April 02, 2015 8:31
+> To: linux-watchdog@vger.kernel.org
+> Cc: Linux Kernel Mailing List; Linux PM list; Wim Van Sebroeck; Li, Aubrey; Fu, Borun
+> Subject: [PATCH] PM / watchdog: iTCO: stop watchdog during system suspend
+>
+> From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+>
+> If the target sleep state of the system is not an ACPI sleep state (S1, S2 or S3), the TCO watchdog needs to be stopped during system suspend, because it may not be possible to ping it any more after timekeeping has been suspended (suspend-to-idle does that for one example).
+>
+> For this reason, provide ->suspend_noirq and ->resume_noirq callbacks for the iTCO watchdog driver and use them to stop and restart the watchdog during system suspend and resume, respectively, if the system is not going to enter an ACPI sleep state (in which case the watchdog will be stopped by the platform firmware before the state is entered).
+>
+> Reported-by: Borun Fu <borun.fu@intel.com>
+> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> ---
+>   drivers/watchdog/iTCO_wdt.c |   51 ++++++++++++++++++++++++++++++++++++++++++++
+>   1 file changed, 51 insertions(+)
+>
+> Index: linux-pm/drivers/watchdog/iTCO_wdt.c
+> ===================================================================
+> --- linux-pm.orig/drivers/watchdog/iTCO_wdt.c
+> +++ linux-pm/drivers/watchdog/iTCO_wdt.c
+> @@ -51,6 +51,7 @@
+>   #define DRV_VERSION	"1.11"
+>
+>   /* Includes */
+> +#include <linux/acpi.h>			/* For ACPI support */
+>   #include <linux/module.h>		/* For module specific items */
+>   #include <linux/moduleparam.h>		/* For new moduleparam's */
+>   #include <linux/types.h>		/* For standard types (like size_t) */
+> @@ -103,6 +104,8 @@ static struct {		/* this is private data
+>   	struct platform_device *dev;
+>   	/* the PCI-device */
+>   	struct pci_dev *pdev;
+> +	/* whether or not the watchdog has been suspended */
+> +	bool suspended;
+>   } iTCO_wdt_private;
+>
+>   /* module parameters */
+> @@ -571,12 +574,60 @@ static void iTCO_wdt_shutdown(struct pla
+>   	iTCO_wdt_stop(NULL);
+>   }
+>
+> +#ifdef CONFIG_PM_SLEEP
+> +/*
+> + * Suspend-to-idle requires this, because it stops the ticks and
+> +timekeeping, so
+> + * the watchdog cannot be pinged while in that state.  In ACPI sleep
+> +states the
+> + * watchdog is stopped by the platform firmware.
+> + */
+> +
+> +#ifdef CONFIG_ACPI
+> +static inline bool need_suspend(void)
+> +{
+> +	return acpi_target_system_state() == ACPI_STATE_S0; } #else static
+> +inline bool need_suspend(void) { return true; } #endif
+> +
+> +static int iTCO_wdt_suspend_noirq(struct device *dev) {
+> +	int ret = 0;
+> +
+> +	iTCO_wdt_private.suspended = false;
+> +	if (watchdog_active(&iTCO_wdt_watchdog_dev) && need_suspend()) {
+> +		ret = iTCO_wdt_stop(&iTCO_wdt_watchdog_dev);
+> +		if (!ret)
+> +			iTCO_wdt_private.suspended = true;
+> +	}
+> +	return ret;
+> +}
+> +
+> +static int iTCO_wdt_resume_noirq(struct device *dev) {
+> +	if (iTCO_wdt_private.suspended)
+> +		iTCO_wdt_start(&iTCO_wdt_watchdog_dev);
+> +
+> +	return 0;
+> +}
+> +
+> +struct dev_pm_ops iTCO_wdt_pm = {
+> +	.suspend_noirq = iTCO_wdt_suspend_noirq,
+> +	.resume_noirq = iTCO_wdt_resume_noirq, };
+> +
+> +#define ITCO_WDT_PM_OPS	&iTCO_wdt_pm
+> +#else
+> +#define ITCO_WDT_PM_OPS	NULL
+> +#endif /* CONFIG_PM_SLEEP */
+> +
+>   static struct platform_driver iTCO_wdt_driver = {
+>   	.probe          = iTCO_wdt_probe,
+>   	.remove         = iTCO_wdt_remove,
+>   	.shutdown       = iTCO_wdt_shutdown,
+>   	.driver         = {
+>   		.name   = DRV_NAME,
+> +		.pm     = ITCO_WDT_PM_OPS,
+>   	},
+>   };
+>
+>
+> N�����r��y���b�X��ǧv�^�)޺{.n�+����{���\�� �{ay�
+ʇڙ�,j��f���h���z�
+�w���
+���j:+v���w�j�m��������zZ+�����ݢj"��!tml=
+>
