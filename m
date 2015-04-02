@@ -1,125 +1,95 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from v094114.home.net.pl ([79.96.170.134]:63915 "HELO
-	v094114.home.net.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751576AbbDBAGr (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 1 Apr 2015 20:06:47 -0400
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-To: linux-watchdog@vger.kernel.org
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+Received: from mga03.intel.com ([134.134.136.65]:9304 "EHLO mga03.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752687AbbDBAwm (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 1 Apr 2015 20:52:42 -0400
+From: "Fu, Borun" <borun.fu@intel.com>
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
 	Linux PM list <linux-pm@vger.kernel.org>,
 	Wim Van Sebroeck <wim@iguana.be>,
-	Aubrey Li <aubrey.li@intel.com>, Borun Fu <borun.fu@intel.com>
-Subject: [PATCH] PM / watchdog: iTCO: stop watchdog during system suspend
-Date: Thu, 02 Apr 2015 02:31:01 +0200
-Message-ID: <2017660.nPaHVT8bW3@vostro.rjw.lan>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
+	"Li, Aubrey" <aubrey.li@intel.com>,
+	"Wang, Frank" <frank.wang@intel.com>
+Subject: RE: [PATCH] PM / watchdog: iTCO: stop watchdog during system suspend
+Date: Thu, 2 Apr 2015 00:52:37 +0000
+Message-ID: <48A8D21F3057FE4DB59C829EB7A1638A10EA3254@SHSMSX104.ccr.corp.intel.com>
+References: <2017660.nPaHVT8bW3@vostro.rjw.lan>
+In-Reply-To: <2017660.nPaHVT8bW3@vostro.rjw.lan>
+Content-Language: en-US
 Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-
-If the target sleep state of the system is not an ACPI sleep state
-(S1, S2 or S3), the TCO watchdog needs to be stopped during system
-suspend, because it may not be possible to ping it any more after
-timekeeping has been suspended (suspend-to-idle does that for
-one example).
-
-For this reason, provide ->suspend_noirq and ->resume_noirq
-callbacks for the iTCO watchdog driver and use them to stop
-and restart the watchdog during system suspend and resume,
-respectively, if the system is not going to enter an ACPI
-sleep state (in which case the watchdog will be stopped
-by the platform firmware before the state is entered).
-
-Reported-by: Borun Fu <borun.fu@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
----
- drivers/watchdog/iTCO_wdt.c |   51 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 51 insertions(+)
-
-Index: linux-pm/drivers/watchdog/iTCO_wdt.c
-===================================================================
---- linux-pm.orig/drivers/watchdog/iTCO_wdt.c
-+++ linux-pm/drivers/watchdog/iTCO_wdt.c
-@@ -51,6 +51,7 @@
- #define DRV_VERSION	"1.11"
- 
- /* Includes */
-+#include <linux/acpi.h>			/* For ACPI support */
- #include <linux/module.h>		/* For module specific items */
- #include <linux/moduleparam.h>		/* For new moduleparam's */
- #include <linux/types.h>		/* For standard types (like size_t) */
-@@ -103,6 +104,8 @@ static struct {		/* this is private data
- 	struct platform_device *dev;
- 	/* the PCI-device */
- 	struct pci_dev *pdev;
-+	/* whether or not the watchdog has been suspended */
-+	bool suspended;
- } iTCO_wdt_private;
- 
- /* module parameters */
-@@ -571,12 +574,60 @@ static void iTCO_wdt_shutdown(struct pla
- 	iTCO_wdt_stop(NULL);
- }
- 
-+#ifdef CONFIG_PM_SLEEP
-+/*
-+ * Suspend-to-idle requires this, because it stops the ticks and timekeeping, so
-+ * the watchdog cannot be pinged while in that state.  In ACPI sleep states the
-+ * watchdog is stopped by the platform firmware.
-+ */
-+
-+#ifdef CONFIG_ACPI
-+static inline bool need_suspend(void)
-+{
-+	return acpi_target_system_state() == ACPI_STATE_S0;
-+}
-+#else
-+static inline bool need_suspend(void) { return true; }
-+#endif
-+
-+static int iTCO_wdt_suspend_noirq(struct device *dev)
-+{
-+	int ret = 0;
-+
-+	iTCO_wdt_private.suspended = false;
-+	if (watchdog_active(&iTCO_wdt_watchdog_dev) && need_suspend()) {
-+		ret = iTCO_wdt_stop(&iTCO_wdt_watchdog_dev);
-+		if (!ret)
-+			iTCO_wdt_private.suspended = true;
-+	}
-+	return ret;
-+}
-+
-+static int iTCO_wdt_resume_noirq(struct device *dev)
-+{
-+	if (iTCO_wdt_private.suspended)
-+		iTCO_wdt_start(&iTCO_wdt_watchdog_dev);
-+
-+	return 0;
-+}
-+
-+struct dev_pm_ops iTCO_wdt_pm = {
-+	.suspend_noirq = iTCO_wdt_suspend_noirq,
-+	.resume_noirq = iTCO_wdt_resume_noirq,
-+};
-+
-+#define ITCO_WDT_PM_OPS	&iTCO_wdt_pm
-+#else
-+#define ITCO_WDT_PM_OPS	NULL
-+#endif /* CONFIG_PM_SLEEP */
-+
- static struct platform_driver iTCO_wdt_driver = {
- 	.probe          = iTCO_wdt_probe,
- 	.remove         = iTCO_wdt_remove,
- 	.shutdown       = iTCO_wdt_shutdown,
- 	.driver         = {
- 		.name   = DRV_NAME,
-+		.pm     = ITCO_WDT_PM_OPS,
- 	},
- };
- 
-
+SGkgUmFmYWVsLA0Kd2F0Y2hkb2dfYWN0aXZlKCkgZnVuY3Rpb24gaXMgbm90IGltcGxlbWVudGVk
+IGluIHlvdXIgcGF0Y2guIFBscy4gYWRkIGl0LiANCg0Kc3RhdGljIGludCB3YXRjaGRvZ19hY3Rp
+dmUoc3RydWN0IGRldmljZSAqZGV2KQ0Kew0KICAgICAgIHVuc2lnbmVkIGludCB2YWw7DQoNCiAg
+ICAgICBzcGluX2xvY2soJmlUQ09fd2R0X3ByaXZhdGUuaW9fbG9jayk7DQogICAgICAgdmFsID0g
+aW53KFRDTzFfQ05UKTsNCiAgICAgICBzcGluX3VubG9jaygmaVRDT193ZHRfcHJpdmF0ZS5pb19s
+b2NrKTsNCg0KICAgICAgIC8qIEJpdCAxMTogVENPIFRpbWVyIEhhbHQgKi8NCiAgICAgICBpZiAo
+dmFsICYgMHgwODAwKQ0KICAgICAgICAgICAgICAgcmV0dXJuIDA7DQogICAgICAgZWxzZQ0KICAg
+ICAgICAgICAgICAgcmV0dXJuIDE7DQp9DQoNClJlZ2FyZHMsDQpCb3J1bg0KLS0tLS1PcmlnaW5h
+bCBNZXNzYWdlLS0tLS0NCkZyb206IFJhZmFlbCBKLiBXeXNvY2tpIFttYWlsdG86cmp3QHJqd3lz
+b2NraS5uZXRdIA0KU2VudDogVGh1cnNkYXksIEFwcmlsIDAyLCAyMDE1IDg6MzENClRvOiBsaW51
+eC13YXRjaGRvZ0B2Z2VyLmtlcm5lbC5vcmcNCkNjOiBMaW51eCBLZXJuZWwgTWFpbGluZyBMaXN0
+OyBMaW51eCBQTSBsaXN0OyBXaW0gVmFuIFNlYnJvZWNrOyBMaSwgQXVicmV5OyBGdSwgQm9ydW4N
+ClN1YmplY3Q6IFtQQVRDSF0gUE0gLyB3YXRjaGRvZzogaVRDTzogc3RvcCB3YXRjaGRvZyBkdXJp
+bmcgc3lzdGVtIHN1c3BlbmQNCg0KRnJvbTogUmFmYWVsIEouIFd5c29ja2kgPHJhZmFlbC5qLnd5
+c29ja2lAaW50ZWwuY29tPg0KDQpJZiB0aGUgdGFyZ2V0IHNsZWVwIHN0YXRlIG9mIHRoZSBzeXN0
+ZW0gaXMgbm90IGFuIEFDUEkgc2xlZXAgc3RhdGUgKFMxLCBTMiBvciBTMyksIHRoZSBUQ08gd2F0
+Y2hkb2cgbmVlZHMgdG8gYmUgc3RvcHBlZCBkdXJpbmcgc3lzdGVtIHN1c3BlbmQsIGJlY2F1c2Ug
+aXQgbWF5IG5vdCBiZSBwb3NzaWJsZSB0byBwaW5nIGl0IGFueSBtb3JlIGFmdGVyIHRpbWVrZWVw
+aW5nIGhhcyBiZWVuIHN1c3BlbmRlZCAoc3VzcGVuZC10by1pZGxlIGRvZXMgdGhhdCBmb3Igb25l
+IGV4YW1wbGUpLg0KDQpGb3IgdGhpcyByZWFzb24sIHByb3ZpZGUgLT5zdXNwZW5kX25vaXJxIGFu
+ZCAtPnJlc3VtZV9ub2lycSBjYWxsYmFja3MgZm9yIHRoZSBpVENPIHdhdGNoZG9nIGRyaXZlciBh
+bmQgdXNlIHRoZW0gdG8gc3RvcCBhbmQgcmVzdGFydCB0aGUgd2F0Y2hkb2cgZHVyaW5nIHN5c3Rl
+bSBzdXNwZW5kIGFuZCByZXN1bWUsIHJlc3BlY3RpdmVseSwgaWYgdGhlIHN5c3RlbSBpcyBub3Qg
+Z29pbmcgdG8gZW50ZXIgYW4gQUNQSSBzbGVlcCBzdGF0ZSAoaW4gd2hpY2ggY2FzZSB0aGUgd2F0
+Y2hkb2cgd2lsbCBiZSBzdG9wcGVkIGJ5IHRoZSBwbGF0Zm9ybSBmaXJtd2FyZSBiZWZvcmUgdGhl
+IHN0YXRlIGlzIGVudGVyZWQpLg0KDQpSZXBvcnRlZC1ieTogQm9ydW4gRnUgPGJvcnVuLmZ1QGlu
+dGVsLmNvbT4NClNpZ25lZC1vZmYtYnk6IFJhZmFlbCBKLiBXeXNvY2tpIDxyYWZhZWwuai53eXNv
+Y2tpQGludGVsLmNvbT4NCi0tLQ0KIGRyaXZlcnMvd2F0Y2hkb2cvaVRDT193ZHQuYyB8ICAgNTEg
+KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysNCiAxIGZpbGUgY2hh
+bmdlZCwgNTEgaW5zZXJ0aW9ucygrKQ0KDQpJbmRleDogbGludXgtcG0vZHJpdmVycy93YXRjaGRv
+Zy9pVENPX3dkdC5jDQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09DQotLS0gbGludXgtcG0ub3JpZy9kcml2ZXJzL3dhdGNo
+ZG9nL2lUQ09fd2R0LmMNCisrKyBsaW51eC1wbS9kcml2ZXJzL3dhdGNoZG9nL2lUQ09fd2R0LmMN
+CkBAIC01MSw2ICs1MSw3IEBADQogI2RlZmluZSBEUlZfVkVSU0lPTgkiMS4xMSINCiANCiAvKiBJ
+bmNsdWRlcyAqLw0KKyNpbmNsdWRlIDxsaW51eC9hY3BpLmg+CQkJLyogRm9yIEFDUEkgc3VwcG9y
+dCAqLw0KICNpbmNsdWRlIDxsaW51eC9tb2R1bGUuaD4JCS8qIEZvciBtb2R1bGUgc3BlY2lmaWMg
+aXRlbXMgKi8NCiAjaW5jbHVkZSA8bGludXgvbW9kdWxlcGFyYW0uaD4JCS8qIEZvciBuZXcgbW9k
+dWxlcGFyYW0ncyAqLw0KICNpbmNsdWRlIDxsaW51eC90eXBlcy5oPgkJLyogRm9yIHN0YW5kYXJk
+IHR5cGVzIChsaWtlIHNpemVfdCkgKi8NCkBAIC0xMDMsNiArMTA0LDggQEAgc3RhdGljIHN0cnVj
+dCB7CQkvKiB0aGlzIGlzIHByaXZhdGUgZGF0YQ0KIAlzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpk
+ZXY7DQogCS8qIHRoZSBQQ0ktZGV2aWNlICovDQogCXN0cnVjdCBwY2lfZGV2ICpwZGV2Ow0KKwkv
+KiB3aGV0aGVyIG9yIG5vdCB0aGUgd2F0Y2hkb2cgaGFzIGJlZW4gc3VzcGVuZGVkICovDQorCWJv
+b2wgc3VzcGVuZGVkOw0KIH0gaVRDT193ZHRfcHJpdmF0ZTsNCiANCiAvKiBtb2R1bGUgcGFyYW1l
+dGVycyAqLw0KQEAgLTU3MSwxMiArNTc0LDYwIEBAIHN0YXRpYyB2b2lkIGlUQ09fd2R0X3NodXRk
+b3duKHN0cnVjdCBwbGENCiAJaVRDT193ZHRfc3RvcChOVUxMKTsNCiB9DQogDQorI2lmZGVmIENP
+TkZJR19QTV9TTEVFUA0KKy8qDQorICogU3VzcGVuZC10by1pZGxlIHJlcXVpcmVzIHRoaXMsIGJl
+Y2F1c2UgaXQgc3RvcHMgdGhlIHRpY2tzIGFuZCANCit0aW1la2VlcGluZywgc28NCisgKiB0aGUg
+d2F0Y2hkb2cgY2Fubm90IGJlIHBpbmdlZCB3aGlsZSBpbiB0aGF0IHN0YXRlLiAgSW4gQUNQSSBz
+bGVlcCANCitzdGF0ZXMgdGhlDQorICogd2F0Y2hkb2cgaXMgc3RvcHBlZCBieSB0aGUgcGxhdGZv
+cm0gZmlybXdhcmUuDQorICovDQorDQorI2lmZGVmIENPTkZJR19BQ1BJDQorc3RhdGljIGlubGlu
+ZSBib29sIG5lZWRfc3VzcGVuZCh2b2lkKQ0KK3sNCisJcmV0dXJuIGFjcGlfdGFyZ2V0X3N5c3Rl
+bV9zdGF0ZSgpID09IEFDUElfU1RBVEVfUzA7IH0gI2Vsc2Ugc3RhdGljIA0KK2lubGluZSBib29s
+IG5lZWRfc3VzcGVuZCh2b2lkKSB7IHJldHVybiB0cnVlOyB9ICNlbmRpZg0KKw0KK3N0YXRpYyBp
+bnQgaVRDT193ZHRfc3VzcGVuZF9ub2lycShzdHJ1Y3QgZGV2aWNlICpkZXYpIHsNCisJaW50IHJl
+dCA9IDA7DQorDQorCWlUQ09fd2R0X3ByaXZhdGUuc3VzcGVuZGVkID0gZmFsc2U7DQorCWlmICh3
+YXRjaGRvZ19hY3RpdmUoJmlUQ09fd2R0X3dhdGNoZG9nX2RldikgJiYgbmVlZF9zdXNwZW5kKCkp
+IHsNCisJCXJldCA9IGlUQ09fd2R0X3N0b3AoJmlUQ09fd2R0X3dhdGNoZG9nX2Rldik7DQorCQlp
+ZiAoIXJldCkNCisJCQlpVENPX3dkdF9wcml2YXRlLnN1c3BlbmRlZCA9IHRydWU7DQorCX0NCisJ
+cmV0dXJuIHJldDsNCit9DQorDQorc3RhdGljIGludCBpVENPX3dkdF9yZXN1bWVfbm9pcnEoc3Ry
+dWN0IGRldmljZSAqZGV2KSB7DQorCWlmIChpVENPX3dkdF9wcml2YXRlLnN1c3BlbmRlZCkNCisJ
+CWlUQ09fd2R0X3N0YXJ0KCZpVENPX3dkdF93YXRjaGRvZ19kZXYpOw0KKw0KKwlyZXR1cm4gMDsN
+Cit9DQorDQorc3RydWN0IGRldl9wbV9vcHMgaVRDT193ZHRfcG0gPSB7DQorCS5zdXNwZW5kX25v
+aXJxID0gaVRDT193ZHRfc3VzcGVuZF9ub2lycSwNCisJLnJlc3VtZV9ub2lycSA9IGlUQ09fd2R0
+X3Jlc3VtZV9ub2lycSwgfTsNCisNCisjZGVmaW5lIElUQ09fV0RUX1BNX09QUwkmaVRDT193ZHRf
+cG0NCisjZWxzZQ0KKyNkZWZpbmUgSVRDT19XRFRfUE1fT1BTCU5VTEwNCisjZW5kaWYgLyogQ09O
+RklHX1BNX1NMRUVQICovDQorDQogc3RhdGljIHN0cnVjdCBwbGF0Zm9ybV9kcml2ZXIgaVRDT193
+ZHRfZHJpdmVyID0gew0KIAkucHJvYmUgICAgICAgICAgPSBpVENPX3dkdF9wcm9iZSwNCiAJLnJl
+bW92ZSAgICAgICAgID0gaVRDT193ZHRfcmVtb3ZlLA0KIAkuc2h1dGRvd24gICAgICAgPSBpVENP
+X3dkdF9zaHV0ZG93biwNCiAJLmRyaXZlciAgICAgICAgID0gew0KIAkJLm5hbWUgICA9IERSVl9O
+QU1FLA0KKwkJLnBtICAgICA9IElUQ09fV0RUX1BNX09QUywNCiAJfSwNCiB9Ow0KIA0KDQo=
