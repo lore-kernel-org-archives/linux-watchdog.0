@@ -1,23 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <551C973C.3080902@roeck-us.net>
-Date: Wed, 01 Apr 2015 18:11:24 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: "Fu, Borun" <borun.fu@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+From: "Fu, Borun" <borun.fu@intel.com>
+To: Guenter Roeck <linux@roeck-us.net>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
         "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>
 CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         Linux PM list <linux-pm@vger.kernel.org>,
-        Wim Van Sebroeck <wim@iguana.be>, "Li, Aubrey" <aubrey.li@intel.com>,
-        "Wang, Frank" <frank.wang@intel.com>
-Subject: Re: [PATCH] PM / watchdog: iTCO: stop watchdog during system suspend
-References: <2017660.nPaHVT8bW3@vostro.rjw.lan> <48A8D21F3057FE4DB59C829EB7A1638A10EA3254@SHSMSX104.ccr.corp.intel.com>
-In-Reply-To: <48A8D21F3057FE4DB59C829EB7A1638A10EA3254@SHSMSX104.ccr.corp.intel.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+        Wim Van Sebroeck <wim@iguana.be>, "Li, Aubrey" <aubrey.li@intel.com>
+Subject: RE: [PATCH] PM / watchdog: iTCO: stop watchdog during system suspend
+Date: Thu, 2 Apr 2015 02:13:56 +0000
+Message-ID: <48A8D21F3057FE4DB59C829EB7A1638A10EA3311@SHSMSX104.ccr.corp.intel.com>
+References: <2017660.nPaHVT8bW3@vostro.rjw.lan>
+ <48A8D21F3057FE4DB59C829EB7A1638A10EA3254@SHSMSX104.ccr.corp.intel.com>
+ <551C973C.3080902@roeck-us.net>
+In-Reply-To: <551C973C.3080902@roeck-us.net>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
+
+Sorry, my fault. It should work as well. 
+
+-----Original Message-----
+From: Guenter Roeck [mailto:linux@roeck-us.net] 
+Sent: Thursday, April 02, 2015 9:11
+To: Fu, Borun; Rafael J. Wysocki; linux-watchdog@vger.kernel.org
+Cc: Linux Kernel Mailing List; Linux PM list; Wim Van Sebroeck; Li, Aubrey; Wang, Frank
+Subject: Re: [PATCH] PM / watchdog: iTCO: stop watchdog during system suspend
 
 On 04/01/2015 05:52 PM, Fu, Borun wrote:
 > Hi Rafael,
@@ -28,8 +40,7 @@ Please explain why using the standard watchdog_active() would not work here.
 
 Guenter
 
-> static int watchdog_active(struct device *dev)
-> {
+> static int watchdog_active(struct device *dev) {
 >         unsigned int val;
 >
 >         spin_lock(&iTCO_wdt_private.io_lock);
@@ -49,8 +60,10 @@ Guenter
 > From: Rafael J. Wysocki [mailto:rjw@rjwysocki.net]
 > Sent: Thursday, April 02, 2015 8:31
 > To: linux-watchdog@vger.kernel.org
-> Cc: Linux Kernel Mailing List; Linux PM list; Wim Van Sebroeck; Li, Aubrey; Fu, Borun
-> Subject: [PATCH] PM / watchdog: iTCO: stop watchdog during system suspend
+> Cc: Linux Kernel Mailing List; Linux PM list; Wim Van Sebroeck; Li, 
+> Aubrey; Fu, Borun
+> Subject: [PATCH] PM / watchdog: iTCO: stop watchdog during system 
+> suspend
 >
 > From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 >
@@ -91,17 +104,16 @@ Guenter
 >
 > +#ifdef CONFIG_PM_SLEEP
 > +/*
-> + * Suspend-to-idle requires this, because it stops the ticks and
+> + * Suspend-to-idle requires this, because it stops the ticks and 
 > +timekeeping, so
-> + * the watchdog cannot be pinged while in that state.  In ACPI sleep
+> + * the watchdog cannot be pinged while in that state.  In ACPI sleep 
 > +states the
 > + * watchdog is stopped by the platform firmware.
 > + */
 > +
 > +#ifdef CONFIG_ACPI
-> +static inline bool need_suspend(void)
-> +{
-> +	return acpi_target_system_state() == ACPI_STATE_S0; } #else static
+> +static inline bool need_suspend(void) {
+> +	return acpi_target_system_state() == ACPI_STATE_S0; } #else static 
 > +inline bool need_suspend(void) { return true; } #endif
 > +
 > +static int iTCO_wdt_suspend_noirq(struct device *dev) {
@@ -143,8 +155,13 @@ Guenter
 >   };
 >
 >
-> Nï¿½ï¿½ï¿½ï¿½ï¿½rï¿½ï¿½yï¿½ï¿½ï¿½bï¿½Xï¿½ï¿½Ç§vï¿½^ï¿½)Şº{.nï¿½+ï¿½ï¿½ï¿½ï¿½{ï¿½ï¿½ï¿½\ï¿½ï¿½ ï¿½{ayï¿½
-Ê‡Ú™ï¿½,jï¿½ï¿½fï¿½ï¿½ï¿½hï¿½ï¿½ï¿½zï¿½
-ï¿½wï¿½ï¿½ï¿½
-ï¿½ï¿½ï¿½j:+vï¿½ï¿½ï¿½wï¿½jï¿½mï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½zZ+ï¿½ï¿½ï¿½ï¿½ï¿½İ¢j"ï¿½ï¿½!tml=
+> N     r  y   b X  Ç§v ^ )Şº{.n +    {   \    {ay 
+Ê‡Ú™ ,j 
+>   f   h   z 
+ w   
+   j:+v   w j m         zZ+     İ¢j"  !tml=
 >
+
+ÿôèº{.nÇ+‰·Ÿ®‰­†+%ŠËÿ±éİ¶¥Šwÿº{.nÇ+‰·¥Š{±şG«éÿŠ{ayº
+Ê‡Ú™ë,j­¢f£¢·hšïêÿ‘êçz_è®(­éšŠİ¢j"ú¶m§ÿÿ¾«şG«éÿ¢¸?™¨è­Ú&£ø§~á¶iO•æ¬z·švØ^¶m§ÿÿÃ
+ÿ¶ìÿ¢¸?–I¥
