@@ -1,83 +1,112 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ie0-f201.google.com ([209.85.223.201]:33635 "EHLO
-	mail-ie0-f201.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753248AbbDARnY (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:33282 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752058AbbDBBJH (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 1 Apr 2015 13:43:24 -0400
-Received: by iebtr6 with SMTP id tr6so7538688ieb.0
-        for <linux-watchdog@vger.kernel.org>; Wed, 01 Apr 2015 10:43:23 -0700 (PDT)
-From: Andrew Bresticker <abrestic@chromium.org>
-To: Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Andrew Bresticker <abrestic@chromium.org>,
-	Naidu Tellapati <naidu.tellapati@imgtec.com>,
-	Ezequiel Garcia <ezequiel.garcia@imgtec.com>,
-	James Hogan <james.hogan@imgtec.com>
-Subject: [PATCH V2 2/3] watchdog: imgpdc: Set timeout before starting watchdog
-Date: Wed,  1 Apr 2015 10:43:15 -0700
-Message-Id: <1427910196-28568-2-git-send-email-abrestic@chromium.org>
-In-Reply-To: <1427910196-28568-1-git-send-email-abrestic@chromium.org>
-References: <1427910196-28568-1-git-send-email-abrestic@chromium.org>
+	Wed, 1 Apr 2015 21:09:07 -0400
+Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
+	(envelope-from <linux@roeck-us.net>)
+	id 1YdTd4-000VY2-Qr
+	for linux-watchdog@vger.kernel.org; Thu, 02 Apr 2015 01:09:07 +0000
+Message-ID: <551C96AA.2060906@roeck-us.net>
+Date: Wed, 01 Apr 2015 18:08:58 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+MIME-Version: 1.0
+To: James Hogan <james.hogan@imgtec.com>,
+	Andrew Bresticker <abrestic@chromium.org>
+CC: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Ezequiel Garcia <ezequiel.garcia@imgtec.com>
+Subject: Re: [PATCH V2 1/3] watchdog: imgpdc: Allow timeout to be set in device-tree
+References: <1427910196-28568-1-git-send-email-abrestic@chromium.org> <20150401222218.GB13077@jhogan-linux.le.imgtec.org>
+In-Reply-To: <20150401222218.GB13077@jhogan-linux.le.imgtec.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Set up the watchdog for the specified timeout before attempting to start it.
+On 04/01/2015 03:22 PM, James Hogan wrote:
+> Hi Andrew,
+>
+> On Wed, Apr 01, 2015 at 10:43:14AM -0700, Andrew Bresticker wrote:
+>> Since the heartbeat is statically initialized to its default value,
+>> watchdog_init_timeout() will never look in the device-tree for a
+>> timeout-sec value.  Instead of statically initializing heartbeat,
+>> fall back to the default timeout value if watchdog_init_timeout()
+>> fails.
+>
+> Whoops. Sorry about that. I wasn't aware that a timeout-sec value was
+> expected. It isn't mentioned in the DT binding documentation for this
+> device :-(.
+>
+>>
+>> Signed-off-by: Andrew Bresticker <abrestic@chromium.org>
+>> Cc: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
+>> Cc: James Hogan <james.hogan@imgtec.com>
+>> ---
+>> New for v2.
+>> ---
+>>   drivers/watchdog/imgpdc_wdt.c | 6 +++---
+>>   1 file changed, 3 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/watchdog/imgpdc_wdt.c b/drivers/watchdog/imgpdc_wdt.c
+>> index 0deaa4f..89b2abc 100644
+>> --- a/drivers/watchdog/imgpdc_wdt.c
+>> +++ b/drivers/watchdog/imgpdc_wdt.c
+>> @@ -42,7 +42,7 @@
+>>   #define PDC_WDT_MIN_TIMEOUT		1
+>>   #define PDC_WDT_DEF_TIMEOUT		64
+>>
+>> -static int heartbeat = PDC_WDT_DEF_TIMEOUT;
+>> +static int heartbeat;
+>>   module_param(heartbeat, int, 0);
+>>   MODULE_PARM_DESC(heartbeat, "Watchdog heartbeats in seconds "
+>>   	"(default=" __MODULE_STRING(PDC_WDT_DEF_TIMEOUT) ")");
+>> @@ -195,9 +195,9 @@ static int pdc_wdt_probe(struct platform_device *pdev)
+>>
+>>   	ret = watchdog_init_timeout(&pdc_wdt->wdt_dev, heartbeat, &pdev->dev);
+>>   	if (ret < 0) {
+>> -		pdc_wdt->wdt_dev.timeout = pdc_wdt->wdt_dev.max_timeout;
+>> +		pdc_wdt->wdt_dev.timeout = PDC_WDT_DEF_TIMEOUT;
+>
+> The watchdog_init_timeout kerneldoc comment suggests that the old value
+> should be the default timeout, i.e. that timeout should be set to
+> PDC_WDT_DEF_TIMEOUT before calling watchdog_init_timeout, rather than
+> whenever ret < 0.
+>
+> Indeed, if heartbeat is set to an invalid non-zero value,
+> watchdog_init_timeout will still try and set timeout from DT, but also
+> still returns -EINVAL regardless of whether that succeeds, and this
+> would incorrectly override the timeout from DT with the hardcoded
+> default.
+>
+>>   		dev_warn(&pdev->dev,
+>> -			 "Initial timeout out of range! setting max timeout\n");
+>> +			 "Initial timeout out of range! setting default timeout\n");
+>
+> It feels wrong for a presumably safe & normal situation (i.e. no default
+> in DT, which arguably shouldn't contain policy anyway) to show a
+> warning, but it can also show due to an invalid module parameter (or
+> invalid DT property) which is most definitely justified.
+>
 
-Signed-off-by: Naidu Tellapati <naidu.tellapati@imgtec.com>
-Signed-off-by: Andrew Bresticker <abrestic@chromium.org>
-Cc: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
-Cc: James Hogan <james.hogan@imgtec.com>
----
-Changes from v1:
- - Moved setting of timeout to a helper as suggested by Guenter.
----
- drivers/watchdog/imgpdc_wdt.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+Agreed. I would suggest to leave that part alone and set the default prior
+to calling watchdog_init_timeout().
 
-diff --git a/drivers/watchdog/imgpdc_wdt.c b/drivers/watchdog/imgpdc_wdt.c
-index 89b2abc..c58b085 100644
---- a/drivers/watchdog/imgpdc_wdt.c
-+++ b/drivers/watchdog/imgpdc_wdt.c
-@@ -84,18 +84,24 @@ static int pdc_wdt_stop(struct watchdog_device *wdt_dev)
- 	return 0;
- }
- 
-+static void __pdc_wdt_set_timeout(struct pdc_wdt_dev *wdt)
-+{
-+	unsigned long clk_rate = clk_get_rate(wdt->wdt_clk);
-+	unsigned int val;
-+
-+	val = readl(wdt->base + PDC_WDT_CONFIG) & ~PDC_WDT_CONFIG_DELAY_MASK;
-+	val |= order_base_2(wdt->wdt_dev.timeout * clk_rate) - 1;
-+	writel(val, wdt->base + PDC_WDT_CONFIG);
-+}
-+
- static int pdc_wdt_set_timeout(struct watchdog_device *wdt_dev,
- 			       unsigned int new_timeout)
- {
--	unsigned int val;
- 	struct pdc_wdt_dev *wdt = watchdog_get_drvdata(wdt_dev);
--	unsigned long clk_rate = clk_get_rate(wdt->wdt_clk);
- 
- 	wdt->wdt_dev.timeout = new_timeout;
- 
--	val = readl(wdt->base + PDC_WDT_CONFIG) & ~PDC_WDT_CONFIG_DELAY_MASK;
--	val |= order_base_2(new_timeout * clk_rate) - 1;
--	writel(val, wdt->base + PDC_WDT_CONFIG);
-+	__pdc_wdt_set_timeout(wdt);
- 
- 	return 0;
- }
-@@ -106,6 +112,8 @@ static int pdc_wdt_start(struct watchdog_device *wdt_dev)
- 	unsigned int val;
- 	struct pdc_wdt_dev *wdt = watchdog_get_drvdata(wdt_dev);
- 
-+	__pdc_wdt_set_timeout(wdt);
-+
- 	val = readl(wdt->base + PDC_WDT_CONFIG);
- 	val |= PDC_WDT_CONFIG_ENABLE;
- 	writel(val, wdt->base + PDC_WDT_CONFIG);
--- 
-2.2.0.rc0.207.ga3a616c
+Guenter
+
+
+> The caller can check (ret < 0 && heartbeat) to tell if heartbeat was
+> invalid, but unfortunately it can't easily tell if the DT property is
+> out of range rather than simply absent.
+>
+> Cheers
+> James
+>
+>>   	}
+>>
+>>   	pdc_wdt_stop(&pdc_wdt->wdt_dev);
+>> --
+>> 2.2.0.rc0.207.ga3a616c
+>>
 
