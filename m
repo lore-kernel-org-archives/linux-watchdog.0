@@ -1,171 +1,100 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:43379 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752535AbbDCCf4 (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 2 Apr 2015 22:35:56 -0400
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
-	(envelope-from <linux@roeck-us.net>)
-	id 1YdrSd-003XDk-4D
-	for linux-watchdog@vger.kernel.org; Fri, 03 Apr 2015 02:35:55 +0000
-Message-ID: <551DFC82.6040402@roeck-us.net>
-Date: Thu, 02 Apr 2015 19:35:46 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+Return-path: <borun.fu@intel.com>
+From: "Fu, Borun" <borun.fu@intel.com>
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Guenter Roeck
+	<linux@roeck-us.net>
+CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "Linux
+ Kernel Mailing List" <linux-kernel@vger.kernel.org>, Linux PM list
+	<linux-pm@vger.kernel.org>, Wim Van Sebroeck <wim@iguana.be>, "Li, Aubrey"
+	<aubrey.li@intel.com>
+Subject: RE: [PATCH] PM / watchdog: iTCO: stop watchdog during system suspend
+Date: Fri, 3 Apr 2015 02:53:35 +0000
+Message-ID: <48A8D21F3057FE4DB59C829EB7A1638A10EA487C@SHSMSX104.ccr.corp.intel.com>
+References: <2017660.nPaHVT8bW3@vostro.rjw.lan>
+ <551C99A4.40608@roeck-us.net> <2928815.XiLbVYtUVn@vostro.rjw.lan>
+In-Reply-To: <2928815.XiLbVYtUVn@vostro.rjw.lan>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-To: Andrew Bresticker <abrestic@chromium.org>
-CC: James Hogan <james.hogan@imgtec.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Ezequiel Garcia <ezequiel.garcia@imgtec.com>
-Subject: Re: [PATCH V2 1/3] watchdog: imgpdc: Allow timeout to be set in device-tree
-References: <1427910196-28568-1-git-send-email-abrestic@chromium.org>	<20150401222218.GB13077@jhogan-linux.le.imgtec.org>	<551C96AA.2060906@roeck-us.net>	<CAL1qeaF7v2EPB0BYdS_d+UAcFEJiB2KRes23PymtUsKu1y=moQ@mail.gmail.com>	<551DF27A.6060704@roeck-us.net> <CAL1qeaEW9E=EFD9_mmZ2017jFbch4nSaJegWXpAeP7jKyqgn7A@mail.gmail.com>
-In-Reply-To: <CAL1qeaEW9E=EFD9_mmZ2017jFbch4nSaJegWXpAeP7jKyqgn7A@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 04/02/2015 07:16 PM, Andrew Bresticker wrote:
-> Hi Guenter,
->
-> On Thu, Apr 2, 2015 at 6:52 PM, Guenter Roeck <linux@roeck-us.net> wrote:
->> On 04/02/2015 09:46 AM, Andrew Bresticker wrote:
->>>
->>> On Wed, Apr 1, 2015 at 6:08 PM, Guenter Roeck <linux@roeck-us.net> wrote:
->>>>
->>>> On 04/01/2015 03:22 PM, James Hogan wrote:
->>>>>
->>>>>
->>>>> Hi Andrew,
->>>>>
->>>>> On Wed, Apr 01, 2015 at 10:43:14AM -0700, Andrew Bresticker wrote:
->>>>>>
->>>>>>
->>>>>> Since the heartbeat is statically initialized to its default value,
->>>>>> watchdog_init_timeout() will never look in the device-tree for a
->>>>>> timeout-sec value.  Instead of statically initializing heartbeat,
->>>>>> fall back to the default timeout value if watchdog_init_timeout()
->>>>>> fails.
->>>>>
->>>>>
->>>>>
->>>>> Whoops. Sorry about that. I wasn't aware that a timeout-sec value was
->>>>> expected. It isn't mentioned in the DT binding documentation for this
->>>>> device :-(.
->>>>>
->>>>>>
->>>>>> Signed-off-by: Andrew Bresticker <abrestic@chromium.org>
->>>>>> Cc: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
->>>>>> Cc: James Hogan <james.hogan@imgtec.com>
->>>>>> ---
->>>>>> New for v2.
->>>>>> ---
->>>>>>     drivers/watchdog/imgpdc_wdt.c | 6 +++---
->>>>>>     1 file changed, 3 insertions(+), 3 deletions(-)
->>>>>>
->>>>>> diff --git a/drivers/watchdog/imgpdc_wdt.c
->>>>>> b/drivers/watchdog/imgpdc_wdt.c
->>>>>> index 0deaa4f..89b2abc 100644
->>>>>> --- a/drivers/watchdog/imgpdc_wdt.c
->>>>>> +++ b/drivers/watchdog/imgpdc_wdt.c
->>>>>> @@ -42,7 +42,7 @@
->>>>>>     #define PDC_WDT_MIN_TIMEOUT           1
->>>>>>     #define PDC_WDT_DEF_TIMEOUT           64
->>>>>>
->>>>>> -static int heartbeat = PDC_WDT_DEF_TIMEOUT;
->>>>>> +static int heartbeat;
->>>>>>     module_param(heartbeat, int, 0);
->>>>>>     MODULE_PARM_DESC(heartbeat, "Watchdog heartbeats in seconds "
->>>>>>           "(default=" __MODULE_STRING(PDC_WDT_DEF_TIMEOUT) ")");
->>>>>> @@ -195,9 +195,9 @@ static int pdc_wdt_probe(struct platform_device
->>>>>> *pdev)
->>>>>>
->>>>>>           ret = watchdog_init_timeout(&pdc_wdt->wdt_dev, heartbeat,
->>>>>> &pdev->dev);
->>>>>>           if (ret < 0) {
->>>>>> -               pdc_wdt->wdt_dev.timeout =
->>>>>> pdc_wdt->wdt_dev.max_timeout;
->>>>>> +               pdc_wdt->wdt_dev.timeout = PDC_WDT_DEF_TIMEOUT;
->>>>>
->>>>>
->>>>>
->>>>> The watchdog_init_timeout kerneldoc comment suggests that the old value
->>>>> should be the default timeout, i.e. that timeout should be set to
->>>>> PDC_WDT_DEF_TIMEOUT before calling watchdog_init_timeout, rather than
->>>>> whenever ret < 0.
->>>>>
->>>>> Indeed, if heartbeat is set to an invalid non-zero value,
->>>>> watchdog_init_timeout will still try and set timeout from DT, but also
->>>>> still returns -EINVAL regardless of whether that succeeds, and this
->>>>> would incorrectly override the timeout from DT with the hardcoded
->>>>> default.
->>>>>
->>>>>>                   dev_warn(&pdev->dev,
->>>>>> -                        "Initial timeout out of range! setting max
->>>>>> timeout\n");
->>>>>> +                        "Initial timeout out of range! setting default
->>>>>> timeout\n");
->>>>>
->>>>>
->>>>>
->>>>> It feels wrong for a presumably safe & normal situation (i.e. no default
->>>>> in DT, which arguably shouldn't contain policy anyway) to show a
->>>>> warning, but it can also show due to an invalid module parameter (or
->>>>> invalid DT property) which is most definitely justified.
->>>>>
->>>>
->>>> Agreed. I would suggest to leave that part alone and set the default
->>>> prior
->>>> to calling watchdog_init_timeout().
->>>
->>>
->>> Yes, but I think James' concern here was that we'd now get a
->>> dev_warn() in the normal case where no timeout is specified via module
->>> parameter or DT.
->>>
->> My understanding is that watchdog_init_timeout only returns an error if
->> the second parameter is not 0 and invalid, or if the timeout-sec property
->> has been provided and is invalid. I am not entirely sure I understand
->> why you think this is a problem. Can you please explain ?
->
-> Unless I've gone completely insane, I'm pretty sure this will return
-> -EINVAL if timeout_parm is 0 and timeout-sec is not present:
->
-> int watchdog_init_timeout(struct watchdog_device *wdd,
->                                  unsigned int timeout_parm, struct device *dev)
-> {
->          unsigned int t = 0;
->          int ret = 0;
->
->          watchdog_check_min_max_timeout(wdd);
->
->          /* try to get the timeout module parameter first */
->          if (!watchdog_timeout_invalid(wdd, timeout_parm) && timeout_parm) {
->                  wdd->timeout = timeout_parm;
->                  return ret;
->          }
->          if (timeout_parm)
->                  ret = -EINVAL;
->
->          /* try to get the timeout_sec property */
->          if (dev == NULL || dev->of_node == NULL)
->                  return ret;
->          of_property_read_u32(dev->of_node, "timeout-sec", &t);
->          if (!watchdog_timeout_invalid(wdd, t) && t)
->                  wdd->timeout = t;
->          else
->                  ret = -EINVAL;
->
->          return ret;
-> }
->
-> That said, the behavior you describe makes more sense, so perhaps
-> watchdog_init_timeout() should be updated to match.
->
-
-Ah yes, you are right, that last else case. Guess we'll need input from Wim
-on how to handle this.
-
-Guenter
-
+T24gQXByIDMsIDIwMTUgMDY6MDQsIFJhZmFlbCBKLiBXeXNvY2tpIHdyb3RlOg0KPiBPbiBXZWRu
+ZXNkYXksIEFwcmlsIDAxLCAyMDE1IDA2OjIxOjQwIFBNIEd1ZW50ZXIgUm9lY2sgd3JvdGU6DQo+
+PiBPbiAwNC8wMS8yMDE1IDA1OjMxIFBNLCBSYWZhZWwgSi4gV3lzb2NraSB3cm90ZToNCj4+PiBG
+cm9tOiBSYWZhZWwgSi4gV3lzb2NraSA8cmFmYWVsLmoud3lzb2NraUBpbnRlbC5jb20+DQo+IA0K
+PiBbY3V0XQ0KPiANCj4+IEhpIFJhZmFlbCwNCj4+IA0KPj4gVGhpcyBvbmx5IGNvdmVycyBzdXNw
+ZW5kIGFuZCByZXN1bWUsIGJ1dCBub3QgYW55IG9mIHRoZSBvdGhlcg0KPj4gc2xlZXAgb3BlcmF0
+aW9ucyAobGlrZSBTSU1QTEVfREVWX1BNX09QUyB3b3VsZCBkbykuDQo+PiBJcyB0aGF0IGludGVu
+dGlvbmFsID8NCj4gDQo+IFllcywgaXQgaXM6DQo+ICAoMSkgVGhlIHByb2JsZW1tIGF0IGhhbmQg
+aXMgc3RyaWN0bHkgc3BlY2lmaWMgdG8gc3lzdGVtIHN1c3BlbmQuDQo+ICAoMikgVGhlIFNJTVBM
+RV9ERVZfUE1fT1BTIGV0YyBtYWNyb3MgZG9uJ3QgY292ZXIgdGhlIF9ub2lycSBjYWxsYmFjaw0K
+PiB2YXJpYW50cw0KPiAgICAgIChhbmQgd2Ugd2FudCB0byB1c2UgdGhlIF9ub2lycSB2YXJpYW50
+cywgYmVjYXVzZSB3ZSB3YW50IHRoZQ0KPiAgICAgIHdhdGNoZG9nIHRvIGJlIHN0b3BwZWQgYXMg
+bGF0ZSBhbmQgcmVzdGFydGVkIGFzIGVhcmx5IGFzIHJlYXNvbmFibHkNCj4gICAgICBwb3NzaWJs
+ZSkuICgzKSBJJ20gbm90IGV2ZW4gc3VyZSBpZiBhZGRpbmcgcnVudGltZSBQTSBzdXBwb3J0IHRv
+DQo+ICAgICAgdGhpcyBkcml2ZXIgd291bGQgbWFrZSBhbnkgc2Vuc2UuIDotKQ0KPj4gDQo+Pj4g
+K307DQo+Pj4gKw0KPj4+ICsjZGVmaW5lIElUQ09fV0RUX1BNX09QUwkmaVRDT193ZHRfcG0NCj4+
+IA0KPj4gQ2hlY2twYXRjaCB3YW50cyB0byBzZWUgKCZpVENPX3dkdF9wbSkuDQo+PiANCj4+IEVS
+Uk9SOiBNYWNyb3Mgd2l0aCBjb21wbGV4IHZhbHVlcyBzaG91bGQgYmUgZW5jbG9zZWQgaW4gcGFy
+ZW50aGVzZXMNCj4gDQo+IFBsZWFzZSBmaW5kIGFuIHVwZGF0ZWQgcGF0Y2ggYmVsb3cuDQo+IA0K
+PiBSYWZhZWwNCj4gDQo+IA0KVGVzdGVkLWJ5OiBCb3J1biBGdSA8Ym9ydW4uZnVAaW50ZWwuY29t
+Pg0KDQpCb3J1bg0KPiAtLS0NCj4gRnJvbTogUmFmYWVsIEouIFd5c29ja2kgPHJhZmFlbC5qLnd5
+c29ja2lAaW50ZWwuY29tPg0KPiBTdWJqZWN0OiBQTSAvIHdhdGNoZG9nOiBpVENPOiBzdG9wIHdh
+dGNoZG9nIGR1cmluZyBzeXN0ZW0gc3VzcGVuZA0KPiANCj4gSWYgdGhlIHRhcmdldCBzbGVlcCBz
+dGF0ZSBvZiB0aGUgc3lzdGVtIGlzIG5vdCBhbiBBQ1BJIHNsZWVwIHN0YXRlDQo+IChTMSwgUzIg
+b3IgUzMpLCB0aGUgVENPIHdhdGNoZG9nIG5lZWRzIHRvIGJlIHN0b3BwZWQgZHVyaW5nIHN5c3Rl
+bQ0KPiBzdXNwZW5kLCBiZWNhdXNlIGl0IG1heSBub3QgYmUgcG9zc2libGUgdG8gcGluZyBpdCBh
+bnkgbW9yZSBhZnRlcg0KPiB0aW1la2VlcGluZyBoYXMgYmVlbiBzdXNwZW5kZWQgKHN1c3BlbmQt
+dG8taWRsZSBkb2VzIHRoYXQgZm9yDQo+IG9uZSBleGFtcGxlKS4NCj4gDQo+IEZvciB0aGlzIHJl
+YXNvbiwgcHJvdmlkZSAtPnN1c3BlbmRfbm9pcnEgYW5kIC0+cmVzdW1lX25vaXJxDQo+IGNhbGxi
+YWNrcyBmb3IgdGhlIGlUQ08gd2F0Y2hkb2cgZHJpdmVyIGFuZCB1c2UgdGhlbSB0byBzdG9wDQo+
+IGFuZCByZXN0YXJ0IHRoZSB3YXRjaGRvZyBkdXJpbmcgc3lzdGVtIHN1c3BlbmQgYW5kIHJlc3Vt
+ZSwNCj4gcmVzcGVjdGl2ZWx5LCBpZiB0aGUgc3lzdGVtIGlzIG5vdCBnb2luZyB0byBlbnRlciBh
+biBBQ1BJDQo+IHNsZWVwIHN0YXRlIChpbiB3aGljaCBjYXNlIHRoZSB3YXRjaGRvZyB3aWxsIGJl
+IHN0b3BwZWQNCj4gYnkgdGhlIHBsYXRmb3JtIGZpcm13YXJlIGJlZm9yZSB0aGUgc3RhdGUgaXMg
+ZW50ZXJlZCkuDQo+IA0KPiBSZXBvcnRlZC1ieTogQm9ydW4gRnUgPGJvcnVuLmZ1QGludGVsLmNv
+bT4NCj4gU2lnbmVkLW9mZi1ieTogUmFmYWVsIEouIFd5c29ja2kgPHJhZmFlbC5qLnd5c29ja2lA
+aW50ZWwuY29tPg0KPiAtLS0NCj4gIGRyaXZlcnMvd2F0Y2hkb2cvaVRDT193ZHQuYyB8ICAgNTEN
+Cj4gICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrIDEgZmlsZSBj
+aGFuZ2VkLCA1MQ0KPiAgaW5zZXJ0aW9ucygrKQ0KPiBJbmRleDogbGludXgtcG0vZHJpdmVycy93
+YXRjaGRvZy9pVENPX3dkdC5jDQo+ID09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0gPT09IC0tLQ0KPiBsaW51eC1wbS5vcmlnL2Ry
+aXZlcnMvd2F0Y2hkb2cvaVRDT193ZHQuYyArKysNCj4gbGludXgtcG0vZHJpdmVycy93YXRjaGRv
+Zy9pVENPX3dkdC5jIEBAIC01MSw2ICs1MSw3IEBADQo+ICAjZGVmaW5lIERSVl9WRVJTSU9OCSIx
+LjExIg0KPiAgDQo+ICAvKiBJbmNsdWRlcyAqLyArI2luY2x1ZGUgPGxpbnV4L2FjcGkuaD4JCQkv
+KiBGb3IgQUNQSSBzdXBwb3J0ICovDQo+ICAjaW5jbHVkZSA8bGludXgvbW9kdWxlLmg+CQkvKiBG
+b3IgbW9kdWxlIHNwZWNpZmljIGl0ZW1zICovICNpbmNsdWRlDQo+ICA8bGludXgvbW9kdWxlcGFy
+YW0uaD4JCS8qIEZvciBuZXcgbW9kdWxlcGFyYW0ncyAqLyAjaW5jbHVkZQ0KPiAgPGxpbnV4L3R5
+cGVzLmg+CQkvKiBGb3Igc3RhbmRhcmQgdHlwZXMgKGxpa2Ugc2l6ZV90KSAqLyBAQCAtMTAzLDYN
+Cj4gICsxMDQsOCBAQCBzdGF0aWMgc3RydWN0IHsJCS8qIHRoaXMgaXMgcHJpdmF0ZSBkYXRhIAlz
+dHJ1Y3QNCj4gIHBsYXRmb3JtX2RldmljZSAqZGV2OyAJLyogdGhlIFBDSS1kZXZpY2UgKi8gCXN0
+cnVjdCBwY2lfZGV2ICpwZGV2Ow0KPiArCS8qIHdoZXRoZXIgb3Igbm90IHRoZSB3YXRjaGRvZyBo
+YXMgYmVlbiBzdXNwZW5kZWQgKi8NCj4gKwlib29sIHN1c3BlbmRlZDsNCj4gIH0gaVRDT193ZHRf
+cHJpdmF0ZTsNCj4gIA0KPiAgLyogbW9kdWxlIHBhcmFtZXRlcnMgKi8gQEAgLTU3MSwxMiArNTc0
+LDYwIEBAIHN0YXRpYyB2b2lkDQo+ICBpVENPX3dkdF9zaHV0ZG93bihzdHJ1Y3QgcGxhIAlpVENP
+X3dkdF9zdG9wKE5VTEwpOyB9DQo+ICsjaWZkZWYgQ09ORklHX1BNX1NMRUVQICsvKiArICogU3Vz
+cGVuZC10by1pZGxlIHJlcXVpcmVzIHRoaXMsIGJlY2F1c2UNCj4gaXQgc3RvcHMgdGhlIHRpY2tz
+IGFuZCB0aW1la2VlcGluZywgc28gKyAqIHRoZSB3YXRjaGRvZyBjYW5ub3QgYmUgcGluZ2VkDQo+
+IHdoaWxlIGluIHRoYXQgc3RhdGUuICBJbiBBQ1BJIHNsZWVwIHN0YXRlcyB0aGUgKyAqIHdhdGNo
+ZG9nIGlzIHN0b3BwZWQNCj4gYnkgdGhlIHBsYXRmb3JtIGZpcm13YXJlLiArICovICsgKyNpZmRl
+ZiBDT05GSUdfQUNQSSArc3RhdGljIGlubGluZSBib29sDQo+IG5lZWRfc3VzcGVuZCh2b2lkKSAr
+eyArCXJldHVybiBhY3BpX3RhcmdldF9zeXN0ZW1fc3RhdGUoKSA9PQ0KPiBBQ1BJX1NUQVRFX1Mw
+OyArfSArI2Vsc2UgK3N0YXRpYyBpbmxpbmUgYm9vbCBuZWVkX3N1c3BlbmQodm9pZCkgeyByZXR1
+cm4NCj4gdHJ1ZTsgfSArI2VuZGlmICsgK3N0YXRpYyBpbnQgaVRDT193ZHRfc3VzcGVuZF9ub2ly
+cShzdHJ1Y3QgZGV2aWNlICpkZXYpDQo+ICt7ICsJaW50IHJldCA9IDA7ICsgKwlpVENPX3dkdF9w
+cml2YXRlLnN1c3BlbmRlZCA9IGZhbHNlOyArCWlmDQo+ICh3YXRjaGRvZ19hY3RpdmUoJmlUQ09f
+d2R0X3dhdGNoZG9nX2RldikgJiYgbmVlZF9zdXNwZW5kKCkpIHsgKwkJcmV0ID0NCj4gaVRDT193
+ZHRfc3RvcCgmaVRDT193ZHRfd2F0Y2hkb2dfZGV2KTsgKwkJaWYgKCFyZXQpDQo+ICsJCQlpVENP
+X3dkdF9wcml2YXRlLnN1c3BlbmRlZCA9IHRydWU7ICsJfSArCXJldHVybiByZXQ7ICt9ICsgK3N0
+YXRpYw0KPiBpbnQgaVRDT193ZHRfcmVzdW1lX25vaXJxKHN0cnVjdCBkZXZpY2UgKmRldikgK3sg
+KwlpZg0KPiAoaVRDT193ZHRfcHJpdmF0ZS5zdXNwZW5kZWQpICsJCWlUQ09fd2R0X3N0YXJ0KCZp
+VENPX3dkdF93YXRjaGRvZ19kZXYpOw0KPiArICsJcmV0dXJuIDA7ICt9ICsgK3N0cnVjdCBkZXZf
+cG1fb3BzIGlUQ09fd2R0X3BtID0geyArCS5zdXNwZW5kX25vaXJxID0NCj4gaVRDT193ZHRfc3Vz
+cGVuZF9ub2lycSwgKwkucmVzdW1lX25vaXJxID0gaVRDT193ZHRfcmVzdW1lX25vaXJxLCArfTsg
+Kw0KPiArI2RlZmluZSBJVENPX1dEVF9QTV9PUFMJKCZpVENPX3dkdF9wbSkgKyNlbHNlICsjZGVm
+aW5lDQo+IElUQ09fV0RUX1BNX09QUwlOVUxMICsjZW5kaWYgLyogQ09ORklHX1BNX1NMRUVQICov
+ICsNCj4gIHN0YXRpYyBzdHJ1Y3QgcGxhdGZvcm1fZHJpdmVyIGlUQ09fd2R0X2RyaXZlciA9IHsg
+CS5wcm9iZSAgICAgICAgICA9DQo+ICBpVENPX3dkdF9wcm9iZSwgCS5yZW1vdmUgICAgICAgICA9
+IGlUQ09fd2R0X3JlbW92ZSwgCS5zaHV0ZG93biAgICAgICA9DQo+ICBpVENPX3dkdF9zaHV0ZG93
+biwgCS5kcml2ZXIgICAgICAgICA9IHsgCQkubmFtZSAgID0gRFJWX05BTUUsICsJCS5wbSAgIA0K
+PiAgID0gSVRDT19XRFRfUE1fT1BTLCAJfSwgfTsNCg0K
