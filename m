@@ -1,7 +1,7 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from oul135-36.netplaza.fi ([80.75.100.36]:42108 "EHLO
+Received: from oul135-36.netplaza.fi ([80.75.100.36]:42100 "EHLO
 	lime.offcode.fi" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932511AbbDJNHP (ORCPT
+	with ESMTP id S932496AbbDJNHP (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
 	Fri, 10 Apr 2015 09:07:15 -0400
 From: Timo Kokkonen <timo.kokkonen@offcode.fi>
@@ -9,121 +9,258 @@ To: linux-arm-kernel@lists.infradead.org,
 	linux-watchdog@vger.kernel.org, boris.brezillon@free-electrons.com,
 	nicolas.ferre@atmel.com, alexandre.belloni@free-electrons.com
 Cc: Timo Kokkonen <timo.kokkonen@offcode.fi>
-Subject: [PATCHv5 2/4] watchdog: Allow watchdog to reset device at early boot
-Date: Fri, 10 Apr 2015 16:06:37 +0300
-Message-Id: <1428671199-5562-3-git-send-email-timo.kokkonen@offcode.fi>
+Subject: [PATCHv5 1/4] watchdog: Extend kernel API to know about HW limitations
+Date: Fri, 10 Apr 2015 16:06:36 +0300
+Message-Id: <1428671199-5562-2-git-send-email-timo.kokkonen@offcode.fi>
 In-Reply-To: <1428671199-5562-1-git-send-email-timo.kokkonen@offcode.fi>
 References: <1428671199-5562-1-git-send-email-timo.kokkonen@offcode.fi>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Historically the watchdogs have always been stopped before user space
-opens and takes over the device. This is not good on many production
-systems where any crash, in kernel or user space, must always result
-in a device reset.
+There is a great deal of diversity in the watchdog hardware found on
+different devices. Differen hardware have different contstraints on
+them, many of the constraints that are excessively difficult for the
+user space to satisfy.
 
-Add a new early_timeout_sec parameter to the watchdog that gives user
-space certain amount of time to set up itself and take over the
-watchdog. Until this timeout has been reached the watchdog core takes
-care of petting the watchdog HW. If there is any crash in kernel or
-user space, reboot is guaranteed as watchdog hardware is never
-stopped.
+One such constraint is the length of the timeout value, which in many
+cases can be just a few seconds. Drivers are creating ad hoc solutions
+with timers and workqueues to extend the timeout in order to give user
+space more time between updates. Looking at the drivers it is clear
+that this has resulted to a lot of duplicate code.
 
-There is also mode of supplying zero seconds for the early_timeout_sec
-parameter. In this mode the worker is not scheduled, so the watchdog
-timer is not touched nor is the HW petted until user space takes over
-it.
+Add an extension to the watchdog kernel API that allows the driver to
+describe tis HW constraints to the watchdog code. A kernel worker in
+the core is then used to extend the watchdog timeout on behalf of the
+user space. This allows the drivers to be simplified as core takes
+over the timer extending.
 
 Signed-off-by: Timo Kokkonen <timo.kokkonen@offcode.fi>
 ---
- drivers/watchdog/watchdog_core.c | 39 ++++++++++++++++++++++++++++++---------
- include/linux/watchdog.h         |  1 +
- 2 files changed, 31 insertions(+), 9 deletions(-)
+ drivers/watchdog/watchdog_core.c | 87 ++++++++++++++++++++++++++++++++++++++--
+ drivers/watchdog/watchdog_dev.c  | 12 ++++++
+ include/linux/watchdog.h         | 23 +++++++++++
+ 3 files changed, 119 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-index 8e7d08d..d6bedf7 100644
+index cec9b55..8e7d08d 100644
 --- a/drivers/watchdog/watchdog_core.c
 +++ b/drivers/watchdog/watchdog_core.c
-@@ -111,12 +111,18 @@ EXPORT_SYMBOL_GPL(watchdog_init_timeout);
-  */
- int watchdog_init_params(struct watchdog_device *wdd, struct device *dev)
- {
-+	unsigned int t = 0;
- 	int ret = 0;
+@@ -99,6 +99,75 @@ int watchdog_init_timeout(struct watchdog_device *wdd,
+ EXPORT_SYMBOL_GPL(watchdog_init_timeout);
  
- 	ret = watchdog_init_timeout(wdd, wdd->timeout, dev);
- 	if (ret < 0)
- 		return ret;
- 
-+	if (!of_property_read_u32(dev->of_node, "early-timeout-sec", &t))
-+		wdd->early_timeout_sec = t;
-+	else
-+		wdd->early_timeout_sec = -1;
+ /**
++ * watchdog_init_timeout() - initialize generic watchdog parameters
++ * @wdd: Watchdog device to operate
++ * @dev: Device that stores the device tree properties
++ *
++ * Initialize the generic timeout parameters. The driver needs to set
++ * hw_features bitmask from @wdd prior calling this function in order
++ * to ensure the core knows how to handle the HW.
++ *
++ * A zero is returned on success and -EINVAL for failure.
++ */
++int watchdog_init_params(struct watchdog_device *wdd, struct device *dev)
++{
++	int ret = 0;
 +
- 	/*
- 	 * Max HW timeout needs to be set so that core knows when to
- 	 * use a kernel worker to support longer watchdog timeouts
-@@ -139,6 +145,7 @@ static void watchdog_worker(struct work_struct *work)
- 	}
- 
- 	if ((!watchdog_active(wdd) && !watchdog_is_stoppable(wdd)) ||
-+		(!watchdog_active(wdd) && wdd->early_timeout_sec >= 0) ||
- 		(watchdog_active(wdd) &&
- 			wdd->hw_max_timeout < wdd->timeout * HZ)) {
- 		if (wdd->ops->ping)
-@@ -152,17 +159,31 @@ static void watchdog_worker(struct work_struct *work)
- 
- static int prepare_watchdog(struct watchdog_device *wdd)
- {
--	/* Stop the watchdog now before user space opens the device */
--	if (wdd->hw_features & WDOG_HW_IS_STOPPABLE &&
--		wdd->hw_features & WDOG_HW_RUNNING_AT_BOOT) {
--		wdd->ops->stop(wdd);
--
--	} else if (!(wdd->hw_features & WDOG_HW_IS_STOPPABLE)) {
-+	if (wdd->early_timeout_sec >= 0) {
- 		/*
--		 * Can't stop it, use a kernel timer to tick
--		 * it until it's open by user space
-+		 * early timeout, if set, ensures that watchdog will
-+		 * reset the device unless user space opens the
-+		 * watchdog device within the given interval.
- 		 */
--		schedule_delayed_work(&wdd->work, wdd->hw_heartbeat);
-+		if (!(wdd->hw_features & WDOG_HW_RUNNING_AT_BOOT))
++	ret = watchdog_init_timeout(wdd, wdd->timeout, dev);
++	if (ret < 0)
++		return ret;
++
++	/*
++	 * Max HW timeout needs to be set so that core knows when to
++	 * use a kernel worker to support longer watchdog timeouts
++	 */
++	if (!wdd->hw_max_timeout)
++		return -EINVAL;
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(watchdog_init_params);
++
++static void watchdog_worker(struct work_struct *work)
++{
++	struct watchdog_device *wdd = container_of(to_delayed_work(work),
++						struct watchdog_device, work);
++
++	if (time_after(jiffies, wdd->expires)) {
++		pr_crit("I will reset your machine !\n");
++		return;
++	}
++
++	if ((!watchdog_active(wdd) && !watchdog_is_stoppable(wdd)) ||
++		(watchdog_active(wdd) &&
++			wdd->hw_max_timeout < wdd->timeout * HZ)) {
++		if (wdd->ops->ping)
++			wdd->ops->ping(wdd);
++		else
 +			wdd->ops->start(wdd);
 +
-+		if (wdd->early_timeout_sec > 0) {
-+			schedule_delayed_work(&wdd->work,  wdd->hw_heartbeat);
-+		}
-+	} else {
-+		/* Stop the watchdog now before user space opens the device */
-+		if (wdd->hw_features & WDOG_HW_IS_STOPPABLE &&
-+			wdd->hw_features & WDOG_HW_RUNNING_AT_BOOT) {
-+			wdd->ops->stop(wdd);
++		schedule_delayed_work(&wdd->work,  wdd->hw_heartbeat);
++	}
++}
 +
-+		} else if (!(wdd->hw_features & WDOG_HW_IS_STOPPABLE)) {
-+			/*
-+			 * Can't stop it, use a kernel timer to tick
-+			 * it until it's open by user space
-+			 */
-+			schedule_delayed_work(&wdd->work, wdd->hw_heartbeat);
-+		}
++static int prepare_watchdog(struct watchdog_device *wdd)
++{
++	/* Stop the watchdog now before user space opens the device */
++	if (wdd->hw_features & WDOG_HW_IS_STOPPABLE &&
++		wdd->hw_features & WDOG_HW_RUNNING_AT_BOOT) {
++		wdd->ops->stop(wdd);
++
++	} else if (!(wdd->hw_features & WDOG_HW_IS_STOPPABLE)) {
++		/*
++		 * Can't stop it, use a kernel timer to tick
++		 * it until it's open by user space
++		 */
++		schedule_delayed_work(&wdd->work, wdd->hw_heartbeat);
++	}
++	return 0;
++}
++
++/**
+  * watchdog_register_device() - register a watchdog device
+  * @wdd: watchdog device
+  *
+@@ -156,13 +225,24 @@ int watchdog_register_device(struct watchdog_device *wdd)
+ 	wdd->dev = device_create(watchdog_class, wdd->parent, devno,
+ 					NULL, "watchdog%d", wdd->id);
+ 	if (IS_ERR(wdd->dev)) {
+-		watchdog_dev_unregister(wdd);
+-		ida_simple_remove(&watchdog_ida, id);
+ 		ret = PTR_ERR(wdd->dev);
+-		return ret;
++		goto dev_create_fail;
++	}
++
++	INIT_DELAYED_WORK(&wdd->work, watchdog_worker);
++
++	if (wdd->hw_max_timeout) {
++		ret = prepare_watchdog(wdd);
++		if (ret)
++			goto dev_create_fail;
  	}
+ 
  	return 0;
++
++dev_create_fail:
++	watchdog_dev_unregister(wdd);
++	ida_simple_remove(&watchdog_ida, id);
++	return ret;
  }
+ EXPORT_SYMBOL_GPL(watchdog_register_device);
+ 
+@@ -181,6 +261,7 @@ void watchdog_unregister_device(struct watchdog_device *wdd)
+ 	if (wdd == NULL)
+ 		return;
+ 
++	cancel_delayed_work_sync(&wdd->work);
+ 	devno = wdd->cdev.dev;
+ 	ret = watchdog_dev_unregister(wdd);
+ 	if (ret)
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 6aaefba..99eb363 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -78,6 +78,12 @@ static int watchdog_ping(struct watchdog_device *wddev)
+ 	else
+ 		err = wddev->ops->start(wddev); /* restart watchdog */
+ 
++	if (wddev->hw_max_timeout &&
++		wddev->timeout * HZ > wddev->hw_max_timeout) {
++		wddev->expires = jiffies + wddev->timeout * HZ;
++		schedule_delayed_work(&wddev->work, wddev->hw_heartbeat);
++	}
++
+ out_ping:
+ 	mutex_unlock(&wddev->lock);
+ 	return err;
+@@ -110,6 +116,12 @@ static int watchdog_start(struct watchdog_device *wddev)
+ 	if (err == 0)
+ 		set_bit(WDOG_ACTIVE, &wddev->status);
+ 
++	if (wddev->hw_max_timeout &&
++		wddev->timeout * HZ > wddev->hw_max_timeout) {
++		wddev->expires = jiffies + wddev->timeout * HZ;
++		schedule_delayed_work(&wddev->work, wddev->hw_heartbeat);
++	}
++
+ out_start:
+ 	mutex_unlock(&wddev->lock);
+ 	return err;
 diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
-index c16c921..6f868b6 100644
+index 395b70e..c16c921 100644
 --- a/include/linux/watchdog.h
 +++ b/include/linux/watchdog.h
-@@ -94,6 +94,7 @@ struct watchdog_device {
- 	unsigned int hw_max_timeout; /* in jiffies */
- 	unsigned int hw_heartbeat; /* in jiffies */
- 	unsigned long int expires; /* for soft timer */
-+	unsigned int early_timeout_sec;
+@@ -12,6 +12,7 @@
+ #include <linux/bitops.h>
+ #include <linux/device.h>
+ #include <linux/cdev.h>
++#include <linux/workqueue.h>
+ #include <uapi/linux/watchdog.h>
+ 
+ struct watchdog_ops;
+@@ -62,9 +63,13 @@ struct watchdog_ops {
+  * @timeout:	The watchdog devices timeout value.
+  * @min_timeout:The watchdog devices minimum timeout value.
+  * @max_timeout:The watchdog devices maximum timeout value.
++ * @hw_max_timeout:The watchdog hardware maximum timeout value.
++ * @hw_margin:	Time interval between timer pings.
+  * @driver-data:Pointer to the drivers private data.
+  * @lock:	Lock for watchdog core internal use only.
++ * @work:	Worker used to provide longer timeouts than hardware supports.
+  * @status:	Field that contains the devices internal status bits.
++ * @hw_features:Feature bits describing how the watchdog HW works.
+  *
+  * The watchdog_device structure contains all information about a
+  * watchdog timer device.
+@@ -86,8 +91,12 @@ struct watchdog_device {
+ 	unsigned int timeout;
+ 	unsigned int min_timeout;
+ 	unsigned int max_timeout;
++	unsigned int hw_max_timeout; /* in jiffies */
++	unsigned int hw_heartbeat; /* in jiffies */
++	unsigned long int expires; /* for soft timer */
  	void *driver_data;
  	struct mutex lock;
- 	struct delayed_work work;
++	struct delayed_work work;
+ 	unsigned long status;
+ /* Bit numbers for status flags */
+ #define WDOG_ACTIVE		0	/* Is the watchdog running/active */
+@@ -95,6 +104,14 @@ struct watchdog_device {
+ #define WDOG_ALLOW_RELEASE	2	/* Did we receive the magic char ? */
+ #define WDOG_NO_WAY_OUT		3	/* Is 'nowayout' feature set ? */
+ #define WDOG_UNREGISTERED	4	/* Has the device been unregistered */
++
++/* Bits describing features supported by the HW */
++	unsigned long hw_features;
++
++/* Can the watchdog be stopped and started */
++#define WDOG_HW_IS_STOPPABLE		BIT(0)
++/* Is the watchdog already running when the driver starts up */
++#define WDOG_HW_RUNNING_AT_BOOT		BIT(1)
+ };
+ 
+ #define WATCHDOG_NOWAYOUT		IS_BUILTIN(CONFIG_WATCHDOG_NOWAYOUT)
+@@ -120,6 +137,11 @@ static inline bool watchdog_timeout_invalid(struct watchdog_device *wdd, unsigne
+ 		(t < wdd->min_timeout || t > wdd->max_timeout));
+ }
+ 
++static inline bool watchdog_is_stoppable(struct watchdog_device *wdd)
++{
++	return wdd->hw_features & WDOG_HW_IS_STOPPABLE;
++}
++
+ /* Use the following functions to manipulate watchdog driver specific data */
+ static inline void watchdog_set_drvdata(struct watchdog_device *wdd, void *data)
+ {
+@@ -134,6 +156,7 @@ static inline void *watchdog_get_drvdata(struct watchdog_device *wdd)
+ /* drivers/watchdog/watchdog_core.c */
+ extern int watchdog_init_timeout(struct watchdog_device *wdd,
+ 				  unsigned int timeout_parm, struct device *dev);
++int watchdog_init_params(struct watchdog_device *wdd, struct device *dev);
+ extern int watchdog_register_device(struct watchdog_device *);
+ extern void watchdog_unregister_device(struct watchdog_device *);
+ 
 -- 
 2.1.0
 
