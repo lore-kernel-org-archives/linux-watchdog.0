@@ -1,317 +1,113 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from oul135-36.netplaza.fi ([80.75.100.36]:49727 "EHLO
-	lime.offcode.fi" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753337AbbDNLn7 (ORCPT
+Received: from eusmtp01.atmel.com ([212.144.249.243]:14130 "EHLO
+	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753708AbbDOBvh (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 14 Apr 2015 07:43:59 -0400
-Message-ID: <552CFD77.1040209@offcode.fi>
-Date: Tue, 14 Apr 2015 14:43:51 +0300
-From: Timo Kokkonen <timo.kokkonen@offcode.fi>
+	Tue, 14 Apr 2015 21:51:37 -0400
+From: "Yang, Wenyou" <Wenyou.Yang@atmel.com>
+To: Timo Kokkonen <timo.kokkonen@offcode.fi>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"boris.brezillon@free-electrons.com"
+	<boris.brezillon@free-electrons.com>,
+	"Ferre, Nicolas" <Nicolas.FERRE@atmel.com>,
+	"alexandre.belloni@free-electrons.com"
+	<alexandre.belloni@free-electrons.com>
+Subject: RE: [PATCHv6 0/4] watchdog: Extend kernel API and add
+ early_timeout_sec feature
+Date: Wed, 15 Apr 2015 01:51:31 +0000
+Message-ID: <B256D81BAE5131468A838E5D7A243641BFDB902A@penmbx02.corp.atmel.com>
+References: <1428996412-30448-1-git-send-email-timo.kokkonen@offcode.fi>
+In-Reply-To: <1428996412-30448-1-git-send-email-timo.kokkonen@offcode.fi>
+Content-Language: en-US
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-To: linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org, boris.brezillon@free-electrons.com,
-	nicolas.ferre@atmel.com, alexandre.belloni@free-electrons.com
-CC: Wenyou.Yang@atmel.com
-Subject: Re: [PATCHv6 1/4] watchdog: Extend kernel API to know about HW limitations
-References: <1428996412-30448-1-git-send-email-timo.kokkonen@offcode.fi> <1428996412-30448-2-git-send-email-timo.kokkonen@offcode.fi>
-In-Reply-To: <1428996412-30448-2-git-send-email-timo.kokkonen@offcode.fi>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 14.04.2015 10:26, Timo Kokkonen wrote:
-> There is a great deal of diversity in the watchdog hardware found on
-> different devices. Differen hardware have different contstraints on
-> them, many of the constraints that are excessively difficult for the
-> user space to satisfy.
->
-> One such constraint is the length of the timeout value, which in many
-> cases can be just a few seconds. Drivers are creating ad hoc solutions
-> with timers and workqueues to extend the timeout in order to give user
-> space more time between updates. Looking at the drivers it is clear
-> that this has resulted to a lot of duplicate code.
->
-> Add an extension to the watchdog kernel API that allows the driver to
-> describe tis HW constraints to the watchdog code. A kernel worker in
-> the core is then used to extend the watchdog timeout on behalf of the
-> user space. This allows the drivers to be simplified as core takes
-> over the timer extending.
->
-> Tested-by: Wenyou Yang <wenyou.yang@atmel.com>
-> Signed-off-by: Timo Kokkonen <timo.kokkonen@offcode.fi>
-> ---
->   drivers/watchdog/watchdog_core.c | 98 ++++++++++++++++++++++++++++++++++++++--
->   drivers/watchdog/watchdog_dev.c  | 22 ++++++++-
->   include/linux/watchdog.h         | 23 ++++++++++
->   3 files changed, 138 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-> index cec9b55..7854ecb 100644
-> --- a/drivers/watchdog/watchdog_core.c
-> +++ b/drivers/watchdog/watchdog_core.c
-> @@ -99,6 +99,86 @@ int watchdog_init_timeout(struct watchdog_device *wdd,
->   EXPORT_SYMBOL_GPL(watchdog_init_timeout);
->
->   /**
-> + * watchdog_init_parms() - initialize generic watchdog parameters
-> + * @wdd: Watchdog device to operate
-> + * @dev: Device that stores the device tree properties
-> + *
-> + * Initialize the generic timeout parameters. The driver needs to set
-> + * hw_features bitmask from @wdd prior calling this function in order
-> + * to ensure the core knows how to handle the HW.
-> + *
-> + * A zero is returned on success and -EINVAL for failure.
-> + */
-> +int watchdog_init_params(struct watchdog_device *wdd, struct device *dev)
-> +{
-> +	int ret = 0;
-> +
-> +	ret = watchdog_init_timeout(wdd, wdd->timeout, dev);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	/*
-> +	 * Max HW timeout needs to be set so that core knows when to
-> +	 * use a kernel worker to support longer watchdog timeouts
-> +	 */
-> +	if (!wdd->hw_max_timeout)
-> +		return -EINVAL;
-> +
-> +	return ret;
-> +}
-> +EXPORT_SYMBOL_GPL(watchdog_init_params);
-> +
-> +static void watchdog_worker(struct work_struct *work)
-> +{
-> +	struct watchdog_device *wdd = container_of(to_delayed_work(work),
-> +						struct watchdog_device, work);
-> +	bool boot_keepalive;
-> +	bool active_keepalive;
-> +
-> +	mutex_lock(&wdd->lock);
-> +
-> +	boot_keepalive = !watchdog_active(wdd) &&
-> +		!watchdog_is_stoppable(wdd);
-> +
-> +	active_keepalive = watchdog_active(wdd) &&
-> +		wdd->hw_max_timeout < wdd->timeout * HZ;
-> +
-> +	if (time_after(jiffies, wdd->expires) && watchdog_active(wdd)) {
-> +		pr_crit("I will reset your machine !\n");
-> +		mutex_unlock(&wdd->lock);
-> +		return;
-> +	}
-> +
-> +	if (boot_keepalive || active_keepalive) {
-> +		if (wdd->ops->ping)
-> +			wdd->ops->ping(wdd);
-> +		else
-> +			wdd->ops->start(wdd);
-> +
-> +		schedule_delayed_work(&wdd->work,  wdd->hw_heartbeat);
-> +	}
-> +
-> +	mutex_unlock(&wdd->lock);
-> +}
-> +
-> +static int prepare_watchdog(struct watchdog_device *wdd)
-> +{
-> +	/* Stop the watchdog now before user space opens the device */
-> +	if (wdd->hw_features & WDOG_HW_IS_STOPPABLE &&
-> +		wdd->hw_features & WDOG_HW_RUNNING_AT_BOOT) {
-> +		wdd->ops->stop(wdd);
-> +
-> +	} else if (!(wdd->hw_features & WDOG_HW_IS_STOPPABLE)) {
-> +		/*
-> +		 * Can't stop it, use a kernel timer to tick
-> +		 * it until it's open by user space
-> +		 */
-> +		schedule_delayed_work(&wdd->work, wdd->hw_heartbeat);
-> +	}
-> +	return 0;
-> +}
-> +
-> +/**
->    * watchdog_register_device() - register a watchdog device
->    * @wdd: watchdog device
->    *
-> @@ -156,13 +236,24 @@ int watchdog_register_device(struct watchdog_device *wdd)
->   	wdd->dev = device_create(watchdog_class, wdd->parent, devno,
->   					NULL, "watchdog%d", wdd->id);
->   	if (IS_ERR(wdd->dev)) {
-> -		watchdog_dev_unregister(wdd);
-> -		ida_simple_remove(&watchdog_ida, id);
->   		ret = PTR_ERR(wdd->dev);
-> -		return ret;
-> +		goto dev_create_fail;
-> +	}
-> +
-> +	INIT_DELAYED_WORK(&wdd->work, watchdog_worker);
-> +
-> +	if (wdd->hw_max_timeout) {
-> +		ret = prepare_watchdog(wdd);
-> +		if (ret)
-> +			goto dev_create_fail;
->   	}
->
->   	return 0;
-> +
-> +dev_create_fail:
-> +	watchdog_dev_unregister(wdd);
-> +	ida_simple_remove(&watchdog_ida, id);
-> +	return ret;
->   }
->   EXPORT_SYMBOL_GPL(watchdog_register_device);
->
-> @@ -181,6 +272,7 @@ void watchdog_unregister_device(struct watchdog_device *wdd)
->   	if (wdd == NULL)
->   		return;
->
-> +	cancel_delayed_work_sync(&wdd->work);
->   	devno = wdd->cdev.dev;
->   	ret = watchdog_dev_unregister(wdd);
->   	if (ret)
-> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-> index 6aaefba..b4c2c6cd2 100644
-> --- a/drivers/watchdog/watchdog_dev.c
-> +++ b/drivers/watchdog/watchdog_dev.c
-> @@ -78,6 +78,12 @@ static int watchdog_ping(struct watchdog_device *wddev)
->   	else
->   		err = wddev->ops->start(wddev); /* restart watchdog */
->
-> +	if (wddev->hw_max_timeout &&
-> +		wddev->timeout * HZ > wddev->hw_max_timeout) {
-> +		wddev->expires = jiffies + wddev->timeout * HZ;
-> +		schedule_delayed_work(&wddev->work, wddev->hw_heartbeat);
-> +	}
-> +
->   out_ping:
->   	mutex_unlock(&wddev->lock);
->   	return err;
-> @@ -110,6 +116,12 @@ static int watchdog_start(struct watchdog_device *wddev)
->   	if (err == 0)
->   		set_bit(WDOG_ACTIVE, &wddev->status);
->
-> +	if (wddev->hw_max_timeout &&
-> +		wddev->timeout * HZ > wddev->hw_max_timeout) {
-> +		wddev->expires = jiffies + wddev->timeout * HZ;
-> +		schedule_delayed_work(&wddev->work, wddev->hw_heartbeat);
-> +	}
-> +
-
-We need to delete the possibly active keepalive worker here unless we 
-need to keep running it:
-
--       }
-+       } else
-+               cancel_delayed_work(&wddev->work);
-
-
-Otherwise we might get a spurious "I will reset your machine" print in 
-dmesg as the worker is scheduled to run one more time even though it is 
-not needed any more. This of course happens only with unstoppable 
-watchdogs that don't need a timer after user space starts pinging them.
-
-I'll add this to the next revision.
-
--Timo
-
->   out_start:
->   	mutex_unlock(&wddev->lock);
->   	return err;
-> @@ -145,9 +157,15 @@ static int watchdog_stop(struct watchdog_device *wddev)
->   		goto out_stop;
->   	}
->
-> -	err = wddev->ops->stop(wddev);
-> -	if (err == 0)
-> +	if (!wddev->hw_max_timeout || watchdog_is_stoppable(wddev)) {
-> +		err = wddev->ops->stop(wddev);
-> +		if (err == 0)
-> +			clear_bit(WDOG_ACTIVE, &wddev->status);
-> +	} else {
-> +		/* Unstoppable watchdogs need the worker to keep them alive */
->   		clear_bit(WDOG_ACTIVE, &wddev->status);
-> +		schedule_delayed_work(&wddev->work, wddev->hw_heartbeat);
-> +	}
->
->   out_stop:
->   	mutex_unlock(&wddev->lock);
-> diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
-> index 395b70e..027c99d 100644
-> --- a/include/linux/watchdog.h
-> +++ b/include/linux/watchdog.h
-> @@ -12,6 +12,7 @@
->   #include <linux/bitops.h>
->   #include <linux/device.h>
->   #include <linux/cdev.h>
-> +#include <linux/workqueue.h>
->   #include <uapi/linux/watchdog.h>
->
->   struct watchdog_ops;
-> @@ -62,9 +63,13 @@ struct watchdog_ops {
->    * @timeout:	The watchdog devices timeout value.
->    * @min_timeout:The watchdog devices minimum timeout value.
->    * @max_timeout:The watchdog devices maximum timeout value.
-> + * @hw_max_timeout:The watchdog hardware maximum timeout value.
-> + * @hw_heartbeat:Time interval in HW between timer pings.
->    * @driver-data:Pointer to the drivers private data.
->    * @lock:	Lock for watchdog core internal use only.
-> + * @work:	Worker used to provide longer timeouts than hardware supports.
->    * @status:	Field that contains the devices internal status bits.
-> + * @hw_features:Feature bits describing how the watchdog HW works.
->    *
->    * The watchdog_device structure contains all information about a
->    * watchdog timer device.
-> @@ -86,8 +91,12 @@ struct watchdog_device {
->   	unsigned int timeout;
->   	unsigned int min_timeout;
->   	unsigned int max_timeout;
-> +	unsigned int hw_max_timeout; /* in jiffies */
-> +	unsigned int hw_heartbeat; /* in jiffies */
-> +	unsigned long int expires; /* for keepalive worker */
->   	void *driver_data;
->   	struct mutex lock;
-> +	struct delayed_work work;
->   	unsigned long status;
->   /* Bit numbers for status flags */
->   #define WDOG_ACTIVE		0	/* Is the watchdog running/active */
-> @@ -95,6 +104,14 @@ struct watchdog_device {
->   #define WDOG_ALLOW_RELEASE	2	/* Did we receive the magic char ? */
->   #define WDOG_NO_WAY_OUT		3	/* Is 'nowayout' feature set ? */
->   #define WDOG_UNREGISTERED	4	/* Has the device been unregistered */
-> +
-> +/* Bits describing features supported by the HW */
-> +	unsigned long hw_features;
-> +
-> +/* Can the watchdog be stopped and started */
-> +#define WDOG_HW_IS_STOPPABLE		BIT(0)
-> +/* Is the watchdog already running when the driver starts up */
-> +#define WDOG_HW_RUNNING_AT_BOOT		BIT(1)
->   };
->
->   #define WATCHDOG_NOWAYOUT		IS_BUILTIN(CONFIG_WATCHDOG_NOWAYOUT)
-> @@ -120,6 +137,11 @@ static inline bool watchdog_timeout_invalid(struct watchdog_device *wdd, unsigne
->   		(t < wdd->min_timeout || t > wdd->max_timeout));
->   }
->
-> +static inline bool watchdog_is_stoppable(struct watchdog_device *wdd)
-> +{
-> +	return wdd->hw_features & WDOG_HW_IS_STOPPABLE;
-> +}
-> +
->   /* Use the following functions to manipulate watchdog driver specific data */
->   static inline void watchdog_set_drvdata(struct watchdog_device *wdd, void *data)
->   {
-> @@ -134,6 +156,7 @@ static inline void *watchdog_get_drvdata(struct watchdog_device *wdd)
->   /* drivers/watchdog/watchdog_core.c */
->   extern int watchdog_init_timeout(struct watchdog_device *wdd,
->   				  unsigned int timeout_parm, struct device *dev);
-> +int watchdog_init_params(struct watchdog_device *wdd, struct device *dev);
->   extern int watchdog_register_device(struct watchdog_device *);
->   extern void watchdog_unregister_device(struct watchdog_device *);
->
->
-
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogVGltbyBLb2trb25lbiBb
+bWFpbHRvOnRpbW8ua29ra29uZW5Ab2ZmY29kZS5maV0NCj4gU2VudDogMjAxNcTqNNTCMTTI1SAx
+NToyNw0KPiBUbzogbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnOyBsaW51eC13
+YXRjaGRvZ0B2Z2VyLmtlcm5lbC5vcmc7DQo+IGJvcmlzLmJyZXppbGxvbkBmcmVlLWVsZWN0cm9u
+cy5jb207IEZlcnJlLCBOaWNvbGFzOyBhbGV4YW5kcmUuYmVsbG9uaUBmcmVlLQ0KPiBlbGVjdHJv
+bnMuY29tDQo+IENjOiBZYW5nLCBXZW55b3U7IFRpbW8gS29ra29uZW4NCj4gU3ViamVjdDogW1BB
+VENIdjYgMC80XSB3YXRjaGRvZzogRXh0ZW5kIGtlcm5lbCBBUEkgYW5kIGFkZCBlYXJseV90aW1l
+b3V0X3NlYw0KPiBmZWF0dXJlDQo+IA0KPiBUaGUgd2F0Y2hkb2cga2VybmVsIEFQSSBpcyBxdWl0
+ZSBsaW1pdGVkLiBJdCBoYXMgc3VwcG9ydCBmb3IgcHJvdmlkaW5nIGdlbmVyaWMNCj4gZGV2aWNl
+IGhhbmRsaW5nLCBidXQgaXQgZG9lc24ndCByZWFsbHkga25vdyBhbnl0aGluZyBhYm91dCB0aGUg
+d2F0Y2hkb2cgaGFyZHdhcmUNCj4gb3IgaXRzIGNvbnN0cmFpbnRzLiBUaGUgd2F0Y2hkb2cgZHJp
+dmVycyBjb21lIHdpdGggYSBsb3Qgb2YgZGl2ZXJzaXR5IGFuZCB0aGVpciBvd24NCj4gc2V0IG9m
+IHF1aXJrcyBhbmQgY29uc3RyYWludHMuIFNvbWUgb2YgdGhlaXIgbGltaXRhdGlvbnMgYXJlIG5v
+dCBuaWNlIGZvciB0aGUgdXNlcg0KPiBzcGFjZSwgc28gdGhlIGRyaXZlcnMgd29yayBhcm91bmQg
+dGhlbSB3aXRoIGFsbCBzb3J0cyBvZiBhZCBob2MgaW1wbGVtZW50YXRpb25zLg0KPiANCj4gT25l
+IGNvbW1vbiBwYXR0ZXJuIGlzIHRvIHVzZSBrZXJuZWwgdGltZXJzIG9yIHdvcmsgcXVldWVzIHRv
+IGFsbG93IGxvbmdlcg0KPiB0aW1lb3V0IHBhcmFtZXRlcnMgdGhhbiB0aGUgYWN0dWFsIGhhcmR3
+YXJlIHN1cHBvcnRzLiBUbyBzb2x2ZSB0aGlzIHByb2JsZW0sIHRoaXMNCj4gcGF0Y2ggc2V0IGV4
+dGVuZHMgdGhlIGtlcm5lbCB3YXRjaGRvZyBBUEkgd2l0aCBhIGZldyBwYXJhbWV0ZXJzIHRoYXQg
+bGV0IHRoZSBjb3JlDQo+IGtub3cgbW9yZSBhYm91dCB0aGUgd2F0Y2hkb2cgSFcgYW5kIHRha2Ug
+Y2FyZSBhYm91dCB0aGUgdGltZW91dCBleHRlbmRpbmcuDQo+IA0KPiBUaGUgcGF0Y2ggc2V0IGFs
+c28gaW1wbGVtZW50cyAiZWFybHlfdGltZW91dF9zZWMiIGZlYXR1cmUgdGhhdCBpcyB2ZXJ5IGNv
+bW1vbg0KPiBvbiBtYW55IHByb2R1Y3Rpb24gc3lzdGVtcyB3aGVyZSBlYXJseSBrZXJuZWwgb3Ig
+dXNlciBzcGFjZSBjcmFzaGVzIG11c3QgbGVhZA0KPiB0byBhIGRldmljZSByZXNldC4gVHJhZGl0
+aW9uYWwgd2F0Y2hkb2cgaGFuZGxpbmcgZG9lcyBub3QgYWxsb3cgdGhpcyBhcyB0aGUNCj4gd2F0
+Y2hkb2cgaXMgc3RvcHBlZCAoZnVsbHkgb3IgZW11bGF0aW5nIHN0b3BwZWQgc3RhdGUgd2l0aCBr
+ZXJuZWwgdGltZXJzKSBiZWZvcmUNCj4gdXNlciBzcGFjZSBvcGVucyBpdCBmb3IgdGhlIGZpcnN0
+IHRpbWUuDQo+IA0KPiBUaGUgY2hhbmdlcyBhcmUgZGVzaWduZWQgdG8gYmUgdGFrZW4gaW4gdXNl
+IG9uZSBkcml2ZXIgYXQgdGltZS4gSWYgdGhlIGRyaXZlciBkb2VzDQo+IG5vdCBzZXQgdGhlIG5l
+dyBwYXJhbWV0ZXJzIGFuZCBjYWxsIHdhdGNoZG9nX2luaXRfcGFyYW1zKCksIHRoZSB3YXRjaGRv
+Zw0KPiBiZWhhdmlvciBpcyBleGFjdGx5IHRoZSBzYW1lIGFzIGJlZm9yZS4NCj4gDQo+IEluIHBy
+aW5jaXBsZSB0aGlzIG5ldyBBUEkgbWFrZXMgaXQgcG9zc2libGUgZm9yIHRoZSB1c2VyIHNwYWNl
+IHRvIHNlZSBldmVyeQ0KPiB3YXRjaGRvZyBoYXJkd2FyZSB0byBiZWhhdmUgdGhlIHNhbWUsIGF0
+IGxlYXN0IGluIHRlcm1zIG9mIHdhdGNoZG9nIHRpbWVvdXRzLg0KPiBPbmNlIHRoZSBBUEkgaXMg
+aW4sIGl0IHNob3VsZCBiZSBlYXNpZXIgdG8gbW92ZSBldmVuIG1vcmUgY29tbW9uIGJlaGF2aW9y
+IG91dCBvZg0KPiB0aGUgZHJpdmVyIGNvZGUgdG8gdGhlIHdhdGNoZG9nIGNvcmUgYW5kIG1ha2Ug
+dGhlIGRyaXZlcnMgc2ltcGxlci4gVGhpcyBwYXRjaCBzZXQNCj4gY29udmVydHMgYXQ5MXNhbTlf
+d2R0IHRvIHVzZSB0aGUgbmV3IEFQSS4NCj4gDQo+IFBsZWFzZSByZXZpZXcgYW5kIGdpdmUgZmVl
+ZGJhY2suDQoNClRlc3RlZCBvbiBzYW1hNWQ0ZWssIGl0IHdvcmtzIGZpbmUuDQoNCj4gDQo+IFBh
+dGNoIHJldmlzaW9uIGhpc3Rvcnk6DQo+IA0KPiAtdjY6IEZpeGVkIHNvbWUgaXNzdWVkIGJhc2Vk
+IG9uIGZlZWRiYWNrIGZyb20gV2VueW91IFlhbmcuIFRoZSBsb2dpYw0KPiAgIGluIHdhdGNoZG9n
+X3dvcmtlcigpIGZ1bmN0aW9uIGlzIG5vdyBzaWduaWZpY2FudGx5IGVhc2llciB0bw0KPiAgIHJl
+YWQuIFNldmVyYWwgZXJyb3JzIHdpdGggc3RvcHBpbmcgYW5kIHN0YXJ0aW5nIHRoZSB3b3JrZXIg
+YXJlIGFsc28NCj4gICBub3cgZml4ZWQuDQo+IA0KPiAtdjU6IFJlLXRoaW5rIHRoZSBhcHByb2Fj
+aCB0byBiZSBmdWxseSBnZW5lcmljLiBUaGUgZWFybHlfdGltZW91dF9zZWMNCj4gICBoYW5kbGlu
+ZyBpcyBubyBsb25nZXIgaW4gdGhlIGRyaXZlciBidXQgaW4gdGhlIHdhdGNoZG9nIGNvcmUuIEFz
+IGENCj4gICByZXN1bHQgdGhlIGNvcmUgbmVlZGVkIHRvIGdhaW4ga25vd2xlZGdlIGFib3V0IHRo
+ZSB3YXRjaGRvZw0KPiAgIGhhcmR3YXJlLiBBcHByb3ByaWF0ZSBoYW5kbGluZyBpcyBhZGRlZCBp
+biB0aGUgY29yZS4gVGhlIHNpZGUgZWZmZWN0DQo+ICAgZm9yIHRoaXMgaXMgdGhhdCBkcml2ZXJz
+IHVzaW5nIHRoZSBuZXcgZXh0ZW5zaW9ucyBjYW4gYmUgc2ltcGxpZmllZA0KPiAgIGEgbG90IGFu
+ZCBkaWZmZXJlbnQga2luZHMgb2Ygd2F0Y2hkb2cgaGFyZHdhcmUgY2FuIGJlIG1hZGUgdG8NCj4g
+ICBiZWhhdmUgdGhlIHNhbWUgZm9yIHRoZSB1c2VyIHNwYWNlLg0KPiANCj4gLXY0OiBCaW5kaW5n
+IGRvY3VtZW50YXRpb24gaXMgbm93IHNlcGFyYXRlZCBjb21wbGV0ZWx5IGZyb20gdGhlIGRyaXZl
+cg0KPiAgIHBhdGNoLiBUaGUgZG9jdW1lbnRhdGlvbiBubyBsb25nZXIgbWFrZXMgYW55IGFzc3Vt
+cHRpb25zIGFib3V0IGhvdw0KPiAgIHRoZSBhY3R1YWwgaW1wbGVtZW50YXRpb24gaXMgbWFkZSwg
+aXQganVzdCBkZXNjcmliZXMgdGhlIGFjdHVhbA0KPiAgIGJlaGF2aW9yIHRoZSBkcml2ZXIgc2hv
+dWxkIGltcGxlbWVudCBpbiBvcmRlciB0byBzYXRpc2Z5IHRoZQ0KPiAgIHJlcXVpcmVtZW50Lg0K
+PiANCj4gLSB2MzogUmVuYW1lIHRoZSBwcm9wZXJ0eSB0byAiZWFybHktdGltZW91dC1zZWMiIGFu
+ZCB1c2UgaXQgYXMgYQ0KPiAgIHRpbWVvdXQgdmFsdWUgdGhhdCBzdG9wcyB0aGUgdGltZXIgaW4g
+dGhlIGF0bWVsIGRyaXZlciBhZnRlciB0aGUNCj4gICB0aW1lb3V0IGV4cGlyZXMuIEEgd2F0Y2hk
+b2cudHh0IGlzIGFsc28gaW50cm9kdWNlZCBmb3IgZG9jdW1lbnRpbmcNCj4gICB0aGUgY29tbW9u
+IHdhdGNoZG9nIHByb3BlcnRpZXMsIGluY2x1ZGluZyBub3cgdGhpcyBvbmUgYW5kDQo+ICAgInRp
+bWVvdXQtc2VjIiBwcm9wZXJ0eS4NCj4gDQo+IC0gdjI6IFJlbmFtZSB0aGUgcHJvcGVydHkgdG8g
+ImVuYWJsZS1lYXJseS1yZXNldCIgYXMgdGhlIGJlaGF2aW9yDQo+ICAgaXRzZWxmIGlzIG5vdCBh
+dG1lbCBzcGVjaWZpYy4gVGhpcyB3YXkgb3RoZXIgZHJpdmVycyBhcmUgZnJlZSB0bw0KPiAgIGlt
+cGxlbWVudCBzYW1lIGJlaGF2aW9yIHdpdGggdGhlIHNhbWUgcHJvcGVydHkgbmFtZS4NCj4gDQo+
+IC0gdjE6IFByb3Bvc2UgcHJvcGVydHkgbmFtZSAiYXRtbGUsbm8tZWFybHktdGltZXIiIGZvciBk
+aXNhYmxpbmcgdGhlDQo+ICAgdGltZXIgdGhhdCBrZWVwcyB0aGUgYXRtZWwgd2F0Y2hkb2cgcnVu
+bmluZyB1bnRpbCB1c2VyIHNwYWNlIG9wZW5zDQo+ICAgdGhlIGRldmljZS4NCj4gDQo+IFRpbW8g
+S29ra29uZW4gKDQpOg0KPiAgIHdhdGNoZG9nOiBFeHRlbmQga2VybmVsIEFQSSB0byBrbm93IGFi
+b3V0IEhXIGxpbWl0YXRpb25zDQo+ICAgd2F0Y2hkb2c6IEFsbG93IHdhdGNoZG9nIHRvIHJlc2V0
+IGRldmljZSBhdCBlYXJseSBib290DQo+ICAgZGV2aWNldHJlZTogRG9jdW1lbnQgZ2VuZXJpYyB3
+YXRjaGRvZyBwcm9wZXJ0aWVzDQo+ICAgd2F0Y2hkb2c6IGF0OTFzYW05X3dkdDogQ29udmVydCB0
+byB1c2UgbmV3IHdhdGNoZG9nIGNvcmUgZXh0ZW5zaW9ucw0KPiANCj4gIC4uLi9kZXZpY2V0cmVl
+L2JpbmRpbmdzL3dhdGNoZG9nL3dhdGNoZG9nLnR4dCAgICAgIHwgIDIwICsrKysNCj4gIGRyaXZl
+cnMvd2F0Y2hkb2cvYXQ5MXNhbTlfd2R0LmMgICAgICAgICAgICAgICAgICAgIHwgIDU4ICsrLS0t
+LS0tLS0NCj4gIGRyaXZlcnMvd2F0Y2hkb2cvd2F0Y2hkb2dfY29yZS5jICAgICAgICAgICAgICAg
+ICAgIHwgMTI0ICsrKysrKysrKysrKysrKysrKysrLQ0KPiAgZHJpdmVycy93YXRjaGRvZy93YXRj
+aGRvZ19kZXYuYyAgICAgICAgICAgICAgICAgICAgfCAgMjYgKysrKy0NCj4gIGluY2x1ZGUvbGlu
+dXgvd2F0Y2hkb2cuaCAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDI0ICsrKysNCj4gIDUg
+ZmlsZXMgY2hhbmdlZCwgMjAxIGluc2VydGlvbnMoKyksIDUxIGRlbGV0aW9ucygtKSAgY3JlYXRl
+IG1vZGUgMTAwNjQ0DQo+IERvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy93YXRjaGRv
+Zy93YXRjaGRvZy50eHQNCj4gDQo+IC0tDQo+IDIuMS4wDQoNCkJlc3QgUmVnYXJkcywNCldlbnlv
+dSBZYW5nDQoNCg==
