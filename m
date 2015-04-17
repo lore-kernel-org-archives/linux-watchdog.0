@@ -1,113 +1,91 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from eusmtp01.atmel.com ([212.144.249.243]:14130 "EHLO
-	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753708AbbDOBvh (ORCPT
+Received: from mail1.bemta5.messagelabs.com ([195.245.231.146]:48218 "EHLO
+	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S965137AbbDQOrM (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 14 Apr 2015 21:51:37 -0400
-From: "Yang, Wenyou" <Wenyou.Yang@atmel.com>
-To: Timo Kokkonen <timo.kokkonen@offcode.fi>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"boris.brezillon@free-electrons.com"
-	<boris.brezillon@free-electrons.com>,
-	"Ferre, Nicolas" <Nicolas.FERRE@atmel.com>,
-	"alexandre.belloni@free-electrons.com"
-	<alexandre.belloni@free-electrons.com>
-Subject: RE: [PATCHv6 0/4] watchdog: Extend kernel API and add
- early_timeout_sec feature
-Date: Wed, 15 Apr 2015 01:51:31 +0000
-Message-ID: <B256D81BAE5131468A838E5D7A243641BFDB902A@penmbx02.corp.atmel.com>
-References: <1428996412-30448-1-git-send-email-timo.kokkonen@offcode.fi>
-In-Reply-To: <1428996412-30448-1-git-send-email-timo.kokkonen@offcode.fi>
-Content-Language: en-US
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
+	Fri, 17 Apr 2015 10:47:12 -0400
+Message-ID: <cover.1429280614.git.stwiss.opensource@diasemi.com>
+From: S Twiss <stwiss.opensource@diasemi.com>
+Date: Fri, 17 Apr 2015 15:23:34 +0100
+Subject: [PATCH V1 0/6]  COVER LETTER
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	DEVICETREE <devicetree@vger.kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>,
+	LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	S Twiss <stwiss.opensource@diasemi.com>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+CC: David Dajun Chen <david.chen@diasemi.com>,
+	Support Opensource <support.opensource@diasemi.com>
 MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogVGltbyBLb2trb25lbiBb
-bWFpbHRvOnRpbW8ua29ra29uZW5Ab2ZmY29kZS5maV0NCj4gU2VudDogMjAxNcTqNNTCMTTI1SAx
-NToyNw0KPiBUbzogbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnOyBsaW51eC13
-YXRjaGRvZ0B2Z2VyLmtlcm5lbC5vcmc7DQo+IGJvcmlzLmJyZXppbGxvbkBmcmVlLWVsZWN0cm9u
-cy5jb207IEZlcnJlLCBOaWNvbGFzOyBhbGV4YW5kcmUuYmVsbG9uaUBmcmVlLQ0KPiBlbGVjdHJv
-bnMuY29tDQo+IENjOiBZYW5nLCBXZW55b3U7IFRpbW8gS29ra29uZW4NCj4gU3ViamVjdDogW1BB
-VENIdjYgMC80XSB3YXRjaGRvZzogRXh0ZW5kIGtlcm5lbCBBUEkgYW5kIGFkZCBlYXJseV90aW1l
-b3V0X3NlYw0KPiBmZWF0dXJlDQo+IA0KPiBUaGUgd2F0Y2hkb2cga2VybmVsIEFQSSBpcyBxdWl0
-ZSBsaW1pdGVkLiBJdCBoYXMgc3VwcG9ydCBmb3IgcHJvdmlkaW5nIGdlbmVyaWMNCj4gZGV2aWNl
-IGhhbmRsaW5nLCBidXQgaXQgZG9lc24ndCByZWFsbHkga25vdyBhbnl0aGluZyBhYm91dCB0aGUg
-d2F0Y2hkb2cgaGFyZHdhcmUNCj4gb3IgaXRzIGNvbnN0cmFpbnRzLiBUaGUgd2F0Y2hkb2cgZHJp
-dmVycyBjb21lIHdpdGggYSBsb3Qgb2YgZGl2ZXJzaXR5IGFuZCB0aGVpciBvd24NCj4gc2V0IG9m
-IHF1aXJrcyBhbmQgY29uc3RyYWludHMuIFNvbWUgb2YgdGhlaXIgbGltaXRhdGlvbnMgYXJlIG5v
-dCBuaWNlIGZvciB0aGUgdXNlcg0KPiBzcGFjZSwgc28gdGhlIGRyaXZlcnMgd29yayBhcm91bmQg
-dGhlbSB3aXRoIGFsbCBzb3J0cyBvZiBhZCBob2MgaW1wbGVtZW50YXRpb25zLg0KPiANCj4gT25l
-IGNvbW1vbiBwYXR0ZXJuIGlzIHRvIHVzZSBrZXJuZWwgdGltZXJzIG9yIHdvcmsgcXVldWVzIHRv
-IGFsbG93IGxvbmdlcg0KPiB0aW1lb3V0IHBhcmFtZXRlcnMgdGhhbiB0aGUgYWN0dWFsIGhhcmR3
-YXJlIHN1cHBvcnRzLiBUbyBzb2x2ZSB0aGlzIHByb2JsZW0sIHRoaXMNCj4gcGF0Y2ggc2V0IGV4
-dGVuZHMgdGhlIGtlcm5lbCB3YXRjaGRvZyBBUEkgd2l0aCBhIGZldyBwYXJhbWV0ZXJzIHRoYXQg
-bGV0IHRoZSBjb3JlDQo+IGtub3cgbW9yZSBhYm91dCB0aGUgd2F0Y2hkb2cgSFcgYW5kIHRha2Ug
-Y2FyZSBhYm91dCB0aGUgdGltZW91dCBleHRlbmRpbmcuDQo+IA0KPiBUaGUgcGF0Y2ggc2V0IGFs
-c28gaW1wbGVtZW50cyAiZWFybHlfdGltZW91dF9zZWMiIGZlYXR1cmUgdGhhdCBpcyB2ZXJ5IGNv
-bW1vbg0KPiBvbiBtYW55IHByb2R1Y3Rpb24gc3lzdGVtcyB3aGVyZSBlYXJseSBrZXJuZWwgb3Ig
-dXNlciBzcGFjZSBjcmFzaGVzIG11c3QgbGVhZA0KPiB0byBhIGRldmljZSByZXNldC4gVHJhZGl0
-aW9uYWwgd2F0Y2hkb2cgaGFuZGxpbmcgZG9lcyBub3QgYWxsb3cgdGhpcyBhcyB0aGUNCj4gd2F0
-Y2hkb2cgaXMgc3RvcHBlZCAoZnVsbHkgb3IgZW11bGF0aW5nIHN0b3BwZWQgc3RhdGUgd2l0aCBr
-ZXJuZWwgdGltZXJzKSBiZWZvcmUNCj4gdXNlciBzcGFjZSBvcGVucyBpdCBmb3IgdGhlIGZpcnN0
-IHRpbWUuDQo+IA0KPiBUaGUgY2hhbmdlcyBhcmUgZGVzaWduZWQgdG8gYmUgdGFrZW4gaW4gdXNl
-IG9uZSBkcml2ZXIgYXQgdGltZS4gSWYgdGhlIGRyaXZlciBkb2VzDQo+IG5vdCBzZXQgdGhlIG5l
-dyBwYXJhbWV0ZXJzIGFuZCBjYWxsIHdhdGNoZG9nX2luaXRfcGFyYW1zKCksIHRoZSB3YXRjaGRv
-Zw0KPiBiZWhhdmlvciBpcyBleGFjdGx5IHRoZSBzYW1lIGFzIGJlZm9yZS4NCj4gDQo+IEluIHBy
-aW5jaXBsZSB0aGlzIG5ldyBBUEkgbWFrZXMgaXQgcG9zc2libGUgZm9yIHRoZSB1c2VyIHNwYWNl
-IHRvIHNlZSBldmVyeQ0KPiB3YXRjaGRvZyBoYXJkd2FyZSB0byBiZWhhdmUgdGhlIHNhbWUsIGF0
-IGxlYXN0IGluIHRlcm1zIG9mIHdhdGNoZG9nIHRpbWVvdXRzLg0KPiBPbmNlIHRoZSBBUEkgaXMg
-aW4sIGl0IHNob3VsZCBiZSBlYXNpZXIgdG8gbW92ZSBldmVuIG1vcmUgY29tbW9uIGJlaGF2aW9y
-IG91dCBvZg0KPiB0aGUgZHJpdmVyIGNvZGUgdG8gdGhlIHdhdGNoZG9nIGNvcmUgYW5kIG1ha2Ug
-dGhlIGRyaXZlcnMgc2ltcGxlci4gVGhpcyBwYXRjaCBzZXQNCj4gY29udmVydHMgYXQ5MXNhbTlf
-d2R0IHRvIHVzZSB0aGUgbmV3IEFQSS4NCj4gDQo+IFBsZWFzZSByZXZpZXcgYW5kIGdpdmUgZmVl
-ZGJhY2suDQoNClRlc3RlZCBvbiBzYW1hNWQ0ZWssIGl0IHdvcmtzIGZpbmUuDQoNCj4gDQo+IFBh
-dGNoIHJldmlzaW9uIGhpc3Rvcnk6DQo+IA0KPiAtdjY6IEZpeGVkIHNvbWUgaXNzdWVkIGJhc2Vk
-IG9uIGZlZWRiYWNrIGZyb20gV2VueW91IFlhbmcuIFRoZSBsb2dpYw0KPiAgIGluIHdhdGNoZG9n
-X3dvcmtlcigpIGZ1bmN0aW9uIGlzIG5vdyBzaWduaWZpY2FudGx5IGVhc2llciB0bw0KPiAgIHJl
-YWQuIFNldmVyYWwgZXJyb3JzIHdpdGggc3RvcHBpbmcgYW5kIHN0YXJ0aW5nIHRoZSB3b3JrZXIg
-YXJlIGFsc28NCj4gICBub3cgZml4ZWQuDQo+IA0KPiAtdjU6IFJlLXRoaW5rIHRoZSBhcHByb2Fj
-aCB0byBiZSBmdWxseSBnZW5lcmljLiBUaGUgZWFybHlfdGltZW91dF9zZWMNCj4gICBoYW5kbGlu
-ZyBpcyBubyBsb25nZXIgaW4gdGhlIGRyaXZlciBidXQgaW4gdGhlIHdhdGNoZG9nIGNvcmUuIEFz
-IGENCj4gICByZXN1bHQgdGhlIGNvcmUgbmVlZGVkIHRvIGdhaW4ga25vd2xlZGdlIGFib3V0IHRo
-ZSB3YXRjaGRvZw0KPiAgIGhhcmR3YXJlLiBBcHByb3ByaWF0ZSBoYW5kbGluZyBpcyBhZGRlZCBp
-biB0aGUgY29yZS4gVGhlIHNpZGUgZWZmZWN0DQo+ICAgZm9yIHRoaXMgaXMgdGhhdCBkcml2ZXJz
-IHVzaW5nIHRoZSBuZXcgZXh0ZW5zaW9ucyBjYW4gYmUgc2ltcGxpZmllZA0KPiAgIGEgbG90IGFu
-ZCBkaWZmZXJlbnQga2luZHMgb2Ygd2F0Y2hkb2cgaGFyZHdhcmUgY2FuIGJlIG1hZGUgdG8NCj4g
-ICBiZWhhdmUgdGhlIHNhbWUgZm9yIHRoZSB1c2VyIHNwYWNlLg0KPiANCj4gLXY0OiBCaW5kaW5n
-IGRvY3VtZW50YXRpb24gaXMgbm93IHNlcGFyYXRlZCBjb21wbGV0ZWx5IGZyb20gdGhlIGRyaXZl
-cg0KPiAgIHBhdGNoLiBUaGUgZG9jdW1lbnRhdGlvbiBubyBsb25nZXIgbWFrZXMgYW55IGFzc3Vt
-cHRpb25zIGFib3V0IGhvdw0KPiAgIHRoZSBhY3R1YWwgaW1wbGVtZW50YXRpb24gaXMgbWFkZSwg
-aXQganVzdCBkZXNjcmliZXMgdGhlIGFjdHVhbA0KPiAgIGJlaGF2aW9yIHRoZSBkcml2ZXIgc2hv
-dWxkIGltcGxlbWVudCBpbiBvcmRlciB0byBzYXRpc2Z5IHRoZQ0KPiAgIHJlcXVpcmVtZW50Lg0K
-PiANCj4gLSB2MzogUmVuYW1lIHRoZSBwcm9wZXJ0eSB0byAiZWFybHktdGltZW91dC1zZWMiIGFu
-ZCB1c2UgaXQgYXMgYQ0KPiAgIHRpbWVvdXQgdmFsdWUgdGhhdCBzdG9wcyB0aGUgdGltZXIgaW4g
-dGhlIGF0bWVsIGRyaXZlciBhZnRlciB0aGUNCj4gICB0aW1lb3V0IGV4cGlyZXMuIEEgd2F0Y2hk
-b2cudHh0IGlzIGFsc28gaW50cm9kdWNlZCBmb3IgZG9jdW1lbnRpbmcNCj4gICB0aGUgY29tbW9u
-IHdhdGNoZG9nIHByb3BlcnRpZXMsIGluY2x1ZGluZyBub3cgdGhpcyBvbmUgYW5kDQo+ICAgInRp
-bWVvdXQtc2VjIiBwcm9wZXJ0eS4NCj4gDQo+IC0gdjI6IFJlbmFtZSB0aGUgcHJvcGVydHkgdG8g
-ImVuYWJsZS1lYXJseS1yZXNldCIgYXMgdGhlIGJlaGF2aW9yDQo+ICAgaXRzZWxmIGlzIG5vdCBh
-dG1lbCBzcGVjaWZpYy4gVGhpcyB3YXkgb3RoZXIgZHJpdmVycyBhcmUgZnJlZSB0bw0KPiAgIGlt
-cGxlbWVudCBzYW1lIGJlaGF2aW9yIHdpdGggdGhlIHNhbWUgcHJvcGVydHkgbmFtZS4NCj4gDQo+
-IC0gdjE6IFByb3Bvc2UgcHJvcGVydHkgbmFtZSAiYXRtbGUsbm8tZWFybHktdGltZXIiIGZvciBk
-aXNhYmxpbmcgdGhlDQo+ICAgdGltZXIgdGhhdCBrZWVwcyB0aGUgYXRtZWwgd2F0Y2hkb2cgcnVu
-bmluZyB1bnRpbCB1c2VyIHNwYWNlIG9wZW5zDQo+ICAgdGhlIGRldmljZS4NCj4gDQo+IFRpbW8g
-S29ra29uZW4gKDQpOg0KPiAgIHdhdGNoZG9nOiBFeHRlbmQga2VybmVsIEFQSSB0byBrbm93IGFi
-b3V0IEhXIGxpbWl0YXRpb25zDQo+ICAgd2F0Y2hkb2c6IEFsbG93IHdhdGNoZG9nIHRvIHJlc2V0
-IGRldmljZSBhdCBlYXJseSBib290DQo+ICAgZGV2aWNldHJlZTogRG9jdW1lbnQgZ2VuZXJpYyB3
-YXRjaGRvZyBwcm9wZXJ0aWVzDQo+ICAgd2F0Y2hkb2c6IGF0OTFzYW05X3dkdDogQ29udmVydCB0
-byB1c2UgbmV3IHdhdGNoZG9nIGNvcmUgZXh0ZW5zaW9ucw0KPiANCj4gIC4uLi9kZXZpY2V0cmVl
-L2JpbmRpbmdzL3dhdGNoZG9nL3dhdGNoZG9nLnR4dCAgICAgIHwgIDIwICsrKysNCj4gIGRyaXZl
-cnMvd2F0Y2hkb2cvYXQ5MXNhbTlfd2R0LmMgICAgICAgICAgICAgICAgICAgIHwgIDU4ICsrLS0t
-LS0tLS0NCj4gIGRyaXZlcnMvd2F0Y2hkb2cvd2F0Y2hkb2dfY29yZS5jICAgICAgICAgICAgICAg
-ICAgIHwgMTI0ICsrKysrKysrKysrKysrKysrKysrLQ0KPiAgZHJpdmVycy93YXRjaGRvZy93YXRj
-aGRvZ19kZXYuYyAgICAgICAgICAgICAgICAgICAgfCAgMjYgKysrKy0NCj4gIGluY2x1ZGUvbGlu
-dXgvd2F0Y2hkb2cuaCAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDI0ICsrKysNCj4gIDUg
-ZmlsZXMgY2hhbmdlZCwgMjAxIGluc2VydGlvbnMoKyksIDUxIGRlbGV0aW9ucygtKSAgY3JlYXRl
-IG1vZGUgMTAwNjQ0DQo+IERvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy93YXRjaGRv
-Zy93YXRjaGRvZy50eHQNCj4gDQo+IC0tDQo+IDIuMS4wDQoNCkJlc3QgUmVnYXJkcywNCldlbnlv
-dSBZYW5nDQoNCg==
+From: S Twiss <stwiss.opensource@diasemi.com>
+
+This patch set adds support for the Dialog DA9062 Power Management IC.
+
+In this patch set the following is provided:
+ - [PATCH V1 1/6]: MFD core support  
+ - [PATCH V1 2/6]: BUCK and LDO regulator driver
+ - [PATCH V1 3/6]: RTC driver
+ - [PATCH V1 4/6]: OnKey driver
+ - [PATCH V1 5/6]: Watchdog driver
+ - [PATCH V1 6/6]: Add bindings for all DA9062 components
+
+This patch applies against linux-next and v4.0 
+
+Thank you,
+Steve Twiss, Dialog Semiconductor Ltd.
+
+S Twiss (6):
+  mfd: da9062: DA9062 MFD core driver
+  regulator: da9062: DA9062 regulator driver
+  rtc: da9062: DA9062 RTC driver
+  input: misc: onkey: da9062: DA9062 OnKey driver
+  watchdog: da9062: DA9062 watchdog driver
+  devicetree: da9062: Add bindings for DA9062 driver
+
+ Documentation/devicetree/bindings/mfd/da9062.txt |  107 +++
+ drivers/input/misc/Kconfig                       |   10 +
+ drivers/input/misc/Makefile                      |    1 +
+ drivers/input/misc/da9062-onkey.c                |  223 +++++
+ drivers/mfd/Kconfig                              |   12 +
+ drivers/mfd/Makefile                             |    3 +-
+ drivers/mfd/da9062-core.c                        |  611 ++++++++++++
+ drivers/regulator/Kconfig                        |   10 +
+ drivers/regulator/Makefile                       |    1 +
+ drivers/regulator/da9062-regulator.c             |  968 +++++++++++++++++++
+ drivers/rtc/Kconfig                              |   10 +
+ drivers/rtc/Makefile                             |    1 +
+ drivers/rtc/rtc-da9062.c                         |  367 +++++++
+ drivers/watchdog/Kconfig                         |    9 +
+ drivers/watchdog/Makefile                        |    1 +
+ drivers/watchdog/da9062_wdt.c                    |  249 +++++
+ include/linux/mfd/da9062/core.h                  |   61 ++
+ include/linux/mfd/da9062/registers.h             | 1108 ++++++++++++++++++++++
+ 18 files changed, 3751 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/devicetree/bindings/mfd/da9062.txt
+ create mode 100644 drivers/input/misc/da9062-onkey.c
+ create mode 100644 drivers/mfd/da9062-core.c
+ create mode 100644 drivers/regulator/da9062-regulator.c
+ create mode 100644 drivers/rtc/rtc-da9062.c
+ create mode 100644 drivers/watchdog/da9062_wdt.c
+ create mode 100644 include/linux/mfd/da9062/core.h
+ create mode 100644 include/linux/mfd/da9062/registers.h
+
+-- 
+end-of-patch for PATCH V1
+
