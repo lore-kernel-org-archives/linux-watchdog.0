@@ -1,20 +1,28 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ig0-f178.google.com ([209.85.213.178]:38439 "EHLO
-	mail-ig0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932405AbbDQQMb (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:33059 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932085AbbDRPxv (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 17 Apr 2015 12:12:31 -0400
-Date: Fri, 17 Apr 2015 09:12:17 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: LINUXINPUT <linux-input@vger.kernel.org>,
+	Sat, 18 Apr 2015 11:53:51 -0400
+Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.82)
+	(envelope-from <linux@roeck-us.net>)
+	id 1YjV42-002wSl-Dl
+	for linux-watchdog@vger.kernel.org; Sat, 18 Apr 2015 15:53:50 +0000
+Message-ID: <55327DDA.4080003@roeck-us.net>
+Date: Sat, 18 Apr 2015 08:52:58 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+MIME-Version: 1.0
+To: S Twiss <stwiss.opensource@diasemi.com>,
 	LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	Alessandro Zummo <a.zummo@towertech.it>,
+	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+	Wim Van Sebroeck <wim@iguana.be>
+CC: Alessandro Zummo <a.zummo@towertech.it>,
 	DEVICETREE <devicetree@vger.kernel.org>,
 	David Dajun Chen <david.chen@diasemi.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Ian Campbell <ijc+devicetree@hellion.org.uk>,
 	Kumar Gala <galak@codeaurora.org>,
-	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>,
 	Lee Jones <lee.jones@linaro.org>,
 	Liam Girdwood <lgirdwood@gmail.com>,
 	Mark Brown <broonie@kernel.org>,
@@ -23,85 +31,85 @@ Cc: LINUXINPUT <linux-input@vger.kernel.org>,
 	RTCLINUX <rtc-linux@googlegroups.com>,
 	Rob Herring <robh+dt@kernel.org>,
 	Samuel Ortiz <sameo@linux.intel.com>,
-	Support Opensource <support.opensource@diasemi.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [PATCH V1 4/6] input: misc: onkey: da9062: DA9062 OnKey driver
-Message-ID: <20150417161217.GA27440@dtor-ws>
-References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
- <c05802897197e71839a33b1f5ac224031b14e65b.1429280614.git.stwiss.opensource@diasemi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c05802897197e71839a33b1f5ac224031b14e65b.1429280614.git.stwiss.opensource@diasemi.com>
+	Support Opensource <support.opensource@diasemi.com>
+Subject: Re: [PATCH V1 5/6] watchdog: da9062: DA9062 watchdog driver
+References: <cover.1429280614.git.stwiss.opensource@diasemi.com> <2afd9f55c71553186e99bfe386312f0c7d7501ed.1429280614.git.stwiss.opensource@diasemi.com>
+In-Reply-To: <2afd9f55c71553186e99bfe386312f0c7d7501ed.1429280614.git.stwiss.opensource@diasemi.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
-
-On Fri, Apr 17, 2015 at 03:23:33PM +0100, S Twiss wrote:
+On 04/17/2015 07:23 AM, S Twiss wrote:
 > From: S Twiss <stwiss.opensource@diasemi.com>
-> 
-> Add OnKey driver support for DA9062
-> 
+>
+> Add watchdog driver support for DA9062
+>
 > Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> 
+>
+Hi Steve,
+
+Key question here is if the da9062 is really so much different to the da9062
+that you can not use the same driver. I am especially concerned about
+the added da9062_reset_watchdog_timer(), given the delay it introduces.
+
+Comments below.
+
+Thanks,
+Guenter
+
 > ---
-> 
-> This patch applies against linux-next and v4.0 
-> 
-> 
-> 
->  drivers/input/misc/Kconfig        |  10 ++
->  drivers/input/misc/Makefile       |   1 +
->  drivers/input/misc/da9062-onkey.c | 223 ++++++++++++++++++++++++++++++++++++++
->  3 files changed, 234 insertions(+)
->  create mode 100644 drivers/input/misc/da9062-onkey.c
-> 
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index 6deb8da..472ca38 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -586,6 +586,16 @@ config INPUT_DA9055_ONKEY
->  	  To compile this driver as a module, choose M here: the module
->  	  will be called da9055_onkey.
->  
-> +config INPUT_DA9062_ONKEY
-> +	tristate "Dialog DA9062 OnKey"
+>
+> This patch applies against linux-next and v4.0
+>
+>
+>
+>   drivers/watchdog/Kconfig      |   9 ++
+>   drivers/watchdog/Makefile     |   1 +
+>   drivers/watchdog/da9062_wdt.c | 249 ++++++++++++++++++++++++++++++++++++++++++
+>   3 files changed, 259 insertions(+)
+>   create mode 100644 drivers/watchdog/da9062_wdt.c
+>
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index 16f2023..62232d7 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -96,6 +96,15 @@ config DA9063_WATCHDOG
+>
+>   	  This driver can be built as a module. The module name is da9063_wdt.
+>
+> +config DA9062_WATCHDOG
+> +	tristate "Dialog DA9062 Watchdog"
 > +	depends on MFD_DA9062
+> +	select WATCHDOG_CORE
 > +	help
-> +	  Support the ONKEY of Dialog DA9062 Power Management IC as an
-> +	  input device reporting power button status.
+> +	  Support for the watchdog in the DA9062 PMIC.
 > +
-> +	  To compile this driver as a module, choose M here: the module
-> +	  will be called da9062-onkey.
+> +	  This driver can be built as a module. The module name is da9062_wdt.
 > +
->  config INPUT_DM355EVM
->  	tristate "TI DaVinci DM355 EVM Keypad and IR Remote"
->  	depends on MFD_DM355EVM_MSP
-> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-> index 403a1a5..a631283 100644
-> --- a/drivers/input/misc/Makefile
-> +++ b/drivers/input/misc/Makefile
-> @@ -25,6 +25,7 @@ obj-$(CONFIG_INPUT_CMA3000_I2C)		+= cma3000_d0x_i2c.o
->  obj-$(CONFIG_INPUT_COBALT_BTNS)		+= cobalt_btns.o
->  obj-$(CONFIG_INPUT_DA9052_ONKEY)	+= da9052_onkey.o
->  obj-$(CONFIG_INPUT_DA9055_ONKEY)	+= da9055_onkey.o
-> +obj-$(CONFIG_INPUT_DA9062_ONKEY)	+= da9062-onkey.o
-
-Can we maybe keep the same naming convention for all of these? Also, any
-chance all of them or some of them can be combined?
-
->  obj-$(CONFIG_INPUT_DM355EVM)		+= dm355evm_keys.o
->  obj-$(CONFIG_INPUT_E3X0_BUTTON)		+= e3x0-button.o
->  obj-$(CONFIG_INPUT_DRV260X_HAPTICS)	+= drv260x.o
-> diff --git a/drivers/input/misc/da9062-onkey.c b/drivers/input/misc/da9062-onkey.c
+>   config GPIO_WATCHDOG
+>   	tristate "Watchdog device controlled through GPIO-line"
+>   	depends on OF_GPIO
+> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> index 5c19294..57ba815 100644
+> --- a/drivers/watchdog/Makefile
+> +++ b/drivers/watchdog/Makefile
+> @@ -179,6 +179,7 @@ obj-$(CONFIG_XEN_WDT) += xen_wdt.o
+>   # Architecture Independent
+>   obj-$(CONFIG_DA9052_WATCHDOG) += da9052_wdt.o
+>   obj-$(CONFIG_DA9055_WATCHDOG) += da9055_wdt.o
+> +obj-$(CONFIG_DA9062_WATCHDOG) += da9062_wdt.o
+>   obj-$(CONFIG_DA9063_WATCHDOG) += da9063_wdt.o
+>   obj-$(CONFIG_GPIO_WATCHDOG)	+= gpio_wdt.o
+>   obj-$(CONFIG_WM831X_WATCHDOG) += wm831x_wdt.o
+> diff --git a/drivers/watchdog/da9062_wdt.c b/drivers/watchdog/da9062_wdt.c
 > new file mode 100644
-> index 0000000..c4c0295
+> index 0000000..ac4c255
 > --- /dev/null
-> +++ b/drivers/input/misc/da9062-onkey.c
-> @@ -0,0 +1,223 @@
+> +++ b/drivers/watchdog/da9062_wdt.c
+> @@ -0,0 +1,249 @@
 > +/*
-> + * da9062-onkey.c - ONKEY device driver for DA9062
+> + * da9062_wdt.c - WDT device driver for DA9062
 > + * Copyright (C) 2015  Dialog Semiconductor Ltd.
 > + *
 > + * This program is free software; you can redistribute it and/or
@@ -115,234 +123,270 @@ chance all of them or some of them can be combined?
 > + * GNU General Public License for more details.
 > + */
 > +
+> +#include <linux/kernel.h>
 > +#include <linux/module.h>
-> +#include <linux/errno.h>
-> +#include <linux/input.h>
-> +#include <linux/interrupt.h>
+> +#include <linux/watchdog.h>
 > +#include <linux/platform_device.h>
-> +#include <linux/workqueue.h>
+> +#include <linux/uaccess.h>
+> +#include <linux/slab.h>
+> +#include <linux/delay.h>
+> +#include <linux/mfd/da9062/registers.h>
+> +#include <linux/mfd/da9062/core.h>
 > +#include <linux/regmap.h>
 > +#include <linux/of.h>
-> +#include <linux/mfd/da9062/core.h>
-> +#include <linux/mfd/da9062/registers.h>
 > +
-> +struct da9062_onkey {
+> +static const unsigned int wdt_timeout[] = { 0, 2, 4, 8, 16, 32, 65, 131 };
+> +#define DA9062_TWDSCALE_DISABLE		0
+> +#define DA9062_TWDSCALE_MIN		1
+> +#define DA9062_TWDSCALE_MAX		(ARRAY_SIZE(wdt_timeout) - 1)
+> +#define DA9062_WDT_MIN_TIMEOUT		wdt_timeout[DA9062_TWDSCALE_MIN]
+> +#define DA9062_WDT_MAX_TIMEOUT		wdt_timeout[DA9062_TWDSCALE_MAX]
+> +#define DA9062_WDG_DEFAULT_TIMEOUT	wdt_timeout[DA9062_TWDSCALE_MAX-1]
+> +
+> +struct da9062_watchdog {
 > +	struct da9062 *hw;
-> +	struct delayed_work work;
-> +	struct	input_dev *input;
-> +	int irq;
-> +	bool key_power;
+> +	struct watchdog_device wdtdev;
 > +};
 > +
-> +static void da9062_poll_on(struct work_struct *work)
+> +static unsigned int da9062_wdt_timeout_to_sel(unsigned int secs)
 > +{
-> +	struct da9062_onkey *onkey = container_of(work, struct da9062_onkey,
-> +						  work.work);
-> +	unsigned int val;
-> +	int fault_log = 0;
-> +	bool poll = true;
-> +	int ret;
+> +	unsigned int i;
 > +
-> +	/* poll to see when the pin is released */
-> +	ret = regmap_read(onkey->hw->regmap, DA9062AA_STATUS_A, &val);
-> +	if (ret < 0) {
-> +		dev_err(&onkey->input->dev,
-> +			"Failed to read ON status: %d\n", ret);
-> +		goto err_poll;
+> +	for (i = DA9062_TWDSCALE_MIN; i <= DA9062_TWDSCALE_MAX; i++) {
+> +		if (wdt_timeout[i] >= secs)
+> +			return i;
 > +	}
 > +
-> +	if (!(val & DA9062AA_NONKEY_MASK)) {
-> +		ret = regmap_update_bits(onkey->hw->regmap,
-> +					 DA9062AA_CONTROL_B,
-> +					 DA9062AA_NONKEY_LOCK_MASK, 0);
-> +		if (ret < 0) {
-> +			dev_err(&onkey->input->dev,
-> +				"Failed to reset the Key Delay %d\n", ret);
-> +			goto err_poll;
-> +		}
-> +
-> +		input_report_key(onkey->input, KEY_POWER, 0);
-> +		input_sync(onkey->input);
-> +
-> +		poll = false;
-> +	}
-> +
-> +	/* if the fault log KEY_RESET is detected,
-> +	 * then clear it and shutdown DA9062 via I2C
-> +	 */
-> +	ret = regmap_read(onkey->hw->regmap, DA9062AA_FAULT_LOG, &fault_log);
-> +	if (ret < 0)
-> +		dev_warn(&onkey->input->dev, "Cannot read FAULT_LOG\n");
-> +
-> +	if (fault_log & DA9062AA_KEY_RESET_MASK) {
-> +		ret = regmap_write(onkey->hw->regmap,
-> +				   DA9062AA_FAULT_LOG,
-> +				   DA9062AA_KEY_RESET_MASK);
-> +		if (ret < 0)
-> +			dev_warn(&onkey->input->dev,
-> +				 "Cannot reset KEY_RESET fault log\n");
-> +		else {
-> +			/* at this point we do any S/W housekeeping
-> +			 * and then send shutdown command
-> +			 */
-> +			dev_info(&onkey->input->dev,
-> +				 "Sending SHUTDOWN to DA9062 ...\n");
-> +			ret = regmap_write(onkey->hw->regmap,
-> +					   DA9062AA_CONTROL_F,
-> +					   DA9062AA_SHUTDOWN_MASK);
-> +			if (ret < 0)
-> +				dev_err(&onkey->input->dev,
-> +					"Cannot SHUTDOWN DA9062\n");
-> +		}
-> +	}
-
-This entire block seems to not belong to the input portion of MFD. Why
-do we do it here?
-
-> +
-> +err_poll:
-> +	if (poll)
-> +		schedule_delayed_work(&onkey->work, 50);
+> +	return DA9062_TWDSCALE_MAX;
 > +}
 > +
-> +static irqreturn_t da9062_onkey_irq_handler(int irq, void *data)
+> +static int da9062_reset_watchdog_timer(struct da9062 *hw)
 > +{
-> +	struct da9062_onkey *onkey = data;
-> +	unsigned int val;
 > +	int ret;
 > +
-> +	ret = regmap_read(onkey->hw->regmap, DA9062AA_STATUS_A, &val);
-> +	if (onkey->key_power && (ret >= 0) && (val & DA9062AA_NONKEY_MASK)) {
-> +		input_report_key(onkey->input, KEY_POWER, 1);
-> +		input_sync(onkey->input);
-> +		schedule_delayed_work(&onkey->work, 0);
-> +		dev_notice(&onkey->input->dev, "KEY_POWER pressed.\n");
-> +	} else {
-> +		input_report_key(onkey->input, KEY_SLEEP, 1);
-> +		input_sync(onkey->input);
-> +		input_report_key(onkey->input, KEY_SLEEP, 0);
-> +		input_sync(onkey->input);
-> +		dev_notice(&onkey->input->dev, "KEY_SLEEP pressed.\n");
-> +	}
+> +	ret = regmap_update_bits(hw->regmap,
+> +			   DA9062AA_CONTROL_F,
+> +			   DA9062AA_WATCHDOG_MASK,
+> +			   DA9062AA_WATCHDOG_MASK);
+> +
+> +	mdelay(300);
 
-Why do we handle KEY_POWER and KEY_SLEEP completely differently?
+Really ? That seems to be excessive, especially given how often
+this function is called (for each ping!).
 
 > +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int da9062_onkey_probe(struct platform_device *pdev)
-> +{
-> +	struct da9062 *chip = dev_get_drvdata(pdev->dev.parent);
-> +	struct da9062_onkey *onkey;
-> +	bool kp_tmp = true;
-> +	int ret = 0;
-> +
-> +		kp_tmp = of_property_read_bool((&pdev->dev)->of_node,
-> +					       "dlg,disable-key-power");
-> +		kp_tmp = !kp_tmp;
-
-Should we just allow specifying the keycode instead of hardcoding
-KEY_POWER/KEY_SLEEP?
-
-> +
-> +
-> +	onkey = devm_kzalloc(&pdev->dev, sizeof(struct da9062_onkey),
-> +			     GFP_KERNEL);
-> +	if (!onkey) {
-> +		dev_err(&pdev->dev, "Failed to allocate memory.\n");
-> +		ret = -ENOMEM;
-> +		goto err;
-> +	}
-> +
-> +	INIT_DELAYED_WORK(&onkey->work, da9062_poll_on);
-> +
-> +	onkey->input = devm_input_allocate_device(&pdev->dev);
-> +	if (!onkey->input) {
-> +		dev_err(&pdev->dev, "Failed to allocated input device.\n");
-> +		ret = -ENOMEM;
-> +		goto err;
-> +	}
-> +
-> +	ret = platform_get_irq_byname(pdev, "ONKEY");
-> +	if (ret < 0) {
-> +		dev_err(&pdev->dev, "Failed to get platform IRQ.\n");
-> +		goto err;
-> +	}
-> +	onkey->irq = ret;
-> +
-> +	ret = request_threaded_irq(onkey->irq, NULL,
-> +				   da9062_onkey_irq_handler,
-> +				   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-> +				   "ONKEY", onkey);
-> +	if (ret) {
-> +		dev_err(&pdev->dev,
-> +			"Failed to request input device IRQ.\n");
-> +		goto err;
-> +	}
-> +
-> +	onkey->hw = chip;
-> +	onkey->key_power = kp_tmp;
-> +	onkey->input->evbit[0] = BIT_MASK(EV_KEY);
-> +	onkey->input->name = "da9062-onkey";
-> +	onkey->input->phys = "da9062-onkey/input0";
-> +	onkey->input->dev.parent = &pdev->dev;
-> +
-> +	if (onkey->key_power)
-> +		input_set_capability(onkey->input, EV_KEY, KEY_POWER);
-> +	input_set_capability(onkey->input, EV_KEY, KEY_SLEEP);
-> +
-> +	ret = input_register_device(onkey->input);
-> +	if (ret) {
-> +		dev_err(&pdev->dev,
-> +			"Failed to register input device.\n");
-> +		goto err_irq;
-> +	}
-> +
-> +	platform_set_drvdata(pdev, onkey);
-> +	return 0;
-> +
-> +err_irq:
-> +	free_irq(onkey->irq, onkey);
-> +	cancel_delayed_work_sync(&onkey->work);
-> +err:
 > +	return ret;
 > +}
 > +
-> +static int da9062_onkey_remove(struct platform_device *pdev)
+> +static int da9062_wdt_update_timeout_register(struct da9062 *chip,
+> +					      unsigned int regval)
 > +{
-> +	struct	da9062_onkey *onkey = platform_get_drvdata(pdev);
+> +	int ret;
 > +
-> +	free_irq(onkey->irq, onkey);
-> +	cancel_delayed_work_sync(&onkey->work);
-> +	input_unregister_device(onkey->input);
+> +	ret = da9062_reset_watchdog_timer(chip);
+> +	if (ret)
+> +		dev_err(chip->dev, "Failed to ping the watchdog (err = %d)\n",
+> +			ret);
+> +
+And no impact, so this doesn't really matter ?
 
-No need to unregister explicitly if you allocated input device with
-devm.
+> +	return regmap_update_bits(chip->regmap,
+> +				  DA9062AA_CONTROL_D,
+> +				  DA9062AA_TWDSCALE_MASK,
+> +				  regval);
+> +}
+> +
+> +static int da9062_wdt_start(struct watchdog_device *wdd)
+> +{
+> +	struct da9062_watchdog *wdt = watchdog_get_drvdata(wdd);
+> +	unsigned int selector;
+> +	int ret;
+> +
+> +	selector = da9062_wdt_timeout_to_sel(wdt->wdtdev.timeout);
+> +	ret = da9062_wdt_update_timeout_register(wdt->hw, selector);
+> +	if (ret)
+> +		dev_err(wdt->hw->dev, "Watchdog failed to start (err = %d)\n",
+> +			ret);
+> +
+> +	return ret;
+> +}
+> +
+> +static int da9062_wdt_stop(struct watchdog_device *wdd)
+> +{
+> +	struct da9062_watchdog *wdt = watchdog_get_drvdata(wdd);
+> +	int ret;
+> +
+> +	ret = da9062_reset_watchdog_timer(wdt->hw);
+> +	if (ret)
+> +		dev_err(wdt->hw->dev, "Failed to ping the watchdog (err = %d)\n",
+> +			ret);
+> +
+ping or reset ? And no impact, ie you just ignore the error ?
 
+> +	ret = regmap_update_bits(wdt->hw->regmap,
+> +				 DA9062AA_CONTROL_D,
+> +				 DA9062AA_TWDSCALE_MASK,
+> +				 DA9062_TWDSCALE_DISABLE);
+> +	if (ret)
+> +		dev_alert(wdt->hw->dev, "Watchdog failed to stop (err = %d)\n",
+> +			  ret);
+> +
+> +	return ret;
+> +}
+> +
+> +static int da9062_wdt_ping(struct watchdog_device *wdd)
+> +{
+> +	struct da9062_watchdog *wdt = watchdog_get_drvdata(wdd);
+> +	int ret;
+> +
+> +	dev_dbg(wdt->hw->dev, "watchdog ping\n");
+> +
+> +	ret = da9062_reset_watchdog_timer(wdt->hw);
+> +	if (ret)
+> +		dev_err(wdt->hw->dev, "Failed to ping the watchdog (err = %d)\n",
+> +			ret);
+> +
+> +	return ret;
+> +}
+> +
+> +static int da9062_wdt_set_timeout(struct watchdog_device *wdd,
+> +				  unsigned int timeout)
+> +{
+> +	struct da9062_watchdog *wdt = watchdog_get_drvdata(wdd);
+> +	unsigned int selector;
+> +	int ret;
+> +
+> +	selector = da9062_wdt_timeout_to_sel(timeout);
+> +	ret = da9062_wdt_update_timeout_register(wdt->hw, selector);
+> +	if (ret)
+> +		dev_err(wdt->hw->dev, "Failed to set watchdog timeout (err = %d)\n",
+> +			ret);
+> +	else
+> +		wdd->timeout = wdt_timeout[selector];
+> +
+> +	return ret;
+> +}
+> +
+> +/* E_WDG_WARN interrupt handler */
+> +static irqreturn_t da9062_wdt_wdg_warn_irq_handler(int irq, void *data)
+> +{
+> +	struct da9062_watchdog *wdt = data;
+> +
+> +	dev_notice(wdt->hw->dev, "Watchdog timeout warning trigger.\n");
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static const struct watchdog_info da9062_watchdog_info = {
+> +	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
+> +	.identity = "DA9062 WDT",
+> +};
+> +
+> +static const struct watchdog_ops da9062_watchdog_ops = {
+> +	.owner = THIS_MODULE,
+> +	.start = da9062_wdt_start,
+> +	.stop = da9062_wdt_stop,
+> +	.ping = da9062_wdt_ping,
+> +	.set_timeout = da9062_wdt_set_timeout,
+> +};
+> +
+> +static int da9062_wdt_probe(struct platform_device *pdev)
+> +{
+> +	int ret;
+> +	struct da9062 *chip;
+> +	struct da9062_watchdog *wdt;
+> +	int irq;
+> +
+> +	chip = dev_get_drvdata(pdev->dev.parent);
+> +	if (!chip)
+> +		return -EINVAL;
+> +
+> +	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+> +	if (!wdt)
+> +		return -ENOMEM;
+> +
+> +	wdt->hw = chip;
+> +
+> +	wdt->wdtdev.info = &da9062_watchdog_info;
+> +	wdt->wdtdev.ops = &da9062_watchdog_ops;
+> +	wdt->wdtdev.min_timeout = DA9062_WDT_MIN_TIMEOUT;
+> +	wdt->wdtdev.max_timeout = DA9062_WDT_MAX_TIMEOUT;
+> +	wdt->wdtdev.timeout = DA9062_WDG_DEFAULT_TIMEOUT;
+> +	wdt->wdtdev.status = WATCHDOG_NOWAYOUT_INIT_STATUS;
+> +
+> +	watchdog_set_drvdata(&wdt->wdtdev, wdt);
+> +	dev_set_drvdata(&pdev->dev, wdt);
+> +
+> +	irq = platform_get_irq_byname(pdev, "WDG_WARN");
+> +	if (irq < 0)
+> +		dev_err(wdt->hw->dev, "Failed to get IRQ.\n");
+
+But you still request the negative irq.
+
+> +
+> +	ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
+> +			   da9062_wdt_wdg_warn_irq_handler,
+> +			    IRQF_TRIGGER_LOW | IRQF_ONESHOT | IRQF_SHARED,
+> +			   "WDG_WARN", wdt);
+> +	if (ret) {
+> +		dev_err(wdt->hw->dev,
+> +			"Failed to request watchdog device IRQ.\n");
+
+Either this is an error, or it isn't. If it is, I would expect the driver
+to abort loading. If not, please don't use dev_err.
+
+> +	}
+> +
+> +	ret = watchdog_register_device(&wdt->wdtdev);
+> +	if (ret < 0)
+> +		dev_err(wdt->hw->dev,
+> +			"watchdog registration incomplete (%d)\n", ret);
+
+incomplete ?
+
+> +	else
+> +		dev_info(wdt->hw->dev, "installed DA9062 watchdog\n");
+
+Please rop this message.
+
+> +
+> +	da9062_wdt_ping(&wdt->wdtdev);
+> +	if (ret < 0)
+> +		dev_err(wdt->hw->dev,
+> +			"failed to ping the watchdog (%d)\n", ret);
+> +
+That ping is asking for an explanation. Does it imply that the watchdog is known to be running
+and can not be stopped ?
+
+Also, the ping function already creates an error message. Please be less noisy with
+your messages.
+
+> +	return ret;
+
+If the above ping fails, this will return an error without unregistering
+the watchdog device.
+
+> +}
+> +
+> +static int da9062_wdt_remove(struct platform_device *pdev)
+> +{
+> +	struct da9062_watchdog *wdt = dev_get_drvdata(&pdev->dev);
+> +
+> +	watchdog_unregister_device(&wdt->wdtdev);
 > +	return 0;
 > +}
 > +
-> +static struct platform_driver da9062_onkey_driver = {
-> +	.probe	= da9062_onkey_probe,
-> +	.remove	= da9062_onkey_remove,
-> +	.driver	= {
-> +		.name	= "da9062-onkey",
-> +		.owner	= THIS_MODULE,
+> +static struct platform_driver da9062_wdt_driver = {
+> +	.probe = da9062_wdt_probe,
+> +	.remove = da9062_wdt_remove,
+> +	.driver = {
+> +		.name = "da9062-watchdog",
 > +	},
 > +};
-> +
-> +module_platform_driver(da9062_onkey_driver);
+> +module_platform_driver(da9062_wdt_driver);
 > +
 > +MODULE_AUTHOR("S Twiss <stwiss.opensource@diasemi.com>");
-> +MODULE_DESCRIPTION("ONKEY device driver for Dialog DA9062");
+> +MODULE_DESCRIPTION("WDT device driver for Dialog DA9062");
 > +MODULE_LICENSE("GPL v2");
-> +MODULE_ALIAS("platform: da9062-onkey");
-> -- 
-> end-of-patch for PATCH V1
-> 
+> +MODULE_ALIAS("platform: da9062-watchdog");
+>
 
-Thanks.
-
--- 
-Dmitry
