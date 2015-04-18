@@ -1,16 +1,16 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from lb2-smtp-cloud2.xs4all.net ([194.109.24.25]:55752 "EHLO
+Received: from lb2-smtp-cloud2.xs4all.net ([194.109.24.25]:39423 "EHLO
 	lb2-smtp-cloud2.xs4all.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751171AbbDRI1a (ORCPT
+	by vger.kernel.org with ESMTP id S1751171AbbDRIcM (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 18 Apr 2015 04:27:30 -0400
-Message-ID: <1429345645.16771.139.camel@x220>
-Subject: Re: [PATCH V1 1/6] mfd: da9062: DA9062 MFD core driver
+	Sat, 18 Apr 2015 04:32:12 -0400
+Message-ID: <1429345929.16771.144.camel@x220>
+Subject: Re: [PATCH V1 2/6] regulator: da9062: DA9062 regulator driver
 From: Paul Bolle <pebolle@tiscali.nl>
 To: S Twiss <stwiss.opensource@diasemi.com>
 Cc: LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
 	Alessandro Zummo <a.zummo@towertech.it>,
 	DEVICETREE <devicetree@vger.kernel.org>,
 	David Dajun Chen <david.chen@diasemi.com>,
@@ -19,87 +19,46 @@ Cc: LINUXKERNEL <linux-kernel@vger.kernel.org>,
 	Kumar Gala <galak@codeaurora.org>,
 	LINUXINPUT <linux-input@vger.kernel.org>,
 	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
 	Mark Rutland <mark.rutland@arm.com>,
 	Pawel Moll <pawel.moll@arm.com>,
 	RTCLINUX <rtc-linux@googlegroups.com>,
 	Rob Herring <robh+dt@kernel.org>,
+	Samuel Ortiz <sameo@linux.intel.com>,
 	Support Opensource <support.opensource@diasemi.com>,
 	Wim Van Sebroeck <wim@iguana.be>
-Date: Sat, 18 Apr 2015 10:27:25 +0200
-In-Reply-To: <b3bb4bc09cd94b0b13c713d98dd64576722123c1.1429280614.git.stwiss.opensource@diasemi.com>
+Date: Sat, 18 Apr 2015 10:32:09 +0200
+In-Reply-To: <7acb2e683450a608adf81e6b820e62b523429101.1429280614.git.stwiss.opensource@diasemi.com>
 References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
-	 <b3bb4bc09cd94b0b13c713d98dd64576722123c1.1429280614.git.stwiss.opensource@diasemi.com>
+	 <7acb2e683450a608adf81e6b820e62b523429101.1429280614.git.stwiss.opensource@diasemi.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+I spotted only a license mismatch.
+
 On Fri, 2015-04-17 at 15:23 +0100, S Twiss wrote:
-> --- a/drivers/mfd/Kconfig
-> +++ b/drivers/mfd/Kconfig
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License
+> + * as published by the Free Software Foundation; either version 2
+> + * of the License, or (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
 
-> +config MFD_DA9062
-> +	bool "Dialog Semiconductor DA9062 PMIC Support"
-> +	select MFD_CORE
-> +	select REGMAP_I2C
-> +	select REGMAP_IRQ
-> +	depends on I2C=y
-> +	help
-> +	  Say yes here for support for the Dialog Semiconductor DA9062 PMIC.
-> +	  This includes the I2C driver and core APIs.
-> +	  Additional drivers must be enabled in order to use the functionality
-> +	  of the device.
+This states the license is GPL v2 or later.
 
-> --- a/drivers/mfd/Makefile
-> +++ b/drivers/mfd/Makefile
-
-> +obj-$(CONFIG_MFD_DA9062)	+= da9062-core.o
-
-MFD_DA9062 is a bool symbol. So da9062-core.o can never be part of a
-module, right?
-
-> --- /dev/null
-> +++ b/drivers/mfd/da9062-core.c
-
-> +#include <linux/module.h>
-
-So you might not need this include.
-
-> +MODULE_DEVICE_TABLE(of, da9062_dt_ids);
-
-This macro will be preprocessed away for built-in code, according to
-include/linux/module.h.
-
-> +MODULE_DEVICE_TABLE(i2c, da9062_i2c_id);
-
-Ditto.
-
-> +static struct i2c_driver da9062_i2c_driver = {
-> +	.driver = {
-> +		.name = "da9062",
-> +		.of_match_table = of_match_ptr(da9062_dt_ids),
-> +	},
-> +	.probe    = da9062_i2c_probe,
-> +	.remove   = da9062_i2c_remove,
-> +	.id_table = da9062_i2c_id,
-> +};
-> +
-> +module_i2c_driver(da9062_i2c_driver);
-
-After looking at a few levels of #defines I think this is equivalent to
-     i2c_register_driver(NULL, da9062_i2c_driver);
-
-for built-in code. Did I grep that right?
-
-> +MODULE_DESCRIPTION("CORE device driver for Dialog DA9062");
-> +MODULE_AUTHOR("S Twiss <stwiss.opensource@diasemi.com>");
 > +MODULE_LICENSE("GPL v2");
 
-These macros will be effectively preprocessed away for built-in only
-code.
+And, according to include/linux/module.h, this states the license is
+just GPL v2. So I think either the license comment or the license ident
+used in the MODULE_LICENSE() macro needs to change.
+
+The same mismatch can be found in 3/6, 4/6, and 5/6.
 
 Thanks,
 
