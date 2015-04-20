@@ -1,15 +1,15 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:52592 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:52595 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755218AbbDTNwQ (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 20 Apr 2015 09:52:16 -0400
+	id S1755218AbbDTNwW (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 20 Apr 2015 09:52:22 -0400
 From: Wolfram Sang <wsa@the-dreams.de>
 To: linux-kernel@vger.kernel.org
 Cc: Wolfram Sang <wsa@the-dreams.de>, Wim Van Sebroeck <wim@iguana.be>,
 	linux-watchdog@vger.kernel.org
-Subject: [PATCH 6/7] watchdog: pnx4008_wdt: fix broken email address
-Date: Mon, 20 Apr 2015 15:51:43 +0200
-Message-Id: <1429537917-7433-6-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 7/7] watchdog: stmp3xxx_rtc_wdt: fix broken email address
+Date: Mon, 20 Apr 2015 15:51:44 +0200
+Message-Id: <1429537917-7433-7-git-send-email-wsa@the-dreams.de>
 In-Reply-To: <1429537917-7433-1-git-send-email-wsa@the-dreams.de>
 References: <1429537917-7433-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -24,22 +24,28 @@ Acked-by: Robert Schwebel <r.schwebel@pengutronix.de>
 ---
 These patches shall go via the individual subsystem trees.
 
- drivers/watchdog/pnx4008_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/watchdog/stmp3xxx_rtc_wdt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
-index 55e22015010306..b9c6049c3e7860 100644
---- a/drivers/watchdog/pnx4008_wdt.c
-+++ b/drivers/watchdog/pnx4008_wdt.c
-@@ -216,7 +216,7 @@ static struct platform_driver platform_wdt_driver = {
- module_platform_driver(platform_wdt_driver);
+diff --git a/drivers/watchdog/stmp3xxx_rtc_wdt.c b/drivers/watchdog/stmp3xxx_rtc_wdt.c
+index a62b1b6decf472..e7f0d5b60d3d4f 100644
+--- a/drivers/watchdog/stmp3xxx_rtc_wdt.c
++++ b/drivers/watchdog/stmp3xxx_rtc_wdt.c
+@@ -1,7 +1,7 @@
+ /*
+  * Watchdog driver for the RTC based watchdog in STMP3xxx and i.MX23/28
+  *
+- * Author: Wolfram Sang <w.sang@pengutronix.de>
++ * Author: Wolfram Sang <kernel@pengutronix.de>
+  *
+  * Copyright (C) 2011-12 Wolfram Sang, Pengutronix
+  *
+@@ -129,4 +129,4 @@ module_platform_driver(stmp3xxx_wdt_driver);
  
- MODULE_AUTHOR("MontaVista Software, Inc. <source@mvista.com>");
+ MODULE_DESCRIPTION("STMP3XXX RTC Watchdog Driver");
+ MODULE_LICENSE("GPL v2");
 -MODULE_AUTHOR("Wolfram Sang <w.sang@pengutronix.de>");
 +MODULE_AUTHOR("Wolfram Sang <kernel@pengutronix.de>");
- MODULE_DESCRIPTION("PNX4008 Watchdog Driver");
- 
- module_param(heartbeat, uint, 0);
 -- 
 2.1.4
 
