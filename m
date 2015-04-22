@@ -1,74 +1,59 @@
-Return-path: <ukl@pengutronix.de>
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-To: linux-watchdog@vger.kernel.org,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Felipe Balbi <balbi@ti.com>,
-	Guenter Roeck <linux@roeck-us.net>
-Cc: Lokesh Vutla <lokeshvutla@ti.com>,
-	kernel@pengutronix.de,
-	unknown author <unknown.author@example.com>
-Subject: [PATCH v2 6/4] watchdog: omap: allow to keep timer running at probe time
-Date: Wed, 29 Apr 2015 20:38:47 +0200
-Message-Id: <1430332727-27491-2-git-send-email-u.kleine-koenig@pengutronix.de>
-In-Reply-To: <1430126581-24946-1-git-send-email-u.kleine-koenig@pengutronix.de>
-References: <1430126581-24946-1-git-send-email-u.kleine-koenig@pengutronix.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from oul135-36.netplaza.fi ([80.75.100.36]:58616 "EHLO
+	lime.offcode.fi" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1756570AbbDVLMA (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 22 Apr 2015 07:12:00 -0400
+From: Timo Kokkonen <timo.kokkonen@offcode.fi>
+To: linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org, boris.brezillon@free-electrons.com,
+	nicolas.ferre@atmel.com, alexandre.belloni@free-electrons.com
+Cc: Wenyou.Yang@atmel.com, Timo Kokkonen <timo.kokkonen@offcode.fi>
+Subject: [PATCHv7 3/8] devicetree: Document generic watchdog properties
+Date: Wed, 22 Apr 2015 14:11:37 +0300
+Message-Id: <1429701102-22320-4-git-send-email-timo.kokkonen@offcode.fi>
+In-Reply-To: <1429701102-22320-1-git-send-email-timo.kokkonen@offcode.fi>
+References: <1429701102-22320-1-git-send-email-timo.kokkonen@offcode.fi>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-From: unknown author <unknown.author@example.com>
+There is no documentation for the watchdog properties that are common
+among most of the watchdog drivers. Add document where these generic
+properties can be described and told how they should be used in
+drivers.
 
-On some machines it might be desirable to keep the watchdog that is
-started in the boot ROM running until userspace starts stroking it to be
-able to handle boot failures.
-
-To not introduce regressions for users not caring about the watchdog
-keep the previous behaviour of disabling the watchdog in the probe
-function unless a module parameter stop_at_probe is set to false.
-
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Timo Kokkonen <timo.kokkonen@offcode.fi>
 ---
- drivers/watchdog/omap_wdt.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ .../devicetree/bindings/watchdog/watchdog.txt        | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/watchdog.txt
 
-diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
-index d7619dd7c1ca..5525afadf0ec 100644
---- a/drivers/watchdog/omap_wdt.c
-+++ b/drivers/watchdog/omap_wdt.c
-@@ -53,6 +53,11 @@ static unsigned timer_margin;
- module_param(timer_margin, uint, 0);
- MODULE_PARM_DESC(timer_margin, "initial watchdog timeout (in seconds)");
- 
-+static bool stop_at_probe = true;
-+module_param(stop_at_probe, bool, 0);
-+MODULE_PARM_DESC(stop_at_probe,
-+		 "Watchdog is stopped at probe time (default=true)");
+diff --git a/Documentation/devicetree/bindings/watchdog/watchdog.txt b/Documentation/devicetree/bindings/watchdog/watchdog.txt
+new file mode 100644
+index 0000000..3781406
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/watchdog.txt
+@@ -0,0 +1,20 @@
++These properties are common among most watchdog drivers. Any driver
++that requires the functionality listed below should implement them
++using these definitions.
 +
- #define to_omap_wdt_dev(_wdog)	container_of(_wdog, struct omap_wdt_dev, wdog)
- 
- struct omap_wdt_dev {
-@@ -254,7 +259,8 @@ static int omap_wdt_probe(struct platform_device *pdev)
- 			wdev->wdog.bootstatus = WDIOF_CARDRESET;
- 	}
- 
--	omap_wdt_disable(wdev);
-+	if (stop_at_probe)
-+		omap_wdt_disable(wdev);
- 
- 	ret = watchdog_register_device(&wdev->wdog);
- 	if (ret) {
-@@ -262,9 +268,9 @@ static int omap_wdt_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
--	pr_info("OMAP Watchdog Timer Rev 0x%02x: initial timeout %d sec\n",
-+	pr_info("OMAP Watchdog Timer Rev 0x%02x: initial timeout %d sec, %sstopped\n",
- 		readl_relaxed(wdev->base + OMAP_WATCHDOG_REV) & 0xFF,
--		wdev->wdog.timeout);
-+		wdev->wdog.timeout, stop_at_probe ? "" : "not ");
- 
- 	pm_runtime_put_sync(wdev->dev);
- 
++Optional properties:
++- timeout-sec: Contains the watchdog timeout in seconds.
++- early-timeout-sec: If present, specify the timeout in seconds for
++  how long it can take for the watchdog daemon to take over the
++  watchdog device. If driver supports this property it must ensure the
++  watchdog hardware is running during this period and a watchdog reset
++  must occur if user space fails to open the device in time. If left
++  zero, the driver only needs to guarantee the watchdog is not
++  stopped or is started during driver init.
++
++Example:
++
++watchdog {
++	 timeout-sec = <60>;
++	 early-timeout-sec = <120>;
++};
 -- 
-2.1.4
+2.1.0
+
