@@ -1,62 +1,90 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:36309 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:58034 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751080AbbDZTqt (ORCPT
+	with ESMTP id S1757682AbbDYLu7 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 26 Apr 2015 15:46:49 -0400
+	Sat, 25 Apr 2015 07:50:59 -0400
 Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.85)
 	(envelope-from <linux@roeck-us.net>)
-	id 1YmSVs-003AJi-42
-	for linux-watchdog@vger.kernel.org; Sun, 26 Apr 2015 19:46:48 +0000
-Message-ID: <553D409D.2040808@roeck-us.net>
-Date: Sun, 26 Apr 2015 12:46:37 -0700
+	id 1Ylh6N-002S8H-RU
+	for linux-watchdog@vger.kernel.org; Fri, 24 Apr 2015 17:09:19 +0000
+Date: Fri, 24 Apr 2015 10:08:48 -0700
 From: Guenter Roeck <linux@roeck-us.net>
+To: Timo Kokkonen <timo.kokkonen@offcode.fi>
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org, boris.brezillon@free-electrons.com,
+	nicolas.ferre@atmel.com, alexandre.belloni@free-electrons.com,
+	Wenyou.Yang@atmel.com
+Subject: Re: [PATCHv7 1/8] watchdog: Extend kernel API to know about HW
+ limitations
+Message-ID: <20150424170848.GA2505@roeck-us.net>
+References: <1429701102-22320-1-git-send-email-timo.kokkonen@offcode.fi>
+ <1429701102-22320-2-git-send-email-timo.kokkonen@offcode.fi>
 MIME-Version: 1.0
-To: =?windows-1252?Q?Uwe_Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-CC: balbi@ti.com, Lokesh Vutla <lokeshvutla@ti.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Linux OMAP Mailing List <linux-omap@vger.kernel.org>,
-	linux-watchdog@vger.kernel.org, kernel@pengutronix.de
-Subject: Re: [PATCH 1a/3] watchdog: omap: clearify device tree documentation
-References: <20150424190207.GU19431@pengutronix.de> <1429906850-5420-1-git-send-email-u.kleine-koenig@pengutronix.de> <20150425021024.GA14963@saruman.tx.rr.com> <553D0450.6050403@roeck-us.net> <20150426191216.GZ19431@pengutronix.de>
-In-Reply-To: <20150426191216.GZ19431@pengutronix.de>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1429701102-22320-2-git-send-email-timo.kokkonen@offcode.fi>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 04/26/2015 12:12 PM, Uwe Kleine-König wrote:
-> On Sun, Apr 26, 2015 at 08:29:20AM -0700, Guenter Roeck wrote:
->> On 04/24/2015 07:10 PM, Felipe Balbi wrote:
->>> On Fri, Apr 24, 2015 at 10:20:50PM +0200, Uwe Kleine-König wrote:
->>>> ti,hwmods doesn't belong into the compatible section but is a property
->>>> on it's own. Also reformat the section of required properties to match the
->>>> usual style of dt binding documents.
->>>>
->>>> Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
->>>
->>> looks great to me, thanks
->>>
->>> Reviewed-by: Felipe Balbi <balbi@ti.com>
->>> Acked-by: Felipe Balbi <balbi@ti.com>
->>>
->>
->> Reviewed-by: and Acked-by: are mutually exclusive.
-> Really? Acked means you like it and Reviewed by means you looked deeper
-> into it. Maybe reviewing without liking isn't likely, *shrug*.
->
+On Wed, Apr 22, 2015 at 02:11:35PM +0300, Timo Kokkonen wrote:
+> There is a great deal of diversity in the watchdog hardware found on
+> different devices. Differen hardware have different contstraints on
+> them, many of the constraints that are excessively difficult for the
+> user space to satisfy.
+> 
+> One such constraint is the length of the timeout value, which in many
+> cases can be just a few seconds. Drivers are creating ad hoc solutions
+> with timers and workqueues to extend the timeout in order to give user
+> space more time between updates. Looking at the drivers it is clear
+> that this has resulted to a lot of duplicate code.
+> 
+> Add an extension to the watchdog kernel API that allows the driver to
+> describe tis HW constraints to the watchdog code. A kernel worker in
+> the core is then used to extend the watchdog timeout on behalf of the
+> user space. This allows the drivers to be simplified as core takes
+> over the timer extending.
+> 
+> Tested-by: Wenyou Yang <wenyou.yang@atmel.com>
+> Signed-off-by: Timo Kokkonen <timo.kokkonen@offcode.fi>
 
-SubmittingPatches says about Acked-by:
+I started twice to review this series, and each time there is a new version
+before I can finish the review. Guess I'll wait until it settles down a bit
+before trying again :-(. Just a quick comment below.
 
-" ... to signify and record their approval ... has at least reviewed the patch
-and has indicated acceptance ...".
+> ---
+>  drivers/watchdog/watchdog_core.c | 101 +++++++++++++++++++++++++++++++++++++--
+>  drivers/watchdog/watchdog_dev.c  |  75 ++++++++++++++++++++++++++---
+>  include/linux/watchdog.h         |  23 +++++++++
+>  3 files changed, 189 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+> index cec9b55..fd12489 100644
+> --- a/drivers/watchdog/watchdog_core.c
+> +++ b/drivers/watchdog/watchdog_core.c
+> @@ -99,6 +99,89 @@ int watchdog_init_timeout(struct watchdog_device *wdd,
+>  EXPORT_SYMBOL_GPL(watchdog_init_timeout);
+>  
+>  /**
+> + * watchdog_init_parms() - initialize generic watchdog parameters
+> + * @wdd: Watchdog device to operate
+> + * @dev: Device that stores the device tree properties
+> + *
+> + * Initialize the generic timeout parameters. The driver needs to set
+> + * hw_features bitmask from @wdd prior calling this function in order
+> + * to ensure the core knows how to handle the HW.
+> + *
+> + * A zero is returned on success and -EINVAL for failure.
+> + */
+> +int watchdog_init_params(struct watchdog_device *wdd, struct device *dev)
+> +{
+> +	int ret = 0;
+> +
+> +	ret = watchdog_init_timeout(wdd, wdd->timeout, dev);
 
-and about Reviewed-by:
-
-" ... indicates that the patch has been reviewed and found acceptable ..."
-
-Maybe I should have used the term "redundant". *shrugtoo*.
+You are changing the semantics of watchdog_init_timeout here;
+for all practical purposes it no longer accepts the timeout passed
+as parameter, but expects the timeout to be configured in wdd->timeout
+instead. Please don't do that.
 
 Guenter
-
