@@ -1,111 +1,70 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:38909 "EHLO
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:39230 "EHLO
 	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S966732AbbDXJSo (ORCPT
+	with ESMTP id S1752236AbbDXJsk (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 24 Apr 2015 05:18:44 -0400
-Date: Fri, 24 Apr 2015 11:18:40 +0200
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	Fri, 24 Apr 2015 05:48:40 -0400
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
 	<u.kleine-koenig@pengutronix.de>
-To: Lokesh Vutla <lokeshvutla@ti.com>, Felipe Balbi <balbi@ti.com>
-Cc: linux-watchdog@vger.kernel.org, kernel@pengutronix.de
-Subject: Re: races in omap_wdt
-Message-ID: <20150424091840.GK19431@pengutronix.de>
-References: <20150423094354.GD19431@pengutronix.de>
+To: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>
+Cc: Lokesh Vutla <lokeshvutla@ti.com>, Felipe Balbi <balbi@ti.com>,
+	kernel@pengutronix.de
+Subject: [PATCH 1/3] watchdog: omap: use watchdog_init_timeout
+Date: Fri, 24 Apr 2015 11:48:31 +0200
+Message-Id: <1429868913-24049-2-git-send-email-u.kleine-koenig@pengutronix.de>
+In-Reply-To: <1429868913-24049-1-git-send-email-u.kleine-koenig@pengutronix.de>
+References: <1429868913-24049-1-git-send-email-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20150423094354.GD19431@pengutronix.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-[dropped Varadarajan Charulatha and Shubhrajyoti D from the addressees
-because the ti mailserver doesn't know them :-(, added Felipe instead]
+Instead of (partly) open coding it use the core function. As a side
+effect the "timeout-sec" devicetree property is used now.
 
-On Thu, Apr 23, 2015 at 11:43:54AM +0200, Uwe Kleine-König wrote:
-> I'm working on an AM335x machine and want to make use of the hardware
-> watchdog. I write to you because you contributed to the respective Linux
-> driver and judging from your email address you might be in a position to
-> help me with a problem I see.
-> 
-> To get reliable behaviour, I don't want to have situations where the
-> watchdog is disabled. There are currently two situation where this
-> happens with the current state of linux/drivers/watchdog/omap_wdt.c:
-> 
->  a) in omap_wdt_probe() there is an unconditional call to
->     omap_wdt_disable() which stops the counter. Ideally I'd want to take
->     over the hardware in the state that it is in when Linux is started.
->     This is a bit complicated, but should be doable. Would such a patch
->     be welcome?
-> 
->  b) The reference manual demands:
-> 
-> 	To modify the timer counter value (the WDT_WCRR register),
-> 	prescaler ratio (the WDT_WCLR[4:2] PTV bit field), delay
-> 	configuration value (the WDT_WDLY[31:0] DLY_VALUE bit field), or
-> 	the load value (the WDT_WLDR[31:0] TIMER_LOAD bit field), the
-> 	watchdog timer must be disabled by using the start/stop sequence
-> 	(the WDT_WSPR register).
-> 
->     This effectively means (and is implemented accordingly in the
->     driver) that on .set_timeout the driver has to stop the counter.
->     So we have an (admittedly small) unprotected window each time the
->     timeout is set (which happens for example when /dev/watchdog is
->     opened). Is there something that can be done here? I imagine that
->     the above statement from the reference manual could be holding out
->     some details like "When writing a new load value (WDT_WLDR) without
->     stopping the timer first, the new load value doesn't have any
->     influence on the running timer. It is only used on the next trigger
->     event." Is this too much to wish for?
-As Felipe predicted (via irc) it's really needed to stop the timer to
-reprogram the reload value. I proved this by hacking my bootloader's mw
-command to correctly write to the watchdog registers (i.e wait until the
-corresponding bit in the Watchdog Write Posting Bits Register disappears
-to signal the write has reached the hardware) and did:
+Signed-off-by: Uwe Kleine-KÃ¶nig <u.kleine-koenig@pengutronix.de>
+---
+ Documentation/devicetree/bindings/watchdog/omap-wdt.txt | 9 +++++----
+ drivers/watchdog/omap_wdt.c                             | 5 +----
+ 2 files changed, 6 insertions(+), 8 deletions(-)
 
-	# make the wdog slow
-	mw 0x44e35024 0x3c
-
-	# set reload value (WLDR)
-	mw 0x44e3502c 0xff000000
-
-	# start wdog
-	mw 0x44e35048 0xbbbb
-	mw 0x44e35048 0x4444
-
-	# set reload value lower (WLDR)
-	mw 0x44e35024 0x00000000
-
-	# trigger
-	mw 0x44e35030 0x12345678
-	mw 0x44e35030 0x87654321
-
-	# show current counter (WCRR)
-	md 0x44e35028+4
-
-	sleep 4
-
-	# trigger again
-	mw 0x44e35030 0x12345678
-	mw 0x44e35030 0x87654321
-
-	# show current counter (WCRR)
-	md 0x44e35028+4
-
-	# stop wdog
-	mw 0x44e35048 0xaaaa
-	mw 0x44e35048 0x5555
-
-The output is twice
-
-	44e35028: ff000001
-
-:-(.
-
-Best regards
-Uwe
-
+diff --git a/Documentation/devicetree/bindings/watchdog/omap-wdt.txt b/Documentation/devicetree/bindings/watchdog/omap-wdt.txt
+index c227970671ea..4f18ec38be2f 100644
+--- a/Documentation/devicetree/bindings/watchdog/omap-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/omap-wdt.txt
+@@ -1,10 +1,11 @@
+ TI Watchdog Timer (WDT) Controller for OMAP
+ 
+ Required properties:
+-compatible:
+-- "ti,omap3-wdt" for OMAP3
+-- "ti,omap4-wdt" for OMAP4
+-- ti,hwmods: Name of the hwmod associated to the WDT
++- compatible : "ti,omap3-wdt" (for OMAP3) or "ti,omap4-wdt" (for OMAP4)
++- ti,hwmods : Name of the hwmod associated to the WDT
++
++Optional properties:
++- timeout-sec : default watchdog timeout in seconds
+ 
+ Examples:
+ 
+diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
+index 39a6cfcba016..0eb9ca04e672 100644
+--- a/drivers/watchdog/omap_wdt.c
++++ b/drivers/watchdog/omap_wdt.c
+@@ -234,10 +234,7 @@ static int omap_wdt_probe(struct platform_device *pdev)
+ 	omap_wdt->min_timeout = TIMER_MARGIN_MIN;
+ 	omap_wdt->max_timeout = TIMER_MARGIN_MAX;
+ 
+-	if (timer_margin >= TIMER_MARGIN_MIN &&
+-	    timer_margin <= TIMER_MARGIN_MAX)
+-		omap_wdt->timeout = timer_margin;
+-	else
++	if (watchdog_init_timeout(omap_wdt, timer_margin, &pdev->dev) < 0)
+ 		omap_wdt->timeout = TIMER_MARGIN_DEFAULT;
+ 
+ 	watchdog_set_drvdata(omap_wdt, wdev);
 -- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+2.1.4
+
