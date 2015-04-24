@@ -1,15 +1,15 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta3.messagelabs.com ([195.245.230.162]:31940 "EHLO
-	mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753646AbbDXOye convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 24 Apr 2015 10:54:34 -0400
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	"Samuel Ortiz" <sameo@linux.intel.com>
-CC: Alessandro Zummo <a.zummo@towertech.it>,
+Received: from mezzanine.sirena.org.uk ([106.187.55.193]:33713 "EHLO
+	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753688AbbDXPZL (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 24 Apr 2015 11:25:11 -0400
+Date: Fri, 24 Apr 2015 16:24:45 +0100
+From: Mark Brown <broonie@kernel.org>
+To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+Cc: LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Alessandro Zummo <a.zummo@towertech.it>,
 	DEVICETREE <devicetree@vger.kernel.org>,
 	David Dajun Chen <david.chen@diasemi.com>,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
@@ -17,58 +17,60 @@ CC: Alessandro Zummo <a.zummo@towertech.it>,
 	Kumar Gala <galak@codeaurora.org>,
 	LINUXINPUT <linux-input@vger.kernel.org>,
 	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	"Mark Brown" <broonie@kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
 	Mark Rutland <mark.rutland@arm.com>,
 	Pawel Moll <pawel.moll@arm.com>,
 	RTCLINUX <rtc-linux@googlegroups.com>,
 	Rob Herring <robh+dt@kernel.org>,
-	"Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>,
+	Samuel Ortiz <sameo@linux.intel.com>,
 	Support Opensource <Support.Opensource@diasemi.com>,
 	Wim Van Sebroeck <wim@iguana.be>
-Subject: RE: [PATCH V1 1/6] mfd: da9062: DA9062 MFD core driver
-Date: Fri, 24 Apr 2015 14:47:27 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B2175F5@SW-EX-MBX02.diasemi.com>
+Message-ID: <20150424152445.GR22845@sirena.org.uk>
 References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
- <b3bb4bc09cd94b0b13c713d98dd64576722123c1.1429280614.git.stwiss.opensource@diasemi.com>
-In-Reply-To: <b3bb4bc09cd94b0b13c713d98dd64576722123c1.1429280614.git.stwiss.opensource@diasemi.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+ <7acb2e683450a608adf81e6b820e62b523429101.1429280614.git.stwiss.opensource@diasemi.com>
+ <20150418114828.GG26185@sirena.org.uk>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B2175E5@SW-EX-MBX02.diasemi.com>
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="PeBQ4doskhxk04X/"
+Content-Disposition: inline
+In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7014B2175E5@SW-EX-MBX02.diasemi.com>
+Subject: Re: [PATCH V1 2/6] regulator: da9062: DA9062 regulator driver
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 17 April 2015 15:24 Steve Twiss wrote.
 
-> Subject: [PATCH V1 1/6] mfd: da9062: DA9062 MFD core driver
-> From: S Twiss <stwiss.opensource@diasemi.com>
-> 
-> Add MFD core driver support for DA9062
-> 
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> 
-> ---
-> 
-> This patch applies against linux-next and v4.0
-> 
->  drivers/mfd/Kconfig                  |   12 +
->  drivers/mfd/Makefile                 |    3 +-
->  drivers/mfd/da9062-core.c            |  611 +++++++++++++++++++
->  include/linux/mfd/da9062/core.h      |   61 ++
->  include/linux/mfd/da9062/registers.h | 1108
+--PeBQ4doskhxk04X/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi,
+On Fri, Apr 24, 2015 at 02:47:06PM +0000, Opensource [Steve Twiss] wrote:
+> On 18 April 2015 12:48 Mark Brown wrote:
 
-Due to changes in the regulator driver, I am going to alter this with 
-moving the static irqreturn_t da9062_vdd_warn_event(int irq, void *data)
-function from the regulators and into the core.
+> Okay. I think I am getting this.
+> As of v3.18 there are  newer parts to regulator_desc from the commit=20
+> a0c7b16 "regulator: of: Provide simplified DT parsing method"
+> The search function is now in the core.=20
 
-The VDD_WARN applies to the system voltage and is not specific to regulators.
-So it would make more sense for this to exist in the core driver instead
+> Am I on on the right track with this one?
 
-I'll resend this in PATCH V2 soon
+Yes.
 
-Regards,
-Steve
+--PeBQ4doskhxk04X/
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJVOmA8AAoJECTWi3JdVIfQoU0H/1d6VpxbZu02WyPC4lLH7equ
+l9ntoiG1Sbb+xhBQN/tci3wqw2tAIqt5NzgM2bOj51qutEN5Wd8+zVGGQDkYsLOW
+vziBRlhwsLEhR/F2c/t9teKwzpfNSpJquVFqi5gXSmaagWr+fb4oBK4O9oCCHKjn
+LGNV9C4328KqgUrSm4od6283oLSvXgU5OueH0wjcRQVKyr+6I36QZOMy9cRD8mra
+rqBKS3GNFNMlWbtr7upOviksH6YmgVuUg8I3kdThYaz+JknNpWoMXFo6SMW66KGE
+xNWcXawiDShyHlvZCjFOHhVGwWHldoiMLqxk4NeHOzlxSfUT32sXYlYEEh5N6Ho=
+=e1Qu
+-----END PGP SIGNATURE-----
+
+--PeBQ4doskhxk04X/--
