@@ -1,45 +1,47 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:41488 "EHLO
-	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752786AbbDYEjI (ORCPT
+Received: from mout.kundenserver.de ([212.227.17.24]:62701 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751437AbbDYUL7 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 25 Apr 2015 00:39:08 -0400
-Message-ID: <553B1A6A.6010205@wwwdotorg.org>
-Date: Fri, 24 Apr 2015 22:39:06 -0600
-From: Stephen Warren <swarren@wwwdotorg.org>
-MIME-Version: 1.0
-To: Eric Anholt <eric@anholt.net>
-CC: linux-arm-kernel@lists.infradead.org,
-	linux-rpi-kernel@lists.infradead.org, Lee Jones <lee@kernel.org>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 2/2] ARM: BCM2835: Move the restart/power_off handling
- to the WDT driver.
-References: <1429902534-2348-1-git-send-email-eric@anholt.net> <1429902534-2348-2-git-send-email-eric@anholt.net>
+	Sat, 25 Apr 2015 16:11:59 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: linux-arm-kernel@lists.infradead.org
+Cc: Eric Anholt <eric@anholt.net>, linux-watchdog@vger.kernel.org,
+	Lee Jones <lee@kernel.org>,
+	linux-rpi-kernel@lists.infradead.org,
+	Stephen Warren <swarren@wwwdotorg.org>
+Subject: Re: [PATCH 2/2] ARM: BCM2835: Move the restart/power_off handling to the WDT driver.
+Date: Sat, 25 Apr 2015 22:11:40 +0200
+Message-ID: <12253069.Jm7LIDAreu@wuerfel>
 In-Reply-To: <1429902534-2348-2-git-send-email-eric@anholt.net>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+References: <1429902534-2348-1-git-send-email-eric@anholt.net> <1429902534-2348-2-git-send-email-eric@anholt.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 04/24/2015 01:08 PM, Eric Anholt wrote:
-> Since the WDT is what's used to drive restart and power off, it makes
-> more sense to keep it there, where the regs are already mapped and
-> definitions for them provided.  Note that this means you may need to
-> add CONFIG_BCM2835_WDT to retain functionality of your kernel.
+On Friday 24 April 2015 12:08:54 Eric Anholt wrote:
+> +/*
+> + * We can't really power off, but if we do the normal reset scheme, and
+> + * indicate to bootcode.bin not to reboot, then most of the chip will be
+> + * powered off.
+> + */
+> +static void bcm2835_power_off(void)
+> +{
+> +       struct device_node *np =
+> +               of_find_compatible_node(NULL, NULL, "brcm,bcm2835-pm-wdt");
+> +       struct platform_device *pdev = of_find_device_by_node(np);
+> +       struct bcm2835_wdt *wdt = platform_get_drvdata(pdev);
+> +       u32 val;
+> +
 
-The series,
-Acked-by: Stephen Warren <swarren@wwwdotorg.org>
-Tested-by: Stephen Warren <swarren@wwwdotorg.org>
+Instead of doing the lookup again here, I'd suggest using a static variable
+in the driver to store the device pointer for the device used on power_off.
 
-> Note that power off has never worked for me, and just reboots as well.
-> So I can't say that I've *really* tested the power off code.
+Make sure that the device remove callback assigns it back to NULL though
+and that the function checks for NULL pointer.
 
-The RPi can't actually power itself off, but it used to be the case that
-if you rebooted it after setting up a certain register configuration,
-the firmware would put the device into a low-power state. This did work
-when it was first upstreamed. However, it no longer works. I believe
-this was due to a change in the firmware, which is why I don't always
-trust the firmware. I should really check what the downstream kernel
-does for power off now; I assume it must have changed since the code was
-upstreamed.
+Aside from this, the patch looks great.
 
+	Arnd
