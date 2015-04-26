@@ -1,55 +1,53 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:35197 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751792AbbDZPg1 (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 26 Apr 2015 11:36:27 -0400
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.85)
-	(envelope-from <linux@roeck-us.net>)
-	id 1YmOba-000dZE-L9
-	for linux-watchdog@vger.kernel.org; Sun, 26 Apr 2015 15:36:26 +0000
-Message-ID: <553D05DD.8080300@roeck-us.net>
-Date: Sun, 26 Apr 2015 08:35:57 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+Return-path: <ukl@pengutronix.de>
+Date: Sun, 26 Apr 2015 21:12:16 +0200
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: balbi@ti.com, Lokesh Vutla <lokeshvutla@ti.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Linux OMAP Mailing List <linux-omap@vger.kernel.org>,
+	linux-watchdog@vger.kernel.org, kernel@pengutronix.de
+Subject: Re: [PATCH 1a/3] watchdog: omap: clearify device tree documentation
+Message-ID: <20150426191216.GZ19431@pengutronix.de>
+References: <20150424190207.GU19431@pengutronix.de>
+ <1429906850-5420-1-git-send-email-u.kleine-koenig@pengutronix.de>
+ <20150425021024.GA14963@saruman.tx.rr.com>
+ <553D0450.6050403@roeck-us.net>
 MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>, linux-arm-kernel@lists.infradead.org
-CC: Eric Anholt <eric@anholt.net>, linux-watchdog@vger.kernel.org,
-	Lee Jones <lee@kernel.org>,
-	linux-rpi-kernel@lists.infradead.org,
-	Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH 2/2] ARM: BCM2835: Move the restart/power_off handling
- to the WDT driver.
-References: <1429902534-2348-1-git-send-email-eric@anholt.net> <1429902534-2348-2-git-send-email-eric@anholt.net> <12253069.Jm7LIDAreu@wuerfel>
-In-Reply-To: <12253069.Jm7LIDAreu@wuerfel>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <553D0450.6050403@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 04/25/2015 01:11 PM, Arnd Bergmann wrote:
-> On Friday 24 April 2015 12:08:54 Eric Anholt wrote:
->> +/*
->> + * We can't really power off, but if we do the normal reset scheme, and
->> + * indicate to bootcode.bin not to reboot, then most of the chip will be
->> + * powered off.
->> + */
->> +static void bcm2835_power_off(void)
->> +{
->> +       struct device_node *np =
->> +               of_find_compatible_node(NULL, NULL, "brcm,bcm2835-pm-wdt");
->> +       struct platform_device *pdev = of_find_device_by_node(np);
->> +       struct bcm2835_wdt *wdt = platform_get_drvdata(pdev);
->> +       u32 val;
->> +
->
-> Instead of doing the lookup again here, I'd suggest using a static variable
-> in the driver to store the device pointer for the device used on power_off.
->
-> Make sure that the device remove callback assigns it back to NULL though
-> and that the function checks for NULL pointer.
->
+On Sun, Apr 26, 2015 at 08:29:20AM -0700, Guenter Roeck wrote:
+> On 04/24/2015 07:10 PM, Felipe Balbi wrote:
+> >On Fri, Apr 24, 2015 at 10:20:50PM +0200, Uwe Kleine-König wrote:
+> >>ti,hwmods doesn't belong into the compatible section but is a property
+> >>on it's own. Also reformat the section of required properties to match the
+> >>usual style of dt binding documents.
+> >>
+> >>Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+> >
+> >looks great to me, thanks
+> >
+> >Reviewed-by: Felipe Balbi <balbi@ti.com>
+> >Acked-by: Felipe Balbi <balbi@ti.com>
+> >
+> 
+> Reviewed-by: and Acked-by: are mutually exclusive.
+Really? Acked means you like it and Reviewed by means you looked deeper
+into it. Maybe reviewing without liking isn't likely, *shrug*.
 
-Why would that be needed ?
+The command
 
-Guenter
+	$ git rev-list linus/master | while read cmmt; do git cat-file commit $cmmt | awk -v cmmt=$cmmt '$1 ~ /(Acked|Reviewed)-by:/ { $1 = ""; print cmmt " " $0 }' | sort; done | uniq -d
 
+should catch all commits that have duplicate tags. There are a few,
+*shrugagain*.
+
+Best regards
+Uwe
+
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
