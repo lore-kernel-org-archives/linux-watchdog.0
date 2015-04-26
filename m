@@ -1,47 +1,37 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.17.24]:62701 "EHLO
-	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751437AbbDYUL7 (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:34865 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752025AbbDZPc2 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 25 Apr 2015 16:11:59 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: linux-arm-kernel@lists.infradead.org
-Cc: Eric Anholt <eric@anholt.net>, linux-watchdog@vger.kernel.org,
-	Lee Jones <lee@kernel.org>,
-	linux-rpi-kernel@lists.infradead.org,
-	Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH 2/2] ARM: BCM2835: Move the restart/power_off handling to the WDT driver.
-Date: Sat, 25 Apr 2015 22:11:40 +0200
-Message-ID: <12253069.Jm7LIDAreu@wuerfel>
-In-Reply-To: <1429902534-2348-2-git-send-email-eric@anholt.net>
-References: <1429902534-2348-1-git-send-email-eric@anholt.net> <1429902534-2348-2-git-send-email-eric@anholt.net>
+	Sun, 26 Apr 2015 11:32:28 -0400
+Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.85)
+	(envelope-from <linux@roeck-us.net>)
+	id 1YmOXj-000biA-JM
+	for linux-watchdog@vger.kernel.org; Sun, 26 Apr 2015 15:32:27 +0000
+Message-ID: <553D0503.7050207@roeck-us.net>
+Date: Sun, 26 Apr 2015 08:32:19 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+To: Timo Kokkonen <timo.kokkonen@offcode.fi>,
+	linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org, boris.brezillon@free-electrons.com,
+	nicolas.ferre@atmel.com, alexandre.belloni@free-electrons.com
+CC: Wenyou.Yang@atmel.com
+Subject: Re: [PATCHv7 7/8] watchdog: omap_wdt: Fix memory leak on probe fail
+References: <1429701102-22320-1-git-send-email-timo.kokkonen@offcode.fi> <1429701102-22320-8-git-send-email-timo.kokkonen@offcode.fi>
+In-Reply-To: <1429701102-22320-8-git-send-email-timo.kokkonen@offcode.fi>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Friday 24 April 2015 12:08:54 Eric Anholt wrote:
-> +/*
-> + * We can't really power off, but if we do the normal reset scheme, and
-> + * indicate to bootcode.bin not to reboot, then most of the chip will be
-> + * powered off.
-> + */
-> +static void bcm2835_power_off(void)
-> +{
-> +       struct device_node *np =
-> +               of_find_compatible_node(NULL, NULL, "brcm,bcm2835-pm-wdt");
-> +       struct platform_device *pdev = of_find_device_by_node(np);
-> +       struct bcm2835_wdt *wdt = platform_get_drvdata(pdev);
-> +       u32 val;
-> +
+On 04/22/2015 04:11 AM, Timo Kokkonen wrote:
+> Structures allocated on the beginning of the probe function must be
+> freed in case of failure.
 
-Instead of doing the lookup again here, I'd suggest using a static variable
-in the driver to store the device pointer for the device used on power_off.
+Really ? The functions are allocated with devm_kzalloc.
+It might be useful to introduce an error on purpose, have the code
+jump to your new label, and observe what happens.
 
-Make sure that the device remove callback assigns it back to NULL though
-and that the function checks for NULL pointer.
+Guenter
 
-Aside from this, the patch looks great.
-
-	Arnd
