@@ -1,37 +1,42 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.126.131]:51158 "EHLO
-	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932219AbbD0Ncs (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:39997 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752184AbbD0QF1 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 27 Apr 2015 09:32:48 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Guenter Roeck <linux@roeck-us.net>
+	Mon, 27 Apr 2015 12:05:27 -0400
+Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.85)
+	(envelope-from <linux@roeck-us.net>)
+	id 1YmlXD-0048di-0R
+	for linux-watchdog@vger.kernel.org; Mon, 27 Apr 2015 16:05:27 +0000
+Date: Mon, 27 Apr 2015 09:04:32 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Eric Anholt <eric@anholt.net>
 Cc: linux-arm-kernel@lists.infradead.org,
-	Eric Anholt <eric@anholt.net>, linux-watchdog@vger.kernel.org,
-	Lee Jones <lee@kernel.org>,
 	linux-rpi-kernel@lists.infradead.org,
-	Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH 2/2] ARM: BCM2835: Move the restart/power_off handling to the WDT driver.
-Date: Mon, 27 Apr 2015 15:32:08 +0200
-Message-ID: <17452307.kZG5bCi4C8@wuerfel>
-In-Reply-To: <553E398E.7060305@roeck-us.net>
-References: <1429902534-2348-1-git-send-email-eric@anholt.net> <2465337.STuvDNQht6@wuerfel> <553E398E.7060305@roeck-us.net>
+	Stephen Warren <swarren@wwwdotorg.org>,
+	Lee Jones <lee@kernel.org>, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 2/2] ARM: BCM2835: Move the restart/power_off handling to
+ the WDT driver.
+Message-ID: <20150427160432.GD5701@roeck-us.net>
+References: <1429902534-2348-1-git-send-email-eric@anholt.net>
+ <1429902534-2348-2-git-send-email-eric@anholt.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1429902534-2348-2-git-send-email-eric@anholt.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Monday 27 April 2015 06:28:46 Guenter Roeck wrote:
-> >
+On Fri, Apr 24, 2015 at 12:08:54PM -0700, Eric Anholt wrote:
+> Since the WDT is what's used to drive restart and power off, it makes
+> more sense to keep it there, where the regs are already mapped and
+> definitions for them provided.  Note that this means you may need to
+> add CONFIG_BCM2835_WDT to retain functionality of your kernel.
 > 
-> The pointer to the power-off handler is removed in the device remove callback,
-> and thus won't be called after the device is unbound.
-> 
-> Ultimately this is similar the the current code, which assumes that the
-> call to of_find_device_by_node(np) never fails.
-> 
+> Signed-off-by: Eric Anholt <eric@anholt.net>
+> Cc: linux-watchdog@vger.kernel.org
 
-Ok, I missed that part. Yes, that works just as well.
+The patch will require a rebase to v4.0-rc1.
 
-	Arnd
+Thanks,
+Guenter
