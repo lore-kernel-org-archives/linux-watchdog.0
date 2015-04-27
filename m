@@ -1,76 +1,83 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mezzanine.sirena.org.uk ([106.187.55.193]:33713 "EHLO
-	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753688AbbDXPZL (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:45611 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932628AbbD0N3O (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 24 Apr 2015 11:25:11 -0400
-Date: Fri, 24 Apr 2015 16:24:45 +0100
-From: Mark Brown <broonie@kernel.org>
-To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Cc: LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	DEVICETREE <devicetree@vger.kernel.org>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Support Opensource <Support.Opensource@diasemi.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Message-ID: <20150424152445.GR22845@sirena.org.uk>
-References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
- <7acb2e683450a608adf81e6b820e62b523429101.1429280614.git.stwiss.opensource@diasemi.com>
- <20150418114828.GG26185@sirena.org.uk>
- <6ED8E3B22081A4459DAC7699F3695FB7014B2175E5@SW-EX-MBX02.diasemi.com>
+	Mon, 27 Apr 2015 09:29:14 -0400
+Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.85)
+	(envelope-from <linux@roeck-us.net>)
+	id 1Ymj61-001fu7-4y
+	for linux-watchdog@vger.kernel.org; Mon, 27 Apr 2015 13:29:13 +0000
+Message-ID: <553E398E.7060305@roeck-us.net>
+Date: Mon, 27 Apr 2015 06:28:46 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="PeBQ4doskhxk04X/"
-Content-Disposition: inline
-In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7014B2175E5@SW-EX-MBX02.diasemi.com>
-Subject: Re: [PATCH V1 2/6] regulator: da9062: DA9062 regulator driver
+To: Arnd Bergmann <arnd@arndb.de>
+CC: linux-arm-kernel@lists.infradead.org,
+	Eric Anholt <eric@anholt.net>, linux-watchdog@vger.kernel.org,
+	Lee Jones <lee@kernel.org>,
+	linux-rpi-kernel@lists.infradead.org,
+	Stephen Warren <swarren@wwwdotorg.org>
+Subject: Re: [PATCH 2/2] ARM: BCM2835: Move the restart/power_off handling
+ to the WDT driver.
+References: <1429902534-2348-1-git-send-email-eric@anholt.net> <2979294.WseZH0BUZW@wuerfel> <553E2F1E.5070909@roeck-us.net> <2465337.STuvDNQht6@wuerfel>
+In-Reply-To: <2465337.STuvDNQht6@wuerfel>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On 04/27/2015 05:48 AM, Arnd Bergmann wrote:
+> On Monday 27 April 2015 05:44:14 Guenter Roeck wrote:
+>> On 04/27/2015 02:18 AM, Arnd Bergmann wrote:
+>>> On Sunday 26 April 2015 08:35:57 Guenter Roeck wrote:
+>>>> On 04/25/2015 01:11 PM, Arnd Bergmann wrote:
+>>>>> On Friday 24 April 2015 12:08:54 Eric Anholt wrote:
+>>>>>> +/*
+>>>>>> + * We can't really power off, but if we do the normal reset scheme, and
+>>>>>> + * indicate to bootcode.bin not to reboot, then most of the chip will be
+>>>>>> + * powered off.
+>>>>>> + */
+>>>>>> +static void bcm2835_power_off(void)
+>>>>>> +{
+>>>>>> +       struct device_node *np =
+>>>>>> +               of_find_compatible_node(NULL, NULL, "brcm,bcm2835-pm-wdt");
+>>>>>> +       struct platform_device *pdev = of_find_device_by_node(np);
+>>>>>> +       struct bcm2835_wdt *wdt = platform_get_drvdata(pdev);
+>>>>>> +       u32 val;
+>>>>>> +
+>>>>>
+>>>>> Instead of doing the lookup again here, I'd suggest using a static variable
+>>>>> in the driver to store the device pointer for the device used on power_off.
+>>>>>
+>>>>> Make sure that the device remove callback assigns it back to NULL though
+>>>>> and that the function checks for NULL pointer.
+>>>>>
+>>>>
+>>>> Why would that be needed ?
+>>>
+>>> devices can be unbound from drivers through sysfs, or using dynamic DT
+>>> updates. If one does that, the watchdog driver will correctly destroy
+>>> all information it has about the device, so if the power_off function
+>>> still uses that pointer, it will crash.
+>>>
+>> Without calling its remove function ? That sounds odd. Lots of drivers
+>> would break if that was really the case.
+>
+> I'm not sure what you mean now. The remove function gets called to
+> do the final cleanup, and afterwards the device is deleted, so the
+> remove function should make sure that no global variables point to
+> the device any more.
+>
+> This is not a concern for most other drivers, because they do not
+> keep global pointers to device structures.
+>
 
---PeBQ4doskhxk04X/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The pointer to the power-off handler is removed in the device remove callback,
+and thus won't be called after the device is unbound.
 
-On Fri, Apr 24, 2015 at 02:47:06PM +0000, Opensource [Steve Twiss] wrote:
-> On 18 April 2015 12:48 Mark Brown wrote:
+Ultimately this is similar the the current code, which assumes that the
+call to of_find_device_by_node(np) never fails.
 
-> Okay. I think I am getting this.
-> As of v3.18 there are  newer parts to regulator_desc from the commit=20
-> a0c7b16 "regulator: of: Provide simplified DT parsing method"
-> The search function is now in the core.=20
+Guenter
 
-> Am I on on the right track with this one?
-
-Yes.
-
---PeBQ4doskhxk04X/
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJVOmA8AAoJECTWi3JdVIfQoU0H/1d6VpxbZu02WyPC4lLH7equ
-l9ntoiG1Sbb+xhBQN/tci3wqw2tAIqt5NzgM2bOj51qutEN5Wd8+zVGGQDkYsLOW
-vziBRlhwsLEhR/F2c/t9teKwzpfNSpJquVFqi5gXSmaagWr+fb4oBK4O9oCCHKjn
-LGNV9C4328KqgUrSm4od6283oLSvXgU5OueH0wjcRQVKyr+6I36QZOMy9cRD8mra
-rqBKS3GNFNMlWbtr7upOviksH6YmgVuUg8I3kdThYaz+JknNpWoMXFo6SMW66KGE
-xNWcXawiDShyHlvZCjFOHhVGwWHldoiMLqxk4NeHOzlxSfUT32sXYlYEEh5N6Ho=
-=e1Qu
------END PGP SIGNATURE-----
-
---PeBQ4doskhxk04X/--
