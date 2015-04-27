@@ -1,76 +1,58 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:41132 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752830AbbD0JXL (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 27 Apr 2015 05:23:11 -0400
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
-	<u.kleine-koenig@pengutronix.de>
-To: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	Felipe Balbi <balbi@ti.com>, Guenter Roeck <linux@roeck-us.net>
-Cc: kernel@pengutronix.de, Lokesh Vutla <lokeshvutla@ti.com>
-Subject: [PATCH v2 4/4] watchdog: omap: simplify assignment of bootstatus
-Date: Mon, 27 Apr 2015 11:23:01 +0200
-Message-Id: <1430126581-24946-5-git-send-email-u.kleine-koenig@pengutronix.de>
-In-Reply-To: <1430126581-24946-1-git-send-email-u.kleine-koenig@pengutronix.de>
-References: <1430126581-24946-1-git-send-email-u.kleine-koenig@pengutronix.de>
+Return-path: <anholt@eliezer.anholt.net>
+From: Eric Anholt <eric@anholt.net>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-arm-kernel@lists.infradead.org, linux-rpi-kernel@lists.infradead.org, Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee@kernel.org>, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 2/2] ARM: BCM2835: Move the restart/power_off handling to the WDT driver.
+In-Reply-To: <20150427160517.GA11074@roeck-us.net>
+References: <1429902534-2348-1-git-send-email-eric@anholt.net> <1429902534-2348-2-git-send-email-eric@anholt.net> <20150427160432.GD5701@roeck-us.net> <20150427160517.GA11074@roeck-us.net>
+Date: Mon, 27 Apr 2015 16:12:53 -0700
+Message-ID: <877fsx9nd6.fsf@eliezer.anholt.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha512; protocol="application/pgp-signature"
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Instead of using an over-long expression involving the ?: operator use
-an if and instead of an else branch rely on the fact that the data
-structure was allocated using devm_kzalloc. This also allows to put the
-used helper variable into a more local scope.
+--=-=-=
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-There is no functional change.
+Guenter Roeck <linux@roeck-us.net> writes:
 
-Reviewed-by: Felipe Balbi <balbi@ti.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
----
-Notes:
-    Changes since (implicit) v1, sent with
-    Message-Id: 1429868913-24049-4-git-send-email-u.kleine-koenig@pengutronix.de:
-    
-     - add Felipe's and Guenter's Reviewed-by tag
-     - fix typo in commit log
+> On Mon, Apr 27, 2015 at 09:04:32AM -0700, Guenter Roeck wrote:
+>> On Fri, Apr 24, 2015 at 12:08:54PM -0700, Eric Anholt wrote:
+>> > Since the WDT is what's used to drive restart and power off, it makes
+>> > more sense to keep it there, where the regs are already mapped and
+>> > definitions for them provided.  Note that this means you may need to
+>> > add CONFIG_BCM2835_WDT to retain functionality of your kernel.
+>> >=20
+>> > Signed-off-by: Eric Anholt <eric@anholt.net>
+>> > Cc: linux-watchdog@vger.kernel.org
+>>=20
+>> The patch will require a rebase to v4.0-rc1.
+>>=20
+> s/4.0/4.1/
 
- drivers/watchdog/omap_wdt.c | 12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+It will?  It seems to work fine, and the diff's the same.  Is there some
+new thing you were expecting in a rebase?
 
-diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
-index 479e7c8e44f5..0421c06a6cf0 100644
---- a/drivers/watchdog/omap_wdt.c
-+++ b/drivers/watchdog/omap_wdt.c
-@@ -209,7 +209,6 @@ static int omap_wdt_probe(struct platform_device *pdev)
- 	struct omap_wd_timer_platform_data *pdata = dev_get_platdata(&pdev->dev);
- 	struct resource *res;
- 	struct omap_wdt_dev *wdev;
--	u32 rs;
- 	int ret;
- 
- 	wdev = devm_kzalloc(&pdev->dev, sizeof(*wdev), GFP_KERNEL);
-@@ -242,12 +241,11 @@ static int omap_wdt_probe(struct platform_device *pdev)
- 	pm_runtime_enable(wdev->dev);
- 	pm_runtime_get_sync(wdev->dev);
- 
--	if (pdata && pdata->read_reset_sources)
--		rs = pdata->read_reset_sources();
--	else
--		rs = 0;
--	wdev->wdog.bootstatus = (rs & (1 << OMAP_MPU_WD_RST_SRC_ID_SHIFT)) ?
--		WDIOF_CARDRESET : 0;
-+	if (pdata && pdata->read_reset_sources) {
-+		u32 rs = pdata->read_reset_sources();
-+		if (rs & (1 << OMAP_MPU_WD_RST_SRC_ID_SHIFT))
-+			wdev->wdog.bootstatus = WDIOF_CARDRESET;
-+	}
- 
- 	omap_wdt_disable(wdev);
- 
--- 
-2.1.4
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBCgAGBQJVPsJ1AAoJELXWKTbR/J7oHywQALj4ZLKM6q2qLyA0tZ5Wtr5/
+vXvhzR/4Ab654UEkhJ4AM6SZD7VmO+we5i7xRyr2EBJFgv1HU5drJrmhqkW9jkq+
+FomplgFTTw4FsXmla85RHJK73dkGlwmr+pcjuyyM8nCqwsjIJB1oyiUPaZQHFTv0
+dxM+2xe7kYSVjeTTzENWy8EHJZwzwNiN33cxngQA/AvDGYXyECtHJLjfYAOjI4jV
+AK7QnzZ7RBt7DmSf6VxKKRaEoAbB/L9AvFXwVv0FMqFr1dIwIedTqsxqmwBEy1I+
+EdR3p/wfIob667rkmaMxYpvDRF1PRlB1cmPccDDIHwa4Ue4alVODH/BWx5gBSIEb
+gDs/mCUmPurIb9gPer7Ezj77wc44kFtJiVto/woHbmOCuIa44X4D3OjXyX3S/Ve4
+r2MC0yEDj6JzmzrLFnSD1zKna3m+f0fvitjkHBKHTYRwvfhTJp55OEukkCPycuXJ
+i7skiASSskWPLENpiDegMve/6CNEOiC6ky6r25BKlm/smYn3qIesuDFIkGAYWG2p
+7xlXeTPD7lFw2vaitsXKKgjTjEegzVdMBGm+pFFsrCEwGFoZ6/XMAoEJm4ryvz/h
+XDTWrq12e+Mh8ge9Fsl6YIHgQ/CkXC3OaPZOsHj3rcxaXoEdu3vw7NgXOdtGp6GZ
+xN+1qkI35Mu8t4Mr6bsO
+=dz7s
+-----END PGP SIGNATURE-----
+--=-=-=--
