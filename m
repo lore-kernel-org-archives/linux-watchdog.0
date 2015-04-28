@@ -1,41 +1,49 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:56611 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1031333AbbD2CgU (ORCPT
+Received: from mailapp01.imgtec.com ([195.59.15.196]:57415 "EHLO
+	mailapp01.imgtec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030957AbbD1Xbn (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 28 Apr 2015 22:36:20 -0400
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.85)
-	(envelope-from <linux@roeck-us.net>)
-	id 1YnHrH-0032mr-0c
-	for linux-watchdog@vger.kernel.org; Wed, 29 Apr 2015 02:36:19 +0000
-Date: Tue, 28 Apr 2015 19:35:21 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Eric Anholt <eric@anholt.net>
-Cc: linux-arm-kernel@lists.infradead.org,
-	linux-rpi-kernel@lists.infradead.org,
-	Stephen Warren <swarren@wwwdotorg.org>,
-	Lee Jones <lee@kernel.org>, linux-watchdog@vger.kernel.org
-Subject: Re: [2/2] ARM: BCM2835: Move the restart/power_off handling to the
- WDT driver.
-Message-ID: <20150429023521.GA29594@roeck-us.net>
-References: <1429902534-2348-2-git-send-email-eric@anholt.net>
+	Tue, 28 Apr 2015 19:31:43 -0400
+Message-ID: <554017A7.9050506@imgtec.com>
+Date: Tue, 28 Apr 2015 20:28:39 -0300
+From: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1429902534-2348-2-git-send-email-eric@anholt.net>
+To: Andrew Bresticker <abrestic@chromium.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>
+CC: <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	"James Hogan" <james.hogan@imgtec.com>
+Subject: Re: [PATCH V3 1/3] watchdog: imgpdc: Allow timeout to be set in device-tree
+References: <1428080722-29683-1-git-send-email-abrestic@chromium.org> <55400F0F.10204@imgtec.com>
+In-Reply-To: <55400F0F.10204@imgtec.com>
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Apr 24, 2015 at 12:08:54PM -0700, Eric Anholt wrote:
-> Since the WDT is what's used to drive restart and power off, it makes
-> more sense to keep it there, where the regs are already mapped and
-> definitions for them provided.  Note that this means you may need to
-> add CONFIG_BCM2835_WDT to retain functionality of your kernel.
-> 
-> Signed-off-by: Eric Anholt <eric@anholt.net>
-> Cc: linux-watchdog@vger.kernel.org
-> Acked-by: Stephen Warren <swarren@wwwdotorg.org>
-> Tested-by: Stephen Warren <swarren@wwwdotorg.org>
-> Acked-by: Lubomir Rintel <lkundrak@v3.sk>
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
+
+On 04/28/2015 07:51 PM, Ezequiel Garcia wrote:
+> 
+> 
+> On 04/03/2015 02:05 PM, Andrew Bresticker wrote:
+>> Since the heartbeat is statically initialized to its default value,
+>> watchdog_init_timeout() will never look in the device-tree for a
+>> timeout-sec value.  Instead of statically initializing heartbeat,
+>> fall back to the default timeout value if watchdog_init_timeout()
+>> fails.
+>>
+>> Signed-off-by: Andrew Bresticker <abrestic@chromium.org>
+>> Cc: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
+>> Cc: James Hogan <james.hogan@imgtec.com>
+> 
+> Reviewed-by: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
+> 
+
+And for the three patches:
+
+Tested-by: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
+
+Any chance these get merged soon(ishly)?
+-- 
+Ezequiel
