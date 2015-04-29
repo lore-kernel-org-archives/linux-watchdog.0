@@ -1,62 +1,113 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailapp01.imgtec.com ([195.59.15.196]:46370 "EHLO
-	mailapp01.imgtec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422762AbbD2MRi (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:45237 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1422971AbbD2N0O (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 29 Apr 2015 08:17:38 -0400
-Message-ID: <5540CB2B.5060100@imgtec.com>
-Date: Wed, 29 Apr 2015 09:14:35 -0300
-From: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
+	Wed, 29 Apr 2015 09:26:14 -0400
+Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.85)
+	(envelope-from <linux@roeck-us.net>)
+	id 1YnS0D-003GN1-9e
+	for linux-watchdog@vger.kernel.org; Wed, 29 Apr 2015 13:26:13 +0000
+Message-ID: <5540DBDF.6020804@roeck-us.net>
+Date: Wed, 29 Apr 2015 06:25:51 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-To: Guenter Roeck <linux@roeck-us.net>,
-	Andrew Bresticker <abrestic@chromium.org>,
-	Wim Van Sebroeck <wim@iguana.be>
-CC: <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	"James Hogan" <james.hogan@imgtec.com>
-Subject: Re: [PATCH V3 1/3] watchdog: imgpdc: Allow timeout to be set in device-tree
-References: <1428080722-29683-1-git-send-email-abrestic@chromium.org> <55400F0F.10204@imgtec.com> <554017A7.9050506@imgtec.com> <554059C7.6070107@roeck-us.net>
-In-Reply-To: <554059C7.6070107@roeck-us.net>
-Content-Type: text/plain; charset="windows-1252"
+To: Lee Jones <lee.jones@linaro.org>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+CC: kernel@stlinux.com, wim@iguana.be, linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org, a.zummo@towertech.it,
+	david.paris@st.com
+Subject: Re: [PATCH v7 0/9] mfd: watchdog: rtc: New driver for ST's LPC IP
+References: <1428590854-14095-1-git-send-email-lee.jones@linaro.org> <20150429132152.GQ9169@x1>
+In-Reply-To: <20150429132152.GQ9169@x1>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On 04/29/2015 06:21 AM, Lee Jones wrote:
+>> [Alessandro: This just needs RTC Acks now]
+>
+> Given this patch-set has been on the list for some time now and we
+> haven't heard from Alessandro in all that time, I'm going to just
+> apply the set and send out a pull-request to the other Maintainers.
+>
+> No point waiting any longer IMHO.
+>
 
++1
 
-On 04/29/2015 01:10 AM, Guenter Roeck wrote:
-> On 04/28/2015 04:28 PM, Ezequiel Garcia wrote:
->>
->>
->> On 04/28/2015 07:51 PM, Ezequiel Garcia wrote:
->>>
->>>
->>> On 04/03/2015 02:05 PM, Andrew Bresticker wrote:
->>>> Since the heartbeat is statically initialized to its default value,
->>>> watchdog_init_timeout() will never look in the device-tree for a
->>>> timeout-sec value.  Instead of statically initializing heartbeat,
->>>> fall back to the default timeout value if watchdog_init_timeout()
->>>> fails.
->>>>
->>>> Signed-off-by: Andrew Bresticker <abrestic@chromium.org>
->>>> Cc: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
->>>> Cc: James Hogan <james.hogan@imgtec.com>
->>>
->>> Reviewed-by: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
->>>
->>
->> And for the three patches:
->>
->> Tested-by: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
->>
->> Any chance these get merged soon(ishly)?
->>
-> 
-> I added the patches to my test branch. I'll send a pull request to
-> Wim in time for the next commit window, so hopefully the patches
-> should make it into 4.2.
-> 
+Guenter
 
-OK, cool. Thanks a lot.
+>> ST's Low Power Controller (LPC) controls two devices; watchdog and RTC.
+>> Only one of the devices can be used at any one time, which is enforced
+>> by the Device Driver model.
+>>
+>> This driver set provides everything you need to choose one (and only
+>> one) of the LPC devices to run per I/P block, of which there are two
+>> on the enabled STiH407 h/w.
+>>
+>> Version 7:
+>>   - Fix 2 legacy typos in the binding documentation compatible string
+>>     examples.
+>>
+>> Version 6:
+>>   - RTC: GPL v2 => GPL to reflect the information in the header
+>>   - Applied another Reviewed-by from Guenter
+>>
+>> Version 5:
+>>   - Disable WDT clock over suspend
+>>   - WDT: GPL v2 => GPL to reflect the information in the header
+>>   - Change module name in Kconfig help and file header
+>>
+>> Version 4:
+>>   - Use {readl,writel}_relaxed() calls
+>>   - Add Guenter's Reviewed-by
+>>   - Rebased onto v4.0-rc1
+>>
+>> Version 3:
+>>   - Move Regmap pointer into core device data structure
+>>   - Remove error message from devm_ioremap_resource
+>>
+>> Version 2:
+>>   - Only calculate keepalive once in probe()
+>>   - Check for a 0 clk_rate
+>>   - Set limits using predefined attributes from watchdog_device
+>>   - CONFIG_PM => CONFIG_SLEEP
+>>   - Call st_wdog_setup() on resume
+>>   - Remove MFD driver -- instead rely on driver probing mechanism
+>>     which continues attempting to bind to different drivers until
+>>     one does not return -ENODEV
+>>
+>> Lee Jones (9):
+>>    mfd: dt-bindings: Provide human readable defines for LPC mode choosing
+>>    ARM: multi_v7_defconfig: Enable support for ST's LPC Watchdog
+>>    ARM: multi_v7_defconfig: Enable support for ST's LPC RTC
+>>    ARM: STi: DT: STiH407: Add Device Tree node for the LPC
+>>    watchdog: bindings: Provide ST bindings for ST's LPC Watchdog device
+>>    watchdog: st_wdt: Add new driver for ST's LPC Watchdog
+>>    rtc: bindings: Provide ST bindings for ST's LPC RTC device
+>>    rtc: st: add new driver for ST's LPC RTC
+>>    MAINTAINERS: Add Watchdog and RTC files to STI's maintainer entry
+>>
+>>   .../devicetree/bindings/rtc/rtc-st-lpc.txt         |  25 ++
+>>   .../devicetree/bindings/watchdog/st_lpc_wdt.txt    |  38 +++
+>>   MAINTAINERS                                        |   2 +
+>>   arch/arm/boot/dts/stih407-family.dtsi              |  20 ++
+>>   arch/arm/configs/multi_v7_defconfig                |   2 +
+>>   drivers/rtc/Kconfig                                |  12 +
+>>   drivers/rtc/Makefile                               |   1 +
+>>   drivers/rtc/rtc-st-lpc.c                           | 354 +++++++++++++++++++++
+>>   drivers/watchdog/Kconfig                           |  13 +
+>>   drivers/watchdog/Makefile                          |   1 +
+>>   drivers/watchdog/st_lpc_wdt.c                      | 344 ++++++++++++++++++++
+>>   include/dt-bindings/mfd/st-lpc.h                   |  15 +
+>>   12 files changed, 827 insertions(+)
+>>   create mode 100644 Documentation/devicetree/bindings/rtc/rtc-st-lpc.txt
+>>   create mode 100644 Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
+>>   create mode 100644 drivers/rtc/rtc-st-lpc.c
+>>   create mode 100644 drivers/watchdog/st_lpc_wdt.c
+>>   create mode 100644 include/dt-bindings/mfd/st-lpc.h
+>>
+>
 
--- 
-Ezequiel
