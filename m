@@ -1,75 +1,67 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from oul135-36.netplaza.fi ([80.75.100.36]:58630 "EHLO
-	lime.offcode.fi" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1756889AbbDVLMD (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 22 Apr 2015 07:12:03 -0400
-From: Timo Kokkonen <timo.kokkonen@offcode.fi>
-To: linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org, boris.brezillon@free-electrons.com,
-	nicolas.ferre@atmel.com, alexandre.belloni@free-electrons.com
-Cc: Wenyou.Yang@atmel.com, Timo Kokkonen <timo.kokkonen@offcode.fi>
-Subject: [PATCHv7 7/8] watchdog: omap_wdt: Fix memory leak on probe fail
-Date: Wed, 22 Apr 2015 14:11:41 +0300
-Message-Id: <1429701102-22320-8-git-send-email-timo.kokkonen@offcode.fi>
-In-Reply-To: <1429701102-22320-1-git-send-email-timo.kokkonen@offcode.fi>
-References: <1429701102-22320-1-git-send-email-timo.kokkonen@offcode.fi>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <ukl@pengutronix.de>
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+To: linux-watchdog@vger.kernel.org,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Felipe Balbi <balbi@ti.com>,
+	Guenter Roeck <linux@roeck-us.net>
+Cc: Lokesh Vutla <lokeshvutla@ti.com>,
+	kernel@pengutronix.de
+Subject: [PATCH v2 5/4] watchdog: omap: assert the counter being stopped before reprogramming
+Date: Wed, 29 Apr 2015 20:38:46 +0200
+Message-Id: <1430332727-27491-1-git-send-email-u.kleine-koenig@pengutronix.de>
+In-Reply-To: <1430126581-24946-1-git-send-email-u.kleine-koenig@pengutronix.de>
+References: <1430126581-24946-1-git-send-email-u.kleine-koenig@pengutronix.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Structures allocated on the beginning of the probe function must be
-freed in case of failure.
+The omap watchdog has the annoying behaviour that writes to most
+registers don't have any effect when the watchdog is already running.
+Quoting the AM335x reference manual:
 
-Signed-off-by: Timo Kokkonen <timo.kokkonen@offcode.fi>
+	To modify the timer counter value (the WDT_WCRR register),
+	prescaler ratio (the WDT_WCLR[4:2] PTV bit field), delay
+	configuration value (the WDT_WDLY[31:0] DLY_VALUE bit field), or
+	the load value (the WDT_WLDR[31:0] TIMER_LOAD bit field), the
+	watchdog timer must be disabled by using the start/stop sequence
+	(the WDT_WSPR register).
+
+Currently the timer is stopped in the .probe callback but still there
+are possibilities that yield to a situation where omap_wdt_start is
+entered with the timer running (e.g. when /dev/watchdog is closed
+without stopping and then reopened). In such a case programming the
+timeout silently fails!
+
+To circumvent this stop the timer before reprogramming.
+
+Assuming one of the first things the watchdog user does is setting the
+timeout explicitly nothing too bad should happen because this explicit
+setting works fine.
+
+Fixes: 7768a13c252a ("[PATCH] OMAP: Add Watchdog driver support")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/watchdog/omap_wdt.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ drivers/watchdog/omap_wdt.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
 diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
-index 1e6be9e..bbaf39a 100644
+index 0421c06a6cf0..d7619dd7c1ca 100644
 --- a/drivers/watchdog/omap_wdt.c
 +++ b/drivers/watchdog/omap_wdt.c
-@@ -226,8 +226,10 @@ static int omap_wdt_probe(struct platform_device *pdev)
- 	/* reserve static register mappings */
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	wdev->base = devm_ioremap_resource(&pdev->dev, res);
--	if (IS_ERR(wdev->base))
--		return PTR_ERR(wdev->base);
-+	if (IS_ERR(wdev->base)) {
-+		ret = PTR_ERR(wdev->base);
-+		goto err_ioremap;
-+	}
+@@ -135,6 +135,13 @@ static int omap_wdt_start(struct watchdog_device *wdog)
  
- 	omap_wdt->info	      = &omap_wdt_info;
- 	omap_wdt->ops	      = &omap_wdt_ops;
-@@ -258,10 +260,8 @@ static int omap_wdt_probe(struct platform_device *pdev)
- 	omap_wdt_disable(wdev);
+ 	pm_runtime_get_sync(wdev->dev);
  
- 	ret = watchdog_register_device(omap_wdt);
--	if (ret) {
--		pm_runtime_disable(wdev->dev);
--		return ret;
--	}
-+	if (ret)
-+		goto err_register_device;
- 
- 	pr_info("OMAP Watchdog Timer Rev 0x%02x: initial timeout %d sec\n",
- 		readl_relaxed(wdev->base + OMAP_WATCHDOG_REV) & 0xFF,
-@@ -270,6 +270,14 @@ static int omap_wdt_probe(struct platform_device *pdev)
- 	pm_runtime_put_sync(wdev->dev);
- 
- 	return 0;
++	/*
++	 * Make sure the watchdog is disabled. This is unfortunately required
++	 * because writing to various registers with the watchdog running has no
++	 * effect.
++	 */
++	omap_wdt_disable(wdev);
 +
-+err_register_device:
-+	pm_runtime_disable(wdev->dev);
-+err_ioremap:
-+	kfree(wdev);
-+	kfree(omap_wdt);
-+
-+	return ret;
- }
- 
- static void omap_wdt_shutdown(struct platform_device *pdev)
+ 	/* initialize prescaler */
+ 	while (readl_relaxed(base + OMAP_WATCHDOG_WPS) & 0x01)
+ 		cpu_relax();
 -- 
-2.1.0
-
+2.1.4
