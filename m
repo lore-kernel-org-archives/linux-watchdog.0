@@ -1,260 +1,95 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:49212 "EHLO mail.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752650AbbD2Gpo (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 29 Apr 2015 02:45:44 -0400
-Date: Wed, 29 Apr 2015 07:45:36 +0100
-From: Lee Jones <lee@kernel.org>
-To: Eric Anholt <eric@anholt.net>
-Cc: linux-arm-kernel@lists.infradead.org,
-	linux-rpi-kernel@lists.infradead.org,
-	Stephen Warren <swarren@wwwdotorg.org>,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 2/2] ARM: BCM2835: Move the restart/power_off handling to
- the WDT driver.
-Message-ID: <20150429064536.GL9169@x1>
-References: <1429902534-2348-1-git-send-email-eric@anholt.net>
- <1429902534-2348-2-git-send-email-eric@anholt.net>
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:45094 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1031455AbbD2IV2 (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 29 Apr 2015 04:21:28 -0400
+Date: Wed, 29 Apr 2015 10:21:25 +0200
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
+To: Lokesh Vutla <lokeshvutla@ti.com>, Felipe Balbi <balbi@ti.com>
+Cc: linux-watchdog@vger.kernel.org, kernel@pengutronix.de
+Subject: Re: races in omap_wdt
+Message-ID: <20150429082125.GJ19431@pengutronix.de>
+References: <20150423094354.GD19431@pengutronix.de>
+ <20150424091840.GK19431@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1429902534-2348-2-git-send-email-eric@anholt.net>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20150424091840.GK19431@pengutronix.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, 24 Apr 2015, Eric Anholt wrote:
+Hello,
 
-> Since the WDT is what's used to drive restart and power off, it makes
-> more sense to keep it there, where the regs are already mapped and
-> definitions for them provided.  Note that this means you may need to
-> add CONFIG_BCM2835_WDT to retain functionality of your kernel.
-> 
-> Signed-off-by: Eric Anholt <eric@anholt.net>
-> Cc: linux-watchdog@vger.kernel.org
-> ---
-> 
-> Note that power off has never worked for me, and just reboots as well.
-> So I can't say that I've *really* tested the power off code.
-> 
->  arch/arm/mach-bcm/board_bcm2835.c | 73 ---------------------------------------
->  drivers/watchdog/bcm2835_wdt.c    | 62 +++++++++++++++++++++++++++++++++
->  2 files changed, 62 insertions(+), 73 deletions(-)
+just a small addition for the archive:
 
-Applied with Guenter's Ack.
+On Fri, Apr 24, 2015 at 11:18:40AM +0200, Uwe Kleine-König wrote:
+> [dropped Varadarajan Charulatha and Shubhrajyoti D from the addressees
+> because the ti mailserver doesn't know them :-(, added Felipe instead]
+> 
+> On Thu, Apr 23, 2015 at 11:43:54AM +0200, Uwe Kleine-König wrote:
+> > I'm working on an AM335x machine and want to make use of the hardware
+> > watchdog. I write to you because you contributed to the respective Linux
+> > driver and judging from your email address you might be in a position to
+> > help me with a problem I see.
+> > 
+> > To get reliable behaviour, I don't want to have situations where the
+> > watchdog is disabled. There are currently two situation where this
+> > happens with the current state of linux/drivers/watchdog/omap_wdt.c:
+> > 
+> >  a) in omap_wdt_probe() there is an unconditional call to
+> >     omap_wdt_disable() which stops the counter. Ideally I'd want to take
+> >     over the hardware in the state that it is in when Linux is started.
+> >     This is a bit complicated, but should be doable. Would such a patch
+> >     be welcome?
+> > 
+> >  b) The reference manual demands:
+> > 
+> > 	To modify the timer counter value (the WDT_WCRR register),
+> > 	prescaler ratio (the WDT_WCLR[4:2] PTV bit field), delay
+> > 	configuration value (the WDT_WDLY[31:0] DLY_VALUE bit field), or
+> > 	the load value (the WDT_WLDR[31:0] TIMER_LOAD bit field), the
+> > 	watchdog timer must be disabled by using the start/stop sequence
+> > 	(the WDT_WSPR register).
+> > 
+> >     This effectively means (and is implemented accordingly in the
+> >     driver) that on .set_timeout the driver has to stop the counter.
+> >     So we have an (admittedly small) unprotected window each time the
+> >     timeout is set (which happens for example when /dev/watchdog is
+> >     opened). Is there something that can be done here? I imagine that
+> >     the above statement from the reference manual could be holding out
+> >     some details like "When writing a new load value (WDT_WLDR) without
+> >     stopping the timer first, the new load value doesn't have any
+> >     influence on the running timer. It is only used on the next trigger
+> >     event." Is this too much to wish for?
+> As Felipe predicted (via irc) it's really needed to stop the timer to
+> reprogram the reload value. I proved this by hacking my bootloader's mw
+> command to correctly write to the watchdog registers (i.e wait until the
+> corresponding bit in the Watchdog Write Posting Bits Register disappears
+> to signal the write has reached the hardware) and did:
+> 
+> 	# make the wdog slow
+> 	mw 0x44e35024 0x3c
+> 
+> 	# set reload value (WLDR)
+> 	mw 0x44e3502c 0xff000000
+> 
+> 	# start wdog
+> 	mw 0x44e35048 0xbbbb
+> 	mw 0x44e35048 0x4444
+> 
+> 	# set reload value lower (WLDR)
+> 	mw 0x44e35024 0x00000000
+I just noticed that ^ is wrong, it must be 0x44e3502c. But this doesn't
+change the outcome. I also tried to redo the start wdog sequence here
+without a preceding stop. Doesn't help also. So there doesn't seem to be
+a way to avoid the need to disable the watchdog for programming.
 
-> diff --git a/arch/arm/mach-bcm/board_bcm2835.c b/arch/arm/mach-bcm/board_bcm2835.c
-> index 49dd5b0..0f7b9ea 100644
-> --- a/arch/arm/mach-bcm/board_bcm2835.c
-> +++ b/arch/arm/mach-bcm/board_bcm2835.c
-> @@ -12,7 +12,6 @@
->   * GNU General Public License for more details.
->   */
->  
-> -#include <linux/delay.h>
->  #include <linux/init.h>
->  #include <linux/irqchip.h>
->  #include <linux/of_address.h>
-> @@ -22,81 +21,10 @@
->  #include <asm/mach/arch.h>
->  #include <asm/mach/map.h>
->  
-> -#define PM_RSTC				0x1c
-> -#define PM_RSTS				0x20
-> -#define PM_WDOG				0x24
-> -
-> -#define PM_PASSWORD			0x5a000000
-> -#define PM_RSTC_WRCFG_MASK		0x00000030
-> -#define PM_RSTC_WRCFG_FULL_RESET	0x00000020
-> -#define PM_RSTS_HADWRH_SET		0x00000040
-> -
-> -static void __iomem *wdt_regs;
-> -
-> -/*
-> - * The machine restart method can be called from an atomic context so we won't
-> - * be able to ioremap the regs then.
-> - */
-> -static void bcm2835_setup_restart(void)
-> -{
-> -	struct device_node *np = of_find_compatible_node(NULL, NULL,
-> -						"brcm,bcm2835-pm-wdt");
-> -	if (WARN(!np, "unable to setup watchdog restart"))
-> -		return;
-> -
-> -	wdt_regs = of_iomap(np, 0);
-> -	WARN(!wdt_regs, "failed to remap watchdog regs");
-> -}
-> -
-> -static void bcm2835_restart(enum reboot_mode mode, const char *cmd)
-> -{
-> -	u32 val;
-> -
-> -	if (!wdt_regs)
-> -		return;
-> -
-> -	/* use a timeout of 10 ticks (~150us) */
-> -	writel_relaxed(10 | PM_PASSWORD, wdt_regs + PM_WDOG);
-> -	val = readl_relaxed(wdt_regs + PM_RSTC);
-> -	val &= ~PM_RSTC_WRCFG_MASK;
-> -	val |= PM_PASSWORD | PM_RSTC_WRCFG_FULL_RESET;
-> -	writel_relaxed(val, wdt_regs + PM_RSTC);
-> -
-> -	/* No sleeping, possibly atomic. */
-> -	mdelay(1);
-> -}
-> -
-> -/*
-> - * We can't really power off, but if we do the normal reset scheme, and
-> - * indicate to bootcode.bin not to reboot, then most of the chip will be
-> - * powered off.
-> - */
-> -static void bcm2835_power_off(void)
-> -{
-> -	u32 val;
-> -
-> -	/*
-> -	 * We set the watchdog hard reset bit here to distinguish this reset
-> -	 * from the normal (full) reset. bootcode.bin will not reboot after a
-> -	 * hard reset.
-> -	 */
-> -	val = readl_relaxed(wdt_regs + PM_RSTS);
-> -	val &= ~PM_RSTC_WRCFG_MASK;
-> -	val |= PM_PASSWORD | PM_RSTS_HADWRH_SET;
-> -	writel_relaxed(val, wdt_regs + PM_RSTS);
-> -
-> -	/* Continue with normal reset mechanism */
-> -	bcm2835_restart(REBOOT_HARD, "");
-> -}
-> -
->  static void __init bcm2835_init(void)
->  {
->  	int ret;
->  
-> -	bcm2835_setup_restart();
-> -	if (wdt_regs)
-> -		pm_power_off = bcm2835_power_off;
-> -
->  	bcm2835_init_clocks();
->  
->  	ret = of_platform_populate(NULL, of_default_bus_match_table, NULL,
-> @@ -114,6 +42,5 @@ static const char * const bcm2835_compat[] = {
->  
->  DT_MACHINE_START(BCM2835, "BCM2835")
->  	.init_machine = bcm2835_init,
-> -	.restart = bcm2835_restart,
->  	.dt_compat = bcm2835_compat
->  MACHINE_END
-> diff --git a/drivers/watchdog/bcm2835_wdt.c b/drivers/watchdog/bcm2835_wdt.c
-> index 2b5a9bb..7116968 100644
-> --- a/drivers/watchdog/bcm2835_wdt.c
-> +++ b/drivers/watchdog/bcm2835_wdt.c
-> @@ -13,20 +13,25 @@
->   * option) any later version.
->   */
->  
-> +#include <linux/delay.h>
-> +#include <linux/reboot.h>
->  #include <linux/types.h>
->  #include <linux/module.h>
->  #include <linux/io.h>
->  #include <linux/watchdog.h>
->  #include <linux/platform_device.h>
->  #include <linux/of_address.h>
-> +#include <linux/of_platform.h>
->  
->  #define PM_RSTC				0x1c
-> +#define PM_RSTS				0x20
->  #define PM_WDOG				0x24
->  
->  #define PM_PASSWORD			0x5a000000
->  
->  #define PM_WDOG_TIME_SET		0x000fffff
->  #define PM_RSTC_WRCFG_CLR		0xffffffcf
-> +#define PM_RSTS_HADWRH_SET		0x00000040
->  #define PM_RSTC_WRCFG_SET		0x00000030
->  #define PM_RSTC_WRCFG_FULL_RESET	0x00000020
->  #define PM_RSTC_RESET			0x00000102
-> @@ -37,6 +42,7 @@
->  struct bcm2835_wdt {
->  	void __iomem		*base;
->  	spinlock_t		lock;
-> +	struct notifier_block	restart_handler;
->  };
->  
->  static unsigned int heartbeat;
-> @@ -106,6 +112,53 @@ static struct watchdog_device bcm2835_wdt_wdd = {
->  	.timeout =	WDOG_TICKS_TO_SECS(PM_WDOG_TIME_SET),
->  };
->  
-> +static int
-> +bcm2835_restart(struct notifier_block *this, unsigned long mode, void *cmd)
-> +{
-> +	struct bcm2835_wdt *wdt = container_of(this, struct bcm2835_wdt,
-> +					       restart_handler);
-> +	u32 val;
-> +
-> +	/* use a timeout of 10 ticks (~150us) */
-> +	writel_relaxed(10 | PM_PASSWORD, wdt->base + PM_WDOG);
-> +	val = readl_relaxed(wdt->base + PM_RSTC);
-> +	val &= PM_RSTC_WRCFG_CLR;
-> +	val |= PM_PASSWORD | PM_RSTC_WRCFG_FULL_RESET;
-> +	writel_relaxed(val, wdt->base + PM_RSTC);
-> +
-> +	/* No sleeping, possibly atomic. */
-> +	mdelay(1);
-> +
-> +	return 0;
-> +}
-> +
-> +/*
-> + * We can't really power off, but if we do the normal reset scheme, and
-> + * indicate to bootcode.bin not to reboot, then most of the chip will be
-> + * powered off.
-> + */
-> +static void bcm2835_power_off(void)
-> +{
-> +	struct device_node *np =
-> +		of_find_compatible_node(NULL, NULL, "brcm,bcm2835-pm-wdt");
-> +	struct platform_device *pdev = of_find_device_by_node(np);
-> +	struct bcm2835_wdt *wdt = platform_get_drvdata(pdev);
-> +	u32 val;
-> +
-> +	/*
-> +	 * We set the watchdog hard reset bit here to distinguish this reset
-> +	 * from the normal (full) reset. bootcode.bin will not reboot after a
-> +	 * hard reset.
-> +	 */
-> +	val = readl_relaxed(wdt->base + PM_RSTS);
-> +	val &= PM_RSTC_WRCFG_CLR;
-> +	val |= PM_PASSWORD | PM_RSTS_HADWRH_SET;
-> +	writel_relaxed(val, wdt->base + PM_RSTS);
-> +
-> +	/* Continue with normal reset mechanism */
-> +	bcm2835_restart(&wdt->restart_handler, REBOOT_HARD, NULL);
-> +}
-> +
->  static int bcm2835_wdt_probe(struct platform_device *pdev)
->  {
->  	struct device *dev = &pdev->dev;
-> @@ -136,6 +189,12 @@ static int bcm2835_wdt_probe(struct platform_device *pdev)
->  		return err;
->  	}
->  
-> +	wdt->restart_handler.notifier_call = bcm2835_restart;
-> +	wdt->restart_handler.priority = 128;
-> +	register_restart_handler(&wdt->restart_handler);
-> +	if (pm_power_off == NULL)
-> +		pm_power_off = bcm2835_power_off;
-> +
->  	dev_info(dev, "Broadcom BCM2835 watchdog timer");
->  	return 0;
->  }
-> @@ -144,6 +203,9 @@ static int bcm2835_wdt_remove(struct platform_device *pdev)
->  {
->  	struct bcm2835_wdt *wdt = platform_get_drvdata(pdev);
->  
-> +	unregister_restart_handler(&wdt->restart_handler);
-> +	if (pm_power_off == bcm2835_power_off)
-> +		pm_power_off = NULL;
->  	watchdog_unregister_device(&bcm2835_wdt_wdd);
->  	iounmap(wdt->base);
->  
+Best regards
+Uwe
+
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
