@@ -1,43 +1,44 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:52619 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750961AbbD2Sr5 (ORCPT
+Received: from mx07-00178001.pphosted.com ([62.209.51.94]:40680 "EHLO
+	mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750912AbbD3LNj (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 29 Apr 2015 14:47:57 -0400
-Date: Wed, 29 Apr 2015 20:47:55 +0200
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-To: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	Felipe Balbi <balbi@ti.com>, Guenter Roeck <linux@roeck-us.net>
-Cc: Lokesh Vutla <lokeshvutla@ti.com>, kernel@pengutronix.de,
-	unknown author <unknown.author@example.com>
-Subject: Re: [PATCH v2 6/4] watchdog: omap: allow to keep timer running at
- probe time
-Message-ID: <20150429184755.GM19431@pengutronix.de>
-References: <1430126581-24946-1-git-send-email-u.kleine-koenig@pengutronix.de>
- <1430332727-27491-2-git-send-email-u.kleine-koenig@pengutronix.de>
+	Thu, 30 Apr 2015 07:13:39 -0400
+Message-ID: <55420E29.2050504@st.com>
+Date: Thu, 30 Apr 2015 13:12:41 +0200
+From: Maxime Coquelin <maxime.coquelin@st.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <1430332727-27491-2-git-send-email-u.kleine-koenig@pengutronix.de>
+To: Lee Jones <lee.jones@linaro.org>,
+	<linux-arm-kernel@lists.infradead.org>,
+	<linux-kernel@vger.kernel.org>
+CC: <devicetree@vger.kernel.org>, <kernel@stlinux.com>,
+	<a.zummo@towertech.it>, <david.paris@st.com>, <wim@iguana.be>,
+	<linux@roeck-us.net>, <linux-watchdog@vger.kernel.org>
+Subject: Re: [STLinux Kernel] [PATCH v7 4/9] ARM: STi: DT: STiH407: Add Device
+ Tree node for the LPC
+References: <1428590854-14095-1-git-send-email-lee.jones@linaro.org> <1428590854-14095-5-git-send-email-lee.jones@linaro.org>
+In-Reply-To: <1428590854-14095-5-git-send-email-lee.jones@linaro.org>
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Apr 29, 2015 at 08:38:47PM +0200, Uwe Kleine-K=F6nig wrote:
-> From: unknown author <unknown.author@example.com>
-this is nonsense, the patch is mine. Sorry for the noise.
 
-Best regards
-Uwe
 
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On 04/09/2015 04:47 PM, Lee Jones wrote:
+> On current ST platforms the LPC controls a number of functions.  This
+> patch enables support for the LPC Watchdog and LPC RTC devices on LPC1
+> and LPC2 respectively.
+>
+> Signed-off-by: David Paris <david.paris@st.com>
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> ---
+>   arch/arm/boot/dts/stih407-family.dtsi | 20 ++++++++++++++++++++
+>   1 file changed, 20 insertions(+)
+>
+>
+
+Applied to sti-dt-for-v4.2.
+
+Thanks!
+Maxime
