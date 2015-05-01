@@ -1,40 +1,32 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f175.google.com ([209.85.192.175]:33795 "EHLO
-	mail-pd0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753625AbbEAPhc (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:41130 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751297AbbEAE4k (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 1 May 2015 11:37:32 -0400
-From: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-Subject: [PATCH] watchdog: max63xx_wdt: Constify platform_device_id
-Date: Sat,  2 May 2015 00:36:52 +0900
-Message-Id: <1430494612-30624-1-git-send-email-k.kozlowski.k@gmail.com>
+	Fri, 1 May 2015 00:56:40 -0400
+Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.85)
+	(envelope-from <linux@roeck-us.net>)
+	id 1Yo30B-000VNq-SW
+	for linux-watchdog@vger.kernel.org; Fri, 01 May 2015 04:56:40 +0000
+Date: Thu, 30 Apr 2015 21:56:23 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
+Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+	linux-kernel@vger.kernel.org, kernel@savoirfairelinux.com
+Subject: Re: [1/4] watchdog: MAX63XX_WATCHDOG does not depend on ARM
+Message-ID: <20150501045623.GA29740@roeck-us.net>
+References: <1422551745-29101-2-git-send-email-vivien.didelot@savoirfairelinux.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1422551745-29101-2-git-send-email-vivien.didelot@savoirfairelinux.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The platform_device_id is not modified by the driver and core uses it as
-const.
+On Thu, Jan 29, 2015 at 12:15:42PM -0500, Vivien Didelot wrote:
+> Remove the ARM Kconfig dependency since the Maxim MAX63xx devices are
+> architecture independent.
+> 
+> Signed-off-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
 
-Signed-off-by: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
----
- drivers/watchdog/max63xx_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/watchdog/max63xx_wdt.c b/drivers/watchdog/max63xx_wdt.c
-index 08da3114accb..b3a1130b8eeb 100644
---- a/drivers/watchdog/max63xx_wdt.c
-+++ b/drivers/watchdog/max63xx_wdt.c
-@@ -214,7 +214,7 @@ static int max63xx_wdt_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
--static struct platform_device_id max63xx_id_table[] = {
-+static const struct platform_device_id max63xx_id_table[] = {
- 	{ "max6369_wdt", (kernel_ulong_t)max6369_table, },
- 	{ "max6370_wdt", (kernel_ulong_t)max6369_table, },
- 	{ "max6371_wdt", (kernel_ulong_t)max6371_table, },
--- 
-2.1.4
-
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
