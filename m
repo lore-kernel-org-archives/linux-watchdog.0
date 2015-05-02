@@ -1,62 +1,55 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:35010 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750780AbbEAXQw (ORCPT
+Received: from mail-pa0-f45.google.com ([209.85.220.45]:33617 "EHLO
+	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751159AbbEBNzb (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 1 May 2015 19:16:52 -0400
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.85)
-	(envelope-from <linux@roeck-us.net>)
-	id 1YoKAs-002mna-No
-	for linux-watchdog@vger.kernel.org; Fri, 01 May 2015 23:16:50 +0000
-Message-ID: <55440955.6050204@roeck-us.net>
-Date: Fri, 01 May 2015 16:16:37 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Sat, 2 May 2015 09:55:31 -0400
+Received: by pacwv17 with SMTP id wv17so117825531pac.0
+        for <linux-watchdog@vger.kernel.org>; Sat, 02 May 2015 06:55:31 -0700 (PDT)
+Message-ID: <5544D749.7080802@linaro.org>
+Date: Sat, 02 May 2015 21:55:21 +0800
+From: Hanjun Guo <hanjun.guo@linaro.org>
 MIME-Version: 1.0
-To: Timur Tabi <timur@codeaurora.org>, Arnd Bergmann <arnd@arndb.de>,
-	linaro-acpi@lists.linaro.org
-CC: linux-watchdog@vger.kernel.org,
+To: Timur Tabi <timur@codeaurora.org>, linux-watchdog@vger.kernel.org,
 	Ashwin Chaugule <ashwin.chaugule@linaro.org>,
 	Vipul Gandhi <vgandhi@codeaurora.org>,
 	Fu Wei <fu.wei@linaro.org>, Al Stone <al.stone@linaro.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Hanjun Guo <hanjun.guo@linaro.org>
-Subject: Re: [Linaro-acpi] [PATCH] watchdog: introduce the ARM64 SBSA watchdog
- driver
-References: <1430336034-5275-1-git-send-email-timur@codeaurora.org> <5542F33D.2020206@roeck-us.net> <5543A6E9.1090203@codeaurora.org> <2851853.hEtA2CtVGn@wuerfel> <5543DECA.10006@codeaurora.org>
-In-Reply-To: <5543DECA.10006@codeaurora.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: [PATCH] watchdog: introduce the ARM64 SBSA watchdog driver
+References: <1430336034-5275-1-git-send-email-timur@codeaurora.org>
+In-Reply-To: <1430336034-5275-1-git-send-email-timur@codeaurora.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 05/01/2015 01:15 PM, Timur Tabi wrote:
-> On 05/01/2015 02:19 PM, Arnd Bergmann wrote:
->> That should be fixed, we want normal drivers to be loadable modules.
->
-> The driver references three functions that are not exported:
->
-> ERROR: "acpi_parse_entries" [drivers/watchdog/arm_sbsa_wdt.ko] undefined!
-> ERROR: "arch_timer_get_rate" [drivers/watchdog/arm_sbsa_wdt.ko] undefined!
-> ERROR: "arch_timer_read_counter" [drivers/watchdog/arm_sbsa_wdt.ko] undefined!
->
-> I know what you're going to say.  You want me to move the ACPI platform code into some ACPI platform file, maybe /arch/arm64/kernel/acpi.c.  My concern is that there is currently no code for ACPI timers, so I don't have much of a starting point.  I'd hate to have to define support for all of ACPI timers just to get my driver merged.
->
+Hi Timur,
 
-Not really, at least not me. However, there is no other caller of
-arch_timer_get_rate, except for the call setting arch_timer_rate.
-This suggests that it might not be such a good idea to call
-arch_timer_get_rate() and arch_timer_read_counter() in the first place.
+I didn't review it in detail since I'm preparing the
+ACPI GICv3 related patches and run out of time, but
+I noticed a obvious error, comments inline.
 
-[ On a side note, arch_timer_get_rate() can return 0 if ARM_ARCH_TIMER
-   is not configured. You'll need to check for that. ]
+On 2015年04月30日 03:33, Timur Tabi wrote:
 
-It is hard to imagine that the watchdog would be the only driver which
-needs this clock. Isn't there some clock API call that can be used
-instead ?
+> +static int __exit arm_sbsa_wdt_remove(struct platform_device *pdev)
+> +{
+> +	struct arm_sbsa_watchdog_data *data = platform_get_drvdata(pdev);
+> +
+> +	watchdog_unregister_device(&data->wdev);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct platform_device *arm_sbsa_wdt_pdev;
+> +
+> +static int __init arm_sbsa_wdt_parse_gtdt(struct acpi_subtable_header *header,
+> +	const unsigned long end)
+> +{
+> +	struct acpi_gtdt_watchdog *wdg = (struct acpi_gtdt_watchdog *)header;
 
-As for acpi_parse_entries, we will need some feedback from the acpi
-maintainers. If the intent is that this function can be called from
-drivers, it should be exported.
+struct acpi_subtable_header can not be used here, because
+acpi_subtable_header with the u8 structure length, but
+for gtdt watchdog timer structure, its length is u16 defined.
 
-Guenter
-
+Thanks
+Hanjun
