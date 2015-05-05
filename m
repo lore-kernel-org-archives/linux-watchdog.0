@@ -1,157 +1,78 @@
-Return-path: <timo.kokkonen@offcode.fi>
-Message-ID: <55486294.708@offcode.fi>
-Date: Tue, 05 May 2015 09:26:28 +0300
-From: Timo Kokkonen <timo.kokkonen@offcode.fi>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:42635 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S2992633AbbEENu7 (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 5 May 2015 09:50:59 -0400
+Date: Tue, 5 May 2015 15:50:54 +0200
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
+To: Timo Kokkonen <timo.kokkonen@offcode.fi>
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org, boris.brezillon@free-electrons.com,
+	nicolas.ferre@atmel.com, alexandre.belloni@free-electrons.com,
+	Wenyou.Yang@atmel.com,
+	Marc Kleine-Budde <m.kleine-budde@pengutronix.de>
+Subject: Re: [PATCHv7 0/8] watchdog: Extend kernel API and add
+ early_timeout_sec feature
+Message-ID: <20150505135054.GI25193@pengutronix.de>
+References: <1429701102-22320-1-git-send-email-timo.kokkonen@offcode.fi>
 MIME-Version: 1.0
-To: Guenter Roeck <linux@roeck-us.net>
-CC: linux-arm-kernel@lists.infradead.org, linux-watchdog@vger.kernel.org,
- boris.brezillon@free-electrons.com, nicolas.ferre@atmel.com,
- alexandre.belloni@free-electrons.com, Wenyou.Yang@atmel.com
-Subject: Re: [PATCHv7 1/8] watchdog: Extend kernel API to know about HW limitations
-References: <1429701102-22320-1-git-send-email-timo.kokkonen@offcode.fi> <1429701102-22320-2-git-send-email-timo.kokkonen@offcode.fi> <20150504154321.GB9602@roeck-us.net>
-In-Reply-To: <20150504154321.GB9602@roeck-us.net>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1429701102-22320-1-git-send-email-timo.kokkonen@offcode.fi>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hi Guenter,
+Hello,
 
-On 04.05.2015 18:43, Guenter Roeck wrote:
-> On Wed, Apr 22, 2015 at 02:11:35PM +0300, Timo Kokkonen wrote:
->> There is a great deal of diversity in the watchdog hardware found on
->> different devices. Differen hardware have different contstraints on
->> them, many of the constraints that are excessively difficult for the
->> user space to satisfy.
->>
->> One such constraint is the length of the timeout value, which in many
->> cases can be just a few seconds. Drivers are creating ad hoc solutions
->> with timers and workqueues to extend the timeout in order to give user
->> space more time between updates. Looking at the drivers it is clear
->> that this has resulted to a lot of duplicate code.
->>
->> Add an extension to the watchdog kernel API that allows the driver to
->> describe tis HW constraints to the watchdog code. A kernel worker in
->> the core is then used to extend the watchdog timeout on behalf of the
->> user space. This allows the drivers to be simplified as core takes
->> over the timer extending.
->>
->> Tested-by: Wenyou Yang <wenyou.yang@atmel.com>
->> Signed-off-by: Timo Kokkonen <timo.kokkonen@offcode.fi>
->
-> Hi Timo,
->
-> Time to add my thoughts before you create the next version.
-> It isn't complete, so I won't try a line by line review.
->
-> The init_params function isn't the best choice for a name. Ultimately
-> we have other concepts to add - such as generic pretimeout support -
-> which makes this more and more difficult to handle. A separate function to
-> initialize the early timeout separately might make more sense. Either case,
-> any new API must not provide less functionality than the old one.
+I talked to Marc Kleine-Budde about your approach, thought a bit more
+about it and want to share a few thoughts with you.
 
-Did you have something specific on your mind, something else besides of 
-the early-timeout-sec parameter I'm adding with this series? I would 
-like to learn more about it so that I can ensure the core API is as 
-generic as possible.
+Actually your series addresses three different problems
 
-> The current semantics of timeout and max_timeout is that those _are_ the
-> hardware limits. We can not just change that. Also, the new functionality
-> should, as much as possible, be automatic and should not require changes in
-> existing drivers to be useful for them.
->
-> I understand we need something line hw_timeout and hw_max_timeout, but that
-> doesn't mean that those _have_ to be specified to be used. For a generic use
-> case, it is sufficient to assume that timeout == hw_timeout and max_timeout ==
-> hw_max_timeout, and the hw_ values can be set automatically if not specified.
-> The code should be more permissive to not bail out if , for example,
-> hw_max_timeout is not specified (then hw_max_timeout == max_timeout).
+ a) some watchdog hardware isn't stoppable;
+ b) some watchdog hardware has short maximal timeout;
+ c) what to do with a watchdog that is already running at probe time?
 
-There are two requirements here that made me add the new hw_timeout 
-variables:
+The common solution is to add a mid-layer between userspace and the
+driver that bridges the possible hardware limitations when userspace
+wants to stop the watchdog or set a big timeout value. c) is a bit
+different but could make use of the infrastructure that is introduced
+while fixing a+b). The main difference between a+b) and c) is that for
+c) you have to introduce some policy. If the series were mine I'd first
+do three commits that address a), b) and c) each. Then convert drivers
+to it.
 
-1) Some of the hardware need higher precision in the timeout parameters 
-as their limits are very short
-2) There are too many watchdog drivers for me to change all at once, so 
-old drivers need to remain functional while they are converted to the 
-new core API
+Guenter and I already said something similar, but I will eventually
+repeat it here more explicitly: When introducing a midlayer that
+abstracts between hardware and it's users the IMHO most important thing
+to get right is to be explicit about which side of a midlayer you're
+currently working at. That is, be explicit about watchdog_is_running:
+Does it mean the hardware is running, or does userspace believe the
+watchdog to be active? Same for timeout, stoppable etc.pp.
 
-Also once the drivers are using the new API, there are actually two 
-timeout values, one that is limited by the HW and one that is requested 
-by the user space. The core code then intermediates between these two so 
-that user space doesn't need to know about the HW limitations.
+When you consider changing the unit the watchdog core is using, why not
+change to nano seconds and 64 bit variables? You might be able to copy
+some algorithms and ideas from the timer core that uses these.
 
-The max_timeout actually becomes irrelevant from user space perspective 
-as the core code is capable of extending the timeout indefinitely, if 
-that is what user space wants. We could add some logical maximum here, 
-such as one day, what is already used by some of the drivers..
+For c), I'd want to have a compile time setting that specifies the
+default value for the policy:
+ - disable at probe
+ - don't touch a running timer
+ - start at probe
+This is friendly to distributions that might want to set "disable at
+probe"-default to be on the safe side. Still make this overridable by a
+kernel parameter. I'm not sure that "start at probe" is a sensible
+feature. (Either you want to start the watchdog early, in this case even
+before Linux starts; or you're not that strict then it doesn't matter
+much if it takes yet another little while until your application that
+pets the watchdog is up.)
 
-> Similar, it should not be necessary to have to specify hw_timeout and
-> hw_max_timeout in the first place for those to be useful. We can instead do
-> something like
->
-> 	#define MIN_TIMEOUT	(60 * 10)	/* in seconds */
->
-> 	if (!hw_max_timeout && max_timeout < MIN_TIMEOUT) {
-> 		hw_max_timeout = max_timeout;
-> 		max_timeout = MIN_TIMEOUT;
-> 	}
->
-> with similar adjustments for hw_timeout and timeout. I am not sure if we should
-> keep the current meaning of timeout and max_timeout (ie it means hw limits) and
-> introduce sw_max_timeout and sw_timeout, or extend the meaning of max_timeout
-> and timeout to mean both and introduce the hw_variables. The latter would let us
-> specify more granularity for the hw_ values, so maybe the latter approach is
-> better.
+Best regards
+Uwe
 
-I would like to be clear with the variable naming that others are for SW 
-and the other for HW, but as we can't change all drivers at once, I'm 
-trying to make it obvious that the new set of limits are purely for 
-hardware. Once all drivers using the core API are filling the hw limits, 
-the core is the only place that is taking care of the sw limits.
-
-> Limits should not be in jiffies unless only used internally by the watchdog
-> subsystem. If more granularity is needed, use milliseconds and convert to
-> jiffies where needed.
-
-I can change the limits in milliseconds.
-
-> Consider adding helper functions such as _watchdog_ping as inline in
-> watchdog_core.h.
-
-I was wondering whether it should be in there instead of in 
-watchdog_dev.c, so I'll move it there in the next version.
-
-> hw_heartbeat should be set from the watchdog core; I don't think it needs to
-> be provided by the driver. It can be calculated from hw_max_timeout and timeout
-> as needed (to something like min(hw_max_timeout, timeout) / 2).
-
-The HW might have limitations on what is the proper or ideal heartbeat 
-value, which is why I thought driver should probably decide about how it 
-should be set. But we could let core make a guess of its own if 
-hw_heartbeat is left zero. Now I'm assuming the driver is changing the 
-hw_heartbeat when timeout is changed.
-
-> You don't need boot_kepalive and active_keepalive as separate flags in
-> watchdog_worker.
-
-You are right, I'll fix it.
-
-> hw_features is unfortunate, and I am not sure that it is needed. That the
-> watchdog is running at boot time is not really a hardware feature, but a state.
-> Either add a bit to 'status' in watchdog_device, or add a callback function.
-> WDOG_HW_IS_STOPPABLE can be added to 'status' as well. It should probably be
-> reversed, though, to something like WDOG_NOT_STOPPABLE, so that it does not have
-> to be set to existing drivers.
-
-We can avoid WDOG_HW_IS_STOPPABLE entirely by mandating that driver 
-stop() returns failure if hardware can't be stopped. This way core can 
-start the worker whenever the HW can't be stopped.
-
-Then we only have the boot time status of the watchdog left. For some HW 
-that's a feature (eg. at91sam9_wdt) and some other it's a state (eg. 
-omap_wdt). But I can add a new status bit for it, that's a better 
-approach than having an entirely new set of HW flags.
-
-Thanks for your review.
-
--Timo
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
