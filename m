@@ -1,60 +1,70 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from oul135-36.netplaza.fi ([80.75.100.36]:36712 "EHLO
-	lime.offcode.fi" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752589AbbEEJIA (ORCPT
+Received: from down.free-electrons.com ([37.187.137.238]:54954 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1161183AbbEEJke (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 5 May 2015 05:08:00 -0400
-Message-ID: <5548886A.4040905@offcode.fi>
-Date: Tue, 05 May 2015 12:07:54 +0300
-From: Timo Kokkonen <timo.kokkonen@offcode.fi>
+	Tue, 5 May 2015 05:40:34 -0400
+Date: Tue, 5 May 2015 11:40:31 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: harald@ccbib.org
+Cc: rtc-linux@googlegroups.com, Wolfram Sang <wsa@the-dreams.de>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [rtc-linux] [PATCH] watchdog: stmp3xxx: Implement GETBOOTSTATUS
+Message-ID: <20150505094031.GH4276@piout.net>
+References: <1428522355-5164-1-git-send-email-harald@ccbib.org>
+ <20150417093023.GF29796@piout.net>
+ <3a787a0b2777c4b734a4f153e1a3f7d7@imap.cosmopool.net>
+ <20150419153743.GA4353@piout.net>
+ <480bd3b38b87b44913868cbd2f3e24c6@imap.cosmopool.net>
 MIME-Version: 1.0
-To: Marc Kleine-Budde <mkl@pengutronix.de>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org, boris.brezillon@free-electrons.com,
-	nicolas.ferre@atmel.com, alexandre.belloni@free-electrons.com
-CC: Wenyou.Yang@atmel.com
-Subject: Re: [PATCHv7 6/8] watchdog: imx2_wdt: Convert to use new core extensions
-References: <1429701102-22320-1-git-send-email-timo.kokkonen@offcode.fi> <1429701102-22320-7-git-send-email-timo.kokkonen@offcode.fi> <55487B1D.1060108@pengutronix.de> <55487FDB.6060708@pengutronix.de>
-In-Reply-To: <55487FDB.6060708@pengutronix.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <480bd3b38b87b44913868cbd2f3e24c6@imap.cosmopool.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Marc,
+Hi,
 
-On 05.05.2015 11:31, Marc Kleine-Budde wrote:
-> On 05/05/2015 10:11 AM, Marc Kleine-Budde wrote:
->> On 04/22/2015 01:11 PM, Timo Kokkonen wrote:
->>> Fill in the HW capabilities in watchdog_device structure and call
->>> watchdgog_init_params() to let watchdog core to init itself
->>> properly. The watchdog core can then ping stopped watchdog and the
->>> timer code in the driver can be removed.
->>>
->>> Signed-off-by: Timo Kokkonen <timo.kokkonen@offcode.fi>
->>
->> This patch changes the default behaviour of the imx watchdog. Without
->> the patch: If the system boot with watchdog enabled (by the bootloader),
->> the driver sets up a threads to pet the watchdog. With the patch,
->> imx2_wdt_ping() is called once during probe but the thread is not
->> started. There are no timeout or early_timeout paremters in the DT or in
->> the kernel command line.
->>
->> I don't like the old behaviour, but I think there are some setups that
->> rely on this feature.
->
-> BTW: the start-thread-if-wd-is-active feature was added in:
->
->      faad5de0b104 watchdog: imx2_wdt: convert to watchdog core api
->
+On 20/04/2015 at 09:11:02 +0200, harald@ccbib.org wrote :
+> Hi Alexandre,
+> 
+> On Sun, 19 Apr 2015 17:37:43 +0200, Alexandre Belloni
+> <alexandre.belloni@free-electrons.com> wrote:
+> > On 19/04/2015 at 15:41:42 +0200, harald@ccbib.org wrote :
+> >> >  - use syscon instead of passing callbacks to the watchdog driver
+> >> 
+> >> I will put looking into this onto my todo list, but I'm not familiar
+> >> with syscon yet and it is not obvious to me how to port the rtc driver
+> >> to syscon without breaking devicetree backwards compatibility. So I'd
+> >> like to defer this for later unless somebody gives me some guidance.
+> >> 
+> > 
+> > As the rtc driver is the one instantiating the watchdog driver, there is
+> > no reason why the DT ABI would be broken. You simply have to create
+> > the syscon in the RTC driver and then pass it to the watchdog driver,
+> > the same way it is done with the callbacks.
+> 
+> Ok, this is less invasive than what I have been thinking. This makes
+> sense. 
+>  
 
-Yes, thanks for pointing this out. I didn't realize this was in place. 
-So what we need to do is to tell the watchdog core the actual status of 
-the watchdog HW, whether it is running or not. The core can then start 
-the worker thread to ping the HW if needed.
+I realized I confused syscon with regmap. So indeed, switching to syscon
+will require a not nice change to the DT. But what I really meant was
+creating a regmap from the rtc driver and pass it to the watchdog
+driver.
 
-I will fix this for the next patch version.
+> > I can have a look at doing it as I have some i.mx28 platforms.
+> 
+> If you can point me to a driver that is a good reference for your model,
+> then I can do this myself. Otherwise I'd prefer if you wrote the code.
+> I can do the testing though, if this helps.
+> 
 
-Thanks!
--Timo
+You can have a look at the devm_regmap_init_mmio() users.
 
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
