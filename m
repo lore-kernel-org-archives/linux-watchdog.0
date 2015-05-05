@@ -1,92 +1,47 @@
-Return-path: <jszhang@marvell.com>
-Date: Fri, 8 May 2015 13:01:10 +0800
-From: Jisheng Zhang <jszhang@marvell.com>
-To: Doug Anderson <dianders@chromium.org>, "wim@iguana.be" <wim@iguana.be>,
-        "linux@roeck-us.net" <linux@roeck-us.net>
-CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2 1/2] watchdog: dw_wdt: No need for a spinlock
-Message-ID: <20150508130110.54cd965c@xhacker>
-In-Reply-To: <1431059265-9204-1-git-send-email-dianders@chromium.org>
-References: <1431059265-9204-1-git-send-email-dianders@chromium.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Walleij <linus.walleij@linaro.org>,
+        Alexandre Courbot <gnurou@gmail.com>, Arnd Bergmann <arnd@arndb.de>
+Cc: linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+Subject: [PATCH 26/27] watchdog: Allow compile test of GPIO consumers if !GPIOLIB
+Date: Tue,  5 May 2015 18:32:42 +0200
+Message-Id: <1430843563-18615-26-git-send-email-geert@linux-m68k.org>
+In-Reply-To: <1430843563-18615-1-git-send-email-geert@linux-m68k.org>
+References: <1430836404-15513-1-git-send-email-geert@linux-m68k.org>
+ <1430843563-18615-1-git-send-email-geert@linux-m68k.org>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Thu, 7 May 2015 21:27:44 -0700
-Doug Anderson <dianders@chromium.org> wrote:
+The GPIO subsystem provides dummy GPIO consumer functions if GPIOLIB is
+not enabled. Hence drivers that depend on GPIOLIB, but use GPIO consumer
+functionality only, can still be compiled if GPIOLIB is not enabled.
 
-> Right now the dw_wdt uses a spinlock to protect dw_wdt_open().  The
-> problem is that while holding the spinlock we call:
-> -> dw_wdt_set_top()
->    -> dw_wdt_top_in_seconds()
->       -> clk_get_rate()
->          -> clk_prepare_lock()
->             -> mutex_lock()
-> 
-> Locking a mutex while holding a spinlock is not allowed and leads to
-> warnings like "BUG: spinlock wrong CPU on CPU#1", among other
-> problems.
-> 
-> There's no reason to use a spinlock.  Only dw_wdt_open() was protected
-> and the test_and_set_bit() at the start of that function protects us
-> anyway.
-> 
-> Signed-off-by: Doug Anderson <dianders@chromium.org>
-> ---
-> Changes in v2:
-> - Don't switch to mutex; just don't use spinlock at all as per Dmitry
-> 
->  drivers/watchdog/dw_wdt.c | 7 -------
->  1 file changed, 7 deletions(-)
-> 
-> diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-> index d0bb949..a284abd 100644
-> --- a/drivers/watchdog/dw_wdt.c
-> +++ b/drivers/watchdog/dw_wdt.c
-> @@ -35,7 +35,6 @@
->  #include <linux/pm.h>
->  #include <linux/platform_device.h>
->  #include <linux/reboot.h>
-> -#include <linux/spinlock.h>
->  #include <linux/timer.h>
->  #include <linux/uaccess.h>
->  #include <linux/watchdog.h>
-> @@ -61,7 +60,6 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
->  #define WDT_TIMEOUT		(HZ / 2)
->  
->  static struct {
-> -	spinlock_t		lock;
->  	void __iomem		*regs;
->  	struct clk		*clk;
->  	unsigned long		in_use;
-> @@ -177,7 +175,6 @@ static int dw_wdt_open(struct inode *inode, struct file *filp)
->  	/* Make sure we don't get unloaded. */
->  	__module_get(THIS_MODULE);
->  
-> -	spin_lock(&dw_wdt.lock);
->  	if (!dw_wdt_is_enabled()) {
->  		/*
->  		 * The watchdog is not currently enabled. Set the timeout to
-> @@ -190,8 +187,6 @@ static int dw_wdt_open(struct inode *inode, struct file *filp)
->  
->  	dw_wdt_set_next_heartbeat();
->  
-> -	spin_unlock(&dw_wdt.lock);
-> -
->  	return nonseekable_open(inode, filp);
->  }
->  
-> @@ -348,8 +343,6 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
->  	if (ret)
->  		return ret;
->  
-> -	spin_lock_init(&dw_wdt.lock);
-> -
->  	ret = misc_register(&dw_wdt_miscdev);
->  	if (ret)
->  		goto out_disable_clk;
+Relax the dependency on GPIOLIB if COMPILE_TEST is enabled, where
+appropriate.
 
-Tested-by: Jisheng Zhang <jszhang@marvell.com>
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org
+---
+ drivers/watchdog/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index e5e7c5505de7dc8f..d0f03ee22425011f 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1343,7 +1343,7 @@ config BOOKE_WDT_DEFAULT_TIMEOUT
+ config MEN_A21_WDT
+        tristate "MEN A21 VME CPU Carrier Board Watchdog Timer"
+        select WATCHDOG_CORE
+-       depends on GPIOLIB
++       depends on GPIOLIB || COMPILE_TEST
+        help
+         Watchdog driver for MEN A21 VMEbus CPU Carrier Boards.
+ 
+-- 
+1.9.1
