@@ -1,36 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 5 May 2015 12:31:34 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linus Walleij <linus.walleij@linaro.org>,
-        Alexandre Courbot <gnurou@gmail.com>, Arnd Bergmann <arnd@arndb.de>,
-        linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 26/27] watchdog: Allow compile test of GPIO consumers if
- !GPIOLIB
-Message-ID: <20150505193134.GC7771@roeck-us.net>
-References: <1430836404-15513-1-git-send-email-geert@linux-m68k.org>
- <1430843563-18615-1-git-send-email-geert@linux-m68k.org>
- <1430843563-18615-26-git-send-email-geert@linux-m68k.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1430843563-18615-26-git-send-email-geert@linux-m68k.org>
+From: Johannes Thumshirn <jthumshirn@suse.de>
+To: Borislav Petkov <bp@alien8.de>,
+        Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-edac@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-watchdog@vger.kernel.org,
+        Johannes Thumshirn <jthumshirn@suse.de>
+Subject: [PATCH] MAINTAINERS: change my email address
+Date: Wed,  6 May 2015 08:11:35 +0200
+Message-Id: <1430892695-18876-1-git-send-email-jthumshirn@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Tue, May 05, 2015 at 06:32:42PM +0200, Geert Uytterhoeven wrote:
-> The GPIO subsystem provides dummy GPIO consumer functions if GPIOLIB is
-> not enabled. Hence drivers that depend on GPIOLIB, but use GPIO consumer
-> functionality only, can still be compiled if GPIOLIB is not enabled.
-> 
-> Relax the dependency on GPIOLIB if COMPILE_TEST is enabled, where
-> appropriate.
-> 
-> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> Cc: Wim Van Sebroeck <wim@iguana.be>
-> Cc: linux-watchdog@vger.kernel.org
+Signed-off-by: Johannes Thumshirn <jthumshirn@suse.de>
+---
+ MAINTAINERS | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 781e099..2943c62 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -3715,7 +3715,7 @@ S:	Maintained
+ F:	drivers/edac/ie31200_edac.c
+ 
+ EDAC-MPC85XX
+-M:	Johannes Thumshirn <johannes.thumshirn@men.de>
++M:	Johannes Thumshirn <jthumshirn@suse.de>
+ L:	linux-edac@vger.kernel.org
+ W:	bluesmoke.sourceforge.net
+ S:	Maintained
+@@ -6395,14 +6395,14 @@ F:	include/linux/mtd/
+ F:	include/uapi/mtd/
+ 
+ MEN A21 WATCHDOG DRIVER
+-M:	Johannes Thumshirn <johannes.thumshirn@men.de>
++M:	Johannes Thumshirn <jthumshirn@suse.de>
+ L:	linux-watchdog@vger.kernel.org
+-S:	Supported
++S:	Maintained
+ F:	drivers/watchdog/mena21_wdt.c
+ 
+ MEN CHAMELEON BUS (mcb)
+-M:	Johannes Thumshirn <johannes.thumshirn@men.de>
+-S:	Supported
++M:	Johannes Thumshirn <jthumshirn@suse.de>
++S:	Maintained
+ F:	drivers/mcb/
+ F:	include/linux/mcb.h
+ 
+-- 
+2.3.6
