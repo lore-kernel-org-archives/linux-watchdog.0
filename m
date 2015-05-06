@@ -1,127 +1,101 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:60232 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750876AbbEFUGh (ORCPT
+Received: from oul135-36.netplaza.fi ([80.75.100.36]:44908 "EHLO
+	lime.offcode.fi" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753722AbbEFH0L (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 6 May 2015 16:06:37 -0400
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.85)
-	(envelope-from <linux@roeck-us.net>)
-	id 1Yq5aX-004MtU-91
-	for linux-watchdog@vger.kernel.org; Wed, 06 May 2015 20:06:37 +0000
-Date: Wed, 6 May 2015 13:06:31 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Cc: LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	DEVICETREE <devicetree@vger.kernel.org>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Support Opensource <Support.Opensource@diasemi.com>
-Subject: Re: [PATCH V1 5/6] watchdog: da9062: DA9062 watchdog driver
-Message-ID: <20150506200631.GA25846@roeck-us.net>
-References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
- <2afd9f55c71553186e99bfe386312f0c7d7501ed.1429280614.git.stwiss.opensource@diasemi.com>
- <55327DDA.4080003@roeck-us.net>
- <6ED8E3B22081A4459DAC7699F3695FB7014B21924A@SW-EX-MBX02.diasemi.com>
- <20150506160227.GA28101@roeck-us.net>
- <6ED8E3B22081A4459DAC7699F3695FB7014B21925B@SW-EX-MBX02.diasemi.com>
+	Wed, 6 May 2015 03:26:11 -0400
+Message-ID: <5549C20F.4010605@offcode.fi>
+Date: Wed, 06 May 2015 10:26:07 +0300
+From: Timo Kokkonen <timo.kokkonen@offcode.fi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7014B21925B@SW-EX-MBX02.diasemi.com>
+To: =?windows-1252?Q?Uwe_Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
+CC: linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org, boris.brezillon@free-electrons.com,
+	nicolas.ferre@atmel.com, alexandre.belloni@free-electrons.com,
+	Wenyou.Yang@atmel.com,
+	Marc Kleine-Budde <m.kleine-budde@pengutronix.de>
+Subject: Re: [PATCHv7 0/8] watchdog: Extend kernel API and add early_timeout_sec
+ feature
+References: <1429701102-22320-1-git-send-email-timo.kokkonen@offcode.fi> <20150505135054.GI25193@pengutronix.de>
+In-Reply-To: <20150505135054.GI25193@pengutronix.de>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, May 06, 2015 at 04:30:50PM +0000, Opensource [Steve Twiss] wrote:
-> 
-> On 06 May 2015 17:02 Guenter Roeck wrote:
-> 
-> > On Wed, May 06, 2015 at 02:54:37PM +0000, Opensource [Steve Twiss] wrote:
-> > > On 18 April 2015 16:53 Guenter Roeck wrote:
-> > >
-> > > Hi Guenter,
-> > >
-> > > Thanks for your comments.
-> > >
-> > > > On 04/17/2015 07:23 AM, S Twiss wrote:
-> > > > > From: S Twiss <stwiss.opensource@diasemi.com>
-> > > > >
-> > > > > Add watchdog driver support for DA9062
-> > > > >
-> > > > > Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> > > > >
-> > > > Hi Steve,
-> > > >
-> > > > Key question here is if the da9062 is really so much different to the da9062
-> > > > that you can not use the same driver.
-> > >
-> > > The DA9062 watchdog driver does have some similarities with the DA9063 watchdog
-> > > base functionality -- however the watchdog component in the DA9062 chip has more
-> > > features yet to be added in software. I do intend to add these other features ...
-> > > however, if "not adding them here" is a problem I can drop the DA9062 watchdog
-> > > driver from this patch-set until I have time to write in the newer changes.
-> > >
-> > > > I am especially concerned about the added da9062_reset_watchdog_timer(),
-> > > > given the delay it introduces.
-> > >
-> > > After giving this some thought, I am going to remove this 300ms delay from the
-> > > reset_watchdog_timer() function for my next submission attempt. However
-> > > I am adding a 300ms delay into the stop() and update_timeout_register() functions
-> > > instead.
-> > >
-> > > The DA9062 watchdog ping (register CONTROL_F) is "windowed" for protection
-> > > against spurious writes -- i.e. the ping function cannot be called within a 250ms
-> > > time limit or the PMIC will reset. This windowing protection also extends to altering
-> > > the timeout scale in the CONTROL_D register -- in which case if the timeout
-> > > register is altered and the ping() function is called within the 250ms limit, the
-> > > PMIC will reset. The delay is there to stop that from happening.
-> > >
-> > > I realised my previous patch was over-sanitised: by putting the time delay into the
-> > > ping() function I was protecting CONTROL_D in stop() and update_timeout_register(),
-> > > but I was being too over-protective of the ping() function. Therefore if there was an
-> > > "incorrect trigger signal", the watchdog would not be allowed to fail because the
-> > > driver would have filtered out the errors.
-> > >
-> > Hi Steve,
-> > 
-> > From your description, it sounds like the protection is only necessary if there
-> > was a previous write to the same register(s). If so, it might make sense to
-> > record the time of such writes, and only add the delay if necessary, and only
-> > for the remainder of the time.
-> > 
-> > Would this be possible ?
-> > 
-> 
-> Hi Guenter,
-> 
-> I think so -- sounds like it should be possible.
-> Internally, there are several places where the two registers are written in succession.
-> Also, I'll have to re-write my tests in several places.
-> 
-> Probably the best solution would be to defer this watchdog driver for now, and I'll
-> re-submit it at a later date once the other parts of the DA9062 driver are [hopefully :)]
-> accepted. That way I can concentrate a solid block of time on the re-testing ... this
-> is the most time consuming.
-> 
-Keeping track of the necessary timeout is not mandatory - that was just a
-thought. If that would hold you up, just ignore the above and keep going.
+Hi Uwe,
 
-> Is that acceptable to you? -- I don't want to lose your existing comments from your
-> previous posts, so I will keep track of those changes you have already requested.
-> 
-Your call, really. I am fine either way.
+On 05.05.2015 16:50, Uwe Kleine-König wrote:
+> Hello,
+>
+> I talked to Marc Kleine-Budde about your approach, thought a bit more
+> about it and want to share a few thoughts with you.
+>
+> Actually your series addresses three different problems
+>
+>   a) some watchdog hardware isn't stoppable;
+>   b) some watchdog hardware has short maximal timeout;
+>   c) what to do with a watchdog that is already running at probe time?
+>
+> The common solution is to add a mid-layer between userspace and the
+> driver that bridges the possible hardware limitations when userspace
+> wants to stop the watchdog or set a big timeout value. c) is a bit
+> different but could make use of the infrastructure that is introduced
+> while fixing a+b). The main difference between a+b) and c) is that for
+> c) you have to introduce some policy. If the series were mine I'd first
+> do three commits that address a), b) and c) each. Then convert drivers
+> to it.
 
-Guenter
+The infrastructure needed for both a and b is the same, the actual code 
+to implement either a or b is also touching the same functions and quite 
+slim, so I think it may not be feasible to separate those in their own 
+patches. But I'll think about it and see if logical separation makes sense.
+
+> Guenter and I already said something similar, but I will eventually
+> repeat it here more explicitly: When introducing a midlayer that
+> abstracts between hardware and it's users the IMHO most important thing
+> to get right is to be explicit about which side of a midlayer you're
+> currently working at. That is, be explicit about watchdog_is_running:
+> Does it mean the hardware is running, or does userspace believe the
+> watchdog to be active? Same for timeout, stoppable etc.pp.
+
+Yes, I agree. Thanks for clarifying this. I will keep this in mind and 
+try to be explicit when naming functions and variables. The best way 
+would be to also rename the existing variables too, but that would also 
+touch all the existing drivers. Keeping the current naming scheme in 
+place no doubt is less explicit about which side of the new midlayer 
+they are working on. But luckily the logic of the existing driver 
+doesn't change, they are all exposing things directly to userland and 
+they can be documented as is. The new variables and functions add 
+interfaces only between the new midlayer and HW, so they are explicit as 
+well. So I think it is a fair compromise to leave all existing interface 
+towards the user space as is.
+
+> When you consider changing the unit the watchdog core is using, why not
+> change to nano seconds and 64 bit variables? You might be able to copy
+> some algorithms and ideas from the timer core that uses these.
+
+Yes, sounds like a good idea. I will look into it.
+
+> For c), I'd want to have a compile time setting that specifies the
+> default value for the policy:
+>   - disable at probe
+>   - don't touch a running timer
+>   - start at probe
+> This is friendly to distributions that might want to set "disable at
+> probe"-default to be on the safe side. Still make this overridable by a
+> kernel parameter. I'm not sure that "start at probe" is a sensible
+> feature. (Either you want to start the watchdog early, in this case even
+> before Linux starts; or you're not that strict then it doesn't matter
+> much if it takes yet another little while until your application that
+> pets the watchdog is up.)
+
+Yes, this is very simple and sounds like a reasonable thing to have. I 
+will add a Kconfig entry for this kind of build time default.
+
+I will start working on the next version soon before I start forgetting 
+all the good feedback I have received...
+
+Thanks!
+-Timo
