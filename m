@@ -1,51 +1,43 @@
-Return-path: <ukl@pengutronix.de>
-Date: Tue, 5 May 2015 15:53:29 +0200
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	Felipe Balbi <balbi@ti.com>, Lokesh Vutla <lokeshvutla@ti.com>,
-	unknown author <unknown.author@example.com>, kernel@pengutronix.de
-Subject: Re: [PATCH v2 6/4] watchdog: omap: allow to keep timer running at
- probe time
-Message-ID: <20150505135329.GJ25193@pengutronix.de>
-References: <1430126581-24946-1-git-send-email-u.kleine-koenig@pengutronix.de>
- <1430332727-27491-2-git-send-email-u.kleine-koenig@pengutronix.de>
- <55430683.2030102@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <55430683.2030102@roeck-us.net>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:58905 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750968AbbEFLSE (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 6 May 2015 07:18:04 -0400
+From: Michael Grzeschik <m.grzeschik@pengutronix.de>
+To: linux-watchdog@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org, wim@iguana.be,
+	timo.kokkonen@offcode.fi, kernel@pengutronix.de
+Subject: [PATCH] watchdog: imx2_wdt: also set wdog->timeout to new_timeout
+Date: Wed,  6 May 2015 13:17:59 +0200
+Message-Id: <1430911079-23738-1-git-send-email-m.grzeschik@pengutronix.de>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hello Guenter,
+Commit faad5de0b104 ("watchdog: imx2_wdt: convert to watchdog core api")
+removes the custom ioctl function. The generic ioctl handler is not
+setting the wdog->timeout to the new_timeout but handing this preset
+value back to the userspace. This patch sets the new value in the
+drivers set_timeout function to fix that problem.
 
-On Thu, Apr 30, 2015 at 09:52:19PM -0700, Guenter Roeck wrote:
-> On 04/29/2015 11:38 AM, Uwe Kleine-König wrote:
-> >From: unknown author <unknown.author@example.com>
-> >
-> >On some machines it might be desirable to keep the watchdog that is
-> >started in the boot ROM running until userspace starts stroking it to be
-> >able to handle boot failures.
-> >
-> >To not introduce regressions for users not caring about the watchdog
-> >keep the previous behaviour of disabling the watchdog in the probe
-> >function unless a module parameter stop_at_probe is set to false.
-> >
-> >Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-> 
-> Uwe,
-> 
-> would this address the problem you are tryng to solve ?
-> 
-> http://www.spinics.net/lists/arm-kernel/msg413658.html
-yeah, it would. It just doesn't solve my problem now as the series isn't
-ready for merging yet :-) I will keep my patch locally for the project
-I'm working on and already provided feedback to this thread.
+Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+---
+ drivers/watchdog/imx2_wdt.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Best regards
-Uwe
-
+diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+index 5e6d808..7cee402 100644
+--- a/drivers/watchdog/imx2_wdt.c
++++ b/drivers/watchdog/imx2_wdt.c
+@@ -166,6 +166,8 @@ static int imx2_wdt_set_timeout(struct watchdog_device *wdog,
+ {
+ 	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
+ 
++	wdog->timeout = new_timeout;
++
+ 	regmap_update_bits(wdev->regmap, IMX2_WDT_WCR, IMX2_WDT_WCR_WT,
+ 			   WDOG_SEC_TO_COUNT(new_timeout));
+ 	return 0;
 -- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+2.1.4
+
