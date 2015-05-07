@@ -1,123 +1,88 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:43033 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750806AbbEGHae (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 7 May 2015 03:30:34 -0400
-Date: Thu, 7 May 2015 09:30:29 +0200
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-To: Timo Kokkonen <timo.kokkonen@offcode.fi>
-Cc: linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org, boris.brezillon@free-electrons.com,
-	nicolas.ferre@atmel.com, alexandre.belloni@free-electrons.com,
-	Wenyou.Yang@atmel.com
-Subject: Re: [PATCHv7 8/8] watchdog: omap_wdt: Convert to use new core
- extensions
-Message-ID: <20150507073029.GD12306@pengutronix.de>
-References: <1429701102-22320-1-git-send-email-timo.kokkonen@offcode.fi>
- <1429701102-22320-9-git-send-email-timo.kokkonen@offcode.fi>
- <20150503185601.GD25193@pengutronix.de>
- <55470AA7.9050605@offcode.fi>
- <20150504070452.GE25193@pengutronix.de>
- <554B0964.9030501@offcode.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <554B0964.9030501@offcode.fi>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <dianders@chromium.org>
+From: Doug Anderson <dianders@chromium.org>
+To: wim@iguana.be,
+	linux@roeck-us.net
+Cc: jszhang@marvell.com,
+	Doug Anderson <dianders@chromium.org>,
+	linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 1/2] watchdog: dw_wdt: Use a mutex, not a spinlock
+Date: Thu,  7 May 2015 15:09:23 -0700
+Message-Id: <1431036564-4189-1-git-send-email-dianders@chromium.org>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Hello Timo,
+Right now the dw_wdt uses a spinlock to protect dw_wdt_open().  The
+problem is that while holding the spinlock we call:
+-> dw_wdt_set_top()
+   -> dw_wdt_top_in_seconds()
+      -> clk_get_rate()
+         -> clk_prepare_lock()
+            -> mutex_lock()
 
-On Thu, May 07, 2015 at 09:42:44AM +0300, Timo Kokkonen wrote:
-> On 04.05.2015 10:04, Uwe Kleine-König wrote:
-> >On Mon, May 04, 2015 at 08:59:03AM +0300, Timo Kokkonen wrote:
-> >>Hi, 03.05.2015 21:56, Uwe Kleine-König wrote:
-> >>>On Wed, Apr 22, 2015 at 02:11:42PM +0300, Timo Kokkonen wrote:
-> >>>>+static int omap_wdt_is_running(struct omap_wdt_dev *wdev)
-> >>>>+{
-> >>>>+	void __iomem *base = wdev->base;
-> >>>>+
-> >>>>+	return readl_relaxed(base + OMAP_WATCHDOG_SPR) == 0x4444;
-> >>>>+}
-> >>>This isn't reliable. The sequence needed to enable the watchdog is
-> >>>	writel(0xbbbb, base + OMAP_WATCHDOG_SPR);
-> >>>	writel(0x4444, base + OMAP_WATCHDOG_SPR);
-> >>>
-> >>>The sequence to stop is:
-> >>>	writel(0xaaaa, base + OMAP_WATCHDOG_SPR);
-> >>>	writel(0x5555, base + OMAP_WATCHDOG_SPR);
-> >>>
-> >>>But:
-> >>>
-> >>>barebox@TI AM335x BeagleBone black:/ md 0x44e35048+4
-> >>>44e35048: 00005555                                           UU..
-> >>>barebox@TI AM335x BeagleBone black:/ mw 0x44e35048 0x4444
-> >>>barebox@TI AM335x BeagleBone black:/ md 0x44e35048+4
-> >>>44e35048: 00004444                                           DD..
-> >>>
-> >>>So the register contains 0x4444 but the timer doesn't run. So at best
-> >>>testing for 0x4444 is a good heuristic.
-> >>
-> >>Yeah.. I don't think we can get any better than that. Unless we
-> >>start checking the counter register and see whether it really counts
-> >>or not, and I think that's a bit overkill.. So I'd say we should be
-> >>safe when assuming bootloader is doing things correctly. Although,
-> >>we could add a comment to the code that the test may not be 100%
-> >>reliable in case the start sequence have not been issued properly.
-> >>
-> >>Thanks for pointing this out!
-> >It doesn't seem to much overhead to do:
-> >
-> >	/*
-> >	 * There is no register that tells us if the timer is running,
-> >	 * so we have to resort to sample twice. The minimal frequency
-> >	 * is 256 Hz (32768 Hz prescaled with 2**7).
-> >	 */
-> >	counter1 = readl(base + OMAP_WATCHDOG_CCR);
-> >	mdelay(4);
-> >	counter2 = readl(base + OMAP_WATCHDOG_CCR);
-> >	return counter1 != counter2;
-> >
-> >I'd say it's even worth to do:
-> >
-> >	cntrl = readl(base + OMAP_WATCHDOG_CNTRL);
-> >	if (cntrl & (1 << 5))
-> >		shift = (cntrl >> 2) & 0x7;
-> >	else
-> >		shift = 0;
-> >	counter1 = readl(base + OMAP_WATCHDOG_CCR);
-> >	udelay(31 << shift);
-> >	counter2 = readl(base + OMAP_WATCHDOG_CCR);
-> >	return counter1 != counter2;
-> >
-> >For some bonus points add some defines for the magic constants.
-> >
-> >This is save as the OMAP_WATCHDOG_CNTRL doesn't seem to accept reads
-s/reads/writes/ in the above line.
+Locking a mutex while holding a spinlock is not allowed and leads to
+warnings like "BUG: spinlock wrong CPU on CPU#1", among other
+problems.
 
-> >while the counter is running. Maybe even this could be used to detect a
-> >running timer?:
-> 
-> Maybe, but you will get a data abort when the HW doesn't accept a
-> read. How do you recover from that?
-> 
-> Also, it seems that for some reason the watchdog HW is very picky
-> about which registers can be read in what condition. If I add the
-> code to read watchdog counter register, I will get a data abort
-> later at the end of the probe when the watchdog revision is read. I
-> don't understand why that happens, this does not seem logica. Maybe
-> it has got something to do with the fact that the watchdog is
-> stopped? If I can't read the counter register, I can't really
-> implement the above heuristic.. Any ideas?
-Which SoC do you use for your tests? Sounds strange. If you provide me
-your wip patch I can take a look.
+There's no reason to use a spinlock, so switch to a mutex.
 
-Best regards
-Uwe
+Signed-off-by: Doug Anderson <dianders@chromium.org>
+---
+ drivers/watchdog/dw_wdt.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
+diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+index d0bb949..3fa2f19 100644
+--- a/drivers/watchdog/dw_wdt.c
++++ b/drivers/watchdog/dw_wdt.c
+@@ -30,12 +30,12 @@
+ #include <linux/miscdevice.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
++#include <linux/mutex.h>
+ #include <linux/notifier.h>
+ #include <linux/of.h>
+ #include <linux/pm.h>
+ #include <linux/platform_device.h>
+ #include <linux/reboot.h>
+-#include <linux/spinlock.h>
+ #include <linux/timer.h>
+ #include <linux/uaccess.h>
+ #include <linux/watchdog.h>
+@@ -61,7 +61,7 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
+ #define WDT_TIMEOUT		(HZ / 2)
+ 
+ static struct {
+-	spinlock_t		lock;
++	struct mutex		lock;
+ 	void __iomem		*regs;
+ 	struct clk		*clk;
+ 	unsigned long		in_use;
+@@ -177,7 +177,7 @@ static int dw_wdt_open(struct inode *inode, struct file *filp)
+ 	/* Make sure we don't get unloaded. */
+ 	__module_get(THIS_MODULE);
+ 
+-	spin_lock(&dw_wdt.lock);
++	mutex_lock(&dw_wdt.lock);
+ 	if (!dw_wdt_is_enabled()) {
+ 		/*
+ 		 * The watchdog is not currently enabled. Set the timeout to
+@@ -190,7 +190,7 @@ static int dw_wdt_open(struct inode *inode, struct file *filp)
+ 
+ 	dw_wdt_set_next_heartbeat();
+ 
+-	spin_unlock(&dw_wdt.lock);
++	mutex_unlock(&dw_wdt.lock);
+ 
+ 	return nonseekable_open(inode, filp);
+ }
+@@ -348,7 +348,7 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		return ret;
+ 
+-	spin_lock_init(&dw_wdt.lock);
++	mutex_init(&dw_wdt.lock);
+ 
+ 	ret = misc_register(&dw_wdt_miscdev);
+ 	if (ret)
 -- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+2.2.0.rc0.207.ga3a616c
