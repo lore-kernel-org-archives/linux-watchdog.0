@@ -1,12 +1,12 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wg0-f41.google.com ([74.125.82.41]:32840 "EHLO
-	mail-wg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751823AbbEGOPb (ORCPT
+Received: from mail-wg0-f50.google.com ([74.125.82.50]:35746 "EHLO
+	mail-wg0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751545AbbEGOSL (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 7 May 2015 10:15:31 -0400
-Received: by wgin8 with SMTP id n8so45028633wgi.0
-        for <linux-watchdog@vger.kernel.org>; Thu, 07 May 2015 07:15:30 -0700 (PDT)
-Date: Thu, 7 May 2015 15:15:26 +0100
+	Thu, 7 May 2015 10:18:11 -0400
+Received: by wgyo15 with SMTP id o15so45135983wgy.2
+        for <linux-watchdog@vger.kernel.org>; Thu, 07 May 2015 07:18:10 -0700 (PDT)
+Date: Thu, 7 May 2015 15:18:05 +0100
 From: Peter Griffin <peter.griffin@linaro.org>
 To: Lee Jones <lee.jones@linaro.org>
 Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
@@ -14,15 +14,15 @@ Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
 	rtc-linux@googlegroups.com, a.zummo@towertech.it,
 	daniel.lezcano@linaro.org, wim@iguana.be, tglx@linutronix.de,
 	linux@roeck-us.net, linux-watchdog@vger.kernel.org
-Subject: Re: [STLinux Kernel] [PATCH 12/12] ARM: STi: Update platform level
- menuconfig 'help'
-Message-ID: <20150507141526.GB9793@griffinp-ThinkPad-X1-Carbon-2nd>
+Subject: Re: [STLinux Kernel] [PATCH 06/12] watchdog: bindings: Supply
+ knowledge of a third supported device - clocksource
+Message-ID: <20150507141805.GC9793@griffinp-ThinkPad-X1-Carbon-2nd>
 References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
- <1431005924-21777-13-git-send-email-lee.jones@linaro.org>
+ <1431005924-21777-7-git-send-email-lee.jones@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1431005924-21777-13-git-send-email-lee.jones@linaro.org>
+In-Reply-To: <1431005924-21777-7-git-send-email-lee.jones@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
@@ -30,35 +30,35 @@ Hi Lee,
 
 On Thu, 07 May 2015, Lee Jones wrote:
 
-> Encompass newer STiH4{07,10} SoC based platforms.
-> 
 > Signed-off-by: Lee Jones <lee.jones@linaro.org>
 > ---
->  arch/arm/mach-sti/Kconfig | 8 +++-----
->  1 file changed, 3 insertions(+), 5 deletions(-)
+>  Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt | 15 +++++++++------
+>  1 file changed, 9 insertions(+), 6 deletions(-)
 > 
-> diff --git a/arch/arm/mach-sti/Kconfig b/arch/arm/mach-sti/Kconfig
-> index cb886de..59928d9 100644
-> --- a/arch/arm/mach-sti/Kconfig
-> +++ b/arch/arm/mach-sti/Kconfig
-> @@ -16,11 +16,9 @@ menuconfig ARCH_STI
->  	select PL310_ERRATA_769419 if CACHE_L2X0
->  	select RESET_CONTROLLER
->  	help
-> -	  Include support for STiH41x SOCs like STiH415/416 using the device tree
-> -	  for discovery
-> -	  More information at Documentation/arm/STiH41x and
-> -	  at Documentation/devicetree
-> -
-> +	  Include support for STMicroelectronics' STiH415/416 and stih407/10
-> +	  family SoCs using the Device Tree for discovery.  More information
-> +	  can be found in Documentation/arm/sti/ & Documentation/devicetree.
+> diff --git a/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt b/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
+> index 388c88a..0b1a784 100644
+> --- a/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
+> +++ b/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
+> @@ -1,20 +1,23 @@
+>  STMicroelectronics Low Power Controller (LPC) - Watchdog
+>  ========================================================
+>  
+> -LPC currently supports Watchdog OR Real Time Clock functionality.
+> +LPC currently supports Watchdog OR Real Time Clock OR Clocksource
+> +functionality.
+>  
+>  [See: ../rtc/rtc-st-lpc.txt for RTC options]
+> +[See: ../timer/st,stih407-lpc for Clocksource options]
+>  
+>  Required properties
+>  
+> -- compatible 	: Must be one of: "st,stih407-lpc" "st,stih416-lpc"
+> -				  "st,stih415-lpc" "st,stid127-lpc"
+> +- compatible 	: Must be one of: "st,stih407-lpc"
 
-You should use the same capitalisation throughout. Also you can mention STiH418,
-as that is now supported upstream.
-
-Once fixed you can add my: -
-     Acked-by: Peter Griffin <peter.griffin@linaro.org>
+The same comment as the RTC DT patch, you are removing the compatibles
+documentation for the other supported platforms like stih416-lpc.
+AFAIK they are required in the driver to get the correct sysconfig register.
 
 regards,
 
