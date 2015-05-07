@@ -1,43 +1,64 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.skyhub.de ([78.46.96.112]:56493 "EHLO mail.skyhub.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751118AbbEGIhe (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 7 May 2015 04:37:34 -0400
-Date: Thu, 7 May 2015 10:37:28 +0200
-From: Borislav Petkov <bp@alien8.de>
-To: Johannes Thumshirn <jthumshirn@suse.de>
-Cc: Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	linux-edac@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v3] MAINTAINERS: change my email address
-Message-ID: <20150507083728.GG6859@pd.tnic>
-References: <1430986884-8760-1-git-send-email-jthumshirn@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <1430986884-8760-1-git-send-email-jthumshirn@suse.de>
+Received: from mail-wi0-f175.google.com ([209.85.212.175]:37993 "EHLO
+	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751279AbbEGNiv (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 7 May 2015 09:38:51 -0400
+Received: by wiun10 with SMTP id n10so60261223wiu.1
+        for <linux-watchdog@vger.kernel.org>; Thu, 07 May 2015 06:38:50 -0700 (PDT)
+From: Lee Jones <lee.jones@linaro.org>
+To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: kernel@stlinux.com, devicetree@vger.kernel.org,
+	daniel.lezcano@linaro.org, tglx@linutronix.de, wim@iguana.be,
+	a.zummo@towertech.it, linux-watchdog@vger.kernel.org,
+	rtc-linux@googlegroups.com, linux@roeck-us.net,
+	Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 00/12] mfd: watchdog: rtc: Add LPC Clocksource driver
+Date: Thu,  7 May 2015 14:38:32 +0100
+Message-Id: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, May 07, 2015 at 10:21:24AM +0200, Johannes Thumshirn wrote:
-> Change my email address to something that is not associated with my current
-> or future employer.
-> 
-> Suggested-by: Borislav Petkov <bp@alien8.de>
-> Signed-off-by: Johannes Thumshirn <jthumshirn@suse.de>
-> ---
->  MAINTAINERS | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
+ST's Low Power Controller (LPC) controls three devices; watchdog, RTC
+and a Clocksource Timer.  Only one of the devices can be used at any
+one time, which is enforced by the Device Driver model.
 
-Third time is always a charm! :-D
+This patchset provides support for the Clocksource driver.  Watchdog
+and RTC are already in -next.
 
-Applied, thanks.
+Lee Jones (12):
+  mfd: dt-bindings: Provide human readable define for Clocksource mode
+  clocksource: sti: Provide support for the ST LPC Clocksource IP
+  clocksource: sti: Provide 'use timer as sched clock' capability
+  clocksource: bindings: Provide bindings for ST's LPC Clocksource
+    device
+  watchdog: st_wdt: Update IP layout information to include Clocksource
+  watchdog: bindings: Supply knowledge of a third supported device -
+    clocksource
+  rtc: st: Update IP layout information to include Clocksource
+  rtc: bindings: Supply knowledge of a third supported device -
+    clocksource
+  MAINTAINERS: Add the LPC Clocksource to STi maintained driver list
+  ARM: STi: DT: STih407: Switch LPC mode from RTC to Clocksource
+  ARM: STi: Enable LPC Clocksource
+  ARM: STi: Update platform level menuconfig 'help'
+
+ .../devicetree/bindings/rtc/rtc-st-lpc.txt         |  15 ++-
+ .../devicetree/bindings/timer/st,stih407-lpc       |  28 +++++
+ .../devicetree/bindings/watchdog/st_lpc_wdt.txt    |  15 ++-
+ MAINTAINERS                                        |   1 +
+ arch/arm/boot/dts/stih407-family.dtsi              |   2 +-
+ arch/arm/mach-sti/Kconfig                          |   9 +-
+ drivers/clocksource/Kconfig                        |  16 +++
+ drivers/clocksource/Makefile                       |   1 +
+ drivers/clocksource/clksrc_st_lpc.c                | 134 +++++++++++++++++++++
+ drivers/rtc/rtc-st-lpc.c                           |   2 +-
+ drivers/watchdog/st_lpc_wdt.c                      |   2 +-
+ include/dt-bindings/mfd/st-lpc.h                   |   1 +
+ 12 files changed, 206 insertions(+), 20 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/timer/st,stih407-lpc
+ create mode 100644 drivers/clocksource/clksrc_st_lpc.c
 
 -- 
-Regards/Gruss,
-    Boris.
+1.9.1
 
-ECO tip #101: Trim your mails when you reply.
---
