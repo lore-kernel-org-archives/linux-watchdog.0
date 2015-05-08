@@ -1,66 +1,58 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wg0-f44.google.com ([74.125.82.44]:35643 "EHLO
-	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751169AbbEGTzf (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:59931 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750907AbbEHAEN (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 7 May 2015 15:55:35 -0400
-Received: by wgyo15 with SMTP id o15so53988303wgy.2
-        for <linux-watchdog@vger.kernel.org>; Thu, 07 May 2015 12:55:34 -0700 (PDT)
-Date: Thu, 7 May 2015 20:55:29 +0100
-From: Peter Griffin <peter.griffin@linaro.org>
-To: Lee Jones <lee.jones@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org, kernel@stlinux.com,
-	rtc-linux@googlegroups.com, a.zummo@towertech.it,
-	daniel.lezcano@linaro.org, wim@iguana.be, tglx@linutronix.de,
-	linux@roeck-us.net, linux-watchdog@vger.kernel.org
-Subject: Re: [STLinux Kernel] [PATCH 06/12] watchdog: bindings: Supply
- knowledge of a third supported device - clocksource
-Message-ID: <20150507195529.GA28554@griffinp-ThinkPad-X1-Carbon-2nd>
-References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
- <1431005924-21777-7-git-send-email-lee.jones@linaro.org>
- <20150507141805.GC9793@griffinp-ThinkPad-X1-Carbon-2nd>
- <20150507191909.GC16220@x1>
+	Thu, 7 May 2015 20:04:13 -0400
+Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.85)
+	(envelope-from <linux@roeck-us.net>)
+	id 1YqVm0-001v00-HK
+	for linux-watchdog@vger.kernel.org; Fri, 08 May 2015 00:04:12 +0000
+Message-ID: <554BFD75.1070601@roeck-us.net>
+Date: Thu, 07 May 2015 17:04:05 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20150507191909.GC16220@x1>
+To: Lee Jones <lee.jones@linaro.org>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+CC: kernel@stlinux.com, devicetree@vger.kernel.org,
+	daniel.lezcano@linaro.org, tglx@linutronix.de, wim@iguana.be,
+	a.zummo@towertech.it, linux-watchdog@vger.kernel.org,
+	rtc-linux@googlegroups.com
+Subject: Re: [PATCH 05/12] watchdog: st_wdt: Update IP layout information
+ to include Clocksource
+References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org> <1431005924-21777-6-git-send-email-lee.jones@linaro.org>
+In-Reply-To: <1431005924-21777-6-git-send-email-lee.jones@linaro.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Lee,
+On 05/07/2015 06:38 AM, Lee Jones wrote:
+> Initial submission adding support for this IP only included Watchdog and
+> the Real-Time Clock.  Now the third (and final) device is enabled this
+> trivial patch is required to update the comment in the Watchdog driver
+> to encompass Clocksource.
+>
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
 
-On Thu, 07 May 2015, Lee Jones wrote:
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-<snip>
-
-> > >  Required properties
-> > >  
-> > > -- compatible 	: Must be one of: "st,stih407-lpc" "st,stih416-lpc"
-> > > -				  "st,stih415-lpc" "st,stid127-lpc"
-> > > +- compatible 	: Must be one of: "st,stih407-lpc"
-> > 
-> > The same comment as the RTC DT patch, you are removing the compatibles
-> > documentation for the other supported platforms like stih416-lpc.
-> > AFAIK they are required in the driver to get the correct sysconfig register.
-> 
-> That's intentional.  I haven't yet tested any of this IP on
-> STiH41{5,6} & STiH127.  Due to lack of documentation, I'm not even
-> sure if this IP even exists on some of the other platforms.  I will
-> add them back when support is added to both driver and DTB and I've
-> been able to test them.
-
-That was kind of my point, the driver code AFAIK already contains support
-for these SoC's.
-
-I would either expect the patch to remove support from the DT docs AND the
-driver, or leave it as is.
-
-It seems odd to only change the DT docs, and become unaligned to the
-code (this assumes I'm looking at the latest patchset here 
-https://lkml.org/lkml/2015/3/4/1088 which includes support for these SoCs).
-
-regards,
-
-Peter.
+> ---
+>   drivers/watchdog/st_lpc_wdt.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/watchdog/st_lpc_wdt.c b/drivers/watchdog/st_lpc_wdt.c
+> index f32be15..6785afd 100644
+> --- a/drivers/watchdog/st_lpc_wdt.c
+> +++ b/drivers/watchdog/st_lpc_wdt.c
+> @@ -197,7 +197,7 @@ static int st_wdog_probe(struct platform_device *pdev)
+>   		return -EINVAL;
+>   	}
+>
+> -	/* LPC can either run in RTC or WDT mode */
+> +	/* LPC can either run as a Clocksource or in RTC or WDT mode */
+>   	if (mode != ST_LPC_MODE_WDT)
+>   		return -ENODEV;
+>
+>
 
