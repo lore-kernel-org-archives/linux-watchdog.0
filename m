@@ -1,54 +1,45 @@
-Return-path: <jszhang@marvell.com>
-Date: Fri, 8 May 2015 10:41:33 +0800
-From: Jisheng Zhang <jszhang@marvell.com>
-To: Doug Anderson <dianders@chromium.org>, "wim@iguana.be" <wim@iguana.be>,
-        "linux@roeck-us.net" <linux@roeck-us.net>
-CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/2] watchdog: dw_wdt: keepalive the watchdog at write
- time
-Message-ID: <20150508104133.221f2c1c@xhacker>
-In-Reply-To: <1431036564-4189-2-git-send-email-dianders@chromium.org>
-References: <1431036564-4189-1-git-send-email-dianders@chromium.org>
-	<1431036564-4189-2-git-send-email-dianders@chromium.org>
+Return-path: <dianders@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
+Sender: dianders@google.com
+In-Reply-To: <554C15A5.2040300@roeck-us.net>
+References: <1431036564-4189-1-git-send-email-dianders@chromium.org>
+	<554C15A5.2040300@roeck-us.net>
+Date: Thu, 7 May 2015 21:01:09 -0700
+Message-ID: <CAD=FV=Uv_PLC5-OBJ1Dw5+z7DeWipqfyE=66hrnnoJSRLdVQVQ@mail.gmail.com>
+Subject: Re: [PATCH 1/2] watchdog: dw_wdt: Use a mutex, not a spinlock
+From: Doug Anderson <dianders@chromium.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@iguana.be>, Jisheng Zhang <jszhang@marvell.com>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Content-Type: text/plain; charset=UTF-8
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Thu, 7 May 2015 15:09:24 -0700
-Doug Anderson <dianders@chromium.org> wrote:
+Hi,
 
-> If you've got code that does this in a tight loop
->   1. Open watchdog
->   2. Send 'expect close'
->   3. Close watchdog
-> ...you'll eventually trigger a watchdog reset.  You can reproduce this
-> by using daisydog (1) and running:
->   while true; do daisydog -c > /dev/null; done
-> 
-> The problem is that each time you write to the watchdog for 'expect
-> close' it moves the timer .5 seconds out.  The timer thus never fires
-> and never pats the watchdog for you.
-> 
-> 1: http://git.chromium.org/gitweb/?p=chromiumos/third_party/daisydog.git
-> 
-> Signed-off-by: Doug Anderson <dianders@chromium.org>
-> ---
->  drivers/watchdog/dw_wdt.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
-> index 3fa2f19..ff5d734 100644
-> --- a/drivers/watchdog/dw_wdt.c
-> +++ b/drivers/watchdog/dw_wdt.c
-> @@ -220,6 +220,7 @@ static ssize_t dw_wdt_write(struct file *filp, const char __user *buf,
->  	}
->  
->  	dw_wdt_set_next_heartbeat();
-> +	dw_wdt_keepalive();
->  	mod_timer(&dw_wdt.timer, jiffies + WDT_TIMEOUT);
->  
->  	return len;
+On Thu, May 7, 2015 at 6:47 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+> On 05/07/2015 03:09 PM, Doug Anderson wrote:
+>>
+>> Right now the dw_wdt uses a spinlock to protect dw_wdt_open().  The
+>> problem is that while holding the spinlock we call:
+>> -> dw_wdt_set_top()
+>>     -> dw_wdt_top_in_seconds()
+>>        -> clk_get_rate()
+>>           -> clk_prepare_lock()
+>>              -> mutex_lock()
+>>
+>> Locking a mutex while holding a spinlock is not allowed and leads to
+>> warnings like "BUG: spinlock wrong CPU on CPU#1", among other
+>> problems.
+>>
+>> There's no reason to use a spinlock, so switch to a mutex.
+>>
+>> Signed-off-by: Doug Anderson <dianders@chromium.org>
+>
+>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Tested-by: Jisheng Zhang <jszhang@marvell.com>
+As Dmitry pointed out in another context, and even better fix is to
+just remove the spinlock altogether.  I'll send up v2...
+
+-Doug
