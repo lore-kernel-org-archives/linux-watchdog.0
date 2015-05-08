@@ -1,46 +1,94 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:37779 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751512AbbEHEvH (ORCPT
+Received: from mail-wg0-f49.google.com ([74.125.82.49]:35814 "EHLO
+	mail-wg0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751493AbbEHGtX (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 8 May 2015 00:51:07 -0400
-Received: from mailnull by bh-25.webhostbox.net with sa-checked (Exim 4.85)
-	(envelope-from <linux@roeck-us.net>)
-	id 1YqaFf-000WTL-38
-	for linux-watchdog@vger.kernel.org; Fri, 08 May 2015 04:51:07 +0000
-Message-ID: <554C40B7.9060806@roeck-us.net>
-Date: Thu, 07 May 2015 21:51:03 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Fri, 8 May 2015 02:49:23 -0400
+Received: by wgyo15 with SMTP id o15so63725686wgy.2
+        for <linux-watchdog@vger.kernel.org>; Thu, 07 May 2015 23:49:21 -0700 (PDT)
+Date: Fri, 8 May 2015 07:49:18 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Peter Griffin <peter.griffin@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org, kernel@stlinux.com,
+	rtc-linux@googlegroups.com, a.zummo@towertech.it,
+	daniel.lezcano@linaro.org, wim@iguana.be, tglx@linutronix.de,
+	linux@roeck-us.net, linux-watchdog@vger.kernel.org
+Subject: Re: [STLinux Kernel] [PATCH 06/12] watchdog: bindings: Supply
+ knowledge of a third supported device - clocksource
+Message-ID: <20150508064918.GF16220@x1>
+References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
+ <1431005924-21777-7-git-send-email-lee.jones@linaro.org>
+ <20150507141805.GC9793@griffinp-ThinkPad-X1-Carbon-2nd>
+ <20150507191909.GC16220@x1>
+ <20150507195529.GA28554@griffinp-ThinkPad-X1-Carbon-2nd>
 MIME-Version: 1.0
-To: Doug Anderson <dianders@chromium.org>, wim@iguana.be
-CC: jszhang@marvell.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 1/2] watchdog: dw_wdt: No need for a spinlock
-References: <1431059265-9204-1-git-send-email-dianders@chromium.org>
-In-Reply-To: <1431059265-9204-1-git-send-email-dianders@chromium.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+In-Reply-To: <20150507195529.GA28554@griffinp-ThinkPad-X1-Carbon-2nd>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 05/07/2015 09:27 PM, Doug Anderson wrote:
-> Right now the dw_wdt uses a spinlock to protect dw_wdt_open().  The
-> problem is that while holding the spinlock we call:
-> -> dw_wdt_set_top()
->     -> dw_wdt_top_in_seconds()
->        -> clk_get_rate()
->           -> clk_prepare_lock()
->              -> mutex_lock()
->
-> Locking a mutex while holding a spinlock is not allowed and leads to
-> warnings like "BUG: spinlock wrong CPU on CPU#1", among other
-> problems.
->
-> There's no reason to use a spinlock.  Only dw_wdt_open() was protected
-> and the test_and_set_bit() at the start of that function protects us
-> anyway.
->
-> Signed-off-by: Doug Anderson <dianders@chromium.org>
+On Thu, 07 May 2015, Peter Griffin wrote:
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> Hi Lee,
+>=20
+> On Thu, 07 May 2015, Lee Jones wrote:
+>=20
+> <snip>
+>=20
+> > > >  Required properties
+> > > > =20
+> > > > -- compatible 	: Must be one of: "st,stih407-lpc" "st,stih416-l=
+pc"
+> > > > -				  "st,stih415-lpc" "st,stid127-lpc"
+> > > > +- compatible 	: Must be one of: "st,stih407-lpc"
+> > >=20
+> > > The same comment as the RTC DT patch, you are removing the compat=
+ibles
+> > > documentation for the other supported platforms like stih416-lpc.
+> > > AFAIK they are required in the driver to get the correct sysconfi=
+g register.
+> >=20
+> > That's intentional.  I haven't yet tested any of this IP on
+> > STiH41{5,6} & STiH127.  Due to lack of documentation, I'm not even
+> > sure if this IP even exists on some of the other platforms.  I will
+> > add them back when support is added to both driver and DTB and I've
+> > been able to test them.
+>=20
+> That was kind of my point, the driver code AFAIK already contains sup=
+port
+> for these SoC's.
+>=20
+> I would either expect the patch to remove support from the DT docs AN=
+D the
+> driver, or leave it as is.
+>=20
+> It seems odd to only change the DT docs, and become unaligned to the
+> code (this assumes I'm looking at the latest patchset here=20
+> https://lkml.org/lkml/2015/3/4/1088 which includes support for these =
+SoCs).
 
+The decision to remove these 'supported' platforms was made on the RTC
+side, where there is only support for "st,stih407-lpc" in the driver.
+I thought it best to mirror that thought over to the Watchdog LPC
+bindings, but thought it not really worth ripping out existing support
+from the driver.  If others wish to test/use the Watchdog on other
+platforms and can read C code, they'll know what to do.
+
+Hopefully all of this will be a non-issue anyway, as I plan to test
+this on the other boards I have in my farm and make the necessary
+changes in the upcoming weeks.  All should be squared away by the next
+merge-window.
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
