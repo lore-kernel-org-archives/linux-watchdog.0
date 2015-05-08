@@ -1,177 +1,92 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.10]:36993 "EHLO
-	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754002AbbEORnR (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 15 May 2015 13:43:17 -0400
-Date: Fri, 15 May 2015 19:52:07 +0200
-From: Andreas Werner <andy@wernerandy.de>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Window watchdog driver design
-Message-ID: <20150515175207.GA28834@wernerandy.de>
-References: <20150514115626.GA13621@wernerandy.de>
- <5554A35D.5040702@roeck-us.net>
- <20150514140908.GA21645@wernerandy.de>
- <55554356.3070700@roeck-us.net>
- <20150515054341.GA26468@wernerandy.de>
- <55558EBB.30502@roeck-us.net>
+Return-path: <jszhang@marvell.com>
+Date: Fri, 8 May 2015 13:01:10 +0800
+From: Jisheng Zhang <jszhang@marvell.com>
+To: Doug Anderson <dianders@chromium.org>, "wim@iguana.be" <wim@iguana.be>,
+        "linux@roeck-us.net" <linux@roeck-us.net>
+CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v2 1/2] watchdog: dw_wdt: No need for a spinlock
+Message-ID: <20150508130110.54cd965c@xhacker>
+In-Reply-To: <1431059265-9204-1-git-send-email-dianders@chromium.org>
+References: <1431059265-9204-1-git-send-email-dianders@chromium.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <55558EBB.30502@roeck-us.net>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Thu, May 14, 2015 at 11:14:19PM -0700, Guenter Roeck wrote:
-> On 05/14/2015 10:43 PM, Andreas Werner wrote:
-> >On Thu, May 14, 2015 at 05:52:38PM -0700, Guenter Roeck wrote:
-> >>On 05/14/2015 07:09 AM, Andreas Werner wrote:
-> >>>On Thu, May 14, 2015 at 06:30:05AM -0700, Guenter Roeck wrote:
-> >>>>On 05/14/2015 04:56 AM, Andreas Werner wrote:
-> >>>>>Hi,
-> >>>>>in the next few weeks I need to write a driver for a window wachtdog
-> >>>>>implemented in a CPLD. I have some questions about the design
-> >>>>>of the driver and the best way to write this driver to also be able
-> >>>>>to submit it.
-> >>>>>
-> >>>>>The triggering and configuration of the Watchdog is done by several GPIOs which
-> >>>>>are connected to the CPLD watchdog device. The correct GPIOs are configurable
-> >>>>>using the Device Tree.
-> >>>>>
-> >>>>>1. Timeout
-> >>>>>	The timeout values are defined in ms and start from 20ms to 2560ms.
-> >>>>>	The timout is set by 3 GPIOs this means we have only 8 different
-> >>>>>	timout values. It is also possible that a future Watchdog CPLD device
-> >>>>>	does have different timeout values.
-> >>>>>
-> >>>>>	Is it possible to set ms timeouts? It seems that the WDT API does
-> >>>>>	only support a resolution of 1sec.
-> >>>>>
-> >>>>>	One idea would be to use the API timeout as something like a timeout
-> >>>>>	index to set the different values. Of course this needs to be documented.
-> >>>>>
-> >>>>>	e.g.
-> >>>>>	timeout	(API)	timeout in device
-> >>>>>	1 		20ms
-> >>>>>	2		100ms
-> >>>>>	3		500ms
-> >>>>>	...		...		
-> >>>>>
-> >>>>>2. Upper/Lower Window
-> >>>>>	There is currently no support for a windowed watchdog in the wdt core.
-> >>>>>	The lower window can be activated by a gpio and its timeout is defined
-> >>>>>	as "upper windows timeout/4"	
-> >>>>>
-> >>>>>	What is the best way to implement those additional settings? Adding additional
-> >>>>>	ioctl or export these in sysfs?
-> >>>>>--
-> >>>>
-> >>>>Sorry for the maybe dumb question, but what is a window watchdog,
-> >>>>and what is the lower window timeout for (assuming the upper window
-> >>>>timeout causes the watchdog to expire) ?
-> >>>>
-> >>>>Guenter
-> >>>>
-> >>>
-> >>>Oh sorry forgot to describe it in more detail.
-> >>>
-> >>>If you have a watchdog window you do not have just one timeout where the watchdog can expire.
-> >>>You have a so called "window" to trigger it within.
-> >>>
-> >>>		|<----trig---->|
-> >>>---lower timeout----------------upper timeout
-> >>>
-> >>>This means you have to trigger the watchdog not to late and not to early.
-> >>>This kind of watchdog is often used in embedded applications or more often
-> >>>in safety cases to fullfil requirements given e.g. by SIL1-SIL4 certifications.
-> >>>
-> >>>The lower timeout is set by a dedicated GPIO and the value will then "Upper timeout / 4". The
-> >>>upper timeout is set by 3 GPIOs to get different timeout values.
-> >>>
-> >>
-> >>Thanks a lot for the explanation.
-> >>
-> >>I would suggest to use a module parameter to enable the "lower timeout" functionality.
-> >>
-> >>Timeouts have to be specified in seconds.
-> >>
-> >>Hope this helps,
-> >>Guenter
-> >>
-> >
-> >Thanks for the answer.
-> >
-> >The module parameter would be ok for me, but it would be better if i can enable/disable
-> >the lower window by the application.
-> >
-> You could try adding a sysfs attribute.
+On Thu, 7 May 2015 21:27:44 -0700
+Doug Anderson <dianders@chromium.org> wrote:
+
+> Right now the dw_wdt uses a spinlock to protect dw_wdt_open().  The
+> problem is that while holding the spinlock we call:
+> -> dw_wdt_set_top()
+>    -> dw_wdt_top_in_seconds()
+>       -> clk_get_rate()
+>          -> clk_prepare_lock()
+>             -> mutex_lock()
 > 
-> >I know that the API defines the timout in seconds but what about ms? Is there no
-> >watchdog out there which has timout values < seconds?.
-> >
-> The ABI is the ABI, it has been there for a long time, and it only
-> supports second intervals.
+> Locking a mutex while holding a spinlock is not allowed and leads to
+> warnings like "BUG: spinlock wrong CPU on CPU#1", among other
+> problems.
 > 
-> >In my case I can only set 2 timouts (1sec and 2sec) but I need to support all 8 timeout
-> >values.
-> >
-> Kind of strict for a Linux watchdog. Most if not all other timeouts are much higher.
-> The drivers for hardware with low maximum timeout values often implement
-> a two-stage timeout, one handled in the driver that pings the actual hardware
-> timeout, and a soft-timeout to be triggered from user space with a more relaxed
-> timing.
+> There's no reason to use a spinlock.  Only dw_wdt_open() was protected
+> and the test_and_set_bit() at the start of that function protects us
+> anyway.
 > 
-> >The other thing is that my Watchdog can have differen timeout values depending
-> >on the CPLD and the customer requirements. I can not read out this values, they are
-> >only defined in the specification.
-> >
-> Normally you'd expect such platform specific details to be configured via devicetree
-> or platform data if that is not available (or ACPI, of course).
+> Signed-off-by: Doug Anderson <dianders@chromium.org>
+> ---
+> Changes in v2:
+> - Don't switch to mutex; just don't use spinlock at all as per Dmitry
 > 
-> The userspace/kernel ABI/API needs to be standardized, so that user space doesn't
-> need to know implementation details.
+>  drivers/watchdog/dw_wdt.c | 7 -------
+>  1 file changed, 7 deletions(-)
 > 
-> >This is why i had the idea with the table to only set some "indexes" for the timout
-> >to handle all the cases.
-> >
-> Such an "index" would not be a well defined number. A standard application,
-> such as watchdogd or systemd, would not know what to do with it.
-> 
-> After all, the common use case of a watchdog driver is for it to interface with
-> a standard userspace application, so its interface to userspace needs to be well
-> defined. We can not permit "wildcards" such as redefining the meaning of a time
-> interval from seconds to something driver-specific; that would break all kinds
-> of applications.
-> 
-> Guenter
-> 
+> diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+> index d0bb949..a284abd 100644
+> --- a/drivers/watchdog/dw_wdt.c
+> +++ b/drivers/watchdog/dw_wdt.c
+> @@ -35,7 +35,6 @@
+>  #include <linux/pm.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/reboot.h>
+> -#include <linux/spinlock.h>
+>  #include <linux/timer.h>
+>  #include <linux/uaccess.h>
+>  #include <linux/watchdog.h>
+> @@ -61,7 +60,6 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
+>  #define WDT_TIMEOUT		(HZ / 2)
+>  
+>  static struct {
+> -	spinlock_t		lock;
+>  	void __iomem		*regs;
+>  	struct clk		*clk;
+>  	unsigned long		in_use;
+> @@ -177,7 +175,6 @@ static int dw_wdt_open(struct inode *inode, struct file *filp)
+>  	/* Make sure we don't get unloaded. */
+>  	__module_get(THIS_MODULE);
+>  
+> -	spin_lock(&dw_wdt.lock);
+>  	if (!dw_wdt_is_enabled()) {
+>  		/*
+>  		 * The watchdog is not currently enabled. Set the timeout to
+> @@ -190,8 +187,6 @@ static int dw_wdt_open(struct inode *inode, struct file *filp)
+>  
+>  	dw_wdt_set_next_heartbeat();
+>  
+> -	spin_unlock(&dw_wdt.lock);
+> -
+>  	return nonseekable_open(inode, filp);
+>  }
+>  
+> @@ -348,8 +343,6 @@ static int dw_wdt_drv_probe(struct platform_device *pdev)
+>  	if (ret)
+>  		return ret;
+>  
+> -	spin_lock_init(&dw_wdt.lock);
+> -
+>  	ret = misc_register(&dw_wdt_miscdev);
+>  	if (ret)
+>  		goto out_disable_clk;
 
-I have one other idea which does not brake the "whole" WDT ABI and the interface
-to things like systemd.
-
-The plan is to support the mandatory features like start,stop,ping through the ioctl
-this are the features which are checked by the watchdog core. If no min/max timeout
-values are set, the driver core would set it to 0.
-
-With this features I can support e.g. systemd to start/stop and trigger the Watchdog
-with a default timeout value.
-
-I would like to export all the other stuff (enable/disable lower window, set/get the
-time intervals) through sysfs.
-
-Ok i would just break one have of the ABI (set/get timeout) but not the whole one by
-redefining the timeout.
-
-Of course the sysfs attributes needs to be documented for this device and yes this 
-is not a generic interface or abstartion and I think this could be the problem for 
-upstreaming this. I think this is the way I will go regardless if it is possible
-to get it into the kernel or not.
-
-What do you think about it?
-
-Regards
-Andy
-
-
-
+Tested-by: Jisheng Zhang <jszhang@marvell.com>
