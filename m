@@ -1,113 +1,72 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta5.messagelabs.com ([195.245.231.138]:62608 "EHLO
-	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752505AbbEHNrC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 8 May 2015 09:47:02 -0400
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-To: Guenter Roeck <linux@roeck-us.net>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>
-CC: Alessandro Zummo <a.zummo@towertech.it>,
-	DEVICETREE <devicetree@vger.kernel.org>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	"Mark Rutland" <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Support Opensource <Support.Opensource@diasemi.com>
-Subject: RE: [PATCH V1 5/6] watchdog: da9062: DA9062 watchdog driver
-Date: Fri, 8 May 2015 13:46:42 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B227F1A@SW-EX-MBX02.diasemi.com>
-References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
- <2afd9f55c71553186e99bfe386312f0c7d7501ed.1429280614.git.stwiss.opensource@diasemi.com>
- <55327DDA.4080003@roeck-us.net>
-In-Reply-To: <55327DDA.4080003@roeck-us.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Received: from down.free-electrons.com ([37.187.137.238]:46973 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751409AbbEIN65 (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Sat, 9 May 2015 09:58:57 -0400
+Date: Sat, 9 May 2015 15:58:54 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	kernel@stlinux.com, devicetree@vger.kernel.org,
+	daniel.lezcano@linaro.org, tglx@linutronix.de, wim@iguana.be,
+	a.zummo@towertech.it, linux-watchdog@vger.kernel.org,
+	rtc-linux@googlegroups.com, linux@roeck-us.net
+Subject: Re: [rtc-linux] [PATCH 07/12] rtc: st: Update IP layout information
+ to include Clocksource
+Message-ID: <20150509135854.GE3338@piout.net>
+References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org>
+ <1431005924-21777-8-git-send-email-lee.jones@linaro.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1431005924-21777-8-git-send-email-lee.jones@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 18 April 2015 16:53 Guenter Roeck wrote:
+On 07/05/2015 at 14:38:39 +0100, Lee Jones wrote :
+> Initial submission adding support for this IP only included Watchdog and
+> the Real-Time Clock.  Now the third (and final) device is enabled this
+> trivial patch is required to update the comment in the RTC driver to
+> encompass Clocksource.
+> 
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 
-Hi Guenter,
+I'm guessing this will go through the mfd tree along with the driver?
 
-There were some missing explanations in my previous e-mails for some of 
-your comments. Please find them below.
+> ---
+>  drivers/rtc/rtc-st-lpc.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/rtc/rtc-st-lpc.c b/drivers/rtc/rtc-st-lpc.c
+> index 3f9d0ac..74c0a33 100644
+> --- a/drivers/rtc/rtc-st-lpc.c
+> +++ b/drivers/rtc/rtc-st-lpc.c
+> @@ -208,7 +208,7 @@ static int st_rtc_probe(struct platform_device *pdev)
+>  		return -EINVAL;
+>  	}
+>  
+> -	/* LPC can either run in RTC or WDT mode */
+> +	/* LPC can either run as a Clocksource or in RTC or WDT mode */
+>  	if (mode != ST_LPC_MODE_RTC)
+>  		return -ENODEV;
+>  
+> -- 
+> 1.9.1
+> 
+> -- 
+> -- 
+> You received this message because you are subscribed to "rtc-linux".
+> Membership options at http://groups.google.com/group/rtc-linux .
+> Please read http://groups.google.com/group/rtc-linux/web/checklist
+> before submitting a driver.
+> --- 
+> You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+> To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe@googlegroups.com.
+> For more options, visit https://groups.google.com/d/optout.
 
-During the da9062_wdt_probe() there were several ignored error paths and
-a missing cleanup . I intend to rectify this with the following:
-
---- a/linux-next/v4.0/drivers/watchdog/da9062_wdt.c
-+++ b/linux-next/v4.0/drivers/watchdog/da9062_wdt.c
-@@ -232,8 +232,11 @@ static int da9062_wdt_probe(struct platform_device *pdev)
-        dev_set_drvdata(&pdev->dev, wdt);
- 
-        irq = platform_get_irq_byname(pdev, "WDG_WARN");
--       if (irq < 0)
-+       if (irq < 0) {
-                dev_err(wdt->hw->dev, "Failed to get IRQ.\n");
-+               ret = irq;
-+               goto error;
-+       }
- 
-        ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
-                           da9062_wdt_wdg_warn_irq_handler,
-@@ -242,20 +245,23 @@ static int da9062_wdt_probe(struct platform_device *pdev)
-        if (ret) {
-                dev_err(wdt->hw->dev,
-                        "Failed to request watchdog device IRQ.\n");
-+               goto error;
-        }
- 
-        ret = watchdog_register_device(&wdt->wdtdev);
--       if (ret < 0)
-+       if (ret < 0) {
-                dev_err(wdt->hw->dev,
-                        "watchdog registration incomplete (%d)\n", ret);
-+               goto error;
-+       }
- 
-        da9062_set_window_start(wdt);
- 
-        ret = da9062_wdt_ping(&wdt->wdtdev);
-        if (ret < 0)
--               dev_err(wdt->hw->dev,
--                       "failed to ping the watchdog (%d)\n", ret);
-+               watchdog_unregister_device(&wdt->wdtdev);
- 
-+error:
-        return ret;
- }
-
-Also there was an explanation required for the confusing ping() function
-inside the driver probe() ...
-
-> > +	da9062_wdt_ping(&wdt->wdtdev);
-[...]
-> That ping is asking for an explanation. Does it imply that the watchdog is
-> known to be running and cannot be stopped ?
-
-Pinging the DA9062 watchdog has no effect if it is disabled. But I guessed that
-in a real application if the watchdog -was- enabled from start-up then the first
-thing the driver needed to do was kick the watchdog.
-
-I could have put protection around it, say by reading the TWDSCALE bit for 
-whether the watchdog was enabled, and that would have made it more explicit
-but in this case it wouldn't matter.
-
-This can be removed if you prefer.
-
-Regards,
-Steve
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
