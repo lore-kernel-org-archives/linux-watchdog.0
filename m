@@ -1,71 +1,240 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:53834 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752202AbbEJJ6l (ORCPT
+Received: from mail-wi0-f178.google.com ([209.85.212.178]:36592 "EHLO
+	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752218AbbEKImw (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 10 May 2015 05:58:41 -0400
-Date: Sun, 10 May 2015 11:58:38 +0200
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	DEVICETREE <devicetree@vger.kernel.org>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Support Opensource <support.opensource@diasemi.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [rtc-linux] [PATCH V1 3/6] rtc: da9062: DA9062 RTC driver
-Message-ID: <20150510095838.GF3338@piout.net>
-References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
- <860a3b6dc7f8dac95c0e36967f24551af8805f7b.1429280614.git.stwiss.opensource@diasemi.com>
+	Mon, 11 May 2015 04:42:52 -0400
+Received: by wizk4 with SMTP id k4so96220526wiz.1
+        for <linux-watchdog@vger.kernel.org>; Mon, 11 May 2015 01:42:50 -0700 (PDT)
+Message-ID: <55506B87.3070807@linaro.org>
+Date: Mon, 11 May 2015 10:42:47 +0200
+From: Daniel Lezcano <daniel.lezcano@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <860a3b6dc7f8dac95c0e36967f24551af8805f7b.1429280614.git.stwiss.opensource@diasemi.com>
+To: Lee Jones <lee.jones@linaro.org>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+CC: kernel@stlinux.com, devicetree@vger.kernel.org, tglx@linutronix.de,
+	wim@iguana.be, a.zummo@towertech.it,
+	linux-watchdog@vger.kernel.org, rtc-linux@googlegroups.com,
+	linux@roeck-us.net
+Subject: Re: [PATCH 02/12] clocksource: sti: Provide support for the ST LPC
+ Clocksource IP
+References: <1431005924-21777-1-git-send-email-lee.jones@linaro.org> <1431005924-21777-3-git-send-email-lee.jones@linaro.org>
+In-Reply-To: <1431005924-21777-3-git-send-email-lee.jones@linaro.org>
+Content-Type: text/plain; charset=utf-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
-
-On 17/04/2015 at 15:23:33 +0100, S Twiss wrote :
-> From: S Twiss <stwiss.opensource@diasemi.com>
-> 
-> Add RTC driver support for DA9062
-> 
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> 
+On 05/07/2015 03:38 PM, Lee Jones wrote:
+> This IP is shared with Watchdog and RTC functionality.  Only one of
+> these IPs can be used at the same time.  We use the device-driver
+> model combined with a DT 'mode' property to enforce this.
+>
+> The ST LPC Clocksource IP can be used as the system (tick) timer.
+>
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
 > ---
-> 
-> This patch applies against linux-next and v4.0 
-> 
-> 
-> 
->  drivers/rtc/Kconfig      |  10 ++
->  drivers/rtc/Makefile     |   1 +
->  drivers/rtc/rtc-da9062.c | 367 +++++++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 378 insertions(+)
->  create mode 100644 drivers/rtc/rtc-da9062.c
-> 
+>   drivers/clocksource/Kconfig         |   8 +++
+>   drivers/clocksource/Makefile        |   1 +
+>   drivers/clocksource/clksrc_st_lpc.c | 123 +++++++++++++++++++++++++=
++++++++++++
+>   3 files changed, 132 insertions(+)
+>   create mode 100644 drivers/clocksource/clksrc_st_lpc.c
+>
+> diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfi=
+g
+> index 68161f7..ac424cf 100644
+> --- a/drivers/clocksource/Kconfig
+> +++ b/drivers/clocksource/Kconfig
+> @@ -250,4 +250,12 @@ config CLKSRC_PXA
+>   	help
+>   	  This enables OST0 support available on PXA and SA-11x0
+>   	  platforms.
+> +
+> +config CLKSRC_ST_LPC
+> +	bool
+> +	depends on ARCH_STI
+> +	select CLKSRC_OF if OF
+> +	help
+> +	  Enable this option to use the Low Power controller timer
+> +	  as clocksource.
+>   endmenu
+> diff --git a/drivers/clocksource/Makefile b/drivers/clocksource/Makef=
+ile
+> index 752d5c7..e08da4d 100644
+> --- a/drivers/clocksource/Makefile
+> +++ b/drivers/clocksource/Makefile
+> @@ -51,3 +51,4 @@ obj-$(CONFIG_ARCH_INTEGRATOR_AP)	+=3D timer-integra=
+tor-ap.o
+>   obj-$(CONFIG_CLKSRC_VERSATILE)		+=3D versatile.o
+>   obj-$(CONFIG_CLKSRC_MIPS_GIC)		+=3D mips-gic-timer.o
+>   obj-$(CONFIG_ASM9260_TIMER)		+=3D asm9260_timer.o
+> +obj-$(CONFIG_CLKSRC_ST_LPC)		+=3D clksrc_st_lpc.o
+> diff --git a/drivers/clocksource/clksrc_st_lpc.c b/drivers/clocksourc=
+e/clksrc_st_lpc.c
+> new file mode 100644
+> index 0000000..18a7dcd0
+> --- /dev/null
+> +++ b/drivers/clocksource/clksrc_st_lpc.c
+> @@ -0,0 +1,123 @@
+> +/*
+> + * Clocksource using the Low Power Timer found in the Low Power Cont=
+roller (LPC)
+> + *
+> + * Copyright (C) 2015 STMicroelectronics =E2=80=93 All Rights Reserv=
+ed
+> + *
+> + * Author(s): Francesco Virlinzi <francesco.virlinzi@st.com>
+> + *	      Ajit Pal Singh <ajitpal.singh@st.com>
+> + *
+> + * This program is free software; you can redistribute it and/or mod=
+ify
+> + * it under the terms of the GNU General Public License as published=
+ by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + */
+> +
+> +#include <linux/clk.h>
+> +#include <linux/clocksource.h>
+> +#include <linux/init.h>
+> +#include <linux/of_address.h>
+> +#include <linux/slab.h>
+> +
+> +#include <dt-bindings/mfd/st-lpc.h>
+> +
+> +/* Low Power Timer */
+> +#define LPC_LPT_LSB_OFF		0x400
+> +#define LPC_LPT_MSB_OFF		0x404
+> +#define LPC_LPT_START_OFF	0x408
+> +
+> +static struct st_clksrc_ddata {
+> +	struct clk		*clk;
+> +	void __iomem		*base;
+> +} ddata;
+> +
+> +static void st_clksrc_reset(void)
+> +{
+> +	writel_relaxed(0, ddata.base + LPC_LPT_START_OFF);
+> +	writel_relaxed(0, ddata.base + LPC_LPT_MSB_OFF);
+> +	writel_relaxed(0, ddata.base + LPC_LPT_LSB_OFF);
+> +	writel_relaxed(1, ddata.base + LPC_LPT_START_OFF);
+> +}
+> +
+> +static int __init st_clksrc_init(void)
+> +{
+> +	unsigned long rate;
+> +	int ret;
+> +
+> +	st_clksrc_reset();
+> +
+> +	rate =3D clk_get_rate(ddata.clk);
+> +
+> +	ret =3D clocksource_mmio_init(ddata.base + LPC_LPT_LSB_OFF,
+> +				    "clksrc-st-lpc", rate, 300, 32,
+> +				    clocksource_mmio_readl_up);
+> +	if (ret) {
+> +		pr_err("clksrc-st-lpc: Failed to register clocksource\n");
+> +		return ret;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int st_clksrc_setup_clk(struct device_node *np)
+> +{
+> +	struct clk *clk;
+> +	int ret;
+> +
+> +	clk =3D of_clk_get(np, 0);
+> +	if (IS_ERR(clk)) {
+> +		pr_err("clksrc-st-lpc: Failed to get LPC clock\n");
+> +		ret =3D PTR_ERR(clk);
+> +		return ret;
 
-This is an almost exact copy of drivers/rtc/rtc-da9063.c, apart from the
-retry mechanism in read_time. Can you simply add support for the da9062
-in that driver?
+return PTR_ERR(clk);
 
-Thanks!
+so you can get rid of the 'int ret' variable.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+> +	}
+> +
+> +	if (clk_prepare_enable(clk)) {
+> +		pr_err("clksrc-st-lpc: Failed to enable LPC clock\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	if (!clk_get_rate(clk)) {
+> +		pr_err("clksrc-st-lpc: Failed to get LPC clock rate\n");
+> +		clk_disable_unprepare(clk);
+> +		return -EINVAL;
+> +	}
+> +
+> +	ddata.clk =3D clk;
+> +
+> +	return 0;
+> +}
+> +
+> +static void __init st_clksrc_of_register(struct device_node *np)
+> +{
+> +	int ret;
+> +	uint32_t mode;
+> +
+> +	ret =3D of_property_read_u32(np, "st,lpc-mode", &mode);
+> +	if (ret) {
+> +		pr_err("clksrc-st-lpc: An LPC mode must be provided\n");
+> +		return;
+> +	}
+> +
+> +	/* LPC can either run as a Clocksource or in RTC or WDT mode */
+> +	if (mode !=3D ST_LPC_MODE_CLKSRC)
+> +		return;
+
+I am confused with this patch description + comment and the patch 1's=20
+description.
+
+=46or the former, I understand the LPC could be in RTC or WDT mode and=20
+used as a clocksource (clksrc + rtc / clksrc + wdt), for the latter I=20
+understand there are three modes clocksource, rtc and watchdog (mutuall=
+y=20
+exclusive). Could you clarify ?
+
+> +
+> +	ddata.base =3D of_iomap(np, 0);
+> +	if (!ddata.base) {
+> +		pr_err("clksrc-st-lpc: Unable to map iomem\n");
+> +		return;
+> +	}
+> +
+> +	if (st_clksrc_setup_clk(np)) {
+> +		iounmap(ddata.base);
+> +		return;
+> +	}
+> +
+> +	if (st_clksrc_init()) {
+> +		iounmap(ddata.base);
+> +		return;
+> +	}
+> +
+> +	pr_info("clksrc-st-lpc: clocksource initialised - running @ %luHz\n=
+",
+> +		clk_get_rate(ddata.clk));
+> +}
+> +CLOCKSOURCE_OF_DECLARE(ddata, "st,stih407-lpc", st_clksrc_of_registe=
+r);
+>
+
+
+--=20
+  <http://www.linaro.org/> Linaro.org =E2=94=82 Open source software fo=
+r ARM SoCs
+
+=46ollow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
+<http://twitter.com/#!/linaroorg> Twitter |
+<http://www.linaro.org/linaro-blog/> Blog
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
