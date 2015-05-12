@@ -12,50 +12,32 @@ To: linux-arm-kernel@lists.infradead.org,
 	linux@roeck-us.net
 Cc: kernel@stlinux.com,
 	Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH v2 03/12] clocksource: sti: Provide 'use timer as sched clock' capability
-Date: Tue, 12 May 2015 13:58:11 +0100
-Message-Id: <1431435500-22899-4-git-send-email-lee.jones@linaro.org>
+Subject: [PATCH v2 01/12] mfd: dt-bindings: Provide human readable define for Clocksource mode
+Date: Tue, 12 May 2015 13:58:09 +0100
+Message-Id: <1431435500-22899-2-git-send-email-lee.jones@linaro.org>
 In-Reply-To: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
 References: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
+ST's Low Power Controller can now operate in three supported modes;
+Watchdog, Real Time Clock and most recently as a Clocksource.  This new
+define will allow the LPC IP to be configured for Clocksource from DT.
+
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/clocksource/clksrc_st_lpc.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ include/dt-bindings/mfd/st-lpc.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/clocksource/clksrc_st_lpc.c b/drivers/clocksource/clksrc_st_lpc.c
-index 1ad1714..90f5bb8 100644
---- a/drivers/clocksource/clksrc_st_lpc.c
-+++ b/drivers/clocksource/clksrc_st_lpc.c
-@@ -16,6 +16,7 @@
- #include <linux/clocksource.h>
- #include <linux/init.h>
- #include <linux/of_address.h>
-+#include <linux/sched_clock.h>
- #include <linux/slab.h>
+diff --git a/include/dt-bindings/mfd/st-lpc.h b/include/dt-bindings/mfd/st-lpc.h
+index e3e6c75..d05894a 100644
+--- a/include/dt-bindings/mfd/st-lpc.h
++++ b/include/dt-bindings/mfd/st-lpc.h
+@@ -11,5 +11,6 @@
  
- #include <dt-bindings/mfd/st-lpc.h>
-@@ -38,6 +39,11 @@ static void st_clksrc_reset(void)
- 	writel_relaxed(1, ddata.base + LPC_LPT_START_OFF);
- }
+ #define ST_LPC_MODE_RTC		0
+ #define ST_LPC_MODE_WDT		1
++#define ST_LPC_MODE_CLKSRC	2
  
-+static u64 notrace st_clksrc_sched_clock_read(void)
-+{
-+	return (u64)readl_relaxed(ddata.base + LPC_LPT_LSB_OFF);
-+}
-+
- static int __init st_clksrc_init(void)
- {
- 	unsigned long rate;
-@@ -47,6 +53,8 @@ static int __init st_clksrc_init(void)
- 
- 	rate = clk_get_rate(ddata.clk);
- 
-+	sched_clock_register(st_clksrc_sched_clock_read, 32, rate);
-+
- 	ret = clocksource_mmio_init(ddata.base + LPC_LPT_LSB_OFF,
- 				    "clksrc-st-lpc", rate, 300, 32,
- 				    clocksource_mmio_readl_up);
+ #endif /* __DT_BINDINGS_ST_LPC_H__ */
 -- 
 1.9.1
