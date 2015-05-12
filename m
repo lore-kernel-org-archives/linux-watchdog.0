@@ -12,36 +12,29 @@ To: linux-arm-kernel@lists.infradead.org,
 	linux@roeck-us.net
 Cc: kernel@stlinux.com,
 	Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH v2 07/12] rtc: st: Update IP layout information to include Clocksource
-Date: Tue, 12 May 2015 13:58:15 +0100
-Message-Id: <1431435500-22899-8-git-send-email-lee.jones@linaro.org>
+Subject: [PATCH v2 09/12] MAINTAINERS: Add the LPC Clocksource to STi maintained driver list
+Date: Tue, 12 May 2015 13:58:17 +0100
+Message-Id: <1431435500-22899-10-git-send-email-lee.jones@linaro.org>
 In-Reply-To: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
 References: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Initial submission adding support for this IP only included Watchdog and
-the Real-Time Clock.  Now the third (and final) device is enabled this
-trivial patch is required to update the comment in the RTC driver to
-encompass Clocksource.
-
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/rtc/rtc-st-lpc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ MAINTAINERS | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rtc/rtc-st-lpc.c b/drivers/rtc/rtc-st-lpc.c
-index 3f9d0ac..74c0a33 100644
---- a/drivers/rtc/rtc-st-lpc.c
-+++ b/drivers/rtc/rtc-st-lpc.c
-@@ -208,7 +208,7 @@ static int st_rtc_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
- 
--	/* LPC can either run in RTC or WDT mode */
-+	/* LPC can either run as a Clocksource or in RTC or WDT mode */
- 	if (mode != ST_LPC_MODE_RTC)
- 		return -ENODEV;
- 
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 2bc71e7..af9e952 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -1454,6 +1454,7 @@ S:	Maintained
+ F:	arch/arm/mach-sti/
+ F:	arch/arm/boot/dts/sti*
+ F:	drivers/clocksource/arm_global_timer.c
++F:	drivers/clocksource/clksrc_st_lpc.c
+ F:	drivers/i2c/busses/i2c-st.c
+ F:	drivers/media/rc/st_rc.c
+ F:	drivers/mmc/host/sdhci-st.c
 -- 
 1.9.1
