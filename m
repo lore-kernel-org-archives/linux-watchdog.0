@@ -12,40 +12,36 @@ To: linux-arm-kernel@lists.infradead.org,
 	linux@roeck-us.net
 Cc: kernel@stlinux.com,
 	Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH v2 12/12] ARM: STi: Update platform level menuconfig 'help'
-Date: Tue, 12 May 2015 13:58:20 +0100
-Message-Id: <1431435500-22899-13-git-send-email-lee.jones@linaro.org>
+Subject: [PATCH v2 05/12] watchdog: st_wdt: Update IP layout information to include Clocksource
+Date: Tue, 12 May 2015 13:58:13 +0100
+Message-Id: <1431435500-22899-6-git-send-email-lee.jones@linaro.org>
 In-Reply-To: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
 References: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Encompass newer STiH4{07,10} and STiH418 SoC based platforms.
+Initial submission adding support for this IP only included Watchdog and
+the Real-Time Clock.  Now the third (and final) device is enabled this
+trivial patch is required to update the comment in the Watchdog driver
+to encompass Clocksource.
 
-Acked-by: Peter Griffin <peter.griffin@linaro.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- arch/arm/mach-sti/Kconfig | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/watchdog/st_lpc_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-sti/Kconfig b/arch/arm/mach-sti/Kconfig
-index cb886de..2a3bfaa 100644
---- a/arch/arm/mach-sti/Kconfig
-+++ b/arch/arm/mach-sti/Kconfig
-@@ -16,11 +16,10 @@ menuconfig ARCH_STI
- 	select PL310_ERRATA_769419 if CACHE_L2X0
- 	select RESET_CONTROLLER
- 	help
--	  Include support for STiH41x SOCs like STiH415/416 using the device tree
--	  for discovery
--	  More information at Documentation/arm/STiH41x and
--	  at Documentation/devicetree
--
-+	  Include support for STMicroelectronics' STiH415/416, STiH407/10 and
-+	  STiH418 family SoCs using the Device Tree for discovery.  More
-+	  information can be found in Documentation/arm/sti/ and
-+	  Documentation/devicetree.
+diff --git a/drivers/watchdog/st_lpc_wdt.c b/drivers/watchdog/st_lpc_wdt.c
+index f32be15..6785afd 100644
+--- a/drivers/watchdog/st_lpc_wdt.c
++++ b/drivers/watchdog/st_lpc_wdt.c
+@@ -197,7 +197,7 @@ static int st_wdog_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
  
- if ARCH_STI
+-	/* LPC can either run in RTC or WDT mode */
++	/* LPC can either run as a Clocksource or in RTC or WDT mode */
+ 	if (mode != ST_LPC_MODE_WDT)
+ 		return -ENODEV;
  
 -- 
 1.9.1
