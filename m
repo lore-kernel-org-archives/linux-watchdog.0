@@ -12,29 +12,32 @@ To: linux-arm-kernel@lists.infradead.org,
 	linux@roeck-us.net
 Cc: kernel@stlinux.com,
 	Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH v2 09/12] MAINTAINERS: Add the LPC Clocksource to STi maintained driver list
-Date: Tue, 12 May 2015 13:58:17 +0100
-Message-Id: <1431435500-22899-10-git-send-email-lee.jones@linaro.org>
+Subject: [PATCH v2 10/12] ARM: STi: DT: STih407: Switch LPC mode from RTC to Clocksource
+Date: Tue, 12 May 2015 13:58:18 +0100
+Message-Id: <1431435500-22899-11-git-send-email-lee.jones@linaro.org>
 In-Reply-To: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
 References: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
+This aligns with the internal configuration.
+
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- MAINTAINERS | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/stih407-family.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 2bc71e7..af9e952 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -1454,6 +1454,7 @@ S:	Maintained
- F:	arch/arm/mach-sti/
- F:	arch/arm/boot/dts/sti*
- F:	drivers/clocksource/arm_global_timer.c
-+F:	drivers/clocksource/clksrc_st_lpc.c
- F:	drivers/i2c/busses/i2c-st.c
- F:	drivers/media/rc/st_rc.c
- F:	drivers/mmc/host/sdhci-st.c
+diff --git a/arch/arm/boot/dts/stih407-family.dtsi b/arch/arm/boot/dts/stih407-family.dtsi
+index 2b2315d..bf1c7f5 100644
+--- a/arch/arm/boot/dts/stih407-family.dtsi
++++ b/arch/arm/boot/dts/stih407-family.dtsi
+@@ -354,7 +354,7 @@
+ 			reg = <0x8788000 0x1000>;
+ 			interrupts = <GIC_SPI 130 IRQ_TYPE_EDGE_RISING>;
+ 			clocks = <&clk_s_d3_flexgen CLK_LPC_1>;
+-			st,lpc-mode = <ST_LPC_MODE_RTC>;
++			st,lpc-mode = <ST_LPC_MODE_CLKSRC>;
+ 		};
+ 	};
+ };
 -- 
 1.9.1
