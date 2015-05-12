@@ -12,36 +12,38 @@ To: linux-arm-kernel@lists.infradead.org,
 	linux@roeck-us.net
 Cc: kernel@stlinux.com,
 	Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH v2 06/12] watchdog: bindings: Supply knowledge of a third supported device - clocksource
-Date: Tue, 12 May 2015 13:58:14 +0100
-Message-Id: <1431435500-22899-7-git-send-email-lee.jones@linaro.org>
+Subject: [PATCH v2 08/12] rtc: bindings: Supply knowledge of a third supported device - clocksource
+Date: Tue, 12 May 2015 13:58:16 +0100
+Message-Id: <1431435500-22899-9-git-send-email-lee.jones@linaro.org>
 In-Reply-To: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
 References: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ Documentation/devicetree/bindings/rtc/rtc-st-lpc.txt | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt b/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
-index 388c88a..039c5ca 100644
---- a/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/st_lpc_wdt.txt
-@@ -1,9 +1,11 @@
- STMicroelectronics Low Power Controller (LPC) - Watchdog
- ========================================================
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-st-lpc.txt b/Documentation/devicetree/bindings/rtc/rtc-st-lpc.txt
+index 73407f50..daf8826 100644
+--- a/Documentation/devicetree/bindings/rtc/rtc-st-lpc.txt
++++ b/Documentation/devicetree/bindings/rtc/rtc-st-lpc.txt
+@@ -1,20 +1,23 @@
+ STMicroelectronics Low Power Controller (LPC) - RTC
+ ===================================================
  
 -LPC currently supports Watchdog OR Real Time Clock functionality.
 +LPC currently supports Watchdog OR Real Time Clock OR Clocksource
 +functionality.
  
- [See: ../rtc/rtc-st-lpc.txt for RTC options]
+ [See: ../watchdog/st_lpc_wdt.txt for Watchdog options]
 +[See: ../timer/st,stih407-lpc for Clocksource options]
  
  Required properties
  
-@@ -12,9 +14,11 @@ Required properties
+-- compatible 	: Must be one of: "st,stih407-lpc" "st,stih416-lpc"
+-				  "st,stih415-lpc" "st,stid127-lpc"
++- compatible 	: Must be: "st,stih407-lpc"
  - reg		: LPC registers base address + size
  - interrupts    : LPC interrupt line number and associated flags
  - clocks	: Clock used by LPC device (See: ../clock/clock-bindings.txt)
@@ -54,7 +56,7 @@ index 388c88a..039c5ca 100644
 +                  ST_LPC_MODE_CLKSRC [2]
 +		 One (and only one) mode must be selected.
  
- Required properties [watchdog mode]
- 
+ Example:
+ 	lpc@fde05000 {
 -- 
 1.9.1
