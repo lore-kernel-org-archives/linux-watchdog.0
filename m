@@ -1,48 +1,65 @@
-Return-path: <timur@codeaurora.org>
-Message-ID: <5555347D.7050106@codeaurora.org>
-Date: Thu, 14 May 2015 18:49:17 -0500
-From: Timur Tabi <timur@codeaurora.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:37280 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750893AbbENNaK (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 14 May 2015 09:30:10 -0400
+Message-ID: <5554A35D.5040702@roeck-us.net>
+Date: Thu, 14 May 2015 06:30:05 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-To: Guenter Roeck <linux@roeck-us.net>
-CC: Arnd Bergmann <arnd@arndb.de>, linux-watchdog@vger.kernel.org,
- Ashwin Chaugule <ashwin.chaugule@linaro.org>,
- Vipul Gandhi <vgandhi@codeaurora.org>, Fu Wei <fu.wei@linaro.org>,
- Al Stone <al.stone@linaro.org>, Wim Van Sebroeck <wim@iguana.be>,
- Hanjun Guo <hanjun.guo@linaro.org>,
- Graeme Gregory <graeme.gregory@linaro.org>,
- linaro-acpi@lists.linaro.org
-Subject: Re: [PATCH] [v2] watchdog: introduce the ARM64 SBSA watchdog driver
-References: <1431622353-11196-1-git-send-email-timur@codeaurora.org> <3074350.inBBIzlShL@wuerfel> <5555027B.6010701@codeaurora.org> <20150514204505.GA10374@roeck-us.net> <55550D8E.6000408@codeaurora.org> <55553291.3050009@roeck-us.net>
-In-Reply-To: <55553291.3050009@roeck-us.net>
+To: Andreas Werner <andy@wernerandy.de>,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Window watchdog driver design
+References: <20150514115626.GA13621@wernerandy.de>
+In-Reply-To: <20150514115626.GA13621@wernerandy.de>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Guenter Roeck wrote:
+On 05/14/2015 04:56 AM, Andreas Werner wrote:
+> Hi,
+> in the next few weeks I need to write a driver for a window wachtdog
+> implemented in a CPLD. I have some questions about the design
+> of the driver and the best way to write this driver to also be able
+> to submit it.
 >
-> We still don't know if the registers are in host byte order or in little
-> endian
-> order. If registers are in host byte order, there is no need for a
-> conversion.
+> The triggering and configuration of the Watchdog is done by several GPIOs which
+> are connected to the CPLD watchdog device. The correct GPIOs are configurable
+> using the Device Tree.
+>
+> 1. Timeout
+> 	The timeout values are defined in ms and start from 20ms to 2560ms.
+> 	The timout is set by 3 GPIOs this means we have only 8 different
+> 	timout values. It is also possible that a future Watchdog CPLD device
+> 	does have different timeout values.
+>
+> 	Is it possible to set ms timeouts? It seems that the WDT API does
+> 	only support a resolution of 1sec.
+>
+> 	One idea would be to use the API timeout as something like a timeout
+> 	index to set the different values. Of course this needs to be documented.
+>
+> 	e.g.
+> 	timeout	(API)	timeout in device
+> 	1 		20ms
+> 	2		100ms
+> 	3		500ms
+> 	...		...		
+>
+> 2. Upper/Lower Window
+> 	There is currently no support for a windowed watchdog in the wdt core.
+> 	The lower window can be activated by a gpio and its timeout is defined
+> 	as "upper windows timeout/4"	
+>
+> 	What is the best way to implement those additional settings? Adding additional
+> 	ioctl or export these in sysfs?
+> --
 
-Well, if I compile and boot a big-endian ARM64 kernel, then I don't 
-expect the hardware devices to magically switch all their registers into 
-big endian.  The devices will remain little-endian.
+Sorry for the maybe dumb question, but what is a window watchdog,
+and what is the lower window timeout for (assuming the upper window
+timeout causes the watchdog to expire) ?
 
-I presume that this is true on all ARM and ARM64 systems.  Switching the 
-CPU into big-endian mode (when it normally would run in little-endian) 
-does not also switch the hardware registers.
+Guenter
 
-Therefore, if we want to support big-endian kernels on ARM64, then every 
-readl/writel in every driver must use cpu_to_le32/etc.
-
-I think this conversation has gone off-track.  I don't see how the SBSA 
-watchdog device is any different from any other device on an ARM64 platform.
-
-I think it's safe to say that the endian order is not specified 
-anywhere, but on my hardware, everything is little-endian.
-
--- 
-Sent by an employee of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the
-Code Aurora Forum, hosted by The Linux Foundation.
