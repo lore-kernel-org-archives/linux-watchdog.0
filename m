@@ -1,53 +1,33 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.10]:38772 "EHLO
-	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750907AbbENLrm (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 14 May 2015 07:47:42 -0400
-Date: Thu, 14 May 2015 13:56:26 +0200
-From: Andreas Werner <andy@wernerandy.de>
-To: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Window watchdog driver design
-Message-ID: <20150514115626.GA13621@wernerandy.de>
+Return-path: <arnd@arndb.de>
+From: Arnd Bergmann <arnd@arndb.de>
+To: Timur Tabi <timur@codeaurora.org>
+Cc: linux-watchdog@vger.kernel.org, Ashwin Chaugule <ashwin.chaugule@linaro.org>, Vipul Gandhi <vgandhi@codeaurora.org>, Fu Wei <fu.wei@linaro.org>, Al Stone <al.stone@linaro.org>, Wim Van Sebroeck <wim@iguana.be>, Hanjun Guo <hanjun.guo@linaro.org>, Guenter Roeck <linux@roeck-us.net>, Graeme Gregory <graeme.gregory@linaro.org>, linaro-acpi@lists.linaro.org
+Subject: Re: [PATCH] [v2] watchdog: introduce the ARM64 SBSA watchdog driver
+Date: Thu, 14 May 2015 22:03:25 +0200
+Message-ID: <3074350.inBBIzlShL@wuerfel>
+In-Reply-To: <1431622353-11196-1-git-send-email-timur@codeaurora.org>
+References: <1431622353-11196-1-git-send-email-timur@codeaurora.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi,
-in the next few weeks I need to write a driver for a window wachtdog
-implemented in a CPLD. I have some questions about the design
-of the driver and the best way to write this driver to also be able
-to submit it.
+On Thursday 14 May 2015 11:52:33 Timur Tabi wrote:
+> +static int arm_sbsa_wdt_set_timeout(struct watchdog_device *wdev,
+> +       unsigned int timeout)
+> +{
+> +       struct arm_sbsa_watchdog_data *data =
+> +               container_of(wdev, struct arm_sbsa_watchdog_data, wdev);
+> +       uint32_t wor;
+> +
+> +       wdev->timeout = timeout;
+> +
+> +       wor = arch_timer_get_cntfrq() * wdev->timeout;
+> +       writel(cpu_to_le32(wor), &data->control->wor);
 
-The triggering and configuration of the Watchdog is done by several GPIOs which
-are connected to the CPLD watchdog device. The correct GPIOs are configurable
-using the Device Tree.
+Why the double endianess swap? Are the registers defined to be CPU-endian?
 
-1. Timeout
-	The timeout values are defined in ms and start from 20ms to 2560ms.
-	The timout is set by 3 GPIOs this means we have only 8 different
-	timout values. It is also possible that a future Watchdog CPLD device
-	does have different timeout values.
+You probably mean le32_to_cpu() here, not the other way round, although 
+the effect is the same.
 
-	Is it possible to set ms timeouts? It seems that the WDT API does
-	only support a resolution of 1sec.
-
-	One idea would be to use the API timeout as something like a timeout
-	index to set the different values. Of course this needs to be documented.
-
-	e.g.
-	timeout	(API)	timeout in device
-	1 		20ms
-	2		100ms
-	3		500ms
-	...		...		
-
-2. Upper/Lower Window
-	There is currently no support for a windowed watchdog in the wdt core.
-	The lower window can be activated by a gpio and its timeout is defined
-	as "upper windows timeout/4"	
-
-	What is the best way to implement those additional settings? Adding additional
-	ioctl or export these in sysfs?
+	Arnd
