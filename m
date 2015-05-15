@@ -1,67 +1,39 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:41173 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754948AbbEOSBI (ORCPT
+Received: from mout.kundenserver.de ([212.227.17.13]:64610 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752912AbbEOS5y (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 15 May 2015 14:01:08 -0400
-Date: Fri, 15 May 2015 11:01:05 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Fu Wei <fu.wei@linaro.org>
-Cc: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-	Wei Fu <tekkamanninja@gmail.com>,
-	G Gregory <graeme.gregory@linaro.org>,
-	Al Stone <al.stone@linaro.org>,
-	Hanjun Guo <hanjun.guo@linaro.org>,
-	Timur Tabi <timur@codeaurora.org>,
-	Ashwin Chaugule <ashwin.chaugule@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>, vgandhi@codeaurora.org,
-	wim@iguana.be, Jon Masters <jcm@redhat.com>,
-	Leo Duran <leo.duran@amd.com>, Jon Corbet <corbet@lwn.net>
-Subject: Re: [PATCH 4/6] Watchdog: introdouce "pretimeout" into framework
-Message-ID: <20150515180105.GB19230@roeck-us.net>
-References: <=fu.wei@linaro.org>
- <1431689090-3125-1-git-send-email-fu.wei@linaro.org>
- <5555F5C5.8050806@roeck-us.net>
- <CADyBb7sC5a6vC6CqQsfCqOaxz1P8gKNkZi5qEHtXL7efv42-=Q@mail.gmail.com>
+	Fri, 15 May 2015 14:57:54 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: linaro-acpi@lists.linaro.org
+Cc: Timur Tabi <timur@codeaurora.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Vipul Gandhi <vgandhi@codeaurora.org>,
+	linux-watchdog@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [Linaro-acpi] [PATCH] [v2] watchdog: introduce the ARM64 SBSA watchdog driver
+Date: Fri, 15 May 2015 20:57:45 +0200
+Message-ID: <6745558.xPJvXDnxj5@wuerfel>
+In-Reply-To: <55561CF1.9090308@codeaurora.org>
+References: <1431622353-11196-1-git-send-email-timur@codeaurora.org> <3313221.o1XjNEFgtv@wuerfel> <55561CF1.9090308@codeaurora.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CADyBb7sC5a6vC6CqQsfCqOaxz1P8gKNkZi5qEHtXL7efv42-=Q@mail.gmail.com>
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, May 15, 2015 at 09:49:07PM +0800, Fu Wei wrote:
-> Hi Guenter,
+On Friday 15 May 2015 11:21:05 Timur Tabi wrote:
+> On 05/15/2015 08:20 AM, Arnd Bergmann wrote:
 > 
-> Great thanks for your review,
-> feedback inline below :-)
+> > Do you get a sparse warning if you either leave the __le32, or if you
+> > turn it into u32?
 > 
-> On 15 May 2015 at 21:33, Guenter Roeck <linux@roeck-us.net> wrote:
+> After removing the cpu_to_le32 calls, but keeping the __le32 in the 
+> structs, I get no sparse warnings on my driver.
 
-[ ... ]
+Ok, good. I've also checked the readl() definition and found that it
+has a (__force __le32) cast, while __raw_readl() takes a const volatile
+void __iomem *addr) pointer, so it sparse won't warn either way, but
+that's probably ok.
 
-> >> +       if (wdd->max_pretimeout && wdd->max_timeout < wdd->max_pretimeout)
-> >> {
-> >> +               pr_info("Invalid max timeout, resetting to max
-> >> pretimeout!\n");
-> >> +               wdd->max_timeout = wdd->max_pretimeout;
-> >> +       }
-> >
-> >
-> > I am a bit concerned about the context dependency introduced here. If
-> > someone calls
-> > _init_pretimeout after calling init_timeout, this may result in still
-> > invalid timeout
-> > values.
-> 
-> yes, that logic is not very clean, so my thought is :
-> maybe we can integrate watchdog_init_timeout and watchdog_init_pretimeout,
-> if maintainer agree to add pretimeout into framework.
-> 
-I think we should just assume that Wim will accept it, and try to find
-the best possible solution (or at least a good one).
 
-Guenter
+	Arnd
