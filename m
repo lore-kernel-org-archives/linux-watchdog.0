@@ -1,160 +1,301 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from oul135-36.netplaza.fi ([80.75.100.36]:47572 "EHLO
-	lime.offcode.fi" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753269AbbEOG1B (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 15 May 2015 02:27:01 -0400
-Message-ID: <555591B0.2050500@offcode.fi>
-Date: Fri, 15 May 2015 09:26:56 +0300
-From: Timo Kokkonen <timo.kokkonen@offcode.fi>
+Return-path: <stwiss.opensource@diasemi.com>
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+To: Guenter Roeck <linux@roeck-us.net>, "Opensource [Steve Twiss]"
+	<stwiss.opensource@diasemi.com>, LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>, Wim Van Sebroeck
+	<wim@iguana.be>
+CC: Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE
+	<devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell
+	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>,
+	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, "Mark
+ Rutland" <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX
+	<rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz
+	<sameo@linux.intel.com>, Support Opensource <Support.Opensource@diasemi.com>
+Subject: RE: [PATCH V2 3/4] watchdog: da9062: DA9062 watchdog driver
+Date: Fri, 15 May 2015 08:13:27 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22B63A@SW-EX-MBX02.diasemi.com>
+References: <cover.1431621833.git.stwiss.opensource@diasemi.com>
+ <6a51f163b99edfad9165ad29609abb072dbaa2b7.1431621833.git.stwiss.opensource@diasemi.com>
+ <55555639.8090505@roeck-us.net>
+In-Reply-To: <55555639.8090505@roeck-us.net>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-To: Andreas Werner <andy@wernerandy.de>,
-	Guenter Roeck <linux@roeck-us.net>
-CC: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Window watchdog driver design
-References: <20150514115626.GA13621@wernerandy.de> <5554A35D.5040702@roeck-us.net> <20150514140908.GA21645@wernerandy.de> <55554356.3070700@roeck-us.net> <20150515054341.GA26468@wernerandy.de>
-In-Reply-To: <20150515054341.GA26468@wernerandy.de>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Andy,
+Hi Guenter,
 
-On 15.05.2015 08:43, Andreas Werner wrote:
-> On Thu, May 14, 2015 at 05:52:38PM -0700, Guenter Roeck wrote:
->> On 05/14/2015 07:09 AM, Andreas Werner wrote:
->>> On Thu, May 14, 2015 at 06:30:05AM -0700, Guenter Roeck wrote:
->>>> On 05/14/2015 04:56 AM, Andreas Werner wrote:
->>>>> Hi,
->>>>> in the next few weeks I need to write a driver for a window wachtdog
->>>>> implemented in a CPLD. I have some questions about the design
->>>>> of the driver and the best way to write this driver to also be able
->>>>> to submit it.
->>>>>
->>>>> The triggering and configuration of the Watchdog is done by several GPIOs which
->>>>> are connected to the CPLD watchdog device. The correct GPIOs are configurable
->>>>> using the Device Tree.
->>>>>
->>>>> 1. Timeout
->>>>> 	The timeout values are defined in ms and start from 20ms to 2560ms.
->>>>> 	The timout is set by 3 GPIOs this means we have only 8 different
->>>>> 	timout values. It is also possible that a future Watchdog CPLD device
->>>>> 	does have different timeout values.
->>>>>
->>>>> 	Is it possible to set ms timeouts? It seems that the WDT API does
->>>>> 	only support a resolution of 1sec.
->>>>>
->>>>> 	One idea would be to use the API timeout as something like a timeout
->>>>> 	index to set the different values. Of course this needs to be documented.
->>>>>
->>>>> 	e.g.
->>>>> 	timeout	(API)	timeout in device
->>>>> 	1 		20ms
->>>>> 	2		100ms
->>>>> 	3		500ms
->>>>> 	...		...		
->>>>>
->>>>> 2. Upper/Lower Window
->>>>> 	There is currently no support for a windowed watchdog in the wdt core.
->>>>> 	The lower window can be activated by a gpio and its timeout is defined
->>>>> 	as "upper windows timeout/4"	
->>>>>
->>>>> 	What is the best way to implement those additional settings? Adding additional
->>>>> 	ioctl or export these in sysfs?
->>>>> --
->>>>
->>>> Sorry for the maybe dumb question, but what is a window watchdog,
->>>> and what is the lower window timeout for (assuming the upper window
->>>> timeout causes the watchdog to expire) ?
->>>>
->>>> Guenter
->>>>
->>>
->>> Oh sorry forgot to describe it in more detail.
->>>
->>> If you have a watchdog window you do not have just one timeout where the watchdog can expire.
->>> You have a so called "window" to trigger it within.
->>>
->>> 		|<----trig---->|
->>> ---lower timeout----------------upper timeout
->>>
->>> This means you have to trigger the watchdog not to late and not to early.
->>> This kind of watchdog is often used in embedded applications or more often
->>> in safety cases to fullfil requirements given e.g. by SIL1-SIL4 certifications.
->>>
->>> The lower timeout is set by a dedicated GPIO and the value will then "Upper timeout / 4". The
->>> upper timeout is set by 3 GPIOs to get different timeout values.
->>>
->>
->> Thanks a lot for the explanation.
->>
->> I would suggest to use a module parameter to enable the "lower timeout" functionality.
->>
->> Timeouts have to be specified in seconds.
->>
->> Hope this helps,
->> Guenter
->>
->
-> Thanks for the answer.
->
-> The module parameter would be ok for me, but it would be better if i can enable/disable
-> the lower window by the application.
->
-> I know that the API defines the timout in seconds but what about ms? Is there no
-> watchdog out there which has timout values < seconds?.
+Thank you for your comments again,
+Here are my responses.
 
-There are a few. But the user space api specifies the timeout in seconds 
-so you can't really do anything about it as long as you wish to remain 
-compatible with the current watchdog API.
+Regards,
+Steve
 
-I am working on extending the kernel watchdog core api so that the 
-driver would fill in hw_max_timeout parameter that tells the core the 
-maximum supported timeout in HW. I was thinking that millisecond 
-resolution would be good for this.
+On 15 May 2015 03:13, Guenter Roeck=20
+> Subject: Re: [PATCH V2 3/4] watchdog: da9062: DA9062 watchdog driver
+>=20
 
-Also there are already at least one watchdog driver (Atmel's 
-at91sam9_wdt.c) that has already concept of "minimum watchdog timeout" 
-in a sense that pinging the watchdog too often is considered to be a 
-failure. This is also something that is not handled with the current 
-watchdog api at all.
+[...]
 
-As I am working on changing the core so that it takes over more of the 
-generic watchdog behaviour and work around watchdog hardware constraints 
-so that user space does not need to know about them, I am interested in 
-hearing opinions about how I should care this kind of constraints. Right 
-now I am not trying to "fix" an user space daemon behaviour where the 
-daemon is pinging more often than what is allowed by the hardware. I 
-don't know if that is something what the watchdog core should be doing 
-or not. I can't think why it would be bad if watchdog daemon pings the 
-hardware too often and why it should be considered as a failure. 
-Therefore I can't think where one should think the failure to be in such 
-case.
+> > +static void da9062_apply_window_protection(struct da9062_watchdog
+> *wdt)
+> > +{
+> > +	unsigned long delay =3D
+> msecs_to_jiffies(DA9062_RESET_PROTECTION_MS);
+> > +	unsigned long timeout =3D wdt->j_time_stamp + delay;
+> > +	unsigned long now =3D jiffies;
+> > +	unsigned int diff_ms;
+> > +
+> > +	/* if time-limit has not elapsed then wait for remainder */
+> > +	if (time_before(now, timeout)) {
+> > +		diff_ms =3D jiffies_to_msecs(timeout-now);
+> > +		dev_dbg(wdt->hw->dev,
+> > +			"Kicked too quickly. Delaying %u msecs\n", diff_ms);
+> > +		msleep(diff_ms);
+> > +	}
+> > +
+> > +	return;
+>=20
+> Unnecessary return statement.
+>=20
 
-Right now I am assuming that kernel should not try to be clever about 
-minimum ping interval at all. But as there clearly are hardware that has 
-this kind of window definition, I'm sure there should be some kind of 
-software support for it too. I'm open to hear more about it.
+Deleted.
 
--Timo
+> > +static unsigned int da9062_wdt_timeout_to_sel(unsigned int secs)
+> > +{
+> > +	unsigned int i;
+> > +
+> > +	for (i =3D DA9062_TWDSCALE_MIN; i <=3D DA9062_TWDSCALE_MAX; i++) {
+> > +		if (wdt_timeout[i] >=3D secs)
+> > +			return i;
+> > +	}
+> > +
+> > +	return DA9062_TWDSCALE_MAX;
+> > +}
+> > +
+> > +static int da9062_reset_watchdog_timer(struct da9062_watchdog *wdt)
+> > +{
+> > +	int ret;
+> > +
+> > +	da9062_apply_window_protection(wdt);
+> > +
+> > +	ret =3D regmap_update_bits(wdt->hw->regmap,
+> > +			   DA9062AA_CONTROL_F,
+> > +			   DA9062AA_WATCHDOG_MASK,
+> > +			   DA9062AA_WATCHDOG_MASK);
+> > +
+> > +	da9062_set_window_start(wdt);
+> > +
+> > +	return ret;
+> > +}
+> > +
+> > +static int da9062_wdt_update_timeout_register(struct da9062_watchdog *=
+wdt,
+> > +					      unsigned int regval)
+> > +{
+> > +	struct da9062 *chip =3D wdt->hw;
+> > +	int ret;
+> > +
+> > +	ret =3D da9062_reset_watchdog_timer(wdt);
+> > +	if (ret) {
+> > +		dev_err(chip->dev, "Failed to ping the watchdog (err =3D %d)\n",
+> > +			ret);
+>=20
+> I am kind of torn about all this noisiness on error. Personally I would t=
+end to
+> ask people to let user space handle it, and not be that noisy in the kern=
+el.
+>=20
+> Wim, any guidance ?
 
-> In my case I can only set 2 timouts (1sec and 2sec) but I need to support all 8 timeout
-> values.
->
-> The other thing is that my Watchdog can have differen timeout values depending
-> on the CPLD and the customer requirements. I can not read out this values, they are
-> only defined in the specification.
->
-> This is why i had the idea with the table to only set some "indexes" for the timout
-> to handle all the cases.
->
-> Regards
-> Andy
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+At the time I thought it would be a really good idea to keep a debug messag=
+e in.=20
+But -- this has been questioned several times and so I will remove.
 
+> > +		return ret;
+> > +	}
+> > +
+> > +	return regmap_update_bits(chip->regmap,
+> > +				  DA9062AA_CONTROL_D,
+> > +				  DA9062AA_TWDSCALE_MASK,
+> > +				  regval);
+>=20
+> ... and it is inconsistent - no error message here.
+>=20
+
+Removed the dev_err() defined previously and therefore this makes this retu=
+rn
+without an error message more consistent with the earlier parts of the func=
+tion.
+(no change needed)
+
+ [...]
+
+> > +static int da9062_wdt_stop(struct watchdog_device *wdd)
+> > +{
+> > +	struct da9062_watchdog *wdt =3D watchdog_get_drvdata(wdd);
+> > +	int ret;
+> > +
+> > +	ret =3D da9062_reset_watchdog_timer(wdt);
+> > +	if (ret) {
+> > +		dev_err(wdt->hw->dev, "Failed to ping the watchdog (err =3D
+> %d)\n",
+> > +			ret);
+> > +		return ret;
+> > +	}
+> > +
+> > +	ret =3D regmap_update_bits(wdt->hw->regmap,
+> > +				 DA9062AA_CONTROL_D,
+> > +				 DA9062AA_TWDSCALE_MASK,
+> > +				 DA9062_TWDSCALE_DISABLE);
+> > +	if (ret)
+> > +		dev_alert(wdt->hw->dev, "Watchdog failed to stop (err =3D
+> %d)\n",
+> > +			  ret);
+>=20
+> .. and now we have an alert. Hmm..
+
+.. I've replaced it with a dev_err()
+
+> > +
+> > +	return ret;
+> > +}
+> > +
+> > +static int da9062_wdt_ping(struct watchdog_device *wdd)
+> > +{
+> > +	struct da9062_watchdog *wdt =3D watchdog_get_drvdata(wdd);
+> > +	int ret;
+> > +
+> > +	dev_dbg(wdt->hw->dev, "watchdog ping\n");
+> > +
+>=20
+> Is this really valuable enough to keep in the code ?
+>=20
+
+Removed also.
+
+> > +	ret =3D da9062_reset_watchdog_timer(wdt);
+> > +	if (ret)
+> > +		dev_err(wdt->hw->dev, "Failed to ping the watchdog (err =3D
+> %d)\n",
+> > +			ret);
+> > +
+> > +	return ret;
+> > +}
+> > +
+
+[...]
+
+> > +
+> > +/* E_WDG_WARN interrupt handler */
+> > +static irqreturn_t da9062_wdt_wdg_warn_irq_handler(int irq, void *data=
+)
+> > +{
+> > +	struct da9062_watchdog *wdt =3D data;
+> > +
+> > +	dev_notice(wdt->hw->dev, "Watchdog timeout warning trigger.\n");
+> > +	return IRQ_HANDLED;
+> > +}
+> > +
+
+[...]
+
+> > +static int da9062_wdt_probe(struct platform_device *pdev)
+> > +{
+> > +	int ret;
+> > +	struct da9062 *chip;
+> > +	struct da9062_watchdog *wdt;
+> > +	int irq;
+> > +
+> > +	chip =3D dev_get_drvdata(pdev->dev.parent);
+> > +	if (!chip)
+> > +		return -EINVAL;
+> > +
+> > +	wdt =3D devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+> > +	if (!wdt)
+> > +		return -ENOMEM;
+> > +
+> > +	wdt->hw =3D chip;
+> > +
+> > +	wdt->wdtdev.info =3D &da9062_watchdog_info;
+> > +	wdt->wdtdev.ops =3D &da9062_watchdog_ops;
+> > +	wdt->wdtdev.min_timeout =3D DA9062_WDT_MIN_TIMEOUT;
+> > +	wdt->wdtdev.max_timeout =3D DA9062_WDT_MAX_TIMEOUT;
+> > +	wdt->wdtdev.timeout =3D DA9062_WDG_DEFAULT_TIMEOUT;
+> > +	wdt->wdtdev.status =3D WATCHDOG_NOWAYOUT_INIT_STATUS;
+> > +
+> > +	watchdog_set_drvdata(&wdt->wdtdev, wdt);
+> > +	dev_set_drvdata(&pdev->dev, wdt);
+> > +
+> > +	irq =3D platform_get_irq_byname(pdev, "WDG_WARN");
+> > +	if (irq < 0) {
+> > +		dev_err(wdt->hw->dev, "Failed to get IRQ.\n");
+> > +		ret =3D irq;
+> > +		goto error;
+>=20
+> Just return; the label does not serve a useful purpose. Same for the othe=
+r
+> goto statements below.
+
+Agreed. This is changed now.
+
+> Also, is the interrupt mandatory ? All it does is to display a message.
+> Looks very optional to me.
+
+It is a place holder for something more application specific.=20
+I could remove it, but I figured it would just get re-added when somebody t=
+akes the
+driver and modifies it for their needs.
+
+If this is a problem however, it can go.
+Please advise ..
+
+>=20
+> > +	}
+> > +
+> > +	ret =3D devm_request_threaded_irq(&pdev->dev, irq, NULL,
+> > +			   da9062_wdt_wdg_warn_irq_handler,
+> > +			    IRQF_TRIGGER_LOW | IRQF_ONESHOT |
+> IRQF_SHARED,
+> > +			   "WDG_WARN", wdt);
+> > +	if (ret) {
+> > +		dev_err(wdt->hw->dev,
+> > +			"Failed to request watchdog device IRQ.\n");
+> > +		goto error;
+> > +	}
+> > +
+> > +	ret =3D watchdog_register_device(&wdt->wdtdev);
+> > +	if (ret < 0) {
+> > +		dev_err(wdt->hw->dev,
+> > +			"watchdog registration incomplete (%d)\n", ret);
+>=20
+> incomplete ? Should that be "failed" ?
+
+Sure. Changed the dev_err()
+
+[...]
+
+> > +static struct platform_driver da9062_wdt_driver =3D {
+> > +	.probe =3D da9062_wdt_probe,
+> > +	.remove =3D da9062_wdt_remove,
+> > +	.driver =3D {
+> > +		.name =3D "da9062-watchdog",
+> > +	},
+> > +};
+> > +module_platform_driver(da9062_wdt_driver);
+> > +
+> > +MODULE_AUTHOR("S Twiss <stwiss.opensource@diasemi.com>");
+> > +MODULE_DESCRIPTION("WDT device driver for Dialog DA9062");
+> > +MODULE_LICENSE("GPL");
+> > +MODULE_ALIAS("platform: da9062-watchdog");
+> >
+> Normally I don't see a space between "platform" and the driver name.
+> Does this work ?
+
+Removed the space
+
+Regards,
+Steve
