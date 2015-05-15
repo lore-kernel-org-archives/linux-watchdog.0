@@ -20,62 +20,67 @@ Cc: tekkamanninja@gmail.com,
 	leo.duran@amd.com,
 	corbet@lwn.net,
 	Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH 0/6] Watchdog: introdouce ARM SBSA watchdog driver
-Date: Fri, 15 May 2015 19:08:04 +0800
-Message-Id: <1431688090-2145-1-git-send-email-fu.wei@linaro.org>
-In-Reply-To: <=fu.wei@linaro.org>
+Subject: [PATCH 1/6] Documentation: add sbsa-gwdt.txt documentation
+Date: Fri, 15 May 2015 19:08:05 +0800
+Message-Id: <1431688090-2145-2-git-send-email-fu.wei@linaro.org>
+In-Reply-To: <1431688090-2145-1-git-send-email-fu.wei@linaro.org>
 References: <=fu.wei@linaro.org>
+ <1431688090-2145-1-git-send-email-fu.wei@linaro.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 From: Fu Wei <fu.wei@linaro.org>
 
-This patchset:
+The sbsa-gwdt.txt documentation in devicetree/bindings/watchdog is for
+introducing SBSA(Server Base System Architecture) Generic Watchdog
+device node info into FDT
 
-    (1)Introdouces Documentation/devicetree/bindings/watchdog/sbsa-gwdt.txt
-    for FDT info of SBSA Generic Watchdog, and give two examples of
-    adding SBSA Generic Watchdog device node into the dts files:
-    foundation-v8.dts and amd-seattle-soc.dtsi
-
-    (2)Introdouce "pretimeout" into the watchdog framework
-
-    (3)Introdouces ARM SBSA watchdog driver
-        a.Use linux kernel watchdog framework
-        b.Work with FDT on ARM64
-        c.Use "pretimeout" in watchdog framework
-        d.In first timeout(WS0), do panic to save system context
-        e.Support geting timeout and pretimeout from
-          parameter and FDT at the driver init stage
-
-    (4)Parse SBSA Generic Watchdog Structure in GTDT table of ACPI,
-       and create a platform device with that information
-       This platform device can be used by This Watchdog driver
-
-This patchset has been tested with watchdog daemon
-(ACPI/FDT, module/build-in) on the following platforms:
-    (1)ARM Foundation v8 model
-    (2)AMD Seattle B0
-
-Fu Wei (6):
-  Documentation: add sbsa-gwdt.txt documentation
-  ARM64: add SBSA Generic Watchdog device node in foundation-v8.dts
-  ARM64: add SBSA Generic Watchdog device node in amd-seattle-soc.dtsi
-  Watchdog: introdouce "pretimeout" into framework
-  Watchdog: introdouce ARM SBSA watchdog driver
-  ACPI: import watchdog info of GTDT into platform device
-
- .../devicetree/bindings/watchdog/sbsa-gwdt.txt     |  36 ++
- arch/arm64/boot/dts/amd/amd-seattle-soc.dtsi       |  11 +
- arch/arm64/boot/dts/arm/foundation-v8.dts          |  10 +
- arch/arm64/kernel/acpi.c                           | 136 +++++
- drivers/watchdog/Kconfig                           |  10 +
- drivers/watchdog/Makefile                          |   1 +
- drivers/watchdog/sbsa_gwdt.c                       | 553 +++++++++++++++++++++
- drivers/watchdog/watchdog_core.c                   |  66 +++
- drivers/watchdog/watchdog_dev.c                    |  48 ++
- include/linux/watchdog.h                           |  19 +
- 10 files changed, 890 insertions(+)
+Signed-off-by: Fu Wei <fu.wei@linaro.org>
+---
+ .../devicetree/bindings/watchdog/sbsa-gwdt.txt     | 36 ++++++++++++++++++++++
+ 1 file changed, 36 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/watchdog/sbsa-gwdt.txt
- create mode 100644 drivers/watchdog/sbsa_gwdt.c
 
+diff --git a/Documentation/devicetree/bindings/watchdog/sbsa-gwdt.txt b/Documentation/devicetree/bindings/watchdog/sbsa-gwdt.txt
+new file mode 100644
+index 0000000..bd1768d
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/sbsa-gwdt.txt
+@@ -0,0 +1,36 @@
++* SBSA(Server Base System Architecture) Generic Watchdog
++
++The SBSA Generic Watchdog Timer is used for resetting the system after
++two stages of timeout.
++More details: ARM-DEN-0029 - Server Base System Architecture (SBSA)
++
++Required properties:
++- compatible : Should at least contain "arm,sbsa-gwdt".
++
++- reg : base physical address of the frames and length of memory mapped region.
++
++- reg-names : Should contain the resource reg names to show the order of
++  the values in "reg".
++  Must include the following entries : "refresh", "control".
++
++- interrupts : Should at least contain WS0 interrupt,
++  the WS1 Signal is optional.
++
++- interrupt-names : Should contain the resource interrupt names.
++  Must include the following entries : "ws0". "ws1" is optional.
++
++Optional properties
++- timeout-sec : Watchdog pre-timeout and timeout values (in seconds).
++	The first is timeout values, then pre-timeout.
++
++Example for FVP Foundation Model v8:
++
++watchdog@2a450000 {
++	compatible = "arm,sbsa-gwdt";
++	reg = <0x0 0x2a450000 0 0x10000>,
++	      <0x0 0x2a440000 0 0x10000>;
++	reg-names = "refresh", "control";
++	interrupts = <0 27 4>;
++	interrupt-names = "ws0";
++	timeout-sec = <10 5>;
++};
 -- 
 1.9.1
