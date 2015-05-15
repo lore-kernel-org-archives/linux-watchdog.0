@@ -1,142 +1,90 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:35414 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:54793 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752854AbbEOGOW (ORCPT
+	with ESMTP id S1422654AbbEOM57 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 15 May 2015 02:14:22 -0400
-Message-ID: <55558EBB.30502@roeck-us.net>
-Date: Thu, 14 May 2015 23:14:19 -0700
+	Fri, 15 May 2015 08:57:59 -0400
+Message-ID: <5555ED4F.5070003@roeck-us.net>
+Date: Fri, 15 May 2015 05:57:51 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-To: Andreas Werner <andy@wernerandy.de>
-CC: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Window watchdog driver design
-References: <20150514115626.GA13621@wernerandy.de> <5554A35D.5040702@roeck-us.net> <20150514140908.GA21645@wernerandy.de> <55554356.3070700@roeck-us.net> <20150515054341.GA26468@wernerandy.de>
-In-Reply-To: <20150515054341.GA26468@wernerandy.de>
+To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>,
+	LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+	Wim Van Sebroeck <wim@iguana.be>
+CC: Alessandro Zummo <a.zummo@towertech.it>,
+	DEVICETREE <devicetree@vger.kernel.org>,
+	David Dajun Chen <david.chen@diasemi.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Support Opensource <Support.Opensource@diasemi.com>
+Subject: Re: [PATCH V2 3/4] watchdog: da9062: DA9062 watchdog driver
+References: <cover.1431621833.git.stwiss.opensource@diasemi.com> <6a51f163b99edfad9165ad29609abb072dbaa2b7.1431621833.git.stwiss.opensource@diasemi.com> <55555639.8090505@roeck-us.net> <6ED8E3B22081A4459DAC7699F3695FB7014B22B63A@SW-EX-MBX02.diasemi.com>
+In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7014B22B63A@SW-EX-MBX02.diasemi.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 05/14/2015 10:43 PM, Andreas Werner wrote:
-> On Thu, May 14, 2015 at 05:52:38PM -0700, Guenter Roeck wrote:
->> On 05/14/2015 07:09 AM, Andreas Werner wrote:
->>> On Thu, May 14, 2015 at 06:30:05AM -0700, Guenter Roeck wrote:
->>>> On 05/14/2015 04:56 AM, Andreas Werner wrote:
->>>>> Hi,
->>>>> in the next few weeks I need to write a driver for a window wachtdog
->>>>> implemented in a CPLD. I have some questions about the design
->>>>> of the driver and the best way to write this driver to also be able
->>>>> to submit it.
->>>>>
->>>>> The triggering and configuration of the Watchdog is done by several GPIOs which
->>>>> are connected to the CPLD watchdog device. The correct GPIOs are configurable
->>>>> using the Device Tree.
->>>>>
->>>>> 1. Timeout
->>>>> 	The timeout values are defined in ms and start from 20ms to 2560ms.
->>>>> 	The timout is set by 3 GPIOs this means we have only 8 different
->>>>> 	timout values. It is also possible that a future Watchdog CPLD device
->>>>> 	does have different timeout values.
->>>>>
->>>>> 	Is it possible to set ms timeouts? It seems that the WDT API does
->>>>> 	only support a resolution of 1sec.
->>>>>
->>>>> 	One idea would be to use the API timeout as something like a timeout
->>>>> 	index to set the different values. Of course this needs to be documented.
->>>>>
->>>>> 	e.g.
->>>>> 	timeout	(API)	timeout in device
->>>>> 	1 		20ms
->>>>> 	2		100ms
->>>>> 	3		500ms
->>>>> 	...		...		
->>>>>
->>>>> 2. Upper/Lower Window
->>>>> 	There is currently no support for a windowed watchdog in the wdt core.
->>>>> 	The lower window can be activated by a gpio and its timeout is defined
->>>>> 	as "upper windows timeout/4"	
->>>>>
->>>>> 	What is the best way to implement those additional settings? Adding additional
->>>>> 	ioctl or export these in sysfs?
->>>>> --
->>>>
->>>> Sorry for the maybe dumb question, but what is a window watchdog,
->>>> and what is the lower window timeout for (assuming the upper window
->>>> timeout causes the watchdog to expire) ?
->>>>
->>>> Guenter
->>>>
->>>
->>> Oh sorry forgot to describe it in more detail.
->>>
->>> If you have a watchdog window you do not have just one timeout where the watchdog can expire.
->>> You have a so called "window" to trigger it within.
->>>
->>> 		|<----trig---->|
->>> ---lower timeout----------------upper timeout
->>>
->>> This means you have to trigger the watchdog not to late and not to early.
->>> This kind of watchdog is often used in embedded applications or more often
->>> in safety cases to fullfil requirements given e.g. by SIL1-SIL4 certifications.
->>>
->>> The lower timeout is set by a dedicated GPIO and the value will then "Upper timeout / 4". The
->>> upper timeout is set by 3 GPIOs to get different timeout values.
->>>
->>
->> Thanks a lot for the explanation.
->>
->> I would suggest to use a module parameter to enable the "lower timeout" functionality.
->>
->> Timeouts have to be specified in seconds.
->>
->> Hope this helps,
->> Guenter
+Hi Steve,
+
+On 05/15/2015 01:13 AM, Opensource [Steve Twiss] wrote:
+> Hi Guenter,
+>
+> Thank you for your comments again,
+> Here are my responses.
+>
+> Regards,
+> Steve
+>
+> On 15 May 2015 03:13, Guenter Roeck
+>> Subject: Re: [PATCH V2 3/4] watchdog: da9062: DA9062 watchdog driver
 >>
 >
-> Thanks for the answer.
+> [...]
 >
-> The module parameter would be ok for me, but it would be better if i can enable/disable
-> the lower window by the application.
+
+[ ... ]
+
+>>> +
+>>> +	irq = platform_get_irq_byname(pdev, "WDG_WARN");
+>>> +	if (irq < 0) {
+>>> +		dev_err(wdt->hw->dev, "Failed to get IRQ.\n");
+>>> +		ret = irq;
+>>> +		goto error;
+>>
+>> Just return; the label does not serve a useful purpose. Same for the other
+>> goto statements below.
 >
-You could try adding a sysfs attribute.
-
-> I know that the API defines the timout in seconds but what about ms? Is there no
-> watchdog out there which has timout values < seconds?.
+> Agreed. This is changed now.
 >
-The ABI is the ABI, it has been there for a long time, and it only
-supports second intervals.
-
-> In my case I can only set 2 timouts (1sec and 2sec) but I need to support all 8 timeout
-> values.
+>> Also, is the interrupt mandatory ? All it does is to display a message.
+>> Looks very optional to me.
 >
-Kind of strict for a Linux watchdog. Most if not all other timeouts are much higher.
-The drivers for hardware with low maximum timeout values often implement
-a two-stage timeout, one handled in the driver that pings the actual hardware
-timeout, and a soft-timeout to be triggered from user space with a more relaxed
-timing.
-
-> The other thing is that my Watchdog can have differen timeout values depending
-> on the CPLD and the customer requirements. I can not read out this values, they are
-> only defined in the specification.
+> It is a place holder for something more application specific.
+> I could remove it, but I figured it would just get re-added when somebody takes the
+> driver and modifies it for their needs.
 >
-Normally you'd expect such platform specific details to be configured via devicetree
-or platform data if that is not available (or ACPI, of course).
-
-The userspace/kernel ABI/API needs to be standardized, so that user space doesn't
-need to know implementation details.
-
-> This is why i had the idea with the table to only set some "indexes" for the timout
-> to handle all the cases.
+> If this is a problem however, it can go.
+> Please advise ..
 >
-Such an "index" would not be a well defined number. A standard application,
-such as watchdogd or systemd, would not know what to do with it.
 
-After all, the common use case of a watchdog driver is for it to interface with
-a standard userspace application, so its interface to userspace needs to be well
-defined. We can not permit "wildcards" such as redefining the meaning of a time
-interval from seconds to something driver-specific; that would break all kinds
-of applications.
+Then this someone should add the code. For the time being, it just increases
+kernel size and may cause the driver to fail for no good reason. Plus, given
+the driver apparently works without interrupt, even then it should be optional,
+and the driver does not have to fail loading if it is not supported on a
+given platform.
 
+Thanks,
 Guenter
 
