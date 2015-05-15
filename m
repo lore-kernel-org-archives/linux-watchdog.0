@@ -1,90 +1,48 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:54793 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:40938 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422654AbbEOM57 (ORCPT
+	with ESMTP id S1754820AbbEOR7E (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 15 May 2015 08:57:59 -0400
-Message-ID: <5555ED4F.5070003@roeck-us.net>
-Date: Fri, 15 May 2015 05:57:51 -0700
+	Fri, 15 May 2015 13:59:04 -0400
+Date: Fri, 15 May 2015 10:59:00 -0700
 From: Guenter Roeck <linux@roeck-us.net>
+To: Timur Tabi <timur@codeaurora.org>
+Cc: Fu Wei <fu.wei@linaro.org>,
+	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+	Wei Fu <tekkamanninja@gmail.com>,
+	G Gregory <graeme.gregory@linaro.org>,
+	Al Stone <al.stone@linaro.org>,
+	Hanjun Guo <hanjun.guo@linaro.org>,
+	Ashwin Chaugule <ashwin.chaugule@linaro.org>,
+	Arnd Bergmann <arnd@arndb.de>, vgandhi@codeaurora.org,
+	wim@iguana.be, Jon Masters <jcm@redhat.com>,
+	Leo Duran <leo.duran@amd.com>, Jon Corbet <corbet@lwn.net>
+Subject: Re: [PATCH 4/6] Watchdog: introdouce "pretimeout" into framework
+Message-ID: <20150515175900.GA19230@roeck-us.net>
+References: <=fu.wei@linaro.org>
+ <1431689090-3125-1-git-send-email-fu.wei@linaro.org>
+ <5555F5C5.8050806@roeck-us.net>
+ <CADyBb7sC5a6vC6CqQsfCqOaxz1P8gKNkZi5qEHtXL7efv42-=Q@mail.gmail.com>
+ <5555FACD.6000408@codeaurora.org>
 MIME-Version: 1.0
-To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>
-CC: Alessandro Zummo <a.zummo@towertech.it>,
-	DEVICETREE <devicetree@vger.kernel.org>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Support Opensource <Support.Opensource@diasemi.com>
-Subject: Re: [PATCH V2 3/4] watchdog: da9062: DA9062 watchdog driver
-References: <cover.1431621833.git.stwiss.opensource@diasemi.com> <6a51f163b99edfad9165ad29609abb072dbaa2b7.1431621833.git.stwiss.opensource@diasemi.com> <55555639.8090505@roeck-us.net> <6ED8E3B22081A4459DAC7699F3695FB7014B22B63A@SW-EX-MBX02.diasemi.com>
-In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7014B22B63A@SW-EX-MBX02.diasemi.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5555FACD.6000408@codeaurora.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Steve,
+On Fri, May 15, 2015 at 08:55:25AM -0500, Timur Tabi wrote:
+> Fu Wei wrote:
+> >>>The new API function also needs to be documented in
+> >>>Documentation/watchdog/watchdog-kernel-api.txt.
+> >good point, thanks will do
+> 
+> Yes, please, since my driver does not use or need any pre-timeout support,
+> so I don't understand why this patch exists.  What is pre-timeout anyway?
 
-On 05/15/2015 01:13 AM, Opensource [Steve Twiss] wrote:
-> Hi Guenter,
->
-> Thank you for your comments again,
-> Here are my responses.
->
-> Regards,
-> Steve
->
-> On 15 May 2015 03:13, Guenter Roeck
->> Subject: Re: [PATCH V2 3/4] watchdog: da9062: DA9062 watchdog driver
->>
->
-> [...]
->
+Documentation/watchdog/watchdog-api.txt; look for "Pretimeouts:".
 
-[ ... ]
-
->>> +
->>> +	irq = platform_get_irq_byname(pdev, "WDG_WARN");
->>> +	if (irq < 0) {
->>> +		dev_err(wdt->hw->dev, "Failed to get IRQ.\n");
->>> +		ret = irq;
->>> +		goto error;
->>
->> Just return; the label does not serve a useful purpose. Same for the other
->> goto statements below.
->
-> Agreed. This is changed now.
->
->> Also, is the interrupt mandatory ? All it does is to display a message.
->> Looks very optional to me.
->
-> It is a place holder for something more application specific.
-> I could remove it, but I figured it would just get re-added when somebody takes the
-> driver and modifies it for their needs.
->
-> If this is a problem however, it can go.
-> Please advise ..
->
-
-Then this someone should add the code. For the time being, it just increases
-kernel size and may cause the driver to fail for no good reason. Plus, given
-the driver apparently works without interrupt, even then it should be optional,
-and the driver does not have to fail loading if it is not supported on a
-given platform.
-
-Thanks,
 Guenter
-
