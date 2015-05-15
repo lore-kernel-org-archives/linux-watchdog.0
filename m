@@ -1,86 +1,142 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta5.messagelabs.com ([195.245.231.140]:11885 "EHLO
-	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S933788AbbEMO4N convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 13 May 2015 10:56:13 -0400
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-To: Guenter Roeck <linux@roeck-us.net>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>
-CC: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>,
-	"Alessandro Zummo" <a.zummo@towertech.it>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	DEVICETREE <devicetree@vger.kernel.org>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	"Liam Girdwood" <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	"Support Opensource" <Support.Opensource@diasemi.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: RE: [rtc-linux] [PATCH V1 3/6] rtc: da9062: DA9062 RTC driver
-Date: Wed, 13 May 2015 14:56:04 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22A465@SW-EX-MBX02.diasemi.com>
-References: <cover.1429280614.git.stwiss.opensource@diasemi.com>
- <860a3b6dc7f8dac95c0e36967f24551af8805f7b.1429280614.git.stwiss.opensource@diasemi.com>
- <20150510095838.GF3338@piout.net>
- <6ED8E3B22081A4459DAC7699F3695FB7014B22A3F3@SW-EX-MBX02.diasemi.com>
- <20150513125858.GX3338@piout.net> <55534BEF.7020409@roeck-us.net>
- <20150513133741.GY3338@piout.net> <555355C1.9090907@roeck-us.net>
-In-Reply-To: <555355C1.9090907@roeck-us.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:35414 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752854AbbEOGOW (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 15 May 2015 02:14:22 -0400
+Message-ID: <55558EBB.30502@roeck-us.net>
+Date: Thu, 14 May 2015 23:14:19 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
+To: Andreas Werner <andy@wernerandy.de>
+CC: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Window watchdog driver design
+References: <20150514115626.GA13621@wernerandy.de> <5554A35D.5040702@roeck-us.net> <20150514140908.GA21645@wernerandy.de> <55554356.3070700@roeck-us.net> <20150515054341.GA26468@wernerandy.de>
+In-Reply-To: <20150515054341.GA26468@wernerandy.de>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Guenter & Alexandre,
+On 05/14/2015 10:43 PM, Andreas Werner wrote:
+> On Thu, May 14, 2015 at 05:52:38PM -0700, Guenter Roeck wrote:
+>> On 05/14/2015 07:09 AM, Andreas Werner wrote:
+>>> On Thu, May 14, 2015 at 06:30:05AM -0700, Guenter Roeck wrote:
+>>>> On 05/14/2015 04:56 AM, Andreas Werner wrote:
+>>>>> Hi,
+>>>>> in the next few weeks I need to write a driver for a window wachtdog
+>>>>> implemented in a CPLD. I have some questions about the design
+>>>>> of the driver and the best way to write this driver to also be able
+>>>>> to submit it.
+>>>>>
+>>>>> The triggering and configuration of the Watchdog is done by several GPIOs which
+>>>>> are connected to the CPLD watchdog device. The correct GPIOs are configurable
+>>>>> using the Device Tree.
+>>>>>
+>>>>> 1. Timeout
+>>>>> 	The timeout values are defined in ms and start from 20ms to 2560ms.
+>>>>> 	The timout is set by 3 GPIOs this means we have only 8 different
+>>>>> 	timout values. It is also possible that a future Watchdog CPLD device
+>>>>> 	does have different timeout values.
+>>>>>
+>>>>> 	Is it possible to set ms timeouts? It seems that the WDT API does
+>>>>> 	only support a resolution of 1sec.
+>>>>>
+>>>>> 	One idea would be to use the API timeout as something like a timeout
+>>>>> 	index to set the different values. Of course this needs to be documented.
+>>>>>
+>>>>> 	e.g.
+>>>>> 	timeout	(API)	timeout in device
+>>>>> 	1 		20ms
+>>>>> 	2		100ms
+>>>>> 	3		500ms
+>>>>> 	...		...		
+>>>>>
+>>>>> 2. Upper/Lower Window
+>>>>> 	There is currently no support for a windowed watchdog in the wdt core.
+>>>>> 	The lower window can be activated by a gpio and its timeout is defined
+>>>>> 	as "upper windows timeout/4"	
+>>>>>
+>>>>> 	What is the best way to implement those additional settings? Adding additional
+>>>>> 	ioctl or export these in sysfs?
+>>>>> --
+>>>>
+>>>> Sorry for the maybe dumb question, but what is a window watchdog,
+>>>> and what is the lower window timeout for (assuming the upper window
+>>>> timeout causes the watchdog to expire) ?
+>>>>
+>>>> Guenter
+>>>>
+>>>
+>>> Oh sorry forgot to describe it in more detail.
+>>>
+>>> If you have a watchdog window you do not have just one timeout where the watchdog can expire.
+>>> You have a so called "window" to trigger it within.
+>>>
+>>> 		|<----trig---->|
+>>> ---lower timeout----------------upper timeout
+>>>
+>>> This means you have to trigger the watchdog not to late and not to early.
+>>> This kind of watchdog is often used in embedded applications or more often
+>>> in safety cases to fullfil requirements given e.g. by SIL1-SIL4 certifications.
+>>>
+>>> The lower timeout is set by a dedicated GPIO and the value will then "Upper timeout / 4". The
+>>> upper timeout is set by 3 GPIOs to get different timeout values.
+>>>
+>>
+>> Thanks a lot for the explanation.
+>>
+>> I would suggest to use a module parameter to enable the "lower timeout" functionality.
+>>
+>> Timeouts have to be specified in seconds.
+>>
+>> Hope this helps,
+>> Guenter
+>>
+>
+> Thanks for the answer.
+>
+> The module parameter would be ok for me, but it would be better if i can enable/disable
+> the lower window by the application.
+>
+You could try adding a sysfs attribute.
 
-On 13 May 2015 14:47 Guenter Roeck wrote:
-> On 05/13/2015 06:37 AM, Alexandre Belloni wrote:
-> > On 13/05/2015 at 06:04:47 -0700, Guenter Roeck wrote :
-> >> Don't know how this is handled for rtc drivers, but in other subsystems
-> >> we just live with the original name. I don't see a need to rename a driver
-> >> just because it starts supporting more hardware, and xxx is weird anyway
-> >> since it suggests everything from 000 to 999, which is much worse than
-> >> just sticking with 9063.
-> >>
-> >
-> > Yes, in particular if at some point in time a new IP matching those xxx
-> > is completely different from the previous one. I'm not fond of renaming
-> > the driver either but if diasemi thinks that what they want, I'm open to
-> > let it happen. But clearly, I don't want to end up in a situation like
-> > the tlv320aic where you don't know which driver correspond to which
-> > chip:
-> >
-> > sound/soc/codecs/tlv320aic31xx.c
-> > sound/soc/codecs/tlv320aic31xx.h
-> > sound/soc/codecs/tlv320aic32x4.c
-> > sound/soc/codecs/tlv320aic32x4.h
-> > sound/soc/codecs/tlv320aic3x.c
-> > sound/soc/codecs/tlv320aic3x.h
-> > sound/soc/codecs/tlv320dac33.c
-> > sound/soc/codecs/tlv320dac33.h
-> >
-> > Go figure that the tlv320aic3104 can be supported by both tlv320aic3x.c
-> > and tlv320aic32x4.c but not tlv320aic31xx.c...
-> >
-> 
-> Unfortunately that is exactly what is going to happen.
+> I know that the API defines the timout in seconds but what about ms? Is there no
+> watchdog out there which has timout values < seconds?.
+>
+The ABI is the ABI, it has been there for a long time, and it only
+supports second intervals.
 
-Thanks for this clarification.
-We'll follow your advice and keep the name as da9063
+> In my case I can only set 2 timouts (1sec and 2sec) but I need to support all 8 timeout
+> values.
+>
+Kind of strict for a Linux watchdog. Most if not all other timeouts are much higher.
+The drivers for hardware with low maximum timeout values often implement
+a two-stage timeout, one handled in the driver that pings the actual hardware
+timeout, and a soft-timeout to be triggered from user space with a more relaxed
+timing.
 
-Regards,
-Steve
+> The other thing is that my Watchdog can have differen timeout values depending
+> on the CPLD and the customer requirements. I can not read out this values, they are
+> only defined in the specification.
+>
+Normally you'd expect such platform specific details to be configured via devicetree
+or platform data if that is not available (or ACPI, of course).
+
+The userspace/kernel ABI/API needs to be standardized, so that user space doesn't
+need to know implementation details.
+
+> This is why i had the idea with the table to only set some "indexes" for the timout
+> to handle all the cases.
+>
+Such an "index" would not be a well defined number. A standard application,
+such as watchdogd or systemd, would not know what to do with it.
+
+After all, the common use case of a watchdog driver is for it to interface with
+a standard userspace application, so its interface to userspace needs to be well
+defined. We can not permit "wildcards" such as redefining the meaning of a time
+interval from seconds to something driver-specific; that would break all kinds
+of applications.
+
+Guenter
 
