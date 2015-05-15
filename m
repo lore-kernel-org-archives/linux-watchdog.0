@@ -1,15 +1,15 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.10]:56303 "EHLO
+Received: from mail-out.m-online.net ([212.18.0.10]:36993 "EHLO
 	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753430AbbEORIg (ORCPT
+	with ESMTP id S1754002AbbEORnR (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 15 May 2015 13:08:36 -0400
-Date: Fri, 15 May 2015 19:17:23 +0200
+	Fri, 15 May 2015 13:43:17 -0400
+Date: Fri, 15 May 2015 19:52:07 +0200
 From: Andreas Werner <andy@wernerandy.de>
 To: Guenter Roeck <linux@roeck-us.net>
 Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: Window watchdog driver design
-Message-ID: <20150515171723.GA27162@wernerandy.de>
+Message-ID: <20150515175207.GA28834@wernerandy.de>
 References: <20150514115626.GA13621@wernerandy.de>
  <5554A35D.5040702@roeck-us.net>
  <20150514140908.GA21645@wernerandy.de>
@@ -106,11 +106,6 @@ On Thu, May 14, 2015 at 11:14:19PM -0700, Guenter Roeck wrote:
 > >the lower window by the application.
 > >
 > You could try adding a sysfs attribute.
-
-Yes that would be the best solution for that. Module Parameter
-would be also ok because normally you just want to enable the lower timeout
-or not but if you can do this in the application this would be the best.
-
 > 
 > >I know that the API defines the timout in seconds but what about ms? Is there no
 > >watchdog out there which has timout values < seconds?.
@@ -118,9 +113,6 @@ or not but if you can do this in the application this would be the best.
 > The ABI is the ABI, it has been there for a long time, and it only
 > supports second intervals.
 > 
-
-Yes of course I'm with you.
-
 > >In my case I can only set 2 timouts (1sec and 2sec) but I need to support all 8 timeout
 > >values.
 > >
@@ -130,11 +122,6 @@ Yes of course I'm with you.
 > timeout, and a soft-timeout to be triggered from user space with a more relaxed
 > timing.
 > 
-
-Yes I've seen such kind of a watchdog but this is not possible for my design.
-The watchdog must be used by the application because the application shall be
-monitored and not the whole system/kernel. 
-
 > >The other thing is that my Watchdog can have differen timeout values depending
 > >on the CPLD and the customer requirements. I can not read out this values, they are
 > >only defined in the specification.
@@ -145,8 +132,6 @@ monitored and not the whole system/kernel.
 > The userspace/kernel ABI/API needs to be standardized, so that user space doesn't
 > need to know implementation details.
 > 
-Yes you are right, that should be no problem.
-
 > >This is why i had the idea with the table to only set some "indexes" for the timout
 > >to handle all the cases.
 > >
@@ -159,18 +144,34 @@ Yes you are right, that should be no problem.
 > interval from seconds to something driver-specific; that would break all kinds
 > of applications.
 > 
-
-Yes, i just wanted to discuss about it what possiblity I/we have to design a proper driver.
-
-But it seems that this CPLD/Watchdog design is too specific to be also able to get it upstream.
-I think I need to define my own ABI for this special watchdog to get all the requirements full filled.
-
-
 > Guenter
 > 
 
+I have one other idea which does not brake the "whole" WDT ABI and the interface
+to things like systemd.
 
-Thanks a lot for discussing :-)
+The plan is to support the mandatory features like start,stop,ping through the ioctl
+this are the features which are checked by the watchdog core. If no min/max timeout
+values are set, the driver core would set it to 0.
+
+With this features I can support e.g. systemd to start/stop and trigger the Watchdog
+with a default timeout value.
+
+I would like to export all the other stuff (enable/disable lower window, set/get the
+time intervals) through sysfs.
+
+Ok i would just break one have of the ABI (set/get timeout) but not the whole one by
+redefining the timeout.
+
+Of course the sysfs attributes needs to be documented for this device and yes this 
+is not a generic interface or abstartion and I think this could be the problem for 
+upstreaming this. I think this is the way I will go regardless if it is possible
+to get it into the kernel or not.
+
+What do you think about it?
 
 Regards
 Andy
+
+
+
