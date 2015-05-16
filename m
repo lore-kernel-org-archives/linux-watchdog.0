@@ -1,48 +1,59 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:40938 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754820AbbEOR7E (ORCPT
+Received: from down.free-electrons.com ([37.187.137.238]:46621 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S2992541AbbEPAqh (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 15 May 2015 13:59:04 -0400
-Date: Fri, 15 May 2015 10:59:00 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Timur Tabi <timur@codeaurora.org>
-Cc: Fu Wei <fu.wei@linaro.org>,
-	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-	Wei Fu <tekkamanninja@gmail.com>,
-	G Gregory <graeme.gregory@linaro.org>,
-	Al Stone <al.stone@linaro.org>,
-	Hanjun Guo <hanjun.guo@linaro.org>,
-	Ashwin Chaugule <ashwin.chaugule@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>, vgandhi@codeaurora.org,
-	wim@iguana.be, Jon Masters <jcm@redhat.com>,
-	Leo Duran <leo.duran@amd.com>, Jon Corbet <corbet@lwn.net>
-Subject: Re: [PATCH 4/6] Watchdog: introdouce "pretimeout" into framework
-Message-ID: <20150515175900.GA19230@roeck-us.net>
-References: <=fu.wei@linaro.org>
- <1431689090-3125-1-git-send-email-fu.wei@linaro.org>
- <5555F5C5.8050806@roeck-us.net>
- <CADyBb7sC5a6vC6CqQsfCqOaxz1P8gKNkZi5qEHtXL7efv42-=Q@mail.gmail.com>
- <5555FACD.6000408@codeaurora.org>
+	Fri, 15 May 2015 20:46:37 -0400
+Date: Sat, 16 May 2015 02:46:34 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: S Twiss <stwiss.opensource@diasemi.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>,
+	DEVICETREE <devicetree@vger.kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>,
+	LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	David Dajun Chen <david.chen@diasemi.com>,
+	Support Opensource <support.opensource@diasemi.com>
+Subject: Re: [rtc-linux] [PATCH V2 0/4]  da9062: DA9062 driver submission
+Message-ID: <20150516004634.GH3338@piout.net>
+References: <cover.1431621833.git.stwiss.opensource@diasemi.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5555FACD.6000408@codeaurora.org>
+In-Reply-To: <cover.1431621833.git.stwiss.opensource@diasemi.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, May 15, 2015 at 08:55:25AM -0500, Timur Tabi wrote:
-> Fu Wei wrote:
-> >>>The new API function also needs to be documented in
-> >>>Documentation/watchdog/watchdog-kernel-api.txt.
-> >good point, thanks will do
+Hi,
+
+On 14/05/2015 at 17:43:53 +0100, S Twiss wrote :
+> From: S Twiss <stwiss.opensource@diasemi.com>
 > 
-> Yes, please, since my driver does not use or need any pre-timeout support,
-> so I don't understand why this patch exists.  What is pre-timeout anyway?
+> This patch set adds support for the Dialog DA9062 Power Management IC.
+> 
+> In this patch set the following is provided:
+>  - [PATCH V2 1/4]: MFD core support  
+>  - [PATCH V2 2/4]: BUCK and LDO regulator driver
+>  - [PATCH V2 3/4]: Watchdog driver
+>  - [PATCH V2 4/4]: Add bindings for all DA9062 components
 
-Documentation/watchdog/watchdog-api.txt; look for "Pretimeouts:".
+This patch should actually be the first one to go in, else checkpatch
+will complain about compatibles not being found.
 
-Guenter
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
