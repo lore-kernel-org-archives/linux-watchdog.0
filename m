@@ -1,11 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:55952 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:56084 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752348AbbERNPV (ORCPT
+	with ESMTP id S1752296AbbERNRE (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 18 May 2015 09:15:21 -0400
-Message-ID: <5559E5E6.2000508@roeck-us.net>
-Date: Mon, 18 May 2015 06:15:18 -0700
+	Mon, 18 May 2015 09:17:04 -0400
+Message-ID: <5559E64F.8020508@roeck-us.net>
+Date: Mon, 18 May 2015 06:17:03 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
 To: Nick & John <levelwol@gmail.com>, linux-watchdog@vger.kernel.org
@@ -27,20 +27,17 @@ On 05/18/2015 03:50 AM, Nick & John wrote:
 >      Strangely no error was logged at the system when using values bigger than
 >      255, the driver just ignores the time count.
 >
-
-While I have no idea why, the watchdog in this driver is pinged using a soft timer,
-and it is always pinged every 0.5 seconds. So reducing the maximum timeout is not
-necessary; in fact the driver could support a higher timeout.
-
-The real fix, if it is really necessary, would be to either store the upper bits
-as suggested above, or to just program the chip to a timeout of 255 seconds
-if the desired timeout is larger than 255.
-
 >      Also it adds support for VT8235 and VT8237 series southbridges. Tested with
 >      VT8235M, VT8237 and VT8237S boards.
 >
-This should be a separate patch; see Documentation/SubmittingPatches, chapter 3.
+>      Sending patch to stable too since it seems like an overflow error if big
+>      timeout values are chosen and because those chipsets were very popular in
+>      x86 boards supporting processors from all vendors (AMD, intel and VIA).
+>
+>      Signed-off-by: Ioannis Barkas <risc4all@yahoo.com>
+>      Signed-off-by: Nikos Barkas <levelwol@gmail.com>
 
-Thanks,
+Another note: From: must contain "Nikos Barkas", not "Nick & John".
+
 Guenter
 
