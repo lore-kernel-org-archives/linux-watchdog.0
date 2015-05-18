@@ -1,43 +1,136 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:56084 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752296AbbERNRE (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 18 May 2015 09:17:04 -0400
-Message-ID: <5559E64F.8020508@roeck-us.net>
-Date: Mon, 18 May 2015 06:17:03 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+Return-path: <stwiss.opensource@diasemi.com>
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+To: Guenter Roeck <linux@roeck-us.net>
+CC: LINUXKERNEL <linux-kernel@vger.kernel.org>, LINUXWATCHDOG
+	<linux-watchdog@vger.kernel.org>, Wim Van Sebroeck <wim@iguana.be>,
+	Alessandro Zummo <a.zummo@towertech.it>, DEVICETREE
+	<devicetree@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ian Campbell
+	<ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>,
+	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, "Mark
+ Rutland" <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, RTCLINUX
+	<rtc-linux@googlegroups.com>, Rob Herring <robh+dt@kernel.org>, Samuel Ortiz
+	<sameo@linux.intel.com>, Support Opensource <Support.Opensource@diasemi.com>
+Subject: RE: [PATCH V2 3/4] watchdog: da9062: DA9062 watchdog driver
+Date: Mon, 18 May 2015 14:15:01 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22B8C8@SW-EX-MBX02.diasemi.com>
+References: <cover.1431621833.git.stwiss.opensource@diasemi.com>
+ <6a51f163b99edfad9165ad29609abb072dbaa2b7.1431621833.git.stwiss.opensource@diasemi.com>
+ <55555639.8090505@roeck-us.net>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B22B63A@SW-EX-MBX02.diasemi.com>
+ <5555ED4F.5070003@roeck-us.net>
+ <6ED8E3B22081A4459DAC7699F3695FB7014B22B6E2@SW-EX-MBX02.diasemi.com>
+ <20150515202005.GA23133@roeck-us.net>
+In-Reply-To: <20150515202005.GA23133@roeck-us.net>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-To: Nick & John <levelwol@gmail.com>, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH] watchdog: via_wdt: Partial fix for programming error
- and support additional southbridges
-References: <CANxHX8_A+v0wBt8aQPTB1mae7mnMFmULE-DuoP8kAxL3DdaNeg@mail.gmail.com>
-In-Reply-To: <CANxHX8_A+v0wBt8aQPTB1mae7mnMFmULE-DuoP8kAxL3DdaNeg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 05/18/2015 03:50 AM, Nick & John wrote:
->      This patch fixes a programming error by limiting WDT_TIMEOUT_MAX to 255.
->      That is done to avoid invalid settings. Putting a value bigger than 255
->      results in non working watchdog and reset is not performed. We are trying
->      to fit a 10bit value to an 8bit area! To support 1023 seconds MMIO addr+5
->      bit1:0 must be used to store the last(higher) two bits of count number.
->      Strangely no error was logged at the system when using values bigger than
->      255, the driver just ignores the time count.
->
->      Also it adds support for VT8235 and VT8237 series southbridges. Tested with
->      VT8235M, VT8237 and VT8237S boards.
->
->      Sending patch to stable too since it seems like an overflow error if big
->      timeout values are chosen and because those chipsets were very popular in
->      x86 boards supporting processors from all vendors (AMD, intel and VIA).
->
->      Signed-off-by: Ioannis Barkas <risc4all@yahoo.com>
->      Signed-off-by: Nikos Barkas <levelwol@gmail.com>
+On 15 May 2015 21:20 Guenter Roeck,
 
-Another note: From: must contain "Nikos Barkas", not "Nick & John".
+> > > > +
+> > > > +/* E_WDG_WARN interrupt handler */
+> > > > +static irqreturn_t da9062_wdt_wdg_warn_irq_handler(int irq, void*d=
+ata)
+> > > > +{
+> > > > +	struct da9062_watchdog *wdt =3D data;
+> > > > +
+> > > > +	dev_notice(wdt->hw->dev, "Watchdog timeout warning trigger.\n");
+> > > > +	return IRQ_HANDLED;
+> > > > +}
+> > > > +
+> >
+> > On 15 May 2015 13:58 Guenter Roeck wrote:
+> >
+> >  [...]
+> >
+> > > >>> +
+> > > >>> +	irq =3D platform_get_irq_byname(pdev, "WDG_WARN");
+> > > >>> +	if (irq < 0) {
+> > > >>> +		dev_err(wdt->hw->dev, "Failed to get IRQ.\n");
+> > > >>> +		ret =3D irq;
+> > > >>> +		goto error;
+> >
+> > [...]
+> >
+> > > >
+> > > >> Also, is the interrupt mandatory ? All it does is to display a mes=
+sage.
+> > > >> Looks very optional to me.
+> > > >
+> > > > It is a place holder for something more application specific.
+> > > > I could remove it, but I figured it would just get re-added when so=
+mebody takes the
+> > > > driver and modifies it for their needs.
+> > > >
+> > > > If this is a problem however, it can go.
+> > > > Please advise ..
+> > > >
+> > >
+> > > Then this someone should add the code. For the time being, it just in=
+creases
+> > > kernel size and may cause the driver to fail for no good reason. Plus=
+, given
+> > > the driver apparently works without interrupt, even then it should be
+> > > optional, and the driver does not have to fail loading if it is not s=
+upported on a
+> > > given platform.
+> > >
+> >
+> > Hi Guenter,
+> >
+> > I'm not sure if I got my previous point across there ...
+> >
+> > Leaving this in wouldn't really do any real harm I think. If this featu=
+re is not supported
+> > in somebody's platform then there wouldn't be a problem, the IRQ would =
+fire (as a
+> > warning that the watchdog was about to time-out), the handler function =
+would be
+> > executed, it would handle the IRQ -- and that would be it. Nothing woul=
+d happen apart
+> > from a debug print.
+>=20
+> I didn't get my point across either. Problem is that your driver fails to=
+ load
+> if the interrupt is not there. With the interrupt really being optional, =
+I don't
+> see the point in making it mandatory just to display a message if it fire=
+s.
+>=20
 
-Guenter
+Hi Guenter,
 
+Ok. I see now.=20
+
+It's not a mandatory interrupt and so it should not fail the whole driver u=
+pon an error from
+the devm_request_threaded_irq() request ... I will let it pass through if t=
+here is a problem and
+just display a debug message. Something like this:
+
+@@ -234,11 +234,9 @@ static int da9062_wdt_probe(struct platform_device *pd=
+ev)
+                           da9062_wdt_wdg_warn_irq_handler,
+                            IRQF_TRIGGER_LOW | IRQF_ONESHOT | IRQF_SHARED,
+                           "WDG_WARN", wdt);
+-       if (ret) {
+-               dev_err(wdt->hw->dev,
++       if (ret)
++               dev_dbg(wdt->hw->dev,
+                        "Failed to request watchdog device IRQ.\n");
+-               return ret;
+-       }
+=20
+        ret =3D watchdog_register_device(&wdt->wdtdev);
+        if (ret < 0) {
+
+
+I think I've understood now. I guess this is it..
+I'll send a PATCH V3 with this change.
+
+Regards,
+Steve
