@@ -1,137 +1,131 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f50.google.com ([209.85.220.50]:33719 "EHLO
-	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750972AbbEPMCD (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:32793 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752601AbbERRXo (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 16 May 2015 08:02:03 -0400
-Received: by padbw4 with SMTP id bw4so63737669pad.0
-        for <linux-watchdog@vger.kernel.org>; Sat, 16 May 2015 05:02:03 -0700 (PDT)
-Message-ID: <555731B1.3070805@linaro.org>
-Date: Sat, 16 May 2015 20:01:53 +0800
-From: Fu Wei <fu.wei@linaro.org>
-Reply-To: Fu Wei <fu.wei@linaro.org>
-MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: Suravee.Suthikulpanit@amd.com, linaro-acpi@lists.linaro.org,
+	Mon, 18 May 2015 13:23:44 -0400
+Date: Mon, 18 May 2015 10:23:30 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Fu Wei <fu.wei@linaro.org>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
 	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-	tekkamanninja@gmail.com, graeme.gregory@linaro.org,
-	al.stone@linaro.org, hanjun.guo@linaro.org, timur@codeaurora.org,
-	ashwin.chaugule@linaro.org, linux@roeck-us.net,
-	vgandhi@codeaurora.org, wim@iguana.be, jcm@redhat.com,
-	leo.duran@amd.com, corbet@lwn.net
-Subject: Re: [PATCH 5/6] Watchdog: introdouce ARM SBSA watchdog driver
-References: <=fu.wei@linaro.org> <1431689090-3125-1-git-send-email-fu.wei@linaro.org> <1431689090-3125-2-git-send-email-fu.wei@linaro.org> <2621121.Z4lZCvqDlK@wuerfel>
-In-Reply-To: <2621121.Z4lZCvqDlK@wuerfel>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+	Wei Fu <tekkamanninja@gmail.com>,
+	G Gregory <graeme.gregory@linaro.org>,
+	Al Stone <al.stone@linaro.org>,
+	Hanjun Guo <hanjun.guo@linaro.org>,
+	Timur Tabi <timur@codeaurora.org>,
+	Ashwin Chaugule <ashwin.chaugule@linaro.org>,
+	vgandhi@codeaurora.org, wim@iguana.be,
+	Jon Masters <jcm@redhat.com>, Leo Duran <leo.duran@amd.com>,
+	Jon Corbet <corbet@lwn.net>
+Subject: Re: [PATCH 4/6] Watchdog: introdouce "pretimeout" into framework
+Message-ID: <20150518172329.GA17202@roeck-us.net>
+References: <=fu.wei@linaro.org>
+ <1431689090-3125-1-git-send-email-fu.wei@linaro.org>
+ <2464980.1PKdnqcc3c@wuerfel>
+ <CADyBb7u=HjZO5CBzZLxw1aWDx0tKdVKBuTrrhrRF9bAQr7pADQ@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CADyBb7u=HjZO5CBzZLxw1aWDx0tKdVKBuTrrhrRF9bAQr7pADQ@mail.gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Arnd,
-Great thanks for your review,
-The feedback is inline below:
-
-On 05/15/2015 09:57 PM, Arnd Bergmann wrote:
-> On Friday 15 May 2015 19:24:49 fu.wei@linaro.org wrote:
->> From: Fu Wei <fu.wei@linaro.org>
->>
->>     (1)Use linux kernel watchdog framework
->>     (2)Work with FDT on ARM64
->>     (3)Use "pretimeout" in watchdog framework
->>     (4)In first timeout(WS0), do panic to save system context
->>     (5)support geting timeout and pretimeout from
->>        parameter and FDT at the driver init stage.
->>
->> Signed-off-by: Fu Wei <fu.wei@linaro.org>
+On Tue, May 19, 2015 at 01:19:22AM +0800, Fu Wei wrote:
+> Hi Arnd,
 > 
-> The patch looks good overall. Please try to describe in the patch in 
-> full sentences in the changelog, as we normally do.
-
-Sure, you will see changelog in the next version.
- 
+> Great thanks for your suggestion :-)
 > 
-> A few tiny details that I'd do differently, but don't have to change
-> if the watchdog maintainer is fine with your version:
+> feedback inline below
 > 
->> +struct sbsa_gwdt {
->> +	struct watchdog_device	wdd;
->> +	u32			clk;
->> +	void __iomem		*refresh_base;
->> +	void __iomem		*control_base;
->> +#ifdef CONFIG_PM_SLEEP
->> +	spinlock_t		lock;
->> +	u8			pm_status_store;
->> +#endif
->> +};
+> On 15 May 2015 at 22:04, Arnd Bergmann <arnd@arndb.de> wrote:
+> > On Friday 15 May 2015 19:24:48 fu.wei@linaro.org wrote:
+> >> +static void watchdog_check_min_max_pretimeout(struct watchdog_device *wdd)
+> >> +{
+> >> +       /*
+> >> +        * Check that we have valid min and max pretimeout values, if
+> >> +        * not reset them both to 0 (=not used or unknown)
+> >> +        */
+> >> +       if (wdd->min_pretimeout > wdd->max_pretimeout) {
+> >> +               pr_info("Invalid min and max pretimeout, resetting to 0!\n");
+> >> +               wdd->min_pretimeout = 0;
+> >> +               wdd->max_pretimeout = 0;
+> >> +       }
+> >> +}
+> >
+> > I would probably just fold this function into the existing
+> > watchdog_check_min_max_timeout() and check both normal and pre-timeout
+> > there.
 > 
-> I would drop the #ifdef here, and favor readability over saving
-> a few bytes.
-yes, that make sense :-)
-
+> yes, I can do that , and that is good idea
 > 
->> +	/*
->> +	 * Try to determine the frequency from the cp15 interface
->> +	 */
->> +	clk = arch_timer_get_cntfrq();
->> +	if (!clk) {
->> +		dev_err(dev, "System Counter frequency not available\n");
->> +		return -EINVAL;
->> +	}
+> >
+> >> +/**
+> >> + * watchdog_init_pretimeout() - initialize the pretimeout field
+> >> + * @pretimeout_parm: pretimeout module parameter
+> >> + * @dev: Device that stores the timeout-sec property
+> >> + *
+> >> + * Initialize the pretimeout field of the watchdog_device struct with either
+> >> + * the pretimeout module parameter (if it is valid value) or the timeout-sec
+> >> + * property (only if it is a valid value and the timeout_parm is out of bounds).
+> >> + * If none of them are valid then we keep the old value (which should normally
+> >> + * be the default pretimeout value.
+> >> + *
+> >> + * A zero is returned on success and -EINVAL for failure.
+> >> + */
+> >> +int watchdog_init_pretimeout(struct watchdog_device *wdd,
+> >> +                            unsigned int pretimeout_parm, struct device *dev)
+> >> +{
+> >> +       int ret = 0;
+> >> +       u32 timeouts[2];
+> >> +
+> >> +       watchdog_check_min_max_pretimeout(wdd);
+> >> +
+> >> +       /* try to get the timeout module parameter first */
+> >> +       if (!watchdog_pretimeout_invalid(wdd, pretimeout_parm) &&
+> >> +           pretimeout_parm) {
+> >> +               wdd->pretimeout = pretimeout_parm;
+> >> +               return ret;
+> >> +       }
+> >> +       if (pretimeout_parm)
+> >> +               ret = -EINVAL;
+> >> +
+> >> +       /* try to get the timeout_sec property */
+> >> +       if (!dev || !dev->of_node)
+> >> +               return ret;
+> >> +       ret = of_property_read_u32_array(dev->of_node,
+> >> +                                        "timeout-sec", timeouts, 2);
+> >> +       if (!watchdog_pretimeout_invalid(wdd, timeouts[1]) && timeouts[1])
+> >> +               wdd->pretimeout = timeouts[1];
+> >> +       else
+> >> +               ret = -EINVAL;
+> >> +
+> >> +       return ret;
+> >> +}
+> >> +EXPORT_SYMBOL_GPL(watchdog_init_pretimeout);
+> >
+> > Same here: the function is very similar to the watchdog_init_timeout
+> > function, and it reads the same property, so just do both here.
+> >
+> > The easiest way for that is probably to use of_find_property()
+> > and of_prop_next_u32() to read the two numbers.
 > 
-> Is it guaranteed that the same clock feeds the arch timer and the
-> watchdog? Maybe it would be better to use the clk API to read
-> the frequency, so we can avoid this dependency.
-
-yes. you are right. According to SBSA doc, the clocksource of SBSA watchdog is System Counter.
-And System Counter is in (arm_)arch_timer. So I think we should do 
-
-	depends on ARM_ARCH_TIMER
-
-and use the relevant interface : 
-
-	clk = arch_timer_get_rate();
-
-will improve it, thanks for your suggestion!
-
+> integrate watchdog_init_pretimeout and watchdog_init_timeout will be a
+> little hard,
+> we may need to change this API to :
 > 
->> +
->> +	pr_debug("sbsa_gwdt: ioremap %s frame 0x%llx(size: %llu)-->%p.\n",
->> +		 res->name, (unsigned long long)res->start,
->> +		(unsigned long long)(res->end - res->start + 1), rf_base);
->> +
->> +	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "control");
->> +	cf_base = devm_ioremap_resource(dev, res);
->> +	if (IS_ERR(rf_base))
->> +		return PTR_ERR(rf_base);
->> +
->> +	pr_debug("sbsa_gwdt: ioremap %s frame 0x%llx(size: %llu)-->%p.\n",
->> +		 res->name, (unsigned long long)res->start,
->> +		(unsigned long long)(res->end - res->start + 1), cf_base);
+> watchdog_init_timeouts(struct watchdog_device *wdd, unsigned int timeout_parm,
+>                              unsigned int pretimeout_parm, struct device *dev)
 > 
-> I would probably drop the various pr_debug() calls here. Once the driver
-> works fine, they are normally not that useful any more.
-
-yes, for this drive, if it works fine, we can drop it, but I keep these info for some reason:
-(1)they can help engineer debug GTDT table or DTS, if the info of watchdog goes wrong.
-(2)check the memory map
-(3)if DEBUG is disable, all pr_debug are no_printk, it won't increase Image size or output any through console.
- 
+> then we need to update all the watchdog drivers which use this API,
+> maybe we can do this in a individual patchset, after this pretimeout
+> patch is merged.
 > 
-> 	Arnd
+> Is that OK  ? :-)  any thought?
 > 
+That is what I would recommend.
 
-
--- 
-Best regards,
-
-Fu Wei
-Software Engineer From Red Hat
-LEG Team
-Linaro.org | Open source software for ARM SoCs
-Ph: +86 186 2020 4684 (mobile)
-IRC: fuwei
-Skype: tekkamanninja
-Room 1512, Regus One Corporate Avenue,Level 15,
-One Corporate Avenue,222 Hubin Road,Huangpu District,
-Shanghai,China 200021 
+Guenter
