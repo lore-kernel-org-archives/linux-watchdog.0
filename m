@@ -1,78 +1,131 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta5.messagelabs.com ([195.245.231.141]:11699 "EHLO
-	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751526AbbESKSs convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 19 May 2015 06:18:48 -0400
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Guenter Roeck <linux@roeck-us.net>
-CC: LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	DEVICETREE <devicetree@vger.kernel.org>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	"Mark Rutland" <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Support Opensource <Support.Opensource@diasemi.com>
-Subject: RE: [rtc-linux] RE: [PATCH V2 3/4] watchdog: da9062: DA9062
- watchdog driver
-Date: Tue, 19 May 2015 10:16:46 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22B994@SW-EX-MBX02.diasemi.com>
-References: <cover.1431621833.git.stwiss.opensource@diasemi.com>
- <6a51f163b99edfad9165ad29609abb072dbaa2b7.1431621833.git.stwiss.opensource@diasemi.com>
- <55555639.8090505@roeck-us.net>
- <6ED8E3B22081A4459DAC7699F3695FB7014B22B63A@SW-EX-MBX02.diasemi.com>
- <5555ED4F.5070003@roeck-us.net>
- <6ED8E3B22081A4459DAC7699F3695FB7014B22B6E2@SW-EX-MBX02.diasemi.com>
- <20150515202005.GA23133@roeck-us.net>
- <6ED8E3B22081A4459DAC7699F3695FB7014B22B8C8@SW-EX-MBX02.diasemi.com>
- <20150518152737.GA14403@roeck-us.net>
- <6ED8E3B22081A4459DAC7699F3695FB7014B22B8FE@SW-EX-MBX02.diasemi.com>
- <20150518173927.GV3338@piout.net>
-In-Reply-To: <20150518173927.GV3338@piout.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Received: from smtp.codeaurora.org ([198.145.29.96]:44208 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750865AbbESTMp (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 19 May 2015 15:12:45 -0400
+Message-ID: <555B8B2A.5030706@codeaurora.org>
+Date: Tue, 19 May 2015 14:12:42 -0500
+From: Timur Tabi <timur@codeaurora.org>
 MIME-Version: 1.0
+To: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
+	Ashwin Chaugule <ashwin.chaugule@linaro.org>,
+	Vipul Gandhi <vgandhi@codeaurora.org>,
+	Fu Wei <fu.wei@linaro.org>, Al Stone <al.stone@linaro.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Hanjun Guo <hanjun.guo@linaro.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Graeme Gregory <graeme.gregory@linaro.org>,
+	linaro-acpi@lists.linaro.org
+Subject: Re: [PATCH] [v3] watchdog: introduce the ARM64 SBSA watchdog driver
+References: <1431740145-21723-1-git-send-email-timur@codeaurora.org> <5556B5A3.1080208@roeck-us.net>
+In-Reply-To: <5556B5A3.1080208@roeck-us.net>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 18 May 2015 18:39 Alexandre Belloni wrote:
+Guenter Roeck wrote:
 
-> Sure, what I understand is that the base functionality is the same and
-> even the registers are compatible. Are you sure the new features can't
-> be added to the da9063 and called conditionally? Plenty of drivers are
-> doing that.
+>> +config ARM_SBSA_WDT
+>> +    tristate "ARM Server Base System Architecture watchdog"
+>> +    depends on ARM64 || COMPILE_TEST
+>
+> COMPILE_TEST doesn't work with the current code - see below.
 
-Hi Alexandre/Guenter,
+Ok, I'll remove it.  I never liked it anyway.
 
-I didn't say it couldn't be added to DA9063. Of course it's all possible, but I think
-it would become unmaintainable in future without separate drivers. There is some
-extra freeze functionality and a watchdog warn interrupt: both do not exist in the
-DA9063.
+> I still don't understand why you can not use the standard arch_sys_counter
+> provided for arm but have to call arm-internal functions directly.
+> That seems quite broken to me.
 
-What I did say **one month ago** was the DA9062 watchdog driver does have some
-similarities with the DA9063 watchdog (https://lkml.org/lkml/2015/5/6/505).
+I tried to use clk_get_sys(), but that failed because there are no 
+clocks defined on my platform (the 'clocks' list in clkdev.c is empty). 
+  I don't think the clock API is fully functional on an ARM ACPI system.
 
-But I would prefer two drivers for watchdog in this case. When compared to the RTC and
-OnKey the watchdog is very different on the hardware side. Despite the appearance of
-some similarity, the watchdog is not a functional clone like the RTC and OnKey components.
+I was originally using functions like arch_timer_read_counter(), but 
+that function is not exported, so I couldn't compile my driver as module 
+if I used it.
 
-I would not like a combined watchdog driver because I think that the extra functions
-that the DA9062 contains would bloat out the DA9063 watchdog, and would make it difficult
-to test and to maintain for the future..
+>> +#include <linux/acpi.h>
+>> +
+>> +/* Watchdog Interface Identification Registers */
+>> +struct arm_sbsa_watchdog_ident {
+>> +    __le32 w_iidr;    /* Watchdog Interface Identification Register */
+>> +    uint8_t res2[0xFE8 - 0xFD0];
+>> +    __le32 w_pidr2;    /* Peripheral ID2 Register */
+>
+> Does this register have any use ?
 
-Regards,
-Steve
+I don't use it in this driver, but it is part of the hardware.
+
+>> +struct arm_sbsa_watchdog_data {
+>> +    struct watchdog_device wdev;
+>> +    unsigned int pm_status;
+>
+> You can use bool here.
+
+Ok.
+
+>> +static int arm_sbsa_wdt_start(struct watchdog_device *wdev)
+>> +{
+>> +    struct arm_sbsa_watchdog_data *data =
+>> +        container_of(wdev, struct arm_sbsa_watchdog_data, wdev);
+>> +
+>> +    /* Writing to the control register will also reset the counter */
+>> +    writel(1, &data->control->wcs);
+>> +
+>
+> Is it ok to always overwrite the entire wcs register ?
+
+Yes.  Writes to bits 1-31 have no affect.
+
+>> +static unsigned int arm_sbsa_wdt_timeleft(struct watchdog_device *wdev)
+>> +{
+>> +    struct arm_sbsa_watchdog_data *data =
+>> +        container_of(wdev, struct arm_sbsa_watchdog_data, wdev);
+>> +    uint64_t diff = readq(&data->control->wcv) -
+>> arch_counter_get_cntvct();
+>> +
+> Due to this readq the code doesn't compile on arm,
+> nor on any other architecture which does not implement readq.
+
+>> +    return diff / arch_timer_get_cntfrq();
+>
+> .. and as mentioned before this won't compile on 32 bit targets.
+
+That's why I have in my Kconfig:
+
+	depends on ARM64
+
+It will never be compiled on a 32-bit ARM platform.
+
+>> +static struct watchdog_info arm_sbsa_wdt_info = {
+>> +    .options = WDIOF_SETTIMEOUT | _WDIOF_KEEPALIVEPING,
+>
+>      WDIOF_MAGICCLOSE ?
+
+Is it preferred to enable this feature?  It seems like a policy setting 
+that shouldn't be defined by the driver.
+
+>> +    /* We only support architecture version 0 */
+>> +    iidr = readl(&data->control->ident.w_iidr);
+>> +    if (((iidr >> 16) & 0xf) != 0) {
+>> +        dev_info(&pdev->dev,
+>> +             "only architecture version 0 is supported\n");
+>
+> dev_err ?
+> It might make sense to display the detected version as well.
+
+Ok.
+
+>> +    watchdog_set_drvdata(&data->wdev, data);
+>> +
+> You don't ever call watchdog_get_drvdata(), so this is unnecessary.
+
+Ok
+
+-- 
+Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the
+Code Aurora Forum, a Linux Foundation Collaborative Project.
