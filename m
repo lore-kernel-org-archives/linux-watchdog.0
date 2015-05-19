@@ -1,183 +1,184 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from oul135-36.netplaza.fi ([80.75.100.36]:51236 "EHLO
+Received: from oul135-36.netplaza.fi ([80.75.100.36]:51242 "EHLO
 	lime.offcode.fi" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754304AbbESI0r (ORCPT
+	with ESMTP id S1754605AbbESI0s (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 19 May 2015 04:26:47 -0400
+	Tue, 19 May 2015 04:26:48 -0400
 From: Timo Kokkonen <timo.kokkonen@offcode.fi>
 To: linux-arm-kernel@lists.infradead.org,
 	linux-watchdog@vger.kernel.org, boris.brezillon@free-electrons.com,
 	nicolas.ferre@atmel.com, alexandre.belloni@free-electrons.com
 Cc: Wenyou.Yang@atmel.com, Timo Kokkonen <timo.kokkonen@offcode.fi>
-Subject: [PATCHv8 05/10] Documentation/watchdog: Document watchdog core API changes
-Date: Tue, 19 May 2015 11:26:04 +0300
-Message-Id: <1432023969-20736-6-git-send-email-timo.kokkonen@offcode.fi>
+Subject: [PATCHv8 04/10] watchdog: core: Allow extending early timeout
+Date: Tue, 19 May 2015 11:26:03 +0300
+Message-Id: <1432023969-20736-5-git-send-email-timo.kokkonen@offcode.fi>
 In-Reply-To: <1432023969-20736-1-git-send-email-timo.kokkonen@offcode.fi>
 References: <1432023969-20736-1-git-send-email-timo.kokkonen@offcode.fi>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Watchdog core API has changed somewhat and drivers are expected to
-change. Document the new requirements so that driver writers know how
-to do the change properly.
+It is possible that the specified watchdog timeout value is shorter
+than the time it takes for the watchdog daemon to start up and take
+over the watchdog device. This is problem if WATCHDOG_BOOT_RUNNING is
+the desired watchdog policy.
+
+Add a new timeout value that specifies how long kernel should extend
+the timeout by pinging the watchdog hardware. This option still
+ensures a watchdog reset takes place in case watchdog daemon fails to
+open the device, but gives more freedom in case user space is slow
+starting up and watchdog might trigger prematurely.
 
 Signed-off-by: Timo Kokkonen <timo.kokkonen@offcode.fi>
 ---
- .../watchdog/convert_drivers_to_kernel_api.txt     | 26 ++++++++
- Documentation/watchdog/watchdog-kernel-api.txt     | 71 +++++++++++++---------
- 2 files changed, 68 insertions(+), 29 deletions(-)
+ drivers/watchdog/Kconfig         | 21 +++++++++++++++++++++
+ drivers/watchdog/watchdog_core.c | 37 +++++++++++++++++++++++++++++++++----
+ drivers/watchdog/watchdog_dev.c  |  4 ++++
+ include/linux/watchdog.h         |  1 +
+ 4 files changed, 59 insertions(+), 4 deletions(-)
 
-diff --git a/Documentation/watchdog/convert_drivers_to_kernel_api.txt b/Documentation/watchdog/convert_drivers_to_kernel_api.txt
-index 271b885..c9ba973 100644
---- a/Documentation/watchdog/convert_drivers_to_kernel_api.txt
-+++ b/Documentation/watchdog/convert_drivers_to_kernel_api.txt
-@@ -185,6 +185,32 @@ by adding a module parameter. The conversion for this would be something like:
- The module parameter itself needs to stay, everything else related to nowayout
- can go, though. This will likely be some code in open(), close() or write().
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 0066d6d..33f2f9c 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -96,6 +96,27 @@ config WATCHDOG_BOOT_NOTOUCH
  
-+Remove possible adhoc timer code
-+--------------------------------
-+
-+The watchdog core is capable of handling various features many
-+watchdog hardware are missing, such as emulating stopped watchdog with
-+unstoppable hardware or extending the timeout when hardware only
-+supports very short timeout values. Traditionally watchdog drivers
-+needed to implement code of their own to work around the hardware
-+limitations. Now it is enough to record the watchdog boot time status
-+with watchdog_set_hw_active() function and the watchdog core takes
-+care of starting or stopping the watchdog, depending on the used
-+policy. If watchdog cannot be stopped, the stop() function should
-+return -ENOTSUPP and let core emulate stopping the watchdog.
-+
-+Initialize parameters with watchdog_init_params()
-+-------------------------------------------------
-+
-+There are parameters that the watchdog driver does not need to be
-+aware of and there are parameters that are optional to the driver. The
-+watchdog_init_params() function takes care of validating the mandatory
-+parameters and filling in reasonable values for the optional ones.
-+
-+What the driver MUST do is to fill in hw_max_timeout value in
-+milliseconds, record the current watchdog hardware active status with
-+watchdog_set_hw_active() and then call watchdog_init_params() and
-+check the return value to see that everything went right.
+ endchoice
  
- Register the watchdog device
- ----------------------------
-diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
-index a0438f3..265306c 100644
---- a/Documentation/watchdog/watchdog-kernel-api.txt
-+++ b/Documentation/watchdog/watchdog-kernel-api.txt
-@@ -11,12 +11,21 @@ It also does not describe the API which can be used by user space to communicate
- with a WatchDog Timer. If you want to know this then please read the following
- file: Documentation/watchdog/watchdog-api.txt .
- 
--So what does this document describe? It describes the API that can be used by
--WatchDog Timer Drivers that want to use the WatchDog Timer Driver Core
--Framework. This framework provides all interfacing towards user space so that
--the same code does not have to be reproduced each time. This also means that
--a watchdog timer driver then only needs to provide the different routines
--(operations) that control the watchdog timer (WDT).
-+So what does this document describe? It describes the API that can be
-+used by WatchDog Timer Drivers that want to use the WatchDog Timer
-+Driver Core Framework. This framework provides all interfacing towards
-+user space so that the same code does not have to be reproduced each
-+time. This also means that a watchdog timer driver then only needs to
-+provide the different routines (operations) that control the watchdog
-+timer (WDT).
++config WATCHDOG_EARLY_TIMEOUT_SEC
++	int "Extend watchdog early timeout"
++	depends on WATCHDOG_BOOT_RUNNING
++	default "0"
++	help
++	  When WATCHDOG_BOOT_RUNNIN policy is selected the default
++	  behavior is to start up or keep the watchdog hardware
++	  running during boot up. In some cases the boot up time for
++	  the userspace might be too long for the watchdog daemon to
++	  take over the watchdog device in time, which might lead to
++	  premature device reset.
 +
-+The Watchdog Timer Driver Core also intermediates between the user
-+space and the driver and provides same user experience to the user
-+space regardless of the hardware limitations. For example, some
-+watchdog hardware can not be stopped or they have very short maximum
-+keepalive timeout. In such case watchdog core can emulate a stopped
-+watchdog device or extend watchdog timeout by pinging periodically the
-+watchdog driver on behalf of the user space.
++	  This option specifies how long should the watchdog core keep
++	  the watchdog hardware running before the device is
++	  opened. Should there be a crash that prevents the daemon
++	  from starting up, a normal watchdog reset occurs once the
++	  initial timeout expires. Normal timeout limits apply once
++	  watchdog daemon opens the device.
++
++	  The timeout value is in seconds.
++
+ #
+ # General Watchdog drivers
+ #
+diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+index 9ae5b8e..7bf0e1e 100644
+--- a/drivers/watchdog/watchdog_core.c
++++ b/drivers/watchdog/watchdog_core.c
+@@ -141,6 +141,7 @@ static void watchdog_set_default_timeout(struct watchdog_device *wdd,
+  */
+ int watchdog_init_params(struct watchdog_device *wdd, struct device *dev)
+ {
++	unsigned int t = 0;
+ 	int ret = 0;
  
- The API
- -------
-@@ -48,7 +57,8 @@ struct watchdog_device {
- 	unsigned int bootstatus;
- 	unsigned int timeout;
- 	unsigned int min_timeout;
--	unsigned int max_timeout;
-+	unsigned int hw_max_timeout;
-+	unsigned int hw_keepalive;
- 	void *driver_data;
+ 	watchdog_set_default_timeout(wdd, dev);
+@@ -148,6 +149,13 @@ int watchdog_init_params(struct watchdog_device *wdd, struct device *dev)
+ 	if (wdd->max_timeout)
+ 		dev_err(dev, "Driver setting deprecated max_timeout, please fix\n");
+ 
++	wdd->early_timeout_sec = -1;
++#ifdef CONFIG_WATCHDOG_EARLY_TIMEOUT_SEC
++	wdd->early_timeout_sec = CONFIG_WATCHDOG_EARLY_TIMEOUT_SEC;
++#endif
++	if (!of_property_read_u32(dev->of_node, "early-timeout-sec", &t))
++		wdd->early_timeout_sec = t;
++
+ 	if (!wdd->hw_max_timeout)
+ 		return -EINVAL;
+ 
+@@ -161,12 +169,16 @@ static void watchdog_worker(struct work_struct *work)
+ 						struct watchdog_device, work);
+ 	bool stopped_keepalive;
+ 	bool extend_keepalive;
++	bool early_timeout_keepalive;
+ 
+ 	mutex_lock(&wdd->lock);
+ 
+ 	/* Watchdog device is not open but HW does not support stopping */
+ 	stopped_keepalive = watchdog_hw_active(wdd) &&
+-		!watchdog_dev_open(wdd);
++		!watchdog_dev_open(wdd) && (wdd->early_timeout_sec < 0);
++
++	early_timeout_keepalive = wdd->early_timeout_sec >= 0 &&
++		time_before(jiffies, wdd->expires);
+ 
+ 	/* Keepalive time is longer than what hardware is capable */
+ 	extend_keepalive = watchdog_dev_open(wdd) &&
+@@ -181,7 +193,7 @@ static void watchdog_worker(struct work_struct *work)
+ 		return;
+ 	}
+ 
+-	if (stopped_keepalive || extend_keepalive) {
++	if (stopped_keepalive || extend_keepalive || early_timeout_keepalive) {
+ 		unsigned long expires = msecs_to_jiffies(wdd->hw_heartbeat);
+ 
+ 		_watchdog_ping(wdd);
+@@ -206,11 +218,28 @@ static int prepare_watchdog(struct watchdog_device *wdd)
+ 	watchdog_policy_start = IS_ENABLED(CONFIG_WATCHDOG_BOOT_RUNNING);
+ 	watchdog_policy_stop = IS_ENABLED(CONFIG_WATCHDOG_BOOT_STOPPED);
+ 
++	if (wdd->early_timeout_sec >= 0)
++		watchdog_policy_start = true;
++
++	if (wdd->early_timeout_sec > 0)
++		wdd->expires = jiffies + wdd->early_timeout_sec * HZ;
++
+ 	if (!watchdog_hw_active(wdd) && watchdog_policy_stop)
+ 		return 0;
+ 
+-	if (watchdog_policy_start && !watchdog_hw_active(wdd))
+-		return watchdog_start(wdd);
++	if (watchdog_policy_start && !watchdog_hw_active(wdd)) {
++		int ret;
++
++		ret = watchdog_start(wdd);
++
++		if (wdd->early_timeout_sec > 0) {
++			wdd->expires = jiffies + wdd->early_timeout_sec * HZ;
++			schedule_delayed_work(&wdd->work,
++					msecs_to_jiffies(wdd->hw_heartbeat));
++		}
++
++		return ret;
++	}
+ 
+ 	if (watchdog_policy_stop && watchdog_hw_active(wdd))
+ 		return watchdog_stop(wdd);
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index ac17668..0310eda 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -122,6 +122,10 @@ int watchdog_start(struct watchdog_device *wddev)
+ 		set_bit(WDOG_ACTIVE, &wddev->status);
+ 
+ out_started:
++	/* Once we open the device, early timeout can be disabled */
++	if (wddev->early_timeout_sec >= 0 && watchdog_dev_open(wddev))
++		wddev->early_timeout_sec = -1;
++
+ out_no_start:
+ 	mutex_unlock(&wddev->lock);
+ 	return err;
+diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+index 03f0553..b746f7c 100644
+--- a/include/linux/watchdog.h
++++ b/include/linux/watchdog.h
+@@ -96,6 +96,7 @@ struct watchdog_device {
  	struct mutex lock;
+ 	struct delayed_work work;  /* keepalive worker */
+ 	unsigned long int expires; /* for keepalive worker */
++	int early_timeout_sec;
  	unsigned long status;
-@@ -69,7 +79,8 @@ It contains following fields:
- * ops: a pointer to the list of watchdog operations that the watchdog supports.
- * timeout: the watchdog timer's timeout value (in seconds).
- * min_timeout: the watchdog timer's minimum timeout value (in seconds).
--* max_timeout: the watchdog timer's maximum timeout value (in seconds).
-+* hw_max_timeout: the watchdog timer's maximum timeout value supported
-+  in hardware (in milliseconds).
- * bootstatus: status of the device after booting (reported with watchdog
-   WDIOF_* status bits).
- * driver_data: a pointer to the drivers private data of a watchdog device.
-@@ -124,12 +135,13 @@ are:
-   The routine needs a pointer to the watchdog timer device structure as a
-   parameter. It returns zero on success or a negative errno code for failure.
- * stop: with this routine the watchdog timer device is being stopped.
--  The routine needs a pointer to the watchdog timer device structure as a
--  parameter. It returns zero on success or a negative errno code for failure.
--  Some watchdog timer hardware can only be started and not be stopped. The
--  driver supporting this hardware needs to make sure that a start and stop
--  routine is being provided. This can be done by using a timer in the driver
--  that regularly sends a keepalive ping to the watchdog timer hardware.
-+  The routine needs a pointer to the watchdog timer device structure
-+  as a parameter. It returns zero on success or a negative errno code
-+  for failure. Some watchdog timer hardware can only be started and
-+  not be stopped. If the watchdog timer can not be stopped, the stop
-+  routine must return -ENOTSUPP error code. The watchdog core can then
-+  take care of pinging the watchdog hardware while user space expects
-+  it to be stopped.
- 
- Not all watchdog timer hardware supports the same functionality. That's why
- all other routines/operations are optional. They only need to be provided if
-@@ -168,10 +180,11 @@ they are supported. These optional routines/operations are:
- 
- The status bits should (preferably) be set with the set_bit and clear_bit alike
- bit-operations. The status bits that are defined are:
--* WDOG_ACTIVE: this status bit indicates whether or not a watchdog timer device
--  is active or not. When the watchdog is active after booting, then you should
--  set this status bit (Note: when you register the watchdog timer device with
--  this bit set, then opening /dev/watchdog will skip the start operation)
-+* WDOG_ACTIVE: this status bit indicates whether or not a watchdog
-+  timer hardware is active or not. When the watchdog is active after
-+  booting, then you should set this status bit (Note: when you
-+  register the watchdog timer device with this bit set, then opening
-+  /dev/watchdog will skip the start operation)
- * WDOG_DEV_OPEN: this status bit shows whether or not the watchdog device
-   was opened via /dev/watchdog.
-   (This bit should only be used by the WatchDog Timer Driver Core).
-@@ -213,14 +226,14 @@ The watchdog_get_drvdata function allows you to retrieve driver specific data.
- The argument of this function is the watchdog device where you want to retrieve
- data from. The function returns the pointer to the driver specific data.
- 
--To initialize the timeout field, the following function can be used:
--
--extern int watchdog_init_timeout(struct watchdog_device *wdd,
--                                  unsigned int timeout_parm, struct device *dev);
--
--The watchdog_init_timeout function allows you to initialize the timeout field
--using the module timeout parameter or by retrieving the timeout-sec property from
--the device tree (if the module timeout parameter is invalid). Best practice is
--to set the default timeout value as timeout value in the watchdog_device and
--then use this function to set the user "preferred" timeout value.
--This routine returns zero on success and a negative errno code for failure.
-+You can initialize timeout field in the watchdog_device structure
-+eg. based from a module parameter in case user has a preference over
-+the initial timeout when loading the module.
-+
-+Your driver also must fill in appropriate hw_max_timeout value in the
-+watchdog_device structure and then call watchdog_init_params
-+function. This function will initialize watchdog internal parameters
-+and fill in missing values, such as timeout value. The function can
-+use device tree to fill in the necessary values, but it does not
-+override timeout value set by the driver. In case invalid values are
-+given, watchdog_inint_params returns a negative error.
+ /* Bit numbers for status flags */
+ #define WDOG_ACTIVE		0	/* Is the watchdog hw running/active */
 -- 
 2.1.0
 
