@@ -1,95 +1,126 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ob0-f178.google.com ([209.85.214.178]:33206 "EHLO
-	mail-ob0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751560AbbESBMc (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 18 May 2015 21:12:32 -0400
-Received: by obblk2 with SMTP id lk2so213397obb.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 18 May 2015 18:12:31 -0700 (PDT)
+Received: from mail1.bemta3.messagelabs.com ([195.245.230.167]:42510 "EHLO
+	mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753121AbbESIev convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 19 May 2015 04:34:51 -0400
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+CC: LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	"Alessandro Zummo" <a.zummo@towertech.it>,
+	DEVICETREE <devicetree@vger.kernel.org>,
+	"David Dajun Chen" <david.chen@diasemi.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>,
+	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	"Support Opensource" <Support.Opensource@diasemi.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+Subject: RE: [rtc-linux] [PATCH V2 1/4] mfd: da9062: DA9062 MFD core driver
+Date: Tue, 19 May 2015 08:34:45 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22B961@SW-EX-MBX02.diasemi.com>
+References: <cover.1431621833.git.stwiss.opensource@diasemi.com>
+ <af5a7d289bb149e9111ebc70bb0589a994ee2407.1431621833.git.stwiss.opensource@diasemi.com>
+ <20150516085328.GI3338@piout.net>
+In-Reply-To: <20150516085328.GI3338@piout.net>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-In-Reply-To: <20150518201445.GA21230@roeck-us.net>
-References: <=fu.wei@linaro.org>
-	<CADyBb7u=HjZO5CBzZLxw1aWDx0tKdVKBuTrrhrRF9bAQr7pADQ@mail.gmail.com>
-	<20150518172329.GA17202@roeck-us.net>
-	<2729872.Fp4939suL0@wuerfel>
-	<20150518201445.GA21230@roeck-us.net>
-Date: Tue, 19 May 2015 09:12:31 +0800
-Message-ID: <CADyBb7u1YnVvhNsvGAY7pQjK_SwMthN175XSw_DSY4SmF8XbVg@mail.gmail.com>
-Subject: Re: [PATCH 4/6] Watchdog: introdouce "pretimeout" into framework
-From: Fu Wei <fu.wei@linaro.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-	Wei Fu <tekkamanninja@gmail.com>,
-	G Gregory <graeme.gregory@linaro.org>,
-	Al Stone <al.stone@linaro.org>,
-	Hanjun Guo <hanjun.guo@linaro.org>,
-	Timur Tabi <timur@codeaurora.org>,
-	Ashwin Chaugule <ashwin.chaugule@linaro.org>,
-	vgandhi@codeaurora.org, wim@iguana.be,
-	Jon Masters <jcm@redhat.com>, Leo Duran <leo.duran@amd.com>,
-	Jon Corbet <corbet@lwn.net>
-Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Arnd, Guenter,
+On 16 May 2015 09:53 Alexandre Belloni wrote:
 
-yes, that is brilliant idea!!
-I will try to do so , that solve the compatibility problem , so I
-guess we can try this time :-)
+Hi Alexandre,
 
-On 19 May 2015 at 04:14, Guenter Roeck <linux@roeck-us.net> wrote:
-> On Mon, May 18, 2015 at 10:03:52PM +0200, Arnd Bergmann wrote:
->> On Monday 18 May 2015 10:23:30 Guenter Roeck wrote:
->> > >
->> > > integrate watchdog_init_pretimeout and watchdog_init_timeout will be a
->> > > little hard,
->> > > we may need to change this API to :
->> > >
->> > > watchdog_init_timeouts(struct watchdog_device *wdd, unsigned int timeout_parm,
->> > >                              unsigned int pretimeout_parm, struct device *dev)
->> > >
->> > > then we need to update all the watchdog drivers which use this API,
->> > > maybe we can do this in a individual patchset, after this pretimeout
->> > > patch is merged.
->> > >
->> > > Is that OK  ?   any thought?
->> > >
->> > That is what I would recommend.
->> >
->>
->> The API change is fine, but I don't think you need to change all drivers.
->>
->> Just add a small wrapper function in the header file doing the conversion:
->>
->> static inline int watchdog_init_timeout(struct watchdog_device *wdd,
->>                                 unsigned int timeout_parm, struct device *dev)
->> {
->>       return watchdog_init_timeouts(wdd, timeout_parm, ~0ul, dev);
->> }
->>
->> Then you can update the drivers that actually use the pretimeout to
->> use the new function at some point, and leave all other drivers calling
->> the wrapper function.
->>
-> Excellent idea.
->
-> Guenter
+> On 14/05/2015 at 17:43:52 +0100, S Twiss wrote :
 
+[...]
 
+> > +	{
+> > +		.name		= "da9062-watchdog",
+> > +		.num_resources	= ARRAY_SIZE(da9062_wdt_resources),
+> > +		.resources	= da9062_wdt_resources,
+> > +		.of_compatible  = "dlg,da9062-wdt",
+> > +	},
+> > +	{
+> > +		.name		= "da9062-onkey",
+> > +		.num_resources	= ARRAY_SIZE(da9062_onkey_resources),
+> > +		.resources	= da9062_onkey_resources,
+> > +		.of_compatible  = "dlg,da9062-onkey",
+> > +	},
+> > +	{
+> > +		.name		= "da9062-thermal",
+> > +		.num_resources	= ARRAY_SIZE(da9062_thermal_resources),
+> > +		.resources	= da9062_thermal_resources,
+> > +		.of_compatible  = "dlg,da9062-thermal",
+> > +	},
+> > +	{
+> > +		.name		= "da9062-rtc",
+> > +		.num_resources	= ARRAY_SIZE(da9062_rtc_resources),
+> > +		.resources	= da9062_rtc_resources,
+> > +		.of_compatible  = "dlg,da9062-rtc",
+> 
+> Did you try to use "da9063-rtc"? The register set seems to be exactly
+> the same. Unfortunately, the datasheet are not available on the diasemi
+> website...
 
--- 
-Best regards,
+I will remove the DA9062 OnKey and RTC parts with a view to putting them back
+when I do the work for the DA9063 alterations.
 
-Fu Wei
-Software Engineer
-Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
-Ph: +86 21 61221326(direct)
-Ph: +86 186 2020 4684 (mobile)
-Room 1512, Regus One Corporate Avenue,Level 15,
-One Corporate Avenue,222 Hubin Road,Huangpu District,
-Shanghai,China 200021
+> Also, the .of_compatibles are not necessary because you don't add any of
+> bindings to the underlying drivers. The match happens on .name.
+> 
+> > diff --git a/include/linux/mfd/da9062/registers.h
+> b/include/linux/mfd/da9062/registers.h
+> > new file mode 100644
+> > index 0000000..d07c2bc
+> > --- /dev/null
+> > +++ b/include/linux/mfd/da9062/registers.h
+> 
+> Comparing that file with da9063/registers.h, It really seems that
+> DA062AA, DA9063AD and DA9063BB are register compatible, apart from a
+> few
+> differences in the regulator and the gpio count.
+> 
+> Also, at least the watchdog and rtc driver are duplicating their da9063
+> counterpart. I'm not trying to annoy you, I just want you to understand
+> that the less code is duplicated, the easiest it will be to maintain
+> later.
+
+This has come up a lot lately.
+
+https://lkml.org/lkml/2015/4/24/304
+https://lkml.org/lkml/2015/5/13/383
+https://lkml.org/lkml/2015/5/6/505
+https://lkml.org/lkml/2015/5/18/511
+
+The short answer is that the DA9062 and DA9063 chips are not identical. Although
+their numbers are sequential and there are functional similarities for some of the
+components, this is not the norm for the two chips.
+
+In some cases re-using driver components from DA9063 is a good way forward, but
+making all components part of a monolithic driver would make both DA9062 and
+DA9063 over complicated and unmaintainable -- in my opinion.
+
+However it's not just my opinion we have to consider here I think.
+
+The RTC and OnKey in this case can be done fairly easily I think -- there can be some
+re-use in those components -- although there are fairly important RTC differences between
+the DA9063 AD and DA9063 BB silicon revisions (in the form of a new register, different
+functionality in the alarm and a register shift). So even that is not a straight-forward
+"swap" to run DA9062.
+
+Regards,
+Steve
+
