@@ -1,131 +1,69 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:44208 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750865AbbESTMp (ORCPT
+Received: from oul135-36.netplaza.fi ([80.75.100.36]:47223 "EHLO
+	lime.offcode.fi" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751077AbbETFhj (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 19 May 2015 15:12:45 -0400
-Message-ID: <555B8B2A.5030706@codeaurora.org>
-Date: Tue, 19 May 2015 14:12:42 -0500
-From: Timur Tabi <timur@codeaurora.org>
+	Wed, 20 May 2015 01:37:39 -0400
+Message-ID: <555C1D9F.4060600@offcode.fi>
+Date: Wed, 20 May 2015 08:37:35 +0300
+From: Timo Kokkonen <timo.kokkonen@offcode.fi>
 MIME-Version: 1.0
-To: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
-	Ashwin Chaugule <ashwin.chaugule@linaro.org>,
-	Vipul Gandhi <vgandhi@codeaurora.org>,
-	Fu Wei <fu.wei@linaro.org>, Al Stone <al.stone@linaro.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Hanjun Guo <hanjun.guo@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Graeme Gregory <graeme.gregory@linaro.org>,
-	linaro-acpi@lists.linaro.org
-Subject: Re: [PATCH] [v3] watchdog: introduce the ARM64 SBSA watchdog driver
-References: <1431740145-21723-1-git-send-email-timur@codeaurora.org> <5556B5A3.1080208@roeck-us.net>
-In-Reply-To: <5556B5A3.1080208@roeck-us.net>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Guenter Roeck <linux@roeck-us.net>,
+	linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org, boris.brezillon@free-electrons.com,
+	nicolas.ferre@atmel.com, alexandre.belloni@free-electrons.com
+CC: Wenyou.Yang@atmel.com
+Subject: Re: [PATCHv8 01/10] watchdog: Rename watchdog_active to watchdog_hw_active
+References: <1432023969-20736-1-git-send-email-timo.kokkonen@offcode.fi> <1432023969-20736-2-git-send-email-timo.kokkonen@offcode.fi> <555BDF22.2090208@roeck-us.net>
+In-Reply-To: <555BDF22.2090208@roeck-us.net>
+Content-Type: text/plain; charset=windows-1252;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Guenter Roeck wrote:
-
->> +config ARM_SBSA_WDT
->> +    tristate "ARM Server Base System Architecture watchdog"
->> +    depends on ARM64 || COMPILE_TEST
+On 20.05.2015 04:10, Guenter Roeck wrote:
+> On 05/19/2015 01:26 AM, Timo Kokkonen wrote:
+>> Before extending the watchdog core midlayer, it is useful to rename
+>> the watchdog_active function so that it states explicitly what it
+>> really does. That is, "active" watchdog means really that the watchd=
+og
+>> hardware is running and needs pinging to prevent a watchdog reset
+>> taking place in near future.
+>>
+>> This is different to "watchdog open" state, which simply states that
+>> kernel is expecting the user space to keep the watchdog alive. These
+>> states might become different mainly because some hardware have
+>> limitations that prevent them from being stopped at will.
+>>
 >
-> COMPILE_TEST doesn't work with the current code - see below.
+> I don't see why this is needed. If you need another state, per your
+> description, it would be "open" in addition to "active".
 
-Ok, I'll remove it.  I never liked it anyway.
+Yes, the watchdog_is_open() is introduced on patch number two. The=20
+original watchdog_is_active() is really confusing. It doesn't really=20
+state what it means. Most of the drivers are using it to test whether=20
+the watchdog HW is active when going to suspend, but at least atmel=20
+watchdog was testing it to see whether the watchdog device is open from=
+=20
+user space. The HW itself is always active in that driver.
 
-> I still don't understand why you can not use the standard arch_sys_counter
-> provided for arm but have to call arm-internal functions directly.
-> That seems quite broken to me.
+If we are about to distinguish between "device open from user space" an=
+d=20
+"hardware timer running", we better be clear about the naming.=20
+"watchdog_is_active" doesn't really tell what it does.
 
-I tried to use clk_get_sys(), but that failed because there are no 
-clocks defined on my platform (the 'clocks' list in clkdev.c is empty). 
-  I don't think the clock API is fully functional on an ARM ACPI system.
+This was originally suggested by Uwe Kleine-K=F6nig. He also recommende=
+d=20
+changing the timeout parameter so that is would state more clearly that=
+=20
+it is the SW timeout and not HW timeout. But I felt that it would have=20
+been too invasive to change the timeout parameter as well. The=20
+watchdog_is_active was not used very much so the change was easy.
 
-I was originally using functions like arch_timer_read_counter(), but 
-that function is not exported, so I couldn't compile my driver as module 
-if I used it.
-
->> +#include <linux/acpi.h>
->> +
->> +/* Watchdog Interface Identification Registers */
->> +struct arm_sbsa_watchdog_ident {
->> +    __le32 w_iidr;    /* Watchdog Interface Identification Register */
->> +    uint8_t res2[0xFE8 - 0xFD0];
->> +    __le32 w_pidr2;    /* Peripheral ID2 Register */
->
-> Does this register have any use ?
-
-I don't use it in this driver, but it is part of the hardware.
-
->> +struct arm_sbsa_watchdog_data {
->> +    struct watchdog_device wdev;
->> +    unsigned int pm_status;
->
-> You can use bool here.
-
-Ok.
-
->> +static int arm_sbsa_wdt_start(struct watchdog_device *wdev)
->> +{
->> +    struct arm_sbsa_watchdog_data *data =
->> +        container_of(wdev, struct arm_sbsa_watchdog_data, wdev);
->> +
->> +    /* Writing to the control register will also reset the counter */
->> +    writel(1, &data->control->wcs);
->> +
->
-> Is it ok to always overwrite the entire wcs register ?
-
-Yes.  Writes to bits 1-31 have no affect.
-
->> +static unsigned int arm_sbsa_wdt_timeleft(struct watchdog_device *wdev)
->> +{
->> +    struct arm_sbsa_watchdog_data *data =
->> +        container_of(wdev, struct arm_sbsa_watchdog_data, wdev);
->> +    uint64_t diff = readq(&data->control->wcv) -
->> arch_counter_get_cntvct();
->> +
-> Due to this readq the code doesn't compile on arm,
-> nor on any other architecture which does not implement readq.
-
->> +    return diff / arch_timer_get_cntfrq();
->
-> .. and as mentioned before this won't compile on 32 bit targets.
-
-That's why I have in my Kconfig:
-
-	depends on ARM64
-
-It will never be compiled on a 32-bit ARM platform.
-
->> +static struct watchdog_info arm_sbsa_wdt_info = {
->> +    .options = WDIOF_SETTIMEOUT | _WDIOF_KEEPALIVEPING,
->
->      WDIOF_MAGICCLOSE ?
-
-Is it preferred to enable this feature?  It seems like a policy setting 
-that shouldn't be defined by the driver.
-
->> +    /* We only support architecture version 0 */
->> +    iidr = readl(&data->control->ident.w_iidr);
->> +    if (((iidr >> 16) & 0xf) != 0) {
->> +        dev_info(&pdev->dev,
->> +             "only architecture version 0 is supported\n");
->
-> dev_err ?
-> It might make sense to display the detected version as well.
-
-Ok.
-
->> +    watchdog_set_drvdata(&data->wdev, data);
->> +
-> You don't ever call watchdog_get_drvdata(), so this is unnecessary.
-
-Ok
-
--- 
-Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the
-Code Aurora Forum, a Linux Foundation Collaborative Project.
+-Timo
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
