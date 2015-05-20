@@ -1,57 +1,48 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:39196 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:45556 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752743AbbETNqN (ORCPT
+	with ESMTP id S1752090AbbETUaW (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 20 May 2015 09:46:13 -0400
-Message-ID: <555C9020.6060908@roeck-us.net>
-Date: Wed, 20 May 2015 06:46:08 -0700
+	Wed, 20 May 2015 16:30:22 -0400
+Date: Wed, 20 May 2015 13:30:16 -0700
 From: Guenter Roeck <linux@roeck-us.net>
+To: S Twiss <stwiss.opensource@diasemi.com>
+Cc: LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	DEVICETREE <devicetree@vger.kernel.org>,
+	David Dajun Chen <david.chen@diasemi.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	LINUXINPUT <linux-input@vger.kernel.org>,
+	Lee Jones <lee.jones@linaro.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Pawel Moll <pawel.moll@arm.com>,
+	RTCLINUX <rtc-linux@googlegroups.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Support Opensource <support.opensource@diasemi.com>
+Subject: Re: [PATCH V3 3/4] watchdog: da9062: DA9062 watchdog driver
+Message-ID: <20150520203016.GA5710@roeck-us.net>
+References: <cover.1432041031.git.stwiss.opensource@diasemi.com>
+ <ded171f203fe1d0c72f0d7ea4c3d54257f4e970e.1432041031.git.stwiss.opensource@diasemi.com>
 MIME-Version: 1.0
-To: Timo Kokkonen <timo.kokkonen@offcode.fi>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org, boris.brezillon@free-electrons.com,
-	nicolas.ferre@atmel.com, alexandre.belloni@free-electrons.com
-CC: Wenyou.Yang@atmel.com
-Subject: Re: [PATCHv8 01/10] watchdog: Rename watchdog_active to watchdog_hw_active
-References: <1432023969-20736-1-git-send-email-timo.kokkonen@offcode.fi> <1432023969-20736-2-git-send-email-timo.kokkonen@offcode.fi> <555BDF22.2090208@roeck-us.net> <555C1D9F.4060600@offcode.fi>
-In-Reply-To: <555C1D9F.4060600@offcode.fi>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ded171f203fe1d0c72f0d7ea4c3d54257f4e970e.1432041031.git.stwiss.opensource@diasemi.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 05/19/2015 10:37 PM, Timo Kokkonen wrote:
-> On 20.05.2015 04:10, Guenter Roeck wrote:
->> On 05/19/2015 01:26 AM, Timo Kokkonen wrote:
->>> Before extending the watchdog core midlayer, it is useful to rename
->>> the watchdog_active function so that it states explicitly what it
->>> really does. That is, "active" watchdog means really that the watchdog
->>> hardware is running and needs pinging to prevent a watchdog reset
->>> taking place in near future.
->>>
->>> This is different to "watchdog open" state, which simply states that
->>> kernel is expecting the user space to keep the watchdog alive. These
->>> states might become different mainly because some hardware have
->>> limitations that prevent them from being stopped at will.
->>>
->>
->> I don't see why this is needed. If you need another state, per your
->> description, it would be "open" in addition to "active".
->
-> Yes, the watchdog_is_open() is introduced on patch number two. The original watchdog_is_active() is really confusing. It doesn't really state what it means. Most of the drivers are using it to test whether the watchdog HW is active when going to suspend, but at least atmel watchdog was testing it to see whether the watchdog device is open from user space. The HW itself is always active in that driver.
->
-> If we are about to distinguish between "device open from user space" and "hardware timer running", we better be clear about the naming. "watchdog_is_active" doesn't really tell what it does.
->
-> This was originally suggested by Uwe Kleine-König. He also recommended changing the timeout parameter so that is would state more clearly that it is the SW timeout and not HW timeout. But I felt that it would have been too invasive to change the timeout parameter as well. The watchdog_is_active was not used very much so the change was easy.
->
-> -Timo
->
-You could just clarify what it means.
-
-Anyway, I think I'll have to step back from this for a while.
-As I mentioned, I think it is getting too invasive, which clouds
-my judgment. I think I'll leave this patch set up to Wim to handle.
-
-Guenter
-
+On Tue, May 19, 2015 at 02:10:30PM +0100, S Twiss wrote:
+> From: S Twiss <stwiss.opensource@diasemi.com>
+> 
+> Add watchdog driver support for DA9062
+> 
+> 
+> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+> 
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
