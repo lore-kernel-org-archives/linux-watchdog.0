@@ -1,71 +1,79 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:40054 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755704AbbEUP2m (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 21 May 2015 11:28:42 -0400
-Date: Thu, 21 May 2015 08:28:38 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Timur Tabi <timur@codeaurora.org>
-Cc: fu.wei@linaro.org, Suravee.Suthikulpanit@amd.com,
-	linaro-acpi@lists.linaro.org, linux-watchdog@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-doc@vger.kernel.org, tekkamanninja@gmail.com,
-	graeme.gregory@linaro.org, al.stone@linaro.org,
-	hanjun.guo@linaro.org, ashwin.chaugule@linaro.org, arnd@arndb.de,
-	vgandhi@codeaurora.org, wim@iguana.be, jcm@redhat.com,
-	leo.duran@amd.com, corbet@lwn.net, mark.rutland@arm.com
-Subject: Re: [PATCH v2 6/7] Watchdog: introduce ARM SBSA watchdog driver
-Message-ID: <20150521152838.GB16668@roeck-us.net>
-References: <=fu.wei@linaro.org>
- <1432197156-16947-1-git-send-email-fu.wei@linaro.org>
- <1432197156-16947-7-git-send-email-fu.wei@linaro.org>
- <555DB4C4.5090606@roeck-us.net>
- <555DD8EE.1060607@codeaurora.org>
+Return-path: <timur@codeaurora.org>
+Message-ID: <555DFCD4.3040701@codeaurora.org>
+Date: Thu, 21 May 2015 10:42:12 -0500
+From: Timur Tabi <timur@codeaurora.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <555DD8EE.1060607@codeaurora.org>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+To: fu.wei@linaro.org, Suravee.Suthikulpanit@amd.com,
+ linaro-acpi@lists.linaro.org, linux-watchdog@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-doc@vger.kernel.org
+CC: tekkamanninja@gmail.com, graeme.gregory@linaro.org,
+ al.stone@linaro.org, hanjun.guo@linaro.org, ashwin.chaugule@linaro.org,
+ arnd@arndb.de, linux@roeck-us.net, vgandhi@codeaurora.org,
+ wim@iguana.be, jcm@redhat.com, leo.duran@amd.com, corbet@lwn.net,
+ mark.rutland@arm.com
+Subject: Re: [PATCH v2 6/7] Watchdog: introduce ARM SBSA watchdog driver
+References: <=fu.wei@linaro.org> <1432197156-16947-1-git-send-email-fu.wei@linaro.org> <1432197156-16947-7-git-send-email-fu.wei@linaro.org>
+In-Reply-To: <1432197156-16947-7-git-send-email-fu.wei@linaro.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Thu, May 21, 2015 at 08:09:02AM -0500, Timur Tabi wrote:
-> Guenter Roeck wrote:
-> >>
-> >>+static unsigned int sbsa_gwdt_get_timeleft(struct watchdog_device *wdd)
-> >>+{
-> >>+    struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
-> >>+    u64 timeleft = sbsa_gwdt_get_wcv(wdd) - arch_counter_get_cntvct();
-> >>+
-> >
-> >Still not happy about the use of arch_counter_get_cntvct
-> >instead of using the clock subsystem. I am quite sure this could be done,
-> >possibly through arch_sys_counter, though at this point I am getting wary
-> >of bringing it up, so I guess I'll just let it go.
-> 
-> You made the same comment with my driver, and I keep asking for
-> clarification.  The clk_get_sys() API does not work on my system, because
-> there are not clocks defined.  That must be an ACPI limitation that I can't
-> fix.
-> 
-Would it be possible to define such clocks ?
+On 05/21/2015 03:32 AM, fu.wei@linaro.org wrote:
 
-> The alternative to arch_counter_get_cntvct() is arch_timer_read_counter(),
-> which is not exported.  So we have two choices,
-> 
-> 1) Continue to use arch_counter_get_cntvct(), which works on all ARM64
-> platforms that this driver supports anyway
-> 
-> 2) Export arch_timer_read_counter()
-> 
-> I prefer option #1.
-> 
-Do we have any feedback from the arm maintainers ?
+> +static void reload_timeout_to_wcv(struct watchdog_device *wdd)
+> +{
+> +	struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
+> +	u64 wcv;
+> +
+> +	wcv = arch_counter_get_cntvct() +
+> +		(u64)(wdd->timeout - wdd->pretimeout) * gwdt->clk;
+> +
+> +	sbsa_gwdt_set_wcv(wdd, wcv);
+> +}
 
-My problem is that I don't want to be the first one to permit using
-those functions outside architecture and clock code. If we do this,
-we should get an Ack from an arm maintainer specifically for the use
-of arch_counter_get_cntvct() and arch_timer_get_rate().
+...
 
-Thanks,
-Guenter
+> +static int sbsa_gwdt_set_timeout(struct watchdog_device *wdd,
+> +				 unsigned int timeout)
+> +{
+> +	wdd->timeout = timeout;
+> +
+> +	return 0;
+> +}
+
+...
+
+> +static irqreturn_t sbsa_gwdt_interrupt(int irq, void *dev_id)
+> +{
+> +	struct sbsa_gwdt *gwdt = (struct sbsa_gwdt *)dev_id;
+> +	struct watchdog_device *wdd = &gwdt->wdd;
+> +	u32 status;
+> +
+> +	status = sbsa_gwdt_cf_read(SBSA_GWDT_WCS, wdd);
+> +
+> +	if (status & SBSA_GWDT_WCS_WS0)
+> +		panic("SBSA Watchdog pre-timeout");
+> +
+> +	return IRQ_HANDLED;
+> +}
+
+There's one thing I don't understand about your driver.  The 'timeout' 
+value from the kernel is supposed to to be the number of seconds until 
+the system reboots.  You are programming the WCV with that value, which 
+means that the WS0 interrupt will fire when the timeout expires the 
+first time.  However, you don't reboot the system during this interrupt. 
+  The "panic" will cause the system to halt, but not reboot.  Instead, 
+it will just sit there.  You're waiting for the WS1 timeout for the 
+system to reboot, but this is not a clean reboot, and it occurs at 
+2*timeout seconds.
+
+That's why I like my driver better.  It doesn't have any of this 
+pretimeout stuff, and when the timeout expires during the WS0 interrupt, 
+it calls emergency_restart() which reboots the system properly.  The WS1 
+hard reset is used as a "backup" reset in case emergency_restart() fails.
+
+-- 
+Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the
+Code Aurora Forum, a Linux Foundation Collaborative Project.
