@@ -1,69 +1,53 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mezzanine.sirena.org.uk ([106.187.55.193]:50062 "EHLO
-	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751569AbbEUMEo (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 21 May 2015 08:04:44 -0400
-Date: Thu, 21 May 2015 13:04:16 +0100
-From: Mark Brown <broonie@kernel.org>
-To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	DEVICETREE <devicetree@vger.kernel.org>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Support Opensource <support.opensource@diasemi.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Message-ID: <20150521120416.GA21577@sirena.org.uk>
-References: <cover.1432041031.git.stwiss.opensource@diasemi.com>
- <aa98437b3c3fd6fbf89f8669edf0d426ec3338e9.1432041031.git.stwiss.opensource@diasemi.com>
+Return-path: <timur@codeaurora.org>
+Message-ID: <555DD8EE.1060607@codeaurora.org>
+Date: Thu, 21 May 2015 08:09:02 -0500
+From: Timur Tabi <timur@codeaurora.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="W/IQTGW+1SjCkQmn"
-Content-Disposition: inline
-In-Reply-To: <aa98437b3c3fd6fbf89f8669edf0d426ec3338e9.1432041031.git.stwiss.opensource@diasemi.com>
-Subject: Re: [PATCH V3 2/4] regulator: da9062: DA9062 regulator driver
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+To: Guenter Roeck <linux@roeck-us.net>, fu.wei@linaro.org,
+ Suravee.Suthikulpanit@amd.com, linaro-acpi@lists.linaro.org,
+ linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
+CC: tekkamanninja@gmail.com, graeme.gregory@linaro.org,
+ al.stone@linaro.org, hanjun.guo@linaro.org,
+ ashwin.chaugule@linaro.org, arnd@arndb.de, vgandhi@codeaurora.org,
+ wim@iguana.be, jcm@redhat.com, leo.duran@amd.com, corbet@lwn.net,
+ mark.rutland@arm.com
+Subject: Re: [PATCH v2 6/7] Watchdog: introduce ARM SBSA watchdog driver
+References: <=fu.wei@linaro.org> <1432197156-16947-1-git-send-email-fu.wei@linaro.org> <1432197156-16947-7-git-send-email-fu.wei@linaro.org> <555DB4C4.5090606@roeck-us.net>
+In-Reply-To: <555DB4C4.5090606@roeck-us.net>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+List-ID: <linux-watchdog@vger.kernel.org>
 
+Guenter Roeck wrote:
+>>
+>> +static unsigned int sbsa_gwdt_get_timeleft(struct watchdog_device *wdd)
+>> +{
+>> +    struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
+>> +    u64 timeleft = sbsa_gwdt_get_wcv(wdd) - arch_counter_get_cntvct();
+>> +
+>
+> Still not happy about the use of arch_counter_get_cntvct
+> instead of using the clock subsystem. I am quite sure this could be done,
+> possibly through arch_sys_counter, though at this point I am getting wary
+> of bringing it up, so I guess I'll just let it go.
 
---W/IQTGW+1SjCkQmn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+You made the same comment with my driver, and I keep asking for 
+clarification.  The clk_get_sys() API does not work on my system, 
+because there are not clocks defined.  That must be an ACPI limitation 
+that I can't fix.
 
-On Tue, May 19, 2015 at 02:10:30PM +0100, S Twiss wrote:
-> From: S Twiss <stwiss.opensource@diasemi.com>
->=20
-> Add BUCK and LDO regulator driver support for DA9062
+The alternative to arch_counter_get_cntvct() is 
+arch_timer_read_counter(), which is not exported.  So we have two choices,
 
-Applied, thanks.
+1) Continue to use arch_counter_get_cntvct(), which works on all ARM64 
+platforms that this driver supports anyway
 
---W/IQTGW+1SjCkQmn
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+2) Export arch_timer_read_counter()
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+I prefer option #1.
 
-iQEcBAEBCAAGBQJVXcnAAAoJECTWi3JdVIfQbmkIAIIh3K5bMmDdKNqEl3tqi8y5
-uGziAK2MebtJg6jxptidpFVWiYFx/o9H55rN308TeztT9+q4Z8rHo56SGSXldK9f
-uV2crtW1f7Ooa1qmHrlAjXHy7TIiOUcKsqPpE1Wn+GpX43dL3ZOvVzFhaSzXYg/m
-LMAvsfMR/w+2/z0zNgd02ukN+ltbm7ToVWo+BydOK1JAY5mUe3POf638AssaSUwg
-yR/GaHi/crHJpB+oXCN+jJ6UCD+BY1XHww4uvnwze1iTA9MonOG4jLTBEwP+3wHU
-nrGNPqKmFgXawdFjRl2+KylW9lrNbhtVEgxqxsaWkwNyHYxaF+vpw1adwMnS5kg=
-=AB6u
------END PGP SIGNATURE-----
-
---W/IQTGW+1SjCkQmn--
+-- 
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the
+Code Aurora Forum, hosted by The Linux Foundation.
