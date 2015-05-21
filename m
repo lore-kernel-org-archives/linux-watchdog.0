@@ -1,59 +1,62 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta5.messagelabs.com ([195.245.231.141]:62236 "EHLO
-	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753088AbbEUHPu convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 21 May 2015 03:15:50 -0400
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-To: Guenter Roeck <linux@roeck-us.net>
-CC: LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	DEVICETREE <devicetree@vger.kernel.org>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	Lee Jones <lee.jones@linaro.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	"Mark Rutland" <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Support Opensource <Support.Opensource@diasemi.com>
-Subject: RE: [PATCH V3 3/4] watchdog: da9062: DA9062 watchdog driver
-Date: Thu, 21 May 2015 07:15:24 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22C859@SW-EX-MBX02.diasemi.com>
-References: <cover.1432041031.git.stwiss.opensource@diasemi.com>
- <ded171f203fe1d0c72f0d7ea4c3d54257f4e970e.1432041031.git.stwiss.opensource@diasemi.com>
- <20150520203016.GA5710@roeck-us.net>
-In-Reply-To: <20150520203016.GA5710@roeck-us.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:40423 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751925AbbEUPc3 (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 21 May 2015 11:32:29 -0400
+Date: Thu, 21 May 2015 08:32:25 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: fu.wei@linaro.org
+Cc: Suravee.Suthikulpanit@amd.com, linaro-acpi@lists.linaro.org,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+	tekkamanninja@gmail.com, graeme.gregory@linaro.org,
+	al.stone@linaro.org, hanjun.guo@linaro.org, timur@codeaurora.org,
+	ashwin.chaugule@linaro.org, arnd@arndb.de, vgandhi@codeaurora.org,
+	wim@iguana.be, jcm@redhat.com, leo.duran@amd.com, corbet@lwn.net,
+	mark.rutland@arm.com
+Subject: Re: [PATCH v2 5/7] Watchdog: introduce "pretimeout" into framework
+Message-ID: <20150521153225.GA17441@roeck-us.net>
+References: <=fu.wei@linaro.org>
+ <1432197156-16947-1-git-send-email-fu.wei@linaro.org>
+ <1432197156-16947-6-git-send-email-fu.wei@linaro.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1432197156-16947-6-git-send-email-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 20 May 2015 21:30 Guenter Roeck wrote:
-
-> Subject: Re: [PATCH V3 3/4] watchdog: da9062: DA9062 watchdog driver
+On Thu, May 21, 2015 at 04:32:34PM +0800, fu.wei@linaro.org wrote:
+> From: Fu Wei <fu.wei@linaro.org>
 > 
-> On Tue, May 19, 2015 at 02:10:30PM +0100, S Twiss wrote:
-> > From: S Twiss <stwiss.opensource@diasemi.com>
-> >
-> > Add watchdog driver support for DA9062
-> >
-> >
-> > Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-> >
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> Also update Documentation/watchdog/watchdog-kernel-api.txt to
+> introduce:
+> (1)the new elements in the watchdog_device and watchdog_ops struct;
+> (2)the new API "watchdog_init_timeouts".
+> 
+> Reasons:
+> (1)kernel already has two watchdog drivers are using "pretimeout":
+> 	drivers/char/ipmi/ipmi_watchdog.c
+> 	drivers/watchdog/kempld_wdt.c(but the definition is different)
+> (2)some other dirvers are going to use this: ARM SBSA Generic Watchdog
+> 
+> Signed-off-by: Fu Wei <fu.wei@linaro.org>
+> ---
 
-Thank you Guenter
+[ ... ]
 
-Regards,
-Steve
+>  
+> +/* Use the following function to check if a pretimeout value is invalid */
+> +static inline bool watchdog_pretimeout_invalid(struct watchdog_device *wdd,
+> +					       unsigned int t)
+> +{
+> +	return ((wdd->max_pretimeout != 0) &&
+> +		(t < wdd->min_pretimeout || t > wdd->max_pretimeout));
+> +}
+
+Should this function also enforce "t < wdd->timeout", and
+should watchdog_timeout_invalid() enforce "t > wdd->pretimeout" ?
+
+Thanks,
+Guenter
