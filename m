@@ -1,53 +1,92 @@
-Return-path: <timur@codeaurora.org>
-Message-ID: <555DD8EE.1060607@codeaurora.org>
-Date: Thu, 21 May 2015 08:09:02 -0500
-From: Timur Tabi <timur@codeaurora.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:49367 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754536AbbEUN2I (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 21 May 2015 09:28:08 -0400
+Message-ID: <555DDD63.9070705@roeck-us.net>
+Date: Thu, 21 May 2015 06:28:03 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-To: Guenter Roeck <linux@roeck-us.net>, fu.wei@linaro.org,
- Suravee.Suthikulpanit@amd.com, linaro-acpi@lists.linaro.org,
- linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
-CC: tekkamanninja@gmail.com, graeme.gregory@linaro.org,
- al.stone@linaro.org, hanjun.guo@linaro.org,
- ashwin.chaugule@linaro.org, arnd@arndb.de, vgandhi@codeaurora.org,
- wim@iguana.be, jcm@redhat.com, leo.duran@amd.com, corbet@lwn.net,
- mark.rutland@arm.com
-Subject: Re: [PATCH v2 6/7] Watchdog: introduce ARM SBSA watchdog driver
-References: <=fu.wei@linaro.org> <1432197156-16947-1-git-send-email-fu.wei@linaro.org> <1432197156-16947-7-git-send-email-fu.wei@linaro.org> <555DB4C4.5090606@roeck-us.net>
-In-Reply-To: <555DB4C4.5090606@roeck-us.net>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+To: Fu Wei <fu.wei@linaro.org>
+CC: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+	Wei Fu <tekkamanninja@gmail.com>,
+	G Gregory <graeme.gregory@linaro.org>,
+	Al Stone <al.stone@linaro.org>,
+	Hanjun Guo <hanjun.guo@linaro.org>,
+	Timur Tabi <timur@codeaurora.org>,
+	Ashwin Chaugule <ashwin.chaugule@linaro.org>,
+	Arnd Bergmann <arnd@arndb.de>, vgandhi@codeaurora.org,
+	wim@iguana.be, Jon Masters <jcm@redhat.com>,
+	Leo Duran <leo.duran@amd.com>, Jon Corbet <corbet@lwn.net>,
+	"mark.rutland" <mark.rutland@arm.com>
+Subject: Re: [PATCH v2 5/7] Watchdog: introduce "pretimeout" into framework
+References: <=fu.wei@linaro.org>	<1432197156-16947-1-git-send-email-fu.wei@linaro.org>	<1432197156-16947-6-git-send-email-fu.wei@linaro.org>	<555D9FA8.9060106@roeck-us.net>	<CADyBb7vKgnij6d+akVo1cQmrO4s67BBCr1HPr3n+Z4G0W-KqgA@mail.gmail.com>	<555DB0B8.9000503@roeck-us.net> <CADyBb7sOEBQ-+ApZUPCrxPb0Eoa3FiZHPtNcYZk24VUxM-nieg@mail.gmail.com>
+In-Reply-To: <CADyBb7sOEBQ-+ApZUPCrxPb0Eoa3FiZHPtNcYZk24VUxM-nieg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Guenter Roeck wrote:
->>
->> +static unsigned int sbsa_gwdt_get_timeleft(struct watchdog_device *wdd)
->> +{
->> +    struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
->> +    u64 timeleft = sbsa_gwdt_get_wcv(wdd) - arch_counter_get_cntvct();
->> +
+On 05/21/2015 03:50 AM, Fu Wei wrote:
+> Hi Guenter,
 >
-> Still not happy about the use of arch_counter_get_cntvct
-> instead of using the clock subsystem. I am quite sure this could be done,
-> possibly through arch_sys_counter, though at this point I am getting wary
-> of bringing it up, so I guess I'll just let it go.
+> Great thanks, I have got your review feedback, I will fix the problems :-)
+> For update_limits, I also don't want to have that in the watchdog
+> driver, and you can't find it in my last version.
+> And this version, I integrate the watchdog_init_timeout and
+> watchdog_init_pretimeout. so I can not add a  driver specific
+> "update_limits" between them.
+> I think maybe we can not make this "update_limits" after calling
+> init_timeouts, because we need to test and verify the timeout setting
+> right after init_pretimeout by max_timeout and min_timeout. that is
 
-You made the same comment with my driver, and I keep asking for 
-clarification.  The clk_get_sys() API does not work on my system, 
-because there are not clocks defined.  That must be an ACPI limitation 
-that I can't fix.
+Don't you have to do that in set_pretimeout as well, and even adjust
+timeout if necessary ?
 
-The alternative to arch_counter_get_cntvct() is 
-arch_timer_read_counter(), which is not exported.  So we have two choices,
+> why I call update_limits right after init_pretimeout and before
+> init_timeout.
+>
+> any suggestion ?  Great thanks !  :-)
+>
 
-1) Continue to use arch_counter_get_cntvct(), which works on all ARM64 
-platforms that this driver supports anyway
+Any sequence of
+	set_timeout()
+	set_pretimeout()
+can result in an invalid timeout, since the practical timeout limits
+changed. Therefore, you'll have to validate (and possibly update)
+the timeout after or during each call to set_pretimeout().
+Changing min_timeout and max_timeout won't help there, that
+validation still has to happen.
 
-2) Export arch_timer_read_counter()
+Given this, some other driver developer may choose to not change the
+timeout limits at all, validate (and if necessary silently adjust)
+the timeout value in the set_timeout function, and call the set_timeout
+function from set_pretimeout to ensure that the timeout is still
+valid after the call to set_pretimeout. At least I would most likely
+implement it that way.
 
-I prefer option #1.
+This means your choice of continuously updating the timeout limits
+is really a driver developer choice, not something that is needed
+in the driver core. It might even be problematic, since driver
+developers might forget to re-validate the current timeout after
+changing the pretimeout in a similar situation.
 
--- 
-Sent by an employee of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the
-Code Aurora Forum, hosted by The Linux Foundation.
+Having said that, and looking through the SBSA driver code, it seems
+to me that it does not re-validate the current timeout after setting
+a new pretimeout. Unless I am missing something,
+	set_timeout(10);
+	set_pretimeout(20);
+might therefore result in an invalid / unexpected timeout value.
+Setting
+	set_timeout(10);
+	set_pretimeout(10);
+might have even more interesting results. Can you try what happens
+with your driver if you set those values ?
+
+Thanks,
+Guenter
+
