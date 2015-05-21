@@ -1,52 +1,64 @@
-Return-path: <arnd@arndb.de>
-From: Arnd Bergmann <arnd@arndb.de>
-To: linaro-acpi@lists.linaro.org
-Cc: fu.wei@linaro.org, Suravee.Suthikulpanit@amd.com, linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, corbet@lwn.net, jcm@redhat.com, timur@codeaurora.org, wim@iguana.be, tekkamanninja@gmail.com, vgandhi@codeaurora.org, linux@roeck-us.net
-Subject: Re: [Linaro-acpi] [PATCH v2 0/7] Watchdog: introduce ARM SBSA watchdog driver
-Date: Thu, 21 May 2015 10:46:59 +0200
-Message-ID: <4405999.8GGyzVsbM7@wuerfel>
-In-Reply-To: <1432197156-16947-1-git-send-email-fu.wei@linaro.org>
-References: <=fu.wei@linaro.org> <1432197156-16947-1-git-send-email-fu.wei@linaro.org>
+Return-path: <fu.wei@linaro.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+In-Reply-To: <10436688.ghBfa0dkUg@wuerfel>
+References: <=fu.wei@linaro.org>
+	<1432197156-16947-1-git-send-email-fu.wei@linaro.org>
+	<1432197156-16947-4-git-send-email-fu.wei@linaro.org>
+	<10436688.ghBfa0dkUg@wuerfel>
+Date: Thu, 21 May 2015 16:49:35 +0800
+Message-ID: <CADyBb7v4XHV3Wig1J-WVXPpDcwV61-YReBUe5xXxQ=DQ7gbARQ@mail.gmail.com>
+Subject: Re: [PATCH v2 3/7] ARM64: add SBSA Generic Watchdog device node in foundation-v8.dts
+From: Fu Wei <fu.wei@linaro.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>, linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-doc@vger.kernel.org, Wei Fu <tekkamanninja@gmail.com>,
+	G Gregory <graeme.gregory@linaro.org>, Al Stone <al.stone@linaro.org>,
+	Hanjun Guo <hanjun.guo@linaro.org>, Timur Tabi <timur@codeaurora.org>,
+	Ashwin Chaugule <ashwin.chaugule@linaro.org>, Guenter Roeck <linux@roeck-us.net>, vgandhi@codeaurora.org,
+	wim@iguana.be, Jon Masters <jcm@redhat.com>, Leo Duran <leo.duran@amd.com>,
+	Jon Corbet <corbet@lwn.net>, "mark.rutland" <mark.rutland@arm.com>
+Content-Type: text/plain; charset=UTF-8
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Thursday 21 May 2015 16:32:29 fu.wei@linaro.org wrote:
-> 
-> This patchset:
-> 
->     (1)Export "arch_timer_get_rate" in arm_arch_timer.c for the
->     other drivers, like SBSA watchdog driver
-> 
->     (2)Introduce Documentation/devicetree/bindings/watchdog/sbsa-gwdt.txt
->     for FDT info of SBSA Generic Watchdog, and give two examples of
->     adding SBSA Generic Watchdog device node into the dts files:
->     foundation-v8.dts and amd-seattle-soc.dtsi.
-> 
->     (3)Introduce "pretimeout" into the watchdog framework, and update
->     Documentation/watchdog/watchdog-kernel-api.txt to introduce:
->         (1)the new elements in the watchdog_device and watchdog_ops struct;
->         (2)the new API "watchdog_init_timeouts".
-> 
->     (4)Introduce ARM SBSA watchdog driver:
->         a.Use linux kernel watchdog framework;
->         b.Work with FDT on ARM64;
->         c.Use "pretimeout" in watchdog framework;
->         d.In first timeout(WS0), do panic to save system context;
->         e.Support geting timeout and pretimeout from parameter and FDT
->           at the driver init stage.
+Hi Arnd,
 
-Looks all good to me, please add
+yes, you are right , will delete it :-)
 
-Acked-by: Arnd Bergmann <arnd@arndb.de>
+On 21 May 2015 at 16:45, Arnd Bergmann <arnd@arndb.de> wrote:
+> On Thursday 21 May 2015 16:32:32 fu.wei@linaro.org wrote:
+>> +       watchdog0: watchdog@2a450000 {
+>> +               compatible = "arm,sbsa-gwdt";
+>> +               reg = <0x0 0x2a450000 0 0x10000>,
+>> +                       <0x0 0x2a440000 0 0x10000>;
+>> +               reg-names = "refresh",
+>> +                       "control";
+>> +               interrupts = <0 27 4>;
+>> +               interrupt-names = "ws0";
+>> +               timeout-sec = <10 5>;
+>> +       };
+>>  };
+>>
+>
+> just one tiny comment: you can drop the 'watchdog0:' label here, there
+> is normally no reason to assign a label to a watchdog device, especially
+> if it's in a .dts file rather than a .dtsi.
+>
+> The same is true for the example in the binding documentation.
+>
+>         Arnd
 
-for patches 1-6.
 
->     (5)Parse SBSA Generic Watchdog Structure in GTDT table of ACPI,
->     and create a platform device with that information.
->     This platform device can be used by This Watchdog driver.
 
-This needs to be reviewed by someone who understands ACPI.
+-- 
+Best regards,
 
-	Arnd
+Fu Wei
+Software Engineer
+Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
+Ph: +86 21 61221326(direct)
+Ph: +86 186 2020 4684 (mobile)
+Room 1512, Regus One Corporate Avenue,Level 15,
+One Corporate Avenue,222 Hubin Road,Huangpu District,
+Shanghai,China 200021
