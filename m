@@ -1,30 +1,32 @@
 Return-path: <timur@codeaurora.org>
-Message-ID: <555F5728.5060209@codeaurora.org>
-Date: Fri, 22 May 2015 11:19:52 -0500
+Message-ID: <555F57B7.3040305@codeaurora.org>
+Date: Fri, 22 May 2015 11:22:15 -0500
 From: Timur Tabi <timur@codeaurora.org>
 MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>, linaro-acpi@lists.linaro.org
-CC: Hanjun Guo <hanjun.guo@linaro.org>,
- Guenter Roeck <linux@roeck-us.net>,
- corbet@lwn.net, devicetree@vger.kernel.org,
- linux-watchdog@vger.kernel.org, jcm@redhat.com,
- linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, wim@iguana.be,
- tekkamanninja@gmail.com, vgandhi@codeaurora.org
-Subject: Re: [Linaro-acpi] [PATCH v2 6/7] Watchdog: introduce ARM SBSA watchdog
- driver
-References: <=fu.wei@linaro.org> <20150522150145.GA2930@roeck-us.net> <555F48BD.4010605@linaro.org> <10437443.BChumWu5Uk@wuerfel>
-In-Reply-To: <10437443.BChumWu5Uk@wuerfel>
-Content-Type: text/plain; charset=utf-8; format=flowed
+To: Guenter Roeck <linux@roeck-us.net>
+CC: fu.wei@linaro.org, Suravee.Suthikulpanit@amd.com,
+ linaro-acpi@lists.linaro.org, linux-watchdog@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-doc@vger.kernel.org, tekkamanninja@gmail.com,
+ graeme.gregory@linaro.org, al.stone@linaro.org, hanjun.guo@linaro.org,
+ ashwin.chaugule@linaro.org, arnd@arndb.de, vgandhi@codeaurora.org,
+ wim@iguana.be, jcm@redhat.com, leo.duran@amd.com, corbet@lwn.net,
+ mark.rutland@arm.com
+Subject: Re: [PATCH v2 1/7] clocksource: export "arch_timer_get_rate" for
+ the other drivers
+References: <=fu.wei@linaro.org> <1432197156-16947-1-git-send-email-fu.wei@linaro.org> <1432197156-16947-2-git-send-email-fu.wei@linaro.org> <555F3886.9020506@codeaurora.org> <20150522151616.GA3272@roeck-us.net>
+In-Reply-To: <20150522151616.GA3272@roeck-us.net>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On 05/22/2015 10:24 AM, Arnd Bergmann wrote:
-> That will break the ACPI case, but ACPI could use platform_data to
-> pass the clock rate into the driver, to make it independent of
-> low-level APIs.
+On 05/22/2015 10:16 AM, Guenter Roeck wrote:
+> Doo bad that SBSA is not hardware independent enough to provide all
+> the information needed to implement such a driver:-(.
 
-The clock rate isn't the only problem.  You still need to current clock 
-timestamp, and that's ARM-specific.
+The SBSA is designed and intended only for ARM Servers.  It has no value 
+on non-ARM SOCs and and non-server SOCs.  The SBSA is just a way for 
+64-bit ARM Server SOC vendors to re-use some drivers.
 
 -- 
 Qualcomm Innovation Center, Inc.
