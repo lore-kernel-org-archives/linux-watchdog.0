@@ -1,117 +1,153 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:45285 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756989AbbEVSQv (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:46764 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756607AbbEVTQk (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 22 May 2015 14:16:51 -0400
-Date: Fri, 22 May 2015 20:16:47 +0200
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-To: Lokesh Vutla <lokeshvutla@ti.com>, Felipe Balbi <balbi@ti.com>
-Cc: linux-watchdog@vger.kernel.org, kernel@pengutronix.de
-Subject: Re: races in omap_wdt
-Message-ID: <20150522181647.GM24769@pengutronix.de>
-References: <20150423094354.GD19431@pengutronix.de>
- <20150424091840.GK19431@pengutronix.de>
+	Fri, 22 May 2015 15:16:40 -0400
+From: Guenter Roeck <linux@roeck-us.net>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org
+Subject: [GIT PULL] watchdog updates for Linux 4.2
+Date: Fri, 22 May 2015 12:16:12 -0700
+Message-Id: <1432322172-18368-1-git-send-email-linux@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20150424091840.GK19431@pengutronix.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Apr 24, 2015 at 11:18:40AM +0200, Uwe Kleine-König wrote:
-> [dropped Varadarajan Charulatha and Shubhrajyoti D from the addressees
-> because the ti mailserver doesn't know them :-(, added Felipe instead]
-> 
-> On Thu, Apr 23, 2015 at 11:43:54AM +0200, Uwe Kleine-König wrote:
-> > I'm working on an AM335x machine and want to make use of the hardware
-> > watchdog. I write to you because you contributed to the respective Linux
-> > driver and judging from your email address you might be in a position to
-> > help me with a problem I see.
-> > 
-> > To get reliable behaviour, I don't want to have situations where the
-> > watchdog is disabled. There are currently two situation where this
-> > happens with the current state of linux/drivers/watchdog/omap_wdt.c:
-> > 
-> >  a) in omap_wdt_probe() there is an unconditional call to
-> >     omap_wdt_disable() which stops the counter. Ideally I'd want to take
-> >     over the hardware in the state that it is in when Linux is started.
-> >     This is a bit complicated, but should be doable. Would such a patch
-> >     be welcome?
-> > 
-> >  b) The reference manual demands:
-> > 
-> > 	To modify the timer counter value (the WDT_WCRR register),
-> > 	prescaler ratio (the WDT_WCLR[4:2] PTV bit field), delay
-> > 	configuration value (the WDT_WDLY[31:0] DLY_VALUE bit field), or
-> > 	the load value (the WDT_WLDR[31:0] TIMER_LOAD bit field), the
-> > 	watchdog timer must be disabled by using the start/stop sequence
-> > 	(the WDT_WSPR register).
-> > 
-> >     This effectively means (and is implemented accordingly in the
-> >     driver) that on .set_timeout the driver has to stop the counter.
-> >     So we have an (admittedly small) unprotected window each time the
-> >     timeout is set (which happens for example when /dev/watchdog is
-> >     opened). Is there something that can be done here? I imagine that
-> >     the above statement from the reference manual could be holding out
-> >     some details like "When writing a new load value (WDT_WLDR) without
-> >     stopping the timer first, the new load value doesn't have any
-> >     influence on the running timer. It is only used on the next trigger
-> >     event." Is this too much to wish for?
-> As Felipe predicted (via irc) it's really needed to stop the timer to
-> reprogram the reload value. I proved this by hacking my bootloader's mw
-> command to correctly write to the watchdog registers (i.e wait until the
-> corresponding bit in the Watchdog Write Posting Bits Register disappears
-> to signal the write has reached the hardware) and did:
-> 
-> 	# make the wdog slow
-> 	mw 0x44e35024 0x3c
-> 
-> 	# set reload value (WLDR)
-> 	mw 0x44e3502c 0xff000000
-> 
-> 	# start wdog
-> 	mw 0x44e35048 0xbbbb
-> 	mw 0x44e35048 0x4444
-> 
-> 	# set reload value lower (WLDR)
-> 	mw 0x44e35024 0x00000000
-> 
-> 	# trigger
-> 	mw 0x44e35030 0x12345678
-> 	mw 0x44e35030 0x87654321
-> 
-> 	# show current counter (WCRR)
-> 	md 0x44e35028+4
-> 
-> 	sleep 4
-> 
-> 	# trigger again
-> 	mw 0x44e35030 0x12345678
-> 	mw 0x44e35030 0x87654321
-> 
-> 	# show current counter (WCRR)
-> 	md 0x44e35028+4
-> 
-> 	# stop wdog
-> 	mw 0x44e35048 0xaaaa
-> 	mw 0x44e35048 0x5555
-> 
-> The output is twice
-> 
-> 	44e35028: ff000001
-> 
-> :-(.
-I guess none of you from inside TI checked any deeper, right? Honestly I
-doubt that it would result in a positive surprise, but still I'm pinging
-these questions once more. Do you can provide a way how to reprogram the
-hardware without stopping it first?
+Hi Wim,
 
-Best regards
-Uwe
+This is my watchdog pull request for 4.2. The branch is currently based
+on v4.1-rc4.
 
--- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Please consider pulling watchdog updates for Linux 4.2 from signed tag:
+
+    git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git watchdog-for-wim-4.2
+
+The tag has been applied on top of the watchdog-next branch. The branch includes
+a number of patches I collected over the last few months. It does not include
+all submitted patches; only the ones I reviewed and felt comfortable with are
+included. Some may already be in your -next branch.
+
+I reviewed all patches and ran build tests as well as source verification tests
+with both smatch and spatch. The branch has been on my Linux repository for a
+while, so presumably Fenguang's robot will have built the code as well. The most
+recent build results are available at http://server.roeck-us.net:8010/builders,
+in the watchdog-next column.
+
+If you don't want to apply the entire series, please consider applying whatever
+subset you might feel comfortable with.
+
+Thanks,
+Guenter
+------
+
+The following changes since commit e26081808edadfd257c6c9d81014e3b25e9a6118:
+
+  Linux 4.1-rc4 (2015-05-18 10:13:47 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git tags/watchdog-for-wim-4.2
+
+for you to fetch changes up to bebf09e74c36f83e44c25a0542a32a95a5af3b3f:
+
+  watchdog: imgpdc: Add some documentation about the timeout (2015-05-18 17:37:07 -0700)
+
+----------------------------------------------------------------
+Watchdog pull request for v4.2
+
+watchdog: imgpdc: Add some documentation about the timeout
+watchdog: imgpdc: Fix max timeout
+watchdog: dw_wdt: keepalive the watchdog at write time
+watchdog: dw_wdt: No need for a spinlock
+watchdog: st_wdt: Update IP layout information to include Clocksource
+watchdog: imx2_wdt: also set wdog->timeout to new_timeout
+watchdog: Allow compile test of GPIO consumers if !GPIOLIB
+watchdog: cadence: Add dependency on HAS_IOMEM
+watchdog: max63xx_wdt: Constify platform_device_id
+watchdog: MAX63XX_WATCHDOG does not depend on ARM
+watchdog: omap: assert the counter being stopped before reprogramming
+watchdog: imgpdc: Add reboot support
+watchdog: imgpdc: Set timeout before starting watchdog
+watchdog: imgpdc: Allow timeout to be set in device-tree
+watchdog: omap: simplify assignment of bootstatus
+watchdog: omap: put struct watchdog_device into driver data
+watchdog: omap: use watchdog_init_timeout instead of open coding it
+watchdog: omap: clearify device tree documentation
+watchdog: digicolor: driver for Conexant Digicolor CX92755 SoC
+watchdog: digicolor: document device tree binding
+watchdog: at91sam9: use endian agnostic IO
+watchdog: st_wdt: Add new driver for ST's LPC Watchdog
+ARM: multi_v7_defconfig: Enable support for ST's LPC Watchdog
+mfd: dt-bindings: Provide human readable defines for LPC mode choosing
+
+----------------------------------------------------------------
+Andrew Bresticker (3):
+      watchdog: imgpdc: Allow timeout to be set in device-tree
+      watchdog: imgpdc: Set timeout before starting watchdog
+      watchdog: imgpdc: Add reboot support
+
+Baruch Siach (2):
+      watchdog: digicolor: document device tree binding
+      watchdog: digicolor: driver for Conexant Digicolor CX92755 SoC
+
+Ben Dooks (1):
+      watchdog: at91sam9: use endian agnostic IO
+
+Doug Anderson (2):
+      watchdog: dw_wdt: No need for a spinlock
+      watchdog: dw_wdt: keepalive the watchdog at write time
+
+Ezequiel Garcia (2):
+      watchdog: imgpdc: Fix max timeout
+      watchdog: imgpdc: Add some documentation about the timeout
+
+Geert Uytterhoeven (1):
+      watchdog: Allow compile test of GPIO consumers if !GPIOLIB
+
+Krzysztof Kozlowski (1):
+      watchdog: max63xx_wdt: Constify platform_device_id
+
+Lee Jones (4):
+      mfd: dt-bindings: Provide human readable defines for LPC mode choosing
+      ARM: multi_v7_defconfig: Enable support for ST's LPC Watchdog
+      watchdog: st_wdt: Add new driver for ST's LPC Watchdog
+      watchdog: st_wdt: Update IP layout information to include Clocksource
+
+Michael Grzeschik (1):
+      watchdog: imx2_wdt: also set wdog->timeout to new_timeout
+
+Richard Weinberger (1):
+      watchdog: cadence: Add dependency on HAS_IOMEM
+
+Uwe Kleine-KÃ¶nig (5):
+      watchdog: omap: clearify device tree documentation
+      watchdog: omap: use watchdog_init_timeout instead of open coding it
+      watchdog: omap: put struct watchdog_device into driver data
+      watchdog: omap: simplify assignment of bootstatus
+      watchdog: omap: assert the counter being stopped before reprogramming
+
+Vivien Didelot (1):
+      watchdog: MAX63XX_WATCHDOG does not depend on ARM
+
+ .../devicetree/bindings/watchdog/digicolor-wdt.txt |  25 ++
+ .../devicetree/bindings/watchdog/omap-wdt.txt      |   9 +-
+ arch/arm/configs/multi_v7_defconfig                |   1 +
+ drivers/watchdog/Kconfig                           |  28 +-
+ drivers/watchdog/Makefile                          |   2 +
+ drivers/watchdog/at91sam9_wdt.c                    |   4 +-
+ drivers/watchdog/digicolor_wdt.c                   | 205 ++++++++++++
+ drivers/watchdog/dw_wdt.c                          |   8 +-
+ drivers/watchdog/imgpdc_wdt.c                      |  84 ++++-
+ drivers/watchdog/imx2_wdt.c                        |   2 +
+ drivers/watchdog/max63xx_wdt.c                     |   2 +-
+ drivers/watchdog/omap_wdt.c                        |  73 ++---
+ drivers/watchdog/st_lpc_wdt.c                      | 344 +++++++++++++++++++++
+ include/dt-bindings/mfd/st-lpc.h                   |  15 +
+ 14 files changed, 734 insertions(+), 68 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/digicolor-wdt.txt
+ create mode 100644 drivers/watchdog/digicolor_wdt.c
+ create mode 100644 drivers/watchdog/st_lpc_wdt.c
+ create mode 100644 include/dt-bindings/mfd/st-lpc.h
