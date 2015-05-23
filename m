@@ -1,382 +1,135 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:45667 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1946036AbbEVWwY (ORCPT
+Received: from mail-ob0-f173.google.com ([209.85.214.173]:34790 "EHLO
+	mail-ob0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757421AbbEWHZv convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 22 May 2015 18:52:24 -0400
-From: Timur Tabi <timur@codeaurora.org>
-To: linux-watchdog@vger.kernel.org,
-	Ashwin Chaugule <ashwin.chaugule@linaro.org>,
-	Vipul Gandhi <vgandhi@codeaurora.org>,
-	Fu Wei <fu.wei@linaro.org>, Al Stone <al.stone@linaro.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Hanjun Guo <hanjun.guo@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Graeme Gregory <graeme.gregory@linaro.org>,
-	linaro-acpi@lists.linaro.org
-Subject: [PATCH] [v4] watchdog: introduce the ARM64 SBSA watchdog driver
-Date: Fri, 22 May 2015 17:52:17 -0500
-Message-Id: <1432335137-1023-1-git-send-email-timur@codeaurora.org>
+	Sat, 23 May 2015 03:25:51 -0400
+Received: by obfe9 with SMTP id e9so27079141obf.1
+        for <linux-watchdog@vger.kernel.org>; Sat, 23 May 2015 00:25:51 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <10437443.BChumWu5Uk@wuerfel>
+References: <=fu.wei@linaro.org>
+	<20150522150145.GA2930@roeck-us.net>
+	<555F48BD.4010605@linaro.org>
+	<10437443.BChumWu5Uk@wuerfel>
+Date: Sat, 23 May 2015 15:25:50 +0800
+Message-ID: <CADyBb7sJUY0oUb-6oqSBNnj=xjcn7JYztQ=BRspCf0t1s7+fUw@mail.gmail.com>
+Subject: Re: [Linaro-acpi] [PATCH v2 6/7] Watchdog: introduce ARM SBSA
+ watchdog driver
+From: Fu Wei <fu.wei@linaro.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
+	devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	Jon Corbet <corbet@lwn.net>, Jon Masters <jcm@redhat.com>,
+	Timur Tabi <timur@codeaurora.org>, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org, wim@iguana.be,
+	Wei Fu <tekkamanninja@gmail.com>, vgandhi@codeaurora.org,
+	Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The ARM Server Base System Architecture is a specification for ARM-based
-server systems.  Among other things, it defines the behavior and register
-interface for a watchdog timer.
+Hi Arnd
 
-Signed-off-by: Timur Tabi <timur@codeaurora.org>
----
+Thanks :-)
 
-[v4]
-Removed COMPILE_TEST
-pm_status is now bool
-removed some #includes
-use do_div instead
-display arch version if unsupported
-remove watchdog_set_drvdata
+On 22 May 2015 at 23:24, Arnd Bergmann <arnd@arndb.de> wrote:
+> On Friday 22 May 2015 23:18:21 Hanjun Guo wrote:
+>> On 2015年05月22日 23:01, Guenter Roeck wrote:
+>> > On Fri, May 22, 2015 at 04:55:04PM +0200, Arnd Bergmann wrote:
+>> >> On Friday 22 May 2015 22:50:30 Hanjun Guo wrote:
+>> >>>> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+>> >>>> index e5e7c55..25a0df1 100644
+>> >>>> --- a/drivers/watchdog/Kconfig
+>> >>>> +++ b/drivers/watchdog/Kconfig
+>> >>>> @@ -152,6 +152,18 @@ config ARM_SP805_WATCHDOG
+>> >>>>          ARM Primecell SP805 Watchdog timer. This will reboot your system when
+>> >>>>          the timeout is reached.
+>> >>>>
+>> >>>> +config ARM_SBSA_WATCHDOG
+>> >>>> +     tristate "ARM SBSA Generic Watchdog"
+>> >>>> +     depends on ARM || ARM64 || COMPILE_TEST
+>> >>>
+>> >>> SBSA is for ARMv8-A based (64-bit) servers, no need to depends on ARM,
+>> >>> and why we depends on COMPILE_TEST?
+>> >>>
+>> >>
+>> >> I think it's a reasonable assumption that someone will sooner or later
+>> >> put that hardware into an ARM32 machine, or run a 32-bit kernel on
+>> >> a chip that has it.
+>> >>
+>> >> While SBSA requires this watchdog device, nothing prevents SoC
+>> >> manufacturers from using the same design in something that is not
+>> >> a server.
+>>
+>>  From this point of view, I agree that SBSA watchdog design may used
+>> in other ARM SoCs in the future, but how about add it back when this
+>> kind of hardware showing up?
+>
+> If it builds on ARM32, I'd rather leave the option in, it doesn't hurt.
 
- drivers/watchdog/Kconfig        |   9 ++
- drivers/watchdog/Makefile       |   1 +
- drivers/watchdog/arm_sbsa_wdt.c | 295 ++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 305 insertions(+)
- create mode 100644 drivers/watchdog/arm_sbsa_wdt.c
+yes, I am agree with you.
+Reason:
+(1)Although the SBSA spec is all about ARMv8, but in "5 APPENDIX A:
+GENERIC WATCHDOG", nothing says SBSA watchdog is only for ARM64.
+(2)SBSA watchdog should work with arch_timer which  has be used on
+ARMv7 and ARMv8.
+(3)there are ARM32 servers in the market(although there is not SBSA
+watchdog in them)
+(4) all the regs of SBSA watchdog are 32Bit, this IP core can be use
+in ARM32(I don't know the implementation detail of this IP core, but
+from the spec , I don't see "It can't be used on ARM32")
+(5)we don't need to change any code, any line.(yes, it doesn't hurt)
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index e5e7c55..7720190 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -514,6 +514,15 @@ config MEDIATEK_WATCHDOG
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called mtk_wdt.
- 
-+config ARM_SBSA_WDT
-+	tristate "ARM Server Base System Architecture watchdog"
-+	depends on ARM64
-+	depends on ARM_ARCH_TIMER
-+	select WATCHDOG_CORE
-+	help
-+	  Say Y here to include watchdog timer support for ARM Server Base
-+	  System Architecture (SBSA) systems.
-+
- # AVR32 Architecture
- 
- config AT32AP700X_WDT
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 5c19294..063ab8c 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -64,6 +64,7 @@ obj-$(CONFIG_BCM_KONA_WDT) += bcm_kona_wdt.o
- obj-$(CONFIG_TEGRA_WATCHDOG) += tegra_wdt.o
- obj-$(CONFIG_MESON_WATCHDOG) += meson_wdt.o
- obj-$(CONFIG_MEDIATEK_WATCHDOG) += mtk_wdt.o
-+obj-$(CONFIG_ARM_SBSA_WDT) += arm_sbsa_wdt.o
- 
- # AVR32 Architecture
- obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
-diff --git a/drivers/watchdog/arm_sbsa_wdt.c b/drivers/watchdog/arm_sbsa_wdt.c
-new file mode 100644
-index 0000000..12ed520e
---- /dev/null
-+++ b/drivers/watchdog/arm_sbsa_wdt.c
-@@ -0,0 +1,295 @@
-+/*
-+ * Watchdog driver for SBSA-compliant watchdog timers
-+ *
-+ * Copyright (c) 2015, The Linux Foundation. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 and
-+ * only version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * ARM Server Base System Architecture watchdog driver.
-+ *
-+ * Register descriptions are taken from the ARM Server Base System
-+ * Architecture document (ARM-DEN-0029)
-+ */
-+
-+#define pr_fmt(fmt) "sbsa-gwdt: " fmt
-+
-+#include <linux/module.h>
-+#include <linux/watchdog.h>
-+#include <linux/platform_device.h>
-+#include <linux/of.h>
-+#include <linux/device.h>
-+#include <linux/io.h>
-+#include <linux/interrupt.h>
-+#include <linux/reboot.h>
-+
-+#include <asm/arch_timer.h>
-+
-+/* Watchdog Interface Identification Registers */
-+struct arm_sbsa_watchdog_ident {
-+	__le32 w_iidr;	/* Watchdog Interface Identification Register */
-+	uint8_t res2[0xFE8 - 0xFD0];
-+	__le32 w_pidr2;	/* Peripheral ID2 Register */
-+};
-+
-+/* Watchdog Refresh Frame */
-+struct arm_sbsa_watchdog_refresh {
-+	__le32 wrr;		/* Watchdog Refresh Register */
-+	uint8_t res1[0xFCC - 0x004];
-+	struct arm_sbsa_watchdog_ident ident;
-+};
-+
-+/* Watchdog Control Frame */
-+struct arm_sbsa_watchdog_control {
-+	__le32 wcs;
-+	__le32 res1;
-+	__le32 wor;
-+	__le32 res2;
-+	__le64 wcv;
-+	uint8_t res3[0xFCC - 0x018];
-+	struct arm_sbsa_watchdog_ident ident;
-+};
-+
-+struct arm_sbsa_watchdog_data {
-+	struct watchdog_device wdev;
-+	bool pm_status;
-+	struct arm_sbsa_watchdog_refresh __iomem *refresh;
-+	struct arm_sbsa_watchdog_control __iomem *control;
-+};
-+
-+static int arm_sbsa_wdt_start(struct watchdog_device *wdev)
-+{
-+	struct arm_sbsa_watchdog_data *data =
-+		container_of(wdev, struct arm_sbsa_watchdog_data, wdev);
-+
-+	/* Writing to the control register will also reset the counter */
-+	writel(1, &data->control->wcs);
-+
-+	return 0;
-+}
-+
-+static int arm_sbsa_wdt_stop(struct watchdog_device *wdev)
-+{
-+	struct arm_sbsa_watchdog_data *data =
-+		container_of(wdev, struct arm_sbsa_watchdog_data, wdev);
-+
-+	writel(0, &data->control->wcs);
-+
-+	return 0;
-+}
-+
-+static int arm_sbsa_wdt_set_timeout(struct watchdog_device *wdev,
-+	unsigned int timeout)
-+{
-+	struct arm_sbsa_watchdog_data *data =
-+		container_of(wdev, struct arm_sbsa_watchdog_data, wdev);
-+
-+	wdev->timeout = timeout;
-+	writel(arch_timer_get_cntfrq() * wdev->timeout, &data->control->wor);
-+
-+	return 0;
-+}
-+
-+static int arm_sbsa_wdt_ping(struct watchdog_device *wdev)
-+{
-+	struct arm_sbsa_watchdog_data *data =
-+		container_of(wdev, struct arm_sbsa_watchdog_data, wdev);
-+
-+	writel(1, &data->refresh->wrr);
-+
-+	return 0;
-+}
-+
-+static unsigned int arm_sbsa_wdt_status(struct watchdog_device *wdev)
-+{
-+	struct arm_sbsa_watchdog_data *data =
-+		container_of(wdev, struct arm_sbsa_watchdog_data, wdev);
-+
-+	return (readl(&data->control->wcs) & 1) << WDOG_ACTIVE;
-+}
-+
-+static unsigned int arm_sbsa_wdt_timeleft(struct watchdog_device *wdev)
-+{
-+	struct arm_sbsa_watchdog_data *data =
-+		container_of(wdev, struct arm_sbsa_watchdog_data, wdev);
-+	uint64_t diff = readq(&data->control->wcv) - arch_counter_get_cntvct();
-+
-+	do_div(diff, arch_timer_get_cntfrq());
-+
-+	return diff;
-+}
-+
-+static irqreturn_t arm_sbsa_wdt_interrupt(int irq, void *p)
-+{
-+	/*
-+	 * The WS0 interrupt occurs after the first timeout, so we attempt
-+	 * a manual reboot.  If this doesn't work, the WS1 timeout will
-+	 * cause a hardware reset.
-+	 */
-+	pr_crit("Initiating system reboot\n");
-+	emergency_restart();
-+
-+	return IRQ_HANDLED;
-+}
-+
-+/*
-+ * Disable watchdog if it is active during suspend
-+ */
-+static int __maybe_unused arm_sbsa_wdt_suspend(struct device *dev)
-+{
-+	struct arm_sbsa_watchdog_data *data = dev_get_drvdata(dev);
-+
-+	data->pm_status = !!(readl(&data->control->wcs) & 1);
-+
-+	if (data->pm_status)
-+		writel(0, &data->control->wcs);
-+
-+	return 0;
-+}
-+
-+/*
-+ * Enable watchdog and configure it if necessary
-+ */
-+static int __maybe_unused arm_sbsa_wdt_resume(struct device *dev)
-+{
-+	struct arm_sbsa_watchdog_data *data = dev_get_drvdata(dev);
-+
-+	if (data->pm_status)
-+		writel(1, &data->control->wcs);
-+
-+	return 0;
-+}
-+
-+static const struct dev_pm_ops arm_sbsa_wdt_pm_ops = {
-+	SET_SYSTEM_SLEEP_PM_OPS(arm_sbsa_wdt_suspend, arm_sbsa_wdt_resume)
-+};
-+
-+static struct watchdog_info arm_sbsa_wdt_info = {
-+	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-+	.identity = "ARM SBSA watchdog",
-+};
-+
-+static struct watchdog_ops arm_sbsa_wdt_ops = {
-+	.owner = THIS_MODULE,
-+	.start = arm_sbsa_wdt_start,
-+	.stop = arm_sbsa_wdt_stop,
-+	.ping = arm_sbsa_wdt_ping,
-+	.set_timeout = arm_sbsa_wdt_set_timeout,
-+	.status = arm_sbsa_wdt_status,
-+	.get_timeleft = arm_sbsa_wdt_timeleft,
-+};
-+
-+static int __init arm_sbsa_wdt_probe(struct platform_device *pdev)
-+{
-+	struct arm_sbsa_watchdog_data *data;
-+	struct resource *res;
-+	uint32_t iidr;
-+	unsigned int arch;
-+	int irq, ret;
-+
-+	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
-+
-+	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "control");
-+	data->control = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(data->control))
-+		return PTR_ERR(data->control);
-+
-+	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "refresh");
-+	data->refresh = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(data->refresh))
-+		return PTR_ERR(data->refresh);
-+
-+	/* We only support architecture version 0 */
-+	iidr = readl(&data->control->ident.w_iidr);
-+	arch = (iidr >> 16) & 0xf;
-+	if (arch != 0) {
-+		dev_err(&pdev->dev,
-+			 "architecture version %u is not supported\n", arch);
-+		return -ENODEV;
-+	}
-+
-+	irq = platform_get_irq_byname(pdev, "ws0");
-+	if (irq < 0) {
-+		dev_err(&pdev->dev, "could not get interrupt\n");
-+		return irq;
-+	}
-+
-+	ret = devm_request_irq(&pdev->dev, irq, arm_sbsa_wdt_interrupt,
-+			       0, pdev->name, NULL);
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "could not request irq %i (ret=%i)\n",
-+			irq, ret);
-+		return ret;
-+	}
-+
-+	data->wdev.info = &arm_sbsa_wdt_info;
-+	data->wdev.ops = &arm_sbsa_wdt_ops;
-+	data->wdev.min_timeout = 1;
-+	data->wdev.status = WATCHDOG_NOWAYOUT_INIT_STATUS;
-+
-+	/* Calculate the maximum timeout in seconds that we can support */
-+	data->wdev.max_timeout = U32_MAX / arch_timer_get_cntfrq();
-+
-+	/*
-+	 * Bits [15:12] are an implementation-defined revision number
-+	 * for the component.
-+	 */
-+	arm_sbsa_wdt_info.firmware_version = (iidr >> 12) & 0xf;
-+
-+	ret = watchdog_register_device(&data->wdev);
-+	if (ret < 0) {
-+		dev_err(&pdev->dev,
-+			"could not register watchdog device (ret=%i)\n", ret);
-+		return ret;
-+	}
-+
-+	dev_dbg(&pdev->dev, "implementer code is %03x\n",
-+		 (iidr & 0xf00) >> 1 | (iidr & 0x7f));
-+	dev_info(&pdev->dev, "maximum timeout is %u seconds\n",
-+		 data->wdev.max_timeout);
-+
-+	platform_set_drvdata(pdev, data);
-+
-+	return 0;
-+}
-+
-+static int __exit arm_sbsa_wdt_remove(struct platform_device *pdev)
-+{
-+	struct arm_sbsa_watchdog_data *data = platform_get_drvdata(pdev);
-+
-+	watchdog_unregister_device(&data->wdev);
-+
-+	return 0;
-+}
-+
-+#if IS_ENABLED(CONFIG_OF)
-+static const struct of_device_id arm_sbsa_wdt_of_match[] = {
-+	{ .compatible = "arm,sbsa-gwdt" },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, arm_sbsa_wdt_of_match);
-+#endif
-+
-+static struct platform_driver arm_sbsa_wdt_driver = {
-+	.driver = {
-+		.name = "sbsa-gwdt",
-+		.owner = THIS_MODULE,
-+		.pm = &arm_sbsa_wdt_pm_ops,
-+		.of_match_table = of_match_ptr(arm_sbsa_wdt_of_match),
-+	},
-+	.probe = arm_sbsa_wdt_probe,
-+	.remove = __exit_p(arm_sbsa_wdt_remove),
-+};
-+
-+module_platform_driver(arm_sbsa_wdt_driver);
-+
-+MODULE_DESCRIPTION("ARM Server Base System Architecture Watchdog Driver");
-+MODULE_LICENSE("GPL v2");
+So maybe we can keep this
+
+The only problem we face is : there is not a ARM32 hardware or a
+simulator of ARM32 has SBSA watchdog on it. and we don't know if ARM
+will put this IP core in any Soc in the future :-(
+Maybe because this IP core is new.
+
+>
+>> > Tricky, though. Since teh driver uses arm specific clock functions,
+>> > I don't think this can compile on a non-arm machine.
+>>
+>> Since it depends on ARM64/ARM, we can temporary release from that now
+>
+> We have to drop the '|| COMPILE_TEST' though as a result, or fix the
+> driver to look up the clock in DT and call 'clk_get_rate'.
+>
+> That will break the ACPI case, but ACPI could use platform_data to
+> pass the clock rate into the driver, to make it independent of
+> low-level APIs.
+
+for this problem , we not only need to get "rate" but also need to get
+timestamp.
+So for now , we need to use some ARM specific code in arm_arch_timer.c,
+unless those interface is integrated into clk framework(or we have
+make a patch for if)
+
+any suggestion or thought?
+
+Great thanks for your review :-)
+
+
+>
+>         Arnd
+> _______________________________________________
+> Linaro-acpi mailing list
+> Linaro-acpi@lists.linaro.org
+> https://lists.linaro.org/mailman/listinfo/linaro-acpi
+
+
+
 -- 
-Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-a Linux Foundation Collaborative Project.
+Best regards,
 
+Fu Wei
+Software Engineer
+Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
+Ph: +86 21 61221326(direct)
+Ph: +86 186 2020 4684 (mobile)
+Room 1512, Regus One Corporate Avenue,Level 15,
+One Corporate Avenue,222 Hubin Road,Huangpu District,
+Shanghai,China 200021
