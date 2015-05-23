@@ -1,94 +1,46 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:60460 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757984AbbEWSfP (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 23 May 2015 14:35:15 -0400
-Message-ID: <5560C85B.8040100@roeck-us.net>
-Date: Sat, 23 May 2015 11:35:07 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+Return-path: <timur@codeaurora.org>
+Message-ID: <5560C984.10108@codeaurora.org>
+Date: Sat, 23 May 2015 13:40:04 -0500
+From: Timur Tabi <timur@codeaurora.org>
 MIME-Version: 1.0
-To: Fu Wei <fu.wei@linaro.org>, Timur Tabi <timur@codeaurora.org>
-CC: Arnd Bergmann <arnd@arndb.de>, Hanjun Guo <hanjun.guo@linaro.org>,
-	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-	Wei Fu <tekkamanninja@gmail.com>,
-	G Gregory <graeme.gregory@linaro.org>,
-	Al Stone <al.stone@linaro.org>,
-	Ashwin Chaugule <ashwin.chaugule@linaro.org>,
-	vgandhi@codeaurora.org, wim@iguana.be,
-	Jon Masters <jcm@redhat.com>, Leo Duran <leo.duran@amd.com>,
-	Jon Corbet <corbet@lwn.net>,
-	Mark Rutland <mark.rutland@arm.com>
+To: Fu Wei <fu.wei@linaro.org>
+CC: Arnd Bergmann <arnd@arndb.de>, Hanjun Guo
+ <hanjun.guo@linaro.org>,
+ Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+ Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
+ linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+ Wei Fu <tekkamanninja@gmail.com>, G Gregory
+ <graeme.gregory@linaro.org>, Al Stone <al.stone@linaro.org>,
+ Ashwin Chaugule <ashwin.chaugule@linaro.org>,
+ Guenter Roeck <linux@roeck-us.net>, vgandhi@codeaurora.org,
+ wim@iguana.be, Jon Masters <jcm@redhat.com>,
+ Leo Duran <leo.duran@amd.com>, Jon Corbet <corbet@lwn.net>,
+ Mark Rutland <mark.rutland@arm.com>
 Subject: Re: [PATCH v2 6/7] Watchdog: introduce ARM SBSA watchdog driver
 References: <=fu.wei@linaro.org>	<1432197156-16947-7-git-send-email-fu.wei@linaro.org>	<555F4236.7040206@linaro.org>	<4095167.UOriXdSu53@wuerfel>	<556097D5.9050103@codeaurora.org> <CADyBb7svbV6QdhzCsa9DiBLfyNpAJHkgm73VSKCieJioPwWHsw@mail.gmail.com>
 In-Reply-To: <CADyBb7svbV6QdhzCsa9DiBLfyNpAJHkgm73VSKCieJioPwWHsw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 05/23/2015 10:26 AM, Fu Wei wrote:
-> Hi Timur,
->
->
->
-> On 23 May 2015 at 23:08, Timur Tabi <timur@codeaurora.org> wrote:
->> Arnd Bergmann wrote:
->>>
->>> I think it's a reasonable assumption that someone will sooner or later
->>> put that hardware into an ARM32 machine,
->>
->>
->> I'm going to have to disagree.  If they haven't done it by now, I can't
->> imagine any ARM SOC vendor creating a 32-bit ARM SOC with an SBSA watchdog
->> in it.  I can imagine a vendor trying to repurpose an existing 32-bit ARM
->> SOC for the server market, but that SOC won't have an SBSA watchdog in it.
->
-> I will agree with you on this, ONLY IF a people can represent ARM and
-> all chip vendors say publicly:
-> " We never ever use SBSA watchdog IP core on ARM32!" or " SBSA
-> watchdog IP core is imcompatible with ARM32"
->
-> Although the SBSA is all about ARMv8, but in "5 APPENDIX A: GENERIC
-> WATCHDOG", it doesn't say "this is only for ARMv8".
-> and its clock source "system counter" and arm_arch_timer have been in
-> ARM32 Soc for years,
-> and all the regs in SBSA watchdog is 32bit. I can't see why we can not
-> do that, unless I miss something.
->
+Fu Wei wrote:
 > I wonder why you are so sure "that SOC won't have an SBSA watchdog in
 > it."  any documentation ?
 > Sorry, I am not a chip design engineer, I can't see why 32-bit ARM
 > won't have an SBSA watchdog in it.
->
 
-I think it is quite unfortunate that the specification is not public.
-We have heard many statements about what is in the spec or not.
-We have two possible implementations of the SBSA watchdog, but not
-even the implementers of those two implementations seem to be able
-to agree what the specification actually mandates/supports, or what
-it doesn't mandate/support.
+Because there's no market for it.  I'm not talking about what's 
+theoretically possible.  I'm only talking about what makes sense and 
+what will actually happen.  And I'm quite certain that we will never see 
+an actual 32-bit ARM SOC with an SBSA watchdog device in it.
 
-We have heard that the SBSA watchdog would require ACPI, and that it
-doesn't. We have heard that it would require ARM64, and that it doesn't.
-We have heard various assumptions about how WS0 and WS1 are supposed
-to be wired. We have heard that all its registers are 32 bit (which
-would suggest they have to be treated as such), but then we have a
-64 bit register access in one of the drivers, and a more complex
-implementation to read the same value as two 32-bit reads in the other.
-We have heard that WS0 and WS1 are at least to some degree independent
-of each other (and thus that it makes sense to set them separately),
-and we have heard that WS1 is always equal to WS0 * 2. We have one
-implementation limiting support to architecture revision 0, and the
-other not imposing such a restriction.
+Therefore, it makes no sense to complicated the code so that we can 
+support an SOC that will never exist.
 
-Is the specification really that vague in such key areas ?
-How do you expect anyone who doesn't have access to the specification
-to be able to figure out what is actually correct and how to proceed ?
+So can we PLEASE stop talking about 32-bit ARM support?
 
-Thanks,
-Guenter
-
+-- 
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the
+Code Aurora Forum, hosted by The Linux Foundation.
