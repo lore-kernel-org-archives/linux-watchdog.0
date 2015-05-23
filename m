@@ -1,57 +1,76 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:47076 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757168AbbEVTSM (ORCPT
+Received: from mail-oi0-f49.google.com ([209.85.218.49]:33094 "EHLO
+	mail-oi0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758072AbbEWTDw (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 22 May 2015 15:18:12 -0400
-Date: Fri, 22 May 2015 12:18:10 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	Felipe Balbi <balbi@ti.com>, Lokesh Vutla <lokeshvutla@ti.com>,
-	kernel@pengutronix.de
-Subject: Re: [PATCH v2 0/4] watchdog: omap: several cleanups
-Message-ID: <20150522191810.GA23701@roeck-us.net>
-References: <1430126581-24946-1-git-send-email-u.kleine-koenig@pengutronix.de>
- <20150508073502.GL12671@pengutronix.de>
- <20150522175923.GK24769@pengutronix.de>
+	Sat, 23 May 2015 15:03:52 -0400
+Received: by oiww2 with SMTP id w2so35113257oiw.0
+        for <linux-watchdog@vger.kernel.org>; Sat, 23 May 2015 12:03:51 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <20150522175923.GK24769@pengutronix.de>
+In-Reply-To: <5560C8D3.40708@codeaurora.org>
+References: <=fu.wei@linaro.org>
+	<1432197156-16947-7-git-send-email-fu.wei@linaro.org>
+	<555F4236.7040206@linaro.org>
+	<4095167.UOriXdSu53@wuerfel>
+	<556097D5.9050103@codeaurora.org>
+	<CADyBb7svbV6QdhzCsa9DiBLfyNpAJHkgm73VSKCieJioPwWHsw@mail.gmail.com>
+	<5560C85B.8040100@roeck-us.net>
+	<5560C8D3.40708@codeaurora.org>
+Date: Sun, 24 May 2015 03:03:51 +0800
+Message-ID: <CADyBb7umbk=TN_Erx3jSqQ+TieyBikHX6vtOvbOpv5Qcax=nJg@mail.gmail.com>
+Subject: Re: [PATCH v2 6/7] Watchdog: introduce ARM SBSA watchdog driver
+From: Fu Wei <fu.wei@linaro.org>
+To: Timur Tabi <timur@codeaurora.org>
+Cc: Guenter Roeck <linux@roeck-us.net>, Arnd Bergmann <arnd@arndb.de>,
+	Hanjun Guo <hanjun.guo@linaro.org>,
+	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+	Wei Fu <tekkamanninja@gmail.com>,
+	G Gregory <graeme.gregory@linaro.org>,
+	Al Stone <al.stone@linaro.org>,
+	Ashwin Chaugule <ashwin.chaugule@linaro.org>,
+	vgandhi@codeaurora.org, wim@iguana.be,
+	Jon Masters <jcm@redhat.com>, Leo Duran <leo.duran@amd.com>,
+	Jon Corbet <corbet@lwn.net>,
+	Mark Rutland <mark.rutland@arm.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, May 22, 2015 at 07:59:23PM +0200, Uwe Kleine-K=F6nig wrote:
-> On Fri, May 08, 2015 at 09:35:02AM +0200, Uwe Kleine-K=F6nig wrote:
-> > Hello,
-> >=20
-> > On Mon, Apr 27, 2015 at 11:22:57AM +0200, Uwe Kleine-K=F6nig wrote:
-> > > this is v2 of the series I sent on Friday. The changes to the pat=
-ches
-> > > are documented in the respective mails. Thanks to Felipe Balbi an=
-d
-> > > Guenter Roeck for the feedback. I added Reviewed-by tags for Guen=
-ter who
-> > > didn't even saw these patches up to now (but who gave a carte bla=
-nche).
-> > > I assume that's ok and as intended, Guenter?
-> > Patches 1 to 5 got positive feedback, Wim, do you intend to take th=
-em
-> > for the next merge window?
-> gentle ping!
->=20
-Hi Uwe,
+Hi Timur
 
-The patches have been in my watchdog-next branch for a while.
-I sent a pull request to Wim a minute ago, to help him decide.
+On 24 May 2015 at 02:37, Timur Tabi <timur@codeaurora.org> wrote:
+> Guenter Roeck wrote:
+>>
+>> I think it is quite unfortunate that the specification is not public.
+>> We have heard many statements about what is in the spec or not.
+>
+>
+> All you need to do is go to
+> http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.den0029b/index.html,
+> get a free ARM account, and download the spec.
+>
 
-Thanks,
-Guenter
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Great thanks for providing this info!
+
+>
+> --
+> Sent by an employee of the Qualcomm Innovation Center, Inc.
+> The Qualcomm Innovation Center, Inc. is a member of the
+> Code Aurora Forum, hosted by The Linux Foundation.
+
+
+
+-- 
+Best regards,
+
+Fu Wei
+Software Engineer
+Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
+Ph: +86 21 61221326(direct)
+Ph: +86 186 2020 4684 (mobile)
+Room 1512, Regus One Corporate Avenue,Level 15,
+One Corporate Avenue,222 Hubin Road,Huangpu District,
+Shanghai,China 200021
