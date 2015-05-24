@@ -1,15 +1,31 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:46280 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751207AbbEXQu0 (ORCPT
+Received: from mail-ob0-f171.google.com ([209.85.214.171]:33045 "EHLO
+	mail-ob0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751183AbbEXQrP (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 24 May 2015 12:50:26 -0400
-Message-ID: <5562014D.1090503@roeck-us.net>
-Date: Sun, 24 May 2015 09:50:21 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Sun, 24 May 2015 12:47:15 -0400
+Received: by obbnx5 with SMTP id nx5so41456591obb.0
+        for <linux-watchdog@vger.kernel.org>; Sun, 24 May 2015 09:47:15 -0700 (PDT)
 MIME-Version: 1.0
-To: Timur Tabi <timur@codeaurora.org>, Fu Wei <fu.wei@linaro.org>
-CC: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+In-Reply-To: <5561FAFF.1050602@roeck-us.net>
+References: <=fu.wei@linaro.org>
+	<1432197156-16947-1-git-send-email-fu.wei@linaro.org>
+	<1432197156-16947-7-git-send-email-fu.wei@linaro.org>
+	<555DFCD4.3040701@codeaurora.org>
+	<CADyBb7vpC6ihvkrRG-htCS8-_xRkjtny=9ZGQsCsmK7-ng5AxA@mail.gmail.com>
+	<5560D7AC.50009@codeaurora.org>
+	<5560DCB6.3090008@roeck-us.net>
+	<CADyBb7t7+aT=pF0we5umAGXJAJ0njU0zULFAZ-OHVpE0m=ueyg@mail.gmail.com>
+	<5561DD0B.1040008@roeck-us.net>
+	<CADyBb7t6YoauM6T==E8MmHDvE0R9B4n09cEQH3AKkQvOW1RiJw@mail.gmail.com>
+	<5561FAFF.1050602@roeck-us.net>
+Date: Mon, 25 May 2015 00:47:14 +0800
+Message-ID: <CADyBb7vAwXNFH50tFQUxoqWKx7VBLzo5xd7takBgdVYpJ_0d8g@mail.gmail.com>
+Subject: Re: [PATCH v2 6/7] Watchdog: introduce ARM SBSA watchdog driver
+From: Fu Wei <fu.wei@linaro.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Timur Tabi <timur@codeaurora.org>,
+	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
 	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
 	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
@@ -22,35 +38,94 @@ CC: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
 	wim@iguana.be, Jon Masters <jcm@redhat.com>,
 	Leo Duran <leo.duran@amd.com>, Jon Corbet <corbet@lwn.net>,
 	Mark Rutland <mark.rutland@arm.com>
-Subject: Re: [PATCH v2 6/7] Watchdog: introduce ARM SBSA watchdog driver
-References: <=fu.wei@linaro.org>	<1432197156-16947-1-git-send-email-fu.wei@linaro.org>	<1432197156-16947-7-git-send-email-fu.wei@linaro.org>	<555DFCD4.3040701@codeaurora.org>	<CADyBb7vpC6ihvkrRG-htCS8-_xRkjtny=9ZGQsCsmK7-ng5AxA@mail.gmail.com>	<5560D7AC.50009@codeaurora.org>	<5560DCB6.3090008@roeck-us.net>	<CADyBb7t7+aT=pF0we5umAGXJAJ0njU0zULFAZ-OHVpE0m=ueyg@mail.gmail.com>	<5561E7EA.5090702@codeaurora.org> <CADyBb7tYL7ATRKNAoRYTXo53LKdCiFZ2YDib4g0nZ8=YxTgO+A@mail.gmail.com> <5561F8A8.4080607@codeaurora.org> <5561FC70.5080802@roeck-us.net> <5561FFF0.5090108@codeaurora.org>
-In-Reply-To: <5561FFF0.5090108@codeaurora.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 05/24/2015 09:44 AM, Timur Tabi wrote:
-> Guenter Roeck wrote:
->
->> The current watchdog API suggests that the pretimeout "allows Linux
->> to record useful information (like panic information and kernel
->> coredumps) before it resets". The call to panic() would be the
->> means to make this happen.
->
-> Now that I think about it, that does make sense.
->
-> However, if a pre-timeout is not set, then the driver should never call panic().  That means that the interrupt handler should only be registered if sbsa_gwdt_set_pretimeout() is called.
->
+Hi Guenter,
 
-This is a matter of opinion. Some watchdogs have two (or even more)
-levels of timeouts without explicit pretimeout. The iTCO watchdog
-in Intel systems is an example, but there are several others.
+On 25 May 2015 at 00:23, Guenter Roeck <linux@roeck-us.net> wrote:
+> On 05/24/2015 08:50 AM, Fu Wei wrote:
+> [ ...]
+>
+>> Actually, I have added my thought at the head of sbsa_gwdt.c as a comment
+>> :
+>>
+>>    *
+>>   * Note: This SBSA Generic watchdog driver is compatible with
+>>   *       the pretimeout concept of Linux kernel.
+>>   *       The timeout and pretimeout are set by the different REGs.
+>>   *       The first watch period is set by writing WCV directly,
+>>   *       that can support more than 10s timeout at the maximum
+>>   *       system counter frequency.
+>>   *       The second watch period is set by WOR(32bit) which will be
+>> loaded
+>>   *       automatically by hardware, when WS0 is triggered.
+>>   *       This gives a maximum watch period of around 10s at the maximum
+>>   *       system counter frequency.
+>>   *       The System Counter shall run at maximum of 400MHz.
+>>   *       More details: DEN0029B - Server Base System Architecture (SBSA)
+>>   *
+>>   * Kernel/API:                         P---------| pretimeout
+>>   *               |-------------------------------T timeout
+>>   * SBSA GWDT:                          P--WOR---WS1 pretimeout
+>>   *               |-------WCV----------WS0~~~~~~~~T timeout
+>>   */
+>>
+>
+> Yes, but do we actually _know_ that it works that way, ie that WCV
+> drives WS0 and that WOR drives WS1 ? Unless I am missing something,
+> the specification doesn't say that, and it would have been a really
+> easy statement to make if that was the intent.
 
-For such systems, there may be an initial interrupt followed
-by a hard reset a little later. In such cases it does make sense
-to wire up the interrupt and have it call panic(). If the system
-gets stuck, the second timeout will reset it.
+yes, Suravee has tested it on Seattle B0 Soc, that works.
+But hope Suravee can provide more info about test, I will ping him later.
 
-Guenter
+According to SBSA,  that WCV  and WOR can both drive WS1 and WS0
 
+the timeout and pretimeout in my patchset have been tested on Seattle
+B0 and  Foundation model.
+
+>
+> My concern here is that the above behavior is not spelled out in
+> the document, meaning it is up to interpretation by the hardware
+> engineer implementing it, to the point where it appears that not
+> even two software engineers can agree how it is supposed to work.
+> Which is a really bad starting point :-(.
+
+Is that a real hardware teat can prove it works?
+
+or actually, SBSA say that it should work:
+-----------------
+Note: the watchdog offset register is 32 bits wide. This gives a
+maximum watch period of around 10s at a system
+counter frequency of 400MHz. If a larger watch period is required then
+the compare value can be programmed
+directly into the compare value register.
+-----------------
+offset register == WOR
+compare value register == WCV
+
+>
+> Thanks,
+> Guenter
+>
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe devicetree" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+
+
+-- 
+Best regards,
+
+Fu Wei
+Software Engineer
+Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
+Ph: +86 21 61221326(direct)
+Ph: +86 186 2020 4684 (mobile)
+Room 1512, Regus One Corporate Avenue,Level 15,
+One Corporate Avenue,222 Hubin Road,Huangpu District,
+Shanghai,China 200021
