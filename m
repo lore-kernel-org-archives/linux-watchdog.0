@@ -1,6 +1,6 @@
 Return-path: <fu.wei@linaro.org>
 MIME-Version: 1.0
-In-Reply-To: <5560DCB6.3090008@roeck-us.net>
+In-Reply-To: <5560E6AE.1000109@roeck-us.net>
 References: <=fu.wei@linaro.org>
 	<1432197156-16947-1-git-send-email-fu.wei@linaro.org>
 	<1432197156-16947-7-git-send-email-fu.wei@linaro.org>
@@ -8,8 +8,10 @@ References: <=fu.wei@linaro.org>
 	<CADyBb7vpC6ihvkrRG-htCS8-_xRkjtny=9ZGQsCsmK7-ng5AxA@mail.gmail.com>
 	<5560D7AC.50009@codeaurora.org>
 	<5560DCB6.3090008@roeck-us.net>
-Date: Sun, 24 May 2015 18:15:06 +0800
-Message-ID: <CADyBb7t7+aT=pF0we5umAGXJAJ0njU0zULFAZ-OHVpE0m=ueyg@mail.gmail.com>
+	<5560E294.6040903@codeaurora.org>
+	<5560E6AE.1000109@roeck-us.net>
+Date: Sun, 24 May 2015 18:50:50 +0800
+Message-ID: <CADyBb7tq4CoP+KtZfDZLzSwM-baL1S7hP-GCoCsW73V+Df2i+Q@mail.gmail.com>
 Subject: Re: [PATCH v2 6/7] Watchdog: introduce ARM SBSA watchdog driver
 From: Fu Wei <fu.wei@linaro.org>
 To: Guenter Roeck <linux@roeck-us.net>
@@ -28,56 +30,64 @@ List-ID: <linux-watchdog@vger.kernel.org>
 
 Hi Guenter,
 
-On 24 May 2015 at 04:01, Guenter Roeck <linux@roeck-us.net> wrote:
-> On 05/23/2015 12:40 PM, Timur Tabi wrote:
-> [ ... ]
+On 24 May 2015 at 04:44, Guenter Roeck <linux@roeck-us.net> wrote:
+> On 05/23/2015 01:27 PM, Timur Tabi wrote:
+>>
+>> Guenter Roeck wrote:
+>>>
+>>>
+>>> However, the pretimeout concept assumes that there are two timers
+>>> which can be set independently. As you had pointed out earlier,
+>>> and as the specification seems to confirm, that is not the case here.
+>>> As such, I don't really understand why and how the pretimeout / timeout
+>>> concept would add any value here and not just make things more
+>>> complicated than necessary. Maybe I am just missing something.
 >>
 >>
->> I use emergency_restart(), because the watchdog-api.txt documentation says
->> this:
+>> It might be possible to load a new value into the WOR register after the
+>> WS0 interrupt occurs.  That is, in the interrupt handler, we can do
+>> something like this:
 >>
->> "If userspace fails (RAM error, kernel bug, whatever), the
->> notifications cease to occur, and the hardware watchdog will reset the
->> system (causing a reboot) after the timeout occurs."
+>>      if (status & SBSA_GWDT_WCS_WS0)
+>>          // write new WOR value,
+>>          // then ping watchdog so that it's loaded
 >>
->> Maybe I'm reading this too literally, but to me this means that when the
->> timeout expires, the system has to reset immediately.
->>
->> However, maybe panic() is better, since it can do the same thing and more.
+>> I'm not convinced that it's worth it, however.  It would require
+>> interrupts to still be working when WS0 times out, which somewhat defeats
+>> the purpose of a watchdog.
 >>
 >
-> I have a specific requirement at work to have watchdog expiration
-> (not this watchdog, this is different HW) result in a panic, specifically
-> to enable crashdump support and thus post-mortem analysis.
+> If I understand the specification correctly, reloading the register
+> would result in another WS0, not in WS1. That isn't really what we
+> would want to happen.
+
+Yes, you are 100% correct.
+In SBSA:
+---------------
+An explicit watchdog refresh occurs when one of a number of different
+events occur:
+(1) The Watchdog Refresh Register is written.
+(2) The Watchdog Offset Register is written.
+(3) The Watchdog Control and Status register is written.
+In the case of an explicit refresh the Watchdog Signals are cleared.
+---------------
+So,  for the second timeout,  we can only use WOR.(but maybe we can
+write WCV in the WS0 routine to make the second timeout longer, if we
+really need a long time for panic)
+If we write WOR , that will clean WCS, then the system go back to
+first timeout stage.
+
+But for the first timeout, we can use WOR (that means the two timeout
+stages will be the same,  in another world, WS0==WS1*2 )
+or we can write WCV directly.
+
+And writing WCV will not trigger an explicit watchdog refresh, that is
+what I am doing to set up  pretimeout.
+
 >
-> I had not thought about this use case myself, and I had always wondered
-> why watchdog driver implementers would choose to call panic() after an
-> interrupt or NMI. But we live and learn, so now I finally understand.
->
-> In the pretimeout/timeout world, the pretimeout would (typically)
-> result in a panic, and the timeout would result in a reset. So one
-> would set the timer register to 10s for 10s pretimeout and 20s timeout.
->
-> However, the pretimeout concept assumes that there are two timers
-> which can be set independently. As you had pointed out earlier,
-> and as the specification seems to confirm, that is not the case here.
-
-Sorry, in Documentation/watchdog/watchdog-api.txt, I can not get the
-info about " the pretimeout concept assumes that there are two timers
-which can be set independently."
-Could you kindly point out where is the assumption.
-
-I thinks in kernel documentation,  that meams "one watchdog has two
-timeout stages", maybe I miss something. Could you help me out?
-
-> As such, I don't really understand why and how the pretimeout / timeout
-> concept would add any value here and not just make things more
-> complicated than necessary. Maybe I am just missing something.
-
-If pretimeout concept assumes that there are two timers, I
-misunderstand the "pretimeout", then I will delete the pretimeout
-immediately.
-
+> Reloading the register would normally be done in the crashdump kernel,
+> if it is loaded, to give it time to actually take the crashdump.
+> But that is post-restart, not pre-restart.
 >
 > Thanks,
 > Guenter
