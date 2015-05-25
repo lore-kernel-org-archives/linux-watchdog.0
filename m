@@ -1,76 +1,83 @@
 Return-path: <fu.wei@linaro.org>
 MIME-Version: 1.0
-In-Reply-To: <55620EA1.3070605@codeaurora.org>
+In-Reply-To: <20150521153225.GA17441@roeck-us.net>
 References: <=fu.wei@linaro.org>
 	<1432197156-16947-1-git-send-email-fu.wei@linaro.org>
-	<1432197156-16947-7-git-send-email-fu.wei@linaro.org>
-	<555DFCD4.3040701@codeaurora.org>
-	<CADyBb7vpC6ihvkrRG-htCS8-_xRkjtny=9ZGQsCsmK7-ng5AxA@mail.gmail.com>
-	<5560D7AC.50009@codeaurora.org>
-	<5560DCB6.3090008@roeck-us.net>
-	<CADyBb7t7+aT=pF0we5umAGXJAJ0njU0zULFAZ-OHVpE0m=ueyg@mail.gmail.com>
-	<5561E7EA.5090702@codeaurora.org>
-	<CADyBb7tYL7ATRKNAoRYTXo53LKdCiFZ2YDib4g0nZ8=YxTgO+A@mail.gmail.com>
-	<5561F8A8.4080607@codeaurora.org>
-	<5561FC70.5080802@roeck-us.net>
-	<5561FFF0.5090108@codeaurora.org>
-	<CADyBb7snhcR43KT_xrFipBH3PBNBfj39-hE-mSjJ3vMb7Ehp+A@mail.gmail.com>
-	<55620808.4030605@codeaurora.org>
-	<55620B2F.5000708@roeck-us.net>
-	<55620EA1.3070605@codeaurora.org>
-Date: Mon, 25 May 2015 10:03:05 +0800
-Message-ID: <CADyBb7tSJBzrwu8RC4rhNe95PkrS=iQMV6KcG8=A3ao+11XsWg@mail.gmail.com>
-Subject: Re: [PATCH v2 6/7] Watchdog: introduce ARM SBSA watchdog driver
+	<1432197156-16947-6-git-send-email-fu.wei@linaro.org>
+	<20150521153225.GA17441@roeck-us.net>
+Date: Mon, 25 May 2015 11:09:00 +0800
+Message-ID: <CADyBb7vp+E_29zOW9Wq9oL8LbwgBFhM9VCRMNsYwFVGGXMwOTQ@mail.gmail.com>
+Subject: Re: [PATCH v2 5/7] Watchdog: introduce "pretimeout" into framework
 From: Fu Wei <fu.wei@linaro.org>
-To: Timur Tabi <timur@codeaurora.org>
-Cc: Guenter Roeck <linux@roeck-us.net>,
-	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
 	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>, linux-watchdog@vger.kernel.org,
 	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
 	linux-doc@vger.kernel.org, Wei Fu <tekkamanninja@gmail.com>,
 	G Gregory <graeme.gregory@linaro.org>, Al Stone <al.stone@linaro.org>,
-	Hanjun Guo <hanjun.guo@linaro.org>, Ashwin Chaugule <ashwin.chaugule@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>, vgandhi@codeaurora.org, wim@iguana.be,
-	Jon Masters <jcm@redhat.com>, Leo Duran <leo.duran@amd.com>, Jon Corbet <corbet@lwn.net>,
-	Mark Rutland <mark.rutland@arm.com>
+	Hanjun Guo <hanjun.guo@linaro.org>, Timur Tabi <timur@codeaurora.org>,
+	Ashwin Chaugule <ashwin.chaugule@linaro.org>, Arnd Bergmann <arnd@arndb.de>, vgandhi@codeaurora.org,
+	wim@iguana.be, Jon Masters <jcm@redhat.com>, Leo Duran <leo.duran@amd.com>,
+	Jon Corbet <corbet@lwn.net>, Mark Rutland <mark.rutland@arm.com>
 Content-Type: text/plain; charset=UTF-8
 List-ID: <linux-watchdog@vger.kernel.org>
 
 Hi Guenter,
 
+Great thanks for your suggestion,
 
-On 25 May 2015 at 01:47, Timur Tabi <timur@codeaurora.org> wrote:
-> Guenter Roeck wrote:
->>
->>
->> The pseudo-code in the specification suggests that if WCV is configured,
->>      WS0 = WCV
->>      WS1 = WCV + WOR
->>
->> Assuming that the implementation follows the pseudo-code in the
->> specification,
->> we would have separately programmable values. Since the pretimeout (per
->> ABI)
->> is the difference in seconds to the timeout, and not an absolute value,
->> we would have to program the registers as follows.
->>
->>      WCV = timeout - pretimeout;
->>      WOR = pretimeout;
->>
->> Does this make sense ?
+I have put this kind of validation into watchdog_pretimeout_invalid
+and watchdog_timeout_invalid.
 
-And actually all the patchset  I sent to upstream are all follow this
-design, and have been test on Foundation model and Seattle B0
+So :
 
+(1)
+ set_timeout(10);   ------> if this setting is successful
+ set_pretimeout(20); ----->  return fail (-EINVAL)
+
+
+(2)
+set_timeout(10);  ------> if this setting is successful
+set_pretimeout(10); ----->  return fail (-EINVAL)
+
+this kind of situation will not result in an invalid / unexpected timeout value.
+
+you will see this change in my next patchset
+
+On 21 May 2015 at 23:32, Guenter Roeck <linux@roeck-us.net> wrote:
+> On Thu, May 21, 2015 at 04:32:34PM +0800, fu.wei@linaro.org wrote:
+>> From: Fu Wei <fu.wei@linaro.org>
+>>
+>> Also update Documentation/watchdog/watchdog-kernel-api.txt to
+>> introduce:
+>> (1)the new elements in the watchdog_device and watchdog_ops struct;
+>> (2)the new API "watchdog_init_timeouts".
+>>
+>> Reasons:
+>> (1)kernel already has two watchdog drivers are using "pretimeout":
+>>       drivers/char/ipmi/ipmi_watchdog.c
+>>       drivers/watchdog/kempld_wdt.c(but the definition is different)
+>> (2)some other dirvers are going to use this: ARM SBSA Generic Watchdog
+>>
+>> Signed-off-by: Fu Wei <fu.wei@linaro.org>
+>> ---
 >
+> [ ... ]
 >
-> Yes, thank you.  I will test this on my hardware.
+>>
+>> +/* Use the following function to check if a pretimeout value is invalid */
+>> +static inline bool watchdog_pretimeout_invalid(struct watchdog_device *wdd,
+>> +                                            unsigned int t)
+>> +{
+>> +     return ((wdd->max_pretimeout != 0) &&
+>> +             (t < wdd->min_pretimeout || t > wdd->max_pretimeout));
+>> +}
 >
+> Should this function also enforce "t < wdd->timeout", and
+> should watchdog_timeout_invalid() enforce "t > wdd->pretimeout" ?
 >
-> --
-> Sent by an employee of the Qualcomm Innovation Center, Inc.
-> The Qualcomm Innovation Center, Inc. is a member of the
-> Code Aurora Forum, hosted by The Linux Foundation.
+> Thanks,
+> Guenter
 
 
 
