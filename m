@@ -1,77 +1,107 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ob0-f179.google.com ([209.85.214.179]:33782 "EHLO
-	mail-ob0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750898AbbEYELT (ORCPT
+Received: from mail-pa0-f54.google.com ([209.85.220.54]:35747 "EHLO
+	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752077AbbEYKHY (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 25 May 2015 00:11:19 -0400
-Received: by obbnx5 with SMTP id nx5so46953886obb.0
-        for <linux-watchdog@vger.kernel.org>; Sun, 24 May 2015 21:11:19 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <55629B15.2060102@codeaurora.org>
-References: <=fu.wei@linaro.org>
-	<1432197156-16947-1-git-send-email-fu.wei@linaro.org>
-	<1432197156-16947-7-git-send-email-fu.wei@linaro.org>
-	<555DB4C4.5090606@roeck-us.net>
-	<555DD8EE.1060607@codeaurora.org>
-	<20150521152838.GB16668@roeck-us.net>
-	<CADyBb7tH+oa_efFTA0V7YksNN+8L+4xGtWuXpxp91SO3e_f9Vg@mail.gmail.com>
-	<55629B15.2060102@codeaurora.org>
-Date: Mon, 25 May 2015 12:11:19 +0800
-Message-ID: <CADyBb7tRXi2ub9xQqEq2TNokxYMnRbgTAq5S+mpUh9W1iXfvWQ@mail.gmail.com>
-Subject: Re: [PATCH v2 6/7] Watchdog: introduce ARM SBSA watchdog driver
-From: Fu Wei <fu.wei@linaro.org>
-To: Timur Tabi <timur@codeaurora.org>
-Cc: Guenter Roeck <linux@roeck-us.net>,
-	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
+	Mon, 25 May 2015 06:07:24 -0400
+Received: by pacwv17 with SMTP id wv17so68409940pac.2
+        for <linux-watchdog@vger.kernel.org>; Mon, 25 May 2015 03:07:24 -0700 (PDT)
+From: fu.wei@linaro.org
+To: Suravee.Suthikulpanit@amd.com, linaro-acpi@lists.linaro.org,
 	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-	Wei Fu <tekkamanninja@gmail.com>,
-	G Gregory <graeme.gregory@linaro.org>,
-	Al Stone <al.stone@linaro.org>,
-	Hanjun Guo <hanjun.guo@linaro.org>,
-	Ashwin Chaugule <ashwin.chaugule@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>, vgandhi@codeaurora.org,
-	wim@iguana.be, Jon Masters <jcm@redhat.com>,
-	Leo Duran <leo.duran@amd.com>, Jon Corbet <corbet@lwn.net>,
-	Mark Rutland <mark.rutland@arm.com>
-Content-Type: text/plain; charset=UTF-8
+	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
+Cc: tekkamanninja@gmail.com, graeme.gregory@linaro.org,
+	al.stone@linaro.org, hanjun.guo@linaro.org, timur@codeaurora.org,
+	ashwin.chaugule@linaro.org, arnd@arndb.de, linux@roeck-us.net,
+	vgandhi@codeaurora.org, wim@iguana.be, jcm@redhat.com,
+	leo.duran@amd.com, corbet@lwn.net, mark.rutland@arm.com,
+	catalin.marinas@arm.com, will.deacon@arm.com,
+	Fu Wei <fu.wei@linaro.org>
+Subject: [PATCH v3 0/6] Watchdog: introduce ARM SBSA watchdog driver
+Date: Mon, 25 May 2015 18:03:07 +0800
+Message-Id: <1432548193-19569-1-git-send-email-fu.wei@linaro.org>
+In-Reply-To: <=fu.wei@linaro.org>
+References: <=fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Timur.
+From: Fu Wei <fu.wei@linaro.org>
 
+This patchset:
+    (1)Introduce Documentation/devicetree/bindings/watchdog/sbsa-gwdt.txt
+    for FDT info of SBSA Generic Watchdog, and give two examples of
+    adding SBSA Generic Watchdog device node into the dts files:
+    foundation-v8.dts and amd-seattle-soc.dtsi.
 
-On 25 May 2015 at 11:46, Timur Tabi <timur@codeaurora.org> wrote:
-> Fu Wei wrote:
->>
->> Once the Linux kernel has KVM support and is in hyp mode. we
->> may need to use arch_counter_get_cntpct.
->
->
-> arch_counter_get_cntpct() does not appear to be valid for ARM64:
->
-> http://lxr.free-electrons.com/source/arch/arm64/include/asm/arch_timer.h#L108
+    (2)Introduce "pretimeout" into the watchdog framework, and update
+    Documentation/watchdog/watchdog-kernel-api.txt to introduce:
+        (1)the new elements in the watchdog_device and watchdog_ops struct;
+        (2)the new API "watchdog_init_timeouts".
 
-Great thank for correction, that make sense.
+    (3)Introduce ARM SBSA watchdog driver:
+        a.Use linux kernel watchdog framework;
+        b.Work with FDT on ARM64;
+        c.Use "pretimeout" in watchdog framework;
+        d.In first timeout, do panic to save system context;
+        e.Support getting timeout and pretimeout from parameter and FDT
+          at the driver init stage.
 
->
->
-> --
-> Sent by an employee of the Qualcomm Innovation Center, Inc.
-> The Qualcomm Innovation Center, Inc. is a member of the
-> Code Aurora Forum, hosted by The Linux Foundation.
+    (4)Parse SBSA Generic Watchdog Structure in GTDT table of ACPI,
+    and create a platform device with that information.
+    This platform device can be used by This Watchdog driver.
 
+This patchset has been tested with watchdog daemon
+(ACPI/FDT, module/build-in) on the following platforms:
+    (1)ARM Foundation v8 model
+    (2)AMD Seattle B0
 
+Changelog:
+v3: Delete "export arch_timer_get_rate" patch.
+    Driver back to use arch_timer_get_cntfrq.
+    Improve watchdog_init_timeouts function and update relevant documentation.
+    Improve watchdog_timeout_invalid and watchdog_pretimeout_invalid.
+    Improve foundation-v8.dts: delete the unnecessary tag of device node.
+    Remove "ARM64 || COMPILE_TEST" from Kconfig.
+    Add comments in arch/arm64/kernel/acpi.c
+    Fix typoes and incorrect comments.
+
+v2: Improve watchdog-kernel-api.txt documentation for pretimeout support.
+    Export "arch_timer_get_rate" in arm_arch_timer.c.
+    Add watchdog_init_timeouts API for pretimeout support in framework.
+    Improve suspend and resume foundation in driver
+    Improve timeout/pretimeout values init code in driver.
+    Delete unnecessary items of the sbsa_gwdt struct and #define.
+    Delete all unnecessary debug info in driver.
+    Fix 64bit division bug.
+    Use the arch_timer interface to get watchdog clock rate.
+    Add MODULE_DEVICE_TABLE for platform device id.
+    Fix typoes.
+
+v1: The first version upstream patchset to linux mailing list.
+
+Fu Wei (6):
+  Documentation: add sbsa-gwdt.txt documentation
+  ARM64: add SBSA Generic Watchdog device node in foundation-v8.dts
+  ARM64: add SBSA Generic Watchdog device node in amd-seattle-soc.dtsi
+  Watchdog: introdouce "pretimeout" into framework
+  Watchdog: introduce ARM SBSA watchdog driver
+  ACPI: import watchdog info of GTDT into platform device
+
+ .../devicetree/bindings/watchdog/sbsa-gwdt.txt     |  36 ++
+ Documentation/watchdog/watchdog-kernel-api.txt     |  47 +-
+ arch/arm64/boot/dts/amd/amd-seattle-soc.dtsi       |  11 +
+ arch/arm64/boot/dts/arm/foundation-v8.dts          |  10 +
+ arch/arm64/kernel/acpi.c                           | 145 +++++++
+ drivers/watchdog/Kconfig                           |  11 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/sbsa_gwdt.c                       | 474 +++++++++++++++++++++
+ drivers/watchdog/watchdog_core.c                   |  95 +++--
+ drivers/watchdog/watchdog_dev.c                    |  50 +++
+ include/linux/watchdog.h                           |  33 +-
+ 11 files changed, 880 insertions(+), 33 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/sbsa-gwdt.txt
+ create mode 100644 drivers/watchdog/sbsa_gwdt.c
 
 -- 
-Best regards,
+1.9.1
 
-Fu Wei
-Software Engineer
-Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
-Ph: +86 21 61221326(direct)
-Ph: +86 186 2020 4684 (mobile)
-Room 1512, Regus One Corporate Avenue,Level 15,
-One Corporate Avenue,222 Hubin Road,Huangpu District,
-Shanghai,China 200021
