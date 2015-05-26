@@ -1,202 +1,119 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wg0-f41.google.com ([74.125.82.41]:35584 "EHLO
-	mail-wg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752641AbbEZMrO (ORCPT
+Received: from mail-oi0-f51.google.com ([209.85.218.51]:34473 "EHLO
+	mail-oi0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752312AbbEZPfY convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 26 May 2015 08:47:14 -0400
-Received: by wgme6 with SMTP id e6so27548495wgm.2
-        for <linux-watchdog@vger.kernel.org>; Tue, 26 May 2015 05:45:11 -0700 (PDT)
-Date: Tue, 26 May 2015 13:39:43 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org, daniel.lezcano@linaro.org,
-	tglx@linutronix.de, wim@iguana.be, a.zummo@towertech.it,
-	linux-watchdog@vger.kernel.org, rtc-linux@googlegroups.com,
-	linux@roeck-us.net
-Cc: kernel@stlinux.com
-Subject: [PATCH v2.1 02/12] clocksource: sti: Provide support for the ST LPC
- Clocksource IP
-Message-ID: <20150526123943.GI11677@x1>
-References: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
- <1431435500-22899-3-git-send-email-lee.jones@linaro.org>
+	Tue, 26 May 2015 11:35:24 -0400
+Received: by oifu123 with SMTP id u123so41093857oif.1
+        for <linux-watchdog@vger.kernel.org>; Tue, 26 May 2015 08:35:04 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <1431435500-22899-3-git-send-email-lee.jones@linaro.org>
+In-Reply-To: <20150526151842.GP1565@arm.com>
+References: <=fu.wei@linaro.org>
+	<1432548193-19569-1-git-send-email-fu.wei@linaro.org>
+	<1432548193-19569-7-git-send-email-fu.wei@linaro.org>
+	<20150526122858.GJ1565@arm.com>
+	<CAJ5Y-eZfzrDtEL5gpZ1rRNUhr2dCZKuA-MMNcwV=TgFW_9rq=g@mail.gmail.com>
+	<20150526151842.GP1565@arm.com>
+Date: Tue, 26 May 2015 11:35:04 -0400
+Message-ID: <CAJ5Y-eZBvf=pvVTmaPi8PfD1Q5RJeW9uKR-z_DgZRyKc0HfDBw@mail.gmail.com>
+Subject: Re: [PATCH v3 6/6] ACPI: import watchdog info of GTDT into platform device
+From: Ashwin Chaugule <ashwin.chaugule@linaro.org>
+To: Will Deacon <will.deacon@arm.com>
+Cc: "fu.wei@linaro.org" <fu.wei@linaro.org>,
+	"suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+	"linaro-acpi@lists.linaro.org" <linaro-acpi@lists.linaro.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+	"tekkamanninja@gmail.com" <tekkamanninja@gmail.com>,
+	"graeme.gregory@linaro.org" <graeme.gregory@linaro.org>,
+	"al.stone@linaro.org" <al.stone@linaro.org>,
+	"hanjun.guo@linaro.org" <hanjun.guo@linaro.org>,
+	"timur@codeaurora.org" <timur@codeaurora.org>,
+	"arnd@arndb.de" <arnd@arndb.de>,
+	"linux@roeck-us.net" <linux@roeck-us.net>,
+	"vgandhi@codeaurora.org" <vgandhi@codeaurora.org>,
+	"wim@iguana.be" <wim@iguana.be>, "jcm@redhat.com" <jcm@redhat.com>,
+	"leo.duran@amd.com" <leo.duran@amd.com>,
+	"corbet@lwn.net" <corbet@lwn.net>,
+	Mark Rutland <Mark.Rutland@arm.com>,
+	Catalin Marinas <Catalin.Marinas@arm.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 Content-Transfer-Encoding: quoted-printable
 
-clocksource: sti: Provide support for the ST LPC Clocksource IP
+On 26 May 2015 at 11:18, Will Deacon <will.deacon@arm.com> wrote:
+> On Tue, May 26, 2015 at 04:02:56PM +0100, Ashwin Chaugule wrote:
+>> On 26 May 2015 at 08:28, Will Deacon <will.deacon@arm.com> wrote:
+>> > On Mon, May 25, 2015 at 11:03:13AM +0100, fu.wei@linaro.org wrote:
+>> >> From: Fu Wei <fu.wei@linaro.org>
+>> >>
+>> >> Parse SBSA Generic Watchdog Structure in GTDT table of ACPI,
+>> >> and create a platform device with that information.
+>> >> This platform device can be used by the ARM SBSA Generic
+>> >> Watchdog driver.
+>> >>
+>> >> Tested-by: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
+>> >> Tested-by: Timur Tabi <timur@codeaurora.org>
+>> >> Signed-off-by: Fu Wei <fu.wei@linaro.org>
+>> >> ---
+>> >>  arch/arm64/kernel/acpi.c | 145 +++++++++++++++++++++++++++++++++++=
+++++++++++++
+>> >>  1 file changed, 145 insertions(+)
+>> >
+>> > Why does this all need to be under arch/arm64? The GTDT really isn't
+>> > architecture-specific, so I'd *much* rather it was parsed in the dri=
+ver code
+>> > itself, like we already do for the architected timer. The GIC is an
+>> > exception because it's in the MADT, which we need to parse in the ar=
+ch code
+>> > to configure SMP properly.
+>>
+>> I'm not really against refactoring the code. But the GTDT looks quite
+>> specific to ARM..
+>>
+>> ---8<----
+>> 5.2.24 Generic Timer Description Table (GTDT)
+>> This section describes the format of the Generic Timer Description
+>> Table (GTDT), which provides
+>> OSPM with information about a system=E2=80=99s Generic Timers configur=
+ation.
+>> The Generic Timer (GT) is
+>> a standard timer interface implemented on ARM processor-based systems.
+>> The GT hardware
+>> specification can be found at Links to ACPI-Related Documents
+>> (http://uefi.org/acpi) under the
+>> heading ARM Architecture. The GTDT provides OSPM with information
+>> about a system's GT
+>> interrupt configurations, for both per-processor timers, and platform
+>> (memory-mapped) timers.
+>> The GT specification defines the following per-processor timers:
+>> =E2=80=A2 Secure privilege level 1 (EL1) timer,
+>> =E2=80=A2 Non-Secure EL1 timer,
+>> =E2=80=A2 Non-Secure privilege level 2 (EL2) timer,
+>> =E2=80=A2 Virtual timer,
+>> and the following Platform (memory-mapped) timers.
+>> =E2=80=A2 GT Block
+>> =E2=80=A2 Server Base System Architecture (SBSA) Generic Watchdog
+>> ---8<----
+>
+> Sure, the device it describes may only ever exist on ARM systems, but b=
+y
+> that logic then we should be moving lots of drivers back under arch/arm=
+[64].
 
-This IP is shared with Watchdog and RTC functionality.  All 3 of
-these devices are mutually exclusive from one another i.e. Only 1
-IP can be used at any given time.  We use the device-driver model
-combined with a DT 'mode' property to enforce this.
+Sure. Not arguing about that. :) You said the GTDT isn't really arch
+specific. That was a bit confusing.
 
-The ST LPC Clocksource IP can be used as the system (tick) timer.
-
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-
-diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfig
-index 68161f7..01a07a6 100644
---- a/drivers/clocksource/Kconfig
-+++ b/drivers/clocksource/Kconfig
-@@ -250,4 +250,13 @@ config CLKSRC_PXA
- 	help
- 	  This enables OST0 support available on PXA and SA-11x0
- 	  platforms.
-+
-+config CLKSRC_ST_LPC
-+	bool
-+	depends on ARCH_STI
-+	select CLKSRC_OF if OF
-+	help
-+	  Enable this option to use the Low Power controller timer
-+	  as clocksource.
-+
- endmenu
-diff --git a/drivers/clocksource/Makefile b/drivers/clocksource/Makefile
-index 752d5c7..e08da4d 100644
---- a/drivers/clocksource/Makefile
-+++ b/drivers/clocksource/Makefile
-@@ -51,3 +51,4 @@ obj-$(CONFIG_ARCH_INTEGRATOR_AP)	+=3D timer-integrator-=
-ap.o
- obj-$(CONFIG_CLKSRC_VERSATILE)		+=3D versatile.o
- obj-$(CONFIG_CLKSRC_MIPS_GIC)		+=3D mips-gic-timer.o
- obj-$(CONFIG_ASM9260_TIMER)		+=3D asm9260_timer.o
-+obj-$(CONFIG_CLKSRC_ST_LPC)		+=3D clksrc_st_lpc.o
-diff --git a/drivers/clocksource/clksrc_st_lpc.c b/drivers/clocksource/cl=
-ksrc_st_lpc.c
-new file mode 100644
-index 0000000..f38cf33
---- /dev/null
-+++ b/drivers/clocksource/clksrc_st_lpc.c
-@@ -0,0 +1,123 @@
-+/*
-+ * Clocksource using the Low Power Timer found in the Low Power Controll=
-er (LPC)
-+ *
-+ * Copyright (C) 2015 STMicroelectronics =E2=80=93 All Rights Reserved
-+ *
-+ * Author(s): Francesco Virlinzi <francesco.virlinzi@st.com>
-+ *	      Ajit Pal Singh <ajitpal.singh@st.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ */
-+
-+#include <linux/clk.h>
-+#include <linux/clocksource.h>
-+#include <linux/init.h>
-+#include <linux/of_address.h>
-+#include <linux/slab.h>
-+
-+#include <dt-bindings/mfd/st-lpc.h>
-+
-+/* Low Power Timer */
-+#define LPC_LPT_LSB_OFF		0x400
-+#define LPC_LPT_MSB_OFF		0x404
-+#define LPC_LPT_START_OFF	0x408
-+
-+static struct st_clksrc_ddata {
-+	struct clk		*clk;
-+	void __iomem		*base;
-+} ddata;
-+
-+static void __init st_clksrc_reset(void)
-+{
-+	writel_relaxed(0, ddata.base + LPC_LPT_START_OFF);
-+	writel_relaxed(0, ddata.base + LPC_LPT_MSB_OFF);
-+	writel_relaxed(0, ddata.base + LPC_LPT_LSB_OFF);
-+	writel_relaxed(1, ddata.base + LPC_LPT_START_OFF);
-+}
-+
-+static int __init st_clksrc_init(void)
-+{
-+	unsigned long rate;
-+	int ret;
-+
-+	st_clksrc_reset();
-+
-+	rate =3D clk_get_rate(ddata.clk);
-+
-+	ret =3D clocksource_mmio_init(ddata.base + LPC_LPT_LSB_OFF,
-+				    "clksrc-st-lpc", rate, 300, 32,
-+				    clocksource_mmio_readl_up);
-+	if (ret) {
-+		pr_err("clksrc-st-lpc: Failed to register clocksource\n");
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static int __init st_clksrc_setup_clk(struct device_node *np)
-+{
-+	struct clk *clk;
-+
-+	clk =3D of_clk_get(np, 0);
-+	if (IS_ERR(clk)) {
-+		pr_err("clksrc-st-lpc: Failed to get LPC clock\n");
-+		return PTR_ERR(clk);
-+	}
-+
-+	if (clk_prepare_enable(clk)) {
-+		pr_err("clksrc-st-lpc: Failed to enable LPC clock\n");
-+		return -EINVAL;
-+	}
-+
-+	if (!clk_get_rate(clk)) {
-+		pr_err("clksrc-st-lpc: Failed to get LPC clock rate\n");
-+		clk_disable_unprepare(clk);
-+		return -EINVAL;
-+	}
-+
-+	ddata.clk =3D clk;
-+
-+	return 0;
-+}
-+
-+static void __init st_clksrc_of_register(struct device_node *np)
-+{
-+	int ret;
-+	uint32_t mode;
-+
-+	ret =3D of_property_read_u32(np, "st,lpc-mode", &mode);
-+	if (ret) {
-+		pr_err("clksrc-st-lpc: An LPC mode must be provided\n");
-+		return;
-+	}
-+
-+	/* LPC can either run as a Clocksource or in RTC or WDT mode */
-+	if (mode !=3D ST_LPC_MODE_CLKSRC)
-+		return;
-+
-+	ddata.base =3D of_iomap(np, 0);
-+	if (!ddata.base) {
-+		pr_err("clksrc-st-lpc: Unable to map iomem\n");
-+		return;
-+	}
-+
-+	if (st_clksrc_setup_clk(np)) {
-+		iounmap(ddata.base);
-+		return;
-+	}
-+
-+	if (st_clksrc_init()) {
-+		clk_disable_unprepare(ddata.clk);
-+		clk_put(ddata.clk);
-+		iounmap(ddata.base);
-+		return;
-+	}
-+
-+	pr_info("clksrc-st-lpc: clocksource initialised - running @ %luHz\n",
-+		clk_get_rate(ddata.clk));
-+}
-+CLOCKSOURCE_OF_DECLARE(ddata, "st,stih407-lpc", st_clksrc_of_register);
+>
+> The ARM architecture says precisely *nothing* about ACPI, so we should
+> try to keep arch/arm64/kernel/acpi.c to a minimum and not shovel all so=
+rts
+> of table conversion code in there for random peripherals.
+>
+> Will
 --
 To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
  in
