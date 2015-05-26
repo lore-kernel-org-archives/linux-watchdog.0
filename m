@@ -1,65 +1,58 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:51314 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751520AbbEZR6Z (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:56925 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750835AbbEZSYJ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 26 May 2015 13:58:25 -0400
-Message-ID: <5564B43E.6060504@codeaurora.org>
-Date: Tue, 26 May 2015 12:58:22 -0500
-From: Timur Tabi <timur@codeaurora.org>
+	Tue, 26 May 2015 14:24:09 -0400
+Date: Tue, 26 May 2015 11:24:03 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Timur Tabi <timur@codeaurora.org>
+Cc: Hanjun Guo <hanjun.guo@linaro.org>, fu.wei@linaro.org,
+	Suravee.Suthikulpanit@amd.com, linaro-acpi@lists.linaro.org,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+	tekkamanninja@gmail.com, graeme.gregory@linaro.org,
+	al.stone@linaro.org, ashwin.chaugule@linaro.org, arnd@arndb.de,
+	vgandhi@codeaurora.org, wim@iguana.be, jcm@redhat.com,
+	leo.duran@amd.com, corbet@lwn.net, mark.rutland@arm.com,
+	catalin.marinas@arm.com, will.deacon@arm.com
+Subject: Re: [PATCH v3 6/6] ACPI: import watchdog info of GTDT into platform
+ device
+Message-ID: <20150526182403.GA23370@roeck-us.net>
+References: <=fu.wei@linaro.org>
+ <1432548193-19569-1-git-send-email-fu.wei@linaro.org>
+ <1432548193-19569-7-git-send-email-fu.wei@linaro.org>
+ <55642EA8.5000003@linaro.org>
+ <5564A0C7.1090306@codeaurora.org>
 MIME-Version: 1.0
-To: Al Stone <al.stone@linaro.org>, linux-watchdog@vger.kernel.org,
-	Ashwin Chaugule <ashwin.chaugule@linaro.org>,
-	Vipul Gandhi <vgandhi@codeaurora.org>,
-	Fu Wei <fu.wei@linaro.org>, Wim Van Sebroeck <wim@iguana.be>,
-	Hanjun Guo <hanjun.guo@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Graeme Gregory <graeme.gregory@linaro.org>,
-	linaro-acpi@lists.linaro.org
-Subject: Re: [PATCH] [v4] watchdog: introduce the ARM64 SBSA watchdog driver
-References: <1432335137-1023-1-git-send-email-timur@codeaurora.org> <5564A92F.4090403@linaro.org>
-In-Reply-To: <5564A92F.4090403@linaro.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5564A0C7.1090306@codeaurora.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 05/26/2015 12:11 PM, Al Stone wrote:
+On Tue, May 26, 2015 at 11:35:19AM -0500, Timur Tabi wrote:
+> On 05/26/2015 03:28 AM, Hanjun Guo wrote:
+> 
+> >>      early_acpi_os_unmap_memory((char *)table, tbl_size);
+> >>  }
+> >
+> >please add
+> >
+> >#ifdef CONFIG_ARM_SBSA_WATCHDOG
+> >(acpi gtdt code)
+> >#endif
+> 
+> I don't agree with this.  The GTDT should be parsed even if there's no
+> watchdog driver compiled for this kernel.  There are no other #ifdefs in
+> this file.
+> 
 
-> So, this is meant to be SBSA compliant; is it also meant to be SBBR compliant?
-> I suspect not, since there is no ACPI initialization and SBBR requires both
-> UEFI and ACPI.  Is there any reason for not being SBBR compliant?  I'm not
-> saying this is good or bad; I'm only trying to understand the reasoning.
+Me not either, but then I thought this is really a maintainer question.
+If the maintainers want out-of-subsystem #ifdefs in the code, who am I
+to complain.
 
-The driver expects some platform code to read the ACPI tables and 
-initialize a platform device.
+Should be "#if IS_ENABLED(CONFIG_ARM_SBSA_WATCHDOG)", though, if we go
+along that route.
 
-> I'll also admit that I'm not an expert in ARM timers.  Could I ask a really big
-> favor, please?  When I read the SBSA (section 5.2, specifically), that implies
-> to me that there are two interrupts: a first interrupt for the timer itself set
-> to go off after the timeout expires, and a second interrupt that is required
-> when the timeout expires to force some "executive action".  I only see one IRQ
-> in the patch; what am I missing?
-
-My driver just uses the first interrupt as a software reset.  The second 
-reset is treated as a "backup" hardware reset, in case the software 
-reset didn't work.
-
-Fu's driver, which I admit is better at handling this, uses the first 
-interrupt as an optional pre-timeout that can be used for debugging. 
-The second timeout, which is a hardware reset, is the "real" timeout.
-
-Note that the ACPI specification for the watchdog device only allows for 
-one interrupt to be specified.  For these drivers, we expect the first 
-interrupt (WS0) to be specified in the ACPI tables.  We assume that the 
-second timeout (WS1) will just cause an immediate hardware reset, 
-without an interrupt.
-
-Also, Fu and I have discussed this, and I think it makes sense to pick 
-up his driver instead of mine.  So I'm withdrawing my driver.
-
--- 
-Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the
-Code Aurora Forum, a Linux Foundation Collaborative Project.
+Guenter
