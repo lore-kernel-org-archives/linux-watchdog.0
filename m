@@ -1,88 +1,204 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oi0-f53.google.com ([209.85.218.53]:33265 "EHLO
-	mail-oi0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751430AbbEXQwq (ORCPT
+Received: from mail-wg0-f41.google.com ([74.125.82.41]:35584 "EHLO
+	mail-wg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752641AbbEZMrO (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 24 May 2015 12:52:46 -0400
-Received: by oiww2 with SMTP id w2so44444213oiw.0
-        for <linux-watchdog@vger.kernel.org>; Sun, 24 May 2015 09:52:45 -0700 (PDT)
+	Tue, 26 May 2015 08:47:14 -0400
+Received: by wgme6 with SMTP id e6so27548495wgm.2
+        for <linux-watchdog@vger.kernel.org>; Tue, 26 May 2015 05:45:11 -0700 (PDT)
+Date: Tue, 26 May 2015 13:39:43 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org, daniel.lezcano@linaro.org,
+	tglx@linutronix.de, wim@iguana.be, a.zummo@towertech.it,
+	linux-watchdog@vger.kernel.org, rtc-linux@googlegroups.com,
+	linux@roeck-us.net
+Cc: kernel@stlinux.com
+Subject: [PATCH v2.1 02/12] clocksource: sti: Provide support for the ST LPC
+ Clocksource IP
+Message-ID: <20150526123943.GI11677@x1>
+References: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
+ <1431435500-22899-3-git-send-email-lee.jones@linaro.org>
 MIME-Version: 1.0
-In-Reply-To: <5561FFF0.5090108@codeaurora.org>
-References: <=fu.wei@linaro.org>
-	<1432197156-16947-1-git-send-email-fu.wei@linaro.org>
-	<1432197156-16947-7-git-send-email-fu.wei@linaro.org>
-	<555DFCD4.3040701@codeaurora.org>
-	<CADyBb7vpC6ihvkrRG-htCS8-_xRkjtny=9ZGQsCsmK7-ng5AxA@mail.gmail.com>
-	<5560D7AC.50009@codeaurora.org>
-	<5560DCB6.3090008@roeck-us.net>
-	<CADyBb7t7+aT=pF0we5umAGXJAJ0njU0zULFAZ-OHVpE0m=ueyg@mail.gmail.com>
-	<5561E7EA.5090702@codeaurora.org>
-	<CADyBb7tYL7ATRKNAoRYTXo53LKdCiFZ2YDib4g0nZ8=YxTgO+A@mail.gmail.com>
-	<5561F8A8.4080607@codeaurora.org>
-	<5561FC70.5080802@roeck-us.net>
-	<5561FFF0.5090108@codeaurora.org>
-Date: Mon, 25 May 2015 00:52:45 +0800
-Message-ID: <CADyBb7snhcR43KT_xrFipBH3PBNBfj39-hE-mSjJ3vMb7Ehp+A@mail.gmail.com>
-Subject: Re: [PATCH v2 6/7] Watchdog: introduce ARM SBSA watchdog driver
-From: Fu Wei <fu.wei@linaro.org>
-To: Timur Tabi <timur@codeaurora.org>
-Cc: Guenter Roeck <linux@roeck-us.net>,
-	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-	Wei Fu <tekkamanninja@gmail.com>,
-	G Gregory <graeme.gregory@linaro.org>,
-	Al Stone <al.stone@linaro.org>,
-	Hanjun Guo <hanjun.guo@linaro.org>,
-	Ashwin Chaugule <ashwin.chaugule@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>, vgandhi@codeaurora.org,
-	wim@iguana.be, Jon Masters <jcm@redhat.com>,
-	Leo Duran <leo.duran@amd.com>, Jon Corbet <corbet@lwn.net>,
-	Mark Rutland <mark.rutland@arm.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <1431435500-22899-3-git-send-email-lee.jones@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-Hi Timur
+clocksource: sti: Provide support for the ST LPC Clocksource IP
 
-On 25 May 2015 at 00:44, Timur Tabi <timur@codeaurora.org> wrote:
-> Guenter Roeck wrote:
->
->> The current watchdog API suggests that the pretimeout "allows Linux
->> to record useful information (like panic information and kernel
->> coredumps) before it resets". The call to panic() would be the
->> means to make this happen.
->
->
-> Now that I think about it, that does make sense.
->
-> However, if a pre-timeout is not set, then the driver should never call
-> panic().  That means that the interrupt handler should only be registered if
-> sbsa_gwdt_set_pretimeout() is called.
+This IP is shared with Watchdog and RTC functionality.  All 3 of
+these devices are mutually exclusive from one another i.e. Only 1
+IP can be used at any given time.  We use the device-driver model
+combined with a DT 'mode' property to enforce this.
 
-I don't know why you want to do this tricky way.  you can always
-register the interrupt handler,
-if pre-timeout is 0, system will just trigger WS1 right after WS0
+The ST LPC Clocksource IP can be used as the system (tick) timer.
 
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 
->
->
-> --
-> Sent by an employee of the Qualcomm Innovation Center, Inc.
-> The Qualcomm Innovation Center, Inc. is a member of the
-> Code Aurora Forum, hosted by The Linux Foundation.
-
-
-
--- 
-Best regards,
-
-Fu Wei
-Software Engineer
-Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
-Ph: +86 21 61221326(direct)
-Ph: +86 186 2020 4684 (mobile)
-Room 1512, Regus One Corporate Avenue,Level 15,
-One Corporate Avenue,222 Hubin Road,Huangpu District,
-Shanghai,China 200021
+diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfig
+index 68161f7..01a07a6 100644
+--- a/drivers/clocksource/Kconfig
++++ b/drivers/clocksource/Kconfig
+@@ -250,4 +250,13 @@ config CLKSRC_PXA
+ 	help
+ 	  This enables OST0 support available on PXA and SA-11x0
+ 	  platforms.
++
++config CLKSRC_ST_LPC
++	bool
++	depends on ARCH_STI
++	select CLKSRC_OF if OF
++	help
++	  Enable this option to use the Low Power controller timer
++	  as clocksource.
++
+ endmenu
+diff --git a/drivers/clocksource/Makefile b/drivers/clocksource/Makefile
+index 752d5c7..e08da4d 100644
+--- a/drivers/clocksource/Makefile
++++ b/drivers/clocksource/Makefile
+@@ -51,3 +51,4 @@ obj-$(CONFIG_ARCH_INTEGRATOR_AP)	+=3D timer-integrator-=
+ap.o
+ obj-$(CONFIG_CLKSRC_VERSATILE)		+=3D versatile.o
+ obj-$(CONFIG_CLKSRC_MIPS_GIC)		+=3D mips-gic-timer.o
+ obj-$(CONFIG_ASM9260_TIMER)		+=3D asm9260_timer.o
++obj-$(CONFIG_CLKSRC_ST_LPC)		+=3D clksrc_st_lpc.o
+diff --git a/drivers/clocksource/clksrc_st_lpc.c b/drivers/clocksource/cl=
+ksrc_st_lpc.c
+new file mode 100644
+index 0000000..f38cf33
+--- /dev/null
++++ b/drivers/clocksource/clksrc_st_lpc.c
+@@ -0,0 +1,123 @@
++/*
++ * Clocksource using the Low Power Timer found in the Low Power Controll=
+er (LPC)
++ *
++ * Copyright (C) 2015 STMicroelectronics =E2=80=93 All Rights Reserved
++ *
++ * Author(s): Francesco Virlinzi <francesco.virlinzi@st.com>
++ *	      Ajit Pal Singh <ajitpal.singh@st.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
++
++#include <linux/clk.h>
++#include <linux/clocksource.h>
++#include <linux/init.h>
++#include <linux/of_address.h>
++#include <linux/slab.h>
++
++#include <dt-bindings/mfd/st-lpc.h>
++
++/* Low Power Timer */
++#define LPC_LPT_LSB_OFF		0x400
++#define LPC_LPT_MSB_OFF		0x404
++#define LPC_LPT_START_OFF	0x408
++
++static struct st_clksrc_ddata {
++	struct clk		*clk;
++	void __iomem		*base;
++} ddata;
++
++static void __init st_clksrc_reset(void)
++{
++	writel_relaxed(0, ddata.base + LPC_LPT_START_OFF);
++	writel_relaxed(0, ddata.base + LPC_LPT_MSB_OFF);
++	writel_relaxed(0, ddata.base + LPC_LPT_LSB_OFF);
++	writel_relaxed(1, ddata.base + LPC_LPT_START_OFF);
++}
++
++static int __init st_clksrc_init(void)
++{
++	unsigned long rate;
++	int ret;
++
++	st_clksrc_reset();
++
++	rate =3D clk_get_rate(ddata.clk);
++
++	ret =3D clocksource_mmio_init(ddata.base + LPC_LPT_LSB_OFF,
++				    "clksrc-st-lpc", rate, 300, 32,
++				    clocksource_mmio_readl_up);
++	if (ret) {
++		pr_err("clksrc-st-lpc: Failed to register clocksource\n");
++		return ret;
++	}
++
++	return 0;
++}
++
++static int __init st_clksrc_setup_clk(struct device_node *np)
++{
++	struct clk *clk;
++
++	clk =3D of_clk_get(np, 0);
++	if (IS_ERR(clk)) {
++		pr_err("clksrc-st-lpc: Failed to get LPC clock\n");
++		return PTR_ERR(clk);
++	}
++
++	if (clk_prepare_enable(clk)) {
++		pr_err("clksrc-st-lpc: Failed to enable LPC clock\n");
++		return -EINVAL;
++	}
++
++	if (!clk_get_rate(clk)) {
++		pr_err("clksrc-st-lpc: Failed to get LPC clock rate\n");
++		clk_disable_unprepare(clk);
++		return -EINVAL;
++	}
++
++	ddata.clk =3D clk;
++
++	return 0;
++}
++
++static void __init st_clksrc_of_register(struct device_node *np)
++{
++	int ret;
++	uint32_t mode;
++
++	ret =3D of_property_read_u32(np, "st,lpc-mode", &mode);
++	if (ret) {
++		pr_err("clksrc-st-lpc: An LPC mode must be provided\n");
++		return;
++	}
++
++	/* LPC can either run as a Clocksource or in RTC or WDT mode */
++	if (mode !=3D ST_LPC_MODE_CLKSRC)
++		return;
++
++	ddata.base =3D of_iomap(np, 0);
++	if (!ddata.base) {
++		pr_err("clksrc-st-lpc: Unable to map iomem\n");
++		return;
++	}
++
++	if (st_clksrc_setup_clk(np)) {
++		iounmap(ddata.base);
++		return;
++	}
++
++	if (st_clksrc_init()) {
++		clk_disable_unprepare(ddata.clk);
++		clk_put(ddata.clk);
++		iounmap(ddata.base);
++		return;
++	}
++
++	pr_info("clksrc-st-lpc: clocksource initialised - running @ %luHz\n",
++		clk_get_rate(ddata.clk));
++}
++CLOCKSOURCE_OF_DECLARE(ddata, "st,stih407-lpc", st_clksrc_of_register);
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
