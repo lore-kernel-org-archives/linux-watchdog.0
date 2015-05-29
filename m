@@ -1,122 +1,63 @@
-Return-path: <timo.kokkonen@offcode.fi>
-Message-ID: <55685F09.8070200@offcode.fi>
-Date: Fri, 29 May 2015 15:43:53 +0300
-From: Timo Kokkonen <timo.kokkonen@offcode.fi>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:51828 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752493AbbE2Oy0 (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 29 May 2015 10:54:26 -0400
+Message-ID: <55687D9A.8080409@roeck-us.net>
+Date: Fri, 29 May 2015 07:54:18 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-To: Guenter Roeck <linux@roeck-us.net>,
- linux-arm-kernel@lists.infradead.org, linux-watchdog@vger.kernel.org,
- boris.brezillon@free-electrons.com, nicolas.ferre@atmel.com,
- alexandre.belloni@free-electrons.com
-Subject: Re: [PATCHv8 01/10] watchdog: Rename watchdog_active to watchdog_hw_active
-References: <1432023969-20736-1-git-send-email-timo.kokkonen@offcode.fi> <1432023969-20736-2-git-send-email-timo.kokkonen@offcode.fi> <555BDF22.2090208@roeck-us.net> <555C1D9F.4060600@offcode.fi> <555C9020.6060908@roeck-us.net>
-In-Reply-To: <555C9020.6060908@roeck-us.net>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 8bit
-List-ID: <linux-watchdog@vger.kernel.org>
+To: Fu Wei <fu.wei@linaro.org>
+CC: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+	Wei Fu <tekkamanninja@gmail.com>,
+	G Gregory <graeme.gregory@linaro.org>,
+	Al Stone <al.stone@linaro.org>,
+	Hanjun Guo <hanjun.guo@linaro.org>,
+	Timur Tabi <timur@codeaurora.org>,
+	Ashwin Chaugule <ashwin.chaugule@linaro.org>,
+	Arnd Bergmann <arnd@arndb.de>, vgandhi@codeaurora.org,
+	wim@iguana.be, Jon Masters <jcm@redhat.com>,
+	Leo Duran <leo.duran@amd.com>, Jon Corbet <corbet@lwn.net>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will.deacon@arm.com>
+Subject: Re: [PATCH v3 5/6] Watchdog: introduce ARM SBSA watchdog driver
+References: <=fu.wei@linaro.org>	<1432548193-19569-1-git-send-email-fu.wei@linaro.org>	<1432548193-19569-6-git-send-email-fu.wei@linaro.org>	<55637A6D.3080403@roeck-us.net> <CADyBb7t_OC0FwoCeOr-umZhjTMxXZ65g7U8Ca+SUgmiWwjvm2w@mail.gmail.com>
+In-Reply-To: <CADyBb7t_OC0FwoCeOr-umZhjTMxXZ65g7U8Ca+SUgmiWwjvm2w@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hi,
+On 05/29/2015 02:11 AM, Fu Wei wrote:
+[ ... ]
 
-Other work has begun piling on my desk, sorry I haven't had time to take 
-this any forward.
-
-On 20.05.2015 16:46, Guenter Roeck wrote:
-> On 05/19/2015 10:37 PM, Timo Kokkonen wrote:
->> On 20.05.2015 04:10, Guenter Roeck wrote:
->>> On 05/19/2015 01:26 AM, Timo Kokkonen wrote:
->>>> Before extending the watchdog core midlayer, it is useful to rename
->>>> the watchdog_active function so that it states explicitly what it
->>>> really does. That is, "active" watchdog means really that the watchdog
->>>> hardware is running and needs pinging to prevent a watchdog reset
->>>> taking place in near future.
->>>>
->>>> This is different to "watchdog open" state, which simply states that
->>>> kernel is expecting the user space to keep the watchdog alive. These
->>>> states might become different mainly because some hardware have
->>>> limitations that prevent them from being stopped at will.
->>>>
->>>
->>> I don't see why this is needed. If you need another state, per your
->>> description, it would be "open" in addition to "active".
+>>> +
+>>> +       status = sbsa_gwdt_cf_read(SBSA_GWDT_WCS, wdd);
+>>> +       if (status & SBSA_GWDT_WCS_WS1) {
+>>> +               dev_warn(dev, "System reset by WDT(WCS: %x, WCV: %llx)\n",
+>>> +                        status, sbsa_gwdt_get_wcv(wdd));
 >>
->> Yes, the watchdog_is_open() is introduced on patch number two. The
->> original watchdog_is_active() is really confusing. It doesn't really
->> state what it means. Most of the drivers are using it to test whether
->> the watchdog HW is active when going to suspend, but at least atmel
->> watchdog was testing it to see whether the watchdog device is open
->> from user space. The HW itself is always active in that driver.
 >>
->> If we are about to distinguish between "device open from user space"
->> and "hardware timer running", we better be clear about the naming.
->> "watchdog_is_active" doesn't really tell what it does.
->>
->> This was originally suggested by Uwe Kleine-König. He also recommended
->> changing the timeout parameter so that is would state more clearly
->> that it is the SW timeout and not HW timeout. But I felt that it would
->> have been too invasive to change the timeout parameter as well. The
->> watchdog_is_active was not used very much so the change was easy.
->>
->> -Timo
->>
-> You could just clarify what it means.
+>> Does this message (specifically the WCS / WCV values) have any
+>> useful meaning for the user ?
 >
-> Anyway, I think I'll have to step back from this for a while.
-> As I mentioned, I think it is getting too invasive, which clouds
-> my judgment. I think I'll leave this patch set up to Wim to handle.
+> I think so, according to SBSA spec:
+> If WS0 is asserted and a timeout refresh occurs then the following must occur:
+>      If the system is compliant to SBSA level 2 or higher the compare
+> value must retain its current value. This means that the compare value
+> records the time that WS1 is asserted.
+>
+> So, I think WCV can log the time when system reset by WDT, that may
+> help user figure out the problem. but WCS can be delete I think.
+>
 
-Let me try to elaborate my self a little more, maybe it helps taking the 
-discussion forward.
-
-The early-timeout-sec feature I am trying to get merged is something 
-that is not tied into any hardware at all. It is a new policy that is 
-needed. The current policy, explicitly stopping the watchdog, is not a 
-very good policy if your intention is to keep it running at all times. 
-The early-timeout-sec would allow to choose a policy where the watchdog 
-is not stopped at all. Also optionally the watchdog core could extend 
-the initial expiration of the watchdog in case userspace is slow in 
-starting up for any reason.
-
-As this is not a hardware related feature but a policy feature, clearly 
-it should be implemented in the core instead of the drivers.
-
-Unfortunately this feature comes with a hard requirement that the 
-watchdog should not be stopped by the driver. Currently all drivers 
-implement explicitly the policy to stop the hardware. There is no way 
-early-timeout-sec can be implemented in watchdog core without taking the 
-decision over the policy from the drivers to the core.
-
-Fortunately this change alone is really straightforward to implement in 
-most of the drivers. As can be seen in my patch to omap_wdt.c, there are 
-just a few lines of code that really need to change. Also as can be seen 
-from at91sam9_wdt.c and imx2_wdt.c patches, the change can also remove 
-quite a lot of code in case the driver is already implementing things 
-that early-timeout-sec would need anyway in watchdog core.
-
-The thing that really needs to be thought well is what exactly should be 
-changed in the watchdog core API in order to allow the core to do its 
-things correctly. The way I thought is that the API should be simple, 
-not complex. Drivers should be simple and only implement necessary code 
-to implement functions that the hardware actually supports. Obviously 
-the changes to the drivers should be also kept minimal to reduce the 
-conversion work, so this puts quite a deal of limits what changes are 
-reasonable.
-
-The core needs to know at least the actual HW maximum timeout value and 
-heartbeat period. Otherwise it can't make any reasonable assumptions 
-about how to do pinging right. The old second based max_timeout handling 
-is too limited to be useful for all hardware, which is why I proposed 
-deprecating it in favour of the millisecond based hw_max_timeout. The 
-current pretimeout patches in review are unfortunately adding more code 
-for handling max_timeout, which is colliding with my goals of making the 
-variables be more useful with describing the actual HW features. Maybe 
-we don't need to remove the max_timeout, but the logic becomes quite 
-complex if there are too many different kind of timeouts, especially if 
-some of them are logically overlapping. This is why I think it would be 
-better to streamline the timeout handling a bit.
-
-I want to take this work forward, but I see no point in starting to work 
-with patches until there is at least some sort of agreement of the 
-correct direction where to take it at. I am hoping to get more 
-discussion ongoing over this.
+How would that help ? It is just a number with no reference to anything.
 
 Thanks,
--Timo
+Guenter
+
