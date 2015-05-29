@@ -1,72 +1,65 @@
 Return-path: <fu.wei@linaro.org>
 MIME-Version: 1.0
-In-Reply-To: <55687D9A.8080409@roeck-us.net>
+In-Reply-To: <556889D9.5070707@codeaurora.org>
 References: <=fu.wei@linaro.org>
 	<1432548193-19569-1-git-send-email-fu.wei@linaro.org>
 	<1432548193-19569-6-git-send-email-fu.wei@linaro.org>
-	<55637A6D.3080403@roeck-us.net>
-	<CADyBb7t_OC0FwoCeOr-umZhjTMxXZ65g7U8Ca+SUgmiWwjvm2w@mail.gmail.com>
-	<55687D9A.8080409@roeck-us.net>
-Date: Fri, 29 May 2015 23:05:34 +0800
-Message-ID: <CADyBb7vcYoCMGMZ102yfHQtNQtAPdhKBSYw20naxMmjhqsf5-g@mail.gmail.com>
+	<5564A44A.5000606@codeaurora.org>
+	<CADyBb7uQCPoerjyiGT3uUxXJk6XVTEkEuOdEB+-w6G-=RrdTmA@mail.gmail.com>
+	<55686960.5010503@codeaurora.org>
+	<CADyBb7tdoajU4crdjrjCf68_Lz=8KbxAX4+Gd_H15aNaimHXww@mail.gmail.com>
+	<556889D9.5070707@codeaurora.org>
+Date: Sat, 30 May 2015 01:53:06 +0800
+Message-ID: <CADyBb7t4moXr_a9unRXDHZCcmbvjWui2ifJ6=eiv8Ce=FOWoYA@mail.gmail.com>
 Subject: Re: [PATCH v3 5/6] Watchdog: introduce ARM SBSA watchdog driver
 From: Fu Wei <fu.wei@linaro.org>
-To: Guenter Roeck <linux@roeck-us.net>
+To: Timur Tabi <timur@codeaurora.org>
 Cc: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
 	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>, linux-watchdog@vger.kernel.org,
 	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
 	linux-doc@vger.kernel.org, Wei Fu <tekkamanninja@gmail.com>,
 	G Gregory <graeme.gregory@linaro.org>, Al Stone <al.stone@linaro.org>,
-	Hanjun Guo <hanjun.guo@linaro.org>, Timur Tabi <timur@codeaurora.org>,
-	Ashwin Chaugule <ashwin.chaugule@linaro.org>, Arnd Bergmann <arnd@arndb.de>, vgandhi@codeaurora.org,
+	Hanjun Guo <hanjun.guo@linaro.org>, Ashwin Chaugule <ashwin.chaugule@linaro.org>,
+	Arnd Bergmann <arnd@arndb.de>, Guenter Roeck <linux@roeck-us.net>, vgandhi@codeaurora.org,
 	wim@iguana.be, Jon Masters <jcm@redhat.com>, Leo Duran <leo.duran@amd.com>,
 	Jon Corbet <corbet@lwn.net>, Mark Rutland <mark.rutland@arm.com>,
 	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>
 Content-Type: text/plain; charset=UTF-8
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Guenter,
+Hi Timur
 
-
-
-On 29 May 2015 at 22:54, Guenter Roeck <linux@roeck-us.net> wrote:
-> On 05/29/2015 02:11 AM, Fu Wei wrote:
-> [ ... ]
->
->>>> +
->>>> +       status = sbsa_gwdt_cf_read(SBSA_GWDT_WCS, wdd);
->>>> +       if (status & SBSA_GWDT_WCS_WS1) {
->>>> +               dev_warn(dev, "System reset by WDT(WCS: %x, WCV:
->>>> %llx)\n",
->>>> +                        status, sbsa_gwdt_get_wcv(wdd));
->>>
->>>
->>>
->>> Does this message (specifically the WCS / WCV values) have any
->>> useful meaning for the user ?
+On 29 May 2015 at 23:46, Timur Tabi <timur@codeaurora.org> wrote:
+> On 05/29/2015 09:32 AM, Fu Wei wrote:
 >>
->>
->> I think so, according to SBSA spec:
->> If WS0 is asserted and a timeout refresh occurs then the following must
->> occur:
->>      If the system is compliant to SBSA level 2 or higher the compare
->> value must retain its current value. This means that the compare value
->> records the time that WS1 is asserted.
->>
->> So, I think WCV can log the time when system reset by WDT, that may
->> help user figure out the problem. but WCS can be delete I think.
->>
+>> It is a SPI, every CPU can get it,
+>> But maybe I miss something, but please let me know if other CPU can
+>> not get the interrupt.
 >
-> How would that help ? It is just a number with no reference to anything.
+>
+> There's only one watchdog device, so there's only one interrupt.  I don't
+> know which CPU will get the interrupt, but the watchdog is not a per-CPU
+> device.
+>
 
-This number is the time, when system reset by watchdog
-WCV : the number of clock, from system boot  to system reset.
-Is that worthy to be logged? any suggestion ? :-)
+OK, first of all, I know, there maybe only watchdog in the system, but
+the Interrupter is SPI,
+that means maybe some other device can also trigger the same
+Interrupter or maybe(in SMP) other CPU will handle it.
 
->
-> Thanks,
-> Guenter
->
+If this interrupter is triggered, that means system has goes wrong,
+who knows what is wrong ,
+I have to make sure that  system get into that routine ,because of the
+WS0, if not I won't do panic.
+
+And in a interrupter routine , checking the Interrupter status
+register is right way to do.
+
+
+> --
+> Qualcomm Innovation Center, Inc.
+> The Qualcomm Innovation Center, Inc. is a member of the
+> Code Aurora Forum, a Linux Foundation Collaborative Project.
 
 
 
