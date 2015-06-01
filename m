@@ -1,83 +1,90 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta5.messagelabs.com ([195.245.231.151]:29369 "EHLO
-	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750790AbbFKJ17 (ORCPT
+Received: from mail-wg0-f47.google.com ([74.125.82.47]:34735 "EHLO
+	mail-wg0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751319AbbFAHi2 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 11 Jun 2015 05:27:59 -0400
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-To: Lee Jones <lee.jones@linaro.org>
-CC: LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	DEVICETREE <devicetree@vger.kernel.org>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	"Mark Brown" <broonie@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Support Opensource <Support.Opensource@diasemi.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: RE: [PATCH V3 1/4] mfd: da9062: DA9062 MFD core driver
-Date: Thu, 11 Jun 2015 09:27:45 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B22F4DC@SW-EX-MBX02.diasemi.com>
-References: <cover.1432041031.git.stwiss.opensource@diasemi.com>
- <ecf72b79429e6758111a908fd1ded29c0b96da15.1432041031.git.stwiss.opensource@diasemi.com>
- <20150526161024.GQ11677@x1>
- <6ED8E3B22081A4459DAC7699F3695FB7014B22F4C4@SW-EX-MBX02.diasemi.com>
- <20150611085653.GG2982@x1>
-In-Reply-To: <20150611085653.GG2982@x1>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+	Mon, 1 Jun 2015 03:38:28 -0400
+Received: by wgv5 with SMTP id 5so106490041wgv.1
+        for <linux-watchdog@vger.kernel.org>; Mon, 01 Jun 2015 00:38:27 -0700 (PDT)
+Date: Mon, 1 Jun 2015 08:38:23 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org, daniel.lezcano@linaro.org,
+	tglx@linutronix.de, wim@iguana.be, a.zummo@towertech.it,
+	linux-watchdog@vger.kernel.org, rtc-linux@googlegroups.com,
+	linux@roeck-us.net
+Cc: kernel@stlinux.com
+Subject: Re: [PATCH v2 00/12] mfd: Add support for Clocksource to LPC set
+Message-ID: <20150601073823.GB3329@x1>
+References: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+In-Reply-To: <1431435500-22899-1-git-send-email-lee.jones@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-T24gMTEgSnVuZSAyMDE1IDA5OjU3IExlZSBKb25lcyB3cm90ZToNCg0KPiBUbzogT3BlbnNvdXJj
-ZSBbU3RldmUgVHdpc3NdDQo+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggVjMgMS80XSBtZmQ6IGRhOTA2
-MjogREE5MDYyIE1GRCBjb3JlIGRyaXZlcg0KPiANCj4gPiA+ID4gPiBkaWZmIC0tZ2l0IGEvaW5j
-bHVkZS9saW51eC9tZmQvZGE5MDYyL3JlZ2lzdGVycy5oDQoNClsuLi5dDQoNCj4gPiA+ID4gPiAr
-I2RlZmluZSBEQTkwNjJBQV9XUklURV9NT0RFX1NISUZUCTYNCj4gPiA+ID4gPiArI2RlZmluZSBE
-QTkwNjJBQV9XUklURV9NT0RFX01BU0sJKDB4MDEgPDwgNikNCj4gPiA+ID4NCj4gPiA+ID4gRm9y
-IDEgPDwgWCwgeW91IHNob3VsZCB1c2UgQklUKFgpLg0KPiA+ID4gPg0KPiA+ID4NCj4gPiA+IEZv
-ciB0aGUgdHdvIGNvbW1lbnRzIGFib3ZlICJSZWdpc3RlcnMiIGFuZCAiQml0IGZpZWxkcyIgYW5k
-IHRoZSAoMTw8eCkNCj4gPiA+IGRlZmluaXRpb25zIC4uLg0KPiA+ID4NCj4gPiA+IFRoZSB3aG9s
-ZSBvZiB0aGlzIGZpbGUgaXMgYXV0b21hdGljYWxseSBnZW5lcmF0ZWQgYnkgb3VyIGhhcmR3YXJl
-IGRlc2lnbmVycw0KPiA+ID4gSSB3b3VsZCBwcmVmZXIgaXQgaWYgdGhlIHJlZ2lzdGVyIGRlZmlu
-aXRpb25zIGFuZCBiaXQgZmllbGRzIGFyZSBub3QgYWx0ZXJlZCB1c2luZw0KPiA+ID4gdGhlICNk
-ZWZpbmUgQklUKG5yKSAoMVVMPDwobnIpKSBtYWNybyBhbmQgdGhlIGNvbW1lbnRzIHJlbW92ZWQg
-YmVjYXVzZQ0KPiA+ID4gd2UgaGF2ZSBzY3JpcHRzIHRoYXQgY2FuIGJlIHVzZWQgdG8gY2hlY2sg
-dGhpcyBmaWxlIGF1dG9tYXRpY2FsbHkuDQo+ID4gPg0KPiA+ID4gQWxzbyBpZiB0aGUgcmVnaXN0
-ZXIgbWFwIGlzIGV2ZXIgdXBkYXRlZCwgdGhlbiBpdCB3aWxsIGJlIGVhc2llciBmb3IgbWUgdG8g
-ZGlmZg0KPiA+ID4gdGhlIG5ldyBkZWxpdmVyZWQgcmVnaXN0ZXIgYW5kIGJpdCBmaWVsZCBkZWZp
-bml0aW9ucyB3aXRoIHRoZSBvbGQgb25lLg0KPiA+ID4NCj4gPiA+IE15IHByZWZlcmVuY2Ugd291
-bGQgYmUgbm90IHRvIGNoYW5nZSB0aGlzIGhlYWRlciBmaWxlLg0KPiA+ID4NCj4gPiA+IFsuLi5d
-DQo+ID4NCj4gPiBJZiB0aGVzZSBsYXN0IHR3byB0aGluZ3MgYXJlIGEgcHJvYmxlbSBjYW4geW91
-IHBsZWFzZSBsZXQgbWUga25vdy4NCg0KSEkgTGVlLA0KDQpUaGFua3MgZm9yIHJlcGx5aW5nIHNv
-IHF1aWNrbHkuDQoNCj4gSSdtIHN0aWxsIG5vdCBwYXJ0aWN1bGFybHkgaGFwcHkgd2l0aCB0aGlz
-LiAgQ2FuIHlvIHNwZWFrIHRvIHlvdXIgSC9XDQo+IGd1eXMgYW5kIGdldCB0aGVtIHRvIGNoYW5n
-ZSB0aGVpciBzY3JpcHRzIHRvIG91dHB1dCBzZW5zaWJsZSBoZWFkZXINCj4gZmlsZXM/DQoNCkFo
-LiBPay4gDQoNCkZvciBvdXIgc2lkZSwgdGhlIGdlbmVyYXRlZCBoZWFkZXJzIG1pZ2h0IG5vdCBq
-dXN0IGJlIHVzZWQgZm9yIExpbnV4LiBJJ3ZlDQpqdXN0IGRpc2N1c3NlZCB0aGlzIHdpdGggbXkg
-Y29sbGVhZ3VlcyBhbmQgdGhleSB3aWxsIG5lZWQgaXQgdG8gcmVtYWluLg0KU28gSSBndWVzcyBp
-bnRlcm5hbGx5IHdlIHdpbGwga2VlcCB0aGUgaGVhZGVycyBsaWtlIHRoaXMsIGJ1dCBhcyBpdCBl
-bnRlcnMNCm15IHN1Ym1pc3Npb24gcHJvY2VzcyBJIGNhbiBjaGFuZ2UgaXQgZm9yIHRoZSBMaW51
-eCBjb21tdW5pdHkuDQogDQo+IFRvIGJlIGhvbmVzdCwgaXQncyBwcm9iYWJseSBub3QgYSBibG9j
-a2VyIGZvciBhY2NlcHRhbmNlLCBidXQgaWYgc29tZW9uZQ0KPiB3cml0ZXMgYSBwYXRjaCBuZXh0
-IHdlZWsgdG8gY2hhbmdlIGFsbCBvZiB0aGUgKDB4MDEgPDwgWCkgbGluZXMgdG8NCj4gc3RhcnQg
-dXNpbmcgdGhlIEJJVCgpIG1hY3JvLCBJIHdpbGwgYWNjZXB0IGl0LiAgQmV0dGVyIHRvIGluZmx1
-ZW5jZWQNCj4geW91ciBndXlzIHNvIHlvdSBhcmUgbm90IG92ZXJseSBpbmNvbnZlbmllbmNlZC4N
-Cg0KWWVwOiBJIHdpbGwgY2hhbmdlIHRoaXMgQklUKCkgbWFjcm8gZm9yIHRoZSBzdWJtaXNzaW9u
-cyBpbiBmdXR1cmUuDQpEZXBlbmRpbmcgb24gdGhlIG5leHQgc3RlcCwgSSB3aWxsIHNlbmQgYSBw
-YXRjaCB0byB0aGlzIG9yIHVwZGF0ZSB0aGUgc3VibWlzc2lvbg0KaWYgdGhlcmUgYXJlIGZ1cnRo
-ZXIgY29tbWVudHMgb24gdGhpcyBwYXRjaCBzZXQuDQoNCj4gRldJVywgd2hlbiB1cHN0cmVhbWlu
-ZyBjb2RlLCB0aGUgZXhjdXNlICJzb21lb25lIGVsc2Ugd3JvdGUgaXQiLCBoYXMNCj4gbmV2ZXIg
-YmVlbiBhIGdvb2Qgb25lIHRvIHVzZSBvbiB0aGUgbGlzdHMuICAgQmVsaWV2ZSBtZSwgSSd2ZQ0K
-PiB0cmllZC4gOykNCg0KaGVoIG9rYXkgOikNCg0KUmVnYXJkcywNClN0ZXZlDQoNCg==
+Device Tree Maintainers,
+
+All of the functional patches in this series have been Acked by the
+relevant maintainers, but the (pretty simple) DT changes are in need
+of a suitable Ack.
+
+Would someone mine glancing over them please?
+
+> ST's Low Power Controller (LPC) controls three devices; watchdog, RTC
+> and a Clocksource Timer.  Only one of the devices can be used at any
+> one time, which is enforced by the Device Driver model.
+> =20
+> This patchset provides support for the Clocksource driver.  Watchdog
+> and RTC are already in -next.
+>=20
+> Lee Jones (12):
+>   mfd: dt-bindings: Provide human readable define for Clocksource mod=
+e
+>   clocksource: sti: Provide support for the ST LPC Clocksource IP
+>   clocksource: sti: Provide 'use timer as sched clock' capability
+>   clocksource: bindings: Provide bindings for ST's LPC Clocksource
+>     device
+>   watchdog: st_wdt: Update IP layout information to include Clocksour=
+ce
+>   watchdog: bindings: Supply knowledge of a third supported device -
+>     clocksource
+>   rtc: st: Update IP layout information to include Clocksource
+>   rtc: bindings: Supply knowledge of a third supported device -
+>     clocksource
+>   MAINTAINERS: Add the LPC Clocksource to STi maintained driver list
+>   ARM: STi: DT: STih407: Switch LPC mode from RTC to Clocksource
+>   ARM: STi: Enable LPC Clocksource
+>   ARM: STi: Update platform level menuconfig 'help'
+>=20
+>  .../devicetree/bindings/rtc/rtc-st-lpc.txt         |  15 ++-
+>  .../devicetree/bindings/timer/st,stih407-lpc       |  28 +++++
+>  .../devicetree/bindings/watchdog/st_lpc_wdt.txt    |  12 +-
+>  MAINTAINERS                                        |   1 +
+>  arch/arm/boot/dts/stih407-family.dtsi              |   2 +-
+>  arch/arm/mach-sti/Kconfig                          |  10 +-
+>  drivers/clocksource/Kconfig                        |   9 ++
+>  drivers/clocksource/Makefile                       |   1 +
+>  drivers/clocksource/clksrc_st_lpc.c                | 129 +++++++++++=
+++++++++++
+>  drivers/rtc/rtc-st-lpc.c                           |   2 +-
+>  drivers/watchdog/st_lpc_wdt.c                      |   2 +-
+>  include/dt-bindings/mfd/st-lpc.h                   |   1 +
+>  12 files changed, 194 insertions(+), 18 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/timer/st,stih40=
+7-lpc
+>  create mode 100644 drivers/clocksource/clksrc_st_lpc.c
+>=20
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
