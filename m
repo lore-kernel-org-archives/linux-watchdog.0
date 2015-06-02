@@ -1,47 +1,49 @@
-Return-path: <jthumshirn@suse.de>
-From: Johannes Thumshirn <jthumshirn@suse.de>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from relay1.mentorg.com ([192.94.38.131]:63871 "EHLO
+	relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753246AbbFBMqZ (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 2 Jun 2015 08:46:25 -0400
+From: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
 To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Guenter Roeck <linux@roeck-us.net>,
-	linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Johannes Thumshirn <jthumshirn@suse.de>
-Subject: [PATCH] watchdog: mena21_wdt: Fix possible NULL pointer dereference
-Date: Tue,  2 Jun 2015 12:25:26 +0200
-Message-Id: <1433240726-7031-1-git-send-email-jthumshirn@suse.de>
-List-ID: <linux-watchdog@vger.kernel.org>
+CC: <linux-watchdog@vger.kernel.org>
+Subject: [PATCH] watchdog: imx2_wdt: set watchdog parent device
+Date: Tue, 2 Jun 2015 15:46:18 +0300
+Message-ID: <1433249178-30779-1-git-send-email-vladimir_zapolskiy@mentor.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-In a21_wdt_remove() we do a watchdog_unregister_device() on struct
-a21_wdt_drv->wdt but never assign it.
+If on watchdog device registration a parent device is not set, then
+the registered watchdog is considered to be a virtual device:
 
-Also move the dev_set_drvdata() call in front of the watchdog_register_device()
-call, so it doesn't look like an error.
+  /sys/devices/virtual/watchdog/watchdog0
+  /sys/devices/virtual/watchdog/watchdog1
 
-Signed-off-by: Johannes Thumshirn <jthumshirn@suse.de>
+Setting a correct reference to a platform device allows to
+distinguish multiple instances of iMX2+ hardware watchdogs:
+
+  /sys/devices/soc0/soc/2000000.aips-bus/20bc000.wdog/watchdog/watchdog0
+  /sys/devices/soc0/soc/2000000.aips-bus/20c0000.wdog/watchdog/watchdog1
+
+Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
 ---
- drivers/watchdog/mena21_wdt.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/watchdog/imx2_wdt.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/watchdog/mena21_wdt.c b/drivers/watchdog/mena21_wdt.c
-index 96dbba9..d193a5e 100644
---- a/drivers/watchdog/mena21_wdt.c
-+++ b/drivers/watchdog/mena21_wdt.c
-@@ -208,14 +208,15 @@ static int a21_wdt_probe(struct platform_device *pdev)
- 	else if (reset == 7)
- 		a21_wdt.bootstatus |= WDIOF_EXTERN2;
+diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+index 5e6d808..3450a46 100644
+--- a/drivers/watchdog/imx2_wdt.c
++++ b/drivers/watchdog/imx2_wdt.c
+@@ -256,6 +256,7 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
+ 	wdog->ops		= &imx2_wdt_ops;
+ 	wdog->min_timeout	= 1;
+ 	wdog->max_timeout	= IMX2_WDT_MAX_TIME;
++	wdog->parent		= &pdev->dev;
  
-+	drv->wdt = a21_wdt;
-+	dev_set_drvdata(&pdev->dev, drv);
-+
- 	ret = watchdog_register_device(&a21_wdt);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Cannot register watchdog device\n");
- 		goto err_register_wd;
- 	}
+ 	clk_prepare_enable(wdev->clk);
  
--	dev_set_drvdata(&pdev->dev, drv);
--
- 	dev_info(&pdev->dev, "MEN A21 watchdog timer driver enabled\n");
- 
- 	return 0;
 -- 
-2.4.1
+2.1.4
+
