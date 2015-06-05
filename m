@@ -1,37 +1,60 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mailapp01.imgtec.com ([195.59.15.196]:10423 "EHLO
-	mailapp01.imgtec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754492AbbFAXA4 (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:36574 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751692AbbFENOe (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 1 Jun 2015 19:00:56 -0400
-Message-ID: <556CE35A.3030400@imgtec.com>
-Date: Mon, 1 Jun 2015 19:57:30 -0300
-From: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
+	Fri, 5 Jun 2015 09:14:34 -0400
+Message-ID: <5571A0B5.5030205@roeck-us.net>
+Date: Fri, 05 Jun 2015 06:14:29 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-To: Guenter Roeck <linux@roeck-us.net>,
-	Wim Van Sebroeck <wim@iguana.be>
-CC: <linux-watchdog@vger.kernel.org>,
-	Andrew Bresticker <abrestic@chromium.org>,
-	James Hogan <james.hogan@imgtec.com>,
-	James Hartley <james.hartley@imgtec.com>,
-	Naidu Tellapati <naidu.tellapati@imgtec.com>
-Subject: Re: [PATCH 0/2] watchdog: imgpdc_wdt assorted fixes
-References: <1431366065-16281-1-git-send-email-ezequiel.garcia@imgtec.com> <555DE461.2070002@imgtec.com>
-In-Reply-To: <555DE461.2070002@imgtec.com>
-Content-Type: text/plain; charset="windows-1252"
+To: Markus Rinne <markus.rinne@vincit.fi>, wim@iguana.be
+CC: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] watchdog: imx2_wdt: Fix ioctl() results
+References: <20150605124144.GA26755@markusri_laptop.vincit.intranet>
+In-Reply-To: <20150605124144.GA26755@markusri_laptop.vincit.intranet>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+On 06/05/2015 05:41 AM, Markus Rinne wrote:
+> WDIOC_SETTIMEOUT and WDIOC_GETTIMEOUT returned the initial timeout and
+> not the one that was last set.  Fix this by updating struct
+> watchdog_device member 'timeout'.  This is how it's supposed to be done
+> according to Documentation/watchdog/watchdog-kernel-api.txt.
+>
+> This is the test case I used:
+>
+> #include <fcntl.h>
+> #include <linux/watchdog.h>
+> #include <sys/stat.h>
+> #include <sys/types.h>
+>
+> #include <assert.h>
+> #include <stdlib.h>
+>
+> static const int TIMEOUT = 127;
+>
+> int main(void)
+> {
+> 	int fd = open("/dev/watchdog", O_WRONLY);
+> 	if (fd == -1)
+> 		return EXIT_FAILURE;
+>
+> 	int timeout = TIMEOUT;
+> 	ioctl(fd, WDIOC_SETTIMEOUT, &timeout);
+> 	assert(timeout == TIMEOUT);
+>
+> 	close(fd);
+>
+> 	return EXIT_SUCCESS;
+> }
+>
+> Signed-off-by: Markus Rinne <markus.rinne@vincit.fi>
+> ---
 
+Good catch.
 
-On 05/21/2015 10:57 AM, Ezequiel Garcia wrote:
-> Wim,
-> 
-> Do you plan to take this for v4.2?
-> 
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Ping?
-
--- 
-Ezequiel
