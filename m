@@ -1,161 +1,268 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:52429 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752355AbbFHS0c (ORCPT
+Received: from vpnchicago.adeneo-embedded.us ([65.182.180.190]:7882 "EHLO
+	mxadeneo.adeneo-embedded.us" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751889AbbFFW1A (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 8 Jun 2015 14:26:32 -0400
-Message-ID: <5575DE48.8010308@roeck-us.net>
-Date: Mon, 08 Jun 2015 11:26:16 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Sat, 6 Jun 2015 18:27:00 -0400
+From: Jean-Baptiste Theou <jtheou@adeneo-embedded.us>
+To: Wim Van Sebroeck <wim@iguana.be>
+CC: Guenter Roeck <linux@roeck-us.net>,
+	<linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	Jean-Baptiste Theou <jtheou@adeneo-embedded.us>
+Subject: [PATCH v4 1/2] watchdog_core: Add watchdog registration deferral mechanism
+Date: Sat, 6 Jun 2015 15:25:36 -0700
+Message-ID: <1433629537-21925-1-git-send-email-jtheou@adeneo-embedded.us>
 MIME-Version: 1.0
-To: Fu Wei <fu.wei@linaro.org>
-CC: Timur Tabi <timur@codeaurora.org>,
-	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-	Wei Fu <tekkamanninja@gmail.com>,
-	G Gregory <graeme.gregory@linaro.org>,
-	Al Stone <al.stone@linaro.org>,
-	Hanjun Guo <hanjun.guo@linaro.org>,
-	Ashwin Chaugule <ashwin.chaugule@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>, vgandhi@codeaurora.org,
-	wim@iguana.be, Jon Masters <jcm@redhat.com>,
-	Leo Duran <leo.duran@amd.com>, Jon Corbet <corbet@lwn.net>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will.deacon@arm.com>, rjw@rjwysocki.net
-Subject: Re: [PATCH v4 5/7] Watchdog: introduce ARM SBSA watchdog driver
-References: <=fu.wei@linaro.org>	<1433217907-928-1-git-send-email-fu.wei@linaro.org>	<1433217907-928-6-git-send-email-fu.wei@linaro.org>	<556DCC95.806@codeaurora.org>	<CADyBb7sXiMNtrH+Eu1Qj00TPNLMMr5cCTPObzFmKnHLsbWH79Q@mail.gmail.com>	<556DE2D5.3090906@roeck-us.net> <CADyBb7uT=gFJkK8s-QF1n4Z+Zov9Lurp1nvBO-C-qszTqbMYXQ@mail.gmail.com>
-In-Reply-To: <CADyBb7uT=gFJkK8s-QF1n4Z+Zov9Lurp1nvBO-C-qszTqbMYXQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 06/08/2015 09:05 AM, Fu Wei wrote:
-> Hi Gurnter
->
-> On 3 June 2015 at 01:07, Guenter Roeck <linux@roeck-us.net> wrote:
->> On 06/02/2015 09:55 AM, Fu Wei wrote:
->>>
->>> Hi Timur,
->>>
->>> Thanks , feedback inline
->>>
->>> On 2 June 2015 at 23:32, Timur Tabi <timur@codeaurora.org> wrote:
->>>>
->>>> On 06/01/2015 11:05 PM, fu.wei@linaro.org wrote:
->>>>
->>>>> +/*
->>>>> + * help functions for accessing 32bit registers of SBSA Generic
->>>>> Watchdog
->>>>> + */
->>>>> +static void sbsa_gwdt_cf_write(unsigned int reg, u32 val,
->>>>> +                              struct watchdog_device *wdd)
->>>>> +{
->>>>> +       struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
->>>>> +
->>>>> +       writel_relaxed(val, gwdt->control_base + reg);
->>>>> +}
->>>>> +
->>>>> +static void sbsa_gwdt_rf_write(unsigned int reg, u32 val,
->>>>> +                              struct watchdog_device *wdd)
->>>>> +{
->>>>> +       struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
->>>>> +
->>>>> +       writel_relaxed(val, gwdt->refresh_base + reg);
->>>>> +}
->>>>> +
->>>>> +static u32 sbsa_gwdt_cf_read(unsigned int reg, struct watchdog_device
->>>>> *wdd)
->>>>> +{
->>>>> +       struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
->>>>> +
->>>>> +       return readl_relaxed(gwdt->control_base + reg);
->>>>> +}
->>>>
->>>>
->>>>
->>>> I still think you should get rid of these functions and just call
->>>> readl_relaxed() and writel_relaxed() every time, but I won't complain
->>>> again
->>>> if you keep them.
->>>
->>>
->>> yes, that make sense, and will reduce the size of code, and I think
->>> the code's readability will be OK too.
->>> will try in my next patch,
->>>
->>>>
->>>>> +static irqreturn_t sbsa_gwdt_interrupt(int irq, void *dev_id)
->>>>> +{
->>>>> +       struct sbsa_gwdt *gwdt = (struct sbsa_gwdt *)dev_id;
->>>>> +       struct watchdog_device *wdd = &gwdt->wdd;
->>>>> +
->>>>> +       if (wdd->pretimeout)
->>>>> +               /* The pretimeout is valid, go panic */
->>>>> +               panic("SBSA Watchdog pre-timeout");
->>>>> +       else
->>>>> +               /* We don't use pretimeout, trigger WS1 now*/
->>>>> +               sbsa_gwdt_set_wcv(wdd, 0);
->>>>
->>>>
->>>>
->>>> I don't like this.
->>>
->>>
->>> If so, what is your idea ,if pretimeout == 0?
->>>
->>> the reason of using WCV as (timout - pretimeout): it can provide the
->>> longer timeout period,
->>> (1)If we use WOR, it can only provide 10s @ 400MHz(max).
->>> as Guenter said earlier, the default timer out for most watchdog will
->>> be 30s, so I think 10s limit will be a little short
->>> (2)we can always program WCV just like ping.
->>> (3)if a timeout arrives, WOR will be use, so use it as pretimeout, but
->>> we still can make this pretimeout longer by programming WCV(I don't
->>> think it's necessary)
->>>
->>>
->>>> The triggering of the hardware reset should never depend
->>>> on an interrupt being handled properly.
->>>
->>>
->>> if this fail, system reset in 1S, because WOR == (1s)
->>>
->> So ?
->
-> Even the interrupt routine isn't triggered,  (WOR + system counter) --> WCV,
-> then, sy system reset in 1S.
->
-> the hardware reset doesn't depend on an interrupt.
->
->
->>
->>>> You should always program WCV
->>>> correctly in advance.  This is especially true since pre-timeout will
->>>> probably rarely be used.
->>>
->>>
->>> always programming WCV is doable.  But I absolutely can not agree "
->>> pre-timeout will probably rarely be used"
->>> If so, SBSA watchdog is just a normal watchdog,  This use case just
->>> makes this HW useless.
->>> If so, go to use SP805.
->>> you still don't see the importance of this warning and pretimeout to a
->>> real server.
->>>
->>
->> If pretimeout isn't used, why not just set WCV = timeout, WOR = 0 ?
->
-> Because if WOR = 0 , according to SBSA,  once you want to enable watchdog,
-> (0 + system counter) --> WCV , then , WS0 and WS1 will be triggered immediately.
-> we have not a chance(a time slot) to update WCV.
->
+Currently, watchdog subsystem require the misc subsystem to
+register a watchdog. This may not be the case in case of an
+early registration of a watchdog, which can be required when
+the watchdog cannot be disabled.
 
-I would have thought that this is exactly what we want if pretimeout is not used.
-What am I missing here ?
+This patch introduces a deferral mechanism to remove this requirement.
 
-Guenter
+Signed-off-by: Jean-Baptiste Theou <jtheou@adeneo-embedded.us>
+---
+Changes in v4:
+ - Adjust patch based on Guenter feedbacks on v3
+
+Changes in v3:
+ - Adjust patch based on Guenter feedbacks
+ - Fix watchdog_deferred_registration_del
+ - Fix typos
+
+
+ Documentation/watchdog/watchdog-kernel-api.txt |   7 ++
+ drivers/watchdog/watchdog_core.c               | 118 +++++++++++++++++++++----
+ include/linux/watchdog.h                       |   3 +
+ 3 files changed, 110 insertions(+), 18 deletions(-)
+
+diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
+index a0438f3..e83518c 100644
+--- a/Documentation/watchdog/watchdog-kernel-api.txt
++++ b/Documentation/watchdog/watchdog-kernel-api.txt
+@@ -36,6 +36,10 @@ The watchdog_unregister_device routine deregisters a registered watchdog timer
+ device. The parameter of this routine is the pointer to the registered
+ watchdog_device structure.
+ 
++The watchdog subsystem includes an registration deferral mechanism,
++which allows you to register an watchdog as early as you wish during
++the boot process.
++
+ The watchdog device structure looks like this:
+ 
+ struct watchdog_device {
+@@ -52,6 +56,7 @@ struct watchdog_device {
+ 	void *driver_data;
+ 	struct mutex lock;
+ 	unsigned long status;
++	struct list_head deferred_registration;
+ };
+ 
+ It contains following fields:
+@@ -80,6 +85,8 @@ It contains following fields:
+   information about the status of the device (Like: is the watchdog timer
+   running/active, is the nowayout bit set, is the device opened via
+   the /dev/watchdog interface or not, ...).
++* deferred_registration: entry in deferred_registration_list which is used to
++  register early initialized watchdogs.
+ 
+ The list of watchdog operations is defined as:
+ 
+diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+index cec9b55..9a35dbb 100644
+--- a/drivers/watchdog/watchdog_core.c
++++ b/drivers/watchdog/watchdog_core.c
+@@ -43,6 +43,45 @@
+ static DEFINE_IDA(watchdog_ida);
+ static struct class *watchdog_class;
+ 
++/*
++ * Deferred Registration infrastructure.
++ *
++ * Sometimes watchdog drivers needs to be loaded as soon as possible,
++ * for example when it's impossible to disable it. To do so,
++ * raising the initcall level of the watchdog driver is a solution.
++ * But in such case, the miscdev is maybe not ready (subsys_initcall), and
++ * watchdog_core need miscdev to register the watchdog as a char device.
++ *
++ * The deferred registration infrastructure offer a way for the watchdog
++ * subsystem to register a watchdog properly, even before miscdev is ready.
++ */
++
++static DEFINE_MUTEX(watchdog_deferred_registration_mutex);
++static LIST_HEAD(watchdog_deferred_registration_pending_list);
++static bool watchdog_deferred_registration_done;
++
++static int watchdog_deferred_registration_add(struct watchdog_device *wdd)
++{
++	list_add_tail(&wdd->deferred_registration,
++		     &watchdog_deferred_registration_pending_list);
++	return 0;
++}
++
++static void watchdog_deferred_registration_del(struct watchdog_device *wdd)
++{
++	struct list_head *p, *n;
++	struct watchdog_device *wdd_tmp;
++
++	list_for_each_safe(p, n, &watchdog_deferred_registration_pending_list) {
++		wdd_tmp = list_entry(p, struct watchdog_device,
++				     deferred_registration);
++		if (wdd_tmp == wdd) {
++			list_del(&wdd_tmp->deferred_registration);
++			break;
++		}
++	}
++}
++
+ static void watchdog_check_min_max_timeout(struct watchdog_device *wdd)
+ {
+ 	/*
+@@ -98,17 +137,7 @@ int watchdog_init_timeout(struct watchdog_device *wdd,
+ }
+ EXPORT_SYMBOL_GPL(watchdog_init_timeout);
+ 
+-/**
+- * watchdog_register_device() - register a watchdog device
+- * @wdd: watchdog device
+- *
+- * Register a watchdog device with the kernel so that the
+- * watchdog timer can be accessed from userspace.
+- *
+- * A zero is returned on success and a negative errno code for
+- * failure.
+- */
+-int watchdog_register_device(struct watchdog_device *wdd)
++static int __watchdog_register_device(struct watchdog_device *wdd)
+ {
+ 	int ret, id, devno;
+ 
+@@ -164,16 +193,33 @@ int watchdog_register_device(struct watchdog_device *wdd)
+ 
+ 	return 0;
+ }
+-EXPORT_SYMBOL_GPL(watchdog_register_device);
+ 
+ /**
+- * watchdog_unregister_device() - unregister a watchdog device
+- * @wdd: watchdog device to unregister
++ * watchdog_register_device() - register a watchdog device
++ * @wdd: watchdog device
+  *
+- * Unregister a watchdog device that was previously successfully
+- * registered with watchdog_register_device().
++ * Register a watchdog device with the kernel so that the
++ * watchdog timer can be accessed from userspace.
++ *
++ * A zero is returned on success and a negative errno code for
++ * failure.
+  */
+-void watchdog_unregister_device(struct watchdog_device *wdd)
++
++int watchdog_register_device(struct watchdog_device *wdd)
++{
++	int ret;
++
++	mutex_lock(&watchdog_deferred_registration_mutex);
++	if (watchdog_deferred_registration_done)
++		ret = __watchdog_register_device(wdd);
++	else
++		ret = watchdog_deferred_registration_add(wdd);
++	mutex_unlock(&watchdog_deferred_registration_mutex);
++	return ret;
++}
++EXPORT_SYMBOL_GPL(watchdog_register_device);
++
++static void __watchdog_unregister_device(struct watchdog_device *wdd)
+ {
+ 	int ret;
+ 	int devno;
+@@ -189,8 +235,43 @@ void watchdog_unregister_device(struct watchdog_device *wdd)
+ 	ida_simple_remove(&watchdog_ida, wdd->id);
+ 	wdd->dev = NULL;
+ }
++
++/**
++ * watchdog_unregister_device() - unregister a watchdog device
++ * @wdd: watchdog device to unregister
++ *
++ * Unregister a watchdog device that was previously successfully
++ * registered with watchdog_register_device().
++ */
++
++void watchdog_unregister_device(struct watchdog_device *wdd)
++{
++	mutex_lock(&watchdog_deferred_registration_mutex);
++	if (watchdog_deferred_registration_done)
++		__watchdog_unregister_device(wdd);
++	else
++		watchdog_deferred_registration_del(wdd);
++	mutex_unlock(&watchdog_deferred_registration_mutex);
++}
++
+ EXPORT_SYMBOL_GPL(watchdog_unregister_device);
+ 
++static int __init watchdog_deferred_registration(void)
++{
++	mutex_lock(&watchdog_deferred_registration_mutex);
++	watchdog_deferred_registration_done = true;
++	while (!list_empty(&watchdog_deferred_registration_pending_list)) {
++		struct watchdog_device *wdd;
++
++		wdd = list_first_entry(&watchdog_deferred_registration_pending_list,
++				      struct watchdog_device, deferred_registration);
++		list_del(&wdd->deferred_registration);
++		__watchdog_register_device(wdd);
++	}
++	mutex_unlock(&watchdog_deferred_registration_mutex);
++	return 0;
++}
++
+ static int __init watchdog_init(void)
+ {
+ 	int err;
+@@ -207,6 +288,7 @@ static int __init watchdog_init(void)
+ 		return err;
+ 	}
+ 
++	watchdog_deferred_registration();
+ 	return 0;
+ }
+ 
+@@ -217,7 +299,7 @@ static void __exit watchdog_exit(void)
+ 	ida_destroy(&watchdog_ida);
+ }
+ 
+-subsys_initcall(watchdog_init);
++subsys_initcall_sync(watchdog_init);
+ module_exit(watchdog_exit);
+ 
+ MODULE_AUTHOR("Alan Cox <alan@lxorguk.ukuu.org.uk>");
+diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+index a746bf5..f9bb943 100644
+--- a/include/linux/watchdog.h
++++ b/include/linux/watchdog.h
+@@ -65,6 +65,8 @@ struct watchdog_ops {
+  * @driver-data:Pointer to the drivers private data.
+  * @lock:	Lock for watchdog core internal use only.
+  * @status:	Field that contains the devices internal status bits.
++ * @deferred_registration: entry in deferred_registration_list which is used to
++ *			   register early initialized watchdogs.
+  *
+  * The watchdog_device structure contains all information about a
+  * watchdog timer device.
+@@ -95,6 +97,7 @@ struct watchdog_device {
+ #define WDOG_ALLOW_RELEASE	2	/* Did we receive the magic char ? */
+ #define WDOG_NO_WAY_OUT		3	/* Is 'nowayout' feature set ? */
+ #define WDOG_UNREGISTERED	4	/* Has the device been unregistered */
++	struct list_head deferred_registration;
+ };
+ 
+ #define WATCHDOG_NOWAYOUT		IS_BUILTIN(CONFIG_WATCHDOG_NOWAYOUT)
+-- 
+2.4.2
 
