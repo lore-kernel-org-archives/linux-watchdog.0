@@ -1,231 +1,196 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from vpnchicago.adeneo-embedded.us ([65.182.180.190]:13865 "EHLO
-	mxadeneo.adeneo-embedded.us" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1754762AbbFEQse (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 5 Jun 2015 12:48:34 -0400
-Date: Fri, 5 Jun 2015 09:48:30 -0700
+Return-path: <jtheou@adeneo-embedded.us>
 From: Jean-Baptiste Theou <jtheou@adeneo-embedded.us>
-To: Guenter Roeck <linux@roeck-us.net>
-CC: Wim Van Sebroeck <wim@iguana.be>, <linux-watchdog@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/1] gpio_wdt: change initcall level
-Message-ID: <20150605094830.1e928932f4f68da6045573c3@adeneo-embedded.us>
-In-Reply-To: <55715930.1040500@roeck-us.net>
-References: <1433445690-22560-1-git-send-email-jtheou@adeneo-embedded.us>
-	<5571276F.5080405@roeck-us.net>
-	<20150604230544.f1b73361d284da4d1d66d93d@adeneo-embedded.us>
-	<55715930.1040500@roeck-us.net>
+To: Wim Van Sebroeck <wim@iguana.be>
+CC: Guenter Roeck <linux@roeck-us.net>, <linux-watchdog@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, Jean-Baptiste Theou
+	<jtheou@adeneo-embedded.us>
+Subject: [PATCH v2 1/3] watchdog_core: Add watchdog registration deferral mechanism
+Date: Fri, 5 Jun 2015 18:46:50 -0700
+Message-ID: <1433555212-4729-1-git-send-email-jtheou@adeneo-embedded.us>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Agreed. Thanks for the feedbacks. I am working an a new patch.
+Currently, watchdog subsystem require the misc subsystem to
+register a watchdog. This may not be the case in case of an
+early registration of a watchdog, which can be required when
+the watchdog cannot be disabled.
 
-Best regards,
+This patch use deferral mechanism to remove this requirement.
 
-On Fri, 5 Jun 2015 01:09:20 -0700
-Guenter Roeck <linux@roeck-us.net> wrote:
+Signed-off-by: Jean-Baptiste Theou <jtheou@adeneo-embedded.us>
+---
+ drivers/watchdog/watchdog_core.c | 92 ++++++++++++++++++++++++++++++++++++++--
+ include/linux/watchdog.h         |  3 ++
+ 2 files changed, 91 insertions(+), 4 deletions(-)
 
-> On 06/04/2015 11:05 PM, Jean-Baptiste Theou wrote:
-> > Hi Guenter,
-> >
-> > I based my work on the work done in mpc8xxx_wdt.c, which is in mainline.
-> >
-> Yes, you mentioned that before. However, that is a driver for a specific
-> chip, not a generic driver like this one. That driver is only messy for
-> one chip. Your driver. on the other side, changes the logic of a generic
-> driver, and I am not even sure if it would work as implemented. One key
-> logical change is that if the driver is built into the kernel, it will
-> not report an error if watchdog_register_device fails. That may be
-> acceptable for a dedicated driver, but I don't think it is acceptable
-> to impose this onto a generic driver. Also, I suspect that if it ever
-> happens that there is more than one such watchdog in the system, and
-> the driver is built as module, it would fail all over the place and try
-> to register each driver instance multiple times.
-> 
-> Plus, you call both gpio_wdt_init_late and gpio_wdt_remove_late before
-> the functions are declared, and I don't see any forward declarations.
-> That suggests that you will see at least warnings if not errors
-> if you compile the driver as module, which in turn doesn't make me feel
-> very comfortable about the level of compile testing you have done,
-> much less runtime testing.
-> 
-> A more generic solution might be to improve watchdog_register_device
-> and let it handle the situation where a driver registers early
-> (for example by queuing the request to register the misc device
-> if that is the problem).
-> 
-> Guenter
-> 
-> > The point of my patch is for a built-in scenario.
-> > I have an external chip who controls the watchdog, and it need to have
-> > it IN pin toggle within 1.6s, otherwise it trigger the watchdog.
-> >
-> > With a default gpio_wdt built-in module, module_init initcall level is
-> > too late, and the board reboot (the watchdog cannot be disabled, I am
-> > using "always-running" property of this module.)
-> >
-> > The point of my patch is to start the watchdog at arch_init call level,
-> > and the "tweak" for late init is due to the fact that miscdev is not
-> > ready at the level of initcall, as explained on the comment.
-> >
-> > If there is some part that aren't clear and if you have a better idea
-> > on how to raise the level of initcall for this module, on a cleaner
-> > way, I am all hears.
-> >
-> > Best regards,
-> >
-> > On Thu, 4 Jun 2015 21:37:03 -0700
-> > Guenter Roeck <linux@roeck-us.net> wrote:
-> >
-> >> On 06/04/2015 12:21 PM, Jean-Baptiste Theou wrote:
-> >>> gpio_wdt may need to start the GPIO toggle as soon as possible,
-> >>> when the watchdog cannot be disabled. Raise the initcall to
-> >>> arch_initcall.
-> >>>
-> >>> We need to split the initiation, because of miscdev, as done in
-> >>> mpc8xxx_wdt.c
-> >>>
-> >>> Signed-off-by: Jean-Baptiste Theou <jtheou@adeneo-embedded.us>
-> >>> ---
-> >>>    drivers/watchdog/gpio_wdt.c | 78 ++++++++++++++++++++++++++++++++++++++++++---
-> >>>    1 file changed, 74 insertions(+), 4 deletions(-)
-> >>>
-> >>> diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
-> >>> index cbc313d..8ecfe7e 100644
-> >>> --- a/drivers/watchdog/gpio_wdt.c
-> >>> +++ b/drivers/watchdog/gpio_wdt.c
-> >>> @@ -14,6 +14,7 @@
-> >>>    #include <linux/module.h>
-> >>>    #include <linux/notifier.h>
-> >>>    #include <linux/of_gpio.h>
-> >>> +#include <linux/of_platform.h>
-> >>>    #include <linux/platform_device.h>
-> >>>    #include <linux/reboot.h>
-> >>>    #include <linux/watchdog.h>
-> >>> @@ -223,10 +224,11 @@ static int gpio_wdt_probe(struct platform_device *pdev)
-> >>>
-> >>>    	setup_timer(&priv->timer, gpio_wdt_hwping, (unsigned long)&priv->wdd);
-> >>>
-> >>> -	ret = watchdog_register_device(&priv->wdd);
-> >>> +#ifdef MODULE
-> >>> +	ret = gpio_wdt_init_late();
-> >>>    	if (ret)
-> >>>    		return ret;
-> >>> -
-> >>> +#endif
-> >>>    	priv->notifier.notifier_call = gpio_wdt_notify_sys;
-> >>>    	ret = register_reboot_notifier(&priv->notifier);
-> >>>    	if (ret)
-> >>> @@ -235,10 +237,13 @@ static int gpio_wdt_probe(struct platform_device *pdev)
-> >>>    	if (priv->always_running)
-> >>>    		gpio_wdt_start_impl(priv);
-> >>>
-> >>> +	platform_set_drvdata(pdev, priv);
-> >>>    	return 0;
-> >>>
-> >>>    error_unregister:
-> >>> -	watchdog_unregister_device(&priv->wdd);
-> >>> +#ifdef MODULE
-> >>> +	ret = gpio_wdt_remove_late(&priv->wdd);
-> >>> +#endif
-> >>>    	return ret;
-> >>>    }
-> >>>
-> >>> @@ -267,7 +272,72 @@ static struct platform_driver gpio_wdt_driver = {
-> >>>    	.probe	= gpio_wdt_probe,
-> >>>    	.remove	= gpio_wdt_remove,
-> >>>    };
-> >>> -module_platform_driver(gpio_wdt_driver);
-> >>> +
-> >>> +/*
-> >>> + * We do wdt initialization in two steps: arch_initcall probes the wdt
-> >>> + * very early to start pinging the watchdog (misc devices are not yet
-> >>> + * available), and later module_init() just registers the misc device.
-> >>> + */
-> >>> +static int gpio_wdt_init_late(void)
-> >>> +{
-> >>> +	struct platform_device *pdev;
-> >>> +	struct device_node *wdt_node;
-> >>> +	struct gpio_wdt_priv *priv;
-> >>> +	int ret;
-> >>> +
-> >>> +	for_each_compatible_node(wdt_node, NULL, "linux,wdt-gpio") {
-> >>> +		pdev = of_find_device_by_node(wdt_node);
-> >>> +		priv = platform_get_drvdata(pdev);
-> >>> +		if (&priv->wdd) {
-> >>> +			ret = watchdog_register_device(&priv->wdd);
-> >>> +			if (ret)
-> >>> +				return ret;
-> >>> +		} else {
-> >>> +			dev_err(&pdev->dev, "Unable to register the watchdog\n");
-> >>> +			return -1;
-> >>> +		}
-> >>> +	}
-> >>> +	return 0;
-> >>> +}
-> >>> +#ifndef MODULE
-> >>> +module_init(gpio_wdt_init_late);
-> >>> +#endif
-> >>> +
-> >>> +#ifdef MODULE
-> >>> +int gpio_wdt_remove_late(void)
-> >>> +{
-> >>> +	struct platform_device *pdev;
-> >>> +	struct device_node *wdt_node;
-> >>> +	struct gpio_wdt_priv *priv;
-> >>> +	int ret;
-> >>> +
-> >>> +	for_each_compatible_node(wdt_node, NULL, "linux,wdt-gpio") {
-> >>> +		pdev = of_find_device_by_node(wdt_node);
-> >>> +		priv = platform_get_drvdata(pdev);
-> >>> +		if (&priv->wdd) {
-> >>> +			ret = watchdog_unregister_device(&priv->wdd);
-> >>> +			if (ret)
-> >>> +				return ret;
-> >>> +		} else {
-> >>> +			dev_err(&pdev->dev, "Unable to register the watchdog\n");
-> >>> +			return -1;
-> >>> +		}
-> >>> +	}
-> >>> +	return 0;
-> >>> +}
-> >>> +#endif
-> >>> +
-> >>> +static int __init gpio_wdt_init(void)
-> >>> +{
-> >>> +	return platform_driver_register(&gpio_wdt_driver);
-> >>> +}
-> >>> +arch_initcall(gpio_wdt_init);
-> >>> +
-> >>> +static void __exit gpio_wdt_exit(void)
-> >>> +{
-> >>> +	platform_driver_unregister(&gpio_wdt_driver);
-> >>> +}
-> >>> +module_exit(gpio_wdt_exit);
-> >>>
-> >>>    MODULE_AUTHOR("Alexander Shiyan <shc_work@mail.ru>");
-> >>>    MODULE_DESCRIPTION("GPIO Watchdog");
-> >>>
-> >>
-> >> This looks really messy, you don't explain why you think you need
-> >> gpio_wdt_remove_late, and I do wonder if there are compile warnings
-> >> when this is compiled as module.
-> >>
-> >> If, in a given system, initialization can not wait until modules are loaded,
-> >> maybe it makes more sense to build the driver into the kernel instead of
-> >> introducing all this mess. If built into the kernel the latency should
-> >> not be that bad that this is really needed.
-> >>
-> >> Guenter
-> >>
-> >
-> >
-> 
-
-
+diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+index cec9b55..edf6294 100644
+--- a/drivers/watchdog/watchdog_core.c
++++ b/drivers/watchdog/watchdog_core.c
+@@ -43,6 +43,41 @@
+ static DEFINE_IDA(watchdog_ida);
+ static struct class *watchdog_class;
+ 
++/*
++ * Deferred Registration infrastructure.
++ *
++ * Sometimes watchdog drivers need to be loaded as soon as possible,
++ * for example when it's impossible to disable it. To do so,
++ * raising the initcall level of the watchdog driver is a solution.
++ * But in such case, the miscdev is maybe not ready (subsys_initcall), and
++ * watchdog core need miscdev to be populate.
++ *
++ * The deferred registration infrastructure offer a way for the watchdog
++ * subsystem to register a watchdog properly, even before miscdev is ready
++ *
++ * This is based on driver probe deferral mechanism.
++ */
++
++static DEFINE_MUTEX(watchdog_deferred_registration_mutex);
++static LIST_HEAD(watchdog_deferred_registration_pending_list);
++static bool watchdog_deferred_registration_done;
++
++static int watchdog_deferred_registration_add(struct watchdog_device *wdd)
++{
++	dev_dbg(wdd->dev, "Added to deferred list\n");
++	list_add(&wdd->deferred_registration,
++		 &watchdog_deferred_registration_pending_list);
++	return 0;
++}
++
++static void watchdog_deferred_registration_del(struct watchdog_device *wdd)
++{
++	if (!list_empty(&wdd->deferred_registration)) {
++		dev_dbg(wdd->dev, "Removed from deferred list\n");
++		list_del_init(&wdd->deferred_registration);
++	}
++}
++
+ static void watchdog_check_min_max_timeout(struct watchdog_device *wdd)
+ {
+ 	/*
+@@ -99,7 +134,7 @@ int watchdog_init_timeout(struct watchdog_device *wdd,
+ EXPORT_SYMBOL_GPL(watchdog_init_timeout);
+ 
+ /**
+- * watchdog_register_device() - register a watchdog device
++ * __watchdog_register_device() - register a watchdog device
+  * @wdd: watchdog device
+  *
+  * Register a watchdog device with the kernel so that the
+@@ -108,7 +143,7 @@ EXPORT_SYMBOL_GPL(watchdog_init_timeout);
+  * A zero is returned on success and a negative errno code for
+  * failure.
+  */
+-int watchdog_register_device(struct watchdog_device *wdd)
++int __watchdog_register_device(struct watchdog_device *wdd)
+ {
+ 	int ret, id, devno;
+ 
+@@ -164,16 +199,35 @@ int watchdog_register_device(struct watchdog_device *wdd)
+ 
+ 	return 0;
+ }
++
++/*
++ * watchdog_register_device use either the deferred approach,
++ * or directly register the watchdog, depending on the current
++ * initcall level.
++ */
++
++int watchdog_register_device(struct watchdog_device *wdd)
++{
++	int ret;
++
++	mutex_lock(&watchdog_deferred_registration_mutex);
++	if (watchdog_deferred_registration_done)
++		ret = __watchdog_register_device(wdd);
++	else
++		ret = watchdog_deferred_registration_add(wdd);
++	mutex_unlock(&watchdog_deferred_registration_mutex);
++	return ret;
++}
+ EXPORT_SYMBOL_GPL(watchdog_register_device);
+ 
+ /**
+- * watchdog_unregister_device() - unregister a watchdog device
++ * __watchdog_unregister_device() - unregister a watchdog device
+  * @wdd: watchdog device to unregister
+  *
+  * Unregister a watchdog device that was previously successfully
+  * registered with watchdog_register_device().
+  */
+-void watchdog_unregister_device(struct watchdog_device *wdd)
++void __watchdog_unregister_device(struct watchdog_device *wdd)
+ {
+ 	int ret;
+ 	int devno;
+@@ -189,8 +243,37 @@ void watchdog_unregister_device(struct watchdog_device *wdd)
+ 	ida_simple_remove(&watchdog_ida, wdd->id);
+ 	wdd->dev = NULL;
+ }
++
++void watchdog_unregister_device(struct watchdog_device *wdd)
++{
++	mutex_lock(&watchdog_deferred_registration_mutex);
++	if (watchdog_deferred_registration_done)
++		__watchdog_unregister_device(wdd);
++	else
++		watchdog_deferred_registration_del(wdd);
++	mutex_unlock(&watchdog_deferred_registration_mutex);
++}
++
+ EXPORT_SYMBOL_GPL(watchdog_unregister_device);
+ 
++/**
++ * watchdog_deferred_registration_initcall() - Register queued watchdog
++ */
++static int watchdog_deferred_registration_initcall(void)
++{
++	mutex_lock(&watchdog_deferred_registration_mutex);
++	watchdog_deferred_registration_done = true;
++	while (!list_empty(&watchdog_deferred_registration_pending_list)) {
++		struct watchdog_device *wdd = list_first_entry(&watchdog_deferred_registration_pending_list,
++							       struct watchdog_device, deferred_registration);
++		list_del_init(&wdd->deferred_registration);
++		__watchdog_register_device(wdd);
++	}
++	mutex_unlock(&watchdog_deferred_registration_mutex);
++	return 0;
++}
++late_initcall(watchdog_deferred_registration_initcall);
++
+ static int __init watchdog_init(void)
+ {
+ 	int err;
+@@ -222,5 +305,6 @@ module_exit(watchdog_exit);
+ 
+ MODULE_AUTHOR("Alan Cox <alan@lxorguk.ukuu.org.uk>");
+ MODULE_AUTHOR("Wim Van Sebroeck <wim@iguana.be>");
++MODULE_AUTHOR("Jean-Baptiste Theou <jbtheou@gmail.com>");
+ MODULE_DESCRIPTION("WatchDog Timer Driver Core");
+ MODULE_LICENSE("GPL");
+diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+index a746bf5..fcc190e 100644
+--- a/include/linux/watchdog.h
++++ b/include/linux/watchdog.h
+@@ -65,6 +65,8 @@ struct watchdog_ops {
+  * @driver-data:Pointer to the drivers private data.
+  * @lock:	Lock for watchdog core internal use only.
+  * @status:	Field that contains the devices internal status bits.
++ * @deferred_registration: entry in deferred_registration_list which is used to
++ *			   register early initialized watchdog.
+  *
+  * The watchdog_device structure contains all information about a
+  * watchdog timer device.
+@@ -95,6 +97,7 @@ struct watchdog_device {
+ #define WDOG_ALLOW_RELEASE	2	/* Did we receive the magic char ? */
+ #define WDOG_NO_WAY_OUT		3	/* Is 'nowayout' feature set ? */
+ #define WDOG_UNREGISTERED	4	/* Has the device been unregistered */
++	struct list_head deferred_registration;
+ };
+ 
+ #define WATCHDOG_NOWAYOUT		IS_BUILTIN(CONFIG_WATCHDOG_NOWAYOUT)
 -- 
-Jean-Baptiste Theou <jtheou@adeneo-embedded.us>
+2.4.2
