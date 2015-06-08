@@ -1,95 +1,74 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:39035 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752537AbbFFRAy (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 6 Jun 2015 13:00:54 -0400
-Message-ID: <55732744.10303@roeck-us.net>
-Date: Sat, 06 Jun 2015 10:00:52 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+Return-path: <fu.wei@linaro.org>
 MIME-Version: 1.0
-To: Jean-Baptiste Theou <jtheou@adeneo-embedded.us>,
-	Wim Van Sebroeck <wim@iguana.be>
-CC: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 2/2] gpio_wdt: Add option for early registration
-References: <1433576786-14947-1-git-send-email-jtheou@adeneo-embedded.us> <1433576786-14947-2-git-send-email-jtheou@adeneo-embedded.us>
-In-Reply-To: <1433576786-14947-2-git-send-email-jtheou@adeneo-embedded.us>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <20150603182503.GD6460@roeck-us.net>
+References: <=fu.wei@linaro.org>
+	<1433217907-928-1-git-send-email-fu.wei@linaro.org>
+	<1433217907-928-6-git-send-email-fu.wei@linaro.org>
+	<556F4489.6030206@codeaurora.org>
+	<20150603182503.GD6460@roeck-us.net>
+Date: Tue, 9 Jun 2015 00:10:42 +0800
+Message-ID: <CADyBb7t04N1_AhtVdahijm4zFWc52XJ5NmM9Rn7OEpmiAPEzRQ@mail.gmail.com>
+Subject: Re: [PATCH v4 5/7] Watchdog: introduce ARM SBSA watchdog driver
+From: Fu Wei <fu.wei@linaro.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Timur Tabi <timur@codeaurora.org>,
+	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>, linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-doc@vger.kernel.org, Wei Fu <tekkamanninja@gmail.com>,
+	G Gregory <graeme.gregory@linaro.org>, Al Stone <al.stone@linaro.org>,
+	Hanjun Guo <hanjun.guo@linaro.org>, Ashwin Chaugule <ashwin.chaugule@linaro.org>,
+	Arnd Bergmann <arnd@arndb.de>, vgandhi@codeaurora.org, wim@iguana.be,
+	Jon Masters <jcm@redhat.com>, Leo Duran <leo.duran@amd.com>, Jon Corbet <corbet@lwn.net>,
+	Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will.deacon@arm.com>, rjw@rjwysocki.net
+Content-Type: text/plain; charset=UTF-8
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 06/06/2015 12:46 AM, Jean-Baptiste Theou wrote:
-> In some situation, mainly when it's not possible to disable a
-> watchdog, you may want the watchdog driver to be started as soon
-> as possible.
->
-> Adding GPIO_WATCHDOG_ARCH_INITCALL to raise initcall from
-> module_init to arch_initcall.
->
-> This patch require watchdog registration deferral mechanism
->
-> Signed-off-by: Jean-Baptiste Theou <jtheou@adeneo-embedded.us>
-> ---
-> Changes in v3:
->   - Simplify changes, since the modification is for built-in only
->
->   drivers/watchdog/Kconfig    | 12 ++++++++++++
->   drivers/watchdog/gpio_wdt.c |  8 ++++++++
->   2 files changed, 20 insertions(+)
->
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index e5e7c55..7a5c912 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -1,3 +1,4 @@
-> +
->   #
->   # Watchdog device configuration
->   #
-> @@ -104,6 +105,17 @@ config GPIO_WATCHDOG
->   	  If you say yes here you get support for watchdog device
->   	  controlled through GPIO-line.
->
-> +config GPIO_WATCHDOG_ARCH_INITCALL
-> +	bool "Register the watchdog as early as possible"
-> +	depends on GPIO_WATCHDOG=y
-> +	help
-> +	  In some situations, the default initcall level (module_init)
-> +	  in not early enough in the boot process to avoid the watchdog
-> +	  to be triggered.
-> +	  If you say yes here, the initcall level would be raised to
-> +	  arch_initcall.
-> +	  If in doubt, say N.
-> +
->   config MENF21BMC_WATCHDOG
->   	tristate "MEN 14F021P00 BMC Watchdog"
->   	depends on MFD_MENF21BMC
-> diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
-> index cbc313d..f9149a2 100644
-> --- a/drivers/watchdog/gpio_wdt.c
-> +++ b/drivers/watchdog/gpio_wdt.c
-> @@ -267,7 +267,15 @@ static struct platform_driver gpio_wdt_driver = {
->   	.probe	= gpio_wdt_probe,
->   	.remove	= gpio_wdt_remove,
->   };
+Hi Guenter,
 
-Please add an empty line here.
 
-Thanks,
-Guenter
-
-> +#ifdef GPIO_WATCHDOG_ARCH_INITCALL
-> +static int __init gpio_wdt_init(void)
-> +{
-> +	return platform_driver_register(&gpio_wdt_driver);
-> +}
-> +arch_initcall(gpio_wdt_init);
-> +#else
->   module_platform_driver(gpio_wdt_driver);
-> +#endif
+On 4 June 2015 at 02:25, Guenter Roeck <linux@roeck-us.net> wrote:
+> On Wed, Jun 03, 2015 at 01:16:41PM -0500, Timur Tabi wrote:
+>> On 06/01/2015 11:05 PM, fu.wei@linaro.org wrote:
+>> >+    if (wdd->pretimeout)
+>> >+            /* The pretimeout is valid, go panic */
+>> >+            panic("SBSA Watchdog pre-timeout");
+>>
+>> The problem with this is that WS1 will still occur.  So a few seconds after
+>> the panic() call, the hardware will reset.  There won't be any time to debug
+>> or log anything.
+>>
 >
->   MODULE_AUTHOR("Alexander Shiyan <shc_work@mail.ru>");
->   MODULE_DESCRIPTION("GPIO Watchdog");
+> In general the idea here would be to use a crashdump kernel, which,
+> when loaded, would reset the watchdog before it fires. This kernel
+> would then write a core dump to a specified location.
 >
+> If arm64 doesn't support a crashdump kernel, it might still be possible
+> to log the backtrace somewhere (eg in nvram using pstore if that is
+> supported via acpi or efi).
 
+yes, you are right , thanks for explaining this.
+
+>
+> Is there reason to believe that this all won't work on arm64 ?
+
+I don't think there is a reason.
+
+>
+> Thanks,
+> Guenter
+
+
+
+-- 
+Best regards,
+
+Fu Wei
+Software Engineer
+Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
+Ph: +86 21 61221326(direct)
+Ph: +86 186 2020 4684 (mobile)
+Room 1512, Regus One Corporate Avenue,Level 15,
+One Corporate Avenue,222 Hubin Road,Huangpu District,
+Shanghai,China 200021
