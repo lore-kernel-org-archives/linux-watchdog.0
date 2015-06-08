@@ -1,95 +1,48 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from vpnchicago.adeneo-embedded.us ([65.182.180.190]:7886 "EHLO
-	mxadeneo.adeneo-embedded.us" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1753079AbbFFW1F (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:33171 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753300AbbFHTfU (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 6 Jun 2015 18:27:05 -0400
-From: Jean-Baptiste Theou <jtheou@adeneo-embedded.us>
-To: Wim Van Sebroeck <wim@iguana.be>
-CC: Guenter Roeck <linux@roeck-us.net>,
-	<linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	Jean-Baptiste Theou <jtheou@adeneo-embedded.us>
-Subject: [PATCH v4 2/2] gpio_wdt: Add option for early registration
-Date: Sat, 6 Jun 2015 15:25:37 -0700
-Message-ID: <1433629537-21925-2-git-send-email-jtheou@adeneo-embedded.us>
-In-Reply-To: <1433629537-21925-1-git-send-email-jtheou@adeneo-embedded.us>
-References: <1433629537-21925-1-git-send-email-jtheou@adeneo-embedded.us>
+	Mon, 8 Jun 2015 15:35:20 -0400
+Message-ID: <5575EE6F.3030001@roeck-us.net>
+Date: Mon, 08 Jun 2015 12:35:11 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain
+To: Jean-Baptiste Theou <jtheou@adeneo-embedded.us>,
+	Wim Van Sebroeck <wim@iguana.be>
+CC: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 1/2] watchdog_core: Add watchdog registration deferral
+ mechanism
+References: <1433629537-21925-1-git-send-email-jtheou@adeneo-embedded.us>
+In-Reply-To: <1433629537-21925-1-git-send-email-jtheou@adeneo-embedded.us>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-In some situation, mainly when it's not possible to disable a
-watchdog, you may want the watchdog driver to be started as soon
-as possible.
+On 06/06/2015 03:25 PM, Jean-Baptiste Theou wrote:
+> Currently, watchdog subsystem require the misc subsystem to
+> register a watchdog. This may not be the case in case of an
+> early registration of a watchdog, which can be required when
+> the watchdog cannot be disabled.
+>
+> This patch introduces a deferral mechanism to remove this requirement.
+>
+> Signed-off-by: Jean-Baptiste Theou <jtheou@adeneo-embedded.us>
+> ---
+> Changes in v4:
+>   - Adjust patch based on Guenter feedbacks on v3
+>
 
-Adding GPIO_WATCHDOG_ARCH_INITCALL to raise initcall from
-module_init to arch_initcall.
+You still have lines with > 80 columns, primarily because of very long
+variable names. I would suggest to pick shorter names - there is no
+technical reason for variables named watchdog_deferred_registration_XXX,
+and I don't see why we should have checkpatch warnings just because
+of long variable names.
 
-This patch require watchdog registration deferral mechanism
+Also, multi-line alignment is still not correct.
+I would suggest to run the patch through checkpatch --strict.
 
-Signed-off-by: Jean-Baptiste Theou <jtheou@adeneo-embedded.us>
----
-Changes in v4:
- - Fix symbol
- - Add empty line
-
-Changes in v3:
- - Simplify changes, since the modification is for built-in only
-
-
- drivers/watchdog/Kconfig    | 12 ++++++++++++
- drivers/watchdog/gpio_wdt.c |  9 +++++++++
- 2 files changed, 21 insertions(+)
-
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index e5e7c55..7a5c912 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -1,3 +1,4 @@
-+
- #
- # Watchdog device configuration
- #
-@@ -104,6 +105,17 @@ config GPIO_WATCHDOG
- 	  If you say yes here you get support for watchdog device
- 	  controlled through GPIO-line.
- 
-+config GPIO_WATCHDOG_ARCH_INITCALL
-+	bool "Register the watchdog as early as possible"
-+	depends on GPIO_WATCHDOG=y
-+	help
-+	  In some situations, the default initcall level (module_init)
-+	  in not early enough in the boot process to avoid the watchdog
-+	  to be triggered.
-+	  If you say yes here, the initcall level would be raised to
-+	  arch_initcall.
-+	  If in doubt, say N.
-+
- config MENF21BMC_WATCHDOG
- 	tristate "MEN 14F021P00 BMC Watchdog"
- 	depends on MFD_MENF21BMC
-diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
-index cbc313d..1687cc2 100644
---- a/drivers/watchdog/gpio_wdt.c
-+++ b/drivers/watchdog/gpio_wdt.c
-@@ -267,7 +267,16 @@ static struct platform_driver gpio_wdt_driver = {
- 	.probe	= gpio_wdt_probe,
- 	.remove	= gpio_wdt_remove,
- };
-+
-+#ifdef CONFIG_GPIO_WATCHDOG_ARCH_INITCALL
-+static int __init gpio_wdt_init(void)
-+{
-+	return platform_driver_register(&gpio_wdt_driver);
-+}
-+arch_initcall(gpio_wdt_init);
-+#else
- module_platform_driver(gpio_wdt_driver);
-+#endif
- 
- MODULE_AUTHOR("Alexander Shiyan <shc_work@mail.ru>");
- MODULE_DESCRIPTION("GPIO Watchdog");
--- 
-2.4.2
+Thanks,
+Guenter
 
