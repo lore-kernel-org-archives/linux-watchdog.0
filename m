@@ -1,139 +1,264 @@
-Return-path: <fu.wei@linaro.org>
+Return-path: <jtheou@adeneo-embedded.us>
+From: Jean-Baptiste Theou <jtheou@adeneo-embedded.us>
+To: Wim Van Sebroeck <wim@iguana.be>
+CC: Guenter Roeck <linux@roeck-us.net>, <linux-watchdog@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, Jean-Baptiste Theou
+	<jtheou@adeneo-embedded.us>
+Subject: [PATCH v5 1/2] watchdog_core: Add watchdog registration deferral mechanism
+Date: Tue, 9 Jun 2015 09:55:02 -0700
+Message-ID: <1433868903-20033-1-git-send-email-jtheou@adeneo-embedded.us>
 MIME-Version: 1.0
-In-Reply-To: <CADyBb7sVd5nLwb3eHRPiNt-WTynfaJonOyuE_bD694dayyvevA@mail.gmail.com>
-References: <=fu.wei@linaro.org>
-	<1433217907-928-1-git-send-email-fu.wei@linaro.org>
-	<1433217907-928-6-git-send-email-fu.wei@linaro.org>
-	<556DCC95.806@codeaurora.org>
-	<CADyBb7sXiMNtrH+Eu1Qj00TPNLMMr5cCTPObzFmKnHLsbWH79Q@mail.gmail.com>
-	<556DE2D5.3090906@roeck-us.net>
-	<CADyBb7uT=gFJkK8s-QF1n4Z+Zov9Lurp1nvBO-C-qszTqbMYXQ@mail.gmail.com>
-	<5575DE48.8010308@roeck-us.net>
-	<CADyBb7sYPnvDVEJYVQm65B1JV=yvq10+ezs2x3f8F=TJCZ+OJA@mail.gmail.com>
-	<55766D74.2060401@roeck-us.net>
-	<CADyBb7vR-jP6ZjzMSnprrSXbNayk8umx+cXV3TsGypfhZcCwTw@mail.gmail.com>
-	<55769E0E.8060801@roeck-us.net>
-	<CADyBb7skpSZ=3_ByW-RHM99=nbs7Z5xXFXtsKzkxOXAGjxF=3Q@mail.gmail.com>
-	<557712CF.8010802@roeck-us.net>
-	<5577147B.2030900@codeaurora.org>
-	<5577180E.4070804@roeck-us.net>
-	<CADyBb7sVd5nLwb3eHRPiNt-WTynfaJonOyuE_bD694dayyvevA@mail.gmail.com>
-Date: Wed, 10 Jun 2015 12:20:20 +0800
-Message-ID: <CADyBb7s7NpQJFiFFGbbjCTQ0+bNCZoVMC4KwaZbWwGs_Wa=mLg@mail.gmail.com>
-Subject: Re: [PATCH v4 5/7] Watchdog: introduce ARM SBSA watchdog driver
-From: Fu Wei <fu.wei@linaro.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Timur Tabi <timur@codeaurora.org>,
-	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>, linux-watchdog@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-doc@vger.kernel.org, Wei Fu <tekkamanninja@gmail.com>,
-	G Gregory <graeme.gregory@linaro.org>, Al Stone <al.stone@linaro.org>,
-	Hanjun Guo <hanjun.guo@linaro.org>, Ashwin Chaugule <ashwin.chaugule@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>, vgandhi@codeaurora.org, wim@iguana.be,
-	Jon Masters <jcm@redhat.com>, Leo Duran <leo.duran@amd.com>, Jon Corbet <corbet@lwn.net>,
-	Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will.deacon@arm.com>, rjw@rjwysocki.net
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Guenter,
+Currently, watchdog subsystem require the misc subsystem to
+register a watchdog. This may not be the case in case of an
+early registration of a watchdog, which can be required when
+the watchdog cannot be disabled.
 
-On 10 June 2015 at 11:41, Fu Wei <fu.wei@linaro.org> wrote:
-> Hi Guenter,
->
-> On 10 June 2015 at 00:45, Guenter Roeck <linux@roeck-us.net> wrote:
->> On 06/09/2015 09:29 AM, Timur Tabi wrote:
->>>
->>> On 06/09/2015 11:22 AM, Guenter Roeck wrote:
->>>>
->>>>
->>>>
->>>> but I see your point. Essentially, the specification is broken
->>>> for all practical purposes, since, as you point out, enabling
->>>> the watchdog overwrites and explicitly sets WCV. Effectively
->>>> this means that just using WCV to program the timeout period
->>>> is not really possible.
->>>>
->>>> I am not really sure how to address this. We can either only use WOR,
->>>> and forget about pretimeout, or we can enforce a minimum pretimeout.
->>>> In the latter case, we'll have to write WCV after writing WOR.
->>>
->>>
->>> In talking with our hardware engineers, using WCV to program the timeout
->>> period is not a valid operation.  This is why I keep arguing against the
->>> pre-timeout feature, and I don't agree that servers should always use
->>> pre-timeout.
->>>
->>
->> Not sure if "not valid" is correct - after all, it is mentioned in the
->> specification. However, it is at the very least fragile.
->
-> I think we should focus on SBSA spec, but not a specific chip design,
-> because this is SBSA watchdog, not a driver for an IP core from a
-> specific chip vendor.
-> this operation is mentioned in the spec,
-> and I have tested my driver on Foundation model(from ARM) and a real hardware.
->
->>
->> I tend to agree that we should just forget about pretimeout and
->> use your original approach, where the timeout value is used
->> to program WOR. Everything else is really just asking for trouble.
+This patch introduces a deferral mechanism to remove this requirement.
 
-Another weakness of only using WOR is the timeout limited by this
-32bit register.
-10s @400MHz generic Timer
+Signed-off-by: Jean-Baptiste Theou <jtheou@adeneo-embedded.us>
+---
+Changes in v5:
+ - Fix checkpatch warnings for line length
+ - Fix multiline alignment
+ 
+Changes in v4:
+ - Adjust patch based on Guenter feedbacks on v3
 
-I don't think this limit is good for a server, once the server is in a
-heavy load
+Changes in v3:
+ - Adjust patch based on Guenter feedbacks
+ - Fix watchdog_deferred_registration_del
+ - Fix typos
 
->
-> I don't mind if we give up pretimeout, The reason I use pretimeout is:
-> this concept matches the function of two stage timeouts.
->
-> but, If we give up pretimeout, could you give me a suggestion:
->
-> How to config the two stage timeouts
-> (1)from enabling watchdog to WS0
-> (2)the time from WS1 to WS0
->
-> If we only have one timeout parameter,  How to config the two stage timeouts?
-> Any suggestion ?
->
-> If we make the first stage timeout is timeout/2,  this violates the
-> definition of timeout.
-> I don't think users expect interrupt, panic or reboot at timeout/2.
->
-> And WS1  definitely isn't a backup of WS0.
->
->>
->> Guenter
->>
->
->
->
-> --
-> Best regards,
->
-> Fu Wei
-> Software Engineer
-> Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
-> Ph: +86 21 61221326(direct)
-> Ph: +86 186 2020 4684 (mobile)
-> Room 1512, Regus One Corporate Avenue,Level 15,
-> One Corporate Avenue,222 Hubin Road,Huangpu District,
-> Shanghai,China 200021
+ Documentation/watchdog/watchdog-kernel-api.txt |   7 ++
+ drivers/watchdog/watchdog_core.c               | 118 +++++++++++++++++++++----
+ include/linux/watchdog.h                       |   3 +
+ 3 files changed, 110 insertions(+), 18 deletions(-)
 
-
-
+diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
+index a0438f3..d8b0d33 100644
+--- a/Documentation/watchdog/watchdog-kernel-api.txt
++++ b/Documentation/watchdog/watchdog-kernel-api.txt
+@@ -36,6 +36,10 @@ The watchdog_unregister_device routine deregisters a registered watchdog timer
+ device. The parameter of this routine is the pointer to the registered
+ watchdog_device structure.
+ 
++The watchdog subsystem includes an registration deferral mechanism,
++which allows you to register an watchdog as early as you wish during
++the boot process.
++
+ The watchdog device structure looks like this:
+ 
+ struct watchdog_device {
+@@ -52,6 +56,7 @@ struct watchdog_device {
+ 	void *driver_data;
+ 	struct mutex lock;
+ 	unsigned long status;
++	struct list_head deferred;
+ };
+ 
+ It contains following fields:
+@@ -80,6 +85,8 @@ It contains following fields:
+   information about the status of the device (Like: is the watchdog timer
+   running/active, is the nowayout bit set, is the device opened via
+   the /dev/watchdog interface or not, ...).
++* deferred: entry in wtd_deferred_reg_list which is used to
++  register early initialized watchdogs.
+ 
+ The list of watchdog operations is defined as:
+ 
+diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+index cec9b55..1a80594 100644
+--- a/drivers/watchdog/watchdog_core.c
++++ b/drivers/watchdog/watchdog_core.c
+@@ -43,6 +43,45 @@
+ static DEFINE_IDA(watchdog_ida);
+ static struct class *watchdog_class;
+ 
++/*
++ * Deferred Registration infrastructure.
++ *
++ * Sometimes watchdog drivers needs to be loaded as soon as possible,
++ * for example when it's impossible to disable it. To do so,
++ * raising the initcall level of the watchdog driver is a solution.
++ * But in such case, the miscdev is maybe not ready (subsys_initcall), and
++ * watchdog_core need miscdev to register the watchdog as a char device.
++ *
++ * The deferred registration infrastructure offer a way for the watchdog
++ * subsystem to register a watchdog properly, even before miscdev is ready.
++ */
++
++static DEFINE_MUTEX(wtd_deferred_reg_mutex);
++static LIST_HEAD(wtd_deferred_reg_list);
++static bool wtd_deferred_reg_done;
++
++static int watchdog_deferred_registration_add(struct watchdog_device *wdd)
++{
++	list_add_tail(&wdd->deferred,
++		      &wtd_deferred_reg_list);
++	return 0;
++}
++
++static void watchdog_deferred_registration_del(struct watchdog_device *wdd)
++{
++	struct list_head *p, *n;
++	struct watchdog_device *wdd_tmp;
++
++	list_for_each_safe(p, n, &wtd_deferred_reg_list) {
++		wdd_tmp = list_entry(p, struct watchdog_device,
++				     deferred);
++		if (wdd_tmp == wdd) {
++			list_del(&wdd_tmp->deferred);
++			break;
++		}
++	}
++}
++
+ static void watchdog_check_min_max_timeout(struct watchdog_device *wdd)
+ {
+ 	/*
+@@ -98,17 +137,7 @@ int watchdog_init_timeout(struct watchdog_device *wdd,
+ }
+ EXPORT_SYMBOL_GPL(watchdog_init_timeout);
+ 
+-/**
+- * watchdog_register_device() - register a watchdog device
+- * @wdd: watchdog device
+- *
+- * Register a watchdog device with the kernel so that the
+- * watchdog timer can be accessed from userspace.
+- *
+- * A zero is returned on success and a negative errno code for
+- * failure.
+- */
+-int watchdog_register_device(struct watchdog_device *wdd)
++static int __watchdog_register_device(struct watchdog_device *wdd)
+ {
+ 	int ret, id, devno;
+ 
+@@ -164,16 +193,33 @@ int watchdog_register_device(struct watchdog_device *wdd)
+ 
+ 	return 0;
+ }
+-EXPORT_SYMBOL_GPL(watchdog_register_device);
+ 
+ /**
+- * watchdog_unregister_device() - unregister a watchdog device
+- * @wdd: watchdog device to unregister
++ * watchdog_register_device() - register a watchdog device
++ * @wdd: watchdog device
+  *
+- * Unregister a watchdog device that was previously successfully
+- * registered with watchdog_register_device().
++ * Register a watchdog device with the kernel so that the
++ * watchdog timer can be accessed from userspace.
++ *
++ * A zero is returned on success and a negative errno code for
++ * failure.
+  */
+-void watchdog_unregister_device(struct watchdog_device *wdd)
++
++int watchdog_register_device(struct watchdog_device *wdd)
++{
++	int ret;
++
++	mutex_lock(&wtd_deferred_reg_mutex);
++	if (wtd_deferred_reg_done)
++		ret = __watchdog_register_device(wdd);
++	else
++		ret = watchdog_deferred_registration_add(wdd);
++	mutex_unlock(&wtd_deferred_reg_mutex);
++	return ret;
++}
++EXPORT_SYMBOL_GPL(watchdog_register_device);
++
++static void __watchdog_unregister_device(struct watchdog_device *wdd)
+ {
+ 	int ret;
+ 	int devno;
+@@ -189,8 +235,43 @@ void watchdog_unregister_device(struct watchdog_device *wdd)
+ 	ida_simple_remove(&watchdog_ida, wdd->id);
+ 	wdd->dev = NULL;
+ }
++
++/**
++ * watchdog_unregister_device() - unregister a watchdog device
++ * @wdd: watchdog device to unregister
++ *
++ * Unregister a watchdog device that was previously successfully
++ * registered with watchdog_register_device().
++ */
++
++void watchdog_unregister_device(struct watchdog_device *wdd)
++{
++	mutex_lock(&wtd_deferred_reg_mutex);
++	if (wtd_deferred_reg_done)
++		__watchdog_unregister_device(wdd);
++	else
++		watchdog_deferred_registration_del(wdd);
++	mutex_unlock(&wtd_deferred_reg_mutex);
++}
++
+ EXPORT_SYMBOL_GPL(watchdog_unregister_device);
+ 
++static int __init watchdog_deferred_registration(void)
++{
++	mutex_lock(&wtd_deferred_reg_mutex);
++	wtd_deferred_reg_done = true;
++	while (!list_empty(&wtd_deferred_reg_list)) {
++		struct watchdog_device *wdd;
++
++		wdd = list_first_entry(&wtd_deferred_reg_list,
++				       struct watchdog_device, deferred);
++		list_del(&wdd->deferred);
++		__watchdog_register_device(wdd);
++	}
++	mutex_unlock(&wtd_deferred_reg_mutex);
++	return 0;
++}
++
+ static int __init watchdog_init(void)
+ {
+ 	int err;
+@@ -207,6 +288,7 @@ static int __init watchdog_init(void)
+ 		return err;
+ 	}
+ 
++	watchdog_deferred_registration();
+ 	return 0;
+ }
+ 
+@@ -217,7 +299,7 @@ static void __exit watchdog_exit(void)
+ 	ida_destroy(&watchdog_ida);
+ }
+ 
+-subsys_initcall(watchdog_init);
++subsys_initcall_sync(watchdog_init);
+ module_exit(watchdog_exit);
+ 
+ MODULE_AUTHOR("Alan Cox <alan@lxorguk.ukuu.org.uk>");
+diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+index a746bf5..f47fead 100644
+--- a/include/linux/watchdog.h
++++ b/include/linux/watchdog.h
+@@ -65,6 +65,8 @@ struct watchdog_ops {
+  * @driver-data:Pointer to the drivers private data.
+  * @lock:	Lock for watchdog core internal use only.
+  * @status:	Field that contains the devices internal status bits.
++ * @deferred: entry in wtd_deferred_reg_list which is used to
++ *			   register early initialized watchdogs.
+  *
+  * The watchdog_device structure contains all information about a
+  * watchdog timer device.
+@@ -95,6 +97,7 @@ struct watchdog_device {
+ #define WDOG_ALLOW_RELEASE	2	/* Did we receive the magic char ? */
+ #define WDOG_NO_WAY_OUT		3	/* Is 'nowayout' feature set ? */
+ #define WDOG_UNREGISTERED	4	/* Has the device been unregistered */
++	struct list_head deferred;
+ };
+ 
+ #define WATCHDOG_NOWAYOUT		IS_BUILTIN(CONFIG_WATCHDOG_NOWAYOUT)
 -- 
-Best regards,
-
-Fu Wei
-Software Engineer
-Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
-Ph: +86 21 61221326(direct)
-Ph: +86 186 2020 4684 (mobile)
-Room 1512, Regus One Corporate Avenue,Level 15,
-One Corporate Avenue,222 Hubin Road,Huangpu District,
-Shanghai,China 200021
+2.4.2
