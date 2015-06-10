@@ -1,6 +1,6 @@
 Return-path: <fu.wei@linaro.org>
 MIME-Version: 1.0
-In-Reply-To: <5577180E.4070804@roeck-us.net>
+In-Reply-To: <CADyBb7sVd5nLwb3eHRPiNt-WTynfaJonOyuE_bD694dayyvevA@mail.gmail.com>
 References: <=fu.wei@linaro.org>
 	<1433217907-928-1-git-send-email-fu.wei@linaro.org>
 	<1433217907-928-6-git-send-email-fu.wei@linaro.org>
@@ -17,8 +17,9 @@ References: <=fu.wei@linaro.org>
 	<557712CF.8010802@roeck-us.net>
 	<5577147B.2030900@codeaurora.org>
 	<5577180E.4070804@roeck-us.net>
-Date: Wed, 10 Jun 2015 11:41:27 +0800
-Message-ID: <CADyBb7sVd5nLwb3eHRPiNt-WTynfaJonOyuE_bD694dayyvevA@mail.gmail.com>
+	<CADyBb7sVd5nLwb3eHRPiNt-WTynfaJonOyuE_bD694dayyvevA@mail.gmail.com>
+Date: Wed, 10 Jun 2015 12:20:20 +0800
+Message-ID: <CADyBb7s7NpQJFiFFGbbjCTQ0+bNCZoVMC4KwaZbWwGs_Wa=mLg@mail.gmail.com>
 Subject: Re: [PATCH v4 5/7] Watchdog: introduce ARM SBSA watchdog driver
 From: Fu Wei <fu.wei@linaro.org>
 To: Guenter Roeck <linux@roeck-us.net>
@@ -38,65 +39,90 @@ List-ID: <linux-watchdog@vger.kernel.org>
 
 Hi Guenter,
 
-On 10 June 2015 at 00:45, Guenter Roeck <linux@roeck-us.net> wrote:
-> On 06/09/2015 09:29 AM, Timur Tabi wrote:
->>
->> On 06/09/2015 11:22 AM, Guenter Roeck wrote:
+On 10 June 2015 at 11:41, Fu Wei <fu.wei@linaro.org> wrote:
+> Hi Guenter,
+>
+> On 10 June 2015 at 00:45, Guenter Roeck <linux@roeck-us.net> wrote:
+>> On 06/09/2015 09:29 AM, Timur Tabi wrote:
+>>>
+>>> On 06/09/2015 11:22 AM, Guenter Roeck wrote:
+>>>>
+>>>>
+>>>>
+>>>> but I see your point. Essentially, the specification is broken
+>>>> for all practical purposes, since, as you point out, enabling
+>>>> the watchdog overwrites and explicitly sets WCV. Effectively
+>>>> this means that just using WCV to program the timeout period
+>>>> is not really possible.
+>>>>
+>>>> I am not really sure how to address this. We can either only use WOR,
+>>>> and forget about pretimeout, or we can enforce a minimum pretimeout.
+>>>> In the latter case, we'll have to write WCV after writing WOR.
 >>>
 >>>
+>>> In talking with our hardware engineers, using WCV to program the timeout
+>>> period is not a valid operation.  This is why I keep arguing against the
+>>> pre-timeout feature, and I don't agree that servers should always use
+>>> pre-timeout.
 >>>
->>> but I see your point. Essentially, the specification is broken
->>> for all practical purposes, since, as you point out, enabling
->>> the watchdog overwrites and explicitly sets WCV. Effectively
->>> this means that just using WCV to program the timeout period
->>> is not really possible.
->>>
->>> I am not really sure how to address this. We can either only use WOR,
->>> and forget about pretimeout, or we can enforce a minimum pretimeout.
->>> In the latter case, we'll have to write WCV after writing WOR.
 >>
+>> Not sure if "not valid" is correct - after all, it is mentioned in the
+>> specification. However, it is at the very least fragile.
+>
+> I think we should focus on SBSA spec, but not a specific chip design,
+> because this is SBSA watchdog, not a driver for an IP core from a
+> specific chip vendor.
+> this operation is mentioned in the spec,
+> and I have tested my driver on Foundation model(from ARM) and a real hardware.
+>
 >>
->> In talking with our hardware engineers, using WCV to program the timeout
->> period is not a valid operation.  This is why I keep arguing against the
->> pre-timeout feature, and I don't agree that servers should always use
->> pre-timeout.
+>> I tend to agree that we should just forget about pretimeout and
+>> use your original approach, where the timeout value is used
+>> to program WOR. Everything else is really just asking for trouble.
+
+Another weakness of only using WOR is the timeout limited by this
+32bit register.
+10s @400MHz generic Timer
+
+I don't think this limit is good for a server, once the server is in a
+heavy load
+
+>
+> I don't mind if we give up pretimeout, The reason I use pretimeout is:
+> this concept matches the function of two stage timeouts.
+>
+> but, If we give up pretimeout, could you give me a suggestion:
+>
+> How to config the two stage timeouts
+> (1)from enabling watchdog to WS0
+> (2)the time from WS1 to WS0
+>
+> If we only have one timeout parameter,  How to config the two stage timeouts?
+> Any suggestion ?
+>
+> If we make the first stage timeout is timeout/2,  this violates the
+> definition of timeout.
+> I don't think users expect interrupt, panic or reboot at timeout/2.
+>
+> And WS1  definitely isn't a backup of WS0.
+>
+>>
+>> Guenter
 >>
 >
-> Not sure if "not valid" is correct - after all, it is mentioned in the
-> specification. However, it is at the very least fragile.
-
-I think we should focus on SBSA spec, but not a specific chip design,
-because this is SBSA watchdog, not a driver for an IP core from a
-specific chip vendor.
-this operation is mentioned in the spec,
-and I have tested my driver on Foundation model(from ARM) and a real hardware.
-
 >
-> I tend to agree that we should just forget about pretimeout and
-> use your original approach, where the timeout value is used
-> to program WOR. Everything else is really just asking for trouble.
-
-I don't mind if we give up pretimeout, The reason I use pretimeout is:
-this concept matches the function of two stage timeouts.
-
-but, If we give up pretimeout, could you give me a suggestion:
-
-How to config the two stage timeouts
-(1)from enabling watchdog to WS0
-(2)the time from WS1 to WS0
-
-If we only have one timeout parameter,  How to config the two stage timeouts?
-Any suggestion ?
-
-If we make the first stage timeout is timeout/2,  this violates the
-definition of timeout.
-I don't think users expect interrupt, panic or reboot at timeout/2.
-
-And WS1  definitely isn't a backup of WS0.
-
 >
-> Guenter
+> --
+> Best regards,
 >
+> Fu Wei
+> Software Engineer
+> Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
+> Ph: +86 21 61221326(direct)
+> Ph: +86 186 2020 4684 (mobile)
+> Room 1512, Regus One Corporate Avenue,Level 15,
+> One Corporate Avenue,222 Hubin Road,Huangpu District,
+> Shanghai,China 200021
 
 
 
