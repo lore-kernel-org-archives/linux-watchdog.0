@@ -1,11 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f171.google.com ([209.85.192.171]:36645 "EHLO
-	mail-pd0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934150AbbFJRuN (ORCPT
+Received: from mail-pa0-f49.google.com ([209.85.220.49]:35243 "EHLO
+	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933823AbbFJRtZ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 10 Jun 2015 13:50:13 -0400
-Received: by pdjm12 with SMTP id m12so42413951pdj.3
-        for <linux-watchdog@vger.kernel.org>; Wed, 10 Jun 2015 10:50:11 -0700 (PDT)
+	Wed, 10 Jun 2015 13:49:25 -0400
+Received: by pacyx8 with SMTP id yx8so39225031pac.2
+        for <linux-watchdog@vger.kernel.org>; Wed, 10 Jun 2015 10:49:25 -0700 (PDT)
 From: fu.wei@linaro.org
 To: Suravee.Suthikulpanit@amd.com, linaro-acpi@lists.linaro.org,
 	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
@@ -17,9 +17,9 @@ Cc: tekkamanninja@gmail.com, graeme.gregory@linaro.org,
 	leo.duran@amd.com, corbet@lwn.net, mark.rutland@arm.com,
 	catalin.marinas@arm.com, will.deacon@arm.com, rjw@rjwysocki.net,
 	Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH non-pretimeout 6/7] Watchdog: enable ACPI GTDT support for ARM SBSA watchdog driver
-Date: Thu, 11 Jun 2015 01:47:31 +0800
-Message-Id: <1433958452-23721-7-git-send-email-fu.wei@linaro.org>
+Subject: [PATCH non-pretimeout 1/7] Documentation: add sbsa-gwdt.txt documentation
+Date: Thu, 11 Jun 2015 01:47:26 +0800
+Message-Id: <1433958452-23721-2-git-send-email-fu.wei@linaro.org>
 In-Reply-To: <1433958452-23721-1-git-send-email-fu.wei@linaro.org>
 References: <=fu.wei@linaro.org>
  <1433958452-23721-1-git-send-email-fu.wei@linaro.org>
@@ -28,26 +28,58 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Fu Wei <fu.wei@linaro.org>
 
-This patch enables ACPI GTDT support for ARM SBSA
-watchdog driver automatically, if ACPI support is enabled.
+The sbsa-gwdt.txt documentation in devicetree/bindings/watchdog is for
+introducing SBSA(Server Base System Architecture) Generic Watchdog
+device node info into FDT.
 
+Acked-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Fu Wei <fu.wei@linaro.org>
 ---
- drivers/watchdog/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ .../devicetree/bindings/watchdog/sbsa-gwdt.txt     | 35 ++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/sbsa-gwdt.txt
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 554f18a..20f9980 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -157,6 +157,7 @@ config ARM_SBSA_WATCHDOG
- 	depends on ARM64
- 	depends on ARM_ARCH_TIMER
- 	select WATCHDOG_CORE
-+	select ACPI_GTDT if ACPI
- 	help
- 	  ARM SBSA Generic Watchdog. This watchdog has two Watchdog timeouts.
- 	  The first timeout will trigger a panic; the second timeout will
+diff --git a/Documentation/devicetree/bindings/watchdog/sbsa-gwdt.txt b/Documentation/devicetree/bindings/watchdog/sbsa-gwdt.txt
+new file mode 100644
+index 0000000..164ee98
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/sbsa-gwdt.txt
+@@ -0,0 +1,35 @@
++* SBSA(Server Base System Architecture) Generic Watchdog
++
++The SBSA Generic Watchdog Timer is used for resetting the system after
++two stages of timeout.
++More details: ARM-DEN-0029 - Server Base System Architecture (SBSA)
++
++Required properties:
++- compatible : Should at least contain "arm,sbsa-gwdt".
++
++- reg : base physical address of the frames and length of memory mapped region.
++
++- reg-names : Should contain the resource reg names to show the order of
++  the values in "reg".
++  Must include the following entries : "refresh", "control".
++
++- interrupts : Should at least contain WS0 interrupt,
++  the WS1 Signal is optional.
++
++- interrupt-names : Should contain the resource interrupt names.
++  Must include the following entries : "ws0". "ws1" is optional.
++
++Optional properties
++- timeout-sec : Watchdog timeout value (in seconds).
++
++Example for FVP Foundation Model v8:
++
++watchdog@2a440000 {
++	compatible = "arm,sbsa-gwdt";
++	reg = <0x0 0x2a440000 0 0x10000>,
++	      <0x0 0x2a450000 0 0x10000>;
++	reg-names = "control", "refresh";
++	interrupts = <0 27 4>;
++	interrupt-names = "ws0";
++	timeout-sec = <10>;
++};
 -- 
 1.9.1
 
