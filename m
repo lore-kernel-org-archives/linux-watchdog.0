@@ -1,39 +1,36 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:34452 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:34547 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751713AbbFJFkp (ORCPT
+	with ESMTP id S1753844AbbFJFlk (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 10 Jun 2015 01:40:45 -0400
-Message-ID: <5577CDD9.9080501@roeck-us.net>
-Date: Tue, 09 Jun 2015 22:40:41 -0700
+	Wed, 10 Jun 2015 01:41:40 -0400
+Message-ID: <5577CE13.4080403@roeck-us.net>
+Date: Tue, 09 Jun 2015 22:41:39 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
 To: Jean-Baptiste Theou <jtheou@adeneo-embedded.us>,
 	Wim Van Sebroeck <wim@iguana.be>
 CC: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v5 1/2] watchdog_core: Add watchdog registration deferral
- mechanism
-References: <1433868903-20033-1-git-send-email-jtheou@adeneo-embedded.us>
-In-Reply-To: <1433868903-20033-1-git-send-email-jtheou@adeneo-embedded.us>
+Subject: Re: [PATCH v5 2/2] gpio_wdt: Add option for early registration
+References: <1433868903-20033-1-git-send-email-jtheou@adeneo-embedded.us> <1433868903-20033-2-git-send-email-jtheou@adeneo-embedded.us>
+In-Reply-To: <1433868903-20033-2-git-send-email-jtheou@adeneo-embedded.us>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 On 06/09/2015 09:55 AM, Jean-Baptiste Theou wrote:
-> Currently, watchdog subsystem require the misc subsystem to
-> register a watchdog. This may not be the case in case of an
-> early registration of a watchdog, which can be required when
-> the watchdog cannot be disabled.
+> In some situation, mainly when it's not possible to disable a
+> watchdog, you may want the watchdog driver to be started as soon
+> as possible.
 >
-> This patch introduces a deferral mechanism to remove this requirement.
+> Adding GPIO_WATCHDOG_ARCH_INITCALL to raise initcall from
+> module_init to arch_initcall.
+>
+> This patch require watchdog registration deferral mechanism
 >
 > Signed-off-by: Jean-Baptiste Theou <jtheou@adeneo-embedded.us>
 > ---
-
-Now you have a couple of unnecessary continuation lines ;-)
-
-Anyway, I think this is good enough.
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
