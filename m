@@ -1,136 +1,142 @@
 Return-path: <fu.wei@linaro.org>
-MIME-Version: 1.0
-In-Reply-To: <CADyBb7sVd5nLwb3eHRPiNt-WTynfaJonOyuE_bD694dayyvevA@mail.gmail.com>
+From: fu.wei@linaro.org
+To: Suravee.Suthikulpanit@amd.com,
+	linaro-acpi@lists.linaro.org,
+	linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-doc@vger.kernel.org
+Cc: tekkamanninja@gmail.com,
+	graeme.gregory@linaro.org,
+	al.stone@linaro.org,
+	hanjun.guo@linaro.org,
+	timur@codeaurora.org,
+	ashwin.chaugule@linaro.org,
+	arnd@arndb.de,
+	linux@roeck-us.net,
+	vgandhi@codeaurora.org,
+	wim@iguana.be,
+	jcm@redhat.com,
+	leo.duran@amd.com,
+	corbet@lwn.net,
+	mark.rutland@arm.com,
+	catalin.marinas@arm.com,
+	will.deacon@arm.com,
+	rjw@rjwysocki.net,
+	Fu Wei <fu.wei@linaro.org>
+Subject: [PATCH v5 0/8] Watchdog: introduce ARM SBSA watchdog driver
+Date: Wed, 10 Jun 2015 21:41:45 +0800
+Message-Id: <1433943713-32466-1-git-send-email-fu.wei@linaro.org>
+In-Reply-To: <=fu.wei@linaro.org>
 References: <=fu.wei@linaro.org>
-	<1433217907-928-1-git-send-email-fu.wei@linaro.org>
-	<1433217907-928-6-git-send-email-fu.wei@linaro.org>
-	<556DCC95.806@codeaurora.org>
-	<CADyBb7sXiMNtrH+Eu1Qj00TPNLMMr5cCTPObzFmKnHLsbWH79Q@mail.gmail.com>
-	<556DE2D5.3090906@roeck-us.net>
-	<CADyBb7uT=gFJkK8s-QF1n4Z+Zov9Lurp1nvBO-C-qszTqbMYXQ@mail.gmail.com>
-	<5575DE48.8010308@roeck-us.net>
-	<CADyBb7sYPnvDVEJYVQm65B1JV=yvq10+ezs2x3f8F=TJCZ+OJA@mail.gmail.com>
-	<55766D74.2060401@roeck-us.net>
-	<CADyBb7vR-jP6ZjzMSnprrSXbNayk8umx+cXV3TsGypfhZcCwTw@mail.gmail.com>
-	<55769E0E.8060801@roeck-us.net>
-	<CADyBb7skpSZ=3_ByW-RHM99=nbs7Z5xXFXtsKzkxOXAGjxF=3Q@mail.gmail.com>
-	<557712CF.8010802@roeck-us.net>
-	<5577147B.2030900@codeaurora.org>
-	<5577180E.4070804@roeck-us.net>
-	<CADyBb7sVd5nLwb3eHRPiNt-WTynfaJonOyuE_bD694dayyvevA@mail.gmail.com>
-Date: Wed, 10 Jun 2015 23:38:30 +0800
-Message-ID: <CADyBb7tSkdRc0GHbX_vAdDAeFGVS=CFCdC_jMCm5LYmg9m1Qow@mail.gmail.com>
-Subject: Re: [PATCH v4 5/7] Watchdog: introduce ARM SBSA watchdog driver
-From: Fu Wei <fu.wei@linaro.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Timur Tabi <timur@codeaurora.org>,
-	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>, linux-watchdog@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-doc@vger.kernel.org, Wei Fu <tekkamanninja@gmail.com>,
-	G Gregory <graeme.gregory@linaro.org>, Al Stone <al.stone@linaro.org>,
-	Hanjun Guo <hanjun.guo@linaro.org>, Ashwin Chaugule <ashwin.chaugule@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>, Vipul Gandhi <vgandhi@codeaurora.org>, Wim Van Sebroeck <wim@iguana.be>,
-	Jon Masters <jcm@redhat.com>, Leo Duran <leo.duran@amd.com>, Jon Corbet <corbet@lwn.net>,
-	Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will.deacon@arm.com>, rjw@rjwysocki.net
-Content-Type: text/plain; charset=UTF-8
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Guenter,
+From: Fu Wei <fu.wei@linaro.org>
 
+This patchset:
+    (1)Introduce Documentation/devicetree/bindings/watchdog/sbsa-gwdt.txt
+    for FDT info of SBSA Generic Watchdog, and give two examples of
+    adding SBSA Generic Watchdog device node into the dts files:
+    foundation-v8.dts and amd-seattle-soc.dtsi.
 
-On 10 June 2015 at 11:41, Fu Wei <fu.wei@linaro.org> wrote:
-> Hi Guenter,
->
-> On 10 June 2015 at 00:45, Guenter Roeck <linux@roeck-us.net> wrote:
->> On 06/09/2015 09:29 AM, Timur Tabi wrote:
->>>
->>> On 06/09/2015 11:22 AM, Guenter Roeck wrote:
->>>>
->>>>
->>>>
->>>> but I see your point. Essentially, the specification is broken
->>>> for all practical purposes, since, as you point out, enabling
->>>> the watchdog overwrites and explicitly sets WCV. Effectively
->>>> this means that just using WCV to program the timeout period
->>>> is not really possible.
->>>>
->>>> I am not really sure how to address this. We can either only use WOR,
->>>> and forget about pretimeout, or we can enforce a minimum pretimeout.
->>>> In the latter case, we'll have to write WCV after writing WOR.
->>>
->>>
->>> In talking with our hardware engineers, using WCV to program the timeout
->>> period is not a valid operation.  This is why I keep arguing against the
->>> pre-timeout feature, and I don't agree that servers should always use
->>> pre-timeout.
->>>
->>
->> Not sure if "not valid" is correct - after all, it is mentioned in the
->> specification. However, it is at the very least fragile.
->
-> I think we should focus on SBSA spec, but not a specific chip design,
-> because this is SBSA watchdog, not a driver for an IP core from a
-> specific chip vendor.
-> this operation is mentioned in the spec,
-> and I have tested my driver on Foundation model(from ARM) and a real hardware.
->
->>
->> I tend to agree that we should just forget about pretimeout and
->> use your original approach, where the timeout value is used
->> to program WOR. Everything else is really just asking for trouble.
->
-> I don't mind if we give up pretimeout, The reason I use pretimeout is:
-> this concept matches the function of two stage timeouts.
->
-> but, If we give up pretimeout, could you give me a suggestion:
->
-> How to config the two stage timeouts
-> (1)from enabling watchdog to WS0
-> (2)the time from WS1 to WS0
->
-> If we only have one timeout parameter,  How to config the two stage timeouts?
-> Any suggestion ?
+    (2)Introduce ACPI GTDT parser: drivers/acpi/gtdt.c
+    Parse SBSA Generic Watchdog Structure in GTDT table of ACPI,
+    and create a platform device with that information.
+    This platform device can be used by This Watchdog driver.
+    drivers/clocksource/arm_arch_timer.c is simplified by this GTDT support.
 
-I have another thought for this, please allow me to sent anther
-patchset in a day. see if you like it.
+    (3)Introduce "pretimeout" into the watchdog framework, and update
+    Documentation/watchdog/watchdog-kernel-api.txt to introduce:
+        (1)the new elements in the watchdog_device and watchdog_ops struct;
+        (2)the new API "watchdog_init_timeouts".
 
->
-> If we make the first stage timeout is timeout/2,  this violates the
-> definition of timeout.
-> I don't think users expect interrupt, panic or reboot at timeout/2.
->
-> And WS1  definitely isn't a backup of WS0.
->
->>
->> Guenter
->>
->
->
->
-> --
-> Best regards,
->
-> Fu Wei
-> Software Engineer
-> Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
-> Ph: +86 21 61221326(direct)
-> Ph: +86 186 2020 4684 (mobile)
-> Room 1512, Regus One Corporate Avenue,Level 15,
-> One Corporate Avenue,222 Hubin Road,Huangpu District,
-> Shanghai,China 200021
+    (4)Introduce ARM SBSA watchdog driver:
+        a.Use linux kernel watchdog framework;
+        b.Work with FDT on ARM64;
+        c.Use "pretimeout" in watchdog framework;
+        d.In first timeout, do panic to save system context;
+        e.Support getting timeout and pretimeout from parameter and FDT
+          at the driver init stage.
 
+This patchset has been tested with watchdog daemon
+(ACPI/FDT, module/build-in) on the following platforms:
+    (1)ARM Foundation v8 model
 
+Changelog:
+v5: Improve pretimeout support:
+        (1)fix typo in documentation and comments.
+	(2)fix the timeout limits validation bug.
+    Simplify sbsa_gwdt driver:
+	(1)integrate all the registers access functions into caller.
+
+v4: Refactor GTDT support code: remove it from arch/arm64/kernel/acpi.c,
+    put it into drivers/acpi/gtdt.c file.
+    Integrate the GTDT code of drivers/clocksource/arm_arch_timer.c into
+    drivers/acpi/gtdt.c.
+    Improve pretimeout support, fix "pretimeout == 0" problem.
+    Simplify sbsa_gwdt driver:
+        (1)timeout/pretimeout limits setup;
+        (2)keepalive function;
+        (3)delete "clk == 0" check;
+        (4)delete WS0 status bit check in interrupt routine;
+        (5)sbsa_gwdt_set_wcv function.
+
+v3: Delete "export arch_timer_get_rate" patch.
+    Driver back to use arch_timer_get_cntfrq.
+    Improve watchdog_init_timeouts function and update relevant documentation.
+    Improve watchdog_timeout_invalid and watchdog_pretimeout_invalid.
+    Improve foundation-v8.dts: delete the unnecessary tag of device node.
+    Remove "ARM64 || COMPILE_TEST" from Kconfig.
+    Add comments in arch/arm64/kernel/acpi.c
+    Fix typoes and incorrect comments.
+
+v2: Improve watchdog-kernel-api.txt documentation for pretimeout support.
+    Export "arch_timer_get_rate" in arm_arch_timer.c.
+    Add watchdog_init_timeouts API for pretimeout support in framework.
+    Improve suspend and resume foundation in driver
+    Improve timeout/pretimeout values init code in driver.
+    Delete unnecessary items of the sbsa_gwdt struct and #define.
+    Delete all unnecessary debug info in driver.
+    Fix 64bit division bug.
+    Use the arch_timer interface to get watchdog clock rate.
+    Add MODULE_DEVICE_TABLE for platform device id.
+    Fix typoes.
+
+v1: The first version upstream patchset to linux mailing list.
+
+Fu Wei (8):
+  Documentation: add sbsa-gwdt.txt documentation
+  ARM64: add SBSA Generic Watchdog device node in foundation-v8.dts
+  ARM64: add SBSA Generic Watchdog device node in amd-seattle-soc.dtsi
+  Watchdog: introdouce "pretimeout" into framework
+  Watchdog: introduce ARM SBSA watchdog driver
+  ACPI: add GTDT table parse driver into ACPI driver
+  Watchdog: enable ACPI GTDT support for ARM SBSA watchdog driver
+  clocksource: simplify ACPI code in arm_arch_timer.c
+
+ .../devicetree/bindings/watchdog/sbsa-gwdt.txt     |  36 ++
+ Documentation/watchdog/watchdog-kernel-api.txt     |  47 ++-
+ arch/arm64/boot/dts/amd/amd-seattle-soc.dtsi       |  11 +
+ arch/arm64/boot/dts/arm/foundation-v8.dts          |  10 +
+ arch/arm64/kernel/time.c                           |   4 +-
+ drivers/acpi/Kconfig                               |   9 +
+ drivers/acpi/Makefile                              |   1 +
+ drivers/acpi/gtdt.c                                | 180 +++++++++
+ drivers/clocksource/Kconfig                        |   1 +
+ drivers/clocksource/arm_arch_timer.c               |  60 +--
+ drivers/watchdog/Kconfig                           |  12 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/sbsa_gwdt.c                       | 409 +++++++++++++++++++++
+ drivers/watchdog/watchdog_core.c                   | 100 +++--
+ drivers/watchdog/watchdog_dev.c                    |  53 +++
+ include/clocksource/arm_arch_timer.h               |   8 +
+ include/linux/acpi.h                               |   5 +
+ include/linux/clocksource.h                        |   4 +-
+ include/linux/watchdog.h                           |  36 +-
+ 19 files changed, 895 insertions(+), 92 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/sbsa-gwdt.txt
+ create mode 100644 drivers/acpi/gtdt.c
+ create mode 100644 drivers/watchdog/sbsa_gwdt.c
 
 -- 
-Best regards,
-
-Fu Wei
-Software Engineer
-Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
-Ph: +86 21 61221326(direct)
-Ph: +86 186 2020 4684 (mobile)
-Room 1512, Regus One Corporate Avenue,Level 15,
-One Corporate Avenue,222 Hubin Road,Huangpu District,
-Shanghai,China 200021
+1.9.1
