@@ -1,13 +1,13 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:35949 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750921AbbFKFcT convert rfc822-to-8bit (ORCPT
+Received: from mail-ob0-f180.google.com ([209.85.214.180]:35572 "EHLO
+	mail-ob0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750883AbbFKFdU (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 11 Jun 2015 01:32:19 -0400
-Received: by obbqz1 with SMTP id qz1so48205629obb.3
-        for <linux-watchdog@vger.kernel.org>; Wed, 10 Jun 2015 22:32:18 -0700 (PDT)
+	Thu, 11 Jun 2015 01:33:20 -0400
+Received: by obbgp2 with SMTP id gp2so48105717obb.2
+        for <linux-watchdog@vger.kernel.org>; Wed, 10 Jun 2015 22:33:19 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <55790455.7090809@codeaurora.org>
+In-Reply-To: <5579190E.8000803@roeck-us.net>
 References: <=fu.wei@linaro.org>
 	<1433217907-928-1-git-send-email-fu.wei@linaro.org>
 	<1433217907-928-6-git-send-email-fu.wei@linaro.org>
@@ -28,12 +28,13 @@ References: <=fu.wei@linaro.org>
 	<5578D4D5.3070109@codeaurora.org>
 	<CADyBb7s-02-m54P54GAQbfX_RMh1vXBg+RjVypuW1GOEFO1LKQ@mail.gmail.com>
 	<55790455.7090809@codeaurora.org>
-Date: Thu, 11 Jun 2015 13:32:18 +0800
-Message-ID: <CADyBb7vyZAXpDXLjy9Q_mk2fHnJftkgd9qPNKE5J+nD3hvbwQw@mail.gmail.com>
+	<5579190E.8000803@roeck-us.net>
+Date: Thu, 11 Jun 2015 13:33:19 +0800
+Message-ID: <CADyBb7s3=0oK5mmuO5-nSvVtgpqNdCb6gtnn3UDX-DthWcXphw@mail.gmail.com>
 Subject: Re: [PATCH v4 5/7] Watchdog: introduce ARM SBSA watchdog driver
 From: Fu Wei <fu.wei@linaro.org>
-To: Timur Tabi <timur@codeaurora.org>
-Cc: Guenter Roeck <linux@roeck-us.net>,
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Timur Tabi <timur@codeaurora.org>,
 	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
 	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
 	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
@@ -52,42 +53,34 @@ Cc: Guenter Roeck <linux@roeck-us.net>,
 	Catalin Marinas <catalin.marinas@arm.com>,
 	Will Deacon <will.deacon@arm.com>, rjw@rjwysocki.net
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 11 June 2015 at 11:45, Timur Tabi <timur@codeaurora.org> wrote:
-> Fu Wei wrote:
+Hi Guenter
+
+On 11 June 2015 at 13:13, Guenter Roeck <linux@roeck-us.net> wrote:
+> On 06/10/2015 08:45 PM, Timur Tabi wrote:
 >>
->> Could you suggest a good way to use WS0, so we can follow SBSA spec?
->
->
-> To avoid the timeout/2 problem, WS0 calls panic, which is the "real"
-> timeout/reset.  WS1 is then a "backup" that is ignored by the driver. That
-> is, the driver doesn't do anything with WS1 and it doesn't tell the kernel
-> about WS1.
+>> Fu Wei wrote:
+>>>
+>>> Could you suggest a good way to use WS0, so we can follow SBSA spec?
+>>
+>>
+>> To avoid the timeout/2 problem, WS0 calls panic, which is the "real"
+>> timeout/reset.  WS1 is then a "backup" that is ignored by the driver. That
+>> is, the driver doesn't do anything with WS1 and it doesn't tell the kernel
+>> about WS1.
+>>
+>> I know you don't like the idea of WS1 as a backup timeout, but this is one
+>> way to solve the problem.
+>>
+> This is what I would do.
 
-could you suggestion :
-(1) how to config the time from WS0 to WS1 without touching timeout.
-(2) if we don't config the time from WS0 to WS1, what is the better
-time for ALL server and ALL situation
-
->
-> I know you don't like the idea of WS1 as a backup timeout, but this is one
-> way to solve the problem.
-
-It is not "I don't like"
-WS1 is not a backup in SBSA spec. Page 21 ：
-"The initial signal is typically wired to an interrupt and alerts the system. "
-
-If this is the backup, it should say "reset the system"
+If so, Please check the non-pretimeout version.  Thanks
 
 >
+> Guenter
 >
-> --
-> Sent by an employee of the Qualcomm Innovation Center, Inc.
-> The Qualcomm Innovation Center, Inc. is a member of the
-> Code Aurora Forum, hosted by The Linux Foundation.
 
 
 
