@@ -1,173 +1,222 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:36282 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750844AbbFKFtn (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 11 Jun 2015 01:49:43 -0400
-Message-ID: <55792171.7050600@roeck-us.net>
-Date: Wed, 10 Jun 2015 22:49:37 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+Return-path: <hanjun.guo@linaro.org>
+Message-ID: <55796DAA.5000903@linaro.org>
+Date: Thu, 11 Jun 2015 19:14:50 +0800
+From: Hanjun Guo <hanjun.guo@linaro.org>
 MIME-Version: 1.0
-To: Fu Wei <fu.wei@linaro.org>
-CC: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-	Wei Fu <tekkamanninja@gmail.com>,
-	G Gregory <graeme.gregory@linaro.org>,
-	Al Stone <al.stone@linaro.org>,
-	Hanjun Guo <hanjun.guo@linaro.org>,
-	Timur Tabi <timur@codeaurora.org>,
-	Ashwin Chaugule <ashwin.chaugule@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Vipul Gandhi <vgandhi@codeaurora.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Jon Masters <jcm@redhat.com>, Leo Duran <leo.duran@amd.com>,
-	Jon Corbet <corbet@lwn.net>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will.deacon@arm.com>, rjw@rjwysocki.net
-Subject: Re: [PATCH non-pretimeout 4/7] Watchdog: introduce ARM SBSA watchdog
- driver
-References: <=fu.wei@linaro.org>	<1433958452-23721-1-git-send-email-fu.wei@linaro.org>	<1433958452-23721-5-git-send-email-fu.wei@linaro.org>	<55791DAD.7030601@roeck-us.net> <CADyBb7vcDGuZYZXubM=KVos9Yx8HgoJh1Z9L13ELp0oBOpDxLQ@mail.gmail.com>
-In-Reply-To: <CADyBb7vcDGuZYZXubM=KVos9Yx8HgoJh1Z9L13ELp0oBOpDxLQ@mail.gmail.com>
+To: rjw@rjwysocki.net
+CC: fu.wei@linaro.org, Suravee.Suthikulpanit@amd.com,
+ linaro-acpi@lists.linaro.org, linux-watchdog@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-doc@vger.kernel.org, tekkamanninja@gmail.com,
+ graeme.gregory@linaro.org, al.stone@linaro.org, timur@codeaurora.org,
+ ashwin.chaugule@linaro.org, arnd@arndb.de, linux@roeck-us.net,
+ vgandhi@codeaurora.org, wim@iguana.be, jcm@redhat.com,
+ leo.duran@amd.com, corbet@lwn.net, mark.rutland@arm.com,
+ catalin.marinas@arm.com, will.deacon@arm.com
+Subject: Re: [PATCH non-pretimeout 5/7] ACPI: add GTDT table parse driver
+ into ACPI driver
+References: <=fu.wei@linaro.org> <1433958452-23721-1-git-send-email-fu.wei@linaro.org> <1433958452-23721-6-git-send-email-fu.wei@linaro.org>
+In-Reply-To: <1433958452-23721-6-git-send-email-fu.wei@linaro.org>
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 06/10/2015 10:44 PM, Fu Wei wrote:
-> Hi Guenter,
+Hi Rafael,
+
+Any comments on patch 5,6,7/7 of this patch set?
+
+Thanks
+Hanjun
+
+
+On 06/11/2015 01:47 AM, fu.wei@linaro.org wrote:
+> From: Fu Wei <fu.wei@linaro.org>
 >
-> On 11 June 2015 at 13:33, Guenter Roeck <linux@roeck-us.net> wrote:
->> On 06/10/2015 10:47 AM, fu.wei@linaro.org wrote:
->>>
->>> From: Fu Wei <fu.wei@linaro.org>
->>>
->>> This driver bases on linux kernel watchdog framework.
->>> It supports getting timeout from parameter and FDT
->>> at the driver init stage.
->>> The first timeout period expires, the interrupt routine
->>> got another timeout period to run panic for saving
->>> system context.
->>>
->>> Signed-off-by: Fu Wei <fu.wei@linaro.org>
->>> ---
->>>    drivers/watchdog/Kconfig     |  11 ++
->>>    drivers/watchdog/Makefile    |   1 +
->>>    drivers/watchdog/sbsa_gwdt.c | 383
->>> +++++++++++++++++++++++++++++++++++++++++++
->>>    3 files changed, 395 insertions(+)
->>>    create mode 100644 drivers/watchdog/sbsa_gwdt.c
->>>
->>> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
->>> index e5e7c55..554f18a 100644
->>> --- a/drivers/watchdog/Kconfig
->>> +++ b/drivers/watchdog/Kconfig
->>> @@ -152,6 +152,17 @@ config ARM_SP805_WATCHDOG
->>>            ARM Primecell SP805 Watchdog timer. This will reboot your system
->>> when
->>>            the timeout is reached.
->>>
->>> +config ARM_SBSA_WATCHDOG
->>> +       tristate "ARM SBSA Generic Watchdog"
->>> +       depends on ARM64
->>> +       depends on ARM_ARCH_TIMER
->>> +       select WATCHDOG_CORE
->>> +       help
->>> +         ARM SBSA Generic Watchdog. This watchdog has two Watchdog
->>> timeouts.
->>> +         The first timeout will trigger a panic; the second timeout will
->>> +         trigger a system reset.
->>> +         More details: ARM DEN0029B - Server Base System Architecture
->>> (SBSA)
->>> +
->>>    config AT91RM9200_WATCHDOG
->>>          tristate "AT91RM9200 watchdog"
->>>          depends on SOC_AT91RM9200 && MFD_SYSCON
->>> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
->>> index 5c19294..471f1b7c 100644
->>> --- a/drivers/watchdog/Makefile
->>> +++ b/drivers/watchdog/Makefile
->>> @@ -30,6 +30,7 @@ obj-$(CONFIG_USBPCWATCHDOG) += pcwd_usb.o
->>>
->>>    # ARM Architecture
->>>    obj-$(CONFIG_ARM_SP805_WATCHDOG) += sp805_wdt.o
->>> +obj-$(CONFIG_ARM_SBSA_WATCHDOG) += sbsa_gwdt.o
->>>    obj-$(CONFIG_AT91RM9200_WATCHDOG) += at91rm9200_wdt.o
->>>    obj-$(CONFIG_AT91SAM9X_WATCHDOG) += at91sam9_wdt.o
->>>    obj-$(CONFIG_CADENCE_WATCHDOG) += cadence_wdt.o
->>> diff --git a/drivers/watchdog/sbsa_gwdt.c b/drivers/watchdog/sbsa_gwdt.c
->>> new file mode 100644
->>> index 0000000..1ddc10f
->>> --- /dev/null
->>> +++ b/drivers/watchdog/sbsa_gwdt.c
->>> @@ -0,0 +1,383 @@
->>> +/*
->>> + * SBSA(Server Base System Architecture) Generic Watchdog driver
->>> + *
->>> + * Copyright (c) 2015, Linaro Ltd.
->>> + * Author: Fu Wei <fu.wei@linaro.org>
->>> + *         Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
->>> + *
->>> + * This program is free software; you can redistribute it and/or modify
->>> + * it under the terms of the GNU General Public License 2 as published
->>> + * by the Free Software Foundation.
->>> + *
->>> + * This program is distributed in the hope that it will be useful,
->>> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
->>> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
->>> + * GNU General Public License for more details.
->>> + *
->>> + * Note: This SBSA Generic watchdog has two stage timeouts,
->>> + *       When the first timeout occurs, WS0(SPI or LPI) is triggered,
->>> + *       the second timeout period(as long as the first timeout period)
->>> starts.
->>> + *       In WS0 interrupt routine, panic() will be called for collecting
->>> + *       crashdown info.
->>> + *       If system can not recover from WS0 interrupt routine, then
->>> second
->>> + *       timeout occurs, WS1(reset or higher level interrupt) is
->>> triggered.
->>> + *       The two timeout period can be set by WOR(32bit).
->>> + *       WOR gives a maximum watch period of around 10s at the maximum
->>> + *       system counter frequency.
->>> + *       The System Counter shall run at maximum of 400MHz.
->>> + *
->>> + *       But If we need a larger timeout period, this driver will
->>> programme WCV
->>> + *       directly. That can support more than 10s timeout at the maximum
->>> + *       system counter frequency.
->>> + *       More details: ARM DEN0029B - Server Base System Architecture
->>> (SBSA)
->>> + *
->>> + * SBSA GWDT:    |---WOR(or WCV)---WS0---WOR(or WCV)---WS1
->>> + *               |-----timeout-----WS0-----timeout-----WS1
->>
->>
->> If we use WCV at all, I would like to see something like
->>
->>   * SBSA GWDT:    |---WOR(or WCV)---WS0--------WOR------WS1
->>   *               |-----timeout-----WS0-----------------WS1
->>   *                                 panic               hw reset
->>
->> where WOR would be used up to its maximum, to be replaced by WCV
->> (but kept at maximum) if the selected timeout is larger than the
->> maximum timeout selectable with WOR. Would this be possible ?
+> This driver adds support for parsing SBSA Generic Watchdog
+> Structure in GTDT, and creating a platform device with that
+> information. This allows the operating system to obtain device
+> data from the resource of platform device.
 >
-> for this part |-----timeout-----WS0,  I am doing this way in
-> non-pretimeout version.
+> The platform device named "sbsa-gwdt" can be used by the
+> ARM SBSA Generic Watchdog driver.
 >
-> but for WS0-----------------WS1, do you mean WOR would always be used
-> up to its maximum???
-
-yes
-
-> I don't see any variable attached on it. So I would like to confirm
-> what is this value
+> Signed-off-by: Fu Wei <fu.wei@linaro.org>
+> Signed-off-by: Hanjun Guo <hanjun.guo@linaro.org>
+> ---
+>   drivers/acpi/Kconfig  |   9 ++++
+>   drivers/acpi/Makefile |   1 +
+>   drivers/acpi/gtdt.c   | 137 ++++++++++++++++++++++++++++++++++++++++++++++++++
+>   3 files changed, 147 insertions(+)
+>   create mode 100644 drivers/acpi/gtdt.c
 >
-
-min(timeout, max_wor_timeout)
-
-Guenter
-
+> diff --git a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
+> index 1bbaa3d..e125698 100644
+> --- a/drivers/acpi/Kconfig
+> +++ b/drivers/acpi/Kconfig
+> @@ -433,4 +433,13 @@ config XPOWER_PMIC_OPREGION
+>
+>   endif
+>
+> +config ACPI_GTDT
+> +	bool "ACPI GTDT Support"
+> +	depends on ARM64
+> +	help
+> +	  GTDT (Generic Timer Description Table) provides information
+> +	  for per-processor timers and Platform (memory-mapped) timers
+> +	  for ARM platforms. Select this option to provide information
+> +	  needed for the timers init.
+> +
+>   endif	# ACPI
+> diff --git a/drivers/acpi/Makefile b/drivers/acpi/Makefile
+> index 431e587..2c5a194 100644
+> --- a/drivers/acpi/Makefile
+> +++ b/drivers/acpi/Makefile
+> @@ -96,3 +96,4 @@ obj-$(CONFIG_ACPI_EXTLOG)	+= acpi_extlog.o
+>   obj-$(CONFIG_PMIC_OPREGION)	+= pmic/intel_pmic.o
+>   obj-$(CONFIG_CRC_PMIC_OPREGION) += pmic/intel_pmic_crc.o
+>   obj-$(CONFIG_XPOWER_PMIC_OPREGION) += pmic/intel_pmic_xpower.o
+> +obj-$(CONFIG_ACPI_GTDT)		+= gtdt.o
+> diff --git a/drivers/acpi/gtdt.c b/drivers/acpi/gtdt.c
+> new file mode 100644
+> index 0000000..a92abf2
+> --- /dev/null
+> +++ b/drivers/acpi/gtdt.c
+> @@ -0,0 +1,137 @@
+> +/*
+> + * ARM Specific GTDT table Support
+> + *
+> + * Copyright (C) 2015, Linaro Ltd.
+> + * Author: Fu Wei <fu.wei@linaro.org>
+> + *         Hanjun Guo <hanjun.guo@linaro.org>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
+> + */
+> +
+> +#include <linux/acpi.h>
+> +#include <linux/device.h>
+> +#include <linux/init.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/platform_device.h>
+> +
+> +static int __init map_generic_timer_interrupt(u32 interrupt, u32 flags)
+> +{
+> +	int trigger, polarity;
+> +
+> +	if (!interrupt)
+> +		return 0;
+> +
+> +	trigger = (flags & ACPI_GTDT_INTERRUPT_MODE) ? ACPI_EDGE_SENSITIVE
+> +			: ACPI_LEVEL_SENSITIVE;
+> +
+> +	polarity = (flags & ACPI_GTDT_INTERRUPT_POLARITY) ? ACPI_ACTIVE_LOW
+> +			: ACPI_ACTIVE_HIGH;
+> +
+> +	return acpi_register_gsi(NULL, interrupt, trigger, polarity);
+> +}
+> +
+> +/*
+> + * Initialize a SBSA generic Watchdog platform device info from GTDT
+> + * According to SBSA specification the size of refresh and control
+> + * frames of SBSA Generic Watchdog is SZ_4K(Offset 0x000 – 0xFFF).
+> + */
+> +static int __init gtdt_import_sbsa_gwdt(struct acpi_gtdt_watchdog *wd,
+> +					int index)
+> +{
+> +	struct platform_device *pdev;
+> +	int irq = map_generic_timer_interrupt(wd->timer_interrupt,
+> +					      wd->timer_flags);
+> +	struct resource res[] = {
+> +		DEFINE_RES_IRQ_NAMED(irq, "ws0"),
+> +		DEFINE_RES_MEM_NAMED(wd->refresh_frame_address, SZ_4K,
+> +				     "refresh"),
+> +		DEFINE_RES_MEM_NAMED(wd->control_frame_address, SZ_4K,
+> +				     "control"),
+> +	};
+> +
+> +	pr_debug("GTDT: a Watchdog GT(0x%llx/0x%llx gsi:%u flags:0x%x)\n",
+> +		 wd->refresh_frame_address, wd->control_frame_address,
+> +		 wd->timer_interrupt, wd->timer_flags);
+> +
+> +	if (!(wd->refresh_frame_address &&
+> +	      wd->control_frame_address &&
+> +	      wd->timer_interrupt)) {
+> +		pr_err("GTDT: failed geting the device info.\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	if (irq < 0) {
+> +		pr_err("GTDT: failed to register GSI of the Watchdog GT.\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	/*
+> +	 * Add a platform device named "sbsa-gwdt" to match the platform driver.
+> +	 * "sbsa-gwdt": SBSA(Server Base System Architecture) Generic Watchdog
+> +	 * The platform driver (like drivers/watchdog/sbsa_gwdt.c)can get device
+> +	 * info below by matching this name.
+> +	 */
+> +	pdev = platform_device_register_simple("sbsa-gwdt", index, res,
+> +					       ARRAY_SIZE(res));
+> +	if (IS_ERR(pdev)) {
+> +		acpi_unregister_gsi(wd->timer_interrupt);
+> +		return PTR_ERR(pdev);
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int __init gtdt_platform_timer_parse(struct acpi_table_header *table)
+> +{
+> +	struct acpi_gtdt_header *header;
+> +	struct acpi_table_gtdt *gtdt;
+> +	void *gtdt_subtable;
+> +	int i, gwdt_index;
+> +	int ret = 0;
+> +
+> +	if (table->revision < 2) {
+> +		pr_warn("GTDT: Revision:%d doesn't support Platform Timers.\n",
+> +			table->revision);
+> +		return 0;
+> +	}
+> +
+> +	gtdt = container_of(table, struct acpi_table_gtdt, header);
+> +	if (!gtdt->platform_timer_count) {
+> +		pr_info("GTDT: No Platform Timer structures.\n");
+> +		return 0;
+> +	}
+> +
+> +	gtdt_subtable = (void *)gtdt + gtdt->platform_timer_offset;
+> +
+> +	for (i = 0, gwdt_index = 0; i < gtdt->platform_timer_count; i++) {
+> +		if (gtdt_subtable > (void *)table + table->length) {
+> +			pr_err("GTDT: subtable pointer overflows, bad table\n");
+> +			return -EINVAL;
+> +		}
+> +		header = (struct acpi_gtdt_header *)gtdt_subtable;
+> +		if (header->type == ACPI_GTDT_TYPE_WATCHDOG) {
+> +			ret = gtdt_import_sbsa_gwdt(gtdt_subtable, gwdt_index);
+> +			if (ret)
+> +				pr_err("GTDT: failed to import subtable %d\n",
+> +				       i);
+> +			else
+> +				gwdt_index++;
+> +		}
+> +		gtdt_subtable += header->length;
+> +	}
+> +
+> +	return ret;
+> +}
+> +
+> +static int __init gtdt_platform_timer_init(void)
+> +{
+> +	if (acpi_disabled)
+> +		return 0;
+> +
+> +	return acpi_table_parse(ACPI_SIG_GTDT, gtdt_platform_timer_parse);
+> +}
+> +
+> +device_initcall(gtdt_platform_timer_init);
+>
