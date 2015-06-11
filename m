@@ -1,195 +1,340 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wg0-f51.google.com ([74.125.82.51]:34499 "EHLO
-	mail-wg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755359AbbFKUtY (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:48449 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752025AbbFKWFA (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 11 Jun 2015 16:49:24 -0400
-From: Christian Gmeiner <christian.gmeiner@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: sameo@linux.intel.com, lee.jones@linaro.org, wsa@the-dreams.de,
+	Thu, 11 Jun 2015 18:05:00 -0400
+Message-ID: <557A0605.3050609@roeck-us.net>
+Date: Thu, 11 Jun 2015 15:04:53 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+MIME-Version: 1.0
+To: Christian Gmeiner <christian.gmeiner@gmail.com>,
+	linux-kernel@vger.kernel.org
+CC: sameo@linux.intel.com, lee.jones@linaro.org, wsa@the-dreams.de,
 	jdelvare@suse.de, linux-i2c@vger.kernel.org, wim@iguana.be,
 	linux-watchdog@vger.kernel.org, jingoohan1@gmail.com,
-	Christian Gmeiner <christian.gmeiner@gmail.com>
-Subject: [PATCH 4/4] backlight: Add Congatec CGEB backlight driver
-Date: Thu, 11 Jun 2015 22:48:54 +0200
-Message-Id: <1434055734-3602-5-git-send-email-christian.gmeiner@gmail.com>
-In-Reply-To: <1434055734-3602-1-git-send-email-christian.gmeiner@gmail.com>
-References: <1434055734-3602-1-git-send-email-christian.gmeiner@gmail.com>
+	Sascha Hauer <s.hauer@pengutronix.de>
+Subject: Re: [PATCH 3/4] watchdog: Add Congatec CGEB watchdog driver
+References: <1434055734-3602-1-git-send-email-christian.gmeiner@gmail.com> <1434055734-3602-4-git-send-email-christian.gmeiner@gmail.com>
+In-Reply-To: <1434055734-3602-4-git-send-email-christian.gmeiner@gmail.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This driver provides support for the CGEB backlight found on some
-Congatec x86 modules.
+On 06/11/2015 01:48 PM, Christian Gmeiner wrote:
+> From: Sascha Hauer <s.hauer@pengutronix.de>
+>
+> This driver provides support for the CGEB watchdog found on some
+> Congatec x86 modules.
+>
+> Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+> Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
 
-Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
----
- drivers/video/backlight/Kconfig            |   7 ++
- drivers/video/backlight/Makefile           |   1 +
- drivers/video/backlight/congatec-cgeb_bl.c | 125 +++++++++++++++++++++++++++++
- 3 files changed, 133 insertions(+)
- create mode 100644 drivers/video/backlight/congatec-cgeb_bl.c
+Hi Christian,
 
-diff --git a/drivers/video/backlight/Kconfig b/drivers/video/backlight/Kconfig
-index 2d9923a..35e4913 100644
---- a/drivers/video/backlight/Kconfig
-+++ b/drivers/video/backlight/Kconfig
-@@ -451,6 +451,13 @@ config BACKLIGHT_BD6107
- 	help
- 	  If you have a Rohm BD6107 say Y to enable the backlight driver.
- 
-+config BACKLIGHT_CONGATEC_CGEB
-+	tristate "Congatec CGEB Backlight driver"
-+	depends on MFD_CONGATEC_CGEB
-+	help
-+	  This driver provides support for the backlight accssable via
-+	  the Congatec CGEB interface found on Congatec boards.
-+
- endif # BACKLIGHT_CLASS_DEVICE
- 
- endif # BACKLIGHT_LCD_SUPPORT
-diff --git a/drivers/video/backlight/Makefile b/drivers/video/backlight/Makefile
-index d67073f..5654d6a 100644
---- a/drivers/video/backlight/Makefile
-+++ b/drivers/video/backlight/Makefile
-@@ -28,6 +28,7 @@ obj-$(CONFIG_BACKLIGHT_AS3711)		+= as3711_bl.o
- obj-$(CONFIG_BACKLIGHT_BD6107)		+= bd6107.o
- obj-$(CONFIG_BACKLIGHT_CARILLO_RANCH)	+= cr_bllcd.o
- obj-$(CONFIG_BACKLIGHT_CLASS_DEVICE)	+= backlight.o
-+obj-$(CONFIG_BACKLIGHT_CONGATEC_CGEB)	+= congatec-cgeb_bl.o
- obj-$(CONFIG_BACKLIGHT_DA903X)		+= da903x_bl.o
- obj-$(CONFIG_BACKLIGHT_DA9052)		+= da9052_bl.o
- obj-$(CONFIG_BACKLIGHT_EP93XX)		+= ep93xx_bl.o
-diff --git a/drivers/video/backlight/congatec-cgeb_bl.c b/drivers/video/backlight/congatec-cgeb_bl.c
-new file mode 100644
-index 0000000..4e5f97e
---- /dev/null
-+++ b/drivers/video/backlight/congatec-cgeb_bl.c
-@@ -0,0 +1,125 @@
-+/*
-+ * CGEB backlight driver
-+ *
-+ * (c) 2012 Christian Gmeiner <christian.gmeiner@gmail.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; version 2 of the License.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/slab.h>
-+#include <linux/backlight.h>
-+#include <linux/mfd/congatec-cgeb.h>
-+
-+struct cgeb_backlight_data {
-+	struct cgeb_board_data          *board;
-+	int unit;
-+};
-+
-+static int cgeb_backlight_update_status(struct backlight_device *bl)
-+{
-+	struct cgeb_backlight_data *data = bl_get_data(bl);
-+	struct cgeb_function_parameters fps;
-+	int brightness = bl->props.brightness;
-+	int err;
-+
-+	memset(&fps, 0, sizeof(fps));
-+	
-+	fps.unit = data->unit;
-+	fps.pars[0] = brightness;
-+	
-+	err = cgeb_call(data->board, &fps, CgebVgaSetBacklight);
-+	return err;
-+}
-+
-+static int cgeb_backlight_get_brightness(struct backlight_device *bl)
-+{
-+	struct cgeb_backlight_data *data = bl_get_data(bl);
-+	unsigned long brightness;
-+
-+	cgeb_call_simple(data->board, CgebVgaGetBacklight, 0, NULL, &brightness);
-+
-+	return brightness;
-+}
-+
-+static const struct backlight_ops cgeb_backlight_ops = {
-+	.update_status	= cgeb_backlight_update_status,
-+	.get_brightness	= cgeb_backlight_get_brightness,
-+};
-+
-+static int cgeb_backlight_probe(struct platform_device *pdev)
-+{  
-+	struct backlight_device *bl;
-+	struct backlight_properties props;
-+	struct cgeb_backlight_data *data;
-+	struct cgeb_pdata *pdata = pdev->dev.platform_data;
-+	int ret;
-+
-+	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
-+
-+	data->unit = pdata->unit;
-+	data->board = pdata->board;
-+
-+	props.max_brightness = 100;
-+	props.brightness = 100;
-+	props.type = BACKLIGHT_RAW;
-+	
-+	bl = backlight_device_register(dev_name(&pdev->dev), &pdev->dev, data,
-+					&cgeb_backlight_ops, &props);
-+	if (IS_ERR(bl)) {
-+		dev_err(&pdev->dev, "failed to register backlight\n");
-+		ret = PTR_ERR(bl);
-+		goto error_backlight_device_register;
-+	}
-+
-+	platform_set_drvdata(pdev, bl);
-+	
-+	dev_info(&pdev->dev, "registered\n");
-+	return 0;
-+	
-+error_backlight_device_register:
-+	kfree(data);
-+	return ret;
-+};
-+
-+static int cgeb_backlight_remove(struct platform_device *pdev)
-+{
-+	struct backlight_device *bl = platform_get_drvdata(pdev);
-+	struct cgeb_backlight_data *data = bl_get_data(bl);
-+	struct cgeb_function_parameters fps;
-+
-+	backlight_device_unregister(bl);
-+
-+	/* on module unload set brightness to 100% */
-+	memset(&fps, 0, sizeof(fps));
-+	fps.unit = data->unit;
-+	fps.pars[0] = 100;
-+	cgeb_call(data->board, &fps, CgebVgaSetBacklight);
-+
-+	kfree(data);
-+	return 0;
-+}
-+
-+static struct platform_driver cgeb_backlight_driver = {
-+	.probe          = cgeb_backlight_probe,
-+	.remove         = __exit_p(cgeb_backlight_remove),
-+	.driver = {
-+	        .name   = "cgeb-backlight",
-+	        .owner  = THIS_MODULE,
-+	},
-+};
-+
-+module_platform_driver(cgeb_backlight_driver);
-+
-+MODULE_AUTHOR("Christian Gmeiner <christian.gmeiner@gmail.com>");
-+MODULE_DESCRIPTION("cgeb backlight driver");
-+MODULE_LICENSE("GPL");
--- 
-2.4.2
+comments inline.
+
+Thanks,
+Guenter
+
+> ---
+>   drivers/watchdog/Kconfig                  |  10 ++
+>   drivers/watchdog/Makefile                 |   3 +
+>   drivers/watchdog/congatec_cgeb_watchdog.c | 181 ++++++++++++++++++++++++++++++
+>   3 files changed, 194 insertions(+)
+>   create mode 100644 drivers/watchdog/congatec_cgeb_watchdog.c
+>
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index e5e7c55..bb93cbc 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -1088,6 +1088,16 @@ config SBC_EPX_C3_WATCHDOG
+>   	  To compile this driver as a module, choose M here: the
+>   	  module will be called sbc_epx_c3.
+>
+> +config CONGATEC_CGEB_WATCHDOG
+> +	tristate "Congatec CGEB watchdog"
+> +	depends on MFD_CONGATEC_CGEB
+> +	---help---
+> +	  This driver provides support for the watchdogs found on Congatec
+> +	  modules with the CGEB BIOS interface.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called congatec_cgeb_wdt.
+> +
+>   # M32R Architecture
+>
+>   # M68K Architecture
+> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> index 5c19294..b24fd09 100644
+> --- a/drivers/watchdog/Makefile
+> +++ b/drivers/watchdog/Makefile
+> @@ -171,6 +171,9 @@ obj-$(CONFIG_SH_WDT) += shwdt.o
+>   obj-$(CONFIG_WATCHDOG_RIO)		+= riowd.o
+>   obj-$(CONFIG_WATCHDOG_CP1XXX)		+= cpwd.o
+>
+> +# X86 Architecture
+> +obj-$(CONFIG_CONGATEC_CGEB_WATCHDOG) += congatec_cgeb_watchdog.o
+> +
+
+No need for a second set of x86 drivers. Please add to the existing set.
+Also, please align with other '+='.
+
+
+>   # XTENSA Architecture
+>
+>   # Xen
+> diff --git a/drivers/watchdog/congatec_cgeb_watchdog.c b/drivers/watchdog/congatec_cgeb_watchdog.c
+> new file mode 100644
+> index 0000000..e4523c4
+> --- /dev/null
+> +++ b/drivers/watchdog/congatec_cgeb_watchdog.c
+> @@ -0,0 +1,181 @@
+> +/*
+> + * CGEB watchdog driver
+> + *
+> + * (c) 2011 Sascha Hauer, Pengutronix
+
+2011 ?
+
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; version 2 of the License.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + */
+> +#include <linux/module.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/watchdog.h>
+> +#include <linux/mfd/congatec-cgeb.h>
+> +
+> +#define CGOS_WDOG_MODE_REBOOT_PC    0
+> +#define CGOS_WDOG_MODE_RESTART_OS   1
+> +#define CGOS_WDOG_MODE_STAGED    0x80
+> +
+> +#define CGOS_WDOG_OPMODE_DISABLED      0
+> +#define CGOS_WDOG_OPMODE_ONETIME_TRIG  1
+> +#define CGOS_WDOG_OPMODE_SINGLE_EVENT  2
+> +#define CGOS_WDOG_OPMODE_EVENT_REPEAT  3
+> +
+> +#define CGOS_WDOG_EVENT_INT 0  /* NMI/IRQ */
+> +#define CGOS_WDOG_EVENT_SCI 1  /* SMI/SCI */
+> +#define CGOS_WDOG_EVENT_RST 2  /* system reset */
+> +#define CGOS_WDOG_EVENT_BTN 3  /* power button */
+> +
+> +#define CGOS_WDOG_EVENT_MAX_STAGES 3
+> +
+Please use tabs after the defines.
+
+#define CGOS_WDOG_MODE_REBOOT_PC	0
+#define CGOS_WDOG_MODE_RESTART_OS	1
+#define CGOS_WDOG_MODE_STAGED		0x80
+
+#define CGOS_WDOG_OPMODE_DISABLED	0
+#define CGOS_WDOG_OPMODE_ONETIME_TRIG	1
+#define CGOS_WDOG_OPMODE_SINGLE_EVENT	2
+#define CGOS_WDOG_OPMODE_EVENT_REPEAT	3
+
+and so on.
+
+> +struct cgeb_watchdog_stage {
+> +	unsigned long timeout;
+> +	unsigned long event;
+> +};
+> +
+> +struct cgeb_watchdog_config {
+> +	unsigned long size;
+> +	unsigned long timeout; /* not used in staged mode */
+> +	unsigned long delay;
+> +	unsigned long mode;
+> +	/* optional parameters for staged watchdog */
+> +	unsigned long op_mode;
+> +	unsigned long stage_count;
+> +	struct cgeb_watchdog_stage stages[CGOS_WDOG_EVENT_MAX_STAGES];
+> +};
+> +
+Since this is passed on to cgeb_call, shoul it be part of an API
+defined elsewhere ?
+
+Also, I am a bit concerned about the use of 'unsigned long'.
+If this is part of an ABI to the BIOS, shouldn't it be u32 ?
+Sure, the driver is currently limited to X64_32, but that doesn't
+mean we have to make it extra difficult to port it to X86_64
+if that is ever asked for.
+
+> +struct cgeb_watchdog_priv {
+> +	struct cgeb_board_data  *board;
+> +	struct watchdog_device  wdd;
+> +	unsigned int            timeout_s;
+> +	int unit;
+> +};
+> +
+> +static struct watchdog_info cgeb_wdd_info = {
+> +	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
+> +	.firmware_version = 0,
+
+No need to initialize static variables with 0.
+
+> +	.identity = "cgeb watchdog",
+> +};
+> +
+Please move the above next to the probe function.
+
+> +static unsigned int watchdog_set_config(struct cgeb_watchdog_priv *priv,
+> +		unsigned int timeout_s)
+> +{
+> +	struct cgeb_board_data *board = priv->board;
+> +	struct cgeb_watchdog_config wdi;
+> +	struct cgeb_function_parameters fps;
+> +
+						= { 0 };
+
+> +	memset(&wdi, 0, sizeof(wdi));
+> +	memset(&fps, 0, sizeof(fps));
+
+would be identical to the memset.
+
+> +
+> +	fps.unit = priv->unit;
+> +	fps.iptr = &wdi;
+> +
+> +	wdi.timeout = timeout_s * 1000;
+> +	wdi.delay = 0;
+
+Already set to 0.
+
+> +	wdi.size = sizeof(wdi);
+> +	wdi.mode = CGOS_WDOG_MODE_REBOOT_PC;
+> +
+> +	return cgeb_call(board, &fps, CgebWDogSetConfig);
+> +}
+> +
+> +static int cgeb_watchdog_start(struct watchdog_device *wdd)
+> +{
+> +	struct cgeb_watchdog_priv *priv = watchdog_get_drvdata(wdd);
+> +
+> +	return watchdog_set_config(priv, priv->timeout_s);
+> +}
+> +
+> +static int cgeb_watchdog_stop(struct watchdog_device *wdd)
+> +{
+> +	struct cgeb_watchdog_priv *priv = watchdog_get_drvdata(wdd);
+> +
+> +	return watchdog_set_config(priv, 0);
+> +}
+> +
+> +static int cgeb_watchdog_set_timeout(struct watchdog_device *wdd,
+> +		unsigned int timeout_s)
+
+Please align continuation lines with '('.
+
+> +{
+> +	struct cgeb_watchdog_priv *priv = watchdog_get_drvdata(wdd);
+> +
+> +	if (!timeout_s)
+> +		return -EINVAL;
+
+Unnecessary, checked by infrastructure.
+
+> +
+> +	priv->timeout_s = timeout_s;
+> +
+You also need to set wdd->timeout. It also seems to me that
+priv->timeout_s is not really necessary.
+
+> +	return 0;
+> +}
+> +
+> +struct watchdog_ops cgeb_watchdog_ops = {
+> +	.start = cgeb_watchdog_start,
+> +	.stop = cgeb_watchdog_stop,
+> +	.set_timeout = cgeb_watchdog_set_timeout,
+> +};
+> +
+> +static int cgeb_watchdog_probe(struct platform_device *pdev)
+> +{
+> +	struct cgeb_watchdog_priv *priv;
+> +	struct cgeb_pdata *pdata = pdev->dev.platform_data;
+> +	int ret;
+> +
+> +	dev_info(&pdev->dev, "registering\n");
+
+Unnecessary noise.
+
+> +
+> +	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+> +	if (!priv)
+> +		return -ENOMEM;
+> +
+> +	priv->wdd.ops = &cgeb_watchdog_ops;
+> +	priv->wdd.info = &cgeb_wdd_info;
+> +	priv->wdd.min_timeout = 1;
+> +	priv->wdd.max_timeout = 3600;
+> +	priv->board = pdata->board;
+
+You should check if pdata == NULL and either use defaults
+in that case or bail out.
+
+> +	priv->unit = pdata->unit;
+> +
+> +	watchdog_set_drvdata(&priv->wdd, priv);
+> +	platform_set_drvdata(pdev, priv);
+> +
+> +	ret = watchdog_register_device(&priv->wdd);
+> +	if (ret)
+> +		return ret;
+> +
+> +	return 0;
+
+just
+	return watchdog_register_device(&priv->wdd);
+
+> +}
+> +
+> +static int cgeb_watchdog_remove(struct platform_device *pdev)
+> +{
+> +	struct cgeb_watchdog_priv *priv = platform_get_drvdata(pdev);
+> +
+> +	watchdog_unregister_device(&priv->wdd);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver cgeb_watchdog_driver = {
+> +	.probe          = cgeb_watchdog_probe,
+> +	.remove         = __exit_p(cgeb_watchdog_remove),
+> +	.driver = {
+> +		.name   = "cgeb-watchdog",
+> +		.owner  = THIS_MODULE,
+
+AFAIK .owner is no longer necessary.
+
+> +	},
+> +};
+> +
+> +static int __init cgeb_watchdog_driver_init(void)
+> +{
+> +	return platform_driver_register(&cgeb_watchdog_driver);
+> +}
+> +
+> +static void __exit cgeb_watchdog_driver_exit(void)
+> +{
+> +	platform_driver_unregister(&cgeb_watchdog_driver);
+> +}
+> +
+> +module_init(cgeb_watchdog_driver_init);
+> +module_exit(cgeb_watchdog_driver_exit);
+
+module_platform_driver(cgeb_watchdog_driver);
+
+> +
+> +MODULE_AUTHOR("Sascha Hauer <s.hauer@pengutronix.de>");
+> +MODULE_DESCRIPTION("cgeb watchdog driver");
+> +MODULE_LICENSE("GPL");
+>
 
