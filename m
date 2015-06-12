@@ -1,46 +1,44 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:47338 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752606AbbFLMXX (ORCPT
+Received: from smtp.codeaurora.org ([198.145.29.96]:59704 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755218AbbFLNQg (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 12 Jun 2015 08:23:23 -0400
-Message-ID: <557ACF39.2060108@roeck-us.net>
-Date: Fri, 12 Jun 2015 05:23:21 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Fri, 12 Jun 2015 09:16:36 -0400
+Message-ID: <557ADBB0.7080008@codeaurora.org>
+Date: Fri, 12 Jun 2015 08:16:32 -0500
+From: Timur Tabi <timur@codeaurora.org>
 MIME-Version: 1.0
-To: =?UTF-8?B?Tm9yYWxmIFRyw7hubmVz?= <noralf@tronnes.org>,
-	linux-arm-kernel@lists.infradead.org
-CC: devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-rpi-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] watchdog: bcm2835: Add poweroff code for the Raspberry
- Pi
-References: <1433845305-17329-1-git-send-email-noralf@tronnes.org> <1433845305-17329-2-git-send-email-noralf@tronnes.org>
-In-Reply-To: <1433845305-17329-2-git-send-email-noralf@tronnes.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+To: fu.wei@linaro.org, Suravee.Suthikulpanit@amd.com,
+	linaro-acpi@lists.linaro.org, linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-doc@vger.kernel.org
+CC: tekkamanninja@gmail.com, graeme.gregory@linaro.org,
+	al.stone@linaro.org, hanjun.guo@linaro.org,
+	ashwin.chaugule@linaro.org, arnd@arndb.de, linux@roeck-us.net,
+	vgandhi@codeaurora.org, wim@iguana.be, jcm@redhat.com,
+	leo.duran@amd.com, corbet@lwn.net, mark.rutland@arm.com,
+	catalin.marinas@arm.com, will.deacon@arm.com, rjw@rjwysocki.net
+Subject: Re: [PATCH non-pretimeout 6/7] Watchdog: enable ACPI GTDT
+ support for ARM SBSA watchdog driver
+References: <=fu.wei@linaro.org> <1433958452-23721-1-git-send-email-fu.wei@linaro.org> <1433958452-23721-7-git-send-email-fu.wei@linaro.org>
+In-Reply-To: <1433958452-23721-7-git-send-email-fu.wei@linaro.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 06/09/2015 03:21 AM, Noralf Trønnes wrote:
-> This adds a new poweroff function to the watchdog driver for the
-> Raspberry Pi. Currently poweroff/halt results in a reboot.
->
-> The Raspberry Pi firmware uses the RSTS register to know which
-> partiton to boot from. The partiton value is spread into bits
-> 0, 2, 4, 6, 8, 10. Partiton 63 is a special partition used by
-> the firmware to indicate halt.
->
-> The firmware made this change in 19 Aug 2013 and was matched
-> by the downstream commit:
-> Changes for new NOOBS multi partition booting from gsh
->
-> Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
+fu.wei@linaro.org wrote:
+> This patch enables ACPI GTDT support for ARM SBSA
+> watchdog driver automatically, if ACPI support is enabled.
 
-This poweroff handler stuff is getting really messy :-(.
+You don't need this patch if you reorder your patches, like this:
 
-Nothing we can do about that here, so
+#4 ACPI: add GTDT table parse driver into ACPI driver
+#5 Watchdog: introduce ARM SBSA watchdog driver
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
+And then this patch becomes part of patch #5.
 
-Guenter
-
+-- 
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the
+Code Aurora Forum, hosted by The Linux Foundation.
