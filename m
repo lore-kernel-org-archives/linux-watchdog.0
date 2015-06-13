@@ -1,39 +1,62 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:52767 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751459AbbFLUyj (ORCPT
+Received: from asav21.altibox.net ([109.247.116.8]:59692 "EHLO
+	asav21.altibox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751157AbbFMLjs (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 12 Jun 2015 16:54:39 -0400
-Message-ID: <557B470B.9030908@codeaurora.org>
-Date: Fri, 12 Jun 2015 15:54:35 -0500
-From: Timur Tabi <timur@codeaurora.org>
+	Sat, 13 Jun 2015 07:39:48 -0400
+From: =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
+To: linux-arm-kernel@lists.infradead.org
+Cc: devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	linux-rpi-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	=?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
+Subject: [PATCH v2 3/3] ARM: dts: bcm2835-rpi: Add "brcm,raspberrypi-pm-wdt" to wdt compatible
+Date: Sat, 13 Jun 2015 13:39:01 +0200
+Message-Id: <1434195541-28368-3-git-send-email-noralf@tronnes.org>
+In-Reply-To: <1434195541-28368-1-git-send-email-noralf@tronnes.org>
+References: <1434195541-28368-1-git-send-email-noralf@tronnes.org>
 MIME-Version: 1.0
-To: fu.wei@linaro.org, Suravee.Suthikulpanit@amd.com,
-	linaro-acpi@lists.linaro.org, linux-watchdog@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-doc@vger.kernel.org
-CC: tekkamanninja@gmail.com, graeme.gregory@linaro.org,
-	al.stone@linaro.org, hanjun.guo@linaro.org,
-	ashwin.chaugule@linaro.org, arnd@arndb.de, linux@roeck-us.net,
-	vgandhi@codeaurora.org, wim@iguana.be, jcm@redhat.com,
-	leo.duran@amd.com, corbet@lwn.net, mark.rutland@arm.com,
-	catalin.marinas@arm.com, will.deacon@arm.com, rjw@rjwysocki.net
-Subject: Re: [PATCH non-pretimeout 3/7] ARM64: add SBSA Generic Watchdog device
- node in amd-seattle-soc.dtsi
-References: <=fu.wei@linaro.org> <1433958452-23721-1-git-send-email-fu.wei@linaro.org> <1433958452-23721-4-git-send-email-fu.wei@linaro.org>
-In-Reply-To: <1433958452-23721-4-git-send-email-fu.wei@linaro.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 06/10/2015 12:47 PM, fu.wei@linaro.org wrote:
-> +			reg = <0x0 0xe0bb0000 0 0x10000>,
-> +				<0x0 0xe0bc0000 0 0x10000>;
+The Raspberry Pi uses a new value for halt in the PM_RSTS watchdog
+register. Expand the compatible string to cover this.
 
-I think the sizes are wrong.  They should be 0x1000 instead of 0x10000.
+Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
+---
+ arch/arm/boot/dts/bcm2835-rpi.dtsi | 4 ++++
+ arch/arm/boot/dts/bcm2835.dtsi     | 2 +-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
+diff --git a/arch/arm/boot/dts/bcm2835-rpi.dtsi b/arch/arm/boot/dts/bcm2835-rpi.dtsi
+index 46780bb..feb1282 100644
+--- a/arch/arm/boot/dts/bcm2835-rpi.dtsi
++++ b/arch/arm/boot/dts/bcm2835-rpi.dtsi
+@@ -16,6 +16,10 @@
+ 	};
+ };
+ 
++&watchdog {
++	compatible = "brcm,raspberrypi-pm-wdt", "brcm,bcm2835-pm-wdt";
++};
++
+ &gpio {
+ 	pinctrl-names = "default";
+ 
+diff --git a/arch/arm/boot/dts/bcm2835.dtsi b/arch/arm/boot/dts/bcm2835.dtsi
+index 301c73f..3445bb3 100644
+--- a/arch/arm/boot/dts/bcm2835.dtsi
++++ b/arch/arm/boot/dts/bcm2835.dtsi
+@@ -52,7 +52,7 @@
+ 			#interrupt-cells = <2>;
+ 		};
+ 
+-		watchdog@7e100000 {
++		watchdog: watchdog@7e100000 {
+ 			compatible = "brcm,bcm2835-pm-wdt";
+ 			reg = <0x7e100000 0x28>;
+ 		};
 -- 
-Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the
-Code Aurora Forum, a Linux Foundation Collaborative Project.
+2.2.2
+
