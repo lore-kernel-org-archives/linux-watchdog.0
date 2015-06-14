@@ -1,120 +1,81 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from asav21.altibox.net ([109.247.116.8]:59689 "EHLO
-	asav21.altibox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751504AbbFMLjs (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 13 Jun 2015 07:39:48 -0400
-From: =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
-To: linux-arm-kernel@lists.infradead.org
-Cc: devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-rpi-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	=?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
-Subject: [PATCH v2 2/3] watchdog: bcm2835: Add poweroff code for the Raspberry Pi
-Date: Sat, 13 Jun 2015 13:39:00 +0200
-Message-Id: <1434195541-28368-2-git-send-email-noralf@tronnes.org>
-In-Reply-To: <1434195541-28368-1-git-send-email-noralf@tronnes.org>
-References: <1434195541-28368-1-git-send-email-noralf@tronnes.org>
+Return-path: <fu.wei@linaro.org>
 MIME-Version: 1.0
+In-Reply-To: <557A58A5.4010208@codeaurora.org>
+References: <=fu.wei@linaro.org>
+	<1433958452-23721-1-git-send-email-fu.wei@linaro.org>
+	<1433958452-23721-5-git-send-email-fu.wei@linaro.org>
+	<557A58A5.4010208@codeaurora.org>
+Date: Sun, 14 Jun 2015 18:15:57 +0800
+Message-ID: <CADyBb7vRG+h-m_2YoMfu76Q_CqOVC7BafGzqaLmCkNF9QXpXHg@mail.gmail.com>
+Subject: Re: [PATCH non-pretimeout 4/7] Watchdog: introduce ARM SBSA watchdog driver
+From: Fu Wei <fu.wei@linaro.org>
+To: Timur Tabi <timur@codeaurora.org>
+Cc: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>, linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-doc@vger.kernel.org, Wei Fu <tekkamanninja@gmail.com>,
+	G Gregory <graeme.gregory@linaro.org>, Al Stone <al.stone@linaro.org>,
+	Hanjun Guo <hanjun.guo@linaro.org>, Ashwin Chaugule <ashwin.chaugule@linaro.org>,
+	Arnd Bergmann <arnd@arndb.de>, Guenter Roeck <linux@roeck-us.net>,
+	Vipul Gandhi <vgandhi@codeaurora.org>, Wim Van Sebroeck <wim@iguana.be>, Jon Masters <jcm@redhat.com>,
+	Leo Duran <leo.duran@amd.com>, Jon Corbet <corbet@lwn.net>, Mark Rutland <mark.rutland@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, rjw@rjwysocki.net
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+List-ID: <linux-watchdog@vger.kernel.org>
 
-This adds a new poweroff function to the watchdog driver for the
-Raspberry Pi. Currently poweroff/halt results in a reboot.
+Hi Timur
 
-The Raspberry Pi firmware uses the RSTS register to know which
-partiton to boot from. The partiton value is spread into bits
-0, 2, 4, 6, 8, 10. Partiton 63 is a special partition used by
-the firmware to indicate halt.
+On 12 June 2015 at 11:57, Timur Tabi <timur@codeaurora.org> wrote:
+> fu.wei@linaro.org wrote:
+>>
+>> +       if (timeout <= gwdt->max_wor_timeout)
+>> +               writel_relaxed(timeout * gwdt->clk,
+>> +                              gwdt->control_base + SBSA_GWDT_WOR);
+>> +       else
+>> +               writel_relaxed(gwdt->max_wor_timeout * gwdt->clk,
+>> +                              gwdt->control_base + SBSA_GWDT_WOR);
+>
+>
+> You pre-calculate the maximum timeout possible already, so why do you need
+> the if-statement?
 
-The firmware made this change in 19 Aug 2013 and was matched
-by the downstream commit:
-Changes for new NOOBS multi partition booting from gsh
+Have took Guenter's suggestion on this.
 
-Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
-Acked-by: Guenter Roeck <linux@roeck-us.net>
----
- drivers/watchdog/bcm2835_wdt.c | 38 ++++++++++++++++++++++++++++++++++----
- 1 file changed, 34 insertions(+), 4 deletions(-)
+>
+> Frankly, your non-pretimeout driver is almost identical to mine, which was
+> posted weeks ago.  At this point, you're really just copying my driver but
+> putting your name on it.
 
-diff --git a/drivers/watchdog/bcm2835_wdt.c b/drivers/watchdog/bcm2835_wdt.c
-index 7116968..fdf0d7d 100644
---- a/drivers/watchdog/bcm2835_wdt.c
-+++ b/drivers/watchdog/bcm2835_wdt.c
-@@ -36,6 +36,13 @@
- #define PM_RSTC_WRCFG_FULL_RESET	0x00000020
- #define PM_RSTC_RESET			0x00000102
- 
-+/*
-+ * The Raspberry Pi firmware uses the RSTS register to know which partiton
-+ * to boot from. The partiton value is spread into bits 0, 2, 4, 6, 8, 10.
-+ * Partiton 63 is a special partition used by the firmware to indicate halt.
-+ */
-+#define PM_RSTS_RASPBERRYPI_HALT	0x555
-+
- #define SECS_TO_WDOG_TICKS(x) ((x) << 16)
- #define WDOG_TICKS_TO_SECS(x) ((x) >> 16)
- 
-@@ -159,6 +166,24 @@ static void bcm2835_power_off(void)
- 	bcm2835_restart(&wdt->restart_handler, REBOOT_HARD, NULL);
- }
- 
-+static void rpi_power_off(void)
-+{
-+	struct device_node *np =
-+		of_find_compatible_node(NULL, NULL, "brcm,raspberrypi-pm-wdt");
-+	struct platform_device *pdev = of_find_device_by_node(np);
-+	struct bcm2835_wdt *wdt = platform_get_drvdata(pdev);
-+	u32 val;
-+
-+	val = readl_relaxed(wdt->base + PM_RSTS);
-+	val |= PM_PASSWORD | PM_RSTS_RASPBERRYPI_HALT;
-+	writel_relaxed(val, wdt->base + PM_RSTS);
-+
-+	/* Continue with normal reset mechanism */
-+	bcm2835_restart(&wdt->restart_handler, REBOOT_HARD, NULL);
-+}
-+
-+static const struct of_device_id bcm2835_wdt_of_match[];
-+
- static int bcm2835_wdt_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
-@@ -192,8 +217,12 @@ static int bcm2835_wdt_probe(struct platform_device *pdev)
- 	wdt->restart_handler.notifier_call = bcm2835_restart;
- 	wdt->restart_handler.priority = 128;
- 	register_restart_handler(&wdt->restart_handler);
--	if (pm_power_off == NULL)
--		pm_power_off = bcm2835_power_off;
-+	if (!pm_power_off) {
-+		const struct of_device_id *match;
-+
-+		match = of_match_node(bcm2835_wdt_of_match, pdev->dev.of_node);
-+		pm_power_off = match->data;
-+	}
- 
- 	dev_info(dev, "Broadcom BCM2835 watchdog timer");
- 	return 0;
-@@ -204,7 +233,7 @@ static int bcm2835_wdt_remove(struct platform_device *pdev)
- 	struct bcm2835_wdt *wdt = platform_get_drvdata(pdev);
- 
- 	unregister_restart_handler(&wdt->restart_handler);
--	if (pm_power_off == bcm2835_power_off)
-+	if (pm_power_off == bcm2835_power_off || pm_power_off == rpi_power_off)
- 		pm_power_off = NULL;
- 	watchdog_unregister_device(&bcm2835_wdt_wdd);
- 	iounmap(wdt->base);
-@@ -218,7 +247,8 @@ static void bcm2835_wdt_shutdown(struct platform_device *pdev)
- }
- 
- static const struct of_device_id bcm2835_wdt_of_match[] = {
--	{ .compatible = "brcm,bcm2835-pm-wdt", },
-+	{ .compatible = "brcm,bcm2835-pm-wdt", .data = bcm2835_power_off },
-+	{ .compatible = "brcm,raspberrypi-pm-wdt", .data = rpi_power_off },
- 	{},
- };
- MODULE_DEVICE_TABLE(of, bcm2835_wdt_of_match);
+Everyone can see how this driver become to this one gradually. For
+non-pretimeout, if there is not pretimeout variable, I can only use
+timeout to config both of them.
+This is  definitely not the copy of yours(check yours again, you never
+programme WCV, and from the comment from you , you didn't believe
+driver can do that. you use panic because of my patch),  and I posted
+my patchset(with pretimeout) to linaro-acpi list before you posted
+yours to linux mailing list.  And I always focus on mine.
+
+Let people judge from all these patchset, I don't want to argue with
+you on this any more.
+
+
+>
+>
+> --
+> Sent by an employee of the Qualcomm Innovation Center, Inc.
+> The Qualcomm Innovation Center, Inc. is a member of the
+> Code Aurora Forum, hosted by The Linux Foundation.
+
+
+
 -- 
-2.2.2
+Best regards,
 
+Fu Wei
+Software Engineer
+Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
+Ph: +86 21 61221326(direct)
+Ph: +86 186 2020 4684 (mobile)
+Room 1512, Regus One Corporate Avenue,Level 15,
+One Corporate Avenue,222 Hubin Road,Huangpu District,
+Shanghai,China 200021
