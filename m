@@ -1,92 +1,113 @@
-Return-path: <fu.wei@linaro.org>
-MIME-Version: 1.0
-In-Reply-To: <557D8862.8020805@roeck-us.net>
-References: <=fu.wei@linaro.org>
-	<1433958452-23721-1-git-send-email-fu.wei@linaro.org>
-	<1433958452-23721-4-git-send-email-fu.wei@linaro.org>
-	<557B470B.9030908@codeaurora.org>
-	<CADyBb7seDgmQYxjsxCo_thPr_w847oy7d0AEiL8w9T_ZCF9+BQ@mail.gmail.com>
-	<557D8862.8020805@roeck-us.net>
-Date: Mon, 15 Jun 2015 19:00:24 +0800
-Message-ID: <CADyBb7veJWc84hK1=fwhvDec0dv-QPMh0rEHyk49AHSRe3Uawg@mail.gmail.com>
-Subject: Re: [PATCH non-pretimeout 3/7] ARM64: add SBSA Generic Watchdog
- device node in amd-seattle-soc.dtsi
-From: Fu Wei <fu.wei@linaro.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Timur Tabi <timur@codeaurora.org>,
-	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>, linux-watchdog@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-doc@vger.kernel.org, Wei Fu <tekkamanninja@gmail.com>,
-	G Gregory <graeme.gregory@linaro.org>, Al Stone <al.stone@linaro.org>,
-	Hanjun Guo <hanjun.guo@linaro.org>, Ashwin Chaugule <ashwin.chaugule@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>, Vipul Gandhi <vgandhi@codeaurora.org>, Wim Van Sebroeck <wim@iguana.be>,
-	Jon Masters <jcm@redhat.com>, Leo Duran <leo.duran@amd.com>, Jon Corbet <corbet@lwn.net>,
-	Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will.deacon@arm.com>, rjw@rjwysocki.net
-Content-Type: text/plain; charset=UTF-8
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mga02.intel.com ([134.134.136.20]:53519 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756020AbbFOPAu (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 15 Jun 2015 11:00:50 -0400
+From: Francois-Nicolas Muller <francois-nicolas.muller@intel.com>
+To: wim@iguana.be
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Francois-Nicolas Muller <francois-nicolas.muller@intel.com>
+Subject: [PATCH] TCO watchdog pretimeout handler
+Date: Mon, 15 Jun 2015 17:00:29 +0200
+Message-Id: <1434380429-1069-1-git-send-email-francois-nicolas.muller@intel.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hi Guenter,
+Use TCO watchdog first timeout (pretimeout) to dump CPU backtraces and ease
+debug of watchdog expiration causes.
+TCO logic generates a SCI interrupt, then its handler dumps all CPU backtraces
+and calls panic (in order to execute registered panic callbacks).
+SCI interrupt number (GPE) is configured from ACPI tables.
 
-On 14 June 2015 at 21:57, Guenter Roeck <linux@roeck-us.net> wrote:
-> On 06/14/2015 03:05 AM, Fu Wei wrote:
->>
->> On 13 June 2015 at 04:54, Timur Tabi <timur@codeaurora.org> wrote:
->>>
->>> On 06/10/2015 12:47 PM, fu.wei@linaro.org wrote:
->>>>
->>>>
->>>> +                       reg = <0x0 0xe0bb0000 0 0x10000>,
->>>> +                               <0x0 0xe0bc0000 0 0x10000>;
->>>
->>>
->>>
->>> I think the sizes are wrong.  They should be 0x1000 instead of 0x10000.
->>
->>
->> This has been proved by test, it works well on Seattle
->> Foundation model has same value. So I don't think it is wrong
->>
->> otherwise someone has the data sheet of Seattle B0, and it shows that is
->> wrong.
->>
->
-> If only 0x1000 is used, why would you have to reserve 0x10000 ?
-> You never access any higher addresses, so no matter what the datasheet
-> says, 0x1000 should be sufficient. What matters is what the driver uses.
+Change-Id: If7badb962008ff38560a02575d0d41f6aaa5f7fd
+Signed-off-by: Francois-Nicolas Muller <francois-nicolas.muller@intel.com>
+---
+ drivers/watchdog/iTCO_wdt.c | 51 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 51 insertions(+)
 
-the reason for using 0x10000 before is :
-(1)in <ARM v8-A Foundation Platform User Guide(Version: 9.1)> page 20
-0x00_2A44_0000 0x00_2A44_FFFF - EL2 Generic Watchdog Control 64KB S/NS
-0x00_2A45_0000 0x00_2A45_FFFF - EL2 Generic Watchdog Refresh 64KB S/NS
-(2)It is also confirmed by Suravee, in Seattle,  the size is 64KB also.
-(3) these configuration has passed the test in Foundation model and Seattle B0.
-
-Not sure the reason, maybe because of the 64KB page size.
-
-But, yes, in SBSA, the device only has 4KB register area, and the
-driver only need to use 4KB.
-
-So you are right,  "What matters is what the driver uses." , so will use 0x1000.
-I think there is not problem, because ACPI uses this size.
-
-
->
-> Guenter
->
->
-
-
-
+diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
+index cf8c50d..3dd4175 100644
+--- a/drivers/watchdog/iTCO_wdt.c
++++ b/drivers/watchdog/iTCO_wdt.c
+@@ -67,6 +67,8 @@
+ #include <linux/io.h>			/* For inb/outb/... */
+ #include <linux/mfd/core.h>
+ #include <linux/mfd/lpc_ich.h>
++#include <linux/nmi.h>
++#include <linux/acpi.h>
+ 
+ #include "iTCO_vendor.h"
+ 
+@@ -124,6 +126,13 @@ module_param(turn_SMI_watchdog_clear_off, int, 0);
+ MODULE_PARM_DESC(turn_SMI_watchdog_clear_off,
+ 	"Turn off SMI clearing watchdog (depends on TCO-version)(default=1)");
+ 
++#define DEFAULT_PRETIMEOUT 0
++static bool pretimeout = DEFAULT_PRETIMEOUT;
++module_param(pretimeout, bool, 0);
++MODULE_PARM_DESC(pretimeout,
++	"Enable watchdog pretimeout (default="
++	__MODULE_STRING(DEFAULT_PRETIMEOUT) ")");
++
+ static int iTCO_wdt_active = 0;
+ 
+ /*
+@@ -200,6 +209,45 @@ static int iTCO_wdt_unset_NO_REBOOT_bit(void)
+ 	return ret; /* returns: 0 = OK, -EIO = Error */
+ }
+ 
++static unsigned char *tco_hid = "8086229C";
++
++static u32 iTCO_wdt_pretimeout_handler(acpi_handle gpe_device, u32 gpe,
++					void *context)
++{
++	/* dump backtraces for all available cores */
++	trigger_all_cpu_backtrace();
++
++	/* call panic notifiers */
++	panic("Kernel Watchdog");
++
++	return ACPI_INTERRUPT_HANDLED;
++}
++
++static acpi_status __init iTCO_wdt_register_gpe(acpi_handle handle,
++					u32 lvl, void *context, void **rv)
++{
++	unsigned long long gpe;
++	acpi_status status;
++	union acpi_object object = { 0 };
++	struct acpi_buffer buffer = { sizeof(union acpi_object), &object };
++
++	status = acpi_evaluate_object(handle, "_GPE", NULL, &buffer);
++	if (ACPI_FAILURE(status))
++		return status;
++
++	if (object.type != ACPI_TYPE_INTEGER)
++		return AE_BAD_DATA;
++
++	gpe = object.integer.value;
++	status = acpi_install_gpe_handler(NULL, gpe, ACPI_GPE_EDGE_TRIGGERED,
++					  iTCO_wdt_pretimeout_handler, NULL);
++	if (ACPI_FAILURE(status))
++		return status;
++
++	acpi_enable_gpe(NULL, gpe);
++	return AE_OK;
++}
++
+ static int iTCO_wdt_start(struct watchdog_device *wd_dev)
+ {
+ 	unsigned int val;
+@@ -625,6 +673,9 @@ static int __init iTCO_wdt_init_module(void)
+ 	if (err)
+ 		return err;
+ 
++	if (pretimeout)
++		acpi_get_devices(tco_hid, iTCO_wdt_register_gpe, NULL, NULL);
++
+ 	return 0;
+ }
+ 
 -- 
-Best regards,
+1.9.1
 
-Fu Wei
-Software Engineer
-Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
-Ph: +86 21 61221326(direct)
-Ph: +86 186 2020 4684 (mobile)
-Room 1512, Regus One Corporate Avenue,Level 15,
-One Corporate Avenue,222 Hubin Road,Huangpu District,
-Shanghai,China 200021
