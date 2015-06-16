@@ -1,104 +1,61 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wi0-f171.google.com ([209.85.212.171]:37540 "EHLO
-	mail-wi0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751871AbbFOHYr (ORCPT
+Received: from smtp.domeneshop.no ([194.63.252.55]:52475 "EHLO
+	smtp.domeneshop.no" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756340AbbFPJjg (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 15 Jun 2015 03:24:47 -0400
+	Tue, 16 Jun 2015 05:39:36 -0400
+Message-ID: <557FEECE.9060909@tronnes.org>
+Date: Tue, 16 Jun 2015 11:39:26 +0200
+From: =?UTF-8?B?Tm9yYWxmIFRyw7hubmVz?= <noralf@tronnes.org>
 MIME-Version: 1.0
-In-Reply-To: <1434101718.2271.166.camel@x220>
-References: <1434055734-3602-1-git-send-email-christian.gmeiner@gmail.com>
- <1434055734-3602-2-git-send-email-christian.gmeiner@gmail.com> <1434101718.2271.166.camel@x220>
-From: Christian Gmeiner <christian.gmeiner@gmail.com>
-Date: Mon, 15 Jun 2015 09:24:25 +0200
-Message-ID: <CAH9NwWfJS7e_=NFUQgiDB4BOETxYn9oreKT0Md9q6N9eLJd3Rw@mail.gmail.com>
-Subject: Re: [PATCH 1/4] x86: Add basic support for the Congatec CGEB BIOS interface
-To: Paul Bolle <pebolle@tiscali.nl>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Lee Jones <lee.jones@linaro.org>,
-	Wolfram Sang <wsa@the-dreams.de>, jdelvare@suse.de,
-	linux-i2c@vger.kernel.org, wim@iguana.be,
-	linux-watchdog@vger.kernel.org, jingoohan1@gmail.com,
-	Sascha Hauer <s.hauer@pengutronix.de>
-Content-Type: text/plain; charset=UTF-8
+To: Stephen Warren <swarren@wwwdotorg.org>
+CC: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	linux-rpi-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 2/3] watchdog: bcm2835: Add poweroff code for the Raspberry
+ Pi
+References: <1434195541-28368-1-git-send-email-noralf@tronnes.org> <1434195541-28368-2-git-send-email-noralf@tronnes.org> <557F930E.8010002@wwwdotorg.org>
+In-Reply-To: <557F930E.8010002@wwwdotorg.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-Hi Paul
 
-Thanks for looking over my patches!
+Den 16.06.2015 05:07, skrev Stephen Warren:
+> On 06/13/2015 05:39 AM, Noralf Tr=C3=B8nnes wrote:
+>> This adds a new poweroff function to the watchdog driver for the
+>> Raspberry Pi. Currently poweroff/halt results in a reboot.
+>>
+>> The Raspberry Pi firmware uses the RSTS register to know which
+>> partiton to boot from. The partiton value is spread into bits
+>> 0, 2, 4, 6, 8, 10. Partiton 63 is a special partition used by
+>> the firmware to indicate halt.
+>>
+>> The firmware made this change in 19 Aug 2013 and was matched
+>> by the downstream commit:
+>> Changes for new NOOBS multi partition booting from gsh
+> I don't understand why we need a new compatible value here; why not
+> simply modify the existing bcm2835_power_off() function. That is writte=
+n
+> to do something that's interpreted by the RPi firmware, not something
+> that the bcm2835 HW does.
+>
+> Admittedly the current name is a bit misleading, but fixing that should
+> be a separate change to fixing the implementation to do what the curren=
+t
+> firmware expects.
 
-2015-06-12 11:35 GMT+02:00 Paul Bolle <pebolle@tiscali.nl>:
-> A few nits.
->
-> On Thu, 2015-06-11 at 22:48 +0200, Christian Gmeiner wrote:
->> --- /dev/null
->> +++ b/drivers/mfd/congatec-cgeb.c
->
->> + * This program is free software; you can redistribute it and/or modify
->> + * it under the terms of the GNU General Public License as published by
->> + * the Free Software Foundation; version 2 of the License.
->> + *
->> + * This program is distributed in the hope that it will be useful,
->> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
->> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
->> + * GNU General Public License for more details.
->
->> +/*
->> + * cgeb_invoke - invoke CGEB BIOS call.
->
-> s/cgeb_invoke/cgeb_call/
->
+There are other boards that use the BCM2835 and I didn't want to break th=
+e
+behaviour for those that use the reference firmware. Roku 2 device uses
+this soc, and changing bcm2835_power_off() would break support for it.
+ODROID-W also use BCM2835, but this is a Pi clone so I don't know if they
+have matched their firmware behaviour to that of the Pi (admittedly not
+many boards were made, their source of chips went dry).
 
-ok
-
->> + *
->> + * @board:     board context data
->> + * @p:         CGEB parameters for this call
->> + * @fct:       CGEB function code
->> + * @return:    0 on success or negative error code on failure.
->> + *
->> + * Call the CGEB BIOS code with the given parameters.
->> + */
->> +unsigned int cgeb_call(struct cgeb_board_data *board,
->> +              struct cgeb_function_parameters *p, cgeb_function_t fct)
->> +{
->> +     [...]
->> +}
->
->> +static int __init cgeb_init(void)
->> +{
->> +     [...]
->> +}
->> +
->> +static void cgeb_exit(void)
->> +{
->> +     [...]
->> +}
->> +
->> +module_init(cgeb_init);
->> +module_exit(cgeb_exit);
->
-> cgeb_exit is only used through module_exit(). So I guess it could be
-> marked __exit, right?
->
-
-That is correct - will be fixed in v2.
-
->> +MODULE_LICENSE("GPL");
->
-> The comment at the top of this file states the license is GPL v2. The
-> MODULE_LICENSE() macro states, according to include/linux/module.h, that
-> the license is GPL v2 or later. So I think one of these two needs to
-> change.
->
-> I spotted the same license mismatch in 2/4, 3/4 and 4/4.
->
-
-Will be fixed in v2.
-
-Thanks
 --
-Christian Gmeiner, MSc
-
-https://soundcloud.com/christian-gmeiner
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
