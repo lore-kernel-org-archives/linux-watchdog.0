@@ -1,41 +1,44 @@
-Return-path: <vivien.didelot@savoirfairelinux.com>
-Date: Mon, 15 Jun 2015 19:29:30 -0400 (EDT)
-From: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog <linux-watchdog@vger.kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	kernel <kernel@savoirfairelinux.com>
-Message-ID: <452754143.100967.1434410970055.JavaMail.zimbra@savoirfairelinux.com>
-In-Reply-To: <557F4689.1050907@roeck-us.net>
-References: <1434398321-16035-1-git-send-email-vivien.didelot@savoirfairelinux.com> <557F4689.1050907@roeck-us.net>
-Subject: Re: [RESEND PATCH 0/3] watchdog: MAX63xx cleanup and platform
- settings
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from avon.wwwdotorg.org ([70.85.31.133]:58458 "EHLO
+	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751354AbbFPDIA (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 15 Jun 2015 23:08:00 -0400
+Message-ID: <557F930E.8010002@wwwdotorg.org>
+Date: Mon, 15 Jun 2015 21:07:58 -0600
+From: Stephen Warren <swarren@wwwdotorg.org>
 MIME-Version: 1.0
+To: =?UTF-8?B?Tm9yYWxmIFRyw7hubmVz?= <noralf@tronnes.org>
+CC: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	linux-rpi-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 2/3] watchdog: bcm2835: Add poweroff code for the Raspberry
+ Pi
+References: <1434195541-28368-1-git-send-email-noralf@tronnes.org> <1434195541-28368-2-git-send-email-noralf@tronnes.org>
+In-Reply-To: <1434195541-28368-2-git-send-email-noralf@tronnes.org>
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Transfer-Encoding: 8bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hi Guenter,
-
-On Jun 15, 2015, at 5:41 PM, Guenter Roeck linux@roeck-us.net wrote:
-
-> On 06/15/2015 12:58 PM, Vivien Didelot wrote:
->> The first version of this patchset from January, 29 [1] got no feedback
->> from the maintainer. 1/4 [2] was applied to watchdog-next on May, 30
->> though. A concern about constants removal was raised in the preliminary
->> 2/4 cleanup patch, the explanation has been added to the related commit
->> message.
->>
+On 06/13/2015 05:39 AM, Noralf Trønnes wrote:
+> This adds a new poweroff function to the watchdog driver for the
+> Raspberry Pi. Currently poweroff/halt results in a reboot.
 > 
-> Hi Vivien,
+> The Raspberry Pi firmware uses the RSTS register to know which
+> partiton to boot from. The partiton value is spread into bits
+> 0, 2, 4, 6, 8, 10. Partiton 63 is a special partition used by
+> the firmware to indicate halt.
 > 
-> For my part, adding a comment about removal of constants does not alleviate
-> my concern about removing those constants. I just don't believe that removing
-> constants is a good idea, no matter what the arguments for doing so might be.
+> The firmware made this change in 19 Aug 2013 and was matched
+> by the downstream commit:
+> Changes for new NOOBS multi partition booting from gsh
 
-Ok then, I'll minimize this cleanup patch and keep MAX6369_WDSET and
-MAX6369_WDI as is.
+I don't understand why we need a new compatible value here; why not
+simply modify the existing bcm2835_power_off() function. That is written
+to do something that's interpreted by the RPi firmware, not something
+that the bcm2835 HW does.
 
-Thanks,
--v
+Admittedly the current name is a bit misleading, but fixing that should
+be a separate change to fixing the implementation to do what the current
+firmware expects.
