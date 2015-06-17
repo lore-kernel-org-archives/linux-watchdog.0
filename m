@@ -1,175 +1,296 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.savoirfairelinux.com ([209.172.62.77]:65143 "EHLO
+Received: from mail.savoirfairelinux.com ([209.172.62.77]:51781 "EHLO
 	mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753706AbbFQW7R (ORCPT
+	with ESMTP id S1755599AbbFQW7U (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 17 Jun 2015 18:59:17 -0400
+	Wed, 17 Jun 2015 18:59:20 -0400
 From: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
 To: linux-watchdog@vger.kernel.org
 Cc: Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
 	Wim Van Sebroeck <wim@iguana.be>,
 	Guenter Roeck <linux@roeck-us.net>,
 	linux-kernel@vger.kernel.org, kernel@savoirfairelinux.com
-Subject: [PATCH v2 2/3] watchdog: max63xx: add GPIO support
-Date: Wed, 17 Jun 2015 18:58:59 -0400
-Message-Id: <1434581940-15086-2-git-send-email-vivien.didelot@savoirfairelinux.com>
-In-Reply-To: <1434581940-15086-1-git-send-email-vivien.didelot@savoirfairelinux.com>
-References: <1434581940-15086-1-git-send-email-vivien.didelot@savoirfairelinux.com>
+Subject: [PATCH v2 1/3] watchdog: max63xx: dynamically allocate device
+Date: Wed, 17 Jun 2015 18:58:58 -0400
+Message-Id: <1434581940-15086-1-git-send-email-vivien.didelot@savoirfairelinux.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Introduce a new struct max63xx_platform_data to support MAX63xx watchdog
-chips connected via GPIO. A platform code can fill this structure with
-GPIO numbers for WDI and WDSET pins to enable GPIO support in the code.
+This patch removes the static watchdog device for a new max63xx_wdt data
+structure, and constifies the max63xx_timeout data.
 
-The driver takes care of requesting and releasing the GPIOs.
+The new structure contains pointers to pin access routines, which
+abstracts mmap-specific code. This will ease future accesses like GPIO.
 
 Signed-off-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
 ---
- drivers/watchdog/Kconfig                  |  2 +-
- drivers/watchdog/max63xx_wdt.c            | 53 ++++++++++++++++++++++++++++++-
- include/linux/platform_data/max63xx_wdt.h | 27 ++++++++++++++++
- 3 files changed, 80 insertions(+), 2 deletions(-)
- create mode 100644 include/linux/platform_data/max63xx_wdt.h
+ drivers/watchdog/max63xx_wdt.c | 170 +++++++++++++++++++++++++----------------
+ 1 file changed, 104 insertions(+), 66 deletions(-)
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 742fbbc..bb65b20 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -418,7 +418,7 @@ config TS72XX_WATCHDOG
- 
- config MAX63XX_WATCHDOG
- 	tristate "Max63xx watchdog"
--	depends on HAS_IOMEM
-+	depends on HAS_IOMEM || GPIOLIB
- 	select WATCHDOG_CORE
- 	help
- 	  Support for memory mapped max63{69,70,71,72,73,74} watchdog timer.
 diff --git a/drivers/watchdog/max63xx_wdt.c b/drivers/watchdog/max63xx_wdt.c
-index 3f7e8d5..cce2b12 100644
+index b3a1130..3f7e8d5 100644
 --- a/drivers/watchdog/max63xx_wdt.c
 +++ b/drivers/watchdog/max63xx_wdt.c
-@@ -22,6 +22,8 @@
- #include <linux/watchdog.h>
- #include <linux/bitops.h>
- #include <linux/platform_device.h>
-+#include <linux/platform_data/max63xx_wdt.h>
-+#include <linux/gpio.h>
- #include <linux/spinlock.h>
- #include <linux/io.h>
- #include <linux/slab.h>
-@@ -47,6 +49,9 @@ struct max63xx_wdt {
- 	struct watchdog_device wdd;
- 	const struct max63xx_timeout *timeout;
+@@ -39,10 +39,22 @@ static bool nowayout  = WATCHDOG_NOWAYOUT;
+ #define MAX6369_WDSET	(7 << 0)
+ #define MAX6369_WDI	(1 << 3)
  
-+	/* platform settings e.g. GPIO */
-+	struct max63xx_platform_data *pdata;
+-static DEFINE_SPINLOCK(io_lock);
++#define MAX6369_WDSET_DISABLED 3
+ 
+ static int nodelay;
+-static void __iomem	*wdt_base;
 +
- 	/* memory mapping */
- 	void __iomem *base;
- 	spinlock_t lock;
-@@ -199,6 +204,48 @@ static int max63xx_mmap_init(struct platform_device *p, struct max63xx_wdt *wdt)
++struct max63xx_wdt {
++	struct watchdog_device wdd;
++	const struct max63xx_timeout *timeout;
++
++	/* memory mapping */
++	void __iomem *base;
++	spinlock_t lock;
++
++	/* WDI and WSET bits write access routines */
++	void (*ping)(struct max63xx_wdt *wdt);
++	void (*set)(struct max63xx_wdt *wdt, u8 set);
++};
+ 
+ /*
+  * The timeout values used are actually the absolute minimum the chip
+@@ -59,25 +71,25 @@ static void __iomem	*wdt_base;
+ 
+ /* Timeouts in second */
+ struct max63xx_timeout {
+-	u8 wdset;
+-	u8 tdelay;
+-	u8 twd;
++	const u8 wdset;
++	const u8 tdelay;
++	const u8 twd;
+ };
+ 
+-static struct max63xx_timeout max6369_table[] = {
++static const struct max63xx_timeout max6369_table[] = {
+ 	{ 5,  1,  1 },
+ 	{ 6, 10, 10 },
+ 	{ 7, 60, 60 },
+ 	{ },
+ };
+ 
+-static struct max63xx_timeout max6371_table[] = {
++static const struct max63xx_timeout max6371_table[] = {
+ 	{ 6, 60,  3 },
+ 	{ 7, 60, 60 },
+ 	{ },
+ };
+ 
+-static struct max63xx_timeout max6373_table[] = {
++static const struct max63xx_timeout max6373_table[] = {
+ 	{ 2, 60,  1 },
+ 	{ 5,  0,  1 },
+ 	{ 1,  3,  3 },
+@@ -86,8 +98,6 @@ static struct max63xx_timeout max6373_table[] = {
+ 	{ },
+ };
+ 
+-static struct max63xx_timeout *current_timeout;
+-
+ static struct max63xx_timeout *
+ max63xx_select_timeout(struct max63xx_timeout *table, int value)
+ {
+@@ -108,59 +118,32 @@ max63xx_select_timeout(struct max63xx_timeout *table, int value)
+ 
+ static int max63xx_wdt_ping(struct watchdog_device *wdd)
+ {
+-	u8 val;
+-
+-	spin_lock(&io_lock);
++	struct max63xx_wdt *wdt = watchdog_get_drvdata(wdd);
+ 
+-	val = __raw_readb(wdt_base);
+-
+-	__raw_writeb(val | MAX6369_WDI, wdt_base);
+-	__raw_writeb(val & ~MAX6369_WDI, wdt_base);
+-
+-	spin_unlock(&io_lock);
++	wdt->ping(wdt);
  	return 0;
  }
  
-+static void max63xx_gpio_ping(struct max63xx_wdt *wdt)
+ static int max63xx_wdt_start(struct watchdog_device *wdd)
+ {
+-	struct max63xx_timeout *entry = watchdog_get_drvdata(wdd);
+-	u8 val;
++	struct max63xx_wdt *wdt = watchdog_get_drvdata(wdd);
+ 
+-	spin_lock(&io_lock);
+-
+-	val = __raw_readb(wdt_base);
+-	val &= ~MAX6369_WDSET;
+-	val |= entry->wdset;
+-	__raw_writeb(val, wdt_base);
+-
+-	spin_unlock(&io_lock);
++	wdt->set(wdt, wdt->timeout->wdset);
+ 
+ 	/* check for a edge triggered startup */
+-	if (entry->tdelay == 0)
+-		max63xx_wdt_ping(wdd);
++	if (wdt->timeout->tdelay == 0)
++		wdt->ping(wdt);
+ 	return 0;
+ }
+ 
+ static int max63xx_wdt_stop(struct watchdog_device *wdd)
+ {
+-	u8 val;
++	struct max63xx_wdt *wdt = watchdog_get_drvdata(wdd);
+ 
+-	spin_lock(&io_lock);
+-
+-	val = __raw_readb(wdt_base);
+-	val &= ~MAX6369_WDSET;
+-	val |= 3;
+-	__raw_writeb(val, wdt_base);
+-
+-	spin_unlock(&io_lock);
++	wdt->set(wdt, MAX6369_WDSET_DISABLED);
+ 	return 0;
+ }
+ 
+-static const struct watchdog_info max63xx_wdt_info = {
+-	.options = WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
+-	.identity = "max63xx Watchdog",
+-};
+-
+ static const struct watchdog_ops max63xx_wdt_ops = {
+ 	.owner = THIS_MODULE,
+ 	.start = max63xx_wdt_start,
+@@ -168,49 +151,104 @@ static const struct watchdog_ops max63xx_wdt_ops = {
+ 	.ping = max63xx_wdt_ping,
+ };
+ 
+-static struct watchdog_device max63xx_wdt_dev = {
+-	.info = &max63xx_wdt_info,
+-	.ops = &max63xx_wdt_ops,
++static const struct watchdog_info max63xx_wdt_info = {
++	.options = WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
++	.identity = "max63xx Watchdog",
+ };
+ 
++static void max63xx_mmap_ping(struct max63xx_wdt *wdt)
 +{
-+	gpio_set_value_cansleep(wdt->pdata->wdi, 1);
-+	gpio_set_value_cansleep(wdt->pdata->wdi, 0);
++	u8 val;
++
++	spin_lock(&wdt->lock);
++
++	val = __raw_readb(wdt->base);
++
++	__raw_writeb(val | MAX6369_WDI, wdt->base);
++	__raw_writeb(val & ~MAX6369_WDI, wdt->base);
++
++	spin_unlock(&wdt->lock);
 +}
 +
-+static void max63xx_gpio_set(struct max63xx_wdt *wdt, u8 set)
++static void max63xx_mmap_set(struct max63xx_wdt *wdt, u8 set)
 +{
-+	gpio_set_value_cansleep(wdt->pdata->set0, set & BIT(0));
-+	gpio_set_value_cansleep(wdt->pdata->set1, set & BIT(1));
-+	gpio_set_value_cansleep(wdt->pdata->set2, set & BIT(2));
++	u8 val;
++
++	spin_lock(&wdt->lock);
++
++	val = __raw_readb(wdt->base);
++	val &= ~MAX6369_WDSET;
++	val |= set & MAX6369_WDSET;
++	__raw_writeb(val, wdt->base);
++
++	spin_unlock(&wdt->lock);
 +}
 +
-+static int max63xx_gpio_init(struct platform_device *p, struct max63xx_wdt *wdt)
++static int max63xx_mmap_init(struct platform_device *p, struct max63xx_wdt *wdt)
 +{
-+	int err;
++	struct resource *mem = platform_get_resource(p, IORESOURCE_MEM, 0);
 +
-+	err = devm_gpio_request_one(&p->dev, wdt->pdata->wdi,
-+				    GPIOF_OUT_INIT_LOW, "max63xx_wdt WDI");
-+	if (err)
-+		return err;
++	wdt->base = devm_ioremap_resource(&p->dev, mem);
++	if (IS_ERR(wdt->base))
++		return PTR_ERR(wdt->base);
 +
-+	err = devm_gpio_request_one(&p->dev, wdt->pdata->set0,
-+				    GPIOF_OUT_INIT_LOW, "max63xx_wdt SET0");
-+	if (err)
-+		return err;
++	spin_lock_init(&wdt->lock);
 +
-+	err = devm_gpio_request_one(&p->dev, wdt->pdata->set1,
-+				    GPIOF_OUT_INIT_LOW, "max63xx_wdt SET1");
-+	if (err)
-+		return err;
-+
-+	err = devm_gpio_request_one(&p->dev, wdt->pdata->set2,
-+				    GPIOF_OUT_INIT_LOW, "max63xx_wdt SET2");
-+	if (err)
-+		return err;
-+
-+	wdt->ping = max63xx_gpio_ping;
-+	wdt->set = max63xx_gpio_set;
++	wdt->ping = max63xx_mmap_ping;
++	wdt->set = max63xx_mmap_set;
 +	return 0;
 +}
 +
  static int max63xx_wdt_probe(struct platform_device *pdev)
  {
- 	struct max63xx_wdt *wdt;
-@@ -211,6 +258,8 @@ static int max63xx_wdt_probe(struct platform_device *pdev)
+-	struct resource	*wdt_mem;
++	struct max63xx_wdt *wdt;
+ 	struct max63xx_timeout *table;
++	int err;
++
++	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
++	if (!wdt)
++		return -ENOMEM;
  
  	table = (struct max63xx_timeout *)pdev->id_entry->driver_data;
  
-+	wdt->pdata = dev_get_platdata(&pdev->dev);
-+
  	if (heartbeat < 1 || heartbeat > MAX_HEARTBEAT)
  		heartbeat = DEFAULT_HEARTBEAT;
  
-@@ -221,7 +270,9 @@ static int max63xx_wdt_probe(struct platform_device *pdev)
+-	dev_info(&pdev->dev, "requesting %ds heartbeat\n", heartbeat);
+-	current_timeout = max63xx_select_timeout(table, heartbeat);
+-
+-	if (!current_timeout) {
+-		dev_err(&pdev->dev, "unable to satisfy heartbeat request\n");
++	wdt->timeout = max63xx_select_timeout(table, heartbeat);
++	if (!wdt->timeout) {
++		dev_err(&pdev->dev, "unable to satisfy %ds heartbeat request\n",
++			heartbeat);
  		return -EINVAL;
  	}
  
--	err = max63xx_mmap_init(pdev, wdt);
-+	/* GPIO or memory mapped? */
-+	err = wdt->pdata && wdt->pdata->wdi ? max63xx_gpio_init(pdev, wdt) :
-+		max63xx_mmap_init(pdev, wdt);
- 	if (err)
- 		return err;
+-	dev_info(&pdev->dev, "using %ds heartbeat with %ds initial delay\n",
+-		 current_timeout->twd, current_timeout->tdelay);
++	err = max63xx_mmap_init(pdev, wdt);
++	if (err)
++		return err;
++
++	platform_set_drvdata(pdev, &wdt->wdd);
++	watchdog_set_drvdata(&wdt->wdd, wdt);
  
-diff --git a/include/linux/platform_data/max63xx_wdt.h b/include/linux/platform_data/max63xx_wdt.h
-new file mode 100644
-index 0000000..ae28024
---- /dev/null
-+++ b/include/linux/platform_data/max63xx_wdt.h
-@@ -0,0 +1,27 @@
-+/*
-+ * Maxim MAX6369 Pin-Selectable Watchdog Timer and compatibles
-+ *
-+ * Copyright (c) 2015 Savoir-faire Linux Inc.
-+ *          Vivien Didelot <vivien.didelot@savoirfairelinux.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
+-	heartbeat = current_timeout->twd;
++	wdt->wdd.parent = &pdev->dev;
++	wdt->wdd.timeout = wdt->timeout->twd;
++	wdt->wdd.info = &max63xx_wdt_info;
++	wdt->wdd.ops = &max63xx_wdt_ops;
+ 
+-	wdt_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	wdt_base = devm_ioremap_resource(&pdev->dev, wdt_mem);
+-	if (IS_ERR(wdt_base))
+-		return PTR_ERR(wdt_base);
++	watchdog_set_nowayout(&wdt->wdd, nowayout);
+ 
+-	max63xx_wdt_dev.timeout = heartbeat;
+-	watchdog_set_nowayout(&max63xx_wdt_dev, nowayout);
+-	watchdog_set_drvdata(&max63xx_wdt_dev, current_timeout);
++	err = watchdog_register_device(&wdt->wdd);
++	if (err)
++		return err;
+ 
+-	return watchdog_register_device(&max63xx_wdt_dev);
++	dev_info(&pdev->dev, "using %ds heartbeat with %ds initial delay\n",
++		 wdt->timeout->twd, wdt->timeout->tdelay);
++	return 0;
+ }
+ 
+ static int max63xx_wdt_remove(struct platform_device *pdev)
+ {
+-	watchdog_unregister_device(&max63xx_wdt_dev);
++	struct watchdog_device *wdd = platform_get_drvdata(pdev);
 +
-+#ifndef _PDATA_MAX63XX_H
-+#define _PDATA_MAX63XX_H
-+
-+/**
-+ * struct max63xx_platform_data - MAX63xx connectivity info
-+ * @wdi:	Watchdog Input GPIO number.
-+ * @set0:	Watchdog SET0 GPIO number.
-+ * @set1:	Watchdog SET1 GPIO number.
-+ * @set2:	Watchdog SET2 GPIO number.
-+ */
-+struct max63xx_platform_data {
-+	unsigned int wdi;
-+	unsigned int set0, set1, set2;
-+};
-+
-+#endif /* _PDATA_MAX63XX_H */
++	watchdog_unregister_device(wdd);
+ 	return 0;
+ }
+ 
 -- 
 2.4.3
 
