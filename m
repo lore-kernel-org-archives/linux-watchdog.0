@@ -1,82 +1,134 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:40189 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752352AbbF2QqU (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 29 Jun 2015 12:46:20 -0400
-From: Timur Tabi <timur@codeaurora.org>
-To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	Vipul Gandhi <vgandhi@codeaurora.org>
-Subject: [PATCH] Documentation/watchdog: add timeout and ping rate control to watchdog-test.c
-Date: Mon, 29 Jun 2015 11:46:17 -0500
-Message-Id: <1435596377-17737-1-git-send-email-timur@codeaurora.org>
+Received: from mga14.intel.com ([192.55.52.115]:5325 "EHLO mga14.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753461AbbFQNfX (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 17 Jun 2015 09:35:23 -0400
+From: Francois-Nicolas Muller <francois-nicolas.muller@intel.com>
+To: linux@roeck-us.net
+Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Francois-Nicolas Muller <francois-nicolas.muller@intel.com>
+Subject: [PATCH v3] TCO watchdog pretimeout handler
+Date: Wed, 17 Jun 2015 15:34:32 +0200
+Message-Id: <1434548072-3334-1-git-send-email-francois-nicolas.muller@intel.com>
+In-Reply-To: <55810251.6070106@roeck-us.net>
+References: <55810251.6070106@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The watchdog test program is much more useful if it can configure the
-timeout value and ping rate.  This will allow you to test actual timeouts.
+Use TCO watchdog first timeout (pretimeout) to dump CPU backtraces
+and ease debug of watchdog expiration causes.
+On Intel Cherrytrail, TCO logic generates a SMI, then SMI handler
+triggers a SCI to the kernel, on a specific GPE.
+The GPE handler dumps all CPU backtraces and calls panic (in order
+to execute registered panic callbacks).
+GPE number is configured from ACPI tables if LPC HID exists.
 
-Adds the -t parameter to set the timeout value (in seconds), and -p to set
-the ping rate (number of seconds between pings).
-
-Signed-off-by: Timur Tabi <timur@codeaurora.org>
+Signed-off-by: Francois-Nicolas Muller <francois-nicolas.muller@intel.com>
 ---
- Documentation/watchdog/src/watchdog-test.c | 22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+SMI is not supported by the driver, only SCI.
 
-diff --git a/Documentation/watchdog/src/watchdog-test.c b/Documentation/watchdog/src/watchdog-test.c
-index 3da8229..fcdde8f 100644
---- a/Documentation/watchdog/src/watchdog-test.c
-+++ b/Documentation/watchdog/src/watchdog-test.c
-@@ -41,6 +41,7 @@ static void term(int sig)
- int main(int argc, char *argv[])
- {
-     int flags;
-+    unsigned int ping_rate = 1;
+On Intel Cherrytrail, TCO watchdog raises an SMI, then the SMI handler
+in Bios trigs a SCI to the kernel (in Android OS configuration).
+
+The patch has some effect only on Cherrytrail platform.
+On Braswell, the TCO HID exists in ACPI tables, so SCI is configured. But
+the SMI handler does not trig the SCI.
+On other platforms, the HID does not exist in ACPI tables, and the SMI
+handler does not trig the SCI.
+
+In ACPI tables, _GPE is associated to this HID, so no possible confusion.
+
+François-Nicolas
+---
+ drivers/watchdog/iTCO_wdt.c | 50 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 50 insertions(+)
+
+diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
+index 3c3fd41..3e9ec8b 100644
+--- a/drivers/watchdog/iTCO_wdt.c
++++ b/drivers/watchdog/iTCO_wdt.c
+@@ -68,6 +68,8 @@
+ #include <linux/io.h>			/* For inb/outb/... */
+ #include <linux/mfd/core.h>
+ #include <linux/mfd/lpc_ich.h>
++#include <linux/nmi.h>
++#include <linux/acpi.h>
  
-     fd = open("/dev/watchdog", O_WRONLY);
+ #include "iTCO_vendor.h"
  
-@@ -63,22 +64,33 @@ int main(int argc, char *argv[])
- 	    fprintf(stderr, "Watchdog card enabled.\n");
- 	    fflush(stderr);
- 	    goto end;
-+	} else if (!strncasecmp(argv[1], "-t", 2) && argv[2]) {
-+	    flags = atoi(argv[2]);
-+	    ioctl(fd, WDIOC_SETTIMEOUT, &flags);
-+	    fprintf(stderr, "Watchdog timeout set to %u seconds.\n", flags);
-+	    fflush(stderr);
-+	    goto end;
-+	} else if (!strncasecmp(argv[1], "-p", 2) && argv[2]) {
-+	    ping_rate = strtoul(argv[2], NULL, 0);
-+	    fprintf(stderr, "Watchdog ping rate set to %u seconds.\n", ping_rate);
-+	    fflush(stderr);
- 	} else {
--	    fprintf(stderr, "-d to disable, -e to enable.\n");
-+	    fprintf(stderr, "-d to disable, -e to enable, -t <n> to set " \
-+		"the timeout,\n-p <n> to set the ping rate, and \n");
- 	    fprintf(stderr, "run by itself to tick the card.\n");
- 	    fflush(stderr);
- 	    goto end;
- 	}
--    } else {
--	fprintf(stderr, "Watchdog Ticking Away!\n");
--	fflush(stderr);
-     }
+@@ -127,6 +129,12 @@ module_param(turn_SMI_watchdog_clear_off, int, 0);
+ MODULE_PARM_DESC(turn_SMI_watchdog_clear_off,
+ 	"Turn off SMI clearing watchdog (depends on TCO-version)(default=1)");
  
-+    fprintf(stderr, "Watchdog Ticking Away!\n");
-+    fflush(stderr);
++#define DEFAULT_PRETIMEOUT 0
++static bool pretimeout = DEFAULT_PRETIMEOUT;
++module_param(pretimeout, bool, 0);
++MODULE_PARM_DESC(pretimeout, "Enable watchdog pretimeout (default="
++				__MODULE_STRING(DEFAULT_PRETIMEOUT) ")");
 +
-     signal(SIGINT, term);
+ /*
+  * Some TCO specific functions
+  */
+@@ -201,6 +209,45 @@ static int iTCO_wdt_unset_NO_REBOOT_bit(void)
+ 	return ret; /* returns: 0 = OK, -EIO = Error */
+ }
  
-     while(1) {
- 	keep_alive();
--	sleep(1);
-+	sleep(ping_rate);
-     }
- end:
-     close(fd);
++static unsigned char *tco_hid = "8086229C"; /* Intel Cherrytrail LPC */
++
++static u32 iTCO_wdt_pretimeout_handler(acpi_handle gpe_device, u32 gpe,
++				       void *context)
++{
++	/* dump backtraces for all available cores */
++	trigger_all_cpu_backtrace();
++
++	/* call panic notifiers */
++	panic("Kernel Watchdog");
++
++	return ACPI_INTERRUPT_HANDLED;
++}
++
++static acpi_status __init iTCO_wdt_register_gpe(acpi_handle handle,
++					u32 lvl, void *context, void **rv)
++{
++	unsigned long long gpe;
++	acpi_status status;
++	union acpi_object object = { 0 };
++	struct acpi_buffer buffer = { sizeof(union acpi_object), &object };
++
++	status = acpi_evaluate_object(handle, "_GPE", NULL, &buffer);
++	if (ACPI_FAILURE(status))
++		return status;
++
++	if (object.type != ACPI_TYPE_INTEGER)
++		return AE_BAD_DATA;
++
++	gpe = object.integer.value;
++	status = acpi_install_gpe_handler(NULL, gpe, ACPI_GPE_EDGE_TRIGGERED,
++					  iTCO_wdt_pretimeout_handler, NULL);
++	if (ACPI_FAILURE(status))
++		return status;
++
++	acpi_enable_gpe(NULL, gpe);
++	return AE_OK;
++}
++
+ static int iTCO_wdt_start(struct watchdog_device *wd_dev)
+ {
+ 	unsigned int val;
+@@ -641,6 +688,9 @@ static int __init iTCO_wdt_init_module(void)
+ 	if (err)
+ 		return err;
+ 
++	if (pretimeout)
++		acpi_get_devices(tco_hid, iTCO_wdt_register_gpe, NULL, NULL);
++
+ 	return 0;
+ }
+ 
 -- 
-Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-a Linux Foundation Collaborative Project.
+1.9.1
 
