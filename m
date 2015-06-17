@@ -1,32 +1,72 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:44464 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751308AbbFUMet (ORCPT
+Received: from asav22.altibox.net ([109.247.116.9]:42605 "EHLO
+	asav22.altibox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753455AbbFQOFG (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 21 Jun 2015 08:34:49 -0400
-Message-ID: <5586AF65.1080403@roeck-us.net>
-Date: Sun, 21 Jun 2015 05:34:45 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Wed, 17 Jun 2015 10:05:06 -0400
+From: =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
+To: linux-watchdog@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-rpi-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	=?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
+Subject: [PATCH v3] watchdog: bcm2835: Fix poweroff behaviour
+Date: Wed, 17 Jun 2015 16:04:04 +0200
+Message-Id: <1434549844-11704-1-git-send-email-noralf@tronnes.org>
 MIME-Version: 1.0
-To: Jean Delvare <jdelvare@suse.de>, linux-watchdog@vger.kernel.org
-CC: Wim Van Sebroeck <wim@iguana.be>,
-	"Mingarelli, Thomas" <Thomas.Mingarelli@hp.com>
-Subject: Re: [PATCH v2] watchdog: hpwdt: Add support for WDIOC_SETOPTIONS
-References: <20150621093233.2f97739c@endymion.delvare>
-In-Reply-To: <20150621093233.2f97739c@endymion.delvare>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 06/21/2015 12:32 AM, Jean Delvare wrote:
-> WDIOC_SETOPTIONS makes it possible to disable and re-enable the
-> watchdog timer while the hpwdt driver is loaded.
->
-> Signed-off-by: Jean Delvare <jdelvare@suse.de>
-> Cc: Wim Van Sebroeck <wim@iguana.be>
+Currently poweroff/halt results in a reboot on the Raspberry Pi.
+The firmware uses the RSTS register to know which partiton to
+boot from. The partiton value is spread into bits
+0, 2, 4, 6, 8, 10. Partiton 63 is a special partition used by
+the firmware to indicate halt.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+The firmware made this change in 19 Aug 2013 and was matched
+by the downstream commit:
+Changes for new NOOBS multi partition booting from gsh
 
+Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
+---
+
+v2: Fix typo in commit message
+
+v3: Only Raspberry Pi is supported so it's ok to just modify
+    the poweroff function (Stephen Warrren)
+
+ drivers/watchdog/bcm2835_wdt.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/watchdog/bcm2835_wdt.c b/drivers/watchdog/bcm2835_wdt.c
+index 7116968..43dbf5b 100644
+--- a/drivers/watchdog/bcm2835_wdt.c
++++ b/drivers/watchdog/bcm2835_wdt.c
+@@ -36,6 +36,13 @@
+ #define PM_RSTC_WRCFG_FULL_RESET	0x00000020
+ #define PM_RSTC_RESET			0x00000102
+
++/*
++ * The Raspberry Pi firmware uses the RSTS register to know which partiton
++ * to boot from. The partiton value is spread into bits 0, 2, 4, 6, 8, 10.
++ * Partiton 63 is a special partition used by the firmware to indicate halt.
++ */
++#define PM_RSTS_RASPBERRYPI_HALT	0x555
++
+ #define SECS_TO_WDOG_TICKS(x) ((x) << 16)
+ #define WDOG_TICKS_TO_SECS(x) ((x) >> 16)
+
+@@ -151,8 +158,7 @@ static void bcm2835_power_off(void)
+ 	 * hard reset.
+ 	 */
+ 	val = readl_relaxed(wdt->base + PM_RSTS);
+-	val &= PM_RSTC_WRCFG_CLR;
+-	val |= PM_PASSWORD | PM_RSTS_HADWRH_SET;
++	val |= PM_PASSWORD | PM_RSTS_RASPBERRYPI_HALT;
+ 	writel_relaxed(val, wdt->base + PM_RSTS);
+
+ 	/* Continue with normal reset mechanism */
 --
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+2.2.2
+
