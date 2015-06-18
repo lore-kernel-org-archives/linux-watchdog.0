@@ -1,31 +1,29 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:32988 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:33179 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754732AbbFRQiV (ORCPT
+	with ESMTP id S1756276AbbFRQjl (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 18 Jun 2015 12:38:21 -0400
-Date: Thu, 18 Jun 2015 09:38:14 -0700
+	Thu, 18 Jun 2015 12:39:41 -0400
+Date: Thu, 18 Jun 2015 09:39:38 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 To: poeschel@lemonage.de
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: watchdog: omap_wdt: implement get_timeleft
-Message-ID: <20150618163814.GA21442@roeck-us.net>
-References: <1434531539-6198-1-git-send-email-poeschel@lemonage.de>
+Cc: wim@iguana.be, corbet@lwn.net, linux-doc@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: watchdog: docs: omap_wdt also understands nowayout
+Message-ID: <20150618163938.GA21683@roeck-us.net>
+References: <1434532407-6989-1-git-send-email-poeschel@lemonage.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1434531539-6198-1-git-send-email-poeschel@lemonage.de>
+In-Reply-To: <1434532407-6989-1-git-send-email-poeschel@lemonage.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Jun 17, 2015 at 10:58:59AM +0200, poeschel@lemonage.de wrote:
+On Wed, Jun 17, 2015 at 11:13:27AM +0200, poeschel@lemonage.de wrote:
 > From: Lars Poeschel <poeschel@lemonage.de>
 > 
-> The omap watchdog hardware is able to read the watchdog timer counter
-> register. This implements this functionality in the omap_wdt driver, so
-> one is can read the time until the watchdog will trigger the reset in
-> seconds using WDIOC_GETTIMELEFT.
+> The omap_wdt kernel driver also understands the nowayout module
+> parameter. This updates the watchdog-parameters.txt to reflect this fact.
 > 
 > Signed-off-by: Lars Poeschel <poeschel@lemonage.de>
 
