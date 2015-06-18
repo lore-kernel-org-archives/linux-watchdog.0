@@ -1,157 +1,143 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:48374 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753097AbbFQFPC (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 17 Jun 2015 01:15:02 -0400
-Message-ID: <55810251.6070106@roeck-us.net>
-Date: Tue, 16 Jun 2015 22:14:57 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+Received: from mga02.intel.com ([134.134.136.20]:41210 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754881AbbFRMli (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 18 Jun 2015 08:41:38 -0400
+From: "Muller, Francois-nicolas" <francois-nicolas.muller@intel.com>
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+CC: "linux@roeck-us.net" <linux@roeck-us.net>,
+	"wim@iguana.be" <wim@iguana.be>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH v3] TCO watchdog pretimeout handler
+Date: Thu, 18 Jun 2015 12:41:23 +0000
+Message-ID: <B9C02DB17496AC4197F41A146D371B9B1A63E612@hasmsx107.ger.corp.intel.com>
+References: <55810251.6070106@roeck-us.net>
+	<1434548072-3334-1-git-send-email-francois-nicolas.muller@intel.com>
+ <CAHp75Vc6hBqNS+peER+14yWidhvdbGDSBv9YQkV4WETjhah4nQ@mail.gmail.com>
+In-Reply-To: <CAHp75Vc6hBqNS+peER+14yWidhvdbGDSBv9YQkV4WETjhah4nQ@mail.gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-To: Francois-Nicolas Muller <francois-nicolas.muller@intel.com>
-CC: wim@iguana.be, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] TCO watchdog pretimeout handler
-References: <20150615182941.GA19721@roeck-us.net> <1434462314-17298-1-git-send-email-francois-nicolas.muller@intel.com>
-In-Reply-To: <1434462314-17298-1-git-send-email-francois-nicolas.muller@intel.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 06/16/2015 06:45 AM, Francois-Nicolas Muller wrote:
-> Use TCO watchdog first timeout (pretimeout) to dump CPU backtraces
-> and ease debug of watchdog expiration causes.
-> TCO logic generates a SCI interrupt, then its handler dumps all CPU
-> backtraces and calls panic (in order to execute registered panic
-> callbacks).
-> SCI interrupt number (GPE) is configured from ACPI tables.
->
-> Signed-off-by: Francois-Nicolas Muller <francois-nicolas.muller@intel.com>
-> ---
-> Thanks Guenter for your review.
->
->> If I recall correctly, the iTCO watchdog can also generate an NMI.
->> Would it make sense to add support for handling this NMI as well ?
->
-> As far as I know, there is no NMI option for TCO watchdog interrupt.
-> Do you have any documentation about this ?
->
-
-Actually that was a miscommunication, sorry. I confused it waith another watchdog.
-
-I assume you took out all mention of SMI because it is not (yet) supported.
-Would be interesting to know what systems out there actually use / configure.
-
-  Here is a new version (v2) of the patch:
-> - rebased on latest kernel
-> - fixed coding style issues
->
-> Francois-Nicolas
-> ---
->   drivers/watchdog/iTCO_wdt.c | 50 +++++++++++++++++++++++++++++++++++++++++++++
->   1 file changed, 50 insertions(+)
->
-> diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
-> index 3c3fd41..cd2569a 100644
-> --- a/drivers/watchdog/iTCO_wdt.c
-> +++ b/drivers/watchdog/iTCO_wdt.c
-> @@ -68,6 +68,8 @@
->   #include <linux/io.h>			/* For inb/outb/... */
->   #include <linux/mfd/core.h>
->   #include <linux/mfd/lpc_ich.h>
-> +#include <linux/nmi.h>
-> +#include <linux/acpi.h>
->
->   #include "iTCO_vendor.h"
->
-> @@ -127,6 +129,12 @@ module_param(turn_SMI_watchdog_clear_off, int, 0);
->   MODULE_PARM_DESC(turn_SMI_watchdog_clear_off,
->   	"Turn off SMI clearing watchdog (depends on TCO-version)(default=1)");
->
-> +#define DEFAULT_PRETIMEOUT 0
-> +static bool pretimeout = DEFAULT_PRETIMEOUT;
-> +module_param(pretimeout, bool, 0);
-> +MODULE_PARM_DESC(pretimeout, "Enable watchdog pretimeout (default="
-> +				__MODULE_STRING(DEFAULT_PRETIMEOUT) ")");
-> +
->   /*
->    * Some TCO specific functions
->    */
-> @@ -201,6 +209,45 @@ static int iTCO_wdt_unset_NO_REBOOT_bit(void)
->   	return ret; /* returns: 0 = OK, -EIO = Error */
->   }
->
-> +static unsigned char *tco_hid = "8086229C";
-> +
-
-Do people understand what this means ? Is that some Intel magic string ?
-Does this work for all instances of iTCO watchdogs, or only for a specific
-system or iTCO version ?
-
-Rafael asked this question as well, but I don't recall seeing an answer.
-
-I see that it maps to a PCI ID for Intel Braswell, but I have no idea
-how that translates to something useful for ACPI. Is this a well defined
-(and allocated) ACPI HID ? How about other chips (non-Braswell)
-which are supported by this driver ?
-
-> +static u32 iTCO_wdt_pretimeout_handler(acpi_handle gpe_device, u32 gpe,
-> +				       void *context)
-> +{
-> +	/* dump backtraces for all available cores */
-> +	trigger_all_cpu_backtrace();
-> +
-> +	/* call panic notifiers */
-> +	panic("Kernel Watchdog");
-> +
-> +	return ACPI_INTERRUPT_HANDLED;
-> +}
-> +
-> +static acpi_status __init iTCO_wdt_register_gpe(acpi_handle handle,
-> +					u32 lvl, void *context, void **rv)
-> +{
-> +	unsigned long long gpe;
-> +	acpi_status status;
-> +	union acpi_object object = { 0 };
-> +	struct acpi_buffer buffer = { sizeof(union acpi_object), &object };
-> +
-> +	status = acpi_evaluate_object(handle, "_GPE", NULL, &buffer);
-> +	if (ACPI_FAILURE(status))
-> +		return status;
-> +
-> +	if (object.type != ACPI_TYPE_INTEGER)
-> +		return AE_BAD_DATA;
-> +
-> +	gpe = object.integer.value;
-> +	status = acpi_install_gpe_handler(NULL, gpe, ACPI_GPE_EDGE_TRIGGERED,
-> +					  iTCO_wdt_pretimeout_handler, NULL);
-
-Do we know for sure that _GPE is always associated with the watchdog ?
-Is that because of tco_hid ?
-
-Thanks,
-Guenter
-
-> +	if (ACPI_FAILURE(status))
-> +		return status;
-> +
-> +	acpi_enable_gpe(NULL, gpe);
-> +	return AE_OK;
-> +}
-> +
->   static int iTCO_wdt_start(struct watchdog_device *wd_dev)
->   {
->   	unsigned int val;
-> @@ -641,6 +688,9 @@ static int __init iTCO_wdt_init_module(void)
->   	if (err)
->   		return err;
->
-> +	if (pretimeout)
-> +		acpi_get_devices(tco_hid, iTCO_wdt_register_gpe, NULL, NULL);
-> +
->   	return 0;
->   }
->
->
-
+T24gV2VkLCBKdW5lIDE3LCAyMDE1IDY6MDYgUE0sIEFuZHkgU2hldmNoZW5rbyA8YW5keS5zaGV2
+Y2hlbmtvQGdtYWlsLmNvbT4gd3JvdGU6DQoNCj4gT24gV2VkLCBKdW4gMTcsIDIwMTUgYXQgNDoz
+NCBQTSwgRnJhbmNvaXMtTmljb2xhcyBNdWxsZXIgPGZyYW5jb2lzLW5pY29sYXMubXVsbGVyQGlu
+dGVsLmNvbT4gd3JvdGU6DQo+DQo+PiArI2RlZmluZSBERUZBVUxUX1BSRVRJTUVPVVQgMA0KPj4g
+K3N0YXRpYyBib29sIHByZXRpbWVvdXQgPSBERUZBVUxUX1BSRVRJTUVPVVQ7DQo+DQo+IFN0YXRp
+YyB2YXJpYWJsZXMgc2hvdWxkIG5vdCBiZSBhc3NpZ25lZCB0byB6ZXJvIGV4cGxpY2l0bHkgKGl0
+IGRvZXNuJ3QgbWFrZSBzZW5zZSkuDQo+IE1vcmVvdmVyIHlvdSBoYXZlIGludGVnZXIgLT4gYm9v
+bGVhbiBpbXBsaWNpdCBjb252ZXJzaW9uLg0KDQpBZ3JlZSwgSSB3aWxsIHJlbW92ZSB0aGUgREVG
+QVVMVF9QUkVUSU1FT1VUIGRlZmluZS4NCg0KPiBUaGUgYmVsb3cgc2hvdWxkIGdvIHVuZGVyIENP
+TkZJR19BQ1BJLg0KPg0KPj4gK3N0YXRpYyB1bnNpZ25lZCBjaGFyICp0Y29faGlkID0gIjgwODYy
+MjlDIjsgLyogSW50ZWwgQ2hlcnJ5dHJhaWwgTFBDIA0KPj4gKyovDQoNClRoaXMgY29kZXMgYWxz
+byBjb21waWxlcyB3aXRoIENPTkZJR19BQ1BJIG5vdCBkZWZpbmVkLCAjaWYgQ09ORklHX0FDUEkg
+aXMgbm90IHJlcXVpcmVkIGhlcmUuDQoNCj4+ICtzdGF0aWMgdW5zaWduZWQgY2hhciAqdGNvX2hp
+ZCA9ICI4MDg2MjI5QyI7IC8qIEludGVsIENoZXJyeXRyYWlsIExQQyANCj4+ICsqLw0KPg0KPiBX
+aHkgbm90IHRvIHVzZSBhY3BpX2RldmljZV9pZCA/DQoNCkFzIGxvbmcgYXMgdGhlcmUgaXMgb25s
+eSBvbmUgaWQsIEkgdGhpbmsgdGhpcyBpcyBub3QgcmVxdWlyZWQuDQpBbnl3YXkgSSB3aWxsIHVz
+ZSBhY3BpX2RldmljZV9pZCBpbnN0ZWFkIHRvIGJlIHByZXBhcmVkIGZvciBmdXR1cmUgaWRzLg0K
+DQo+PiArICAgICAgIGlmIChvYmplY3QudHlwZSAhPSBBQ1BJX1RZUEVfSU5URUdFUikNCj4+ICsg
+ICAgICAgICAgICAgICByZXR1cm4gQUVfQkFEX0RBVEE7DQo+DQo+IERvIHdlIHJlYWxseSBuZWVk
+IHRoaXMgcmlnaHQgbm93PyBFeGlzdGluZyB1c2VycyBvZiBfR1BFIGFyZSBjb25zaWRlcmluZyB0
+aGUgcmVzdWx0IGFzIGludGVnZXIgdy9vIGFuIGFkZGl0aW9uYWwgY2hlY2suDQoNClJpZ2h0LCBh
+cyB0aGlzIGlzIGFscmVhZHkgZG9uZSBlbHNld2hlcmUgd2l0aG91dCB0aGUgY2hlY2ssIEkgd2ls
+bCByZW1vdmUgaXQuDQogDQpUaGFua3MsDQpGcmFuY29pcy1OaWNvbGFzDQoNCi0tLS0tT3JpZ2lu
+YWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBBbmR5IFNoZXZjaGVua28gW21haWx0bzphbmR5LnNoZXZj
+aGVua29AZ21haWwuY29tXSANClNlbnQ6IFdlZG5lc2RheSwgSnVuZSAxNywgMjAxNSA2OjA2IFBN
+DQpUbzogTXVsbGVyLCBGcmFuY29pcy1uaWNvbGFzDQpDYzogbGludXhAcm9lY2stdXMubmV0OyB3
+aW1AaWd1YW5hLmJlOyBsaW51eC13YXRjaGRvZ0B2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWtlcm5l
+bEB2Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6IFJlOiBbUEFUQ0ggdjNdIFRDTyB3YXRjaGRvZyBw
+cmV0aW1lb3V0IGhhbmRsZXINCg0KT24gV2VkLCBKdW4gMTcsIDIwMTUgYXQgNDozNCBQTSwgRnJh
+bmNvaXMtTmljb2xhcyBNdWxsZXIgPGZyYW5jb2lzLW5pY29sYXMubXVsbGVyQGludGVsLmNvbT4g
+d3JvdGU6DQoNCkZpcnN0IG9mIGFsbCBpdCB3b3VsZCBiZSBuaWNlIHRvIHN0YXJ0IGEgbmV3IHRo
+cmVhZCBwZXIgaXRlcmF0aW9uLg0KDQo+IFVzZSBUQ08gd2F0Y2hkb2cgZmlyc3QgdGltZW91dCAo
+cHJldGltZW91dCkgdG8gZHVtcCBDUFUgYmFja3RyYWNlcyBhbmQgDQo+IGVhc2UgZGVidWcgb2Yg
+d2F0Y2hkb2cgZXhwaXJhdGlvbiBjYXVzZXMuDQo+IE9uIEludGVsIENoZXJyeXRyYWlsLCBUQ08g
+bG9naWMgZ2VuZXJhdGVzIGEgU01JLCB0aGVuIFNNSSBoYW5kbGVyIA0KPiB0cmlnZ2VycyBhIFND
+SSB0byB0aGUga2VybmVsLCBvbiBhIHNwZWNpZmljIEdQRS4NCj4gVGhlIEdQRSBoYW5kbGVyIGR1
+bXBzIGFsbCBDUFUgYmFja3RyYWNlcyBhbmQgY2FsbHMgcGFuaWMgKGluIG9yZGVyIHRvIA0KPiBl
+eGVjdXRlIHJlZ2lzdGVyZWQgcGFuaWMgY2FsbGJhY2tzKS4NCj4gR1BFIG51bWJlciBpcyBjb25m
+aWd1cmVkIGZyb20gQUNQSSB0YWJsZXMgaWYgTFBDIEhJRCBleGlzdHMuDQo+DQo+IFNpZ25lZC1v
+ZmYtYnk6IEZyYW5jb2lzLU5pY29sYXMgTXVsbGVyIA0KPiA8ZnJhbmNvaXMtbmljb2xhcy5tdWxs
+ZXJAaW50ZWwuY29tPg0KPiAtLS0NCj4gU01JIGlzIG5vdCBzdXBwb3J0ZWQgYnkgdGhlIGRyaXZl
+ciwgb25seSBTQ0kuDQo+DQo+IE9uIEludGVsIENoZXJyeXRyYWlsLCBUQ08gd2F0Y2hkb2cgcmFp
+c2VzIGFuIFNNSSwgdGhlbiB0aGUgU01JIGhhbmRsZXIgDQo+IGluIEJpb3MgdHJpZ3MgYSBTQ0kg
+dG8gdGhlIGtlcm5lbCAoaW4gQW5kcm9pZCBPUyBjb25maWd1cmF0aW9uKS4NCj4NCj4gVGhlIHBh
+dGNoIGhhcyBzb21lIGVmZmVjdCBvbmx5IG9uIENoZXJyeXRyYWlsIHBsYXRmb3JtLg0KPiBPbiBC
+cmFzd2VsbCwgdGhlIFRDTyBISUQgZXhpc3RzIGluIEFDUEkgdGFibGVzLCBzbyBTQ0kgaXMgY29u
+ZmlndXJlZC4gDQo+IEJ1dCB0aGUgU01JIGhhbmRsZXIgZG9lcyBub3QgdHJpZyB0aGUgU0NJLg0K
+PiBPbiBvdGhlciBwbGF0Zm9ybXMsIHRoZSBISUQgZG9lcyBub3QgZXhpc3QgaW4gQUNQSSB0YWJs
+ZXMsIGFuZCB0aGUgU01JIA0KPiBoYW5kbGVyIGRvZXMgbm90IHRyaWcgdGhlIFNDSS4NCj4NCj4g
+SW4gQUNQSSB0YWJsZXMsIF9HUEUgaXMgYXNzb2NpYXRlZCB0byB0aGlzIEhJRCwgc28gbm8gcG9z
+c2libGUgY29uZnVzaW9uLg0KPg0KPiBGcmFuw6dvaXMtTmljb2xhcw0KPiAtLS0NCj4gIGRyaXZl
+cnMvd2F0Y2hkb2cvaVRDT193ZHQuYyB8IDUwIA0KPiArKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKysrKysNCj4gIDEgZmlsZSBjaGFuZ2VkLCA1MCBpbnNlcnRpb25zKCsp
+DQo+DQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3dhdGNoZG9nL2lUQ09fd2R0LmMgYi9kcml2ZXJz
+L3dhdGNoZG9nL2lUQ09fd2R0LmMgDQo+IGluZGV4IDNjM2ZkNDEuLjNlOWVjOGIgMTAwNjQ0DQo+
+IC0tLSBhL2RyaXZlcnMvd2F0Y2hkb2cvaVRDT193ZHQuYw0KPiArKysgYi9kcml2ZXJzL3dhdGNo
+ZG9nL2lUQ09fd2R0LmMNCj4gQEAgLTY4LDYgKzY4LDggQEANCj4gICNpbmNsdWRlIDxsaW51eC9p
+by5oPiAgICAgICAgICAgICAgICAgIC8qIEZvciBpbmIvb3V0Yi8uLi4gKi8NCj4gICNpbmNsdWRl
+IDxsaW51eC9tZmQvY29yZS5oPg0KPiAgI2luY2x1ZGUgPGxpbnV4L21mZC9scGNfaWNoLmg+DQo+
+ICsjaW5jbHVkZSA8bGludXgvbm1pLmg+DQo+ICsjaW5jbHVkZSA8bGludXgvYWNwaS5oPg0KPg0K
+PiAgI2luY2x1ZGUgImlUQ09fdmVuZG9yLmgiDQo+DQo+IEBAIC0xMjcsNiArMTI5LDEyIEBAIG1v
+ZHVsZV9wYXJhbSh0dXJuX1NNSV93YXRjaGRvZ19jbGVhcl9vZmYsIGludCwgDQo+IDApOyAgTU9E
+VUxFX1BBUk1fREVTQyh0dXJuX1NNSV93YXRjaGRvZ19jbGVhcl9vZmYsDQo+ICAgICAgICAgIlR1
+cm4gb2ZmIFNNSSBjbGVhcmluZyB3YXRjaGRvZyAoZGVwZW5kcyBvbiANCj4gVENPLXZlcnNpb24p
+KGRlZmF1bHQ9MSkiKTsNCj4NCj4gKyNkZWZpbmUgREVGQVVMVF9QUkVUSU1FT1VUIDANCj4gK3N0
+YXRpYyBib29sIHByZXRpbWVvdXQgPSBERUZBVUxUX1BSRVRJTUVPVVQ7DQoNClN0YXRpYyB2YXJp
+YWJsZXMgc2hvdWxkIG5vdCBiZSBhc3NpZ25lZCB0byB6ZXJvIGV4cGxpY2l0bHkgKGl0IGRvZXNu
+J3QgbWFrZSBzZW5zZSkuDQpNb3Jlb3ZlciB5b3UgaGF2ZSBpbnRlZ2VyIC0+IGJvb2xlYW4gaW1w
+bGljaXQgY29udmVyc2lvbi4NCg0KPiArbW9kdWxlX3BhcmFtKHByZXRpbWVvdXQsIGJvb2wsIDAp
+Ow0KPiArTU9EVUxFX1BBUk1fREVTQyhwcmV0aW1lb3V0LCAiRW5hYmxlIHdhdGNoZG9nIHByZXRp
+bWVvdXQgKGRlZmF1bHQ9Ig0KPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIF9fTU9E
+VUxFX1NUUklORyhERUZBVUxUX1BSRVRJTUVPVVQpIA0KPiArIikiKTsNCg0KU2luY2UgaXQncyBi
+b29sZWFuLCBJIHN1cHBvc2UgdG8gdXNlIGRpcmVjdCB2YWx1ZSBoZXJlLiBJdCB3b3VsZCBiZSBv
+bmUgbGluZS4NCg0KPiArDQo+ICAvKg0KPiAgICogU29tZSBUQ08gc3BlY2lmaWMgZnVuY3Rpb25z
+DQo+ICAgKi8NCj4gQEAgLTIwMSw2ICsyMDksNDUgQEAgc3RhdGljIGludCBpVENPX3dkdF91bnNl
+dF9OT19SRUJPT1RfYml0KHZvaWQpDQo+ICAgICAgICAgcmV0dXJuIHJldDsgLyogcmV0dXJuczog
+MCA9IE9LLCAtRUlPID0gRXJyb3IgKi8gIH0NCj4NCg0KVGhlIGJlbG93IHNob3VsZCBnbyB1bmRl
+ciBDT05GSUdfQUNQSS4NCg0KPiArc3RhdGljIHVuc2lnbmVkIGNoYXIgKnRjb19oaWQgPSAiODA4
+NjIyOUMiOyAvKiBJbnRlbCBDaGVycnl0cmFpbCBMUEMgDQo+ICsqLw0KDQpXaHkgbm90IHRvIHVz
+ZSBhY3BpX2RldmljZV9pZCA/DQoNCj4gKw0KPiArc3RhdGljIHUzMiBpVENPX3dkdF9wcmV0aW1l
+b3V0X2hhbmRsZXIoYWNwaV9oYW5kbGUgZ3BlX2RldmljZSwgdTMyIGdwZSwNCj4gKyAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgdm9pZCAqY29udGV4dCkgew0KPiArICAgICAg
+IC8qIGR1bXAgYmFja3RyYWNlcyBmb3IgYWxsIGF2YWlsYWJsZSBjb3JlcyAqLw0KPiArICAgICAg
+IHRyaWdnZXJfYWxsX2NwdV9iYWNrdHJhY2UoKTsNCj4gKw0KPiArICAgICAgIC8qIGNhbGwgcGFu
+aWMgbm90aWZpZXJzICovDQo+ICsgICAgICAgcGFuaWMoIktlcm5lbCBXYXRjaGRvZyIpOw0KPiAr
+DQo+ICsgICAgICAgcmV0dXJuIEFDUElfSU5URVJSVVBUX0hBTkRMRUQ7IH0NCj4gKw0KPiArc3Rh
+dGljIGFjcGlfc3RhdHVzIF9faW5pdCBpVENPX3dkdF9yZWdpc3Rlcl9ncGUoYWNwaV9oYW5kbGUg
+aGFuZGxlLA0KPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgdTMyIGx2
+bCwgdm9pZCAqY29udGV4dCwgdm9pZCANCj4gKyoqcnYpIHsNCj4gKyAgICAgICB1bnNpZ25lZCBs
+b25nIGxvbmcgZ3BlOw0KPiArICAgICAgIGFjcGlfc3RhdHVzIHN0YXR1czsNCj4gKyAgICAgICB1
+bmlvbiBhY3BpX29iamVjdCBvYmplY3QgPSB7IDAgfTsNCj4gKyAgICAgICBzdHJ1Y3QgYWNwaV9i
+dWZmZXIgYnVmZmVyID0geyBzaXplb2YodW5pb24gYWNwaV9vYmplY3QpLCANCj4gKyZvYmplY3Qg
+fTsNCj4gKw0KPiArICAgICAgIHN0YXR1cyA9IGFjcGlfZXZhbHVhdGVfb2JqZWN0KGhhbmRsZSwg
+Il9HUEUiLCBOVUxMLCAmYnVmZmVyKTsNCj4gKyAgICAgICBpZiAoQUNQSV9GQUlMVVJFKHN0YXR1
+cykpDQo+ICsgICAgICAgICAgICAgICByZXR1cm4gc3RhdHVzOw0KPiArDQo+ICsgICAgICAgaWYg
+KG9iamVjdC50eXBlICE9IEFDUElfVFlQRV9JTlRFR0VSKQ0KPiArICAgICAgICAgICAgICAgcmV0
+dXJuIEFFX0JBRF9EQVRBOw0KDQpEbyB3ZSByZWFsbHkgbmVlZCB0aGlzIHJpZ2h0IG5vdz8gRXhp
+c3RpbmcgdXNlcnMgb2YgX0dQRSBhcmUgY29uc2lkZXJpbmcgdGhlIHJlc3VsdCBhcyBpbnRlZ2Vy
+IHcvbyBhbiBhZGRpdGlvbmFsIGNoZWNrLg0KDQo+ICsNCj4gKyAgICAgICBncGUgPSBvYmplY3Qu
+aW50ZWdlci52YWx1ZTsNCj4gKyAgICAgICBzdGF0dXMgPSBhY3BpX2luc3RhbGxfZ3BlX2hhbmRs
+ZXIoTlVMTCwgZ3BlLCBBQ1BJX0dQRV9FREdFX1RSSUdHRVJFRCwNCj4gKyAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgaVRDT193ZHRfcHJldGltZW91dF9oYW5kbGVyLCAN
+Cj4gKyBOVUxMKTsNCg0KPiArICAgICAgIGlmIChBQ1BJX0ZBSUxVUkUoc3RhdHVzKSkNCj4gKyAg
+ICAgICAgICAgICAgIHJldHVybiBzdGF0dXM7DQo+ICsNCj4gKyAgICAgICBhY3BpX2VuYWJsZV9n
+cGUoTlVMTCwgZ3BlKTsNCj4gKyAgICAgICByZXR1cm4gQUVfT0s7DQo+ICt9DQo+ICsNCj4gIHN0
+YXRpYyBpbnQgaVRDT193ZHRfc3RhcnQoc3RydWN0IHdhdGNoZG9nX2RldmljZSAqd2RfZGV2KSAg
+ew0KPiAgICAgICAgIHVuc2lnbmVkIGludCB2YWw7DQo+IEBAIC02NDEsNiArNjg4LDkgQEAgc3Rh
+dGljIGludCBfX2luaXQgaVRDT193ZHRfaW5pdF9tb2R1bGUodm9pZCkNCj4gICAgICAgICBpZiAo
+ZXJyKQ0KPiAgICAgICAgICAgICAgICAgcmV0dXJuIGVycjsNCj4NCj4gKyAgICAgICBpZiAocHJl
+dGltZW91dCkNCj4gKyAgICAgICAgICAgICAgIGFjcGlfZ2V0X2RldmljZXModGNvX2hpZCwgaVRD
+T193ZHRfcmVnaXN0ZXJfZ3BlLCBOVUxMLCANCj4gKyBOVUxMKTsNCj4gKw0KPiAgICAgICAgIHJl
+dHVybiAwOw0KPiAgfQ0KPg0KPiAtLQ0KPiAxLjkuMQ0KPg0KPiAtLQ0KPiBUbyB1bnN1YnNjcmli
+ZSBmcm9tIHRoaXMgbGlzdDogc2VuZCB0aGUgbGluZSAidW5zdWJzY3JpYmUgDQo+IGxpbnV4LWtl
+cm5lbCIgaW4gdGhlIGJvZHkgb2YgYSBtZXNzYWdlIHRvIG1ham9yZG9tb0B2Z2VyLmtlcm5lbC5v
+cmcgDQo+IE1vcmUgbWFqb3Jkb21vIGluZm8gYXQgIGh0dHA6Ly92Z2VyLmtlcm5lbC5vcmcvbWFq
+b3Jkb21vLWluZm8uaHRtbA0KPiBQbGVhc2UgcmVhZCB0aGUgRkFRIGF0ICBodHRwOi8vd3d3LnR1
+eC5vcmcvbGttbC8NCg0KDQoNCi0tDQpXaXRoIEJlc3QgUmVnYXJkcywNCkFuZHkgU2hldmNoZW5r
+bw0K
