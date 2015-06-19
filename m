@@ -1,30 +1,73 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:33179 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756276AbbFRQjl (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 18 Jun 2015 12:39:41 -0400
-Date: Thu, 18 Jun 2015 09:39:38 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: poeschel@lemonage.de
-Cc: wim@iguana.be, corbet@lwn.net, linux-doc@vger.kernel.org,
+Received: from [85.220.129.30] ([85.220.129.30]:52889 "EHLO smtp1.goneo.de"
+	rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with ESMTP
+	id S1752097AbbFSNSV (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 19 Jun 2015 09:18:21 -0400
+From: poeschel@lemonage.de
+To: wim@iguana.be, corbet@lwn.net, linux-doc@vger.kernel.org,
 	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: watchdog: docs: omap_wdt also understands nowayout
-Message-ID: <20150618163938.GA21683@roeck-us.net>
-References: <1434532407-6989-1-git-send-email-poeschel@lemonage.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1434532407-6989-1-git-send-email-poeschel@lemonage.de>
+Cc: Lars Poeschel <poeschel@lemonage.de>
+Subject: [PATCH] watchdog: omap_wdt: start_enabled module parameter
+Date: Fri, 19 Jun 2015 15:18:00 +0200
+Message-Id: <1434719880-12393-1-git-send-email-poeschel@lemonage.de>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Jun 17, 2015 at 11:13:27AM +0200, poeschel@lemonage.de wrote:
-> From: Lars Poeschel <poeschel@lemonage.de>
-> 
-> The omap_wdt kernel driver also understands the nowayout module
-> parameter. This updates the watchdog-parameters.txt to reflect this fact.
-> 
-> Signed-off-by: Lars Poeschel <poeschel@lemonage.de>
+From: Lars Poeschel <poeschel@lemonage.de>
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Add a start_enabled module parameter to the omap_wdt that starts the
+watchdog on module insertion. The default value is 0 which does not
+start the watchdog - which also does not change the behaviour if the
+parameter is not given.
+
+Signed-off-by: Lars Poeschel <poeschel@lemonage.de>
+---
+ Documentation/watchdog/watchdog-parameters.txt |  1 +
+ drivers/watchdog/omap_wdt.c                    | 10 ++++++++++
+ 2 files changed, 11 insertions(+)
+
+diff --git a/Documentation/watchdog/watchdog-parameters.txt b/Documentation/watchdog/watchdog-parameters.txt
+index 692791c..fb023bb 100644
+--- a/Documentation/watchdog/watchdog-parameters.txt
++++ b/Documentation/watchdog/watchdog-parameters.txt
+@@ -208,6 +208,7 @@ nowayout: Watchdog cannot be stopped once started
+ -------------------------------------------------
+ omap_wdt:
+ timer_margin: initial watchdog timeout (in seconds)
++start_enabled: Watchdog is started on module insertion (default=0)
+ -------------------------------------------------
+ orion_wdt:
+ heartbeat: Initial watchdog heartbeat in seconds
+diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
+index a29a61d..7dc8de7 100644
+--- a/drivers/watchdog/omap_wdt.c
++++ b/drivers/watchdog/omap_wdt.c
+@@ -53,6 +53,13 @@ static unsigned timer_margin;
+ module_param(timer_margin, uint, 0);
+ MODULE_PARM_DESC(timer_margin, "initial watchdog timeout (in seconds)");
+ 
++#define START_DEFAULT	0
++static bool start_enabled = START_DEFAULT;
++module_param(start_enabled, bool, 0);
++MODULE_PARM_DESC(start_enabled,
++	"Watchdog is started on module insertion (default="
++	__MODULE_STRING(START_DEFAULT) ")");
++
+ struct omap_wdt_dev {
+ 	void __iomem    *base;          /* physical */
+ 	struct device   *dev;
+@@ -280,6 +287,9 @@ static int omap_wdt_probe(struct platform_device *pdev)
+ 
+ 	pm_runtime_put_sync(wdev->dev);
+ 
++	if (start_enabled)
++		omap_wdt_start(omap_wdt);
++
+ 	return 0;
+ }
+ 
+-- 
+2.1.4
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
