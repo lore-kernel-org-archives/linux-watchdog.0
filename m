@@ -1,65 +1,32 @@
-Return-path: <jdelvare@suse.de>
-Date: Sun, 21 Jun 2015 09:32:33 +0200
-From: Jean Delvare <jdelvare@suse.de>
-To: linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@iguana.be>, "Mingarelli, Thomas"
- <Thomas.Mingarelli@hp.com>, Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v2] watchdog: hpwdt: Add support for WDIOC_SETOPTIONS
-Message-ID: <20150621093233.2f97739c@endymion.delvare>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:44464 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751308AbbFUMet (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Sun, 21 Jun 2015 08:34:49 -0400
+Message-ID: <5586AF65.1080403@roeck-us.net>
+Date: Sun, 21 Jun 2015 05:34:45 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: Jean Delvare <jdelvare@suse.de>, linux-watchdog@vger.kernel.org
+CC: Wim Van Sebroeck <wim@iguana.be>,
+	"Mingarelli, Thomas" <Thomas.Mingarelli@hp.com>
+Subject: Re: [PATCH v2] watchdog: hpwdt: Add support for WDIOC_SETOPTIONS
+References: <20150621093233.2f97739c@endymion.delvare>
+In-Reply-To: <20150621093233.2f97739c@endymion.delvare>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-WDIOC_SETOPTIONS makes it possible to disable and re-enable the
-watchdog timer while the hpwdt driver is loaded.
+On 06/21/2015 12:32 AM, Jean Delvare wrote:
+> WDIOC_SETOPTIONS makes it possible to disable and re-enable the
+> watchdog timer while the hpwdt driver is loaded.
+>
+> Signed-off-by: Jean Delvare <jdelvare@suse.de>
+> Cc: Wim Van Sebroeck <wim@iguana.be>
 
-Signed-off-by: Jean Delvare <jdelvare@suse.de>
-Cc: Wim Van Sebroeck <wim@iguana.be>
----
-Untested. It would be great if someone at HP (or anyone with the
-hardware, I guess) could test and review this patch. Thanks.
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Changes since v1:
- * Drop useless "ret = 0" statements as suggested by Guenter.
-
- drivers/watchdog/hpwdt.c |   16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
-
---- linux-4.1-rc8.orig/drivers/watchdog/hpwdt.c	2015-06-20 12:56:17.933391230 +0200
-+++ linux-4.1-rc8/drivers/watchdog/hpwdt.c	2015-06-21 08:31:21.671106961 +0200
-@@ -588,7 +588,7 @@ static long hpwdt_ioctl(struct file *fil
- {
- 	void __user *argp = (void __user *)arg;
- 	int __user *p = argp;
--	int new_margin;
-+	int new_margin, options;
- 	int ret = -ENOTTY;
- 
- 	switch (cmd) {
-@@ -608,6 +608,20 @@ static long hpwdt_ioctl(struct file *fil
- 		ret = 0;
- 		break;
- 
-+	case WDIOC_SETOPTIONS:
-+		ret = get_user(options, p);
-+		if (ret)
-+			break;
-+
-+		if (options & WDIOS_DISABLECARD)
-+			hpwdt_stop();
-+
-+		if (options & WDIOS_ENABLECARD) {
-+			hpwdt_start();
-+			hpwdt_ping();
-+		}
-+		break;
-+
- 	case WDIOC_SETTIMEOUT:
- 		ret = get_user(new_margin, p);
- 		if (ret)
-
-
--- 
-Jean Delvare
-SUSE L3 Support
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
