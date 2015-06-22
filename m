@@ -1,72 +1,59 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from asav22.altibox.net ([109.247.116.9]:42605 "EHLO
-	asav22.altibox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753455AbbFQOFG (ORCPT
+Received: from mail-qk0-f181.google.com ([209.85.220.181]:33003 "EHLO
+	mail-qk0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751661AbbFVEQv (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 17 Jun 2015 10:05:06 -0400
-From: =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
-To: linux-watchdog@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org,
-	linux-rpi-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	=?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
-Subject: [PATCH v3] watchdog: bcm2835: Fix poweroff behaviour
-Date: Wed, 17 Jun 2015 16:04:04 +0200
-Message-Id: <1434549844-11704-1-git-send-email-noralf@tronnes.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Mon, 22 Jun 2015 00:16:51 -0400
+Received: by qkhu186 with SMTP id u186so94810294qkh.0
+        for <linux-watchdog@vger.kernel.org>; Sun, 21 Jun 2015 21:16:50 -0700 (PDT)
+From: Fabio Estevam <festevam@gmail.com>
+To: wim@iguana.be
+Cc: linux-watchdog@vger.kernel.org,
+	Fabio Estevam <fabio.estevam@freescale.com>
+Subject: [PATCH 2/2] watchdog: imx2_wdt: Disable previously acquired clock on error path
+Date: Mon, 22 Jun 2015 01:16:19 -0300
+Message-Id: <1434946579-9674-2-git-send-email-festevam@gmail.com>
+In-Reply-To: <1434946579-9674-1-git-send-email-festevam@gmail.com>
+References: <1434946579-9674-1-git-send-email-festevam@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Currently poweroff/halt results in a reboot on the Raspberry Pi.
-The firmware uses the RSTS register to know which partiton to
-boot from. The partiton value is spread into bits
-0, 2, 4, 6, 8, 10. Partiton 63 is a special partition used by
-the firmware to indicate halt.
+From: Fabio Estevam <fabio.estevam@freescale.com>
 
-The firmware made this change in 19 Aug 2013 and was matched
-by the downstream commit:
-Changes for new NOOBS multi partition booting from gsh
+If watchdog_register_device() fails we should disable the previously
+acquired wdev->clk clock on error path.
 
-Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
 ---
+ drivers/watchdog/imx2_wdt.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-v2: Fix typo in commit message
-
-v3: Only Raspberry Pi is supported so it's ok to just modify
-    the poweroff function (Stephen Warrren)
-
- drivers/watchdog/bcm2835_wdt.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/watchdog/bcm2835_wdt.c b/drivers/watchdog/bcm2835_wdt.c
-index 7116968..43dbf5b 100644
---- a/drivers/watchdog/bcm2835_wdt.c
-+++ b/drivers/watchdog/bcm2835_wdt.c
-@@ -36,6 +36,13 @@
- #define PM_RSTC_WRCFG_FULL_RESET	0x00000020
- #define PM_RSTC_RESET			0x00000102
-
-+/*
-+ * The Raspberry Pi firmware uses the RSTS register to know which partiton
-+ * to boot from. The partiton value is spread into bits 0, 2, 4, 6, 8, 10.
-+ * Partiton 63 is a special partition used by the firmware to indicate halt.
-+ */
-+#define PM_RSTS_RASPBERRYPI_HALT	0x555
+diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+index add1fa0..0bb1a1d 100644
+--- a/drivers/watchdog/imx2_wdt.c
++++ b/drivers/watchdog/imx2_wdt.c
+@@ -291,7 +291,7 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
+ 	ret = watchdog_register_device(wdog);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "cannot register watchdog device\n");
+-		return ret;
++		goto disable_clk;
+ 	}
+ 
+ 	wdev->restart_handler.notifier_call = imx2_restart_handler;
+@@ -304,6 +304,10 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
+ 		 wdog->timeout, nowayout);
+ 
+ 	return 0;
 +
- #define SECS_TO_WDOG_TICKS(x) ((x) << 16)
- #define WDOG_TICKS_TO_SECS(x) ((x) >> 16)
++disable_clk:
++	clk_disable_unprepare(wdev->clk);
++	return ret;
+ }
+ 
+ static int __exit imx2_wdt_remove(struct platform_device *pdev)
+-- 
+1.9.1
 
-@@ -151,8 +158,7 @@ static void bcm2835_power_off(void)
- 	 * hard reset.
- 	 */
- 	val = readl_relaxed(wdt->base + PM_RSTS);
--	val &= PM_RSTC_WRCFG_CLR;
--	val |= PM_PASSWORD | PM_RSTS_HADWRH_SET;
-+	val |= PM_PASSWORD | PM_RSTS_RASPBERRYPI_HALT;
- 	writel_relaxed(val, wdt->base + PM_RSTS);
-
- 	/* Continue with normal reset mechanism */
 --
-2.2.2
-
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
