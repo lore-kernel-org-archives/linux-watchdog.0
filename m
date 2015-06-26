@@ -1,63 +1,36 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:38702 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751379AbbFZNy3 (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 26 Jun 2015 09:54:29 -0400
-Message-ID: <558D5990.30102@roeck-us.net>
-Date: Fri, 26 Jun 2015 06:54:24 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: Ian Abbott <abbotti@mev.co.uk>, linux-watchdog@vger.kernel.org
-CC: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/5] watchdog: dw_wdt: allow only one probe + various
- fixes
-References: <1435324873-18318-1-git-send-email-abbotti@mev.co.uk>
-In-Reply-To: <1435324873-18318-1-git-send-email-abbotti@mev.co.uk>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <ariel@vanguardiasur.com.ar>
+From: Ariel D'Alessandro <ariel@vanguardiasur.com.ar>
+To: linux-watchdog@vger.kernel.org
+Cc: wim@iguana.be,
+	linux@roeck-us.net,
+	ezequiel@vanguardiasur.com.ar,
+	Ariel D'Alessandro <ariel@vanguardiasur.com.ar>
+Subject: [PATCH 0/2] Add support for NXP LPC18xx Watchdog timer
+Date: Fri, 26 Jun 2015 15:24:30 -0300
+Message-Id: <1435343072-8753-1-git-send-email-ariel@vanguardiasur.com.ar>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 06/26/2015 06:21 AM, Ian Abbott wrote:
-> The dw_wdt watchdog driver supports a single DesignWare watchdog device
-> using a statically allocated variable 'dw_wdt' to manage it, but there
-> are some bits of hardware containing two such devices.  If the "probe"
-> is called for more than one device, the 'dw_wdt' variable gets
-> clobbered, generally resulting in a kernel crash.  Change it to reject
-> additional probed devices.
->
-> We probably don't expect the "remove" function to get called, but if it
-> does, make sure the Linux timer used by device gets unqueued.
->
-> The timer also gets unqueued if the watchdog device is closed by the
-> user process unexpectedly.  However, this is not currently done
-> asynchronously and the timer function normally requeues the timer.  If
-> it manages to requeue the timer, the next call of the timer function
-> will behave as though the close was expected and continue patting the
-> dog every half a second when it should have stopped doing so.  Unqueue
-> the timer synchronously to avoid that.
->
-> NOTE: There is another potential problem that I haven't bothered to fix.
-> If the "remove" function is called while the watchdog device is still
-> open, any in-progress or future file operations are likely to screw
-> things up.
->
-> 1) watchdog: dw_wdt: prepare for more atomic bits
-> 2) watchdog: dw_wdt: reject additional device probes
-> 3) watchdog: dw_wdt: only unregister restart handler if registered
-> 4) watchdog: dw_wdt: unqueue timer on device removal
-> 5) watchdog: dw_wdt: unqueue timer synchronously on unexpected close
->
->   drivers/watchdog/dw_wdt.c | 46 +++++++++++++++++++++++++++++++++++-----------
->   1 file changed, 35 insertions(+), 11 deletions(-)
+Hi,
 
-Hi Ian,
+This patch series adds support for the watchdog timer found in NXP LPC
+SoCs family which includes LPC18xx/LPC43xx. Other SoCs in that family may
+share the same watchdog hardware.
 
-any chance you can convert the driver to use the watchdog APIs instead ?
-This way it could support more than one watchdog, and the code would be
-much simpler.
+Patchset is based on tag next-20150624 of the linux-next repository.
+It has been successfully tested on a Hitex LPC4350 Evaluation Board and
+on a CIAA NXP LPC4337 Board.
 
-Thanks,
-Guenter
+Ariel D'Alessandro (2):
+  watchdog: NXP LPC18XX Windowed Watchdog Timer Driver
+  DT: watchdog: Add NXP LPC18XX Watchdog Timer binding documentation
 
+ .../devicetree/bindings/watchdog/lpc18xx-wdt.txt   |  19 ++
+ drivers/watchdog/Kconfig                           |  11 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/lpc18xx_wdt.c                     | 340 +++++++++++++++++++++
+ 4 files changed, 371 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/lpc18xx-wdt.txt
+ create mode 100644 drivers/watchdog/lpc18xx_wdt.c
+
+-- 
+1.9.1
