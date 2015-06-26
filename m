@@ -1,46 +1,82 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp109.iad3a.emailsrvr.com ([173.203.187.109]:60819 "EHLO
+Received: from smtp109.iad3a.emailsrvr.com ([173.203.187.109]:54537 "EHLO
 	smtp109.iad3a.emailsrvr.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752115AbbFZNbk (ORCPT
+	by vger.kernel.org with ESMTP id S1752264AbbFZNbk (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
 	Fri, 26 Jun 2015 09:31:40 -0400
 From: Ian Abbott <abbotti@mev.co.uk>
 To: linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org
-Subject: [PATCH 0/5] watchdog: dw_wdt: allow only one probe + various fixes
-Date: Fri, 26 Jun 2015 14:21:08 +0100
-Message-Id: <1435324873-18318-1-git-send-email-abbotti@mev.co.uk>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
+	Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 1/5] watchdog: dw_wdt: prepare for more atomic bits
+Date: Fri, 26 Jun 2015 14:21:09 +0100
+Message-Id: <1435324873-18318-2-git-send-email-abbotti@mev.co.uk>
+In-Reply-To: <1435324873-18318-1-git-send-email-abbotti@mev.co.uk>
+References: <1435324873-18318-1-git-send-email-abbotti@mev.co.uk>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The dw_wdt watchdog driver supports a single DesignWare watchdog device
-using a statically allocated variable 'dw_wdt' to manage it, but there
-are some bits of hardware containing two such devices.  If the "probe"
-is called for more than one device, the 'dw_wdt' variable gets
-clobbered, generally resulting in a kernel crash.  Change it to reject
-additional probed devices.
+Bit 0 of `dw_wdt.in_use` is tested and set atomically to indicate that
+the watchdog has been opened exclusively.  The other bits are unused.
+Some parts of the code also treat the whole of the `in_use` member as a
+boolean value.
 
-We probably don't expect the "remove" function to get called, but if it
-does, make sure the Linux timer used by device gets unqueued.
+In preparation for making use of the unused bits, rename the `in_use`
+member to `state`, define a new macro `DW_WDT_IN_USE` to identify bit 0
+as the "in-use" bit, and replace conditional tests on the whole of
+`in_use` with single-bit tests on the appropriate bit of `state`.
 
-The timer also gets unqueued if the watchdog device is closed by the
-user process unexpectedly.  However, this is not currently done
-asynchronously and the timer function normally requeues the timer.  If
-it manages to requeue the timer, the next call of the timer function
-will behave as though the close was expected and continue patting the
-dog every half a second when it should have stopped doing so.  Unqueue
-the timer synchronously to avoid that.
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+---
+ drivers/watchdog/dw_wdt.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-NOTE: There is another potential problem that I haven't bothered to fix.
-If the "remove" function is called while the watchdog device is still
-open, any in-progress or future file operations are likely to screw
-things up.
+diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+index 6ea0634..249ef09 100644
+--- a/drivers/watchdog/dw_wdt.c
++++ b/drivers/watchdog/dw_wdt.c
+@@ -59,10 +59,13 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
+ 
+ #define WDT_TIMEOUT		(HZ / 2)
+ 
++/* dw_wdt.state bit numbers */
++#define DW_WDT_IN_USE		0
++
+ static struct {
+ 	void __iomem		*regs;
+ 	struct clk		*clk;
+-	unsigned long		in_use;
++	unsigned long		state;
+ 	unsigned long		next_heartbeat;
+ 	struct timer_list	timer;
+ 	int			expect_close;
+@@ -160,7 +163,7 @@ static int dw_wdt_restart_handle(struct notifier_block *this,
+ static void dw_wdt_ping(unsigned long data)
+ {
+ 	if (time_before(jiffies, dw_wdt.next_heartbeat) ||
+-	    (!nowayout && !dw_wdt.in_use)) {
++	    (!nowayout && !test_bit(DW_WDT_IN_USE, &dw_wdt.state))) {
+ 		dw_wdt_keepalive();
+ 		mod_timer(&dw_wdt.timer, jiffies + WDT_TIMEOUT);
+ 	} else
+@@ -169,7 +172,7 @@ static void dw_wdt_ping(unsigned long data)
+ 
+ static int dw_wdt_open(struct inode *inode, struct file *filp)
+ {
+-	if (test_and_set_bit(0, &dw_wdt.in_use))
++	if (test_and_set_bit(DW_WDT_IN_USE, &dw_wdt.state))
+ 		return -EBUSY;
+ 
+ 	/* Make sure we don't get unloaded. */
+@@ -273,7 +276,7 @@ static long dw_wdt_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+ 
+ static int dw_wdt_release(struct inode *inode, struct file *filp)
+ {
+-	clear_bit(0, &dw_wdt.in_use);
++	clear_bit(DW_WDT_IN_USE, &dw_wdt.state);
+ 
+ 	if (!dw_wdt.expect_close) {
+ 		del_timer(&dw_wdt.timer);
+-- 
+2.1.4
 
-1) watchdog: dw_wdt: prepare for more atomic bits
-2) watchdog: dw_wdt: reject additional device probes
-3) watchdog: dw_wdt: only unregister restart handler if registered
-4) watchdog: dw_wdt: unqueue timer on device removal
-5) watchdog: dw_wdt: unqueue timer synchronously on unexpected close
-
- drivers/watchdog/dw_wdt.c | 46 +++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 35 insertions(+), 11 deletions(-)
