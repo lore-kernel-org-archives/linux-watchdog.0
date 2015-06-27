@@ -1,163 +1,61 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oi0-f42.google.com ([209.85.218.42]:36557 "EHLO
-	mail-oi0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933699AbbFWRBF (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:38945 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751217AbbF0QRm (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 23 Jun 2015 13:01:05 -0400
-Received: by oigb199 with SMTP id b199so11569829oig.3
-        for <linux-watchdog@vger.kernel.org>; Tue, 23 Jun 2015 10:01:05 -0700 (PDT)
+	Sat, 27 Jun 2015 12:17:42 -0400
+Message-ID: <558ECCA2.2070204@roeck-us.net>
+Date: Sat, 27 Jun 2015 09:17:38 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-In-Reply-To: <20150623164314.GB20017@roeck-us.net>
-References: <1433958452-23721-5-git-send-email-fu.wei@linaro.org>
-	<20150611162810.GA22711@roeck-us.net>
-	<CADyBb7uGT9bTNiG7524wrd14xiFfgwoDNMq1_J2HDxiK-ogc8Q@mail.gmail.com>
-	<20150623152131.GA9990@roeck-us.net>
-	<CADyBb7seRmCFu3jhzUTJu7XemH=GjXRopx6EjfSzBypp95tn=w@mail.gmail.com>
-	<20150623164314.GB20017@roeck-us.net>
-Date: Wed, 24 Jun 2015 01:01:04 +0800
-Message-ID: <CADyBb7vNz3dgH=ecsFm7pP=-xR+mNq37rkdoyv-GB_dRU5XtuA@mail.gmail.com>
-Subject: Re: [non-pretimeout,4/7] Watchdog: introduce ARM SBSA watchdog driver
-From: Fu Wei <fu.wei@linaro.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-	Wei Fu <tekkamanninja@gmail.com>,
-	G Gregory <graeme.gregory@linaro.org>,
-	Al Stone <al.stone@linaro.org>,
-	Hanjun Guo <hanjun.guo@linaro.org>,
-	Timur Tabi <timur@codeaurora.org>,
-	Ashwin Chaugule <ashwin.chaugule@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Vipul Gandhi <vgandhi@codeaurora.org>,
+To: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
+CC: linux-watchdog <linux-watchdog@vger.kernel.org>,
 	Wim Van Sebroeck <wim@iguana.be>,
-	Jon Masters <jcm@redhat.com>, Leo Duran <leo.duran@amd.com>,
-	Jon Corbet <corbet@lwn.net>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will.deacon@arm.com>, rjw@rjwysocki.net
-Content-Type: text/plain; charset=UTF-8
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	kernel <kernel@savoirfairelinux.com>
+Subject: Re: [v2,2/3] watchdog: max63xx: add GPIO support
+References: <1434581940-15086-2-git-send-email-vivien.didelot@savoirfairelinux.com> <20150622165327.GA1189@roeck-us.net> <1645175105.110998.1435005823701.JavaMail.zimbra@savoirfairelinux.com>
+In-Reply-To: <1645175105.110998.1435005823701.JavaMail.zimbra@savoirfairelinux.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Guenter
-
-On 24 June 2015 at 00:43, Guenter Roeck <linux@roeck-us.net> wrote:
-> On Wed, Jun 24, 2015 at 12:17:19AM +0800, Fu Wei wrote:
->> Hi Guenter,
->>
->> you always can provide help very quickly, thank you very much :-)
->>
->> On 23 June 2015 at 23:21, Guenter Roeck <linux@roeck-us.net> wrote:
->> > On Tue, Jun 23, 2015 at 09:26:35PM +0800, Fu Wei wrote:
->> >> Hi Guenter,
->> > [ ...]
->> >
->> >> >
->> >> >> + *       When the first timeout occurs, WS0(SPI or LPI) is triggered,
->> >> >> + *       the second timeout period(as long as the first timeout period) starts.
->> >> >
->> >> > no longer accurate if WOR is used for the second period.
->> >> >
->> >> >> + *       In WS0 interrupt routine, panic() will be called for collecting
->> >> >> + *       crashdown info.
->> >> >> + *       If system can not recover from WS0 interrupt routine, then second
->> >> >> + *       timeout occurs, WS1(reset or higher level interrupt) is triggered.
->> >> >> + *       The two timeout period can be set by WOR(32bit).
->> >> >
->> >> > The second timeout period is determined by ...
->> >> >
->> >> >> + *       WOR gives a maximum watch period of around 10s at the maximum
->> >> >> + *       system counter frequency.
->> >> >> + *       The System Counter shall run at maximum of 400MHz.
->> >> >
->> >> > "... at the maximum system counter frequency of 400 MHz.", and drop the
->> >> > last sentence.
->> >>
->> >> For the second timeout period,  I have discussed with a kdump developers,
->> >> (1)10s maybe not good enough for all the case of panic + kdump, so
->> >> maybe we still need to use WCV in the second timeout period
->> >> (2)in the second timeout period, maybe we need to programme WCV for
->> >> two reason: a, trigger WS1 to reboot system ASAP; b, feed the watchdog
->> >> without cleanning WS0 flag.
->> >>
->> >> WHY we want to feed the watchdog (keepalive) without cleanning WS0 flag??
->> >> REASON:
->> >> (1)if the system context is large, we may need to feed the dog until
->> >> we get all the things backed up.
->> >> (2)if system goes wrong,  WS0 triggered, then panic--> kdump. if we
->> >> feed the dog by WRR or programming WOR, WS0 flag will be cleaned. Once
->> >> system goes wrong again, then panic again.....
->> >> So this system will be in a panic--kdump--panic--kdump loop, have not
->> >> chance to reset.
->> >>
->> >> So if we are in the second timeout period, we may need to always programme WCV.
->> >>
->> > The crashdump kernel is supposed to reload the watchdog driver, which will ping
->> > the watchdog. If it isn't able to do that in 10 seconds, something is wrong.
->>
->> yes, 10s maybe not enough for all case.
->> When I tested kdump on arm64, sometimes , it took 20s. So I am
->> thinking : can we make the max value of pretimeout > 10s in this
->> driver.
->>
-> It takes more than 10 seconds to load the crashdump kernel,
-> or it takes more than 10 seconds to complete the dump ?
-
-It takes more than 10 seconds to boot into kernel(from panic to finish
-devices init in crashdump kernel).
-I thinks that maybe depend on hardware or soc.
-As I said, 10 seconds maybe not enough for all cases.
-
-For completing the dump, 10 seconds maybe not enough for some case(big
-RAM, dump to network and so on),
-that is why I added "ping without cleaning WS0" support in the second stage.
-
+On 06/22/2015 01:43 PM, Vivien Didelot wrote:
+> Hi Guenter,
 >
+> On Jun 22, 2015, at 12:53 PM, Guenter Roeck linux@roeck-us.net wrote:
+>> On Wed, Jun 17, 2015 at 06:58:59PM -0400, Vivien Didelot wrote:
+>>> Introduce a new struct max63xx_platform_data to support MAX63xx watchdog
+>>> chips connected via GPIO. A platform code can fill this structure with
+>>> GPIO numbers for WDI and WDSET pins to enable GPIO support in the code.
+>>>
+>>> The driver takes care of requesting and releasing the GPIOs.
+>>>
+>>> Signed-off-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
 >>
->> >
->> >> >> +
->> >> >> +     status = readl_relaxed(gwdt->control_base + SBSA_GWDT_WCS);
->> >> >> +     if (status & SBSA_GWDT_WCS_WS1) {
->> >> >> +             dev_warn(dev, "System reset by WDT(WCV: %llx)\n",
->> >> >> +                      sbsa_gwdt_get_wcv(wdd));
->> >> >
->> >> > WCV here only tells us how many clock cycles were executed since the
->> >> > system started (or something like that). So I still don't understand
->> >> > why it is valuable to print that number.
->> >>
->> >> this number provides the time of system reset, I thinks that may help
->> >> admin to analyse the system failure.
->> >>
->> > It doesn't mean anything to anyone but you since it is not in a well defined
->> > time scale.
->>
->> maybe I should convert it to second?
->> I think the original value is better?
->>
+>> would it be possible to use gpiod functions ?
 >
-> I think you should drop it.
-
-OK, will do in my next patchset.
-
-But my option is if hardware provide this info, and it can let admin
-know the crash time.  maybe it can help to debug.
- :-)
-
+> It might be, but I never played with it yet though. I'm using integer-based
+> GPIOs from a TCA6424 on an x86 platform (no Device Tree). Is it ok to keep
+> max63xx_gpio_{ping,set} for legacy GPIOs, and let someone add
+> max63xx_gpiod_{ping,set} if there is a need?
 >
-> Guenter
 
+Hi Vivien,
 
+That would pretty much defeat the purpose. The gpiod API is supposed
+to replace the gpio API, not to augment it. Having both at the same time
+does not really make sense.
 
--- 
-Best regards,
+There is a mapping from integer based pins to name based pins; check out
+gpiod_add_lookup_table(). Essentially platform initialization code
+(in your case probably the code which instantiates the tca6424) would
+set up a pin lookup table, and then you would request pins using
+a name instead of a number. That would also solve the "is the pin
+valid" problem in patch 3/3 since you would have a string to identify
+the gpio pin.
 
-Fu Wei
-Software Engineer
-Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
-Ph: +86 21 61221326(direct)
-Ph: +86 186 2020 4684 (mobile)
-Room 1512, Regus One Corporate Avenue,Level 15,
-One Corporate Avenue,222 Hubin Road,Huangpu District,
-Shanghai,China 200021
+Thanks,
+Guenter
+
