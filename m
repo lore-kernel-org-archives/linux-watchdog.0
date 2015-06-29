@@ -1,50 +1,82 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:40200 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751036AbbF2TRH (ORCPT
+Received: from smtp.codeaurora.org ([198.145.29.96]:40189 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752352AbbF2QqU (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 29 Jun 2015 15:17:07 -0400
-Message-ID: <559199AB.8090106@roeck-us.net>
-Date: Mon, 29 Jun 2015 12:16:59 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: Fu Wei <fu.wei@linaro.org>,
-	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
-CC: Wei Fu <tekkamanninja@gmail.com>,
-	G Gregory <graeme.gregory@linaro.org>,
-	Al Stone <al.stone@linaro.org>,
-	Hanjun Guo <hanjun.guo@linaro.org>,
-	Timur Tabi <timur@codeaurora.org>,
-	Ashwin Chaugule <ashwin.chaugule@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Vipul Gandhi <vgandhi@codeaurora.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Jon Masters <jcm@redhat.com>, Leo Duran <leo.duran@amd.com>,
-	Jon Corbet <corbet@lwn.net>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will.deacon@arm.com>, rjw@rjwysocki.net,
-	dyoung@redhat.com, panand@redhat.com
-Subject: Re: [PATCH v6 0/8] Watchdog: introduce ARM SBSA watchdog driver
-References: <=fu.wei@linaro.org>	<1435068994-13526-1-git-send-email-fu.wei@linaro.org> <CADyBb7vgfFTmqLMMDOjWxwk3B-he2hTYAGpB3diKf47eB=dc=A@mail.gmail.com>
-In-Reply-To: <CADyBb7vgfFTmqLMMDOjWxwk3B-he2hTYAGpB3diKf47eB=dc=A@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 29 Jun 2015 12:46:20 -0400
+From: Timur Tabi <timur@codeaurora.org>
+To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	Vipul Gandhi <vgandhi@codeaurora.org>
+Subject: [PATCH] Documentation/watchdog: add timeout and ping rate control to watchdog-test.c
+Date: Mon, 29 Jun 2015 11:46:17 -0500
+Message-Id: <1435596377-17737-1-git-send-email-timur@codeaurora.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 06/29/2015 09:53 AM, Fu Wei wrote:
-> Hi Guenter,
->
-> Any suggestion on this v6 patchset, for now , I only got :
+The watchdog test program is much more useful if it can configure the
+timeout value and ping rate.  This will allow you to test actual timeouts.
 
-Problem is that each version of your patchset tends to introduce substantially
-new or different functionality, meaning the review has to pretty much start
-from scratch. Right now I just don't have time to do that, so you'll have
-to be a bit patient.
+Adds the -t parameter to set the timeout value (in seconds), and -p to set
+the ping rate (number of seconds between pings).
 
-Guenter
+Signed-off-by: Timur Tabi <timur@codeaurora.org>
+---
+ Documentation/watchdog/src/watchdog-test.c | 22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
+
+diff --git a/Documentation/watchdog/src/watchdog-test.c b/Documentation/watchdog/src/watchdog-test.c
+index 3da8229..fcdde8f 100644
+--- a/Documentation/watchdog/src/watchdog-test.c
++++ b/Documentation/watchdog/src/watchdog-test.c
+@@ -41,6 +41,7 @@ static void term(int sig)
+ int main(int argc, char *argv[])
+ {
+     int flags;
++    unsigned int ping_rate = 1;
+ 
+     fd = open("/dev/watchdog", O_WRONLY);
+ 
+@@ -63,22 +64,33 @@ int main(int argc, char *argv[])
+ 	    fprintf(stderr, "Watchdog card enabled.\n");
+ 	    fflush(stderr);
+ 	    goto end;
++	} else if (!strncasecmp(argv[1], "-t", 2) && argv[2]) {
++	    flags = atoi(argv[2]);
++	    ioctl(fd, WDIOC_SETTIMEOUT, &flags);
++	    fprintf(stderr, "Watchdog timeout set to %u seconds.\n", flags);
++	    fflush(stderr);
++	    goto end;
++	} else if (!strncasecmp(argv[1], "-p", 2) && argv[2]) {
++	    ping_rate = strtoul(argv[2], NULL, 0);
++	    fprintf(stderr, "Watchdog ping rate set to %u seconds.\n", ping_rate);
++	    fflush(stderr);
+ 	} else {
+-	    fprintf(stderr, "-d to disable, -e to enable.\n");
++	    fprintf(stderr, "-d to disable, -e to enable, -t <n> to set " \
++		"the timeout,\n-p <n> to set the ping rate, and \n");
+ 	    fprintf(stderr, "run by itself to tick the card.\n");
+ 	    fflush(stderr);
+ 	    goto end;
+ 	}
+-    } else {
+-	fprintf(stderr, "Watchdog Ticking Away!\n");
+-	fflush(stderr);
+     }
+ 
++    fprintf(stderr, "Watchdog Ticking Away!\n");
++    fflush(stderr);
++
+     signal(SIGINT, term);
+ 
+     while(1) {
+ 	keep_alive();
+-	sleep(1);
++	sleep(ping_rate);
+     }
+ end:
+     close(fd);
+-- 
+Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project.
 
