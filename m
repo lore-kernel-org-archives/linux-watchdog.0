@@ -1,134 +1,100 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:5325 "EHLO mga14.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753461AbbFQNfX (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 17 Jun 2015 09:35:23 -0400
-From: Francois-Nicolas Muller <francois-nicolas.muller@intel.com>
-To: linux@roeck-us.net
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Francois-Nicolas Muller <francois-nicolas.muller@intel.com>
-Subject: [PATCH v3] TCO watchdog pretimeout handler
-Date: Wed, 17 Jun 2015 15:34:32 +0200
-Message-Id: <1434548072-3334-1-git-send-email-francois-nicolas.muller@intel.com>
-In-Reply-To: <55810251.6070106@roeck-us.net>
-References: <55810251.6070106@roeck-us.net>
+Return-path: <vivien.didelot@savoirfairelinux.com>
+Date: Tue, 30 Jun 2015 01:21:38 -0400 (EDT)
+From: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog <linux-watchdog@vger.kernel.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	kernel <kernel@savoirfairelinux.com>
+Message-ID: <914331425.70999.1435641698085.JavaMail.zimbra@savoirfairelinux.com>
+In-Reply-To: <558ECCA2.2070204@roeck-us.net>
+References: <1434581940-15086-2-git-send-email-vivien.didelot@savoirfairelinux.com> <20150622165327.GA1189@roeck-us.net> <1645175105.110998.1435005823701.JavaMail.zimbra@savoirfairelinux.com> <558ECCA2.2070204@roeck-us.net>
+Subject: Re: [v2,2/3] watchdog: max63xx: add GPIO support
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Use TCO watchdog first timeout (pretimeout) to dump CPU backtraces
-and ease debug of watchdog expiration causes.
-On Intel Cherrytrail, TCO logic generates a SMI, then SMI handler
-triggers a SCI to the kernel, on a specific GPE.
-The GPE handler dumps all CPU backtraces and calls panic (in order
-to execute registered panic callbacks).
-GPE number is configured from ACPI tables if LPC HID exists.
+Hi Guenter,
 
-Signed-off-by: Francois-Nicolas Muller <francois-nicolas.muller@intel.com>
----
-SMI is not supported by the driver, only SCI.
+On Jun 27, 2015, at 12:17 PM, Guenter Roeck linux@roeck-us.net wrote:
 
-On Intel Cherrytrail, TCO watchdog raises an SMI, then the SMI handler
-in Bios trigs a SCI to the kernel (in Android OS configuration).
+> On 06/22/2015 01:43 PM, Vivien Didelot wrote:
+>> Hi Guenter,
+>>
+>> On Jun 22, 2015, at 12:53 PM, Guenter Roeck linux@roeck-us.net wrote:
+>>> On Wed, Jun 17, 2015 at 06:58:59PM -0400, Vivien Didelot wrote:
+>>>> Introduce a new struct max63xx_platform_data to support MAX63xx watchdog
+>>>> chips connected via GPIO. A platform code can fill this structure with
+>>>> GPIO numbers for WDI and WDSET pins to enable GPIO support in the code.
+>>>>
+>>>> The driver takes care of requesting and releasing the GPIOs.
+>>>>
+>>>> Signed-off-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
+>>>
+>>> would it be possible to use gpiod functions ?
+>>
+>> It might be, but I never played with it yet though. I'm using integer-based
+>> GPIOs from a TCA6424 on an x86 platform (no Device Tree). Is it ok to keep
+>> max63xx_gpio_{ping,set} for legacy GPIOs, and let someone add
+>> max63xx_gpiod_{ping,set} if there is a need?
+>>
+> 
+> Hi Vivien,
+> 
+> That would pretty much defeat the purpose. The gpiod API is supposed
+> to replace the gpio API, not to augment it. Having both at the same time
+> does not really make sense.
+> 
+> There is a mapping from integer based pins to name based pins; check out
+> gpiod_add_lookup_table(). Essentially platform initialization code
+> (in your case probably the code which instantiates the tca6424) would
+> set up a pin lookup table, and then you would request pins using
+> a name instead of a number. That would also solve the "is the pin
+> valid" problem in patch 3/3 since you would have a string to identify
+> the gpio pin.
 
-The patch has some effect only on Cherrytrail platform.
-On Braswell, the TCO HID exists in ACPI tables, so SCI is configured. But
-the SMI handler does not trig the SCI.
-On other platforms, the HID does not exist in ACPI tables, and the SMI
-handler does not trig the SCI.
+Unless I'm missing something, it seems like it won't work in my case. Here's my
+setup. I have 2 TCA6424 I2C I/O expanders, exposing 24 GPIOs each. They are
+registered like this:
 
-In ACPI tables, _GPE is associated to this HID, so no possible confusion.
+	static struct i2c_board_info i2c_devices[] = {
+	    {
+	        I2C_BOARD_INFO("tca6424", 0x22),
+	        .platform_data = &tca6424_1_pdata, // base = 100
+	    }, {
+	        I2C_BOARD_INFO("tca6424", 0x23),
+	        .platform_data = &tca6424_2_pdata, // base = 200
+	    }
+	};
 
-François-Nicolas
----
- drivers/watchdog/iTCO_wdt.c | 50 +++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 50 insertions(+)
+Then the pca953x driver adds two gpio chips, both labeled with the device name,
+i.e. "tca6424".
 
-diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
-index 3c3fd41..3e9ec8b 100644
---- a/drivers/watchdog/iTCO_wdt.c
-+++ b/drivers/watchdog/iTCO_wdt.c
-@@ -68,6 +68,8 @@
- #include <linux/io.h>			/* For inb/outb/... */
- #include <linux/mfd/core.h>
- #include <linux/mfd/lpc_ich.h>
-+#include <linux/nmi.h>
-+#include <linux/acpi.h>
- 
- #include "iTCO_vendor.h"
- 
-@@ -127,6 +129,12 @@ module_param(turn_SMI_watchdog_clear_off, int, 0);
- MODULE_PARM_DESC(turn_SMI_watchdog_clear_off,
- 	"Turn off SMI clearing watchdog (depends on TCO-version)(default=1)");
- 
-+#define DEFAULT_PRETIMEOUT 0
-+static bool pretimeout = DEFAULT_PRETIMEOUT;
-+module_param(pretimeout, bool, 0);
-+MODULE_PARM_DESC(pretimeout, "Enable watchdog pretimeout (default="
-+				__MODULE_STRING(DEFAULT_PRETIMEOUT) ")");
-+
- /*
-  * Some TCO specific functions
-  */
-@@ -201,6 +209,45 @@ static int iTCO_wdt_unset_NO_REBOOT_bit(void)
- 	return ret; /* returns: 0 = OK, -EIO = Error */
- }
- 
-+static unsigned char *tco_hid = "8086229C"; /* Intel Cherrytrail LPC */
-+
-+static u32 iTCO_wdt_pretimeout_handler(acpi_handle gpe_device, u32 gpe,
-+				       void *context)
-+{
-+	/* dump backtraces for all available cores */
-+	trigger_all_cpu_backtrace();
-+
-+	/* call panic notifiers */
-+	panic("Kernel Watchdog");
-+
-+	return ACPI_INTERRUPT_HANDLED;
-+}
-+
-+static acpi_status __init iTCO_wdt_register_gpe(acpi_handle handle,
-+					u32 lvl, void *context, void **rv)
-+{
-+	unsigned long long gpe;
-+	acpi_status status;
-+	union acpi_object object = { 0 };
-+	struct acpi_buffer buffer = { sizeof(union acpi_object), &object };
-+
-+	status = acpi_evaluate_object(handle, "_GPE", NULL, &buffer);
-+	if (ACPI_FAILURE(status))
-+		return status;
-+
-+	if (object.type != ACPI_TYPE_INTEGER)
-+		return AE_BAD_DATA;
-+
-+	gpe = object.integer.value;
-+	status = acpi_install_gpe_handler(NULL, gpe, ACPI_GPE_EDGE_TRIGGERED,
-+					  iTCO_wdt_pretimeout_handler, NULL);
-+	if (ACPI_FAILURE(status))
-+		return status;
-+
-+	acpi_enable_gpe(NULL, gpe);
-+	return AE_OK;
-+}
-+
- static int iTCO_wdt_start(struct watchdog_device *wd_dev)
- {
- 	unsigned int val;
-@@ -641,6 +688,9 @@ static int __init iTCO_wdt_init_module(void)
- 	if (err)
- 		return err;
- 
-+	if (pretimeout)
-+		acpi_get_devices(tco_hid, iTCO_wdt_register_gpe, NULL, NULL);
-+
- 	return 0;
- }
- 
--- 
-1.9.1
+I have to pass pins 219 to 222 to the max63xx_platform_data. I can declare a
+GPIO lookup table like this:
 
+    static struct gpiod_lookup_table lookup_table = {
+        .dev_id = "max6373_wdt",
+        .table = {
+            GPIOD_LOOKUP("tca6424", 19, "MAX6373 WDI", GPIO_ACTIVE_HIGH),
+	    GPIOD_LOOKUP_IDX("tca6424", 20, "MAX6373 SET", 0, GPIO_ACTIVE_HIGH),
+	    GPIOD_LOOKUP_IDX("tca6424", 21, "MAX6373 SET", 1, GPIO_ACTIVE_HIGH),
+	    GPIOD_LOOKUP_IDX("tca6424", 22, "MAX6373 SET", 2, GPIO_ACTIVE_HIGH),
+        }
+    };
+
+but from what I've seen, the gpio_chip lookup by name will always return the
+first TCA6424 instance.
+
+To me, it looks like the gpiod API doesn't support several GPIO chips with the
+same name. Either this must be fixed, or I should find a way to give the 2 I/O
+expanders different names (e.g. "tca6424.0" and "tca6424.1").
+
+As struct gpiod_lookup are meant for platform code, would that be bad if they 
+ignore the chip_label and care about a global GPIO number (i.e. base + hwnum)?
+
+Do you have an idea for this setup?
+
+Thanks,
+-v
