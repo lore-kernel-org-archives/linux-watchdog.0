@@ -1,35 +1,33 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta14.messagelabs.com ([193.109.254.107]:55131 "EHLO
-	mail1.bemta14.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753605AbbGANV1 (ORCPT
+Received: from mail1.bemta3.messagelabs.com ([195.245.230.165]:37937 "EHLO
+	mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752764AbbGANVT (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 1 Jul 2015 09:21:27 -0400
-Message-ID: <f7d3b86530f871549159fed1fd0519375997a2af.1435756293.git.stwiss.opensource@diasemi.com>
-In-Reply-To: <cover.1435756293.git.stwiss.opensource@diasemi.com>
-References: <cover.1435756293.git.stwiss.opensource@diasemi.com>
+	Wed, 1 Jul 2015 09:21:19 -0400
+Message-ID: <cover.1435756293.git.stwiss.opensource@diasemi.com>
 From: S Twiss <stwiss.opensource@diasemi.com>
 Date: Wed, 1 Jul 2015 14:11:33 +0100
-Subject: [PATCH V5 2/2] devicetree: da9062: Add bindings for DA9062 driver
-To: DEVICETREE <devicetree@vger.kernel.org>,
+Subject: [PATCH V5 0/2]  da9062: DA9062 driver submission
+To: Alessandro Zummo <a.zummo@towertech.it>,
+	DEVICETREE <devicetree@vger.kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Ian Campbell <ijc+devicetree@hellion.org.uk>,
 	Kumar Gala <galak@codeaurora.org>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Rob Herring <robh+dt@kernel.org>
-CC: Alessandro Zummo <a.zummo@towertech.it>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	LINUXINPUT <linux-input@vger.kernel.org>,
+	LINUXKERNEL <linux-kernel@vger.kernel.org>,
 	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
 	Lee Jones <lee.jones@linaro.org>,
 	"Liam Girdwood" <lgirdwood@gmail.com>,
 	Mark Brown <broonie@kernel.org>,
+	"Mark Rutland" <mark.rutland@arm.com>,
+	Pawel Moll <pawel.moll@arm.com>,
 	RTCLINUX <rtc-linux@googlegroups.com>,
+	Rob Herring <robh+dt@kernel.org>,
 	S Twiss <stwiss.opensource@diasemi.com>,
-	"Samuel Ortiz" <sameo@linux.intel.com>,
-	Support Opensource <support.opensource@diasemi.com>,
-	Wim Van Sebroeck <wim@iguana.be>
+	Samuel Ortiz <sameo@linux.intel.com>,
+	"Wim Van Sebroeck" <wim@iguana.be>
+CC: David Dajun Chen <david.chen@diasemi.com>,
+	Support Opensource <support.opensource@diasemi.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -37,118 +35,52 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: S Twiss <stwiss.opensource@diasemi.com>
 
-Add device tree bindings for the DA9062 driver
+This patch set adds support for the Dialog DA9062 Power Management IC.
 
-Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+In this patch set the following is provided:
+ - [PATCH V5 1/2]: MFD core support  
+ - [PATCH V5 2/2]: Add bindings for all DA9062 components
 
----
-Changes in V5:
- - No change
+Changes in V5
+ - The [PATCH V4 2/3] Watchdog driver has made it into linux-next
+   next-20150701 and has been dropped from this patch set.
 
-Changes in V4:
- - No change
+Changes in V4
+ - Rebase patches from linux-next/v4.1-rc3 to linux-next/v4.1-rc5
+ - [PATCH V3 2/4] BUCK and LDO regulator driver accepted by Mark Brown
+   - See https://lkml.org/lkml/2015/5/21/313 for details
+ - Reorder remaining patches for the PATCH V4 submission
 
 Changes in V3:
- - No change
- 
+ - No overall main changes, see individal patches for details
+
 Changes in V2:
- - Dropped the RTC and Onkey binding information in this patch-set
-   Those drivers have been dropped from this patch set and the
-   binding information has been removed accordingly.
+ - Alter subject title in cover letter
+ - Reordered the patch numbering: now 4/4 patches instead of 6/6
+   - Dropped [PATCH V1 3/6] RTC driver
+   - Dropped [PATCH V1 4/6] OnKey driver
 
-This patch applies against linux-next and next-20150701 
+This patch set applies against linux-next and next-20150701
 
+Thank you,
+Steve Twiss, Dialog Semiconductor Ltd.
 
+S Twiss (2):
+  mfd: da9062: DA9062 MFD core driver
+  devicetree: da9062: Add bindings for DA9062 driver
 
- Documentation/devicetree/bindings/mfd/da9062.txt | 79 ++++++++++++++++++++++++
- 1 file changed, 79 insertions(+)
+ Documentation/devicetree/bindings/mfd/da9062.txt |   79 ++
+ drivers/mfd/Kconfig                              |   12 +
+ drivers/mfd/Makefile                             |    3 +-
+ drivers/mfd/da9062-core.c                        |  512 ++++++++++
+ include/linux/mfd/da9062/core.h                  |   50 +
+ include/linux/mfd/da9062/registers.h             | 1108 ++++++++++++++++++++++
+ 6 files changed, 1763 insertions(+), 1 deletion(-)
  create mode 100644 Documentation/devicetree/bindings/mfd/da9062.txt
+ create mode 100644 drivers/mfd/da9062-core.c
+ create mode 100644 include/linux/mfd/da9062/core.h
+ create mode 100644 include/linux/mfd/da9062/registers.h
 
-diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documentation/devicetree/bindings/mfd/da9062.txt
-new file mode 100644
-index 0000000..5765ed9
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/da9062.txt
-@@ -0,0 +1,79 @@
-+* Dialog DA9062 Power Management Integrated Circuit (PMIC)
-+
-+DA9062 consists of a large and varied group of sub-devices:
-+
-+Device                   Supply Names    Description
-+------                   ------------    -----------
-+da9062-regulator        :               : LDOs & BUCKs
-+da9062-watchdog         :               : Watchdog Timer
-+
-+======
-+
-+Required properties:
-+
-+- compatible : Should be "dlg,da9062".
-+- reg : Specifies the I2C slave address (this defaults to 0x58 but it can be
-+  modified to match the chip's OTP settings).
-+- interrupt-parent : Specifies the reference to the interrupt controller for
-+  the DA9062.
-+- interrupts : IRQ line information.
-+- interrupt-controller
-+
-+See Documentation/devicetree/bindings/interrupt-controller/interrupts.txt for
-+further information on IRQ bindings.
-+
-+Sub-nodes:
-+
-+- regulators : This node defines the settings for the LDOs and BUCKs. The
-+  DA9062 regulators are bound using their names listed below:
-+
-+    buck1    : BUCK_1
-+    buck2    : BUCK_2
-+    buck3    : BUCK_3
-+    buck4    : BUCK_4
-+    ldo1     : LDO_1
-+    ldo2     : LDO_2
-+    ldo3     : LDO_3
-+    ldo4     : LDO_4
-+
-+  The component follows the standard regulator framework and the bindings
-+  details of individual regulator device can be found in:
-+  Documentation/devicetree/bindings/regulator/regulator.txt
-+
-+
-+- watchdog: This node defines the settings for the watchdog driver associated
-+  with the DA9062 PMIC. The compatible = "dlg,da9062-watchdog" should be added
-+  if a node is created.
-+
-+
-+Example:
-+
-+	pmic0: da9062@58 {
-+		compatible = "dlg,da9062";
-+		reg = <0x58>;
-+		interrupt-parent = <&gpio6>;
-+		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
-+		interrupt-controller;
-+
-+		watchdog {
-+			compatible = "dlg,da9062-watchdog";
-+		};
-+
-+		regulators {
-+			DA9062_BUCK1: buck1 {
-+				regulator-name = "BUCK1";
-+				regulator-min-microvolt = <300000>;
-+				regulator-max-microvolt = <1570000>;
-+				regulator-min-microamp = <500000>;
-+				regulator-max-microamp = <2000000>;
-+				regulator-boot-on;
-+			};
-+			DA9062_LDO1: ldo1 {
-+				regulator-name = "LDO_1";
-+				regulator-min-microvolt = <900000>;
-+				regulator-max-microvolt = <3600000>;
-+				regulator-boot-on;
-+			};
-+		};
-+	};
-+
 -- 
 end-of-patch for PATCH V5
 
