@@ -1,61 +1,79 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from spo001.leaseweb.nl ([83.149.101.17]:40318 "EHLO
-	spo001.leaseweb.nl" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751643AbbF3G6O (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 30 Jun 2015 02:58:14 -0400
-Date: Tue, 30 Jun 2015 08:58:07 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Paul Gortmaker <paul.gortmaker@windriver.com>
-Cc: Guenter Roeck <linux@roeck-us.net>, poeschel@lemonage.de,
-	Jonathan Corbet <corbet@lwn.net>,
-	LKML doc <linux-doc@vger.kernel.org>,
-	linux-watchdog@vger.kernel.org,
-	LKML <linux-kernel@vger.kernel.org>,
-	"linux-next@vger.kernel.org" <linux-next@vger.kernel.org>
-Subject: Re: [PATCH v2] watchdog: omap_wdt: early_enable module parameter
-Message-ID: <20150630065807.GA5645@spo001.leaseweb.nl>
-References: <1435227711-29875-1-git-send-email-poeschel@lemonage.de> <558C0634.9050802@roeck-us.net> <CAP=VYLr5wVMBdA76U0HKP2GTN07qiCkCTtBmFG5Z_bWE0QvT9g@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAP=VYLr5wVMBdA76U0HKP2GTN07qiCkCTtBmFG5Z_bWE0QvT9g@mail.gmail.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <adalessandro@santafe.gov.ar>
+Message-ID: <5593CF3F.9040206@santafe.gov.ar>
+Date: Wed, 01 Jul 2015 08:30:07 -0300
+From: adalessandro <adalessandro@santafe.gov.ar>
+MIME-Version: 1.0
+To: Guenter Roeck <linux@roeck-us.net>
+CC: linux-watchdog@vger.kernel.org, wim@iguana.be,
+ ezequiel@vanguardiasur.com.ar
+Subject: Re: [PATCH 1/2] watchdog: NXP LPC18XX Windowed Watchdog Timer Driver
+References: <1435343072-8753-1-git-send-email-ariel@vanguardiasur.com.ar> <1435343072-8753-2-git-send-email-ariel@vanguardiasur.com.ar> <20150626190700.GC23078@roeck-us.net> <55903943.10309@vanguardiasur.com.ar> <5590CDF6.7000103@roeck-us.net>
+In-Reply-To: <5590CDF6.7000103@roeck-us.net>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: quoted-printable
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Paul,
 
-> On Thu, Jun 25, 2015 at 9:46 AM, Guenter Roeck <linux@roeck-us.net> wrote:
-> > On 06/25/2015 03:21 AM, poeschel@lemonage.de wrote:
-> >>
-> >> From: Lars Poeschel <poeschel@lemonage.de>
-> >>
-> >> Add a early_enable module parameter to the omap_wdt that starts the
-> >> watchdog on module insertion. The default value is 0 which does not
-> >> start the watchdog - which also does not change the behavior if the
-> >> parameter is not given.
-> >>
-> >> Signed-off-by: Lars Poeschel <poeschel@lemonage.de>
-> >
-> >
-> > Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-> 
-> In case the info hasn't looped back around yet, this breaks the
-> omap builds in linux-next:
-> 
-> drivers/watchdog/omap_wdt.c:288:18: error: 'omap_wdt' undeclared
-> (first use in this function)
-> 
-> (Not sure how this could have ever worked as-is.)
-> 
-> http://kisskb.ellerman.id.au/kisskb/buildresult/12452335/
-> 
-> I see a patch has already been posted to arm-kernel but not
-> Cc'd to all originally involved so figured I'd mention it.
+El 29/06/15 a las 01:47, Guenter Roeck escibi=F3:
+> On 06/28/2015 11:13 AM, Ariel D'Alessandro wrote:
+>>>> +/* Timeout values in seconds */
+>>>> +#define LPC_WDT_DEF_TIMEOUT        1
+>>>> +
+>>>
+>>> One second ? This is highly unusual. 30 or 60 seconds is more common,
+>>> and one second would be very challenging for user space.
+>>>
+>>> Any special reason for using such a tight default ?
+>>
+>> Considering that LPC18xx Watchdog has a fixed divide-by-4 clock
+>> pre-scaler and a 24-bit counter and that Watchdog clock runs at a fixe=
+d
+>> frequency of 12MHz, timeout range goes from 1 to 5 seconds.
+>>
+>> I think you're right, 1 sec is very challenging, so it's 5 secs then.
+>>
+> Ultimately you might want to consider a soft timer as backup to the sys=
+tem
+> timeout. But that can be done later if/when needed.
 
-It's fixed. The reason why we din't catch it was because of interference
-with 'watchdog: omap: put struct watchdog_device into driver data'.
+I understand your point, but just to be sure, what do mean by soft timer?
 
-Kind regards,
-Wim.
+>=20
+>>>> +
+>>>> +static int lpc_wdt_remove(struct platform_device *pdev)
+>>>> +{
+>>>> +    struct lpc_wdt_dev *lpc_wdt =3D platform_get_drvdata(pdev);
+>>>> +
+>>>> +    lpc_wdt_stop(&lpc_wdt->wdt_dev);
+>>>
+>>> This will keep the timer enabled. It would be interesting to see what
+>>> happens if you build the driver as module and unload it. I think
+>>> it will crash. Can you try ?
+>>
+>> Yes, you're right. After module gets unloaded, timer keeps enabled wit=
+h
+>> a callback that was deallocated from memory.
+>>
+>> Since Watchdog cannot be disabled in hardware, it's not going to be
+>> possible to remove the driver without resetting the system. Unless we
+>> could keep a timer set and running outside the module, it won't be
+>> removable.
+>>
+>> What do you think?
+>>
+>=20
+> My take is that the driver should be loadable as module, which implies
+> that it must be removable. Whoever actually does remove the driver
+> is really asking for trouble and doesn't deserve better.
+>=20
+> On the other side, there are a few other watchdogs with similar propert=
+ies.
+> Maybe we can just take guidance from there. Can you have a look ?
+> I can look myself, but it may take a few days.
 
+Ok. I'm sending patchset v2 with all these modifications.
+
+>=20
+> Thanks,
+> Guenter
+>=20
