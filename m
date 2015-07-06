@@ -1,52 +1,44 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:40628 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751273AbbGELGz (ORCPT
+Received: from mail-wg0-f48.google.com ([74.125.82.48]:36390 "EHLO
+	mail-wg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753578AbbGFR7o (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 5 Jul 2015 07:06:55 -0400
-Message-ID: <55989838.3030003@roeck-us.net>
-Date: Sat, 04 Jul 2015 19:36:40 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Mon, 6 Jul 2015 13:59:44 -0400
+Message-ID: <559AC20B.4090601@gmail.com>
+Date: Mon, 06 Jul 2015 19:59:39 +0200
+From: Francesco Lavra <francescolavra.fl@gmail.com>
 MIME-Version: 1.0
-To: Ariel D'Alessandro <ariel@vanguardiasur.com.ar>,
-	Joachim Eastwood <manabian@gmail.com>
-CC: linux-watchdog@vger.kernel.org, wim@iguana.be,
-	Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>
-Subject: Re: [PATCH v2 1/2] watchdog: NXP LPC18xx Watchdog Timer Driver
-References: <1435783930-20184-1-git-send-email-ariel@vanguardiasur.com.ar>	<1435783930-20184-2-git-send-email-ariel@vanguardiasur.com.ar> <CAGhQ9VzLX_hy2Z=jUH6on0_sOZBp_mg5cC0JXkHntWxxrr2K6A@mail.gmail.com> <5598911B.5020004@vanguardiasur.com.ar>
-In-Reply-To: <5598911B.5020004@vanguardiasur.com.ar>
-Content-Type: text/plain; charset=utf-8; format=flowed
+To: wim@iguana.be, maxime.ripard@free-electrons.com,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] watchdog: sunxi: fix activation of system reset
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 07/04/2015 07:06 PM, Ariel D'Alessandro wrote:
-> Hi Joachim,
->
-[ ... ]
->>> +
->>> +static int lpc18xx_wdt_start(struct watchdog_device *wdt_dev)
->>> +{
->>> +       struct lpc18xx_wdt_dev *lpc18xx_wdt = watchdog_get_drvdata(wdt_dev);
->>> +       unsigned int val;
->>> +
->>> +       if (timer_pending(&lpc18xx_wdt->timer))
->>> +               del_timer(&lpc18xx_wdt->timer);
->>> +
->>> +       val = readl(lpc18xx_wdt->base + LPC18XX_WDT_MOD);
->>> +       val |= LPC18XX_WDT_MOD_WDEN;
->>> +       val |= LPC18XX_WDT_MOD_WDRESET;
->>> +       writel(val, lpc18xx_wdt->base + LPC18XX_WDT_MOD);
->>
->> R-M-W sequence should probably be protect with a lock.
->
-> We can continue discussing this point on Ezequiel's response.
->
+Commit f2147de3 ("watchdog: sunxi: support parameterized compatible
+strings") introduced a regression in sunxi_wdt_start(), by which
+the system reset function of the watchdog is not enabled upon
+starting the watchdog. Fix it.
 
-Please avoid unnecessary locks.
+Signed-off-by: Francesco Lavra <francescolavra.fl@gmail.com>
+---
+ drivers/watchdog/sunxi_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks,
-Guenter
-
+diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
+index a29afb3..47bd8a1 100644
+--- a/drivers/watchdog/sunxi_wdt.c
++++ b/drivers/watchdog/sunxi_wdt.c
+@@ -184,7 +184,7 @@ static int sunxi_wdt_start(struct watchdog_device *wdt_dev)
+ 	/* Set system reset function */
+ 	reg = readl(wdt_base + regs->wdt_cfg);
+ 	reg &= ~(regs->wdt_reset_mask);
+-	reg |= ~(regs->wdt_reset_val);
++	reg |= regs->wdt_reset_val;
+ 	writel(reg, wdt_base + regs->wdt_cfg);
+ 
+ 	/* Enable watchdog */
+-- 
+1.9.1
