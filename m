@@ -1,179 +1,48 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wi0-f176.google.com ([209.85.212.176]:34052 "EHLO
-	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756900AbbGGLmr (ORCPT
+Received: from mail1.bemta3.messagelabs.com ([195.245.230.163]:44069 "EHLO
+	mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753975AbbGGMLB (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 7 Jul 2015 07:42:47 -0400
-Received: by wifm2 with SMTP id m2so56750587wif.1
-        for <linux-watchdog@vger.kernel.org>; Tue, 07 Jul 2015 04:42:46 -0700 (PDT)
-Date: Tue, 7 Jul 2015 12:42:41 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: S Twiss <stwiss.opensource@diasemi.com>
-Cc: DEVICETREE <devicetree@vger.kernel.org>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Rob Herring <robh+dt@kernel.org>,
+	Tue, 7 Jul 2015 08:11:01 -0400
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+To: Lee Jones <lee.jones@linaro.org>
+CC: LINUXKERNEL <linux-kernel@vger.kernel.org>,
+	Samuel Ortiz <sameo@linux.intel.com>,
 	Alessandro Zummo <a.zummo@towertech.it>,
+	DEVICETREE <devicetree@vger.kernel.org>,
 	David Dajun Chen <david.chen@diasemi.com>,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
 	LINUXINPUT <linux-input@vger.kernel.org>,
 	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
 	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
+	"Mark Brown" <broonie@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Pawel Moll <pawel.moll@arm.com>,
 	RTCLINUX <rtc-linux@googlegroups.com>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Support Opensource <support.opensource@diasemi.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Support Opensource <Support.Opensource@diasemi.com>,
 	Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [PATCH V5 2/2] devicetree: da9062: Add bindings for DA9062 driver
-Message-ID: <20150707114241.GW3182@x1>
+Subject: RE: [PATCH V5 1/2] mfd: da9062: DA9062 MFD core driver
+Date: Tue, 7 Jul 2015 12:10:39 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B23A300@SW-EX-MBX02.diasemi.com>
 References: <cover.1435756293.git.stwiss.opensource@diasemi.com>
- <f7d3b86530f871549159fed1fd0519375997a2af.1435756293.git.stwiss.opensource@diasemi.com>
+ <8ada7382e08b0fc2a444c1df7b5a5c1502580816.1435756293.git.stwiss.opensource@diasemi.com>
+ <20150707114217.GV3182@x1>
+In-Reply-To: <20150707114217.GV3182@x1>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <f7d3b86530f871549159fed1fd0519375997a2af.1435756293.git.stwiss.opensource@diasemi.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, 01 Jul 2015, S Twiss wrote:
-
-> From: S Twiss <stwiss.opensource@diasemi.com>
->=20
-> Add device tree bindings for the DA9062 driver
->=20
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
->=20
-> ---
-> Changes in V5:
->  - No change
->=20
-> Changes in V4:
->  - No change
->=20
-> Changes in V3:
->  - No change
-> =20
-> Changes in V2:
->  - Dropped the RTC and Onkey binding information in this patch-set
->    Those drivers have been dropped from this patch set and the
->    binding information has been removed accordingly.
->=20
-> This patch applies against linux-next and next-20150701=20
->=20
->=20
->=20
->  Documentation/devicetree/bindings/mfd/da9062.txt | 79 ++++++++++++++++=
-++++++++
->  1 file changed, 79 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/mfd/da9062.txt
-
-Applied, thanks.
-
-> diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documen=
-tation/devicetree/bindings/mfd/da9062.txt
-> new file mode 100644
-> index 0000000..5765ed9
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mfd/da9062.txt
-> @@ -0,0 +1,79 @@
-> +* Dialog DA9062 Power Management Integrated Circuit (PMIC)
-> +
-> +DA9062 consists of a large and varied group of sub-devices:
-> +
-> +Device                   Supply Names    Description
-> +------                   ------------    -----------
-> +da9062-regulator        :               : LDOs & BUCKs
-> +da9062-watchdog         :               : Watchdog Timer
-> +
-> +=3D=3D=3D=3D=3D=3D
-> +
-> +Required properties:
-> +
-> +- compatible : Should be "dlg,da9062".
-> +- reg : Specifies the I2C slave address (this defaults to 0x58 but it =
-can be
-> +  modified to match the chip's OTP settings).
-> +- interrupt-parent : Specifies the reference to the interrupt controll=
-er for
-> +  the DA9062.
-> +- interrupts : IRQ line information.
-> +- interrupt-controller
-> +
-> +See Documentation/devicetree/bindings/interrupt-controller/interrupts.=
-txt for
-> +further information on IRQ bindings.
-> +
-> +Sub-nodes:
-> +
-> +- regulators : This node defines the settings for the LDOs and BUCKs. =
-The
-> +  DA9062 regulators are bound using their names listed below:
-> +
-> +    buck1    : BUCK_1
-> +    buck2    : BUCK_2
-> +    buck3    : BUCK_3
-> +    buck4    : BUCK_4
-> +    ldo1     : LDO_1
-> +    ldo2     : LDO_2
-> +    ldo3     : LDO_3
-> +    ldo4     : LDO_4
-> +
-> +  The component follows the standard regulator framework and the bindi=
-ngs
-> +  details of individual regulator device can be found in:
-> +  Documentation/devicetree/bindings/regulator/regulator.txt
-> +
-> +
-> +- watchdog: This node defines the settings for the watchdog driver ass=
-ociated
-> +  with the DA9062 PMIC. The compatible =3D "dlg,da9062-watchdog" shoul=
-d be added
-> +  if a node is created.
-> +
-> +
-> +Example:
-> +
-> +	pmic0: da9062@58 {
-> +		compatible =3D "dlg,da9062";
-> +		reg =3D <0x58>;
-> +		interrupt-parent =3D <&gpio6>;
-> +		interrupts =3D <11 IRQ_TYPE_LEVEL_LOW>;
-> +		interrupt-controller;
-> +
-> +		watchdog {
-> +			compatible =3D "dlg,da9062-watchdog";
-> +		};
-> +
-> +		regulators {
-> +			DA9062_BUCK1: buck1 {
-> +				regulator-name =3D "BUCK1";
-> +				regulator-min-microvolt =3D <300000>;
-> +				regulator-max-microvolt =3D <1570000>;
-> +				regulator-min-microamp =3D <500000>;
-> +				regulator-max-microamp =3D <2000000>;
-> +				regulator-boot-on;
-> +			};
-> +			DA9062_LDO1: ldo1 {
-> +				regulator-name =3D "LDO_1";
-> +				regulator-min-microvolt =3D <900000>;
-> +				regulator-max-microvolt =3D <3600000>;
-> +				regulator-boot-on;
-> +			};
-> +		};
-> +	};
-> +
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+T24gMDcgSnVseSAyMDE1IDEyOjQyLCBMZWUgSm9uZXMgd3JvdGU6DQoNCj4gVG86IE9wZW5zb3Vy
+Y2UgW1N0ZXZlIFR3aXNzXQ0KPiBTdWJqZWN0OiBSZTogW1BBVENIIFY1IDEvMl0gbWZkOiBkYTkw
+NjI6IERBOTA2MiBNRkQgY29yZSBkcml2ZXINCj4gDQo+ID4gRnJvbTogUyBUd2lzcyA8c3R3aXNz
+Lm9wZW5zb3VyY2VAZGlhc2VtaS5jb20+DQo+ID4NCj4gPiBBZGQgTUZEIGNvcmUgZHJpdmVyIHN1
+cHBvcnQgZm9yIERBOTA2Mg0KPiA+DQo+ID4gU2lnbmVkLW9mZi1ieTogU3RldmUgVHdpc3MgPHN0
+d2lzcy5vcGVuc291cmNlQGRpYXNlbWkuY29tPg0KPiA+DQpbLi4uXQ0KPiANCj4gDQo+IEFwcGxp
+ZWQsIHRoYW5rcy4NCg0KDQpIaSBMZWUsDQpUaGFuayB5b3UgZm9yIHlvdXIgZWZmb3J0cyBvbiB0
+aGlzLg0KUmVnYXJkcywNClN0ZXZlDQoNClsuLi5dDQo=
