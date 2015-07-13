@@ -1,48 +1,77 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail1.bemta3.messagelabs.com ([195.245.230.163]:44069 "EHLO
-	mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753975AbbGGMLB (ORCPT
+Received: from mail-oi0-f46.google.com ([209.85.218.46]:34451 "EHLO
+	mail-oi0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752559AbbGMJJ6 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 7 Jul 2015 08:11:01 -0400
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-To: Lee Jones <lee.jones@linaro.org>
-CC: LINUXKERNEL <linux-kernel@vger.kernel.org>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	DEVICETREE <devicetree@vger.kernel.org>,
-	David Dajun Chen <david.chen@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	LINUXINPUT <linux-input@vger.kernel.org>,
-	LINUXWATCHDOG <linux-watchdog@vger.kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	"Mark Brown" <broonie@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Pawel Moll <pawel.moll@arm.com>,
-	RTCLINUX <rtc-linux@googlegroups.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Support Opensource <Support.Opensource@diasemi.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: RE: [PATCH V5 1/2] mfd: da9062: DA9062 MFD core driver
-Date: Tue, 7 Jul 2015 12:10:39 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B23A300@SW-EX-MBX02.diasemi.com>
-References: <cover.1435756293.git.stwiss.opensource@diasemi.com>
- <8ada7382e08b0fc2a444c1df7b5a5c1502580816.1435756293.git.stwiss.opensource@diasemi.com>
- <20150707114217.GV3182@x1>
-In-Reply-To: <20150707114217.GV3182@x1>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+	Mon, 13 Jul 2015 05:09:58 -0400
+Received: by oiab3 with SMTP id b3so131234493oia.1
+        for <linux-watchdog@vger.kernel.org>; Mon, 13 Jul 2015 02:09:58 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <559199AB.8090106@roeck-us.net>
+References: <=fu.wei@linaro.org>
+	<1435068994-13526-1-git-send-email-fu.wei@linaro.org>
+	<CADyBb7vgfFTmqLMMDOjWxwk3B-he2hTYAGpB3diKf47eB=dc=A@mail.gmail.com>
+	<559199AB.8090106@roeck-us.net>
+Date: Mon, 13 Jul 2015 17:09:57 +0800
+Message-ID: <CADyBb7thQYSRA+__t+oKFugipZ2PGr4qCGWV1iE4BTV5jjzV4w@mail.gmail.com>
+Subject: Re: [PATCH v6 0/8] Watchdog: introduce ARM SBSA watchdog driver
+From: Fu Wei <fu.wei@linaro.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+	Wei Fu <tekkamanninja@gmail.com>,
+	G Gregory <graeme.gregory@linaro.org>,
+	Al Stone <al.stone@linaro.org>,
+	Hanjun Guo <hanjun.guo@linaro.org>,
+	Timur Tabi <timur@codeaurora.org>,
+	Ashwin Chaugule <ashwin.chaugule@linaro.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Vipul Gandhi <vgandhi@codeaurora.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Jon Masters <jcm@redhat.com>, Leo Duran <leo.duran@amd.com>,
+	Jon Corbet <corbet@lwn.net>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will.deacon@arm.com>, rjw@rjwysocki.net,
+	dyoung@redhat.com, panand@redhat.com
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-T24gMDcgSnVseSAyMDE1IDEyOjQyLCBMZWUgSm9uZXMgd3JvdGU6DQoNCj4gVG86IE9wZW5zb3Vy
-Y2UgW1N0ZXZlIFR3aXNzXQ0KPiBTdWJqZWN0OiBSZTogW1BBVENIIFY1IDEvMl0gbWZkOiBkYTkw
-NjI6IERBOTA2MiBNRkQgY29yZSBkcml2ZXINCj4gDQo+ID4gRnJvbTogUyBUd2lzcyA8c3R3aXNz
-Lm9wZW5zb3VyY2VAZGlhc2VtaS5jb20+DQo+ID4NCj4gPiBBZGQgTUZEIGNvcmUgZHJpdmVyIHN1
-cHBvcnQgZm9yIERBOTA2Mg0KPiA+DQo+ID4gU2lnbmVkLW9mZi1ieTogU3RldmUgVHdpc3MgPHN0
-d2lzcy5vcGVuc291cmNlQGRpYXNlbWkuY29tPg0KPiA+DQpbLi4uXQ0KPiANCj4gDQo+IEFwcGxp
-ZWQsIHRoYW5rcy4NCg0KDQpIaSBMZWUsDQpUaGFuayB5b3UgZm9yIHlvdXIgZWZmb3J0cyBvbiB0
-aGlzLg0KUmVnYXJkcywNClN0ZXZlDQoNClsuLi5dDQo=
+Hi Guenter,
+
+If you get some time, could you help me on this patchset again?
+Great thanks for your help!
+
+On 30 June 2015 at 03:16, Guenter Roeck <linux@roeck-us.net> wrote:
+> On 06/29/2015 09:53 AM, Fu Wei wrote:
+>>
+>> Hi Guenter,
+>>
+>> Any suggestion on this v6 patchset, for now , I only got :
+>
+>
+> Problem is that each version of your patchset tends to introduce
+> substantially
+> new or different functionality, meaning the review has to pretty much start
+> from scratch. Right now I just don't have time to do that, so you'll have
+> to be a bit patient.
+>
+> Guenter
+>
+
+
+
+-- 
+Best regards,
+
+Fu Wei
+Software Engineer
+Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
+Ph: +86 21 61221326(direct)
+Ph: +86 186 2020 4684 (mobile)
+Room 1512, Regus One Corporate Avenue,Level 15,
+One Corporate Avenue,222 Hubin Road,Huangpu District,
+Shanghai,China 200021
