@@ -1,57 +1,50 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qg0-f54.google.com ([209.85.192.54]:35699 "EHLO
-	mail-qg0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751209AbbGOAvn (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 14 Jul 2015 20:51:43 -0400
-Received: by qget71 with SMTP id t71so11911489qge.2
-        for <linux-watchdog@vger.kernel.org>; Tue, 14 Jul 2015 17:51:43 -0700 (PDT)
+Return-path: <ariel@vanguardiasur.com.ar>
 From: Ariel D'Alessandro <ariel@vanguardiasur.com.ar>
 To: linux-watchdog@vger.kernel.org
-Cc: wim@iguana.be, linux@roeck-us.net, ezequiel@vanguardiasur.com.ar,
-	linux-arm-kernel@lists.infradead.org, manabian@gmail.com,
+Cc: wim@iguana.be,
+	linux@roeck-us.net,
+	ezequiel@vanguardiasur.com.ar,
+	linux-arm-kernel@lists.infradead.org,
+	manabian@gmail.com,
 	Ariel D'Alessandro <ariel@vanguardiasur.com.ar>
-Subject: [PATCH v3 2/2] DT: watchdog: Add NXP LPC18xx Watchdog Timer binding documentation
-Date: Tue, 14 Jul 2015 21:50:45 -0300
-Message-Id: <1436921445-11138-3-git-send-email-ariel@vanguardiasur.com.ar>
-In-Reply-To: <1436921445-11138-1-git-send-email-ariel@vanguardiasur.com.ar>
-References: <1436921445-11138-1-git-send-email-ariel@vanguardiasur.com.ar>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Subject: [PATCH v3 0/2] Add support for NXP LPC18xx Watchdog timer
+Date: Tue, 14 Jul 2015 21:50:43 -0300
+Message-Id: <1436921445-11138-1-git-send-email-ariel@vanguardiasur.com.ar>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Add the devicetree binding document for NXP LPC18xx Watchdog Timer.
+This patch series adds support for the watchdog timer found in NXP LPC
+SoCs family which includes LPC18xx/LPC43xx. Other SoCs in that family may
+share the same watchdog hardware.
 
-Signed-off-by: Ariel D'Alessandro <ariel@vanguardiasur.com.ar>
----
- .../devicetree/bindings/watchdog/lpc18xx-wdt.txt      | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+Patchset is based on tag next-20150624 of the linux-next repository.
+It has been successfully tested on a Hitex LPC4350 Evaluation Board and
+on a CIAA NXP LPC4337 Board.
+
+Changes since v2:
+* Changed config tristate to "LPC18xx/43xx".
+* Added COMPILE_TEST as a dependency.
+* Replaced raw_local_irq* calls by spinlock.
+* Changed dt compatible string to "nxp,lpc1850-wwdt".
+
+Changes since v1:
+* Dropped "Windowed" term in Watchdog's name.
+* Changed default timeout value from 1 to 5 because it was too tight.
+* Fixed module remove function, since it was keeping the timer enabled. Warning
+  message was added.
+* Changed dt compatible string to "nxp,lpc1850-wdt".
+* Renamed clocks matching most of the other lpc18xx drivers.
+
+Ariel D'Alessandro (2):
+  watchdog: NXP LPC18xx Watchdog Timer Driver
+  DT: watchdog: Add NXP LPC18xx Watchdog Timer binding documentation
+
+ .../devicetree/bindings/watchdog/lpc18xx-wdt.txt   |  19 ++
+ drivers/watchdog/Kconfig                           |  11 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/lpc18xx_wdt.c                     | 344 +++++++++++++++++++++
+ 4 files changed, 375 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/watchdog/lpc18xx-wdt.txt
+ create mode 100644 drivers/watchdog/lpc18xx_wdt.c
 
-diff --git a/Documentation/devicetree/bindings/watchdog/lpc18xx-wdt.txt b/Documentation/devicetree/bindings/watchdog/lpc18xx-wdt.txt
-new file mode 100644
-index 0000000..09f6b24
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/lpc18xx-wdt.txt
-@@ -0,0 +1,19 @@
-+* NXP LPC18xx Watchdog Timer (WDT)
-+
-+Required properties:
-+- compatible: Should be "nxp,lpc1850-wwdt"
-+- reg: Should contain WDT registers location and length
-+- clocks: Must contain an entry for each entry in clock-names.
-+- clock-names: Should contain "wdtclk" and "reg"; the watchdog counter
-+               clock and register interface clock respectively.
-+- interrupts: Should contain WDT interrupt
-+
-+Examples:
-+
-+watchdog@40080000 {
-+	compatible = "nxp,lpc1850-wwdt";
-+	reg = <0x40080000 0x24>;
-+	clocks = <&cgu BASE_SAFE_CLK>, <&ccu1 CLK_CPU_WWDT>;
-+	clock-names = "wdtclk", "reg";
-+	interrupts = <49>;
-+};
 -- 
 1.9.1
-
