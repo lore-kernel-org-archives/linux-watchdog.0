@@ -1,81 +1,421 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:43286 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932126AbbGTIaD (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 20 Jul 2015 04:30:03 -0400
-Date: Mon, 20 Jul 2015 10:26:58 +0200
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-To: Francesco Lavra <francescolavra.fl@gmail.com>
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] watchdog: sunxi: fix activation of system reset
-Message-ID: <20150720082658.GU28632@lukather>
-References: <559AC20B.4090601@gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="aIPTgi9H47uqouUT"
-Content-Disposition: inline
-In-Reply-To: <559AC20B.4090601@gmail.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <ariel@vanguardiasur.com.ar>
+From: Ariel D'Alessandro <ariel@vanguardiasur.com.ar>
+To: linux-watchdog@vger.kernel.org
+Cc: wim@iguana.be,
+	linux@roeck-us.net,
+	ezequiel@vanguardiasur.com.ar,
+	linux-arm-kernel@lists.infradead.org,
+	manabian@gmail.com,
+	Ariel D'Alessandro <ariel@vanguardiasur.com.ar>
+Subject: [PATCH v3 1/2] watchdog: NXP LPC18xx Watchdog Timer Driver
+Date: Tue, 14 Jul 2015 21:50:44 -0300
+Message-Id: <1436921445-11138-2-git-send-email-ariel@vanguardiasur.com.ar>
+In-Reply-To: <1436921445-11138-1-git-send-email-ariel@vanguardiasur.com.ar>
+References: <1436921445-11138-1-git-send-email-ariel@vanguardiasur.com.ar>
+List-ID: <linux-watchdog@vger.kernel.org>
 
+This commit adds support for the watchdog timer found in NXP LPC SoCs
+family, which includes LPC18xx/LPC43xx. Other SoCs in that family may
+share the same watchdog hardware.
 
---aIPTgi9H47uqouUT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Watchdog driver registers a restart handler that will restart the system
+by performing an incorrect feed after ensuring the watchdog is enabled in
+reset mode.
 
-Hi Francesco,
+As watchdog cannot be disabled in hardware, driver's stop routine will
+regularly send a keepalive ping using a timer.
 
-Your patch looks mostly good, but there's just a few minor things.
+Signed-off-by: Ariel D'Alessandro <ariel@vanguardiasur.com.ar>
+---
+ drivers/watchdog/Kconfig       |  11 ++
+ drivers/watchdog/Makefile      |   1 +
+ drivers/watchdog/lpc18xx_wdt.c | 344 +++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 356 insertions(+)
+ create mode 100644 drivers/watchdog/lpc18xx_wdt.c
 
-On Mon, Jul 06, 2015 at 07:59:39PM +0200, Francesco Lavra wrote:
-> Commit f2147de3 ("watchdog: sunxi: support parameterized compatible
-
-The commit ID should have at least 12 chars to avoid future ID
-collisions (which already start to happen)
-
-> strings") introduced a regression in sunxi_wdt_start(), by which
-> the system reset function of the watchdog is not enabled upon
-> starting the watchdog. Fix it.
-
-Having a description of what that actually means for the end-user (I
-guess that it won't reset the system when the watchdog expires) would
-be nice.
-
-> Signed-off-by: Francesco Lavra <francescolavra.fl@gmail.com>
-
-Could you also CC stable, and add a Fixes: tag please?
-
-Thanks,
-Maxime
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---aIPTgi9H47uqouUT
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVrLDSAAoJEBx+YmzsjxAgCPwP/2If/4GSq5j+Xh0dv58X+iJM
-Q2wsK+lwAtkvLSSFlNiF0p7OD1Z4nDzeViYwwSTv0GLRO93tKiwBsmT0+4Ji/CE0
-8Qb3fIXyqdPR6oMsQxeM4l6VePkknCB4c/YdniqtE3nLb+R5ziMhqH5Vf6qjfdaQ
-vMbkLUvqXztliRb9qILPgQit/Bal7k/GUBHBtLecSgjMF979ap3cZBUnNn/l5Euz
-GIlleK7LO0cLSW6t/Ms3YQfdXiTmpuHLz/2+vqbm6korDcjDOT8h3B2feQoh/mid
-1gablxyKdBSQ2Pz5zl8EAidx1NTBFiNpqkUyhjx/vH1HfEMRq2fLitFpmb1G9+SV
-0r2vbg0IE/nyAc+bNMM6rOlqKYySij8R/8ewbq/pwVrWby5kmamdA+fOJuAOHgFr
-ZBRQHVCagTk1NDmXcVYP9m2EUQc6fg9845GQJvpQrOR+sY4a47CRBbMUcwumd/Xo
-citlFobvVtaUUcMjauPLditrDjtsMNLf75PxXrTfCCpKeTtnvbchQYHtXag+9RCT
-5/kUUDa/6G6kGkYXpgCcDXh83Ou46Lhx/H+gRvC/uC5tQwyb5QALKi2Pro7lSitV
-tI2bSdJgXmDad3KCfgI6nTVTBVJ41/gWve46Dgd4aampjSJVNDoih092XtDTF5Ez
-1YGkI0kLZdREJv8VhY2a
-=1lYn
------END PGP SIGNATURE-----
-
---aIPTgi9H47uqouUT--
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 742fbbc..af5e2e3 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -547,6 +547,17 @@ config DIGICOLOR_WATCHDOG
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called digicolor_wdt.
+ 
++config LPC18XX_WATCHDOG
++	tristate "LPC18xx/43xx Watchdog"
++	depends on ARCH_LPC18XX || COMPILE_TEST
++	select WATCHDOG_CORE
++	help
++	  Say Y here if to include support for the watchdog timer
++	  in NXP LPC SoCs family, which includes LPC18xx/LPC43xx
++	  processors.
++	  To compile this driver as a module, choose M here: the
++	  module will be called lpc18xx_wdt.
++
+ # AVR32 Architecture
+ 
+ config AT32AP700X_WDT
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 59ea9a1..1b0ef48 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -66,6 +66,7 @@ obj-$(CONFIG_TEGRA_WATCHDOG) += tegra_wdt.o
+ obj-$(CONFIG_MESON_WATCHDOG) += meson_wdt.o
+ obj-$(CONFIG_MEDIATEK_WATCHDOG) += mtk_wdt.o
+ obj-$(CONFIG_DIGICOLOR_WATCHDOG) += digicolor_wdt.o
++obj-$(CONFIG_LPC18XX_WATCHDOG) += lpc18xx_wdt.o
+ 
+ # AVR32 Architecture
+ obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
+diff --git a/drivers/watchdog/lpc18xx_wdt.c b/drivers/watchdog/lpc18xx_wdt.c
+new file mode 100644
+index 0000000..2b489fc
+--- /dev/null
++++ b/drivers/watchdog/lpc18xx_wdt.c
+@@ -0,0 +1,344 @@
++/*
++ * NXP LPC18xx Watchdog Timer (WDT)
++ *
++ * Copyright (c) 2015 Ariel D'Alessandro <ariel@vanguardiasur.com>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ *
++ * Notes
++ * -----
++ * The Watchdog consists of a fixed divide-by-4 clock pre-scaler and a 24-bit
++ * counter which decrements on every clock cycle.
++ *
++ */
++
++#include <linux/clk.h>
++#include <linux/io.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/reboot.h>
++#include <linux/watchdog.h>
++
++/* Registers */
++#define LPC18XX_WDT_MOD			0x00
++#define LPC18XX_WDT_MOD_WDEN		BIT(0)
++#define LPC18XX_WDT_MOD_WDRESET		BIT(1)
++#define LPC18XX_WDT_MOD_WDTOF_MASK	0x04
++
++#define LPC18XX_WDT_TC			0x04
++#define LPC18XX_WDT_TC_MIN		0xff
++#define LPC18XX_WDT_TC_MAX		0xffffff
++
++#define LPC18XX_WDT_FEED		0x08
++#define LPC18XX_WDT_FEED_MAGIC1		0xaa
++#define LPC18XX_WDT_FEED_MAGIC2		0x55
++
++#define LPC18XX_WDT_TV			0x0c
++
++/* Clock pre-scaler */
++#define LPC18XX_WDT_CLK_DIV		4
++
++/* Timeout values in seconds */
++#define LPC18XX_WDT_DEF_TIMEOUT		5
++
++static int heartbeat;
++module_param(heartbeat, int, 0);
++MODULE_PARM_DESC(heartbeat, "Watchdog heartbeats in seconds "
++	"(default=" __MODULE_STRING(LPC18XX_WDT_DEF_TIMEOUT) ")");
++
++static bool nowayout = WATCHDOG_NOWAYOUT;
++module_param(nowayout, bool, 0);
++MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
++	"(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++
++static DEFINE_SPINLOCK(wdt_lock);
++
++struct lpc18xx_wdt_dev {
++	struct watchdog_device wdt_dev;
++	struct clk *wdt_clk;
++	struct clk *reg_clk;
++	void __iomem *base;
++	struct timer_list timer;
++	struct notifier_block restart_handler;
++};
++
++static int lpc18xx_wdt_feed(struct watchdog_device *wdt_dev)
++{
++	struct lpc18xx_wdt_dev *lpc18xx_wdt = watchdog_get_drvdata(wdt_dev);
++	unsigned long flags;
++
++	/*
++	 * An abort condition will occur if an interrupt happens during the feed
++	 * sequence.
++	 */
++	spin_lock_irqsave(&wdt_lock, flags);
++	writel(LPC18XX_WDT_FEED_MAGIC1, lpc18xx_wdt->base + LPC18XX_WDT_FEED);
++	writel(LPC18XX_WDT_FEED_MAGIC2, lpc18xx_wdt->base + LPC18XX_WDT_FEED);
++	spin_unlock_irqrestore(&wdt_lock, flags);
++
++	return 0;
++}
++
++static void lpc18xx_wdt_timer_feed(unsigned long data)
++{
++	struct watchdog_device *wdt_dev = (struct watchdog_device *) data;
++	struct lpc18xx_wdt_dev *lpc18xx_wdt = watchdog_get_drvdata(wdt_dev);
++
++	lpc18xx_wdt_feed(wdt_dev);
++
++	/* Use safe value (1/2 of real timeout) */
++	mod_timer(&lpc18xx_wdt->timer, jiffies +
++		  msecs_to_jiffies((wdt_dev->timeout * MSEC_PER_SEC) / 2));
++}
++
++/*
++ * Since LPC18xx Watchdog cannot be disabled in hardware, we must keep feeding
++ * it with a timer until userspace watchdog software takes over.
++ */
++static int lpc18xx_wdt_stop(struct watchdog_device *wdt_dev)
++{
++	lpc18xx_wdt_timer_feed((unsigned long) wdt_dev);
++
++	return 0;
++}
++
++static void __lpc18xx_wdt_set_timeout(struct lpc18xx_wdt_dev *lpc18xx_wdt)
++{
++	unsigned long clk_rate = clk_get_rate(lpc18xx_wdt->wdt_clk);
++	unsigned int val;
++
++	val = DIV_ROUND_UP(lpc18xx_wdt->wdt_dev.timeout * clk_rate,
++			   LPC18XX_WDT_CLK_DIV);
++	writel(val, lpc18xx_wdt->base + LPC18XX_WDT_TC);
++}
++
++static int lpc18xx_wdt_set_timeout(struct watchdog_device *wdt_dev,
++				   unsigned int new_timeout)
++{
++	struct lpc18xx_wdt_dev *lpc18xx_wdt = watchdog_get_drvdata(wdt_dev);
++
++	lpc18xx_wdt->wdt_dev.timeout = new_timeout;
++	__lpc18xx_wdt_set_timeout(lpc18xx_wdt);
++
++	return 0;
++}
++
++
++unsigned int lpc18xx_wdt_get_timeleft(struct watchdog_device *wdt_dev)
++{
++	struct lpc18xx_wdt_dev *lpc18xx_wdt = watchdog_get_drvdata(wdt_dev);
++	unsigned long clk_rate = clk_get_rate(lpc18xx_wdt->wdt_clk);
++	unsigned int val;
++
++	val = readl(lpc18xx_wdt->base + LPC18XX_WDT_TV);
++	return (val * LPC18XX_WDT_CLK_DIV) / clk_rate;
++}
++
++static int lpc18xx_wdt_start(struct watchdog_device *wdt_dev)
++{
++	struct lpc18xx_wdt_dev *lpc18xx_wdt = watchdog_get_drvdata(wdt_dev);
++	unsigned int val;
++
++	if (timer_pending(&lpc18xx_wdt->timer))
++		del_timer(&lpc18xx_wdt->timer);
++
++	val = readl(lpc18xx_wdt->base + LPC18XX_WDT_MOD);
++	val |= LPC18XX_WDT_MOD_WDEN;
++	val |= LPC18XX_WDT_MOD_WDRESET;
++	writel(val, lpc18xx_wdt->base + LPC18XX_WDT_MOD);
++
++	/*
++	 * Setting the WDEN bit in the WDMOD register is not sufficient to
++	 * enable the Watchdog. A valid feed sequence must be completed after
++	 * setting WDEN before the Watchdog is capable of generating a reset.
++	 */
++	lpc18xx_wdt_feed(wdt_dev);
++
++	return 0;
++}
++
++static struct watchdog_info lpc18xx_wdt_info = {
++	.identity	= "NXP LPC18xx Watchdog",
++	.options	= WDIOF_SETTIMEOUT |
++			  WDIOF_KEEPALIVEPING |
++			  WDIOF_MAGICCLOSE,
++};
++
++static const struct watchdog_ops lpc18xx_wdt_ops = {
++	.owner		= THIS_MODULE,
++	.start		= lpc18xx_wdt_start,
++	.stop		= lpc18xx_wdt_stop,
++	.ping		= lpc18xx_wdt_feed,
++	.set_timeout	= lpc18xx_wdt_set_timeout,
++	.get_timeleft	= lpc18xx_wdt_get_timeleft,
++};
++
++static int lpc18xx_wdt_restart(struct notifier_block *this, unsigned long mode,
++			       void *cmd)
++{
++	struct lpc18xx_wdt_dev *lpc18xx_wdt = container_of(this,
++				struct lpc18xx_wdt_dev, restart_handler);
++	unsigned long flags;
++	int val;
++
++	/*
++	 * Incorrect feed sequence causes immediate watchdog reset if enabled.
++	 */
++	spin_lock_irqsave(&wdt_lock, flags);
++
++	val = readl(lpc18xx_wdt->base + LPC18XX_WDT_MOD);
++	val |= LPC18XX_WDT_MOD_WDEN;
++	val |= LPC18XX_WDT_MOD_WDRESET;
++	writel(val, lpc18xx_wdt->base + LPC18XX_WDT_MOD);
++
++	writel(LPC18XX_WDT_FEED_MAGIC1, lpc18xx_wdt->base + LPC18XX_WDT_FEED);
++	writel(LPC18XX_WDT_FEED_MAGIC2, lpc18xx_wdt->base + LPC18XX_WDT_FEED);
++
++	writel(LPC18XX_WDT_FEED_MAGIC1, lpc18xx_wdt->base + LPC18XX_WDT_FEED);
++	writel(LPC18XX_WDT_FEED_MAGIC1, lpc18xx_wdt->base + LPC18XX_WDT_FEED);
++
++	spin_unlock_irqrestore(&wdt_lock, flags);
++
++	return NOTIFY_OK;
++}
++
++static int lpc18xx_wdt_probe(struct platform_device *pdev)
++{
++	struct lpc18xx_wdt_dev *lpc18xx_wdt;
++	unsigned long clk_rate;
++	struct resource *res;
++	int ret;
++
++	lpc18xx_wdt = devm_kzalloc(&pdev->dev, sizeof(*lpc18xx_wdt),
++				   GFP_KERNEL);
++	if (!lpc18xx_wdt)
++		return -ENOMEM;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	lpc18xx_wdt->base = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(lpc18xx_wdt->base))
++		return PTR_ERR(lpc18xx_wdt->base);
++
++	lpc18xx_wdt->reg_clk = devm_clk_get(&pdev->dev, "reg");
++	if (IS_ERR(lpc18xx_wdt->reg_clk)) {
++		dev_err(&pdev->dev, "failed to get the reg clock\n");
++		return PTR_ERR(lpc18xx_wdt->reg_clk);
++	}
++
++	lpc18xx_wdt->wdt_clk = devm_clk_get(&pdev->dev, "wdtclk");
++	if (IS_ERR(lpc18xx_wdt->wdt_clk)) {
++		dev_err(&pdev->dev, "failed to get the wdt clock\n");
++		return PTR_ERR(lpc18xx_wdt->wdt_clk);
++	}
++
++	ret = clk_prepare_enable(lpc18xx_wdt->reg_clk);
++	if (ret) {
++		dev_err(&pdev->dev, "could not prepare or enable sys clock\n");
++		return ret;
++	}
++
++	ret = clk_prepare_enable(lpc18xx_wdt->wdt_clk);
++	if (ret) {
++		dev_err(&pdev->dev, "could not prepare or enable wdt clock\n");
++		goto disable_reg_clk;
++	}
++
++	/* We use the clock rate to calculate timeouts */
++	clk_rate = clk_get_rate(lpc18xx_wdt->wdt_clk);
++	if (clk_rate == 0) {
++		dev_err(&pdev->dev, "failed to get clock rate\n");
++		ret = -EINVAL;
++		goto disable_wdt_clk;
++	}
++
++	lpc18xx_wdt->wdt_dev.info = &lpc18xx_wdt_info;
++	lpc18xx_wdt->wdt_dev.ops = &lpc18xx_wdt_ops;
++	lpc18xx_wdt->wdt_dev.timeout = LPC18XX_WDT_DEF_TIMEOUT;
++
++	lpc18xx_wdt->wdt_dev.min_timeout = DIV_ROUND_UP(LPC18XX_WDT_TC_MIN *
++						LPC18XX_WDT_CLK_DIV, clk_rate);
++
++	lpc18xx_wdt->wdt_dev.max_timeout = (LPC18XX_WDT_TC_MAX *
++					    LPC18XX_WDT_CLK_DIV) / clk_rate;
++
++	lpc18xx_wdt->wdt_dev.parent = &pdev->dev;
++	watchdog_set_drvdata(&lpc18xx_wdt->wdt_dev, lpc18xx_wdt);
++
++	ret = watchdog_init_timeout(&lpc18xx_wdt->wdt_dev, heartbeat,
++				    &pdev->dev);
++
++	__lpc18xx_wdt_set_timeout(lpc18xx_wdt);
++
++	setup_timer(&lpc18xx_wdt->timer, lpc18xx_wdt_timer_feed,
++		    (unsigned long)&lpc18xx_wdt->wdt_dev);
++
++	watchdog_set_nowayout(&lpc18xx_wdt->wdt_dev, nowayout);
++
++	platform_set_drvdata(pdev, lpc18xx_wdt);
++
++	ret = watchdog_register_device(&lpc18xx_wdt->wdt_dev);
++	if (ret)
++		goto disable_wdt_clk;
++
++	lpc18xx_wdt->restart_handler.notifier_call = lpc18xx_wdt_restart;
++	lpc18xx_wdt->restart_handler.priority = 128;
++	ret = register_restart_handler(&lpc18xx_wdt->restart_handler);
++	if (ret)
++		dev_warn(&pdev->dev, "failed to register restart handler: %d\n",
++			 ret);
++
++	return 0;
++
++disable_wdt_clk:
++	clk_disable_unprepare(lpc18xx_wdt->wdt_clk);
++disable_reg_clk:
++	clk_disable_unprepare(lpc18xx_wdt->reg_clk);
++	return ret;
++}
++
++static void lpc18xx_wdt_shutdown(struct platform_device *pdev)
++{
++	struct lpc18xx_wdt_dev *lpc18xx_wdt = platform_get_drvdata(pdev);
++
++	lpc18xx_wdt_stop(&lpc18xx_wdt->wdt_dev);
++}
++
++static int lpc18xx_wdt_remove(struct platform_device *pdev)
++{
++	struct lpc18xx_wdt_dev *lpc18xx_wdt = platform_get_drvdata(pdev);
++
++	unregister_restart_handler(&lpc18xx_wdt->restart_handler);
++
++	dev_warn(&pdev->dev, "I quit now, hardware will probably reboot!\n");
++	del_timer(&lpc18xx_wdt->timer);
++
++	watchdog_unregister_device(&lpc18xx_wdt->wdt_dev);
++	clk_disable_unprepare(lpc18xx_wdt->wdt_clk);
++	clk_disable_unprepare(lpc18xx_wdt->reg_clk);
++
++	return 0;
++}
++
++static const struct of_device_id lpc18xx_wdt_match[] = {
++	{ .compatible = "nxp,lpc1850-wwdt" },
++	{}
++};
++MODULE_DEVICE_TABLE(of, lpc18xx_wdt_match);
++
++static struct platform_driver lpc18xx_wdt_driver = {
++	.driver = {
++		.name = "lpc18xx-wdt",
++		.of_match_table	= lpc18xx_wdt_match,
++	},
++	.probe = lpc18xx_wdt_probe,
++	.remove = lpc18xx_wdt_remove,
++	.shutdown = lpc18xx_wdt_shutdown,
++};
++module_platform_driver(lpc18xx_wdt_driver);
++
++MODULE_AUTHOR("Ariel D'Alessandro <ariel@vanguardiasur.com.ar>");
++MODULE_DESCRIPTION("NXP LPC18xx Watchdog Timer Driver");
++MODULE_LICENSE("GPL v2");
+-- 
+1.9.1
