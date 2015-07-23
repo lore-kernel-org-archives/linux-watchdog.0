@@ -1,75 +1,43 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wi0-f171.google.com ([209.85.212.171]:37102 "EHLO
-	mail-wi0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751351AbbG2MKu (ORCPT
+Received: from smtp.codeaurora.org ([198.145.29.96]:54705 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753922AbbGWD4X (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 29 Jul 2015 08:10:50 -0400
-Received: by wibud3 with SMTP id ud3so23210304wib.0
-        for <linux-watchdog@vger.kernel.org>; Wed, 29 Jul 2015 05:10:48 -0700 (PDT)
-From: Matt Fleming <matt@codeblueprint.co.uk>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Jean Delvare <jdelvare@suse.com>,
-	Wolfram Sang <wsa@the-dreams.de>,
-	Matt Fleming <matt.fleming@intel.com>
-Subject: [PATCH v2 0/3] iTCO_wdt: Add support for Intel Sunrisepoint 
-Date: Wed, 29 Jul 2015 13:10:41 +0100
-Message-Id: <1438171844-24861-1-git-send-email-matt@codeblueprint.co.uk>
+	Wed, 22 Jul 2015 23:56:23 -0400
+Received: from mail-ig0-f176.google.com (mail-ig0-f176.google.com [209.85.213.176])
+	(using TLSv1.2 with cipher AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	(Authenticated sender: timur@smtp.codeaurora.org)
+	by smtp.codeaurora.org (Postfix) with ESMTPSA id 017FB141141
+	for <linux-watchdog@vger.kernel.org>; Thu, 23 Jul 2015 03:56:15 +0000 (UTC)
+Received: by iggf3 with SMTP id f3so149173488igg.1
+        for <linux-watchdog@vger.kernel.org>; Wed, 22 Jul 2015 20:56:15 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <1435596377-17737-1-git-send-email-timur@codeaurora.org>
+References: <1435596377-17737-1-git-send-email-timur@codeaurora.org>
+Date: Wed, 22 Jul 2015 22:56:15 -0500
+Message-ID: <CAOZdJXWbbWQr8wGJ0R9-gSrT+U+p+6Sz_NaFFWcZSZ8qmjxJiA@mail.gmail.com>
+Subject: Re: [PATCH] Documentation/watchdog: add timeout and ping rate control
+ to watchdog-test.c
+From: Timur Tabi <timur@codeaurora.org>
+To: Timur Tabi <timur@codeaurora.org>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Matt Fleming <matt.fleming@intel.com>
+On Mon, Jun 29, 2015 at 11:46 AM, Timur Tabi <timur@codeaurora.org> wrote:
+> The watchdog test program is much more useful if it can configure the
+> timeout value and ping rate.  This will allow you to test actual timeouts.
+>
+> Adds the -t parameter to set the timeout value (in seconds), and -p to set
+> the ping rate (number of seconds between pings).
+>
+> Signed-off-by: Timur Tabi <timur@codeaurora.org>
 
-Starting with Intel Sunrisepoint (Skylake PCH) the TCO watchdog device
-is now on the SMBUS, whereas for previous ICH/PCH it was on the LPC bus.
-
-Because iTCO_wdt devices may now appear on either the LPC bus or the
-SMBUS we need to abstract the bus information into an agnostic structure
-instead of the existing 'lpc_ich_info' which tightly integrates both the
-lpc_ich and iTCO_wdt drivers.
-
-The first patch introduces a platform data structure to handle this and
-shuffles the existing code around. The other patches add the
-device-specific information to the i2c-i801 and iTCO_wdt drivers.
-
-Patches based against v4.2-rc4, if there's some other tree I should base
-this on, please let me know.
-
-Comments welcome!
-
-Changes in v2:
-
- - Use lowercase for all new files and data structures
- - Allocate platform data with devm_kzalloc()
- - Move Kconfig changes to final patch and use 'select', not 'depends'
- - Swap strcpy() for strlcpy()
- - Fixup use of lpc_ich_info in intel_pmc_ipc which was missed in v1
- - Don't use bitops in i2c-i801
- - Remove superfluous NULL checks in i2c-i801
- - Explicitly list reboot bit versions in no_reboot_bit()
- - Use switch/case construst instead of crazy if else
- - Fold original fixups from PATCH 4 and 5 into PATCH 1 and 2
-
-
-Matt Fleming (2):
-  iTCO_wdt: Expose watchdog properties using platform data
-  iTCO_wdt: Add support for TCO on Intel Sunrisepoint
-
-Mika Westerberg (1):
-  i2c: i801: Create iTCO device on newer Intel PCHs
-
- drivers/i2c/busses/i2c-i801.c          | 120 ++++++++++++++++++++++++++++++++-
- drivers/mfd/lpc_ich.c                  |  32 ++++++++-
- drivers/platform/x86/intel_pmc_ipc.c   |   9 ++-
- drivers/watchdog/Kconfig               |   3 +-
- drivers/watchdog/iTCO_wdt.c            |  77 ++++++++++++---------
- include/linux/mfd/lpc_ich.h            |   6 --
- include/linux/platform_data/itco_wdt.h |  19 ++++++
- 7 files changed, 219 insertions(+), 47 deletions(-)
- create mode 100644 include/linux/platform_data/itco_wdt.h
+Wim, any chance of getting this patch into 4.2?
 
 -- 
-2.1.0
-
+Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project.
