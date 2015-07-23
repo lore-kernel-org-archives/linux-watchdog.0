@@ -1,124 +1,75 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:40225 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751410AbbGaHVp (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:53631 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753742AbbGWQMr (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 31 Jul 2015 03:21:45 -0400
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
-	<u.kleine-koenig@pengutronix.de>
-To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
-Cc: kernel@pengutronix.de, Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH] watchdog: gpio-wdt: ping already at startup for always running devices
-Date: Fri, 31 Jul 2015 09:21:36 +0200
-Message-Id: <1438327296-17904-1-git-send-email-u.kleine-koenig@pengutronix.de>
+	Thu, 23 Jul 2015 12:12:47 -0400
+Message-ID: <55B1127C.4080800@roeck-us.net>
+Date: Thu, 23 Jul 2015 09:12:44 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+To: Eddie Huang <eddie.huang@mediatek.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+CC: Matthias Brugger <matthias.bgg@gmail.com>,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
+	Sascha Hauer <kernel@pengutronix.de>,
+	Greta Zhang <greta.zhang@mediatek.com>
+Subject: Re: [PATCH v2 2/2] watchdog: add wdt shutdown callback to disable
+ wdt if enabled
+References: <1437630551-39650-1-git-send-email-eddie.huang@mediatek.com> <1437630551-39650-3-git-send-email-eddie.huang@mediatek.com>
+In-Reply-To: <1437630551-39650-3-git-send-email-eddie.huang@mediatek.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-During probe for an always-running watchdog a timer is setup to
-constantly ping the watchdog while the device is not open. The gpio to
-ping the watchdog is setup to inactive.
+On 07/22/2015 10:49 PM, Eddie Huang wrote:
+> From: Greta Zhang <greta.zhang@mediatek.com>
+>
+> Without .shutdown(), watchdog might reset the system during power off.
+> For example, if watchdog's timeout is set to 30s, then it is reset to
+> zero by mtk_wdt_ping(). During power off, no app will ping watchdog,
+> but watchdog is still running and may trigger reset.
+>
+> Signed-off-by: Greta Zhang <greta.zhang@mediatek.com>
+> Signed-off-by: Eddie Huang <eddie.huang@mediatek.com>
 
-For a watchdog with hw_algo = "toggle" this results in a ping depending
-on the initial state of the gpio, for hw_algo = "level" no ping is
-generated.
+Except for the subject line,
 
-Make sure that the first automatic ping is sent immediately and not only
-when the timer expires the first time. This makes the machine survive in
-case more than half of the watchdog timeout is already elapsed. (Which
-is very probable for the chip I'm faced with that has a timeout of one
-second.)
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
----
- drivers/watchdog/gpio_wdt.c | 60 ++++++++++++++++++++++-----------------------
- 1 file changed, 30 insertions(+), 30 deletions(-)
-
-diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
-index c2dff7d1b790..5d083528e6b9 100644
---- a/drivers/watchdog/gpio_wdt.c
-+++ b/drivers/watchdog/gpio_wdt.c
-@@ -50,12 +50,41 @@ static void gpio_wdt_disable(struct gpio_wdt_priv *priv)
- 		gpio_direction_input(priv->gpio);
- }
- 
-+static void gpio_wdt_hwping(unsigned long data)
-+{
-+	struct watchdog_device *wdd = (struct watchdog_device *)data;
-+	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
-+
-+	if (priv->armed && time_after(jiffies, priv->last_jiffies +
-+				      msecs_to_jiffies(wdd->timeout * 1000))) {
-+		dev_crit(wdd->dev, "Timer expired. System will reboot soon!\n");
-+		return;
-+	}
-+
-+	/* Restart timer */
-+	mod_timer(&priv->timer, jiffies + priv->hw_margin);
-+
-+	switch (priv->hw_algo) {
-+	case HW_ALGO_TOGGLE:
-+		/* Toggle output pin */
-+		priv->state = !priv->state;
-+		gpio_set_value_cansleep(priv->gpio, priv->state);
-+		break;
-+	case HW_ALGO_LEVEL:
-+		/* Pulse */
-+		gpio_set_value_cansleep(priv->gpio, !priv->active_low);
-+		udelay(1);
-+		gpio_set_value_cansleep(priv->gpio, priv->active_low);
-+		break;
-+	}
-+}
-+
- static void gpio_wdt_start_impl(struct gpio_wdt_priv *priv)
- {
- 	priv->state = priv->active_low;
- 	gpio_direction_output(priv->gpio, priv->state);
- 	priv->last_jiffies = jiffies;
--	mod_timer(&priv->timer, priv->last_jiffies + priv->hw_margin);
-+	gpio_wdt_hwping((unsigned long)&priv->wdd);
- }
- 
- static int gpio_wdt_start(struct watchdog_device *wdd)
-@@ -97,35 +126,6 @@ static int gpio_wdt_set_timeout(struct watchdog_device *wdd, unsigned int t)
- 	return gpio_wdt_ping(wdd);
- }
- 
--static void gpio_wdt_hwping(unsigned long data)
--{
--	struct watchdog_device *wdd = (struct watchdog_device *)data;
--	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
--
--	if (priv->armed && time_after(jiffies, priv->last_jiffies +
--				      msecs_to_jiffies(wdd->timeout * 1000))) {
--		dev_crit(wdd->dev, "Timer expired. System will reboot soon!\n");
--		return;
--	}
--
--	/* Restart timer */
--	mod_timer(&priv->timer, jiffies + priv->hw_margin);
--
--	switch (priv->hw_algo) {
--	case HW_ALGO_TOGGLE:
--		/* Toggle output pin */
--		priv->state = !priv->state;
--		gpio_set_value_cansleep(priv->gpio, priv->state);
--		break;
--	case HW_ALGO_LEVEL:
--		/* Pulse */
--		gpio_set_value_cansleep(priv->gpio, !priv->active_low);
--		udelay(1);
--		gpio_set_value_cansleep(priv->gpio, priv->active_low);
--		break;
--	}
--}
--
- static int gpio_wdt_notify_sys(struct notifier_block *nb, unsigned long code,
- 			       void *unused)
- {
--- 
-2.1.4
+> ---
+>   drivers/watchdog/mtk_wdt.c | 9 +++++++++
+>   1 file changed, 9 insertions(+)
+>
+> diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
+> index 056412c..6ad9df9 100644
+> --- a/drivers/watchdog/mtk_wdt.c
+> +++ b/drivers/watchdog/mtk_wdt.c
+> @@ -210,6 +210,14 @@ static int mtk_wdt_probe(struct platform_device *pdev)
+>   	return 0;
+>   }
+>
+> +static void mtk_wdt_shutdown(struct platform_device *pdev)
+> +{
+> +	struct mtk_wdt_dev *mtk_wdt = platform_get_drvdata(pdev);
+> +
+> +	if (watchdog_active(&mtk_wdt->wdt_dev))
+> +		mtk_wdt_stop(&mtk_wdt->wdt_dev);
+> +}
+> +
+>   static int mtk_wdt_remove(struct platform_device *pdev)
+>   {
+>   	struct mtk_wdt_dev *mtk_wdt = platform_get_drvdata(pdev);
+> @@ -259,6 +267,7 @@ static const struct dev_pm_ops mtk_wdt_pm_ops = {
+>   static struct platform_driver mtk_wdt_driver = {
+>   	.probe		= mtk_wdt_probe,
+>   	.remove		= mtk_wdt_remove,
+> +	.shutdown	= mtk_wdt_shutdown,
+>   	.driver		= {
+>   		.name		= DRV_NAME,
+>   		.pm		= &mtk_wdt_pm_ops,
+>
 
