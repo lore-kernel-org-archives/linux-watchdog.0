@@ -1,239 +1,74 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:54955 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751824AbbGXWpX (ORCPT
+Received: from down.free-electrons.com ([37.187.137.238]:60509 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1755205AbbGZTfG (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 24 Jul 2015 18:45:23 -0400
-Message-ID: <55B2BFFE.3090308@roeck-us.net>
-Date: Fri, 24 Jul 2015 15:45:18 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Sun, 26 Jul 2015 15:35:06 -0400
+Date: Sun, 26 Jul 2015 21:32:38 +0200
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+To: Francesco Lavra <francescolavra.fl@gmail.com>
+Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] watchdog: sunxi: fix activation of system reset
+Message-ID: <20150726193238.GM2564@lukather>
+References: <55B32BCE.5050506@gmail.com>
 MIME-Version: 1.0
-To: Ariel D'Alessandro <ariel@vanguardiasur.com.ar>,
-	linux-watchdog@vger.kernel.org
-CC: wim@iguana.be, ezequiel@vanguardiasur.com.ar,
-	linux-arm-kernel@lists.infradead.org, manabian@gmail.com
-Subject: Re: [PATCH v3 1/2] watchdog: NXP LPC18xx Watchdog Timer Driver
-References: <1436921445-11138-1-git-send-email-ariel@vanguardiasur.com.ar> <1436921445-11138-2-git-send-email-ariel@vanguardiasur.com.ar> <55AEE8F5.3020700@roeck-us.net> <55B150B0.9020100@vanguardiasur.com.ar> <55B15AF1.3030509@roeck-us.net> <55B243B3.7050702@vanguardiasur.com.ar> <55B245D1.1020208@roeck-us.net> <55B2A6CA.5090205@vanguardiasur.com.ar>
-In-Reply-To: <55B2A6CA.5090205@vanguardiasur.com.ar>
-Content-Type: text/plain; charset=windows-1252;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="P9KQiUGMzYCFwWCN"
+Content-Disposition: inline
+In-Reply-To: <55B32BCE.5050506@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 07/24/2015 01:57 PM, Ariel D'Alessandro wrote:
->
->
-> El 24/07/15 a las 11:04, Guenter Roeck escibi=F3:
->> On 07/24/2015 06:54 AM, Ariel D'Alessandro wrote:
->>>
->>>
->>> El 23/07/15 a las 18:21, Guenter Roeck escibi=F3:
->>>> On 07/23/2015 01:38 PM, Ariel D'Alessandro wrote:
->>>>> Hi Guenter,
->>>>>
->>>>> El 21/07/15 a las 21:51, Guenter Roeck escibi=F3:
->>>>>> On 07/14/2015 05:50 PM, Ariel D'Alessandro wrote:
->>>>>>> This commit adds support for the watchdog timer found in NXP LP=
-C SoCs
->>>>>>> family, which includes LPC18xx/LPC43xx. Other SoCs in that fami=
-ly may
->>>>>>> share the same watchdog hardware.
->>>>>>>
->>>>>>> Watchdog driver registers a restart handler that will restart t=
-he
->>>>>>> system
->>>>>>> by performing an incorrect feed after ensuring the watchdog is
->>>>>>> enabled in
->>>>>>> reset mode.
->>>>>>>
->>>>>>> As watchdog cannot be disabled in hardware, driver's stop routi=
-ne
->>>>>>> will
->>>>>>> regularly send a keepalive ping using a timer.
->>>>>>>
->>>>>>> Signed-off-by: Ariel D'Alessandro <ariel@vanguardiasur.com.ar>
->>>>>>
->>>>>> Hi Ariel,
->>>>>>
->>>>>> sorry for the delayed response. Comments below.
->>>>>>
->>>>>> Guenter
->>>>>>
->>>>>>> ---
->>>>>>>      drivers/watchdog/Kconfig       |  11 ++
->>>>>>>      drivers/watchdog/Makefile      |   1 +
->>>>>>>      drivers/watchdog/lpc18xx_wdt.c | 344
->>>>>>> +++++++++++++++++++++++++++++++++++++++++
->>>>>>>      3 files changed, 356 insertions(+)
->>>>>>>      create mode 100644 drivers/watchdog/lpc18xx_wdt.c
->>>>>>>
->>>>>>> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfi=
-g
->>>>>>> index 742fbbc..af5e2e3 100644
->>>>>>> --- a/drivers/watchdog/Kconfig
->>>>>>> +++ b/drivers/watchdog/Kconfig
->>>>>>> @@ -547,6 +547,17 @@ config DIGICOLOR_WATCHDOG
->>>>>>>            To compile this driver as a module, choose M here: t=
-he
->>>>>>>            module will be called digicolor_wdt.
->>>>>>>
->>>>>>> +config LPC18XX_WATCHDOG
->>>>>>> +    tristate "LPC18xx/43xx Watchdog"
->>>>>>> +    depends on ARCH_LPC18XX || COMPILE_TEST
->>>>>>> +    select WATCHDOG_CORE
->>>>>>> +    help
->>>>>>> +      Say Y here if to include support for the watchdog timer
->>>>>>> +      in NXP LPC SoCs family, which includes LPC18xx/LPC43xx
->>>>>>> +      processors.
->>>>>>> +      To compile this driver as a module, choose M here: the
->>>>>>> +      module will be called lpc18xx_wdt.
->>>>>>> +
->>>>>>>      # AVR32 Architecture
->>>>>>>
->>>>>>>      config AT32AP700X_WDT
->>>>>>> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makef=
-ile
->>>>>>> index 59ea9a1..1b0ef48 100644
->>>>>>> --- a/drivers/watchdog/Makefile
->>>>>>> +++ b/drivers/watchdog/Makefile
->>>>>>> @@ -66,6 +66,7 @@ obj-$(CONFIG_TEGRA_WATCHDOG) +=3D tegra_wdt.o
->>>>>>>      obj-$(CONFIG_MESON_WATCHDOG) +=3D meson_wdt.o
->>>>>>>      obj-$(CONFIG_MEDIATEK_WATCHDOG) +=3D mtk_wdt.o
->>>>>>>      obj-$(CONFIG_DIGICOLOR_WATCHDOG) +=3D digicolor_wdt.o
->>>>>>> +obj-$(CONFIG_LPC18XX_WATCHDOG) +=3D lpc18xx_wdt.o
->>>>>>>
->>>>>>>      # AVR32 Architecture
->>>>>>>      obj-$(CONFIG_AT32AP700X_WDT) +=3D at32ap700x_wdt.o
->>>>>>> diff --git a/drivers/watchdog/lpc18xx_wdt.c
->>>>>>> b/drivers/watchdog/lpc18xx_wdt.c
->>>>>>> new file mode 100644
->>>>>>> index 0000000..2b489fc
->>>>>>> --- /dev/null
->>>>>>> +++ b/drivers/watchdog/lpc18xx_wdt.c
->>>>>>> @@ -0,0 +1,344 @@
->>>>>>> +/*
->>>>>>> + * NXP LPC18xx Watchdog Timer (WDT)
->>>>>>> + *
->>>>>>> + * Copyright (c) 2015 Ariel D'Alessandro <ariel@vanguardiasur.=
-com>
->>>>>>> + *
->>>>>>> + * This program is free software; you can redistribute it and/=
-or
->>>>>>> modify it
->>>>>>> + * under the terms of the GNU General Public License version 2=
- as
->>>>>>> published by
->>>>>>> + * the Free Software Foundation.
->>>>>>> + *
->>>>>>> + * Notes
->>>>>>> + * -----
->>>>>>> + * The Watchdog consists of a fixed divide-by-4 clock pre-scal=
-er and
->>>>>>> a 24-bit
->>>>>>> + * counter which decrements on every clock cycle.
->>>>>>> + *
->>>>>>> + */
->>>>>>> +
->>>>>>> +#include <linux/clk.h>
->>>>>>> +#include <linux/io.h>
->>>>>>> +#include <linux/module.h>
->>>>>>> +#include <linux/of.h>
->>>>>>> +#include <linux/platform_device.h>
->>>>>>> +#include <linux/reboot.h>
->>>>>>> +#include <linux/watchdog.h>
->>>>>>> +
->>>>>>> +/* Registers */
->>>>>>> +#define LPC18XX_WDT_MOD            0x00
->>>>>>> +#define LPC18XX_WDT_MOD_WDEN        BIT(0)
->>>>>>> +#define LPC18XX_WDT_MOD_WDRESET        BIT(1)
->>>>>>> +#define LPC18XX_WDT_MOD_WDTOF_MASK    0x04
->>>>>>
->>>>>> Not used.
->>>>>
->>>>> That's right. I'll remove it.
->>>>>
->>>>>>
->>>>>>> +
->>>>>>> +#define LPC18XX_WDT_TC            0x04
->>>>>>> +#define LPC18XX_WDT_TC_MIN        0xff
->>>>>>> +#define LPC18XX_WDT_TC_MAX        0xffffff
->>>>>>> +
->>>>>>> +#define LPC18XX_WDT_FEED        0x08
->>>>>>> +#define LPC18XX_WDT_FEED_MAGIC1        0xaa
->>>>>>> +#define LPC18XX_WDT_FEED_MAGIC2        0x55
->>>>>>> +
->>>>>>> +#define LPC18XX_WDT_TV            0x0c
->>>>>>> +
->>>>>>> +/* Clock pre-scaler */
->>>>>>> +#define LPC18XX_WDT_CLK_DIV        4
->>>>>>> +
->>>>>>> +/* Timeout values in seconds */
->>>>>>> +#define LPC18XX_WDT_DEF_TIMEOUT        5
->>>>>>> +
->>>>>>
->>>>>> This is (still) really low for Linux. Something like min(30,
->>>>>> max_timeout)
->>>>>> might make more sense.
->>>>>
->>>>> Remember that hardware limits timeout to a maximum value of 5.
->>>>>
->>>>> As you said before we could use a soft timer, but I not sure that=
-'s a
->>>>> good idea. As Ezequiel said [0], it might be adding bloat and we =
-must
->>>>> consider that this watchdog controller is included in cortex-M MC=
-Us.
->>>>>
->>>>> [0] http://www.spinics.net/lists/linux-watchdog/msg06904.html
->>>>>
->>>>
->>>> Further down you have
->>>>       lpc18xx_wdt->wdt_dev.max_timeout =3D (LPC18XX_WDT_TC_MAX *
->>>>                             LPC18XX_WDT_CLK_DIV) / clk_rate;
->>>>
->>>> which seems to contradict this statement. If the maximum timeout i=
-s 5
->>>> seconds,
->>>> why don't you set max_timeout to a fixed value of 5 seconds ?
->>>
->>> Well, I think that's the less hardcoded way. It might allow the dri=
-ver
->>> to be extended to another HW variant that configures the wdt clk ra=
-te.
->>>
->>> I see what's your point. As you proposed, using the same criterion =
-I
->>> should do this:
->>>
->>> #define LPC18XX_WDT_DEF_TIMEOUT         (unsigned int)30
->>>
->>> and further down, in probe function:
->>>
->>> lpc18xx_wdt->wdt_dev.timeout =3D min(LPC18XX_WDT_DEF_TIMEOUT,
->>>                     lpc18xx_wdt->wdt_dev.max_timeout);
->>>
->>> Is this close enough to your solution?
->>>
->> Yes, but why the typecast for LPC18XX_WDT_DEF_TIMEOUT ?
->>
->
-> Otherwise the compiler will warn about a comparison of distinct point=
-er
-> types in expansion of the macro 'min'.
->
-> Should it be casted when using it better than in definition?
->
-Pointer types sounds odd. What exactly is the message ?
 
-How about using the following ?
+--P9KQiUGMzYCFwWCN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-	#define LPC18XX_WDT_DEF_TIMEOUT		30U
+On Sat, Jul 25, 2015 at 08:25:18AM +0200, Francesco Lavra wrote:
+> Commit f2147de33470 ("watchdog: sunxi: support parameterized compatible
+> strings") introduced a regression in sunxi_wdt_start(), by which
+> the system reset function of the watchdog is not enabled upon
+> starting the watchdog. As a result, the system is not reset when the
+> watchdog expires. Fix it.=20
+>=20
+> Signed-off-by: Francesco Lavra <francescolavra.fl@gmail.com>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> Fixes: f2147de33470 ("watchdog: sunxi: support parameterized compatible s=
+trings")
+> Cc: stable@vger.kernel.org
 
-Guenter
+Acked-by: Maxime Ripard <maxime.ripard@free-electrons.com>
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks!
+Maxime
+
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--P9KQiUGMzYCFwWCN
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVtTXWAAoJEBx+YmzsjxAgzIEQAJFbwDbSjPAm3gYFeqL0p/z0
+QmUSvsVhU18SA/brUNBel8tvJjGkyI6Vhgu9KuaYgbi4GFyYRW9ep/qLpfVhBSra
+nS19JCnATjRqkQpOqQ31NIEiRDmalVvvPR+sPWcgSyYeC5DFGATemtBg0wSqJmDE
+kx4654NKv3UeWtI1n6G73z3+ZPmhuA58R9SzCxlOAbiTgpJW0VKR05DCJumjgtdg
+bw4pT8aGgKPjF17ur0Woapk7m3yh1la0npfjQI8ukmDvzU8JP0jEMV8IZd/AyPtC
+Jezz8bndDR7TitLc+mX2mLA1pIU88QPM0uThRuHW46Jh7CYEzs2PLoCxMd0Fk9B6
+ai+RTLOa7n+F9KF2D092HAP5dilJuAoabQPx05g5rqjl+rU13XVJSHoD9I56c7XH
+QwmnSXOSDg5NruIBOomokE5CavoEr+43AIK7otkWzEssPMTMMaOQVaZljRlQ1pTW
+nnUQA+idesM/P/IKfvE06raR/we8Er11jyfdM0kGK2+21EEVs7HgR1OxwkAVOxgB
+4PH6ClCD7lfLGrKJY6U+XKXe3s7D63HXreftZgcznr+apRsK4tz9I8dqwNUSArb/
+dKnkFm82JXxK1B6Z21hFuC1VidCd4ge1HpJAw8EnoVL9GfKphkQRDArdnag29qoG
+RKmzuh3092y2Xy8hQopT
+=pjxp
+-----END PGP SIGNATURE-----
+
+--P9KQiUGMzYCFwWCN--
