@@ -1,64 +1,96 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wi0-f182.google.com ([209.85.212.182]:37548 "EHLO
-	mail-wi0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751668AbbG0NiR (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:47495 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752235AbbG0NtN (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 27 Jul 2015 09:38:17 -0400
-Received: by wibud3 with SMTP id ud3so116362791wib.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 27 Jul 2015 06:38:16 -0700 (PDT)
-From: Matt Fleming <matt@codeblueprint.co.uk>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	Mon, 27 Jul 2015 09:49:13 -0400
+Message-ID: <55B636D4.6020709@roeck-us.net>
+Date: Mon, 27 Jul 2015 06:49:08 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+MIME-Version: 1.0
+To: Matt Fleming <matt@codeblueprint.co.uk>,
+	Wim Van Sebroeck <wim@iguana.be>
+CC: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
 	Mika Westerberg <mika.westerberg@linux.intel.com>,
 	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
 	Jean Delvare <jdelvare@suse.com>,
 	Wolfram Sang <wsa@the-dreams.de>,
-	Matt Fleming <matt.fleming@intel.com>
-Subject: [PATCH 0/5] iTCO_wdt: Add support for Intel Sunrisepoint
-Date: Mon, 27 Jul 2015 14:38:07 +0100
-Message-Id: <1438004292-16382-1-git-send-email-matt@codeblueprint.co.uk>
+	Matt Fleming <matt.fleming@intel.com>,
+	Peter Tyser <ptyser@xes-inc.com>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 1/5] iTCO_wdt: Expose watchdog properties using platform
+ data
+References: <1438004292-16382-1-git-send-email-matt@codeblueprint.co.uk> <1438004292-16382-2-git-send-email-matt@codeblueprint.co.uk>
+In-Reply-To: <1438004292-16382-2-git-send-email-matt@codeblueprint.co.uk>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Matt Fleming <matt.fleming@intel.com>
+On 07/27/2015 06:38 AM, Matt Fleming wrote:
+> From: Matt Fleming <matt.fleming@intel.com>
+>
+> Intel Sunrisepoint (Skylake PCH) has the iTCO watchdog accessible across
+> the SMBus, unlike previous generations of PCH/ICH where it was on the
+> LPC bus. Because it's on the SMBus, it doesn't make sense to pass around
+> a 'struct lpc_ich_info', and leaking the type of bus into the iTCO
+> watchdog driver is kind of backwards anyway.
+>
+> This change introduces a new 'struct iTCO_wdt_platform_data' for use
+> inside the iTCO watchdog driver and by the upcoming Intel Sunrisepoint
+> code, which neatly avoids having to include lpc_ich headers in the i801
+> i2c driver.
+>
+> A simple translation layer is provided for converting from the existing
+> 'struct lpc_ich_info' inside the lpc_ich mfd driver.
+>
+> Cc: Peter Tyser <ptyser@xes-inc.com>
+> Cc: Samuel Ortiz <sameo@linux.intel.com>
+> Cc: Lee Jones <lee.jones@linaro.org>
+> Cc: Wim Van Sebroeck <wim@iguana.be>
+> Signed-off-by: Matt Fleming <matt.fleming@intel.com>
+> ---
+>   drivers/mfd/lpc_ich.c                  | 32 +++++++++++++++++++++++++++++---
+>   drivers/watchdog/Kconfig               |  2 +-
+>   drivers/watchdog/iTCO_wdt.c            | 11 +++++------
+>   include/linux/mfd/lpc_ich.h            |  6 ------
+>   include/linux/platform_data/iTCO_wdt.h | 18 ++++++++++++++++++
+>   5 files changed, 53 insertions(+), 16 deletions(-)
+>   create mode 100644 include/linux/platform_data/iTCO_wdt.h
+>
+> diff --git a/drivers/mfd/lpc_ich.c b/drivers/mfd/lpc_ich.c
+> index 8de34398abc0..d190b74a6321 100644
+> --- a/drivers/mfd/lpc_ich.c
+> +++ b/drivers/mfd/lpc_ich.c
+> @@ -66,6 +66,7 @@
+>   #include <linux/pci.h>
+>   #include <linux/mfd/core.h>
+>   #include <linux/mfd/lpc_ich.h>
+> +#include <linux/platform_data/iTCO_wdt.h>
+>
+>   #define ACPIBASE		0x40
+>   #define ACPIBASE_GPE_OFF	0x28
+> @@ -835,9 +836,31 @@ static void lpc_ich_enable_pmc_space(struct pci_dev *dev)
+>   	priv->actrl_pbase_save = reg_save;
+>   }
+>
+> -static void lpc_ich_finalize_cell(struct pci_dev *dev, struct mfd_cell *cell)
+> +static int lpc_ich_finalize_wdt_cell(struct pci_dev *dev)
+>   {
+> +	struct iTCO_wdt_platform_data *pdata;
+>   	struct lpc_ich_priv *priv = pci_get_drvdata(dev);
+> +	struct lpc_ich_info *info;
+> +	struct mfd_cell *cell = &lpc_ich_cells[LPC_WDT];
+> +
+> +	pdata = kzalloc(sizeof(*pdata), GFP_KERNEL);
+> +	if (!pdata)
+> +		return -ENOMEM;
+> +
 
-Starting with Intel Sunrisepoint (Skylake PCH) the TCO watchdog device
-is now on the SMBUS, whereas for previous ICH/PCH it was on the LPC bus.
+I don't see the platform data freed anywhere, neither in the error path nor
+in the cleanup path of this driver. Can you use devm_kzalloc() ?
+Otherwise I think you'll need a cleanup path.
 
-Because iTCO_wdt devices may now appear on either the LPC bus or the
-SMBUS we need to abstract the bus information into an agnostic structure
-instead of the existing 'lpc_ich_info' which tightly integrates both the
-lpc_ich and iTCO_wdt drivers.
-
-The first patch introduces a platform data structure to handle this and
-shuffles the existing code around. The other patches add the
-device-specific information to the i2c-i801 and iTCO_wdt drivers.
-
-Patches based against v4.2-rc4, if there's some other tree I should base
-this on, please let me know.
-
-Comments welcome!
-
-Andy Shevchenko (2):
-  iTCO_wdt: fixup for the header
-  i2c-i801: fixup regarding watchdog timer
-
-Matt Fleming (2):
-  iTCO_wdt: Expose watchdog properties using platform data
-  iTCO_wdt: Add support for TCO on Intel Sunrisepoint
-
-Mika Westerberg (1):
-  i2c: i801: Create iTCO device on newer Intel PCHs
-
- drivers/i2c/busses/i2c-i801.c          | 128 ++++++++++++++++++++++++++++++++-
- drivers/mfd/lpc_ich.c                  |  32 ++++++++-
- drivers/watchdog/Kconfig               |   2 +-
- drivers/watchdog/iTCO_wdt.c            |  69 ++++++++++--------
- include/linux/mfd/lpc_ich.h            |   6 --
- include/linux/platform_data/iTCO_wdt.h |  19 +++++
- 6 files changed, 215 insertions(+), 41 deletions(-)
- create mode 100644 include/linux/platform_data/iTCO_wdt.h
-
--- 
-2.1.0
+Guenter
 
