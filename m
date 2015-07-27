@@ -1,88 +1,60 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:36020 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750860AbbG2Hiq (ORCPT
+Received: from mail-qg0-f46.google.com ([209.85.192.46]:32914 "EHLO
+	mail-qg0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753825AbbG0FFa (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 29 Jul 2015 03:38:46 -0400
-Received: by wicgb10 with SMTP id gb10so187488590wic.1
-        for <linux-watchdog@vger.kernel.org>; Wed, 29 Jul 2015 00:38:45 -0700 (PDT)
-Date: Wed, 29 Jul 2015 08:38:41 +0100
-From: Lee Jones <lee.jones@linaro.org>
-To: Aaron Sierra <asierra@xes-inc.com>
-Cc: Matt Fleming <matt@codeblueprint.co.uk>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Jean Delvare <jdelvare@suse.com>,
-	Wolfram Sang <wsa@the-dreams.de>,
-	Matt Fleming <matt.fleming@intel.com>,
-	Peter Tyser <ptyser@xes-inc.com>,
-	Samuel Ortiz <sameo@linux.intel.com>
-Subject: Re: [PATCH 1/5] iTCO_wdt: Expose watchdog properties using platform
- data
-Message-ID: <20150729073841.GF2284@x1>
-References: <1438004292-16382-1-git-send-email-matt@codeblueprint.co.uk>
- <1438004292-16382-2-git-send-email-matt@codeblueprint.co.uk>
- <20150728094643.GT14943@x1>
- <20150728110717.GH2492@codeblueprint.co.uk>
- <20150728113721.GU14943@x1>
- <72454140.319490.1438109162683.JavaMail.zimbra@xes-inc.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <72454140.319490.1438109162683.JavaMail.zimbra@xes-inc.com>
+	Mon, 27 Jul 2015 01:05:30 -0400
+Received: by qged69 with SMTP id d69so44665351qge.0
+        for <linux-watchdog@vger.kernel.org>; Sun, 26 Jul 2015 22:05:29 -0700 (PDT)
+From: Ariel D'Alessandro <ariel@vanguardiasur.com.ar>
+To: linux-watchdog@vger.kernel.org
+Cc: wim@iguana.be, linux@roeck-us.net, ezequiel@vanguardiasur.com.ar,
+	linux-arm-kernel@lists.infradead.org, manabian@gmail.com,
+	Ariel D'Alessandro <ariel@vanguardiasur.com.ar>
+Subject: [PATCH v4 0/2] Add support for NXP LPC18xx Watchdog timer
+Date: Mon, 27 Jul 2015 02:04:51 -0300
+Message-Id: <1437973493-26872-1-git-send-email-ariel@vanguardiasur.com.ar>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, 28 Jul 2015, Aaron Sierra wrote:
+This patch series adds support for the watchdog timer found in NXP LPC
+SoCs family which includes LPC18xx/LPC43xx. Other SoCs in that family may
+share the same watchdog hardware.
 
-> > > > > @@ -933,7 +956,7 @@ gpe0_done:
-> > > > >  	lpc_chipset_info[priv->chipset].use_gpio = ret;
-> > > > >  	lpc_ich_enable_gpio_space(dev);
-> > > > >  
-> > > > > -	lpc_ich_finalize_cell(dev, &lpc_ich_cells[LPC_GPIO]);
-> > > > > +	lpc_ich_finalize_gpio_cell(dev);
-> > > > >  	ret = mfd_add_devices(&dev->dev, PLATFORM_DEVID_AUTO,
-> > > > >  			      &lpc_ich_cells[LPC_GPIO], 1, NULL, 0, NULL);
-> > > > >  
-> > > > > @@ -1007,7 +1030,10 @@ static int lpc_ich_init_wdt(struct pci_dev *dev)
-> > > > >  		res->end = base_addr + ACPIBASE_PMC_END;
-> > > > >  	}
-> > > > >  
-> > > > > -	lpc_ich_finalize_cell(dev, &lpc_ich_cells[LPC_WDT]);
-> > > > > +	ret = lpc_ich_finalize_wdt_cell(dev);
-> > > > > +	if (ret)
-> > > > > +		goto wdt_done;
-> > > > > +
-> > > > >  	ret = mfd_add_devices(&dev->dev, PLATFORM_DEVID_AUTO,
-> > > > >  			      &lpc_ich_cells[LPC_WDT], 1, NULL, 0, NULL);
-> > > > 
-> > > > Why do you have an mfd_add_devices() call for each device?
-> > >  
-> > > Good question. This call has been present since March 2012 when support
-> > > was first added for iTCO_wdt in commit 887c8ec7219f ("watchdog: Convert
-> > > iTCO_wdt driver to mfd model").
-> > > 
-> > > There's no good reason that I can see. Aaron?
-> 
-> I chose to call mfd_add_devices() in each device init function
-> because I thought it was the easiest way to avoid registering an
-> incomplete/invalid MFD cell should an error occur during init.
-> 
-> That way device registration wouldn't be an all-or-nothing affair.
-> 
-> Doesn't mfd_add_devices() bail out after the first unsuccessful
-> mfd to platform device translation?
+Patchset is based on tag next-20150624 of the linux-next repository.
+It has been successfully tested on a Hitex LPC4350 Evaluation Board and
+on a CIAA NXP LPC4337 Board.
 
-Right, as it should.
+Changes since v3:
+* Changed default timeout to 30.
+* Minor changes.
 
-Under what circumstance would an error occur and you'd wish to carry
-on registering devices?
+Changes since v2:
+* Changed config tristate to "LPC18xx/43xx".
+* Added COMPILE_TEST as a dependency.
+* Replaced raw_local_irq* calls by spinlock.
+* Changed dt compatible string to "nxp,lpc1850-wwdt".
+
+Changes since v1:
+* Dropped "Windowed" term in Watchdog's name.
+* Changed default timeout value from 1 to 5 because it was too tight.
+* Fixed module remove function, since it was keeping the timer enabled. Warning
+  message was added.
+* Changed dt compatible string to "nxp,lpc1850-wdt".
+* Renamed clocks matching most of the other lpc18xx drivers.
+
+Ariel D'Alessandro (2):
+  watchdog: NXP LPC18xx Watchdog Timer Driver
+  DT: watchdog: Add NXP LPC18xx Watchdog Timer binding documentation
+
+ .../devicetree/bindings/watchdog/lpc18xx-wdt.txt   |  19 ++
+ drivers/watchdog/Kconfig                           |  11 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/lpc18xx_wdt.c                     | 342 +++++++++++++++++++++
+ 4 files changed, 373 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/lpc18xx-wdt.txt
+ create mode 100644 drivers/watchdog/lpc18xx_wdt.c
 
 -- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+1.9.1
+
