@@ -1,11 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wi0-f169.google.com ([209.85.212.169]:33195 "EHLO
-	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753253AbbG0Nib (ORCPT
+Received: from mail-wi0-f173.google.com ([209.85.212.173]:36190 "EHLO
+	mail-wi0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753332AbbG0Ni2 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 27 Jul 2015 09:38:31 -0400
-Received: by wicmv11 with SMTP id mv11so139824409wic.0
-        for <linux-watchdog@vger.kernel.org>; Mon, 27 Jul 2015 06:38:30 -0700 (PDT)
+	Mon, 27 Jul 2015 09:38:28 -0400
+Received: by wicgb10 with SMTP id gb10so112859611wic.1
+        for <linux-watchdog@vger.kernel.org>; Mon, 27 Jul 2015 06:38:26 -0700 (PDT)
 From: Matt Fleming <matt@codeblueprint.co.uk>
 To: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
@@ -14,9 +14,9 @@ Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
 	Jean Delvare <jdelvare@suse.com>,
 	Wolfram Sang <wsa@the-dreams.de>,
 	Matt Fleming <matt.fleming@intel.com>
-Subject: [PATCH 5/5] i2c-i801: fixup regarding watchdog timer
-Date: Mon, 27 Jul 2015 14:38:12 +0100
-Message-Id: <1438004292-16382-6-git-send-email-matt@codeblueprint.co.uk>
+Subject: [PATCH 4/5] iTCO_wdt: fixup for the header
+Date: Mon, 27 Jul 2015 14:38:11 +0100
+Message-Id: <1438004292-16382-5-git-send-email-matt@codeblueprint.co.uk>
 In-Reply-To: <1438004292-16382-1-git-send-email-matt@codeblueprint.co.uk>
 References: <1438004292-16382-1-git-send-email-matt@codeblueprint.co.uk>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -24,41 +24,27 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Change &array[0] to array since it's the same.
-
-It fixes 80 character limit warning as well.
+Prevent nested inclusion of the header.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Jean Delvare <jdelvare@suse.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>
+Cc: Wim Van Sebroeck <wim@iguana.be>
 Signed-off-by: Matt Fleming <matt.fleming@intel.com>
 ---
- drivers/i2c/busses/i2c-i801.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ include/linux/platform_data/iTCO_wdt.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index c79dbe116ccc..e41005927746 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -1173,7 +1173,8 @@ static void i801_add_tco(struct i801_priv *priv)
- 	if (!(tco_ctl & TCOCTL_EN))
- 		return;
+diff --git a/include/linux/platform_data/iTCO_wdt.h b/include/linux/platform_data/iTCO_wdt.h
+index ce53c2b01f6d..0d4f0e87594f 100644
+--- a/include/linux/platform_data/iTCO_wdt.h
++++ b/include/linux/platform_data/iTCO_wdt.h
+@@ -3,6 +3,7 @@
+  */
  
--	memset(&tco_res[0], 0, sizeof(tco_res));
-+	memset(tco_res, 0, sizeof(tco_res));
-+
- 	res = &tco_res[ICH_RES_IO_TCO];
- 	res->start = tco_base & ~1;
- 	res->end = res->start + 32 - 1;
-@@ -1226,7 +1227,7 @@ static void i801_add_tco(struct i801_priv *priv)
- 	res->flags = IORESOURCE_MEM;
+ #ifndef _ITCO_WDT_H_
++#define _ITCO_WDT_H_
  
- 	pdev = platform_device_register_resndata(&pci_dev->dev, "iTCO_wdt", -1,
--						 &tco_res[0], 3, &tco_platform_data,
-+						 tco_res, 3, &tco_platform_data,
- 						 sizeof(tco_platform_data));
- 	if (IS_ERR(pdev)) {
- 		dev_warn(&pci_dev->dev, "failed to create iTCO device\n");
+ /* Watchdog resources */
+ #define ICH_RES_IO_TCO		0
 -- 
 2.1.0
 
