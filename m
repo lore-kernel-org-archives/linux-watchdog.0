@@ -1,255 +1,87 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qg0-f54.google.com ([209.85.192.54]:34307 "EHLO
-	mail-qg0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755216AbbGZUtm (ORCPT
+Received: from mail-wi0-f172.google.com ([209.85.212.172]:36656 "EHLO
+	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752205AbbG0Pdu (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 26 Jul 2015 16:49:42 -0400
-Received: by qgeu79 with SMTP id u79so40202741qge.1
-        for <linux-watchdog@vger.kernel.org>; Sun, 26 Jul 2015 13:49:41 -0700 (PDT)
-Message-ID: <55B547E0.5060501@vanguardiasur.com.ar>
-Date: Sun, 26 Jul 2015 17:49:36 -0300
-From: Ariel D'Alessandro <ariel@vanguardiasur.com.ar>
+	Mon, 27 Jul 2015 11:33:50 -0400
+Received: by wicgb10 with SMTP id gb10so117817154wic.1
+        for <linux-watchdog@vger.kernel.org>; Mon, 27 Jul 2015 08:33:49 -0700 (PDT)
+Date: Mon, 27 Jul 2015 16:33:44 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Matt Fleming <matt@codeblueprint.co.uk>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Jean Delvare <jdelvare@suse.com>,
+	Wolfram Sang <wsa@the-dreams.de>,
+	Matt Fleming <matt.fleming@intel.com>,
+	Peter Tyser <ptyser@xes-inc.com>,
+	Samuel Ortiz <sameo@linux.intel.com>
+Subject: Re: [PATCH 1/5] iTCO_wdt: Expose watchdog properties using platform
+ data
+Message-ID: <20150727153344.GC21114@x1>
+References: <1438004292-16382-1-git-send-email-matt@codeblueprint.co.uk>
+ <1438004292-16382-2-git-send-email-matt@codeblueprint.co.uk>
 MIME-Version: 1.0
-To: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org
-CC: wim@iguana.be, ezequiel@vanguardiasur.com.ar,
-	linux-arm-kernel@lists.infradead.org, manabian@gmail.com
-Subject: Re: [PATCH v3 1/2] watchdog: NXP LPC18xx Watchdog Timer Driver
-References: <1436921445-11138-1-git-send-email-ariel@vanguardiasur.com.ar> <1436921445-11138-2-git-send-email-ariel@vanguardiasur.com.ar> <55AEE8F5.3020700@roeck-us.net> <55B150B0.9020100@vanguardiasur.com.ar> <55B15AF1.3030509@roeck-us.net> <55B243B3.7050702@vanguardiasur.com.ar> <55B245D1.1020208@roeck-us.net> <55B2A6CA.5090205@vanguardiasur.com.ar> <55B2BFFE.3090308@roeck-us.net>
-In-Reply-To: <55B2BFFE.3090308@roeck-us.net>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: QUOTED-PRINTABLE
+In-Reply-To: <1438004292-16382-2-git-send-email-matt@codeblueprint.co.uk>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Guenter,
+On Mon, 27 Jul 2015, Matt Fleming wrote:
 
-El 24/07/15 a las 19:45, Guenter Roeck escibi=F3:
-> On 07/24/2015 01:57 PM, Ariel D'Alessandro wrote:
->>
->>
->> El 24/07/15 a las 11:04, Guenter Roeck escibi=F3:
->>> On 07/24/2015 06:54 AM, Ariel D'Alessandro wrote:
->>>>
->>>>
->>>> El 23/07/15 a las 18:21, Guenter Roeck escibi=F3:
->>>>> On 07/23/2015 01:38 PM, Ariel D'Alessandro wrote:
->>>>>> Hi Guenter,
->>>>>>
->>>>>> El 21/07/15 a las 21:51, Guenter Roeck escibi=F3:
->>>>>>> On 07/14/2015 05:50 PM, Ariel D'Alessandro wrote:
->>>>>>>> This commit adds support for the watchdog timer found in NXP L=
-PC
->>>>>>>> SoCs
->>>>>>>> family, which includes LPC18xx/LPC43xx. Other SoCs in that
->>>>>>>> family may
->>>>>>>> share the same watchdog hardware.
->>>>>>>>
->>>>>>>> Watchdog driver registers a restart handler that will restart =
-the
->>>>>>>> system
->>>>>>>> by performing an incorrect feed after ensuring the watchdog is
->>>>>>>> enabled in
->>>>>>>> reset mode.
->>>>>>>>
->>>>>>>> As watchdog cannot be disabled in hardware, driver's stop rout=
-ine
->>>>>>>> will
->>>>>>>> regularly send a keepalive ping using a timer.
->>>>>>>>
->>>>>>>> Signed-off-by: Ariel D'Alessandro <ariel@vanguardiasur.com.ar>
->>>>>>>
->>>>>>> Hi Ariel,
->>>>>>>
->>>>>>> sorry for the delayed response. Comments below.
->>>>>>>
->>>>>>> Guenter
->>>>>>>
->>>>>>>> ---
->>>>>>>>      drivers/watchdog/Kconfig       |  11 ++
->>>>>>>>      drivers/watchdog/Makefile      |   1 +
->>>>>>>>      drivers/watchdog/lpc18xx_wdt.c | 344
->>>>>>>> +++++++++++++++++++++++++++++++++++++++++
->>>>>>>>      3 files changed, 356 insertions(+)
->>>>>>>>      create mode 100644 drivers/watchdog/lpc18xx_wdt.c
->>>>>>>>
->>>>>>>> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconf=
-ig
->>>>>>>> index 742fbbc..af5e2e3 100644
->>>>>>>> --- a/drivers/watchdog/Kconfig
->>>>>>>> +++ b/drivers/watchdog/Kconfig
->>>>>>>> @@ -547,6 +547,17 @@ config DIGICOLOR_WATCHDOG
->>>>>>>>            To compile this driver as a module, choose M here: =
-the
->>>>>>>>            module will be called digicolor_wdt.
->>>>>>>>
->>>>>>>> +config LPC18XX_WATCHDOG
->>>>>>>> +    tristate "LPC18xx/43xx Watchdog"
->>>>>>>> +    depends on ARCH_LPC18XX || COMPILE_TEST
->>>>>>>> +    select WATCHDOG_CORE
->>>>>>>> +    help
->>>>>>>> +      Say Y here if to include support for the watchdog timer
->>>>>>>> +      in NXP LPC SoCs family, which includes LPC18xx/LPC43xx
->>>>>>>> +      processors.
->>>>>>>> +      To compile this driver as a module, choose M here: the
->>>>>>>> +      module will be called lpc18xx_wdt.
->>>>>>>> +
->>>>>>>>      # AVR32 Architecture
->>>>>>>>
->>>>>>>>      config AT32AP700X_WDT
->>>>>>>> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Make=
-file
->>>>>>>> index 59ea9a1..1b0ef48 100644
->>>>>>>> --- a/drivers/watchdog/Makefile
->>>>>>>> +++ b/drivers/watchdog/Makefile
->>>>>>>> @@ -66,6 +66,7 @@ obj-$(CONFIG_TEGRA_WATCHDOG) +=3D tegra_wdt.=
-o
->>>>>>>>      obj-$(CONFIG_MESON_WATCHDOG) +=3D meson_wdt.o
->>>>>>>>      obj-$(CONFIG_MEDIATEK_WATCHDOG) +=3D mtk_wdt.o
->>>>>>>>      obj-$(CONFIG_DIGICOLOR_WATCHDOG) +=3D digicolor_wdt.o
->>>>>>>> +obj-$(CONFIG_LPC18XX_WATCHDOG) +=3D lpc18xx_wdt.o
->>>>>>>>
->>>>>>>>      # AVR32 Architecture
->>>>>>>>      obj-$(CONFIG_AT32AP700X_WDT) +=3D at32ap700x_wdt.o
->>>>>>>> diff --git a/drivers/watchdog/lpc18xx_wdt.c
->>>>>>>> b/drivers/watchdog/lpc18xx_wdt.c
->>>>>>>> new file mode 100644
->>>>>>>> index 0000000..2b489fc
->>>>>>>> --- /dev/null
->>>>>>>> +++ b/drivers/watchdog/lpc18xx_wdt.c
->>>>>>>> @@ -0,0 +1,344 @@
->>>>>>>> +/*
->>>>>>>> + * NXP LPC18xx Watchdog Timer (WDT)
->>>>>>>> + *
->>>>>>>> + * Copyright (c) 2015 Ariel D'Alessandro <ariel@vanguardiasur=
-=2Ecom>
->>>>>>>> + *
->>>>>>>> + * This program is free software; you can redistribute it and=
-/or
->>>>>>>> modify it
->>>>>>>> + * under the terms of the GNU General Public License version =
-2 as
->>>>>>>> published by
->>>>>>>> + * the Free Software Foundation.
->>>>>>>> + *
->>>>>>>> + * Notes
->>>>>>>> + * -----
->>>>>>>> + * The Watchdog consists of a fixed divide-by-4 clock
->>>>>>>> pre-scaler and
->>>>>>>> a 24-bit
->>>>>>>> + * counter which decrements on every clock cycle.
->>>>>>>> + *
->>>>>>>> + */
->>>>>>>> +
->>>>>>>> +#include <linux/clk.h>
->>>>>>>> +#include <linux/io.h>
->>>>>>>> +#include <linux/module.h>
->>>>>>>> +#include <linux/of.h>
->>>>>>>> +#include <linux/platform_device.h>
->>>>>>>> +#include <linux/reboot.h>
->>>>>>>> +#include <linux/watchdog.h>
->>>>>>>> +
->>>>>>>> +/* Registers */
->>>>>>>> +#define LPC18XX_WDT_MOD            0x00
->>>>>>>> +#define LPC18XX_WDT_MOD_WDEN        BIT(0)
->>>>>>>> +#define LPC18XX_WDT_MOD_WDRESET        BIT(1)
->>>>>>>> +#define LPC18XX_WDT_MOD_WDTOF_MASK    0x04
->>>>>>>
->>>>>>> Not used.
->>>>>>
->>>>>> That's right. I'll remove it.
->>>>>>
->>>>>>>
->>>>>>>> +
->>>>>>>> +#define LPC18XX_WDT_TC            0x04
->>>>>>>> +#define LPC18XX_WDT_TC_MIN        0xff
->>>>>>>> +#define LPC18XX_WDT_TC_MAX        0xffffff
->>>>>>>> +
->>>>>>>> +#define LPC18XX_WDT_FEED        0x08
->>>>>>>> +#define LPC18XX_WDT_FEED_MAGIC1        0xaa
->>>>>>>> +#define LPC18XX_WDT_FEED_MAGIC2        0x55
->>>>>>>> +
->>>>>>>> +#define LPC18XX_WDT_TV            0x0c
->>>>>>>> +
->>>>>>>> +/* Clock pre-scaler */
->>>>>>>> +#define LPC18XX_WDT_CLK_DIV        4
->>>>>>>> +
->>>>>>>> +/* Timeout values in seconds */
->>>>>>>> +#define LPC18XX_WDT_DEF_TIMEOUT        5
->>>>>>>> +
->>>>>>>
->>>>>>> This is (still) really low for Linux. Something like min(30,
->>>>>>> max_timeout)
->>>>>>> might make more sense.
->>>>>>
->>>>>> Remember that hardware limits timeout to a maximum value of 5.
->>>>>>
->>>>>> As you said before we could use a soft timer, but I not sure tha=
-t's a
->>>>>> good idea. As Ezequiel said [0], it might be adding bloat and we=
- must
->>>>>> consider that this watchdog controller is included in cortex-M M=
-CUs.
->>>>>>
->>>>>> [0] http://www.spinics.net/lists/linux-watchdog/msg06904.html
->>>>>>
->>>>>
->>>>> Further down you have
->>>>>       lpc18xx_wdt->wdt_dev.max_timeout =3D (LPC18XX_WDT_TC_MAX *
->>>>>                             LPC18XX_WDT_CLK_DIV) / clk_rate;
->>>>>
->>>>> which seems to contradict this statement. If the maximum timeout =
-is 5
->>>>> seconds,
->>>>> why don't you set max_timeout to a fixed value of 5 seconds ?
->>>>
->>>> Well, I think that's the less hardcoded way. It might allow the dr=
-iver
->>>> to be extended to another HW variant that configures the wdt clk r=
-ate.
->>>>
->>>> I see what's your point. As you proposed, using the same criterion=
- I
->>>> should do this:
->>>>
->>>> #define LPC18XX_WDT_DEF_TIMEOUT         (unsigned int)30
->>>>
->>>> and further down, in probe function:
->>>>
->>>> lpc18xx_wdt->wdt_dev.timeout =3D min(LPC18XX_WDT_DEF_TIMEOUT,
->>>>                     lpc18xx_wdt->wdt_dev.max_timeout);
->>>>
->>>> Is this close enough to your solution?
->>>>
->>> Yes, but why the typecast for LPC18XX_WDT_DEF_TIMEOUT ?
->>>
->>
->> Otherwise the compiler will warn about a comparison of distinct poin=
-ter
->> types in expansion of the macro 'min'.
->>
->> Should it be casted when using it better than in definition?
->>
-> Pointer types sounds odd. What exactly is the message ?
-
-drivers/watchdog/lpc18xx_wdt.c: In function 'lpc18xx_wdt_probe':
-include/linux/kernel.h:721:17: warning: comparison of distinct pointer
-types lacks a cast [enabled by default]
-  (void) (&_min1 =3D=3D &_min2);  \
-                 ^
-drivers/watchdog/lpc18xx_wdt.c:262:33: note: in expansion of macro 'min=
-'
-  lpc18xx_wdt->wdt_dev.timeout =3D min(lpc18xx_wdt->wdt_dev.max_timeout=
-,
-                                 ^
-
+> From: Matt Fleming <matt.fleming@intel.com>
 >=20
-> How about using the following ?
+> Intel Sunrisepoint (Skylake PCH) has the iTCO watchdog accessible acr=
+oss
+> the SMBus, unlike previous generations of PCH/ICH where it was on the
+> LPC bus. Because it's on the SMBus, it doesn't make sense to pass aro=
+und
+> a 'struct lpc_ich_info', and leaking the type of bus into the iTCO
+> watchdog driver is kind of backwards anyway.
 >=20
->     #define LPC18XX_WDT_DEF_TIMEOUT        30U
+> This change introduces a new 'struct iTCO_wdt_platform_data' for use
+> inside the iTCO watchdog driver and by the upcoming Intel Sunrisepoin=
+t
+> code, which neatly avoids having to include lpc_ich headers in the i8=
+01
+> i2c driver.
+>=20
+> A simple translation layer is provided for converting from the existi=
+ng
+> 'struct lpc_ich_info' inside the lpc_ich mfd driver.
 
-Yes, that's what I responded in another mail. Thanks for your
-suggestions, I'm submitting v4 now with all the modifications you've
-pointed out.
+Is this patch related to Andy's patch-set?
+
+  https://lkml.org/lkml/2015/7/27/599
+
+> Cc: Peter Tyser <ptyser@xes-inc.com>
+> Cc: Samuel Ortiz <sameo@linux.intel.com>
+> Cc: Lee Jones <lee.jones@linaro.org>
+> Cc: Wim Van Sebroeck <wim@iguana.be>
+> Signed-off-by: Matt Fleming <matt.fleming@intel.com>
+> ---
+>  drivers/mfd/lpc_ich.c                  | 32 ++++++++++++++++++++++++=
++++++---
+>  drivers/watchdog/Kconfig               |  2 +-
+>  drivers/watchdog/iTCO_wdt.c            | 11 +++++------
+>  include/linux/mfd/lpc_ich.h            |  6 ------
+>  include/linux/platform_data/iTCO_wdt.h | 18 ++++++++++++++++++
+>  5 files changed, 53 insertions(+), 16 deletions(-)
+>  create mode 100644 include/linux/platform_data/iTCO_wdt.h
+
+How are all of these changes related?
+
+Why do they all have to be in a single patch?
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
 --
 To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
 g" in
