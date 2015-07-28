@@ -1,75 +1,83 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:53631 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753742AbbGWQMr (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 23 Jul 2015 12:12:47 -0400
-Message-ID: <55B1127C.4080800@roeck-us.net>
-Date: Thu, 23 Jul 2015 09:12:44 -0700
+Return-path: <linux@roeck-us.net>
 From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: Eddie Huang <eddie.huang@mediatek.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-CC: Matthias Brugger <matthias.bgg@gmail.com>,
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	x86@kernel.org,
+	linux-kernel@vger.kernel.org,
+	Wim Van Sebroeck <wim@iguana.be>,
 	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
-	Sascha Hauer <kernel@pengutronix.de>,
-	Greta Zhang <greta.zhang@mediatek.com>
-Subject: Re: [PATCH v2 2/2] watchdog: add wdt shutdown callback to disable
- wdt if enabled
-References: <1437630551-39650-1-git-send-email-eddie.huang@mediatek.com> <1437630551-39650-3-git-send-email-eddie.huang@mediatek.com>
-In-Reply-To: <1437630551-39650-3-git-send-email-eddie.huang@mediatek.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+	Guenter Roeck <linux@roeck-us.net>,
+	Stephane Eranian <eranian@google.com>,
+	"Peter Zijlstra (Intel)" <peterz@infradead.org>,
+	Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH] watchdog: Move NMI function header declarations from watchdog.h to nmi.h
+Date: Tue, 28 Jul 2015 00:49:38 -0700
+Message-Id: <1438069778-13051-1-git-send-email-linux@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 07/22/2015 10:49 PM, Eddie Huang wrote:
-> From: Greta Zhang <greta.zhang@mediatek.com>
->
-> Without .shutdown(), watchdog might reset the system during power off.
-> For example, if watchdog's timeout is set to 30s, then it is reset to
-> zero by mtk_wdt_ping(). During power off, no app will ping watchdog,
-> but watchdog is still running and may trigger reset.
->
-> Signed-off-by: Greta Zhang <greta.zhang@mediatek.com>
-> Signed-off-by: Eddie Huang <eddie.huang@mediatek.com>
+The kernel's NMI watchdog has nothing to do with the watchdog
+subsystem. Its header declarations are in linux/nmi.h, not in
+linux/watchdog.h.
 
-Except for the subject line,
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+ arch/x86/kernel/cpu/perf_event_intel.c | 2 +-
+ include/linux/nmi.h                    | 8 +++++---
+ include/linux/watchdog.h               | 8 --------
+ 3 files changed, 6 insertions(+), 12 deletions(-)
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
-> ---
->   drivers/watchdog/mtk_wdt.c | 9 +++++++++
->   1 file changed, 9 insertions(+)
->
-> diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
-> index 056412c..6ad9df9 100644
-> --- a/drivers/watchdog/mtk_wdt.c
-> +++ b/drivers/watchdog/mtk_wdt.c
-> @@ -210,6 +210,14 @@ static int mtk_wdt_probe(struct platform_device *pdev)
->   	return 0;
->   }
->
-> +static void mtk_wdt_shutdown(struct platform_device *pdev)
-> +{
-> +	struct mtk_wdt_dev *mtk_wdt = platform_get_drvdata(pdev);
-> +
-> +	if (watchdog_active(&mtk_wdt->wdt_dev))
-> +		mtk_wdt_stop(&mtk_wdt->wdt_dev);
-> +}
-> +
->   static int mtk_wdt_remove(struct platform_device *pdev)
->   {
->   	struct mtk_wdt_dev *mtk_wdt = platform_get_drvdata(pdev);
-> @@ -259,6 +267,7 @@ static const struct dev_pm_ops mtk_wdt_pm_ops = {
->   static struct platform_driver mtk_wdt_driver = {
->   	.probe		= mtk_wdt_probe,
->   	.remove		= mtk_wdt_remove,
-> +	.shutdown	= mtk_wdt_shutdown,
->   	.driver		= {
->   		.name		= DRV_NAME,
->   		.pm		= &mtk_wdt_pm_ops,
->
-
+diff --git a/arch/x86/kernel/cpu/perf_event_intel.c b/arch/x86/kernel/cpu/perf_event_intel.c
+index b9826a981fb2..415f6b26f4b6 100644
+--- a/arch/x86/kernel/cpu/perf_event_intel.c
++++ b/arch/x86/kernel/cpu/perf_event_intel.c
+@@ -12,7 +12,7 @@
+ #include <linux/init.h>
+ #include <linux/slab.h>
+ #include <linux/export.h>
+-#include <linux/watchdog.h>
++#include <linux/nmi.h>
+ 
+ #include <asm/cpufeature.h>
+ #include <asm/hardirq.h>
+diff --git a/include/linux/nmi.h b/include/linux/nmi.h
+index f94da0e65dea..088714537d10 100644
+--- a/include/linux/nmi.h
++++ b/include/linux/nmi.h
+@@ -26,10 +26,12 @@ static inline void touch_nmi_watchdog(void)
+ 
+ #if defined(CONFIG_HARDLOCKUP_DETECTOR)
+ extern void hardlockup_detector_disable(void);
++void watchdog_nmi_disable_all(void);
++void watchdog_nmi_enable_all(void);
+ #else
+-static inline void hardlockup_detector_disable(void)
+-{
+-}
++static inline void hardlockup_detector_disable(void) {}
++static inline void watchdog_nmi_disable_all(void) {}
++static inline void watchdog_nmi_enable_all(void) {}
+ #endif
+ 
+ /*
+diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+index f47feada5b42..d74a0e907b9e 100644
+--- a/include/linux/watchdog.h
++++ b/include/linux/watchdog.h
+@@ -140,12 +140,4 @@ extern int watchdog_init_timeout(struct watchdog_device *wdd,
+ extern int watchdog_register_device(struct watchdog_device *);
+ extern void watchdog_unregister_device(struct watchdog_device *);
+ 
+-#ifdef CONFIG_HARDLOCKUP_DETECTOR
+-void watchdog_nmi_disable_all(void);
+-void watchdog_nmi_enable_all(void);
+-#else
+-static inline void watchdog_nmi_disable_all(void) {}
+-static inline void watchdog_nmi_enable_all(void) {}
+-#endif
+-
+ #endif  /* ifndef _LINUX_WATCHDOG_H */
+-- 
+2.1.4
