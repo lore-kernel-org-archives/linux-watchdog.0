@@ -1,12 +1,12 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wi0-f175.google.com ([209.85.212.175]:35884 "EHLO
-	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753291AbbG0Vck (ORCPT
+Received: from mail-wi0-f176.google.com ([209.85.212.176]:36596 "EHLO
+	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932625AbbG1PAc (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 27 Jul 2015 17:32:40 -0400
-Received: by wicgb10 with SMTP id gb10so130186796wic.1
-        for <linux-watchdog@vger.kernel.org>; Mon, 27 Jul 2015 14:32:39 -0700 (PDT)
-Date: Mon, 27 Jul 2015 22:32:36 +0100
+	Tue, 28 Jul 2015 11:00:32 -0400
+Received: by wicgb10 with SMTP id gb10so160803094wic.1
+        for <linux-watchdog@vger.kernel.org>; Tue, 28 Jul 2015 08:00:30 -0700 (PDT)
+Date: Tue, 28 Jul 2015 16:00:21 +0100
 From: Lee Jones <lee.jones@linaro.org>
 To: Matt Fleming <matt@codeblueprint.co.uk>
 Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
@@ -17,81 +17,58 @@ Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
 	Wolfram Sang <wsa@the-dreams.de>,
 	Matt Fleming <matt.fleming@intel.com>,
 	Peter Tyser <ptyser@xes-inc.com>,
-	Samuel Ortiz <sameo@linux.intel.com>
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Aaron Sierra <asierra@xes-inc.com>
 Subject: Re: [PATCH 1/5] iTCO_wdt: Expose watchdog properties using platform
  data
-Message-ID: <20150727213236.GJ21114@x1>
+Message-ID: <20150728150021.GX14943@x1>
 References: <1438004292-16382-1-git-send-email-matt@codeblueprint.co.uk>
  <1438004292-16382-2-git-send-email-matt@codeblueprint.co.uk>
- <20150727153344.GC21114@x1>
- <20150727203208.GB23196@codeblueprint.co.uk>
+ <20150728094643.GT14943@x1>
+ <20150728110717.GH2492@codeblueprint.co.uk>
+ <20150728113721.GU14943@x1>
+ <20150728124338.GA2773@codeblueprint.co.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20150727203208.GB23196@codeblueprint.co.uk>
+In-Reply-To: <20150728124338.GA2773@codeblueprint.co.uk>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, 27 Jul 2015, Matt Fleming wrote:
+On Tue, 28 Jul 2015, Matt Fleming wrote:
+> On Tue, 28 Jul, at 12:37:21PM, Lee Jones wrote:
+> > 
+> > The driver shouldn't be called that either.
+> > 
+> > You are the only one.  What makes iTCO 'special'?
+> 
+> I don't know, I didn't write it. It looks like Wim did ~9 years ago, so
+> it must have made sense to him at the time.
+> 
+> > > > > +	info = &lpc_chipset_info[priv->chipset];
+> > > > > +
+> > > > > +	pdata->iTCO_version = info->iTCO_version;
+> > > > 
+> > > > Lowercase please.
+> > > 
+> > > Hmm... but then this line will read,
+> > > 
+> > > 	pdata->itco_version = info->iTCO_version;
+> > > 
+> > > I'm not sure that's an improvement.
+> > 
+> > Please consider making all of the variable names conform to the
+> > coding standards we normally abide by.  You can submit it either as
+> > patch 1 of this set, or independently.
+> 
+> Right, I figured we were fast approaching this rabit hole.
 
-> On Mon, 27 Jul, at 04:33:44PM, Lee Jones wrote:
-> > On Mon, 27 Jul 2015, Matt Fleming wrote:
-> > 
-> > > From: Matt Fleming <matt.fleming@intel.com>
-> > > 
-> > > Intel Sunrisepoint (Skylake PCH) has the iTCO watchdog accessible across
-> > > the SMBus, unlike previous generations of PCH/ICH where it was on the
-> > > LPC bus. Because it's on the SMBus, it doesn't make sense to pass around
-> > > a 'struct lpc_ich_info', and leaking the type of bus into the iTCO
-> > > watchdog driver is kind of backwards anyway.
-> > > 
-> > > This change introduces a new 'struct iTCO_wdt_platform_data' for use
-> > > inside the iTCO watchdog driver and by the upcoming Intel Sunrisepoint
-> > > code, which neatly avoids having to include lpc_ich headers in the i801
-> > > i2c driver.
-> > > 
-> > > A simple translation layer is provided for converting from the existing
-> > > 'struct lpc_ich_info' inside the lpc_ich mfd driver.
-> > 
-> > Is this patch related to Andy's patch-set?
-> > 
-> >   https://lkml.org/lkml/2015/7/27/599
->  
-> Nope, the two are independent.
-> 
-> > > Cc: Peter Tyser <ptyser@xes-inc.com>
-> > > Cc: Samuel Ortiz <sameo@linux.intel.com>
-> > > Cc: Lee Jones <lee.jones@linaro.org>
-> > > Cc: Wim Van Sebroeck <wim@iguana.be>
-> > > Signed-off-by: Matt Fleming <matt.fleming@intel.com>
-> > > ---
-> > >  drivers/mfd/lpc_ich.c                  | 32 +++++++++++++++++++++++++++++---
-> > >  drivers/watchdog/Kconfig               |  2 +-
-> > >  drivers/watchdog/iTCO_wdt.c            | 11 +++++------
-> > >  include/linux/mfd/lpc_ich.h            |  6 ------
-> > >  include/linux/platform_data/iTCO_wdt.h | 18 ++++++++++++++++++
-> > >  5 files changed, 53 insertions(+), 16 deletions(-)
-> > >  create mode 100644 include/linux/platform_data/iTCO_wdt.h
-> > 
-> > How are all of these changes related?
->  
-> They create the platform data struct and use it in lpc_ich and iTCO_wdt.
-> The Kconfig change shouldn't have snuck into this patch though, that's
-> wrong, sorry.
-> 
-> > Why do they all have to be in a single patch?
-> 
-> I'll happily split them into more patches if you'd prefer. Maybe one
-> that introduces the platform data structure and then a separate one that
-> uses it in iTCO_wdt and lpc_ich?
-> 
-> Technically we could also split the change between iTCO_wdt and lpc_ich,
-> but then we'd be passing in an 'lpc_ich_info' and pulling out a
-> 'iTCO_wdt_platform_data' and that just seems crazy.
+No rabbit hole, just some fixups.  If it takes you any more than 10
+mins, I'd be surprised.
 
-If it's possible to split them up per subsystem, that would be ideal.
-Cross-subsystem patches are a pain in a backside.
+Let me know if you think it'll be too much trouble and I'll do the
+fixups myself.
 
 -- 
 Lee Jones
