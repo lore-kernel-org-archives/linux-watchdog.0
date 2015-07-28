@@ -1,74 +1,191 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wi0-f170.google.com ([209.85.212.170]:35276 "EHLO
-	mail-wi0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933175AbbG1KNS (ORCPT
+Received: from mail-wi0-f179.google.com ([209.85.212.179]:38037 "EHLO
+	mail-wi0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755291AbbG1LHW (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 28 Jul 2015 06:13:18 -0400
-Received: by wibxm9 with SMTP id xm9so149791068wib.0
-        for <linux-watchdog@vger.kernel.org>; Tue, 28 Jul 2015 03:13:17 -0700 (PDT)
-Date: Tue, 28 Jul 2015 11:13:14 +0100
+	Tue, 28 Jul 2015 07:07:22 -0400
+Received: by wibxm9 with SMTP id xm9so155215844wib.1
+        for <linux-watchdog@vger.kernel.org>; Tue, 28 Jul 2015 04:07:20 -0700 (PDT)
+Date: Tue, 28 Jul 2015 12:07:17 +0100
 From: Matt Fleming <matt@codeblueprint.co.uk>
-To: Guenter Roeck <linux@roeck-us.net>
+To: Lee Jones <lee.jones@linaro.org>
 Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
 	linux-watchdog@vger.kernel.org,
 	Mika Westerberg <mika.westerberg@linux.intel.com>,
 	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
 	Jean Delvare <jdelvare@suse.com>,
 	Wolfram Sang <wsa@the-dreams.de>,
-	Matt Fleming <matt.fleming@intel.com>
-Subject: Re: [PATCH 3/5] iTCO_wdt: Add support for TCO on Intel Sunrisepoint
-Message-ID: <20150728101314.GG2492@codeblueprint.co.uk>
+	Matt Fleming <matt.fleming@intel.com>,
+	Peter Tyser <ptyser@xes-inc.com>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Aaron Sierra <asierra@xes-inc.com>
+Subject: Re: [PATCH 1/5] iTCO_wdt: Expose watchdog properties using platform
+ data
+Message-ID: <20150728110717.GH2492@codeblueprint.co.uk>
 References: <1438004292-16382-1-git-send-email-matt@codeblueprint.co.uk>
- <1438004292-16382-4-git-send-email-matt@codeblueprint.co.uk>
- <55B63EBB.7030306@roeck-us.net>
+ <1438004292-16382-2-git-send-email-matt@codeblueprint.co.uk>
+ <20150728094643.GT14943@x1>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <55B63EBB.7030306@roeck-us.net>
+In-Reply-To: <20150728094643.GT14943@x1>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, 27 Jul, at 07:22:51AM, Guenter Roeck wrote:
-> On 07/27/2015 06:38 AM, Matt Fleming wrote:
-> >From: Matt Fleming <matt.fleming@intel.com>
-> >
-> >The revision of the watchdog hardware in Sunrisepoint necessitates a new
-> >"version" inside the TCO watchdog driver because some of the register
-> >layouts have changed.
-> >
-> >Cc: Wim Van Sebroeck <wim@iguana.be>
-> >Signed-off-by: Matt Fleming <matt.fleming@intel.com>
-> >---
-> >  drivers/watchdog/iTCO_wdt.c | 58 ++++++++++++++++++++++++++-------------------
-> >  1 file changed, 34 insertions(+), 24 deletions(-)
-> >
-> >diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
-> >index 9a6e70976f64..17dfbc51b85a 100644
-> >--- a/drivers/watchdog/iTCO_wdt.c
-> >+++ b/drivers/watchdog/iTCO_wdt.c
-> >@@ -145,58 +145,65 @@ static inline unsigned int ticks_to_seconds(int ticks)
-> >  	return iTCO_wdt_private.iTCO_version == 3 ? ticks : (ticks * 6) / 10;
-> >  }
-> >
-> >+static inline u32 no_reboot_bit(void)
-> >+{
-> >+	u32 enable_bit;
-> >+
-> >+	switch (iTCO_wdt_private.iTCO_version) {
-> >+	case 3:
-> >+		enable_bit = 0x00000010;
-> >+		break;
-> >+	case 2:
-> >+		enable_bit = 0x00000020;
-> >+		break;
-> >+	default:
-> >+		enable_bit = 0x00000002;
+On Tue, 28 Jul, at 10:46:43AM, Lee Jones wrote:
+> On Mon, 27 Jul 2015, Matt Fleming wrote:
 > 
-> I think it would be better to explicitly list versions 1 and 4 here,
-> for clarification. We don't know what Intel will come up with for version 5,
-> and by then no one will remember that bit 2 applies for version 1 and 4 only.
+> > From: Matt Fleming <matt.fleming@intel.com>
+> > 
+> > Intel Sunrisepoint (Skylake PCH) has the iTCO watchdog accessible across
+> > the SMBus, unlike previous generations of PCH/ICH where it was on the
+> > LPC bus. Because it's on the SMBus, it doesn't make sense to pass around
+> > a 'struct lpc_ich_info', and leaking the type of bus into the iTCO
+> > watchdog driver is kind of backwards anyway.
+> > 
+> > This change introduces a new 'struct iTCO_wdt_platform_data' for use
+> > inside the iTCO watchdog driver and by the upcoming Intel Sunrisepoint
+> > code, which neatly avoids having to include lpc_ich headers in the i801
+> > i2c driver.
+> > 
+> > A simple translation layer is provided for converting from the existing
+> > 'struct lpc_ich_info' inside the lpc_ich mfd driver.
+> > 
+> > Cc: Peter Tyser <ptyser@xes-inc.com>
+> > Cc: Samuel Ortiz <sameo@linux.intel.com>
+> > Cc: Lee Jones <lee.jones@linaro.org>
+> > Cc: Wim Van Sebroeck <wim@iguana.be>
+> > Signed-off-by: Matt Fleming <matt.fleming@intel.com>
+> > ---
+> >  drivers/mfd/lpc_ich.c                  | 32 +++++++++++++++++++++++++++++---
+> >  drivers/watchdog/Kconfig               |  2 +-
+> >  drivers/watchdog/iTCO_wdt.c            | 11 +++++------
+> >  include/linux/mfd/lpc_ich.h            |  6 ------
+> >  include/linux/platform_data/iTCO_wdt.h | 18 ++++++++++++++++++
+> >  5 files changed, 53 insertions(+), 16 deletions(-)
+> >  create mode 100644 include/linux/platform_data/iTCO_wdt.h
+> > 
+> > diff --git a/drivers/mfd/lpc_ich.c b/drivers/mfd/lpc_ich.c
+> > index 8de34398abc0..d190b74a6321 100644
+> > --- a/drivers/mfd/lpc_ich.c
+> > +++ b/drivers/mfd/lpc_ich.c
+> > @@ -66,6 +66,7 @@
+> >  #include <linux/pci.h>
+> >  #include <linux/mfd/core.h>
+> >  #include <linux/mfd/lpc_ich.h>
+> > +#include <linux/platform_data/iTCO_wdt.h>
+> 
+> Lowercase please.
+ 
+Even though the driver is called iTCO_wdt? It seemed to me to be more
+confusing to start mixing cases rather than sticking with the ugly upper
+case. Especially since when you look in the iTCO_wdt driver all the
+function and type names are written that way.
 
-Sure, that makes sense. I'll update the patch.
+> >  #define ACPIBASE		0x40
+> >  #define ACPIBASE_GPE_OFF	0x28
+> > @@ -835,9 +836,31 @@ static void lpc_ich_enable_pmc_space(struct pci_dev *dev)
+> >  	priv->actrl_pbase_save = reg_save;
+> >  }
+> >  
+> > -static void lpc_ich_finalize_cell(struct pci_dev *dev, struct mfd_cell *cell)
+> > +static int lpc_ich_finalize_wdt_cell(struct pci_dev *dev)
+> >  {
+> > +	struct iTCO_wdt_platform_data *pdata;
+> 
+> Lowercase please.
+ 
+See above.
+
+> >  	struct lpc_ich_priv *priv = pci_get_drvdata(dev);
+> > +	struct lpc_ich_info *info;
+> > +	struct mfd_cell *cell = &lpc_ich_cells[LPC_WDT];
+> > +
+> > +	pdata = kzalloc(sizeof(*pdata), GFP_KERNEL);
+> > +	if (!pdata)
+> > +		return -ENOMEM;
+> 
+> Where is this freed?
+> 
+> Better to use devm_*
+ 
+Yeah, Guenter caught this too. devm_* would definitely be better.
+
+> > +	info = &lpc_chipset_info[priv->chipset];
+> > +
+> > +	pdata->iTCO_version = info->iTCO_version;
+> 
+> Lowercase please.
+
+Hmm... but then this line will read,
+
+	pdata->itco_version = info->iTCO_version;
+
+I'm not sure that's an improvement.
+
+> 
+> > +	strcpy(pdata->name, info->name);
+> 
+> strncpy() is safer.
+ 
+OK, I'll update this. Though it's worth pointing out that the name[]
+declarations are of identical size in these two objects (but I guess
+that could change in the future).
+
+> > +	cell->platform_data = pdata;
+> > +	cell->pdata_size = sizeof(*pdata);
+> > +	return 0;
+> > +}
+> > +
+> > +static void lpc_ich_finalize_gpio_cell(struct pci_dev *dev)
+> > +{
+> > +	struct lpc_ich_priv *priv = pci_get_drvdata(dev);
+> > +	struct mfd_cell *cell = &lpc_ich_cells[LPC_GPIO];
+> >  
+> >  	cell->platform_data = &lpc_chipset_info[priv->chipset];
+> >  	cell->pdata_size = sizeof(struct lpc_ich_info);
+> 
+> It's pretty hard to tell from the patch without applying it, but what
+> are the actual similarities and differences between the two finalise
+> functions?  They looks like they share enough lines for it to make
+> sense to have one function call and do different things in say a
+> switch statement, no?
+ 
+For LPC_WDT we dynamically allocate the platform data, and for LPC_GPIO
+we use the static lpc_chipsec_info array.
+
+I'm just personally not a fan of performing memory allocations from
+within switch statement bodies, which is why I implemented this as two
+separate finalize functions.
+
+> > @@ -933,7 +956,7 @@ gpe0_done:
+> >  	lpc_chipset_info[priv->chipset].use_gpio = ret;
+> >  	lpc_ich_enable_gpio_space(dev);
+> >  
+> > -	lpc_ich_finalize_cell(dev, &lpc_ich_cells[LPC_GPIO]);
+> > +	lpc_ich_finalize_gpio_cell(dev);
+> >  	ret = mfd_add_devices(&dev->dev, PLATFORM_DEVID_AUTO,
+> >  			      &lpc_ich_cells[LPC_GPIO], 1, NULL, 0, NULL);
+> >  
+> > @@ -1007,7 +1030,10 @@ static int lpc_ich_init_wdt(struct pci_dev *dev)
+> >  		res->end = base_addr + ACPIBASE_PMC_END;
+> >  	}
+> >  
+> > -	lpc_ich_finalize_cell(dev, &lpc_ich_cells[LPC_WDT]);
+> > +	ret = lpc_ich_finalize_wdt_cell(dev);
+> > +	if (ret)
+> > +		goto wdt_done;
+> > +
+> >  	ret = mfd_add_devices(&dev->dev, PLATFORM_DEVID_AUTO,
+> >  			      &lpc_ich_cells[LPC_WDT], 1, NULL, 0, NULL);
+> 
+> Why do you have an mfd_add_devices() call for each device?
+ 
+Good question. This call has been present since March 2012 when support
+was first added for iTCO_wdt in commit 887c8ec7219f ("watchdog: Convert
+iTCO_wdt driver to mfd model").
+
+There's no good reason that I can see. Aaron?
 
 -- 
 Matt Fleming, Intel Open Source Technology Center
