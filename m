@@ -1,88 +1,88 @@
-Return-path: <Wenyou.Yang@atmel.com>
-From: "Yang, Wenyou" <Wenyou.Yang@atmel.com>
-To: Guenter Roeck <linux@roeck-us.net>, "wim@iguana.be" <wim@iguana.be>,
-	"robh+dt@kernel.org" <robh+dt@kernel.org>, "pawel.moll@arm.com"
-	<pawel.moll@arm.com>, "mark.rutland@arm.com" <mark.rutland@arm.com>,
-	"ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>,
-	"galak@codeaurora.org" <galak@codeaurora.org>
-CC: "sylvain.rochet@finsecur.com" <sylvain.rochet@finsecur.com>, "Ferre,
- Nicolas" <Nicolas.FERRE@atmel.com>, "boris.brezillon@free-electrons.com"
-	<boris.brezillon@free-electrons.com>, "devicetree@vger.kernel.org"
-	<devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org"
-	<linux-watchdog@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>
-Subject: RE: [PATCH 1/2] drivers: watchdog: at91sam9_wdt: add new feature
- support
-Date: Wed, 29 Jul 2015 01:50:25 +0000
-Message-ID: <B256D81BAE5131468A838E5D7A243641C9F82110@penmbx01>
-References: <1438066825-21923-1-git-send-email-wenyou.yang@atmel.com>
- <1438066825-21923-2-git-send-email-wenyou.yang@atmel.com>
- <55B72BC0.8070206@roeck-us.net>
- <B256D81BAE5131468A838E5D7A243641C9F820CB@penmbx01>
- <55B82AE1.2050906@roeck-us.net>
-In-Reply-To: <55B82AE1.2050906@roeck-us.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-wi0-f172.google.com ([209.85.212.172]:36020 "EHLO
+	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750860AbbG2Hiq (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 29 Jul 2015 03:38:46 -0400
+Received: by wicgb10 with SMTP id gb10so187488590wic.1
+        for <linux-watchdog@vger.kernel.org>; Wed, 29 Jul 2015 00:38:45 -0700 (PDT)
+Date: Wed, 29 Jul 2015 08:38:41 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Aaron Sierra <asierra@xes-inc.com>
+Cc: Matt Fleming <matt@codeblueprint.co.uk>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Jean Delvare <jdelvare@suse.com>,
+	Wolfram Sang <wsa@the-dreams.de>,
+	Matt Fleming <matt.fleming@intel.com>,
+	Peter Tyser <ptyser@xes-inc.com>,
+	Samuel Ortiz <sameo@linux.intel.com>
+Subject: Re: [PATCH 1/5] iTCO_wdt: Expose watchdog properties using platform
+ data
+Message-ID: <20150729073841.GF2284@x1>
+References: <1438004292-16382-1-git-send-email-matt@codeblueprint.co.uk>
+ <1438004292-16382-2-git-send-email-matt@codeblueprint.co.uk>
+ <20150728094643.GT14943@x1>
+ <20150728110717.GH2492@codeblueprint.co.uk>
+ <20150728113721.GU14943@x1>
+ <72454140.319490.1438109162683.JavaMail.zimbra@xes-inc.com>
 MIME-Version: 1.0
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <72454140.319490.1438109162683.JavaMail.zimbra@xes-inc.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-SGkgR3VlbnRlciwNCg0KVGhhbmsgeW91IGZvciB5b3VyIHByb21wdCBhbnN3ZXIuDQoNCj4gLS0t
-LS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogR3VlbnRlciBSb2VjayBbbWFpbHRvOmxp
-bnV4QHJvZWNrLXVzLm5ldF0NCj4gU2VudDogMjAxNcTqN9TCMjnI1SA5OjIzDQo+IFRvOiBZYW5n
-LCBXZW55b3U7IHdpbUBpZ3VhbmEuYmU7IHJvYmgrZHRAa2VybmVsLm9yZzsgcGF3ZWwubW9sbEBh
-cm0uY29tOw0KPiBtYXJrLnJ1dGxhbmRAYXJtLmNvbTsgaWpjK2RldmljZXRyZWVAaGVsbGlvbi5v
-cmcudWs7IGdhbGFrQGNvZGVhdXJvcmEub3JnDQo+IENjOiBzeWx2YWluLnJvY2hldEBmaW5zZWN1
-ci5jb207IEZlcnJlLCBOaWNvbGFzOyBib3Jpcy5icmV6aWxsb25AZnJlZS0NCj4gZWxlY3Ryb25z
-LmNvbTsgZGV2aWNldHJlZUB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5l
-bC5vcmc7IGxpbnV4LQ0KPiB3YXRjaGRvZ0B2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWFybS1rZXJu
-ZWxAbGlzdHMuaW5mcmFkZWFkLm9yZw0KPiBTdWJqZWN0OiBSZTogW1BBVENIIDEvMl0gZHJpdmVy
-czogd2F0Y2hkb2c6IGF0OTFzYW05X3dkdDogYWRkIG5ldyBmZWF0dXJlDQo+IHN1cHBvcnQNCj4g
-DQo+IE9uIDA3LzI4LzIwMTUgMDU6MzggUE0sIFlhbmcsIFdlbnlvdSB3cm90ZToNCj4gPiBIaSBH
-dWVudGVyLA0KPiA+DQo+ID4gVGhhbmsgeW91IHZlcnkgbXVjaCBmb3IgeW91ciByZXZpZXcuDQo+
-ID4NCj4gPj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gPj4gRnJvbTogR3VlbnRlciBS
-b2VjayBbbWFpbHRvOmxpbnV4QHJvZWNrLXVzLm5ldF0NCj4gPj4gU2VudDogMjAxNcTqN9TCMjjI
-1SAxNToxNA0KPiA+PiBUbzogWWFuZywgV2VueW91OyB3aW1AaWd1YW5hLmJlOyByb2JoK2R0QGtl
-cm5lbC5vcmc7DQo+ID4+IHBhd2VsLm1vbGxAYXJtLmNvbTsgbWFyay5ydXRsYW5kQGFybS5jb207
-DQo+ID4+IGlqYytkZXZpY2V0cmVlQGhlbGxpb24ub3JnLnVrOyBnYWxha0Bjb2RlYXVyb3JhLm9y
-Zw0KPiA+PiBDYzogc3lsdmFpbi5yb2NoZXRAZmluc2VjdXIuY29tOyBGZXJyZSwgTmljb2xhczsN
-Cj4gPj4gYm9yaXMuYnJlemlsbG9uQGZyZWUtIGVsZWN0cm9ucy5jb207IGRldmljZXRyZWVAdmdl
-ci5rZXJuZWwub3JnOw0KPiA+PiBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnOyBsaW51eC0g
-d2F0Y2hkb2dAdmdlci5rZXJuZWwub3JnOw0KPiA+PiBsaW51eC1hcm0ta2VybmVsQGxpc3RzLmlu
-ZnJhZGVhZC5vcmcNCj4gPj4gU3ViamVjdDogUmU6IFtQQVRDSCAxLzJdIGRyaXZlcnM6IHdhdGNo
-ZG9nOiBhdDkxc2FtOV93ZHQ6IGFkZCBuZXcNCj4gPj4gZmVhdHVyZSBzdXBwb3J0DQo+ID4+DQo+
-ID4+IE9uIDA3LzI4LzIwMTUgMTI6MDAgQU0sIFdlbnlvdSBZYW5nIHdyb3RlOg0KPiA+Pj4gSW4g
-dGhlIGRhdGFzaGVldCwgdGhlIG5ldyBmZWF0dXJlIGlzIGRlc2NyaWJsZWQgYXMgIldEVF9NUiBj
-YW4gYmUNCj4gPj4+IHdyaXR0ZW4gdW50aWwgYSBMT0NLTVIgY29tbWFuZCBpcyBpc3N1ZWQgaW4g
-V0RUX0NSIi4NCj4gPj4+IFRoYXQgaXMgdG8gc2F5LCBhcyBsb25nIGFzIHRoZSBib290c3RyYXAg
-YW5kIHUtYm9vdCBkb24ndCBpc3N1ZSBhDQo+ID4+PiBMT0NLTVIgY29tbWFuZCwgV0RUX01SIGNh
-biBiZSB3cml0dGVuIGluIGtlcm5lbC4NCj4gPj4+DQo+ID4+PiBTbyB0aGUgZHJpdmVyIGNhbiBl
-bmFibGUvZGlzYWJsZSB0aGUgd2F0Y2hkb2cgdGltZXIgaGFyZHdhcmUsIHNldA0KPiA+Pj4gV0RW
-KFdhdGNoZG9nIENvdW50ZXIgVmFsdWUpIGFuZCBXREQoV2F0Y2hkb2cgRGVsdGEgVmFsdWUpIGZp
-ZWxkcyBvZg0KPiA+Pj4gV0RUX01SIHJlZ2lzdGVyIHRvIHNldCB0aGUgd2F0Y2hkb2cgdGltZXIg
-dGltZW91dC4NCj4gPj4+DQo+ID4+PiBUaGUgdGltZXIgaXMgbm90IG5lY2Vzc2FyeSB0aGF0IHJl
-Z3VsYXJseSBzZW5kcyBhIGtlZXBhbGl2ZSBwaW5nIHRvDQo+ID4+PiB0aGUgd2F0Y2hkb2cgdGlt
-ZXIgaGFyZHdhcmUuDQo+ID4+Pg0KPiA+Pj4gSXQgaXMgaW50cm9kdWNlZCBmcm9tIHNhbWE1ZDQg
-U29Dcy4NCj4gPj4+DQo+ID4+IFNpbmNlIHRoZXJlIGFyZSBzbyBtYW55IGNoYW5nZXMsIEkgd29u
-ZGVyIGlzIGEgc2VwYXJhdGUgZHJpdmVyIHdvdWxkDQo+ID4+IG1ha2UgbW9yZSBzZW5zZS4NCj4g
-PiBZZXMsIGEgYml0IG1hbnkgY2hhbmdlcy4NCj4gPiBJIHRob3VnaHQgcmV1c2UgdGhlIGRyaXZl
-ciBjb2RlLg0KPiA+IElmIGEgc2VwYXJhdGUgZHJpdmVyLCBJIGFtIGFmcmFpZCBpdCBpbmNsdWRl
-cyBtdWNoIGR1cGxpY2F0ZWQgY29kZS4NCj4gPiBBZnRlciBhbGwsIGl0IGlzIGZvciB0aGUgc2Ft
-ZSBkZXZpY2Ugd2l0aCBkaWZmZXJlbnQgZmVhdHVyZS4NCj4gPg0KPiA+IEkgZG9uJ3QgdGhpbmsg
-aXQgaXMgbmVjZXNzYXJ5IHRvIGhhdmUgbXVsdGlwbGUgZHJpdmVycyBmb3IgdGhlIHNhbWUgcGVy
-aXBoZXJhbCB3aXRoDQo+IGRpZmZlcmVudCBmZWF0dXJlLg0KPiA+DQo+IA0KPiBUaGUgY29uY2Vw
-dCBmb3IgdGhlIHR3byBtZWNoYW5pc21zIGlzIGFsbCBkaWZmZXJlbnQ6IEluIG9uZSwgdGhlIHdh
-dGNoZG9nDQo+IGtlZXBhbGl2ZSBpcyB0cmlnZ2VyZWQgZnJvbSB0aW1lciBjb2RlLiBJbiB0aGUg
-b3RoZXIsIHRoZSB3YXRjaGRvZyB0aW1lb3V0IGlzDQo+IHRyaWdnZXJlZCBkaXJlY3RseSBmcm9t
-IHRoZSBoZWFydGJlYXQgZnVuY3Rpb24uIE9uZSBhc3N1bWVzIHRoYXQgdGhlIHdhdGNoZG9nIGlz
-DQo+IGFsd2F5cyBydW5uaW5nLCBhbmQgdGhhdCBpdCBtdXN0IGJlIHBpbmdlZCBldmVuIGlmIGNs
-b3NlZC4gVGhlIG90aGVyIGRpc2FibGVzIHRoZQ0KPiB3YXRjaGRvZyBvbiBjbG9zZS4NCj4gDQo+
-IFdoYXQgSSBfY2FuXyBzZWUgaXMgdGhhdCB0aGUgZHJpdmVyIGlzIGJlY29taW5nIGFuIHVubWFp
-bnRhaW5hYmxlIG1lc3MsIHdpdGggbG90cw0KPiBvZiBpZi9lbHNlIGluIHByZXR0eSBtdWNoIGV2
-ZXJ5IGZ1bmN0aW9uLiBJIGNvbnNpZGVyIHRoaXMgbXVjaCBsZXNzIGRlc2lyYWJsZSB0aGFuIGEN
-Cj4gYml0IG9mIGNvZGUgZHVwbGljYXRpb24gLSBpZiB0aGVyZSBpcyBhbnkuIFNlcmlvdXNseSwg
-bW9zdCBvZiB0aGUgYWRkZWQgY29kZSBtaWdodCBhcw0KPiB3ZWxsIGJlIGZvciBhIGNvbXBsZXRl
-bHkgZGlmZmVyZW50IGNoaXAuDQoNCllvdSBhcmUgcmlnaHQsIEkgYWNjZXB0ZWQgeW91ciBhZHZp
-Y2UuIEkgd2lsbCByZXdyaXRlIGl0LiBUaGFua3MuDQoNCj4gDQo+IEd1ZW50ZXINCg0KQmVzdCBS
-ZWdhcmRzLA0KV2VueW91IFlhbmcNCg==
+On Tue, 28 Jul 2015, Aaron Sierra wrote:
+
+> > > > > @@ -933,7 +956,7 @@ gpe0_done:
+> > > > >  	lpc_chipset_info[priv->chipset].use_gpio = ret;
+> > > > >  	lpc_ich_enable_gpio_space(dev);
+> > > > >  
+> > > > > -	lpc_ich_finalize_cell(dev, &lpc_ich_cells[LPC_GPIO]);
+> > > > > +	lpc_ich_finalize_gpio_cell(dev);
+> > > > >  	ret = mfd_add_devices(&dev->dev, PLATFORM_DEVID_AUTO,
+> > > > >  			      &lpc_ich_cells[LPC_GPIO], 1, NULL, 0, NULL);
+> > > > >  
+> > > > > @@ -1007,7 +1030,10 @@ static int lpc_ich_init_wdt(struct pci_dev *dev)
+> > > > >  		res->end = base_addr + ACPIBASE_PMC_END;
+> > > > >  	}
+> > > > >  
+> > > > > -	lpc_ich_finalize_cell(dev, &lpc_ich_cells[LPC_WDT]);
+> > > > > +	ret = lpc_ich_finalize_wdt_cell(dev);
+> > > > > +	if (ret)
+> > > > > +		goto wdt_done;
+> > > > > +
+> > > > >  	ret = mfd_add_devices(&dev->dev, PLATFORM_DEVID_AUTO,
+> > > > >  			      &lpc_ich_cells[LPC_WDT], 1, NULL, 0, NULL);
+> > > > 
+> > > > Why do you have an mfd_add_devices() call for each device?
+> > >  
+> > > Good question. This call has been present since March 2012 when support
+> > > was first added for iTCO_wdt in commit 887c8ec7219f ("watchdog: Convert
+> > > iTCO_wdt driver to mfd model").
+> > > 
+> > > There's no good reason that I can see. Aaron?
+> 
+> I chose to call mfd_add_devices() in each device init function
+> because I thought it was the easiest way to avoid registering an
+> incomplete/invalid MFD cell should an error occur during init.
+> 
+> That way device registration wouldn't be an all-or-nothing affair.
+> 
+> Doesn't mfd_add_devices() bail out after the first unsuccessful
+> mfd to platform device translation?
+
+Right, as it should.
+
+Under what circumstance would an error occur and you'd wish to carry
+on registering devices?
+
+-- 
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
