@@ -10,24 +10,32 @@ Cc: Andrew Morton <akpm@linux-foundation.org>,
 	Stephane Eranian <eranian@google.com>,
 	"Peter Zijlstra (Intel)" <peterz@infradead.org>,
 	Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH] watchdog: Move NMI function header declarations from watchdog.h to nmi.h
-Date: Tue, 28 Jul 2015 00:49:38 -0700
-Message-Id: <1438069778-13051-1-git-send-email-linux@roeck-us.net>
+Subject: [PATCH v2] watchdog: Move NMI function header declarations from watchdog.h to nmi.h
+Date: Tue, 28 Jul 2015 18:02:16 -0700
+Message-Id: <1438131736-7175-1-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 The kernel's NMI watchdog has nothing to do with the watchdog
 subsystem. Its header declarations are in linux/nmi.h, not in
 linux/watchdog.h.
 
+The code provided two sets of dummy functions if HARDLOCKUP_DETECTOR
+is not configured, one in the include file and one in kernel/watchdog.c.
+Remove the dummy functions from kernel/watchdog.c and use those from
+the include file.
+
 Cc: Stephane Eranian <eranian@google.com>
 Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
 Cc: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
+v2: Remove duplicate dummy functions from kernel/watchdog.c.
+
  arch/x86/kernel/cpu/perf_event_intel.c | 2 +-
  include/linux/nmi.h                    | 8 +++++---
  include/linux/watchdog.h               | 8 --------
- 3 files changed, 6 insertions(+), 12 deletions(-)
+ kernel/watchdog.c                      | 2 --
+ 4 files changed, 6 insertions(+), 14 deletions(-)
 
 diff --git a/arch/x86/kernel/cpu/perf_event_intel.c b/arch/x86/kernel/cpu/perf_event_intel.c
 index b9826a981fb2..415f6b26f4b6 100644
@@ -79,5 +87,18 @@ index f47feada5b42..d74a0e907b9e 100644
 -#endif
 -
  #endif  /* ifndef _LINUX_WATCHDOG_H */
+diff --git a/kernel/watchdog.c b/kernel/watchdog.c
+index a6ffa43f2993..33c98fe665da 100644
+--- a/kernel/watchdog.c
++++ b/kernel/watchdog.c
+@@ -651,8 +651,6 @@ unlock:
+ #else
+ static int watchdog_nmi_enable(unsigned int cpu) { return 0; }
+ static void watchdog_nmi_disable(unsigned int cpu) { return; }
+-void watchdog_nmi_enable_all(void) {}
+-void watchdog_nmi_disable_all(void) {}
+ #endif /* CONFIG_HARDLOCKUP_DETECTOR */
+ 
+ static struct smp_hotplug_thread watchdog_threads = {
 -- 
 2.1.4
