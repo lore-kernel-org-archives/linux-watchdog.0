@@ -1,88 +1,88 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:59422 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750932AbbG2BWq (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 28 Jul 2015 21:22:46 -0400
-Message-ID: <55B82AE1.2050906@roeck-us.net>
-Date: Tue, 28 Jul 2015 18:22:41 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: "Yang, Wenyou" <Wenyou.Yang@atmel.com>,
-	"wim@iguana.be" <wim@iguana.be>,
-	"robh+dt@kernel.org" <robh+dt@kernel.org>,
-	"pawel.moll@arm.com" <pawel.moll@arm.com>,
-	"mark.rutland@arm.com" <mark.rutland@arm.com>,
+Return-path: <Wenyou.Yang@atmel.com>
+From: "Yang, Wenyou" <Wenyou.Yang@atmel.com>
+To: Guenter Roeck <linux@roeck-us.net>, "wim@iguana.be" <wim@iguana.be>,
+	"robh+dt@kernel.org" <robh+dt@kernel.org>, "pawel.moll@arm.com"
+	<pawel.moll@arm.com>, "mark.rutland@arm.com" <mark.rutland@arm.com>,
 	"ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>,
 	"galak@codeaurora.org" <galak@codeaurora.org>
-CC: "sylvain.rochet@finsecur.com" <sylvain.rochet@finsecur.com>,
-	"Ferre, Nicolas" <Nicolas.FERRE@atmel.com>,
-	"boris.brezillon@free-electrons.com"
-	<boris.brezillon@free-electrons.com>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org"
+CC: "sylvain.rochet@finsecur.com" <sylvain.rochet@finsecur.com>, "Ferre,
+ Nicolas" <Nicolas.FERRE@atmel.com>, "boris.brezillon@free-electrons.com"
+	<boris.brezillon@free-electrons.com>, "devicetree@vger.kernel.org"
+	<devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org"
+	<linux-watchdog@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org"
 	<linux-arm-kernel@lists.infradead.org>
-Subject: Re: [PATCH 1/2] drivers: watchdog: at91sam9_wdt: add new feature
+Subject: RE: [PATCH 1/2] drivers: watchdog: at91sam9_wdt: add new feature
  support
-References: <1438066825-21923-1-git-send-email-wenyou.yang@atmel.com> <1438066825-21923-2-git-send-email-wenyou.yang@atmel.com> <55B72BC0.8070206@roeck-us.net> <B256D81BAE5131468A838E5D7A243641C9F820CB@penmbx01>
-In-Reply-To: <B256D81BAE5131468A838E5D7A243641C9F820CB@penmbx01>
-Content-Type: text/plain; charset=gbk; format=flowed
-Content-Transfer-Encoding: 8bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Date: Wed, 29 Jul 2015 01:50:25 +0000
+Message-ID: <B256D81BAE5131468A838E5D7A243641C9F82110@penmbx01>
+References: <1438066825-21923-1-git-send-email-wenyou.yang@atmel.com>
+ <1438066825-21923-2-git-send-email-wenyou.yang@atmel.com>
+ <55B72BC0.8070206@roeck-us.net>
+ <B256D81BAE5131468A838E5D7A243641C9F820CB@penmbx01>
+ <55B82AE1.2050906@roeck-us.net>
+In-Reply-To: <55B82AE1.2050906@roeck-us.net>
+Content-Language: en-US
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 07/28/2015 05:38 PM, Yang, Wenyou wrote:
-> Hi Guenter,
->
-> Thank you very much for your review.
->
->> -----Original Message-----
->> From: Guenter Roeck [mailto:linux@roeck-us.net]
->> Sent: 2015Äê7ÔÂ28ÈÕ 15:14
->> To: Yang, Wenyou; wim@iguana.be; robh+dt@kernel.org; pawel.moll@arm.com;
->> mark.rutland@arm.com; ijc+devicetree@hellion.org.uk; galak@codeaurora.org
->> Cc: sylvain.rochet@finsecur.com; Ferre, Nicolas; boris.brezillon@free-
->> electrons.com; devicetree@vger.kernel.org; linux-kernel@vger.kernel.org; linux-
->> watchdog@vger.kernel.org; linux-arm-kernel@lists.infradead.org
->> Subject: Re: [PATCH 1/2] drivers: watchdog: at91sam9_wdt: add new feature
->> support
->>
->> On 07/28/2015 12:00 AM, Wenyou Yang wrote:
->>> In the datasheet, the new feature is describled as "WDT_MR can be
->>> written until a LOCKMR command is issued in WDT_CR".
->>> That is to say, as long as the bootstrap and u-boot don't issue a
->>> LOCKMR command, WDT_MR can be written in kernel.
->>>
->>> So the driver can enable/disable the watchdog timer hardware, set
->>> WDV(Watchdog Counter Value) and WDD(Watchdog Delta Value) fields of
->>> WDT_MR register to set the watchdog timer timeout.
->>>
->>> The timer is not necessary that regularly sends a keepalive ping to
->>> the watchdog timer hardware.
->>>
->>> It is introduced from sama5d4 SoCs.
->>>
->> Since there are so many changes, I wonder is a separate driver would make more
->> sense.
-> Yes, a bit many changes.
-> I thought reuse the driver code.
-> If a separate driver, I am afraid it includes much duplicated code.
-> After all, it is for the same device with different feature.
->
-> I don't think it is necessary to have multiple drivers for the same peripheral with different feature.
->
-
-The concept for the two mechanisms is all different: In one, the watchdog keepalive is triggered
-from timer code. In the other, the watchdog timeout is triggered directly from the heartbeat
-function. One assumes that the watchdog is always running, and that it must be pinged even
-if closed. The other disables the watchdog on close.
-
-What I _can_ see is that the driver is becoming an unmaintainable mess, with lots of if/else
-in pretty much every function. I consider this much less desirable than a bit of code
-duplication - if there is any. Seriously, most of the added code might as well be for
-a completely different chip.
-
-Guenter
-
+SGkgR3VlbnRlciwNCg0KVGhhbmsgeW91IGZvciB5b3VyIHByb21wdCBhbnN3ZXIuDQoNCj4gLS0t
+LS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogR3VlbnRlciBSb2VjayBbbWFpbHRvOmxp
+bnV4QHJvZWNrLXVzLm5ldF0NCj4gU2VudDogMjAxNcTqN9TCMjnI1SA5OjIzDQo+IFRvOiBZYW5n
+LCBXZW55b3U7IHdpbUBpZ3VhbmEuYmU7IHJvYmgrZHRAa2VybmVsLm9yZzsgcGF3ZWwubW9sbEBh
+cm0uY29tOw0KPiBtYXJrLnJ1dGxhbmRAYXJtLmNvbTsgaWpjK2RldmljZXRyZWVAaGVsbGlvbi5v
+cmcudWs7IGdhbGFrQGNvZGVhdXJvcmEub3JnDQo+IENjOiBzeWx2YWluLnJvY2hldEBmaW5zZWN1
+ci5jb207IEZlcnJlLCBOaWNvbGFzOyBib3Jpcy5icmV6aWxsb25AZnJlZS0NCj4gZWxlY3Ryb25z
+LmNvbTsgZGV2aWNldHJlZUB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5l
+bC5vcmc7IGxpbnV4LQ0KPiB3YXRjaGRvZ0B2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWFybS1rZXJu
+ZWxAbGlzdHMuaW5mcmFkZWFkLm9yZw0KPiBTdWJqZWN0OiBSZTogW1BBVENIIDEvMl0gZHJpdmVy
+czogd2F0Y2hkb2c6IGF0OTFzYW05X3dkdDogYWRkIG5ldyBmZWF0dXJlDQo+IHN1cHBvcnQNCj4g
+DQo+IE9uIDA3LzI4LzIwMTUgMDU6MzggUE0sIFlhbmcsIFdlbnlvdSB3cm90ZToNCj4gPiBIaSBH
+dWVudGVyLA0KPiA+DQo+ID4gVGhhbmsgeW91IHZlcnkgbXVjaCBmb3IgeW91ciByZXZpZXcuDQo+
+ID4NCj4gPj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gPj4gRnJvbTogR3VlbnRlciBS
+b2VjayBbbWFpbHRvOmxpbnV4QHJvZWNrLXVzLm5ldF0NCj4gPj4gU2VudDogMjAxNcTqN9TCMjjI
+1SAxNToxNA0KPiA+PiBUbzogWWFuZywgV2VueW91OyB3aW1AaWd1YW5hLmJlOyByb2JoK2R0QGtl
+cm5lbC5vcmc7DQo+ID4+IHBhd2VsLm1vbGxAYXJtLmNvbTsgbWFyay5ydXRsYW5kQGFybS5jb207
+DQo+ID4+IGlqYytkZXZpY2V0cmVlQGhlbGxpb24ub3JnLnVrOyBnYWxha0Bjb2RlYXVyb3JhLm9y
+Zw0KPiA+PiBDYzogc3lsdmFpbi5yb2NoZXRAZmluc2VjdXIuY29tOyBGZXJyZSwgTmljb2xhczsN
+Cj4gPj4gYm9yaXMuYnJlemlsbG9uQGZyZWUtIGVsZWN0cm9ucy5jb207IGRldmljZXRyZWVAdmdl
+ci5rZXJuZWwub3JnOw0KPiA+PiBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnOyBsaW51eC0g
+d2F0Y2hkb2dAdmdlci5rZXJuZWwub3JnOw0KPiA+PiBsaW51eC1hcm0ta2VybmVsQGxpc3RzLmlu
+ZnJhZGVhZC5vcmcNCj4gPj4gU3ViamVjdDogUmU6IFtQQVRDSCAxLzJdIGRyaXZlcnM6IHdhdGNo
+ZG9nOiBhdDkxc2FtOV93ZHQ6IGFkZCBuZXcNCj4gPj4gZmVhdHVyZSBzdXBwb3J0DQo+ID4+DQo+
+ID4+IE9uIDA3LzI4LzIwMTUgMTI6MDAgQU0sIFdlbnlvdSBZYW5nIHdyb3RlOg0KPiA+Pj4gSW4g
+dGhlIGRhdGFzaGVldCwgdGhlIG5ldyBmZWF0dXJlIGlzIGRlc2NyaWJsZWQgYXMgIldEVF9NUiBj
+YW4gYmUNCj4gPj4+IHdyaXR0ZW4gdW50aWwgYSBMT0NLTVIgY29tbWFuZCBpcyBpc3N1ZWQgaW4g
+V0RUX0NSIi4NCj4gPj4+IFRoYXQgaXMgdG8gc2F5LCBhcyBsb25nIGFzIHRoZSBib290c3RyYXAg
+YW5kIHUtYm9vdCBkb24ndCBpc3N1ZSBhDQo+ID4+PiBMT0NLTVIgY29tbWFuZCwgV0RUX01SIGNh
+biBiZSB3cml0dGVuIGluIGtlcm5lbC4NCj4gPj4+DQo+ID4+PiBTbyB0aGUgZHJpdmVyIGNhbiBl
+bmFibGUvZGlzYWJsZSB0aGUgd2F0Y2hkb2cgdGltZXIgaGFyZHdhcmUsIHNldA0KPiA+Pj4gV0RW
+KFdhdGNoZG9nIENvdW50ZXIgVmFsdWUpIGFuZCBXREQoV2F0Y2hkb2cgRGVsdGEgVmFsdWUpIGZp
+ZWxkcyBvZg0KPiA+Pj4gV0RUX01SIHJlZ2lzdGVyIHRvIHNldCB0aGUgd2F0Y2hkb2cgdGltZXIg
+dGltZW91dC4NCj4gPj4+DQo+ID4+PiBUaGUgdGltZXIgaXMgbm90IG5lY2Vzc2FyeSB0aGF0IHJl
+Z3VsYXJseSBzZW5kcyBhIGtlZXBhbGl2ZSBwaW5nIHRvDQo+ID4+PiB0aGUgd2F0Y2hkb2cgdGlt
+ZXIgaGFyZHdhcmUuDQo+ID4+Pg0KPiA+Pj4gSXQgaXMgaW50cm9kdWNlZCBmcm9tIHNhbWE1ZDQg
+U29Dcy4NCj4gPj4+DQo+ID4+IFNpbmNlIHRoZXJlIGFyZSBzbyBtYW55IGNoYW5nZXMsIEkgd29u
+ZGVyIGlzIGEgc2VwYXJhdGUgZHJpdmVyIHdvdWxkDQo+ID4+IG1ha2UgbW9yZSBzZW5zZS4NCj4g
+PiBZZXMsIGEgYml0IG1hbnkgY2hhbmdlcy4NCj4gPiBJIHRob3VnaHQgcmV1c2UgdGhlIGRyaXZl
+ciBjb2RlLg0KPiA+IElmIGEgc2VwYXJhdGUgZHJpdmVyLCBJIGFtIGFmcmFpZCBpdCBpbmNsdWRl
+cyBtdWNoIGR1cGxpY2F0ZWQgY29kZS4NCj4gPiBBZnRlciBhbGwsIGl0IGlzIGZvciB0aGUgc2Ft
+ZSBkZXZpY2Ugd2l0aCBkaWZmZXJlbnQgZmVhdHVyZS4NCj4gPg0KPiA+IEkgZG9uJ3QgdGhpbmsg
+aXQgaXMgbmVjZXNzYXJ5IHRvIGhhdmUgbXVsdGlwbGUgZHJpdmVycyBmb3IgdGhlIHNhbWUgcGVy
+aXBoZXJhbCB3aXRoDQo+IGRpZmZlcmVudCBmZWF0dXJlLg0KPiA+DQo+IA0KPiBUaGUgY29uY2Vw
+dCBmb3IgdGhlIHR3byBtZWNoYW5pc21zIGlzIGFsbCBkaWZmZXJlbnQ6IEluIG9uZSwgdGhlIHdh
+dGNoZG9nDQo+IGtlZXBhbGl2ZSBpcyB0cmlnZ2VyZWQgZnJvbSB0aW1lciBjb2RlLiBJbiB0aGUg
+b3RoZXIsIHRoZSB3YXRjaGRvZyB0aW1lb3V0IGlzDQo+IHRyaWdnZXJlZCBkaXJlY3RseSBmcm9t
+IHRoZSBoZWFydGJlYXQgZnVuY3Rpb24uIE9uZSBhc3N1bWVzIHRoYXQgdGhlIHdhdGNoZG9nIGlz
+DQo+IGFsd2F5cyBydW5uaW5nLCBhbmQgdGhhdCBpdCBtdXN0IGJlIHBpbmdlZCBldmVuIGlmIGNs
+b3NlZC4gVGhlIG90aGVyIGRpc2FibGVzIHRoZQ0KPiB3YXRjaGRvZyBvbiBjbG9zZS4NCj4gDQo+
+IFdoYXQgSSBfY2FuXyBzZWUgaXMgdGhhdCB0aGUgZHJpdmVyIGlzIGJlY29taW5nIGFuIHVubWFp
+bnRhaW5hYmxlIG1lc3MsIHdpdGggbG90cw0KPiBvZiBpZi9lbHNlIGluIHByZXR0eSBtdWNoIGV2
+ZXJ5IGZ1bmN0aW9uLiBJIGNvbnNpZGVyIHRoaXMgbXVjaCBsZXNzIGRlc2lyYWJsZSB0aGFuIGEN
+Cj4gYml0IG9mIGNvZGUgZHVwbGljYXRpb24gLSBpZiB0aGVyZSBpcyBhbnkuIFNlcmlvdXNseSwg
+bW9zdCBvZiB0aGUgYWRkZWQgY29kZSBtaWdodCBhcw0KPiB3ZWxsIGJlIGZvciBhIGNvbXBsZXRl
+bHkgZGlmZmVyZW50IGNoaXAuDQoNCllvdSBhcmUgcmlnaHQsIEkgYWNjZXB0ZWQgeW91ciBhZHZp
+Y2UuIEkgd2lsbCByZXdyaXRlIGl0LiBUaGFua3MuDQoNCj4gDQo+IEd1ZW50ZXINCg0KQmVzdCBS
+ZWdhcmRzLA0KV2VueW91IFlhbmcNCg==
