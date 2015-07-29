@@ -1,74 +1,55 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:48301 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752698AbbG2Gof (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 29 Jul 2015 02:44:35 -0400
-Subject: Re: [PATCH 3/5] iTCO_wdt: Add support for TCO on Intel Sunrisepoint
-From: Jean Delvare <jdelvare@suse.de>
-To: Matt Fleming <matt@codeblueprint.co.uk>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org,
+Received: from mail-wi0-f181.google.com ([209.85.212.181]:34774 "EHLO
+	mail-wi0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752688AbbG2H1u (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 29 Jul 2015 03:27:50 -0400
+Received: by wibud3 with SMTP id ud3so208493651wib.1
+        for <linux-watchdog@vger.kernel.org>; Wed, 29 Jul 2015 00:27:49 -0700 (PDT)
+Date: Wed, 29 Jul 2015 08:27:46 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Matt Fleming <matt@codeblueprint.co.uk>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
 	Mika Westerberg <mika.westerberg@linux.intel.com>,
 	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
 	Wolfram Sang <wsa@the-dreams.de>,
-	Matt Fleming <matt.fleming@intel.com>
-In-Reply-To: <1438004292-16382-4-git-send-email-matt@codeblueprint.co.uk>
+	Matt Fleming <matt.fleming@intel.com>,
+	Peter Tyser <ptyser@xes-inc.com>,
+	Samuel Ortiz <sameo@linux.intel.com>
+Subject: Re: [PATCH 1/5] iTCO_wdt: Expose watchdog properties using platform
+ data
+Message-ID: <20150729072746.GD2284@x1>
 References: <1438004292-16382-1-git-send-email-matt@codeblueprint.co.uk>
-	 <1438004292-16382-4-git-send-email-matt@codeblueprint.co.uk>
-Content-Type: text/plain; charset=UTF-8
-Date: Tue, 28 Jul 2015 19:03:41 +0200
-Message-ID: <1438103021.24962.46.camel@chaos.site>
-Mime-Version: 1.0
+ <1438004292-16382-2-git-send-email-matt@codeblueprint.co.uk>
+ <20150728094643.GT14943@x1>
+ <1438102227.24962.41.camel@chaos.site>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: QUOTED-PRINTABLE
+In-Reply-To: <1438102227.24962.41.camel@chaos.site>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Matt,
+On Tue, 28 Jul 2015, Jean Delvare wrote:
 
-Le Monday 27 July 2015 =C3=A0 14:38 +0100, Matt Fleming a =C3=A9crit :
-> From: Matt Fleming <matt.fleming@intel.com>
+> Le Tuesday 28 July 2015 =C3=A0 10:46 +0100, Lee Jones a =C3=A9crit :
+> > On Mon, 27 Jul 2015, Matt Fleming wrote:
+> > > +	strcpy(pdata->name, info->name);
+> >=20
+> > strncpy() is safer.
 >=20
-> The revision of the watchdog hardware in Sunrisepoint necessitates a =
-new
-> "version" inside the TCO watchdog driver because some of the register
-> layouts have changed.
->=20
-> Cc: Wim Van Sebroeck <wim@iguana.be>
-> Signed-off-by: Matt Fleming <matt.fleming@intel.com>
-> ---
->  drivers/watchdog/iTCO_wdt.c | 58 ++++++++++++++++++++++++++---------=
-----------
->  1 file changed, 34 insertions(+), 24 deletions(-)
->=20
-> diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.=
-c
-> index 9a6e70976f64..17dfbc51b85a 100644
-> --- a/drivers/watchdog/iTCO_wdt.c
-> +++ b/drivers/watchdog/iTCO_wdt.c
-> (...)=20
-> @@ -503,7 +510,10 @@ static int iTCO_wdt_probe(struct platform_device=
- *dev)
->  		pdata->name, pdata->iTCO_version, (u64)TCOBASE);
-> =20
->  	/* Clear out the (probably old) status */
-> -	if (iTCO_wdt_private.iTCO_version =3D=3D 3) {
-> +	if (iTCO_wdt_private.iTCO_version =3D=3D 4) {
-> +		outw(0x0008, TCO1_STS);	/* Clear the Time Out Status bit */
-> +		outw(0x0002, TCO2_STS);	/* Clear SECOND_TO_STS bit */
-> +	} else if (iTCO_wdt_private.iTCO_version =3D=3D 3) {
->  		outl(0x20008, TCO1_STS);
->  	} else {
->  		outw(0x0008, TCO1_STS);	/* Clear the Time Out Status bit */
+> And strlcpy() is even better.
 
-The "version =3D=3D 4" branch is a subset of the "else" branch, so you =
-could
-merge both with a conditional. If you prefer not to, then it probably
-makes sense to change the whole block to a switch/case construct.
++1, thanks for that.
 
 --=20
-Jean Delvare
-SUSE L3 Support
-
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
 --
 To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
 g" in
