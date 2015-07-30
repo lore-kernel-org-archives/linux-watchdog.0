@@ -1,61 +1,58 @@
-Return-path: <matt@console-pimps.org>
-Date: Thu, 30 Jul 2015 10:14:59 +0100
-From: Matt Fleming <matt@codeblueprint.co.uk>
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>,
-	Matt Fleming <matt.fleming@intel.com>,
-	Peter Tyser <ptyser@xes-inc.com>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Zha Qipeng <qipeng.zha@intel.com>,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH v2 1/3] iTCO_wdt: Expose watchdog properties using
- platform data
-Message-ID: <20150730091458.GB2704@codeblueprint.co.uk>
-References: <1438171844-24861-1-git-send-email-matt@codeblueprint.co.uk>
- <1438171844-24861-2-git-send-email-matt@codeblueprint.co.uk>
- <20150729153556.GC9319@x1>
- <20150729163953.GI2773@codeblueprint.co.uk>
- <20150730085347.GF9319@x1>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:38775 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754830AbbG3Jc0 (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 30 Jul 2015 05:32:26 -0400
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
+	<u.kleine-koenig@pengutronix.de>
+To: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+Cc: Guenter Roeck <linux@roeck-us.net>, kernel@pengutronix.de
+Subject: [PATCH] watchdog: gpio-wdt: be more strict about hw_algo matching
+Date: Thu, 30 Jul 2015 11:32:23 +0200
+Message-Id: <1438248743-8722-1-git-send-email-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20150730085347.GF9319@x1>
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, 30 Jul, at 09:53:47AM, Lee Jones wrote:
-> On Wed, 29 Jul 2015, Matt Fleming wrote:
-> 
-> > On Wed, 29 Jul, at 04:35:56PM, Lee Jones wrote:
-> > > 
-> > > For my own reference (I assume this will go through the MFD tree):
-> > >   Acked-by: Lee Jones <lee.jones@linaro.org>
-> > 
-> > Great, thanks Lee!
-> > 
-> > I've no strong opinion on which tree these 3 patches go through but at
-> > the very least patches 1 and 2 need to go through the same tree to avoid
-> > build breakage (since PATCH 1 introduces 'struct itco_wdt_platform_data'
-> > which is used in PATCH 2).
-> > 
-> > For reference, the other patches are here,
-> > 
-> >   https://lkml.kernel.org/r/1438171844-24861-3-git-send-email-matt@codeblueprint.co.uk
-> >   https://lkml.kernel.org/r/1438171844-24861-4-git-send-email-matt@codeblueprint.co.uk
-> 
-> Obviously this makes things more difficult.  Once you have the other
-> Acks you need, I suggest you re-submit the set using --threaded, so we
-> can all see what's going on.
- 
-Umm... I submitted *this* version using --threaded. In fact, that's
-plain to see from the Message-Id format in the links above. It's just
-that I only Cc'd you on the patch that touched the mfd code.
+strncmp(algo, "toggle", 6) doesn't compare the trailing '\0' byte, so
+using
 
-I can resubmit with the Ack/Review tags and copy you on the whole series
-if you'd like.
+	hw_algo = "toggleboggle"
 
+is recognized the same way as
+
+	hw_algo = "toggle"
+
+. While this doesn't introduce any problems for a device tree that
+sticks to the documented settings it's still ugly.
+
+Fix this by using strcmp to only match on "toggle" and "level".
+
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+---
+ drivers/watchdog/gpio_wdt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
+index 1687cc2d7122..57d30f1f55ab 100644
+--- a/drivers/watchdog/gpio_wdt.c
++++ b/drivers/watchdog/gpio_wdt.c
+@@ -182,10 +182,10 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+ 	ret = of_property_read_string(pdev->dev.of_node, "hw_algo", &algo);
+ 	if (ret)
+ 		return ret;
+-	if (!strncmp(algo, "toggle", 6)) {
++	if (!strcmp(algo, "toggle")) {
+ 		priv->hw_algo = HW_ALGO_TOGGLE;
+ 		f = GPIOF_IN;
+-	} else if (!strncmp(algo, "level", 5)) {
++	} else if (!strcmp(algo, "level")) {
+ 		priv->hw_algo = HW_ALGO_LEVEL;
+ 		f = priv->active_low ? GPIOF_OUT_INIT_HIGH : GPIOF_OUT_INIT_LOW;
+ 	} else {
 -- 
-Matt Fleming, Intel Open Source Technology Center
+2.1.4
+
