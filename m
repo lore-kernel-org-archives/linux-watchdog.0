@@ -1,43 +1,106 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:54705 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753922AbbGWD4X (ORCPT
+Received: from down.free-electrons.com ([37.187.137.238]:56683 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754639AbbG3AWg (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 22 Jul 2015 23:56:23 -0400
-Received: from mail-ig0-f176.google.com (mail-ig0-f176.google.com [209.85.213.176])
-	(using TLSv1.2 with cipher AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	(Authenticated sender: timur@smtp.codeaurora.org)
-	by smtp.codeaurora.org (Postfix) with ESMTPSA id 017FB141141
-	for <linux-watchdog@vger.kernel.org>; Thu, 23 Jul 2015 03:56:15 +0000 (UTC)
-Received: by iggf3 with SMTP id f3so149173488igg.1
-        for <linux-watchdog@vger.kernel.org>; Wed, 22 Jul 2015 20:56:15 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <1435596377-17737-1-git-send-email-timur@codeaurora.org>
-References: <1435596377-17737-1-git-send-email-timur@codeaurora.org>
-Date: Wed, 22 Jul 2015 22:56:15 -0500
-Message-ID: <CAOZdJXWbbWQr8wGJ0R9-gSrT+U+p+6Sz_NaFFWcZSZ8qmjxJiA@mail.gmail.com>
-Subject: Re: [PATCH] Documentation/watchdog: add timeout and ping rate control
- to watchdog-test.c
-From: Timur Tabi <timur@codeaurora.org>
-To: Timur Tabi <timur@codeaurora.org>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+	Wed, 29 Jul 2015 20:22:36 -0400
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Nicolas Ferre <nicolas.ferre@atmel.com>
+Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH 15/20] watchdog: at91sam9: get and use slow clock
+Date: Thu, 30 Jul 2015 02:22:01 +0200
+Message-Id: <1438215726-27452-16-git-send-email-alexandre.belloni@free-electrons.com>
+In-Reply-To: <1438215726-27452-1-git-send-email-alexandre.belloni@free-electrons.com>
+References: <1438215726-27452-1-git-send-email-alexandre.belloni@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Jun 29, 2015 at 11:46 AM, Timur Tabi <timur@codeaurora.org> wrote:
-> The watchdog test program is much more useful if it can configure the
-> timeout value and ping rate.  This will allow you to test actual timeouts.
->
-> Adds the -t parameter to set the timeout value (in seconds), and -p to set
-> the ping rate (number of seconds between pings).
->
-> Signed-off-by: Timur Tabi <timur@codeaurora.org>
+Commit dca1a4b5ff6e ("clk: at91: keep slow clk enabled to prevent system
+hang") added a workaround for the slow clock as it is not properly handled
+by its users.
 
-Wim, any chance of getting this patch into 4.2?
+Get and use the slow clock as it is necessary for the at91sam9 watchdog.
 
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org
+ drivers/watchdog/at91sam9_wdt.c | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
+index e4698f7c5f93..7e6acaf3ece4 100644
+--- a/drivers/watchdog/at91sam9_wdt.c
++++ b/drivers/watchdog/at91sam9_wdt.c
+@@ -17,6 +17,7 @@
+ 
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+ 
++#include <linux/clk.h>
+ #include <linux/errno.h>
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
+@@ -90,6 +91,7 @@ struct at91wdt {
+ 	unsigned long heartbeat;	/* WDT heartbeat in jiffies */
+ 	bool nowayout;
+ 	unsigned int irq;
++	struct clk *sclk;
+ };
+ 
+ /* ......................................................................... */
+@@ -352,15 +354,25 @@ static int __init at91wdt_probe(struct platform_device *pdev)
+ 	if (IS_ERR(wdt->base))
+ 		return PTR_ERR(wdt->base);
+ 
++	wdt->sclk = devm_clk_get(&pdev->dev, NULL);
++	if (IS_ERR(wdt->sclk))
++		return PTR_ERR(wdt->sclk);
++
++	err = clk_prepare_enable(wdt->sclk);
++	if (err) {
++		dev_err(&pdev->dev, "Could not enable slow clock\n");
++		return err;
++	}
++
+ 	if (pdev->dev.of_node) {
+ 		err = of_at91wdt_init(pdev->dev.of_node, wdt);
+ 		if (err)
+-			return err;
++			goto err_clk;
+ 	}
+ 
+ 	err = at91_wdt_init(pdev, wdt);
+ 	if (err)
+-		return err;
++		goto err_clk;
+ 
+ 	platform_set_drvdata(pdev, wdt);
+ 
+@@ -368,6 +380,11 @@ static int __init at91wdt_probe(struct platform_device *pdev)
+ 		wdt->wdd.timeout, wdt->nowayout);
+ 
+ 	return 0;
++
++err_clk:
++	clk_disable_unprepare(wdt->sclk);
++
++	return err;
+ }
+ 
+ static int __exit at91wdt_remove(struct platform_device *pdev)
+@@ -377,6 +394,7 @@ static int __exit at91wdt_remove(struct platform_device *pdev)
+ 
+ 	pr_warn("I quit now, hardware will probably reboot!\n");
+ 	del_timer(&wdt->timer);
++	clk_disable_unprepare(wdt->sclk);
+ 
+ 	return 0;
+ }
 -- 
-Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-a Linux Foundation Collaborative Project.
+2.1.4
+
