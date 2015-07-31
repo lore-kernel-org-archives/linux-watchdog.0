@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:33635 "EHLO
+Received: from down.free-electrons.com ([37.187.137.238]:33751 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750954AbbGaJkG (ORCPT
+	with ESMTP id S1751936AbbGaJkT (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 31 Jul 2015 05:40:06 -0400
+	Fri, 31 Jul 2015 05:40:19 -0400
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 To: Nicolas Ferre <nicolas.ferre@atmel.com>
 Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
@@ -13,45 +13,96 @@ Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	Wim Van Sebroeck <wim@iguana.be>,
 	linux-watchdog@vger.kernel.org
-Subject: [PATCH 03/23] Documentation: watchdog: at91sam9_wdt: add clocks property
-Date: Fri, 31 Jul 2015 11:39:39 +0200
-Message-Id: <1438335599-3301-4-git-send-email-alexandre.belloni@free-electrons.com>
+Subject: [PATCH 16/23] watchdog: at91sam9: get and use slow clock
+Date: Fri, 31 Jul 2015 11:39:52 +0200
+Message-Id: <1438335599-3301-17-git-send-email-alexandre.belloni@free-electrons.com>
 In-Reply-To: <1438335599-3301-1-git-send-email-alexandre.belloni@free-electrons.com>
 References: <1438335599-3301-1-git-send-email-alexandre.belloni@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The watchdog has an input clock, the slow clock. It is required as it will
-not function without it.
+Commit dca1a4b5ff6e ("clk: at91: keep slow clk enabled to prevent system
+hang") added a workaround for the slow clock as it is not properly handled
+by its users.
+
+Get and use the slow clock as it is necessary for the at91sam9 watchdog.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 ---
 Cc: Wim Van Sebroeck <wim@iguana.be>
 Cc: linux-watchdog@vger.kernel.org
- Documentation/devicetree/bindings/watchdog/atmel-wdt.txt | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/watchdog/at91sam9_wdt.c | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
-index a4d869744f59..86fa6de1019b 100644
---- a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
-+++ b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
-@@ -6,6 +6,7 @@ Required properties:
- - compatible: must be "atmel,at91sam9260-wdt".
- - reg: physical base address of the controller and length of memory mapped
-   region.
-+- clocks: phandle to input clock.
+diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
+index e4698f7c5f93..7e6acaf3ece4 100644
+--- a/drivers/watchdog/at91sam9_wdt.c
++++ b/drivers/watchdog/at91sam9_wdt.c
+@@ -17,6 +17,7 @@
  
- Optional properties:
- - timeout-sec: contains the watchdog timeout in seconds.
-@@ -39,6 +40,7 @@ Example:
- 		compatible = "atmel,at91sam9260-wdt";
- 		reg = <0xfffffd40 0x10>;
- 		interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
-+		clocks = <&clk32k>;
- 		timeout-sec = <15>;
- 		atmel,watchdog-type = "hardware";
- 		atmel,reset-type = "all";
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+ 
++#include <linux/clk.h>
+ #include <linux/errno.h>
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
+@@ -90,6 +91,7 @@ struct at91wdt {
+ 	unsigned long heartbeat;	/* WDT heartbeat in jiffies */
+ 	bool nowayout;
+ 	unsigned int irq;
++	struct clk *sclk;
+ };
+ 
+ /* ......................................................................... */
+@@ -352,15 +354,25 @@ static int __init at91wdt_probe(struct platform_device *pdev)
+ 	if (IS_ERR(wdt->base))
+ 		return PTR_ERR(wdt->base);
+ 
++	wdt->sclk = devm_clk_get(&pdev->dev, NULL);
++	if (IS_ERR(wdt->sclk))
++		return PTR_ERR(wdt->sclk);
++
++	err = clk_prepare_enable(wdt->sclk);
++	if (err) {
++		dev_err(&pdev->dev, "Could not enable slow clock\n");
++		return err;
++	}
++
+ 	if (pdev->dev.of_node) {
+ 		err = of_at91wdt_init(pdev->dev.of_node, wdt);
+ 		if (err)
+-			return err;
++			goto err_clk;
+ 	}
+ 
+ 	err = at91_wdt_init(pdev, wdt);
+ 	if (err)
+-		return err;
++		goto err_clk;
+ 
+ 	platform_set_drvdata(pdev, wdt);
+ 
+@@ -368,6 +380,11 @@ static int __init at91wdt_probe(struct platform_device *pdev)
+ 		wdt->wdd.timeout, wdt->nowayout);
+ 
+ 	return 0;
++
++err_clk:
++	clk_disable_unprepare(wdt->sclk);
++
++	return err;
+ }
+ 
+ static int __exit at91wdt_remove(struct platform_device *pdev)
+@@ -377,6 +394,7 @@ static int __exit at91wdt_remove(struct platform_device *pdev)
+ 
+ 	pr_warn("I quit now, hardware will probably reboot!\n");
+ 	del_timer(&wdt->timer);
++	clk_disable_unprepare(wdt->sclk);
+ 
+ 	return 0;
+ }
 -- 
 2.1.4
 
