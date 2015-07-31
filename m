@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 31 Jul 2015 11:59:03 +0200
-From: Boris Brezillon <boris.brezillon@free-electrons.com>
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Nicolas Ferre <nicolas.ferre@atmel.com>,
+Date: Fri, 31 Jul 2015 17:21:06 +0200
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Nicolas Ferre <nicolas.ferre@atmel.com>
+Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
         Maxime Ripard <maxime.ripard@free-electrons.com>,
         Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
@@ -18,22 +18,23 @@ Cc: Nicolas Ferre <nicolas.ferre@atmel.com>,
         Thierry Reding <thierry.reding@gmail.com>,
         Thomas Gleixner <tglx@linutronix.de>, Wim Van Sebroeck <wim@iguana.be>
 Subject: Re: [PATCH 00/23] ARM: at91: Properly handle slow clock
-Message-ID: <20150731115903.4ef23e83@bbrezillon>
-In-Reply-To: <1438335599-3301-1-git-send-email-alexandre.belloni@free-electrons.com>
+Message-ID: <20150731152106.GK27985@piout.net>
 References: <1438335599-3301-1-git-send-email-alexandre.belloni@free-electrons.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1438335599-3301-1-git-send-email-alexandre.belloni@free-electrons.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Alexandre,
+Hi,
 
-On Fri, 31 Jul 2015 11:39:36 +0200
-Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
+I realize now that I forgot to add the v2 tag in the subject lines. This
+is really v2 :)
 
+On 31/07/2015 at 11:39:36 +0200, Alexandre Belloni wrote :
 > Hi,
 > 
 > It was discovered that all the slow clock user were not properly claiming it.
@@ -55,16 +56,6 @@ Alexandre Belloni <alexandre.belloni@free-electrons.com> wrote:
 > 
 > I've thrown in a cleanup for at91-reset as it avoids adding support for that
 > clock to the platform data initialization
-
-I would have squashed commit 5 to 14 into a single patch, but apart
-from that it looks good to me.
-
-Acked-by: Boris Brezillon <boris.brezillon@free-electrons.com>
-
-Thanks,
-
-Boris
-
 > 
 > Changes in v2:
 >  - statisticize the global in the atmel-st change
@@ -143,10 +134,11 @@ Boris
 >  include/linux/atmel_tc.h                           |  1 +
 >  24 files changed, 206 insertions(+), 129 deletions(-)
 > 
-
-
+> -- 
+> 2.1.4
+> 
 
 -- 
-Boris Brezillon, Free Electrons
-Embedded Linux and Kernel engineering
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
 http://free-electrons.com
