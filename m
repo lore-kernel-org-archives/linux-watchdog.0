@@ -1,234 +1,57 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:8386 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751526AbbGaIlI (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 31 Jul 2015 04:41:08 -0400
-Message-ID: <1438332064.29746.141.camel@linux.intel.com>
-Subject: Re: [PATCH v3 3/3] iTCO_wdt: Add support for TCO on Intel
- Sunrisepoint
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Matt Fleming <matt@codeblueprint.co.uk>,
-	Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Jean Delvare <jdelvare@suse.com>,
-	Wolfram Sang <wsa@the-dreams.de>,
-	Lee Jones <lee.jones@linaro.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Matt Fleming <matt.fleming@intel.com>
-Date: Fri, 31 Jul 2015 11:41:04 +0300
-In-Reply-To: <1438293541-26131-4-git-send-email-matt@codeblueprint.co.uk>
-References: <1438293541-26131-1-git-send-email-matt@codeblueprint.co.uk>
-	 <1438293541-26131-4-git-send-email-matt@codeblueprint.co.uk>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Received: from down.free-electrons.com ([37.187.137.238]:33635 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750954AbbGaJkG (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 31 Jul 2015 05:40:06 -0400
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Nicolas Ferre <nicolas.ferre@atmel.com>
+Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
+	Maxime Ripard <maxime.ripard@free-electrons.com>,
+	Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH 03/23] Documentation: watchdog: at91sam9_wdt: add clocks property
+Date: Fri, 31 Jul 2015 11:39:39 +0200
+Message-Id: <1438335599-3301-4-git-send-email-alexandre.belloni@free-electrons.com>
+In-Reply-To: <1438335599-3301-1-git-send-email-alexandre.belloni@free-electrons.com>
+References: <1438335599-3301-1-git-send-email-alexandre.belloni@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, 2015-07-30 at 22:59 +0100, Matt Fleming wrote:
-> From: Matt Fleming <matt.fleming@intel.com>
-> 
-> The revision of the watchdog hardware in Sunrisepoint necessitates a 
-> new
-> "version" inside the TCO watchdog driver because some of the register
-> layouts have changed.
-> 
-> Also update the Kconfig entry to select both the LPC and SMBus 
-> drivers
-> since the TCO device is on the SMBus in Sunrisepoint.
+The watchdog has an input clock, the slow clock. It is required as it will
+not function without it.
 
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+---
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org
+ Documentation/devicetree/bindings/watchdog/atmel-wdt.txt | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Few minor comments below, though I'm okay with current version as well.
-
-> 
-> Cc: Wim Van Sebroeck <wim@iguana.be>
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-> Cc: Jean Delvare <jdelvare@suse.com>
-> Signed-off-by: Matt Fleming <matt.fleming@intel.com>
-> ---
-> 
-> v3:
->  - Added Guenter's Review tag
-> 
-> v2: 
->  - Explicitly list TCO versions and their "no reboot" bits in the 
-> switch
->    statement in no_reboot_bit()
->  - Use a switch/case statement when clearing status bits instead of
->    convoluted if/else branching
->  - Select both of the bus drivers instead of using depends
-> 
->  drivers/watchdog/Kconfig    |  3 ++-
->  drivers/watchdog/iTCO_wdt.c | 66 ++++++++++++++++++++++++++++-------
-> ----------
->  2 files changed, 43 insertions(+), 26 deletions(-)
-> 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 241fafde42cb..55c4b5b0a317 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -797,7 +797,8 @@ config ITCO_WDT
->  	tristate "Intel TCO Timer/Watchdog"
->  	depends on (X86 || IA64) && PCI
->  	select WATCHDOG_CORE
-> -	select LPC_ICH
-> +	select LPC_ICH if !EXPERT
-> +	select I2C_I801 if !EXPERT
->  	---help---
->  	  Hardware driver for the intel TCO timer based watchdog 
-> devices.
->  	  These drivers are included in the Intel 82801 I/O 
-> Controller
-> diff --git a/drivers/watchdog/iTCO_wdt.c 
-> b/drivers/watchdog/iTCO_wdt.c
-> index a94401b2deca..7b8949d48029 100644
-> --- a/drivers/watchdog/iTCO_wdt.c
-> +++ b/drivers/watchdog/iTCO_wdt.c
-> @@ -145,58 +145,67 @@ static inline unsigned int ticks_to_seconds(int 
-> ticks)
->  	return iTCO_wdt_private.iTCO_version == 3 ? ticks : (ticks * 
-> 6) / 10;
->  }
->  
-> +static inline u32 no_reboot_bit(void)
-> +{
-> +	u32 enable_bit;
-> +
-> +	switch (iTCO_wdt_private.iTCO_version) {
-> +	case 3:
-> +		enable_bit = 0x00000010;
-> +		break;
-> +	case 2:
-> +		enable_bit = 0x00000020;
-> +		break;
-> +	case 4:
-> +	case 1:
-> +	default:
-> +		enable_bit = 0x00000002;
-> +		break;
-> +	}
-> +
-> +	return enable_bit;
-> +}
-> +
->  static void iTCO_wdt_set_NO_REBOOT_bit(void)
->  {
->  	u32 val32;
->  
->  	/* Set the NO_REBOOT bit: this disables reboots */
-> -	if (iTCO_wdt_private.iTCO_version == 3) {
-> -		val32 = readl(iTCO_wdt_private.gcs_pmc);
-> -		val32 |= 0x00000010;
-> -		writel(val32, iTCO_wdt_private.gcs_pmc);
-> -	} else if (iTCO_wdt_private.iTCO_version == 2) {
-> +	if (iTCO_wdt_private.iTCO_version >= 2) {
->  		val32 = readl(iTCO_wdt_private.gcs_pmc);
-> -		val32 |= 0x00000020;
-> +		val32 |= no_reboot_bit();
->  		writel(val32, iTCO_wdt_private.gcs_pmc);
->  	} else if (iTCO_wdt_private.iTCO_version == 1) {
->  		pci_read_config_dword(iTCO_wdt_private.pdev, 0xd4, 
-> &val32);
-> -		val32 |= 0x00000002;
-> +		val32 |= no_reboot_bit();
->  		pci_write_config_dword(iTCO_wdt_private.pdev, 0xd4, 
-> val32);
->  	}
->  }
->  
->  static int iTCO_wdt_unset_NO_REBOOT_bit(void)
->  {
-> +	u32 enable_bit = no_reboot_bit();
->  	int ret = 0;
-> -	u32 val32;
-> +	u32 val32 = 0;
->  
->  	/* Unset the NO_REBOOT bit: this enables reboots */
-> -	if (iTCO_wdt_private.iTCO_version == 3) {
-> -		val32 = readl(iTCO_wdt_private.gcs_pmc);
-> -		val32 &= 0xffffffef;
-> -		writel(val32, iTCO_wdt_private.gcs_pmc);
-> -
-> -		val32 = readl(iTCO_wdt_private.gcs_pmc);
-> -		if (val32 & 0x00000010)
-> -			ret = -EIO;
-> -	} else if (iTCO_wdt_private.iTCO_version == 2) {
-> +	if (iTCO_wdt_private.iTCO_version >= 2) {
->  		val32 = readl(iTCO_wdt_private.gcs_pmc);
-> -		val32 &= 0xffffffdf;
-> +		val32 &= ~enable_bit;
->  		writel(val32, iTCO_wdt_private.gcs_pmc);
->  
->  		val32 = readl(iTCO_wdt_private.gcs_pmc);
-> -		if (val32 & 0x00000020)
-> -			ret = -EIO;
->  	} else if (iTCO_wdt_private.iTCO_version == 1) {
->  		pci_read_config_dword(iTCO_wdt_private.pdev, 0xd4, 
-> &val32);
-> -		val32 &= 0xfffffffd;
-> +		val32 &= ~enable_bit;
->  		pci_write_config_dword(iTCO_wdt_private.pdev, 0xd4, 
-> val32);
->  
->  		pci_read_config_dword(iTCO_wdt_private.pdev, 0xd4, 
-> &val32);
-> -		if (val32 & 0x00000002)
-> -			ret = -EIO;
->  	}
->  
-> +	if (val32 & enable_bit)
-> +		ret = -EIO;
-> +
->  	return ret; /* returns: 0 = OK, -EIO = Error */
-
-What about removing ret at all?
-
-if (val32 & enable_bit)
- return -EIO;
-
-return 0;
-
->  }
->  
-> @@ -503,12 +512,19 @@ static int iTCO_wdt_probe(struct 
-> platform_device *dev)
->  		pdata->name, pdata->version, (u64)TCOBASE);
->  
->  	/* Clear out the (probably old) status */
-> -	if (iTCO_wdt_private.iTCO_version == 3) {
-> +	switch (iTCO_wdt_private.iTCO_version) {
-> +	case 4:
-> +		outw(0x0008, TCO1_STS);	/* Clear the Time 
-> Out Status bit */
-> +		outw(0x0002, TCO2_STS);	/* Clear 
-> SECOND_TO_STS bit */
-> +		break;
-> +	case 3:
->  		outl(0x20008, TCO1_STS);
-> -	} else {
-> +		break;
-> +	default:
-
-Same idea here: put cases explicitly for all existing versions?
-
-case 2:
-case 1:
-default:
-
-
-
->  		outw(0x0008, TCO1_STS);	/* Clear the Time 
-> Out Status bit */
->  		outw(0x0002, TCO2_STS);	/* Clear 
-> SECOND_TO_STS bit */
->  		outw(0x0004, TCO2_STS);	/* Clear BOOT_STS 
-> bit */
-> +		break;
->  	}
->  
->  	iTCO_wdt_watchdog_dev.bootstatus = 0;
-
+diff --git a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+index a4d869744f59..86fa6de1019b 100644
+--- a/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
++++ b/Documentation/devicetree/bindings/watchdog/atmel-wdt.txt
+@@ -6,6 +6,7 @@ Required properties:
+ - compatible: must be "atmel,at91sam9260-wdt".
+ - reg: physical base address of the controller and length of memory mapped
+   region.
++- clocks: phandle to input clock.
+ 
+ Optional properties:
+ - timeout-sec: contains the watchdog timeout in seconds.
+@@ -39,6 +40,7 @@ Example:
+ 		compatible = "atmel,at91sam9260-wdt";
+ 		reg = <0xfffffd40 0x10>;
+ 		interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
++		clocks = <&clk32k>;
+ 		timeout-sec = <15>;
+ 		atmel,watchdog-type = "hardware";
+ 		atmel,reset-type = "all";
 -- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+2.1.4
+
