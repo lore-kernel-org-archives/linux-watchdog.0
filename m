@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:45829 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:45883 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753840AbbHDCNq (ORCPT
+	with ESMTP id S1753978AbbHDCNz (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 3 Aug 2015 22:13:46 -0400
+	Mon, 3 Aug 2015 22:13:55 -0400
 From: Guenter Roeck <linux@roeck-us.net>
 To: linux-watchdog@vger.kernel.org
 Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
@@ -12,71 +12,164 @@ Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
 	<u.kleine-koenig@pengutronix.de>, linux-doc@vger.kernel.org,
 	Jonathan Corbet <corbet@lwn.net>,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 0/8] watchdog: Add support for keepalives triggered by infrastructure
-Date: Mon,  3 Aug 2015 19:13:26 -0700
-Message-Id: <1438654414-29259-1-git-send-email-linux@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Subject: [PATCH 6/8] watchdog: retu: Convert to use infrastructure triggered keepalives
+Date: Mon,  3 Aug 2015 19:13:32 -0700
+Message-Id: <1438654414-29259-7-git-send-email-linux@roeck-us.net>
+In-Reply-To: <1438654414-29259-1-git-send-email-linux@roeck-us.net>
+References: <1438654414-29259-1-git-send-email-linux@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The watchdog infrastructure is currently purely passive, meaning
-it only passes information from user space to drivers and vice versa.
+The watchdog infrastructure now supports handling watchdog keepalive
+if the watchdog is running while the watchdog device is closed.
+Convert the driver to use this infrastructure.
 
-Since watchdog hardware tends to have its own quirks, this can result
-in quite complex watchdog drivers. A number of scanarios are especially common.
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+ drivers/watchdog/retu_wdt.c | 78 ++++-----------------------------------------
+ 1 file changed, 7 insertions(+), 71 deletions(-)
 
-- A watchdog is always active and can not be disabled, or can not be disabled
-  once enabled. To support such hardware, watchdog drivers have to implement
-  their own timers and use those timers to trigger watchdog keepalives while
-  the watchdog device is not or not yet opened.
-- A variant of this is the desire to enable a watchdog as soon as its driver
-  has been instantiated, to protect the system while it is still booting up,
-  but the watchdog daemon is not yet running.
-- Some watchdogs have a very short maximum timeout, in the range of just a few
-  seconds. Such low timeouts are difficult if not impossible to support from
-  user space. Drivers supporting such watchdog hardware need to implement
-  a timer function to augment heartbeats from user space.
+diff --git a/drivers/watchdog/retu_wdt.c b/drivers/watchdog/retu_wdt.c
+index b7c68e275aeb..ce2982a7670c 100644
+--- a/drivers/watchdog/retu_wdt.c
++++ b/drivers/watchdog/retu_wdt.c
+@@ -28,69 +28,22 @@
+ /* Watchdog timer values in seconds */
+ #define RETU_WDT_MAX_TIMER	63
+ 
+-struct retu_wdt_dev {
+-	struct retu_dev		*rdev;
+-	struct device		*dev;
+-	struct delayed_work	ping_work;
+-};
+-
+-/*
+- * Since Retu watchdog cannot be disabled in hardware, we must kick it
+- * with a timer until userspace watchdog software takes over. If
+- * CONFIG_WATCHDOG_NOWAYOUT is set, we never start the feeding.
+- */
+-static void retu_wdt_ping_enable(struct retu_wdt_dev *wdev)
+-{
+-	retu_write(wdev->rdev, RETU_REG_WATCHDOG, RETU_WDT_MAX_TIMER);
+-	schedule_delayed_work(&wdev->ping_work,
+-			round_jiffies_relative(RETU_WDT_MAX_TIMER * HZ / 2));
+-}
+-
+-static void retu_wdt_ping_disable(struct retu_wdt_dev *wdev)
+-{
+-	retu_write(wdev->rdev, RETU_REG_WATCHDOG, RETU_WDT_MAX_TIMER);
+-	cancel_delayed_work_sync(&wdev->ping_work);
+-}
+-
+-static void retu_wdt_ping_work(struct work_struct *work)
+-{
+-	struct retu_wdt_dev *wdev = container_of(to_delayed_work(work),
+-						struct retu_wdt_dev, ping_work);
+-	retu_wdt_ping_enable(wdev);
+-}
+-
+ static int retu_wdt_start(struct watchdog_device *wdog)
+ {
+-	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
++	struct retu_dev *rdev = watchdog_get_drvdata(wdog);
+ 
+-	retu_wdt_ping_disable(wdev);
++	set_bit(WDOG_RUNNING, &wdog->status);
+ 
+-	return retu_write(wdev->rdev, RETU_REG_WATCHDOG, wdog->timeout);
+-}
+-
+-static int retu_wdt_stop(struct watchdog_device *wdog)
+-{
+-	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
+-
+-	retu_wdt_ping_enable(wdev);
+-
+-	return 0;
+-}
+-
+-static int retu_wdt_ping(struct watchdog_device *wdog)
+-{
+-	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
+-
+-	return retu_write(wdev->rdev, RETU_REG_WATCHDOG, wdog->timeout);
++	return retu_write(rdev, RETU_REG_WATCHDOG, wdog->timeout);
+ }
+ 
+ static int retu_wdt_set_timeout(struct watchdog_device *wdog,
+ 				unsigned int timeout)
+ {
+-	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
++	struct retu_dev *rdev = watchdog_get_drvdata(wdog);
+ 
+ 	wdog->timeout = timeout;
+-	return retu_write(wdev->rdev, RETU_REG_WATCHDOG, wdog->timeout);
++	return retu_write(rdev, RETU_REG_WATCHDOG, wdog->timeout);
+ }
+ 
+ static const struct watchdog_info retu_wdt_info = {
+@@ -101,8 +54,6 @@ static const struct watchdog_info retu_wdt_info = {
+ static const struct watchdog_ops retu_wdt_ops = {
+ 	.owner		= THIS_MODULE,
+ 	.start		= retu_wdt_start,
+-	.stop		= retu_wdt_stop,
+-	.ping		= retu_wdt_ping,
+ 	.set_timeout	= retu_wdt_set_timeout,
+ };
+ 
+@@ -111,39 +62,26 @@ static int retu_wdt_probe(struct platform_device *pdev)
+ 	struct retu_dev *rdev = dev_get_drvdata(pdev->dev.parent);
+ 	bool nowayout = WATCHDOG_NOWAYOUT;
+ 	struct watchdog_device *retu_wdt;
+-	struct retu_wdt_dev *wdev;
+ 	int ret;
+ 
+ 	retu_wdt = devm_kzalloc(&pdev->dev, sizeof(*retu_wdt), GFP_KERNEL);
+ 	if (!retu_wdt)
+ 		return -ENOMEM;
+ 
+-	wdev = devm_kzalloc(&pdev->dev, sizeof(*wdev), GFP_KERNEL);
+-	if (!wdev)
+-		return -ENOMEM;
+-
+ 	retu_wdt->info		= &retu_wdt_info;
+ 	retu_wdt->ops		= &retu_wdt_ops;
+ 	retu_wdt->timeout	= RETU_WDT_MAX_TIMER;
+ 	retu_wdt->min_timeout	= 0;
+ 	retu_wdt->max_timeout	= RETU_WDT_MAX_TIMER;
+ 
+-	watchdog_set_drvdata(retu_wdt, wdev);
++	watchdog_set_drvdata(retu_wdt, rdev);
+ 	watchdog_set_nowayout(retu_wdt, nowayout);
+ 
+-	wdev->rdev		= rdev;
+-	wdev->dev		= &pdev->dev;
+-
+-	INIT_DELAYED_WORK(&wdev->ping_work, retu_wdt_ping_work);
+-
+ 	ret = watchdog_register_device(retu_wdt);
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	if (nowayout)
+-		retu_wdt_ping(retu_wdt);
+-	else
+-		retu_wdt_ping_enable(wdev);
++	retu_wdt_start(retu_wdt);
+ 
+ 	platform_set_drvdata(pdev, retu_wdt);
+ 
+@@ -153,10 +91,8 @@ static int retu_wdt_probe(struct platform_device *pdev)
+ static int retu_wdt_remove(struct platform_device *pdev)
+ {
+ 	struct watchdog_device *wdog = platform_get_drvdata(pdev);
+-	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
+ 
+ 	watchdog_unregister_device(wdog);
+-	cancel_delayed_work_sync(&wdev->ping_work);
+ 
+ 	return 0;
+ }
+-- 
+2.1.4
 
-This patch set solves the above problems while keeping changes to the
-watchdog core minimal.
-
-- A new status flag, WDOG_RUNNING, informs the watchdog subsystem that a
-  watchdog is running, and that the watchdog subsystem needs to generate
-  heartbeat requests while the associated watchdog device is closed.
-- A new parameter in the watchdog data structure, max_hw_timeout_ms, informs
-  the watchdog subsystem about a maximum hardware timeout. The watchdog
-  subsystem uses this information together with the configured timeout
-  and the maximum permitted timeout to determine if it needs to generate
-  additional heartbeat requests.
-
-Patch #1 is a preparatory patch.
-
-Patch #2 adds timer functionality to the watchdog core. It solves the problem
-of short maximum hardware timeouts by augmenting heartbeats triggered from
-user space with internally triggered heartbeats.
-
-Patch #3 adds functionality to generate heartbeats while the watchdog device is
-closed. It handles situation where where the watchdog is running after
-the driver has been instantiated, but the device is not yet opened,
-and post-close situations necessary if a watchdog can not be stopped.
-
-Patch #4 makes the set_timeout function optional. This is now possible since
-timeout changes can now be completely handled in the watchdog core, for
-example if the hardware watchdog timeout is fixed.
-
-Patch #5 to #8 are example conversions of some watchdog drivers.
-Those patches will require testing.
-
-This patch set does not solve all limitations of the watchdog subsystem.
-Specifically, it does not add support for the following features.
-
-- It is desirable to be able to specify a maximum early timeout,
-  from booting the system to opening the watchdog device.
-- Some watchdogs may require a minimum period of time between
-  heartbeats. Examples are DA9062 and possibly AT91SAM9x.
-
-This and other features will be adddessed with subsequent patches.
-
-The patch set is inspired by an earlier patch set from Timo Kokonnen.
