@@ -1,63 +1,51 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:35942 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933635AbbHDPB2 (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 4 Aug 2015 11:01:28 -0400
-Message-ID: <55C0D3C2.6020709@roeck-us.net>
-Date: Tue, 04 Aug 2015 08:01:22 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: =?windows-1252?Q?Uwe_Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-CC: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+Return-path: <ukl@pengutronix.de>
+Date: Tue, 4 Aug 2015 17:41:04 +0200
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
 	linux-kernel@vger.kernel.org,
-	Timo Kokkonen <timo.kokkonen@offcode.fi>,
-	linux-doc@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>
-Subject: Re: [PATCH 0/8] watchdog: Add support for keepalives triggered by
- infrastructure
-References: <1438654414-29259-1-git-send-email-linux@roeck-us.net> <20150804112431.GK9999@pengutronix.de>
-In-Reply-To: <20150804112431.GK9999@pengutronix.de>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+	Timo Kokkonen <timo.kokkonen@offcode.fi>, linux-doc@vger.kernel.org,
+	Jonathan Corbet <corbet@lwn.net>, kernel@pengutronix.de
+Subject: Re: [PATCH 3/8] watchdog: Introduce WDOG_RUNNING flag
+Message-ID: <20150804154104.GT9999@pengutronix.de>
+References: <1438654414-29259-1-git-send-email-linux@roeck-us.net>
+ <1438654414-29259-4-git-send-email-linux@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <1438654414-29259-4-git-send-email-linux@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Uwe,
+Hello,
 
-On 08/04/2015 04:24 AM, Uwe Kleine-König wrote:
-> Hello Guenter,
->
-> On Mon, Aug 03, 2015 at 07:13:26PM -0700, Guenter Roeck wrote:
->> This patch set does not solve all limitations of the watchdog subsystem.
->> Specifically, it does not add support for the following features.
->>
->> - It is desirable to be able to specify a maximum early timeout,
->>    from booting the system to opening the watchdog device.
->> - Some watchdogs may require a minimum period of time between
->>    heartbeats. Examples are DA9062 and possibly AT91SAM9x.
->
-> Other things that come to my mind:
->   - move handling of nowayout into the core
->   - some drivers use a reboot notifier. Not sure what they are intended
->     to do there. For i.MX2x it triggers a reboot; for gpio-wdt it tries
->     to stop the watchdog.
->
-Be careful - those are different functions. The imx2 driver installs
-a _restart_ handler, which indeed is supposed to restart the system.
-The gpio wdt driver installs a _reboot_ notifier, which is supposed to
-stop the watchdog. Other drivers install a shutdown callback in the
-platform driver structure to do the same; not really sure what is better.
+On Mon, Aug 03, 2015 at 07:13:29PM -0700, Guenter Roeck wrote:
+> The WDOG_RUNNING flag is expected to be set by watchdog drivers if
+> the hardware watchdog is running. If the flag is set, the watchdog
+> subsystem will ping the watchdog even if the watchdog device is closed.
+> 
+> The watchdog driver stop function is now optional and may be omitted
+> if the watchdog can not be stopped. If stopping the watchdog is not
+> possible but the driver implements a stop function, it is responsible
+> to set the WDOG_RUNNING flag in its stop function.
+> 
+> Cc: Timo Kokkonen <timo.kokkonen@offcode.fi>
+> Cc: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> ---
+>  Documentation/watchdog/watchdog-kernel-api.txt | 19 ++++++++-----
+>  drivers/watchdog/watchdog_core.c               |  2 +-
+>  drivers/watchdog/watchdog_dev.c                | 39 ++++++++++++++++++++------
+>  include/linux/watchdog.h                       |  7 +++++
+>  4 files changed, 50 insertions(+), 17 deletions(-)
+Another thing that I noticed just now after looking at a later patch in
+this series: Conceptually that worker stuff better fits into
+watchdog_core.c than watchdog_dev.c, doesn't it? But maybe this
+separation doesn't make sense anyhow?
 
-> Of course this doesn't mean this should addressed here. I like the
-> series in general.
->
+Best regards
+Uwe
 
-The list wasn't supposed to be exhaustive. Otherwise adding "support devm"
-should have been there as well. I even have a patch hanging around somewhere
-to do that. Guess I should have said something like "does not solve all
-timeout related limitations ...".
-
-Thanks,
-Guenter
-
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
