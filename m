@@ -1,47 +1,48 @@
-Return-path: <ukl@pengutronix.de>
-Date: Wed, 5 Aug 2015 10:27:21 +0200
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
+Return-path: <teigland@redhat.com>
+Date: Wed, 5 Aug 2015 12:51:58 -0500
+From: David Teigland <teigland@redhat.com>
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>,
-	linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	linux-kernel@vger.kernel.org,
-	Timo Kokkonen <timo.kokkonen@offcode.fi>, linux-doc@vger.kernel.org,
-	Jonathan Corbet <corbet@lwn.net>, kernel@pengutronix.de
+Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+        linux-kernel@vger.kernel.org, Timo Kokkonen <timo.kokkonen@offcode.fi>,
+        Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>,
+        linux-doc@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>
 Subject: Re: [PATCH 0/8] watchdog: Add support for keepalives triggered by
  infrastructure
-Message-ID: <20150805082721.GY9999@pengutronix.de>
+Message-ID: <20150805175158.GB15472@redhat.com>
 References: <1438654414-29259-1-git-send-email-linux@roeck-us.net>
- <55C14E2B.1080904@draigBrady.com>
- <20150805073605.GW9999@pengutronix.de>
- <55C1C041.3080504@roeck-us.net>
+ <20150805171349.GA15472@redhat.com>
+ <55C24ADF.7010605@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <55C1C041.3080504@roeck-us.net>
+In-Reply-To: <55C24ADF.7010605@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hello Guenter,
+On Wed, Aug 05, 2015 at 10:41:51AM -0700, Guenter Roeck wrote:
+> Not really. The heartbeats will be generated such that the watchdog expires
+> no later that <last heartbeat from userspace + configured timeout>. I discussed
+> this already with Uwe; he had the same concern. This isn't in the current
+> version of the patch set, but it will be in the next version. That means
+> that nothing will change from user space perspective.
 
-On Wed, Aug 05, 2015 at 12:50:25AM -0700, Guenter Roeck wrote:
-> On 08/05/2015 12:36 AM, Uwe Kleine-König wrote:
-> >the watchdog I'm currently working with on a powerpc platform has a
-> >unchangable timeout of ~1 s. To make the machine boot I patched the
-> >bootloader and need some automatic pinging in the kernel before
-> >userspace takes over.
+Sounds good, thanks.
+
+> >A related issue from some years ago is the unfortunate fact that closing
+> >the watchdog device also generates a heartbeat.  I'd like to disable that
+> >also, and submitted a patch for it here:
+> >http://www.spinics.net/lists/linux-watchdog/msg01477.html
 > >
 > 
-> Does using arch_initcall in the watchdog driver help here, or is that
-> still too slow and you really need to hack the kernel ?
+> That is a different issue, though, and unrelated to this patch set.
+> Wim had a good point there: Presumably the problem you are trying to solve
+> applies to the entire system, not to a specific watchdog. What you are looking
+> for looks more like a system parameter, not like something to set with an ioctl
+> message. The reason here is that you'd still want to be able to use standard
+> applications such as systemd or watchdogd to trigger heartbeats, and not depend
+> on your own.
 
-I didn't do any measurements yet, but having the bootloader extracting
-the kernel, and then send a ping before jumping into it is good enough
-even without CONFIG_GPIO_WATCHDOG_ARCH_INITCALL to get the machine up.
-(Userspace doesn't do any watchdog handling yet.)
+I'd need this behavior when the system is running my program (sanlock with
+wdmd), which uses /dev/watchdog.  No other programs (systemd or watchdogd)
+could be using /dev/watchdog at the same time.
 
-Best regards
-Uwe
-
--- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Dave
