@@ -1,65 +1,52 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:59143 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751443AbbHEAtZ (ORCPT
+Received: from eusmtp01.atmel.com ([212.144.249.243]:46483 "EHLO
+	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751659AbbHECnN (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 4 Aug 2015 20:49:25 -0400
-Message-ID: <55C15D8F.4020009@roeck-us.net>
-Date: Tue, 04 Aug 2015 17:49:19 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Tue, 4 Aug 2015 22:43:13 -0400
+From: Wenyou Yang <wenyou.yang@atmel.com>
+To: <wim@iguana.be>, <robh+dt@kernel.org>, <pawel.moll@arm.com>,
+	<mark.rutland@arm.com>, <ijc+devicetree@hellion.org.uk>,
+	<galak@codeaurora.org>
+CC: <sylvain.rochet@finsecur.com>, <nicolas.ferre@atmel.com>,
+	<boris.brezillon@free-electrons.com>, <wenyou.yang@atmel.com>,
+	<devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<linux-watchdog@vger.kernel.org>,
+	<linux-arm-kernel@lists.infradead.org>
+Subject: [PATCH v2 0/2] add a new driver to support SAMA5D4 watchdog timer
+Date: Wed, 5 Aug 2015 10:35:28 +0800
+Message-ID: <1438742130-2089-1-git-send-email-wenyou.yang@atmel.com>
 MIME-Version: 1.0
-To: =?UTF-8?B?UMOhZHJhaWcgQnJhZHk=?= <P@draigBrady.com>,
-	linux-watchdog@vger.kernel.org
-CC: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
-	Timo Kokkonen <timo.kokkonen@offcode.fi>,
-	=?UTF-8?B?VXdlIEtsZWluZS1Lw7ZuaWc=?=
-	<u.kleine-koenig@pengutronix.de>, linux-doc@vger.kernel.org,
-	Jonathan Corbet <corbet@lwn.net>
-Subject: Re: [PATCH 0/8] watchdog: Add support for keepalives triggered by
- infrastructure
-References: <1438654414-29259-1-git-send-email-linux@roeck-us.net> <55C14E2B.1080904@draigBrady.com>
-In-Reply-To: <55C14E2B.1080904@draigBrady.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 08/04/2015 04:43 PM, Pádraig Brady wrote:
-> On 04/08/15 03:13, Guenter Roeck wrote:
->> The watchdog infrastructure is currently purely passive, meaning
->> it only passes information from user space to drivers and vice versa.
->>
->> Since watchdog hardware tends to have its own quirks, this can result
->> in quite complex watchdog drivers. A number of scanarios are especially common.
->>
->> - A watchdog is always active and can not be disabled, or can not be disabled
->>    once enabled. To support such hardware, watchdog drivers have to implement
->>    their own timers and use those timers to trigger watchdog keepalives while
->>    the watchdog device is not or not yet opened.
->> - A variant of this is the desire to enable a watchdog as soon as its driver
->>    has been instantiated, to protect the system while it is still booting up,
->>    but the watchdog daemon is not yet running.
->
-> Just mentioning that patting the watchdog in the boot loader
-> (by patching grub etc.) can be a more general solution here as it
-> avoids hangs if the kernel crashes before it runs the watchdog driver,
-> which is especially true if PXE loaded across the net for example.
-> Also this tends to be better spaced between boot start and user space loading.
->
+Hello,
 
-I understand. However, that is not always sufficient, and it may not work
-well since grub would need to know about the actual watchdog hardware.
-Also, there are systems where the time between "watchdog driver instantiated"
-and "watchdog daemon started" is just too large for the maximum watchdog
-hardware timeout.
+Thank for Guenter's advice, add a new driver to support SAMA5D4 watchdog timer.
 
-The point here is that there _are_ many drivers which implement this
-functionality in the driver code. Not counting the drivers I converted as an
-exercise, "git grep mod_timer | cut -f1 -d: | sort -u | wc" in drivers/watchdog
-suggests that there are 20 more drivers implementing their own heartbeat
-management. With that, it just makes sense to move the functionality to
-the infrastructure.
+Because the watchdog WDT_MR register can be written more than once, its work
+mechanism is different from the previous one. Open the device file to enable
+the watchdog hardware, close to disable it, and ping it from the user space
+directly to keep it alive.
 
-Thanks,
-Guenter
+Best Regards,
+Wenyou Yang
+
+Wenyou Yang (2):
+  drivers: watchdog: add a driver to support SAMA5D4 watchdog timer
+  Documentation: dt: binding: atmel-sama5d4-wdt: for SAMA5D4 watchdog
+    driver
+
+ .../bindings/watchdog/atmel-sama5d4-wdt.txt        |   35 +++
+ drivers/watchdog/Kconfig                           |    9 +
+ drivers/watchdog/Makefile                          |    1 +
+ drivers/watchdog/at91sam9_wdt.h                    |    4 +
+ drivers/watchdog/atmel_wdt.c                       |  290 ++++++++++++++++++++
+ 5 files changed, 339 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/atmel-sama5d4-wdt.txt
+ create mode 100644 drivers/watchdog/atmel_wdt.c
+
+-- 
+1.7.9.5
 
