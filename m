@@ -1,162 +1,124 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pd0-f177.google.com ([209.85.192.177]:35533 "EHLO
-	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755084AbbHXRCT (ORCPT
+Received: from eusmtp01.atmel.com ([212.144.249.242]:52443 "EHLO
+	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750827AbbHFCJV (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 24 Aug 2015 13:02:19 -0400
-Received: by pdob1 with SMTP id b1so55500508pdo.2
-        for <linux-watchdog@vger.kernel.org>; Mon, 24 Aug 2015 10:02:18 -0700 (PDT)
-From: fu.wei@linaro.org
-To: Suravee.Suthikulpanit@amd.com, hanjun.guo@linaro.org,
-	linaro-acpi@lists.linaro.org, linux-watchdog@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-doc@vger.kernel.org
-Cc: tekkamanninja@gmail.com, graeme.gregory@linaro.org,
-	al.stone@linaro.org, arnd@arndb.de, linux@roeck-us.net,
-	vgandhi@codeaurora.org, wim@iguana.be, jcm@redhat.com,
-	leo.duran@amd.com, corbet@lwn.net, mark.rutland@arm.com,
-	catalin.marinas@arm.com, will.deacon@arm.com, rjw@rjwysocki.net,
-	dyoung@redhat.com, panand@redhat.com, Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH v7 0/8] Watchdog: introduce ARM SBSA watchdog driver
-Date: Tue, 25 Aug 2015 01:01:15 +0800
-Message-Id: <1440435683-7343-1-git-send-email-fu.wei@linaro.org>
-In-Reply-To: <=fu.wei@linaro.org>
-References: <=fu.wei@linaro.org>
+	Wed, 5 Aug 2015 22:09:21 -0400
+From: "Yang, Wenyou" <Wenyou.Yang@atmel.com>
+To: =?utf-8?B?TG90aGFyIFdhw59tYW5u?= <LW@KARO-electronics.de>
+CC: "wim@iguana.be" <wim@iguana.be>,
+	"robh+dt@kernel.org" <robh+dt@kernel.org>,
+	"pawel.moll@arm.com" <pawel.moll@arm.com>,
+	"mark.rutland@arm.com" <mark.rutland@arm.com>,
+	"ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>,
+	"galak@codeaurora.org" <galak@codeaurora.org>,
+	"boris.brezillon@free-electrons.com"
+	<boris.brezillon@free-electrons.com>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"sylvain.rochet@finsecur.com" <sylvain.rochet@finsecur.com>,
+	"Ferre, Nicolas" <Nicolas.FERRE@atmel.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>
+Subject: RE: [PATCH v3 1/2] drivers: watchdog: add a driver to support
+ SAMA5D4 watchdog timer
+Date: Thu, 6 Aug 2015 02:09:00 +0000
+Message-ID: <B256D81BAE5131468A838E5D7A243641C9F87310@penmbx01>
+References: <1438765043-11030-1-git-send-email-wenyou.yang@atmel.com>
+	<1438765043-11030-2-git-send-email-wenyou.yang@atmel.com>
+ <20150805124030.6e73b975@ipc1.ka-ro>
+In-Reply-To: <20150805124030.6e73b975@ipc1.ka-ro>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Fu Wei <fu.wei@linaro.org>
-
-This patchset:
-    (1)Introduce Documentation/devicetree/bindings/watchdog/sbsa-gwdt.txt
-    for FDT info of SBSA Generic Watchdog, and give two examples of
-    adding SBSA Generic Watchdog device node into the dts files:
-    foundation-v8.dts and amd-seattle-soc.dtsi.
-
-    (2)Introduce "pretimeout" into the watchdog framework, and update
-    Documentation/watchdog/watchdog-kernel-api.txt to introduce:
-        (1)the new elements in the watchdog_device and watchdog_ops struct;
-        (2)the new API "watchdog_init_timeouts".
-
-    (3)Introduce ARM SBSA watchdog driver:
-        a.Use linux kernel watchdog framework;
-        b.Work with FDT on ARM64;
-        c.Use "pretimeout" in watchdog framework;
-        d.Support getting timeout and pretimeout from parameter and FDT
-          at the driver init stage.
-        e.In the first timeout, do panic to save system context;
-        f.In the second stage, user can still feed the dog without
-          cleaning WS0. By this feature, we can avoid the panic infinite
-          loops, while backing up a large system context in a server.
-        g.In the second stage, can trigger WS1 by setting pretimeout = 0
-          if necessary.
-
-    (4)Introduce ACPI GTDT parser: drivers/acpi/gtdt.c
-    Parse SBSA Generic Watchdog Structure in GTDT table of ACPI,
-    and create a platform device with that information.
-    This platform device can be used by This Watchdog driver.
-    drivers/clocksource/arm_arch_timer.c is simplified by this GTDT support.
-
-This patchset has been tested with watchdog daemon
-(ACPI/FDT, module/build-in) on the following platforms:
-    (1)ARM Foundation v8 model
-
-Changelog:
-v7: Rebase to latest kernel version(4.2-rc7).
-    Improve FDT support: geting resource by order, instead of name.
-    According to the FDT support, Update the example dts file, gtdt.c
-    and sbsa_gwdt.c.
-    Pass the sparse test, and fix the warning.
-    Fix the max_pretimeout and max_timeout value overflow bug.
-    Delete the WCV output value.
-    
-
-v6: Improve the dtb example files: reduce the register frame size to 4K.
-    Improve pretimeout support:
-        (1) improve watchdog_init_timeouts function
-	(2) rename watchdog_check_min_max_timeouts back to the original name
-        (1) improve watchdog_timeout_invalid/watchdog_pretimeout_invalid
-    Add the new features in the sbsa_gwdt driver:
-	(1) In the second stage, user can feed the dog without cleaning WS0.
-	(2) In the second stage, user can trigger WS1 by setting pretimeout = 0.
-	(3) expand the max value of pretimeout, in case 10 second is not enough
-	    for a kdump kernel reboot in panic.
-
-v5: Improve pretimeout support:
-        (1)fix typo in documentation and comments.
-	(2)fix the timeout limits validation bug.
-    Simplify sbsa_gwdt driver:
-	(1)integrate all the registers access functions into caller.
-
-v4: Refactor GTDT support code: remove it from arch/arm64/kernel/acpi.c,
-    put it into drivers/acpi/gtdt.c file.
-    Integrate the GTDT code of drivers/clocksource/arm_arch_timer.c into
-    drivers/acpi/gtdt.c.
-    Improve pretimeout support, fix "pretimeout == 0" problem.
-    Simplify sbsa_gwdt driver:
-        (1)timeout/pretimeout limits setup;
-        (2)keepalive function;
-        (3)delete "clk == 0" check;
-        (4)delete WS0 status bit check in interrupt routine;
-        (5)sbsa_gwdt_set_wcv function.
-
-v3: Delete "export arch_timer_get_rate" patch.
-    Driver back to use arch_timer_get_cntfrq.
-    Improve watchdog_init_timeouts function and update relevant documentation.
-    Improve watchdog_timeout_invalid and watchdog_pretimeout_invalid.
-    Improve foundation-v8.dts: delete the unnecessary tag of device node.
-    Remove "ARM64 || COMPILE_TEST" from Kconfig.
-    Add comments in arch/arm64/kernel/acpi.c
-    Fix typoes and incorrect comments.
-
-v2: Improve watchdog-kernel-api.txt documentation for pretimeout support.
-    Export "arch_timer_get_rate" in arm_arch_timer.c.
-    Add watchdog_init_timeouts API for pretimeout support in framework.
-    Improve suspend and resume foundation in driver
-    Improve timeout/pretimeout values init code in driver.
-    Delete unnecessary items of the sbsa_gwdt struct and #define.
-    Delete all unnecessary debug info in driver.
-    Fix 64bit division bug.
-    Use the arch_timer interface to get watchdog clock rate.
-    Add MODULE_DEVICE_TABLE for platform device id.
-    Fix typoes.
-
-v1: The first version upstream patchset to linux mailing list.
-
-Fu Wei (8):
-  Documentation: add sbsa-gwdt.txt documentation
-  ARM64: add SBSA Generic Watchdog device node in foundation-v8.dts
-  ARM64: add SBSA Generic Watchdog device node in amd-seattle-soc.dtsi
-  Watchdog: introdouce "pretimeout" into framework
-  Watchdog: introduce ARM SBSA watchdog driver
-  ACPI: add GTDT table parse driver into ACPI driver
-  Watchdog: enable ACPI GTDT support for ARM SBSA watchdog driver
-  clocksource: simplify ACPI code in arm_arch_timer.c
-
- .../devicetree/bindings/watchdog/sbsa-gwdt.txt     |  32 ++
- Documentation/watchdog/watchdog-kernel-api.txt     |  47 ++-
- arch/arm64/boot/dts/amd/amd-seattle-soc.dtsi       |   8 +
- arch/arm64/boot/dts/arm/foundation-v8.dts          |   7 +
- arch/arm64/kernel/time.c                           |   4 +-
- drivers/acpi/Kconfig                               |   9 +
- drivers/acpi/Makefile                              |   1 +
- drivers/acpi/gtdt.c                                | 178 ++++++++
- drivers/clocksource/Kconfig                        |   1 +
- drivers/clocksource/arm_arch_timer.c               |  60 +--
- drivers/watchdog/Kconfig                           |  15 +
- drivers/watchdog/Makefile                          |   1 +
- drivers/watchdog/sbsa_gwdt.c                       | 459 +++++++++++++++++++++
- drivers/watchdog/watchdog_core.c                   |  98 +++--
- drivers/watchdog/watchdog_dev.c                    |  53 +++
- include/clocksource/arm_arch_timer.h               |   8 +
- include/linux/acpi.h                               |   5 +
- include/linux/clocksource.h                        |   4 +-
- include/linux/watchdog.h                           |  39 +-
- 19 files changed, 939 insertions(+), 90 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/watchdog/sbsa-gwdt.txt
- create mode 100644 drivers/acpi/gtdt.c
- create mode 100644 drivers/watchdog/sbsa_gwdt.c
-
--- 
-2.4.3
-
+SGkgTG90aGFyLA0KDQpUaGFuayB5b3UgZm9yIHlvdXIgcmV2aWV3Lg0KDQo+IC0tLS0tT3JpZ2lu
+YWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IExvdGhhciBXYcOfbWFubiBbbWFpbHRvOkxXQEtBUk8t
+ZWxlY3Ryb25pY3MuZGVdDQo+IFNlbnQ6IDIwMTXlubQ45pyINeaXpSAxODo0MQ0KPiBUbzogWWFu
+ZywgV2VueW91DQo+IENjOiB3aW1AaWd1YW5hLmJlOyByb2JoK2R0QGtlcm5lbC5vcmc7IHBhd2Vs
+Lm1vbGxAYXJtLmNvbTsNCj4gbWFyay5ydXRsYW5kQGFybS5jb207IGlqYytkZXZpY2V0cmVlQGhl
+bGxpb24ub3JnLnVrOyBnYWxha0Bjb2RlYXVyb3JhLm9yZzsNCj4gYm9yaXMuYnJlemlsbG9uQGZy
+ZWUtZWxlY3Ryb25zLmNvbTsgbGludXgtd2F0Y2hkb2dAdmdlci5rZXJuZWwub3JnOw0KPiBkZXZp
+Y2V0cmVlQHZnZXIua2VybmVsLm9yZzsgc3lsdmFpbi5yb2NoZXRAZmluc2VjdXIuY29tOyBGZXJy
+ZSwgTmljb2xhczsgbGludXgtDQo+IGtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWFybS1r
+ZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZw0KPiBTdWJqZWN0OiBSZTogW1BBVENIIHYzIDEvMl0g
+ZHJpdmVyczogd2F0Y2hkb2c6IGFkZCBhIGRyaXZlciB0byBzdXBwb3J0IFNBTUE1RDQNCj4gd2F0
+Y2hkb2cgdGltZXINCj4gDQo+IEhpLA0KPiANCj4gPiBGcm9tIFNBTUE1RDQsIHRoZSB3YXRjaGRv
+ZyB0aW1lciBpcyB1cGdyYXRlZCB3aXRoIGEgbmV3IGZlYXR1cmUsIHdoaWNoDQo+ID4gaXMgZGVz
+Y3JpYmxlZCBhcyBpbiB0aGUgZGF0YXNoZWV0LCAiV0RUX01SIGNhbiBiZSB3cml0dGVuIHVudGls
+IGENCj4gPiBMT0NLTVIgY29tbWFuZCBpcyBpc3N1ZWQgaW4gV0RUX0NSIi4NCj4gPiBUaGF0IGlz
+IHRvIHNheSwgYXMgbG9uZyBhcyB0aGUgYm9vdHN0cmFwIGFuZCB1LWJvb3QgZG9uJ3QgaXNzdWUg
+YQ0KPiA+IExPQ0tNUiBjb21tYW5kLCBXRFRfTVIgY2FuIGJlIHdyaXR0ZW4gbW9yZSB0aGFuIG9u
+Y2UgaW4gdGhlIGRyaXZlci4NCj4gPg0KPiA+IFNvIHRoZSBTQU1BNUQ0IHdhdGNoZG9nIGRyaXZl
+cidzIGltcGxlbWVudGF0aW9uIGlzIGRpZmZlcmVudCBmcm9tIHRoZQ0KPiA+IGF0OTFzYW05MjYw
+IHdhdGNoZG9nIGRyaXZlciBpbXBsZW1lbnRlZCBpbiBmaWxlIGF0OTFzYW05X3dkdC5jLg0KPiA+
+IFRoZSB1c2VyIGFwcGxpY2F0aW9uIG9wZW4gdGhlIGRldmljZSBmaWxlIHRvIGVuYWJsZSB0aGUg
+d2F0Y2hkb2cgdGltZXINCj4gPiBoYXJkd2FyZSwgYW5kIGNsb3NlIHRvIGRpc2FibGUgaXQsIGFu
+ZCBzZXQgdGhlIHdhdGNoZG9nIHRpbWVyIHRpbWVvdXQNCj4gPiBieSBzZXRpbmcgV0RWIGFuZCBX
+REQgZmllbGRzIG9mIFdEVF9NUiByZWdpc3RlciwgYW5kIHBpbmcgdGhlIHdhdGNoZG9nDQo+ID4g
+YnkgaXNzdWluZyBXRFJTVFQgY29tbWFuZCB0byBXRFRfQ1IgcmVnaXN0ZXIgd2l0aCBoYXJkLWNv
+ZGVkIGtleS4NCj4gPg0KPiA+IFNpZ25lZC1vZmYtYnk6IFdlbnlvdSBZYW5nIDx3ZW55b3UueWFu
+Z0BhdG1lbC5jb20+DQo+ID4gLS0tDQo+ID4gIGRyaXZlcnMvd2F0Y2hkb2cvS2NvbmZpZyAgICAg
+ICAgICAgIHwgICAgOSArKw0KPiA+ICBkcml2ZXJzL3dhdGNoZG9nL01ha2VmaWxlICAgICAgICAg
+ICB8ICAgIDEgKw0KPiA+ICBkcml2ZXJzL3dhdGNoZG9nL2F0OTFfc2FtYTVkNF93ZHQuYyB8ICAy
+NzkNCj4gKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysNCj4gPiAgZHJpdmVycy93
+YXRjaGRvZy9hdDkxc2FtOV93ZHQuaCAgICAgfCAgICAyICsNCj4gPiAgNCBmaWxlcyBjaGFuZ2Vk
+LCAyOTEgaW5zZXJ0aW9ucygrKQ0KPiA+ICBjcmVhdGUgbW9kZSAxMDA2NDQgZHJpdmVycy93YXRj
+aGRvZy9hdDkxX3NhbWE1ZDRfd2R0LmMNCj4gPg0KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3dh
+dGNoZG9nL0tjb25maWcgYi9kcml2ZXJzL3dhdGNoZG9nL0tjb25maWcgaW5kZXgNCj4gPiBlNWU3
+YzU1Li40Y2U4MzQ2IDEwMDY0NA0KPiA+IC0tLSBhL2RyaXZlcnMvd2F0Y2hkb2cvS2NvbmZpZw0K
+PiA+ICsrKyBiL2RyaXZlcnMvd2F0Y2hkb2cvS2NvbmZpZw0KPiA+IEBAIC0xNTIsNiArMTUyLDE1
+IEBAIGNvbmZpZyBBUk1fU1A4MDVfV0FUQ0hET0cNCj4gPiAgCSAgQVJNIFByaW1lY2VsbCBTUDgw
+NSBXYXRjaGRvZyB0aW1lci4gVGhpcyB3aWxsIHJlYm9vdCB5b3VyIHN5c3RlbQ0KPiB3aGVuDQo+
+ID4gIAkgIHRoZSB0aW1lb3V0IGlzIHJlYWNoZWQuDQo+ID4NCj4gPiArY29uZmlnIEFUOTFfU0FN
+QTVENF9XQVRDSERPRw0KPiA+ICsJdHJpc3RhdGUgIkF0bWVsIFNBTUE1RDQgV2F0Y2hkb2cgVGlt
+ZXIiDQo+ID4gKwlkZXBlbmRzIG9uIEFSQ0hfQVQ5MQ0KPiA+ICsJc2VsZWN0IFdBVENIRE9HX0NP
+UkUNCj4gPiArCWhlbHANCj4gPiArCSAgQXRtZWwgU0FNQTVENCB3YXRjaGRvZyB0aW1lciBpcyBl
+bWJlZGRlZCBpbnRvIFNBTUE1RDQgY2hpcHMuDQo+ID4gKwkgIEl0cyBXYXRjaGRvZyBUaW1lciBN
+b2RlIFJlZ2lzdGVyIGNhbiBiZSB3cml0dGVuIG1vcmUgdGhhbiBvbmNlLg0KPiA+ICsJICBUaGlz
+IHdpbGwgcmVib290IHlvdXIgc3lzdGVtIHdoZW4gdGhlIHRpbWVvdXQgaXMgcmVhY2hlZC4NCj4g
+PiArDQo+ID4gIGNvbmZpZyBBVDkxUk05MjAwX1dBVENIRE9HDQo+ID4gIAl0cmlzdGF0ZSAiQVQ5
+MVJNOTIwMCB3YXRjaGRvZyINCj4gPiAgCWRlcGVuZHMgb24gU09DX0FUOTFSTTkyMDAgJiYgTUZE
+X1NZU0NPTiBkaWZmIC0tZ2l0DQo+ID4gYS9kcml2ZXJzL3dhdGNoZG9nL01ha2VmaWxlIGIvZHJp
+dmVycy93YXRjaGRvZy9NYWtlZmlsZSBpbmRleA0KPiA+IDVjMTkyOTQuLmM1NzU2OWMgMTAwNjQ0
+DQo+ID4gLS0tIGEvZHJpdmVycy93YXRjaGRvZy9NYWtlZmlsZQ0KPiA+ICsrKyBiL2RyaXZlcnMv
+d2F0Y2hkb2cvTWFrZWZpbGUNCj4gPiBAQCAtMzAsNiArMzAsNyBAQCBvYmotJChDT05GSUdfVVNC
+UENXQVRDSERPRykgKz0gcGN3ZF91c2Iubw0KPiA+DQo+ID4gICMgQVJNIEFyY2hpdGVjdHVyZQ0K
+PiA+ICBvYmotJChDT05GSUdfQVJNX1NQODA1X1dBVENIRE9HKSArPSBzcDgwNV93ZHQubw0KPiA+
+ICtvYmotJChDT05GSUdfQVQ5MV9TQU1BNUQ0X1dBVENIRE9HKSArPSBhdDkxX3NhbWE1ZDRfd2R0
+Lm8NCj4gY29uc2lzdGVuY3k/IE90aGVyIEFUOTEgZW50cmllcyBkb24ndCBoYXZlIGFuICdfJyBi
+ZXR3ZWVuICdBVDkxJyBhbmQgdGhlDQo+IHJlbWFpbmRlciBvZiB0aGUgS2NvbmZpZyBuYW1lLg0K
+QWNjZXB0LCBSZW1vdmUgdGhlIHByZWZpeCBBVDkxXyAsIHVzZSB0aGUgY2hpcCBuYW1lIGRpcmVj
+dGx5LCBTQU1BNUQ0IGluIG5leHQgdmVyaXNvbi4NCg0KPiANCj4gPiAgb2JqLSQoQ09ORklHX0FU
+OTFSTTkyMDBfV0FUQ0hET0cpICs9IGF0OTFybTkyMDBfd2R0Lm92aSANCj4gPiAgb2JqLSQoQ09O
+RklHX0FUOTFTQU05WF9XQVRDSERPRykgKz0gYXQ5MXNhbTlfd2R0Lm8NCj4gWy4uLl0NCj4gPiAr
+c3RhdGljIGlycXJldHVybl90IGF0bWVsX3dkdF9pcnFfaGFuZGxlcihpbnQgaXJxLCB2b2lkICpk
+ZXZfaWQpIHsNCj4gPiArCXN0cnVjdCBhdG1lbF93ZHQgKndkdCA9IHBsYXRmb3JtX2dldF9kcnZk
+YXRhKGRldl9pZCk7DQo+ID4gKw0KPiA+ICsJaWYgKHdkdF9yZWFkKHdkdCwgQVQ5MV9XRFRfU1Ip
+KSB7DQo+ID4gKwkJcHJfY3JpdCgiQXRtZWwgV2F0Y2hkb2cgU29mdHdhcmUgUmVzZXRcbiIpOw0K
+PiA+ICsJCWVtZXJnZW5jeV9yZXN0YXJ0KCk7DQo+ID4gKwkJcHJfY3JpdCgiUmVib290IGRpZG4n
+dCA/Pz8/P1xuIik7DQo+ID4NCj4gUmVib290IGRpZG4ndCB3aGF0PyAnc3VjY2VlZCcgcGVyaGFw
+cz8NClJlcGxhY2UgaXQgd2l0aCAnc3VjY2VlZCcgaW4gbmV4dCB2ZXJzaW9uLiANCg0KPiANCj4g
+PiArc3RhdGljIGNvbnN0IHN0cnVjdCBvZl9kZXZpY2VfaWQgYXRtZWxfd2R0X29mX21hdGNoW10g
+PSB7DQo+ID4gKwl7IC5jb21wYXRpYmxlID0gImF0bWVsLHNhbWE1ZDQtd2R0IiwgfSwNCj4gPiAr
+CXsgfSwNCj4gVGhlIGVtcHR5IGluaXRpYWxpemVyIG11c3QgYWx3YXlzIGJlIHRoZSBsYXN0IGVs
+ZW1lbnQgb2YgdGhlIGFycmF5LCBzbyB0aGVyZSBpcyBubw0KPiBwb2ludCBpbiBoYXZpbmcgYSB0
+cmFpbGluZyAnLCcgKHdob3NlIHB1cnBvc2UgaXMgdG8gZmFjaWxpdGF0ZSBhZGRpbmcgbW9yZSBl
+bnRyaWVzIGFmdGVyDQo+IHRoZSBsYXN0IG9uZSkuDQo+IFdpdGhvdXQgdGhlIGNvbW1hIHRoZXJl
+IHdpbGwgYmUgYSBjb21waWxlIGVycm9yIGlmIChlLmcuIGR1ZSB0byBhIGJhZGx5IHJlc29sdmVk
+DQo+IG1lcmdlIGNvbmZsaWN0KSBhbiBhZGRpdGlvbmFsIGVudHJ5IHdvdWxkIGJlIGFkZGVkIGFm
+dGVyIHRoZSBzdG9wIG1hcmtlci4gV2l0aCB0aGUNCj4gY29tbWEgYWZ0ZXIgdGhlIHN0b3AgbWFy
+a2VyIGFueSB0cmFpbGluZyBlbnRyaWVzIHdvdWxkIHNpbGVudGx5IGJlIGlnbm9yZWQuDQpSZW1v
+dmUgdGhpcyBjb21tYSBpbiBuZXh0IHZlcnNpb24uDQoNCj4gDQo+IA0KPiBMb3RoYXIgV2HDn21h
+bm4NCj4gLS0NCj4gX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX18NCj4gDQo+IEthLVJvIGVsZWN0cm9uaWNzIEdtYkggfCBQYXNjYWxzdHJh
+w59lIDIyIHwgRCAtIDUyMDc2IEFhY2hlbg0KPiBQaG9uZTogKzQ5IDI0MDggMTQwMi0wIHwgRmF4
+OiArNDkgMjQwOCAxNDAyLTEwDQo+IEdlc2Now6RmdHNmw7xocmVyOiBNYXR0aGlhcyBLYXVzc2Vu
+DQo+IEhhbmRlbHNyZWdpc3RlcmVpbnRyYWc6IEFtdHNnZXJpY2h0IEFhY2hlbiwgSFJCIDQ5OTYN
+Cj4gDQo+IHd3dy5rYXJvLWVsZWN0cm9uaWNzLmRlIHwgaW5mb0BrYXJvLWVsZWN0cm9uaWNzLmRl
+DQo+IF9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fDQoNCkJlc3QgUmVnYXJkcywNCldlbnlvdSANCg==
