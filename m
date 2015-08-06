@@ -1,76 +1,207 @@
-Return-path: <wsa@the-dreams.de>
-Date: Thu, 6 Aug 2015 23:08:17 +0200
-From: Wolfram Sang <wsa@the-dreams.de>
-To: Matt Fleming <matt@codeblueprint.co.uk>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Jean Delvare <jdelvare@suse.com>, Lee Jones <lee.jones@linaro.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Matt Fleming <matt.fleming@intel.com>
-Subject: Re: [PATCH v3 3/3] iTCO_wdt: Add support for TCO on Intel
- Sunrisepoint
-Message-ID: <20150806210817.GB1523@katana>
-References: <1438293541-26131-1-git-send-email-matt@codeblueprint.co.uk>
- <1438293541-26131-4-git-send-email-matt@codeblueprint.co.uk>
- <1438332064.29746.141.camel@linux.intel.com>
- <20150806120024.GG4332@codeblueprint.co.uk>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gj572EiMnwbLXET9"
-Content-Disposition: inline
-In-Reply-To: <20150806120024.GG4332@codeblueprint.co.uk>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:38130 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755156AbbHFQhO (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 6 Aug 2015 12:37:14 -0400
+From: Philipp Zabel <p.zabel@pengutronix.de>
+To: linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@iguana.be>, support.opensource@diasemi.com,
+	kernel@pengutronix.de, Philipp Zabel <p.zabel@pengutronix.de>
+Subject: [PATCH 1/2] watchdog: da9063: Ping watchdog only during allowed time window
+Date: Thu,  6 Aug 2015 18:36:58 +0200
+Message-Id: <1438879019-12978-1-git-send-email-p.zabel@pengutronix.de>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
+There is a cooldown period after watchdog timer setup, and also after each
+watchdog ping. If a ping is issued too early, the watchdog triggers the
+watchdog error condition and causes a system reset.
 
---gj572EiMnwbLXET9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The 256 ms period length is a best guess based on the same value being used
+for the DA9053 predecessor PMIC and experiments that have shown 200 ms are
+not enough to avoid the error.
 
-On Thu, Aug 06, 2015 at 01:00:24PM +0100, Matt Fleming wrote:
-> (Sorry for the delay in replying)
->=20
-> On Fri, 31 Jul, at 11:41:04AM, Andy Shevchenko wrote:
-> > > =20
-> > > +	if (val32 & enable_bit)
-> > > +		ret =3D -EIO;
-> > > +
-> > >  	return ret; /* returns: 0 =3D OK, -EIO =3D Error */
-> >=20
-> > What about removing ret at all?
-> >=20
-> > if (val32 & enable_bit)
-> >  return -EIO;
-> >=20
-> > return 0;
-> =20
-> Yeah, good catch. I'll make this change.
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+---
+ drivers/watchdog/da9063_wdt.c | 88 ++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 79 insertions(+), 9 deletions(-)
 
-I'd go for the ternary operator here.
+diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
+index e2fe2eb..b2e9201 100644
+--- a/drivers/watchdog/da9063_wdt.c
++++ b/drivers/watchdog/da9063_wdt.c
+@@ -35,11 +35,15 @@ static const unsigned int wdt_timeout[] = { 0, 2, 4, 8, 16, 32, 65, 131 };
+ #define DA9063_WDT_MIN_TIMEOUT		wdt_timeout[DA9063_TWDSCALE_MIN]
+ #define DA9063_WDT_MAX_TIMEOUT		wdt_timeout[DA9063_TWDSCALE_MAX]
+ #define DA9063_WDG_TIMEOUT		wdt_timeout[3]
++#define DA9063_TWDMIN			256
+ 
+ struct da9063_watchdog {
+ 	struct da9063 *da9063;
+ 	struct watchdog_device wdtdev;
+ 	struct notifier_block restart_handler;
++	struct delayed_work ping_work;
++	struct mutex mutex;
++	bool defer_ping;
+ };
+ 
+ static unsigned int da9063_wdt_timeout_to_sel(unsigned int secs)
+@@ -54,10 +58,23 @@ static unsigned int da9063_wdt_timeout_to_sel(unsigned int secs)
+ 	return DA9063_TWDSCALE_MAX;
+ }
+ 
+-static int _da9063_wdt_set_timeout(struct da9063 *da9063, unsigned int regval)
++static int _da9063_wdt_set_timeout(struct da9063_watchdog *wdt,
++				   unsigned int regval)
+ {
+-	return regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
+-				  DA9063_TWDSCALE_MASK, regval);
++	struct da9063 *da9063 = wdt->da9063;
++	int ret;
++
++	mutex_lock(&wdt->mutex);
++
++	ret = regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
++				 DA9063_TWDSCALE_MASK, regval);
++
++	wdt->defer_ping = false;
++	schedule_delayed_work(&wdt->ping_work, msecs_to_jiffies(DA9063_TWDMIN));
++
++	mutex_unlock(&wdt->mutex);
++
++	return ret;
+ }
+ 
+ static int da9063_wdt_start(struct watchdog_device *wdd)
+@@ -67,12 +84,16 @@ static int da9063_wdt_start(struct watchdog_device *wdd)
+ 	int ret;
+ 
+ 	selector = da9063_wdt_timeout_to_sel(wdt->wdtdev.timeout);
+-	ret = _da9063_wdt_set_timeout(wdt->da9063, selector);
+-	if (ret)
++	ret = _da9063_wdt_set_timeout(wdt, selector);
++	if (ret) {
+ 		dev_err(wdt->da9063->dev, "Watchdog failed to start (err = %d)\n",
+ 			ret);
++		return ret;
++	}
+ 
+-	return ret;
++	wdd->timeout = wdt_timeout[selector];
++
++	return 0;
+ }
+ 
+ static int da9063_wdt_stop(struct watchdog_device *wdd)
+@@ -80,6 +101,8 @@ static int da9063_wdt_stop(struct watchdog_device *wdd)
+ 	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
+ 	int ret;
+ 
++	cancel_delayed_work_sync(&wdt->ping_work);
++
+ 	ret = regmap_update_bits(wdt->da9063->regmap, DA9063_REG_CONTROL_D,
+ 				 DA9063_TWDSCALE_MASK, DA9063_TWDSCALE_DISABLE);
+ 	if (ret)
+@@ -89,9 +112,8 @@ static int da9063_wdt_stop(struct watchdog_device *wdd)
+ 	return ret;
+ }
+ 
+-static int da9063_wdt_ping(struct watchdog_device *wdd)
++static int da9063_wdt_issue_ping(struct da9063_watchdog *wdt)
+ {
+-	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
+ 	int ret;
+ 
+ 	ret = regmap_write(wdt->da9063->regmap, DA9063_REG_CONTROL_F,
+@@ -100,9 +122,45 @@ static int da9063_wdt_ping(struct watchdog_device *wdd)
+ 		dev_alert(wdt->da9063->dev, "Failed to ping the watchdog (err = %d)\n",
+ 			  ret);
+ 
++	wdt->defer_ping = false;
++	schedule_delayed_work(&wdt->ping_work, msecs_to_jiffies(DA9063_TWDMIN));
++
+ 	return ret;
+ }
+ 
++static int da9063_wdt_ping(struct watchdog_device *wdd)
++{
++	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
++	int ret = 0;
++
++	mutex_lock(&wdt->mutex);
++
++	if (delayed_work_pending(&wdt->ping_work)) {
++		wdt->defer_ping = true;
++
++		goto out;
++	}
++
++	da9063_wdt_issue_ping(wdt);
++out:
++	mutex_unlock(&wdt->mutex);
++
++	return ret;
++}
++
++static void da9063_wdt_ping_work(struct work_struct *work)
++{
++	struct da9063_watchdog *wdt = container_of(to_delayed_work(work),
++					struct da9063_watchdog, ping_work);
++
++	mutex_lock(&wdt->mutex);
++
++	if (wdt->defer_ping)
++		da9063_wdt_issue_ping(wdt);
++
++	mutex_unlock(&wdt->mutex);
++}
++
+ static int da9063_wdt_set_timeout(struct watchdog_device *wdd,
+ 				  unsigned int timeout)
+ {
+@@ -111,7 +169,7 @@ static int da9063_wdt_set_timeout(struct watchdog_device *wdd,
+ 	int ret;
+ 
+ 	selector = da9063_wdt_timeout_to_sel(timeout);
+-	ret = _da9063_wdt_set_timeout(wdt->da9063, selector);
++	ret = _da9063_wdt_set_timeout(wdt, selector);
+ 	if (ret)
+ 		dev_err(wdt->da9063->dev, "Failed to set watchdog timeout (err = %d)\n",
+ 			ret);
+@@ -178,6 +236,9 @@ static int da9063_wdt_probe(struct platform_device *pdev)
+ 
+ 	wdt->wdtdev.status = WATCHDOG_NOWAYOUT_INIT_STATUS;
+ 
++	INIT_DELAYED_WORK(&wdt->ping_work, da9063_wdt_ping_work);
++	mutex_init(&wdt->mutex);
++
+ 	watchdog_set_drvdata(&wdt->wdtdev, wdt);
+ 	dev_set_drvdata(&pdev->dev, wdt);
+ 
+@@ -202,13 +263,22 @@ static int da9063_wdt_remove(struct platform_device *pdev)
+ 	unregister_restart_handler(&wdt->restart_handler);
+ 
+ 	watchdog_unregister_device(&wdt->wdtdev);
++	cancel_delayed_work_sync(&wdt->ping_work);
+ 
+ 	return 0;
+ }
+ 
++static void da9063_wdt_shutdown(struct platform_device *pdev)
++{
++	struct da9063_watchdog *wdt = dev_get_drvdata(&pdev->dev);
++
++	cancel_delayed_work_sync(&wdt->ping_work);
++}
++
+ static struct platform_driver da9063_wdt_driver = {
+ 	.probe = da9063_wdt_probe,
+ 	.remove = da9063_wdt_remove,
++	.shutdown = da9063_wdt_shutdown,
+ 	.driver = {
+ 		.name = DA9063_DRVNAME_WATCHDOG,
+ 	},
+-- 
+2.4.6
 
-
---gj572EiMnwbLXET9
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVw8zBAAoJEBQN5MwUoCm2gAgQAJkpVWRO6RCQ4NFRdYbybRYq
-CX5Ya8zvs61T/mnfxiuNl7CC83mNtDizkWTVmtH5wfmqcrd4D3tNwTMPs5i3zTQT
-znuzkGwWcUkDHNGS07fNoO7jwWAb9cJaqfc4iGA9WC2UYnsNNCFHDFb0WNTqq1Ci
-gYYeQInWBELMpD5m7/4mlwFiCL4D/q7sH0pNknPxWgHpU351+BbinIIy3+6OJgIU
-vMwAvBCs4BYPjHYQ3mMTQ56Pr9aouXGyC1OJBMm6jU7p7QDutkqlGhIEh9amVQwH
-WTb7570K8pN1Rn3+c09P0qmmCm1pOwrE8/93rrzsImMngOc9BhSAd2SFeDNujE+Z
-FNESIS+QVIxP3d7wXMdECdrgQ3jTf9/pIq82vCaynJggdWAcd32KvuRC7WFuUZ/7
-Ln7FChJXUIIGB3j/Cx/6C0Oq/6kdnLQC6e+adXAObort7ZOrgjp5ATscvl5sjvsU
-QhsvRGz8l+H4i7t3WbE4+2ilDRrxZGojo1/QJr4YF1SYoHCkZOZnj9H+u5qrN8LN
-2njeRca6EBUaRSuQYJ4pCAHwGbcl+89ABuzn2I1s0kAJx6ZYpE0QGWETRMZuKWbk
-UJ7PKlcSRrXXhc3fDqW6mOg6XzRGJUC/y7Kic2yG7vkwCp3aPR7eLPDyePLWcKHy
-N6VDaBrraDXfOsD8U8vk
-=CY8Q
------END PGP SIGNATURE-----
-
---gj572EiMnwbLXET9--
