@@ -10,70 +10,237 @@ Cc: linux-kernel@vger.kernel.org,
 	Lee Jones <lee.jones@linaro.org>,
 	Guenter Roeck <linux@roeck-us.net>,
 	Darren Hart <dvhart@infradead.org>,
+	<linux-i2c@vger.kernel.org>,
 	Matt Fleming <matt.fleming@intel.com>
-Subject: [PATCH v4 0/3] iTCO_wdt: Add support for Intel Sunrisepoint
-Date: Thu,  6 Aug 2015 13:46:23 +0100
-Message-Id: <1438865186-25794-1-git-send-email-matt@codeblueprint.co.uk>
+Subject: [PATCH v4 2/3] i2c: i801: Create iTCO device on newer Intel PCHs
+Date: Thu,  6 Aug 2015 13:46:25 +0100
+Message-Id: <1438865186-25794-3-git-send-email-matt@codeblueprint.co.uk>
+In-Reply-To: <1438865186-25794-1-git-send-email-matt@codeblueprint.co.uk>
+References: <1438865186-25794-1-git-send-email-matt@codeblueprint.co.uk>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-From: Matt Fleming <matt.fleming@intel.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-Starting with Intel Sunrisepoint (Skylake PCH) the TCO watchdog device
-is now on the SMBUS, whereas for previous ICH/PCH it was on the LPC bus.
+Starting from Intel Sunrisepoint (Skylake PCH) the iTCO watchdog resources
+have been moved to reside under the i801 SMBus host controller whereas
+previously they were under the LPC device.
 
-Because iTCO_wdt devices may now appear on either the LPC bus or the
-SMBUS we need to abstract the bus information into an agnostic structure
-instead of the existing 'lpc_ich_info' which tightly integrates both the
-lpc_ich and iTCO_wdt drivers.
+In order to support the iTCO watchdog on newer PCHs we need to create the
+platform device here in the SMBus driver and pass all known resources using
+platform data.
 
-The first patch introduces a platform data structure to handle this and
-shuffles the existing code around. The other patches add the
-device-specific information to the i2c-i801 and iTCO_wdt drivers.
+Cc: Jean Delvare <jdelvare@suse.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>
+Cc: <linux-i2c@vger.kernel.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Matt Fleming <matt.fleming@intel.com>
+---
 
-Patches based against v4.2-rc4, if there's some other tree I should base
-this on, please let me know.
+v4:
+ - No changes
 
-Comments welcome!
+v3:
+ - Added Guenter's Review tag
 
-Changes in v4:
+v2:
+ - Don't use bitops but same scheme used already
+ - Delete superfluous NULL-checks for platform_device_unregister()
 
- - Added Darren's ACK for PATCH 1
- - Explicitly list versions in iTCO_wdt_probe()
- - Delete superfluous 'ret' variable in iTCO_wdt_unset_NO_REBOOT_bit()
+ drivers/i2c/busses/i2c-i801.c | 120 +++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 119 insertions(+), 1 deletion(-)
 
-Changes in v3:
-
- - Added Ack/Review tags to patches
-
-Changes in v2:
-
- - Use lowercase for all new files and data structures
- - Allocate platform data with devm_kzalloc()
- - Move Kconfig changes to final patch and use 'select', not 'depends'
- - Swap strcpy() for strlcpy()
- - Fixup use of lpc_ich_info in intel_pmc_ipc which was missed in v1
- - Don't use bitops in i2c-i801
- - Remove superfluous NULL checks in i2c-i801
- - Explicitly list reboot bit versions in no_reboot_bit()
- - Use switch/case construst instead of crazy if else
- - Fold original fixups from PATCH 4 and 5 into PATCH 1 and 2
-
-Matt Fleming (2):
-  iTCO_wdt: Expose watchdog properties using platform data
-  iTCO_wdt: Add support for TCO on Intel Sunrisepoint
-
-Mika Westerberg (1):
-  i2c: i801: Create iTCO device on newer Intel PCHs
-
- drivers/i2c/busses/i2c-i801.c          | 120 ++++++++++++++++++++++++++++++++-
- drivers/mfd/lpc_ich.c                  |  32 ++++++++-
- drivers/platform/x86/intel_pmc_ipc.c   |   9 ++-
- drivers/watchdog/Kconfig               |   3 +-
- drivers/watchdog/iTCO_wdt.c            |  82 +++++++++++++---------
- include/linux/mfd/lpc_ich.h            |   6 --
- include/linux/platform_data/itco_wdt.h |  19 ++++++
- 7 files changed, 222 insertions(+), 49 deletions(-)
- create mode 100644 include/linux/platform_data/itco_wdt.h
-
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 5ecbb3fdc27e..eaef9bc9d88c 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -88,12 +88,13 @@
+ #include <linux/slab.h>
+ #include <linux/wait.h>
+ #include <linux/err.h>
++#include <linux/platform_device.h>
++#include <linux/platform_data/itco_wdt.h>
+ 
+ #if (defined CONFIG_I2C_MUX_GPIO || defined CONFIG_I2C_MUX_GPIO_MODULE) && \
+ 		defined CONFIG_DMI
+ #include <linux/gpio.h>
+ #include <linux/i2c-mux-gpio.h>
+-#include <linux/platform_device.h>
+ #endif
+ 
+ /* I801 SMBus address offsets */
+@@ -113,6 +114,16 @@
+ #define SMBPCICTL	0x004
+ #define SMBPCISTS	0x006
+ #define SMBHSTCFG	0x040
++#define TCOBASE		0x050
++#define TCOCTL		0x054
++
++#define ACPIBASE		0x040
++#define ACPIBASE_SMI_OFF	0x030
++#define ACPICTRL		0x044
++#define ACPICTRL_EN		0x080
++
++#define SBREG_BAR		0x10
++#define SBREG_SMBCTRL		0xc6000c
+ 
+ /* Host status bits for SMBPCISTS */
+ #define SMBPCISTS_INTS		0x08
+@@ -125,6 +136,9 @@
+ #define SMBHSTCFG_SMB_SMI_EN	2
+ #define SMBHSTCFG_I2C_EN	4
+ 
++/* TCO configuration bits for TCOCTL */
++#define TCOCTL_EN		0x0100
++
+ /* Auxiliary control register bits, ICH4+ only */
+ #define SMBAUXCTL_CRC		1
+ #define SMBAUXCTL_E32B		2
+@@ -221,6 +235,7 @@ struct i801_priv {
+ 	const struct i801_mux_config *mux_drvdata;
+ 	struct platform_device *mux_pdev;
+ #endif
++	struct platform_device *tco_pdev;
+ };
+ 
+ #define FEATURE_SMBUS_PEC	(1 << 0)
+@@ -230,6 +245,7 @@ struct i801_priv {
+ #define FEATURE_IRQ		(1 << 4)
+ /* Not really a feature, but it's convenient to handle it as such */
+ #define FEATURE_IDF		(1 << 15)
++#define FEATURE_TCO		(1 << 16)
+ 
+ static const char *i801_feature_names[] = {
+ 	"SMBus PEC",
+@@ -1132,6 +1148,95 @@ static inline unsigned int i801_get_adapter_class(struct i801_priv *priv)
+ }
+ #endif
+ 
++static const struct itco_wdt_platform_data tco_platform_data = {
++	.name = "Intel PCH",
++	.version = 4,
++};
++
++static DEFINE_SPINLOCK(p2sb_spinlock);
++
++static void i801_add_tco(struct i801_priv *priv)
++{
++	struct pci_dev *pci_dev = priv->pci_dev;
++	struct resource tco_res[3], *res;
++	struct platform_device *pdev;
++	unsigned int devfn;
++	u32 tco_base, tco_ctl;
++	u32 base_addr, ctrl_val;
++	u64 base64_addr;
++
++	if (!(priv->features & FEATURE_TCO))
++		return;
++
++	pci_read_config_dword(pci_dev, TCOBASE, &tco_base);
++	pci_read_config_dword(pci_dev, TCOCTL, &tco_ctl);
++	if (!(tco_ctl & TCOCTL_EN))
++		return;
++
++	memset(tco_res, 0, sizeof(tco_res));
++
++	res = &tco_res[ICH_RES_IO_TCO];
++	res->start = tco_base & ~1;
++	res->end = res->start + 32 - 1;
++	res->flags = IORESOURCE_IO;
++
++	/*
++	 * Power Management registers.
++	 */
++	devfn = PCI_DEVFN(PCI_SLOT(pci_dev->devfn), 2);
++	pci_bus_read_config_dword(pci_dev->bus, devfn, ACPIBASE, &base_addr);
++
++	res = &tco_res[ICH_RES_IO_SMI];
++	res->start = (base_addr & ~1) + ACPIBASE_SMI_OFF;
++	res->end = res->start + 3;
++	res->flags = IORESOURCE_IO;
++
++	/*
++	 * Enable the ACPI I/O space.
++	 */
++	pci_bus_read_config_dword(pci_dev->bus, devfn, ACPICTRL, &ctrl_val);
++	ctrl_val |= ACPICTRL_EN;
++	pci_bus_write_config_dword(pci_dev->bus, devfn, ACPICTRL, ctrl_val);
++
++	/*
++	 * We must access the NO_REBOOT bit over the Primary to Sideband
++	 * bridge (P2SB). The BIOS prevents the P2SB device from being
++	 * enumerated by the PCI subsystem, so we need to unhide/hide it
++	 * to lookup the P2SB BAR.
++	 */
++	spin_lock(&p2sb_spinlock);
++
++	devfn = PCI_DEVFN(PCI_SLOT(pci_dev->devfn), 1);
++
++	/* Unhide the P2SB device */
++	pci_bus_write_config_byte(pci_dev->bus, devfn, 0xe1, 0x0);
++
++	pci_bus_read_config_dword(pci_dev->bus, devfn, SBREG_BAR, &base_addr);
++	base64_addr = base_addr & 0xfffffff0;
++
++	pci_bus_read_config_dword(pci_dev->bus, devfn, SBREG_BAR + 0x4, &base_addr);
++	base64_addr |= (u64)base_addr << 32;
++
++	/* Hide the P2SB device */
++	pci_bus_write_config_byte(pci_dev->bus, devfn, 0xe1, 0x1);
++	spin_unlock(&p2sb_spinlock);
++
++	res = &tco_res[ICH_RES_MEM_OFF];
++	res->start = (resource_size_t)base64_addr + SBREG_SMBCTRL;
++	res->end = res->start + 3;
++	res->flags = IORESOURCE_MEM;
++
++	pdev = platform_device_register_resndata(&pci_dev->dev, "iTCO_wdt", -1,
++						 tco_res, 3, &tco_platform_data,
++						 sizeof(tco_platform_data));
++	if (IS_ERR(pdev)) {
++		dev_warn(&pci_dev->dev, "failed to create iTCO device\n");
++		return;
++	}
++
++	priv->tco_pdev = pdev;
++}
++
+ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ {
+ 	unsigned char temp;
+@@ -1149,6 +1254,15 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 
+ 	priv->pci_dev = dev;
+ 	switch (dev->device) {
++	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS:
++	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS:
++		priv->features |= FEATURE_I2C_BLOCK_READ;
++		priv->features |= FEATURE_IRQ;
++		priv->features |= FEATURE_SMBUS_PEC;
++		priv->features |= FEATURE_BLOCK_BUFFER;
++		priv->features |= FEATURE_TCO;
++		break;
++
+ 	case PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF0:
+ 	case PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF1:
+ 	case PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF2:
+@@ -1265,6 +1379,8 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	dev_info(&dev->dev, "SMBus using %s\n",
+ 		 priv->features & FEATURE_IRQ ? "PCI interrupt" : "polling");
+ 
++	i801_add_tco(priv);
++
+ 	/* set up the sysfs linkage to our parent device */
+ 	priv->adapter.dev.parent = &dev->dev;
+ 
+@@ -1296,6 +1412,8 @@ static void i801_remove(struct pci_dev *dev)
+ 	i2c_del_adapter(&priv->adapter);
+ 	pci_write_config_byte(dev, SMBHSTCFG, priv->original_hstcfg);
+ 
++	platform_device_unregister(priv->tco_pdev);
++
+ 	/*
+ 	 * do not call pci_disable_device(dev) since it can cause hard hangs on
+ 	 * some systems during power-off (eg. Fujitsu-Siemens Lifebook E8010)
 -- 
 2.1.0
