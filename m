@@ -1,78 +1,68 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from eusmtp01.atmel.com ([212.144.249.243]:1794 "EHLO
-	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754436AbbHFFIH (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:59216 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754879AbbHFIFf (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 6 Aug 2015 01:08:07 -0400
-From: Wenyou Yang <wenyou.yang@atmel.com>
-To: <wim@iguana.be>, <robh+dt@kernel.org>, <pawel.moll@arm.com>,
-	<mark.rutland@arm.com>, <ijc+devicetree@hellion.org.uk>,
-	<galak@codeaurora.org>
-CC: <sylvain.rochet@finsecur.com>, <nicolas.ferre@atmel.com>,
-	<boris.brezillon@free-electrons.com>, <wenyou.yang@atmel.com>,
-	<devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<linux-watchdog@vger.kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>
-Subject: [PATCH v4 2/2] Documentation: dt: binding: atmel-sama5d4-wdt: for SAMA5D4 watchdog driver
-Date: Thu, 6 Aug 2015 12:59:30 +0800
-Message-ID: <1438837170-4518-3-git-send-email-wenyou.yang@atmel.com>
-In-Reply-To: <1438837170-4518-1-git-send-email-wenyou.yang@atmel.com>
-References: <1438837170-4518-1-git-send-email-wenyou.yang@atmel.com>
+	Thu, 6 Aug 2015 04:05:35 -0400
+Message-ID: <55C31547.2040207@roeck-us.net>
+Date: Thu, 06 Aug 2015 01:05:27 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain
+To: Wenyou Yang <wenyou.yang@atmel.com>, wim@iguana.be,
+	robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
+	ijc+devicetree@hellion.org.uk, galak@codeaurora.org
+CC: sylvain.rochet@finsecur.com, nicolas.ferre@atmel.com,
+	boris.brezillon@free-electrons.com, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v4 1/2] drivers: watchdog: add a driver to support SAMA5D4
+ watchdog timer
+References: <1438837170-4518-1-git-send-email-wenyou.yang@atmel.com> <1438837170-4518-2-git-send-email-wenyou.yang@atmel.com>
+In-Reply-To: <1438837170-4518-2-git-send-email-wenyou.yang@atmel.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The compatible "atmel,sama5d4-wdt" supports the SAMA5D4 watchdog driver
-and the watchdog's WDT_MR register can be written more than once.
+On 08/05/2015 09:59 PM, Wenyou Yang wrote:
+>>From SAMA5D4, the watchdog timer is upgrated with a new feature,
+> which is describled as in the datasheet, "WDT_MR can be written
+> until a LOCKMR command is issued in WDT_CR".
+> That is to say, as long as the bootstrap and u-boot don't issue
+> a LOCKMR command, WDT_MR can be written more than once in the driver.
+>
+> So the SAMA5D4 watchdog driver's implementation is different from
+> the at91sam9260 watchdog driver implemented in file at91sam9_wdt.c.
+> The user application open the device file to enable the watchdog timer
+> hardware, and close to disable it, and set the watchdog timer timeout
+> by seting WDV and WDD fields of WDT_MR register, and ping the watchdog
+> by issuing WDRSTT command to WDT_CR register with hard-coded key.
+>
+> Signed-off-by: Wenyou Yang <wenyou.yang@atmel.com>
+> ---
+[ ... ]
+> +
+> +/* minimum and maximum watchdog timeout, in seconds */
+> +#define	MIN_WDT_TIMEOUT		1
+> +#define	MAX_WDT_TIMEOUT		16
+> +#define	WDT_DEFAULT_TIMEOUT	MAX_WDT_TIMEOUT
+> +
+> +#define	WDT_SEC2TICKS(s)	((s) ? (((s) << 8) - 1) : 0)
+> +
 
-Signed-off-by: Wenyou Yang <wenyou.yang@atmel.com>
----
- .../bindings/watchdog/atmel-sama5d4-wdt.txt        |   35 ++++++++++++++++++++
- 1 file changed, 35 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/atmel-sama5d4-wdt.txt
+Why did you replace the spaces after #define with tabs ?
+I understand this is done in the at91.h file, but that is bad enough,
+it doesn't add any value, and I don't see a reason to do it here.
 
-diff --git a/Documentation/devicetree/bindings/watchdog/atmel-sama5d4-wdt.txt b/Documentation/devicetree/bindings/watchdog/atmel-sama5d4-wdt.txt
-new file mode 100644
-index 0000000..f7cc7c0
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/atmel-sama5d4-wdt.txt
-@@ -0,0 +1,35 @@
-+* Atmel SAMA5D4 Watchdog Timer (WDT) Controller
-+
-+Required properties:
-+- compatible: "atmel,sama5d4-wdt"
-+- reg: base physical address and length of memory mapped region.
-+
-+Optional properties:
-+- timeout-sec: watchdog timeout value (in seconds).
-+- interrupts: interrupt number to the CPU.
-+- atmel,watchdog-type: should be "hardware" or "software".
-+	"hardware": enable watchdog fault reset. A watchdog fault triggers
-+		    watchdog reset.
-+	"software": enable watchdog fault interrupt. A watchdog fault asserts
-+		    watchdog interrupt.
-+- atmel,idle-halt: present if you want to stop the watchdog when the CPU is
-+		   in idle state.
-+	CAUTION: This property should be used with care, it actually makes the
-+	watchdog not counting when the CPU is in idle state, therefore the
-+	watchdog reset time depends on mean CPU usage and will not reset at all
-+	if the CPU stop working while it is in idle state, which is probably
-+	not what you want.
-+- atmel,dbg-halt: present if you want to stop the watchdog when the CPU is
-+		  in debug state.
-+
-+Example:
-+	watchdog@fc068640 {
-+		compatible = "atmel,sama5d4-wdt";
-+		reg = <0xfc068640 0x10>;
-+		interrupts = <4 IRQ_TYPE_LEVEL_HIGH 5>;
-+		timeout-sec = <10>;
-+		atmel,watchdog-type = "hardware";
-+		atmel,dbg-halt;
-+		atmel,idle-halt;
-+		status = "okay";
-+	};
--- 
-1.7.9.5
+> +
+> +	if ((wdt->config & AT91_WDT_WDFIEN) && irq) {
+> +		ret = devm_request_irq(&pdev->dev, irq, sama5d4_wdt_irq_handler,
+> +				       0, pdev->name, pdev);
+
+I just realized - this interrupt is registered with flags set to 0,
+while in the at91sam driver the flags are "IRQF_SHARED | IRQF_IRQPOLL |
+IRQF_NO_SUSPEND". Is this different with the new SOC ?
+
+Thanks,
+Guenter
 
