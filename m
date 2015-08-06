@@ -1,81 +1,83 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:52043 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750738AbbHEHua (ORCPT
+Received: from mail-wi0-f169.google.com ([209.85.212.169]:37411 "EHLO
+	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754766AbbHFMA1 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 5 Aug 2015 03:50:30 -0400
-Message-ID: <55C1C041.3080504@roeck-us.net>
-Date: Wed, 05 Aug 2015 00:50:25 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Thu, 6 Aug 2015 08:00:27 -0400
+Received: by wibhh20 with SMTP id hh20so20874861wib.0
+        for <linux-watchdog@vger.kernel.org>; Thu, 06 Aug 2015 05:00:26 -0700 (PDT)
+Date: Thu, 6 Aug 2015 13:00:24 +0100
+From: Matt Fleming <matt@codeblueprint.co.uk>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Jean Delvare <jdelvare@suse.com>,
+	Wolfram Sang <wsa@the-dreams.de>,
+	Lee Jones <lee.jones@linaro.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Matt Fleming <matt.fleming@intel.com>
+Subject: Re: [PATCH v3 3/3] iTCO_wdt: Add support for TCO on Intel
+ Sunrisepoint
+Message-ID: <20150806120024.GG4332@codeblueprint.co.uk>
+References: <1438293541-26131-1-git-send-email-matt@codeblueprint.co.uk>
+ <1438293541-26131-4-git-send-email-matt@codeblueprint.co.uk>
+ <1438332064.29746.141.camel@linux.intel.com>
 MIME-Version: 1.0
-To: =?windows-1252?Q?Uwe_Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>,
-	=?windows-1252?Q?P=E1draig_Brady?= <P@draigBrady.com>
-CC: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	linux-kernel@vger.kernel.org,
-	Timo Kokkonen <timo.kokkonen@offcode.fi>,
-	linux-doc@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>
-Subject: Re: [PATCH 0/8] watchdog: Add support for keepalives triggered by
- infrastructure
-References: <1438654414-29259-1-git-send-email-linux@roeck-us.net> <55C14E2B.1080904@draigBrady.com> <20150805073605.GW9999@pengutronix.de>
-In-Reply-To: <20150805073605.GW9999@pengutronix.de>
-Content-Type: text/plain; charset=windows-1252;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1438332064.29746.141.camel@linux.intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Uwe,
+(Sorry for the delay in replying)
 
-On 08/05/2015 12:36 AM, Uwe Kleine-K=F6nig wrote:
-> Hello P=E1draig,
->
-> On Wed, Aug 05, 2015 at 12:43:39AM +0100, P=E1draig Brady wrote:
->> On 04/08/15 03:13, Guenter Roeck wrote:
->>> The watchdog infrastructure is currently purely passive, meaning
->>> it only passes information from user space to drivers and vice vers=
-a.
->>>
->>> Since watchdog hardware tends to have its own quirks, this can resu=
-lt
->>> in quite complex watchdog drivers. A number of scanarios are especi=
-ally common.
->>>
->>> - A watchdog is always active and can not be disabled, or can not b=
-e disabled
->>>    once enabled. To support such hardware, watchdog drivers have to=
- implement
->>>    their own timers and use those timers to trigger watchdog keepal=
-ives while
->>>    the watchdog device is not or not yet opened.
->>> - A variant of this is the desire to enable a watchdog as soon as i=
-ts driver
->>>    has been instantiated, to protect the system while it is still b=
-ooting up,
->>>    but the watchdog daemon is not yet running.
->>
->> Just mentioning that patting the watchdog in the boot loader
->> (by patching grub etc.) can be a more general solution here as it
->> avoids hangs if the kernel crashes before it runs the watchdog drive=
-r,
->> which is especially true if PXE loaded across the net for example.
->> Also this tends to be better spaced between boot start and user spac=
-e loading.
->
-> the watchdog I'm currently working with on a powerpc platform has a
-> unchangable timeout of ~1 s. To make the machine boot I patched the
-> bootloader and need some automatic pinging in the kernel before
-> userspace takes over.
->
+On Fri, 31 Jul, at 11:41:04AM, Andy Shevchenko wrote:
+> >  
+> > +	if (val32 & enable_bit)
+> > +		ret = -EIO;
+> > +
+> >  	return ret; /* returns: 0 = OK, -EIO = Error */
+> 
+> What about removing ret at all?
+> 
+> if (val32 & enable_bit)
+>  return -EIO;
+> 
+> return 0;
+ 
+Yeah, good catch. I'll make this change.
 
-Does using arch_initcall in the watchdog driver help here, or is that
-still too slow and you really need to hack the kernel ?
+> >  }
+> >  
+> > @@ -503,12 +512,19 @@ static int iTCO_wdt_probe(struct 
+> > platform_device *dev)
+> >  		pdata->name, pdata->version, (u64)TCOBASE);
+> >  
+> >  	/* Clear out the (probably old) status */
+> > -	if (iTCO_wdt_private.iTCO_version == 3) {
+> > +	switch (iTCO_wdt_private.iTCO_version) {
+> > +	case 4:
+> > +		outw(0x0008, TCO1_STS);	/* Clear the Time 
+> > Out Status bit */
+> > +		outw(0x0002, TCO2_STS);	/* Clear 
+> > SECOND_TO_STS bit */
+> > +		break;
+> > +	case 3:
+> >  		outl(0x20008, TCO1_STS);
+> > -	} else {
+> > +		break;
+> > +	default:
+> 
+> Same idea here: put cases explicitly for all existing versions?
+> 
+> case 2:
+> case 1:
+> default:
+ 
+I intentionally didn't do that because I figured it was implied that
+versions 2 and 1 are included in the default case. But I've no problem
+with making this change. I'll send a v4.
 
-Thanks,
-Guenter
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Matt Fleming, Intel Open Source Technology Center
