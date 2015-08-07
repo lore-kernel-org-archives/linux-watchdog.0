@@ -1,50 +1,47 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:43473 "EHLO
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:58235 "EHLO
 	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750920AbbHGKRy (ORCPT
+	with ESMTP id S1751221AbbHGKHw (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 7 Aug 2015 06:17:54 -0400
-Message-ID: <1438942673.3638.16.camel@pengutronix.de>
-Subject: Re: [PATCH 1/2] watchdog: da9063: Ping watchdog only during allowed
- time window
-From: Philipp Zabel <p.zabel@pengutronix.de>
-To: "Opensource [Adam Thomson]" <Adam.Thomson.Opensource@diasemi.com>
-Cc: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Support Opensource <Support.Opensource@diasemi.com>,
-	"kernel@pengutronix.de" <kernel@pengutronix.de>
-Date: Fri, 07 Aug 2015 12:17:53 +0200
-In-Reply-To: <2E89032DDAA8B9408CB92943514A0337AB569C3B@SW-EX-MBX01.diasemi.com>
-References: <1438879019-12978-1-git-send-email-p.zabel@pengutronix.de>
-	 <2E89032DDAA8B9408CB92943514A0337AB569C3B@SW-EX-MBX01.diasemi.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Aug 2015 06:07:52 -0400
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
+	<u.kleine-koenig@pengutronix.de>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: kernel@pengutronix.de, Guenter Roeck <linux@roeck-us.net>,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH v1 5/5] watchdog: mpc8xxx: allow to compile for MPC512x
+Date: Fri,  7 Aug 2015 12:07:47 +0200
+Message-Id: <1438942067-1654-6-git-send-email-u.kleine-koenig@pengutronix.de>
+In-Reply-To: <1438942067-1654-1-git-send-email-u.kleine-koenig@pengutronix.de>
+References: <1438942067-1654-1-git-send-email-u.kleine-koenig@pengutronix.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Adam,
+The MPC5125 processor features a watchdog compiler that is identical to
+the MPC8610 one. So allow to enable the driver for MPC512x kernel
+configurations.
 
-Am Freitag, den 07.08.2015, 10:13 +0000 schrieb Opensource [Adam
-Thomson]:
-> On August 06, 2015 17:37, Philipp Zabel wrote:
-> 
-> > There is a cooldown period after watchdog timer setup, and also after each
-> > watchdog ping. If a ping is issued too early, the watchdog triggers the
-> > watchdog error condition and causes a system reset.
-> > 
-> > The 256 ms period length is a best guess based on the same value being used
-> > for the DA9053 predecessor PMIC and experiments that have shown 200 ms are
-> > not enough to avoid the error.
-> > 
-> > Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-> 
-> My colleague Stephen is out of office for the next two weeks, but really I
-> think he should review these two patches given his knowledge of the device. If
-> you can hold off until then, he should be able to provide feedback.
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+---
+ drivers/watchdog/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Absolutely, thank you for the heads-up.
-
-regards
-Philipp
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 241fafde42cb..8c43ae9bde2b 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1333,7 +1333,7 @@ config MPC5200_WDT
+ 
+ config 8xxx_WDT
+ 	tristate "MPC8xxx Platform Watchdog Timer"
+-	depends on PPC_8xx || PPC_83xx || PPC_86xx
++	depends on PPC_8xx || PPC_83xx || PPC_86xx || PPC_MPC512x
+ 	select WATCHDOG_CORE
+ 	help
+ 	  This driver is for a SoC level watchdog that exists on some
+-- 
+2.4.6
 
