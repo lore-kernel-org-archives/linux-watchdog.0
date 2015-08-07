@@ -1,62 +1,50 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:56375 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753136AbbHGNkJ (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:43473 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750920AbbHGKRy (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 7 Aug 2015 09:40:09 -0400
-Message-ID: <55C4B534.5050602@roeck-us.net>
-Date: Fri, 07 Aug 2015 06:40:04 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: Philipp Zabel <p.zabel@pengutronix.de>,
-	linux-watchdog@vger.kernel.org
-CC: Wim Van Sebroeck <wim@iguana.be>, support.opensource@diasemi.com,
-	kernel@pengutronix.de
-Subject: Re: [PATCH 2/2] watchdog: da9063: Disable and wait before changing
- timeout
-References: <1438879019-12978-1-git-send-email-p.zabel@pengutronix.de> <1438879019-12978-2-git-send-email-p.zabel@pengutronix.de>
-In-Reply-To: <1438879019-12978-2-git-send-email-p.zabel@pengutronix.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 7 Aug 2015 06:17:54 -0400
+Message-ID: <1438942673.3638.16.camel@pengutronix.de>
+Subject: Re: [PATCH 1/2] watchdog: da9063: Ping watchdog only during allowed
+ time window
+From: Philipp Zabel <p.zabel@pengutronix.de>
+To: "Opensource [Adam Thomson]" <Adam.Thomson.Opensource@diasemi.com>
+Cc: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Support Opensource <Support.Opensource@diasemi.com>,
+	"kernel@pengutronix.de" <kernel@pengutronix.de>
+Date: Fri, 07 Aug 2015 12:17:53 +0200
+In-Reply-To: <2E89032DDAA8B9408CB92943514A0337AB569C3B@SW-EX-MBX01.diasemi.com>
+References: <1438879019-12978-1-git-send-email-p.zabel@pengutronix.de>
+	 <2E89032DDAA8B9408CB92943514A0337AB569C3B@SW-EX-MBX01.diasemi.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 08/06/2015 09:36 AM, Philipp Zabel wrote:
-> The DA9063 watchdog occasionally enters error condition and resets the
-> system if the timeout is changed quickly after the timer was enabled.
->
-> The method of disabling and waiting for > 150 µs before setting the
-> new timeout is taken from the DA9052 driver.
->
-Using sleep concerns me a bit, since during that time the watchdog
-is disabled. Bad enough that we have to do this to start with,
-but using usleep adds more risk to an already bad situation.
+Hi Adam,
 
-How about udelay() instead ?
+Am Freitag, den 07.08.2015, 10:13 +0000 schrieb Opensource [Adam
+Thomson]:
+> On August 06, 2015 17:37, Philipp Zabel wrote:
+> 
+> > There is a cooldown period after watchdog timer setup, and also after each
+> > watchdog ping. If a ping is issued too early, the watchdog triggers the
+> > watchdog error condition and causes a system reset.
+> > 
+> > The 256 ms period length is a best guess based on the same value being used
+> > for the DA9053 predecessor PMIC and experiments that have shown 200 ms are
+> > not enough to avoid the error.
+> > 
+> > Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+> 
+> My colleague Stephen is out of office for the next two weeks, but really I
+> think he should review these two patches given his knowledge of the device. If
+> you can hold off until then, he should be able to provide feedback.
 
-Thanks,
-Guenter
+Absolutely, thank you for the heads-up.
 
-> Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-> ---
->   drivers/watchdog/da9063_wdt.c | 5 +++++
->   1 file changed, 5 insertions(+)
->
-> diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
-> index b2e9201..87e14d8 100644
-> --- a/drivers/watchdog/da9063_wdt.c
-> +++ b/drivers/watchdog/da9063_wdt.c
-> @@ -67,6 +67,11 @@ static int _da9063_wdt_set_timeout(struct da9063_watchdog *wdt,
->   	mutex_lock(&wdt->mutex);
->
->   	ret = regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
-> +				 DA9063_TWDSCALE_MASK, DA9063_TWDSCALE_DISABLE);
-> +
-> +	usleep_range(150, 300);
-> +
-> +	ret = regmap_update_bits(da9063->regmap, DA9063_REG_CONTROL_D,
->   				 DA9063_TWDSCALE_MASK, regval);
->
->   	wdt->defer_ping = false;
->
+regards
+Philipp
 
