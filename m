@@ -1,112 +1,89 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:42139 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:42347 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753842AbbHGOzL (ORCPT
+	with ESMTP id S932124AbbHGO44 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 7 Aug 2015 10:55:11 -0400
-Message-ID: <55C4C6CA.2060209@roeck-us.net>
-Date: Fri, 07 Aug 2015 07:55:06 -0700
+	Fri, 7 Aug 2015 10:56:56 -0400
+Message-ID: <55C4C733.7000802@roeck-us.net>
+Date: Fri, 07 Aug 2015 07:56:51 -0700
 From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
 To: =?UTF-8?B?VXdlIEtsZWluZS1Lw7ZuaWc=?=
 	<u.kleine-koenig@pengutronix.de>, Wim Van Sebroeck <wim@iguana.be>
 CC: kernel@pengutronix.de, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v1 2/5] watchdog: mpc8xxx: simplify registration
-References: <1438942067-1654-1-git-send-email-u.kleine-koenig@pengutronix.de> <1438942067-1654-3-git-send-email-u.kleine-koenig@pengutronix.de>
-In-Reply-To: <1438942067-1654-3-git-send-email-u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH v1 3/5] watchdog: mpc8xxx: make use of of_device_get_match_data
+References: <1438942067-1654-1-git-send-email-u.kleine-koenig@pengutronix.de> <1438942067-1654-4-git-send-email-u.kleine-koenig@pengutronix.de>
+In-Reply-To: <1438942067-1654-4-git-send-email-u.kleine-koenig@pengutronix.de>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+Hi Uwe,
+
 On 08/07/2015 03:07 AM, Uwe Kleine-König wrote:
-> Since commit ef90174f8210 ("watchdog: watchdog_core: Add watchdog
-> registration deferral mechanism") there is no need to delay the call to
-> watchdog_register_device any more. So simplify the registration code
-> accordingly.
->
-> Resetting wd_base to NULL can the also be dropped because nothing
-> depends on it being NULL to signal probe failure any more. (The matching
-> wd_base = NULL in .remove was missing, too.)
+> This function is new in v4.2-rc1 and makes a forward declaration of the
+> match table superfluous which can so be removed.
 >
 > Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
 > ---
->   drivers/watchdog/mpc8xxx_wdt.c | 38 +++++++-------------------------------
->   1 file changed, 7 insertions(+), 31 deletions(-)
+>   drivers/watchdog/mpc8xxx_wdt.c | 25 +++++++++----------------
+>   1 file changed, 9 insertions(+), 16 deletions(-)
 >
 > diff --git a/drivers/watchdog/mpc8xxx_wdt.c b/drivers/watchdog/mpc8xxx_wdt.c
-> index 8ad42b83f995..e0acda3282d9 100644
+> index e0acda3282d9..a6790fcfa69b 100644
 > --- a/drivers/watchdog/mpc8xxx_wdt.c
 > +++ b/drivers/watchdog/mpc8xxx_wdt.c
-> @@ -51,7 +51,6 @@ struct mpc8xxx_wdt_type {
+> @@ -139,34 +139,31 @@ static struct watchdog_device mpc8xxx_wdt_dev = {
+>   	.ops = &mpc8xxx_wdt_ops,
 >   };
 >
->   static struct mpc8xxx_wdt __iomem *wd_base;
-> -static int mpc8xxx_wdt_init_late(void);
->
->   static u16 timeout = 0xffff;
->   module_param(timeout, ushort, 0);
-> @@ -174,11 +173,14 @@ static int mpc8xxx_wdt_probe(struct platform_device *ofdev)
->   	timeout_sec = (timeout * wdt_type->prescaler) / freq;
->
->   	mpc8xxx_wdt_dev.timeout = timeout_sec;
-> -#ifdef MODULE
-> -	ret = mpc8xxx_wdt_init_late();
-> -	if (ret)
-> +
-> +	watchdog_set_nowayout(&mpc8xxx_wdt_dev, nowayout);
-> +
-> +	ret = watchdog_register_device(&mpc8xxx_wdt_dev);
-> +	if (ret) {
-> +		pr_err("cannot register watchdog device (err=%d)\n", ret);
->   		goto err_unmap;
-> -#endif
-> +	}
->
->   	pr_info("WDT driver for MPC8xxx initialized. mode:%s timeout=%d (%d seconds)\n",
->   		reset ? "reset" : "interrupt", timeout, timeout_sec);
-> @@ -193,7 +195,6 @@ static int mpc8xxx_wdt_probe(struct platform_device *ofdev)
->   	return 0;
->   err_unmap:
->   	iounmap(wd_base);
-> -	wd_base = NULL;
->   	return ret;
->   }
->
-> @@ -242,31 +243,6 @@ static struct platform_driver mpc8xxx_wdt_driver = {
->   	},
->   };
->
-> -/*
-> - * We do wdt initialization in two steps: arch_initcall probes the wdt
-> - * very early to start pinging the watchdog (misc devices are not yet
-> - * available), and later module_init() just registers the misc device.
-> - */
-> -static int mpc8xxx_wdt_init_late(void)
-> -{
-> -	int ret;
-> -
-> -	if (!wd_base)
-> -		return -ENODEV;
-> -
-> -	watchdog_set_nowayout(&mpc8xxx_wdt_dev, nowayout);
-> -
-> -	ret = watchdog_register_device(&mpc8xxx_wdt_dev);
-> -	if (ret) {
-> -		pr_err("cannot register watchdog device (err=%d)\n", ret);
-> -		return ret;
-> -	}
-> -	return 0;
-> -}
-> -#ifndef MODULE
-> -module_init(mpc8xxx_wdt_init_late);
-> -#endif
-> -
->   static int __init mpc8xxx_wdt_init(void)
+> -static const struct of_device_id mpc8xxx_wdt_match[];
+>   static int mpc8xxx_wdt_probe(struct platform_device *ofdev)
 >   {
->   	return platform_driver_register(&mpc8xxx_wdt_driver);
+>   	int ret;
+> -	const struct of_device_id *match;
+> -	struct device_node *np = ofdev->dev.of_node;
+> +	struct resource *res;
+>   	const struct mpc8xxx_wdt_type *wdt_type;
+>   	u32 freq = fsl_get_sys_freq();
+>   	bool enabled;
+>   	unsigned int timeout_sec;
 >
+> -	match = of_match_device(mpc8xxx_wdt_match, &ofdev->dev);
+> -	if (!match)
+> +	wdt_type = of_device_get_match_data(&ofdev->dev);
+> +	if (!wdt_type)
+>   		return -EINVAL;
+> -	wdt_type = match->data;
+>
+>   	if (!freq || freq == -1)
+>   		return -EINVAL;
+>
+> -	wd_base = of_iomap(np, 0);
+> -	if (!wd_base)
+> -		return -ENOMEM;
+> +	res = platform_get_resource(ofdev, IORESOURCE_MEM, 0);
+> +	wd_base = devm_ioremap_resource(&ofdev->dev, res);
+> +	if (IS_ERR(wd_base))
+> +		return PTR_ERR(wd_base);
+>
+>   	enabled = in_be32(&wd_base->swcrr) & SWCRR_SWEN;
+>   	if (!enabled && wdt_type->hw_enabled) {
+>   		pr_info("could not be enabled in software\n");
+> -		ret = -ENOSYS;
+> -		goto err_unmap;
+> +		return -ENOSYS;
+>   	}
+
+checkpatch says:
+
+WARNING: ENOSYS means 'invalid syscall nr' and nothing else
+#65: FILE: drivers/watchdog/mpc8xxx_wdt.c:166:
++		return -ENOSYS;
+
+Maybe just use -ENODEV.
+
+Thanks,
+Guenter
 
