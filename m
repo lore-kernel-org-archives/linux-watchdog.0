@@ -1,278 +1,83 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:47922 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932300AbbHGPar (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 7 Aug 2015 11:30:47 -0400
-Message-ID: <55C4CF1D.6050709@roeck-us.net>
-Date: Fri, 07 Aug 2015 08:30:37 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: Matt Fleming <matt@codeblueprint.co.uk>,
-	Wim Van Sebroeck <wim@iguana.be>
-CC: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+Received: from sauhun.de ([89.238.76.85]:46931 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932072AbbHGPzs (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 7 Aug 2015 11:55:48 -0400
+Date: Fri, 7 Aug 2015 17:55:35 +0200
+From: Wolfram Sang <wsa@the-dreams.de>
+To: Matt Fleming <matt@codeblueprint.co.uk>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
 	Mika Westerberg <mika.westerberg@linux.intel.com>,
 	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
 	Jean Delvare <jdelvare@suse.com>,
-	Wolfram Sang <wsa@the-dreams.de>,
 	Lee Jones <lee.jones@linaro.org>,
-	Darren Hart <dvhart@infradead.org>,
-	Matt Fleming <matt.fleming@intel.com>,
-	Peter Tyser <ptyser@xes-inc.com>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Zha Qipeng <qipeng.zha@intel.com>
-Subject: Re: [PATCH v4 1/3] iTCO_wdt: Expose watchdog properties using platform
- data
-References: <1438865186-25794-1-git-send-email-matt@codeblueprint.co.uk> <1438865186-25794-2-git-send-email-matt@codeblueprint.co.uk>
-In-Reply-To: <1438865186-25794-2-git-send-email-matt@codeblueprint.co.uk>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+	Guenter Roeck <linux@roeck-us.net>,
+	Darren Hart <dvhart@infradead.org>, linux-i2c@vger.kernel.org,
+	Matt Fleming <matt.fleming@intel.com>
+Subject: Re: [PATCH v4 2/3] i2c: i801: Create iTCO device on newer Intel PCHs
+Message-ID: <20150807155535.GA25357@katana>
+References: <1438865186-25794-1-git-send-email-matt@codeblueprint.co.uk>
+ <1438865186-25794-3-git-send-email-matt@codeblueprint.co.uk>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
+Content-Disposition: inline
+In-Reply-To: <1438865186-25794-3-git-send-email-matt@codeblueprint.co.uk>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 08/06/2015 05:46 AM, Matt Fleming wrote:
-> From: Matt Fleming <matt.fleming@intel.com>
->
-> Intel Sunrisepoint (Skylake PCH) has the iTCO watchdog accessible across
-> the SMBus, unlike previous generations of PCH/ICH where it was on the
-> LPC bus. Because it's on the SMBus, it doesn't make sense to pass around
-> a 'struct lpc_ich_info', and leaking the type of bus into the iTCO
-> watchdog driver is kind of backwards anyway.
->
-> This change introduces a new 'struct itco_wdt_platform_data' for use
-> inside the iTCO watchdog driver and by the upcoming Intel Sunrisepoint
-> code, which neatly avoids having to include lpc_ich headers in the i801
-> i2c driver.
->
-> This change is overdue because lpc_ich_info has already found its way
-> into other TCO watchdog users, notably the intel_pmc_ipc driver where
-> the watchdog actually isn't on the LPC bus as far as I can see.
->
-> A simple translation layer is provided for converting from the existing
-> 'struct lpc_ich_info' inside the lpc_ich mfd driver.
->
-> Cc: Peter Tyser <ptyser@xes-inc.com>
-> Cc: Samuel Ortiz <sameo@linux.intel.com>
-> Acked-by: Lee Jones <lee.jones@linaro.org>
-> Cc: Wim Van Sebroeck <wim@iguana.be>
-> Cc: Zha Qipeng <qipeng.zha@intel.com>
-> Cc: Guenter Roeck <linux@roeck-us.net>
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Thu, Aug 06, 2015 at 01:46:25PM +0100, Matt Fleming wrote:
+> From: Mika Westerberg <mika.westerberg@linux.intel.com>
+>=20
+> Starting from Intel Sunrisepoint (Skylake PCH) the iTCO watchdog resources
+> have been moved to reside under the i801 SMBus host controller whereas
+> previously they were under the LPC device.
+>=20
+> In order to support the iTCO watchdog on newer PCHs we need to create the
+> platform device here in the SMBus driver and pass all known resources usi=
+ng
+> platform data.
+>=20
 > Cc: Jean Delvare <jdelvare@suse.com>
-> Acked-by: Darren Hart <dvhart@linux.intel.com> [drivers/x86 refactoring]
+> Cc: Wolfram Sang <wsa@the-dreams.de>
+> Cc: <linux-i2c@vger.kernel.org>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 > Signed-off-by: Matt Fleming <matt.fleming@intel.com>
-> ---
-> v4:
->   - Added Darren's ACK
->
-> v3:
->   - Added Lee's ACK
->
-> v2:
->   - Use lowercase "itco" in all new files and data structures.
->   - Use devm_kzalloc() to allocate platform data, fixing a memory leak
->     and saving us from having to free the allocation in error paths
->   - Move stray Kconfig hunk to PATCH 3 that accidentally snuck into v1
->   - Swap strcpy() for the safer strlcpy()
->   - Fix lpc_ich_info user in the intel_pmc_ipc driver that was merged for
->     v4.2.
->
->   drivers/mfd/lpc_ich.c                  | 32 +++++++++++++++++++++++++++++---
->   drivers/platform/x86/intel_pmc_ipc.c   |  9 ++++-----
->   drivers/watchdog/iTCO_wdt.c            | 11 +++++------
->   include/linux/mfd/lpc_ich.h            |  6 ------
->   include/linux/platform_data/itco_wdt.h | 19 +++++++++++++++++++
->   5 files changed, 57 insertions(+), 20 deletions(-)
->   create mode 100644 include/linux/platform_data/itco_wdt.h
->
-> diff --git a/drivers/mfd/lpc_ich.c b/drivers/mfd/lpc_ich.c
-> index 8de34398abc0..c5a9a08b5dfb 100644
-> --- a/drivers/mfd/lpc_ich.c
-> +++ b/drivers/mfd/lpc_ich.c
-> @@ -66,6 +66,7 @@
->   #include <linux/pci.h>
->   #include <linux/mfd/core.h>
->   #include <linux/mfd/lpc_ich.h>
-> +#include <linux/platform_data/itco_wdt.h>
->
->   #define ACPIBASE		0x40
->   #define ACPIBASE_GPE_OFF	0x28
-> @@ -835,9 +836,31 @@ static void lpc_ich_enable_pmc_space(struct pci_dev *dev)
->   	priv->actrl_pbase_save = reg_save;
->   }
->
-> -static void lpc_ich_finalize_cell(struct pci_dev *dev, struct mfd_cell *cell)
-> +static int lpc_ich_finalize_wdt_cell(struct pci_dev *dev)
->   {
-> +	struct itco_wdt_platform_data *pdata;
->   	struct lpc_ich_priv *priv = pci_get_drvdata(dev);
-> +	struct lpc_ich_info *info;
-> +	struct mfd_cell *cell = &lpc_ich_cells[LPC_WDT];
-> +
-> +	pdata = devm_kzalloc(&dev->dev, sizeof(*pdata), GFP_KERNEL);
-> +	if (!pdata)
-> +		return -ENOMEM;
-> +
-> +	info = &lpc_chipset_info[priv->chipset];
-> +
-> +	pdata->version = info->iTCO_version;
-> +	strlcpy(pdata->name, info->name, sizeof(pdata->name));
-> +
-> +	cell->platform_data = pdata;
-> +	cell->pdata_size = sizeof(*pdata);
-> +	return 0;
-> +}
-> +
-> +static void lpc_ich_finalize_gpio_cell(struct pci_dev *dev)
-> +{
-> +	struct lpc_ich_priv *priv = pci_get_drvdata(dev);
-> +	struct mfd_cell *cell = &lpc_ich_cells[LPC_GPIO];
->
->   	cell->platform_data = &lpc_chipset_info[priv->chipset];
->   	cell->pdata_size = sizeof(struct lpc_ich_info);
-> @@ -933,7 +956,7 @@ gpe0_done:
->   	lpc_chipset_info[priv->chipset].use_gpio = ret;
->   	lpc_ich_enable_gpio_space(dev);
->
-> -	lpc_ich_finalize_cell(dev, &lpc_ich_cells[LPC_GPIO]);
-> +	lpc_ich_finalize_gpio_cell(dev);
->   	ret = mfd_add_devices(&dev->dev, PLATFORM_DEVID_AUTO,
->   			      &lpc_ich_cells[LPC_GPIO], 1, NULL, 0, NULL);
->
-> @@ -1007,7 +1030,10 @@ static int lpc_ich_init_wdt(struct pci_dev *dev)
->   		res->end = base_addr + ACPIBASE_PMC_END;
->   	}
->
-> -	lpc_ich_finalize_cell(dev, &lpc_ich_cells[LPC_WDT]);
-> +	ret = lpc_ich_finalize_wdt_cell(dev);
-> +	if (ret)
-> +		goto wdt_done;
-> +
->   	ret = mfd_add_devices(&dev->dev, PLATFORM_DEVID_AUTO,
->   			      &lpc_ich_cells[LPC_WDT], 1, NULL, 0, NULL);
->
-> diff --git a/drivers/platform/x86/intel_pmc_ipc.c b/drivers/platform/x86/intel_pmc_ipc.c
-> index 105cfffe82c6..28b2a12bb26d 100644
-> --- a/drivers/platform/x86/intel_pmc_ipc.c
-> +++ b/drivers/platform/x86/intel_pmc_ipc.c
-> @@ -33,7 +33,7 @@
->   #include <linux/suspend.h>
->   #include <linux/acpi.h>
->   #include <asm/intel_pmc_ipc.h>
-> -#include <linux/mfd/lpc_ich.h>
-> +#include <linux/platform_data/itco_wdt.h>
->
->   /*
->    * IPC registers
-> @@ -473,9 +473,9 @@ static struct resource tco_res[] = {
->   	},
->   };
->
-> -static struct lpc_ich_info tco_info = {
-> +static struct itco_wdt_platform_data tco_info = {
->   	.name = "Apollo Lake SoC",
-> -	.iTCO_version = 3,
-> +	.version = 3,
->   };
->
->   static int ipc_create_punit_device(void)
-> @@ -552,8 +552,7 @@ static int ipc_create_tco_device(void)
->   		goto err;
->   	}
->
-> -	ret = platform_device_add_data(pdev, &tco_info,
-> -				       sizeof(struct lpc_ich_info));
-> +	ret = platform_device_add_data(pdev, &tco_info, sizeof(tco_info));
->   	if (ret) {
->   		dev_err(ipcdev.dev, "Failed to add tco platform data\n");
->   		goto err;
-> diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
-> index 3c3fd417ddeb..a94401b2deca 100644
-> --- a/drivers/watchdog/iTCO_wdt.c
-> +++ b/drivers/watchdog/iTCO_wdt.c
-> @@ -66,8 +66,7 @@
->   #include <linux/spinlock.h>		/* For spin_lock/spin_unlock/... */
->   #include <linux/uaccess.h>		/* For copy_to_user/put_user/... */
->   #include <linux/io.h>			/* For inb/outb/... */
-> -#include <linux/mfd/core.h>
-> -#include <linux/mfd/lpc_ich.h>
-> +#include <linux/platform_data/itco_wdt.h>
->
->   #include "iTCO_vendor.h"
->
-> @@ -418,9 +417,9 @@ static int iTCO_wdt_probe(struct platform_device *dev)
->   {
->   	int ret = -ENODEV;
->   	unsigned long val32;
-> -	struct lpc_ich_info *ich_info = dev_get_platdata(&dev->dev);
-> +	struct itco_wdt_platform_data *pdata = dev_get_platdata(&dev->dev);
->
-> -	if (!ich_info)
-> +	if (!pdata)
->   		goto out;
->
->   	spin_lock_init(&iTCO_wdt_private.io_lock);
-> @@ -435,7 +434,7 @@ static int iTCO_wdt_probe(struct platform_device *dev)
->   	if (!iTCO_wdt_private.smi_res)
->   		goto out;
->
-> -	iTCO_wdt_private.iTCO_version = ich_info->iTCO_version;
-> +	iTCO_wdt_private.iTCO_version = pdata->version;
->   	iTCO_wdt_private.dev = dev;
->   	iTCO_wdt_private.pdev = to_pci_dev(dev->dev.parent);
->
-> @@ -501,7 +500,7 @@ static int iTCO_wdt_probe(struct platform_device *dev)
->   	}
->
->   	pr_info("Found a %s TCO device (Version=%d, TCOBASE=0x%04llx)\n",
-> -		ich_info->name, ich_info->iTCO_version, (u64)TCOBASE);
-> +		pdata->name, pdata->version, (u64)TCOBASE);
->
->   	/* Clear out the (probably old) status */
->   	if (iTCO_wdt_private.iTCO_version == 3) {
-> diff --git a/include/linux/mfd/lpc_ich.h b/include/linux/mfd/lpc_ich.h
-> index 8feac782fa83..2b300b44f994 100644
-> --- a/include/linux/mfd/lpc_ich.h
-> +++ b/include/linux/mfd/lpc_ich.h
-> @@ -20,12 +20,6 @@
->   #ifndef LPC_ICH_H
->   #define LPC_ICH_H
->
-> -/* Watchdog resources */
-> -#define ICH_RES_IO_TCO		0
-> -#define ICH_RES_IO_SMI		1
-> -#define ICH_RES_MEM_OFF		2
-> -#define ICH_RES_MEM_GCS_PMC	0
-> -
->   /* GPIO resources */
->   #define ICH_RES_GPIO	0
->   #define ICH_RES_GPE0	1
-> diff --git a/include/linux/platform_data/itco_wdt.h b/include/linux/platform_data/itco_wdt.h
-> new file mode 100644
-> index 000000000000..f16542c77ff7
-> --- /dev/null
-> +++ b/include/linux/platform_data/itco_wdt.h
-> @@ -0,0 +1,19 @@
-> +/*
-> + * Platform data for the Intel TCO Watchdog
-> + */
-> +
-> +#ifndef _ITCO_WDT_H_
-> +#define _ITCO_WDT_H_
-> +
-> +/* Watchdog resources */
-> +#define ICH_RES_IO_TCO		0
-> +#define ICH_RES_IO_SMI		1
-> +#define ICH_RES_MEM_OFF		2
-> +#define ICH_RES_MEM_GCS_PMC	0
-> +
-> +struct itco_wdt_platform_data {
-> +	char name[32];
-> +	unsigned int version;
-> +};
-> +
-> +#endif /* _ITCO_WDT_H_ */
->
 
+Dunno which tree this should go through (probably MFD or watchdog), but
+doesn't look like I2C, so:
+
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
+
+
+--Dxnq1zWXvFF0Q93v
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVxNT3AAoJEBQN5MwUoCm2F8gP+wTXJQ4p8vFB/DHUyPwCclur
+nYvZH1fYGVhDDX0clrdlGnVREgi0/7e99DHdJDGyUvDV9m8omJFxeezunOkYOhff
+qRt61Ab86vAmWR03AGT38mUcIYJ7B4iZu0IpDBdOQoxNBaFQjyncDw3kbIp70bGD
+DE08Fn1orWcjEcr+Ww5GgDX+8N8MZ9IXKXOuX3sfUkPERTiZOQfjt2KO7/Abb/it
+0Ba/cvSw4SzO+LRIKKVmLq4oloL0kTQEc0Y1ON6ak9ZEaXYWcYLh8vAPYJkgs8Si
+tRmQwL0Q9LIfVGqG1ZdWjwn5wsPbTQ6gjyWMIRArL8UOcLkhHzKBip/tQkctU1eB
+KWoqV2EBZ41xXZIBBE+OM2HPfUEcEacbOhjSZq1BsVeQe1aKDq+uAKA836Y6tIui
+gx5IH6zTjEBfWhOUeNcRdleJBNES7ftZ0S1IHsqT6jMsrvJcsaDKU9OI0788Fknz
+n9KtNW6c+EKEzejF4V1fXYdgJtgRTPHag+b19mIvs+Lkwx6Hu6ANSPVJZE+imVDo
+xAWTaoWIlEuE3MDI5UzXPdjjtNtwm/22dkUMxm7AQd1SJkDUxt686wbJZ1ZrXaPO
+NzQ1b9AsgkOSNG85lYUo8tKcSDoLaDLy+9WIVb88n6OcYmUjMAAemdGz3JKQmTlo
+r372suC/lms+U9IE8edi
+=5Ju2
+-----END PGP SIGNATURE-----
+
+--Dxnq1zWXvFF0Q93v--
