@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:46025 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:45992 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753018AbbHHFDH (ORCPT
+	with ESMTP id S1752932AbbHHFDE (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 8 Aug 2015 01:03:07 -0400
+	Sat, 8 Aug 2015 01:03:04 -0400
 From: Guenter Roeck <linux@roeck-us.net>
 To: linux-watchdog@vger.kernel.org
 Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
@@ -12,183 +12,75 @@ Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
 	<u.kleine-koenig@pengutronix.de>, linux-doc@vger.kernel.org,
 	Jonathan Corbet <corbet@lwn.net>,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v2 5/8] watchdog: imx2: Convert to use infrastructure triggered keepalives
-Date: Fri,  7 Aug 2015 22:02:44 -0700
-Message-Id: <1439010167-13818-6-git-send-email-linux@roeck-us.net>
+Subject: [PATCH v2 4/8] watchdog: Make set_timeout function optional
+Date: Fri,  7 Aug 2015 22:02:43 -0700
+Message-Id: <1439010167-13818-5-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1439010167-13818-1-git-send-email-linux@roeck-us.net>
 References: <1439010167-13818-1-git-send-email-linux@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The watchdog infrastructure now supports handling watchdog keepalive
-if the watchdog is running while the watchdog device is closed.
-Convert the driver to use this infrastructure.
+For some watchdogs, the hardware timeout is fixed, and the
+watchdog driver depends on the watchdog core to handle the
+actual timeout. In this situation, the watchdog driver might
+only set the 'timeout' variable but do nothing else.
+This can as well be handled by the infrastructure, so make
+the set_timeout callback optional. If WDIOF_SETTIMEOUT is
+configured but the .set_timeout callback is not available,
+update the timeout variable in the infrastructure code.
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
 v2: No changes
 ---
- drivers/watchdog/imx2_wdt.c | 72 ++++++++-------------------------------------
- 1 file changed, 12 insertions(+), 60 deletions(-)
+ Documentation/watchdog/watchdog-kernel-api.txt | 5 +++++
+ drivers/watchdog/watchdog_dev.c                | 9 ++++++---
+ 2 files changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-index 0bb1a1d1b170..66feef254661 100644
---- a/drivers/watchdog/imx2_wdt.c
-+++ b/drivers/watchdog/imx2_wdt.c
-@@ -25,7 +25,6 @@
- #include <linux/delay.h>
- #include <linux/init.h>
- #include <linux/io.h>
--#include <linux/jiffies.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
-@@ -34,7 +33,6 @@
- #include <linux/platform_device.h>
- #include <linux/reboot.h>
- #include <linux/regmap.h>
--#include <linux/timer.h>
- #include <linux/watchdog.h>
- 
- #define DRIVER_NAME "imx2-wdt"
-@@ -62,7 +60,6 @@
- struct imx2_wdt_device {
- 	struct clk *clk;
- 	struct regmap *regmap;
--	struct timer_list timer;	/* Pings the watchdog when closed */
- 	struct watchdog_device wdog;
- 	struct notifier_block restart_handler;
- };
-@@ -151,16 +148,6 @@ static int imx2_wdt_ping(struct watchdog_device *wdog)
- 	return 0;
- }
- 
--static void imx2_wdt_timer_ping(unsigned long arg)
--{
--	struct watchdog_device *wdog = (struct watchdog_device *)arg;
--	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
--
--	/* ping it every wdog->timeout / 2 seconds to prevent reboot */
--	imx2_wdt_ping(wdog);
--	mod_timer(&wdev->timer, jiffies + wdog->timeout * HZ / 2);
--}
--
- static int imx2_wdt_set_timeout(struct watchdog_device *wdog,
- 				unsigned int new_timeout)
+diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
+index 6a54dc15a556..49dce3a5477b 100644
+--- a/Documentation/watchdog/watchdog-kernel-api.txt
++++ b/Documentation/watchdog/watchdog-kernel-api.txt
+@@ -181,6 +181,11 @@ they are supported. These optional routines/operations are:
+   (if it is larger than hw_max_timeout_ms), or to the achieved timeout value.
+   (Note: the WDIOF_SETTIMEOUT needs to be set in the options field of the
+   watchdog's info structure).
++  If the watchdog driver does not have to perform any action but setting the
++  watchdog_device.timeout, this callback can be omitted.
++  If set_timeout is not provided but, WDIOF_SETTIMEOUT is set, the watchdog
++  infrastructure updates the timeout value of the watchdog_device internally
++  to the requested value.
+ * get_timeleft: this routines returns the time that's left before a reset.
+ * ref: the operation that calls kref_get on the kref of a dynamically
+   allocated watchdog_device struct.
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 676e233d5e7b..752de264a244 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -282,9 +282,9 @@ out_status:
+ static int watchdog_set_timeout(struct watchdog_device *wdd,
+ 							unsigned int timeout)
  {
-@@ -177,40 +164,19 @@ static int imx2_wdt_start(struct watchdog_device *wdog)
- {
- 	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
+-	int err;
++	int err = 0;
  
--	if (imx2_wdt_is_running(wdev)) {
--		/* delete the timer that pings the watchdog after close */
--		del_timer_sync(&wdev->timer);
-+	if (imx2_wdt_is_running(wdev))
- 		imx2_wdt_set_timeout(wdog, wdog->timeout);
--	} else
+-	if (!wdd->ops->set_timeout || !(wdd->info->options & WDIOF_SETTIMEOUT))
++	if (!(wdd->info->options & WDIOF_SETTIMEOUT))
+ 		return -EOPNOTSUPP;
+ 
+ 	if (watchdog_timeout_invalid(wdd, timeout))
+@@ -297,7 +297,10 @@ static int watchdog_set_timeout(struct watchdog_device *wdd,
+ 		goto out_timeout;
+ 	}
+ 
+-	err = wdd->ops->set_timeout(wdd, timeout);
++	if (wdd->ops->set_timeout)
++		err = wdd->ops->set_timeout(wdd, timeout);
 +	else
- 		imx2_wdt_setup(wdog);
++		wdd->timeout = timeout;
  
--	return imx2_wdt_ping(wdog);
--}
--
--static int imx2_wdt_stop(struct watchdog_device *wdog)
--{
--	/*
--	 * We don't need a clk_disable, it cannot be disabled once started.
--	 * We use a timer to ping the watchdog while /dev/watchdog is closed
--	 */
--	imx2_wdt_timer_ping((unsigned long)wdog);
--	return 0;
--}
--
--static inline void imx2_wdt_ping_if_active(struct watchdog_device *wdog)
--{
--	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
-+	set_bit(WDOG_RUNNING, &wdog->status);
+ 	watchdog_update_worker(wdd, true, false);
  
--	if (imx2_wdt_is_running(wdev)) {
--		imx2_wdt_set_timeout(wdog, wdog->timeout);
--		imx2_wdt_timer_ping((unsigned long)wdog);
--	}
-+	return imx2_wdt_ping(wdog);
- }
- 
- static const struct watchdog_ops imx2_wdt_ops = {
- 	.owner = THIS_MODULE,
- 	.start = imx2_wdt_start,
--	.stop = imx2_wdt_stop,
- 	.ping = imx2_wdt_ping,
- 	.set_timeout = imx2_wdt_set_timeout,
- };
-@@ -277,9 +243,10 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
- 	watchdog_set_nowayout(wdog, nowayout);
- 	watchdog_init_timeout(wdog, timeout, &pdev->dev);
- 
--	setup_timer(&wdev->timer, imx2_wdt_timer_ping, (unsigned long)wdog);
--
--	imx2_wdt_ping_if_active(wdog);
-+	if (imx2_wdt_is_running(wdev)) {
-+		imx2_wdt_set_timeout(wdog, wdog->timeout);
-+		set_bit(WDOG_RUNNING, &wdog->status);
-+	}
- 
- 	/*
- 	 * Disable the watchdog power down counter at boot. Otherwise the power
-@@ -320,7 +287,6 @@ static int __exit imx2_wdt_remove(struct platform_device *pdev)
- 	watchdog_unregister_device(wdog);
- 
- 	if (imx2_wdt_is_running(wdev)) {
--		del_timer_sync(&wdev->timer);
- 		imx2_wdt_ping(wdog);
- 		dev_crit(&pdev->dev, "Device removed: Expect reboot!\n");
- 	}
-@@ -334,10 +300,9 @@ static void imx2_wdt_shutdown(struct platform_device *pdev)
- 
- 	if (imx2_wdt_is_running(wdev)) {
- 		/*
--		 * We are running, we need to delete the timer but will
--		 * give max timeout before reboot will take place
-+		 * We are running, configure max timeout before reboot
-+		 * will take place.
- 		 */
--		del_timer_sync(&wdev->timer);
- 		imx2_wdt_set_timeout(wdog, IMX2_WDT_MAX_TIME);
- 		imx2_wdt_ping(wdog);
- 		dev_crit(&pdev->dev, "Device shutdown: Expect reboot!\n");
-@@ -355,10 +320,6 @@ static int imx2_wdt_suspend(struct device *dev)
- 	if (imx2_wdt_is_running(wdev)) {
- 		imx2_wdt_set_timeout(wdog, IMX2_WDT_MAX_TIME);
- 		imx2_wdt_ping(wdog);
--
--		/* The watchdog is not active */
--		if (!watchdog_active(wdog))
--			del_timer_sync(&wdev->timer);
- 	}
- 
- 	clk_disable_unprepare(wdev->clk);
-@@ -384,19 +345,10 @@ static int imx2_wdt_resume(struct device *dev)
- 		 * watchdog again.
- 		 */
- 		imx2_wdt_setup(wdog);
-+	}
-+	if (imx2_wdt_is_running(wdev)) {
- 		imx2_wdt_set_timeout(wdog, wdog->timeout);
- 		imx2_wdt_ping(wdog);
--	} else if (imx2_wdt_is_running(wdev)) {
--		/* Resuming from non-deep sleep state. */
--		imx2_wdt_set_timeout(wdog, wdog->timeout);
--		imx2_wdt_ping(wdog);
--		/*
--		 * But the watchdog is not active, then start
--		 * the timer again.
--		 */
--		if (!watchdog_active(wdog))
--			mod_timer(&wdev->timer,
--				  jiffies + wdog->timeout * HZ / 2);
- 	}
- 
- 	return 0;
 -- 
 2.1.4
 
