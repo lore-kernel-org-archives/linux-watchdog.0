@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:45969 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:46060 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751268AbbHHFC5 (ORCPT
+	with ESMTP id S1753617AbbHHFDM (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 8 Aug 2015 01:02:57 -0400
+	Sat, 8 Aug 2015 01:03:12 -0400
 From: Guenter Roeck <linux@roeck-us.net>
 To: linux-watchdog@vger.kernel.org
 Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
@@ -12,400 +12,221 @@ Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
 	<u.kleine-koenig@pengutronix.de>, linux-doc@vger.kernel.org,
 	Jonathan Corbet <corbet@lwn.net>,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v2 1/8] watchdog: watchdog_dev: Use single variable name for struct watchdog_device
-Date: Fri,  7 Aug 2015 22:02:40 -0700
-Message-Id: <1439010167-13818-2-git-send-email-linux@roeck-us.net>
+Subject: [PATCH v2 8/8] watchdog: at91sam9: Convert to use infrastructure triggered keepalives
+Date: Fri,  7 Aug 2015 22:02:47 -0700
+Message-Id: <1439010167-13818-9-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1439010167-13818-1-git-send-email-linux@roeck-us.net>
 References: <1439010167-13818-1-git-send-email-linux@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The current code uses 'wdd', wddev', and 'watchdog' as variable names
-for struct watchdog_device. This is confusing and makes it difficult
-to enhance the code. Replace it all with 'wdd'.
+The watchdog infrastructure now supports handling watchdog keepalive
+if the watchdog is running while the watchdog device is closed.
+The infrastructure now also supports generating additional heartbeats
+if the maximum hardware timeout is smaller than or close to the
+configured timeout. Convert the driver to use this
+infrastructure.
 
-Cc: Timo Kokkonen <timo.kokkonen@offcode.fi>
-Cc: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-
 ---
 v2: No changes
 ---
- drivers/watchdog/watchdog_dev.c | 151 ++++++++++++++++++++--------------------
- 1 file changed, 75 insertions(+), 76 deletions(-)
+ drivers/watchdog/at91sam9_wdt.c | 102 +++++-----------------------------------
+ 1 file changed, 11 insertions(+), 91 deletions(-)
 
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 6aaefbad303e..06171c73daf5 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -51,7 +51,7 @@ static struct watchdog_device *old_wdd;
- 
- /*
-  *	watchdog_ping: ping the watchdog.
-- *	@wddev: the watchdog device to ping
-+ *	@wdd: the watchdog device to ping
-  *
-  *	If the watchdog has no own ping operation then it needs to be
-  *	restarted via the start operation. This wrapper function does
-@@ -59,65 +59,65 @@ static struct watchdog_device *old_wdd;
-  *	We only ping when the watchdog device is running.
+diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
+index e4698f7c5f93..0de39b52962c 100644
+--- a/drivers/watchdog/at91sam9_wdt.c
++++ b/drivers/watchdog/at91sam9_wdt.c
+@@ -29,7 +29,6 @@
+ #include <linux/types.h>
+ #include <linux/watchdog.h>
+ #include <linux/jiffies.h>
+-#include <linux/timer.h>
+ #include <linux/bitops.h>
+ #include <linux/uaccess.h>
+ #include <linux/of.h>
+@@ -48,8 +47,8 @@
+  * use this to convert a watchdog
+  * value from/to milliseconds.
   */
+-#define ticks_to_hz_rounddown(t)	((((t) + 1) * HZ) >> 8)
+-#define ticks_to_hz_roundup(t)		(((((t) + 1) * HZ) + 255) >> 8)
++#define ticks_to_ms_rounddown(t)	((((t) + 1) * 1000) >> 8)
++#define ticks_to_ms_roundup(t)		(((((t) + 1) * 1000) + 255) >> 8)
+ #define ticks_to_secs(t)		(((t) + 1) >> 8)
+ #define secs_to_ticks(s)		((s) ? (((s) << 8) - 1) : 0)
  
--static int watchdog_ping(struct watchdog_device *wddev)
-+static int watchdog_ping(struct watchdog_device *wdd)
- {
- 	int err = 0;
+@@ -64,9 +63,6 @@
+ /* Hardware timeout in seconds */
+ #define WDT_HW_TIMEOUT 2
  
--	mutex_lock(&wddev->lock);
-+	mutex_lock(&wdd->lock);
- 
--	if (test_bit(WDOG_UNREGISTERED, &wddev->status)) {
-+	if (test_bit(WDOG_UNREGISTERED, &wdd->status)) {
- 		err = -ENODEV;
- 		goto out_ping;
- 	}
- 
--	if (!watchdog_active(wddev))
-+	if (!watchdog_active(wdd))
- 		goto out_ping;
- 
--	if (wddev->ops->ping)
--		err = wddev->ops->ping(wddev);  /* ping the watchdog */
-+	if (wdd->ops->ping)
-+		err = wdd->ops->ping(wdd);	/* ping the watchdog */
- 	else
--		err = wddev->ops->start(wddev); /* restart watchdog */
-+		err = wdd->ops->start(wdd);	/* restart watchdog */
- 
- out_ping:
--	mutex_unlock(&wddev->lock);
-+	mutex_unlock(&wdd->lock);
- 	return err;
+-/* Timer heartbeat (500ms) */
+-#define WDT_TIMEOUT	(HZ/2)
+-
+ /* User land timeout */
+ #define WDT_HEARTBEAT 15
+ static int heartbeat;
+@@ -83,11 +79,8 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
+ struct at91wdt {
+ 	struct watchdog_device wdd;
+ 	void __iomem *base;
+-	unsigned long next_heartbeat;	/* the next_heartbeat for the timer */
+-	struct timer_list timer;	/* The timer that pings the watchdog */
+ 	u32 mr;
+ 	u32 mr_mask;
+-	unsigned long heartbeat;	/* WDT heartbeat in jiffies */
+ 	bool nowayout;
+ 	unsigned int irq;
+ };
+@@ -107,47 +100,13 @@ static irqreturn_t wdt_interrupt(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
  }
  
- /*
-  *	watchdog_start: wrapper to start the watchdog.
-- *	@wddev: the watchdog device to start
-+ *	@wdd: the watchdog device to start
-  *
-  *	Start the watchdog if it is not active and mark it active.
-  *	This function returns zero on success or a negative errno code for
-  *	failure.
-  */
- 
--static int watchdog_start(struct watchdog_device *wddev)
-+static int watchdog_start(struct watchdog_device *wdd)
+-/*
+- * Reload the watchdog timer.  (ie, pat the watchdog)
+- */
+-static inline void at91_wdt_reset(struct at91wdt *wdt)
+-{
+-	wdt_write(wdt, AT91_WDT_CR, AT91_WDT_KEY | AT91_WDT_WDRSTT);
+-}
+-
+-/*
+- * Timer tick
+- */
+-static void at91_ping(unsigned long data)
+-{
+-	struct at91wdt *wdt = (struct at91wdt *)data;
+-	if (time_before(jiffies, wdt->next_heartbeat) ||
+-	    !watchdog_active(&wdt->wdd)) {
+-		at91_wdt_reset(wdt);
+-		mod_timer(&wdt->timer, jiffies + wdt->heartbeat);
+-	} else {
+-		pr_crit("I will reset your machine !\n");
+-	}
+-}
+-
+ static int at91_wdt_start(struct watchdog_device *wdd)
  {
- 	int err = 0;
+ 	struct at91wdt *wdt = to_wdt(wdd);
+-	/* calculate when the next userspace timeout will be */
+-	wdt->next_heartbeat = jiffies + wdd->timeout * HZ;
+-	return 0;
+-}
  
--	mutex_lock(&wddev->lock);
-+	mutex_lock(&wdd->lock);
+-static int at91_wdt_stop(struct watchdog_device *wdd)
+-{
+-	/* The watchdog timer hardware can not be stopped... */
+-	return 0;
+-}
++	wdt_write(wdt, AT91_WDT_CR, AT91_WDT_KEY | AT91_WDT_WDRSTT);
  
--	if (test_bit(WDOG_UNREGISTERED, &wddev->status)) {
-+	if (test_bit(WDOG_UNREGISTERED, &wdd->status)) {
- 		err = -ENODEV;
- 		goto out_start;
- 	}
- 
--	if (watchdog_active(wddev))
-+	if (watchdog_active(wdd))
- 		goto out_start;
- 
--	err = wddev->ops->start(wddev);
-+	err = wdd->ops->start(wdd);
- 	if (err == 0)
--		set_bit(WDOG_ACTIVE, &wddev->status);
-+		set_bit(WDOG_ACTIVE, &wdd->status);
- 
- out_start:
--	mutex_unlock(&wddev->lock);
-+	mutex_unlock(&wdd->lock);
- 	return err;
+-static int at91_wdt_set_timeout(struct watchdog_device *wdd, unsigned int new_timeout)
+-{
+-	wdd->timeout = new_timeout;
+-	return at91_wdt_start(wdd);
++	return 0;
  }
  
- /*
-  *	watchdog_stop: wrapper to stop the watchdog.
-- *	@wddev: the watchdog device to stop
-+ *	@wdd: the watchdog device to stop
-  *
-  *	Stop the watchdog if it is still active and unmark it active.
-  *	This function returns zero on success or a negative errno code for
-@@ -125,155 +125,154 @@ out_start:
-  *	If the 'nowayout' feature was set, the watchdog cannot be stopped.
-  */
- 
--static int watchdog_stop(struct watchdog_device *wddev)
-+static int watchdog_stop(struct watchdog_device *wdd)
- {
- 	int err = 0;
- 
--	mutex_lock(&wddev->lock);
-+	mutex_lock(&wdd->lock);
- 
--	if (test_bit(WDOG_UNREGISTERED, &wddev->status)) {
-+	if (test_bit(WDOG_UNREGISTERED, &wdd->status)) {
- 		err = -ENODEV;
- 		goto out_stop;
- 	}
- 
--	if (!watchdog_active(wddev))
-+	if (!watchdog_active(wdd))
- 		goto out_stop;
- 
--	if (test_bit(WDOG_NO_WAY_OUT, &wddev->status)) {
--		dev_info(wddev->dev, "nowayout prevents watchdog being stopped!\n");
-+	if (test_bit(WDOG_NO_WAY_OUT, &wdd->status)) {
-+		dev_info(wdd->dev, "nowayout prevents watchdog being stopped!\n");
- 		err = -EBUSY;
- 		goto out_stop;
- 	}
- 
--	err = wddev->ops->stop(wddev);
-+	err = wdd->ops->stop(wdd);
- 	if (err == 0)
--		clear_bit(WDOG_ACTIVE, &wddev->status);
-+		clear_bit(WDOG_ACTIVE, &wdd->status);
- 
- out_stop:
--	mutex_unlock(&wddev->lock);
-+	mutex_unlock(&wdd->lock);
- 	return err;
- }
- 
- /*
-  *	watchdog_get_status: wrapper to get the watchdog status
-- *	@wddev: the watchdog device to get the status from
-+ *	@wdd: the watchdog device to get the status from
-  *	@status: the status of the watchdog device
-  *
-  *	Get the watchdog's status flags.
-  */
- 
--static int watchdog_get_status(struct watchdog_device *wddev,
-+static int watchdog_get_status(struct watchdog_device *wdd,
- 							unsigned int *status)
- {
- 	int err = 0;
- 
- 	*status = 0;
--	if (!wddev->ops->status)
-+	if (!wdd->ops->status)
- 		return -EOPNOTSUPP;
- 
--	mutex_lock(&wddev->lock);
-+	mutex_lock(&wdd->lock);
- 
--	if (test_bit(WDOG_UNREGISTERED, &wddev->status)) {
-+	if (test_bit(WDOG_UNREGISTERED, &wdd->status)) {
- 		err = -ENODEV;
- 		goto out_status;
- 	}
- 
--	*status = wddev->ops->status(wddev);
-+	*status = wdd->ops->status(wdd);
- 
- out_status:
--	mutex_unlock(&wddev->lock);
-+	mutex_unlock(&wdd->lock);
- 	return err;
- }
- 
- /*
-  *	watchdog_set_timeout: set the watchdog timer timeout
-- *	@wddev: the watchdog device to set the timeout for
-+ *	@wdd: the watchdog device to set the timeout for
-  *	@timeout: timeout to set in seconds
-  */
- 
--static int watchdog_set_timeout(struct watchdog_device *wddev,
-+static int watchdog_set_timeout(struct watchdog_device *wdd,
- 							unsigned int timeout)
- {
+ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
+@@ -157,8 +116,8 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
+ 	u32 value;
  	int err;
+ 	u32 mask = wdt->mr_mask;
+-	unsigned long min_heartbeat = 1;
+-	unsigned long max_heartbeat;
++	unsigned int min_timeout = jiffies_to_msecs(1);
++	unsigned int hw_timeout;
+ 	struct device *dev = &pdev->dev;
  
--	if ((wddev->ops->set_timeout == NULL) ||
--	    !(wddev->info->options & WDIOF_SETTIMEOUT))
-+	if (!wdd->ops->set_timeout || !(wdd->info->options & WDIOF_SETTIMEOUT))
- 		return -EOPNOTSUPP;
+ 	tmp = wdt_read(wdt, AT91_WDT_MR);
+@@ -180,31 +139,15 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
+ 	delta = (tmp & AT91_WDT_WDD) >> 16;
  
--	if (watchdog_timeout_invalid(wddev, timeout))
-+	if (watchdog_timeout_invalid(wdd, timeout))
+ 	if (delta < value)
+-		min_heartbeat = ticks_to_hz_roundup(value - delta);
++		min_timeout = ticks_to_ms_roundup(value - delta);
+ 
+-	max_heartbeat = ticks_to_hz_rounddown(value);
+-	if (!max_heartbeat) {
++	hw_timeout = ticks_to_ms_rounddown(value);
++	if (hw_timeout < min_timeout * 2) {
+ 		dev_err(dev,
+ 			"heartbeat is too small for the system to handle it correctly\n");
  		return -EINVAL;
- 
--	mutex_lock(&wddev->lock);
-+	mutex_lock(&wdd->lock);
- 
--	if (test_bit(WDOG_UNREGISTERED, &wddev->status)) {
-+	if (test_bit(WDOG_UNREGISTERED, &wdd->status)) {
- 		err = -ENODEV;
- 		goto out_timeout;
  	}
+-
+-	/*
+-	 * Try to reset the watchdog counter 4 or 2 times more often than
+-	 * actually requested, to avoid spurious watchdog reset.
+-	 * If this is not possible because of the min_heartbeat value, reset
+-	 * it at the min_heartbeat period.
+-	 */
+-	if ((max_heartbeat / 4) >= min_heartbeat)
+-		wdt->heartbeat = max_heartbeat / 4;
+-	else if ((max_heartbeat / 2) >= min_heartbeat)
+-		wdt->heartbeat = max_heartbeat / 2;
+-	else
+-		wdt->heartbeat = min_heartbeat;
+-
+-	if (max_heartbeat < min_heartbeat + 4)
+-		dev_warn(dev,
+-			 "min heartbeat and max heartbeat might be too close for the system to handle it correctly\n");
++	wdt->wdd.max_hw_timeout_ms = hw_timeout;
  
--	err = wddev->ops->set_timeout(wddev, timeout);
-+	err = wdd->ops->set_timeout(wdd, timeout);
+ 	if ((tmp & AT91_WDT_WDFIEN) && wdt->irq) {
+ 		err = request_irq(wdt->irq, wdt_interrupt,
+@@ -220,32 +163,12 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
+ 			 "watchdog already configured differently (mr = %x expecting %x)\n",
+ 			 tmp & wdt->mr_mask, wdt->mr & wdt->mr_mask);
  
- out_timeout:
--	mutex_unlock(&wddev->lock);
-+	mutex_unlock(&wdd->lock);
- 	return err;
+-	setup_timer(&wdt->timer, at91_ping, (unsigned long)wdt);
+-
+-	/*
+-	 * Use min_heartbeat the first time to avoid spurious watchdog reset:
+-	 * we don't know for how long the watchdog counter is running, and
+-	 *  - resetting it right now might trigger a watchdog fault reset
+-	 *  - waiting for heartbeat time might lead to a watchdog timeout
+-	 *    reset
+-	 */
+-	mod_timer(&wdt->timer, jiffies + min_heartbeat);
+-
+ 	/* Try to set timeout from device tree first */
+ 	if (watchdog_init_timeout(&wdt->wdd, 0, dev))
+ 		watchdog_init_timeout(&wdt->wdd, heartbeat, dev);
+ 	watchdog_set_nowayout(&wdt->wdd, wdt->nowayout);
+-	err = watchdog_register_device(&wdt->wdd);
+-	if (err)
+-		goto out_stop_timer;
+-
+-	wdt->next_heartbeat = jiffies + wdt->wdd.timeout * HZ;
+-
+-	return 0;
+ 
+-out_stop_timer:
+-	del_timer(&wdt->timer);
+-	return err;
++	return watchdog_register_device(&wdt->wdd);
  }
  
- /*
-  *	watchdog_get_timeleft: wrapper to get the time left before a reboot
-- *	@wddev: the watchdog device to get the remaining time from
-+ *	@wdd: the watchdog device to get the remaining time from
-  *	@timeleft: the time that's left
-  *
-  *	Get the time before a watchdog will reboot (if not pinged).
-  */
+ /* ......................................................................... */
+@@ -259,8 +182,6 @@ static const struct watchdog_info at91_wdt_info = {
+ static const struct watchdog_ops at91_wdt_ops = {
+ 	.owner =	THIS_MODULE,
+ 	.start =	at91_wdt_start,
+-	.stop =		at91_wdt_stop,
+-	.set_timeout =	at91_wdt_set_timeout,
+ };
  
--static int watchdog_get_timeleft(struct watchdog_device *wddev,
-+static int watchdog_get_timeleft(struct watchdog_device *wdd,
- 							unsigned int *timeleft)
- {
- 	int err = 0;
+ #if defined(CONFIG_OF)
+@@ -376,7 +297,6 @@ static int __exit at91wdt_remove(struct platform_device *pdev)
+ 	watchdog_unregister_device(&wdt->wdd);
  
- 	*timeleft = 0;
--	if (!wddev->ops->get_timeleft)
-+	if (!wdd->ops->get_timeleft)
- 		return -EOPNOTSUPP;
+ 	pr_warn("I quit now, hardware will probably reboot!\n");
+-	del_timer(&wdt->timer);
  
--	mutex_lock(&wddev->lock);
-+	mutex_lock(&wdd->lock);
- 
--	if (test_bit(WDOG_UNREGISTERED, &wddev->status)) {
-+	if (test_bit(WDOG_UNREGISTERED, &wdd->status)) {
- 		err = -ENODEV;
- 		goto out_timeleft;
- 	}
- 
--	*timeleft = wddev->ops->get_timeleft(wddev);
-+	*timeleft = wdd->ops->get_timeleft(wdd);
- 
- out_timeleft:
--	mutex_unlock(&wddev->lock);
-+	mutex_unlock(&wdd->lock);
- 	return err;
+ 	return 0;
  }
- 
- /*
-  *	watchdog_ioctl_op: call the watchdog drivers ioctl op if defined
-- *	@wddev: the watchdog device to do the ioctl on
-+ *	@wdd: the watchdog device to do the ioctl on
-  *	@cmd: watchdog command
-  *	@arg: argument pointer
-  */
- 
--static int watchdog_ioctl_op(struct watchdog_device *wddev, unsigned int cmd,
-+static int watchdog_ioctl_op(struct watchdog_device *wdd, unsigned int cmd,
- 							unsigned long arg)
- {
- 	int err;
- 
--	if (!wddev->ops->ioctl)
-+	if (!wdd->ops->ioctl)
- 		return -ENOIOCTLCMD;
- 
--	mutex_lock(&wddev->lock);
-+	mutex_lock(&wdd->lock);
- 
--	if (test_bit(WDOG_UNREGISTERED, &wddev->status)) {
-+	if (test_bit(WDOG_UNREGISTERED, &wdd->status)) {
- 		err = -ENODEV;
- 		goto out_ioctl;
- 	}
- 
--	err = wddev->ops->ioctl(wddev, cmd, arg);
-+	err = wdd->ops->ioctl(wdd, cmd, arg);
- 
- out_ioctl:
--	mutex_unlock(&wddev->lock);
-+	mutex_unlock(&wdd->lock);
- 	return err;
- }
- 
-@@ -513,43 +512,43 @@ static struct miscdevice watchdog_miscdev = {
- 
- /*
-  *	watchdog_dev_register: register a watchdog device
-- *	@watchdog: watchdog device
-+ *	@wdd: watchdog device
-  *
-  *	Register a watchdog device including handling the legacy
-  *	/dev/watchdog node. /dev/watchdog is actually a miscdevice and
-  *	thus we set it up like that.
-  */
- 
--int watchdog_dev_register(struct watchdog_device *watchdog)
-+int watchdog_dev_register(struct watchdog_device *wdd)
- {
- 	int err, devno;
- 
--	if (watchdog->id == 0) {
--		old_wdd = watchdog;
--		watchdog_miscdev.parent = watchdog->parent;
-+	if (wdd->id == 0) {
-+		old_wdd = wdd;
-+		watchdog_miscdev.parent = wdd->parent;
- 		err = misc_register(&watchdog_miscdev);
- 		if (err != 0) {
- 			pr_err("%s: cannot register miscdev on minor=%d (err=%d).\n",
--				watchdog->info->identity, WATCHDOG_MINOR, err);
-+				wdd->info->identity, WATCHDOG_MINOR, err);
- 			if (err == -EBUSY)
- 				pr_err("%s: a legacy watchdog module is probably present.\n",
--					watchdog->info->identity);
-+					wdd->info->identity);
- 			old_wdd = NULL;
- 			return err;
- 		}
- 	}
- 
- 	/* Fill in the data structures */
--	devno = MKDEV(MAJOR(watchdog_devt), watchdog->id);
--	cdev_init(&watchdog->cdev, &watchdog_fops);
--	watchdog->cdev.owner = watchdog->ops->owner;
-+	devno = MKDEV(MAJOR(watchdog_devt), wdd->id);
-+	cdev_init(&wdd->cdev, &watchdog_fops);
-+	wdd->cdev.owner = wdd->ops->owner;
- 
- 	/* Add the device */
--	err  = cdev_add(&watchdog->cdev, devno, 1);
-+	err  = cdev_add(&wdd->cdev, devno, 1);
- 	if (err) {
- 		pr_err("watchdog%d unable to add device %d:%d\n",
--			watchdog->id,  MAJOR(watchdog_devt), watchdog->id);
--		if (watchdog->id == 0) {
-+			wdd->id,  MAJOR(watchdog_devt), wdd->id);
-+		if (wdd->id == 0) {
- 			misc_deregister(&watchdog_miscdev);
- 			old_wdd = NULL;
- 		}
-@@ -564,14 +563,14 @@ int watchdog_dev_register(struct watchdog_device *watchdog)
-  *	Unregister the watchdog and if needed the legacy /dev/watchdog device.
-  */
- 
--int watchdog_dev_unregister(struct watchdog_device *watchdog)
-+int watchdog_dev_unregister(struct watchdog_device *wdd)
- {
--	mutex_lock(&watchdog->lock);
--	set_bit(WDOG_UNREGISTERED, &watchdog->status);
--	mutex_unlock(&watchdog->lock);
-+	mutex_lock(&wdd->lock);
-+	set_bit(WDOG_UNREGISTERED, &wdd->status);
-+	mutex_unlock(&wdd->lock);
- 
--	cdev_del(&watchdog->cdev);
--	if (watchdog->id == 0) {
-+	cdev_del(&wdd->cdev);
-+	if (wdd->id == 0) {
- 		misc_deregister(&watchdog_miscdev);
- 		old_wdd = NULL;
- 	}
 -- 
 2.1.4
 
