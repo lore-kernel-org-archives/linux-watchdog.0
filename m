@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:46048 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:46033 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753566AbbHHFDK (ORCPT
+	with ESMTP id S1753078AbbHHFDI (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 8 Aug 2015 01:03:10 -0400
+	Sat, 8 Aug 2015 01:03:08 -0400
 From: Guenter Roeck <linux@roeck-us.net>
 To: linux-watchdog@vger.kernel.org
 Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
@@ -12,9 +12,9 @@ Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
 	<u.kleine-koenig@pengutronix.de>, linux-doc@vger.kernel.org,
 	Jonathan Corbet <corbet@lwn.net>,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v2 7/8] watchdog: gpio_wdt: Convert to use infrastructure triggered keepalives
-Date: Fri,  7 Aug 2015 22:02:46 -0700
-Message-Id: <1439010167-13818-8-git-send-email-linux@roeck-us.net>
+Subject: [PATCH v2 6/8] watchdog: retu: Convert to use infrastructure triggered keepalives
+Date: Fri,  7 Aug 2015 22:02:45 -0700
+Message-Id: <1439010167-13818-7-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1439010167-13818-1-git-send-email-linux@roeck-us.net>
 References: <1439010167-13818-1-git-send-email-linux@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -22,178 +22,156 @@ List-Id: linux-watchdog@vger.kernel.org
 
 The watchdog infrastructure now supports handling watchdog keepalive
 if the watchdog is running while the watchdog device is closed.
-The infrastructure now also supports generating additional heartbeats
-if the maximum hardware timeout is smaller than or close to the
-configured timeout. Convert the driver to use this infrastructure.
+Convert the driver to use this infrastructure.
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
 v2: No changes
 ---
- drivers/watchdog/gpio_wdt.c | 65 ++++++++-------------------------------------
- 1 file changed, 11 insertions(+), 54 deletions(-)
+ drivers/watchdog/retu_wdt.c | 78 ++++-----------------------------------------
+ 1 file changed, 7 insertions(+), 71 deletions(-)
 
-diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
-index 1687cc2d7122..cbbdae440bfa 100644
---- a/drivers/watchdog/gpio_wdt.c
-+++ b/drivers/watchdog/gpio_wdt.c
-@@ -32,12 +32,8 @@ struct gpio_wdt_priv {
- 	bool			active_low;
- 	bool			state;
- 	bool			always_running;
--	bool			armed;
- 	unsigned int		hw_algo;
--	unsigned int		hw_margin;
--	unsigned long		last_jiffies;
- 	struct notifier_block	notifier;
--	struct timer_list	timer;
- 	struct watchdog_device	wdd;
- };
+diff --git a/drivers/watchdog/retu_wdt.c b/drivers/watchdog/retu_wdt.c
+index b7c68e275aeb..ce2982a7670c 100644
+--- a/drivers/watchdog/retu_wdt.c
++++ b/drivers/watchdog/retu_wdt.c
+@@ -28,69 +28,22 @@
+ /* Watchdog timer values in seconds */
+ #define RETU_WDT_MAX_TIMER	63
  
-@@ -50,20 +46,12 @@ static void gpio_wdt_disable(struct gpio_wdt_priv *priv)
- 		gpio_direction_input(priv->gpio);
- }
- 
--static void gpio_wdt_start_impl(struct gpio_wdt_priv *priv)
+-struct retu_wdt_dev {
+-	struct retu_dev		*rdev;
+-	struct device		*dev;
+-	struct delayed_work	ping_work;
+-};
+-
+-/*
+- * Since Retu watchdog cannot be disabled in hardware, we must kick it
+- * with a timer until userspace watchdog software takes over. If
+- * CONFIG_WATCHDOG_NOWAYOUT is set, we never start the feeding.
+- */
+-static void retu_wdt_ping_enable(struct retu_wdt_dev *wdev)
 -{
--	priv->state = priv->active_low;
--	gpio_direction_output(priv->gpio, priv->state);
--	priv->last_jiffies = jiffies;
--	mod_timer(&priv->timer, priv->last_jiffies + priv->hw_margin);
+-	retu_write(wdev->rdev, RETU_REG_WATCHDOG, RETU_WDT_MAX_TIMER);
+-	schedule_delayed_work(&wdev->ping_work,
+-			round_jiffies_relative(RETU_WDT_MAX_TIMER * HZ / 2));
 -}
 -
- static int gpio_wdt_start(struct watchdog_device *wdd)
+-static void retu_wdt_ping_disable(struct retu_wdt_dev *wdev)
+-{
+-	retu_write(wdev->rdev, RETU_REG_WATCHDOG, RETU_WDT_MAX_TIMER);
+-	cancel_delayed_work_sync(&wdev->ping_work);
+-}
+-
+-static void retu_wdt_ping_work(struct work_struct *work)
+-{
+-	struct retu_wdt_dev *wdev = container_of(to_delayed_work(work),
+-						struct retu_wdt_dev, ping_work);
+-	retu_wdt_ping_enable(wdev);
+-}
+-
+ static int retu_wdt_start(struct watchdog_device *wdog)
  {
- 	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
+-	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
++	struct retu_dev *rdev = watchdog_get_drvdata(wdog);
  
--	gpio_wdt_start_impl(priv);
--	priv->armed = true;
-+	priv->state = priv->active_low;
-+	gpio_direction_output(priv->gpio, priv->state);
+-	retu_wdt_ping_disable(wdev);
++	set_bit(WDOG_RUNNING, &wdog->status);
  
- 	return 0;
- }
-@@ -72,10 +60,9 @@ static int gpio_wdt_stop(struct watchdog_device *wdd)
- {
- 	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
- 
--	priv->armed = false;
- 	if (!priv->always_running) {
--		mod_timer(&priv->timer, 0);
- 		gpio_wdt_disable(priv);
-+		clear_bit(WDOG_RUNNING, &priv->wdd.status);
- 	}
- 
- 	return 0;
-@@ -85,32 +72,6 @@ static int gpio_wdt_ping(struct watchdog_device *wdd)
- {
- 	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
- 
--	priv->last_jiffies = jiffies;
+-	return retu_write(wdev->rdev, RETU_REG_WATCHDOG, wdog->timeout);
+-}
+-
+-static int retu_wdt_stop(struct watchdog_device *wdog)
+-{
+-	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
+-
+-	retu_wdt_ping_enable(wdev);
 -
 -	return 0;
 -}
 -
--static int gpio_wdt_set_timeout(struct watchdog_device *wdd, unsigned int t)
+-static int retu_wdt_ping(struct watchdog_device *wdog)
 -{
--	wdd->timeout = t;
+-	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
 -
--	return gpio_wdt_ping(wdd);
--}
--
--static void gpio_wdt_hwping(unsigned long data)
--{
--	struct watchdog_device *wdd = (struct watchdog_device *)data;
--	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
--
--	if (priv->armed && time_after(jiffies, priv->last_jiffies +
--				      msecs_to_jiffies(wdd->timeout * 1000))) {
--		dev_crit(wdd->dev, "Timer expired. System will reboot soon!\n");
--		return;
--	}
--
--	/* Restart timer */
--	mod_timer(&priv->timer, jiffies + priv->hw_margin);
--
- 	switch (priv->hw_algo) {
- 	case HW_ALGO_TOGGLE:
- 		/* Toggle output pin */
-@@ -124,6 +85,8 @@ static void gpio_wdt_hwping(unsigned long data)
- 		gpio_set_value_cansleep(priv->gpio, priv->active_low);
- 		break;
- 	}
-+
-+	return 0;
+-	return retu_write(wdev->rdev, RETU_REG_WATCHDOG, wdog->timeout);
++	return retu_write(rdev, RETU_REG_WATCHDOG, wdog->timeout);
  }
  
- static int gpio_wdt_notify_sys(struct notifier_block *nb, unsigned long code,
-@@ -132,12 +95,10 @@ static int gpio_wdt_notify_sys(struct notifier_block *nb, unsigned long code,
- 	struct gpio_wdt_priv *priv = container_of(nb, struct gpio_wdt_priv,
- 						  notifier);
+ static int retu_wdt_set_timeout(struct watchdog_device *wdog,
+ 				unsigned int timeout)
+ {
+-	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
++	struct retu_dev *rdev = watchdog_get_drvdata(wdog);
  
--	mod_timer(&priv->timer, 0);
--
- 	switch (code) {
- 	case SYS_HALT:
- 	case SYS_POWER_OFF:
--		gpio_wdt_disable(priv);
-+		gpio_wdt_stop(&priv->wdd);
- 		break;
- 	default:
- 		break;
-@@ -157,7 +118,6 @@ static const struct watchdog_ops gpio_wdt_ops = {
- 	.start		= gpio_wdt_start,
- 	.stop		= gpio_wdt_stop,
- 	.ping		= gpio_wdt_ping,
--	.set_timeout	= gpio_wdt_set_timeout,
+ 	wdog->timeout = timeout;
+-	return retu_write(wdev->rdev, RETU_REG_WATCHDOG, wdog->timeout);
++	return retu_write(rdev, RETU_REG_WATCHDOG, wdog->timeout);
+ }
+ 
+ static const struct watchdog_info retu_wdt_info = {
+@@ -101,8 +54,6 @@ static const struct watchdog_info retu_wdt_info = {
+ static const struct watchdog_ops retu_wdt_ops = {
+ 	.owner		= THIS_MODULE,
+ 	.start		= retu_wdt_start,
+-	.stop		= retu_wdt_stop,
+-	.ping		= retu_wdt_ping,
+ 	.set_timeout	= retu_wdt_set_timeout,
  };
  
- static int gpio_wdt_probe(struct platform_device *pdev)
-@@ -205,9 +165,6 @@ static int gpio_wdt_probe(struct platform_device *pdev)
- 	if (hw_margin < 2 || hw_margin > 65535)
- 		return -EINVAL;
+@@ -111,39 +62,26 @@ static int retu_wdt_probe(struct platform_device *pdev)
+ 	struct retu_dev *rdev = dev_get_drvdata(pdev->dev.parent);
+ 	bool nowayout = WATCHDOG_NOWAYOUT;
+ 	struct watchdog_device *retu_wdt;
+-	struct retu_wdt_dev *wdev;
+ 	int ret;
  
--	/* Use safe value (1/2 of real timeout) */
--	priv->hw_margin = msecs_to_jiffies(hw_margin / 2);
+ 	retu_wdt = devm_kzalloc(&pdev->dev, sizeof(*retu_wdt), GFP_KERNEL);
+ 	if (!retu_wdt)
+ 		return -ENOMEM;
+ 
+-	wdev = devm_kzalloc(&pdev->dev, sizeof(*wdev), GFP_KERNEL);
+-	if (!wdev)
+-		return -ENOMEM;
 -
- 	priv->always_running = of_property_read_bool(pdev->dev.of_node,
- 						     "always-running");
+ 	retu_wdt->info		= &retu_wdt_info;
+ 	retu_wdt->ops		= &retu_wdt_ops;
+ 	retu_wdt->timeout	= RETU_WDT_MAX_TIMER;
+ 	retu_wdt->min_timeout	= 0;
+ 	retu_wdt->max_timeout	= RETU_WDT_MAX_TIMER;
  
-@@ -217,11 +174,15 @@ static int gpio_wdt_probe(struct platform_device *pdev)
- 	priv->wdd.ops		= &gpio_wdt_ops;
- 	priv->wdd.min_timeout	= SOFT_TIMEOUT_MIN;
- 	priv->wdd.max_timeout	= SOFT_TIMEOUT_MAX;
-+	priv->wdd.max_hw_timeout_ms = hw_margin;
+-	watchdog_set_drvdata(retu_wdt, wdev);
++	watchdog_set_drvdata(retu_wdt, rdev);
+ 	watchdog_set_nowayout(retu_wdt, nowayout);
  
- 	if (watchdog_init_timeout(&priv->wdd, 0, &pdev->dev) < 0)
- 		priv->wdd.timeout = SOFT_TIMEOUT_DEF;
- 
--	setup_timer(&priv->timer, gpio_wdt_hwping, (unsigned long)&priv->wdd);
-+	if (priv->always_running) {
-+		set_bit(WDOG_RUNNING, &priv->wdd.status);
-+		gpio_wdt_start(&priv->wdd);
-+	}
- 
- 	ret = watchdog_register_device(&priv->wdd);
- 	if (ret)
-@@ -232,9 +193,6 @@ static int gpio_wdt_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto error_unregister;
- 
--	if (priv->always_running)
--		gpio_wdt_start_impl(priv);
+-	wdev->rdev		= rdev;
+-	wdev->dev		= &pdev->dev;
 -
- 	return 0;
+-	INIT_DELAYED_WORK(&wdev->ping_work, retu_wdt_ping_work);
+-
+ 	ret = watchdog_register_device(retu_wdt);
+ 	if (ret < 0)
+ 		return ret;
  
- error_unregister:
-@@ -246,7 +204,6 @@ static int gpio_wdt_remove(struct platform_device *pdev)
+-	if (nowayout)
+-		retu_wdt_ping(retu_wdt);
+-	else
+-		retu_wdt_ping_enable(wdev);
++	retu_wdt_start(retu_wdt);
+ 
+ 	platform_set_drvdata(pdev, retu_wdt);
+ 
+@@ -153,10 +91,8 @@ static int retu_wdt_probe(struct platform_device *pdev)
+ static int retu_wdt_remove(struct platform_device *pdev)
  {
- 	struct gpio_wdt_priv *priv = platform_get_drvdata(pdev);
+ 	struct watchdog_device *wdog = platform_get_drvdata(pdev);
+-	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
  
--	del_timer_sync(&priv->timer);
- 	unregister_reboot_notifier(&priv->notifier);
- 	watchdog_unregister_device(&priv->wdd);
+ 	watchdog_unregister_device(wdog);
+-	cancel_delayed_work_sync(&wdev->ping_work);
  
+ 	return 0;
+ }
 -- 
 2.1.4
 
