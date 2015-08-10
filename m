@@ -1,50 +1,46 @@
-Return-path: <21cnbao@gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <55C327B5.4050902@roeck-us.net>
-References: <1438849919-27724-1-git-send-email-21cnbao@gmail.com> <55C327B5.4050902@roeck-us.net>
-From: Barry Song <21cnbao@gmail.com>
-Date: Mon, 10 Aug 2015 10:30:49 +0800
-Message-ID: <CAGsJ_4xkuy5chFdF56RGi+_bYx7Px4Wvan2Zq6b-xpN8TE3djA@mail.gmail.com>
-Subject: Re: [PATCH] watchdog : sirf: add support for CSR atlas7 SoC
+Return-path: <ukl@pengutronix.de>
+Date: Mon, 10 Aug 2015 09:24:28 +0200
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	DL-SHA-WorkGroupLinux <workgroup.linux@csr.com>, William Wang <William.Wang@csr.com>,
-	Guo Zeng <guo.zeng@csr.com>, Barry Song <Baohua.Song@csr.com>
-Content-Type: text/plain; charset=UTF-8
+Cc: Wim Van Sebroeck <wim@iguana.be>, kernel@pengutronix.de,
+	linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH v1 3/5] watchdog: mpc8xxx: make use of
+ of_device_get_match_data
+Message-ID: <20150810072428.GP9999@pengutronix.de>
+References: <1438942067-1654-1-git-send-email-u.kleine-koenig@pengutronix.de>
+ <1438942067-1654-4-git-send-email-u.kleine-koenig@pengutronix.de>
+ <55C4C733.7000802@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <55C4C733.7000802@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-2015-08-06 17:24 GMT+08:00 Guenter Roeck <linux@roeck-us.net>:
->
-> On 08/06/2015 01:31 AM, Barry Song wrote:
->>
->> From: William Wang <William.Wang@csr.com>
->>
->> This patch adds support for the new CSR atlas7 chips. prima2 and atlas7
->> are similar in chip design, but the register layout and flows have some
->> differences.
->>
->> This patch puts the differences including register layout and operations
->> in dt private data, so that one driver can be compatible for two chips.
->>
->> Signed-off-by: William Wang <William.Wang@csr.com>
->> Signed-off-by: Guo Zeng <guo.zeng@csr.com>
->> Signed-off-by: Barry Song <Baohua.Song@csr.com>
->
->
-> You are pretty much doubling the size of this driver (from 225 to 446 LOC).
-> I don't see the benefits of having a single driver, sorry. It just makes
-> it very difficult to maintain. Please make this a separate driver.
+Hello Guenter,
 
-the problem is that atlas7 and prima2 shares same watchdog IP, but the
-way to implemen the driver has some differences due to different
-authors.
-we are going to unify the implementation of prima2 and atlas7, then
-those callbacks can  be shared. and then the code size will not be
-doubled.
+On Fri, Aug 07, 2015 at 07:56:51AM -0700, Guenter Roeck wrote:
+> >  	enabled = in_be32(&wd_base->swcrr) & SWCRR_SWEN;
+> >  	if (!enabled && wdt_type->hw_enabled) {
+> >  		pr_info("could not be enabled in software\n");
+> >-		ret = -ENOSYS;
+> >-		goto err_unmap;
+> >+		return -ENOSYS;
+> >  	}
+> 
+> checkpatch says:
+> 
+> WARNING: ENOSYS means 'invalid syscall nr' and nothing else
+> #65: FILE: drivers/watchdog/mpc8xxx_wdt.c:166:
+> +		return -ENOSYS;
+> 
+> Maybe just use -ENODEV.
+That would be a separate patch tough because I'm just changing the code
+flow and ENOSYS was there already before.
 
->
-> Thanks,
-> Guenter
->
+Best regards
+Uwe
 
--barry
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
