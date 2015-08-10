@@ -1,48 +1,50 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:53501 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754579AbbHIU6V (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 9 Aug 2015 16:58:21 -0400
-Received: from mail-ig0-f178.google.com (mail-ig0-f178.google.com [209.85.213.178])
-	(using TLSv1.2 with cipher AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	(Authenticated sender: timur@smtp.codeaurora.org)
-	by smtp.codeaurora.org (Postfix) with ESMTPSA id 5401913FC34
-	for <linux-watchdog@vger.kernel.org>; Sun,  9 Aug 2015 20:58:20 +0000 (UTC)
-Received: by igbpg9 with SMTP id pg9so58381351igb.0
-        for <linux-watchdog@vger.kernel.org>; Sun, 09 Aug 2015 13:58:19 -0700 (PDT)
+Return-path: <21cnbao@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <CAOZdJXWbbWQr8wGJ0R9-gSrT+U+p+6Sz_NaFFWcZSZ8qmjxJiA@mail.gmail.com>
-References: <1435596377-17737-1-git-send-email-timur@codeaurora.org>
-	<CAOZdJXWbbWQr8wGJ0R9-gSrT+U+p+6Sz_NaFFWcZSZ8qmjxJiA@mail.gmail.com>
-Date: Sun, 9 Aug 2015 13:58:19 -0700
-Message-ID: <CAOZdJXUY2j9fNsY1S0H3C6zJ4+OMsL0c5FuPxsae+q4g3wE80Q@mail.gmail.com>
-Subject: Re: [PATCH] Documentation/watchdog: add timeout and ping rate control
- to watchdog-test.c
-From: Timur Tabi <timur@codeaurora.org>
-To: Timur Tabi <timur@codeaurora.org>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+In-Reply-To: <55C327B5.4050902@roeck-us.net>
+References: <1438849919-27724-1-git-send-email-21cnbao@gmail.com> <55C327B5.4050902@roeck-us.net>
+From: Barry Song <21cnbao@gmail.com>
+Date: Mon, 10 Aug 2015 10:30:49 +0800
+Message-ID: <CAGsJ_4xkuy5chFdF56RGi+_bYx7Px4Wvan2Zq6b-xpN8TE3djA@mail.gmail.com>
+Subject: Re: [PATCH] watchdog : sirf: add support for CSR atlas7 SoC
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	DL-SHA-WorkGroupLinux <workgroup.linux@csr.com>, William Wang <William.Wang@csr.com>,
+	Guo Zeng <guo.zeng@csr.com>, Barry Song <Baohua.Song@csr.com>
 Content-Type: text/plain; charset=UTF-8
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Wed, Jul 22, 2015 at 8:56 PM, Timur Tabi <timur@codeaurora.org> wrote:
-> On Mon, Jun 29, 2015 at 11:46 AM, Timur Tabi <timur@codeaurora.org> wrote:
->> The watchdog test program is much more useful if it can configure the
->> timeout value and ping rate.  This will allow you to test actual timeouts.
->>
->> Adds the -t parameter to set the timeout value (in seconds), and -p to set
->> the ping rate (number of seconds between pings).
->>
->> Signed-off-by: Timur Tabi <timur@codeaurora.org>
+2015-08-06 17:24 GMT+08:00 Guenter Roeck <linux@roeck-us.net>:
 >
-> Wim, any chance of getting this patch into 4.2?
+> On 08/06/2015 01:31 AM, Barry Song wrote:
+>>
+>> From: William Wang <William.Wang@csr.com>
+>>
+>> This patch adds support for the new CSR atlas7 chips. prima2 and atlas7
+>> are similar in chip design, but the register layout and flows have some
+>> differences.
+>>
+>> This patch puts the differences including register layout and operations
+>> in dt private data, so that one driver can be compatible for two chips.
+>>
+>> Signed-off-by: William Wang <William.Wang@csr.com>
+>> Signed-off-by: Guo Zeng <guo.zeng@csr.com>
+>> Signed-off-by: Barry Song <Baohua.Song@csr.com>
+>
+>
+> You are pretty much doubling the size of this driver (from 225 to 446 LOC).
+> I don't see the benefits of having a single driver, sorry. It just makes
+> it very difficult to maintain. Please make this a separate driver.
 
-Wim?  If not 4.2, then 4.3?  I think it's a pretty harmless patch, and
-it works well for us.
+the problem is that atlas7 and prima2 shares same watchdog IP, but the
+way to implemen the driver has some differences due to different
+authors.
+we are going to unify the implementation of prima2 and atlas7, then
+those callbacks can  be shared. and then the code size will not be
+doubled.
 
--- 
-Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-a Linux Foundation Collaborative Project.
+>
+> Thanks,
+> Guenter
+>
+
+-barry
