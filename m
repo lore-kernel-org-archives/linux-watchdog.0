@@ -1,60 +1,73 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:40578 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755247AbbHLKRG (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:55469 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933581AbbHLIQI (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 12 Aug 2015 06:17:06 -0400
-Message-ID: <55CB1D1A.9060201@roeck-us.net>
-Date: Wed, 12 Aug 2015 03:16:58 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Wed, 12 Aug 2015 04:16:08 -0400
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
+	<u.kleine-koenig@pengutronix.de>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Guenter Roeck <linux@roeck-us.net>, kernel@pengutronix.de,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH v2 1/7] watchdog: mpc8xxx: remove dead code
+Date: Wed, 12 Aug 2015 10:15:52 +0200
+Message-Id: <1439367358-5338-2-git-send-email-u.kleine-koenig@pengutronix.de>
+In-Reply-To: <1439367358-5338-1-git-send-email-u.kleine-koenig@pengutronix.de>
+References: <1439367358-5338-1-git-send-email-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
-To: =?UTF-8?B?VXdlIEtsZWluZS1Lw7ZuaWc=?=
-	<u.kleine-koenig@pengutronix.de>, Wim Van Sebroeck <wim@iguana.be>
-CC: kernel@pengutronix.de, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v2 3/7] watchdog: mpc8xxx: make use of of_device_get_match_data
-References: <1439367358-5338-1-git-send-email-u.kleine-koenig@pengutronix.de> <1439367358-5338-4-git-send-email-u.kleine-koenig@pengutronix.de>
-In-Reply-To: <1439367358-5338-4-git-send-email-u.kleine-koenig@pengutronix.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 08/12/2015 01:15 AM, Uwe Kleine-König wrote:
-> This function is new in v4.2-rc1 and makes a forward declaration of the
-> match table superfluous which can so be removed.
->
-> Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+---
+ drivers/watchdog/mpc8xxx_wdt.c | 15 ++-------------
+ 1 file changed, 2 insertions(+), 13 deletions(-)
 
-> ---
->   drivers/watchdog/mpc8xxx_wdt.c | 6 ++----
->   1 file changed, 2 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/watchdog/mpc8xxx_wdt.c b/drivers/watchdog/mpc8xxx_wdt.c
-> index e0acda3282d9..fb1fe967cf57 100644
-> --- a/drivers/watchdog/mpc8xxx_wdt.c
-> +++ b/drivers/watchdog/mpc8xxx_wdt.c
-> @@ -139,7 +139,6 @@ static struct watchdog_device mpc8xxx_wdt_dev = {
->   	.ops = &mpc8xxx_wdt_ops,
->   };
->
-> -static const struct of_device_id mpc8xxx_wdt_match[];
->   static int mpc8xxx_wdt_probe(struct platform_device *ofdev)
->   {
->   	int ret;
-> @@ -150,10 +149,9 @@ static int mpc8xxx_wdt_probe(struct platform_device *ofdev)
->   	bool enabled;
->   	unsigned int timeout_sec;
->
-> -	match = of_match_device(mpc8xxx_wdt_match, &ofdev->dev);
-> -	if (!match)
-> +	wdt_type = of_device_get_match_data(&ofdev->dev);
-> +	if (!wdt_type)
->   		return -EINVAL;
-> -	wdt_type = match->data;
->
->   	if (!freq || freq == -1)
->   		return -EINVAL;
->
+diff --git a/drivers/watchdog/mpc8xxx_wdt.c b/drivers/watchdog/mpc8xxx_wdt.c
+index 689381a24887..8ad42b83f995 100644
+--- a/drivers/watchdog/mpc8xxx_wdt.c
++++ b/drivers/watchdog/mpc8xxx_wdt.c
+@@ -68,12 +68,6 @@ module_param(nowayout, bool, 0);
+ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
+ 		 "(default=" __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+ 
+-/*
+- * We always prescale, but if someone really doesn't want to they can set this
+- * to 0
+- */
+-static int prescale = 1;
+-
+ static DEFINE_SPINLOCK(wdt_spinlock);
+ 
+ static void mpc8xxx_wdt_keepalive(void)
+@@ -101,11 +95,9 @@ static void mpc8xxx_wdt_timer_ping(unsigned long arg)
+ 
+ static int mpc8xxx_wdt_start(struct watchdog_device *w)
+ {
+-	u32 tmp = SWCRR_SWEN;
++	u32 tmp = SWCRR_SWEN | SWCRR_SWPR;
+ 
+ 	/* Good, fire up the show */
+-	if (prescale)
+-		tmp |= SWCRR_SWPR;
+ 	if (reset)
+ 		tmp |= SWCRR_SWRI;
+ 
+@@ -179,10 +171,7 @@ static int mpc8xxx_wdt_probe(struct platform_device *ofdev)
+ 	}
+ 
+ 	/* Calculate the timeout in seconds */
+-	if (prescale)
+-		timeout_sec = (timeout * wdt_type->prescaler) / freq;
+-	else
+-		timeout_sec = timeout / freq;
++	timeout_sec = (timeout * wdt_type->prescaler) / freq;
+ 
+ 	mpc8xxx_wdt_dev.timeout = timeout_sec;
+ #ifdef MODULE
+-- 
+2.4.6
 
