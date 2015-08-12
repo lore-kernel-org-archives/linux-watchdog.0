@@ -1,55 +1,72 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:43985 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933573AbbHLIQI (ORCPT
+Received: from mail-wi0-f179.google.com ([209.85.212.179]:37899 "EHLO
+	mail-wi0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933534AbbHLI0k (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 12 Aug 2015 04:16:08 -0400
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
-	<u.kleine-koenig@pengutronix.de>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Guenter Roeck <linux@roeck-us.net>, kernel@pengutronix.de,
-	linux-watchdog@vger.kernel.org
-Subject: [PATCH v2 0/7] watchdog: mpc8xxx: several cleanups
-Date: Wed, 12 Aug 2015 10:15:51 +0200
-Message-Id: <1439367358-5338-1-git-send-email-u.kleine-koenig@pengutronix.de>
+	Wed, 12 Aug 2015 04:26:40 -0400
+Received: by wicja10 with SMTP id ja10so17340047wic.1
+        for <linux-watchdog@vger.kernel.org>; Wed, 12 Aug 2015 01:26:39 -0700 (PDT)
+Date: Wed, 12 Aug 2015 09:26:35 +0100
+From: Lee Jones <lee.jones@linaro.org>
+To: Matt Fleming <matt@codeblueprint.co.uk>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Jean Delvare <jdelvare@suse.com>,
+	Wolfram Sang <wsa@the-dreams.de>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Darren Hart <dvhart@infradead.org>,
+	Matt Fleming <matt.fleming@intel.com>
+Subject: [GIT PULL] Immutable branch between MFD, I2C, X86 and Watchdog due
+ for v4.3
+Message-ID: <20150812082635.GA18282@x1>
+References: <1438865186-25794-1-git-send-email-matt@codeblueprint.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <1438865186-25794-1-git-send-email-matt@codeblueprint.co.uk>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello,
+Enjoy!
 
-this is the reviewed series of some cleanups to the mpc8xxx watchdog driver.
-v1 was sent starting with Message-Id:
-1438942067-1654-1-git-send-email-u.kleine-koenig@pengutronix.de .
+The following changes since commit bc0195aad0daa2ad5b0d76cce22b167bc3435590:
 
-Patch 6 "watchdog: mpc8xxx: use better error code when watchdog cannot
-be enabled" is new. This fixed a checkpatch warning that is reported for
-patch 4. The finding is wrong though, because this patch only does
-some code rearrangements and doesn't introduce the warning.
+  Linux 4.2-rc2 (2015-07-12 15:10:30 -0700)
 
-Also I split patch "watchdog: mpc8xxx: make use of
-of_device_get_match_data" from v1 to really only do that and the
-remaining cleanup done there is now in a separate patch (the
-devm_ioremap_resource one).
+are available in the git repository at:
 
-Also I fixed the wording in the last patch as pointed out by Guenter.
+  git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git tags/ib-mfd-i2c-x86-watchdog-v4.3
 
-Uwe Kleine-König (7):
-  watchdog: mpc8xxx: remove dead code
-  watchdog: mpc8xxx: simplify registration
-  watchdog: mpc8xxx: make use of of_device_get_match_data
-  watchdog: mpc8xxx: use devm_ioremap_resource to map memory
-  watchdog: mpc8xxx: use dynamic memory for device specific data
-  watchdog: mpc8xxx: use better error code when watchdog cannot be
-    enabled
-  watchdog: mpc8xxx: allow to compile for MPC512x
+for you to fetch changes up to 2a7a0e9bf7b32e838d873226808ab8a6c00148f7:
 
- drivers/watchdog/Kconfig       |   2 +-
- drivers/watchdog/mpc8xxx_wdt.c | 156 +++++++++++++++++------------------------
- 2 files changed, 67 insertions(+), 91 deletions(-)
+  watchdog: iTCO_wdt: Add support for TCO on Intel Sunrisepoint (2015-08-11 15:03:52 +0100)
+
+----------------------------------------------------------------
+Immutable branch between MFD, I2C, X86 and Watchdog due for v4.3
+
+----------------------------------------------------------------
+Matt Fleming (2):
+      mfd: watchdog: iTCO_wdt: Expose watchdog properties using platform data
+      watchdog: iTCO_wdt: Add support for TCO on Intel Sunrisepoint
+
+Mika Westerberg (1):
+      i2c: i801: Create iTCO device on newer Intel PCHs
+
+ drivers/i2c/busses/i2c-i801.c          | 120 ++++++++++++++++++++++++++++++++-
+ drivers/mfd/lpc_ich.c                  |  32 ++++++++-
+ drivers/platform/x86/intel_pmc_ipc.c   |   9 ++-
+ drivers/watchdog/Kconfig               |   3 +-
+ drivers/watchdog/iTCO_wdt.c            |  82 +++++++++++++---------
+ include/linux/mfd/lpc_ich.h            |   6 --
+ include/linux/platform_data/itco_wdt.h |  19 ++++++
+ 7 files changed, 222 insertions(+), 49 deletions(-)
+ create mode 100644 include/linux/platform_data/itco_wdt.h
 
 -- 
-2.4.6
-
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
