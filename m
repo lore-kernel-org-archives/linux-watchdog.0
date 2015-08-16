@@ -1,47 +1,63 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:44564 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751332AbbHOXlj (ORCPT
+Received: from down.free-electrons.com ([37.187.137.238]:59668 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751314AbbHPJX4 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 15 Aug 2015 19:41:39 -0400
-Message-ID: <55CFCE2B.9010802@roeck-us.net>
-Date: Sat, 15 Aug 2015 16:41:31 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: =?windows-1252?Q?Uwe_Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-CC: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	linux-kernel@vger.kernel.org,
-	Timo Kokkonen <timo.kokkonen@offcode.fi>,
-	linux-doc@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>
-Subject: Re: [PATCH v2 4/8] watchdog: Make set_timeout function optional
-References: <1439010167-13818-1-git-send-email-linux@roeck-us.net> <1439010167-13818-5-git-send-email-linux@roeck-us.net> <20150814190535.GV9999@pengutronix.de>
-In-Reply-To: <20150814190535.GV9999@pengutronix.de>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sun, 16 Aug 2015 05:23:56 -0400
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+To: Nicolas Ferre <nicolas.ferre@atmel.com>
+Cc: Boris Brezillon <boris.brezillon@free-electrons.com>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+	Daniel Lezcano <daniel.lezcano@linaro.org>,
+	linux-pwm@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	Thierry Reding <thierry.reding@gmail.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Wim Van Sebroeck <wim@iguana.be>
+Subject: [PATCH v4 0/4] ARM: at91: Properly handle slow clock
+Date: Sun, 16 Aug 2015 11:23:42 +0200
+Message-Id: <1439717026-30634-1-git-send-email-alexandre.belloni@free-electrons.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Uwe,
+Hi,
 
-On 08/14/2015 12:05 PM, Uwe Kleine-König wrote:
-> Hello Guenter,
->
-> On Fri, Aug 07, 2015 at 10:02:43PM -0700, Guenter Roeck wrote:
->> For some watchdogs, the hardware timeout is fixed, and the
->> watchdog driver depends on the watchdog core to handle the
->> actual timeout. In this situation, the watchdog driver might
->> only set the 'timeout' variable but do nothing else.
->> This can as well be handled by the infrastructure, so make
->> the set_timeout callback optional. If WDIOF_SETTIMEOUT is
->> configured but the .set_timeout callback is not available,
->> update the timeout variable in the infrastructure code.
->>
->> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
->
+It was discovered that all the slow clock user were not properly claiming it.
+This can end up in a system hang because the last registered user is releasing
+it, and it gets disabled.
 
-Thanks!
-Guenter
+commit dca1a4b5ff6e ("clk: at91: keep slow clk enabled to prevent system hang")
+was a workaround. This series is adding the slow clock to the necessary drivers
+to avoid the issue and then removes that workaround.
 
+Changes in v4:
+ - enable slow_clk before t2_clk in tcb_clksrc.c
+ - properly disable slow_clk in the error path of atmel_tcb_pwm_probe()
+ - added Daniel's acks
+
+Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
+Cc: linux-pwm@vger.kernel.org
+Cc: linux-watchdog@vger.kernel.org
+Cc: Thierry Reding <thierry.reding@gmail.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+
+Alexandre Belloni (2):
+  watchdog: at91sam9: get and use slow clock
+  clocksource: atmel-st: get and use slow clock
+
+Boris Brezillon (2):
+  clocksource: tcb_clksrc: fix setup_clkevents error path
+  misc: atmel_tclib: get and use slow clock
+
+ drivers/clocksource/tcb_clksrc.c     | 12 ++++++++++--
+ drivers/clocksource/timer-atmel-st.c | 31 ++++++++++++++++++++++---------
+ drivers/misc/atmel_tclib.c           |  4 ++++
+ drivers/pwm/pwm-atmel-tcb.c          | 26 +++++++++++++++++++-------
+ drivers/watchdog/at91sam9_wdt.c      | 22 ++++++++++++++++++++--
+ include/linux/atmel_tc.h             |  1 +
+ 6 files changed, 76 insertions(+), 20 deletions(-)
+
+-- 
+2.1.4
 
