@@ -1,16 +1,16 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:32936 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:37084 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751548AbbHREtd (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 18 Aug 2015 00:49:33 -0400
+	id S1751616AbbHREth (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 18 Aug 2015 00:49:37 -0400
 From: Pratyush Anand <panand@redhat.com>
 To: linux-watchdog@vger.kernel.org
 Cc: dyoung@redhat.com, dzickus@redhat.com,
 	Pratyush Anand <panand@redhat.com>,
-	"George G. Davis" <gdavis@mvista.com>
-Subject: [PATCH 20/37] watchdog: omap: Fix parent of watchdog_device
-Date: Tue, 18 Aug 2015 10:17:53 +0530
-Message-Id: <4fc348a78ff3ae355dcc4536149f8f8f7b0011ba.1439524806.git.panand@redhat.com>
+	Andreas Werner <andreas.werner@men.de>
+Subject: [PATCH 21/37] watchdog: menf21bmc: Fix parent of watchdog_device
+Date: Tue, 18 Aug 2015 10:17:54 +0530
+Message-Id: <c80e5040fe23d849381e03ba27ae544f584d779b.1439524806.git.panand@redhat.com>
 In-Reply-To: <cover.1439524806.git.panand@redhat.com>
 References: <cover.1439524806.git.panand@redhat.com>
 In-Reply-To: <cover.1439524806.git.panand@redhat.com>
@@ -21,24 +21,24 @@ List-Id: linux-watchdog@vger.kernel.org
 Fix parent of watchdog_device so that /sys/class/watchdog/watchdogn/device
 is populated.
 
-cc: George G. Davis <gdavis@mvista.com>
+cc: Andreas Werner <andreas.werner@men.de>
 Signed-off-by: Pratyush Anand <panand@redhat.com>
 ---
- drivers/watchdog/omap_wdt.c | 1 +
+ drivers/watchdog/menf21bmc_wdt.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
-index de911c7e477c..d96bee017fd3 100644
---- a/drivers/watchdog/omap_wdt.c
-+++ b/drivers/watchdog/omap_wdt.c
-@@ -253,6 +253,7 @@ static int omap_wdt_probe(struct platform_device *pdev)
- 	wdev->wdog.ops = &omap_wdt_ops;
- 	wdev->wdog.min_timeout = TIMER_MARGIN_MIN;
- 	wdev->wdog.max_timeout = TIMER_MARGIN_MAX;
-+	wdev->wdog.parent = &pdev->dev;
+diff --git a/drivers/watchdog/menf21bmc_wdt.c b/drivers/watchdog/menf21bmc_wdt.c
+index 59f0913c7341..3aefddebb386 100644
+--- a/drivers/watchdog/menf21bmc_wdt.c
++++ b/drivers/watchdog/menf21bmc_wdt.c
+@@ -130,6 +130,7 @@ static int menf21bmc_wdt_probe(struct platform_device *pdev)
+ 	drv_data->wdt.info = &menf21bmc_wdt_info;
+ 	drv_data->wdt.min_timeout = BMC_WD_TIMEOUT_MIN;
+ 	drv_data->wdt.max_timeout = BMC_WD_TIMEOUT_MAX;
++	drv_data->wdt.parent = &pdev->dev;
+ 	drv_data->i2c_client = i2c_client;
  
- 	if (watchdog_init_timeout(&wdev->wdog, timer_margin, &pdev->dev) < 0)
- 		wdev->wdog.timeout = TIMER_MARGIN_DEFAULT;
+ 	/*
 -- 
 2.4.3
 
