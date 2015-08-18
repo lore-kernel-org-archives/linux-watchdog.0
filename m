@@ -1,44 +1,54 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:41359 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751841AbbHREue (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 18 Aug 2015 00:50:34 -0400
-From: Pratyush Anand <panand@redhat.com>
-To: linux-watchdog@vger.kernel.org
-Cc: dyoung@redhat.com, dzickus@redhat.com,
-	Pratyush Anand <panand@redhat.com>,
-	Lubomir Rintel <lkundrak@v3.sk>
-Subject: [PATCH 37/37] watchdog: bcm2835: Fix parent of watchdog_device
-Date: Tue, 18 Aug 2015 10:18:10 +0530
-Message-Id: <0aa282cbbe45870937b056c20461a972bedcf173.1439524806.git.panand@redhat.com>
-In-Reply-To: <cover.1439524806.git.panand@redhat.com>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:58414 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752472AbbHRPsr (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 18 Aug 2015 11:48:47 -0400
+Message-ID: <55D353D7.4020904@roeck-us.net>
+Date: Tue, 18 Aug 2015 08:48:39 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+MIME-Version: 1.0
+To: Pratyush Anand <panand@redhat.com>, linux-watchdog@vger.kernel.org
+CC: dyoung@redhat.com, dzickus@redhat.com
+Subject: Re: [PATCH 00/37] watchdog: Fix parent of watchdog devices
 References: <cover.1439524806.git.panand@redhat.com>
 In-Reply-To: <cover.1439524806.git.panand@redhat.com>
-References: <cover.1439524806.git.panand@redhat.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Fix parent of watchdog_device so that /sys/class/watchdog/watchdogn/device
-is populated.
+On 08/17/2015 09:47 PM, Pratyush Anand wrote:
+> Hi,
+>
+> I posted a query here (https://lkml.org/lkml/2015/8/10/19), but did not get any
+> feedback. So, thought to post patches and to seek response.
+>
+> I need some way to identify the driver/module for a given watchdog node say
+> /dev/watchdog0.
+>
+> Documentation/watchdog/watchdog-api.txt says:
+> identity                a string identifying the watchdog driver
+>
+> However, all the watchdog driver does not define identity as DRV_NAME.
+>
+> Otherway could be to look for /sys/class/watchdog/watchdog0/device/modalias.
+>
+> However, many wdt devices does not set its parent and so, we do not see an entry
+> for /sys/class/watchdog/watchdog0/device/ in sysfs.
+>
+> This patch set fixes parent for wdt drivers written in watchdog-core framework.
+>
+> Exceptions: booke, diag288, mpc8xxx, octeon, softdog and w83627hf -- They do not
+> have any parent. Not sure, how we can identify driver for these devices.
+>
 
-cc: Lubomir Rintel <lkundrak@v3.sk>
-Signed-off-by: Pratyush Anand <panand@redhat.com>
----
- drivers/watchdog/bcm2835_wdt.c | 1 +
- 1 file changed, 1 insertion(+)
+Series makes sense, but imposes a huge burden on the maintainer.
+I think this is one of those changes where a single patch would make much more sense.
 
-diff --git a/drivers/watchdog/bcm2835_wdt.c b/drivers/watchdog/bcm2835_wdt.c
-index 7116968dee12..66c3e656a616 100644
---- a/drivers/watchdog/bcm2835_wdt.c
-+++ b/drivers/watchdog/bcm2835_wdt.c
-@@ -182,6 +182,7 @@ static int bcm2835_wdt_probe(struct platform_device *pdev)
- 	watchdog_set_drvdata(&bcm2835_wdt_wdd, wdt);
- 	watchdog_init_timeout(&bcm2835_wdt_wdd, heartbeat, dev);
- 	watchdog_set_nowayout(&bcm2835_wdt_wdd, nowayout);
-+	bcm2835_wdt_wdd.parent = &pdev->dev;
- 	err = watchdog_register_device(&bcm2835_wdt_wdd);
- 	if (err) {
- 		dev_err(dev, "Failed to register watchdog device");
--- 
-2.4.3
+I merged all patches into my test repository for build and runtime tests,
+but I would suggest to resubmit the series as a single patch.
+
+Thanks,
+Guenter
 
