@@ -1,51 +1,59 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f53.google.com ([209.85.220.53]:36442 "EHLO
-	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752499AbbHRGlL (ORCPT
+Received: from mx2.suse.de ([195.135.220.15]:37534 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751297AbbHRGsO convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 18 Aug 2015 02:41:11 -0400
-Received: by pawq9 with SMTP id q9so28391154paw.3
-        for <linux-watchdog@vger.kernel.org>; Mon, 17 Aug 2015 23:41:10 -0700 (PDT)
-Date: Tue, 18 Aug 2015 12:11:04 +0530
-From: Viresh Kumar <viresh.kumar@linaro.org>
+	Tue, 18 Aug 2015 02:48:14 -0400
+From: Johannes Thumshirn <jthumshirn@suse.de>
 To: Pratyush Anand <panand@redhat.com>
 Cc: linux-watchdog@vger.kernel.org, dyoung@redhat.com,
-	dzickus@redhat.com, Viresh Kumar <vireshk@kernel.org>
-Subject: Re: [PATCH 11/37] watchdog: sp805: Fix parent of watchdog_device
-Message-ID: <20150818064104.GA30470@linux>
+	dzickus@redhat.com
+Subject: Re: [PATCH 22/37] watchdog: mena21: Fix parent of watchdog_device
 References: <cover.1439524806.git.panand@redhat.com>
- <4535d0542876d504b4b390c3b1aca408bc021630.1439524806.git.panand@redhat.com>
+	<cover.1439524806.git.panand@redhat.com>
+	<a49b0e0f3d04f1e4e55b3694aed8e687010b6110.1439524806.git.panand@redhat.com>
+Date: Tue, 18 Aug 2015 08:48:11 +0200
+In-Reply-To: <a49b0e0f3d04f1e4e55b3694aed8e687010b6110.1439524806.git.panand@redhat.com>
+	(Pratyush Anand's message of "Tue, 18 Aug 2015 10:17:55 +0530")
+Message-ID: <mqdbne55bys.fsf@c203.arch.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4535d0542876d504b4b390c3b1aca408bc021630.1439524806.git.panand@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 18-08-15, 10:17, Pratyush Anand wrote:
+Pratyush Anand <panand@redhat.com> writes:
+
 > Fix parent of watchdog_device so that /sys/class/watchdog/watchdogn/device
 > is populated.
-> 
-> cc: Viresh Kumar <vireshk@kernel.org>
+>
+> cc: Johannes Thumshirn <jthumshirn@suse.de>
 > Signed-off-by: Pratyush Anand <panand@redhat.com>
 > ---
->  drivers/watchdog/sp805_wdt.c | 1 +
+>  drivers/watchdog/mena21_wdt.c | 1 +
 >  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/watchdog/sp805_wdt.c b/drivers/watchdog/sp805_wdt.c
-> index 4e7fec36f5c3..01d816251302 100644
-> --- a/drivers/watchdog/sp805_wdt.c
-> +++ b/drivers/watchdog/sp805_wdt.c
-> @@ -226,6 +226,7 @@ sp805_wdt_probe(struct amba_device *adev, const struct amba_id *id)
->  	wdt->adev = adev;
->  	wdt->wdd.info = &wdt_info;
->  	wdt->wdd.ops = &wdt_ops;
-> +	wdt->wdd.parent = &adev->dev;
+>
+> diff --git a/drivers/watchdog/mena21_wdt.c b/drivers/watchdog/mena21_wdt.c
+> index d193a5e79c38..69013007dc47 100644
+> --- a/drivers/watchdog/mena21_wdt.c
+> +++ b/drivers/watchdog/mena21_wdt.c
+> @@ -197,6 +197,7 @@ static int a21_wdt_probe(struct platform_device *pdev)
+>  	watchdog_init_timeout(&a21_wdt, 30, &pdev->dev);
+>  	watchdog_set_nowayout(&a21_wdt, nowayout);
+>  	watchdog_set_drvdata(&a21_wdt, drv);
+> +	a21_wdt.parent = &pdev->dev;
 >  
->  	spin_lock_init(&wdt->lock);
->  	watchdog_set_nowayout(&wdt->wdd, nowayout);
+>  	reset = a21_wdt_get_bootstatus(drv);
+>  	if (reset == 2)
 
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Good catch
+
+Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
 
 -- 
-viresh
+Johannes Thumshirn                                           Storage
+jthumshirn@suse.de                                 +49 911 74053 689
+SUSE LINUX GmbH, Maxfeldstr. 5, 90409 Nürnberg
+GF: Felix Imendörffer, Jane Smithard, Graham Norton
+HRB 21284 (AG Nürnberg)
+Key fingerprint = EC38 9CAB C2C4 F25D 8600  D0D0 0393 969D 2D76 0850
