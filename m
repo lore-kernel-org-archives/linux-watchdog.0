@@ -1,59 +1,87 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:37534 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751297AbbHRGsO convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 18 Aug 2015 02:48:14 -0400
-From: Johannes Thumshirn <jthumshirn@suse.de>
-To: Pratyush Anand <panand@redhat.com>
-Cc: linux-watchdog@vger.kernel.org, dyoung@redhat.com,
-	dzickus@redhat.com
-Subject: Re: [PATCH 22/37] watchdog: mena21: Fix parent of watchdog_device
-References: <cover.1439524806.git.panand@redhat.com>
-	<cover.1439524806.git.panand@redhat.com>
-	<a49b0e0f3d04f1e4e55b3694aed8e687010b6110.1439524806.git.panand@redhat.com>
-Date: Tue, 18 Aug 2015 08:48:11 +0200
-In-Reply-To: <a49b0e0f3d04f1e4e55b3694aed8e687010b6110.1439524806.git.panand@redhat.com>
-	(Pratyush Anand's message of "Tue, 18 Aug 2015 10:17:55 +0530")
-Message-ID: <mqdbne55bys.fsf@c203.arch.suse.de>
+Return-path: <panand@redhat.com>
+Date: Tue, 18 Aug 2015 12:27:43 +0530
+From: Pratyush Anand <panand@redhat.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, Dave Young <dyoung@redhat.com>,
+        Don Zickus <dzickus@redhat.com>
+Subject: Re: Query: Best way to know if a watchdog is active (kicked)
+Message-ID: <20150818065743.GE27149@dhcppc13.redhat.com>
+References: <20150818051532.GC27149@dhcppc13.redhat.com>
+ <55D2C524.1060903@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <55D2C524.1060903@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Pratyush Anand <panand@redhat.com> writes:
+Hi Guenter,
 
-> Fix parent of watchdog_device so that /sys/class/watchdog/watchdogn/device
-> is populated.
->
-> cc: Johannes Thumshirn <jthumshirn@suse.de>
-> Signed-off-by: Pratyush Anand <panand@redhat.com>
-> ---
->  drivers/watchdog/mena21_wdt.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/drivers/watchdog/mena21_wdt.c b/drivers/watchdog/mena21_wdt.c
-> index d193a5e79c38..69013007dc47 100644
-> --- a/drivers/watchdog/mena21_wdt.c
-> +++ b/drivers/watchdog/mena21_wdt.c
-> @@ -197,6 +197,7 @@ static int a21_wdt_probe(struct platform_device *pdev)
->  	watchdog_init_timeout(&a21_wdt, 30, &pdev->dev);
->  	watchdog_set_nowayout(&a21_wdt, nowayout);
->  	watchdog_set_drvdata(&a21_wdt, drv);
-> +	a21_wdt.parent = &pdev->dev;
->  
->  	reset = a21_wdt_get_bootstatus(drv);
->  	if (reset == 2)
+Thanks a lot for your quick reply.
 
-Good catch
+On 17/08/2015:10:39:48 PM, Guenter Roeck wrote:
+> On 08/17/2015 10:15 PM, Pratyush Anand wrote:
+> >Hi,
+> >
+> >I am looking for the best way to know if a watchdog has been kicked and active.
+> >
+> >I can see a way is to read timeout(WDIOC_GETTIMEOUT) and  timeleft(
+> >WDIOC_GETTIMELEFT). If they do not match, it means that wdt is active.
+> >
+> >But what if we tried to read timeleft just in time when watchdog daemon/or some
+> >other application had kicked it. May be we read timeleft twice at the interval
+> >of 1 sec.
+> >
+> >Please let me know if there is any other alternative which could be a better way
+> >to know if watchdog is active?  Or may be it would be good to implement an ioctl
+> >WDIOC_ACTIVE?
+> >
+> 
+> Normally the watchdog is active if the watchdog device is open, unless the
+> application controlling it explicitly disabled it with WDIOC_SETOPTIONS.
+> Therefore, the controlling application should always know the status.
+> A different application can not open the watchdog device, so it won't be
+> able to get its status using an ioctl anyway.
 
-Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
+Yes, A different application can not open in parallel, but can open once the
+previous application has closed it. For example this is what I see:
 
--- 
-Johannes Thumshirn                                           Storage
-jthumshirn@suse.de                                 +49 911 74053 689
-SUSE LINUX GmbH, Maxfeldstr. 5, 90409 Nürnberg
-GF: Felix Imendörffer, Jane Smithard, Graham Norton
-HRB 21284 (AG Nürnberg)
-Key fingerprint = EC38 9CAB C2C4 F25D 8600  D0D0 0393 969D 2D76 0850
+--------------------------------------------------------------
+# cat /dev/watchdog1 ; sleep 5; wdctl /dev/watchdog1
+cat: /dev/watchdog1: Invalid argument
+wdctl: write failed: Invalid argument
+Device:        /dev/watchdog1
+Identity:      iTCO_wdt [version 0]
+Timeout:       30 seconds
+Timeleft:      24 seconds
+FLAG           DESCRIPTION               STATUS BOOT-STATUS
+KEEPALIVEPING  Keep alive ping reply          0           0
+MAGICCLOSE     Supports magic close char      0           0
+SETTIMEOUT     Set timeout (in seconds)       0           0
+--------------------------------------------------------------
+So, cat opened it and kicked it as well. But, it could not stop it as magic
+character "V" had not not received. Therefore, when wdctl opened and read
+Timeleft, it was different than Timeout.
+
+> 
+> Why is that insufficient ?
+
+Well, let me explain the use case. Consider the situation when:
+-- A system has activated its watchdog to take care of software hang. So, when
+software has hanged, wdt causes to reboot, else it is kicked again before
+timeout.
+-- The same system has also activated kdump(kdump is a method to reboot to a
+minimal stable secondary kernel in case of kernel crash). Now when wdt was still
+active, there was a kernel crash and system booted to a secondary stable kernel
+which copies crash related data to a safe location. Since, wdt was active so
+before the desired process could complete in secondary kernel, hardware rebooted.
+-- So, the watchdog device need to be stoped in secondary kernel as early as
+possible. Loading of driver/module itself stops a kicked device. So, if there
+could be a way to know active wdt from kernel, then the two daemon (one which
+manages watchdog and other which manages kdump) can play independently, and
+kdump daemon can correctly program a kdump file system to load relevant watchdog
+module as early as possible.
+-- Current distro implementations loads all the watchdog devices driver module
+in secondary kernel, which is not nice (secondary kdump kernel should be as
+minimal as possible).
+
+~Pratyush
