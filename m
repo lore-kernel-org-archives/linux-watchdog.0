@@ -1,16 +1,16 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:40152 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:41118 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750988AbbHREsf (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 18 Aug 2015 00:48:35 -0400
+	id S1750988AbbHREsj (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 18 Aug 2015 00:48:39 -0400
 From: Pratyush Anand <panand@redhat.com>
 To: linux-watchdog@vger.kernel.org
 Cc: dyoung@redhat.com, dzickus@redhat.com,
 	Pratyush Anand <panand@redhat.com>,
-	Wolfson Microelectronics <linux@wolfsonmicro.com>
-Subject: [PATCH 03/37] watchdog: wm831x: Fix parent of watchdog_device
-Date: Tue, 18 Aug 2015 10:17:36 +0530
-Message-Id: <ba6b462280ebc6c56704b226b1b104bcb8e458d4.1439524806.git.panand@redhat.com>
+	Marc Vertes <marc.vertes@sigfox.com>
+Subject: [PATCH 04/37] watchdog: via: Fix parent of watchdog_device
+Date: Tue, 18 Aug 2015 10:17:37 +0530
+Message-Id: <1d2269d9939f5441dd49a62d82fcf6050a23146d.1439524806.git.panand@redhat.com>
 In-Reply-To: <cover.1439524806.git.panand@redhat.com>
 References: <cover.1439524806.git.panand@redhat.com>
 In-Reply-To: <cover.1439524806.git.panand@redhat.com>
@@ -21,24 +21,24 @@ List-Id: linux-watchdog@vger.kernel.org
 Fix parent of watchdog_device so that /sys/class/watchdog/watchdogn/device
 is populated.
 
-cc: Wolfson Microelectronics <linux@wolfsonmicro.com>
+cc: Marc Vertes <marc.vertes@sigfox.com>
 Signed-off-by: Pratyush Anand <panand@redhat.com>
 ---
- drivers/watchdog/wm831x_wdt.c | 1 +
+ drivers/watchdog/via_wdt.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/watchdog/wm831x_wdt.c b/drivers/watchdog/wm831x_wdt.c
-index 2fa17e746ff6..8d1184aee932 100644
---- a/drivers/watchdog/wm831x_wdt.c
-+++ b/drivers/watchdog/wm831x_wdt.c
-@@ -215,6 +215,7 @@ static int wm831x_wdt_probe(struct platform_device *pdev)
+diff --git a/drivers/watchdog/via_wdt.c b/drivers/watchdog/via_wdt.c
+index 56369c4f1961..5f9cbc37520d 100644
+--- a/drivers/watchdog/via_wdt.c
++++ b/drivers/watchdog/via_wdt.c
+@@ -206,6 +206,7 @@ static int wdt_probe(struct pci_dev *pdev,
+ 		timeout = WDT_TIMEOUT;
  
- 	wm831x_wdt->info = &wm831x_wdt_info;
- 	wm831x_wdt->ops = &wm831x_wdt_ops;
-+	wm831x_wdt->parent = &pdev->dev;
- 	watchdog_set_nowayout(wm831x_wdt, nowayout);
- 	watchdog_set_drvdata(wm831x_wdt, driver_data);
- 
+ 	wdt_dev.timeout = timeout;
++	wdt_dev.parent = &pdev->dev;
+ 	watchdog_set_nowayout(&wdt_dev, nowayout);
+ 	if (readl(wdt_mem) & VIA_WDT_FIRED)
+ 		wdt_dev.bootstatus |= WDIOF_CARDRESET;
 -- 
 2.4.3
 
