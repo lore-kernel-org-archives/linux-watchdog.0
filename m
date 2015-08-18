@@ -1,16 +1,16 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:33041 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:40366 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751841AbbHREuT (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 18 Aug 2015 00:50:19 -0400
+	id S1751841AbbHREuW (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 18 Aug 2015 00:50:22 -0400
 From: Pratyush Anand <panand@redhat.com>
 To: linux-watchdog@vger.kernel.org
 Cc: dyoung@redhat.com, dzickus@redhat.com,
 	Pratyush Anand <panand@redhat.com>,
-	Anthony Olech <Anthony.Olech@diasemi.com>
-Subject: [PATCH 33/37] watchdog: da9052: Fix parent of watchdog_device
-Date: Tue, 18 Aug 2015 10:18:06 +0530
-Message-Id: <03d0403e435c5aba0acaef66004a71c0511ebcbd.1439524806.git.panand@redhat.com>
+	Linus Walleij <linus.walleij@stericsson.com>
+Subject: [PATCH 34/37] watchdog: coh901327: Fix parent of watchdog_device
+Date: Tue, 18 Aug 2015 10:18:07 +0530
+Message-Id: <3d4b71b2e0656939243299b4720ba6564ac44c34.1439524806.git.panand@redhat.com>
 In-Reply-To: <cover.1439524806.git.panand@redhat.com>
 References: <cover.1439524806.git.panand@redhat.com>
 In-Reply-To: <cover.1439524806.git.panand@redhat.com>
@@ -21,24 +21,24 @@ List-Id: linux-watchdog@vger.kernel.org
 Fix parent of watchdog_device so that /sys/class/watchdog/watchdogn/device
 is populated.
 
-cc: Anthony Olech <Anthony.Olech@diasemi.com>
+cc: Linus Walleij <linus.walleij@stericsson.com>
 Signed-off-by: Pratyush Anand <panand@redhat.com>
 ---
- drivers/watchdog/da9052_wdt.c | 1 +
+ drivers/watchdog/coh901327_wdt.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/watchdog/da9052_wdt.c b/drivers/watchdog/da9052_wdt.c
-index 2e9589652e1e..67e67977bd29 100644
---- a/drivers/watchdog/da9052_wdt.c
-+++ b/drivers/watchdog/da9052_wdt.c
-@@ -195,6 +195,7 @@ static int da9052_wdt_probe(struct platform_device *pdev)
- 	da9052_wdt->timeout = DA9052_DEF_TIMEOUT;
- 	da9052_wdt->info = &da9052_wdt_info;
- 	da9052_wdt->ops = &da9052_wdt_ops;
-+	da9052_wdt->parent = &pdev->dev;
- 	watchdog_set_drvdata(da9052_wdt, driver_data);
+diff --git a/drivers/watchdog/coh901327_wdt.c b/drivers/watchdog/coh901327_wdt.c
+index ce12f437f195..a099b77fc0b9 100644
+--- a/drivers/watchdog/coh901327_wdt.c
++++ b/drivers/watchdog/coh901327_wdt.c
+@@ -358,6 +358,7 @@ static int __init coh901327_probe(struct platform_device *pdev)
+ 	if (ret < 0)
+ 		coh901327_wdt.timeout = 60;
  
- 	kref_init(&driver_data->kref);
++	coh901327_wdt.parent = &pdev->dev;
+ 	ret = watchdog_register_device(&coh901327_wdt);
+ 	if (ret == 0)
+ 		dev_info(&pdev->dev,
 -- 
 2.4.3
 
