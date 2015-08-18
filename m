@@ -1,16 +1,17 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:60470 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:37018 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751036AbbHREs4 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 18 Aug 2015 00:48:56 -0400
+	id S1751687AbbHREtA (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 18 Aug 2015 00:49:00 -0400
 From: Pratyush Anand <panand@redhat.com>
 To: linux-watchdog@vger.kernel.org
 Cc: dyoung@redhat.com, dzickus@redhat.com,
 	Pratyush Anand <panand@redhat.com>,
-	Wolfram Sang <kernel@pengutronix.de>
-Subject: [PATCH 09/37] watchdog: stmp3xxx_rtc: Fix parent of watchdog_device
-Date: Tue, 18 Aug 2015 10:17:42 +0530
-Message-Id: <8833ce9da792634ed606bfaa745c4b9806b4a0d5.1439524806.git.panand@redhat.com>
+	David Paris <david.paris@st.com>,
+	Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 10/37] watchdog: st_lpc: Fix parent of watchdog_device
+Date: Tue, 18 Aug 2015 10:17:43 +0530
+Message-Id: <4d95204cc2d56673a9dcddf96ee6d6701fe92ecd.1439524806.git.panand@redhat.com>
 In-Reply-To: <cover.1439524806.git.panand@redhat.com>
 References: <cover.1439524806.git.panand@redhat.com>
 In-Reply-To: <cover.1439524806.git.panand@redhat.com>
@@ -21,24 +22,25 @@ List-Id: linux-watchdog@vger.kernel.org
 Fix parent of watchdog_device so that /sys/class/watchdog/watchdogn/device
 is populated.
 
-cc: Wolfram Sang <kernel@pengutronix.de>
+cc: David Paris <david.paris@st.com>
+cc: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Pratyush Anand <panand@redhat.com>
 ---
- drivers/watchdog/stmp3xxx_rtc_wdt.c | 1 +
+ drivers/watchdog/st_lpc_wdt.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/watchdog/stmp3xxx_rtc_wdt.c b/drivers/watchdog/stmp3xxx_rtc_wdt.c
-index e7f0d5b60d3d..3ee6128a540e 100644
---- a/drivers/watchdog/stmp3xxx_rtc_wdt.c
-+++ b/drivers/watchdog/stmp3xxx_rtc_wdt.c
-@@ -76,6 +76,7 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
- 	watchdog_set_drvdata(&stmp3xxx_wdd, &pdev->dev);
+diff --git a/drivers/watchdog/st_lpc_wdt.c b/drivers/watchdog/st_lpc_wdt.c
+index 6785afdc0fca..14e9badf2bfa 100644
+--- a/drivers/watchdog/st_lpc_wdt.c
++++ b/drivers/watchdog/st_lpc_wdt.c
+@@ -241,6 +241,7 @@ static int st_wdog_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
+ 	st_wdog_dev.max_timeout = 0xFFFFFFFF / st_wdog->clkrate;
++	st_wdog_dev.parent = &pdev->dev;
  
- 	stmp3xxx_wdd.timeout = clamp_t(unsigned, heartbeat, 1, STMP3XXX_MAX_TIMEOUT);
-+	stmp3xxx_wdd.parent = &pdev->dev;
- 
- 	ret = watchdog_register_device(&stmp3xxx_wdd);
- 	if (ret < 0) {
+ 	ret = clk_prepare_enable(clk);
+ 	if (ret) {
 -- 
 2.4.3
 
