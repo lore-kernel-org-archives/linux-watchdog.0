@@ -1,54 +1,60 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:58414 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752472AbbHRPsr (ORCPT
+Received: from mail-gw2-out.broadcom.com ([216.31.210.63]:40492 "EHLO
+	mail-gw2-out.broadcom.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751697AbbHTRmU (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 18 Aug 2015 11:48:47 -0400
-Message-ID: <55D353D7.4020904@roeck-us.net>
-Date: Tue, 18 Aug 2015 08:48:39 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Thu, 20 Aug 2015 13:42:20 -0400
+From: Justin Chen <justinpopo6@gmail.com>
+To: <linux-kernel@vger.kernel.org>
+CC: <feedback-list@broadcom.com>, <devicetree@vger.kernel.org>,
+	<robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
+	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
+	<wim@iguana.be>, <linux-watchdog@vger.kernel.org>,
+	Justin Chen <justinpopo6@gmail.com>
+Subject: [PATCH 1/2] watchdog: bcm7038: add device tree binding documentation
+Date: Thu, 20 Aug 2015 10:41:25 -0700
+Message-ID: <1440092486-16905-2-git-send-email-justinpopo6@gmail.com>
+In-Reply-To: <1440092486-16905-1-git-send-email-justinpopo6@gmail.com>
+References: <1440092486-16905-1-git-send-email-justinpopo6@gmail.com>
 MIME-Version: 1.0
-To: Pratyush Anand <panand@redhat.com>, linux-watchdog@vger.kernel.org
-CC: dyoung@redhat.com, dzickus@redhat.com
-Subject: Re: [PATCH 00/37] watchdog: Fix parent of watchdog devices
-References: <cover.1439524806.git.panand@redhat.com>
-In-Reply-To: <cover.1439524806.git.panand@redhat.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 08/17/2015 09:47 PM, Pratyush Anand wrote:
-> Hi,
->
-> I posted a query here (https://lkml.org/lkml/2015/8/10/19), but did not get any
-> feedback. So, thought to post patches and to seek response.
->
-> I need some way to identify the driver/module for a given watchdog node say
-> /dev/watchdog0.
->
-> Documentation/watchdog/watchdog-api.txt says:
-> identity                a string identifying the watchdog driver
->
-> However, all the watchdog driver does not define identity as DRV_NAME.
->
-> Otherway could be to look for /sys/class/watchdog/watchdog0/device/modalias.
->
-> However, many wdt devices does not set its parent and so, we do not see an entry
-> for /sys/class/watchdog/watchdog0/device/ in sysfs.
->
-> This patch set fixes parent for wdt drivers written in watchdog-core framework.
->
-> Exceptions: booke, diag288, mpc8xxx, octeon, softdog and w83627hf -- They do not
-> have any parent. Not sure, how we can identify driver for these devices.
->
+Add device tree binding docmentation for the watchdog hardware block
+on bcm7038 and newer SoCs.
 
-Series makes sense, but imposes a huge burden on the maintainer.
-I think this is one of those changes where a single patch would make much more sense.
+Signed-off-by: Justin Chen <justinpopo6@gmail.com>
+---
+ .../devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt
 
-I merged all patches into my test repository for build and runtime tests,
-but I would suggest to resubmit the series as a single patch.
-
-Thanks,
-Guenter
+diff --git a/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt b/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt
+new file mode 100644
+index 0000000..adb8260
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt
+@@ -0,0 +1,19 @@
++BCM7038 Watchdog timer
++
++Required properties:
++
++- compatible : should be "brcm,bcm7038-wdt"
++- reg : Specifies base physical address and size of the registers.
++
++Optional properties:
++
++- clocks: the clock running the watchdog
++- clock-frequency: the rate of the clock
++
++Example:
++
++watchdog {
++	compatible = "brcm,bcm7038-wdt";
++	clocks = <&upg_fixed>;
++	reg = <0xf040a7e8 0x16>;
++};
+-- 
+2.1.0
 
