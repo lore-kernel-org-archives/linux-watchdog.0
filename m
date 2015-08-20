@@ -1,77 +1,50 @@
-Return-path: <Adam.Thomson.Opensource@diasemi.com>
-From: "Opensource [Adam Thomson]" <Adam.Thomson.Opensource@diasemi.com>
+Return-path: <tomas.winkler@intel.com>
+From: "Winkler, Tomas" <tomas.winkler@intel.com>
 To: Pratyush Anand <panand@redhat.com>, "linux@roeck-us.net"
 	<linux@roeck-us.net>
-CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"kbuild test robot" <fengguang.wu@intel.com>, Alexandre Courbot
-	<gnurou@gmail.com>, Andreas Werner <andreas.werner@men.de>, Barry Song
-	<baohua@kernel.org>, Baruch Siach <baruch@tkos.co.il>, Johannes Thumshirn
-	<morbidrsa@gmail.com>, "open list:ARM/STI ARCHITECTURE" <kernel@stlinux.com>,
-	Krzysztof Kozlowski <k.kozlowski@samsung.com>, Kukjin Kim <kgene@kernel.org>,
-	Lee Jones <lee@kernel.org>, Linus Walleij <linus.walleij@linaro.org>,
-	"moderated list:ARM/U300 MACHINE SUPPORT"
-	<linux-arm-kernel@lists.infradead.org>, "open list:INTEL MANAGEMENT ENGINE
- (mei)" <linux-kernel@vger.kernel.org>, "moderated list:BROADCOM BCM2835 ARM
- ARCHITECTURE" <linux-rpi-kernel@lists.infradead.org>, "moderated
- list:ARM/SAMSUNG EXYNOS ARM ARCHITECTURES"
-	<linux-samsung-soc@vger.kernel.org>, "open list:TEGRA ARCHITECTURE SUPPORT"
-	<linux-tegra@vger.kernel.org>, Maxime Coquelin <maxime.coquelin@st.com>,
-	"open list:WOLFSON MICROELECTRONICS DRIVERS"
+CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "Wu,
+ Fengguang" <fengguang.wu@intel.com>, Alexandre Courbot <gnurou@gmail.com>,
+	Andreas Werner <andreas.werner@men.de>, Barry Song <baohua@kernel.org>,
+	Baruch Siach <baruch@tkos.co.il>, Johannes Thumshirn <morbidrsa@gmail.com>,
+	"open list:ARM/STI ARCHITECTURE" <kernel@stlinux.com>, Krzysztof Kozlowski
+	<k.kozlowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Lee Jones
+	<lee@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, "moderated
+ list:ARM/U300 MACHINE SUPPORT" <linux-arm-kernel@lists.infradead.org>, "open
+ list:INTEL MANAGEMENT ENGINE (mei)" <linux-kernel@vger.kernel.org>,
+	"moderated list:BROADCOM BCM2835 ARM ARCHITECTURE"
+	<linux-rpi-kernel@lists.infradead.org>, "moderated list:ARM/SAMSUNG EXYNOS
+ ARM ARCHITECTURES" <linux-samsung-soc@vger.kernel.org>, "open list:TEGRA
+ ARCHITECTURE SUPPORT" <linux-tegra@vger.kernel.org>, Maxime Coquelin
+	<maxime.coquelin@st.com>, "open list:WOLFSON MICROELECTRONICS DRIVERS"
 	<patches@opensource.wolfsonmicro.com>, Patrice Chotard
 	<patrice.chotard@st.com>, Srinivas Kandagatla
 	<srinivas.kandagatla@gmail.com>, Stephen Warren <swarren@wwwdotorg.org>,
-	Support Opensource <Support.Opensource@diasemi.com>, Thierry Reding
-	<thierry.reding@gmail.com>, Tomas Winkler <tomas.winkler@intel.com>, "Wim
- Van Sebroeck" <wim@iguana.be>
+	Support Opensource <support.opensource@diasemi.com>, Thierry Reding
+	<thierry.reding@gmail.com>, Wim Van Sebroeck <wim@iguana.be>
 Subject: RE: [PATCH V3] Watchdog: Fix parent of watchdog_devices
-Date: Thu, 20 Aug 2015 08:30:35 +0000
-Message-ID: <2E89032DDAA8B9408CB92943514A0337AB56C694@SW-EX-MBX01.diasemi.com>
+Date: Thu, 20 Aug 2015 08:35:22 +0000
+Message-ID: <5B8DA87D05A7694D9FA63FD143655C1B3D42A60A@hasmsx108.ger.corp.intel.com>
 References: <db7db9102158b87a4a7169e84e2272b3ba03f9f7.1439954581.git.panand@redhat.com>
 In-Reply-To: <db7db9102158b87a4a7169e84e2272b3ba03f9f7.1439954581.git.panand@redhat.com>
 Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 List-ID: <linux-watchdog@vger.kernel.org>
 
-T24gQXVndXN0IDE5LCAyMDE1IDA0OjI4LCBQcmF0eXVzaCBBbmFuZCB3cm90ZToNCg0KPiBkaWZm
-IC0tZ2l0IGEvZHJpdmVycy93YXRjaGRvZy9kYTkwNTJfd2R0LmMgYi9kcml2ZXJzL3dhdGNoZG9n
-L2RhOTA1Ml93ZHQuYw0KPiBpbmRleCAyZTk1ODk2NTJlMWUuLjY3ZTY3OTc3YmQyOSAxMDA2NDQN
-Cj4gLS0tIGEvZHJpdmVycy93YXRjaGRvZy9kYTkwNTJfd2R0LmMNCj4gKysrIGIvZHJpdmVycy93
-YXRjaGRvZy9kYTkwNTJfd2R0LmMNCj4gQEAgLTE5NSw2ICsxOTUsNyBAQCBzdGF0aWMgaW50IGRh
-OTA1Ml93ZHRfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikNCj4gIAlkYTkwNTJf
-d2R0LT50aW1lb3V0ID0gREE5MDUyX0RFRl9USU1FT1VUOw0KPiAgCWRhOTA1Ml93ZHQtPmluZm8g
-PSAmZGE5MDUyX3dkdF9pbmZvOw0KPiAgCWRhOTA1Ml93ZHQtPm9wcyA9ICZkYTkwNTJfd2R0X29w
-czsNCj4gKwlkYTkwNTJfd2R0LT5wYXJlbnQgPSAmcGRldi0+ZGV2Ow0KPiAgCXdhdGNoZG9nX3Nl
-dF9kcnZkYXRhKGRhOTA1Ml93ZHQsIGRyaXZlcl9kYXRhKTsNCj4gDQo+ICAJa3JlZl9pbml0KCZk
-cml2ZXJfZGF0YS0+a3JlZik7DQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3dhdGNoZG9nL2RhOTA1
-NV93ZHQuYyBiL2RyaXZlcnMvd2F0Y2hkb2cvZGE5MDU1X3dkdC5jDQo+IGluZGV4IDQ5NTA4OWQ4
-ZGJmZS4uMDRkMTQzMGQ5M2QyIDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJzL3dhdGNoZG9nL2RhOTA1
-NV93ZHQuYw0KPiArKysgYi9kcml2ZXJzL3dhdGNoZG9nL2RhOTA1NV93ZHQuYw0KPiBAQCAtMTYx
-LDYgKzE2MSw3IEBAIHN0YXRpYyBpbnQgZGE5MDU1X3dkdF9wcm9iZShzdHJ1Y3QgcGxhdGZvcm1f
-ZGV2aWNlICpwZGV2KQ0KPiAgCWRhOTA1NV93ZHQtPnRpbWVvdXQgPSBEQTkwNTVfREVGX1RJTUVP
-VVQ7DQo+ICAJZGE5MDU1X3dkdC0+aW5mbyA9ICZkYTkwNTVfd2R0X2luZm87DQo+ICAJZGE5MDU1
-X3dkdC0+b3BzID0gJmRhOTA1NV93ZHRfb3BzOw0KPiArCWRhOTA1NV93ZHQtPnBhcmVudCA9ICZw
-ZGV2LT5kZXY7DQo+ICAJd2F0Y2hkb2dfc2V0X25vd2F5b3V0KGRhOTA1NV93ZHQsIG5vd2F5b3V0
-KTsNCj4gIAl3YXRjaGRvZ19zZXRfZHJ2ZGF0YShkYTkwNTVfd2R0LCBkcml2ZXJfZGF0YSk7DQo+
-IA0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy93YXRjaGRvZy9kYTkwNjJfd2R0LmMgYi9kcml2ZXJz
-L3dhdGNoZG9nL2RhOTA2Ml93ZHQuYw0KPiBpbmRleCBiM2E4NzBjZTg1YmUuLjczODYxMTEyMjBk
-NSAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy93YXRjaGRvZy9kYTkwNjJfd2R0LmMNCj4gKysrIGIv
-ZHJpdmVycy93YXRjaGRvZy9kYTkwNjJfd2R0LmMNCj4gQEAgLTIxMCw2ICsyMTAsNyBAQCBzdGF0
-aWMgaW50IGRhOTA2Ml93ZHRfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikNCj4g
-IAl3ZHQtPndkdGRldi5tYXhfdGltZW91dCA9IERBOTA2Ml9XRFRfTUFYX1RJTUVPVVQ7DQo+ICAJ
-d2R0LT53ZHRkZXYudGltZW91dCA9IERBOTA2Ml9XREdfREVGQVVMVF9USU1FT1VUOw0KPiAgCXdk
-dC0+d2R0ZGV2LnN0YXR1cyA9IFdBVENIRE9HX05PV0FZT1VUX0lOSVRfU1RBVFVTOw0KPiArCXdk
-dC0+d2R0ZGV2LnBhcmVudCA9ICZwZGV2LT5kZXY7DQo+IA0KPiAgCXdhdGNoZG9nX3NldF9kcnZk
-YXRhKCZ3ZHQtPndkdGRldiwgd2R0KTsNCj4gIAlkZXZfc2V0X2RydmRhdGEoJnBkZXYtPmRldiwg
-d2R0KTsNCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvd2F0Y2hkb2cvZGE5MDYzX3dkdC5jIGIvZHJp
-dmVycy93YXRjaGRvZy9kYTkwNjNfd2R0LmMNCj4gaW5kZXggZTJmZTJlYmRlYmQ0Li42YmYxMzBi
-ZDg2M2QgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvd2F0Y2hkb2cvZGE5MDYzX3dkdC5jDQo+ICsr
-KyBiL2RyaXZlcnMvd2F0Y2hkb2cvZGE5MDYzX3dkdC5jDQo+IEBAIC0xNzUsNiArMTc1LDcgQEAg
-c3RhdGljIGludCBkYTkwNjNfd2R0X3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYp
-DQo+ICAJd2R0LT53ZHRkZXYubWluX3RpbWVvdXQgPSBEQTkwNjNfV0RUX01JTl9USU1FT1VUOw0K
-PiAgCXdkdC0+d2R0ZGV2Lm1heF90aW1lb3V0ID0gREE5MDYzX1dEVF9NQVhfVElNRU9VVDsNCj4g
-IAl3ZHQtPndkdGRldi50aW1lb3V0ID0gREE5MDYzX1dER19USU1FT1VUOw0KPiArCXdkdC0+d2R0
-ZGV2LnBhcmVudCA9ICZwZGV2LT5kZXY7DQo+IA0KPiAgCXdkdC0+d2R0ZGV2LnN0YXR1cyA9IFdB
-VENIRE9HX05PV0FZT1VUX0lOSVRfU1RBVFVTOw0KPiANCg0KQWNrZWQtYnk6IEFkYW0gVGhvbXNv
-biA8QWRhbS5UaG9tc29uLk9wZW5zb3VyY2VAZGlhc2VtaS5jb20+DQo=
+> diff --git a/drivers/misc/mei/wd.c b/drivers/misc/mei/wd.c
+> index 2bc0f5089f82..b346638833b0 100644
+> --- a/drivers/misc/mei/wd.c
+> +++ b/drivers/misc/mei/wd.c
+> @@ -364,6 +364,7 @@ int mei_watchdog_register(struct mei_device *dev)
+>=20
+>  	int ret;
+>=20
+> +	amt_wd_dev.parent =3D dev->dev;
+>  	/* unlock to perserve correct locking order */
+>  	mutex_unlock(&dev->device_lock);
+>  	ret =3D watchdog_register_device(&amt_wd_dev);
+
+Acked-by: Tomas Winkler <tomas.winkler@intel.com>
+
+Should this be got to stable as well?
