@@ -1,61 +1,42 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-la0-f46.google.com ([209.85.215.46]:33303 "EHLO
-	mail-la0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752765AbbHTTy6 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 20 Aug 2015 15:54:58 -0400
-Received: by lalv9 with SMTP id v9so29170428lal.0
-        for <linux-watchdog@vger.kernel.org>; Thu, 20 Aug 2015 12:54:57 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <55BD1550.708@roeck-us.net>
-References: <1438454237-22043-1-git-send-email-ariel@vanguardiasur.com.ar>
-	<1438454237-22043-2-git-send-email-ariel@vanguardiasur.com.ar>
-	<55BD1550.708@roeck-us.net>
-Date: Thu, 20 Aug 2015 16:54:57 -0300
-Message-ID: <CAAEAJfB2aHpaoQpZWCrnhajNjQRCu6zWfFkyZ=Ad9hPnnVx0gw@mail.gmail.com>
-Subject: Re: [PATCH v5 1/2] watchdog: NXP LPC18xx Watchdog Timer Driver
-From: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
+Received: from mx1.redhat.com ([209.132.183.28]:51553 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752295AbbHUIwV (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 21 Aug 2015 04:52:21 -0400
+Date: Fri, 21 Aug 2015 14:22:17 +0530
+From: Pratyush Anand <panand@redhat.com>
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: "Ariel D'Alessandro" <ariel@vanguardiasur.com.ar>,
-	linux-watchdog@vger.kernel.org, wim@iguana.be,
-	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-	Joachim Eastwood <manabian@gmail.com>
-Content-Type: text/plain; charset=UTF-8
+Cc: linux-watchdog@vger.kernel.org, Dave Young <dyoung@redhat.com>,
+	Don Zickus <dzickus@redhat.com>
+Subject: Re: Query: Best way to know if a watchdog is active (kicked)
+Message-ID: <20150821085217.GA5989@dhcppc13.redhat.com>
+References: <20150818051532.GC27149@dhcppc13.redhat.com>
+ <55D2C524.1060903@roeck-us.net>
+ <20150818065743.GE27149@dhcppc13.redhat.com>
+ <55D329FE.2050005@roeck-us.net>
+ <20150818130807.GB12876@dhcppc13.redhat.com>
+ <55D33FEA.8000809@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <55D33FEA.8000809@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
 
-On 1 August 2015 at 15:52, Guenter Roeck <linux@roeck-us.net> wrote:
-> On 08/01/2015 11:37 AM, Ariel D'Alessandro wrote:
->>
->> This commit adds support for the watchdog timer found in NXP LPC SoCs
->> family, which includes LPC18xx/LPC43xx. Other SoCs in that family may
->> share the same watchdog hardware.
->>
->> Watchdog driver registers a restart handler that will restart the syst=
-em
->> by performing an incorrect feed after ensuring the watchdog is enabled=
- in
->> reset mode.
->>
->> As watchdog cannot be disabled in hardware, driver's stop routine will
->> regularly send a keepalive ping using a timer.
->>
->> Signed-off-by: Ariel D'Alessandro <ariel@vanguardiasur.com.ar>
->
->
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->
+On 18/08/2015:07:23:38 AM, Guenter Roeck wrote:
+> Sounds good. We should have a 'name' attribute as well. We'll also need
+> 'timeout', 'keepalive' to ping the watchdog, 'timeleft', and 'bootstatus'.
+> Not sure what else.
+> 
+> The attributes should be implemented as class attributes, to ensure
+> that they are created and removed automatically. That may require
+> the watchdog class to be static instead of a pointer.
 
-Wim,
+Should n't attributes be implemented as device attribute as they are properties
+of each device. Under the class watchdog_class, we can have multiple device on a
+system, and these attributes would be different for different devices. So, what
+I am thinking is to create device in __watchdog_register_device using
+device_create_with_groups instead of device_create. Here we can link a
+attribute_group with all attributes you suggested.
 
-Any chances you pick this in time for the next merge window?
-
---=20
-Ezequiel Garc=C3=ADa, VanguardiaSur
-www.vanguardiasur.com.ar
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+~Pratyush
