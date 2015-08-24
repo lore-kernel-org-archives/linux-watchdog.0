@@ -1,55 +1,84 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:57592 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754446AbbHXMuG (ORCPT
+Received: from www.linutronix.de ([62.245.132.108]:47933 "EHLO
+	Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754075AbbHXRuq (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 24 Aug 2015 08:50:06 -0400
-Message-ID: <55DB12F3.3020100@roeck-us.net>
-Date: Mon, 24 Aug 2015 05:49:55 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+	Mon, 24 Aug 2015 13:50:46 -0400
+Date: Mon, 24 Aug 2015 19:50:14 +0200 (CEST)
+From: Thomas Gleixner <tglx@linutronix.de>
+To: Fu Wei <fu.wei@linaro.org>
+cc: Suravee.Suthikulpanit@amd.com, hanjun.guo@linaro.org,
+	linaro-acpi@lists.linaro.org, linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
+	linux-doc@vger.kernel.org, tekkamanninja@gmail.com,
+	graeme.gregory@linaro.org, al.stone@linaro.org,
+	Arnd Bergmann <arnd@arndb.de>, linux@roeck-us.net,
+	vgandhi@codeaurora.org, wim@iguana.be,
+	Jon Masters <jcm@redhat.com>, leo.duran@amd.com,
+	Jonathan Corbet <corbet@lwn.net>, mark.rutland@arm.com,
+	catalin.marinas@arm.com, will.deacon@arm.com, rjw@rjwysocki.net,
+	dyoung@redhat.com, panand@redhat.com,
+	Daniel Lezcano <daniel.lezcano@linaro.org>
+Subject: Re: [PATCH v7 8/8] clocksource: simplify ACPI code in
+ arm_arch_timer.c
+In-Reply-To: <1440435683-7343-9-git-send-email-fu.wei@linaro.org>
+Message-ID: <alpine.DEB.2.11.1508241942450.3873@nanos>
+References: <=fu.wei@linaro.org> <1440435683-7343-1-git-send-email-fu.wei@linaro.org> <1440435683-7343-9-git-send-email-fu.wei@linaro.org>
 MIME-Version: 1.0
-To: Chen-Yu Tsai <wens@csie.org>,
-	Maxime Ripard <maxime.ripard@free-electrons.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-CC: Francesco Lavra <francescolavra.fl@gmail.com>,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2] watchdog: sunxi: fix activation of system reset
-References: <55B32BCE.5050506@gmail.com> <20150726193238.GM2564@lukather> <CAGb2v66oZH_OifuUkzjJS3B5L-uBOaNMWZ7xhgF01EjrkuEq6g@mail.gmail.com>
-In-Reply-To: <CAGb2v66oZH_OifuUkzjJS3B5L-uBOaNMWZ7xhgF01EjrkuEq6g@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 08/24/2015 02:25 AM, Chen-Yu Tsai wrote:
-> Hi,
->
-> On Mon, Jul 27, 2015 at 3:32 AM, Maxime Ripard
-> <maxime.ripard@free-electrons.com> wrote:
->> On Sat, Jul 25, 2015 at 08:25:18AM +0200, Francesco Lavra wrote:
->>> Commit f2147de33470 ("watchdog: sunxi: support parameterized compatible
->>> strings") introduced a regression in sunxi_wdt_start(), by which
->>> the system reset function of the watchdog is not enabled upon
->>> starting the watchdog. As a result, the system is not reset when the
->>> watchdog expires. Fix it.
->>>
->>> Signed-off-by: Francesco Lavra <francescolavra.fl@gmail.com>
->>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->>> Fixes: f2147de33470 ("watchdog: sunxi: support parameterized compatible strings")
->>> Cc: stable@vger.kernel.org
->>
->> Acked-by: Maxime Ripard <maxime.ripard@free-electrons.com>
->
-> What tree should this go in through?
-> Guenter, are you still taking watchdog patches?
->
+On Tue, 25 Aug 2015, fu.wei@linaro.org wrote:
 
-The patch is included in the pull request I sent to Wim last week [1].
+You Cc the world and some more on your patch, but you fail to add the
+maintainers of the clocksource code to the Cc list. Sigh.
 
-Guenter
+> From: Fu Wei <fu.wei@linaro.org>
+> 
+> The patch update arm_arch_timer driver to use the function
+> provided by the new GTDT driver of ACPI.
+> By this way, arm_arch_timer.c can be simplified, and separate
+> all the ACPI GTDT knowledge from this timer driver.
 
----
-[1] http://www.spinics.net/lists/linux-watchdog/msg07219.html
+That's not a proper changelog and this patch want's to be split in two:
 
+1) Implement the new ACPI function
+
+2) Make use of it
+ 
+> index 0aa135d..99505bb 100644
+> --- a/drivers/clocksource/arm_arch_timer.c
+> +++ b/drivers/clocksource/arm_arch_timer.c
+> @@ -817,68 +817,30 @@ CLOCKSOURCE_OF_DECLARE(armv7_arch_timer_mem, "arm,armv7-timer-mem",
+>  		       arch_timer_mem_init);
+>  
+>  #ifdef CONFIG_ACPI
+> -static int __init map_generic_timer_interrupt(u32 interrupt, u32 flags)
+> -{
+> -	int trigger, polarity;
+> -
+> -	if (!interrupt)
+> -		return 0;
+> -
+> -	trigger = (flags & ACPI_GTDT_INTERRUPT_MODE) ? ACPI_EDGE_SENSITIVE
+> -			: ACPI_LEVEL_SENSITIVE;
+> -
+> -	polarity = (flags & ACPI_GTDT_INTERRUPT_POLARITY) ? ACPI_ACTIVE_LOW
+> -			: ACPI_ACTIVE_HIGH;
+> -
+> -	return acpi_register_gsi(NULL, interrupt, trigger, polarity);
+> -}
+> -
+>  /* Initialize per-processor generic timer */
+> -static int __init arch_timer_acpi_init(struct acpi_table_header *table)
+> +void __init arch_timer_acpi_init(void)
+>  {
+
+And how is that supposed to work when we have next generation CPUs
+which implement a different timer? You break multisystem kernels that
+way.
+
+Thanks,
+
+	tglx
