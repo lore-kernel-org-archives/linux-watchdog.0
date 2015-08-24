@@ -1,70 +1,44 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:51813 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751363AbbHXDcb (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 23 Aug 2015 23:32:31 -0400
-Message-ID: <55DA9045.2060107@roeck-us.net>
-Date: Sun, 23 Aug 2015 20:32:21 -0700
-From: Guenter Roeck <linux@roeck-us.net>
+Return-path: <stwiss.opensource@diasemi.com>
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+To: Philipp Zabel <p.zabel@pengutronix.de>
+CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "Wim
+ Van Sebroeck" <wim@iguana.be>, Support Opensource
+	<Support.Opensource@diasemi.com>, "kernel@pengutronix.de"
+	<kernel@pengutronix.de>, "Opensource [Adam Thomson]"
+	<Adam.Thomson.Opensource@diasemi.com>, Guenter Roeck <linux@roeck-us.net>
+Subject: RE: [PATCH 1/2] watchdog: da9063: Ping watchdog only during allowed
+ time window
+Date: Mon, 24 Aug 2015 13:39:23 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B262675@SW-EX-MBX02.diasemi.com>
+References: <1438879019-12978-1-git-send-email-p.zabel@pengutronix.de>
+	 <2E89032DDAA8B9408CB92943514A0337AB569C3B@SW-EX-MBX01.diasemi.com>
+ <1438942673.3638.16.camel@pengutronix.de>
+In-Reply-To: <1438942673.3638.16.camel@pengutronix.de>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-To: Justin Chen <justinpopo6@gmail.com>, linux-kernel@vger.kernel.org
-CC: feedback-list@broadcom.com, devicetree@vger.kernel.org,
-	robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
-	ijc+devicetree@hellion.org.uk, galak@codeaurora.org, wim@iguana.be,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 1/2] watchdog: bcm7038: add device tree binding documentation
-References: <1440092486-16905-1-git-send-email-justinpopo6@gmail.com> <1440092486-16905-2-git-send-email-justinpopo6@gmail.com>
-In-Reply-To: <1440092486-16905-2-git-send-email-justinpopo6@gmail.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Justin,
-
-On 08/20/2015 10:41 AM, Justin Chen wrote:
-> Add device tree binding docmentation for the watchdog hardware block
-> on bcm7038 and newer SoCs.
->
-> Signed-off-by: Justin Chen <justinpopo6@gmail.com>
-> ---
->   .../devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt | 19 +++++++++++++++++++
->   1 file changed, 19 insertions(+)
->   create mode 100644 Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt
->
-> diff --git a/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt b/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt
-> new file mode 100644
-> index 0000000..adb8260
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt
-> @@ -0,0 +1,19 @@
-> +BCM7038 Watchdog timer
-> +
-> +Required properties:
-> +
-> +- compatible : should be "brcm,bcm7038-wdt"
-> +- reg : Specifies base physical address and size of the registers.
-> +
-> +Optional properties:
-> +
-> +- clocks: the clock running the watchdog
-> +- clock-frequency: the rate of the clock
-
-Is 'clock-frequency' really needed (and useful), or would it make more sense
-to expect the user to configure a fixed clock if nothing else is available ?
-How do other drivers handle this ?
-
-Thanks,
-Guenter
-
-> +
-> +Example:
-> +
-> +watchdog {
-> +	compatible = "brcm,bcm7038-wdt";
-> +	clocks = <&upg_fixed>;
-> +	reg = <0xf040a7e8 0x16>;
-> +};
->
-
+T24gMDcgQXVndXN0IDIwMTUgMTE6MTgsIFBoaWxpcHAgWmFiZWwgd3JvdGU6IA0KPiBTdWJqZWN0
+OiBSZTogW1BBVENIIDEvMl0gd2F0Y2hkb2c6IGRhOTA2MzogUGluZyB3YXRjaGRvZyBvbmx5IGR1
+cmluZyBhbGxvd2VkIHRpbWUgd2luZG93DQo+IA0KPiBIaSBBZGFtLA0KPiANCj4gQW0gRnJlaXRh
+ZywgZGVuIDA3LjA4LjIwMTUsIDEwOjEzICswMDAwIHNjaHJpZWIgT3BlbnNvdXJjZSBbQWRhbSBU
+aG9tc29uXToNCj4gPiBPbiBBdWd1c3QgMDYsIDIwMTUgMTc6MzcsIFBoaWxpcHAgWmFiZWwgd3Jv
+dGU6DQo+ID4NCj4gPiA+IFRoZXJlIGlzIGEgY29vbGRvd24gcGVyaW9kIGFmdGVyIHdhdGNoZG9n
+IHRpbWVyIHNldHVwLCBhbmQgYWxzbyBhZnRlciBlYWNoDQo+ID4gPiB3YXRjaGRvZyBwaW5nLiBJ
+ZiBhIHBpbmcgaXMgaXNzdWVkIHRvbyBlYXJseSwgdGhlIHdhdGNoZG9nIHRyaWdnZXJzIHRoZQ0K
+PiA+ID4gd2F0Y2hkb2cgZXJyb3IgY29uZGl0aW9uIGFuZCBjYXVzZXMgYSBzeXN0ZW0gcmVzZXQu
+DQo+ID4gPg0KPiA+ID4gVGhlIDI1NiBtcyBwZXJpb2QgbGVuZ3RoIGlzIGEgYmVzdCBndWVzcyBi
+YXNlZCBvbiB0aGUgc2FtZSB2YWx1ZSBiZWluZyB1c2VkDQo+ID4gPiBmb3IgdGhlIERBOTA1MyBw
+cmVkZWNlc3NvciBQTUlDIGFuZCBleHBlcmltZW50cyB0aGF0IGhhdmUgc2hvd24gMjAwIG1zIGFy
+ZQ0KPiA+ID4gbm90IGVub3VnaCB0byBhdm9pZCB0aGUgZXJyb3IuDQo+ID4gPg0KPiA+ID4gU2ln
+bmVkLW9mZi1ieTogUGhpbGlwcCBaYWJlbCA8cC56YWJlbEBwZW5ndXRyb25peC5kZT4NCj4gPg0K
+PiA+IE15IGNvbGxlYWd1ZSBTdGVwaGVuIGlzIG91dCBvZiBvZmZpY2UgZm9yIHRoZSBuZXh0IHR3
+byB3ZWVrcywgYnV0IHJlYWxseSBJDQo+ID4gdGhpbmsgaGUgc2hvdWxkIHJldmlldyB0aGVzZSB0
+d28gcGF0Y2hlcyBnaXZlbiBoaXMga25vd2xlZGdlIG9mIHRoZSBkZXZpY2UuIElmDQo+ID4geW91
+IGNhbiBob2xkIG9mZiB1bnRpbCB0aGVuLCBoZSBzaG91bGQgYmUgYWJsZSB0byBwcm92aWRlIGZl
+ZWRiYWNrLg0KPiANCj4gQWJzb2x1dGVseSwgdGhhbmsgeW91IGZvciB0aGUgaGVhZHMtdXAuDQoN
+CkhpIFBoaWxpcHAsDQoNClRoYW5rcyBmb3Igd2FpdGluZyB1bnRpbCBteSByZXR1cm4gb24gdGhp
+cyB0b3BpYy4gSSB3aWxsIGNoZWNrIHdpdGggdGhlIGhhcmR3YXJlIGVuZ2luZWVycyB0bw0Kc2Vl
+IGFib3V0IHRoaXMgREE5MDYzIG1pbmltdW0gdGltZS4NCg0KUmVnYXJkcywNClN0ZXZlDQo=
