@@ -1,11 +1,11 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f51.google.com ([209.85.220.51]:34675 "EHLO
-	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755155AbbHXRDP (ORCPT
+Received: from mail-pa0-f42.google.com ([209.85.220.42]:35354 "EHLO
+	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755157AbbHXRDG (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 24 Aug 2015 13:03:15 -0400
-Received: by pabzx8 with SMTP id zx8so10678924pab.1
-        for <linux-watchdog@vger.kernel.org>; Mon, 24 Aug 2015 10:03:15 -0700 (PDT)
+	Mon, 24 Aug 2015 13:03:06 -0400
+Received: by pacdd16 with SMTP id dd16so101190262pac.2
+        for <linux-watchdog@vger.kernel.org>; Mon, 24 Aug 2015 10:03:05 -0700 (PDT)
 From: fu.wei@linaro.org
 To: Suravee.Suthikulpanit@amd.com, hanjun.guo@linaro.org,
 	linaro-acpi@lists.linaro.org, linux-watchdog@vger.kernel.org,
@@ -17,206 +17,532 @@ Cc: tekkamanninja@gmail.com, graeme.gregory@linaro.org,
 	leo.duran@amd.com, corbet@lwn.net, mark.rutland@arm.com,
 	catalin.marinas@arm.com, will.deacon@arm.com, rjw@rjwysocki.net,
 	dyoung@redhat.com, panand@redhat.com, Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH v7 6/8] ACPI: add GTDT table parse driver into ACPI driver
-Date: Tue, 25 Aug 2015 01:01:21 +0800
-Message-Id: <1440435683-7343-7-git-send-email-fu.wei@linaro.org>
+Subject: [PATCH v7 5/8] Watchdog: introduce ARM SBSA watchdog driver
+Date: Tue, 25 Aug 2015 01:01:20 +0800
+Message-Id: <1440435683-7343-6-git-send-email-fu.wei@linaro.org>
 In-Reply-To: <1440435683-7343-1-git-send-email-fu.wei@linaro.org>
 References: <=fu.wei@linaro.org>
  <1440435683-7343-1-git-send-email-fu.wei@linaro.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 From: Fu Wei <fu.wei@linaro.org>
 
-This driver adds support for parsing SBSA Generic Watchdog
-Structure in GTDT, and creating a platform device with that
-information. This allows the operating system to obtain device
-data from the resource of platform device.
-
-The platform device named "sbsa-gwdt" can be used by the
-ARM SBSA Generic Watchdog driver.
+This driver bases on linux kernel watchdog framework, and
+use "pretimeout" in the framework. It supports getting timeout and
+pretimeout from parameter and FDT at the driver init stage.
+In first timeout, the interrupt routine run panic to save
+system context.
 
 Signed-off-by: Fu Wei <fu.wei@linaro.org>
-Signed-off-by: Hanjun Guo <hanjun.guo@linaro.org>
 ---
- drivers/acpi/Kconfig  |   9 ++++
- drivers/acpi/Makefile |   1 +
- drivers/acpi/gtdt.c   | 135 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 145 insertions(+)
+ drivers/watchdog/Kconfig     |  14 ++
+ drivers/watchdog/Makefile    |   1 +
+ drivers/watchdog/sbsa_gwdt.c | 459 +++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 474 insertions(+)
 
-diff --git a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
-index 114cf48..2e7e162 100644
---- a/drivers/acpi/Kconfig
-+++ b/drivers/acpi/Kconfig
-@@ -479,4 +479,13 @@ config XPOWER_PMIC_OPREGION
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 241fafd..b2734f0 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -173,6 +173,20 @@ config ARM_SP805_WATCHDOG
+ 	  ARM Primecell SP805 Watchdog timer. This will reboot your system when
+ 	  the timeout is reached.
  
- endif
- 
-+config ACPI_GTDT
-+	bool "ACPI GTDT Support"
++config ARM_SBSA_WATCHDOG
++	tristate "ARM SBSA Generic Watchdog"
 +	depends on ARM64
++	depends on ARM_ARCH_TIMER
++	select WATCHDOG_CORE
 +	help
-+	  GTDT (Generic Timer Description Table) provides information
-+	  for per-processor timers and Platform (memory-mapped) timers
-+	  for ARM platforms. Select this option to provide information
-+	  needed for the timers init.
++	  ARM SBSA Generic Watchdog. This watchdog has two Watchdog timeouts.
++	  The first timeout will trigger a panic; the second timeout will
++	  trigger a system reset.
++	  More details: ARM DEN0029B - Server Base System Architecture (SBSA)
 +
- endif	# ACPI
-diff --git a/drivers/acpi/Makefile b/drivers/acpi/Makefile
-index 8321430..9a7966e 100644
---- a/drivers/acpi/Makefile
-+++ b/drivers/acpi/Makefile
-@@ -93,5 +93,6 @@ obj-$(CONFIG_ACPI_EXTLOG)	+= acpi_extlog.o
- obj-$(CONFIG_PMIC_OPREGION)	+= pmic/intel_pmic.o
- obj-$(CONFIG_CRC_PMIC_OPREGION) += pmic/intel_pmic_crc.o
- obj-$(CONFIG_XPOWER_PMIC_OPREGION) += pmic/intel_pmic_xpower.o
-+obj-$(CONFIG_ACPI_GTDT)		+= gtdt.o
++	  To compile this driver as module, choose M here: The module
++	  will be called sbsa_gwdt.
++
+ config AT91RM9200_WATCHDOG
+ 	tristate "AT91RM9200 watchdog"
+ 	depends on SOC_AT91RM9200 && MFD_SYSCON
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 59ea9a1..be8e7c5 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -30,6 +30,7 @@ obj-$(CONFIG_USBPCWATCHDOG) += pcwd_usb.o
  
- video-objs			+= acpi_video.o video_detect.o
-diff --git a/drivers/acpi/gtdt.c b/drivers/acpi/gtdt.c
+ # ARM Architecture
+ obj-$(CONFIG_ARM_SP805_WATCHDOG) += sp805_wdt.o
++obj-$(CONFIG_ARM_SBSA_WATCHDOG) += sbsa_gwdt.o
+ obj-$(CONFIG_AT91RM9200_WATCHDOG) += at91rm9200_wdt.o
+ obj-$(CONFIG_AT91SAM9X_WATCHDOG) += at91sam9_wdt.o
+ obj-$(CONFIG_CADENCE_WATCHDOG) += cadence_wdt.o
+diff --git a/drivers/watchdog/sbsa_gwdt.c b/drivers/watchdog/sbsa_gwdt.c
 new file mode 100644
-index 0000000..bbe3a2e
+index 0000000..7ae45cc
 --- /dev/null
-+++ b/drivers/acpi/gtdt.c
-@@ -0,0 +1,135 @@
++++ b/drivers/watchdog/sbsa_gwdt.c
+@@ -0,0 +1,459 @@
 +/*
-+ * ARM Specific GTDT table Support
++ * SBSA(Server Base System Architecture) Generic Watchdog driver
 + *
-+ * Copyright (C) 2015, Linaro Ltd.
++ * Copyright (c) 2015, Linaro Ltd.
 + * Author: Fu Wei <fu.wei@linaro.org>
-+ *         Hanjun Guo <hanjun.guo@linaro.org>
++ *         Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
 + *
 + * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
++ * it under the terms of the GNU General Public License 2 as published
++ * by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * The SBSA Generic watchdog driver is compatible with the pretimeout
++ * concept of Linux kernel.
++ * The timeout and pretimeout are determined by WCV or WOR.
++ * The first watch period is set by writing WCV directly, that can
++ * support more than 10s timeout at the maximum system counter
++ * frequency (400MHz).
++ * When WS0 is triggered, the second watch period (pretimeout) is
++ * determined by one of these registers:
++ * (1)WOR: 32bit register, this gives a maximum watch period of
++ * around 10s at the maximum system counter frequency. It's loaded
++ * automatically by hardware.
++ * (2)WCV: If the pretimeout value is greater then "max_wor_timeout",
++ * it will be loaded in WS0 interrupt routine. If system is in
++ * ws0_mode (reboot by kexec/kdump in panic with watchdog enabled
++ * and WS0 == true), the ping operation will only reload WCV.
++ * More details about the hardware specification of this device:
++ * ARM DEN0029B - Server Base System Architecture (SBSA)
++ *
++ * Kernel/API:                         P------------------| pretimeout
++ *               |----------------------------------------T timeout
++ * SBSA GWDT:                          P---WOR (or WCV)---WS1 pretimeout
++ *               |-------WCV----------WS0~~~(ws0_mode)~~~~T timeout
 + */
 +
-+#include <linux/acpi.h>
-+#include <linux/device.h>
-+#include <linux/init.h>
-+#include <linux/kernel.h>
++#include <linux/io.h>
++#include <linux/interrupt.h>
 +#include <linux/module.h>
++#include <linux/moduleparam.h>
++#include <linux/of.h>
++#include <linux/of_device.h>
 +#include <linux/platform_device.h>
++#include <linux/uaccess.h>
++#include <linux/watchdog.h>
++#include <asm/arch_timer.h>
 +
-+static int __init map_generic_timer_interrupt(u32 interrupt, u32 flags)
++/* SBSA Generic Watchdog register definitions */
++/* refresh frame */
++#define SBSA_GWDT_WRR				0x000
++
++/* control frame */
++#define SBSA_GWDT_WCS				0x000
++#define SBSA_GWDT_WOR				0x008
++#define SBSA_GWDT_WCV_LO			0x010
++#define SBSA_GWDT_WCV_HI			0x014
++
++/* refresh/control frame */
++#define SBSA_GWDT_W_IIDR			0xfcc
++#define SBSA_GWDT_IDR				0xfd0
++
++/* Watchdog Control and Status Register */
++#define SBSA_GWDT_WCS_EN			BIT(0)
++#define SBSA_GWDT_WCS_WS0			BIT(1)
++#define SBSA_GWDT_WCS_WS1			BIT(2)
++
++/**
++ * struct sbsa_gwdt - Internal representation of the SBSA GWDT
++ * @wdd:		kernel watchdog_device structure
++ * @clk:		store the System Counter clock frequency, in Hz.
++ * @ws0_mode:		indicate the system boot in the second stage timeout.
++ * @max_wor_timeout:	the maximum timeout value for WOR (in seconds).
++ * @refresh_base:	Virtual address of the watchdog refresh frame
++ * @control_base:	Virtual address of the watchdog control frame
++ */
++struct sbsa_gwdt {
++	struct watchdog_device	wdd;
++	u32			clk;
++	bool			ws0_mode;
++	int			max_wor_timeout;
++	void __iomem		*refresh_base;
++	void __iomem		*control_base;
++};
++
++#define to_sbsa_gwdt(e) container_of(e, struct sbsa_gwdt, wdd)
++
++#define DEFAULT_TIMEOUT		30 /* seconds, the 1st + 2nd watch periods*/
++#define DEFAULT_PRETIMEOUT	10 /* seconds, the 2nd watch period*/
++
++static unsigned int timeout;
++module_param(timeout, uint, 0);
++MODULE_PARM_DESC(timeout,
++		 "Watchdog timeout in seconds. (>=0, default="
++		 __MODULE_STRING(DEFAULT_TIMEOUT) ")");
++
++static unsigned int pretimeout;
++module_param(pretimeout, uint, 0);
++MODULE_PARM_DESC(pretimeout,
++		 "Watchdog pretimeout in seconds. (>=0, default="
++		 __MODULE_STRING(DEFAULT_PRETIMEOUT) ")");
++
++static bool nowayout = WATCHDOG_NOWAYOUT;
++module_param(nowayout, bool, S_IRUGO);
++MODULE_PARM_DESC(nowayout,
++		 "Watchdog cannot be stopped once started (default="
++		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++
++/*
++ * help functions for accessing 64bit WCV register
++ */
++static u64 sbsa_gwdt_get_wcv(struct watchdog_device *wdd)
 +{
-+	int trigger, polarity;
++	u32 wcv_lo, wcv_hi;
++	struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
 +
-+	if (!interrupt)
-+		return 0;
++	do {
++		wcv_hi = readl_relaxed(gwdt->control_base + SBSA_GWDT_WCV_HI);
++		wcv_lo = readl_relaxed(gwdt->control_base + SBSA_GWDT_WCV_LO);
++	} while (wcv_hi != readl_relaxed(gwdt->control_base +
++					 SBSA_GWDT_WCV_HI));
 +
-+	trigger = (flags & ACPI_GTDT_INTERRUPT_MODE) ? ACPI_EDGE_SENSITIVE
-+			: ACPI_LEVEL_SENSITIVE;
++	return (((u64)wcv_hi << 32) | wcv_lo);
++}
 +
-+	polarity = (flags & ACPI_GTDT_INTERRUPT_POLARITY) ? ACPI_ACTIVE_LOW
-+			: ACPI_ACTIVE_HIGH;
++static void sbsa_gwdt_set_wcv(struct watchdog_device *wdd, unsigned int t)
++{
++	struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
++	u64 wcv;
 +
-+	return acpi_register_gsi(NULL, interrupt, trigger, polarity);
++	wcv = arch_counter_get_cntvct() + (u64)t * gwdt->clk;
++
++	writel_relaxed(upper_32_bits(wcv),
++		       gwdt->control_base + SBSA_GWDT_WCV_HI);
++	writel_relaxed(lower_32_bits(wcv),
++		       gwdt->control_base + SBSA_GWDT_WCV_LO);
 +}
 +
 +/*
-+ * Initialize a SBSA generic Watchdog platform device info from GTDT
-+ * According to SBSA specification the size of refresh and control
-+ * frames of SBSA Generic Watchdog is SZ_4K(Offset 0x000 – 0xFFF).
++ * inline functions for reloading 64bit WCV register
 + */
-+static int __init gtdt_import_sbsa_gwdt(struct acpi_gtdt_watchdog *wd,
-+					int index)
++static inline void reload_pretimeout_to_wcv(struct watchdog_device *wdd)
 +{
-+	struct platform_device *pdev;
-+	int irq = map_generic_timer_interrupt(wd->timer_interrupt,
-+					      wd->timer_flags);
-+	struct resource res[] = {
-+		DEFINE_RES_IRQ(irq),
-+		DEFINE_RES_MEM(wd->control_frame_address, SZ_4K),
-+		DEFINE_RES_MEM(wd->refresh_frame_address, SZ_4K),
-+	};
++	sbsa_gwdt_set_wcv(wdd, wdd->pretimeout);
++}
 +
-+	pr_debug("GTDT: a Watchdog GT(0x%llx/0x%llx gsi:%u flags:0x%x)\n",
-+		 wd->refresh_frame_address, wd->control_frame_address,
-+		 wd->timer_interrupt, wd->timer_flags);
++static inline void reload_first_stage_to_wcv(struct watchdog_device *wdd)
++{
++	sbsa_gwdt_set_wcv(wdd, wdd->timeout - wdd->pretimeout);
++}
 +
-+	if (!(wd->refresh_frame_address &&
-+	      wd->control_frame_address &&
-+	      wd->timer_interrupt)) {
-+		pr_err("GTDT: failed geting the device info.\n");
-+		return -EINVAL;
-+	}
++/*
++ * watchdog operation functions
++ */
++static int sbsa_gwdt_set_timeout(struct watchdog_device *wdd,
++				 unsigned int timeout)
++{
++	wdd->timeout = timeout;
 +
-+	if (irq < 0) {
-+		pr_err("GTDT: failed to register GSI of the Watchdog GT.\n");
-+		return -EINVAL;
-+	}
++	return 0;
++}
 +
-+	/*
-+	 * Add a platform device named "sbsa-gwdt" to match the platform driver.
-+	 * "sbsa-gwdt": SBSA(Server Base System Architecture) Generic Watchdog
-+	 * The platform driver (like drivers/watchdog/sbsa_gwdt.c)can get device
-+	 * info below by matching this name.
-+	 */
-+	pdev = platform_device_register_simple("sbsa-gwdt", index, res,
-+					       ARRAY_SIZE(res));
-+	if (IS_ERR(pdev)) {
-+		acpi_unregister_gsi(wd->timer_interrupt);
-+		return PTR_ERR(pdev);
++static int sbsa_gwdt_set_pretimeout(struct watchdog_device *wdd,
++				    unsigned int pretimeout)
++{
++	struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
++	u32 wor;
++
++	wdd->pretimeout = pretimeout;
++
++	/* If ws0_mode == true, we won't touch WOR */
++	if (!gwdt->ws0_mode) {
++		if (!pretimeout)
++			/*
++			 * If pretimeout is 0, it gives driver a timeslot (1s)
++			 * to update WCV after an explicit refresh
++			 * (sbsa_gwdt_start)
++			 */
++			wor = gwdt->clk;
++		else
++			if (pretimeout > gwdt->max_wor_timeout)
++				wor = U32_MAX;
++			else
++				wor = pretimeout * gwdt->clk;
++
++		/* wtite WOR, that will cause an explicit watchdog refresh */
++		writel_relaxed(wor, gwdt->control_base + SBSA_GWDT_WOR);
 +	}
 +
 +	return 0;
 +}
 +
-+static int __init gtdt_platform_timer_parse(struct acpi_table_header *table)
++static unsigned int sbsa_gwdt_get_timeleft(struct watchdog_device *wdd)
 +{
-+	struct acpi_gtdt_header *header;
-+	struct acpi_table_gtdt *gtdt;
-+	void *gtdt_subtable;
-+	int i, gwdt_index;
-+	int ret = 0;
++	struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
++	u64 timeleft = sbsa_gwdt_get_wcv(wdd) - arch_counter_get_cntvct();
 +
-+	if (table->revision < 2) {
-+		pr_warn("GTDT: Revision:%d doesn't support Platform Timers.\n",
-+			table->revision);
-+		return 0;
-+	}
++	do_div(timeleft, gwdt->clk);
 +
-+	gtdt = container_of(table, struct acpi_table_gtdt, header);
-+	if (!gtdt->platform_timer_count) {
-+		pr_info("GTDT: No Platform Timer structures.\n");
-+		return 0;
-+	}
-+
-+	gtdt_subtable = (void *)gtdt + gtdt->platform_timer_offset;
-+
-+	for (i = 0, gwdt_index = 0; i < gtdt->platform_timer_count; i++) {
-+		if (gtdt_subtable > (void *)table + table->length) {
-+			pr_err("GTDT: subtable pointer overflows, bad table\n");
-+			return -EINVAL;
-+		}
-+		header = (struct acpi_gtdt_header *)gtdt_subtable;
-+		if (header->type == ACPI_GTDT_TYPE_WATCHDOG) {
-+			ret = gtdt_import_sbsa_gwdt(gtdt_subtable, gwdt_index);
-+			if (ret)
-+				pr_err("GTDT: failed to import subtable %d\n",
-+				       i);
-+			else
-+				gwdt_index++;
-+		}
-+		gtdt_subtable += header->length;
-+	}
-+
-+	return ret;
++	return timeleft;
 +}
 +
-+static int __init gtdt_platform_timer_init(void)
++static int sbsa_gwdt_keepalive(struct watchdog_device *wdd)
 +{
-+	if (acpi_disabled)
-+		return 0;
++	struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
 +
-+	return acpi_table_parse(ACPI_SIG_GTDT, gtdt_platform_timer_parse);
++	if (gwdt->ws0_mode)
++		reload_pretimeout_to_wcv(wdd);
++	else
++		reload_first_stage_to_wcv(wdd);
++
++	return 0;
 +}
 +
-+device_initcall(gtdt_platform_timer_init);
++static int sbsa_gwdt_start(struct watchdog_device *wdd)
++{
++	struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
++
++	/* If ws0_mode == true, the watchdog is enabled */
++	if (!gwdt->ws0_mode)
++		/* writing WCS will cause an explicit watchdog refresh */
++		writel_relaxed(SBSA_GWDT_WCS_EN,
++			       gwdt->control_base + SBSA_GWDT_WCS);
++
++	return sbsa_gwdt_keepalive(wdd);
++}
++
++static int sbsa_gwdt_stop(struct watchdog_device *wdd)
++{
++	struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
++
++	writel_relaxed(0, gwdt->control_base + SBSA_GWDT_WCS);
++	/*
++	 * Writing WCS has caused an explicit watchdog refresh.
++	 * Both watchdog signals are deasserted, so clean ws0_mode flag.
++	 */
++	gwdt->ws0_mode = false;
++
++	return 0;
++}
++
++static irqreturn_t sbsa_gwdt_interrupt(int irq, void *dev_id)
++{
++	struct sbsa_gwdt *gwdt = (struct sbsa_gwdt *)dev_id;
++	struct watchdog_device *wdd = &gwdt->wdd;
++
++	/* We don't use pretimeout, trigger WS1 now */
++	if (!wdd->pretimeout)
++		sbsa_gwdt_set_wcv(wdd, 0);
++
++	/*
++	 * The pretimeout is valid, go panic
++	 * If pretimeout is greater then "max_wor_timeout",
++	 * reload the right value to WCV, then panic
++	 */
++	if (wdd->pretimeout > gwdt->max_wor_timeout)
++		reload_pretimeout_to_wcv(wdd);
++	panic("SBSA Watchdog pre-timeout");
++
++	return IRQ_HANDLED;
++}
++
++static struct watchdog_info sbsa_gwdt_info = {
++	.identity	= "SBSA Generic Watchdog",
++	.options	= WDIOF_SETTIMEOUT |
++			  WDIOF_KEEPALIVEPING |
++			  WDIOF_MAGICCLOSE |
++			  WDIOF_PRETIMEOUT |
++			  WDIOF_CARDRESET,
++};
++
++static struct watchdog_ops sbsa_gwdt_ops = {
++	.owner		= THIS_MODULE,
++	.start		= sbsa_gwdt_start,
++	.stop		= sbsa_gwdt_stop,
++	.ping		= sbsa_gwdt_keepalive,
++	.set_timeout	= sbsa_gwdt_set_timeout,
++	.set_pretimeout	= sbsa_gwdt_set_pretimeout,
++	.get_timeleft	= sbsa_gwdt_get_timeleft,
++};
++
++static int sbsa_gwdt_probe(struct platform_device *pdev)
++{
++	void __iomem *rf_base, *cf_base;
++	struct device *dev = &pdev->dev;
++	struct watchdog_device *wdd;
++	struct sbsa_gwdt *gwdt;
++	struct resource *res;
++	int ret, irq;
++	u32 status;
++
++	gwdt = devm_kzalloc(dev, sizeof(*gwdt), GFP_KERNEL);
++	if (!gwdt)
++		return -ENOMEM;
++	platform_set_drvdata(pdev, gwdt);
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	cf_base = devm_ioremap_resource(dev, res);
++	if (IS_ERR(cf_base))
++		return PTR_ERR(cf_base);
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
++	rf_base = devm_ioremap_resource(dev, res);
++	if (IS_ERR(rf_base))
++		return PTR_ERR(rf_base);
++
++	irq = platform_get_irq(pdev, 0);
++	if (irq < 0) {
++		dev_err(dev, "unable to get ws0 interrupt.\n");
++		return irq;
++	}
++
++	/*
++	 * Get the frequency of system counter from the cp15 interface of ARM
++	 * Generic timer. We don't need to check it, because if it returns "0",
++	 * system would panic in very early stage.
++	 */
++	gwdt->clk = arch_timer_get_cntfrq();
++	gwdt->refresh_base = rf_base;
++	gwdt->control_base = cf_base;
++	gwdt->max_wor_timeout = U32_MAX / gwdt->clk;
++	gwdt->ws0_mode = false;
++
++	wdd = &gwdt->wdd;
++	wdd->parent = dev;
++	wdd->info = &sbsa_gwdt_info;
++	wdd->ops = &sbsa_gwdt_ops;
++	watchdog_set_drvdata(wdd, gwdt);
++	watchdog_set_nowayout(wdd, nowayout);
++
++	wdd->min_pretimeout = 0;
++	wdd->min_timeout = 1;
++
++	/*
++	 * Because the maximum of gwdt->clk is 400MHz and the maximum of WCV is
++	 * U64_MAX, so the result of (U64_MAX / gwdt->clk) is always greater
++	 * than U32_MAX. And the maximum of "unsigned int" is U32_MAX on ARM64.
++	 * So we set the maximum value of pretimeout and timeout below.
++	 */
++	wdd->max_pretimeout = U32_MAX - 1;
++	wdd->max_timeout = U32_MAX;
++
++	wdd->pretimeout = DEFAULT_PRETIMEOUT;
++	wdd->timeout = DEFAULT_TIMEOUT;
++	watchdog_init_timeouts(wdd, pretimeout, timeout, dev);
++
++	status = readl_relaxed(gwdt->control_base + SBSA_GWDT_WCS);
++	if (status & SBSA_GWDT_WCS_WS1) {
++		dev_warn(dev, "System reset by WDT.\n");
++		wdd->bootstatus |= WDIOF_CARDRESET;
++	} else if (status == (SBSA_GWDT_WCS_WS0 | SBSA_GWDT_WCS_EN)) {
++		gwdt->ws0_mode = true;
++	}
++
++	ret = devm_request_irq(dev, irq, sbsa_gwdt_interrupt, 0,
++			       pdev->name, gwdt);
++	if (ret) {
++		dev_err(dev, "unable to request IRQ %d\n", irq);
++		return ret;
++	}
++
++	ret = watchdog_register_device(wdd);
++	if (ret)
++		return ret;
++
++	/* If ws0_mode == true, the line won't update WOR */
++	sbsa_gwdt_set_pretimeout(wdd, wdd->pretimeout);
++
++	/*
++	 * If watchdog is already enabled, do a ping operation
++	 * to keep system running
++	 */
++	if (status & SBSA_GWDT_WCS_EN)
++		sbsa_gwdt_keepalive(wdd);
++
++	dev_info(dev, "Initialized with %ds timeout, %ds pretimeout @ %u Hz%s\n",
++		 wdd->timeout, wdd->pretimeout, gwdt->clk,
++		 status & SBSA_GWDT_WCS_EN ?
++			gwdt->ws0_mode ? " [second stage]" : " [enabled]" :
++			"");
++
++	return 0;
++}
++
++static void sbsa_gwdt_shutdown(struct platform_device *pdev)
++{
++	struct sbsa_gwdt *gwdt = platform_get_drvdata(pdev);
++
++	sbsa_gwdt_stop(&gwdt->wdd);
++}
++
++static int sbsa_gwdt_remove(struct platform_device *pdev)
++{
++	struct sbsa_gwdt *gwdt = platform_get_drvdata(pdev);
++
++	watchdog_unregister_device(&gwdt->wdd);
++
++	return 0;
++}
++
++/* Disable watchdog if it is active during suspend */
++static int __maybe_unused sbsa_gwdt_suspend(struct device *dev)
++{
++	struct sbsa_gwdt *gwdt = dev_get_drvdata(dev);
++
++	if (watchdog_active(&gwdt->wdd))
++		sbsa_gwdt_stop(&gwdt->wdd);
++
++	return 0;
++}
++
++/* Enable watchdog and configure it if necessary */
++static int __maybe_unused sbsa_gwdt_resume(struct device *dev)
++{
++	struct sbsa_gwdt *gwdt = dev_get_drvdata(dev);
++
++	if (watchdog_active(&gwdt->wdd))
++		sbsa_gwdt_start(&gwdt->wdd);
++
++	return 0;
++}
++
++static const struct dev_pm_ops sbsa_gwdt_pm_ops = {
++	SET_SYSTEM_SLEEP_PM_OPS(sbsa_gwdt_suspend, sbsa_gwdt_resume)
++};
++
++static const struct of_device_id sbsa_gwdt_of_match[] = {
++	{ .compatible = "arm,sbsa-gwdt", },
++	{},
++};
++MODULE_DEVICE_TABLE(of, sbsa_gwdt_of_match);
++
++static const struct platform_device_id sbsa_gwdt_pdev_match[] = {
++	{ .name = "sbsa-gwdt", },
++	{},
++};
++MODULE_DEVICE_TABLE(platform, sbsa_gwdt_pdev_match);
++
++static struct platform_driver sbsa_gwdt_driver = {
++	.driver = {
++		.name = "sbsa-gwdt",
++		.pm = &sbsa_gwdt_pm_ops,
++		.of_match_table = sbsa_gwdt_of_match,
++	},
++	.probe = sbsa_gwdt_probe,
++	.remove = sbsa_gwdt_remove,
++	.shutdown = sbsa_gwdt_shutdown,
++	.id_table = sbsa_gwdt_pdev_match,
++};
++
++module_platform_driver(sbsa_gwdt_driver);
++
++MODULE_DESCRIPTION("SBSA Generic Watchdog Driver");
++MODULE_AUTHOR("Fu Wei <fu.wei@linaro.org>");
++MODULE_AUTHOR("Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>");
++MODULE_LICENSE("GPL v2");
 -- 
 2.4.3
 
