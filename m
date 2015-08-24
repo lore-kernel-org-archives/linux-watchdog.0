@@ -1,353 +1,274 @@
-Return-path: <panand@redhat.com>
-From: Pratyush Anand <panand@redhat.com>
-To: linux@roeck-us.net
-Cc: dyoung@redhat.com, dzickus@redhat.com, linux-watchdog@vger.kernel.org,
-        Pratyush Anand <panand@redhat.com>,
-        linux-api@vger.kernel.org (open list:ABI/API),
-        linux-kernel@vger.kernel.org (open list),
-        Wim Van Sebroeck <wim@iguana.be>
-Subject: [PATCH V2] watchdog: Add watchdog device control through sysfs attributes
-Date: Mon, 31 Aug 2015 12:04:18 +0530
-Message-Id: <5417c42a93ef68062c4bfdbcf1d1253ea5ce9e08.1441000946.git.panand@redhat.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-pa0-f51.google.com ([209.85.220.51]:36589 "EHLO
+	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753893AbbHXRDd (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 24 Aug 2015 13:03:33 -0400
+Received: by pacgr6 with SMTP id gr6so380158pac.3
+        for <linux-watchdog@vger.kernel.org>; Mon, 24 Aug 2015 10:03:33 -0700 (PDT)
+From: fu.wei@linaro.org
+To: Suravee.Suthikulpanit@amd.com, hanjun.guo@linaro.org,
+	linaro-acpi@lists.linaro.org, linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-doc@vger.kernel.org
+Cc: tekkamanninja@gmail.com, graeme.gregory@linaro.org,
+	al.stone@linaro.org, arnd@arndb.de, linux@roeck-us.net,
+	vgandhi@codeaurora.org, wim@iguana.be, jcm@redhat.com,
+	leo.duran@amd.com, corbet@lwn.net, mark.rutland@arm.com,
+	catalin.marinas@arm.com, will.deacon@arm.com, rjw@rjwysocki.net,
+	dyoung@redhat.com, panand@redhat.com, Fu Wei <fu.wei@linaro.org>
+Subject: [PATCH v7 8/8] clocksource: simplify ACPI code in arm_arch_timer.c
+Date: Tue, 25 Aug 2015 01:01:23 +0800
+Message-Id: <1440435683-7343-9-git-send-email-fu.wei@linaro.org>
+In-Reply-To: <1440435683-7343-1-git-send-email-fu.wei@linaro.org>
+References: <=fu.wei@linaro.org>
+ <1440435683-7343-1-git-send-email-fu.wei@linaro.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-This patch adds following attributes to watchdog device's sysfs interface.
+From: Fu Wei <fu.wei@linaro.org>
 
-* state - reads whether device is active or not
-* identity - reads Watchdog device's identity string.
-* timeout - reads current timeout.
-* timeleft - reads timeleft before watchdog generates a reset
-* bootstatus - reads status of the watchdog device at boot
-* status - reads watchdog device's  internal status bits
-* nowayout - reads whether nowayout feature was set or not
+The patch update arm_arch_timer driver to use the function
+provided by the new GTDT driver of ACPI.
+By this way, arm_arch_timer.c can be simplified, and separate
+all the ACPI GTDT knowledge from this timer driver.
 
-Testing with iTCO_wdt:
- # cd /sys/class/watchdog/watchdog1/
- # ls
-bootstatus  dev  device  identity  nowayout  power  state
-subsystem  timeleft  timeout  uevent
- # cat identity
-iTCO_wdt
- # cat timeout
-30
- # cat state
-inactive
- # echo > /dev/watchdog1
- # cat timeleft
-26
- # cat state
-active
- # cat bootstatus
-0
- # cat nowayout
-0
-
-Signed-off-by: Pratyush Anand <panand@redhat.com>
+Signed-off-by: Fu Wei <fu.wei@linaro.org>
+Signed-off-by: Hanjun Guo <hanjun.guo@linaro.org>
 ---
-Changes since V1(RFC):
-* Removed keepalive and start ABI
-* timeout is read only now
-* state returns text
-* only supported ABI visible
-* ABI contact changed to MAINTAINER
-* unnecessary mutex removed
-* aligned continuation with '('
-* unnecessary initialization of status (= 0) corrected
-* unnecessary else removed
-* used __ATTRIBUTE_GROUPS
-* removed watchdog_device_create and added functionality in
-watchdog_dev_register.
-* optimized nowayout_show
-* Now no -EOPNOTSUPP return for timeout read in case of wdd->timeout = 0.
+ arch/arm64/kernel/time.c             |  4 +--
+ drivers/acpi/gtdt.c                  | 43 ++++++++++++++++++++++++++
+ drivers/clocksource/Kconfig          |  1 +
+ drivers/clocksource/arm_arch_timer.c | 60 +++++++-----------------------------
+ include/clocksource/arm_arch_timer.h |  8 +++++
+ include/linux/acpi.h                 |  5 +++
+ include/linux/clocksource.h          |  4 +--
+ 7 files changed, 72 insertions(+), 53 deletions(-)
 
- Documentation/ABI/testing/sysfs-class-watchdog |  51 ++++++++++
- drivers/watchdog/watchdog_core.c               |  16 +--
- drivers/watchdog/watchdog_core.h               |   3 +-
- drivers/watchdog/watchdog_dev.c                | 132 ++++++++++++++++++++++++-
- 4 files changed, 183 insertions(+), 19 deletions(-)
- create mode 100644 Documentation/ABI/testing/sysfs-class-watchdog
-
-diff --git a/Documentation/ABI/testing/sysfs-class-watchdog b/Documentation/ABI/testing/sysfs-class-watchdog
-new file mode 100644
-index 000000000000..736046b33040
---- /dev/null
-+++ b/Documentation/ABI/testing/sysfs-class-watchdog
-@@ -0,0 +1,51 @@
-+What:		/sys/class/watchdog/watchdogn/bootstatus
-+Date:		August 2015
-+Contact:	Wim Van Sebroeck <wim@iguana.be>
-+Description:
-+		It is a read only file. It contains status of the watchdog
-+		device at boot. It is equivalent to WDIOC_GETBOOTSTATUS of
-+		ioctl interface.
-+
-+What:		/sys/class/watchdog/watchdogn/identity
-+Date:		August 2015
-+Contact:	Wim Van Sebroeck <wim@iguana.be>
-+Description:
-+		It is a read only file. It contains identity string of
-+		watchdog device.
-+
-+What:		/sys/class/watchdog/watchdogn/nowayout
-+Date:		August 2015
-+Contact:	Wim Van Sebroeck <wim@iguana.be>
-+Description:
-+		It is a read only file. While reading, it gives '1' if that
-+		device supports nowayout feature else, it gives '0'.
-+
-+What:		/sys/class/watchdog/watchdogn/state
-+Date:		August 2015
-+Contact:	Wim Van Sebroeck <wim@iguana.be>
-+Description:
-+		It is a read only file. It gives active/inactive status of
-+		watchdog device.
-+
-+What:		/sys/class/watchdog/watchdogn/status
-+Date:		August 2015
-+Contact:	Wim Van Sebroeck <wim@iguana.be>
-+Description:
-+		It is a read only file. It contains watchdog device's
-+		internal status bits. It is equivalent to WDIOC_GETSTATUS
-+		of ioctl interface.
-+
-+What:		/sys/class/watchdog/watchdogn/timeleft
-+Date:		August 2015
-+Contact:	Wim Van Sebroeck <wim@iguana.be>
-+Description:
-+		It is a read only file. It contains value of time left for
-+		reset generation. It is equivalent to WDIOC_GETTIMELEFT of
-+		ioctl interface.
-+
-+What:		/sys/class/watchdog/watchdogn/timeout
-+Date:		August 2015
-+Contact:	Wim Van Sebroeck <wim@iguana.be>
-+Description:
-+		It is a read only file. It is read to know about current
-+		value of timeout programmed.
-diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-index 1a8059455413..3f9eb13b2023 100644
---- a/drivers/watchdog/watchdog_core.c
-+++ b/drivers/watchdog/watchdog_core.c
-@@ -139,7 +139,7 @@ EXPORT_SYMBOL_GPL(watchdog_init_timeout);
+diff --git a/arch/arm64/kernel/time.c b/arch/arm64/kernel/time.c
+index 42f9195..2cabea6 100644
+--- a/arch/arm64/kernel/time.c
++++ b/arch/arm64/kernel/time.c
+@@ -75,9 +75,9 @@ void __init time_init(void)
  
- static int __watchdog_register_device(struct watchdog_device *wdd)
+ 	/*
+ 	 * Since ACPI or FDT will only one be available in the system,
+-	 * we can use acpi_generic_timer_init() here safely
++	 * we can use arch_timer_acpi_init() here safely
+ 	 */
+-	acpi_generic_timer_init();
++	arch_timer_acpi_init();
+ 
+ 	arch_timer_rate = arch_timer_get_rate();
+ 	if (!arch_timer_rate)
+diff --git a/drivers/acpi/gtdt.c b/drivers/acpi/gtdt.c
+index bbe3a2e..3559babf 100644
+--- a/drivers/acpi/gtdt.c
++++ b/drivers/acpi/gtdt.c
+@@ -17,6 +17,8 @@
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
+ 
++#include <clocksource/arm_arch_timer.h>
++
+ static int __init map_generic_timer_interrupt(u32 interrupt, u32 flags)
  {
--	int ret, id, devno;
-+	int ret, id;
+ 	int trigger, polarity;
+@@ -33,6 +35,47 @@ static int __init map_generic_timer_interrupt(u32 interrupt, u32 flags)
+ 	return acpi_register_gsi(NULL, interrupt, trigger, polarity);
+ }
  
- 	if (wdd == NULL || wdd->info == NULL || wdd->ops == NULL)
- 		return -EINVAL;
-@@ -162,7 +162,7 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
- 		return id;
- 	wdd->id = id;
++static struct arch_timer_data __initdata *arch_timer_data_p;
++
++static int __init arch_timer_data_init(struct acpi_table_header *table)
++{
++	struct acpi_table_gtdt *gtdt;
++
++	gtdt = container_of(table, struct acpi_table_gtdt, header);
++
++	arch_timer_data_p->phys_secure_ppi =
++		map_generic_timer_interrupt(gtdt->secure_el1_interrupt,
++					    gtdt->secure_el1_flags);
++
++	arch_timer_data_p->phys_nonsecure_ppi =
++		map_generic_timer_interrupt(gtdt->non_secure_el1_interrupt,
++					    gtdt->non_secure_el1_flags);
++
++	arch_timer_data_p->virt_ppi =
++		map_generic_timer_interrupt(gtdt->virtual_timer_interrupt,
++					    gtdt->virtual_timer_flags);
++
++	arch_timer_data_p->hyp_ppi =
++		map_generic_timer_interrupt(gtdt->non_secure_el2_interrupt,
++					    gtdt->non_secure_el2_flags);
++
++	arch_timer_data_p->c3stop = !(gtdt->non_secure_el1_flags &
++				      ACPI_GTDT_ALWAYS_ON);
++
++	return 0;
++}
++
++/* Initialize the arch_timer_data struct for arm_arch_timer by GTDT info */
++int __init gtdt_arch_timer_data_init(struct arch_timer_data *data)
++{
++	if (acpi_disabled || !data)
++		return -EINVAL;
++
++	arch_timer_data_p = data;
++
++	return acpi_table_parse(ACPI_SIG_GTDT, arch_timer_data_init);
++}
++
+ /*
+  * Initialize a SBSA generic Watchdog platform device info from GTDT
+  * According to SBSA specification the size of refresh and control
+diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfig
+index 4e57730..e111025 100644
+--- a/drivers/clocksource/Kconfig
++++ b/drivers/clocksource/Kconfig
+@@ -119,6 +119,7 @@ config CLKSRC_STM32
+ config ARM_ARCH_TIMER
+ 	bool
+ 	select CLKSRC_OF if OF
++	select ACPI_GTDT if ACPI
  
--	ret = watchdog_dev_register(wdd);
-+	ret = watchdog_dev_register(wdd, watchdog_class);
- 	if (ret) {
- 		ida_simple_remove(&watchdog_ida, id);
- 		if (!(id == 0 && ret == -EBUSY))
-@@ -174,23 +174,13 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
- 			return id;
- 		wdd->id = id;
+ config ARM_ARCH_TIMER_EVTSTREAM
+ 	bool "Support for ARM architected timer event stream generation"
+diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
+index 0aa135d..99505bb 100644
+--- a/drivers/clocksource/arm_arch_timer.c
++++ b/drivers/clocksource/arm_arch_timer.c
+@@ -817,68 +817,30 @@ CLOCKSOURCE_OF_DECLARE(armv7_arch_timer_mem, "arm,armv7-timer-mem",
+ 		       arch_timer_mem_init);
  
--		ret = watchdog_dev_register(wdd);
-+		ret = watchdog_dev_register(wdd, watchdog_class);
- 		if (ret) {
- 			ida_simple_remove(&watchdog_ida, id);
- 			return ret;
- 		}
- 	}
- 
--	devno = wdd->cdev.dev;
--	wdd->dev = device_create(watchdog_class, wdd->parent, devno,
--					NULL, "watchdog%d", wdd->id);
--	if (IS_ERR(wdd->dev)) {
--		watchdog_dev_unregister(wdd);
--		ida_simple_remove(&watchdog_ida, id);
--		ret = PTR_ERR(wdd->dev);
--		return ret;
--	}
+ #ifdef CONFIG_ACPI
+-static int __init map_generic_timer_interrupt(u32 interrupt, u32 flags)
+-{
+-	int trigger, polarity;
 -
- 	return 0;
- }
- 
-diff --git a/drivers/watchdog/watchdog_core.h b/drivers/watchdog/watchdog_core.h
-index 6c951418fca7..38a9a2c6e7a2 100644
---- a/drivers/watchdog/watchdog_core.h
-+++ b/drivers/watchdog/watchdog_core.h
-@@ -31,7 +31,8 @@
- /*
-  *	Functions/procedures to be called by the core
-  */
--extern int watchdog_dev_register(struct watchdog_device *);
-+extern int watchdog_dev_register(struct watchdog_device *,
-+					struct class *);
- extern int watchdog_dev_unregister(struct watchdog_device *);
- extern int __init watchdog_dev_init(void);
- extern void __exit watchdog_dev_exit(void);
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 6aaefbad303e..4bbf022534c1 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -248,6 +248,115 @@ out_timeleft:
- 	return err;
- }
- 
-+static ssize_t nowayout_show(struct device *dev, struct device_attribute *attr,
-+				char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+
-+	return sprintf(buf, "%d\n", !!test_bit(WDOG_NO_WAY_OUT, &wdd->status));
-+}
-+static DEVICE_ATTR_RO(nowayout);
-+
-+static ssize_t status_show(struct device *dev, struct device_attribute *attr,
-+				char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+	ssize_t status;
-+	unsigned int val;
-+
-+	status = watchdog_get_status(wdd, &val);
-+	if (!status)
-+		status = sprintf(buf, "%u\n", val);
-+
-+	return status;
-+}
-+static DEVICE_ATTR_RO(status);
-+
-+static ssize_t bootstatus_show(struct device *dev,
-+				struct device_attribute *attr, char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+
-+	return sprintf(buf, "%u\n", wdd->bootstatus);
-+}
-+static DEVICE_ATTR_RO(bootstatus);
-+
-+static ssize_t timeleft_show(struct device *dev, struct device_attribute *attr,
-+				char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+	ssize_t status;
-+	unsigned int val;
-+
-+	status = watchdog_get_timeleft(wdd, &val);
-+	if (!status)
-+		status = sprintf(buf, "%u\n", val);
-+
-+	return status;
-+}
-+static DEVICE_ATTR_RO(timeleft);
-+
-+static ssize_t timeout_show(struct device *dev, struct device_attribute *attr,
-+				char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+
-+	return sprintf(buf, "%u\n", wdd->timeout);
-+}
-+static DEVICE_ATTR_RO(timeout);
-+
-+static ssize_t identity_show(struct device *dev, struct device_attribute *attr,
-+				char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+
-+	return sprintf(buf, "%s\n", wdd->info->identity);
-+}
-+static DEVICE_ATTR_RO(identity);
-+
-+static ssize_t state_show(struct device *dev, struct device_attribute *attr,
-+				char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+
-+	if (watchdog_active(wdd))
-+		return sprintf(buf, "active\n");
-+
-+	return sprintf(buf, "inactive\n");
-+}
-+static DEVICE_ATTR_RO(state);
-+
-+static umode_t wdt_is_visible(struct kobject *kobj, struct attribute *attr,
-+				int n)
-+{
-+	struct device *dev = container_of(kobj, struct device, kobj);
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+	umode_t mode = attr->mode;
-+
-+	if (attr == &dev_attr_status.attr && !wdd->ops->status)
-+		mode = 0;
-+	else if (attr == &dev_attr_timeleft.attr && !wdd->ops->get_timeleft)
-+		mode = 0;
-+
-+	return mode;
-+}
-+static struct attribute *wdt_attrs[] = {
-+	&dev_attr_state.attr,
-+	&dev_attr_identity.attr,
-+	&dev_attr_timeout.attr,
-+	&dev_attr_timeleft.attr,
-+	&dev_attr_bootstatus.attr,
-+	&dev_attr_status.attr,
-+	&dev_attr_nowayout.attr,
-+	NULL,
-+};
-+
-+static const struct attribute_group wdt_group = {
-+	.attrs = wdt_attrs,
-+	.is_visible = wdt_is_visible,
-+};
-+__ATTRIBUTE_GROUPS(wdt);
-+
- /*
-  *	watchdog_ioctl_op: call the watchdog drivers ioctl op if defined
-  *	@wddev: the watchdog device to do the ioctl on
-@@ -514,13 +623,15 @@ static struct miscdevice watchdog_miscdev = {
- /*
-  *	watchdog_dev_register: register a watchdog device
-  *	@watchdog: watchdog device
-+ *	@watchdog_class: watchdog class with which created device is associated
-  *
-  *	Register a watchdog device including handling the legacy
-  *	/dev/watchdog node. /dev/watchdog is actually a miscdevice and
-  *	thus we set it up like that.
-  */
- 
--int watchdog_dev_register(struct watchdog_device *watchdog)
-+int watchdog_dev_register(struct watchdog_device *watchdog,
-+				struct class *watchdog_class)
+-	if (!interrupt)
+-		return 0;
+-
+-	trigger = (flags & ACPI_GTDT_INTERRUPT_MODE) ? ACPI_EDGE_SENSITIVE
+-			: ACPI_LEVEL_SENSITIVE;
+-
+-	polarity = (flags & ACPI_GTDT_INTERRUPT_POLARITY) ? ACPI_ACTIVE_LOW
+-			: ACPI_ACTIVE_HIGH;
+-
+-	return acpi_register_gsi(NULL, interrupt, trigger, polarity);
+-}
+-
+ /* Initialize per-processor generic timer */
+-static int __init arch_timer_acpi_init(struct acpi_table_header *table)
++void __init arch_timer_acpi_init(void)
  {
- 	int err, devno;
+-	struct acpi_table_gtdt *gtdt;
++	struct arch_timer_data data;
  
-@@ -549,11 +660,22 @@ int watchdog_dev_register(struct watchdog_device *watchdog)
- 	if (err) {
- 		pr_err("watchdog%d unable to add device %d:%d\n",
- 			watchdog->id,  MAJOR(watchdog_devt), watchdog->id);
--		if (watchdog->id == 0) {
--			misc_deregister(&watchdog_miscdev);
--			old_wdd = NULL;
--		}
-+	} else {
-+		watchdog->dev = device_create_with_groups(watchdog_class,
-+							watchdog->parent,
-+							watchdog->cdev.dev,
-+							watchdog, wdt_groups,
-+							"watchdog%d",
-+							watchdog->id);
-+		if (IS_ERR(watchdog->dev))
-+			err = PTR_ERR(watchdog->dev);
-+	}
-+
-+	if (err && watchdog->id == 0) {
-+		misc_deregister(&watchdog_miscdev);
-+		old_wdd = NULL;
+ 	if (arch_timers_present & ARCH_CP15_TIMER) {
+ 		pr_warn("arch_timer: already initialized, skipping\n");
+-		return -EINVAL;
++		return;
  	}
-+
- 	return err;
- }
  
+-	gtdt = container_of(table, struct acpi_table_gtdt, header);
+-
+ 	arch_timers_present |= ARCH_CP15_TIMER;
+ 
+-	arch_timer_ppi[PHYS_SECURE_PPI] =
+-		map_generic_timer_interrupt(gtdt->secure_el1_interrupt,
+-		gtdt->secure_el1_flags);
+-
+-	arch_timer_ppi[PHYS_NONSECURE_PPI] =
+-		map_generic_timer_interrupt(gtdt->non_secure_el1_interrupt,
+-		gtdt->non_secure_el1_flags);
+-
+-	arch_timer_ppi[VIRT_PPI] =
+-		map_generic_timer_interrupt(gtdt->virtual_timer_interrupt,
+-		gtdt->virtual_timer_flags);
++	if (gtdt_arch_timer_data_init(&data))
++		return;
+ 
+-	arch_timer_ppi[HYP_PPI] =
+-		map_generic_timer_interrupt(gtdt->non_secure_el2_interrupt,
+-		gtdt->non_secure_el2_flags);
++	arch_timer_ppi[PHYS_SECURE_PPI] = data.phys_secure_ppi;
++	arch_timer_ppi[PHYS_NONSECURE_PPI] = data.phys_nonsecure_ppi;
++	arch_timer_ppi[VIRT_PPI] = data.virt_ppi;
++	arch_timer_ppi[HYP_PPI] = data.hyp_ppi;
++	/* Always-on capability */
++	arch_timer_c3stop = data.c3stop;
+ 
+ 	/* Get the frequency from CNTFRQ */
+ 	arch_timer_detect_rate(NULL, NULL);
+-
+-	/* Always-on capability */
+-	arch_timer_c3stop = !(gtdt->non_secure_el1_flags & ACPI_GTDT_ALWAYS_ON);
+-
+ 	arch_timer_init();
+-	return 0;
+-}
+-
+-/* Initialize all the generic timers presented in GTDT */
+-void __init acpi_generic_timer_init(void)
+-{
+-	if (acpi_disabled)
+-		return;
+-
+-	acpi_table_parse(ACPI_SIG_GTDT, arch_timer_acpi_init);
+ }
+ #endif
+diff --git a/include/clocksource/arm_arch_timer.h b/include/clocksource/arm_arch_timer.h
+index 9916d0e..5deed9d 100644
+--- a/include/clocksource/arm_arch_timer.h
++++ b/include/clocksource/arm_arch_timer.h
+@@ -43,6 +43,14 @@ enum arch_timer_reg {
+ 
+ #define ARCH_TIMER_EVT_STREAM_FREQ	10000	/* 100us */
+ 
++struct arch_timer_data {
++	int phys_secure_ppi;
++	int phys_nonsecure_ppi;
++	int virt_ppi;
++	int hyp_ppi;
++	bool c3stop;
++};
++
+ #ifdef CONFIG_ARM_ARCH_TIMER
+ 
+ extern u32 arch_timer_get_rate(void);
+diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+index 57c13df..6d7a290 100644
+--- a/include/linux/acpi.h
++++ b/include/linux/acpi.h
+@@ -449,6 +449,11 @@ void acpi_walk_dep_device_list(acpi_handle handle);
+ struct platform_device *acpi_create_platform_device(struct acpi_device *);
+ #define ACPI_PTR(_ptr)	(_ptr)
+ 
++#ifdef CONFIG_ACPI_GTDT
++struct arch_timer_data;
++int __init gtdt_arch_timer_data_init(struct arch_timer_data *data);
++#endif
++
+ #else	/* !CONFIG_ACPI */
+ 
+ #define acpi_disabled 1
+diff --git a/include/linux/clocksource.h b/include/linux/clocksource.h
+index 278dd27..b250b75 100644
+--- a/include/linux/clocksource.h
++++ b/include/linux/clocksource.h
+@@ -253,9 +253,9 @@ static inline void clocksource_of_init(void) {}
+ #endif
+ 
+ #ifdef CONFIG_ACPI
+-void acpi_generic_timer_init(void);
++void arch_timer_acpi_init(void);
+ #else
+-static inline void acpi_generic_timer_init(void) { }
++static inline void arch_timer_acpi_init(void) { }
+ #endif
+ 
+ #endif /* _LINUX_CLOCKSOURCE_H */
 -- 
 2.4.3
+
