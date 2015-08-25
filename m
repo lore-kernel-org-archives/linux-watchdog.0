@@ -1,401 +1,127 @@
-Return-path: <panand@redhat.com>
-From: Pratyush Anand <panand@redhat.com>
-To: linux@roeck-us.net
-Cc: linux-watchdog@vger.kernel.org, dyoung@redhat.com, dzickus@redhat.com,
-        Pratyush Anand <panand@redhat.com>,
-        linux-api@vger.kernel.org (open list:ABI/API),
-        linux-kernel@vger.kernel.org (open list),
-        Wim Van Sebroeck <wim@iguana.be>
-Subject: [PATCH RFC] watchdog: Add watchdog device control through sysfs attributes
-Date: Fri, 21 Aug 2015 23:18:12 +0530
-Message-Id: <d9ac417a3bc1c6846f1ddfcd3cd07e5a92865c19.1440179209.git.panand@redhat.com>
+Return-path: <fu.wei@linaro.org>
+MIME-Version: 1.0
+In-Reply-To: <alpine.DEB.2.11.1508241942450.3873@nanos>
+References: <=fu.wei@linaro.org>
+	<1440435683-7343-1-git-send-email-fu.wei@linaro.org>
+	<1440435683-7343-9-git-send-email-fu.wei@linaro.org>
+	<alpine.DEB.2.11.1508241942450.3873@nanos>
+Date: Wed, 26 Aug 2015 01:19:45 +0800
+Message-ID: <CADyBb7sVGePKtU45_DBGd74fykAPVshmbnRQJDDOrrvoHTGcKQ@mail.gmail.com>
+Subject: Re: [PATCH v7 8/8] clocksource: simplify ACPI code in arm_arch_timer.c
+From: Fu Wei <fu.wei@linaro.org>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>, Hanjun Guo <hanjun.guo@linaro.org>,
+	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>, linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
+	linux-doc@vger.kernel.org, Wei Fu <tekkamanninja@gmail.com>,
+	G Gregory <graeme.gregory@linaro.org>, Al Stone <al.stone@linaro.org>,
+	Arnd Bergmann <arnd@arndb.de>, Guenter Roeck <linux@roeck-us.net>,
+	Vipul Gandhi <vgandhi@codeaurora.org>, Wim Van Sebroeck <wim@iguana.be>, Jon Masters <jcm@redhat.com>,
+	Leo Duran <leo.duran@amd.com>, Jonathan Corbet <corbet@lwn.net>, Mark Rutland <mark.rutland@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>,
+	Rafael Wysocki <rjw@rjwysocki.net>, dyoung@redhat.com, panand@redhat.com,
+	Daniel Lezcano <daniel.lezcano@linaro.org>
+Content-Type: text/plain; charset=UTF-8
 List-ID: <linux-watchdog@vger.kernel.org>
 
-This patch adds following attributes to watchdog device's sysfs interface.
+Hi Thomas,
 
-* start - writes non zero value to start and zero to stop
-* state - reads whether device is active or not(1 for active and 0 for
-inactive)
-* identity - reads Watchdog device's identity string.
-* keepalive - writes to ping a watchdog device
-* timeout - reads current timeout and writes to program a new timeout.
-* timeleft - reads timeleft before watchdog generates a reset
-* bootstatus - reads status of the watchdog device at boot
-* status - reads watchdog device's  internal status bits
-* nowayout - reads whether nowayout feature was set or not
 
-Testing with iTCO_wdt:
- # cd /sys/class/watchdog/watchdog1/
- # ls
-bootstatus  dev  device  identity  keepalive  nowayout  power  start  state
-status  subsystem  timeleft  timeout  uevent
- # cat identity
-iTCO_wdt
- # cat timeout
-30
- # echo 1 > start
- # cat timeleft
-26
- # echo 120 > timeout
- # cat timeleft
-116
- # echo > keepalive
- # cat timeleft
-118
- # cat state
-1
- # echo 0 > start
- # cat state
-0
- # cat bootstatus
-0
- # cat nowayout
-0
- # cat status
-cat: status: Operation not supported
+On 25 August 2015 at 01:50, Thomas Gleixner <tglx@linutronix.de> wrote:
+> On Tue, 25 Aug 2015, fu.wei@linaro.org wrote:
+>
+> You Cc the world and some more on your patch, but you fail to add the
+> maintainers of the clocksource code to the Cc list. Sigh.
 
-Signed-off-by: Pratyush Anand <panand@redhat.com>
----
- Documentation/ABI/testing/sysfs-class-watchdog |  74 +++++++++
- drivers/watchdog/watchdog_core.c               |   6 +-
- drivers/watchdog/watchdog_core.h               |   2 +
- drivers/watchdog/watchdog_dev.c                | 206 +++++++++++++++++++++++++
- 4 files changed, 284 insertions(+), 4 deletions(-)
- create mode 100644 Documentation/ABI/testing/sysfs-class-watchdog
+my fault
+So sorry for that, I will add the maintainers of clocksource into cc list.
 
-diff --git a/Documentation/ABI/testing/sysfs-class-watchdog b/Documentation/ABI/testing/sysfs-class-watchdog
-new file mode 100644
-index 000000000000..31e7be53edf8
---- /dev/null
-+++ b/Documentation/ABI/testing/sysfs-class-watchdog
-@@ -0,0 +1,74 @@
-+What:		/sys/class/watchdog/watchdogn/bootstatus
-+Date:		August 2015
-+Contact:	Pratyush Anand <panand@redhat.com>
-+Description:
-+		It is a read only file. It contains status of the watchdog
-+		device at boot. It is equivalent to WDIOC_GETBOOTSTATUS of
-+		ioctl interface.
-+
-+What:		/sys/class/watchdog/watchdogn/identity
-+Date:		August 2015
-+Contact:	Pratyush Anand <panand@redhat.com>
-+Description:
-+		It is a read only file. It contains identity string of
-+		watchdog device.
-+
-+What:		/sys/class/watchdog/watchdogn/keepalive
-+Date:		August 2015
-+Contact:	Pratyush Anand <panand@redhat.com>
-+Description:
-+		It is a write only file. It is written to ping a watchdog
-+		device to keep it alive. It is equivalent to
-+		WDIOC_KEEPALIVE of ioctl interface.
-+
-+What:		/sys/class/watchdog/watchdogn/nowayout
-+Date:		August 2015
-+Contact:	Pratyush Anand <panand@redhat.com>
-+Description:
-+		It is a read only file. While reading, it gives '1' if that
-+		device supports nowayout feature else, it gives '0'.
-+
-+What:		/sys/class/watchdog/watchdogn/start
-+Date:		August 2015
-+Contact:	Pratyush Anand <panand@redhat.com>
-+Description:
-+		It is a write only file. Writing '1' will trigger that
-+		watchdog device and writing '0' will stop it. These are
-+		equivalent to WDIOS_ENABLECARD and WDIOS_DISABLECARD of ioctl
-+		interface. If a device has nowayout programmed, then that
-+		can not be stopped. Therefore, it is recommended to read
-+		state file to insure that whether watchdog device was
-+		stopped or not after writing '0'.
-+
-+What:		/sys/class/watchdog/watchdogn/state
-+Date:		August 2015
-+Contact:	Pratyush Anand <panand@redhat.com>
-+Description:
-+		It is a read only file. If it is read as '1' then a watchdog
-+		device is active. If it is read as '0' then a watchdog
-+		device is inactive.
-+
-+What:		/sys/class/watchdog/watchdogn/status
-+Date:		August 2015
-+Contact:	Pratyush Anand <panand@redhat.com>
-+Description:
-+		It is a read only file. It contains watchdog device's
-+		internal status bits. It is equivalent to WDIOC_GETSTATUS
-+		of ioctl interface.
-+
-+What:		/sys/class/watchdog/watchdogn/timeleft
-+Date:		August 2015
-+Contact:	Pratyush Anand <panand@redhat.com>
-+Description:
-+		It is a read only file. It contains value of time left for
-+		reset generation. It is equivalent to WDIOC_GETTIMELEFT of
-+		ioctl interface.
-+
-+What:		/sys/class/watchdog/watchdogn/timeout
-+Date:		August 2015
-+Contact:	Pratyush Anand <panand@redhat.com>
-+Description:
-+		It is a read/write file. It is read to know about current
-+		timeout and written to program a new timeout value. These
-+		are equivalent to WDIOC_SETTIMEOUT and WDIOC_GETTIMEOUT of
-+		ioctl interface.
-diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-index 1a8059455413..703ff7b23f31 100644
---- a/drivers/watchdog/watchdog_core.c
-+++ b/drivers/watchdog/watchdog_core.c
-@@ -139,7 +139,7 @@ EXPORT_SYMBOL_GPL(watchdog_init_timeout);
- 
- static int __watchdog_register_device(struct watchdog_device *wdd)
- {
--	int ret, id, devno;
-+	int ret, id;
- 
- 	if (wdd == NULL || wdd->info == NULL || wdd->ops == NULL)
- 		return -EINVAL;
-@@ -181,9 +181,7 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
- 		}
- 	}
- 
--	devno = wdd->cdev.dev;
--	wdd->dev = device_create(watchdog_class, wdd->parent, devno,
--					NULL, "watchdog%d", wdd->id);
-+	wdd->dev = watchdog_device_create(watchdog_class, wdd);
- 	if (IS_ERR(wdd->dev)) {
- 		watchdog_dev_unregister(wdd);
- 		ida_simple_remove(&watchdog_ida, id);
-diff --git a/drivers/watchdog/watchdog_core.h b/drivers/watchdog/watchdog_core.h
-index 6c951418fca7..36abd15ffcea 100644
---- a/drivers/watchdog/watchdog_core.h
-+++ b/drivers/watchdog/watchdog_core.h
-@@ -31,6 +31,8 @@
- /*
-  *	Functions/procedures to be called by the core
-  */
-+struct device * watchdog_device_create(struct class *,
-+				struct watchdog_device *);
- extern int watchdog_dev_register(struct watchdog_device *);
- extern int watchdog_dev_unregister(struct watchdog_device *);
- extern int __init watchdog_dev_init(void);
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 6aaefbad303e..1186b5a918e9 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -248,6 +248,212 @@ out_timeleft:
- 	return err;
- }
- 
-+static ssize_t nowayout_show(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+	bool nowayout = false;
-+
-+	mutex_lock(&wdd->lock);
-+	if (test_bit(WDOG_NO_WAY_OUT, &wdd->status))
-+		nowayout = true;
-+	mutex_unlock(&wdd->lock);
-+
-+	return sprintf(buf, "%d\n", nowayout);
-+}
-+static DEVICE_ATTR_RO(nowayout);
-+
-+static ssize_t status_show(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+	ssize_t status;
-+	unsigned int val;
-+
-+	status = watchdog_get_status(wdd, &val);
-+	if (!status)
-+		status = sprintf(buf, "%u\n", val);
-+
-+	return status;
-+}
-+static DEVICE_ATTR_RO(status);
-+
-+static ssize_t bootstatus_show(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+	ssize_t status;
-+
-+	mutex_lock(&wdd->lock);
-+	status = sprintf(buf, "%u\n", wdd->bootstatus);
-+	mutex_unlock(&wdd->lock);
-+
-+	return status;
-+}
-+static DEVICE_ATTR_RO(bootstatus);
-+
-+static ssize_t timeleft_show(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+	ssize_t status;
-+	unsigned int val;
-+
-+	status = watchdog_get_timeleft(wdd, &val);
-+
-+	if (!status)
-+		status = sprintf(buf, "%u\n", val);
-+
-+	return status;
-+}
-+static DEVICE_ATTR_RO(timeleft);
-+
-+static ssize_t timeout_store(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t size)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+	unsigned int val;
-+	ssize_t status = 0;
-+
-+	status = kstrtouint(buf, 0, &val);
-+	if (!status) {
-+		status = watchdog_set_timeout(wdd, val);
-+		if (status >= 0)
-+			status = watchdog_ping(wdd);
-+	}
-+
-+	if (status < 0)
-+		return status;
-+	else
-+		return size;
-+}
-+
-+static ssize_t timeout_show(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+	ssize_t status;
-+
-+	mutex_lock(&wdd->lock);
-+	if (wdd->timeout == 0)
-+		status = -EOPNOTSUPP;
-+	else
-+		status = sprintf(buf, "%u\n", wdd->timeout);
-+	mutex_unlock(&wdd->lock);
-+
-+	return status;
-+}
-+static DEVICE_ATTR_RW(timeout);
-+
-+static ssize_t keepalive_store(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t size)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+	ssize_t status = 0;
-+
-+	mutex_lock(&wdd->lock);
-+	if (!(wdd->info->options & WDIOF_KEEPALIVEPING))
-+		status = -EOPNOTSUPP;
-+	mutex_unlock(&wdd->lock);
-+
-+	if (!status)
-+		status = watchdog_ping(wdd);
-+
-+	if (status < 0)
-+		return status;
-+	else
-+		return size;
-+}
-+static DEVICE_ATTR_WO(keepalive);
-+
-+static ssize_t identity_show(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+	ssize_t status;
-+
-+	mutex_lock(&wdd->lock);
-+	status = sprintf(buf, "%s\n", wdd->info->identity);
-+	mutex_unlock(&wdd->lock);
-+
-+	return status;
-+}
-+static DEVICE_ATTR_RO(identity);
-+
-+static ssize_t state_show(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+	bool active;
-+
-+	mutex_lock(&wdd->lock);
-+	active = watchdog_active(wdd);
-+	mutex_unlock(&wdd->lock);
-+
-+	return sprintf(buf, "%d\n", active);
-+}
-+static DEVICE_ATTR_RO(state);
-+
-+static ssize_t start_store(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t size)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+	ssize_t status = 0;
-+	unsigned int val;
-+
-+	status = kstrtouint(buf, 0, &val);
-+	if (status)
-+		return status;
-+	if (val)
-+		status = watchdog_start(wdd);
-+	else
-+		status = watchdog_stop(wdd);
-+
-+	if (status < 0)
-+		return status;
-+	else
-+		return size;
-+}
-+static DEVICE_ATTR_WO(start);
-+
-+static struct attribute *wdt_attrs[] = {
-+	&dev_attr_start.attr,
-+	&dev_attr_state.attr,
-+	&dev_attr_identity.attr,
-+	&dev_attr_keepalive.attr,
-+	&dev_attr_timeout.attr,
-+	&dev_attr_timeleft.attr,
-+	&dev_attr_bootstatus.attr,
-+	&dev_attr_status.attr,
-+	&dev_attr_nowayout.attr,
-+	NULL,
-+};
-+
-+static const struct attribute_group wdt_group = {
-+	.attrs = wdt_attrs,
-+};
-+
-+static const struct attribute_group *wdt_groups[] = {
-+	&wdt_group,
-+	NULL
-+};
-+
-+/*
-+ *	watchdog_device_create: create a struct device for a given watchdog
-+ *	device
-+ *	@wdc: watchdog class with which created device is associated
-+ *	@wdd: watchdog device
-+ *
-+ *	Creates a struct device corresponding to given watchdog device and
-+ *	associates a device attribute_group with it.
-+ */
-+struct device * watchdog_device_create(struct class *wdc,
-+					struct watchdog_device *wdd)
-+{
-+	return device_create_with_groups(wdc, wdd->parent, wdd->cdev.dev,
-+			wdd, wdt_groups, "watchdog%d", wdd->id);
-+}
-+
- /*
-  *	watchdog_ioctl_op: call the watchdog drivers ioctl op if defined
-  *	@wddev: the watchdog device to do the ioctl on
+>
+>> From: Fu Wei <fu.wei@linaro.org>
+>>
+>> The patch update arm_arch_timer driver to use the function
+>> provided by the new GTDT driver of ACPI.
+>> By this way, arm_arch_timer.c can be simplified, and separate
+>> all the ACPI GTDT knowledge from this timer driver.
+>
+> That's not a proper changelog and this patch want's to be split in two:
+>
+> 1) Implement the new ACPI function
+>
+> 2) Make use of it
+
+Yes, you are right , will improve this
+
+>
+>> index 0aa135d..99505bb 100644
+>> --- a/drivers/clocksource/arm_arch_timer.c
+>> +++ b/drivers/clocksource/arm_arch_timer.c
+>> @@ -817,68 +817,30 @@ CLOCKSOURCE_OF_DECLARE(armv7_arch_timer_mem, "arm,armv7-timer-mem",
+>>                      arch_timer_mem_init);
+>>
+>>  #ifdef CONFIG_ACPI
+>> -static int __init map_generic_timer_interrupt(u32 interrupt, u32 flags)
+>> -{
+>> -     int trigger, polarity;
+>> -
+>> -     if (!interrupt)
+>> -             return 0;
+>> -
+>> -     trigger = (flags & ACPI_GTDT_INTERRUPT_MODE) ? ACPI_EDGE_SENSITIVE
+>> -                     : ACPI_LEVEL_SENSITIVE;
+>> -
+>> -     polarity = (flags & ACPI_GTDT_INTERRUPT_POLARITY) ? ACPI_ACTIVE_LOW
+>> -                     : ACPI_ACTIVE_HIGH;
+>> -
+>> -     return acpi_register_gsi(NULL, interrupt, trigger, polarity);
+>> -}
+>> -
+>>  /* Initialize per-processor generic timer */
+>> -static int __init arch_timer_acpi_init(struct acpi_table_header *table)
+>> +void __init arch_timer_acpi_init(void)
+>>  {
+>
+> And how is that supposed to work when we have next generation CPUs
+> which implement a different timer? You break multisystem kernels that
+> way.
+
+yes, you are right, If there is a  next generation CPUs  which
+implement a different timer, (maybe) this driver can not work.
+we may need a new timer driver.
+
+But,
+(1) for now,  aarch64  core always has the arch timer(this timer is
+part of aarch64 architecture).
+and the existing code make  ARM64 kernel "select ARM_ARCH_TIMER "
+(2) GTDT is designed for generic timer, so in this call "
+arch_timer_acpi_init"  we  parse the gtdt info.
+
+(3) once we have a ARM64 CPUs which implement a different timer, we
+may need to select a right timer in the config stage.
+and this timer may not be described in GTDT.  So we can implement
+another arch_timer_acpi_init by that time in new timer driver..
+if the new time still uses GTDT(or new version GTDT), we may need to
+update gtdt.c for new timer by that time.
+
+but before we really have this new timer, I think this code is OK to use.
+
+Do I understand your comment correctly? :-)
+
+>
+> Thanks,
+>
+>         tglx
+
+
+
 -- 
-2.4.3
+Best regards,
+
+Fu Wei
+Software Engineer
+Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
+Ph: +86 21 61221326(direct)
+Ph: +86 186 2020 4684 (mobile)
+Room 1512, Regus One Corporate Avenue,Level 15,
+One Corporate Avenue,222 Hubin Road,Huangpu District,
+Shanghai,China 200021
