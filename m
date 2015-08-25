@@ -1,51 +1,75 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:50795 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751738AbbHYTEx (ORCPT
+Received: from www.linutronix.de ([62.245.132.108]:52266 "EHLO
+	Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751816AbbHYTSK (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 25 Aug 2015 15:04:53 -0400
-Date: Tue, 25 Aug 2015 12:04:48 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Justin Chen <justinpopo6@gmail.com>
-Cc: linux-kernel@vger.kernel.org, feedback-list@broadcom.com,
-	devicetree@vger.kernel.org, robh+dt@kernel.org, pawel.moll@arm.com,
-	mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
-	galak@codeaurora.org, wim@iguana.be, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 1/2] watchdog: bcm7038: add device tree binding
- documentation
-Message-ID: <20150825190448.GA29547@roeck-us.net>
-References: <1440092486-16905-1-git-send-email-justinpopo6@gmail.com>
- <1440092486-16905-2-git-send-email-justinpopo6@gmail.com>
- <55DA9045.2060107@roeck-us.net>
- <20150825175538.GA16266@Justins-MacBook-Pro.local>
+	Tue, 25 Aug 2015 15:18:10 -0400
+Date: Tue, 25 Aug 2015 21:17:37 +0200 (CEST)
+From: Thomas Gleixner <tglx@linutronix.de>
+To: Fu Wei <fu.wei@linaro.org>
+cc: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+	Hanjun Guo <hanjun.guo@linaro.org>,
+	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	LKML <linux-kernel@vger.kernel.org>, linux-doc@vger.kernel.org,
+	Wei Fu <tekkamanninja@gmail.com>,
+	G Gregory <graeme.gregory@linaro.org>,
+	Al Stone <al.stone@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Vipul Gandhi <vgandhi@codeaurora.org>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Jon Masters <jcm@redhat.com>, Leo Duran <leo.duran@amd.com>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will.deacon@arm.com>,
+	Rafael Wysocki <rjw@rjwysocki.net>, dyoung@redhat.com,
+	panand@redhat.com, Daniel Lezcano <daniel.lezcano@linaro.org>
+Subject: Re: [PATCH v7 8/8] clocksource: simplify ACPI code in
+ arm_arch_timer.c
+In-Reply-To: <CADyBb7sVGePKtU45_DBGd74fykAPVshmbnRQJDDOrrvoHTGcKQ@mail.gmail.com>
+Message-ID: <alpine.DEB.2.11.1508252113590.15006@nanos>
+References: <=fu.wei@linaro.org> <1440435683-7343-1-git-send-email-fu.wei@linaro.org> <1440435683-7343-9-git-send-email-fu.wei@linaro.org> <alpine.DEB.2.11.1508241942450.3873@nanos> <CADyBb7sVGePKtU45_DBGd74fykAPVshmbnRQJDDOrrvoHTGcKQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20150825175538.GA16266@Justins-MacBook-Pro.local>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Justin,
+On Wed, 26 Aug 2015, Fu Wei wrote:
+> >>  /* Initialize per-processor generic timer */
+> >> -static int __init arch_timer_acpi_init(struct acpi_table_header *table)
+> >> +void __init arch_timer_acpi_init(void)
+> >>  {
+> >
+> > And how is that supposed to work when we have next generation CPUs
+> > which implement a different timer? You break multisystem kernels that
+> > way.
+> 
+> yes, you are right, If there is a  next generation CPUs  which
+> implement a different timer, (maybe) this driver can not work.
+> we may need a new timer driver.
+> 
+> But,
+> (1) for now,  aarch64  core always has the arch timer(this timer is
+> part of aarch64 architecture).
+> and the existing code make  ARM64 kernel "select ARM_ARCH_TIMER "
+> (2) GTDT is designed for generic timer, so in this call "
+> arch_timer_acpi_init"  we  parse the gtdt info.
+> (3) once we have a ARM64 CPUs which implement a different timer, we
+> may need to select a right timer in the config stage.
+> and this timer may not be described in GTDT.  So we can implement
+> another arch_timer_acpi_init by that time in new timer driver..
+> if the new time still uses GTDT(or new version GTDT), we may need to
+> update gtdt.c for new timer by that time.
 
-On Tue, Aug 25, 2015 at 10:55:40AM -0700, Justin Chen wrote:
-> 
-> Hello Guenter,
-> 
-> > Is 'clock-frequency' really needed (and useful), or would it make more sense
-> > to expect the user to configure a fixed clock if nothing else is available ?
-> > How do other drivers handle this ?
-> 
-> The reason for 'clock-frequency' was for a case where our device tree did not
-> have clocks. Creating a new fixed clock for a single device seems unnecessary
-> compared to a 'clock-frequency' property. Their is a use for 'clock-frequency',
-> but it is not really necessary. However, this is my first linux patch, so I do 
-> not fully trust my judgement on this...
-> 
+That's simply wrong. You want to build kernels which run on both cpus
+and the selection of the timer happens at runtime depending on the
+ACPI info. We do the same thing with device tree.
+ 
+> but before we really have this new timer, I think this code is OK to use.
 
-All that is needed for a fixed clock is a devicetree entry for it. Not sure
-I understand your line of argument; you add a lot of complexity and code
-just to avoid those few lines in the dts file (especially with 500+
-"fixed-clock" nodes in other devicetree files).
+I don't think so, but I leave this decision to the ARM64 maintainers.
 
 Thanks,
-Guenter
+
+	tglx
