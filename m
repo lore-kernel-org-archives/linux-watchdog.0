@@ -1,53 +1,57 @@
-Return-path: <justinpopo6@gmail.com>
-Date: Tue, 25 Aug 2015 12:40:03 -0700
-From: Justin Chen <justinpopo6@gmail.com>
+Return-path: <panand@redhat.com>
+Date: Wed, 26 Aug 2015 04:49:17 +0530
+From: Pratyush Anand <panand@redhat.com>
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-kernel@vger.kernel.org, feedback-list@broadcom.com,
-	devicetree@vger.kernel.org, robh+dt@kernel.org, pawel.moll@arm.com,
-	mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
-	galak@codeaurora.org, wim@iguana.be, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 1/2] watchdog: bcm7038: add device tree binding
- documentation
-Message-ID: <20150825194001.GA34223@Justins-MacBook-Pro.local>
-References: <1440092486-16905-1-git-send-email-justinpopo6@gmail.com>
- <1440092486-16905-2-git-send-email-justinpopo6@gmail.com>
- <55DA9045.2060107@roeck-us.net>
- <20150825175538.GA16266@Justins-MacBook-Pro.local>
- <20150825190448.GA29547@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, dyoung@redhat.com, dzickus@redhat.com,
+        open list:  ABI/API <linux-api@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: [PATCH RFC] watchdog: Add watchdog device control through sysfs
+ attributes
+Message-ID: <20150825231917.GD13340@dhcppc13.redhat.com>
+References: <d9ac417a3bc1c6846f1ddfcd3cd07e5a92865c19.1440179209.git.panand@redhat.com>
+ <20150825164559.GC13340@dhcppc13.redhat.com>
+ <55DCA3C1.5050307@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20150825190448.GA29547@roeck-us.net>
+In-Reply-To: <55DCA3C1.5050307@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Tue, Aug 25, 2015 at 12:04:48PM -0700, Guenter Roeck wrote:
-> Justin,
+On 25/08/2015:10:20:01 AM, Guenter Roeck wrote:
+> On 08/25/2015 09:45 AM, Pratyush Anand wrote:
+> >Hi Guenter,
+> >
+> >On 21/08/2015:11:18:12 PM, Pratyush Anand wrote:
+> >>This patch adds following attributes to watchdog device's sysfs interface.
+> >
+> >Please see if you can review it.
+> >
+> >Does this patch look fine to you? If yes then do I need to resend it by removing
+> >RFC tag.
+> >
 > 
-> On Tue, Aug 25, 2015 at 10:55:40AM -0700, Justin Chen wrote:
-> > 
-> > Hello Guenter,
-> > 
-> > > Is 'clock-frequency' really needed (and useful), or would it make more sense
-> > > to expect the user to configure a fixed clock if nothing else is available ?
-> > > How do other drivers handle this ?
-> > 
-> > The reason for 'clock-frequency' was for a case where our device tree did not
-> > have clocks. Creating a new fixed clock for a single device seems unnecessary
-> > compared to a 'clock-frequency' property. Their is a use for 'clock-frequency',
-> > but it is not really necessary. However, this is my first linux patch, so I do 
-> > not fully trust my judgement on this...
-> > 
-> 
-> All that is needed for a fixed clock is a devicetree entry for it. Not sure
-> I understand your line of argument; you add a lot of complexity and code
-> just to avoid those few lines in the dts file (especially with 500+
-> "fixed-clock" nodes in other devicetree files).
-> 
-> Thanks,
-> Guenter
+> I didn't have time to review your patch in detail. Sorry, but please keep in mind
+> that this is all volunteer work for me.
 
-Ok your argument makes sense. I will remove the clock-frequency property and 
-modify the driver accordingly. Thank you for your feedback!
+It's understandable. Sorry for my impatience. Please take your time.
 
-Thanks,
-Justin
+> 
+> I don't feel comfortable with modifying the watchdog state through sysfs.
+> That changes the ABI substantially, since it is no longer necessary to have
+> an application to activate the watchdog. It also messes up internal state keeping,
+> since there is now no longer a well defined state indicating that the kernel
+> expects user space to send heartbeats, or if the kernel needs to do it (in the
+> driver or, with the patch set I submitted a couple of weeks ago, in the watchdog
+> core).
+
+I will be OK with removing 'start'.
+
+> 
+> Given that, and I really don't have time to look into it more deeply,
+> I put the whole thing on a back burner for now.
+> 
+
+No issue, will wait :-)
+
+~Pratyush
