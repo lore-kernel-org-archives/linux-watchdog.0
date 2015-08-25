@@ -1,127 +1,87 @@
-Return-path: <fu.wei@linaro.org>
+Return-path: <justinpopo6@gmail.com>
+Date: Tue, 25 Aug 2015 10:55:40 -0700
+From: Justin Chen <justinpopo6@gmail.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-kernel@vger.kernel.org, feedback-list@broadcom.com,
+	devicetree@vger.kernel.org, robh+dt@kernel.org, pawel.moll@arm.com,
+	mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
+	galak@codeaurora.org, wim@iguana.be, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 1/2] watchdog: bcm7038: add device tree binding
+ documentation
+Message-ID: <20150825175538.GA16266@Justins-MacBook-Pro.local>
+References: <1440092486-16905-1-git-send-email-justinpopo6@gmail.com>
+ <1440092486-16905-2-git-send-email-justinpopo6@gmail.com>
+ <55DA9045.2060107@roeck-us.net>
 MIME-Version: 1.0
-In-Reply-To: <alpine.DEB.2.11.1508241942450.3873@nanos>
-References: <=fu.wei@linaro.org>
-	<1440435683-7343-1-git-send-email-fu.wei@linaro.org>
-	<1440435683-7343-9-git-send-email-fu.wei@linaro.org>
-	<alpine.DEB.2.11.1508241942450.3873@nanos>
-Date: Wed, 26 Aug 2015 01:19:45 +0800
-Message-ID: <CADyBb7sVGePKtU45_DBGd74fykAPVshmbnRQJDDOrrvoHTGcKQ@mail.gmail.com>
-Subject: Re: [PATCH v7 8/8] clocksource: simplify ACPI code in arm_arch_timer.c
-From: Fu Wei <fu.wei@linaro.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>, Hanjun Guo <hanjun.guo@linaro.org>,
-	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>, linux-watchdog@vger.kernel.org,
-	devicetree@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-	linux-doc@vger.kernel.org, Wei Fu <tekkamanninja@gmail.com>,
-	G Gregory <graeme.gregory@linaro.org>, Al Stone <al.stone@linaro.org>,
-	Arnd Bergmann <arnd@arndb.de>, Guenter Roeck <linux@roeck-us.net>,
-	Vipul Gandhi <vgandhi@codeaurora.org>, Wim Van Sebroeck <wim@iguana.be>, Jon Masters <jcm@redhat.com>,
-	Leo Duran <leo.duran@amd.com>, Jonathan Corbet <corbet@lwn.net>, Mark Rutland <mark.rutland@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>,
-	Rafael Wysocki <rjw@rjwysocki.net>, dyoung@redhat.com, panand@redhat.com,
-	Daniel Lezcano <daniel.lezcano@linaro.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <55DA9045.2060107@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Thomas,
-
-
-On 25 August 2015 at 01:50, Thomas Gleixner <tglx@linutronix.de> wrote:
-> On Tue, 25 Aug 2015, fu.wei@linaro.org wrote:
->
-> You Cc the world and some more on your patch, but you fail to add the
-> maintainers of the clocksource code to the Cc list. Sigh.
-
-my fault
-So sorry for that, I will add the maintainers of clocksource into cc list.
-
->
->> From: Fu Wei <fu.wei@linaro.org>
->>
->> The patch update arm_arch_timer driver to use the function
->> provided by the new GTDT driver of ACPI.
->> By this way, arm_arch_timer.c can be simplified, and separate
->> all the ACPI GTDT knowledge from this timer driver.
->
-> That's not a proper changelog and this patch want's to be split in two:
->
-> 1) Implement the new ACPI function
->
-> 2) Make use of it
-
-Yes, you are right , will improve this
-
->
->> index 0aa135d..99505bb 100644
->> --- a/drivers/clocksource/arm_arch_timer.c
->> +++ b/drivers/clocksource/arm_arch_timer.c
->> @@ -817,68 +817,30 @@ CLOCKSOURCE_OF_DECLARE(armv7_arch_timer_mem, "arm,armv7-timer-mem",
->>                      arch_timer_mem_init);
->>
->>  #ifdef CONFIG_ACPI
->> -static int __init map_generic_timer_interrupt(u32 interrupt, u32 flags)
->> -{
->> -     int trigger, polarity;
->> -
->> -     if (!interrupt)
->> -             return 0;
->> -
->> -     trigger = (flags & ACPI_GTDT_INTERRUPT_MODE) ? ACPI_EDGE_SENSITIVE
->> -                     : ACPI_LEVEL_SENSITIVE;
->> -
->> -     polarity = (flags & ACPI_GTDT_INTERRUPT_POLARITY) ? ACPI_ACTIVE_LOW
->> -                     : ACPI_ACTIVE_HIGH;
->> -
->> -     return acpi_register_gsi(NULL, interrupt, trigger, polarity);
->> -}
->> -
->>  /* Initialize per-processor generic timer */
->> -static int __init arch_timer_acpi_init(struct acpi_table_header *table)
->> +void __init arch_timer_acpi_init(void)
->>  {
->
-> And how is that supposed to work when we have next generation CPUs
-> which implement a different timer? You break multisystem kernels that
-> way.
-
-yes, you are right, If there is a  next generation CPUs  which
-implement a different timer, (maybe) this driver can not work.
-we may need a new timer driver.
-
-But,
-(1) for now,  aarch64  core always has the arch timer(this timer is
-part of aarch64 architecture).
-and the existing code make  ARM64 kernel "select ARM_ARCH_TIMER "
-(2) GTDT is designed for generic timer, so in this call "
-arch_timer_acpi_init"  we  parse the gtdt info.
-
-(3) once we have a ARM64 CPUs which implement a different timer, we
-may need to select a right timer in the config stage.
-and this timer may not be described in GTDT.  So we can implement
-another arch_timer_acpi_init by that time in new timer driver..
-if the new time still uses GTDT(or new version GTDT), we may need to
-update gtdt.c for new timer by that time.
-
-but before we really have this new timer, I think this code is OK to use.
-
-Do I understand your comment correctly? :-)
-
->
+On Sun, Aug 23, 2015 at 08:32:21PM -0700, Guenter Roeck wrote:
+> Hi Justin,
+> 
+> On 08/20/2015 10:41 AM, Justin Chen wrote:
+> >Add device tree binding docmentation for the watchdog hardware block
+> >on bcm7038 and newer SoCs.
+> >
+> >Signed-off-by: Justin Chen <justinpopo6@gmail.com>
+> >---
+> >  .../devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt | 19 +++++++++++++++++++
+> >  1 file changed, 19 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt
+> >
+> >diff --git a/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt b/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt
+> >new file mode 100644
+> >index 0000000..adb8260
+> >--- /dev/null
+> >+++ b/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt
+> >@@ -0,0 +1,19 @@
+> >+BCM7038 Watchdog timer
+> >+
+> >+Required properties:
+> >+
+> >+- compatible : should be "brcm,bcm7038-wdt"
+> >+- reg : Specifies base physical address and size of the registers.
+> >+
+> >+Optional properties:
+> >+
+> >+- clocks: the clock running the watchdog
+> >+- clock-frequency: the rate of the clock
+> 
+> Is 'clock-frequency' really needed (and useful), or would it make more sense
+> to expect the user to configure a fixed clock if nothing else is available ?
+> How do other drivers handle this ?
+> 
 > Thanks,
+> Guenter
+> 
+> >+
+> >+Example:
+> >+
+> >+watchdog {
+> >+	compatible = "brcm,bcm7038-wdt";
+> >+	clocks = <&upg_fixed>;
+> >+	reg = <0xf040a7e8 0x16>;
+> >+};
+> >
 >
->         tglx
 
+Hello Guenter,
 
+> Is 'clock-frequency' really needed (and useful), or would it make more sense
+> to expect the user to configure a fixed clock if nothing else is available ?
+> How do other drivers handle this ?
 
--- 
-Best regards,
+The reason for 'clock-frequency' was for a case where our device tree did not
+have clocks. Creating a new fixed clock for a single device seems unnecessary
+compared to a 'clock-frequency' property. Their is a use for 'clock-frequency',
+but it is not really necessary. However, this is my first linux patch, so I do 
+not fully trust my judgement on this...
 
-Fu Wei
-Software Engineer
-Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
-Ph: +86 21 61221326(direct)
-Ph: +86 186 2020 4684 (mobile)
-Room 1512, Regus One Corporate Avenue,Level 15,
-One Corporate Avenue,222 Hubin Road,Huangpu District,
-Shanghai,China 200021
+Looking at other drivers, none of them have both clock and clock-frequency.
+
+Thank you for your time on reviewing the patch Guenter. Much appreciated!
+
+Thanks,
+Justin Chen
