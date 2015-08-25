@@ -1,44 +1,29 @@
-Return-path: <stwiss.opensource@diasemi.com>
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-To: Philipp Zabel <p.zabel@pengutronix.de>
-CC: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "Wim
- Van Sebroeck" <wim@iguana.be>, Support Opensource
-	<Support.Opensource@diasemi.com>, "kernel@pengutronix.de"
-	<kernel@pengutronix.de>, "Opensource [Adam Thomson]"
-	<Adam.Thomson.Opensource@diasemi.com>, Guenter Roeck <linux@roeck-us.net>
-Subject: RE: [PATCH 1/2] watchdog: da9063: Ping watchdog only during allowed
- time window
-Date: Mon, 24 Aug 2015 13:39:23 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7014B262675@SW-EX-MBX02.diasemi.com>
-References: <1438879019-12978-1-git-send-email-p.zabel@pengutronix.de>
-	 <2E89032DDAA8B9408CB92943514A0337AB569C3B@SW-EX-MBX01.diasemi.com>
- <1438942673.3638.16.camel@pengutronix.de>
-In-Reply-To: <1438942673.3638.16.camel@pengutronix.de>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-path: <panand@redhat.com>
+Date: Tue, 25 Aug 2015 22:15:59 +0530
+From: Pratyush Anand <panand@redhat.com>
+To: linux@roeck-us.net
+Cc: linux-watchdog@vger.kernel.org, dyoung@redhat.com, dzickus@redhat.com,
+        "open list:ABI/API" <linux-api@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: [PATCH RFC] watchdog: Add watchdog device control through sysfs
+ attributes
+Message-ID: <20150825164559.GC13340@dhcppc13.redhat.com>
+References: <d9ac417a3bc1c6846f1ddfcd3cd07e5a92865c19.1440179209.git.panand@redhat.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d9ac417a3bc1c6846f1ddfcd3cd07e5a92865c19.1440179209.git.panand@redhat.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-T24gMDcgQXVndXN0IDIwMTUgMTE6MTgsIFBoaWxpcHAgWmFiZWwgd3JvdGU6IA0KPiBTdWJqZWN0
-OiBSZTogW1BBVENIIDEvMl0gd2F0Y2hkb2c6IGRhOTA2MzogUGluZyB3YXRjaGRvZyBvbmx5IGR1
-cmluZyBhbGxvd2VkIHRpbWUgd2luZG93DQo+IA0KPiBIaSBBZGFtLA0KPiANCj4gQW0gRnJlaXRh
-ZywgZGVuIDA3LjA4LjIwMTUsIDEwOjEzICswMDAwIHNjaHJpZWIgT3BlbnNvdXJjZSBbQWRhbSBU
-aG9tc29uXToNCj4gPiBPbiBBdWd1c3QgMDYsIDIwMTUgMTc6MzcsIFBoaWxpcHAgWmFiZWwgd3Jv
-dGU6DQo+ID4NCj4gPiA+IFRoZXJlIGlzIGEgY29vbGRvd24gcGVyaW9kIGFmdGVyIHdhdGNoZG9n
-IHRpbWVyIHNldHVwLCBhbmQgYWxzbyBhZnRlciBlYWNoDQo+ID4gPiB3YXRjaGRvZyBwaW5nLiBJ
-ZiBhIHBpbmcgaXMgaXNzdWVkIHRvbyBlYXJseSwgdGhlIHdhdGNoZG9nIHRyaWdnZXJzIHRoZQ0K
-PiA+ID4gd2F0Y2hkb2cgZXJyb3IgY29uZGl0aW9uIGFuZCBjYXVzZXMgYSBzeXN0ZW0gcmVzZXQu
-DQo+ID4gPg0KPiA+ID4gVGhlIDI1NiBtcyBwZXJpb2QgbGVuZ3RoIGlzIGEgYmVzdCBndWVzcyBi
-YXNlZCBvbiB0aGUgc2FtZSB2YWx1ZSBiZWluZyB1c2VkDQo+ID4gPiBmb3IgdGhlIERBOTA1MyBw
-cmVkZWNlc3NvciBQTUlDIGFuZCBleHBlcmltZW50cyB0aGF0IGhhdmUgc2hvd24gMjAwIG1zIGFy
-ZQ0KPiA+ID4gbm90IGVub3VnaCB0byBhdm9pZCB0aGUgZXJyb3IuDQo+ID4gPg0KPiA+ID4gU2ln
-bmVkLW9mZi1ieTogUGhpbGlwcCBaYWJlbCA8cC56YWJlbEBwZW5ndXRyb25peC5kZT4NCj4gPg0K
-PiA+IE15IGNvbGxlYWd1ZSBTdGVwaGVuIGlzIG91dCBvZiBvZmZpY2UgZm9yIHRoZSBuZXh0IHR3
-byB3ZWVrcywgYnV0IHJlYWxseSBJDQo+ID4gdGhpbmsgaGUgc2hvdWxkIHJldmlldyB0aGVzZSB0
-d28gcGF0Y2hlcyBnaXZlbiBoaXMga25vd2xlZGdlIG9mIHRoZSBkZXZpY2UuIElmDQo+ID4geW91
-IGNhbiBob2xkIG9mZiB1bnRpbCB0aGVuLCBoZSBzaG91bGQgYmUgYWJsZSB0byBwcm92aWRlIGZl
-ZWRiYWNrLg0KPiANCj4gQWJzb2x1dGVseSwgdGhhbmsgeW91IGZvciB0aGUgaGVhZHMtdXAuDQoN
-CkhpIFBoaWxpcHAsDQoNClRoYW5rcyBmb3Igd2FpdGluZyB1bnRpbCBteSByZXR1cm4gb24gdGhp
-cyB0b3BpYy4gSSB3aWxsIGNoZWNrIHdpdGggdGhlIGhhcmR3YXJlIGVuZ2luZWVycyB0bw0Kc2Vl
-IGFib3V0IHRoaXMgREE5MDYzIG1pbmltdW0gdGltZS4NCg0KUmVnYXJkcywNClN0ZXZlDQo=
+Hi Guenter,
+
+On 21/08/2015:11:18:12 PM, Pratyush Anand wrote:
+> This patch adds following attributes to watchdog device's sysfs interface.
+
+Please see if you can review it.
+
+Does this patch look fine to you? If yes then do I need to resend it by removing
+RFC tag.
+
+~Pratyush
