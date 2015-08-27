@@ -1,7 +1,7 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-gw1-out.broadcom.com ([216.31.210.62]:23060 "EHLO
-	mail-gw1-out.broadcom.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757366AbbH0Wyo (ORCPT
+Received: from mail-gw3-out.broadcom.com ([216.31.210.64]:24773 "EHLO
+	mail-gw3-out.broadcom.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757367AbbH0Wyo (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
 	Thu, 27 Aug 2015 18:54:44 -0400
 From: Justin Chen <justinpopo6@gmail.com>
@@ -12,40 +12,50 @@ CC: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
 	<linux-watchdog@vger.kernel.org>,
 	<bcm-kernel-feedback-list@broadcom.com>,
 	Justin Chen <justinpopo6@gmail.com>
-Subject: [PATCH v2 0/2] watchdog: driver for BCM7038 and newer chips.
-Date: Thu, 27 Aug 2015 15:53:22 -0700
-Message-ID: <1440716004-27022-1-git-send-email-justinpopo6@gmail.com>
+Subject: [PATCH v2 1/2] watchdog: bcm7038: add device tree binding documentation
+Date: Thu, 27 Aug 2015 15:53:23 -0700
+Message-ID: <1440716004-27022-2-git-send-email-justinpopo6@gmail.com>
+In-Reply-To: <1440716004-27022-1-git-send-email-justinpopo6@gmail.com>
+References: <1440716004-27022-1-git-send-email-justinpopo6@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This driver is for a watchdog block contained in all Broadcom Set-top
-Box chips since BCM7038. BCM7038 was made public during the 2004 CES,
-and since then, many chips use this watchdog block including some cable
-modem chips.
+Add device tree binding documentation for the watchdog hardware block
+on bcm7038 and newer SoCs.
 
-Changes since v1:
-Removed clock-frequency because it brought unnecessary complexity to the
-driver.
-Renamed a few variables.
-
-Patch 1: watchdog device tree binding documentation
-
-Patch 2: watchdog driver
-
-Justin Chen (2):
-  watchdog: bcm7038: add device tree binding documentation
-  watchdog: Watchdog driver for Broadcom Set-Top Box
-
- .../bindings/watchdog/brcm,bcm7038-wdt.txt         |  19 ++
- drivers/watchdog/Kconfig                           |   8 +
- drivers/watchdog/Makefile                          |   1 +
- drivers/watchdog/bcm7038_wdt.c                     | 235 +++++++++++++++++++++
- 4 files changed, 263 insertions(+)
+Signed-off-by: Justin Chen <justinpopo6@gmail.com>
+---
+ .../devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt
- create mode 100644 drivers/watchdog/bcm7038_wdt.c
 
+diff --git a/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt b/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt
+new file mode 100644
+index 0000000..39e5cf5
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt
+@@ -0,0 +1,19 @@
++BCM7038 Watchdog timer
++
++Required properties:
++
++- compatible : should be "brcm,bcm7038-wdt"
++- reg : Specifies base physical address and size of the registers.
++
++Optional properties:
++
++- clocks: The clock running the watchdog. If no clock is found the
++	  driver will default to 27000000 HZ.
++
++Example:
++
++watchdog {
++	compatible = "brcm,bcm7038-wdt";
++	clocks = <&upg_fixed>;
++	reg = <0xf040a7e8 0x16>;
++};
 -- 
 2.1.0
 
