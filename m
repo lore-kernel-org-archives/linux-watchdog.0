@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:57240 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:57212 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752376AbbH2Tcx (ORCPT
+	with ESMTP id S1752310AbbH2Tcu (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 29 Aug 2015 15:32:53 -0400
+	Sat, 29 Aug 2015 15:32:50 -0400
 From: Guenter Roeck <linux@roeck-us.net>
 To: linux-watchdog@vger.kernel.org
 Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
@@ -12,167 +12,247 @@ Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
 	<u.kleine-koenig@pengutronix.de>, linux-doc@vger.kernel.org,
 	Jonathan Corbet <corbet@lwn.net>,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v3 6/9] watchdog: retu: Convert to use infrastructure triggered keepalives
-Date: Sat, 29 Aug 2015 12:32:35 -0700
-Message-Id: <1440876758-28047-7-git-send-email-linux@roeck-us.net>
+Subject: [PATCH v3 3/9] watchdog: Introduce WDOG_RUNNING flag
+Date: Sat, 29 Aug 2015 12:32:32 -0700
+Message-Id: <1440876758-28047-4-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1440876758-28047-1-git-send-email-linux@roeck-us.net>
 References: <1440876758-28047-1-git-send-email-linux@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The watchdog infrastructure now supports handling watchdog keepalive
-if the watchdog is running while the watchdog device is closed.
-Convert the driver to use this infrastructure.
+The WDOG_RUNNING flag is expected to be set by watchdog drivers if
+the hardware watchdog is running. If the flag is set, the watchdog
+subsystem will ping the watchdog even if the watchdog device is closed.
 
+The watchdog driver stop function is now optional and may be omitted
+if the watchdog can not be stopped. If stopping the watchdog is not
+possible but the driver implements a stop function, it is responsible
+to set the WDOG_RUNNING flag in its stop function.
+
+Cc: Timo Kokkonen <timo.kokkonen@offcode.fi>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
-v3: No changes
-v2: No changes
+v3: Clarified meaning of WDOG_ACTIVE.
+    Do not call cancel_delayed_work_sync() from watchdog_update_worker().
+    Call it directly where needed instead, to keep the common code simple.
+    Do not (re-)start an already running watchdog when opening the watchdog
+    device. Send a heartbeat request instead.
+v2: Improved documentation.
 ---
- drivers/watchdog/retu_wdt.c | 78 ++++-----------------------------------------
- 1 file changed, 7 insertions(+), 71 deletions(-)
+ Documentation/watchdog/watchdog-kernel-api.txt | 28 +++++++++------
+ drivers/watchdog/watchdog_core.c               |  2 +-
+ drivers/watchdog/watchdog_dev.c                | 49 +++++++++++++++++++-------
+ include/linux/watchdog.h                       |  7 ++++
+ 4 files changed, 63 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/watchdog/retu_wdt.c b/drivers/watchdog/retu_wdt.c
-index b7c68e275aeb..ce2982a7670c 100644
---- a/drivers/watchdog/retu_wdt.c
-+++ b/drivers/watchdog/retu_wdt.c
-@@ -28,69 +28,22 @@
- /* Watchdog timer values in seconds */
- #define RETU_WDT_MAX_TIMER	63
+diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
+index 3306249aa17d..c127b2d457bd 100644
+--- a/Documentation/watchdog/watchdog-kernel-api.txt
++++ b/Documentation/watchdog/watchdog-kernel-api.txt
+@@ -146,17 +146,18 @@ are:
+   device.
+   The routine needs a pointer to the watchdog timer device structure as a
+   parameter. It returns zero on success or a negative errno code for failure.
+-* stop: with this routine the watchdog timer device is being stopped.
+-  The routine needs a pointer to the watchdog timer device structure as a
+-  parameter. It returns zero on success or a negative errno code for failure.
+-  Some watchdog timer hardware can only be started and not be stopped. The
+-  driver supporting this hardware needs to make sure that a start and stop
+-  routine is being provided. This can be done by using a timer in the driver
+-  that regularly sends a keepalive ping to the watchdog timer hardware.
  
--struct retu_wdt_dev {
--	struct retu_dev		*rdev;
--	struct device		*dev;
--	struct delayed_work	ping_work;
--};
--
--/*
-- * Since Retu watchdog cannot be disabled in hardware, we must kick it
-- * with a timer until userspace watchdog software takes over. If
-- * CONFIG_WATCHDOG_NOWAYOUT is set, we never start the feeding.
-- */
--static void retu_wdt_ping_enable(struct retu_wdt_dev *wdev)
--{
--	retu_write(wdev->rdev, RETU_REG_WATCHDOG, RETU_WDT_MAX_TIMER);
--	schedule_delayed_work(&wdev->ping_work,
--			round_jiffies_relative(RETU_WDT_MAX_TIMER * HZ / 2));
--}
--
--static void retu_wdt_ping_disable(struct retu_wdt_dev *wdev)
--{
--	retu_write(wdev->rdev, RETU_REG_WATCHDOG, RETU_WDT_MAX_TIMER);
--	cancel_delayed_work_sync(&wdev->ping_work);
--}
--
--static void retu_wdt_ping_work(struct work_struct *work)
--{
--	struct retu_wdt_dev *wdev = container_of(to_delayed_work(work),
--						struct retu_wdt_dev, ping_work);
--	retu_wdt_ping_enable(wdev);
--}
--
- static int retu_wdt_start(struct watchdog_device *wdog)
- {
--	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
-+	struct retu_dev *rdev = watchdog_get_drvdata(wdog);
+ Not all watchdog timer hardware supports the same functionality. That's why
+ all other routines/operations are optional. They only need to be provided if
+ they are supported. These optional routines/operations are:
++* stop: with this routine the watchdog timer device is being stopped.
++  The routine needs a pointer to the watchdog timer device structure as a
++  parameter. It returns zero on success or a negative errno code for failure.
++  Some watchdog timer hardware can only be started and not be stopped. A
++  driver supporting such hardware does not have to implement the stop routine.
++  If a driver has no stop function, the watchdog core will set WDOG_RUNNING and
++  start calling the driver's keepalive pings function after the watchdog device
++  is closed.
+ * ping: this is the routine that sends a keepalive ping to the watchdog timer
+   hardware.
+   The routine needs a pointer to the watchdog timer device structure as a
+@@ -196,9 +197,8 @@ they are supported. These optional routines/operations are:
+ The status bits should (preferably) be set with the set_bit and clear_bit alike
+ bit-operations. The status bits that are defined are:
+ * WDOG_ACTIVE: this status bit indicates whether or not a watchdog timer device
+-  is active or not. When the watchdog is active after booting, then you should
+-  set this status bit (Note: when you register the watchdog timer device with
+-  this bit set, then opening /dev/watchdog will skip the start operation)
++  is active or not from user perspective. User space is expected to send
++  heartbeat requests to the driver while this flag is set.
+ * WDOG_DEV_OPEN: this status bit shows whether or not the watchdog device
+   was opened via /dev/watchdog.
+   (This bit should only be used by the WatchDog Timer Driver Core).
+@@ -212,6 +212,14 @@ bit-operations. The status bits that are defined are:
+   any watchdog_ops, so that you can be sure that no operations (other then
+   unref) will get called after unregister, even if userspace still holds a
+   reference to /dev/watchdog
++* WDOG_RUNNING: Set by the watchdog driver if the hardware watchdog is running.
++  The bit must be set if the watchdog timer hardware can not be stopped.
++  The bit may also be set if the watchdog timer is running aftyer booting,
++  before the watchdog device is opened. If set, the watchdog infrastructure
++  will send keepalives to the watchdog hardware while WDOG_ACTIVE is not set.
++  Note: when you register the watchdog timer device with this bit set,
++  then opening /dev/watchdog will skip the start operation but send a keepalive
++  request instead.
  
--	retu_wdt_ping_disable(wdev);
-+	set_bit(WDOG_RUNNING, &wdog->status);
+   To set the WDOG_NO_WAY_OUT status bit (before registering your watchdog
+   timer device) you can either:
+diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+index 1a8059455413..b38d1b7ae10e 100644
+--- a/drivers/watchdog/watchdog_core.c
++++ b/drivers/watchdog/watchdog_core.c
+@@ -145,7 +145,7 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
+ 		return -EINVAL;
  
--	return retu_write(wdev->rdev, RETU_REG_WATCHDOG, wdog->timeout);
--}
--
--static int retu_wdt_stop(struct watchdog_device *wdog)
--{
--	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
--
--	retu_wdt_ping_enable(wdev);
--
--	return 0;
--}
--
--static int retu_wdt_ping(struct watchdog_device *wdog)
--{
--	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
--
--	return retu_write(wdev->rdev, RETU_REG_WATCHDOG, wdog->timeout);
-+	return retu_write(rdev, RETU_REG_WATCHDOG, wdog->timeout);
+ 	/* Mandatory operations need to be supported */
+-	if (wdd->ops->start == NULL || wdd->ops->stop == NULL)
++	if (!wdd->ops->start)
+ 		return -EINVAL;
+ 
+ 	watchdog_check_min_max_timeout(wdd);
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index e43fd429c32c..631ed18d4c61 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -68,7 +68,8 @@ static inline bool watchdog_need_worker(struct watchdog_device *wdd)
+ 	 *   requests.
+ 	 * - Userspace requests a longer timeout than the hardware can handle.
+ 	 */
+-	return watchdog_active(wdd) && hm && t > hm;
++	return hm && ((watchdog_active(wdd) && t > hm) ||
++		      (t && !watchdog_active(wdd) && watchdog_running(wdd)));
  }
  
- static int retu_wdt_set_timeout(struct watchdog_device *wdog,
- 				unsigned int timeout)
- {
--	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
-+	struct retu_dev *rdev = watchdog_get_drvdata(wdog);
+ static long watchdog_next_keepalive(struct watchdog_device *wdd)
+@@ -85,6 +86,9 @@ static long watchdog_next_keepalive(struct watchdog_device *wdd)
  
- 	wdog->timeout = timeout;
--	return retu_write(wdev->rdev, RETU_REG_WATCHDOG, wdog->timeout);
-+	return retu_write(rdev, RETU_REG_WATCHDOG, wdog->timeout);
+ 	keepalive_interval = msecs_to_jiffies(hw_timeout_ms / 2);
+ 
++	if (!watchdog_active(wdd))
++		return keepalive_interval;
++
+ 	/*
+ 	 * To ensure that the watchdog times out wdd->timeout seconds
+ 	 * after the most recent ping from userspace, the last
+@@ -120,7 +124,7 @@ static int _watchdog_ping(struct watchdog_device *wdd)
+ 	if (test_bit(WDOG_UNREGISTERED, &wdd->status))
+ 		return -ENODEV;
+ 
+-	if (!watchdog_active(wdd))
++	if (!watchdog_active(wdd) && !watchdog_running(wdd))
+ 		return 0;
+ 
+ 	if (wdd->ops->ping)
+@@ -186,10 +190,10 @@ static int watchdog_start(struct watchdog_device *wdd)
+ 		goto out_start;
+ 	}
+ 
+-	if (watchdog_active(wdd))
+-		goto out_start;
+-
+-	err = wdd->ops->start(wdd);
++	if (watchdog_running(wdd) && wdd->ops->ping)
++		err = wdd->ops->ping(wdd);
++	else
++		err = wdd->ops->start(wdd);
+ 	if (err == 0) {
+ 		set_bit(WDOG_ACTIVE, &wdd->status);
+ 		wdd->last_keepalive = jiffies;
+@@ -231,10 +235,14 @@ static int watchdog_stop(struct watchdog_device *wdd)
+ 		goto out_stop;
+ 	}
+ 
+-	err = wdd->ops->stop(wdd);
++	if (wdd->ops->stop)
++		err = wdd->ops->stop(wdd);
++	else
++		set_bit(WDOG_RUNNING, &wdd->status);
++
+ 	if (err == 0) {
+ 		clear_bit(WDOG_ACTIVE, &wdd->status);
+-		cancel_delayed_work(&wdd->work);
++		watchdog_update_worker(wdd, true);
+ 	}
+ 
+ out_stop:
+@@ -516,7 +524,7 @@ static int watchdog_open(struct inode *inode, struct file *file)
+ 	 * If the /dev/watchdog device is open, we don't want the module
+ 	 * to be unloaded.
+ 	 */
+-	if (!try_module_get(wdd->ops->owner))
++	if (!watchdog_running(wdd) && !try_module_get(wdd->ops->owner))
+ 		goto out;
+ 
+ 	err = watchdog_start(wdd);
+@@ -574,9 +582,15 @@ static int watchdog_release(struct inode *inode, struct file *file)
+ 	}
+ 
+ 	cancel_delayed_work_sync(&wdd->work);
++	watchdog_update_worker(wdd, false);
+ 
+-	/* Allow the owner module to be unloaded again */
+-	module_put(wdd->ops->owner);
++	/*
++	 * Allow the owner module to be unloaded again unless the watchdog
++	 * is still running. If the watchdog is still running, it can not
++	 * be stopped, and its driver must not be unloaded.
++	 */
++	if (!watchdog_running(wdd))
++		module_put(wdd->ops->owner);
+ 
+ 	/* make sure that /dev/watchdog can be re-opened */
+ 	clear_bit(WDOG_DEV_OPEN, &wdd->status);
+@@ -649,8 +663,19 @@ int watchdog_dev_register(struct watchdog_device *wdd)
+ 			misc_deregister(&watchdog_miscdev);
+ 			old_wdd = NULL;
+ 		}
++		return err;
+ 	}
+-	return err;
++
++	/*
++	 * If the watchdog is running, prevent its driver from being unloaded,
++	 * and schedule an immediate ping.
++	 */
++	if (watchdog_running(wdd)) {
++		__module_get(wdd->ops->owner);
++		queue_delayed_work(watchdog_wq, &wdd->work, 0);
++	}
++
++	return 0;
  }
  
- static const struct watchdog_info retu_wdt_info = {
-@@ -101,8 +54,6 @@ static const struct watchdog_info retu_wdt_info = {
- static const struct watchdog_ops retu_wdt_ops = {
- 	.owner		= THIS_MODULE,
- 	.start		= retu_wdt_start,
--	.stop		= retu_wdt_stop,
--	.ping		= retu_wdt_ping,
- 	.set_timeout	= retu_wdt_set_timeout,
- };
- 
-@@ -111,39 +62,26 @@ static int retu_wdt_probe(struct platform_device *pdev)
- 	struct retu_dev *rdev = dev_get_drvdata(pdev->dev.parent);
- 	bool nowayout = WATCHDOG_NOWAYOUT;
- 	struct watchdog_device *retu_wdt;
--	struct retu_wdt_dev *wdev;
- 	int ret;
- 
- 	retu_wdt = devm_kzalloc(&pdev->dev, sizeof(*retu_wdt), GFP_KERNEL);
- 	if (!retu_wdt)
- 		return -ENOMEM;
- 
--	wdev = devm_kzalloc(&pdev->dev, sizeof(*wdev), GFP_KERNEL);
--	if (!wdev)
--		return -ENOMEM;
--
- 	retu_wdt->info		= &retu_wdt_info;
- 	retu_wdt->ops		= &retu_wdt_ops;
- 	retu_wdt->timeout	= RETU_WDT_MAX_TIMER;
- 	retu_wdt->min_timeout	= 0;
- 	retu_wdt->max_timeout	= RETU_WDT_MAX_TIMER;
- 
--	watchdog_set_drvdata(retu_wdt, wdev);
-+	watchdog_set_drvdata(retu_wdt, rdev);
- 	watchdog_set_nowayout(retu_wdt, nowayout);
- 
--	wdev->rdev		= rdev;
--	wdev->dev		= &pdev->dev;
--
--	INIT_DELAYED_WORK(&wdev->ping_work, retu_wdt_ping_work);
--
- 	ret = watchdog_register_device(retu_wdt);
- 	if (ret < 0)
- 		return ret;
- 
--	if (nowayout)
--		retu_wdt_ping(retu_wdt);
--	else
--		retu_wdt_ping_enable(wdev);
-+	retu_wdt_start(retu_wdt);
- 
- 	platform_set_drvdata(pdev, retu_wdt);
- 
-@@ -153,10 +91,8 @@ static int retu_wdt_probe(struct platform_device *pdev)
- static int retu_wdt_remove(struct platform_device *pdev)
- {
- 	struct watchdog_device *wdog = platform_get_drvdata(pdev);
--	struct retu_wdt_dev *wdev = watchdog_get_drvdata(wdog);
- 
- 	watchdog_unregister_device(wdog);
--	cancel_delayed_work_sync(&wdev->ping_work);
- 
- 	return 0;
+ /*
+diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+index cacafa05c157..5c7d0e9e1f3f 100644
+--- a/include/linux/watchdog.h
++++ b/include/linux/watchdog.h
+@@ -108,6 +108,7 @@ struct watchdog_device {
+ #define WDOG_ALLOW_RELEASE	2	/* Did we receive the magic char ? */
+ #define WDOG_NO_WAY_OUT		3	/* Is 'nowayout' feature set ? */
+ #define WDOG_UNREGISTERED	4	/* Has the device been unregistered */
++#define WDOG_RUNNING		5	/* True if HW watchdog running */
+ 	/* the following variables are for internal use only */
+ 	struct mutex lock;
+ 	unsigned long last_keepalive;
+@@ -124,6 +125,12 @@ static inline bool watchdog_active(struct watchdog_device *wdd)
+ 	return test_bit(WDOG_ACTIVE, &wdd->status);
  }
+ 
++/* Use the following function to check whether or not the watchdog is running */
++static inline bool watchdog_running(struct watchdog_device *wdd)
++{
++	return test_bit(WDOG_RUNNING, &wdd->status);
++}
++
+ /* Use the following function to set the nowayout feature */
+ static inline void watchdog_set_nowayout(struct watchdog_device *wdd, bool nowayout)
+ {
 -- 
 2.1.4
 
