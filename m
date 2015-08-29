@@ -8,182 +8,187 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	linux-doc@vger.kernel.org,
 	Jonathan Corbet <corbet@lwn.net>,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v3 5/9] watchdog: imx2: Convert to use infrastructure triggered keepalives
-Date: Sat, 29 Aug 2015 12:32:34 -0700
-Message-Id: <1440876758-28047-6-git-send-email-linux@roeck-us.net>
+Subject: [PATCH v3 7/9] watchdog: gpio_wdt: Convert to use infrastructure triggered keepalives
+Date: Sat, 29 Aug 2015 12:32:36 -0700
+Message-Id: <1440876758-28047-8-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1440876758-28047-1-git-send-email-linux@roeck-us.net>
 References: <1440876758-28047-1-git-send-email-linux@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 The watchdog infrastructure now supports handling watchdog keepalive
 if the watchdog is running while the watchdog device is closed.
-Convert the driver to use this infrastructure.
+The infrastructure now also supports generating additional heartbeats
+if the maximum hardware timeout is smaller than or close to the
+configured timeout. Convert the driver to use this infrastructure.
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
 v3: No changes
 v2: No changes
 ---
- drivers/watchdog/imx2_wdt.c | 72 ++++++++-------------------------------------
- 1 file changed, 12 insertions(+), 60 deletions(-)
+ drivers/watchdog/gpio_wdt.c | 65 ++++++++-------------------------------------
+ 1 file changed, 11 insertions(+), 54 deletions(-)
 
-diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-index 0bb1a1d1b170..66feef254661 100644
---- a/drivers/watchdog/imx2_wdt.c
-+++ b/drivers/watchdog/imx2_wdt.c
-@@ -25,7 +25,6 @@
- #include <linux/delay.h>
- #include <linux/init.h>
- #include <linux/io.h>
--#include <linux/jiffies.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
-@@ -34,7 +33,6 @@
- #include <linux/platform_device.h>
- #include <linux/reboot.h>
- #include <linux/regmap.h>
--#include <linux/timer.h>
- #include <linux/watchdog.h>
- 
- #define DRIVER_NAME "imx2-wdt"
-@@ -62,7 +60,6 @@
- struct imx2_wdt_device {
- 	struct clk *clk;
- 	struct regmap *regmap;
--	struct timer_list timer;	/* Pings the watchdog when closed */
- 	struct watchdog_device wdog;
- 	struct notifier_block restart_handler;
+diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
+index 1687cc2d7122..cbbdae440bfa 100644
+--- a/drivers/watchdog/gpio_wdt.c
++++ b/drivers/watchdog/gpio_wdt.c
+@@ -32,12 +32,8 @@ struct gpio_wdt_priv {
+ 	bool			active_low;
+ 	bool			state;
+ 	bool			always_running;
+-	bool			armed;
+ 	unsigned int		hw_algo;
+-	unsigned int		hw_margin;
+-	unsigned long		last_jiffies;
+ 	struct notifier_block	notifier;
+-	struct timer_list	timer;
+ 	struct watchdog_device	wdd;
  };
-@@ -151,16 +148,6 @@ static int imx2_wdt_ping(struct watchdog_device *wdog)
- 	return 0;
+ 
+@@ -50,20 +46,12 @@ static void gpio_wdt_disable(struct gpio_wdt_priv *priv)
+ 		gpio_direction_input(priv->gpio);
  }
  
--static void imx2_wdt_timer_ping(unsigned long arg)
+-static void gpio_wdt_start_impl(struct gpio_wdt_priv *priv)
 -{
--	struct watchdog_device *wdog = (struct watchdog_device *)arg;
--	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
--
--	/* ping it every wdog->timeout / 2 seconds to prevent reboot */
--	imx2_wdt_ping(wdog);
--	mod_timer(&wdev->timer, jiffies + wdog->timeout * HZ / 2);
+-	priv->state = priv->active_low;
+-	gpio_direction_output(priv->gpio, priv->state);
+-	priv->last_jiffies = jiffies;
+-	mod_timer(&priv->timer, priv->last_jiffies + priv->hw_margin);
 -}
 -
- static int imx2_wdt_set_timeout(struct watchdog_device *wdog,
- 				unsigned int new_timeout)
+ static int gpio_wdt_start(struct watchdog_device *wdd)
  {
-@@ -177,40 +164,19 @@ static int imx2_wdt_start(struct watchdog_device *wdog)
+ 	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
+ 
+-	gpio_wdt_start_impl(priv);
+-	priv->armed = true;
++	priv->state = priv->active_low;
++	gpio_direction_output(priv->gpio, priv->state);
+ 
+ 	return 0;
+ }
+@@ -72,10 +60,9 @@ static int gpio_wdt_stop(struct watchdog_device *wdd)
  {
- 	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
+ 	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
  
--	if (imx2_wdt_is_running(wdev)) {
--		/* delete the timer that pings the watchdog after close */
--		del_timer_sync(&wdev->timer);
-+	if (imx2_wdt_is_running(wdev))
- 		imx2_wdt_set_timeout(wdog, wdog->timeout);
--	} else
-+	else
- 		imx2_wdt_setup(wdog);
+-	priv->armed = false;
+ 	if (!priv->always_running) {
+-		mod_timer(&priv->timer, 0);
+ 		gpio_wdt_disable(priv);
++		clear_bit(WDOG_RUNNING, &priv->wdd.status);
+ 	}
  
--	return imx2_wdt_ping(wdog);
--}
+ 	return 0;
+@@ -85,32 +72,6 @@ static int gpio_wdt_ping(struct watchdog_device *wdd)
+ {
+ 	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
+ 
+-	priv->last_jiffies = jiffies;
 -
--static int imx2_wdt_stop(struct watchdog_device *wdog)
--{
--	/*
--	 * We don't need a clk_disable, it cannot be disabled once started.
--	 * We use a timer to ping the watchdog while /dev/watchdog is closed
--	 */
--	imx2_wdt_timer_ping((unsigned long)wdog);
 -	return 0;
 -}
 -
--static inline void imx2_wdt_ping_if_active(struct watchdog_device *wdog)
+-static int gpio_wdt_set_timeout(struct watchdog_device *wdd, unsigned int t)
 -{
--	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
-+	set_bit(WDOG_RUNNING, &wdog->status);
- 
--	if (imx2_wdt_is_running(wdev)) {
--		imx2_wdt_set_timeout(wdog, wdog->timeout);
--		imx2_wdt_timer_ping((unsigned long)wdog);
+-	wdd->timeout = t;
+-
+-	return gpio_wdt_ping(wdd);
+-}
+-
+-static void gpio_wdt_hwping(unsigned long data)
+-{
+-	struct watchdog_device *wdd = (struct watchdog_device *)data;
+-	struct gpio_wdt_priv *priv = watchdog_get_drvdata(wdd);
+-
+-	if (priv->armed && time_after(jiffies, priv->last_jiffies +
+-				      msecs_to_jiffies(wdd->timeout * 1000))) {
+-		dev_crit(wdd->dev, "Timer expired. System will reboot soon!\n");
+-		return;
 -	}
-+	return imx2_wdt_ping(wdog);
+-
+-	/* Restart timer */
+-	mod_timer(&priv->timer, jiffies + priv->hw_margin);
+-
+ 	switch (priv->hw_algo) {
+ 	case HW_ALGO_TOGGLE:
+ 		/* Toggle output pin */
+@@ -124,6 +85,8 @@ static void gpio_wdt_hwping(unsigned long data)
+ 		gpio_set_value_cansleep(priv->gpio, priv->active_low);
+ 		break;
+ 	}
++
++	return 0;
  }
  
- static const struct watchdog_ops imx2_wdt_ops = {
- 	.owner = THIS_MODULE,
- 	.start = imx2_wdt_start,
--	.stop = imx2_wdt_stop,
- 	.ping = imx2_wdt_ping,
- 	.set_timeout = imx2_wdt_set_timeout,
+ static int gpio_wdt_notify_sys(struct notifier_block *nb, unsigned long code,
+@@ -132,12 +95,10 @@ static int gpio_wdt_notify_sys(struct notifier_block *nb, unsigned long code,
+ 	struct gpio_wdt_priv *priv = container_of(nb, struct gpio_wdt_priv,
+ 						  notifier);
+ 
+-	mod_timer(&priv->timer, 0);
+-
+ 	switch (code) {
+ 	case SYS_HALT:
+ 	case SYS_POWER_OFF:
+-		gpio_wdt_disable(priv);
++		gpio_wdt_stop(&priv->wdd);
+ 		break;
+ 	default:
+ 		break;
+@@ -157,7 +118,6 @@ static const struct watchdog_ops gpio_wdt_ops = {
+ 	.start		= gpio_wdt_start,
+ 	.stop		= gpio_wdt_stop,
+ 	.ping		= gpio_wdt_ping,
+-	.set_timeout	= gpio_wdt_set_timeout,
  };
-@@ -277,9 +243,10 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
- 	watchdog_set_nowayout(wdog, nowayout);
- 	watchdog_init_timeout(wdog, timeout, &pdev->dev);
  
--	setup_timer(&wdev->timer, imx2_wdt_timer_ping, (unsigned long)wdog);
+ static int gpio_wdt_probe(struct platform_device *pdev)
+@@ -205,9 +165,6 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+ 	if (hw_margin < 2 || hw_margin > 65535)
+ 		return -EINVAL;
+ 
+-	/* Use safe value (1/2 of real timeout) */
+-	priv->hw_margin = msecs_to_jiffies(hw_margin / 2);
 -
--	imx2_wdt_ping_if_active(wdog);
-+	if (imx2_wdt_is_running(wdev)) {
-+		imx2_wdt_set_timeout(wdog, wdog->timeout);
-+		set_bit(WDOG_RUNNING, &wdog->status);
+ 	priv->always_running = of_property_read_bool(pdev->dev.of_node,
+ 						     "always-running");
+ 
+@@ -217,11 +174,15 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+ 	priv->wdd.ops		= &gpio_wdt_ops;
+ 	priv->wdd.min_timeout	= SOFT_TIMEOUT_MIN;
+ 	priv->wdd.max_timeout	= SOFT_TIMEOUT_MAX;
++	priv->wdd.max_hw_timeout_ms = hw_margin;
+ 
+ 	if (watchdog_init_timeout(&priv->wdd, 0, &pdev->dev) < 0)
+ 		priv->wdd.timeout = SOFT_TIMEOUT_DEF;
+ 
+-	setup_timer(&priv->timer, gpio_wdt_hwping, (unsigned long)&priv->wdd);
++	if (priv->always_running) {
++		set_bit(WDOG_RUNNING, &priv->wdd.status);
++		gpio_wdt_start(&priv->wdd);
 +	}
  
- 	/*
- 	 * Disable the watchdog power down counter at boot. Otherwise the power
-@@ -320,7 +287,6 @@ static int __exit imx2_wdt_remove(struct platform_device *pdev)
- 	watchdog_unregister_device(wdog);
+ 	ret = watchdog_register_device(&priv->wdd);
+ 	if (ret)
+@@ -232,9 +193,6 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto error_unregister;
  
- 	if (imx2_wdt_is_running(wdev)) {
--		del_timer_sync(&wdev->timer);
- 		imx2_wdt_ping(wdog);
- 		dev_crit(&pdev->dev, "Device removed: Expect reboot!\n");
- 	}
-@@ -334,10 +300,9 @@ static void imx2_wdt_shutdown(struct platform_device *pdev)
- 
- 	if (imx2_wdt_is_running(wdev)) {
- 		/*
--		 * We are running, we need to delete the timer but will
--		 * give max timeout before reboot will take place
-+		 * We are running, configure max timeout before reboot
-+		 * will take place.
- 		 */
--		del_timer_sync(&wdev->timer);
- 		imx2_wdt_set_timeout(wdog, IMX2_WDT_MAX_TIME);
- 		imx2_wdt_ping(wdog);
- 		dev_crit(&pdev->dev, "Device shutdown: Expect reboot!\n");
-@@ -355,10 +320,6 @@ static int imx2_wdt_suspend(struct device *dev)
- 	if (imx2_wdt_is_running(wdev)) {
- 		imx2_wdt_set_timeout(wdog, IMX2_WDT_MAX_TIME);
- 		imx2_wdt_ping(wdog);
+-	if (priv->always_running)
+-		gpio_wdt_start_impl(priv);
 -
--		/* The watchdog is not active */
--		if (!watchdog_active(wdog))
--			del_timer_sync(&wdev->timer);
- 	}
- 
- 	clk_disable_unprepare(wdev->clk);
-@@ -384,19 +345,10 @@ static int imx2_wdt_resume(struct device *dev)
- 		 * watchdog again.
- 		 */
- 		imx2_wdt_setup(wdog);
-+	}
-+	if (imx2_wdt_is_running(wdev)) {
- 		imx2_wdt_set_timeout(wdog, wdog->timeout);
- 		imx2_wdt_ping(wdog);
--	} else if (imx2_wdt_is_running(wdev)) {
--		/* Resuming from non-deep sleep state. */
--		imx2_wdt_set_timeout(wdog, wdog->timeout);
--		imx2_wdt_ping(wdog);
--		/*
--		 * But the watchdog is not active, then start
--		 * the timer again.
--		 */
--		if (!watchdog_active(wdog))
--			mod_timer(&wdev->timer,
--				  jiffies + wdog->timeout * HZ / 2);
- 	}
- 
  	return 0;
+ 
+ error_unregister:
+@@ -246,7 +204,6 @@ static int gpio_wdt_remove(struct platform_device *pdev)
+ {
+ 	struct gpio_wdt_priv *priv = platform_get_drvdata(pdev);
+ 
+-	del_timer_sync(&priv->timer);
+ 	unregister_reboot_notifier(&priv->notifier);
+ 	watchdog_unregister_device(&priv->wdd);
+ 
 -- 
 2.1.4
