@@ -1,258 +1,290 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:57212 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752310AbbH2Tcu (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 29 Aug 2015 15:32:50 -0400
-From: Guenter Roeck <linux@roeck-us.net>
-To: linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
-	Timo Kokkonen <timo.kokkonen@offcode.fi>,
-	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
-	<u.kleine-koenig@pengutronix.de>, linux-doc@vger.kernel.org,
-	Jonathan Corbet <corbet@lwn.net>,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v3 3/9] watchdog: Introduce WDOG_RUNNING flag
-Date: Sat, 29 Aug 2015 12:32:32 -0700
-Message-Id: <1440876758-28047-4-git-send-email-linux@roeck-us.net>
-In-Reply-To: <1440876758-28047-1-git-send-email-linux@roeck-us.net>
-References: <1440876758-28047-1-git-send-email-linux@roeck-us.net>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <panand@redhat.com>
+Date: Sun, 30 Aug 2015 19:46:50 +0530
+From: Pratyush Anand <panand@redhat.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, dyoung@redhat.com, dzickus@redhat.com,
+        "open list:ABI/API" <linux-api@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: [RFC] watchdog: Add watchdog device control through sysfs
+ attributes
+Message-ID: <20150830141650.GA31158@dhcp-0-82.del.redhat.com>
+References: <d9ac417a3bc1c6846f1ddfcd3cd07e5a92865c19.1440179209.git.panand@redhat.com>
+ <20150829165124.GA22494@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20150829165124.GA22494@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-The WDOG_RUNNING flag is expected to be set by watchdog drivers if
-the hardware watchdog is running. If the flag is set, the watchdog
-subsystem will ping the watchdog even if the watchdog device is closed.
+Hi Guenter,
 
-The watchdog driver stop function is now optional and may be omitted
-if the watchdog can not be stopped. If stopping the watchdog is not
-possible but the driver implements a stop function, it is responsible
-to set the WDOG_RUNNING flag in its stop function.
+Thanks for review.
 
-Cc: Timo Kokkonen <timo.kokkonen@offcode.fi>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
-v3: Clarified meaning of WDOG_ACTIVE.
-    Do not call cancel_delayed_work_sync() from watchdog_update_worker().
-    Call it directly where needed instead, to keep the common code simple.
-    Do not (re-)start an already running watchdog when opening the watchdog
-    device. Send a heartbeat request instead.
-v2: Improved documentation.
----
- Documentation/watchdog/watchdog-kernel-api.txt | 28 +++++++++------
- drivers/watchdog/watchdog_core.c               |  2 +-
- drivers/watchdog/watchdog_dev.c                | 49 +++++++++++++++++++-------
- include/linux/watchdog.h                       |  7 ++++
- 4 files changed, 63 insertions(+), 23 deletions(-)
+On 29/08/2015:09:51:24 AM, Guenter Roeck wrote:
+> On Fri, Aug 21, 2015 at 11:18:12PM +0530, Pratyush Anand wrote:
+> > This patch adds following attributes to watchdog device's sysfs interface.
+> > 
+> > * start - writes non zero value to start and zero to stop
+> 
+> I would suggest to drop this attribute, as well as 'keepalive'.
+> Both will make keeping the internal state very difficult, especially
+> when we add support for heartbeats triggered by the watchdog core.
+> 
 
-diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
-index 3306249aa17d..c127b2d457bd 100644
---- a/Documentation/watchdog/watchdog-kernel-api.txt
-+++ b/Documentation/watchdog/watchdog-kernel-api.txt
-@@ -146,17 +146,18 @@ are:
-   device.
-   The routine needs a pointer to the watchdog timer device structure as a
-   parameter. It returns zero on success or a negative errno code for failure.
--* stop: with this routine the watchdog timer device is being stopped.
--  The routine needs a pointer to the watchdog timer device structure as a
--  parameter. It returns zero on success or a negative errno code for failure.
--  Some watchdog timer hardware can only be started and not be stopped. The
--  driver supporting this hardware needs to make sure that a start and stop
--  routine is being provided. This can be done by using a timer in the driver
--  that regularly sends a keepalive ping to the watchdog timer hardware.
- 
- Not all watchdog timer hardware supports the same functionality. That's why
- all other routines/operations are optional. They only need to be provided if
- they are supported. These optional routines/operations are:
-+* stop: with this routine the watchdog timer device is being stopped.
-+  The routine needs a pointer to the watchdog timer device structure as a
-+  parameter. It returns zero on success or a negative errno code for failure.
-+  Some watchdog timer hardware can only be started and not be stopped. A
-+  driver supporting such hardware does not have to implement the stop routine.
-+  If a driver has no stop function, the watchdog core will set WDOG_RUNNING and
-+  start calling the driver's keepalive pings function after the watchdog device
-+  is closed.
- * ping: this is the routine that sends a keepalive ping to the watchdog timer
-   hardware.
-   The routine needs a pointer to the watchdog timer device structure as a
-@@ -196,9 +197,8 @@ they are supported. These optional routines/operations are:
- The status bits should (preferably) be set with the set_bit and clear_bit alike
- bit-operations. The status bits that are defined are:
- * WDOG_ACTIVE: this status bit indicates whether or not a watchdog timer device
--  is active or not. When the watchdog is active after booting, then you should
--  set this status bit (Note: when you register the watchdog timer device with
--  this bit set, then opening /dev/watchdog will skip the start operation)
-+  is active or not from user perspective. User space is expected to send
-+  heartbeat requests to the driver while this flag is set.
- * WDOG_DEV_OPEN: this status bit shows whether or not the watchdog device
-   was opened via /dev/watchdog.
-   (This bit should only be used by the WatchDog Timer Driver Core).
-@@ -212,6 +212,14 @@ bit-operations. The status bits that are defined are:
-   any watchdog_ops, so that you can be sure that no operations (other then
-   unref) will get called after unregister, even if userspace still holds a
-   reference to /dev/watchdog
-+* WDOG_RUNNING: Set by the watchdog driver if the hardware watchdog is running.
-+  The bit must be set if the watchdog timer hardware can not be stopped.
-+  The bit may also be set if the watchdog timer is running aftyer booting,
-+  before the watchdog device is opened. If set, the watchdog infrastructure
-+  will send keepalives to the watchdog hardware while WDOG_ACTIVE is not set.
-+  Note: when you register the watchdog timer device with this bit set,
-+  then opening /dev/watchdog will skip the start operation but send a keepalive
-+  request instead.
- 
-   To set the WDOG_NO_WAY_OUT status bit (before registering your watchdog
-   timer device) you can either:
-diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-index 1a8059455413..b38d1b7ae10e 100644
---- a/drivers/watchdog/watchdog_core.c
-+++ b/drivers/watchdog/watchdog_core.c
-@@ -145,7 +145,7 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
- 		return -EINVAL;
- 
- 	/* Mandatory operations need to be supported */
--	if (wdd->ops->start == NULL || wdd->ops->stop == NULL)
-+	if (!wdd->ops->start)
- 		return -EINVAL;
- 
- 	watchdog_check_min_max_timeout(wdd);
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index e43fd429c32c..631ed18d4c61 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -68,7 +68,8 @@ static inline bool watchdog_need_worker(struct watchdog_device *wdd)
- 	 *   requests.
- 	 * - Userspace requests a longer timeout than the hardware can handle.
- 	 */
--	return watchdog_active(wdd) && hm && t > hm;
-+	return hm && ((watchdog_active(wdd) && t > hm) ||
-+		      (t && !watchdog_active(wdd) && watchdog_running(wdd)));
- }
- 
- static long watchdog_next_keepalive(struct watchdog_device *wdd)
-@@ -85,6 +86,9 @@ static long watchdog_next_keepalive(struct watchdog_device *wdd)
- 
- 	keepalive_interval = msecs_to_jiffies(hw_timeout_ms / 2);
- 
-+	if (!watchdog_active(wdd))
-+		return keepalive_interval;
-+
- 	/*
- 	 * To ensure that the watchdog times out wdd->timeout seconds
- 	 * after the most recent ping from userspace, the last
-@@ -120,7 +124,7 @@ static int _watchdog_ping(struct watchdog_device *wdd)
- 	if (test_bit(WDOG_UNREGISTERED, &wdd->status))
- 		return -ENODEV;
- 
--	if (!watchdog_active(wdd))
-+	if (!watchdog_active(wdd) && !watchdog_running(wdd))
- 		return 0;
- 
- 	if (wdd->ops->ping)
-@@ -186,10 +190,10 @@ static int watchdog_start(struct watchdog_device *wdd)
- 		goto out_start;
- 	}
- 
--	if (watchdog_active(wdd))
--		goto out_start;
--
--	err = wdd->ops->start(wdd);
-+	if (watchdog_running(wdd) && wdd->ops->ping)
-+		err = wdd->ops->ping(wdd);
-+	else
-+		err = wdd->ops->start(wdd);
- 	if (err == 0) {
- 		set_bit(WDOG_ACTIVE, &wdd->status);
- 		wdd->last_keepalive = jiffies;
-@@ -231,10 +235,14 @@ static int watchdog_stop(struct watchdog_device *wdd)
- 		goto out_stop;
- 	}
- 
--	err = wdd->ops->stop(wdd);
-+	if (wdd->ops->stop)
-+		err = wdd->ops->stop(wdd);
-+	else
-+		set_bit(WDOG_RUNNING, &wdd->status);
-+
- 	if (err == 0) {
- 		clear_bit(WDOG_ACTIVE, &wdd->status);
--		cancel_delayed_work(&wdd->work);
-+		watchdog_update_worker(wdd, true);
- 	}
- 
- out_stop:
-@@ -516,7 +524,7 @@ static int watchdog_open(struct inode *inode, struct file *file)
- 	 * If the /dev/watchdog device is open, we don't want the module
- 	 * to be unloaded.
- 	 */
--	if (!try_module_get(wdd->ops->owner))
-+	if (!watchdog_running(wdd) && !try_module_get(wdd->ops->owner))
- 		goto out;
- 
- 	err = watchdog_start(wdd);
-@@ -574,9 +582,15 @@ static int watchdog_release(struct inode *inode, struct file *file)
- 	}
- 
- 	cancel_delayed_work_sync(&wdd->work);
-+	watchdog_update_worker(wdd, false);
- 
--	/* Allow the owner module to be unloaded again */
--	module_put(wdd->ops->owner);
-+	/*
-+	 * Allow the owner module to be unloaded again unless the watchdog
-+	 * is still running. If the watchdog is still running, it can not
-+	 * be stopped, and its driver must not be unloaded.
-+	 */
-+	if (!watchdog_running(wdd))
-+		module_put(wdd->ops->owner);
- 
- 	/* make sure that /dev/watchdog can be re-opened */
- 	clear_bit(WDOG_DEV_OPEN, &wdd->status);
-@@ -649,8 +663,19 @@ int watchdog_dev_register(struct watchdog_device *wdd)
- 			misc_deregister(&watchdog_miscdev);
- 			old_wdd = NULL;
- 		}
-+		return err;
- 	}
--	return err;
-+
-+	/*
-+	 * If the watchdog is running, prevent its driver from being unloaded,
-+	 * and schedule an immediate ping.
-+	 */
-+	if (watchdog_running(wdd)) {
-+		__module_get(wdd->ops->owner);
-+		queue_delayed_work(watchdog_wq, &wdd->work, 0);
-+	}
-+
-+	return 0;
- }
- 
- /*
-diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
-index cacafa05c157..5c7d0e9e1f3f 100644
---- a/include/linux/watchdog.h
-+++ b/include/linux/watchdog.h
-@@ -108,6 +108,7 @@ struct watchdog_device {
- #define WDOG_ALLOW_RELEASE	2	/* Did we receive the magic char ? */
- #define WDOG_NO_WAY_OUT		3	/* Is 'nowayout' feature set ? */
- #define WDOG_UNREGISTERED	4	/* Has the device been unregistered */
-+#define WDOG_RUNNING		5	/* True if HW watchdog running */
- 	/* the following variables are for internal use only */
- 	struct mutex lock;
- 	unsigned long last_keepalive;
-@@ -124,6 +125,12 @@ static inline bool watchdog_active(struct watchdog_device *wdd)
- 	return test_bit(WDOG_ACTIVE, &wdd->status);
- }
- 
-+/* Use the following function to check whether or not the watchdog is running */
-+static inline bool watchdog_running(struct watchdog_device *wdd)
-+{
-+	return test_bit(WDOG_RUNNING, &wdd->status);
-+}
-+
- /* Use the following function to set the nowayout feature */
- static inline void watchdog_set_nowayout(struct watchdog_device *wdd, bool nowayout)
- {
--- 
-2.1.4
+OK.
 
+> > * state - reads whether device is active or not(1 for active and 0 for
+> > inactive)
+> 
+> How about reporting the state as text ?
+
+Will change
+
+> 
+> > * identity - reads Watchdog device's identity string.
+> > * keepalive - writes to ping a watchdog device
+> > * timeout - reads current timeout and writes to program a new timeout.
+> > * timeleft - reads timeleft before watchdog generates a reset
+> > * bootstatus - reads status of the watchdog device at boot
+> > * status - reads watchdog device's  internal status bits
+> > * nowayout - reads whether nowayout feature was set or not
+> > 
+> > Testing with iTCO_wdt:
+> >  # cd /sys/class/watchdog/watchdog1/
+> >  # ls
+> > bootstatus  dev  device  identity  keepalive  nowayout  power  start  state
+> > status  subsystem  timeleft  timeout  uevent
+> >  # cat identity
+> > iTCO_wdt
+> >  # cat timeout
+> > 30
+> >  # echo 1 > start
+> >  # cat timeleft
+> > 26
+> >  # echo 120 > timeout
+> >  # cat timeleft
+> > 116
+> >  # echo > keepalive
+> >  # cat timeleft
+> > 118
+> >  # cat state
+> > 1
+> >  # echo 0 > start
+> >  # cat state
+> > 0
+> >  # cat bootstatus
+> > 0
+> >  # cat nowayout
+> > 0
+> >  # cat status
+> > cat: status: Operation not supported
+> > 
+> Unsupported attributes should not appear in the first place.
+> Please use is_visible to determine if an attribute should
+> be there or not.
+
+Thanks :-).. Will modify.
+
+> 
+> > Signed-off-by: Pratyush Anand <panand@redhat.com>
+> > ---
+> >  Documentation/ABI/testing/sysfs-class-watchdog |  74 +++++++++
+> >  drivers/watchdog/watchdog_core.c               |   6 +-
+> >  drivers/watchdog/watchdog_core.h               |   2 +
+> >  drivers/watchdog/watchdog_dev.c                | 206 +++++++++++++++++++++++++
+> >  4 files changed, 284 insertions(+), 4 deletions(-)
+> >  create mode 100644 Documentation/ABI/testing/sysfs-class-watchdog
+> > 
+> > diff --git a/Documentation/ABI/testing/sysfs-class-watchdog b/Documentation/ABI/testing/sysfs-class-watchdog
+> > new file mode 100644
+> > index 000000000000..31e7be53edf8
+> > --- /dev/null
+> > +++ b/Documentation/ABI/testing/sysfs-class-watchdog
+> > @@ -0,0 +1,74 @@
+> > +What:		/sys/class/watchdog/watchdogn/bootstatus
+> > +Date:		August 2015
+> > +Contact:	Pratyush Anand <panand@redhat.com>
+> 
+> Who is normally listed here ? Shouldn't it be the maintainer ?
+
+I am not sure.. Will be happy to change it to
+Wim Van Sebroeck <wim@iguana.be>.
+
+> 
+> >  static int __watchdog_register_device(struct watchdog_device *wdd)
+> >  {
+> > -	int ret, id, devno;
+> > +	int ret, id;
+> >  
+> >  	if (wdd == NULL || wdd->info == NULL || wdd->ops == NULL)
+> >  		return -EINVAL;
+> > @@ -181,9 +181,7 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
+> >  		}
+> >  	}
+> >  
+> > -	devno = wdd->cdev.dev;
+> > -	wdd->dev = device_create(watchdog_class, wdd->parent, devno,
+> > -					NULL, "watchdog%d", wdd->id);
+> > +	wdd->dev = watchdog_device_create(watchdog_class, wdd);
+> 
+> Can we do this in watchdog_dev_register() ?
+> Seems to make more sense than adding another callback into watchdog_dev.c.
+
+I had thought of this, but then will have to change prototype of
+watchdog_dev_register() to accept struct class *wdc and which in turn will cause
+to change all users of watchdog_dev_register().
+Other option could be to add struct class *wdc in struct watchdog_device, but it
+did not look nice to me.
+
+> 
+> >  	if (IS_ERR(wdd->dev)) {
+> > +static ssize_t nowayout_show(struct device *dev,
+> > +		struct device_attribute *attr, char *buf)
+> > +{
+> > +	struct watchdog_device *wdd = dev_get_drvdata(dev);
+> > +	bool nowayout = false;
+> > +
+> > +	mutex_lock(&wdd->lock);
+> > +	if (test_bit(WDOG_NO_WAY_OUT, &wdd->status))
+> > +		nowayout = true;
+> > +	mutex_unlock(&wdd->lock);
+> > +
+> > +	return sprintf(buf, "%d\n", nowayout);
+> 
+> 	return sprintf(buf, "%d\n", !!test_bit(WDOG_NO_WAY_OUT, &wdd->status));
+> 
+> should do it, and the lock doesn't seem to be very helpful,
+> as it doesn't make a difference when the flag is evaluated.
+
+OK.
+
+> 
+> > +}
+> > +static DEVICE_ATTR_RO(nowayout);
+> > +
+> > +static ssize_t status_show(struct device *dev,
+> > +		struct device_attribute *attr, char *buf)
+> 
+> Please align continuation lines with '('.
+
+OK.
+
+> 
+> > +{
+> > +	struct watchdog_device *wdd = dev_get_drvdata(dev);
+> > +	ssize_t status;
+> > +	unsigned int val;
+> > +
+> > +	status = watchdog_get_status(wdd, &val);
+> > +	if (!status)
+> > +		status = sprintf(buf, "%u\n", val);
+> > +
+> 
+> This attribute should only be visible if supported.
+
+yes.
+
+> 
+> > +	return status;
+> > +}
+> > +static DEVICE_ATTR_RO(status);
+> > +
+> > +static ssize_t bootstatus_show(struct device *dev,
+> > +		struct device_attribute *attr, char *buf)
+> > +{
+> > +	struct watchdog_device *wdd = dev_get_drvdata(dev);
+> > +	ssize_t status;
+> > +
+> > +	mutex_lock(&wdd->lock);
+> > +	status = sprintf(buf, "%u\n", wdd->bootstatus);
+> > +	mutex_unlock(&wdd->lock);
+> > +
+> Useless lock.
+
+yes.
+
+> 
+> > +static ssize_t timeleft_show(struct device *dev,
+> > +		struct device_attribute *attr, char *buf)
+> > +{
+> > +	struct watchdog_device *wdd = dev_get_drvdata(dev);
+> > +	ssize_t status;
+> > +	unsigned int val;
+> > +
+> > +	status = watchdog_get_timeleft(wdd, &val);
+> > +
+> > +	if (!status)
+> > +		status = sprintf(buf, "%u\n", val);
+> > +
+> This attribute should only be visible if supported.
+
+yes
+> 
+> > +	return status;
+> > +}
+> > +static DEVICE_ATTR_RO(timeleft);
+> > +
+> > +static ssize_t timeout_store(struct device *dev,
+> > +		struct device_attribute *attr, const char *buf, size_t size)
+> > +{
+> > +	struct watchdog_device *wdd = dev_get_drvdata(dev);
+> > +	unsigned int val;
+> > +	ssize_t status = 0;
+> 
+> Unnecessary initialization.
+
+will correct.
+
+> 
+> > +
+> > +	status = kstrtouint(buf, 0, &val);
+> > +	if (!status) {
+> > +		status = watchdog_set_timeout(wdd, val);
+> > +		if (status >= 0)
+> > +			status = watchdog_ping(wdd);
+> > +	}
+> > +
+> > +	if (status < 0)
+> > +		return status;
+> > +	else
+> 
+> Unnecessary else.
+
+
+ok
+
+> 
+> > +		return size;
+> > +}
+> > +
+> > +static ssize_t timeout_show(struct device *dev,
+> > +		struct device_attribute *attr, char *buf)
+> > +{
+> > +	struct watchdog_device *wdd = dev_get_drvdata(dev);
+> > +	ssize_t status;
+> > +
+> > +	mutex_lock(&wdd->lock);
+> > +	if (wdd->timeout == 0)
+> > +		status = -EOPNOTSUPP;
+> 
+> Why ?
+
+It has been copied from case WDIOC_GETTIMEOUT: which says:
+timeout == 0 means that we don't know the timeout.
+
+> > +
+> > +static const struct attribute_group wdt_group = {
+> > +	.attrs = wdt_attrs,
+> > +};
+> > +
+> > +static const struct attribute_group *wdt_groups[] = {
+> > +	&wdt_group,
+> > +	NULL
+> > +};
+> 
+> You should be able to use ATTRIBUTE_GROUPS or __ATTRIBUTE_GROUPS.
+
+Yes, with is_visible __ATTRIBUTE_GROUPS can still be used.
+
+~Pratyush
