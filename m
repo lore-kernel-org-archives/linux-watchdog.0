@@ -1,36 +1,46 @@
-Return-path: <panand@redhat.com>
-Date: Mon, 31 Aug 2015 10:56:06 +0530
-From: Pratyush Anand <panand@redhat.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org, dyoung@redhat.com, dzickus@redhat.com,
-        open list:  ABI/API <linux-api@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [RFC] watchdog: Add watchdog device control through sysfs
- attributes
-Message-ID: <20150831052606.GD4660@dhcppc13>
-References: <d9ac417a3bc1c6846f1ddfcd3cd07e5a92865c19.1440179209.git.panand@redhat.com>
- <20150829165124.GA22494@roeck-us.net>
- <20150831031141.GC4660@dhcppc13>
- <55E3CDBC.2040109@roeck-us.net>
+Return-path: <justinpopo6@gmail.com>
+From: Justin Chen <justinpopo6@gmail.com>
+To: <linux-kernel@vger.kernel.org>
+CC: <robh+dt@kernel.org>, <mark.rutland@arm.com>,
+	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
+	<linux@roeck-us.net>, <wim@iguana.be>, <linux-watchdog@vger.kernel.org>,
+	<devicetree@vger.kernel.org>, <bcm-kernel-feedback-list@broadcom.com>, Justin
+ Chen <justinpopo6@gmail.com>
+Subject: [PATCH v3 0/2] watchdog: driver for BCM7038 and newer chips.
+Date: Mon, 31 Aug 2015 11:02:41 -0700
+Message-ID: <1441044163-16563-1-git-send-email-justinpopo6@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <55E3CDBC.2040109@roeck-us.net>
+Content-Type: text/plain
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On 30/08/2015:08:45:00 PM, Guenter Roeck wrote:
-> On 08/30/2015 08:11 PM, Pratyush Anand wrote:
-> >On 29/08/2015:09:51:24 AM, Guenter Roeck wrote:
-> >>>* timeout - reads current timeout and writes to program a new timeout.
-> >
-> >Now, this is the only file which has write permission. I hope, that is fine. Pl
-> >let me know if you expected this to be as RO as well.
-> >
-> Good question. Thinking about it, we should make it read-only. Reason is
-> that the application sending the heartbeats would not know about timeout
-> changes made through sysfs, which could (and likely would) be fatal.
+This driver is for a watchdog block contained in all Broadcom Set-top
+Box chips since BCM7038. BCM7038 was made public during the 2004 CES,
+and since then, many chips use this watchdog block including some cable
+modem chips.
 
-OK..will change accordingly.
+Changes since v2:
+Added clk_disable_unprepare if watchdog fails to register.
 
-~Pratyush
+Changes since v1:
+Removed clock-frequency because it brought unnecessary complexity to the
+driver.
+Renamed a few variables.
+
+Patch 1: watchdog device tree binding documentation
+
+Patch 2: watchdog driver
+
+Justin Chen (2):
+  watchdog: bcm7038: add device tree binding documentation
+  watchdog: Watchdog driver for Broadcom Set-Top Box
+
+ .../bindings/watchdog/brcm,bcm7038-wdt.txt         |  19 ++
+ drivers/watchdog/Kconfig                           |   8 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/bcm7038_wdt.c                     | 237 +++++++++++++++++++++
+ 4 files changed, 265 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt
+ create mode 100644 drivers/watchdog/bcm7038_wdt.c
+
+-- 
+2.1.0
