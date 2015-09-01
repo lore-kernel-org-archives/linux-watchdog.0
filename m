@@ -1,38 +1,31 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-gw2-out.broadcom.com ([216.31.210.63]:43410 "EHLO
-	mail-gw2-out.broadcom.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753432AbbH0XSz convert rfc822-to-8bit (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:54384 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751610AbbIANcc (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 27 Aug 2015 19:18:55 -0400
-From: Gregory Fong <gregory@broadcom.com>
-To: Gregory Fong <gregory.0xf0@gmail.com>
-CC: "robh+dt@kernel.org" <robh+dt@kernel.org>,
-	"pawel.moll@arm.com" <pawel.moll@arm.com>,
-	"mark.rutland@arm.com" <mark.rutland@arm.com>,
-	"ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>,
-	"galak@codeaurora.org" <galak@codeaurora.org>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	"wim@iguana.be" <wim@iguana.be>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	bcm-kernel-feedback-list <bcm-kernel-feedback-list@broadcom.com>,
-	Justin Chen <justinpopo6@gmail.com>
-Subject: Re: [PATCH v2 2/2] watchdog: Watchdog driver for Broadcom Set-Top
- Box
-Date: Thu, 27 Aug 2015 23:18:54 +0000
-Message-ID: <55DF9AFD.3060000@broadcom.com>
-References: <1440716004-27022-1-git-send-email-justinpopo6@gmail.com>
- <55DF9AB6.4040104@broadcom.com>
-In-Reply-To: <55DF9AB6.4040104@broadcom.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="Windows-1252"
-Content-ID: <17B7BC8176844D43AEF85E06CCC66E2A@broadcom.com>
-Content-Transfer-Encoding: 8BIT
+	Tue, 1 Sep 2015 09:32:32 -0400
+Message-ID: <55E5A8EA.4010405@roeck-us.net>
+Date: Tue, 01 Sep 2015 06:32:26 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
+To: Justin Chen <justinpopo6@gmail.com>, linux-kernel@vger.kernel.org
+CC: robh+dt@kernel.org, mark.rutland@arm.com,
+	ijc+devicetree@hellion.org.uk, galak@codeaurora.org, wim@iguana.be,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	bcm-kernel-feedback-list@broadcom.com
+Subject: Re: [PATCH v3 2/2] watchdog: Watchdog driver for Broadcom Set-Top
+ Box
+References: <1441044163-16563-1-git-send-email-justinpopo6@gmail.com> <1441044163-16563-3-git-send-email-justinpopo6@gmail.com>
+In-Reply-To: <1441044163-16563-3-git-send-email-justinpopo6@gmail.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Gah, sorry, my email client did something really weird.  Sorry for the
-duplication, please don't reply to those.
+On 08/31/2015 11:02 AM, Justin Chen wrote:
+> Watchdog driver for Broadcom 7038 and newer chips.
+>
+> Signed-off-by: Justin Chen <justinpopo6@gmail.com>
 
--- 
-Gregory
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
