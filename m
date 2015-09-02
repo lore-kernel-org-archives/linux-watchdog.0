@@ -1,63 +1,69 @@
-Return-path: <panand@redhat.com>
-Date: Wed, 2 Sep 2015 10:37:10 +0530
-From: Pratyush Anand <panand@redhat.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: dyoung@redhat.com, dzickus@redhat.com, linux-watchdog@vger.kernel.org,
-        open list:  ABI/API <linux-api@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [PATCH V2] watchdog: Add watchdog device control through sysfs
- attributes
-Message-ID: <20150902050710.GC31796@dhcppc13.redhat.com>
-References: <5417c42a93ef68062c4bfdbcf1d1253ea5ce9e08.1441000946.git.panand@redhat.com>
- <55E66C8F.1020309@roeck-us.net>
- <20150902044714.GB31796@dhcppc13.redhat.com>
- <55E68053.3060006@roeck-us.net>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mx0b-001ae601.pphosted.com ([67.231.152.168]:52797 "EHLO
+	mx0b-001ae601.pphosted.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751615AbbIBKZV (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 2 Sep 2015 06:25:21 -0400
+Date: Wed, 2 Sep 2015 10:39:24 +0100
+From: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
+To: Pratyush Anand <panand@redhat.com>
+CC: <linux@roeck-us.net>, <linux-watchdog@vger.kernel.org>,
+	kbuild test robot <fengguang.wu@intel.com>,
+	Alexandre Courbot <gnurou@gmail.com>,
+	Andreas Werner <andreas.werner@men.de>,
+	Barry Song <baohua@kernel.org>,
+	Baruch Siach <baruch@tkos.co.il>,
+	Johannes Thumshirn <morbidrsa@gmail.com>,
+	"open list:ARM/STI ARCHITECTURE" <kernel@stlinux.com>,
+	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
+	Kukjin Kim <kgene@kernel.org>, Lee Jones <lee@kernel.org>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	"moderated list:ARM/U300 MACHINE SUPPORT"
+	<linux-arm-kernel@lists.infradead.org>,
+	"open list:INTEL MANAGEMENT ENGINE (mei)"
+	<linux-kernel@vger.kernel.org>,
+	"moderated list:BROADCOM BCM2835 ARM ARCHITECTURE"
+	<linux-rpi-kernel@lists.infradead.org>,
+	"moderated list:ARM/SAMSUNG EXYNOS ARM ARCHITECTURES"
+	<linux-samsung-soc@vger.kernel.org>,
+	"open list:TEGRA ARCHITECTURE SUPPORT" <linux-tegra@vger.kernel.org>,
+	Maxime Coquelin <maxime.coquelin@st.com>,
+	"open list:WOLFSON MICROELECTRONICS DRIVERS"
+	<patches@opensource.wolfsonmicro.com>,
+	Patrice Chotard <patrice.chotard@st.com>,
+	Srinivas Kandagatla <srinivas.kandagatla@gmail.com>,
+	Stephen Warren <swarren@wwwdotorg.org>,
+	Support Opensource <support.opensource@diasemi.com>,
+	Thierry Reding <thierry.reding@gmail.com>,
+	Tomas Winkler <tomas.winkler@intel.com>,
+	Wim Van Sebroeck <wim@iguana.be>
+Subject: Re: [PATCH V3] Watchdog: Fix parent of watchdog_devices
+Message-ID: <20150902093924.GA12688@ck-lbox>
+References: <db7db9102158b87a4a7169e84e2272b3ba03f9f7.1439954581.git.panand@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-In-Reply-To: <55E68053.3060006@roeck-us.net>
-List-ID: <linux-watchdog@vger.kernel.org>
+In-Reply-To: <db7db9102158b87a4a7169e84e2272b3ba03f9f7.1439954581.git.panand@redhat.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On 01/09/2015:09:51:31 PM, Guenter Roeck wrote:
-> On 09/01/2015 09:47 PM, Pratyush Anand wrote:
-> >Hi Guenter,
-> >
-> >Thanks for review and explaining it.
-> >
-> >On 01/09/2015:08:27:11 PM, Guenter Roeck wrote:
-> >>Playing with it, I see two alternatives (2a/2b), both of which I prefer.
-> >
-> >OK..I will make the changes as you prefer. May be I will keep these changes as
-> >1st patch and another patch to add sysfs attributes.
-> >
-> >>
-> >>1) Move struct class watchdog_class to watchdog_dev.c, and initialize it there.
-> >>    Attach the groups to the .dev_groups variable in watchdog_class.
-> >>2a) Make watchdog_class global, and use a pointer to it in watchdog_core.c.
-> >>     Use class_register / class_unregister instead of class_create / class_destroy.
-> >>2b) Make watchdog_class static in watchdog_dev.c. Move its registration and de-registration
-> >>     to watchdog_dev_init() and watchdog_dev_exit(). Again, use class_register
-> >>     and class_unregister.
-> >>     Have watchdog_dev_init return a pointer to watchdog_class (and ERR_PTR on errors).
-> >>3) Keep the rest of the code in place as-is, specifically keep using device_create()
-> >>    as is in __watchdog_register_device().
-> >>
-> >>Maybe 1 / 2b / 3 so we don't need to introduce a new global ?
-> >
-> >But with 2b, we will still have to move device_create() to
-> >watchdog_dev_register, because it needs watchdog_class. So, are you OK
-> >with that? Else I can implement 2a, if that seems more suitable to you.
-> >
+On Wed, Aug 19, 2015 at 08:58:24AM +0530, Pratyush Anand wrote:
+> /sys/class/watchdog/watchdogn/device/modalias can help to identify the
+> driver/module for a given watchdog node. However, many wdt devices does not set
+> its parent and so, we do not see an entry for device in sysfs for such devices.
 > 
-> Not if you return the pointer to the watchdog class from watchdog_dev_init().
+> This patch fixes parent of watchdog_device so that
+> /sys/class/watchdog/watchdogn/device is populated.
+> 
+> Exceptions: booke, diag288, mpc8xxx, octeon, softdog and w83627hf -- They do not
+> have any parent. Not sure, how we can we identify driver for these devices.
+> 
+> Signed-off-by: Pratyush Anand <panand@redhat.com>
+> ---
 
-But in that case another static class * will be needed to share the  returned
-value in __watchdog_register_device().
+For the Wolfson parts:
 
-> That avoids making it global (though I don't really have a problem with
-> making it global).
+Acked-by: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
 
-OK Thanks.. Then I will send a V3 with 2a.
-
-~Pratyush
+Thanks,
+Charles
