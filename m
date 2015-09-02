@@ -1,69 +1,85 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx0b-001ae601.pphosted.com ([67.231.152.168]:52797 "EHLO
-	mx0b-001ae601.pphosted.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751615AbbIBKZV (ORCPT
+Received: from mail-gw2-out.broadcom.com ([216.31.210.63]:43378 "EHLO
+	mail-gw2-out.broadcom.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755206AbbIBSAo (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 2 Sep 2015 06:25:21 -0400
-Date: Wed, 2 Sep 2015 10:39:24 +0100
-From: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
-To: Pratyush Anand <panand@redhat.com>
-CC: <linux@roeck-us.net>, <linux-watchdog@vger.kernel.org>,
-	kbuild test robot <fengguang.wu@intel.com>,
-	Alexandre Courbot <gnurou@gmail.com>,
-	Andreas Werner <andreas.werner@men.de>,
-	Barry Song <baohua@kernel.org>,
-	Baruch Siach <baruch@tkos.co.il>,
-	Johannes Thumshirn <morbidrsa@gmail.com>,
-	"open list:ARM/STI ARCHITECTURE" <kernel@stlinux.com>,
-	Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-	Kukjin Kim <kgene@kernel.org>, Lee Jones <lee@kernel.org>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	"moderated list:ARM/U300 MACHINE SUPPORT"
-	<linux-arm-kernel@lists.infradead.org>,
-	"open list:INTEL MANAGEMENT ENGINE (mei)"
-	<linux-kernel@vger.kernel.org>,
-	"moderated list:BROADCOM BCM2835 ARM ARCHITECTURE"
-	<linux-rpi-kernel@lists.infradead.org>,
-	"moderated list:ARM/SAMSUNG EXYNOS ARM ARCHITECTURES"
-	<linux-samsung-soc@vger.kernel.org>,
-	"open list:TEGRA ARCHITECTURE SUPPORT" <linux-tegra@vger.kernel.org>,
-	Maxime Coquelin <maxime.coquelin@st.com>,
-	"open list:WOLFSON MICROELECTRONICS DRIVERS"
-	<patches@opensource.wolfsonmicro.com>,
-	Patrice Chotard <patrice.chotard@st.com>,
-	Srinivas Kandagatla <srinivas.kandagatla@gmail.com>,
-	Stephen Warren <swarren@wwwdotorg.org>,
-	Support Opensource <support.opensource@diasemi.com>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Tomas Winkler <tomas.winkler@intel.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: Re: [PATCH V3] Watchdog: Fix parent of watchdog_devices
-Message-ID: <20150902093924.GA12688@ck-lbox>
-References: <db7db9102158b87a4a7169e84e2272b3ba03f9f7.1439954581.git.panand@redhat.com>
+	Wed, 2 Sep 2015 14:00:44 -0400
+From: Justin Chen <justinpopo6@gmail.com>
+To: <linux-kernel@vger.kernel.org>
+CC: <wim@iguana.be>, <linux-watchdog@vger.kernel.org>,
+	<linux@roeck-us.net>, <bcm-kernel-feedback-list@broadcom.com>,
+	Justin Chen <justinpopo6@gmail.com>
+Subject: [PATCH] watchdog_dev: Use device tree alias for naming watchdogs
+Date: Wed, 2 Sep 2015 11:00:17 -0700
+Message-ID: <1441216817-25095-1-git-send-email-justinpopo6@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <db7db9102158b87a4a7169e84e2272b3ba03f9f7.1439954581.git.panand@redhat.com>
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Aug 19, 2015 at 08:58:24AM +0530, Pratyush Anand wrote:
-> /sys/class/watchdog/watchdogn/device/modalias can help to identify the
-> driver/module for a given watchdog node. However, many wdt devices does not set
-> its parent and so, we do not see an entry for device in sysfs for such devices.
-> 
-> This patch fixes parent of watchdog_device so that
-> /sys/class/watchdog/watchdogn/device is populated.
-> 
-> Exceptions: booke, diag288, mpc8xxx, octeon, softdog and w83627hf -- They do not
-> have any parent. Not sure, how we can we identify driver for these devices.
-> 
-> Signed-off-by: Pratyush Anand <panand@redhat.com>
-> ---
+Currently there is no way to easily differentiate multiple
+watchdog devices. The watchdogs are named by the order they
+are probed.
+1st probed watchdog: /dev/watchdog0
+2nd probed watchdog: /dev/watchdog1
+...
 
-For the Wolfson parts:
+This change uses the alias of the watchdog device node for
+the name of the watchdog.
+aliases {
+    watchdog0 = "/...../...."
+    watchdog3 = "/..../....."
+    watchdog2 = "/..../....."
+    ...
+}
 
-Acked-by: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
+This will translate to...
+/dev/watchdog0
+/dev/watchdog3
+/dev/watchdog2
 
-Thanks,
-Charles
+v2
+Assign alias number to id in watchdog_core instead of watchdog_dev.
+If failed to get id, fallback to original ida_simple_get call.
+
+Signed-off-by: Justin Chen <justinpopo6@gmail.com>
+---
+ drivers/watchdog/watchdog_core.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+index 1a80594..873f139 100644
+--- a/drivers/watchdog/watchdog_core.c
++++ b/drivers/watchdog/watchdog_core.c
+@@ -139,7 +139,7 @@ EXPORT_SYMBOL_GPL(watchdog_init_timeout);
+ 
+ static int __watchdog_register_device(struct watchdog_device *wdd)
+ {
+-	int ret, id, devno;
++	int ret, id = -1, devno;
+ 
+ 	if (wdd == NULL || wdd->info == NULL || wdd->ops == NULL)
+ 		return -EINVAL;
+@@ -157,7 +157,18 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
+ 	 */
+ 
+ 	mutex_init(&wdd->lock);
+-	id = ida_simple_get(&watchdog_ida, 0, MAX_DOGS, GFP_KERNEL);
++
++	/* Use alias for watchdog id if possible */
++	if (wdd->parent) {
++		ret = of_alias_get_id(wdd->parent->of_node, "watchdog");
++		if (ret >= 0)
++			id = ida_simple_get(&watchdog_ida, ret,
++					    ret + 1, GFP_KERNEL);
++	}
++
++	if (id < 0)
++		id = ida_simple_get(&watchdog_ida, 0, MAX_DOGS, GFP_KERNEL);
++
+ 	if (id < 0)
+ 		return id;
+ 	wdd->id = id;
+-- 
+2.1.0
+
