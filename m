@@ -1,85 +1,43 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-gw2-out.broadcom.com ([216.31.210.63]:43378 "EHLO
-	mail-gw2-out.broadcom.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755206AbbIBSAo (ORCPT
+Received: from smtp.codeaurora.org ([198.145.29.96]:41845 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752627AbbICDCF (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 2 Sep 2015 14:00:44 -0400
-From: Justin Chen <justinpopo6@gmail.com>
-To: <linux-kernel@vger.kernel.org>
-CC: <wim@iguana.be>, <linux-watchdog@vger.kernel.org>,
-	<linux@roeck-us.net>, <bcm-kernel-feedback-list@broadcom.com>,
-	Justin Chen <justinpopo6@gmail.com>
-Subject: [PATCH] watchdog_dev: Use device tree alias for naming watchdogs
-Date: Wed, 2 Sep 2015 11:00:17 -0700
-Message-ID: <1441216817-25095-1-git-send-email-justinpopo6@gmail.com>
+	Wed, 2 Sep 2015 23:02:05 -0400
+Received: from mail-ig0-f170.google.com (mail-ig0-f170.google.com [209.85.213.170])
+	(using TLSv1.2 with cipher AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	(Authenticated sender: timur@smtp.codeaurora.org)
+	by smtp.codeaurora.org (Postfix) with ESMTPSA id 55884140D2B
+	for <linux-watchdog@vger.kernel.org>; Thu,  3 Sep 2015 03:02:02 +0000 (UTC)
+Received: by igcrk20 with SMTP id rk20so39877165igc.1
+        for <linux-watchdog@vger.kernel.org>; Wed, 02 Sep 2015 20:02:01 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <1435596377-17737-1-git-send-email-timur@codeaurora.org>
+References: <1435596377-17737-1-git-send-email-timur@codeaurora.org>
+Date: Wed, 2 Sep 2015 22:02:01 -0500
+Message-ID: <CAOZdJXW9Z6FniAi5Js=L-ZiKqK=VuH9PbnGUzBro9MOZ7aDA8Q@mail.gmail.com>
+Subject: Re: [PATCH] Documentation/watchdog: add timeout and ping rate control
+ to watchdog-test.c
+From: Timur Tabi <timur@codeaurora.org>
+To: Timur Tabi <timur@codeaurora.org>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Currently there is no way to easily differentiate multiple
-watchdog devices. The watchdogs are named by the order they
-are probed.
-1st probed watchdog: /dev/watchdog0
-2nd probed watchdog: /dev/watchdog1
-...
+On Mon, Jun 29, 2015 at 11:46 AM, Timur Tabi <timur@codeaurora.org> wrote:
+> The watchdog test program is much more useful if it can configure the
+> timeout value and ping rate.  This will allow you to test actual timeouts.
+>
+> Adds the -t parameter to set the timeout value (in seconds), and -p to set
+> the ping rate (number of seconds between pings).
+>
+> Signed-off-by: Timur Tabi <timur@codeaurora.org>
 
-This change uses the alias of the watchdog device node for
-the name of the watchdog.
-aliases {
-    watchdog0 = "/...../...."
-    watchdog3 = "/..../....."
-    watchdog2 = "/..../....."
-    ...
-}
+Wim, can you take this patch for 4.3?
 
-This will translate to...
-/dev/watchdog0
-/dev/watchdog3
-/dev/watchdog2
-
-v2
-Assign alias number to id in watchdog_core instead of watchdog_dev.
-If failed to get id, fallback to original ida_simple_get call.
-
-Signed-off-by: Justin Chen <justinpopo6@gmail.com>
----
- drivers/watchdog/watchdog_core.c | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-index 1a80594..873f139 100644
---- a/drivers/watchdog/watchdog_core.c
-+++ b/drivers/watchdog/watchdog_core.c
-@@ -139,7 +139,7 @@ EXPORT_SYMBOL_GPL(watchdog_init_timeout);
- 
- static int __watchdog_register_device(struct watchdog_device *wdd)
- {
--	int ret, id, devno;
-+	int ret, id = -1, devno;
- 
- 	if (wdd == NULL || wdd->info == NULL || wdd->ops == NULL)
- 		return -EINVAL;
-@@ -157,7 +157,18 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
- 	 */
- 
- 	mutex_init(&wdd->lock);
--	id = ida_simple_get(&watchdog_ida, 0, MAX_DOGS, GFP_KERNEL);
-+
-+	/* Use alias for watchdog id if possible */
-+	if (wdd->parent) {
-+		ret = of_alias_get_id(wdd->parent->of_node, "watchdog");
-+		if (ret >= 0)
-+			id = ida_simple_get(&watchdog_ida, ret,
-+					    ret + 1, GFP_KERNEL);
-+	}
-+
-+	if (id < 0)
-+		id = ida_simple_get(&watchdog_ida, 0, MAX_DOGS, GFP_KERNEL);
-+
- 	if (id < 0)
- 		return id;
- 	wdd->id = id;
 -- 
-2.1.0
-
+Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project.
