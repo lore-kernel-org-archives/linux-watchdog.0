@@ -1,17 +1,18 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:54653 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:48397 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751063AbbIGEZi (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 7 Sep 2015 00:25:38 -0400
+	id S1751156AbbIGEZx (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 7 Sep 2015 00:25:53 -0400
 From: Pratyush Anand <panand@redhat.com>
 To: linux@roeck-us.net
 Cc: dyoung@redhat.com, dzickus@redhat.com,
 	linux-watchdog@vger.kernel.org, Pratyush Anand <panand@redhat.com>,
+	linux-api@vger.kernel.org (open list:ABI/API),
 	linux-kernel@vger.kernel.org (open list),
 	Wim Van Sebroeck <wim@iguana.be>
-Subject: [PATCH V4 1/2] watchdog: Use static struct class watchdog_class in stead of pointer
-Date: Mon,  7 Sep 2015 09:54:51 +0530
-Message-Id: <6068a049e1a500f4ce779d6f66604672576c7a24.1441599217.git.panand@redhat.com>
+Subject: [PATCH V4 2/2] watchdog: Read device status through sysfs attributes
+Date: Mon,  7 Sep 2015 09:54:52 +0530
+Message-Id: <de7c65f11821beaa1ba231b8226671da61937ffc.1441599217.git.panand@redhat.com>
 In-Reply-To: <cover.1441599217.git.panand@redhat.com>
 References: <cover.1441599217.git.panand@redhat.com>
 In-Reply-To: <cover.1441599217.git.panand@redhat.com>
@@ -19,116 +20,245 @@ References: <cover.1441599217.git.panand@redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-We need few sysfs attributes to know different status of a watchdog device.
-To do that, we need to associate .dev_groups with watchdog_class. So
-convert it from pointer to static.
-Putting this static struct in watchdog_dev.c, so that static device
-attributes defined in that file can be attached to it.
+This patch adds following attributes to watchdog device's sysfs interface
+to read its different status.
+
+* state - reads whether device is active or not
+* identity - reads Watchdog device's identity string.
+* timeout - reads current timeout.
+* timeleft - reads timeleft before watchdog generates a reset
+* bootstatus - reads status of the watchdog device at boot
+* status - reads watchdog device's  internal status bits
+* nowayout - reads whether nowayout feature was set or not
+
+Testing with iTCO_wdt:
+ # cd /sys/class/watchdog/watchdog1/
+ # ls
+bootstatus  dev  device  identity  nowayout  power  state
+subsystem  timeleft  timeout  uevent
+ # cat identity
+iTCO_wdt
+ # cat timeout
+30
+ # cat state
+inactive
+ # echo > /dev/watchdog1
+ # cat timeleft
+26
+ # cat state
+active
+ # cat bootstatus
+0
+ # cat nowayout
+0
 
 Signed-off-by: Pratyush Anand <panand@redhat.com>
-Suggested-by: Guenter Roeck <linux@roeck-us.net>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/watchdog/watchdog_core.c | 15 ++-------------
- drivers/watchdog/watchdog_core.h |  2 +-
- drivers/watchdog/watchdog_dev.c  | 26 ++++++++++++++++++++++----
- 3 files changed, 25 insertions(+), 18 deletions(-)
+ Documentation/ABI/testing/sysfs-class-watchdog |  51 ++++++++++++
+ drivers/watchdog/watchdog_core.c               |   2 +-
+ drivers/watchdog/watchdog_dev.c                | 110 +++++++++++++++++++++++++
+ 3 files changed, 162 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/ABI/testing/sysfs-class-watchdog
 
+diff --git a/Documentation/ABI/testing/sysfs-class-watchdog b/Documentation/ABI/testing/sysfs-class-watchdog
+new file mode 100644
+index 000000000000..736046b33040
+--- /dev/null
++++ b/Documentation/ABI/testing/sysfs-class-watchdog
+@@ -0,0 +1,51 @@
++What:		/sys/class/watchdog/watchdogn/bootstatus
++Date:		August 2015
++Contact:	Wim Van Sebroeck <wim@iguana.be>
++Description:
++		It is a read only file. It contains status of the watchdog
++		device at boot. It is equivalent to WDIOC_GETBOOTSTATUS of
++		ioctl interface.
++
++What:		/sys/class/watchdog/watchdogn/identity
++Date:		August 2015
++Contact:	Wim Van Sebroeck <wim@iguana.be>
++Description:
++		It is a read only file. It contains identity string of
++		watchdog device.
++
++What:		/sys/class/watchdog/watchdogn/nowayout
++Date:		August 2015
++Contact:	Wim Van Sebroeck <wim@iguana.be>
++Description:
++		It is a read only file. While reading, it gives '1' if that
++		device supports nowayout feature else, it gives '0'.
++
++What:		/sys/class/watchdog/watchdogn/state
++Date:		August 2015
++Contact:	Wim Van Sebroeck <wim@iguana.be>
++Description:
++		It is a read only file. It gives active/inactive status of
++		watchdog device.
++
++What:		/sys/class/watchdog/watchdogn/status
++Date:		August 2015
++Contact:	Wim Van Sebroeck <wim@iguana.be>
++Description:
++		It is a read only file. It contains watchdog device's
++		internal status bits. It is equivalent to WDIOC_GETSTATUS
++		of ioctl interface.
++
++What:		/sys/class/watchdog/watchdogn/timeleft
++Date:		August 2015
++Contact:	Wim Van Sebroeck <wim@iguana.be>
++Description:
++		It is a read only file. It contains value of time left for
++		reset generation. It is equivalent to WDIOC_GETTIMELEFT of
++		ioctl interface.
++
++What:		/sys/class/watchdog/watchdogn/timeout
++Date:		August 2015
++Contact:	Wim Van Sebroeck <wim@iguana.be>
++Description:
++		It is a read only file. It is read to know about current
++		value of timeout programmed.
 diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-index 1a8059455413..47d38c5c3f9a 100644
+index 47d38c5c3f9a..62666f021762 100644
 --- a/drivers/watchdog/watchdog_core.c
 +++ b/drivers/watchdog/watchdog_core.c
-@@ -274,19 +274,9 @@ static int __init watchdog_deferred_registration(void)
+@@ -183,7 +183,7 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
  
- static int __init watchdog_init(void)
- {
--	int err;
--
--	watchdog_class = class_create(THIS_MODULE, "watchdog");
--	if (IS_ERR(watchdog_class)) {
--		pr_err("couldn't create class\n");
-+	watchdog_class = watchdog_dev_init();
-+	if (IS_ERR(watchdog_class))
- 		return PTR_ERR(watchdog_class);
--	}
--
--	err = watchdog_dev_init();
--	if (err < 0) {
--		class_destroy(watchdog_class);
--		return err;
--	}
- 
- 	watchdog_deferred_registration();
- 	return 0;
-@@ -295,7 +285,6 @@ static int __init watchdog_init(void)
- static void __exit watchdog_exit(void)
- {
- 	watchdog_dev_exit();
--	class_destroy(watchdog_class);
- 	ida_destroy(&watchdog_ida);
- }
- 
-diff --git a/drivers/watchdog/watchdog_core.h b/drivers/watchdog/watchdog_core.h
-index 6c951418fca7..1c8d6b0e68c7 100644
---- a/drivers/watchdog/watchdog_core.h
-+++ b/drivers/watchdog/watchdog_core.h
-@@ -33,5 +33,5 @@
-  */
- extern int watchdog_dev_register(struct watchdog_device *);
- extern int watchdog_dev_unregister(struct watchdog_device *);
--extern int __init watchdog_dev_init(void);
-+extern struct class * __init watchdog_dev_init(void);
- extern void __exit watchdog_dev_exit(void);
+ 	devno = wdd->cdev.dev;
+ 	wdd->dev = device_create(watchdog_class, wdd->parent, devno,
+-					NULL, "watchdog%d", wdd->id);
++					wdd, "watchdog%d", wdd->id);
+ 	if (IS_ERR(wdd->dev)) {
+ 		watchdog_dev_unregister(wdd);
+ 		ida_simple_remove(&watchdog_ida, id);
 diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 6aaefbad303e..986282d44b90 100644
+index 986282d44b90..2b8d7f1c9599 100644
 --- a/drivers/watchdog/watchdog_dev.c
 +++ b/drivers/watchdog/watchdog_dev.c
-@@ -578,18 +578,35 @@ int watchdog_dev_unregister(struct watchdog_device *watchdog)
- 	return 0;
+@@ -248,6 +248,115 @@ out_timeleft:
+ 	return err;
  }
  
-+static struct class watchdog_class = {
-+	.name =		"watchdog",
-+	.owner =	THIS_MODULE,
++static ssize_t nowayout_show(struct device *dev, struct device_attribute *attr,
++				char *buf)
++{
++	struct watchdog_device *wdd = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%d\n", !!test_bit(WDOG_NO_WAY_OUT, &wdd->status));
++}
++static DEVICE_ATTR_RO(nowayout);
++
++static ssize_t status_show(struct device *dev, struct device_attribute *attr,
++				char *buf)
++{
++	struct watchdog_device *wdd = dev_get_drvdata(dev);
++	ssize_t status;
++	unsigned int val;
++
++	status = watchdog_get_status(wdd, &val);
++	if (!status)
++		status = sprintf(buf, "%u\n", val);
++
++	return status;
++}
++static DEVICE_ATTR_RO(status);
++
++static ssize_t bootstatus_show(struct device *dev,
++				struct device_attribute *attr, char *buf)
++{
++	struct watchdog_device *wdd = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%u\n", wdd->bootstatus);
++}
++static DEVICE_ATTR_RO(bootstatus);
++
++static ssize_t timeleft_show(struct device *dev, struct device_attribute *attr,
++				char *buf)
++{
++	struct watchdog_device *wdd = dev_get_drvdata(dev);
++	ssize_t status;
++	unsigned int val;
++
++	status = watchdog_get_timeleft(wdd, &val);
++	if (!status)
++		status = sprintf(buf, "%u\n", val);
++
++	return status;
++}
++static DEVICE_ATTR_RO(timeleft);
++
++static ssize_t timeout_show(struct device *dev, struct device_attribute *attr,
++				char *buf)
++{
++	struct watchdog_device *wdd = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%u\n", wdd->timeout);
++}
++static DEVICE_ATTR_RO(timeout);
++
++static ssize_t identity_show(struct device *dev, struct device_attribute *attr,
++				char *buf)
++{
++	struct watchdog_device *wdd = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%s\n", wdd->info->identity);
++}
++static DEVICE_ATTR_RO(identity);
++
++static ssize_t state_show(struct device *dev, struct device_attribute *attr,
++				char *buf)
++{
++	struct watchdog_device *wdd = dev_get_drvdata(dev);
++
++	if (watchdog_active(wdd))
++		return sprintf(buf, "active\n");
++
++	return sprintf(buf, "inactive\n");
++}
++static DEVICE_ATTR_RO(state);
++
++static umode_t wdt_is_visible(struct kobject *kobj, struct attribute *attr,
++				int n)
++{
++	struct device *dev = container_of(kobj, struct device, kobj);
++	struct watchdog_device *wdd = dev_get_drvdata(dev);
++	umode_t mode = attr->mode;
++
++	if (attr == &dev_attr_status.attr && !wdd->ops->status)
++		mode = 0;
++	else if (attr == &dev_attr_timeleft.attr && !wdd->ops->get_timeleft)
++		mode = 0;
++
++	return mode;
++}
++static struct attribute *wdt_attrs[] = {
++	&dev_attr_state.attr,
++	&dev_attr_identity.attr,
++	&dev_attr_timeout.attr,
++	&dev_attr_timeleft.attr,
++	&dev_attr_bootstatus.attr,
++	&dev_attr_status.attr,
++	&dev_attr_nowayout.attr,
++	NULL,
 +};
 +
++static const struct attribute_group wdt_group = {
++	.attrs = wdt_attrs,
++	.is_visible = wdt_is_visible,
++};
++__ATTRIBUTE_GROUPS(wdt);
++
  /*
-  *	watchdog_dev_init: init dev part of watchdog core
-  *
-  *	Allocate a range of chardev nodes to use for watchdog devices
-  */
- 
--int __init watchdog_dev_init(void)
-+struct class * __init watchdog_dev_init(void)
- {
--	int err = alloc_chrdev_region(&watchdog_devt, 0, MAX_DOGS, "watchdog");
--	if (err < 0)
-+	int err;
-+
-+	err = class_register(&watchdog_class);
-+	if (err < 0) {
-+		pr_err("couldn't register class\n");
-+		return ERR_PTR(err);
-+	}
-+
-+	err = alloc_chrdev_region(&watchdog_devt, 0, MAX_DOGS, "watchdog");
-+	if (err < 0) {
- 		pr_err("watchdog: unable to allocate char dev region\n");
--	return err;
-+		class_unregister(&watchdog_class);
-+		return ERR_PTR(err);
-+	}
-+
-+	return &watchdog_class;
- }
+  *	watchdog_ioctl_op: call the watchdog drivers ioctl op if defined
+  *	@wddev: the watchdog device to do the ioctl on
+@@ -581,6 +690,7 @@ int watchdog_dev_unregister(struct watchdog_device *watchdog)
+ static struct class watchdog_class = {
+ 	.name =		"watchdog",
+ 	.owner =	THIS_MODULE,
++	.dev_groups =	wdt_groups,
+ };
  
  /*
-@@ -601,4 +618,5 @@ int __init watchdog_dev_init(void)
- void __exit watchdog_dev_exit(void)
- {
- 	unregister_chrdev_region(watchdog_devt, MAX_DOGS);
-+	class_unregister(&watchdog_class);
- }
 -- 
 2.5.0
 
