@@ -1,49 +1,58 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:42061 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932627AbbICPZL (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 3 Sep 2015 11:25:11 -0400
-Message-ID: <55E86650.3030602@roeck-us.net>
-Date: Thu, 03 Sep 2015 08:25:04 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-MIME-Version: 1.0
-To: Luis de Bethencourt <luis@debethencourt.com>,
-	linux-kernel@vger.kernel.org
-CC: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: Re: [PATCH 3/3] watchdog: gef_wdt: Fix module autoload for OF platform
- driver
-References: <20150903110722.GA17450@goodgumbo.baconseed.org>
-In-Reply-To: <20150903110722.GA17450@goodgumbo.baconseed.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Received: from mx1.redhat.com ([209.132.183.28]:54966 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751063AbbIGEZN (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 7 Sep 2015 00:25:13 -0400
+From: Pratyush Anand <panand@redhat.com>
+To: linux@roeck-us.net
+Cc: dyoung@redhat.com, dzickus@redhat.com,
+	linux-watchdog@vger.kernel.org, Pratyush Anand <panand@redhat.com>
+Subject: [PATCH V4 0/2] watchdog: Sysfs status read support
+Date: Mon,  7 Sep 2015 09:54:50 +0530
+Message-Id: <cover.1441599217.git.panand@redhat.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 09/03/2015 04:07 AM, Luis de Bethencourt wrote:
-> This platform driver has a OF device ID table but the OF module
-> alias information is not created so module autoloading won't work.
->
-> Signed-off-by: Luis de Bethencourt <luis@debethencourt.com>
+These patches provide support to read different watchdog device status
+through sysfs interface.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Changes since V3:
+* Added Reviewed by tag
+* Corrected a checkpatch warning
 
-> ---
->   drivers/watchdog/gef_wdt.c | 1 +
->   1 file changed, 1 insertion(+)
->
-> diff --git a/drivers/watchdog/gef_wdt.c b/drivers/watchdog/gef_wdt.c
-> index cc1bdfc..006e234 100644
-> --- a/drivers/watchdog/gef_wdt.c
-> +++ b/drivers/watchdog/gef_wdt.c
-> @@ -303,6 +303,7 @@ static const struct of_device_id gef_wdt_ids[] = {
->   	},
->   	{},
->   };
-> +MODULE_DEVICE_TABLE(of, gef_wdt_ids);
->
->   static struct platform_driver gef_wdt_driver = {
->   	.driver = {
->
+Changes since V2:
+* Used static struct class watchdog_class in stead of pointer. It helped in
+ keep using device_create().
+* Above logic was moved to a separate patch.
+* Changed subject line of other patch to look more relevant
+
+Changes since V1(RFC):
+* Removed keepalive and start ABI
+* timeout is read only now
+* state returns text
+* only supported ABI visible
+* ABI contact changed to MAINTAINER
+* unnecessary mutex removed
+* aligned continuation with '('
+* unnecessary initialization of status (= 0) corrected
+* unnecessary else removed
+* used __ATTRIBUTE_GROUPS
+* removed watchdog_device_create and added functionality in
+* watchdog_dev_register.
+* optimized nowayout_show
+* Now no -EOPNOTSUPP return for timeout read in case of wdd->timeout = 0.
+
+Pratyush Anand (2):
+  watchdog: Use static struct class watchdog_class in stead of pointer
+  watchdog: Read device status through sysfs attributes
+
+ Documentation/ABI/testing/sysfs-class-watchdog |  51 ++++++++++
+ drivers/watchdog/watchdog_core.c               |  17 +---
+ drivers/watchdog/watchdog_core.h               |   2 +-
+ drivers/watchdog/watchdog_dev.c                | 136 ++++++++++++++++++++++++-
+ 4 files changed, 187 insertions(+), 19 deletions(-)
+ create mode 100644 Documentation/ABI/testing/sysfs-class-watchdog
+
+-- 
+2.5.0
 
