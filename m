@@ -1,164 +1,312 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:59600 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751597AbbIIH7R (ORCPT
+Received: from mail-gw1-out.broadcom.com ([216.31.210.62]:42716 "EHLO
+	mail-gw1-out.broadcom.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754537AbbIHRqP (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 9 Sep 2015 03:59:17 -0400
-Date: Wed, 9 Sep 2015 09:59:12 +0200
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	linux-kernel@vger.kernel.org,
-	Timo Kokkonen <timo.kokkonen@offcode.fi>,
-	linux-doc@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>
-Subject: Re: [PATCH v3 2/9] watchdog: Introduce hardware maximum timeout in
- watchdog core
-Message-ID: <20150909075912.GE14598@pengutronix.de>
-References: <1440876758-28047-1-git-send-email-linux@roeck-us.net>
- <1440876758-28047-3-git-send-email-linux@roeck-us.net>
- <20150908103325.GS14598@pengutronix.de>
- <55EEE6EE.90808@roeck-us.net>
- <20150908200332.GX14598@pengutronix.de>
- <20150908210730.GA16357@roeck-us.net>
+	Tue, 8 Sep 2015 13:46:15 -0400
+From: Justin Chen <justinpopo6@gmail.com>
+To: <linux-kernel@vger.kernel.org>
+CC: <robh+dt@kernel.org>, <pawel.moll@arm.com>, <mark.rutland@arm.com>,
+	<ijc+devicetree@hellion.org.uk>, <galak@codeaurora.org>,
+	<justinpopo6@gmail.com>, <linux@roeck-us.net>,
+	<devicetree@vger.kernel.org>, <wim@iguana.be>,
+	<linux-watchdog@vger.kernel.org>,
+	<bcm-kernel-feedback-list@broadcomc.com>
+Subject: [PATCH 2/2 v3] watchdog: Watchdog driver for Broadcom Set-Top Box
+Date: Tue, 8 Sep 2015 10:45:48 -0700
+Message-ID: <1441734348-11138-3-git-send-email-justinpopo6@gmail.com>
+In-Reply-To: <1441734348-11138-1-git-send-email-justinpopo6@gmail.com>
+References: <1441734348-11138-1-git-send-email-justinpopo6@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20150908210730.GA16357@roeck-us.net>
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello Guenter,
+Watchdog driver for Broadcom 7038 and newer chips.
 
-On Tue, Sep 08, 2015 at 02:07:30PM -0700, Guenter Roeck wrote:
-> On Tue, Sep 08, 2015 at 10:03:32PM +0200, Uwe Kleine-König wrote:
-> > On Tue, Sep 08, 2015 at 06:47:26AM -0700, Guenter Roeck wrote:
-> > > On 09/08/2015 03:33 AM, Uwe Kleine-König wrote:
-> > > >>+	virt_timeout = wdd->last_keepalive + msecs_to_jiffies(hw_timeout_ms);
-> > > >
-> > > >Just looking at this line this is wrong. It just happens to be correct
-> > > >here because hw_timeout_ms non-intuitively is set to wdd->timeout * 1000
-> > > >which might not reflect what is programmed into the hardware.
-> > > >
-> > > I don't see where the code is wrong. Sure, the variable name doesn't match
-> > > its initial use, but that doesn't make it wrong. I can pick a different variable
-> > > name if that helps (any suggested name ?).
+Signed-off-by: Justin Chen <justinpopo6@gmail.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+---
+ drivers/watchdog/Kconfig       |   8 ++
+ drivers/watchdog/Makefile      |   1 +
+ drivers/watchdog/bcm7038_wdt.c | 237 +++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 246 insertions(+)
+ create mode 100644 drivers/watchdog/bcm7038_wdt.c
 
-As there are two different semantics for the variable there is no good
-name.
-
-> > > 
-> > > >I'd write:
-> > > >
-> > > >	virt_timeout = wdd->last_keepalive + msecs_to_jiffies(wdd->timeout * 1000);
-> > > >
-> > > >...
-> > > >
-> > > >>+	if (hw_timeout_ms > wdd->max_hw_timeout_ms)
-> > > >>+		hw_timeout_ms = wdd->max_hw_timeout_ms;
-> > > >
-> > > >	hw_timeout_ms = min(wdd->timeout * 1000, wdd->max_hw_timeout_ms);
-> > > >
-> > > 
-> > > The reason for writing the code as is was to avoid the double 'wdd->timeout * 1000'
-> > 
-> > The compile should be able to cope with that and only do the
-> > multiplication once.
-> > 
-> You sure ? msecs_to_jiffies() can be an external function.
-> I always thought that the compiler must not make such context
-> assumptions across function calls.
-
-The function with the helper variable timeout_ms looks as follows:
-
-	unsigned timeout_ms = wdd->timeout * 1000;
-	unsigned long virt_timeout;
-
-	virt_timeout = wdd->last_keepalive + msecs_to_jiffies(timeout_ms);
-
-	hw_timeout_ms = min(timeout_ms, wdd->max_hw_timeout_ms);
-
-	...
-
-so there is nothing done twice even in the source code. And otherwise
-msecs_to_jiffies is inlined (alternatively it should be marked const).
-
-> > > >>  	mutex_unlock(&wdd->lock);
-> > > >>-	return err;
-> > > >>  }
-> > > >>
-> > > >>  /*
-> > > >>[...]
-> > > >>@@ -119,8 +134,9 @@ static inline void watchdog_set_nowayout(struct watchdog_device *wdd, bool noway
-> > > >>  /* Use the following function to check if a timeout value is invalid */
-> > > >>  static inline bool watchdog_timeout_invalid(struct watchdog_device *wdd, unsigned int t)
-> > > >>  {
-> > > >>-	return ((wdd->max_timeout != 0) &&
-> > > >>-		(t < wdd->min_timeout || t > wdd->max_timeout));
-> > > >
-> > > >Is this (old) code correct? watchdog_timeout_invalid returns false if
-> > > >wdd->max_timeout == 0 && t < wdd->min_timeout. I would have expected:
-> > > >
-> > > >	return (wdd->max_timeout != 0 && t > wdd->max_timeout) ||
-> > > >		t < wdd->min_timeout;
-> > > >
-> > > You are correct. However, that is a different problem, which I addressed in
-> > > 'watchdog: Always evaluate new timeout against min_timeout'.
-> > 
-> > I usually consider it nice to have the fixes first in the series. I
-> > didn't look into the later patches yet. This should be fixed for 4.3.
-> > 
-> Not sure if it is a fix. It does change semantics, after all.
-Right, fixing bugs usually introduces changes :-)
-
-> > > >>+	return t > UINT_MAX / 1000 ||
-> > > >>+		(!wdd->max_hw_timeout_ms && wdd->max_timeout &&
-> > > >>+		 (t < wdd->min_timeout || t > wdd->max_timeout));
-> > > >
-> > > >So should this better be:
-> > > >
-> > > >	/* internal calculation is done in ms using unsigned variables */
-> > > >	if (t > UINT_MAX / 1000)
-> > > >		return 1;
-> > > >
-> > > >	/*
-> > > >	 * compat code for drivers not being aware of framework pings to
-> > > >	 * bridge timeouts longer than supported by the hardware.
-> > > >	 */
-> > > >	if (!wdd->max_hw_timeout && wdd->max_timeout && t > wdd->max_timeout)
-> > > >		return 1;
-> > > >
-> > > >	if (t < wdd->min_timeout)
-> > > >		return 1;
-> > > >
-> > > 
-> > > After all patches are applied, my code is
-> > > 
-> > > /* Use the following function to check if a timeout value is invalid */
-> > > static inline bool watchdog_timeout_invalid(struct watchdog_device *wdd, unsigned int t)
-> > > {
-> > >         return t > UINT_MAX / 1000 || t < wdd->min_timeout ||
-> > >                 (!wdd->max_hw_timeout_ms && wdd->max_timeout &&
-> > >                  t > wdd->max_timeout);
-> > > }
-> > > 
-> > > which is exactly the same (without the comments).
-> > 
-> > The comments make it a tad nicer though :-)
-> > 
-> POV :-) I prefer to have a single expression. How about adding
-> the comments on top of it ? Would that be ok with you ?
-
-With separate expressions for each case the comments are attached to the
-right line respectively which makes it more readable. For you while
-writing the code it doesn't make much difference, but for someone who
-should understand the code later it's easier to have several easy
-expressions than a single more complicated one.
-
-Best regards
-Uwe
-
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 55c4b5b..b92222b 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1292,6 +1292,14 @@ config BCM_KONA_WDT_DEBUG
+ 
+ 	  If in doubt, say 'N'.
+ 
++config BCM7038_WDT
++	tristate "BCM7038 Watchdog"
++	select WATCHDOG_CORE
++	help
++	 Watchdog driver for the built-in hardware in Broadcom 7038 SoCs.
++
++	 Say 'Y or 'M' here to enable the driver.
++
+ config IMGPDC_WDT
+ 	tristate "Imagination Technologies PDC Watchdog Timer"
+ 	depends on HAS_IOMEM
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 59ea9a1..65d4169 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -66,6 +66,7 @@ obj-$(CONFIG_TEGRA_WATCHDOG) += tegra_wdt.o
+ obj-$(CONFIG_MESON_WATCHDOG) += meson_wdt.o
+ obj-$(CONFIG_MEDIATEK_WATCHDOG) += mtk_wdt.o
+ obj-$(CONFIG_DIGICOLOR_WATCHDOG) += digicolor_wdt.o
++obj-$(CONFIG_BCM7038_WDT) += bcm7038_wdt.o
+ 
+ # AVR32 Architecture
+ obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
+diff --git a/drivers/watchdog/bcm7038_wdt.c b/drivers/watchdog/bcm7038_wdt.c
+new file mode 100644
+index 0000000..4245b65
+--- /dev/null
++++ b/drivers/watchdog/bcm7038_wdt.c
+@@ -0,0 +1,237 @@
++/*
++ * Copyright (C) 2015 Broadcom Corporation
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++
++#include <linux/clk.h>
++#include <linux/init.h>
++#include <linux/io.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/pm.h>
++#include <linux/watchdog.h>
++
++#define WDT_START_1		0xff00
++#define WDT_START_2		0x00ff
++#define WDT_STOP_1		0xee00
++#define WDT_STOP_2		0x00ee
++
++#define WDT_TIMEOUT_REG		0x0
++#define WDT_CMD_REG		0x4
++
++#define WDT_MIN_TIMEOUT		1 /* seconds */
++#define WDT_DEFAULT_TIMEOUT	30 /* seconds */
++#define WDT_DEFAULT_RATE	27000000
++
++struct bcm7038_watchdog {
++	void __iomem		*base;
++	struct watchdog_device	wdd;
++	u32			rate;
++	struct clk		*clk;
++};
++
++static bool nowayout = WATCHDOG_NOWAYOUT;
++
++static void bcm7038_wdt_set_timeout_reg(struct watchdog_device *wdog)
++{
++	struct bcm7038_watchdog *wdt = watchdog_get_drvdata(wdog);
++	u32 timeout;
++
++	timeout = wdt->rate * wdog->timeout;
++
++	writel(timeout, wdt->base + WDT_TIMEOUT_REG);
++}
++
++static int bcm7038_wdt_ping(struct watchdog_device *wdog)
++{
++	struct bcm7038_watchdog *wdt = watchdog_get_drvdata(wdog);
++
++	writel(WDT_START_1, wdt->base + WDT_CMD_REG);
++	writel(WDT_START_2, wdt->base + WDT_CMD_REG);
++
++	return 0;
++}
++
++static int bcm7038_wdt_start(struct watchdog_device *wdog)
++{
++	bcm7038_wdt_set_timeout_reg(wdog);
++	bcm7038_wdt_ping(wdog);
++
++	return 0;
++}
++
++static int bcm7038_wdt_stop(struct watchdog_device *wdog)
++{
++	struct bcm7038_watchdog *wdt = watchdog_get_drvdata(wdog);
++
++	writel(WDT_STOP_1, wdt->base + WDT_CMD_REG);
++	writel(WDT_STOP_2, wdt->base + WDT_CMD_REG);
++
++	return 0;
++}
++
++static int bcm7038_wdt_set_timeout(struct watchdog_device *wdog,
++				   unsigned int t)
++{
++	/* Can't modify timeout value if watchdog timer is running */
++	bcm7038_wdt_stop(wdog);
++	wdog->timeout = t;
++	bcm7038_wdt_start(wdog);
++
++	return 0;
++}
++
++static unsigned int bcm7038_wdt_get_timeleft(struct watchdog_device *wdog)
++{
++	struct bcm7038_watchdog *wdt = watchdog_get_drvdata(wdog);
++	u32 time_left;
++
++	time_left = readl(wdt->base + WDT_CMD_REG);
++
++	return time_left / wdt->rate;
++}
++
++static struct watchdog_info bcm7038_wdt_info = {
++	.identity	= "Broadcom BCM7038 Watchdog Timer",
++	.options	= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
++				WDIOF_MAGICCLOSE
++};
++
++static struct watchdog_ops bcm7038_wdt_ops = {
++	.owner		= THIS_MODULE,
++	.start		= bcm7038_wdt_start,
++	.stop		= bcm7038_wdt_stop,
++	.set_timeout	= bcm7038_wdt_set_timeout,
++	.get_timeleft	= bcm7038_wdt_get_timeleft,
++};
++
++static int bcm7038_wdt_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct bcm7038_watchdog *wdt;
++	struct resource *res;
++	int err;
++
++	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
++	if (!wdt)
++		return -ENOMEM;
++
++	platform_set_drvdata(pdev, wdt);
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	wdt->base = devm_ioremap_resource(dev, res);
++	if (IS_ERR(wdt->base))
++		return PTR_ERR(wdt->base);
++
++	wdt->clk = devm_clk_get(dev, NULL);
++	/* If unable to get clock, use default frequency */
++	if (!IS_ERR(wdt->clk)) {
++		clk_prepare_enable(wdt->clk);
++		wdt->rate = clk_get_rate(wdt->clk);
++		/* Prevent divide-by-zero exception */
++		if (!wdt->rate)
++			wdt->rate = WDT_DEFAULT_RATE;
++	} else {
++		wdt->rate = WDT_DEFAULT_RATE;
++		wdt->clk = NULL;
++	}
++
++	wdt->wdd.info		= &bcm7038_wdt_info;
++	wdt->wdd.ops		= &bcm7038_wdt_ops;
++	wdt->wdd.min_timeout	= WDT_MIN_TIMEOUT;
++	wdt->wdd.timeout	= WDT_DEFAULT_TIMEOUT;
++	wdt->wdd.max_timeout	= 0xffffffff / wdt->rate;
++	wdt->wdd.parent		= dev;
++	watchdog_set_drvdata(&wdt->wdd, wdt);
++
++	err = watchdog_register_device(&wdt->wdd);
++	if (err) {
++		dev_err(dev, "Failed to register watchdog device\n");
++		clk_disable_unprepare(wdt->clk);
++		return err;
++	}
++
++	dev_info(dev, "Registered BCM7038 Watchdog\n");
++
++	return 0;
++}
++
++static int bcm7038_wdt_remove(struct platform_device *pdev)
++{
++	struct bcm7038_watchdog *wdt = platform_get_drvdata(pdev);
++
++	if (!nowayout)
++		bcm7038_wdt_stop(&wdt->wdd);
++
++	watchdog_unregister_device(&wdt->wdd);
++	clk_disable_unprepare(wdt->clk);
++
++	return 0;
++}
++
++#ifdef CONFIG_PM_SLEEP
++static int bcm7038_wdt_suspend(struct device *dev)
++{
++	struct bcm7038_watchdog *wdt = dev_get_drvdata(dev);
++
++	if (watchdog_active(&wdt->wdd))
++		return bcm7038_wdt_stop(&wdt->wdd);
++
++	return 0;
++}
++
++static int bcm7038_wdt_resume(struct device *dev)
++{
++	struct bcm7038_watchdog *wdt = dev_get_drvdata(dev);
++
++	if (watchdog_active(&wdt->wdd))
++		return bcm7038_wdt_start(&wdt->wdd);
++
++	return 0;
++}
++#endif
++
++static SIMPLE_DEV_PM_OPS(bcm7038_wdt_pm_ops, bcm7038_wdt_suspend,
++			 bcm7038_wdt_resume);
++
++static void bcm7038_wdt_shutdown(struct platform_device *pdev)
++{
++	struct bcm7038_watchdog *wdt = platform_get_drvdata(pdev);
++
++	if (watchdog_active(&wdt->wdd))
++		bcm7038_wdt_stop(&wdt->wdd);
++}
++
++static const struct of_device_id bcm7038_wdt_match[] = {
++	{ .compatible = "brcm,bcm7038-wdt" },
++	{},
++};
++
++static struct platform_driver bcm7038_wdt_driver = {
++	.probe		= bcm7038_wdt_probe,
++	.remove		= bcm7038_wdt_remove,
++	.shutdown	= bcm7038_wdt_shutdown,
++	.driver		= {
++		.name		= "bcm7038-wdt",
++		.of_match_table	= bcm7038_wdt_match,
++		.pm		= &bcm7038_wdt_pm_ops,
++	}
++};
++module_platform_driver(bcm7038_wdt_driver);
++
++module_param(nowayout, bool, 0);
++MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
++	__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++MODULE_LICENSE("GPL v2");
++MODULE_DESCRIPTION("Driver for Broadcom 7038 SoCs Watchdog");
++MODULE_AUTHOR("Justin Chen");
 -- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+2.1.0
+
