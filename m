@@ -1,264 +1,223 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:48397 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751156AbbIGEZx (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 7 Sep 2015 00:25:53 -0400
-From: Pratyush Anand <panand@redhat.com>
-To: linux@roeck-us.net
-Cc: dyoung@redhat.com, dzickus@redhat.com,
-	linux-watchdog@vger.kernel.org, Pratyush Anand <panand@redhat.com>,
-	linux-api@vger.kernel.org (open list:ABI/API),
-	linux-kernel@vger.kernel.org (open list),
-	Wim Van Sebroeck <wim@iguana.be>
-Subject: [PATCH V4 2/2] watchdog: Read device status through sysfs attributes
-Date: Mon,  7 Sep 2015 09:54:52 +0530
-Message-Id: <de7c65f11821beaa1ba231b8226671da61937ffc.1441599217.git.panand@redhat.com>
-In-Reply-To: <cover.1441599217.git.panand@redhat.com>
-References: <cover.1441599217.git.panand@redhat.com>
-In-Reply-To: <cover.1441599217.git.panand@redhat.com>
-References: <cover.1441599217.git.panand@redhat.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <ukl@pengutronix.de>
+Date: Tue, 8 Sep 2015 12:33:25 +0200
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+	linux-kernel@vger.kernel.org,
+	Timo Kokkonen <timo.kokkonen@offcode.fi>, linux-doc@vger.kernel.org,
+	Jonathan Corbet <corbet@lwn.net>
+Subject: Re: [PATCH v3 2/9] watchdog: Introduce hardware maximum timeout in
+ watchdog core
+Message-ID: <20150908103325.GS14598@pengutronix.de>
+References: <1440876758-28047-1-git-send-email-linux@roeck-us.net>
+ <1440876758-28047-3-git-send-email-linux@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1440876758-28047-3-git-send-email-linux@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-This patch adds following attributes to watchdog device's sysfs interface
-to read its different status.
+Hello,
 
-* state - reads whether device is active or not
-* identity - reads Watchdog device's identity string.
-* timeout - reads current timeout.
-* timeleft - reads timeleft before watchdog generates a reset
-* bootstatus - reads status of the watchdog device at boot
-* status - reads watchdog device's  internal status bits
-* nowayout - reads whether nowayout feature was set or not
+On Sat, Aug 29, 2015 at 12:32:31PM -0700, Guenter Roeck wrote:
+> diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
+> index d8b0d3367706..3306249aa17d 100644
+> --- a/Documentation/watchdog/watchdog-kernel-api.txt
+> +++ b/Documentation/watchdog/watchdog-kernel-api.txt
+> @@ -53,9 +53,12 @@ struct watchdog_device {
+>  	unsigned int timeout;
+>  	unsigned int min_timeout;
+>  	unsigned int max_timeout;
+> +	unsigned int max_hw_timeout_ms;
+>  	void *driver_data;
+> -	struct mutex lock;
+>  	unsigned long status;
+> +	struct mutex lock;
+> +	unsigned long last_keepalive;
+> +	struct delayed_work work;
+>  	struct list_head deferred;
+>  };
+>  
+> @@ -73,18 +76,31 @@ It contains following fields:
+>    additional information about the watchdog timer itself. (Like it's unique name)
+>  * ops: a pointer to the list of watchdog operations that the watchdog supports.
+>  * timeout: the watchdog timer's timeout value (in seconds).
+> +  This is the time after which the system will reboot if user space does
+> +  not send a heartbeat request if WDOG_ACTIVE is set.
+>  * min_timeout: the watchdog timer's minimum timeout value (in seconds).
+> -* max_timeout: the watchdog timer's maximum timeout value (in seconds).
+> +  If set, the minimum configurable value for 'timeout'.
+> +* max_timeout: the watchdog timer's maximum timeout value (in seconds),
+> +  as seen from userspace. If set, the maximum configurable value for
+> +  'timeout'. Not used if max_hw_timeout_ms is provided.
 
-Testing with iTCO_wdt:
- # cd /sys/class/watchdog/watchdog1/
- # ls
-bootstatus  dev  device  identity  nowayout  power  state
-subsystem  timeleft  timeout  uevent
- # cat identity
-iTCO_wdt
- # cat timeout
-30
- # cat state
-inactive
- # echo > /dev/watchdog1
- # cat timeleft
-26
- # cat state
-active
- # cat bootstatus
-0
- # cat nowayout
-0
+s/provided/non-zero/?
 
-Signed-off-by: Pratyush Anand <panand@redhat.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
----
- Documentation/ABI/testing/sysfs-class-watchdog |  51 ++++++++++++
- drivers/watchdog/watchdog_core.c               |   2 +-
- drivers/watchdog/watchdog_dev.c                | 110 +++++++++++++++++++++++++
- 3 files changed, 162 insertions(+), 1 deletion(-)
- create mode 100644 Documentation/ABI/testing/sysfs-class-watchdog
+> +* max_hw_timeout_ms: Maximum hardware timeout, in milli-seconds.
+> +  If set, the infrastructure will send heartbeats to the watchdog driver
+> +  if 'timeout' is larger than 'max_hw_timeout / 2', unless WDOG_ACTIVE
 
-diff --git a/Documentation/ABI/testing/sysfs-class-watchdog b/Documentation/ABI/testing/sysfs-class-watchdog
-new file mode 100644
-index 000000000000..736046b33040
---- /dev/null
-+++ b/Documentation/ABI/testing/sysfs-class-watchdog
-@@ -0,0 +1,51 @@
-+What:		/sys/class/watchdog/watchdogn/bootstatus
-+Date:		August 2015
-+Contact:	Wim Van Sebroeck <wim@iguana.be>
-+Description:
-+		It is a read only file. It contains status of the watchdog
-+		device at boot. It is equivalent to WDIOC_GETBOOTSTATUS of
-+		ioctl interface.
-+
-+What:		/sys/class/watchdog/watchdogn/identity
-+Date:		August 2015
-+Contact:	Wim Van Sebroeck <wim@iguana.be>
-+Description:
-+		It is a read only file. It contains identity string of
-+		watchdog device.
-+
-+What:		/sys/class/watchdog/watchdogn/nowayout
-+Date:		August 2015
-+Contact:	Wim Van Sebroeck <wim@iguana.be>
-+Description:
-+		It is a read only file. While reading, it gives '1' if that
-+		device supports nowayout feature else, it gives '0'.
-+
-+What:		/sys/class/watchdog/watchdogn/state
-+Date:		August 2015
-+Contact:	Wim Van Sebroeck <wim@iguana.be>
-+Description:
-+		It is a read only file. It gives active/inactive status of
-+		watchdog device.
-+
-+What:		/sys/class/watchdog/watchdogn/status
-+Date:		August 2015
-+Contact:	Wim Van Sebroeck <wim@iguana.be>
-+Description:
-+		It is a read only file. It contains watchdog device's
-+		internal status bits. It is equivalent to WDIOC_GETSTATUS
-+		of ioctl interface.
-+
-+What:		/sys/class/watchdog/watchdogn/timeleft
-+Date:		August 2015
-+Contact:	Wim Van Sebroeck <wim@iguana.be>
-+Description:
-+		It is a read only file. It contains value of time left for
-+		reset generation. It is equivalent to WDIOC_GETTIMELEFT of
-+		ioctl interface.
-+
-+What:		/sys/class/watchdog/watchdogn/timeout
-+Date:		August 2015
-+Contact:	Wim Van Sebroeck <wim@iguana.be>
-+Description:
-+		It is a read only file. It is read to know about current
-+		value of timeout programmed.
-diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-index 47d38c5c3f9a..62666f021762 100644
---- a/drivers/watchdog/watchdog_core.c
-+++ b/drivers/watchdog/watchdog_core.c
-@@ -183,7 +183,7 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
- 
- 	devno = wdd->cdev.dev;
- 	wdd->dev = device_create(watchdog_class, wdd->parent, devno,
--					NULL, "watchdog%d", wdd->id);
-+					wdd, "watchdog%d", wdd->id);
- 	if (IS_ERR(wdd->dev)) {
- 		watchdog_dev_unregister(wdd);
- 		ida_simple_remove(&watchdog_ida, id);
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 986282d44b90..2b8d7f1c9599 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -248,6 +248,115 @@ out_timeleft:
- 	return err;
- }
- 
-+static ssize_t nowayout_show(struct device *dev, struct device_attribute *attr,
-+				char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+
-+	return sprintf(buf, "%d\n", !!test_bit(WDOG_NO_WAY_OUT, &wdd->status));
-+}
-+static DEVICE_ATTR_RO(nowayout);
-+
-+static ssize_t status_show(struct device *dev, struct device_attribute *attr,
-+				char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+	ssize_t status;
-+	unsigned int val;
-+
-+	status = watchdog_get_status(wdd, &val);
-+	if (!status)
-+		status = sprintf(buf, "%u\n", val);
-+
-+	return status;
-+}
-+static DEVICE_ATTR_RO(status);
-+
-+static ssize_t bootstatus_show(struct device *dev,
-+				struct device_attribute *attr, char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+
-+	return sprintf(buf, "%u\n", wdd->bootstatus);
-+}
-+static DEVICE_ATTR_RO(bootstatus);
-+
-+static ssize_t timeleft_show(struct device *dev, struct device_attribute *attr,
-+				char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+	ssize_t status;
-+	unsigned int val;
-+
-+	status = watchdog_get_timeleft(wdd, &val);
-+	if (!status)
-+		status = sprintf(buf, "%u\n", val);
-+
-+	return status;
-+}
-+static DEVICE_ATTR_RO(timeleft);
-+
-+static ssize_t timeout_show(struct device *dev, struct device_attribute *attr,
-+				char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+
-+	return sprintf(buf, "%u\n", wdd->timeout);
-+}
-+static DEVICE_ATTR_RO(timeout);
-+
-+static ssize_t identity_show(struct device *dev, struct device_attribute *attr,
-+				char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+
-+	return sprintf(buf, "%s\n", wdd->info->identity);
-+}
-+static DEVICE_ATTR_RO(identity);
-+
-+static ssize_t state_show(struct device *dev, struct device_attribute *attr,
-+				char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+
-+	if (watchdog_active(wdd))
-+		return sprintf(buf, "active\n");
-+
-+	return sprintf(buf, "inactive\n");
-+}
-+static DEVICE_ATTR_RO(state);
-+
-+static umode_t wdt_is_visible(struct kobject *kobj, struct attribute *attr,
-+				int n)
-+{
-+	struct device *dev = container_of(kobj, struct device, kobj);
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+	umode_t mode = attr->mode;
-+
-+	if (attr == &dev_attr_status.attr && !wdd->ops->status)
-+		mode = 0;
-+	else if (attr == &dev_attr_timeleft.attr && !wdd->ops->get_timeleft)
-+		mode = 0;
-+
-+	return mode;
-+}
-+static struct attribute *wdt_attrs[] = {
-+	&dev_attr_state.attr,
-+	&dev_attr_identity.attr,
-+	&dev_attr_timeout.attr,
-+	&dev_attr_timeleft.attr,
-+	&dev_attr_bootstatus.attr,
-+	&dev_attr_status.attr,
-+	&dev_attr_nowayout.attr,
-+	NULL,
-+};
-+
-+static const struct attribute_group wdt_group = {
-+	.attrs = wdt_attrs,
-+	.is_visible = wdt_is_visible,
-+};
-+__ATTRIBUTE_GROUPS(wdt);
-+
- /*
-  *	watchdog_ioctl_op: call the watchdog drivers ioctl op if defined
-  *	@wddev: the watchdog device to do the ioctl on
-@@ -581,6 +690,7 @@ int watchdog_dev_unregister(struct watchdog_device *watchdog)
- static struct class watchdog_class = {
- 	.name =		"watchdog",
- 	.owner =	THIS_MODULE,
-+	.dev_groups =	wdt_groups,
- };
- 
- /*
+This "/ 2" isn't true any more.
+
+> +  is set and userspace failed to send a heartbeat for at least 'timeout'
+> +  seconds.
+>  * bootstatus: status of the device after booting (reported with watchdog
+>    WDIOF_* status bits).
+>  * driver_data: a pointer to the drivers private data of a watchdog device.
+>    This data should only be accessed via the watchdog_set_drvdata and
+>    watchdog_get_drvdata routines.
+> -* lock: Mutex for WatchDog Timer Driver Core internal use only.
+>  * status: this field contains a number of status bits that give extra
+>    information about the status of the device (Like: is the watchdog timer
+>    running/active, is the nowayout bit set, is the device opened via
+>    the /dev/watchdog interface or not, ...).
+> +* lock: Mutex for WatchDog Timer Driver Core internal use only.
+> +* last_keepalive: Time of most recent keepalive triggered from user space,
+> +  in jiffies.
+> +* work: Worker data structure for WatchDog Timer Driver Core internal use only.
+>  * deferred: entry in wtd_deferred_reg_list which is used to
+>    register early initialized watchdogs.
+>  
+> [...]
+> +static long watchdog_next_keepalive(struct watchdog_device *wdd)
+> +{
+> +	unsigned int hw_timeout_ms = wdd->timeout * 1000;
+> +	unsigned long keepalive_interval;
+> +	unsigned long last_heartbeat;
+> +	unsigned long virt_timeout;
+> +
+> +	virt_timeout = wdd->last_keepalive + msecs_to_jiffies(hw_timeout_ms);
+
+Just looking at this line this is wrong. It just happens to be correct
+here because hw_timeout_ms non-intuitively is set to wdd->timeout * 1000
+which might not reflect what is programmed into the hardware.
+
+I'd write:
+
+	virt_timeout = wdd->last_keepalive + msecs_to_jiffies(wdd->timeout * 1000);
+
+...
+
+> +	if (hw_timeout_ms > wdd->max_hw_timeout_ms)
+> +		hw_timeout_ms = wdd->max_hw_timeout_ms;
+
+	hw_timeout_ms = min(wdd->timeout * 1000, wdd->max_hw_timeout_ms);
+
+> +
+> +	keepalive_interval = msecs_to_jiffies(hw_timeout_ms / 2);
+> +
+> +	/*
+> +	 * To ensure that the watchdog times out wdd->timeout seconds
+> +	 * after the most recent ping from userspace, the last
+> +	 * worker ping has to come in hw_timeout_ms before this timeout.
+> +	 */
+> +	last_heartbeat = virt_timeout - msecs_to_jiffies(hw_timeout_ms);
+> +
+> +	/*
+> +	 * To ensure that the watchdog times out wdd->timeout seconds after
+> +	 * the most recent ping from userspace, the last worker ping has to
+> +	 * come hw_timeout_ms before this timeout.
+
+duplicated comment.
+
+> +	 */
+> +	return min_t(long, last_heartbeat - jiffies, keepalive_interval);
+> +}
+> +
+> [...]
+> @@ -61,26 +143,27 @@ static struct watchdog_device *old_wdd;
+>  
+>  static int watchdog_ping(struct watchdog_device *wdd)
+>  {
+> -	int err = 0;
+> +	int err;
+>  
+>  	mutex_lock(&wdd->lock);
+> +	wdd->last_keepalive = jiffies;
+> +	err = _watchdog_ping(wdd);
+> +	watchdog_update_worker(wdd, false);
+
+Here the cancel argument could also be true, right? That's because after
+a ping (that doesn't modify the timeout) the result of
+watchdog_need_worker doesn't change and so either the worker isn't
+running + stopping it again doesn't hurt, or the timer is running and so
+it's not tried to be stopped.
+
+> +	mutex_unlock(&wdd->lock);
+>  
+> -	if (test_bit(WDOG_UNREGISTERED, &wdd->status)) {
+> -		err = -ENODEV;
+> -		goto out_ping;
+> -	}
+> +	return err;
+> +}
+>  
+> -	if (!watchdog_active(wdd))
+> -		goto out_ping;
+> +static void watchdog_ping_work(struct work_struct *work)
+> +{
+> +	struct watchdog_device *wdd;
+>  
+> -	if (wdd->ops->ping)
+> -		err = wdd->ops->ping(wdd);	/* ping the watchdog */
+> -	else
+> -		err = wdd->ops->start(wdd);	/* restart watchdog */
+> +	wdd = container_of(to_delayed_work(work), struct watchdog_device, work);
+>  
+> -out_ping:
+> +	mutex_lock(&wdd->lock);
+> +	_watchdog_ping(wdd);
+> +	watchdog_update_worker(wdd, false);
+
+Here for the same reason you could pass true. So there is no caller that
+needs to pass false which allows to simplify the function. (i.e. drop
+the cancel parameter and simplify it assuming cancel is true)
+
+>  	mutex_unlock(&wdd->lock);
+> -	return err;
+>  }
+>  
+>  /*
+> [...]
+> @@ -119,8 +134,9 @@ static inline void watchdog_set_nowayout(struct watchdog_device *wdd, bool noway
+>  /* Use the following function to check if a timeout value is invalid */
+>  static inline bool watchdog_timeout_invalid(struct watchdog_device *wdd, unsigned int t)
+>  {
+> -	return ((wdd->max_timeout != 0) &&
+> -		(t < wdd->min_timeout || t > wdd->max_timeout));
+
+Is this (old) code correct? watchdog_timeout_invalid returns false if
+wdd->max_timeout == 0 && t < wdd->min_timeout. I would have expected:
+
+	return (wdd->max_timeout != 0 && t > wdd->max_timeout) ||
+		t < wdd->min_timeout;
+
+> +	return t > UINT_MAX / 1000 ||
+> +		(!wdd->max_hw_timeout_ms && wdd->max_timeout &&
+> +		 (t < wdd->min_timeout || t > wdd->max_timeout));
+
+So should this better be:
+
+	/* internal calculation is done in ms using unsigned variables */
+	if (t > UINT_MAX / 1000)
+		return 1;
+
+	/*
+	 * compat code for drivers not being aware of framework pings to
+	 * bridge timeouts longer than supported by the hardware.
+	 */
+	if (!wdd->max_hw_timeout && wdd->max_timeout && t > wdd->max_timeout)
+		return 1;
+
+	if (t < wdd->min_timeout)
+		return 1;
+
+unless I'm missing something.
+
+Best regards
+Uwe
+
 -- 
-2.5.0
-
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
