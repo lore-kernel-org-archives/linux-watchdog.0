@@ -1,53 +1,200 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:47351 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752167AbbIKN2P (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 11 Sep 2015 09:28:15 -0400
-From: Guenter Roeck <linux@roeck-us.net>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Guenter Roeck <linux@roeck-us.net>,
-	Matt Fleming <matt.fleming@intel.com>,
-	Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH] watchdog: iTCO: Fix dependencies on I2C
-Date: Fri, 11 Sep 2015 06:28:08 -0700
-Message-Id: <1441978088-27288-1-git-send-email-linux@roeck-us.net>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <ukl@pengutronix.de>
+Date: Tue, 8 Sep 2015 22:03:32 +0200
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+	linux-kernel@vger.kernel.org,
+	Timo Kokkonen <timo.kokkonen@offcode.fi>, linux-doc@vger.kernel.org,
+	Jonathan Corbet <corbet@lwn.net>
+Subject: Re: [PATCH v3 2/9] watchdog: Introduce hardware maximum timeout in
+ watchdog core
+Message-ID: <20150908200332.GX14598@pengutronix.de>
+References: <1440876758-28047-1-git-send-email-linux@roeck-us.net>
+ <1440876758-28047-3-git-send-email-linux@roeck-us.net>
+ <20150908103325.GS14598@pengutronix.de>
+ <55EEE6EE.90808@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <55EEE6EE.90808@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-If I2C is built as module, the iTCO watchdog driver must be built as module
-as well. I2C_I801 must only be selected if I2C is configured.
+Hello Guenter,
 
-This fixes the following build errors, seen if I2C=m and ITCO_WDT=y.
+On Tue, Sep 08, 2015 at 06:47:26AM -0700, Guenter Roeck wrote:
+> On 09/08/2015 03:33 AM, Uwe Kleine-König wrote:
+> >Hello,
+> >
+> 
+> >>[...]
+> >>+static long watchdog_next_keepalive(struct watchdog_device *wdd)
+> >>+{
+> >>+	unsigned int hw_timeout_ms = wdd->timeout * 1000;
+> >>+	unsigned long keepalive_interval;
+> >>+	unsigned long last_heartbeat;
+> >>+	unsigned long virt_timeout;
+> >>+
+> >>+	virt_timeout = wdd->last_keepalive + msecs_to_jiffies(hw_timeout_ms);
+> >
+> >Just looking at this line this is wrong. It just happens to be correct
+> >here because hw_timeout_ms non-intuitively is set to wdd->timeout * 1000
+> >which might not reflect what is programmed into the hardware.
+> >
+> I don't see where the code is wrong. Sure, the variable name doesn't match
+> its initial use, but that doesn't make it wrong. I can pick a different variable
+> name if that helps (any suggested name ?).
+> 
+> >I'd write:
+> >
+> >	virt_timeout = wdd->last_keepalive + msecs_to_jiffies(wdd->timeout * 1000);
+> >
+> >...
+> >
+> >>+	if (hw_timeout_ms > wdd->max_hw_timeout_ms)
+> >>+		hw_timeout_ms = wdd->max_hw_timeout_ms;
+> >
+> >	hw_timeout_ms = min(wdd->timeout * 1000, wdd->max_hw_timeout_ms);
+> >
+> 
+> The reason for writing the code as is was to avoid the double 'wdd->timeout * 1000'
 
-i2c-i801.c:(.text+0x2bf055): undefined reference to `i2c_del_adapter'
-i2c-i801.c:(.text+0x2c13e0): undefined reference to `i2c_add_adapter'
-i2c-i801.c:(.text+0x2c17bd): undefined reference to `i2c_new_device'
+The compile should be able to cope with that and only do the
+multiplication once.
 
-Fixes: 2a7a0e9bf7b3 ("watchdog: iTCO_wdt: Add support for TCO on Intel Sunrisepoint")
-Cc: Matt Fleming <matt.fleming@intel.com>
-Cc: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
- drivers/watchdog/Kconfig | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+> (and to avoid a line > 80 columns in the first line).
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 55c4b5b0a317..75c358ce71a7 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -797,8 +797,9 @@ config ITCO_WDT
- 	tristate "Intel TCO Timer/Watchdog"
- 	depends on (X86 || IA64) && PCI
- 	select WATCHDOG_CORE
-+	depends on I2C || I2C=n
- 	select LPC_ICH if !EXPERT
--	select I2C_I801 if !EXPERT
-+	select I2C_I801 if !EXPERT && I2C
- 	---help---
- 	  Hardware driver for the intel TCO timer based watchdog devices.
- 	  These drivers are included in the Intel 82801 I/O Controller
+unsigned timeout_ms = wdd->timeout * 1000; ?
+
+> 
+> >>[...]
+> >>@@ -61,26 +143,27 @@ static struct watchdog_device *old_wdd;
+> >>
+> >>  static int watchdog_ping(struct watchdog_device *wdd)
+> >>  {
+> >>-	int err = 0;
+> >>+	int err;
+> >>
+> >>  	mutex_lock(&wdd->lock);
+> >>+	wdd->last_keepalive = jiffies;
+> >>+	err = _watchdog_ping(wdd);
+> >>+	watchdog_update_worker(wdd, false);
+> >
+> >Here the cancel argument could also be true, right? That's because after
+> >a ping (that doesn't modify the timeout) the result of
+> >watchdog_need_worker doesn't change and so either the worker isn't
+> >running + stopping it again doesn't hurt, or the timer is running and so
+> >it's not tried to be stopped.
+> >
+> Could, but it isn't necessary.
+> 
+> >>+	mutex_unlock(&wdd->lock);
+> >>
+> >>-	if (test_bit(WDOG_UNREGISTERED, &wdd->status)) {
+> >>-		err = -ENODEV;
+> >>-		goto out_ping;
+> >>-	}
+> >>+	return err;
+> >>+}
+> >>
+> >>-	if (!watchdog_active(wdd))
+> >>-		goto out_ping;
+> >>+static void watchdog_ping_work(struct work_struct *work)
+> >>+{
+> >>+	struct watchdog_device *wdd;
+> >>
+> >>-	if (wdd->ops->ping)
+> >>-		err = wdd->ops->ping(wdd);	/* ping the watchdog */
+> >>-	else
+> >>-		err = wdd->ops->start(wdd);	/* restart watchdog */
+> >>+	wdd = container_of(to_delayed_work(work), struct watchdog_device, work);
+> >>
+> >>-out_ping:
+> >>+	mutex_lock(&wdd->lock);
+> >>+	_watchdog_ping(wdd);
+> >>+	watchdog_update_worker(wdd, false);
+> >
+> >Here for the same reason you could pass true. So there is no caller that
+> >needs to pass false which allows to simplify the function. (i.e. drop
+> >the cancel parameter and simplify it assuming cancel is true)
+> >
+> 
+> There will be another call with 'false' added with a later patch, though
+> that could live with 'true'.
+> 
+> The function is executed by the worker, and since it is already executing
+> canceling it would not be necessary.
+> 
+> I don't know what happens if an attempt is made to cancel a worker from its
+> work function. I seem to recall that it causes a stall, but I may be wrong.
+> Any idea ?
+
+No, I don't know if that works or not. But I would not expect any
+problems.
+
+> >>  	mutex_unlock(&wdd->lock);
+> >>-	return err;
+> >>  }
+> >>
+> >>  /*
+> >>[...]
+> >>@@ -119,8 +134,9 @@ static inline void watchdog_set_nowayout(struct watchdog_device *wdd, bool noway
+> >>  /* Use the following function to check if a timeout value is invalid */
+> >>  static inline bool watchdog_timeout_invalid(struct watchdog_device *wdd, unsigned int t)
+> >>  {
+> >>-	return ((wdd->max_timeout != 0) &&
+> >>-		(t < wdd->min_timeout || t > wdd->max_timeout));
+> >
+> >Is this (old) code correct? watchdog_timeout_invalid returns false if
+> >wdd->max_timeout == 0 && t < wdd->min_timeout. I would have expected:
+> >
+> >	return (wdd->max_timeout != 0 && t > wdd->max_timeout) ||
+> >		t < wdd->min_timeout;
+> >
+> You are correct. However, that is a different problem, which I addressed in
+> 'watchdog: Always evaluate new timeout against min_timeout'.
+
+I usually consider it nice to have the fixes first in the series. I
+didn't look into the later patches yet. This should be fixed for 4.3.
+
+> >>+	return t > UINT_MAX / 1000 ||
+> >>+		(!wdd->max_hw_timeout_ms && wdd->max_timeout &&
+> >>+		 (t < wdd->min_timeout || t > wdd->max_timeout));
+> >
+> >So should this better be:
+> >
+> >	/* internal calculation is done in ms using unsigned variables */
+> >	if (t > UINT_MAX / 1000)
+> >		return 1;
+> >
+> >	/*
+> >	 * compat code for drivers not being aware of framework pings to
+> >	 * bridge timeouts longer than supported by the hardware.
+> >	 */
+> >	if (!wdd->max_hw_timeout && wdd->max_timeout && t > wdd->max_timeout)
+> >		return 1;
+> >
+> >	if (t < wdd->min_timeout)
+> >		return 1;
+> >
+> 
+> After all patches are applied, my code is
+> 
+> /* Use the following function to check if a timeout value is invalid */
+> static inline bool watchdog_timeout_invalid(struct watchdog_device *wdd, unsigned int t)
+> {
+>         return t > UINT_MAX / 1000 || t < wdd->min_timeout ||
+>                 (!wdd->max_hw_timeout_ms && wdd->max_timeout &&
+>                  t > wdd->max_timeout);
+> }
+> 
+> which is exactly the same (without the comments).
+
+The comments make it a tad nicer though :-)
+
+Best regards
+Uwe
+
 -- 
-2.1.4
-
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
