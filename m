@@ -1,13 +1,13 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from spo001.leaseweb.nl ([83.149.101.17]:35884 "EHLO
+Received: from spo001.leaseweb.nl ([83.149.101.17]:35942 "EHLO
 	spo001.leaseweb.nl" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751109AbbIJGBa (ORCPT
+	with ESMTP id S1750741AbbIJGUU (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 10 Sep 2015 02:01:30 -0400
-Date: Thu, 10 Sep 2015 08:01:16 +0200
+	Thu, 10 Sep 2015 02:20:20 -0400
+Date: Thu, 10 Sep 2015 08:20:07 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>,
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>,
 	Andrew Morton <akpm@linux-foundation.org>,
 	LKML <linux-kernel@vger.kernel.org>,
 	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
@@ -26,27 +26,30 @@ Cc: Stephen Rothwell <sfr@canb.auug.org.au>,
 	Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
 	Wenyou Yang <wenyou.yang@atmel.com>
 Subject: Re: [GIT PULL REQUEST] watchdog - v4.3-rc1 merge window
-Message-ID: <20150910060115.GA21250@spo001.leaseweb.nl>
-References: <20150909195838.GA12688@spo001.leaseweb.nl> <20150910074044.4cae547f@canb.auug.org.au> <CA+55aFwDUTshKj4G_JYVenOcYYhoW46gVGr3d8eK23S0ys8-VA@mail.gmail.com>
+Message-ID: <20150910062004.GB21250@spo001.leaseweb.nl>
+References: <20150909195838.GA12688@spo001.leaseweb.nl> <20150910074044.4cae547f@canb.auug.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CA+55aFwDUTshKj4G_JYVenOcYYhoW46gVGr3d8eK23S0ys8-VA@mail.gmail.com>
+In-Reply-To: <20150910074044.4cae547f@canb.auug.org.au>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Stephen, Linus,
+Hi Stephen,
 
-> On Wed, Sep 9, 2015 at 2:40 PM, Stephen Rothwell <sfr@canb.auug.org.au> wrote:
 > >
-> > I have not been able to fetch from that tree for the past couple of
-> > days.  It connects and then hangs for some time
+> > Please pull from 'master' branch of
+> > 	git://www.linux-watchdog.org/linux-watchdog.git
 > 
-> .. yup, that's what I got just when trying to pull.
+> I have not been able to fetch from that tree for the past couple of
+> days.  It connects and then hangs for some time and then I get:
+> 
+> fatal: read error: Connection reset by peer
+> 
+> Sorry for not mentioning it earlier.
 
-I just restarted the git-daemon.
-You should be able to pull again. Thanks for reporting it.
+The tree hasn't changed since 1.5 weeks, so on content level nothing has changed.
 
-Kind regards,
+Thanks,
 Wim.
 
