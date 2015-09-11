@@ -1,44 +1,60 @@
-Return-path: <jcm@redhat.com>
-Message-ID: <55F207FD.2030007@redhat.com>
-Date: Thu, 10 Sep 2015 18:45:17 -0400
-From: Jon Masters <jcm@redhat.com>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:54175 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752073AbbIKCGF (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 10 Sep 2015 22:06:05 -0400
+Date: Thu, 10 Sep 2015 19:05:55 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Jon Masters <jcm@redhat.com>
+Cc: fu.wei@linaro.org, Suravee.Suthikulpanit@amd.com,
+	hanjun.guo@linaro.org, linaro-acpi@lists.linaro.org,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+	tekkamanninja@gmail.com, graeme.gregory@linaro.org,
+	al.stone@linaro.org, arnd@arndb.de, vgandhi@codeaurora.org,
+	wim@iguana.be, leo.duran@amd.com, corbet@lwn.net,
+	mark.rutland@arm.com, catalin.marinas@arm.com, will.deacon@arm.com,
+	rjw@rjwysocki.net, dyoung@redhat.com, panand@redhat.com
+Subject: Re: [PATCH v7 5/8] Watchdog: introduce ARM SBSA watchdog driver
+Message-ID: <20150911020555.GB15719@roeck-us.net>
+References: <=fu.wei@linaro.org>
+ <1440435683-7343-1-git-send-email-fu.wei@linaro.org>
+ <1440435683-7343-6-git-send-email-fu.wei@linaro.org>
+ <55F20461.20904@redhat.com>
 MIME-Version: 1.0
-To: Timur Tabi <timur@codeaurora.org>, Guenter Roeck <linux@roeck-us.net>
-CC: fu.wei@linaro.org, Suravee.Suthikulpanit@amd.com,
-        linaro-acpi@lists.linaro.org, linux-watchdog@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-doc@vger.kernel.org, tekkamanninja@gmail.com,
-        graeme.gregory@linaro.org, al.stone@linaro.org, hanjun.guo@linaro.org,
-        ashwin.chaugule@linaro.org, arnd@arndb.de, vgandhi@codeaurora.org,
-        wim@iguana.be, leo.duran@amd.com, corbet@lwn.net, mark.rutland@arm.com,
-        catalin.marinas@arm.com, will.deacon@arm.com, rjw@rjwysocki.net
-Subject: Re: [PATCH v4 5/7] Watchdog: introduce ARM SBSA watchdog driver
-References: <=fu.wei@linaro.org> <1433217907-928-1-git-send-email-fu.wei@linaro.org> <1433217907-928-6-git-send-email-fu.wei@linaro.org> <556F4489.6030206@codeaurora.org> <20150603182503.GD6460@roeck-us.net> <556F4D29.1080001@codeaurora.org>
-In-Reply-To: <556F4D29.1080001@codeaurora.org>
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <55F20461.20904@redhat.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On 06/03/2015 02:53 PM, Timur Tabi wrote:
-> On 06/03/2015 01:25 PM, Guenter Roeck wrote:
->> In general the idea here would be to use a crashdump kernel, which,
->> when loaded, would reset the watchdog before it fires. This kernel
->> would then write a core dump to a specified location.
+On Thu, Sep 10, 2015 at 06:29:53PM -0400, Jon Masters wrote:
+> On 08/24/2015 01:01 PM, fu.wei@linaro.org wrote:
 > 
-> What is the mechanism for resetting the watchdog?  The only code that 
-> knows about the hardware registers is this driver.  Does the crashdump 
-> kernel call the watchdog stop function?
+> > +	/*
+> > +	 * Get the frequency of system counter from the cp15 interface of ARM
+> > +	 * Generic timer. We don't need to check it, because if it returns "0",
+> > +	 * system would panic in very early stage.
+> > +	 */
+> > +	gwdt->clk = arch_timer_get_cntfrq();
 > 
->> If arm64 doesn't support a crashdump kernel, it might still be possible
->> to log the backtrace somewhere (eg in nvram using pstore if that is
->> supported via acpi or efi).
+> Just thinking out loud...
+> 
+> What happens later if we virtualize this device within KVM/QEMU/Xen and
+> then live migrate to another system in which the frequency changes?
+> 
+I don't know, but I would suspect that we might end up in all kinds of
+trouble if clocks can change like that, and not just in this driver.
+Many drivers make the assumption that clock rates are not changed
+under the hood. If it can happen, shouldn't there be a callback into
+the drivers using the affected clock(s) ?
 
-Just to go back and explicitly answer this, arm64 does have support for
-crashdump, using the standard kexec/kdump approach, exactly as on x86.
-There's still some more work to be done to get the ACPI case fully
-upstream (e.g. on X-Gene platforms such as the HP ProLiant Moonshot m400
-we need non-PSCI CPU parking protocol offlining when booting in
-UEFI/ACPI mode), but it's what we are doing in RHEL(SA) and the goal is
-to help clean up the remaining pieces upstream there.
+Also, it seems to me that changing a clock like that would be inherently
+unsafe. For example, what will happen if the system is stopped and migrated
+right after the clock frequency is read, but before the returned value
+is used ? Can that happen ? Or does it only happen during suspend/resume
+cycles, if it happens ?
 
-Jon.
+Thanks,
+Guenter
