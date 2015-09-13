@@ -1,78 +1,54 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from ozlabs.org ([103.22.144.67]:40310 "EHLO ozlabs.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751018AbbIJXNN (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 10 Sep 2015 19:13:13 -0400
-Date: Fri, 11 Sep 2015 09:13:11 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Ariel D'Alessandro <ariel@vanguardiasur.com.ar>,
-	Bjorn Andersson <bjorn.andersson@sonymobile.com>,
-	Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
-	Fengguang Wu <fengguang.wu@intel.com>,
-	Francesco Lavra <francescolavra.fl@gmail.com>,
-	Greta Zhang <greta.zhang@mediatek.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Pratyush Anand <panand@redhat.com>,
-	Timur Tabi <timur@codeaurora.org>,
-	Uwe =?UTF-8?B?S2xlaW5lLUvDtm5pZw==?=
-	<u.kleine-koenig@pengutronix.de>,
-	Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
-	Wenyou Yang <wenyou.yang@atmel.com>
-Subject: Re: [GIT PULL REQUEST] watchdog - v4.3-rc1 merge window
-Message-ID: <20150911091311.56d3df9e@canb.auug.org.au>
-In-Reply-To: <20150910163759.57a7d5a0@canb.auug.org.au>
-References: <20150909195838.GA12688@spo001.leaseweb.nl>
-	<20150910074044.4cae547f@canb.auug.org.au>
-	<20150910062004.GB21250@spo001.leaseweb.nl>
-	<20150910163759.57a7d5a0@canb.auug.org.au>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:40323 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751841AbbIMTzH (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Sun, 13 Sep 2015 15:55:07 -0400
+Message-ID: <55F5D493.8090908@roeck-us.net>
+Date: Sun, 13 Sep 2015 12:54:59 -0700
+From: Guenter Roeck <linux@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+To: =?UTF-8?B?Tm9yYWxmIFRyw7hubmVz?= <noralf@tronnes.org>,
+	linux-watchdog@vger.kernel.org, Eric Anholt <eric@anholt.net>
+CC: linux-rpi-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3] watchdog: bcm2835: Fix poweroff behaviour
+References: <1434549844-11704-1-git-send-email-noralf@tronnes.org> <558241F7.6070600@roeck-us.net> <55F5CDE2.5020703@tronnes.org>
+In-Reply-To: <55F5CDE2.5020703@tronnes.org>
+Content-Type: text/plain; charset=utf-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Wim,
-
-On Thu, 10 Sep 2015 16:37:59 +1000 Stephen Rothwell <sfr@canb.auug.org.au> wrote:
+On 09/13/2015 12:26 PM, Noralf Tr=C3=B8nnes wrote:
 >
-> On Thu, 10 Sep 2015 08:20:07 +0200 Wim Van Sebroeck <wim@iguana.be> wrote:
-> >
-> > > > Please pull from 'master' branch of
-> > > > 	git://www.linux-watchdog.org/linux-watchdog.git
-> > > 
-> > > I have not been able to fetch from that tree for the past couple of
-> > > days.  It connects and then hangs for some time and then I get:
-> > > 
-> > > fatal: read error: Connection reset by peer
-> > > 
-> > > Sorry for not mentioning it earlier.
-> > 
-> > The tree hasn't changed since 1.5 weeks, so on content level nothing has changed.
-> 
-> OK, I managed to refetch your tree (it was still very slow - you might
-> want to consider moving it to git.kernel.org).  The patches appear
-> identical to what I last fetched (and what has been in linux-next since
-> Aug 31), but it has all been recommitted in the last day.
-> 
-> The end result and the base are exactly the same, so it should not be a
-> problem, I guess.
+> Den 18.06.2015 05:58, skrev Guenter Roeck:
+>> On 06/17/2015 07:04 AM, Noralf Tr=C3=B8nnes wrote:
+>>> Currently poweroff/halt results in a reboot on the Raspberry Pi.
+>>> The firmware uses the RSTS register to know which partiton to
+>>> boot from. The partiton value is spread into bits
+>>> 0, 2, 4, 6, 8, 10. Partiton 63 is a special partition used by
+>>> the firmware to indicate halt.
+>>>
+>>> The firmware made this change in 19 Aug 2013 and was matched
+>>> by the downstream commit:
+>>> Changes for new NOOBS multi partition booting from gsh
+>>>
+>>> Signed-off-by: Noralf Tr=C3=B8nnes <noralf@tronnes.org>
+>>
+>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+>>
+>
+> It seems that this has slipped through the cracks, at least it didn't
+> enter in the 4.3 merge window.
+>
 
-OK, the above is true, but I have been a bit confused.  I was trying to
-figure out why (if the above is true, a "git fetch watchdog" did not
-update what I have fetched.  It turns out that the tree I pull into
-linux-next is
-git://www.linux-watchdog.org/linux-watchdog-next.git
-the one you asked Linus to pull is
-git://www.linux-watchdog.org/linux-watchdog.git
+Yes, completely. It slipped through my cracks as well :-(.
 
-So instead of just fetching from one tree to the other, it seems that
-you have reapplied the patches from one to the other :-(
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
+Guenter
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
