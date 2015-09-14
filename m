@@ -1,39 +1,50 @@
-Return-path: <noralf@tronnes.org>
-Subject: Re: [PATCH v3] watchdog: bcm2835: Fix poweroff behaviour
-To: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
- Eric Anholt <eric@anholt.net>
-References: <1434549844-11704-1-git-send-email-noralf@tronnes.org>
- <558241F7.6070600@roeck-us.net>
-Cc: linux-rpi-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
-Message-ID: <55F5CDE2.5020703@tronnes.org>
-Date: Sun, 13 Sep 2015 21:26:26 +0200
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:59241 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750862AbbINEVK (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 14 Sep 2015 00:21:10 -0400
+Date: Mon, 14 Sep 2015 09:51:04 +0530
+From: Pratyush Anand <panand@redhat.com>
+To: Jon Masters <jcm@redhat.com>, Timur Tabi <timur@codeaurora.org>,
+	Guenter Roeck <linux@roeck-us.net>, fu.wei@linaro.org
+Cc: Suravee.Suthikulpanit@amd.com, linaro-acpi@lists.linaro.org,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+	tekkamanninja@gmail.com, graeme.gregory@linaro.org,
+	al.stone@linaro.org, hanjun.guo@linaro.org,
+	ashwin.chaugule@linaro.org, arnd@arndb.de, vgandhi@codeaurora.org,
+	wim@iguana.be, leo.duran@amd.com, corbet@lwn.net,
+	mark.rutland@arm.com, catalin.marinas@arm.com, will.deacon@arm.com,
+	rjw@rjwysocki.net
+Subject: Re: [PATCH v4 5/7] Watchdog: introduce ARM SBSA watchdog driver
+Message-ID: <20150914042104.GA4682@localhost.localdomain>
+References: <=fu.wei@linaro.org>
+ <1433217907-928-1-git-send-email-fu.wei@linaro.org>
+ <1433217907-928-6-git-send-email-fu.wei@linaro.org>
+ <556F4489.6030206@codeaurora.org>
+ <20150603182503.GD6460@roeck-us.net>
+ <556F4D29.1080001@codeaurora.org>
+ <55F207FD.2030007@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <558241F7.6070600@roeck-us.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <55F207FD.2030007@redhat.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
+On 10/09/2015:06:45:17 PM, Jon Masters wrote:
+> On 06/03/2015 02:53 PM, Timur Tabi wrote:
+> > On 06/03/2015 01:25 PM, Guenter Roeck wrote:
+> >> In general the idea here would be to use a crashdump kernel, which,
+> >> when loaded, would reset the watchdog before it fires. This kernel
+> >> would then write a core dump to a specified location.
 
-Den 18.06.2015 05:58, skrev Guenter Roeck:
-> On 06/17/2015 07:04 AM, Noralf Trønnes wrote:
->> Currently poweroff/halt results in a reboot on the Raspberry Pi.
->> The firmware uses the RSTS register to know which partiton to
->> boot from. The partiton value is spread into bits
->> 0, 2, 4, 6, 8, 10. Partiton 63 is a special partition used by
->> the firmware to indicate halt.
->>
->> The firmware made this change in 19 Aug 2013 and was matched
->> by the downstream commit:
->> Changes for new NOOBS multi partition booting from gsh
->>
->> Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
->
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->
+And this is what we do in fedora or RHEL. There had been some work ongoing in
+fedora [1][2] which will help to reset any active watchdog in kdump kernel(if
+the watchdog driver has been registered to watchdog_class). It will eventually
+help a watchdog on ARM64 platform as well.
 
-It seems that this has slipped through the cracks, at least it didn't
-enter in the 4.3 merge window.
+[1] https://lists.fedoraproject.org/pipermail/kexec/2015-September/002295.html
+[2] https://github.com/pratyushanand/kexec-tools/commits/watchdog_fmaster
 
-
-Noralf.
+~Pratyush
