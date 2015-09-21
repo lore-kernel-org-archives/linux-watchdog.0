@@ -1,100 +1,64 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-bn1bn0109.outbound.protection.outlook.com ([157.56.110.109]:12704
-	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1753525AbbIUMpM (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 21 Sep 2015 08:45:12 -0400
-From: Zhiqiang Hou <B48286@freescale.com>
-To: <linux-arm-kernel@lists.infradead.org>, <catalin.marinas@arm.com>,
-	<will.deacon@arm.com>, <linux-i2c@vger.kernel.org>,
-	<linux-watchdog@vger.kernel.org>, <linux-doc@vger.kernel.org>,
-	<linux-clk@vger.kernel.org>
-CC: <wsa@the-dreams.de>, <wim@iguana.be>, <corbet@lwn.net>,
-	<mturquette@baylibre.com>, <sboyd@codeaurora.org>,
-	<Mingkai.Hu@freescale.com>, <Shaohui.Xie@freescale.com>,
-	<Wenbin.Song@freescale.com>, <scottwood@freescale.com>,
-	<bhupesh.sharma@freescale.com>, <leoli@freescale.com>,
-	Hou Zhiqiang <B48286@freescale.com>
-Subject: [PATCH 5/6] clk: qoriq: Add ls1043a support.
-Date: Mon, 21 Sep 2015 20:22:37 +0800
-Message-ID: <1442838158-2964-6-git-send-email-B48286@freescale.com>
-In-Reply-To: <1442838158-2964-1-git-send-email-B48286@freescale.com>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:54035 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757054AbbIUPEi (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 21 Sep 2015 11:04:38 -0400
+Subject: Re: [PATCH 2/6] watchdog: Add support for Freescale Layerscape
+ platforms
+To: Zhiqiang Hou <B48286@freescale.com>,
+	linux-arm-kernel@lists.infradead.org, catalin.marinas@arm.com,
+	will.deacon@arm.com, linux-i2c@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-clk@vger.kernel.org
 References: <1442838158-2964-1-git-send-email-B48286@freescale.com>
+ <1442838158-2964-3-git-send-email-B48286@freescale.com>
+Cc: wsa@the-dreams.de, wim@iguana.be, corbet@lwn.net,
+	mturquette@baylibre.com, sboyd@codeaurora.org,
+	Mingkai.Hu@freescale.com, Shaohui.Xie@freescale.com,
+	Wenbin.Song@freescale.com, scottwood@freescale.com,
+	bhupesh.sharma@freescale.com, leoli@freescale.com
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <56001C7D.4050408@roeck-us.net>
+Date: Mon, 21 Sep 2015 08:04:29 -0700
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <1442838158-2964-3-git-send-email-B48286@freescale.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Hou Zhiqiang <B48286@freescale.com>
+On 09/21/2015 05:22 AM, Zhiqiang Hou wrote:
+> From: Shaohui Xie <Shaohui.Xie@freescale.com>
+>
+> Modify watchdog/Kconfig file to support Layerscape platforms.
+>
+"Enable IMX2+ watchdog for Layerscape platforms" would be a better
+description.
 
-Signed-off-by: Hou Zhiqiang <B48286@freescale.com>
----
- drivers/clk/clk-qoriq.c | 38 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 38 insertions(+)
+Nitpick, so
 
-diff --git a/drivers/clk/clk-qoriq.c b/drivers/clk/clk-qoriq.c
-index 7753fa3..e71927b 100644
---- a/drivers/clk/clk-qoriq.c
-+++ b/drivers/clk/clk-qoriq.c
-@@ -244,6 +244,28 @@ static const struct clockgen_muxinfo clockgen2_cmux_cgb = {
- 	},
- };
- 
-+static const struct clockgen_muxinfo ls1043a_hwa1 = {
-+	{
-+		{},
-+		{},
-+		{ CLKSEL_VALID, CGA_PLL1, PLL_DIV2 },
-+		{ CLKSEL_VALID, CGA_PLL1, PLL_DIV3 },
-+		{},
-+		{},
-+		{ CLKSEL_VALID, CGA_PLL2, PLL_DIV2 },
-+		{ CLKSEL_VALID, CGA_PLL2, PLL_DIV3 },
-+	},
-+};
-+
-+static const struct clockgen_muxinfo ls1043a_hwa2 = {
-+	{
-+		{},
-+		{ CLKSEL_VALID, CGA_PLL2, PLL_DIV1 },
-+		{},
-+		{ CLKSEL_VALID, CGA_PLL2, PLL_DIV3 },
-+	},
-+};
-+
- static const struct clockgen_muxinfo t1023_hwa1 = {
- 	{
- 		{},
-@@ -452,6 +474,21 @@ static const struct clockgen_chipinfo chipinfo[] = {
- 		.pll_mask = 0x03,
- 	},
- 	{
-+		.compat = "fsl,ls1043a-clockgen",
-+		.init_periph = t2080_init_periph,
-+		.cmux_groups = {
-+			&t1040_cmux
-+		},
-+		.hwaccel = {
-+			&ls1043a_hwa1, &ls1043a_hwa2
-+		},
-+		.cmux_to_group = {
-+			0, -1
-+		},
-+		.pll_mask = 0x07,
-+		.flags = CG_PLL_8BIT,
-+	},
-+	{
- 		.compat = "fsl,ls2080a-clockgen",
- 		.cmux_groups = {
- 			&clockgen2_cmux_cga12, &clockgen2_cmux_cgb
-@@ -1228,6 +1265,7 @@ err:
- CLK_OF_DECLARE(qoriq_clockgen_1, "fsl,qoriq-clockgen-1.0", clockgen_init);
- CLK_OF_DECLARE(qoriq_clockgen_2, "fsl,qoriq-clockgen-2.0", clockgen_init);
- CLK_OF_DECLARE(qoriq_clockgen_ls1021a, "fsl,ls1021a-clockgen", clockgen_init);
-+CLK_OF_DECLARE(qoriq_clockgen_ls1043a, "fsl,ls1043a-clockgen", clockgen_init);
- CLK_OF_DECLARE(qoriq_clockgen_ls2080a, "fsl,ls2080a-clockgen", clockgen_init);
- 
- /* Legacy nodes */
--- 
-2.1.0.27.g96db324
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+
+> Signed-off-by: Shaohui Xie <Shaohui.Xie@freescale.com>
+> Signed-off-by: Wenbin Song <Wenbin.Song@freescale.com>
+> Signed-off-by: Hou Zhiqiang <B48286@freescale.com>
+> ---
+>   drivers/watchdog/Kconfig | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index c68edc1..2862219 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -446,7 +446,7 @@ config MAX63XX_WATCHDOG
+>
+>   config IMX2_WDT
+>   	tristate "IMX2+ Watchdog"
+> -	depends on ARCH_MXC
+> +	depends on ARCH_MXC || ARCH_LAYERSCAPE
+>   	select REGMAP_MMIO
+>   	select WATCHDOG_CORE
+>   	help
+>
 
