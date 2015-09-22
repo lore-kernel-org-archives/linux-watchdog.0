@@ -1,14 +1,15 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-bn1bon0116.outbound.protection.outlook.com ([157.56.111.116]:48299
-	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
+Received: from mail-by2on0106.outbound.protection.outlook.com ([207.46.100.106]:16724
+	"EHLO na01-by2-obe.outbound.protection.outlook.com"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1759708AbbIVWjU (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 22 Sep 2015 18:39:20 -0400
-From: Li Leo <LeoLi@freescale.com>
-To: Mark Rutland <mark.rutland@arm.com>,
-	Hou Zhiqiang <B48286@freescale.com>,
-	Kushwaha Prabhakar <prabhakar@freescale.com>
-CC: Marc Zyngier <Marc.Zyngier@arm.com>,
+	id S934425AbbIVWnf (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 22 Sep 2015 18:43:35 -0400
+Message-ID: <1442961804.19102.294.camel@freescale.com>
+Subject: Re: [PATCH 4/6] arm64/ls1043a: add DTS for Freescale LS1043A SoC
+From: Scott Wood <scottwood@freescale.com>
+To: Mark Rutland <mark.rutland@arm.com>
+CC: Hou Zhiqiang <B48286@freescale.com>,
+	Marc Zyngier <Marc.Zyngier@arm.com>,
 	"linux-arm-kernel@lists.infradead.org"
 	<linux-arm-kernel@lists.infradead.org>,
 	Catalin Marinas <Catalin.Marinas@arm.com>,
@@ -25,32 +26,43 @@ CC: Marc Zyngier <Marc.Zyngier@arm.com>,
 	"sboyd@codeaurora.org" <sboyd@codeaurora.org>,
 	"wim@iguana.be" <wim@iguana.be>,
 	Wenbin Song <Wenbin.Song@freescale.com>,
-	Scott Wood <scottwood@freescale.com>,
-	Hu Vincent <Mingkai.Hu@freescale.com>
-Subject: RE: [PATCH 4/6] arm64/ls1043a: add DTS for Freescale LS1043A SoC
-Date: Tue, 22 Sep 2015 22:39:16 +0000
-Message-ID: <DM2PR0301MB07348FE1F1D12B19FF5084EEBA450@DM2PR0301MB0734.namprd03.prod.outlook.com>
-References: <1442838158-2964-1-git-send-email-B48286@freescale.com>
- <1442838158-2964-5-git-send-email-B48286@freescale.com>
- <20150922012403.GA1535@svinekod>
- <CY1PR0301MB078008B10188504C951076498B450@CY1PR0301MB0780.namprd03.prod.outlook.com>
- <20150922221504.GA1497@svinekod>
+	Hu Vincent <Mingkai.Hu@freescale.com>,
+	Li Leo <LeoLi@freescale.com>,
+	"Kushwaha Prabhakar-B32579" <prabhakar@freescale.com>
+Date: Tue, 22 Sep 2015 17:43:24 -0500
 In-Reply-To: <20150922221504.GA1497@svinekod>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+References: <1442838158-2964-1-git-send-email-B48286@freescale.com>
+	 <1442838158-2964-5-git-send-email-B48286@freescale.com>
+	 <20150922012403.GA1535@svinekod>
+	 <CY1PR0301MB078008B10188504C951076498B450@CY1PR0301MB0780.namprd03.prod.outlook.com>
+	 <20150922221504.GA1497@svinekod>
+Content-Type: text/plain; charset="UTF-8"
 MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-DQo+ID4gPiA+ICsgICAgICAgaWZjOiBpZmNAMTUzMDAwMCB7DQo+ID4gPiA+ICsgICAgICAgICAg
-ICAgICBjb21wYXRpYmxlID0gImZzbCxpZmMiLCAic2ltcGxlLWJ1cyI7DQo+ID4gPiA+ICsgICAg
-ICAgICAgICAgICByZWcgPSA8MHgwIDB4MTUzMDAwMCAweDAgMHgxMDAwMD47DQo+ID4gPiA+ICsg
-ICAgICAgICAgICAgICBpbnRlcnJ1cHRzID0gPDAgNDMgMHg0PjsNCj4gPiA+ID4gKyAgICAgICB9
-Ow0KPiA+ID4NCj4gPiA+IFdoeSBzaW1wbGUtYnVzPw0KPiA+DQo+ID4gVGhlcmUgYXJlIDMgY2hp
-bGQgbm9kZSBsb2NhdGVkIGluIGR0c2kgZmlsZSB0aGF0IHNob3VsZCBiZSBjcmVhdGVkIGFuZA0K
-PiA+IGFkZGVkIHRvIHBsYXRmb3JtIGRldmljZSBsaXN0Lg0KPiANCj4gQXJlIHRoZXkgdXNhYmxl
-IGV2ZW4gaWYgdGhlIGtlcm5lbCBrbmV3IG5vdGhpbmcgYWJvdXQgdGhlIElGQyBub2RlPyBJZiBu
-b3QsIHRoZQ0KPiBJRkMgZHJpdmVyIHNob3VsZCBwcm9iZSB0aGVtLCBhbmQgc2ltcGxlLWJ1cyBz
-aG91bGQgZ28uDQoNCkFkZGluZyB0aGUgSUZDIGRyaXZlciBvd25lciB0byB0aGUgbG9vcC4NCg0K
-UmVnYXJkcywNCkxlbw0K
+On Tue, 2015-09-22 at 23:15 +0100, Mark Rutland wrote:
+> On Tue, Sep 22, 2015 at 10:50:21AM +0100, Hou Zhiqiang wrote:
+> > > > +       ifc:  ifc@1530000{
+> > > > +               compatible = "fsl,ifc", "simple-bus";
+> > > > +               reg = <0x0 0x1530000 0x0 0x10000>;
+> > > > +               interrupts = <0 43 0x4>;
+> > > > +       };
+> > > 
+> > > Why simple-bus?
+> > 
+> > There are 3 child node located in dtsi file that should be created and 
+> > added
+> > to platform device list.
+> 
+> Are they usable even if the kernel knew nothing about the IFC node?
+
+Yes, except for NAND.
+
+>  If not, the IFC driver should probe them, and simple-bus should go.
+
+IFC is not a new binding.  IFC nodes are expected to have simple-bus.
+
+-Scott
+
