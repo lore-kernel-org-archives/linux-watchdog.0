@@ -1,66 +1,71 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-by2on0119.outbound.protection.outlook.com ([207.46.100.119]:29248
-	"EHLO na01-by2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750716AbbIWEQN convert rfc822-to-8bit (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:45638 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754286AbbIWN7H (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 23 Sep 2015 00:16:13 -0400
-From: Li Leo <LeoLi@freescale.com>
-To: Hou Zhiqiang <B48286@freescale.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	"marc.zyngier@arm.com" <marc.zyngier@arm.com>
-CC: "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-	Catalin Marinas <Catalin.Marinas@arm.com>,
-	Will Deacon <Will.Deacon@arm.com>,
-	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-	"linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>,
-	Shaohui Xie <Shaohui.Xie@freescale.com>,
-	"corbet@lwn.net" <corbet@lwn.net>,
-	"Sharma Bhupesh" <bhupesh.sharma@freescale.com>,
-	"mturquette@baylibre.com" <mturquette@baylibre.com>,
-	"wsa@the-dreams.de" <wsa@the-dreams.de>,
-	"sboyd@codeaurora.org" <sboyd@codeaurora.org>,
-	"wim@iguana.be" <wim@iguana.be>,
-	Wenbin Song <Wenbin.Song@freescale.com>,
-	Scott Wood <scottwood@freescale.com>,
-	Hu Vincent <Mingkai.Hu@freescale.com>
-Subject: RE: [PATCH 4/6] arm64/ls1043a: add DTS for Freescale LS1043A SoC
-Date: Wed, 23 Sep 2015 04:16:10 +0000
-Message-ID: <DM2PR0301MB0734302E89290593BE7D9565BA440@DM2PR0301MB0734.namprd03.prod.outlook.com>
-References: <1442838158-2964-1-git-send-email-B48286@freescale.com>
- <1442838158-2964-5-git-send-email-B48286@freescale.com>
- <20150922012403.GA1535@svinekod>
- <CY1PR0301MB078008B10188504C951076498B450@CY1PR0301MB0780.namprd03.prod.outlook.com>
- <DM2PR0301MB07342356008C1A50AB26FEFFBA450@DM2PR0301MB0734.namprd03.prod.outlook.com>
- <CY1PR0301MB07805FA01ACAF84648C806138B440@CY1PR0301MB0780.namprd03.prod.outlook.com>
-In-Reply-To: <CY1PR0301MB07805FA01ACAF84648C806138B440@CY1PR0301MB0780.namprd03.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+	Wed, 23 Sep 2015 09:59:07 -0400
+Subject: Re: [PATCH] watchdog: iTCO: Fix dependencies on I2C
+To: Matt Fleming <matt@codeblueprint.co.uk>
+References: <1441978088-27288-1-git-send-email-linux@roeck-us.net>
+ <20150923103206.GC2867@codeblueprint.co.uk>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Matt Fleming <matt.fleming@intel.com>,
+	Lee Jones <lee.jones@linaro.org>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <5602B025.8030109@roeck-us.net>
+Date: Wed, 23 Sep 2015 06:59:01 -0700
 MIME-Version: 1.0
+In-Reply-To: <20150923103206.GC2867@codeblueprint.co.uk>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-> > > >
-> > > > Hi,
-> > > >
-> > > > > +/memreserve/ 0x80000000 0x00010000;
-> > > >
-> > > > Why is this necessary?
-> > >
-> > > This memory region is pre-reserved for the spin-table/psci, although
-> > > didn't add Enable method of secondary cores.
-> >
-> > Can this be reserved by bootloader?
-> 
-> Yes, the memory for psci was reserved by u-boot code. But due to spin-table
-> need the release address, is it better adding the /memreserve/ in dts file?
-> Or add it by bootloader and fix the release address accordingly?
+On 09/23/2015 03:32 AM, Matt Fleming wrote:
+> On Fri, 11 Sep, at 06:28:08AM, Guenter Roeck wrote:
+>> If I2C is built as module, the iTCO watchdog driver must be built as module
+>> as well. I2C_I801 must only be selected if I2C is configured.
+>>
+>> This fixes the following build errors, seen if I2C=m and ITCO_WDT=y.
+>>
+>> i2c-i801.c:(.text+0x2bf055): undefined reference to `i2c_del_adapter'
+>> i2c-i801.c:(.text+0x2c13e0): undefined reference to `i2c_add_adapter'
+>> i2c-i801.c:(.text+0x2c17bd): undefined reference to `i2c_new_device'
+>>
+>> Fixes: 2a7a0e9bf7b3 ("watchdog: iTCO_wdt: Add support for TCO on Intel Sunrisepoint")
+>> Cc: Matt Fleming <matt.fleming@intel.com>
+>> Cc: Lee Jones <lee.jones@linaro.org>
+>> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+>> ---
+>>   drivers/watchdog/Kconfig | 3 ++-
+>>   1 file changed, 2 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+>> index 55c4b5b0a317..75c358ce71a7 100644
+>> --- a/drivers/watchdog/Kconfig
+>> +++ b/drivers/watchdog/Kconfig
+>> @@ -797,8 +797,9 @@ config ITCO_WDT
+>>   	tristate "Intel TCO Timer/Watchdog"
+>>   	depends on (X86 || IA64) && PCI
+>>   	select WATCHDOG_CORE
+>> +	depends on I2C || I2C=n
+>>   	select LPC_ICH if !EXPERT
+>> -	select I2C_I801 if !EXPERT
+>> +	select I2C_I801 if !EXPERT && I2C
+>>   	---help---
+>>   	  Hardware driver for the intel TCO timer based watchdog devices.
+>>   	  These drivers are included in the Intel 82801 I/O Controller
+>
+> Whoops, thanks for catching this Guenter. Are you going to send this
+> to Linus?
+>
 
-Both the reserved memory region and cpu-release-addr should be updated by bootloader.
+Wim should do that.
 
-Regards,
-Leo
+> Reviewed-by: Matt Fleming <matt.fleming@intel.com>
+>
+Thanks for the review.
+
+Guenter
+
