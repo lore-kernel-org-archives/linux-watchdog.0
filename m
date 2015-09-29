@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:35936 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:35979 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932731AbbI2I1l (ORCPT
+	with ESMTP id S933004AbbI2I1r (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 29 Sep 2015 04:27:41 -0400
+	Tue, 29 Sep 2015 04:27:47 -0400
 From: Guenter Roeck <linux@roeck-us.net>
 To: linux-watchdog@vger.kernel.org
 Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
@@ -12,122 +12,80 @@ Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
 	<u.kleine-koenig@pengutronix.de>, linux-doc@vger.kernel.org,
 	Jonathan Corbet <corbet@lwn.net>,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v4 0/9] watchdog: Add support for keepalives triggered by infrastructure
-Date: Tue, 29 Sep 2015 01:27:23 -0700
-Message-Id: <1443515252-30085-1-git-send-email-linux@roeck-us.net>
+Subject: [PATCH v4 5/9] watchdog: Make set_timeout function optional
+Date: Tue, 29 Sep 2015 01:27:28 -0700
+Message-Id: <1443515252-30085-6-git-send-email-linux@roeck-us.net>
+In-Reply-To: <1443515252-30085-1-git-send-email-linux@roeck-us.net>
+References: <1443515252-30085-1-git-send-email-linux@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The watchdog infrastructure is currently purely passive, meaning
-it only passes information from user space to drivers and vice versa.
+For some watchdogs, the hardware timeout is fixed, and the
+watchdog driver depends on the watchdog core to handle the
+actual timeout. In this situation, the watchdog driver might
+only set the 'timeout' variable but do nothing else.
+This can as well be handled by the infrastructure, so make
+the set_timeout callback optional. If WDIOF_SETTIMEOUT is
+configured but the .set_timeout callback is not available,
+update the timeout variable in the infrastructure code.
 
-Since watchdog hardware tends to have its own quirks, this can result
-in quite complex watchdog drivers. A number of scanarios are especially common.
+Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+v3: No changes
+v2: No changes
+---
+ Documentation/watchdog/watchdog-kernel-api.txt | 5 +++++
+ drivers/watchdog/watchdog_dev.c                | 9 ++++++---
+ 2 files changed, 11 insertions(+), 3 deletions(-)
 
-- A watchdog is always active and can not be disabled, or can not be disabled
-  once enabled. To support such hardware, watchdog drivers have to implement
-  their own timers and use those timers to trigger watchdog keepalives while
-  the watchdog device is not or not yet opened.
-- A variant of this is the desire to enable a watchdog as soon as its driver
-  has been instantiated, to protect the system while it is still booting up,
-  but the watchdog daemon is not yet running.
-- Some watchdogs have a very short maximum timeout, in the range of just a few
-  seconds. Such low timeouts are difficult if not impossible to support from
-  user space. Drivers supporting such watchdog hardware need to implement
-  a timer function to augment heartbeats from user space.
+diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
+index 3f0963b2c33e..f480a9355b43 100644
+--- a/Documentation/watchdog/watchdog-kernel-api.txt
++++ b/Documentation/watchdog/watchdog-kernel-api.txt
+@@ -184,6 +184,11 @@ they are supported. These optional routines/operations are:
+   (if it is larger than hw_max_timeout_ms), or to the achieved timeout value.
+   (Note: the WDIOF_SETTIMEOUT needs to be set in the options field of the
+   watchdog's info structure).
++  If the watchdog driver does not have to perform any action but setting the
++  watchdog_device.timeout, this callback can be omitted.
++  If set_timeout is not provided but, WDIOF_SETTIMEOUT is set, the watchdog
++  infrastructure updates the timeout value of the watchdog_device internally
++  to the requested value.
+ * get_timeleft: this routines returns the time that's left before a reset.
+ * ref: the operation that calls kref_get on the kref of a dynamically
+   allocated watchdog_device struct.
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 80449c8bc966..b590611b176a 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -282,9 +282,9 @@ out_status:
+ static int watchdog_set_timeout(struct watchdog_device *wdd,
+ 							unsigned int timeout)
+ {
+-	int err;
++	int err = 0;
+ 
+-	if (!wdd->ops->set_timeout || !(wdd->info->options & WDIOF_SETTIMEOUT))
++	if (!(wdd->info->options & WDIOF_SETTIMEOUT))
+ 		return -EOPNOTSUPP;
+ 
+ 	if (watchdog_timeout_invalid(wdd, timeout))
+@@ -297,7 +297,10 @@ static int watchdog_set_timeout(struct watchdog_device *wdd,
+ 		goto out_timeout;
+ 	}
+ 
+-	err = wdd->ops->set_timeout(wdd, timeout);
++	if (wdd->ops->set_timeout)
++		err = wdd->ops->set_timeout(wdd, timeout);
++	else
++		wdd->timeout = timeout;
+ 
+ 	watchdog_update_worker(wdd, true);
+ 
+-- 
+2.1.4
 
-This patch set solves the above problems while keeping changes to the
-watchdog core minimal.
-
-- A new status flag, WDOG_RUNNING, informs the watchdog subsystem that a
-  watchdog is running, and that the watchdog subsystem needs to generate
-  heartbeat requests while the associated watchdog device is closed.
-- A new parameter in the watchdog data structure, max_hw_timeout_ms, informs
-  the watchdog subsystem about a maximum hardware timeout. The watchdog
-  subsystem uses this information together with the configured timeout
-  and the maximum permitted timeout to determine if it needs to generate
-  additional heartbeat requests.
-
-As part of this patchset, the semantics of the 'timeout' variable and of
-the WDOG_ACTIVE flag are changed slightly.
-
-Per the current watchdog kernel API, the 'timeout' variable is supposed
-to reflect the actual hardware watcdog timeout. WDOG_ACTIVE is supposed
-to reflect if the hardware watchdog is running or not.
-
-Unfortunately, this does not always reflect reality. In drivers which solve
-the above mentioned problems internally, 'timeout' is the watchdog timeout
-as seen from user space, and WDOG_ACTIVE reflects that user space is expected
-to send keepalive requests to the watchdog driver.
-
-After this patch set is applied, this so far inofficial interpretation
-is the 'official' semantics for the timeout variable and the WDOG_ACTIVE
-flag. In other words, both values no longer reflect the hardware watchdog
-status, but its status as seen from user space.
-
-Patch #1 and #2 are preparatory patches.
-
-Patch #3 adds timer functionality to the watchdog core. It solves the problem
-of short maximum hardware timeouts by augmenting heartbeats triggered from
-user space with internally triggered heartbeats.
-
-Patch #4 adds functionality to generate heartbeats while the watchdog device is
-closed. It handles situation where where the watchdog is running after
-the driver has been instantiated, but the device is not yet opened,
-and post-close situations necessary if a watchdog can not be stopped.
-
-Patch #5 makes the set_timeout function optional. This is now possible since
-timeout changes can now be completely handled in the watchdog core, for
-example if the hardware watchdog timeout is fixed.
-
-Patch #6 to #8 are example conversions of some watchdog drivers.
-Those patches will require testing.
-
-Patch #9 adds code to unconditionally ensure that the minimum timeout meets
-constraints provided by the watchdog driver.
-
-The patch set is also available in branch watchdog-timer of
-git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git.
-
-This patch set does not solve all limitations of the watchdog subsystem.
-Specifically, it does not add support for the following features.
-
-- It is desirable to be able to specify a maximum early timeout,
-  from booting the system to opening the watchdog device.
-
-This and other features will be addressed with subsequent patches.
-
-It may be possible to simplify the watchdog_update_worker() function
-to not require the 'cancel' argument. This is left for further study.
-
-The patch set is inspired by an earlier patch set from Timo Kokonnen.
-
-v4:
-- Rebased to v4.3-rc3
-- Rearranged patch sequence
-- Dropped gpio driver patch. The driver was changed since v4.2,
-  and merging the changes turned out to be too difficult.
-- Various other cleanups as listed in individual patches
-v3:
-- Rebased to v4.2-rc8
-- Reworked and cleaned up some of the functions.
-- No longer call the worker update function if all that is needed is to stop
-  the worker.
-- max_timeout will now be ignored if max_hw_timeout_ms is provided.
-- Added patch 9/9.
-v2:
-- Rebased to v4.2-rc5
-- Improved and hopefully clarified documentation.
-- Rearranged variables in struct watchdog_device such that internal variables
-  come last.
-- The code now ensures that the watchdog times out <timeout> seconds after
-  the most recent keepalive sent from user space.
-- The internal keepalive now stops silently and no longer generates a
-  warning message. Reason is that it will now stop early, while there
-  may still be a substantial amount of time for keepalives from user space
-  to arrive. If such keepalives arrive late (for example if user space
-  is configured to send keepalives just a few seconds before the watchdog
-  times out), the message would just be noise and not provide any value.
