@@ -1,70 +1,62 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:37275 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:35941 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756574AbbIYN3X (ORCPT
+	with ESMTP id S932696AbbI2I1l (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 25 Sep 2015 09:29:23 -0400
-Subject: Re: [PATCH] watchdog: iTCO_wdt: Fix unmet dependency in select
-To: Jean Delvare <jdelvare@suse.de>, linux-watchdog@vger.kernel.org
-References: <20150925101045.06062b59@endymion.delvare>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>,
-	Jim Davis <jim.epost@gmail.com>,
-	Matt Fleming <matt.fleming@intel.com>,
-	Lee Jones <lee.jones@linaro.org>,
-	Wim Van Sebroeck <wim@iguana.be>
+	Tue, 29 Sep 2015 04:27:41 -0400
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56054C2E.9010703@roeck-us.net>
-Date: Fri, 25 Sep 2015 06:29:18 -0700
-MIME-Version: 1.0
-In-Reply-To: <20150925101045.06062b59@endymion.delvare>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
+	Timo Kokkonen <timo.kokkonen@offcode.fi>,
+	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
+	<u.kleine-koenig@pengutronix.de>, linux-doc@vger.kernel.org,
+	Jonathan Corbet <corbet@lwn.net>,
+	Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH v4 1/9] watchdog: Always evaluate new timeout against min_timeout
+Date: Tue, 29 Sep 2015 01:27:24 -0700
+Message-Id: <1443515252-30085-2-git-send-email-linux@roeck-us.net>
+In-Reply-To: <1443515252-30085-1-git-send-email-linux@roeck-us.net>
+References: <1443515252-30085-1-git-send-email-linux@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 09/25/2015 01:10 AM, Jean Delvare wrote:
-> ITCO_WDT selects I2C_I801 but does not select its dependencies (I2C.)
-> This can result in link-time failures:
->
-> drivers/built-in.o: In function `i801_remove':
-> i2c-i801.c:(.text+0x1a6126): undefined reference to `i2c_del_adapter'
-> drivers/built-in.o: In function `dmi_check_onboard_devices':
-> i2c-i801.c:(.text+0x1a7531): undefined reference to `i2c_new_device'
-> drivers/built-in.o: In function `i801_probe':
-> i2c-i801.c:(.text+0x1a7aa8): undefined reference to `i2c_add_adapter'
-> i2c-i801.c:(.text+0x1a7e14): undefined reference to `i2c_new_device'
->
-> So we must select I2C as well.
->
-> Reported-by: Jim Davis <jim.epost@gmail.com>
-> Signed-off-by: Jean Delvare <jdelvare@suse.de>
-> Fixes: 2a7a0e9bf7 ("watchdog: iTCO_wdt: Add support for TCO on Intel Sunrisepoint")
-> Cc: Matt Fleming <matt.fleming@intel.com>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: Lee Jones <lee.jones@linaro.org>
-> Cc: Wim Van Sebroeck <wim@iguana.be>
-> ---
->   drivers/watchdog/Kconfig |    2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
->
-> --- linux-4.3-rc2.orig/drivers/watchdog/Kconfig	2015-09-24 11:43:29.959432358 +0200
-> +++ linux-4.3-rc2/drivers/watchdog/Kconfig	2015-09-25 09:56:20.518840112 +0200
-> @@ -818,6 +818,7 @@ config ITCO_WDT
->   	depends on (X86 || IA64) && PCI
->   	select WATCHDOG_CORE
->   	select LPC_ICH if !EXPERT
-> +	select I2C if !EXPERT
->   	select I2C_I801 if !EXPERT
->   	---help---
->   	  Hardware driver for the intel TCO timer based watchdog devices.
->
->
+Up to now, a new timeout value is only evaluated against min_timeout
+if max_timeout is provided. This does not really make sense; a driver
+can have a minimum timeout even if it does not have a maximum timeout.
+Ensure that it is not smaller than min_timeout, even if max_timeout
+is not set.
 
-I had fixed the problem differently, similar to other drivers.
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+v4: Now first patch of series.
+    Added comments.
+v3: New patch.
+---
+ include/linux/watchdog.h | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-http://patchwork.roeck-us.net/patch/239/
-
-Waiting for Wim to apply it.
-
-Guenter
+diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+index d74a0e907b9e..e90e3ea5ebeb 100644
+--- a/include/linux/watchdog.h
++++ b/include/linux/watchdog.h
+@@ -119,8 +119,15 @@ static inline void watchdog_set_nowayout(struct watchdog_device *wdd, bool noway
+ /* Use the following function to check if a timeout value is invalid */
+ static inline bool watchdog_timeout_invalid(struct watchdog_device *wdd, unsigned int t)
+ {
+-	return ((wdd->max_timeout != 0) &&
+-		(t < wdd->min_timeout || t > wdd->max_timeout));
++	/*
++	 * The timeout is invalid if
++	 * - the requested value is smaller than the configured minimum timeout,
++	 * or
++	 * - a maximum timeout is configured, and the requested value is larger
++	 *   than the maximum timeout.
++	 */
++	return t < wdd->min_timeout ||
++		(wdd->max_timeout && t > wdd->max_timeout);
+ }
+ 
+ /* Use the following functions to manipulate watchdog driver specific data */
+-- 
+2.1.4
 
