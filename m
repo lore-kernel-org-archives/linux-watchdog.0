@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:35986 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:35936 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933095AbbI2I1t (ORCPT
+	with ESMTP id S932731AbbI2I1l (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 29 Sep 2015 04:27:49 -0400
+	Tue, 29 Sep 2015 04:27:41 -0400
 From: Guenter Roeck <linux@roeck-us.net>
 To: linux-watchdog@vger.kernel.org
 Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
@@ -12,184 +12,122 @@ Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
 	<u.kleine-koenig@pengutronix.de>, linux-doc@vger.kernel.org,
 	Jonathan Corbet <corbet@lwn.net>,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v4 6/9] watchdog: imx2: Convert to use infrastructure triggered keepalives
-Date: Tue, 29 Sep 2015 01:27:29 -0700
-Message-Id: <1443515252-30085-7-git-send-email-linux@roeck-us.net>
-In-Reply-To: <1443515252-30085-1-git-send-email-linux@roeck-us.net>
-References: <1443515252-30085-1-git-send-email-linux@roeck-us.net>
+Subject: [PATCH v4 0/9] watchdog: Add support for keepalives triggered by infrastructure
+Date: Tue, 29 Sep 2015 01:27:23 -0700
+Message-Id: <1443515252-30085-1-git-send-email-linux@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-The watchdog infrastructure now supports handling watchdog keepalive
-if the watchdog is running while the watchdog device is closed.
-Convert the driver to use this infrastructure.
+The watchdog infrastructure is currently purely passive, meaning
+it only passes information from user space to drivers and vice versa.
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
-v3: No changes
-v2: No changes
----
- drivers/watchdog/imx2_wdt.c | 72 ++++++++-------------------------------------
- 1 file changed, 12 insertions(+), 60 deletions(-)
+Since watchdog hardware tends to have its own quirks, this can result
+in quite complex watchdog drivers. A number of scanarios are especially common.
 
-diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-index 0bb1a1d1b170..66feef254661 100644
---- a/drivers/watchdog/imx2_wdt.c
-+++ b/drivers/watchdog/imx2_wdt.c
-@@ -25,7 +25,6 @@
- #include <linux/delay.h>
- #include <linux/init.h>
- #include <linux/io.h>
--#include <linux/jiffies.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
-@@ -34,7 +33,6 @@
- #include <linux/platform_device.h>
- #include <linux/reboot.h>
- #include <linux/regmap.h>
--#include <linux/timer.h>
- #include <linux/watchdog.h>
- 
- #define DRIVER_NAME "imx2-wdt"
-@@ -62,7 +60,6 @@
- struct imx2_wdt_device {
- 	struct clk *clk;
- 	struct regmap *regmap;
--	struct timer_list timer;	/* Pings the watchdog when closed */
- 	struct watchdog_device wdog;
- 	struct notifier_block restart_handler;
- };
-@@ -151,16 +148,6 @@ static int imx2_wdt_ping(struct watchdog_device *wdog)
- 	return 0;
- }
- 
--static void imx2_wdt_timer_ping(unsigned long arg)
--{
--	struct watchdog_device *wdog = (struct watchdog_device *)arg;
--	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
--
--	/* ping it every wdog->timeout / 2 seconds to prevent reboot */
--	imx2_wdt_ping(wdog);
--	mod_timer(&wdev->timer, jiffies + wdog->timeout * HZ / 2);
--}
--
- static int imx2_wdt_set_timeout(struct watchdog_device *wdog,
- 				unsigned int new_timeout)
- {
-@@ -177,40 +164,19 @@ static int imx2_wdt_start(struct watchdog_device *wdog)
- {
- 	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
- 
--	if (imx2_wdt_is_running(wdev)) {
--		/* delete the timer that pings the watchdog after close */
--		del_timer_sync(&wdev->timer);
-+	if (imx2_wdt_is_running(wdev))
- 		imx2_wdt_set_timeout(wdog, wdog->timeout);
--	} else
-+	else
- 		imx2_wdt_setup(wdog);
- 
--	return imx2_wdt_ping(wdog);
--}
--
--static int imx2_wdt_stop(struct watchdog_device *wdog)
--{
--	/*
--	 * We don't need a clk_disable, it cannot be disabled once started.
--	 * We use a timer to ping the watchdog while /dev/watchdog is closed
--	 */
--	imx2_wdt_timer_ping((unsigned long)wdog);
--	return 0;
--}
--
--static inline void imx2_wdt_ping_if_active(struct watchdog_device *wdog)
--{
--	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
-+	set_bit(WDOG_RUNNING, &wdog->status);
- 
--	if (imx2_wdt_is_running(wdev)) {
--		imx2_wdt_set_timeout(wdog, wdog->timeout);
--		imx2_wdt_timer_ping((unsigned long)wdog);
--	}
-+	return imx2_wdt_ping(wdog);
- }
- 
- static const struct watchdog_ops imx2_wdt_ops = {
- 	.owner = THIS_MODULE,
- 	.start = imx2_wdt_start,
--	.stop = imx2_wdt_stop,
- 	.ping = imx2_wdt_ping,
- 	.set_timeout = imx2_wdt_set_timeout,
- };
-@@ -277,9 +243,10 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
- 	watchdog_set_nowayout(wdog, nowayout);
- 	watchdog_init_timeout(wdog, timeout, &pdev->dev);
- 
--	setup_timer(&wdev->timer, imx2_wdt_timer_ping, (unsigned long)wdog);
--
--	imx2_wdt_ping_if_active(wdog);
-+	if (imx2_wdt_is_running(wdev)) {
-+		imx2_wdt_set_timeout(wdog, wdog->timeout);
-+		set_bit(WDOG_RUNNING, &wdog->status);
-+	}
- 
- 	/*
- 	 * Disable the watchdog power down counter at boot. Otherwise the power
-@@ -320,7 +287,6 @@ static int __exit imx2_wdt_remove(struct platform_device *pdev)
- 	watchdog_unregister_device(wdog);
- 
- 	if (imx2_wdt_is_running(wdev)) {
--		del_timer_sync(&wdev->timer);
- 		imx2_wdt_ping(wdog);
- 		dev_crit(&pdev->dev, "Device removed: Expect reboot!\n");
- 	}
-@@ -334,10 +300,9 @@ static void imx2_wdt_shutdown(struct platform_device *pdev)
- 
- 	if (imx2_wdt_is_running(wdev)) {
- 		/*
--		 * We are running, we need to delete the timer but will
--		 * give max timeout before reboot will take place
-+		 * We are running, configure max timeout before reboot
-+		 * will take place.
- 		 */
--		del_timer_sync(&wdev->timer);
- 		imx2_wdt_set_timeout(wdog, IMX2_WDT_MAX_TIME);
- 		imx2_wdt_ping(wdog);
- 		dev_crit(&pdev->dev, "Device shutdown: Expect reboot!\n");
-@@ -355,10 +320,6 @@ static int imx2_wdt_suspend(struct device *dev)
- 	if (imx2_wdt_is_running(wdev)) {
- 		imx2_wdt_set_timeout(wdog, IMX2_WDT_MAX_TIME);
- 		imx2_wdt_ping(wdog);
--
--		/* The watchdog is not active */
--		if (!watchdog_active(wdog))
--			del_timer_sync(&wdev->timer);
- 	}
- 
- 	clk_disable_unprepare(wdev->clk);
-@@ -384,19 +345,10 @@ static int imx2_wdt_resume(struct device *dev)
- 		 * watchdog again.
- 		 */
- 		imx2_wdt_setup(wdog);
-+	}
-+	if (imx2_wdt_is_running(wdev)) {
- 		imx2_wdt_set_timeout(wdog, wdog->timeout);
- 		imx2_wdt_ping(wdog);
--	} else if (imx2_wdt_is_running(wdev)) {
--		/* Resuming from non-deep sleep state. */
--		imx2_wdt_set_timeout(wdog, wdog->timeout);
--		imx2_wdt_ping(wdog);
--		/*
--		 * But the watchdog is not active, then start
--		 * the timer again.
--		 */
--		if (!watchdog_active(wdog))
--			mod_timer(&wdev->timer,
--				  jiffies + wdog->timeout * HZ / 2);
- 	}
- 
- 	return 0;
--- 
-2.1.4
+- A watchdog is always active and can not be disabled, or can not be disabled
+  once enabled. To support such hardware, watchdog drivers have to implement
+  their own timers and use those timers to trigger watchdog keepalives while
+  the watchdog device is not or not yet opened.
+- A variant of this is the desire to enable a watchdog as soon as its driver
+  has been instantiated, to protect the system while it is still booting up,
+  but the watchdog daemon is not yet running.
+- Some watchdogs have a very short maximum timeout, in the range of just a few
+  seconds. Such low timeouts are difficult if not impossible to support from
+  user space. Drivers supporting such watchdog hardware need to implement
+  a timer function to augment heartbeats from user space.
 
+This patch set solves the above problems while keeping changes to the
+watchdog core minimal.
+
+- A new status flag, WDOG_RUNNING, informs the watchdog subsystem that a
+  watchdog is running, and that the watchdog subsystem needs to generate
+  heartbeat requests while the associated watchdog device is closed.
+- A new parameter in the watchdog data structure, max_hw_timeout_ms, informs
+  the watchdog subsystem about a maximum hardware timeout. The watchdog
+  subsystem uses this information together with the configured timeout
+  and the maximum permitted timeout to determine if it needs to generate
+  additional heartbeat requests.
+
+As part of this patchset, the semantics of the 'timeout' variable and of
+the WDOG_ACTIVE flag are changed slightly.
+
+Per the current watchdog kernel API, the 'timeout' variable is supposed
+to reflect the actual hardware watcdog timeout. WDOG_ACTIVE is supposed
+to reflect if the hardware watchdog is running or not.
+
+Unfortunately, this does not always reflect reality. In drivers which solve
+the above mentioned problems internally, 'timeout' is the watchdog timeout
+as seen from user space, and WDOG_ACTIVE reflects that user space is expected
+to send keepalive requests to the watchdog driver.
+
+After this patch set is applied, this so far inofficial interpretation
+is the 'official' semantics for the timeout variable and the WDOG_ACTIVE
+flag. In other words, both values no longer reflect the hardware watchdog
+status, but its status as seen from user space.
+
+Patch #1 and #2 are preparatory patches.
+
+Patch #3 adds timer functionality to the watchdog core. It solves the problem
+of short maximum hardware timeouts by augmenting heartbeats triggered from
+user space with internally triggered heartbeats.
+
+Patch #4 adds functionality to generate heartbeats while the watchdog device is
+closed. It handles situation where where the watchdog is running after
+the driver has been instantiated, but the device is not yet opened,
+and post-close situations necessary if a watchdog can not be stopped.
+
+Patch #5 makes the set_timeout function optional. This is now possible since
+timeout changes can now be completely handled in the watchdog core, for
+example if the hardware watchdog timeout is fixed.
+
+Patch #6 to #8 are example conversions of some watchdog drivers.
+Those patches will require testing.
+
+Patch #9 adds code to unconditionally ensure that the minimum timeout meets
+constraints provided by the watchdog driver.
+
+The patch set is also available in branch watchdog-timer of
+git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git.
+
+This patch set does not solve all limitations of the watchdog subsystem.
+Specifically, it does not add support for the following features.
+
+- It is desirable to be able to specify a maximum early timeout,
+  from booting the system to opening the watchdog device.
+
+This and other features will be addressed with subsequent patches.
+
+It may be possible to simplify the watchdog_update_worker() function
+to not require the 'cancel' argument. This is left for further study.
+
+The patch set is inspired by an earlier patch set from Timo Kokonnen.
+
+v4:
+- Rebased to v4.3-rc3
+- Rearranged patch sequence
+- Dropped gpio driver patch. The driver was changed since v4.2,
+  and merging the changes turned out to be too difficult.
+- Various other cleanups as listed in individual patches
+v3:
+- Rebased to v4.2-rc8
+- Reworked and cleaned up some of the functions.
+- No longer call the worker update function if all that is needed is to stop
+  the worker.
+- max_timeout will now be ignored if max_hw_timeout_ms is provided.
+- Added patch 9/9.
+v2:
+- Rebased to v4.2-rc5
+- Improved and hopefully clarified documentation.
+- Rearranged variables in struct watchdog_device such that internal variables
+  come last.
+- The code now ensures that the watchdog times out <timeout> seconds after
+  the most recent keepalive sent from user space.
+- The internal keepalive now stops silently and no longer generates a
+  warning message. Reason is that it will now stop early, while there
+  may still be a substantial amount of time for keepalives from user space
+  to arrive. If such keepalives arrive late (for example if user space
+  is configured to send keepalives just a few seconds before the watchdog
+  times out), the message would just be noise and not provide any value.
