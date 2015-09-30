@@ -1,98 +1,77 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:55413 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752408AbbIYOqF (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 25 Sep 2015 10:46:05 -0400
-Subject: Re: [PATCH] watchdog: iTCO_wdt: Fix unmet dependency in select
-To: Jean Delvare <jdelvare@suse.de>
-References: <20150925101045.06062b59@endymion.delvare>
- <56054C2E.9010703@roeck-us.net> <1443189749.4919.2.camel@chaos.site>
-Cc: linux-watchdog@vger.kernel.org,
-	Linux I2C <linux-i2c@vger.kernel.org>,
-	Jim Davis <jim.epost@gmail.com>,
-	Matt Fleming <matt.fleming@intel.com>,
-	Lee Jones <lee.jones@linaro.org>,
-	Wim Van Sebroeck <wim@iguana.be>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56055E25.6060506@roeck-us.net>
-Date: Fri, 25 Sep 2015 07:45:57 -0700
+Received: from mx1.redhat.com ([209.132.183.28]:36713 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932513AbbI3RNm (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 30 Sep 2015 13:13:42 -0400
+Date: Wed, 30 Sep 2015 22:43:38 +0530
+From: Pratyush Anand <panand@redhat.com>
+To: fu.wei@linaro.org
+Cc: Suravee.Suthikulpanit@amd.com, hanjun.guo@linaro.org,
+	linaro-acpi@lists.linaro.org, linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-doc@vger.kernel.org, tekkamanninja@gmail.com,
+	graeme.gregory@linaro.org, al.stone@linaro.org, arnd@arndb.de,
+	linux@roeck-us.net, vgandhi@codeaurora.org, wim@iguana.be,
+	jcm@redhat.com, leo.duran@amd.com, corbet@lwn.net,
+	mark.rutland@arm.com, catalin.marinas@arm.com, will.deacon@arm.com,
+	rjw@rjwysocki.net, dyoung@redhat.com
+Subject: Re: [PATCH v7 0/8] Watchdog: introduce ARM SBSA watchdog driver
+Message-ID: <20150930171338.GC15745@dhcppc0.redhat.com>
+References: <=fu.wei@linaro.org>
+ <1440435683-7343-1-git-send-email-fu.wei@linaro.org>
 MIME-Version: 1.0
-In-Reply-To: <1443189749.4919.2.camel@chaos.site>
-Content-Type: text/plain; charset=utf-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1440435683-7343-1-git-send-email-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 09/25/2015 07:02 AM, Jean Delvare wrote:
-> Hi Guenter,
->
-> Le Friday 25 September 2015 =C3=A0 06:29 -0700, Guenter Roeck a =C3=A9=
-crit :
->> On 09/25/2015 01:10 AM, Jean Delvare wrote:
->>> ITCO_WDT selects I2C_I801 but does not select its dependencies (I2C=
-=2E)
->>> This can result in link-time failures:
->>>
->>> drivers/built-in.o: In function `i801_remove':
->>> i2c-i801.c:(.text+0x1a6126): undefined reference to `i2c_del_adapte=
-r'
->>> drivers/built-in.o: In function `dmi_check_onboard_devices':
->>> i2c-i801.c:(.text+0x1a7531): undefined reference to `i2c_new_device=
-'
->>> drivers/built-in.o: In function `i801_probe':
->>> i2c-i801.c:(.text+0x1a7aa8): undefined reference to `i2c_add_adapte=
-r'
->>> i2c-i801.c:(.text+0x1a7e14): undefined reference to `i2c_new_device=
-'
->>>
->>> So we must select I2C as well.
->>>
->>> Reported-by: Jim Davis <jim.epost@gmail.com>
->>> Signed-off-by: Jean Delvare <jdelvare@suse.de>
->>> Fixes: 2a7a0e9bf7 ("watchdog: iTCO_wdt: Add support for TCO on Inte=
-l Sunrisepoint")
->>> Cc: Matt Fleming <matt.fleming@intel.com>
->>> Cc: Guenter Roeck <linux@roeck-us.net>
->>> Cc: Lee Jones <lee.jones@linaro.org>
->>> Cc: Wim Van Sebroeck <wim@iguana.be>
->>> ---
->>>    drivers/watchdog/Kconfig |    2 +-
->>>    1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>> --- linux-4.3-rc2.orig/drivers/watchdog/Kconfig	2015-09-24 11:43:29=
-=2E959432358 +0200
->>> +++ linux-4.3-rc2/drivers/watchdog/Kconfig	2015-09-25 09:56:20.5188=
-40112 +0200
->>> @@ -818,6 +818,7 @@ config ITCO_WDT
->>>    	depends on (X86 || IA64) && PCI
->>>    	select WATCHDOG_CORE
->>>    	select LPC_ICH if !EXPERT
->>> +	select I2C if !EXPERT
->>>    	select I2C_I801 if !EXPERT
->>>    	---help---
->>>    	  Hardware driver for the intel TCO timer based watchdog device=
-s.
->>>
->>>
->>
->> I had fixed the problem differently, similar to other drivers.
->>
->> http://patchwork.roeck-us.net/patch/239/
->
-> 404 Not Found?
->
+Hi Fu Wei,
 
-Interesting. WFM. Maybe I don't publish it to the outside world.
-Here is a different link:
+On 25/08/2015:01:01:15 AM, fu.wei@linaro.org wrote:
+> From: Fu Wei <fu.wei@linaro.org>
+> 
+> This patchset:
+>     (1)Introduce Documentation/devicetree/bindings/watchdog/sbsa-gwdt.txt
+>     for FDT info of SBSA Generic Watchdog, and give two examples of
+>     adding SBSA Generic Watchdog device node into the dts files:
+>     foundation-v8.dts and amd-seattle-soc.dtsi.
+> 
+>     (2)Introduce "pretimeout" into the watchdog framework, and update
+>     Documentation/watchdog/watchdog-kernel-api.txt to introduce:
+>         (1)the new elements in the watchdog_device and watchdog_ops struct;
+>         (2)the new API "watchdog_init_timeouts".
+> 
+>     (3)Introduce ARM SBSA watchdog driver:
+>         a.Use linux kernel watchdog framework;
+>         b.Work with FDT on ARM64;
+>         c.Use "pretimeout" in watchdog framework;
+>         d.Support getting timeout and pretimeout from parameter and FDT
+>           at the driver init stage.
+>         e.In the first timeout, do panic to save system context;
+>         f.In the second stage, user can still feed the dog without
+>           cleaning WS0. By this feature, we can avoid the panic infinite
+>           loops, while backing up a large system context in a server.
+>         g.In the second stage, can trigger WS1 by setting pretimeout = 0
+>           if necessary.
+> 
+>     (4)Introduce ACPI GTDT parser: drivers/acpi/gtdt.c
+>     Parse SBSA Generic Watchdog Structure in GTDT table of ACPI,
+>     and create a platform device with that information.
+>     This platform device can be used by This Watchdog driver.
+>     drivers/clocksource/arm_arch_timer.c is simplified by this GTDT support.
+> 
+> This patchset has been tested with watchdog daemon
+> (ACPI/FDT, module/build-in) on the following platforms:
+>     (1)ARM Foundation v8 model
+> 
 
-https://lkml.org/lkml/2015/9/11/343
+I tested it with kdump on fedora-arm64 Seattle platform. I enabled watchdog
+using systemd (with 30s timeout), insured that watchdog is active and then
+crashed the system. I can see that kdump kernel loads sbsa_wdt and activates
+watchdog, still vmcore copy is done successfully.
+My test kernel is here [1]
 
-Guenter
+~Pratyush
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+[1] https://github.com/pratyushanand/linux/commits/wdt/sbsa-test-kexec 
