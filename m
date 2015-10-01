@@ -1,69 +1,99 @@
-Return-Path: <B48286@freescale.com>
-From: Hou Zhiqiang <B48286@freescale.com>
-To: "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, "catalin.marinas@arm.com"
-	<catalin.marinas@arm.com>, "will.deacon@arm.com" <will.deacon@arm.com>,
-	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-	"linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>,
-	"mark.rutland@arm.com" <mark.rutland@arm.com>
-CC: Hu Vincent <Mingkai.Hu@freescale.com>, Shaohui Xie
-	<Shaohui.Xie@freescale.com>, Scott Wood <scottwood@freescale.com>, "Sharma
- Bhupesh" <bhupesh.sharma@freescale.com>, Li Leo <LeoLi@freescale.com>,
-	"wsa@the-dreams.de" <wsa@the-dreams.de>, "wim@iguana.be" <wim@iguana.be>,
-	"corbet@lwn.net" <corbet@lwn.net>, "mturquette@baylibre.com"
-	<mturquette@baylibre.com>, "sboyd@codeaurora.org" <sboyd@codeaurora.org>,
-	Wenbin Song <Wenbin.Song@freescale.com>
-Subject: RE: [PATCH V3 0/6] Add LS1043A SoC support 
-Date: Wed, 14 Oct 2015 12:02:07 +0000
-Message-ID: <CY1PR0301MB0780936EF3D2E04A1F7AF5718B3F0@CY1PR0301MB0780.namprd03.prod.outlook.com>
-References: <BN3PR0301MB1249C8F2305C3ED1723055B6843F0@BN3PR0301MB1249.namprd03.prod.outlook.com>
-In-Reply-To: <BN3PR0301MB1249C8F2305C3ED1723055B6843F0@BN3PR0301MB1249.namprd03.prod.outlook.com>
-Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from h1.radempa.de ([176.9.142.194]:54936 "EHLO mail.cosmopool.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753784AbbJARag (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 1 Oct 2015 13:30:36 -0400
 MIME-Version: 1.0
-List-Archive: <https://lore.kernel.org/linux-clk/>
-List-Post: <mailto:linux-clk@vger.kernel.org>
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Date: Thu, 01 Oct 2015 19:20:32 +0200
+From: <harald@ccbib.org>
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: <rtc-linux@googlegroups.com>, Wolfram Sang <wsa@the-dreams.de>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	<linux-watchdog@vger.kernel.org>
+Subject: Re: [rtc-linux] [PATCH] watchdog: stmp3xxx: Implement GETBOOTSTATUS
+In-Reply-To: <20150505094031.GH4276@piout.net>
+References: <1428522355-5164-1-git-send-email-harald@ccbib.org> <20150417093023.GF29796@piout.net> <3a787a0b2777c4b734a4f153e1a3f7d7@imap.cosmopool.net> <20150419153743.GA4353@piout.net> <480bd3b38b87b44913868cbd2f3e24c6@imap.cosmopool.net> <20150505094031.GH4276@piout.net>
+Message-ID: <c75c3f0a5a1a136bac7c882178b01815@imap.cosmopool.net>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-Hi all,
+Hi Alexandre,
 
-Sorry for my late response due to Chinese National Day holidays.
+sorry for the very long delay.=20
 
-> From: Zhiqiang Hou [mailto:B48286@freescale.com]
-> Sent: Wednesday, October 14, 2015 7:35 PM
-> To: linux-arm-kernel@lists.infradead.org; catalin.marinas@arm.com;
-> will.deacon@arm.com; linux-i2c@vger.kernel.org; linux-
-> watchdog@vger.kernel.org; linux-doc@vger.kernel.org; linux-
-> clk@vger.kernel.org; mark.rutland@arm.com
-> Cc: Hu Mingkai-B21284; Xie Shaohui-B21989; Wood Scott-B07421; Sharma
-> Bhupesh-B45370; Li Yang-Leo-R58472; wsa@the-dreams.de; wim@iguana.be;
-> corbet@lwn.net; mturquette@baylibre.com; sboyd@codeaurora.org; Song
-> Wenbin-B53747
-> Subject: [PATCH V3 0/6] Add LS1043A SoC support
->=20
-> This patchest adds support for Freescale's LS1043A SoC which is based on
-> ARMv8 architecture.
->=20
-> Some pending patches are depended on:
-> 1. The LS1043A is belong to Freescale's ARMv8 Layerscape SoC family, so
-> depends on the updating ARCH kconfig patch.
-> https://patchwork.kernel.org/patch/7120101/
->=20
-> 2. The LS1043A use the new clockgen binding updated by Scott Wood,
-> depends on the patchset:
-> https://patchwork.kernel.org/patch/7225421/
-> https://patchwork.kernel.org/patch/7225461/
-> https://patchwork.kernel.org/patch/7225431/
-> https://patchwork.kernel.org/patch/7225441/
-> https://patchwork.kernel.org/patch/7225451/
->=20
-> [PATCH V3 1/6] i2c: Add i2c support to Freescale Layerscape platforms
-> [PATCH V3 2/6] watchdog: Add support for Freescale Layerscape [PATCH V3
-> 3/6] Documentation: DT: Add entry for FSL LS1043ARDB board [PATCH V3 4/6]
-> arm64/ls1043a: add DTS for Freescale LS1043A SoC [PATCH V3 5/6] clk:
-> qoriq: Add ls1043a support.
-> [PATCH V3 6/6] dts/ls1043a: add LS1043ARDB board support
+I tried your suggestion to switch the watchdog driver to regmap several
+times but couldn't come up with something that wasn't either very ugly
+or completely pointless - i.e. no better then passing a pointer to the
+register block. See below.
 
-Thanks,
-Zhiqiang
+On Tue, 5 May 2015 11:40:31 +0200, Alexandre Belloni
+<alexandre.belloni@free-electrons.com> wrote:
+> Hi,
+>=20
+> On 20/04/2015 at 09:11:02 +0200, harald@ccbib.org wrote :
+>> Hi Alexandre,
+>>=20
+>> On Sun, 19 Apr 2015 17:37:43 +0200, Alexandre Belloni
+>> <alexandre.belloni@free-electrons.com> wrote:
+>> > On 19/04/2015 at 15:41:42 +0200, harald@ccbib.org wrote :
+>> >> >  - use syscon instead of passing callbacks to the watchdog driver
+>> >>=20
+>> >> I will put looking into this onto my todo list, but I'm not familia=
+r
+>> >> with syscon yet and it is not obvious to me how to port the rtc
+driver
+>> >> to syscon without breaking devicetree backwards compatibility. So
+I'd
+>> >> like to defer this for later unless somebody gives me some guidance=
+.
+>> >=20
+>> > As the rtc driver is the one instantiating the watchdog driver, ther=
+e
+>> > is
+>> > no reason why the DT ABI would be broken. You simply have to create
+>> > the syscon in the RTC driver and then pass it to the watchdog driver=
+,
+>> > the same way it is done with the callbacks.
+>>=20
+>> Ok, this is less invasive than what I have been thinking. This makes
+>> sense.=20
+>=20
+> I realized I confused syscon with regmap. So indeed, switching to sysco=
+n
+> will require a not nice change to the DT. But what I really meant was
+> creating a regmap from the rtc driver and pass it to the watchdog
+> driver.
+
+Since the rtc and watchdog drivers need different bits of the same contro=
+l
+register, we would need to use regmap_fields to pass them around.
+Unfortunately this means we can't use the _SET and _CLR registers, which
+means we need to use regmap everywhere to get proper locking. A lot of
+overhead for no benefit.
+
+After reading lots of messages around the genesis and usage of
+regmap_mmio,
+it seems to me the intended usecases are to fix some endianness issues
+and to have a register cache available during suspend - both of which
+don't
+apply in this case.
+
+If you want to get rid of the callbacks we should just pass the pointer
+to the register block to the child device, I think. Which way is
+preferable
+is probably only a matter of taste so I won't override the driver authors
+decision unless there is some clear statement that this is the preferred
+style in the rtc subsystem.
+
+I will send the other patch (unify register access macros) you asked abou=
+t
+shortly.
+
+Harald
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
