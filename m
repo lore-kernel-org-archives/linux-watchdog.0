@@ -1,19 +1,19 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from h1.radempa.de ([176.9.142.194]:43209 "EHLO mail.cosmopool.net"
+Received: from h1.radempa.de ([176.9.142.194]:47249 "EHLO mail.cosmopool.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750910AbbJBUSg (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 2 Oct 2015 16:18:36 -0400
+	id S1751034AbbJCVyi (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Sat, 3 Oct 2015 17:54:38 -0400
 From: Harald Geyer <harald@ccbib.org>
 To: Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
 	Wim Van Sebroeck <wim@iguana.be>
 Cc: rtc-linux@googlegroups.com, linux-watchdog@vger.kernel.org,
-	kernel@pengutronix.de, Harald Geyer <harald@ccbib.org>
-Subject: [PATCH 2/2] watchdog: stmp3xxx: Implement GETBOOTSTATUS
-Date: Fri,  2 Oct 2015 20:18:02 +0000
-Message-Id: <1443817082-24370-2-git-send-email-harald@ccbib.org>
-In-Reply-To: <1443817082-24370-1-git-send-email-harald@ccbib.org>
-References: <1443817082-24370-1-git-send-email-harald@ccbib.org>
+	kernel@pengutronix.de, Wolfram Sang <wsa@the-dreams.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Harald Geyer <harald@ccbib.org>
+Subject: [PATCHv2] watchdog: stmp3xxx: Implement GETBOOTSTATUS
+Date: Sat,  3 Oct 2015 21:54:18 +0000
+Message-Id: <1443909258-24914-1-git-send-email-harald@ccbib.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
@@ -34,6 +34,10 @@ meant to do.
 
 Signed-off-by: Harald Geyer <harald@ccbib.org>
 ---
+Changes since v1:
+* make code formatting more consistent with the rest of the driver
+* Cc some people who might have better documentation then I do
+
 Changes since initially posting this patch on 08/04/2015:
 * fix a spelling error in the commit message
 * rebase to a recent version
@@ -44,7 +48,7 @@ Changes since initially posting this patch on 08/04/2015:
  3 files changed, 58 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/rtc/rtc-stmp3xxx.c b/drivers/rtc/rtc-stmp3xxx.c
-index ca54d03..5d68090 100644
+index ca54d03..4ab0aeb 100644
 --- a/drivers/rtc/rtc-stmp3xxx.c
 +++ b/drivers/rtc/rtc-stmp3xxx.c
 @@ -30,6 +30,7 @@
@@ -74,7 +78,7 @@ index ca54d03..5d68090 100644
 +	struct stmp3xxx_rtc_data *rtc_data = dev_get_drvdata(dev);
 +
 +	writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
-+	       STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG_CLR + rtc_data->io);
++	       rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG_CLR);
 +}
 +
  static void stmp3xxx_wdt_set_timeout(struct device *dev, u32 timeout)
