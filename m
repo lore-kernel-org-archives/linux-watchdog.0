@@ -1,146 +1,148 @@
-Return-path: <harald@ccbib.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-oi0-f43.google.com ([209.85.218.43]:33382 "EHLO
+	mail-oi0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752228AbbJMOL6 (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 13 Oct 2015 10:11:58 -0400
+Received: by oiar126 with SMTP id r126so10111958oia.0
+        for <linux-watchdog@vger.kernel.org>; Tue, 13 Oct 2015 07:11:58 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <1438097230-2653-2-git-send-email-tharvey@gateworks.com>
+References: <1433448960-9257-2-git-send-email-tharvey@gateworks.com>
+	<1438097230-2653-1-git-send-email-tharvey@gateworks.com>
+	<1438097230-2653-2-git-send-email-tharvey@gateworks.com>
+Date: Tue, 13 Oct 2015 07:11:58 -0700
+Message-ID: <CAJ+vNU16Yf2P9Xvznou-fAbrFdO_6kvDOt7+-ej5c1BxEyumGQ@mail.gmail.com>
+Subject: Re: [PATCH v3 1/2] watchdog: imx2_wdt: add external reset support via
+ 'ext-reset-output' dt prop
+From: Tim Harvey <tharvey@gateworks.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>,
+	Shawn Guo <shawn.guo@linaro.org>,
+	Fabio Estevam <festevam@gmail.com>,
+	Lucas Stach <l.stach@pengutronix.de>,
+	Stefan Roese <sr@denx.de>, Iain Paton <ipaton0@gmail.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Date: Mon, 05 Oct 2015 18:01:42 +0200
-From: <harald@ccbib.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
- Alexandre Belloni <alexandre.belloni@free-electrons.com>,
- Wim Van Sebroeck <wim@iguana.be>, <rtc-linux@googlegroups.com>,
- <linux-watchdog@vger.kernel.org>, <kernel@pengutronix.de>,
- Wolfram Sang <wsa@the-dreams.de>, Fabio Estevam <festevam@gmail.com>
-Subject: Re: [PATCHv2] watchdog: stmp3xxx: Implement GETBOOTSTATUS
-In-Reply-To: <561168F2.8090701@roeck-us.net>
-References: <1443909258-24914-1-git-send-email-harald@ccbib.org> <561168F2.8090701@roeck-us.net>
-Message-ID: <38ca74ac3e371018f9184f2147873bcc@imap.cosmopool.net>
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Sun, 4 Oct 2015 10:59:14 -0700, Guenter Roeck <linux@roeck-us.net>
-wrote:
-> On 10/03/2015 02:54 PM, Harald Geyer wrote:
->> When the watchdog is enabled, we set a persitent bit. After booting
->> we query the bit and see if the system was reset by the watchdog.
->>
->> This is somewhat similar to what the legacy driver from freescale
->> does. However we use STMP3XXX_RTC_PERSISTENT2 instead of
->> STMP3XXX_RTC_PERSISTENT1. I tried that first, but it seems I can't
->> clear the bit there once it is set. I didn't find any documentation
->> what this register does - only vague hints that it is meant to
->> control the boot ROM.
->>
->> Part of the code from the legacy driver touching this register
->> is still included. Maybe this is stale, but this patch doesn't
->> touch any of it because I don't know what it really does or is
->> meant to do.
->>
-> 
-> You should describe what you are doing, not how.
+On Tue, Jul 28, 2015 at 8:27 AM, Tim Harvey <tharvey@gateworks.com> wrote:
+> The IMX6 watchdog supports assertion of a signal (WDOG_B) which
+> can be pinmux'd to an external pin. This is typically used for boards that
+> have PMIC's in control of the IMX6 power rails. In fact, failure to use
+> such an external reset on boards with external PMIC's can result in various
+> hangs due to the IMX6 not being fully reset [1] as well as the board failing
+> to reset because its PMIC has not been reset to provide adequate voltage for
+> the CPU when coming out of reset at 800Mhz.
+>
+> This uses a new device-tree property 'ext-reset-output' to indicate the
+> board has such a reset and to cause the watchdog to be configured to assert
+> WDOG_B instead of an internal reset both on a watchdog timeout and in
+> system_restart.
+>
+> [1] http://lists.infradead.org/pipermail/linux-arm-kernel/2015-March/333689.html
+>
+> Cc: Lucas Stach <l.stach@pengutronix.de>
+> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
+> ---
+> v3:
+>  - mandate use of 'either' internal or external reset but not both
+>    simultaneously
+> v2:
+>  - rename property to 'ext-reset-output' based on ML feedback
+>  - simplify setting SRS bit if external-reset
+>  - update comments and commit msg
+>
+> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
+> ---
+>  .../devicetree/bindings/watchdog/fsl-imx-wdt.txt     |  2 ++
+>  drivers/watchdog/imx2_wdt.c                          | 20 ++++++++++++++++++--
+>  2 files changed, 20 insertions(+), 2 deletions(-)
+>
+> diff --git a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+> index 8dab6fd..9b89b3a 100644
+> --- a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+> +++ b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+> @@ -9,6 +9,8 @@ Optional property:
+>  - big-endian: If present the watchdog device's registers are implemented
+>    in big endian mode, otherwise in native mode(same with CPU), for more
+>    detail please see: Documentation/devicetree/bindings/regmap/regmap.txt.
+> +- ext-reset-output: If present the watchdog device is configured to assert its
+> +  external reset (WDOG_B) instead of issuing a software reset.
+>
+>  Examples:
+>
+> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+> index 0bb1a1d..5d9ccf6 100644
+> --- a/drivers/watchdog/imx2_wdt.c
+> +++ b/drivers/watchdog/imx2_wdt.c
+> @@ -41,6 +41,8 @@
+>
+>  #define IMX2_WDT_WCR           0x00            /* Control Register */
+>  #define IMX2_WDT_WCR_WT                (0xFF << 8)     /* -> Watchdog Timeout Field */
+> +#define IMX2_WDT_WCR_WDA       (1 << 5)        /* -> External Reset WDOG_B */
+> +#define IMX2_WDT_WCR_SRS       (1 << 4)        /* -> Software Reset Signal */
+>  #define IMX2_WDT_WCR_WRE       (1 << 3)        /* -> WDOG Reset Enable */
+>  #define IMX2_WDT_WCR_WDE       (1 << 2)        /* -> Watchdog Enable */
+>  #define IMX2_WDT_WCR_WDZST     (1 << 0)        /* -> Watchdog timer Suspend */
+> @@ -65,6 +67,7 @@ struct imx2_wdt_device {
+>         struct timer_list timer;        /* Pings the watchdog when closed */
+>         struct watchdog_device wdog;
+>         struct notifier_block restart_handler;
+> +       bool ext_reset;
+>  };
+>
+>  static bool nowayout = WATCHDOG_NOWAYOUT;
+> @@ -90,6 +93,13 @@ static int imx2_restart_handler(struct notifier_block *this, unsigned long mode,
+>         struct imx2_wdt_device *wdev = container_of(this,
+>                                                     struct imx2_wdt_device,
+>                                                     restart_handler);
+> +
+> +       /* Use internal reset or external - not both */
+> +       if (wdev->ext_reset)
+> +               wcr_enable |= IMX2_WDT_WCR_SRS; /* do not assert int reset */
+> +       else
+> +               wcr_enable |= IMX2_WDT_WCR_WDA; /* do not assert ext-reset */
+> +
+>         /* Assert SRS signal */
+>         regmap_write(wdev->regmap, 0, wcr_enable);
+>         /*
+> @@ -119,8 +129,12 @@ static inline void imx2_wdt_setup(struct watchdog_device *wdog)
+>         val |= IMX2_WDT_WCR_WDZST;
+>         /* Strip the old watchdog Time-Out value */
+>         val &= ~IMX2_WDT_WCR_WT;
+> -       /* Generate reset if WDOG times out */
+> -       val &= ~IMX2_WDT_WCR_WRE;
+> +       /* Generate internal chip-level reset if WDOG times out */
+> +       if (!wdev->ext_reset)
+> +               val &= ~IMX2_WDT_WCR_WRE;
+> +       /* Or if external-reset assert WDOG_B reset only on time-out */
+> +       else
+> +               val |= IMX2_WDT_WCR_WRE;
+>         /* Keep Watchdog Disabled */
+>         val &= ~IMX2_WDT_WCR_WDE;
+>         /* Set the watchdog's Time-Out value */
+> @@ -267,6 +281,8 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
+>         regmap_read(wdev->regmap, IMX2_WDT_WRSR, &val);
+>         wdog->bootstatus = val & IMX2_WDT_WRSR_TOUT ? WDIOF_CARDRESET : 0;
+>
+> +       wdev->ext_reset = of_property_read_bool(pdev->dev.of_node,
+> +                                               "ext-reset-output");
+>         wdog->timeout = clamp_t(unsigned, timeout, 1, IMX2_WDT_MAX_TIME);
+>         if (wdog->timeout != timeout)
+>                 dev_warn(&pdev->dev, "Initial timeout out of range! Clamped from %u to %u\n",
+> --
+> 1.9.1
+>
 
-Ok, I'll try to improve.
+Wim,
 
-> The reason for using persistent2 might be worth a comment in the
-> code;
+I believe I missed sending this to the proper watchdog maintainer
+which appears to be you.
 
-Ok.
+Regards,
 
-> it does not belong into the description.
-
-I think the motivation for a change and why I came out the way it
-is, belong into the description of the change.
-
-> This should be two patches, one to introduce boot status and one
-> to register the notifier in the watchdog driver. The notifier patch
-> should possibly come first.
-
-Good point.
-
->> +	switch (code) {
->> +	case SYS_DOWN:	/* keep enabled, system might crash while going down
-*/
->> +		pdata->wdt_clear_bootstatus(dev->parent);
-> 
-> If the system may crash while going down, which may cause a watchdog
-reset,
-> why clear the boot status here ?
-
-Because if we don't clear the bootstatus then GETBOOTSTATUS would report a
-watchdog reset even after nominal reboots.
-
-Ideally we would use quite some more persistent bits to track why a system
-rebooted, but AFAIK the kernel has no infrastructure for this yet. Also of
-course user space should disable the watchdog before rebooting or halting
-the system.
-
-The patch is the closest I could get to the behaviour I expect, on a
-device
-that doesn't natively support GETBOOTSTATUS. If a different behaviour is
-commonly expected, then tell me what it is.
-
-
-Thanks,
-Harald
-
->> +		break;
->> +	case SYS_HALT:  /* allow the system to actually halt */
->> +	case SYS_POWER_OFF:
->> +		wdt_stop(&stmp3xxx_wdd);
->> +		break;
->> +	}
->> +
->> +	return NOTIFY_DONE;
->> +}
->> +
->> +static struct notifier_block wdt_notifier = {
->> +	.notifier_call  = wdt_notify_sys,
->> +};
->> +
->>   static int stmp3xxx_wdt_probe(struct platform_device *pdev)
->>   {
->> +	struct stmp3xxx_wdt_pdata *pdata = dev_get_platdata(&pdev->dev);
->>   	int ret;
->>
->>   	watchdog_set_drvdata(&stmp3xxx_wdd, &pdev->dev);
->>
->>   	stmp3xxx_wdd.timeout = clamp_t(unsigned, heartbeat, 1,
->>   	STMP3XXX_MAX_TIMEOUT);
->>   	stmp3xxx_wdd.parent = &pdev->dev;
->> +	stmp3xxx_wdd.bootstatus = pdata->bootstatus;
->>
->>   	ret = watchdog_register_device(&stmp3xxx_wdd);
->>   	if (ret < 0) {
->> @@ -84,6 +112,9 @@ static int stmp3xxx_wdt_probe(struct platform_device
->> *pdev)
->>   		return ret;
->>   	}
->>
->> +	if (register_reboot_notifier(&wdt_notifier))
->> +		dev_warn(&pdev->dev, "cannot register reboot notifier\n");
->> +
->>   	dev_info(&pdev->dev, "initialized watchdog with heartbeat %ds\n",
->>   			stmp3xxx_wdd.timeout);
->>   	return 0;
->> @@ -91,6 +122,7 @@ static int stmp3xxx_wdt_probe(struct platform_device
->> *pdev)
->>
->>   static int stmp3xxx_wdt_remove(struct platform_device *pdev)
->>   {
->> +	unregister_reboot_notifier(&wdt_notifier);
->>   	watchdog_unregister_device(&stmp3xxx_wdd);
->>   	return 0;
->>   }
->> diff --git a/include/linux/stmp3xxx_rtc_wdt.h
->> b/include/linux/stmp3xxx_rtc_wdt.h
->> index 1dd12c9..62dd9e6 100644
->> --- a/include/linux/stmp3xxx_rtc_wdt.h
->> +++ b/include/linux/stmp3xxx_rtc_wdt.h
->> @@ -10,6 +10,8 @@
->>
->>   struct stmp3xxx_wdt_pdata {
->>   	void (*wdt_set_timeout)(struct device *dev, u32 timeout);
->> +	void (*wdt_clear_bootstatus)(struct device *dev);
->> +	unsigned int bootstatus;
->>   };
->>
->>   #endif /* __LINUX_STMP3XXX_RTC_WDT_H */
->>
+Tim
