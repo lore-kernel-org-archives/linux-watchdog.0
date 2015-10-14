@@ -1,130 +1,61 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ob0-f180.google.com ([209.85.214.180]:35543 "EHLO
-	mail-ob0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751101AbbJMIe0 (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 13 Oct 2015 04:34:26 -0400
-Received: by obbzf10 with SMTP id zf10so8029449obb.2
-        for <linux-watchdog@vger.kernel.org>; Tue, 13 Oct 2015 01:34:25 -0700 (PDT)
+Received: from mail-bn1bbn0108.outbound.protection.outlook.com ([157.56.111.108]:8192
+	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752008AbbJNLly (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 14 Oct 2015 07:41:54 -0400
+From: Zhiqiang Hou <B48286@freescale.com>
+To: <linux-arm-kernel@lists.infradead.org>, <catalin.marinas@arm.com>,
+	<will.deacon@arm.com>, <linux-i2c@vger.kernel.org>,
+	<linux-watchdog@vger.kernel.org>, <linux-doc@vger.kernel.org>,
+	<linux-clk@vger.kernel.org>, <mark.rutland@arm.com>
+CC: <Mingkai.Hu@freescale.com>, <Shaohui.Xie@freescale.com>,
+	<scottwood@freescale.com>, <bhupesh.sharma@freescale.com>,
+	<leoli@freescale.com>, <wsa@the-dreams.de>, <wim@iguana.be>,
+	<corbet@lwn.net>, <mturquette@baylibre.com>,
+	<sboyd@codeaurora.org>, <Wenbin.Song@freescale.com>,
+	Hou Zhiqiang <B48286@freescale.com>
+Subject: [PATCH V3 1/6] i2c: Add i2c support to Freescale Layerscape platforms
+Date: Wed, 14 Oct 2015 19:34:53 +0800
+Message-ID: <1444822498-16477-2-git-send-email-B48286@freescale.com>
+In-Reply-To: <1444822498-16477-1-git-send-email-B48286@freescale.com>
+References: <1444822498-16477-1-git-send-email-B48286@freescale.com>
 MIME-Version: 1.0
-In-Reply-To: <20150916015741.GA6699@dhcp-128-62.nay.redhat.com>
-References: <=fu.wei@linaro.org>
-	<1440435683-7343-1-git-send-email-fu.wei@linaro.org>
-	<1440435683-7343-6-git-send-email-fu.wei@linaro.org>
-	<20150915083823.GB5767@localhost.localdomain>
-	<CADyBb7sDPgFU3Hb_f_iMtF7TYU0xoBnuLCDUihufdOShO5uOkg@mail.gmail.com>
-	<20150916015741.GA6699@dhcp-128-62.nay.redhat.com>
-Date: Tue, 13 Oct 2015 16:34:25 +0800
-Message-ID: <CADyBb7vxbdftskfDKSmgz82=Y2XtCYOawp2mGiUsJ7f=H1ZAoA@mail.gmail.com>
-Subject: Re: [PATCH v7 5/8] Watchdog: introduce ARM SBSA watchdog driver
-From: Fu Wei <fu.wei@linaro.org>
-To: Dave Young <dyoung@redhat.com>
-Cc: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-	Hanjun Guo <hanjun.guo@linaro.org>,
-	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	LKML <linux-kernel@vger.kernel.org>, linux-doc@vger.kernel.org,
-	Wei Fu <tekkamanninja@gmail.com>,
-	G Gregory <graeme.gregory@linaro.org>,
-	Al Stone <al.stone@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Vipul Gandhi <vgandhi@codeaurora.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Jon Masters <jcm@redhat.com>, Leo Duran <leo.duran@amd.com>,
-	Jon Corbet <corbet@lwn.net>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will.deacon@arm.com>,
-	Rafael Wysocki <rjw@rjwysocki.net>,
-	Pratyush Anand <panand@redhat.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Dave,
+From: Shaohui Xie <Shaohui.Xie@freescale.com>
 
-On 16 September 2015 at 09:57, Dave Young <dyoung@redhat.com> wrote:
->> >> diff --git a/drivers/watchdog/sbsa_gwdt.c b/drivers/watchdog/sbsa_gwdt.c
->> >> new file mode 100644
->> >> index 0000000..7ae45cc
->> >> --- /dev/null
->> >> +++ b/drivers/watchdog/sbsa_gwdt.c
->> >> @@ -0,0 +1,459 @@
->> >> +/*
->> >> + * SBSA(Server Base System Architecture) Generic Watchdog driver
->> >> + *
->> >> + * Copyright (c) 2015, Linaro Ltd.
->> >> + * Author: Fu Wei <fu.wei@linaro.org>
->> >> + *         Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
->> >> + *
->> >> + * This program is free software; you can redistribute it and/or modify
->> >> + * it under the terms of the GNU General Public License 2 as published
->> >> + * by the Free Software Foundation.
->> >> + *
->> >> + * This program is distributed in the hope that it will be useful,
->> >> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
->> >> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
->> >> + * GNU General Public License for more details.
->> >> + *
->> >> + * The SBSA Generic watchdog driver is compatible with the pretimeout
->> >> + * concept of Linux kernel.
->> >> + * The timeout and pretimeout are determined by WCV or WOR.
->> >> + * The first watch period is set by writing WCV directly, that can
->> >> + * support more than 10s timeout at the maximum system counter
->> >> + * frequency (400MHz).
->> >> + * When WS0 is triggered, the second watch period (pretimeout) is
->> >> + * determined by one of these registers:
->> >> + * (1)WOR: 32bit register, this gives a maximum watch period of
->> >> + * around 10s at the maximum system counter frequency. It's loaded
->> >> + * automatically by hardware.
->> >> + * (2)WCV: If the pretimeout value is greater then "max_wor_timeout",
->> >> + * it will be loaded in WS0 interrupt routine. If system is in
->> >> + * ws0_mode (reboot by kexec/kdump in panic with watchdog enabled
->> >> + * and WS0 == true), the ping operation will only reload WCV.
->> >
->> > Below is the field comment about ws0_mode, it says ws0_mode is only
->> > for rebooting in second stage timeout, but kexec/kdump can reboot in
->> > either first or second stage
->>
->> Great thanks for your feedback.
->>
->> yes, if kexec/kdump reboot the system before the WS0, ws0_mode may not be set.
->> in this case, if WS0 is triggered during the reboot(AFAIK, panic will
->> disable irq, and in the early boot stage of system, irq is disabled,
->> too.), ws0_mode will be set at the next "open" in kdump kernel
->> if WS0 haven't triggered until the watchdog is opened again in kdump
->> kernel , ws0_mode won't  be set.
->>
->> ws0_mode doesn't indicate if the system is in the kdump kernel, it
->> indicates that if WS0 is triggered, when the watchdog is initialized.
->>
->> Do I answer your question?
->
-> Yes, thanks for explanation. So it sounds better to change the comment like below?
-> from
-> (reboot by kexec/kdump in panic with watchdog enabled and WS0 == true)
-> to
-> (reboot in the pre-timeout stage and WS0 == true)
+Modify the I2C_IMX config to support to Layerscape platforms.
 
-" in the pre-timeout stage" means " WS0 == true", so I think we should say:
-(reboot with watchdog enabled and WS0 == true)
+Signed-off-by: Mingkai Hu <Mingkai.Hu@freescale.com>
+Signed-off-by: Wenbin Song <Wenbin.Song@freescale.com>
+Signed-off-by: Hou Zhiqiang <B48286@freescale.com>
+---
+V3:
+ - No change.
 
-Thanks for your suggestion.
+ drivers/i2c/busses/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
->
-> Thanks
-> Dave
-
-
-
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 08b8617..14147ec 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -582,10 +582,10 @@ config I2C_IMG
+ 
+ config I2C_IMX
+ 	tristate "IMX I2C interface"
+-	depends on ARCH_MXC
++	depends on ARCH_MXC || ARCH_LAYERSCAPE
+ 	help
+ 	  Say Y here if you want to use the IIC bus controller on
+-	  the Freescale i.MX/MXC processors.
++	  the Freescale i.MX/MXC or Layerscape processors.
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-imx.
 -- 
-Best regards,
+2.1.0.27.g96db324
 
-Fu Wei
-Software Engineer
-Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
-Ph: +86 21 61221326(direct)
-Ph: +86 186 2020 4684 (mobile)
-Room 1512, Regus One Corporate Avenue,Level 15,
-One Corporate Avenue,222 Hubin Road,Huangpu District,
-Shanghai,China 200021
