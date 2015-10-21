@@ -1,99 +1,63 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:43611 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751560AbbJTPxN (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 20 Oct 2015 11:53:13 -0400
-Date: Tue, 20 Oct 2015 17:52:58 +0200
-From: Wolfram Sang <wsa@the-dreams.de>
-To: Zhiqiang Hou <B48286@freescale.com>
-Cc: linux-arm-kernel@lists.infradead.org, catalin.marinas@arm.com,
-	will.deacon@arm.com, linux-i2c@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-clk@vger.kernel.org, mark.rutland@arm.com,
-	linux@roeck-us.net, wim@iguana.be, corbet@lwn.net,
-	mturquette@baylibre.com, sboyd@codeaurora.org,
-	Mingkai.Hu@freescale.com, Shaohui.Xie@freescale.com,
-	scottwood@freescale.com, bhupesh.sharma@freescale.com,
-	Wenbin.Song@freescale.com
-Subject: Re: [PATCH V5 1/6] i2c: Add i2c support to Freescale Layerscape
+Received: from mail-bl2on0115.outbound.protection.outlook.com ([65.55.169.115]:22752
+	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1750698AbbJUEKn (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 21 Oct 2015 00:10:43 -0400
+From: Hou Zhiqiang <B48286@freescale.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+CC: "linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>,
+	"catalin.marinas@arm.com" <catalin.marinas@arm.com>,
+	"will.deacon@arm.com" <will.deacon@arm.com>,
+	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+	"linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>,
+	"mark.rutland@arm.com" <mark.rutland@arm.com>,
+	"linux@roeck-us.net" <linux@roeck-us.net>,
+	"wim@iguana.be" <wim@iguana.be>, "corbet@lwn.net" <corbet@lwn.net>,
+	"mturquette@baylibre.com" <mturquette@baylibre.com>,
+	"sboyd@codeaurora.org" <sboyd@codeaurora.org>,
+	Hu Vincent <Mingkai.Hu@freescale.com>,
+	Shaohui Xie <Shaohui.Xie@freescale.com>,
+	"Scott Wood" <scottwood@freescale.com>,
+	Sharma Bhupesh <bhupesh.sharma@freescale.com>,
+	Wenbin Song <Wenbin.Song@freescale.com>
+Subject: RE: [PATCH V5 1/6] i2c: Add i2c support to Freescale Layerscape
  platforms
-Message-ID: <20151020155258.GM5379@katana>
+Date: Wed, 21 Oct 2015 04:10:39 +0000
+Message-ID: <CY1PR0301MB078061870608C21CEA37B4288B380@CY1PR0301MB0780.namprd03.prod.outlook.com>
 References: <1445255774-32887-1-git-send-email-B48286@freescale.com>
+ <20151020155258.GM5379@katana>
+In-Reply-To: <20151020155258.GM5379@katana>
+Content-Language: en-US
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="9Jdw4pA1x1k2W7MG"
-Content-Disposition: inline
-In-Reply-To: <1445255774-32887-1-git-send-email-B48286@freescale.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-
---9Jdw4pA1x1k2W7MG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Oct 19, 2015 at 07:56:09PM +0800, Zhiqiang Hou wrote:
-> From: Shaohui Xie <Shaohui.Xie@freescale.com>
->=20
-> Modify the I2C_IMX config to support to Layerscape platforms.
->=20
-> Signed-off-by: Mingkai Hu <Mingkai.Hu@freescale.com>
-> Signed-off-by: Wenbin Song <Wenbin.Song@freescale.com>
-> Signed-off-by: Hou Zhiqiang <B48286@freescale.com>
-
-Three signed offs for a simple Kconfig change? And the person doing
-the patch has no signed off?? That looks wrong. Maybe the above signed
-offs should be acked by?
-
-> ---
-> V5: V4 V3 V2
->  - No change.
->=20
->  drivers/i2c/busses/Kconfig | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 08b8617..14147ec 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -582,10 +582,10 @@ config I2C_IMG
-> =20
->  config I2C_IMX
->  	tristate "IMX I2C interface"
-> -	depends on ARCH_MXC
-> +	depends on ARCH_MXC || ARCH_LAYERSCAPE
->  	help
->  	  Say Y here if you want to use the IIC bus controller on
-> -	  the Freescale i.MX/MXC processors.
-> +	  the Freescale i.MX/MXC or Layerscape processors.
-> =20
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called i2c-imx.
-> --=20
-> 2.1.0.27.g96db324
->=20
-
---9Jdw4pA1x1k2W7MG
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWJmNaAAoJEBQN5MwUoCm2GmoP/jRzXnUGzGss8X/pKAnaTGX+
-XkYOSlIabsGjbHVARbMorlYLkvkG0AVt8MpfrXKxHBx/xiCU8HRBwhWZzENCLIbz
-CvVk0vuEQKDm/T6/TcjPlFbbzKwcwEebydcvsEU/VEej/KM7aWldqbYTYSX3lC2n
-bJEOsyvn0tSr6gFFjSS9wyRQZUotbllNWSM9SAzvzMEN91SN+b4vkzTzDwU87q+R
-3HUnpE8/eouHrKh2Q15Ak225l25l5IChso1MhWx5w7cfj80Bx0Ni4t+Nk27FfDND
-uhMQ4UPqguBNxW1USEsEzHAIfG32VT+stURJoO7iw2ggnBOQweIUtCWOITxCLO2z
-jgtDr06CnuqyFQjXsZWsvRo9AXRw+R27ZS0Yt/e7V5w6GHCTv8NIZVoLLphRphI3
-DYNo66Cc9M5T4XUyf+a6jSCzxJ73j3L+9tKG+zOJm/8/ETKNBtVs6UEJN0caVTCL
-CFUgql4ylmxJpIRGKAyS1BkpFd8Li7qtSWbzeJaULjXgl5Ci8GX8YdlqWQGbKSSc
-IBpNFvcJXxlIiFfn3mGsg0y4qm8LS0ONE7mDO1E8X0Qzh9KqlPGsM/G30LfalYOD
-qXyzjL9/DF1Jj/Ei1ThVBFqouRPltFrMlv5RzYJQ41b15um+UYxAvnMicZ4eUVkv
-4ai9Ux1dRiVnvJcBCbQ2
-=EpaM
------END PGP SIGNATURE-----
-
---9Jdw4pA1x1k2W7MG--
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogV29sZnJhbSBTYW5nIFtt
+YWlsdG86d3NhQHRoZS1kcmVhbXMuZGVdDQo+IFNlbnQ6IDIwMTXE6jEw1MIyMMjVIDIzOjUzDQo+
+IFRvOiBIb3UgWmhpcWlhbmctQjQ4Mjg2DQo+IENjOiBsaW51eC1hcm0ta2VybmVsQGxpc3RzLmlu
+ZnJhZGVhZC5vcmc7IGNhdGFsaW4ubWFyaW5hc0Bhcm0uY29tOw0KPiB3aWxsLmRlYWNvbkBhcm0u
+Y29tOyBsaW51eC1pMmNAdmdlci5rZXJuZWwub3JnOyBsaW51eC0NCj4gd2F0Y2hkb2dAdmdlci5r
+ZXJuZWwub3JnOyBsaW51eC1kb2NAdmdlci5rZXJuZWwub3JnOyBsaW51eC0NCj4gY2xrQHZnZXIu
+a2VybmVsLm9yZzsgbWFyay5ydXRsYW5kQGFybS5jb207IGxpbnV4QHJvZWNrLXVzLm5ldDsNCj4g
+d2ltQGlndWFuYS5iZTsgY29yYmV0QGx3bi5uZXQ7IG10dXJxdWV0dGVAYmF5bGlicmUuY29tOw0K
+PiBzYm95ZEBjb2RlYXVyb3JhLm9yZzsgSHUgTWluZ2thaS1CMjEyODQ7IFhpZSBTaGFvaHVpLUIy
+MTk4OTsgV29vZCBTY290dC0NCj4gQjA3NDIxOyBTaGFybWEgQmh1cGVzaC1CNDUzNzA7IFNvbmcg
+V2VuYmluLUI1Mzc0Nw0KPiBTdWJqZWN0OiBSZTogW1BBVENIIFY1IDEvNl0gaTJjOiBBZGQgaTJj
+IHN1cHBvcnQgdG8gRnJlZXNjYWxlIExheWVyc2NhcGUNCj4gcGxhdGZvcm1zDQo+IA0KPiBPbiBN
+b24sIE9jdCAxOSwgMjAxNSBhdCAwNzo1NjowOVBNICswODAwLCBaaGlxaWFuZyBIb3Ugd3JvdGU6
+DQo+ID4gRnJvbTogU2hhb2h1aSBYaWUgPFNoYW9odWkuWGllQGZyZWVzY2FsZS5jb20+DQo+ID4N
+Cj4gPiBNb2RpZnkgdGhlIEkyQ19JTVggY29uZmlnIHRvIHN1cHBvcnQgdG8gTGF5ZXJzY2FwZSBw
+bGF0Zm9ybXMuDQo+ID4NCj4gPiBTaWduZWQtb2ZmLWJ5OiBNaW5na2FpIEh1IDxNaW5na2FpLkh1
+QGZyZWVzY2FsZS5jb20+DQo+ID4gU2lnbmVkLW9mZi1ieTogV2VuYmluIFNvbmcgPFdlbmJpbi5T
+b25nQGZyZWVzY2FsZS5jb20+DQo+ID4gU2lnbmVkLW9mZi1ieTogSG91IFpoaXFpYW5nIDxCNDgy
+ODZAZnJlZXNjYWxlLmNvbT4NCj4gDQo+IFRocmVlIHNpZ25lZCBvZmZzIGZvciBhIHNpbXBsZSBL
+Y29uZmlnIGNoYW5nZT8gQW5kIHRoZSBwZXJzb24gZG9pbmcgdGhlDQo+IHBhdGNoIGhhcyBubyBz
+aWduZWQgb2ZmPz8gVGhhdCBsb29rcyB3cm9uZy4gTWF5YmUgdGhlIGFib3ZlIHNpZ25lZCBvZmZz
+DQo+IHNob3VsZCBiZSBhY2tlZCBieT8NCj4gDQoNCldpbGwgYWRkIHRoZSBzaWduZWQtb2ZmIG9m
+IHRoZSBhdXRob3IuDQoNClRoYW5rcywNClpoaXFpYW5nDQo=
