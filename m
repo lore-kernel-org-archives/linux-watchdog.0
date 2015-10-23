@@ -1,180 +1,69 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-bn1bbn0102.outbound.protection.outlook.com ([157.56.111.102]:18753
-	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752452AbbJWIIj (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 23 Oct 2015 04:08:39 -0400
-From: Zhiqiang Hou <B48286@freescale.com>
-To: <linux-arm-kernel@lists.infradead.org>, <catalin.marinas@arm.com>,
-	<will.deacon@arm.com>, <linux-i2c@vger.kernel.org>,
-	<linux-watchdog@vger.kernel.org>, <linux-doc@vger.kernel.org>,
-	<linux-clk@vger.kernel.org>
-CC: <mark.rutland@arm.com>, <linux@roeck-us.net>, <wsa@the-dreams.de>,
-	<wim@iguana.be>, <corbet@lwn.net>, <mturquette@baylibre.com>,
-	<sboyd@codeaurora.org>, <Mingkai.Hu@freescale.com>,
-	<Shaohui.Xie@freescale.com>, <scottwood@freescale.com>,
-	<bhupesh.sharma@freescale.com>, <Wenbin.Song@freescale.com>,
-	<B48286@freescale.com>
-Subject: [PATCH V6 6/6] dts/ls1043a: add LS1043ARDB board support
-Date: Fri, 23 Oct 2015 16:01:22 +0800
-Message-ID: <1445587282-29529-6-git-send-email-B48286@freescale.com>
-In-Reply-To: <1445587282-29529-1-git-send-email-B48286@freescale.com>
+Received: from sauhun.de ([89.238.76.85]:34195 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751624AbbJWInk (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 23 Oct 2015 04:43:40 -0400
+Date: Fri, 23 Oct 2015 10:43:25 +0200
+From: Wolfram Sang <wsa@the-dreams.de>
+To: Zhiqiang Hou <B48286@freescale.com>
+Cc: linux-arm-kernel@lists.infradead.org, catalin.marinas@arm.com,
+	will.deacon@arm.com, linux-i2c@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-clk@vger.kernel.org, mark.rutland@arm.com,
+	linux@roeck-us.net, wim@iguana.be, corbet@lwn.net,
+	mturquette@baylibre.com, sboyd@codeaurora.org,
+	Mingkai.Hu@freescale.com, Shaohui.Xie@freescale.com,
+	scottwood@freescale.com, bhupesh.sharma@freescale.com,
+	Wenbin.Song@freescale.com
+Subject: Re: [PATCH V6 1/6] i2c: Add i2c support to Freescale Layerscape
+ platforms
+Message-ID: <20151023084325.GA13380@katana>
 References: <1445587282-29529-1-git-send-email-B48286@freescale.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
+Content-Disposition: inline
+In-Reply-To: <1445587282-29529-1-git-send-email-B48286@freescale.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Shaohui Xie <Shaohui.Xie@freescale.com>
 
-Signed-off-by: Shaohui Xie <Shaohui.Xie@freescale.com>
-Signed-off-by: Mingkai Hu <Mingkai.Hu@freescale.com>
-Signed-off-by: Wenbin Song <Wenbin.Song@freescale.com>
-Signed-off-by: Hou Zhiqiang <B48286@freescale.com>
----
-V6: V5 V4 V3
- - No change.
+--AhhlLboLdkugWU4S
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-V2:
- - Remove the useless compatible "simple-bus" from cpld node.
+On Fri, Oct 23, 2015 at 04:01:17PM +0800, Zhiqiang Hou wrote:
+> From: Shaohui Xie <Shaohui.Xie@freescale.com>
+>=20
+> Modify the I2C_IMX config to support to Layerscape platforms.
+>=20
+> Signed-off-by: Shaohui Xie <Shaohui.Xie@freescale.com>
+> Signed-off-by: Hou Zhiqiang <B48286@freescale.com>
 
- arch/arm64/boot/dts/freescale/Makefile            |   2 +-
- arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts | 116 ++++++++++++++++++++++
- 2 files changed, 117 insertions(+), 1 deletion(-)
- create mode 100644 arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts
+Added COMPILE_TEST and applied to for-next, thanks!
 
-diff --git a/arch/arm64/boot/dts/freescale/Makefile b/arch/arm64/boot/dts/freescale/Makefile
-index 57b41c7..33b1e57 100644
---- a/arch/arm64/boot/dts/freescale/Makefile
-+++ b/arch/arm64/boot/dts/freescale/Makefile
-@@ -1,4 +1,4 @@
--dtb-$(CONFIG_ARCH_LAYERSCAPE) += fsl-ls2080a-qds.dtb fsl-ls2080a-rdb.dtb fsl-ls2080a-simu.dtb
-+dtb-$(CONFIG_ARCH_LAYERSCAPE) += fsl-ls2080a-qds.dtb fsl-ls2080a-rdb.dtb fsl-ls2080a-simu.dtb fsl-ls1043a-rdb.dtb
-  
- always		:= $(dtb-y)
- subdir-y	:= $(dts-dirs)
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts b/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts
-new file mode 100644
-index 0000000..7a351e2
---- /dev/null
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts
-@@ -0,0 +1,116 @@
-+/*
-+ * Device Tree Include file for Freescale Layerscape-1043A family SoC.
-+ *
-+ * Copyright 2014-2015, Freescale Semiconductor
-+ *
-+ * Mingkai Hu <Mingkai.hu@freescale.com>
-+ *
-+ * This file is dual-licensed: you can use it either under the terms
-+ * of the GPLv2 or the X11 license, at your option. Note that this dual
-+ * licensing only applies to this file, and not this project as a
-+ * whole.
-+ *
-+ *  a) This library is free software; you can redistribute it and/or
-+ *     modify it under the terms of the GNU General Public License as
-+ *     published by the Free Software Foundation; either version 2 of the
-+ *     License, or (at your option) any later version.
-+ *
-+ *     This library is distributed in the hope that it will be useful,
-+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *     GNU General Public License for more details.
-+ *
-+ * Or, alternatively,
-+ *
-+ *  b) Permission is hereby granted, free of charge, to any person
-+ *     obtaining a copy of this software and associated documentation
-+ *     files (the "Software"), to deal in the Software without
-+ *     restriction, including without limitation the rights to use,
-+ *     copy, modify, merge, publish, distribute, sublicense, and/or
-+ *     sell copies of the Software, and to permit persons to whom the
-+ *     Software is furnished to do so, subject to the following
-+ *     conditions:
-+ *
-+ *     The above copyright notice and this permission notice shall be
-+ *     included in all copies or substantial portions of the Software.
-+ *
-+ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-+ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-+ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-+ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-+ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-+ *     OTHER DEALINGS IN THE SOFTWARE.
-+ */
-+
-+/dts-v1/;
-+#include "fsl-ls1043a.dtsi"
-+
-+/ {
-+	model = "LS1043A RDB Board";
-+};
-+
-+&i2c0 {
-+	status = "okay";
-+	ina220@40 {
-+		compatible = "ti,ina220";
-+		reg = <0x40>;
-+		shunt-resistor = <1000>;
-+	};
-+	adt7461a@4c {
-+		compatible = "adi,adt7461";
-+		reg = <0x4c>;
-+	};
-+	eeprom@56 {
-+		compatible = "at24,24c512";
-+		reg = <0x52>;
-+	};
-+	eeprom@57 {
-+		compatible = "at24,24c512";
-+		reg = <0x53>;
-+	};
-+	rtc@68 {
-+		compatible = "pericom,pt7c4338";
-+		reg = <0x68>;
-+	};
-+};
-+
-+&ifc {
-+	status = "okay";
-+	#address-cells = <2>;
-+	#size-cells = <1>;
-+	/* NOR, NAND Flashes and FPGA on board */
-+	ranges = <0x0 0x0 0x0 0x60000000 0x08000000
-+		  0x1 0x0 0x0 0x7e800000 0x00010000
-+		  0x2 0x0 0x0 0x7fb00000 0x00000100>;
-+
-+		nor@0,0 {
-+			compatible = "cfi-flash";
-+			#address-cells = <1>;
-+			#size-cells = <1>;
-+			reg = <0x0 0x0 0x8000000>;
-+			bank-width = <2>;
-+			device-width = <1>;
-+		};
-+
-+		nand@1,0 {
-+			compatible = "fsl,ifc-nand";
-+			#address-cells = <1>;
-+			#size-cells = <1>;
-+			reg = <0x1 0x0 0x10000>;
-+		};
-+
-+		cpld: board-control@2,0 {
-+			compatible = "fsl,ls1043ardb-cpld";
-+			reg = <0x2 0x0 0x0000100>;
-+		};
-+};
-+
-+&duart0 {
-+	status = "okay";
-+};
-+
-+&duart1 {
-+	status = "okay";
-+};
--- 
-2.1.0.27.g96db324
 
+--AhhlLboLdkugWU4S
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWKfMtAAoJEBQN5MwUoCm2Y6MP/AlcVfAGRZO4gVAJlVoLeBIp
+kln/ZisN9qzfPLj9OcnYzlCKbPY13Tu/5YYCT5/V2aIGOLs30HqPCr8nb9KN7dPu
+scVCHtaqiX/0WP0lYulYFfac4kv7835XOU96mHUNDYjj9ne2bpGhqRWVzdiTCHQc
+66g8qX2lcvrJs0159Zp2DWpymfa4hDVUx0aZExdaHJI9ArCxOf1NHNA3G4k9UQUZ
+Dcd+i4zqDyfd0E87fu3NdFAHvS8TL7VvgQNw3tnoS+G3CeLvz3jzdbKBG8At/7ov
+jBOi3X06mSNCT/Xe7VYTfwquwUC2XIplxynhd67PEy2G8DQLMYfWZJYthpwODCel
+sh0RNG4AbULWPdP7+W8Xqqs5PM+FTlAixZ4FW021t+yel5FaVnzjvD0BWxej4Dlr
+mpyJoIm9WWpHyMNjigwPPRhPUEGoisikG4UxqklykbZv542/RG65aImcLaBegUcX
+aD9upwOUoJH9VTCbY9BjGW5h0iYuThMjuu3r/hH8KAhp8iviDZFWuOgM1WD+hsoC
+iRGZ92l+E9lAXfiDliDNpsSoTM+YVVDsFYXI5ANNzsxTutk30qLrJysXCYJdfs7p
+lg5o0lEoVHra9Oc06mJPO2COnOXIUCJ8qKXkF4jqIuKMX/qFEK2q/G9Y/Dnx4wpR
+izvQXLsRvnVqztNhWnd2
+=6yF3
+-----END PGP SIGNATURE-----
+
+--AhhlLboLdkugWU4S--
