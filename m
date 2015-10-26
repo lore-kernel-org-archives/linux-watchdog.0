@@ -1,69 +1,75 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:34195 "EHLO pokefinder.org"
+Received: from mga14.intel.com ([192.55.52.115]:41012 "EHLO mga14.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751624AbbJWInk (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 23 Oct 2015 04:43:40 -0400
-Date: Fri, 23 Oct 2015 10:43:25 +0200
-From: Wolfram Sang <wsa@the-dreams.de>
-To: Zhiqiang Hou <B48286@freescale.com>
-Cc: linux-arm-kernel@lists.infradead.org, catalin.marinas@arm.com,
-	will.deacon@arm.com, linux-i2c@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-clk@vger.kernel.org, mark.rutland@arm.com,
-	linux@roeck-us.net, wim@iguana.be, corbet@lwn.net,
-	mturquette@baylibre.com, sboyd@codeaurora.org,
-	Mingkai.Hu@freescale.com, Shaohui.Xie@freescale.com,
-	scottwood@freescale.com, bhupesh.sharma@freescale.com,
-	Wenbin.Song@freescale.com
-Subject: Re: [PATCH V6 1/6] i2c: Add i2c support to Freescale Layerscape
- platforms
-Message-ID: <20151023084325.GA13380@katana>
-References: <1445587282-29529-1-git-send-email-B48286@freescale.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
-Content-Disposition: inline
-In-Reply-To: <1445587282-29529-1-git-send-email-B48286@freescale.com>
+	id S1753590AbbJZMJf (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 26 Oct 2015 08:09:35 -0400
+From: Tomas Winkler <tomas.winkler@intel.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org,
+	Alexander Usyskin <alexander.usyskin@intel.com>,
+	Tomas Winkler <tomas.winkler@intel.com>
+Subject: [watchdog-next] watchdog: core: propagate ping error code to the user space
+Date: Mon, 26 Oct 2015 14:07:58 +0200
+Message-Id: <1445861278-18213-1-git-send-email-tomas.winkler@intel.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
+From: Alexander Usyskin <alexander.usyskin@intel.com>
 
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Watchdog ping return errors are ignored by watchdog core,
+Whatchdog daemon should be informed about possible hardware error or
+underlaying device driver get unregistered.
 
-On Fri, Oct 23, 2015 at 04:01:17PM +0800, Zhiqiang Hou wrote:
-> From: Shaohui Xie <Shaohui.Xie@freescale.com>
->=20
-> Modify the I2C_IMX config to support to Layerscape platforms.
->=20
-> Signed-off-by: Shaohui Xie <Shaohui.Xie@freescale.com>
-> Signed-off-by: Hou Zhiqiang <B48286@freescale.com>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+---
+ drivers/watchdog/watchdog_dev.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-Added COMPILE_TEST and applied to for-next, thanks!
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 6aaefbad303e..423a7e0dd919 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -295,6 +295,7 @@ static ssize_t watchdog_write(struct file *file, const char __user *data,
+ 	struct watchdog_device *wdd = file->private_data;
+ 	size_t i;
+ 	char c;
++	int err;
+ 
+ 	if (len == 0)
+ 		return 0;
+@@ -314,7 +315,9 @@ static ssize_t watchdog_write(struct file *file, const char __user *data,
+ 	}
+ 
+ 	/* someone wrote to us, so we send the watchdog a keepalive ping */
+-	watchdog_ping(wdd);
++	err = watchdog_ping(wdd);
++	if (err < 0)
++		return err;
+ 
+ 	return len;
+ }
+@@ -370,8 +373,7 @@ static long watchdog_ioctl(struct file *file, unsigned int cmd,
+ 	case WDIOC_KEEPALIVE:
+ 		if (!(wdd->info->options & WDIOF_KEEPALIVEPING))
+ 			return -EOPNOTSUPP;
+-		watchdog_ping(wdd);
+-		return 0;
++		return watchdog_ping(wdd);
+ 	case WDIOC_SETTIMEOUT:
+ 		if (get_user(val, p))
+ 			return -EFAULT;
+@@ -381,7 +383,9 @@ static long watchdog_ioctl(struct file *file, unsigned int cmd,
+ 		/* If the watchdog is active then we send a keepalive ping
+ 		 * to make sure that the watchdog keep's running (and if
+ 		 * possible that it takes the new timeout) */
+-		watchdog_ping(wdd);
++		err = watchdog_ping(wdd);
++		if (err < 0)
++			return err;
+ 		/* Fall */
+ 	case WDIOC_GETTIMEOUT:
+ 		/* timeout == 0 means that we don't know the timeout */
+-- 
+2.4.3
 
-
---AhhlLboLdkugWU4S
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWKfMtAAoJEBQN5MwUoCm2Y6MP/AlcVfAGRZO4gVAJlVoLeBIp
-kln/ZisN9qzfPLj9OcnYzlCKbPY13Tu/5YYCT5/V2aIGOLs30HqPCr8nb9KN7dPu
-scVCHtaqiX/0WP0lYulYFfac4kv7835XOU96mHUNDYjj9ne2bpGhqRWVzdiTCHQc
-66g8qX2lcvrJs0159Zp2DWpymfa4hDVUx0aZExdaHJI9ArCxOf1NHNA3G4k9UQUZ
-Dcd+i4zqDyfd0E87fu3NdFAHvS8TL7VvgQNw3tnoS+G3CeLvz3jzdbKBG8At/7ov
-jBOi3X06mSNCT/Xe7VYTfwquwUC2XIplxynhd67PEy2G8DQLMYfWZJYthpwODCel
-sh0RNG4AbULWPdP7+W8Xqqs5PM+FTlAixZ4FW021t+yel5FaVnzjvD0BWxej4Dlr
-mpyJoIm9WWpHyMNjigwPPRhPUEGoisikG4UxqklykbZv542/RG65aImcLaBegUcX
-aD9upwOUoJH9VTCbY9BjGW5h0iYuThMjuu3r/hH8KAhp8iviDZFWuOgM1WD+hsoC
-iRGZ92l+E9lAXfiDliDNpsSoTM+YVVDsFYXI5ANNzsxTutk30qLrJysXCYJdfs7p
-lg5o0lEoVHra9Oc06mJPO2COnOXIUCJ8qKXkF4jqIuKMX/qFEK2q/G9Y/Dnx4wpR
-izvQXLsRvnVqztNhWnd2
-=6yF3
------END PGP SIGNATURE-----
-
---AhhlLboLdkugWU4S--
