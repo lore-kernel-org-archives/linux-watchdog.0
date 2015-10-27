@@ -1,59 +1,94 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from spo001.leaseweb.nl ([83.149.101.17]:55228 "EHLO
+Received: from spo001.leaseweb.nl ([83.149.101.17]:55276 "EHLO
 	spo001.leaseweb.nl" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932412AbbJ0PNM (ORCPT
+	with ESMTP id S932256AbbJ0Pr2 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 27 Oct 2015 11:13:12 -0400
-Date: Tue, 27 Oct 2015 16:13:08 +0100
+	Tue, 27 Oct 2015 11:47:28 -0400
+Date: Tue, 27 Oct 2015 16:47:26 +0100
 From: Wim Van Sebroeck <wim@iguana.be>
 To: Justin Chen <justinpopo6@gmail.com>
-Cc: linux-kernel@vger.kernel.org, robh+dt@kernel.org,
-	mark.rutland@arm.com, ijc+devicetree@hellion.org.uk,
-	galak@codeaurora.org, linux@roeck-us.net,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	bcm-kernel-feedback-list@broadcom.com
-Subject: Re: [PATCH v3 0/2] watchdog: driver for BCM7038 and newer chips.
-Message-ID: <20151027151308.GA27264@spo001.leaseweb.nl>
-References: <1441044163-16563-1-git-send-email-justinpopo6@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	linux@roeck-us.net, bcm-kernel-feedback-list@broadcom.com
+Subject: Re: [PATCH] watchdog_dev: Use device tree alias for naming watchdogs
+Message-ID: <20151027154726.GA27947@spo001.leaseweb.nl>
+References: <1441216817-25095-1-git-send-email-justinpopo6@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1441044163-16563-1-git-send-email-justinpopo6@gmail.com>
+In-Reply-To: <1441216817-25095-1-git-send-email-justinpopo6@gmail.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
 Hi Justin,
 
-> This driver is for a watchdog block contained in all Broadcom Set-top
-> Box chips since BCM7038. BCM7038 was made public during the 2004 CES,
-> and since then, many chips use this watchdog block including some cable
-> modem chips.
+> Currently there is no way to easily differentiate multiple
+> watchdog devices. The watchdogs are named by the order they
+> are probed.
+> 1st probed watchdog: /dev/watchdog0
+> 2nd probed watchdog: /dev/watchdog1
+> ...
 > 
-> Changes since v2:
-> Added clk_disable_unprepare if watchdog fails to register.
+> This change uses the alias of the watchdog device node for
+> the name of the watchdog.
+> aliases {
+>     watchdog0 = "/...../...."
+>     watchdog3 = "/..../....."
+>     watchdog2 = "/..../....."
+>     ...
+> }
 > 
-> Changes since v1:
-> Removed clock-frequency because it brought unnecessary complexity to the
-> driver.
-> Renamed a few variables.
+> This will translate to...
+> /dev/watchdog0
+> /dev/watchdog3
+> /dev/watchdog2
 > 
-> Patch 1: watchdog device tree binding documentation
+> v2
+> Assign alias number to id in watchdog_core instead of watchdog_dev.
+> If failed to get id, fallback to original ida_simple_get call.
 > 
-> Patch 2: watchdog driver
+> Signed-off-by: Justin Chen <justinpopo6@gmail.com>
+> ---
+>  drivers/watchdog/watchdog_core.c | 15 +++++++++++++--
+>  1 file changed, 13 insertions(+), 2 deletions(-)
 > 
-> Justin Chen (2):
->   watchdog: bcm7038: add device tree binding documentation
->   watchdog: Watchdog driver for Broadcom Set-Top Box
+> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+> index 1a80594..873f139 100644
+> --- a/drivers/watchdog/watchdog_core.c
+> +++ b/drivers/watchdog/watchdog_core.c
+> @@ -139,7 +139,7 @@ EXPORT_SYMBOL_GPL(watchdog_init_timeout);
+>  
+>  static int __watchdog_register_device(struct watchdog_device *wdd)
+>  {
+> -	int ret, id, devno;
+> +	int ret, id = -1, devno;
+>  
+>  	if (wdd == NULL || wdd->info == NULL || wdd->ops == NULL)
+>  		return -EINVAL;
+> @@ -157,7 +157,18 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
+>  	 */
+>  
+>  	mutex_init(&wdd->lock);
+> -	id = ida_simple_get(&watchdog_ida, 0, MAX_DOGS, GFP_KERNEL);
+> +
+> +	/* Use alias for watchdog id if possible */
+> +	if (wdd->parent) {
+> +		ret = of_alias_get_id(wdd->parent->of_node, "watchdog");
+> +		if (ret >= 0)
+> +			id = ida_simple_get(&watchdog_ida, ret,
+> +					    ret + 1, GFP_KERNEL);
+> +	}
+> +
+> +	if (id < 0)
+> +		id = ida_simple_get(&watchdog_ida, 0, MAX_DOGS, GFP_KERNEL);
+> +
+>  	if (id < 0)
+>  		return id;
+>  	wdd->id = id;
+> -- 
+> 2.1.0
 > 
->  .../bindings/watchdog/brcm,bcm7038-wdt.txt         |  19 ++
->  drivers/watchdog/Kconfig                           |   8 +
->  drivers/watchdog/Makefile                          |   1 +
->  drivers/watchdog/bcm7038_wdt.c                     | 237 +++++++++++++++++++++
->  4 files changed, 265 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt
->  create mode 100644 drivers/watchdog/bcm7038_wdt.c
 
-Patches added to linux-watchdog-next.
+Added to linux-watchdog-next.
 
 Kind regards,
 Wim.
