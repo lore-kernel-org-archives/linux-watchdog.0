@@ -1,8 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:56715 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:56643 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964831AbbJ0QIO (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 27 Oct 2015 12:08:14 -0400
+	id S964831AbbJ0QIB (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 27 Oct 2015 12:08:01 -0400
 From: fu.wei@linaro.org
 To: linaro-acpi@lists.linaro.org, linux-watchdog@vger.kernel.org,
 	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
@@ -14,9 +14,9 @@ Cc: tekkamanninja@gmail.com, arnd@arndb.de, linux@roeck-us.net,
 	dyoung@redhat.com, panand@redhat.com,
 	Suravee.Suthikulpanit@amd.com, robherring2@gmail.com,
 	Fu Wei <fu.wei@linaro.org>
-Subject: [PATCH v8 5/5] Watchdog: introduce ARM SBSA watchdog driver
-Date: Wed, 28 Oct 2015 00:06:39 +0800
-Message-Id: <1445961999-9506-6-git-send-email-fu.wei@linaro.org>
+Subject: [PATCH v8 4/5] Watchdog: introdouce "pretimeout" into framework
+Date: Wed, 28 Oct 2015 00:06:38 +0800
+Message-Id: <1445961999-9506-5-git-send-email-fu.wei@linaro.org>
 In-Reply-To: <1445961999-9506-1-git-send-email-fu.wei@linaro.org>
 References: <1445961999-9506-1-git-send-email-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -24,522 +24,436 @@ List-Id: linux-watchdog@vger.kernel.org
 
 From: Fu Wei <fu.wei@linaro.org>
 
-This driver bases on linux kernel watchdog framework, and
-use "pretimeout" in the framework. It supports getting timeout and
-pretimeout from parameter and FDT at the driver init stage.
-In first timeout, the interrupt routine run panic to save
-system context.
+Also update Documentation/watchdog/watchdog-kernel-api.txt to
+introduce:
+(1)the new elements in the watchdog_device and watchdog_ops struct;
+(2)the new API "watchdog_init_timeouts"
+
+Reasons:
+(1)kernel already has two watchdog drivers are using "pretimeout":
+	drivers/char/ipmi/ipmi_watchdog.c
+	drivers/watchdog/kempld_wdt.c(but the definition is different)
+(2)some other drivers are going to use this: ARM SBSA Generic Watchdog
 
 Signed-off-by: Fu Wei <fu.wei@linaro.org>
 Tested-by: Pratyush Anand <panand@redhat.com>
 ---
- drivers/watchdog/Kconfig     |  14 ++
- drivers/watchdog/Makefile    |   1 +
- drivers/watchdog/sbsa_gwdt.c | 459 +++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 474 insertions(+)
+ Documentation/watchdog/watchdog-kernel-api.txt |  55 +++++++++--
+ drivers/watchdog/watchdog_core.c               | 127 +++++++++++++++++++------
+ drivers/watchdog/watchdog_dev.c                |  53 +++++++++++
+ include/linux/watchdog.h                       |  39 +++++++-
+ 4 files changed, 232 insertions(+), 42 deletions(-)
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 79e1aa1..5cc8455 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -173,6 +173,20 @@ config ARM_SP805_WATCHDOG
- 	  ARM Primecell SP805 Watchdog timer. This will reboot your system when
- 	  the timeout is reached.
+diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
+index d8b0d33..9be942c 100644
+--- a/Documentation/watchdog/watchdog-kernel-api.txt
++++ b/Documentation/watchdog/watchdog-kernel-api.txt
+@@ -53,6 +53,9 @@ struct watchdog_device {
+ 	unsigned int timeout;
+ 	unsigned int min_timeout;
+ 	unsigned int max_timeout;
++	unsigned int pretimeout;
++	unsigned int min_pretimeout;
++	unsigned int max_pretimeout;
+ 	void *driver_data;
+ 	struct mutex lock;
+ 	unsigned long status;
+@@ -75,6 +78,9 @@ It contains following fields:
+ * timeout: the watchdog timer's timeout value (in seconds).
+ * min_timeout: the watchdog timer's minimum timeout value (in seconds).
+ * max_timeout: the watchdog timer's maximum timeout value (in seconds).
++* pretimeout: the watchdog timer's pretimeout value (in seconds).
++* min_pretimeout: the watchdog timer's minimum pretimeout value (in seconds).
++* max_pretimeout: the watchdog timer's maximum pretimeout value (in seconds).
+ * bootstatus: status of the device after booting (reported with watchdog
+   WDIOF_* status bits).
+ * driver_data: a pointer to the drivers private data of a watchdog device.
+@@ -99,6 +105,7 @@ struct watchdog_ops {
+ 	int (*ping)(struct watchdog_device *);
+ 	unsigned int (*status)(struct watchdog_device *);
+ 	int (*set_timeout)(struct watchdog_device *, unsigned int);
++	int (*set_pretimeout)(struct watchdog_device *, unsigned int);
+ 	unsigned int (*get_timeleft)(struct watchdog_device *);
+ 	void (*ref)(struct watchdog_device *);
+ 	void (*unref)(struct watchdog_device *);
+@@ -156,13 +163,24 @@ they are supported. These optional routines/operations are:
+ * status: this routine checks the status of the watchdog timer device. The
+   status of the device is reported with watchdog WDIOF_* status flags/bits.
+ * set_timeout: this routine checks and changes the timeout of the watchdog
+-  timer device. It returns 0 on success, -EINVAL for "parameter out of range"
+-  and -EIO for "could not write value to the watchdog". On success this
+-  routine should set the timeout value of the watchdog_device to the
+-  achieved timeout value (which may be different from the requested one
+-  because the watchdog does not necessarily has a 1 second resolution).
++  timer device. It returns 0 on success, -EINVAL for "parameter out of
++  range" (e.g., if the driver supports pretimeout, then the requested
++  timeout value must be greater than the pretimeout value) and -EIO for
++  "could not write value to the watchdog". On success this routine will
++  set the timeout value of the watchdog_device to an actual timeout value
++  (which may be different from the requested one because the watchdog does
++  not necessarily have a 1 second resolution).
+   (Note: the WDIOF_SETTIMEOUT needs to be set in the options field of the
+   watchdog's info structure).
++* set_pretimeout: this routine checks and changes the pretimeout of the
++  watchdog timer device. It returns 0 on success, -EINVAL for "parameter
++  out of range" and -EIO for "could not write value to the watchdog". On
++  success this routine will set the pretimeout value of the
++  watchdog_device to an actual pretimeout value (which may be different
++  from the requested one because the watchdog does not necessarily have a
++  1 second resolution).
++  (Note: the WDIOF_PRETIMEOUT needs to be set in the options field of the
++  watchdog's info structure).
+ * get_timeleft: this routines returns the time that's left before a reset.
+ * ref: the operation that calls kref_get on the kref of a dynamically
+   allocated watchdog_device struct.
+@@ -226,8 +244,27 @@ extern int watchdog_init_timeout(struct watchdog_device *wdd,
+                                   unsigned int timeout_parm, struct device *dev);
  
-+config ARM_SBSA_WATCHDOG
-+	tristate "ARM SBSA Generic Watchdog"
-+	depends on ARM64
-+	depends on ARM_ARCH_TIMER
-+	select WATCHDOG_CORE
-+	help
-+	  ARM SBSA Generic Watchdog. This watchdog has two Watchdog timeouts.
-+	  The first timeout will trigger a panic; the second timeout will
-+	  trigger a system reset.
-+	  More details: ARM DEN0029B - Server Base System Architecture (SBSA)
+ The watchdog_init_timeout function allows you to initialize the timeout field
+-using the module timeout parameter or by retrieving the timeout-sec property from
+-the device tree (if the module timeout parameter is invalid). Best practice is
+-to set the default timeout value as timeout value in the watchdog_device and
+-then use this function to set the user "preferred" timeout value.
++using the module timeout parameter or by retrieving the first element of
++the timeout-sec property from the device tree (if the module timeout
++parameter is invalid). Best practice is to set the default timeout value
++as the timeout value in the watchdog_device and then use this function to
++set the user preferred timeout value.
++This routine returns zero on success and a negative errno code for failure.
 +
-+	  To compile this driver as module, choose M here: The module
-+	  will be called sbsa_gwdt.
++Some watchdog timers have two stages of timeout (timeout and pretimeout).
++To initialize the timeout and pretimeout fields at the same time, the
++following function can be used:
 +
- config AT91RM9200_WATCHDOG
- 	tristate "AT91RM9200 watchdog"
- 	depends on SOC_AT91RM9200 && MFD_SYSCON
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 0c616e3..b74a3ea 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -30,6 +30,7 @@ obj-$(CONFIG_USBPCWATCHDOG) += pcwd_usb.o
++int watchdog_init_timeouts(struct watchdog_device *wdd,
++                                  unsigned int pretimeout_parm,
++                                  unsigned int timeout_parm,
++                                  struct device *dev);
++
++The watchdog_init_timeouts function allows you to initialize the
++pretimeout and timeout fields using the module pretimeout and timeout
++parameter or by retrieving the elements in the timeout-sec property from
++the device tree (if the module pretimeout and timeout parameter are
++invalid). Best practice is to set the default pretimeout and timeout
++values as pretimeout and timeout values in the watchdog_device and then
++use this function to set the user preferred pretimeout value.
+ This routine returns zero on success and a negative errno code for failure.
+diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+index 1a80594..44918d5 100644
+--- a/drivers/watchdog/watchdog_core.c
++++ b/drivers/watchdog/watchdog_core.c
+@@ -85,57 +85,126 @@ static void watchdog_deferred_registration_del(struct watchdog_device *wdd)
+ static void watchdog_check_min_max_timeout(struct watchdog_device *wdd)
+ {
+ 	/*
+-	 * Check that we have valid min and max timeout values, if
+-	 * not reset them both to 0 (=not used or unknown)
++	 * Check that we have valid min and max pretimeout and timeout values,
++	 * if not, reset them all to 0 (=not used or unknown)
+ 	 */
+-	if (wdd->min_timeout > wdd->max_timeout) {
+-		pr_info("Invalid min and max timeout values, resetting to 0!\n");
++	if (wdd->min_pretimeout > wdd->max_pretimeout ||
++	    wdd->min_timeout > wdd->max_timeout ||
++	    wdd->min_timeout < wdd->min_pretimeout ||
++	    wdd->max_timeout < wdd->max_pretimeout) {
++		pr_info("Invalid min or max timeouts, resetting to 0\n");
++		wdd->min_pretimeout = 0;
++		wdd->max_pretimeout = 0;
+ 		wdd->min_timeout = 0;
+ 		wdd->max_timeout = 0;
+ 	}
+ }
  
- # ARM Architecture
- obj-$(CONFIG_ARM_SP805_WATCHDOG) += sp805_wdt.o
-+obj-$(CONFIG_ARM_SBSA_WATCHDOG) += sbsa_gwdt.o
- obj-$(CONFIG_AT91RM9200_WATCHDOG) += at91rm9200_wdt.o
- obj-$(CONFIG_AT91SAM9X_WATCHDOG) += at91sam9_wdt.o
- obj-$(CONFIG_CADENCE_WATCHDOG) += cadence_wdt.o
-diff --git a/drivers/watchdog/sbsa_gwdt.c b/drivers/watchdog/sbsa_gwdt.c
-new file mode 100644
-index 0000000..6fd1c63
---- /dev/null
-+++ b/drivers/watchdog/sbsa_gwdt.c
-@@ -0,0 +1,459 @@
-+/*
-+ * SBSA(Server Base System Architecture) Generic Watchdog driver
-+ *
-+ * Copyright (c) 2015, Linaro Ltd.
-+ * Author: Fu Wei <fu.wei@linaro.org>
-+ *         Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License 2 as published
-+ * by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * The SBSA Generic watchdog driver is compatible with the pretimeout
-+ * concept of Linux kernel.
-+ * The timeout and pretimeout are determined by WCV or WOR.
-+ * The first watch period is set by writing WCV directly, that can
-+ * support more than 10s timeout at the maximum system counter
-+ * frequency (400MHz).
-+ * When WS0 is triggered, the second watch period (pretimeout) is
-+ * determined by one of these registers:
-+ * (1)WOR: 32bit register, this gives a maximum watch period of
-+ * around 10s at the maximum system counter frequency. It's loaded
-+ * automatically by hardware.
-+ * (2)WCV: If the pretimeout value is greater then "max_wor_timeout",
-+ * it will be loaded in WS0 interrupt routine. If system is in
-+ * ws0_mode (reboot with watchdog enabled and WS0 == true), the ping
-+ * operation will only reload WCV.
-+ * More details about the hardware specification of this device:
-+ * ARM DEN0029B - Server Base System Architecture (SBSA)
-+ *
-+ * Kernel/API:                         P------------------| pretimeout
-+ *               |----------------------------------------T timeout
-+ * SBSA GWDT:                          P---WOR (or WCV)---WS1 pretimeout
-+ *               |-------WCV----------WS0~~~(ws0_mode)~~~~T timeout
-+ */
+ /**
+- * watchdog_init_timeout() - initialize the timeout field
++ * watchdog_init_timeouts() - initialize the pretimeout and timeout field
++ * @pretimeout_parm: pretimeout module parameter
+  * @timeout_parm: timeout module parameter
+  * @dev: Device that stores the timeout-sec property
+  *
+- * Initialize the timeout field of the watchdog_device struct with either the
+- * timeout module parameter (if it is valid value) or the timeout-sec property
+- * (only if it is a valid value and the timeout_parm is out of bounds).
+- * If none of them are valid then we keep the old value (which should normally
+- * be the default timeout value.
++ * Initialize the pretimeout and timeout field of the watchdog_device struct
++ * with both the pretimeout and timeout module parameters (if they are valid) or
++ * the timeout-sec property (only if they are valid and the pretimeout_parm or
++ * timeout_parm is out of bounds). If one of them is invalid, then we keep
++ * the old value (which should normally be the default timeout value).
+  *
+  * A zero is returned on success and -EINVAL for failure.
+  */
+-int watchdog_init_timeout(struct watchdog_device *wdd,
+-				unsigned int timeout_parm, struct device *dev)
++int watchdog_init_timeouts(struct watchdog_device *wdd,
++			   unsigned int pretimeout_parm,
++			   unsigned int timeout_parm,
++			   struct device *dev)
+ {
+-	unsigned int t = 0;
+-	int ret = 0;
++	int ret = 0, length = 0;
++	u32 timeouts[2] = {0};
++	struct property *prop;
+ 
+ 	watchdog_check_min_max_timeout(wdd);
+ 
+-	/* try to get the timeout module parameter first */
+-	if (!watchdog_timeout_invalid(wdd, timeout_parm) && timeout_parm) {
+-		wdd->timeout = timeout_parm;
+-		return ret;
+-	}
+-	if (timeout_parm)
++	/*
++	 * Backup the timeouts of wdd, and set them to the parameters,
++	 * because watchdog_pretimeout_invalid uses wdd->timeout to validate
++	 * the pretimeout_parm, and watchdog_timeout_invalid uses
++	 * wdd->pretimeout to validate timeout_parm.
++	 * if any of parameters is wrong, restore the default values before
++	 * return.
++	 */
++	timeouts[0] = wdd->timeout;
++	timeouts[1] = wdd->pretimeout;
++	wdd->timeout = timeout_parm;
++	wdd->pretimeout = pretimeout_parm;
 +
-+#include <linux/io.h>
-+#include <linux/interrupt.h>
-+#include <linux/module.h>
-+#include <linux/moduleparam.h>
-+#include <linux/of.h>
-+#include <linux/of_device.h>
-+#include <linux/platform_device.h>
-+#include <linux/uaccess.h>
-+#include <linux/watchdog.h>
-+#include <asm/arch_timer.h>
-+
-+/* SBSA Generic Watchdog register definitions */
-+/* refresh frame */
-+#define SBSA_GWDT_WRR				0x000
-+
-+/* control frame */
-+#define SBSA_GWDT_WCS				0x000
-+#define SBSA_GWDT_WOR				0x008
-+#define SBSA_GWDT_WCV_LO			0x010
-+#define SBSA_GWDT_WCV_HI			0x014
-+
-+/* refresh/control frame */
-+#define SBSA_GWDT_W_IIDR			0xfcc
-+#define SBSA_GWDT_IDR				0xfd0
-+
-+/* Watchdog Control and Status Register */
-+#define SBSA_GWDT_WCS_EN			BIT(0)
-+#define SBSA_GWDT_WCS_WS0			BIT(1)
-+#define SBSA_GWDT_WCS_WS1			BIT(2)
-+
-+/**
-+ * struct sbsa_gwdt - Internal representation of the SBSA GWDT
-+ * @wdd:		kernel watchdog_device structure
-+ * @clk:		store the System Counter clock frequency, in Hz.
-+ * @ws0_mode:		indicate the system boot in the second stage timeout.
-+ * @max_wor_timeout:	the maximum timeout value for WOR (in seconds).
-+ * @refresh_base:	Virtual address of the watchdog refresh frame
-+ * @control_base:	Virtual address of the watchdog control frame
-+ */
-+struct sbsa_gwdt {
-+	struct watchdog_device	wdd;
-+	u32			clk;
-+	bool			ws0_mode;
-+	int			max_wor_timeout;
-+	void __iomem		*refresh_base;
-+	void __iomem		*control_base;
-+};
-+
-+#define to_sbsa_gwdt(e) container_of(e, struct sbsa_gwdt, wdd)
-+
-+#define DEFAULT_TIMEOUT		60 /* seconds, the 1st + 2nd watch periods*/
-+#define DEFAULT_PRETIMEOUT	30 /* seconds, the 2nd watch period*/
-+
-+static unsigned int timeout;
-+module_param(timeout, uint, 0);
-+MODULE_PARM_DESC(timeout,
-+		 "Watchdog timeout in seconds. (>=0, default="
-+		 __MODULE_STRING(DEFAULT_TIMEOUT) ")");
-+
-+static unsigned int pretimeout;
-+module_param(pretimeout, uint, 0);
-+MODULE_PARM_DESC(pretimeout,
-+		 "Watchdog pretimeout in seconds. (>=0, default="
-+		 __MODULE_STRING(DEFAULT_PRETIMEOUT) ")");
-+
-+static bool nowayout = WATCHDOG_NOWAYOUT;
-+module_param(nowayout, bool, S_IRUGO);
-+MODULE_PARM_DESC(nowayout,
-+		 "Watchdog cannot be stopped once started (default="
-+		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-+
-+/*
-+ * help functions for accessing 64bit WCV register
-+ */
-+static u64 sbsa_gwdt_get_wcv(struct watchdog_device *wdd)
-+{
-+	u32 wcv_lo, wcv_hi;
-+	struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
-+
-+	do {
-+		wcv_hi = readl_relaxed(gwdt->control_base + SBSA_GWDT_WCV_HI);
-+		wcv_lo = readl_relaxed(gwdt->control_base + SBSA_GWDT_WCV_LO);
-+	} while (wcv_hi != readl_relaxed(gwdt->control_base +
-+					 SBSA_GWDT_WCV_HI));
-+
-+	return (((u64)wcv_hi << 32) | wcv_lo);
-+}
-+
-+static void sbsa_gwdt_set_wcv(struct watchdog_device *wdd, unsigned int t)
-+{
-+	struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
-+	u64 wcv;
-+
-+	wcv = arch_counter_get_cntvct() + (u64)t * gwdt->clk;
-+
-+	writel_relaxed(upper_32_bits(wcv),
-+		       gwdt->control_base + SBSA_GWDT_WCV_HI);
-+	writel_relaxed(lower_32_bits(wcv),
-+		       gwdt->control_base + SBSA_GWDT_WCV_LO);
-+}
-+
-+/*
-+ * inline functions for reloading 64bit WCV register
-+ */
-+static inline void reload_pretimeout_to_wcv(struct watchdog_device *wdd)
-+{
-+	sbsa_gwdt_set_wcv(wdd, wdd->pretimeout);
-+}
-+
-+static inline void reload_first_stage_to_wcv(struct watchdog_device *wdd)
-+{
-+	sbsa_gwdt_set_wcv(wdd, wdd->timeout - wdd->pretimeout);
-+}
-+
-+/*
-+ * watchdog operation functions
-+ */
-+static int sbsa_gwdt_set_timeout(struct watchdog_device *wdd,
-+				 unsigned int timeout)
-+{
-+	wdd->timeout = timeout;
-+
-+	return 0;
-+}
-+
-+static int sbsa_gwdt_set_pretimeout(struct watchdog_device *wdd,
-+				    unsigned int pretimeout)
-+{
-+	struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
-+	u32 wor;
-+
-+	wdd->pretimeout = pretimeout;
-+
-+	/* If ws0_mode == true, we won't touch WOR */
-+	if (!gwdt->ws0_mode) {
-+		if (!pretimeout)
-+			/*
-+			 * If pretimeout is 0, it gives driver a timeslot (1s)
-+			 * to update WCV after an explicit refresh
-+			 * (sbsa_gwdt_start)
-+			 */
-+			wor = gwdt->clk;
-+		else
-+			if (pretimeout > gwdt->max_wor_timeout)
-+				wor = U32_MAX;
-+			else
-+				wor = pretimeout * gwdt->clk;
-+
-+		/* wtite WOR, that will cause an explicit watchdog refresh */
-+		writel_relaxed(wor, gwdt->control_base + SBSA_GWDT_WOR);
++	/*
++	 * Try to get the pretimeout module parameter first.
++	 * Note: zero is a valid value for pretimeout.
++	 */
++	if (watchdog_pretimeout_invalid(wdd, pretimeout_parm))
+ 		ret = -EINVAL;
+ 
+-	/* try to get the timeout_sec property */
+-	if (dev == NULL || dev->of_node == NULL)
+-		return ret;
+-	of_property_read_u32(dev->of_node, "timeout-sec", &t);
+-	if (!watchdog_timeout_invalid(wdd, t) && t)
+-		wdd->timeout = t;
+-	else
++	/*
++	 * Try to get the timeout module parameter,
++	 * if it's valid and pretimeout is valid(ret == 0),
++	 * assignment and return zero. Otherwise, try dtb.
++	 */
++	if (timeout_parm && !ret) {
++		if (!watchdog_timeout_invalid(wdd, timeout_parm))
++			return 0;
+ 		ret = -EINVAL;
 +	}
-+
-+	return 0;
-+}
-+
-+static unsigned int sbsa_gwdt_get_timeleft(struct watchdog_device *wdd)
-+{
-+	struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
-+	u64 timeleft = sbsa_gwdt_get_wcv(wdd) - arch_counter_get_cntvct();
-+
-+	do_div(timeleft, gwdt->clk);
-+
-+	return timeleft;
-+}
-+
-+static int sbsa_gwdt_keepalive(struct watchdog_device *wdd)
-+{
-+	struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
-+
-+	if (gwdt->ws0_mode)
-+		reload_pretimeout_to_wcv(wdd);
-+	else
-+		reload_first_stage_to_wcv(wdd);
-+
-+	return 0;
-+}
-+
-+static int sbsa_gwdt_start(struct watchdog_device *wdd)
-+{
-+	struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
-+
-+	/* If ws0_mode == true, the watchdog is enabled */
-+	if (!gwdt->ws0_mode)
-+		/* writing WCS will cause an explicit watchdog refresh */
-+		writel_relaxed(SBSA_GWDT_WCS_EN,
-+			       gwdt->control_base + SBSA_GWDT_WCS);
-+
-+	return sbsa_gwdt_keepalive(wdd);
-+}
-+
-+static int sbsa_gwdt_stop(struct watchdog_device *wdd)
-+{
-+	struct sbsa_gwdt *gwdt = to_sbsa_gwdt(wdd);
-+
-+	writel_relaxed(0, gwdt->control_base + SBSA_GWDT_WCS);
+ 
+-	return ret;
 +	/*
-+	 * Writing WCS has caused an explicit watchdog refresh.
-+	 * Both watchdog signals are deasserted, so clean ws0_mode flag.
++	 * Either at least one of the module parameters is invalid,
++	 * or timeout_parm is 0. Try to get the timeout_sec property.
 +	 */
-+	gwdt->ws0_mode = false;
-+
-+	return 0;
-+}
-+
-+static irqreturn_t sbsa_gwdt_interrupt(int irq, void *dev_id)
-+{
-+	struct sbsa_gwdt *gwdt = (struct sbsa_gwdt *)dev_id;
-+	struct watchdog_device *wdd = &gwdt->wdd;
-+
-+	/* We don't use pretimeout, trigger WS1 now */
-+	if (!wdd->pretimeout)
-+		sbsa_gwdt_set_wcv(wdd, 0);
-+
-+	/*
-+	 * The pretimeout is valid, go panic
-+	 * If pretimeout is greater then "max_wor_timeout",
-+	 * reload the right value to WCV, then panic
-+	 */
-+	if (wdd->pretimeout > gwdt->max_wor_timeout)
-+		reload_pretimeout_to_wcv(wdd);
-+	panic("SBSA Watchdog pre-timeout");
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static struct watchdog_info sbsa_gwdt_info = {
-+	.identity	= "SBSA Generic Watchdog",
-+	.options	= WDIOF_SETTIMEOUT |
-+			  WDIOF_KEEPALIVEPING |
-+			  WDIOF_MAGICCLOSE |
-+			  WDIOF_PRETIMEOUT |
-+			  WDIOF_CARDRESET,
-+};
-+
-+static struct watchdog_ops sbsa_gwdt_ops = {
-+	.owner		= THIS_MODULE,
-+	.start		= sbsa_gwdt_start,
-+	.stop		= sbsa_gwdt_stop,
-+	.ping		= sbsa_gwdt_keepalive,
-+	.set_timeout	= sbsa_gwdt_set_timeout,
-+	.set_pretimeout	= sbsa_gwdt_set_pretimeout,
-+	.get_timeleft	= sbsa_gwdt_get_timeleft,
-+};
-+
-+static int sbsa_gwdt_probe(struct platform_device *pdev)
-+{
-+	void __iomem *rf_base, *cf_base;
-+	struct device *dev = &pdev->dev;
-+	struct watchdog_device *wdd;
-+	struct sbsa_gwdt *gwdt;
-+	struct resource *res;
-+	int ret, irq;
-+	u32 status;
-+
-+	gwdt = devm_kzalloc(dev, sizeof(*gwdt), GFP_KERNEL);
-+	if (!gwdt)
-+		return -ENOMEM;
-+	platform_set_drvdata(pdev, gwdt);
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	cf_base = devm_ioremap_resource(dev, res);
-+	if (IS_ERR(cf_base))
-+		return PTR_ERR(cf_base);
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
-+	rf_base = devm_ioremap_resource(dev, res);
-+	if (IS_ERR(rf_base))
-+		return PTR_ERR(rf_base);
-+
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0) {
-+		dev_err(dev, "unable to get ws0 interrupt.\n");
-+		return irq;
-+	}
-+
-+	/*
-+	 * Get the frequency of system counter from the cp15 interface of ARM
-+	 * Generic timer. We don't need to check it, because if it returns "0",
-+	 * system would panic in very early stage.
-+	 */
-+	gwdt->clk = arch_timer_get_cntfrq();
-+	gwdt->refresh_base = rf_base;
-+	gwdt->control_base = cf_base;
-+	gwdt->max_wor_timeout = U32_MAX / gwdt->clk;
-+	gwdt->ws0_mode = false;
-+
-+	wdd = &gwdt->wdd;
-+	wdd->parent = dev;
-+	wdd->info = &sbsa_gwdt_info;
-+	wdd->ops = &sbsa_gwdt_ops;
-+	watchdog_set_drvdata(wdd, gwdt);
-+	watchdog_set_nowayout(wdd, nowayout);
-+
-+	wdd->min_pretimeout = 0;
-+	wdd->min_timeout = 1;
-+
-+	/*
-+	 * Because the maximum of gwdt->clk is 400MHz and the maximum of WCV is
-+	 * U64_MAX, so the result of (U64_MAX / gwdt->clk) is always greater
-+	 * than U32_MAX. And the maximum of "unsigned int" is U32_MAX on ARM64.
-+	 * So we set the maximum value of pretimeout and timeout below.
-+	 */
-+	wdd->max_pretimeout = U32_MAX - 1;
-+	wdd->max_timeout = U32_MAX;
-+
-+	wdd->pretimeout = DEFAULT_PRETIMEOUT;
-+	wdd->timeout = DEFAULT_TIMEOUT;
-+	watchdog_init_timeouts(wdd, pretimeout, timeout, dev);
-+
-+	status = readl_relaxed(gwdt->control_base + SBSA_GWDT_WCS);
-+	if (status & SBSA_GWDT_WCS_WS1) {
-+		dev_warn(dev, "System reset by WDT.\n");
-+		wdd->bootstatus |= WDIOF_CARDRESET;
-+	} else if (status == (SBSA_GWDT_WCS_WS0 | SBSA_GWDT_WCS_EN)) {
-+		gwdt->ws0_mode = true;
-+	}
-+
-+	ret = devm_request_irq(dev, irq, sbsa_gwdt_interrupt, 0,
-+			       pdev->name, gwdt);
-+	if (ret) {
-+		dev_err(dev, "unable to request IRQ %d\n", irq);
++	if (!dev || !dev->of_node) {
++		wdd->timeout = timeouts[0];
++		wdd->pretimeout = timeouts[1];
 +		return ret;
 +	}
 +
-+	ret = watchdog_register_device(wdd);
-+	if (ret)
-+		return ret;
-+
-+	/* If ws0_mode == true, the line won't update WOR */
-+	sbsa_gwdt_set_pretimeout(wdd, wdd->pretimeout);
-+
 +	/*
-+	 * If watchdog is already enabled, do a ping operation
-+	 * to keep system running
++	 * Backup default values to *_parms,
++	 * timeouts[] will be used by of_property_read_u32_array.
 +	 */
-+	if (status & SBSA_GWDT_WCS_EN)
-+		sbsa_gwdt_keepalive(wdd);
++	timeout_parm = timeouts[0];
++	pretimeout_parm = timeouts[1];
 +
-+	dev_info(dev, "Initialized with %ds timeout, %ds pretimeout @ %u Hz%s\n",
-+		 wdd->timeout, wdd->pretimeout, gwdt->clk,
-+		 status & SBSA_GWDT_WCS_EN ?
-+			gwdt->ws0_mode ? " [second stage]" : " [enabled]" :
-+			"");
++	prop = of_find_property(dev->of_node, "timeout-sec", &length);
++	if (prop && length > 0 && length <= sizeof(u32) * 2) {
++		of_property_read_u32_array(dev->of_node,
++					   "timeout-sec", timeouts,
++					   length / sizeof(u32));
++		wdd->timeout = timeouts[0];
++		wdd->pretimeout = timeouts[1];
 +
-+	return 0;
-+}
++		if (length == sizeof(u32) * 2) {
++			if (watchdog_pretimeout_invalid(wdd, timeouts[1]))
++				goto error;
++			ret = 0;
++		} else {
++			ret = -EINVAL;
++		}
 +
-+static void sbsa_gwdt_shutdown(struct platform_device *pdev)
++		if (!watchdog_timeout_invalid(wdd, timeouts[0]) &&
++		    timeouts[0]) {
++			if (ret) /* Only one value in "timeout-sec" */
++				wdd->pretimeout = pretimeout_parm;
++			return 0;
++		}
++	}
++
++error:
++	/* restore default values */
++	wdd->timeout = timeout_parm;
++	wdd->pretimeout = pretimeout_parm;
++
++	return -EINVAL;
+ }
+-EXPORT_SYMBOL_GPL(watchdog_init_timeout);
++EXPORT_SYMBOL_GPL(watchdog_init_timeouts);
+ 
+ static int __watchdog_register_device(struct watchdog_device *wdd)
+ {
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 6aaefba..af0777e 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -218,6 +218,38 @@ out_timeout:
+ }
+ 
+ /*
++ *	watchdog_set_pretimeout: set the watchdog timer pretimeout
++ *	@wddev: the watchdog device to set the timeout for
++ *	@pretimeout: pretimeout to set in seconds
++ */
++
++static int watchdog_set_pretimeout(struct watchdog_device *wddev,
++				   unsigned int pretimeout)
 +{
-+	struct sbsa_gwdt *gwdt = platform_get_drvdata(pdev);
++	int err;
 +
-+	sbsa_gwdt_stop(&gwdt->wdd);
++	if (!wddev->ops->set_pretimeout ||
++	    !(wddev->info->options & WDIOF_PRETIMEOUT))
++		return -EOPNOTSUPP;
++
++	if (watchdog_pretimeout_invalid(wddev, pretimeout))
++		return -EINVAL;
++
++	mutex_lock(&wddev->lock);
++
++	if (test_bit(WDOG_UNREGISTERED, &wddev->status)) {
++		err = -ENODEV;
++		goto out_pretimeout;
++	}
++
++	err = wddev->ops->set_pretimeout(wddev, pretimeout);
++
++out_pretimeout:
++	mutex_unlock(&wddev->lock);
++	return err;
 +}
 +
-+static int sbsa_gwdt_remove(struct platform_device *pdev)
++/*
+  *	watchdog_get_timeleft: wrapper to get the time left before a reboot
+  *	@wddev: the watchdog device to get the remaining time from
+  *	@timeleft: the time that's left
+@@ -388,6 +420,27 @@ static long watchdog_ioctl(struct file *file, unsigned int cmd,
+ 		if (wdd->timeout == 0)
+ 			return -EOPNOTSUPP;
+ 		return put_user(wdd->timeout, p);
++	case WDIOC_SETPRETIMEOUT:
++		/* check if we support the pretimeout */
++		if (!(wdd->info->options & WDIOF_PRETIMEOUT))
++			return -EOPNOTSUPP;
++		if (get_user(val, p))
++			return -EFAULT;
++		err = watchdog_set_pretimeout(wdd, val);
++		if (err < 0)
++			return err;
++		/*
++		 * If the watchdog is active then we send a keepalive ping
++		 * to make sure that the watchdog keeps running (and if
++		 * possible that it takes the new pretimeout)
++		 */
++		watchdog_ping(wdd);
++		/* Fall */
++	case WDIOC_GETPRETIMEOUT:
++		/* check if we support the pretimeout */
++		if (wdd->info->options & WDIOF_PRETIMEOUT)
++			return put_user(wdd->pretimeout, p);
++		return -EOPNOTSUPP;
+ 	case WDIOC_GETTIMELEFT:
+ 		err = watchdog_get_timeleft(wdd, &val);
+ 		if (err)
+diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+index d74a0e9..eaea7b0 100644
+--- a/include/linux/watchdog.h
++++ b/include/linux/watchdog.h
+@@ -25,6 +25,7 @@ struct watchdog_device;
+  * @ping:	The routine that sends a keepalive ping to the watchdog device.
+  * @status:	The routine that shows the status of the watchdog device.
+  * @set_timeout:The routine for setting the watchdog devices timeout value.
++ * @set_pretimeout:The routine for setting the watchdog devices pretimeout value
+  * @get_timeleft:The routine that get's the time that's left before a reset.
+  * @ref:	The ref operation for dyn. allocated watchdog_device structs
+  * @unref:	The unref operation for dyn. allocated watchdog_device structs
+@@ -44,6 +45,7 @@ struct watchdog_ops {
+ 	int (*ping)(struct watchdog_device *);
+ 	unsigned int (*status)(struct watchdog_device *);
+ 	int (*set_timeout)(struct watchdog_device *, unsigned int);
++	int (*set_pretimeout)(struct watchdog_device *, unsigned int);
+ 	unsigned int (*get_timeleft)(struct watchdog_device *);
+ 	void (*ref)(struct watchdog_device *);
+ 	void (*unref)(struct watchdog_device *);
+@@ -62,6 +64,9 @@ struct watchdog_ops {
+  * @timeout:	The watchdog devices timeout value.
+  * @min_timeout:The watchdog devices minimum timeout value.
+  * @max_timeout:The watchdog devices maximum timeout value.
++ * @pretimeout:	The watchdog devices pretimeout value.
++ * @min_pretimeout:The watchdog devices minimum pretimeout value.
++ * @max_pretimeout:The watchdog devices maximum pretimeout value.
+  * @driver-data:Pointer to the drivers private data.
+  * @lock:	Lock for watchdog core internal use only.
+  * @status:	Field that contains the devices internal status bits.
+@@ -88,6 +93,9 @@ struct watchdog_device {
+ 	unsigned int timeout;
+ 	unsigned int min_timeout;
+ 	unsigned int max_timeout;
++	unsigned int pretimeout;
++	unsigned int min_pretimeout;
++	unsigned int max_pretimeout;
+ 	void *driver_data;
+ 	struct mutex lock;
+ 	unsigned long status;
+@@ -119,8 +127,22 @@ static inline void watchdog_set_nowayout(struct watchdog_device *wdd, bool noway
+ /* Use the following function to check if a timeout value is invalid */
+ static inline bool watchdog_timeout_invalid(struct watchdog_device *wdd, unsigned int t)
+ {
+-	return ((wdd->max_timeout != 0) &&
+-		(t < wdd->min_timeout || t > wdd->max_timeout));
++	return (wdd->max_timeout &&
++		(t < wdd->min_timeout || t > wdd->max_timeout)) ||
++	       (wdd->pretimeout && t <= wdd->pretimeout);
++}
++
++/*
++ * Use the following function to check if a pretimeout value is invalid.
++ * It can be "0", that means we don't use pretimeout.
++ * This function returns false, when pretimeout is 0.
++ */
++static inline bool watchdog_pretimeout_invalid(struct watchdog_device *wdd,
++					       unsigned int t)
 +{
-+	struct sbsa_gwdt *gwdt = platform_get_drvdata(pdev);
-+
-+	watchdog_unregister_device(&gwdt->wdd);
-+
-+	return 0;
-+}
-+
-+/* Disable watchdog if it is active during suspend */
-+static int __maybe_unused sbsa_gwdt_suspend(struct device *dev)
++	return t && ((wdd->max_pretimeout &&
++		      (t < wdd->min_pretimeout || t > wdd->max_pretimeout)) ||
++		     (wdd->timeout && t >= wdd->timeout));
+ }
+ 
+ /* Use the following functions to manipulate watchdog driver specific data */
+@@ -135,8 +157,17 @@ static inline void *watchdog_get_drvdata(struct watchdog_device *wdd)
+ }
+ 
+ /* drivers/watchdog/watchdog_core.c */
+-extern int watchdog_init_timeout(struct watchdog_device *wdd,
+-				  unsigned int timeout_parm, struct device *dev);
++int watchdog_init_timeouts(struct watchdog_device *wdd,
++			   unsigned int pretimeout_parm,
++			   unsigned int timeout_parm,
++			   struct device *dev);
++static inline int watchdog_init_timeout(struct watchdog_device *wdd,
++					unsigned int timeout_parm,
++					struct device *dev)
 +{
-+	struct sbsa_gwdt *gwdt = dev_get_drvdata(dev);
-+
-+	if (watchdog_active(&gwdt->wdd))
-+		sbsa_gwdt_stop(&gwdt->wdd);
-+
-+	return 0;
++	return watchdog_init_timeouts(wdd, 0, timeout_parm, dev);
 +}
 +
-+/* Enable watchdog and configure it if necessary */
-+static int __maybe_unused sbsa_gwdt_resume(struct device *dev)
-+{
-+	struct sbsa_gwdt *gwdt = dev_get_drvdata(dev);
-+
-+	if (watchdog_active(&gwdt->wdd))
-+		sbsa_gwdt_start(&gwdt->wdd);
-+
-+	return 0;
-+}
-+
-+static const struct dev_pm_ops sbsa_gwdt_pm_ops = {
-+	SET_SYSTEM_SLEEP_PM_OPS(sbsa_gwdt_suspend, sbsa_gwdt_resume)
-+};
-+
-+static const struct of_device_id sbsa_gwdt_of_match[] = {
-+	{ .compatible = "arm,sbsa-gwdt", },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, sbsa_gwdt_of_match);
-+
-+static const struct platform_device_id sbsa_gwdt_pdev_match[] = {
-+	{ .name = "sbsa-gwdt", },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(platform, sbsa_gwdt_pdev_match);
-+
-+static struct platform_driver sbsa_gwdt_driver = {
-+	.driver = {
-+		.name = "sbsa-gwdt",
-+		.pm = &sbsa_gwdt_pm_ops,
-+		.of_match_table = sbsa_gwdt_of_match,
-+	},
-+	.probe = sbsa_gwdt_probe,
-+	.remove = sbsa_gwdt_remove,
-+	.shutdown = sbsa_gwdt_shutdown,
-+	.id_table = sbsa_gwdt_pdev_match,
-+};
-+
-+module_platform_driver(sbsa_gwdt_driver);
-+
-+MODULE_DESCRIPTION("SBSA Generic Watchdog Driver");
-+MODULE_AUTHOR("Fu Wei <fu.wei@linaro.org>");
-+MODULE_AUTHOR("Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>");
-+MODULE_LICENSE("GPL v2");
+ extern int watchdog_register_device(struct watchdog_device *);
+ extern void watchdog_unregister_device(struct watchdog_device *);
+ 
 -- 
 2.4.3
 
