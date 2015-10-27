@@ -1,300 +1,107 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.savoirfairelinux.com ([208.88.110.44]:48155 "EHLO
-	mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965317AbbJ0UmR (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:41032 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752013AbbJ0VUU (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 27 Oct 2015 16:42:17 -0400
-From: Damien Riegel <damien.riegel@savoirfairelinux.com>
-To: devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org
-Cc: shawnguo@kernel.org, kernel@pengutronix.de, wim@iguana.be,
-	robh+dt@kernel.org, kernel@savoirfairelinux.com,
-	Damien Riegel <damien.riegel@savoirfairelinux.com>
-Subject: [PATCH 2/4] watchdog: ts4800: add new driver for TS-4800 watchdog
-Date: Tue, 27 Oct 2015 16:33:39 -0400
-Message-Id: <1445978021-13961-3-git-send-email-damien.riegel@savoirfairelinux.com>
-In-Reply-To: <1445978021-13961-1-git-send-email-damien.riegel@savoirfairelinux.com>
-References: <1445978021-13961-1-git-send-email-damien.riegel@savoirfairelinux.com>
+	Tue, 27 Oct 2015 17:20:20 -0400
+From: Guenter Roeck <linux@roeck-us.net>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org
+Subject: [GIT PULL] watchdog updates for Linux 4.4
+Date: Tue, 27 Oct 2015 14:20:17 -0700
+Message-Id: <1445980817-24937-1-git-send-email-linux@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
----
- .../devicetree/bindings/watchdog/ts4800-wdt.txt    |  12 ++
- drivers/watchdog/Kconfig                           |   9 +
+Hi Wim,
+
+This is my watchdog pull request for 4.4. The branch is currently based
+on v4.3-rc7. It includes a merge with the immutable branch published by Lee
+Jones.
+
+Please consider pulling watchdog updates for Linux 4.4 from signed tag:
+
+    git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git watchdog-for-wim-4.4
+
+The tag has been applied on top of the watchdog-next branch. The branch includes
+a number of patches I collected over the last few months. It does not include
+all submitted patches; only the ones I reviewed and felt comfortable with are
+included. Some may already be in your -next branch.
+
+I reviewed all patches and ran build tests as well as source verification tests
+with both smatch and spatch. The branch has been on my Linux repository for a
+while, so presumably Fenguang's robot will have built the code as well. The most
+recent build results are available at http://server.roeck-us.net:8010/builders,
+in the watchdog-next column.
+
+If you don't want to apply the entire series, please consider applying whatever
+subset you might feel comfortable with.
+
+Thanks,
+Guenter
+------
+
+The following changes since commit 32b88194f71d6ae7768a29f87fbba454728273ee:
+
+  Linux 4.3-rc7 (2015-10-25 10:39:47 +0900)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git tags/watchdog-for-wim-4.4
+
+for you to fetch changes up to b34bae0a422c71b9fda5b220b5861d6a156f9056:
+
+  watchdog: core: propagate ping error code to the user space (2015-10-26 19:01:42 -0700)
+
+----------------------------------------------------------------
+Watchdog patches queued for v4.4
+
+b34bae0a422c watchdog: core: propagate ping error code to the user space
+3c4e349966e5 watchdog: watchdog_dev: Use single variable name for struct watchdog_device
+b2604ea134d8 watchdog: Always evaluate new timeout against min_timeout
+77751aa7027e wdt: intel-mid: add Magic Closure flag
+a3f795e41cec watchdog: imx2_wdt: Use register definition in regmap_write()
+977e2e2b09f1 watchdog: Read device status through sysfs attributes
+ba38f75e28c1 watchdog: Use static struct class watchdog_class in stead of pointer
+4193ae79561c watchdog_dev: Use device tree alias for naming watchdogs
+28c2845d1de4 watchdog: Watchdog driver for Broadcom Set-Top Box
+6e7a6a17b1e3 watchdog: bcm7038: add device tree binding documentation
+
+----------------------------------------------------------------
+Alexander Usyskin (1):
+      watchdog: core: propagate ping error code to the user space
+
+David Cohen (1):
+      wdt: intel-mid: add Magic Closure flag
+
+Fabio Estevam (1):
+      watchdog: imx2_wdt: Use register definition in regmap_write()
+
+Guenter Roeck (2):
+      watchdog: Always evaluate new timeout against min_timeout
+      watchdog: watchdog_dev: Use single variable name for struct watchdog_device
+
+Justin Chen (3):
+      watchdog: bcm7038: add device tree binding documentation
+      watchdog: Watchdog driver for Broadcom Set-Top Box
+      watchdog_dev: Use device tree alias for naming watchdogs
+
+Pratyush Anand (2):
+      watchdog: Use static struct class watchdog_class in stead of pointer
+      watchdog: Read device status through sysfs attributes
+
+ Documentation/ABI/testing/sysfs-class-watchdog     |  51 ++++
+ .../bindings/watchdog/brcm,bcm7038-wdt.txt         |  19 ++
+ drivers/watchdog/Kconfig                           |   8 +
  drivers/watchdog/Makefile                          |   1 +
- drivers/watchdog/ts4800_wdt.c                      | 212 +++++++++++++++++++++
- 4 files changed, 234 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/ts4800-wdt.txt
- create mode 100644 drivers/watchdog/ts4800_wdt.c
-
-diff --git a/Documentation/devicetree/bindings/watchdog/ts4800-wdt.txt b/Documentation/devicetree/bindings/watchdog/ts4800-wdt.txt
-new file mode 100644
-index 0000000..06bdb5f
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/ts4800-wdt.txt
-@@ -0,0 +1,12 @@
-+Technologic Systems Watchdog
-+
-+Required properties:
-+- compatible : must be "ts,ts4800-wdt"
-+- reg : physical base address and length of memory mapped region
-+
-+Example:
-+
-+wdt1: wdt@b0010000 {
-+	compatible = "ts,ts4800-wdt";
-+	reg = <0xb0010000 0x1000>;
-+};
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 241fafd..cf30f3b 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -417,6 +417,15 @@ config NUC900_WATCHDOG
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called nuc900_wdt.
- 
-+config TS4800_WATCHDOG
-+	tristate "TS-4800 Watchdog"
-+	depends on SOC_IMX51
-+	select WATCHDOG_CORE
-+	help
-+	  Technologic Systems TS-4800 has watchdog timer implemented in
-+	  an external FPGA. Say Y here if you want to support for the
-+	  watchdog timer on TS-4800 board.
-+
- config TS72XX_WATCHDOG
- 	tristate "TS-72XX SBC Watchdog"
- 	depends on MACH_TS72XX
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 59ea9a1..435fc93 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -52,6 +52,7 @@ obj-$(CONFIG_RN5T618_WATCHDOG) += rn5t618_wdt.o
- obj-$(CONFIG_COH901327_WATCHDOG) += coh901327_wdt.o
- obj-$(CONFIG_STMP3XXX_RTC_WATCHDOG) += stmp3xxx_rtc_wdt.o
- obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
-+obj-$(CONFIG_TS4800_WATCHDOG) += ts4800_wdt.o
- obj-$(CONFIG_TS72XX_WATCHDOG) += ts72xx_wdt.o
- obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
- obj-$(CONFIG_UX500_WATCHDOG) += ux500_wdt.o
-diff --git a/drivers/watchdog/ts4800_wdt.c b/drivers/watchdog/ts4800_wdt.c
-new file mode 100644
-index 0000000..bf3badf
---- /dev/null
-+++ b/drivers/watchdog/ts4800_wdt.c
-@@ -0,0 +1,212 @@
-+/*
-+ * ts4800_wdt.c - Watchdog driver for TS-4800 based boards
-+ *
-+ * Copyright (c) 2015 - Savoir-faire Linux
-+ *
-+ * This file is licensed under the terms of the GNU General Public
-+ * License version 2. This program is licensed "as is" without any
-+ * warranty of any kind, whether express or implied.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/watchdog.h>
-+#include <linux/platform_device.h>
-+#include <linux/io.h>
-+
-+static bool nowayout = WATCHDOG_NOWAYOUT;
-+module_param(nowayout, bool, 0);
-+MODULE_PARM_DESC(nowayout,
-+	"Watchdog cannot be stopped once started (default="
-+	__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-+
-+
-+/* feed register is at base + 0xE */
-+#define TS4800_WTD_FEED		0xE
-+
-+/* possible feed values */
-+#define TS4800_WTD_FEED_2S	0x1
-+#define TS4800_WTD_FEED_10S	0x2
-+#define TS4800_WTD_DISABLE	0x3
-+
-+
-+struct ts4800_wdt {
-+	struct watchdog_device  wdd;
-+	void __iomem            *base;
-+	u16                     feed_val;
-+};
-+
-+/* TS-4800 supports the following timeout values:
-+ *
-+ *   value desc
-+ *   ---------------------
-+ *     0    feed for 338ms
-+ *     1    feed for 2.706s
-+ *     2    feed for 10.824s
-+ *     3    disable watchd
-+ *
-+ * Keep the regmap/timeout map ordered by timeout
-+ */
-+static const struct {
-+	const int timeout;
-+	const int regval;
-+} ts4800_wdt_map[] = {
-+	{ 2, 1 },
-+	{ 10, 2 },
-+};
-+
-+static int timeout_to_regval(struct watchdog_device *wdd, int new_timeout)
-+{
-+	int i;
-+
-+	new_timeout = clamp_val(new_timeout,
-+				wdd->min_timeout, wdd->max_timeout);
-+
-+	for (i = 0; i < ARRAY_SIZE(ts4800_wdt_map); i++) {
-+		if (ts4800_wdt_map[i].timeout >= new_timeout)
-+			return ts4800_wdt_map[i].timeout;
-+	}
-+
-+	return -EINVAL;
-+}
-+
-+static void ts4800_write_feed(struct ts4800_wdt *wdt, u16 val)
-+{
-+	__raw_writew(val, wdt->base + TS4800_WTD_FEED);
-+}
-+
-+static int ts4800_wdt_ping(struct watchdog_device *wdd)
-+{
-+	struct ts4800_wdt *wdt = watchdog_get_drvdata(wdd);
-+
-+	ts4800_write_feed(wdt, wdt->feed_val);
-+	return 0;
-+}
-+
-+static int ts4800_wdt_stop(struct watchdog_device *wdd)
-+{
-+	struct ts4800_wdt *wdt = watchdog_get_drvdata(wdd);
-+
-+	ts4800_write_feed(wdt, TS4800_WTD_DISABLE);
-+	return 0;
-+}
-+
-+static int ts4800_wdt_set_timeout(struct watchdog_device *wdd,
-+				  unsigned int new_timeout)
-+{
-+	struct ts4800_wdt *wdt = watchdog_get_drvdata(wdd);
-+	int val = timeout_to_regval(wdd, new_timeout);
-+
-+	if (val < 0)
-+		return val;
-+
-+	wdt->feed_val = (u16) val;
-+
-+	return 0;
-+}
-+
-+static const struct watchdog_ops ts4800_wdt_ops = {
-+	.owner = THIS_MODULE,
-+	/*
-+	 * pinging the watchdog enables it, so use same function
-+	 * for pinging and starting the watchdog
-+	 */
-+	.start = ts4800_wdt_ping,
-+	.stop = ts4800_wdt_stop,
-+	.ping = ts4800_wdt_ping,
-+	.set_timeout = ts4800_wdt_set_timeout,
-+};
-+
-+static const struct watchdog_info ts4800_wdt_info = {
-+	.options = WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING,
-+	.identity = "TS-4800 Watchdog",
-+};
-+
-+static int ts4800_wdt_probe(struct platform_device *pdev)
-+{
-+	int max_timeout_index = ARRAY_SIZE(ts4800_wdt_map) - 1;
-+	struct watchdog_device *wdd;
-+	struct ts4800_wdt *wdt;
-+	struct resource *res;
-+	void __iomem *regs;
-+	int ret;
-+
-+	/* get watchdog base addr */
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	regs = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(regs))
-+		return PTR_ERR(regs);
-+
-+	/* allocate memory for watchdog struct */
-+	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
-+	if (!wdt)
-+		return -ENOMEM;
-+
-+	/* set watchdog base addr */
-+	wdt->base = regs;
-+
-+	/* Initialize struct watchdog_device */
-+	wdd = &wdt->wdd;
-+	wdd->info = &ts4800_wdt_info;
-+	wdd->ops = &ts4800_wdt_ops;
-+	wdd->min_timeout = ts4800_wdt_map[0].timeout;
-+	wdd->max_timeout = ts4800_wdt_map[max_timeout_index].timeout;
-+	wdd->timeout = wdd->max_timeout;
-+	wdt->feed_val = ts4800_wdt_map[max_timeout_index].regval;
-+
-+	watchdog_set_drvdata(wdd, wdt);
-+	watchdog_set_nowayout(wdd, nowayout);
-+
-+	/*
-+	 * Must be called after watchdog_set_drvdata to dereference a valid
-+	 * pointer. The feed register is write-only, so it is not possible to
-+	 * determine if watchdog is already started or not. Disable it to be in
-+	 * a known state.
-+	 */
-+	ts4800_wdt_stop(wdd);
-+
-+	ret = watchdog_register_device(wdd);
-+	if (ret) {
-+		dev_err(&pdev->dev,
-+			"failed to register watchdog device\n");
-+		return ret;
-+	}
-+
-+	platform_set_drvdata(pdev, wdt);
-+
-+	dev_info(&pdev->dev,
-+		 "initialized (timeout = %d sec, nowayout = %d)\n",
-+		 wdd->timeout, nowayout);
-+
-+	return 0;
-+}
-+
-+static int ts4800_wdt_remove(struct platform_device *pdev)
-+{
-+	struct ts4800_wdt *wdt = platform_get_drvdata(pdev);
-+
-+	watchdog_unregister_device(&wdt->wdd);
-+
-+	return 0;
-+}
-+
-+static const struct of_device_id ts4800_wdt_of_match[] = {
-+	{ .compatible = "ts,ts4800-wdt", },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, ts4800_wdt_of_match);
-+
-+static struct platform_driver ts4800_wdt_driver = {
-+	.probe		= ts4800_wdt_probe,
-+	.remove		= ts4800_wdt_remove,
-+	.driver		= {
-+		.name	= "ts4800_wdt",
-+		.of_match_table = ts4800_wdt_of_match,
-+	},
-+};
-+
-+module_platform_driver(ts4800_wdt_driver);
-+
-+MODULE_AUTHOR("Damien Riegel <damien.riegel@savoirfairelinux.com>");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:ts4800_wdt");
--- 
-2.5.0
-
+ drivers/watchdog/bcm7038_wdt.c                     | 237 ++++++++++++++++
+ drivers/watchdog/imx2_wdt.c                        |   6 +-
+ drivers/watchdog/intel-mid_wdt.c                   |   2 +-
+ drivers/watchdog/watchdog_core.c                   |  32 +--
+ drivers/watchdog/watchdog_core.h                   |   2 +-
+ drivers/watchdog/watchdog_dev.c                    | 299 +++++++++++++++------
+ include/linux/watchdog.h                           |  11 +-
+ 11 files changed, 561 insertions(+), 107 deletions(-)
+ create mode 100644 Documentation/ABI/testing/sysfs-class-watchdog
+ create mode 100644 Documentation/devicetree/bindings/watchdog/brcm,bcm7038-wdt.txt
+ create mode 100644 drivers/watchdog/bcm7038_wdt.c
