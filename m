@@ -1,49 +1,141 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.savoirfairelinux.com ([208.88.110.44]:51663 "EHLO
-	mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751280AbbJ1RCU (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 28 Oct 2015 13:02:20 -0400
-Date: Wed, 28 Oct 2015 12:52:51 -0400
-From: Damien Riegel <damien.riegel@savoirfairelinux.com>
+Return-path: <linux@rempel-privat.de>
+Subject: Re: [PATCH] watchdog: add Alphascale asm9260-wdt driver
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: Dinh Nguyen <dinh.linux@gmail.com>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-	shawnguo@kernel.org, Sascha Hauer <kernel@pengutronix.de>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Rob Herring <robh+dt@kernel.org>, kernel@savoirfairelinux.com
-Subject: Re: [PATCH 2/4] watchdog: ts4800: add new driver for TS-4800 watchdog
-Message-ID: <20151028165251.GA5948@localhost>
-References: <1445978021-13961-1-git-send-email-damien.riegel@savoirfairelinux.com>
- <1445978021-13961-3-git-send-email-damien.riegel@savoirfairelinux.com>
- <CADhT+wdWcYMQ_ZPhcGOye3oP=6N+Yos+sbqV20E5x5Hmfm8ycw@mail.gmail.com>
- <20151027215135.GA4676@localhost>
- <20151028020501.GA1548@roeck-us.net>
+References: <1442568212-15509-1-git-send-email-linux@rempel-privat.de>
+ <20151027023132.GA1270@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, wim@iguana.be
+From: Oleksij Rempel <linux@rempel-privat.de>
+Message-ID: <5631C8A9.3050602@rempel-privat.de>
+Date: Thu, 29 Oct 2015 08:20:09 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20151028020501.GA1548@roeck-us.net>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <20151027023132.GA1270@roeck-us.net>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="9aUN5sJvk7AXCT1HfegU2nFJoAuEW5aqn"
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On Tue, Oct 27, 2015 at 07:05:01PM -0700, Guenter Roeck wrote:
-> In general, naming a driver for the first chip it supports is not
-> problematic. Making it too generic is, on the other side, problematic.
-> What are you going to do if ts4900 (or ts4801) implements a different
-> watchdog ?
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--9aUN5sJvk7AXCT1HfegU2nFJoAuEW5aqn
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Okay, I will keep the current name.
+Hi,
 
-I noticed that other boards might have their feed register at different
-offsets from syscon base. For instance, feed register is at offset 0x6
-on TS-4720 and offset 0xE on TS-4800 (syscon registers are 16-bit wide).
-So I need to address that as well (it is related to the next point).
+thank you for your time.
 
-Currently, the driver maps all syscon registers even if it uses only one
-of them. I was thinking about adding a "syscon" node and define the
-watchdog as a child of it, but the syscon driver set
-syscon_regmap_config.val_bits to 32. Do I have to create a new driver if
-I want to use val_bits = 16, or is there another way ?
 
-Damien
+Am 27.10.2015 um 03:31 schrieb Guenter Roeck:
+> On Fri, Sep 18, 2015 at 11:23:32AM +0200, Oleksij Rempel wrote:
+>> Add WD support for Alphascale asm9260 SoC. This driver
+>> provide support for different function modes:
+>> - HW mode to trigger SoC reset on timeout
+>> - SW mode do soft reset if needed
+>> - DEBUG mode
+>>
+>> Optional support for stopping watchdog. If reset binding are not provi=
+ded
+>> this driver will work in nowayout mode.
+>=20
+> Why ?
+
+Because this controller can't be stopped. Only way to stop it is to
+reset it from reset controller, which is out of scope of this driver.
+On other side i can make reset binding as required...
+
+>>
+>> Signed-off-by: Oleksij Rempel <linux@rempel-privat.de>
+>> ---
+>>  .../bindings/watchdog/alphascale-asm9260.txt       |  38 ++
+>>  drivers/watchdog/Kconfig                           |   9 +
+>>  drivers/watchdog/Makefile                          |   1 +
+>>  drivers/watchdog/asm9260_wdt.c                     | 405 ++++++++++++=
++++++++++
+>>  4 files changed, 453 insertions(+)
+>>  create mode 100644 Documentation/devicetree/bindings/watchdog/alphasc=
+ale-asm9260.txt
+>>  create mode 100644 drivers/watchdog/asm9260_wdt.c
+>>
+>> diff --git a/Documentation/devicetree/bindings/watchdog/alphascale-asm=
+9260.txt b/Documentation/devicetree/bindings/watchdog/alphascale-asm9260.=
+txt
+>> new file mode 100644
+>> index 0000000..cbe388b
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/watchdog/alphascale-asm9260.tx=
+t
+>> @@ -0,0 +1,38 @@
+>> +Alphascale asm9260 Watchdog timer
+>> +
+>> +Required properties:
+>> +
+>> +- compatible : should be "alphascale,asm9260-wdt".
+>> +- reg : Specifies base physical address and size of the registers.
+>> +- clocks : the clock feeding the watchdog timer.
+>=20
+> There are two -> clocks.
+>=20
+>> +	Needed if platform uses clocks. See clock-bindings.txt
+>=20
+> The rest of the code suggests that the clocks are mandatory.
+> probe fails if asm9260_wdt_get_dt_clks() returns an error,
+> and the clock frequency would be 0.
+>=20
+>> +- clock-names : should be set to
+>> +	"mod" - source for tick counter.
+>> +	"ahb" - ahb gate.
+>> +
+>> +Optional properties:
+>> +- resets : phandle pointing to the system reset controller with corre=
+ct
+>> +	reset line index for watchdog controller reset. This propertie is
+>> +	required if you need to disable "nowayout" and it works only with
+>> +	CONFIG_WATCHDOG_NOWAYOUT=3Dn.
+>> +- reset-names : should be set to "wdt_rst" if "resets" is used.
+>> +- timeout-sec : shall contain the default watchdog timeout in seconds=
+,
+>> +	if unset, the default timeout is 30 seconds.
+>> +- alphascale,mode : tree modes are supported
+>> +	"hw" - hw reset (defaul).
+>> +	"sw" - sw reset.
+>> +	"debug" - no action is taken.
+>> +
+>> +Example:
+>> +
+>> +watchdog0: watchdog@80048000 {
+>> +	compatible =3D "alphascale,asm9260-wdt";
+>> +	reg =3D <0x80048000 0x10>;
+>> +	clocks =3D <&acc CLKID_SYS_WDT>, <&acc CLKID_AHB_WDT>;
+>> +	clock-names =3D "mod", "ahb";
+>> +	interrupts =3D <55>;
+>> +	resets =3D <&rst WDT_RESET>;
+>> +	reset-names =3D "wdt_rst";
+>> +	timeout-sec =3D <30>;
+>> +	alphascale,mode =3D "hw"
+>=20
+> Seems to miss a ';'.
+>=20
+> Did you get any feedback from dt maintainers on those bindings ?
+
+No, i'll CC updated patch to devicetree list.
+
+Thank you for other comments, i'll take care of it.
+
+--=20
+Regards,
+Oleksij
+
+
+--9aUN5sJvk7AXCT1HfegU2nFJoAuEW5aqn
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iF0EAREIAAYFAlYxyK4ACgkQHwImuRkmbWmCZAD/VDUlJ/BGNtDbzILKXxFvytao
+Bx0Q09i2J8fh659kfJcA+MzsAnKomhOvAwU+LqebPREW1HQ0SJ2ODZ7fFEXlGY0=
+=sUxC
+-----END PGP SIGNATURE-----
+
+--9aUN5sJvk7AXCT1HfegU2nFJoAuEW5aqn--
