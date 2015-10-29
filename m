@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.savoirfairelinux.com ([208.88.110.44]:40336 "EHLO
+Received: from mail.savoirfairelinux.com ([208.88.110.44]:40369 "EHLO
 	mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752355AbbJ2U1m (ORCPT
+	with ESMTP id S1752799AbbJ2U1p (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 29 Oct 2015 16:27:42 -0400
+	Thu, 29 Oct 2015 16:27:45 -0400
 From: Damien Riegel <damien.riegel@savoirfairelinux.com>
 To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
 	linux-watchdog@vger.kernel.org
@@ -12,57 +12,37 @@ Cc: shawnguo@kernel.org, kernel@pengutronix.de, wim@iguana.be,
 	dinh.linux@gmail.com, linux@roeck-us.net,
 	kernel@savoirfairelinux.com,
 	Damien Riegel <damien.riegel@savoirfairelinux.com>
-Subject: [PATCH v2 0/5] Add board support for TS-4800
-Date: Thu, 29 Oct 2015 16:27:25 -0400
-Message-Id: <1446150450-22093-1-git-send-email-damien.riegel@savoirfairelinux.com>
+Subject: [PATCH v2 4/5] ARM: imx_v6_v7_defconfig: add TS-4800 watchdog and syscon
+Date: Thu, 29 Oct 2015 16:27:29 -0400
+Message-Id: <1446150450-22093-5-git-send-email-damien.riegel@savoirfairelinux.com>
+In-Reply-To: <1446150450-22093-1-git-send-email-damien.riegel@savoirfairelinux.com>
+References: <1446150450-22093-1-git-send-email-damien.riegel@savoirfairelinux.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-This patch serie adds support for TS-4800 board. This board,
-manufactured by Technologic Systems, is based on an IMX515.
+Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
+---
+ arch/arm/configs/imx_v6_v7_defconfig | 2 ++
+ 1 file changed, 2 insertions(+)
 
-The first stage bootloader, called TS-BOOTROM, enables the watchdog,
-so a watchdog driver is required to prevent board from rebooting.
-
-The current device tree is minimal but it allows to get a shell on the
-board.
-
-Changes in v2:
- - Added a mfd driver to handle syscon registers
- - The watchdog driver now uses the regmap (created by the mfd driver)
-   to access the feed register
- - Remove watchdog's dependency on SOC_IMX51
-
-Damien Riegel (5):
-  of: add vendor prefix for Technologic Systems
-  mfd: ts4800-syscon: add driver for TS-4800 syscon
-  watchdog: ts4800: add driver for TS-4800 watchdog
-  ARM: imx_v6_v7_defconfig: add TS-4800 watchdog and syscon
-  ARM: dts: TS-4800: add basic device tree
-
- Documentation/devicetree/bindings/arm/ts.txt       |   6 +
- .../devicetree/bindings/mfd/ts4800-syscon.txt      |  20 ++
- .../devicetree/bindings/vendor-prefixes.txt        |   1 +
- .../devicetree/bindings/watchdog/ts4800-wdt.txt    |  12 ++
- arch/arm/boot/dts/Makefile                         |   3 +-
- arch/arm/boot/dts/imx51-ts4800.dts                 | 192 ++++++++++++++++++
- arch/arm/configs/imx_v6_v7_defconfig               |   2 +
- drivers/mfd/Kconfig                                |   8 +
- drivers/mfd/Makefile                               |   1 +
- drivers/mfd/ts4800-syscon.c                        |  95 +++++++++
- drivers/watchdog/Kconfig                           |  10 +
- drivers/watchdog/Makefile                          |   1 +
- drivers/watchdog/ts4800_wdt.c                      | 216 +++++++++++++++++++++
- include/linux/mfd/ts4800-syscon.h                  |  24 +++
- 14 files changed, 590 insertions(+), 1 deletion(-)
- create mode 100644 Documentation/devicetree/bindings/arm/ts.txt
- create mode 100644 Documentation/devicetree/bindings/mfd/ts4800-syscon.txt
- create mode 100644 Documentation/devicetree/bindings/watchdog/ts4800-wdt.txt
- create mode 100644 arch/arm/boot/dts/imx51-ts4800.dts
- create mode 100644 drivers/mfd/ts4800-syscon.c
- create mode 100644 drivers/watchdog/ts4800_wdt.c
- create mode 100644 include/linux/mfd/ts4800-syscon.h
-
+diff --git a/arch/arm/configs/imx_v6_v7_defconfig b/arch/arm/configs/imx_v6_v7_defconfig
+index b47863d..7adc8b7 100644
+--- a/arch/arm/configs/imx_v6_v7_defconfig
++++ b/arch/arm/configs/imx_v6_v7_defconfig
+@@ -190,11 +190,13 @@ CONFIG_THERMAL=y
+ CONFIG_CPU_THERMAL=y
+ CONFIG_IMX_THERMAL=y
+ CONFIG_WATCHDOG=y
++CONFIG_TS4800_WATCHDOG=y
+ CONFIG_IMX2_WDT=y
+ CONFIG_MFD_DA9052_I2C=y
+ CONFIG_MFD_MC13XXX_SPI=y
+ CONFIG_MFD_MC13XXX_I2C=y
+ CONFIG_MFD_STMPE=y
++CONFIG_MFD_TS4800_SYSCON=y
+ CONFIG_REGULATOR=y
+ CONFIG_REGULATOR_FIXED_VOLTAGE=y
+ CONFIG_REGULATOR_ANATOP=y
 -- 
 2.5.0
 
