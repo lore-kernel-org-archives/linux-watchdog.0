@@ -1,66 +1,40 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.101.70]:45498 "EHLO foss.arm.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753304AbbJ3TF1 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 30 Oct 2015 15:05:27 -0400
-Date: Fri, 30 Oct 2015 19:05:14 +0000
-From: Mark Rutland <mark.rutland@arm.com>
-To: Timur Tabi <timur@codeaurora.org>
-Cc: Fu Wei <fu.wei@linaro.org>,
-	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	LKML <linux-kernel@vger.kernel.org>, linux-doc@vger.kernel.org,
-	Wei Fu <tekkamanninja@gmail.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Vipul Gandhi <vgandhi@codeaurora.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Jon Masters <jcm@redhat.com>, Leo Duran <leo.duran@amd.com>,
-	Jon Corbet <corbet@lwn.net>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will.deacon@arm.com>,
-	Rafael Wysocki <rjw@rjwysocki.net>,
-	Dave Young <dyoung@redhat.com>,
-	Pratyush Anand <panand@redhat.com>,
-	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-	Rob Herring <robherring2@gmail.com>
-Subject: Re: [PATCH v8 1/5] Documentation: add sbsa-gwdt driver documentation
-Message-ID: <20151030190514.GD30791@leverpostej>
-References: <1445961999-9506-1-git-send-email-fu.wei@linaro.org>
- <1445961999-9506-2-git-send-email-fu.wei@linaro.org>
- <20151027162257.GJ3091@leverpostej>
- <CADyBb7sAcT4bXrkNo2GKx1Tw5wOuf8JeMgCoiAw=owHqvYx6ug@mail.gmail.com>
- <CAOZdJXVan3xaYAS_+150nDO1ogWh+PtkQAZvwrHusJhY4R1a4A@mail.gmail.com>
- <CADyBb7sPqsoQdYBUpHY2HvZ+iT7ABa9NoCX7Jax1NKugYOy1zQ@mail.gmail.com>
- <5633BCA4.1050400@codeaurora.org>
+Received: from mail.savoirfairelinux.com ([208.88.110.44]:48815 "EHLO
+	mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759546AbbJ3UHU (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 30 Oct 2015 16:07:20 -0400
+Date: Fri, 30 Oct 2015 15:58:04 -0400
+From: Damien Riegel <damien.riegel@savoirfairelinux.com>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org, shawnguo@kernel.org,
+	kernel@pengutronix.de, wim@iguana.be, robh+dt@kernel.org,
+	sameo@linux.intel.com, dinh.linux@gmail.com, linux@roeck-us.net,
+	kernel@savoirfairelinux.com
+Subject: Re: [PATCH v2 1/5] of: add vendor prefix for Technologic Systems
+Message-ID: <20151030195803.GA8666@localhost>
+References: <1446150450-22093-1-git-send-email-damien.riegel@savoirfairelinux.com>
+ <1446150450-22093-2-git-send-email-damien.riegel@savoirfairelinux.com>
+ <20151030180400.GG4058@x1>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5633BCA4.1050400@codeaurora.org>
+In-Reply-To: <20151030180400.GG4058@x1>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Oct 30, 2015 at 01:53:24PM -0500, Timur Tabi wrote:
-> On 10/30/2015 01:35 PM, Fu Wei wrote:
-> >>I think maybe Mark was asking why WS1 is optional, not the WS1
-> >My answer is for "why WS1 is optional"!
-> >
-> >>>interrupt.  Maybe you can reword the documentation to make is clear
-> >>>that
-> >I didn't say : "only the*interrupt*  for WS1 is optional."
+On Fri, Oct 30, 2015 at 06:04:00PM +0000, Lee Jones wrote:
+> On Thu, 29 Oct 2015, Damien Riegel wrote:
 > 
-> WS1 itself is not optional.  The spec says that WS0 and WS1 are
-> separate events, and doesn't saying anything about either being
-> optional.  The *interrupt* for WS1, however, is optional.
+> > Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
+> > ---
+> >  Documentation/devicetree/bindings/vendor-prefixes.txt | 1 +
+> >  1 file changed, 1 insertion(+)
+> 
+> Acked-by: Lee Jones <lee.jones@linaro.org>
 
-This is a moot point. The distintion between the signal and the
-interrupt doens't matter here.
+Arnd Bergmann suggested in the v1 thread [1] to change it to
+'technologic' to avoid confusion. No problem with that ?
 
-I was only asking why the interrupt was optional, and it seems per the
-spec it's expected to be handed to an agent at a higher exception level.
-
-That implies that the OS should only care about WS0, assuming that I've
-understood correctly.
-
-Thanks,
-Mark.
+[1] http://www.spinics.net/lists/devicetree/msg100696.html
