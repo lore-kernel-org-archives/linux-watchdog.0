@@ -1,78 +1,81 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ob0-f179.google.com ([209.85.214.179]:35260 "EHLO
-	mail-ob0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758017AbbJ3Rbl (ORCPT
+Received: from smtp.codeaurora.org ([198.145.29.96]:35441 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753991AbbJ3Rqd (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 30 Oct 2015 13:31:41 -0400
-Received: by obctp1 with SMTP id tp1so49489411obc.2
-        for <linux-watchdog@vger.kernel.org>; Fri, 30 Oct 2015 10:31:41 -0700 (PDT)
+	Fri, 30 Oct 2015 13:46:33 -0400
 MIME-Version: 1.0
-In-Reply-To: <5633A21B.2040300@timesys.com>
-References: <1433448960-9257-2-git-send-email-tharvey@gateworks.com>
-	<1438097230-2653-1-git-send-email-tharvey@gateworks.com>
-	<5633A21B.2040300@timesys.com>
-Date: Fri, 30 Oct 2015 10:31:24 -0700
-Message-ID: <CAJ+vNU0wKrTyY_2YYyYWPsW8kvHtj-8-U8TeQZfm_ne9v2mZ1w@mail.gmail.com>
-Subject: Re: [PATCH v3 0/2] imx6: Implement external watchdog reset
-From: Tim Harvey <tharvey@gateworks.com>
-To: Akshay Bhat <akshay.bhat@timesys.com>
-Cc: Shawn Guo <shawnguo@kernel.org>,
-	Sascha Hauer <kernel@pengutronix.de>,
-	Lucas Stach <l.stach@pengutronix.de>,
-	Stefan Roese <sr@denx.de>, Fabio Estevam <festevam@gmail.com>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>,
-	Iain Paton <ipaton0@gmail.com>,
+In-Reply-To: <CADyBb7sAcT4bXrkNo2GKx1Tw5wOuf8JeMgCoiAw=owHqvYx6ug@mail.gmail.com>
+References: <1445961999-9506-1-git-send-email-fu.wei@linaro.org>
+	<1445961999-9506-2-git-send-email-fu.wei@linaro.org>
+	<20151027162257.GJ3091@leverpostej>
+	<CADyBb7sAcT4bXrkNo2GKx1Tw5wOuf8JeMgCoiAw=owHqvYx6ug@mail.gmail.com>
+Date: Fri, 30 Oct 2015 12:46:28 -0500
+Message-ID: <CAOZdJXVan3xaYAS_+150nDO1ogWh+PtkQAZvwrHusJhY4R1a4A@mail.gmail.com>
+Subject: Re: [PATCH v8 1/5] Documentation: add sbsa-gwdt driver documentation
+From: Timur Tabi <timur@codeaurora.org>
+To: Fu Wei <fu.wei@linaro.org>
+Cc: Mark Rutland <mark.rutland@arm.com>,
+	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	LKML <linux-kernel@vger.kernel.org>, linux-doc@vger.kernel.org,
+	Wei Fu <tekkamanninja@gmail.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Vipul Gandhi <vgandhi@codeaurora.org>,
 	Wim Van Sebroeck <wim@iguana.be>,
-	linux-watchdog@vger.kernel.org
+	Jon Masters <jcm@redhat.com>, Leo Duran <leo.duran@amd.com>,
+	Jon Corbet <corbet@lwn.net>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will.deacon@arm.com>,
+	Rafael Wysocki <rjw@rjwysocki.net>,
+	Dave Young <dyoung@redhat.com>,
+	Pratyush Anand <panand@redhat.com>,
+	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+	Rob Herring <robherring2@gmail.com>
 Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Fri, Oct 30, 2015 at 10:00 AM, Akshay Bhat <akshay.bhat@timesys.com> wrote:
+On Tue, Oct 27, 2015 at 11:10 PM, Fu Wei <fu.wei@linaro.org> wrote:
 >
+>> Why is WS1 optional?
 >
-> On 07/28/2015 11:27 AM, Tim Harvey wrote:
->>
->> The IMX6 watchdog supports assertion of a signal (WDOG_B) which
->> can be pinmux'd to an external pin. This is typically used for boards that
->> have PMIC's in control of the IMX6 power rails. In fact, failure to use
->> such an external reset on boards with external PMIC's can result in
->> various
->> hangs due to the IMX6 not being fully reset [1] as well as the board
->> failing
->> to reset because its PMIC has not been reset to provide adequate voltate
->> for
->> the CPU when comming out of reset at 800Mhz when it was at 400Mhz prior to
->> reset.
->>
->> This adds a new device-tree property 'ext-reset-output' to fsl-imx-wdt in
->> order to indicate the board has such a reset and to cause the watchdog to
->> be
->> configured to assert WDOG_B instead of an internal reset both on a
->> watchdog timeout and in system_restart.
->>
+> According to the description of WS1 in SBSA 2.3 (5.2 Watchdog Operation) page 21
+> -----------------
+> The signal is fed to a higher agent as an interrupt or reset for it to
+> take executive action.
+> ----------------
 >
-> Hi, was there a reason why this patch did not make it to the upstream
-> kernel? We would like to use this feature on a Advantech/GE board and I can
-> rebase the first patch onto the latest linux-next, resubmit if needed.
+> So WS1 maybe a interrupt.
 >
-> Thanks, Akshay
+> In a real Hardware,  WS1 hooks to a  reset signal pin of BMC, if this
+> pin is triggered, BMC will do a real warm reset.
+> In this case, WS1 is a reset, Linux doesn't need to deal with that.
 >
+> For now , I haven't found a hardware use WS1 as  interrupt.
+> In <ARM v8-A Foundation Platform User Guide> 3.2 Interrupt maps  Page 22
+> Table 3-3 Shared peripheral interrupt assignments
+> IRQ ID       SPI offset      Device
+> 60               28              EL2 Generic Watchdog WS1
+>
+> But I don't have further info about it.
+>
+> Anyway,  because this signal could be interrupt or reset, Linux don't
+> need know this signal sometimes.
+> So I think it should be optional in binding info.
+>
+> Do I miss something? Any suggestion ? Please correct me, thanks.
 
-Akshay,
+I think maybe Mark was asking why WS1 is optional, not the WS1
+interrupt.  Maybe you can reword the documentation to make is clear
+that only the *interrupt* for WS1 is optional.
 
-I have no idea why it hasn't made it upstream yet. I realized a couple
-of weeks ago that I never sent it to Wim who is listed as the
-maintainer of watchdog device drivers or the linux-watchdog maillist
-so I did so at that time and haven't heard anything yet.
+However, the ACPI table only allows for one interrupt, and it's not
+clear whether that's the WS0 or WS1 interrupt.  So if both WS0 and WS1
+generate an interrupt, how does the driver handle that?
 
-The original patch was:
-http://lists.infradead.org/pipermail/linux-arm-kernel/2015-May/347168.html
-The 2nd version was:
-http://lists.infradead.org/pipermail/linux-arm-kernel/2015-June/348761.html
-
-It's likely that a rebase/resubmit (including the proper list) may
-result in a better outcome.
-
-Tim
+-- 
+Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project.
