@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.savoirfairelinux.com ([208.88.110.44]:58969 "EHLO
+Received: from mail.savoirfairelinux.com ([208.88.110.44]:58963 "EHLO
 	mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932298AbbKCQNM (ORCPT
+	with ESMTP id S932318AbbKCQNL (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 3 Nov 2015 11:13:12 -0500
+	Tue, 3 Nov 2015 11:13:11 -0500
 From: Damien Riegel <damien.riegel@savoirfairelinux.com>
 To: linux-watchdog@vger.kernel.org
 Cc: Wim Van Sebroeck <wim@iguana.be>,
@@ -11,9 +11,9 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
 	kernel@savoirfairelinux.com,
 	Damien Riegel <damien.riegel@savoirfairelinux.com>
-Subject: [PATCH 12/13] watchdog: s3c2410_wdt: use core restart handler
-Date: Tue,  3 Nov 2015 11:12:45 -0500
-Message-Id: <1446567166-10156-13-git-send-email-damien.riegel@savoirfairelinux.com>
+Subject: [PATCH 07/13] watchdog: lpc18xx_wdt: use core restart handler
+Date: Tue,  3 Nov 2015 11:12:40 -0500
+Message-Id: <1446567166-10156-8-git-send-email-damien.riegel@savoirfairelinux.com>
 In-Reply-To: <1446567166-10156-1-git-send-email-damien.riegel@savoirfairelinux.com>
 References: <1446567166-10156-1-git-send-email-damien.riegel@savoirfairelinux.com>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -26,129 +26,132 @@ Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Reviewed-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
 ---
- drivers/watchdog/s3c2410_wdt.c | 60 ++++++++++++++++++------------------------
- 1 file changed, 25 insertions(+), 35 deletions(-)
+ drivers/watchdog/lpc18xx_wdt.c | 68 ++++++++++++++++++------------------------
+ 1 file changed, 29 insertions(+), 39 deletions(-)
 
-diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
-index d781000..0093450 100644
---- a/drivers/watchdog/s3c2410_wdt.c
-+++ b/drivers/watchdog/s3c2410_wdt.c
-@@ -41,7 +41,6 @@
+diff --git a/drivers/watchdog/lpc18xx_wdt.c b/drivers/watchdog/lpc18xx_wdt.c
+index ab7b8b1..6914c83 100644
+--- a/drivers/watchdog/lpc18xx_wdt.c
++++ b/drivers/watchdog/lpc18xx_wdt.c
+@@ -18,7 +18,6 @@
+ #include <linux/module.h>
  #include <linux/of.h>
- #include <linux/mfd/syscon.h>
- #include <linux/regmap.h>
+ #include <linux/platform_device.h>
 -#include <linux/reboot.h>
- #include <linux/delay.h>
+ #include <linux/watchdog.h>
  
- #define S3C2410_WTCON		0x00
-@@ -130,7 +129,6 @@ struct s3c2410_wdt {
- 	unsigned long		wtdat_save;
- 	struct watchdog_device	wdt_device;
- 	struct notifier_block	freq_transition;
+ /* Registers */
+@@ -59,7 +58,6 @@ struct lpc18xx_wdt_dev {
+ 	unsigned long		clk_rate;
+ 	void __iomem		*base;
+ 	struct timer_list	timer;
 -	struct notifier_block	restart_handler;
- 	struct s3c2410_wdt_variant *drv_data;
- 	struct regmap *pmureg;
+ 	spinlock_t		lock;
  };
-@@ -351,6 +349,29 @@ static int s3c2410wdt_set_heartbeat(struct watchdog_device *wdd, unsigned timeou
+ 
+@@ -155,6 +153,33 @@ static int lpc18xx_wdt_start(struct watchdog_device *wdt_dev)
  	return 0;
  }
  
-+static int s3c2410wdt_restart(struct watchdog_device *wdd)
++static int lpc18xx_wdt_restart(struct watchdog_device *wdt_dev)
 +{
-+	struct s3c2410_wdt *wdt = watchdog_get_drvdata(wdd);
-+	void __iomem *wdt_base = wdt->reg_base;
++	struct lpc18xx_wdt_dev *lpc18xx_wdt = watchdog_get_drvdata(wdt_dev);
++	unsigned long flags;
++	int val;
 +
-+	/* disable watchdog, to be safe  */
-+	writel(0, wdt_base + S3C2410_WTCON);
++	/*
++	 * Incorrect feed sequence causes immediate watchdog reset if enabled.
++	 */
++	spin_lock_irqsave(&lpc18xx_wdt->lock, flags);
 +
-+	/* put initial values into count and data */
-+	writel(0x80, wdt_base + S3C2410_WTCNT);
-+	writel(0x80, wdt_base + S3C2410_WTDAT);
++	val = readl(lpc18xx_wdt->base + LPC18XX_WDT_MOD);
++	val |= LPC18XX_WDT_MOD_WDEN;
++	val |= LPC18XX_WDT_MOD_WDRESET;
++	writel(val, lpc18xx_wdt->base + LPC18XX_WDT_MOD);
 +
-+	/* set the watchdog to go and reset... */
-+	writel(S3C2410_WTCON_ENABLE | S3C2410_WTCON_DIV16 |
-+		S3C2410_WTCON_RSTEN | S3C2410_WTCON_PRESCALE(0x20),
-+		wdt_base + S3C2410_WTCON);
++	writel(LPC18XX_WDT_FEED_MAGIC1, lpc18xx_wdt->base + LPC18XX_WDT_FEED);
++	writel(LPC18XX_WDT_FEED_MAGIC2, lpc18xx_wdt->base + LPC18XX_WDT_FEED);
 +
-+	/* wait for reset to assert... */
-+	mdelay(500);
++	writel(LPC18XX_WDT_FEED_MAGIC1, lpc18xx_wdt->base + LPC18XX_WDT_FEED);
++	writel(LPC18XX_WDT_FEED_MAGIC1, lpc18xx_wdt->base + LPC18XX_WDT_FEED);
++
++	spin_unlock_irqrestore(&lpc18xx_wdt->lock, flags);
 +
 +	return 0;
 +}
 +
- #define OPTIONS (WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE)
- 
- static const struct watchdog_info s3c2410_wdt_ident = {
-@@ -365,6 +386,7 @@ static struct watchdog_ops s3c2410wdt_ops = {
- 	.stop = s3c2410wdt_stop,
- 	.ping = s3c2410wdt_keepalive,
- 	.set_timeout = s3c2410wdt_set_heartbeat,
-+	.restart = s3c2410wdt_restart,
+ static struct watchdog_info lpc18xx_wdt_info = {
+ 	.identity	= "NXP LPC18xx Watchdog",
+ 	.options	= WDIOF_SETTIMEOUT |
+@@ -169,37 +194,9 @@ static const struct watchdog_ops lpc18xx_wdt_ops = {
+ 	.ping		= lpc18xx_wdt_feed,
+ 	.set_timeout	= lpc18xx_wdt_set_timeout,
+ 	.get_timeleft	= lpc18xx_wdt_get_timeleft,
++	.restart        = lpc18xx_wdt_restart,
  };
  
- static struct watchdog_device s3c2410_wdd = {
-@@ -452,31 +474,6 @@ static inline void s3c2410wdt_cpufreq_deregister(struct s3c2410_wdt *wdt)
- }
- #endif
- 
--static int s3c2410wdt_restart(struct notifier_block *this,
--			      unsigned long mode, void *cmd)
+-static int lpc18xx_wdt_restart(struct notifier_block *this, unsigned long mode,
+-			       void *cmd)
 -{
--	struct s3c2410_wdt *wdt = container_of(this, struct s3c2410_wdt,
--					       restart_handler);
--	void __iomem *wdt_base = wdt->reg_base;
+-	struct lpc18xx_wdt_dev *lpc18xx_wdt = container_of(this,
+-				struct lpc18xx_wdt_dev, restart_handler);
+-	unsigned long flags;
+-	int val;
 -
--	/* disable watchdog, to be safe  */
--	writel(0, wdt_base + S3C2410_WTCON);
+-	/*
+-	 * Incorrect feed sequence causes immediate watchdog reset if enabled.
+-	 */
+-	spin_lock_irqsave(&lpc18xx_wdt->lock, flags);
 -
--	/* put initial values into count and data */
--	writel(0x80, wdt_base + S3C2410_WTCNT);
--	writel(0x80, wdt_base + S3C2410_WTDAT);
+-	val = readl(lpc18xx_wdt->base + LPC18XX_WDT_MOD);
+-	val |= LPC18XX_WDT_MOD_WDEN;
+-	val |= LPC18XX_WDT_MOD_WDRESET;
+-	writel(val, lpc18xx_wdt->base + LPC18XX_WDT_MOD);
 -
--	/* set the watchdog to go and reset... */
--	writel(S3C2410_WTCON_ENABLE | S3C2410_WTCON_DIV16 |
--		S3C2410_WTCON_RSTEN | S3C2410_WTCON_PRESCALE(0x20),
--		wdt_base + S3C2410_WTCON);
+-	writel(LPC18XX_WDT_FEED_MAGIC1, lpc18xx_wdt->base + LPC18XX_WDT_FEED);
+-	writel(LPC18XX_WDT_FEED_MAGIC2, lpc18xx_wdt->base + LPC18XX_WDT_FEED);
 -
--	/* wait for reset to assert... */
--	mdelay(500);
+-	writel(LPC18XX_WDT_FEED_MAGIC1, lpc18xx_wdt->base + LPC18XX_WDT_FEED);
+-	writel(LPC18XX_WDT_FEED_MAGIC1, lpc18xx_wdt->base + LPC18XX_WDT_FEED);
 -
--	return NOTIFY_DONE;
+-	spin_unlock_irqrestore(&lpc18xx_wdt->lock, flags);
+-
+-	return NOTIFY_OK;
 -}
 -
- static inline unsigned int s3c2410wdt_get_bootstatus(struct s3c2410_wdt *wdt)
+ static int lpc18xx_wdt_probe(struct platform_device *pdev)
  {
- 	unsigned int rst_stat;
-@@ -605,6 +602,7 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
- 	}
+ 	struct lpc18xx_wdt_dev *lpc18xx_wdt;
+@@ -273,6 +270,7 @@ static int lpc18xx_wdt_probe(struct platform_device *pdev)
+ 		    (unsigned long)&lpc18xx_wdt->wdt_dev);
  
- 	watchdog_set_nowayout(&wdt->wdt_device, nowayout);
-+	watchdog_set_restart_priority(&wdt->wdt_device, 128);
+ 	watchdog_set_nowayout(&lpc18xx_wdt->wdt_dev, nowayout);
++	watchdog_set_restart_priority(&lpc18xx_wdt->wdt_dev, 128);
  
- 	wdt->wdt_device.bootstatus = s3c2410wdt_get_bootstatus(wdt);
- 	wdt->wdt_device.parent = &pdev->dev;
-@@ -632,12 +630,6 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, lpc18xx_wdt);
  
- 	platform_set_drvdata(pdev, wdt);
+@@ -280,12 +278,6 @@ static int lpc18xx_wdt_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto disable_wdt_clk;
  
--	wdt->restart_handler.notifier_call = s3c2410wdt_restart;
--	wdt->restart_handler.priority = 128;
--	ret = register_restart_handler(&wdt->restart_handler);
+-	lpc18xx_wdt->restart_handler.notifier_call = lpc18xx_wdt_restart;
+-	lpc18xx_wdt->restart_handler.priority = 128;
+-	ret = register_restart_handler(&lpc18xx_wdt->restart_handler);
 -	if (ret)
--		pr_err("cannot register restart handler, %d\n", ret);
+-		dev_warn(dev, "failed to register restart handler: %d\n", ret);
 -
- 	/* print out a statement of readiness */
+ 	return 0;
  
- 	wtcon = readl(wdt->reg_base + S3C2410_WTCON);
-@@ -667,8 +659,6 @@ static int s3c2410wdt_remove(struct platform_device *dev)
- 	int ret;
- 	struct s3c2410_wdt *wdt = platform_get_drvdata(dev);
+ disable_wdt_clk:
+@@ -306,8 +298,6 @@ static int lpc18xx_wdt_remove(struct platform_device *pdev)
+ {
+ 	struct lpc18xx_wdt_dev *lpc18xx_wdt = platform_get_drvdata(pdev);
  
--	unregister_restart_handler(&wdt->restart_handler);
+-	unregister_restart_handler(&lpc18xx_wdt->restart_handler);
 -
- 	ret = s3c2410wdt_mask_and_disable_reset(wdt, true);
- 	if (ret < 0)
- 		return ret;
+ 	dev_warn(&pdev->dev, "I quit now, hardware will probably reboot!\n");
+ 	del_timer(&lpc18xx_wdt->timer);
+ 
 -- 
 2.5.0
 
