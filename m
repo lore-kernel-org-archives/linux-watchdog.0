@@ -1,17 +1,17 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.savoirfairelinux.com ([208.88.110.44]:36337 "EHLO
+Received: from mail.savoirfairelinux.com ([208.88.110.44]:41385 "EHLO
 	mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751201AbbKCSTY (ORCPT
+	with ESMTP id S1751405AbbKCUKM (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 3 Nov 2015 13:19:24 -0500
-Date: Tue, 3 Nov 2015 13:19:20 -0500
-From: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
+	Tue, 3 Nov 2015 15:10:12 -0500
+Date: Tue, 3 Nov 2015 15:10:09 -0500
+From: Damien Riegel <damien.riegel@savoirfairelinux.com>
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: Damien Riegel <damien.riegel@savoirfairelinux.com>,
-	linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+	Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
 	kernel@savoirfairelinux.com
 Subject: Re: [PATCH 00/13] watchdog: factorize restart handler registration
-Message-ID: <20151103181920.GA23103@ketchup.mtl.sfl>
+Message-ID: <20151103201009.GA29029@localhost>
 References: <1446567166-10156-1-git-send-email-damien.riegel@savoirfairelinux.com>
  <5638F812.8010802@roeck-us.net>
 MIME-Version: 1.0
@@ -21,7 +21,7 @@ In-Reply-To: <5638F812.8010802@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Nov. Tuesday 03 (45) 10:08 AM, Guenter Roeck wrote:
+On Tue, Nov 03, 2015 at 10:08:18AM -0800, Guenter Roeck wrote:
 > On 11/03/2015 08:12 AM, Damien Riegel wrote:
 > >Many drivers implements the exact same piece of code to register a
 > >restart handler. It can be nice to factorize this in the watchdog core.
@@ -61,10 +61,8 @@ On Nov. Tuesday 03 (45) 10:08 AM, Guenter Roeck wrote:
 > in general quite busy and might thus be a bit annoyed about such additional
 > (and unnecessary) work.
 
-Hi Guenter,
+Sorry for the inconvenience, I assumed it was correct to send the
+patchset as a v1 since the previous one was a RFC. Do you want me to
+resend this serie as a v2 with a changelog ?
 
-I assume the shot here. I suggested no subject prefix, since the first
-patchset was RFC. Should we use "v2" even after an RFC? Or "v1" maybe?
-
-Sorry about that,
--v
+Damien
