@@ -1,22 +1,22 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:36513 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:36637 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751965AbbKCC0F (ORCPT
+	with ESMTP id S1751965AbbKCC07 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 2 Nov 2015 21:26:05 -0500
-Subject: Re: [RFC PATCH 02/13] watchdog: bcm47xx_wdt: use core restart handler
+	Mon, 2 Nov 2015 21:26:59 -0500
+Subject: Re: [RFC PATCH 03/13] watchdog: da9063_wdt: use core restart handler
 To: Damien Riegel <damien.riegel@savoirfairelinux.com>,
 	linux-watchdog@vger.kernel.org
 References: <1446514586-31455-1-git-send-email-damien.riegel@savoirfairelinux.com>
- <1446514586-31455-3-git-send-email-damien.riegel@savoirfairelinux.com>
+ <1446514586-31455-4-git-send-email-damien.riegel@savoirfairelinux.com>
 Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
 	kernel@savoirfairelinux.com
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56381B3B.70202@roeck-us.net>
-Date: Mon, 2 Nov 2015 18:26:03 -0800
+Message-ID: <56381B71.2000600@roeck-us.net>
+Date: Mon, 2 Nov 2015 18:26:57 -0800
 MIME-Version: 1.0
-In-Reply-To: <1446514586-31455-3-git-send-email-damien.riegel@savoirfairelinux.com>
+In-Reply-To: <1446514586-31455-4-git-send-email-damien.riegel@savoirfairelinux.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -28,97 +28,96 @@ On 11/02/2015 05:36 PM, Damien Riegel wrote:
 >
 > Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
 > Signed-off-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
+
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
 > ---
->   drivers/watchdog/bcm47xx_wdt.c | 21 +++++++--------------
->   include/linux/bcm47xx_wdt.h    |  1 -
->   2 files changed, 7 insertions(+), 15 deletions(-)
+>   drivers/watchdog/da9063_wdt.c | 23 ++++++-----------------
+>   1 file changed, 6 insertions(+), 17 deletions(-)
 >
-> diff --git a/drivers/watchdog/bcm47xx_wdt.c b/drivers/watchdog/bcm47xx_wdt.c
-> index 4064a43..534ffb4 100644
-> --- a/drivers/watchdog/bcm47xx_wdt.c
-> +++ b/drivers/watchdog/bcm47xx_wdt.c
-> @@ -94,6 +94,7 @@ static struct watchdog_ops bcm47xx_wdt_hard_ops = {
->   	.stop		= bcm47xx_wdt_hard_stop,
->   	.ping		= bcm47xx_wdt_hard_keepalive,
->   	.set_timeout	= bcm47xx_wdt_hard_set_timeout,
-> +	.restart        = bcm47xx_wdt_restart,
+> diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
+> index 6bf130b..11e8875 100644
+> --- a/drivers/watchdog/da9063_wdt.c
+> +++ b/drivers/watchdog/da9063_wdt.c
+> @@ -20,7 +20,6 @@
+>   #include <linux/delay.h>
+>   #include <linux/mfd/da9063/registers.h>
+>   #include <linux/mfd/da9063/core.h>
+> -#include <linux/reboot.h>
+>   #include <linux/regmap.h>
+>
+>   /*
+> @@ -39,7 +38,6 @@ static const unsigned int wdt_timeout[] = { 0, 2, 4, 8, 16, 32, 65, 131 };
+>   struct da9063_watchdog {
+>   	struct da9063 *da9063;
+>   	struct watchdog_device wdtdev;
+> -	struct notifier_block restart_handler;
 >   };
 >
->   static void bcm47xx_wdt_soft_timer_tick(unsigned long data)
-> @@ -169,15 +170,13 @@ static int bcm47xx_wdt_notify_sys(struct notifier_block *this,
->   	return NOTIFY_DONE;
+>   static unsigned int da9063_wdt_timeout_to_sel(unsigned int secs)
+> @@ -121,12 +119,9 @@ static int da9063_wdt_set_timeout(struct watchdog_device *wdd,
+>   	return ret;
 >   }
 >
-> -static int bcm47xx_wdt_restart(struct notifier_block *this, unsigned long mode,
-> -			       void *cmd)
-> +static int bcm47xx_wdt_restart(struct watchdog_device *wdd)
+> -static int da9063_wdt_restart_handler(struct notifier_block *this,
+> -				      unsigned long mode, void *cmd)
+> +static int da9063_wdt_restart(struct watchdog_device *wdd)
 >   {
-> -	struct bcm47xx_wdt *wdt;
-> +	struct bcm47xx_wdt *wdt = bcm47xx_wdt_get(wdd);
+> -	struct da9063_watchdog *wdt = container_of(this,
+> -						   struct da9063_watchdog,
+> -						   restart_handler);
+> +	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
+>   	int ret;
 >
-> -	wdt = container_of(this, struct bcm47xx_wdt, restart_handler);
->   	wdt->timer_set(wdt, 1);
+>   	ret = regmap_write(wdt->da9063->regmap, DA9063_REG_CONTROL_F,
+> @@ -135,7 +130,7 @@ static int da9063_wdt_restart_handler(struct notifier_block *this,
+>   		dev_alert(wdt->da9063->dev, "Failed to shutdown (err = %d)\n",
+>   			  ret);
 >
 > -	return NOTIFY_DONE;
-> +	return 0;
+> +	return ret;
 >   }
 >
->   static struct watchdog_ops bcm47xx_wdt_soft_ops = {
-> @@ -186,6 +185,7 @@ static struct watchdog_ops bcm47xx_wdt_soft_ops = {
->   	.stop		= bcm47xx_wdt_soft_stop,
->   	.ping		= bcm47xx_wdt_soft_keepalive,
->   	.set_timeout	= bcm47xx_wdt_soft_set_timeout,
-> +	.restart        = bcm47xx_wdt_restart,
+>   static const struct watchdog_info da9063_watchdog_info = {
+> @@ -149,6 +144,7 @@ static const struct watchdog_ops da9063_watchdog_ops = {
+>   	.stop = da9063_wdt_stop,
+>   	.ping = da9063_wdt_ping,
+>   	.set_timeout = da9063_wdt_set_timeout,
+> +	.restart = da9063_wdt_restart,
 >   };
 >
->   static int bcm47xx_wdt_probe(struct platform_device *pdev)
-> @@ -214,6 +214,7 @@ static int bcm47xx_wdt_probe(struct platform_device *pdev)
+>   static int da9063_wdt_probe(struct platform_device *pdev)
+> @@ -179,6 +175,8 @@ static int da9063_wdt_probe(struct platform_device *pdev)
+>
+>   	wdt->wdtdev.status = WATCHDOG_NOWAYOUT_INIT_STATUS;
+>
+> +	watchdog_set_restart_priority(&wdt->wdtdev, 128);
+> +
+>   	watchdog_set_drvdata(&wdt->wdtdev, wdt);
+>   	dev_set_drvdata(&pdev->dev, wdt);
+>
+> @@ -186,13 +184,6 @@ static int da9063_wdt_probe(struct platform_device *pdev)
 >   	if (ret)
->   		goto err_timer;
->   	watchdog_set_nowayout(&wdt->wdd, nowayout);
-> +	watchdog_set_restart_priority(&wdt->wdd, 64);
+>   		return ret;
 >
->   	wdt->notifier.notifier_call = &bcm47xx_wdt_notify_sys;
->
-> @@ -221,23 +222,15 @@ static int bcm47xx_wdt_probe(struct platform_device *pdev)
->   	if (ret)
->   		goto err_timer;
->
-> -	wdt->restart_handler.notifier_call = &bcm47xx_wdt_restart;
-> -	wdt->restart_handler.priority = 64;
+> -	wdt->restart_handler.notifier_call = da9063_wdt_restart_handler;
+> -	wdt->restart_handler.priority = 128;
 > -	ret = register_restart_handler(&wdt->restart_handler);
 > -	if (ret)
-> -		goto err_notifier;
+> -		dev_err(wdt->da9063->dev,
+> -			"Failed to register restart handler (err = %d)\n", ret);
 > -
->   	ret = watchdog_register_device(&wdt->wdd);
->   	if (ret)
-> -		goto err_handler;
-> +		goto err_notifier;
-
-		goto err_handler;
-
->
->   	dev_info(&pdev->dev, "BCM47xx Watchdog Timer enabled (%d seconds%s%s)\n",
->   		timeout, nowayout ? ", nowayout" : "",
->   		soft ? ", Software Timer" : "");
 >   	return 0;
+>   }
 >
-> -err_handler:
+> @@ -200,8 +191,6 @@ static int da9063_wdt_remove(struct platform_device *pdev)
+>   {
+>   	struct da9063_watchdog *wdt = dev_get_drvdata(&pdev->dev);
+>
 > -	unregister_restart_handler(&wdt->restart_handler);
->   err_notifier:
->   	unregister_reboot_notifier(&wdt->notifier);
->   err_timer:
-> diff --git a/include/linux/bcm47xx_wdt.h b/include/linux/bcm47xx_wdt.h
-> index 5582c21..b708786 100644
-> --- a/include/linux/bcm47xx_wdt.h
-> +++ b/include/linux/bcm47xx_wdt.h
-> @@ -16,7 +16,6 @@ struct bcm47xx_wdt {
+> -
+>   	watchdog_unregister_device(&wdt->wdtdev);
 >
->   	struct watchdog_device wdd;
->   	struct notifier_block notifier;
-> -	struct notifier_block restart_handler;
->
->   	struct timer_list soft_timer;
->   	atomic_t soft_ticks;
+>   	return 0;
 >
 
