@@ -1,125 +1,43 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:38441 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751965AbbKCClI (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 2 Nov 2015 21:41:08 -0500
-Subject: Re: [RFC PATCH 13/13] watchdog: sunxi_wdt: use core restart handler
-To: Damien Riegel <damien.riegel@savoirfairelinux.com>,
-	linux-watchdog@vger.kernel.org
-References: <1446514586-31455-1-git-send-email-damien.riegel@savoirfairelinux.com>
- <1446514586-31455-14-git-send-email-damien.riegel@savoirfairelinux.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
+Return-path: <vivien.didelot@savoirfairelinux.com>
+Date: Mon, 2 Nov 2015 21:51:45 -0500
+From: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Damien Riegel <damien.riegel@savoirfairelinux.com>,
+	linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
 	kernel@savoirfairelinux.com
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56381EC2.8020101@roeck-us.net>
-Date: Mon, 2 Nov 2015 18:41:06 -0800
+Subject: Re: [RFC PATCH 01/13] watchdog: core: add restart handler support
+Message-ID: <20151103025145.GA29120@ketchup.lan>
+References: <1446514586-31455-1-git-send-email-damien.riegel@savoirfairelinux.com>
+ <1446514586-31455-2-git-send-email-damien.riegel@savoirfairelinux.com>
+ <56381B03.6030201@roeck-us.net>
 MIME-Version: 1.0
-In-Reply-To: <1446514586-31455-14-git-send-email-damien.riegel@savoirfairelinux.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <56381B03.6030201@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 11/02/2015 05:36 PM, Damien Riegel wrote:
-> Get rid of the custom restart handler by using the one provided by the
-> watchdog core.
->
-> Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
-> Signed-off-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
-> ---
->   drivers/watchdog/sunxi_wdt.c | 22 +++++-----------------
->   1 file changed, 5 insertions(+), 17 deletions(-)
->
-> diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
-> index 47bd8a1..06bf3c5 100644
-> --- a/drivers/watchdog/sunxi_wdt.c
-> +++ b/drivers/watchdog/sunxi_wdt.c
-> @@ -25,7 +25,6 @@
->   #include <linux/of.h>
->   #include <linux/of_device.h>
->   #include <linux/platform_device.h>
-> -#include <linux/reboot.h>
->   #include <linux/types.h>
->   #include <linux/watchdog.h>
+Hi Guenter,
 
-Should be able to drop the notifier.h include.
-Assuming you'll fix that,
+On Nov. Monday 02 (45) 06:25 PM, Guenter Roeck wrote:
+> On 11/02/2015 05:36 PM, Damien Riegel wrote:
+> >Many watchdog drivers implement the same code to register a restart
+> >handler. This patch provides a generic way to set such a function.
+> >
+> >The patch adds a new restart watchdog operation. If a restart priority
+> >greater than 0 is needed, the driver can call
+> >watchdog_set_restart_priority to set it.
+> >
+> >Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
+> >Signed-off-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
+> 
+> Makes sense, and good idea. Unless the patch was written by Vivien,
+> the second tag should probably be a Reviewed-by: or Acked-by:, though.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+We wrote that together, but Damien did most of the work. So I think
+Reviewed-by: for me will indeed be most appropriate here.
 
->
-> @@ -60,7 +59,6 @@ struct sunxi_wdt_dev {
->   	struct watchdog_device wdt_dev;
->   	void __iomem *wdt_base;
->   	const struct sunxi_wdt_reg *wdt_regs;
-> -	struct notifier_block restart_handler;
->   };
->
->   /*
-> @@ -86,12 +84,9 @@ static const int wdt_timeout_map[] = {
->   };
->
->
-> -static int sunxi_restart_handle(struct notifier_block *this, unsigned long mode,
-> -				void *cmd)
-> +static int sunxi_wdt_restart(struct watchdog_device *wdt_dev)
->   {
-> -	struct sunxi_wdt_dev *sunxi_wdt = container_of(this,
-> -						       struct sunxi_wdt_dev,
-> -						       restart_handler);
-> +	struct sunxi_wdt_dev *sunxi_wdt = watchdog_get_drvdata(wdt_dev);
->   	void __iomem *wdt_base = sunxi_wdt->wdt_base;
->   	const struct sunxi_wdt_reg *regs = sunxi_wdt->wdt_regs;
->   	u32 val;
-> @@ -120,7 +115,7 @@ static int sunxi_restart_handle(struct notifier_block *this, unsigned long mode,
->   		val |= WDT_MODE_EN;
->   		writel(val, wdt_base + regs->wdt_mode);
->   	}
-> -	return NOTIFY_DONE;
-> +	return 0;
->   }
->
->   static int sunxi_wdt_ping(struct watchdog_device *wdt_dev)
-> @@ -208,6 +203,7 @@ static const struct watchdog_ops sunxi_wdt_ops = {
->   	.stop		= sunxi_wdt_stop,
->   	.ping		= sunxi_wdt_ping,
->   	.set_timeout	= sunxi_wdt_set_timeout,
-> +	.restart	= sunxi_wdt_restart,
->   };
->
->   static const struct sunxi_wdt_reg sun4i_wdt_reg = {
-> @@ -268,6 +264,7 @@ static int sunxi_wdt_probe(struct platform_device *pdev)
->
->   	watchdog_init_timeout(&sunxi_wdt->wdt_dev, timeout, &pdev->dev);
->   	watchdog_set_nowayout(&sunxi_wdt->wdt_dev, nowayout);
-> +	watchdog_set_restart_priority(&sunxi_wdt->wdt_dev, 128);
->
->   	watchdog_set_drvdata(&sunxi_wdt->wdt_dev, sunxi_wdt);
->
-> @@ -277,13 +274,6 @@ static int sunxi_wdt_probe(struct platform_device *pdev)
->   	if (unlikely(err))
->   		return err;
->
-> -	sunxi_wdt->restart_handler.notifier_call = sunxi_restart_handle;
-> -	sunxi_wdt->restart_handler.priority = 128;
-> -	err = register_restart_handler(&sunxi_wdt->restart_handler);
-> -	if (err)
-> -		dev_err(&pdev->dev,
-> -			"cannot register restart handler (err=%d)\n", err);
-> -
->   	dev_info(&pdev->dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)",
->   			sunxi_wdt->wdt_dev.timeout, nowayout);
->
-> @@ -294,8 +284,6 @@ static int sunxi_wdt_remove(struct platform_device *pdev)
->   {
->   	struct sunxi_wdt_dev *sunxi_wdt = platform_get_drvdata(pdev);
->
-> -	unregister_restart_handler(&sunxi_wdt->restart_handler);
-> -
->   	watchdog_unregister_device(&sunxi_wdt->wdt_dev);
->   	watchdog_set_drvdata(&sunxi_wdt->wdt_dev, NULL);
->
->
+Also is it OK to include your Reviewed-by: tag in the v1 (given we add
+your comments) or not?
 
+Thanks!
+-v
