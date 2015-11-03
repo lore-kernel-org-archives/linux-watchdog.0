@@ -1,22 +1,22 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:38044 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:38174 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754179AbbKCChZ (ORCPT
+	with ESMTP id S1753790AbbKCCiy (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 2 Nov 2015 21:37:25 -0500
-Subject: Re: [RFC PATCH 11/13] watchdog: qcom-wdt: use core restart handler
+	Mon, 2 Nov 2015 21:38:54 -0500
+Subject: Re: [RFC PATCH 12/13] watchdog: s3c2410_wdt: use core restart handler
 To: Damien Riegel <damien.riegel@savoirfairelinux.com>,
 	linux-watchdog@vger.kernel.org
 References: <1446514586-31455-1-git-send-email-damien.riegel@savoirfairelinux.com>
- <1446514586-31455-12-git-send-email-damien.riegel@savoirfairelinux.com>
+ <1446514586-31455-13-git-send-email-damien.riegel@savoirfairelinux.com>
 Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
 	kernel@savoirfairelinux.com
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56381DE2.3040107@roeck-us.net>
-Date: Mon, 2 Nov 2015 18:37:22 -0800
+Message-ID: <56381E3B.9070608@roeck-us.net>
+Date: Mon, 2 Nov 2015 18:38:51 -0800
 MIME-Version: 1.0
-In-Reply-To: <1446514586-31455-12-git-send-email-damien.riegel@savoirfairelinux.com>
+In-Reply-To: <1446514586-31455-13-git-send-email-damien.riegel@savoirfairelinux.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -32,122 +32,128 @@ On 11/02/2015 05:36 PM, Damien Riegel wrote:
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->   drivers/watchdog/qcom-wdt.c | 63 +++++++++++++++++++--------------------------
->   1 file changed, 26 insertions(+), 37 deletions(-)
+>   drivers/watchdog/s3c2410_wdt.c | 60 ++++++++++++++++++------------------------
+>   1 file changed, 25 insertions(+), 35 deletions(-)
 >
-> diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
-> index 773dcfa..aa7105d 100644
-> --- a/drivers/watchdog/qcom-wdt.c
-> +++ b/drivers/watchdog/qcom-wdt.c
-> @@ -17,7 +17,6 @@
->   #include <linux/module.h>
+> diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+> index d781000..0093450 100644
+> --- a/drivers/watchdog/s3c2410_wdt.c
+> +++ b/drivers/watchdog/s3c2410_wdt.c
+> @@ -41,7 +41,6 @@
 >   #include <linux/of.h>
->   #include <linux/platform_device.h>
+>   #include <linux/mfd/syscon.h>
+>   #include <linux/regmap.h>
 > -#include <linux/reboot.h>
->   #include <linux/watchdog.h>
+>   #include <linux/delay.h>
 >
->   #define WDT_RST		0x38
-> @@ -28,7 +27,6 @@ struct qcom_wdt {
->   	struct watchdog_device	wdd;
->   	struct clk		*clk;
->   	unsigned long		rate;
-> -	struct notifier_block	restart_nb;
->   	void __iomem		*base;
+>   #define S3C2410_WTCON		0x00
+> @@ -130,7 +129,6 @@ struct s3c2410_wdt {
+>   	unsigned long		wtdat_save;
+>   	struct watchdog_device	wdt_device;
+>   	struct notifier_block	freq_transition;
+> -	struct notifier_block	restart_handler;
+>   	struct s3c2410_wdt_variant *drv_data;
+>   	struct regmap *pmureg;
 >   };
->
-> @@ -72,11 +70,37 @@ static int qcom_wdt_set_timeout(struct watchdog_device *wdd,
->   	return qcom_wdt_start(wdd);
+> @@ -351,6 +349,29 @@ static int s3c2410wdt_set_heartbeat(struct watchdog_device *wdd, unsigned timeou
+>   	return 0;
 >   }
 >
-> +static int qcom_wdt_restart(struct watchdog_device *wdd)
+> +static int s3c2410wdt_restart(struct watchdog_device *wdd)
 > +{
-> +	struct qcom_wdt *wdt = to_qcom_wdt(wdd);
-> +	u32 timeout;
+> +	struct s3c2410_wdt *wdt = watchdog_get_drvdata(wdd);
+> +	void __iomem *wdt_base = wdt->reg_base;
 > +
-> +	/*
-> +	 * Trigger watchdog bite:
-> +	 *    Setup BITE_TIME to be 128ms, and enable WDT.
-> +	 */
-> +	timeout = 128 * wdt->rate / 1000;
+> +	/* disable watchdog, to be safe  */
+> +	writel(0, wdt_base + S3C2410_WTCON);
 > +
-> +	writel(0, wdt->base + WDT_EN);
-> +	writel(1, wdt->base + WDT_RST);
-> +	writel(timeout, wdt->base + WDT_BITE_TIME);
-> +	writel(1, wdt->base + WDT_EN);
+> +	/* put initial values into count and data */
+> +	writel(0x80, wdt_base + S3C2410_WTCNT);
+> +	writel(0x80, wdt_base + S3C2410_WTDAT);
 > +
-> +	/*
-> +	 * Actually make sure the above sequence hits hardware before sleeping.
-> +	 */
-> +	wmb();
+> +	/* set the watchdog to go and reset... */
+> +	writel(S3C2410_WTCON_ENABLE | S3C2410_WTCON_DIV16 |
+> +		S3C2410_WTCON_RSTEN | S3C2410_WTCON_PRESCALE(0x20),
+> +		wdt_base + S3C2410_WTCON);
 > +
-> +	msleep(150);
+> +	/* wait for reset to assert... */
+> +	mdelay(500);
+> +
 > +	return 0;
 > +}
 > +
->   static const struct watchdog_ops qcom_wdt_ops = {
->   	.start		= qcom_wdt_start,
->   	.stop		= qcom_wdt_stop,
->   	.ping		= qcom_wdt_ping,
->   	.set_timeout	= qcom_wdt_set_timeout,
-> +	.restart        = qcom_wdt_restart,
->   	.owner		= THIS_MODULE,
+>   #define OPTIONS (WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE)
+>
+>   static const struct watchdog_info s3c2410_wdt_ident = {
+> @@ -365,6 +386,7 @@ static struct watchdog_ops s3c2410wdt_ops = {
+>   	.stop = s3c2410wdt_stop,
+>   	.ping = s3c2410wdt_keepalive,
+>   	.set_timeout = s3c2410wdt_set_heartbeat,
+> +	.restart = s3c2410wdt_restart,
 >   };
 >
-> @@ -87,32 +111,6 @@ static const struct watchdog_info qcom_wdt_info = {
->   	.identity	= KBUILD_MODNAME,
->   };
+>   static struct watchdog_device s3c2410_wdd = {
+> @@ -452,31 +474,6 @@ static inline void s3c2410wdt_cpufreq_deregister(struct s3c2410_wdt *wdt)
+>   }
+>   #endif
 >
-> -static int qcom_wdt_restart(struct notifier_block *nb, unsigned long action,
-> -			    void *data)
+> -static int s3c2410wdt_restart(struct notifier_block *this,
+> -			      unsigned long mode, void *cmd)
 > -{
-> -	struct qcom_wdt *wdt = container_of(nb, struct qcom_wdt, restart_nb);
-> -	u32 timeout;
+> -	struct s3c2410_wdt *wdt = container_of(this, struct s3c2410_wdt,
+> -					       restart_handler);
+> -	void __iomem *wdt_base = wdt->reg_base;
 > -
-> -	/*
-> -	 * Trigger watchdog bite:
-> -	 *    Setup BITE_TIME to be 128ms, and enable WDT.
-> -	 */
-> -	timeout = 128 * wdt->rate / 1000;
+> -	/* disable watchdog, to be safe  */
+> -	writel(0, wdt_base + S3C2410_WTCON);
 > -
-> -	writel(0, wdt->base + WDT_EN);
-> -	writel(1, wdt->base + WDT_RST);
-> -	writel(timeout, wdt->base + WDT_BITE_TIME);
-> -	writel(1, wdt->base + WDT_EN);
+> -	/* put initial values into count and data */
+> -	writel(0x80, wdt_base + S3C2410_WTCNT);
+> -	writel(0x80, wdt_base + S3C2410_WTDAT);
 > -
-> -	/*
-> -	 * Actually make sure the above sequence hits hardware before sleeping.
-> -	 */
-> -	wmb();
+> -	/* set the watchdog to go and reset... */
+> -	writel(S3C2410_WTCON_ENABLE | S3C2410_WTCON_DIV16 |
+> -		S3C2410_WTCON_RSTEN | S3C2410_WTCON_PRESCALE(0x20),
+> -		wdt_base + S3C2410_WTCON);
 > -
-> -	msleep(150);
+> -	/* wait for reset to assert... */
+> -	mdelay(500);
+> -
 > -	return NOTIFY_DONE;
 > -}
 > -
->   static int qcom_wdt_probe(struct platform_device *pdev)
+>   static inline unsigned int s3c2410wdt_get_bootstatus(struct s3c2410_wdt *wdt)
 >   {
->   	struct qcom_wdt *wdt;
-> @@ -187,14 +185,6 @@ static int qcom_wdt_probe(struct platform_device *pdev)
->   		goto err_clk_unprepare;
+>   	unsigned int rst_stat;
+> @@ -605,6 +602,7 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
 >   	}
 >
-> -	/*
-> -	 * WDT restart notifier has priority 0 (use as a last resort)
-> -	 */
-> -	wdt->restart_nb.notifier_call = qcom_wdt_restart;
-> -	ret = register_restart_handler(&wdt->restart_nb);
-> -	if (ret)
-> -		dev_err(&pdev->dev, "failed to setup restart handler\n");
-> -
+>   	watchdog_set_nowayout(&wdt->wdt_device, nowayout);
+> +	watchdog_set_restart_priority(&wdt->wdt_device, 128);
+>
+>   	wdt->wdt_device.bootstatus = s3c2410wdt_get_bootstatus(wdt);
+>   	wdt->wdt_device.parent = &pdev->dev;
+> @@ -632,12 +630,6 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+>
 >   	platform_set_drvdata(pdev, wdt);
->   	return 0;
 >
-> @@ -207,7 +197,6 @@ static int qcom_wdt_remove(struct platform_device *pdev)
->   {
->   	struct qcom_wdt *wdt = platform_get_drvdata(pdev);
+> -	wdt->restart_handler.notifier_call = s3c2410wdt_restart;
+> -	wdt->restart_handler.priority = 128;
+> -	ret = register_restart_handler(&wdt->restart_handler);
+> -	if (ret)
+> -		pr_err("cannot register restart handler, %d\n", ret);
+> -
+>   	/* print out a statement of readiness */
 >
-> -	unregister_restart_handler(&wdt->restart_nb);
->   	watchdog_unregister_device(&wdt->wdd);
->   	clk_disable_unprepare(wdt->clk);
->   	return 0;
+>   	wtcon = readl(wdt->reg_base + S3C2410_WTCON);
+> @@ -667,8 +659,6 @@ static int s3c2410wdt_remove(struct platform_device *dev)
+>   	int ret;
+>   	struct s3c2410_wdt *wdt = platform_get_drvdata(dev);
+>
+> -	unregister_restart_handler(&wdt->restart_handler);
+> -
+>   	ret = s3c2410wdt_mask_and_disable_reset(wdt, true);
+>   	if (ret < 0)
+>   		return ret;
 >
 
