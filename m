@@ -1,84 +1,118 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:49680 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754175AbbKCSIU (ORCPT
+Received: from mail.savoirfairelinux.com ([208.88.110.44]:58875 "EHLO
+	mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932265AbbKCQM5 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 3 Nov 2015 13:08:20 -0500
-Subject: Re: [PATCH 00/13] watchdog: factorize restart handler registration
-To: Damien Riegel <damien.riegel@savoirfairelinux.com>,
-	linux-watchdog@vger.kernel.org
-References: <1446567166-10156-1-git-send-email-damien.riegel@savoirfairelinux.com>
+	Tue, 3 Nov 2015 11:12:57 -0500
+From: Damien Riegel <damien.riegel@savoirfairelinux.com>
+To: linux-watchdog@vger.kernel.org
 Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
 	Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
-	kernel@savoirfairelinux.com
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <5638F812.8010802@roeck-us.net>
-Date: Tue, 3 Nov 2015 10:08:18 -0800
-MIME-Version: 1.0
+	kernel@savoirfairelinux.com,
+	Damien Riegel <damien.riegel@savoirfairelinux.com>
+Subject: [PATCH 03/13] watchdog: da9063_wdt: use core restart handler
+Date: Tue,  3 Nov 2015 11:12:36 -0500
+Message-Id: <1446567166-10156-4-git-send-email-damien.riegel@savoirfairelinux.com>
 In-Reply-To: <1446567166-10156-1-git-send-email-damien.riegel@savoirfairelinux.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <1446567166-10156-1-git-send-email-damien.riegel@savoirfairelinux.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 11/03/2015 08:12 AM, Damien Riegel wrote:
-> Many drivers implements the exact same piece of code to register a
-> restart handler. It can be nice to factorize this in the watchdog core.
->
-> The first patch adds an optional restart watchdog operation. If a driver
-> defines this operation, a restart handler is registered. By default, the
-> restart handler priority is set to 0, but a helper function
-> watchdog_set_restart_priority is provided to change it.
->
-> The following patches bring this change to the current watchdog drivers
-> that use watchdog_core.
->
-> This change has been compile-tested on da9063, imx2, lpc18xx, imgpdc.
-> It has been tested with (not mainlined yet) ts-4800's watchdog driver.
->
-> Damien Riegel (13):
->    watchdog: core: add restart handler support
->    watchdog: bcm47xx_wdt: use core restart handler
->    watchdog: da9063_wdt: use core restart handler
->    watchdog: digicolor_wdt: use core restart handler
->    watchdog: imgpdc_wdt: use core restart handler
->    watchdog: imx2_wdt: use core restart handler
->    watchdog: lpc18xx_wdt: use core restart handler
->    watchdog: meson_wdt: use core restart handler
->    watchdog: moxart_wdt: use core restart handler
->    watchdog: mtk_wdt: use core restart handler
->    watchdog: qcom-wdt: use core restart handler
->    watchdog: s3c2410_wdt: use core restart handler
->    watchdog: sunxi_wdt: use core restart handler
->
+Get rid of the custom restart handler by using the one provided by the
+watchdog core.
 
-Damien,
+Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
+---
+ drivers/watchdog/da9063_wdt.c | 23 ++++++-----------------
+ 1 file changed, 6 insertions(+), 17 deletions(-)
 
-"v2" in the subject line as well as a change log would have been appreciated.
-You are making it (hopefully not intentionally) difficult for maintainers
-to separate v1 from v2. You might want to keep in mind that maintainers are
-in general quite busy and might thus be a bit annoyed about such additional
-(and unnecessary) work.
-
-Thanks,
-Guenter
-
->   Documentation/watchdog/watchdog-kernel-api.txt | 19 +++++++
->   drivers/watchdog/bcm47xx_wdt.c                 | 21 +++-----
->   drivers/watchdog/da9063_wdt.c                  | 23 +++------
->   drivers/watchdog/digicolor_wdt.c               | 18 ++-----
->   drivers/watchdog/imgpdc_wdt.c                  | 34 +++++--------
->   drivers/watchdog/imx2_wdt.c                    | 23 +++------
->   drivers/watchdog/lpc18xx_wdt.c                 | 68 +++++++++++---------------
->   drivers/watchdog/meson_wdt.c                   | 23 ++-------
->   drivers/watchdog/moxart_wdt.c                  | 23 +++------
->   drivers/watchdog/mtk_wdt.c                     | 22 ++-------
->   drivers/watchdog/qcom-wdt.c                    | 63 ++++++++++--------------
->   drivers/watchdog/s3c2410_wdt.c                 | 60 ++++++++++-------------
->   drivers/watchdog/sunxi_wdt.c                   | 23 ++-------
->   drivers/watchdog/watchdog_core.c               | 48 ++++++++++++++++++
->   include/linux/bcm47xx_wdt.h                    |  1 -
->   include/linux/watchdog.h                       |  6 +++
->   16 files changed, 210 insertions(+), 265 deletions(-)
->
+diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
+index 6bf130b..11e8875 100644
+--- a/drivers/watchdog/da9063_wdt.c
++++ b/drivers/watchdog/da9063_wdt.c
+@@ -20,7 +20,6 @@
+ #include <linux/delay.h>
+ #include <linux/mfd/da9063/registers.h>
+ #include <linux/mfd/da9063/core.h>
+-#include <linux/reboot.h>
+ #include <linux/regmap.h>
+ 
+ /*
+@@ -39,7 +38,6 @@ static const unsigned int wdt_timeout[] = { 0, 2, 4, 8, 16, 32, 65, 131 };
+ struct da9063_watchdog {
+ 	struct da9063 *da9063;
+ 	struct watchdog_device wdtdev;
+-	struct notifier_block restart_handler;
+ };
+ 
+ static unsigned int da9063_wdt_timeout_to_sel(unsigned int secs)
+@@ -121,12 +119,9 @@ static int da9063_wdt_set_timeout(struct watchdog_device *wdd,
+ 	return ret;
+ }
+ 
+-static int da9063_wdt_restart_handler(struct notifier_block *this,
+-				      unsigned long mode, void *cmd)
++static int da9063_wdt_restart(struct watchdog_device *wdd)
+ {
+-	struct da9063_watchdog *wdt = container_of(this,
+-						   struct da9063_watchdog,
+-						   restart_handler);
++	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
+ 	int ret;
+ 
+ 	ret = regmap_write(wdt->da9063->regmap, DA9063_REG_CONTROL_F,
+@@ -135,7 +130,7 @@ static int da9063_wdt_restart_handler(struct notifier_block *this,
+ 		dev_alert(wdt->da9063->dev, "Failed to shutdown (err = %d)\n",
+ 			  ret);
+ 
+-	return NOTIFY_DONE;
++	return ret;
+ }
+ 
+ static const struct watchdog_info da9063_watchdog_info = {
+@@ -149,6 +144,7 @@ static const struct watchdog_ops da9063_watchdog_ops = {
+ 	.stop = da9063_wdt_stop,
+ 	.ping = da9063_wdt_ping,
+ 	.set_timeout = da9063_wdt_set_timeout,
++	.restart = da9063_wdt_restart,
+ };
+ 
+ static int da9063_wdt_probe(struct platform_device *pdev)
+@@ -179,6 +175,8 @@ static int da9063_wdt_probe(struct platform_device *pdev)
+ 
+ 	wdt->wdtdev.status = WATCHDOG_NOWAYOUT_INIT_STATUS;
+ 
++	watchdog_set_restart_priority(&wdt->wdtdev, 128);
++
+ 	watchdog_set_drvdata(&wdt->wdtdev, wdt);
+ 	dev_set_drvdata(&pdev->dev, wdt);
+ 
+@@ -186,13 +184,6 @@ static int da9063_wdt_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		return ret;
+ 
+-	wdt->restart_handler.notifier_call = da9063_wdt_restart_handler;
+-	wdt->restart_handler.priority = 128;
+-	ret = register_restart_handler(&wdt->restart_handler);
+-	if (ret)
+-		dev_err(wdt->da9063->dev,
+-			"Failed to register restart handler (err = %d)\n", ret);
+-
+ 	return 0;
+ }
+ 
+@@ -200,8 +191,6 @@ static int da9063_wdt_remove(struct platform_device *pdev)
+ {
+ 	struct da9063_watchdog *wdt = dev_get_drvdata(&pdev->dev);
+ 
+-	unregister_restart_handler(&wdt->restart_handler);
+-
+ 	watchdog_unregister_device(&wdt->wdtdev);
+ 
+ 	return 0;
+-- 
+2.5.0
 
