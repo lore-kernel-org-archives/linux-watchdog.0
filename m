@@ -1,22 +1,22 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:37815 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:38044 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751965AbbKCCfL (ORCPT
+	with ESMTP id S1754179AbbKCChZ (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 2 Nov 2015 21:35:11 -0500
-Subject: Re: [RFC PATCH 10/13] watchdog: mtk_wdt: use core restart handler
+	Mon, 2 Nov 2015 21:37:25 -0500
+Subject: Re: [RFC PATCH 11/13] watchdog: qcom-wdt: use core restart handler
 To: Damien Riegel <damien.riegel@savoirfairelinux.com>,
 	linux-watchdog@vger.kernel.org
 References: <1446514586-31455-1-git-send-email-damien.riegel@savoirfairelinux.com>
- <1446514586-31455-11-git-send-email-damien.riegel@savoirfairelinux.com>
+ <1446514586-31455-12-git-send-email-damien.riegel@savoirfairelinux.com>
 Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
 	kernel@savoirfairelinux.com
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56381D5C.8030503@roeck-us.net>
-Date: Mon, 2 Nov 2015 18:35:08 -0800
+Message-ID: <56381DE2.3040107@roeck-us.net>
+Date: Mon, 2 Nov 2015 18:37:22 -0800
 MIME-Version: 1.0
-In-Reply-To: <1446514586-31455-11-git-send-email-damien.riegel@savoirfairelinux.com>
+In-Reply-To: <1446514586-31455-12-git-send-email-damien.riegel@savoirfairelinux.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -28,89 +28,126 @@ On 11/02/2015 05:36 PM, Damien Riegel wrote:
 >
 > Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
 > Signed-off-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
+
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
 > ---
->   drivers/watchdog/mtk_wdt.c | 19 ++++---------------
->   1 file changed, 4 insertions(+), 15 deletions(-)
+>   drivers/watchdog/qcom-wdt.c | 63 +++++++++++++++++++--------------------------
+>   1 file changed, 26 insertions(+), 37 deletions(-)
 >
-> diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
-> index 6ad9df9..277f588 100644
-> --- a/drivers/watchdog/mtk_wdt.c
-> +++ b/drivers/watchdog/mtk_wdt.c
-> @@ -29,7 +29,6 @@
->   #include <linux/types.h>
->   #include <linux/watchdog.h>
->   #include <linux/notifier.h>
+> diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
+> index 773dcfa..aa7105d 100644
+> --- a/drivers/watchdog/qcom-wdt.c
+> +++ b/drivers/watchdog/qcom-wdt.c
+> @@ -17,7 +17,6 @@
+>   #include <linux/module.h>
+>   #include <linux/of.h>
+>   #include <linux/platform_device.h>
 > -#include <linux/reboot.h>
->   #include <linux/delay.h>
+>   #include <linux/watchdog.h>
 >
->   #define WDT_MAX_TIMEOUT		31
-> @@ -64,16 +63,13 @@ static unsigned int timeout = WDT_MAX_TIMEOUT;
->   struct mtk_wdt_dev {
->   	struct watchdog_device wdt_dev;
->   	void __iomem *wdt_base;
-> -	struct notifier_block restart_handler;
+>   #define WDT_RST		0x38
+> @@ -28,7 +27,6 @@ struct qcom_wdt {
+>   	struct watchdog_device	wdd;
+>   	struct clk		*clk;
+>   	unsigned long		rate;
+> -	struct notifier_block	restart_nb;
+>   	void __iomem		*base;
 >   };
 >
-> -static int mtk_reset_handler(struct notifier_block *this, unsigned long mode,
-> -				void *cmd)
-> +static int mtk_wdt_restart(struct watchdog_device *wdt_dev)
->   {
-> -	struct mtk_wdt_dev *mtk_wdt;
-> +	struct mtk_wdt_dev *mtk_wdt = watchdog_get_drvdata(wdt_dev);
->   	void __iomem *wdt_base;
+> @@ -72,11 +70,37 @@ static int qcom_wdt_set_timeout(struct watchdog_device *wdd,
+>   	return qcom_wdt_start(wdd);
+>   }
 >
-> -	mtk_wdt = container_of(this, struct mtk_wdt_dev, restart_handler);
->   	wdt_base = mtk_wdt->wdt_base;
->
->   	while (1) {
-
-Changed return value missing here ? Sure, it won't return, but still.
-
-Ah, that reminds me - "#include <linux/notifier.h>" can probably be dropped
-from most of the files. Can you look into that for all patches (including the
-ones I already reviewed) ?
-
-Thanks,
-Guenter
-
-> @@ -160,6 +156,7 @@ static const struct watchdog_ops mtk_wdt_ops = {
->   	.stop		= mtk_wdt_stop,
->   	.ping		= mtk_wdt_ping,
->   	.set_timeout	= mtk_wdt_set_timeout,
-> +	.restart	= mtk_wdt_restart,
+> +static int qcom_wdt_restart(struct watchdog_device *wdd)
+> +{
+> +	struct qcom_wdt *wdt = to_qcom_wdt(wdd);
+> +	u32 timeout;
+> +
+> +	/*
+> +	 * Trigger watchdog bite:
+> +	 *    Setup BITE_TIME to be 128ms, and enable WDT.
+> +	 */
+> +	timeout = 128 * wdt->rate / 1000;
+> +
+> +	writel(0, wdt->base + WDT_EN);
+> +	writel(1, wdt->base + WDT_RST);
+> +	writel(timeout, wdt->base + WDT_BITE_TIME);
+> +	writel(1, wdt->base + WDT_EN);
+> +
+> +	/*
+> +	 * Actually make sure the above sequence hits hardware before sleeping.
+> +	 */
+> +	wmb();
+> +
+> +	msleep(150);
+> +	return 0;
+> +}
+> +
+>   static const struct watchdog_ops qcom_wdt_ops = {
+>   	.start		= qcom_wdt_start,
+>   	.stop		= qcom_wdt_stop,
+>   	.ping		= qcom_wdt_ping,
+>   	.set_timeout	= qcom_wdt_set_timeout,
+> +	.restart        = qcom_wdt_restart,
+>   	.owner		= THIS_MODULE,
 >   };
 >
->   static int mtk_wdt_probe(struct platform_device *pdev)
-> @@ -188,6 +185,7 @@ static int mtk_wdt_probe(struct platform_device *pdev)
+> @@ -87,32 +111,6 @@ static const struct watchdog_info qcom_wdt_info = {
+>   	.identity	= KBUILD_MODNAME,
+>   };
 >
->   	watchdog_init_timeout(&mtk_wdt->wdt_dev, timeout, &pdev->dev);
->   	watchdog_set_nowayout(&mtk_wdt->wdt_dev, nowayout);
-> +	watchdog_set_restart_priority(&mtk_wdt->wdt_dev, 128);
->
->   	watchdog_set_drvdata(&mtk_wdt->wdt_dev, mtk_wdt);
->
-> @@ -197,13 +195,6 @@ static int mtk_wdt_probe(struct platform_device *pdev)
->   	if (unlikely(err))
->   		return err;
->
-> -	mtk_wdt->restart_handler.notifier_call = mtk_reset_handler;
-> -	mtk_wdt->restart_handler.priority = 128;
-> -	err = register_restart_handler(&mtk_wdt->restart_handler);
-> -	if (err)
-> -		dev_warn(&pdev->dev,
-> -			"cannot register restart handler (err=%d)\n", err);
+> -static int qcom_wdt_restart(struct notifier_block *nb, unsigned long action,
+> -			    void *data)
+> -{
+> -	struct qcom_wdt *wdt = container_of(nb, struct qcom_wdt, restart_nb);
+> -	u32 timeout;
 > -
->   	dev_info(&pdev->dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)\n",
->   			mtk_wdt->wdt_dev.timeout, nowayout);
->
-> @@ -222,8 +213,6 @@ static int mtk_wdt_remove(struct platform_device *pdev)
+> -	/*
+> -	 * Trigger watchdog bite:
+> -	 *    Setup BITE_TIME to be 128ms, and enable WDT.
+> -	 */
+> -	timeout = 128 * wdt->rate / 1000;
+> -
+> -	writel(0, wdt->base + WDT_EN);
+> -	writel(1, wdt->base + WDT_RST);
+> -	writel(timeout, wdt->base + WDT_BITE_TIME);
+> -	writel(1, wdt->base + WDT_EN);
+> -
+> -	/*
+> -	 * Actually make sure the above sequence hits hardware before sleeping.
+> -	 */
+> -	wmb();
+> -
+> -	msleep(150);
+> -	return NOTIFY_DONE;
+> -}
+> -
+>   static int qcom_wdt_probe(struct platform_device *pdev)
 >   {
->   	struct mtk_wdt_dev *mtk_wdt = platform_get_drvdata(pdev);
+>   	struct qcom_wdt *wdt;
+> @@ -187,14 +185,6 @@ static int qcom_wdt_probe(struct platform_device *pdev)
+>   		goto err_clk_unprepare;
+>   	}
 >
-> -	unregister_restart_handler(&mtk_wdt->restart_handler);
+> -	/*
+> -	 * WDT restart notifier has priority 0 (use as a last resort)
+> -	 */
+> -	wdt->restart_nb.notifier_call = qcom_wdt_restart;
+> -	ret = register_restart_handler(&wdt->restart_nb);
+> -	if (ret)
+> -		dev_err(&pdev->dev, "failed to setup restart handler\n");
 > -
->   	watchdog_unregister_device(&mtk_wdt->wdt_dev);
+>   	platform_set_drvdata(pdev, wdt);
+>   	return 0;
 >
+> @@ -207,7 +197,6 @@ static int qcom_wdt_remove(struct platform_device *pdev)
+>   {
+>   	struct qcom_wdt *wdt = platform_get_drvdata(pdev);
+>
+> -	unregister_restart_handler(&wdt->restart_nb);
+>   	watchdog_unregister_device(&wdt->wdd);
+>   	clk_disable_unprepare(wdt->clk);
 >   	return 0;
 >
 
