@@ -1,147 +1,142 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-bn1bon0145.outbound.protection.outlook.com ([157.56.111.145]:23368
-	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752823AbbKCG3I (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 3 Nov 2015 01:29:08 -0500
-From: Robin Gong <b38343@freescale.com>
-To: <wim@iguana.be>, <linux@roeck-us.net>
-CC: <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>
-Subject: [PATCH v2 2/2] watchdog: imx2_wdt: add set_pretimeout interface
-Date: Tue, 3 Nov 2015 14:11:24 +0800
-Message-ID: <1446531084-15365-2-git-send-email-b38343@freescale.com>
-In-Reply-To: <1446531084-15365-1-git-send-email-b38343@freescale.com>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:48283 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751619AbbKCHlZ (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 3 Nov 2015 02:41:25 -0500
+Subject: Re: [PATCH v2 1/2] watchdog: add WDIOC_SETPRETIMEOUT and
+ WDIOC_GETPRETIMEOUT
+To: Robin Gong <b38343@freescale.com>, wim@iguana.be
 References: <1446531084-15365-1-git-send-email-b38343@freescale.com>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <56386522.3000505@roeck-us.net>
+Date: Mon, 2 Nov 2015 23:41:22 -0800
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <1446531084-15365-1-git-send-email-b38343@freescale.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Enable set_pretimeout interface and trigger the pretimeout interrupt before
-watchdog timeout event happen.
+On 11/02/2015 10:11 PM, Robin Gong wrote:
+> Since the watchdog common framework centrialize the IOCTL interfaces of
+> device driver now, the SETPRETIMEOUT and GETPRETIMEOUT need to be added
+> in the common code.
+>
+> Signed-off-by: Robin Gong <b38343@freescale.com>
+> ---
 
-Signed-off-by: Robin Gong <b38343@freescale.com>
----
- drivers/watchdog/imx2_wdt.c | 58 ++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 57 insertions(+), 1 deletion(-)
+It would help if you could document the changes made here.
 
-diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-index 0bb1a1d..bd42857 100644
---- a/drivers/watchdog/imx2_wdt.c
-+++ b/drivers/watchdog/imx2_wdt.c
-@@ -24,6 +24,7 @@
- #include <linux/clk.h>
- #include <linux/delay.h>
- #include <linux/init.h>
-+#include <linux/interrupt.h>
- #include <linux/io.h>
- #include <linux/jiffies.h>
- #include <linux/kernel.h>
-@@ -52,12 +53,18 @@
- #define IMX2_WDT_WRSR		0x04		/* Reset Status Register */
- #define IMX2_WDT_WRSR_TOUT	(1 << 1)	/* -> Reset due to Timeout */
- 
-+#define IMX2_WDT_WICR		0x06		/*Interrupt Control Register*/
-+#define IMX2_WDT_WICR_WIE	(1 << 15)	/* -> Interrupt Enable */
-+#define IMX2_WDT_WICR_WTIS	(1 << 14)	/* -> Interrupt Status */
-+#define IMX2_WDT_WICR_WICT	(0xFF)	/* Watchdog Interrupt Timeout */
-+
- #define IMX2_WDT_WMCR		0x08		/* Misc Register */
- 
- #define IMX2_WDT_MAX_TIME	128
- #define IMX2_WDT_DEFAULT_TIME	60		/* in seconds */
- 
- #define WDOG_SEC_TO_COUNT(s)	((s * 2 - 1) << 8)
-+#define WDOG_SEC_TO_PRECOUNT(s)	((s) * 2)	/* set WDOG pre timeout count*/
- 
- struct imx2_wdt_device {
- 	struct clk *clk;
-@@ -80,7 +87,8 @@ MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds (default="
- 
- static const struct watchdog_info imx2_wdt_info = {
- 	.identity = "imx2+ watchdog",
--	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
-+	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE
-+		   | WDIOF_PRETIMEOUT,
- };
- 
- static int imx2_restart_handler(struct notifier_block *this, unsigned long mode,
-@@ -207,12 +215,49 @@ static inline void imx2_wdt_ping_if_active(struct watchdog_device *wdog)
- 	}
- }
- 
-+static int imx2_wdt_set_pretimeout(struct watchdog_device *wdog,
-+				   unsigned int new_timeout)
-+{
-+	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
-+	u32 val;
-+
-+	regmap_read(wdev->regmap, IMX2_WDT_WICR, &val);
-+	/* set the new pre-timeout value in the WSR */
-+	val &= ~IMX2_WDT_WICR_WICT;
-+	val |= WDOG_SEC_TO_PRECOUNT(new_timeout);
-+
-+	regmap_write(wdev->regmap, IMX2_WDT_WICR, val | IMX2_WDT_WICR_WIE);
-+
-+	wdog->pretimeout = new_timeout;
-+
-+	return 0;
-+}
-+
-+static irqreturn_t imx2_wdt_isr(int irq, void *dev_id)
-+{
-+	struct platform_device *pdev = dev_id;
-+	struct watchdog_device *wdog = platform_get_drvdata(pdev);
-+	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
-+	u32 val;
-+
-+	regmap_read(wdev->regmap, IMX2_WDT_WICR, &val);
-+	if (val & IMX2_WDT_WICR_WTIS) {
-+		/*clear interrupt status bit*/
-+		regmap_write(wdev->regmap, IMX2_WDT_WICR, val);
-+		panic("pre-timeout:%d, %d Seconds remained\n", wdog->pretimeout,
-+		      wdog->timeout - wdog->pretimeout);
-+	}
-+
-+	return IRQ_HANDLED;
-+}
-+
- static const struct watchdog_ops imx2_wdt_ops = {
- 	.owner = THIS_MODULE,
- 	.start = imx2_wdt_start,
- 	.stop = imx2_wdt_stop,
- 	.ping = imx2_wdt_ping,
- 	.set_timeout = imx2_wdt_set_timeout,
-+	.set_pretimeout = imx2_wdt_set_pretimeout,
- };
- 
- static const struct regmap_config imx2_wdt_regmap_config = {
-@@ -229,6 +274,7 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
- 	struct resource *res;
- 	void __iomem *base;
- 	int ret;
-+	int irq;
- 	u32 val;
- 
- 	wdev = devm_kzalloc(&pdev->dev, sizeof(*wdev), GFP_KERNEL);
-@@ -294,6 +340,16 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
- 		goto disable_clk;
- 	}
- 
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq > 0) {
-+		ret = devm_request_irq(&pdev->dev, irq, imx2_wdt_isr, 0,
-+				       dev_name(&pdev->dev), pdev);
-+		if (ret) {
-+			dev_err(&pdev->dev, "can't get irq %d\n", irq);
-+			goto disable_clk;
-+		}
-+	}
-+
- 	wdev->restart_handler.notifier_call = imx2_restart_handler;
- 	wdev->restart_handler.priority = 128;
- 	ret = register_restart_handler(&wdev->restart_handler);
--- 
-1.9.1
+>   drivers/watchdog/watchdog_dev.c | 37 +++++++++++++++++++++++++++++++++++++
+>   include/linux/watchdog.h        | 10 ++++++++++
+>   2 files changed, 47 insertions(+)
+>
+> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+> index 6aaefba..f4a02e5 100644
+> --- a/drivers/watchdog/watchdog_dev.c
+> +++ b/drivers/watchdog/watchdog_dev.c
+> @@ -218,6 +218,37 @@ out_timeout:
+>   }
+>
+>   /*
+> + *	watchdog_set_pretimeout: set the watchdog timer pretimeout
+> + *	@wddev: the watchdog device to set the timeout for
+> + *	@timeout: pretimeout to set in seconds
+> + */
+> +
+> +static int watchdog_set_pretimeout(struct watchdog_device *wddev,
+> +				   unsigned int timeout)
+> +{
+> +	int err;
+> +
+> +	if (!wddev->ops->set_pretimeout ||
+> +	    !(wddev->info->options & WDIOF_PRETIMEOUT))
+> +		return -EOPNOTSUPP;
+> +	if (watchdog_pretimeout_invalid(wddev, timeout))
+> +		return -EINVAL;
+> +
+> +	mutex_lock(&wddev->lock);
+> +
+> +	if (test_bit(WDOG_UNREGISTERED, &wddev->status)) {
+> +		err = -ENODEV;
+> +		goto out_timeout;
+> +	}
+> +
+> +	err = wddev->ops->set_pretimeout(wddev, timeout);
+> +
+> +out_timeout:
+> +	mutex_unlock(&wddev->lock);
+> +	return err;
+> +}
+> +
+> +/*
+>    *	watchdog_get_timeleft: wrapper to get the time left before a reboot
+>    *	@wddev: the watchdog device to get the remaining time from
+>    *	@timeleft: the time that's left
+> @@ -393,6 +424,12 @@ static long watchdog_ioctl(struct file *file, unsigned int cmd,
+>   		if (err)
+>   			return err;
+>   		return put_user(val, p);
+> +	case WDIOC_SETPRETIMEOUT:
+> +		if (get_user(val, p))
+> +			return -EFAULT;
+> +		return watchdog_set_pretimeout(wdd, val);
+> +	case WDIOC_GETPRETIMEOUT:
+> +		return put_user(wdd->pretimeout, p);
+>   	default:
+>   		return -ENOTTY;
+>   	}
+> diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+> index d74a0e9..f936152 100644
+> --- a/include/linux/watchdog.h
+> +++ b/include/linux/watchdog.h
+> @@ -25,6 +25,7 @@ struct watchdog_device;
+>    * @ping:	The routine that sends a keepalive ping to the watchdog device.
+>    * @status:	The routine that shows the status of the watchdog device.
+>    * @set_timeout:The routine for setting the watchdog devices timeout value.
+> + * @set_pretimeout:The routine for setting the watchdog devices pretimeout.
+>    * @get_timeleft:The routine that get's the time that's left before a reset.
+>    * @ref:	The ref operation for dyn. allocated watchdog_device structs
+>    * @unref:	The unref operation for dyn. allocated watchdog_device structs
+> @@ -44,6 +45,7 @@ struct watchdog_ops {
+>   	int (*ping)(struct watchdog_device *);
+>   	unsigned int (*status)(struct watchdog_device *);
+>   	int (*set_timeout)(struct watchdog_device *, unsigned int);
+> +	int (*set_pretimeout)(struct watchdog_device *, unsigned int);
+>   	unsigned int (*get_timeleft)(struct watchdog_device *);
+>   	void (*ref)(struct watchdog_device *);
+>   	void (*unref)(struct watchdog_device *);
+> @@ -86,6 +88,7 @@ struct watchdog_device {
+>   	const struct watchdog_ops *ops;
+>   	unsigned int bootstatus;
+>   	unsigned int timeout;
+> +	unsigned int pretimeout;
+
+This new variable also needs to be added to and documented in
+Documentation/watchdog/watchdog-kernel-api.txt.
+
+Thanks,
+Guenter
+
+>   	unsigned int min_timeout;
+>   	unsigned int max_timeout;
+>   	void *driver_data;
+> @@ -123,6 +126,13 @@ static inline bool watchdog_timeout_invalid(struct watchdog_device *wdd, unsigne
+>   		(t < wdd->min_timeout || t > wdd->max_timeout));
+>   }
+>
+> +/* Use the following function to check if a pretimeout value is invalid */
+> +static inline bool watchdog_pretimeout_invalid(struct watchdog_device *wdd,
+> +					       unsigned int t)
+> +{
+> +	return wdd->timeout && t >= wdd->timeout;
+> +}
+> +
+>   /* Use the following functions to manipulate watchdog driver specific data */
+>   static inline void watchdog_set_drvdata(struct watchdog_device *wdd, void *data)
+>   {
+>
 
