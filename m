@@ -1,156 +1,121 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from relay1.mentorg.com ([192.94.38.131]:50213 "EHLO
-	relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751464AbbK2MMT (ORCPT
+Received: from mail.savoirfairelinux.com ([208.88.110.44]:58941 "EHLO
+	mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932298AbbKCQNI (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 29 Nov 2015 07:12:19 -0500
-From: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
-To: Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>
-CC: <linux-watchdog@vger.kernel.org>
-Subject: [PATCH v2 4/4] watchdog: pretimeout: add userspace notifier pretimeout governor
-Date: Sun, 29 Nov 2015 14:10:52 +0200
-Message-ID: <1448799052-18984-5-git-send-email-vladimir_zapolskiy@mentor.com>
-In-Reply-To: <1448799052-18984-1-git-send-email-vladimir_zapolskiy@mentor.com>
-References: <1448799052-18984-1-git-send-email-vladimir_zapolskiy@mentor.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+	Tue, 3 Nov 2015 11:13:08 -0500
+From: Damien Riegel <damien.riegel@savoirfairelinux.com>
+To: linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
+	kernel@savoirfairelinux.com,
+	Damien Riegel <damien.riegel@savoirfairelinux.com>
+Subject: [PATCH 13/13] watchdog: sunxi_wdt: use core restart handler
+Date: Tue,  3 Nov 2015 11:12:46 -0500
+Message-Id: <1446567166-10156-14-git-send-email-damien.riegel@savoirfairelinux.com>
+In-Reply-To: <1446567166-10156-1-git-send-email-damien.riegel@savoirfairelinux.com>
+References: <1446567166-10156-1-git-send-email-damien.riegel@savoirfairelinux.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Userspace notifier watchdog pretimeout governor, on watchdog
-pretimeout event sends a notification to userspace for further
-handling.
+Get rid of the custom restart handler by using the one provided by the
+watchdog core.
 
-Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
 ---
-Changes from v1 to v2:
-* removed #ifdef CONFIG_WATCHDOG_PRETIMEOUT_DEFAULT_GOV_USERSPACE,
-  now this selection is done in a centralized manner,
-* added .can_sleep attribute,
-* added module owner reference to count users of the governor,
-* slightly improved description of the governors in Kconfig.
+ drivers/watchdog/sunxi_wdt.c | 23 +++++------------------
+ 1 file changed, 5 insertions(+), 18 deletions(-)
 
- drivers/watchdog/Kconfig                | 16 +++++++++++
- drivers/watchdog/Makefile               |  1 +
- drivers/watchdog/pretimeout_userspace.c | 48 +++++++++++++++++++++++++++++++++
- drivers/watchdog/watchdog_pretimeout.h  |  2 ++
- 4 files changed, 67 insertions(+)
- create mode 100644 drivers/watchdog/pretimeout_userspace.c
-
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 48062ec..31e67f4 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -1659,6 +1659,15 @@ config WATCHDOG_PRETIMEOUT_DEFAULT_GOV_NOOP
- 	  governor is selected by a user, write a short message to
- 	  the kernel log buffer and don't do any system changes.
+diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
+index 47bd8a1..e027deb 100644
+--- a/drivers/watchdog/sunxi_wdt.c
++++ b/drivers/watchdog/sunxi_wdt.c
+@@ -21,11 +21,9 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+-#include <linux/notifier.h>
+ #include <linux/of.h>
+ #include <linux/of_device.h>
+ #include <linux/platform_device.h>
+-#include <linux/reboot.h>
+ #include <linux/types.h>
+ #include <linux/watchdog.h>
  
-+config WATCHDOG_PRETIMEOUT_DEFAULT_GOV_USERSPACE
-+	bool "userspace"
-+	select WATCHDOG_PRETIMEOUT_GOV_USERSPACE
-+	help
-+	  Use userspace watchdog pretimeout governor by default,
-+	  the governor sends a device state change uevent
-+	  notification, if a pretimeout event a reported by a
-+	  watchdog.
-+
- endchoice
+@@ -60,7 +58,6 @@ struct sunxi_wdt_dev {
+ 	struct watchdog_device wdt_dev;
+ 	void __iomem *wdt_base;
+ 	const struct sunxi_wdt_reg *wdt_regs;
+-	struct notifier_block restart_handler;
+ };
  
- config WATCHDOG_PRETIMEOUT_GOV_PANIC
-@@ -1675,6 +1684,13 @@ config WATCHDOG_PRETIMEOUT_GOV_NOOP
- 	  governor, only an informational message is added to the
- 	  kernel log buffer, if watchdog pretimeout is happened.
+ /*
+@@ -86,12 +83,9 @@ static const int wdt_timeout_map[] = {
+ };
  
-+config WATCHDOG_PRETIMEOUT_GOV_USERSPACE
-+	tristate "Userspace notifier watchdog pretimeout governor"
-+	help
-+	  Userspace notifier watchdog pretimeout governor, on watchdog
-+	  pretimeout event send a notification to userspace for
-+	  further handling.
-+
- endif # WATCHDOG_PRETIMEOUT_GOV
  
- endif # WATCHDOG
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index b45b1ef..2dd91ae 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -11,6 +11,7 @@ watchdog-$(CONFIG_WATCHDOG_PRETIMEOUT_GOV)	+= watchdog_pretimeout.o
+-static int sunxi_restart_handle(struct notifier_block *this, unsigned long mode,
+-				void *cmd)
++static int sunxi_wdt_restart(struct watchdog_device *wdt_dev)
+ {
+-	struct sunxi_wdt_dev *sunxi_wdt = container_of(this,
+-						       struct sunxi_wdt_dev,
+-						       restart_handler);
++	struct sunxi_wdt_dev *sunxi_wdt = watchdog_get_drvdata(wdt_dev);
+ 	void __iomem *wdt_base = sunxi_wdt->wdt_base;
+ 	const struct sunxi_wdt_reg *regs = sunxi_wdt->wdt_regs;
+ 	u32 val;
+@@ -120,7 +114,7 @@ static int sunxi_restart_handle(struct notifier_block *this, unsigned long mode,
+ 		val |= WDT_MODE_EN;
+ 		writel(val, wdt_base + regs->wdt_mode);
+ 	}
+-	return NOTIFY_DONE;
++	return 0;
+ }
  
- obj-$(CONFIG_WATCHDOG_PRETIMEOUT_GOV_PANIC)	+= pretimeout_panic.o
- obj-$(CONFIG_WATCHDOG_PRETIMEOUT_GOV_NOOP)	+= pretimeout_noop.o
-+obj-$(CONFIG_WATCHDOG_PRETIMEOUT_GOV_USERSPACE)	+= pretimeout_userspace.o
+ static int sunxi_wdt_ping(struct watchdog_device *wdt_dev)
+@@ -208,6 +202,7 @@ static const struct watchdog_ops sunxi_wdt_ops = {
+ 	.stop		= sunxi_wdt_stop,
+ 	.ping		= sunxi_wdt_ping,
+ 	.set_timeout	= sunxi_wdt_set_timeout,
++	.restart	= sunxi_wdt_restart,
+ };
  
- # Only one watchdog can succeed. We probe the ISA/PCI/USB based
- # watchdog-cards first, then the architecture specific watchdog
-diff --git a/drivers/watchdog/pretimeout_userspace.c b/drivers/watchdog/pretimeout_userspace.c
-new file mode 100644
-index 0000000..bdaa70c
---- /dev/null
-+++ b/drivers/watchdog/pretimeout_userspace.c
-@@ -0,0 +1,48 @@
-+/*
-+ * Copyright (C) 2015 Mentor Graphics
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/watchdog.h>
-+
-+#include <watchdog_pretimeout.h>
-+
-+/**
-+ * pretimeout_userspace - Notify userspace on watchdog pretimeout event
-+ * @wdd - watchdog_device
-+ *
-+ * Send watchdog device uevent to userspace to handle pretimeout event
-+ */
-+static void pretimeout_userspace(struct watchdog_device *wdd)
-+{
-+	kobject_uevent(&wdd->dev->kobj, KOBJ_CHANGE);
-+}
-+
-+static struct watchdog_governor watchdog_gov_userspace = {
-+	.name		= "userspace",
-+	.pretimeout	= pretimeout_userspace,
-+	.can_sleep	= true,
-+	.owner		= THIS_MODULE,
-+};
-+
-+static int __init watchdog_gov_userspace_register(void)
-+{
-+	return watchdog_register_governor(&watchdog_gov_userspace);
-+}
-+
-+static void __exit watchdog_gov_userspace_unregister(void)
-+{
-+	watchdog_unregister_governor(&watchdog_gov_userspace);
-+}
-+module_init(watchdog_gov_userspace_register);
-+module_exit(watchdog_gov_userspace_unregister);
-+
-+MODULE_AUTHOR("Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>");
-+MODULE_DESCRIPTION("Userspace notifier watchdog pretimeout governor");
-+MODULE_LICENSE("GPL");
-diff --git a/drivers/watchdog/watchdog_pretimeout.h b/drivers/watchdog/watchdog_pretimeout.h
-index 2124a173..21c6b72 100644
---- a/drivers/watchdog/watchdog_pretimeout.h
-+++ b/drivers/watchdog/watchdog_pretimeout.h
-@@ -24,6 +24,8 @@ void watchdog_unregister_governor(struct watchdog_governor *gov);
- #define WATCHDOG_PRETIMEOUT_DEFAULT_GOV	"panic"
- #elif IS_ENABLED(CONFIG_WATCHDOG_PRETIMEOUT_DEFAULT_GOV_NOOP)
- #define WATCHDOG_PRETIMEOUT_DEFAULT_GOV	"noop"
-+#elif IS_ENABLED(CONFIG_WATCHDOG_PRETIMEOUT_DEFAULT_GOV_USERSPACE)
-+#define WATCHDOG_PRETIMEOUT_DEFAULT_GOV	"userspace"
- #else
- #error "Default watchdog pretimeout governor is not set."
- #endif
+ static const struct sunxi_wdt_reg sun4i_wdt_reg = {
+@@ -268,6 +263,7 @@ static int sunxi_wdt_probe(struct platform_device *pdev)
+ 
+ 	watchdog_init_timeout(&sunxi_wdt->wdt_dev, timeout, &pdev->dev);
+ 	watchdog_set_nowayout(&sunxi_wdt->wdt_dev, nowayout);
++	watchdog_set_restart_priority(&sunxi_wdt->wdt_dev, 128);
+ 
+ 	watchdog_set_drvdata(&sunxi_wdt->wdt_dev, sunxi_wdt);
+ 
+@@ -277,13 +273,6 @@ static int sunxi_wdt_probe(struct platform_device *pdev)
+ 	if (unlikely(err))
+ 		return err;
+ 
+-	sunxi_wdt->restart_handler.notifier_call = sunxi_restart_handle;
+-	sunxi_wdt->restart_handler.priority = 128;
+-	err = register_restart_handler(&sunxi_wdt->restart_handler);
+-	if (err)
+-		dev_err(&pdev->dev,
+-			"cannot register restart handler (err=%d)\n", err);
+-
+ 	dev_info(&pdev->dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)",
+ 			sunxi_wdt->wdt_dev.timeout, nowayout);
+ 
+@@ -294,8 +283,6 @@ static int sunxi_wdt_remove(struct platform_device *pdev)
+ {
+ 	struct sunxi_wdt_dev *sunxi_wdt = platform_get_drvdata(pdev);
+ 
+-	unregister_restart_handler(&sunxi_wdt->restart_handler);
+-
+ 	watchdog_unregister_device(&sunxi_wdt->wdt_dev);
+ 	watchdog_set_drvdata(&sunxi_wdt->wdt_dev, NULL);
+ 
 -- 
 2.5.0
 
