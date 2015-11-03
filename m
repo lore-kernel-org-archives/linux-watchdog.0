@@ -1,109 +1,186 @@
-Return-path: <damien.riegel@savoirfairelinux.com>
-From: Damien Riegel <damien.riegel@savoirfairelinux.com>
-To: linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
-	kernel@savoirfairelinux.com,
-	Damien Riegel <damien.riegel@savoirfairelinux.com>
-Subject: [RFC PATCH 13/13] watchdog: sunxi_wdt: use core restart handler
-Date: Mon,  2 Nov 2015 20:36:26 -0500
-Message-Id: <1446514586-31455-14-git-send-email-damien.riegel@savoirfairelinux.com>
-In-Reply-To: <1446514586-31455-1-git-send-email-damien.riegel@savoirfairelinux.com>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:36419 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754716AbbKCCZK (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 2 Nov 2015 21:25:10 -0500
+Subject: Re: [RFC PATCH 01/13] watchdog: core: add restart handler support
+To: Damien Riegel <damien.riegel@savoirfairelinux.com>,
+	linux-watchdog@vger.kernel.org
 References: <1446514586-31455-1-git-send-email-damien.riegel@savoirfairelinux.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+ <1446514586-31455-2-git-send-email-damien.riegel@savoirfairelinux.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
+	kernel@savoirfairelinux.com
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <56381B03.6030201@roeck-us.net>
+Date: Mon, 2 Nov 2015 18:25:07 -0800
+MIME-Version: 1.0
+In-Reply-To: <1446514586-31455-2-git-send-email-damien.riegel@savoirfairelinux.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Get rid of the custom restart handler by using the one provided by the
-watchdog core.
+On 11/02/2015 05:36 PM, Damien Riegel wrote:
+> Many watchdog drivers implement the same code to register a restart
+> handler. This patch provides a generic way to set such a function.
+>
+> The patch adds a new restart watchdog operation. If a restart priority
+> greater than 0 is needed, the driver can call
+> watchdog_set_restart_priority to set it.
+>
+> Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
+> Signed-off-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
 
-Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
-Signed-off-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
----
- drivers/watchdog/sunxi_wdt.c | 22 +++++-----------------
- 1 file changed, 5 insertions(+), 17 deletions(-)
+Makes sense, and good idea. Unless the patch was written by Vivien,
+the second tag should probably be a Reviewed-by: or Acked-by:, though.
 
-diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
-index 47bd8a1..06bf3c5 100644
---- a/drivers/watchdog/sunxi_wdt.c
-+++ b/drivers/watchdog/sunxi_wdt.c
-@@ -25,7 +25,6 @@
- #include <linux/of.h>
- #include <linux/of_device.h>
- #include <linux/platform_device.h>
--#include <linux/reboot.h>
- #include <linux/types.h>
- #include <linux/watchdog.h>
- 
-@@ -60,7 +59,6 @@ struct sunxi_wdt_dev {
- 	struct watchdog_device wdt_dev;
- 	void __iomem *wdt_base;
- 	const struct sunxi_wdt_reg *wdt_regs;
--	struct notifier_block restart_handler;
- };
- 
- /*
-@@ -86,12 +84,9 @@ static const int wdt_timeout_map[] = {
- };
- 
- 
--static int sunxi_restart_handle(struct notifier_block *this, unsigned long mode,
--				void *cmd)
-+static int sunxi_wdt_restart(struct watchdog_device *wdt_dev)
- {
--	struct sunxi_wdt_dev *sunxi_wdt = container_of(this,
--						       struct sunxi_wdt_dev,
--						       restart_handler);
-+	struct sunxi_wdt_dev *sunxi_wdt = watchdog_get_drvdata(wdt_dev);
- 	void __iomem *wdt_base = sunxi_wdt->wdt_base;
- 	const struct sunxi_wdt_reg *regs = sunxi_wdt->wdt_regs;
- 	u32 val;
-@@ -120,7 +115,7 @@ static int sunxi_restart_handle(struct notifier_block *this, unsigned long mode,
- 		val |= WDT_MODE_EN;
- 		writel(val, wdt_base + regs->wdt_mode);
- 	}
--	return NOTIFY_DONE;
-+	return 0;
- }
- 
- static int sunxi_wdt_ping(struct watchdog_device *wdt_dev)
-@@ -208,6 +203,7 @@ static const struct watchdog_ops sunxi_wdt_ops = {
- 	.stop		= sunxi_wdt_stop,
- 	.ping		= sunxi_wdt_ping,
- 	.set_timeout	= sunxi_wdt_set_timeout,
-+	.restart	= sunxi_wdt_restart,
- };
- 
- static const struct sunxi_wdt_reg sun4i_wdt_reg = {
-@@ -268,6 +264,7 @@ static int sunxi_wdt_probe(struct platform_device *pdev)
- 
- 	watchdog_init_timeout(&sunxi_wdt->wdt_dev, timeout, &pdev->dev);
- 	watchdog_set_nowayout(&sunxi_wdt->wdt_dev, nowayout);
-+	watchdog_set_restart_priority(&sunxi_wdt->wdt_dev, 128);
- 
- 	watchdog_set_drvdata(&sunxi_wdt->wdt_dev, sunxi_wdt);
- 
-@@ -277,13 +274,6 @@ static int sunxi_wdt_probe(struct platform_device *pdev)
- 	if (unlikely(err))
- 		return err;
- 
--	sunxi_wdt->restart_handler.notifier_call = sunxi_restart_handle;
--	sunxi_wdt->restart_handler.priority = 128;
--	err = register_restart_handler(&sunxi_wdt->restart_handler);
--	if (err)
--		dev_err(&pdev->dev,
--			"cannot register restart handler (err=%d)\n", err);
--
- 	dev_info(&pdev->dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)",
- 			sunxi_wdt->wdt_dev.timeout, nowayout);
- 
-@@ -294,8 +284,6 @@ static int sunxi_wdt_remove(struct platform_device *pdev)
- {
- 	struct sunxi_wdt_dev *sunxi_wdt = platform_get_drvdata(pdev);
- 
--	unregister_restart_handler(&sunxi_wdt->restart_handler);
--
- 	watchdog_unregister_device(&sunxi_wdt->wdt_dev);
- 	watchdog_set_drvdata(&sunxi_wdt->wdt_dev, NULL);
- 
--- 
-2.5.0
+Couple of additional comments below.
+
+> ---
+>   Documentation/watchdog/watchdog-kernel-api.txt |  2 ++
+>   drivers/watchdog/watchdog_core.c               | 35 ++++++++++++++++++++++++++
+>   include/linux/watchdog.h                       |  5 ++++
+>   3 files changed, 42 insertions(+)
+>
+> diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
+> index d8b0d33..10e6132 100644
+> --- a/Documentation/watchdog/watchdog-kernel-api.txt
+> +++ b/Documentation/watchdog/watchdog-kernel-api.txt
+> @@ -100,6 +100,7 @@ struct watchdog_ops {
+>   	unsigned int (*status)(struct watchdog_device *);
+>   	int (*set_timeout)(struct watchdog_device *, unsigned int);
+>   	unsigned int (*get_timeleft)(struct watchdog_device *);
+> +	int (*restart)(struct watchdog_device *);
+>   	void (*ref)(struct watchdog_device *);
+>   	void (*unref)(struct watchdog_device *);
+>   	long (*ioctl)(struct watchdog_device *, unsigned int, unsigned long);
+> @@ -164,6 +165,7 @@ they are supported. These optional routines/operations are:
+>     (Note: the WDIOF_SETTIMEOUT needs to be set in the options field of the
+>     watchdog's info structure).
+>   * get_timeleft: this routines returns the time that's left before a reset.
+> +* restart: this routine restarts the machine.
+
+Please describe the expected return values.
+0 - ok, or a negative error value, presumably.
+
+>   * ref: the operation that calls kref_get on the kref of a dynamically
+>     allocated watchdog_device struct.
+>   * unref: the operation that calls kref_put on the kref of a dynamically
+> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+> index 873f139..9c8a8e8 100644
+> --- a/drivers/watchdog/watchdog_core.c
+> +++ b/drivers/watchdog/watchdog_core.c
+> @@ -32,6 +32,7 @@
+>   #include <linux/types.h>	/* For standard types */
+>   #include <linux/errno.h>	/* For the -ENODEV/... values */
+>   #include <linux/kernel.h>	/* For printk/panic/... */
+> +#include <linux/reboot.h>	/* For restart handler */
+>   #include <linux/watchdog.h>	/* For watchdog specific items */
+>   #include <linux/init.h>		/* For __init/__exit/... */
+>   #include <linux/idr.h>		/* For ida_* macros */
+> @@ -137,6 +138,28 @@ int watchdog_init_timeout(struct watchdog_device *wdd,
+>   }
+>   EXPORT_SYMBOL_GPL(watchdog_init_timeout);
+>
+> +static int watchdog_restart_notifier(struct notifier_block *nb,
+> +				     unsigned long action, void *data)
+> +{
+> +	struct watchdog_device *wdd = container_of(nb, struct watchdog_device,
+> +						   restart_nb);
+> +
+> +	int ret;
+> +
+> +	ret = wdd->ops->restart(wdd);
+> +	if (ret)
+> +		return NOTIFY_BAD;
+> +
+> +	return NOTIFY_DONE;
+> +}
+> +
+> +void watchdog_set_restart_priority(struct watchdog_device *wdd,
+> +				   int priority)
+
+Fits one line.
+
+> +{
+> +	wdd->restart_nb.priority = priority;
+> +}
+> +EXPORT_SYMBOL_GPL(watchdog_set_restart_priority);
+> +
+>   static int __watchdog_register_device(struct watchdog_device *wdd)
+>   {
+>   	int ret, id = -1, devno;
+> @@ -202,6 +225,15 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
+>   		return ret;
+>   	}
+>
+> +	if (wdd->ops->restart) {
+> +		wdd->restart_nb.notifier_call = watchdog_restart_notifier;
+> +
+> +		ret = register_restart_handler(&wdd->restart_nb);
+> +		if (ret)
+> +			dev_err(wdd->dev, "Cannot register restart handler (%d)\n",
+> +				ret);
+
+dev_warn, please.
+
+> +	}
+> +
+>   	return 0;
+>   }
+>
+> @@ -238,6 +270,9 @@ static void __watchdog_unregister_device(struct watchdog_device *wdd)
+>   	if (wdd == NULL)
+>   		return;
+>
+> +	if (wdd->ops->restart)
+> +		unregister_restart_handler(&wdd->restart_nb);
+> +
+>   	devno = wdd->cdev.dev;
+>   	ret = watchdog_dev_unregister(wdd);
+>   	if (ret)
+> diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+> index e90e3ea..e1a4dc4 100644
+> --- a/include/linux/watchdog.h
+> +++ b/include/linux/watchdog.h
+> @@ -26,6 +26,7 @@ struct watchdog_device;
+>    * @status:	The routine that shows the status of the watchdog device.
+>    * @set_timeout:The routine for setting the watchdog devices timeout value.
+>    * @get_timeleft:The routine that get's the time that's left before a reset.
+> + * @restart:	The routine for restarting the machine.
+>    * @ref:	The ref operation for dyn. allocated watchdog_device structs
+>    * @unref:	The unref operation for dyn. allocated watchdog_device structs
+>    * @ioctl:	The routines that handles extra ioctl calls.
+> @@ -45,6 +46,7 @@ struct watchdog_ops {
+>   	unsigned int (*status)(struct watchdog_device *);
+>   	int (*set_timeout)(struct watchdog_device *, unsigned int);
+>   	unsigned int (*get_timeleft)(struct watchdog_device *);
+> +	int (*restart)(struct watchdog_device *);
+>   	void (*ref)(struct watchdog_device *);
+>   	void (*unref)(struct watchdog_device *);
+>   	long (*ioctl)(struct watchdog_device *, unsigned int, unsigned long);
+> @@ -88,6 +90,7 @@ struct watchdog_device {
+>   	unsigned int timeout;
+>   	unsigned int min_timeout;
+>   	unsigned int max_timeout;
+> +	struct notifier_block restart_nb;
+>   	void *driver_data;
+>   	struct mutex lock;
+>   	unsigned long status;
+> @@ -142,6 +145,8 @@ static inline void *watchdog_get_drvdata(struct watchdog_device *wdd)
+>   }
+>
+>   /* drivers/watchdog/watchdog_core.c */
+> +extern void watchdog_set_restart_priority(struct watchdog_device *wdd,
+> +					  int priority);
+
+extern is unnecessary (yes, we'll need to fix that for the other exported
+functions, but no need to introduce new ones), and then it fits one line.
+
+>   extern int watchdog_init_timeout(struct watchdog_device *wdd,
+>   				  unsigned int timeout_parm, struct device *dev);
+>   extern int watchdog_register_device(struct watchdog_device *);
+>
+
