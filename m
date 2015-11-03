@@ -6,9 +6,9 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
 	kernel@savoirfairelinux.com,
 	Damien Riegel <damien.riegel@savoirfairelinux.com>
-Subject: [RFC PATCH 12/13] watchdog: s3c2410_wdt: use core restart handler
-Date: Mon,  2 Nov 2015 20:36:25 -0500
-Message-Id: <1446514586-31455-13-git-send-email-damien.riegel@savoirfairelinux.com>
+Subject: [RFC PATCH 13/13] watchdog: sunxi_wdt: use core restart handler
+Date: Mon,  2 Nov 2015 20:36:26 -0500
+Message-Id: <1446514586-31455-14-git-send-email-damien.riegel@savoirfairelinux.com>
 In-Reply-To: <1446514586-31455-1-git-send-email-damien.riegel@savoirfairelinux.com>
 References: <1446514586-31455-1-git-send-email-damien.riegel@savoirfairelinux.com>
 List-ID: <linux-watchdog@vger.kernel.org>
@@ -19,128 +19,91 @@ watchdog core.
 Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
 Signed-off-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
 ---
- drivers/watchdog/s3c2410_wdt.c | 60 ++++++++++++++++++------------------------
- 1 file changed, 25 insertions(+), 35 deletions(-)
+ drivers/watchdog/sunxi_wdt.c | 22 +++++-----------------
+ 1 file changed, 5 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
-index d781000..0093450 100644
---- a/drivers/watchdog/s3c2410_wdt.c
-+++ b/drivers/watchdog/s3c2410_wdt.c
-@@ -41,7 +41,6 @@
+diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
+index 47bd8a1..06bf3c5 100644
+--- a/drivers/watchdog/sunxi_wdt.c
++++ b/drivers/watchdog/sunxi_wdt.c
+@@ -25,7 +25,6 @@
  #include <linux/of.h>
- #include <linux/mfd/syscon.h>
- #include <linux/regmap.h>
+ #include <linux/of_device.h>
+ #include <linux/platform_device.h>
 -#include <linux/reboot.h>
- #include <linux/delay.h>
+ #include <linux/types.h>
+ #include <linux/watchdog.h>
  
- #define S3C2410_WTCON		0x00
-@@ -130,7 +129,6 @@ struct s3c2410_wdt {
- 	unsigned long		wtdat_save;
- 	struct watchdog_device	wdt_device;
- 	struct notifier_block	freq_transition;
--	struct notifier_block	restart_handler;
- 	struct s3c2410_wdt_variant *drv_data;
- 	struct regmap *pmureg;
- };
-@@ -351,6 +349,29 @@ static int s3c2410wdt_set_heartbeat(struct watchdog_device *wdd, unsigned timeou
- 	return 0;
- }
- 
-+static int s3c2410wdt_restart(struct watchdog_device *wdd)
-+{
-+	struct s3c2410_wdt *wdt = watchdog_get_drvdata(wdd);
-+	void __iomem *wdt_base = wdt->reg_base;
-+
-+	/* disable watchdog, to be safe  */
-+	writel(0, wdt_base + S3C2410_WTCON);
-+
-+	/* put initial values into count and data */
-+	writel(0x80, wdt_base + S3C2410_WTCNT);
-+	writel(0x80, wdt_base + S3C2410_WTDAT);
-+
-+	/* set the watchdog to go and reset... */
-+	writel(S3C2410_WTCON_ENABLE | S3C2410_WTCON_DIV16 |
-+		S3C2410_WTCON_RSTEN | S3C2410_WTCON_PRESCALE(0x20),
-+		wdt_base + S3C2410_WTCON);
-+
-+	/* wait for reset to assert... */
-+	mdelay(500);
-+
-+	return 0;
-+}
-+
- #define OPTIONS (WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE)
- 
- static const struct watchdog_info s3c2410_wdt_ident = {
-@@ -365,6 +386,7 @@ static struct watchdog_ops s3c2410wdt_ops = {
- 	.stop = s3c2410wdt_stop,
- 	.ping = s3c2410wdt_keepalive,
- 	.set_timeout = s3c2410wdt_set_heartbeat,
-+	.restart = s3c2410wdt_restart,
+@@ -60,7 +59,6 @@ struct sunxi_wdt_dev {
+ 	struct watchdog_device wdt_dev;
+ 	void __iomem *wdt_base;
+ 	const struct sunxi_wdt_reg *wdt_regs;
+-	struct notifier_block restart_handler;
  };
  
- static struct watchdog_device s3c2410_wdd = {
-@@ -452,31 +474,6 @@ static inline void s3c2410wdt_cpufreq_deregister(struct s3c2410_wdt *wdt)
- }
- #endif
+ /*
+@@ -86,12 +84,9 @@ static const int wdt_timeout_map[] = {
+ };
  
--static int s3c2410wdt_restart(struct notifier_block *this,
--			      unsigned long mode, void *cmd)
--{
--	struct s3c2410_wdt *wdt = container_of(this, struct s3c2410_wdt,
--					       restart_handler);
--	void __iomem *wdt_base = wdt->reg_base;
--
--	/* disable watchdog, to be safe  */
--	writel(0, wdt_base + S3C2410_WTCON);
--
--	/* put initial values into count and data */
--	writel(0x80, wdt_base + S3C2410_WTCNT);
--	writel(0x80, wdt_base + S3C2410_WTDAT);
--
--	/* set the watchdog to go and reset... */
--	writel(S3C2410_WTCON_ENABLE | S3C2410_WTCON_DIV16 |
--		S3C2410_WTCON_RSTEN | S3C2410_WTCON_PRESCALE(0x20),
--		wdt_base + S3C2410_WTCON);
--
--	/* wait for reset to assert... */
--	mdelay(500);
--
--	return NOTIFY_DONE;
--}
--
- static inline unsigned int s3c2410wdt_get_bootstatus(struct s3c2410_wdt *wdt)
+ 
+-static int sunxi_restart_handle(struct notifier_block *this, unsigned long mode,
+-				void *cmd)
++static int sunxi_wdt_restart(struct watchdog_device *wdt_dev)
  {
- 	unsigned int rst_stat;
-@@ -605,6 +602,7 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+-	struct sunxi_wdt_dev *sunxi_wdt = container_of(this,
+-						       struct sunxi_wdt_dev,
+-						       restart_handler);
++	struct sunxi_wdt_dev *sunxi_wdt = watchdog_get_drvdata(wdt_dev);
+ 	void __iomem *wdt_base = sunxi_wdt->wdt_base;
+ 	const struct sunxi_wdt_reg *regs = sunxi_wdt->wdt_regs;
+ 	u32 val;
+@@ -120,7 +115,7 @@ static int sunxi_restart_handle(struct notifier_block *this, unsigned long mode,
+ 		val |= WDT_MODE_EN;
+ 		writel(val, wdt_base + regs->wdt_mode);
  	}
+-	return NOTIFY_DONE;
++	return 0;
+ }
  
- 	watchdog_set_nowayout(&wdt->wdt_device, nowayout);
-+	watchdog_set_restart_priority(&wdt->wdt_device, 128);
+ static int sunxi_wdt_ping(struct watchdog_device *wdt_dev)
+@@ -208,6 +203,7 @@ static const struct watchdog_ops sunxi_wdt_ops = {
+ 	.stop		= sunxi_wdt_stop,
+ 	.ping		= sunxi_wdt_ping,
+ 	.set_timeout	= sunxi_wdt_set_timeout,
++	.restart	= sunxi_wdt_restart,
+ };
  
- 	wdt->wdt_device.bootstatus = s3c2410wdt_get_bootstatus(wdt);
- 	wdt->wdt_device.parent = &pdev->dev;
-@@ -632,12 +630,6 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ static const struct sunxi_wdt_reg sun4i_wdt_reg = {
+@@ -268,6 +264,7 @@ static int sunxi_wdt_probe(struct platform_device *pdev)
  
- 	platform_set_drvdata(pdev, wdt);
+ 	watchdog_init_timeout(&sunxi_wdt->wdt_dev, timeout, &pdev->dev);
+ 	watchdog_set_nowayout(&sunxi_wdt->wdt_dev, nowayout);
++	watchdog_set_restart_priority(&sunxi_wdt->wdt_dev, 128);
  
--	wdt->restart_handler.notifier_call = s3c2410wdt_restart;
--	wdt->restart_handler.priority = 128;
--	ret = register_restart_handler(&wdt->restart_handler);
--	if (ret)
--		pr_err("cannot register restart handler, %d\n", ret);
+ 	watchdog_set_drvdata(&sunxi_wdt->wdt_dev, sunxi_wdt);
+ 
+@@ -277,13 +274,6 @@ static int sunxi_wdt_probe(struct platform_device *pdev)
+ 	if (unlikely(err))
+ 		return err;
+ 
+-	sunxi_wdt->restart_handler.notifier_call = sunxi_restart_handle;
+-	sunxi_wdt->restart_handler.priority = 128;
+-	err = register_restart_handler(&sunxi_wdt->restart_handler);
+-	if (err)
+-		dev_err(&pdev->dev,
+-			"cannot register restart handler (err=%d)\n", err);
 -
- 	/* print out a statement of readiness */
+ 	dev_info(&pdev->dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)",
+ 			sunxi_wdt->wdt_dev.timeout, nowayout);
  
- 	wtcon = readl(wdt->reg_base + S3C2410_WTCON);
-@@ -667,8 +659,6 @@ static int s3c2410wdt_remove(struct platform_device *dev)
- 	int ret;
- 	struct s3c2410_wdt *wdt = platform_get_drvdata(dev);
+@@ -294,8 +284,6 @@ static int sunxi_wdt_remove(struct platform_device *pdev)
+ {
+ 	struct sunxi_wdt_dev *sunxi_wdt = platform_get_drvdata(pdev);
  
--	unregister_restart_handler(&wdt->restart_handler);
+-	unregister_restart_handler(&sunxi_wdt->restart_handler);
 -
- 	ret = s3c2410wdt_mask_and_disable_reset(wdt, true);
- 	if (ret < 0)
- 		return ret;
+ 	watchdog_unregister_device(&sunxi_wdt->wdt_dev);
+ 	watchdog_set_drvdata(&sunxi_wdt->wdt_dev, NULL);
+ 
 -- 
 2.5.0
