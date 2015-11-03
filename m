@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.savoirfairelinux.com ([208.88.110.44]:58911 "EHLO
+Received: from mail.savoirfairelinux.com ([208.88.110.44]:58923 "EHLO
 	mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932292AbbKCQND (ORCPT
+	with ESMTP id S932298AbbKCQNF (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 3 Nov 2015 11:13:03 -0500
+	Tue, 3 Nov 2015 11:13:05 -0500
 From: Damien Riegel <damien.riegel@savoirfairelinux.com>
 To: linux-watchdog@vger.kernel.org
 Cc: Wim Van Sebroeck <wim@iguana.be>,
@@ -11,9 +11,9 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
 	kernel@savoirfairelinux.com,
 	Damien Riegel <damien.riegel@savoirfairelinux.com>
-Subject: [PATCH 06/13] watchdog: imx2_wdt: use core restart handler
-Date: Tue,  3 Nov 2015 11:12:39 -0500
-Message-Id: <1446567166-10156-7-git-send-email-damien.riegel@savoirfairelinux.com>
+Subject: [PATCH 10/13] watchdog: mtk_wdt: use core restart handler
+Date: Tue,  3 Nov 2015 11:12:43 -0500
+Message-Id: <1446567166-10156-11-git-send-email-damien.riegel@savoirfairelinux.com>
 In-Reply-To: <1446567166-10156-1-git-send-email-damien.riegel@savoirfairelinux.com>
 References: <1446567166-10156-1-git-send-email-damien.riegel@savoirfairelinux.com>
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -26,96 +26,89 @@ Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Reviewed-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
 ---
- drivers/watchdog/imx2_wdt.c | 23 ++++++-----------------
- 1 file changed, 6 insertions(+), 17 deletions(-)
+ drivers/watchdog/mtk_wdt.c | 22 +++++-----------------
+ 1 file changed, 5 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-index 29ef719..e47966a 100644
---- a/drivers/watchdog/imx2_wdt.c
-+++ b/drivers/watchdog/imx2_wdt.c
-@@ -29,10 +29,8 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
--#include <linux/notifier.h>
- #include <linux/of_address.h>
+diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
+index 6ad9df9..338bd3c 100644
+--- a/drivers/watchdog/mtk_wdt.c
++++ b/drivers/watchdog/mtk_wdt.c
+@@ -28,8 +28,6 @@
  #include <linux/platform_device.h>
--#include <linux/reboot.h>
- #include <linux/regmap.h>
- #include <linux/timer.h>
+ #include <linux/types.h>
  #include <linux/watchdog.h>
-@@ -64,7 +62,6 @@ struct imx2_wdt_device {
- 	struct regmap *regmap;
- 	struct timer_list timer;	/* Pings the watchdog when closed */
- 	struct watchdog_device wdog;
+-#include <linux/notifier.h>
+-#include <linux/reboot.h>
+ #include <linux/delay.h>
+ 
+ #define WDT_MAX_TIMEOUT		31
+@@ -64,16 +62,13 @@ static unsigned int timeout = WDT_MAX_TIMEOUT;
+ struct mtk_wdt_dev {
+ 	struct watchdog_device wdt_dev;
+ 	void __iomem *wdt_base;
 -	struct notifier_block restart_handler;
  };
  
- static bool nowayout = WATCHDOG_NOWAYOUT;
-@@ -83,13 +80,11 @@ static const struct watchdog_info imx2_wdt_info = {
- 	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
- };
- 
--static int imx2_restart_handler(struct notifier_block *this, unsigned long mode,
+-static int mtk_reset_handler(struct notifier_block *this, unsigned long mode,
 -				void *cmd)
-+static int imx2_wdt_restart(struct watchdog_device *wdog)
++static int mtk_wdt_restart(struct watchdog_device *wdt_dev)
  {
-+	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
- 	unsigned int wcr_enable = IMX2_WDT_WCR_WDE;
--	struct imx2_wdt_device *wdev = container_of(this,
--						    struct imx2_wdt_device,
--						    restart_handler);
-+
- 	/* Assert SRS signal */
- 	regmap_write(wdev->regmap, IMX2_WDT_WCR, wcr_enable);
- 	/*
-@@ -105,7 +100,7 @@ static int imx2_restart_handler(struct notifier_block *this, unsigned long mode,
- 	/* wait for reset to assert... */
- 	mdelay(500);
+-	struct mtk_wdt_dev *mtk_wdt;
++	struct mtk_wdt_dev *mtk_wdt = watchdog_get_drvdata(wdt_dev);
+ 	void __iomem *wdt_base;
+ 
+-	mtk_wdt = container_of(this, struct mtk_wdt_dev, restart_handler);
+ 	wdt_base = mtk_wdt->wdt_base;
+ 
+ 	while (1) {
+@@ -81,7 +76,7 @@ static int mtk_reset_handler(struct notifier_block *this, unsigned long mode,
+ 		mdelay(5);
+ 	}
  
 -	return NOTIFY_DONE;
 +	return 0;
  }
  
- static inline void imx2_wdt_setup(struct watchdog_device *wdog)
-@@ -213,6 +208,7 @@ static const struct watchdog_ops imx2_wdt_ops = {
- 	.stop = imx2_wdt_stop,
- 	.ping = imx2_wdt_ping,
- 	.set_timeout = imx2_wdt_set_timeout,
-+	.restart = imx2_wdt_restart,
+ static int mtk_wdt_ping(struct watchdog_device *wdt_dev)
+@@ -160,6 +155,7 @@ static const struct watchdog_ops mtk_wdt_ops = {
+ 	.stop		= mtk_wdt_stop,
+ 	.ping		= mtk_wdt_ping,
+ 	.set_timeout	= mtk_wdt_set_timeout,
++	.restart	= mtk_wdt_restart,
  };
  
- static const struct regmap_config imx2_wdt_regmap_config = {
-@@ -275,6 +271,7 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, wdog);
- 	watchdog_set_drvdata(wdog, wdev);
- 	watchdog_set_nowayout(wdog, nowayout);
-+	watchdog_set_restart_priority(wdog, 128);
- 	watchdog_init_timeout(wdog, timeout, &pdev->dev);
+ static int mtk_wdt_probe(struct platform_device *pdev)
+@@ -188,6 +184,7 @@ static int mtk_wdt_probe(struct platform_device *pdev)
  
- 	setup_timer(&wdev->timer, imx2_wdt_timer_ping, (unsigned long)wdog);
-@@ -294,12 +291,6 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
- 		goto disable_clk;
- 	}
+ 	watchdog_init_timeout(&mtk_wdt->wdt_dev, timeout, &pdev->dev);
+ 	watchdog_set_nowayout(&mtk_wdt->wdt_dev, nowayout);
++	watchdog_set_restart_priority(&mtk_wdt->wdt_dev, 128);
  
--	wdev->restart_handler.notifier_call = imx2_restart_handler;
--	wdev->restart_handler.priority = 128;
--	ret = register_restart_handler(&wdev->restart_handler);
--	if (ret)
--		dev_err(&pdev->dev, "cannot register restart handler\n");
+ 	watchdog_set_drvdata(&mtk_wdt->wdt_dev, mtk_wdt);
+ 
+@@ -197,13 +194,6 @@ static int mtk_wdt_probe(struct platform_device *pdev)
+ 	if (unlikely(err))
+ 		return err;
+ 
+-	mtk_wdt->restart_handler.notifier_call = mtk_reset_handler;
+-	mtk_wdt->restart_handler.priority = 128;
+-	err = register_restart_handler(&mtk_wdt->restart_handler);
+-	if (err)
+-		dev_warn(&pdev->dev,
+-			"cannot register restart handler (err=%d)\n", err);
 -
- 	dev_info(&pdev->dev, "timeout %d sec (nowayout=%d)\n",
- 		 wdog->timeout, nowayout);
+ 	dev_info(&pdev->dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)\n",
+ 			mtk_wdt->wdt_dev.timeout, nowayout);
  
-@@ -315,8 +306,6 @@ static int __exit imx2_wdt_remove(struct platform_device *pdev)
- 	struct watchdog_device *wdog = platform_get_drvdata(pdev);
- 	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
+@@ -222,8 +212,6 @@ static int mtk_wdt_remove(struct platform_device *pdev)
+ {
+ 	struct mtk_wdt_dev *mtk_wdt = platform_get_drvdata(pdev);
  
--	unregister_restart_handler(&wdev->restart_handler);
+-	unregister_restart_handler(&mtk_wdt->restart_handler);
 -
- 	watchdog_unregister_device(wdog);
+ 	watchdog_unregister_device(&mtk_wdt->wdt_dev);
  
- 	if (imx2_wdt_is_running(wdev)) {
+ 	return 0;
 -- 
 2.5.0
 
