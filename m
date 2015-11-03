@@ -1,7 +1,7 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.savoirfairelinux.com ([208.88.110.44]:58885 "EHLO
+Received: from mail.savoirfairelinux.com ([208.88.110.44]:58866 "EHLO
 	mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932283AbbKCQNA (ORCPT
+	with ESMTP id S932286AbbKCQNA (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
 	Tue, 3 Nov 2015 11:13:00 -0500
 From: Damien Riegel <damien.riegel@savoirfairelinux.com>
@@ -11,101 +11,59 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
 	kernel@savoirfairelinux.com,
 	Damien Riegel <damien.riegel@savoirfairelinux.com>
-Subject: [PATCH 04/13] watchdog: digicolor_wdt: use core restart handler
-Date: Tue,  3 Nov 2015 11:12:37 -0500
-Message-Id: <1446567166-10156-5-git-send-email-damien.riegel@savoirfairelinux.com>
-In-Reply-To: <1446567166-10156-1-git-send-email-damien.riegel@savoirfairelinux.com>
-References: <1446567166-10156-1-git-send-email-damien.riegel@savoirfairelinux.com>
+Subject: [PATCH 00/13] watchdog: factorize restart handler registration
+Date: Tue,  3 Nov 2015 11:12:33 -0500
+Message-Id: <1446567166-10156-1-git-send-email-damien.riegel@savoirfairelinux.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Get rid of the custom restart handler by using the one provided by the
-watchdog core.
+Many drivers implements the exact same piece of code to register a
+restart handler. It can be nice to factorize this in the watchdog core.
 
-Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
----
- drivers/watchdog/digicolor_wdt.c | 18 +++++-------------
- 1 file changed, 5 insertions(+), 13 deletions(-)
+The first patch adds an optional restart watchdog operation. If a driver
+defines this operation, a restart handler is registered. By default, the
+restart handler priority is set to 0, but a helper function
+watchdog_set_restart_priority is provided to change it.
 
-diff --git a/drivers/watchdog/digicolor_wdt.c b/drivers/watchdog/digicolor_wdt.c
-index 50abe1b..1ccb0b2 100644
---- a/drivers/watchdog/digicolor_wdt.c
-+++ b/drivers/watchdog/digicolor_wdt.c
-@@ -15,7 +15,6 @@
- #include <linux/delay.h>
- #include <linux/clk.h>
- #include <linux/watchdog.h>
--#include <linux/reboot.h>
- #include <linux/platform_device.h>
- #include <linux/of_address.h>
- 
-@@ -28,7 +27,6 @@
- struct dc_wdt {
- 	void __iomem		*base;
- 	struct clk		*clk;
--	struct notifier_block	restart_handler;
- 	spinlock_t		lock;
- };
- 
-@@ -50,16 +48,15 @@ static void dc_wdt_set(struct dc_wdt *wdt, u32 ticks)
- 	spin_unlock_irqrestore(&wdt->lock, flags);
- }
- 
--static int dc_restart_handler(struct notifier_block *this, unsigned long mode,
--			      void *cmd)
-+static int dc_wdt_restart(struct watchdog_device *wdog)
- {
--	struct dc_wdt *wdt = container_of(this, struct dc_wdt, restart_handler);
-+	struct dc_wdt *wdt = watchdog_get_drvdata(wdog);
- 
- 	dc_wdt_set(wdt, 1);
- 	/* wait for reset to assert... */
- 	mdelay(500);
- 
--	return NOTIFY_DONE;
-+	return 0;
- }
- 
- static int dc_wdt_start(struct watchdog_device *wdog)
-@@ -104,6 +101,7 @@ static struct watchdog_ops dc_wdt_ops = {
- 	.stop		= dc_wdt_stop,
- 	.set_timeout	= dc_wdt_set_timeout,
- 	.get_timeleft	= dc_wdt_get_timeleft,
-+	.restart        = dc_wdt_restart,
- };
- 
- static struct watchdog_info dc_wdt_info = {
-@@ -148,6 +146,7 @@ static int dc_wdt_probe(struct platform_device *pdev)
- 	spin_lock_init(&wdt->lock);
- 
- 	watchdog_set_drvdata(&dc_wdt_wdd, wdt);
-+	watchdog_set_restart_priority(&dc_wdt_wdd, 128);
- 	watchdog_init_timeout(&dc_wdt_wdd, timeout, dev);
- 	ret = watchdog_register_device(&dc_wdt_wdd);
- 	if (ret) {
-@@ -155,12 +154,6 @@ static int dc_wdt_probe(struct platform_device *pdev)
- 		goto err_iounmap;
- 	}
- 
--	wdt->restart_handler.notifier_call = dc_restart_handler;
--	wdt->restart_handler.priority = 128;
--	ret = register_restart_handler(&wdt->restart_handler);
--	if (ret)
--		dev_warn(&pdev->dev, "cannot register restart handler\n");
--
- 	return 0;
- 
- err_iounmap:
-@@ -172,7 +165,6 @@ static int dc_wdt_remove(struct platform_device *pdev)
- {
- 	struct dc_wdt *wdt = platform_get_drvdata(pdev);
- 
--	unregister_restart_handler(&wdt->restart_handler);
- 	watchdog_unregister_device(&dc_wdt_wdd);
- 	iounmap(wdt->base);
- 
+The following patches bring this change to the current watchdog drivers
+that use watchdog_core.
+
+This change has been compile-tested on da9063, imx2, lpc18xx, imgpdc.
+It has been tested with (not mainlined yet) ts-4800's watchdog driver.
+
+Damien Riegel (13):
+  watchdog: core: add restart handler support
+  watchdog: bcm47xx_wdt: use core restart handler
+  watchdog: da9063_wdt: use core restart handler
+  watchdog: digicolor_wdt: use core restart handler
+  watchdog: imgpdc_wdt: use core restart handler
+  watchdog: imx2_wdt: use core restart handler
+  watchdog: lpc18xx_wdt: use core restart handler
+  watchdog: meson_wdt: use core restart handler
+  watchdog: moxart_wdt: use core restart handler
+  watchdog: mtk_wdt: use core restart handler
+  watchdog: qcom-wdt: use core restart handler
+  watchdog: s3c2410_wdt: use core restart handler
+  watchdog: sunxi_wdt: use core restart handler
+
+ Documentation/watchdog/watchdog-kernel-api.txt | 19 +++++++
+ drivers/watchdog/bcm47xx_wdt.c                 | 21 +++-----
+ drivers/watchdog/da9063_wdt.c                  | 23 +++------
+ drivers/watchdog/digicolor_wdt.c               | 18 ++-----
+ drivers/watchdog/imgpdc_wdt.c                  | 34 +++++--------
+ drivers/watchdog/imx2_wdt.c                    | 23 +++------
+ drivers/watchdog/lpc18xx_wdt.c                 | 68 +++++++++++---------------
+ drivers/watchdog/meson_wdt.c                   | 23 ++-------
+ drivers/watchdog/moxart_wdt.c                  | 23 +++------
+ drivers/watchdog/mtk_wdt.c                     | 22 ++-------
+ drivers/watchdog/qcom-wdt.c                    | 63 ++++++++++--------------
+ drivers/watchdog/s3c2410_wdt.c                 | 60 ++++++++++-------------
+ drivers/watchdog/sunxi_wdt.c                   | 23 ++-------
+ drivers/watchdog/watchdog_core.c               | 48 ++++++++++++++++++
+ include/linux/bcm47xx_wdt.h                    |  1 -
+ include/linux/watchdog.h                       |  6 +++
+ 16 files changed, 210 insertions(+), 265 deletions(-)
+
 -- 
 2.5.0
 
