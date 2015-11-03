@@ -1,165 +1,219 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:42174 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:49232 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751280AbbKCE7Y (ORCPT
+	with ESMTP id S1751527AbbKCF0A (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 2 Nov 2015 23:59:24 -0500
-Subject: Re: [PATCH v1 1/2] watchdog: add WDIOC_SETPRETIMEOUT and
- WDIOC_GETPRETIMEOUT
+	Tue, 3 Nov 2015 00:26:00 -0500
+Subject: Re: [PATCH v1 2/2] watchdog: imx2_wdt: add set_pretimeout interface
 To: Robin Gong <b38343@freescale.com>
 References: <1446521367-25748-1-git-send-email-b38343@freescale.com>
- <56383244.3030801@roeck-us.net> <20151103044741.GA26305@shlinux2>
+ <1446521367-25748-2-git-send-email-b38343@freescale.com>
+ <563835C0.5010204@roeck-us.net> <20151103045501.GB26305@shlinux2>
 Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56383F29.4040701@roeck-us.net>
-Date: Mon, 2 Nov 2015 20:59:21 -0800
+Message-ID: <56384565.7040604@roeck-us.net>
+Date: Mon, 2 Nov 2015 21:25:57 -0800
 MIME-Version: 1.0
-In-Reply-To: <20151103044741.GA26305@shlinux2>
+In-Reply-To: <20151103045501.GB26305@shlinux2>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 11/02/2015 08:47 PM, Robin Gong wrote:
-> On Mon, Nov 02, 2015 at 08:04:20PM -0800, Guenter Roeck wrote:
+On 11/02/2015 08:55 PM, Robin Gong wrote:
+> On Mon, Nov 02, 2015 at 08:19:12PM -0800, Guenter Roeck wrote:
 >> On 11/02/2015 07:29 PM, Robin Gong wrote:
->>> Since the watchdog common framework centrialize the IOCTL interfaces of
->>> device driver now, the SETPRETIMEOUT and GETPRETIMEOUT need to be added
->>> in the common code.
+>>> Enable set_pretimeout interface and trigger the pretimeout interrupt before
+>>> watchdog timeout event happen.
 >>>
 >>> Signed-off-by: Robin Gong <b38343@freescale.com>
 >>> ---
->>>   drivers/watchdog/watchdog_dev.c | 38 ++++++++++++++++++++++++++++++++++++++
->>>   include/linux/watchdog.h        |  9 +++++++++
->>>   2 files changed, 47 insertions(+)
+>>>   drivers/watchdog/imx2_wdt.c | 67 ++++++++++++++++++++++++++++++++++++++++++++-
+>>>   1 file changed, 66 insertions(+), 1 deletion(-)
 >>>
->>> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
->>> index 6aaefba..02632fe 100644
->>> --- a/drivers/watchdog/watchdog_dev.c
->>> +++ b/drivers/watchdog/watchdog_dev.c
->>> @@ -218,6 +218,37 @@ out_timeout:
+>>> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+>>> index 0bb1a1d..d3c6b07 100644
+>>> --- a/drivers/watchdog/imx2_wdt.c
+>>> +++ b/drivers/watchdog/imx2_wdt.c
+>>> @@ -24,7 +24,9 @@
+>>>   #include <linux/clk.h>
+>>>   #include <linux/delay.h>
+>>>   #include <linux/init.h>
+>>> +#include <linux/interrupt.h>
+>>>   #include <linux/io.h>
+>>> +#include <linux/irq.h>
+>>
+>> Are those two new includes both needed ?
+>>
+> Yes, irq.h is not needed.
+>>>   #include <linux/jiffies.h>
+>>>   #include <linux/kernel.h>
+>>>   #include <linux/module.h>
+>>> @@ -52,12 +54,18 @@
+>>>   #define IMX2_WDT_WRSR		0x04		/* Reset Status Register */
+>>>   #define IMX2_WDT_WRSR_TOUT	(1 << 1)	/* -> Reset due to Timeout */
+>>>
+>>> +#define IMX2_WDT_WICR		0x06		/*Interrupt Control Register*/
+>>> +#define IMX2_WDT_WICR_WIE	(1 << 15)	/* -> Interrupt Enable */
+>>> +#define IMX2_WDT_WICR_WTIS	(1 << 14)	/* -> Interrupt Status */
+>>> +#define IMX2_WDT_WICR_WICT	(0xFF << 0)	/* Watchdog Interrupt Timeout */
+>>> +
+>>
+>> "<< 0" doesn't really add any value here.
+>>
+> Accept.
+>>>   #define IMX2_WDT_WMCR		0x08		/* Misc Register */
+>>>
+>>>   #define IMX2_WDT_MAX_TIME	128
+>>>   #define IMX2_WDT_DEFAULT_TIME	60		/* in seconds */
+>>>
+>>>   #define WDOG_SEC_TO_COUNT(s)	((s * 2 - 1) << 8)
+>>> +#define WDOG_SEC_TO_PRECOUNT(s)	(s * 2)		/* set WDOG pre timeout count*/
+>>>
+>> 					((s) * 2)
+>>
+>> Ah yes, WDOG_SEC_TO_COUNT should also use (s).
+>>
+>
+>>>   struct imx2_wdt_device {
+>>>   	struct clk *clk;
+>>> @@ -80,7 +88,8 @@ MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds (default="
+>>>
+>>>   static const struct watchdog_info imx2_wdt_info = {
+>>>   	.identity = "imx2+ watchdog",
+>>> -	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
+>>> +	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE
+>>> +		   | WDIOF_PRETIMEOUT,
+>>>   };
+>>>
+>>>   static int imx2_restart_handler(struct notifier_block *this, unsigned long mode,
+>>> @@ -207,12 +216,59 @@ static inline void imx2_wdt_ping_if_active(struct watchdog_device *wdog)
+>>>   	}
 >>>   }
 >>>
->>>   /*
->>> + *	watchdog_set_pretimeout: set the watchdog timer pretimeout
->>> + *	@wddev: the watchdog device to set the timeout for
->>> + *	@timeout: pretimeout to set in seconds
->>> + */
->>> +
->>> +static int watchdog_set_pretimeout(struct watchdog_device *wddev,
->>> +							unsigned int timeout)
->>
->> Please align with "(".
-> Will fix in v2.
->>
+>>> +static int imx2_wdt_check_pretimeout_set(struct imx2_wdt_device *wdev)
 >>> +{
->>> +	int err;
+>>> +	u32 val;
 >>> +
->>> +	if ((wddev->ops->set_pretimeout == NULL) ||
+>>> +	regmap_read(wdev->regmap, IMX2_WDT_WICR, &val);
+>>> +	return (val & IMX2_WDT_WICR_WIE) ? 1 : 0;
 >>
->> Unnecessary ( ), and "== NULL" is unnecessary as well.
+>> I don't understand the point of this function.
+>> You check if IMX2_WDT_WICR_WIE is set,
 >>
-> why? It's useful if other device driver didn't implement set_pretimeout.
-
-	if (!wddev->ops->set_pretimeout ||
-
->>> +	    !(wddev->info->options & WDIOF_PRETIMEOUT))
->>> +		return -EOPNOTSUPP;
->>> +	if (watchdog_pretimeout_invalid(wddev, timeout))
->>> +		return -EINVAL;
+> Yes, looks no need check,just directly set this bit.
+>>> +}
 >>> +
->>> +	mutex_lock(&wddev->lock);
+>>> +static int imx2_wdt_set_pretimeout(struct watchdog_device *wdog,
+>>> +				   unsigned int new_timeout)
+>>> +{
+>>> +	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
+>>> +	u32 val;
 >>> +
->>> +	if (test_bit(WDOG_UNREGISTERED, &wddev->status)) {
->>> +		err = -ENODEV;
->>> +		goto out_timeout;
+>>> +	regmap_read(wdev->regmap, IMX2_WDT_WICR, &val);
+>>> +	/* set the new pre-timeout value in the WSR */
+>>> +	val &= ~IMX2_WDT_WICR_WICT;
+>>> +	val |= WDOG_SEC_TO_PRECOUNT(new_timeout);
+>>> +
+>>
+>> What is the time here ? Is pretimeout the number of seconds
+>> until the interrupt occurs, or the number of seconds before the actual
+>> timeout (as per API) ?
+>>
+> The latter is.
+>>> +	if (!imx2_wdt_check_pretimeout_set(wdev))
+>>> +		val |= IMX2_WDT_WICR_WIE;	/*enable*/
+>>
+>> if IMX2_WDT_WICR_WIE is not set, you set it,
+>>
+>>> +
+>>> +	regmap_write(wdev->regmap, IMX2_WDT_WICR, val);
+>>> +
+>>
+>> and write the result unconditionally. Unless I am missing something,
+>>
+>> 	regmap_write, wdev->regmap, IMX2_WDT_WICR, val | IMX2_WDT_WICR_WIE);
+>>
+>> would accomplish exactly the same.
+>>
+>>> +	wdog->pretimeout = new_timeout;
+>>> +
+>>> +	return 0;
+>>> +}
+>>> +
+>>> +static irqreturn_t imx2_wdt_isr(int irq, void *dev_id)
+>>> +{
+>>> +	struct platform_device *pdev = dev_id;
+>>> +	struct watchdog_device *wdog = platform_get_drvdata(pdev);
+>>> +	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
+>>> +	u32 val;
+>>> +
+>>> +	regmap_read(wdev->regmap, IMX2_WDT_WICR, &val);
+>>> +	if (val & IMX2_WDT_WICR_WTIS) {
+>>> +		/*clear interrupt status bit*/
+>>> +		regmap_write(wdev->regmap, IMX2_WDT_WICR, val);
+>>> +		dev_warn(&pdev->dev, "pre-timeout:%d, %d Seconds remained\n",
+>>> +			 wdog->pretimeout, wdog->timeout - wdog->pretimeout);
+>>
+>> The idea here is that this should trigger a panic.
+>>
+> Just add a print message, our customer will add what they want here.
+
+We should follow kernel expectations and guidelines, and not expect customers
+to make changes. After all, this is for the upstream kernel, not for a vendor
+kernel. You can as well call panic here and let your customers change that
+if they don't like it.
+
+Guenter
+
+>>> +	}
+>>> +	return IRQ_HANDLED;
+>>> +}
+>>> +
+>>>   static const struct watchdog_ops imx2_wdt_ops = {
+>>>   	.owner = THIS_MODULE,
+>>>   	.start = imx2_wdt_start,
+>>>   	.stop = imx2_wdt_stop,
+>>>   	.ping = imx2_wdt_ping,
+>>>   	.set_timeout = imx2_wdt_set_timeout,
+>>> +	.set_pretimeout = imx2_wdt_set_pretimeout,
+>>>   };
+>>>
+>>>   static const struct regmap_config imx2_wdt_regmap_config = {
+>>> @@ -229,6 +285,7 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
+>>>   	struct resource *res;
+>>>   	void __iomem *base;
+>>>   	int ret;
+>>> +	int irq;
+>>>   	u32 val;
+>>>
+>>>   	wdev = devm_kzalloc(&pdev->dev, sizeof(*wdev), GFP_KERNEL);
+>>> @@ -253,6 +310,14 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
+>>>   		return PTR_ERR(wdev->clk);
+>>>   	}
+>>>
+>>> +	irq = platform_get_irq(pdev, 0);
+>>
+>> This makes the irq mandatory. What if a platform doesn't have one configured ?
+>>
+>>> +	ret = devm_request_irq(&pdev->dev, irq, imx2_wdt_isr, 0,
+>>> +			       dev_name(&pdev->dev), pdev);
+>>> +	if (ret) {
+>>> +		dev_err(&pdev->dev, "can't get irq %d\n", irq);
+>>
+>> You got it, but you could not request it.
+>>
+>> This is also a bit early, as the interrupt handler uses variables which are not yet
+>> initialized.
+>>
+> Accept.
+>>> +		return ret;
 >>> +	}
 >>> +
->>> +	err = wddev->ops->set_pretimeout(wddev, timeout);
->>> +
->>> +out_timeout:
->>> +	mutex_unlock(&wddev->lock);
->>> +	return err;
->>> +}
->>> +
->>> +/*
->>>    *	watchdog_get_timeleft: wrapper to get the time left before a reboot
->>>    *	@wddev: the watchdog device to get the remaining time from
->>>    *	@timeleft: the time that's left
->>> @@ -393,6 +424,13 @@ static long watchdog_ioctl(struct file *file, unsigned int cmd,
->>>   		if (err)
->>>   			return err;
->>>   		return put_user(val, p);
->>> +	case WDIOC_SETPRETIMEOUT:
->>> +		if (get_user(val, p))
->>> +			return -EFAULT;
->>> +		err = watchdog_set_pretimeout(wdd, val);
->>> +		return err;
->>
->> 		return watchdog_set_pretimeout(wdd, val);
->>
->>> +	case WDIOC_GETPRETIMEOUT:
->>> +		return put_user(wdd->pretimeout, p);
->>>   	default:
->>>   		return -ENOTTY;
->>>   	}
->>> diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
->>> index d74a0e9..6ddb2d6 100644
->>> --- a/include/linux/watchdog.h
->>> +++ b/include/linux/watchdog.h
->>> @@ -25,6 +25,7 @@ struct watchdog_device;
->>>    * @ping:	The routine that sends a keepalive ping to the watchdog device.
->>>    * @status:	The routine that shows the status of the watchdog device.
->>>    * @set_timeout:The routine for setting the watchdog devices timeout value.
->>> + * @set_pretimeout:The routine for setting the watchdog devices pretimeout.
->>>    * @get_timeleft:The routine that get's the time that's left before a reset.
->>>    * @ref:	The ref operation for dyn. allocated watchdog_device structs
->>>    * @unref:	The unref operation for dyn. allocated watchdog_device structs
->>> @@ -44,6 +45,7 @@ struct watchdog_ops {
->>>   	int (*ping)(struct watchdog_device *);
->>>   	unsigned int (*status)(struct watchdog_device *);
->>>   	int (*set_timeout)(struct watchdog_device *, unsigned int);
->>> +	int (*set_pretimeout)(struct watchdog_device *, unsigned int);
->>>   	unsigned int (*get_timeleft)(struct watchdog_device *);
->>>   	void (*ref)(struct watchdog_device *);
->>>   	void (*unref)(struct watchdog_device *);
->>> @@ -86,6 +88,7 @@ struct watchdog_device {
->>>   	const struct watchdog_ops *ops;
->>>   	unsigned int bootstatus;
->>>   	unsigned int timeout;
->>> +	unsigned int pretimeout;
->>
->> Description (further below) missing.
->>
-> I describe it in the ahead of this structure as the above.
->>>   	unsigned int min_timeout;
->>>   	unsigned int max_timeout;
->>>   	void *driver_data;
->>> @@ -123,6 +126,12 @@ static inline bool watchdog_timeout_invalid(struct watchdog_device *wdd, unsigne
->>>   		(t < wdd->min_timeout || t > wdd->max_timeout));
->>>   }
->>>
->>> +/* Use the following function to check if a pretimeout value is invalid */
->>> +static inline bool watchdog_pretimeout_invalid(struct watchdog_device *wdd, unsigned int t)
->>
->> Please fix checkpatch warnings.
->>
-> You mean over 80 characters? Will fix in v2.
->>> +{
->>> +	return ((wdd->timeout != 0) && (t >= wdd->timeout));
->>
->> Unnecessary ( ), and "!= 0" is unnecessary.
->>
-> I think t >= wdd->timeout is need, since it's a pre-timeout.
-
-	return wdd->timeout && t >= wdd->timeout;
-
->>> +}
->>> +
->>>   /* Use the following functions to manipulate watchdog driver specific data */
->>>   static inline void watchdog_set_drvdata(struct watchdog_device *wdd, void *data)
->>>   {
+>>>   	wdog			= &wdev->wdog;
+>>>   	wdog->info		= &imx2_wdt_info;
+>>>   	wdog->ops		= &imx2_wdt_ops;
 >>>
 >>
 >
