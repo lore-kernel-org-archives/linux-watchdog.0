@@ -1,22 +1,23 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:36637 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:36779 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751965AbbKCC07 (ORCPT
+	with ESMTP id S1753790AbbKCC1t (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 2 Nov 2015 21:26:59 -0500
-Subject: Re: [RFC PATCH 03/13] watchdog: da9063_wdt: use core restart handler
+	Mon, 2 Nov 2015 21:27:49 -0500
+Subject: Re: [RFC PATCH 04/13] watchdog: digicolor_wdt: use core restart
+ handler
 To: Damien Riegel <damien.riegel@savoirfairelinux.com>,
 	linux-watchdog@vger.kernel.org
 References: <1446514586-31455-1-git-send-email-damien.riegel@savoirfairelinux.com>
- <1446514586-31455-4-git-send-email-damien.riegel@savoirfairelinux.com>
+ <1446514586-31455-5-git-send-email-damien.riegel@savoirfairelinux.com>
 Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
 	kernel@savoirfairelinux.com
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56381B71.2000600@roeck-us.net>
-Date: Mon, 2 Nov 2015 18:26:57 -0800
+Message-ID: <56381BA3.6090908@roeck-us.net>
+Date: Mon, 2 Nov 2015 18:27:47 -0800
 MIME-Version: 1.0
-In-Reply-To: <1446514586-31455-4-git-send-email-damien.riegel@savoirfairelinux.com>
+In-Reply-To: <1446514586-31455-5-git-send-email-damien.riegel@savoirfairelinux.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
@@ -32,92 +33,85 @@ On 11/02/2015 05:36 PM, Damien Riegel wrote:
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->   drivers/watchdog/da9063_wdt.c | 23 ++++++-----------------
->   1 file changed, 6 insertions(+), 17 deletions(-)
+>   drivers/watchdog/digicolor_wdt.c | 18 +++++-------------
+>   1 file changed, 5 insertions(+), 13 deletions(-)
 >
-> diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
-> index 6bf130b..11e8875 100644
-> --- a/drivers/watchdog/da9063_wdt.c
-> +++ b/drivers/watchdog/da9063_wdt.c
-> @@ -20,7 +20,6 @@
+> diff --git a/drivers/watchdog/digicolor_wdt.c b/drivers/watchdog/digicolor_wdt.c
+> index 50abe1b..1ccb0b2 100644
+> --- a/drivers/watchdog/digicolor_wdt.c
+> +++ b/drivers/watchdog/digicolor_wdt.c
+> @@ -15,7 +15,6 @@
 >   #include <linux/delay.h>
->   #include <linux/mfd/da9063/registers.h>
->   #include <linux/mfd/da9063/core.h>
+>   #include <linux/clk.h>
+>   #include <linux/watchdog.h>
 > -#include <linux/reboot.h>
->   #include <linux/regmap.h>
+>   #include <linux/platform_device.h>
+>   #include <linux/of_address.h>
 >
->   /*
-> @@ -39,7 +38,6 @@ static const unsigned int wdt_timeout[] = { 0, 2, 4, 8, 16, 32, 65, 131 };
->   struct da9063_watchdog {
->   	struct da9063 *da9063;
->   	struct watchdog_device wdtdev;
-> -	struct notifier_block restart_handler;
+> @@ -28,7 +27,6 @@
+>   struct dc_wdt {
+>   	void __iomem		*base;
+>   	struct clk		*clk;
+> -	struct notifier_block	restart_handler;
+>   	spinlock_t		lock;
 >   };
 >
->   static unsigned int da9063_wdt_timeout_to_sel(unsigned int secs)
-> @@ -121,12 +119,9 @@ static int da9063_wdt_set_timeout(struct watchdog_device *wdd,
->   	return ret;
+> @@ -50,16 +48,15 @@ static void dc_wdt_set(struct dc_wdt *wdt, u32 ticks)
+>   	spin_unlock_irqrestore(&wdt->lock, flags);
 >   }
 >
-> -static int da9063_wdt_restart_handler(struct notifier_block *this,
-> -				      unsigned long mode, void *cmd)
-> +static int da9063_wdt_restart(struct watchdog_device *wdd)
+> -static int dc_restart_handler(struct notifier_block *this, unsigned long mode,
+> -			      void *cmd)
+> +static int dc_wdt_restart(struct watchdog_device *wdog)
 >   {
-> -	struct da9063_watchdog *wdt = container_of(this,
-> -						   struct da9063_watchdog,
-> -						   restart_handler);
-> +	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
->   	int ret;
+> -	struct dc_wdt *wdt = container_of(this, struct dc_wdt, restart_handler);
+> +	struct dc_wdt *wdt = watchdog_get_drvdata(wdog);
 >
->   	ret = regmap_write(wdt->da9063->regmap, DA9063_REG_CONTROL_F,
-> @@ -135,7 +130,7 @@ static int da9063_wdt_restart_handler(struct notifier_block *this,
->   		dev_alert(wdt->da9063->dev, "Failed to shutdown (err = %d)\n",
->   			  ret);
+>   	dc_wdt_set(wdt, 1);
+>   	/* wait for reset to assert... */
+>   	mdelay(500);
 >
 > -	return NOTIFY_DONE;
-> +	return ret;
+> +	return 0;
 >   }
 >
->   static const struct watchdog_info da9063_watchdog_info = {
-> @@ -149,6 +144,7 @@ static const struct watchdog_ops da9063_watchdog_ops = {
->   	.stop = da9063_wdt_stop,
->   	.ping = da9063_wdt_ping,
->   	.set_timeout = da9063_wdt_set_timeout,
-> +	.restart = da9063_wdt_restart,
+>   static int dc_wdt_start(struct watchdog_device *wdog)
+> @@ -104,6 +101,7 @@ static struct watchdog_ops dc_wdt_ops = {
+>   	.stop		= dc_wdt_stop,
+>   	.set_timeout	= dc_wdt_set_timeout,
+>   	.get_timeleft	= dc_wdt_get_timeleft,
+> +	.restart        = dc_wdt_restart,
 >   };
 >
->   static int da9063_wdt_probe(struct platform_device *pdev)
-> @@ -179,6 +175,8 @@ static int da9063_wdt_probe(struct platform_device *pdev)
+>   static struct watchdog_info dc_wdt_info = {
+> @@ -148,6 +146,7 @@ static int dc_wdt_probe(struct platform_device *pdev)
+>   	spin_lock_init(&wdt->lock);
 >
->   	wdt->wdtdev.status = WATCHDOG_NOWAYOUT_INIT_STATUS;
+>   	watchdog_set_drvdata(&dc_wdt_wdd, wdt);
+> +	watchdog_set_restart_priority(&dc_wdt_wdd, 128);
+>   	watchdog_init_timeout(&dc_wdt_wdd, timeout, dev);
+>   	ret = watchdog_register_device(&dc_wdt_wdd);
+>   	if (ret) {
+> @@ -155,12 +154,6 @@ static int dc_wdt_probe(struct platform_device *pdev)
+>   		goto err_iounmap;
+>   	}
 >
-> +	watchdog_set_restart_priority(&wdt->wdtdev, 128);
-> +
->   	watchdog_set_drvdata(&wdt->wdtdev, wdt);
->   	dev_set_drvdata(&pdev->dev, wdt);
->
-> @@ -186,13 +184,6 @@ static int da9063_wdt_probe(struct platform_device *pdev)
->   	if (ret)
->   		return ret;
->
-> -	wdt->restart_handler.notifier_call = da9063_wdt_restart_handler;
+> -	wdt->restart_handler.notifier_call = dc_restart_handler;
 > -	wdt->restart_handler.priority = 128;
 > -	ret = register_restart_handler(&wdt->restart_handler);
 > -	if (ret)
-> -		dev_err(wdt->da9063->dev,
-> -			"Failed to register restart handler (err = %d)\n", ret);
+> -		dev_warn(&pdev->dev, "cannot register restart handler\n");
 > -
 >   	return 0;
->   }
 >
-> @@ -200,8 +191,6 @@ static int da9063_wdt_remove(struct platform_device *pdev)
+>   err_iounmap:
+> @@ -172,7 +165,6 @@ static int dc_wdt_remove(struct platform_device *pdev)
 >   {
->   	struct da9063_watchdog *wdt = dev_get_drvdata(&pdev->dev);
+>   	struct dc_wdt *wdt = platform_get_drvdata(pdev);
 >
 > -	unregister_restart_handler(&wdt->restart_handler);
-> -
->   	watchdog_unregister_device(&wdt->wdtdev);
+>   	watchdog_unregister_device(&dc_wdt_wdd);
+>   	iounmap(wdt->base);
 >
->   	return 0;
 >
 
