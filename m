@@ -1,148 +1,98 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-bl2on0105.outbound.protection.outlook.com ([65.55.169.105]:23952
-	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1753541AbbKCI3A (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 3 Nov 2015 03:29:00 -0500
-From: Robin Gong <b38343@freescale.com>
-To: <wim@iguana.be>, <linux@roeck-us.net>, <corbet@lwn.net>
-CC: <inux-doc@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>
-Subject: [PATCH v3 2/2] watchdog: imx2_wdt: add set_pretimeout interface
-Date: Tue, 3 Nov 2015 16:26:46 +0800
-Message-ID: <1446539206-8213-2-git-send-email-b38343@freescale.com>
-In-Reply-To: <1446539206-8213-1-git-send-email-b38343@freescale.com>
-References: <1446539206-8213-1-git-send-email-b38343@freescale.com>
+Received: from mail-wm0-f45.google.com ([74.125.82.45]:34539 "EHLO
+	mail-wm0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752963AbbKCIib (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 3 Nov 2015 03:38:31 -0500
+Received: by wmff134 with SMTP id f134so77985909wmf.1
+        for <linux-watchdog@vger.kernel.org>; Tue, 03 Nov 2015 00:38:30 -0800 (PST)
+Date: Tue, 3 Nov 2015 08:38:17 +0000
+From: Lee Jones <lee.jones@linaro.org>
+To: Damien Riegel <damien.riegel@savoirfairelinux.com>
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org, shawnguo@kernel.org,
+	kernel@pengutronix.de, wim@iguana.be, robh+dt@kernel.org,
+	sameo@linux.intel.com, dinh.linux@gmail.com, linux@roeck-us.net,
+	kernel@savoirfairelinux.com, arnd@arndb.de
+Subject: Re: [PATCH v2 2/5] mfd: ts4800-syscon: add driver for TS-4800 syscon
+Message-ID: <20151103083817.GC3503@x1>
+References: <1446150450-22093-1-git-send-email-damien.riegel@savoirfairelinux.com>
+ <1446150450-22093-3-git-send-email-damien.riegel@savoirfairelinux.com>
+ <20151030175656.GF4058@x1>
+ <20151030200812.GB8666@localhost>
+ <20151102091253.GS4058@x1>
+ <20151102181334.GA7200@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+In-Reply-To: <20151102181334.GA7200@localhost>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Enable set_pretimeout interface and trigger the pretimeout interrupt before
-watchdog timeout event happen.
+On Mon, 02 Nov 2015, Damien Riegel wrote:
+> On Mon, Nov 02, 2015 at 09:12:53AM +0000, Lee Jones wrote:
+> > [Cc'ing Arnd]
+> >=20
+> > On Fri, 30 Oct 2015, Damien Riegel wrote:
+> > > On Fri, Oct 30, 2015 at 05:56:56PM +0000, Lee Jones wrote:
+> > > > On Thu, 29 Oct 2015, Damien Riegel wrote:
+> > > >=20
+> > > > > Driver for TS-4800 syscon. These registers belong to a FPGA t=
+hat is
+> > > > > memory mapped and are used for counters, enable various IPs i=
+n the FPGA,
+> > > > > control LEDs, control IOs, etc.
+> > > > >=20
+> > > > > Currently, only the watchdog is handled.
+> > > >=20
+> > > > Why do you require your own syscon driver?
+> > > >=20
+> > > > What's wrong with the generic one?
+> > > >=20
+> > >=20
+> > > The generic one uses a regmap_config with reg_stride set to 4 and=
+ val_bits
+> > > to 32.
+> > >=20
+> > > TS-4800 syscon registers are 16-bit wide and must be accessed wit=
+h 16
+> > > bit read and writes:
+> > > http://wiki.embeddedarm.com/wiki/TS-4800#Syscon
+> > >=20
+> > > I will address the other issues in the next version (split commit=
+,
+> > > license issue, style, and superfluous remove).
+> >=20
+> > The Syscon driver was written to be generic so that each
+> > vendor/platform didn't require their own incarnation.  How unique i=
+s
+> > the TS-4800?
+> >=20
+> > Perhaps it might be better to supply a generic 16 bit Syscon for
+> > devices akin to the TS-4800?
+>=20
+> The TS-4800 syscon could use a generic 16-bit syscon. There is nothin=
+g
+> specific that requires a driver besides that.
+>=20
+> We could add some optional properties to the generic syscon node to
+> configure reg_bits, val_bits, and reg_stride (and pad_bits ?). Would
+> that be a good solution ?
 
-Signed-off-by: Robin Gong <b38343@freescale.com>
----
- drivers/watchdog/imx2_wdt.c | 58 ++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 57 insertions(+), 1 deletion(-)
+Without looking at the ramifications of such an addition, the premise
+sounds good to me.  So long as the current behaviour remains the
+default.
 
-diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-index 0bb1a1d..06631cf 100644
---- a/drivers/watchdog/imx2_wdt.c
-+++ b/drivers/watchdog/imx2_wdt.c
-@@ -24,6 +24,7 @@
- #include <linux/clk.h>
- #include <linux/delay.h>
- #include <linux/init.h>
-+#include <linux/interrupt.h>
- #include <linux/io.h>
- #include <linux/jiffies.h>
- #include <linux/kernel.h>
-@@ -52,12 +53,18 @@
- #define IMX2_WDT_WRSR		0x04		/* Reset Status Register */
- #define IMX2_WDT_WRSR_TOUT	(1 << 1)	/* -> Reset due to Timeout */
- 
-+#define IMX2_WDT_WICR		0x06		/*Interrupt Control Register*/
-+#define IMX2_WDT_WICR_WIE	(1 << 15)	/* -> Interrupt Enable */
-+#define IMX2_WDT_WICR_WTIS	(1 << 14)	/* -> Interrupt Status */
-+#define IMX2_WDT_WICR_WICT	0xFF	/* Watchdog Interrupt Timeout */
-+
- #define IMX2_WDT_WMCR		0x08		/* Misc Register */
- 
- #define IMX2_WDT_MAX_TIME	128
- #define IMX2_WDT_DEFAULT_TIME	60		/* in seconds */
- 
- #define WDOG_SEC_TO_COUNT(s)	((s * 2 - 1) << 8)
-+#define WDOG_SEC_TO_PRECOUNT(s)	((s) * 2)	/* set WDOG pre timeout count*/
- 
- struct imx2_wdt_device {
- 	struct clk *clk;
-@@ -80,7 +87,8 @@ MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds (default="
- 
- static const struct watchdog_info imx2_wdt_info = {
- 	.identity = "imx2+ watchdog",
--	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
-+	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE
-+		   | WDIOF_PRETIMEOUT,
- };
- 
- static int imx2_restart_handler(struct notifier_block *this, unsigned long mode,
-@@ -207,12 +215,49 @@ static inline void imx2_wdt_ping_if_active(struct watchdog_device *wdog)
- 	}
- }
- 
-+static int imx2_wdt_set_pretimeout(struct watchdog_device *wdog,
-+				   unsigned int new_timeout)
-+{
-+	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
-+	u32 val;
-+
-+	regmap_read(wdev->regmap, IMX2_WDT_WICR, &val);
-+	/* set the new pre-timeout value in the WSR */
-+	val &= ~IMX2_WDT_WICR_WICT;
-+	val |= WDOG_SEC_TO_PRECOUNT(new_timeout);
-+
-+	regmap_write(wdev->regmap, IMX2_WDT_WICR, val | IMX2_WDT_WICR_WIE);
-+
-+	wdog->pretimeout = new_timeout;
-+
-+	return 0;
-+}
-+
-+static irqreturn_t imx2_wdt_isr(int irq, void *dev_id)
-+{
-+	struct platform_device *pdev = dev_id;
-+	struct watchdog_device *wdog = platform_get_drvdata(pdev);
-+	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
-+	u32 val;
-+
-+	regmap_read(wdev->regmap, IMX2_WDT_WICR, &val);
-+	if (val & IMX2_WDT_WICR_WTIS) {
-+		/*clear interrupt status bit*/
-+		regmap_write(wdev->regmap, IMX2_WDT_WICR, val);
-+		panic("pre-timeout:%d, %d seconds remained\n", wdog->pretimeout,
-+		      wdog->timeout - wdog->pretimeout);
-+	}
-+
-+	return IRQ_HANDLED;
-+}
-+
- static const struct watchdog_ops imx2_wdt_ops = {
- 	.owner = THIS_MODULE,
- 	.start = imx2_wdt_start,
- 	.stop = imx2_wdt_stop,
- 	.ping = imx2_wdt_ping,
- 	.set_timeout = imx2_wdt_set_timeout,
-+	.set_pretimeout = imx2_wdt_set_pretimeout,
- };
- 
- static const struct regmap_config imx2_wdt_regmap_config = {
-@@ -229,6 +274,7 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
- 	struct resource *res;
- 	void __iomem *base;
- 	int ret;
-+	int irq;
- 	u32 val;
- 
- 	wdev = devm_kzalloc(&pdev->dev, sizeof(*wdev), GFP_KERNEL);
-@@ -294,6 +340,16 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
- 		goto disable_clk;
- 	}
- 
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq > 0) {
-+		ret = devm_request_irq(&pdev->dev, irq, imx2_wdt_isr, 0,
-+				       dev_name(&pdev->dev), pdev);
-+		if (ret) {
-+			dev_err(&pdev->dev, "can't get irq %d\n", irq);
-+			goto disable_clk;
-+		}
-+	}
-+
- 	wdev->restart_handler.notifier_call = imx2_restart_handler;
- 	wdev->restart_handler.priority = 128;
- 	ret = register_restart_handler(&wdev->restart_handler);
--- 
-1.9.1
+> > Arnd, any opinion on this?
 
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
