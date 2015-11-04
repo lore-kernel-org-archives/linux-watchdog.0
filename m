@@ -1,180 +1,91 @@
-Return-path: <yibin.gong@freescale.com>
-Date: Wed, 4 Nov 2015 15:55:43 +0800
-From: Robin Gong <b38343@freescale.com>
-To: Guenter Roeck <linux@roeck-us.net>
-CC: <wim@iguana.be>, <linux-watchdog@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>
-Subject: Re: [PATCH v2 2/2] watchdog: imx2_wdt: add set_pretimeout interface
-Message-ID: <20151104075542.GB10809@shlinux2>
-References: <1446531084-15365-1-git-send-email-b38343@freescale.com>
- <1446531084-15365-2-git-send-email-b38343@freescale.com>
- <563866CD.1080306@roeck-us.net>
- <20151103080447.GB15428@shlinux2>
- <5638EE38.80404@roeck-us.net>
+Return-path: <poeschel@lemonage.de>
+From: Lars Poeschel <poeschel@lemonage.de>
+To: Peter Robinson <pbrobinson@gmail.com>
+Cc: linux-watchdog@vger.kernel.org, linux-omap@vger.kernel.org, stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH] watchdog: omap_wdt: fix null pointer dereference
+Date: Wed, 04 Nov 2015 11:31:02 +0100
+Message-ID: <2593393.lungi1Qs6x@lem-wkst-02>
+In-Reply-To: <1446430820-29252-1-git-send-email-pbrobinson@gmail.com>
+References: <1446430820-29252-1-git-send-email-pbrobinson@gmail.com>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 7Bit
 Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <5638EE38.80404@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Tue, Nov 03, 2015 at 09:26:16AM -0800, Guenter Roeck wrote:
-> On 11/03/2015 12:04 AM, Robin Gong wrote:
-> >On Mon, Nov 02, 2015 at 11:48:29PM -0800, Guenter Roeck wrote:
-> >>On 11/02/2015 10:11 PM, Robin Gong wrote:
-> >>>Enable set_pretimeout interface and trigger the pretimeout interrupt before
-> >>>watchdog timeout event happen.
-> >>>
-> >>>Signed-off-by: Robin Gong <b38343@freescale.com>
-> >>>---
-> >>>  drivers/watchdog/imx2_wdt.c | 58 ++++++++++++++++++++++++++++++++++++++++++++-
-> >>>  1 file changed, 57 insertions(+), 1 deletion(-)
-> >>>
-> >>>diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-> >>>index 0bb1a1d..bd42857 100644
-> >>>--- a/drivers/watchdog/imx2_wdt.c
-> >>>+++ b/drivers/watchdog/imx2_wdt.c
-> >>>@@ -24,6 +24,7 @@
-> >>>  #include <linux/clk.h>
-> >>>  #include <linux/delay.h>
-> >>>  #include <linux/init.h>
-> >>>+#include <linux/interrupt.h>
-> >>>  #include <linux/io.h>
-> >>>  #include <linux/jiffies.h>
-> >>>  #include <linux/kernel.h>
-> >>>@@ -52,12 +53,18 @@
-> >>>  #define IMX2_WDT_WRSR		0x04		/* Reset Status Register */
-> >>>  #define IMX2_WDT_WRSR_TOUT	(1 << 1)	/* -> Reset due to Timeout */
-> >>>
-> >>>+#define IMX2_WDT_WICR		0x06		/*Interrupt Control Register*/
-> >>>+#define IMX2_WDT_WICR_WIE	(1 << 15)	/* -> Interrupt Enable */
-> >>>+#define IMX2_WDT_WICR_WTIS	(1 << 14)	/* -> Interrupt Status */
-> >>>+#define IMX2_WDT_WICR_WICT	(0xFF)	/* Watchdog Interrupt Timeout */
-> >>
-> >>Unnecessary ( )
-> >>
-> >>>+
-> >>>  #define IMX2_WDT_WMCR		0x08		/* Misc Register */
-> >>>
-> >>>  #define IMX2_WDT_MAX_TIME	128
-> >>>  #define IMX2_WDT_DEFAULT_TIME	60		/* in seconds */
-> >>>
-> >>>  #define WDOG_SEC_TO_COUNT(s)	((s * 2 - 1) << 8)
-> >>>+#define WDOG_SEC_TO_PRECOUNT(s)	((s) * 2)	/* set WDOG pre timeout count*/
-> >>>
-> >>>  struct imx2_wdt_device {
-> >>>  	struct clk *clk;
-> >>>@@ -80,7 +87,8 @@ MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds (default="
-> >>>
-> >>>  static const struct watchdog_info imx2_wdt_info = {
-> >>>  	.identity = "imx2+ watchdog",
-> >>>-	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
-> >>>+	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE
-> >>>+		   | WDIOF_PRETIMEOUT,
-> >>>  };
-> >>>
-> >>>  static int imx2_restart_handler(struct notifier_block *this, unsigned long mode,
-> >>>@@ -207,12 +215,49 @@ static inline void imx2_wdt_ping_if_active(struct watchdog_device *wdog)
-> >>>  	}
-> >>>  }
-> >>>
-> >>>+static int imx2_wdt_set_pretimeout(struct watchdog_device *wdog,
-> >>>+				   unsigned int new_timeout)
-> >>>+{
-> >>>+	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
-> >>>+	u32 val;
-> >>>+
-> >>>+	regmap_read(wdev->regmap, IMX2_WDT_WICR, &val);
-> >>>+	/* set the new pre-timeout value in the WSR */
-> >>>+	val &= ~IMX2_WDT_WICR_WICT;
-> >>>+	val |= WDOG_SEC_TO_PRECOUNT(new_timeout);
-> >>
-> >>Looking into this, I think we need more information in the first patch.
-> >>Specifically, we need a value for max_pretimeout and validate it
-> >>(new_timeout must be smaller than 128 to avoid overflows, independent
-> >>of the maximum timeout).
-> >>
-> >I think it's enough, since there is "t >= wdd->timeout" in
-> >watchdog_pretimeout_invalid() of the first patch and wdd->timeout is never
-> >bigger than wdd->max_timeout which setting in imx2_wdt.c as 128.
+On Wednesday 04 November 2015 02:20:20, Peter Robinson wrote:
+> Fix issue from two patches overlapping causing a kernel oops
 > 
-> We are dealing with infrastructure code here. This happens to work for your driver,
-> but that doesn't mean it will work for other drivers.
+> [ 3569.297449] Unable to handle kernel NULL pointer dereference at virtual
+> address 00000088 [ 3569.306272] pgd = dc894000
+> [ 3569.309287] [00000088] *pgd=00000000
+> [ 3569.313104] Internal error: Oops: 5 [#1] SMP ARM
+> [ 3569.317986] Modules linked in: ip6t_rpfilter ip6t_REJECT nf_reject_ipv6
+> xt_conntrack ebtable_filter ebtable_nat ebtable_broute bridge stp llc
+> ebtables ip6table_security ip6table_raw ip6table_nat nf_conntrack_ipv6
+> nf_defrag_ipv6 nf_nat_ipv6 ip6table_mangle ip6table_filter ip6_tables
+> iptable_security iptable_raw iptable_nat nf_conntrack_ipv4 nf_defrag_ipv4
+> nf_nat_ipv4 nf_nat nf_conntrack iptable_mangle musb_dsps cppi41 musb_hdrc
+> phy_am335x udc_core phy_generic phy_am335x_control omap_sham omap_aes
+> omap_rng omap_hwspinlock omap_mailbox hwspinlock_core musb_am335x omap_wdt
+> at24 8250_omap leds_gpio cpufreq_dt smsc davinci_mdio mmc_block ti_cpsw
+> cpsw_common ptp pps_core cpsw_ale davinci_cpdma omap_hsmmc omap_dma
+> mmc_core i2c_dev [ 3569.386293] CPU: 0 PID: 1429 Comm: wdctl Not tainted
+> 4.3.0-0.rc7.git0.1.fc24.armv7hl #1 [ 3569.394740] Hardware name: Generic
+> AM33XX (Flattened Device Tree) [ 3569.401179] task: dbd11a00 ti: dbaac000
+> task.ti: dbaac000
+> [ 3569.406917] PC is at omap_wdt_get_timeleft+0xc/0x20 [omap_wdt]
+> [ 3569.413106] LR is at watchdog_ioctl+0x3cc/0x42c
+> [ 3569.417902] pc : [<bf0ab138>]    lr : [<c0739c54>]    psr: 600f0013
+> [ 3569.417902] sp : dbaadf18  ip : 00000003  fp : 7f5d3bbe
+> [ 3569.430014] r10: 00000000  r9 : 00000003  r8 : bef21ab8
+> [ 3569.435535] r7 : dbbc0f7c  r6 : dbbc0f18  r5 : bef21ab8  r4 : 00000000
+> [ 3569.442427] r3 : 00000000  r2 : 00000000  r1 : 8004570a  r0 : dbbc0f18
+> [ 3569.449323] Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment
+> none [ 3569.456858] Control: 10c5387d  Table: 9c894019  DAC: 00000051
+> [ 3569.462927] Process wdctl (pid: 1429, stack limit = 0xdbaac220)
+> [ 3569.469179] Stack: (0xdbaadf18 to 0xdbaae000)
+> [ 3569.473790] df00:                                                      
+> bef21ab8 dbf60e38 [ 3569.482441] df20: dc91b840 8004570a bef21ab8 c03988a4
+> dbaadf48 dc854000 00000000 dd313850 [ 3569.491092] df40: ddf033b8 0000570a
+> dc91b80b dbaadf3c dbf60e38 00000020 c0df9250 c0df6c48 [ 3569.499741] df60:
+> dc91b840 8004570a 00000000 dc91b840 dc91b840 8004570a bef21ab8 00000003 [
+> 3569.508389] df80: 00000000 c03989d4 bef21b74 7f5d3bad 00000003 00000036
+> c020fcc4 dbaac000 [ 3569.517037] dfa0: 00000000 c020fb00 bef21b74 7f5d3bad
+> 00000003 8004570a bef21ab8 00000001 [ 3569.525685] dfc0: bef21b74 7f5d3bad
+> 00000003 00000036 00000001 00000000 7f5e4eb0 7f5d3bbe [ 3569.534334] dfe0:
+> 7f5e4f10 bef21a3c 7f5d0a54 b6e97e0c a00f0010 00000003 00000000 00000000 [
+> 3569.543038] [<bf0ab138>] (omap_wdt_get_timeleft [omap_wdt]) from
+> [<c0739c54>] (watchdog_ioctl+0x3cc/0x42c) [ 3569.553266] [<c0739c54>]
+> (watchdog_ioctl) from [<c03988a4>] (do_vfs_ioctl+0x5bc/0x698) [
+> 3569.561648] [<c03988a4>] (do_vfs_ioctl) from [<c03989d4>]
+> (SyS_ioctl+0x54/0x7c) [ 3569.569400] [<c03989d4>] (SyS_ioctl) from
+> [<c020fb00>] (ret_fast_syscall+0x0/0x3c) [ 3569.577413] Code: e12fff1e
+> e52de004 e8bd4000 e5903060 (e5933088) [ 3569.584089] ---[ end trace
+> cec3039bd3ae610a ]---
 > 
-> Anyway, I recalled that there is another patchset pending to add pretimeout
-> support into the watchdog code. I'll have to dig that out and consolidate the two.
+> Cc: <stable@vger.kernel.org> # v4.2+
+> Cc: Guenter Roeck <linux@roeck-us.net>
+> Cc: Lars Poeschel <poeschel@lemonage.de>
+> Signed-off-by: Peter Robinson <pbrobinson@gmail.com>
+
+Peter, thank you for catching this one.
+
+Acked-by: Lars Poeschel <poeschel@lemonage.de>
+
+> ---
+>  drivers/watchdog/omap_wdt.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> Guenter
->
-Got it. Thanks.
-> >>>+
-> >>>+	regmap_write(wdev->regmap, IMX2_WDT_WICR, val | IMX2_WDT_WICR_WIE);
-> >>>+
-> >>>+	wdog->pretimeout = new_timeout;
-> >>>+
-> >>>+	return 0;
-> >>>+}
-> >>>+
-> >>>+static irqreturn_t imx2_wdt_isr(int irq, void *dev_id)
-> >>>+{
-> >>>+	struct platform_device *pdev = dev_id;
-> >>>+	struct watchdog_device *wdog = platform_get_drvdata(pdev);
-> >>>+	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
-> >>>+	u32 val;
-> >>>+
-> >>>+	regmap_read(wdev->regmap, IMX2_WDT_WICR, &val);
-> >>>+	if (val & IMX2_WDT_WICR_WTIS) {
-> >>>+		/*clear interrupt status bit*/
-> >>>+		regmap_write(wdev->regmap, IMX2_WDT_WICR, val);
-> >>>+		panic("pre-timeout:%d, %d Seconds remained\n", wdog->pretimeout,
-> >>
-> >>"seconds" - no capital 'S'.
-> >>
-> >>>+		      wdog->timeout - wdog->pretimeout);
-> >>>+	}
-> >>>+
-> >>>+	return IRQ_HANDLED;
-> >>>+}
-> >>>+
-> >>>  static const struct watchdog_ops imx2_wdt_ops = {
-> >>>  	.owner = THIS_MODULE,
-> >>>  	.start = imx2_wdt_start,
-> >>>  	.stop = imx2_wdt_stop,
-> >>>  	.ping = imx2_wdt_ping,
-> >>>  	.set_timeout = imx2_wdt_set_timeout,
-> >>>+	.set_pretimeout = imx2_wdt_set_pretimeout,
-> >>>  };
-> >>>
-> >>>  static const struct regmap_config imx2_wdt_regmap_config = {
-> >>>@@ -229,6 +274,7 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
-> >>>  	struct resource *res;
-> >>>  	void __iomem *base;
-> >>>  	int ret;
-> >>>+	int irq;
-> >>>  	u32 val;
-> >>>
-> >>>  	wdev = devm_kzalloc(&pdev->dev, sizeof(*wdev), GFP_KERNEL);
-> >>>@@ -294,6 +340,16 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
-> >>>  		goto disable_clk;
-> >>>  	}
-> >>>
-> >>>+	irq = platform_get_irq(pdev, 0);
-> >>>+	if (irq > 0) {
-> >>>+		ret = devm_request_irq(&pdev->dev, irq, imx2_wdt_isr, 0,
-> >>>+				       dev_name(&pdev->dev), pdev);
-> >>>+		if (ret) {
-> >>>+			dev_err(&pdev->dev, "can't get irq %d\n", irq);
-> >>>+			goto disable_clk;
-> >>>+		}
-> >>>+	}
-> >>>+
-> >>>  	wdev->restart_handler.notifier_call = imx2_restart_handler;
-> >>>  	wdev->restart_handler.priority = 128;
-> >>>  	ret = register_restart_handler(&wdev->restart_handler);
-> >>>
-> >>
-> >--
-> >To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> >the body of a message to majordomo@vger.kernel.org
-> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >
+> diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
+> index d96bee0..6f17c93 100644
+> --- a/drivers/watchdog/omap_wdt.c
+> +++ b/drivers/watchdog/omap_wdt.c
+> @@ -205,7 +205,7 @@ static int omap_wdt_set_timeout(struct watchdog_device
+> *wdog,
 > 
+>  static unsigned int omap_wdt_get_timeleft(struct watchdog_device *wdog)
+>  {
+> -	struct omap_wdt_dev *wdev = watchdog_get_drvdata(wdog);
+> +	struct omap_wdt_dev *wdev = to_omap_wdt_dev(wdog);
+>  	void __iomem *base = wdev->base;
+>  	u32 value;
