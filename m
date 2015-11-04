@@ -1,113 +1,180 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.savoirfairelinux.com ([208.88.110.44]:58958 "EHLO
-	mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932240AbbKCQNL (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 3 Nov 2015 11:13:11 -0500
-From: Damien Riegel <damien.riegel@savoirfairelinux.com>
-To: linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
-	kernel@savoirfairelinux.com,
-	Damien Riegel <damien.riegel@savoirfairelinux.com>
-Subject: [PATCH 09/13] watchdog: moxart_wdt: use core restart handler
-Date: Tue,  3 Nov 2015 11:12:42 -0500
-Message-Id: <1446567166-10156-10-git-send-email-damien.riegel@savoirfairelinux.com>
-In-Reply-To: <1446567166-10156-1-git-send-email-damien.riegel@savoirfairelinux.com>
-References: <1446567166-10156-1-git-send-email-damien.riegel@savoirfairelinux.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <yibin.gong@freescale.com>
+Date: Wed, 4 Nov 2015 15:55:43 +0800
+From: Robin Gong <b38343@freescale.com>
+To: Guenter Roeck <linux@roeck-us.net>
+CC: <wim@iguana.be>, <linux-watchdog@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH v2 2/2] watchdog: imx2_wdt: add set_pretimeout interface
+Message-ID: <20151104075542.GB10809@shlinux2>
+References: <1446531084-15365-1-git-send-email-b38343@freescale.com>
+ <1446531084-15365-2-git-send-email-b38343@freescale.com>
+ <563866CD.1080306@roeck-us.net>
+ <20151103080447.GB15428@shlinux2>
+ <5638EE38.80404@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <5638EE38.80404@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Get rid of the custom restart handler by using the one provided by the
-watchdog core.
-
-Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
----
- drivers/watchdog/moxart_wdt.c | 23 ++++++-----------------
- 1 file changed, 6 insertions(+), 17 deletions(-)
-
-diff --git a/drivers/watchdog/moxart_wdt.c b/drivers/watchdog/moxart_wdt.c
-index 60b0605..885c81b 100644
---- a/drivers/watchdog/moxart_wdt.c
-+++ b/drivers/watchdog/moxart_wdt.c
-@@ -15,9 +15,7 @@
- #include <linux/module.h>
- #include <linux/err.h>
- #include <linux/kernel.h>
--#include <linux/notifier.h>
- #include <linux/platform_device.h>
--#include <linux/reboot.h>
- #include <linux/watchdog.h>
- #include <linux/moduleparam.h>
- 
-@@ -29,22 +27,19 @@ struct moxart_wdt_dev {
- 	struct watchdog_device dev;
- 	void __iomem *base;
- 	unsigned int clock_frequency;
--	struct notifier_block restart_handler;
- };
- 
- static int heartbeat;
- 
--static int moxart_restart_handle(struct notifier_block *this,
--				 unsigned long mode, void *cmd)
-+static int moxart_wdt_restart(struct watchdog_device *wdt_dev)
- {
--	struct moxart_wdt_dev *moxart_wdt = container_of(this,
--							 struct moxart_wdt_dev,
--							 restart_handler);
-+	struct moxart_wdt_dev *moxart_wdt = watchdog_get_drvdata(wdt_dev);
-+
- 	writel(1, moxart_wdt->base + REG_COUNT);
- 	writel(0x5ab9, moxart_wdt->base + REG_MODE);
- 	writel(0x03, moxart_wdt->base + REG_ENABLE);
- 
--	return NOTIFY_DONE;
-+	return 0;
- }
- 
- static int moxart_wdt_stop(struct watchdog_device *wdt_dev)
-@@ -87,6 +82,7 @@ static const struct watchdog_ops moxart_wdt_ops = {
- 	.start          = moxart_wdt_start,
- 	.stop           = moxart_wdt_stop,
- 	.set_timeout    = moxart_wdt_set_timeout,
-+	.restart        = moxart_wdt_restart,
- };
- 
- static int moxart_wdt_probe(struct platform_device *pdev)
-@@ -134,6 +130,7 @@ static int moxart_wdt_probe(struct platform_device *pdev)
- 
- 	watchdog_init_timeout(&moxart_wdt->dev, heartbeat, dev);
- 	watchdog_set_nowayout(&moxart_wdt->dev, nowayout);
-+	watchdog_set_restart_priority(&moxart_wdt->dev, 128);
- 
- 	watchdog_set_drvdata(&moxart_wdt->dev, moxart_wdt);
- 
-@@ -141,13 +138,6 @@ static int moxart_wdt_probe(struct platform_device *pdev)
- 	if (err)
- 		return err;
- 
--	moxart_wdt->restart_handler.notifier_call = moxart_restart_handle;
--	moxart_wdt->restart_handler.priority = 128;
--	err = register_restart_handler(&moxart_wdt->restart_handler);
--	if (err)
--		dev_err(dev, "cannot register restart notifier (err=%d)\n",
--			err);
--
- 	dev_dbg(dev, "Watchdog enabled (heartbeat=%d sec, nowayout=%d)\n",
- 		moxart_wdt->dev.timeout, nowayout);
- 
-@@ -158,7 +148,6 @@ static int moxart_wdt_remove(struct platform_device *pdev)
- {
- 	struct moxart_wdt_dev *moxart_wdt = platform_get_drvdata(pdev);
- 
--	unregister_restart_handler(&moxart_wdt->restart_handler);
- 	moxart_wdt_stop(&moxart_wdt->dev);
- 
- 	return 0;
--- 
-2.5.0
-
+On Tue, Nov 03, 2015 at 09:26:16AM -0800, Guenter Roeck wrote:
+> On 11/03/2015 12:04 AM, Robin Gong wrote:
+> >On Mon, Nov 02, 2015 at 11:48:29PM -0800, Guenter Roeck wrote:
+> >>On 11/02/2015 10:11 PM, Robin Gong wrote:
+> >>>Enable set_pretimeout interface and trigger the pretimeout interrupt before
+> >>>watchdog timeout event happen.
+> >>>
+> >>>Signed-off-by: Robin Gong <b38343@freescale.com>
+> >>>---
+> >>>  drivers/watchdog/imx2_wdt.c | 58 ++++++++++++++++++++++++++++++++++++++++++++-
+> >>>  1 file changed, 57 insertions(+), 1 deletion(-)
+> >>>
+> >>>diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+> >>>index 0bb1a1d..bd42857 100644
+> >>>--- a/drivers/watchdog/imx2_wdt.c
+> >>>+++ b/drivers/watchdog/imx2_wdt.c
+> >>>@@ -24,6 +24,7 @@
+> >>>  #include <linux/clk.h>
+> >>>  #include <linux/delay.h>
+> >>>  #include <linux/init.h>
+> >>>+#include <linux/interrupt.h>
+> >>>  #include <linux/io.h>
+> >>>  #include <linux/jiffies.h>
+> >>>  #include <linux/kernel.h>
+> >>>@@ -52,12 +53,18 @@
+> >>>  #define IMX2_WDT_WRSR		0x04		/* Reset Status Register */
+> >>>  #define IMX2_WDT_WRSR_TOUT	(1 << 1)	/* -> Reset due to Timeout */
+> >>>
+> >>>+#define IMX2_WDT_WICR		0x06		/*Interrupt Control Register*/
+> >>>+#define IMX2_WDT_WICR_WIE	(1 << 15)	/* -> Interrupt Enable */
+> >>>+#define IMX2_WDT_WICR_WTIS	(1 << 14)	/* -> Interrupt Status */
+> >>>+#define IMX2_WDT_WICR_WICT	(0xFF)	/* Watchdog Interrupt Timeout */
+> >>
+> >>Unnecessary ( )
+> >>
+> >>>+
+> >>>  #define IMX2_WDT_WMCR		0x08		/* Misc Register */
+> >>>
+> >>>  #define IMX2_WDT_MAX_TIME	128
+> >>>  #define IMX2_WDT_DEFAULT_TIME	60		/* in seconds */
+> >>>
+> >>>  #define WDOG_SEC_TO_COUNT(s)	((s * 2 - 1) << 8)
+> >>>+#define WDOG_SEC_TO_PRECOUNT(s)	((s) * 2)	/* set WDOG pre timeout count*/
+> >>>
+> >>>  struct imx2_wdt_device {
+> >>>  	struct clk *clk;
+> >>>@@ -80,7 +87,8 @@ MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds (default="
+> >>>
+> >>>  static const struct watchdog_info imx2_wdt_info = {
+> >>>  	.identity = "imx2+ watchdog",
+> >>>-	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
+> >>>+	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE
+> >>>+		   | WDIOF_PRETIMEOUT,
+> >>>  };
+> >>>
+> >>>  static int imx2_restart_handler(struct notifier_block *this, unsigned long mode,
+> >>>@@ -207,12 +215,49 @@ static inline void imx2_wdt_ping_if_active(struct watchdog_device *wdog)
+> >>>  	}
+> >>>  }
+> >>>
+> >>>+static int imx2_wdt_set_pretimeout(struct watchdog_device *wdog,
+> >>>+				   unsigned int new_timeout)
+> >>>+{
+> >>>+	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
+> >>>+	u32 val;
+> >>>+
+> >>>+	regmap_read(wdev->regmap, IMX2_WDT_WICR, &val);
+> >>>+	/* set the new pre-timeout value in the WSR */
+> >>>+	val &= ~IMX2_WDT_WICR_WICT;
+> >>>+	val |= WDOG_SEC_TO_PRECOUNT(new_timeout);
+> >>
+> >>Looking into this, I think we need more information in the first patch.
+> >>Specifically, we need a value for max_pretimeout and validate it
+> >>(new_timeout must be smaller than 128 to avoid overflows, independent
+> >>of the maximum timeout).
+> >>
+> >I think it's enough, since there is "t >= wdd->timeout" in
+> >watchdog_pretimeout_invalid() of the first patch and wdd->timeout is never
+> >bigger than wdd->max_timeout which setting in imx2_wdt.c as 128.
+> 
+> We are dealing with infrastructure code here. This happens to work for your driver,
+> but that doesn't mean it will work for other drivers.
+> 
+> Anyway, I recalled that there is another patchset pending to add pretimeout
+> support into the watchdog code. I'll have to dig that out and consolidate the two.
+> 
+> Guenter
+>
+Got it. Thanks.
+> >>>+
+> >>>+	regmap_write(wdev->regmap, IMX2_WDT_WICR, val | IMX2_WDT_WICR_WIE);
+> >>>+
+> >>>+	wdog->pretimeout = new_timeout;
+> >>>+
+> >>>+	return 0;
+> >>>+}
+> >>>+
+> >>>+static irqreturn_t imx2_wdt_isr(int irq, void *dev_id)
+> >>>+{
+> >>>+	struct platform_device *pdev = dev_id;
+> >>>+	struct watchdog_device *wdog = platform_get_drvdata(pdev);
+> >>>+	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
+> >>>+	u32 val;
+> >>>+
+> >>>+	regmap_read(wdev->regmap, IMX2_WDT_WICR, &val);
+> >>>+	if (val & IMX2_WDT_WICR_WTIS) {
+> >>>+		/*clear interrupt status bit*/
+> >>>+		regmap_write(wdev->regmap, IMX2_WDT_WICR, val);
+> >>>+		panic("pre-timeout:%d, %d Seconds remained\n", wdog->pretimeout,
+> >>
+> >>"seconds" - no capital 'S'.
+> >>
+> >>>+		      wdog->timeout - wdog->pretimeout);
+> >>>+	}
+> >>>+
+> >>>+	return IRQ_HANDLED;
+> >>>+}
+> >>>+
+> >>>  static const struct watchdog_ops imx2_wdt_ops = {
+> >>>  	.owner = THIS_MODULE,
+> >>>  	.start = imx2_wdt_start,
+> >>>  	.stop = imx2_wdt_stop,
+> >>>  	.ping = imx2_wdt_ping,
+> >>>  	.set_timeout = imx2_wdt_set_timeout,
+> >>>+	.set_pretimeout = imx2_wdt_set_pretimeout,
+> >>>  };
+> >>>
+> >>>  static const struct regmap_config imx2_wdt_regmap_config = {
+> >>>@@ -229,6 +274,7 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
+> >>>  	struct resource *res;
+> >>>  	void __iomem *base;
+> >>>  	int ret;
+> >>>+	int irq;
+> >>>  	u32 val;
+> >>>
+> >>>  	wdev = devm_kzalloc(&pdev->dev, sizeof(*wdev), GFP_KERNEL);
+> >>>@@ -294,6 +340,16 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
+> >>>  		goto disable_clk;
+> >>>  	}
+> >>>
+> >>>+	irq = platform_get_irq(pdev, 0);
+> >>>+	if (irq > 0) {
+> >>>+		ret = devm_request_irq(&pdev->dev, irq, imx2_wdt_isr, 0,
+> >>>+				       dev_name(&pdev->dev), pdev);
+> >>>+		if (ret) {
+> >>>+			dev_err(&pdev->dev, "can't get irq %d\n", irq);
+> >>>+			goto disable_clk;
+> >>>+		}
+> >>>+	}
+> >>>+
+> >>>  	wdev->restart_handler.notifier_call = imx2_restart_handler;
+> >>>  	wdev->restart_handler.priority = 128;
+> >>>  	ret = register_restart_handler(&wdev->restart_handler);
+> >>>
+> >>
+> >--
+> >To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >
+> 
