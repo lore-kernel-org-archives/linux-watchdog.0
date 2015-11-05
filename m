@@ -1,231 +1,144 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-qg0-f54.google.com ([209.85.192.54]:36194 "EHLO
-	mail-qg0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756643AbbKEVUY (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:38689 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932265AbbKEWXc (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 5 Nov 2015 16:20:24 -0500
-Received: by qgad10 with SMTP id d10so77249011qga.3
-        for <linux-watchdog@vger.kernel.org>; Thu, 05 Nov 2015 13:20:24 -0800 (PST)
-From: Akshay Bhat <akshay.bhat@timesys.com>
-To: linux-watchdog@vger.kernel.org
-Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
+	Thu, 5 Nov 2015 17:23:32 -0500
+Date: Thu, 5 Nov 2015 14:23:25 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: Akshay Bhat <akshay.bhat@timesys.com>
+Cc: linux-watchdog@vger.kernel.org, robh+dt@kernel.org,
+	pawel.moll@arm.com, mark.rutland@arm.com,
 	ijc+devicetree@hellion.org.uk, galak@codeaurora.org, wim@iguana.be,
 	tharvey@gateworks.com, devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org, shawnguo@kernel.org,
 	kernel@pengutronix.de, linux@arm.linux.org.uk,
 	linux-arm-kernel@lists.infradead.org, justin.waters@timesys.com,
-	l.stach@pengutronix.de, festevam@gmail.com, sr@denx.de,
-	Markus Pargmann <mpa@pengutronix.de>
-Subject: [PATCH v4 2/2] ARM: dts: ventana: Add ext-reset support
-Date: Thu,  5 Nov 2015 16:19:22 -0500
-Message-Id: <1446758362-11702-3-git-send-email-akshay.bhat@timesys.com>
-In-Reply-To: <1446758362-11702-1-git-send-email-akshay.bhat@timesys.com>
+	l.stach@pengutronix.de, festevam@gmail.com, sr@denx.de
+Subject: Re: [PATCH v4 1/2] watchdog: imx2_wdt: add external reset support
+ via 'ext-reset-output' dt prop
+Message-ID: <20151105222325.GA26159@roeck-us.net>
 References: <1446758362-11702-1-git-send-email-akshay.bhat@timesys.com>
+ <1446758362-11702-2-git-send-email-akshay.bhat@timesys.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1446758362-11702-2-git-send-email-akshay.bhat@timesys.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-From: Tim Harvey <tharvey@gateworks.com>
+On Thu, Nov 05, 2015 at 04:19:21PM -0500, Akshay Bhat wrote:
+> From: Tim Harvey <tharvey@gateworks.com>
+> 
+> The IMX6 watchdog supports assertion of a signal (WDOG_B) which
+> can be pinmux'd to an external pin. This is typically used for boards that
+> have PMIC's in control of the IMX6 power rails. In fact, failure to use
+> such an external reset on boards with external PMIC's can result in various
+> hangs due to the IMX6 not being fully reset [1] as well as the board failing
+> to reset because its PMIC has not been reset to provide adequate voltage for
+> the CPU when coming out of reset at 800Mhz.
+> 
+> This uses a new device-tree property 'ext-reset-output' to indicate the
+> board has such a reset and to cause the watchdog to be configured to assert
+> WDOG_B instead of an internal reset both on a watchdog timeout and in
+> system_restart.
+> 
+> [1] http://lists.infradead.org/pipermail/linux-arm-kernel/2015-March/333689.html
+> 
+> Cc: Lucas Stach <l.stach@pengutronix.de>
+> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
+> ---
+>  .../devicetree/bindings/watchdog/fsl-imx-wdt.txt     |  2 ++
+>  drivers/watchdog/imx2_wdt.c                          | 20 ++++++++++++++++++--
+>  2 files changed, 20 insertions(+), 2 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+> index 8dab6fd..9b89b3a 100644
+> --- a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+> +++ b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+> @@ -9,6 +9,8 @@ Optional property:
 
-The Gateworks Ventana boards have a PMIC that can be used to regulate the
-CPU voltage rails for DVFS support. In order to ensure this PMIC is properly
-reset the watchdog needs to be configured to assert its external reset
-signal.
+properties ?
 
-Additionally the pad used for WDOG_B needs to be configured which we add to
-iomux.
+>  - big-endian: If present the watchdog device's registers are implemented
+>    in big endian mode, otherwise in native mode(same with CPU), for more
+>    detail please see: Documentation/devicetree/bindings/regmap/regmap.txt.
+> +- ext-reset-output: If present the watchdog device is configured to assert its
 
-Cc: Markus Pargmann <mpa@pengutronix.de>
-Signed-off-by: Tim Harvey <tharvey@gateworks.com>
----
- arch/arm/boot/dts/imx6qdl-gw51xx.dtsi | 12 ++++++++++++
- arch/arm/boot/dts/imx6qdl-gw52xx.dtsi | 12 ++++++++++++
- arch/arm/boot/dts/imx6qdl-gw53xx.dtsi | 13 +++++++++++++
- arch/arm/boot/dts/imx6qdl-gw54xx.dtsi | 17 +++++++++++++++++
- arch/arm/boot/dts/imx6qdl-gw551x.dtsi | 12 ++++++++++++
- arch/arm/boot/dts/imx6qdl-gw552x.dtsi | 12 ++++++++++++
- 6 files changed, 78 insertions(+)
+Should that have a vendor prefix ? Also, not sure if "-output"
+has any real value in the property name. "fsl,external-reset", maybe ?
 
-diff --git a/arch/arm/boot/dts/imx6qdl-gw51xx.dtsi b/arch/arm/boot/dts/imx6qdl-gw51xx.dtsi
-index 7b31fdb..d81bd72 100644
---- a/arch/arm/boot/dts/imx6qdl-gw51xx.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-gw51xx.dtsi
-@@ -210,6 +210,12 @@
- 	status = "okay";
- };
- 
-+&wdog1 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&pinctrl_wdog>;
-+	ext-reset-output;
-+};
-+
- &iomuxc {
- 	imx6qdl-gw51xx {
- 		pinctrl_enet: enetgrp {
-@@ -328,5 +334,11 @@
- 				MX6QDL_PAD_EIM_D22__GPIO3_IO22		0x1b0b0 /* OTG_PWR_EN */
- 			>;
- 		};
-+
-+		pinctrl_wdog: wdoggrp {
-+			fsl,pins = <
-+				MX6QDL_PAD_DISP0_DAT8__WDOG1_B		0x1b0b0
-+			>;
-+		};
- 	};
- };
-diff --git a/arch/arm/boot/dts/imx6qdl-gw52xx.dtsi b/arch/arm/boot/dts/imx6qdl-gw52xx.dtsi
-index 1b66328..0d8f201 100644
---- a/arch/arm/boot/dts/imx6qdl-gw52xx.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-gw52xx.dtsi
-@@ -326,6 +326,12 @@
- 	status = "okay";
- };
- 
-+&wdog1 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&pinctrl_wdog>;
-+	ext-reset-output;
-+};
-+
- &iomuxc {
- 	imx6qdl-gw52xx {
- 		pinctrl_audmux: audmuxgrp {
-@@ -501,5 +507,11 @@
- 				MX6QDL_PAD_NANDF_CS1__SD3_VSELECT	0x170f9
- 			>;
- 		};
-+
-+		pinctrl_wdog: wdoggrp {
-+			fsl,pins = <
-+				MX6QDL_PAD_DISP0_DAT8__WDOG1_B		0x1b0b0
-+			>;
-+		};
- 	};
- };
-diff --git a/arch/arm/boot/dts/imx6qdl-gw53xx.dtsi b/arch/arm/boot/dts/imx6qdl-gw53xx.dtsi
-index 7c51839..36f9ec6 100644
---- a/arch/arm/boot/dts/imx6qdl-gw53xx.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-gw53xx.dtsi
-@@ -332,7 +332,14 @@
- 	status = "okay";
- };
- 
-+&wdog1 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&pinctrl_wdog>;
-+	ext-reset-output;
-+};
-+
- &iomuxc {
-+
- 	imx6qdl-gw53xx {
- 		pinctrl_audmux: audmuxgrp {
- 			fsl,pins = <
-@@ -508,5 +515,11 @@
- 				MX6QDL_PAD_NANDF_CS1__SD3_VSELECT	0x170f9
- 			>;
- 		};
-+
-+		pinctrl_wdog: wdoggrp {
-+			fsl,pins = <
-+				MX6QDL_PAD_DISP0_DAT8__WDOG1_B		0x1b0b0
-+			>;
-+		};
- 	};
- };
-diff --git a/arch/arm/boot/dts/imx6qdl-gw54xx.dtsi b/arch/arm/boot/dts/imx6qdl-gw54xx.dtsi
-index 929e0b3..0c1150f 100644
---- a/arch/arm/boot/dts/imx6qdl-gw54xx.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-gw54xx.dtsi
-@@ -425,6 +425,17 @@
- 	status = "okay";
- };
- 
-+&wdog1 {
-+	status = "disabled";
-+};
-+
-+&wdog2 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&pinctrl_wdog>;
-+	ext-reset-output;
-+	status = "okay";
-+};
-+
- &iomuxc {
- 	imx6qdl-gw54xx {
- 		pinctrl_audmux: audmuxgrp {
-@@ -600,5 +611,11 @@
- 				MX6QDL_PAD_NANDF_CS1__SD3_VSELECT	0x170f9
- 			>;
- 		};
-+
-+		pinctrl_wdog: wdoggrp {
-+			fsl,pins = <
-+				MX6QDL_PAD_SD1_DAT3__WDOG2_B		0x1b0b0
-+			>;
-+		};
- 	};
- };
-diff --git a/arch/arm/boot/dts/imx6qdl-gw551x.dtsi b/arch/arm/boot/dts/imx6qdl-gw551x.dtsi
-index 741f3d5..883e577 100644
---- a/arch/arm/boot/dts/imx6qdl-gw551x.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-gw551x.dtsi
-@@ -227,6 +227,12 @@
- 	status = "okay";
- };
- 
-+&wdog1 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&pinctrl_wdog>;
-+	ext-reset-output;
-+};
-+
- &iomuxc {
- 	imx6qdl-gw51xx {
- 		pinctrl_flexcan1: flexcan1grp {
-@@ -309,5 +315,11 @@
- 				MX6QDL_PAD_GPIO_1__USB_OTG_ID		0x17059
- 			>;
- 		};
-+
-+		pinctrl_wdog: wdoggrp {
-+			fsl,pins = <
-+				MX6QDL_PAD_DISP0_DAT8__WDOG1_B		0x1b0b0
-+			>;
-+		};
- 	};
- };
-diff --git a/arch/arm/boot/dts/imx6qdl-gw552x.dtsi b/arch/arm/boot/dts/imx6qdl-gw552x.dtsi
-index d1e5048..07674c2 100644
---- a/arch/arm/boot/dts/imx6qdl-gw552x.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-gw552x.dtsi
-@@ -185,6 +185,12 @@
- 	status = "okay";
- };
- 
-+&wdog1 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&pinctrl_wdog>;
-+	ext-reset-output;
-+};
-+
- &iomuxc {
- 	imx6qdl-gw552x {
- 		pinctrl_gpio_leds: gpioledsgrp {
-@@ -262,5 +268,11 @@
- 				MX6QDL_PAD_KEY_ROW1__UART5_RX_DATA	0x1b0b1
- 			>;
-                 };
-+
-+		pinctrl_wdog: wdoggrp {
-+			fsl,pins = <
-+				MX6QDL_PAD_DISP0_DAT8__WDOG1_B		0x1b0b0
-+			>;
-+		};
- 	};
- };
--- 
-2.6.2
+> +  external reset (WDOG_B) instead of issuing a software reset.
+>  
+>  Examples:
+>  
+> diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
+> index 29ef719..84bfec4 100644
+> --- a/drivers/watchdog/imx2_wdt.c
+> +++ b/drivers/watchdog/imx2_wdt.c
+> @@ -41,6 +41,8 @@
+>  
+>  #define IMX2_WDT_WCR		0x00		/* Control Register */
+>  #define IMX2_WDT_WCR_WT		(0xFF << 8)	/* -> Watchdog Timeout Field */
+> +#define IMX2_WDT_WCR_WDA	(1 << 5)	/* -> External Reset WDOG_B */
+> +#define IMX2_WDT_WCR_SRS	(1 << 4)	/* -> Software Reset Signal */
+>  #define IMX2_WDT_WCR_WRE	(1 << 3)	/* -> WDOG Reset Enable */
+>  #define IMX2_WDT_WCR_WDE	(1 << 2)	/* -> Watchdog Enable */
+>  #define IMX2_WDT_WCR_WDZST	(1 << 0)	/* -> Watchdog timer Suspend */
+> @@ -65,6 +67,7 @@ struct imx2_wdt_device {
+>  	struct timer_list timer;	/* Pings the watchdog when closed */
+>  	struct watchdog_device wdog;
+>  	struct notifier_block restart_handler;
+> +	bool ext_reset;
+>  };
+>  
+>  static bool nowayout = WATCHDOG_NOWAYOUT;
+> @@ -90,6 +93,13 @@ static int imx2_restart_handler(struct notifier_block *this, unsigned long mode,
+>  	struct imx2_wdt_device *wdev = container_of(this,
+>  						    struct imx2_wdt_device,
+>  						    restart_handler);
+> +
+> +	/* Use internal reset or external - not both */
+> +	if (wdev->ext_reset)
+> +		wcr_enable |= IMX2_WDT_WCR_SRS; /* do not assert int reset */
+> +	else
+> +		wcr_enable |= IMX2_WDT_WCR_WDA; /* do not assert ext-reset */
+> +
+>  	/* Assert SRS signal */
+>  	regmap_write(wdev->regmap, IMX2_WDT_WCR, wcr_enable);
+>  	/*
+> @@ -119,8 +129,12 @@ static inline void imx2_wdt_setup(struct watchdog_device *wdog)
+>  	val |= IMX2_WDT_WCR_WDZST;
+>  	/* Strip the old watchdog Time-Out value */
+>  	val &= ~IMX2_WDT_WCR_WT;
+> -	/* Generate reset if WDOG times out */
+> -	val &= ~IMX2_WDT_WCR_WRE;
+> +	/* Generate internal chip-level reset if WDOG times out */
+> +	if (!wdev->ext_reset)
+> +		val &= ~IMX2_WDT_WCR_WRE;
+> +	/* Or if external-reset assert WDOG_B reset only on time-out */
+> +	else
+> +		val |= IMX2_WDT_WCR_WRE;
 
+I don't really understand what this means. Normally I would hope that a watchdog
+only generates a reset if/when it times out.
+
+>  	/* Keep Watchdog Disabled */
+>  	val &= ~IMX2_WDT_WCR_WDE;
+>  	/* Set the watchdog's Time-Out value */
+> @@ -267,6 +281,8 @@ static int __init imx2_wdt_probe(struct platform_device *pdev)
+>  	regmap_read(wdev->regmap, IMX2_WDT_WRSR, &val);
+>  	wdog->bootstatus = val & IMX2_WDT_WRSR_TOUT ? WDIOF_CARDRESET : 0;
+>  
+> +	wdev->ext_reset = of_property_read_bool(pdev->dev.of_node,
+> +						"ext-reset-output");
+>  	wdog->timeout = clamp_t(unsigned, timeout, 1, IMX2_WDT_MAX_TIME);
+>  	if (wdog->timeout != timeout)
+>  		dev_warn(&pdev->dev, "Initial timeout out of range! Clamped from %u to %u\n",
+> -- 
+> 2.6.2
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
