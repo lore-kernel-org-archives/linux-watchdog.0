@@ -1,74 +1,72 @@
-Return-path: <fu.wei@linaro.org>
-MIME-Version: 1.0
-In-Reply-To: <563B9907.7020608@codeaurora.org>
-References: <1445961999-9506-1-git-send-email-fu.wei@linaro.org>
-	<1445961999-9506-6-git-send-email-fu.wei@linaro.org>
-	<CAOZdJXV8x8EMQEZhdFS+34iO+6P9S==k9bQjt=67iXt6K2oSCw@mail.gmail.com>
-	<563AE588.1080009@roeck-us.net>
-	<563B5DF9.6080102@codeaurora.org>
-	<CADyBb7sD2Y2kGj-suOs1UeUwXPjH39mvX_Sobn0Y7WfsJ9hF=Q@mail.gmail.com>
-	<563B62F7.3050307@codeaurora.org>
-	<CADyBb7vDf+KRi8gUGEt+iu-GpqVQgVq7nKTVt7O=3x78KCi+RQ@mail.gmail.com>
-	<563B6A4B.7090400@codeaurora.org>
-	<CADyBb7t6ovfrz1b3ZZykKq22HkZi1W0PWg7-wXihEjM9ciTgGg@mail.gmail.com>
-	<563B869F.2010004@roeck-us.net>
-	<563B9907.7020608@codeaurora.org>
-Date: Fri, 6 Nov 2015 02:04:44 +0800
-Message-ID: <CADyBb7tkELuJgmo81ypZf2dzgVqxBYTyKLV-xJ1QZbxK7pmuLQ@mail.gmail.com>
-Subject: Re: [Linaro-acpi] [PATCH v8 5/5] Watchdog: introduce ARM SBSA
- watchdog driver
-From: Fu Wei <fu.wei@linaro.org>
-To: Timur Tabi <timur@codeaurora.org>
-Cc: Guenter Roeck <linux@roeck-us.net>,
-	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>, linux-watchdog@vger.kernel.org,
-	devicetree@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>,
-	linux-doc@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-	Arnd Bergmann <arnd@arndb.de>, Jonathan Corbet <corbet@lwn.net>, Jon Masters <jcm@redhat.com>,
-	Pratyush Anand <panand@redhat.com>, Will Deacon <will.deacon@arm.com>,
-	Wim Van Sebroeck <wim@iguana.be>, Catalin Marinas <catalin.marinas@arm.com>,
-	Wei Fu <tekkamanninja@gmail.com>, Rob Herring <robherring2@gmail.com>,
-	Vipul Gandhi <vgandhi@codeaurora.org>, Dave Young <dyoung@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from mail-qk0-f180.google.com ([209.85.220.180]:36326 "EHLO
+	mail-qk0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756632AbbKEVUU (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 5 Nov 2015 16:20:20 -0500
+Received: by qkcl124 with SMTP id l124so37983046qkc.3
+        for <linux-watchdog@vger.kernel.org>; Thu, 05 Nov 2015 13:20:09 -0800 (PST)
+From: Akshay Bhat <akshay.bhat@timesys.com>
+To: linux-watchdog@vger.kernel.org
+Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
+	ijc+devicetree@hellion.org.uk, galak@codeaurora.org, wim@iguana.be,
+	tharvey@gateworks.com, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, shawnguo@kernel.org,
+	kernel@pengutronix.de, linux@arm.linux.org.uk,
+	linux-arm-kernel@lists.infradead.org, justin.waters@timesys.com,
+	l.stach@pengutronix.de, festevam@gmail.com, sr@denx.de,
+	Akshay Bhat <akshay.bhat@timesys.com>
+Subject: [PATCH v4 0/2] imx6: Implement external watchdog reset
+Date: Thu,  5 Nov 2015 16:19:20 -0500
+Message-Id: <1446758362-11702-1-git-send-email-akshay.bhat@timesys.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Hi Timur
+[Rebase to next-20151105 and re-sending work done by Tim Harvey]
 
-On 6 November 2015 at 01:59, Timur Tabi <timur@codeaurora.org> wrote:
-> On 11/05/2015 10:41 AM, Guenter Roeck wrote:
->>
->>
->> Ultimately, you'll have to decide if you want a simple driver accepted, or
->> a complex driver hanging in the review queue forever.
->
->
-> Please note that I did post such a driver back in May:
->
->         http://www.spinics.net/lists/linux-watchdog/msg06567.html
->
-> Officially I withdrew it in favor of Fu's, but the decision which driver to
-> pick up is not mine to make.  I can resubmit driver if you'd like.
+The IMX6 watchdog supports assertion of a signal (WDOG_B) which
+can be pinmux'd to an external pin. This is typically used for boards that
+have PMIC's in control of the IMX6 power rails. In fact, failure to use
+such an external reset on boards with external PMIC's can result in various
+hangs due to the IMX6 not being fully reset [1] as well as the board failing
+to reset because its PMIC has not been reset to provide adequate voltate for
+the CPU when comming out of reset at 800Mhz when it was at 400Mhz prior to
+reset.
+ 
+This adds a new device-tree property 'ext-reset-output' to fsl-imx-wdt in
+order to indicate the board has such a reset and to cause the watchdog to be
+configured to assert WDOG_B instead of an internal reset both on a
+watchdog timeout and in system_restart.
+ 
+The second patch adds the watchdog configuration and pinmux for Gateworks
+Ventana boards.
+ 
+[1] http://lists.infradead.org/pipermail/linux-arm-kernel/2015-March/333689.html
 
-I totally  can not  agree with "make WS1 as backup",
-and that not a SBSA watchdog dirver, because that just have one stage
+Changes:
+v3->v4:
+- Rebase and test against linux-next tag next-20151105
 
-And the short timeout is useless for kexec/kdump in real practice.
+History:
+v1: http://lists.infradead.org/pipermail/linux-arm-kernel/2015-May/347168.html
+v2: http://lists.infradead.org/pipermail/linux-arm-kernel/2015-June/348761.html
+v3: http://lists.infradead.org/pipermail/linux-arm-kernel/2015-July/360188.html
 
->
-> --
-> Qualcomm Innovation Center, Inc.
-> The Qualcomm Innovation Center, Inc. is a member of the
-> Code Aurora Forum, a Linux Foundation Collaborative Project.
+Tim Harvey (2):
+  watchdog: imx2_wdt: add external reset support via 'ext-reset-output'
+    dt prop
+  ARM: dts: ventana: Add ext-reset support
 
-
+ .../devicetree/bindings/watchdog/fsl-imx-wdt.txt     |  2 ++
+ arch/arm/boot/dts/imx6qdl-gw51xx.dtsi                | 12 ++++++++++++
+ arch/arm/boot/dts/imx6qdl-gw52xx.dtsi                | 12 ++++++++++++
+ arch/arm/boot/dts/imx6qdl-gw53xx.dtsi                | 13 +++++++++++++
+ arch/arm/boot/dts/imx6qdl-gw54xx.dtsi                | 17 +++++++++++++++++
+ arch/arm/boot/dts/imx6qdl-gw551x.dtsi                | 12 ++++++++++++
+ arch/arm/boot/dts/imx6qdl-gw552x.dtsi                | 12 ++++++++++++
+ drivers/watchdog/imx2_wdt.c                          | 20 ++++++++++++++++++--
+ 8 files changed, 98 insertions(+), 2 deletions(-)
 
 -- 
-Best regards,
+2.6.2
 
-Fu Wei
-Software Engineer
-Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
-Ph: +86 21 61221326(direct)
-Ph: +86 186 2020 4684 (mobile)
-Room 1512, Regus One Corporate Avenue,Level 15,
-One Corporate Avenue,222 Hubin Road,Huangpu District,
-Shanghai,China 200021
