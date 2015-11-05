@@ -1,99 +1,608 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oi0-f53.google.com ([209.85.218.53]:34311 "EHLO
-	mail-oi0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1032945AbbKEPAK (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:36700 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1162121AbbKEQcd (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 5 Nov 2015 10:00:10 -0500
-Received: by oies6 with SMTP id s6so5934243oie.1
-        for <linux-watchdog@vger.kernel.org>; Thu, 05 Nov 2015 07:00:09 -0800 (PST)
+	Thu, 5 Nov 2015 11:32:33 -0500
+Subject: Re: [PATCH v2] watchdog: add Alphascale asm9260-wdt driver
+To: Oleksij Rempel <linux@rempel-privat.de>,
+	linux-watchdog@vger.kernel.org, wim@iguana.be,
+	devicetree@vger.kernel.org
+References: <20151027023132.GA1270@roeck-us.net>
+ <1446714416-22587-1-git-send-email-linux@rempel-privat.de>
+ <1446714416-22587-2-git-send-email-linux@rempel-privat.de>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <563B849C.808@roeck-us.net>
+Date: Thu, 5 Nov 2015 08:32:28 -0800
 MIME-Version: 1.0
-In-Reply-To: <563B6A4B.7090400@codeaurora.org>
-References: <1445961999-9506-1-git-send-email-fu.wei@linaro.org>
-	<1445961999-9506-6-git-send-email-fu.wei@linaro.org>
-	<CAOZdJXV8x8EMQEZhdFS+34iO+6P9S==k9bQjt=67iXt6K2oSCw@mail.gmail.com>
-	<563AE588.1080009@roeck-us.net>
-	<563B5DF9.6080102@codeaurora.org>
-	<CADyBb7sD2Y2kGj-suOs1UeUwXPjH39mvX_Sobn0Y7WfsJ9hF=Q@mail.gmail.com>
-	<563B62F7.3050307@codeaurora.org>
-	<CADyBb7vDf+KRi8gUGEt+iu-GpqVQgVq7nKTVt7O=3x78KCi+RQ@mail.gmail.com>
-	<563B6A4B.7090400@codeaurora.org>
-Date: Thu, 5 Nov 2015 23:00:09 +0800
-Message-ID: <CADyBb7t6ovfrz1b3ZZykKq22HkZi1W0PWg7-wXihEjM9ciTgGg@mail.gmail.com>
-Subject: Re: [Linaro-acpi] [PATCH v8 5/5] Watchdog: introduce ARM SBSA
- watchdog driver
-From: Fu Wei <fu.wei@linaro.org>
-To: Timur Tabi <timur@codeaurora.org>
-Cc: Guenter Roeck <linux@roeck-us.net>,
-	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	lkml <linux-kernel@vger.kernel.org>, linux-doc@vger.kernel.org,
-	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Jonathan Corbet <corbet@lwn.net>, Jon Masters <jcm@redhat.com>,
-	Pratyush Anand <panand@redhat.com>,
-	Will Deacon <will.deacon@arm.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Wei Fu <tekkamanninja@gmail.com>,
-	Rob Herring <robherring2@gmail.com>,
-	Vipul Gandhi <vgandhi@codeaurora.org>,
-	Dave Young <dyoung@redhat.com>
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1446714416-22587-2-git-send-email-linux@rempel-privat.de>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Timur,
-
-On 5 November 2015 at 22:40, Timur Tabi <timur@codeaurora.org> wrote:
-> Fu Wei wrote:
->>
->> Did you really read the "Note" above???????? OK, let me paste it again
->> and again:
->>
->> SBSA 2.3 Page 23 :
->> If a larger watch period is required then the compare value can be
->> programmed directly into the compare value register.
+On 11/05/2015 01:06 AM, Oleksij Rempel wrote:
+> Add WD support for Alphascale asm9260 SoC. This driver
+> provide support for different function modes:
+> - HW mode to trigger SoC reset on timeout
+> - SW mode do soft reset if needed
+> - DEBUG mode
 >
+> Optional support for stopping watchdog. If reset binding are not provided
+> this driver will work in nowayout mode.
 >
-> Well, okay.  Sorry, I should have read what you pasted more closely. But I
 
-Thanks for reading it again.
+In general, this is considered to be orthogonal: If the user doesn't want
+nowayout, and if the watchdog can not be stopped, other drivers issue a warning
+that the watchdog was not stopped, and that the system will likely restart.
 
-> think that means during initialization, not during the WS0 timeout.
-
-I really don't see SBSA say "during initialization, not during the WS0 timeout",
-please point it out the page number and the line number in SBSA spec.
-maybe I miss it?
-Thanks for your help in advance.
-
+> Signed-off-by: Oleksij Rempel <linux@rempel-privat.de>
+> ---
+>   .../bindings/watchdog/alphascale-asm9260.txt       |  39 ++
+>   drivers/watchdog/Kconfig                           |   9 +
+>   drivers/watchdog/Makefile                          |   1 +
+>   drivers/watchdog/asm9260_wdt.c                     | 415 +++++++++++++++++++++
+>   4 files changed, 464 insertions(+)
+>   create mode 100644 Documentation/devicetree/bindings/watchdog/alphascale-asm9260.txt
+>   create mode 100644 drivers/watchdog/asm9260_wdt.c
 >
-> Anyway, I still don't like the fact that you're programming WCV in the
-
-"you don't like" doesn't mean "it is wrong" or "we can't do this", so
-I will keep this way unless we have better idea to extend second stage
-timeout.
-
-> interrupt handler, but I'm not going to make a big deal about it any more.
-
-Deal, Thanks a lot.
-
+> diff --git a/Documentation/devicetree/bindings/watchdog/alphascale-asm9260.txt b/Documentation/devicetree/bindings/watchdog/alphascale-asm9260.txt
+> new file mode 100644
+> index 0000000..6e54d1f
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/watchdog/alphascale-asm9260.txt
+> @@ -0,0 +1,39 @@
+> +Alphascale asm9260 Watchdog timer
+> +
+> +Required properties:
+> +
+> +- compatible : should be "alphascale,asm9260-wdt".
+> +- reg : Specifies base physical address and size of the registers.
+> +- clocks : the clocks feeding the watchdog timer. See clock-bindings.txt
+> +- clock-names : should be set to
+> +	"mod" - source for tick counter.
+> +	"ahb" - ahb gate.
+> +
+> +Optional properties:
+> +- resets : phandle pointing to the system reset controller with correct
+> +	reset line index for watchdog controller reset. This propertie is
+> +	required if you need to disable "nowayout" and it neened only with
+> +	CONFIG_WATCHDOG_NOWAYOUT=n.
+> +	Without reseting this WD controller, it is not possible to stop
+> +	counter.
+> +- reset-names : should be set to "wdt_rst" if "resets" is used.
+> +- timeout-sec : shall contain the default watchdog timeout in seconds,
+> +	if unset, the default timeout is 30 seconds.
+> +- alphascale,mode : tree modes are supported
+> +	"hw" - hw reset (defaul).
+> +	"sw" - sw reset.
+> +	"debug" - no action is taken.
+> +
+> +Example:
+> +
+> +watchdog0: watchdog@80048000 {
+> +	compatible = "alphascale,asm9260-wdt";
+> +	reg = <0x80048000 0x10>;
+> +	clocks = <&acc CLKID_SYS_WDT>, <&acc CLKID_AHB_WDT>;
+> +	clock-names = "mod", "ahb";
+> +	interrupts = <55>;
+> +	resets = <&rst WDT_RESET>;
+> +	reset-names = "wdt_rst";
+> +	timeout-sec = <30>;
+> +	alphascale,mode = "hw";
+> +};
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index c68edc1..cc5f675 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -173,6 +173,15 @@ config ARM_SP805_WATCHDOG
+>   	  ARM Primecell SP805 Watchdog timer. This will reboot your system when
+>   	  the timeout is reached.
 >
+> +config ASM9260_WATCHDOG
+> +	tristate "Alphascale ASM9260 watchdog"
+> +	depends on MACH_ASM9260
+> +	depends on OF
+> +	select WATCHDOG_CORE
+> +	help
+> +	  Watchdog timer embedded into Alphascale asm9260 chips. This will reboot your
+> +	  system when the timeout is reached.
+> +
+>   config AT91RM9200_WATCHDOG
+>   	tristate "AT91RM9200 watchdog"
+>   	depends on SOC_AT91RM9200 && MFD_SYSCON
+> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> index 0c616e3..bd7b0cd 100644
+> --- a/drivers/watchdog/Makefile
+> +++ b/drivers/watchdog/Makefile
+> @@ -30,6 +30,7 @@ obj-$(CONFIG_USBPCWATCHDOG) += pcwd_usb.o
 >
-> --
-> Sent by an employee of the Qualcomm Innovation Center, Inc.
-> The Qualcomm Innovation Center, Inc. is a member of the
-> Code Aurora Forum, hosted by The Linux Foundation.
+>   # ARM Architecture
+>   obj-$(CONFIG_ARM_SP805_WATCHDOG) += sp805_wdt.o
+> +obj-$(CONFIG_ASM9260_WATCHDOG) += asm9260_wdt.o
+>   obj-$(CONFIG_AT91RM9200_WATCHDOG) += at91rm9200_wdt.o
+>   obj-$(CONFIG_AT91SAM9X_WATCHDOG) += at91sam9_wdt.o
+>   obj-$(CONFIG_CADENCE_WATCHDOG) += cadence_wdt.o
+> diff --git a/drivers/watchdog/asm9260_wdt.c b/drivers/watchdog/asm9260_wdt.c
+> new file mode 100644
+> index 0000000..9f2c321
+> --- /dev/null
+> +++ b/drivers/watchdog/asm9260_wdt.c
+> @@ -0,0 +1,415 @@
+> +/*
+> + * Watchdog driver for Alphascale ASM9260.
+> + *
+> + * Copyright (c) 2014 Oleksij Rempel <linux@rempel-privat.de>
+> + *
+> + * Licensed under GPLv2 or later.
+> + */
+> +
+> +#include <linux/bitops.h>
+> +#include <linux/clk.h>
+> +#include <linux/delay.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/io.h>
+> +#include <linux/module.h>
+> +#include <linux/moduleparam.h>
+
+I don't see any module parameters. Is this include needed ?
+
+> +#include <linux/of.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/reboot.h>
+> +#include <linux/reset.h>
+> +#include <linux/uaccess.h>
+
+Is this include needed ?
+
+> +#include <linux/watchdog.h>
+> +
+> +#define CLOCK_FREQ	1000000
+> +
+> +/* Watchdog Mode register */
+> +#define HW_WDMOD			0x00
+> +/* Wake interrupt. Set by HW, can't be cleared. */
+> +#define BM_MOD_WDINT			BIT(3)
+> +/* This bit set if timeout reached. Cleared by SW. */
+> +#define BM_MOD_WDTOF			BIT(2)
+> +/* HW Reset on timeout */
+> +#define BM_MOD_WDRESET			BIT(1)
+> +/* WD enable */
+> +#define BM_MOD_WDEN			BIT(0)
+> +
+> +/*
+> + * Watchdog Timer Constant register
+> + * Minimal value is 0xff, the meaning of this value
+> + * depends on used clock: T = WDCLK * (0xff + 1) * 4
+> + */
+> +#define HW_WDTC				0x04
+> +#define BM_WDTC_MAX(freq)		(0x7fffffff / (freq))
+> +
+> +/* Watchdog Feed register */
+> +#define HW_WDFEED			0x08
+> +
+> +/* Watchdog Timer Value register */
+> +#define HW_WDTV				0x0c
+> +
+> +#define ASM9260_WDT_DEFAULT_TIMEOUT	30
+> +
+> +enum asm9260_wdt_mode {
+> +	HW_RESET,
+> +	SW_RESET,
+> +	DEBUG,
+> +};
+> +
+> +struct asm9260_wdt_priv {
+> +	struct device		*dev;
+> +	struct watchdog_device	wdd;
+> +	struct clk		*clk;
+> +	struct clk		*clk_ahb;
+> +	struct reset_control	*rst;
+> +	struct notifier_block	restart_handler;
+> +
+> +	void __iomem		*iobase;
+> +	int			irq;
+> +	unsigned long		wdt_freq;
+> +	enum asm9260_wdt_mode	mode;
+> +};
+> +
+> +static int asm9260_wdt_feed(struct watchdog_device *wdd)
+> +{
+> +	struct asm9260_wdt_priv *priv = watchdog_get_drvdata(wdd);
+> +
+> +	iowrite32(0xaa, priv->iobase + HW_WDFEED);
+> +	iowrite32(0x55, priv->iobase + HW_WDFEED);
+> +
+> +	return 0;
+> +}
+> +
+> +static unsigned int asm9260_wdt_gettimeleft(struct watchdog_device *wdd)
+> +{
+> +	struct asm9260_wdt_priv *priv = watchdog_get_drvdata(wdd);
+> +	u32 counter;
+> +
+> +	counter = ioread32(priv->iobase + HW_WDTV);
+> +
+> +	return DIV_ROUND_CLOSEST(counter, priv->wdt_freq);
+> +}
+> +
+> +static int asm9260_wdt_updatetimeout(struct watchdog_device *wdd)
+> +{
+> +	struct asm9260_wdt_priv *priv = watchdog_get_drvdata(wdd);
+> +	u32 counter;
+> +
+> +	counter = wdd->timeout * priv->wdt_freq;
+> +
+> +	iowrite32(counter, priv->iobase + HW_WDTC);
+> +
+> +	return 0;
+> +}
+> +
+> +static int asm9260_wdt_enable(struct watchdog_device *wdd)
+> +{
+> +	struct asm9260_wdt_priv *priv = watchdog_get_drvdata(wdd);
+> +	u32 mode = 0;
+> +
+> +	if (priv->mode == HW_RESET)
+> +		mode = BM_MOD_WDRESET;
+> +
+> +	iowrite32(BM_MOD_WDEN | mode, priv->iobase + HW_WDMOD);
+> +
+> +	asm9260_wdt_updatetimeout(wdd);
+> +
+> +	asm9260_wdt_feed(wdd);
+> +
+> +	return 0;
+> +}
+> +
+> +static int asm9260_wdt_disable(struct watchdog_device *wdd)
+> +{
+> +	struct asm9260_wdt_priv *priv = watchdog_get_drvdata(wdd);
+> +
+> +	/* The only way to disable WD is to reset it. */
+> +	reset_control_assert(priv->rst);
+> +	reset_control_deassert(priv->rst);
+> +
+
+I am a bit wary of depending on the infrastructure to never call this code
+if priv->rst is NULL, due to having nowayout set.
+You should at least add a comment here indicating that the code
+depends on this behavior.
+
+My preferred solution, though, would be to stop playing with nowayout and
+dump a warning to the console if the watchdog could not be stopped.
+
+> +	return 0;
+> +}
+> +
+> +static int asm9260_wdt_settimeout(struct watchdog_device *wdd, unsigned int to)
+> +{
+> +	wdd->timeout = to;
+> +	asm9260_wdt_updatetimeout(wdd);
+> +
+> +	return 0;
+> +}
+> +
+> +static void asm9260_wdt_sys_reset(struct asm9260_wdt_priv *priv)
+> +{
+> +	/* init WD if it was not started */
+> +	priv->wdd.timeout = 1;
+> +
+Wouldn't it make more sense to write a smaller value into HW_WDTC directly ?
+Unless I am missing something, this creates a one-second delay which seems
+unnecessary.
+
+> +	iowrite32(BM_MOD_WDEN | BM_MOD_WDRESET, priv->iobase + HW_WDMOD);
+> +
+> +	asm9260_wdt_updatetimeout(&priv->wdd);
+> +	/* first pass correct sequence */
+> +	asm9260_wdt_feed(&priv->wdd);
+> +	/*
+> +	 * Then write wrong pattern to the feed to trigger reset
+> +	 * ASAP.
+> +	 */
+> +	iowrite32(0xff, priv->iobase + HW_WDFEED);
+> +
+> +	mdelay(1000);
+> +}
+> +
+> +static irqreturn_t asm9260_wdt_irq(int irq, void *devid)
+> +{
+> +	struct asm9260_wdt_priv *priv = devid;
+> +	u32 stat;
+> +
+> +	stat = ioread32(priv->iobase + HW_WDMOD);
+> +	if (!(stat & BM_MOD_WDINT))
+> +		return IRQ_NONE;
+> +
+> +	if (priv->mode == DEBUG)
+> +		dev_info(priv->dev, "Watchdog Timeout. Do nothing.\n");
+> +	else {
+> +		dev_info(priv->dev, "Watchdog Timeout. Doing SW Reset.\n");
+> +		asm9260_wdt_sys_reset(priv);
+> +	}
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int asm9260_restart_handler(struct notifier_block *this,
+> +				unsigned long mode, void *cmd)
+> +{
+> +	struct asm9260_wdt_priv *priv =
+> +		container_of(this, struct asm9260_wdt_priv, restart_handler);
+> +
+> +	asm9260_wdt_sys_reset(priv);
+> +
+> +	return NOTIFY_DONE;
+> +}
+> +
+> +static const struct watchdog_info asm9260_wdt_ident = {
+> +	.options          =     WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING
+> +				| WDIOF_MAGICCLOSE,
+> +	.identity         =	"Alphascale asm9260 Watchdog",
+> +};
+> +
+> +static struct watchdog_ops asm9260_wdt_ops = {
+> +	.owner		= THIS_MODULE,
+> +	.start		= asm9260_wdt_enable,
+> +	.stop		= asm9260_wdt_disable,
+> +	.get_timeleft	= asm9260_wdt_gettimeleft,
+> +	.ping		= asm9260_wdt_feed,
+> +	.set_timeout	= asm9260_wdt_settimeout,
+> +};
+> +
+> +static int __init asm9260_wdt_get_dt_clks(struct asm9260_wdt_priv *priv)
+> +{
+> +	int clk_idx = 0, err;
+> +	unsigned long clk;
+> +
+> +	priv->clk = devm_clk_get(priv->dev, "mod");
+> +	if (IS_ERR(priv->clk))
+> +		goto clk_err;
+> +
+> +	/* configure AHB clock */
+> +	clk_idx = 1;
+> +	priv->clk_ahb = devm_clk_get(priv->dev, "ahb");
+> +	if (IS_ERR(priv->clk_ahb))
+> +		goto clk_err;
+> +
+Seems you are using clk_err only to display an error message.
+This is not the intended use of error jump labels.
+
+> +	err = clk_prepare_enable(priv->clk_ahb);
+> +	if (err) {
+> +		dev_err(priv->dev, "Failed to enable ahb_clk!\n");
+> +		goto out_err;
+> +	}
+> +
+> +	err = clk_set_rate(priv->clk, CLOCK_FREQ);
+> +	if (err) {
+> +		clk_disable_unprepare(priv->clk_ahb);
+> +		dev_err(priv->dev, "Failed to set rate!\n");
+> +		goto out_err;
+> +	}
+> +
+> +	err = clk_prepare_enable(priv->clk);
+> +	if (err) {
+> +		clk_disable_unprepare(priv->clk_ahb);
+> +		dev_err(priv->dev, "Failed to enable clk!\n");
+> +		goto out_err;
+> +	}
+> +
+> +	/* wdt has internal divider */
+> +	clk = clk_get_rate(priv->clk);
+> +	if (!clk) {
+> +		clk_disable_unprepare(priv->clk);
+> +		clk_disable_unprepare(priv->clk_ahb);
+
+The basic idea with error exit jumps is to keep the error handling
+there. This code defeats the purpose.
+
+> +		dev_err(priv->dev, "Failed, clk is 0!\n");
+> +		goto out_err;
+> +	}
+> +
+> +	priv->wdt_freq = clk / 2;
+> +
+> +	return 0;
+> +
+> +clk_err:
+> +	dev_err(priv->dev, "Failed to get clk (%s)\n",
+> +			clk_idx ? "ahb" : "mod");
+
+This is an odd use of an error return function. I would suggest to
+create the error messages where they occur, and only handle cleanup here,
+as suggested in the coding style document.
+
+> +out_err:
+
+This label is not needed. Any code jumping to it can return immediately.
+
+> +	return -EFAULT;
+
+EFAULT: /* Bad address */
+
+Commonly used to identify a bad address passed from user space.
+I don't think it is appropriate here. Besides, why override the already
+known error in the first place ?
 
 
+> +}
+> +
+> +static int __init asm9260_wdt_get_dt_mode(struct asm9260_wdt_priv *priv)
+> +{
+> +	const char *tmp;
+> +	int ret;
+> +
+> +	/* default mode */
+> +	priv->mode = HW_RESET;
+> +
+> +	ret = of_property_read_string(priv->dev->of_node,
+> +			"alphascale,mode", &tmp);
 
--- 
-Best regards,
+Please align continuation lines with '('.
 
-Fu Wei
-Software Engineer
-Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
-Ph: +86 21 61221326(direct)
-Ph: +86 186 2020 4684 (mobile)
-Room 1512, Regus One Corporate Avenue,Level 15,
-One Corporate Avenue,222 Hubin Road,Huangpu District,
-Shanghai,China 200021
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	if (!strcmp(tmp, "hw"))
+> +		priv->mode = HW_RESET;
+> +	else if (!strcmp(tmp, "sw"))
+> +		priv->mode = SW_RESET;
+> +	else if (!strcmp(tmp, "debug"))
+> +		priv->mode = DEBUG;
+> +	else {
+> +		dev_warn(priv->dev, "unknown reset-type: %s. Using defaul \"hw\" mode.",
+> +			tmp);
+
+s/defaul/default/
+
+> +		return -EINVAL;
+
+Why return an error (instead of void) if it isn't used ?
+
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int __init asm9260_wdt_probe(struct platform_device *pdev)
+> +{
+> +	struct asm9260_wdt_priv *priv;
+> +	struct watchdog_device *wdd;
+> +	struct resource *res;
+> +	bool nowayout = WATCHDOG_NOWAYOUT;
+> +	int ret;
+> +
+> +	priv = devm_kzalloc(&pdev->dev, sizeof(struct asm9260_wdt_priv),
+> +			GFP_KERNEL);
+> +	if (!priv)
+> +		return -ENOMEM;
+> +
+> +	priv->dev = &pdev->dev;
+> +
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	priv->iobase = devm_ioremap_resource(&pdev->dev, res);
+> +	if (IS_ERR(priv->iobase))
+> +		return PTR_ERR(priv->iobase);
+> +
+> +	ret = asm9260_wdt_get_dt_clks(priv);
+> +	if (ret)
+> +		return ret;
+> +
+> +	priv->rst = devm_reset_control_get(&pdev->dev, "wdt_rst");
+> +	if (IS_ERR(priv->rst)) {
+> +		nowayout = 1;
+> +		priv->rst = NULL;
+> +	}
+> +
+> +	wdd = &priv->wdd;
+> +	wdd->info = &asm9260_wdt_ident;
+> +	wdd->ops = &asm9260_wdt_ops;
+> +	wdd->min_timeout = 1;
+> +	wdd->max_timeout = BM_WDTC_MAX(priv->wdt_freq);
+> +	wdd->parent = &pdev->dev;
+> +
+> +	watchdog_set_drvdata(wdd, priv);
+> +
+> +	/*
+> +	 * If 'timeout-sec' unspecified in devicetree, assume a 30 second
+> +	 * default, unless the max timeout is less than 30 seconds, then use
+> +	 * the max instead.
+> +	 */
+> +	wdd->timeout = ASM9260_WDT_DEFAULT_TIMEOUT;
+> +	watchdog_init_timeout(wdd, 0, &pdev->dev);
+> +
+> +	watchdog_set_nowayout(wdd, nowayout);
+> +
+> +	asm9260_wdt_get_dt_mode(priv);
+> +
+> +	if (priv->mode != HW_RESET)
+> +		priv->irq = platform_get_irq(pdev, 0);
+> +
+> +	if (priv->irq > 0) {
+> +		/*
+> +		 * Not all supported platforms specify an interrupt for the
+> +		 * watchdog, so let's make it optional.
+> +		 */
+> +		ret = devm_request_irq(&pdev->dev, priv->irq,
+> +				asm9260_wdt_irq, IRQF_SHARED,
+> +				pdev->name, priv);
+> +		if (ret < 0)
+> +			dev_err(&pdev->dev, "failed to request IRQ\n");
+
+dev_warn since you don't bail out.
+
+> +	}
+> +
+> +	ret = watchdog_register_device(wdd);
+> +	if (ret)
+> +		goto clk_off;
+> +
+> +	platform_set_drvdata(pdev, priv);
+> +
+> +	priv->restart_handler.notifier_call = asm9260_restart_handler;
+> +	priv->restart_handler.priority = 128;
+> +	ret = register_restart_handler(&priv->restart_handler);
+> +	if (ret)
+> +		dev_err(&pdev->dev, "cannot register restart handler\n");
+
+dev_warn since you don't bail out.
+
+> +
+> +	dev_info(&pdev->dev, "Watchdog enabled (to=%d, nw=%d, mode=%d)\n",
+> +		wdd->timeout, nowayout, priv->mode);
+> +	return 0;
+> +
+> +clk_off:
+> +	clk_disable_unprepare(priv->clk);
+> +	clk_disable_unprepare(priv->clk_ahb);
+> +	return ret;
+> +}
+> +
+> +static void asm9260_wdt_shutdown(struct platform_device *pdev)
+> +{
+> +	struct asm9260_wdt_priv *priv = platform_get_drvdata(pdev);
+> +
+> +	asm9260_wdt_disable(&priv->wdd);
+> +}
+> +
+> +static int __exit asm9260_wdt_remove(struct platform_device *pdev)
+> +{
+> +	struct asm9260_wdt_priv *priv = platform_get_drvdata(pdev);
+> +
+> +	asm9260_wdt_shutdown(pdev);
+
+You could just call asm9260_wdt_disable() directly.
+
+> +
+> +	unregister_restart_handler(&priv->restart_handler);
+> +	clk_disable_unprepare(priv->clk);
+> +	clk_disable_unprepare(priv->clk_ahb);
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct of_device_id asm9260_wdt_of_match[] = {
+> +	{ .compatible = "alphascale,asm9260-wdt"},
+> +	{},
+> +};
+> +MODULE_DEVICE_TABLE(of, asm9260_wdt_of_match);
+> +
+> +static struct platform_driver asm9260_wdt_driver = {
+> +	.driver = {
+> +		.name = "asm9260-wdt",
+> +		.owner = THIS_MODULE,
+> +		.of_match_table	= asm9260_wdt_of_match,
+> +	},
+> +	.probe = asm9260_wdt_probe,
+> +	.remove = asm9260_wdt_remove,
+> +	.shutdown = asm9260_wdt_shutdown,
+> +};
+> +module_platform_driver(asm9260_wdt_driver);
+> +
+> +MODULE_DESCRIPTION("asm9260 WatchDog Timer Driver");
+> +MODULE_AUTHOR("Oleksij Rempel <linux@rempel-privat.de>");
+> +MODULE_LICENSE("GPL");
+>
+
