@@ -1,70 +1,46 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:42053 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751856AbbKDQFv (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 4 Nov 2015 11:05:51 -0500
-Subject: Re: [PATCH v2 2/2] watchdog: imx2_wdt: add set_pretimeout interface
-To: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>,
-	Robin Gong <b38343@freescale.com>, wim@iguana.be
-References: <1446531084-15365-1-git-send-email-b38343@freescale.com>
- <1446531084-15365-2-git-send-email-b38343@freescale.com>
- <563A2849.5040707@mentor.com>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <563A2CDB.7090101@roeck-us.net>
-Date: Wed, 4 Nov 2015 08:05:47 -0800
+Return-path: <timur@codeaurora.org>
 MIME-Version: 1.0
-In-Reply-To: <563A2849.5040707@mentor.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+In-Reply-To: <1445961999-9506-6-git-send-email-fu.wei@linaro.org>
+References: <1445961999-9506-1-git-send-email-fu.wei@linaro.org>
+	<1445961999-9506-6-git-send-email-fu.wei@linaro.org>
+Date: Wed, 4 Nov 2015 19:59:07 -0600
+Message-ID: <CAOZdJXV8x8EMQEZhdFS+34iO+6P9S==k9bQjt=67iXt6K2oSCw@mail.gmail.com>
+Subject: Re: [Linaro-acpi] [PATCH v8 5/5] Watchdog: introduce ARM SBSA
+ watchdog driver
+From: Timur Tabi <timur@codeaurora.org>
+To: Fu Wei <fu.wei@linaro.org>
+Cc: Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>, linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>,
+	linux-doc@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+	Arnd Bergmann <arnd@arndb.de>, Jonathan Corbet <corbet@lwn.net>, Jon Masters <jcm@redhat.com>,
+	Pratyush Anand <panand@redhat.com>, Will Deacon <will.deacon@arm.com>,
+	Wim Van Sebroeck <wim@iguana.be>, Catalin Marinas <catalin.marinas@arm.com>,
+	Wei Fu <tekkamanninja@gmail.com>, Rob Herring <robherring2@gmail.com>,
+	Vipul Gandhi <vgandhi@codeaurora.org>, Dave Young <dyoung@redhat.com>,
+	Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset=UTF-8
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 11/04/2015 07:46 AM, Vladimir Zapolskiy wrote:
-> Hi Robin,
->
-> On 03.11.2015 08:11, Robin Gong wrote:
->> Enable set_pretimeout interface and trigger the pretimeout interrupt before
->> watchdog timeout event happen.
->>
->> Signed-off-by: Robin Gong <b38343@freescale.com>
->> ---
->
-> [snip]
->
->> +
->> +static irqreturn_t imx2_wdt_isr(int irq, void *dev_id)
->> +{
->> +	struct platform_device *pdev = dev_id;
->> +	struct watchdog_device *wdog = platform_get_drvdata(pdev);
->> +	struct imx2_wdt_device *wdev = watchdog_get_drvdata(wdog);
->> +	u32 val;
->> +
->> +	regmap_read(wdev->regmap, IMX2_WDT_WICR, &val);
->> +	if (val & IMX2_WDT_WICR_WTIS) {
->> +		/*clear interrupt status bit*/
->> +		regmap_write(wdev->regmap, IMX2_WDT_WICR, val);
->> +		panic("pre-timeout:%d, %d Seconds remained\n", wdog->pretimeout,
->> +		      wdog->timeout - wdog->pretimeout);
->
-> I don't think it is a good idea to panic on pretimeout interrupt, for
-> instance pretimeout interrupt may be used for any other purposes - ping
-> watchdog, dump some system information before reboot and so on.
->
-> In general I am even not completely convinced that the pretimeout interrupt
-> handler should be placed in the driver, it may happen that there are some
-> users outside, who wants to get this interrupt and act according to the event.
->
+On Tue, Oct 27, 2015 at 11:06 AM,  <fu.wei@linaro.org> wrote:
+> +static irqreturn_t sbsa_gwdt_interrupt(int irq, void *dev_id)
+> +{
+> +       struct sbsa_gwdt *gwdt = (struct sbsa_gwdt *)dev_id;
+> +       struct watchdog_device *wdd = &gwdt->wdd;
+> +
+> +       /* We don't use pretimeout, trigger WS1 now */
+> +       if (!wdd->pretimeout)
+> +               sbsa_gwdt_set_wcv(wdd, 0);
 
-Ah yes, this is one of the reasons why adding this functionality into the
-watchdog core keeps going nowhere. Some of the people involved absolutely
-insist that a watchdog pretimeout should result in a panic, others are just
-as strongly opposed to it. At the end, there is no consensus, and we end up
-doing nothing, since nothing is better than each driver behaving differently.
+So I'm still concerned about the fact this driver depends on an
+interrupt handler in order to properly program the hardware.  Unlike
+some other devices, the SBSA watchdog does not need assistance to
+reset on a timeout -- it is a "fire and forget" device.  What happens
+if there is a hard lockup, and interrupts no longer work?
 
-Just like politics, I guess :-(.
+Keep in mind that 99% of watchdog daemons will not enable the
+pre-timeout feature because it's new.
 
-Guenter
-
+-- 
+Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project.
