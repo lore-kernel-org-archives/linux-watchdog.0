@@ -1,52 +1,42 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:48262 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161301AbbKFN6y (ORCPT
+Received: from mail-wi0-f174.google.com ([209.85.212.174]:33769 "EHLO
+	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030298AbbKFVzR (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 6 Nov 2015 08:58:54 -0500
-Subject: Re: [patch] watchdog: w83977f_wdt: underflow in wdt_set_timeout()
-To: Dan Carpenter <dan.carpenter@oracle.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-References: <20151106095631.GA18557@mwanda>
-Cc: linux-watchdog@vger.kernel.org, kernel-janitors@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <563CB21A.40007@roeck-us.net>
-Date: Fri, 6 Nov 2015 05:58:50 -0800
-MIME-Version: 1.0
-In-Reply-To: <20151106095631.GA18557@mwanda>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Nov 2015 16:55:17 -0500
+Received: by wijp11 with SMTP id p11so38096834wij.0
+        for <linux-watchdog@vger.kernel.org>; Fri, 06 Nov 2015 13:55:15 -0800 (PST)
+From: Carlo Caione <carlo@caione.org>
+To: wim@iguana.be, linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, robh+dt@kernel.org,
+	drake@endlessm.com, jerry.cao@amlogic.com, victor.wan@amlogic.com,
+	romain.perier@gmail.com
+Cc: Carlo Caione <carlo@endlessm.com>
+Subject: [PATCH 0/4] watchdog: meson: Add meson8b watchdog
+Date: Fri,  6 Nov 2015 22:55:02 +0100
+Message-Id: <1446846906-31520-1-git-send-email-carlo@caione.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 11/06/2015 01:56 AM, Dan Carpenter wrote:
-> "t" is controlled by the user.  If "t" is a very large integer then it
-> could lead to a negative "tmrval".  We cap the upper bound of "tmrval"
-> but, in the current code, we allow negatives.  This is a bug and it
-> causes a static checker warning.  Let's make "tmrval" unsigned to avoid
-> this problem.
->
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
->
+From: Carlo Caione <carlo@endlessm.com>
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Patchset to add support for the watchdog found on the Amlogic meson8b SoCs.
+DTS and documentation are also updated.
 
-> diff --git a/drivers/watchdog/w83977f_wdt.c b/drivers/watchdog/w83977f_wdt.c
-> index 91bf55a..20e2bba 100644
-> --- a/drivers/watchdog/w83977f_wdt.c
-> +++ b/drivers/watchdog/w83977f_wdt.c
-> @@ -224,7 +224,7 @@ static int wdt_keepalive(void)
->
->   static int wdt_set_timeout(int t)
->   {
-> -	int tmrval;
-> +	unsigned int tmrval;
->
->   	/*
->   	 * Convert seconds to watchdog counter time units, rounding up.
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+Carlo Caione (4):
+  watchdog: meson: Enable meson SoC specific data
+  watchdog: meson: Add meson8b SoC specific data
+  Documentation: watchdog: Add new bindings for meson8b
+  ARM: dts: meson8b: Add watchdog node
+
+ .../devicetree/bindings/watchdog/meson-wdt.txt     | 13 +++++
+ .../devicetree/bindings/watchdog/meson6-wdt.txt    | 13 -----
+ arch/arm/boot/dts/meson8b.dtsi                     |  6 +++
+ drivers/watchdog/meson_wdt.c                       | 62 ++++++++++++++++------
+ 4 files changed, 64 insertions(+), 30 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/meson-wdt.txt
+ delete mode 100644 Documentation/devicetree/bindings/watchdog/meson6-wdt.txt
+
+-- 
+1.9.1
 
