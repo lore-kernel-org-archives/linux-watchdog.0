@@ -11,38 +11,39 @@ To: linux@roeck-us.net,
 	victor.wan@amlogic.com,
 	romain.perier@gmail.com
 Cc: Carlo Caione <carlo@endlessm.com>
-Subject: [PATCH v3 4/4] ARM: dts: meson8b: Add watchdog node
-Date: Sun,  8 Nov 2015 13:18:57 +0100
-Message-Id: <1446985137-25498-5-git-send-email-carlo@caione.org>
-In-Reply-To: <1446985137-25498-1-git-send-email-carlo@caione.org>
-References: <1446985137-25498-1-git-send-email-carlo@caione.org>
+Subject: [PATCH v3 0/4] watchdog: meson: Add meson8b watchdog
+Date: Sun,  8 Nov 2015 13:18:53 +0100
+Message-Id: <1446985137-25498-1-git-send-email-carlo@caione.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 From: Carlo Caione <carlo@endlessm.com>
 
-With this patch we add the watchdog node in the meson8b DTS file.
+Patchset to add support for the watchdog found on the Amlogic meson8b SoCs.
+DTS and documentation are also updated.
 
-Signed-off-by: Carlo Caione <carlo@endlessm.com>
----
- arch/arm/boot/dts/meson8b.dtsi | 6 ++++++
- 1 file changed, 6 insertions(+)
+Changelog:
+   - V1 -> V2:
+     * Do not calculate mask at runtime
+     * Fix few style problems
+     * Remove useless typecase
 
-diff --git a/arch/arm/boot/dts/meson8b.dtsi b/arch/arm/boot/dts/meson8b.dtsi
-index ee352bf..8bad557 100644
---- a/arch/arm/boot/dts/meson8b.dtsi
-+++ b/arch/arm/boot/dts/meson8b.dtsi
-@@ -105,6 +105,12 @@
- 			#interrupt-cells = <3>;
- 		};
- 
-+		wdt: watchdog@c1109900 {
-+			compatible = "amlogic,meson8b-wdt";
-+			reg = <0xc1109900 0x8>;
-+			interrupts = <0 0 1>;
-+		};
-+
- 		timer@c1109940 {
- 			compatible = "amlogic,meson6-timer";
- 			reg = <0xc1109940 0x18>;
+   - V2 -> V3:
+     * Changed description for [PATCH 1/4]
+     * Default timeout is not set as min(default, max)
+
+Carlo Caione (4):
+  watchdog: meson: Enable meson SoC specific data
+  watchdog: meson: Add meson8b SoC specific data
+  Documentation: watchdog: Add new bindings for meson8b
+  ARM: dts: meson8b: Add watchdog node
+
+ .../devicetree/bindings/watchdog/meson-wdt.txt     | 13 +++++
+ .../devicetree/bindings/watchdog/meson6-wdt.txt    | 13 -----
+ arch/arm/boot/dts/meson8b.dtsi                     |  6 ++
+ drivers/watchdog/meson_wdt.c                       | 65 ++++++++++++++++------
+ 4 files changed, 67 insertions(+), 30 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/meson-wdt.txt
+ delete mode 100644 Documentation/devicetree/bindings/watchdog/meson6-wdt.txt
+
 -- 
 1.9.1
