@@ -11,63 +11,38 @@ To: linux@roeck-us.net,
 	victor.wan@amlogic.com,
 	romain.perier@gmail.com
 Cc: Carlo Caione <carlo@endlessm.com>
-Subject: [PATCH v3 3/4] Documentation: watchdog: Add new bindings for meson8b
-Date: Sun,  8 Nov 2015 13:18:56 +0100
-Message-Id: <1446985137-25498-4-git-send-email-carlo@caione.org>
+Subject: [PATCH v3 4/4] ARM: dts: meson8b: Add watchdog node
+Date: Sun,  8 Nov 2015 13:18:57 +0100
+Message-Id: <1446985137-25498-5-git-send-email-carlo@caione.org>
 In-Reply-To: <1446985137-25498-1-git-send-email-carlo@caione.org>
 References: <1446985137-25498-1-git-send-email-carlo@caione.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
 From: Carlo Caione <carlo@endlessm.com>
 
-We make the documentation not meson6 specific anymore and add the new
-binding for meson8b SoC.
+With this patch we add the watchdog node in the meson8b DTS file.
 
 Signed-off-by: Carlo Caione <carlo@endlessm.com>
 ---
- Documentation/devicetree/bindings/watchdog/meson-wdt.txt  | 13 +++++++++++++
- Documentation/devicetree/bindings/watchdog/meson6-wdt.txt | 13 -------------
- 2 files changed, 13 insertions(+), 13 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/watchdog/meson-wdt.txt
- delete mode 100644 Documentation/devicetree/bindings/watchdog/meson6-wdt.txt
+ arch/arm/boot/dts/meson8b.dtsi | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/watchdog/meson-wdt.txt b/Documentation/devicetree/bindings/watchdog/meson-wdt.txt
-new file mode 100644
-index 0000000..ae70185
---- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/meson-wdt.txt
-@@ -0,0 +1,13 @@
-+Meson SoCs Watchdog timer
+diff --git a/arch/arm/boot/dts/meson8b.dtsi b/arch/arm/boot/dts/meson8b.dtsi
+index ee352bf..8bad557 100644
+--- a/arch/arm/boot/dts/meson8b.dtsi
++++ b/arch/arm/boot/dts/meson8b.dtsi
+@@ -105,6 +105,12 @@
+ 			#interrupt-cells = <3>;
+ 		};
+ 
++		wdt: watchdog@c1109900 {
++			compatible = "amlogic,meson8b-wdt";
++			reg = <0xc1109900 0x8>;
++			interrupts = <0 0 1>;
++		};
 +
-+Required properties:
-+
-+- compatible : should be "amlogic,meson6-wdt" or "amlogic,meson8b-wdt"
-+- reg : Specifies base physical address and size of the registers.
-+
-+Example:
-+
-+wdt: watchdog@c1109900 {
-+	compatible = "amlogic,meson6-wdt";
-+	reg = <0xc1109900 0x8>;
-+};
-diff --git a/Documentation/devicetree/bindings/watchdog/meson6-wdt.txt b/Documentation/devicetree/bindings/watchdog/meson6-wdt.txt
-deleted file mode 100644
-index 9200fc2..0000000
---- a/Documentation/devicetree/bindings/watchdog/meson6-wdt.txt
-+++ /dev/null
-@@ -1,13 +0,0 @@
--Meson SoCs Watchdog timer
--
--Required properties:
--
--- compatible : should be "amlogic,meson6-wdt"
--- reg : Specifies base physical address and size of the registers.
--
--Example:
--
--wdt: watchdog@c1109900 {
--	compatible = "amlogic,meson6-wdt";
--	reg = <0xc1109900 0x8>;
--};
+ 		timer@c1109940 {
+ 			compatible = "amlogic,meson6-timer";
+ 			reg = <0xc1109940 0x18>;
 -- 
 1.9.1
