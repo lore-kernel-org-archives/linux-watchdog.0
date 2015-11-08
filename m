@@ -1,92 +1,184 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:46244 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753669AbbKGQhn (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 7 Nov 2015 11:37:43 -0500
-Subject: Re: [PATCH v2 1/4] watchdog: meson: Enable meson SoC specific data
-To: Carlo Caione <carlo@caione.org>
-References: <1446894139-6802-1-git-send-email-carlo@caione.org>
- <1446894139-6802-2-git-send-email-carlo@caione.org>
- <563E18F0.4030807@roeck-us.net>
- <CAOQ7t2a1KBUbTvtcu7ajyX35Kx1khtYHc8pGmYdYC=872oNMQA@mail.gmail.com>
-Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
-	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-	"robh+dt@kernel.org" <robh+dt@kernel.org>,
-	Daniel Drake <drake@endlessm.com>,
-	Jerry Cao <jerry.cao@amlogic.com>,
-	Victor Wan <victor.wan@amlogic.com>,
-	Romain Perier <romain.perier@gmail.com>,
-	Carlo Caione <carlo@endlessm.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <563E28D0.3070400@roeck-us.net>
-Date: Sat, 7 Nov 2015 08:37:36 -0800
-MIME-Version: 1.0
-In-Reply-To: <CAOQ7t2a1KBUbTvtcu7ajyX35Kx1khtYHc8pGmYdYC=872oNMQA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <carlo.caione@gmail.com>
+Sender: Carlo Caione <carlo.caione@gmail.com>
+From: Carlo Caione <carlo@caione.org>
+To: linux@roeck-us.net,
+	wim@iguana.be,
+	linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	robh+dt@kernel.org,
+	drake@endlessm.com,
+	jerry.cao@amlogic.com,
+	victor.wan@amlogic.com,
+	romain.perier@gmail.com
+Cc: Carlo Caione <carlo@endlessm.com>
+Subject: [PATCH v3 1/4] watchdog: meson: Enable meson SoC specific data
+Date: Sun,  8 Nov 2015 13:18:54 +0100
+Message-Id: <1446985137-25498-2-git-send-email-carlo@caione.org>
+In-Reply-To: <1446985137-25498-1-git-send-email-carlo@caione.org>
+References: <1446985137-25498-1-git-send-email-carlo@caione.org>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 11/07/2015 07:45 AM, Carlo Caione wrote:
-> On Sat, Nov 7, 2015 at 4:29 PM, Guenter Roeck <linux@roeck-us.net> wrote:
->> On 11/07/2015 03:02 AM, Carlo Caione wrote:
->>>
->>> From: Carlo Caione <carlo@endlessm.com>
->>>
->>> With this patch we refactor the driver code to enable watchdog support
->>> for all platforms based on Amlogic meson SoCs.
->>>
->>> Signed-off-by: Carlo Caione <carlo@endlessm.com>
->>> ---
->>>    drivers/watchdog/meson_wdt.c | 56
->>> ++++++++++++++++++++++++++++++--------------
->>>    1 file changed, 39 insertions(+), 17 deletions(-)
->>>
->>> diff --git a/drivers/watchdog/meson_wdt.c b/drivers/watchdog/meson_wdt.c
->>> index 1f4155e..446af94 100644
->>> --- a/drivers/watchdog/meson_wdt.c
->>> +++ b/drivers/watchdog/meson_wdt.c
->>> @@ -19,6 +19,7 @@
->>>    #include <linux/moduleparam.h>
->>>    #include <linux/notifier.h>
->>>    #include <linux/of.h>
->>> +#include <linux/of_device.h>
->>>    #include <linux/platform_device.h>
->>>    #include <linux/reboot.h>
->>>    #include <linux/types.h>
->>> @@ -27,35 +28,47 @@
->>>    #define DRV_NAME              "meson_wdt"
->>>
->>>    #define MESON_WDT_TC          0x00
->>> -#define MESON_WDT_TC_EN                BIT(22)
->>> -#define MESON_WDT_TC_TM_MASK   0x3fffff
->>>    #define MESON_WDT_DC_RESET    (3 << 24)
->>>
->>>    #define MESON_WDT_RESET               0x04
->>>
->>> -#define MESON_WDT_TIMEOUT      30
->>> +#define MESON_WDT_TIMEOUT      5
->>
->>
->> This is not a reasonable default, the change is not mentioned
->> in the description, and it is unrelated to the change at hand.
->
-> The problem is that the default is too small or simply that the change
-> is not mentioned?
->
-Both.
+From: Carlo Caione <carlo@endlessm.com>
 
-> For the meson8b the maximum timeout is ~8 sec whereas for meson6 is
-> ~40 sec that's why I lowered the default from 30 to 5 sec.
-> I can set a different default for each SoC but at least for meson8b
-> the value will be always < 8 sec.
->
-Ok, but your change impacts both architectures. There is no reason
-to hold meson6 hostage for the meson8b limitations.
+With this patch we refactor the driver code to enable watchdog support
+for all platforms based on Amlogic meson SoCs.
+The new default timeout is also now chosen considering the maximum
+timeout allowed by the SoC.
 
-An easy fix would be to set the actual timeout to min(default, max).
+Signed-off-by: Carlo Caione <carlo@endlessm.com>
+---
+ drivers/watchdog/meson_wdt.c | 58 +++++++++++++++++++++++++++++++-------------
+ 1 file changed, 41 insertions(+), 17 deletions(-)
 
-Thanks,
-Guenter
-
+diff --git a/drivers/watchdog/meson_wdt.c b/drivers/watchdog/meson_wdt.c
+index 1f4155e..89734f0 100644
+--- a/drivers/watchdog/meson_wdt.c
++++ b/drivers/watchdog/meson_wdt.c
+@@ -19,6 +19,7 @@
+ #include <linux/moduleparam.h>
+ #include <linux/notifier.h>
+ #include <linux/of.h>
++#include <linux/of_device.h>
+ #include <linux/platform_device.h>
+ #include <linux/reboot.h>
+ #include <linux/types.h>
+@@ -27,35 +28,47 @@
+ #define DRV_NAME		"meson_wdt"
+ 
+ #define MESON_WDT_TC		0x00
+-#define MESON_WDT_TC_EN		BIT(22)
+-#define MESON_WDT_TC_TM_MASK	0x3fffff
+ #define MESON_WDT_DC_RESET	(3 << 24)
+ 
+ #define MESON_WDT_RESET		0x04
+ 
+ #define MESON_WDT_TIMEOUT	30
+ #define MESON_WDT_MIN_TIMEOUT	1
+-#define MESON_WDT_MAX_TIMEOUT	(MESON_WDT_TC_TM_MASK / 100000)
+ 
+-#define MESON_SEC_TO_TC(s)	((s) * 100000)
++#define MESON_SEC_TO_TC(s, c)	((s) * (c))
+ 
+ static bool nowayout = WATCHDOG_NOWAYOUT;
+ static unsigned int timeout = MESON_WDT_TIMEOUT;
+ 
++struct meson_wdt_data {
++	unsigned int enable;
++	unsigned int terminal_count_mask;
++	unsigned int count_unit;
++};
++
++static struct meson_wdt_data meson6_wdt_data = {
++	.enable			= BIT(22),
++	.terminal_count_mask	= 0x3fffff,
++	.count_unit		= 100000, /* 10 us */
++};
++
+ struct meson_wdt_dev {
+ 	struct watchdog_device wdt_dev;
+ 	void __iomem *wdt_base;
+ 	struct notifier_block restart_handler;
++	const struct meson_wdt_data *data;
+ };
+ 
+ static int meson_restart_handle(struct notifier_block *this, unsigned long mode,
+ 				void *cmd)
+ {
+-	u32 tc_reboot = MESON_WDT_DC_RESET | MESON_WDT_TC_EN;
++	u32 tc_reboot = MESON_WDT_DC_RESET;
+ 	struct meson_wdt_dev *meson_wdt = container_of(this,
+ 						       struct meson_wdt_dev,
+ 						       restart_handler);
+ 
++	tc_reboot |= meson_wdt->data->enable;
++
+ 	while (1) {
+ 		writel(tc_reboot, meson_wdt->wdt_base + MESON_WDT_TC);
+ 		mdelay(5);
+@@ -80,8 +93,8 @@ static void meson_wdt_change_timeout(struct watchdog_device *wdt_dev,
+ 	u32 reg;
+ 
+ 	reg = readl(meson_wdt->wdt_base + MESON_WDT_TC);
+-	reg &= ~MESON_WDT_TC_TM_MASK;
+-	reg |= MESON_SEC_TO_TC(timeout);
++	reg &= ~meson_wdt->data->terminal_count_mask;
++	reg |= MESON_SEC_TO_TC(timeout, meson_wdt->data->count_unit);
+ 	writel(reg, meson_wdt->wdt_base + MESON_WDT_TC);
+ }
+ 
+@@ -102,7 +115,7 @@ static int meson_wdt_stop(struct watchdog_device *wdt_dev)
+ 	u32 reg;
+ 
+ 	reg = readl(meson_wdt->wdt_base + MESON_WDT_TC);
+-	reg &= ~MESON_WDT_TC_EN;
++	reg &= ~meson_wdt->data->enable;
+ 	writel(reg, meson_wdt->wdt_base + MESON_WDT_TC);
+ 
+ 	return 0;
+@@ -117,7 +130,7 @@ static int meson_wdt_start(struct watchdog_device *wdt_dev)
+ 	meson_wdt_ping(wdt_dev);
+ 
+ 	reg = readl(meson_wdt->wdt_base + MESON_WDT_TC);
+-	reg |= MESON_WDT_TC_EN;
++	reg |= meson_wdt->data->enable;
+ 	writel(reg, meson_wdt->wdt_base + MESON_WDT_TC);
+ 
+ 	return 0;
+@@ -138,10 +151,17 @@ static const struct watchdog_ops meson_wdt_ops = {
+ 	.set_timeout	= meson_wdt_set_timeout,
+ };
+ 
++static const struct of_device_id meson_wdt_dt_ids[] = {
++	{ .compatible = "amlogic,meson6-wdt", .data = &meson6_wdt_data },
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(of, meson_wdt_dt_ids);
++
+ static int meson_wdt_probe(struct platform_device *pdev)
+ {
+ 	struct resource *res;
+ 	struct meson_wdt_dev *meson_wdt;
++	const struct of_device_id *of_id;
+ 	int err;
+ 
+ 	meson_wdt = devm_kzalloc(&pdev->dev, sizeof(*meson_wdt), GFP_KERNEL);
+@@ -153,12 +173,22 @@ static int meson_wdt_probe(struct platform_device *pdev)
+ 	if (IS_ERR(meson_wdt->wdt_base))
+ 		return PTR_ERR(meson_wdt->wdt_base);
+ 
++	of_id = of_match_device(meson_wdt_dt_ids, &pdev->dev);
++	if (!of_id) {
++		dev_err(&pdev->dev, "Unable to initialize WDT data\n");
++		return -ENODEV;
++	}
++	meson_wdt->data = of_id->data;
++
+ 	meson_wdt->wdt_dev.parent = &pdev->dev;
+ 	meson_wdt->wdt_dev.info = &meson_wdt_info;
+ 	meson_wdt->wdt_dev.ops = &meson_wdt_ops;
+-	meson_wdt->wdt_dev.timeout = MESON_WDT_TIMEOUT;
+-	meson_wdt->wdt_dev.max_timeout = MESON_WDT_MAX_TIMEOUT;
++	meson_wdt->wdt_dev.max_timeout =
++		meson_wdt->data->terminal_count_mask / meson_wdt->data->count_unit;
+ 	meson_wdt->wdt_dev.min_timeout = MESON_WDT_MIN_TIMEOUT;
++	meson_wdt->wdt_dev.timeout = min_t(unsigned int,
++					   MESON_WDT_TIMEOUT,
++					   meson_wdt->wdt_dev.max_timeout);
+ 
+ 	watchdog_set_drvdata(&meson_wdt->wdt_dev, meson_wdt);
+ 
+@@ -204,12 +234,6 @@ static void meson_wdt_shutdown(struct platform_device *pdev)
+ 	meson_wdt_stop(&meson_wdt->wdt_dev);
+ }
+ 
+-static const struct of_device_id meson_wdt_dt_ids[] = {
+-	{ .compatible = "amlogic,meson6-wdt" },
+-	{ /* sentinel */ }
+-};
+-MODULE_DEVICE_TABLE(of, meson_wdt_dt_ids);
+-
+ static struct platform_driver meson_wdt_driver = {
+ 	.probe		= meson_wdt_probe,
+ 	.remove		= meson_wdt_remove,
+-- 
+1.9.1
