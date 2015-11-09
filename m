@@ -1,57 +1,82 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:53053 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751556AbbKIPLN (ORCPT
+Received: from webbox1416.server-home.net ([77.236.96.61]:38944 "EHLO
+	webbox1416.server-home.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751185AbbKIJzv (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 9 Nov 2015 10:11:13 -0500
-Subject: Re: [PATCH v3 4/4] ARM: dts: meson8b: Add watchdog node
-To: Carlo Caione <carlo@caione.org>, wim@iguana.be,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, robh+dt@kernel.org,
-	drake@endlessm.com, jerry.cao@amlogic.com, victor.wan@amlogic.com,
-	romain.perier@gmail.com
-References: <1446985137-25498-1-git-send-email-carlo@caione.org>
- <1446985137-25498-5-git-send-email-carlo@caione.org>
-Cc: Carlo Caione <carlo@endlessm.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <5640B78E.8010200@roeck-us.net>
-Date: Mon, 9 Nov 2015 07:11:10 -0800
-MIME-Version: 1.0
-In-Reply-To: <1446985137-25498-5-git-send-email-carlo@caione.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Nov 2015 04:55:51 -0500
+From: Alexander Stein <alexander.stein@systec-electronic.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Alexander Stein <alexander.stein@systec-electronic.com>,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH 2/2] watchdog: gpio-wdt: Add panic notifier
+Date: Mon,  9 Nov 2015 10:55:44 +0100
+Message-Id: <1447062944-12296-2-git-send-email-alexander.stein@systec-electronic.com>
+In-Reply-To: <1447062944-12296-1-git-send-email-alexander.stein@systec-electronic.com>
+References: <1447062944-12296-1-git-send-email-alexander.stein@systec-electronic.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 11/08/2015 04:18 AM, Carlo Caione wrote:
-> From: Carlo Caione <carlo@endlessm.com>
->
-> With this patch we add the watchdog node in the meson8b DTS file.
->
-> Signed-off-by: Carlo Caione <carlo@endlessm.com>
+This notifier is required when the watchdog is configured as always running
+because in this case the watchdog will be triggered when the kernel panics
+at boot before any application could open the device, e.g. because the
+rootfs is broken. This should result in a resetting system. Thus we
+register a panic notifier which stops triggering the watchdog.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Alexander Stein <alexander.stein@systec-electronic.com>
+---
+ drivers/watchdog/gpio_wdt.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-> ---
->   arch/arm/boot/dts/meson8b.dtsi | 6 ++++++
->   1 file changed, 6 insertions(+)
->
-> diff --git a/arch/arm/boot/dts/meson8b.dtsi b/arch/arm/boot/dts/meson8b.dtsi
-> index ee352bf..8bad557 100644
-> --- a/arch/arm/boot/dts/meson8b.dtsi
-> +++ b/arch/arm/boot/dts/meson8b.dtsi
-> @@ -105,6 +105,12 @@
->   			#interrupt-cells = <3>;
->   		};
->
-> +		wdt: watchdog@c1109900 {
-> +			compatible = "amlogic,meson8b-wdt";
-> +			reg = <0xc1109900 0x8>;
-> +			interrupts = <0 0 1>;
-> +		};
-> +
->   		timer@c1109940 {
->   			compatible = "amlogic,meson6-timer";
->   			reg = <0xc1109940 0x18>;
->
+diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
+index c7b8a06..aaa0815 100644
+--- a/drivers/watchdog/gpio_wdt.c
++++ b/drivers/watchdog/gpio_wdt.c
+@@ -37,6 +37,7 @@ struct gpio_wdt_priv {
+ 	unsigned int		hw_margin;
+ 	unsigned long		last_jiffies;
+ 	struct notifier_block	reboot_notifier;
++	struct notifier_block	panic_notifier;
+ 	struct timer_list	timer;
+ 	struct watchdog_device	wdd;
+ };
+@@ -146,6 +147,17 @@ static int gpio_wdt_notify_sys(struct notifier_block *nb, unsigned long code,
+ 	return NOTIFY_DONE;
+ }
+ 
++static int gpio_wdt_notify_panic(struct notifier_block *nb, unsigned long code,
++			       void *unused)
++{
++	struct gpio_wdt_priv *priv = container_of(nb, struct gpio_wdt_priv,
++						  panic_notifier);
++
++	gpio_wdt_disable(priv);
++
++	return NOTIFY_DONE;
++}
++
+ static const struct watchdog_info gpio_wdt_ident = {
+ 	.options	= WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING |
+ 			  WDIOF_SETTIMEOUT,
+@@ -233,11 +245,19 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto error_unregister;
+ 
++	priv->panic_notifier.notifier_call = gpio_wdt_notify_panic;
++	ret = atomic_notifier_chain_register(&panic_notifier_list,
++					     &priv->panic_notifier);
++	if (ret)
++		goto error_unregister_notify;
++
+ 	if (priv->always_running)
+ 		gpio_wdt_start_impl(priv);
+ 
+ 	return 0;
+ 
++error_unregister_notify:
++	unregister_reboot_notifier(&priv->reboot_notifier);
+ error_unregister:
+ 	watchdog_unregister_device(&priv->wdd);
+ 	return ret;
+-- 
+2.4.10
 
