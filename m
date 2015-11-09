@@ -1,67 +1,108 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:36480 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753843AbbKGP34 (ORCPT
+Received: from mail-ob0-f177.google.com ([209.85.214.177]:34035 "EHLO
+	mail-ob0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752177AbbKIIaK (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 7 Nov 2015 10:29:56 -0500
-Subject: Re: [PATCH v2 1/4] watchdog: meson: Enable meson SoC specific data
-To: Carlo Caione <carlo@caione.org>, wim@iguana.be,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, robh+dt@kernel.org,
-	drake@endlessm.com, jerry.cao@amlogic.com, victor.wan@amlogic.com,
-	romain.perier@gmail.com
-References: <1446894139-6802-1-git-send-email-carlo@caione.org>
- <1446894139-6802-2-git-send-email-carlo@caione.org>
-Cc: Carlo Caione <carlo@endlessm.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <563E18F0.4030807@roeck-us.net>
-Date: Sat, 7 Nov 2015 07:29:52 -0800
+	Mon, 9 Nov 2015 03:30:10 -0500
+Received: by obbza9 with SMTP id za9so135047370obb.1
+        for <linux-watchdog@vger.kernel.org>; Mon, 09 Nov 2015 00:30:09 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <1446894139-6802-2-git-send-email-carlo@caione.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <1446042725-5649-1-git-send-email-fu.wei@linaro.org>
+References: <1446042725-5649-1-git-send-email-fu.wei@linaro.org>
+Date: Mon, 9 Nov 2015 16:30:09 +0800
+Message-ID: <CADyBb7v2zGURXotA5B8ekr+BXry8=8zF_S5ACoEqUhZGiqui-A@mail.gmail.com>
+Subject: Re: [PATCH RFC 0/3] ACPI, clocksource: add GTDT and ARM memory-mapped
+ timer support
+From: Fu Wei <fu.wei@linaro.org>
+To: Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
+	linux-watchdog@vger.kernel.org,
+	LKML <linux-kernel@vger.kernel.org>, linux-acpi@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Rafael Wysocki <rjw@rjwysocki.net>, lenb@kernel.org,
+	Daniel Lezcano <daniel.lezcano@linaro.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Hanjun Guo <hanjun.guo@linaro.org>, davem@davemloft.net,
+	jeffrey.t.kirsher@intel.com, richardcochran@gmail.com
+Cc: Arnd Bergmann <arnd@arndb.de>, Guenter Roeck <linux@roeck-us.net>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Jon Masters <jcm@redhat.com>, Leo Duran <leo.duran@amd.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will.deacon@arm.com>,
+	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+	Rob Herring <robherring2@gmail.com>, Fu Wei <fu.wei@linaro.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 11/07/2015 03:02 AM, Carlo Caione wrote:
-> From: Carlo Caione <carlo@endlessm.com>
->
-> With this patch we refactor the driver code to enable watchdog support
-> for all platforms based on Amlogic meson SoCs.
->
-> Signed-off-by: Carlo Caione <carlo@endlessm.com>
-> ---
->   drivers/watchdog/meson_wdt.c | 56 ++++++++++++++++++++++++++++++--------------
->   1 file changed, 39 insertions(+), 17 deletions(-)
->
-> diff --git a/drivers/watchdog/meson_wdt.c b/drivers/watchdog/meson_wdt.c
-> index 1f4155e..446af94 100644
-> --- a/drivers/watchdog/meson_wdt.c
-> +++ b/drivers/watchdog/meson_wdt.c
-> @@ -19,6 +19,7 @@
->   #include <linux/moduleparam.h>
->   #include <linux/notifier.h>
->   #include <linux/of.h>
-> +#include <linux/of_device.h>
->   #include <linux/platform_device.h>
->   #include <linux/reboot.h>
->   #include <linux/types.h>
-> @@ -27,35 +28,47 @@
->   #define DRV_NAME		"meson_wdt"
->
->   #define MESON_WDT_TC		0x00
-> -#define MESON_WDT_TC_EN		BIT(22)
-> -#define MESON_WDT_TC_TM_MASK	0x3fffff
->   #define MESON_WDT_DC_RESET	(3 << 24)
->
->   #define MESON_WDT_RESET		0x04
->
-> -#define MESON_WDT_TIMEOUT	30
-> +#define MESON_WDT_TIMEOUT	5
+Hi all
 
-This is not a reasonable default, the change is not mentioned
-in the description, and it is unrelated to the change at hand.
-Sorry if I overlooked it in v1.
+On 28 October 2015 at 22:32,  <fu.wei@linaro.org> wrote:
+> From: Fu Wei <fu.wei@linaro.org>
+>
+> This patchset:
+>     (1)Introduce ACPI GTDT parser: drivers/acpi/gtdt.c
+>     Parse all kinds of timer in GTDT table of ACPI:arch timer,
+>     memory-mapped timer and SBSA Generic Watchdog timer.
+>     This driver can help to simplify all the relevant timer drivers,
+>     and separate all the ACPI GTDT knowledge from them.
+>
+>     (2)Simplify ACPI code for arch timer in arm_arch_timer.c
+>
+>     (3)Add memory-mapped timer support in arm_arch_timer.c
+>
+> [PATCH 2/3] and [PATCH 3/3] depend on a patchset
+> [PATCH v2 0/5] ACPI probing infrastructure,
+> https://lkml.org/lkml/2015/9/13/126, which has been accepted by upstream
+> maintainer, and has been merged in linux-next.git, tag: next-20151013.
 
-Guenter
+FYI: These dependent patches have been merged into master branch of
+vanilla kernel
+That means this patchset can be applied on mainline kernel.
 
+>
+> The SBSA Generic Watchdog info parsing support have been tested with
+> a upstreaming SBSA Generic Watchdog driver:
+> https://lkml.org/lkml/2015/10/27/466
+> on the following platforms:
+>     (1)ARM Foundation v8 model
+>     (2)AMD Seattle platform
+>
+> ARM memory-mapped timer support of this patchset has been tested
+> on the following platforms:
+>     (1)ARM Foundation v8 model
+>
+> Changelog:
+> v1: The first upstreaming version.
+>
+> Fu Wei (3):
+>   ACPI: add GTDT table parse driver into ACPI driver
+>   clocksource: simplify ACPI code in arm_arch_timer.c
+>   clocksource: add memory-mapped timer support in arm_arch_timer.c
+>
+>  drivers/acpi/Kconfig                 |   9 +
+>  drivers/acpi/Makefile                |   1 +
+>  drivers/acpi/gtdt.c                  | 367 +++++++++++++++++++++++++++++++++++
+>  drivers/clocksource/arm_arch_timer.c | 176 +++++++++++++----
+>  include/clocksource/arm_arch_timer.h |  19 ++
+>  include/linux/acpi.h                 |  17 ++
+>  6 files changed, 554 insertions(+), 35 deletions(-)
+>  create mode 100644 drivers/acpi/gtdt.c
+>
+> --
+> 2.4.3
+>
+
+
+
+-- 
+Best regards,
+
+Fu Wei
+Software Engineer
+Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
+Ph: +86 21 61221326(direct)
+Ph: +86 186 2020 4684 (mobile)
+Room 1512, Regus One Corporate Avenue,Level 15,
+One Corporate Avenue,222 Hubin Road,Huangpu District,
+Shanghai,China 200021
