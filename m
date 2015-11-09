@@ -1,95 +1,156 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:54527 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751213AbbKIPTM (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 9 Nov 2015 10:19:12 -0500
-Subject: Re: [PATCH 2/2] watchdog: gpio-wdt: Add panic notifier
-To: Alexander Stein <alexander.stein@systec-electronic.com>,
-	Wim Van Sebroeck <wim@iguana.be>
-References: <1447062944-12296-1-git-send-email-alexander.stein@systec-electronic.com>
- <1447062944-12296-2-git-send-email-alexander.stein@systec-electronic.com>
-Cc: linux-watchdog@vger.kernel.org,
-	=?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <5640B96D.6010408@roeck-us.net>
-Date: Mon, 9 Nov 2015 07:19:09 -0800
-MIME-Version: 1.0
-In-Reply-To: <1447062944-12296-2-git-send-email-alexander.stein@systec-electronic.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Received: from mx1.redhat.com ([209.132.183.28]:57685 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751126AbbKIHcA (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 9 Nov 2015 02:32:00 -0500
+From: fu.wei@linaro.org
+To: linaro-acpi@lists.linaro.org, linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-doc@vger.kernel.org
+Cc: tekkamanninja@gmail.com, arnd@arndb.de, linux@roeck-us.net,
+	vgandhi@codeaurora.org, wim@iguana.be, jcm@redhat.com,
+	leo.duran@amd.com, corbet@lwn.net, mark.rutland@arm.com,
+	catalin.marinas@arm.com, will.deacon@arm.com, rjw@rjwysocki.net,
+	dyoung@redhat.com, panand@redhat.com,
+	Suravee.Suthikulpanit@amd.com, robherring2@gmail.com,
+	Fu Wei <fu.wei@linaro.org>
+Subject: [PATCH v9 0/5] Watchdog: introduce ARM SBSA watchdog driver
+Date: Mon,  9 Nov 2015 15:31:14 +0800
+Message-Id: <1447054279-12470-1-git-send-email-fu.wei@linaro.org>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 11/09/2015 01:55 AM, Alexander Stein wrote:
-> This notifier is required when the watchdog is configured as always running
-> because in this case the watchdog will be triggered when the kernel panics
-> at boot before any application could open the device, e.g. because the
-> rootfs is broken. This should result in a resetting system. Thus we
-> register a panic notifier which stops triggering the watchdog.
->
+From: Fu Wei <fu.wei@linaro.org>
 
-Shouldn't the timer be stopped instead ?
+This patchset:
+    (1)Introduce Documentation/devicetree/bindings/watchdog/sbsa-gwdt.txt
+    for FDT info of SBSA Generic Watchdog, and give two examples of
+    adding SBSA Generic Watchdog device node into the dts files:
+    foundation-v8.dts and amd-seattle-soc.dtsi.
 
-Copying Uwe for additional input.
+    (2)Introduce "pretimeout" into the watchdog framework, and update
+    Documentation/watchdog/watchdog-kernel-api.txt to introduce:
+        (1)the new elements in the watchdog_device and watchdog_ops struct;
+        (2)the new API "watchdog_init_timeouts".
 
-Thanks,
-Guenter
+    (3)Introduce ARM SBSA watchdog driver:
+        a.Use linux kernel watchdog framework;
+        b.Work with FDT on ARM64;
+        c.Use "pretimeout" in watchdog framework;
+        d.Support getting timeout and pretimeout from parameter and FDT
+          at the driver init stage.
+        e.In the first timeout, do panic to save system context;
+        f.In the second stage, user can still feed the dog without
+          cleaning WS0. By this feature, we can avoid the panic infinite
+          loops, while backing up a large system context in a server.
+        g.In the second stage, can trigger WS1 by setting pretimeout = 0
+          if necessary.
 
-> Signed-off-by: Alexander Stein <alexander.stein@systec-electronic.com>
-> ---
->   drivers/watchdog/gpio_wdt.c | 20 ++++++++++++++++++++
->   1 file changed, 20 insertions(+)
->
-> diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
-> index c7b8a06..aaa0815 100644
-> --- a/drivers/watchdog/gpio_wdt.c
-> +++ b/drivers/watchdog/gpio_wdt.c
-> @@ -37,6 +37,7 @@ struct gpio_wdt_priv {
->   	unsigned int		hw_margin;
->   	unsigned long		last_jiffies;
->   	struct notifier_block	reboot_notifier;
-> +	struct notifier_block	panic_notifier;
->   	struct timer_list	timer;
->   	struct watchdog_device	wdd;
->   };
-> @@ -146,6 +147,17 @@ static int gpio_wdt_notify_sys(struct notifier_block *nb, unsigned long code,
->   	return NOTIFY_DONE;
->   }
->
-> +static int gpio_wdt_notify_panic(struct notifier_block *nb, unsigned long code,
-> +			       void *unused)
-> +{
-> +	struct gpio_wdt_priv *priv = container_of(nb, struct gpio_wdt_priv,
-> +						  panic_notifier);
-> +
-> +	gpio_wdt_disable(priv);
-> +
-> +	return NOTIFY_DONE;
-> +}
-> +
->   static const struct watchdog_info gpio_wdt_ident = {
->   	.options	= WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING |
->   			  WDIOF_SETTIMEOUT,
-> @@ -233,11 +245,19 @@ static int gpio_wdt_probe(struct platform_device *pdev)
->   	if (ret)
->   		goto error_unregister;
->
-> +	priv->panic_notifier.notifier_call = gpio_wdt_notify_panic;
-> +	ret = atomic_notifier_chain_register(&panic_notifier_list,
-> +					     &priv->panic_notifier);
-> +	if (ret)
-> +		goto error_unregister_notify;
-> +
->   	if (priv->always_running)
->   		gpio_wdt_start_impl(priv);
->
->   	return 0;
->
-> +error_unregister_notify:
-> +	unregister_reboot_notifier(&priv->reboot_notifier);
->   error_unregister:
->   	watchdog_unregister_device(&priv->wdd);
->   	return ret;
->
+This patchset has been tested with watchdog daemon
+(ACPI/FDT, module/build-in) on the following platforms:
+    (1)ARM Foundation v8 model
+    (2)AMD Seattle platform
+
+This patchset has been tested with kdump successfully.
+
+Changelog:
+v9: Rebase to latest kernel version(4.3).
+    Update the Documentation of sbsa-gwdt device node info of FDT:
+        (1) move some introduction to pretimeout patch
+        (2) delete WS1 value from "interrupts" of binding documentation,
+            since WS1 won't be handled by Linux.
+
+v8: Rebase to latest kernel version(4.3-rc7).
+    Separate the patches of GTDT support and arm_arch_timer. This
+    clocksource relevant patch will upstreamed in a individual patchset.
+    Update all the default timeout and pretimeout to 30s and 60s.
+    Improve documentation and inline comments.
+    Fix a bug in pretimeout support which makes timeout and pretimeout
+    parameters initialization fail.
+
+v7: Rebase to latest kernel version(4.2-rc7).
+    Improve FDT support: geting resource by order, instead of name.
+    According to the FDT support, Update the example dts file, gtdt.c
+    and sbsa_gwdt.c.
+    Pass the sparse test, and fix the warning.
+    Fix the max_pretimeout and max_timeout value overflow bug.
+    Delete the WCV output value.
+    
+
+v6: Improve the dtb example files: reduce the register frame size to 4K.
+    Improve pretimeout support:
+        (1) improve watchdog_init_timeouts function
+	(2) rename watchdog_check_min_max_timeouts back to the original name
+        (1) improve watchdog_timeout_invalid/watchdog_pretimeout_invalid
+    Add the new features in the sbsa_gwdt driver:
+	(1) In the second stage, user can feed the dog without cleaning WS0.
+	(2) In the second stage, user can trigger WS1 by setting pretimeout = 0.
+	(3) expand the max value of pretimeout, in case 10 second is not enough
+	    for a kdump kernel reboot in panic.
+
+v5: Improve pretimeout support:
+        (1)fix typo in documentation and comments.
+	(2)fix the timeout limits validation bug.
+    Simplify sbsa_gwdt driver:
+	(1)integrate all the registers access functions into caller.
+
+v4: Refactor GTDT support code: remove it from arch/arm64/kernel/acpi.c,
+    put it into drivers/acpi/gtdt.c file.
+    Integrate the GTDT code of drivers/clocksource/arm_arch_timer.c into
+    drivers/acpi/gtdt.c.
+    Improve pretimeout support, fix "pretimeout == 0" problem.
+    Simplify sbsa_gwdt driver:
+        (1)timeout/pretimeout limits setup;
+        (2)keepalive function;
+        (3)delete "clk == 0" check;
+        (4)delete WS0 status bit check in interrupt routine;
+        (5)sbsa_gwdt_set_wcv function.
+
+v3: Delete "export arch_timer_get_rate" patch.
+    Driver back to use arch_timer_get_cntfrq.
+    Improve watchdog_init_timeouts function and update relevant documentation.
+    Improve watchdog_timeout_invalid and watchdog_pretimeout_invalid.
+    Improve foundation-v8.dts: delete the unnecessary tag of device node.
+    Remove "ARM64 || COMPILE_TEST" from Kconfig.
+    Add comments in arch/arm64/kernel/acpi.c
+    Fix typoes and incorrect comments.
+
+v2: Improve watchdog-kernel-api.txt documentation for pretimeout support.
+    Export "arch_timer_get_rate" in arm_arch_timer.c.
+    Add watchdog_init_timeouts API for pretimeout support in framework.
+    Improve suspend and resume foundation in driver
+    Improve timeout/pretimeout values init code in driver.
+    Delete unnecessary items of the sbsa_gwdt struct and #define.
+    Delete all unnecessary debug info in driver.
+    Fix 64bit division bug.
+    Use the arch_timer interface to get watchdog clock rate.
+    Add MODULE_DEVICE_TABLE for platform device id.
+    Fix typoes.
+
+v1: The first version upstream patchset to linux mailing list.
+
+Fu Wei (5):
+  Documentation: add sbsa-gwdt driver documentation
+  ARM64: add SBSA Generic Watchdog device node in foundation-v8.dts
+  ARM64: add SBSA Generic Watchdog device node in amd-seattle-soc.dtsi
+  Watchdog: introdouce "pretimeout" into framework
+  Watchdog: introduce ARM SBSA watchdog driver
+
+ .../devicetree/bindings/watchdog/sbsa-gwdt.txt     |  34 ++
+ Documentation/watchdog/watchdog-kernel-api.txt     |  61 ++-
+ Documentation/watchdog/watchdog-parameters.txt     |   6 +
+ arch/arm64/boot/dts/amd/amd-seattle-soc.dtsi       |   8 +
+ arch/arm64/boot/dts/arm/foundation-v8.dts          |   7 +
+ drivers/watchdog/Kconfig                           |  14 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/sbsa_gwdt.c                       | 459 +++++++++++++++++++++
+ drivers/watchdog/watchdog_core.c                   | 127 ++++--
+ drivers/watchdog/watchdog_dev.c                    |  53 +++
+ include/linux/watchdog.h                           |  39 +-
+ 11 files changed, 767 insertions(+), 42 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/sbsa-gwdt.txt
+ create mode 100644 drivers/watchdog/sbsa_gwdt.c
+
+-- 
+2.5.0
 
