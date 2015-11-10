@@ -1,90 +1,87 @@
-Return-path: <mru@mansr.com>
-From: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mans@mansr.com>
+Return-path: <ukl@pengutronix.de>
+Date: Tue, 10 Nov 2015 08:20:31 +0100
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@iguana.be>,  linux-kernel@vger.kernel.org,  linux-watchdog@vger.kernel.org
-Subject: Re: [RESEND][PATCH] watchdog: add support for Sigma Designs SMP86xx
-References: <1447420459-5301-1-git-send-email-mans@mansr.com>
-	<56461155.80808@roeck-us.net> <yw1x37w9lu26.fsf@unicorn.mansr.com>
-	<5646240C.5070105@roeck-us.net>
-Date: Fri, 13 Nov 2015 18:02:35 +0000
-In-Reply-To: <5646240C.5070105@roeck-us.net> (Guenter Roeck's message of "Fri,
-	13 Nov 2015 09:55:24 -0800")
-Message-ID: <yw1xpozdkcas.fsf@unicorn.mansr.com>
+Cc: Alexander Stein <alexander.stein@systec-electronic.com>,
+	Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 2/2] watchdog: gpio-wdt: Add panic notifier
+Message-ID: <20151110072031.GH4931@pengutronix.de>
+References: <1447062944-12296-1-git-send-email-alexander.stein@systec-electronic.com>
+ <1447062944-12296-2-git-send-email-alexander.stein@systec-electronic.com>
+ <5640B96D.6010408@roeck-us.net>
+ <20151109190249.GG4931@pengutronix.de>
+ <56412A14.60800@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <56412A14.60800@roeck-us.net>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Guenter Roeck <linux@roeck-us.net> writes:
+Hello Guenter,
 
->>>> +config TANGOX_WDT
->>>> +	tristate "SMP86xx watchdog"
->>>> +	select WATCHDOG_CORE
->>>> +	depends on ARCH_TANGOX
->>>> +	help
->>>> +	  Watchdog driver for Sigma Designs SMP86xx.
->>>
->>> Not really; it is for SMP8642, and we don't know if other (later ?) chi=
-ps
->>> will be supported by the same driver. You should be explicit here. More=
- chips
->>> can be added later (that would be needed for the devicetree bindings an=
-yway)
->>> as they are tested.
->>
->> I have tested it on SMP8642 and SMP8759.  The documentation for SMP8654
->> agrees.
->>
->
-> We should have that information somewhere - maybe in the driver header.
-> It is very useful to know which hardware this was tested with and which
-> hardware is supposed to work.
+On Mon, Nov 09, 2015 at 03:19:48PM -0800, Guenter Roeck wrote:
+> On 11/09/2015 11:02 AM, Uwe Kleine-König wrote:
+> >On Mon, Nov 09, 2015 at 07:19:09AM -0800, Guenter Roeck wrote:
+> >>On 11/09/2015 01:55 AM, Alexander Stein wrote:
+> >>>This notifier is required when the watchdog is configured as always running
+> >>>because in this case the watchdog will be triggered when the kernel panics
+> >>>at boot before any application could open the device, e.g. because the
+> >>>rootfs is broken. This should result in a resetting system. Thus we
+> >>>register a panic notifier which stops triggering the watchdog.
+> >>>
+> >>
+> >>Shouldn't the timer be stopped instead ?
+> >
+> >What do you mean saying "timer"? The hardware? This might or might not
+> >be possible.
+> >
+> I meant the timer referenced with the variable 'timer' in struct
+> gpio_wdt_priv, and "stop timer' would translate to somoething like
+> 'mod_timer(&priv->timer, 0);'.
+> Sorry for not being more specific.
 
-OK, I'll add that info somewhere.
+My feeling is that improving the gpio-wdt driver is the wrong way. I
+admit I lost track of the patch series that moves that handling into the
+watchdog core, what is the status here? There thinking more accurately
+which handlers to register and how to react to certain events makes
+more sense.
 
->>>> +static int tangox_wdt_set_timeout(struct watchdog_device *wdt,
->>>> +				  unsigned int new_timeout)
->>>> +{
->>>> +	struct tangox_wdt_device *dev =3D watchdog_get_drvdata(wdt);
->>>> +
->>>> +	wdt->timeout =3D new_timeout;
->>>> +	dev->timeout =3D 1 + new_timeout * clk_get_rate(dev->clk);
->>>
->>> Why "1 +" ?
->>
->> The counter counts down from the loaded value and asserts the reset pin
->> when it reaches 1.  Setting it to zero disables the watchdog.
->
-> You might want to explain that somewhere. Maybe use a define, explain
-> it there, and use the define here and below.
+Adding code now to gpio-wdt that later needs migration to the core stuff
+might be more annoying than to do it right in the core now.
 
-Will do.
+> >>>diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
+> >>>index c7b8a06..aaa0815 100644
+> >>>--- a/drivers/watchdog/gpio_wdt.c
+> >>>+++ b/drivers/watchdog/gpio_wdt.c
+> >>>@@ -233,11 +245,19 @@ static int gpio_wdt_probe(struct platform_device *pdev)
+> >>>  	if (ret)
+> >>>  		goto error_unregister;
+> >>>
+> >>>+	priv->panic_notifier.notifier_call = gpio_wdt_notify_panic;
+> >>>+	ret = atomic_notifier_chain_register(&panic_notifier_list,
+> >>>+					     &priv->panic_notifier);
+> >>>+	if (ret)
+> >>>+		goto error_unregister_notify;
+> >>>+
+> >>>  	if (priv->always_running)
+> >>>  		gpio_wdt_start_impl(priv);
+> >>>
+> >>>  	return 0;
+> >>>
+> >>>+error_unregister_notify:
+> >>>+	unregister_reboot_notifier(&priv->reboot_notifier);
+> >
+> >The logic is wrong here. If atomic_notifier_chain_register failed you
+> >shouldn't call unregister_reboot_notifier.
 
->>>> +static const struct of_device_id tangox_wdt_dt_ids[] =3D {
->>>> +	{ .compatible =3D "sigma,smp8642-wdt" },
->>>
->>> So this is really for smp8642 only, not for any other chips in the seri=
-es ?
->>
->> It's for about a dozen SMP86xx, SMP87xx, and SMP89xx chips.  Should I
->> list them all?  I don't even know where to find a comprehensive list of
->> device numbers.
->>
-> I thought so, but I am not a devicetree expert, and I see some "xx" in
-> existing devicetree bindings. Something to ask when you submit the
-> bindings to the devicetree mailing list. Either case, I think it would
-> be either something like "sigma,smp86xx-wdt" or a list of all of them,
-> but not "sigma,smp8642-wdt" to be used for all chips.
+I meant the wrong thing here, I thought the call to
+atomic_notifier_chain_register is undone when it fails, but the patch
+presented by Alexander is right. 
 
-The general advice is to not use wildcards in DT bindings since the next
-chip matching the pattern might not be compatible at all.  New chips
-known to be compatible with an old one can specify both the exact chip
-and the older one such that existing drivers will work automatically.
-If at some point they are found not to be compatible after all (hardware
-bugs, perhaps) a fixed driver will work with existing device trees.
+Best regards
+Uwe
 
-Thanks for the review.
-
---=20
-M=E5ns Rullg=E5rd
-mans@mansr.com
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
