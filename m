@@ -1,108 +1,94 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-ob0-f177.google.com ([209.85.214.177]:34035 "EHLO
-	mail-ob0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752177AbbKIIaK (ORCPT
+Received: from smtp.codeaurora.org ([198.145.29.96]:55190 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753626AbbKMAX4 (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 9 Nov 2015 03:30:10 -0500
-Received: by obbza9 with SMTP id za9so135047370obb.1
-        for <linux-watchdog@vger.kernel.org>; Mon, 09 Nov 2015 00:30:09 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <1446042725-5649-1-git-send-email-fu.wei@linaro.org>
-References: <1446042725-5649-1-git-send-email-fu.wei@linaro.org>
-Date: Mon, 9 Nov 2015 16:30:09 +0800
-Message-ID: <CADyBb7v2zGURXotA5B8ekr+BXry8=8zF_S5ACoEqUhZGiqui-A@mail.gmail.com>
-Subject: Re: [PATCH RFC 0/3] ACPI, clocksource: add GTDT and ARM memory-mapped
- timer support
-From: Fu Wei <fu.wei@linaro.org>
-To: Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
-	linux-watchdog@vger.kernel.org,
-	LKML <linux-kernel@vger.kernel.org>, linux-acpi@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Rafael Wysocki <rjw@rjwysocki.net>, lenb@kernel.org,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Hanjun Guo <hanjun.guo@linaro.org>, davem@davemloft.net,
-	jeffrey.t.kirsher@intel.com, richardcochran@gmail.com
-Cc: Arnd Bergmann <arnd@arndb.de>, Guenter Roeck <linux@roeck-us.net>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Jon Masters <jcm@redhat.com>, Leo Duran <leo.duran@amd.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
+	Thu, 12 Nov 2015 19:23:56 -0500
+Subject: Re: [Linaro-acpi] [PATCH v8 5/5] Watchdog: introduce ARM SBSA
+ watchdog driver
+To: Al Stone <al.stone@linaro.org>, Guenter Roeck <linux@roeck-us.net>,
+	Fu Wei <fu.wei@linaro.org>
+References: <1445961999-9506-1-git-send-email-fu.wei@linaro.org>
+ <1445961999-9506-6-git-send-email-fu.wei@linaro.org>
+ <CAOZdJXV8x8EMQEZhdFS+34iO+6P9S==k9bQjt=67iXt6K2oSCw@mail.gmail.com>
+ <563AE588.1080009@roeck-us.net> <563B5DF9.6080102@codeaurora.org>
+ <CADyBb7sD2Y2kGj-suOs1UeUwXPjH39mvX_Sobn0Y7WfsJ9hF=Q@mail.gmail.com>
+ <563B62F7.3050307@codeaurora.org>
+ <CADyBb7vDf+KRi8gUGEt+iu-GpqVQgVq7nKTVt7O=3x78KCi+RQ@mail.gmail.com>
+ <563B6A4B.7090400@codeaurora.org>
+ <CADyBb7t6ovfrz1b3ZZykKq22HkZi1W0PWg7-wXihEjM9ciTgGg@mail.gmail.com>
+ <563B869F.2010004@roeck-us.net> <56452970.4070209@linaro.org>
+Cc: Pratyush Anand <panand@redhat.com>, devicetree@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+	linux-doc@vger.kernel.org, Jon Masters <jcm@redhat.com>,
+	Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
+	"Rafael J. Wysocki" <rjw@rjwysocki.net>,
+	lkml <linux-kernel@vger.kernel.org>,
 	Will Deacon <will.deacon@arm.com>,
-	Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-	Rob Herring <robherring2@gmail.com>, Fu Wei <fu.wei@linaro.org>
-Content-Type: text/plain; charset=UTF-8
+	Wim Van Sebroeck <wim@iguana.be>,
+	Rob Herring <robherring2@gmail.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Wei Fu <tekkamanninja@gmail.com>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Dave Young <dyoung@redhat.com>,
+	Vipul Gandhi <vgandhi@codeaurora.org>
+From: Timur Tabi <timur@codeaurora.org>
+Message-ID: <56452D98.80704@codeaurora.org>
+Date: Thu, 12 Nov 2015 18:23:52 -0600
+MIME-Version: 1.0
+In-Reply-To: <56452970.4070209@linaro.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi all
+On 11/12/2015 06:06 PM, Al Stone wrote:
+> If it is a NAK, that's fine, but I also want to be sure I understand what the
+> objections are.  Based on my understanding of the discussion so far over the
+> multiple versions, I think the primary objection is that the use of pretimeout
+> makes this driver too complex, and indeed complex enough that there is some
+> concern that it could destabilize a running system.  Do I have that right?
 
-On 28 October 2015 at 22:32,  <fu.wei@linaro.org> wrote:
-> From: Fu Wei <fu.wei@linaro.org>
->
-> This patchset:
->     (1)Introduce ACPI GTDT parser: drivers/acpi/gtdt.c
->     Parse all kinds of timer in GTDT table of ACPI:arch timer,
->     memory-mapped timer and SBSA Generic Watchdog timer.
->     This driver can help to simplify all the relevant timer drivers,
->     and separate all the ACPI GTDT knowledge from them.
->
->     (2)Simplify ACPI code for arch timer in arm_arch_timer.c
->
->     (3)Add memory-mapped timer support in arm_arch_timer.c
->
-> [PATCH 2/3] and [PATCH 3/3] depend on a patchset
-> [PATCH v2 0/5] ACPI probing infrastructure,
-> https://lkml.org/lkml/2015/9/13/126, which has been accepted by upstream
-> maintainer, and has been merged in linux-next.git, tag: next-20151013.
+I don't have a problem with the concept of pre-timeout per se.  My 
+primary objection is this code:
 
-FYI: These dependent patches have been merged into master branch of
-vanilla kernel
-That means this patchset can be applied on mainline kernel.
+ > +static irqreturn_t sbsa_gwdt_interrupt(int irq, void *dev_id)
+ > +{
+ > +       struct sbsa_gwdt *gwdt = (struct sbsa_gwdt *)dev_id;
+ > +       struct watchdog_device *wdd = &gwdt->wdd;
+ > +
+ > +       /* We don't use pretimeout, trigger WS1 now */
+ > +       if (!wdd->pretimeout)
+ > +               sbsa_gwdt_set_wcv(wdd, 0);
 
->
-> The SBSA Generic Watchdog info parsing support have been tested with
-> a upstreaming SBSA Generic Watchdog driver:
-> https://lkml.org/lkml/2015/10/27/466
-> on the following platforms:
->     (1)ARM Foundation v8 model
->     (2)AMD Seattle platform
->
-> ARM memory-mapped timer support of this patchset has been tested
-> on the following platforms:
->     (1)ARM Foundation v8 model
->
-> Changelog:
-> v1: The first upstreaming version.
->
-> Fu Wei (3):
->   ACPI: add GTDT table parse driver into ACPI driver
->   clocksource: simplify ACPI code in arm_arch_timer.c
->   clocksource: add memory-mapped timer support in arm_arch_timer.c
->
->  drivers/acpi/Kconfig                 |   9 +
->  drivers/acpi/Makefile                |   1 +
->  drivers/acpi/gtdt.c                  | 367 +++++++++++++++++++++++++++++++++++
->  drivers/clocksource/arm_arch_timer.c | 176 +++++++++++++----
->  include/clocksource/arm_arch_timer.h |  19 ++
->  include/linux/acpi.h                 |  17 ++
->  6 files changed, 554 insertions(+), 35 deletions(-)
->  create mode 100644 drivers/acpi/gtdt.c
->
-> --
-> 2.4.3
->
+This driver depends on an interrupt handler in order to properly program 
+the hardware.  Unlike some other devices, the SBSA watchdog does not 
+need assistance to reset on a timeout -- it is a "fire and forget" 
+device.  What happens if there is a hard lockup, and interrupts no 
+longer work?
 
+The reason why Fu does this is because he wants to support a pre-timeout 
+value that's independent of the timeout value.  The SBSA watchdog is 
+normally programmed where real timeout equals twice the pre-timeout.  I 
+would prefer that the driver adhere to this limitation.  That would 
+eliminate the need to pre-program the hardware in the interrupt handler.
 
+> And finally, a simpler, single stage timeout watchdog driver would be a
+> reasonable thing to accept, yes?  I can see where that would make sense.
+
+I would be okay with merging such a driver, and then enhancing it later 
+to add pre-timeout support.
+
+> The issue for me in that case is that the SBSA requires a two stage timeout,
+> so a single stage driver has no real value for me.
+
+There are plenty of existing watchdog devices that have a two-stage 
+timeout but the driver treats it as a single stage.  The PowerPC 
+watchdog driver is like that.  The hardware is programmed for the second 
+stage to cause a hardware reset, and the interrupt handler is typically 
+a no-op or just a printk().
 
 -- 
-Best regards,
-
-Fu Wei
-Software Engineer
-Red Hat Software (Beijing) Co.,Ltd.Shanghai Branch
-Ph: +86 21 61221326(direct)
-Ph: +86 186 2020 4684 (mobile)
-Room 1512, Regus One Corporate Avenue,Level 15,
-One Corporate Avenue,222 Hubin Road,Huangpu District,
-Shanghai,China 200021
+Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the
+Code Aurora Forum, a Linux Foundation Collaborative Project.
