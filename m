@@ -1,130 +1,249 @@
-Return-path: <al.stone@linaro.org>
-Subject: Re: [Linaro-acpi] [PATCH v8 5/5] Watchdog: introduce ARM SBSA
- watchdog driver
-To: Guenter Roeck <linux@roeck-us.net>, Fu Wei <fu.wei@linaro.org>,
- Timur Tabi <timur@codeaurora.org>
-References: <1445961999-9506-1-git-send-email-fu.wei@linaro.org>
- <1445961999-9506-6-git-send-email-fu.wei@linaro.org>
- <CAOZdJXV8x8EMQEZhdFS+34iO+6P9S==k9bQjt=67iXt6K2oSCw@mail.gmail.com>
- <563AE588.1080009@roeck-us.net> <563B5DF9.6080102@codeaurora.org>
- <CADyBb7sD2Y2kGj-suOs1UeUwXPjH39mvX_Sobn0Y7WfsJ9hF=Q@mail.gmail.com>
- <563B62F7.3050307@codeaurora.org>
- <CADyBb7vDf+KRi8gUGEt+iu-GpqVQgVq7nKTVt7O=3x78KCi+RQ@mail.gmail.com>
- <563B6A4B.7090400@codeaurora.org>
- <CADyBb7t6ovfrz1b3ZZykKq22HkZi1W0PWg7-wXihEjM9ciTgGg@mail.gmail.com>
- <563B869F.2010004@roeck-us.net>
-Cc: Pratyush Anand <panand@redhat.com>, devicetree@vger.kernel.org,
- linux-watchdog@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
- linux-doc@vger.kernel.org, Jon Masters <jcm@redhat.com>,
- Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
- "Rafael J. Wysocki" <rjw@rjwysocki.net>, lkml
- <linux-kernel@vger.kernel.org>, Will Deacon <will.deacon@arm.com>,
- Wim Van Sebroeck <wim@iguana.be>, Rob Herring <robherring2@gmail.com>,
- Catalin Marinas <catalin.marinas@arm.com>, Wei Fu <tekkamanninja@gmail.com>,
- Jonathan Corbet <corbet@lwn.net>, Dave Young <dyoung@redhat.com>,
- Vipul Gandhi <vgandhi@codeaurora.org>
-From: Al Stone <al.stone@linaro.org>
-Message-ID: <56452970.4070209@linaro.org>
-Date: Thu, 12 Nov 2015 17:06:08 -0700
-MIME-Version: 1.0
-In-Reply-To: <563B869F.2010004@roeck-us.net>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from unicorn.mansr.com ([81.2.72.234]:33634 "EHLO unicorn.mansr.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751981AbbKMNOi (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 13 Nov 2015 08:14:38 -0500
+From: Mans Rullgard <mans@mansr.com>
+To: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+Subject: [RESEND][PATCH] watchdog: add support for Sigma Designs SMP86xx
+Date: Fri, 13 Nov 2015 13:14:19 +0000
+Message-Id: <1447420459-5301-1-git-send-email-mans@mansr.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On 11/05/2015 09:41 AM, Guenter Roeck wrote:
-> On 11/05/2015 07:00 AM, Fu Wei wrote:
->> Hi Timur,
->>
->> On 5 November 2015 at 22:40, Timur Tabi <timur@codeaurora.org> wrote:
->>> Fu Wei wrote:
->>>>
->>>> Did you really read the "Note" above???????? OK, let me paste it again
->>>> and again:
->>>>
->>>> SBSA 2.3 Page 23 :
->>>> If a larger watch period is required then the compare value can be
->>>> programmed directly into the compare value register.
->>>
->>>
->>> Well, okay.  Sorry, I should have read what you pasted more closely. But I
->>
->> Thanks for reading it again.
->>
->>> think that means during initialization, not during the WS0 timeout.
->>
->> I really don't see SBSA say "during initialization, not during the WS0 timeout",
->> please point it out the page number and the line number in SBSA spec.
->> maybe I miss it?
->> Thanks for your help in advance.
->>
->>>
->>> Anyway, I still don't like the fact that you're programming WCV in the
->>
->> "you don't like" doesn't mean "it is wrong" or "we can't do this", so
->> I will keep this way unless we have better idea to extend second stage
->> timeout.
->>
->>> interrupt handler, but I'm not going to make a big deal about it any more.
->>
->> Deal, Thanks a lot.
->>
-> 
-> The problem with your driver, as I see it, is that dealing with WS0/WS1
-> and pretimeout makes the driver so complex that, at least for my part,
-> I am very wary about it. The driver could long since have been accepted
-> if it were not for that. Besides that, I really believe that any system designer
-> using the highest permitted frequency should be willing to live with the
-> consequences, and not force the implementation of a a complex driver.
-> 
-> Ultimately, you'll have to decide if you want a simple driver accepted, or
-> a complex driver hanging in the review queue forever.
-> 
-> Thanks,
-> Guenter
+This adds support for the Sigma Designs SMP86xx family built-in
+watchdog.
 
-Sorry to poke my head in late like this, but I do have a vested interest in the
-outcome so I'm very curious.  For my work, I need to have an ACPI-supported,
-SBSA-compliant watchdog timer for arm64, and this series is one of the key
-pieces to getting there.  The plan for me has been: (1) get an FDT based SBSA
-watchdog timer, (2) add in kernel code to handle the ACPI GTDT table describing
-timers, then (3) munge the SBSA watchdog timer for use by ACPI.
+Signed-off-by: Mans Rullgard <mans@mansr.com>
+---
+ drivers/watchdog/Kconfig      |   7 ++
+ drivers/watchdog/Makefile     |   1 +
+ drivers/watchdog/tangox_wdt.c | 185 ++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 193 insertions(+)
+ create mode 100644 drivers/watchdog/tangox_wdt.c
 
-So, is this an actual NAK of the patch series as is?  I think it is, but I want
-it to be clear, and it has not been explicit yet.
-
-If it is a NAK, that's fine, but I also want to be sure I understand what the
-objections are.  Based on my understanding of the discussion so far over the
-multiple versions, I think the primary objection is that the use of pretimeout
-makes this driver too complex, and indeed complex enough that there is some
-concern that it could destabilize a running system.  Do I have that right?
-
-The other possible item I could conclude out of the discussion is that we do
-not want to have the pretimeout code as part of the watchdog framework; is that
-also the case or did I misunderstand?
-
-And finally, a simpler, single stage timeout watchdog driver would be a
-reasonable thing to accept, yes?  I can see where that would make sense.
-
-The issue for me in that case is that the SBSA requires a two stage timeout,
-so a single stage driver has no real value for me.  Now, if I can later add in
-changes to make the driver into a two stage driver so it is SBSA-compliant,
-that would also work, but it will make the driver more complex again.  At that
-point, I think I've now gone in a logical circle and the changes would not be
-accepted so I could never get to my goal of an SBSA-compliant driver.  I don't
-think that's what was meant, so what did I miss?
-
-Thanks in advance for any clarifications that can be provided.....I really do
-appreciate it.  Email is not always the clearest mechanism for communication
-so sometimes I have to ask odd questions like these so I can understand what
-is happening.
-
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 79e1aa1..0ed5ee8 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1337,6 +1337,13 @@ config RALINK_WDT
+ 	help
+ 	  Hardware driver for the Ralink SoC Watchdog Timer.
+ 
++config TANGOX_WDT
++	tristate "SMP86xx watchdog"
++	select WATCHDOG_CORE
++	depends on ARCH_TANGOX
++	help
++	  Watchdog driver for Sigma Designs SMP86xx.
++
+ # PARISC Architecture
+ 
+ # POWERPC Architecture
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 0c616e3..ed00796 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -148,6 +148,7 @@ octeon-wdt-y := octeon-wdt-main.o octeon-wdt-nmi.o
+ obj-$(CONFIG_LANTIQ_WDT) += lantiq_wdt.o
+ obj-$(CONFIG_RALINK_WDT) += rt2880_wdt.o
+ obj-$(CONFIG_IMGPDC_WDT) += imgpdc_wdt.o
++obj-$(CONFIG_TANGOX_WDT) += tangox_wdt.o
+ 
+ # PARISC Architecture
+ 
+diff --git a/drivers/watchdog/tangox_wdt.c b/drivers/watchdog/tangox_wdt.c
+new file mode 100644
+index 0000000..305759f
+--- /dev/null
++++ b/drivers/watchdog/tangox_wdt.c
+@@ -0,0 +1,185 @@
++/*
++ *  Copyright (C) 2014, Mans Rullgard <mans@mansr.com>
++ *  SMP86xx Watchdog driver
++ *
++ *  This program is free software; you can redistribute it and/or modify it
++ *  under  the terms of the GNU General  Public License as published by the
++ *  Free Software Foundation;  either version 2 of the License, or (at your
++ *  option) any later version.
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/moduleparam.h>
++#include <linux/notifier.h>
++#include <linux/delay.h>
++#include <linux/reboot.h>
++#include <linux/platform_device.h>
++#include <linux/watchdog.h>
++#include <linux/clk.h>
++#include <linux/io.h>
++
++#define DEFAULT_TIMEOUT	30
++#define MAX_TIMEOUT	120
++
++static bool nowayout = WATCHDOG_NOWAYOUT;
++module_param(nowayout, bool, 0);
++MODULE_PARM_DESC(nowayout,
++		 "Watchdog cannot be stopped once started (default="
++		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++
++static unsigned int timeout = DEFAULT_TIMEOUT;
++module_param(timeout, int, 0);
++MODULE_PARM_DESC(watchdog_timeout, "Watchdog timeout");
++
++#define WD_COUNTER	0
++#define WD_CONFIG	4
++
++struct tangox_wdt_device {
++	struct watchdog_device wdt;
++	void __iomem *base;
++	unsigned int timeout;
++	struct clk *clk;
++	struct notifier_block restart;
++};
++
++static int tangox_wdt_ping(struct watchdog_device *wdt)
++{
++	struct tangox_wdt_device *dev = watchdog_get_drvdata(wdt);
++
++	writel(dev->timeout, dev->base + WD_COUNTER);
++
++	return 0;
++}
++
++static int tangox_wdt_set_timeout(struct watchdog_device *wdt,
++				  unsigned int new_timeout)
++{
++	struct tangox_wdt_device *dev = watchdog_get_drvdata(wdt);
++
++	wdt->timeout = new_timeout;
++	dev->timeout = 1 + new_timeout * clk_get_rate(dev->clk);
++
++	tangox_wdt_ping(wdt);
++
++	return 0;
++}
++
++static int tangox_wdt_start(struct watchdog_device *wdt)
++{
++	return tangox_wdt_set_timeout(wdt, wdt->timeout);
++}
++
++static int tangox_wdt_stop(struct watchdog_device *wdt)
++{
++	struct tangox_wdt_device *dev = watchdog_get_drvdata(wdt);
++
++	writel(0, dev->base + WD_COUNTER);
++
++	return 0;
++}
++
++static const struct watchdog_info tangox_wdt_info = {
++	.options  = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
++	.identity = "tangox watchdog",
++};
++
++static const struct watchdog_ops tangox_wdt_ops = {
++	.start		= tangox_wdt_start,
++	.stop		= tangox_wdt_stop,
++	.ping		= tangox_wdt_ping,
++	.set_timeout	= tangox_wdt_set_timeout,
++};
++
++static int tangox_wdt_restart(struct notifier_block *nb, unsigned long action,
++			      void *data)
++{
++	struct tangox_wdt_device *dev =
++		container_of(nb, struct tangox_wdt_device, restart);
++
++	writel(1, dev->base + WD_COUNTER);
++
++	return NOTIFY_DONE;
++}
++
++static int tangox_wdt_probe(struct platform_device *pdev)
++{
++	struct tangox_wdt_device *dev;
++	struct resource *res;
++	int err;
++
++	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
++	if (!dev)
++		return -ENOMEM;
++
++	dev->wdt.parent = &pdev->dev;
++	dev->wdt.info = &tangox_wdt_info;
++	dev->wdt.ops = &tangox_wdt_ops;
++	dev->wdt.timeout = timeout;
++	dev->wdt.min_timeout = 1;
++	dev->wdt.max_timeout = MAX_TIMEOUT;
++	watchdog_set_nowayout(&dev->wdt, nowayout);
++	watchdog_set_drvdata(&dev->wdt, dev);
++
++	dev->clk = devm_clk_get(&pdev->dev, NULL);
++	if (IS_ERR(dev->clk))
++		return PTR_ERR(dev->clk);
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!res)
++		return -EINVAL;
++
++	dev->base = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(dev->base))
++		return PTR_ERR(dev->base);
++
++	writel(0, dev->base + WD_COUNTER);
++	writel(1, dev->base + WD_CONFIG);
++
++	err = watchdog_register_device(&dev->wdt);
++	if (err)
++		return err;
++
++	platform_set_drvdata(pdev, dev);
++
++	dev->restart.notifier_call = tangox_wdt_restart;
++	dev->restart.priority = 128;
++	err = register_restart_handler(&dev->restart);
++	if (err)
++		dev_err(&pdev->dev, "failed to register restart handler\n");
++
++	dev_info(dev->wdt.dev, "SMP86xx watchdog registered\n");
++
++	return 0;
++}
++
++static int tangox_wdt_remove(struct platform_device *pdev)
++{
++	struct tangox_wdt_device *dev = platform_get_drvdata(pdev);
++
++	tangox_wdt_stop(&dev->wdt);
++	unregister_restart_handler(&dev->restart);
++	watchdog_unregister_device(&dev->wdt);
++
++	return 0;
++}
++
++static const struct of_device_id tangox_wdt_dt_ids[] = {
++	{ .compatible = "sigma,smp8642-wdt" },
++	{ }
++};
++
++static struct platform_driver tangox_wdt_driver = {
++	.probe	= tangox_wdt_probe,
++	.remove	= tangox_wdt_remove,
++	.driver	= {
++		.name		= "tangox-wdt",
++		.of_match_table	= tangox_wdt_dt_ids,
++	},
++};
++
++module_platform_driver(tangox_wdt_driver);
++
++MODULE_AUTHOR("Mans Rullgard <mans@mansr.com>");
++MODULE_DESCRIPTION("SMP86xx Watchdog driver");
++MODULE_LICENSE("GPL");
 -- 
-ciao,
-al
------------------------------------
-Al Stone
-Software Engineer
-Linaro Enterprise Group
-al.stone@linaro.org
------------------------------------
+2.6.3
+
