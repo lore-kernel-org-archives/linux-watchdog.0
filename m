@@ -5,9 +5,9 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Guenter Roeck <linux@roeck-us.net>,
 	kernel@savoirfairelinux.com,
 	Damien Riegel <damien.riegel@savoirfairelinux.com>
-Subject: [PATCH v2 11/13] watchdog: qcom-wdt: use core restart handler
-Date: Mon, 16 Nov 2015 12:28:09 -0500
-Message-Id: <1447694891-24831-12-git-send-email-damien.riegel@savoirfairelinux.com>
+Subject: [PATCH v2 10/13] watchdog: mtk_wdt: use core restart handler
+Date: Mon, 16 Nov 2015 12:28:08 -0500
+Message-Id: <1447694891-24831-11-git-send-email-damien.riegel@savoirfairelinux.com>
 In-Reply-To: <1447694891-24831-1-git-send-email-damien.riegel@savoirfairelinux.com>
 References: <1447694891-24831-1-git-send-email-damien.riegel@savoirfairelinux.com>
 List-ID: <linux-watchdog@vger.kernel.org>
@@ -19,106 +19,88 @@ Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Reviewed-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
 ---
- drivers/watchdog/qcom-wdt.c | 49 ++++++++++++++++++---------------------------
- 1 file changed, 19 insertions(+), 30 deletions(-)
+ drivers/watchdog/mtk_wdt.c | 22 +++++-----------------
+ 1 file changed, 5 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
-index 773dcfa..aa7105d 100644
---- a/drivers/watchdog/qcom-wdt.c
-+++ b/drivers/watchdog/qcom-wdt.c
-@@ -17,7 +17,6 @@
- #include <linux/module.h>
- #include <linux/of.h>
+diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
+index 6ad9df9..338bd3c 100644
+--- a/drivers/watchdog/mtk_wdt.c
++++ b/drivers/watchdog/mtk_wdt.c
+@@ -28,8 +28,6 @@
  #include <linux/platform_device.h>
--#include <linux/reboot.h>
+ #include <linux/types.h>
  #include <linux/watchdog.h>
+-#include <linux/notifier.h>
+-#include <linux/reboot.h>
+ #include <linux/delay.h>
  
- #define WDT_RST		0x38
-@@ -28,7 +27,6 @@ struct qcom_wdt {
- 	struct watchdog_device	wdd;
- 	struct clk		*clk;
- 	unsigned long		rate;
--	struct notifier_block	restart_nb;
- 	void __iomem		*base;
+ #define WDT_MAX_TIMEOUT		31
+@@ -64,16 +62,13 @@ static unsigned int timeout = WDT_MAX_TIMEOUT;
+ struct mtk_wdt_dev {
+ 	struct watchdog_device wdt_dev;
+ 	void __iomem *wdt_base;
+-	struct notifier_block restart_handler;
  };
  
-@@ -72,25 +70,9 @@ static int qcom_wdt_set_timeout(struct watchdog_device *wdd,
- 	return qcom_wdt_start(wdd);
- }
- 
--static const struct watchdog_ops qcom_wdt_ops = {
--	.start		= qcom_wdt_start,
--	.stop		= qcom_wdt_stop,
--	.ping		= qcom_wdt_ping,
--	.set_timeout	= qcom_wdt_set_timeout,
--	.owner		= THIS_MODULE,
--};
--
--static const struct watchdog_info qcom_wdt_info = {
--	.options	= WDIOF_KEEPALIVEPING
--			| WDIOF_MAGICCLOSE
--			| WDIOF_SETTIMEOUT,
--	.identity	= KBUILD_MODNAME,
--};
--
--static int qcom_wdt_restart(struct notifier_block *nb, unsigned long action,
--			    void *data)
-+static int qcom_wdt_restart(struct watchdog_device *wdd)
+-static int mtk_reset_handler(struct notifier_block *this, unsigned long mode,
+-				void *cmd)
++static int mtk_wdt_restart(struct watchdog_device *wdt_dev)
  {
--	struct qcom_wdt *wdt = container_of(nb, struct qcom_wdt, restart_nb);
-+	struct qcom_wdt *wdt = to_qcom_wdt(wdd);
- 	u32 timeout;
+-	struct mtk_wdt_dev *mtk_wdt;
++	struct mtk_wdt_dev *mtk_wdt = watchdog_get_drvdata(wdt_dev);
+ 	void __iomem *wdt_base;
  
- 	/*
-@@ -110,9 +92,25 @@ static int qcom_wdt_restart(struct notifier_block *nb, unsigned long action,
- 	wmb();
+-	mtk_wdt = container_of(this, struct mtk_wdt_dev, restart_handler);
+ 	wdt_base = mtk_wdt->wdt_base;
  
- 	msleep(150);
+ 	while (1) {
+@@ -81,7 +76,7 @@ static int mtk_reset_handler(struct notifier_block *this, unsigned long mode,
+ 		mdelay(5);
+ 	}
+ 
 -	return NOTIFY_DONE;
 +	return 0;
  }
  
-+static const struct watchdog_ops qcom_wdt_ops = {
-+	.start		= qcom_wdt_start,
-+	.stop		= qcom_wdt_stop,
-+	.ping		= qcom_wdt_ping,
-+	.set_timeout	= qcom_wdt_set_timeout,
-+	.restart        = qcom_wdt_restart,
-+	.owner		= THIS_MODULE,
-+};
-+
-+static const struct watchdog_info qcom_wdt_info = {
-+	.options	= WDIOF_KEEPALIVEPING
-+			| WDIOF_MAGICCLOSE
-+			| WDIOF_SETTIMEOUT,
-+	.identity	= KBUILD_MODNAME,
-+};
-+
- static int qcom_wdt_probe(struct platform_device *pdev)
- {
- 	struct qcom_wdt *wdt;
-@@ -187,14 +185,6 @@ static int qcom_wdt_probe(struct platform_device *pdev)
- 		goto err_clk_unprepare;
- 	}
+ static int mtk_wdt_ping(struct watchdog_device *wdt_dev)
+@@ -160,6 +155,7 @@ static const struct watchdog_ops mtk_wdt_ops = {
+ 	.stop		= mtk_wdt_stop,
+ 	.ping		= mtk_wdt_ping,
+ 	.set_timeout	= mtk_wdt_set_timeout,
++	.restart	= mtk_wdt_restart,
+ };
  
--	/*
--	 * WDT restart notifier has priority 0 (use as a last resort)
--	 */
--	wdt->restart_nb.notifier_call = qcom_wdt_restart;
--	ret = register_restart_handler(&wdt->restart_nb);
--	if (ret)
--		dev_err(&pdev->dev, "failed to setup restart handler\n");
+ static int mtk_wdt_probe(struct platform_device *pdev)
+@@ -188,6 +184,7 @@ static int mtk_wdt_probe(struct platform_device *pdev)
+ 
+ 	watchdog_init_timeout(&mtk_wdt->wdt_dev, timeout, &pdev->dev);
+ 	watchdog_set_nowayout(&mtk_wdt->wdt_dev, nowayout);
++	watchdog_set_restart_priority(&mtk_wdt->wdt_dev, 128);
+ 
+ 	watchdog_set_drvdata(&mtk_wdt->wdt_dev, mtk_wdt);
+ 
+@@ -197,13 +194,6 @@ static int mtk_wdt_probe(struct platform_device *pdev)
+ 	if (unlikely(err))
+ 		return err;
+ 
+-	mtk_wdt->restart_handler.notifier_call = mtk_reset_handler;
+-	mtk_wdt->restart_handler.priority = 128;
+-	err = register_restart_handler(&mtk_wdt->restart_handler);
+-	if (err)
+-		dev_warn(&pdev->dev,
+-			"cannot register restart handler (err=%d)\n", err);
 -
- 	platform_set_drvdata(pdev, wdt);
- 	return 0;
+ 	dev_info(&pdev->dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)\n",
+ 			mtk_wdt->wdt_dev.timeout, nowayout);
  
-@@ -207,7 +197,6 @@ static int qcom_wdt_remove(struct platform_device *pdev)
+@@ -222,8 +212,6 @@ static int mtk_wdt_remove(struct platform_device *pdev)
  {
- 	struct qcom_wdt *wdt = platform_get_drvdata(pdev);
+ 	struct mtk_wdt_dev *mtk_wdt = platform_get_drvdata(pdev);
  
--	unregister_restart_handler(&wdt->restart_nb);
- 	watchdog_unregister_device(&wdt->wdd);
- 	clk_disable_unprepare(wdt->clk);
+-	unregister_restart_handler(&mtk_wdt->restart_handler);
+-
+ 	watchdog_unregister_device(&mtk_wdt->wdt_dev);
+ 
  	return 0;
 -- 
 2.5.0
