@@ -1,113 +1,67 @@
 Return-path: <damien.riegel@savoirfairelinux.com>
 From: Damien Riegel <damien.riegel@savoirfairelinux.com>
-To: linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>,
+To: linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org
+Cc: shawnguo@kernel.org,
+	kernel@pengutronix.de,
+	wim@iguana.be,
+	robh+dt@kernel.org,
+	sameo@linux.intel.com,
+	lee.jones@linaro.org,
+	dinh.linux@gmail.com,
+	linux@roeck-us.net,
 	kernel@savoirfairelinux.com,
 	Damien Riegel <damien.riegel@savoirfairelinux.com>
-Subject: [PATCH v2 13/13] watchdog: sunxi_wdt: use core restart handler
-Date: Mon, 16 Nov 2015 12:28:11 -0500
-Message-Id: <1447694891-24831-14-git-send-email-damien.riegel@savoirfairelinux.com>
-In-Reply-To: <1447694891-24831-1-git-send-email-damien.riegel@savoirfairelinux.com>
-References: <1447694891-24831-1-git-send-email-damien.riegel@savoirfairelinux.com>
+Subject: [PATCH v3 0/5] Add board support for TS-4800
+Date: Mon, 16 Nov 2015 14:06:49 -0500
+Message-Id: <1447700814-5391-1-git-send-email-damien.riegel@savoirfairelinux.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Get rid of the custom restart handler by using the one provided by the
-watchdog core.
+This patch serie adds support for TS-4800 board. This board,                                                                              
+manufactured by Technologic Systems, is based on an IMX515.
 
-Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
----
- drivers/watchdog/sunxi_wdt.c | 23 +++++------------------
- 1 file changed, 5 insertions(+), 18 deletions(-)
+The first stage bootloader, called TS-BOOTROM, enables the watchdog,
+so a watchdog driver is required to prevent board from rebooting.
 
-diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
-index 47bd8a1..e027deb 100644
---- a/drivers/watchdog/sunxi_wdt.c
-+++ b/drivers/watchdog/sunxi_wdt.c
-@@ -21,11 +21,9 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
--#include <linux/notifier.h>
- #include <linux/of.h>
- #include <linux/of_device.h>
- #include <linux/platform_device.h>
--#include <linux/reboot.h>
- #include <linux/types.h>
- #include <linux/watchdog.h>
- 
-@@ -60,7 +58,6 @@ struct sunxi_wdt_dev {
- 	struct watchdog_device wdt_dev;
- 	void __iomem *wdt_base;
- 	const struct sunxi_wdt_reg *wdt_regs;
--	struct notifier_block restart_handler;
- };
- 
- /*
-@@ -86,12 +83,9 @@ static const int wdt_timeout_map[] = {
- };
- 
- 
--static int sunxi_restart_handle(struct notifier_block *this, unsigned long mode,
--				void *cmd)
-+static int sunxi_wdt_restart(struct watchdog_device *wdt_dev)
- {
--	struct sunxi_wdt_dev *sunxi_wdt = container_of(this,
--						       struct sunxi_wdt_dev,
--						       restart_handler);
-+	struct sunxi_wdt_dev *sunxi_wdt = watchdog_get_drvdata(wdt_dev);
- 	void __iomem *wdt_base = sunxi_wdt->wdt_base;
- 	const struct sunxi_wdt_reg *regs = sunxi_wdt->wdt_regs;
- 	u32 val;
-@@ -120,7 +114,7 @@ static int sunxi_restart_handle(struct notifier_block *this, unsigned long mode,
- 		val |= WDT_MODE_EN;
- 		writel(val, wdt_base + regs->wdt_mode);
- 	}
--	return NOTIFY_DONE;
-+	return 0;
- }
- 
- static int sunxi_wdt_ping(struct watchdog_device *wdt_dev)
-@@ -208,6 +202,7 @@ static const struct watchdog_ops sunxi_wdt_ops = {
- 	.stop		= sunxi_wdt_stop,
- 	.ping		= sunxi_wdt_ping,
- 	.set_timeout	= sunxi_wdt_set_timeout,
-+	.restart	= sunxi_wdt_restart,
- };
- 
- static const struct sunxi_wdt_reg sun4i_wdt_reg = {
-@@ -268,6 +263,7 @@ static int sunxi_wdt_probe(struct platform_device *pdev)
- 
- 	watchdog_init_timeout(&sunxi_wdt->wdt_dev, timeout, &pdev->dev);
- 	watchdog_set_nowayout(&sunxi_wdt->wdt_dev, nowayout);
-+	watchdog_set_restart_priority(&sunxi_wdt->wdt_dev, 128);
- 
- 	watchdog_set_drvdata(&sunxi_wdt->wdt_dev, sunxi_wdt);
- 
-@@ -277,13 +273,6 @@ static int sunxi_wdt_probe(struct platform_device *pdev)
- 	if (unlikely(err))
- 		return err;
- 
--	sunxi_wdt->restart_handler.notifier_call = sunxi_restart_handle;
--	sunxi_wdt->restart_handler.priority = 128;
--	err = register_restart_handler(&sunxi_wdt->restart_handler);
--	if (err)
--		dev_err(&pdev->dev,
--			"cannot register restart handler (err=%d)\n", err);
--
- 	dev_info(&pdev->dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)",
- 			sunxi_wdt->wdt_dev.timeout, nowayout);
- 
-@@ -294,8 +283,6 @@ static int sunxi_wdt_remove(struct platform_device *pdev)
- {
- 	struct sunxi_wdt_dev *sunxi_wdt = platform_get_drvdata(pdev);
- 
--	unregister_restart_handler(&sunxi_wdt->restart_handler);
--
- 	watchdog_unregister_device(&sunxi_wdt->wdt_dev);
- 	watchdog_set_drvdata(&sunxi_wdt->wdt_dev, NULL);
- 
+The current device tree is minimal but it allows to get a shell on the
+board.
+
+Changes in v3:
+ - Rebased on v4.3
+ - Changed vendor prefix from "ts" to "technologic"
+ - Added a DT option to generic syscon driver to allow regmap configuration
+ - Dropped custom mfd driver, use generic syscon driver instead.
+
+Changes in v2:
+ - Added a mfd driver to handle syscon registers
+ - The watchdog driver now uses the regmap (created by the mfd driver)
+   to access the feed register
+ - Remove watchdog's dependency on SOC_IMX51
+
+Damien Riegel (5):
+  of: add vendor prefix for Technologic Systems
+  mfd: syscon: add a DT property to set value width
+  watchdog: ts4800: add driver for TS-4800 watchdog
+  ARM: imx_v6_v7_defconfig: add TS-4800 watchdog
+  ARM: dts: TS-4800: add basic device tree
+
+ .../devicetree/bindings/arm/technologic.txt        |   6 +
+ Documentation/devicetree/bindings/mfd/syscon.txt   |   3 +
+ .../devicetree/bindings/vendor-prefixes.txt        |   1 +
+ .../devicetree/bindings/watchdog/ts4800-wdt.txt    |  21 ++
+ arch/arm/boot/dts/Makefile                         |   3 +-
+ arch/arm/boot/dts/imx51-ts4800.dts                 | 190 ++++++++++++++++++
+ arch/arm/configs/imx_v6_v7_defconfig               |   1 +
+ drivers/mfd/syscon.c                               |  12 ++
+ drivers/watchdog/Kconfig                           |  10 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/ts4800_wdt.c                      | 219 +++++++++++++++++++++
+ 11 files changed, 466 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/devicetree/bindings/arm/technologic.txt
+ create mode 100644 Documentation/devicetree/bindings/watchdog/ts4800-wdt.txt
+ create mode 100644 arch/arm/boot/dts/imx51-ts4800.dts
+ create mode 100644 drivers/watchdog/ts4800_wdt.c
+
 -- 
 2.5.0
