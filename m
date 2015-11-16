@@ -5,9 +5,9 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Guenter Roeck <linux@roeck-us.net>,
 	kernel@savoirfairelinux.com,
 	Damien Riegel <damien.riegel@savoirfairelinux.com>
-Subject: [PATCH v2 08/13] watchdog: meson_wdt: use core restart handler
-Date: Mon, 16 Nov 2015 12:28:06 -0500
-Message-Id: <1447694891-24831-9-git-send-email-damien.riegel@savoirfairelinux.com>
+Subject: [PATCH v2 12/13] watchdog: s3c2410_wdt: use core restart handler
+Date: Mon, 16 Nov 2015 12:28:10 -0500
+Message-Id: <1447694891-24831-13-git-send-email-damien.riegel@savoirfairelinux.com>
 In-Reply-To: <1447694891-24831-1-git-send-email-damien.riegel@savoirfairelinux.com>
 References: <1447694891-24831-1-git-send-email-damien.riegel@savoirfairelinux.com>
 List-ID: <linux-watchdog@vger.kernel.org>
@@ -19,89 +19,128 @@ Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Reviewed-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
 ---
- drivers/watchdog/meson_wdt.c | 23 +++++------------------
- 1 file changed, 5 insertions(+), 18 deletions(-)
+ drivers/watchdog/s3c2410_wdt.c | 60 ++++++++++++++++++------------------------
+ 1 file changed, 25 insertions(+), 35 deletions(-)
 
-diff --git a/drivers/watchdog/meson_wdt.c b/drivers/watchdog/meson_wdt.c
-index 1f4155e..40db9e2 100644
---- a/drivers/watchdog/meson_wdt.c
-+++ b/drivers/watchdog/meson_wdt.c
-@@ -17,10 +17,8 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
--#include <linux/notifier.h>
+diff --git a/drivers/watchdog/s3c2410_wdt.c b/drivers/watchdog/s3c2410_wdt.c
+index d781000..0093450 100644
+--- a/drivers/watchdog/s3c2410_wdt.c
++++ b/drivers/watchdog/s3c2410_wdt.c
+@@ -41,7 +41,6 @@
  #include <linux/of.h>
- #include <linux/platform_device.h>
+ #include <linux/mfd/syscon.h>
+ #include <linux/regmap.h>
 -#include <linux/reboot.h>
- #include <linux/types.h>
- #include <linux/watchdog.h>
+ #include <linux/delay.h>
  
-@@ -45,23 +43,19 @@ static unsigned int timeout = MESON_WDT_TIMEOUT;
- struct meson_wdt_dev {
- 	struct watchdog_device wdt_dev;
- 	void __iomem *wdt_base;
--	struct notifier_block restart_handler;
+ #define S3C2410_WTCON		0x00
+@@ -130,7 +129,6 @@ struct s3c2410_wdt {
+ 	unsigned long		wtdat_save;
+ 	struct watchdog_device	wdt_device;
+ 	struct notifier_block	freq_transition;
+-	struct notifier_block	restart_handler;
+ 	struct s3c2410_wdt_variant *drv_data;
+ 	struct regmap *pmureg;
  };
- 
--static int meson_restart_handle(struct notifier_block *this, unsigned long mode,
--				void *cmd)
-+static int meson_wdt_restart(struct watchdog_device *wdt_dev)
- {
-+	struct meson_wdt_dev *meson_wdt = watchdog_get_drvdata(wdt_dev);
- 	u32 tc_reboot = MESON_WDT_DC_RESET | MESON_WDT_TC_EN;
--	struct meson_wdt_dev *meson_wdt = container_of(this,
--						       struct meson_wdt_dev,
--						       restart_handler);
- 
- 	while (1) {
- 		writel(tc_reboot, meson_wdt->wdt_base + MESON_WDT_TC);
- 		mdelay(5);
- 	}
- 
--	return NOTIFY_DONE;
-+	return 0;
+@@ -351,6 +349,29 @@ static int s3c2410wdt_set_heartbeat(struct watchdog_device *wdd, unsigned timeou
+ 	return 0;
  }
  
- static int meson_wdt_ping(struct watchdog_device *wdt_dev)
-@@ -136,6 +130,7 @@ static const struct watchdog_ops meson_wdt_ops = {
- 	.stop		= meson_wdt_stop,
- 	.ping		= meson_wdt_ping,
- 	.set_timeout	= meson_wdt_set_timeout,
-+	.restart        = meson_wdt_restart,
++static int s3c2410wdt_restart(struct watchdog_device *wdd)
++{
++	struct s3c2410_wdt *wdt = watchdog_get_drvdata(wdd);
++	void __iomem *wdt_base = wdt->reg_base;
++
++	/* disable watchdog, to be safe  */
++	writel(0, wdt_base + S3C2410_WTCON);
++
++	/* put initial values into count and data */
++	writel(0x80, wdt_base + S3C2410_WTCNT);
++	writel(0x80, wdt_base + S3C2410_WTDAT);
++
++	/* set the watchdog to go and reset... */
++	writel(S3C2410_WTCON_ENABLE | S3C2410_WTCON_DIV16 |
++		S3C2410_WTCON_RSTEN | S3C2410_WTCON_PRESCALE(0x20),
++		wdt_base + S3C2410_WTCON);
++
++	/* wait for reset to assert... */
++	mdelay(500);
++
++	return 0;
++}
++
+ #define OPTIONS (WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE)
+ 
+ static const struct watchdog_info s3c2410_wdt_ident = {
+@@ -365,6 +386,7 @@ static struct watchdog_ops s3c2410wdt_ops = {
+ 	.stop = s3c2410wdt_stop,
+ 	.ping = s3c2410wdt_keepalive,
+ 	.set_timeout = s3c2410wdt_set_heartbeat,
++	.restart = s3c2410wdt_restart,
  };
  
- static int meson_wdt_probe(struct platform_device *pdev)
-@@ -164,6 +159,7 @@ static int meson_wdt_probe(struct platform_device *pdev)
+ static struct watchdog_device s3c2410_wdd = {
+@@ -452,31 +474,6 @@ static inline void s3c2410wdt_cpufreq_deregister(struct s3c2410_wdt *wdt)
+ }
+ #endif
  
- 	watchdog_init_timeout(&meson_wdt->wdt_dev, timeout, &pdev->dev);
- 	watchdog_set_nowayout(&meson_wdt->wdt_dev, nowayout);
-+	watchdog_set_restart_priority(&meson_wdt->wdt_dev, 128);
- 
- 	meson_wdt_stop(&meson_wdt->wdt_dev);
- 
-@@ -173,13 +169,6 @@ static int meson_wdt_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, meson_wdt);
- 
--	meson_wdt->restart_handler.notifier_call = meson_restart_handle;
--	meson_wdt->restart_handler.priority = 128;
--	err = register_restart_handler(&meson_wdt->restart_handler);
--	if (err)
--		dev_err(&pdev->dev,
--			"cannot register restart handler (err=%d)\n", err);
+-static int s3c2410wdt_restart(struct notifier_block *this,
+-			      unsigned long mode, void *cmd)
+-{
+-	struct s3c2410_wdt *wdt = container_of(this, struct s3c2410_wdt,
+-					       restart_handler);
+-	void __iomem *wdt_base = wdt->reg_base;
 -
- 	dev_info(&pdev->dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)",
- 		 meson_wdt->wdt_dev.timeout, nowayout);
- 
-@@ -190,8 +179,6 @@ static int meson_wdt_remove(struct platform_device *pdev)
+-	/* disable watchdog, to be safe  */
+-	writel(0, wdt_base + S3C2410_WTCON);
+-
+-	/* put initial values into count and data */
+-	writel(0x80, wdt_base + S3C2410_WTCNT);
+-	writel(0x80, wdt_base + S3C2410_WTDAT);
+-
+-	/* set the watchdog to go and reset... */
+-	writel(S3C2410_WTCON_ENABLE | S3C2410_WTCON_DIV16 |
+-		S3C2410_WTCON_RSTEN | S3C2410_WTCON_PRESCALE(0x20),
+-		wdt_base + S3C2410_WTCON);
+-
+-	/* wait for reset to assert... */
+-	mdelay(500);
+-
+-	return NOTIFY_DONE;
+-}
+-
+ static inline unsigned int s3c2410wdt_get_bootstatus(struct s3c2410_wdt *wdt)
  {
- 	struct meson_wdt_dev *meson_wdt = platform_get_drvdata(pdev);
+ 	unsigned int rst_stat;
+@@ -605,6 +602,7 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ 	}
  
--	unregister_restart_handler(&meson_wdt->restart_handler);
+ 	watchdog_set_nowayout(&wdt->wdt_device, nowayout);
++	watchdog_set_restart_priority(&wdt->wdt_device, 128);
+ 
+ 	wdt->wdt_device.bootstatus = s3c2410wdt_get_bootstatus(wdt);
+ 	wdt->wdt_device.parent = &pdev->dev;
+@@ -632,12 +630,6 @@ static int s3c2410wdt_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, wdt);
+ 
+-	wdt->restart_handler.notifier_call = s3c2410wdt_restart;
+-	wdt->restart_handler.priority = 128;
+-	ret = register_restart_handler(&wdt->restart_handler);
+-	if (ret)
+-		pr_err("cannot register restart handler, %d\n", ret);
 -
- 	watchdog_unregister_device(&meson_wdt->wdt_dev);
+ 	/* print out a statement of readiness */
  
- 	return 0;
+ 	wtcon = readl(wdt->reg_base + S3C2410_WTCON);
+@@ -667,8 +659,6 @@ static int s3c2410wdt_remove(struct platform_device *dev)
+ 	int ret;
+ 	struct s3c2410_wdt *wdt = platform_get_drvdata(dev);
+ 
+-	unregister_restart_handler(&wdt->restart_handler);
+-
+ 	ret = s3c2410wdt_mask_and_disable_reset(wdt, true);
+ 	if (ret < 0)
+ 		return ret;
 -- 
 2.5.0
