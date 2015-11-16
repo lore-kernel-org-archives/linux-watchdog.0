@@ -5,9 +5,9 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Guenter Roeck <linux@roeck-us.net>,
 	kernel@savoirfairelinux.com,
 	Damien Riegel <damien.riegel@savoirfairelinux.com>
-Subject: [PATCH v2 03/13] watchdog: da9063_wdt: use core restart handler
-Date: Mon, 16 Nov 2015 12:28:01 -0500
-Message-Id: <1447694891-24831-4-git-send-email-damien.riegel@savoirfairelinux.com>
+Subject: [PATCH v2 11/13] watchdog: qcom-wdt: use core restart handler
+Date: Mon, 16 Nov 2015 12:28:09 -0500
+Message-Id: <1447694891-24831-12-git-send-email-damien.riegel@savoirfairelinux.com>
 In-Reply-To: <1447694891-24831-1-git-send-email-damien.riegel@savoirfairelinux.com>
 References: <1447694891-24831-1-git-send-email-damien.riegel@savoirfairelinux.com>
 List-ID: <linux-watchdog@vger.kernel.org>
@@ -19,92 +19,106 @@ Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Reviewed-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
 ---
- drivers/watchdog/da9063_wdt.c | 23 ++++++-----------------
- 1 file changed, 6 insertions(+), 17 deletions(-)
+ drivers/watchdog/qcom-wdt.c | 49 ++++++++++++++++++---------------------------
+ 1 file changed, 19 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/watchdog/da9063_wdt.c b/drivers/watchdog/da9063_wdt.c
-index 6bf130b..11e8875 100644
---- a/drivers/watchdog/da9063_wdt.c
-+++ b/drivers/watchdog/da9063_wdt.c
-@@ -20,7 +20,6 @@
- #include <linux/delay.h>
- #include <linux/mfd/da9063/registers.h>
- #include <linux/mfd/da9063/core.h>
+diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
+index 773dcfa..aa7105d 100644
+--- a/drivers/watchdog/qcom-wdt.c
++++ b/drivers/watchdog/qcom-wdt.c
+@@ -17,7 +17,6 @@
+ #include <linux/module.h>
+ #include <linux/of.h>
+ #include <linux/platform_device.h>
 -#include <linux/reboot.h>
- #include <linux/regmap.h>
+ #include <linux/watchdog.h>
  
- /*
-@@ -39,7 +38,6 @@ static const unsigned int wdt_timeout[] = { 0, 2, 4, 8, 16, 32, 65, 131 };
- struct da9063_watchdog {
- 	struct da9063 *da9063;
- 	struct watchdog_device wdtdev;
--	struct notifier_block restart_handler;
+ #define WDT_RST		0x38
+@@ -28,7 +27,6 @@ struct qcom_wdt {
+ 	struct watchdog_device	wdd;
+ 	struct clk		*clk;
+ 	unsigned long		rate;
+-	struct notifier_block	restart_nb;
+ 	void __iomem		*base;
  };
  
- static unsigned int da9063_wdt_timeout_to_sel(unsigned int secs)
-@@ -121,12 +119,9 @@ static int da9063_wdt_set_timeout(struct watchdog_device *wdd,
- 	return ret;
+@@ -72,25 +70,9 @@ static int qcom_wdt_set_timeout(struct watchdog_device *wdd,
+ 	return qcom_wdt_start(wdd);
  }
  
--static int da9063_wdt_restart_handler(struct notifier_block *this,
--				      unsigned long mode, void *cmd)
-+static int da9063_wdt_restart(struct watchdog_device *wdd)
+-static const struct watchdog_ops qcom_wdt_ops = {
+-	.start		= qcom_wdt_start,
+-	.stop		= qcom_wdt_stop,
+-	.ping		= qcom_wdt_ping,
+-	.set_timeout	= qcom_wdt_set_timeout,
+-	.owner		= THIS_MODULE,
+-};
+-
+-static const struct watchdog_info qcom_wdt_info = {
+-	.options	= WDIOF_KEEPALIVEPING
+-			| WDIOF_MAGICCLOSE
+-			| WDIOF_SETTIMEOUT,
+-	.identity	= KBUILD_MODNAME,
+-};
+-
+-static int qcom_wdt_restart(struct notifier_block *nb, unsigned long action,
+-			    void *data)
++static int qcom_wdt_restart(struct watchdog_device *wdd)
  {
--	struct da9063_watchdog *wdt = container_of(this,
--						   struct da9063_watchdog,
--						   restart_handler);
-+	struct da9063_watchdog *wdt = watchdog_get_drvdata(wdd);
- 	int ret;
+-	struct qcom_wdt *wdt = container_of(nb, struct qcom_wdt, restart_nb);
++	struct qcom_wdt *wdt = to_qcom_wdt(wdd);
+ 	u32 timeout;
  
- 	ret = regmap_write(wdt->da9063->regmap, DA9063_REG_CONTROL_F,
-@@ -135,7 +130,7 @@ static int da9063_wdt_restart_handler(struct notifier_block *this,
- 		dev_alert(wdt->da9063->dev, "Failed to shutdown (err = %d)\n",
- 			  ret);
+ 	/*
+@@ -110,9 +92,25 @@ static int qcom_wdt_restart(struct notifier_block *nb, unsigned long action,
+ 	wmb();
  
+ 	msleep(150);
 -	return NOTIFY_DONE;
-+	return ret;
++	return 0;
  }
  
- static const struct watchdog_info da9063_watchdog_info = {
-@@ -149,6 +144,7 @@ static const struct watchdog_ops da9063_watchdog_ops = {
- 	.stop = da9063_wdt_stop,
- 	.ping = da9063_wdt_ping,
- 	.set_timeout = da9063_wdt_set_timeout,
-+	.restart = da9063_wdt_restart,
- };
- 
- static int da9063_wdt_probe(struct platform_device *pdev)
-@@ -179,6 +175,8 @@ static int da9063_wdt_probe(struct platform_device *pdev)
- 
- 	wdt->wdtdev.status = WATCHDOG_NOWAYOUT_INIT_STATUS;
- 
-+	watchdog_set_restart_priority(&wdt->wdtdev, 128);
++static const struct watchdog_ops qcom_wdt_ops = {
++	.start		= qcom_wdt_start,
++	.stop		= qcom_wdt_stop,
++	.ping		= qcom_wdt_ping,
++	.set_timeout	= qcom_wdt_set_timeout,
++	.restart        = qcom_wdt_restart,
++	.owner		= THIS_MODULE,
++};
 +
- 	watchdog_set_drvdata(&wdt->wdtdev, wdt);
- 	dev_set_drvdata(&pdev->dev, wdt);
- 
-@@ -186,13 +184,6 @@ static int da9063_wdt_probe(struct platform_device *pdev)
- 	if (ret)
- 		return ret;
- 
--	wdt->restart_handler.notifier_call = da9063_wdt_restart_handler;
--	wdt->restart_handler.priority = 128;
--	ret = register_restart_handler(&wdt->restart_handler);
--	if (ret)
--		dev_err(wdt->da9063->dev,
--			"Failed to register restart handler (err = %d)\n", ret);
--
- 	return 0;
- }
- 
-@@ -200,8 +191,6 @@ static int da9063_wdt_remove(struct platform_device *pdev)
++static const struct watchdog_info qcom_wdt_info = {
++	.options	= WDIOF_KEEPALIVEPING
++			| WDIOF_MAGICCLOSE
++			| WDIOF_SETTIMEOUT,
++	.identity	= KBUILD_MODNAME,
++};
++
+ static int qcom_wdt_probe(struct platform_device *pdev)
  {
- 	struct da9063_watchdog *wdt = dev_get_drvdata(&pdev->dev);
+ 	struct qcom_wdt *wdt;
+@@ -187,14 +185,6 @@ static int qcom_wdt_probe(struct platform_device *pdev)
+ 		goto err_clk_unprepare;
+ 	}
  
--	unregister_restart_handler(&wdt->restart_handler);
+-	/*
+-	 * WDT restart notifier has priority 0 (use as a last resort)
+-	 */
+-	wdt->restart_nb.notifier_call = qcom_wdt_restart;
+-	ret = register_restart_handler(&wdt->restart_nb);
+-	if (ret)
+-		dev_err(&pdev->dev, "failed to setup restart handler\n");
 -
- 	watchdog_unregister_device(&wdt->wdtdev);
+ 	platform_set_drvdata(pdev, wdt);
+ 	return 0;
  
+@@ -207,7 +197,6 @@ static int qcom_wdt_remove(struct platform_device *pdev)
+ {
+ 	struct qcom_wdt *wdt = platform_get_drvdata(pdev);
+ 
+-	unregister_restart_handler(&wdt->restart_nb);
+ 	watchdog_unregister_device(&wdt->wdd);
+ 	clk_disable_unprepare(wdt->clk);
  	return 0;
 -- 
 2.5.0
