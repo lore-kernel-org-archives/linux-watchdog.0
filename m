@@ -1,59 +1,67 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:37001 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754225AbbKMTwd (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 13 Nov 2015 14:52:33 -0500
-Subject: Re: [PATCH] watchdog: tegra: Stop watchdog first if restarting
-To: Andrew Chew <achew@nvidia.com>, linux-watchdog@vger.kernel.org
-References: <1447114298-5516-1-git-send-email-achew@nvidia.com>
-Cc: linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org,
-	abrestic@chromium.org, treding@nvidia.com, swarren@nvidia.com,
-	jimmzhang@nvidia.com, wim@iguana.be
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56463F7E.8040008@roeck-us.net>
-Date: Fri, 13 Nov 2015 11:52:30 -0800
-MIME-Version: 1.0
-In-Reply-To: <1447114298-5516-1-git-send-email-achew@nvidia.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <damien.riegel@savoirfairelinux.com>
+From: Damien Riegel <damien.riegel@savoirfairelinux.com>
+To: linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	kernel@savoirfairelinux.com,
+	Damien Riegel <damien.riegel@savoirfairelinux.com>
+Subject: [PATCH v2 00/13] watchdog: factorize restart handler registration
+Date: Mon, 16 Nov 2015 12:27:58 -0500
+Message-Id: <1447694891-24831-1-git-send-email-damien.riegel@savoirfairelinux.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 11/09/2015 04:11 PM, Andrew Chew wrote:
-> If we need to restart the watchdog due to someone changing the timeout
-> interval, stop the watchdog before restarting it.  Otherwise, the new
-> timeout doesn't seem to take.
->
-> Signed-off-by: Andrew Chew <achew@nvidia.com>
+Many drivers implements the exact same piece of code to register a
+restart handler. It can be nice to factorize this in the watchdog core.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+The first patch adds an optional restart watchdog operation. If a driver
+defines this operation, a restart handler is registered. By default, the
+restart handler priority is set to 0, but a helper function
+watchdog_set_restart_priority is provided to change it.
 
-Some feedback from the maintainers would be helpful, though,
-especially if there is some other means to change the timeout
-without stopping the watchdog.
+The following patches bring this change to the current watchdog drivers
+that use watchdog_core.
 
-Guenter
+This change has been compile-tested on da9063, imx2, lpc18xx, imgpdc.
+It has been tested with (not mainlined yet) ts-4800's watchdog driver.
 
-> ---
->   drivers/watchdog/tegra_wdt.c | 4 +++-
->   1 file changed, 3 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/watchdog/tegra_wdt.c b/drivers/watchdog/tegra_wdt.c
-> index 7f97cdd..9ec5760 100644
-> --- a/drivers/watchdog/tegra_wdt.c
-> +++ b/drivers/watchdog/tegra_wdt.c
-> @@ -140,8 +140,10 @@ static int tegra_wdt_set_timeout(struct watchdog_device *wdd,
->   {
->   	wdd->timeout = timeout;
->
-> -	if (watchdog_active(wdd))
-> +	if (watchdog_active(wdd)) {
-> +		tegra_wdt_stop(wdd);
->   		return tegra_wdt_start(wdd);
-> +	}
->
->   	return 0;
->   }
->
+Changes in v2:
+ - bcm47xx_wdt.c: move restart function to fix an undefined function
+   error
+ - core: documentation and header: fix "capabilites" typo, reword some
+   comments to fit 80 columns
 
+Damien Riegel (13):
+  watchdog: core: add restart handler support
+  watchdog: bcm47xx_wdt: use core restart handler
+  watchdog: da9063_wdt: use core restart handler
+  watchdog: digicolor_wdt: use core restart handler
+  watchdog: imgpdc_wdt: use core restart handler
+  watchdog: imx2_wdt: use core restart handler
+  watchdog: lpc18xx_wdt: use core restart handler
+  watchdog: meson_wdt: use core restart handler
+  watchdog: moxart_wdt: use core restart handler
+  watchdog: mtk_wdt: use core restart handler
+  watchdog: qcom-wdt: use core restart handler
+  watchdog: s3c2410_wdt: use core restart handler
+  watchdog: sunxi_wdt: use core restart handler
+
+ Documentation/watchdog/watchdog-kernel-api.txt | 19 ++++++++
+ drivers/watchdog/bcm47xx_wdt.c                 | 33 ++++++--------
+ drivers/watchdog/da9063_wdt.c                  | 23 +++-------
+ drivers/watchdog/digicolor_wdt.c               | 18 +++-----
+ drivers/watchdog/imgpdc_wdt.c                  | 34 ++++++---------
+ drivers/watchdog/imx2_wdt.c                    | 23 +++-------
+ drivers/watchdog/lpc18xx_wdt.c                 | 52 +++++++++-------------
+ drivers/watchdog/meson_wdt.c                   | 23 +++-------
+ drivers/watchdog/moxart_wdt.c                  | 23 +++-------
+ drivers/watchdog/mtk_wdt.c                     | 22 +++-------
+ drivers/watchdog/qcom-wdt.c                    | 49 ++++++++-------------
+ drivers/watchdog/s3c2410_wdt.c                 | 60 +++++++++++---------------
+ drivers/watchdog/sunxi_wdt.c                   | 23 +++-------
+ drivers/watchdog/watchdog_core.c               | 48 +++++++++++++++++++++
+ include/linux/bcm47xx_wdt.h                    |  1 -
+ include/linux/watchdog.h                       |  6 +++
+ 16 files changed, 201 insertions(+), 256 deletions(-)
+
+-- 
+2.5.0
