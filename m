@@ -1,89 +1,63 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from hqemgate16.nvidia.com ([216.228.121.65]:4985 "EHLO
-	hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752362AbbKPKsy (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 16 Nov 2015 05:48:54 -0500
-Date: Mon, 16 Nov 2015 11:48:43 +0100
-From: Thierry Reding <treding@nvidia.com>
-To: Guenter Roeck <linux@roeck-us.net>
-CC: Andrew Chew <achew@nvidia.com>, <linux-watchdog@vger.kernel.org>,
-	<linux-tegra@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<abrestic@chromium.org>, <swarren@nvidia.com>,
-	<jimmzhang@nvidia.com>, <wim@iguana.be>
-Subject: Re: [PATCH] watchdog: tegra: Stop watchdog first if restarting
-Message-ID: <20151116104841.GA31033@ulmo.nvidia.com>
-References: <1447114298-5516-1-git-send-email-achew@nvidia.com>
- <56463F7E.8040008@roeck-us.net>
+Received: from mail-bn1bbn0108.outbound.protection.outlook.com ([157.56.111.108]:1280
+	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751884AbbKQKBy (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 17 Nov 2015 05:01:54 -0500
+From: Zhiqiang Hou <Zhiqiang.Hou@freescale.com>
+To: <linux-arm-kernel@lists.infradead.org>, <catalin.marinas@arm.com>,
+	<will.deacon@arm.com>, <linux-i2c@vger.kernel.org>,
+	<linux-watchdog@vger.kernel.org>, <linux-doc@vger.kernel.org>,
+	<linux-clk@vger.kernel.org>
+CC: <mark.rutland@arm.com>, <linux@roeck-us.net>, <wsa@the-dreams.de>,
+	<wim@iguana.be>, <corbet@lwn.net>, <mturquette@baylibre.com>,
+	<sboyd@codeaurora.org>, <Mingkai.Hu@freescale.com>,
+	<Shaohui.Xie@freescale.com>, <scottwood@freescale.com>,
+	<bhupesh.sharma@freescale.com>, <Wenbin.Song@freescale.com>,
+	<B48286@freescale.com>
+Subject: [PATCHv8 2/5] watchdog: Add support for Freescale Layerscape platforms
+Date: Tue, 17 Nov 2015 17:53:19 +0800
+Message-ID: <1447754002-40555-2-git-send-email-Zhiqiang.Hou@freescale.com>
+In-Reply-To: <1447754002-40555-1-git-send-email-Zhiqiang.Hou@freescale.com>
+References: <1447754002-40555-1-git-send-email-Zhiqiang.Hou@freescale.com>
 MIME-Version: 1.0
-In-Reply-To: <56463F7E.8040008@roeck-us.net>
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="ZGiS0Q5IWpPtfppv"
-Content-Disposition: inline
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
---ZGiS0Q5IWpPtfppv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+From: Shaohui Xie <Shaohui.Xie@freescale.com>
 
-On Fri, Nov 13, 2015 at 11:52:30AM -0800, Guenter Roeck wrote:
-> On 11/09/2015 04:11 PM, Andrew Chew wrote:
-> >If we need to restart the watchdog due to someone changing the timeout
-> >interval, stop the watchdog before restarting it.  Otherwise, the new
-> >timeout doesn't seem to take.
-> >
-> >Signed-off-by: Andrew Chew <achew@nvidia.com>
->=20
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->=20
-> Some feedback from the maintainers would be helpful, though,
-> especially if there is some other means to change the timeout
-> without stopping the watchdog.
+Modify watchdog/Kconfig file to support Layerscape platforms.
 
-I don't think there is. The TIMER_WDT<w>_COMMAND_0 register has this
-description:
+Signed-off-by: Shaohui Xie <Shaohui.Xie@freescale.com>
+Signed-off-by: Hou Zhiqiang <B48286@freescale.com>
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+---
+V8:
+ - No change.
 
-	"The StartCounter bit enables watchdog counter operation, loads
-	the watchdog counter, starts the watchdog timer to count down,
-	resets the expiration count to 0, and clears all flags. Also
-	used as restart.
-=09
-	..."
+V6:
+ - Remove a Signed-off.
 
-The way I read this is that the watchdog period (the field that the
-wdd->timeout value gets written to) is latched when the StartCounter
-bit transitions from 0 to 1. So this change looks correct to me:
+V5: V4 V3 V2
+ - No change.
 
-Reviewed-by: Thierry Reding <treding@nvidia.com>
+ drivers/watchdog/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Andrew, it might be worthwhile to file an internal bug report to see if
-we can get the TRM updated with a more explicit programming sequence or
-at least get confirmation from one of the hardware designers whether or
-not this is the correct sequence when changing the period.
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 7a8a6c6..1c427be 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -446,7 +446,7 @@ config MAX63XX_WATCHDOG
+ 
+ config IMX2_WDT
+ 	tristate "IMX2+ Watchdog"
+-	depends on ARCH_MXC
++	depends on ARCH_MXC || ARCH_LAYERSCAPE
+ 	select REGMAP_MMIO
+ 	select WATCHDOG_CORE
+ 	help
+-- 
+2.1.0.27.g96db324
 
-Thierry
-
---ZGiS0Q5IWpPtfppv
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAABCAAGBQJWSbSHAAoJEN0jrNd/PrOhvzMP/RTwkcp/xAmEd96jSU4U84oE
-7rs7/PNq7x7xmLMiUJWpSGzn3ptuFIko0gpZ5Rtoa2y/rGjio2bGwedGFKF4LDX4
-hcisBkbo1RMkOLMZ2zvJpZ/AwaVLFAWX/z1HM+5ghsHJoNYsEn6gwCGCoPKKp6wx
-WrUM8zfix1JmrVMoF4biGb7tCw4gJ2dnz+mAhpKHRPezb0Ylnq1wUUgg5N9Xfsfm
-kTxLUITvGqGYue0CJ0Wi4ImTSnCWJ1SbTX66ilLjW18RZEjumW0R9pBWwA7Gt0MG
-BAFEvhK29M3JOL8pFV5Id90J0cpCvgnw7DMXge/XVts1UxMIudkiuvYIQpiziyJn
-BYKyuKJqiB32Ah6b0CiDzlV4f1zZda1ujneWkomm23PtlmyRAAVgLSvI1R0mjjdL
-zj7eNSgn2dKh6IMdV05oYEdjhP44UZQOhyQZJhyr3OKzbwaeQh0hxgEXJal7GjH7
-XwNJWk4yhwKZO4isP05YjcjCizccJsQpbLMaFPX+nO9O6EbiFkgmMYBzpJnRy+oZ
-EebOPOFQb5KVxyRZFbS3klJ98wOKxNk3hpTlYGgQRz6ZRhf9LgcTCC3RnOOzlrDL
-1ckd3xt/3SQi3HqrtmD5vPH/4jhD7TFhvQAllx1oRtuta5Mu9IRvbWm1C/ubmFRK
-w1GHp1KiuSRgJpPzw5D4
-=PTai
------END PGP SIGNATURE-----
-
---ZGiS0Q5IWpPtfppv--
