@@ -1,14 +1,20 @@
-Return-path: <lee.jones@linaro.org>
-Date: Tue, 17 Nov 2015 09:21:26 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Damien Riegel <damien.riegel@savoirfairelinux.com>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:43124 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753995AbbKQR04 (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 17 Nov 2015 12:26:56 -0500
+Date: Tue, 17 Nov 2015 09:26:49 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Damien Riegel <damien.riegel@savoirfairelinux.com>,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
 	linux-watchdog@vger.kernel.org, shawnguo@kernel.org,
 	kernel@pengutronix.de, wim@iguana.be, robh+dt@kernel.org,
-	sameo@linux.intel.com, dinh.linux@gmail.com, linux@roeck-us.net,
-	kernel@savoirfairelinux.com, Arnd Bergmann <arnd@arndb.de>
+	sameo@linux.intel.com, dinh.linux@gmail.com,
+	kernel@savoirfairelinux.com
 Subject: Re: [PATCH v3 2/5] mfd: syscon: add a DT property to set value width
-Message-ID: <20151117092126.GH17829@x1>
+Message-ID: <20151117172649.GA11035@roeck-us.net>
 References: <1447700814-5391-1-git-send-email-damien.riegel@savoirfairelinux.com>
  <1447700814-5391-3-git-send-email-damien.riegel@savoirfairelinux.com>
  <20151117091946.GG17829@x1>
@@ -17,13 +23,10 @@ Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 In-Reply-To: <20151117091946.GG17829@x1>
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Looks like you forgot to Cc Arnd too.
-
-Doing that for you now.
-
-On Tue, 17 Nov 2015, Lee Jones wrote:
+On Tue, Nov 17, 2015 at 09:19:46AM +0000, Lee Jones wrote:
 > On Mon, 16 Nov 2015, Damien Riegel wrote:
 > 
 > > Currently syscon has a fixed configuration of 32 bits for register and
@@ -82,6 +85,11 @@ On Tue, 17 Nov 2015, Lee Jones wrote:
 > condition.  Instead, I'd use:
 > 
 >   if (of_property_read_u32(np, "bus-width", &bus_width) == 0)
+
+Or maybe better
+
+	if (!of_property_read_u32(np, "bus-width", &bus_width))
+
 > 
 > Or, for more clarity:
 > 
@@ -91,6 +99,12 @@ On Tue, 17 Nov 2015, Lee Jones wrote:
 > If you choose this version (which I think is my preferred method, don't
 > forget to initialise 'bus_width' to zero.
 > 
+Ignoring an error and depending on bus_width==0 to determine if the property
+was provided seems odd, especially since it would "hide" if the bus-width
+property is set to 0. In the original code, this would be detected as error.
+
+Guenter
+
 > > +		 /*
 > > +		  * the property has been provided, regmap_init_mmio
 > > +		  * will return an error if these values are invalid
@@ -104,9 +118,8 @@ On Tue, 17 Nov 2015, Lee Jones wrote:
 > >  	if (IS_ERR(regmap)) {
 > >  		pr_err("regmap init failed\n");
 > 
-
--- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+> -- 
+> Lee Jones
+> Linaro STMicroelectronics Landing Team Lead
+> Linaro.org │ Open source software for ARM SoCs
+> Follow Linaro: Facebook | Twitter | Blog
