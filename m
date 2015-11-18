@@ -6,9 +6,9 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
 	kernel@savoirfairelinux.com,
 	Damien Riegel <damien.riegel@savoirfairelinux.com>
-Subject: [PATCH 6/7] watchdog: softdog: use core reboot notifier
-Date: Wed, 18 Nov 2015 16:02:21 -0500
-Message-Id: <1447880542-19320-7-git-send-email-damien.riegel@savoirfairelinux.com>
+Subject: [PATCH 7/7] watchdog: w83627hf_wdt: use core reboot notifier
+Date: Wed, 18 Nov 2015 16:02:22 -0500
+Message-Id: <1447880542-19320-8-git-send-email-damien.riegel@savoirfairelinux.com>
 In-Reply-To: <1447880542-19320-1-git-send-email-damien.riegel@savoirfairelinux.com>
 References: <1447880542-19320-1-git-send-email-damien.riegel@savoirfairelinux.com>
 List-ID: <linux-watchdog@vger.kernel.org>
@@ -19,34 +19,34 @@ provided by the watchdog core.
 Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
 Reviewed-by: Vivien Didelot <vivien.didelot@savoirlinux.com>
 ---
- drivers/watchdog/softdog.c | 30 ++----------------------------
- 1 file changed, 2 insertions(+), 28 deletions(-)
+ drivers/watchdog/w83627hf_wdt.c | 32 ++------------------------------
+ 1 file changed, 2 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/watchdog/softdog.c b/drivers/watchdog/softdog.c
-index 0dc5e323d..fe1e151 100644
---- a/drivers/watchdog/softdog.c
-+++ b/drivers/watchdog/softdog.c
-@@ -43,7 +43,6 @@
+diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
+index 5824e25..cab14bc 100644
+--- a/drivers/watchdog/w83627hf_wdt.c
++++ b/drivers/watchdog/w83627hf_wdt.c
+@@ -36,8 +36,6 @@
  #include <linux/types.h>
- #include <linux/timer.h>
  #include <linux/watchdog.h>
+ #include <linux/ioport.h>
 -#include <linux/notifier.h>
- #include <linux/reboot.h>
+-#include <linux/reboot.h>
  #include <linux/init.h>
- #include <linux/jiffies.h>
-@@ -122,26 +121,9 @@ static int softdog_set_timeout(struct watchdog_device *w, unsigned int t)
+ #include <linux/io.h>
+ 
+@@ -288,18 +286,6 @@ static unsigned int wdt_get_time(struct watchdog_device *wdog)
  }
  
  /*
 - *	Notifier for system down
 - */
--
--static int softdog_notify_sys(struct notifier_block *this, unsigned long code,
+-static int wdt_notify_sys(struct notifier_block *this, unsigned long code,
 -	void *unused)
 -{
 -	if (code == SYS_DOWN || code == SYS_HALT)
--		/* Turn the WDT off */
--		softdog_stop(NULL);
+-		wdt_set_time(0);	/* Turn the WDT off */
+-
 -	return NOTIFY_DONE;
 -}
 -
@@ -54,41 +54,56 @@ index 0dc5e323d..fe1e151 100644
   *	Kernel Interfaces
   */
  
--static struct notifier_block softdog_notifier = {
--	.notifier_call	= softdog_notify_sys,
+@@ -329,10 +315,6 @@ static struct watchdog_device wdt_dev = {
+  *	turn the timebomb registers off.
+  */
+ 
+-static struct notifier_block wdt_notifier = {
+-	.notifier_call = wdt_notify_sys,
 -};
 -
- static struct watchdog_info softdog_info = {
- 	.identity = "Software Watchdog",
- 	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
-@@ -175,18 +157,11 @@ static int __init watchdog_init(void)
- 	softdog_dev.timeout = soft_margin;
+ static int wdt_find(int addr)
+ {
+ 	u8 val;
+@@ -456,6 +438,7 @@ static int __init wdt_init(void)
  
- 	watchdog_set_nowayout(&softdog_dev, nowayout);
--
--	ret = register_reboot_notifier(&softdog_notifier);
--	if (ret) {
+ 	watchdog_init_timeout(&wdt_dev, timeout, NULL);
+ 	watchdog_set_nowayout(&wdt_dev, nowayout);
++	watchdog_stop_on_reboot(&wdt_dev);
+ 
+ 	ret = w83627hf_init(&wdt_dev, chip);
+ 	if (ret) {
+@@ -463,30 +446,19 @@ static int __init wdt_init(void)
+ 		return ret;
+ 	}
+ 
+-	ret = register_reboot_notifier(&wdt_notifier);
+-	if (ret != 0) {
 -		pr_err("cannot register reboot notifier (err=%d)\n", ret);
 -		return ret;
 -	}
-+	watchdog_stop_on_reboot(&softdog_dev);
+-
+ 	ret = watchdog_register_device(&wdt_dev);
+ 	if (ret)
+-		goto unreg_reboot;
++		return ret;
  
- 	ret = watchdog_register_device(&softdog_dev);
--	if (ret) {
--		unregister_reboot_notifier(&softdog_notifier);
-+	if (ret)
- 		return ret;
--	}
+ 	pr_info("initialized. timeout=%d sec (nowayout=%d)\n",
+ 		wdt_dev.timeout, nowayout);
  
- 	pr_info("Software Watchdog Timer: 0.08 initialized. soft_noboot=%d soft_margin=%d sec soft_panic=%d (nowayout=%d)\n",
- 		soft_noboot, soft_margin, soft_panic, nowayout);
-@@ -197,7 +172,6 @@ static int __init watchdog_init(void)
- static void __exit watchdog_exit(void)
- {
- 	watchdog_unregister_device(&softdog_dev);
--	unregister_reboot_notifier(&softdog_notifier);
+ 	return ret;
+-
+-unreg_reboot:
+-	unregister_reboot_notifier(&wdt_notifier);
+-	return ret;
  }
  
- module_init(watchdog_init);
+ static void __exit wdt_exit(void)
+ {
+ 	watchdog_unregister_device(&wdt_dev);
+-	unregister_reboot_notifier(&wdt_notifier);
+ }
+ 
+ module_init(wdt_init);
 -- 
 2.5.0
