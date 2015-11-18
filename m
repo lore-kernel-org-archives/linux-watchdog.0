@@ -6,9 +6,9 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
 	kernel@savoirfairelinux.com,
 	Damien Riegel <damien.riegel@savoirfairelinux.com>
-Subject: [PATCH 7/7] watchdog: w83627hf_wdt: use core reboot notifier
-Date: Wed, 18 Nov 2015 16:02:22 -0500
-Message-Id: <1447880542-19320-8-git-send-email-damien.riegel@savoirfairelinux.com>
+Subject: [PATCH 5/7] watchdog: gpio_wdt: use core reboot notifier
+Date: Wed, 18 Nov 2015 16:02:20 -0500
+Message-Id: <1447880542-19320-6-git-send-email-damien.riegel@savoirfairelinux.com>
 In-Reply-To: <1447880542-19320-1-git-send-email-damien.riegel@savoirfairelinux.com>
 References: <1447880542-19320-1-git-send-email-damien.riegel@savoirfairelinux.com>
 List-ID: <linux-watchdog@vger.kernel.org>
@@ -19,91 +19,92 @@ provided by the watchdog core.
 Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
 Reviewed-by: Vivien Didelot <vivien.didelot@savoirlinux.com>
 ---
- drivers/watchdog/w83627hf_wdt.c | 32 ++------------------------------
- 1 file changed, 2 insertions(+), 30 deletions(-)
+ drivers/watchdog/gpio_wdt.c | 35 ++---------------------------------
+ 1 file changed, 2 insertions(+), 33 deletions(-)
 
-diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
-index 5824e25..cab14bc 100644
---- a/drivers/watchdog/w83627hf_wdt.c
-+++ b/drivers/watchdog/w83627hf_wdt.c
-@@ -36,8 +36,6 @@
- #include <linux/types.h>
- #include <linux/watchdog.h>
- #include <linux/ioport.h>
+diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
+index 1a3c6e8..035c238 100644
+--- a/drivers/watchdog/gpio_wdt.c
++++ b/drivers/watchdog/gpio_wdt.c
+@@ -12,10 +12,8 @@
+ #include <linux/err.h>
+ #include <linux/delay.h>
+ #include <linux/module.h>
 -#include <linux/notifier.h>
+ #include <linux/of_gpio.h>
+ #include <linux/platform_device.h>
 -#include <linux/reboot.h>
- #include <linux/init.h>
- #include <linux/io.h>
+ #include <linux/watchdog.h>
  
-@@ -288,18 +286,6 @@ static unsigned int wdt_get_time(struct watchdog_device *wdog)
+ #define SOFT_TIMEOUT_MIN	1
+@@ -36,7 +34,6 @@ struct gpio_wdt_priv {
+ 	unsigned int		hw_algo;
+ 	unsigned int		hw_margin;
+ 	unsigned long		last_jiffies;
+-	struct notifier_block	notifier;
+ 	struct timer_list	timer;
+ 	struct watchdog_device	wdd;
+ };
+@@ -126,26 +123,6 @@ static int gpio_wdt_set_timeout(struct watchdog_device *wdd, unsigned int t)
+ 	return gpio_wdt_ping(wdd);
  }
  
- /*
-- *	Notifier for system down
-- */
--static int wdt_notify_sys(struct notifier_block *this, unsigned long code,
--	void *unused)
+-static int gpio_wdt_notify_sys(struct notifier_block *nb, unsigned long code,
+-			       void *unused)
 -{
--	if (code == SYS_DOWN || code == SYS_HALT)
--		wdt_set_time(0);	/* Turn the WDT off */
+-	struct gpio_wdt_priv *priv = container_of(nb, struct gpio_wdt_priv,
+-						  notifier);
+-
+-	mod_timer(&priv->timer, 0);
+-
+-	switch (code) {
+-	case SYS_HALT:
+-	case SYS_DOWN:
+-		gpio_wdt_disable(priv);
+-		break;
+-	default:
+-		break;
+-	}
 -
 -	return NOTIFY_DONE;
 -}
 -
--/*
-  *	Kernel Interfaces
-  */
+ static const struct watchdog_info gpio_wdt_ident = {
+ 	.options	= WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING |
+ 			  WDIOF_SETTIMEOUT,
+@@ -224,23 +201,16 @@ static int gpio_wdt_probe(struct platform_device *pdev)
  
-@@ -329,10 +315,6 @@ static struct watchdog_device wdt_dev = {
-  *	turn the timebomb registers off.
-  */
+ 	setup_timer(&priv->timer, gpio_wdt_hwping, (unsigned long)&priv->wdd);
  
--static struct notifier_block wdt_notifier = {
--	.notifier_call = wdt_notify_sys,
--};
--
- static int wdt_find(int addr)
- {
- 	u8 val;
-@@ -456,6 +438,7 @@ static int __init wdt_init(void)
- 
- 	watchdog_init_timeout(&wdt_dev, timeout, NULL);
- 	watchdog_set_nowayout(&wdt_dev, nowayout);
-+	watchdog_stop_on_reboot(&wdt_dev);
- 
- 	ret = w83627hf_init(&wdt_dev, chip);
- 	if (ret) {
-@@ -463,30 +446,19 @@ static int __init wdt_init(void)
- 		return ret;
- 	}
- 
--	ret = register_reboot_notifier(&wdt_notifier);
--	if (ret != 0) {
--		pr_err("cannot register reboot notifier (err=%d)\n", ret);
--		return ret;
--	}
--
- 	ret = watchdog_register_device(&wdt_dev);
++	watchdog_stop_on_reboot(&priv->wdd);
++
+ 	ret = watchdog_register_device(&priv->wdd);
  	if (ret)
--		goto unreg_reboot;
-+		return ret;
+ 		return ret;
  
- 	pr_info("initialized. timeout=%d sec (nowayout=%d)\n",
- 		wdt_dev.timeout, nowayout);
- 
- 	return ret;
+-	priv->notifier.notifier_call = gpio_wdt_notify_sys;
+-	ret = register_reboot_notifier(&priv->notifier);
+-	if (ret)
+-		goto error_unregister;
 -
--unreg_reboot:
--	unregister_reboot_notifier(&wdt_notifier);
+ 	if (priv->always_running)
+ 		gpio_wdt_start_impl(priv);
+ 
+ 	return 0;
+-
+-error_unregister:
+-	watchdog_unregister_device(&priv->wdd);
 -	return ret;
  }
  
- static void __exit wdt_exit(void)
- {
- 	watchdog_unregister_device(&wdt_dev);
--	unregister_reboot_notifier(&wdt_notifier);
- }
+ static int gpio_wdt_remove(struct platform_device *pdev)
+@@ -248,7 +218,6 @@ static int gpio_wdt_remove(struct platform_device *pdev)
+ 	struct gpio_wdt_priv *priv = platform_get_drvdata(pdev);
  
- module_init(wdt_init);
+ 	del_timer_sync(&priv->timer);
+-	unregister_reboot_notifier(&priv->notifier);
+ 	watchdog_unregister_device(&priv->wdd);
+ 
+ 	return 0;
 -- 
 2.5.0
