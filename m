@@ -1,52 +1,56 @@
-Return-path: <Ray.Huang@amd.com>
-Date: Fri, 20 Nov 2015 10:33:23 +0800
-From: Huang Rui <ray.huang@amd.com>
-To: Denis Turischev <denis.turischev@compulab.co.il>, Guenter Roeck
-	<linux@roeck-us.net>
-CC: Wim Van Sebroeck <wim@iguana.be>, "linux-watchdog@vger.kernel.org"
-	<linux-watchdog@vger.kernel.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, Borislav Petkov <bp@alien8.de>, Vincent Wan
-	<vincent.wan@amd.com>
-Subject: Re: [PATCH] sp5100_tco: Add AMD Mullins platform support
-Message-ID: <20151120023322.GB21619@hr-amur2>
-References: <564D9CB0.1090209@compulab.co.il>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <564D9CB0.1090209@compulab.co.il>
+Return-path: <damien.riegel@savoirfairelinux.com>
+From: Damien Riegel <damien.riegel@savoirfairelinux.com>
+To: linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
+	kernel@savoirfairelinux.com,
+	Damien Riegel <damien.riegel@savoirfairelinux.com>
+Subject: [PATCH 0/7] watchdog: factorize reboot notifier registration
+Date: Wed, 18 Nov 2015 16:02:15 -0500
+Message-Id: <1447880542-19320-1-git-send-email-damien.riegel@savoirfairelinux.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Denis,
+Many drivers implements the exact same piece of code to register a
+reboot notifier. It can be nice to factorize this in the watchdog core.
 
-On Thu, Nov 19, 2015 at 05:56:00PM +0800, Denis Turischev wrote:
-> AMD Mullins watchdog is fully compatible to the previous Hudson chipset,
-> reuse the existent sp5100_tco driver.
-> 
+The first patch adds a new helper function, watchdog_stop_on_reboot,
+which registers a reboot notifier block for this device. If used, the
+watchdog core will care about stopping the watchdog when receiving a
+reboot notification.
 
-Thank you to add this support!
-Actually, PCI_DEVICE_ID_AMD_HUDSON2_SMBUS is only the SMBus device id
-on AMD mullins but also on many other AMD platforms. Could you please
-share some test method to me, that I am glad to do some quick tests. :)
+The following patches bring this change to the current watchdog drivers
+that use watchdog_core.
 
-Thanks,
-Rui
+This action is done only when the reboot code is SYS_HALT or SYS_DOWN,
+since that is what most of the drivers are doing.
 
-> Signed-off-by: Denis Turischev <denis.turischev@compulab.co.il>
-> 
-> diff -Nru linux-4.3.orig/drivers/watchdog/sp5100_tco.c linux-4.3/drivers/watchdog/sp5100_tco.c
-> --- linux-4.3.orig/drivers/watchdog/sp5100_tco.c	2015-11-02 02:05:25.000000000 +0200
-> +++ linux-4.3/drivers/watchdog/sp5100_tco.c	2015-11-19 11:08:06.272777718 +0200
-> @@ -306,6 +306,8 @@
->  static const struct pci_device_id sp5100_tco_pci_tbl[] = {
->  	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_SBX00_SMBUS, PCI_ANY_ID,
->  	  PCI_ANY_ID, },
-> +	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_HUDSON2_SMBUS, PCI_ANY_ID,
-> +	  PCI_ANY_ID, },
->  	{ 0, },			/* End of list */
->  };
->  MODULE_DEVICE_TABLE(pci, sp5100_tco_pci_tbl);	
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Only 3 drivers, including gpio_wdt, stop the watchdog on SYS_POWER_OFF.
+So gpio_wdt is the only driver whose behaviour is affected by this
+patchset.
+
+This change has been compile-tested with allyesconfig on arm.
+It has been tested with (not mainlined yet) ts-4800's watchdog driver.
+
+Damien Riegel (7):
+  watchdog: core: add reboot notifier support
+  watchdog: bcm47xx_wdt: use core reboot notifier
+  watchdog: cadence_wdt: use core reboot notifier
+  watchdog: gpio_wdt: stop on SYS_DOWN instead of SYS_POWER_OFF
+  watchdog: gpio_wdt: use core reboot notifier
+  watchdog: softdog: use core reboot notifier
+  watchdog: w83627hf_wdt: use core reboot notifier
+
+ Documentation/watchdog/watchdog-kernel-api.txt |  8 ++++++
+ drivers/watchdog/bcm47xx_wdt.c                 | 24 ++---------------
+ drivers/watchdog/cadence_wdt.c                 | 36 +-------------------------
+ drivers/watchdog/gpio_wdt.c                    | 35 ++-----------------------
+ drivers/watchdog/softdog.c                     | 30 ++-------------------
+ drivers/watchdog/w83627hf_wdt.c                | 32 ++---------------------
+ drivers/watchdog/watchdog_core.c               | 35 +++++++++++++++++++++++++
+ include/linux/bcm47xx_wdt.h                    |  2 --
+ include/linux/watchdog.h                       |  9 +++++++
+ 9 files changed, 61 insertions(+), 150 deletions(-)
+
+-- 
+2.5.0
