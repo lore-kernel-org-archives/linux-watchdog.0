@@ -6,51 +6,37 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
 	kernel@savoirfairelinux.com,
 	Damien Riegel <damien.riegel@savoirfairelinux.com>
-Subject: [PATCH 0/7] watchdog: factorize reboot notifier registration
-Date: Wed, 18 Nov 2015 16:02:15 -0500
-Message-Id: <1447880542-19320-1-git-send-email-damien.riegel@savoirfairelinux.com>
+Subject: [PATCH 4/7] watchdog: gpio_wdt: stop on SYS_DOWN instead of SYS_POWER_OFF
+Date: Wed, 18 Nov 2015 16:02:19 -0500
+Message-Id: <1447880542-19320-5-git-send-email-damien.riegel@savoirfairelinux.com>
+In-Reply-To: <1447880542-19320-1-git-send-email-damien.riegel@savoirfairelinux.com>
+References: <1447880542-19320-1-git-send-email-damien.riegel@savoirfairelinux.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Many drivers implements the exact same piece of code to register a
-reboot notifier. It can be nice to factorize this in the watchdog core.
+gpio_wdt is one the very few drivers that do not stop the device on
+SYS_HALT and SYS_DOWN, but on SYS_HALT and SYS_POWER_OFF.
 
-The first patch adds a new helper function, watchdog_stop_on_reboot,
-which registers a reboot notifier block for this device. If used, the
-watchdog core will care about stopping the watchdog when receiving a
-reboot notification.
+As most of the drivers, it makes more sense to stop the watchdog on
+SYS_DOWN instead of SYS_POWER_OFF.
 
-The following patches bring this change to the current watchdog drivers
-that use watchdog_core.
+Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
+Reviewed-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
+---
+ drivers/watchdog/gpio_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-This action is done only when the reboot code is SYS_HALT or SYS_DOWN,
-since that is what most of the drivers are doing.
-
-Only 3 drivers, including gpio_wdt, stop the watchdog on SYS_POWER_OFF.
-So gpio_wdt is the only driver whose behaviour is affected by this
-patchset.
-
-This change has been compile-tested with allyesconfig on arm.
-It has been tested with (not mainlined yet) ts-4800's watchdog driver.
-
-Damien Riegel (7):
-  watchdog: core: add reboot notifier support
-  watchdog: bcm47xx_wdt: use core reboot notifier
-  watchdog: cadence_wdt: use core reboot notifier
-  watchdog: gpio_wdt: stop on SYS_DOWN instead of SYS_POWER_OFF
-  watchdog: gpio_wdt: use core reboot notifier
-  watchdog: softdog: use core reboot notifier
-  watchdog: w83627hf_wdt: use core reboot notifier
-
- Documentation/watchdog/watchdog-kernel-api.txt |  8 ++++++
- drivers/watchdog/bcm47xx_wdt.c                 | 24 ++---------------
- drivers/watchdog/cadence_wdt.c                 | 36 +-------------------------
- drivers/watchdog/gpio_wdt.c                    | 35 ++-----------------------
- drivers/watchdog/softdog.c                     | 30 ++-------------------
- drivers/watchdog/w83627hf_wdt.c                | 32 ++---------------------
- drivers/watchdog/watchdog_core.c               | 35 +++++++++++++++++++++++++
- include/linux/bcm47xx_wdt.h                    |  2 --
- include/linux/watchdog.h                       |  9 +++++++
- 9 files changed, 61 insertions(+), 150 deletions(-)
-
+diff --git a/drivers/watchdog/gpio_wdt.c b/drivers/watchdog/gpio_wdt.c
+index 90d59d3..1a3c6e8 100644
+--- a/drivers/watchdog/gpio_wdt.c
++++ b/drivers/watchdog/gpio_wdt.c
+@@ -136,7 +136,7 @@ static int gpio_wdt_notify_sys(struct notifier_block *nb, unsigned long code,
+ 
+ 	switch (code) {
+ 	case SYS_HALT:
+-	case SYS_POWER_OFF:
++	case SYS_DOWN:
+ 		gpio_wdt_disable(priv);
+ 		break;
+ 	default:
 -- 
 2.5.0
