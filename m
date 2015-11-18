@@ -12,145 +12,130 @@ Cc: Steven Rostedt <rostedt@goodmis.org>,
         Michal Hocko <mhocko@suse.cz>, linux-mm@kvack.org,
         Vlastimil Babka <vbabka@suse.cz>, linux-api@vger.kernel.org,
         linux-kernel@vger.kernel.org, Petr Mladek <pmladek@suse.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        linux-watchdog@vger.kernel.org, Corey Minyard <minyard@acm.org>,
-        openipmi-developer@lists.sourceforge.net,
-        Doug Ledford <dledford@redhat.com>, Sean Hefty <sean.hefty@intel.com>,
-        Hal Rosenstock <hal.rosenstock@gmail.com>, linux-rdma@vger.kernel.org,
-        Maxim Levitsky <maximlevitsky@gmail.com>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Eduardo Valentin <edubezval@gmail.com>,
-        Jacob Pan <jacob.jun.pan@linux.intel.com>, linux-pm@vger.kernel.org
-Subject: [PATCH v3 00/22] kthread: Use kthread worker API more widely
-Date: Wed, 18 Nov 2015 14:25:05 +0100
-Message-Id: <1447853127-3461-1-git-send-email-pmladek@suse.com>
+        linux-watchdog@vger.kernel.org
+Subject: [PATCH v3 15/22] hung_task: Convert hungtaskd into kthread worker API
+Date: Wed, 18 Nov 2015 14:25:20 +0100
+Message-Id: <1447853127-3461-16-git-send-email-pmladek@suse.com>
+In-Reply-To: <1447853127-3461-1-git-send-email-pmladek@suse.com>
+References: <1447853127-3461-1-git-send-email-pmladek@suse.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-My intention is to make it easier to manipulate and maintain kthreads.
-Especially, I want to replace all the custom main cycles with a
-generic one. Also I want to make the kthreads sleep in a consistent
-state in a common place when there is no work.
+Kthreads are currently implemented as an infinite loop. Each
+has its own variant of checks for terminating, freezing,
+awakening. In many cases it is unclear to say in which state
+it is and sometimes it is done a wrong way.
 
-My first attempt was with a brand new API (iterant kthread), see
-http://thread.gmane.org/gmane.linux.kernel.api/11892 . But I was
-directed to improve the existing kthread worker API. This is
-the 3rd iteration of the new direction.
+The plan is to convert kthreads into kthread_worker or workqueues
+API. It allows to split the functionality into separate operations.
+It helps to make a better structure. Also it defines a clean state
+where no locks are taken, IRQs blocked, the kthread might sleep
+or even be safely migrated.
 
+The kthread worker API is useful when we want to have a dedicated
+single thread for the work. It helps to make sure that it is
+available when needed. Also it allows a better control, e.g.
+define a scheduling priority.
 
-1st patch: add support to check if a timer callback is being called
+This patch converts hungtaskd() in kthread worker API because
+it modifies the priority.
 
-2nd..12th patches: improve the existing kthread worker API
+The conversion is pretty straightforward. One iteration of the
+main cycle is transferred into a self-queuing delayed kthread work.
+We do not longer need to check if it was waken earlier. Instead,
+the work timeout is modified when the timeout value is changed.
 
-13th..18th, 20th, 22nd patches: convert several kthreads into
-      the kthread worker API, namely: khugepaged, ring buffer
-      benchmark, hung_task, kmemleak, ipmi, IB/fmr_pool,
-      memstick/r592, intel_powerclamp
-      
-21st, 23rd patches: do some preparation steps; they usually do
-      some clean up that makes sense even without the conversion.
+The user nice value is set from hung_task_init(). Otherwise, we
+would need to add an extra init_work.
 
-  
-Changes against v2:
+The patch also handles the error when the kthead worker could not
+be crated from some reasons. It was broken before. For example,
+wake_up_process would have failed if watchdog_task inclueded an error
+code instead of a valid pointer.
 
-  + used worker->lock to synchronize the operations with the work
-    instead of the PENDING bit as suggested by Tejun Heo; it simplified
-    the implementation in several ways
-
-  + added timer_active(); used it together with del_timer_sync()
-    to cancel the work a less tricky way
-
-  + removed the controversial conversion of the RCU kthreads
-
-  + added several other examples: hung_task, kmemleak, ipmi,
-    IB/fmr_pool, memstick/r592, intel_powerclamp
-
-  + the helper fixes for the ring buffer benchmark has been improved
-    as suggested by Steven; they already are in the Linus tree now
-
-  + fixed a possible race between the check for existing khugepaged
-    worker and queuing the work
- 
-
-Changes against v1:
-
-  + remove wrappers to manipulate the scheduling policy and priority
-
-  + remove questionable wakeup_and_destroy_kthread_worker() variant
-
-  + do not check for chained work when draining the queue
-
-  + allocate struct kthread worker in create_kthread_work() and
-    use more simple checks for running worker
-
-  + add support for delayed kthread works and use them instead
-    of waiting inside the works
-
-  + rework the "unrelated" fixes for the ring buffer benchmark
-    as discussed in the 1st RFC; also sent separately
-
-  + convert also the consumer in the ring buffer benchmark
-
-
-I have tested this patch set against the stable Linus tree
-for 4.4-rc1.
-
-Petr Mladek (22):
-  timer: Allow to check when the timer callback has not finished yet
-  kthread/smpboot: Do not park in kthread_create_on_cpu()
-  kthread: Allow to call __kthread_create_on_node() with va_list args
-  kthread: Add create_kthread_worker*()
-  kthread: Add drain_kthread_worker()
-  kthread: Add destroy_kthread_worker()
-  kthread: Detect when a kthread work is used by more workers
-  kthread: Initial support for delayed kthread work
-  kthread: Allow to cancel kthread work
-  kthread: Allow to modify delayed kthread work
-  kthread: Better support freezable kthread workers
-  kthread: Use try_lock_kthread_work() in flush_kthread_work()
-  mm/huge_page: Convert khugepaged() into kthread worker API
-  ring_buffer: Convert benchmark kthreads into kthread worker API
-  hung_task: Convert hungtaskd into kthread worker API
-  kmemleak: Convert kmemleak kthread into kthread worker API
-  ipmi: Convert kipmi kthread into kthread worker API
-  IB/fmr_pool: Convert the cleanup thread into kthread worker API
-  memstick/r592: Better synchronize debug messages in r592_io kthread
-  memstick/r592: convert r592_io kthread into kthread worker API
-  thermal/intel_powerclamp: Remove duplicated code that starts the
-    kthread
-  thermal/intel_powerclamp: Convert the kthread to kthread worker API
-
- drivers/char/ipmi/ipmi_si_intf.c     | 116 ++++---
- drivers/infiniband/core/fmr_pool.c   |  54 ++-
- drivers/memstick/host/r592.c         |  61 ++--
- drivers/memstick/host/r592.h         |   5 +-
- drivers/thermal/intel_powerclamp.c   | 302 +++++++++--------
- include/linux/kthread.h              |  56 ++++
- include/linux/timer.h                |   2 +
- kernel/hung_task.c                   |  41 ++-
- kernel/kthread.c                     | 618 +++++++++++++++++++++++++++++++----
- kernel/smpboot.c                     |   5 +
- kernel/time/timer.c                  |  24 ++
- kernel/trace/ring_buffer_benchmark.c | 133 ++++----
- mm/huge_memory.c                     | 134 ++++----
- mm/kmemleak.c                        |  86 +++--
- 14 files changed, 1142 insertions(+), 495 deletions(-)
-
-CC: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
 CC: linux-watchdog@vger.kernel.org
-CC: Corey Minyard <minyard@acm.org>
-CC: openipmi-developer@lists.sourceforge.net
-CC: Doug Ledford <dledford@redhat.com>
-CC: Sean Hefty <sean.hefty@intel.com>
-CC: Hal Rosenstock <hal.rosenstock@gmail.com>
-CC: linux-rdma@vger.kernel.org
-CC: Maxim Levitsky <maximlevitsky@gmail.com>
-CC: Zhang Rui <rui.zhang@intel.com>
-CC: Eduardo Valentin <edubezval@gmail.com>
-CC: Jacob Pan <jacob.jun.pan@linux.intel.com>
-CC: linux-pm@vger.kernel.org
+---
+ kernel/hung_task.c | 41 +++++++++++++++++++++++++----------------
+ 1 file changed, 25 insertions(+), 16 deletions(-)
 
+diff --git a/kernel/hung_task.c b/kernel/hung_task.c
+index e0f90c2b57aa..65026f8b750e 100644
+--- a/kernel/hung_task.c
++++ b/kernel/hung_task.c
+@@ -41,7 +41,9 @@ int __read_mostly sysctl_hung_task_warnings = 10;
+ 
+ static int __read_mostly did_panic;
+ 
+-static struct task_struct *watchdog_task;
++static struct kthread_worker *watchdog_worker;
++static void watchdog_func(struct kthread_work *dummy);
++static DEFINE_DELAYED_KTHREAD_WORK(watchdog_work, watchdog_func);
+ 
+ /*
+  * Should we panic (and reboot, if panic_timeout= is set) when a
+@@ -205,7 +207,9 @@ int proc_dohung_task_timeout_secs(struct ctl_table *table, int write,
+ 	if (ret || !write)
+ 		goto out;
+ 
+-	wake_up_process(watchdog_task);
++	if (watchdog_worker)
++		mod_delayed_kthread_work(watchdog_worker, &watchdog_work,
++			 timeout_jiffies(sysctl_hung_task_timeout_secs));
+ 
+  out:
+ 	return ret;
+@@ -222,30 +226,35 @@ EXPORT_SYMBOL_GPL(reset_hung_task_detector);
+ /*
+  * kthread which checks for tasks stuck in D state
+  */
+-static int watchdog(void *dummy)
++static void watchdog_func(struct kthread_work *dummy)
+ {
+-	set_user_nice(current, 0);
++	unsigned long timeout = sysctl_hung_task_timeout_secs;
+ 
+-	for ( ; ; ) {
+-		unsigned long timeout = sysctl_hung_task_timeout_secs;
++	if (atomic_xchg(&reset_hung_task, 0))
++		goto next;
+ 
+-		while (schedule_timeout_interruptible(timeout_jiffies(timeout)))
+-			timeout = sysctl_hung_task_timeout_secs;
++	check_hung_uninterruptible_tasks(timeout);
+ 
+-		if (atomic_xchg(&reset_hung_task, 0))
+-			continue;
+-
+-		check_hung_uninterruptible_tasks(timeout);
+-	}
+-
+-	return 0;
++next:
++	queue_delayed_kthread_work(watchdog_worker, &watchdog_work,
++				   timeout_jiffies(timeout));
+ }
+ 
+ static int __init hung_task_init(void)
+ {
++	struct kthread_worker *worker;
++
+ 	atomic_notifier_chain_register(&panic_notifier_list, &panic_block);
+-	watchdog_task = kthread_run(watchdog, NULL, "khungtaskd");
++	worker = create_kthread_worker(0, "khungtaskd");
++	if (IS_ERR(worker)) {
++		pr_warn("Failed to create khungtaskd\n");
++		goto out;
++	}
++	watchdog_worker = worker;
++	set_user_nice(worker->task, 0);
++	queue_delayed_kthread_work(worker, &watchdog_work, 0);
+ 
++out:
+ 	return 0;
+ }
+ subsys_initcall(hung_task_init);
 -- 
 1.8.5.6
