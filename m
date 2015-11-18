@@ -6,169 +6,89 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
 	kernel@savoirfairelinux.com,
 	Damien Riegel <damien.riegel@savoirfairelinux.com>
-Subject: [PATCH 1/7] watchdog: core: add reboot notifier support
-Date: Wed, 18 Nov 2015 16:02:16 -0500
-Message-Id: <1447880542-19320-2-git-send-email-damien.riegel@savoirfairelinux.com>
+Subject: [PATCH 6/7] watchdog: softdog: use core reboot notifier
+Date: Wed, 18 Nov 2015 16:02:21 -0500
+Message-Id: <1447880542-19320-7-git-send-email-damien.riegel@savoirfairelinux.com>
 In-Reply-To: <1447880542-19320-1-git-send-email-damien.riegel@savoirfairelinux.com>
 References: <1447880542-19320-1-git-send-email-damien.riegel@savoirfairelinux.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Many watchdog drivers register a reboot notifier in order to stop the
-watchdog on system reboot. Thus we can factorize this code in the
-watchdog core.
+Get rid of the custom reboot notifier block registration and use the one
+provided by the watchdog core.
 
-For that purpose, a new notifier block is added in watchdog_device for
-internal use only, as well as a new watchdog_stop_on_reboot helper
-function.
-
-If this helper is called, watchdog core registers the related notifier
-block and will stop the watchdog when SYS_HALT or SYS_DOWN is received.
-
-Since this operation can be critical on some platforms, abort the device
-registration if the reboot notifier registration fails.
-
-Suggested-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
 Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
-Reviewed-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
+Reviewed-by: Vivien Didelot <vivien.didelot@savoirlinux.com>
 ---
- Documentation/watchdog/watchdog-kernel-api.txt |  8 ++++++
- drivers/watchdog/watchdog_core.c               | 35 ++++++++++++++++++++++++++
- include/linux/watchdog.h                       |  9 +++++++
- 3 files changed, 52 insertions(+)
+ drivers/watchdog/softdog.c | 30 ++----------------------------
+ 1 file changed, 2 insertions(+), 28 deletions(-)
 
-diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
-index dbc6a65..0a37da7 100644
---- a/Documentation/watchdog/watchdog-kernel-api.txt
-+++ b/Documentation/watchdog/watchdog-kernel-api.txt
-@@ -53,6 +53,7 @@ struct watchdog_device {
- 	unsigned int timeout;
- 	unsigned int min_timeout;
- 	unsigned int max_timeout;
-+	struct notifier_block reboot_nb;
- 	struct notifier_block restart_nb;
- 	void *driver_data;
- 	struct mutex lock;
-@@ -76,6 +77,9 @@ It contains following fields:
- * timeout: the watchdog timer's timeout value (in seconds).
- * min_timeout: the watchdog timer's minimum timeout value (in seconds).
- * max_timeout: the watchdog timer's maximum timeout value (in seconds).
-+* reboot_nb: notifier block that is registered for reboot notifications, for
-+  internal use only. If the driver calls watchdog_stop_on_reboot, watchdog core
-+  will stop the watchdog on such notifications.
- * restart_nb: notifier block that is registered for machine restart, for
-   internal use only. If a watchdog is capable of restarting the machine, it
-   should define ops->restart. Priority can be changed through
-@@ -240,6 +244,10 @@ to set the default timeout value as timeout value in the watchdog_device and
- then use this function to set the user "preferred" timeout value.
- This routine returns zero on success and a negative errno code for failure.
- 
-+To disable the watchdog on reboot, the user must call the following helper:
-+
-+static inline void watchdog_stop_on_reboot(struct watchdog_device *wdd);
-+
- To change the priority of the restart handler the following helper should be
- used:
- 
-diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-index 28dc901..2d49f8d 100644
---- a/drivers/watchdog/watchdog_core.c
-+++ b/drivers/watchdog/watchdog_core.c
-@@ -138,6 +138,23 @@ int watchdog_init_timeout(struct watchdog_device *wdd,
+diff --git a/drivers/watchdog/softdog.c b/drivers/watchdog/softdog.c
+index 0dc5e323d..fe1e151 100644
+--- a/drivers/watchdog/softdog.c
++++ b/drivers/watchdog/softdog.c
+@@ -43,7 +43,6 @@
+ #include <linux/types.h>
+ #include <linux/timer.h>
+ #include <linux/watchdog.h>
+-#include <linux/notifier.h>
+ #include <linux/reboot.h>
+ #include <linux/init.h>
+ #include <linux/jiffies.h>
+@@ -122,26 +121,9 @@ static int softdog_set_timeout(struct watchdog_device *w, unsigned int t)
  }
- EXPORT_SYMBOL_GPL(watchdog_init_timeout);
  
-+static int watchdog_reboot_notifier(struct notifier_block *nb,
-+				    unsigned long code, void *data)
-+{
-+	struct watchdog_device *wdd = container_of(nb, struct watchdog_device,
-+						   reboot_nb);
-+
-+	if (code == SYS_DOWN || code == SYS_HALT) {
-+		int ret;
-+
-+		ret = wdd->ops->stop(wdd);
-+		if (ret)
-+			return NOTIFY_BAD;
-+	}
-+
-+	return NOTIFY_DONE;
-+}
-+
- static int watchdog_restart_notifier(struct notifier_block *nb,
- 				     unsigned long action, void *data)
- {
-@@ -238,6 +255,21 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
+ /*
+- *	Notifier for system down
+- */
+-
+-static int softdog_notify_sys(struct notifier_block *this, unsigned long code,
+-	void *unused)
+-{
+-	if (code == SYS_DOWN || code == SYS_HALT)
+-		/* Turn the WDT off */
+-		softdog_stop(NULL);
+-	return NOTIFY_DONE;
+-}
+-
+-/*
+  *	Kernel Interfaces
+  */
+ 
+-static struct notifier_block softdog_notifier = {
+-	.notifier_call	= softdog_notify_sys,
+-};
+-
+ static struct watchdog_info softdog_info = {
+ 	.identity = "Software Watchdog",
+ 	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
+@@ -175,18 +157,11 @@ static int __init watchdog_init(void)
+ 	softdog_dev.timeout = soft_margin;
+ 
+ 	watchdog_set_nowayout(&softdog_dev, nowayout);
+-
+-	ret = register_reboot_notifier(&softdog_notifier);
+-	if (ret) {
+-		pr_err("cannot register reboot notifier (err=%d)\n", ret);
+-		return ret;
+-	}
++	watchdog_stop_on_reboot(&softdog_dev);
+ 
+ 	ret = watchdog_register_device(&softdog_dev);
+-	if (ret) {
+-		unregister_reboot_notifier(&softdog_notifier);
++	if (ret)
  		return ret;
- 	}
+-	}
  
-+	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status)) {
-+		wdd->reboot_nb.notifier_call = watchdog_reboot_notifier;
-+
-+		ret = register_reboot_notifier(&wdd->reboot_nb);
-+		if (ret) {
-+			dev_err(wdd->dev, "Cannot register reboot notifier (%d)\n",
-+				ret);
-+			watchdog_dev_unregister(wdd);
-+			device_destroy(watchdog_class, devno);
-+			ida_simple_remove(&watchdog_ida, wdd->id);
-+			wdd->dev = NULL;
-+			return ret;
-+		}
-+	}
-+
- 	if (wdd->ops->restart) {
- 		wdd->restart_nb.notifier_call = watchdog_restart_notifier;
- 
-@@ -286,6 +318,9 @@ static void __watchdog_unregister_device(struct watchdog_device *wdd)
- 	if (wdd->ops->restart)
- 		unregister_restart_handler(&wdd->restart_nb);
- 
-+	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status))
-+		unregister_reboot_notifier(&wdd->reboot_nb);
-+
- 	devno = wdd->cdev.dev;
- 	ret = watchdog_dev_unregister(wdd);
- 	if (ret)
-diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
-index 5b52c83..a88f955 100644
---- a/include/linux/watchdog.h
-+++ b/include/linux/watchdog.h
-@@ -65,6 +65,7 @@ struct watchdog_ops {
-  * @timeout:	The watchdog devices timeout value (in seconds).
-  * @min_timeout:The watchdog devices minimum timeout value (in seconds).
-  * @max_timeout:The watchdog devices maximum timeout value (in seconds).
-+ * @reboot_nb:	The notifier block to stop watchdog on reboot.
-  * @restart_nb:	The notifier block to register a restart function.
-  * @driver-data:Pointer to the drivers private data.
-  * @lock:	Lock for watchdog core internal use only.
-@@ -92,6 +93,7 @@ struct watchdog_device {
- 	unsigned int timeout;
- 	unsigned int min_timeout;
- 	unsigned int max_timeout;
-+	struct notifier_block reboot_nb;
- 	struct notifier_block restart_nb;
- 	void *driver_data;
- 	struct mutex lock;
-@@ -102,6 +104,7 @@ struct watchdog_device {
- #define WDOG_ALLOW_RELEASE	2	/* Did we receive the magic char ? */
- #define WDOG_NO_WAY_OUT		3	/* Is 'nowayout' feature set ? */
- #define WDOG_UNREGISTERED	4	/* Has the device been unregistered */
-+#define WDOG_STOP_ON_REBOOT	5	/* Should be stopped on reboot */
- 	struct list_head deferred;
- };
- 
-@@ -121,6 +124,12 @@ static inline void watchdog_set_nowayout(struct watchdog_device *wdd, bool noway
- 		set_bit(WDOG_NO_WAY_OUT, &wdd->status);
+ 	pr_info("Software Watchdog Timer: 0.08 initialized. soft_noboot=%d soft_margin=%d sec soft_panic=%d (nowayout=%d)\n",
+ 		soft_noboot, soft_margin, soft_panic, nowayout);
+@@ -197,7 +172,6 @@ static int __init watchdog_init(void)
+ static void __exit watchdog_exit(void)
+ {
+ 	watchdog_unregister_device(&softdog_dev);
+-	unregister_reboot_notifier(&softdog_notifier);
  }
  
-+/* Use the following function to stop the watchdog on reboot */
-+static inline void watchdog_stop_on_reboot(struct watchdog_device *wdd)
-+{
-+	set_bit(WDOG_STOP_ON_REBOOT, &wdd->status);
-+}
-+
- /* Use the following function to check if a timeout value is invalid */
- static inline bool watchdog_timeout_invalid(struct watchdog_device *wdd, unsigned int t)
- {
+ module_init(watchdog_init);
 -- 
 2.5.0
