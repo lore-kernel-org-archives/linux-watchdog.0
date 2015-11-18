@@ -1,155 +1,88 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wm0-f52.google.com ([74.125.82.52]:37815 "EHLO
-	mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753980AbbKRIVu (ORCPT
+Received: from e31.co.us.ibm.com ([32.97.110.149]:53357 "EHLO
+	e31.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755966AbbKROZg (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 18 Nov 2015 03:21:50 -0500
-Received: by wmww144 with SMTP id w144so60700573wmw.0
-        for <linux-watchdog@vger.kernel.org>; Wed, 18 Nov 2015 00:21:48 -0800 (PST)
-Date: Wed, 18 Nov 2015 08:21:44 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Damien Riegel <damien.riegel@savoirfairelinux.com>,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org, shawnguo@kernel.org,
-	kernel@pengutronix.de, wim@iguana.be, robh+dt@kernel.org,
-	sameo@linux.intel.com, dinh.linux@gmail.com,
-	kernel@savoirfairelinux.com
-Subject: Re: [PATCH v3 2/5] mfd: syscon: add a DT property to set value width
-Message-ID: <20151118082144.GB3534@x1>
-References: <1447700814-5391-1-git-send-email-damien.riegel@savoirfairelinux.com>
- <1447700814-5391-3-git-send-email-damien.riegel@savoirfairelinux.com>
- <20151117091946.GG17829@x1>
- <20151117172649.GA11035@roeck-us.net>
+	Wed, 18 Nov 2015 09:25:36 -0500
+Received: from localhost
+	by e31.co.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+	for <linux-watchdog@vger.kernel.org> from <paulmck@linux.vnet.ibm.com>;
+	Wed, 18 Nov 2015 07:25:36 -0700
+Date: Wed, 18 Nov 2015 06:25:45 -0800
+From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+To: Petr Mladek <pmladek@suse.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	Oleg Nesterov <oleg@redhat.com>, Tejun Heo <tj@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Josh Triplett <josh@joshtriplett.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Linus Torvalds <torvalds@linux-foundation.org>,
+	Jiri Kosina <jkosina@suse.cz>, Borislav Petkov <bp@suse.de>,
+	Michal Hocko <mhocko@suse.cz>, linux-mm@kvack.org,
+	Vlastimil Babka <vbabka@suse.cz>, linux-api@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	linux-watchdog@vger.kernel.org, Corey Minyard <minyard@acm.org>,
+	openipmi-developer@lists.sourceforge.net,
+	Doug Ledford <dledford@redhat.com>,
+	Sean Hefty <sean.hefty@intel.com>,
+	Hal Rosenstock <hal.rosenstock@gmail.com>,
+	linux-rdma@vger.kernel.org,
+	Maxim Levitsky <maximlevitsky@gmail.com>,
+	Zhang Rui <rui.zhang@intel.com>,
+	Eduardo Valentin <edubezval@gmail.com>,
+	Jacob Pan <jacob.jun.pan@linux.intel.com>,
+	linux-pm@vger.kernel.org
+Subject: Re: [PATCH v3 00/22] kthread: Use kthread worker API more widely
+Message-ID: <20151118142545.GD5184@linux.vnet.ibm.com>
+Reply-To: paulmck@linux.vnet.ibm.com
+References: <1447853127-3461-1-git-send-email-pmladek@suse.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <20151117172649.GA11035@roeck-us.net>
+In-Reply-To: <1447853127-3461-1-git-send-email-pmladek@suse.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, 17 Nov 2015, Guenter Roeck wrote:
+On Wed, Nov 18, 2015 at 02:25:05PM +0100, Petr Mladek wrote:
+> My intention is to make it easier to manipulate and maintain kthreads.
+> Especially, I want to replace all the custom main cycles with a
+> generic one. Also I want to make the kthreads sleep in a consistent
+> state in a common place when there is no work.
+> 
+> My first attempt was with a brand new API (iterant kthread), see
+> http://thread.gmane.org/gmane.linux.kernel.api/11892 . But I was
+> directed to improve the existing kthread worker API. This is
+> the 3rd iteration of the new direction.
+> 
+> 
+> 1st patch: add support to check if a timer callback is being called
+> 
+> 2nd..12th patches: improve the existing kthread worker API
+> 
+> 13th..18th, 20th, 22nd patches: convert several kthreads into
+>       the kthread worker API, namely: khugepaged, ring buffer
+>       benchmark, hung_task, kmemleak, ipmi, IB/fmr_pool,
+>       memstick/r592, intel_powerclamp
+>       
+> 21st, 23rd patches: do some preparation steps; they usually do
+>       some clean up that makes sense even without the conversion.
+> 
+>   
+> Changes against v2:
+> 
+>   + used worker->lock to synchronize the operations with the work
+>     instead of the PENDING bit as suggested by Tejun Heo; it simplified
+>     the implementation in several ways
+> 
+>   + added timer_active(); used it together with del_timer_sync()
+>     to cancel the work a less tricky way
+> 
+>   + removed the controversial conversion of the RCU kthreads
 
-> On Tue, Nov 17, 2015 at 09:19:46AM +0000, Lee Jones wrote:
-> > On Mon, 16 Nov 2015, Damien Riegel wrote:
-> >=20
-> > > Currently syscon has a fixed configuration of 32 bits for registe=
-r and
-> > > values widths. In some cases, it would be desirable to be able to
-> > > customize the value width.
-> > >=20
-> > > For example, certain boards (like the ones manufactured by Techno=
-logic
-> > > Systems) have a FPGA that is memory-mapped, but its registers are=
- only
-> > > 16-bit wide.
-> > >=20
-> > > This patch adds an optional "bus-width" DT binding for syscon tha=
-t
-> > > allows to change the width for the data bus (i.e. val_bits). If t=
-his
-> > > property is provided, it will also adjust the register stride to
-> > > bus-width / 8. If not provided, the default configuration is used=
-=2E
-> > >=20
-> > > Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
-> > > ---
-> > >  Documentation/devicetree/bindings/mfd/syscon.txt |  3 +++
-> > >  drivers/mfd/syscon.c                             | 12 ++++++++++=
-++
-> > >  2 files changed, 15 insertions(+)
-> > >=20
-> > > diff --git a/Documentation/devicetree/bindings/mfd/syscon.txt b/D=
-ocumentation/devicetree/bindings/mfd/syscon.txt
-> > > index fe8150b..4c9d187 100644
-> > > --- a/Documentation/devicetree/bindings/mfd/syscon.txt
-> > > +++ b/Documentation/devicetree/bindings/mfd/syscon.txt
-> > > @@ -13,6 +13,9 @@ Required properties:
-> > >  - compatible: Should contain "syscon".
-> > >  - reg: the register region can be accessed from syscon
-> > > =20
-> > > +Optional property:
-> > > +- bus-width: width of the data bus. Can be <8>, <16>, <32>, or <=
-64>.
-> > > +
-> > >  Examples:
-> > >  gpr: iomuxc-gpr@020e0000 {
-> > >  	compatible =3D "fsl,imx6q-iomuxc-gpr", "syscon";
-> > > diff --git a/drivers/mfd/syscon.c b/drivers/mfd/syscon.c
-> > > index 176bf0f..00b0995 100644
-> > > --- a/drivers/mfd/syscon.c
-> > > +++ b/drivers/mfd/syscon.c
-> > > @@ -47,6 +47,7 @@ static struct syscon *of_syscon_register(struct=
- device_node *np)
-> > >  	struct syscon *syscon;
-> > >  	struct regmap *regmap;
-> > >  	void __iomem *base;
-> > > +	u32 bus_width;
-> > >  	int ret;
-> > >  	struct regmap_config syscon_config =3D syscon_regmap_config;
-> > > =20
-> > > @@ -69,6 +70,17 @@ static struct syscon *of_syscon_register(struc=
-t device_node *np)
-> > >  	 else if (of_property_read_bool(np, "little-endian"))
-> > >  		syscon_config.val_format_endian =3D REGMAP_ENDIAN_LITTLE;
-> > > =20
-> > > +	 ret =3D of_property_read_u32(np, "bus-width", &bus_width);
-> > > +	 if (!ret) {
-> >=20
-> > This syntax is confusing, as we normally associate it with an error
-> > condition.  Instead, I'd use:
-> >=20
-> >   if (of_property_read_u32(np, "bus-width", &bus_width) =3D=3D 0)
->=20
-> Or maybe better
->=20
-> 	if (!of_property_read_u32(np, "bus-width", &bus_width))
+Thank you!  ;-)
 
-Not sure if it's better, but it's also suitable.
+							Thanx, Paul
 
-> > Or, for more clarity:
-> >=20
-> >   of_property_read_u32(np, "bus-width", &bus_width);
-> >   if (bus_width)
-> >=20
-> > If you choose this version (which I think is my preferred method, d=
-on't
-> > forget to initialise 'bus_width' to zero.
-> >=20
-> Ignoring an error and depending on bus_width=3D=3D0 to determine if t=
-he property
-> was provided seems odd, especially since it would "hide" if the bus-w=
-idth
-> property is set to 0. In the original code, this would be detected as=
- error.
-
-I'm not sure what you mean.  If bus_width=3D=3D0, then a problem has
-occurred and we will not use the value.  If bus_width!=3D0 then we can
-assume that it's been set and (as the comment describes) the value
-will be checked for errors in regmap_init_mmio().
-
-> > > +		 /*
-> > > +		  * the property has been provided, regmap_init_mmio
-> > > +		  * will return an error if these values are invalid
-> > > +		  * so there is no need to check them here.
-> > > +		  */
-> > > +		 syscon_config.val_bits =3D bus_width;
-> > > +		 syscon_config.reg_stride =3D syscon_config.val_bits / 8;
-> > > +	 }
-> > > +
-> > >  	regmap =3D regmap_init_mmio(NULL, base, &syscon_config);
-> > >  	if (IS_ERR(regmap)) {
-> > >  		pr_err("regmap init failed\n");
-> >=20
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
