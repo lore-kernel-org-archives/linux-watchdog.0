@@ -6,9 +6,9 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
 	kernel@savoirfairelinux.com,
 	Damien Riegel <damien.riegel@savoirfairelinux.com>
-Subject: [PATCH 2/7] watchdog: bcm47xx_wdt: use core reboot notifier
-Date: Wed, 18 Nov 2015 16:02:17 -0500
-Message-Id: <1447880542-19320-3-git-send-email-damien.riegel@savoirfairelinux.com>
+Subject: [PATCH 3/7] watchdog: cadence_wdt: use core reboot notifier
+Date: Wed, 18 Nov 2015 16:02:18 -0500
+Message-Id: <1447880542-19320-4-git-send-email-damien.riegel@savoirfairelinux.com>
 In-Reply-To: <1447880542-19320-1-git-send-email-damien.riegel@savoirfairelinux.com>
 References: <1447880542-19320-1-git-send-email-damien.riegel@savoirfairelinux.com>
 List-ID: <linux-watchdog@vger.kernel.org>
@@ -19,94 +19,97 @@ provided by the watchdog core.
 Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
 Reviewed-by: Vivien Didelot <vivien.didelot@savoirlinux.com>
 ---
- drivers/watchdog/bcm47xx_wdt.c | 24 ++----------------------
- include/linux/bcm47xx_wdt.h    |  2 --
- 2 files changed, 2 insertions(+), 24 deletions(-)
+ drivers/watchdog/cadence_wdt.c | 36 +-----------------------------------
+ 1 file changed, 1 insertion(+), 35 deletions(-)
 
-diff --git a/drivers/watchdog/bcm47xx_wdt.c b/drivers/watchdog/bcm47xx_wdt.c
-index 01bffe1..df1c2a4 100644
---- a/drivers/watchdog/bcm47xx_wdt.c
-+++ b/drivers/watchdog/bcm47xx_wdt.c
-@@ -20,7 +20,6 @@
+diff --git a/drivers/watchdog/cadence_wdt.c b/drivers/watchdog/cadence_wdt.c
+index bcfd2a2..abf64eb 100644
+--- a/drivers/watchdog/cadence_wdt.c
++++ b/drivers/watchdog/cadence_wdt.c
+@@ -18,7 +18,6 @@
  #include <linux/module.h>
- #include <linux/moduleparam.h>
+ #include <linux/of.h>
  #include <linux/platform_device.h>
 -#include <linux/reboot.h>
- #include <linux/types.h>
  #include <linux/watchdog.h>
- #include <linux/timer.h>
-@@ -168,17 +167,6 @@ static const struct watchdog_info bcm47xx_wdt_info = {
- 				WDIOF_MAGICCLOSE,
+ 
+ #define CDNS_WDT_DEFAULT_TIMEOUT	10
+@@ -72,7 +71,6 @@ MODULE_PARM_DESC(nowayout,
+  * @ctrl_clksel: counter clock prescaler selection
+  * @io_lock: spinlock for IO register access
+  * @cdns_wdt_device: watchdog device structure
+- * @cdns_wdt_notifier: notifier structure
+  *
+  * Structure containing parameters specific to cadence watchdog.
+  */
+@@ -84,7 +82,6 @@ struct cdns_wdt {
+ 	u32			ctrl_clksel;
+ 	spinlock_t		io_lock;
+ 	struct watchdog_device	cdns_wdt_device;
+-	struct notifier_block	cdns_wdt_notifier;
  };
  
--static int bcm47xx_wdt_notify_sys(struct notifier_block *this,
--				  unsigned long code, void *unused)
+ /* Write access to Registers */
+@@ -280,29 +277,6 @@ static struct watchdog_ops cdns_wdt_ops = {
+ 	.set_timeout = cdns_wdt_settimeout,
+ };
+ 
+-/**
+- * cdns_wdt_notify_sys - Notifier for reboot or shutdown.
+- *
+- * @this: handle to notifier block
+- * @code: turn off indicator
+- * @unused: unused
+- * Return: NOTIFY_DONE
+- *
+- * This notifier is invoked whenever the system reboot or shutdown occur
+- * because we need to disable the WDT before system goes down as WDT might
+- * reset on the next boot.
+- */
+-static int cdns_wdt_notify_sys(struct notifier_block *this, unsigned long code,
+-			       void *unused)
 -{
--	struct bcm47xx_wdt *wdt;
--
--	wdt = container_of(this, struct bcm47xx_wdt, notifier);
+-	struct cdns_wdt *wdt = container_of(this, struct cdns_wdt,
+-					    cdns_wdt_notifier);
 -	if (code == SYS_DOWN || code == SYS_HALT)
--		wdt->wdd.ops->stop(&wdt->wdd);
+-		cdns_wdt_stop(&wdt->cdns_wdt_device);
+-
 -	return NOTIFY_DONE;
 -}
 -
- static struct watchdog_ops bcm47xx_wdt_soft_ops = {
- 	.owner		= THIS_MODULE,
- 	.start		= bcm47xx_wdt_soft_start,
-@@ -215,24 +203,17 @@ static int bcm47xx_wdt_probe(struct platform_device *pdev)
- 		goto err_timer;
- 	watchdog_set_nowayout(&wdt->wdd, nowayout);
- 	watchdog_set_restart_priority(&wdt->wdd, 64);
+ /************************Platform Operations*****************************/
+ /**
+  * cdns_wdt_probe - Probe call for the device.
+@@ -360,6 +334,7 @@ static int cdns_wdt_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	watchdog_set_nowayout(cdns_wdt_device, nowayout);
++	watchdog_stop_on_reboot(cdns_wdt_device);
+ 	watchdog_set_drvdata(cdns_wdt_device, wdt);
+ 
+ 	wdt->clk = devm_clk_get(&pdev->dev, NULL);
+@@ -386,14 +361,6 @@ static int cdns_wdt_probe(struct platform_device *pdev)
+ 
+ 	spin_lock_init(&wdt->io_lock);
+ 
+-	wdt->cdns_wdt_notifier.notifier_call = &cdns_wdt_notify_sys;
+-	ret = register_reboot_notifier(&wdt->cdns_wdt_notifier);
+-	if (ret != 0) {
+-		dev_err(&pdev->dev, "cannot register reboot notifier err=%d)\n",
+-			ret);
+-		goto err_clk_disable;
+-	}
 -
--	wdt->notifier.notifier_call = &bcm47xx_wdt_notify_sys;
--
--	ret = register_reboot_notifier(&wdt->notifier);
--	if (ret)
--		goto err_timer;
-+	watchdog_stop_on_reboot(&wdt->wdd);
+ 	ret = watchdog_register_device(cdns_wdt_device);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to register wdt device\n");
+@@ -427,7 +394,6 @@ static int cdns_wdt_remove(struct platform_device *pdev)
  
- 	ret = watchdog_register_device(&wdt->wdd);
- 	if (ret)
--		goto err_notifier;
-+		goto err_timer;
- 
- 	dev_info(&pdev->dev, "BCM47xx Watchdog Timer enabled (%d seconds%s%s)\n",
- 		timeout, nowayout ? ", nowayout" : "",
- 		soft ? ", Software Timer" : "");
- 	return 0;
- 
--err_notifier:
--	unregister_reboot_notifier(&wdt->notifier);
- err_timer:
- 	if (soft)
- 		del_timer_sync(&wdt->soft_timer);
-@@ -248,7 +229,6 @@ static int bcm47xx_wdt_remove(struct platform_device *pdev)
- 		return -ENXIO;
- 
- 	watchdog_unregister_device(&wdt->wdd);
--	unregister_reboot_notifier(&wdt->notifier);
+ 	cdns_wdt_stop(&wdt->cdns_wdt_device);
+ 	watchdog_unregister_device(&wdt->cdns_wdt_device);
+-	unregister_reboot_notifier(&wdt->cdns_wdt_notifier);
+ 	clk_disable_unprepare(wdt->clk);
  
  	return 0;
- }
-diff --git a/include/linux/bcm47xx_wdt.h b/include/linux/bcm47xx_wdt.h
-index b708786..8d9d07e 100644
---- a/include/linux/bcm47xx_wdt.h
-+++ b/include/linux/bcm47xx_wdt.h
-@@ -1,7 +1,6 @@
- #ifndef LINUX_BCM47XX_WDT_H_
- #define LINUX_BCM47XX_WDT_H_
- 
--#include <linux/notifier.h>
- #include <linux/timer.h>
- #include <linux/types.h>
- #include <linux/watchdog.h>
-@@ -15,7 +14,6 @@ struct bcm47xx_wdt {
- 	void *driver_data;
- 
- 	struct watchdog_device wdd;
--	struct notifier_block notifier;
- 
- 	struct timer_list soft_timer;
- 	atomic_t soft_ticks;
 -- 
 2.5.0
