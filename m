@@ -1,78 +1,51 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-wm0-f54.google.com ([74.125.82.54]:34632 "EHLO
-	mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755008AbbKRP2B (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:45337 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756249AbbKRQYF (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 18 Nov 2015 10:28:01 -0500
-Received: by wmvv187 with SMTP id v187so283957621wmv.1
-        for <linux-watchdog@vger.kernel.org>; Wed, 18 Nov 2015 07:28:00 -0800 (PST)
-Date: Wed, 18 Nov 2015 15:27:55 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Damien Riegel <damien.riegel@savoirfairelinux.com>,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org, shawnguo@kernel.org,
-	kernel@pengutronix.de, wim@iguana.be, robh+dt@kernel.org,
-	sameo@linux.intel.com, dinh.linux@gmail.com,
-	kernel@savoirfairelinux.com
-Subject: Re: [PATCH v3 2/5] mfd: syscon: add a DT property to set value width
-Message-ID: <20151118152755.GC3534@x1>
-References: <1447700814-5391-1-git-send-email-damien.riegel@savoirfairelinux.com>
- <1447700814-5391-3-git-send-email-damien.riegel@savoirfairelinux.com>
- <20151117091946.GG17829@x1>
- <20151117172649.GA11035@roeck-us.net>
- <20151118082144.GB3534@x1>
- <564C94FF.10004@roeck-us.net>
+	Wed, 18 Nov 2015 11:24:05 -0500
+Subject: Re: [PATCH] watchdog: mtk_wdt: Use MODE_KEY when stopping the
+ watchdog
+To: Nicolas Boichat <drinkcat@chromium.org>,
+	Matthias Brugger <matthias.bgg@gmail.com>
+References: <1447814701-23504-1-git-send-email-drinkcat@chromium.org>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <564CA620.7080700@roeck-us.net>
+Date: Wed, 18 Nov 2015 08:24:00 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <564C94FF.10004@roeck-us.net>
+In-Reply-To: <1447814701-23504-1-git-send-email-drinkcat@chromium.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, 18 Nov 2015, Guenter Roeck wrote:
+On 11/17/2015 06:45 PM, Nicolas Boichat wrote:
+> WDT_MODE value need to be or-ed with MODE_KEY when setting
+> watchdog mode. Add it to mtk_wdt_stop function, so that the
+> watchdog can be stopped (e.g. during suspend).
+>
+> Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
 
-> On 11/18/2015 12:21 AM, Lee Jones wrote:
-> [ ... ]
-> >>>Or, for more clarity:
-> >>>
-> >>>   of_property_read_u32(np, "bus-width", &bus_width);
-> >>>   if (bus_width)
-> >>>
-> >>>If you choose this version (which I think is my preferred method, =
-don't
-> >>>forget to initialise 'bus_width' to zero.
-> >>>
-> >>Ignoring an error and depending on bus_width=3D=3D0 to determine if=
- the property
-> >>was provided seems odd, especially since it would "hide" if the bus=
--width
-> >>property is set to 0. In the original code, this would be detected =
-as error.
-> >
-> >I'm not sure what you mean.  If bus_width=3D=3D0, then a problem has
-> >occurred and we will not use the value.  If bus_width!=3D0 then we c=
-an
-> >assume that it's been set and (as the comment describes) the value
-> >will be checked for errors in regmap_init_mmio().
-> >
->=20
-> Your proposed code does not distinguish a missing property from "bus-=
-width =3D <0>;".
-> It will silently ignore this case.
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Okay, so what you're saying is, you'd prefer to throw and error
-instead of using the default.  Fair point.  If this is an issue then
-feel free to use either of the other two suggestions.
+> ---
+>   drivers/watchdog/mtk_wdt.c | 1 +
+>   1 file changed, 1 insertion(+)
+>
+> diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
+> index 6ad9df9..b751f43 100644
+> --- a/drivers/watchdog/mtk_wdt.c
+> +++ b/drivers/watchdog/mtk_wdt.c
+> @@ -123,6 +123,7 @@ static int mtk_wdt_stop(struct watchdog_device *wdt_dev)
+>
+>   	reg = readl(wdt_base + WDT_MODE);
+>   	reg &= ~WDT_MODE_EN;
+> +	reg |= WDT_MODE_KEY;
+>   	iowrite32(reg, wdt_base + WDT_MODE);
+>
+>   	return 0;
+>
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
