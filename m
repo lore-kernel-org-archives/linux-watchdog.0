@@ -1,73 +1,156 @@
-Return-path: <lee.jones@linaro.org>
-Date: Mon, 23 Nov 2015 08:20:11 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-arm-kernel@lists.infradead.org,
-	Guenter Roeck <linux@roeck-us.net>, dinh.linux@gmail.com,
-	linux-watchdog@vger.kernel.org,
-	Damien Riegel <damien.riegel@savoirfairelinux.com>,
-	linux-kernel@vger.kernel.org, wim@iguana.be, robh+dt@kernel.org,
-	kernel@savoirfairelinux.com, kernel@pengutronix.de,
-	shawnguo@kernel.org, sameo@linux.intel.com
-Subject: Re: [PATCH v3 2/5] mfd: syscon: add a DT property to set value width
-Message-ID: <20151123082011.GG3098@x1>
-References: <1447700814-5391-1-git-send-email-damien.riegel@savoirfairelinux.com>
- <20151117091946.GG17829@x1>
- <20151117172649.GA11035@roeck-us.net>
- <4478024.TgK5OkRQEy@wuerfel>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4478024.TgK5OkRQEy@wuerfel>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Petr Mladek <pmladek@suse.com>
+To: Andrew Morton <akpm@linux-foundation.org>, Oleg Nesterov <oleg@redhat.com>,
+        Tejun Heo <tj@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>
+Cc: Steven Rostedt <rostedt@goodmis.org>,
+        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Jiri Kosina <jkosina@suse.cz>, Borislav Petkov <bp@suse.de>,
+        Michal Hocko <mhocko@suse.cz>, linux-mm@kvack.org,
+        Vlastimil Babka <vbabka@suse.cz>, linux-api@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Petr Mladek <pmladek@suse.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        linux-watchdog@vger.kernel.org, Corey Minyard <minyard@acm.org>,
+        openipmi-developer@lists.sourceforge.net,
+        Doug Ledford <dledford@redhat.com>, Sean Hefty <sean.hefty@intel.com>,
+        Hal Rosenstock <hal.rosenstock@gmail.com>, linux-rdma@vger.kernel.org,
+        Maxim Levitsky <maximlevitsky@gmail.com>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Eduardo Valentin <edubezval@gmail.com>,
+        Jacob Pan <jacob.jun.pan@linux.intel.com>, linux-pm@vger.kernel.org
+Subject: [PATCH v3 00/22] kthread: Use kthread worker API more widely
+Date: Wed, 18 Nov 2015 14:25:05 +0100
+Message-Id: <1447853127-3461-1-git-send-email-pmladek@suse.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Sat, 21 Nov 2015, Arnd Bergmann wrote:
+My intention is to make it easier to manipulate and maintain kthreads.
+Especially, I want to replace all the custom main cycles with a
+generic one. Also I want to make the kthreads sleep in a consistent
+state in a common place when there is no work.
 
-> On Tuesday 17 November 2015 09:26:49 Guenter Roeck wrote:
-> > > 
-> > > This syntax is confusing, as we normally associate it with an error
-> > > condition.  Instead, I'd use:
-> > > 
-> > >   if (of_property_read_u32(np, "bus-width", &bus_width) == 0)
-> > 
-> > Or maybe better
-> > 
-> >         if (!of_property_read_u32(np, "bus-width", &bus_width))
-> 
-> I would also prefer the latter, but it doesn't matter much either way.
-> 
-> > > 
-> > > Or, for more clarity:
-> > > 
-> > >   of_property_read_u32(np, "bus-width", &bus_width);
-> > >   if (bus_width)
-> > > 
-> > > If you choose this version (which I think is my preferred method, don't
-> > > forget to initialise 'bus_width' to zero.
-> > > 
-> > Ignoring an error and depending on bus_width==0 to determine if the property
-> > was provided seems odd, especially since it would "hide" if the bus-width
-> > property is set to 0. In the original code, this would be detected as error.
-> 
-> Right.
-> 
-> Another option would be
-> 
-> 	ret = of_property_read_u32(np, "bus-width", &bus_width);
-> 	/* no bus width provided, default to 32-bit */
-> 	if (ret)
-> 		bus_width = 32;
-> 
-> 	syscon_config.val_bits = bus_width;
-> 	syscon_config.reg_stride = syscon_config.val_bits / 8;
-> 
-> which has the same effect but seems a little clearer to me.
+My first attempt was with a brand new API (iterant kthread), see
+http://thread.gmane.org/gmane.linux.kernel.api/11892 . But I was
+directed to improve the existing kthread worker API. This is
+the 3rd iteration of the new direction.
 
-Works for me.
+
+1st patch: add support to check if a timer callback is being called
+
+2nd..12th patches: improve the existing kthread worker API
+
+13th..18th, 20th, 22nd patches: convert several kthreads into
+      the kthread worker API, namely: khugepaged, ring buffer
+      benchmark, hung_task, kmemleak, ipmi, IB/fmr_pool,
+      memstick/r592, intel_powerclamp
+      
+21st, 23rd patches: do some preparation steps; they usually do
+      some clean up that makes sense even without the conversion.
+
+  
+Changes against v2:
+
+  + used worker->lock to synchronize the operations with the work
+    instead of the PENDING bit as suggested by Tejun Heo; it simplified
+    the implementation in several ways
+
+  + added timer_active(); used it together with del_timer_sync()
+    to cancel the work a less tricky way
+
+  + removed the controversial conversion of the RCU kthreads
+
+  + added several other examples: hung_task, kmemleak, ipmi,
+    IB/fmr_pool, memstick/r592, intel_powerclamp
+
+  + the helper fixes for the ring buffer benchmark has been improved
+    as suggested by Steven; they already are in the Linus tree now
+
+  + fixed a possible race between the check for existing khugepaged
+    worker and queuing the work
+ 
+
+Changes against v1:
+
+  + remove wrappers to manipulate the scheduling policy and priority
+
+  + remove questionable wakeup_and_destroy_kthread_worker() variant
+
+  + do not check for chained work when draining the queue
+
+  + allocate struct kthread worker in create_kthread_work() and
+    use more simple checks for running worker
+
+  + add support for delayed kthread works and use them instead
+    of waiting inside the works
+
+  + rework the "unrelated" fixes for the ring buffer benchmark
+    as discussed in the 1st RFC; also sent separately
+
+  + convert also the consumer in the ring buffer benchmark
+
+
+I have tested this patch set against the stable Linus tree
+for 4.4-rc1.
+
+Petr Mladek (22):
+  timer: Allow to check when the timer callback has not finished yet
+  kthread/smpboot: Do not park in kthread_create_on_cpu()
+  kthread: Allow to call __kthread_create_on_node() with va_list args
+  kthread: Add create_kthread_worker*()
+  kthread: Add drain_kthread_worker()
+  kthread: Add destroy_kthread_worker()
+  kthread: Detect when a kthread work is used by more workers
+  kthread: Initial support for delayed kthread work
+  kthread: Allow to cancel kthread work
+  kthread: Allow to modify delayed kthread work
+  kthread: Better support freezable kthread workers
+  kthread: Use try_lock_kthread_work() in flush_kthread_work()
+  mm/huge_page: Convert khugepaged() into kthread worker API
+  ring_buffer: Convert benchmark kthreads into kthread worker API
+  hung_task: Convert hungtaskd into kthread worker API
+  kmemleak: Convert kmemleak kthread into kthread worker API
+  ipmi: Convert kipmi kthread into kthread worker API
+  IB/fmr_pool: Convert the cleanup thread into kthread worker API
+  memstick/r592: Better synchronize debug messages in r592_io kthread
+  memstick/r592: convert r592_io kthread into kthread worker API
+  thermal/intel_powerclamp: Remove duplicated code that starts the
+    kthread
+  thermal/intel_powerclamp: Convert the kthread to kthread worker API
+
+ drivers/char/ipmi/ipmi_si_intf.c     | 116 ++++---
+ drivers/infiniband/core/fmr_pool.c   |  54 ++-
+ drivers/memstick/host/r592.c         |  61 ++--
+ drivers/memstick/host/r592.h         |   5 +-
+ drivers/thermal/intel_powerclamp.c   | 302 +++++++++--------
+ include/linux/kthread.h              |  56 ++++
+ include/linux/timer.h                |   2 +
+ kernel/hung_task.c                   |  41 ++-
+ kernel/kthread.c                     | 618 +++++++++++++++++++++++++++++++----
+ kernel/smpboot.c                     |   5 +
+ kernel/time/timer.c                  |  24 ++
+ kernel/trace/ring_buffer_benchmark.c | 133 ++++----
+ mm/huge_memory.c                     | 134 ++++----
+ mm/kmemleak.c                        |  86 +++--
+ 14 files changed, 1142 insertions(+), 495 deletions(-)
+
+CC: Catalin Marinas <catalin.marinas@arm.com>
+CC: linux-watchdog@vger.kernel.org
+CC: Corey Minyard <minyard@acm.org>
+CC: openipmi-developer@lists.sourceforge.net
+CC: Doug Ledford <dledford@redhat.com>
+CC: Sean Hefty <sean.hefty@intel.com>
+CC: Hal Rosenstock <hal.rosenstock@gmail.com>
+CC: linux-rdma@vger.kernel.org
+CC: Maxim Levitsky <maximlevitsky@gmail.com>
+CC: Zhang Rui <rui.zhang@intel.com>
+CC: Eduardo Valentin <edubezval@gmail.com>
+CC: Jacob Pan <jacob.jun.pan@linux.intel.com>
+CC: linux-pm@vger.kernel.org
 
 -- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+1.8.5.6
