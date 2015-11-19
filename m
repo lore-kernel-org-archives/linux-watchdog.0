@@ -1,43 +1,34 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-pa0-f49.google.com ([209.85.220.49]:35353 "EHLO
-	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751746AbbKRCp0 (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 17 Nov 2015 21:45:26 -0500
-Received: by pacej9 with SMTP id ej9so28480504pac.2
-        for <linux-watchdog@vger.kernel.org>; Tue, 17 Nov 2015 18:45:26 -0800 (PST)
-From: Nicolas Boichat <drinkcat@chromium.org>
-To: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] watchdog: mtk_wdt: Use MODE_KEY when stopping the watchdog
-Date: Wed, 18 Nov 2015 10:45:01 +0800
-Message-Id: <1447814701-23504-1-git-send-email-drinkcat@chromium.org>
+Received: from softlayer.compulab.co.il ([50.23.254.55]:47031 "EHLO
+	compulab.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756515AbbKSJ4H (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 19 Nov 2015 04:56:07 -0500
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Denis Turischev <denis.turischev@compulab.co.il>
+Subject: [PATCH] sp5100_tco: Add AMD Mullins platform support
+Message-ID: <564D9CB0.1090209@compulab.co.il>
+Date: Thu, 19 Nov 2015 11:56:00 +0200
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-WDT_MODE value need to be or-ed with MODE_KEY when setting
-watchdog mode. Add it to mtk_wdt_stop function, so that the
-watchdog can be stopped (e.g. during suspend).
+AMD Mullins watchdog is fully compatible to the previous Hudson chipset,
+reuse the existent sp5100_tco driver.
 
-Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
----
- drivers/watchdog/mtk_wdt.c | 1 +
- 1 file changed, 1 insertion(+)
+Signed-off-by: Denis Turischev <denis.turischev@compulab.co.il>
 
-diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
-index 6ad9df9..b751f43 100644
---- a/drivers/watchdog/mtk_wdt.c
-+++ b/drivers/watchdog/mtk_wdt.c
-@@ -123,6 +123,7 @@ static int mtk_wdt_stop(struct watchdog_device *wdt_dev)
- 
- 	reg = readl(wdt_base + WDT_MODE);
- 	reg &= ~WDT_MODE_EN;
-+	reg |= WDT_MODE_KEY;
- 	iowrite32(reg, wdt_base + WDT_MODE);
- 
- 	return 0;
--- 
-2.6.0.rc2.230.g3dd15c0
-
+diff -Nru linux-4.3.orig/drivers/watchdog/sp5100_tco.c linux-4.3/drivers/watchdog/sp5100_tco.c
+--- linux-4.3.orig/drivers/watchdog/sp5100_tco.c	2015-11-02 02:05:25.000000000 +0200
++++ linux-4.3/drivers/watchdog/sp5100_tco.c	2015-11-19 11:08:06.272777718 +0200
+@@ -306,6 +306,8 @@
+ static const struct pci_device_id sp5100_tco_pci_tbl[] = {
+ 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_SBX00_SMBUS, PCI_ANY_ID,
+ 	  PCI_ANY_ID, },
++	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_HUDSON2_SMBUS, PCI_ANY_ID,
++	  PCI_ANY_ID, },
+ 	{ 0, },			/* End of list */
+ };
+ MODULE_DEVICE_TABLE(pci, sp5100_tco_pci_tbl);	
