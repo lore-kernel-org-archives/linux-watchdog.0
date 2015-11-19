@@ -1,89 +1,296 @@
-Return-path: <timur@codeaurora.org>
-Subject: Re: [Linaro-acpi] [PATCH v8 5/5] Watchdog: introduce ARM SBSA
- watchdog driver
-To: Al Stone <al.stone@linaro.org>, Guenter Roeck <linux@roeck-us.net>,
- Fu Wei <fu.wei@linaro.org>
-Cc: Pratyush Anand <panand@redhat.com>, devicetree@vger.kernel.org,
- linux-watchdog@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
- linux-doc@vger.kernel.org, Jon Masters <jcm@redhat.com>,
- Linaro ACPI Mailman List <linaro-acpi@lists.linaro.org>,
- "Rafael J. Wysocki" <rjw@rjwysocki.net>, lkml
- <linux-kernel@vger.kernel.org>, Will Deacon <will.deacon@arm.com>,
- Wim Van Sebroeck <wim@iguana.be>, Rob Herring <robherring2@gmail.com>,
- Catalin Marinas <catalin.marinas@arm.com>, Wei Fu <tekkamanninja@gmail.com>,
- Jonathan Corbet <corbet@lwn.net>, Dave Young <dyoung@redhat.com>,
- Vipul Gandhi <vgandhi@codeaurora.org>
-References: <1445961999-9506-1-git-send-email-fu.wei@linaro.org>
- <1445961999-9506-6-git-send-email-fu.wei@linaro.org>
- <CAOZdJXV8x8EMQEZhdFS+34iO+6P9S==k9bQjt=67iXt6K2oSCw@mail.gmail.com>
- <563AE588.1080009@roeck-us.net> <563B5DF9.6080102@codeaurora.org>
- <CADyBb7sD2Y2kGj-suOs1UeUwXPjH39mvX_Sobn0Y7WfsJ9hF=Q@mail.gmail.com>
- <563B62F7.3050307@codeaurora.org>
- <CADyBb7vDf+KRi8gUGEt+iu-GpqVQgVq7nKTVt7O=3x78KCi+RQ@mail.gmail.com>
- <563B6A4B.7090400@codeaurora.org>
- <CADyBb7t6ovfrz1b3ZZykKq22HkZi1W0PWg7-wXihEjM9ciTgGg@mail.gmail.com>
- <563B869F.2010004@roeck-us.net> <56452970.4070209@linaro.org>
- <56452E10.5060705@roeck-us.net> <564E654B.2060000@linaro.org>
-From: Timur Tabi <timur@codeaurora.org>
-Message-ID: <564E68C4.3070709@codeaurora.org>
-Date: Thu, 19 Nov 2015 18:26:44 -0600
-MIME-Version: 1.0
-In-Reply-To: <564E654B.2060000@linaro.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from unicorn.mansr.com ([81.2.72.234]:51736 "EHLO unicorn.mansr.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1759014AbbKSWJP (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 19 Nov 2015 17:09:15 -0500
+From: Mans Rullgard <mans@mansr.com>
+To: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH v4] watchdog: add support for Sigma Designs SMP86xx/SMP87xx
+Date: Thu, 19 Nov 2015 22:09:05 +0000
+Message-Id: <1447970945-9382-1-git-send-email-mans@mansr.com>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Al Stone wrote:
->>> The issue for me in that case is that the SBSA requires a two stage timeout,
->> >
->> >Hmm - really ? This makes me want to step back a bit and re-read the specification
->> >to understand where it says that, and what the reasoning might be for such a
->> >requirement.
-> As far as I can tell, that's what the SBSA is requiring.  My understanding is
-> that the hardware is to first assert a WS0 signal when the timer expires.  If
-> the timer expires and WS0 has already been asserted, the WS1 signal is to be
-> asserted.  When WS1 is asserted, the system is to do a hard reset (Section 5.2,
-> "Server Base System Architecture", ARM-DEN-0029 Version 2.3).  I'm interpreting
-> the occurrence of WS0 as the first stage and WS1 as the second.
->
-> To me, at least, this makes sense in a server environment.  The WS0 occurs,
-> which gives me some time to save key info or try to recover before WS1 occurs
-> (or kexec, or any other cleverness).
+This adds support for the Sigma Designs SMP86xx/SMP87xx family built-in
+watchdog.
 
-I'm having some problem with the word "requires".
+Signed-off-by: Mans Rullgard <mans@mansr.com>
+---
+Changes:
+- #include bitops.h
+- clk_disable_unprepare() on failure
+---
+ drivers/watchdog/Kconfig      |  10 ++
+ drivers/watchdog/Makefile     |   1 +
+ drivers/watchdog/tangox_wdt.c | 225 ++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 236 insertions(+)
+ create mode 100644 drivers/watchdog/tangox_wdt.c
 
-I think it applies only to the hardware.  That is, there must be a WS0 
-timeout/event, and then after that there must be a WS1 timeout/event.
-
-I don't think there is any "requirement" for software to do anything 
-with WS0.  That's why I don't think pre-timeout is necessary for the 
-driver to be SBSA-compliant.  All of the drivers for existing two-stage 
-watchdog devices treat the device as a one-stage device, because the 
-watchdog API does not support pre-timeout.  Are all of them also 
-"broken"?  No.  So it would not be broken for an SBSA watchdog driver to 
-ignore WS0.
-
-I would have no problem with the following sequence of events:
-
-1) We merge in a driver that treats the SBSA watchdog as a single-stage 
-watchdog that does a hard reset at WS1 and ignores WS0.  My driver, with 
-a few changes, would qualify.
-
-2) We add support for pre-timeout to the Watchdog interface.  Fu can 
-take all the time in the world (as far as I'm concerned) getting this 
-perfected.  My only request is that the new pre-timeout API supports 
-hardware where the timeout between stages must be equal.  That is, if 
-timeout to stage 1 (call it T1) is X seconds, then the timeout to stage 
-2 (call it T2) is another X seconds.  T2 = T1.  Of course, the API 
-should also support hardware where T2 != T1.
-
-3) The existing SBSA watchdog driver is updated to support the new 
-pre-timeout API.  It would enforce the requirement that T2 = T1.
-
-This approach will allow us to get a working SBSA watchdog driver into 
-4.5 without much fuss.
-
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 7a8a6c6..f43ff7a 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -135,6 +135,16 @@ config MENF21BMC_WATCHDOG
+ 	  This driver can also be built as a module. If so the module
+ 	  will be called menf21bmc_wdt.
+ 
++config TANGOX_WATCHDOG
++	tristate "Sigma Designs SMP86xx/SMP87xx watchdog"
++	select WATCHDOG_CORE
++	depends on ARCH_TANGOX || COMPILE_TEST
++	help
++	  Support for the watchdog in Sigma Designs SMP86xx (tango3)
++	  and SMP87xx (tango4) family chips.
++
++	  This driver can be built as a module. The module name is tangox_wdt.
++
+ config WM831X_WATCHDOG
+ 	tristate "WM831x watchdog"
+ 	depends on MFD_WM831X
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 53d4827..46cb387 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -187,6 +187,7 @@ obj-$(CONFIG_DA9055_WATCHDOG) += da9055_wdt.o
+ obj-$(CONFIG_DA9062_WATCHDOG) += da9062_wdt.o
+ obj-$(CONFIG_DA9063_WATCHDOG) += da9063_wdt.o
+ obj-$(CONFIG_GPIO_WATCHDOG)	+= gpio_wdt.o
++obj-$(CONFIG_TANGOX_WATCHDOG) += tangox_wdt.o
+ obj-$(CONFIG_WM831X_WATCHDOG) += wm831x_wdt.o
+ obj-$(CONFIG_WM8350_WATCHDOG) += wm8350_wdt.o
+ obj-$(CONFIG_MAX63XX_WATCHDOG) += max63xx_wdt.o
+diff --git a/drivers/watchdog/tangox_wdt.c b/drivers/watchdog/tangox_wdt.c
+new file mode 100644
+index 0000000..b9ee624
+--- /dev/null
++++ b/drivers/watchdog/tangox_wdt.c
+@@ -0,0 +1,225 @@
++/*
++ *  Copyright (C) 2015 Mans Rullgard <mans@mansr.com>
++ *  SMP86xx/SMP87xx Watchdog driver
++ *
++ *  This program is free software; you can redistribute it and/or modify it
++ *  under  the terms of the GNU General  Public License as published by the
++ *  Free Software Foundation;  either version 2 of the License, or (at your
++ *  option) any later version.
++ */
++
++#include <linux/bitops.h>
++#include <linux/clk.h>
++#include <linux/delay.h>
++#include <linux/io.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/moduleparam.h>
++#include <linux/notifier.h>
++#include <linux/platform_device.h>
++#include <linux/reboot.h>
++#include <linux/watchdog.h>
++
++#define DEFAULT_TIMEOUT 30
++
++static bool nowayout = WATCHDOG_NOWAYOUT;
++module_param(nowayout, bool, 0);
++MODULE_PARM_DESC(nowayout,
++		 "Watchdog cannot be stopped once started (default="
++		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++
++static unsigned int timeout;
++module_param(timeout, int, 0);
++MODULE_PARM_DESC(timeout, "Watchdog timeout");
++
++/*
++ * Counter counts down from programmed value.  Reset asserts when
++ * the counter reaches 1.
++ */
++#define WD_COUNTER		0
++
++#define WD_CONFIG		4
++#define WD_CONFIG_XTAL_IN	BIT(0)
++#define WD_CONFIG_DISABLE	BIT(31)
++
++struct tangox_wdt_device {
++	struct watchdog_device wdt;
++	void __iomem *base;
++	unsigned long clk_rate;
++	struct clk *clk;
++	struct notifier_block restart;
++};
++
++static int tangox_wdt_set_timeout(struct watchdog_device *wdt,
++				  unsigned int new_timeout)
++{
++	wdt->timeout = new_timeout;
++
++	return 0;
++}
++
++static int tangox_wdt_start(struct watchdog_device *wdt)
++{
++	struct tangox_wdt_device *dev = watchdog_get_drvdata(wdt);
++	u32 ticks;
++
++	ticks = 1 + wdt->timeout * dev->clk_rate;
++	writel(ticks, dev->base + WD_COUNTER);
++
++	return 0;
++}
++
++static int tangox_wdt_stop(struct watchdog_device *wdt)
++{
++	struct tangox_wdt_device *dev = watchdog_get_drvdata(wdt);
++
++	writel(0, dev->base + WD_COUNTER);
++
++	return 0;
++}
++
++static unsigned int tangox_wdt_get_timeleft(struct watchdog_device *wdt)
++{
++	struct tangox_wdt_device *dev = watchdog_get_drvdata(wdt);
++	u32 count;
++
++	count = readl(dev->base + WD_COUNTER);
++
++	if (!count)
++		return 0;
++
++	return (count - 1) / dev->clk_rate;
++}
++
++static const struct watchdog_info tangox_wdt_info = {
++	.options  = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
++	.identity = "tangox watchdog",
++};
++
++static const struct watchdog_ops tangox_wdt_ops = {
++	.start		= tangox_wdt_start,
++	.stop		= tangox_wdt_stop,
++	.set_timeout	= tangox_wdt_set_timeout,
++	.get_timeleft	= tangox_wdt_get_timeleft,
++};
++
++static int tangox_wdt_restart(struct notifier_block *nb, unsigned long action,
++			      void *data)
++{
++	struct tangox_wdt_device *dev =
++		container_of(nb, struct tangox_wdt_device, restart);
++
++	writel(1, dev->base + WD_COUNTER);
++
++	return NOTIFY_DONE;
++}
++
++static int tangox_wdt_probe(struct platform_device *pdev)
++{
++	struct tangox_wdt_device *dev;
++	struct resource *res;
++	u32 config;
++	int err;
++
++	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
++	if (!dev)
++		return -ENOMEM;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	dev->base = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(dev->base))
++		return PTR_ERR(dev->base);
++
++	dev->clk = devm_clk_get(&pdev->dev, NULL);
++	if (IS_ERR(dev->clk))
++		return PTR_ERR(dev->clk);
++
++	err = clk_prepare_enable(dev->clk);
++	if (err)
++		return err;
++
++	dev->clk_rate = clk_get_rate(dev->clk);
++
++	dev->wdt.parent = &pdev->dev;
++	dev->wdt.info = &tangox_wdt_info;
++	dev->wdt.ops = &tangox_wdt_ops;
++	dev->wdt.timeout = DEFAULT_TIMEOUT;
++	dev->wdt.min_timeout = 1;
++	dev->wdt.max_timeout = (U32_MAX - 1) / dev->clk_rate;
++
++	watchdog_init_timeout(&dev->wdt, timeout, &pdev->dev);
++	watchdog_set_nowayout(&dev->wdt, nowayout);
++	watchdog_set_drvdata(&dev->wdt, dev);
++
++	/*
++	 * Deactivate counter if disable bit is set to avoid
++	 * accidental reset.
++	 */
++	config = readl(dev->base + WD_CONFIG);
++	if (config & WD_CONFIG_DISABLE)
++		writel(0, dev->base + WD_COUNTER);
++
++	writel(WD_CONFIG_XTAL_IN, dev->base + WD_CONFIG);
++
++	/*
++	 * Mark as active and restart with configured timeout if
++	 * already running.
++	 */
++	if (readl(dev->base + WD_COUNTER)) {
++		set_bit(WDOG_ACTIVE, &dev->wdt.status);
++		tangox_wdt_start(&dev->wdt);
++	}
++
++	err = watchdog_register_device(&dev->wdt);
++	if (err) {
++		clk_disable_unprepare(dev->clk);
++		return err;
++	}
++
++	platform_set_drvdata(pdev, dev);
++
++	dev->restart.notifier_call = tangox_wdt_restart;
++	dev->restart.priority = 128;
++	err = register_restart_handler(&dev->restart);
++	if (err)
++		dev_warn(&pdev->dev, "failed to register restart handler\n");
++
++	dev_info(dev->wdt.dev, "SMP86xx/SMP87xx watchdog registered\n");
++
++	return 0;
++}
++
++static int tangox_wdt_remove(struct platform_device *pdev)
++{
++	struct tangox_wdt_device *dev = platform_get_drvdata(pdev);
++
++	tangox_wdt_stop(&dev->wdt);
++	clk_disable_unprepare(dev->clk);
++
++	unregister_restart_handler(&dev->restart);
++	watchdog_unregister_device(&dev->wdt);
++
++	return 0;
++}
++
++static const struct of_device_id tangox_wdt_dt_ids[] = {
++	{ .compatible = "sigma,smp8642-wdt" },
++	{ .compatible = "sigma,smp8759-wdt" },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, tangox_wdt_dt_ids);
++
++static struct platform_driver tangox_wdt_driver = {
++	.probe	= tangox_wdt_probe,
++	.remove	= tangox_wdt_remove,
++	.driver	= {
++		.name		= "tangox-wdt",
++		.of_match_table	= tangox_wdt_dt_ids,
++	},
++};
++
++module_platform_driver(tangox_wdt_driver);
++
++MODULE_AUTHOR("Mans Rullgard <mans@mansr.com>");
++MODULE_DESCRIPTION("SMP86xx/SMP87xx Watchdog driver");
++MODULE_LICENSE("GPL");
 -- 
-Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the
-Code Aurora Forum, a Linux Foundation Collaborative Project.
+2.6.3
+
