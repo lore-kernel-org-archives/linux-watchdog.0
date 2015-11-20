@@ -6,9 +6,9 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	Mike Looijmans <mike.looijmans@topic.nl>,
 	kernel@savoirfairelinux.com,
 	Damien Riegel <damien.riegel@savoirfairelinux.com>
-Subject: [PATCH v2 2/6] watchdog: bcm47xx_wdt: use core reboot notifier
-Date: Fri, 20 Nov 2015 16:54:52 -0500
-Message-Id: <1448056496-2335-3-git-send-email-damien.riegel@savoirfairelinux.com>
+Subject: [PATCH v2 5/6] watchdog: softdog: use core reboot notifier
+Date: Fri, 20 Nov 2015 16:54:55 -0500
+Message-Id: <1448056496-2335-6-git-send-email-damien.riegel@savoirfairelinux.com>
 In-Reply-To: <1448056496-2335-1-git-send-email-damien.riegel@savoirfairelinux.com>
 References: <1448056496-2335-1-git-send-email-damien.riegel@savoirfairelinux.com>
 List-ID: <linux-watchdog@vger.kernel.org>
@@ -20,94 +20,76 @@ Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Reviewed-by: Vivien Didelot <vivien.didelot@savoirlinux.com>
 ---
- drivers/watchdog/bcm47xx_wdt.c | 24 ++----------------------
- include/linux/bcm47xx_wdt.h    |  2 --
- 2 files changed, 2 insertions(+), 24 deletions(-)
+ drivers/watchdog/softdog.c | 30 ++----------------------------
+ 1 file changed, 2 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/watchdog/bcm47xx_wdt.c b/drivers/watchdog/bcm47xx_wdt.c
-index 01bffe1..df1c2a4 100644
---- a/drivers/watchdog/bcm47xx_wdt.c
-+++ b/drivers/watchdog/bcm47xx_wdt.c
-@@ -20,7 +20,6 @@
- #include <linux/module.h>
- #include <linux/moduleparam.h>
- #include <linux/platform_device.h>
--#include <linux/reboot.h>
+diff --git a/drivers/watchdog/softdog.c b/drivers/watchdog/softdog.c
+index 0dc5e323d..fe1e151 100644
+--- a/drivers/watchdog/softdog.c
++++ b/drivers/watchdog/softdog.c
+@@ -43,7 +43,6 @@
  #include <linux/types.h>
- #include <linux/watchdog.h>
  #include <linux/timer.h>
-@@ -168,17 +167,6 @@ static const struct watchdog_info bcm47xx_wdt_info = {
- 				WDIOF_MAGICCLOSE,
- };
+ #include <linux/watchdog.h>
+-#include <linux/notifier.h>
+ #include <linux/reboot.h>
+ #include <linux/init.h>
+ #include <linux/jiffies.h>
+@@ -122,26 +121,9 @@ static int softdog_set_timeout(struct watchdog_device *w, unsigned int t)
+ }
  
--static int bcm47xx_wdt_notify_sys(struct notifier_block *this,
--				  unsigned long code, void *unused)
--{
--	struct bcm47xx_wdt *wdt;
+ /*
+- *	Notifier for system down
+- */
 -
--	wdt = container_of(this, struct bcm47xx_wdt, notifier);
+-static int softdog_notify_sys(struct notifier_block *this, unsigned long code,
+-	void *unused)
+-{
 -	if (code == SYS_DOWN || code == SYS_HALT)
--		wdt->wdd.ops->stop(&wdt->wdd);
+-		/* Turn the WDT off */
+-		softdog_stop(NULL);
 -	return NOTIFY_DONE;
 -}
 -
- static struct watchdog_ops bcm47xx_wdt_soft_ops = {
- 	.owner		= THIS_MODULE,
- 	.start		= bcm47xx_wdt_soft_start,
-@@ -215,24 +203,17 @@ static int bcm47xx_wdt_probe(struct platform_device *pdev)
- 		goto err_timer;
- 	watchdog_set_nowayout(&wdt->wdd, nowayout);
- 	watchdog_set_restart_priority(&wdt->wdd, 64);
+-/*
+  *	Kernel Interfaces
+  */
+ 
+-static struct notifier_block softdog_notifier = {
+-	.notifier_call	= softdog_notify_sys,
+-};
 -
--	wdt->notifier.notifier_call = &bcm47xx_wdt_notify_sys;
+ static struct watchdog_info softdog_info = {
+ 	.identity = "Software Watchdog",
+ 	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
+@@ -175,18 +157,11 @@ static int __init watchdog_init(void)
+ 	softdog_dev.timeout = soft_margin;
+ 
+ 	watchdog_set_nowayout(&softdog_dev, nowayout);
 -
--	ret = register_reboot_notifier(&wdt->notifier);
--	if (ret)
--		goto err_timer;
-+	watchdog_stop_on_reboot(&wdt->wdd);
+-	ret = register_reboot_notifier(&softdog_notifier);
+-	if (ret) {
+-		pr_err("cannot register reboot notifier (err=%d)\n", ret);
+-		return ret;
+-	}
++	watchdog_stop_on_reboot(&softdog_dev);
  
- 	ret = watchdog_register_device(&wdt->wdd);
- 	if (ret)
--		goto err_notifier;
-+		goto err_timer;
+ 	ret = watchdog_register_device(&softdog_dev);
+-	if (ret) {
+-		unregister_reboot_notifier(&softdog_notifier);
++	if (ret)
+ 		return ret;
+-	}
  
- 	dev_info(&pdev->dev, "BCM47xx Watchdog Timer enabled (%d seconds%s%s)\n",
- 		timeout, nowayout ? ", nowayout" : "",
- 		soft ? ", Software Timer" : "");
- 	return 0;
- 
--err_notifier:
--	unregister_reboot_notifier(&wdt->notifier);
- err_timer:
- 	if (soft)
- 		del_timer_sync(&wdt->soft_timer);
-@@ -248,7 +229,6 @@ static int bcm47xx_wdt_remove(struct platform_device *pdev)
- 		return -ENXIO;
- 
- 	watchdog_unregister_device(&wdt->wdd);
--	unregister_reboot_notifier(&wdt->notifier);
- 
- 	return 0;
+ 	pr_info("Software Watchdog Timer: 0.08 initialized. soft_noboot=%d soft_margin=%d sec soft_panic=%d (nowayout=%d)\n",
+ 		soft_noboot, soft_margin, soft_panic, nowayout);
+@@ -197,7 +172,6 @@ static int __init watchdog_init(void)
+ static void __exit watchdog_exit(void)
+ {
+ 	watchdog_unregister_device(&softdog_dev);
+-	unregister_reboot_notifier(&softdog_notifier);
  }
-diff --git a/include/linux/bcm47xx_wdt.h b/include/linux/bcm47xx_wdt.h
-index b708786..8d9d07e 100644
---- a/include/linux/bcm47xx_wdt.h
-+++ b/include/linux/bcm47xx_wdt.h
-@@ -1,7 +1,6 @@
- #ifndef LINUX_BCM47XX_WDT_H_
- #define LINUX_BCM47XX_WDT_H_
  
--#include <linux/notifier.h>
- #include <linux/timer.h>
- #include <linux/types.h>
- #include <linux/watchdog.h>
-@@ -15,7 +14,6 @@ struct bcm47xx_wdt {
- 	void *driver_data;
- 
- 	struct watchdog_device wdd;
--	struct notifier_block notifier;
- 
- 	struct timer_list soft_timer;
- 	atomic_t soft_ticks;
+ module_init(watchdog_init);
 -- 
 2.5.0
