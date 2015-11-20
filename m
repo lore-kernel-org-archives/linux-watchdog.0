@@ -1,9 +1,8 @@
 Return-path: <al.stone@linaro.org>
-From: Al Stone <al.stone@linaro.org>
 Subject: Re: [Linaro-acpi] [PATCH v8 5/5] Watchdog: introduce ARM SBSA
  watchdog driver
-To: Timur Tabi <timur@codeaurora.org>, Guenter Roeck <linux@roeck-us.net>,
- Fu Wei <fu.wei@linaro.org>
+To: Guenter Roeck <linux@roeck-us.net>, Fu Wei <fu.wei@linaro.org>,
+ Timur Tabi <timur@codeaurora.org>
 References: <1445961999-9506-1-git-send-email-fu.wei@linaro.org>
  <1445961999-9506-6-git-send-email-fu.wei@linaro.org>
  <CAOZdJXV8x8EMQEZhdFS+34iO+6P9S==k9bQjt=67iXt6K2oSCw@mail.gmail.com>
@@ -14,7 +13,7 @@ References: <1445961999-9506-1-git-send-email-fu.wei@linaro.org>
  <563B6A4B.7090400@codeaurora.org>
  <CADyBb7t6ovfrz1b3ZZykKq22HkZi1W0PWg7-wXihEjM9ciTgGg@mail.gmail.com>
  <563B869F.2010004@roeck-us.net> <56452970.4070209@linaro.org>
- <56452D98.80704@codeaurora.org>
+ <56452E10.5060705@roeck-us.net>
 Cc: Pratyush Anand <panand@redhat.com>, devicetree@vger.kernel.org,
  linux-watchdog@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
  linux-doc@vger.kernel.org, Jon Masters <jcm@redhat.com>,
@@ -25,81 +24,163 @@ Cc: Pratyush Anand <panand@redhat.com>, devicetree@vger.kernel.org,
  Catalin Marinas <catalin.marinas@arm.com>, Wei Fu <tekkamanninja@gmail.com>,
  Jonathan Corbet <corbet@lwn.net>, Dave Young <dyoung@redhat.com>,
  Vipul Gandhi <vgandhi@codeaurora.org>
-Message-ID: <564E602B.6060606@linaro.org>
-Date: Thu, 19 Nov 2015 16:50:03 -0700
+From: Al Stone <al.stone@linaro.org>
+Message-ID: <564E654B.2060000@linaro.org>
+Date: Thu, 19 Nov 2015 17:11:55 -0700
 MIME-Version: 1.0
-In-Reply-To: <56452D98.80704@codeaurora.org>
+In-Reply-To: <56452E10.5060705@roeck-us.net>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Sorry for the delayed response...I've got some difficult family things to work
-on IRL that are taking priority...
+On 11/12/2015 05:25 PM, Guenter Roeck wrote:
+> On 11/12/2015 04:06 PM, Al Stone wrote:
+>> On 11/05/2015 09:41 AM, Guenter Roeck wrote:
+>>> On 11/05/2015 07:00 AM, Fu Wei wrote:
+>>>> Hi Timur,
+>>>>
+>>>> On 5 November 2015 at 22:40, Timur Tabi <timur@codeaurora.org> wrote:
+>>>>> Fu Wei wrote:
+>>>>>>
+>>>>>> Did you really read the "Note" above???????? OK, let me paste it again
+>>>>>> and again:
+>>>>>>
+>>>>>> SBSA 2.3 Page 23 :
+>>>>>> If a larger watch period is required then the compare value can be
+>>>>>> programmed directly into the compare value register.
+>>>>>
+>>>>>
+>>>>> Well, okay.  Sorry, I should have read what you pasted more closely. But I
+>>>>
+>>>> Thanks for reading it again.
+>>>>
+>>>>> think that means during initialization, not during the WS0 timeout.
+>>>>
+>>>> I really don't see SBSA say "during initialization, not during the WS0
+>>>> timeout",
+>>>> please point it out the page number and the line number in SBSA spec.
+>>>> maybe I miss it?
+>>>> Thanks for your help in advance.
+>>>>
+>>>>>
+>>>>> Anyway, I still don't like the fact that you're programming WCV in the
+>>>>
+>>>> "you don't like" doesn't mean "it is wrong" or "we can't do this", so
+>>>> I will keep this way unless we have better idea to extend second stage
+>>>> timeout.
+>>>>
+>>>>> interrupt handler, but I'm not going to make a big deal about it any more.
+>>>>
+>>>> Deal, Thanks a lot.
+>>>>
+>>>
+>>> The problem with your driver, as I see it, is that dealing with WS0/WS1
+>>> and pretimeout makes the driver so complex that, at least for my part,
+>>> I am very wary about it. The driver could long since have been accepted
+>>> if it were not for that. Besides that, I really believe that any system designer
+>>> using the highest permitted frequency should be willing to live with the
+>>> consequences, and not force the implementation of a a complex driver.
+>>>
+>>> Ultimately, you'll have to decide if you want a simple driver accepted, or
+>>> a complex driver hanging in the review queue forever.
+>>>
+>>> Thanks,
+>>> Guenter
+>>
+>> Sorry to poke my head in late like this, but I do have a vested interest in the
+>> outcome so I'm very curious.  For my work, I need to have an ACPI-supported,
+>> SBSA-compliant watchdog timer for arm64, and this series is one of the key
+>> pieces to getting there.  The plan for me has been: (1) get an FDT based SBSA
+>> watchdog timer, (2) add in kernel code to handle the ACPI GTDT table describing
+>> timers, then (3) munge the SBSA watchdog timer for use by ACPI.
+>>
+>> So, is this an actual NAK of the patch series as is?  I think it is, but I want
+>> it to be clear, and it has not been explicit yet.
+>>
+> I am not the maintainer, so I don't make the call. All I am saying is that I don't
+> feel comfortable with the code as is. Part of it is due to the the specification's
+> complexity, which leaves space for (mis)interpretations and bad implementations.
+> 
+> Either case, this is just my personal opinion. All you'll have to do is to convince
+> Wim to accept your patch.
 
-On 11/12/2015 05:23 PM, Timur Tabi wrote:
-> On 11/12/2015 06:06 PM, Al Stone wrote:
+Ah, okay.  I was a little confused then about who was maintainer.  Sorry about
+that.
+
 >> If it is a NAK, that's fine, but I also want to be sure I understand what the
 >> objections are.  Based on my understanding of the discussion so far over the
 >> multiple versions, I think the primary objection is that the use of pretimeout
 >> makes this driver too complex, and indeed complex enough that there is some
 >> concern that it could destabilize a running system.  Do I have that right?
+>>
+>> The other possible item I could conclude out of the discussion is that we do
+>> not want to have the pretimeout code as part of the watchdog framework; is that
+>> also the case or did I misunderstand?
+>>
+> Nothing really to do with pretimeout, but with the complexity of implementing it
+> for this driver.
 > 
-> I don't have a problem with the concept of pre-timeout per se.  My primary
-> objection is this code:
-> 
->> +static irqreturn_t sbsa_gwdt_interrupt(int irq, void *dev_id)
->> +{
->> +       struct sbsa_gwdt *gwdt = (struct sbsa_gwdt *)dev_id;
->> +       struct watchdog_device *wdd = &gwdt->wdd;
->> +
->> +       /* We don't use pretimeout, trigger WS1 now */
->> +       if (!wdd->pretimeout)
->> +               sbsa_gwdt_set_wcv(wdd, 0);
-> 
-> This driver depends on an interrupt handler in order to properly program the
-> hardware.  Unlike some other devices, the SBSA watchdog does not need assistance
-> to reset on a timeout -- it is a "fire and forget" device.  What happens if
-> there is a hard lockup, and interrupts no longer work?
+> As for pretimeout, it does have its issues. Some people say that hitting
+> a pretimeout should result in a panic, others just as strongly say that it
+> should just dump a message to the console. Which does make me a bit wary, since
+> it means that it may be implemented differently in different drivers, which
+> I consider highly undesirable.
 
-Aha.  I see now.  That helps clarify a lot.  Thanks.
-
-> The reason why Fu does this is because he wants to support a pre-timeout value
-> that's independent of the timeout value.  The SBSA watchdog is normally
-> programmed where real timeout equals twice the pre-timeout.  I would prefer that
-> the driver adhere to this limitation.  That would eliminate the need to
-> pre-program the hardware in the interrupt handler.
-
-The "normally programmed" limitation described is interesting; forgive my
-ignorance, but where is that specified?  I couldn't find anything that specific
-in the SBSA, or the ARM ARM, but I could have missed it.  That being said,
-keeping them independent at least seems like a good idea; if I think about
-kdump/kexec or some other recovery mechanism wanting to perhaps copy part of
-RAM or flush a filesystem/database, or maybe do some other magic to recover
-enough to be able to reset the timer, that may be a really long interval on a
-large server.  I could easily see that being very different from a watchdog
-timer that's meant to just make sure the platform is still making progress.
-Conversely, I could see that recovery interval being very small or zero on
-a guest OS, for example, and the watchdog still different.
+Right.  Based on Timur's input, I think I understand this much better now.  I'm
+not 100% convinced I know how to fix it, but I'll try some things on hardware to
+test out some ideas.
 
 >> And finally, a simpler, single stage timeout watchdog driver would be a
 >> reasonable thing to accept, yes?  I can see where that would make sense.
-> 
-> I would be okay with merging such a driver, and then enhancing it later to add
-> pre-timeout support.
+>>
+> I am quite sure that such a driver would long since have been accepted.
 > 
 >> The issue for me in that case is that the SBSA requires a two stage timeout,
->> so a single stage driver has no real value for me.
 > 
-> There are plenty of existing watchdog devices that have a two-stage timeout but
-> the driver treats it as a single stage.  The PowerPC watchdog driver is like
-> that.  The hardware is programmed for the second stage to cause a hardware
-> reset, and the interrupt handler is typically a no-op or just a printk().
+> Hmm - really ? This makes me want to step back a bit and re-read the specification
+> to understand where it says that, and what the reasoning might be for such a
+> requirement.
+
+As far as I can tell, that's what the SBSA is requiring.  My understanding is
+that the hardware is to first assert a WS0 signal when the timer expires.  If
+the timer expires and WS0 has already been asserted, the WS1 signal is to be
+asserted.  When WS1 is asserted, the system is to do a hard reset (Section 5.2,
+"Server Base System Architecture", ARM-DEN-0029 Version 2.3).  I'm interpreting
+the occurrence of WS0 as the first stage and WS1 as the second.
+
+To me, at least, this makes sense in a server environment.  The WS0 occurs,
+which gives me some time to save key info or try to recover before WS1 occurs
+(or kexec, or any other cleverness).
+
+>> so a single stage driver has no real value for me.  Now, if I can later add in
+>> changes to make the driver into a two stage driver so it is SBSA-compliant,
+>> that would also work, but it will make the driver more complex again.  At that
+>> point, I think I've now gone in a logical circle and the changes would not be
+>> accepted so I could never get to my goal of an SBSA-compliant driver.  I don't
+>> think that's what was meant, so what did I miss?
+>>
+>> Thanks in advance for any clarifications that can be provided.....I really do
+>> appreciate it.  Email is not always the clearest mechanism for communication
+>> so sometimes I have to ask odd questions like these so I can understand what
+>> is happening.
+>>
+> 
+> I don't really follow the logic here. Why ask if a single stage driver would
+> have been accepted just to point out that it would have no value for you ?
+
+Sorry, I was not being very clear.  I was just trying to figure out if there
+was a risk of inadvertently painting myself into a corner with an incremental
+approach to developing the functionality needed, versus doing it as a single
+increment.
+
+> Really, just convince Wim to accept the driver.
+
+Nod.  Thanks.
+
+> Thanks,
+> Guenter
 > 
 
-Hrm.  Thanks for the pointer.  I _think_ I see a way to do that with arm64, and
-perhaps combine this driver's functionality with what Timur did originally, but
-still have it reasonably straightforward.  I need to do the experiments, though,
-and see if it actually works first.
 
 -- 
 ciao,
