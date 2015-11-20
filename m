@@ -1,19 +1,8 @@
-Return-path: <al.stone@linaro.org>
+Return-path: <timur@codeaurora.org>
 Subject: Re: [Linaro-acpi] [PATCH v8 5/5] Watchdog: introduce ARM SBSA
  watchdog driver
-To: Guenter Roeck <linux@roeck-us.net>, Fu Wei <fu.wei@linaro.org>,
- Timur Tabi <timur@codeaurora.org>
-References: <1445961999-9506-1-git-send-email-fu.wei@linaro.org>
- <1445961999-9506-6-git-send-email-fu.wei@linaro.org>
- <CAOZdJXV8x8EMQEZhdFS+34iO+6P9S==k9bQjt=67iXt6K2oSCw@mail.gmail.com>
- <563AE588.1080009@roeck-us.net> <563B5DF9.6080102@codeaurora.org>
- <CADyBb7sD2Y2kGj-suOs1UeUwXPjH39mvX_Sobn0Y7WfsJ9hF=Q@mail.gmail.com>
- <563B62F7.3050307@codeaurora.org>
- <CADyBb7vDf+KRi8gUGEt+iu-GpqVQgVq7nKTVt7O=3x78KCi+RQ@mail.gmail.com>
- <563B6A4B.7090400@codeaurora.org>
- <CADyBb7t6ovfrz1b3ZZykKq22HkZi1W0PWg7-wXihEjM9ciTgGg@mail.gmail.com>
- <563B869F.2010004@roeck-us.net> <56452970.4070209@linaro.org>
- <56452E10.5060705@roeck-us.net>
+To: Al Stone <al.stone@linaro.org>, Guenter Roeck <linux@roeck-us.net>,
+ Fu Wei <fu.wei@linaro.org>
 Cc: Pratyush Anand <panand@redhat.com>, devicetree@vger.kernel.org,
  linux-watchdog@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
  linux-doc@vger.kernel.org, Jon Masters <jcm@redhat.com>,
@@ -24,170 +13,77 @@ Cc: Pratyush Anand <panand@redhat.com>, devicetree@vger.kernel.org,
  Catalin Marinas <catalin.marinas@arm.com>, Wei Fu <tekkamanninja@gmail.com>,
  Jonathan Corbet <corbet@lwn.net>, Dave Young <dyoung@redhat.com>,
  Vipul Gandhi <vgandhi@codeaurora.org>
-From: Al Stone <al.stone@linaro.org>
-Message-ID: <564E654B.2060000@linaro.org>
-Date: Thu, 19 Nov 2015 17:11:55 -0700
+References: <1445961999-9506-1-git-send-email-fu.wei@linaro.org>
+ <1445961999-9506-6-git-send-email-fu.wei@linaro.org>
+ <CAOZdJXV8x8EMQEZhdFS+34iO+6P9S==k9bQjt=67iXt6K2oSCw@mail.gmail.com>
+ <563AE588.1080009@roeck-us.net> <563B5DF9.6080102@codeaurora.org>
+ <CADyBb7sD2Y2kGj-suOs1UeUwXPjH39mvX_Sobn0Y7WfsJ9hF=Q@mail.gmail.com>
+ <563B62F7.3050307@codeaurora.org>
+ <CADyBb7vDf+KRi8gUGEt+iu-GpqVQgVq7nKTVt7O=3x78KCi+RQ@mail.gmail.com>
+ <563B6A4B.7090400@codeaurora.org>
+ <CADyBb7t6ovfrz1b3ZZykKq22HkZi1W0PWg7-wXihEjM9ciTgGg@mail.gmail.com>
+ <563B869F.2010004@roeck-us.net> <56452970.4070209@linaro.org>
+ <56452E10.5060705@roeck-us.net> <564E654B.2060000@linaro.org>
+From: Timur Tabi <timur@codeaurora.org>
+Message-ID: <564E68C4.3070709@codeaurora.org>
+Date: Thu, 19 Nov 2015 18:26:44 -0600
 MIME-Version: 1.0
-In-Reply-To: <56452E10.5060705@roeck-us.net>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <564E654B.2060000@linaro.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On 11/12/2015 05:25 PM, Guenter Roeck wrote:
-> On 11/12/2015 04:06 PM, Al Stone wrote:
->> On 11/05/2015 09:41 AM, Guenter Roeck wrote:
->>> On 11/05/2015 07:00 AM, Fu Wei wrote:
->>>> Hi Timur,
->>>>
->>>> On 5 November 2015 at 22:40, Timur Tabi <timur@codeaurora.org> wrote:
->>>>> Fu Wei wrote:
->>>>>>
->>>>>> Did you really read the "Note" above???????? OK, let me paste it again
->>>>>> and again:
->>>>>>
->>>>>> SBSA 2.3 Page 23 :
->>>>>> If a larger watch period is required then the compare value can be
->>>>>> programmed directly into the compare value register.
->>>>>
->>>>>
->>>>> Well, okay.  Sorry, I should have read what you pasted more closely. But I
->>>>
->>>> Thanks for reading it again.
->>>>
->>>>> think that means during initialization, not during the WS0 timeout.
->>>>
->>>> I really don't see SBSA say "during initialization, not during the WS0
->>>> timeout",
->>>> please point it out the page number and the line number in SBSA spec.
->>>> maybe I miss it?
->>>> Thanks for your help in advance.
->>>>
->>>>>
->>>>> Anyway, I still don't like the fact that you're programming WCV in the
->>>>
->>>> "you don't like" doesn't mean "it is wrong" or "we can't do this", so
->>>> I will keep this way unless we have better idea to extend second stage
->>>> timeout.
->>>>
->>>>> interrupt handler, but I'm not going to make a big deal about it any more.
->>>>
->>>> Deal, Thanks a lot.
->>>>
->>>
->>> The problem with your driver, as I see it, is that dealing with WS0/WS1
->>> and pretimeout makes the driver so complex that, at least for my part,
->>> I am very wary about it. The driver could long since have been accepted
->>> if it were not for that. Besides that, I really believe that any system designer
->>> using the highest permitted frequency should be willing to live with the
->>> consequences, and not force the implementation of a a complex driver.
->>>
->>> Ultimately, you'll have to decide if you want a simple driver accepted, or
->>> a complex driver hanging in the review queue forever.
->>>
->>> Thanks,
->>> Guenter
->>
->> Sorry to poke my head in late like this, but I do have a vested interest in the
->> outcome so I'm very curious.  For my work, I need to have an ACPI-supported,
->> SBSA-compliant watchdog timer for arm64, and this series is one of the key
->> pieces to getting there.  The plan for me has been: (1) get an FDT based SBSA
->> watchdog timer, (2) add in kernel code to handle the ACPI GTDT table describing
->> timers, then (3) munge the SBSA watchdog timer for use by ACPI.
->>
->> So, is this an actual NAK of the patch series as is?  I think it is, but I want
->> it to be clear, and it has not been explicit yet.
->>
-> I am not the maintainer, so I don't make the call. All I am saying is that I don't
-> feel comfortable with the code as is. Part of it is due to the the specification's
-> complexity, which leaves space for (mis)interpretations and bad implementations.
-> 
-> Either case, this is just my personal opinion. All you'll have to do is to convince
-> Wim to accept your patch.
+Al Stone wrote:
+>>> The issue for me in that case is that the SBSA requires a two stage timeout,
+>> >
+>> >Hmm - really ? This makes me want to step back a bit and re-read the specification
+>> >to understand where it says that, and what the reasoning might be for such a
+>> >requirement.
+> As far as I can tell, that's what the SBSA is requiring.  My understanding is
+> that the hardware is to first assert a WS0 signal when the timer expires.  If
+> the timer expires and WS0 has already been asserted, the WS1 signal is to be
+> asserted.  When WS1 is asserted, the system is to do a hard reset (Section 5.2,
+> "Server Base System Architecture", ARM-DEN-0029 Version 2.3).  I'm interpreting
+> the occurrence of WS0 as the first stage and WS1 as the second.
+>
+> To me, at least, this makes sense in a server environment.  The WS0 occurs,
+> which gives me some time to save key info or try to recover before WS1 occurs
+> (or kexec, or any other cleverness).
 
-Ah, okay.  I was a little confused then about who was maintainer.  Sorry about
-that.
+I'm having some problem with the word "requires".
 
->> If it is a NAK, that's fine, but I also want to be sure I understand what the
->> objections are.  Based on my understanding of the discussion so far over the
->> multiple versions, I think the primary objection is that the use of pretimeout
->> makes this driver too complex, and indeed complex enough that there is some
->> concern that it could destabilize a running system.  Do I have that right?
->>
->> The other possible item I could conclude out of the discussion is that we do
->> not want to have the pretimeout code as part of the watchdog framework; is that
->> also the case or did I misunderstand?
->>
-> Nothing really to do with pretimeout, but with the complexity of implementing it
-> for this driver.
-> 
-> As for pretimeout, it does have its issues. Some people say that hitting
-> a pretimeout should result in a panic, others just as strongly say that it
-> should just dump a message to the console. Which does make me a bit wary, since
-> it means that it may be implemented differently in different drivers, which
-> I consider highly undesirable.
+I think it applies only to the hardware.  That is, there must be a WS0 
+timeout/event, and then after that there must be a WS1 timeout/event.
 
-Right.  Based on Timur's input, I think I understand this much better now.  I'm
-not 100% convinced I know how to fix it, but I'll try some things on hardware to
-test out some ideas.
+I don't think there is any "requirement" for software to do anything 
+with WS0.  That's why I don't think pre-timeout is necessary for the 
+driver to be SBSA-compliant.  All of the drivers for existing two-stage 
+watchdog devices treat the device as a one-stage device, because the 
+watchdog API does not support pre-timeout.  Are all of them also 
+"broken"?  No.  So it would not be broken for an SBSA watchdog driver to 
+ignore WS0.
 
->> And finally, a simpler, single stage timeout watchdog driver would be a
->> reasonable thing to accept, yes?  I can see where that would make sense.
->>
-> I am quite sure that such a driver would long since have been accepted.
-> 
->> The issue for me in that case is that the SBSA requires a two stage timeout,
-> 
-> Hmm - really ? This makes me want to step back a bit and re-read the specification
-> to understand where it says that, and what the reasoning might be for such a
-> requirement.
+I would have no problem with the following sequence of events:
 
-As far as I can tell, that's what the SBSA is requiring.  My understanding is
-that the hardware is to first assert a WS0 signal when the timer expires.  If
-the timer expires and WS0 has already been asserted, the WS1 signal is to be
-asserted.  When WS1 is asserted, the system is to do a hard reset (Section 5.2,
-"Server Base System Architecture", ARM-DEN-0029 Version 2.3).  I'm interpreting
-the occurrence of WS0 as the first stage and WS1 as the second.
+1) We merge in a driver that treats the SBSA watchdog as a single-stage 
+watchdog that does a hard reset at WS1 and ignores WS0.  My driver, with 
+a few changes, would qualify.
 
-To me, at least, this makes sense in a server environment.  The WS0 occurs,
-which gives me some time to save key info or try to recover before WS1 occurs
-(or kexec, or any other cleverness).
+2) We add support for pre-timeout to the Watchdog interface.  Fu can 
+take all the time in the world (as far as I'm concerned) getting this 
+perfected.  My only request is that the new pre-timeout API supports 
+hardware where the timeout between stages must be equal.  That is, if 
+timeout to stage 1 (call it T1) is X seconds, then the timeout to stage 
+2 (call it T2) is another X seconds.  T2 = T1.  Of course, the API 
+should also support hardware where T2 != T1.
 
->> so a single stage driver has no real value for me.  Now, if I can later add in
->> changes to make the driver into a two stage driver so it is SBSA-compliant,
->> that would also work, but it will make the driver more complex again.  At that
->> point, I think I've now gone in a logical circle and the changes would not be
->> accepted so I could never get to my goal of an SBSA-compliant driver.  I don't
->> think that's what was meant, so what did I miss?
->>
->> Thanks in advance for any clarifications that can be provided.....I really do
->> appreciate it.  Email is not always the clearest mechanism for communication
->> so sometimes I have to ask odd questions like these so I can understand what
->> is happening.
->>
-> 
-> I don't really follow the logic here. Why ask if a single stage driver would
-> have been accepted just to point out that it would have no value for you ?
+3) The existing SBSA watchdog driver is updated to support the new 
+pre-timeout API.  It would enforce the requirement that T2 = T1.
 
-Sorry, I was not being very clear.  I was just trying to figure out if there
-was a risk of inadvertently painting myself into a corner with an incremental
-approach to developing the functionality needed, versus doing it as a single
-increment.
-
-> Really, just convince Wim to accept the driver.
-
-Nod.  Thanks.
-
-> Thanks,
-> Guenter
-> 
-
+This approach will allow us to get a working SBSA watchdog driver into 
+4.5 without much fuss.
 
 -- 
-ciao,
-al
------------------------------------
-Al Stone
-Software Engineer
-Linaro Enterprise Group
-al.stone@linaro.org
------------------------------------
+Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the
+Code Aurora Forum, a Linux Foundation Collaborative Project.
