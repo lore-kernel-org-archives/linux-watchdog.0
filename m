@@ -1,115 +1,201 @@
-Return-path: <damien.riegel@savoirfairelinux.com>
-From: Damien Riegel <damien.riegel@savoirfairelinux.com>
-To: linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
-	kernel@savoirfairelinux.com,
-	Damien Riegel <damien.riegel@savoirfairelinux.com>
-Subject: [PATCH 3/7] watchdog: cadence_wdt: use core reboot notifier
-Date: Wed, 18 Nov 2015 16:02:18 -0500
-Message-Id: <1447880542-19320-4-git-send-email-damien.riegel@savoirfairelinux.com>
-In-Reply-To: <1447880542-19320-1-git-send-email-damien.riegel@savoirfairelinux.com>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:57706 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751664AbbKTDSh (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Thu, 19 Nov 2015 22:18:37 -0500
+Subject: Re: [PATCH 1/7] watchdog: core: add reboot notifier support
+To: Damien Riegel <damien.riegel@savoirfairelinux.com>,
+	linux-watchdog@vger.kernel.org
 References: <1447880542-19320-1-git-send-email-damien.riegel@savoirfairelinux.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+ <1447880542-19320-2-git-send-email-damien.riegel@savoirfairelinux.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
+	kernel@savoirfairelinux.com
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <564E9107.2010403@roeck-us.net>
+Date: Thu, 19 Nov 2015 19:18:31 -0800
+MIME-Version: 1.0
+In-Reply-To: <1447880542-19320-2-git-send-email-damien.riegel@savoirfairelinux.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-Get rid of the custom reboot notifier block registration and use the one
-provided by the watchdog core.
+On 11/18/2015 01:02 PM, Damien Riegel wrote:
+> Many watchdog drivers register a reboot notifier in order to stop the
+> watchdog on system reboot. Thus we can factorize this code in the
+> watchdog core.
+>
+> For that purpose, a new notifier block is added in watchdog_device for
+> internal use only, as well as a new watchdog_stop_on_reboot helper
+> function.
+>
+> If this helper is called, watchdog core registers the related notifier
+> block and will stop the watchdog when SYS_HALT or SYS_DOWN is received.
+>
+> Since this operation can be critical on some platforms, abort the device
+> registration if the reboot notifier registration fails.
+>
 
-Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
-Reviewed-by: Vivien Didelot <vivien.didelot@savoirlinux.com>
----
- drivers/watchdog/cadence_wdt.c | 36 +-----------------------------------
- 1 file changed, 1 insertion(+), 35 deletions(-)
+Hi Damien,
 
-diff --git a/drivers/watchdog/cadence_wdt.c b/drivers/watchdog/cadence_wdt.c
-index bcfd2a2..abf64eb 100644
---- a/drivers/watchdog/cadence_wdt.c
-+++ b/drivers/watchdog/cadence_wdt.c
-@@ -18,7 +18,6 @@
- #include <linux/module.h>
- #include <linux/of.h>
- #include <linux/platform_device.h>
--#include <linux/reboot.h>
- #include <linux/watchdog.h>
- 
- #define CDNS_WDT_DEFAULT_TIMEOUT	10
-@@ -72,7 +71,6 @@ MODULE_PARM_DESC(nowayout,
-  * @ctrl_clksel: counter clock prescaler selection
-  * @io_lock: spinlock for IO register access
-  * @cdns_wdt_device: watchdog device structure
-- * @cdns_wdt_notifier: notifier structure
-  *
-  * Structure containing parameters specific to cadence watchdog.
-  */
-@@ -84,7 +82,6 @@ struct cdns_wdt {
- 	u32			ctrl_clksel;
- 	spinlock_t		io_lock;
- 	struct watchdog_device	cdns_wdt_device;
--	struct notifier_block	cdns_wdt_notifier;
- };
- 
- /* Write access to Registers */
-@@ -280,29 +277,6 @@ static struct watchdog_ops cdns_wdt_ops = {
- 	.set_timeout = cdns_wdt_settimeout,
- };
- 
--/**
-- * cdns_wdt_notify_sys - Notifier for reboot or shutdown.
-- *
-- * @this: handle to notifier block
-- * @code: turn off indicator
-- * @unused: unused
-- * Return: NOTIFY_DONE
-- *
-- * This notifier is invoked whenever the system reboot or shutdown occur
-- * because we need to disable the WDT before system goes down as WDT might
-- * reset on the next boot.
-- */
--static int cdns_wdt_notify_sys(struct notifier_block *this, unsigned long code,
--			       void *unused)
--{
--	struct cdns_wdt *wdt = container_of(this, struct cdns_wdt,
--					    cdns_wdt_notifier);
--	if (code == SYS_DOWN || code == SYS_HALT)
--		cdns_wdt_stop(&wdt->cdns_wdt_device);
--
--	return NOTIFY_DONE;
--}
--
- /************************Platform Operations*****************************/
- /**
-  * cdns_wdt_probe - Probe call for the device.
-@@ -360,6 +334,7 @@ static int cdns_wdt_probe(struct platform_device *pdev)
- 	}
- 
- 	watchdog_set_nowayout(cdns_wdt_device, nowayout);
-+	watchdog_stop_on_reboot(cdns_wdt_device);
- 	watchdog_set_drvdata(cdns_wdt_device, wdt);
- 
- 	wdt->clk = devm_clk_get(&pdev->dev, NULL);
-@@ -386,14 +361,6 @@ static int cdns_wdt_probe(struct platform_device *pdev)
- 
- 	spin_lock_init(&wdt->io_lock);
- 
--	wdt->cdns_wdt_notifier.notifier_call = &cdns_wdt_notify_sys;
--	ret = register_reboot_notifier(&wdt->cdns_wdt_notifier);
--	if (ret != 0) {
--		dev_err(&pdev->dev, "cannot register reboot notifier err=%d)\n",
--			ret);
--		goto err_clk_disable;
--	}
--
- 	ret = watchdog_register_device(cdns_wdt_device);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to register wdt device\n");
-@@ -427,7 +394,6 @@ static int cdns_wdt_remove(struct platform_device *pdev)
- 
- 	cdns_wdt_stop(&wdt->cdns_wdt_device);
- 	watchdog_unregister_device(&wdt->cdns_wdt_device);
--	unregister_reboot_notifier(&wdt->cdns_wdt_notifier);
- 	clk_disable_unprepare(wdt->clk);
- 
- 	return 0;
--- 
-2.5.0
+Good idea. Couple of comments below.
+
+Thanks,
+Guenter
+
+> Suggested-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
+> Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
+> Reviewed-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
+> ---
+>   Documentation/watchdog/watchdog-kernel-api.txt |  8 ++++++
+>   drivers/watchdog/watchdog_core.c               | 35 ++++++++++++++++++++++++++
+>   include/linux/watchdog.h                       |  9 +++++++
+>   3 files changed, 52 insertions(+)
+>
+> diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
+> index dbc6a65..0a37da7 100644
+> --- a/Documentation/watchdog/watchdog-kernel-api.txt
+> +++ b/Documentation/watchdog/watchdog-kernel-api.txt
+> @@ -53,6 +53,7 @@ struct watchdog_device {
+>   	unsigned int timeout;
+>   	unsigned int min_timeout;
+>   	unsigned int max_timeout;
+> +	struct notifier_block reboot_nb;
+>   	struct notifier_block restart_nb;
+>   	void *driver_data;
+>   	struct mutex lock;
+> @@ -76,6 +77,9 @@ It contains following fields:
+>   * timeout: the watchdog timer's timeout value (in seconds).
+>   * min_timeout: the watchdog timer's minimum timeout value (in seconds).
+>   * max_timeout: the watchdog timer's maximum timeout value (in seconds).
+> +* reboot_nb: notifier block that is registered for reboot notifications, for
+> +  internal use only. If the driver calls watchdog_stop_on_reboot, watchdog core
+> +  will stop the watchdog on such notifications.
+>   * restart_nb: notifier block that is registered for machine restart, for
+>     internal use only. If a watchdog is capable of restarting the machine, it
+>     should define ops->restart. Priority can be changed through
+> @@ -240,6 +244,10 @@ to set the default timeout value as timeout value in the watchdog_device and
+>   then use this function to set the user "preferred" timeout value.
+>   This routine returns zero on success and a negative errno code for failure.
+>
+> +To disable the watchdog on reboot, the user must call the following helper:
+> +
+> +static inline void watchdog_stop_on_reboot(struct watchdog_device *wdd);
+> +
+>   To change the priority of the restart handler the following helper should be
+>   used:
+>
+> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+> index 28dc901..2d49f8d 100644
+> --- a/drivers/watchdog/watchdog_core.c
+> +++ b/drivers/watchdog/watchdog_core.c
+> @@ -138,6 +138,23 @@ int watchdog_init_timeout(struct watchdog_device *wdd,
+>   }
+>   EXPORT_SYMBOL_GPL(watchdog_init_timeout);
+>
+> +static int watchdog_reboot_notifier(struct notifier_block *nb,
+> +				    unsigned long code, void *data)
+> +{
+> +	struct watchdog_device *wdd = container_of(nb, struct watchdog_device,
+> +						   reboot_nb);
+> +
+> +	if (code == SYS_DOWN || code == SYS_HALT) {
+> +		int ret;
+> +
+> +		ret = wdd->ops->stop(wdd);
+
+Nitpick, maybe, but only stop if running ?
+Maybe that isn't a problem, but I am a bit concerned about side
+effects of trying to stop a watchdog which isn't running.
+
+> +		if (ret)
+> +			return NOTIFY_BAD;
+> +	}
+> +
+> +	return NOTIFY_DONE;
+> +}
+> +
+>   static int watchdog_restart_notifier(struct notifier_block *nb,
+>   				     unsigned long action, void *data)
+>   {
+> @@ -238,6 +255,21 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
+>   		return ret;
+>   	}
+>
+> +	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status)) {
+> +		wdd->reboot_nb.notifier_call = watchdog_reboot_notifier;
+> +
+> +		ret = register_reboot_notifier(&wdd->reboot_nb);
+> +		if (ret) {
+> +			dev_err(wdd->dev, "Cannot register reboot notifier (%d)\n",
+> +				ret);
+> +			watchdog_dev_unregister(wdd);
+> +			device_destroy(watchdog_class, devno);
+> +			ida_simple_remove(&watchdog_ida, wdd->id);
+> +			wdd->dev = NULL;
+> +			return ret;
+
+At some point this really asks for a proper error handler in this function.
+Separate patch, though.
+
+> +		}
+> +	}
+> +
+>   	if (wdd->ops->restart) {
+>   		wdd->restart_nb.notifier_call = watchdog_restart_notifier;
+>
+> @@ -286,6 +318,9 @@ static void __watchdog_unregister_device(struct watchdog_device *wdd)
+>   	if (wdd->ops->restart)
+>   		unregister_restart_handler(&wdd->restart_nb);
+>
+> +	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status))
+> +		unregister_reboot_notifier(&wdd->reboot_nb);
+> +
+>   	devno = wdd->cdev.dev;
+>   	ret = watchdog_dev_unregister(wdd);
+>   	if (ret)
+> diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
+> index 5b52c83..a88f955 100644
+> --- a/include/linux/watchdog.h
+> +++ b/include/linux/watchdog.h
+> @@ -65,6 +65,7 @@ struct watchdog_ops {
+>    * @timeout:	The watchdog devices timeout value (in seconds).
+>    * @min_timeout:The watchdog devices minimum timeout value (in seconds).
+>    * @max_timeout:The watchdog devices maximum timeout value (in seconds).
+> + * @reboot_nb:	The notifier block to stop watchdog on reboot.
+>    * @restart_nb:	The notifier block to register a restart function.
+>    * @driver-data:Pointer to the drivers private data.
+>    * @lock:	Lock for watchdog core internal use only.
+> @@ -92,6 +93,7 @@ struct watchdog_device {
+>   	unsigned int timeout;
+>   	unsigned int min_timeout;
+>   	unsigned int max_timeout;
+> +	struct notifier_block reboot_nb;
+>   	struct notifier_block restart_nb;
+>   	void *driver_data;
+>   	struct mutex lock;
+> @@ -102,6 +104,7 @@ struct watchdog_device {
+>   #define WDOG_ALLOW_RELEASE	2	/* Did we receive the magic char ? */
+>   #define WDOG_NO_WAY_OUT		3	/* Is 'nowayout' feature set ? */
+>   #define WDOG_UNREGISTERED	4	/* Has the device been unregistered */
+> +#define WDOG_STOP_ON_REBOOT	5	/* Should be stopped on reboot */
+>   	struct list_head deferred;
+>   };
+>
+> @@ -121,6 +124,12 @@ static inline void watchdog_set_nowayout(struct watchdog_device *wdd, bool noway
+>   		set_bit(WDOG_NO_WAY_OUT, &wdd->status);
+>   }
+>
+> +/* Use the following function to stop the watchdog on reboot */
+> +static inline void watchdog_stop_on_reboot(struct watchdog_device *wdd)
+> +{
+> +	set_bit(WDOG_STOP_ON_REBOOT, &wdd->status);
+> +}
+> +
+>   /* Use the following function to check if a timeout value is invalid */
+>   static inline bool watchdog_timeout_invalid(struct watchdog_device *wdd, unsigned int t)
+>   {
+>
+
