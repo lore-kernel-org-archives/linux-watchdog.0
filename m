@@ -1,268 +1,71 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:53988 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030194AbbKSTLg (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 19 Nov 2015 14:11:36 -0500
-Date: Thu, 19 Nov 2015 11:11:32 -0800
-From: Guenter Roeck <linux@roeck-us.net>
-To: Mans Rullgard <mans@mansr.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v3] watchdog: add support for Sigma Designs
- SMP86xx/SMP87xx
-Message-ID: <20151119191132.GA4352@roeck-us.net>
-References: <1447955668-1769-1-git-send-email-mans@mansr.com>
+Received: from sauhun.de ([89.238.76.85]:59633 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1760262AbbKTO7Z (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Fri, 20 Nov 2015 09:59:25 -0500
+Date: Fri, 20 Nov 2015 15:59:13 +0100
+From: Wolfram Sang <wsa@the-dreams.de>
+To: Zhiqiang Hou <Zhiqiang.Hou@freescale.com>
+Cc: linux-arm-kernel@lists.infradead.org, catalin.marinas@arm.com,
+	will.deacon@arm.com, linux-i2c@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-clk@vger.kernel.org, mark.rutland@arm.com,
+	linux@roeck-us.net, wim@iguana.be, corbet@lwn.net,
+	mturquette@baylibre.com, sboyd@codeaurora.org,
+	Mingkai.Hu@freescale.com, Shaohui.Xie@freescale.com,
+	scottwood@freescale.com, bhupesh.sharma@freescale.com,
+	Wenbin.Song@freescale.com, B48286@freescale.com
+Subject: Re: [PATCHv8 1/5] i2c: imx: fix a compiling error
+Message-ID: <20151120145913.GB1752@katana>
+References: <1447754002-40555-1-git-send-email-Zhiqiang.Hou@freescale.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="IrhDeMKUP4DT/M7F"
 Content-Disposition: inline
-In-Reply-To: <1447955668-1769-1-git-send-email-mans@mansr.com>
+In-Reply-To: <1447754002-40555-1-git-send-email-Zhiqiang.Hou@freescale.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Mans,
 
-On Thu, Nov 19, 2015 at 05:54:27PM +0000, Mans Rullgard wrote:
-> This adds support for the Sigma Designs SMP86xx/SMP87xx family built-in
-> watchdog.
-> 
-> Signed-off-by: Mans Rullgard <mans@mansr.com>
-> ---
-> Changes:
-> - deactivate initially if disable bit is set so as to avoid accidentally
->   resetting if the counter is expired
-> ---
->  drivers/watchdog/Kconfig      |  10 ++
->  drivers/watchdog/Makefile     |   1 +
->  drivers/watchdog/tangox_wdt.c | 222 ++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 233 insertions(+)
->  create mode 100644 drivers/watchdog/tangox_wdt.c
-> 
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 7a8a6c6..f43ff7a 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -135,6 +135,16 @@ config MENF21BMC_WATCHDOG
->  	  This driver can also be built as a module. If so the module
->  	  will be called menf21bmc_wdt.
->  
-> +config TANGOX_WATCHDOG
-> +	tristate "Sigma Designs SMP86xx/SMP87xx watchdog"
-> +	select WATCHDOG_CORE
-> +	depends on ARCH_TANGOX || COMPILE_TEST
-> +	help
-> +	  Support for the watchdog in Sigma Designs SMP86xx (tango3)
-> +	  and SMP87xx (tango4) family chips.
-> +
-> +	  This driver can be built as a module. The module name is tangox_wdt.
-> +
->  config WM831X_WATCHDOG
->  	tristate "WM831x watchdog"
->  	depends on MFD_WM831X
-> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index 53d4827..46cb387 100644
-> --- a/drivers/watchdog/Makefile
-> +++ b/drivers/watchdog/Makefile
-> @@ -187,6 +187,7 @@ obj-$(CONFIG_DA9055_WATCHDOG) += da9055_wdt.o
->  obj-$(CONFIG_DA9062_WATCHDOG) += da9062_wdt.o
->  obj-$(CONFIG_DA9063_WATCHDOG) += da9063_wdt.o
->  obj-$(CONFIG_GPIO_WATCHDOG)	+= gpio_wdt.o
-> +obj-$(CONFIG_TANGOX_WATCHDOG) += tangox_wdt.o
->  obj-$(CONFIG_WM831X_WATCHDOG) += wm831x_wdt.o
->  obj-$(CONFIG_WM8350_WATCHDOG) += wm8350_wdt.o
->  obj-$(CONFIG_MAX63XX_WATCHDOG) += max63xx_wdt.o
-> diff --git a/drivers/watchdog/tangox_wdt.c b/drivers/watchdog/tangox_wdt.c
-> new file mode 100644
-> index 0000000..083d0f3
-> --- /dev/null
-> +++ b/drivers/watchdog/tangox_wdt.c
-> @@ -0,0 +1,222 @@
-> +/*
-> + *  Copyright (C) 2015 Mans Rullgard <mans@mansr.com>
-> + *  SMP86xx/SMP87xx Watchdog driver
-> + *
-> + *  This program is free software; you can redistribute it and/or modify it
-> + *  under  the terms of the GNU General  Public License as published by the
-> + *  Free Software Foundation;  either version 2 of the License, or (at your
-> + *  option) any later version.
-> + */
-> +
+--IrhDeMKUP4DT/M7F
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-#include <linux/bitops.h>
+On Tue, Nov 17, 2015 at 05:53:18PM +0800, Zhiqiang Hou wrote:
+> From: Hou Zhiqiang <Zhiqiang.Hou@freescale.com>
+>=20
+> drivers/i2c/busses/i2c-imx.c:978:2: error: implicit declaration of
+> function =E2=80=98pinctrl_select_state=E2=80=99 [-Werror=3Dimplicit-funct=
+ion-declaration]
+>   pinctrl_select_state(i2c_imx->pinctrl, i2c_imx->pinctrl_pins_gpio);
+>   ^
+>=20
+> Signed-off-by: Hou Zhiqiang <Zhiqiang.Hou@freescale.com>
 
-Did that get lost, or did you not add it on purpose ?
+Applied to for-current, thanks!
 
-Code should always include the header files it needs. You can not rely on other
-header files doing that for you. Those other header files may change.
 
-> +#include <linux/clk.h>
-> +#include <linux/delay.h>
-> +#include <linux/io.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/moduleparam.h>
-> +#include <linux/notifier.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/reboot.h>
-> +#include <linux/watchdog.h>
-> +
-> +#define DEFAULT_TIMEOUT 30
-> +
-> +static bool nowayout = WATCHDOG_NOWAYOUT;
-> +module_param(nowayout, bool, 0);
-> +MODULE_PARM_DESC(nowayout,
-> +		 "Watchdog cannot be stopped once started (default="
-> +		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-> +
-> +static unsigned int timeout;
-> +module_param(timeout, int, 0);
-> +MODULE_PARM_DESC(timeout, "Watchdog timeout");
-> +
-> +/*
-> + * Counter counts down from programmed value.  Reset asserts when
-> + * the counter reaches 1.
-> + */
-> +#define WD_COUNTER		0
-> +
-> +#define WD_CONFIG		4
-> +#define WD_CONFIG_XTAL_IN	BIT(0)
-> +#define WD_CONFIG_DISABLE	BIT(31)
-> +
-> +struct tangox_wdt_device {
-> +	struct watchdog_device wdt;
-> +	void __iomem *base;
-> +	unsigned long clk_rate;
-> +	struct clk *clk;
-> +	struct notifier_block restart;
-> +};
-> +
-> +static int tangox_wdt_set_timeout(struct watchdog_device *wdt,
-> +				  unsigned int new_timeout)
-> +{
-> +	wdt->timeout = new_timeout;
-> +
-> +	return 0;
-> +}
-> +
-> +static int tangox_wdt_start(struct watchdog_device *wdt)
-> +{
-> +	struct tangox_wdt_device *dev = watchdog_get_drvdata(wdt);
-> +	u32 ticks;
-> +
-> +	ticks = 1 + wdt->timeout * dev->clk_rate;
-> +	writel(ticks, dev->base + WD_COUNTER);
-> +
-> +	return 0;
-> +}
-> +
-> +static int tangox_wdt_stop(struct watchdog_device *wdt)
-> +{
-> +	struct tangox_wdt_device *dev = watchdog_get_drvdata(wdt);
-> +
-> +	writel(0, dev->base + WD_COUNTER);
-> +
-> +	return 0;
-> +}
-> +
-> +static unsigned int tangox_wdt_get_timeleft(struct watchdog_device *wdt)
-> +{
-> +	struct tangox_wdt_device *dev = watchdog_get_drvdata(wdt);
-> +	u32 count;
-> +
-> +	count = readl(dev->base + WD_COUNTER);
-> +
-> +	if (!count)
-> +		return 0;
-> +
-> +	return (count - 1) / dev->clk_rate;
-> +}
-> +
-> +static const struct watchdog_info tangox_wdt_info = {
-> +	.options  = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
-> +	.identity = "tangox watchdog",
-> +};
-> +
-> +static const struct watchdog_ops tangox_wdt_ops = {
-> +	.start		= tangox_wdt_start,
-> +	.stop		= tangox_wdt_stop,
-> +	.set_timeout	= tangox_wdt_set_timeout,
-> +	.get_timeleft	= tangox_wdt_get_timeleft,
-> +};
-> +
-> +static int tangox_wdt_restart(struct notifier_block *nb, unsigned long action,
-> +			      void *data)
-> +{
-> +	struct tangox_wdt_device *dev =
-> +		container_of(nb, struct tangox_wdt_device, restart);
-> +
-> +	writel(1, dev->base + WD_COUNTER);
-> +
-> +	return NOTIFY_DONE;
-> +}
-> +
-> +static int tangox_wdt_probe(struct platform_device *pdev)
-> +{
-> +	struct tangox_wdt_device *dev;
-> +	struct resource *res;
-> +	u32 config;
-> +	int err;
-> +
-> +	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
-> +	if (!dev)
-> +		return -ENOMEM;
-> +
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	dev->base = devm_ioremap_resource(&pdev->dev, res);
-> +	if (IS_ERR(dev->base))
-> +		return PTR_ERR(dev->base);
-> +
-> +	dev->clk = devm_clk_get(&pdev->dev, NULL);
-> +	if (IS_ERR(dev->clk))
-> +		return PTR_ERR(dev->clk);
-> +
-> +	err = clk_prepare_enable(dev->clk);
-> +	if (err)
-> +		return err;
-> +
-> +	dev->clk_rate = clk_get_rate(dev->clk);
-> +
-> +	dev->wdt.parent = &pdev->dev;
-> +	dev->wdt.info = &tangox_wdt_info;
-> +	dev->wdt.ops = &tangox_wdt_ops;
-> +	dev->wdt.timeout = DEFAULT_TIMEOUT;
-> +	dev->wdt.min_timeout = 1;
-> +	dev->wdt.max_timeout = (U32_MAX - 1) / dev->clk_rate;
-> +
-> +	watchdog_init_timeout(&dev->wdt, timeout, &pdev->dev);
-> +	watchdog_set_nowayout(&dev->wdt, nowayout);
-> +	watchdog_set_drvdata(&dev->wdt, dev);
-> +
-> +	/*
-> +	 * Deactivate counter if disable bit is set to avoid
-> +	 * accidental reset.
-> +	 */
-> +	config = readl(dev->base + WD_CONFIG);
-> +	if (config & WD_CONFIG_DISABLE)
-> +		writel(0, dev->base + WD_COUNTER);
-> +
-> +	writel(WD_CONFIG_XTAL_IN, dev->base + WD_CONFIG);
-> +
-> +	/*
-> +	 * Mark as active and restart with configured timeout if
-> +	 * already running.
-> +	 */
-> +	if (readl(dev->base + WD_COUNTER)) {
-> +		set_bit(WDOG_ACTIVE, &dev->wdt.status);
-> +		tangox_wdt_start(&dev->wdt);
-> +	}
-> +
-> +	err = watchdog_register_device(&dev->wdt);
-> +	if (err)
-> +		return err;
+--IrhDeMKUP4DT/M7F
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-Why no clk_disable_unprepare() in the error case ?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-If you think that is not needed, please explain.
+iQIcBAEBAgAGBQJWTzVBAAoJEBQN5MwUoCm2y8UP/0gfMsczqO2iwBCCPslkIE4m
+8ABnrXW3RsbF+ox1EAEtpY/d4Sc9PNpRqqh5Zf3VNm8UU36rbn/2DP3yNqNwybv4
+mK+uQWOUI3pIbMaxWj61smKp2tG4ZorPqOlMeD7fdalEHk/HAIsKLqmxFgF2wRIH
+23JjjQxXDrlNeS4whSD/RZpgjnoon812OfGQM3qbMaZpylVGDByqCXdXOcAM0T6W
+XbYK4BAnpK9bYQCpT/aL0YnBroq1a5ojaj0rVAJQSoAi1bIYHKdSrHxT11aqzGlQ
+ZlHPgUV2BEmyOJarQ6DOytuwIjt1qaFgdBHq533+9udvGc5s+oaMtWN///PMlyKo
+u9RQZXLSJJKHpgNa38qhGNkoYqLroS6cc3Vyxlzief6Qrobvq87LZZWkQpyU6St1
+SYaK4W/3NpLgj2ZZvyW5FyMQWNHw8BC95VvImK//UTzUrl5kjdg6RjOE/b+1gGCQ
+Sl9jm1sMrOdrGGd9pxqyW9PQIbKm/KykcI12+SUcwmD0UMs3cW3FLIul9Zut4/vD
+uUiGU42wdtUiJZOcWeNHRV5pN+lJwaaQBc+OydOJF8XTW+OJNNbf+0TWxWuAFXZg
+gLWbojrPBgRP9MfRVbD3QMg4j/RYH3ZutKay7cZ31KREM7izS/GlAAO1dH3k/hhP
+UZH3iDoESnT9U92Bwa2R
+=vItH
+-----END PGP SIGNATURE-----
 
-Thanks,
-Guenter
+--IrhDeMKUP4DT/M7F--
