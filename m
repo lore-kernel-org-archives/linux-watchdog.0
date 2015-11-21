@@ -1,116 +1,51 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.savoirfairelinux.com ([208.88.110.44]:34016 "EHLO
-	mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761155AbbKTWCm (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:52014 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760042AbbKUBKK (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 20 Nov 2015 17:02:42 -0500
-From: Damien Riegel <damien.riegel@savoirfairelinux.com>
-To: linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Mike Looijmans <mike.looijmans@topic.nl>,
-	kernel@savoirfairelinux.com,
-	Damien Riegel <damien.riegel@savoirfairelinux.com>
-Subject: [PATCH v2 6/6] watchdog: w83627hf_wdt: use core reboot notifier
-Date: Fri, 20 Nov 2015 16:54:56 -0500
-Message-Id: <1448056496-2335-7-git-send-email-damien.riegel@savoirfairelinux.com>
-In-Reply-To: <1448056496-2335-1-git-send-email-damien.riegel@savoirfairelinux.com>
+	Fri, 20 Nov 2015 20:10:10 -0500
+Subject: Re: [PATCH v2 1/6] watchdog: core: add reboot notifier support
+To: Damien Riegel <damien.riegel@savoirfairelinux.com>,
+	linux-watchdog@vger.kernel.org
 References: <1448056496-2335-1-git-send-email-damien.riegel@savoirfairelinux.com>
+ <1448056496-2335-2-git-send-email-damien.riegel@savoirfairelinux.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Mike Looijmans <mike.looijmans@topic.nl>,
+	kernel@savoirfairelinux.com
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <564FC46D.2030908@roeck-us.net>
+Date: Fri, 20 Nov 2015 17:10:05 -0800
+MIME-Version: 1.0
+In-Reply-To: <1448056496-2335-2-git-send-email-damien.riegel@savoirfairelinux.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Get rid of the custom reboot notifier block registration and use the one
-provided by the watchdog core.
+On 11/20/2015 01:54 PM, Damien Riegel wrote:
+> Many watchdog drivers register a reboot notifier in order to stop the
+> watchdog on system reboot. Thus we can factorize this code in the
+> watchdog core.
+>
+> For that purpose, a new notifier block is added in watchdog_device for
+> internal use only, as well as a new watchdog_stop_on_reboot helper
+> function.
+>
+> If this helper is called, watchdog core registers the related notifier
+> block and will stop the watchdog when SYS_HALT or SYS_DOWN is received.
+>
+> Since this operation can be critical on some platforms, abort the device
+> registration if the reboot notifier registration fails.
+>
+> Suggested-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
+> Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
+> Reviewed-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
 
-Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
-Reviewed-by: Vivien Didelot <vivien.didelot@savoirlinux.com>
----
- drivers/watchdog/w83627hf_wdt.c | 32 ++------------------------------
- 1 file changed, 2 insertions(+), 30 deletions(-)
+Series looks good to me.
 
-diff --git a/drivers/watchdog/w83627hf_wdt.c b/drivers/watchdog/w83627hf_wdt.c
-index 5824e25..cab14bc 100644
---- a/drivers/watchdog/w83627hf_wdt.c
-+++ b/drivers/watchdog/w83627hf_wdt.c
-@@ -36,8 +36,6 @@
- #include <linux/types.h>
- #include <linux/watchdog.h>
- #include <linux/ioport.h>
--#include <linux/notifier.h>
--#include <linux/reboot.h>
- #include <linux/init.h>
- #include <linux/io.h>
- 
-@@ -288,18 +286,6 @@ static unsigned int wdt_get_time(struct watchdog_device *wdog)
- }
- 
- /*
-- *	Notifier for system down
-- */
--static int wdt_notify_sys(struct notifier_block *this, unsigned long code,
--	void *unused)
--{
--	if (code == SYS_DOWN || code == SYS_HALT)
--		wdt_set_time(0);	/* Turn the WDT off */
--
--	return NOTIFY_DONE;
--}
--
--/*
-  *	Kernel Interfaces
-  */
- 
-@@ -329,10 +315,6 @@ static struct watchdog_device wdt_dev = {
-  *	turn the timebomb registers off.
-  */
- 
--static struct notifier_block wdt_notifier = {
--	.notifier_call = wdt_notify_sys,
--};
--
- static int wdt_find(int addr)
- {
- 	u8 val;
-@@ -456,6 +438,7 @@ static int __init wdt_init(void)
- 
- 	watchdog_init_timeout(&wdt_dev, timeout, NULL);
- 	watchdog_set_nowayout(&wdt_dev, nowayout);
-+	watchdog_stop_on_reboot(&wdt_dev);
- 
- 	ret = w83627hf_init(&wdt_dev, chip);
- 	if (ret) {
-@@ -463,30 +446,19 @@ static int __init wdt_init(void)
- 		return ret;
- 	}
- 
--	ret = register_reboot_notifier(&wdt_notifier);
--	if (ret != 0) {
--		pr_err("cannot register reboot notifier (err=%d)\n", ret);
--		return ret;
--	}
--
- 	ret = watchdog_register_device(&wdt_dev);
- 	if (ret)
--		goto unreg_reboot;
-+		return ret;
- 
- 	pr_info("initialized. timeout=%d sec (nowayout=%d)\n",
- 		wdt_dev.timeout, nowayout);
- 
- 	return ret;
--
--unreg_reboot:
--	unregister_reboot_notifier(&wdt_notifier);
--	return ret;
- }
- 
- static void __exit wdt_exit(void)
- {
- 	watchdog_unregister_device(&wdt_dev);
--	unregister_reboot_notifier(&wdt_notifier);
- }
- 
- module_init(wdt_init);
--- 
-2.5.0
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
+I'll apply the series to my watchdog-next branch and run it through a test cycle.
+
+Guenter
 
