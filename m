@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from proxima.lp0.eu ([81.2.80.65]:34145 "EHLO proxima.lp0.eu"
+Received: from proxima.lp0.eu ([81.2.80.65]:34147 "EHLO proxima.lp0.eu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752735AbbKUTOz (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 21 Nov 2015 14:14:55 -0500
-Subject: [PATCH 2/4] MIPS: bmips: Add bcm6345-l2-timer interrupt controller
+	id S1753210AbbKUTO7 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Sat, 21 Nov 2015 14:14:59 -0500
+Subject: [PATCH 4/4] MIPS: bmips: Convert bcm63xx_wdt to use WATCHDOG_CORE
 To: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
 	Ralf Baechle <ralf@linux-mips.org>,
 	Thomas Gleixner <tglx@linutronix.de>,
@@ -22,8 +22,8 @@ Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
 	Ian Campbell <ijc+devicetree@hellion.org.uk>,
 	Kumar Gala <galak@codeaurora.org>
 From: Simon Arlott <simon@fire.lp0.eu>
-Message-ID: <5650C01E.4010804@simon.arlott.org.uk>
-Date: Sat, 21 Nov 2015 19:03:58 +0000
+Message-ID: <5650C08C.6090300@simon.arlott.org.uk>
+Date: Sat, 21 Nov 2015 19:05:48 +0000
 MIME-Version: 1.0
 In-Reply-To: <5650BFD6.5030700@simon.arlott.org.uk>
 Content-Type: text/plain; charset=utf-8
@@ -31,373 +31,660 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Add the BCM6345 timer as an interrupt controller so that it can be used
-by the watchdog to warn that its timer will expire soon.
+Convert bcm63xx_wdt to use WATCHDOG_CORE and add a device tree binding.
 
-Support for clocksource/clockevents is not implemented as the timer
-interrupt is not per CPU (except on the BCM6318) and the MIPS clock is
-better. This could be added later if required without changing the device
-tree binding.
+Adds support for the time left value and provides a more effective
+interrupt handler based on the watchdog warning interrupt behaviour.
+
+This removes the unnecessary software countdown timer and replaces the
+use of bcm63xx_timer with a normal interrupt when not using mach-bcm63xx.
 
 Signed-off-by: Simon Arlott <simon@fire.lp0.eu>
 ---
- drivers/irqchip/Kconfig                |   5 +
- drivers/irqchip/Makefile               |   1 +
- drivers/irqchip/irq-bcm6345-l2-timer.c | 317 +++++++++++++++++++++++++++++++++
- 3 files changed, 323 insertions(+)
- create mode 100644 drivers/irqchip/irq-bcm6345-l2-timer.c
+ arch/mips/bcm63xx/prom.c                          |   1 +
+ arch/mips/bcm63xx/setup.c                         |   1 +
+ arch/mips/include/asm/mach-bcm63xx/bcm63xx_regs.h |  22 --
+ drivers/watchdog/Kconfig                          |   4 +-
+ drivers/watchdog/bcm63xx_wdt.c                    | 420 +++++++++++-----------
+ include/linux/bcm63xx_wdt.h                       |  22 ++
+ 6 files changed, 244 insertions(+), 226 deletions(-)
+ create mode 100644 include/linux/bcm63xx_wdt.h
 
-diff --git a/drivers/irqchip/Kconfig b/drivers/irqchip/Kconfig
-index d307bb3..21c3d9b 100644
---- a/drivers/irqchip/Kconfig
-+++ b/drivers/irqchip/Kconfig
-@@ -70,6 +70,11 @@ config BCM6345_L1_IRQ
- 	select GENERIC_IRQ_CHIP
- 	select IRQ_DOMAIN
+diff --git a/arch/mips/bcm63xx/prom.c b/arch/mips/bcm63xx/prom.c
+index 7019e29..ba8b354 100644
+--- a/arch/mips/bcm63xx/prom.c
++++ b/arch/mips/bcm63xx/prom.c
+@@ -17,6 +17,7 @@
+ #include <bcm63xx_cpu.h>
+ #include <bcm63xx_io.h>
+ #include <bcm63xx_regs.h>
++#include <linux/bcm63xx_wdt.h>
  
-+config BCM6345_L2_TIMER_IRQ
-+	bool
-+	select GENERIC_IRQ_CHIP
-+	select IRQ_DOMAIN
-+
- config BCM7038_L1_IRQ
- 	bool
- 	select GENERIC_IRQ_CHIP
-diff --git a/drivers/irqchip/Makefile b/drivers/irqchip/Makefile
-index ded59cf..2687dea 100644
---- a/drivers/irqchip/Makefile
-+++ b/drivers/irqchip/Makefile
-@@ -44,6 +44,7 @@ obj-$(CONFIG_XTENSA_MX)			+= irq-xtensa-mx.o
- obj-$(CONFIG_IRQ_CROSSBAR)		+= irq-crossbar.o
- obj-$(CONFIG_SOC_VF610)			+= irq-vf610-mscm-ir.o
- obj-$(CONFIG_BCM6345_L1_IRQ)		+= irq-bcm6345-l1.o
-+obj-$(CONFIG_BCM6345_L2_TIMER_IRQ)	+= irq-bcm6345-l2-timer.o
- obj-$(CONFIG_BCM7038_L1_IRQ)		+= irq-bcm7038-l1.o
- obj-$(CONFIG_BCM7120_L2_IRQ)		+= irq-bcm7120-l2.o
- obj-$(CONFIG_BRCMSTB_L2_IRQ)		+= irq-brcmstb-l2.o
-diff --git a/drivers/irqchip/irq-bcm6345-l2-timer.c b/drivers/irqchip/irq-bcm6345-l2-timer.c
-new file mode 100644
-index 0000000..a388fcb
---- /dev/null
-+++ b/drivers/irqchip/irq-bcm6345-l2-timer.c
-@@ -0,0 +1,317 @@
-+/*
-+ * Copyright 2015 Simon Arlott
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * Based on arch/mips/bcm63xx/timer.c:
-+ * Copyright (C) 2008 Maxime Bizon <mbizon@freebox.fr>
-+ *
-+ * Registers for SoCs with 4 timers: BCM6345, BCM6328, BCM6362, BCM6816,
-+ *                                   BCM68220,BCM63168, BCM63268
-+ *   0x02: IRQ enable (u8)
-+ *   0x03: IRQ status (u8)
-+ *   0x04: Timer 0 control
-+ *   0x08: Timer 1 control
-+ *   0x0c: Timer 2 control
-+ *   0x10: Timer 0 count
-+ *   0x14: Timer 1 count
-+ *   0x18: Timer 2 count
-+ *   0x1c+: Watchdog registers
-+ *
-+ * Registers for SoCs with 5 timers: BCM6318
-+ *   0x00: IRQ enable (u32)
-+ *   0x04: IRQ status (u32)
-+ *   0x08: Timer 0 control
-+ *   0x0c: Timer 1 control
-+ *   0x10: Timer 2 control
-+ *   0x14: Timer 3 control
-+ *   0x18: Timer 0 count
-+ *   0x1c: Timer 1 count
-+ *   0x20: Timer 2 count
-+ *   0x24: Timer 3 count
-+ *   0x28+: Watchdog registers
-+ */
-+
-+#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-+
-+#include <linux/bitops.h>
+ void __init prom_init(void)
+ {
+diff --git a/arch/mips/bcm63xx/setup.c b/arch/mips/bcm63xx/setup.c
+index 240fb4f..6abf364 100644
+--- a/arch/mips/bcm63xx/setup.c
++++ b/arch/mips/bcm63xx/setup.c
+@@ -21,6 +21,7 @@
+ #include <bcm63xx_regs.h>
+ #include <bcm63xx_io.h>
+ #include <bcm63xx_gpio.h>
++#include <linux/bcm63xx_wdt.h>
+ 
+ void bcm63xx_machine_halt(void)
+ {
+diff --git a/arch/mips/include/asm/mach-bcm63xx/bcm63xx_regs.h b/arch/mips/include/asm/mach-bcm63xx/bcm63xx_regs.h
+index 5035f09..16a745b 100644
+--- a/arch/mips/include/asm/mach-bcm63xx/bcm63xx_regs.h
++++ b/arch/mips/include/asm/mach-bcm63xx/bcm63xx_regs.h
+@@ -441,28 +441,6 @@
+ 
+ 
+ /*************************************************************************
+- * _REG relative to RSET_WDT
+- *************************************************************************/
+-
+-/* Watchdog default count register */
+-#define WDT_DEFVAL_REG			0x0
+-
+-/* Watchdog control register */
+-#define WDT_CTL_REG			0x4
+-
+-/* Watchdog control register constants */
+-#define WDT_START_1			(0xff00)
+-#define WDT_START_2			(0x00ff)
+-#define WDT_STOP_1			(0xee00)
+-#define WDT_STOP_2			(0x00ee)
+-
+-/* Watchdog reset length register */
+-#define WDT_RSTLEN_REG			0x8
+-
+-/* Watchdog soft reset register (BCM6328 only) */
+-#define WDT_SOFTRESET_REG		0xc
+-
+-/*************************************************************************
+  * _REG relative to RSET_GPIO
+  *************************************************************************/
+ 
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 7a8a6c6..0c50add 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1272,7 +1272,9 @@ config OCTEON_WDT
+ 
+ config BCM63XX_WDT
+ 	tristate "Broadcom BCM63xx hardware watchdog"
+-	depends on BCM63XX
++	depends on BCM63XX || BMIPS_GENERIC
++	select WATCHDOG_CORE
++	select BCM6345_L2_TIMER_IRQ if BMIPS_GENERIC
+ 	help
+ 	  Watchdog driver for the built in watchdog hardware in Broadcom
+ 	  BCM63xx SoC.
+diff --git a/drivers/watchdog/bcm63xx_wdt.c b/drivers/watchdog/bcm63xx_wdt.c
+index ab26fd9..fff92d0 100644
+--- a/drivers/watchdog/bcm63xx_wdt.c
++++ b/drivers/watchdog/bcm63xx_wdt.c
+@@ -3,6 +3,7 @@
+  *
+  *  Copyright (C) 2007, Miguel Gaio <miguel.gaio@efixo.com>
+  *  Copyright (C) 2008, Florian Fainelli <florian@openwrt.org>
++ *  Copyright 2015 Simon Arlott
+  *
+  *  This program is free software; you can redistribute it and/or
+  *  modify it under the terms of the GNU General Public License
+@@ -12,235 +13,165 @@
+ 
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+ 
+-#include <linux/bitops.h>
++#include <linux/bcm63xx_wdt.h>
++#include <linux/clk.h>
++#include <linux/delay.h>
+ #include <linux/errno.h>
+-#include <linux/fs.h>
 +#include <linux/interrupt.h>
-+#include <linux/irqreturn.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/of_address.h>
-+#include <linux/of_irq.h>
-+#include <linux/of_platform.h>
-+#include <linux/slab.h>
+ #include <linux/io.h>
+ #include <linux/kernel.h>
+-#include <linux/miscdevice.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
++#include <linux/platform_device.h>
++#include <linux/resource.h>
 +#include <linux/spinlock.h>
-+#include <linux/string.h>
-+#include <linux/irqchip.h>
-+#include <linux/irqchip/chained_irq.h>
-+
-+#define REG_6345_IRQ_ENABLE		0x02
-+#define REG_6345_IRQ_STATUS		0x03
-+#define REG_6345_CFG_BASE		0x04
-+
-+#define REG_6318_IRQ_ENABLE		0x00
-+#define REG_6318_IRQ_STATUS		0x04
-+#define REG_6318_CFG_BASE		0x08
-+
-+#define NR_TIMERS_6345			4
-+#define WDT_TIMER_ID_6345		(NR_TIMERS_6345 - 1)
-+
-+#define NR_TIMERS_6318			5
-+#define WDT_TIMER_ID_6318		(NR_TIMERS_6318 - 1)
-+
-+/* Per-timer count register */
-+#define COUNT_MASK			(0x3fffffff)
-+
-+/* Per-timer control register */
-+#define CONTROL_COUNTDOWN_MASK		(0x3fffffff)
-+#define CONTROL_RSTCNTCLR_MASK		(1 << 30)
-+#define CONTROL_ENABLE_MASK		(1 << 31)
-+
-+enum bcm6345_timer_type {
-+	TIMER_TYPE_6345,
-+	TIMER_TYPE_6318,
-+};
-+
-+struct bcm6345_timer {
+ #include <linux/types.h>
+-#include <linux/uaccess.h>
+ #include <linux/watchdog.h>
+-#include <linux/timer.h>
+-#include <linux/jiffies.h>
+-#include <linux/interrupt.h>
+-#include <linux/ptrace.h>
+-#include <linux/resource.h>
+-#include <linux/platform_device.h>
+ 
+-#include <bcm63xx_cpu.h>
+-#include <bcm63xx_io.h>
+-#include <bcm63xx_regs.h>
+-#include <bcm63xx_timer.h>
++#ifdef CONFIG_BCM63XX
++# include <bcm63xx_regs.h>
++# include <bcm63xx_timer.h>
++#endif
+ 
+ #define PFX KBUILD_MODNAME
+ 
+-#define WDT_HZ		50000000 /* Fclk */
+-#define WDT_DEFAULT_TIME	30      /* seconds */
+-#define WDT_MAX_TIME		256     /* seconds */
+-
+-static struct {
+-	void __iomem *regs;
+-	struct timer_list timer;
+-	unsigned long inuse;
+-	atomic_t ticks;
+-} bcm63xx_wdt_device;
+-
+-static int expect_close;
+-
+-static int wdt_time = WDT_DEFAULT_TIME;
+ static bool nowayout = WATCHDOG_NOWAYOUT;
+ module_param(nowayout, bool, 0);
+ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+ 	__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+ 
+-/* HW functions */
+-static void bcm63xx_wdt_hw_start(void)
+-{
+-	bcm_writel(0xfffffffe, bcm63xx_wdt_device.regs + WDT_DEFVAL_REG);
+-	bcm_writel(WDT_START_1, bcm63xx_wdt_device.regs + WDT_CTL_REG);
+-	bcm_writel(WDT_START_2, bcm63xx_wdt_device.regs + WDT_CTL_REG);
+-}
+-
+-static void bcm63xx_wdt_hw_stop(void)
+-{
+-	bcm_writel(WDT_STOP_1, bcm63xx_wdt_device.regs + WDT_CTL_REG);
+-	bcm_writel(WDT_STOP_2, bcm63xx_wdt_device.regs + WDT_CTL_REG);
+-}
+-
+-static void bcm63xx_wdt_isr(void *data)
+-{
+-	struct pt_regs *regs = get_irq_regs();
+-
+-	die(PFX " fire", regs);
+-}
+-
+-static void bcm63xx_timer_tick(unsigned long unused)
+-{
+-	if (!atomic_dec_and_test(&bcm63xx_wdt_device.ticks)) {
+-		bcm63xx_wdt_hw_start();
+-		mod_timer(&bcm63xx_wdt_device.timer, jiffies + HZ);
+-	} else
+-		pr_crit("watchdog will restart system\n");
+-}
+-
+-static void bcm63xx_wdt_pet(void)
+-{
+-	atomic_set(&bcm63xx_wdt_device.ticks, wdt_time);
+-}
+-
+-static void bcm63xx_wdt_start(void)
+-{
+-	bcm63xx_wdt_pet();
+-	bcm63xx_timer_tick(0);
+-}
++struct bcm63xx_wdt_hw {
 +	raw_spinlock_t lock;
 +	void __iomem *base;
-+	unsigned int irq;
-+	struct irq_domain *domain;
-+
-+	enum bcm6345_timer_type type;
-+	unsigned int nr_timers;
-+	/* The watchdog timer has separate control/remaining registers
-+	 * and cannot be masked.
-+	 */
-+	int wdt_timer_id;
++	struct clk *clk;
++	u32 clock_hz;
++	int irq;
++	bool running;
 +};
-+
-+static inline u32 bcm6345_timer_read_int_status(struct bcm6345_timer *timer)
-+{
-+	if (timer->type == TIMER_TYPE_6318)
-+		return __raw_readl(timer->base + REG_6318_IRQ_STATUS);
-+	else
-+		return __raw_readb(timer->base + REG_6345_IRQ_STATUS);
-+}
-+
-+static inline void bcm6345_timer_write_int_status(struct bcm6345_timer *timer,
-+	u32 val)
-+{
-+	if (timer->type == TIMER_TYPE_6318)
-+		__raw_writel(val, timer->base + REG_6318_IRQ_STATUS);
-+	else
-+		__raw_writeb(val, timer->base + REG_6345_IRQ_STATUS);
-+}
-+
-+static inline u32 bcm6345_timer_read_int_enable(struct bcm6345_timer *timer)
-+{
-+	if (timer->type == TIMER_TYPE_6318)
-+		return __raw_readl(timer->base + REG_6318_IRQ_ENABLE);
-+	else
-+		return __raw_readb(timer->base + REG_6345_IRQ_ENABLE);
-+}
-+
-+static inline void bcm6345_timer_write_int_enable(struct bcm6345_timer *timer,
-+	u32 val)
-+{
-+	if (timer->type == TIMER_TYPE_6318)
-+		__raw_writel(val, timer->base + REG_6318_IRQ_ENABLE);
-+	else
-+		__raw_writeb(val, timer->base + REG_6345_IRQ_ENABLE);
-+}
-+
-+static inline void bcm6345_timer_write_control(struct bcm6345_timer *timer,
-+	unsigned int id, u32 val)
-+{
-+	if (timer->type == TIMER_TYPE_6318)
-+		__raw_writel(0, timer->base + REG_6318_CFG_BASE + id * 4);
-+	else
-+		__raw_writel(0, timer->base + REG_6345_CFG_BASE + id * 4);
-+}
-+
-+static inline void bcm6345_timer_write_count(struct bcm6345_timer *timer,
-+	unsigned int id, u32 val)
-+{
-+	/* Count registers are immediately after the control registers */
-+	return bcm6345_timer_write_control(timer, timer->nr_timers + id, val);
-+}
-+
-+static inline void bcm6345_timer_stop(struct bcm6345_timer *timer, int id)
-+{
-+	if (id != timer->wdt_timer_id) {
-+		bcm6345_timer_write_control(timer, id, 0);
-+		bcm6345_timer_write_count(timer, id, 0);
-+		bcm6345_timer_write_int_status(timer, BIT(id));
-+	}
-+}
-+
-+static void bcm6345_timer_interrupt(struct irq_desc *desc)
-+{
-+	struct bcm6345_timer *timer = irq_desc_get_handler_data(desc);
-+	struct irq_chip *chip = irq_desc_get_chip(desc);
-+	unsigned long pending;
-+	irq_hw_number_t hwirq;
-+	unsigned int irq;
-+
-+	chained_irq_enter(chip, desc);
-+
-+	pending = bcm6345_timer_read_int_status(timer);
-+	pending &= bcm6345_timer_read_int_enable(timer) |
-+			BIT(timer->wdt_timer_id); /* Watchdog can't be masked */
-+
-+	for_each_set_bit(hwirq, &pending, timer->nr_timers) {
-+		irq = irq_linear_revmap(timer->domain, hwirq);
-+		if (irq)
-+			do_IRQ(irq);
-+		else
-+			spurious_interrupt();
-+	}
-+
-+	chained_irq_exit(chip, desc);
-+}
-+
-+static void bcm6345_timer_unmask(struct irq_data *d)
-+{
-+	struct bcm6345_timer *timer = irq_data_get_irq_chip_data(d);
+ 
+-static void bcm63xx_wdt_pause(void)
++static int bcm63xx_wdt_start(struct watchdog_device *wdd)
+ {
+-	del_timer_sync(&bcm63xx_wdt_device.timer);
+-	bcm63xx_wdt_hw_stop();
++	struct bcm63xx_wdt_hw *hw = watchdog_get_drvdata(wdd);
 +	unsigned long flags;
-+	u8 val;
 +
-+	if (d->hwirq != timer->wdt_timer_id) {
-+		raw_spin_lock_irqsave(&timer->lock, flags);
-+		val = bcm6345_timer_read_int_enable(timer);
-+		val |= BIT(d->hwirq);
-+		bcm6345_timer_write_int_enable(timer, val);
-+		raw_spin_unlock_irqrestore(&timer->lock, flags);
-+	}
-+}
++	raw_spin_lock_irqsave(&hw->lock, flags);
++	__raw_writel(wdd->timeout * hw->clock_hz, hw->base + WDT_DEFVAL_REG);
++	__raw_writel(WDT_START_1, hw->base + WDT_CTL_REG);
++	__raw_writel(WDT_START_2, hw->base + WDT_CTL_REG);
++	hw->running = true;
++	raw_spin_unlock_irqrestore(&hw->lock, flags);
++	return 0;
+ }
+ 
+-static int bcm63xx_wdt_settimeout(int new_time)
++static int bcm63xx_wdt_stop(struct watchdog_device *wdd)
+ {
+-	if ((new_time <= 0) || (new_time > WDT_MAX_TIME))
+-		return -EINVAL;
+-
+-	wdt_time = new_time;
+-
++	struct bcm63xx_wdt_hw *hw = watchdog_get_drvdata(wdd);
++	unsigned long flags;
 +
-+static void bcm6345_timer_mask(struct irq_data *d)
-+{
-+	struct bcm6345_timer *timer = irq_data_get_irq_chip_data(d);
++	raw_spin_lock_irqsave(&hw->lock, flags);
++	__raw_writel(WDT_STOP_1, hw->base + WDT_CTL_REG);
++	__raw_writel(WDT_STOP_2, hw->base + WDT_CTL_REG);
++	hw->running = false;
++	raw_spin_unlock_irqrestore(&hw->lock, flags);
+ 	return 0;
+ }
+ 
+-static int bcm63xx_wdt_open(struct inode *inode, struct file *file)
++static unsigned int bcm63xx_wdt_get_timeleft(struct watchdog_device *wdd)
+ {
+-	if (test_and_set_bit(0, &bcm63xx_wdt_device.inuse))
+-		return -EBUSY;
+-
+-	bcm63xx_wdt_start();
+-	return nonseekable_open(inode, file);
++	struct bcm63xx_wdt_hw *hw = watchdog_get_drvdata(wdd);
 +	unsigned long flags;
 +	u32 val;
 +
-+	if (d->hwirq != timer->wdt_timer_id) {
-+		raw_spin_lock_irqsave(&timer->lock, flags);
-+		val = bcm6345_timer_read_int_enable(timer);
-+		val &= ~BIT(d->hwirq);
-+		bcm6345_timer_write_int_enable(timer, val);
-+		raw_spin_unlock_irqrestore(&timer->lock, flags);
-+	}
-+}
++	raw_spin_lock_irqsave(&hw->lock, flags);
++	val = __raw_readl(hw->base + WDT_CTL_REG);
++	val /= hw->clock_hz;
++	raw_spin_unlock_irqrestore(&hw->lock, flags);
++	return val;
+ }
+ 
+-static int bcm63xx_wdt_release(struct inode *inode, struct file *file)
++static int bcm63xx_wdt_set_timeout(struct watchdog_device *wdd,
++	unsigned int timeout)
+ {
+-	if (expect_close == 42)
+-		bcm63xx_wdt_pause();
+-	else {
+-		pr_crit("Unexpected close, not stopping watchdog!\n");
+-		bcm63xx_wdt_start();
+-	}
+-	clear_bit(0, &bcm63xx_wdt_device.inuse);
+-	expect_close = 0;
+-	return 0;
++	wdd->timeout = timeout;
++	return bcm63xx_wdt_start(wdd);
+ }
+ 
+-static ssize_t bcm63xx_wdt_write(struct file *file, const char *data,
+-				size_t len, loff_t *ppos)
++/* The watchdog interrupt occurs when half the timeout is remaining */
++#ifdef CONFIG_BCM63XX
++static void bcm63xx_wdt_interrupt(void *data)
++#else
++static irqreturn_t bcm63xx_wdt_interrupt(int irq, void *data)
++#endif
+ {
+-	if (len) {
+-		if (!nowayout) {
+-			size_t i;
+-
+-			/* In case it was set long ago */
+-			expect_close = 0;
+-
+-			for (i = 0; i != len; i++) {
+-				char c;
+-				if (get_user(c, data + i))
+-					return -EFAULT;
+-				if (c == 'V')
+-					expect_close = 42;
+-			}
++	struct watchdog_device *wdd = data;
++	struct bcm63xx_wdt_hw *hw = watchdog_get_drvdata(wdd);
++	unsigned long flags;
 +
-+static void bcm6345_timer_eoi(struct irq_data *d)
-+{
-+	struct bcm6345_timer *timer = irq_data_get_irq_chip_data(d);
++	raw_spin_lock_irqsave(&hw->lock, flags);
++	if (!hw->running) {
++		/* Oops */
++		__raw_writel(WDT_STOP_1, hw->base + WDT_CTL_REG);
++		__raw_writel(WDT_STOP_2, hw->base + WDT_CTL_REG);
++	} else {
++		u32 timeleft = __raw_readl(hw->base + WDT_CTL_REG);
++		u32 ms;
 +
-+	if (d->hwirq != timer->wdt_timer_id)
-+		bcm6345_timer_write_int_status(timer, BIT(d->hwirq));
-+}
-+
-+static struct irq_chip bcm6345_timer_chip = {
-+	.name			= "bcm6345-timer",
-+	.irq_mask		= bcm6345_timer_mask,
-+	.irq_unmask		= bcm6345_timer_unmask,
-+	.irq_eoi		= bcm6345_timer_eoi,
-+};
-+
-+static int bcm6345_timer_map(struct irq_domain *d, unsigned int virq,
-+			     irq_hw_number_t hwirq)
-+{
-+	struct bcm6345_timer *timer = d->host_data;
-+
-+	irq_set_chip_and_handler(virq, &bcm6345_timer_chip,
-+		hwirq == timer->wdt_timer_id ?
-+			handle_simple_irq : handle_fasteoi_irq);
-+	irq_set_chip_data(virq, timer);
-+	return 0;
-+}
-+
-+static const struct irq_domain_ops bcm6345_timer_domain_ops = {
-+	.xlate			= irq_domain_xlate_onecell,
-+	.map			= bcm6345_timer_map,
-+};
-+
-+static int __init bcm63xx_timer_init(struct device_node *node,
-+	enum bcm6345_timer_type type, unsigned int nr_timers, int wdt_timer_id)
-+{
-+	struct bcm6345_timer *timer;
-+	int ret, i;
-+
-+	timer = kzalloc(sizeof(*timer), GFP_KERNEL);
-+	if (!timer)
++		if (timeleft >= 2) {
++			/* The only way to stop this interrupt without masking
++			 * the whole timer interrupt or disrupting the intended
++			 * behaviour of the watchdog is to restart the watchdog
++			 * with the remaining time value so that the interrupt
++			 * occurs again at 1/4th, 1/8th, etc. of the timeout
++			 * until we reboot.
++			 *
++			 * This is done with a lock held in case userspace is
++			 * restarting the watchdog on another CPU.
++			 */
++			__raw_writel(timeleft, hw->base + WDT_DEFVAL_REG);
++			__raw_writel(WDT_START_1, hw->base + WDT_CTL_REG);
++			__raw_writel(WDT_START_2, hw->base + WDT_CTL_REG);
++		} else {
++			/* The watchdog cannot be started with a time of less
++			 * than 2 ticks (it won't fire).
++			 */
++			die(PFX ": watchdog timer expired\n", get_irq_regs());
+ 		}
+-		bcm63xx_wdt_pet();
+-	}
+-	return len;
+-}
+-
+-static struct watchdog_info bcm63xx_wdt_info = {
+-	.identity       = PFX,
+-	.options        = WDIOF_SETTIMEOUT |
+-				WDIOF_KEEPALIVEPING |
+-				WDIOF_MAGICCLOSE,
+-};
+-
+-
+-static long bcm63xx_wdt_ioctl(struct file *file, unsigned int cmd,
+-				unsigned long arg)
+-{
+-	void __user *argp = (void __user *)arg;
+-	int __user *p = argp;
+-	int new_value, retval = -EINVAL;
+-
+-	switch (cmd) {
+-	case WDIOC_GETSUPPORT:
+-		return copy_to_user(argp, &bcm63xx_wdt_info,
+-			sizeof(bcm63xx_wdt_info)) ? -EFAULT : 0;
+-
+-	case WDIOC_GETSTATUS:
+-	case WDIOC_GETBOOTSTATUS:
+-		return put_user(0, p);
+-
+-	case WDIOC_SETOPTIONS:
+-		if (get_user(new_value, p))
+-			return -EFAULT;
+-
+-		if (new_value & WDIOS_DISABLECARD) {
+-			bcm63xx_wdt_pause();
+-			retval = 0;
+-		}
+-		if (new_value & WDIOS_ENABLECARD) {
+-			bcm63xx_wdt_start();
+-			retval = 0;
+-		}
+-
+-		return retval;
+-
+-	case WDIOC_KEEPALIVE:
+-		bcm63xx_wdt_pet();
+-		return 0;
+-
+-	case WDIOC_SETTIMEOUT:
+-		if (get_user(new_value, p))
+-			return -EFAULT;
+-
+-		if (bcm63xx_wdt_settimeout(new_value))
+-			return -EINVAL;
+-
+-		bcm63xx_wdt_pet();
+-
+-	case WDIOC_GETTIMEOUT:
+-		return put_user(wdt_time, p);
+-
+-	default:
+-		return -ENOTTY;
+ 
++		ms = timeleft / (hw->clock_hz / 1000);
++		dev_alert(wdd->dev, "warning timer fired, reboot in %ums", ms);
+ 	}
++	raw_spin_unlock_irqrestore(&hw->lock, flags);
++#ifndef CONFIG_BCM63XX
++	return IRQ_HANDLED;
++#endif
+ }
+ 
+-static const struct file_operations bcm63xx_wdt_fops = {
+-	.owner		= THIS_MODULE,
+-	.llseek		= no_llseek,
+-	.write		= bcm63xx_wdt_write,
+-	.unlocked_ioctl	= bcm63xx_wdt_ioctl,
+-	.open		= bcm63xx_wdt_open,
+-	.release	= bcm63xx_wdt_release,
++static struct watchdog_ops bcm63xx_wdt_ops = {
++	.owner = THIS_MODULE,
++	.start = bcm63xx_wdt_start,
++	.stop = bcm63xx_wdt_stop,
++	.get_timeleft = bcm63xx_wdt_get_timeleft,
++	.set_timeout = bcm63xx_wdt_set_timeout,
+ };
+ 
+-static struct miscdevice bcm63xx_wdt_miscdev = {
+-	.minor	= WATCHDOG_MINOR,
+-	.name	= "watchdog",
+-	.fops	= &bcm63xx_wdt_fops,
++static const struct watchdog_info bcm63xx_wdt_info = {
++	.options = WDIOC_GETTIMELEFT | WDIOF_SETTIMEOUT |
++			WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
++	.identity = "BCM63xx Watchdog",
+ };
+ 
+-
+ static int bcm63xx_wdt_probe(struct platform_device *pdev)
+ {
+-	int ret;
++	struct bcm63xx_wdt_hw *hw;
++	struct watchdog_device *wdd;
+ 	struct resource *r;
++	unsigned int timeleft;
++	int ret;
+ 
+-	setup_timer(&bcm63xx_wdt_device.timer, bcm63xx_timer_tick, 0L);
++	hw = devm_kzalloc(&pdev->dev, sizeof(*hw), GFP_KERNEL);
++	wdd = devm_kzalloc(&pdev->dev, sizeof(*wdd), GFP_KERNEL);
++	if (!hw || !wdd)
 +		return -ENOMEM;
-+
-+	raw_spin_lock_init(&timer->lock);
-+	timer->type = type;
-+	timer->nr_timers = nr_timers;
-+	timer->wdt_timer_id = wdt_timer_id;
-+
-+	timer->irq = irq_of_parse_and_map(node, 0);
-+	if (!timer->irq) {
-+		pr_err("unable to map parent IRQ\n");
-+		ret = -EINVAL;
-+		goto free_timer;
+ 
+ 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	if (!r) {
+@@ -248,63 +179,145 @@ static int bcm63xx_wdt_probe(struct platform_device *pdev)
+ 		return -ENODEV;
+ 	}
+ 
+-	bcm63xx_wdt_device.regs = devm_ioremap_nocache(&pdev->dev, r->start,
+-							resource_size(r));
+-	if (!bcm63xx_wdt_device.regs) {
++	hw->base = devm_ioremap_nocache(&pdev->dev, r->start, resource_size(r));
++	if (!hw->base) {
+ 		dev_err(&pdev->dev, "failed to remap I/O resources\n");
+ 		return -ENXIO;
+ 	}
+ 
+-	ret = bcm63xx_timer_register(TIMER_WDT_ID, bcm63xx_wdt_isr, NULL);
+-	if (ret < 0) {
+-		dev_err(&pdev->dev, "failed to register wdt timer isr\n");
++#ifdef CONFIG_BCM63XX
++	hw->clk = devm_clk_get(&pdev->dev, "periph");
++#else
++	hw->clk = devm_clk_get(&pdev->dev, NULL);
++#endif
++	if (IS_ERR(hw->clk)) {
++		dev_err(&pdev->dev, "unable to request clock\n");
++		return PTR_ERR(hw->clk);
 +	}
 +
-+	timer->base = of_iomap(node, 0);
-+	if (!timer->base) {
-+		pr_err("unable to remap registers\n");
-+		ret = -ENOMEM;
-+		goto free_timer;
++	hw->clock_hz = clk_get_rate(hw->clk);
++	if (!hw->clock_hz) {
++		dev_err(&pdev->dev, "unable to fetch clock rate\n");
++		return -EINVAL;
 +	}
 +
-+	timer->domain = irq_domain_add_linear(node, timer->nr_timers,
-+					&bcm6345_timer_domain_ops, timer);
-+	if (!timer->domain) {
-+		pr_err("unable to add IRQ domain");
-+		ret = -ENOMEM;
-+		goto unmap_io;
++	ret = clk_prepare_enable(hw->clk);
++	if (ret) {
++		dev_err(&pdev->dev, "unable to enable clock\n");
+ 		return ret;
+ 	}
+ 
+-	if (bcm63xx_wdt_settimeout(wdt_time)) {
+-		bcm63xx_wdt_settimeout(WDT_DEFAULT_TIME);
+-		dev_info(&pdev->dev,
+-			": wdt_time value must be 1 <= wdt_time <= 256, using %d\n",
+-			wdt_time);
++	raw_spin_lock_init(&hw->lock);
++	hw->running = false;
++
++	wdd->parent = &pdev->dev;
++	wdd->ops = &bcm63xx_wdt_ops;
++	wdd->info = &bcm63xx_wdt_info;
++	wdd->min_timeout = 1;
++	wdd->max_timeout = 0xffffffff / hw->clock_hz;
++	wdd->timeout = min(30U, wdd->max_timeout);
++
++	watchdog_set_drvdata(wdd, hw);
++	platform_set_drvdata(pdev, wdd);
++
++	watchdog_init_timeout(wdd, 0, &pdev->dev);
++	watchdog_set_nowayout(wdd, nowayout);
++
++	timeleft = bcm63xx_wdt_get_timeleft(wdd);
++	if (timeleft > 0)
++		hw->running = true;
++
++#ifdef CONFIG_BCM63XX
++	ret = bcm63xx_timer_register(TIMER_WDT_ID, bcm63xx_wdt_interrupt, wdd);
++	if (ret) {
++		dev_err(&pdev->dev, "failed to register with bcm63xx_timer\n");
++		goto disable_clk;
+ 	}
++	hw->irq = 0;
++#endif
+ 
+-	ret = misc_register(&bcm63xx_wdt_miscdev);
++	ret = watchdog_register_device(wdd);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "failed to register watchdog device\n");
++#ifdef CONFIG_BCM63XX
+ 		goto unregister_timer;
++#else
++		goto disable_clk;
++#endif
+ 	}
+ 
+-	dev_info(&pdev->dev, " started, timer margin: %d sec\n",
+-						WDT_DEFAULT_TIME);
++#ifndef CONFIG_BCM63XX
++	hw->irq = platform_get_irq(pdev, 0);
++	if (hw->irq) {
++		ret = devm_request_irq(&pdev->dev, hw->irq,
++			bcm63xx_wdt_interrupt, IRQF_TIMER,
++			dev_name(&pdev->dev), wdd);
++		if (ret)
++			hw->irq = 0;
 +	}
++#endif
 +
-+	/* Mask all interrupts and stop all timers */
-+	bcm6345_timer_write_int_enable(timer, 0);
-+	for (i = 0; i < timer->nr_timers; i++)
-+		bcm6345_timer_stop(timer, i);
++	if (hw->irq) {
++		dev_info(&pdev->dev,
++			"%s at MMIO 0x%p (irq = %d, timeout = %us, max_timeout = %us)",
++			dev_name(wdd->dev), hw->base, hw->irq,
++			wdd->timeout, wdd->max_timeout);
++	} else {
++		dev_info(&pdev->dev,
++			"%s at MMIO 0x%p (timeout = %us, max_timeout = %us)",
++			dev_name(wdd->dev), hw->base,
++			wdd->timeout, wdd->max_timeout);
++	}
+ 
++	if (timeleft > 0)
++		dev_alert(wdd->dev, "running, reboot in %us\n", timeleft);
+ 	return 0;
+ 
++#ifdef CONFIG_BCM63XX
+ unregister_timer:
+ 	bcm63xx_timer_unregister(TIMER_WDT_ID);
++#endif
++disable_clk:
++	clk_disable(hw->clk);
+ 	return ret;
+ }
+ 
+ static int bcm63xx_wdt_remove(struct platform_device *pdev)
+ {
+-	if (!nowayout)
+-		bcm63xx_wdt_pause();
++	struct watchdog_device *wdd = platform_get_drvdata(pdev);
++	struct bcm63xx_wdt_hw *hw = watchdog_get_drvdata(wdd);
+ 
+-	misc_deregister(&bcm63xx_wdt_miscdev);
++	if (hw->irq)
++		devm_free_irq(&pdev->dev, hw->irq, wdd);
 +
-+	irq_set_chained_handler_and_data(timer->irq,
-+					bcm6345_timer_interrupt, timer);
++#ifdef CONFIG_BCM63XX
+ 	bcm63xx_timer_unregister(TIMER_WDT_ID);
++#endif
++	watchdog_unregister_device(wdd);
++	clk_disable(hw->clk);
+ 	return 0;
+ }
+ 
+ static void bcm63xx_wdt_shutdown(struct platform_device *pdev)
+ {
+-	bcm63xx_wdt_pause();
++	struct watchdog_device *wdd = platform_get_drvdata(pdev);
 +
-+	pr_info("registered BCM6345 L2 (timer) intc at MMIO 0x%p (irq = %d, IRQs: %d)\n",
-+			timer->base, timer->irq, timer->nr_timers);
-+	return 0;
++	bcm63xx_wdt_stop(wdd);
+ }
+ 
++static const struct of_device_id bcm63xx_wdt_dt_ids[] = {
++	{ .compatible = "brcm,bcm6345-wdt" },
++	{}
++};
++MODULE_DEVICE_TABLE(of, bcm63xx_wdt_dt_ids);
 +
-+unmap_io:
-+	iounmap(timer->base);
-+free_timer:
-+	kfree(timer);
-+	return ret;
-+}
+ static struct platform_driver bcm63xx_wdt_driver = {
+ 	.probe	= bcm63xx_wdt_probe,
+ 	.remove = bcm63xx_wdt_remove,
+ 	.shutdown = bcm63xx_wdt_shutdown,
+ 	.driver = {
+ 		.name = "bcm63xx-wdt",
++		.of_match_table = bcm63xx_wdt_dt_ids,
+ 	}
+ };
+ 
+@@ -312,6 +325,7 @@ module_platform_driver(bcm63xx_wdt_driver);
+ 
+ MODULE_AUTHOR("Miguel Gaio <miguel.gaio@efixo.com>");
+ MODULE_AUTHOR("Florian Fainelli <florian@openwrt.org>");
++MODULE_AUTHOR("Simon Arlott");
+ MODULE_DESCRIPTION("Driver for the Broadcom BCM63xx SoC watchdog");
+ MODULE_LICENSE("GPL");
+ MODULE_ALIAS("platform:bcm63xx-wdt");
+diff --git a/include/linux/bcm63xx_wdt.h b/include/linux/bcm63xx_wdt.h
+new file mode 100644
+index 0000000..ef4792e
+--- /dev/null
++++ b/include/linux/bcm63xx_wdt.h
+@@ -0,0 +1,22 @@
++#ifndef LINUX_BCM63XX_WDT_H_
++#define LINUX_BCM63XX_WDT_H_
 +
-+static int __init bcm6318_timer_init(struct device_node *node,
-+				      struct device_node *parent)
-+{
-+	return bcm63xx_timer_init(node, TIMER_TYPE_6318,
-+				NR_TIMERS_6318, WDT_TIMER_ID_6318);
-+}
++/* Watchdog default count register */
++#define WDT_DEFVAL_REG			0x0
 +
-+static int __init bcm6345_timer_init(struct device_node *node,
-+				      struct device_node *parent)
-+{
-+	return bcm63xx_timer_init(node, TIMER_TYPE_6345,
-+				NR_TIMERS_6345, WDT_TIMER_ID_6345);
-+}
++/* Watchdog control register */
++#define WDT_CTL_REG			0x4
 +
-+IRQCHIP_DECLARE(bcm6318_l2_timer, "brcm,bcm6318-timer", bcm6318_timer_init);
-+IRQCHIP_DECLARE(bcm6345_l2_timer, "brcm,bcm6345-timer", bcm6345_timer_init);
++/* Watchdog control register constants */
++#define WDT_START_1			(0xff00)
++#define WDT_START_2			(0x00ff)
++#define WDT_STOP_1			(0xee00)
++#define WDT_STOP_2			(0x00ee)
++
++/* Watchdog reset length register (in clock ticks) */
++#define WDT_RSTLEN_REG			0x8
++
++/* Watchdog soft reset register (BCM6328 only) */
++#define WDT_SOFTRESET_REG		0xc
++
++#endif
 -- 
 2.1.4
 
