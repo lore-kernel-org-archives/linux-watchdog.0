@@ -1,9 +1,8 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from proxima.lp0.eu ([81.2.80.65]:34144 "EHLO proxima.lp0.eu"
+Received: from proxima.lp0.eu ([81.2.80.65]:34146 "EHLO proxima.lp0.eu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751156AbbKUTOw (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Sat, 21 Nov 2015 14:14:52 -0500
-Subject: [PATCH 3/4] watchdog: Add brcm,bcm6345-wdt device tree binding
+	id S1753210AbbKUTO4 (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Sat, 21 Nov 2015 14:14:56 -0500
 To: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
 	Ralf Baechle <ralf@linux-mips.org>,
 	Thomas Gleixner <tglx@linutronix.de>,
@@ -16,71 +15,91 @@ To: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
 	Maxime Bizon <mbizon@freebox.fr>,
 	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
 	linux-mips@linux-mips.org, linux-watchdog@vger.kernel.org
-References: <5650BFD6.5030700@simon.arlott.org.uk>
+From: Simon Arlott <simon@fire.lp0.eu>
 Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>,
 	Mark Rutland <mark.rutland@arm.com>,
 	Ian Campbell <ijc+devicetree@hellion.org.uk>,
 	Kumar Gala <galak@codeaurora.org>
-From: Simon Arlott <simon@fire.lp0.eu>
-Message-ID: <5650C047.6040303@simon.arlott.org.uk>
-Date: Sat, 21 Nov 2015 19:04:39 +0000
+Subject: [PATCH 1/4] clocksource: Add brcm,bcm6345-timer device tree binding
+Message-ID: <5650BFD6.5030700@simon.arlott.org.uk>
+Date: Sat, 21 Nov 2015 19:02:46 +0000
 MIME-Version: 1.0
-In-Reply-To: <5650BFD6.5030700@simon.arlott.org.uk>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Add device tree binding for the BCM6345 watchdog.
-
-This uses the BCM6345 timer for its warning interrupt.
+Add device tree binding for the BCM6345 timer. This is required for the
+BCM6345 watchdog which needs to respond to one of the timer interrupts.
 
 Signed-off-by: Simon Arlott <simon@fire.lp0.eu>
 ---
- .../bindings/watchdog/brcm,bcm6345-wdt.txt         | 35 ++++++++++++++++++++++
- 1 file changed, 35 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/watchdog/brcm,bcm6345-wdt.txt
+ .../bindings/timer/brcm,bcm6345-timer.txt          | 57 ++++++++++++++++++++++
+ 1 file changed, 57 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/timer/brcm,bcm6345-timer.txt
 
-diff --git a/Documentation/devicetree/bindings/watchdog/brcm,bcm6345-wdt.txt b/Documentation/devicetree/bindings/watchdog/brcm,bcm6345-wdt.txt
+diff --git a/Documentation/devicetree/bindings/timer/brcm,bcm6345-timer.txt b/Documentation/devicetree/bindings/timer/brcm,bcm6345-timer.txt
 new file mode 100644
-index 0000000..9d852d4
+index 0000000..2593907
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/watchdog/brcm,bcm6345-wdt.txt
-@@ -0,0 +1,35 @@
-+BCM6345 Watchdog timer
++++ b/Documentation/devicetree/bindings/timer/brcm,bcm6345-timer.txt
+@@ -0,0 +1,57 @@
++Broadcom BCM6345 Timer
++
++This block is a timer that is connected to one interrupt on the main interrupt
++controller and functions as a programmable interrupt controller for timer events.
++
++- 3 to 4 independent timers with their own maskable level interrupt bit (but not
++  per CPU because there is only one parent interrupt and the timers share it)
++
++- 1 watchdog timer with an unmaskable level interrupt
++
++- Contains one enable/status word pair
++
++- No atomic set/clear operations
++
++The lack of per CPU ability of timers makes them unusable as a set of
++clockevent devices, otherwise they could be attached to the remaining
++interrupts.
++
++The BCM6318 also has a separate interrupt for every timer except the watchdog.
 +
 +Required properties:
 +
-+- compatible: should be "brcm,bcm63<soc>-wdt", "brcm,bcm6345-wdt"
-+- reg: Specifies base physical address and size of the registers.
-+- clocks: Specify the clock used for timing
-+
-+Optional properties:
-+
-+- interrupt-parent: phandle to the interrupt controller
-+- interrupts: Specify the interrupt used for the watchdog timout warning
-+- timeout-sec: Contains the default watchdog timeout in seconds
++- compatible: should be "brcm,bcm<soc>-timer", "brcm,bcm6345-timer"
++- reg: specifies the base physical address and size of the registers, excluding
++  the watchdog registers
++- interrupt-controller: identifies the node as an interrupt controller
++- #interrupt-cells: specifies the number of cells needed to encode an interrupt
++  source, should be 1.
++- interrupt-parent: specifies the phandle to the parent interrupt controller(s)
++  this one is cascaded from
++- interrupts: specifies the interrupt line(s) in the interrupt-parent controller
++  node for the main timer interrupt, followed by the individual timer interrupts
++  if present; valid values depend on the type of parent interrupt controller
 +
 +Example:
 +
-+watchdog {
-+	compatible = "brcm,bcm63168-wdt", "brcm,bcm6345-wdt";
-+	reg = <0x1000009c 0x0c>;
-+	clocks = <&periph_clk>;
++timer: timer@0x10000080 {
++        compatible = "brcm,bcm63168-timer", "brcm,bcm6345-timer";
++        reg = <0x10000080 0x1c>;
 +
-+	interrupt-parent = <&timer>;
-+	interrupts = <3>;
-+	timeout-sec = <30>;
++        interrupt-controller;
++        #interrupt-cells = <1>;
++
++        interrupt-parent = <&periph_intc>;
++        interrupts = <0>;
 +};
 +
-+watchdog {
-+	compatible = "brcm,bcm6318-wdt", "brcm,bcm6345-wdt";
-+	reg = <0x10000068 0x0c>;
-+	clocks = <&periph_clk>;
++timer: timer@0x10000040 {
++        compatible = "brcm,bcm6318-timer", "brcm,bcm6345-timer";
++        reg = <0x10000040 0x28>;
 +
-+	interrupt-parent = <&timer>;
-+	interrupts = <3>;
-+	timeout-sec = <30>;
++        interrupt-controller;
++        #interrupt-cells = <1>;
++
++        interrupt-parent = <&periph_intc>;
++        interrupts = <31>, <0>, <1>, <2>, <3>;
 +};
 -- 
 2.1.4
