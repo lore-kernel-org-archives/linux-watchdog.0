@@ -1,77 +1,169 @@
-Return-path: <f.fainelli@gmail.com>
-Message-ID: <565358AF.2090609@gmail.com>
-Date: Mon, 23 Nov 2015 10:19:27 -0800
-From: Florian Fainelli <f.fainelli@gmail.com>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from proxima.lp0.eu ([81.2.80.65]:42517 "EHLO proxima.lp0.eu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752632AbbKWSzv (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 23 Nov 2015 13:55:51 -0500
+Subject: [PATCH (v2) 1/10] clocksource: Add brcm,bcm6345-timer device tree
+ binding
+To: Jonas Gorski <jogo@openwrt.org>
+References: <5650BFD6.5030700@simon.arlott.org.uk>
+ <CAOiHx=k0Aa+qrBT1J7_cQaQRxndBmwsgSgi3x0eJOYTAy6Zq7Q@mail.gmail.com>
+Cc: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	Ralf Baechle <ralf@linux-mips.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Jason Cooper <jason@lakedaemon.net>,
+	Marc Zyngier <marc.zyngier@arm.com>,
+	Kevin Cernekee <cernekee@gmail.com>,
+	Florian Fainelli <f.fainelli@gmail.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Miguel Gaio <miguel.gaio@efixo.com>,
+	Maxime Bizon <mbizon@freebox.fr>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	MIPS Mailing List <linux-mips@linux-mips.org>,
+	linux-watchdog@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>
+From: Simon Arlott <simon@fire.lp0.eu>
+Message-ID: <5653612A.4050309@simon.arlott.org.uk>
+Date: Mon, 23 Nov 2015 18:55:38 +0000
 MIME-Version: 1.0
-To: Jonas Gorski <jogo@openwrt.org>, Simon Arlott <simon@fire.lp0.eu>
-CC: Guenter Roeck <linux@roeck-us.net>,
- "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
- Ralf Baechle <ralf@linux-mips.org>, Thomas Gleixner <tglx@linutronix.de>,
- Jason Cooper <jason@lakedaemon.net>,
- Marc Zyngier <marc.zyngier@arm.com>, Kevin Cernekee <cernekee@gmail.com>,
- Wim Van Sebroeck <wim@iguana.be>,
- Maxime Bizon <mbizon@freebox.fr>,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- MIPS Mailing List <linux-mips@linux-mips.org>,
- linux-watchdog@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
- Pawel Moll <pawel.moll@arm.com>,
- Mark Rutland <mark.rutland@arm.com>,
- Ian Campbell <ijc+devicetree@hellion.org.uk>,
- Kumar Gala <galak@codeaurora.org>
-Subject: Re: [PATCH 6/10] watchdog: bcm63xx_wdt: Obtain watchdog clock HZ
- from "periph" clk
-References: <5650BFD6.5030700@simon.arlott.org.uk> <5650C08C.6090300@simon.arlott.org.uk> <5650E2FA.6090408@roeck-us.net> <5650E5BB.6020404@simon.arlott.org.uk> <56512937.6030903@roeck-us.net> <5651CB13.4090704@simon.arlott.org.uk> <5651CC3C.5090200@simon.arlott.org.uk> <CAOiHx==Z=4H=-L2CY-FE5m6WMV0XzgsCmy1b9tUbsmOHydzkEw@mail.gmail.com>
-In-Reply-To: <CAOiHx==Z=4H=-L2CY-FE5m6WMV0XzgsCmy1b9tUbsmOHydzkEw@mail.gmail.com>
+In-Reply-To: <CAOiHx=k0Aa+qrBT1J7_cQaQRxndBmwsgSgi3x0eJOYTAy6Zq7Q@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Content-Transfer-Encoding: 8bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On 23/11/15 07:02, Jonas Gorski wrote:
-> Hi,
+Add device tree bindings for the BCM6345/BCM6318 timers. This is required
+for the BCM6345 watchdog which needs to respond to one of the timer
+interrupts.
+
+Signed-off-by: Simon Arlott <simon@fire.lp0.eu>
+---
+On 23/11/15 15:33, Jonas Gorski wrote:
+> On Sat, Nov 21, 2015 at 8:02 PM, Simon Arlott <simon@fire.lp0.eu> wrote:
+>> +- compatible: should be "brcm,bcm<soc>-timer", "brcm,bcm6345-timer"
 > 
-> On Sun, Nov 22, 2015 at 3:07 PM, Simon Arlott <simon@fire.lp0.eu> wrote:
->> Instead of using a fixed clock HZ in the driver, obtain it from the
->> "periph" clk that the watchdog timer uses.
->>
->> Signed-off-by: Simon Arlott <simon@fire.lp0.eu>
->> ---
->>  drivers/watchdog/bcm63xx_wdt.c | 36 +++++++++++++++++++++++++++++++-----
->>  1 file changed, 31 insertions(+), 5 deletions(-)
->>
->> diff --git a/drivers/watchdog/bcm63xx_wdt.c b/drivers/watchdog/bcm63xx_wdt.c
->> index 1d2a501..eb5e551 100644
->> --- a/drivers/watchdog/bcm63xx_wdt.c
->> +++ b/drivers/watchdog/bcm63xx_wdt.c
->> @@ -13,6 +13,7 @@
->>
->>  #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
->>
->> +#include <linux/clk.h>
->>  #include <linux/errno.h>
->>  #include <linux/io.h>
->>  #include <linux/kernel.h>
->> @@ -32,11 +33,13 @@
->>
->>  #define PFX KBUILD_MODNAME
->>
->> -#define WDT_HZ                 50000000                /* Fclk */
->> +#define WDT_CLK_NAME           "periph"
-> 
-> @Florian:
-> Is this correct? The comment for the watchdog in 6358_map_part.h and
-> earlier claims that the clock is 40 MHz there, but the code uses 50MHz
-> - is this a bug in the comments or is it a bug taken over from the
-> original broadcom code? I'm sure that the periph clock being 50 MHz
-> even on the older chips is correct, else we'd have noticed that in
-> serial output (where it's also used).
+> Since bcm6318 uses a slightly different register layout than the
+> earlier SoCs, I'd argue that using bcm6345-timer as a compatible for
+> bcm6318 is wrong.
 
-There are references to a Fbus2 clock in documentation, but I could not
-find any actual documentation for its actual clock frequency, I would be
-surprised if this chip would have diverged from the previous and future
-ones and used a 40Mhz clock. 6345 started with a peripheral clock
-running at 50Mhz, and that is true for all chips since then AFAICT.
+I've split them out into two very similar bindings.
 
-I agree we would have noticed this with the UART or SPI controllers if
-that was not true, so probably a code glitch here...
+Patches 1/4 and 2/4 are replaced with (v2) 1/10 and (v2) 2/10.
+
+ .../bindings/timer/brcm,bcm6318-timer.txt          | 44 ++++++++++++++++++++
+ .../bindings/timer/brcm,bcm6345-timer.txt          | 47 ++++++++++++++++++++++
+ 2 files changed, 91 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/timer/brcm,bcm6318-timer.txt
+ create mode 100644 Documentation/devicetree/bindings/timer/brcm,bcm6345-timer.txt
+
+diff --git a/Documentation/devicetree/bindings/timer/brcm,bcm6318-timer.txt b/Documentation/devicetree/bindings/timer/brcm,bcm6318-timer.txt
+new file mode 100644
+index 0000000..cf4be7e
+--- /dev/null
++++ b/Documentation/devicetree/bindings/timer/brcm,bcm6318-timer.txt
+@@ -0,0 +1,44 @@
++Broadcom BCM6318 Timer
++
++This block is a timer that is connected to multiple interrupts on the main
++interrupt controller and functions as a programmable interrupt controller for
++timer events. There is a main timer interrupt for all timers.
++
++- 4 independent timers with their own interrupt, and own maskable level
++  interrupt bit in the main timer interrupt
++
++- 1 watchdog timer with an unmaskable level interrupt bit in the main timer
++  interrupt
++
++- Contains one enable/status word pair
++
++- No atomic set/clear operations
++
++Required properties:
++
++- compatible: should be "brcm,bcm<soc>-timer", "brcm,bcm6318-timer"
++- reg: specifies the base physical address and size of the registers, excluding
++  the watchdog registers
++- interrupt-controller: identifies the node as an interrupt controller
++- #interrupt-cells: specifies the number of cells needed to encode an interrupt
++  source, should be 1.
++- interrupt-parent: specifies the phandle to the parent interrupt controller(s)
++  this one is cascaded from
++- interrupts: specifies the interrupt line(s) in the interrupt-parent controller
++  node for the main timer interrupt, followed by the individual timer
++  interrupts; valid values depend on the type of parent interrupt controller
++- clocks: phandle of timer reference clock (periph)
++
++Example:
++
++timer: timer@10000040 {
++	compatible = "brcm,bcm63148-timer", "brcm,bcm6318-timer";
++	reg = <0x10000040 0x28>;
++
++	interrupt-controller;
++	#interrupt-cells = <1>;
++
++	interrupt-parent = <&periph_intc>;
++	interrupts = <31>, <0>, <1>, <2>, <3>;
++	clock = <&periph_osc>;
++};
+diff --git a/Documentation/devicetree/bindings/timer/brcm,bcm6345-timer.txt b/Documentation/devicetree/bindings/timer/brcm,bcm6345-timer.txt
+new file mode 100644
+index 0000000..03250dd
+--- /dev/null
++++ b/Documentation/devicetree/bindings/timer/brcm,bcm6345-timer.txt
+@@ -0,0 +1,47 @@
++Broadcom BCM6345 Timer
++
++This block is a timer that is connected to one interrupt on the main interrupt
++controller and functions as a programmable interrupt controller for timer
++events.
++
++- 3 independent timers with their own maskable level interrupt bit (but not
++  per CPU because there is only one parent interrupt and the timers share it)
++
++- 1 watchdog timer with an unmaskable level interrupt
++
++- Contains one enable/status word pair
++
++- No atomic set/clear operations
++
++The lack of per CPU ability of timers makes them unusable as a set of
++clockevent devices, otherwise they could be attached to the remaining
++interrupts.
++
++Required properties:
++
++- compatible: should be "brcm,bcm<soc>-timer", "brcm,bcm6345-timer"
++- reg: specifies the base physical address and size of the registers, excluding
++  the watchdog registers
++- interrupt-controller: identifies the node as an interrupt controller
++- #interrupt-cells: specifies the number of cells needed to encode an interrupt
++  source, should be 1.
++- interrupt-parent: specifies the phandle to the parent interrupt controller(s)
++  this one is cascaded from
++- interrupts: specifies the interrupt line(s) in the interrupt-parent controller
++  node for the timer interrupt; valid values depend on the type of parent
++  interrupt controller
++- clocks: phandle of timer reference clock (periph)
++
++Example:
++
++timer: timer@10000080 {
++	compatible = "brcm,bcm63168-timer", "brcm,bcm6345-timer";
++	reg = <0x10000080 0x1c>;
++
++	interrupt-controller;
++	#interrupt-cells = <1>;
++
++	interrupt-parent = <&periph_intc>;
++	interrupts = <0>;
++	clock·=·<&periph_osc>;
++};
 -- 
-Florian
+2.1.4
+
+-- 
+Simon Arlott
