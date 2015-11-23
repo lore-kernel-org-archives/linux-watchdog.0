@@ -8,247 +8,80 @@ Cc: Wim Van Sebroeck <wim@iguana.be>,
 	linux-doc@vger.kernel.org,
 	Jonathan Corbet <corbet@lwn.net>,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v5 2/8] watchdog: Introduce WDOG_RUNNING flag
-Date: Sun, 22 Nov 2015 19:20:59 -0800
-Message-Id: <1448248865-21684-3-git-send-email-linux@roeck-us.net>
+Subject: [PATCH v5 3/8] watchdog: Make set_timeout function optional
+Date: Sun, 22 Nov 2015 19:21:00 -0800
+Message-Id: <1448248865-21684-4-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1448248865-21684-1-git-send-email-linux@roeck-us.net>
 References: <1448248865-21684-1-git-send-email-linux@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
-The WDOG_RUNNING flag is expected to be set by watchdog drivers if
-the hardware watchdog is running. If the flag is set, the watchdog
-subsystem will ping the watchdog even if the watchdog device is closed.
+For some watchdogs, the hardware timeout is fixed, and the
+watchdog driver depends on the watchdog core to handle the
+actual timeout. In this situation, the watchdog driver might
+only set the 'timeout' variable but do nothing else.
+This can as well be handled by the infrastructure, so make
+the set_timeout callback optional. If WDIOF_SETTIMEOUT is
+configured but the .set_timeout callback is not available,
+update the timeout variable in the infrastructure code.
 
-The watchdog driver stop function is now optional and may be omitted
-if the watchdog can not be stopped. If stopping the watchdog is not
-possible but the driver implements a stop function, it is responsible
-to set the WDOG_RUNNING flag in its stop function.
-
-Cc: Timo Kokkonen <timo.kokkonen@offcode.fi>
+Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
 v5: Rebased to v4.4-rc1
-v4: No change
-v3: Clarified meaning of WDOG_ACTIVE.
-    Do not call cancel_delayed_work_sync() from watchdog_update_worker().
-    Call it directly where needed instead, to keep the common code simple.
-    Do not (re-)start an already running watchdog when opening the watchdog
-    device. Send a heartbeat request instead.
-v2: Improved documentation.
+v4: No changes
+v3: No changes
+v2: No changes
 ---
- Documentation/watchdog/watchdog-kernel-api.txt | 28 +++++++++------
- drivers/watchdog/watchdog_core.c               |  2 +-
- drivers/watchdog/watchdog_dev.c                | 49 +++++++++++++++++++-------
- include/linux/watchdog.h                       |  7 ++++
- 4 files changed, 63 insertions(+), 23 deletions(-)
+ Documentation/watchdog/watchdog-kernel-api.txt | 5 +++++
+ drivers/watchdog/watchdog_dev.c                | 9 ++++++---
+ 2 files changed, 11 insertions(+), 3 deletions(-)
 
 diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
-index f66859117d1f..3f0963b2c33e 100644
+index 3f0963b2c33e..f480a9355b43 100644
 --- a/Documentation/watchdog/watchdog-kernel-api.txt
 +++ b/Documentation/watchdog/watchdog-kernel-api.txt
-@@ -146,17 +146,18 @@ are:
-   device.
-   The routine needs a pointer to the watchdog timer device structure as a
-   parameter. It returns zero on success or a negative errno code for failure.
--* stop: with this routine the watchdog timer device is being stopped.
--  The routine needs a pointer to the watchdog timer device structure as a
--  parameter. It returns zero on success or a negative errno code for failure.
--  Some watchdog timer hardware can only be started and not be stopped. The
--  driver supporting this hardware needs to make sure that a start and stop
--  routine is being provided. This can be done by using a timer in the driver
--  that regularly sends a keepalive ping to the watchdog timer hardware.
- 
- Not all watchdog timer hardware supports the same functionality. That's why
- all other routines/operations are optional. They only need to be provided if
- they are supported. These optional routines/operations are:
-+* stop: with this routine the watchdog timer device is being stopped.
-+  The routine needs a pointer to the watchdog timer device structure as a
-+  parameter. It returns zero on success or a negative errno code for failure.
-+  Some watchdog timer hardware can only be started and not be stopped. A
-+  driver supporting such hardware does not have to implement the stop routine.
-+  If a driver has no stop function, the watchdog core will set WDOG_RUNNING and
-+  start calling the driver's keepalive pings function after the watchdog device
-+  is closed.
- * ping: this is the routine that sends a keepalive ping to the watchdog timer
-   hardware.
-   The routine needs a pointer to the watchdog timer device structure as a
-@@ -196,9 +197,8 @@ they are supported. These optional routines/operations are:
- The status bits should (preferably) be set with the set_bit and clear_bit alike
- bit-operations. The status bits that are defined are:
- * WDOG_ACTIVE: this status bit indicates whether or not a watchdog timer device
--  is active or not. When the watchdog is active after booting, then you should
--  set this status bit (Note: when you register the watchdog timer device with
--  this bit set, then opening /dev/watchdog will skip the start operation)
-+  is active or not from user perspective. User space is expected to send
-+  heartbeat requests to the driver while this flag is set.
- * WDOG_DEV_OPEN: this status bit shows whether or not the watchdog device
-   was opened via /dev/watchdog.
-   (This bit should only be used by the WatchDog Timer Driver Core).
-@@ -212,6 +212,14 @@ bit-operations. The status bits that are defined are:
-   any watchdog_ops, so that you can be sure that no operations (other then
-   unref) will get called after unregister, even if userspace still holds a
-   reference to /dev/watchdog
-+* WDOG_RUNNING: Set by the watchdog driver if the hardware watchdog is running.
-+  The bit must be set if the watchdog timer hardware can not be stopped.
-+  The bit may also be set if the watchdog timer is running aftyer booting,
-+  before the watchdog device is opened. If set, the watchdog infrastructure
-+  will send keepalives to the watchdog hardware while WDOG_ACTIVE is not set.
-+  Note: when you register the watchdog timer device with this bit set,
-+  then opening /dev/watchdog will skip the start operation but send a keepalive
-+  request instead.
- 
-   To set the WDOG_NO_WAY_OUT status bit (before registering your watchdog
-   timer device) you can either:
-diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-index 873f13972cf4..c2202ab62490 100644
---- a/drivers/watchdog/watchdog_core.c
-+++ b/drivers/watchdog/watchdog_core.c
-@@ -145,7 +145,7 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
- 		return -EINVAL;
- 
- 	/* Mandatory operations need to be supported */
--	if (wdd->ops->start == NULL || wdd->ops->stop == NULL)
-+	if (!wdd->ops->start)
- 		return -EINVAL;
- 
- 	watchdog_check_min_max_timeout(wdd);
+@@ -184,6 +184,11 @@ they are supported. These optional routines/operations are:
+   (if it is larger than hw_max_timeout_ms), or to the achieved timeout value.
+   (Note: the WDIOF_SETTIMEOUT needs to be set in the options field of the
+   watchdog's info structure).
++  If the watchdog driver does not have to perform any action but setting the
++  watchdog_device.timeout, this callback can be omitted.
++  If set_timeout is not provided but, WDIOF_SETTIMEOUT is set, the watchdog
++  infrastructure updates the timeout value of the watchdog_device internally
++  to the requested value.
+ * get_timeleft: this routines returns the time that's left before a reset.
+ * ref: the operation that calls kref_get on the kref of a dynamically
+   allocated watchdog_device struct.
 diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 1dba3f57dba3..bb3bd16ffaf6 100644
+index bb3bd16ffaf6..e73407b42df5 100644
 --- a/drivers/watchdog/watchdog_dev.c
 +++ b/drivers/watchdog/watchdog_dev.c
-@@ -68,7 +68,8 @@ static inline bool watchdog_need_worker(struct watchdog_device *wdd)
- 	 *   requests.
- 	 * - Userspace requests a longer timeout than the hardware can handle.
- 	 */
--	return watchdog_active(wdd) && hm && t > hm;
-+	return hm && ((watchdog_active(wdd) && t > hm) ||
-+		      (t && !watchdog_active(wdd) && watchdog_running(wdd)));
- }
- 
- static long watchdog_next_keepalive(struct watchdog_device *wdd)
-@@ -83,6 +84,9 @@ static long watchdog_next_keepalive(struct watchdog_device *wdd)
- 	hw_timeout_ms = min(timeout_ms, wdd->max_hw_timeout_ms);
- 	keepalive_interval = msecs_to_jiffies(hw_timeout_ms / 2);
- 
-+	if (!watchdog_active(wdd))
-+		return keepalive_interval;
-+
- 	/*
- 	 * To ensure that the watchdog times out wdd->timeout seconds
- 	 * after the most recent ping from userspace, the last
-@@ -112,7 +116,7 @@ static int _watchdog_ping(struct watchdog_device *wdd)
- 	if (test_bit(WDOG_UNREGISTERED, &wdd->status))
- 		return -ENODEV;
- 
--	if (!watchdog_active(wdd))
-+	if (!watchdog_active(wdd) && !watchdog_running(wdd))
- 		return 0;
- 
- 	if (wdd->ops->ping)
-@@ -178,10 +182,10 @@ static int watchdog_start(struct watchdog_device *wdd)
- 		goto out_start;
- 	}
- 
--	if (watchdog_active(wdd))
--		goto out_start;
--
--	err = wdd->ops->start(wdd);
-+	if (watchdog_running(wdd) && wdd->ops->ping)
-+		err = wdd->ops->ping(wdd);
-+	else
-+		err = wdd->ops->start(wdd);
- 	if (err == 0) {
- 		set_bit(WDOG_ACTIVE, &wdd->status);
- 		wdd->last_keepalive = jiffies;
-@@ -223,10 +227,14 @@ static int watchdog_stop(struct watchdog_device *wdd)
- 		goto out_stop;
- 	}
- 
--	err = wdd->ops->stop(wdd);
-+	if (wdd->ops->stop)
-+		err = wdd->ops->stop(wdd);
-+	else
-+		set_bit(WDOG_RUNNING, &wdd->status);
-+
- 	if (err == 0) {
- 		clear_bit(WDOG_ACTIVE, &wdd->status);
--		cancel_delayed_work(&wdd->work);
-+		watchdog_update_worker(wdd, true);
- 	}
- 
- out_stop:
-@@ -512,7 +520,7 @@ static int watchdog_open(struct inode *inode, struct file *file)
- 	 * If the /dev/watchdog device is open, we don't want the module
- 	 * to be unloaded.
- 	 */
--	if (!try_module_get(wdd->ops->owner))
-+	if (!watchdog_running(wdd) && !try_module_get(wdd->ops->owner))
- 		goto out;
- 
- 	err = watchdog_start(wdd);
-@@ -570,9 +578,15 @@ static int watchdog_release(struct inode *inode, struct file *file)
- 	}
- 
- 	cancel_delayed_work_sync(&wdd->work);
-+	watchdog_update_worker(wdd, false);
- 
--	/* Allow the owner module to be unloaded again */
--	module_put(wdd->ops->owner);
-+	/*
-+	 * Allow the owner module to be unloaded again unless the watchdog
-+	 * is still running. If the watchdog is still running, it can not
-+	 * be stopped, and its driver must not be unloaded.
-+	 */
-+	if (!watchdog_running(wdd))
-+		module_put(wdd->ops->owner);
- 
- 	/* make sure that /dev/watchdog can be re-opened */
- 	clear_bit(WDOG_DEV_OPEN, &wdd->status);
-@@ -645,8 +659,19 @@ int watchdog_dev_register(struct watchdog_device *wdd)
- 			misc_deregister(&watchdog_miscdev);
- 			old_wdd = NULL;
- 		}
-+		return err;
- 	}
--	return err;
-+
-+	/*
-+	 * If the watchdog is running, prevent its driver from being unloaded,
-+	 * and schedule an immediate ping.
-+	 */
-+	if (watchdog_running(wdd)) {
-+		__module_get(wdd->ops->owner);
-+		queue_delayed_work(watchdog_wq, &wdd->work, 0);
-+	}
-+
-+	return 0;
- }
- 
- /*
-diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
-index b535b02b1d7f..f0292d56caf0 100644
---- a/include/linux/watchdog.h
-+++ b/include/linux/watchdog.h
-@@ -108,6 +108,7 @@ struct watchdog_device {
- #define WDOG_ALLOW_RELEASE	2	/* Did we receive the magic char ? */
- #define WDOG_NO_WAY_OUT		3	/* Is 'nowayout' feature set ? */
- #define WDOG_UNREGISTERED	4	/* Has the device been unregistered */
-+#define WDOG_RUNNING		5	/* True if HW watchdog running */
- 	/* the following variables are for internal use only */
- 	struct mutex lock;
- 	unsigned long last_keepalive;
-@@ -124,6 +125,12 @@ static inline bool watchdog_active(struct watchdog_device *wdd)
- 	return test_bit(WDOG_ACTIVE, &wdd->status);
- }
- 
-+/* Use the following function to check whether or not the watchdog is running */
-+static inline bool watchdog_running(struct watchdog_device *wdd)
-+{
-+	return test_bit(WDOG_RUNNING, &wdd->status);
-+}
-+
- /* Use the following function to set the nowayout feature */
- static inline void watchdog_set_nowayout(struct watchdog_device *wdd, bool nowayout)
+@@ -282,9 +282,9 @@ out_status:
+ static int watchdog_set_timeout(struct watchdog_device *wdd,
+ 							unsigned int timeout)
  {
+-	int err;
++	int err = 0;
+ 
+-	if (!wdd->ops->set_timeout || !(wdd->info->options & WDIOF_SETTIMEOUT))
++	if (!(wdd->info->options & WDIOF_SETTIMEOUT))
+ 		return -EOPNOTSUPP;
+ 
+ 	if (watchdog_timeout_invalid(wdd, timeout))
+@@ -297,7 +297,10 @@ static int watchdog_set_timeout(struct watchdog_device *wdd,
+ 		goto out_timeout;
+ 	}
+ 
+-	err = wdd->ops->set_timeout(wdd, timeout);
++	if (wdd->ops->set_timeout)
++		err = wdd->ops->set_timeout(wdd, timeout);
++	else
++		wdd->timeout = timeout;
+ 
+ 	watchdog_update_worker(wdd, true);
+ 
 -- 
 2.1.4
