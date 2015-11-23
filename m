@@ -1,71 +1,75 @@
 Return-path: <damien.riegel@savoirfairelinux.com>
-Date: Mon, 23 Nov 2015 18:31:37 -0500
 From: Damien Riegel <damien.riegel@savoirfairelinux.com>
-To: Harald Geyer <harald@ccbib.org>, wim@iguana.be,
-	linux-watchdog@vger.kernel.org,
-	Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
-	linux@roeck-us.net
-Subject: Re: In-reply-to:
- <1448056496-2335-1-git-send-email-damien.riegel@savoirfairelinux.com>
-Message-ID: <20151123233136.GA18839@localhost>
-References: <1448056496-2335-2-git-send-email-damien.riegel@savoirfairelinux.com>
- <E1a0sdo-0000RV-FA@stardust.g4.wien.funkfeuer.at>
- <20151123153747.GA13332@localhost>
- <E1a0vjV-0000O4-QX@stardust.g4.wien.funkfeuer.at>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1a0vjV-0000O4-QX@stardust.g4.wien.funkfeuer.at>
+To: linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org
+Cc: Lee Jones <lee.jones@linaro.org>,
+	robh+dt@kernel.org,
+	shawnguo@kernel.org,
+	kernel@pengutronix.de,
+	wim@iguana.be,
+	sameo@linux.intel.com,
+	dinh.linux@gmail.com,
+	linux@roeck-us.net,
+	Arnd Bergmann <arnd@arndb.de>,
+	kernel@savoirfairelinux.com,
+	Damien Riegel <damien.riegel@savoirfairelinux.com>
+Subject: [PATCH v4 0/5] Add board support for TS-4800
+Date: Mon, 23 Nov 2015 10:17:36 -0500
+Message-Id: <1448291861-28543-1-git-send-email-damien.riegel@savoirfairelinux.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Mon, Nov 23, 2015 at 07:20:57PM +0100, Harald Geyer wrote:
-> Damien Riegel writes:
-> > > +	if (code == SYS_DOWN || code == SYS_HALT) {
-> > > 
-> > > I think you want this to be (code == SYS_POWER_OFF || code == SYS_HALT)
-> > > AFAIK SYS_DOWN is the code for a reboot, where the system should come
-> > > back up immediatly, so probably we shouldn't disable the watchdog in
-> > > this case, for the system might crash during going down.
-> > 
-> > Well, most of the drivers (all of them but gpio) that I changed stopped
-> > on SYS_HALT and SYS_DOWN, so they explicitely wanted to stop the
-> > watchdog on reboot. I just factorized that in watchdog core.
-> 
-> If they wanted to do so, or the code just got copied around, is
-> unclear. SYS_DOWN isn't the most helpful name after all, but ...
->  
-> > Maybe they should not stop on reboot in the first place, but this serie
-> > does not introduce a new behaviour.
-> 
-> okay. I can always send a follow up patch, if I care enough.
-> 
+This patch serie adds support for TS-4800 board. This board,                                                                              
+manufactured by Technologic Systems, is based on an IMX515.
 
-I don't understand why you assume this is not the desired behaviour and
-that the code was just copied around.
+The first stage bootloader, called TS-BOOTROM, enables the watchdog,
+so a watchdog driver is required to prevent board from rebooting.
 
-> > > More importantly however we should stop the watchdog on SYS_POWER_OFF
-> > > I think.
-> > > 
-> > My understanding here is that if the system is powered off, the watchdog
-> > will be powered off too, so there is no need to stop it.
-> 
-> This is true for many platforms, but I'm pretty sure that not all
-> platforms have a real power off. So unless you can think of a reason not
-> to stop the watchdog on power off, I think the core should do it.
-> Actually if this can't be the default, we probably need to extend
-> your code so that drivers can select the behaviour they want.
-> (Of course we would hate to do that, as power management and watchdogs
-> are pretty orthogonal subsystems and having one depend on the behaviour
-> of the other is very unfortunate.)
+The current device tree is minimal but it allows to get a shell on the
+board.
 
-We have to assume that power-off means that the system will be powered
-off (...). If a platform has no real power-off, then it should be
-halted, and in that case the core would stop the watchdog to prevent a
-spurious reboot.
+Changes in v4:
+ - syscon: rewrite DT property reading to be clearer
+ - watchdog: made fixes suggested by Guenter (now uses
+   watchdog_init_timeout, u32 instead of u16, fixed error checking in
+   probe, cleaned set_timeout)
 
-But maybe you're right and we should not make such distinction between
-power-off and halt, but I don't really want to make changes in drivers I
-don't know the context in which they are used.
+Changes in v3:
+ - Rebased on v4.3
+ - Changed vendor prefix from "ts" to "technologic"
+ - Added a DT option to generic syscon driver to allow regmap configuration
+ - Dropped custom mfd driver, use generic syscon driver instead.
+
+Changes in v2:
+ - Added a mfd driver to handle syscon registers
+ - The watchdog driver now uses the regmap (created by the mfd driver)
+   to access the feed register
+ - Remove watchdog's dependency on SOC_IMX51
 
 
-Damien.
+Damien Riegel (5):
+  of: add vendor prefix for Technologic Systems
+  mfd: syscon: add a DT property to set value width
+  watchdog: ts4800: add driver for TS-4800 watchdog
+  ARM: imx_v6_v7_defconfig: add TS-4800 watchdog
+  ARM: dts: TS-4800: add basic device tree
+
+ .../devicetree/bindings/arm/technologic.txt        |   6 +
+ Documentation/devicetree/bindings/mfd/syscon.txt   |   3 +
+ .../devicetree/bindings/vendor-prefixes.txt        |   1 +
+ .../devicetree/bindings/watchdog/ts4800-wdt.txt    |  25 +++
+ arch/arm/boot/dts/Makefile                         |   3 +-
+ arch/arm/boot/dts/imx51-ts4800.dts                 | 190 ++++++++++++++++++
+ arch/arm/configs/imx_v6_v7_defconfig               |   1 +
+ drivers/mfd/syscon.c                               |  13 ++
+ drivers/watchdog/Kconfig                           |  10 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/ts4800_wdt.c                      | 215 +++++++++++++++++++++
+ 11 files changed, 467 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/devicetree/bindings/arm/technologic.txt
+ create mode 100644 Documentation/devicetree/bindings/watchdog/ts4800-wdt.txt
+ create mode 100644 arch/arm/boot/dts/imx51-ts4800.dts
+ create mode 100644 drivers/watchdog/ts4800_wdt.c
+
+-- 
+2.5.0
