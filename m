@@ -1,230 +1,54 @@
-Return-path: <linux@roeck-us.net>
-From: Guenter Roeck <linux@roeck-us.net>
-To: linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	linux-kernel@vger.kernel.org,
-	Timo Kokkonen <timo.kokkonen@offcode.fi>,
-	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>,
-	linux-doc@vger.kernel.org,
-	Jonathan Corbet <corbet@lwn.net>,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: [RFT PATCH v5 8/8] watchdog: at91sam9: Convert to use infrastructure triggered keepalives
-Date: Sun, 22 Nov 2015 19:21:05 -0800
-Message-Id: <1448248865-21684-9-git-send-email-linux@roeck-us.net>
-In-Reply-To: <1448248865-21684-1-git-send-email-linux@roeck-us.net>
-References: <1448248865-21684-1-git-send-email-linux@roeck-us.net>
+Return-path: <Ray.Huang@amd.com>
+Date: Mon, 23 Nov 2015 11:35:51 +0800
+From: Huang Rui <ray.huang@amd.com>
+To: Denis Turischev <denis.turischev@compulab.co.il>
+CC: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck <wim@iguana.be>,
+	"linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Borislav
+ Petkov" <bp@alien8.de>, Vincent Wan <vincent.wan@amd.com>, Tony Li
+	<tony.li@amd.com>
+Subject: Re: [PATCH] sp5100_tco: Add AMD Mullins platform support
+Message-ID: <20151123033549.GA2666@hr-amur2>
+References: <564D9CB0.1090209@compulab.co.il>
+ <20151120023322.GB21619@hr-amur2>
+ <565182B0.9070604@compulab.co.il>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <565182B0.9070604@compulab.co.il>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-The watchdog infrastructure now supports handling watchdog keepalive
-if the watchdog is running while the watchdog device is closed.
-The infrastructure now also supports generating additional heartbeats
-if the maximum hardware timeout is smaller than or close to the
-configured timeout. Convert the driver to use this
-infrastructure.
+On Sun, Nov 22, 2015 at 10:54:08AM +0200, Denis Turischev wrote:
+> Hi Rui,
+> 
+> On 11/20/2015 04:33 AM, Huang Rui wrote:
+> > Hi Denis,
+> > 
+> > On Thu, Nov 19, 2015 at 05:56:00PM +0800, Denis Turischev wrote:
+> >> AMD Mullins watchdog is fully compatible to the previous Hudson chipset,
+> >> reuse the existent sp5100_tco driver.
+> >>
+> > 
+> > Thank you to add this support!
+> > Actually, PCI_DEVICE_ID_AMD_HUDSON2_SMBUS is only the SMBus device id
+> > on AMD mullins but also on many other AMD platforms. Could you please
+> > share some test method to me, that I am glad to do some quick tests. :)
+> 
+> My device is Compulabs's fitlet. It's a fanless mini PC, also known as mintbox mini.
+> http://fit-pc.com/wiki/index.php/Fit-PC_Product_Line:_fitlet
+> Processor's datasheet:
+> http://support.amd.com/TechDocs/52740_16h_Models_30h-3Fh_BKDG.pdf
+> 
+> The dmesg output:
+> sp5100_tco: SP5100/SB800 TCO WatchDog Timer Driver v0.05
+> sp5100_tco: PCI Revision ID: 0x42
+> sp5100_tco: Using 0xfeb00000 for watchdog MMIO address
+> sp5100_tco: Last reboot was not triggered by watchdog.
+> sp5100_tco: initialized (0xffffc90000702000). heartbeat=60 sec (nowayout=0)
+> 
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
-v5: Rebased to v4.4-rc1
-v4: No changes
-v3: No changes
-v2: No changes
----
- drivers/watchdog/at91sam9_wdt.c | 103 +++++-----------------------------------
- 1 file changed, 12 insertions(+), 91 deletions(-)
+I verified it in my side. Thank you. :)
+And found AMD new Carrizo platform also supported sp5100_tco watchdog.
+I will send a patch to add support to KernCZ(Carrizo) chipset later.
 
-diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
-index 7e6acaf3ece4..a1c1c79b700e 100644
---- a/drivers/watchdog/at91sam9_wdt.c
-+++ b/drivers/watchdog/at91sam9_wdt.c
-@@ -30,7 +30,6 @@
- #include <linux/types.h>
- #include <linux/watchdog.h>
- #include <linux/jiffies.h>
--#include <linux/timer.h>
- #include <linux/bitops.h>
- #include <linux/uaccess.h>
- #include <linux/of.h>
-@@ -49,8 +48,8 @@
-  * use this to convert a watchdog
-  * value from/to milliseconds.
-  */
--#define ticks_to_hz_rounddown(t)	((((t) + 1) * HZ) >> 8)
--#define ticks_to_hz_roundup(t)		(((((t) + 1) * HZ) + 255) >> 8)
-+#define ticks_to_ms_rounddown(t)	((((t) + 1) * 1000) >> 8)
-+#define ticks_to_ms_roundup(t)		(((((t) + 1) * 1000) + 255) >> 8)
- #define ticks_to_secs(t)		(((t) + 1) >> 8)
- #define secs_to_ticks(s)		((s) ? (((s) << 8) - 1) : 0)
- 
-@@ -65,9 +64,6 @@
- /* Hardware timeout in seconds */
- #define WDT_HW_TIMEOUT 2
- 
--/* Timer heartbeat (500ms) */
--#define WDT_TIMEOUT	(HZ/2)
--
- /* User land timeout */
- #define WDT_HEARTBEAT 15
- static int heartbeat;
-@@ -84,11 +80,8 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started "
- struct at91wdt {
- 	struct watchdog_device wdd;
- 	void __iomem *base;
--	unsigned long next_heartbeat;	/* the next_heartbeat for the timer */
--	struct timer_list timer;	/* The timer that pings the watchdog */
- 	u32 mr;
- 	u32 mr_mask;
--	unsigned long heartbeat;	/* WDT heartbeat in jiffies */
- 	bool nowayout;
- 	unsigned int irq;
- 	struct clk *sclk;
-@@ -109,47 +102,13 @@ static irqreturn_t wdt_interrupt(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
--/*
-- * Reload the watchdog timer.  (ie, pat the watchdog)
-- */
--static inline void at91_wdt_reset(struct at91wdt *wdt)
--{
--	wdt_write(wdt, AT91_WDT_CR, AT91_WDT_KEY | AT91_WDT_WDRSTT);
--}
--
--/*
-- * Timer tick
-- */
--static void at91_ping(unsigned long data)
--{
--	struct at91wdt *wdt = (struct at91wdt *)data;
--	if (time_before(jiffies, wdt->next_heartbeat) ||
--	    !watchdog_active(&wdt->wdd)) {
--		at91_wdt_reset(wdt);
--		mod_timer(&wdt->timer, jiffies + wdt->heartbeat);
--	} else {
--		pr_crit("I will reset your machine !\n");
--	}
--}
--
- static int at91_wdt_start(struct watchdog_device *wdd)
- {
- 	struct at91wdt *wdt = to_wdt(wdd);
--	/* calculate when the next userspace timeout will be */
--	wdt->next_heartbeat = jiffies + wdd->timeout * HZ;
--	return 0;
--}
- 
--static int at91_wdt_stop(struct watchdog_device *wdd)
--{
--	/* The watchdog timer hardware can not be stopped... */
--	return 0;
--}
-+	wdt_write(wdt, AT91_WDT_CR, AT91_WDT_KEY | AT91_WDT_WDRSTT);
- 
--static int at91_wdt_set_timeout(struct watchdog_device *wdd, unsigned int new_timeout)
--{
--	wdd->timeout = new_timeout;
--	return at91_wdt_start(wdd);
-+	return 0;
- }
- 
- static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
-@@ -159,8 +118,8 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
- 	u32 value;
- 	int err;
- 	u32 mask = wdt->mr_mask;
--	unsigned long min_heartbeat = 1;
--	unsigned long max_heartbeat;
-+	unsigned int min_timeout = jiffies_to_msecs(1);
-+	unsigned int hw_timeout;
- 	struct device *dev = &pdev->dev;
- 
- 	tmp = wdt_read(wdt, AT91_WDT_MR);
-@@ -182,31 +141,15 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
- 	delta = (tmp & AT91_WDT_WDD) >> 16;
- 
- 	if (delta < value)
--		min_heartbeat = ticks_to_hz_roundup(value - delta);
-+		min_timeout = ticks_to_ms_roundup(value - delta);
- 
--	max_heartbeat = ticks_to_hz_rounddown(value);
--	if (!max_heartbeat) {
-+	hw_timeout = ticks_to_ms_rounddown(value);
-+	if (hw_timeout < min_timeout * 2) {
- 		dev_err(dev,
- 			"heartbeat is too small for the system to handle it correctly\n");
- 		return -EINVAL;
- 	}
--
--	/*
--	 * Try to reset the watchdog counter 4 or 2 times more often than
--	 * actually requested, to avoid spurious watchdog reset.
--	 * If this is not possible because of the min_heartbeat value, reset
--	 * it at the min_heartbeat period.
--	 */
--	if ((max_heartbeat / 4) >= min_heartbeat)
--		wdt->heartbeat = max_heartbeat / 4;
--	else if ((max_heartbeat / 2) >= min_heartbeat)
--		wdt->heartbeat = max_heartbeat / 2;
--	else
--		wdt->heartbeat = min_heartbeat;
--
--	if (max_heartbeat < min_heartbeat + 4)
--		dev_warn(dev,
--			 "min heartbeat and max heartbeat might be too close for the system to handle it correctly\n");
-+	wdt->wdd.max_hw_timeout_ms = hw_timeout;
- 
- 	if ((tmp & AT91_WDT_WDFIEN) && wdt->irq) {
- 		err = request_irq(wdt->irq, wdt_interrupt,
-@@ -222,32 +165,12 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
- 			 "watchdog already configured differently (mr = %x expecting %x)\n",
- 			 tmp & wdt->mr_mask, wdt->mr & wdt->mr_mask);
- 
--	setup_timer(&wdt->timer, at91_ping, (unsigned long)wdt);
--
--	/*
--	 * Use min_heartbeat the first time to avoid spurious watchdog reset:
--	 * we don't know for how long the watchdog counter is running, and
--	 *  - resetting it right now might trigger a watchdog fault reset
--	 *  - waiting for heartbeat time might lead to a watchdog timeout
--	 *    reset
--	 */
--	mod_timer(&wdt->timer, jiffies + min_heartbeat);
--
- 	/* Try to set timeout from device tree first */
- 	if (watchdog_init_timeout(&wdt->wdd, 0, dev))
- 		watchdog_init_timeout(&wdt->wdd, heartbeat, dev);
- 	watchdog_set_nowayout(&wdt->wdd, wdt->nowayout);
--	err = watchdog_register_device(&wdt->wdd);
--	if (err)
--		goto out_stop_timer;
--
--	wdt->next_heartbeat = jiffies + wdt->wdd.timeout * HZ;
- 
--	return 0;
--
--out_stop_timer:
--	del_timer(&wdt->timer);
--	return err;
-+	return watchdog_register_device(&wdt->wdd);
- }
- 
- /* ......................................................................... */
-@@ -261,8 +184,6 @@ static const struct watchdog_info at91_wdt_info = {
- static const struct watchdog_ops at91_wdt_ops = {
- 	.owner =	THIS_MODULE,
- 	.start =	at91_wdt_start,
--	.stop =		at91_wdt_stop,
--	.set_timeout =	at91_wdt_set_timeout,
- };
- 
- #if defined(CONFIG_OF)
-@@ -393,7 +314,7 @@ static int __exit at91wdt_remove(struct platform_device *pdev)
- 	watchdog_unregister_device(&wdt->wdd);
- 
- 	pr_warn("I quit now, hardware will probably reboot!\n");
--	del_timer(&wdt->timer);
-+
- 	clk_disable_unprepare(wdt->sclk);
- 
- 	return 0;
--- 
-2.1.4
+Tested-by: Huang Rui <ray.huang@amd.com>
