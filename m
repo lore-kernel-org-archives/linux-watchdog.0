@@ -1,178 +1,57 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:59941 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:57048 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753012AbbKWQPB (ORCPT
+	with ESMTP id S1753043AbbKWP6E (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 23 Nov 2015 11:15:01 -0500
-Subject: Re: [PATCH v5 1/8] watchdog: Introduce hardware maximum timeout in
- watchdog core
-To: =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>
-References: <1448248865-21684-1-git-send-email-linux@roeck-us.net>
- <1448248865-21684-2-git-send-email-linux@roeck-us.net>
- <20151123075304.GA5369@pengutronix.de>
-Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	linux-kernel@vger.kernel.org,
-	Timo Kokkonen <timo.kokkonen@offcode.fi>,
-	linux-doc@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>
+	Mon, 23 Nov 2015 10:58:04 -0500
+Subject: Re: In-reply-to:
+ <1448056496-2335-1-git-send-email-damien.riegel@savoirfairelinux.com>
+To: Harald Geyer <harald@ccbib.org>,
+	Damien Riegel <damien.riegel@savoirfairelinux.com>
+References: <E1a0sdo-0000RV-FA@stardust.g4.wien.funkfeuer.at>
+Cc: wim@iguana.be, linux-watchdog@vger.kernel.org,
+	Vivien Didelot <vivien.didelot@savoirlinux.com>
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56533B80.4030400@roeck-us.net>
-Date: Mon, 23 Nov 2015 08:14:56 -0800
+Message-ID: <56533787.8070205@roeck-us.net>
+Date: Mon, 23 Nov 2015 07:57:59 -0800
 MIME-Version: 1.0
-In-Reply-To: <20151123075304.GA5369@pengutronix.de>
+In-Reply-To: <E1a0sdo-0000RV-FA@stardust.g4.wien.funkfeuer.at>
 Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Uwe,
-
-On 11/22/2015 11:53 PM, Uwe Kleine-König wrote:
-> Hello Guenter,
+On 11/23/2015 07:02 AM, Harald Geyer wrote:
+> Hi,
 >
-> first of all thanks for picking this series up again.
+> sorry for breaking the threading. Only stumbled upon this message in the
+> webarchive of the Mailinglist and couldn't reconstruct full headers ...
 >
-> I think all of this feedback doesn't need to stop your patches getting
-> in. It should all be possible to improve afterwards.
+> I think there is an issue with your patch:
 >
-> On Sun, Nov 22, 2015 at 07:20:58PM -0800, Guenter Roeck wrote:
->> @@ -160,7 +176,11 @@ they are supported. These optional routines/operations are:
->>     and -EIO for "could not write value to the watchdog". On success this
->>     routine should set the timeout value of the watchdog_device to the
->>     achieved timeout value (which may be different from the requested one
->> -  because the watchdog does not necessarily has a 1 second resolution).
->> +  because the watchdog does not necessarily have a 1 second resolution).
->> +  Drivers implementing hw_max_timeout_ms set the hardware watchdog timeout
->> +  to the minimum of timeout and hw_max_timeout_ms. Those drivers set the
+> +static int watchdog_reboot_notifier(struct notifier_block *nb,
+> +				    unsigned long code, void *data)
+> +{
+> +	struct watchdog_device *wdd = container_of(nb, struct watchdog_device,
+> +						   reboot_nb);
+> +
+> +	if (code == SYS_DOWN || code == SYS_HALT) {
 >
-> Actually this is something that the wdg core could abstract for drivers.
-> Oh well, apart from hw_max_timeout_ms having ms accuracy.
+> I think you want this to be (code == SYS_POWER_OFF || code == SYS_HALT)
+> AFAIK SYS_DOWN is the code for a reboot, where the system should come
+> back up immediatly, so probably we shouldn't disable the watchdog in
+> this case, for the system might crash during going down.
 >
-Not that sure. about the abstraction. The actual timeout to set depends on
-the hardware, and may have an unknown granularity. The watchdog core can
-not predict what that granularity would be. We can play with it, and try
-if it can be done, but I really would like this to be a separate patch.
-
-hw_max_timeout is in ms because some watchdogs have a very low maximum
-HW timeout.
-
->> +  timeout value of the watchdog_device either to the requested timeout value
->> +  (if it is larger than hw_max_timeout_ms), or to the achieved timeout value.
->>     (Note: the WDIOF_SETTIMEOUT needs to be set in the options field of the
->>     watchdog's info structure).
->>   * get_timeleft: this routines returns the time that's left before a reset.
->> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
->> index 56a649e66eb2..1dba3f57dba3 100644
->> --- a/drivers/watchdog/watchdog_dev.c
->> +++ b/drivers/watchdog/watchdog_dev.c
->> [...]
->> +static long watchdog_next_keepalive(struct watchdog_device *wdd)
->> +{
->> +	unsigned int timeout_ms = wdd->timeout * 1000;
->> +	unsigned long keepalive_interval;
->> +	unsigned long last_heartbeat;
->> +	unsigned long virt_timeout;
->> +	unsigned int hw_timeout_ms;
->> +
->> +	virt_timeout = wdd->last_keepalive + msecs_to_jiffies(timeout_ms);
->
-> I think it's sensible to store
->
-> 	last_keepalive + timeout
->
-> (i.e. the expected expiration time) in struct watchdog_device instead of
-> last_keepalive. This moves the (maybe expensive) calculation to a
-> context that has userspace interaction anyhow. On the other hand this
-> complicates the set_timeout call. Hmm.
+> More importantly however we should stop the watchdog on SYS_POWER_OFF
+> I think.
 >
 
-I would rather keep the code simple. It is not as if this is called
-all the time. Also, I need last_keepalive later in the series
-to determine if the minimum timeout between hardware pings has elapsed,
-so we would need both.
+Harald,
 
->> +	hw_timeout_ms = min(timeout_ms, wdd->max_hw_timeout_ms);
->> +	keepalive_interval = msecs_to_jiffies(hw_timeout_ms / 2);
->> +
->> +	/*
->> +	 * To ensure that the watchdog times out wdd->timeout seconds
->> +	 * after the most recent ping from userspace, the last
->> +	 * worker ping has to come in hw_timeout_ms before this timeout.
->> +	 */
->> +	last_heartbeat = virt_timeout - msecs_to_jiffies(hw_timeout_ms);
->> +	return min_t(long, last_heartbeat - jiffies, keepalive_interval);
->> +}
->> [...]
->> @@ -61,26 +137,25 @@ static struct watchdog_device *old_wdd;
->>
->>   static int watchdog_ping(struct watchdog_device *wdd)
->>   {
->> -	int err = 0;
->> +	int err;
->>
->>   	mutex_lock(&wdd->lock);
->> +	wdd->last_keepalive = jiffies;
->> +	err = _watchdog_ping(wdd);
->> +	mutex_unlock(&wdd->lock);
->>
->> -	if (test_bit(WDOG_UNREGISTERED, &wdd->status)) {
->> -		err = -ENODEV;
->> -		goto out_ping;
->> -	}
->> +	return err;
->> +}
->>
->> -	if (!watchdog_active(wdd))
->> -		goto out_ping;
->> +static void watchdog_ping_work(struct work_struct *work)
->> +{
->> +	struct watchdog_device *wdd;
->>
->> -	if (wdd->ops->ping)
->> -		err = wdd->ops->ping(wdd);	/* ping the watchdog */
->> -	else
->> -		err = wdd->ops->start(wdd);	/* restart watchdog */
->> +	wdd = container_of(to_delayed_work(work), struct watchdog_device, work);
->>
->> -out_ping:
->> +	mutex_lock(&wdd->lock);
->> +	_watchdog_ping(wdd);
->>   	mutex_unlock(&wdd->lock);
->> -	return err;
->
-> Calling this function might come after last_keepalive + timeout in which
-> case the watchdog shouldn't be pinged.
->
-Unless the code is wrong, the last time this function is called should be
-at (timeout - max_hw_timeout), ie well before the timeout elapsed.
-Given that, I don't think this is something to be concerned about.
-
->>   }
->>
->>   /*
->> @@ -107,8 +182,11 @@ static int watchdog_start(struct watchdog_device *wdd)
->>   		goto out_start;
->>
->>   	err = wdd->ops->start(wdd);
->> -	if (err == 0)
->> +	if (err == 0) {
->>   		set_bit(WDOG_ACTIVE, &wdd->status);
->> +		wdd->last_keepalive = jiffies;
->> +		watchdog_update_worker(wdd, true);
->> +	}
->
-> I think it's more correct to sample jiffies before calling .start.
-> Something like:
->
-> 	unsigned long started_at = jiffies;
->
-> 	err = wdd->ops->start(wdd);
-> 	if (err == 0)
-> 		wdd->last_keepalive = jiffies;
->
-I assume you mean
-		wdd->last_keepalive = started_at;
-
-Agreed, that makes more sense. I'll change the code accordingly.
+please have a look into existing watchdog drivers. Unless I am counting wrong,
+there are 31 watchdog drivers using the above code, and only 3 watchdog drivers
+(gpio, it8712, scx200) using SYS_POWER_OFF || SYS_HALT. I think it makes sense
+to make a majority decision when moving code from drivers into the infrastructure.
 
 Thanks,
 Guenter
