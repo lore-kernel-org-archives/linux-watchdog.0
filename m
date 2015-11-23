@@ -1,121 +1,73 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.savoirfairelinux.com ([208.88.110.44]:58941 "EHLO
-	mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932298AbbKCQNI (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 3 Nov 2015 11:13:08 -0500
-From: Damien Riegel <damien.riegel@savoirfairelinux.com>
-To: linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
-	kernel@savoirfairelinux.com,
-	Damien Riegel <damien.riegel@savoirfairelinux.com>
-Subject: [PATCH 13/13] watchdog: sunxi_wdt: use core restart handler
-Date: Tue,  3 Nov 2015 11:12:46 -0500
-Message-Id: <1446567166-10156-14-git-send-email-damien.riegel@savoirfairelinux.com>
-In-Reply-To: <1446567166-10156-1-git-send-email-damien.riegel@savoirfairelinux.com>
-References: <1446567166-10156-1-git-send-email-damien.riegel@savoirfairelinux.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <lee.jones@linaro.org>
+Date: Mon, 23 Nov 2015 08:20:11 +0000
+From: Lee Jones <lee.jones@linaro.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-arm-kernel@lists.infradead.org,
+	Guenter Roeck <linux@roeck-us.net>, dinh.linux@gmail.com,
+	linux-watchdog@vger.kernel.org,
+	Damien Riegel <damien.riegel@savoirfairelinux.com>,
+	linux-kernel@vger.kernel.org, wim@iguana.be, robh+dt@kernel.org,
+	kernel@savoirfairelinux.com, kernel@pengutronix.de,
+	shawnguo@kernel.org, sameo@linux.intel.com
+Subject: Re: [PATCH v3 2/5] mfd: syscon: add a DT property to set value width
+Message-ID: <20151123082011.GG3098@x1>
+References: <1447700814-5391-1-git-send-email-damien.riegel@savoirfairelinux.com>
+ <20151117091946.GG17829@x1>
+ <20151117172649.GA11035@roeck-us.net>
+ <4478024.TgK5OkRQEy@wuerfel>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4478024.TgK5OkRQEy@wuerfel>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Get rid of the custom restart handler by using the one provided by the
-watchdog core.
+On Sat, 21 Nov 2015, Arnd Bergmann wrote:
 
-Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
----
- drivers/watchdog/sunxi_wdt.c | 23 +++++------------------
- 1 file changed, 5 insertions(+), 18 deletions(-)
+> On Tuesday 17 November 2015 09:26:49 Guenter Roeck wrote:
+> > > 
+> > > This syntax is confusing, as we normally associate it with an error
+> > > condition.  Instead, I'd use:
+> > > 
+> > >   if (of_property_read_u32(np, "bus-width", &bus_width) == 0)
+> > 
+> > Or maybe better
+> > 
+> >         if (!of_property_read_u32(np, "bus-width", &bus_width))
+> 
+> I would also prefer the latter, but it doesn't matter much either way.
+> 
+> > > 
+> > > Or, for more clarity:
+> > > 
+> > >   of_property_read_u32(np, "bus-width", &bus_width);
+> > >   if (bus_width)
+> > > 
+> > > If you choose this version (which I think is my preferred method, don't
+> > > forget to initialise 'bus_width' to zero.
+> > > 
+> > Ignoring an error and depending on bus_width==0 to determine if the property
+> > was provided seems odd, especially since it would "hide" if the bus-width
+> > property is set to 0. In the original code, this would be detected as error.
+> 
+> Right.
+> 
+> Another option would be
+> 
+> 	ret = of_property_read_u32(np, "bus-width", &bus_width);
+> 	/* no bus width provided, default to 32-bit */
+> 	if (ret)
+> 		bus_width = 32;
+> 
+> 	syscon_config.val_bits = bus_width;
+> 	syscon_config.reg_stride = syscon_config.val_bits / 8;
+> 
+> which has the same effect but seems a little clearer to me.
 
-diff --git a/drivers/watchdog/sunxi_wdt.c b/drivers/watchdog/sunxi_wdt.c
-index 47bd8a1..e027deb 100644
---- a/drivers/watchdog/sunxi_wdt.c
-+++ b/drivers/watchdog/sunxi_wdt.c
-@@ -21,11 +21,9 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
--#include <linux/notifier.h>
- #include <linux/of.h>
- #include <linux/of_device.h>
- #include <linux/platform_device.h>
--#include <linux/reboot.h>
- #include <linux/types.h>
- #include <linux/watchdog.h>
- 
-@@ -60,7 +58,6 @@ struct sunxi_wdt_dev {
- 	struct watchdog_device wdt_dev;
- 	void __iomem *wdt_base;
- 	const struct sunxi_wdt_reg *wdt_regs;
--	struct notifier_block restart_handler;
- };
- 
- /*
-@@ -86,12 +83,9 @@ static const int wdt_timeout_map[] = {
- };
- 
- 
--static int sunxi_restart_handle(struct notifier_block *this, unsigned long mode,
--				void *cmd)
-+static int sunxi_wdt_restart(struct watchdog_device *wdt_dev)
- {
--	struct sunxi_wdt_dev *sunxi_wdt = container_of(this,
--						       struct sunxi_wdt_dev,
--						       restart_handler);
-+	struct sunxi_wdt_dev *sunxi_wdt = watchdog_get_drvdata(wdt_dev);
- 	void __iomem *wdt_base = sunxi_wdt->wdt_base;
- 	const struct sunxi_wdt_reg *regs = sunxi_wdt->wdt_regs;
- 	u32 val;
-@@ -120,7 +114,7 @@ static int sunxi_restart_handle(struct notifier_block *this, unsigned long mode,
- 		val |= WDT_MODE_EN;
- 		writel(val, wdt_base + regs->wdt_mode);
- 	}
--	return NOTIFY_DONE;
-+	return 0;
- }
- 
- static int sunxi_wdt_ping(struct watchdog_device *wdt_dev)
-@@ -208,6 +202,7 @@ static const struct watchdog_ops sunxi_wdt_ops = {
- 	.stop		= sunxi_wdt_stop,
- 	.ping		= sunxi_wdt_ping,
- 	.set_timeout	= sunxi_wdt_set_timeout,
-+	.restart	= sunxi_wdt_restart,
- };
- 
- static const struct sunxi_wdt_reg sun4i_wdt_reg = {
-@@ -268,6 +263,7 @@ static int sunxi_wdt_probe(struct platform_device *pdev)
- 
- 	watchdog_init_timeout(&sunxi_wdt->wdt_dev, timeout, &pdev->dev);
- 	watchdog_set_nowayout(&sunxi_wdt->wdt_dev, nowayout);
-+	watchdog_set_restart_priority(&sunxi_wdt->wdt_dev, 128);
- 
- 	watchdog_set_drvdata(&sunxi_wdt->wdt_dev, sunxi_wdt);
- 
-@@ -277,13 +273,6 @@ static int sunxi_wdt_probe(struct platform_device *pdev)
- 	if (unlikely(err))
- 		return err;
- 
--	sunxi_wdt->restart_handler.notifier_call = sunxi_restart_handle;
--	sunxi_wdt->restart_handler.priority = 128;
--	err = register_restart_handler(&sunxi_wdt->restart_handler);
--	if (err)
--		dev_err(&pdev->dev,
--			"cannot register restart handler (err=%d)\n", err);
--
- 	dev_info(&pdev->dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)",
- 			sunxi_wdt->wdt_dev.timeout, nowayout);
- 
-@@ -294,8 +283,6 @@ static int sunxi_wdt_remove(struct platform_device *pdev)
- {
- 	struct sunxi_wdt_dev *sunxi_wdt = platform_get_drvdata(pdev);
- 
--	unregister_restart_handler(&sunxi_wdt->restart_handler);
--
- 	watchdog_unregister_device(&sunxi_wdt->wdt_dev);
- 	watchdog_set_drvdata(&sunxi_wdt->wdt_dev, NULL);
- 
+Works for me.
+
 -- 
-2.5.0
-
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
