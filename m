@@ -1,339 +1,339 @@
-Return-path: <robh@kernel.org>
-Date: Mon, 30 Nov 2015 13:01:44 -0600
-From: Rob Herring <robh@kernel.org>
-To: Damien Riegel <damien.riegel@savoirfairelinux.com>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	Lee Jones <lee.jones@linaro.org>, Pawel Moll <pawel.moll@arm.com>,
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:38929 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754765AbbKXSVs (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 24 Nov 2015 13:21:48 -0500
+Date: Tue, 24 Nov 2015 10:21:38 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: Simon Arlott <simon@fire.lp0.eu>,
+	Florian Fainelli <f.fainelli@gmail.com>
+Cc: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	Ralf Baechle <ralf@linux-mips.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Jason Cooper <jason@lakedaemon.net>,
+	Marc Zyngier <marc.zyngier@arm.com>,
+	Kevin Cernekee <cernekee@gmail.com>,
+	Florian Fainelli <f.fainelli@gmail.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Maxime Bizon <mbizon@freebox.fr>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	linux-mips@linux-mips.org, linux-watchdog@vger.kernel.org,
+	Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
 	Mark Rutland <mark.rutland@arm.com>,
 	Ian Campbell <ijc+devicetree@hellion.org.uk>,
 	Kumar Gala <galak@codeaurora.org>,
-	Russell King <linux@arm.linux.org.uk>,
-	Shawn Guo <shawnguo@kernel.org>,
-	Sascha Hauer <kernel@pengutronix.de>, Arnd Bergmann <arnd@arndb.de>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>, kernel@savoirfairelinux.com
-Subject: Re: [PATCH v7 3/6] watchdog: ts4800: add driver for TS-4800 watchdog
-Message-ID: <20151130190144.GA32374@rob-hp-laptop>
-References: <1448899191-13891-1-git-send-email-damien.riegel@savoirfairelinux.com>
- <1448899191-13891-4-git-send-email-damien.riegel@savoirfairelinux.com>
+	Jonas Gorski <jogo@openwrt.org>
+Subject: Re: [PATCH 4/10] watchdog: bcm63xx_wdt: Handle hardware interrupt
+ and remove software timer
+Message-ID: <20151124182138.GB12289@roeck-us.net>
+References: <5650BFD6.5030700@simon.arlott.org.uk>
+ <5650C08C.6090300@simon.arlott.org.uk>
+ <5650E2FA.6090408@roeck-us.net>
+ <5650E5BB.6020404@simon.arlott.org.uk>
+ <56512937.6030903@roeck-us.net>
+ <5651CB13.4090704@simon.arlott.org.uk>
+ <5651CB9C.4090005@simon.arlott.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1448899191-13891-4-git-send-email-damien.riegel@savoirfairelinux.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+In-Reply-To: <5651CB9C.4090005@simon.arlott.org.uk>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Nov 30, 2015 at 10:59:48AM -0500, Damien Riegel wrote:
-> This watchdog is instantiated in a FPGA that is memory mapped. It is
-> made of only one register, called the feed register. Writing to this
-> register will re-arm the watchdog for a given time (and enable it if it
-> was disable). It can be disabled by writing a special value into it.
+On Sun, Nov 22, 2015 at 02:05:16PM +0000, Simon Arlott wrote:
+> There is a level triggered interrupt for the watchdog timer as part of
+> the bcm63xx_timer device. The interrupt occurs when the hardware watchdog
+> timer reaches 50% of the remaining time.
 > 
-> It is part of a syscon block, and the watchdog register offset in this
-> block varies from board to board. This offset is passed in the syscon
-> property after the phandle to the syscon node.
+> It is not possible to mask the interrupt within the bcm63xx_timer device.
+> To get around this limitation, handle the interrupt by restarting the
+> watchdog with the current remaining time (which will be half the previous
+> timeout) so that the interrupt occurs again at 1/4th, 1/8th, etc. of the
+> original timeout value until the watchdog forces a reboot.
 > 
-> Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
+> The software timer was restarting the hardware watchdog with a 85 second
+> timeout until the software timer expired, and then causing a panic()
+> about 42.5 seconds later when the hardware interrupt occurred. The
+> hardware watchdog would not reboot until a further 42.5 seconds had
+> passed.
+> 
+> Remove the software timer and rely on the hardware timer directly,
+> reducing the maximum timeout from 256 seconds to 85 seconds
+> (2^32 / WDT_HZ).
+> 
+
+Florian,
+
+can you have a look into this patch and confirm that there is no better
+way to clear the interrupt status ?
+
+Thanks,
+Guenter
+
+> Signed-off-by: Simon Arlott <simon@fire.lp0.eu>
 > ---
->  .../devicetree/bindings/watchdog/ts4800-wdt.txt    |  25 +++
-
-For the binding: 
-
-Acked-by: Rob Herring <robh@kernel.org>
-
->  drivers/watchdog/Kconfig                           |  10 +
->  drivers/watchdog/Makefile                          |   1 +
->  drivers/watchdog/ts4800_wdt.c                      | 215 +++++++++++++++++++++
->  4 files changed, 251 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/watchdog/ts4800-wdt.txt
->  create mode 100644 drivers/watchdog/ts4800_wdt.c
+>  drivers/watchdog/bcm63xx_wdt.c | 124 ++++++++++++++++++++++++-----------------
+>  1 file changed, 72 insertions(+), 52 deletions(-)
 > 
-> diff --git a/Documentation/devicetree/bindings/watchdog/ts4800-wdt.txt b/Documentation/devicetree/bindings/watchdog/ts4800-wdt.txt
-> new file mode 100644
-> index 0000000..8f6caad
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/watchdog/ts4800-wdt.txt
-> @@ -0,0 +1,25 @@
-> +Technologic Systems Watchdog
-> +
-> +Required properties:
-> +- compatible: must be "technologic,ts4800-wdt"
-> +- syscon: phandle / integer array that points to the syscon node which
-> +          describes the FPGA's syscon registers.
-> +          - phandle to FPGA's syscon
-> +          - offset to the watchdog register
-> +
-> +Optional property:
-> +- timeout-sec: contains the watchdog timeout in seconds.
-> +
-> +Example:
-> +
-> +syscon: syscon@b0010000 {
-> +	compatible = "syscon", "simple-mfd";
-> +	reg = <0xb0010000 0x3d>;
-> +	reg-io-width = <2>;
-> +
-> +	wdt@e {
-> +		compatible = "technologic,ts4800-wdt";
-> +		syscon = <&syscon 0xe>;
-> +		timeout-sec = <10>;
-> +	};
-> +}
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 79e1aa1..bb624d2 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -426,6 +426,16 @@ config NUC900_WATCHDOG
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called nuc900_wdt.
+> diff --git a/drivers/watchdog/bcm63xx_wdt.c b/drivers/watchdog/bcm63xx_wdt.c
+> index ab26fd9..f88fc97 100644
+> --- a/drivers/watchdog/bcm63xx_wdt.c
+> +++ b/drivers/watchdog/bcm63xx_wdt.c
+> @@ -3,6 +3,7 @@
+>   *
+>   *  Copyright (C) 2007, Miguel Gaio <miguel.gaio@efixo.com>
+>   *  Copyright (C) 2008, Florian Fainelli <florian@openwrt.org>
+> + *  Copyright 2015 Simon Arlott
+>   *
+>   *  This program is free software; you can redistribute it and/or
+>   *  modify it under the terms of the GNU General Public License
+> @@ -20,11 +21,10 @@
+>  #include <linux/miscdevice.h>
+>  #include <linux/module.h>
+>  #include <linux/moduleparam.h>
+> +#include <linux/spinlock.h>
+>  #include <linux/types.h>
+>  #include <linux/uaccess.h>
+>  #include <linux/watchdog.h>
+> -#include <linux/timer.h>
+> -#include <linux/jiffies.h>
+>  #include <linux/interrupt.h>
+>  #include <linux/ptrace.h>
+>  #include <linux/resource.h>
+> @@ -37,16 +37,17 @@
 >  
-> +config TS4800_WATCHDOG
-> +	tristate "TS-4800 Watchdog"
-> +	depends on HAS_IOMEM && OF
-> +	select WATCHDOG_CORE
-> +	select MFD_SYSCON
-> +	help
-> +	  Technologic Systems TS-4800 has watchdog timer implemented in
-> +	  an external FPGA. Say Y here if you want to support for the
-> +	  watchdog timer on TS-4800 board.
-> +
->  config TS72XX_WATCHDOG
->  	tristate "TS-72XX SBC Watchdog"
->  	depends on MACH_TS72XX
-> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index 0c616e3..3863ce0 100644
-> --- a/drivers/watchdog/Makefile
-> +++ b/drivers/watchdog/Makefile
-> @@ -53,6 +53,7 @@ obj-$(CONFIG_RN5T618_WATCHDOG) += rn5t618_wdt.o
->  obj-$(CONFIG_COH901327_WATCHDOG) += coh901327_wdt.o
->  obj-$(CONFIG_STMP3XXX_RTC_WATCHDOG) += stmp3xxx_rtc_wdt.o
->  obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
-> +obj-$(CONFIG_TS4800_WATCHDOG) += ts4800_wdt.o
->  obj-$(CONFIG_TS72XX_WATCHDOG) += ts72xx_wdt.o
->  obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
->  obj-$(CONFIG_UX500_WATCHDOG) += ux500_wdt.o
-> diff --git a/drivers/watchdog/ts4800_wdt.c b/drivers/watchdog/ts4800_wdt.c
-> new file mode 100644
-> index 0000000..2b8de86
-> --- /dev/null
-> +++ b/drivers/watchdog/ts4800_wdt.c
-> @@ -0,0 +1,215 @@
-> +/*
-> + * Watchdog driver for TS-4800 based boards
-> + *
-> + * Copyright (c) 2015 - Savoir-faire Linux
-> + *
-> + * This file is licensed under the terms of the GNU General Public
-> + * License version 2. This program is licensed "as is" without any
-> + * warranty of any kind, whether express or implied.
-> + */
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/mfd/syscon.h>
-> +#include <linux/module.h>
-> +#include <linux/of.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/regmap.h>
-> +#include <linux/watchdog.h>
-> +
-> +static bool nowayout = WATCHDOG_NOWAYOUT;
-> +module_param(nowayout, bool, 0);
-> +MODULE_PARM_DESC(nowayout,
-> +	"Watchdog cannot be stopped once started (default="
-> +	__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-> +
-> +/* possible feed values */
-> +#define TS4800_WDT_FEED_2S       0x1
-> +#define TS4800_WDT_FEED_10S      0x2
-> +#define TS4800_WDT_DISABLE       0x3
-> +
-> +struct ts4800_wdt {
-> +	struct watchdog_device  wdd;
-> +	struct regmap           *regmap;
-> +	u32                     feed_offset;
-> +	u32                     feed_val;
+>  #define PFX KBUILD_MODNAME
+>  
+> -#define WDT_HZ		50000000 /* Fclk */
+> -#define WDT_DEFAULT_TIME	30      /* seconds */
+> -#define WDT_MAX_TIME		256     /* seconds */
+> +#define WDT_HZ			50000000		/* Fclk */
+> +#define WDT_DEFAULT_TIME	30			/* seconds */
+> +#define WDT_MAX_TIME		(0xffffffff / WDT_HZ)	/* seconds */
+>  
+> -static struct {
+> +struct bcm63xx_wdt_hw {
+> +	raw_spinlock_t lock;
+>  	void __iomem *regs;
+> -	struct timer_list timer;
+>  	unsigned long inuse;
+> -	atomic_t ticks;
+> -} bcm63xx_wdt_device;
+> +	bool running;
 > +};
+> +static struct bcm63xx_wdt_hw bcm63xx_wdt_device;
+>  
+>  static int expect_close;
+>  
+> @@ -59,48 +60,67 @@ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+>  /* HW functions */
+>  static void bcm63xx_wdt_hw_start(void)
+>  {
+> -	bcm_writel(0xfffffffe, bcm63xx_wdt_device.regs + WDT_DEFVAL_REG);
+> +	unsigned long flags;
 > +
-> +/*
-> + * TS-4800 supports the following timeout values:
-> + *
-> + *   value desc
-> + *   ---------------------
-> + *     0    feed for 338ms
-> + *     1    feed for 2.706s
-> + *     2    feed for 10.824s
-> + *     3    disable watchdog
-> + *
-> + * Keep the regmap/timeout map ordered by timeout
-> + */
-> +static const struct {
-> +	const int timeout;
-> +	const int regval;
-> +} ts4800_wdt_map[] = {
-> +	{ 2,  TS4800_WDT_FEED_2S },
-> +	{ 10, TS4800_WDT_FEED_10S },
-> +};
+> +	raw_spin_lock_irqsave(&bcm63xx_wdt_device.lock, flags);
+> +	bcm_writel(wdt_time * WDT_HZ, bcm63xx_wdt_device.regs + WDT_DEFVAL_REG);
+>  	bcm_writel(WDT_START_1, bcm63xx_wdt_device.regs + WDT_CTL_REG);
+>  	bcm_writel(WDT_START_2, bcm63xx_wdt_device.regs + WDT_CTL_REG);
+> +	bcm63xx_wdt_device.running = true;
+> +	raw_spin_unlock_irqrestore(&bcm63xx_wdt_device.lock, flags);
+>  }
+>  
+>  static void bcm63xx_wdt_hw_stop(void)
+>  {
+> +	unsigned long flags;
 > +
-> +#define MAX_TIMEOUT_INDEX       (ARRAY_SIZE(ts4800_wdt_map) - 1)
+> +	raw_spin_lock_irqsave(&bcm63xx_wdt_device.lock, flags);
+>  	bcm_writel(WDT_STOP_1, bcm63xx_wdt_device.regs + WDT_CTL_REG);
+>  	bcm_writel(WDT_STOP_2, bcm63xx_wdt_device.regs + WDT_CTL_REG);
+> +	bcm63xx_wdt_device.running = false;
+> +	raw_spin_unlock_irqrestore(&bcm63xx_wdt_device.lock, flags);
+>  }
+>  
+> +/* The watchdog interrupt occurs when half the timeout is remaining */
+>  static void bcm63xx_wdt_isr(void *data)
+>  {
+> -	struct pt_regs *regs = get_irq_regs();
+> -
+> -	die(PFX " fire", regs);
+> -}
+> -
+> -static void bcm63xx_timer_tick(unsigned long unused)
+> -{
+> -	if (!atomic_dec_and_test(&bcm63xx_wdt_device.ticks)) {
+> -		bcm63xx_wdt_hw_start();
+> -		mod_timer(&bcm63xx_wdt_device.timer, jiffies + HZ);
+> -	} else
+> -		pr_crit("watchdog will restart system\n");
+> -}
+> -
+> -static void bcm63xx_wdt_pet(void)
+> -{
+> -	atomic_set(&bcm63xx_wdt_device.ticks, wdt_time);
+> -}
+> -
+> -static void bcm63xx_wdt_start(void)
+> -{
+> -	bcm63xx_wdt_pet();
+> -	bcm63xx_timer_tick(0);
+> -}
+> +	struct bcm63xx_wdt_hw *hw = &bcm63xx_wdt_device;
+> +	unsigned long flags;
 > +
-> +static void ts4800_write_feed(struct ts4800_wdt *wdt, u32 val)
-> +{
-> +	regmap_write(wdt->regmap, wdt->feed_offset, val);
-> +}
+> +	raw_spin_lock_irqsave(&hw->lock, flags);
+> +	if (!hw->running) {
+> +		/* Stop the watchdog as it shouldn't be running */
+> +		bcm_writel(WDT_STOP_1, hw->regs + WDT_CTL_REG);
+> +		bcm_writel(WDT_STOP_2, hw->regs + WDT_CTL_REG);
+> +	} else {
+> +		u32 timeleft = bcm_readl(hw->regs + WDT_CTL_REG);
+> +		u32 ms;
 > +
-> +static int ts4800_wdt_start(struct watchdog_device *wdd)
-> +{
-> +	struct ts4800_wdt *wdt = watchdog_get_drvdata(wdd);
-> +
-> +	ts4800_write_feed(wdt, wdt->feed_val);
-> +	return 0;
-> +}
-> +
-> +static int ts4800_wdt_stop(struct watchdog_device *wdd)
-> +{
-> +	struct ts4800_wdt *wdt = watchdog_get_drvdata(wdd);
-> +
-> +	ts4800_write_feed(wdt, TS4800_WDT_DISABLE);
-> +	return 0;
-> +}
-> +
-> +static int ts4800_wdt_set_timeout(struct watchdog_device *wdd,
-> +				  unsigned int timeout)
-> +{
-> +	struct ts4800_wdt *wdt = watchdog_get_drvdata(wdd);
-> +	int i;
-> +
-> +	for (i = 0; i < MAX_TIMEOUT_INDEX; i++) {
-> +		if (ts4800_wdt_map[i].timeout >= timeout)
-> +			break;
+> +		if (timeleft >= 2) {
+> +			/* The only way to clear this level triggered interrupt
+> +			 * without disrupting the normal running of the watchdog
+> +			 * is to restart the watchdog with the current remaining
+> +			 * time value (which will be half the previous timeout)
+> +			 * so the interrupt occurs again at 1/4th, 1/8th, etc.
+> +			 * of the original timeout value until we reboot.
+> +			 *
+> +			 * This is done with a lock held in case userspace is
+> +			 * trying to restart the watchdog on another CPU.
+> +			 */
+> +			bcm_writel(timeleft, hw->regs + WDT_DEFVAL_REG);
+> +			bcm_writel(WDT_START_1, hw->regs + WDT_CTL_REG);
+> +			bcm_writel(WDT_START_2, hw->regs + WDT_CTL_REG);
+> +		} else {
+> +			/* The watchdog cannot be started with a time of less
+> +			 * than 2 ticks (it won't fire).
+> +			 */
+> +			die(PFX ": watchdog timer expired\n", get_irq_regs());
+> +		}
+>  
+> -static void bcm63xx_wdt_pause(void)
+> -{
+> -	del_timer_sync(&bcm63xx_wdt_device.timer);
+> -	bcm63xx_wdt_hw_stop();
+> +		ms = timeleft / (WDT_HZ / 1000);
+> +		pr_alert("warning timer fired, reboot in %ums\n", ms);
 > +	}
+> +	raw_spin_unlock_irqrestore(&hw->lock, flags);
+>  }
+>  
+>  static int bcm63xx_wdt_settimeout(int new_time)
+> @@ -118,17 +138,17 @@ static int bcm63xx_wdt_open(struct inode *inode, struct file *file)
+>  	if (test_and_set_bit(0, &bcm63xx_wdt_device.inuse))
+>  		return -EBUSY;
+>  
+> -	bcm63xx_wdt_start();
+> +	bcm63xx_wdt_hw_start();
+>  	return nonseekable_open(inode, file);
+>  }
+>  
+>  static int bcm63xx_wdt_release(struct inode *inode, struct file *file)
+>  {
+>  	if (expect_close == 42)
+> -		bcm63xx_wdt_pause();
+> +		bcm63xx_wdt_hw_stop();
+>  	else {
+>  		pr_crit("Unexpected close, not stopping watchdog!\n");
+> -		bcm63xx_wdt_start();
+> +		bcm63xx_wdt_hw_start();
+>  	}
+>  	clear_bit(0, &bcm63xx_wdt_device.inuse);
+>  	expect_close = 0;
+> @@ -153,7 +173,7 @@ static ssize_t bcm63xx_wdt_write(struct file *file, const char *data,
+>  					expect_close = 42;
+>  			}
+>  		}
+> -		bcm63xx_wdt_pet();
+> +		bcm63xx_wdt_hw_start();
+>  	}
+>  	return len;
+>  }
+> @@ -187,18 +207,18 @@ static long bcm63xx_wdt_ioctl(struct file *file, unsigned int cmd,
+>  			return -EFAULT;
+>  
+>  		if (new_value & WDIOS_DISABLECARD) {
+> -			bcm63xx_wdt_pause();
+> +			bcm63xx_wdt_hw_stop();
+>  			retval = 0;
+>  		}
+>  		if (new_value & WDIOS_ENABLECARD) {
+> -			bcm63xx_wdt_start();
+> +			bcm63xx_wdt_hw_start();
+>  			retval = 0;
+>  		}
+>  
+>  		return retval;
+>  
+>  	case WDIOC_KEEPALIVE:
+> -		bcm63xx_wdt_pet();
+> +		bcm63xx_wdt_hw_start();
+>  		return 0;
+>  
+>  	case WDIOC_SETTIMEOUT:
+> @@ -208,7 +228,7 @@ static long bcm63xx_wdt_ioctl(struct file *file, unsigned int cmd,
+>  		if (bcm63xx_wdt_settimeout(new_value))
+>  			return -EINVAL;
+>  
+> -		bcm63xx_wdt_pet();
+> +		bcm63xx_wdt_hw_start();
+>  
+>  	case WDIOC_GETTIMEOUT:
+>  		return put_user(wdt_time, p);
+> @@ -240,8 +260,6 @@ static int bcm63xx_wdt_probe(struct platform_device *pdev)
+>  	int ret;
+>  	struct resource *r;
+>  
+> -	setup_timer(&bcm63xx_wdt_device.timer, bcm63xx_timer_tick, 0L);
+> -
+>  	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>  	if (!r) {
+>  		dev_err(&pdev->dev, "failed to get resources\n");
+> @@ -255,6 +273,8 @@ static int bcm63xx_wdt_probe(struct platform_device *pdev)
+>  		return -ENXIO;
+>  	}
+>  
+> +	raw_spin_lock_init(&bcm63xx_wdt_device.lock);
 > +
-> +	wdd->timeout = ts4800_wdt_map[i].timeout;
-> +	wdt->feed_val = ts4800_wdt_map[i].regval;
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct watchdog_ops ts4800_wdt_ops = {
-> +	.owner = THIS_MODULE,
-> +	.start = ts4800_wdt_start,
-> +	.stop = ts4800_wdt_stop,
-> +	.set_timeout = ts4800_wdt_set_timeout,
-> +};
-> +
-> +static const struct watchdog_info ts4800_wdt_info = {
-> +	.options = WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING,
-> +	.identity = "TS-4800 Watchdog",
-> +};
-> +
-> +static int ts4800_wdt_probe(struct platform_device *pdev)
-> +{
-> +	struct device_node *np = pdev->dev.of_node;
-> +	struct device_node *syscon_np;
-> +	struct watchdog_device *wdd;
-> +	struct ts4800_wdt *wdt;
-> +	u32 reg;
-> +	int ret;
-> +
-> +	syscon_np = of_parse_phandle(np, "syscon", 0);
-> +	if (!syscon_np) {
-> +		dev_err(&pdev->dev, "no syscon property\n");
-> +		return -ENODEV;
-> +	}
-> +
-> +	ret = of_property_read_u32_index(np, "syscon", 1, &reg);
-> +	if (ret < 0) {
-> +		dev_err(&pdev->dev, "no offset in syscon\n");
-> +		return ret;
-> +	}
-> +
-> +	/* allocate memory for watchdog struct */
-> +	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
-> +	if (!wdt)
-> +		return -ENOMEM;
-> +
-> +	/* set regmap and offset to know where to write */
-> +	wdt->feed_offset = reg;
-> +	wdt->regmap = syscon_node_to_regmap(syscon_np);
-> +	if (IS_ERR(wdt->regmap)) {
-> +		dev_err(&pdev->dev, "cannot get parent's regmap\n");
-> +		return PTR_ERR(wdt->regmap);
-> +	}
-> +
-> +	/* Initialize struct watchdog_device */
-> +	wdd = &wdt->wdd;
-> +	wdd->parent = &pdev->dev;
-> +	wdd->info = &ts4800_wdt_info;
-> +	wdd->ops = &ts4800_wdt_ops;
-> +	wdd->min_timeout = ts4800_wdt_map[0].timeout;
-> +	wdd->max_timeout = ts4800_wdt_map[MAX_TIMEOUT_INDEX].timeout;
-> +
-> +	watchdog_set_drvdata(wdd, wdt);
-> +	watchdog_set_nowayout(wdd, nowayout);
-> +	watchdog_init_timeout(wdd, 0, &pdev->dev);
-> +
-> +	/*
-> +	 * As this watchdog supports only a few values, ts4800_wdt_set_timeout
-> +	 * must be called to initialize timeout and feed_val with valid values.
-> +	 * Default to maximum timeout if none, or an invalid one, is provided in
-> +	 * device tree.
-> +	 */
-> +	if (!wdd->timeout)
-> +		wdd->timeout = wdd->max_timeout;
-> +	ts4800_wdt_set_timeout(wdd, wdd->timeout);
-> +
-> +	/*
-> +	 * The feed register is write-only, so it is not possible to determine
-> +	 * watchdog's state. Disable it to be in a known state.
-> +	 */
-> +	ts4800_wdt_stop(wdd);
-> +
-> +	ret = watchdog_register_device(wdd);
-> +	if (ret) {
-> +		dev_err(&pdev->dev,
-> +			"failed to register watchdog device\n");
-> +		return ret;
-> +	}
-> +
-> +	platform_set_drvdata(pdev, wdt);
-> +
-> +	dev_info(&pdev->dev,
-> +		 "initialized (timeout = %d sec, nowayout = %d)\n",
-> +		 wdd->timeout, nowayout);
-> +
-> +	return 0;
-> +}
-> +
-> +static int ts4800_wdt_remove(struct platform_device *pdev)
-> +{
-> +	struct ts4800_wdt *wdt = platform_get_drvdata(pdev);
-> +
-> +	watchdog_unregister_device(&wdt->wdd);
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct of_device_id ts4800_wdt_of_match[] = {
-> +	{ .compatible = "technologic,ts4800-wdt", },
-> +	{ },
-> +};
-> +MODULE_DEVICE_TABLE(of, ts4800_wdt_of_match);
-> +
-> +static struct platform_driver ts4800_wdt_driver = {
-> +	.probe		= ts4800_wdt_probe,
-> +	.remove		= ts4800_wdt_remove,
-> +	.driver		= {
-> +		.name	= "ts4800_wdt",
-> +		.of_match_table = ts4800_wdt_of_match,
-> +	},
-> +};
-> +
-> +module_platform_driver(ts4800_wdt_driver);
-> +
-> +MODULE_AUTHOR("Damien Riegel <damien.riegel@savoirfairelinux.com>");
-> +MODULE_LICENSE("GPL v2");
-> +MODULE_ALIAS("platform:ts4800_wdt");
+>  	ret = bcm63xx_timer_register(TIMER_WDT_ID, bcm63xx_wdt_isr, NULL);
+>  	if (ret < 0) {
+>  		dev_err(&pdev->dev, "failed to register wdt timer isr\n");
+> @@ -264,8 +284,8 @@ static int bcm63xx_wdt_probe(struct platform_device *pdev)
+>  	if (bcm63xx_wdt_settimeout(wdt_time)) {
+>  		bcm63xx_wdt_settimeout(WDT_DEFAULT_TIME);
+>  		dev_info(&pdev->dev,
+> -			": wdt_time value must be 1 <= wdt_time <= 256, using %d\n",
+> -			wdt_time);
+> +			": wdt_time value must be 1 <= wdt_time <= %d, using %d\n",
+> +			WDT_MAX_TIME, wdt_time);
+>  	}
+>  
+>  	ret = misc_register(&bcm63xx_wdt_miscdev);
+> @@ -287,7 +307,7 @@ unregister_timer:
+>  static int bcm63xx_wdt_remove(struct platform_device *pdev)
+>  {
+>  	if (!nowayout)
+> -		bcm63xx_wdt_pause();
+> +		bcm63xx_wdt_hw_stop();
+>  
+>  	misc_deregister(&bcm63xx_wdt_miscdev);
+>  	bcm63xx_timer_unregister(TIMER_WDT_ID);
+> @@ -296,7 +316,7 @@ static int bcm63xx_wdt_remove(struct platform_device *pdev)
+>  
+>  static void bcm63xx_wdt_shutdown(struct platform_device *pdev)
+>  {
+> -	bcm63xx_wdt_pause();
+> +	bcm63xx_wdt_hw_stop();
+>  }
+>  
+>  static struct platform_driver bcm63xx_wdt_driver = {
 > -- 
-> 2.5.0
+> 2.1.4
 > 
+> -- 
+> Simon Arlott
