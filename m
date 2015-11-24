@@ -1,56 +1,49 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:54421 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755432AbbKYCLk (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 24 Nov 2015 21:11:40 -0500
-Subject: Re: [PATCH 1/2] sp5100_tco: fix the device check for SB800 and later
- chipsets
-To: Huang Rui <ray.huang@amd.com>
-References: <1448273256-1793-1-git-send-email-ray.huang@amd.com>
- <56546CEB.3080907@roeck-us.net> <20151125015916.GA2904@hr-amur2>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Denis Turischev <denis.turischev@compulab.co.il>,
-	Borislav Petkov <bp@alien8.de>,
-	Vincent Wan <vincent.wan@amd.com>, Tony Li <tony.li@amd.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <565518D5.4010104@roeck-us.net>
-Date: Tue, 24 Nov 2015 18:11:33 -0800
-MIME-Version: 1.0
-In-Reply-To: <20151125015916.GA2904@hr-amur2>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <damien.riegel@savoirfairelinux.com>
+From: Damien Riegel <damien.riegel@savoirfairelinux.com>
+To: linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	kernel@savoirfairelinux.com,
+	Damien Riegel <damien.riegel@savoirfairelinux.com>
+Subject: [PATCH v2 1/2] watchdog: core: call device_destroy before watchdog_dev_unregister
+Date: Tue, 24 Nov 2015 18:45:44 -0500
+Message-Id: <1448408745-26719-1-git-send-email-damien.riegel@savoirfairelinux.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 11/24/2015 05:59 PM, Huang Rui wrote:
-> On Tue, Nov 24, 2015 at 05:58:03AM -0800, Guenter Roeck wrote:
->> On 11/23/2015 02:07 AM, Huang Rui wrote:
->>> For SB800 and later chipsets, the register definitions are the same
->>> with SB800. And for SB700 and older chipsets, the definitions should
->>> be same with SP5100/SB7x0.
->>>
->>> Signed-off-by: Huang Rui <ray.huang@amd.com>
->>> Cc: Denis Turischev <denis.turischev@compulab.co.il>
->>
->> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->>
->> Would it make sense to rework this driver as pci driver ?
->>
->
-> I agree with you. Actually, I thought about this stuff. But sp5100
-> watchdog is not a pci device in AMD chipset. In another word, it
-> doesn't export a pci header to OS. At current, we use SMBus pci device
-> id and vendor id to detect watchdog on the AMD chipset (Because AMD
-> use SMBus device id and revsion to identify different chipset
-> version). At the same time, SMbus has its own driver piix4_smbus.
-> Looks like we don't have a pci header to enumerate the watchdog.
->
+device_create is called after watchdog_dev_register, so it makes more
+sense to call the cleanup functions in reverse order, ie. device_destroy
+before watchdog_dev_unregister.
 
-Ok, thanks for the clarification. Odd way to detect the chip, but
-I guess one has to use what is available.
+Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
+---
+ drivers/watchdog/watchdog_core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Thanks,
-Guenter
-
+diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+index 551af04..e70b6e8 100644
+--- a/drivers/watchdog/watchdog_core.c
++++ b/drivers/watchdog/watchdog_core.c
+@@ -264,8 +264,8 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
+ 		if (ret) {
+ 			dev_err(wdd->dev, "Cannot register reboot notifier (%d)\n",
+ 				ret);
+-			watchdog_dev_unregister(wdd);
+ 			device_destroy(watchdog_class, devno);
++			watchdog_dev_unregister(wdd);
+ 			ida_simple_remove(&watchdog_ida, wdd->id);
+ 			wdd->dev = NULL;
+ 			return ret;
+@@ -324,10 +324,10 @@ static void __watchdog_unregister_device(struct watchdog_device *wdd)
+ 		unregister_reboot_notifier(&wdd->reboot_nb);
+ 
+ 	devno = wdd->cdev.dev;
++	device_destroy(watchdog_class, devno);
+ 	ret = watchdog_dev_unregister(wdd);
+ 	if (ret)
+ 		pr_err("error unregistering /dev/watchdog (err=%d)\n", ret);
+-	device_destroy(watchdog_class, devno);
+ 	ida_simple_remove(&watchdog_ida, wdd->id);
+ 	wdd->dev = NULL;
+ }
+-- 
+2.5.0
