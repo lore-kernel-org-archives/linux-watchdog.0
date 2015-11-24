@@ -1,57 +1,78 @@
-Return-path: <ukl@pengutronix.de>
-Date: Tue, 24 Nov 2015 22:14:08 +0100
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	linux-kernel@vger.kernel.org,
-	Timo Kokkonen <timo.kokkonen@offcode.fi>, linux-doc@vger.kernel.org,
-	Jonathan Corbet <corbet@lwn.net>
-Subject: Re: [PATCH v5 1/8] watchdog: Introduce hardware maximum timeout in
- watchdog core
-Message-ID: <20151124211408.GI19888@pengutronix.de>
-References: <1448248865-21684-1-git-send-email-linux@roeck-us.net>
- <1448248865-21684-2-git-send-email-linux@roeck-us.net>
- <20151124071628.GF19888@pengutronix.de>
- <56547C31.3070901@roeck-us.net>
- <20151124161147.GH19888@pengutronix.de>
- <56549411.7000209@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <56549411.7000209@roeck-us.net>
+Return-path: <damien.riegel@savoirfairelinux.com>
+From: Damien Riegel <damien.riegel@savoirfairelinux.com>
+To: linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org
+Cc: Lee Jones <lee.jones@linaro.org>,
+	robh+dt@kernel.org,
+	shawnguo@kernel.org,
+	kernel@pengutronix.de,
+	wim@iguana.be,
+	sameo@linux.intel.com,
+	dinh.linux@gmail.com,
+	linux@roeck-us.net,
+	Arnd Bergmann <arnd@arndb.de>,
+	kernel@savoirfairelinux.com,
+	Damien Riegel <damien.riegel@savoirfairelinux.com>
+Subject: [PATCH v5 0/5] Add board support for TS-4800
+Date: Tue, 24 Nov 2015 13:00:48 -0500
+Message-Id: <1448388053-30661-1-git-send-email-damien.riegel@savoirfairelinux.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hello Guenter,
+This patch serie adds support for TS-4800 board. This board,                                                                              
+manufactured by Technologic Systems, is based on an IMX515.
 
-On Tue, Nov 24, 2015 at 08:45:05AM -0800, Guenter Roeck wrote:
-> On 11/24/2015 08:11 AM, Uwe Kleine-König wrote:
-> >On Tue, Nov 24, 2015 at 07:03:13AM -0800, Guenter Roeck wrote:
-> >>thanks a lot for the Ack. I have v6 in the works, which changes recording
-> >>of last_keepalive when the watchdog is started. Does your Ack include that
-> >>change, or do you prefer to have another look ?
-> >
-> >this change is to sample jiffies before .start is called as I suggested,
-> >right? For that change keeping my ack is ok of course.
-> >
-> 
-> Correct. This is how the code now looks like.
-> 
->         started_at = jiffies;
->         if (watchdog_hw_running(wdd) && wdd->ops->ping)
->                 err = wdd->ops->ping(wdd);
->         else
->                 err = wdd->ops->start(wdd);
->         if (err == 0) {
->                 set_bit(WDOG_ACTIVE, &wdd->status);
->                 wdd->last_keepalive = started_at;
->                 watchdog_update_worker(wdd);
->         }
+The first stage bootloader, called TS-BOOTROM, enables the watchdog,
+so a watchdog driver is required to prevent board from rebooting.
 
-\o/
+The current device tree is minimal but it allows to get a shell on the
+board.
 
-Uwe
+Changes in v5:
+ - watchdog: changed iteration stop condition in set_timeout to be less
+   error prone
+
+Changes in v4:
+ - syscon: rewrite DT property reading to be clearer
+ - watchdog: made fixes suggested by Guenter (now uses
+   watchdog_init_timeout, u32 instead of u16, fixed error checking in
+   probe, cleaned set_timeout)
+
+Changes in v3:
+ - Rebased on v4.3
+ - Changed vendor prefix from "ts" to "technologic"
+ - Added a DT option to generic syscon driver to allow regmap configuration
+ - Dropped custom mfd driver, use generic syscon driver instead.
+
+Changes in v2:
+ - Added a mfd driver to handle syscon registers
+ - The watchdog driver now uses the regmap (created by the mfd driver)
+   to access the feed register
+ - Remove watchdog's dependency on SOC_IMX51
+
+Damien Riegel (5):
+  of: add vendor prefix for Technologic Systems
+  mfd: syscon: add a DT property to set value width
+  watchdog: ts4800: add driver for TS-4800 watchdog
+  ARM: imx_v6_v7_defconfig: add TS-4800 watchdog
+  ARM: dts: TS-4800: add basic device tree
+
+ .../devicetree/bindings/arm/technologic.txt        |   6 +
+ Documentation/devicetree/bindings/mfd/syscon.txt   |   3 +
+ .../devicetree/bindings/vendor-prefixes.txt        |   1 +
+ .../devicetree/bindings/watchdog/ts4800-wdt.txt    |  25 +++
+ arch/arm/boot/dts/Makefile                         |   3 +-
+ arch/arm/boot/dts/imx51-ts4800.dts                 | 190 ++++++++++++++++++
+ arch/arm/configs/imx_v6_v7_defconfig               |   1 +
+ drivers/mfd/syscon.c                               |  13 ++
+ drivers/watchdog/Kconfig                           |  10 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/ts4800_wdt.c                      | 215 +++++++++++++++++++++
+ 11 files changed, 467 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/devicetree/bindings/arm/technologic.txt
+ create mode 100644 Documentation/devicetree/bindings/watchdog/ts4800-wdt.txt
+ create mode 100644 arch/arm/boot/dts/imx51-ts4800.dts
+ create mode 100644 drivers/watchdog/ts4800_wdt.c
 
 -- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+2.5.0
