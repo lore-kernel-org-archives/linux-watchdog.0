@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.savoirfairelinux.com ([208.88.110.44]:35658 "EHLO
+Received: from mail.savoirfairelinux.com ([208.88.110.44]:35627 "EHLO
 	mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754275AbbKXSBG (ORCPT
+	with ESMTP id S1753514AbbKXSBD (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 24 Nov 2015 13:01:06 -0500
+	Tue, 24 Nov 2015 13:01:03 -0500
 From: Damien Riegel <damien.riegel@savoirfairelinux.com>
 To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
 	linux-watchdog@vger.kernel.org
@@ -12,80 +12,34 @@ Cc: Lee Jones <lee.jones@linaro.org>, robh+dt@kernel.org,
 	sameo@linux.intel.com, dinh.linux@gmail.com, linux@roeck-us.net,
 	Arnd Bergmann <arnd@arndb.de>, kernel@savoirfairelinux.com,
 	Damien Riegel <damien.riegel@savoirfairelinux.com>
-Subject: [PATCH v5 2/5] mfd: syscon: add a DT property to set value width
-Date: Tue, 24 Nov 2015 13:00:50 -0500
-Message-Id: <1448388053-30661-3-git-send-email-damien.riegel@savoirfairelinux.com>
+Subject: [PATCH v5 4/5] ARM: imx_v6_v7_defconfig: add TS-4800 watchdog
+Date: Tue, 24 Nov 2015 13:00:52 -0500
+Message-Id: <1448388053-30661-5-git-send-email-damien.riegel@savoirfairelinux.com>
 In-Reply-To: <1448388053-30661-1-git-send-email-damien.riegel@savoirfairelinux.com>
 References: <1448388053-30661-1-git-send-email-damien.riegel@savoirfairelinux.com>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Currently syscon has a fixed configuration of 32 bits for register and
-values widths. In some cases, it would be desirable to be able to
-customize the value width.
-
-For example, certain boards (like the ones manufactured by Technologic
-Systems) have a FPGA that is memory-mapped, but its registers are only
-16-bit wide.
-
-This patch adds an optional "bus-width" DT binding for syscon that
-allows to change the width for the data bus (i.e. val_bits). If this
-property is provided, it will also adjust the register stride to
-bus-width / 8. If not provided, the default configuration is used.
+The TS-4800, based on an IMX.515, needs its watchdog support in order to
+work.
 
 Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Lee Jones <lee.jones@linaro.org>
 ---
- Documentation/devicetree/bindings/mfd/syscon.txt |  3 +++
- drivers/mfd/syscon.c                             | 13 +++++++++++++
- 2 files changed, 16 insertions(+)
+ arch/arm/configs/imx_v6_v7_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/mfd/syscon.txt b/Documentation/devicetree/bindings/mfd/syscon.txt
-index fe8150b..4c9d187 100644
---- a/Documentation/devicetree/bindings/mfd/syscon.txt
-+++ b/Documentation/devicetree/bindings/mfd/syscon.txt
-@@ -13,6 +13,9 @@ Required properties:
- - compatible: Should contain "syscon".
- - reg: the register region can be accessed from syscon
- 
-+Optional property:
-+- bus-width: width of the data bus. Can be <8>, <16>, <32>, or <64>.
-+
- Examples:
- gpr: iomuxc-gpr@020e0000 {
- 	compatible = "fsl,imx6q-iomuxc-gpr", "syscon";
-diff --git a/drivers/mfd/syscon.c b/drivers/mfd/syscon.c
-index 176bf0f..5a93d80 100644
---- a/drivers/mfd/syscon.c
-+++ b/drivers/mfd/syscon.c
-@@ -47,6 +47,7 @@ static struct syscon *of_syscon_register(struct device_node *np)
- 	struct syscon *syscon;
- 	struct regmap *regmap;
- 	void __iomem *base;
-+	u32 bus_width;
- 	int ret;
- 	struct regmap_config syscon_config = syscon_regmap_config;
- 
-@@ -69,6 +70,18 @@ static struct syscon *of_syscon_register(struct device_node *np)
- 	 else if (of_property_read_bool(np, "little-endian"))
- 		syscon_config.val_format_endian = REGMAP_ENDIAN_LITTLE;
- 
-+	/*
-+	 * search for bus-width property in DT. If it is not provided, default
-+	 * to 32-bit. regmap_init_mmio will return an error if syscon_config's
-+	 * values are invalid so there is no need to check them here.
-+	 */
-+	ret = of_property_read_u32(np, "bus-width", &bus_width);
-+	if (ret)
-+		bus_width = 32;
-+
-+	syscon_config.val_bits = bus_width;
-+	syscon_config.reg_stride = syscon_config.val_bits / 8;
-+
- 	regmap = regmap_init_mmio(NULL, base, &syscon_config);
- 	if (IS_ERR(regmap)) {
- 		pr_err("regmap init failed\n");
+diff --git a/arch/arm/configs/imx_v6_v7_defconfig b/arch/arm/configs/imx_v6_v7_defconfig
+index 79194c6..8968166 100644
+--- a/arch/arm/configs/imx_v6_v7_defconfig
++++ b/arch/arm/configs/imx_v6_v7_defconfig
+@@ -195,6 +195,7 @@ CONFIG_THERMAL=y
+ CONFIG_CPU_THERMAL=y
+ CONFIG_IMX_THERMAL=y
+ CONFIG_WATCHDOG=y
++CONFIG_TS4800_WATCHDOG=y
+ CONFIG_IMX2_WDT=y
+ CONFIG_MFD_DA9052_I2C=y
+ CONFIG_MFD_MC13XXX_SPI=y
 -- 
 2.5.0
 
