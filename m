@@ -1,52 +1,99 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:51311 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751946AbbKXOBF (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 24 Nov 2015 09:01:05 -0500
-Subject: Re: [PATCH 2/2] sp5100_tco: Add AMD Carrizo platform support
-To: Huang Rui <ray.huang@amd.com>, Wim Van Sebroeck <wim@iguana.be>
-References: <1448273256-1793-1-git-send-email-ray.huang@amd.com>
- <1448273256-1793-2-git-send-email-ray.huang@amd.com>
-Cc: linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Denis Turischev <denis.turischev@compulab.co.il>,
-	Borislav Petkov <bp@alien8.de>,
-	Vincent Wan <vincent.wan@amd.com>, Tony Li <tony.li@amd.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56546D9A.8060406@roeck-us.net>
-Date: Tue, 24 Nov 2015 06:00:58 -0800
+Return-path: <lee.jones@linaro.org>
+Date: Tue, 24 Nov 2015 08:20:36 +0000
+From: Lee Jones <lee.jones@linaro.org>
+To: Damien Riegel <damien.riegel@savoirfairelinux.com>
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org, robh+dt@kernel.org,
+	shawnguo@kernel.org, kernel@pengutronix.de, wim@iguana.be,
+	sameo@linux.intel.com, dinh.linux@gmail.com, linux@roeck-us.net,
+	Arnd Bergmann <arnd@arndb.de>, kernel@savoirfairelinux.com
+Subject: Re: [PATCH v4 2/5] mfd: syscon: add a DT property to set value width
+Message-ID: <20151124082036.GE807@x1>
+References: <1448291861-28543-1-git-send-email-damien.riegel@savoirfairelinux.com>
+ <1448291861-28543-3-git-send-email-damien.riegel@savoirfairelinux.com>
 MIME-Version: 1.0
-In-Reply-To: <1448273256-1793-2-git-send-email-ray.huang@amd.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1448291861-28543-3-git-send-email-damien.riegel@savoirfairelinux.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 11/23/2015 02:07 AM, Huang Rui wrote:
-> sp5100_tco watchdog is also supported on AMD KernCZ chipset of Carrizo
-> platform.
->
-> Signed-off-by: Huang Rui <ray.huang@amd.com>
-> Cc: Denis Turischev <denis.turischev@compulab.co.il>
+On Mon, 23 Nov 2015, Damien Riegel wrote:
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
+> Currently syscon has a fixed configuration of 32 bits for register and
+> values widths. In some cases, it would be desirable to be able to
+> customize the value width.
+> 
+> For example, certain boards (like the ones manufactured by Technologic
+> Systems) have a FPGA that is memory-mapped, but its registers are only
+> 16-bit wide.
+> 
+> This patch adds an optional "bus-width" DT binding for syscon that
+> allows to change the width for the data bus (i.e. val_bits). If this
+> property is provided, it will also adjust the register stride to
+> bus-width / 8. If not provided, the default configuration is used.
+> 
+> Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
 > ---
->   drivers/watchdog/sp5100_tco.c | 2 ++
->   1 file changed, 2 insertions(+)
->
-> diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
-> index c9dd419..6467b91 100644
-> --- a/drivers/watchdog/sp5100_tco.c
-> +++ b/drivers/watchdog/sp5100_tco.c
-> @@ -308,6 +308,8 @@ static const struct pci_device_id sp5100_tco_pci_tbl[] = {
->   	  PCI_ANY_ID, },
->   	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_HUDSON2_SMBUS, PCI_ANY_ID,
->   	  PCI_ANY_ID, },
-> +	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_KERNCZ_SMBUS, PCI_ANY_ID,
-> +	  PCI_ANY_ID, },
->   	{ 0, },			/* End of list */
->   };
->   MODULE_DEVICE_TABLE(pci, sp5100_tco_pci_tbl);
->
+>  Documentation/devicetree/bindings/mfd/syscon.txt |  3 +++
+>  drivers/mfd/syscon.c                             | 13 +++++++++++++
+>  2 files changed, 16 insertions(+)
 
+Works for me.
+
+For my own reference:
+  Acked-by: Lee Jones <lee.jones@linaro.org>
+
+How would you like this set to be handled?
+
+> diff --git a/Documentation/devicetree/bindings/mfd/syscon.txt b/Documentation/devicetree/bindings/mfd/syscon.txt
+> index fe8150b..4c9d187 100644
+> --- a/Documentation/devicetree/bindings/mfd/syscon.txt
+> +++ b/Documentation/devicetree/bindings/mfd/syscon.txt
+> @@ -13,6 +13,9 @@ Required properties:
+>  - compatible: Should contain "syscon".
+>  - reg: the register region can be accessed from syscon
+>  
+> +Optional property:
+> +- bus-width: width of the data bus. Can be <8>, <16>, <32>, or <64>.
+> +
+>  Examples:
+>  gpr: iomuxc-gpr@020e0000 {
+>  	compatible = "fsl,imx6q-iomuxc-gpr", "syscon";
+> diff --git a/drivers/mfd/syscon.c b/drivers/mfd/syscon.c
+> index 176bf0f..5a93d80 100644
+> --- a/drivers/mfd/syscon.c
+> +++ b/drivers/mfd/syscon.c
+> @@ -47,6 +47,7 @@ static struct syscon *of_syscon_register(struct device_node *np)
+>  	struct syscon *syscon;
+>  	struct regmap *regmap;
+>  	void __iomem *base;
+> +	u32 bus_width;
+>  	int ret;
+>  	struct regmap_config syscon_config = syscon_regmap_config;
+>  
+> @@ -69,6 +70,18 @@ static struct syscon *of_syscon_register(struct device_node *np)
+>  	 else if (of_property_read_bool(np, "little-endian"))
+>  		syscon_config.val_format_endian = REGMAP_ENDIAN_LITTLE;
+>  
+> +	/*
+> +	 * search for bus-width property in DT. If it is not provided, default
+> +	 * to 32-bit. regmap_init_mmio will return an error if syscon_config's
+> +	 * values are invalid so there is no need to check them here.
+> +	 */
+> +	ret = of_property_read_u32(np, "bus-width", &bus_width);
+> +	if (ret)
+> +		bus_width = 32;
+> +
+> +	syscon_config.val_bits = bus_width;
+> +	syscon_config.reg_stride = syscon_config.val_bits / 8;
+> +
+>  	regmap = regmap_init_mmio(NULL, base, &syscon_config);
+>  	if (IS_ERR(regmap)) {
+>  		pr_err("regmap init failed\n");
+
+-- 
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
