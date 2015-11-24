@@ -1,99 +1,52 @@
-Return-path: <lee.jones@linaro.org>
-Date: Tue, 24 Nov 2015 08:20:36 +0000
-From: Lee Jones <lee.jones@linaro.org>
-To: Damien Riegel <damien.riegel@savoirfairelinux.com>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org, robh+dt@kernel.org,
-	shawnguo@kernel.org, kernel@pengutronix.de, wim@iguana.be,
-	sameo@linux.intel.com, dinh.linux@gmail.com, linux@roeck-us.net,
-	Arnd Bergmann <arnd@arndb.de>, kernel@savoirfairelinux.com
-Subject: Re: [PATCH v4 2/5] mfd: syscon: add a DT property to set value width
-Message-ID: <20151124082036.GE807@x1>
-References: <1448291861-28543-1-git-send-email-damien.riegel@savoirfairelinux.com>
- <1448291861-28543-3-git-send-email-damien.riegel@savoirfairelinux.com>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:33756 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753528AbbKXPDT (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 24 Nov 2015 10:03:19 -0500
+Subject: Re: [PATCH v5 1/8] watchdog: Introduce hardware maximum timeout in
+ watchdog core
+To: =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>
+References: <1448248865-21684-1-git-send-email-linux@roeck-us.net>
+ <1448248865-21684-2-git-send-email-linux@roeck-us.net>
+ <20151124071628.GF19888@pengutronix.de>
+Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
+	linux-kernel@vger.kernel.org,
+	Timo Kokkonen <timo.kokkonen@offcode.fi>,
+	linux-doc@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <56547C31.3070901@roeck-us.net>
+Date: Tue, 24 Nov 2015 07:03:13 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+In-Reply-To: <20151124071628.GF19888@pengutronix.de>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <1448291861-28543-3-git-send-email-damien.riegel@savoirfairelinux.com>
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, 23 Nov 2015, Damien Riegel wrote:
+On 11/23/2015 11:16 PM, Uwe Kleine-König wrote:
+> Hello Guenter,
+>
+> On Sun, Nov 22, 2015 at 07:20:58PM -0800, Guenter Roeck wrote:
+>> Introduce an optional hardware maximum timeout in the watchdog core.
+>> The hardware maximum timeout can be lower than the maximum timeout.
+>>
+>> Drivers can set the maximum hardware timeout value in the watchdog data
+>> structure. If the configured timeout exceeds the maximum hardware timeout,
+>> the watchdog core enables a timer function to assist sending keepalive
+>> requests to the watchdog driver.
+>>
+>> Cc: Timo Kokkonen <timo.kokkonen@offcode.fi>
+>> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+>
 
-> Currently syscon has a fixed configuration of 32 bits for register and
-> values widths. In some cases, it would be desirable to be able to
-> customize the value width.
-> 
-> For example, certain boards (like the ones manufactured by Technologic
-> Systems) have a FPGA that is memory-mapped, but its registers are only
-> 16-bit wide.
-> 
-> This patch adds an optional "bus-width" DT binding for syscon that
-> allows to change the width for the data bus (i.e. val_bits). If this
-> property is provided, it will also adjust the register stride to
-> bus-width / 8. If not provided, the default configuration is used.
-> 
-> Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
-> ---
->  Documentation/devicetree/bindings/mfd/syscon.txt |  3 +++
->  drivers/mfd/syscon.c                             | 13 +++++++++++++
->  2 files changed, 16 insertions(+)
+Hi Uwe,
 
-Works for me.
+thanks a lot for the Ack. I have v6 in the works, which changes recording
+of last_keepalive when the watchdog is started. Does your Ack include that
+change, or do you prefer to have another look ?
 
-For my own reference:
-  Acked-by: Lee Jones <lee.jones@linaro.org>
+Thanks,
+Guenter
 
-How would you like this set to be handled?
-
-> diff --git a/Documentation/devicetree/bindings/mfd/syscon.txt b/Documentation/devicetree/bindings/mfd/syscon.txt
-> index fe8150b..4c9d187 100644
-> --- a/Documentation/devicetree/bindings/mfd/syscon.txt
-> +++ b/Documentation/devicetree/bindings/mfd/syscon.txt
-> @@ -13,6 +13,9 @@ Required properties:
->  - compatible: Should contain "syscon".
->  - reg: the register region can be accessed from syscon
->  
-> +Optional property:
-> +- bus-width: width of the data bus. Can be <8>, <16>, <32>, or <64>.
-> +
->  Examples:
->  gpr: iomuxc-gpr@020e0000 {
->  	compatible = "fsl,imx6q-iomuxc-gpr", "syscon";
-> diff --git a/drivers/mfd/syscon.c b/drivers/mfd/syscon.c
-> index 176bf0f..5a93d80 100644
-> --- a/drivers/mfd/syscon.c
-> +++ b/drivers/mfd/syscon.c
-> @@ -47,6 +47,7 @@ static struct syscon *of_syscon_register(struct device_node *np)
->  	struct syscon *syscon;
->  	struct regmap *regmap;
->  	void __iomem *base;
-> +	u32 bus_width;
->  	int ret;
->  	struct regmap_config syscon_config = syscon_regmap_config;
->  
-> @@ -69,6 +70,18 @@ static struct syscon *of_syscon_register(struct device_node *np)
->  	 else if (of_property_read_bool(np, "little-endian"))
->  		syscon_config.val_format_endian = REGMAP_ENDIAN_LITTLE;
->  
-> +	/*
-> +	 * search for bus-width property in DT. If it is not provided, default
-> +	 * to 32-bit. regmap_init_mmio will return an error if syscon_config's
-> +	 * values are invalid so there is no need to check them here.
-> +	 */
-> +	ret = of_property_read_u32(np, "bus-width", &bus_width);
-> +	if (ret)
-> +		bus_width = 32;
-> +
-> +	syscon_config.val_bits = bus_width;
-> +	syscon_config.reg_stride = syscon_config.val_bits / 8;
-> +
->  	regmap = regmap_init_mmio(NULL, base, &syscon_config);
->  	if (IS_ERR(regmap)) {
->  		pr_err("regmap init failed\n");
-
--- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org â”‚ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
