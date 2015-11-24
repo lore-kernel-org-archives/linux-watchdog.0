@@ -1,54 +1,89 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from webbox1416.server-home.net ([77.236.96.61]:58319 "EHLO
-	webbox1416.server-home.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754916AbbKWN3q (ORCPT
+Received: from mail-wm0-f46.google.com ([74.125.82.46]:33830 "EHLO
+	mail-wm0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753455AbbKXRWU (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 23 Nov 2015 08:29:46 -0500
-From: Alexander Stein <alexander.stein@systec-electronic.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 1/2] watchdog: gpio-wdt: Rename notifier to reboot_notifier
-Date: Mon, 23 Nov 2015 14:29:39 +0100
-Message-ID: <1928403.ZSnPjExYYh@ws-stein>
-In-Reply-To: <5652A51C.2030509@roeck-us.net>
-References: <1447062944-12296-1-git-send-email-alexander.stein@systec-electronic.com> <5652A51C.2030509@roeck-us.net>
+	Tue, 24 Nov 2015 12:22:20 -0500
+Received: by wmvv187 with SMTP id v187so220393437wmv.1
+        for <linux-watchdog@vger.kernel.org>; Tue, 24 Nov 2015 09:22:18 -0800 (PST)
+Date: Tue, 24 Nov 2015 17:22:14 +0000
+From: Lee Jones <lee.jones@linaro.org>
+To: Damien Riegel <damien.riegel@savoirfairelinux.com>,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org, robh+dt@kernel.org,
+	shawnguo@kernel.org, kernel@pengutronix.de, wim@iguana.be,
+	sameo@linux.intel.com, dinh.linux@gmail.com, linux@roeck-us.net,
+	Arnd Bergmann <arnd@arndb.de>, kernel@savoirfairelinux.com
+Subject: Re: [PATCH v4 2/5] mfd: syscon: add a DT property to set value width
+Message-ID: <20151124172214.GJ12874@x1>
+References: <1448291861-28543-1-git-send-email-damien.riegel@savoirfairelinux.com>
+ <1448291861-28543-3-git-send-email-damien.riegel@savoirfairelinux.com>
+ <20151124082036.GE807@x1>
+ <20151124162439.GC4616@localhost>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+In-Reply-To: <20151124162439.GC4616@localhost>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Sunday 22 November 2015 21:33:16, Guenter Roeck wrote:
-> On 11/09/2015 01:55 AM, Alexander Stein wrote:
-> > This is a preparation before adding a panic notifier.
-> >
-> > Signed-off-by: Alexander Stein <alexander.stein@systec-electronic.com>
-> 
-> Fyi, we are going to have an infrastructure change which will make this patch unnecessary.
-> 
-> See http://patchwork.roeck-us.net/patch/451/ and http://patchwork.roeck-us.net/patch/452/
-> for details.
+On Tue, 24 Nov 2015, Damien Riegel wrote:
 
-Both links are not working for me. Give me a 404 error.
+> On Tue, Nov 24, 2015 at 08:20:36AM +0000, Lee Jones wrote:
+> > On Mon, 23 Nov 2015, Damien Riegel wrote:
+> >=20
+> > > Currently syscon has a fixed configuration of 32 bits for registe=
+r and
+> > > values widths. In some cases, it would be desirable to be able to
+> > > customize the value width.
+> > >=20
+> > > For example, certain boards (like the ones manufactured by Techno=
+logic
+> > > Systems) have a FPGA that is memory-mapped, but its registers are=
+ only
+> > > 16-bit wide.
+> > >=20
+> > > This patch adds an optional "bus-width" DT binding for syscon tha=
+t
+> > > allows to change the width for the data bus (i.e. val_bits). If t=
+his
+> > > property is provided, it will also adjust the register stride to
+> > > bus-width / 8. If not provided, the default configuration is used=
+=2E
+> > >=20
+> > > Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
+> > > ---
+> > >  Documentation/devicetree/bindings/mfd/syscon.txt |  3 +++
+> > >  drivers/mfd/syscon.c                             | 13 ++++++++++=
++++
+> > >  2 files changed, 16 insertions(+)
+> >=20
+> > Works for me.
+> >=20
+> > For my own reference:
+> >   Acked-by: Lee Jones <lee.jones@linaro.org>
+>=20
+> This pachset requires a new version to fix something in the watchdog,
+> I will add your Ack in the v5.
+>=20
+> >=20
+> > How would you like this set to be handled?
+> >=20
+>=20
+> Not sure what you mean. Actually, I don't know how it works for such
+> patchset with changes across multiple subsystems. What are the option=
+s?
 
-Best regards,
-Alexander
--- 
-Dipl.-Inf. Alexander Stein
-SYS TEC electronic GmbH
-alexander.stein@systec-electronic.com
+I'm happy to handle it, I just need Acks from the other Maintainers.
 
-Legal and Commercial Address:
-Am Windrad 2
-08468 Heinsdorfergrund
-Germany
-
-Office: +49 (0) 3765 38600-0
-Fax:    +49 (0) 3765 38600-4100
- 
-Managing Directors:
-	Director Technology/CEO: Dipl.-Phys. Siegmar Schmidt;
-	Director Commercial Affairs/COO: Dipl. Ing. (FH) Armin von Collrepp
-Commercial Registry:
-	Amtsgericht Chemnitz, HRB 28082; USt.-Id Nr. DE150534010
-
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
