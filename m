@@ -1,57 +1,43 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:49758 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752903AbbKXQpL (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 24 Nov 2015 11:45:11 -0500
-Subject: Re: [PATCH v5 1/8] watchdog: Introduce hardware maximum timeout in
- watchdog core
-To: =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>
-References: <1448248865-21684-1-git-send-email-linux@roeck-us.net>
- <1448248865-21684-2-git-send-email-linux@roeck-us.net>
- <20151124071628.GF19888@pengutronix.de> <56547C31.3070901@roeck-us.net>
- <20151124161147.GH19888@pengutronix.de>
-Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	linux-kernel@vger.kernel.org,
-	Timo Kokkonen <timo.kokkonen@offcode.fi>,
-	linux-doc@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56549411.7000209@roeck-us.net>
-Date: Tue, 24 Nov 2015 08:45:05 -0800
+Return-path: <Ray.Huang@amd.com>
+Date: Wed, 25 Nov 2015 09:59:18 +0800
+From: Huang Rui <ray.huang@amd.com>
+To: Guenter Roeck <linux@roeck-us.net>
+CC: Wim Van Sebroeck <wim@iguana.be>, <linux-watchdog@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, Denis Turischev
+	<denis.turischev@compulab.co.il>, Borislav Petkov <bp@alien8.de>, Vincent Wan
+	<vincent.wan@amd.com>, Tony Li <tony.li@amd.com>
+Subject: Re: [PATCH 1/2] sp5100_tco: fix the device check for SB800 and later
+ chipsets
+Message-ID: <20151125015916.GA2904@hr-amur2>
+References: <1448273256-1793-1-git-send-email-ray.huang@amd.com>
+ <56546CEB.3080907@roeck-us.net>
 MIME-Version: 1.0
-In-Reply-To: <20151124161147.GH19888@pengutronix.de>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 8bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <56546CEB.3080907@roeck-us.net>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Uwe,
+On Tue, Nov 24, 2015 at 05:58:03AM -0800, Guenter Roeck wrote:
+> On 11/23/2015 02:07 AM, Huang Rui wrote:
+> >For SB800 and later chipsets, the register definitions are the same
+> >with SB800. And for SB700 and older chipsets, the definitions should
+> >be same with SP5100/SB7x0.
+> >
+> >Signed-off-by: Huang Rui <ray.huang@amd.com>
+> >Cc: Denis Turischev <denis.turischev@compulab.co.il>
+> 
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> 
+> Would it make sense to rework this driver as pci driver ?
+> 
 
-On 11/24/2015 08:11 AM, Uwe Kleine-König wrote:
-> Hello Guenter,
->
-> On Tue, Nov 24, 2015 at 07:03:13AM -0800, Guenter Roeck wrote:
->> thanks a lot for the Ack. I have v6 in the works, which changes recording
->> of last_keepalive when the watchdog is started. Does your Ack include that
->> change, or do you prefer to have another look ?
->
-> this change is to sample jiffies before .start is called as I suggested,
-> right? For that change keeping my ack is ok of course.
->
-
-Correct. This is how the code now looks like.
-
-         started_at = jiffies;
-         if (watchdog_hw_running(wdd) && wdd->ops->ping)
-                 err = wdd->ops->ping(wdd);
-         else
-                 err = wdd->ops->start(wdd);
-         if (err == 0) {
-                 set_bit(WDOG_ACTIVE, &wdd->status);
-                 wdd->last_keepalive = started_at;
-                 watchdog_update_worker(wdd);
-         }
+I agree with you. Actually, I thought about this stuff. But sp5100
+watchdog is not a pci device in AMD chipset. In another word, it
+doesn't export a pci header to OS. At current, we use SMBus pci device
+id and vendor id to detect watchdog on the AMD chipset (Because AMD
+use SMBus device id and revsion to identify different chipset
+version). At the same time, SMbus has its own driver piix4_smbus.
+Looks like we don't have a pci header to enumerate the watchdog.
 
 Thanks,
-Guenter
-
+Rui
