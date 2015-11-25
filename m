@@ -19,30 +19,32 @@ Cc: Lee Jones <lee.jones@linaro.org>,
 	Guenter Roeck <linux@roeck-us.net>,
 	kernel@savoirfairelinux.com,
 	Damien Riegel <damien.riegel@savoirfairelinux.com>
-Subject: [PATCH v6 1/6] of: add vendor prefix for Technologic Systems
-Date: Wed, 25 Nov 2015 14:25:02 -0500
-Message-Id: <1448479507-1951-2-git-send-email-damien.riegel@savoirfairelinux.com>
+Subject: [PATCH v6 5/6] of: documentation: add bindings documentation for TS-4800
+Date: Wed, 25 Nov 2015 14:25:06 -0500
+Message-Id: <1448479507-1951-6-git-send-email-damien.riegel@savoirfairelinux.com>
 In-Reply-To: <1448479507-1951-1-git-send-email-damien.riegel@savoirfairelinux.com>
 References: <1448479507-1951-1-git-send-email-damien.riegel@savoirfairelinux.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
-Acked-by: Lee Jones <lee.jones@linaro.org>
----
- Documentation/devicetree/bindings/vendor-prefixes.txt | 1 +
- 1 file changed, 1 insertion(+)
+This adds the documentation for the TS-4800 by Technologic Systems.
 
-diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Documentation/devicetree/bindings/vendor-prefixes.txt
-index 82d2ac9..d3a206d 100644
---- a/Documentation/devicetree/bindings/vendor-prefixes.txt
-+++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
-@@ -215,6 +215,7 @@ stericsson	ST-Ericsson
- synology	Synology, Inc.
- tbs	TBS Technologies
- tcl	Toby Churchill Ltd.
-+technologic	Technologic Systems
- thine	THine Electronics, Inc.
- ti	Texas Instruments
- tlm	Trusted Logic Mobility
+Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
+---
+ Documentation/devicetree/bindings/arm/technologic.txt | 6 ++++++
+ 1 file changed, 6 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/arm/technologic.txt
+
+diff --git a/Documentation/devicetree/bindings/arm/technologic.txt b/Documentation/devicetree/bindings/arm/technologic.txt
+new file mode 100644
+index 0000000..8422988
+--- /dev/null
++++ b/Documentation/devicetree/bindings/arm/technologic.txt
+@@ -0,0 +1,6 @@
++Technologic Systems Platforms Device Tree Bindings
++--------------------------------------------------
++
++TS-4800 board
++Required root node properties:
++	- compatible = "technologic,imx51-ts4800", "fsl,imx51";
 -- 
 2.5.0
