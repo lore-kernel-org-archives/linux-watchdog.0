@@ -1,7 +1,7 @@
-Return-path: <robherring2@gmail.com>
-Date: Wed, 25 Nov 2015 15:59:24 -0600
-From: Rob Herring <robh@kernel.org>
-To: Damien Riegel <damien.riegel@savoirfairelinux.com>
+Return-path: <damien.riegel@savoirfairelinux.com>
+Date: Wed, 25 Nov 2015 17:02:39 -0500
+From: Damien Riegel <damien.riegel@savoirfairelinux.com>
+To: Rob Herring <robh@kernel.org>
 Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
 	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
 	Lee Jones <lee.jones@linaro.org>, Pawel Moll <pawel.moll@arm.com>,
@@ -14,41 +14,94 @@ Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
 	Samuel Ortiz <sameo@linux.intel.com>,
 	Wim Van Sebroeck <wim@iguana.be>,
 	Guenter Roeck <linux@roeck-us.net>, kernel@savoirfairelinux.com
-Subject: Re: [PATCH v6 5/6] of: documentation: add bindings documentation for
- TS-4800
-Message-ID: <20151125215924.GA14649@rob-hp-laptop>
+Subject: Re: [PATCH v6 2/6] mfd: syscon: add a DT property to set value width
+Message-ID: <20151125220239.GB3627@localhost>
 References: <1448479507-1951-1-git-send-email-damien.riegel@savoirfairelinux.com>
- <1448479507-1951-6-git-send-email-damien.riegel@savoirfairelinux.com>
+ <1448479507-1951-3-git-send-email-damien.riegel@savoirfairelinux.com>
+ <20151125203253.GA13437@rob-hp-laptop>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1448479507-1951-6-git-send-email-damien.riegel@savoirfairelinux.com>
+In-Reply-To: <20151125203253.GA13437@rob-hp-laptop>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Wed, Nov 25, 2015 at 02:25:06PM -0500, Damien Riegel wrote:
-> This adds the documentation for the TS-4800 by Technologic Systems.
+On Wed, Nov 25, 2015 at 02:32:53PM -0600, Rob Herring wrote:
+> On Wed, Nov 25, 2015 at 02:25:03PM -0500, Damien Riegel wrote:
+> > Currently syscon has a fixed configuration of 32 bits for register and
+> > values widths. In some cases, it would be desirable to be able to
+> > customize the value width.
+> > 
+> > For example, certain boards (like the ones manufactured by Technologic
+> > Systems) have a FPGA that is memory-mapped, but its registers are only
+> > 16-bit wide.
+> > 
+> > This patch adds an optional "bus-width" DT binding for syscon that
+> > allows to change the width for the data bus (i.e. val_bits). If this
+> > property is provided, it will also adjust the register stride to
+> > bus-width / 8. If not provided, the default configuration is used.
 > 
-> Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
+> See the 8250 UART bindings. This problem is already solved and has 
+> standard bindings for it.
 
-Acked-by: Rob Herring <robh@kernel.org>
+Okay, I'll change bus-width to reg-io-width. Are you also suggesting to
+use reg-shift to parametrize reg_stride?
 
-> ---
->  Documentation/devicetree/bindings/arm/technologic.txt | 6 ++++++
->  1 file changed, 6 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/arm/technologic.txt
+> Rob
 > 
-> diff --git a/Documentation/devicetree/bindings/arm/technologic.txt b/Documentation/devicetree/bindings/arm/technologic.txt
-> new file mode 100644
-> index 0000000..8422988
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/arm/technologic.txt
-> @@ -0,0 +1,6 @@
-> +Technologic Systems Platforms Device Tree Bindings
-> +--------------------------------------------------
-> +
-> +TS-4800 board
-> +Required root node properties:
-> +	- compatible = "technologic,imx51-ts4800", "fsl,imx51";
-> -- 
-> 2.5.0
-> 
+> > 
+> > Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
+> > Acked-by: Arnd Bergmann <arnd@arndb.de>
+> > Acked-by: Lee Jones <lee.jones@linaro.org>
+> > ---
+> >  Documentation/devicetree/bindings/mfd/syscon.txt |  3 +++
+> >  drivers/mfd/syscon.c                             | 13 +++++++++++++
+> >  2 files changed, 16 insertions(+)
+> > 
+> > diff --git a/Documentation/devicetree/bindings/mfd/syscon.txt b/Documentation/devicetree/bindings/mfd/syscon.txt
+> > index fe8150b..4c9d187 100644
+> > --- a/Documentation/devicetree/bindings/mfd/syscon.txt
+> > +++ b/Documentation/devicetree/bindings/mfd/syscon.txt
+> > @@ -13,6 +13,9 @@ Required properties:
+> >  - compatible: Should contain "syscon".
+> >  - reg: the register region can be accessed from syscon
+> >  
+> > +Optional property:
+> > +- bus-width: width of the data bus. Can be <8>, <16>, <32>, or <64>.
+> > +
+> >  Examples:
+> >  gpr: iomuxc-gpr@020e0000 {
+> >  	compatible = "fsl,imx6q-iomuxc-gpr", "syscon";
+> > diff --git a/drivers/mfd/syscon.c b/drivers/mfd/syscon.c
+> > index 176bf0f..5a93d80 100644
+> > --- a/drivers/mfd/syscon.c
+> > +++ b/drivers/mfd/syscon.c
+> > @@ -47,6 +47,7 @@ static struct syscon *of_syscon_register(struct device_node *np)
+> >  	struct syscon *syscon;
+> >  	struct regmap *regmap;
+> >  	void __iomem *base;
+> > +	u32 bus_width;
+> >  	int ret;
+> >  	struct regmap_config syscon_config = syscon_regmap_config;
+> >  
+> > @@ -69,6 +70,18 @@ static struct syscon *of_syscon_register(struct device_node *np)
+> >  	 else if (of_property_read_bool(np, "little-endian"))
+> >  		syscon_config.val_format_endian = REGMAP_ENDIAN_LITTLE;
+> >  
+> > +	/*
+> > +	 * search for bus-width property in DT. If it is not provided, default
+> > +	 * to 32-bit. regmap_init_mmio will return an error if syscon_config's
+> > +	 * values are invalid so there is no need to check them here.
+> > +	 */
+> > +	ret = of_property_read_u32(np, "bus-width", &bus_width);
+> > +	if (ret)
+> > +		bus_width = 32;
+> > +
+> > +	syscon_config.val_bits = bus_width;
+> > +	syscon_config.reg_stride = syscon_config.val_bits / 8;
+> > +
+> >  	regmap = regmap_init_mmio(NULL, base, &syscon_config);
+> >  	if (IS_ERR(regmap)) {
+> >  		pr_err("regmap init failed\n");
+> > -- 
+> > 2.5.0
+> > 
