@@ -1,118 +1,56 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:57740 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:54421 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755480AbbKXXXd (ORCPT
+	with ESMTP id S1755432AbbKYCLk (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 24 Nov 2015 18:23:33 -0500
-Date: Tue, 24 Nov 2015 15:23:28 -0800
+	Tue, 24 Nov 2015 21:11:40 -0500
+Subject: Re: [PATCH 1/2] sp5100_tco: fix the device check for SB800 and later
+ chipsets
+To: Huang Rui <ray.huang@amd.com>
+References: <1448273256-1793-1-git-send-email-ray.huang@amd.com>
+ <56546CEB.3080907@roeck-us.net> <20151125015916.GA2904@hr-amur2>
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Denis Turischev <denis.turischev@compulab.co.il>,
+	Borislav Petkov <bp@alien8.de>,
+	Vincent Wan <vincent.wan@amd.com>, Tony Li <tony.li@amd.com>
 From: Guenter Roeck <linux@roeck-us.net>
-To: Damien Riegel <damien.riegel@savoirfairelinux.com>,
-	linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	kernel@savoirfairelinux.com
-Subject: Re: [PATCH] watchdog: core: factorize register error paths
-Message-ID: <20151124232328.GA19861@roeck-us.net>
-References: <1448396135-21649-1-git-send-email-damien.riegel@savoirfairelinux.com>
- <20151124204548.GA14059@roeck-us.net>
- <20151124224014.GA26851@localhost>
+Message-ID: <565518D5.4010104@roeck-us.net>
+Date: Tue, 24 Nov 2015 18:11:33 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20151124224014.GA26851@localhost>
+In-Reply-To: <20151125015916.GA2904@hr-amur2>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Tue, Nov 24, 2015 at 05:40:14PM -0500, Damien Riegel wrote:
-> On Tue, Nov 24, 2015 at 12:45:48PM -0800, Guenter Roeck wrote:
-> > Hi Damien,
-> > 
-> > On Tue, Nov 24, 2015 at 03:15:35PM -0500, Damien Riegel wrote:
-> > > The commit adding the reboot notifier in the core introduced a new error
-> > > path in __watchdog_register_device, making error paths quite redondant.
-> > > 
-> > s/redondant/redundant/
-> > 
-> > > This commit factorizes all error paths that do some cleanup.
-> > > 
-> > > Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
-> > > ---
-> > >  drivers/watchdog/watchdog_core.c | 27 +++++++++++++++------------
-> > >  1 file changed, 15 insertions(+), 12 deletions(-)
-> > > 
-> > > diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-> > > index 551af04..aff17b1 100644
-> > > --- a/drivers/watchdog/watchdog_core.c
-> > > +++ b/drivers/watchdog/watchdog_core.c
-> > > @@ -241,20 +241,16 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
-> > >  		wdd->id = id;
-> > >  
-> > >  		ret = watchdog_dev_register(wdd);
-> > > -		if (ret) {
-> > > -			ida_simple_remove(&watchdog_ida, id);
-> > > -			return ret;
-> > > -		}
-> > > +		if (ret)
-> > > +			goto remove_ida;
-> > >  	}
-> > >  
-> > >  	devno = wdd->cdev.dev;
-> > >  	wdd->dev = device_create(watchdog_class, wdd->parent, devno,
-> > >  					wdd, "watchdog%d", wdd->id);
-> > >  	if (IS_ERR(wdd->dev)) {
-> > > -		watchdog_dev_unregister(wdd);
-> > > -		ida_simple_remove(&watchdog_ida, id);
-> > >  		ret = PTR_ERR(wdd->dev);
-> > > -		return ret;
-> > > +		goto unregister_device;
-> > >  	}
-> > >  
-> > >  	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status)) {
-> > > @@ -264,11 +260,7 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
-> > >  		if (ret) {
-> > >  			dev_err(wdd->dev, "Cannot register reboot notifier (%d)\n",
-> > >  				ret);
-> > > -			watchdog_dev_unregister(wdd);
-> > > -			device_destroy(watchdog_class, devno);
-> > > -			ida_simple_remove(&watchdog_ida, wdd->id);
-> > > -			wdd->dev = NULL;
-> > > -			return ret;
-> > > +			goto unregister_device;
-> > >  		}
-> > >  	}
-> > >  
-> > > @@ -282,6 +274,17 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
-> > >  	}
-> > >  
-> > >  	return 0;
-> > > +
-> > > +unregister_device:
-> > > +	watchdog_dev_unregister(wdd);
-> > > +	if (!IS_ERR(wdd->dev)) {
-> > > +		device_destroy(watchdog_class, devno);
-> > > +		wdd->dev = NULL;
-> > 
-> > Oddly enough this leaves wdd->dev in place if it is an ERR_PTR.
-> > While that was the case before, it might be better and more
-> > consistent to always set it to NULL.
-> > 
-> > I also wonder if it is really necessary to call watchdog_dev_unregister()
-> > first. Something like
-> > 
-> > destroy_device:
-> > 	device_destroy(watchdog_class, devno);
-> > unregister_watchdog:
-> > 	wdd->dev = NULL;
-> > 	watchdog_dev_unregister(wdd);
-> > 
-> > would be cleaner. Wonder why it isn't done in that order to start with.
-> > It should be possible; after all, the device is created only after 
-> > watchdog_dev_register() succeeded, so one should think that it makes
-> > sense to remove it first. Any idea ?
-> 
-> No idea why the device_destroy was done after watchdog_dev_unregister in
-> __watchdog_unregister_device, I think there is no reasons for that, and
-> it seems safe to reorder them.
-> 
-Ok, let's do it then.
+On 11/24/2015 05:59 PM, Huang Rui wrote:
+> On Tue, Nov 24, 2015 at 05:58:03AM -0800, Guenter Roeck wrote:
+>> On 11/23/2015 02:07 AM, Huang Rui wrote:
+>>> For SB800 and later chipsets, the register definitions are the same
+>>> with SB800. And for SB700 and older chipsets, the definitions should
+>>> be same with SP5100/SB7x0.
+>>>
+>>> Signed-off-by: Huang Rui <ray.huang@amd.com>
+>>> Cc: Denis Turischev <denis.turischev@compulab.co.il>
+>>
+>> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+>>
+>> Would it make sense to rework this driver as pci driver ?
+>>
+>
+> I agree with you. Actually, I thought about this stuff. But sp5100
+> watchdog is not a pci device in AMD chipset. In another word, it
+> doesn't export a pci header to OS. At current, we use SMBus pci device
+> id and vendor id to detect watchdog on the AMD chipset (Because AMD
+> use SMBus device id and revsion to identify different chipset
+> version). At the same time, SMbus has its own driver piix4_smbus.
+> Looks like we don't have a pci header to enumerate the watchdog.
+>
+
+Ok, thanks for the clarification. Odd way to detect the chip, but
+I guess one has to use what is available.
 
 Thanks,
 Guenter
+
