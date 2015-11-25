@@ -19,71 +19,32 @@ Cc: Lee Jones <lee.jones@linaro.org>,
 	Guenter Roeck <linux@roeck-us.net>,
 	kernel@savoirfairelinux.com,
 	Damien Riegel <damien.riegel@savoirfairelinux.com>
-Subject: [PATCH v5 0/5] Add board support for TS-4800
-Date: Wed, 25 Nov 2015 14:25:01 -0500
-Message-Id: <1448479507-1951-1-git-send-email-damien.riegel@savoirfairelinux.com>
+Subject: [PATCH v6 4/6] ARM: imx_v6_v7_defconfig: add TS-4800 watchdog
+Date: Wed, 25 Nov 2015 14:25:05 -0500
+Message-Id: <1448479507-1951-5-git-send-email-damien.riegel@savoirfairelinux.com>
+In-Reply-To: <1448479507-1951-1-git-send-email-damien.riegel@savoirfairelinux.com>
+References: <1448479507-1951-1-git-send-email-damien.riegel@savoirfairelinux.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-This patch serie adds support for TS-4800 board. This board,                                                                              
-manufactured by Technologic Systems, is based on an IMX515.
+The TS-4800, based on an IMX.515, needs its watchdog support in order to
+work.
 
-The first stage bootloader, called TS-BOOTROM, enables the watchdog,
-so a watchdog driver is required to prevent board from rebooting.
+Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
+---
+ arch/arm/configs/imx_v6_v7_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-The current device tree is minimal but it allows to get a shell on the
-board.
-
-Changes in v6:
- - vendor prefix: reorder to sort alphabetically (wrong order since v3)
- - split commit adding device tree into two patches: one for the doc, one for
-   the bindings
-
-Changes in v5:
- - watchdog: changed iteration stop condition in set_timeout to be less
-   error prone
-
-Changes in v4:
- - syscon: rewrite DT property reading to be clearer
- - watchdog: made fixes suggested by Guenter (now uses
-   watchdog_init_timeout, u32 instead of u16, fixed error checking in
-   probe, cleaned set_timeout)
-
-Changes in v3:
- - Rebased on v4.3
- - Changed vendor prefix from "ts" to "technologic"
- - Added a DT option to generic syscon driver to allow regmap configuration
- - Dropped custom mfd driver, use generic syscon driver instead.
-
-Changes in v2:
- - Added a mfd driver to handle syscon registers
- - The watchdog driver now uses the regmap (created by the mfd driver)
-   to access the feed register
- - Remove watchdog's dependency on SOC_IMX51
-
-Damien Riegel (6):
-  of: add vendor prefix for Technologic Systems
-  mfd: syscon: add a DT property to set value width
-  watchdog: ts4800: add driver for TS-4800 watchdog
-  ARM: imx_v6_v7_defconfig: add TS-4800 watchdog
-  of: documentation: add bindings documentation for TS-4800
-  ARM: dts: TS-4800: add basic device tree
-
- .../devicetree/bindings/arm/technologic.txt        |   6 +
- Documentation/devicetree/bindings/mfd/syscon.txt   |   3 +
- .../devicetree/bindings/vendor-prefixes.txt        |   1 +
- .../devicetree/bindings/watchdog/ts4800-wdt.txt    |  25 +++
- arch/arm/boot/dts/Makefile                         |   3 +-
- arch/arm/boot/dts/imx51-ts4800.dts                 | 190 ++++++++++++++++++
- arch/arm/configs/imx_v6_v7_defconfig               |   1 +
- drivers/mfd/syscon.c                               |  13 ++
- drivers/watchdog/Kconfig                           |  10 +
- drivers/watchdog/Makefile                          |   1 +
- drivers/watchdog/ts4800_wdt.c                      | 215 +++++++++++++++++++++
- 11 files changed, 467 insertions(+), 1 deletion(-)
- create mode 100644 Documentation/devicetree/bindings/arm/technologic.txt
- create mode 100644 Documentation/devicetree/bindings/watchdog/ts4800-wdt.txt
- create mode 100644 arch/arm/boot/dts/imx51-ts4800.dts
- create mode 100644 drivers/watchdog/ts4800_wdt.c
-
+diff --git a/arch/arm/configs/imx_v6_v7_defconfig b/arch/arm/configs/imx_v6_v7_defconfig
+index 79194c6..8968166 100644
+--- a/arch/arm/configs/imx_v6_v7_defconfig
++++ b/arch/arm/configs/imx_v6_v7_defconfig
+@@ -195,6 +195,7 @@ CONFIG_THERMAL=y
+ CONFIG_CPU_THERMAL=y
+ CONFIG_IMX_THERMAL=y
+ CONFIG_WATCHDOG=y
++CONFIG_TS4800_WATCHDOG=y
+ CONFIG_IMX2_WDT=y
+ CONFIG_MFD_DA9052_I2C=y
+ CONFIG_MFD_MC13XXX_SPI=y
 -- 
 2.5.0
