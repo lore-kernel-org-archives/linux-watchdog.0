@@ -1,144 +1,188 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:52946 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752420AbbK2T3B (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Sun, 29 Nov 2015 14:29:01 -0500
-From: Guenter Roeck <linux@roeck-us.net>
+Return-path: <damien.riegel@savoirfairelinux.com>
+From: Damien Riegel <damien.riegel@savoirfairelinux.com>
 To: linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
-	Timo Kokkonen <timo.kokkonen@offcode.fi>,
-	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
-	<u.kleine-koenig@pengutronix.de>, linux-doc@vger.kernel.org,
-	Doug Anderson <dianders@chromium.org>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v6 4/9] watchdog: Add support for minimum time between heartbeats
-Date: Sun, 29 Nov 2015 11:28:46 -0800
-Message-Id: <1448825331-28840-5-git-send-email-linux@roeck-us.net>
-In-Reply-To: <1448825331-28840-1-git-send-email-linux@roeck-us.net>
-References: <1448825331-28840-1-git-send-email-linux@roeck-us.net>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Cc: Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	kernel@savoirfairelinux.com,
+	Damien Riegel <damien.riegel@savoirfairelinux.com>
+Subject: [PATCH v3 1/2] watchdog: core: create device before registering char dev
+Date: Thu, 26 Nov 2015 15:35:06 -0500
+Message-Id: <1448570107-3106-1-git-send-email-damien.riegel@savoirfairelinux.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-Some watchdogs require a minimum time between heartbeats.
-Examples are the watchdogs in DA9062 and AT91SAM9x.
+Currently, the entry in /dev is created before the device associated
+with the watchdog is created. Therefore, a user can do operations on the
+watchdog before it is fully ready.
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+This patch changes order of operations to create the device first. As
+the core might try to create the device with different ids, it is
+simpler to group the device creation and the char device registration in
+the same function. This commit also adds a counterpart function to group
+unregistration and device destruction.
 
+Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
 ---
-v6: Rebased to v4.4-rc2
-v5: Rebased to v4.4-rc1
-    Fixed typo in documentation.
-v4: Added patch
----
- Documentation/watchdog/watchdog-kernel-api.txt |  4 ++++
- drivers/watchdog/watchdog_dev.c                | 12 ++++++++++++
- include/linux/watchdog.h                       |  6 ++++++
- 3 files changed, 22 insertions(+)
+Changes in v3:
+ - changed order of operations to first create the device and then
+   register the char dev. On cleanup, unregister then destroy.
 
-diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
-index f2ee8226d320..b417fdb6caac 100644
---- a/Documentation/watchdog/watchdog-kernel-api.txt
-+++ b/Documentation/watchdog/watchdog-kernel-api.txt
-@@ -53,11 +53,13 @@ struct watchdog_device {
- 	unsigned int timeout;
- 	unsigned int min_timeout;
- 	unsigned int max_timeout;
-+	unsigned int min_hw_heartbeat_ms;
- 	unsigned int max_hw_timeout_ms;
- 	void *driver_data;
- 	unsigned long status;
- 	struct mutex lock;
- 	unsigned long last_keepalive;
-+	unsigned long last_hw_keepalive;
- 	struct delayed_work work;
- 	struct list_head deferred;
- };
-@@ -83,6 +85,8 @@ It contains following fields:
- * max_timeout: the watchdog timer's maximum timeout value (in seconds),
-   as seen from userspace. If set, the maximum configurable value for
-   'timeout'. Not used if max_hw_timeout_ms is non-zero.
-+* min_hw_heartbeat_ms: Minimum time between heartbeats sent to the chip,
-+  in milli-seconds.
- * max_hw_timeout_ms: Maximum hardware timeout, in milli-seconds.
-   If set, the infrastructure will send heartbeats to the watchdog driver
-   if 'timeout' is larger than max_hw_timeout, unless WDOG_ACTIVE
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 5dd7319c0169..82706d43e0c8 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -111,6 +111,8 @@ static inline void watchdog_update_worker(struct watchdog_device *wdd,
+Changes in v2:
+ - move call to device_destroy before watchdog_dev_unregister 
+
+ drivers/watchdog/watchdog_core.c | 60 +++++++++++++++++++++++-----------------
+ drivers/watchdog/watchdog_core.h |  1 +
+ drivers/watchdog/watchdog_dev.c  |  7 ++++-
+ 3 files changed, 42 insertions(+), 26 deletions(-)
+
+diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+index 551af04..13a7a58 100644
+--- a/drivers/watchdog/watchdog_core.c
++++ b/drivers/watchdog/watchdog_core.c
+@@ -192,9 +192,39 @@ void watchdog_set_restart_priority(struct watchdog_device *wdd, int priority)
+ }
+ EXPORT_SYMBOL_GPL(watchdog_set_restart_priority);
  
- static int _watchdog_ping(struct watchdog_device *wdd)
- {
-+	unsigned long earliest_keepalive = wdd->last_hw_keepalive +
-+				msecs_to_jiffies(wdd->min_hw_heartbeat_ms);
- 	int err;
- 
- 	if (test_bit(WDOG_UNREGISTERED, &wdd->status))
-@@ -119,6 +121,13 @@ static int _watchdog_ping(struct watchdog_device *wdd)
- 	if (!watchdog_active(wdd) && !watchdog_hw_running(wdd))
- 		return 0;
- 
-+	if (time_is_after_jiffies(earliest_keepalive)) {
-+		mod_delayed_work(watchdog_wq, &wdd->work,
-+				 earliest_keepalive - jiffies);
-+		return 0;
-+	}
++static int __watchdog_create_register(struct watchdog_device *wdd)
++{
++	dev_t devno;
++	int ret;
 +
-+	wdd->last_hw_keepalive = jiffies;
- 	if (wdd->ops->ping)
- 		err = wdd->ops->ping(wdd);  /* ping the watchdog */
- 	else
-@@ -667,6 +676,9 @@ int watchdog_dev_register(struct watchdog_device *wdd)
- 		return err;
++	devno = watchdog_dev_get_devno(wdd);
++	wdd->dev = device_create(watchdog_class, wdd->parent, devno,
++					wdd, "watchdog%d", wdd->id);
++	if (IS_ERR(wdd->dev))
++		return PTR_ERR(wdd->dev);
++
++	ret = watchdog_dev_register(wdd);
++	if (ret)
++		device_destroy(watchdog_class, devno);
++
++	return ret;
++}
++
++static void __watchdog_unregister_destroy(struct watchdog_device *wdd)
++{
++	dev_t devno = wdd->cdev.dev;
++	int ret;
++
++	ret = watchdog_dev_unregister(wdd);
++	if (ret)
++		pr_err("error unregistering /dev/watchdog (err=%d)\n", ret);
++	device_destroy(watchdog_class, devno);
++	wdd->dev = NULL;
++}
++
+ static int __watchdog_register_device(struct watchdog_device *wdd)
+ {
+-	int ret, id = -1, devno;
++	int ret, id = -1;
+ 
+ 	if (wdd == NULL || wdd->info == NULL || wdd->ops == NULL)
+ 		return -EINVAL;
+@@ -228,7 +258,7 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
+ 		return id;
+ 	wdd->id = id;
+ 
+-	ret = watchdog_dev_register(wdd);
++	ret = __watchdog_create_register(wdd);
+ 	if (ret) {
+ 		ida_simple_remove(&watchdog_ida, id);
+ 		if (!(id == 0 && ret == -EBUSY))
+@@ -240,23 +270,13 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
+ 			return id;
+ 		wdd->id = id;
+ 
+-		ret = watchdog_dev_register(wdd);
++		ret = __watchdog_create_register(wdd);
+ 		if (ret) {
+ 			ida_simple_remove(&watchdog_ida, id);
+ 			return ret;
+ 		}
  	}
  
-+	/* Record time of most recent heartbeat as 'just before now'. */
-+	wdd->last_hw_keepalive = jiffies - 1;
+-	devno = wdd->cdev.dev;
+-	wdd->dev = device_create(watchdog_class, wdd->parent, devno,
+-					wdd, "watchdog%d", wdd->id);
+-	if (IS_ERR(wdd->dev)) {
+-		watchdog_dev_unregister(wdd);
+-		ida_simple_remove(&watchdog_ida, id);
+-		ret = PTR_ERR(wdd->dev);
+-		return ret;
+-	}
+-
+ 	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status)) {
+ 		wdd->reboot_nb.notifier_call = watchdog_reboot_notifier;
+ 
+@@ -264,10 +284,8 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
+ 		if (ret) {
+ 			dev_err(wdd->dev, "Cannot register reboot notifier (%d)\n",
+ 				ret);
+-			watchdog_dev_unregister(wdd);
+-			device_destroy(watchdog_class, devno);
++			__watchdog_unregister_destroy(wdd);
+ 			ida_simple_remove(&watchdog_ida, wdd->id);
+-			wdd->dev = NULL;
+ 			return ret;
+ 		}
+ 	}
+@@ -311,9 +329,6 @@ EXPORT_SYMBOL_GPL(watchdog_register_device);
+ 
+ static void __watchdog_unregister_device(struct watchdog_device *wdd)
+ {
+-	int ret;
+-	int devno;
+-
+ 	if (wdd == NULL)
+ 		return;
+ 
+@@ -323,13 +338,8 @@ static void __watchdog_unregister_device(struct watchdog_device *wdd)
+ 	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status))
+ 		unregister_reboot_notifier(&wdd->reboot_nb);
+ 
+-	devno = wdd->cdev.dev;
+-	ret = watchdog_dev_unregister(wdd);
+-	if (ret)
+-		pr_err("error unregistering /dev/watchdog (err=%d)\n", ret);
+-	device_destroy(watchdog_class, devno);
++	__watchdog_unregister_destroy(wdd);
+ 	ida_simple_remove(&watchdog_ida, wdd->id);
+-	wdd->dev = NULL;
+ }
+ 
+ /**
+diff --git a/drivers/watchdog/watchdog_core.h b/drivers/watchdog/watchdog_core.h
+index 1c8d6b0..8c98164 100644
+--- a/drivers/watchdog/watchdog_core.h
++++ b/drivers/watchdog/watchdog_core.h
+@@ -35,3 +35,4 @@ extern int watchdog_dev_register(struct watchdog_device *);
+ extern int watchdog_dev_unregister(struct watchdog_device *);
+ extern struct class * __init watchdog_dev_init(void);
+ extern void __exit watchdog_dev_exit(void);
++dev_t watchdog_dev_get_devno(struct watchdog_device *);
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 21224bd..140a995 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -632,6 +632,11 @@ static struct miscdevice watchdog_miscdev = {
+  *	thus we set it up like that.
+  */
+ 
++dev_t watchdog_dev_get_devno(struct watchdog_device *wdd)
++{
++	return MKDEV(MAJOR(watchdog_devt), wdd->id);
++}
 +
- 	/*
- 	 * If the watchdog is running, prevent its driver from being unloaded,
- 	 * and schedule an immediate ping.
-diff --git a/include/linux/watchdog.h b/include/linux/watchdog.h
-index 98f79db93600..606dfd55927f 100644
---- a/include/linux/watchdog.h
-+++ b/include/linux/watchdog.h
-@@ -66,6 +66,8 @@ struct watchdog_ops {
-  * @max_timeout:The watchdog devices maximum timeout value (in seconds)
-  *		as configurable from user space. Only relevant if
-  *		max_hw_timeout_ms is not provided.
-+ * @min_hw_heartbeat_ms:
-+ *		Minimum time between heartbeats, in milli-seconds.
-  * @max_hw_timeout_ms:
-  *		Hardware limit for maximum timeout, in milli-seconds.
-  *		Replaces max_timeout if specified.
-@@ -75,6 +77,8 @@ struct watchdog_ops {
-  * @last_keepalive:
-  *		Time of most recent keepalive triggered from user space,
-  *		in jiffies (watchdog core internal).
-+ * @last_hw_keepalive:
-+ *		Time of most recent keepalive sent to the driver, in jiffies.
-  * @work:	Data structure for worker function (watchdog core internal).
-  * @deferred:	entry in wtd_deferred_reg_list which is used to
-  *		register early initialized watchdogs.
-@@ -99,6 +103,7 @@ struct watchdog_device {
- 	unsigned int timeout;
- 	unsigned int min_timeout;
- 	unsigned int max_timeout;
-+	unsigned int min_hw_heartbeat_ms;
- 	unsigned int max_hw_timeout_ms;
- 	void *driver_data;
- 	unsigned long status;
-@@ -112,6 +117,7 @@ struct watchdog_device {
- 	/* the following variables are for internal use only */
- 	struct mutex lock;
- 	unsigned long last_keepalive;
-+	unsigned long last_hw_keepalive;
- 	struct delayed_work work;
- 	struct list_head deferred;
- };
+ int watchdog_dev_register(struct watchdog_device *wdd)
+ {
+ 	int err, devno;
+@@ -652,7 +657,7 @@ int watchdog_dev_register(struct watchdog_device *wdd)
+ 	}
+ 
+ 	/* Fill in the data structures */
+-	devno = MKDEV(MAJOR(watchdog_devt), wdd->id);
++	devno = wdd->dev->devt;
+ 	cdev_init(&wdd->cdev, &watchdog_fops);
+ 	wdd->cdev.owner = wdd->ops->owner;
+ 
 -- 
-2.1.4
-
+2.5.0
