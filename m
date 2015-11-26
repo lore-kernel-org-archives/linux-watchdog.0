@@ -1,321 +1,377 @@
-Return-path: <wimvs@spo001.leaseweb.nl>
-Date: Fri, 27 Nov 2015 22:36:04 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-	Nicolas Boichat <drinkcat@chromium.org>,
-	Shaohui Xie <Shaohui.Xie@freescale.com>,
-	Andrew Chew <achew@nvidia.com>,
-	Dan Carpenter <dan.carpenter@oracle.com>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	Peter Robinson <pbrobinson@gmail.com>,
-	Guenter Roeck <linux@roeck-us.net>
-Subject: [GIT PULL REQUEST] watchdog - v4.4-rc3 Fixes
-Message-ID: <20151127213604.GA7720@spo001.leaseweb.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Return-path: <fengguang.wu@intel.com>
+Date: Fri, 27 Nov 2015 02:50:59 +0800
+From: kbuild test robot <lkp@intel.com>
+To: Damien Riegel <damien.riegel@savoirfairelinux.com>
+Cc: kbuild-all@01.org, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	Russell King <linux@arm.linux.org.uk>,
+	Shawn Guo <shawnguo@kernel.org>,
+	Sascha Hauer <kernel@pengutronix.de>, Arnd Bergmann <arnd@arndb.de>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>, kernel@savoirfairelinux.com,
+	Damien Riegel <damien.riegel@savoirfairelinux.com>
+Subject: Re: [PATCH v6 3/6] watchdog: ts4800: add driver for TS-4800 watchdog
+Message-ID: <201511270217.599Myf2h%fengguang.wu@intel.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="5mCyUwZo2JvN/JJP"
 Content-Disposition: inline
-Sender: <wimvs@spo001.leaseweb.nl>
+In-Reply-To: <1448479507-1951-4-git-send-email-damien.riegel@savoirfairelinux.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hi Linus,
 
-Please pull from 'master' branch of
-	git://www.linux-watchdog.org/linux-watchdog.git
+--5mCyUwZo2JvN/JJP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-It contains:
-* a null pointer dereference fix for omap_wdt
-* some clock related fixes for pnx4008
-* an underflow fix in wdt_set_timeout() for w83977f_wdt
-* restart fix for tegra wdt
-* Kconfig change to support Freescale Layerscape platforms
-* Fix for stopping the mtk_wdt watchdog
+Hi Damien,
 
-This will update the following files:
+[auto build test WARNING on shawnguo/for-next]
+[also build test WARNING on v4.4-rc2 next-20151126]
 
- Kconfig       |    2 +-
- mtk_wdt.c     |    1 +
- omap_wdt.c    |    2 +-
- pnx4008_wdt.c |    8 ++++----
- tegra_wdt.c   |    4 +++-
- w83977f_wdt.c |    2 +-
- 6 files changed, 11 insertions(+), 8 deletions(-)
+url:    https://github.com/0day-ci/linux/commits/Damien-Riegel/of-add-vendor-prefix-for-Technologic-Systems/20151126-033639
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/shawnguo/linux.git for-next
+config: um-allyesconfig (attached as .config)
+reproduce:
+        # save the attached .config to linux build tree
+        make ARCH=um 
 
-with these Changes:
+All warnings (new ones prefixed by >>):
 
-commit 5da2bf1ac8fbe701a138efb340b9f2ef26c10ed7
-Author: Nicolas Boichat <drinkcat@chromium.org>
-Date:   Wed Nov 18 10:45:01 2015 +0800
+warning: (ST_IRQCHIP && HIP04_ETH && STMMAC_PLATFORM && DWMAC_IPQ806X && DWMAC_LPC18XX && DWMAC_ROCKCHIP && DWMAC_SOCFPGA && DWMAC_STI && TI_CPSW && PINCTRL_ROCKCHIP && PINCTRL_DOVE && POWER_RESET_KEYSTONE && POWER_RESET_SYSCON && POWER_RESET_SYSCON_POWEROFF && S3C2410_WATCHDOG && TS4800_WATCHDOG && VIDEO_OMAP3 && VIDEO_S5P_FIMC && RTC_DRV_AT91SAM9 && LPC18XX_DMAMUX && VIDEO_OMAP4 && HWSPINLOCK_QCOM && ATMEL_ST && QCOM_GSBI) selects MFD_SYSCON which has unmet direct dependencies (HAS_IOMEM)
 
-    watchdog: mtk_wdt: Use MODE_KEY when stopping the watchdog
-    
-    WDT_MODE value need to be or-ed with MODE_KEY when setting
-    watchdog mode. Add it to mtk_wdt_stop function, so that the
-    watchdog can be stopped (e.g. during suspend).
-    
-    Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
-    Acked-by: Matthias Brugger <matthias.bgg@gmail.com>
-    Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+---
+0-DAY kernel test infrastructure                Open Source Technology Center
+https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
 
-commit 646251a59c73253a7a2c7b1d6adbedd2292390a0
-Author: Shaohui Xie <Shaohui.Xie@freescale.com>
-Date:   Tue Nov 17 17:53:19 2015 +0800
+--5mCyUwZo2JvN/JJP
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename=".config.gz"
+Content-Transfer-Encoding: base64
 
-    watchdog: Add support for Freescale Layerscape platforms
-    
-    Modify watchdog/Kconfig file to support Layerscape platforms.
-    
-    Signed-off-by: Shaohui Xie <Shaohui.Xie@freescale.com>
-    Signed-off-by: Hou Zhiqiang <B48286@freescale.com>
-    Acked-by: Guenter Roeck <linux@roeck-us.net>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+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
+AP8Hx+JYNzQDAQA=
 
-commit 0879eee13f9cf79793ce88fb41bf0dd2a51093c0
-Author: Andrew Chew <achew@nvidia.com>
-Date:   Mon Nov 9 16:11:38 2015 -0800
-
-    watchdog: tegra: Stop watchdog first if restarting
-    
-    If we need to restart the watchdog due to someone changing the timeout
-    interval, stop the watchdog before restarting it.  Otherwise, the new
-    timeout doesn't seem to take.
-    
-    Signed-off-by: Andrew Chew <achew@nvidia.com>
-    Reviewed-by: Thierry Reding <treding@nvidia.com>
-    Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-commit 62ed853c7de7a77bdf01421fb6836269c9b1aa1f
-Author: Dan Carpenter <dan.carpenter@oracle.com>
-Date:   Fri Nov 6 12:56:31 2015 +0300
-
-    watchdog: w83977f_wdt: underflow in wdt_set_timeout()
-    
-    "t" is controlled by the user.  If "t" is a very large integer then it
-    could lead to a negative "tmrval".  We cap the upper bound of "tmrval"
-    but, in the current code, we allow negatives.  This is a bug and it
-    causes a static checker warning.  Let's make "tmrval" unsigned to avoid
-    this problem.
-    
-    Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-    Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-commit 4c30737ce16612b0f3b840a7c9928385cbb67555
-Author: Vladimir Zapolskiy <vz@mleia.com>
-Date:   Wed Oct 28 02:55:35 2015 +0200
-
-    watchdog: pnx4008: make global wdt_clk static
-    
-    Silences sparse warning:
-    
-      drivers/watchdog/pnx4008_wdt.c:83:25:
-        warning: symbol 'wdt_clk' was not declared. Should it be static?
-    
-    Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
-    Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-commit b647d4297234e7f5456c16635ca0cdd82b7055db
-Author: Vladimir Zapolskiy <vz@mleia.com>
-Date:   Sat Oct 17 21:28:16 2015 +0300
-
-    watchdog: pnx4008: fix warnings caused by enabling unprepared clock
-    
-    If common clock framework is configured, the driver generates a warning,
-    which is fixed by this change:
-    
-        WARNING: CPU: 0 PID: 1 at drivers/clk/clk.c:727 clk_core_enable+0x2c/0xa4()
-        Modules linked in:
-        CPU: 0 PID: 1 Comm: swapper Tainted: G        W       4.3.0-rc2+ #171
-        Hardware name: LPC32XX SoC (Flattened Device Tree)
-        Backtrace:
-        [<>] (dump_backtrace) from [<>] (show_stack+0x18/0x1c)
-        [<>] (show_stack) from [<>] (dump_stack+0x20/0x28)
-        [<>] (dump_stack) from [<>] (warn_slowpath_common+0x90/0xb8)
-        [<>] (warn_slowpath_common) from [<>] (warn_slowpath_null+0x24/0x2c)
-        [<>] (warn_slowpath_null) from [<>] (clk_core_enable+0x2c/0xa4)
-        [<>] (clk_core_enable) from [<>] (clk_enable+0x24/0x38)
-        [<>] (clk_enable) from [<>] (pnx4008_wdt_probe+0x78/0x11c)
-        [<>] (pnx4008_wdt_probe) from [<>] (platform_drv_probe+0x50/0xa0)
-        [<>] (platform_drv_probe) from [<>] (driver_probe_device+0x18c/0x408)
-        [<>] (driver_probe_device) from [<>] (__driver_attach+0x70/0x94)
-        [<>] (__driver_attach) from [<>] (bus_for_each_dev+0x74/0x98)
-        [<>] (bus_for_each_dev) from [<>] (driver_attach+0x20/0x28)
-        [<>] (driver_attach) from [<>] (bus_add_driver+0x11c/0x248)
-        [<>] (bus_add_driver) from [<>] (driver_register+0xa4/0xe8)
-        [<>] (driver_register) from [<>] (__platform_driver_register+0x50/0x64)
-        [<>] (__platform_driver_register) from [<>] (platform_wdt_driver_init+0x18/0x20)
-        [<>] (platform_wdt_driver_init) from [<>] (do_one_initcall+0x11c/0x1dc)
-        [<>] (do_one_initcall) from [<>] (kernel_init_freeable+0x10c/0x1d4)
-        [<>] (kernel_init_freeable) from [<>] (kernel_init+0x10/0xec)
-        [<>] (kernel_init) from [<>] (ret_from_fork+0x14/0x24)
-    
-    Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
-    Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-commit de55acd100993c70bb7c5ca9473b59cdc4debb20
-Author: Peter Robinson <pbrobinson@gmail.com>
-Date:   Mon Nov 2 02:20:20 2015 +0000
-
-    watchdog: omap_wdt: fix null pointer dereference
-    
-    Fix issue from two patches overlapping causing a kernel oops
-    
-    [ 3569.297449] Unable to handle kernel NULL pointer dereference at virtual address 00000088
-    [ 3569.306272] pgd = dc894000
-    [ 3569.309287] [00000088] *pgd=00000000
-    [ 3569.313104] Internal error: Oops: 5 [#1] SMP ARM
-    [ 3569.317986] Modules linked in: ip6t_rpfilter ip6t_REJECT nf_reject_ipv6 xt_conntrack ebtable_filter ebtable_nat ebtable_broute bridge stp llc ebtables ip6table_security ip6table_raw ip6table_nat nf_conntrack_ipv6 nf_defrag_ipv6 nf_nat_ipv6 ip6table_mangle ip6table_filter ip6_tables iptable_security iptable_raw iptable_nat nf_conntrack_ipv4 nf_defrag_ipv4 nf_nat_ipv4 nf_nat nf_conntrack iptable_mangle musb_dsps cppi41 musb_hdrc phy_am335x udc_core phy_generic phy_am335x_control omap_sham omap_aes omap_rng omap_hwspinlock omap_mailbox hwspinlock_core musb_am335x omap_wdt at24 8250_omap leds_gpio cpufreq_dt smsc davinci_mdio mmc_block ti_cpsw cpsw_common ptp pps_core cpsw_ale davinci_cpdma omap_hsmmc omap_dma mmc_core i2c_dev
-    [ 3569.386293] CPU: 0 PID: 1429 Comm: wdctl Not tainted 4.3.0-0.rc7.git0.1.fc24.armv7hl #1
-    [ 3569.394740] Hardware name: Generic AM33XX (Flattened Device Tree)
-    [ 3569.401179] task: dbd11a00 ti: dbaac000 task.ti: dbaac000
-    [ 3569.406917] PC is at omap_wdt_get_timeleft+0xc/0x20 [omap_wdt]
-    [ 3569.413106] LR is at watchdog_ioctl+0x3cc/0x42c
-    [ 3569.417902] pc : [<bf0ab138>]    lr : [<c0739c54>]    psr: 600f0013
-    [ 3569.417902] sp : dbaadf18  ip : 00000003  fp : 7f5d3bbe
-    [ 3569.430014] r10: 00000000  r9 : 00000003  r8 : bef21ab8
-    [ 3569.435535] r7 : dbbc0f7c  r6 : dbbc0f18  r5 : bef21ab8  r4 : 00000000
-    [ 3569.442427] r3 : 00000000  r2 : 00000000  r1 : 8004570a  r0 : dbbc0f18
-    [ 3569.449323] Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
-    [ 3569.456858] Control: 10c5387d  Table: 9c894019  DAC: 00000051
-    [ 3569.462927] Process wdctl (pid: 1429, stack limit = 0xdbaac220)
-    [ 3569.469179] Stack: (0xdbaadf18 to 0xdbaae000)
-    [ 3569.473790] df00:                                                       bef21ab8 dbf60e38
-    [ 3569.482441] df20: dc91b840 8004570a bef21ab8 c03988a4 dbaadf48 dc854000 00000000 dd313850
-    [ 3569.491092] df40: ddf033b8 0000570a dc91b80b dbaadf3c dbf60e38 00000020 c0df9250 c0df6c48
-    [ 3569.499741] df60: dc91b840 8004570a 00000000 dc91b840 dc91b840 8004570a bef21ab8 00000003
-    [ 3569.508389] df80: 00000000 c03989d4 bef21b74 7f5d3bad 00000003 00000036 c020fcc4 dbaac000
-    [ 3569.517037] dfa0: 00000000 c020fb00 bef21b74 7f5d3bad 00000003 8004570a bef21ab8 00000001
-    [ 3569.525685] dfc0: bef21b74 7f5d3bad 00000003 00000036 00000001 00000000 7f5e4eb0 7f5d3bbe
-    [ 3569.534334] dfe0: 7f5e4f10 bef21a3c 7f5d0a54 b6e97e0c a00f0010 00000003 00000000 00000000
-    [ 3569.543038] [<bf0ab138>] (omap_wdt_get_timeleft [omap_wdt]) from [<c0739c54>] (watchdog_ioctl+0x3cc/0x42c)
-    [ 3569.553266] [<c0739c54>] (watchdog_ioctl) from [<c03988a4>] (do_vfs_ioctl+0x5bc/0x698)
-    [ 3569.561648] [<c03988a4>] (do_vfs_ioctl) from [<c03989d4>] (SyS_ioctl+0x54/0x7c)
-    [ 3569.569400] [<c03989d4>] (SyS_ioctl) from [<c020fb00>] (ret_fast_syscall+0x0/0x3c)
-    [ 3569.577413] Code: e12fff1e e52de004 e8bd4000 e5903060 (e5933088)
-    [ 3569.584089] ---[ end trace cec3039bd3ae610a ]---
-    
-    Cc: <stable@vger.kernel.org> # v4.2+
-    Signed-off-by: Peter Robinson <pbrobinson@gmail.com>
-    Acked-by: Lars Poeschel <poeschel@lemonage.de>
-    Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-For completeness, I added the overal diff below.
-
-Greetings,
-Wim.
-
-================================================================================
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 7a8a6c6..1c427be 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -446,7 +446,7 @@ config MAX63XX_WATCHDOG
- 
- config IMX2_WDT
- 	tristate "IMX2+ Watchdog"
--	depends on ARCH_MXC
-+	depends on ARCH_MXC || ARCH_LAYERSCAPE
- 	select REGMAP_MMIO
- 	select WATCHDOG_CORE
- 	help
-diff --git a/drivers/watchdog/mtk_wdt.c b/drivers/watchdog/mtk_wdt.c
-index 6ad9df9..b751f43 100644
---- a/drivers/watchdog/mtk_wdt.c
-+++ b/drivers/watchdog/mtk_wdt.c
-@@ -123,6 +123,7 @@ static int mtk_wdt_stop(struct watchdog_device *wdt_dev)
- 
- 	reg = readl(wdt_base + WDT_MODE);
- 	reg &= ~WDT_MODE_EN;
-+	reg |= WDT_MODE_KEY;
- 	iowrite32(reg, wdt_base + WDT_MODE);
- 
- 	return 0;
-diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
-index d96bee0..6f17c93 100644
---- a/drivers/watchdog/omap_wdt.c
-+++ b/drivers/watchdog/omap_wdt.c
-@@ -205,7 +205,7 @@ static int omap_wdt_set_timeout(struct watchdog_device *wdog,
- 
- static unsigned int omap_wdt_get_timeleft(struct watchdog_device *wdog)
- {
--	struct omap_wdt_dev *wdev = watchdog_get_drvdata(wdog);
-+	struct omap_wdt_dev *wdev = to_omap_wdt_dev(wdog);
- 	void __iomem *base = wdev->base;
- 	u32 value;
- 
-diff --git a/drivers/watchdog/pnx4008_wdt.c b/drivers/watchdog/pnx4008_wdt.c
-index 4224b3e..313cd1c 100644
---- a/drivers/watchdog/pnx4008_wdt.c
-+++ b/drivers/watchdog/pnx4008_wdt.c
-@@ -80,7 +80,7 @@ static unsigned int heartbeat = DEFAULT_HEARTBEAT;
- 
- static DEFINE_SPINLOCK(io_lock);
- static void __iomem	*wdt_base;
--struct clk		*wdt_clk;
-+static struct clk	*wdt_clk;
- 
- static int pnx4008_wdt_start(struct watchdog_device *wdd)
- {
-@@ -161,7 +161,7 @@ static int pnx4008_wdt_probe(struct platform_device *pdev)
- 	if (IS_ERR(wdt_clk))
- 		return PTR_ERR(wdt_clk);
- 
--	ret = clk_enable(wdt_clk);
-+	ret = clk_prepare_enable(wdt_clk);
- 	if (ret)
- 		return ret;
- 
-@@ -184,7 +184,7 @@ static int pnx4008_wdt_probe(struct platform_device *pdev)
- 	return 0;
- 
- disable_clk:
--	clk_disable(wdt_clk);
-+	clk_disable_unprepare(wdt_clk);
- 	return ret;
- }
- 
-@@ -192,7 +192,7 @@ static int pnx4008_wdt_remove(struct platform_device *pdev)
- {
- 	watchdog_unregister_device(&pnx4008_wdd);
- 
--	clk_disable(wdt_clk);
-+	clk_disable_unprepare(wdt_clk);
- 
- 	return 0;
- }
-diff --git a/drivers/watchdog/tegra_wdt.c b/drivers/watchdog/tegra_wdt.c
-index 7f97cdd..9ec5760 100644
---- a/drivers/watchdog/tegra_wdt.c
-+++ b/drivers/watchdog/tegra_wdt.c
-@@ -140,8 +140,10 @@ static int tegra_wdt_set_timeout(struct watchdog_device *wdd,
- {
- 	wdd->timeout = timeout;
- 
--	if (watchdog_active(wdd))
-+	if (watchdog_active(wdd)) {
-+		tegra_wdt_stop(wdd);
- 		return tegra_wdt_start(wdd);
-+	}
- 
- 	return 0;
- }
-diff --git a/drivers/watchdog/w83977f_wdt.c b/drivers/watchdog/w83977f_wdt.c
-index 91bf55a..20e2bba 100644
---- a/drivers/watchdog/w83977f_wdt.c
-+++ b/drivers/watchdog/w83977f_wdt.c
-@@ -224,7 +224,7 @@ static int wdt_keepalive(void)
- 
- static int wdt_set_timeout(int t)
- {
--	int tmrval;
-+	unsigned int tmrval;
- 
- 	/*
- 	 * Convert seconds to watchdog counter time units, rounding up.
+--5mCyUwZo2JvN/JJP--
