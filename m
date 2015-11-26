@@ -1,9 +1,9 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from h1.radempa.de ([176.9.142.194]:38903 "EHLO mail.cosmopool.net"
+Received: from h1.radempa.de ([176.9.142.194]:50522 "EHLO mail.cosmopool.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753114AbbKZJi3 convert rfc822-to-8bit (ORCPT
+	id S1751226AbbKZNj4 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 26 Nov 2015 04:38:29 -0500
+	Thu, 26 Nov 2015 08:39:56 -0500
 From: Harald Geyer <harald@ccbib.org>
 To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
 	<u.kleine-koenig@pengutronix.de>
@@ -14,169 +14,201 @@ cc: Alessandro Zummo <a.zummo@towertech.it>,
 	linux-watchdog@vger.kernel.org, rtc-linux@googlegroups.com,
 	Wolfram Sang <wsa@the-dreams.de>, kernel@pengutronix.de,
 	Fabio Estevam <festevam@gmail.com>
-Subject: Re: [PATCHv3 1/2] watchdog: stmp3xxx: Stop the watchdog on system halt
-In-reply-to: <20151126071011.GL19888@pengutronix.de>
-References: <1444220352-20548-1-git-send-email-harald@ccbib.org> <20151126071011.GL19888@pengutronix.de>
+Subject: Re: [PATCH 2/2] watchdog: stmp3xxx: Implement GETBOOTSTATUS
+In-reply-to: <20151126092526.GM19888@pengutronix.de>
+References: <1444220352-20548-1-git-send-email-harald@ccbib.org> <1444220352-20548-2-git-send-email-harald@ccbib.org> <20151126092526.GM19888@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-ID: <1607.1448530696.1@stardust.g4.wien.funkfeuer.at>
+Content-ID: <2068.1448545185.1@stardust.g4.wien.funkfeuer.at>
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Date: Thu, 26 Nov 2015 10:38:17 +0100
-Message-Id: <E1a1t0L-0000Px-5k@stardust.g4.wien.funkfeuer.at>
+Date: Thu, 26 Nov 2015 14:39:45 +0100
+Message-Id: <E1a1wm1-0000XO-S7@stardust.g4.wien.funkfeuer.at>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hello Uwe.
+Hi Uwe,
+
+thanks for looking into this.
 
 Uwe Kleine-K=C3=B6nig writes:
-> Hello,
+> On Wed, Oct 07, 2015 at 12:19:12PM +0000, Harald Geyer wrote:
+> > This device doesn't provide any information about boot status.
+> > As workaround we use a persitent bit to track watchdog activity.
 >=20
-> On Wed, Oct 07, 2015 at 12:19:11PM +0000, Harald Geyer wrote:
-> > This allows the system to actually halt even if userspace forgot to
-> > disable the watchdog first. Old behaviour was that the watchdog for=
-ced
-> > the system to boot again.
-> >=20
+> Hmm, so you set a bit in a persistent register iff the watchdog is
+> running.  And if that bit is set during probe you assume the watchdog
+> reset the machine. But this also happens, when the user presses the
+> reset button which makes the detection unreliable.
+
+Yes, kind of. I'm using this driver on an imx233-olinuxino, where the
+reset button causes the device to power cycle and thus clears the
+persitent bit. So I can't test your case, but surely there are some pat=
+hs
+into reset, that don't clear the bit and cause false positives.
+
+I have considered gathering some additional information from the
+power subsystem to refine the result, but decided that it's not
+worth the complexity. Since the power system is a different silicon
+block, we can't rely on it being available and would need to provide
+a fall back implementation anyway.
+
+I believe my patch does all that can be done with only the registers,
+that belong to the device, but if you have any idea how to make
+it more reliable, then I'd be very interested in that.
+=20
 > > Signed-off-by: Harald Geyer <harald@ccbib.org>
 > > ---
 > > Changes since v2:
-> > * split this out as a separate patch
+> > * make code ordering more consistent
+> > * move part of the commit message to a code comment
+> > * rewrite the commit message
 > >=20
-> >  drivers/watchdog/stmp3xxx_rtc_wdt.c |   28 +++++++++++++++++++++++=
-+++++
-> >  1 file changed, 28 insertions(+)
+> > Changes since v1:
+> > * make code formatting more consistent with the rest of the driver
+> > * Cc some people who might have better documentation then I do
 > >=20
-> > diff --git a/drivers/watchdog/stmp3xxx_rtc_wdt.c b/drivers/watchdog=
-/stmp3xxx_rtc_wdt.c
-> > index 3ee6128..e09a01f 100644
-> > --- a/drivers/watchdog/stmp3xxx_rtc_wdt.c
-> > +++ b/drivers/watchdog/stmp3xxx_rtc_wdt.c
-> > @@ -14,6 +14,8 @@
-> >  #include <linux/watchdog.h>
-> >  #include <linux/platform_device.h>
+> > Changes since initially posting this patch on 08/04/2015:
+> > * fix a spelling error in the commit message
+> > * rebase to a recent version
+> >=20
+> >  drivers/rtc/rtc-stmp3xxx.c          |   37 +++++++++++++++++++++++=
+++++++++++++
+> >  drivers/watchdog/stmp3xxx_rtc_wdt.c |    6 +++++-
+> >  include/linux/stmp3xxx_rtc_wdt.h    |    2 ++
+> >  3 files changed, 44 insertions(+), 1 deletion(-)
+> >=20
+> > diff --git a/drivers/rtc/rtc-stmp3xxx.c b/drivers/rtc/rtc-stmp3xxx.=
+c
+> > index ca54d03..47947ea 100644
+> > --- a/drivers/rtc/rtc-stmp3xxx.c
+> > +++ b/drivers/rtc/rtc-stmp3xxx.c
+> > @@ -30,6 +30,7 @@
+> >  #include <linux/of.h>
+> >  #include <linux/stmp_device.h>
 > >  #include <linux/stmp3xxx_rtc_wdt.h>
-> > +#include <linux/notifier.h>
-> > +#include <linux/reboot.h>
+> > +#include <linux/watchdog.h>
 > > =20
-> >  #define WDOG_TICK_RATE 1000 /* 1 kHz clock */
-> >  #define STMP3XXX_DEFAULT_TIMEOUT 19
-> > @@ -69,6 +71,28 @@ static struct watchdog_device stmp3xxx_wdd =3D {
-> >  	.status =3D WATCHDOG_NOWAYOUT_INIT_STATUS,
-> >  };
+> >  #define STMP3XXX_RTC_CTRL			0x0
+> >  #define STMP3XXX_RTC_CTRL_ALARM_IRQ_EN		0x00000001
+> > @@ -62,6 +63,9 @@
+> >  /* missing bitmask in headers */
+> >  #define STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER	0x80000000
 > > =20
-> > +static int wdt_notify_sys(struct notifier_block *nb, unsigned long=
- code,
-> > +			  void *unused)
-> > +{
-> > +	struct device *dev =3D watchdog_get_drvdata(&stmp3xxx_wdd);
-> > +	struct stmp3xxx_wdt_pdata *pdata =3D dev_get_platdata(dev);
+> > +#define STMP3XXX_RTC_PERSISTENT2		0x80
+> > +#define STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE	0x00000001
 > > +
-> > +	switch (code) {
-> > +	case SYS_DOWN:	/* keep enabled, system might crash while going do=
-wn */
-> > +		break;
-> > +	case SYS_HALT:  /* allow the system to actually halt */
+> >  struct stmp3xxx_rtc_data {
+> >  	struct rtc_device *rtc;
+> >  	void __iomem *io;
+> > @@ -81,6 +85,20 @@ struct stmp3xxx_rtc_data {
+> >   * The watchdog driver is passed the below accessor function via p=
+latform_data
+> >   * to configure the watchdog. Locking is not needed because access=
+ing SET/CLR
+> >   * registers is atomic.
+> > + *
+> > + * Since this device doesn't report the cause of the last reset, w=
+e use
+> > + * a persistent bit to track watchdog activity. The code from the =
+=46reescale
+> > + * BSP uses the STMP3XXX_RTC_PERSISTENT1 register, which is dedica=
+ted to
+> > + * controlling the boot ROM, for this purpose. However it seems th=
+e bit
+> > + * there can't be cleared once it has been set. So we are using
+> > + * STMP3XXX_RTC_PERSISTENT2 instead, which is the first register a=
+vailable
+> > + * for "software use" without restriction.
 >=20
-> <nitpick>
-> You used a tab before the comment "keep enabled ...", but spaces for
-> "allow the system ...".
-> </nitpick>
+> Adding a link to the vendor kernel might be interesting here.
 
-Ok
+Ok, I'll try to dig it up again.
 =20
-> > +	case SYS_POWER_OFF:
-> > +		wdt_stop(&stmp3xxx_wdd);
-> > +		break;
-> > +	}
+> > + * I (Harald Geyer <harald@ccbib.org>) don't know if the code touc=
+hing the
+> > + * STMP3XXX_RTC_PERSISTENT1 register is doing anything useful. May=
+be this
+> > + * is just a leftover from the BSP code, but then maybe there is s=
+omething
+> > + * in the boot ROM or in some bootloader that is using this. Hard =
+to tell
+> > + * without proper documentation about this register.
+>=20
+> Fabio: anything you can do here to help?
+>=20
+> >   */
+> > =20
+> >  static void stmp3xxx_wdt_set_timeout(struct device *dev, u32 timeo=
+ut)
+> > @@ -93,16 +111,30 @@ static void stmp3xxx_wdt_set_timeout(struct de=
+vice *dev, u32 timeout)
+> >  		       rtc_data->io + STMP3XXX_RTC_CTRL + STMP_OFFSET_REG_SET);
+> >  		writel(STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER,
+> >  		       rtc_data->io + STMP3XXX_RTC_PERSISTENT1 + STMP_OFFSET_REG=
+_SET);
+> > +		writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
+> > +		       rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG=
+_SET);
+> >  	} else {
+> >  		writel(STMP3XXX_RTC_CTRL_WATCHDOGEN,
+> >  		       rtc_data->io + STMP3XXX_RTC_CTRL + STMP_OFFSET_REG_CLR);
+> >  		writel(STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER,
+> >  		       rtc_data->io + STMP3XXX_RTC_PERSISTENT1 + STMP_OFFSET_REG=
+_CLR);
+> > +		writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
+> > +		       rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG=
+_CLR);
+>=20
+> checkpatch tells:
+>=20
+> WARNING: line over 80 characters
+> #131: FILE: drivers/rtc/rtc-stmp3xxx.c:115:
+> +                      rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP=
+_OFFSET_REG_SET);
+>=20
+> WARNING: line over 80 characters
+> #138: FILE: drivers/rtc/rtc-stmp3xxx.c:122:
+> +                      rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP=
+_OFFSET_REG_CLR);
+
+I tried to follow the style of the surrounding code. If there is a clea=
+r
+statement about the preferred style for this driver from whoever is
+responsible, I will happily change my patch to whatever it is.
+
+> >  	}
+> >  }
+> > =20
+> > +static void stmp3xxx_wdt_clear_bootstatus(struct device *dev)
+> > +{
+> > +	struct stmp3xxx_rtc_data *rtc_data =3D dev_get_drvdata(dev);
 > > +
-> > +	return NOTIFY_DONE;
+> > +	writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
+> > +	       rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_REG_=
+CLR);
 > > +}
 > > +
-> > +static struct notifier_block wdt_notifier =3D {
-> > +	.notifier_call  =3D wdt_notify_sys,
+> >  static struct stmp3xxx_wdt_pdata wdt_pdata =3D {
+> >  	.wdt_set_timeout =3D stmp3xxx_wdt_set_timeout,
+> > +	.wdt_clear_bootstatus =3D stmp3xxx_wdt_clear_bootstatus,
+> > +	.bootstatus =3D 0,
+> >  };
 >=20
-> s/  / /
+> This is out of the scope of your patch, but IMHO wdt_pdata should be
+> const in case it is used for >1 device.
 
-Ok
+Hm, if you want to change wdt_pdata to const, then I can't add the
+bootstatus field. But I think you can't change this to const anyway,
+because the platform_data pointer of struct device is not a const void
+pointer. However didn't look into this in detail, so maybe I'm missing
+something ...
 
-> > +};
-> > +
-> >  static int stmp3xxx_wdt_probe(struct platform_device *pdev)
-> >  {
-> >  	int ret;
-> > @@ -84,6 +108,9 @@ static int stmp3xxx_wdt_probe(struct platform_de=
-vice *pdev)
-> >  		return ret;
-> >  	}
-> > =20
-> > +	if (register_reboot_notifier(&wdt_notifier))
-> > +		dev_warn(&pdev->dev, "cannot register reboot notifier\n");
->=20
-> OK, you don't fail when registering the notifier fails, but ...
->=20
-> >  	dev_info(&pdev->dev, "initialized watchdog with heartbeat %ds\n",
-> >  			stmp3xxx_wdd.timeout);
-> >  	return 0;
-> > @@ -91,6 +118,7 @@ static int stmp3xxx_wdt_probe(struct platform_de=
-vice *pdev)
-> > =20
-> >  static int stmp3xxx_wdt_remove(struct platform_device *pdev)
-> >  {
-> > +	unregister_reboot_notifier(&wdt_notifier);
->=20
-> ... I think it's not ok to unconditionally unregister it then, is it?
-> (Looking at how unregister_reboot_notifier is implemented it might wo=
-rk
-> as intended, but if that's only by chance I wouldn't rely on it.)
-
-I'm not sure what you refer to by "how unregister_reboot_notifier is
-implemented". The documentation for unregister_reboot_notifier says:
-/**
-  *      unregister_reboot_notifier - Unregister previously registered =
-reboot notifier
-  *      @nb: Hook to be unregistered
-  *
-  *      Unregisters a previously registered reboot
-  *      notifier function.
-  *
-  *      Returns zero on success, or %-ENOENT on failure.
-  */
-
-If register_reboot_notifier failed, then unregister_reboot_notifier wil=
-l
-simply return -ENOENT, I don't see a problem here. As this is documente=
-d
-API I think we can rely on it.
-
-Can you also have a look at the following patch (next in this series,
-unfortunately I failed a formatting the subject prefix properly):
-http://www.spinics.net/lists/linux-watchdog/msg07483.html
-
-That one is particularly messy, as I don't have all the HW documentatio=
-n
-I wish I had, so I'd appreciate if somebody, who has experience with
-the hardware, looked at it.
+I guess we could move wdt_pdata into rtc_data, but this would
+entangle rtc and watchdog drivers even more, so I'd rather not do that.
+What do you think?
 
 Thanks,
 Harald
-
-> Best regards
-> Uwe
->=20
-> >  	watchdog_unregister_device(&stmp3xxx_wdd);
-> >  	return 0;
-> >  }
-> > --=20
-> > 1.7.10.4
-> >=20
-> >=20
-> >=20
->=20
-> --=20
-> Pengutronix e.K.                           | Uwe Kleine-K=C3=B6nig   =
-         |
-> Industrial Linux Solutions                 | http://www.pengutronix.d=
-e/  |
 
 --=20
 If you want to support my work:
