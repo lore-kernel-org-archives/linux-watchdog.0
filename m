@@ -1,5 +1,5 @@
 Return-path: <ukl@pengutronix.de>
-Date: Thu, 26 Nov 2015 08:10:11 +0100
+Date: Fri, 27 Nov 2015 11:44:02 +0100
 From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
 To: Harald Geyer <harald@ccbib.org>
 Cc: Alessandro Zummo <a.zummo@towertech.it>,
@@ -8,116 +8,72 @@ Cc: Alessandro Zummo <a.zummo@towertech.it>,
 	Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
 	rtc-linux@googlegroups.com, Wolfram Sang <wsa@the-dreams.de>,
 	kernel@pengutronix.de, Fabio Estevam <festevam@gmail.com>
-Subject: Re: [PATCHv3 1/2] watchdog: stmp3xxx: Stop the watchdog on system
- halt
-Message-ID: <20151126071011.GL19888@pengutronix.de>
+Subject: Re: [PATCH 2/2] watchdog: stmp3xxx: Implement GETBOOTSTATUS
+Message-ID: <20151127104402.GT19888@pengutronix.de>
 References: <1444220352-20548-1-git-send-email-harald@ccbib.org>
+ <1444220352-20548-2-git-send-email-harald@ccbib.org>
+ <20151126092526.GM19888@pengutronix.de>
+ <E1a1wm1-0000XO-S7@stardust.g4.wien.funkfeuer.at>
+ <20151127100254.GR19888@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <1444220352-20548-1-git-send-email-harald@ccbib.org>
+In-Reply-To: <20151127100254.GR19888@pengutronix.de>
 List-ID: <linux-watchdog@vger.kernel.org>
 
-Hello,
+Hello Harald,
 
-On Wed, Oct 07, 2015 at 12:19:11PM +0000, Harald Geyer wrote:
-> This allows the system to actually halt even if userspace forgot to
-> disable the watchdog first. Old behaviour was that the watchdog forced
-> the system to boot again.
+On Fri, Nov 27, 2015 at 11:02:54AM +0100, Uwe Kleine-König wrote:
+> On Thu, Nov 26, 2015 at 02:39:45PM +0100, Harald Geyer wrote:
+> > Uwe Kleine-König writes:
+> > > On Wed, Oct 07, 2015 at 12:19:12PM +0000, Harald Geyer wrote:
+> > > > This device doesn't provide any information about boot status.
+> > > > As workaround we use a persitent bit to track watchdog activity.
+> > > 
+> > > Hmm, so you set a bit in a persistent register iff the watchdog is
+> > > running.  And if that bit is set during probe you assume the watchdog
+> > > reset the machine. But this also happens, when the user presses the
+> > > reset button which makes the detection unreliable.
+> > 
+> > Yes, kind of. I'm using this driver on an imx233-olinuxino, where the
+> > reset button causes the device to power cycle and thus clears the
+> > persitent bit. So I can't test your case, but surely there are some paths
+> > into reset, that don't clear the bit and cause false positives.
 > 
-> Signed-off-by: Harald Geyer <harald@ccbib.org>
-> ---
-> Changes since v2:
-> * split this out as a separate patch
+> OK, I found a i.MX28 machine in our repository:
 > 
->  drivers/watchdog/stmp3xxx_rtc_wdt.c |   28 ++++++++++++++++++++++++++++
->  1 file changed, 28 insertions(+)
+> 	barebox# mw 0x80056080 0xbabecafe
+> 	barebox# boot
+> 	...
+> 	linux# reboot
+> 	barebox# md 0x80056080+4
+> 	80056080: babecafe
 > 
-> diff --git a/drivers/watchdog/stmp3xxx_rtc_wdt.c b/drivers/watchdog/stmp3xxx_rtc_wdt.c
-> index 3ee6128..e09a01f 100644
-> --- a/drivers/watchdog/stmp3xxx_rtc_wdt.c
-> +++ b/drivers/watchdog/stmp3xxx_rtc_wdt.c
-> @@ -14,6 +14,8 @@
->  #include <linux/watchdog.h>
->  #include <linux/platform_device.h>
->  #include <linux/stmp3xxx_rtc_wdt.h>
-> +#include <linux/notifier.h>
-> +#include <linux/reboot.h>
->  
->  #define WDOG_TICK_RATE 1000 /* 1 kHz clock */
->  #define STMP3XXX_DEFAULT_TIMEOUT 19
-> @@ -69,6 +71,28 @@ static struct watchdog_device stmp3xxx_wdd = {
->  	.status = WATCHDOG_NOWAYOUT_INIT_STATUS,
->  };
->  
-> +static int wdt_notify_sys(struct notifier_block *nb, unsigned long code,
-> +			  void *unused)
-> +{
-> +	struct device *dev = watchdog_get_drvdata(&stmp3xxx_wdd);
-> +	struct stmp3xxx_wdt_pdata *pdata = dev_get_platdata(dev);
-> +
-> +	switch (code) {
-> +	case SYS_DOWN:	/* keep enabled, system might crash while going down */
-> +		break;
-> +	case SYS_HALT:  /* allow the system to actually halt */
+> After a power cycle the value disappears (I didn't check the details, if
+> there is a battery it might be empty).
+> 
+> > I have considered gathering some additional information from the
+> > power subsystem to refine the result, but decided that it's not
+> > worth the complexity. Since the power system is a different silicon
+> > block, we can't rely on it being available and would need to provide
+> > a fall back implementation anyway.
+> 
+> It would be really nice to get some details about boot rom usage of the
+> persistent flags in use. I'd expect that these allow to determine the
+> boot source.
 
-<nitpick>
-You used a tab before the comment "keep enabled ...", but spaces for
-"allow the system ...".
-</nitpick>
+A colleague just hinted me to
 
-> +	case SYS_POWER_OFF:
-> +		wdt_stop(&stmp3xxx_wdd);
-> +		break;
-> +	}
-> +
-> +	return NOTIFY_DONE;
-> +}
-> +
-> +static struct notifier_block wdt_notifier = {
-> +	.notifier_call  = wdt_notify_sys,
+	http://git.pengutronix.de/?p=barebox.git;a=blob;f=drivers/watchdog/im28wd.c;h=3510776a3afc8aaf113eee995900b099c12c2be9;hb=HEAD
 
-s/  / /
-
-> +};
-> +
->  static int stmp3xxx_wdt_probe(struct platform_device *pdev)
->  {
->  	int ret;
-> @@ -84,6 +108,9 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
->  		return ret;
->  	}
->  
-> +	if (register_reboot_notifier(&wdt_notifier))
-> +		dev_warn(&pdev->dev, "cannot register reboot notifier\n");
-
-OK, you don't fail when registering the notifier fails, but ...
-
->  	dev_info(&pdev->dev, "initialized watchdog with heartbeat %ds\n",
->  			stmp3xxx_wdd.timeout);
->  	return 0;
-> @@ -91,6 +118,7 @@ static int stmp3xxx_wdt_probe(struct platform_device *pdev)
->  
->  static int stmp3xxx_wdt_remove(struct platform_device *pdev)
->  {
-> +	unregister_reboot_notifier(&wdt_notifier);
-
-... I think it's not ok to unconditionally unregister it then, is it?
-(Looking at how unregister_reboot_notifier is implemented it might work
-as intended, but if that's only by chance I wouldn't rely on it.)
+which contains a few bit definitions for the i.MX28. Maybe they can help
+you to understand your machine better?! At a quick glance there is
+nothing that helps you to determine the boot reason, but still it might
+contain a few interesting things.
 
 Best regards
 Uwe
-
->  	watchdog_unregister_device(&stmp3xxx_wdd);
->  	return 0;
->  }
-> -- 
-> 1.7.10.4
-> 
-> 
-> 
 
 -- 
 Pengutronix e.K.                           | Uwe Kleine-König            |
