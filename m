@@ -1,247 +1,155 @@
-Return-path: <damien.riegel@savoirfairelinux.com>
-Date: Mon, 30 Nov 2015 16:48:50 -0500
-From: Damien Riegel <damien.riegel@savoirfairelinux.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	kernel@savoirfairelinux.com
-Subject: Re: [PATCH v3 1/2] watchdog: core: create device before registering
- char dev
-Message-ID: <20151130214850.GB5919@localhost>
-References: <1448570107-3106-1-git-send-email-damien.riegel@savoirfairelinux.com>
- <565BB4F6.800@roeck-us.net>
+Return-path: <Vladimir_Zapolskiy@mentor.com>
+From: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+To: Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>
+CC: <linux-watchdog@vger.kernel.org>
+Subject: [PATCH v2 2/4] watchdog: pretimeout: add panic pretimeout governor
+Date: Sun, 29 Nov 2015 14:10:50 +0200
+Message-ID: <1448799052-18984-3-git-send-email-vladimir_zapolskiy@mentor.com>
+In-Reply-To: <1448799052-18984-1-git-send-email-vladimir_zapolskiy@mentor.com>
+References: <1448799052-18984-1-git-send-email-vladimir_zapolskiy@mentor.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <565BB4F6.800@roeck-us.net>
+Content-Type: text/plain
 List-ID: <linux-watchdog@vger.kernel.org>
 
-On Sun, Nov 29, 2015 at 06:31:18PM -0800, Guenter Roeck wrote:
-> Hi Damien,
-> 
-> On 11/26/2015 12:35 PM, Damien Riegel wrote:
-> >Currently, the entry in /dev is created before the device associated
-> >with the watchdog is created. Therefore, a user can do operations on the
-> >watchdog before it is fully ready.
-> >
-> >This patch changes order of operations to create the device first. As
-> >the core might try to create the device with different ids, it is
-> >simpler to group the device creation and the char device registration in
-> >the same function. This commit also adds a counterpart function to group
-> >unregistration and device destruction.
-> >
-> >Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
-> >---
-> >Changes in v3:
-> >  - changed order of operations to first create the device and then
-> >    register the char dev. On cleanup, unregister then destroy.
-> >
-> >Changes in v2:
-> >  - move call to device_destroy before watchdog_dev_unregister
-> >
-> >  drivers/watchdog/watchdog_core.c | 60 +++++++++++++++++++++++-----------------
-> >  drivers/watchdog/watchdog_core.h |  1 +
-> >  drivers/watchdog/watchdog_dev.c  |  7 ++++-
-> >  3 files changed, 42 insertions(+), 26 deletions(-)
-> >
-> >diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-> >index 551af04..13a7a58 100644
-> >--- a/drivers/watchdog/watchdog_core.c
-> >+++ b/drivers/watchdog/watchdog_core.c
-> >@@ -192,9 +192,39 @@ void watchdog_set_restart_priority(struct watchdog_device *wdd, int priority)
-> >  }
-> >  EXPORT_SYMBOL_GPL(watchdog_set_restart_priority);
-> >
-> >+static int __watchdog_create_register(struct watchdog_device *wdd)
-> 
-> Do we need the '__' here ? Seems unnecessary.
-> After all, there is no public watchdog_create_register().
-> 
+Panic watchdog pretimeout governor, on watchdog pretimeout event the
+kernel shall panic.
 
-It seems that some subsystems also use '__' for functions that assume
-that arguments are valid, or/and don't lock. But it is just a matter of
-style, I don't mind dropping them.
+Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+---
+Changes from v1 to v2:
+* removed #ifdef CONFIG_WATCHDOG_PRETIMEOUT_DEFAULT_GOV_PANIC,
+  now this selection is done in a centralized manner,
+* added module owner reference to count users of the governor,
+* slightly improved description of the governors in Kconfig.
 
-> >+{
-> >+	dev_t devno;
-> >+	int ret;
-> >+
-> >+	devno = watchdog_dev_get_devno(wdd);
-> 
-> Maybe that explains the initialization order.
-> 
-> In a way this is getting odd: The only reason for watchdog_dev_init()
-> to exist is to initialize watchdog_devt, which is then returned by
-> this function. Looking into the use of watchdog_devt in watchdog_dev.c,
-> it is not actually needed there anymore: Its sole purpose is now to
-> report it with watchdog_dev_get_devno(). The only other remaining use,
-> 
-> 		pr_err("watchdog%d unable to add device %d:%d\n",
->                         wdd->id,  MAJOR(watchdog_devt), wdd->id);
-> 
-> could as well be replaced with
-> 
-> 		pr_err("watchdog%d unable to add device %d:%d\n",
-> 			wdd->id, MAJOR(devno), wdd->id);
-> 
-> or even
-> 		pr_err("watchdog%d unable to add device %d:%d\n",
-> 			wdd->id, MAJOR(devno), MINOR(devno));
-> 
-> Given that, maybe it would make sense to move watchdog_devt and its
-> initialization to watchdog_core.c, and drop watchdog_dev_get_devno(),
-> watchdog_dev_init(), and watchdog_dev_exit().
-> 
-> What do you think ? More important, Wim, what do you think ?
+ drivers/watchdog/Kconfig               | 29 +++++++++++++++++++++
+ drivers/watchdog/Makefile              |  2 ++
+ drivers/watchdog/pretimeout_panic.c    | 47 ++++++++++++++++++++++++++++++++++
+ drivers/watchdog/watchdog_pretimeout.h |  7 +++++
+ 4 files changed, 85 insertions(+)
+ create mode 100644 drivers/watchdog/pretimeout_panic.c
 
-I think it would make sense as watchdog_class is already handled in
-watchdog_core.c. That way, all the core init operations would be in the
-same file, and watchdog_dev.c would only contain the necessary bits to
-register/unregister a watchdog device.
-
-> 
-> [ that should be separate patch, though ]
-> 
-> >+	wdd->dev = device_create(watchdog_class, wdd->parent, devno,
-> >+					wdd, "watchdog%d", wdd->id);
-> 
-> Please align continuation lines with '('.
-> 
-> >+	if (IS_ERR(wdd->dev))
-> >+		return PTR_ERR(wdd->dev);
-> >+
-> >+	ret = watchdog_dev_register(wdd);
-> >+	if (ret)
-> >+		device_destroy(watchdog_class, devno);
-> >+
-> >+	return ret;
-> >+}
-> >+
-> >+static void __watchdog_unregister_destroy(struct watchdog_device *wdd)
-> 
-> Same as above - not sure if the '__' adds any value.
-> 
-> >+{
-> >+	dev_t devno = wdd->cdev.dev;
-> >+	int ret;
-> >+
-> >+	ret = watchdog_dev_unregister(wdd);
-> >+	if (ret)
-> >+		pr_err("error unregistering /dev/watchdog (err=%d)\n", ret);
-> >+	device_destroy(watchdog_class, devno);
-> >+	wdd->dev = NULL;
-> >+}
-> >+
-> >  static int __watchdog_register_device(struct watchdog_device *wdd)
-> >  {
-> >-	int ret, id = -1, devno;
-> >+	int ret, id = -1;
-> >
-> >  	if (wdd == NULL || wdd->info == NULL || wdd->ops == NULL)
-> >  		return -EINVAL;
-> >@@ -228,7 +258,7 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
-> >  		return id;
-> >  	wdd->id = id;
-> >
-> >-	ret = watchdog_dev_register(wdd);
-> >+	ret = __watchdog_create_register(wdd);
-> >  	if (ret) {
-> >  		ida_simple_remove(&watchdog_ida, id);
-> >  		if (!(id == 0 && ret == -EBUSY))
-> >@@ -240,23 +270,13 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
-> >  			return id;
-> >  		wdd->id = id;
-> >
-> >-		ret = watchdog_dev_register(wdd);
-> >+		ret = __watchdog_create_register(wdd);
-> >  		if (ret) {
-> >  			ida_simple_remove(&watchdog_ida, id);
-> >  			return ret;
-> >  		}
-> >  	}
-> >
-> >-	devno = wdd->cdev.dev;
-> >-	wdd->dev = device_create(watchdog_class, wdd->parent, devno,
-> >-					wdd, "watchdog%d", wdd->id);
-> >-	if (IS_ERR(wdd->dev)) {
-> >-		watchdog_dev_unregister(wdd);
-> >-		ida_simple_remove(&watchdog_ida, id);
-> >-		ret = PTR_ERR(wdd->dev);
-> >-		return ret;
-> >-	}
-> >-
-> >  	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status)) {
-> >  		wdd->reboot_nb.notifier_call = watchdog_reboot_notifier;
-> >
-> >@@ -264,10 +284,8 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
-> >  		if (ret) {
-> >  			dev_err(wdd->dev, "Cannot register reboot notifier (%d)\n",
-> >  				ret);
-> >-			watchdog_dev_unregister(wdd);
-> >-			device_destroy(watchdog_class, devno);
-> >+			__watchdog_unregister_destroy(wdd);
-> >  			ida_simple_remove(&watchdog_ida, wdd->id);
-> >-			wdd->dev = NULL;
-> >  			return ret;
-> >  		}
-> >  	}
-> >@@ -311,9 +329,6 @@ EXPORT_SYMBOL_GPL(watchdog_register_device);
-> >
-> >  static void __watchdog_unregister_device(struct watchdog_device *wdd)
-> >  {
-> >-	int ret;
-> >-	int devno;
-> >-
-> >  	if (wdd == NULL)
-> >  		return;
-> >
-> >@@ -323,13 +338,8 @@ static void __watchdog_unregister_device(struct watchdog_device *wdd)
-> >  	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status))
-> >  		unregister_reboot_notifier(&wdd->reboot_nb);
-> >
-> >-	devno = wdd->cdev.dev;
-> >-	ret = watchdog_dev_unregister(wdd);
-> >-	if (ret)
-> >-		pr_err("error unregistering /dev/watchdog (err=%d)\n", ret);
-> >-	device_destroy(watchdog_class, devno);
-> >+	__watchdog_unregister_destroy(wdd);
-> >  	ida_simple_remove(&watchdog_ida, wdd->id);
-> >-	wdd->dev = NULL;
-> >  }
-> >
-> >  /**
-> >diff --git a/drivers/watchdog/watchdog_core.h b/drivers/watchdog/watchdog_core.h
-> >index 1c8d6b0..8c98164 100644
-> >--- a/drivers/watchdog/watchdog_core.h
-> >+++ b/drivers/watchdog/watchdog_core.h
-> >@@ -35,3 +35,4 @@ extern int watchdog_dev_register(struct watchdog_device *);
-> >  extern int watchdog_dev_unregister(struct watchdog_device *);
-> >  extern struct class * __init watchdog_dev_init(void);
-> >  extern void __exit watchdog_dev_exit(void);
-> >+dev_t watchdog_dev_get_devno(struct watchdog_device *);
-> >diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-> >index 21224bd..140a995 100644
-> >--- a/drivers/watchdog/watchdog_dev.c
-> >+++ b/drivers/watchdog/watchdog_dev.c
-> >@@ -632,6 +632,11 @@ static struct miscdevice watchdog_miscdev = {
-> >   *	thus we set it up like that.
-> >   */
-> >
-> >+dev_t watchdog_dev_get_devno(struct watchdog_device *wdd)
-> >+{
-> >+	return MKDEV(MAJOR(watchdog_devt), wdd->id);
-> >+}
-> >+
-> >  int watchdog_dev_register(struct watchdog_device *wdd)
-> >  {
-> >  	int err, devno;
-> >@@ -652,7 +657,7 @@ int watchdog_dev_register(struct watchdog_device *wdd)
-> >  	}
-> >
-> >  	/* Fill in the data structures */
-> >-	devno = MKDEV(MAJOR(watchdog_devt), wdd->id);
-> >+	devno = wdd->dev->devt;
-> >  	cdev_init(&wdd->cdev, &watchdog_fops);
-> >  	wdd->cdev.owner = wdd->ops->owner;
-> >
-> >
-> 
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 8613639..8eccc93 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1633,4 +1633,33 @@ config WATCHDOG_PRETIMEOUT_GOV
+ 	help
+ 	  The option allows to select watchdog pretimeout governors.
+ 
++if WATCHDOG_PRETIMEOUT_GOV
++
++choice
++	prompt "Default Watchdog Pretimeout Governor"
++	default WATCHDOG_PRETIMEOUT_DEFAULT_GOV_PANIC
++	help
++	  This option selects a default watchdog pretimeout governor.
++	  The governor takes its action, if a watchdog is capable
++	  to report a pretimeout event.
++
++config WATCHDOG_PRETIMEOUT_DEFAULT_GOV_PANIC
++	bool "panic"
++	select WATCHDOG_PRETIMEOUT_GOV_PANIC
++	help
++	  Use panic watchdog pretimeout governor by default, if
++	  a watchdog pretimeout event happens, consider that
++	  a watchdog feeder is dead and reboot is unavoidable.
++
++endchoice
++
++config WATCHDOG_PRETIMEOUT_GOV_PANIC
++	tristate "Panic watchdog pretimeout governor"
++	help
++	  Select this option to enable panic watchdog pretimeout
++	  governor, on a watchdog pretimeout event the kernel shall
++	  panic before an expected system reboot.
++
++endif # WATCHDOG_PRETIMEOUT_GOV
++
+ endif # WATCHDOG
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 6749cac..127f342 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -9,6 +9,8 @@ watchdog-objs	+= watchdog_core.o watchdog_dev.o
+ 
+ watchdog-$(CONFIG_WATCHDOG_PRETIMEOUT_GOV)	+= watchdog_pretimeout.o
+ 
++obj-$(CONFIG_WATCHDOG_PRETIMEOUT_GOV_PANIC)	+= pretimeout_panic.o
++
+ # Only one watchdog can succeed. We probe the ISA/PCI/USB based
+ # watchdog-cards first, then the architecture specific watchdog
+ # drivers and then the architecture independent "softdog" driver.
+diff --git a/drivers/watchdog/pretimeout_panic.c b/drivers/watchdog/pretimeout_panic.c
+new file mode 100644
+index 0000000..1d439f4
+--- /dev/null
++++ b/drivers/watchdog/pretimeout_panic.c
+@@ -0,0 +1,47 @@
++/*
++ * Copyright (C) 2015 Mentor Graphics
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ */
++
++#include <linux/module.h>
++#include <linux/watchdog.h>
++
++#include <watchdog_pretimeout.h>
++
++/**
++ * pretimeout_panic - Panic on watchdog pretimeout event
++ * @wdd - watchdog_device
++ *
++ * Panic, watchdog has not been fed till pretimeout event.
++ */
++static void pretimeout_panic(struct watchdog_device *wdd)
++{
++	panic("panic on watchdog pretimeout event\n");
++}
++
++static struct watchdog_governor watchdog_gov_panic = {
++	.name		= "panic",
++	.pretimeout	= pretimeout_panic,
++	.owner		= THIS_MODULE,
++};
++
++static int __init watchdog_gov_panic_register(void)
++{
++	return watchdog_register_governor(&watchdog_gov_panic);
++}
++
++static void __exit watchdog_gov_panic_unregister(void)
++{
++	watchdog_unregister_governor(&watchdog_gov_panic);
++}
++module_init(watchdog_gov_panic_register);
++module_exit(watchdog_gov_panic_unregister);
++
++MODULE_AUTHOR("Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>");
++MODULE_DESCRIPTION("Panic watchdog pretimeout governor");
++MODULE_LICENSE("GPL");
+diff --git a/drivers/watchdog/watchdog_pretimeout.h b/drivers/watchdog/watchdog_pretimeout.h
+index e888424f..cf28267 100644
+--- a/drivers/watchdog/watchdog_pretimeout.h
++++ b/drivers/watchdog/watchdog_pretimeout.h
+@@ -19,6 +19,13 @@ void watchdog_unregister_governor(struct watchdog_governor *gov);
+ 
+ /* Interfaces to watchdog_core.c */
+ #ifdef CONFIG_WATCHDOG_PRETIMEOUT_GOV
++
++#if IS_ENABLED(CONFIG_WATCHDOG_PRETIMEOUT_DEFAULT_GOV_PANIC)
++#define WATCHDOG_PRETIMEOUT_DEFAULT_GOV	"panic"
++#else
++#error "Default watchdog pretimeout governor is not set."
++#endif
++
+ int watchdog_register_pretimeout(struct watchdog_device *wdd);
+ void watchdog_unregister_pretimeout(struct watchdog_device *wdd);
+ #else
+-- 
+2.5.0
