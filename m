@@ -1,89 +1,105 @@
-Return-path: <linux@roeck-us.net>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:52956 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752440AbbK2T3C (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Sun, 29 Nov 2015 14:29:02 -0500
 From: Guenter Roeck <linux@roeck-us.net>
 To: linux-watchdog@vger.kernel.org
-Cc: Wim Van Sebroeck <wim@iguana.be>,
-	linux-kernel@vger.kernel.org,
+Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org,
 	Timo Kokkonen <timo.kokkonen@offcode.fi>,
-	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>,
-	linux-doc@vger.kernel.org,
+	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
+	<u.kleine-koenig@pengutronix.de>, linux-doc@vger.kernel.org,
 	Doug Anderson <dianders@chromium.org>,
 	Jonathan Corbet <corbet@lwn.net>,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v6 3/9] watchdog: Make set_timeout function optional
-Date: Sun, 29 Nov 2015 11:28:45 -0800
-Message-Id: <1448825331-28840-4-git-send-email-linux@roeck-us.net>
+Subject: [PATCH v6 5/9] watchdog: Simplify update_worker
+Date: Sun, 29 Nov 2015 11:28:47 -0800
+Message-Id: <1448825331-28840-6-git-send-email-linux@roeck-us.net>
 In-Reply-To: <1448825331-28840-1-git-send-email-linux@roeck-us.net>
 References: <1448825331-28840-1-git-send-email-linux@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-For some watchdogs, the hardware timeout is fixed, and the
-watchdog driver depends on the watchdog core to handle the
-actual timeout. In this situation, the watchdog driver might
-only set the 'timeout' variable but do nothing else.
-This can as well be handled by the infrastructure, so make
-the set_timeout callback optional. If WDIOF_SETTIMEOUT is
-configured but the .set_timeout callback is not available,
-update the timeout variable in the infrastructure code.
+Drop 'cancel' parameter; simply cancel worker unconditionally
+if not needed.
 
-Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+
 ---
 v6: Rebased to v4.4-rc2
-v5: Rebased to v4.4-rc1
-v4: No changes
-v3: No changes
-v2: No changes
+v5: Introduced patch
 ---
- Documentation/watchdog/watchdog-kernel-api.txt | 5 +++++
- drivers/watchdog/watchdog_dev.c                | 9 ++++++---
- 2 files changed, 11 insertions(+), 3 deletions(-)
+ drivers/watchdog/watchdog_dev.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
-diff --git a/Documentation/watchdog/watchdog-kernel-api.txt b/Documentation/watchdog/watchdog-kernel-api.txt
-index 44787ddd59de..f2ee8226d320 100644
---- a/Documentation/watchdog/watchdog-kernel-api.txt
-+++ b/Documentation/watchdog/watchdog-kernel-api.txt
-@@ -184,6 +184,11 @@ they are supported. These optional routines/operations are:
-   (if it is larger than hw_max_timeout_ms), or to the achieved timeout value.
-   (Note: the WDIOF_SETTIMEOUT needs to be set in the options field of the
-   watchdog's info structure).
-+  If the watchdog driver does not have to perform any action but setting the
-+  watchdog_device.timeout, this callback can be omitted.
-+  If set_timeout is not provided but, WDIOF_SETTIMEOUT is set, the watchdog
-+  infrastructure updates the timeout value of the watchdog_device internally
-+  to the requested value.
- * get_timeleft: this routines returns the time that's left before a reset.
- * ref: the operation that calls kref_get on the kref of a dynamically
-   allocated watchdog_device struct.
 diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 2c99c3bb2fcf..5dd7319c0169 100644
+index 82706d43e0c8..be65b388e277 100644
 --- a/drivers/watchdog/watchdog_dev.c
 +++ b/drivers/watchdog/watchdog_dev.c
-@@ -284,9 +284,9 @@ out_status:
- static int watchdog_set_timeout(struct watchdog_device *wdd,
- 							unsigned int timeout)
+@@ -96,15 +96,14 @@ static long watchdog_next_keepalive(struct watchdog_device *wdd)
+ 	return min_t(long, last_heartbeat - jiffies, keepalive_interval);
+ }
+ 
+-static inline void watchdog_update_worker(struct watchdog_device *wdd,
+-					  bool cancel)
++static inline void watchdog_update_worker(struct watchdog_device *wdd)
  {
--	int err;
-+	int err = 0;
+ 	if (watchdog_need_worker(wdd)) {
+ 		long t = watchdog_next_keepalive(wdd);
  
--	if (!wdd->ops->set_timeout || !(wdd->info->options & WDIOF_SETTIMEOUT))
-+	if (!(wdd->info->options & WDIOF_SETTIMEOUT))
- 		return -EOPNOTSUPP;
+ 		if (t > 0)
+ 			mod_delayed_work(watchdog_wq, &wdd->work, t);
+-	} else if (cancel) {
++	} else {
+ 		cancel_delayed_work(&wdd->work);
+ 	}
+ }
+@@ -133,7 +132,7 @@ static int _watchdog_ping(struct watchdog_device *wdd)
+ 	else
+ 		err = wdd->ops->start(wdd); /* restart watchdog */
  
- 	if (watchdog_timeout_invalid(wdd, timeout))
-@@ -299,7 +299,10 @@ static int watchdog_set_timeout(struct watchdog_device *wdd,
- 		goto out_timeout;
+-	watchdog_update_worker(wdd, false);
++	watchdog_update_worker(wdd);
+ 
+ 	return err;
+ }
+@@ -200,7 +199,7 @@ static int watchdog_start(struct watchdog_device *wdd)
+ 	if (err == 0) {
+ 		set_bit(WDOG_ACTIVE, &wdd->status);
+ 		wdd->last_keepalive = started_at;
+-		watchdog_update_worker(wdd, true);
++		watchdog_update_worker(wdd);
  	}
  
--	err = wdd->ops->set_timeout(wdd, timeout);
-+	if (wdd->ops->set_timeout)
-+		err = wdd->ops->set_timeout(wdd, timeout);
-+	else
-+		wdd->timeout = timeout;
+ out_start:
+@@ -245,7 +244,7 @@ static int watchdog_stop(struct watchdog_device *wdd)
  
- 	watchdog_update_worker(wdd, true);
+ 	if (err == 0) {
+ 		clear_bit(WDOG_ACTIVE, &wdd->status);
+-		watchdog_update_worker(wdd, true);
++		watchdog_update_worker(wdd);
+ 	}
  
+ out_stop:
+@@ -313,7 +312,7 @@ static int watchdog_set_timeout(struct watchdog_device *wdd,
+ 	else
+ 		wdd->timeout = timeout;
+ 
+-	watchdog_update_worker(wdd, true);
++	watchdog_update_worker(wdd);
+ 
+ out_timeout:
+ 	mutex_unlock(&wdd->lock);
+@@ -592,7 +591,7 @@ static int watchdog_release(struct inode *inode, struct file *file)
+ 	}
+ 
+ 	cancel_delayed_work_sync(&wdd->work);
+-	watchdog_update_worker(wdd, false);
++	watchdog_update_worker(wdd);
+ 
+ 	/*
+ 	 * Allow the owner module to be unloaded again unless the watchdog
 -- 
 2.1.4
+
