@@ -1,101 +1,334 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:48552 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751484AbbK3SKl (ORCPT
-	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 30 Nov 2015 13:10:41 -0500
-Subject: Re: [PATCH v4] Zodiac Aerospace RAVE Switch Watchdog Processor Driver
-To: Martyn Welch <martyn.welch@collabora.co.uk>,
-	Wim Van Sebroeck <wim@iguana.be>
-References: <5655CB45.50305@roeck-us.net>
- <1448471702-29001-1-git-send-email-martyn.welch@collabora.co.uk>
- <565C716B.1090206@roeck-us.net> <565C86DF.3080608@collabora.co.uk>
-Cc: linux-watchdog@vger.kernel.org
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <565C911B.5010400@roeck-us.net>
-Date: Mon, 30 Nov 2015 10:10:35 -0800
-MIME-Version: 1.0
-In-Reply-To: <565C86DF.3080608@collabora.co.uk>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <damien.riegel@savoirfairelinux.com>
+From: Damien Riegel <damien.riegel@savoirfairelinux.com>
+To: linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org
+Cc: Lee Jones <lee.jones@linaro.org>,
+	Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	Russell King <linux@arm.linux.org.uk>,
+	Shawn Guo <shawnguo@kernel.org>,
+	Sascha Hauer <kernel@pengutronix.de>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>,
+	kernel@savoirfairelinux.com,
+	Damien Riegel <damien.riegel@savoirfairelinux.com>
+Subject: [PATCH v7 3/6] watchdog: ts4800: add driver for TS-4800 watchdog
+Date: Mon, 30 Nov 2015 10:59:48 -0500
+Message-Id: <1448899191-13891-4-git-send-email-damien.riegel@savoirfairelinux.com>
+In-Reply-To: <1448899191-13891-1-git-send-email-damien.riegel@savoirfairelinux.com>
+References: <1448899191-13891-1-git-send-email-damien.riegel@savoirfairelinux.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-On 11/30/2015 09:26 AM, Martyn Welch wrote:
-> On 30/11/15 15:55, Guenter Roeck wrote:
->> Hi Martyn,
->>
->> On 11/25/2015 09:15 AM, Martyn Welch wrote:
->>> This patch adds a driver for the Zodiac Aerospace RAVE Watchdog Procesor.
->>> This device implements a watchdog timer, accessible over I2C.
->>>
->> Mostly there, still a few nitpicks and a problem with DT properties.
->>
-[ ... ]
+This watchdog is instantiated in a FPGA that is memory mapped. It is
+made of only one register, called the feed register. Writing to this
+register will re-arm the watchdog for a given time (and enable it if it
+was disable). It can be disabled by writing a special value into it.
 
->>> +
->>> +static int ziirave_wdt_init_duration(struct i2c_client *client, int
->>> duration)
->>> +{
+It is part of a syscon block, and the watchdog register offset in this
+block varies from board to board. This offset is passed in the syscon
+property after the phandle to the syscon node.
 
-Separate note: The "duration" parameter here doesn't really add value.
-It just reflects the module parameter. It would only make sense if the code
-to obtain the duration (either from reset_duration or from DT)
-would be in a separate function, such as in
+Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
+---
+ .../devicetree/bindings/watchdog/ts4800-wdt.txt    |  25 +++
+ drivers/watchdog/Kconfig                           |  10 +
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/ts4800_wdt.c                      | 215 +++++++++++++++++++++
+ 4 files changed, 251 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/ts4800-wdt.txt
+ create mode 100644 drivers/watchdog/ts4800_wdt.c
 
-	duration = ziirave_get_duration(client);
-	if (duration < 0)
-		return duration;
-	if (duration) {
-		ret = ziirave_wdt_init_duration(client, duration);
-		if (ret)
-			return ret;
-	}
-
-or similar.
-
->>> +    int ret;
->>> +
->>> +    if (!duration) {
->>> +        /* See if the reset pulse duration is provided in an of_node */
->>> +        if (client->dev.of_node == NULL)
->>> +            return -ENODEV;
->>> +
->> Please write as "if (!client->dev.of_node)" (see checkpatch --strict).
->>
->
-> ok
->
->> Also, is it really necessary to mandate DT support ? There is no mandatory
->> property to be read, so this driver would (or should) work fine on a non-DT
->> system.
->>
->
-> The error doesn't cause the probe to fail. If it takes that path, it results in a message that the default value is being used and continues with that.
->
->>> +        ret = of_property_read_u32(client->dev.of_node,
->>> +                       "reset-duration-ms", &duration);
->>
->> reset-duration-ms is listed as optional property, thus it should not be
->> an error
->> if it is not provided. Can you set some default in this case ? Or do
->> nothing ?
->>
->
-> It takes module parameter, DT entry or falls back to built in default.
->
-
-Hmm, you are right. Problem with that though is that it also accepts _invalid_
-parameters.
-
-I think it would be better to only return an error if the value is really wrong,
-and abort in that case. Otherwise a duration of, say, 1000, will only result
-in "unable to set duration", which is likely going to be overlooked.
-
-The current code not distinguish between "no duration provided", "bad duration",
-and "duration not accepted by hardware". It seems to me that the latter two
-should be fatal and not just be ignored.
-
-Thanks,
-Guenter
-
+diff --git a/Documentation/devicetree/bindings/watchdog/ts4800-wdt.txt b/Documentation/devicetree/bindings/watchdog/ts4800-wdt.txt
+new file mode 100644
+index 0000000..8f6caad
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/ts4800-wdt.txt
+@@ -0,0 +1,25 @@
++Technologic Systems Watchdog
++
++Required properties:
++- compatible: must be "technologic,ts4800-wdt"
++- syscon: phandle / integer array that points to the syscon node which
++          describes the FPGA's syscon registers.
++          - phandle to FPGA's syscon
++          - offset to the watchdog register
++
++Optional property:
++- timeout-sec: contains the watchdog timeout in seconds.
++
++Example:
++
++syscon: syscon@b0010000 {
++	compatible = "syscon", "simple-mfd";
++	reg = <0xb0010000 0x3d>;
++	reg-io-width = <2>;
++
++	wdt@e {
++		compatible = "technologic,ts4800-wdt";
++		syscon = <&syscon 0xe>;
++		timeout-sec = <10>;
++	};
++}
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 79e1aa1..bb624d2 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -426,6 +426,16 @@ config NUC900_WATCHDOG
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called nuc900_wdt.
+ 
++config TS4800_WATCHDOG
++	tristate "TS-4800 Watchdog"
++	depends on HAS_IOMEM && OF
++	select WATCHDOG_CORE
++	select MFD_SYSCON
++	help
++	  Technologic Systems TS-4800 has watchdog timer implemented in
++	  an external FPGA. Say Y here if you want to support for the
++	  watchdog timer on TS-4800 board.
++
+ config TS72XX_WATCHDOG
+ 	tristate "TS-72XX SBC Watchdog"
+ 	depends on MACH_TS72XX
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 0c616e3..3863ce0 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -53,6 +53,7 @@ obj-$(CONFIG_RN5T618_WATCHDOG) += rn5t618_wdt.o
+ obj-$(CONFIG_COH901327_WATCHDOG) += coh901327_wdt.o
+ obj-$(CONFIG_STMP3XXX_RTC_WATCHDOG) += stmp3xxx_rtc_wdt.o
+ obj-$(CONFIG_NUC900_WATCHDOG) += nuc900_wdt.o
++obj-$(CONFIG_TS4800_WATCHDOG) += ts4800_wdt.o
+ obj-$(CONFIG_TS72XX_WATCHDOG) += ts72xx_wdt.o
+ obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
+ obj-$(CONFIG_UX500_WATCHDOG) += ux500_wdt.o
+diff --git a/drivers/watchdog/ts4800_wdt.c b/drivers/watchdog/ts4800_wdt.c
+new file mode 100644
+index 0000000..2b8de86
+--- /dev/null
++++ b/drivers/watchdog/ts4800_wdt.c
+@@ -0,0 +1,215 @@
++/*
++ * Watchdog driver for TS-4800 based boards
++ *
++ * Copyright (c) 2015 - Savoir-faire Linux
++ *
++ * This file is licensed under the terms of the GNU General Public
++ * License version 2. This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
++ */
++
++#include <linux/kernel.h>
++#include <linux/mfd/syscon.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/regmap.h>
++#include <linux/watchdog.h>
++
++static bool nowayout = WATCHDOG_NOWAYOUT;
++module_param(nowayout, bool, 0);
++MODULE_PARM_DESC(nowayout,
++	"Watchdog cannot be stopped once started (default="
++	__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++
++/* possible feed values */
++#define TS4800_WDT_FEED_2S       0x1
++#define TS4800_WDT_FEED_10S      0x2
++#define TS4800_WDT_DISABLE       0x3
++
++struct ts4800_wdt {
++	struct watchdog_device  wdd;
++	struct regmap           *regmap;
++	u32                     feed_offset;
++	u32                     feed_val;
++};
++
++/*
++ * TS-4800 supports the following timeout values:
++ *
++ *   value desc
++ *   ---------------------
++ *     0    feed for 338ms
++ *     1    feed for 2.706s
++ *     2    feed for 10.824s
++ *     3    disable watchdog
++ *
++ * Keep the regmap/timeout map ordered by timeout
++ */
++static const struct {
++	const int timeout;
++	const int regval;
++} ts4800_wdt_map[] = {
++	{ 2,  TS4800_WDT_FEED_2S },
++	{ 10, TS4800_WDT_FEED_10S },
++};
++
++#define MAX_TIMEOUT_INDEX       (ARRAY_SIZE(ts4800_wdt_map) - 1)
++
++static void ts4800_write_feed(struct ts4800_wdt *wdt, u32 val)
++{
++	regmap_write(wdt->regmap, wdt->feed_offset, val);
++}
++
++static int ts4800_wdt_start(struct watchdog_device *wdd)
++{
++	struct ts4800_wdt *wdt = watchdog_get_drvdata(wdd);
++
++	ts4800_write_feed(wdt, wdt->feed_val);
++	return 0;
++}
++
++static int ts4800_wdt_stop(struct watchdog_device *wdd)
++{
++	struct ts4800_wdt *wdt = watchdog_get_drvdata(wdd);
++
++	ts4800_write_feed(wdt, TS4800_WDT_DISABLE);
++	return 0;
++}
++
++static int ts4800_wdt_set_timeout(struct watchdog_device *wdd,
++				  unsigned int timeout)
++{
++	struct ts4800_wdt *wdt = watchdog_get_drvdata(wdd);
++	int i;
++
++	for (i = 0; i < MAX_TIMEOUT_INDEX; i++) {
++		if (ts4800_wdt_map[i].timeout >= timeout)
++			break;
++	}
++
++	wdd->timeout = ts4800_wdt_map[i].timeout;
++	wdt->feed_val = ts4800_wdt_map[i].regval;
++
++	return 0;
++}
++
++static const struct watchdog_ops ts4800_wdt_ops = {
++	.owner = THIS_MODULE,
++	.start = ts4800_wdt_start,
++	.stop = ts4800_wdt_stop,
++	.set_timeout = ts4800_wdt_set_timeout,
++};
++
++static const struct watchdog_info ts4800_wdt_info = {
++	.options = WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING,
++	.identity = "TS-4800 Watchdog",
++};
++
++static int ts4800_wdt_probe(struct platform_device *pdev)
++{
++	struct device_node *np = pdev->dev.of_node;
++	struct device_node *syscon_np;
++	struct watchdog_device *wdd;
++	struct ts4800_wdt *wdt;
++	u32 reg;
++	int ret;
++
++	syscon_np = of_parse_phandle(np, "syscon", 0);
++	if (!syscon_np) {
++		dev_err(&pdev->dev, "no syscon property\n");
++		return -ENODEV;
++	}
++
++	ret = of_property_read_u32_index(np, "syscon", 1, &reg);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "no offset in syscon\n");
++		return ret;
++	}
++
++	/* allocate memory for watchdog struct */
++	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
++	if (!wdt)
++		return -ENOMEM;
++
++	/* set regmap and offset to know where to write */
++	wdt->feed_offset = reg;
++	wdt->regmap = syscon_node_to_regmap(syscon_np);
++	if (IS_ERR(wdt->regmap)) {
++		dev_err(&pdev->dev, "cannot get parent's regmap\n");
++		return PTR_ERR(wdt->regmap);
++	}
++
++	/* Initialize struct watchdog_device */
++	wdd = &wdt->wdd;
++	wdd->parent = &pdev->dev;
++	wdd->info = &ts4800_wdt_info;
++	wdd->ops = &ts4800_wdt_ops;
++	wdd->min_timeout = ts4800_wdt_map[0].timeout;
++	wdd->max_timeout = ts4800_wdt_map[MAX_TIMEOUT_INDEX].timeout;
++
++	watchdog_set_drvdata(wdd, wdt);
++	watchdog_set_nowayout(wdd, nowayout);
++	watchdog_init_timeout(wdd, 0, &pdev->dev);
++
++	/*
++	 * As this watchdog supports only a few values, ts4800_wdt_set_timeout
++	 * must be called to initialize timeout and feed_val with valid values.
++	 * Default to maximum timeout if none, or an invalid one, is provided in
++	 * device tree.
++	 */
++	if (!wdd->timeout)
++		wdd->timeout = wdd->max_timeout;
++	ts4800_wdt_set_timeout(wdd, wdd->timeout);
++
++	/*
++	 * The feed register is write-only, so it is not possible to determine
++	 * watchdog's state. Disable it to be in a known state.
++	 */
++	ts4800_wdt_stop(wdd);
++
++	ret = watchdog_register_device(wdd);
++	if (ret) {
++		dev_err(&pdev->dev,
++			"failed to register watchdog device\n");
++		return ret;
++	}
++
++	platform_set_drvdata(pdev, wdt);
++
++	dev_info(&pdev->dev,
++		 "initialized (timeout = %d sec, nowayout = %d)\n",
++		 wdd->timeout, nowayout);
++
++	return 0;
++}
++
++static int ts4800_wdt_remove(struct platform_device *pdev)
++{
++	struct ts4800_wdt *wdt = platform_get_drvdata(pdev);
++
++	watchdog_unregister_device(&wdt->wdd);
++
++	return 0;
++}
++
++static const struct of_device_id ts4800_wdt_of_match[] = {
++	{ .compatible = "technologic,ts4800-wdt", },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, ts4800_wdt_of_match);
++
++static struct platform_driver ts4800_wdt_driver = {
++	.probe		= ts4800_wdt_probe,
++	.remove		= ts4800_wdt_remove,
++	.driver		= {
++		.name	= "ts4800_wdt",
++		.of_match_table = ts4800_wdt_of_match,
++	},
++};
++
++module_platform_driver(ts4800_wdt_driver);
++
++MODULE_AUTHOR("Damien Riegel <damien.riegel@savoirfairelinux.com>");
++MODULE_LICENSE("GPL v2");
++MODULE_ALIAS("platform:ts4800_wdt");
+-- 
+2.5.0
