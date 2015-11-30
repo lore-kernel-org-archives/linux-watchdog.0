@@ -1,185 +1,496 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:35818 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751248AbbK0KDH (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:45025 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753973AbbK3OsD (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Fri, 27 Nov 2015 05:03:07 -0500
-Date: Fri, 27 Nov 2015 11:02:54 +0100
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-To: Harald Geyer <harald@ccbib.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-watchdog@vger.kernel.org, rtc-linux@googlegroups.com,
-	Wolfram Sang <wsa@the-dreams.de>, kernel@pengutronix.de,
-	Fabio Estevam <festevam@gmail.com>
-Subject: Re: [PATCH 2/2] watchdog: stmp3xxx: Implement GETBOOTSTATUS
-Message-ID: <20151127100254.GR19888@pengutronix.de>
-References: <1444220352-20548-1-git-send-email-harald@ccbib.org>
- <1444220352-20548-2-git-send-email-harald@ccbib.org>
- <20151126092526.GM19888@pengutronix.de>
- <E1a1wm1-0000XO-S7@stardust.g4.wien.funkfeuer.at>
+	Mon, 30 Nov 2015 09:48:03 -0500
+Subject: Re: [PATCH v4] Zodiac Aerospace RAVE Switch Watchdog Processor Driver
+To: Martyn Welch <martyn.welch@collabora.co.uk>,
+	Wim Van Sebroeck <wim@iguana.be>
+References: <5655CB45.50305@roeck-us.net>
+ <1448471702-29001-1-git-send-email-martyn.welch@collabora.co.uk>
+ <565C1743.7080409@collabora.co.uk>
+Cc: linux-watchdog@vger.kernel.org
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <565C61A0.9010701@roeck-us.net>
+Date: Mon, 30 Nov 2015 06:48:00 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-In-Reply-To: <E1a1wm1-0000XO-S7@stardust.g4.wien.funkfeuer.at>
+In-Reply-To: <565C1743.7080409@collabora.co.uk>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Thu, Nov 26, 2015 at 02:39:45PM +0100, Harald Geyer wrote:
-> Hi Uwe,
->=20
-> thanks for looking into this.
->=20
-> Uwe Kleine-K=F6nig writes:
-> > On Wed, Oct 07, 2015 at 12:19:12PM +0000, Harald Geyer wrote:
-> > > This device doesn't provide any information about boot status.
-> > > As workaround we use a persitent bit to track watchdog activity.
-> >=20
-> > Hmm, so you set a bit in a persistent register iff the watchdog is
-> > running.  And if that bit is set during probe you assume the watchd=
-og
-> > reset the machine. But this also happens, when the user presses the
-> > reset button which makes the detection unreliable.
->=20
-> Yes, kind of. I'm using this driver on an imx233-olinuxino, where the
-> reset button causes the device to power cycle and thus clears the
-> persitent bit. So I can't test your case, but surely there are some p=
-aths
-> into reset, that don't clear the bit and cause false positives.
+On 11/30/2015 01:30 AM, Martyn Welch wrote:
+> Hi Guenter,
+>
+> Was wondering if you had any comments WRT v4?
+>
 
-OK, I found a i.MX28 machine in our repository:
+Sorry, I didn't have time to go through it yet. Hopefully this week.
 
-	barebox# mw 0x80056080 0xbabecafe
-	barebox# boot
-	...
-	linux# reboot
-	barebox# md 0x80056080+4
-	80056080: babecafe
+Guenter
 
-After a power cycle the value disappears (I didn't check the details, i=
-f
-there is a battery it might be empty).
+> Martyn
+>
+> On 25/11/15 17:15, Martyn Welch wrote:
+>> This patch adds a driver for the Zodiac Aerospace RAVE Watchdog Procesor.
+>> This device implements a watchdog timer, accessible over I2C.
+>>
+>> Cc: Guenter Roeck <linux@roeck-us.net>
+>> Signed-off-by: Martyn Welch <martyn.welch@collabora.co.uk>
+>> ---
+>>
+>> v2:
+>>   - Improved error handling.
+>>   - Correct indentation of split lines.
+>>   - Remove unnecessary checks, casts and bracketing.
+>>   - Remove sysfs entries provided by standard mechanisms.
+>>   - Remove simple access functions.
+>>   - Allocate wdd as a part of w_priv.
+>>   - Add ability to set timeout from module parameter or device tree property
+>>     rather than through a sysfs entry.
+>>   - Add ability to set reset duration from module parameter or device tree
+>>     property rather than through a sysfs entry.
+>>
+>> v3:
+>>   - Correct naming of reset-duration-msec -> reset-duration-ms
+>>   - Improved timeout logic (wasn't falling back to default, whoops.)
+>>
+>> v4:
+>>   - Correct number of entries in ziirave_reasons array.
+>>   - Remove unused defines and arrays.
+>>   - Merge revision functions.
+>>   - Remove unneeded range check.
+>>   - Remove unneeded variables & initialisations.
+>>   - Remove unused flags from i2c_check_functionality().
+>>   - Move more initialisation before registration.
+>>   - Check returned timeout value.
+>>
+>>   drivers/watchdog/Kconfig       |  11 ++
+>>   drivers/watchdog/Makefile      |   1 +
+>>   drivers/watchdog/ziirave_wdt.c | 379 +++++++++++++++++++++++++++++++++++++++++
+>>   3 files changed, 391 insertions(+)
+>>   create mode 100644 drivers/watchdog/ziirave_wdt.c
+>>
+>> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+>> index 7a8a6c6..816b5fb 100644
+>> --- a/drivers/watchdog/Kconfig
+>> +++ b/drivers/watchdog/Kconfig
+>> @@ -161,6 +161,17 @@ config XILINX_WATCHDOG
+>>         To compile this driver as a module, choose M here: the
+>>         module will be called of_xilinx_wdt.
+>>
+>> +config ZIIRAVE_WATCHDOG
+>> +    tristate "Zodiac RAVE Watchdog Timer"
+>> +    depends on I2C
+>> +    select WATCHDOG_CORE
+>> +    help
+>> +      Watchdog driver for the Zodiac Aerospace RAVE Switch Watchdog
+>> +      Processor.
+>> +
+>> +      To compile this driver as a module, choose M here: the
+>> +      module will be called ziirave_wdt.
+>> +
+>>   # ALPHA Architecture
+>>
+>>   # ARM Architecture
+>> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+>> index 53d4827..05ba23a 100644
+>> --- a/drivers/watchdog/Makefile
+>> +++ b/drivers/watchdog/Makefile
+>> @@ -190,5 +190,6 @@ obj-$(CONFIG_GPIO_WATCHDOG)    += gpio_wdt.o
+>>   obj-$(CONFIG_WM831X_WATCHDOG) += wm831x_wdt.o
+>>   obj-$(CONFIG_WM8350_WATCHDOG) += wm8350_wdt.o
+>>   obj-$(CONFIG_MAX63XX_WATCHDOG) += max63xx_wdt.o
+>> +obj-$(CONFIG_ZIIRAVE_WATCHDOG) += ziirave_wdt.o
+>>   obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
+>>   obj-$(CONFIG_MENF21BMC_WATCHDOG) += menf21bmc_wdt.o
+>> diff --git a/drivers/watchdog/ziirave_wdt.c b/drivers/watchdog/ziirave_wdt.c
+>> new file mode 100644
+>> index 0000000..32078b9
+>> --- /dev/null
+>> +++ b/drivers/watchdog/ziirave_wdt.c
+>> @@ -0,0 +1,379 @@
+>> +/*
+>> + * Copyright (C) 2015 Zodiac Inflight Innovations
+>> + *
+>> + * Author: Martyn Welch <martyn.welch@collabora.co.uk>
+>> + *
+>> + * Based on twl4030_wdt.c by Timo Kokkonen <timo.t.kokkonen at nokia.com>:
+>> + *
+>> + * Copyright (C) Nokia Corporation
+>> + *
+>> + * This program is free software; you can redistribute it and/or modify
+>> + * it under the terms of the GNU General Public License as published by
+>> + * the Free Software Foundation; either version 2 of the License, or
+>> + * (at your option) any later version.
+>> + *
+>> + * This program is distributed in the hope that it will be useful,
+>> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+>> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+>> + * GNU General Public License for more details.
+>> + */
+>> +
+>> +#include <linux/module.h>
+>> +#include <linux/types.h>
+>> +#include <linux/slab.h>
+>> +#include <linux/kernel.h>
+>> +#include <linux/watchdog.h>
+>> +#include <linux/i2c.h>
+>> +#include <linux/version.h>
+>> +#include <linux/sysfs.h>
+>> +
+>> +#define ZIIRAVE_TIMEOUT_MIN    3
+>> +#define ZIIRAVE_TIMEOUT_MAX    255
+>> +
+>> +#define ZIIRAVE_PING_VALUE    0x0
+>> +
+>> +#define ZIIRAVE_STATE_INITIAL    0x0
+>> +#define ZIIRAVE_STATE_OFF    0x1
+>> +#define ZIIRAVE_STATE_ON    0x2
+>> +
+>> +static char *ziirave_reasons[] = {"power cycle", "triggered", NULL, NULL,
+>> +                  "host request", NULL, "illegal configuration",
+>> +                  "illegal instruction", "illegal trap",
+>> +                  "unknown"};
+>> +
+>> +#define ZIIRAVE_WDT_FIRM_VER_MAJOR    0x1
+>> +#define ZIIRAVE_WDT_BOOT_VER_MAJOR    0x3
+>> +#define ZIIRAVE_WDT_RESET_REASON    0x5
+>> +#define ZIIRAVE_WDT_STATE        0x6
+>> +#define ZIIRAVE_WDT_TIMEOUT        0x7
+>> +#define ZIIRAVE_WDT_TIME_LEFT        0x8
+>> +#define ZIIRAVE_WDT_PING        0x9
+>> +#define ZIIRAVE_WDT_RESET_DURATION    0xa
+>> +
+>> +struct ziirave_wdt_rev {
+>> +    unsigned char major;
+>> +    unsigned char minor;
+>> +};
+>> +
+>> +struct ziirave_wdt_data {
+>> +    struct watchdog_device wdd;
+>> +    struct ziirave_wdt_rev bootloader_rev;
+>> +    struct ziirave_wdt_rev firmware_rev;
+>> +    int reset_reason;
+>> +};
+>> +
+>> +static int wdt_timeout;
+>> +module_param(wdt_timeout, int, 0);
+>> +MODULE_PARM_DESC(wdt_timeout, "Watchdog timeout in seconds");
+>> +
+>> +static int reset_duration;
+>> +module_param(reset_duration, int, 0);
+>> +MODULE_PARM_DESC(reset_duration,
+>> +         "Watchdog reset pulse duration in milliseconds");
+>> +
+>> +static bool nowayout = WATCHDOG_NOWAYOUT;
+>> +module_param(nowayout, bool, 0);
+>> +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started default="
+>> +         __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+>> +
+>> +static int ziirave_wdt_revision(struct i2c_client *client,
+>> +                    struct ziirave_wdt_rev *rev, u8 command)
+>> +{
+>> +    int ret;
+>> +
+>> +    ret = i2c_smbus_read_byte_data(client, command);
+>> +    if (ret < 0)
+>> +        return ret;
+>> +
+>> +    rev->major = ret;
+>> +
+>> +    ret = i2c_smbus_read_byte_data(client, command + 1);
+>> +    if (ret < 0)
+>> +        return ret;
+>> +
+>> +    rev->minor = ret;
+>> +
+>> +    return 0;
+>> +}
+>> +
+>> +static int ziirave_wdt_set_state(struct watchdog_device *wdd, int state)
+>> +{
+>> +    struct i2c_client *client = to_i2c_client(wdd->parent);
+>> +
+>> +    return i2c_smbus_write_byte_data(client, ZIIRAVE_WDT_STATE, state);
+>> +}
+>> +
+>> +static int ziirave_wdt_start(struct watchdog_device *wdd)
+>> +{
+>> +    return ziirave_wdt_set_state(wdd, ZIIRAVE_STATE_ON);
+>> +}
+>> +
+>> +static int ziirave_wdt_stop(struct watchdog_device *wdd)
+>> +{
+>> +    return ziirave_wdt_set_state(wdd, ZIIRAVE_STATE_OFF);
+>> +}
+>> +
+>> +static int ziirave_wdt_ping(struct watchdog_device *wdd)
+>> +{
+>> +    struct i2c_client *client = to_i2c_client(wdd->parent);
+>> +
+>> +    return i2c_smbus_write_byte_data(client, ZIIRAVE_WDT_PING,
+>> +                     ZIIRAVE_PING_VALUE);
+>> +}
+>> +
+>> +static int ziirave_wdt_set_timeout(struct watchdog_device *wdd,
+>> +                   unsigned int timeout)
+>> +{
+>> +    struct i2c_client *client = to_i2c_client(wdd->parent);
+>> +    int ret;
+>> +
+>> +    ret = i2c_smbus_write_byte_data(client, ZIIRAVE_WDT_TIMEOUT,
+>> +                    timeout);
+>> +    if (!ret)
+>> +        wdd->timeout = timeout;
+>> +
+>> +    return ret;
+>> +}
+>> +
+>> +static unsigned int ziirave_wdt_get_timeleft(struct watchdog_device *wdd)
+>> +{
+>> +    struct i2c_client *client = to_i2c_client(wdd->parent);
+>> +    int ret;
+>> +
+>> +    ret = i2c_smbus_read_byte_data(client, ZIIRAVE_WDT_TIME_LEFT);
+>> +    if (ret < 0)
+>> +        ret = 0;
+>> +
+>> +    return ret;
+>> +}
+>> +
+>> +static const struct watchdog_info ziirave_wdt_info = {
+>> +    .options = WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING,
+>> +    .identity = "Zodiac RAVE Watchdog",
+>> +};
+>> +
+>> +static const struct watchdog_ops ziirave_wdt_ops = {
+>> +    .owner        = THIS_MODULE,
+>> +    .start        = ziirave_wdt_start,
+>> +    .stop        = ziirave_wdt_stop,
+>> +    .ping        = ziirave_wdt_ping,
+>> +    .set_timeout    = ziirave_wdt_set_timeout,
+>> +    .get_timeleft    = ziirave_wdt_get_timeleft,
+>> +};
+>> +
+>> +static ssize_t ziirave_wdt_sysfs_show_firm(struct device *dev,
+>> +                       struct device_attribute *attr,
+>> +                       char *buf)
+>> +{
+>> +    struct i2c_client *client = to_i2c_client(dev->parent);
+>> +    struct ziirave_wdt_data *w_priv = i2c_get_clientdata(client);
+>> +
+>> +    return sprintf(buf, "02.%02u.%02u", w_priv->firmware_rev.major,
+>> +               w_priv->firmware_rev.minor);
+>> +}
+>> +
+>> +static DEVICE_ATTR(firmware_version, S_IRUGO, ziirave_wdt_sysfs_show_firm,
+>> +           NULL);
+>> +
+>> +static ssize_t ziirave_wdt_sysfs_show_boot(struct device *dev,
+>> +                       struct device_attribute *attr,
+>> +                       char *buf)
+>> +{
+>> +    struct i2c_client *client = to_i2c_client(dev->parent);
+>> +    struct ziirave_wdt_data *w_priv = i2c_get_clientdata(client);
+>> +
+>> +    return sprintf(buf, "01.%02u.%02u", w_priv->bootloader_rev.major,
+>> +               w_priv->bootloader_rev.minor);
+>> +}
+>> +
+>> +static DEVICE_ATTR(bootloader_version, S_IRUGO, ziirave_wdt_sysfs_show_boot,
+>> +           NULL);
+>> +
+>> +static ssize_t ziirave_wdt_sysfs_show_reason(struct device *dev,
+>> +                         struct device_attribute *attr,
+>> +                         char *buf)
+>> +{
+>> +    struct i2c_client *client = to_i2c_client(dev->parent);
+>> +    struct ziirave_wdt_data *w_priv = i2c_get_clientdata(client);
+>> +
+>> +    return sprintf(buf, "%s", ziirave_reasons[w_priv->reset_reason]);
+>> +}
+>> +
+>> +static DEVICE_ATTR(reset_reason, S_IRUGO, ziirave_wdt_sysfs_show_reason,
+>> +           NULL);
+>> +
+>> +static struct attribute *ziirave_wdt_attrs[] = {
+>> +    &dev_attr_firmware_version.attr,
+>> +    &dev_attr_bootloader_version.attr,
+>> +    &dev_attr_reset_reason.attr,
+>> +    NULL
+>> +};
+>> +
+>> +static const struct attribute_group ziirave_wdt_sysfs_files = {
+>> +    .attrs  = ziirave_wdt_attrs,
+>> +};
+>> +
+>> +static int ziirave_wdt_init_duration(struct i2c_client *client, int duration)
+>> +{
+>> +    int ret;
+>> +
+>> +    if (!duration) {
+>> +        /* See if the reset pulse duration is provided in an of_node */
+>> +        if (client->dev.of_node == NULL)
+>> +            return -ENODEV;
+>> +
+>> +        ret = of_property_read_u32(client->dev.of_node,
+>> +                       "reset-duration-ms", &duration);
+>> +        if (ret)
+>> +            return ret;
+>> +    }
+>> +
+>> +    if (duration < 1 || duration > 255)
+>> +        return -EINVAL;
+>> +
+>> +    dev_info(&client->dev, "Setting reset duration to %dms", duration);
+>> +
+>> +    return i2c_smbus_write_byte_data(client, ZIIRAVE_WDT_RESET_DURATION,
+>> +                     duration);
+>> +}
+>> +
+>> +static int ziirave_wdt_probe(struct i2c_client *client,
+>> +                 const struct i2c_device_id *id)
+>> +{
+>> +    int ret;
+>> +    struct ziirave_wdt_data *w_priv;
+>> +    int val;
+>> +
+>> +    if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_BYTE_DATA))
+>> +        return -ENODEV;
+>> +
+>> +    w_priv = devm_kzalloc(&client->dev, sizeof(*w_priv), GFP_KERNEL);
+>> +    if (!w_priv)
+>> +        return -ENOMEM;
+>> +
+>> +    w_priv->wdd.info = &ziirave_wdt_info;
+>> +    w_priv->wdd.ops = &ziirave_wdt_ops;
+>> +    w_priv->wdd.min_timeout = ZIIRAVE_TIMEOUT_MIN;
+>> +    w_priv->wdd.max_timeout = ZIIRAVE_TIMEOUT_MAX;
+>> +    w_priv->wdd.parent = &client->dev;
+>> +
+>> +    ret = watchdog_init_timeout(&w_priv->wdd, wdt_timeout, &client->dev);
+>> +    if (ret) {
+>> +        dev_info(&client->dev,
+>> +             "Unable to select timeout value, using default\n");
+>> +    }
+>> +
+>> +    /*
+>> +     * The default value set in the watchdog should be perfectly valid, so
+>> +     * pass that in if we haven't provided one via the module parameter or
+>> +     * of property.
+>> +     */
+>> +    if (w_priv->wdd.timeout == 0) {
+>> +        val = i2c_smbus_read_byte_data(client, ZIIRAVE_WDT_TIMEOUT);
+>> +        if (val < 0)
+>> +            return val;
+>> +
+>> +        if (val < ZIIRAVE_TIMEOUT_MIN)
+>> +            return -ENODEV;
+>> +
+>> +        w_priv->wdd.timeout = val;
+>> +    } else {
+>> +        ret = ziirave_wdt_set_timeout(&w_priv->wdd,
+>> +                          w_priv->wdd.timeout);
+>> +        if (ret)
+>> +            return ret;
+>> +
+>> +        dev_info(&client->dev, "Timeout set to %ds.",
+>> +             w_priv->wdd.timeout);
+>> +    }
+>> +
+>> +    watchdog_set_nowayout(&w_priv->wdd, nowayout);
+>> +
+>> +    i2c_set_clientdata(client, w_priv);
+>> +
+>> +    /* If in unconfigured state, set to stopped */
+>> +    val = i2c_smbus_read_byte_data(client, ZIIRAVE_WDT_STATE);
+>> +    if (val < 0)
+>> +        return val;
+>> +
+>> +    if (val == ZIIRAVE_STATE_INITIAL)
+>> +        ziirave_wdt_stop(&w_priv->wdd);
+>> +
+>> +    ret = ziirave_wdt_init_duration(client, reset_duration);
+>> +    if (ret)
+>> +        dev_info(&client->dev,
+>> +             "Unable to set reset pulse duration, using default\n");
+>> +
+>> +    ret = ziirave_wdt_revision(client, &w_priv->firmware_rev,
+>> +                   ZIIRAVE_WDT_FIRM_VER_MAJOR);
+>> +    if (ret)
+>> +        return ret;
+>> +
+>> +    ret = ziirave_wdt_revision(client, &w_priv->bootloader_rev,
+>> +                   ZIIRAVE_WDT_BOOT_VER_MAJOR);
+>> +    if (ret)
+>> +        return ret;
+>> +
+>> +    w_priv->reset_reason = i2c_smbus_read_byte_data(client,
+>> +                        ZIIRAVE_WDT_RESET_REASON);
+>> +    if (w_priv->reset_reason < 0)
+>> +        return w_priv->reset_reason;
+>> +
+>> +    if (w_priv->reset_reason >= ARRAY_SIZE(ziirave_reasons)
+>> +        || ziirave_reasons[w_priv->reset_reason] == NULL)
+>> +        return -ENODEV;
+>> +
+>> +    ret = watchdog_register_device(&w_priv->wdd);
+>> +    if (ret)
+>> +        return ret;
+>> +
+>> +    ret = sysfs_create_group(&w_priv->wdd.dev->kobj,
+>> +                 &ziirave_wdt_sysfs_files);
+>> +    if (ret) {
+>> +        watchdog_unregister_device(&w_priv->wdd);
+>> +
+>> +        return ret;
+>> +    }
+>> +
+>> +    return 0;
+>> +}
+>> +
+>> +static int ziirave_wdt_remove(struct i2c_client *client)
+>> +{
+>> +    struct ziirave_wdt_data *w_priv = i2c_get_clientdata(client);
+>> +
+>> +    sysfs_remove_group(&client->dev.kobj, &ziirave_wdt_sysfs_files);
+>> +
+>> +    watchdog_unregister_device(&w_priv->wdd);
+>> +
+>> +    return 0;
+>> +}
+>> +
+>> +static struct i2c_device_id ziirave_wdt_id[] = {
+>> +    { "ziirave-wdt", 0 },
+>> +    { }
+>> +};
+>> +MODULE_DEVICE_TABLE(i2c, ziirave_wdt_id);
+>> +
+>> +static const struct of_device_id zrv_wdt_of_match[] = {
+>> +    { .compatible = "zii,rave-wdt", },
+>> +    { },
+>> +};
+>> +MODULE_DEVICE_TABLE(of, zrv_wdt_of_match);
+>> +
+>> +static struct i2c_driver ziirave_wdt_driver = {
+>> +    .driver = {
+>> +        .name = "ziirave_wdt",
+>> +        .of_match_table = zrv_wdt_of_match,
+>> +    },
+>> +    .probe = ziirave_wdt_probe,
+>> +    .remove = ziirave_wdt_remove,
+>> +    .id_table = ziirave_wdt_id,
+>> +};
+>> +
+>> +module_i2c_driver(ziirave_wdt_driver);
+>> +
+>> +MODULE_AUTHOR("Martyn Welch <martyn.welch@collabora.co.uk");
+>> +MODULE_DESCRIPTION("Zodiac Aerospace RAVE Switch Watchdog Processor Driver");
+>> +MODULE_LICENSE("GPL");
+>> +
+>>
+>
 
-> I have considered gathering some additional information from the
-> power subsystem to refine the result, but decided that it's not
-> worth the complexity. Since the power system is a different silicon
-> block, we can't rely on it being available and would need to provide
-> a fall back implementation anyway.
-
-It would be really nice to get some details about boot rom usage of the
-persistent flags in use. I'd expect that these allow to determine the
-boot source.
-
-> > >   */
-> > > =20
-> > >  static void stmp3xxx_wdt_set_timeout(struct device *dev, u32 tim=
-eout)
-> > > @@ -93,16 +111,30 @@ static void stmp3xxx_wdt_set_timeout(struct =
-device *dev, u32 timeout)
-> > >  		       rtc_data->io + STMP3XXX_RTC_CTRL + STMP_OFFSET_REG_SET)=
-;
-> > >  		writel(STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER,
-> > >  		       rtc_data->io + STMP3XXX_RTC_PERSISTENT1 + STMP_OFFSET_R=
-EG_SET);
-> > > +		writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
-> > > +		       rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_R=
-EG_SET);
-> > >  	} else {
-> > >  		writel(STMP3XXX_RTC_CTRL_WATCHDOGEN,
-> > >  		       rtc_data->io + STMP3XXX_RTC_CTRL + STMP_OFFSET_REG_CLR)=
-;
-> > >  		writel(STMP3XXX_RTC_PERSISTENT1_FORCE_UPDATER,
-> > >  		       rtc_data->io + STMP3XXX_RTC_PERSISTENT1 + STMP_OFFSET_R=
-EG_CLR);
-> > > +		writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
-> > > +		       rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_R=
-EG_CLR);
-> >=20
-> > checkpatch tells:
-> >=20
-> > WARNING: line over 80 characters
-> > #131: FILE: drivers/rtc/rtc-stmp3xxx.c:115:
-> > +                      rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + ST=
-MP_OFFSET_REG_SET);
-> >=20
-> > WARNING: line over 80 characters
-> > #138: FILE: drivers/rtc/rtc-stmp3xxx.c:122:
-> > +                      rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + ST=
-MP_OFFSET_REG_CLR);
->=20
-> I tried to follow the style of the surrounding code. If there is a cl=
-ear
-> statement about the preferred style for this driver from whoever is
-> responsible, I will happily change my patch to whatever it is.
-
-Yeah, I don't care much. I would have broken the newly introduced lines=
-,
-but I'd not go so far to nack your patch when you don't.
-
-> > >  	}
-> > >  }
-> > > =20
-> > > +static void stmp3xxx_wdt_clear_bootstatus(struct device *dev)
-> > > +{
-> > > +	struct stmp3xxx_rtc_data *rtc_data =3D dev_get_drvdata(dev);
-> > > +
-> > > +	writel(STMP3XXX_RTC_PERSISTENT2_WDT_ACTIVE,
-> > > +	       rtc_data->io + STMP3XXX_RTC_PERSISTENT2 + STMP_OFFSET_RE=
-G_CLR);
-> > > +}
-> > > +
-> > >  static struct stmp3xxx_wdt_pdata wdt_pdata =3D {
-> > >  	.wdt_set_timeout =3D stmp3xxx_wdt_set_timeout,
-> > > +	.wdt_clear_bootstatus =3D stmp3xxx_wdt_clear_bootstatus,
-> > > +	.bootstatus =3D 0,
-> > >  };
-> >=20
-> > This is out of the scope of your patch, but IMHO wdt_pdata should b=
-e
-> > const in case it is used for >1 device.
->=20
-> Hm, if you want to change wdt_pdata to const, then I can't add the
-> bootstatus field. But I think you can't change this to const anyway,
-> because the platform_data pointer of struct device is not a const voi=
-d
-> pointer. However didn't look into this in detail, so maybe I'm missin=
-g
-> something ...
-
-Conceptually platform data should be const for a driver, not necessaril=
-y
-for the code that sets it up. So the right thing to do is to add a cons=
-t
-to struct device::platform_data. That is usually not in the way during
-creation of the device, but stops drivers to modify it.
-
-Then you can do in stmp3xxx_wdt_register:
-
-	struct ... pdata =3D {
-		.wdt_set_timeout =3D stmp3xxx_wdt_set_timeout,
-		.bootstatus =3D whatever;
-	};
-	struct platform_device_info pdevinfo =3D {
-		.parent =3D &rtc_pdev->dev;
-		.data =3D pdata;
-		.size_data =3D sizeof(pdata);
-	}
-	platform_device_register_full(&pdevinfo);
-
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
