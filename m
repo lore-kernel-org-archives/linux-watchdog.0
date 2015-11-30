@@ -1,515 +1,485 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:56697 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:59318 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751313AbbK3Pz2 (ORCPT
+	with ESMTP id S1751997AbbK3QKK (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 30 Nov 2015 10:55:28 -0500
-Subject: Re: [PATCH v4] Zodiac Aerospace RAVE Switch Watchdog Processor Driver
-To: Martyn Welch <martyn.welch@collabora.co.uk>,
-	Wim Van Sebroeck <wim@iguana.be>
-References: <5655CB45.50305@roeck-us.net>
- <1448471702-29001-1-git-send-email-martyn.welch@collabora.co.uk>
-Cc: linux-watchdog@vger.kernel.org
+	Mon, 30 Nov 2015 11:10:10 -0500
+Subject: Re: [PATCH v4 1/2] watchdog: add Alphascale asm9260-wdt driver
+To: Oleksij Rempel <linux@rempel-privat.de>,
+	linux-watchdog@vger.kernel.org, wim@iguana.be,
+	devicetree@vger.kernel.org, robh@kernel.org
+References: <5652BFA5.9010101@roeck-us.net>
+ <1448480003-8029-1-git-send-email-linux@rempel-privat.de>
+ <1448480003-8029-2-git-send-email-linux@rempel-privat.de>
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <565C716B.1090206@roeck-us.net>
-Date: Mon, 30 Nov 2015 07:55:23 -0800
+Message-ID: <565C74DE.3000907@roeck-us.net>
+Date: Mon, 30 Nov 2015 08:10:06 -0800
 MIME-Version: 1.0
-In-Reply-To: <1448471702-29001-1-git-send-email-martyn.welch@collabora.co.uk>
+In-Reply-To: <1448480003-8029-2-git-send-email-linux@rempel-privat.de>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Hi Martyn,
-
-On 11/25/2015 09:15 AM, Martyn Welch wrote:
-> This patch adds a driver for the Zodiac Aerospace RAVE Watchdog Procesor.
-> This device implements a watchdog timer, accessible over I2C.
+On 11/25/2015 11:33 AM, Oleksij Rempel wrote:
+> Add WD support for Alphascale asm9260 SoC. This driver
+> provide support for different function modes:
+> - HW mode to trigger SoC reset on timeout
+> - SW mode do soft reset if needed
+> - DEBUG mode
 >
-Mostly there, still a few nitpicks and a problem with DT properties.
+> Signed-off-by: Oleksij Rempel <linux@rempel-privat.de>
 
-Thanks,
-Guenter
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Signed-off-by: Martyn Welch <martyn.welch@collabora.co.uk>
 > ---
->
-> v2:
->   - Improved error handling.
->   - Correct indentation of split lines.
->   - Remove unnecessary checks, casts and bracketing.
->   - Remove sysfs entries provided by standard mechanisms.
->   - Remove simple access functions.
->   - Allocate wdd as a part of w_priv.
->   - Add ability to set timeout from module parameter or device tree property
->     rather than through a sysfs entry.
->   - Add ability to set reset duration from module parameter or device tree
->     property rather than through a sysfs entry.
->
-> v3:
->   - Correct naming of reset-duration-msec -> reset-duration-ms
->   - Improved timeout logic (wasn't falling back to default, whoops.)
->
-> v4:
->   - Correct number of entries in ziirave_reasons array.
->   - Remove unused defines and arrays.
->   - Merge revision functions.
->   - Remove unneeded range check.
->   - Remove unneeded variables & initialisations.
->   - Remove unused flags from i2c_check_functionality().
->   - Move more initialisation before registration.
->   - Check returned timeout value.
->
->   drivers/watchdog/Kconfig       |  11 ++
+>   drivers/watchdog/Kconfig       |  10 +
 >   drivers/watchdog/Makefile      |   1 +
->   drivers/watchdog/ziirave_wdt.c | 379 +++++++++++++++++++++++++++++++++++++++++
->   3 files changed, 391 insertions(+)
->   create mode 100644 drivers/watchdog/ziirave_wdt.c
+>   drivers/watchdog/asm9260_wdt.c | 403 +++++++++++++++++++++++++++++++++++++++++
+>   3 files changed, 414 insertions(+)
+>   create mode 100644 drivers/watchdog/asm9260_wdt.c
 >
 > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 7a8a6c6..816b5fb 100644
+> index c68edc1..9cd9b75 100644
 > --- a/drivers/watchdog/Kconfig
 > +++ b/drivers/watchdog/Kconfig
-> @@ -161,6 +161,17 @@ config XILINX_WATCHDOG
->   	  To compile this driver as a module, choose M here: the
->   	  module will be called of_xilinx_wdt.
+> @@ -173,6 +173,16 @@ config ARM_SP805_WATCHDOG
+>   	  ARM Primecell SP805 Watchdog timer. This will reboot your system when
+>   	  the timeout is reached.
 >
-> +config ZIIRAVE_WATCHDOG
-> +	tristate "Zodiac RAVE Watchdog Timer"
-> +	depends on I2C
+> +config ASM9260_WATCHDOG
+> +	tristate "Alphascale ASM9260 watchdog"
+> +	depends on MACH_ASM9260
+> +	depends on OF
 > +	select WATCHDOG_CORE
+> +	select RESET_CONTROLLER
 > +	help
-> +	  Watchdog driver for the Zodiac Aerospace RAVE Switch Watchdog
-> +	  Processor.
+> +	  Watchdog timer embedded into Alphascale asm9260 chips. This will reboot your
+> +	  system when the timeout is reached.
 > +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called ziirave_wdt.
-> +
->   # ALPHA Architecture
->
->   # ARM Architecture
+>   config AT91RM9200_WATCHDOG
+>   	tristate "AT91RM9200 watchdog"
+>   	depends on SOC_AT91RM9200 && MFD_SYSCON
 > diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index 53d4827..05ba23a 100644
+> index 0c616e3..bd7b0cd 100644
 > --- a/drivers/watchdog/Makefile
 > +++ b/drivers/watchdog/Makefile
-> @@ -190,5 +190,6 @@ obj-$(CONFIG_GPIO_WATCHDOG)	+= gpio_wdt.o
->   obj-$(CONFIG_WM831X_WATCHDOG) += wm831x_wdt.o
->   obj-$(CONFIG_WM8350_WATCHDOG) += wm8350_wdt.o
->   obj-$(CONFIG_MAX63XX_WATCHDOG) += max63xx_wdt.o
-> +obj-$(CONFIG_ZIIRAVE_WATCHDOG) += ziirave_wdt.o
->   obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
->   obj-$(CONFIG_MENF21BMC_WATCHDOG) += menf21bmc_wdt.o
-> diff --git a/drivers/watchdog/ziirave_wdt.c b/drivers/watchdog/ziirave_wdt.c
+> @@ -30,6 +30,7 @@ obj-$(CONFIG_USBPCWATCHDOG) += pcwd_usb.o
+>
+>   # ARM Architecture
+>   obj-$(CONFIG_ARM_SP805_WATCHDOG) += sp805_wdt.o
+> +obj-$(CONFIG_ASM9260_WATCHDOG) += asm9260_wdt.o
+>   obj-$(CONFIG_AT91RM9200_WATCHDOG) += at91rm9200_wdt.o
+>   obj-$(CONFIG_AT91SAM9X_WATCHDOG) += at91sam9_wdt.o
+>   obj-$(CONFIG_CADENCE_WATCHDOG) += cadence_wdt.o
+> diff --git a/drivers/watchdog/asm9260_wdt.c b/drivers/watchdog/asm9260_wdt.c
 > new file mode 100644
-> index 0000000..32078b9
+> index 0000000..1c22ff4
 > --- /dev/null
-> +++ b/drivers/watchdog/ziirave_wdt.c
-> @@ -0,0 +1,379 @@
+> +++ b/drivers/watchdog/asm9260_wdt.c
+> @@ -0,0 +1,403 @@
 > +/*
-> + * Copyright (C) 2015 Zodiac Inflight Innovations
+> + * Watchdog driver for Alphascale ASM9260.
 > + *
-> + * Author: Martyn Welch <martyn.welch@collabora.co.uk>
+> + * Copyright (c) 2014 Oleksij Rempel <linux@rempel-privat.de>
 > + *
-> + * Based on twl4030_wdt.c by Timo Kokkonen <timo.t.kokkonen at nokia.com>:
-> + *
-> + * Copyright (C) Nokia Corporation
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-> + * GNU General Public License for more details.
+> + * Licensed under GPLv2 or later.
 > + */
 > +
+> +#include <linux/bitops.h>
+> +#include <linux/clk.h>
+> +#include <linux/delay.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/io.h>
 > +#include <linux/module.h>
-> +#include <linux/types.h>
-> +#include <linux/slab.h>
-> +#include <linux/kernel.h>
+> +#include <linux/of.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/reboot.h>
+> +#include <linux/reset.h>
 > +#include <linux/watchdog.h>
-> +#include <linux/i2c.h>
-> +#include <linux/version.h>
-> +#include <linux/sysfs.h>
-
-Please order alphabetically.
-
 > +
-> +#define ZIIRAVE_TIMEOUT_MIN	3
-> +#define ZIIRAVE_TIMEOUT_MAX	255
+> +#define CLOCK_FREQ	1000000
 > +
-> +#define ZIIRAVE_PING_VALUE	0x0
+> +/* Watchdog Mode register */
+> +#define HW_WDMOD			0x00
+> +/* Wake interrupt. Set by HW, can't be cleared. */
+> +#define BM_MOD_WDINT			BIT(3)
+> +/* This bit set if timeout reached. Cleared by SW. */
+> +#define BM_MOD_WDTOF			BIT(2)
+> +/* HW Reset on timeout */
+> +#define BM_MOD_WDRESET			BIT(1)
+> +/* WD enable */
+> +#define BM_MOD_WDEN			BIT(0)
 > +
-> +#define ZIIRAVE_STATE_INITIAL	0x0
-> +#define ZIIRAVE_STATE_OFF	0x1
-> +#define ZIIRAVE_STATE_ON	0x2
+> +/*
+> + * Watchdog Timer Constant register
+> + * Minimal value is 0xff, the meaning of this value
+> + * depends on used clock: T = WDCLK * (0xff + 1) * 4
+> + */
+> +#define HW_WDTC				0x04
+> +#define BM_WDTC_MAX(freq)		(0x7fffffff / (freq))
 > +
-> +static char *ziirave_reasons[] = {"power cycle", "triggered", NULL, NULL,
-> +				  "host request", NULL, "illegal configuration",
-> +				  "illegal instruction", "illegal trap",
-> +				  "unknown"};
+> +/* Watchdog Feed register */
+> +#define HW_WDFEED			0x08
 > +
-> +#define ZIIRAVE_WDT_FIRM_VER_MAJOR	0x1
-> +#define ZIIRAVE_WDT_BOOT_VER_MAJOR	0x3
-> +#define ZIIRAVE_WDT_RESET_REASON	0x5
-> +#define ZIIRAVE_WDT_STATE		0x6
-> +#define ZIIRAVE_WDT_TIMEOUT		0x7
-> +#define ZIIRAVE_WDT_TIME_LEFT		0x8
-> +#define ZIIRAVE_WDT_PING		0x9
-> +#define ZIIRAVE_WDT_RESET_DURATION	0xa
+> +/* Watchdog Timer Value register */
+> +#define HW_WDTV				0x0c
 > +
-> +struct ziirave_wdt_rev {
-> +	unsigned char major;
-> +	unsigned char minor;
+> +#define ASM9260_WDT_DEFAULT_TIMEOUT	30
+> +
+> +enum asm9260_wdt_mode {
+> +	HW_RESET,
+> +	SW_RESET,
+> +	DEBUG,
 > +};
 > +
-> +struct ziirave_wdt_data {
-> +	struct watchdog_device wdd;
-> +	struct ziirave_wdt_rev bootloader_rev;
-> +	struct ziirave_wdt_rev firmware_rev;
-> +	int reset_reason;
+> +struct asm9260_wdt_priv {
+> +	struct device		*dev;
+> +	struct watchdog_device	wdd;
+> +	struct clk		*clk;
+> +	struct clk		*clk_ahb;
+> +	struct reset_control	*rst;
+> +	struct notifier_block	restart_handler;
+> +
+> +	void __iomem		*iobase;
+> +	int			irq;
+> +	unsigned long		wdt_freq;
+> +	enum asm9260_wdt_mode	mode;
 > +};
 > +
-> +static int wdt_timeout;
-> +module_param(wdt_timeout, int, 0);
-> +MODULE_PARM_DESC(wdt_timeout, "Watchdog timeout in seconds");
-> +
-> +static int reset_duration;
-> +module_param(reset_duration, int, 0);
-> +MODULE_PARM_DESC(reset_duration,
-> +		 "Watchdog reset pulse duration in milliseconds");
-> +
-> +static bool nowayout = WATCHDOG_NOWAYOUT;
-> +module_param(nowayout, bool, 0);
-> +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started default="
-> +		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-> +
-> +static int ziirave_wdt_revision(struct i2c_client *client,
-> +				    struct ziirave_wdt_rev *rev, u8 command)
-
-Please align continuation lines with '(', unless that would result in lines longer
-than 80 columns.
-
+> +static int asm9260_wdt_feed(struct watchdog_device *wdd)
 > +{
-> +	int ret;
+> +	struct asm9260_wdt_priv *priv = watchdog_get_drvdata(wdd);
 > +
-> +	ret = i2c_smbus_read_byte_data(client, command);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	rev->major = ret;
-> +
-> +	ret = i2c_smbus_read_byte_data(client, command + 1);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	rev->minor = ret;
+> +	iowrite32(0xaa, priv->iobase + HW_WDFEED);
+> +	iowrite32(0x55, priv->iobase + HW_WDFEED);
 > +
 > +	return 0;
 > +}
 > +
-> +static int ziirave_wdt_set_state(struct watchdog_device *wdd, int state)
+> +static unsigned int asm9260_wdt_gettimeleft(struct watchdog_device *wdd)
 > +{
-> +	struct i2c_client *client = to_i2c_client(wdd->parent);
+> +	struct asm9260_wdt_priv *priv = watchdog_get_drvdata(wdd);
+> +	u32 counter;
 > +
-> +	return i2c_smbus_write_byte_data(client, ZIIRAVE_WDT_STATE, state);
+> +	counter = ioread32(priv->iobase + HW_WDTV);
+> +
+> +	return DIV_ROUND_CLOSEST(counter, priv->wdt_freq);
 > +}
 > +
-> +static int ziirave_wdt_start(struct watchdog_device *wdd)
+> +static int asm9260_wdt_updatetimeout(struct watchdog_device *wdd)
 > +{
-> +	return ziirave_wdt_set_state(wdd, ZIIRAVE_STATE_ON);
+> +	struct asm9260_wdt_priv *priv = watchdog_get_drvdata(wdd);
+> +	u32 counter;
+> +
+> +	counter = wdd->timeout * priv->wdt_freq;
+> +
+> +	iowrite32(counter, priv->iobase + HW_WDTC);
+> +
+> +	return 0;
 > +}
 > +
-> +static int ziirave_wdt_stop(struct watchdog_device *wdd)
+> +static int asm9260_wdt_enable(struct watchdog_device *wdd)
 > +{
-> +	return ziirave_wdt_set_state(wdd, ZIIRAVE_STATE_OFF);
+> +	struct asm9260_wdt_priv *priv = watchdog_get_drvdata(wdd);
+> +	u32 mode = 0;
+> +
+> +	if (priv->mode == HW_RESET)
+> +		mode = BM_MOD_WDRESET;
+> +
+> +	iowrite32(BM_MOD_WDEN | mode, priv->iobase + HW_WDMOD);
+> +
+> +	asm9260_wdt_updatetimeout(wdd);
+> +
+> +	asm9260_wdt_feed(wdd);
+> +
+> +	return 0;
 > +}
 > +
-> +static int ziirave_wdt_ping(struct watchdog_device *wdd)
+> +static int asm9260_wdt_disable(struct watchdog_device *wdd)
 > +{
-> +	struct i2c_client *client = to_i2c_client(wdd->parent);
+> +	struct asm9260_wdt_priv *priv = watchdog_get_drvdata(wdd);
 > +
-> +	return i2c_smbus_write_byte_data(client, ZIIRAVE_WDT_PING,
-> +					 ZIIRAVE_PING_VALUE);
+> +	/* The only way to disable WD is to reset it. */
+> +	reset_control_assert(priv->rst);
+> +	reset_control_deassert(priv->rst);
+> +
+> +	return 0;
 > +}
 > +
-> +static int ziirave_wdt_set_timeout(struct watchdog_device *wdd,
-> +				   unsigned int timeout)
+> +static int asm9260_wdt_settimeout(struct watchdog_device *wdd, unsigned int to)
 > +{
-> +	struct i2c_client *client = to_i2c_client(wdd->parent);
-> +	int ret;
+> +	wdd->timeout = to;
+> +	asm9260_wdt_updatetimeout(wdd);
 > +
-> +	ret = i2c_smbus_write_byte_data(client, ZIIRAVE_WDT_TIMEOUT,
-> +					timeout);
-
-Please no unnecessary continuation lines.
-
-> +	if (!ret)
-> +		wdd->timeout = timeout;
-> +
-> +	return ret;
+> +	return 0;
 > +}
 > +
-> +static unsigned int ziirave_wdt_get_timeleft(struct watchdog_device *wdd)
+> +static void asm9260_wdt_sys_reset(struct asm9260_wdt_priv *priv)
 > +{
-> +	struct i2c_client *client = to_i2c_client(wdd->parent);
-> +	int ret;
+> +	/* init WD if it was not started */
 > +
-> +	ret = i2c_smbus_read_byte_data(client, ZIIRAVE_WDT_TIME_LEFT);
-> +	if (ret < 0)
-> +		ret = 0;
+> +	iowrite32(BM_MOD_WDEN | BM_MOD_WDRESET, priv->iobase + HW_WDMOD);
 > +
-> +	return ret;
+> +	iowrite32(0xff, priv->iobase + HW_WDTC);
+> +	/* first pass correct sequence */
+> +	asm9260_wdt_feed(&priv->wdd);
+> +	/*
+> +	 * Then write wrong pattern to the feed to trigger reset
+> +	 * ASAP.
+> +	 */
+> +	iowrite32(0xff, priv->iobase + HW_WDFEED);
+> +
+> +	mdelay(1000);
 > +}
 > +
-> +static const struct watchdog_info ziirave_wdt_info = {
-> +	.options = WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE | WDIOF_KEEPALIVEPING,
-> +	.identity = "Zodiac RAVE Watchdog",
-> +};
-> +
-> +static const struct watchdog_ops ziirave_wdt_ops = {
-> +	.owner		= THIS_MODULE,
-> +	.start		= ziirave_wdt_start,
-> +	.stop		= ziirave_wdt_stop,
-> +	.ping		= ziirave_wdt_ping,
-> +	.set_timeout	= ziirave_wdt_set_timeout,
-> +	.get_timeleft	= ziirave_wdt_get_timeleft,
-> +};
-> +
-> +static ssize_t ziirave_wdt_sysfs_show_firm(struct device *dev,
-> +					   struct device_attribute *attr,
-> +					   char *buf)
+> +static irqreturn_t asm9260_wdt_irq(int irq, void *devid)
 > +{
-> +	struct i2c_client *client = to_i2c_client(dev->parent);
-> +	struct ziirave_wdt_data *w_priv = i2c_get_clientdata(client);
+> +	struct asm9260_wdt_priv *priv = devid;
+> +	u32 stat;
 > +
-> +	return sprintf(buf, "02.%02u.%02u", w_priv->firmware_rev.major,
-> +		       w_priv->firmware_rev.minor);
-> +}
+> +	stat = ioread32(priv->iobase + HW_WDMOD);
+> +	if (!(stat & BM_MOD_WDINT))
+> +		return IRQ_NONE;
 > +
-> +static DEVICE_ATTR(firmware_version, S_IRUGO, ziirave_wdt_sysfs_show_firm,
-> +		   NULL);
-> +
-> +static ssize_t ziirave_wdt_sysfs_show_boot(struct device *dev,
-> +					   struct device_attribute *attr,
-> +					   char *buf)
-> +{
-> +	struct i2c_client *client = to_i2c_client(dev->parent);
-> +	struct ziirave_wdt_data *w_priv = i2c_get_clientdata(client);
-> +
-> +	return sprintf(buf, "01.%02u.%02u", w_priv->bootloader_rev.major,
-> +		       w_priv->bootloader_rev.minor);
-> +}
-> +
-> +static DEVICE_ATTR(bootloader_version, S_IRUGO, ziirave_wdt_sysfs_show_boot,
-> +		   NULL);
-> +
-> +static ssize_t ziirave_wdt_sysfs_show_reason(struct device *dev,
-> +					     struct device_attribute *attr,
-> +					     char *buf)
-> +{
-> +	struct i2c_client *client = to_i2c_client(dev->parent);
-> +	struct ziirave_wdt_data *w_priv = i2c_get_clientdata(client);
-> +
-> +	return sprintf(buf, "%s", ziirave_reasons[w_priv->reset_reason]);
-> +}
-> +
-> +static DEVICE_ATTR(reset_reason, S_IRUGO, ziirave_wdt_sysfs_show_reason,
-> +		   NULL);
-> +
-> +static struct attribute *ziirave_wdt_attrs[] = {
-> +	&dev_attr_firmware_version.attr,
-> +	&dev_attr_bootloader_version.attr,
-> +	&dev_attr_reset_reason.attr,
-> +	NULL
-> +};
-> +
-> +static const struct attribute_group ziirave_wdt_sysfs_files = {
-> +	.attrs  = ziirave_wdt_attrs,
-> +};
-> +
-> +static int ziirave_wdt_init_duration(struct i2c_client *client, int duration)
-> +{
-> +	int ret;
-> +
-> +	if (!duration) {
-> +		/* See if the reset pulse duration is provided in an of_node */
-> +		if (client->dev.of_node == NULL)
-> +			return -ENODEV;
-> +
-Please write as "if (!client->dev.of_node)" (see checkpatch --strict).
-
-Also, is it really necessary to mandate DT support ? There is no mandatory
-property to be read, so this driver would (or should) work fine on a non-DT
-system.
-
-> +		ret = of_property_read_u32(client->dev.of_node,
-> +					   "reset-duration-ms", &duration);
-
-reset-duration-ms is listed as optional property, thus it should not be an error
-if it is not provided. Can you set some default in this case ? Or do nothing ?
-
-> +		if (ret)
-> +			return ret;
+> +	if (priv->mode == DEBUG) {
+> +		dev_info(priv->dev, "Watchdog Timeout. Do nothing.\n");
+> +	} else {
+> +		dev_info(priv->dev, "Watchdog Timeout. Doing SW Reset.\n");
+> +		asm9260_wdt_sys_reset(priv);
 > +	}
 > +
-> +	if (duration < 1 || duration > 255)
-> +		return -EINVAL;
-> +
-> +	dev_info(&client->dev, "Setting reset duration to %dms", duration);
-> +
-> +	return i2c_smbus_write_byte_data(client, ZIIRAVE_WDT_RESET_DURATION,
-> +					 duration);
+> +	return IRQ_HANDLED;
 > +}
 > +
-> +static int ziirave_wdt_probe(struct i2c_client *client,
-> +			     const struct i2c_device_id *id)
+> +static int asm9260_restart_handler(struct notifier_block *this,
+> +				   unsigned long mode, void *cmd)
 > +{
+> +	struct asm9260_wdt_priv *priv =
+> +		container_of(this, struct asm9260_wdt_priv, restart_handler);
+> +
+> +	asm9260_wdt_sys_reset(priv);
+> +
+> +	return NOTIFY_DONE;
+> +}
+> +
+> +static const struct watchdog_info asm9260_wdt_ident = {
+> +	.options          =     WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING
+> +				| WDIOF_MAGICCLOSE,
+> +	.identity         =	"Alphascale asm9260 Watchdog",
+> +};
+> +
+> +static struct watchdog_ops asm9260_wdt_ops = {
+> +	.owner		= THIS_MODULE,
+> +	.start		= asm9260_wdt_enable,
+> +	.stop		= asm9260_wdt_disable,
+> +	.get_timeleft	= asm9260_wdt_gettimeleft,
+> +	.ping		= asm9260_wdt_feed,
+> +	.set_timeout	= asm9260_wdt_settimeout,
+> +};
+> +
+> +static int __init asm9260_wdt_get_dt_clks(struct asm9260_wdt_priv *priv)
+> +{
+> +	int err;
+> +	unsigned long clk;
+> +
+> +	priv->clk = devm_clk_get(priv->dev, "mod");
+> +	if (IS_ERR(priv->clk)) {
+> +		dev_err(priv->dev, "Failed to get \"mod\" clk\n");
+> +		return PTR_ERR(priv->clk);
+> +	}
+> +
+> +	/* configure AHB clock */
+> +	priv->clk_ahb = devm_clk_get(priv->dev, "ahb");
+> +	if (IS_ERR(priv->clk_ahb)) {
+> +		dev_err(priv->dev, "Failed to get \"ahb\" clk\n");
+> +		return PTR_ERR(priv->clk_ahb);
+> +	}
+> +
+> +	err = clk_prepare_enable(priv->clk_ahb);
+> +	if (err) {
+> +		dev_err(priv->dev, "Failed to enable ahb_clk!\n");
+> +		return err;
+> +	}
+> +
+> +	err = clk_set_rate(priv->clk, CLOCK_FREQ);
+> +	if (err) {
+> +		clk_disable_unprepare(priv->clk_ahb);
+> +		dev_err(priv->dev, "Failed to set rate!\n");
+> +		return err;
+> +	}
+> +
+> +	err = clk_prepare_enable(priv->clk);
+> +	if (err) {
+> +		clk_disable_unprepare(priv->clk_ahb);
+> +		dev_err(priv->dev, "Failed to enable clk!\n");
+> +		return err;
+> +	}
+> +
+> +	/* wdt has internal divider */
+> +	clk = clk_get_rate(priv->clk);
+> +	if (!clk) {
+> +		clk_disable_unprepare(priv->clk);
+> +		clk_disable_unprepare(priv->clk_ahb);
+> +		dev_err(priv->dev, "Failed, clk is 0!\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	priv->wdt_freq = clk / 2;
+> +
+> +	return 0;
+> +}
+> +
+> +static void __init asm9260_wdt_get_dt_mode(struct asm9260_wdt_priv *priv)
+> +{
+> +	const char *tmp;
 > +	int ret;
-> +	struct ziirave_wdt_data *w_priv;
-> +	int val;
 > +
-> +	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_BYTE_DATA))
-> +		return -ENODEV;
+> +	/* default mode */
+> +	priv->mode = HW_RESET;
 > +
-> +	w_priv = devm_kzalloc(&client->dev, sizeof(*w_priv), GFP_KERNEL);
-> +	if (!w_priv)
+> +	ret = of_property_read_string(priv->dev->of_node,
+> +				      "alphascale,mode", &tmp);
+> +	if (ret < 0)
+> +		return;
+> +
+> +	if (!strcmp(tmp, "hw"))
+> +		priv->mode = HW_RESET;
+> +	else if (!strcmp(tmp, "sw"))
+> +		priv->mode = SW_RESET;
+> +	else if (!strcmp(tmp, "debug"))
+> +		priv->mode = DEBUG;
+> +	else
+> +		dev_warn(priv->dev, "unknown reset-type: %s. Using default \"hw\" mode.",
+> +			 tmp);
+> +}
+> +
+> +static int __init asm9260_wdt_probe(struct platform_device *pdev)
+> +{
+> +	struct asm9260_wdt_priv *priv;
+> +	struct watchdog_device *wdd;
+> +	struct resource *res;
+> +	int ret;
+> +	const char * const mode_name[] = { "hw", "sw", "debug", };
+> +
+> +	priv = devm_kzalloc(&pdev->dev, sizeof(struct asm9260_wdt_priv),
+> +			    GFP_KERNEL);
+> +	if (!priv)
 > +		return -ENOMEM;
 > +
-> +	w_priv->wdd.info = &ziirave_wdt_info;
-> +	w_priv->wdd.ops = &ziirave_wdt_ops;
-> +	w_priv->wdd.min_timeout = ZIIRAVE_TIMEOUT_MIN;
-> +	w_priv->wdd.max_timeout = ZIIRAVE_TIMEOUT_MAX;
-> +	w_priv->wdd.parent = &client->dev;
+> +	priv->dev = &pdev->dev;
 > +
-> +	ret = watchdog_init_timeout(&w_priv->wdd, wdt_timeout, &client->dev);
-> +	if (ret) {
-> +		dev_info(&client->dev,
-> +			 "Unable to select timeout value, using default\n");
-> +	}
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	priv->iobase = devm_ioremap_resource(&pdev->dev, res);
+> +	if (IS_ERR(priv->iobase))
+> +		return PTR_ERR(priv->iobase);
+> +
+> +	ret = asm9260_wdt_get_dt_clks(priv);
+> +	if (ret)
+> +		return ret;
+> +
+> +	priv->rst = devm_reset_control_get(&pdev->dev, "wdt_rst");
+> +	if (IS_ERR(priv->rst))
+> +		return PTR_ERR(priv->rst);
+> +
+> +	wdd = &priv->wdd;
+> +	wdd->info = &asm9260_wdt_ident;
+> +	wdd->ops = &asm9260_wdt_ops;
+> +	wdd->min_timeout = 1;
+> +	wdd->max_timeout = BM_WDTC_MAX(priv->wdt_freq);
+> +	wdd->parent = &pdev->dev;
+> +
+> +	watchdog_set_drvdata(wdd, priv);
 > +
 > +	/*
-> +	 * The default value set in the watchdog should be perfectly valid, so
-> +	 * pass that in if we haven't provided one via the module parameter or
-> +	 * of property.
+> +	 * If 'timeout-sec' unspecified in devicetree, assume a 30 second
+> +	 * default, unless the max timeout is less than 30 seconds, then use
+> +	 * the max instead.
 > +	 */
-> +	if (w_priv->wdd.timeout == 0) {
-> +		val = i2c_smbus_read_byte_data(client, ZIIRAVE_WDT_TIMEOUT);
-> +		if (val < 0)
-> +			return val;
+> +	wdd->timeout = ASM9260_WDT_DEFAULT_TIMEOUT;
+> +	watchdog_init_timeout(wdd, 0, &pdev->dev);
 > +
-> +		if (val < ZIIRAVE_TIMEOUT_MIN)
-> +			return -ENODEV;
+> +	asm9260_wdt_get_dt_mode(priv);
 > +
-> +		w_priv->wdd.timeout = val;
-> +	} else {
-> +		ret = ziirave_wdt_set_timeout(&w_priv->wdd,
-> +					      w_priv->wdd.timeout);
-> +		if (ret)
-> +			return ret;
+> +	if (priv->mode != HW_RESET)
+> +		priv->irq = platform_get_irq(pdev, 0);
 > +
-> +		dev_info(&client->dev, "Timeout set to %ds.",
-> +			 w_priv->wdd.timeout);
+> +	if (priv->irq > 0) {
+> +		/*
+> +		 * Not all supported platforms specify an interrupt for the
+> +		 * watchdog, so let's make it optional.
+> +		 */
+> +		ret = devm_request_irq(&pdev->dev, priv->irq,
+> +				       asm9260_wdt_irq, 0, pdev->name, priv);
+> +		if (ret < 0)
+> +			dev_warn(&pdev->dev, "failed to request IRQ\n");
 > +	}
 > +
-> +	watchdog_set_nowayout(&w_priv->wdd, nowayout);
-> +
-> +	i2c_set_clientdata(client, w_priv);
-> +
-> +	/* If in unconfigured state, set to stopped */
-> +	val = i2c_smbus_read_byte_data(client, ZIIRAVE_WDT_STATE);
-> +	if (val < 0)
-> +		return val;
-> +
-> +	if (val == ZIIRAVE_STATE_INITIAL)
-> +		ziirave_wdt_stop(&w_priv->wdd);
-> +
-> +	ret = ziirave_wdt_init_duration(client, reset_duration);
+> +	ret = watchdog_register_device(wdd);
 > +	if (ret)
-> +		dev_info(&client->dev,
-> +			 "Unable to set reset pulse duration, using default\n");
+> +		goto clk_off;
 > +
-> +	ret = ziirave_wdt_revision(client, &w_priv->firmware_rev,
-> +				   ZIIRAVE_WDT_FIRM_VER_MAJOR);
+> +	platform_set_drvdata(pdev, priv);
+> +
+> +	priv->restart_handler.notifier_call = asm9260_restart_handler;
+> +	priv->restart_handler.priority = 128;
+> +	ret = register_restart_handler(&priv->restart_handler);
 > +	if (ret)
-> +		return ret;
+> +		dev_warn(&pdev->dev, "cannot register restart handler\n");
 > +
-> +	ret = ziirave_wdt_revision(client, &w_priv->bootloader_rev,
-> +				   ZIIRAVE_WDT_BOOT_VER_MAJOR);
-> +	if (ret)
-> +		return ret;
-> +
-> +	w_priv->reset_reason = i2c_smbus_read_byte_data(client,
-> +						ZIIRAVE_WDT_RESET_REASON);
-> +	if (w_priv->reset_reason < 0)
-> +		return w_priv->reset_reason;
-> +
-> +	if (w_priv->reset_reason >= ARRAY_SIZE(ziirave_reasons)
-> +	    || ziirave_reasons[w_priv->reset_reason] == NULL)
-> +		return -ENODEV;
-
-Per checkpatch:
-
-CHECK: Logical continuations should be on the previous line
-CHECK: Comparison to NULL could be written "!ziirave_reasons[w_priv->reset_reason]"
-
-> +
-> +	ret = watchdog_register_device(&w_priv->wdd);
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret = sysfs_create_group(&w_priv->wdd.dev->kobj,
-> +				 &ziirave_wdt_sysfs_files);
-> +	if (ret) {
-> +		watchdog_unregister_device(&w_priv->wdd);
-> +
-> +		return ret;
-> +	}
-> +
+> +	dev_info(&pdev->dev, "Watchdog enabled (timeout: %d sec, mode: %s)\n",
+> +		 wdd->timeout, mode_name[priv->mode]);
 > +	return 0;
+> +
+> +clk_off:
+> +	clk_disable_unprepare(priv->clk);
+> +	clk_disable_unprepare(priv->clk_ahb);
+> +	return ret;
 > +}
 > +
-> +static int ziirave_wdt_remove(struct i2c_client *client)
+> +static void asm9260_wdt_shutdown(struct platform_device *pdev)
 > +{
-> +	struct ziirave_wdt_data *w_priv = i2c_get_clientdata(client);
+> +	struct asm9260_wdt_priv *priv = platform_get_drvdata(pdev);
 > +
-> +	sysfs_remove_group(&client->dev.kobj, &ziirave_wdt_sysfs_files);
+> +	asm9260_wdt_disable(&priv->wdd);
+> +}
 > +
-> +	watchdog_unregister_device(&w_priv->wdd);
+> +static int __exit asm9260_wdt_remove(struct platform_device *pdev)
+> +{
+> +	struct asm9260_wdt_priv *priv = platform_get_drvdata(pdev);
+> +
+> +	asm9260_wdt_disable(&priv->wdd);
+> +
+> +	unregister_restart_handler(&priv->restart_handler);
+> +
+> +	watchdog_unregister_device(&priv->wdd);
+> +
+> +	clk_disable_unprepare(priv->clk);
+> +	clk_disable_unprepare(priv->clk_ahb);
 > +
 > +	return 0;
 > +}
 > +
-> +static struct i2c_device_id ziirave_wdt_id[] = {
-> +	{ "ziirave-wdt", 0 },
-> +	{ }
+> +static const struct of_device_id asm9260_wdt_of_match[] = {
+> +	{ .compatible = "alphascale,asm9260-wdt"},
+> +	{},
 > +};
-> +MODULE_DEVICE_TABLE(i2c, ziirave_wdt_id);
+> +MODULE_DEVICE_TABLE(of, asm9260_wdt_of_match);
 > +
-> +static const struct of_device_id zrv_wdt_of_match[] = {
-> +	{ .compatible = "zii,rave-wdt", },
-> +	{ },
-> +};
-> +MODULE_DEVICE_TABLE(of, zrv_wdt_of_match);
-> +
-> +static struct i2c_driver ziirave_wdt_driver = {
+> +static struct platform_driver asm9260_wdt_driver = {
 > +	.driver = {
-> +		.name = "ziirave_wdt",
-> +		.of_match_table = zrv_wdt_of_match,
+> +		.name = "asm9260-wdt",
+> +		.owner = THIS_MODULE,
+> +		.of_match_table	= asm9260_wdt_of_match,
 > +	},
-> +	.probe = ziirave_wdt_probe,
-> +	.remove = ziirave_wdt_remove,
-> +	.id_table = ziirave_wdt_id,
+> +	.probe = asm9260_wdt_probe,
+> +	.remove = asm9260_wdt_remove,
+> +	.shutdown = asm9260_wdt_shutdown,
 > +};
+> +module_platform_driver(asm9260_wdt_driver);
 > +
-> +module_i2c_driver(ziirave_wdt_driver);
-> +
-> +MODULE_AUTHOR("Martyn Welch <martyn.welch@collabora.co.uk");
-> +MODULE_DESCRIPTION("Zodiac Aerospace RAVE Switch Watchdog Processor Driver");
+> +MODULE_DESCRIPTION("asm9260 WatchDog Timer Driver");
+> +MODULE_AUTHOR("Oleksij Rempel <linux@rempel-privat.de>");
 > +MODULE_LICENSE("GPL");
-> +
 >
 
