@@ -1,80 +1,240 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.savoirfairelinux.com ([208.88.110.44]:34636 "EHLO
-	mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752707AbbKYWnz (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:52545 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751575AbbK3CbV (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 25 Nov 2015 17:43:55 -0500
-Date: Wed, 25 Nov 2015 17:43:51 -0500
-From: Damien Riegel <damien.riegel@savoirfairelinux.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-watchdog@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>,
-	kernel@savoirfairelinux.com
-Subject: Re: [PATCH v2 1/2] watchdog: core: call device_destroy before
- watchdog_dev_unregister
-Message-ID: <20151125224351.GC3627@localhost>
-References: <1448408745-26719-1-git-send-email-damien.riegel@savoirfairelinux.com>
- <56551ADB.3000107@roeck-us.net>
- <20151125170910.GA6095@localhost>
- <5655F680.5020408@roeck-us.net>
+	Sun, 29 Nov 2015 21:31:21 -0500
+Subject: Re: [PATCH v3 1/2] watchdog: core: create device before registering
+ char dev
+To: Damien Riegel <damien.riegel@savoirfairelinux.com>,
+	linux-watchdog@vger.kernel.org
+References: <1448570107-3106-1-git-send-email-damien.riegel@savoirfairelinux.com>
+Cc: Wim Van Sebroeck <wim@iguana.be>, kernel@savoirfairelinux.com
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <565BB4F6.800@roeck-us.net>
+Date: Sun, 29 Nov 2015 18:31:18 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5655F680.5020408@roeck-us.net>
+In-Reply-To: <1448570107-3106-1-git-send-email-damien.riegel@savoirfairelinux.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Nov 25, 2015 at 09:57:20AM -0800, Guenter Roeck wrote:
-> Hi Damien,
-> 
-> On 11/25/2015 09:09 AM, Damien Riegel wrote:
-> >On Tue, Nov 24, 2015 at 06:20:11PM -0800, Guenter Roeck wrote:
-> >>On 11/24/2015 03:45 PM, Damien Riegel wrote:
-> >>>device_create is called after watchdog_dev_register, so it makes more
-> >>>sense to call the cleanup functions in reverse order, ie. device_destroy
-> >>>before watchdog_dev_unregister.
-> >>>
-> >>>Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
-> >>
-> >>Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-> >>
-> >
-> >On second thought, I am wondering if the proper fix would not be to call
-> >device_create before watchdog_dev_register. Consider the following
-> >scenario:
-> >
-> >   watchdog_register_device
-> >     __watchdog_register_device
-> >	  watchdog_dev_register returns successfully, char dev is live
-> >       device_create fails, setting wdd->dev to an ERR_PTR
-> >	  ...
-> >	  meanwhile, a user opens the watchdog, hence ops->start is called.
-> >	  If ops->start uses wdd->dev (to print a debug message for
-> >	  instance), it will dereference an invalid pointer.
-> >
-> >Admittedly, it should be quite rare, but there is still a chance for a
-> >race condition here.
-> >
-> Only we should not have race conditions, and this might actually happen
-> if user space listens for a udev event on the character device, and device
-> creation is delayed for some reasons.
-> 
-> I think you are right, that is a problem. Back to the drawing board.
-> 
-> Ok, next question: Does it hurt to call device_create() first ?
-> That creates the sysfs entries for the driver.
+Hi Damien,
 
-I can't think of a case where it would be an issue to call
-device_create() first. After all, watchdog_dev_register just creates
-entries in /dev, so it makes sense to create them only when the watchdog
-is fully ready. I will send patches tomorrow.
+On 11/26/2015 12:35 PM, Damien Riegel wrote:
+> Currently, the entry in /dev is created before the device associated
+> with the watchdog is created. Therefore, a user can do operations on the
+> watchdog before it is fully ready.
+>
+> This patch changes order of operations to create the device first. As
+> the core might try to create the device with different ids, it is
+> simpler to group the device creation and the char device registration in
+> the same function. This commit also adds a counterpart function to group
+> unregistration and device destruction.
+>
+> Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
+> ---
+> Changes in v3:
+>   - changed order of operations to first create the device and then
+>     register the char dev. On cleanup, unregister then destroy.
+>
+> Changes in v2:
+>   - move call to device_destroy before watchdog_dev_unregister
+>
+>   drivers/watchdog/watchdog_core.c | 60 +++++++++++++++++++++++-----------------
+>   drivers/watchdog/watchdog_core.h |  1 +
+>   drivers/watchdog/watchdog_dev.c  |  7 ++++-
+>   3 files changed, 42 insertions(+), 26 deletions(-)
+>
+> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+> index 551af04..13a7a58 100644
+> --- a/drivers/watchdog/watchdog_core.c
+> +++ b/drivers/watchdog/watchdog_core.c
+> @@ -192,9 +192,39 @@ void watchdog_set_restart_priority(struct watchdog_device *wdd, int priority)
+>   }
+>   EXPORT_SYMBOL_GPL(watchdog_set_restart_priority);
+>
+> +static int __watchdog_create_register(struct watchdog_device *wdd)
 
-> 
-> If that doesn't work either, the only other idea I have would be to reject
-> an attempt to open the character device with -EAGAIN or similar if the
-> device node is not yet (or not anymore) available. Or maybe that would
-> be the correct approach anyway ? Or can we use some lock to synchronize
-> the two operations ?
-> 
-> Thanks,
-> Guenter
-> 
+Do we need the '__' here ? Seems unnecessary.
+After all, there is no public watchdog_create_register().
+
+> +{
+> +	dev_t devno;
+> +	int ret;
+> +
+> +	devno = watchdog_dev_get_devno(wdd);
+
+Maybe that explains the initialization order.
+
+In a way this is getting odd: The only reason for watchdog_dev_init()
+to exist is to initialize watchdog_devt, which is then returned by
+this function. Looking into the use of watchdog_devt in watchdog_dev.c,
+it is not actually needed there anymore: Its sole purpose is now to
+report it with watchdog_dev_get_devno(). The only other remaining use,
+
+		pr_err("watchdog%d unable to add device %d:%d\n",
+                         wdd->id,  MAJOR(watchdog_devt), wdd->id);
+
+could as well be replaced with
+
+		pr_err("watchdog%d unable to add device %d:%d\n",
+			wdd->id, MAJOR(devno), wdd->id);
+
+or even
+		pr_err("watchdog%d unable to add device %d:%d\n",
+			wdd->id, MAJOR(devno), MINOR(devno));
+
+Given that, maybe it would make sense to move watchdog_devt and its
+initialization to watchdog_core.c, and drop watchdog_dev_get_devno(),
+watchdog_dev_init(), and watchdog_dev_exit().
+
+What do you think ? More important, Wim, what do you think ?
+
+[ that should be separate patch, though ]
+
+> +	wdd->dev = device_create(watchdog_class, wdd->parent, devno,
+> +					wdd, "watchdog%d", wdd->id);
+
+Please align continuation lines with '('.
+
+> +	if (IS_ERR(wdd->dev))
+> +		return PTR_ERR(wdd->dev);
+> +
+> +	ret = watchdog_dev_register(wdd);
+> +	if (ret)
+> +		device_destroy(watchdog_class, devno);
+> +
+> +	return ret;
+> +}
+> +
+> +static void __watchdog_unregister_destroy(struct watchdog_device *wdd)
+
+Same as above - not sure if the '__' adds any value.
+
+> +{
+> +	dev_t devno = wdd->cdev.dev;
+> +	int ret;
+> +
+> +	ret = watchdog_dev_unregister(wdd);
+> +	if (ret)
+> +		pr_err("error unregistering /dev/watchdog (err=%d)\n", ret);
+> +	device_destroy(watchdog_class, devno);
+> +	wdd->dev = NULL;
+> +}
+> +
+>   static int __watchdog_register_device(struct watchdog_device *wdd)
+>   {
+> -	int ret, id = -1, devno;
+> +	int ret, id = -1;
+>
+>   	if (wdd == NULL || wdd->info == NULL || wdd->ops == NULL)
+>   		return -EINVAL;
+> @@ -228,7 +258,7 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
+>   		return id;
+>   	wdd->id = id;
+>
+> -	ret = watchdog_dev_register(wdd);
+> +	ret = __watchdog_create_register(wdd);
+>   	if (ret) {
+>   		ida_simple_remove(&watchdog_ida, id);
+>   		if (!(id == 0 && ret == -EBUSY))
+> @@ -240,23 +270,13 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
+>   			return id;
+>   		wdd->id = id;
+>
+> -		ret = watchdog_dev_register(wdd);
+> +		ret = __watchdog_create_register(wdd);
+>   		if (ret) {
+>   			ida_simple_remove(&watchdog_ida, id);
+>   			return ret;
+>   		}
+>   	}
+>
+> -	devno = wdd->cdev.dev;
+> -	wdd->dev = device_create(watchdog_class, wdd->parent, devno,
+> -					wdd, "watchdog%d", wdd->id);
+> -	if (IS_ERR(wdd->dev)) {
+> -		watchdog_dev_unregister(wdd);
+> -		ida_simple_remove(&watchdog_ida, id);
+> -		ret = PTR_ERR(wdd->dev);
+> -		return ret;
+> -	}
+> -
+>   	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status)) {
+>   		wdd->reboot_nb.notifier_call = watchdog_reboot_notifier;
+>
+> @@ -264,10 +284,8 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
+>   		if (ret) {
+>   			dev_err(wdd->dev, "Cannot register reboot notifier (%d)\n",
+>   				ret);
+> -			watchdog_dev_unregister(wdd);
+> -			device_destroy(watchdog_class, devno);
+> +			__watchdog_unregister_destroy(wdd);
+>   			ida_simple_remove(&watchdog_ida, wdd->id);
+> -			wdd->dev = NULL;
+>   			return ret;
+>   		}
+>   	}
+> @@ -311,9 +329,6 @@ EXPORT_SYMBOL_GPL(watchdog_register_device);
+>
+>   static void __watchdog_unregister_device(struct watchdog_device *wdd)
+>   {
+> -	int ret;
+> -	int devno;
+> -
+>   	if (wdd == NULL)
+>   		return;
+>
+> @@ -323,13 +338,8 @@ static void __watchdog_unregister_device(struct watchdog_device *wdd)
+>   	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status))
+>   		unregister_reboot_notifier(&wdd->reboot_nb);
+>
+> -	devno = wdd->cdev.dev;
+> -	ret = watchdog_dev_unregister(wdd);
+> -	if (ret)
+> -		pr_err("error unregistering /dev/watchdog (err=%d)\n", ret);
+> -	device_destroy(watchdog_class, devno);
+> +	__watchdog_unregister_destroy(wdd);
+>   	ida_simple_remove(&watchdog_ida, wdd->id);
+> -	wdd->dev = NULL;
+>   }
+>
+>   /**
+> diff --git a/drivers/watchdog/watchdog_core.h b/drivers/watchdog/watchdog_core.h
+> index 1c8d6b0..8c98164 100644
+> --- a/drivers/watchdog/watchdog_core.h
+> +++ b/drivers/watchdog/watchdog_core.h
+> @@ -35,3 +35,4 @@ extern int watchdog_dev_register(struct watchdog_device *);
+>   extern int watchdog_dev_unregister(struct watchdog_device *);
+>   extern struct class * __init watchdog_dev_init(void);
+>   extern void __exit watchdog_dev_exit(void);
+> +dev_t watchdog_dev_get_devno(struct watchdog_device *);
+> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+> index 21224bd..140a995 100644
+> --- a/drivers/watchdog/watchdog_dev.c
+> +++ b/drivers/watchdog/watchdog_dev.c
+> @@ -632,6 +632,11 @@ static struct miscdevice watchdog_miscdev = {
+>    *	thus we set it up like that.
+>    */
+>
+> +dev_t watchdog_dev_get_devno(struct watchdog_device *wdd)
+> +{
+> +	return MKDEV(MAJOR(watchdog_devt), wdd->id);
+> +}
+> +
+>   int watchdog_dev_register(struct watchdog_device *wdd)
+>   {
+>   	int err, devno;
+> @@ -652,7 +657,7 @@ int watchdog_dev_register(struct watchdog_device *wdd)
+>   	}
+>
+>   	/* Fill in the data structures */
+> -	devno = MKDEV(MAJOR(watchdog_devt), wdd->id);
+> +	devno = wdd->dev->devt;
+>   	cdev_init(&wdd->cdev, &watchdog_fops);
+>   	wdd->cdev.owner = wdd->ops->owner;
+>
+>
+
