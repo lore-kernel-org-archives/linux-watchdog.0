@@ -1,552 +1,101 @@
-Return-path: <martyn.welch@collabora.co.uk>
-Message-ID: <565C86DF.3080608@collabora.co.uk>
-Date: Mon, 30 Nov 2015 17:26:55 +0000
-From: Martyn Welch <martyn.welch@collabora.co.uk>
-MIME-Version: 1.0
-To: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck <wim@iguana.be>
-CC: linux-watchdog@vger.kernel.org
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:48552 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751484AbbK3SKl (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Mon, 30 Nov 2015 13:10:41 -0500
 Subject: Re: [PATCH v4] Zodiac Aerospace RAVE Switch Watchdog Processor Driver
-References: <5655CB45.50305@roeck-us.net> <1448471702-29001-1-git-send-email-martyn.welch@collabora.co.uk> <565C716B.1090206@roeck-us.net>
-In-Reply-To: <565C716B.1090206@roeck-us.net>
+To: Martyn Welch <martyn.welch@collabora.co.uk>,
+	Wim Van Sebroeck <wim@iguana.be>
+References: <5655CB45.50305@roeck-us.net>
+ <1448471702-29001-1-git-send-email-martyn.welch@collabora.co.uk>
+ <565C716B.1090206@roeck-us.net> <565C86DF.3080608@collabora.co.uk>
+Cc: linux-watchdog@vger.kernel.org
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <565C911B.5010400@roeck-us.net>
+Date: Mon, 30 Nov 2015 10:10:35 -0800
+MIME-Version: 1.0
+In-Reply-To: <565C86DF.3080608@collabora.co.uk>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On 30/11/15 15:55, Guenter Roeck wrote:
-> Hi Martyn,
->
-> On 11/25/2015 09:15 AM, Martyn Welch wrote:
->> This patch adds a driver for the Zodiac Aerospace RAVE Watchdog Procesor.
->> This device implements a watchdog timer, accessible over I2C.
+On 11/30/2015 09:26 AM, Martyn Welch wrote:
+> On 30/11/15 15:55, Guenter Roeck wrote:
+>> Hi Martyn,
 >>
-> Mostly there, still a few nitpicks and a problem with DT properties.
->
-> Thanks,
-> Guenter
->
->> Cc: Guenter Roeck <linux@roeck-us.net>
->> Signed-off-by: Martyn Welch <martyn.welch@collabora.co.uk>
->> ---
+>> On 11/25/2015 09:15 AM, Martyn Welch wrote:
+>>> This patch adds a driver for the Zodiac Aerospace RAVE Watchdog Procesor.
+>>> This device implements a watchdog timer, accessible over I2C.
+>>>
+>> Mostly there, still a few nitpicks and a problem with DT properties.
 >>
->> v2:
->>   - Improved error handling.
->>   - Correct indentation of split lines.
->>   - Remove unnecessary checks, casts and bracketing.
->>   - Remove sysfs entries provided by standard mechanisms.
->>   - Remove simple access functions.
->>   - Allocate wdd as a part of w_priv.
->>   - Add ability to set timeout from module parameter or device tree
->> property
->>     rather than through a sysfs entry.
->>   - Add ability to set reset duration from module parameter or device
->> tree
->>     property rather than through a sysfs entry.
->>
->> v3:
->>   - Correct naming of reset-duration-msec -> reset-duration-ms
->>   - Improved timeout logic (wasn't falling back to default, whoops.)
->>
->> v4:
->>   - Correct number of entries in ziirave_reasons array.
->>   - Remove unused defines and arrays.
->>   - Merge revision functions.
->>   - Remove unneeded range check.
->>   - Remove unneeded variables & initialisations.
->>   - Remove unused flags from i2c_check_functionality().
->>   - Move more initialisation before registration.
->>   - Check returned timeout value.
->>
->>   drivers/watchdog/Kconfig       |  11 ++
->>   drivers/watchdog/Makefile      |   1 +
->>   drivers/watchdog/ziirave_wdt.c | 379
->> +++++++++++++++++++++++++++++++++++++++++
->>   3 files changed, 391 insertions(+)
->>   create mode 100644 drivers/watchdog/ziirave_wdt.c
->>
->> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
->> index 7a8a6c6..816b5fb 100644
->> --- a/drivers/watchdog/Kconfig
->> +++ b/drivers/watchdog/Kconfig
->> @@ -161,6 +161,17 @@ config XILINX_WATCHDOG
->>         To compile this driver as a module, choose M here: the
->>         module will be called of_xilinx_wdt.
->>
->> +config ZIIRAVE_WATCHDOG
->> +    tristate "Zodiac RAVE Watchdog Timer"
->> +    depends on I2C
->> +    select WATCHDOG_CORE
->> +    help
->> +      Watchdog driver for the Zodiac Aerospace RAVE Switch Watchdog
->> +      Processor.
->> +
->> +      To compile this driver as a module, choose M here: the
->> +      module will be called ziirave_wdt.
->> +
->>   # ALPHA Architecture
->>
->>   # ARM Architecture
->> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
->> index 53d4827..05ba23a 100644
->> --- a/drivers/watchdog/Makefile
->> +++ b/drivers/watchdog/Makefile
->> @@ -190,5 +190,6 @@ obj-$(CONFIG_GPIO_WATCHDOG)    += gpio_wdt.o
->>   obj-$(CONFIG_WM831X_WATCHDOG) += wm831x_wdt.o
->>   obj-$(CONFIG_WM8350_WATCHDOG) += wm8350_wdt.o
->>   obj-$(CONFIG_MAX63XX_WATCHDOG) += max63xx_wdt.o
->> +obj-$(CONFIG_ZIIRAVE_WATCHDOG) += ziirave_wdt.o
->>   obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
->>   obj-$(CONFIG_MENF21BMC_WATCHDOG) += menf21bmc_wdt.o
->> diff --git a/drivers/watchdog/ziirave_wdt.c
->> b/drivers/watchdog/ziirave_wdt.c
->> new file mode 100644
->> index 0000000..32078b9
->> --- /dev/null
->> +++ b/drivers/watchdog/ziirave_wdt.c
->> @@ -0,0 +1,379 @@
->> +/*
->> + * Copyright (C) 2015 Zodiac Inflight Innovations
->> + *
->> + * Author: Martyn Welch <martyn.welch@collabora.co.uk>
->> + *
->> + * Based on twl4030_wdt.c by Timo Kokkonen <timo.t.kokkonen at
->> nokia.com>:
->> + *
->> + * Copyright (C) Nokia Corporation
->> + *
->> + * This program is free software; you can redistribute it and/or modify
->> + * it under the terms of the GNU General Public License as published by
->> + * the Free Software Foundation; either version 2 of the License, or
->> + * (at your option) any later version.
->> + *
->> + * This program is distributed in the hope that it will be useful,
->> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
->> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
->> + * GNU General Public License for more details.
->> + */
->> +
->> +#include <linux/module.h>
->> +#include <linux/types.h>
->> +#include <linux/slab.h>
->> +#include <linux/kernel.h>
->> +#include <linux/watchdog.h>
->> +#include <linux/i2c.h>
->> +#include <linux/version.h>
->> +#include <linux/sysfs.h>
->
-> Please order alphabetically.
->
+[ ... ]
 
-Will do.
+>>> +
+>>> +static int ziirave_wdt_init_duration(struct i2c_client *client, int
+>>> duration)
+>>> +{
 
->> +
->> +#define ZIIRAVE_TIMEOUT_MIN    3
->> +#define ZIIRAVE_TIMEOUT_MAX    255
->> +
->> +#define ZIIRAVE_PING_VALUE    0x0
->> +
->> +#define ZIIRAVE_STATE_INITIAL    0x0
->> +#define ZIIRAVE_STATE_OFF    0x1
->> +#define ZIIRAVE_STATE_ON    0x2
->> +
->> +static char *ziirave_reasons[] = {"power cycle", "triggered", NULL,
->> NULL,
->> +                  "host request", NULL, "illegal configuration",
->> +                  "illegal instruction", "illegal trap",
->> +                  "unknown"};
->> +
->> +#define ZIIRAVE_WDT_FIRM_VER_MAJOR    0x1
->> +#define ZIIRAVE_WDT_BOOT_VER_MAJOR    0x3
->> +#define ZIIRAVE_WDT_RESET_REASON    0x5
->> +#define ZIIRAVE_WDT_STATE        0x6
->> +#define ZIIRAVE_WDT_TIMEOUT        0x7
->> +#define ZIIRAVE_WDT_TIME_LEFT        0x8
->> +#define ZIIRAVE_WDT_PING        0x9
->> +#define ZIIRAVE_WDT_RESET_DURATION    0xa
->> +
->> +struct ziirave_wdt_rev {
->> +    unsigned char major;
->> +    unsigned char minor;
->> +};
->> +
->> +struct ziirave_wdt_data {
->> +    struct watchdog_device wdd;
->> +    struct ziirave_wdt_rev bootloader_rev;
->> +    struct ziirave_wdt_rev firmware_rev;
->> +    int reset_reason;
->> +};
->> +
->> +static int wdt_timeout;
->> +module_param(wdt_timeout, int, 0);
->> +MODULE_PARM_DESC(wdt_timeout, "Watchdog timeout in seconds");
->> +
->> +static int reset_duration;
->> +module_param(reset_duration, int, 0);
->> +MODULE_PARM_DESC(reset_duration,
->> +         "Watchdog reset pulse duration in milliseconds");
->> +
->> +static bool nowayout = WATCHDOG_NOWAYOUT;
->> +module_param(nowayout, bool, 0);
->> +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started
->> default="
->> +         __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
->> +
->> +static int ziirave_wdt_revision(struct i2c_client *client,
->> +                    struct ziirave_wdt_rev *rev, u8 command)
->
-> Please align continuation lines with '(', unless that would result in
-> lines longer
-> than 80 columns.
->
+Separate note: The "duration" parameter here doesn't really add value.
+It just reflects the module parameter. It would only make sense if the code
+to obtain the duration (either from reset_duration or from DT)
+would be in a separate function, such as in
 
-Opps - sorry missed one.
+	duration = ziirave_get_duration(client);
+	if (duration < 0)
+		return duration;
+	if (duration) {
+		ret = ziirave_wdt_init_duration(client, duration);
+		if (ret)
+			return ret;
+	}
 
->> +{
->> +    int ret;
->> +
->> +    ret = i2c_smbus_read_byte_data(client, command);
->> +    if (ret < 0)
->> +        return ret;
->> +
->> +    rev->major = ret;
->> +
->> +    ret = i2c_smbus_read_byte_data(client, command + 1);
->> +    if (ret < 0)
->> +        return ret;
->> +
->> +    rev->minor = ret;
->> +
->> +    return 0;
->> +}
->> +
->> +static int ziirave_wdt_set_state(struct watchdog_device *wdd, int state)
->> +{
->> +    struct i2c_client *client = to_i2c_client(wdd->parent);
->> +
->> +    return i2c_smbus_write_byte_data(client, ZIIRAVE_WDT_STATE, state);
->> +}
->> +
->> +static int ziirave_wdt_start(struct watchdog_device *wdd)
->> +{
->> +    return ziirave_wdt_set_state(wdd, ZIIRAVE_STATE_ON);
->> +}
->> +
->> +static int ziirave_wdt_stop(struct watchdog_device *wdd)
->> +{
->> +    return ziirave_wdt_set_state(wdd, ZIIRAVE_STATE_OFF);
->> +}
->> +
->> +static int ziirave_wdt_ping(struct watchdog_device *wdd)
->> +{
->> +    struct i2c_client *client = to_i2c_client(wdd->parent);
->> +
->> +    return i2c_smbus_write_byte_data(client, ZIIRAVE_WDT_PING,
->> +                     ZIIRAVE_PING_VALUE);
->> +}
->> +
->> +static int ziirave_wdt_set_timeout(struct watchdog_device *wdd,
->> +                   unsigned int timeout)
->> +{
->> +    struct i2c_client *client = to_i2c_client(wdd->parent);
->> +    int ret;
->> +
->> +    ret = i2c_smbus_write_byte_data(client, ZIIRAVE_WDT_TIMEOUT,
->> +                    timeout);
->
-> Please no unnecessary continuation lines.
->
+or similar.
 
-ok
-
->> +    if (!ret)
->> +        wdd->timeout = timeout;
->> +
->> +    return ret;
->> +}
->> +
->> +static unsigned int ziirave_wdt_get_timeleft(struct watchdog_device
->> *wdd)
->> +{
->> +    struct i2c_client *client = to_i2c_client(wdd->parent);
->> +    int ret;
->> +
->> +    ret = i2c_smbus_read_byte_data(client, ZIIRAVE_WDT_TIME_LEFT);
->> +    if (ret < 0)
->> +        ret = 0;
->> +
->> +    return ret;
->> +}
->> +
->> +static const struct watchdog_info ziirave_wdt_info = {
->> +    .options = WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE |
->> WDIOF_KEEPALIVEPING,
->> +    .identity = "Zodiac RAVE Watchdog",
->> +};
->> +
->> +static const struct watchdog_ops ziirave_wdt_ops = {
->> +    .owner        = THIS_MODULE,
->> +    .start        = ziirave_wdt_start,
->> +    .stop        = ziirave_wdt_stop,
->> +    .ping        = ziirave_wdt_ping,
->> +    .set_timeout    = ziirave_wdt_set_timeout,
->> +    .get_timeleft    = ziirave_wdt_get_timeleft,
->> +};
->> +
->> +static ssize_t ziirave_wdt_sysfs_show_firm(struct device *dev,
->> +                       struct device_attribute *attr,
->> +                       char *buf)
->> +{
->> +    struct i2c_client *client = to_i2c_client(dev->parent);
->> +    struct ziirave_wdt_data *w_priv = i2c_get_clientdata(client);
->> +
->> +    return sprintf(buf, "02.%02u.%02u", w_priv->firmware_rev.major,
->> +               w_priv->firmware_rev.minor);
->> +}
->> +
->> +static DEVICE_ATTR(firmware_version, S_IRUGO,
->> ziirave_wdt_sysfs_show_firm,
->> +           NULL);
->> +
->> +static ssize_t ziirave_wdt_sysfs_show_boot(struct device *dev,
->> +                       struct device_attribute *attr,
->> +                       char *buf)
->> +{
->> +    struct i2c_client *client = to_i2c_client(dev->parent);
->> +    struct ziirave_wdt_data *w_priv = i2c_get_clientdata(client);
->> +
->> +    return sprintf(buf, "01.%02u.%02u", w_priv->bootloader_rev.major,
->> +               w_priv->bootloader_rev.minor);
->> +}
->> +
->> +static DEVICE_ATTR(bootloader_version, S_IRUGO,
->> ziirave_wdt_sysfs_show_boot,
->> +           NULL);
->> +
->> +static ssize_t ziirave_wdt_sysfs_show_reason(struct device *dev,
->> +                         struct device_attribute *attr,
->> +                         char *buf)
->> +{
->> +    struct i2c_client *client = to_i2c_client(dev->parent);
->> +    struct ziirave_wdt_data *w_priv = i2c_get_clientdata(client);
->> +
->> +    return sprintf(buf, "%s", ziirave_reasons[w_priv->reset_reason]);
->> +}
->> +
->> +static DEVICE_ATTR(reset_reason, S_IRUGO, ziirave_wdt_sysfs_show_reason,
->> +           NULL);
->> +
->> +static struct attribute *ziirave_wdt_attrs[] = {
->> +    &dev_attr_firmware_version.attr,
->> +    &dev_attr_bootloader_version.attr,
->> +    &dev_attr_reset_reason.attr,
->> +    NULL
->> +};
->> +
->> +static const struct attribute_group ziirave_wdt_sysfs_files = {
->> +    .attrs  = ziirave_wdt_attrs,
->> +};
->> +
->> +static int ziirave_wdt_init_duration(struct i2c_client *client, int
->> duration)
->> +{
->> +    int ret;
->> +
->> +    if (!duration) {
->> +        /* See if the reset pulse duration is provided in an of_node */
->> +        if (client->dev.of_node == NULL)
->> +            return -ENODEV;
->> +
-> Please write as "if (!client->dev.of_node)" (see checkpatch --strict).
->
-
-ok
-
-> Also, is it really necessary to mandate DT support ? There is no mandatory
-> property to be read, so this driver would (or should) work fine on a non-DT
-> system.
->
-
-The error doesn't cause the probe to fail. If it takes that path, it 
-results in a message that the default value is being used and continues 
-with that.
-
->> +        ret = of_property_read_u32(client->dev.of_node,
->> +                       "reset-duration-ms", &duration);
->
-> reset-duration-ms is listed as optional property, thus it should not be
-> an error
-> if it is not provided. Can you set some default in this case ? Or do
-> nothing ?
->
-
-It takes module parameter, DT entry or falls back to built in default.
-
->> +        if (ret)
->> +            return ret;
->> +    }
->> +
->> +    if (duration < 1 || duration > 255)
->> +        return -EINVAL;
->> +
->> +    dev_info(&client->dev, "Setting reset duration to %dms", duration);
->> +
->> +    return i2c_smbus_write_byte_data(client, ZIIRAVE_WDT_RESET_DURATION,
->> +                     duration);
->> +}
->> +
->> +static int ziirave_wdt_probe(struct i2c_client *client,
->> +                 const struct i2c_device_id *id)
->> +{
->> +    int ret;
->> +    struct ziirave_wdt_data *w_priv;
->> +    int val;
->> +
->> +    if (!i2c_check_functionality(client->adapter,
->> I2C_FUNC_SMBUS_BYTE_DATA))
->> +        return -ENODEV;
->> +
->> +    w_priv = devm_kzalloc(&client->dev, sizeof(*w_priv), GFP_KERNEL);
->> +    if (!w_priv)
->> +        return -ENOMEM;
->> +
->> +    w_priv->wdd.info = &ziirave_wdt_info;
->> +    w_priv->wdd.ops = &ziirave_wdt_ops;
->> +    w_priv->wdd.min_timeout = ZIIRAVE_TIMEOUT_MIN;
->> +    w_priv->wdd.max_timeout = ZIIRAVE_TIMEOUT_MAX;
->> +    w_priv->wdd.parent = &client->dev;
->> +
->> +    ret = watchdog_init_timeout(&w_priv->wdd, wdt_timeout,
->> &client->dev);
->> +    if (ret) {
->> +        dev_info(&client->dev,
->> +             "Unable to select timeout value, using default\n");
->> +    }
->> +
->> +    /*
->> +     * The default value set in the watchdog should be perfectly
->> valid, so
->> +     * pass that in if we haven't provided one via the module
->> parameter or
->> +     * of property.
->> +     */
->> +    if (w_priv->wdd.timeout == 0) {
->> +        val = i2c_smbus_read_byte_data(client, ZIIRAVE_WDT_TIMEOUT);
->> +        if (val < 0)
->> +            return val;
->> +
->> +        if (val < ZIIRAVE_TIMEOUT_MIN)
->> +            return -ENODEV;
->> +
->> +        w_priv->wdd.timeout = val;
->> +    } else {
->> +        ret = ziirave_wdt_set_timeout(&w_priv->wdd,
->> +                          w_priv->wdd.timeout);
->> +        if (ret)
->> +            return ret;
->> +
->> +        dev_info(&client->dev, "Timeout set to %ds.",
->> +             w_priv->wdd.timeout);
->> +    }
->> +
->> +    watchdog_set_nowayout(&w_priv->wdd, nowayout);
->> +
->> +    i2c_set_clientdata(client, w_priv);
->> +
->> +    /* If in unconfigured state, set to stopped */
->> +    val = i2c_smbus_read_byte_data(client, ZIIRAVE_WDT_STATE);
->> +    if (val < 0)
->> +        return val;
->> +
->> +    if (val == ZIIRAVE_STATE_INITIAL)
->> +        ziirave_wdt_stop(&w_priv->wdd);
->> +
->> +    ret = ziirave_wdt_init_duration(client, reset_duration);
->> +    if (ret)
->> +        dev_info(&client->dev,
->> +             "Unable to set reset pulse duration, using default\n");
->> +
->> +    ret = ziirave_wdt_revision(client, &w_priv->firmware_rev,
->> +                   ZIIRAVE_WDT_FIRM_VER_MAJOR);
->> +    if (ret)
->> +        return ret;
->> +
->> +    ret = ziirave_wdt_revision(client, &w_priv->bootloader_rev,
->> +                   ZIIRAVE_WDT_BOOT_VER_MAJOR);
->> +    if (ret)
->> +        return ret;
->> +
->> +    w_priv->reset_reason = i2c_smbus_read_byte_data(client,
->> +                        ZIIRAVE_WDT_RESET_REASON);
->> +    if (w_priv->reset_reason < 0)
->> +        return w_priv->reset_reason;
->> +
->> +    if (w_priv->reset_reason >= ARRAY_SIZE(ziirave_reasons)
->> +        || ziirave_reasons[w_priv->reset_reason] == NULL)
->> +        return -ENODEV;
->
-> Per checkpatch:
->
-> CHECK: Logical continuations should be on the previous line
-> CHECK: Comparison to NULL could be written
-> "!ziirave_reasons[w_priv->reset_reason]"
->
-
-ok
-
->> +
->> +    ret = watchdog_register_device(&w_priv->wdd);
->> +    if (ret)
->> +        return ret;
->> +
->> +    ret = sysfs_create_group(&w_priv->wdd.dev->kobj,
->> +                 &ziirave_wdt_sysfs_files);
->> +    if (ret) {
->> +        watchdog_unregister_device(&w_priv->wdd);
->> +
->> +        return ret;
->> +    }
->> +
->> +    return 0;
->> +}
->> +
->> +static int ziirave_wdt_remove(struct i2c_client *client)
->> +{
->> +    struct ziirave_wdt_data *w_priv = i2c_get_clientdata(client);
->> +
->> +    sysfs_remove_group(&client->dev.kobj, &ziirave_wdt_sysfs_files);
->> +
->> +    watchdog_unregister_device(&w_priv->wdd);
->> +
->> +    return 0;
->> +}
->> +
->> +static struct i2c_device_id ziirave_wdt_id[] = {
->> +    { "ziirave-wdt", 0 },
->> +    { }
->> +};
->> +MODULE_DEVICE_TABLE(i2c, ziirave_wdt_id);
->> +
->> +static const struct of_device_id zrv_wdt_of_match[] = {
->> +    { .compatible = "zii,rave-wdt", },
->> +    { },
->> +};
->> +MODULE_DEVICE_TABLE(of, zrv_wdt_of_match);
->> +
->> +static struct i2c_driver ziirave_wdt_driver = {
->> +    .driver = {
->> +        .name = "ziirave_wdt",
->> +        .of_match_table = zrv_wdt_of_match,
->> +    },
->> +    .probe = ziirave_wdt_probe,
->> +    .remove = ziirave_wdt_remove,
->> +    .id_table = ziirave_wdt_id,
->> +};
->> +
->> +module_i2c_driver(ziirave_wdt_driver);
->> +
->> +MODULE_AUTHOR("Martyn Welch <martyn.welch@collabora.co.uk");
->> +MODULE_DESCRIPTION("Zodiac Aerospace RAVE Switch Watchdog Processor
->> Driver");
->> +MODULE_LICENSE("GPL");
->> +
+>>> +    int ret;
+>>> +
+>>> +    if (!duration) {
+>>> +        /* See if the reset pulse duration is provided in an of_node */
+>>> +        if (client->dev.of_node == NULL)
+>>> +            return -ENODEV;
+>>> +
+>> Please write as "if (!client->dev.of_node)" (see checkpatch --strict).
 >>
 >
+> ok
+>
+>> Also, is it really necessary to mandate DT support ? There is no mandatory
+>> property to be read, so this driver would (or should) work fine on a non-DT
+>> system.
+>>
+>
+> The error doesn't cause the probe to fail. If it takes that path, it results in a message that the default value is being used and continues with that.
+>
+>>> +        ret = of_property_read_u32(client->dev.of_node,
+>>> +                       "reset-duration-ms", &duration);
+>>
+>> reset-duration-ms is listed as optional property, thus it should not be
+>> an error
+>> if it is not provided. Can you set some default in this case ? Or do
+>> nothing ?
+>>
+>
+> It takes module parameter, DT entry or falls back to built in default.
+>
+
+Hmm, you are right. Problem with that though is that it also accepts _invalid_
+parameters.
+
+I think it would be better to only return an error if the value is really wrong,
+and abort in that case. Otherwise a duration of, say, 1000, will only result
+in "unable to set duration", which is likely going to be overlooked.
+
+The current code not distinguish between "no duration provided", "bad duration",
+and "duration not accepted by hardware". It seems to me that the latter two
+should be fatal and not just be ignored.
+
+Thanks,
+Guenter
+
