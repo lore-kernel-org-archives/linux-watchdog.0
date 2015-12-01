@@ -1,21 +1,18 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.101.70]:50388 "EHLO foss.arm.com"
+Received: from proxima.lp0.eu ([81.2.80.65]:58730 "EHLO proxima.lp0.eu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750761AbbLCRWo (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 3 Dec 2015 12:22:44 -0500
-Message-ID: <56607A5F.6090708@arm.com>
-Date: Thu, 03 Dec 2015 17:22:39 +0000
-From: Marc Zyngier <marc.zyngier@arm.com>
-MIME-Version: 1.0
-To: Simon Arlott <simon@fire.lp0.eu>,
-	Guenter Roeck <linux@roeck-us.net>,
+	id S1751997AbbLANCL (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 1 Dec 2015 08:02:11 -0500
+To: Guenter Roeck <linux@roeck-us.net>,
 	Thomas Gleixner <tglx@linutronix.de>
-CC: Florian Fainelli <f.fainelli@gmail.com>,
+From: Simon Arlott <simon@fire.lp0.eu>
+Cc: Florian Fainelli <f.fainelli@gmail.com>,
 	MIPS Mailing List <linux-mips@linux-mips.org>,
 	Jonas Gorski <jogo@openwrt.org>,
 	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
 	Ralf Baechle <ralf@linux-mips.org>,
 	Jason Cooper <jason@lakedaemon.net>,
+	Marc Zyngier <marc.zyngier@arm.com>,
 	Kevin Cernekee <cernekee@gmail.com>,
 	Wim Van Sebroeck <wim@iguana.be>,
 	Maxime Bizon <mbizon@freebox.fr>,
@@ -25,36 +22,134 @@ CC: Florian Fainelli <f.fainelli@gmail.com>,
 	Mark Rutland <mark.rutland@arm.com>,
 	Ian Campbell <ijc+devicetree@hellion.org.uk>,
 	Kumar Gala <galak@codeaurora.org>
-Subject: Re: [PATCH 02/11] MIPS: bmips: Add bcm6345-l2-timer interrupt controller
-References: <565D9A40.60409@simon.arlott.org.uk> <565D9A73.3000500@simon.arlott.org.uk>
-In-Reply-To: <565D9A73.3000500@simon.arlott.org.uk>
+Subject: [PATCH 01/11] clocksource: Add brcm,bcm6345-timer/brcm,bcm6318-timer
+ device tree binding
+Message-ID: <565D9A40.60409@simon.arlott.org.uk>
+Date: Tue, 1 Dec 2015 13:01:52 +0000
+MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 01/12/15 13:02, Simon Arlott wrote:
-> Add the BCM6345/BCM6318 timer as an interrupt controller so that it can be
-> used by the watchdog to warn that its timer will expire soon.
-> 
-> Support for clocksource/clockevents is not implemented as the timer
-> interrupt is not per CPU (except on the BCM6318) and the MIPS clock is
-> better. This could be added later if required without changing the device
-> tree binding.
-> 
-> Signed-off-by: Simon Arlott <simon@fire.lp0.eu>
-> ---
->  drivers/irqchip/Kconfig                |   5 +
->  drivers/irqchip/Makefile               |   1 +
->  drivers/irqchip/irq-bcm6345-l2-timer.c | 386 +++++++++++++++++++++++++++++++++
->  3 files changed, 392 insertions(+)
->  create mode 100644 drivers/irqchip/irq-bcm6345-l2-timer.c
+Add device tree bindings for the BCM6345/BCM6318 timers. This is required
+for the BCM6345 watchdog which needs to respond to one of the timer
+interrupts.
 
-I'm not sure how useful it is to have a bunch of timers that are just
-turned off, but from an irqchip PoV:
+Signed-off-by: Simon Arlott <simon@fire.lp0.eu>
+Acked-by: Rob Herring <robh@kernel.org>
+---
+ .../bindings/timer/brcm,bcm6318-timer.txt          | 44 ++++++++++++++++++++
+ .../bindings/timer/brcm,bcm6345-timer.txt          | 47 ++++++++++++++++++++++
+ 2 files changed, 91 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/timer/brcm,bcm6318-timer.txt
+ create mode 100644 Documentation/devicetree/bindings/timer/brcm,bcm6345-timer.txt
 
-Acked-by: Marc Zyngier <marc.zyngier@arm.com>
-
-	M.
+diff --git a/Documentation/devicetree/bindings/timer/brcm,bcm6318-timer.txt b/Documentation/devicetree/bindings/timer/brcm,bcm6318-timer.txt
+new file mode 100644
+index 0000000..cf4be7e
+--- /dev/null
++++ b/Documentation/devicetree/bindings/timer/brcm,bcm6318-timer.txt
+@@ -0,0 +1,44 @@
++Broadcom BCM6318 Timer
++
++This block is a timer that is connected to multiple interrupts on the main
++interrupt controller and functions as a programmable interrupt controller for
++timer events. There is a main timer interrupt for all timers.
++
++- 4 independent timers with their own interrupt, and own maskable level
++  interrupt bit in the main timer interrupt
++
++- 1 watchdog timer with an unmaskable level interrupt bit in the main timer
++  interrupt
++
++- Contains one enable/status word pair
++
++- No atomic set/clear operations
++
++Required properties:
++
++- compatible: should be "brcm,bcm<soc>-timer", "brcm,bcm6318-timer"
++- reg: specifies the base physical address and size of the registers, excluding
++  the watchdog registers
++- interrupt-controller: identifies the node as an interrupt controller
++- #interrupt-cells: specifies the number of cells needed to encode an interrupt
++  source, should be 1.
++- interrupt-parent: specifies the phandle to the parent interrupt controller(s)
++  this one is cascaded from
++- interrupts: specifies the interrupt line(s) in the interrupt-parent controller
++  node for the main timer interrupt, followed by the individual timer
++  interrupts; valid values depend on the type of parent interrupt controller
++- clocks: phandle of timer reference clock (periph)
++
++Example:
++
++timer: timer@10000040 {
++	compatible = "brcm,bcm63148-timer", "brcm,bcm6318-timer";
++	reg = <0x10000040 0x28>;
++
++	interrupt-controller;
++	#interrupt-cells = <1>;
++
++	interrupt-parent = <&periph_intc>;
++	interrupts = <31>, <0>, <1>, <2>, <3>;
++	clock = <&periph_osc>;
++};
+diff --git a/Documentation/devicetree/bindings/timer/brcm,bcm6345-timer.txt b/Documentation/devicetree/bindings/timer/brcm,bcm6345-timer.txt
+new file mode 100644
+index 0000000..03250dd
+--- /dev/null
++++ b/Documentation/devicetree/bindings/timer/brcm,bcm6345-timer.txt
+@@ -0,0 +1,47 @@
++Broadcom BCM6345 Timer
++
++This block is a timer that is connected to one interrupt on the main interrupt
++controller and functions as a programmable interrupt controller for timer
++events.
++
++- 3 independent timers with their own maskable level interrupt bit (but not
++  per CPU because there is only one parent interrupt and the timers share it)
++
++- 1 watchdog timer with an unmaskable level interrupt
++
++- Contains one enable/status word pair
++
++- No atomic set/clear operations
++
++The lack of per CPU ability of timers makes them unusable as a set of
++clockevent devices, otherwise they could be attached to the remaining
++interrupts.
++
++Required properties:
++
++- compatible: should be "brcm,bcm<soc>-timer", "brcm,bcm6345-timer"
++- reg: specifies the base physical address and size of the registers, excluding
++  the watchdog registers
++- interrupt-controller: identifies the node as an interrupt controller
++- #interrupt-cells: specifies the number of cells needed to encode an interrupt
++  source, should be 1.
++- interrupt-parent: specifies the phandle to the parent interrupt controller(s)
++  this one is cascaded from
++- interrupts: specifies the interrupt line(s) in the interrupt-parent controller
++  node for the timer interrupt; valid values depend on the type of parent
++  interrupt controller
++- clocks: phandle of timer reference clock (periph)
++
++Example:
++
++timer: timer@10000080 {
++	compatible = "brcm,bcm63168-timer", "brcm,bcm6345-timer";
++	reg = <0x10000080 0x1c>;
++
++	interrupt-controller;
++	#interrupt-cells = <1>;
++
++	interrupt-parent = <&periph_intc>;
++	interrupts = <0>;
++	clock·=·<&periph_osc>;
++};
 -- 
-Jazz is not dead. It just smells funny...
+2.1.4
+
+-- 
+Simon Arlott
