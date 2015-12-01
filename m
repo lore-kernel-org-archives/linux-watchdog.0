@@ -1,71 +1,396 @@
-Return-path: <tomas.winkler@intel.com>
-From: "Winkler, Tomas" <tomas.winkler@intel.com>
-To: "linux@roeck-us.net" <linux@roeck-us.net>, "gregkh@linuxfoundation.org"
-	<gregkh@linuxfoundation.org>, "wim@iguana.be" <wim@iguana.be>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Usyskin,
- Alexander" <alexander.usyskin@intel.com>, "linux-watchdog@vger.kernel.org"
-	<linux-watchdog@vger.kernel.org>
-Subject: Re: [char-misc-next 6/6] mei: wd: re-register device on event
-Date: Tue, 1 Dec 2015 11:59:38 +0000
-Message-ID: <1448971132.30677.20.camel@intel.com>
-References: <1448541081-11299-1-git-send-email-tomas.winkler@intel.com>
-	 <1448541081-11299-7-git-send-email-tomas.winkler@intel.com>
-	 <565C8281.9070909@roeck-us.net>
-In-Reply-To: <565C8281.9070909@roeck-us.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <08226932A9824D4B97AD01152F456F83@intel.com>
-Content-Transfer-Encoding: base64
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:33826 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755924AbbLAJnN (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 1 Dec 2015 04:43:13 -0500
+Subject: Re: [PATCH v3] watchdog: atlas7: add watchdog driver of CSRatlas7
+To: Barry Song <21cnbao@gmail.com>, wim@iguana.be,
+	linux-watchdog@vger.kernel.org
+References: <1448955825-17115-1-git-send-email-21cnbao@gmail.com>
+Cc: workgroup.linux@csr.com, Guo Zeng <Guo.Zeng@csr.com>,
+	William Wang <William.Wang@csr.com>,
+	Barry Song <Baohua.Song@csr.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <565D6BAD.6070609@roeck-us.net>
+Date: Tue, 1 Dec 2015 01:43:09 -0800
 MIME-Version: 1.0
-List-ID: <linux-watchdog@vger.kernel.org>
+In-Reply-To: <1448955825-17115-1-git-send-email-21cnbao@gmail.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-T24gTW9uLCAyMDE1LTExLTMwIGF0IDA5OjA4IC0wODAwLCBHdWVudGVyIFJvZWNrIHdyb3RlOg0K
-PiBPbiAxMS8yNi8yMDE1IDA0OjMxIEFNLCBUb21hcyBXaW5rbGVyIHdyb3RlOg0KPiA+IEZyb206
-IEFsZXhhbmRlciBVc3lza2luIDxhbGV4YW5kZXIudXN5c2tpbkBpbnRlbC5jb20+DQo+ID4gDQo+
-ID4gRm9yIEludGVsIFNLTCBwbGF0Zm9ybSB0aGUgTUUgZGV2aWNlIGNhbiBpbmZvcm0gdGhlIGhv
-c3QgdmlhDQo+ID4gYXN5bmNocm9ub3VzIG5vdGlmaWNhdGlvbiB0aGF0IHRoZSB3YXRjaGRvZyBm
-ZWF0dXJlIHdhcyBhY3RpdmF0ZWQNCj4gPiBvbiB0aGUNCj4gPiBkZXZpY2UuIFRoZSBhY3RpdmF0
-aW9uIGRvZXNuJ3QgcmVxdWlyZSByZWJvb3QuDQo+ID4gSW4gdGhhdCBjYXNlIHRoZSBkcml2ZXIg
-cmVnaXN0ZXIgdGhlIHdhdGNoZG9nIGRldmljZSB3aXRoIHRoZQ0KPiA+IGtlcm5lbC4NCj4gPiAN
-Cj4gDQo+IENhbiB0aGUgd2F0Y2hkb2cgZGV2aWNlIGFsc28gYmUgZGlzYWJsZWQgb24gdGhlIGZs
-eSA/DQpZZXMsIGl0IGNhbiBiZSBkaXNhYmxlZCBhbHNvIG9uIHRoZSBmbHksIGJ1dCB0aGlzIGlz
-IG5vdCBkZWxpdmVyZWQgdmlhDQphbiBldmVudCwgdGhpcyBpcyBoYW5kbGVkIHZpYSBwaW5nIHJl
-dHVybiB2YWx1ZS4gDQoNCj4gDQo+ID4gU2lnbmVkLW9mZi1ieTogQWxleGFuZGVyIFVzeXNraW4g
-PGFsZXhhbmRlci51c3lza2luQGludGVsLmNvbT4NCj4gPiBTaWduZWQtb2ZmLWJ5OiBUb21hcyBX
-aW5rbGVyIDx0b21hcy53aW5rbGVyQGludGVsLmNvbT4NCj4gPiAtLS0NCj4gPiAgIGRyaXZlcnMv
-d2F0Y2hkb2cvbWVpX3dkdC5jIHwgMjYgKysrKysrKysrKysrKysrKysrKysrKysrLS0NCj4gPiAg
-IDEgZmlsZSBjaGFuZ2VkLCAyNCBpbnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQ0KPiA+IA0K
-PiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3dhdGNoZG9nL21laV93ZHQuYw0KPiA+IGIvZHJpdmVy
-cy93YXRjaGRvZy9tZWlfd2R0LmMNCj4gPiBpbmRleCA0N2YwZGMyZTgyMmEuLmVlM2I1ZDEyYjFi
-MiAxMDA2NDQNCj4gPiAtLS0gYS9kcml2ZXJzL3dhdGNoZG9nL21laV93ZHQuYw0KPiA+ICsrKyBi
-L2RyaXZlcnMvd2F0Y2hkb2cvbWVpX3dkdC5jDQo+ID4gQEAgLTI3OSw2ICsyNzksMjEgQEAgb3V0
-Og0KPiA+ICAgCQljb21wbGV0ZSgmd2R0LT5yZXNwb25zZSk7DQo+ID4gICB9DQo+ID4gDQo+ID4g
-Ky8qDQo+ID4gKyAqIG1laV93ZHRfZXZlbnRfbm90aWYgLSBjYWxsYmFjayBmb3Igbm90aWZpY2F0
-aW9uDQo+ID4gKyAqDQo+ID4gKyAqIEBjbGRldjogYnVzIGRldmljZQ0KPiA+ICsgKi8NCj4gPiAr
-c3RhdGljIHZvaWQgbWVpX3dkdF9ldmVudF9ub3RpZihzdHJ1Y3QgbWVpX2NsX2RldmljZSAqY2xk
-ZXYpDQo+ID4gK3sNCj4gPiArCXN0cnVjdCBtZWlfd2R0ICp3ZHQgPSBtZWlfY2xkZXZfZ2V0X2Ry
-dmRhdGEoY2xkZXYpOw0KPiA+ICsNCj4gPiArCWlmICh3ZHQtPnN0YXRlID09IE1FSV9XRFRfTk9U
-X1JFUVVJUkVEKSB7DQo+ID4gKwkJbWVpX3dkdF9yZWdpc3Rlcih3ZHQpOw0KPiA+ICsJCXdkdC0+
-c3RhdGUgPSBNRUlfV0RUX0lETEU7DQo+ID4gKwl9DQo+ID4gK30NCj4gPiArDQo+ID4gICAvKioN
-Cj4gPiAgICAqIG1laV93ZHRfZXZlbnQgLSBjYWxsYmFjayBmb3IgZXZlbnQgcmVjZWl2ZQ0KPiA+
-ICAgICoNCj4gPiBAQCAtMjkxLDYgKzMwNiw5IEBAIHN0YXRpYyB2b2lkIG1laV93ZHRfZXZlbnQo
-c3RydWN0IG1laV9jbF9kZXZpY2UNCj4gPiAqY2xkZXYsDQo+ID4gICB7DQo+ID4gICAJaWYgKGV2
-ZW50cyAmIEJJVChNRUlfQ0xfRVZFTlRfUlgpKQ0KPiA+ICAgCQltZWlfd2R0X2V2ZW50X3J4KGNs
-ZGV2KTsNCj4gPiArDQo+ID4gKwlpZiAoZXZlbnRzICYgQklUKE1FSV9DTF9FVkVOVF9OT1RJRikp
-DQo+ID4gKwkJbWVpX3dkdF9ldmVudF9ub3RpZihjbGRldik7DQo+ID4gICB9DQo+ID4gDQo+ID4g
-ICAvKioNCj4gPiBAQCAtNDY2LDkgKzQ4NCwxMyBAQCBzdGF0aWMgaW50IG1laV93ZHRfcHJvYmUo
-c3RydWN0IG1laV9jbF9kZXZpY2UNCj4gPiAqY2xkZXYsDQo+ID4gDQo+ID4gICAJd2RfaW5mby5m
-aXJtd2FyZV92ZXJzaW9uID0gbWVpX2NsZGV2X3ZlcihjbGRldik7DQo+ID4gDQo+ID4gLQlyZXQg
-PSBtZWlfY2xkZXZfcmVnaXN0ZXJfZXZlbnRfY2Iod2R0LT5jbGRldiwNCj4gPiBCSVQoTUVJX0NM
-X0VWRU5UX1JYKSwNCj4gPiArCXJldCA9IG1laV9jbGRldl9yZWdpc3Rlcl9ldmVudF9jYih3ZHQt
-PmNsZGV2LA0KPiA+ICsJCQkJCSAgQklUKE1FSV9DTF9FVkVOVF9SWCkgfA0KPiA+ICsJCQkJCSAg
-QklUKE1FSV9DTF9FVkVOVF9OT1RJRiksDQo+ID4gICAJCQkJCSAgbWVpX3dkdF9ldmVudCwgTlVM
-TCk7DQo+ID4gLQlpZiAocmV0KSB7DQo+ID4gKw0KPiA+ICsJLyogb24gbGVnYWN5IGRldmljZXMg
-bm90aWZpY2F0aW9uIGlzIG5vdCBzdXBwb3J0ZWQgKi8NCj4gPiArCWlmIChyZXQgJiYgcmV0ICE9
-IC1FT1BOT1RTVVBQKSB7DQo+ID4gICAJCWRldl9lcnIoJmNsZGV2LT5kZXYsICJDb3VsZCBub3Qg
-cmVnaXN0ZXIgZXZlbnQNCj4gPiByZXQ9JWRcbiIsIHJldCk7DQo+ID4gICAJCWdvdG8gZXJyX2Rp
-c2FibGU7DQo+ID4gICAJfQ0KPiA+IA0KPiBEb2Vzbid0IHRoYXQgbWVhbiwgdGhvdWdoLCB0aGF0
-IHRoZSBSWCBldmVudCBpcyBub3QgcmVnaXN0ZXJlZA0KPiBlaXRoZXIsDQo+IGV2ZW4gaWYgaXQg
-aXMgc3VwcG9ydGVkID8gSWYgc28sIHNob3VsZCB5b3UgcmV0cnkgYW5kIHJlZ2lzdGVyIG9ubHkN
-Cj4gTUVJX0NMX0VWRU5UX1JYID8NCg0KVGhlIGNvZGUgaXMgY29ycmVjdCBidXQgd2UgZGVmaW5p
-dGVseSBuZWVkIHRvIHRoaW5rIG9mIGJldHRlciBBUEkgDQpUb21hcw0K
+On 11/30/2015 11:43 PM, Barry Song wrote:
+> From: Guo Zeng <Guo.Zeng@csr.com>
+>
+> This patch adds watchdog driver for CSRatlas7 platform.
+> On CSRatlas7, the 6th timer can act as a watchdog timer
+> when the Watchdog mode is enabled.
+>
+> Cc: Guenter Roeck <linux@roeck-us.net>
+> Signed-off-by: Guo Zeng <Guo.Zeng@csr.com>
+> Signed-off-by: William Wang <William.Wang@csr.com>
+> Signed-off-by: Barry Song <Baohua.Song@csr.com>
+
+Are those people all in the sign-off path, or just somehow involved
+in writing the code ?
+
+> ---
+>   -v3: fix issues according to Guenter's comments
+>    1. rename updatetimeout to ping
+>    2. drop redundant calling ping in set_timeout
+>    3. fix the error handler in probe
+>    4. move to __maybe_unused for suspend/resume entries
+>    5. fix the min and max timeout
+>    6. clean up clear ugly codes for timeout set
+>
+>   drivers/watchdog/Kconfig      |  10 ++
+>   drivers/watchdog/Makefile     |   1 +
+>   drivers/watchdog/atlas7_wdt.c | 249 ++++++++++++++++++++++++++++++++++++++++++
+>   3 files changed, 260 insertions(+)
+>   create mode 100644 drivers/watchdog/atlas7_wdt.c
+>
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index 1c427be..52b308f 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -578,6 +578,16 @@ config LPC18XX_WATCHDOG
+>   	  To compile this driver as a module, choose M here: the
+>   	  module will be called lpc18xx_wdt.
+>
+> +config ATLAS7_WATCHDOG
+> +	tristate "CSRatlas7 watchdog"
+> +	depends on ARCH_ATLAS7
+> +	help
+> +	  Say Y here to include Watchdog timer support for the watchdog
+> +	  existing on the CSRatlas7 series platforms.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called atlas7_wdt.
+> +
+>   # AVR32 Architecture
+>
+>   config AT32AP700X_WDT
+> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> index 53d4827..e2bc52c 100644
+> --- a/drivers/watchdog/Makefile
+> +++ b/drivers/watchdog/Makefile
+> @@ -69,6 +69,7 @@ obj-$(CONFIG_MEDIATEK_WATCHDOG) += mtk_wdt.o
+>   obj-$(CONFIG_DIGICOLOR_WATCHDOG) += digicolor_wdt.o
+>   obj-$(CONFIG_LPC18XX_WATCHDOG) += lpc18xx_wdt.o
+>   obj-$(CONFIG_BCM7038_WDT) += bcm7038_wdt.o
+> +obj-$(CONFIG_ATLAS7_WATCHDOG) += atlas7_wdt.o
+>
+>   # AVR32 Architecture
+>   obj-$(CONFIG_AT32AP700X_WDT) += at32ap700x_wdt.o
+> diff --git a/drivers/watchdog/atlas7_wdt.c b/drivers/watchdog/atlas7_wdt.c
+> new file mode 100644
+> index 0000000..4f191fe
+> --- /dev/null
+> +++ b/drivers/watchdog/atlas7_wdt.c
+> @@ -0,0 +1,249 @@
+> +/*
+> + * Watchdog driver for CSRatlas7
+> + *
+> + * Copyright (c) 2015 Cambridge Silicon Radio Limited, a CSR plc group company.
+> + *
+> + * Licensed under GPLv2 or later.
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/watchdog.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/moduleparam.h>
+> +#include <linux/of.h>
+> +#include <linux/io.h>
+> +#include <linux/uaccess.h>
+
+Not required.
+
+> +#include <linux/clk.h>
+> +
+Please order include files alphabetically.
+
+> +#define ATLAS7_TIMER_WDT_INDEX		5
+> +#define ATLAS7_WDT_DEFAULT_TIMEOUT	20		/* 20 secs */
+> +
+> +#define ATLAS7_WDT_CNT_CTRL	0
+> +#define ATLAS7_WDT_CNT_MATCH	0x18
+> +#define ATLAS7_WDT_CNT		0x48
+
+Wondering - below you always add 4 * ATLAS7_TIMER_WDT_INDEX
+to the WDT_CNT_CTRL, WDT_CNT_MATCH, and WDT_CNT registers.
+Wouldn't it be easier to specify the final register offsets directly ?
+
+#define ATLAS7_WDT_CNT_CTRL	(0 + 4 * ATLAS7_TIMER_WDT_INDEX)
+
+or even
+
+#define ATLAS7_WDT_CNT_CTRL	0x14
+
+The long expressions below just make the code more difficult to read.
+
+> +#define ATLAS7_WDT_CNT_EN	(BIT(0) | BIT(1))
+> +#define ATLAS7_WDT_EN		0x64
+> +
+> +static unsigned int timeout = ATLAS7_WDT_DEFAULT_TIMEOUT;
+
+This will cause a devicetree based initialization to be ignored.
+It would be better to set this to 0 and initialize .timeout with
+ATLAS7_WDT_DEFAULT_TIMEOUT prior to calling watchdog_init_timeout().
+
+> +static bool nowayout = WATCHDOG_NOWAYOUT;
+> +
+> +module_param(timeout, uint, 0);
+> +module_param(nowayout, bool, 0);
+> +
+> +MODULE_PARM_DESC(timeout, "Default watchdog timeout (in seconds)");
+> +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+> +			__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+> +
+> +struct atlas7_wdog {
+> +	struct device *dev;
+> +	void __iomem *base;
+> +	unsigned long tick_rate;
+> +	struct clk *clk;
+> +};
+> +
+> +static unsigned int atlas7_wdt_gettimeleft(struct watchdog_device *wdd)
+> +{
+> +	struct atlas7_wdog *wdt = watchdog_get_drvdata(wdd);
+> +	u32 counter, match, delta;
+> +
+> +	counter = readl(wdt->base + ATLAS7_WDT_CNT +
+> +		4 * ATLAS7_TIMER_WDT_INDEX);
+> +	match = readl(wdt->base + ATLAS7_WDT_CNT_MATCH +
+> +			4 * ATLAS7_TIMER_WDT_INDEX);
+
+In general, continuation lines should be aligned with '('.
+
+On the other side, macros such as
+
+#define WDT_CNT_REG(wdt)	((wdt)->base + ATLAS7_WDT_CNT + 4 * ATLAS7_TIMER_WDT_INDEX)
+#define WDT_CNT_MATCH_REG(wdt)	((wdt)->base + ATLAS7_WDT_CNT_MATCH + 4 * ATLAS7_TIMER_WDT_INDEX)
+#define WDT_CNT_CTRL_REG(wdt)	((wdt)->base + ATLAS7_WDT_CNT_CTRL + 4 * ATLAS7_TIMER_WDT_INDEX)
+
+might be quite useful to avoid the repeated use of long expressions.
+Or at least simplify the register definitions as suggested above.
+
+> +	delta = match - counter;
+> +
+> +	return  delta / wdt->tick_rate;
+> +}
+> +
+> +static int atlas7_wdt_ping(struct watchdog_device *wdd)
+> +{
+> +	struct atlas7_wdog *wdt = watchdog_get_drvdata(wdd);
+> +	u32 counter, match, delta;
+> +
+> +	counter = readl(wdt->base + ATLAS7_WDT_CNT +
+> +			4 * ATLAS7_TIMER_WDT_INDEX);
+> +	delta = wdd->timeout * wdt->tick_rate;
+> +	match = counter + delta;
+> +
+> +	writel(match, wdt->base + ATLAS7_WDT_CNT_MATCH +
+> +		4 * ATLAS7_TIMER_WDT_INDEX);
+> +
+> +	return 0;
+> +}
+> +
+> +static int atlas7_wdt_enable(struct watchdog_device *wdd)
+> +{
+> +	struct atlas7_wdog *wdt = watchdog_get_drvdata(wdd);
+> +	void __iomem *ctrl_reg = wdt->base + ATLAS7_WDT_CNT_CTRL +
+> +		4 * ATLAS7_TIMER_WDT_INDEX;
+> +
+> +	atlas7_wdt_ping(wdd);
+> +
+> +	writel(readl(ctrl_reg) | ATLAS7_WDT_CNT_EN, ctrl_reg);
+> +	writel(1, wdt->base + ATLAS7_WDT_EN);
+> +
+> +	return 0;
+> +}
+> +
+> +static int atlas7_wdt_disable(struct watchdog_device *wdd)
+> +{
+> +	struct atlas7_wdog *wdt = watchdog_get_drvdata(wdd);
+> +	void __iomem *ctrl_reg = wdt->base + ATLAS7_WDT_CNT_CTRL +
+> +		4 * ATLAS7_TIMER_WDT_INDEX;
+> +
+> +	writel(0, wdt->base + ATLAS7_WDT_EN);
+> +	writel(readl(ctrl_reg) & ~ATLAS7_WDT_CNT_EN, ctrl_reg);
+> +
+> +	return 0;
+> +}
+> +
+> +static int atlas7_wdt_settimeout(struct watchdog_device *wdd, unsigned int to)
+> +{
+> +	wdd->timeout = to;
+> +
+> +	return 0;
+> +}
+> +
+> +#define OPTIONS (WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE)
+> +
+> +static const struct watchdog_info atlas7_wdt_ident = {
+> +	.options          =     OPTIONS,
+> +	.firmware_version =	0,
+> +	.identity         =	"atlas7 Watchdog",
+
+The tab after '=' is really unnecessary. I would suggest to replace it with a space.
+
+> +};
+> +
+> +static struct watchdog_ops atlas7_wdt_ops = {
+> +	.owner = THIS_MODULE,
+> +	.start = atlas7_wdt_enable,
+> +	.stop = atlas7_wdt_disable,
+> +	.get_timeleft = atlas7_wdt_gettimeleft,
+> +	.ping = atlas7_wdt_ping,
+> +	.set_timeout = atlas7_wdt_settimeout,
+> +};
+> +
+> +static struct watchdog_device atlas7_wdd = {
+> +	.info = &atlas7_wdt_ident,
+> +	.ops = &atlas7_wdt_ops,
+> +	.timeout = ATLAS7_WDT_DEFAULT_TIMEOUT,
+> +};
+> +
+> +static const struct of_device_id atlas7_wdt_ids[] = {
+> +	{ .compatible = "sirf,atlas7-tick"},
+> +	{}
+> +};
+> +
+> +static int atlas7_wdt_probe(struct platform_device *pdev)
+> +{
+> +	struct device_node *np = pdev->dev.of_node;
+> +	struct atlas7_wdog *wdt;
+> +	struct resource *res;
+> +	struct clk *clk;
+> +	int ret;
+> +
+> +	wdt = devm_kzalloc(&pdev->dev, sizeof(*wdt), GFP_KERNEL);
+> +	if (!wdt)
+> +		return -ENOMEM;
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	wdt->base = devm_ioremap_resource(&pdev->dev, res);
+> +	if (IS_ERR(wdt->base))
+> +		return PTR_ERR(wdt->base);
+> +
+> +	clk = of_clk_get(np, 0);
+> +	if (IS_ERR(clk)) {
+> +		ret = PTR_ERR(clk);
+> +		goto err;
+
+You can just return PTR_ERR(clk) here.
+The "err:" label, just to return, is unnecessary.
+
+
+> +	}
+> +	ret = clk_prepare_enable(clk);
+> +	if (ret) {
+> +		pr_err("wdt clk enable failed\n");
+> +		goto err1;
+
+wdt->clk is not yet set here, meaning the clk_put() below won't work.
+
+> +	}
+> +
+> +	/* disable watchdog hardware */
+> +	writel(0, wdt->base + ATLAS7_WDT_CNT_CTRL +
+> +			4 * ATLAS7_TIMER_WDT_INDEX);
+> +
+> +	wdt->tick_rate = clk_get_rate(clk);
+> +	wdt->clk = clk;
+> +	atlas7_wdd.min_timeout = 1;
+> +	atlas7_wdd.max_timeout = UINT_MAX / wdt->tick_rate;
+> +
+> +	watchdog_init_timeout(&atlas7_wdd, timeout, &pdev->dev);
+> +	watchdog_set_nowayout(&atlas7_wdd, nowayout);
+> +
+> +	watchdog_set_drvdata(&atlas7_wdd, wdt);
+> +	platform_set_drvdata(pdev, &atlas7_wdd);
+> +
+> +	ret = watchdog_register_device(&atlas7_wdd);
+> +	if (ret)
+> +		goto err2;
+> +
+> +	return 0;
+> +
+> +err2:
+> +	clk_disable_unprepare(wdt->clk);
+> +err1:
+> +	clk_put(wdt->clk);
+> +err:
+> +	return ret;
+> +}
+> +
+> +static void atlas7_wdt_shutdown(struct platform_device *pdev)
+> +{
+> +	struct watchdog_device *wdd = platform_get_drvdata(pdev);
+> +	struct atlas7_wdog *wdt = watchdog_get_drvdata(wdd);
+> +
+> +	atlas7_wdt_disable(wdd);
+> +	clk_disable_unprepare(wdt->clk);
+> +}
+> +
+> +static int atlas7_wdt_remove(struct platform_device *pdev)
+> +{
+> +	struct watchdog_device *wdd = platform_get_drvdata(pdev);
+> +	struct atlas7_wdog *wdt = watchdog_get_drvdata(wdd);
+> +
+> +	atlas7_wdt_shutdown(pdev);
+> +	clk_put(wdt->clk);
+> +	return 0;
+> +}
+> +
+> +static int __maybe_unused atlas7_wdt_suspend(struct device *dev)
+> +{
+> +	return 0;
+
+Is it not necessary to stop the watchdog ? If the watchdog is disabled
+elsewhere, a similar comment to the one below would help.
+
+> +}
+> +
+> +static int __maybe_unused atlas7_wdt_resume(struct device *dev)
+> +{
+> +	struct watchdog_device *wdd = dev_get_drvdata(dev);
+> +
+> +	/*
+> +	 * NOTE: Since timer controller registers settings are saved
+> +	 * and restored back by the timer-atlas7.c, so we need not
+> +	 * update WD settings except refreshing timeout.
+> +	 */
+> +	atlas7_wdt_ping(wdd);
+> +
+> +	return 0;
+> +}
+> +
+> +static SIMPLE_DEV_PM_OPS(atlas7_wdt_pm_ops,
+> +		atlas7_wdt_suspend, atlas7_wdt_resume);
+> +
+> +MODULE_DEVICE_TABLE(of, atlas7_wdt_ids);
+> +
+> +static struct platform_driver atlas7_wdt_driver = {
+> +	.driver = {
+> +		.name = "atlas7-wdt",
+> +		.pm = &atlas7_wdt_pm_ops,
+> +		.of_match_table	= atlas7_wdt_ids,
+> +	},
+> +	.probe = atlas7_wdt_probe,
+> +	.remove = atlas7_wdt_remove,
+> +	.shutdown = atlas7_wdt_shutdown,
+> +};
+> +module_platform_driver(atlas7_wdt_driver);
+> +
+> +MODULE_DESCRIPTION("CSRatlas7 watchdog driver");
+> +MODULE_AUTHOR("Guo Zeng <Guo.Zeng@csr.com>");
+> +MODULE_LICENSE("GPL v2");
+
+This contradicts "GPL v2 or later" in the comments at the beginning of the file.
+
+> +MODULE_ALIAS("platform:atlas7-wdt");
+>
+
