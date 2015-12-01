@@ -1,9 +1,10 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from proxima.lp0.eu ([81.2.80.65]:58900 "EHLO proxima.lp0.eu"
+Received: from proxima.lp0.eu ([81.2.80.65]:59077 "EHLO proxima.lp0.eu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755771AbbLANFq (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 1 Dec 2015 08:05:46 -0500
-Subject: [PATCH 05/11] watchdog: bcm63xx_wdt: Use WATCHDOG_CORE
+	id S1755126AbbLANKG (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 1 Dec 2015 08:10:06 -0500
+Subject: [PATCH 09/11] watchdog: bcm63xx_wdt: Remove dependency on
+ mach-bcm63xx functions/defines
 To: Guenter Roeck <linux@roeck-us.net>,
 	Thomas Gleixner <tglx@linutronix.de>
 References: <565D9A40.60409@simon.arlott.org.uk>
@@ -24,8 +25,8 @@ Cc: Florian Fainelli <f.fainelli@gmail.com>,
 	Ian Campbell <ijc+devicetree@hellion.org.uk>,
 	Kumar Gala <galak@codeaurora.org>
 From: Simon Arlott <simon@fire.lp0.eu>
-Message-ID: <565D9B1D.3060009@simon.arlott.org.uk>
-Date: Tue, 1 Dec 2015 13:05:33 +0000
+Message-ID: <565D9C25.3010704@simon.arlott.org.uk>
+Date: Tue, 1 Dec 2015 13:09:57 +0000
 MIME-Version: 1.0
 In-Reply-To: <565D9A40.60409@simon.arlott.org.uk>
 Content-Type: text/plain; charset=utf-8
@@ -33,395 +34,196 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Convert bcm63xx_wdt to use WATCHDOG_CORE.
+The bcm_readl() and bcm_writel() functions are only defined for
+mach-bcm63xx, replace them with __raw_readl() and raw_writel().
 
-The default and maximum time constants that are only used once have been
-moved to the initialisation of the struct watchdog_device.
+The register defines required for the watchdog are in a mach-bcm63xx
+header file. Move them to include/linux/bcm63xx_wdt.h so that they are
+also available on other machine types.
 
 Signed-off-by: Simon Arlott <simon@fire.lp0.eu>
 ---
- drivers/watchdog/Kconfig       |   1 +
- drivers/watchdog/bcm63xx_wdt.c | 259 +++++++++++++----------------------------
- 2 files changed, 79 insertions(+), 181 deletions(-)
+ MAINTAINERS                                       |  1 +
+ arch/mips/bcm63xx/prom.c                          |  1 +
+ arch/mips/bcm63xx/setup.c                         |  1 +
+ arch/mips/include/asm/mach-bcm63xx/bcm63xx_regs.h | 22 --------------------
+ drivers/watchdog/bcm63xx_wdt.c                    | 25 +++++++++++------------
+ include/linux/bcm63xx_wdt.h                       | 22 ++++++++++++++++++++
+ 6 files changed, 37 insertions(+), 35 deletions(-)
+ create mode 100644 include/linux/bcm63xx_wdt.h
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 7a8a6c6..6815b74 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -1273,6 +1273,7 @@ config OCTEON_WDT
- config BCM63XX_WDT
- 	tristate "Broadcom BCM63xx hardware watchdog"
- 	depends on BCM63XX
-+	select WATCHDOG_CORE
- 	help
- 	  Watchdog driver for the built in watchdog hardware in Broadcom
- 	  BCM63xx SoC.
+diff --git a/MAINTAINERS b/MAINTAINERS
+index cd553a0..a381176 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2376,6 +2376,7 @@ F:	arch/mips/boot/dts/brcm/bcm*.dts*
+ F:	drivers/irqchip/irq-bcm63*
+ F:	drivers/irqchip/irq-bcm7*
+ F:	drivers/irqchip/irq-brcmstb*
++F:	include/linux/bcm63xx_wdt.h
+ 
+ BROADCOM TG3 GIGABIT ETHERNET DRIVER
+ M:	Prashant Sreedharan <prashant@broadcom.com>
+diff --git a/arch/mips/bcm63xx/prom.c b/arch/mips/bcm63xx/prom.c
+index 7019e29..d2800fb 100644
+--- a/arch/mips/bcm63xx/prom.c
++++ b/arch/mips/bcm63xx/prom.c
+@@ -6,6 +6,7 @@
+  * Copyright (C) 2008 Maxime Bizon <mbizon@freebox.fr>
+  */
+ 
++#include <linux/bcm63xx_wdt.h>
+ #include <linux/init.h>
+ #include <linux/bootmem.h>
+ #include <linux/smp.h>
+diff --git a/arch/mips/bcm63xx/setup.c b/arch/mips/bcm63xx/setup.c
+index 2be9caa..181402f 100644
+--- a/arch/mips/bcm63xx/setup.c
++++ b/arch/mips/bcm63xx/setup.c
+@@ -6,6 +6,7 @@
+  * Copyright (C) 2008 Maxime Bizon <mbizon@freebox.fr>
+  */
+ 
++#include <linux/bcm63xx_wdt.h>
+ #include <linux/init.h>
+ #include <linux/kernel.h>
+ #include <linux/delay.h>
+diff --git a/arch/mips/include/asm/mach-bcm63xx/bcm63xx_regs.h b/arch/mips/include/asm/mach-bcm63xx/bcm63xx_regs.h
+index 5035f09..16a745b 100644
+--- a/arch/mips/include/asm/mach-bcm63xx/bcm63xx_regs.h
++++ b/arch/mips/include/asm/mach-bcm63xx/bcm63xx_regs.h
+@@ -441,28 +441,6 @@
+ 
+ 
+ /*************************************************************************
+- * _REG relative to RSET_WDT
+- *************************************************************************/
+-
+-/* Watchdog default count register */
+-#define WDT_DEFVAL_REG			0x0
+-
+-/* Watchdog control register */
+-#define WDT_CTL_REG			0x4
+-
+-/* Watchdog control register constants */
+-#define WDT_START_1			(0xff00)
+-#define WDT_START_2			(0x00ff)
+-#define WDT_STOP_1			(0xee00)
+-#define WDT_STOP_2			(0x00ee)
+-
+-/* Watchdog reset length register */
+-#define WDT_RSTLEN_REG			0x8
+-
+-/* Watchdog soft reset register (BCM6328 only) */
+-#define WDT_SOFTRESET_REG		0xc
+-
+-/*************************************************************************
+  * _REG relative to RSET_GPIO
+  *************************************************************************/
+ 
 diff --git a/drivers/watchdog/bcm63xx_wdt.c b/drivers/watchdog/bcm63xx_wdt.c
-index 3f55cba..2257924 100644
+index 2312dc2..f409523 100644
 --- a/drivers/watchdog/bcm63xx_wdt.c
 +++ b/drivers/watchdog/bcm63xx_wdt.c
-@@ -13,20 +13,15 @@
+@@ -13,6 +13,7 @@
  
  #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
  
--#include <linux/bitops.h>
++#include <linux/bcm63xx_wdt.h>
+ #include <linux/clk.h>
+ #include <linux/delay.h>
  #include <linux/errno.h>
--#include <linux/fs.h>
- #include <linux/io.h>
- #include <linux/kernel.h>
--#include <linux/miscdevice.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
- #include <linux/spinlock.h>
- #include <linux/types.h>
--#include <linux/uaccess.h>
- #include <linux/watchdog.h>
- #include <linux/interrupt.h>
--#include <linux/ptrace.h>
+@@ -27,8 +28,6 @@
  #include <linux/resource.h>
  #include <linux/platform_device.h>
  
-@@ -38,53 +33,59 @@
- #define PFX KBUILD_MODNAME
+-#include <bcm63xx_cpu.h>
+-#include <bcm63xx_io.h>
+ #include <bcm63xx_regs.h>
+ #include <bcm63xx_timer.h>
  
- #define WDT_HZ			50000000		/* Fclk */
--#define WDT_DEFAULT_TIME	30			/* seconds */
--#define WDT_MAX_TIME		(0xffffffff / WDT_HZ)	/* seconds */
- 
- struct bcm63xx_wdt_hw {
-+	struct watchdog_device wdd;
- 	raw_spinlock_t lock;
- 	void __iomem *regs;
--	unsigned long inuse;
- 	bool running;
- };
--static struct bcm63xx_wdt_hw bcm63xx_wdt_device;
- 
--static int expect_close;
-+#define to_wdt_hw(x) container_of(x, struct bcm63xx_wdt_hw, wdd)
- 
--static int wdt_time = WDT_DEFAULT_TIME;
- static bool nowayout = WATCHDOG_NOWAYOUT;
- module_param(nowayout, bool, 0);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
- 	__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
- 
--/* HW functions */
--static void bcm63xx_wdt_hw_start(void)
-+static int bcm63xx_wdt_start(struct watchdog_device *wdd)
- {
-+	struct bcm63xx_wdt_hw *hw = to_wdt_hw(wdd);
- 	unsigned long flags;
- 
--	raw_spin_lock_irqsave(&bcm63xx_wdt_device.lock, flags);
--	bcm_writel(wdt_time * WDT_HZ, bcm63xx_wdt_device.regs + WDT_DEFVAL_REG);
--	bcm_writel(WDT_START_1, bcm63xx_wdt_device.regs + WDT_CTL_REG);
--	bcm_writel(WDT_START_2, bcm63xx_wdt_device.regs + WDT_CTL_REG);
--	bcm63xx_wdt_device.running = true;
--	raw_spin_unlock_irqrestore(&bcm63xx_wdt_device.lock, flags);
-+	raw_spin_lock_irqsave(&hw->lock, flags);
-+	bcm_writel(wdd->timeout * WDT_HZ, hw->regs + WDT_DEFVAL_REG);
-+	bcm_writel(WDT_START_1, hw->regs + WDT_CTL_REG);
-+	bcm_writel(WDT_START_2, hw->regs + WDT_CTL_REG);
-+	hw->running = true;
-+	raw_spin_unlock_irqrestore(&hw->lock, flags);
-+	return 0;
- }
- 
--static void bcm63xx_wdt_hw_stop(void)
-+static int bcm63xx_wdt_stop(struct watchdog_device *wdd)
- {
-+	struct bcm63xx_wdt_hw *hw = to_wdt_hw(wdd);
- 	unsigned long flags;
- 
--	raw_spin_lock_irqsave(&bcm63xx_wdt_device.lock, flags);
--	bcm_writel(WDT_STOP_1, bcm63xx_wdt_device.regs + WDT_CTL_REG);
--	bcm_writel(WDT_STOP_2, bcm63xx_wdt_device.regs + WDT_CTL_REG);
--	bcm63xx_wdt_device.running = false;
--	raw_spin_unlock_irqrestore(&bcm63xx_wdt_device.lock, flags);
-+	raw_spin_lock_irqsave(&hw->lock, flags);
-+	bcm_writel(WDT_STOP_1, hw->regs + WDT_CTL_REG);
-+	bcm_writel(WDT_STOP_2, hw->regs + WDT_CTL_REG);
-+	hw->running = false;
-+	raw_spin_unlock_irqrestore(&hw->lock, flags);
-+	return 0;
-+}
-+
-+static int bcm63xx_wdt_set_timeout(struct watchdog_device *wdd,
-+	unsigned int timeout)
-+{
-+	wdd->timeout = timeout;
-+	return 0;
- }
- 
- /* The watchdog interrupt occurs when half the timeout is remaining */
- static void bcm63xx_wdt_isr(void *data)
- {
--	struct bcm63xx_wdt_hw *hw = &bcm63xx_wdt_device;
-+	struct bcm63xx_wdt_hw *hw = data;
+@@ -58,9 +57,9 @@ static int bcm63xx_wdt_start(struct watchdog_device *wdd)
  	unsigned long flags;
  
  	raw_spin_lock_irqsave(&hw->lock, flags);
-@@ -118,147 +119,36 @@ static void bcm63xx_wdt_isr(void *data)
- 		}
- 
- 		ms = timeleft / (WDT_HZ / 1000);
--		pr_alert("warning timer fired, reboot in %ums\n", ms);
-+		dev_alert(hw->wdd.dev,
-+			"warning timer fired, reboot in %ums\n", ms);
- 	}
+-	bcm_writel(wdd->timeout * hw->clock_hz, hw->regs + WDT_DEFVAL_REG);
+-	bcm_writel(WDT_START_1, hw->regs + WDT_CTL_REG);
+-	bcm_writel(WDT_START_2, hw->regs + WDT_CTL_REG);
++	__raw_writel(wdd->timeout * hw->clock_hz, hw->regs + WDT_DEFVAL_REG);
++	__raw_writel(WDT_START_1, hw->regs + WDT_CTL_REG);
++	__raw_writel(WDT_START_2, hw->regs + WDT_CTL_REG);
+ 	hw->running = true;
  	raw_spin_unlock_irqrestore(&hw->lock, flags);
- }
- 
--static int bcm63xx_wdt_settimeout(int new_time)
--{
--	if ((new_time <= 0) || (new_time > WDT_MAX_TIME))
--		return -EINVAL;
--
--	wdt_time = new_time;
--
--	return 0;
--}
--
--static int bcm63xx_wdt_open(struct inode *inode, struct file *file)
--{
--	if (test_and_set_bit(0, &bcm63xx_wdt_device.inuse))
--		return -EBUSY;
--
--	bcm63xx_wdt_hw_start();
--	return nonseekable_open(inode, file);
--}
--
--static int bcm63xx_wdt_release(struct inode *inode, struct file *file)
--{
--	if (expect_close == 42)
--		bcm63xx_wdt_hw_stop();
--	else {
--		pr_crit("Unexpected close, not stopping watchdog!\n");
--		bcm63xx_wdt_hw_start();
--	}
--	clear_bit(0, &bcm63xx_wdt_device.inuse);
--	expect_close = 0;
--	return 0;
--}
--
--static ssize_t bcm63xx_wdt_write(struct file *file, const char *data,
--				size_t len, loff_t *ppos)
--{
--	if (len) {
--		if (!nowayout) {
--			size_t i;
--
--			/* In case it was set long ago */
--			expect_close = 0;
--
--			for (i = 0; i != len; i++) {
--				char c;
--				if (get_user(c, data + i))
--					return -EFAULT;
--				if (c == 'V')
--					expect_close = 42;
--			}
--		}
--		bcm63xx_wdt_hw_start();
--	}
--	return len;
--}
--
--static struct watchdog_info bcm63xx_wdt_info = {
--	.identity       = PFX,
--	.options        = WDIOF_SETTIMEOUT |
--				WDIOF_KEEPALIVEPING |
--				WDIOF_MAGICCLOSE,
-+static struct watchdog_ops bcm63xx_wdt_ops = {
-+	.owner = THIS_MODULE,
-+	.start = bcm63xx_wdt_start,
-+	.stop = bcm63xx_wdt_stop,
-+	.set_timeout = bcm63xx_wdt_set_timeout,
- };
- 
--
--static long bcm63xx_wdt_ioctl(struct file *file, unsigned int cmd,
--				unsigned long arg)
--{
--	void __user *argp = (void __user *)arg;
--	int __user *p = argp;
--	int new_value, retval = -EINVAL;
--
--	switch (cmd) {
--	case WDIOC_GETSUPPORT:
--		return copy_to_user(argp, &bcm63xx_wdt_info,
--			sizeof(bcm63xx_wdt_info)) ? -EFAULT : 0;
--
--	case WDIOC_GETSTATUS:
--	case WDIOC_GETBOOTSTATUS:
--		return put_user(0, p);
--
--	case WDIOC_SETOPTIONS:
--		if (get_user(new_value, p))
--			return -EFAULT;
--
--		if (new_value & WDIOS_DISABLECARD) {
--			bcm63xx_wdt_hw_stop();
--			retval = 0;
--		}
--		if (new_value & WDIOS_ENABLECARD) {
--			bcm63xx_wdt_hw_start();
--			retval = 0;
--		}
--
--		return retval;
--
--	case WDIOC_KEEPALIVE:
--		bcm63xx_wdt_hw_start();
--		return 0;
--
--	case WDIOC_SETTIMEOUT:
--		if (get_user(new_value, p))
--			return -EFAULT;
--
--		if (bcm63xx_wdt_settimeout(new_value))
--			return -EINVAL;
--
--		bcm63xx_wdt_hw_start();
--
--	case WDIOC_GETTIMEOUT:
--		return put_user(wdt_time, p);
--
--	default:
--		return -ENOTTY;
--
--	}
--}
--
--static const struct file_operations bcm63xx_wdt_fops = {
--	.owner		= THIS_MODULE,
--	.llseek		= no_llseek,
--	.write		= bcm63xx_wdt_write,
--	.unlocked_ioctl	= bcm63xx_wdt_ioctl,
--	.open		= bcm63xx_wdt_open,
--	.release	= bcm63xx_wdt_release,
--};
--
--static struct miscdevice bcm63xx_wdt_miscdev = {
--	.minor	= WATCHDOG_MINOR,
--	.name	= "watchdog",
--	.fops	= &bcm63xx_wdt_fops,
-+static const struct watchdog_info bcm63xx_wdt_info = {
-+	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
-+	.identity = "BCM63xx Watchdog",
- };
- 
--
- static int bcm63xx_wdt_probe(struct platform_device *pdev)
- {
--	int ret;
-+	struct bcm63xx_wdt_hw *hw;
-+	struct watchdog_device *wdd;
- 	struct resource *r;
-+	int ret;
-+
-+	hw = devm_kzalloc(&pdev->dev, sizeof(*hw), GFP_KERNEL);
-+	if (!hw)
-+		return -ENOMEM;
-+
-+	wdd = &hw->wdd;
- 
- 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	if (!r) {
-@@ -266,58 +156,65 @@ static int bcm63xx_wdt_probe(struct platform_device *pdev)
- 		return -ENODEV;
- 	}
- 
--	bcm63xx_wdt_device.regs = devm_ioremap_nocache(&pdev->dev, r->start,
--							resource_size(r));
--	if (!bcm63xx_wdt_device.regs) {
-+	hw->regs = devm_ioremap_nocache(&pdev->dev, r->start, resource_size(r));
-+	if (!hw->regs) {
- 		dev_err(&pdev->dev, "failed to remap I/O resources\n");
- 		return -ENXIO;
- 	}
- 
--	raw_spin_lock_init(&bcm63xx_wdt_device.lock);
--	bcm63xx_wdt_device.running = false;
-+	raw_spin_lock_init(&hw->lock);
-+	hw->running = false;
- 
--	ret = bcm63xx_timer_register(TIMER_WDT_ID, bcm63xx_wdt_isr, NULL);
-+	wdd->parent = &pdev->dev;
-+	wdd->ops = &bcm63xx_wdt_ops;
-+	wdd->info = &bcm63xx_wdt_info;
-+	wdd->min_timeout = 1;
-+	wdd->max_timeout = 0xffffffff / WDT_HZ;
-+	wdd->timeout = min(30U, wdd->max_timeout);
-+
-+	platform_set_drvdata(pdev, hw);
-+
-+	watchdog_init_timeout(wdd, 0, &pdev->dev);
-+	watchdog_set_nowayout(wdd, nowayout);
-+
-+	ret = watchdog_register_device(wdd);
- 	if (ret < 0) {
--		dev_err(&pdev->dev, "failed to register wdt timer isr\n");
-+		dev_err(&pdev->dev, "failed to register watchdog device\n");
- 		return ret;
- 	}
- 
--	if (bcm63xx_wdt_settimeout(wdt_time)) {
--		bcm63xx_wdt_settimeout(WDT_DEFAULT_TIME);
--		dev_info(&pdev->dev,
--			": wdt_time value must be 1 <= wdt_time <= %d, using %d\n",
--			WDT_MAX_TIME, wdt_time);
--	}
--
--	ret = misc_register(&bcm63xx_wdt_miscdev);
-+	ret = bcm63xx_timer_register(TIMER_WDT_ID, bcm63xx_wdt_isr, hw);
- 	if (ret < 0) {
--		dev_err(&pdev->dev, "failed to register watchdog device\n");
--		goto unregister_timer;
-+		dev_err(&pdev->dev, "failed to register wdt timer isr\n");
-+		goto unregister_watchdog;
- 	}
- 
--	dev_info(&pdev->dev, " started, timer margin: %d sec\n",
--						WDT_DEFAULT_TIME);
-+	dev_info(&pdev->dev,
-+		"%s at MMIO 0x%p (timeout = %us, max_timeout = %us)",
-+		dev_name(wdd->dev), hw->regs,
-+		wdd->timeout, wdd->max_timeout);
- 
  	return 0;
+@@ -72,8 +71,8 @@ static int bcm63xx_wdt_stop(struct watchdog_device *wdd)
+ 	unsigned long flags;
  
--unregister_timer:
--	bcm63xx_timer_unregister(TIMER_WDT_ID);
-+unregister_watchdog:
-+	watchdog_unregister_device(wdd);
- 	return ret;
- }
- 
- static int bcm63xx_wdt_remove(struct platform_device *pdev)
- {
--	if (!nowayout)
--		bcm63xx_wdt_hw_stop();
-+	struct bcm63xx_wdt_hw *hw = platform_get_drvdata(pdev);
- 
--	misc_deregister(&bcm63xx_wdt_miscdev);
- 	bcm63xx_timer_unregister(TIMER_WDT_ID);
-+	watchdog_unregister_device(&hw->wdd);
+ 	raw_spin_lock_irqsave(&hw->lock, flags);
+-	bcm_writel(WDT_STOP_1, hw->regs + WDT_CTL_REG);
+-	bcm_writel(WDT_STOP_2, hw->regs + WDT_CTL_REG);
++	__raw_writel(WDT_STOP_1, hw->regs + WDT_CTL_REG);
++	__raw_writel(WDT_STOP_2, hw->regs + WDT_CTL_REG);
+ 	hw->running = false;
+ 	raw_spin_unlock_irqrestore(&hw->lock, flags);
  	return 0;
- }
+@@ -108,10 +107,10 @@ static void bcm63xx_wdt_isr(void *data)
+ 	raw_spin_lock_irqsave(&hw->lock, flags);
+ 	if (!hw->running) {
+ 		/* Stop the watchdog as it shouldn't be running */
+-		bcm_writel(WDT_STOP_1, hw->regs + WDT_CTL_REG);
+-		bcm_writel(WDT_STOP_2, hw->regs + WDT_CTL_REG);
++		__raw_writel(WDT_STOP_1, hw->regs + WDT_CTL_REG);
++		__raw_writel(WDT_STOP_2, hw->regs + WDT_CTL_REG);
+ 	} else {
+-		u32 timeleft = bcm_readl(hw->regs + WDT_CTL_REG);
++		u32 timeleft = __raw_readl(hw->regs + WDT_CTL_REG);
+ 		u32 ms;
  
- static void bcm63xx_wdt_shutdown(struct platform_device *pdev)
- {
--	bcm63xx_wdt_hw_stop();
-+	struct bcm63xx_wdt_hw *hw = platform_get_drvdata(pdev);
+ 		if (timeleft >= 2) {
+@@ -125,9 +124,9 @@ static void bcm63xx_wdt_isr(void *data)
+ 			 * This is done with a lock held in case userspace is
+ 			 * trying to restart the watchdog on another CPU.
+ 			 */
+-			bcm_writel(timeleft, hw->regs + WDT_DEFVAL_REG);
+-			bcm_writel(WDT_START_1, hw->regs + WDT_CTL_REG);
+-			bcm_writel(WDT_START_2, hw->regs + WDT_CTL_REG);
++			__raw_writel(timeleft, hw->regs + WDT_DEFVAL_REG);
++			__raw_writel(WDT_START_1, hw->regs + WDT_CTL_REG);
++			__raw_writel(WDT_START_2, hw->regs + WDT_CTL_REG);
+ 		} else {
+ 			/* The watchdog cannot be started with a time of less
+ 			 * than 2 ticks (it won't fire).
+diff --git a/include/linux/bcm63xx_wdt.h b/include/linux/bcm63xx_wdt.h
+new file mode 100644
+index 0000000..2e9210b
+--- /dev/null
++++ b/include/linux/bcm63xx_wdt.h
+@@ -0,0 +1,22 @@
++#ifndef LINUX_BCM63XX_WDT_H_
++#define LINUX_BCM63XX_WDT_H_
 +
-+	bcm63xx_wdt_stop(&hw->wdd);
- }
- 
- static struct platform_driver bcm63xx_wdt_driver = {
++/* Watchdog default count register */
++#define WDT_DEFVAL_REG                  0x0
++
++/* Watchdog control register */
++#define WDT_CTL_REG                     0x4
++
++/* Watchdog control register constants */
++#define WDT_START_1                     (0xff00)
++#define WDT_START_2                     (0x00ff)
++#define WDT_STOP_1                      (0xee00)
++#define WDT_STOP_2                      (0x00ee)
++
++/* Watchdog reset length register */
++#define WDT_RSTLEN_REG                  0x8
++
++/* Watchdog soft reset register (BCM6328 only) */
++#define WDT_SOFTRESET_REG               0xc
++
++#endif
 -- 
 2.1.4
+
 
 
 -- 
