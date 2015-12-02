@@ -1,144 +1,118 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail-oi0-f53.google.com ([209.85.218.53]:35336 "EHLO
-	mail-oi0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756523AbbLBUyR (ORCPT
+Received: from mail.savoirfairelinux.com ([208.88.110.44]:40873 "EHLO
+	mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757725AbbLBXVK (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 2 Dec 2015 15:54:17 -0500
-Received: by oige206 with SMTP id e206so33294469oig.2
-        for <linux-watchdog@vger.kernel.org>; Wed, 02 Dec 2015 12:54:16 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <565F4244.7090502@timesys.com>
-References: <1446758362-11702-1-git-send-email-akshay.bhat@timesys.com>
-	<1446758362-11702-2-git-send-email-akshay.bhat@timesys.com>
-	<20151105222325.GA26159@roeck-us.net>
-	<CAJ+vNU2fSxRJ7YvxOfNzoEoiKgzv-dHj=+eksKxH48ekHiUw2Q@mail.gmail.com>
-	<20151106220249.GA19791@roeck-us.net>
-	<565F4244.7090502@timesys.com>
-Date: Wed, 2 Dec 2015 12:54:16 -0800
-Message-ID: <CAJ+vNU00Bf97HUqkkW9KqOUzHXh482R9O1gasz6ju3Pn-_5chA@mail.gmail.com>
-Subject: Re: [PATCH v4 1/2] watchdog: imx2_wdt: add external reset support via
- 'ext-reset-output' dt prop
-From: Tim Harvey <tharvey@gateworks.com>
-To: Akshay Bhat <akshay.bhat@timesys.com>
-Cc: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
-	Rob Herring <robh+dt@kernel.org>,
+	Wed, 2 Dec 2015 18:21:10 -0500
+Date: Wed, 2 Dec 2015 18:21:02 -0500
+From: Damien Riegel <damien.riegel@savoirfairelinux.com>
+To: Rob Herring <robh@kernel.org>
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
+	Lee Jones <lee.jones@linaro.org>,
 	Pawel Moll <pawel.moll@arm.com>,
 	Mark Rutland <mark.rutland@arm.com>,
 	Ian Campbell <ijc+devicetree@hellion.org.uk>,
 	Kumar Gala <galak@codeaurora.org>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Russell King <linux@arm.linux.org.uk>,
 	Shawn Guo <shawnguo@kernel.org>,
 	Sascha Hauer <kernel@pengutronix.de>,
-	Russell King - ARM Linux <linux@arm.linux.org.uk>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, justin.waters@timesys.com,
-	Lucas Stach <l.stach@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>, Stefan Roese <sr@denx.de>
-Content-Type: text/plain; charset=UTF-8
+	Arnd Bergmann <arnd@arndb.de>,
+	Samuel Ortiz <sameo@linux.intel.com>,
+	Wim Van Sebroeck <wim@iguana.be>,
+	Guenter Roeck <linux@roeck-us.net>, kernel@savoirfairelinux.com
+Subject: Re: [PATCH v7 2/6] mfd: syscon: add a DT property to set value width
+Message-ID: <20151202232102.GB6055@localhost>
+References: <1448899191-13891-1-git-send-email-damien.riegel@savoirfairelinux.com>
+ <1448899191-13891-3-git-send-email-damien.riegel@savoirfairelinux.com>
+ <20151130190015.GA31006@rob-hp-laptop>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20151130190015.GA31006@rob-hp-laptop>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Wed, Dec 2, 2015 at 11:11 AM, Akshay Bhat <akshay.bhat@timesys.com> wrote:
->
->
-> On 11/06/2015 05:02 PM, Guenter Roeck wrote:
->>
->> On Fri, Nov 06, 2015 at 11:53:42AM -0800, Tim Harvey wrote:
->>>
->>> On Thu, Nov 5, 2015 at 2:23 PM, Guenter Roeck <linux@roeck-us.net> wrote:
->>>>
->>>> On Thu, Nov 05, 2015 at 04:19:21PM -0500, Akshay Bhat wrote:
->>>>>
->>>>> From: Tim Harvey <tharvey@gateworks.com>
->>>>>
->>>>> The IMX6 watchdog supports assertion of a signal (WDOG_B) which
->>>>> can be pinmux'd to an external pin. This is typically used for boards
->>>>> that
->>>>> have PMIC's in control of the IMX6 power rails. In fact, failure to use
->>>>> such an external reset on boards with external PMIC's can result in
->>>>> various
->>>>> hangs due to the IMX6 not being fully reset [1] as well as the board
->>>>> failing
->>>>> to reset because its PMIC has not been reset to provide adequate
->>>>> voltage for
->>>>> the CPU when coming out of reset at 800Mhz.
->>>>>
->>>>> This uses a new device-tree property 'ext-reset-output' to indicate the
->>>>> board has such a reset and to cause the watchdog to be configured to
->>>>> assert
->>>>> WDOG_B instead of an internal reset both on a watchdog timeout and in
->>>>> system_restart.
->>>>>
->>>>> [1]
->>>>> http://lists.infradead.org/pipermail/linux-arm-kernel/2015-March/333689.html
->>>>>
->>>>> Cc: Lucas Stach <l.stach@pengutronix.de>
->>>>> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
->>>>> ---
->>>>>   .../devicetree/bindings/watchdog/fsl-imx-wdt.txt     |  2 ++
->>>>>   drivers/watchdog/imx2_wdt.c                          | 20
->>>>> ++++++++++++++++++--
->>>>>   2 files changed, 20 insertions(+), 2 deletions(-)
->>>>>
->>>>> diff --git a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
->>>>> b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
->>>>> index 8dab6fd..9b89b3a 100644
->>>>> --- a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
->>>>> +++ b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
->>>>> @@ -9,6 +9,8 @@ Optional property:
->>>>
->>>>
->>>> properties ?
->>>>
->>>>>   - big-endian: If present the watchdog device's registers are
->>>>> implemented
->>>>>     in big endian mode, otherwise in native mode(same with CPU), for
->>>>> more
->>>>>     detail please see:
->>>>> Documentation/devicetree/bindings/regmap/regmap.txt.
->>>>> +- ext-reset-output: If present the watchdog device is configured to
->>>>> assert its
->>>>
->>>>
->>>> Should that have a vendor prefix ? Also, not sure if "-output"
->>>> has any real value in the property name. "fsl,external-reset", maybe ?
->>>
->>>
->>> Hi Guenter,
->>>
->>> I don't see why a vendor prefix is necessary - its a feature of the
->>> IMX6 watchdog supported by this driver to be able to trigger an
->>> internal chip-level reset and/or an external signal that can be hooked
->>> to additional hardware.
->>>
->> Sounded like vendor specific to me, but then I am not a devicetree
->> maintainer,
->> so I am not an authority on the subject.
->
->
-> Devicetree maintainers,
->
-> Any thoughts?
->
-> Tim,
->
-> After looking at all the other watchdog drivers, it does not appear that
-> there is any other processor which uses a similar feature. Since imx is the
-> only processor that appears to support this feature, it might make sense in
-> making this vendor specific. If in the future it is found more processors
-> support a similar functionality, it can be revisited and moved out from
-> being vendor specific?
->
+Lee, Arnd,
 
-I'm certainly no expert on device-tree policy. I understand your
-point, but realize that the driver in question is imx2_wdt.c
-(compatible = "fsl,imx21-wdt"). This is an IP block inside the silicon
-of only Freescale chips, so its not like a future omap chip would be
-using this driver - only fsl devices. So why would it need a 'vendor'
-property any more than its other properties?
+I had to make changes in this patch to address Rob's comments.
+reg-io-width is now in bytes while bus-width was a value in bits. Could
+you please review this patch ?
 
-Regards,
+Thanks,
+Damien
 
-Tim
+On Mon, Nov 30, 2015 at 01:00:15PM -0600, Rob Herring wrote:
+> On Mon, Nov 30, 2015 at 10:59:47AM -0500, Damien Riegel wrote:
+> > Currently syscon has a fixed configuration of 32 bits for register and
+> > values widths. In some cases, it would be desirable to be able to
+> > customize the value width.
+> > 
+> > For example, certain boards (like the ones manufactured by Technologic
+> > Systems) have a FPGA that is memory-mapped, but its registers are only
+> > 16-bit wide.
+> > 
+> > This patch adds an optional "reg-io-width" DT binding for syscon that
+> > allows to change the width for the data bus (i.e. val_bits). If this
+> > property is provided, it will also set the register stride to
+> > reg-io-width's value. If not provided, the default configuration is
+> > used.
+> > 
+> > Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
+> 
+> Acked-by: Rob Herring <robh@kernel.org>
+> 
+> > ---
+> >  Documentation/devicetree/bindings/mfd/syscon.txt |  4 ++++
+> >  drivers/mfd/syscon.c                             | 13 +++++++++++++
+> >  2 files changed, 17 insertions(+)
+> > 
+> > diff --git a/Documentation/devicetree/bindings/mfd/syscon.txt b/Documentation/devicetree/bindings/mfd/syscon.txt
+> > index fe8150b..408f768 100644
+> > --- a/Documentation/devicetree/bindings/mfd/syscon.txt
+> > +++ b/Documentation/devicetree/bindings/mfd/syscon.txt
+> > @@ -13,6 +13,10 @@ Required properties:
+> >  - compatible: Should contain "syscon".
+> >  - reg: the register region can be accessed from syscon
+> >  
+> > +Optional property:
+> > +- reg-io-width: the size (in bytes) of the IO accesses that should be
+> > +  performed on the device.
+> > +
+> >  Examples:
+> >  gpr: iomuxc-gpr@020e0000 {
+> >  	compatible = "fsl,imx6q-iomuxc-gpr", "syscon";
+> > diff --git a/drivers/mfd/syscon.c b/drivers/mfd/syscon.c
+> > index 176bf0f..b7aabee 100644
+> > --- a/drivers/mfd/syscon.c
+> > +++ b/drivers/mfd/syscon.c
+> > @@ -47,6 +47,7 @@ static struct syscon *of_syscon_register(struct device_node *np)
+> >  	struct syscon *syscon;
+> >  	struct regmap *regmap;
+> >  	void __iomem *base;
+> > +	u32 reg_io_width;
+> >  	int ret;
+> >  	struct regmap_config syscon_config = syscon_regmap_config;
+> >  
+> > @@ -69,6 +70,18 @@ static struct syscon *of_syscon_register(struct device_node *np)
+> >  	 else if (of_property_read_bool(np, "little-endian"))
+> >  		syscon_config.val_format_endian = REGMAP_ENDIAN_LITTLE;
+> >  
+> > +	/*
+> > +	 * search for reg-io-width property in DT. If it is not provided,
+> > +	 * default to 4 bytes. regmap_init_mmio will return an error if values
+> > +	 * are invalid so there is no need to check them here.
+> > +	 */
+> > +	ret = of_property_read_u32(np, "reg-io-width", &reg_io_width);
+> > +	if (ret)
+> > +		reg_io_width = 4;
+> > +
+> > +	syscon_config.reg_stride = reg_io_width;
+> > +	syscon_config.val_bits = reg_io_width * 8;
+> > +
+> >  	regmap = regmap_init_mmio(NULL, base, &syscon_config);
+> >  	if (IS_ERR(regmap)) {
+> >  		pr_err("regmap init failed\n");
+> > -- 
+> > 2.5.0
+> > 
