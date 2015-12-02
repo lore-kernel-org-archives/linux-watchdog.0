@@ -1,76 +1,108 @@
-Return-path: <tomas.winkler@intel.com>
-From: "Winkler, Tomas" <tomas.winkler@intel.com>
-To: Guenter Roeck <linux@roeck-us.net>, "gregkh@linuxfoundation.org"
-	<gregkh@linuxfoundation.org>, "wim@iguana.be" <wim@iguana.be>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Usyskin,
- Alexander" <alexander.usyskin@intel.com>, "linux-watchdog@vger.kernel.org"
-	<linux-watchdog@vger.kernel.org>
-Subject: RE: [char-misc-next 3/6] mei: wd: implement MEI iAMT watchdog driver
-Date: Wed, 2 Dec 2015 07:41:21 +0000
-Message-ID: <5B8DA87D05A7694D9FA63FD143655C1B5235EE04@hasmsx109.ger.corp.intel.com>
-References: <1448541081-11299-1-git-send-email-tomas.winkler@intel.com>
- <1448541081-11299-4-git-send-email-tomas.winkler@intel.com>
- <565C7F65.8070305@roeck-us.net> <1448970872.30677.15.camel@intel.com>
- <565DC47B.3060402@roeck-us.net>
-In-Reply-To: <565DC47B.3060402@roeck-us.net>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Return-path: <akshay.bhat@timesys.com>
+Subject: Re: [PATCH v4 1/2] watchdog: imx2_wdt: add external reset support via
+ 'ext-reset-output' dt prop
+To: Guenter Roeck <linux@roeck-us.net>, Tim Harvey <tharvey@gateworks.com>
+References: <1446758362-11702-1-git-send-email-akshay.bhat@timesys.com>
+ <1446758362-11702-2-git-send-email-akshay.bhat@timesys.com>
+ <20151105222325.GA26159@roeck-us.net>
+ <CAJ+vNU2fSxRJ7YvxOfNzoEoiKgzv-dHj=+eksKxH48ekHiUw2Q@mail.gmail.com>
+ <20151106220249.GA19791@roeck-us.net>
+Cc: linux-watchdog@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+ Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>,
+ Ian Campbell <ijc+devicetree@hellion.org.uk>,
+ Kumar Gala <galak@codeaurora.org>, Wim Van Sebroeck <wim@iguana.be>,
+ "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <kernel@pengutronix.de>,
+ Russell King - ARM Linux <linux@arm.linux.org.uk>,
+ "linux-arm-kernel@lists.infradead.org"
+ <linux-arm-kernel@lists.infradead.org>, justin.waters@timesys.com,
+ Lucas Stach <l.stach@pengutronix.de>, Fabio Estevam <festevam@gmail.com>,
+ Stefan Roese <sr@denx.de>
+From: Akshay Bhat <akshay.bhat@timesys.com>
+Message-ID: <565F4244.7090502@timesys.com>
+Date: Wed, 2 Dec 2015 14:11:00 -0500
 MIME-Version: 1.0
+In-Reply-To: <20151106220249.GA19791@roeck-us.net>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-watchdog@vger.kernel.org>
 
-DQo+ID4+DQo+ID4+IEFueSBzcGVjaWFsIHJlYXNvbiBmb3IgaGF2aW5nIHR3byBkYXRhIHN0cnVj
-dHVyZXMgaW5zdGVhZCBvZiBvbmUgPw0KPiA+PiBZb3UgY291bGQganVzdCBtb3ZlIHRoZSB2YXJp
-YWJsZXMgZnJvbSBzdHJ1Y3QgbWVpX3dkdF9kZXYgaW50bw0KPiA+PiBzdHJ1Y3QgbWVpX3dkdCwg
-bm8gPw0KPiA+DQo+ID4gWWVzLCBvbiBuZXdlciBwbGF0Zm9ybSBtZWlfd2R0X2RldiBtaWdodCBi
-ZSBub3QgcHJlc2VudCBpbiBjYXNlIHRoZSB0aGUNCj4gPiBkZXZpY2UgaXMgbm90IHByb3Zpc2lv
-bmVkLiBUaGlzIGNhbWUgdG8gYWN0aW9uIGluIHRoZSBmb2xsb3dpbmcNCj4gPiBwYXRjaGVzLg0K
-PiA+DQo+IA0KPiBJdCBpcyBzdGlsbCBhbiBpbXBsZW1lbnRhdGlvbiBjaG9pY2UgdG8ga2VlcCB0
-aGUgZGF0YSBzdHJ1Y3R1cmVzIHNlcGFyYXRlLg0KPiBUaGF0IG1laV93ZHRfZGV2IGNhbiBiZSB1
-bnJlZ2lzdGVyZWQgZG9lc24ndCBtZWFuIHRoYXQgdGhlIGRhdGEgc3RydWN0dXJlDQo+IGhhcyB0
-byBiZSBkZXN0cm95ZWQgb3IgYWxsb2NhdGVkIG9uIHJlZ2lzdHJhdGlvbi4NCg0KVGhhdCdzIGNv
-cnJlY3QsIHRoZSBpc3N1ZSBpcyB0aGF0IGlmIHRoZSBNRUkgZGV2aWNlIHJlc2V0cyBvciBnbyB0
-aHJvdWdoIHN1c3BlbmQvcmVzdW1lIHRoZSBtZWlfd2R0IHdpbGwgYmUgcmVtb3ZlZCBkZXN0cm95
-ZWQNCldoeSB3YXRjaGRvZyBkYWVtb24gd2lsbCBzdGlsbCBob2xkcyBvcGVuIGhhbmRsZXIgdG8g
-d2F0Y2hkb2dfZGV2aWNlIGFuZCB3aWxsIHJlbGVhc2VzIGl0IHVwb24gcGluZyBmYWlsdXJlLiBU
-aGlzIGlzIHdoZXJlIHJlZmVyZW5jZSBjb3VudGVyIHdpbGwgY29tZSBpbi4NCkN1cnJlbnRseSB3
-ZSBkbyBub3Qgc3VwcG9ydCBzZWFtbGVzcyByZXNldC4gDQoNCj4gPj4+ICsNCj4gPj4+ICsJLyog
-dmFsaWQgdmFsdWUgaXMgYWxyZWFkeSBjaGVja2VkIGJ5IHRoZSBjYWxsZXIgKi8NCj4gPj4+ICsJ
-d2R0LT50aW1lb3V0ID0gdGltZW91dDsNCj4gPj4+ICsJd2RkLT50aW1lb3V0ID0gdGltZW91dDsN
-Cj4gPj4NCj4gPj4gT25lIG9mIHRob3NlIHNlZW1zIHVubmVjZXNzYXJ5LiBXaHkga2VlcCB0aGUg
-dGltZW91dCB0d2ljZSA/DQo+ID4NCj4gPiBXZSBuZWVkIHR3byBhcyB3ZGQgbWF5IG5vdCBleGlz
-dHMgYW5kIHdlIHN0aWxsIG5lZWQgdG8gc2VuZCBwaW5nIHRvDQo+ID4gZGV0ZWN0IGlmIHRoZSBk
-ZXZpY2UgaXMgcHJvdmlzaW9uZWQuDQo+ID4NCj4gDQo+IE9rLCBtYWtlcyBzZW5zZS4NCj4gDQo+
-ID4+PiArDQo+ID4+PiArc3RhdGljIHZvaWQgbWVpX3dkdF91bnJlZ2lzdGVyKHN0cnVjdCBtZWlf
-d2R0ICp3ZHQpDQo+ID4+PiArew0KPiA+Pj4gKwlpZiAoIXdkdC0+bXdkKQ0KPiA+Pj4gKwkJcmV0
-dXJuOw0KPiA+Pj4gKw0KPiA+Pj4gKwl3YXRjaGRvZ191bnJlZ2lzdGVyX2RldmljZSgmd2R0LT5t
-d2QtPndkZCk7DQo+ID4+PiArCWtyZWZfcHV0KCZ3ZHQtPm13ZC0+cmVmY250LCBtZWlfd2R0X3Jl
-bGVhc2UpOw0KPiA+Pj4gKwl3ZHQtPm13ZCA9IE5VTEw7DQo+IA0KPiBJZiBzZXR0aW5nIHRoaXMg
-dG8gTlVMTCB3YXMgcmVhbGx5IG5lZWRlZCwgeW91IHdvdWxkIGhhdmUgYSByYWNlIGNvbmRpdGlv
-biBoZXJlOg0KPiB3ZHQtPm13ZCBpcyBzZXQgdG8gTlVMTCBvbmx5IGFmdGVyIHRoZSBwb2ludGVy
-IGl0IHBvaW50cyB0byB3YXMgZnJlZWQsIGxlYXZpbmcNCj4gYSBzbWFsbCB3aW5kb3cgd2hlcmUg
-dGhlIGNvZGUgYWJvdmUgY291bGQgc3RpbGwgYWNjZXNzIGl0Lg0KDQoNClllcywgZ29vZCBjYXRj
-aCB3aWxsIGZpeCB0aGF0Lg0KDQo+IA0KPiA+Pj4gK30NCj4gPj4NCj4gPj4gU2VlbXMgdG8gbWUg
-dGhhdCB1c2luZyB0d28gc2VwYXJhdGUgZGF0YSBzdHJ1Y3R1cmVzIGluc3RlYWQgb2Ygb25lDQo+
-ID4+IGFkZHMgYSBsb3Qgb2YgY29tcGxleGl0eS4NCj4gPg0KPiA+IEl0IG1pZ2h0IGJlIHJlZHVj
-ZWQgYnV0IEknbSBub3Qgc3VyZSBpdCBjYW4gYmUgc2lnbmlmaWNhbnRseSBzaW1wbGVyLg0KPiA+
-IEl0IHRoZSByZWZlcmVuY2UgY291bnRlciB3aWxsIGJlIHBhcnQgb2Ygd2F0Y2hkb2dfZGV2aWNl
-IGl0IHdvdWxkIGJlDQo+ID4gc2ltcGxlci4NCj4gPg0KPiANCj4gSXQgd291bGQgYmUgdGhlcmUg
-aWYgc3RydWN0IHdhdGNoZG9nX2RldmljZSB3YXMgYWxsb2NhdGVkIGJ5IHRoZQ0KPiB3YXRjaGRv
-ZyBjb3JlLCB3aGljaCBpcyBub3QgdGhlIGNhc2UuIEkgYW0gc3RpbGwgdHJ5aW5nIHRvIGNyZWF0
-ZQ0KPiBhIHNpdHVhdGlvbiB3aGVyZSB0aGUgbG9jYWwgZGF0YSBzdHJ1Y3R1cmUgKHN0cnVjdCBt
-ZWlfd2R0IGluIHRoaXMgY2FzZSkNCj4gY2FuIGJlIHJlbGVhc2VkIHdoaWxlIHRoZSB3YXRjaGRv
-ZyBkZXZpY2UgaXMgc3RpbGwgb3Blbg0KPiAoaWUgaG93IHRvIHVucHJvdmlzaW9uIHRoZSB3YXRj
-aGRvZyBkZXZpY2Ugd2hpbGUgaW4gdXNlKS4NCg0KVGhpcyBoYXBwZW4gb24gZGV2aWNlIHN1c3Bl
-bmQvcmVzdW1lIG9yIGRldmljZSByZXNldCwgdGhpcyBpcyBub3QgdGhlIGNhc2Ugb2YgcHJvdmlz
-aW9uaW5nLg0KQ3VycmVudGx5IHRoZSBvdXIgYnVzIGxheWVyIGRvZXNuJ3Qgc3VwcG9ydCBzZWFt
-bGVzcyByZWNvbm5lY3Rpb24uIA0KDQo+IE9uY2UgSSBmaWd1cmUgdGhhdCBvdXQsIEkgaG9wZSBJ
-IGNhbiBmaW5kIGEgd2F5IHRvIHByb3RlY3QgaXQNCj4gZGlmZmVyZW50bHkgYW5kIGRyb3AgdGhl
-IHJlZi91bnJlZiBjYWxsYmFja3MuIEkgc3VzcGVjdCBpdCBtYXkNCj4gYmUgbmVjZXNzYXJ5IHRv
-IHNlcGFyYXRlIHN0cnVjdCB3YXRjaGRvZ19kZXZpY2UgaW50byB0d28gcGFydHM6DQo+IG9uZSB1
-c2VkIGJ5IGRyaXZlcnMgYW5kIG9uZSB1c2VkIGJ5IHRoZSB3YXRjaGRvZyBjb3JlLg0KPiBUaGUg
-d2F0Y2hkb2cgY29yZSB3b3VsZCB0aGVuIG1hbmFnZSBpdHMgb3duIGRhdGEgc3RydWN0dXJlLCBh
-bmQNCj4gbm8gbG9uZ2VyIGRlcGVuZCBvbiBzdHJ1Y3Qgd2F0Y2hkb2dfZGV2aWNlIChvd25lZCBi
-eSB0aGUgZHJpdmVyKQ0KPiB0byBhY3R1YWxseSBiZSB0aGVyZS4gRGlmZmVyZW50IHN0b3J5LCB0
-aG91Z2guDQoNCg0KSSB0aGluayB0aGF0IHdvdWxkIHNvbWVob3cgZml0IGFsc28gb3VyIGRyaXZl
-ci4gDQoNClRoYW5rcw0KVG9tYXMgDQo=
+
+
+On 11/06/2015 05:02 PM, Guenter Roeck wrote:
+> On Fri, Nov 06, 2015 at 11:53:42AM -0800, Tim Harvey wrote:
+>> On Thu, Nov 5, 2015 at 2:23 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+>>> On Thu, Nov 05, 2015 at 04:19:21PM -0500, Akshay Bhat wrote:
+>>>> From: Tim Harvey <tharvey@gateworks.com>
+>>>>
+>>>> The IMX6 watchdog supports assertion of a signal (WDOG_B) which
+>>>> can be pinmux'd to an external pin. This is typically used for boards that
+>>>> have PMIC's in control of the IMX6 power rails. In fact, failure to use
+>>>> such an external reset on boards with external PMIC's can result in various
+>>>> hangs due to the IMX6 not being fully reset [1] as well as the board failing
+>>>> to reset because its PMIC has not been reset to provide adequate voltage for
+>>>> the CPU when coming out of reset at 800Mhz.
+>>>>
+>>>> This uses a new device-tree property 'ext-reset-output' to indicate the
+>>>> board has such a reset and to cause the watchdog to be configured to assert
+>>>> WDOG_B instead of an internal reset both on a watchdog timeout and in
+>>>> system_restart.
+>>>>
+>>>> [1] http://lists.infradead.org/pipermail/linux-arm-kernel/2015-March/333689.html
+>>>>
+>>>> Cc: Lucas Stach <l.stach@pengutronix.de>
+>>>> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
+>>>> ---
+>>>>   .../devicetree/bindings/watchdog/fsl-imx-wdt.txt     |  2 ++
+>>>>   drivers/watchdog/imx2_wdt.c                          | 20 ++++++++++++++++++--
+>>>>   2 files changed, 20 insertions(+), 2 deletions(-)
+>>>>
+>>>> diff --git a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+>>>> index 8dab6fd..9b89b3a 100644
+>>>> --- a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+>>>> +++ b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+>>>> @@ -9,6 +9,8 @@ Optional property:
+>>>
+>>> properties ?
+>>>
+>>>>   - big-endian: If present the watchdog device's registers are implemented
+>>>>     in big endian mode, otherwise in native mode(same with CPU), for more
+>>>>     detail please see: Documentation/devicetree/bindings/regmap/regmap.txt.
+>>>> +- ext-reset-output: If present the watchdog device is configured to assert its
+>>>
+>>> Should that have a vendor prefix ? Also, not sure if "-output"
+>>> has any real value in the property name. "fsl,external-reset", maybe ?
+>>
+>> Hi Guenter,
+>>
+>> I don't see why a vendor prefix is necessary - its a feature of the
+>> IMX6 watchdog supported by this driver to be able to trigger an
+>> internal chip-level reset and/or an external signal that can be hooked
+>> to additional hardware.
+>>
+> Sounded like vendor specific to me, but then I am not a devicetree maintainer,
+> so I am not an authority on the subject.
+
+Devicetree maintainers,
+
+Any thoughts?
+
+Tim,
+
+After looking at all the other watchdog drivers, it does not appear that 
+there is any other processor which uses a similar feature. Since imx is 
+the only processor that appears to support this feature, it might make 
+sense in making this vendor specific. If in the future it is found more 
+processors support a similar functionality, it can be revisited and 
+moved out from being vendor specific?
+
+>
+>> I started with ext-reset, but it was suggested
+>> (http://lists.infradead.org/pipermail/linux-arm-kernel/2015-May/347437.html)
+>> to also make it clear that this is an 'output' and not a reset input.
+>>
+> No problem, as long as you get an Ack from a devicetree maintainer.
+>
+> Guenter
+>
