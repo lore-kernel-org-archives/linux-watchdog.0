@@ -1,118 +1,67 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.savoirfairelinux.com ([208.88.110.44]:40873 "EHLO
-	mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757725AbbLBXVK (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:56416 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751655AbbLCR7Q (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Wed, 2 Dec 2015 18:21:10 -0500
-Date: Wed, 2 Dec 2015 18:21:02 -0500
-From: Damien Riegel <damien.riegel@savoirfairelinux.com>
-To: Rob Herring <robh@kernel.org>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	Lee Jones <lee.jones@linaro.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Russell King <linux@arm.linux.org.uk>,
-	Shawn Guo <shawnguo@kernel.org>,
-	Sascha Hauer <kernel@pengutronix.de>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>, kernel@savoirfairelinux.com
-Subject: Re: [PATCH v7 2/6] mfd: syscon: add a DT property to set value width
-Message-ID: <20151202232102.GB6055@localhost>
-References: <1448899191-13891-1-git-send-email-damien.riegel@savoirfairelinux.com>
- <1448899191-13891-3-git-send-email-damien.riegel@savoirfairelinux.com>
- <20151130190015.GA31006@rob-hp-laptop>
+	Thu, 3 Dec 2015 12:59:16 -0500
+Date: Thu, 3 Dec 2015 09:59:13 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+	"wim@iguana.be" <wim@iguana.be>
+Subject: Re: Need for ref/unref functions in watchdog drivers
+Message-ID: <20151203175913.GA19134@roeck-us.net>
+References: <565C80A2.6020505@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20151130190015.GA31006@rob-hp-laptop>
+In-Reply-To: <565C80A2.6020505@roeck-us.net>
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-Lee, Arnd,
-
-I had to make changes in this patch to address Rob's comments.
-reg-io-width is now in bytes while bus-width was a value in bits. Could
-you please review this patch ?
-
-Thanks,
-Damien
-
-On Mon, Nov 30, 2015 at 01:00:15PM -0600, Rob Herring wrote:
-> On Mon, Nov 30, 2015 at 10:59:47AM -0500, Damien Riegel wrote:
-> > Currently syscon has a fixed configuration of 32 bits for register and
-> > values widths. In some cases, it would be desirable to be able to
-> > customize the value width.
-> > 
-> > For example, certain boards (like the ones manufactured by Technologic
-> > Systems) have a FPGA that is memory-mapped, but its registers are only
-> > 16-bit wide.
-> > 
-> > This patch adds an optional "reg-io-width" DT binding for syscon that
-> > allows to change the width for the data bus (i.e. val_bits). If this
-> > property is provided, it will also set the register stride to
-> > reg-io-width's value. If not provided, the default configuration is
-> > used.
-> > 
-> > Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
+On Mon, Nov 30, 2015 at 09:00:18AM -0800, Guenter Roeck wrote:
+> Hi,
 > 
-> Acked-by: Rob Herring <robh@kernel.org>
+> I keep being puzzled about the ref/unref functions for watchdog drivers.
 > 
-> > ---
-> >  Documentation/devicetree/bindings/mfd/syscon.txt |  4 ++++
-> >  drivers/mfd/syscon.c                             | 13 +++++++++++++
-> >  2 files changed, 17 insertions(+)
-> > 
-> > diff --git a/Documentation/devicetree/bindings/mfd/syscon.txt b/Documentation/devicetree/bindings/mfd/syscon.txt
-> > index fe8150b..408f768 100644
-> > --- a/Documentation/devicetree/bindings/mfd/syscon.txt
-> > +++ b/Documentation/devicetree/bindings/mfd/syscon.txt
-> > @@ -13,6 +13,10 @@ Required properties:
-> >  - compatible: Should contain "syscon".
-> >  - reg: the register region can be accessed from syscon
-> >  
-> > +Optional property:
-> > +- reg-io-width: the size (in bytes) of the IO accesses that should be
-> > +  performed on the device.
-> > +
-> >  Examples:
-> >  gpr: iomuxc-gpr@020e0000 {
-> >  	compatible = "fsl,imx6q-iomuxc-gpr", "syscon";
-> > diff --git a/drivers/mfd/syscon.c b/drivers/mfd/syscon.c
-> > index 176bf0f..b7aabee 100644
-> > --- a/drivers/mfd/syscon.c
-> > +++ b/drivers/mfd/syscon.c
-> > @@ -47,6 +47,7 @@ static struct syscon *of_syscon_register(struct device_node *np)
-> >  	struct syscon *syscon;
-> >  	struct regmap *regmap;
-> >  	void __iomem *base;
-> > +	u32 reg_io_width;
-> >  	int ret;
-> >  	struct regmap_config syscon_config = syscon_regmap_config;
-> >  
-> > @@ -69,6 +70,18 @@ static struct syscon *of_syscon_register(struct device_node *np)
-> >  	 else if (of_property_read_bool(np, "little-endian"))
-> >  		syscon_config.val_format_endian = REGMAP_ENDIAN_LITTLE;
-> >  
-> > +	/*
-> > +	 * search for reg-io-width property in DT. If it is not provided,
-> > +	 * default to 4 bytes. regmap_init_mmio will return an error if values
-> > +	 * are invalid so there is no need to check them here.
-> > +	 */
-> > +	ret = of_property_read_u32(np, "reg-io-width", &reg_io_width);
-> > +	if (ret)
-> > +		reg_io_width = 4;
-> > +
-> > +	syscon_config.reg_stride = reg_io_width;
-> > +	syscon_config.val_bits = reg_io_width * 8;
-> > +
-> >  	regmap = regmap_init_mmio(NULL, base, &syscon_config);
-> >  	if (IS_ERR(regmap)) {
-> >  		pr_err("regmap init failed\n");
-> > -- 
-> > 2.5.0
-> > 
+> Hardly any driver implements those functions, even though many allocate
+> the watchdog_device data structure dynamically. At the same time, I don't
+> recall ever seeing a crash or traceback because of it.
+> 
+> Granted, many watchdogs are only loaded and never unloaded, but one
+> should think that the problem is seen at least once in a while.
+> 
+> Does anyone know how to trigger the problem which makes the ref/unref
+> functions necessary ? I would like to reproduce it and then try to find a better
+> solution, ie one that doesn't need those functions in the drivers (seems to me
+> the infrastructure should ensure that a driver isn't unloaded while in use).
+> 
+Ok, for the record, answering my own question.
+
+The lifetime of (dynamically allocated) struct watchdog_device differs from
+the lifetime of objects from struct watchdog_device used by the watchdog core.
+This applies to status bits, the lock, and cdev. The watchdog core needs to
+access those objects even after a watchdog device was unregistered if
+/dev/watchdogX was open at the time of unregistration.
+
+Unless a dynamically allocated struct watchdog_device is prevented from being
+released by a watchdog driver, this will result in a crash when an access
+to the watchdog (and thus to struct watchdog_device) through watchdog file
+operations is made after the device was unregistered.
+
+This is somewhat difficult to reproduce, since instantiation of watchdog drivers
+tends to be static either through platform device registration or with devicetree
+properties. I was able to reproduce it by instantiating a watchdog through a
+devicetree overlay; the crash happens after the overlay is unloaded.
+
+Unfortunately, two out of three drivers implementing ref/unref callbacks do
+it wrong. While implementing those callbacks, they still release the memory
+associated with struct watchdog_device on device removal. Most of the drivers
+which dynamically allocate struct watchdog_device don't implement ref/unref
+to start with. Not surprising, as it is a bit difficult to understand.
+
+Clean fix will be to separate objects in struct watchdog_device based on object
+lifetime, to allocate the objects needed by the watchdog core locally, and to
+handle reference counting for those objects from within the watchdog core.
+I have working prototype code doing just that.
+
+Guenter
