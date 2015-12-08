@@ -1,137 +1,62 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mail.savoirfairelinux.com ([208.88.110.44]:56618 "EHLO
-	mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932359AbbLGTwG convert rfc822-to-8bit (ORCPT
+Received: from bh-25.webhostbox.net ([208.91.199.152]:58845 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932744AbbLHHDe (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Mon, 7 Dec 2015 14:52:06 -0500
-Date: Mon, 7 Dec 2015 14:42:18 -0500
-From: Damien Riegel <damien.riegel@savoirfairelinux.com>
-To: Lee Jones <lee.jones@linaro.org>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	Rob Herring <robh+dt@kernel.org>,
-	Pawel Moll <pawel.moll@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Ian Campbell <ijc+devicetree@hellion.org.uk>,
-	Kumar Gala <galak@codeaurora.org>,
-	Russell King <linux@arm.linux.org.uk>,
-	Shawn Guo <shawnguo@kernel.org>,
-	Sascha Hauer <kernel@pengutronix.de>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Samuel Ortiz <sameo@linux.intel.com>,
-	Wim Van Sebroeck <wim@iguana.be>,
-	Guenter Roeck <linux@roeck-us.net>, kernel@savoirfairelinux.com
-Subject: Re: [PATCH v7 2/6] mfd: syscon: add a DT property to set value width
-Message-ID: <20151207194218.GB6030@localhost>
-References: <1448899191-13891-1-git-send-email-damien.riegel@savoirfairelinux.com>
- <1448899191-13891-3-git-send-email-damien.riegel@savoirfairelinux.com>
- <20151207094020.GF3384@x1>
+	Tue, 8 Dec 2015 02:03:34 -0500
+Subject: Re: An issue about sp5100 watchdog
+To: Huang Rui <ray.huang@amd.com>, Wim Van Sebroeck <wim@iguana.be>
+References: <20151208054232.GC10759@hr-amur2>
+Cc: Borislav Petkov <bp@alien8.de>, linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <566680C3.2000501@roeck-us.net>
+Date: Mon, 7 Dec 2015 23:03:31 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20151207094020.GF3384@x1>
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+In-Reply-To: <20151208054232.GC10759@hr-amur2>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On Mon, Dec 07, 2015 at 09:40:20AM +0000, Lee Jones wrote:
-> On Mon, 30 Nov 2015, Damien Riegel wrote:
->=20
-> > Currently syscon has a fixed configuration of 32 bits for register =
-and
-> > values widths. In some cases, it would be desirable to be able to
-> > customize the value width.
-> >=20
-> > For example, certain boards (like the ones manufactured by Technolo=
-gic
-> > Systems) have a FPGA that is memory-mapped, but its registers are o=
-nly
-> > 16-bit wide.
-> >=20
-> > This patch adds an optional "reg-io-width" DT binding for syscon th=
-at
-> > allows to change the width for the data bus (i.e. val_bits). If thi=
-s
-> > property is provided, it will also set the register stride to
-> > reg-io-width's value. If not provided, the default configuration is
-> > used.
-> >=20
-> > Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
-> > ---
-> >  Documentation/devicetree/bindings/mfd/syscon.txt |  4 ++++
-> >  drivers/mfd/syscon.c                             | 13 ++++++++++++=
-+
-> >  2 files changed, 17 insertions(+)
->=20
-> Applied, thanks.
->=20
-Hi Lee,
+On 12/07/2015 09:42 PM, Huang Rui wrote:
+> Hi all,
+>
+> I found an issue in some of AMD platforms about sp5100, that the MMIO
+> address (0x51413120) is already used by System RAM
+> (00100000-7c2befff)...
+>
+> [   29.928096] sp5100_tco: SP5100/SB800 TCO WatchDog Timer Driver v0.05
+> [   29.928302] sp5100_tco: PCI Vendor ID: 0x1022, Device ID: 0x790b, Revision ID: 0x4a
+> [   29.928319] sp5100_tco: Got 0x51413120 from indirect I/O
+> [   29.928323] sp5100_tco: MMIO address 0x51413120 already in use
+> [   29.928332] sp5100_tco: SBResource_MMIO is disabled(0xe000a0)
+> [   29.928333] sp5100_tco: failed to find MMIO address, giving up.
+>
+If I understand the code correctly, the problem is really "SBResource_MMIO is disabled".
+Presumably that is done in the BIOS. No idea if anything can be done about that.
 
-Good to see this patch applied. What's going on now with the other
-patches of this serie ? How should I handle them ?
+Guenter
 
-Thanks,
-Damien
+> 00100000-7c2befff : System RAM
+>    01000000-017b1ab3 : Kernel code
+>    017b1ab4-01d4ce7f : Kernel data
+>    01ec4000-02008fff : Kernel bss
+> 7c2bf000-7c8befff : reserved
+> 7c8bf000-7cbbefff : ACPI Non-volatile Storage
+>    7cbb6000-7cbb9fff : MSFT0101:00
+>    7cbba000-7cbbdfff : MSFT0101:00
+> 7cbbf000-7cbfefff : ACPI Tables
+> 7cbff000-7cbfffff : System RAM
+> 7cc00000-7effffff : reserved
+>
+> Any idea?
+>
+> Thanks,
+> Rui
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
 
-> > diff --git a/Documentation/devicetree/bindings/mfd/syscon.txt b/Doc=
-umentation/devicetree/bindings/mfd/syscon.txt
-> > index fe8150b..408f768 100644
-> > --- a/Documentation/devicetree/bindings/mfd/syscon.txt
-> > +++ b/Documentation/devicetree/bindings/mfd/syscon.txt
-> > @@ -13,6 +13,10 @@ Required properties:
-> >  - compatible: Should contain "syscon".
-> >  - reg: the register region can be accessed from syscon
-> > =20
-> > +Optional property:
-> > +- reg-io-width: the size (in bytes) of the IO accesses that should=
- be
-> > +  performed on the device.
-> > +
-> >  Examples:
-> >  gpr: iomuxc-gpr@020e0000 {
-> >  	compatible =3D "fsl,imx6q-iomuxc-gpr", "syscon";
-> > diff --git a/drivers/mfd/syscon.c b/drivers/mfd/syscon.c
-> > index 176bf0f..b7aabee 100644
-> > --- a/drivers/mfd/syscon.c
-> > +++ b/drivers/mfd/syscon.c
-> > @@ -47,6 +47,7 @@ static struct syscon *of_syscon_register(struct d=
-evice_node *np)
-> >  	struct syscon *syscon;
-> >  	struct regmap *regmap;
-> >  	void __iomem *base;
-> > +	u32 reg_io_width;
-> >  	int ret;
-> >  	struct regmap_config syscon_config =3D syscon_regmap_config;
-> > =20
-> > @@ -69,6 +70,18 @@ static struct syscon *of_syscon_register(struct =
-device_node *np)
-> >  	 else if (of_property_read_bool(np, "little-endian"))
-> >  		syscon_config.val_format_endian =3D REGMAP_ENDIAN_LITTLE;
-> > =20
-> > +	/*
-> > +	 * search for reg-io-width property in DT. If it is not provided,
-> > +	 * default to 4 bytes. regmap_init_mmio will return an error if v=
-alues
-> > +	 * are invalid so there is no need to check them here.
-> > +	 */
-> > +	ret =3D of_property_read_u32(np, "reg-io-width", &reg_io_width);
-> > +	if (ret)
-> > +		reg_io_width =3D 4;
-> > +
-> > +	syscon_config.reg_stride =3D reg_io_width;
-> > +	syscon_config.val_bits =3D reg_io_width * 8;
-> > +
-> >  	regmap =3D regmap_init_mmio(NULL, base, &syscon_config);
-> >  	if (IS_ERR(regmap)) {
-> >  		pr_err("regmap init failed\n");
->=20
-> --=20
-> Lee Jones
-> Linaro STMicroelectronics Landing Team Lead
-> Linaro.org =E2=94=82 Open source software for ARM SoCs
-> Follow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
