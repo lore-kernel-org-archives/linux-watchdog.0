@@ -1,46 +1,51 @@
-Return-path: <ukl@pengutronix.de>
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:40457 "EHLO
+	metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S964803AbbLOKhx (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Tue, 15 Dec 2015 05:37:53 -0500
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
+	<u.kleine-koenig@pengutronix.de>
 To: Wim Van Sebroeck <wim@iguana.be>
-Cc: kernel@pengutronix.de,
-	linux-watchdog@vger.kernel.org,
+Cc: kernel@pengutronix.de, linux-watchdog@vger.kernel.org,
 	Lars Poeschel <poeschel@lemonage.de>,
 	Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 1/2] watchdog: omap: don't disable runtime pm before starting device
-Date: Tue, 15 Dec 2015 11:37:40 +0100
-Message-Id: <1450175861-16801-1-git-send-email-u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 2/2] watchdog: omap: don't disable the timer when it should be enabled early
+Date: Tue, 15 Dec 2015 11:37:41 +0100
+Message-Id: <1450175861-16801-2-git-send-email-u.kleine-koenig@pengutronix.de>
+In-Reply-To: <1450175861-16801-1-git-send-email-u.kleine-koenig@pengutronix.de>
+References: <1450175861-16801-1-git-send-email-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-omap_wdt_start calls pm_runtime_get_sync so dropping a reference just
-before calling omap_wdt_start doesn't make much sense. Moreover there is
-no point to use the synchronous variant of pm_runtime_put because the
-driver doesn't care if the clock is disabled before or after
-omap_wdt_probe returns.
+With the early_enable module parameter the watchdog can be started
+during driver probe time. If this is requested the bets are good that
+the timer is already running, so to narrow the gap where the timer is
+disabled only call the disable function when the timer shouldn't be
+started.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/watchdog/omap_wdt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/watchdog/omap_wdt.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
-index 7abd6988d94a..af8947429c91 100644
+index af8947429c91..ae673cd06aa1 100644
 --- a/drivers/watchdog/omap_wdt.c
 +++ b/drivers/watchdog/omap_wdt.c
-@@ -282,11 +282,11 @@ static int omap_wdt_probe(struct platform_device *pdev)
- 		readl_relaxed(wdev->base + OMAP_WATCHDOG_REV) & 0xFF,
- 		wdev->wdog.timeout);
+@@ -270,7 +270,8 @@ static int omap_wdt_probe(struct platform_device *pdev)
+ 			wdev->wdog.bootstatus = WDIOF_CARDRESET;
+ 	}
  
--	pm_runtime_put_sync(wdev->dev);
--
- 	if (early_enable)
- 		omap_wdt_start(&wdev->wdog);
+-	omap_wdt_disable(wdev);
++	if (!early_enable)
++		omap_wdt_disable(wdev);
  
-+	pm_runtime_put(wdev->dev);
-+
- 	return 0;
- }
- 
+ 	ret = watchdog_register_device(&wdev->wdog);
+ 	if (ret) {
 -- 
 2.6.2
+
