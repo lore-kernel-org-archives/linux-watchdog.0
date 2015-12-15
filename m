@@ -1,55 +1,57 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:42307 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753915AbbLOQUm (ORCPT
+Received: from mx0b-0016f401.pphosted.com ([67.231.156.173]:48736 "EHLO
+	mx0b-0016f401.pphosted.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S933333AbbLOO3i (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Tue, 15 Dec 2015 11:20:42 -0500
-Subject: Re: [PATCH 2/2] watchdog: omap: don't disable the timer when it
- should be enabled early
-To: =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>,
-	Wim Van Sebroeck <wim@iguana.be>
-References: <1450175861-16801-1-git-send-email-u.kleine-koenig@pengutronix.de>
- <1450175861-16801-2-git-send-email-u.kleine-koenig@pengutronix.de>
-Cc: kernel@pengutronix.de, linux-watchdog@vger.kernel.org,
-	Lars Poeschel <poeschel@lemonage.de>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <56703DD8.1090103@roeck-us.net>
-Date: Tue, 15 Dec 2015 08:20:40 -0800
+	Tue, 15 Dec 2015 09:29:38 -0500
+From: Jisheng Zhang <jszhang@marvell.com>
+To: <wim@iguana.be>
+CC: <linux-watchdog@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<linux-arm-kernel@lists.infradead.org>,
+	<sebastian.hesselbarth@gmail.com>,
+	Jisheng Zhang <jszhang@marvell.com>
+Subject: [PATCH] watchdog: dw_wdt: fix signedness bug in dw_wdt_top_in_seconds()
+Date: Tue, 15 Dec 2015 22:25:27 +0800
+Message-ID: <1450189527-1015-1-git-send-email-jszhang@marvell.com>
 MIME-Version: 1.0
-In-Reply-To: <1450175861-16801-2-git-send-email-u.kleine-koenig@pengutronix.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 12/15/2015 02:37 AM, Uwe Kleine-König wrote:
-> With the early_enable module parameter the watchdog can be started
-> during driver probe time. If this is requested the bets are good that
-> the timer is already running, so to narrow the gap where the timer is
-> disabled only call the disable function when the timer shouldn't be
-> started.
->
-> Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+On 64bit platforms, "(1 << (16 + top)) / clk_get_rate(dw_wdt.clk)" is
+sign-extended to 64bit then converted to unsigned 64bit, finally divide
+the clk rate. If the top is the maximum TOP i.e 15, "(1 << (16 +15))"
+will be sign-extended to 0xffffffff80000000, then converted to unsigned
+0xffffffff80000000, which is a huge number, thus the final result is
+wrong.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+We fix this issue by giving usigned value(1U in this case) at first.
 
-> ---
->   drivers/watchdog/omap_wdt.c | 3 ++-
->   1 file changed, 2 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
-> index af8947429c91..ae673cd06aa1 100644
-> --- a/drivers/watchdog/omap_wdt.c
-> +++ b/drivers/watchdog/omap_wdt.c
-> @@ -270,7 +270,8 @@ static int omap_wdt_probe(struct platform_device *pdev)
->   			wdev->wdog.bootstatus = WDIOF_CARDRESET;
->   	}
->
-> -	omap_wdt_disable(wdev);
-> +	if (!early_enable)
-> +		omap_wdt_disable(wdev);
->
->   	ret = watchdog_register_device(&wdev->wdog);
->   	if (ret) {
->
+Let's assume clk rate is 25MHZ,
+Before the patch:
+dw_wdt_top_in_seconds(15) = -864612050
+
+After the patch:
+dw_wdt_top_in_seconds(15) = 85
+
+Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
+---
+ drivers/watchdog/dw_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/watchdog/dw_wdt.c b/drivers/watchdog/dw_wdt.c
+index 6ea0634..8fefa4ad 100644
+--- a/drivers/watchdog/dw_wdt.c
++++ b/drivers/watchdog/dw_wdt.c
+@@ -81,7 +81,7 @@ static inline int dw_wdt_top_in_seconds(unsigned top)
+ 	 * There are 16 possible timeout values in 0..15 where the number of
+ 	 * cycles is 2 ^ (16 + i) and the watchdog counts down.
+ 	 */
+-	return (1 << (16 + top)) / clk_get_rate(dw_wdt.clk);
++	return (1U << (16 + top)) / clk_get_rate(dw_wdt.clk);
+ }
+ 
+ static int dw_wdt_get_top(void)
+-- 
+2.6.4
 
