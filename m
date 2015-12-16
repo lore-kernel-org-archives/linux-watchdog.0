@@ -1,27 +1,27 @@
-Return-path: <panand@redhat.com>
-Date: Wed, 16 Dec 2015 10:21:17 +0530
-From: Pratyush Anand <panand@redhat.com>
-To: Guenter Roeck <linux@roeck-us.net>, Wim Van Sebroeck <wim@iguana.be>
+Return-path: <linux-watchdog-owner@vger.kernel.org>
+Received: from spo001.leaseweb.nl ([83.149.101.17]:41212 "EHLO
+	spo001.leaseweb.nl" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S933018AbbLPHeO (ORCPT
+	<rfc822;linux-watchdog@vger.kernel.org>);
+	Wed, 16 Dec 2015 02:34:14 -0500
+Date: Wed, 16 Dec 2015 08:33:44 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Guenter Roeck <linux@roeck-us.net>
 Cc: Damien Riegel <damien.riegel@savoirfairelinux.com>,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC/RFT PATCH] watchdog: Move watchdog device creation to
- watchdog_dev.c
-Message-ID: <20151216045117.GG4674@dhcppc13.redhat.com>
-References: <1449431501-15843-1-git-send-email-linux@roeck-us.net>
- <20151207161549.GA6030@localhost>
- <5665B821.7070803@roeck-us.net>
- <20151207204103.GA17174@spo001.leaseweb.nl>
- <20151213220243.GB4600@localhost>
- <566E60A3.5010102@roeck-us.net>
- <20151214204422.GB15889@spo001.leaseweb.nl>
- <5670D2F2.2000503@roeck-us.net>
-MIME-Version: 1.0
+	Pratyush Anand <panand@redhat.com>,
+	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC/RFT PATCH] watchdog: Move watchdog device creation to watchdog_dev.c
+Message-ID: <20151216073344.GA29639@spo001.leaseweb.nl>
+References: <1449431501-15843-1-git-send-email-linux@roeck-us.net> <20151207161549.GA6030@localhost> <5665B821.7070803@roeck-us.net> <20151207204103.GA17174@spo001.leaseweb.nl> <20151213220243.GB4600@localhost> <566E60A3.5010102@roeck-us.net> <20151214204422.GB15889@spo001.leaseweb.nl> <5670D2F2.2000503@roeck-us.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <5670D2F2.2000503@roeck-us.net>
-List-ID: <linux-watchdog@vger.kernel.org>
+Sender: linux-watchdog-owner@vger.kernel.org
+List-Id: linux-watchdog@vger.kernel.org
 
-On 15/12/2015:06:56:50 PM, Guenter Roeck wrote:
+Hi Guenter,
+
 > On 12/14/2015 12:44 PM, Wim Van Sebroeck wrote:
 > >On Sun, Dec 13, 2015 at 10:24:35PM -0800, Guenter Roeck wrote:
 > >
@@ -143,20 +143,27 @@ On 15/12/2015:06:56:50 PM, Guenter Roeck wrote:
 > >
 > >Basically the options we have are:
 > >1) go with the original design. The problem here (as Guenter pointed it out
-> >correctly) is that sysfs went from optional to integrated with the character
+> >correctly) is that sysfs went from optional to integrated with the 
+> >character
 > >devices.
-> >2) change the origial design so that the watchdog_sysfs part is still optional
-> >(meaning the additional read-only sysfs attributes) but is called from within
-> >watchdog_dev.c instead of from watchdog_core.c . This would make it possible
+> >2) change the origial design so that the watchdog_sysfs part is still 
+> >optional
+> >(meaning the additional read-only sysfs attributes) but is called from 
+> >within
+> >watchdog_dev.c instead of from watchdog_core.c . This would make it 
+> >possible
 > >to avoid race conditions. This would also mean that it is harder for an
 > >embedded developer to get rid of the /dev/watchdog interface.
 > >3) put the sysfs attributes together with the /dev/watchdog code in
 > >watchdog_dev.c . The sysfs attributes can be optional with a minimum of
 > >#ifdef's if needed.
-> >4) consolidate everything in only watchdog_core.c . (if we put the sysfs and
-> >the /dev/watchdog* code in 1 file, then why not put everything in one file).
+> >4) consolidate everything in only watchdog_core.c . (if we put the sysfs 
+> >and
+> >the /dev/watchdog* code in 1 file, then why not put everything in one 
+> >file).
 > >
-> >For the linux-kernel leaving the dev/watchdog* interface and only use the sysfs
+> >For the linux-kernel leaving the dev/watchdog* interface and only use the 
+> >sysfs
 > >interface (but then read-write so that you can use the interface also for
 > >starting and stopping a watchdog) would indeed mean a compatibility break.
 > >But as an embedded developer it would not be a necessity and thus not a
@@ -172,12 +179,16 @@ On 15/12/2015:06:56:50 PM, Guenter Roeck wrote:
 > >approach. So to me we should go for option 3 or 4.
 > >
 > 
-> I would suggest to go with 3), and also move the watchdog class to watchdog_dev.c.
-> I don't see a real reason to move everything into a single file - it would just
-> make code maintenance more difficult, and the current separation seems to work
+> I would suggest to go with 3), and also move the watchdog class to 
+> watchdog_dev.c.
+> I don't see a real reason to move everything into a single file - it would 
+> just
+> make code maintenance more difficult, and the current separation seems to 
+> work
 > quite well as far as I can see.
 
-If it is the final consensus then I will send my sysfs patches with changes to
-protect sysfs part with some config option like CONFIG_WATCHDOG_SYSFS.
+Then we will go with option 3.
 
-~Pratyush
+Kind regards,
+Wim.
+
