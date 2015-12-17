@@ -7,55 +7,43 @@ Cc: Alexander Usyskin <alexander.usyskin@intel.com>,
 	linux-watchdog@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Tomas Winkler <tomas.winkler@intel.com>
-Subject: [char-misc-next v2 0/7] mei: create proper iAMT watchdog driver
-Date: Thu, 17 Dec 2015 16:49:33 +0200
-Message-Id: <1450363780-30008-1-git-send-email-tomas.winkler@intel.com>
+Subject: [char-misc-next v2 1/7] mei: drop nfc leftovers from the mei driver
+Date: Thu, 17 Dec 2015 16:49:34 +0200
+Message-Id: <1450363780-30008-2-git-send-email-tomas.winkler@intel.com>
+In-Reply-To: <1450363780-30008-1-git-send-email-tomas.winkler@intel.com>
+References: <1450363780-30008-1-git-send-email-tomas.winkler@intel.com>
 List-ID: <linux-watchdog@vger.kernel.org>
 
+We left few function prototypes in the header file after
+moving nfc logic to bus.
 
-Instead of integrating the iAMT watchdog within the mei core driver
-we will create a watchdog device on the mei client bus and
-create a proper watchdog driver for it.
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+---
+V2: resend
+ drivers/misc/mei/mei_dev.h | 11 -----------
+ 1 file changed, 11 deletions(-)
 
-V2: 
-1. The watchdog device is no longer dynamically allocated in separate structure
-2. Export device internal status via debugfs
-3. Address few comments from Guenter
-4. Reworked de/registration
-
-The patches should apply and compile on both watchdog-next and char-misc-next
-trees/branches.
-I would prefer this will go via char-misc-next as this is the tree
-we work against and conflicts should be trivial if at any.
-
-Alexander Usyskin (3):
-  mei: wd: drop the watchdog code from the core mei driver
-  watchdog: mei_wdt: register wd device only if required
-  watchdog: mei_wdt: re-register device on event
-
-Tomas Winkler (4):
-  mei: drop nfc leftovers from the mei driver
-  watchdog: mei_wdt: implement MEI iAMT watchdog driver
-  watchdog: mei_wdt: add status debugfs entry
-  mei: bus: whitelist the watchdog client
-
- Documentation/misc-devices/mei/mei.txt |  12 +-
- MAINTAINERS                            |   1 +
- drivers/misc/mei/Kconfig               |   6 +-
- drivers/misc/mei/Makefile              |   1 -
- drivers/misc/mei/bus-fixup.c           |  29 ++
- drivers/misc/mei/client.c              |  12 +-
- drivers/misc/mei/client.h              |   4 -
- drivers/misc/mei/init.c                |  10 +-
- drivers/misc/mei/interrupt.c           |  15 -
- drivers/misc/mei/mei_dev.h             |  72 +---
- drivers/misc/mei/wd.c                  | 391 -------------------
- drivers/watchdog/Kconfig               |  15 +
- drivers/watchdog/Makefile              |   1 +
- drivers/watchdog/mei_wdt.c             | 692 +++++++++++++++++++++++++++++++++
- 14 files changed, 753 insertions(+), 508 deletions(-)
- delete mode 100644 drivers/misc/mei/wd.c
- create mode 100644 drivers/watchdog/mei_wdt.c
-
+diff --git a/drivers/misc/mei/mei_dev.h b/drivers/misc/mei/mei_dev.h
+index 4250555d5e72..b54d9d9cacea 100644
+--- a/drivers/misc/mei/mei_dev.h
++++ b/drivers/misc/mei/mei_dev.h
+@@ -649,17 +649,6 @@ int mei_amthif_irq_read_msg(struct mei_cl *cl,
+ 			    struct mei_cl_cb *complete_list);
+ int mei_amthif_irq_read(struct mei_device *dev, s32 *slots);
+ 
+-/*
+- * NFC functions
+- */
+-int mei_nfc_host_init(struct mei_device *dev, struct mei_me_client *me_cl);
+-void mei_nfc_host_exit(struct mei_device *dev);
+-
+-/*
+- * NFC Client UUID
+- */
+-extern const uuid_le mei_nfc_guid;
+-
+ int mei_wd_send(struct mei_device *dev);
+ int mei_wd_stop(struct mei_device *dev);
+ int mei_wd_host_init(struct mei_device *dev, struct mei_me_client *me_cl);
 -- 
 2.4.3
