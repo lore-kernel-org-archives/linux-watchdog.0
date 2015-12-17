@@ -1,145 +1,157 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:32831 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964933AbbLQO4a (ORCPT
+Received: from mail-io0-f177.google.com ([209.85.223.177]:36580 "EHLO
+	mail-io0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S966566AbbLQPCI (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 17 Dec 2015 09:56:30 -0500
-Subject: Re: [PATCH V5 1/2] watchdog: Use static struct class watchdog_class
- in stead of pointer
-To: Pratyush Anand <panand@redhat.com>, wim@iguana.be
-References: <cover.1450353452.git.panand@redhat.com>
- <b45250982479cf4a8a59b84bda7c058e424a88e8.1450353452.git.panand@redhat.com>
-Cc: dyoung@redhat.com, dzickus@redhat.com,
-	linux-watchdog@vger.kernel.org,
-	open list <linux-kernel@vger.kernel.org>
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <5672CD1B.40105@roeck-us.net>
-Date: Thu, 17 Dec 2015 06:56:27 -0800
+	Thu, 17 Dec 2015 10:02:08 -0500
+Received: by mail-io0-f177.google.com with SMTP id o67so57501499iof.3
+        for <linux-watchdog@vger.kernel.org>; Thu, 17 Dec 2015 07:02:08 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <b45250982479cf4a8a59b84bda7c058e424a88e8.1450353452.git.panand@redhat.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <CAJ+vNU00Bf97HUqkkW9KqOUzHXh482R9O1gasz6ju3Pn-_5chA@mail.gmail.com>
+References: <1446758362-11702-1-git-send-email-akshay.bhat@timesys.com>
+	<1446758362-11702-2-git-send-email-akshay.bhat@timesys.com>
+	<20151105222325.GA26159@roeck-us.net>
+	<CAJ+vNU2fSxRJ7YvxOfNzoEoiKgzv-dHj=+eksKxH48ekHiUw2Q@mail.gmail.com>
+	<20151106220249.GA19791@roeck-us.net>
+	<565F4244.7090502@timesys.com>
+	<CAJ+vNU00Bf97HUqkkW9KqOUzHXh482R9O1gasz6ju3Pn-_5chA@mail.gmail.com>
+Date: Thu, 17 Dec 2015 07:02:08 -0800
+Message-ID: <CAJ+vNU2qHQPSJ1KWp_3f3vAdeuOcF0ooZHmHsdafabZLXJv=Bw@mail.gmail.com>
+Subject: Re: [PATCH v4 1/2] watchdog: imx2_wdt: add external reset support via
+ 'ext-reset-output' dt prop
+From: Tim Harvey <tharvey@gateworks.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org,
+	Rob Herring <robh+dt@kernel.org>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Ian Campbell <ijc+devicetree@hellion.org.uk>,
+	Kumar Gala <galak@codeaurora.org>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Shawn Guo <shawnguo@kernel.org>,
+	Sascha Hauer <kernel@pengutronix.de>,
+	Russell King - ARM Linux <linux@arm.linux.org.uk>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>, justin.waters@timesys.com,
+	Lucas Stach <l.stach@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>, Stefan Roese <sr@denx.de>,
+	Akshay Bhat <akshay.bhat@timesys.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 12/17/2015 04:23 AM, Pratyush Anand wrote:
-> We need few sysfs attributes to know different status of a watchdog device.
-> To do that, we need to associate .dev_groups with watchdog_class. So
-> convert it from pointer to static.
-> Putting this static struct in watchdog_dev.c, so that static device
-> attributes defined in that file can be attached to it.
+On Wed, Dec 2, 2015 at 12:54 PM, Tim Harvey <tharvey@gateworks.com> wrote:
 >
-> Signed-off-by: Pratyush Anand <panand@redhat.com>
-> Suggested-by: Guenter Roeck <linux@roeck-us.net>
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> On Wed, Dec 2, 2015 at 11:11 AM, Akshay Bhat <akshay.bhat@timesys.com> wrote:
+> >
+> >
+> > On 11/06/2015 05:02 PM, Guenter Roeck wrote:
+> >>
+> >> On Fri, Nov 06, 2015 at 11:53:42AM -0800, Tim Harvey wrote:
+> >>>
+> >>> On Thu, Nov 5, 2015 at 2:23 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+> >>>>
+> >>>> On Thu, Nov 05, 2015 at 04:19:21PM -0500, Akshay Bhat wrote:
+> >>>>>
+> >>>>> From: Tim Harvey <tharvey@gateworks.com>
+> >>>>>
+> >>>>> The IMX6 watchdog supports assertion of a signal (WDOG_B) which
+> >>>>> can be pinmux'd to an external pin. This is typically used for boards
+> >>>>> that
+> >>>>> have PMIC's in control of the IMX6 power rails. In fact, failure to use
+> >>>>> such an external reset on boards with external PMIC's can result in
+> >>>>> various
+> >>>>> hangs due to the IMX6 not being fully reset [1] as well as the board
+> >>>>> failing
+> >>>>> to reset because its PMIC has not been reset to provide adequate
+> >>>>> voltage for
+> >>>>> the CPU when coming out of reset at 800Mhz.
+> >>>>>
+> >>>>> This uses a new device-tree property 'ext-reset-output' to indicate the
+> >>>>> board has such a reset and to cause the watchdog to be configured to
+> >>>>> assert
+> >>>>> WDOG_B instead of an internal reset both on a watchdog timeout and in
+> >>>>> system_restart.
+> >>>>>
+> >>>>> [1]
+> >>>>> http://lists.infradead.org/pipermail/linux-arm-kernel/2015-March/333689.html
+> >>>>>
+> >>>>> Cc: Lucas Stach <l.stach@pengutronix.de>
+> >>>>> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
+> >>>>> ---
+> >>>>>   .../devicetree/bindings/watchdog/fsl-imx-wdt.txt     |  2 ++
+> >>>>>   drivers/watchdog/imx2_wdt.c                          | 20
+> >>>>> ++++++++++++++++++--
+> >>>>>   2 files changed, 20 insertions(+), 2 deletions(-)
+> >>>>>
+> >>>>> diff --git a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+> >>>>> b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+> >>>>> index 8dab6fd..9b89b3a 100644
+> >>>>> --- a/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+> >>>>> +++ b/Documentation/devicetree/bindings/watchdog/fsl-imx-wdt.txt
+> >>>>> @@ -9,6 +9,8 @@ Optional property:
+> >>>>
+> >>>>
+> >>>> properties ?
+> >>>>
+> >>>>>   - big-endian: If present the watchdog device's registers are
+> >>>>> implemented
+> >>>>>     in big endian mode, otherwise in native mode(same with CPU), for
+> >>>>> more
+> >>>>>     detail please see:
+> >>>>> Documentation/devicetree/bindings/regmap/regmap.txt.
+> >>>>> +- ext-reset-output: If present the watchdog device is configured to
+> >>>>> assert its
+> >>>>
+> >>>>
+> >>>> Should that have a vendor prefix ? Also, not sure if "-output"
+> >>>> has any real value in the property name. "fsl,external-reset", maybe ?
+> >>>
+> >>>
+> >>> Hi Guenter,
+> >>>
+> >>> I don't see why a vendor prefix is necessary - its a feature of the
+> >>> IMX6 watchdog supported by this driver to be able to trigger an
+> >>> internal chip-level reset and/or an external signal that can be hooked
+> >>> to additional hardware.
+> >>>
+> >> Sounded like vendor specific to me, but then I am not a devicetree
+> >> maintainer,
+> >> so I am not an authority on the subject.
+> >
+> >
+> > Devicetree maintainers,
+> >
+> > Any thoughts?
+> >
+> > Tim,
+> >
+> > After looking at all the other watchdog drivers, it does not appear that
+> > there is any other processor which uses a similar feature. Since imx is the
+> > only processor that appears to support this feature, it might make sense in
+> > making this vendor specific. If in the future it is found more processors
+> > support a similar functionality, it can be revisited and moved out from
+> > being vendor specific?
+> >
+>
+> I'm certainly no expert on device-tree policy. I understand your
+> point, but realize that the driver in question is imx2_wdt.c
+> (compatible = "fsl,imx21-wdt"). This is an IP block inside the silicon
+> of only Freescale chips, so its not like a future omap chip would be
+> using this driver - only fsl devices. So why would it need a 'vendor'
+> property any more than its other properties?
+>
+> Regards,
+>
+> Tim
 
-As things evolve, I'd by now prefer to move the call to device_create()
-into watchdog_dev.c, but that can wait for a follow-up patch if Wim
-is ok with this series.
+Wim,
 
-Thanks,
-Guenter
+Does the lack of response mean overwhelming approval?
 
-> ---
->   drivers/watchdog/watchdog_core.c | 15 ++-------------
->   drivers/watchdog/watchdog_core.h |  2 +-
->   drivers/watchdog/watchdog_dev.c  | 26 ++++++++++++++++++++++----
->   3 files changed, 25 insertions(+), 18 deletions(-)
->
-> diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-> index 873f13972cf4..a55e846eec79 100644
-> --- a/drivers/watchdog/watchdog_core.c
-> +++ b/drivers/watchdog/watchdog_core.c
-> @@ -285,19 +285,9 @@ static int __init watchdog_deferred_registration(void)
->
->   static int __init watchdog_init(void)
->   {
-> -	int err;
-> -
-> -	watchdog_class = class_create(THIS_MODULE, "watchdog");
-> -	if (IS_ERR(watchdog_class)) {
-> -		pr_err("couldn't create class\n");
-> +	watchdog_class = watchdog_dev_init();
-> +	if (IS_ERR(watchdog_class))
->   		return PTR_ERR(watchdog_class);
-> -	}
-> -
-> -	err = watchdog_dev_init();
-> -	if (err < 0) {
-> -		class_destroy(watchdog_class);
-> -		return err;
-> -	}
->
->   	watchdog_deferred_registration();
->   	return 0;
-> @@ -306,7 +296,6 @@ static int __init watchdog_init(void)
->   static void __exit watchdog_exit(void)
->   {
->   	watchdog_dev_exit();
-> -	class_destroy(watchdog_class);
->   	ida_destroy(&watchdog_ida);
->   }
->
-> diff --git a/drivers/watchdog/watchdog_core.h b/drivers/watchdog/watchdog_core.h
-> index 6c951418fca7..1c8d6b0e68c7 100644
-> --- a/drivers/watchdog/watchdog_core.h
-> +++ b/drivers/watchdog/watchdog_core.h
-> @@ -33,5 +33,5 @@
->    */
->   extern int watchdog_dev_register(struct watchdog_device *);
->   extern int watchdog_dev_unregister(struct watchdog_device *);
-> -extern int __init watchdog_dev_init(void);
-> +extern struct class * __init watchdog_dev_init(void);
->   extern void __exit watchdog_dev_exit(void);
-> diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-> index 56a649e66eb2..055a4e1b4c13 100644
-> --- a/drivers/watchdog/watchdog_dev.c
-> +++ b/drivers/watchdog/watchdog_dev.c
-> @@ -581,18 +581,35 @@ int watchdog_dev_unregister(struct watchdog_device *wdd)
->   	return 0;
->   }
->
-> +static struct class watchdog_class = {
-> +	.name =		"watchdog",
-> +	.owner =	THIS_MODULE,
-> +};
-> +
->   /*
->    *	watchdog_dev_init: init dev part of watchdog core
->    *
->    *	Allocate a range of chardev nodes to use for watchdog devices
->    */
->
-> -int __init watchdog_dev_init(void)
-> +struct class * __init watchdog_dev_init(void)
->   {
-> -	int err = alloc_chrdev_region(&watchdog_devt, 0, MAX_DOGS, "watchdog");
-> -	if (err < 0)
-> +	int err;
-> +
-> +	err = class_register(&watchdog_class);
-> +	if (err < 0) {
-> +		pr_err("couldn't register class\n");
-> +		return ERR_PTR(err);
-> +	}
-> +
-> +	err = alloc_chrdev_region(&watchdog_devt, 0, MAX_DOGS, "watchdog");
-> +	if (err < 0) {
->   		pr_err("watchdog: unable to allocate char dev region\n");
-> -	return err;
-> +		class_unregister(&watchdog_class);
-> +		return ERR_PTR(err);
-> +	}
-> +
-> +	return &watchdog_class;
->   }
->
->   /*
-> @@ -604,4 +621,5 @@ int __init watchdog_dev_init(void)
->   void __exit watchdog_dev_exit(void)
->   {
->   	unregister_chrdev_region(watchdog_devt, MAX_DOGS);
-> +	class_unregister(&watchdog_class);
->   }
->
+I haven't heard any valid complaints - what does it take to get this approved?
 
+Regards,
+
+Tim
