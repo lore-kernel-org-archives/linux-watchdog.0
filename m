@@ -1,286 +1,76 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:42102 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S966088AbbLQMYn (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 17 Dec 2015 07:24:43 -0500
-From: Pratyush Anand <panand@redhat.com>
-To: wim@iguana.be
-Cc: dyoung@redhat.com, dzickus@redhat.com, linux@roeck-us.net,
-	linux-watchdog@vger.kernel.org, Pratyush Anand <panand@redhat.com>,
-	linux-api@vger.kernel.org (open list:ABI/API),
-	linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH V5 2/2] watchdog: Read device status through sysfs attributes
-Date: Thu, 17 Dec 2015 17:53:59 +0530
-Message-Id: <fd9cd1fafc7b9a9acedd3b6e66a8e765423ef937.1450353452.git.panand@redhat.com>
-In-Reply-To: <cover.1450353452.git.panand@redhat.com>
-References: <cover.1450353452.git.panand@redhat.com>
-In-Reply-To: <cover.1450353452.git.panand@redhat.com>
-References: <cover.1450353452.git.panand@redhat.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+Return-path: <rongqing.li@windriver.com>
+From: roy.qing.li@gmail.com
+To: linux-watchdog@vger.kernel.org, wim@iguana.be, linux@roeck-us.net
+Subject: [PATCH] watchdog: refuse to unload softdog module when its timer is running
+Date: Thu, 17 Dec 2015 21:30:02 +0800
+Message-Id: <1450359002-26577-1-git-send-email-roy.qing.li@gmail.com>
+List-ID: <linux-watchdog@vger.kernel.org>
 
-This patch adds following attributes to watchdog device's sysfs interface
-to read its different status.
+From: Li RongQing <roy.qing.li@gmail.com>
 
-* state - reads whether device is active or not
-* identity - reads Watchdog device's identity string.
-* timeout - reads current timeout.
-* timeleft - reads timeleft before watchdog generates a reset
-* bootstatus - reads status of the watchdog device at boot
-* status - reads watchdog device's  internal status bits
-* nowayout - reads whether nowayout feature was set or not
+the softdog has static variables which are accessed if its timer is
+still running after the driver is unloaded. and lead to crash:
 
-Testing with iTCO_wdt:
- # cd /sys/class/watchdog/watchdog1/
- # ls
-bootstatus  dev  device  identity  nowayout  power  state
-subsystem  timeleft  timeout  uevent
- # cat identity
-iTCO_wdt
- # cat timeout
-30
- # cat state
-inactive
- # echo > /dev/watchdog1
- # cat timeleft
-26
- # cat state
-active
- # cat bootstatus
-0
- # cat nowayout
-0
+   $modprobe softdog
+   $echo 1 >/dev/watchdog
+   $modprobe -r softdog
 
-Signed-off-by: Pratyush Anand <panand@redhat.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+   CPU 20 Unable to handle kernel paging request at virtual address
+   Oops[#1]:
+   CPU: 20 PID: 0 Comm: swapper/20 Not tainted 4.1.13-WR8.0.0.0_standard
+   ...
+   Modules linked in: [last unloaded: softdog]
+    ....
+   Call Trace:
+   [<ffffffff801e142c>] cascade+0x34/0xb0
+   [<ffffffff801e1964>] run_timer_softirq+0x30c/0x368
+   [<ffffffff80181044>] __do_softirq+0x1ec/0x418
+   [<ffffffff801815d0>] irq_exit+0x90/0x98
+   [<ffffffff8010749c>] plat_irq_dispatch+0xa4/0x140
+   [<ffffffff80152740>] ret_from_irq+0x0/0x4
+   [<ffffffff801529e0>] __r4k_wait+0x20/0x40
+   [<ffffffff801c2278>] cpu_startup_entry+0x2a0/0x368
+   [<ffffffff8015fa64>] start_secondary+0x444/0x4d8
+
+add the module ref when timer is running to avoid to unload the softdog
+module
+
+Signed-off-by: Li RongQing <roy.qing.li@gmail.com>
+Cc: Guenter Roeck <linux@roeck-us.net> 
 ---
- Documentation/ABI/testing/sysfs-class-watchdog |  51 +++++++++++
- drivers/watchdog/Kconfig                       |   7 ++
- drivers/watchdog/watchdog_core.c               |   2 +-
- drivers/watchdog/watchdog_dev.c                | 114 +++++++++++++++++++++++++
- 4 files changed, 173 insertions(+), 1 deletion(-)
- create mode 100644 Documentation/ABI/testing/sysfs-class-watchdog
+ drivers/watchdog/softdog.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/ABI/testing/sysfs-class-watchdog b/Documentation/ABI/testing/sysfs-class-watchdog
-new file mode 100644
-index 000000000000..736046b33040
---- /dev/null
-+++ b/Documentation/ABI/testing/sysfs-class-watchdog
-@@ -0,0 +1,51 @@
-+What:		/sys/class/watchdog/watchdogn/bootstatus
-+Date:		August 2015
-+Contact:	Wim Van Sebroeck <wim@iguana.be>
-+Description:
-+		It is a read only file. It contains status of the watchdog
-+		device at boot. It is equivalent to WDIOC_GETBOOTSTATUS of
-+		ioctl interface.
-+
-+What:		/sys/class/watchdog/watchdogn/identity
-+Date:		August 2015
-+Contact:	Wim Van Sebroeck <wim@iguana.be>
-+Description:
-+		It is a read only file. It contains identity string of
-+		watchdog device.
-+
-+What:		/sys/class/watchdog/watchdogn/nowayout
-+Date:		August 2015
-+Contact:	Wim Van Sebroeck <wim@iguana.be>
-+Description:
-+		It is a read only file. While reading, it gives '1' if that
-+		device supports nowayout feature else, it gives '0'.
-+
-+What:		/sys/class/watchdog/watchdogn/state
-+Date:		August 2015
-+Contact:	Wim Van Sebroeck <wim@iguana.be>
-+Description:
-+		It is a read only file. It gives active/inactive status of
-+		watchdog device.
-+
-+What:		/sys/class/watchdog/watchdogn/status
-+Date:		August 2015
-+Contact:	Wim Van Sebroeck <wim@iguana.be>
-+Description:
-+		It is a read only file. It contains watchdog device's
-+		internal status bits. It is equivalent to WDIOC_GETSTATUS
-+		of ioctl interface.
-+
-+What:		/sys/class/watchdog/watchdogn/timeleft
-+Date:		August 2015
-+Contact:	Wim Van Sebroeck <wim@iguana.be>
-+Description:
-+		It is a read only file. It contains value of time left for
-+		reset generation. It is equivalent to WDIOC_GETTIMELEFT of
-+		ioctl interface.
-+
-+What:		/sys/class/watchdog/watchdogn/timeout
-+Date:		August 2015
-+Contact:	Wim Van Sebroeck <wim@iguana.be>
-+Description:
-+		It is a read only file. It is read to know about current
-+		value of timeout programmed.
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 1c427beffadd..71e47dde7d4a 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -46,6 +46,13 @@ config WATCHDOG_NOWAYOUT
- 	  get killed. If you say Y here, the watchdog cannot be stopped once
- 	  it has been started.
+diff --git a/drivers/watchdog/softdog.c b/drivers/watchdog/softdog.c
+index 0dc5e323d..86ce3f9 100644
+--- a/drivers/watchdog/softdog.c
++++ b/drivers/watchdog/softdog.c
+@@ -87,6 +87,7 @@ static struct timer_list watchdog_ticktock =
  
-+config WATCHDOG_SYSFS
-+	bool "Read different watchdog information through sysfs"
-+	default n
-+	help
-+	  Say Y here if you want to enable watchdog device status read through
-+	  sysfs attributes.
-+
- #
- # General Watchdog drivers
- #
-diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
-index a55e846eec79..62f4496b7975 100644
---- a/drivers/watchdog/watchdog_core.c
-+++ b/drivers/watchdog/watchdog_core.c
-@@ -194,7 +194,7 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
+ static void watchdog_fire(unsigned long data)
+ {
++	module_put(THIS_MODULE);
+ 	if (soft_noboot)
+ 		pr_crit("Triggered - Reboot ignored\n");
+ 	else if (soft_panic) {
+@@ -105,13 +106,16 @@ static void watchdog_fire(unsigned long data)
  
- 	devno = wdd->cdev.dev;
- 	wdd->dev = device_create(watchdog_class, wdd->parent, devno,
--					NULL, "watchdog%d", wdd->id);
-+					wdd, "watchdog%d", wdd->id);
- 	if (IS_ERR(wdd->dev)) {
- 		watchdog_dev_unregister(wdd);
- 		ida_simple_remove(&watchdog_ida, id);
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 055a4e1b4c13..d93118e97d11 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -247,6 +247,117 @@ out_timeleft:
- 	return err;
+ static int softdog_ping(struct watchdog_device *w)
+ {
+-	mod_timer(&watchdog_ticktock, jiffies+(w->timeout*HZ));
++	if (!mod_timer(&watchdog_ticktock, jiffies+(w->timeout*HZ)))
++		__module_get(THIS_MODULE);
+ 	return 0;
  }
  
-+#ifdef CONFIG_WATCHDOG_SYSFS
-+static ssize_t nowayout_show(struct device *dev, struct device_attribute *attr,
-+				char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
+ static int softdog_stop(struct watchdog_device *w)
+ {
+-	del_timer(&watchdog_ticktock);
++	if (del_timer(&watchdog_ticktock))
++		module_put(THIS_MODULE);
 +
-+	return sprintf(buf, "%d\n", !!test_bit(WDOG_NO_WAY_OUT, &wdd->status));
-+}
-+static DEVICE_ATTR_RO(nowayout);
-+
-+static ssize_t status_show(struct device *dev, struct device_attribute *attr,
-+				char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+	ssize_t status;
-+	unsigned int val;
-+
-+	status = watchdog_get_status(wdd, &val);
-+	if (!status)
-+		status = sprintf(buf, "%u\n", val);
-+
-+	return status;
-+}
-+static DEVICE_ATTR_RO(status);
-+
-+static ssize_t bootstatus_show(struct device *dev,
-+				struct device_attribute *attr, char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+
-+	return sprintf(buf, "%u\n", wdd->bootstatus);
-+}
-+static DEVICE_ATTR_RO(bootstatus);
-+
-+static ssize_t timeleft_show(struct device *dev, struct device_attribute *attr,
-+				char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+	ssize_t status;
-+	unsigned int val;
-+
-+	status = watchdog_get_timeleft(wdd, &val);
-+	if (!status)
-+		status = sprintf(buf, "%u\n", val);
-+
-+	return status;
-+}
-+static DEVICE_ATTR_RO(timeleft);
-+
-+static ssize_t timeout_show(struct device *dev, struct device_attribute *attr,
-+				char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+
-+	return sprintf(buf, "%u\n", wdd->timeout);
-+}
-+static DEVICE_ATTR_RO(timeout);
-+
-+static ssize_t identity_show(struct device *dev, struct device_attribute *attr,
-+				char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+
-+	return sprintf(buf, "%s\n", wdd->info->identity);
-+}
-+static DEVICE_ATTR_RO(identity);
-+
-+static ssize_t state_show(struct device *dev, struct device_attribute *attr,
-+				char *buf)
-+{
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+
-+	if (watchdog_active(wdd))
-+		return sprintf(buf, "active\n");
-+
-+	return sprintf(buf, "inactive\n");
-+}
-+static DEVICE_ATTR_RO(state);
-+
-+static umode_t wdt_is_visible(struct kobject *kobj, struct attribute *attr,
-+				int n)
-+{
-+	struct device *dev = container_of(kobj, struct device, kobj);
-+	struct watchdog_device *wdd = dev_get_drvdata(dev);
-+	umode_t mode = attr->mode;
-+
-+	if (attr == &dev_attr_status.attr && !wdd->ops->status)
-+		mode = 0;
-+	else if (attr == &dev_attr_timeleft.attr && !wdd->ops->get_timeleft)
-+		mode = 0;
-+
-+	return mode;
-+}
-+static struct attribute *wdt_attrs[] = {
-+	&dev_attr_state.attr,
-+	&dev_attr_identity.attr,
-+	&dev_attr_timeout.attr,
-+	&dev_attr_timeleft.attr,
-+	&dev_attr_bootstatus.attr,
-+	&dev_attr_status.attr,
-+	&dev_attr_nowayout.attr,
-+	NULL,
-+};
-+
-+static const struct attribute_group wdt_group = {
-+	.attrs = wdt_attrs,
-+	.is_visible = wdt_is_visible,
-+};
-+__ATTRIBUTE_GROUPS(wdt);
-+#endif
-+
- /*
-  *	watchdog_ioctl_op: call the watchdog drivers ioctl op if defined
-  *	@wdd: the watchdog device to do the ioctl on
-@@ -584,6 +695,9 @@ int watchdog_dev_unregister(struct watchdog_device *wdd)
- static struct class watchdog_class = {
- 	.name =		"watchdog",
- 	.owner =	THIS_MODULE,
-+#ifdef CONFIG_WATCHDOG_SYSFS
-+	.dev_groups =	wdt_groups,
-+#endif
- };
+ 	return 0;
+ }
  
- /*
 -- 
-2.5.0
-
+2.1.4
