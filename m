@@ -1,154 +1,162 @@
-Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:3792 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S966566AbbLQOvS (ORCPT <rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 17 Dec 2015 09:51:18 -0500
+Return-path: <tomas.winkler@intel.com>
 From: Tomas Winkler <tomas.winkler@intel.com>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	Wim Van Sebroeck <wim@iguana.be>
 Cc: Alexander Usyskin <alexander.usyskin@intel.com>,
 	Guenter Roeck <linux@roeck-us.net>,
-	linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
 	Tomas Winkler <tomas.winkler@intel.com>
-Subject: [char-misc-next v2 7/7] watchdog: mei_wdt: re-register device on event
-Date: Thu, 17 Dec 2015 16:49:40 +0200
-Message-Id: <1450363780-30008-8-git-send-email-tomas.winkler@intel.com>
+Subject: [char-misc-next 4/7] watchdog: mei_wdt: add status debugfs entry
+Date: Thu, 17 Dec 2015 16:49:37 +0200
+Message-Id: <1450363780-30008-5-git-send-email-tomas.winkler@intel.com>
 In-Reply-To: <1450363780-30008-1-git-send-email-tomas.winkler@intel.com>
 References: <1450363780-30008-1-git-send-email-tomas.winkler@intel.com>
-Sender: linux-watchdog-owner@vger.kernel.org
-List-Id: linux-watchdog@vger.kernel.org
+List-ID: <linux-watchdog@vger.kernel.org>
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+Add entry for dumping current watchdog internal state
 
-For Intel SKL platform the ME device can inform the host via
-asynchronous notification that the watchdog feature was activated
-on the device. The activation doesn't require reboot.
-In that case the driver registers the watchdog device with the kernel.
-In the same manner the feature can be deactivated without reboot
-in that case the watchdog device should be unregistered.
-
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
 Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
 ---
-V2: rework un/registration in runtime
-
- drivers/watchdog/mei_wdt.c | 45 ++++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 42 insertions(+), 3 deletions(-)
+ drivers/watchdog/mei_wdt.c | 84 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 84 insertions(+)
 
 diff --git a/drivers/watchdog/mei_wdt.c b/drivers/watchdog/mei_wdt.c
-index 00d1b8e630b7..cd79920c473b 100644
+index 3c97deb70d90..a3f1c1613c32 100644
 --- a/drivers/watchdog/mei_wdt.c
 +++ b/drivers/watchdog/mei_wdt.c
-@@ -87,6 +87,7 @@ static const char *mei_wdt_state_str(enum mei_wdt_state state)
-  * @state: watchdog internal state
-  * @resp_required: ping required response
-  * @response: ping response
-+ * @unregister: unregister worker
-  * @timeout: watchdog current timeout
-  *
-  * @dbgfs_dir: debugfs dir entry
-@@ -101,6 +102,7 @@ struct mei_wdt {
- 	enum mei_wdt_state state;
- 	bool resp_required;
- 	struct completion response;
-+	struct work_struct unregister;
- 	u16 timeout;
+@@ -16,6 +16,7 @@
+ #include <linux/slab.h>
+ #include <linux/interrupt.h>
+ #include <linux/watchdog.h>
++#include <linux/debugfs.h>
  
- #if IS_ENABLED(CONFIG_DEBUG_FS)
-@@ -237,6 +239,13 @@ static void mei_wdt_unregister(struct mei_wdt *wdt)
- 	mutex_unlock(&wdt->reg_lock);
- }
+ #include <linux/uuid.h>
+ #include <linux/mei_cl_bus.h>
+@@ -54,6 +55,19 @@ enum mei_wdt_state {
+ 	MEI_WDT_STOPPING,
+ };
  
-+static void mei_wdt_unregister_work(struct work_struct *work)
++#if IS_ENABLED(CONFIG_DEBUG_FS)
++static const char *mei_wdt_state_str(enum mei_wdt_state state)
 +{
-+	struct mei_wdt *wdt = container_of(work, struct mei_wdt, unregister);
-+
-+	mei_wdt_unregister(wdt);
-+}
-+
- /**
-  * mei_wdt_register - register with the watchdog subsystem
-  *
-@@ -350,8 +359,13 @@ static void mei_wdt_event_rx(struct mei_cl_device *cldev)
- 		return;
- 	}
- 
--	if (wdt->state == MEI_WDT_RUNNING)
-+	if (wdt->state == MEI_WDT_RUNNING) {
-+		if (res.wdstate & MEI_WDT_WDSTATE_NOT_REQUIRED) {
-+			wdt->state = MEI_WDT_NOT_REQUIRED;
-+			schedule_work(&wdt->unregister);
-+		}
- 		goto out;
++	switch (state) {
++	case MEI_WDT_IDLE: return "IDLE";
++	case MEI_WDT_START: return "START";
++	case MEI_WDT_RUNNING: return "RUNNING";
++	case MEI_WDT_STOPPING: return "STOPPING";
++	default: return "unknown";
 +	}
++}
++#endif /* CONFIG_DEBUG_FS */
++
+ /**
+  * struct mei_wdt - mei watchdog driver
+  * @wdd: watchdog device
+@@ -62,6 +76,8 @@ enum mei_wdt_state {
+  * @state: watchdog internal state
+  * @cldev: mei watchdog client device
+  * @timeout: watchdog current timeout
++ *
++ * @dbgfs_dir: debugfs dir entry
+  */
+ struct mei_wdt {
+ 	struct watchdog_device wdd;
+@@ -70,6 +86,10 @@ struct mei_wdt {
+ 	struct mei_cl_device *cldev;
+ 	enum mei_wdt_state state;
+ 	u16 timeout;
++
++#if IS_ENABLED(CONFIG_DEBUG_FS)
++	struct dentry *dbgfs_dir;
++#endif /* CONFIG_DEBUG_FS */
+ };
  
- 	if (wdt->state == MEI_WDT_PROBE) {
- 		if (res.wdstate & MEI_WDT_WDSTATE_NOT_REQUIRED) {
-@@ -372,6 +386,21 @@ out:
- 		complete(&wdt->response);
+ /*
+@@ -296,6 +316,66 @@ static void mei_wdt_ops_unref(struct watchdog_device *wdd)
+ 	kref_put(&wdt->refcnt, mei_wdt_release);
  }
  
-+/*
-+ * mei_wdt_notify_event - callback for event notification
-+ *
-+ * @cldev: bus device
-+ */
-+static void mei_wdt_notify_event(struct mei_cl_device *cldev)
-+{
-+	struct mei_wdt *wdt = mei_cldev_get_drvdata(cldev);
++#if IS_ENABLED(CONFIG_DEBUG_FS)
 +
-+	if (wdt->state != MEI_WDT_NOT_REQUIRED)
-+		return;
-+	wdt->state = MEI_WDT_IDLE;
-+	mei_wdt_register(wdt);
++static ssize_t mei_dbgfs_read_state(struct file *file, char __user *ubuf,
++				    size_t cnt, loff_t *ppos)
++{
++	struct mei_wdt *wdt = file->private_data;
++	const size_t bufsz = 32;
++	char buf[32];
++	ssize_t pos = 0;
++
++	pos += scnprintf(buf + pos, bufsz - pos, "state: %s\n",
++			 mei_wdt_state_str(wdt->state));
++
++	return simple_read_from_buffer(ubuf, cnt, ppos, buf, pos);
 +}
 +
- /**
-  * mei_wdt_event - callback for event receive
-  *
-@@ -384,6 +413,9 @@ static void mei_wdt_event(struct mei_cl_device *cldev,
- {
- 	if (events & BIT(MEI_CL_EVENT_RX))
- 		mei_wdt_event_rx(cldev);
++static const struct file_operations dbgfs_fops_state = {
++	.open = simple_open,
++	.read = mei_dbgfs_read_state,
++	.llseek = generic_file_llseek,
++};
 +
-+	if (events & BIT(MEI_CL_EVENT_NOTIF))
-+		mei_wdt_notify_event(cldev);
- }
- 
- /**
-@@ -543,6 +575,7 @@ static int mei_wdt_probe(struct mei_cl_device *cldev,
- 	wdt->resp_required = mei_cldev_ver(cldev) > 0x1;
- 	mutex_init(&wdt->reg_lock);
- 	wdt->is_registered = false;
-+	INIT_WORK(&wdt->unregister, mei_wdt_unregister_work);
- 	init_completion(&wdt->response);
- 
- 	mei_cldev_set_drvdata(cldev, wdt);
-@@ -553,9 +586,13 @@ static int mei_wdt_probe(struct mei_cl_device *cldev,
- 		goto err_out;
- 	}
- 
--	ret = mei_cldev_register_event_cb(wdt->cldev, BIT(MEI_CL_EVENT_RX),
-+	ret = mei_cldev_register_event_cb(wdt->cldev,
-+					  BIT(MEI_CL_EVENT_RX) |
-+					  BIT(MEI_CL_EVENT_NOTIF),
- 					  mei_wdt_event, NULL);
--	if (ret) {
++static void dbgfs_deregister(struct mei_wdt *wdt)
++{
++	if (!wdt->dbgfs_dir)
++		return;
++	debugfs_remove_recursive(wdt->dbgfs_dir);
++	wdt->dbgfs_dir = NULL;
++}
 +
-+	/* on legacy devices notification is not supported */
-+	if (ret && ret != -EOPNOTSUPP) {
- 		dev_err(&cldev->dev, "Could not register event ret=%d\n", ret);
++static int dbgfs_register(struct mei_wdt *wdt)
++{
++	struct dentry *dir, *f;
++
++	dir = debugfs_create_dir(KBUILD_MODNAME, NULL);
++	if (!dir)
++		return -ENOMEM;
++
++	wdt->dbgfs_dir = dir;
++	f = debugfs_create_file("state", S_IRUSR, dir, wdt, &dbgfs_fops_state);
++	if (!f)
++		goto err;
++
++	return 0;
++err:
++	dbgfs_deregister(wdt);
++	return -ENODEV;
++}
++
++#else
++
++static inline void dbgfs_deregister(struct mei_wdt *wdt) {}
++
++static inline int dbgfs_register(struct mei_wdt *wdt)
++{
++	return 0;
++}
++#endif /* CONFIG_DEBUG_FS */
++
++
+ static const struct watchdog_ops wd_ops = {
+ 	.owner       = THIS_MODULE,
+ 	.start       = mei_wdt_ops_start,
+@@ -348,6 +428,8 @@ static int mei_wdt_probe(struct mei_cl_device *cldev,
+ 	if (ret)
  		goto err_disable;
- 	}
-@@ -599,6 +636,8 @@ static int mei_wdt_remove(struct mei_cl_device *cldev)
- 	if (!completion_done(&wdt->response))
- 		complete(&wdt->response);
  
-+	cancel_work_sync(&wdt->unregister);
++	dbgfs_register(wdt);
 +
- 	mei_wdt_unregister(wdt);
+ 	return 0;
+ 
+ err_disable:
+@@ -367,6 +449,8 @@ static int mei_wdt_remove(struct mei_cl_device *cldev)
  
  	kref_put(&wdt->refcnt, mei_wdt_release);
+ 
++	dbgfs_deregister(wdt);
++
+ 	mei_cldev_disable(cldev);
+ 
+ 	return 0;
 -- 
 2.4.3
-
