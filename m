@@ -1,47 +1,93 @@
 Return-path: <linux-watchdog-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:33086 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:35054 "EHLO
 	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752783AbbLRBmZ (ORCPT
+	with ESMTP id S965036AbbLRCDy (ORCPT
 	<rfc822;linux-watchdog@vger.kernel.org>);
-	Thu, 17 Dec 2015 20:42:25 -0500
+	Thu, 17 Dec 2015 21:03:54 -0500
 Subject: Re: [PATCH] watchdog: refuse to unload softdog module when its timer
  is running
-To: Li RongQing <roy.qing.li@gmail.com>
+To: roy.qing.li@gmail.com, linux-watchdog@vger.kernel.org,
+	wim@iguana.be
 References: <1450359002-26577-1-git-send-email-roy.qing.li@gmail.com>
- <5672CB9D.7000709@roeck-us.net>
- <CAJFZqHxvRX8ZW--VCx+N7zA-kOTXVt1tsQ2Ob1otMNJP6BREJw@mail.gmail.com>
-Cc: linux-watchdog@vger.kernel.org, wim@iguana.be
 From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <5673647F.5040707@roeck-us.net>
-Date: Thu, 17 Dec 2015 17:42:23 -0800
+Message-ID: <56736988.3080007@roeck-us.net>
+Date: Thu, 17 Dec 2015 18:03:52 -0800
 MIME-Version: 1.0
-In-Reply-To: <CAJFZqHxvRX8ZW--VCx+N7zA-kOTXVt1tsQ2Ob1otMNJP6BREJw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <1450359002-26577-1-git-send-email-roy.qing.li@gmail.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-watchdog-owner@vger.kernel.org
 List-Id: linux-watchdog@vger.kernel.org
 
-On 12/17/2015 04:55 PM, Li RongQing wrote:
-> On Thu, Dec 17, 2015 at 10:50 PM, Guenter Roeck <linux@roeck-us.net> wrote:
->> Don't bother with module_put() here.
+On 12/17/2015 05:30 AM, roy.qing.li@gmail.com wrote:
+> From: Li RongQing <roy.qing.li@gmail.com>
 >
+> the softdog has static variables which are accessed if its timer is
+> still running after the driver is unloaded. and lead to crash:
 >
-> I think this is needed;
+>     $modprobe softdog
+>     $echo 1 >/dev/watchdog
+>     $modprobe -r softdog
 >
-> the softdog supported soft_noreboot "Softdog action, set to 1 to
-> ignore reboots, 0 to reboot (default=0)"
-> if soft_noreboot is 1, and not call module_put(THIS_MODULE) in watchdog_fire,
-> softdog module ref count is leaked, and softdog will not be unload
+>     CPU 20 Unable to handle kernel paging request at virtual address
+>     Oops[#1]:
+>     CPU: 20 PID: 0 Comm: swapper/20 Not tainted 4.1.13-WR8.0.0.0_standard
+>     ...
+>     Modules linked in: [last unloaded: softdog]
+>      ....
+>     Call Trace:
+>     [<ffffffff801e142c>] cascade+0x34/0xb0
+>     [<ffffffff801e1964>] run_timer_softirq+0x30c/0x368
+>     [<ffffffff80181044>] __do_softirq+0x1ec/0x418
+>     [<ffffffff801815d0>] irq_exit+0x90/0x98
+>     [<ffffffff8010749c>] plat_irq_dispatch+0xa4/0x140
+>     [<ffffffff80152740>] ret_from_irq+0x0/0x4
+>     [<ffffffff801529e0>] __r4k_wait+0x20/0x40
+>     [<ffffffff801c2278>] cpu_startup_entry+0x2a0/0x368
+>     [<ffffffff8015fa64>] start_secondary+0x444/0x4d8
 >
+> add the module ref when timer is running to avoid to unload the softdog
+> module
+>
+> Signed-off-by: Li RongQing <roy.qing.li@gmail.com>
+> Cc: Guenter Roeck <linux@roeck-us.net>
 
-Good point.
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Guenter
-
-> -Roy
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> ---
+>   drivers/watchdog/softdog.c | 8 ++++++--
+>   1 file changed, 6 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/watchdog/softdog.c b/drivers/watchdog/softdog.c
+> index 0dc5e323d..86ce3f9 100644
+> --- a/drivers/watchdog/softdog.c
+> +++ b/drivers/watchdog/softdog.c
+> @@ -87,6 +87,7 @@ static struct timer_list watchdog_ticktock =
+>
+>   static void watchdog_fire(unsigned long data)
+>   {
+> +	module_put(THIS_MODULE);
+>   	if (soft_noboot)
+>   		pr_crit("Triggered - Reboot ignored\n");
+>   	else if (soft_panic) {
+> @@ -105,13 +106,16 @@ static void watchdog_fire(unsigned long data)
+>
+>   static int softdog_ping(struct watchdog_device *w)
+>   {
+> -	mod_timer(&watchdog_ticktock, jiffies+(w->timeout*HZ));
+> +	if (!mod_timer(&watchdog_ticktock, jiffies+(w->timeout*HZ)))
+> +		__module_get(THIS_MODULE);
+>   	return 0;
+>   }
+>
+>   static int softdog_stop(struct watchdog_device *w)
+>   {
+> -	del_timer(&watchdog_ticktock);
+> +	if (del_timer(&watchdog_ticktock))
+> +		module_put(THIS_MODULE);
+> +
+>   	return 0;
+>   }
+>
 >
 
